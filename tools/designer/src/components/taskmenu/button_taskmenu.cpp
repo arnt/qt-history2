@@ -50,7 +50,7 @@ QList<QAction*> ButtonTaskMenu::taskActions() const
 
 bool ButtonTaskMenu::eventFilter(QObject *object, QEvent *event)
 {
-    QLineEdit *lineEditor = qt_cast<QLineEdit*>(object);
+    QLineEdit *lineEditor = qobject_cast<QLineEdit*>(object);
     if (!lineEditor)
         return false;
 
@@ -107,7 +107,7 @@ ButtonTaskMenuFactory::ButtonTaskMenuFactory(QExtensionManager *extensionManager
 
 QObject *ButtonTaskMenuFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
 {
-    if (QAbstractButton *button = qt_cast<QAbstractButton*>(object)) {
+    if (QAbstractButton *button = qobject_cast<QAbstractButton*>(object)) {
         if (iid == Q_TYPEID(ITaskMenu)) {
             return new ButtonTaskMenu(button, parent);
         }

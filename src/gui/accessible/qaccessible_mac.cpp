@@ -735,7 +735,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
             } else if(CFStringCompare(var, kAXToolbarButtonAttribute, 0) == kCFCompareEqualTo) {
                 if(req_iface->object() && req_iface->object()->isWidgetType()) {
                     QWidget *widget = (QWidget*)req_iface->object();
-                    Boolean val = qt_cast<QMainWindow *>(widget) != 0;
+                    Boolean val = qobject_cast<QMainWindow *>(widget) != 0;
                     SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, 
                                       sizeof(val), &val);
                 }

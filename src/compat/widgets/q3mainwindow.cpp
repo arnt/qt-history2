@@ -246,7 +246,7 @@ protected:
         int x = 0;
         for (int i = 0; i < childs.size(); ++i) {
             QObject *o = childs.at(i);
-            Q3DockWindow *dw = qt_cast<Q3DockWindow*>(o);
+            Q3DockWindow *dw = qobject_cast<Q3DockWindow*>(o);
             if (!dw || !dw->isVisible())
                 continue;
             QStyleOptionQ3DockWindow opt;
@@ -288,7 +288,7 @@ protected:
         if (e->y() >= 0 && e->y() <= height()) {
             for (int i = 0; i < childs.size(); ++i) {
                 QObject *o = childs.at(i);
-                Q3DockWindow *dw = qt_cast<Q3DockWindow*>(o);
+                Q3DockWindow *dw = qobject_cast<Q3DockWindow*>(o);
                 if (!dw || !dw->isVisible())
                     continue;
                 if (e->x() >= x && e->x() <= x + 30) {
@@ -317,7 +317,7 @@ protected:
         if (e->button() == Qt::LeftButton) {
             if (e->y() >= 0 && e->y() <= height()) {
                 QObject *o = childs.at(pressedHandle);
-                Q3DockWindow *dw = qt_cast<Q3DockWindow*>(o);
+                Q3DockWindow *dw = qobject_cast<Q3DockWindow*>(o);
                 if (dw) {
                     dw->show();
                     dw->dock();
@@ -344,7 +344,7 @@ protected:
             return;
         for (int i = 0; i < childs.size(); ++i) {
             QObject *o = childs.at(i);
-            Q3DockWindow *dw = qt_cast<Q3DockWindow*>(o);
+            Q3DockWindow *dw = qobject_cast<Q3DockWindow*>(o);
             if (!dw)
                 continue;
             if (dw->isExplicitlyHidden()) {
@@ -397,7 +397,7 @@ void QHideToolTip::maybeTip(const QPoint &pos)
     int x = 0;
     for (int i = 0; i < dchilds.size(); ++i) {
         QObject *o = dchilds.at(i);
-        Q3DockWindow *dw = qt_cast<Q3DockWindow*>(o);
+        Q3DockWindow *dw = qobject_cast<Q3DockWindow*>(o);
         if (!dw || !dw->isVisible())
             continue;
         if (pos.x() >= x && pos.x() <= x + 30) {
@@ -1111,7 +1111,7 @@ void Q3MainWindow::addDockWindow(Q3DockWindow * dockWindow, const QString &label
 {
     addDockWindow(dockWindow, edge, newLine);
 #ifndef QT_NO_TOOLBAR
-    Q3ToolBar *tb = qt_cast<Q3ToolBar*>(dockWindow);
+    Q3ToolBar *tb = qobject_cast<Q3ToolBar*>(dockWindow);
     if (tb)
         tb->setLabel(label);
 #endif
@@ -1441,7 +1441,7 @@ bool Q3MainWindow::dockMainWindow(QObject *dock) const
         if (dock->parent() &&
             dock->parent() == const_cast<Q3MainWindow*>(this))
             return true;
-        if (qt_cast<Q3MainWindow*>(dock->parent()))
+        if (qobject_cast<Q3MainWindow*>(dock->parent()))
             return false;
         dock = dock->parent();
     }
@@ -1459,7 +1459,7 @@ bool Q3MainWindow::eventFilter(QObject* o, QEvent *e)
             setUpLayout();
         d->tll->activate();
     } else if (e->type() == QEvent::ContextMenu && d->dockMenu &&
-                (qt_cast<Q3DockArea*>(o) && dockMainWindow(o) || o == d->hideDock || o == d->mb)) {
+                (qobject_cast<Q3DockArea*>(o) && dockMainWindow(o) || o == d->hideDock || o == d->mb)) {
         if (showDockMenu(((QMouseEvent*)e)->globalPos())) {
             ((QContextMenuEvent*)e)->accept();
             return true;
@@ -1490,13 +1490,13 @@ void Q3MainWindow::childEvent(QChildEvent* e)
             d->mc = 0;
             d->mwl->setCentralWidget(0);
             triggerLayout();
-        } else if (qt_cast<Q3DockWindow*>(e->child())) {
+        } else if (qobject_cast<Q3DockWindow*>(e->child())) {
             removeDockWindow((Q3DockWindow *)(e->child()));
             d->appropriate.remove((Q3DockWindow*)e->child());
             triggerLayout();
         }
     } else if (e->type() == QEvent::ChildInserted && !d->sb) {
-        d->sb = qt_cast<QStatusBar*>(e->child());
+        d->sb = qobject_cast<QStatusBar*>(e->child());
         if (d->sb) {
             if (d->tll) {
                 if (!d->tll->findWidget(d->sb))
@@ -1762,7 +1762,7 @@ QList<Q3ToolBar *> Q3MainWindow::toolBars(Qt::Dock dock) const
     QList<Q3DockWindow *> lst = dockWindows(dock);
     QList<Q3ToolBar *> tbl;
     for (int i = 0; i < lst.size(); ++i) {
-        Q3ToolBar *tb = qt_cast<Q3ToolBar *>(lst.at(i));
+        Q3ToolBar *tb = qobject_cast<Q3ToolBar *>(lst.at(i));
         if (tb)
             tbl.append(tb);
     }
@@ -1802,7 +1802,7 @@ QList<Q3DockWindow *> Q3MainWindow::dockWindows(Qt::Dock dock) const
     case Qt::DockMinimized: {
         QObjectList childs = d->hideDock->children();
         for (int i = 0; i < childs.size(); ++i) {
-            Q3DockWindow *dw = qt_cast<Q3DockWindow*>(childs.at(i));
+            Q3DockWindow *dw = qobject_cast<Q3DockWindow*>(childs.at(i));
             if (dw)
                 lst.append(dw);
         }
@@ -1992,7 +1992,7 @@ Q3PopupMenu *Q3MainWindow::createDockWindowMenu(DockWindows dockWindows) const
         if (dockWindows == AllDockWindows || dockWindows == NoToolBars) {
             for (int i = 0; i < l.size(); ++i) {
                 Q3DockWindow *dw = (Q3DockWindow*)l.at(i);
-                if (!appropriate(dw) || qt_cast<Q3ToolBar*>(dw) || !dockMainWindow(dw))
+                if (!appropriate(dw) || qobject_cast<Q3ToolBar*>(dw) || !dockMainWindow(dw))
                     continue;
                 QString label = dw->windowTitle();
                 if (!label.isEmpty()) {
@@ -2010,7 +2010,7 @@ Q3PopupMenu *Q3MainWindow::createDockWindowMenu(DockWindows dockWindows) const
 #ifndef QT_NO_TOOLBAR
         if (dockWindows == AllDockWindows || dockWindows == OnlyToolBars) {
             for (int i = 0; i < l.size(); ++i) {
-                Q3ToolBar *tb = qt_cast<Q3ToolBar*>(l.at(i));
+                Q3ToolBar *tb = qobject_cast<Q3ToolBar*>(l.at(i));
                 if (!tb || !appropriate(tb) || !dockMainWindow(tb))
                     continue;
                 QString label = tb->label();
@@ -2068,11 +2068,11 @@ bool Q3MainWindow::showDockMenu(const QPoint &globalPos)
 void Q3MainWindow::slotPlaceChanged()
 {
     QObject* obj = (QObject*)sender();
-    Q3DockWindow *dw = qt_cast<Q3DockWindow*>(obj);
+    Q3DockWindow *dw = qobject_cast<Q3DockWindow*>(obj);
     if (dw)
         emit dockWindowPositionChanged(dw);
 #ifndef QT_NO_TOOLBAR
-    Q3ToolBar *tb = qt_cast<Q3ToolBar*>(obj);
+    Q3ToolBar *tb = qobject_cast<Q3ToolBar*>(obj);
     if (tb)
         emit toolBarPositionChanged(tb);
 #endif
@@ -2329,7 +2329,7 @@ static void loadDockArea(const QStringList &names, Q3DockArea *a, Qt::Dock dl, Q
                 for (int i = 0; i < l.size(); ++i) {
                     Q3DockWindow *dw = l.at(i);
                     if (QString(dw->windowTitle()) == name) {
-                        if (!qt_cast<Q3ToolBar*>(dw))
+                        if (!qobject_cast<Q3ToolBar*>(dw))
                             dw->setGeometry(x.toInt(), y.toInt(), w.toInt(), h.toInt());
                         else
                             dw->setGeometry(x.toInt(), y.toInt(), dw->width(), dw->height());

@@ -51,7 +51,7 @@ static QPixmap getPixmap(QTextDocument *doc, const QTextImageFormat &format)
             }
 
         QString context;
-        if (QTextBrowser *browser = qt_cast<QTextBrowser *>(doc->parent())) {
+        if (QTextBrowser *browser = qobject_cast<QTextBrowser *>(doc->parent())) {
             context = browser->source().toString();
         }
 

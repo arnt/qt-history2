@@ -148,7 +148,7 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
         QFactoryLoader *l = loader();
         QStringList keys = l->keys();
         for (int i = 0; i < keys.count(); ++i) {
-            QImageIOPlugin *plugin = qt_cast<QImageIOPlugin *>(l->instance(keys.at(i)));
+            QImageIOPlugin *plugin = qobject_cast<QImageIOPlugin *>(l->instance(keys.at(i)));
             if (plugin->capabilities(device, form) & QImageIOPlugin::CanRead) {
                 handler = plugin->create(device, form);
                 break;
@@ -387,7 +387,7 @@ void QImageReader::setFileName(const QString &fileName)
 */
 QString QImageReader::fileName() const
 {
-    QFile *file = qt_cast<QFile *>(d->device);
+    QFile *file = qobject_cast<QFile *>(d->device);
     return file ? file->fileName() : QString();
 }
 
@@ -709,7 +709,7 @@ QList<QByteArray> QImageReader::supportedImageFormats()
     QStringList keys = l->keys();
 
     for (int i = 0; i < keys.count(); ++i) {
-        QImageIOPlugin *plugin = qt_cast<QImageIOPlugin *>(l->instance(keys.at(i)));
+        QImageIOPlugin *plugin = qobject_cast<QImageIOPlugin *>(l->instance(keys.at(i)));
         if (plugin->capabilities(0, keys.at(i).toLatin1()) & QImageIOPlugin::CanRead)
             formats << keys.at(i).toLatin1();
     }

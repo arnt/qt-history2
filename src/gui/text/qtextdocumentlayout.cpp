@@ -117,7 +117,7 @@ public:
 static QTextFrameData *createData(QTextFrame *f)
 {
     QTextFrameData *data;
-    if (qt_cast<QTextTable *>(f))
+    if (qobject_cast<QTextTable *>(f))
         data = new QTextTableData;
     else
         data = new QTextFrameData;
@@ -396,7 +396,7 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
 //     LDEBUG << debug_indent << "drawFrame" << frame->firstPosition() << "--" << frame->lastPosition() << "at" << offset;
 //     INC_INDENT;
 
-    QTextTable *table = qt_cast<QTextTable *>(frame);
+    QTextTable *table = qobject_cast<QTextTable *>(frame);
 
     // draw frame decoration
     if (fd->border) {
@@ -1154,7 +1154,7 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
         return;
     }
 
-    if (QTextTable *table = qt_cast<QTextTable *>(f)) {
+    if (QTextTable *table = qobject_cast<QTextTable *>(f)) {
         layoutTable(table, layoutFrom, layoutTo);
         return;
     }
@@ -1228,7 +1228,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruc
             if (cd->flow_position == QTextFrameFormat::InFlow) {
                 Qt::Alignment align = Qt::AlignLeft;
 
-                if (QTextTable *table = qt_cast<QTextTable *>(c))
+                if (QTextTable *table = qobject_cast<QTextTable *>(c))
                     align = table->format().alignment();
 
                 QPoint pos(layoutStruct->x_left, layoutStruct->y);
@@ -1518,7 +1518,7 @@ void QTextDocumentLayout::setSize(QTextInlineObject item, const QTextFormat &for
     QSizeF intrinsic = handler.iface->intrinsicSize(document(), format);
 
     QTextFrameFormat::Position pos = QTextFrameFormat::InFlow;
-    QTextFrame *frame = qt_cast<QTextFrame *>(document()->objectForFormat(f));
+    QTextFrame *frame = qobject_cast<QTextFrame *>(document()->objectForFormat(f));
     if (frame) {
         pos = frame->format().position();
         data(frame)->sizeDirty = false;
@@ -1544,7 +1544,7 @@ void QTextDocumentLayout::layoutObject(QTextInlineObject item, const QTextFormat
     if (!handler.component)
         return;
 
-    QTextFrame *frame = qt_cast<QTextFrame *>(document()->objectForFormat(f));
+    QTextFrame *frame = qobject_cast<QTextFrame *>(document()->objectForFormat(f));
     if (!frame)
         return;
 
@@ -1562,7 +1562,7 @@ void QTextDocumentLayout::drawObject(QPainter *p, const QRectF &rect, QTextInlin
 {
     QTextCharFormat f = format.toCharFormat();
     Q_ASSERT(f.isValid());
-    QTextFrame *frame = qt_cast<QTextFrame *>(document()->objectForFormat(f));
+    QTextFrame *frame = qobject_cast<QTextFrame *>(document()->objectForFormat(f));
     QRect r = rect.toRect();
     if (frame) {
         QTextFrameData *fd = data(frame);

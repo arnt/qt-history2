@@ -130,9 +130,9 @@ private:
 };
 
 #if defined Q_CC_MSVC && _MSC_VER < 1300
-template <> inline QAxBase *qt_cast_helper<QAxBase*>(const QObject *o, QAxBase *)
+template <> inline QAxBase *qobject_cast_helper<QAxBase*>(const QObject *o, QAxBase *)
 #else
-template <> inline QAxBase *qt_cast<QAxBase*>(const QObject *o)
+template <> inline QAxBase *qobject_cast<QAxBase*>(const QObject *o)
 #endif
 {
     void *result = o ? const_cast<QObject *>(o)->qt_metacast("QAxBase") : 0;
@@ -140,9 +140,9 @@ template <> inline QAxBase *qt_cast<QAxBase*>(const QObject *o)
 }
 
 #if defined Q_CC_MSVC && _MSC_VER < 1300
-template <> inline QAxBase *qt_cast_helper<QAxBase*>(QObject *o, QAxBase *)
+template <> inline QAxBase *qobject_cast_helper<QAxBase*>(QObject *o, QAxBase *)
 #else
-template <> inline QAxBase *qt_cast<QAxBase*>(QObject *o)
+template <> inline QAxBase *qobject_cast<QAxBase*>(QObject *o)
 #endif
 {
     void *result = o ? o->qt_metacast("QAxBase") : 0;

@@ -130,7 +130,7 @@ int QTextObject::objectIndex() const
 */
 QTextDocument *QTextObject::document() const
 {
-    return qt_cast<QTextDocument *>(parent());
+    return qobject_cast<QTextDocument *>(parent());
 }
 
 /*!
@@ -138,7 +138,7 @@ QTextDocument *QTextObject::document() const
 */
 QTextDocumentPrivate *QTextObject::docHandle() const
 {
-    return qt_cast<const QTextDocument *>(parent())->docHandle();
+    return qobject_cast<const QTextDocument *>(parent())->docHandle();
 }
 
 /*!
@@ -649,7 +649,7 @@ QTextFrame::iterator QTextFrame::iterator::operator++()
         // check if we entered a frame
         QTextDocumentPrivate::FragmentIterator frag = priv->find(pos-1);
         if (priv->buffer().at(frag->stringPosition) != QChar::ParagraphSeparator) {
-            QTextFrame *nf = qt_cast<QTextFrame *>(priv->objectForFormat(frag->format));
+            QTextFrame *nf = qobject_cast<QTextFrame *>(priv->objectForFormat(frag->format));
             if (nf) {
                 if (priv->buffer().at(frag->stringPosition) == QTextBeginningOfFrame && nf != f) {
                     cf = nf;
@@ -684,7 +684,7 @@ QTextFrame::iterator QTextFrame::iterator::operator--()
             // check if we have to enter a frame
             QTextDocumentPrivate::FragmentIterator frag = priv->find(pos-1);
             if (priv->buffer().at(frag->stringPosition) != QChar::ParagraphSeparator) {
-                QTextFrame *pf = qt_cast<QTextFrame *>(priv->objectForFormat(frag->format));
+                QTextFrame *pf = qobject_cast<QTextFrame *>(priv->objectForFormat(frag->format));
                 if (pf) {
                     if (priv->buffer().at(frag->stringPosition) == QTextBeginningOfFrame) {
                         Q_ASSERT(pf == f);
@@ -1030,7 +1030,7 @@ QTextList *QTextBlock::textList() const
 
     const QTextBlockFormat fmt = blockFormat();
     QTextObject *obj = p->document()->objectForFormat(fmt);
-    return qt_cast<QTextList *>(obj);
+    return qobject_cast<QTextList *>(obj);
 }
 
 

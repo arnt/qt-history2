@@ -507,12 +507,12 @@ bool QShortcutMap::correctContext(const QShortcutEntry &item) {
     if (!active_window)
         return false;
 
-    if (QAction *a = qt_cast<QAction *>(item.owner))
+    if (QAction *a = qobject_cast<QAction *>(item.owner))
         return correctContext(item.context, a, active_window);
 
-    QWidget *w = qt_cast<QWidget *>(item.owner);
+    QWidget *w = qobject_cast<QWidget *>(item.owner);
     if (!w) {
-        QShortcut *s = qt_cast<QShortcut *>(item.owner);
+        QShortcut *s = qobject_cast<QShortcut *>(item.owner);
         w = s->parentWidget();
     }
     return correctContext(item.context, w, active_window);
@@ -564,7 +564,7 @@ bool QShortcutMap::correctContext(Qt::ShortcutContext context, QAction *a, QWidg
     const QList<QWidget *> &widgets = a->d->widgets;
     for (int i = 0; i < widgets.size(); ++i) {
         QWidget *w = widgets.at(i);
-        if (QMenu *menu = qt_cast<QMenu *>(w)) {
+        if (QMenu *menu = qobject_cast<QMenu *>(w)) {
             QAction *a = menu->menuAction();
             if (correctContext(context, a, active_window))
                 return true;

@@ -164,7 +164,7 @@ void QActionPrivate::setShortcutEnabled(bool enable, QShortcutMap &map)
 QAction::QAction(QObject* parent)
     : QObject(*(new QActionPrivate), parent)
 {
-    d->group = qt_cast<QActionGroup *>(parent);
+    d->group = qobject_cast<QActionGroup *>(parent);
     if (d->group)
         d->group->addAction(this);
 }
@@ -187,7 +187,7 @@ QAction::QAction(const QString &text, QObject* parent)
     : QObject(*(new QActionPrivate), parent)
 {
     d->text = text;
-    d->group = qt_cast<QActionGroup *>(parent);
+    d->group = qobject_cast<QActionGroup *>(parent);
     if (d->group)
         d->group->addAction(this);
 }
@@ -209,7 +209,7 @@ QAction::QAction(const QIcon &icon, const QString &text, QObject* parent)
 {
     d->icon = icon;
     d->text = text;
-    d->group = qt_cast<QActionGroup *>(parent);
+    d->group = qobject_cast<QActionGroup *>(parent);
     if (d->group)
         d->group->addAction(this);
 }
@@ -302,7 +302,7 @@ QAction::QAction(QObject* parent, const char* name)
  : QObject(*(new QActionPrivate), parent)
 {
     setObjectName(name);
-    d->group = qt_cast<QActionGroup *>(parent);
+    d->group = qobject_cast<QActionGroup *>(parent);
     if (d->group)
         d->group->addAction(this);
 }
@@ -318,7 +318,7 @@ QAction::QAction(const QString &text, const QKeySequence &shortcut, QObject* par
     setObjectName(name);
     d->text = text;
     setShortcut(shortcut);
-    d->group = qt_cast<QActionGroup *>(parent);
+    d->group = qobject_cast<QActionGroup *>(parent);
     if (d->group)
         d->group->addAction(this);
 }
@@ -335,7 +335,7 @@ QAction::QAction(const QIcon &icon, const QString &text, const QKeySequence &sho
     d->text = text;
     setShortcut(shortcut);
     d->icon = icon;
-    d->group = qt_cast<QActionGroup *>(parent);
+    d->group = qobject_cast<QActionGroup *>(parent);
     if (d->group)
         d->group->addAction(this);
 }

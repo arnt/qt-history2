@@ -115,7 +115,7 @@ QScreen *QGfxDriverFactory::create(const QString& key, int displayId)
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
 
-    if (QGfxDriverFactoryInterface *factory = qt_cast<QGfxDriverFactoryInterface*>(loader()->instance(key)))
+    if (QGfxDriverFactoryInterface *factory = qobject_cast<QGfxDriverFactoryInterface*>(loader()->instance(key)))
         return factory->create(driver, displayId);
 
 #endif

@@ -86,7 +86,7 @@ void QDockWidgetLayout::saveState(QDataStream &stream) const
             stream << info.min_size;
             stream << info.max_size;
             const QDockWidgetLayout * const layout =
-                qt_cast<const QDockWidgetLayout *>(info.item->layout());
+                qobject_cast<const QDockWidgetLayout *>(info.item->layout());
             layout->saveState(stream);
         }
     }
@@ -261,7 +261,7 @@ QLayoutItem *QDockWidgetLayout::takeAt(int index)
                 } else if (!save_layout_info) {
                     emit emptied();
 		} else {
-		    QLayout *parentLayout = qt_cast<QLayout *>(parent());
+		    QLayout *parentLayout = qobject_cast<QLayout *>(parent());
 		    if (parentLayout)
 			parentLayout->removeItem(this);
 		}
@@ -596,7 +596,7 @@ void QDockWidgetLayout::dump()
 		  (info.item->layout()
                    ? info.item->layout()->objectName().toLatin1().constData()
                    : "dummy"));
-            QDockWidgetLayout *l = qt_cast<QDockWidgetLayout *>(info.item->layout());
+            QDockWidgetLayout *l = qobject_cast<QDockWidgetLayout *>(info.item->layout());
             Q_ASSERT(l != 0);
             l->dump();
         } else {
@@ -621,7 +621,7 @@ void QDockWidgetLayout::saveLayoutInfo()
         if (!info.item->layout())
             continue;
 
-        QDockWidgetLayout *l = qt_cast<QDockWidgetLayout *>(info.item->layout());
+        QDockWidgetLayout *l = qobject_cast<QDockWidgetLayout *>(info.item->layout());
         Q_ASSERT(l != 0);
         l->saveLayoutInfo();
     }
@@ -639,7 +639,7 @@ void QDockWidgetLayout::resetLayoutInfo()
         if (!info.item->layout())
             continue;
 
-        QDockWidgetLayout *l = qt_cast<QDockWidgetLayout *>(info.item->layout());
+        QDockWidgetLayout *l = qobject_cast<QDockWidgetLayout *>(info.item->layout());
         Q_ASSERT(l != 0);
         l->resetLayoutInfo();
     }
@@ -658,7 +658,7 @@ void QDockWidgetLayout::discardLayoutInfo()
         if (!info.item->layout())
             continue;
 
-        QDockWidgetLayout *l = qt_cast<QDockWidgetLayout *>(info.item->layout());
+        QDockWidgetLayout *l = qobject_cast<QDockWidgetLayout *>(info.item->layout());
         Q_ASSERT(l != 0);
         l->discardLayoutInfo();
     }
@@ -682,7 +682,7 @@ QPoint QDockWidgetLayout::constrain(QDockWidgetSeparator *sep, int delta)
 	QMutableListIterator<QDockWidgetLayoutInfo> f_it(local_list), b_it(local_list);
 	while (f_it.hasNext()) {
 	    const QDockWidgetLayoutInfo &info = f_it.peekNext();
-	    if (info.is_sep && qt_cast<QDockWidgetSeparator*>(info.item->widget()) == sep) break;
+	    if (info.is_sep && qobject_cast<QDockWidgetSeparator*>(info.item->widget()) == sep) break;
 	    (void)f_it.next();
 	    (void)b_it.next();
 	}
@@ -1007,7 +1007,7 @@ QRect QDockWidgetLayout::place(QDockWidget *dockwidget, const QRect &r, const QP
 
     if (info.item->layout()) {
         // forward the place to the nested layout
-        QDockWidgetLayout *l = qt_cast<QDockWidgetLayout *>(info.item->layout());
+        QDockWidgetLayout *l = qobject_cast<QDockWidgetLayout *>(info.item->layout());
         Q_ASSERT(l != 0);
         DEBUG("  forwarding...");
         target = l->place(dockwidget, r, mouse);
@@ -1094,7 +1094,7 @@ void QDockWidgetLayout::drop(QDockWidget *dockwidget, const QRect &r, const QPoi
 
     if (info.item->layout()) {
         // forward the drop to the nested layout
-        QDockWidgetLayout *l = qt_cast<QDockWidgetLayout *>(info.item->layout());
+        QDockWidgetLayout *l = qobject_cast<QDockWidgetLayout *>(info.item->layout());
         Q_ASSERT(l != 0);
         DEBUG("  forwarding...");
         l->drop(dockwidget, r, mouse);
@@ -1147,7 +1147,7 @@ void QDockWidgetLayout::drop(QDockWidget *dockwidget, const QRect &r, const QPoi
     QRect target = ::trySplit(orientation, location.area, allowedAreas,
                               info.item->geometry(), p, separatorExtent);
     if (!target.isEmpty()) {
-        QMainWindowLayout *layout = qt_cast<QMainWindowLayout *>(parentWidget()->layout());
+        QMainWindowLayout *layout = qobject_cast<QMainWindowLayout *>(parentWidget()->layout());
         Q_ASSERT(layout != 0);
         layout->removeRecursive(dockwidget);
 
@@ -1176,7 +1176,7 @@ void QDockWidgetLayout::drop(QDockWidget *dockwidget, const QRect &r, const QPoi
         }
 
         if (nested) {
-            split(qt_cast<QDockWidget *>(info.item->widget()), dockwidget, location.area);
+            split(qobject_cast<QDockWidget *>(info.item->widget()), dockwidget, location.area);
         } else {
             int at = location.index / 2;
             if (location.area == Qt::RightDockWidgetArea

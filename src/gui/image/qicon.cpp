@@ -447,7 +447,7 @@ QIcon::QIcon(const QString &fileName)
     QFileInfo info(fileName);
     QString suffix = info.suffix();
     if (!suffix.isEmpty())
-        if (QIconEngineFactoryInterface *factory = qt_cast<QIconEngineFactoryInterface*>(loader()->instance(suffix)))
+        if (QIconEngineFactoryInterface *factory = qobject_cast<QIconEngineFactoryInterface*>(loader()->instance(suffix)))
             if (QIconEngine *engine = factory->create(fileName)) {
                 d = new QIconPrivate;
                 d->engine = engine;

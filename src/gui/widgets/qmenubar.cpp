@@ -291,7 +291,7 @@ void QMenuBarPrivate::activateAction(QAction *action, QAction::ActionEvent actio
 void QMenuBarPrivate::actionTriggered()
 {
     Q_Q(QMenuBar);
-    if (QAction *action = qt_cast<QAction *>(q->sender())) {
+    if (QAction *action = qobject_cast<QAction *>(q->sender())) {
         emit q->triggered(action);
 #ifdef QT3_SUPPORT
         emit q->activated(q->findIdForAction(action));
@@ -302,7 +302,7 @@ void QMenuBarPrivate::actionTriggered()
 void QMenuBarPrivate::actionHovered()
 {
     Q_Q(QMenuBar);
-    if (QAction *action = qt_cast<QAction *>(q->sender())) {
+    if (QAction *action = qobject_cast<QAction *>(q->sender())) {
         emit q->hovered(action);
 #ifdef QT3_SUPPORT
         emit q->highlighted(q->findIdForAction(action));
@@ -946,7 +946,7 @@ void QMenuBarPrivate::handleReparent()
     oldWindow = newWindow;
 
 #ifndef QT_NO_TOOLBAR
-    doAutoResize = newParent && !qt_cast<QToolBar*>(newParent)
+    doAutoResize = newParent && !qobject_cast<QToolBar*>(newParent)
 # ifdef QT3_SUPPORT
                                     && !newParent->inherits("Q3ToolBar")
 # endif

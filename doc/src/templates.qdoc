@@ -171,7 +171,7 @@
     great advantage: a powerful and generic user interface design tool
     like Qt Designer would be a lot harder to write - if not impossible -
     without a powerful and introspective property system. But it does not
-    end here. We also provide a dynamic qt_cast<T>() mechanism
+    end here. We also provide a dynamic qobject_cast<T>() mechanism
     that does not rely on the system's RTTI and thus does not share its
     limitations. We use it to safely query interfaces from dynamically
     loaded components. Another application domain are dynamic meta

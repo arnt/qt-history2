@@ -170,7 +170,7 @@ QMainWindowLayout::~QMainWindowLayout()
 }
 
 QStatusBar *QMainWindowLayout::statusBar() const
-{ return statusbar ? qt_cast<QStatusBar *>(statusbar->widget()) : 0; }
+{ return statusbar ? qobject_cast<QStatusBar *>(statusbar->widget()) : 0; }
 
 void QMainWindowLayout::setStatusBar(QStatusBar *sb)
 {
@@ -342,7 +342,7 @@ QDockWidgetLayout *QMainWindowLayout::layoutForArea(Qt::DockWidgetArea area)
         Q_ASSERT(!info.sep);
         info.sep = new QWidgetItem(new QDockSeparator(l, parentWidget()));
     } else {
-        l = qt_cast<QDockWidgetLayout *>(info.item->layout());
+        l = qobject_cast<QDockWidgetLayout *>(info.item->layout());
         Q_ASSERT(l != 0);
     }
     return l;
@@ -439,7 +439,7 @@ void QMainWindowLayout::saveState(QDataStream &stream) const
         stream << i;
         stream << layout_info[i].size;
         const QDockWidgetLayout * const layout =
-            qt_cast<const QDockWidgetLayout *>(layout_info[i].item->layout());
+            qobject_cast<const QDockWidgetLayout *>(layout_info[i].item->layout());
         Q_ASSERT(layout != 0);
         layout->saveState(stream);
     }
@@ -1489,7 +1489,7 @@ void QMainWindowLayout::saveLayoutInfo()
         if (!layout_info[i].item) continue;
 
         QDockWidgetLayout *layout =
-            qt_cast<QDockWidgetLayout *>(layout_info[i].item->layout());
+            qobject_cast<QDockWidgetLayout *>(layout_info[i].item->layout());
         Q_ASSERT(layout != 0);
         layout->saveLayoutInfo();
     }
@@ -1504,7 +1504,7 @@ void QMainWindowLayout::resetLayoutInfo()
         if (!layout_info[i].item) continue;
 
         QDockWidgetLayout *layout =
-            qt_cast<QDockWidgetLayout *>(layout_info[i].item->layout());
+            qobject_cast<QDockWidgetLayout *>(layout_info[i].item->layout());
         Q_ASSERT(layout != 0);
         layout->resetLayoutInfo();
     }
@@ -1522,7 +1522,7 @@ void QMainWindowLayout::discardLayoutInfo()
         if (!layout_info[i].item) continue;
 
         QDockWidgetLayout *layout =
-            qt_cast<QDockWidgetLayout *>(layout_info[i].item->layout());
+            qobject_cast<QDockWidgetLayout *>(layout_info[i].item->layout());
         Q_ASSERT(layout != 0);
         layout->discardLayoutInfo();
     }
@@ -1740,7 +1740,7 @@ QRect QMainWindowLayout::placeDockWidget(QDockWidget *dockwidget,
     const int pos = positionForArea(areas);
     if (layout_info[pos].item && !layout_info[pos].item->isEmpty()) {
         DEBUG("  forwarding...");
-        QDockWidgetLayout *l = qt_cast<QDockWidgetLayout *>(layout_info[pos].item->layout());
+        QDockWidgetLayout *l = qobject_cast<QDockWidgetLayout *>(layout_info[pos].item->layout());
         Q_ASSERT(l != 0);
         target = l->place(dockwidget, r, mouse);
         DEBUG("END of QMainWindowLayout::placeDockWidget (forwarded)");
@@ -1794,7 +1794,7 @@ void QMainWindowLayout::dropDockWidget(QDockWidget *dockwidget,
     const int pos = positionForArea(areas);
     if (layout_info[pos].item) {
         DEBUG() << "  forwarding...";
-        QDockWidgetLayout *l = qt_cast<QDockWidgetLayout *>(layout_info[pos].item->layout());
+        QDockWidgetLayout *l = qobject_cast<QDockWidgetLayout *>(layout_info[pos].item->layout());
         Q_ASSERT(l);
         l->drop(dockwidget, r, mouse);
         DEBUG() << "END of QMainWindowLayout::dropDockWidget (forwarded)";
@@ -1804,7 +1804,7 @@ void QMainWindowLayout::dropDockWidget(QDockWidget *dockwidget,
     // remove dockwidget from current position in the layout
     removeRecursive(dockwidget);
 
-    QWidget *parent = qt_cast<QMainWindow *>(parentWidget());
+    QWidget *parent = qobject_cast<QMainWindow *>(parentWidget());
     dockwidget->setParent(parent);
     QDockWidgetLayout *dwl = layoutForArea(static_cast<Qt::DockWidgetArea>(areaForPosition(pos)));
     dwl->addWidget(dockwidget);

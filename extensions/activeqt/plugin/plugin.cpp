@@ -230,7 +230,7 @@ public:
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const
     {
-        QAxWidget *w = qt_cast<QAxWidget*>(object);
+        QAxWidget *w = qobject_cast<QAxWidget*>(object);
 
         if (!w)
             return 0;

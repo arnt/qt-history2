@@ -1438,7 +1438,7 @@ bool QApplicationPrivate::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
             widget->raise();
             if(!widget->isActiveWindow() && widget->isWindow() && !(widget->windowType() == Qt::Desktop)
                && !(widget->windowType() == Qt::Popup) && !qt_mac_is_macsheet(widget)
-               && (widget->isModal() || !::qt_cast<QDockWidget *>(widget))) {
+               && (widget->isModal() || !::qobject_cast<QDockWidget *>(widget))) {
                 widget->activateWindow();
                 if(windowPart == inContent) {
                     HIViewRef child;

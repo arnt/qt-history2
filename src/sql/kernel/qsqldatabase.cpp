@@ -656,7 +656,7 @@ void QSqlDatabasePrivate::init(const QString &type)
     }
 
     if (!driver && loader()) {
-        if (QSqlDriverFactoryInterface *factory = qt_cast<QSqlDriverFactoryInterface*>(loader()->instance(type)))
+        if (QSqlDriverFactoryInterface *factory = qobject_cast<QSqlDriverFactoryInterface*>(loader()->instance(type)))
             driver = factory->create(type);
     }
 

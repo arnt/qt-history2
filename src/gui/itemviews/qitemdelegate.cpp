@@ -586,7 +586,7 @@ QRect QItemDelegate::check(const QStyleOptionViewItem &option,
 
 bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
 {
-    QWidget *editor = ::qt_cast<QWidget*>(object);
+    QWidget *editor = ::qobject_cast<QWidget*>(object);
     if (!editor)
         return false;
     if (event->type() == QEvent::KeyPress) {

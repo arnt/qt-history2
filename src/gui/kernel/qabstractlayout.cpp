@@ -839,7 +839,7 @@ QWidget *QLayout::parentWidget() const
 {
     if (!d->topLevel) {
         if (parent()) {
-            QLayout *parentLayout = ::qt_cast<QLayout*>(parent());
+            QLayout *parentLayout = ::qobject_cast<QLayout*>(parent());
             Q_ASSERT(parentLayout);
             return parentLayout->parentWidget();
         } else {
@@ -946,7 +946,7 @@ void QLayout::widgetEvent(QEvent *e)
                 QWidget *w = (QWidget *)c->child();
                 if (!w->isWindow()) {
 #if !defined(QT_NO_MENUBAR) && !defined(QT_NO_TOOLBAR)
-                    if (qt_cast<QMenuBar*>(w) && !::qt_cast<QToolBar*>(w->parentWidget())) {
+                    if (qobject_cast<QMenuBar*>(w) && !::qobject_cast<QToolBar*>(w->parentWidget())) {
                         d->menubar = (QMenuBar *)w;
                         invalidate();
                     } else

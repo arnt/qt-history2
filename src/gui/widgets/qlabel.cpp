@@ -601,7 +601,7 @@ QSize QLabelPrivate::sizeForWidth(int w) const
 #endif
 #ifndef QT_NO_RICHTEXT
     else if (doc) {
-        QTextDocumentLayout *layout = qt_cast<QTextDocumentLayout *>(doc->documentLayout());
+        QTextDocumentLayout *layout = qobject_cast<QTextDocumentLayout *>(doc->documentLayout());
         Q_ASSERT(layout);
         if (d->align & Qt::TextWordWrap) {
             if (w > 0)
@@ -773,7 +773,7 @@ void QLabel::paintEvent(QPaintEvent *)
 #endif
 #ifndef QT_NO_RICHTEXT
     if (d->doc) {
-        QTextDocumentLayout *layout = qt_cast<QTextDocumentLayout *>(d->doc->documentLayout());
+        QTextDocumentLayout *layout = qobject_cast<QTextDocumentLayout *>(d->doc->documentLayout());
         Q_ASSERT(layout);
         layout->setPageSize(QSize(cr.width(), INT_MAX));
         int rh = layout->sizeUsed().height();
@@ -892,7 +892,7 @@ void QLabelPrivate::updateLabel()
         shortcutId = q->grabShortcut(QKeySequence::mnemonic(ltext));
 
     if (d->doc)
-        qt_cast<QTextDocumentLayout *>(d->doc->documentLayout())
+        qobject_cast<QTextDocumentLayout *>(d->doc->documentLayout())
             ->setBlockTextFlags(wordWrap? 0 : Qt::TextSingleLine);
 
     q->updateGeometry();

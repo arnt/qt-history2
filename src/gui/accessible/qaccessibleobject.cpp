@@ -239,7 +239,7 @@ QAccessible::Relation QAccessibleApplication::relationTo(int child, const
     }
 
     QWidgetList tlw(topLevelWidgets());
-    if (tlw.contains(qt_cast<QWidget*>(o)))
+    if (tlw.contains(qobject_cast<QWidget*>(o)))
         return Ancestor;
 
     for (int i = 0; i < tlw.count(); ++i) {

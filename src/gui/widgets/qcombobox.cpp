@@ -186,7 +186,7 @@ void ItemViewContainer::setItemView(QAbstractItemView *itemView)
     // setup the item view
     view = itemView;
     view->setParent(this);
-    qt_cast<QBoxLayout*>(layout())->insertWidget(top ? 1 : 0, view);
+    qobject_cast<QBoxLayout*>(layout())->insertWidget(top ? 1 : 0, view);
     view->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     view->installEventFilter(this);
     view->viewport()->installEventFilter(this);
@@ -218,7 +218,7 @@ void ItemViewContainer::setItemView(QAbstractItemView *itemView)
 */
 int ItemViewContainer::spacing() const
 {
-    QListView *lview = qt_cast<QListView*>(view);
+    QListView *lview = qobject_cast<QListView*>(view);
     if (lview)
         return lview->spacing();
     return 0;

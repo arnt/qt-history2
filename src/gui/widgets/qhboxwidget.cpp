@@ -101,14 +101,14 @@ QHBoxWidget::QHBoxWidget(Qt::Orientation orientation, QWidget *parent , Qt::WFla
  */
 void QHBoxWidget::childEvent(QChildEvent *e)
 {
-    QWidget *child = qt_cast<QWidget*>(e->child());
+    QWidget *child = qobject_cast<QWidget*>(e->child());
     if (!child || child->isWindow())
         return;
     if (e->added()) {
         lay->addWidget(child);
     } else if (e->polished()) {
         QMenuBar *mb;
-        if ((mb=qt_cast<QMenuBar*>(child))) {
+        if ((mb=qobject_cast<QMenuBar*>(child))) {
             lay->removeWidget(mb);
             lay->setMenuBar(mb);
         }

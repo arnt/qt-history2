@@ -109,7 +109,7 @@ void QTextCursorPrivate::remove()
         int startRow, startCol, numRows, numCols;
         selectedTableCells(&startRow, &numRows, &startCol, &numCols);
 
-        QTextTable *table = qt_cast<QTextTable *>(priv->frameAt(pos1));
+        QTextTable *table = qobject_cast<QTextTable *>(priv->frameAt(pos1));
         clearCells(table, startRow, startCol, numRows, numCols, op);
     } else {
         priv->remove(pos1, pos2-pos1, op);
@@ -201,7 +201,7 @@ void QTextCursorPrivate::adjustCursor(QTextCursor::MoveOperation m)
     }
 
     // same frame, either need to adjust to cell boundaries or return
-    QTextTable *table = qt_cast<QTextTable *>(f_position);
+    QTextTable *table = qobject_cast<QTextTable *>(f_position);
     if (!table)
         return;
 
@@ -313,7 +313,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
             if (blockIt == priv->blocksBegin())
                 return false;
             int blockPosition = blockIt.position();
-            QTextTable *table = qt_cast<QTextTable *>(priv->frameAt(blockPosition));
+            QTextTable *table = qobject_cast<QTextTable *>(priv->frameAt(blockPosition));
             if (table) {
                 QTextTableCell cell = table->cellAt(blockPosition);
                 if (cell.firstPosition() == blockPosition) {
@@ -398,7 +398,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
 
         if (i >= layout->numLines()) {
             int blockPosition = blockIt.position() + blockIt.length() - 1;
-            QTextTable *table = qt_cast<QTextTable *>(priv->frameAt(blockPosition));
+            QTextTable *table = qobject_cast<QTextTable *>(priv->frameAt(blockPosition));
             if (table) {
                 QTextTableCell cell = table->cellAt(blockPosition);
                 if (cell.lastPosition() == blockPosition) {
@@ -434,7 +434,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
     }
 
     if (mode == QTextCursor::KeepAnchor) {
-        QTextTable *table = qt_cast<QTextTable *>(priv->frameAt(position));
+        QTextTable *table = qobject_cast<QTextTable *>(priv->frameAt(position));
         if (table && ((op >= QTextCursor::PreviousBlock && op <= QTextCursor::WordLeft)
                       || (op >= QTextCursor::NextBlock && op <= QTextCursor::WordRight))) {
             int oldColumn = table->cellAt(position).column();
@@ -469,7 +469,7 @@ bool QTextCursorPrivate::hasComplexSelection() const
     if (position == anchor)
         return false;
 
-    QTextTable *t = qt_cast<QTextTable *>(priv->frameAt(position));
+    QTextTable *t = qobject_cast<QTextTable *>(priv->frameAt(position));
     if (!t)
         return false;
 
@@ -491,7 +491,7 @@ void QTextCursorPrivate::selectedTableCells(int *firstRow, int *numRows, int *fi
     if (position == anchor)
         return;
 
-    QTextTable *t = qt_cast<QTextTable *>(priv->frameAt(position));
+    QTextTable *t = qobject_cast<QTextTable *>(priv->frameAt(position));
     if (!t)
         return;
 
@@ -1521,7 +1521,7 @@ QTextList *QTextCursor::currentList() const
 
     QTextBlockFormat b = blockFormat();
     QTextObject *o = d->priv->objectForFormat(b);
-    return qt_cast<QTextList *>(o);
+    return qobject_cast<QTextList *>(o);
 }
 
 /*!
@@ -1581,7 +1581,7 @@ QTextTable *QTextCursor::currentTable() const
 
     QTextFrame *frame = d->priv->frameAt(d->position);
     while (frame) {
-        QTextTable *table = qt_cast<QTextTable *>(frame);
+        QTextTable *table = qobject_cast<QTextTable *>(frame);
         if (table)
             return table;
         frame = frame->parentFrame();

@@ -160,7 +160,7 @@ bool QDesignerTabWidget::eventFilter(QObject *o, QEvent *e)
 
         bool accept = false;
         if (const QMimeData *mimeData = de->mimeData()) {
-            const MyMimeData *m = qt_cast<const MyMimeData *>(mimeData);
+            const MyMimeData *m = qobject_cast<const MyMimeData *>(mimeData);
             if (m && m->tab == this)
                 accept = true;
         }
@@ -210,7 +210,7 @@ bool QDesignerTabWidget::eventFilter(QObject *o, QEvent *e)
 
         bool accept = false;
         if (const QMimeData *mimeData = de->mimeData()) {
-            const MyMimeData *m = qt_cast<const MyMimeData *>(mimeData);
+            const MyMimeData *m = qobject_cast<const MyMimeData *>(mimeData);
             if (m && m->tab == this)
                 accept = true;
         }

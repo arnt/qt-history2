@@ -3697,7 +3697,7 @@ bool Q3ListView::eventFilter(QObject * o, QEvent * e)
             // nothing
             break;
         }
-    } else if (qt_cast<QLineEdit*>(o)) {
+    } else if (qobject_cast<QLineEdit*>(o)) {
         if (currentItem() && currentItem()->renameBox) {
             if (e->type() == QEvent::KeyPress) {
                 QKeyEvent *ke = (QKeyEvent*)e;

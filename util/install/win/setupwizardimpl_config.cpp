@@ -155,7 +155,7 @@ void CheckListItem::setOn(bool on)
 	return;
     QCheckListItem::setOn(on);
 
-    SetupWizardImpl* wizard = qt_cast<SetupWizardImpl*>(listView()->window());
+    SetupWizardImpl* wizard = qobject_cast<SetupWizardImpl*>(listView()->window());
     if (wizard && listView()->isVisible() && listView()->isUpdatesEnabled())
 	wizard->optionClicked(this);
 }

@@ -34,7 +34,7 @@ QWidget *createEditor(QWidget *parent,
                                               const QStyleOptionViewItem &option,
                                               const QModelIndex &index) const
 {
-    const QSqlRelationalTableModel *sqlModel = qt_cast<const QSqlRelationalTableModel *>(index.model());
+    const QSqlRelationalTableModel *sqlModel = qobject_cast<const QSqlRelationalTableModel *>(index.model());
     if (!sqlModel || !sqlModel->relationModel(index.column()))
         return QItemDelegate::createEditor(parent, option, index);
 
@@ -50,9 +50,9 @@ void setEditorData(QWidget *editor, const QModelIndex &index) const
     if (!index.isValid())
         return;
 
-    const QSqlRelationalTableModel *sqlModel = qt_cast<const QSqlRelationalTableModel *>(index.model());
+    const QSqlRelationalTableModel *sqlModel = qobject_cast<const QSqlRelationalTableModel *>(index.model());
     QSqlTableModel *childModel = sqlModel ? sqlModel->relationModel(index.column()) : 0;
-    QComboBox *combo = qt_cast<QComboBox *>(editor);
+    QComboBox *combo = qobject_cast<QComboBox *>(editor);
     if (!sqlModel || !childModel || !combo) {
         QItemDelegate::setEditorData(editor, index);
         return;
@@ -79,9 +79,9 @@ void setModelData(QWidget *editor, QAbstractItemModel *model,
     if (!index.isValid())
         return;
 
-    QSqlRelationalTableModel *sqlModel = qt_cast<QSqlRelationalTableModel *>(model);
+    QSqlRelationalTableModel *sqlModel = qobject_cast<QSqlRelationalTableModel *>(model);
     QSqlTableModel *childModel = sqlModel ? sqlModel->relationModel(index.column()) : 0;
-    QComboBox *combo = qt_cast<QComboBox *>(editor);
+    QComboBox *combo = qobject_cast<QComboBox *>(editor);
     if (!sqlModel || !childModel || !combo) {
         QItemDelegate::setModelData(editor, model, index);
         return;

@@ -58,7 +58,7 @@ void QAccessible::updateAccessibility(QObject *o, int who, Event reason)
     case Alert:
         {
 #ifndef QT_NO_MESSAGEBOX
-            QMessageBox *mb = ::qt_cast<QMessageBox*>(o);
+            QMessageBox *mb = ::qobject_cast<QMessageBox*>(o);
             if (mb) {
                 switch (mb->icon()) {
                 case QMessageBox::Warning:

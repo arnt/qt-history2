@@ -349,7 +349,7 @@ void TextEdit::fileClose()
 {
     const bool hadFocus = (currentEditor && currentEditor->hasFocus());
     delete currentEditor;
-    currentEditor = qt_cast<QTextEdit *>(tabWidget->currentWidget());
+    currentEditor = qobject_cast<QTextEdit *>(tabWidget->currentWidget());
     if (currentEditor && hadFocus)
         currentEditor->setFocus();
 }
@@ -540,7 +540,7 @@ void TextEdit::editorChanged()
 
     }
 
-    currentEditor = qt_cast<QTextEdit *>(tabWidget->currentWidget());
+    currentEditor = qobject_cast<QTextEdit *>(tabWidget->currentWidget());
     if (!currentEditor)
         return;
 

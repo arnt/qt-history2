@@ -161,7 +161,7 @@ static DomAction *createDomAction(const ActionListElt &elt)
 
 QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
 {
-    if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(parentWidget))
+    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(parentWidget))
         parentWidget = promoted->child();
     
     QString className = ui_widget->attributeClass();
@@ -176,9 +176,9 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
 
     ui_widget->setAttributeClass(className); // fix the class name
 
-    if (QMainWindow *mainWindow = qt_cast<QMainWindow*>(w)) {
+    if (QMainWindow *mainWindow = qobject_cast<QMainWindow*>(w)) {
         QWidget *central_widget = createWidget(QLatin1String("QWidget"), mainWindow, "__qt_central_widget");
-        Q_ASSERT(qt_cast<QDesignerWidget*>(central_widget));
+        Q_ASSERT(qobject_cast<QDesignerWidget*>(central_widget));
         mainWindow->setCentralWidget(central_widget);
     }
 
@@ -197,12 +197,12 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
 
 QLayout *QDesignerResource::create(DomLayout *ui_layout, QLayout *layout, QWidget *parentWidget)
 {
-    if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(parentWidget))
+    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(parentWidget))
         parentWidget = promoted->child();
 
     QLayout *l = Resource::create(ui_layout, layout, parentWidget);
 
-    if (QGridLayout *gridLayout = qt_cast<QGridLayout*>(l))
+    if (QGridLayout *gridLayout = qobject_cast<QGridLayout*>(l))
         QLayoutSupport::createEmptyCells(gridLayout);
 
     return l;
@@ -210,7 +210,7 @@ QLayout *QDesignerResource::create(DomLayout *ui_layout, QLayout *layout, QWidge
 
 QLayoutItem *QDesignerResource::create(DomLayoutItem *ui_layoutItem, QLayout *layout, QWidget *parentWidget)
 {
-    if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(parentWidget))
+    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(parentWidget))
         parentWidget = promoted->child();
     
     if (ui_layoutItem->kind() == DomLayoutItem::Spacer) {
@@ -249,7 +249,7 @@ void QDesignerResource::changeObjectName(QObject *o, QString objName)
     if (m_formWindow)
         m_formWindow->unify(o, objName, true);
 
-    if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(o)) {
+    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(o)) {
         if (objName.startsWith(QLatin1String("__qt__promoted_"))) {
             promoted->setObjectName(objName);
             promoted->child()->setObjectName(objName.mid(15));
@@ -294,7 +294,7 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
 
 QWidget *QDesignerResource::createWidget(const QString &widgetName, QWidget *parentWidget, const QString &_name)
 {
-    if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(parentWidget))
+    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(parentWidget))
         parentWidget = promoted->child();
 
     QString name = _name;
@@ -326,11 +326,11 @@ QWidget *QDesignerResource::createWidget(const QString &widgetName, QWidget *par
 
 QLayout *QDesignerResource::createLayout(const QString &layoutName, QObject *parent, const QString &name)
 {
-    if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(parent))
+    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(parent))
         parent = promoted->child();
     
     QWidget *layoutBase = 0;
-    QLayout *layout = qt_cast<QLayout*>(parent);
+    QLayout *layout = qobject_cast<QLayout*>(parent);
 
     if (parent->isWidgetType())
         layoutBase = static_cast<QWidget*>(parent);
@@ -371,15 +371,15 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
 
     DomWidget *w = 0;
 
-    if (QDesignerTabWidget *tabWidget = qt_cast<QDesignerTabWidget*>(widget))
+    if (QDesignerTabWidget *tabWidget = qobject_cast<QDesignerTabWidget*>(widget))
         w = saveWidget(tabWidget, ui_parentWidget);
-    else if (QDesignerStackedWidget *stackedWidget = qt_cast<QDesignerStackedWidget*>(widget))
+    else if (QDesignerStackedWidget *stackedWidget = qobject_cast<QDesignerStackedWidget*>(widget))
         w = saveWidget(stackedWidget, ui_parentWidget);
-    else if (QDesignerToolBox *toolBox = qt_cast<QDesignerToolBox*>(widget))
+    else if (QDesignerToolBox *toolBox = qobject_cast<QDesignerToolBox*>(widget))
         w = saveWidget(toolBox, ui_parentWidget);
     else if (IContainer *container = qt_extension<IContainer*>(m_core->extensionManager(), widget))
         w = saveWidget(widget, container, ui_parentWidget);
-    else if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(widget))
+    else if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(widget))
         w = Resource::createDom(promoted->child(), ui_parentWidget, recursive);
     else
         w = Resource::createDom(widget, ui_parentWidget, recursive);
@@ -387,14 +387,14 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
     Q_ASSERT( w != 0 );
 
     QString className = w->attributeClass();
-    if (QDesignerCustomWidget *customWidget = qt_cast<QDesignerCustomWidget*>(widget))
+    if (QDesignerCustomWidget *customWidget = qobject_cast<QDesignerCustomWidget*>(widget))
         w->setAttributeClass(customWidget->widgetClassName());
-    else if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(widget))
+    else if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(widget))
         w->setAttributeClass(promoted->item()->name());
     else if (m_internal_to_qt.contains(className))
         w->setAttributeClass(m_internal_to_qt.value(className));
 
-    if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(widget)) {
+    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(widget)) {
         w->setAttributeName(promoted->child()->objectName());
         QList<DomProperty*> prop_list = w->elementProperty();
         foreach (DomProperty *prop, prop_list) {
@@ -455,7 +455,7 @@ DomLayoutItem *QDesignerResource::createDom(QLayoutItem *item, DomLayout *ui_lay
 {
     DomLayoutItem *ui_item = 0;
 
-    if (Spacer *s = qt_cast<Spacer*>(item->widget())) {
+    if (Spacer *s = qobject_cast<Spacer*>(item->widget())) {
         if (!m_core->metaDataBase()->item(s))
             return 0;
 
@@ -478,7 +478,7 @@ DomLayoutItem *QDesignerResource::createDom(QLayoutItem *item, DomLayout *ui_lay
         ui_item = new DomLayoutItem();
         ui_item->setElementSpacer(spacer);
         m_laidout.insert(item->widget(), true);
-    } else if (QLayoutWidget *layoutWidget = qt_cast<QLayoutWidget*>(item->widget())) {
+    } else if (QLayoutWidget *layoutWidget = qobject_cast<QLayoutWidget*>(item->widget())) {
         Q_ASSERT(layoutWidget->layout());
         DomLayout *l = createDom(layoutWidget->layout(), ui_layout, ui_parentWidget);
         ui_item = new DomLayoutItem();
@@ -489,7 +489,7 @@ DomLayoutItem *QDesignerResource::createDom(QLayoutItem *item, DomLayout *ui_lay
     }
 
     if (m_chain.size() && item->widget()) {
-        if (QGridLayout *grid = qt_cast<QGridLayout*>(m_chain.top())) {
+        if (QGridLayout *grid = qobject_cast<QGridLayout*>(m_chain.top())) {
             int index = Utils::indexOfWidget(grid, item->widget());
 
             int row, column, rowspan, colspan;
@@ -717,11 +717,11 @@ bool QDesignerResource::checkProperty(QDesignerStackedWidget *widget, const QStr
 
 bool QDesignerResource::checkProperty(QObject *obj, const QString &prop) const
 {
-    if (!checkProperty(qt_cast<QDesignerTabWidget*>(obj), prop))
+    if (!checkProperty(qobject_cast<QDesignerTabWidget*>(obj), prop))
         return false;
-    else if (!checkProperty(qt_cast<QDesignerToolBox*>(obj), prop))
+    else if (!checkProperty(qobject_cast<QDesignerToolBox*>(obj), prop))
         return false;
-    else if (!checkProperty(qt_cast<QLayoutWidget*>(obj), prop))
+    else if (!checkProperty(qobject_cast<QLayoutWidget*>(obj), prop))
         return false;
 
     if (IPropertySheet *sheet = qt_extension<IPropertySheet*>(m_core->extensionManager(), obj))
@@ -756,7 +756,7 @@ bool QDesignerResource::checkProperty(QDesignerToolBox *widget, const QString &p
 
 bool QDesignerResource::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout)
 {
-    QGridLayout *grid = qt_cast<QGridLayout*>(layout);
+    QGridLayout *grid = qobject_cast<QGridLayout*>(layout);
 
     if (grid && item->widget()) {
         int rowSpan = ui_item->hasAttributeRowSpan() ? ui_item->attributeRowSpan() : 1;
@@ -859,7 +859,7 @@ void QDesignerResource::layoutInfo(DomWidget *widget, QObject *parent, int *marg
 {
     Resource::layoutInfo(widget, parent, margin, spacing);
 
-    if (margin && qt_cast<QLayoutWidget*>(parent))
+    if (margin && qobject_cast<QLayoutWidget*>(parent))
         *margin = 0;
 }
 
@@ -912,7 +912,7 @@ QList<DomProperty*> QDesignerResource::computeProperties(QObject *obj)
 {
     QList<DomProperty*> properties = Resource::computeProperties(obj);
 
-    if (qt_cast<Spacer*>(obj)) {
+    if (qobject_cast<Spacer*>(obj)) {
         QListIterator<DomProperty*> it(properties);
         while (it.hasNext()) {
             DomProperty *p = it.next();

@@ -58,7 +58,7 @@ QInputContext *QInputContextFactory::create( const QString& key, QObject *parent
 #endif
 #ifndef QT_NO_COMPONENT
     if (QInputContextFactoryInterface *factory =
-        qt_cast<QInputContextFactoryInterface*>(loader()->instance(key))) {
+        qobject_cast<QInputContextFactoryInterface*>(loader()->instance(key))) {
         result = factory->create(key);
     }
 #endif
@@ -95,7 +95,7 @@ QStringList QInputContextFactory::languages( const QString &key )
 #endif
 #ifndef QT_NO_COMPONENT
     if (QInputContextFactoryInterface *factory =
-        qt_cast<QInputContextFactoryInterface*>(loader()->instance(key)))
+        qobject_cast<QInputContextFactoryInterface*>(loader()->instance(key)))
         result = factory->languages(key);
 #endif // QT_NO_COMPONENT
     return result;
@@ -111,7 +111,7 @@ QString QInputContextFactory::displayName( const QString &key )
 #endif
 #ifndef QT_NO_COMPONENT
     if (QInputContextFactoryInterface *factory =
-        qt_cast<QInputContextFactoryInterface*>(loader()->instance(key)))
+        qobject_cast<QInputContextFactoryInterface*>(loader()->instance(key)))
         return factory->displayName(key);
 #endif // QT_NO_COMPONENT
     return QString();
@@ -126,7 +126,7 @@ QString QInputContextFactory::description( const QString &key )
 #endif
 #ifndef QT_NO_COMPONENT
     if (QInputContextFactoryInterface *factory =
-        qt_cast<QInputContextFactoryInterface*>(loader()->instance(key)))
+        qobject_cast<QInputContextFactoryInterface*>(loader()->instance(key)))
         return factory->description(key);
 #endif // QT_NO_COMPONENT
     return QString();

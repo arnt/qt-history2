@@ -101,11 +101,11 @@ void QToolBarHandle::mouseMoveEvent(QMouseEvent *event)
     if (!state)
         return;
 
-    QToolBar *toolBar = qt_cast<QToolBar *>(parentWidget());
+    QToolBar *toolBar = qobject_cast<QToolBar *>(parentWidget());
     Q_ASSERT_X(toolBar != 0, "QToolBar", "internal error");
-    QMainWindow *mainWindow = qt_cast<QMainWindow *>(toolBar->parentWidget());
+    QMainWindow *mainWindow = qobject_cast<QMainWindow *>(toolBar->parentWidget());
     Q_ASSERT_X(mainWindow != 0, "QMainWindow", "internal error");
-    QMainWindowLayout *layout = qt_cast<QMainWindowLayout *>(mainWindow->layout());
+    QMainWindowLayout *layout = qobject_cast<QMainWindowLayout *>(mainWindow->layout());
     Q_ASSERT_X(layout != 0, "QMainWindow", "internal error");
 
     QPoint p = toolBar->mapFromGlobal(event->globalPos());

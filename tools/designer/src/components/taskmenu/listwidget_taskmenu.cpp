@@ -101,7 +101,7 @@ QObject *ListWidgetTaskMenuFactory::createExtension(QObject *object, const QStri
     if (iid != Q_TYPEID(ITaskMenu))
         return 0;
 
-    if (QListWidget *listWidget = qt_cast<QListWidget*>(object)) {
+    if (QListWidget *listWidget = qobject_cast<QListWidget*>(object)) {
         return new ListWidgetTaskMenu(listWidget, parent);
     }
 

@@ -349,7 +349,7 @@ bool Q3DragObject::drag(DragMode mode)
         ++i;
     }
 
-    QDrag *drag = new QDrag(qt_cast<QWidget *>(parent()));
+    QDrag *drag = new QDrag(qobject_cast<QWidget *>(parent()));
     drag->setMimeData(d->data);
     drag->setPixmap(d->pixmap);
     drag->setHotSpot(d->hot);

@@ -269,7 +269,7 @@ void QAbstractButtonPrivate::moveFocus(int key)
     QList<QAbstractButton *> buttonList = queryButtonList();;
     bool exclusive = group ? group->d_func()->exclusive : autoExclusive;
     QWidget *f = qApp->focusWidget();
-    QAbstractButton *fb = ::qt_cast<QAbstractButton *>(f);
+    QAbstractButton *fb = ::qobject_cast<QAbstractButton *>(f);
     if (!fb || !buttonList.contains(fb))
         return;
 

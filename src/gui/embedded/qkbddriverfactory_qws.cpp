@@ -84,7 +84,7 @@ QWSKeyboardHandler *QKbdDriverFactory::create(const QString& key, const QString&
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
-        if (QWSKeyboardHandlerFactoryInterface *factory = qt_cast<QWSKeyboardHandlerFactoryInterface*>(loader()->instance(driver)))
+        if (QWSKeyboardHandlerFactoryInterface *factory = qobject_cast<QWSKeyboardHandlerFactoryInterface*>(loader()->instance(driver)))
             return factory->create(driver);
 #endif
 #endif

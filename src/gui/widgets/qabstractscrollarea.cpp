@@ -105,7 +105,7 @@ public:
     friend class QAbstractScrollArea;
 };
 bool QAbstractScrollAreaHelper::event(QEvent *e) {
-    if (QAbstractScrollArea* viewport = qt_cast<QAbstractScrollArea*>(parentWidget()))
+    if (QAbstractScrollArea* viewport = qobject_cast<QAbstractScrollArea*>(parentWidget()))
         return ((QAbstractScrollAreaPrivate*)((QAbstractScrollAreaHelper*)viewport)->d_ptr)->viewportEvent(e);
     return QWidget::event(e);
 }

@@ -178,7 +178,7 @@ ToolBar::ToolBar(QWidget *parent)
 
 void ToolBar::polishEvent(QEvent *)
 {
-    QMainWindow *mainWindow = qt_cast<QMainWindow *>(parentWidget());
+    QMainWindow *mainWindow = qobject_cast<QMainWindow *>(parentWidget());
     Q_ASSERT(mainWindow != 0);
 
     const Qt::ToolBarArea area = mainWindow->toolBarArea(this);
@@ -286,7 +286,7 @@ void ToolBar::place(Qt::ToolBarArea area, bool p)
     if (!p)
         return;
 
-    QMainWindow *mainWindow = qt_cast<QMainWindow *>(parentWidget());
+    QMainWindow *mainWindow = qobject_cast<QMainWindow *>(parentWidget());
     Q_ASSERT(mainWindow != 0);
 
     mainWindow->addToolBar(area, this);

@@ -244,7 +244,7 @@ QTextTable *QTextTablePrivate::createTable(QTextDocumentPrivate *pieceTable, int
 {
     QTextTableFormat fmt = tableFormat;
     fmt.setColumns(cols);
-    QTextTable *table = qt_cast<QTextTable *>(pieceTable->createObject(fmt));
+    QTextTable *table = qobject_cast<QTextTable *>(pieceTable->createObject(fmt));
     Q_ASSERT(table);
 
     pieceTable->beginEditBlock();

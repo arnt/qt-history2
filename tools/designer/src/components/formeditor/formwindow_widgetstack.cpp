@@ -71,7 +71,7 @@ void FormWindowWidgetStack::setCurrentTool(int index)
 void FormWindowWidgetStack::setSenderAsCurrentTool()
 {
     AbstractFormWindowTool *tool = 0;
-    QAction *action = qt_cast<QAction*>(sender());
+    QAction *action = qobject_cast<QAction*>(sender());
     if (action == 0) {
         qWarning("FormWindowWidgetStack::setSenderAsCurrentTool(): sender is not a QAction");
         return;

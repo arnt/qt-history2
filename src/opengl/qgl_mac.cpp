@@ -272,7 +272,7 @@ static QRegion qt_mac_get_widget_rgn(const QWidget *widget)
     for(const QWidget *last = 0; (widget = widgets.pop()); last = widget) {
         const QObjectList &children = widget->children();
         for(int i = children.size()-1; i >= 0; i--) {
-            QWidget *child = qt_cast<QWidget*>(children.at(i));
+            QWidget *child = qobject_cast<QWidget*>(children.at(i));
             if(child) {
                 if(child == last)
                     break;

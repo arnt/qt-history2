@@ -33,9 +33,9 @@ AbstractFormEditor *AbstractFormWindow::core() const
 AbstractFormWindow *AbstractFormWindow::findFormWindow(QWidget *w)
 {
     while (w) {
-        if (AbstractFormWindow *fw = qt_cast<AbstractFormWindow*>(w)) {
+        if (AbstractFormWindow *fw = qobject_cast<AbstractFormWindow*>(w)) {
             return fw;
-        } else if (qt_cast<QMainWindow*>(w)) {
+        } else if (qobject_cast<QMainWindow*>(w)) {
             /* skip */
         } else if (w->isWindow())
             break;

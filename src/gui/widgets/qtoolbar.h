@@ -27,11 +27,11 @@ class Q_GUI_EXPORT QToolBar : public QWidget
     Q_OBJECT
 
     Q_PROPERTY(bool movable READ isMovable WRITE setMovable
-               DESIGNABLE (qt_cast<QMainWindow *>(parentWidget()) != 0))
+               DESIGNABLE (qobject_cast<QMainWindow *>(parentWidget()) != 0))
     Q_PROPERTY(Qt::ToolBarAreas allowedAreas READ allowedAreas WRITE setAllowedAreas
-               DESIGNABLE (qt_cast<QMainWindow *>(parentWidget()) != 0))
+               DESIGNABLE (qobject_cast<QMainWindow *>(parentWidget()) != 0))
     Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation
-               DESIGNABLE (qt_cast<QMainWindow *>(parentWidget()) == 0))
+               DESIGNABLE (qobject_cast<QMainWindow *>(parentWidget()) == 0))
     Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
     Q_PROPERTY(Qt::ToolButtonStyle toolButtonStyle READ toolButtonStyle WRITE setToolButtonStyle)
 

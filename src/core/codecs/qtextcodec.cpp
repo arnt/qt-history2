@@ -93,7 +93,7 @@ static QTextCodec *createForName(const QByteArray &name)
         if (nameMatch(name, keys.at(i).toLatin1())) {
             QByteArray realName = keys.at(i).toLatin1();
             if (QTextCodecFactoryInterface *factory
-                = qt_cast<QTextCodecFactoryInterface*>(l->instance(realName))) {
+                = qobject_cast<QTextCodecFactoryInterface*>(l->instance(realName))) {
                 return factory->create(realName);
             }
         }
@@ -105,7 +105,7 @@ static QTextCodec *createForMib(int mib)
 {
     QString name = QLatin1String("MIB: ") + QString::number(mib);
     if (QTextCodecFactoryInterface *factory
-        = qt_cast<QTextCodecFactoryInterface*>(loader()->instance(name)))
+        = qobject_cast<QTextCodecFactoryInterface*>(loader()->instance(name)))
         return factory->create(name);
     return 0;
 }

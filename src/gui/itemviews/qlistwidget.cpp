@@ -161,7 +161,7 @@ bool QListModel::setData(const QModelIndex &index, const QVariant &value, int ro
 bool QListModel::insertRows(int row, int count, const QModelIndex &)
 {
     // insert rows
-    QListWidget *view = ::qt_cast<QListWidget*>(QObject::parent());
+    QListWidget *view = ::qobject_cast<QListWidget*>(QObject::parent());
     QListWidgetItem *itm = 0;
     if (row < rowCount()) {
         for (int r = row; r < row + count; ++r) {
@@ -319,7 +319,7 @@ QListWidgetItem::QListWidgetItem(QListWidget *view)
                 |QAbstractItemModel::ItemIsEnabled)
 {
     if (view)
-        model = ::qt_cast<QListModel*>(view->model());
+        model = ::qobject_cast<QListModel*>(view->model());
     if (model)
         model->insert(model->rowCount(), this);
 }
@@ -339,7 +339,7 @@ QListWidgetItem::QListWidgetItem(const QString &text, QListWidget *view)
 {
     setData(QAbstractItemModel::DisplayRole, text);
     if (view)
-        model = ::qt_cast<QListModel*>(view->model());
+        model = ::qobject_cast<QListModel*>(view->model());
     if (model)
         model->insert(model->rowCount(), this);
 }
@@ -605,7 +605,7 @@ class QListWidgetPrivate : public QListViewPrivate
     Q_DECLARE_PUBLIC(QListWidget)
 public:
     QListWidgetPrivate() : QListViewPrivate() {}
-    inline QListModel *model() const { return ::qt_cast<QListModel*>(q_func()->model()); }
+    inline QListModel *model() const { return ::qobject_cast<QListModel*>(q_func()->model()); }
     void setup();
     void emitItemPressed(const QModelIndex &index);
     void emitItemClicked(const QModelIndex &index);

@@ -26,6 +26,6 @@ int main()
         button->toggle();
     }
 
-    if (QAbstractButton *button = qt_cast<QAbstractButton *>(widget))
+    if (QAbstractButton *button = qobject_cast<QAbstractButton *>(widget))
         button->toggle();
 }

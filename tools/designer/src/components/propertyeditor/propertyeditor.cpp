@@ -169,14 +169,14 @@ QWidget *IconProperty::createEditor(QWidget *parent, const QObject *target,
 
 void IconProperty::updateEditorContents(QWidget *editor)
 {
-    if (IconPropertyEditor *ed = qt_cast<IconPropertyEditor*>(editor)) {
+    if (IconPropertyEditor *ed = qobject_cast<IconPropertyEditor*>(editor)) {
         ed->setIcon(m_value);
     }
 }
 
 void IconProperty::updateValue(QWidget *editor)
 {
-    if (IconPropertyEditor *ed = qt_cast<IconPropertyEditor*>(editor)) {
+    if (IconPropertyEditor *ed = qobject_cast<IconPropertyEditor*>(editor)) {
         QIcon newValue = ed->icon();
 
         if (newValue.serialNumber() != m_value.serialNumber()) {
@@ -191,7 +191,7 @@ void IconProperty::updateValue(QWidget *editor)
 void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *object)
 {
     QExtensionManager *m = m_core->extensionManager();
-    IPropertySheet *sheet = qt_cast<IPropertySheet*>(m->extension(object, Q_TYPEID(IPropertySheet)));
+    IPropertySheet *sheet = qobject_cast<IPropertySheet*>(m->extension(object, Q_TYPEID(IPropertySheet)));
     QHash<QString, PropertyCollection*> g;
     for (int i=0; i<sheet->count(); ++i) {
         if (!sheet->isVisible(i))

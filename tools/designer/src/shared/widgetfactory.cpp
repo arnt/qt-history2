@@ -55,7 +55,7 @@ void WidgetFactory::loadPlugins()
     foreach (QString plugin, plugins) {
         QObject *o = pluginManager->instance(plugin);
 
-        if (ICustomWidget *c = qt_cast<ICustomWidget*>(o)) {
+        if (ICustomWidget *c = qobject_cast<ICustomWidget*>(o)) {
             if (!c->isInitialized())
                 c->initialize(core());
 
@@ -66,7 +66,7 @@ void WidgetFactory::loadPlugins()
 
 QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentWidget) const
 {
-    if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(parentWidget))
+    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(parentWidget))
         parentWidget = promoted->child();
     
     AbstractFormWindow *fw = AbstractFormWindow::findFormWindow(parentWidget);
@@ -99,8 +99,8 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
         }
     } else if (widgetName == QLatin1String("QWidget")) {
         if (fw && parentWidget &&
-             (qt_cast<AbstractFormWindow*>(parentWidget) || qt_extension<IContainer*>(m_core->extensionManager(), parentWidget))) {
-             w = new QDesignerWidget(fw, qt_cast<AbstractFormWindow*>(parentWidget) ? parentWidget : 0);
+             (qobject_cast<AbstractFormWindow*>(parentWidget) || qt_extension<IContainer*>(m_core->extensionManager(), parentWidget))) {
+             w = new QDesignerWidget(fw, qobject_cast<AbstractFormWindow*>(parentWidget) ? parentWidget : 0);
         } else {
             w = new QWidget(parentWidget);
         }
@@ -143,19 +143,19 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
 
 const char *WidgetFactory::classNameOf(QObject* o)
 {
-    if (qt_cast<QDesignerTabWidget*>(o))
+    if (qobject_cast<QDesignerTabWidget*>(o))
         return "QTabWidget";
-    else if (qt_cast<QDesignerStackedWidget*>(o))
+    else if (qobject_cast<QDesignerStackedWidget*>(o))
         return "QStackedWidget";
-    else if (qt_cast<QDesignerToolBox*>(o))
+    else if (qobject_cast<QDesignerToolBox*>(o))
         return "QToolBox";
-    else if (qt_cast<QDesignerDialog*>(o))
+    else if (qobject_cast<QDesignerDialog*>(o))
         return "QDialog";
-    else if (qt_cast<QDesignerWidget*>(o))
+    else if (qobject_cast<QDesignerWidget*>(o))
         return "QWidget";
-    else if (qt_cast<QDesignerLabel*>(o))
+    else if (qobject_cast<QDesignerLabel*>(o))
         return "QLabel";
-    else if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(o)) {
+    else if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(o)) {
         return promoted->customClassName();
     }
     return o->metaObject()->className();
@@ -219,7 +219,7 @@ QLayout *WidgetFactory::createLayout(QWidget *widget, QLayout *layout, int type)
     }
     l->setAlignment(align);
 
-    if (QLayoutWidget *l = qt_cast<QLayoutWidget*>(widget)) {
+    if (QLayoutWidget *l = qobject_cast<QLayoutWidget*>(widget)) {
         l->layout()->setMargin(1); // ### this should be 0
     }
 
@@ -247,13 +247,13 @@ QWidget* WidgetFactory::containerOfWidget(QWidget *w) const
         return w;
 
     // ### use the IContainer extension
-    else if (qt_cast<QTabWidget*>(w))
+    else if (qobject_cast<QTabWidget*>(w))
         return static_cast<QTabWidget*>(w)->currentWidget();
-    else if (qt_cast<QStackedWidget*>(w))
+    else if (qobject_cast<QStackedWidget*>(w))
         return static_cast<QStackedWidget*>(w)->currentWidget();
-    else if (qt_cast<QToolBox*>(w))
+    else if (qobject_cast<QToolBox*>(w))
         return static_cast<QToolBox*>(w)->widget(static_cast<QToolBox*>(w)->currentIndex());
-    else if (qt_cast<QMainWindow*>(w))
+    else if (qobject_cast<QMainWindow*>(w))
         return static_cast<QMainWindow*>(w)->centralWidget();
     return w;
 }
@@ -274,11 +274,11 @@ QWidget* WidgetFactory::widgetOfContainer(QWidget *w) const
 
     if (w->parentWidget() && w->parentWidget()->parentWidget() &&
          w->parentWidget()->parentWidget()->parentWidget() &&
-         qt_cast<QToolBox*>(w->parentWidget()->parentWidget()->parentWidget()))
+         qobject_cast<QToolBox*>(w->parentWidget()->parentWidget()->parentWidget()))
         return w->parentWidget()->parentWidget()->parentWidget();
     while (w) {
         if (core()->widgetDataBase()->isContainer(w) ||
-             w && qt_cast<AbstractFormWindow*>(w->parentWidget()))
+             w && qobject_cast<AbstractFormWindow*>(w->parentWidget()))
             return w;
         w = w->parentWidget();
     }
@@ -303,6 +303,6 @@ void WidgetFactory::initialize(QObject *object) const
     sheet->setChanged(sheet->indexOf("objectName"), true);
     sheet->setChanged(sheet->indexOf("geometry"), true);
 
-    if (qt_cast<Spacer*>(object))
+    if (qobject_cast<Spacer*>(object))
         sheet->setChanged(sheet->indexOf("sizeHint"), true);
 }

@@ -1488,7 +1488,7 @@ void QTextEdit::resizeEvent(QResizeEvent *)
     Q_D(QTextEdit);
     QAbstractTextDocumentLayout *layout = d->doc->documentLayout();
 
-    if (QTextDocumentLayout *tlayout = qt_cast<QTextDocumentLayout *>(layout)) {
+    if (QTextDocumentLayout *tlayout = qobject_cast<QTextDocumentLayout *>(layout)) {
         if (d->wordWrap == NoWrap)
             tlayout->setBlockTextFlags(tlayout->blockTextFlags() | Qt::TextSingleLine);
         else

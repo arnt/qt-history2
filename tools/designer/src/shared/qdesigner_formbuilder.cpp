@@ -35,7 +35,7 @@ QDesignerFormBuilder::QDesignerFormBuilder(AbstractFormEditor *core)
     foreach (QString plugin, plugins) {
         QObject *o = pluginManager->instance(plugin);
 
-        if (ICustomWidget *c = qt_cast<ICustomWidget*>(o)) {
+        if (ICustomWidget *c = qobject_cast<ICustomWidget*>(o)) {
             if (!c->isInitialized())
                 c->initialize(m_core);
 

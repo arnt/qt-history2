@@ -451,7 +451,7 @@ QAccessibleInterface *QAccessible::queryAccessibleInterface(QObject *object)
                 return iface;
         }
 #ifndef QT_NO_COMPONENT
-        QAccessibleFactoryInterface *factory = qt_cast<QAccessibleFactoryInterface*>(loader()->instance(cn));
+        QAccessibleFactoryInterface *factory = qobject_cast<QAccessibleFactoryInterface*>(loader()->instance(cn));
         if (factory) {
             iface = factory->create(cn, object);
             if (iface)
@@ -461,7 +461,7 @@ QAccessibleInterface *QAccessible::queryAccessibleInterface(QObject *object)
         mo = mo->superClass();
     }
 
-    QWidget *widget = qt_cast<QWidget*>(object);
+    QWidget *widget = qobject_cast<QWidget*>(object);
     if (widget)
         return new QAccessibleWidget(widget);
     else if (object == qApp)

@@ -707,18 +707,18 @@ protected:
 };
 
 #if defined Q_CC_MSVC && _MSC_VER < 1300
-template <> inline QWidget *qt_cast_helper<QWidget*>(QObject *o, QWidget *)
+template <> inline QWidget *qobject_cast_helper<QWidget*>(QObject *o, QWidget *)
 {
     if (!o || !o->isWidgetType()) return 0;
     return (QWidget*)(o);
 }
 #else
-template <> inline QWidget *qt_cast<QWidget*>(QObject *o)
+template <> inline QWidget *qobject_cast<QWidget*>(QObject *o)
 {
     if (!o || !o->isWidgetType()) return 0;
     return static_cast<QWidget*>(o);
 }
-template <> inline const QWidget *qt_cast<const QWidget*>(const QObject *o)
+template <> inline const QWidget *qobject_cast<const QWidget*>(const QObject *o)
 {
     if (!o || !o->isWidgetType()) return 0;
     return static_cast<const QWidget*>(o);

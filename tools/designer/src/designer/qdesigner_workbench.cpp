@@ -373,7 +373,7 @@ int QDesignerWorkbench::marginHint() const
 
 void QDesignerWorkbench::activateWorkspaceChildWindow(QWidget *widget)
 {
-    if (QDesignerFormWindow *fw = qt_cast<QDesignerFormWindow*>(widget)) {
+    if (QDesignerFormWindow *fw = qobject_cast<QDesignerFormWindow*>(widget)) {
         core()->formWindowManager()->setActiveFormWindow(fw->editor());
     }
 }
@@ -403,7 +403,7 @@ void QDesignerWorkbench::initializeCorePlugins()
 {
     QList<QObject*> builtinPlugins = QPluginLoader::staticInstances();
     foreach (QObject *plugin, builtinPlugins) {
-        if (AbstractFormEditorPlugin *formEditorPlugin = qt_cast<AbstractFormEditorPlugin*>(plugin)) {
+        if (AbstractFormEditorPlugin *formEditorPlugin = qobject_cast<AbstractFormEditorPlugin*>(plugin)) {
             if (!formEditorPlugin->isInitialized())
                 formEditorPlugin->initialize(core());
         }

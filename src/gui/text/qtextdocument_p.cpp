@@ -163,7 +163,7 @@ QTextDocumentPrivate::QTextDocumentPrivate()
 
 void QTextDocumentPrivate::init()
 {
-    frame = qt_cast<QTextFrame *>(createObject(QTextFrameFormat()));
+    frame = qobject_cast<QTextFrame *>(createObject(QTextFrameFormat()));
     framesDirty = false;
 
     undoEnabled = false;
@@ -213,7 +213,7 @@ void QTextDocumentPrivate::insert_string(int pos, uint strPos, uint length, int 
 
     Q_ASSERT(blocks.length() == fragments.length());
 
-    QTextFrame *frame = qt_cast<QTextFrame *>(objectForFormat(format));
+    QTextFrame *frame = qobject_cast<QTextFrame *>(objectForFormat(format));
     if (frame) {
         frame->d_func()->fragmentAdded(text.at(strPos), x);
         framesDirty = true;
@@ -254,11 +254,11 @@ void QTextDocumentPrivate::insert_block(int pos, uint strPos, int format, int bl
 
     Q_ASSERT(blocks.length() == fragments.length());
 
-    QTextBlockGroup *group = qt_cast<QTextBlockGroup *>(objectForFormat(blockFormat));
+    QTextBlockGroup *group = qobject_cast<QTextBlockGroup *>(objectForFormat(blockFormat));
     if (group)
         group->blockInserted(QTextBlock(this, b));
 
-    QTextFrame *frame = qt_cast<QTextFrame *>(objectForFormat(formats.format(format)));
+    QTextFrame *frame = qobject_cast<QTextFrame *>(objectForFormat(formats.format(format)));
     if (frame) {
         frame->d_func()->fragmentAdded(text.at(strPos), x);
         framesDirty = true;
@@ -344,7 +344,7 @@ int QTextDocumentPrivate::remove_string(int pos, uint length, QTextUndoCommand::
 
     blocks.setSize(b, blocks.size(b)-length);
 
-    QTextFrame *frame = qt_cast<QTextFrame *>(objectForFormat(fragments.fragment(x)->format));
+    QTextFrame *frame = qobject_cast<QTextFrame *>(objectForFormat(fragments.fragment(x)->format));
     if (frame) {
         frame->d_func()->fragmentRemoved(text.at(fragments.fragment(x)->stringPosition), x);
         framesDirty = true;
@@ -385,11 +385,11 @@ int QTextDocumentPrivate::remove_block(int pos, int *blockFormat, int command, Q
     }
     *blockFormat = blocks.fragment(b)->format;
 
-    QTextBlockGroup *group = qt_cast<QTextBlockGroup *>(objectForFormat(blocks.fragment(b)->format));
+    QTextBlockGroup *group = qobject_cast<QTextBlockGroup *>(objectForFormat(blocks.fragment(b)->format));
     if (group)
         group->blockRemoved(QTextBlock(this, b));
 
-    QTextFrame *frame = qt_cast<QTextFrame *>(objectForFormat(fragments.fragment(x)->format));
+    QTextFrame *frame = qobject_cast<QTextFrame *>(objectForFormat(fragments.fragment(x)->format));
     if (frame) {
         frame->d_func()->fragmentRemoved(text.at(fragments.fragment(x)->stringPosition), x);
         framesDirty = true;
@@ -550,7 +550,7 @@ void QTextDocumentPrivate::setBlockFormat(const QTextBlock &from, const QTextBlo
     int newFormatIdx = -1;
     if (mode == SetFormat)
         newFormatIdx = formats.indexForFormat(newFormat);
-    QTextBlockGroup *group = qt_cast<QTextBlockGroup *>(objectForFormat(newFormat));
+    QTextBlockGroup *group = qobject_cast<QTextBlockGroup *>(objectForFormat(newFormat));
 
     QTextBlock it = from;
     QTextBlock end = to;
@@ -560,11 +560,11 @@ void QTextDocumentPrivate::setBlockFormat(const QTextBlock &from, const QTextBlo
     for (; it != end; it = it.next()) {
         int oldFormat = block(it)->format;
         QTextBlockFormat format = formats.blockFormat(oldFormat);
-        QTextBlockGroup *oldGroup = qt_cast<QTextBlockGroup *>(objectForFormat(format));
+        QTextBlockGroup *oldGroup = qobject_cast<QTextBlockGroup *>(objectForFormat(format));
         if (mode == MergeFormat) {
             format.merge(newFormat);
             newFormatIdx = formats.indexForFormat(format);
-            group = qt_cast<QTextBlockGroup *>(objectForFormat(format));
+            group = qobject_cast<QTextBlockGroup *>(objectForFormat(format));
         }
         block(it)->format = newFormatIdx;
 
@@ -695,8 +695,8 @@ void QTextDocumentPrivate::undoRedo(bool undo)
 
             int oldFormat = block(it)->format;
             block(it)->format = c.format;
-            QTextBlockGroup *oldGroup = qt_cast<QTextBlockGroup *>(objectForFormat(formats.blockFormat(oldFormat)));
-            QTextBlockGroup *group = qt_cast<QTextBlockGroup *>(objectForFormat(formats.blockFormat(c.format)));
+            QTextBlockGroup *oldGroup = qobject_cast<QTextBlockGroup *>(objectForFormat(formats.blockFormat(oldFormat)));
+            QTextBlockGroup *group = qobject_cast<QTextBlockGroup *>(objectForFormat(formats.blockFormat(c.format)));
             c.format = oldFormat;
             if (group != oldGroup) {
                 if (oldGroup)
@@ -966,7 +966,7 @@ void QTextDocumentPrivate::changeObjectFormat(QTextObject *obj, int format)
     int oldFormatIndex = formats.objectFormatIndex(objectIndex);
     formats.setObjectFormatIndex(objectIndex, format);
 
-    QTextBlockGroup *b = qt_cast<QTextBlockGroup *>(obj);
+    QTextBlockGroup *b = qobject_cast<QTextBlockGroup *>(obj);
     if (b) {
         QList<QTextBlock> blocks = b->blockList();
         for (int i = 0; i < blocks.size(); ++i) {
@@ -975,7 +975,7 @@ void QTextDocumentPrivate::changeObjectFormat(QTextObject *obj, int format)
             documentChange(block.position(), block.length());
         }
     }
-    QTextFrame *f = qt_cast<QTextFrame *>(obj);
+    QTextFrame *f = qobject_cast<QTextFrame *>(obj);
     if (f)
         documentChange(f->firstPosition(), f->lastPosition() - f->firstPosition());
 
@@ -1033,7 +1033,7 @@ void QTextDocumentPrivate::scan_frames(int pos, int charsRemoved, int charsAddde
 
     for (FragmentIterator it = begin(); it != end(); ++it) {
         // QTextFormat fmt = formats.format(it->format);
-        QTextFrame *frame = qt_cast<QTextFrame *>(objectForFormat(it->format));
+        QTextFrame *frame = qobject_cast<QTextFrame *>(objectForFormat(it->format));
         if (!frame)
             continue;
 
@@ -1105,7 +1105,7 @@ QTextFrame *QTextDocumentPrivate::insertFrame(int start, int end, const QTextFra
 
     beginEditBlock();
 
-    QTextFrame *frame = qt_cast<QTextFrame *>(createObject(format));
+    QTextFrame *frame = qobject_cast<QTextFrame *>(createObject(format));
     Q_ASSERT(frame);
 
     // #### using the default block and char format below might be wrong

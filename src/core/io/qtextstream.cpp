@@ -218,7 +218,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 #ifndef QT_NO_QOBJECT
 static bool isBufferedFSFileEngine(QIODevice *device)
 {
-    QFile *file = qt_cast<QFile *>(device);
+    QFile *file = qobject_cast<QFile *>(device);
     return file && file->fileEngine()->type() == QFileEngine::Type(QBufferedFSFileEngine::BufferedFSFileEngine);
 }
 #else

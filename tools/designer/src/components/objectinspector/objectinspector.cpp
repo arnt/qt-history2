@@ -85,7 +85,7 @@ static void dumpWidget(QWidget *w, QString &result, int nest)
 
     QList<QObject*> child_list = w->children();
     foreach (QObject *childobj, child_list) {
-        QWidget *childwgt = qt_cast<QWidget*>(childobj);
+        QWidget *childwgt = qobject_cast<QWidget*>(childobj);
         if (childwgt != 0)
             dumpWidget(childwgt, result, nest + 1);
     }
@@ -123,7 +123,7 @@ void ObjectInspector::setFormWindow(AbstractFormWindow *fw)
         workingList.pop();
 
         QString objectName;
-        if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(object))
+        if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(object))
             objectName = promoted->child()->objectName();
         else
             objectName = object->objectName();
@@ -157,7 +157,7 @@ void ObjectInspector::setFormWindow(AbstractFormWindow *fw)
             }
         } else {
             QList<QObject*> children;
-            if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(object))
+            if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(object))
                 children = promoted->child()->children();
             else
                 children = object->children();
@@ -192,7 +192,7 @@ void ObjectInspector::slotSelectionChanged()
     foreach (QTreeWidgetItem *item, items) {
         QObject *object = 0;
         Q_ASSERT(qVariantGet(item->data(0, 1000), object));
-        if (QWidget *widget = qt_cast<QWidget*>(object))
+        if (QWidget *widget = qobject_cast<QWidget*>(object))
             m_formWindow->selectWidget(widget);
     }
 }

@@ -282,7 +282,7 @@ QWidget *QAxScriptSite::window() const
     QWidget *w = 0;
     QObject *p = script->parent();
     while (!w && p) {
-        w = ::qt_cast<QWidget*>(p);
+        w = ::qobject_cast<QWidget*>(p);
         p = p->parent();
     }
     
@@ -1241,6 +1241,6 @@ void QAxScriptManager::objectDestroyed(QObject *o)
 */
 void QAxScriptManager::scriptError(int code, const QString &desc, int spos, const QString &stext)
 {
-    QAxScript *source = ::qt_cast<QAxScript*>(sender());
+    QAxScript *source = ::qobject_cast<QAxScript*>(sender());
     emit error(source, code, desc, spos, stext);
 }

@@ -508,7 +508,7 @@ void QMotifWidget::realize( Widget w )
 	Window newid = XtWindow( w );
 	QObjectList list = children();
 	for (int i = 0; i < list.size(); ++i) {
-	    QWidget *widget = qt_cast<QWidget*>(list.at(i));
+	    QWidget *widget = qobject_cast<QWidget*>(list.at(i));
 	    if (!widget || widget->isWindow()) continue;
 
 	    XReparentWindow(x11Info().display(), widget->winId(), newid,

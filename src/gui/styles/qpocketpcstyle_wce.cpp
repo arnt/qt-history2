@@ -288,8 +288,8 @@
         Qt::Dock placement = Qt::DockTop;
 
         // Is docked
-        if (::qt_cast<QToolBar*>(p) || ::qt_cast<QDockWindow*>(p)) {
-            QDockWindow *dw = ::qt_cast<QDockWindow*>(p);
+        if (::qobject_cast<QToolBar*>(p) || ::qobject_cast<QDockWindow*>(p)) {
+            QDockWindow *dw = ::qobject_cast<QDockWindow*>(p);
 
             // It's not docked, so no panel
             if (dw->place() == QDockWindow::OutsideDock)
@@ -297,11 +297,11 @@
 
             // Find main window, so we can determine where it's docked.
 #ifndef Q_OS_TEMP
-            if (::qt_cast<QMainWindow*>(dw->window())) {
-                QMainWindow *mw = ::qt_cast<QMainWindow*>(dw->window());
+            if (::qobject_cast<QMainWindow*>(dw->window())) {
+                QMainWindow *mw = ::qobject_cast<QMainWindow*>(dw->window());
 #else
-            if (::qt_cast<QCEMainWindow*>(dw->window())) {
-                QCEMainWindow *mw = ::qt_cast<QCEMainWindow*>(dw->window());
+            if (::qobject_cast<QCEMainWindow*>(dw->window())) {
+                QCEMainWindow *mw = ::qobject_cast<QCEMainWindow*>(dw->window());
 #endif // Q_OS_TEMP
                 if (mw) {
                     bool nl;
@@ -309,15 +309,15 @@
                     mw->getLocation(dw, placement, index, (bool)nl, extraOffset);
                 }
             }
-        } else if (::qt_cast<QDockArea*>(p)) {
-            QDockArea *da = ::qt_cast<QDockArea*>(p);
+        } else if (::qobject_cast<QDockArea*>(p)) {
+            QDockArea *da = ::qobject_cast<QDockArea*>(p);
             // Find main window, so we can determine where it's docked.
 #ifndef Q_OS_TEMP
-            if (::qt_cast<QMainWindow*>(da->window())) {
-                QMainWindow *mw = ::qt_cast<QMainWindow*>(da->window());
+            if (::qobject_cast<QMainWindow*>(da->window())) {
+                QMainWindow *mw = ::qobject_cast<QMainWindow*>(da->window());
 #else
-            if (::qt_cast<QCEMainWindow*>(da->window())) {
-                QCEMainWindow *mw = ::qt_cast<QCEMainWindow*>(da->window());
+            if (::qobject_cast<QCEMainWindow*>(da->window())) {
+                QCEMainWindow *mw = ::qobject_cast<QCEMainWindow*>(da->window());
 #endif // Q_OS_TEMP
                 if (mw) {
                     if (da == mw->topDock()) return Qt::DockTop;
@@ -402,19 +402,19 @@ void QPocketPCStyle::polish(QWidget *w)
     // he's doing, so we don't mess around with the widget settings
     /*
     if (w && !w->ownPalette()) {
-        if (::qt_cast<QToolBar*>(w) ||
-            ::qt_cast<Q3MenuBar*>(w) ||
-            ::qt_cast<QStatusBar*>(w) ||
-            ::qt_cast<QDockWindow*>(w) ||
-            ::qt_cast<QDockArea*>(w) ||
-            ::qt_cast<QTable*>(w) ||
-            ::qt_cast<QTabWidget*>(w)) {
+        if (::qobject_cast<QToolBar*>(w) ||
+            ::qobject_cast<Q3MenuBar*>(w) ||
+            ::qobject_cast<QStatusBar*>(w) ||
+            ::qobject_cast<QDockWindow*>(w) ||
+            ::qobject_cast<QDockArea*>(w) ||
+            ::qobject_cast<QTable*>(w) ||
+            ::qobject_cast<QTabWidget*>(w)) {
             w->setBackgroundMode(Qt::PaletteBackground);
             QToolBar *tb = 0;
-            if ((tb = ::qt_cast<QToolBar*>(w)))
+            if ((tb = ::qobject_cast<QToolBar*>(w)))
                 tb->boxLayout()->setAlignment(Qt::AlignLeft);
-        } else if (::qt_cast<QToolButton*>(w) &&
-                    ::qt_cast<QToolBar*>(w->parentWidget())) {
+        } else if (::qobject_cast<QToolButton*>(w) &&
+                    ::qobject_cast<QToolBar*>(w->parentWidget())) {
             w->setBackgroundMode(Qt::PaletteBackground);
         } else {
             w->setBackgroundMode(Qt::PaletteBase);
@@ -671,7 +671,7 @@ int QPocketPCStyle::pixelMetric(PixelMetric pixelmetric, const QStyleOption * /*
 
 #if defined(Q_WS_WIN)
     case PM_TitleBarHeight:
-        if (widget && (widget->testWFlags(Qt::WA_WState_Tool) || ::qt_cast<QDockWindow*>(widget))) {
+        if (widget && (widget->testWFlags(Qt::WA_WState_Tool) || ::qobject_cast<QDockWindow*>(widget))) {
             // MS always use one less than they say
             ret = GetSystemMetrics(SM_CYCAPTION) - 1;
         } else {
@@ -3632,7 +3632,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                 mflags |= State_Down;
 
             if (sub & SC_ToolButton) {
-                QToolBar *tb = ::qt_cast<QToolBar*>(toolbutton->parentWidget());
+                QToolBar *tb = ::qobject_cast<QToolBar*>(toolbutton->parentWidget());
                 // Keep line, if docked and not movable (movable have frame)
                 if (tb && !tb->isMovingEnabled()) {
                     switch (findLocation(toolbutton->parentWidget())) {
@@ -3729,7 +3729,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                 down = subActive & SC_TitleBarCloseButton;
                 if (widget->testWFlags(Qt::WA_WState_Tool)
 #ifndef QT_NO_MAINWINDOW
-                     || ::qt_cast<QDockWindow*>(widget)
+                     || ::qobject_cast<QDockWindow*>(widget)
 #endif
                    )
                     pm = stylePixmap(SP_DockWindowCloseButton, widget);

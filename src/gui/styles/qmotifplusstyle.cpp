@@ -155,24 +155,24 @@ void QMotifPlusStyle::polish(QPalette &)
 void QMotifPlusStyle::polish(QWidget *widget)
 {
 #ifndef QT_NO_FRAME
-    if (qt_cast<QFrame*>(widget) && ((QFrame *) widget)->frameStyle() == QFrame::Panel)
+    if (qobject_cast<QFrame*>(widget) && ((QFrame *) widget)->frameStyle() == QFrame::Panel)
         ((QFrame *) widget)->setFrameStyle(QFrame::WinPanel);
 #endif
 
 #ifndef QT_NO_MENUBAR
-    if (qt_cast<Q3MenuBar*>(widget) && ((Q3MenuBar *) widget)->frameStyle() != QFrame::NoFrame)
+    if (qobject_cast<Q3MenuBar*>(widget) && ((Q3MenuBar *) widget)->frameStyle() != QFrame::NoFrame)
         ((Q3MenuBar *) widget)->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
 #endif
 
 #ifndef QT_NO_TOOLBAR
-    if (qt_cast<QToolBar*>(widget))
+    if (qobject_cast<QToolBar*>(widget))
         widget->layout()->setMargin(2);
 #endif
     if (useHoveringHighlight) {
-        if (qt_cast<QAbstractButton*>(widget) || qt_cast<QComboBox*>(widget))
+        if (qobject_cast<QAbstractButton*>(widget) || qobject_cast<QComboBox*>(widget))
             widget->installEventFilter(this);
 
-        if (qt_cast<QScrollBar*>(widget) || qt_cast<QSlider*>(widget)) {
+        if (qobject_cast<QScrollBar*>(widget) || qobject_cast<QSlider*>(widget)) {
             widget->setMouseTracking(true);
             widget->installEventFilter(this);
         }
@@ -1648,7 +1648,7 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
         {
             singleton->mousePressed = true;
 
-            if (!qt_cast<QSlider*>(object))
+            if (!qobject_cast<QSlider*>(object))
                 break;
 
             singleton->sliderActive = true;
@@ -1659,7 +1659,7 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
         {
             singleton->mousePressed = false;
 
-            if (!qt_cast<QSlider*>(object))
+            if (!qobject_cast<QSlider*>(object))
                 break;
 
             singleton->sliderActive = false;
@@ -1696,7 +1696,7 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
             if (! object->isWidgetType() || object != singleton->hoverWidget)
                 break;
 
-            if (!qt_cast<QScrollBar*>(object) && ! qt_cast<QSlider*>(object))
+            if (!qobject_cast<QScrollBar*>(object) && ! qobject_cast<QSlider*>(object))
                 break;
 
             singleton->mousePos = ((QMouseEvent *) event)->pos();

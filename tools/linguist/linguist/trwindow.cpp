@@ -200,9 +200,9 @@ TrWindow::TrWindow()
     me = new MessageEditor(&tor, this);
     setCentralWidget(me);
     stv = me->sourceTextView();
-    mmdl = qt_cast<MessageModel *>(stv->model());
+    mmdl = qobject_cast<MessageModel *>(stv->model());
     ptv = me->phraseView();
-    pmdl = qt_cast<PhraseModel *>(ptv->model());
+    pmdl = qobject_cast<PhraseModel *>(ptv->model());
 
     setupMenuBar();
     setupToolBars();

@@ -113,7 +113,7 @@ QPluginLoader::~QPluginLoader()
     
     The instance is not deleted when the QPluginLoader is destroyed.
 
-    The component object is a QObject. Use \l qt_cast to access
+    The component object is a QObject. Use \l qobject_cast to access
     interfaces you are interested in.
  */
 QObject *QPluginLoader::instance()

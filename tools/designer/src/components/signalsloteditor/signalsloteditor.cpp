@@ -403,7 +403,7 @@ void SignalSlotConnection::setSlot(const QString &slot)
 
 QString SignalSlotConnection::sender() const
 {
-    SignalSlotEditor *edit = qt_cast<SignalSlotEditor*>(this->edit());
+    SignalSlotEditor *edit = qobject_cast<SignalSlotEditor*>(this->edit());
     Q_ASSERT(edit != 0);
 
     return realObjectName(edit->formWindow()->core(), widget(EndPoint::Source));
@@ -411,7 +411,7 @@ QString SignalSlotConnection::sender() const
 
 QString SignalSlotConnection::receiver() const
 {
-    SignalSlotEditor *edit = qt_cast<SignalSlotEditor*>(this->edit());
+    SignalSlotEditor *edit = qobject_cast<SignalSlotEditor*>(this->edit());
     Q_ASSERT(edit != 0);
 
     return realObjectName(edit->formWindow()->core(), widget(EndPoint::Target));

@@ -2338,7 +2338,7 @@ void Q3TextEdit::contentsMouseReleaseEvent(QMouseEvent * e)
             QUrl u = QUrl(doc->context()).resolved(onLink);
             emitLinkClicked(u.toString(QUrl::None));
         }
-        if (Q3TextBrowser *browser = qt_cast<Q3TextBrowser*>(this))
+        if (Q3TextBrowser *browser = qobject_cast<Q3TextBrowser*>(this))
             emit browser->anchorClicked(d->onName, onLink);
 
         // emitting linkClicked() may result in that the cursor winds
@@ -4630,7 +4630,7 @@ bool Q3TextEdit::handleReadOnlyKeyEvent(QKeyEvent *e)
                 emitLinkClicked(u.toString(QUrl::None));
             }
             if (!doc->focusIndicator.name.isEmpty())
-                if (Q3TextBrowser *browser = qt_cast<Q3TextBrowser*>(this))
+                if (Q3TextBrowser *browser = qobject_cast<Q3TextBrowser*>(this))
                     emit browser->anchorClicked(doc->focusIndicator.name, doc->focusIndicator.href);
 
 #ifndef QT_NO_CURSOR

@@ -47,7 +47,7 @@ bool operator<(const QPointer<QWidget> &p1, const QPointer<QWidget> &p2)
 
 void add_to_box_layout(QBoxLayout *box, QWidget *widget)
 {
-    if (QLayoutWidget *layoutWidget = qt_cast<QLayoutWidget*>(widget)) {
+    if (QLayoutWidget *layoutWidget = qobject_cast<QLayoutWidget*>(widget)) {
         QLayoutWidgetItem *item = new QLayoutWidgetItem(layoutWidget);
         item->addTo(box);
         box->addItem(item);
@@ -58,7 +58,7 @@ void add_to_box_layout(QBoxLayout *box, QWidget *widget)
 
 void insert_into_box_layout(QBoxLayout *box, int index, QWidget *widget)
 {
-    if (QLayoutWidget *layoutWidget = qt_cast<QLayoutWidget*>(widget)) {
+    if (QLayoutWidget *layoutWidget = qobject_cast<QLayoutWidget*>(widget)) {
         QLayoutWidgetItem *item = new QLayoutWidgetItem(layoutWidget);
         item->addTo(box);
         static_cast<FriendlyBoxLayout*>(box)->insertItem(index, item);
@@ -69,7 +69,7 @@ void insert_into_box_layout(QBoxLayout *box, int index, QWidget *widget)
 
 void add_to_grid_layout(QGridLayout *grid, QWidget *widget, int r, int c, int rs, int cs, Qt::Alignment align)
 {
-    if (QLayoutWidget *layoutWidget = qt_cast<QLayoutWidget*>(widget)) {
+    if (QLayoutWidget *layoutWidget = qobject_cast<QLayoutWidget*>(widget)) {
         QLayoutWidgetItem *item = new QLayoutWidgetItem(layoutWidget);
         item->addTo(grid);
         grid->addItem(item, r, c, rs, cs, align);
@@ -202,7 +202,7 @@ bool Layout::prepareLayout(bool &needMove, bool &needReparent)
     }
 
     needMove = !layoutBase;
-    needReparent = needMove || qt_cast<QLayoutWidget*>(layoutBase) || qt_cast<QSplitter*>(layoutBase);
+    needReparent = needMove || qobject_cast<QLayoutWidget*>(layoutBase) || qobject_cast<QSplitter*>(layoutBase);
 
     AbstractWidgetFactory *widgetFactory = formWindow->core()->widgetFactory();
     AbstractMetaDataBase *metaDataBase = formWindow->core()->metaDataBase();
@@ -244,7 +244,7 @@ void Layout::finishLayout(bool needMove, QLayout *layout)
     layout->invalidate();
     layoutBase->show();
 
-    if (qt_cast<QLayoutWidget*>(layoutBase) || qt_cast<QSplitter*>(layoutBase)) {
+    if (qobject_cast<QLayoutWidget*>(layoutBase) || qobject_cast<QSplitter*>(layoutBase)) {
         formWindow->manageWidget(layoutBase);
         formWindow->selectWidget(layoutBase);
     }
@@ -291,7 +291,7 @@ void Layout::undoLayout()
 
     LayoutInfo::deleteLayout(formWindow->core(), layoutBase);
 
-    if (m_parentWidget != layoutBase && !qt_cast<QMainWindow*>(layoutBase)) {
+    if (m_parentWidget != layoutBase && !qobject_cast<QMainWindow*>(layoutBase)) {
         formWindow->unmanageWidget(layoutBase);
         layoutBase->hide();
     } else {
@@ -316,11 +316,11 @@ void Layout::breakLayout()
     AbstractWidgetDataBase *widgetDataBase = formWindow->core()->widgetDataBase();
 
     LayoutInfo::deleteLayout(formWindow->core(), layoutBase);
-    bool needReparent = qt_cast<QLayoutWidget*>(layoutBase) ||
-                        qt_cast<QSplitter*>(layoutBase)     ||
+    bool needReparent = qobject_cast<QLayoutWidget*>(layoutBase) ||
+                        qobject_cast<QSplitter*>(layoutBase)     ||
                         (!widgetDataBase->isContainer(layoutBase, false) &&
                           layoutBase != formWindow->mainContainer());
-    bool needResize = qt_cast<QSplitter*>(layoutBase);
+    bool needResize = qobject_cast<QSplitter*>(layoutBase);
     bool add = geometries.isEmpty();
 
     QMapIterator<QWidget*, QRect> it(rects);
@@ -388,7 +388,7 @@ void HorizontalLayout::doLayout()
         }
 
         if (!useSplitter) {
-            if (Spacer *spacer = qt_cast<Spacer*>(w))
+            if (Spacer *spacer = qobject_cast<Spacer*>(w))
                 layout->addWidget(w, 0, spacer->alignment());
             else
                 add_to_box_layout(layout, w);
@@ -396,7 +396,7 @@ void HorizontalLayout::doLayout()
         w->show();
     }
 
-    if (QSplitter *splitter = qt_cast<QSplitter*>(layoutBase))
+    if (QSplitter *splitter = qobject_cast<QSplitter*>(layoutBase))
         splitter->setOrientation(Qt::Horizontal);
 
     finishLayout(needMove, layout);
@@ -436,7 +436,7 @@ void VerticalLayout::doLayout()
         }
 
         if (!useSplitter) {
-            if (Spacer *spacer = qt_cast<Spacer*>(w))
+            if (Spacer *spacer = qobject_cast<Spacer*>(w))
                 layout->addWidget(w, 0, spacer->alignment());
             else
                 add_to_box_layout(layout, w);
@@ -444,7 +444,7 @@ void VerticalLayout::doLayout()
         w->show();
     }
 
-    if (qt_cast<QSplitter*>(layoutBase))
+    if (qobject_cast<QSplitter*>(layoutBase))
         static_cast<QSplitter*>(layoutBase)->setOrientation(Qt::Vertical);
 
     finishLayout(needMove, layout);
@@ -827,7 +827,7 @@ void GridLayout::doLayout()
             }
 
             Qt::Alignment alignment = Qt::Alignment(0);
-            if (Spacer *spacer = qt_cast<Spacer*>(w))
+            if (Spacer *spacer = qobject_cast<Spacer*>(w))
                 alignment = spacer->alignment();
 
             if (rs * cs == 1) {

@@ -120,11 +120,11 @@ QObject *PromotedWidgetPropertySheetFactory::createExtension(QObject *object,
 {
     if (iid != Q_TYPEID(IPropertySheet))
         return 0;
-    QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(object);
+    QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(object);
     if (promoted == 0)
         return 0;
     return new PromotedWidgetPropertySheet(promoted,
-                                qt_cast<QExtensionManager*>(this->parent()),
+                                qobject_cast<QExtensionManager*>(this->parent()),
                                 parent);
 }
 

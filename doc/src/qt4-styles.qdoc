@@ -55,13 +55,13 @@
     When reimplementing \l QStyle functions that take a \l QStyleOption
     parameter, you often need to cast the \l QStyleOption to a subclass
     (e.g., \l QStyleOptionFocusRect). For safety, you can use
-    qt_cast<T>() to ensure that the pointer type is correct. If the
-    object isn't of the right type, qt_cast<T>() returns 0. For
+    qobject_cast<T>() to ensure that the pointer type is correct. If the
+    object isn't of the right type, qobject_cast<T>() returns 0. For
     example:
 
     \code
         const QStyleOptionFocusRect *focusRectOption =
-                qt_cast<const QStyleOptionFocusRect *>(option);
+                qobject_cast<const QStyleOptionFocusRect *>(option);
         if (focusRectOption) {
             ...
         }

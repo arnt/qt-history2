@@ -225,7 +225,7 @@ FirstPage::FirstPage(ClassWizard *wizard)
 
 void FirstPage::classNameChanged()
 {
-    ClassWizard *wizard = qt_cast<ClassWizard *>(parent());
+    ClassWizard *wizard = qobject_cast<ClassWizard *>(parent());
     wizard->setButtonEnabled(!classNameLineEdit->text().isEmpty());
 }
 

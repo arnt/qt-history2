@@ -318,7 +318,7 @@ static QWidget *find_child(QWidget *tlw, QPoint & p)
         if (!children.isEmpty()) {
             for(int i = children.size(); i > 0;) {
                 --i;
-                QWidget *w = qt_cast<QWidget *>(children.at(i));
+                QWidget *w = qobject_cast<QWidget *>(children.at(i));
                 if (!w)
                     continue;
                 if (w->isVisible() &&

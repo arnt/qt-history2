@@ -30,7 +30,7 @@ QWidget *FormBuilder::create(DomWidget *ui_widget, QWidget *parentWidget)
     }
 
     if (QWidget *w = Resource::create(ui_widget, parentWidget)) {
-        //if (QMenu *menu = qt_cast<QMenu*>(w)) {
+        //if (QMenu *menu = qobject_cast<QMenu*>(w)) {
             QList<DomActionRef*> refs = ui_widget->elementAddAction();
             for (int i=0; i<refs.size(); ++i) {
                 if (QAction *a = m_actions.value(refs.at(i)->attributeName()))
@@ -48,15 +48,15 @@ QWidget *FormBuilder::createWidget(const QString &widgetName, QWidget *parentWid
 {
     QWidget *w = 0;
 
-    if (qt_cast<QTabWidget*>(parentWidget)
-            || qt_cast<QStackedWidget*>(parentWidget)
-            || qt_cast<QToolBox*>(parentWidget))
+    if (qobject_cast<QTabWidget*>(parentWidget)
+            || qobject_cast<QStackedWidget*>(parentWidget)
+            || qobject_cast<QToolBox*>(parentWidget))
         parentWidget = 0;
 
     if (widgetName == QLatin1String("Line"))
         w = new QFrame(parentWidget);
     else if (widgetName == QLatin1String("QToolBar"))
-        w = new QToolBar(qt_cast<QMainWindow*>(parentWidget));
+        w = new QToolBar(qobject_cast<QMainWindow*>(parentWidget));
 
 #define DECLARE_LAYOUT(L, C)
 #define DECLARE_COMPAT_WIDGET(W, C) /*DECLARE_WIDGET(W, C)*/
@@ -74,7 +74,7 @@ QWidget *FormBuilder::createWidget(const QString &widgetName, QWidget *parentWid
         qWarning("widget `%s' not supported", widgetName.toLatin1().data());
     }
 
-    if (qt_cast<QDialog *>(w))
+    if (qobject_cast<QDialog *>(w))
         w->setParent(parentWidget, 0);
     return w;
 }
@@ -83,8 +83,8 @@ QLayout *FormBuilder::createLayout(const QString &layoutName, QObject *parent, c
 {
     QLayout *l = 0;
 
-    QWidget *parentWidget = qt_cast<QWidget*>(parent);
-    QLayout *parentLayout = qt_cast<QLayout*>(parent);
+    QWidget *parentWidget = qobject_cast<QWidget*>(parent);
+    QLayout *parentLayout = qobject_cast<QLayout*>(parent);
 
     Q_ASSERT(parentWidget || parentLayout);
 

@@ -180,16 +180,16 @@ Q3ActionPrivate::~Q3ActionPrivate()
         ++itci;
         QComboBox* combo = ci->combo;
         combo->clear();
-        Q3ActionGroup *group = ::qt_cast<Q3ActionGroup*>(action->parent());
+        Q3ActionGroup *group = ::qobject_cast<Q3ActionGroup*>(action->parent());
         if (group) {
             QObjectList siblings = group->queryList("Q3Action");
 
             for (int i = 0; i < siblings.size(); ++i) {
-                Q3Action *sib = ::qt_cast<Q3Action*>(siblings.at(i));
+                Q3Action *sib = ::qobject_cast<Q3Action*>(siblings.at(i));
                 sib->removeFrom(combo);
             }
             for (int i = 0; i < siblings.size(); ++i) {
-                Q3Action *sib = ::qt_cast<Q3Action*>(siblings.at(i));
+                Q3Action *sib = ::qobject_cast<Q3Action*>(siblings.at(i));
                 if (sib == action)
                     continue;
                 sib->addTo(combo);
@@ -556,7 +556,7 @@ Q3Action::Q3Action(const QString& text, const QString& menuText, QKeySequence ac
 */
 void Q3Action::init()
 {
-    if (qt_cast<Q3ActionGroup*>(parent()))
+    if (qobject_cast<Q3ActionGroup*>(parent()))
         ((Q3ActionGroup*) parent())->add(this);                // insert into action group
 }
 
@@ -985,7 +985,7 @@ void Q3Action::toolButtonToggled(bool on)
 bool Q3Action::addTo(QWidget* w)
 {
 #ifndef QT_NO_TOOLBAR
-    if (::qt_cast<Q3ToolBar*>(w)) {
+    if (::qobject_cast<Q3ToolBar*>(w)) {
         if (objectName() == QLatin1String("qt_separator_action")) {
             ((Q3ToolBar*)w)->addSeparator();
         } else {
@@ -1004,7 +1004,7 @@ bool Q3Action::addTo(QWidget* w)
         }
     } else
 #endif
-    if (qt_cast<Q3PopupMenu*>(w)) {
+    if (qobject_cast<Q3PopupMenu*>(w)) {
         Q3ActionPrivate::MenuItem* mi = new Q3ActionPrivate::MenuItem;
         mi->popup = (Q3PopupMenu*) w;
         QIcon* dicon = d->icon;
@@ -1022,7 +1022,7 @@ bool Q3Action::addTo(QWidget* w)
         connect(mi->popup, SIGNAL(aboutToHide()), this, SLOT(clearStatusText()));
         connect(mi->popup, SIGNAL(destroyed()), this, SLOT(objectDestroyed()));
     // Makes only sense when called by Q3ActionGroup::addTo
-    } else if (qt_cast<QComboBox*>(w)) {
+    } else if (qobject_cast<QComboBox*>(w)) {
         Q3ActionPrivate::ComboItem *ci = new Q3ActionPrivate::ComboItem;
         ci->combo = (QComboBox*)w;
         connect(ci->combo, SIGNAL(destroyed()), this, SLOT(objectDestroyed()));
@@ -1037,7 +1037,7 @@ bool Q3Action::addTo(QWidget* w)
         }
         d->comboitems.append(ci);
         d->update(Q3ActionPrivate::State | Q3ActionPrivate::EverythingElse);
-    } else if(qt_cast<QMenu*>(w)) {
+    } else if(qobject_cast<QMenu*>(w)) {
         Q3ActionPrivate::Action4Item *act = new Q3ActionPrivate::Action4Item;
         if(!act->action) { //static
             act->action = new QAction;
@@ -1091,7 +1091,7 @@ void Q3Action::showStatusText(const QString& text)
     static Q3PopupMenu *lastmenu = 0;
     QObject *s = (QObject*)sender();
     if (s) {
-        Q3PopupMenu *menu = qt_cast<Q3PopupMenu*>(s);
+        Q3PopupMenu *menu = qobject_cast<Q3PopupMenu*>(s);
         if (menu && text.size())
             lastmenu = menu;
         else if (menu && text.isEmpty()) {
@@ -1169,7 +1169,7 @@ void Q3Action::clearStatusText()
 bool Q3Action::removeFrom(QWidget* w)
 {
 #ifndef QT_NO_TOOLBAR
-    if (::qt_cast<Q3ToolBar*>(w)) {
+    if (::qobject_cast<Q3ToolBar*>(w)) {
         QList<QToolButton*>::Iterator it(d->toolbuttons.begin());
         QToolButton* btn;
         while (it != d->toolbuttons.end()) {
@@ -1184,7 +1184,7 @@ bool Q3Action::removeFrom(QWidget* w)
         }
     } else
 #endif
-    if (::qt_cast<Q3PopupMenu*>(w)) {
+    if (::qobject_cast<Q3PopupMenu*>(w)) {
         QList<Q3ActionPrivate::MenuItem*>::Iterator it(d->menuitems.begin());
         Q3ActionPrivate::MenuItem* mi;
         while (it != d->menuitems.end()) {
@@ -1199,7 +1199,7 @@ bool Q3Action::removeFrom(QWidget* w)
                 delete mi;
             }
         }
-    } else if (::qt_cast<QComboBox*>(w)) {
+    } else if (::qobject_cast<QComboBox*>(w)) {
         QList<Q3ActionPrivate::ComboItem*>::Iterator it(d->comboitems.begin());
         Q3ActionPrivate::ComboItem *ci;
         while (it != d->comboitems.end()) {
@@ -1211,7 +1211,7 @@ bool Q3Action::removeFrom(QWidget* w)
                 delete ci;
             }
         }
-    } else if (::qt_cast<QMenu*>(w)) {
+    } else if (::qobject_cast<QMenu*>(w)) {
         QList<Q3ActionPrivate::Action4Item*>::Iterator it(d->action4items.begin());
         Q3ActionPrivate::Action4Item *a4i;
         while (it != d->action4items.end()) {
@@ -1346,7 +1346,7 @@ void Q3ActionGroupPrivate::update(const Q3ActionGroup* that)
     }
     for (QList<Q3ActionGroupPrivate::MenuItem*>::Iterator pu(menuitems.begin()); pu != menuitems.end(); ++pu) {
         QWidget* parent = (*pu)->popup->parentWidget();
-        if (::qt_cast<Q3PopupMenu*>(parent)) {
+        if (::qobject_cast<Q3PopupMenu*>(parent)) {
             Q3PopupMenu* ppopup = (Q3PopupMenu*)parent;
             ppopup->setItemEnabled((*pu)->id, that->isEnabled());
             ppopup->setItemVisible((*pu)->id, that->isVisible());
@@ -1356,7 +1356,7 @@ void Q3ActionGroupPrivate::update(const Q3ActionGroup* that)
     }
     for (QList<Q3PopupMenu*>::Iterator pm(popupmenus.begin()); pm != popupmenus.end(); ++pm) {
         Q3PopupMenu *popup = *pm;
-        Q3PopupMenu *parent = ::qt_cast<Q3PopupMenu*>(popup->parentWidget());
+        Q3PopupMenu *parent = ::qobject_cast<Q3PopupMenu*>(popup->parentWidget());
         if (!parent)
             continue;
 
@@ -1654,7 +1654,7 @@ void Q3ActionGroup::addSeparator()
 bool Q3ActionGroup::addTo(QWidget *w)
 {
 #ifndef QT_NO_TOOLBAR
-    if (qt_cast<Q3ToolBar*>(w)) {
+    if (qobject_cast<Q3ToolBar*>(w)) {
         if (d->dropdown) {
             if (!d->exclusive) {
                 QList<Q3Action*>::Iterator it(d->actions.begin());
@@ -1736,7 +1736,7 @@ bool Q3ActionGroup::addTo(QWidget *w)
         }
     } else
 #endif
-    if (::qt_cast<Q3PopupMenu*>(w)) {
+    if (::qobject_cast<Q3PopupMenu*>(w)) {
         Q3PopupMenu *popup;
         if (d->dropdown) {
             Q3PopupMenu *menu = (Q3PopupMenu*)w;
@@ -1772,7 +1772,7 @@ bool Q3ActionGroup::addTo(QWidget *w)
         }
         return true;
     }
-    if (::qt_cast<QMenu*>(w)) {
+    if (::qobject_cast<QMenu*>(w)) {
         QMenu *menu = (QMenu*)w;
         if (d->dropdown) {
             Q3ActionGroupPrivate::Action4Item *ai = new Q3ActionGroupPrivate::Action4Item;
@@ -1810,7 +1810,7 @@ bool Q3ActionGroup::removeFrom(QWidget* w)
         (*it)->removeFrom(w);
 
 #ifndef QT_NO_TOOLBAR
-    if (::qt_cast<Q3ToolBar*>(w)) {
+    if (::qobject_cast<Q3ToolBar*>(w)) {
         QList<QComboBox*>::Iterator cb(d->comboboxes.begin());
         while (cb != d->comboboxes.end()) {
             QComboBox *box = *cb;
@@ -1827,7 +1827,7 @@ bool Q3ActionGroup::removeFrom(QWidget* w)
         }
     } else
 #endif
-    if (::qt_cast<Q3PopupMenu*>(w)) {
+    if (::qobject_cast<Q3PopupMenu*>(w)) {
         QList<Q3ActionGroupPrivate::MenuItem*>::Iterator pu(d->menuitems.begin());
         while (pu != d->menuitems.end()) {
             Q3ActionGroupPrivate::MenuItem *mi = *pu;
@@ -1837,7 +1837,7 @@ bool Q3ActionGroup::removeFrom(QWidget* w)
             delete mi->popup;
         }
     }
-    if (::qt_cast<QMenu*>(w)) {
+    if (::qobject_cast<QMenu*>(w)) {
         QList<Q3ActionGroupPrivate::Action4Item*>::Iterator it(d->action4items.begin());
         Q3ActionGroupPrivate::Action4Item *a4i;
         while (it != d->action4items.end()) {
@@ -1859,7 +1859,7 @@ void Q3ActionGroup::childToggled(bool b)
 {
     if (!isExclusive())
         return;
-    Q3Action* s = qt_cast<Q3Action*>(sender());
+    Q3Action* s = qobject_cast<Q3Action*>(sender());
     if (!s)
         return;
     if (b) {
@@ -1883,7 +1883,7 @@ void Q3ActionGroup::childToggled(bool b)
 */
 void Q3ActionGroup::childActivated()
 {
-    Q3Action* s = qt_cast<Q3Action*>(sender());
+    Q3Action* s = qobject_cast<Q3Action*>(sender());
     if (s) {
         emit activated(s);
         emit Q3Action::activated();
@@ -2006,7 +2006,7 @@ void Q3ActionGroup::childEvent(QChildEvent *e)
     if (!e->removed())
         return;
 
-    Q3Action *action = qt_cast<Q3Action*>(e->child());
+    Q3Action *action = qobject_cast<Q3Action*>(e->child());
     if (!action)
         return;
 

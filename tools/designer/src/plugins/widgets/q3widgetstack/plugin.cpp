@@ -86,7 +86,7 @@ protected:
         if (iid != Q_TYPEID(IContainer))
             return 0;
             
-        if (Q3WidgetStack *w = qt_cast<Q3WidgetStack*>(object))
+        if (Q3WidgetStack *w = qobject_cast<Q3WidgetStack*>(object))
             return new Q3WidgetStackContainer(w, parent);
         
         return 0;

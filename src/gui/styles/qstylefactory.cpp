@@ -123,7 +123,7 @@ QStyle *QStyleFactory::create(const QString& key)
     { } // Keep these here - they make the #ifdefery above work
 #ifndef QT_NO_COMPONENT
     if(!ret) {
-        if (QStyleFactoryInterface *factory = qt_cast<QStyleFactoryInterface*>(loader()->instance(style)))
+        if (QStyleFactoryInterface *factory = qobject_cast<QStyleFactoryInterface*>(loader()->instance(style)))
             ret = factory->create(style);
     }
 #endif

@@ -391,7 +391,7 @@ bool QTreeModel::insertRows(int row, int count, const QModelIndex &parent)
         }
     } else {
         // add items
-        QTreeWidget *view = ::qt_cast<QTreeWidget*>(QObject::parent());
+        QTreeWidget *view = ::qobject_cast<QTreeWidget*>(QObject::parent());
         for (int r = row; r < row + count; ++r) {
             c = new QTreeWidgetItem();
             c->view = view;
@@ -992,7 +992,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view)
                 |QAbstractItemModel::ItemIsEnabled)
 {
     if (view) {
-        model = ::qt_cast<QTreeModel*>(view->model());
+        model = ::qobject_cast<QTreeModel*>(view->model());
         if (model) {
             model->tree.append(this);
             model->notifyItemInserted(this);
@@ -1014,7 +1014,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after)
                 |QAbstractItemModel::ItemIsEnabled)
 {
     if (view) {
-        model = ::qt_cast<QTreeModel*>(view->model());
+        model = ::qobject_cast<QTreeModel*>(view->model());
         if (model) {
             int i = model->tree.indexOf(after) + 1;
             model->tree.insert(i, this);
@@ -1262,7 +1262,7 @@ class QTreeWidgetPrivate : public QTreeViewPrivate
     Q_DECLARE_PUBLIC(QTreeWidget)
 public:
     QTreeWidgetPrivate() : QTreeViewPrivate(), sortingEnabled(false) {}
-    inline QTreeModel *model() const { return ::qt_cast<QTreeModel*>(q_func()->model()); }
+    inline QTreeModel *model() const { return ::qobject_cast<QTreeModel*>(q_func()->model()); }
     void emitItemPressed(const QModelIndex &index);
     void emitItemClicked(const QModelIndex &index);
     void emitItemDoubleClicked(const QModelIndex &index);

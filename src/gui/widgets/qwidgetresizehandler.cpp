@@ -35,7 +35,7 @@ QWidgetResizeHandler::QWidgetResizeHandler(QWidget *parent, QWidget *cw)
 {
     mode = Nowhere;
     widget->setMouseTracking(true);
-    QFrame *frame = qt_cast<QFrame*>(widget);
+    QFrame *frame = qobject_cast<QFrame*>(widget);
     range = frame ? frame->frameWidth() : RANGE;
     range = qMax(RANGE, range);
     activeForMove = activeForResize = true;
@@ -89,7 +89,7 @@ bool QWidgetResizeHandler::eventFilter(QObject *o, QEvent *ee)
     QWidget *w = childOf(widget, (QWidget*)o);
     if (!w
 #ifndef QT_NO_SIZEGRIP
-         || qt_cast<QSizeGrip*>(o)
+         || qobject_cast<QSizeGrip*>(o)
 #endif
          || qApp->activePopupWidget()) {
         if (buttonDown && ee->type() == QEvent::MouseButtonRelease)
@@ -210,7 +210,7 @@ void QWidgetResizeHandler::mouseMoveEvent(QMouseEvent *e)
     int mh = qMax(childWidget->minimumSizeHint().height(),
                    childWidget->minimumHeight());
     if (childWidget != widget) {
-        QFrame *frame = qt_cast<QFrame*>(widget);
+        QFrame *frame = qobject_cast<QFrame*>(widget);
         if (frame)
             fw = frame->frameWidth();
         mw += 2 * fw;

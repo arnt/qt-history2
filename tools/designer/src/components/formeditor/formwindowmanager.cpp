@@ -123,7 +123,7 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
         return false;
     }
 
-    if (qt_cast<WidgetHandle*>(widget)) { // ### remove me
+    if (qobject_cast<WidgetHandle*>(widget)) { // ### remove me
         return false;
     }
 
@@ -166,7 +166,7 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
 
 void FormWindowManager::addFormWindow(AbstractFormWindow *w)
 {
-    FormWindow *formWindow = qt_cast<FormWindow*>(w);
+    FormWindow *formWindow = qobject_cast<FormWindow*>(w);
     if (!formWindow || m_formWindows.contains(formWindow))
         return;
 
@@ -180,7 +180,7 @@ void FormWindowManager::addFormWindow(AbstractFormWindow *w)
 
 void FormWindowManager::removeFormWindow(AbstractFormWindow *w)
 {
-    FormWindow *formWindow = qt_cast<FormWindow*>(w);
+    FormWindow *formWindow = qobject_cast<FormWindow*>(w);
 
     int idx = m_formWindows.indexOf(formWindow);
     if (!formWindow || idx == -1)
@@ -196,7 +196,7 @@ void FormWindowManager::removeFormWindow(AbstractFormWindow *w)
 
 void FormWindowManager::setActiveFormWindow(AbstractFormWindow *w)
 {
-    FormWindow *formWindow = qt_cast<FormWindow*>(w);
+    FormWindow *formWindow = qobject_cast<FormWindow*>(w);
 
     if (formWindow == m_activeFormWindow)
         return;
@@ -233,7 +233,7 @@ void FormWindowManager::setActiveFormWindow(AbstractFormWindow *w)
 QWidget *FormWindowManager::findManagedWidget(FormWindow *fw, QWidget *w)
 {
     while (w && w != fw) {
-        if (qt_cast<OrderIndicator*>(w))
+        if (qobject_cast<OrderIndicator*>(w))
             break;
         if (fw->isManaged(w))
             break;
@@ -241,7 +241,7 @@ QWidget *FormWindowManager::findManagedWidget(FormWindow *fw, QWidget *w)
     }
 
     QWidget *parent = w->parentWidget();
-    if (parent != 0 && qt_cast<QDesignerPromotedWidget*>(parent) != 0)
+    if (parent != 0 && qobject_cast<QDesignerPromotedWidget*>(parent) != 0)
         w = parent;
 
     return w;
@@ -670,7 +670,7 @@ void FormWindowManager::layoutContainerGrid()
 
 AbstractFormWindow *FormWindowManager::createFormWindow(QWidget *parentWidget, Qt::WFlags flags)
 {
-    FormWindow *formWindow = new FormWindow(qt_cast<FormEditor*>(core()), parentWidget, flags);
+    FormWindow *formWindow = new FormWindow(qobject_cast<FormEditor*>(core()), parentWidget, flags);
     addFormWindow(formWindow);
     return formWindow;
 }
@@ -694,7 +694,7 @@ void FormWindowManager::dragItems(const QList<AbstractDnDItem*> &item_list, Abst
         return;
     }
 
-    m_source_form = qt_cast<FormWindow*>(source_form);
+    m_source_form = qobject_cast<FormWindow*>(source_form);
 
     beginDrag(item_list);
 }
@@ -734,11 +734,11 @@ void FormWindowManager::setItemsPos(const QPoint &globalPos)
     while (max_try && widget_under_mouse && isDecoration(widget_under_mouse)) {
         --max_try;
         widget_under_mouse = qApp->widgetAt(widget_under_mouse->pos() - QPoint(1,1));
-        Q_ASSERT(!qt_cast<ConnectionEdit*>(widget_under_mouse));
+        Q_ASSERT(!qobject_cast<ConnectionEdit*>(widget_under_mouse));
     }
 
     FormWindow *form_under_mouse
-            = qt_cast<FormWindow*>(AbstractFormWindow::findFormWindow(widget_under_mouse));
+            = qobject_cast<FormWindow*>(AbstractFormWindow::findFormWindow(widget_under_mouse));
     if (form_under_mouse != 0 && !form_under_mouse->hasFeature(AbstractFormWindow::EditFeature))
         form_under_mouse = 0;
     if (form_under_mouse != 0) {
@@ -747,7 +747,7 @@ void FormWindowManager::setItemsPos(const QPoint &globalPos)
         widget_under_mouse
             = form_under_mouse->widgetAt(form_under_mouse->mapFromGlobal(globalPos));
 
-        Q_ASSERT(!qt_cast<ConnectionEdit*>(widget_under_mouse));
+        Q_ASSERT(!qobject_cast<ConnectionEdit*>(widget_under_mouse));
     }
 
     if (m_last_form_under_mouse != 0 && widget_under_mouse != m_last_widget_under_mouse) {
@@ -777,7 +777,7 @@ void FormWindowManager::endDrag(const QPoint &pos)
 
     if (m_last_form_under_mouse != 0 &&
             m_last_form_under_mouse->hasFeature(AbstractFormWindow::EditFeature)) {
-        FormWindow *form = qt_cast<FormWindow*>(m_last_form_under_mouse);
+        FormWindow *form = qobject_cast<FormWindow*>(m_last_form_under_mouse);
 
         form->beginCommand(tr("Drop widget"));
 
@@ -803,9 +803,9 @@ void FormWindowManager::endDrag(const QPoint &pos)
                 form->selectWidget(widget, true);
                 emit itemDragFinished();
             }
-        } else if (qt_cast<FormWindowDnDItem*>(m_drag_item_list.first()) != 0) {
+        } else if (qobject_cast<FormWindowDnDItem*>(m_drag_item_list.first()) != 0) {
             foreach (AbstractDnDItem *item, m_drag_item_list) {
-                FormWindowDnDItem *form_item = qt_cast<FormWindowDnDItem*>(item);
+                FormWindowDnDItem *form_item = qobject_cast<FormWindowDnDItem*>(item);
                 Q_ASSERT(form_item != 0);
                 QWidget *widget = form_item->widget();
                 Q_ASSERT(widget != 0);
@@ -829,7 +829,7 @@ void FormWindowManager::endDrag(const QPoint &pos)
         form->endCommand();
     } else {
         foreach (AbstractDnDItem *item, m_drag_item_list) {
-            FormWindowDnDItem *form_item = qt_cast<FormWindowDnDItem*>(item);
+            FormWindowDnDItem *form_item = qobject_cast<FormWindowDnDItem*>(item);
             if (form_item != 0 && form_item->widget() != 0)
                 form_item->widget()->show();
         }
@@ -860,14 +860,14 @@ bool FormWindowManager::isPassiveInteractor(QWidget *o) const
     lastWasAPassiveInteractor = false;
     lastPassiveInteractor = o;
 
-    if (qt_cast<QTabBar*>(o))
+    if (qobject_cast<QTabBar*>(o))
         return (lastWasAPassiveInteractor = true);
-    else if (qt_cast<QSizeGrip*>(o))
+    else if (qobject_cast<QSizeGrip*>(o))
         return (lastWasAPassiveInteractor = true);
-    else if (qt_cast<QAbstractButton*>(o)
-            && (qt_cast<QTabBar*>(o->parent()) || qt_cast<QToolBox*>(o->parent())))
+    else if (qobject_cast<QAbstractButton*>(o)
+            && (qobject_cast<QTabBar*>(o->parent()) || qobject_cast<QToolBox*>(o->parent())))
         return (lastWasAPassiveInteractor = true);
-    else if (qt_cast<QMenuBar*>(o) && qt_cast<QMainWindow*>(o->parent()))
+    else if (qobject_cast<QMenuBar*>(o) && qobject_cast<QMainWindow*>(o->parent()))
         return (lastWasAPassiveInteractor = true);
     else if (qstrcmp(o->metaObject()->className(), "QDockSeparator") == 0)
         return (lastWasAPassiveInteractor = true);

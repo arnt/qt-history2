@@ -42,7 +42,7 @@ extern void drawShadedCube(DemoWidget *dw, QPainter *p, int iterations, int spre
 GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(parent)
 {
-    dw = qt_cast<DemoWidget *>(parent);
+    dw = qobject_cast<DemoWidget *>(parent);
     step = 0;
     Q_ASSERT(dw);
 }

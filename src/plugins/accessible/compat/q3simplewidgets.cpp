@@ -26,7 +26,7 @@ Q3AccessibleDisplay::Q3AccessibleDisplay(QWidget *w, Role role)
 /*! \reimp */
 QAccessible::Role Q3AccessibleDisplay::role(int child) const
 {
-    QLabel *l = qt_cast<QLabel*>(object());
+    QLabel *l = qobject_cast<QLabel*>(object());
     if (l) {
         if (l->pixmap() || l->picture())
             return Graphic;
@@ -48,10 +48,10 @@ QString Q3AccessibleDisplay::text(Text t, int child) const
     QString str;
     switch (t) {
     case Name:
-        if (qt_cast<QLabel*>(object())) {
-            str = qt_cast<QLabel*>(object())->text();
-        } else if (qt_cast<Q3GroupBox*>(object())) {
-            str = qt_cast<Q3GroupBox*>(object())->title();
+        if (qobject_cast<QLabel*>(object())) {
+            str = qobject_cast<QLabel*>(object())->text();
+        } else if (qobject_cast<Q3GroupBox*>(object())) {
+            str = qobject_cast<Q3GroupBox*>(object())->title();
         }
         break;
     default:
@@ -71,8 +71,8 @@ QAccessible::Relation Q3AccessibleDisplay::relationTo(int child, const QAccessib
         return relation;
 
     QObject *o = other->object();
-    QLabel *label = qt_cast<QLabel*>(object());
-    Q3GroupBox *groupbox = qt_cast<Q3GroupBox*>(object());
+    QLabel *label = qobject_cast<QLabel*>(object());
+    Q3GroupBox *groupbox = qobject_cast<Q3GroupBox*>(object());
     if (label) {
         if (o == label->buddy())
             relation |= Label;
@@ -89,8 +89,8 @@ int Q3AccessibleDisplay::navigate(RelationFlag rel, int entry, QAccessibleInterf
     *target = 0;
     if (rel == Labelled) {
         QObject *targetObject = 0;
-        QLabel *label = qt_cast<QLabel*>(object());
-        Q3GroupBox *groupbox = qt_cast<Q3GroupBox*>(object());
+        QLabel *label = qobject_cast<QLabel*>(object());
+        Q3GroupBox *groupbox = qobject_cast<Q3GroupBox*>(object());
         if (label) {
             if (entry == 1)
                 targetObject = label->buddy();

@@ -86,7 +86,7 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
     if (!o->isWidgetType())
         return QObject::eventFilter(o, e);
 
-    QWidget *widget = ::qt_cast<QWidget*>(o);
+    QWidget *widget = ::qobject_cast<QWidget*>(o);
 
     switch(e->type()) {
     case QEvent::KeyPress:
@@ -179,9 +179,9 @@ void QWindowsStyle::unpolish(QApplication *)
 void QWindowsStyle::polish(QWidget *widget)
 {
     QCommonStyle::polish(widget);
-    if(QMenu *menu = qt_cast<QMenu*>(widget))
+    if(QMenu *menu = qobject_cast<QMenu*>(widget))
         menu->setCheckable(true);
-    if (qt_cast<QRubberBand*>(widget)) {
+    if (qobject_cast<QRubberBand*>(widget)) {
         widget->setWindowOpacity(0.7f);
         widget->setAttribute(Qt::WA_PaintOnScreen);
     }
@@ -191,7 +191,7 @@ void QWindowsStyle::polish(QWidget *widget)
 void QWindowsStyle::unpolish(QWidget *widget)
 {
     QCommonStyle::polish(widget);
-    if (qt_cast<QRubberBand*>(widget)) {
+    if (qobject_cast<QRubberBand*>(widget)) {
         widget->setWindowOpacity(1.0);
         widget->setAttribute(Qt::WA_PaintOnScreen, false);
     }
@@ -235,7 +235,7 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
         // slider (i.e., the non-tickmark portion). The remaining space is shared
         // equally between the tickmark regions.
     case PM_SliderControlThickness:
-        if (const QStyleOptionSlider *sl = qt_cast<const QStyleOptionSlider *>(opt)) {
+        if (const QStyleOptionSlider *sl = qobject_cast<const QStyleOptionSlider *>(opt)) {
             int space = (sl->orientation == Qt::Horizontal) ? sl->rect.height() : sl->rect.width();
             int ticks = sl->tickPosition;
             int n = 0;
@@ -1059,10 +1059,10 @@ int QWindowsStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWid
             ret = int(cues);
             // Do nothing if we always paint underlines
             if (!ret && widget && d) {
-                const QMenuBar *menuBar = ::qt_cast<const QMenuBar*>(widget);
+                const QMenuBar *menuBar = ::qobject_cast<const QMenuBar*>(widget);
                 const QMenu *popupMenu = 0;
                 if (!menuBar)
-                    popupMenu = ::qt_cast<const QMenu *>(widget);
+                    popupMenu = ::qobject_cast<const QMenu *>(widget);
 
                 // If we paint a menubar draw underlines if it has focus, or if alt is down,
                 // or if a popup menu belonging to the menubar is active and paints underlines
@@ -1073,8 +1073,8 @@ int QWindowsStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWid
                         ret = 1;
                     } else if (qApp->focusWidget()
                                && (qApp->focusWidget()->windowType() == Qt::Popup)) {
-                        popupMenu = qt_cast<const QMenu *>(qApp->focusWidget());
-                        if (qt_cast<QMenuBar *>(popupMenu->parentWidget()) == menuBar) {
+                        popupMenu = qobject_cast<const QMenu *>(qApp->focusWidget());
+                        if (qobject_cast<QMenuBar *>(popupMenu->parentWidget()) == menuBar) {
                             if (d->hasSeenAlt(menuBar))
                                 ret = 1;
                         }
@@ -1091,8 +1091,8 @@ int QWindowsStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWid
                             }
                         }
                         QWidget *nextWidget = menu ? menu->parentWidget() : bar->parentWidget();
-                        bar = qt_cast<const QMenuBar *>(nextWidget);
-                        menu = qt_cast<const QMenu *>(nextWidget);
+                        bar = qobject_cast<const QMenuBar *>(nextWidget);
+                        menu = qobject_cast<const QMenu *>(nextWidget);
                     }
                     // Otherwise draw underlines if the toplevel widget has seen an alt-press
                 } else if (d->hasSeenAlt(widget)) {
@@ -1152,7 +1152,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         }
         break; }
     case PE_PanelButtonCommand:
-        if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
+        if (const QStyleOptionButton *btn = qobject_cast<const QStyleOptionButton *>(opt)) {
             QBrush fill;
             State flags = opt->state;
             QPalette pal = opt->palette;
@@ -1309,7 +1309,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             p->restore();
         break;
     case PE_FrameFocusRect:
-        if (const QStyleOptionFocusRect *fropt = qt_cast<const QStyleOptionFocusRect *>(opt)) {
+        if (const QStyleOptionFocusRect *fropt = qobject_cast<const QStyleOptionFocusRect *>(opt)) {
 #if defined (Q_WS_WIN)
             {
                 QMatrix wm = p->deviceMatrix();
@@ -1421,7 +1421,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         }
     case PE_Frame:
     case PE_FrameMenu:
-        if (const QStyleOptionFrame *frame = qt_cast<const QStyleOptionFrame *>(opt)) {
+        if (const QStyleOptionFrame *frame = qobject_cast<const QStyleOptionFrame *>(opt)) {
             if (frame->lineWidth == 2) {
                 QPalette popupPal = frame->palette;
                 if (pe == PE_FrameMenu) {
@@ -1529,7 +1529,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
 {
     switch (ce) {
     case CE_MenuItem:
-        if (const QStyleOptionMenuItem *menuitem = qt_cast<const QStyleOptionMenuItem *>(opt)) {
+        if (const QStyleOptionMenuItem *menuitem = qobject_cast<const QStyleOptionMenuItem *>(opt)) {
             int x, y, w, h;
             menuitem->rect.getRect(&x, &y, &w, &h);
             int tab = menuitem->tabWidth;
@@ -1665,7 +1665,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
         }
         break;
     case CE_MenuBarItem:
-        if (const QStyleOptionMenuItem *mbi = qt_cast<const QStyleOptionMenuItem *>(opt)) {
+        if (const QStyleOptionMenuItem *mbi = qobject_cast<const QStyleOptionMenuItem *>(opt)) {
             bool active = mbi->state & State_Selected;
             bool hasFocus = mbi->state & State_HasFocus;
             bool down = mbi->state & State_Down;
@@ -1688,7 +1688,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
         }
         break;
     case CE_TabBarTabShape:
-        if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(opt)) {
+        if (const QStyleOptionTab *tab = qobject_cast<const QStyleOptionTab *>(opt)) {
             bool selected = tab->state & State_Selected;
             bool lastTab = tab->position == QStyleOptionTab::End;
             bool firstTab = tab->position == QStyleOptionTab::Beginning;
@@ -1999,7 +1999,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
 {
     switch (cc) {
     case CC_Slider:
-        if (const QStyleOptionSlider *slider = qt_cast<const QStyleOptionSlider *>(opt)) {
+        if (const QStyleOptionSlider *slider = qobject_cast<const QStyleOptionSlider *>(opt)) {
             int thickness  = pixelMetric(PM_SliderControlThickness, slider, widget);
             int len        = pixelMetric(PM_SliderLength, slider, widget);
             int ticks = slider->tickPosition;
@@ -2203,7 +2203,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
         }
         break;
     case CC_Q3ListView:
-        if (const QStyleOptionQ3ListView *lv = qt_cast<const QStyleOptionQ3ListView *>(opt)) {
+        if (const QStyleOptionQ3ListView *lv = qobject_cast<const QStyleOptionQ3ListView *>(opt)) {
             int i;
             if (lv->subControls & SC_Q3ListView)
                 QCommonStyle::drawComplexControl(cc, lv, p, widget);
@@ -2357,7 +2357,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
         }
         break;
     case CC_ComboBox:
-        if (const QStyleOptionComboBox *cmb = qt_cast<const QStyleOptionComboBox *>(opt)) {
+        if (const QStyleOptionComboBox *cmb = qobject_cast<const QStyleOptionComboBox *>(opt)) {
             if (cmb->subControls & SC_ComboBoxArrow) {
                 State flags = State_None;
 
@@ -2431,7 +2431,7 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
     QSize sz(csz);
     switch (ct) {
     case CT_PushButton:
-        if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
+        if (const QStyleOptionButton *btn = qobject_cast<const QStyleOptionButton *>(opt)) {
             sz = QCommonStyle::sizeFromContents(ct, opt, csz, widget);
             int w = sz.width(),
                 h = sz.height();
@@ -2446,7 +2446,7 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
         }
         break;
     case CT_MenuItem:
-        if (const QStyleOptionMenuItem *mi = qt_cast<const QStyleOptionMenuItem *>(opt)) {
+        if (const QStyleOptionMenuItem *mi = qobject_cast<const QStyleOptionMenuItem *>(opt)) {
             int w = sz.width();
             sz = QCommonStyle::sizeFromContents(ct, opt, csz, widget);
             if (mi->menuItemType != QStyleOptionMenuItem::Separator && !mi->icon.isNull())

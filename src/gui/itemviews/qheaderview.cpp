@@ -893,7 +893,7 @@ void QHeaderView::resizeSections()
             secSize = sectionSize(secs.at(i).logical);
         } else {// mode == QHeaderView::Custom
             // FIXME: this is a bit hacky; see if we can find a cleaner solution
-            QAbstractItemView *par = ::qt_cast<QAbstractItemView*>(parent());
+            QAbstractItemView *par = ::qobject_cast<QAbstractItemView*>(parent());
             if (orientation() == Qt::Horizontal) {
                 if (par)
                     secSize = par->sizeHintForColumn(i);

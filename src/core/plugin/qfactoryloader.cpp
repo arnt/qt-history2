@@ -85,7 +85,7 @@ QFactoryLoader::QFactoryLoader(const char *iid,
                     continue;
                 }
                 QObject *instance = library->instance();
-                QFactoryInterface *factory = qt_cast<QFactoryInterface*>(instance);
+                QFactoryInterface *factory = qobject_cast<QFactoryInterface*>(instance);
                 if (instance && factory && instance->qt_metacast(iid))
                     keys = factory->keys();
                 if (keys.isEmpty())
@@ -133,7 +133,7 @@ QStringList QFactoryLoader::keys() const
     QStringList keys = d->keyList;
     QObjectList instances = QPluginLoader::staticInstances();
     for (int i = 0; i < instances.count(); ++i)
-        if (QFactoryInterface *factory = qt_cast<QFactoryInterface*>(instances.at(i)))
+        if (QFactoryInterface *factory = qobject_cast<QFactoryInterface*>(instances.at(i)))
             if (instances.at(i)->qt_metacast(d->iid))
                     keys += factory->keys();
     return keys;
@@ -145,7 +145,7 @@ QObject *QFactoryLoader::instance(const QString &key) const
     QMutexLocker locker(&d->mutex);
     QObjectList instances = QPluginLoader::staticInstances();
     for (int i = 0; i < instances.count(); ++i)
-        if (QFactoryInterface *factory = qt_cast<QFactoryInterface*>(instances.at(i)))
+        if (QFactoryInterface *factory = qobject_cast<QFactoryInterface*>(instances.at(i)))
             if (instances.at(i)->qt_metacast(d->iid) && factory->keys().contains(key, Qt::CaseInsensitive))
                 return instances.at(i);
 

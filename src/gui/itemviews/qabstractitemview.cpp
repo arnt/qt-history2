@@ -1500,7 +1500,7 @@ void QAbstractItemView::commitData(QWidget *editor)
 */
 void QAbstractItemView::editorDestroyed(QObject *editor)
 {
-    QWidget *w = ::qt_cast<QWidget*>(editor);
+    QWidget *w = ::qobject_cast<QWidget*>(editor);
     QPersistentModelIndex key = d->editors.key(w);
     d->editors.remove(key);
     d->persistent.removeAll(w);

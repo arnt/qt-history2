@@ -312,7 +312,7 @@ void QGroupBoxPrivate::fixFocus()
         while ((w = w->nextInFocusChain()) != q) {
             if (q->isAncestorOf(w) && (w->focusPolicy() & Qt::TabFocus) == Qt::TabFocus && w->isVisibleTo(q)) {
 #ifndef QT_NO_RADIOBUTTON
-                if (!best && qt_cast<QRadioButton*>(w) && ((QRadioButton*)w)->isChecked())
+                if (!best && qobject_cast<QRadioButton*>(w) && ((QRadioButton*)w)->isChecked())
                     // we prefer a checked radio button or a widget that
                     // already has focus, if there is one
                     best = w;

@@ -373,7 +373,7 @@ void Q3ToolBar::setOrientation(Qt::Orientation o)
         d->extension->setOrientation(o);
     QObjectList childs = children();
     for (int i = 0; i < childs.size(); ++i) {
-        Q3ToolBarSeparator* w = qt_cast<Q3ToolBarSeparator*>(childs.at(i));
+        Q3ToolBarSeparator* w = qobject_cast<Q3ToolBarSeparator*>(childs.at(i));
         if (w)
             w->setOrientation(o);
     }
@@ -476,7 +476,7 @@ bool Q3ToolBar::event(QEvent * e)
              && child->parent() == this
             && QLatin1String("qt_dockwidget_internal") != child->objectName()) {
             boxLayout()->addWidget((QWidget*)child);
-            if (QToolButton *button = qt_cast<QToolButton*>(child)) {
+            if (QToolButton *button = qobject_cast<QToolButton*>(child)) {
                 button->setFocusPolicy(Qt::NoFocus);
                 if (mw) {
                     QObject::connect(mw, SIGNAL(pixmapSizeChanged(bool)),
@@ -597,7 +597,7 @@ void Q3ToolBar::createPopup()
         }
         int j = 2;
         QWidget *w = (QWidget*)obj;
-        if (qt_cast<QComboBox*>(w))
+        if (qobject_cast<QComboBox*>(w))
             j = 1;
         hide = false;
         QPoint p = w->parentWidget()->mapTo(this, w->geometry().bottomRight());
@@ -610,7 +610,7 @@ void Q3ToolBar::createPopup()
         }
         if (hide && w->isVisible()) {
             doHide = true;
-            if (qt_cast<QToolButton*>(w)) {
+            if (qobject_cast<QToolButton*>(w)) {
                 QToolButton *b = (QToolButton*)w;
                 QString s = b->textLabel();
                 if (s.isEmpty())
@@ -623,7 +623,7 @@ void Q3ToolBar::createPopup()
                     d->extensionPopup->setItemChecked(id, b->isOn());
                 if (!b->isEnabled())
                     d->extensionPopup->setItemEnabled(id, false);
-            } else if (qt_cast<QAbstractButton*>(w)) {
+            } else if (qobject_cast<QAbstractButton*>(w)) {
                 QAbstractButton *b = (QAbstractButton*)w;
                 QString s = b->text();
                 if (s.isEmpty())
@@ -637,7 +637,7 @@ void Q3ToolBar::createPopup()
                 if (!b->isEnabled())
                     d->extensionPopup->setItemEnabled(id, false);
 #ifndef QT_NO_COMBOBOX
-            } else if (qt_cast<QComboBox*>(w)) {
+            } else if (qobject_cast<QComboBox*>(w)) {
                 QComboBox *c = (QComboBox*)w;
                 if (c->count() != 0) {
                     QString s = c->windowTitle();

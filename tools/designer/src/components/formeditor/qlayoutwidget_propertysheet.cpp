@@ -64,7 +64,7 @@ QObject *QLayoutWidgetPropertySheetFactory::createExtension(QObject *object, con
     if (iid != Q_TYPEID(IPropertySheet))
         return 0;
 
-    if (QLayoutWidget *o = qt_cast<QLayoutWidget*>(object))
+    if (QLayoutWidget *o = qobject_cast<QLayoutWidget*>(object))
         return new QLayoutWidgetPropertySheet(o, parent);
 
     return 0;

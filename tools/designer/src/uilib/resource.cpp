@@ -111,7 +111,7 @@ QWidget *Resource::create(DomWidget *ui_widget, QWidget *parentWidget)
     applyProperties(w, ui_widget->elementProperty());
 
 #if 0 // ### implement me
-    if (Q3GroupBox *g = qt_cast<Q3GroupBox*>(w)) {
+    if (Q3GroupBox *g = qobject_cast<Q3GroupBox*>(w)) {
         g->setColumnLayout(0, Qt::Vertical);
 
         int margin, spacing;
@@ -208,22 +208,22 @@ bool Resource::addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWid
     if (attributes.contains("label"))
         label = toString(attributes.value("label")->elementString());
 
-    if (QTabWidget *tabWidget = qt_cast<QTabWidget*>(parentWidget)) {
+    if (QTabWidget *tabWidget = qobject_cast<QTabWidget*>(parentWidget)) {
         tabWidget->addTab(widget, title);
-    } else if (QStackedWidget *stackedWidget = qt_cast<QStackedWidget*>(parentWidget)) {
+    } else if (QStackedWidget *stackedWidget = qobject_cast<QStackedWidget*>(parentWidget)) {
         stackedWidget->addWidget(widget);
-    } else if (QToolBox *toolBox = qt_cast<QToolBox*>(parentWidget)) {
+    } else if (QToolBox *toolBox = qobject_cast<QToolBox*>(parentWidget)) {
         toolBox->addItem(widget, label);
-    } else if (QMainWindow *mainWindow = qt_cast<QMainWindow*>(parentWidget)) {
-        if (QToolBar *tb = qt_cast<QToolBar*>(widget)) {
+    } else if (QMainWindow *mainWindow = qobject_cast<QMainWindow*>(parentWidget)) {
+        if (QToolBar *tb = qobject_cast<QToolBar*>(widget)) {
             mainWindow->addToolBar(tb);
         }
-    } else if (QMenuBar *mb = qt_cast<QMenuBar*>(parentWidget)) {
-        if (QMenu *menu = qt_cast<QMenu*>(widget)) {
+    } else if (QMenuBar *mb = qobject_cast<QMenuBar*>(parentWidget)) {
+        if (QMenu *menu = qobject_cast<QMenu*>(widget)) {
             mb->addMenu(menu);
         }
-    } else if (QMenu *parentMenu = qt_cast<QMenu*>(parentWidget)) {
-        if (QMenu *menu = qt_cast<QMenu*>(widget)) {
+    } else if (QMenu *parentMenu = qobject_cast<QMenu*>(parentWidget)) {
+        if (QMenu *menu = qobject_cast<QMenu*>(widget)) {
             parentMenu->addMenu(menu);
         }
     } else {
@@ -278,7 +278,7 @@ QLayout *Resource::create(DomLayout *ui_layout, QLayout *layout, QWidget *parent
             : static_cast<QObject*>(parentWidget);
 
 #if 0 // ### enable me
-    Q3GroupBox *g = qt_cast<Q3GroupBox*>(parentWidget);
+    Q3GroupBox *g = qobject_cast<Q3GroupBox*>(parentWidget);
     QLayout *lay = createLayout(ui_layout->attributeClass(), g ? g->layout() : p, 0);
 #else
     QLayout *lay = createLayout(ui_layout->attributeClass(), p, 0);
@@ -323,7 +323,7 @@ bool Resource::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layou
         static_cast<FriendlyLayout*>(layout)->addChildLayout(item->layout ());
     }
 
-    if (QGridLayout *grid = qt_cast<QGridLayout*>(layout)) {
+    if (QGridLayout *grid = qobject_cast<QGridLayout*>(layout)) {
         int rowSpan = ui_item->hasAttributeRowSpan() ? ui_item->attributeRowSpan() : 1;
         int colSpan = ui_item->hasAttributeColSpan() ? ui_item->attributeColSpan() : 1;
         grid->addItem(item, ui_item->attributeRow(), ui_item->attributeColumn(),
@@ -666,7 +666,7 @@ DomWidget *Resource::createDom(QWidget *widget, DomWidget *ui_parentWidget, bool
         QMutableListIterator<QObject*> lay_it(children);
         while (lay_it.hasNext()) {
             QObject *obj = lay_it.next();
-            if (!qt_cast<QLayout*>(obj))
+            if (!qobject_cast<QLayout*>(obj))
                 continue;
 
             DomLayout *ui_child = createDom(static_cast<QLayout*>(obj), ui_layout, ui_widget);

@@ -18,7 +18,7 @@ void PimDelegate::paint(QPainter *painter,
                         const QStyleOptionViewItem &option,
                         const QModelIndex &index) const
 {
-    const PimModel *model = qt_cast<const PimModel*>(index.model());
+    const PimModel *model = qobject_cast<const PimModel*>(index.model());
     Q_ASSERT(model); // if the model is not a PimModel we could have a fallback here
     const PimEntry &entry = model->entry(index);
 
@@ -41,7 +41,7 @@ void PimDelegate::paint(QPainter *painter,
 QSize PimDelegate::sizeHint(const QStyleOptionViewItem &option,
                             const QModelIndex &index) const
 {
-    const PimModel *model = qt_cast<const PimModel*>(index.model());
+    const PimModel *model = qobject_cast<const PimModel*>(index.model());
     Q_ASSERT(model); // if the model is not a PimModel we could have a fallback here
     const PimEntry &entry = model->entry(index);
 

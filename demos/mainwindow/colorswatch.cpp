@@ -135,7 +135,7 @@ void ColorSwatch::contextMenuEvent(QContextMenuEvent *event)
 
 void ColorSwatch::polishEvent(QEvent *)
 {
-    QMainWindow *mainWindow = qt_cast<QMainWindow *>(parentWidget());
+    QMainWindow *mainWindow = qobject_cast<QMainWindow *>(parentWidget());
     const Qt::DockWidgetArea area = mainWindow->dockWidgetArea(this);
     const Qt::DockWidgetAreas areas = allowedAreas();
 
@@ -204,7 +204,7 @@ void ColorSwatch::place(Qt::DockWidgetArea area, bool p)
 {
     if (!p) return;
 
-    QMainWindow *mainWindow = qt_cast<QMainWindow *>(parentWidget());
+    QMainWindow *mainWindow = qobject_cast<QMainWindow *>(parentWidget());
     mainWindow->addDockWidget(area, this);
 
     if (allowedAreasActions->isEnabled()) {

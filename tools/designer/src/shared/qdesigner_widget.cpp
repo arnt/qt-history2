@@ -182,7 +182,7 @@ void QLayoutWidget::updateMargin()
         return;
 
 #if 0 // ### fix me
-    if (qt_cast<QLayoutWidget*>(parentWidget())) {
+    if (qobject_cast<QLayoutWidget*>(parentWidget())) {
         layout()->setMargin(style()->pixelMetric(QStyle::PM_DefaultChildMargin, 0, 0));
         qDebug() << "use default-child margin";
     } else {
@@ -467,7 +467,7 @@ void QLayoutSupport::adjustIndicator(const QPoint &pos, int index)
         m_indicatorBottom->show();
         m_indicatorBottom->raise();
 
-        if (QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout())) {
+        if (QGridLayout *gridLayout = qobject_cast<QGridLayout*>(layout())) {
             m_currentInsertMode = ILayoutDecoration::InsertWidgetMode;
             int row, column, rowspan, colspan;
             gridLayout->getItemPosition(m_currentIndex, &row, &column, &rowspan, &colspan);
@@ -486,38 +486,38 @@ void QLayoutSupport::adjustIndicator(const QPoint &pos, int index)
         if (isVertical) {
             m_indicatorBottom->hide();
 
-            if (!qt_cast<QVBoxLayout*>(layout())) {
+            if (!qobject_cast<QVBoxLayout*>(layout())) {
                 m_indicatorRight->setGeometry((mx == dx1) ? g.x() : g.right(), 0, 2, r.height());
                 m_indicatorRight->show();
                 m_indicatorRight->raise();
 
                 int incr = (mx == dx1) ? 0 : +1;
 
-                if (QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout())) {
+                if (QGridLayout *gridLayout = qobject_cast<QGridLayout*>(layout())) {
                     m_currentInsertMode = ILayoutDecoration::InsertColumnMode;
                     int row, column, rowspan, colspan;
                     gridLayout->getItemPosition(m_currentIndex, &row, &column, &rowspan, &colspan);
                     m_currentCell = qMakePair(row, qMax(0, column + incr));
-                } else if (QBoxLayout *box = qt_cast<QBoxLayout*>(layout())) {
+                } else if (QBoxLayout *box = qobject_cast<QBoxLayout*>(layout())) {
                     m_currentCell = qMakePair(0, box->findWidget(item->widget()) + incr);
                 }
             }
         } else {
             m_indicatorRight->hide();
 
-            if (!qt_cast<QHBoxLayout*>(layout())) {
+            if (!qobject_cast<QHBoxLayout*>(layout())) {
                 m_indicatorBottom->setGeometry(r.x(), (my == dy1) ? g.y() : g.bottom(), r.width(), 2);
                 m_indicatorBottom->show();
                 m_indicatorBottom->raise();
 
                 int incr = (my == dy1) ? 0 : +1;
 
-                if (QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout())) {
+                if (QGridLayout *gridLayout = qobject_cast<QGridLayout*>(layout())) {
                     m_currentInsertMode = ILayoutDecoration::InsertRowMode;
                     int row, column, rowspan, colspan;
                     gridLayout->getItemPosition(m_currentIndex, &row, &column, &rowspan, &colspan);
                     m_currentCell = qMakePair(qMax(0, row + incr), column);
-                } else if (QBoxLayout *box = qt_cast<QBoxLayout*>(layout())) {
+                } else if (QBoxLayout *box = qobject_cast<QBoxLayout*>(layout())) {
                     m_currentCell = qMakePair(box->findWidget(item->widget()) + incr, 0);
                 }
             }
@@ -573,7 +573,7 @@ void QLayoutSupport::removeWidget(QWidget *widget)
         case LayoutInfo::Grid: {
             int index = indexOf(widget);
             if (index != -1) {
-                QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout());
+                QGridLayout *gridLayout = qobject_cast<QGridLayout*>(layout());
                 Q_ASSERT(gridLayout);
                 int row, column, rowspan, colspan;
                 gridLayout->getItemPosition(index, &row, &column, &rowspan, &colspan);
@@ -644,7 +644,7 @@ void QLayoutSupport::insertWidget(QWidget *widget, const QPair<int, int> &cell)
 
 int QLayoutSupport::findItemAt(int at_row, int at_column) const
 {
-    if (QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout()))
+    if (QGridLayout *gridLayout = qobject_cast<QGridLayout*>(layout()))
         return findItemAt(gridLayout, at_row, at_column);
 
     return -1;
@@ -681,7 +681,7 @@ void QLayoutWidgetItem::removeFrom(QLayout *layout)
 
 void QLayoutSupport::insertWidget(int index, QWidget *widget)
 {
-    QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout());
+    QGridLayout *gridLayout = qobject_cast<QGridLayout*>(layout());
     QLayoutItem *item = gridLayout->itemAt(index);
     if (item && isEmptyItem(item)) {
         int row, column, rowspan, colspan;
@@ -772,14 +772,14 @@ void QLayoutSupport::insertRow(int row)
 
     rebuildGridLayout(&infos);
 
-    QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout());
+    QGridLayout *gridLayout = qobject_cast<QGridLayout*>(layout());
     Q_ASSERT(gridLayout);
 
     if (gridLayout->rowCount() == row) {
         gridLayout->addItem(new QSpacerItem(20, 20), gridLayout->rowCount(), 0);
     }
 
-    gridLayout = qt_cast<QGridLayout*>(layout());
+    gridLayout = qobject_cast<QGridLayout*>(layout());
     Q_ASSERT(gridLayout);
 
     createEmptyCells(gridLayout);
@@ -806,14 +806,14 @@ void QLayoutSupport::insertColumn(int column)
 
     rebuildGridLayout(&infos);
 
-    QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout());
+    QGridLayout *gridLayout = qobject_cast<QGridLayout*>(layout());
     Q_ASSERT(gridLayout);
 
     if (gridLayout->columnCount() == column) {
         gridLayout->addItem(new QSpacerItem(20, 20), 0, gridLayout->columnCount());
     }
 
-    gridLayout = qt_cast<QGridLayout*>(layout());
+    gridLayout = qobject_cast<QGridLayout*>(layout());
     Q_ASSERT(gridLayout);
 
     createEmptyCells(gridLayout);
@@ -825,13 +825,13 @@ QRect QLayoutSupport::itemInfo(int index) const
 {
     Q_ASSERT(layout());
 
-    if (QGridLayout *l = qt_cast<QGridLayout*>(layout())) {
+    if (QGridLayout *l = qobject_cast<QGridLayout*>(layout())) {
         int row, column, rowSpan, columnSpan;
         l->getItemPosition(index, &row, &column, &rowSpan, &columnSpan);
         return QRect(column, row, columnSpan, rowSpan);
-    } else if (qt_cast<QHBoxLayout*>(layout())) {
+    } else if (qobject_cast<QHBoxLayout*>(layout())) {
         return QRect(0, index, 1, 1);
-    } else if (qt_cast<QVBoxLayout*>(layout())) {
+    } else if (qobject_cast<QVBoxLayout*>(layout())) {
         return QRect(index, 0, 1, 1);
     } else {
         Q_ASSERT(0); // ### not supported yet!
@@ -858,19 +858,19 @@ QRect QLayoutSupport::extendedGeometry(int index) const
         g.setTopLeft(topLeft);
     }
 
-    if (QVBoxLayout *vbox = qt_cast<QVBoxLayout*>(layout())) {
+    if (QVBoxLayout *vbox = qobject_cast<QVBoxLayout*>(layout())) {
         if (vbox->itemAt(index+1) == 0) {
             QPoint bottomRight = g.bottomRight();
             bottomRight.ry() = layout()->geometry().bottom();
             g.setBottomRight(bottomRight);
         }
-    } else if (QHBoxLayout *hbox = qt_cast<QHBoxLayout*>(layout())) {
+    } else if (QHBoxLayout *hbox = qobject_cast<QHBoxLayout*>(layout())) {
         if (hbox->itemAt(index+1) == 0) {
             QPoint bottomRight = g.bottomRight();
             bottomRight.rx() = layout()->geometry().right();
             g.setBottomRight(bottomRight);
         }
-    } else if (QGridLayout *grid = qt_cast<QGridLayout*>(layout())) {
+    } else if (QGridLayout *grid = qobject_cast<QGridLayout*>(layout())) {
         if (grid->rowCount() == info.y()) {
             QPoint bottomRight = g.bottomRight();
             bottomRight.ry() = layout()->geometry().bottom();
@@ -925,7 +925,7 @@ void QLayoutSupport::computeGridLayout(QHash<QLayoutItem*, QRect> *l)
 
 void QLayoutSupport::rebuildGridLayout(QHash<QLayoutItem*, QRect> *infos)
 {
-    QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout());
+    QGridLayout *gridLayout = qobject_cast<QGridLayout*>(layout());
 
     { // take the items
         int index = 0;

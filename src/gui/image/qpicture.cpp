@@ -1172,7 +1172,7 @@ void qt_init_picture_plugins()
     QFactoryLoader *loader = ::loader();
     QStringList keys = loader->keys();
     for (int i = 0; i < keys.count(); ++i)
-        if (QPictureFormatInterface *format = qt_cast<QPictureFormatInterface*>(loader->instance(keys.at(i))))
+        if (QPictureFormatInterface *format = qobject_cast<QPictureFormatInterface*>(loader->instance(keys.at(i))))
             format->installIOHandler(keys.at(i));
 #endif
 }

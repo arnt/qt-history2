@@ -98,7 +98,7 @@ QObject *QDesignerLayoutDecorationFactory::createExtension(QObject *object, cons
     if (iid != Q_TYPEID(ILayoutDecoration))
         return 0;
 
-    if (QLayoutWidget *widget = qt_cast<QLayoutWidget*>(object)) {
+    if (QLayoutWidget *widget = qobject_cast<QLayoutWidget*>(object)) {
         return new QDesignerLayoutDecoration(widget, parent);
     } else if (QWidget *widget = static_cast<QWidget*>(object)) {
         if (FormWindow *fw = FormWindow::findFormWindow(widget)) {

@@ -28,7 +28,7 @@ Q3AccessibleHeader::Q3AccessibleHeader(QWidget *w)
 /*! Returns the Q3Header. */
 Q3Header *Q3AccessibleHeader::header() const
 {
-    return qt_cast<Q3Header*>(object());
+    return qobject_cast<Q3Header*>(object());
 }
 
 /*! \reimp */
@@ -121,7 +121,7 @@ Q3AccessibleTitleBar::Q3AccessibleTitleBar(QWidget *w)
 */
 Q3TitleBar *Q3AccessibleTitleBar::titleBar() const
 {
-    return qt_cast<Q3TitleBar*>(object());
+    return qobject_cast<Q3TitleBar*>(object());
 }
 
 /*! \reimp */

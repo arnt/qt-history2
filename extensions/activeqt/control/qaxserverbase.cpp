@@ -1889,7 +1889,7 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
     Q_ASSERT(call == QMetaObject::InvokeMetaMember);
 
     if (index == -1 && sender() && m_spInPlaceSite) {
-	if (qt_cast<QStatusBar*>(sender()) != statusBar)
+	if (qobject_cast<QStatusBar*>(sender()) != statusBar)
 	    return true;
 
 	if (statusBar->isExplicitlyHidden()) {

@@ -119,7 +119,7 @@ void CALLBACK qt_timer_proc(HWND hwnd, UINT message, UINT timerId, DWORD)
         return;
 
     QEventDispatcherWin32 *eventDispatcher =
-        qt_cast<QEventDispatcherWin32 *>(QAbstractEventDispatcher::instance());
+        qobject_cast<QEventDispatcherWin32 *>(QAbstractEventDispatcher::instance());
     Q_ASSERT(eventDispatcher != 0);
     QEventDispatcherWin32Private *d = eventDispatcher->d_func();
 

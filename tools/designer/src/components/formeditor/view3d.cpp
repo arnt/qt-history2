@@ -348,7 +348,7 @@ static void walkWidgetTree(AbstractFormEditor *core, int depth, QWidget *widget,
 
     QObjectList child_obj_list = widget->children();
     foreach (QObject *child_obj, child_obj_list) {
-        QWidget *child = qt_cast<QWidget*>(child_obj);
+        QWidget *child = qobject_cast<QWidget*>(child_obj);
         if (child != 0)
             walkWidgetTree(core, depth, child, func);
     }
@@ -369,7 +369,7 @@ static void grabWidget_helper(QWidget *widget, QPixmap &res, QPixmap &buf,
 
     const QObjectList children = widget->children();
     for (int i = 0; i < children.size(); ++i) {
-        QWidget *child = qt_cast<QWidget*>(children.at(i));
+        QWidget *child = qobject_cast<QWidget*>(children.at(i));
         if (child == 0 || child->isWindow())
             continue;
         if (child->isExplicitlyHidden() || !child->geometry().intersects(r))

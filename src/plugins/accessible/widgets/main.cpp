@@ -96,7 +96,7 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
         iface = new QAccessibleSlider(widget);
     } else if (classname == "QToolButton") {
         Role role = NoRole;
-        QToolButton *tb = qt_cast<QToolButton*>(widget);
+        QToolButton *tb = qobject_cast<QToolButton*>(widget);
         if (!tb->menu())
             role = tb->isCheckable() ? CheckBox : PushButton;
         else if (!tb->popupMode() != QToolButton::DelayedPopup)
@@ -110,7 +110,7 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
         iface = new QAccessibleButton(widget, RadioButton);
     } else if (classname == "QPushButton") {
         Role role = NoRole;
-        QPushButton *pb = qt_cast<QPushButton*>(widget);
+        QPushButton *pb = qobject_cast<QPushButton*>(widget);
         if (pb->menu())
             role = ButtonMenu;
         else if (pb->isCheckable())

@@ -88,7 +88,7 @@ QWSMouseHandler *QMouseDriverFactory::create(const QString& key, const QString &
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
-        if (QWSMouseHandlerFactoryInterface *factory = qt_cast<QWSMouseHandlerFactoryInterface*>(loader()->instance(driver)))
+        if (QWSMouseHandlerFactoryInterface *factory = qobject_cast<QWSMouseHandlerFactoryInterface*>(loader()->instance(driver)))
             return factory->create(driver);
 #endif
 #endif

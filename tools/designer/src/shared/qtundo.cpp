@@ -1771,7 +1771,7 @@ void QtUndoListView::undoOrRedo()
 void QtUndoListView::reset()
 {
     QListView::reset();
-    QtUndoListModel *m = qt_cast<QtUndoListModel*>(model());
+    QtUndoListModel *m = qobject_cast<QtUndoListModel*>(model());
     setCurrentIndex(m->index(m->undoIndex(), 0, QModelIndex()));
 }
 

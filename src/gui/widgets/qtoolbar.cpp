@@ -73,7 +73,7 @@ void QToolBarPrivate::init()
     QObject::connect(q, SIGNAL(orientationChanged(Qt::Orientation)),
                      handle, SLOT(setOrientation(Qt::Orientation)));
     layout->addWidget(handle);
-    handle->setShown(movable && (qt_cast<QMainWindow *>(q->parentWidget()) != 0));
+    handle->setShown(movable && (qobject_cast<QMainWindow *>(q->parentWidget()) != 0));
 
     extension = new QToolBarExtension(q);
     QObject::connect(q, SIGNAL(orientationChanged(Qt::Orientation)),
@@ -111,7 +111,7 @@ QToolBarItem QToolBarPrivate::createItem(QAction *action)
     item.action = action;
     item.hidden = false;
 
-    QToolBarWidgetAction *widgetAction = qt_cast<QToolBarWidgetAction *>(action);
+    QToolBarWidgetAction *widgetAction = qobject_cast<QToolBarWidgetAction *>(action);
     if (widgetAction) {
         item.widget = widgetAction->widget();
     } else if (action->isSeparator()) {
@@ -280,9 +280,9 @@ QToolBar::QToolBar(QWidget *parent, const char *name)
 QToolBar::~QToolBar()
 {
     // Remove the toolbar button if there is nothing left.
-    QMainWindow *mainwindow = qt_cast<QMainWindow *>(parentWidget());
+    QMainWindow *mainwindow = qobject_cast<QMainWindow *>(parentWidget());
     if (mainwindow) {
-        QMainWindowLayout *mainwin_layout = qt_cast<QMainWindowLayout *>(mainwindow->layout());
+        QMainWindowLayout *mainwin_layout = qobject_cast<QMainWindowLayout *>(mainwindow->layout());
         mainwin_layout->removeToolBarInfo(this);
         mainwin_layout->relayout();
 #ifdef Q_WS_MAC
@@ -310,7 +310,7 @@ void QToolBar::setMovable(bool movable)
     if (!movable == !d->movable)
         return;
     d->movable = movable;
-    d->handle->setShown(d->movable && (qt_cast<QMainWindow *>(parentWidget()) != 0));
+    d->handle->setShown(d->movable && (qobject_cast<QMainWindow *>(parentWidget()) != 0));
     emit movableChanged(d->movable);
 }
 
@@ -357,7 +357,7 @@ void QToolBar::setOrientation(Qt::Orientation orientation)
 
     d->orientation = orientation;
 
-    QBoxLayout *box = qt_cast<QBoxLayout *>(layout());
+    QBoxLayout *box = qobject_cast<QBoxLayout *>(layout());
     Q_ASSERT_X(box != 0, "QToolBar::setOrientation", "internal error");
 
     switch (d->orientation) {
@@ -590,7 +590,7 @@ QAction *QToolBar::actionAt(const QPoint &p) const
 void QToolBar::actionEvent(QActionEvent *event)
 {
     QAction *action = event->action();
-    QToolBarWidgetAction *widgetAction = qt_cast<QToolBarWidgetAction *>(action);
+    QToolBarWidgetAction *widgetAction = qobject_cast<QToolBarWidgetAction *>(action);
 
     switch (event->type()) {
     case QEvent::ActionAdded:
@@ -607,10 +607,10 @@ void QToolBar::actionEvent(QActionEvent *event)
                 Q_ASSERT_X(index >= 0 && index < d->items.size(), "QToolBar::insertAction",
                            "internal error");
                 d->items.insert(index, item);
-                qt_cast<QBoxLayout *>(layout())->insertWidget(index + 1, item.widget);
+                qobject_cast<QBoxLayout *>(layout())->insertWidget(index + 1, item.widget);
             } else {
                 d->items.append(item);
-                qt_cast<QBoxLayout *>(layout())->insertWidget(d->items.size(), item.widget);
+                qobject_cast<QBoxLayout *>(layout())->insertWidget(d->items.size(), item.widget);
             }
             item.widget->setShown(item.action->isVisible());
             break;
@@ -673,7 +673,7 @@ void QToolBar::changeEvent(QEvent *event)
 /*! \reimp */
 void QToolBar::childEvent(QChildEvent *event)
 {
-    QWidget *widget = qt_cast<QWidget *>(event->child());
+    QWidget *widget = qobject_cast<QWidget *>(event->child());
     if (widget) {
 #if !defined(QT_NO_DEBUG)
         if (!widget->isWindow() && event->type() == QEvent::ChildPolished) {
@@ -693,7 +693,7 @@ void QToolBar::childEvent(QChildEvent *event)
                 const QToolBarItem &item = d->items.at(i);
                 QToolBarWidgetAction *widgetAction = 0;
                 if (item.widget == widget
-                    && (widgetAction = qt_cast<QToolBarWidgetAction *>(item.action))) {
+                    && (widgetAction = qobject_cast<QToolBarWidgetAction *>(item.action))) {
                     removeAction(widgetAction);
                     // ### should we delete the action, or is it the programmers reponsibility?
                     // delete widgetAction;
@@ -716,7 +716,7 @@ void QToolBar::paintEvent(QPaintEvent *event)
 /*! \reimp */
 void QToolBar::resizeEvent(QResizeEvent *event)
 {
-    QBoxLayout *box = qt_cast<QBoxLayout *>(layout());
+    QBoxLayout *box = qobject_cast<QBoxLayout *>(layout());
     Qt::Orientation orientation = (box->direction() == QBoxLayout::LeftToRight
                                    || box->direction() == QBoxLayout::RightToLeft)
                                   ? Qt::Horizontal
@@ -811,7 +811,7 @@ void QToolBar::resizeEvent(QResizeEvent *event)
             const QToolBarItem &item = d->items.at(i);
             if (!item.hidden) continue;
 
-            if (!qt_cast<QToolBarWidgetAction *>(item.action)) {
+            if (!qobject_cast<QToolBarWidgetAction *>(item.action)) {
                 pop->addAction(item.action);
             } else {
                 // ### needs special handling of custom widgets and
@@ -847,7 +847,7 @@ bool QToolBar::event(QEvent *event)
             d->toggleViewAction->setChecked(event->type() == QEvent::Show);
         break;
     case QEvent::ParentChange:
-        d->handle->setShown(d->movable && (qt_cast<QMainWindow *>(parentWidget()) != 0));
+        d->handle->setShown(d->movable && (qobject_cast<QMainWindow *>(parentWidget()) != 0));
         break;
     default:
         break;

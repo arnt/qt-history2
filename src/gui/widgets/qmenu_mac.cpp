@@ -222,7 +222,7 @@ bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent act
         //fire
         QWidget *widget = 0;
         GetMenuItemProperty(menu, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(widget), 0, &widget);
-        if(QMenu *qmenu = ::qt_cast<QMenu*>(widget)) {
+        if(QMenu *qmenu = ::qobject_cast<QMenu*>(widget)) {
             if(action_e == QAction::Trigger) {
                 emit qmenu->triggered(action->action);
 #ifdef QT3_SUPPORT
@@ -234,7 +234,7 @@ bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent act
                 emit qmenu->highlighted(qmenu->findIdForAction(action->action));
 #endif
             }
-        } else if(QMenuBar *qmenubar = ::qt_cast<QMenuBar*>(widget)) {
+        } else if(QMenuBar *qmenubar = ::qobject_cast<QMenuBar*>(widget)) {
             if(action_e == QAction::Trigger) {
                 emit qmenubar->triggered(action->action);
 #ifdef QT3_SUPPORT
@@ -253,9 +253,9 @@ bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent act
         QWidget *caused = 0;
         if(GetMenuItemProperty(menu, 0, kMenuCreatorQt, kMenuPropertyCausedQWidget, sizeof(caused), 0, &caused) != noErr)
             break;
-        if(QMenu *qmenu2 = ::qt_cast<QMenu*>(caused))
+        if(QMenu *qmenu2 = ::qobject_cast<QMenu*>(caused))
             menu = qmenu2->macMenu();
-        else if(QMenuBar *qmenubar2 = ::qt_cast<QMenuBar*>(caused))
+        else if(QMenuBar *qmenubar2 = ::qobject_cast<QMenuBar*>(caused))
             menu = qmenubar2->macMenu();
         else
             menu = 0;
@@ -302,7 +302,7 @@ OSStatus qt_mac_menu_event(EventHandlerCallRef er, EventRef event, void *)
 
             QWidget *widget = 0;
             if(GetMenuItemProperty(mr, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(widget), 0, &widget) == noErr) {
-                if(QMenu *qmenu = ::qt_cast<QMenu*>(widget)) {
+                if(QMenu *qmenu = ::qobject_cast<QMenu*>(widget)) {
                     handled_event = true;
                     if(ekind == kEventMenuOpening)
                         emit qmenu->aboutToShow();
@@ -764,10 +764,10 @@ QMenuBarPrivate::macCreateMenuBar(QWidget *parent)
             if(parent && (QMacMenuBarPrivate::menubars.isEmpty() || !QMacMenuBarPrivate::menubars.contains(tlw)) &&
                ((((parent->windowType() == Qt::Dialog)
 #ifndef QT_NO_MAINWINDOW
-                  || ::qt_cast<QMainWindow *>(parent)
+                  || ::qobject_cast<QMainWindow *>(parent)
 #endif
                      ) && parent == tlw) ||
-                ::qt_cast<QToolBar *>(parent) || tlw == qApp->mainWidget() || !qApp->mainWidget())) {
+                ::qobject_cast<QToolBar *>(parent) || tlw == qApp->mainWidget() || !qApp->mainWidget())) {
                 QMacMenuBarPrivate::menubars.insert(tlw, q);
                 mac_menubar = new QMacMenuBarPrivate;
             }
@@ -845,9 +845,9 @@ bool QMenuBar::macUpdateMenuBar()
     if(w) {
         mb = QMenuBarPrivate::QMacMenuBarPrivate::menubars.value(w);
 #ifndef QT_NO_MAINWINDOW
-        QDockWidget *dw = qt_cast<QDockWidget *>(w);
+        QDockWidget *dw = qobject_cast<QDockWidget *>(w);
         if(!mb && dw) {
-            QMainWindow *mw = qt_cast<QMainWindow *>(dw->parentWidget());
+            QMainWindow *mw = qobject_cast<QMainWindow *>(dw->parentWidget());
             if (mw && (mb = QMenuBarPrivate::QMacMenuBarPrivate::menubars.value(mw)))
                 w = mw;
         }

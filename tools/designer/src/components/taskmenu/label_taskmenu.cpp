@@ -50,7 +50,7 @@ QList<QAction*> LabelTaskMenu::taskActions() const
 
 bool LabelTaskMenu::eventFilter(QObject *object, QEvent *event)
 {
-    QLineEdit *lineEditor = qt_cast<QLineEdit*>(object);
+    QLineEdit *lineEditor = qobject_cast<QLineEdit*>(object);
     if (!lineEditor)
         return false;
 
@@ -107,7 +107,7 @@ LabelTaskMenuFactory::LabelTaskMenuFactory(QExtensionManager *extensionManager)
 
 QObject *LabelTaskMenuFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
 {
-    if (QLabel *label = qt_cast<QLabel*>(object)) {
+    if (QLabel *label = qobject_cast<QLabel*>(object)) {
         if (iid == Q_TYPEID(ITaskMenu)) {
             return new LabelTaskMenu(label, parent);
         }

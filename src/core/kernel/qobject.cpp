@@ -636,7 +636,7 @@ QObject::~QObject()
 */
 
 
-/*! \fn Type *qt_cast<Type *>(QObject *o)
+/*! \fn Type *qobject_cast<Type *>(QObject *o)
 
   \relates QObject
 
@@ -654,7 +654,7 @@ QObject::~QObject()
 
     A class is considered to inherit itself.
 
-    Consider using qt_cast<Type *>(object) instead. The method is both
+    Consider using qobject_cast<Type *>(object) instead. The method is both
     faster and safer.
 
     Example:
@@ -672,7 +672,7 @@ QObject::~QObject()
 
     (\l QRangeControl is not a QObject.)
 
-    \sa isA(), metaObject(), qt_cast
+    \sa isA(), metaObject(), qobject_cast
 */
 
 /*!

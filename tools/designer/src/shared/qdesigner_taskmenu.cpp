@@ -46,7 +46,7 @@ QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent)
     connect(m_promoteToCustomWidgetAction, SIGNAL(triggered()), this, SLOT(promoteToCustomWidget()));
 
     QString demote_string = tr("Demote from Custom Widget");
-    if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(widget))
+    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(widget))
         demote_string = tr("Demote to ") + promoted->item()->extends();
     m_demoteFromCustomWidgetAction = new QAction(demote_string, this);
     connect(m_demoteFromCustomWidgetAction, SIGNAL(triggered()),
@@ -78,11 +78,11 @@ QList<QAction*> QDesignerTaskMenu::taskActions() const
 
     actions.append(m_changeObjectNameAction);
 
-    if (qt_cast<QMainWindow*>(formWindow->mainContainer()) != 0) {
+    if (qobject_cast<QMainWindow*>(formWindow->mainContainer()) != 0) {
         actions.append(m_createDockWidgetAction);
     }
 
-    if (qt_cast<QDesignerPromotedWidget*>(m_widget) == 0)
+    if (qobject_cast<QDesignerPromotedWidget*>(m_widget) == 0)
         actions.append(m_promoteToCustomWidgetAction);
     else
         actions.append(m_demoteFromCustomWidgetAction);
@@ -105,7 +105,7 @@ void QDesignerTaskMenu::createDockWidget()
     AbstractFormWindow *formWindow = AbstractFormWindow::findFormWindow(widget());
     Q_ASSERT(formWindow != 0);
 
-    QMainWindow *mainWindow = qt_cast<QMainWindow*>(formWindow->mainContainer());
+    QMainWindow *mainWindow = qobject_cast<QMainWindow*>(formWindow->mainContainer());
     Q_ASSERT(mainWindow != 0);
 
     formWindow->beginCommand(tr("Create Dock Window"));
@@ -140,7 +140,7 @@ QDesignerTaskMenuFactory::QDesignerTaskMenuFactory(QExtensionManager *extensionM
 
 QObject *QDesignerTaskMenuFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
 {
-    if (QWidget *widget = qt_cast<QWidget*>(object)) {
+    if (QWidget *widget = qobject_cast<QWidget*>(object)) {
         if (iid == Q_TYPEID(ITaskMenu)) {
             return new QDesignerTaskMenu(widget, parent);
         }
@@ -156,9 +156,9 @@ void QDesignerTaskMenu::promoteToCustomWidget()
     QWidget *wgt = widget();
     QWidget *parent = wgt->parentWidget();
     AbstractWidgetDataBase *db = core->widgetDataBase();
-    WidgetFactory *factory = qt_cast<WidgetFactory*>(core->widgetFactory());
+    WidgetFactory *factory = qobject_cast<WidgetFactory*>(core->widgetFactory());
 
-    Q_ASSERT(qt_cast<QDesignerPromotedWidget*>(wgt) == 0);
+    Q_ASSERT(qobject_cast<QDesignerPromotedWidget*>(wgt) == 0);
 
     QString base_class_name = factory->classNameOf(wgt);
 
@@ -208,7 +208,7 @@ void QDesignerTaskMenu::demoteFromCustomWidget()
     QWidget *wgt = widget();
     QWidget *parent = wgt->parentWidget();
 
-    QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(wgt);
+    QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(wgt);
     Q_ASSERT(promoted != 0);
 
     fw->beginCommand(tr("Demote to ") + promoted->item()->extends());

@@ -30,14 +30,14 @@ LayoutInfo::Type LayoutInfo::layoutType(AbstractFormEditor *core, QWidget *w, QL
     if (IContainer *container = qt_extension<IContainer*>(core->extensionManager(), w))
         w = container->widget(container->currentIndex());
 
-    if (qt_cast<QSplitter*>(w))
+    if (qobject_cast<QSplitter*>(w))
         return static_cast<QSplitter*>(w)->orientation() == Qt::Horizontal ? HBox : VBox;
 
     if (!w || !w->layout())
         return NoLayout;
     QLayout *lay = w->layout();
 
-    if (qt_cast<QGroupBox*>(w)) {
+    if (qobject_cast<QGroupBox*>(w)) {
         QList<QLayout*> l = qFindChildren<QLayout*>(lay);
         if (l.size())
             lay = l.first();
@@ -54,11 +54,11 @@ LayoutInfo::Type LayoutInfo::layoutType(AbstractFormEditor *core, QLayout *layou
 {
     Q_UNUSED(core)
 
-    if (qt_cast<QHBoxLayout*>(layout))
+    if (qobject_cast<QHBoxLayout*>(layout))
         return HBox;
-    else if (qt_cast<QVBoxLayout*>(layout))
+    else if (qobject_cast<QVBoxLayout*>(layout))
         return VBox;
-    else if (qt_cast<QGridLayout*>(layout))
+    else if (qobject_cast<QGridLayout*>(layout))
         return Grid;
     return NoLayout;
 }

@@ -54,7 +54,7 @@ void QDockSeparator::mousePressEvent(QMouseEvent *event)
     if (state->prevFocus)
         state->prevFocus->clearFocus();
 
-    qt_cast<QMainWindowLayout*>(parentWidget()->layout())->saveLayoutInfo();
+    qobject_cast<QMainWindowLayout*>(parentWidget()->layout())->saveLayoutInfo();
 }
 
 void QDockSeparator::mouseMoveEvent(QMouseEvent *event)
@@ -63,13 +63,13 @@ void QDockSeparator::mouseMoveEvent(QMouseEvent *event)
 
     // we map from global coordinates to avoid nasty effects when
     // event compression kicks in
-    QMainWindow *mw = qt_cast<QMainWindow *>(parentWidget());
+    QMainWindow *mw = qobject_cast<QMainWindow *>(parentWidget());
     QPoint p = mw->mapFromGlobal(event->globalPos());
     int delta = pick_perp(orientation, p - state->origin);
 
     // constrain the mouse move event
-    if (qt_cast<QMainWindowLayout *>(mw->layout())->constrain(dock, delta) != 0)
-	qt_cast<QMainWindowLayout *>(mw->layout())->relayout();
+    if (qobject_cast<QMainWindowLayout *>(mw->layout())->constrain(dock, delta) != 0)
+	qobject_cast<QMainWindowLayout *>(mw->layout())->relayout();
 }
 
 void QDockSeparator::mouseReleaseEvent(QMouseEvent *event)
@@ -77,7 +77,7 @@ void QDockSeparator::mouseReleaseEvent(QMouseEvent *event)
     if (event->button() != Qt::LeftButton)
         return;
 
-    QMainWindowLayout *l = qt_cast<QMainWindowLayout*>(parentWidget()->layout());
+    QMainWindowLayout *l = qobject_cast<QMainWindowLayout*>(parentWidget()->layout());
     Q_ASSERT(l != 0);
     l->relayout();
     l->discardLayoutInfo();

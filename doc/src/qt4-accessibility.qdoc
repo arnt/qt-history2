@@ -118,7 +118,7 @@
             case DefaultAction:
             case Press:
                 {
-                    MyWidget *widget = qt_cast<MyWidget *>(object());
+                    MyWidget *widget = qobject_cast<MyWidget *>(object());
                     if (widget)
                         widget->click();
                 }

@@ -481,7 +481,7 @@ void QToolButton::actionEvent(QActionEvent *event)
 
 void QToolButtonPrivate::actionTriggered()
 {
-    if (QAction *action = qt_cast<QAction *>(q->sender()))
+    if (QAction *action = qobject_cast<QAction *>(q->sender()))
         emit q->triggered(action);
 }
 
@@ -528,7 +528,7 @@ void QToolButton::timerEvent(QTimerEvent *e)
 void QToolButton::changeEvent(QEvent *e)
 {
     if (e->type() == QEvent::ParentChange) {
-        if (qt_cast<QToolBar*>(parentWidget()))
+        if (qobject_cast<QToolBar*>(parentWidget()))
             d->autoRaise = true;
     }
     QAbstractButton::changeEvent(e);
@@ -716,7 +716,7 @@ void QToolButtonPrivate::popupTimerDone()
     q->setAutoRepeat(false);
     bool horizontal = true;
 #if !defined(QT_NO_TOOLBAR)
-    QToolBar *tb = qt_cast<QToolBar*>(q->parentWidget());
+    QToolBar *tb = qobject_cast<QToolBar*>(q->parentWidget());
     if (tb && tb->orientation() == Qt::Vertical)
         horizontal = false;
 #endif

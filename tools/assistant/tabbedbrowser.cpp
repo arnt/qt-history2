@@ -350,7 +350,7 @@ QList<HelpWindow*> TabbedBrowser::browsers() const
 {
     QList<HelpWindow*> list;
     for (int i=0; i<ui.tab->count(); ++i) {
-        Q_ASSERT(::qt_cast<HelpWindow*>(ui.tab->widget(i)));
+        Q_ASSERT(::qobject_cast<HelpWindow*>(ui.tab->widget(i)));
         list.append(static_cast<HelpWindow*>(ui.tab->widget(i)));
     }
     return list;
@@ -358,7 +358,7 @@ QList<HelpWindow*> TabbedBrowser::browsers() const
 
 void TabbedBrowser::sourceChanged()
 {
-    HelpWindow *win = ::qt_cast<HelpWindow *>(QObject::sender());
+    HelpWindow *win = ::qobject_cast<HelpWindow *>(QObject::sender());
     Q_ASSERT(win);
     QString docTitle(win->documentTitle());
     if (docTitle.isEmpty())

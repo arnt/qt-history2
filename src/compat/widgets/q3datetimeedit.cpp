@@ -398,7 +398,7 @@ public:
     void changeEvent(QEvent *e)
     {
 	if (e->type() == QEvent::EnabledChange && isEnabled()) {
-	    Q3DateEdit *de = ::qt_cast<Q3DateEdit*>(parentWidget());
+	    Q3DateEdit *de = ::qobject_cast<Q3DateEdit*>(parentWidget());
 	    if (de) {
 		setUpEnabled(de->date() < de->maxValue());
 		setDownEnabled(de->date() > de->minValue());
@@ -410,7 +410,7 @@ public:
     }
     void enabledChange(bool notenabled)
     {
-	Q3DateEdit *de = qt_cast<Q3DateEdit*>(parentWidget());
+	Q3DateEdit *de = qobject_cast<Q3DateEdit*>(parentWidget());
 	if (de && !notenabled) {
 	    setUpEnabled(de->date() < de->maxValue());
 	    setDownEnabled(de->date() > de->minValue());
@@ -425,7 +425,7 @@ protected:
 #ifndef QT_NO_WHEELEVENT
     void wheelEvent(QWheelEvent *e)
     {
-        Q3DateTimeEditor *editor = qt_cast<Q3DateTimeEditor*>(editWidget());
+        Q3DateTimeEditor *editor = qobject_cast<Q3DateTimeEditor*>(editWidget());
         Q_ASSERT(editor);
         if (!editor)
             return;
@@ -592,9 +592,9 @@ bool Q3DateTimeEditor::eventFilter(QObject *o, QEvent *e)
                 cw->stepDown();
                 return true;
             case Qt::Key_Backspace:
-                if (qt_cast<Q3DateEdit*>(cw))
+                if (qobject_cast<Q3DateEdit*>(cw))
                     ((Q3DateEdit*)cw)->removeFirstNumber(d->focusSection());
-                else if (qt_cast<Q3TimeEdit*>(cw))
+                else if (qobject_cast<Q3TimeEdit*>(cw))
                     ((Q3TimeEdit*)cw)->removeFirstNumber(d->focusSection());
                 return true;
             case Qt::Key_Delete:
@@ -607,13 +607,13 @@ bool Q3DateTimeEditor::eventFilter(QObject *o, QEvent *e)
                 QWidget *w = this;
                 bool hadDateEdit = false;
                 while (w) {
-                    if (qt_cast<QDateTimeSpinWidget*>(w) || qt_cast<Q3DateTimeEdit*>(w))
+                    if (qobject_cast<QDateTimeSpinWidget*>(w) || qobject_cast<Q3DateTimeEdit*>(w))
                         break;
-                    hadDateEdit = hadDateEdit || qt_cast<Q3DateEdit*>(w);
+                    hadDateEdit = hadDateEdit || qobject_cast<Q3DateEdit*>(w);
                     w = w->parentWidget();
                 }
                 if (w) {
-                    if (!qt_cast<Q3DateTimeEdit*>(w)) {
+                    if (!qobject_cast<Q3DateTimeEdit*>(w)) {
                         w = w->parentWidget();
                     } else {
                         Q3DateTimeEdit *ed = (Q3DateTimeEdit*)w;
@@ -624,7 +624,7 @@ bool Q3DateTimeEditor::eventFilter(QObject *o, QEvent *e)
                             ed->dateEdit()->setFocus();
                             return true;
                         } else {
-                            while (w && !qt_cast<Q3DateTimeEdit*>(w))
+                            while (w && !qobject_cast<Q3DateTimeEdit*>(w))
                                 w = w->parentWidget();
                         }
                     }
@@ -641,7 +641,7 @@ bool Q3DateTimeEditor::eventFilter(QObject *o, QEvent *e)
                             repaint(rect());
                     }
                     return true;
-                } else if (!txt.isEmpty() && qt_cast<Q3TimeEdit*>(cw) && focusSection() == (int) d->sectionCount()-1) {
+                } else if (!txt.isEmpty() && qobject_cast<Q3TimeEdit*>(cw) && focusSection() == (int) d->sectionCount()-1) {
                     // the first character of the AM/PM indicator toggles if the section has focus
                     Q3TimeEdit *te = (Q3TimeEdit*)cw;
                     QTime time = te->time();

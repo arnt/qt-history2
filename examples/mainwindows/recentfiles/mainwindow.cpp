@@ -59,7 +59,7 @@ void MainWindow::saveAs()
 
 void MainWindow::openRecentFile()
 {
-    QAction *action = qt_cast<QAction *>(sender());
+    QAction *action = qobject_cast<QAction *>(sender());
     if (action)
         loadFile(action->iconText());
 }
@@ -198,7 +198,7 @@ void MainWindow::setCurrentFile(const QString &fileName)
     settings.setValue("recentFileList", files);
 
     foreach (QWidget *widget, QApplication::topLevelWidgets()) {
-        MainWindow *mainWin = qt_cast<MainWindow *>(widget);
+        MainWindow *mainWin = qobject_cast<MainWindow *>(widget);
         if (mainWin)
             mainWin->updateRecentFileActions();
     }

@@ -534,7 +534,7 @@
         \newcode
             QWidgetList list = QApplication::topLevelWidgets();
             for (int i = 0; i < list.size(); ++i) {
-                if (MainWindow *mainWin = qt_cast<MainWindow>(list.at(i)))
+                if (MainWindow *mainWin = qobject_cast<MainWindow>(list.at(i)))
                     mainWin->updateRecentFileItems();
             }
         \endcode

@@ -85,7 +85,7 @@ QDecoration *QDecorationFactory::create(const QString& key)
     { } // Keep these here - they make the #ifdefery above work
 #ifndef QT_NO_COMPONENT
     if (!ret) {
-        if (QDecorationFactoryInterface *factory = qt_cast<QDecorationFactoryInterface*>(loader()->instance(decoration))) {
+        if (QDecorationFactoryInterface *factory = qobject_cast<QDecorationFactoryInterface*>(loader()->instance(decoration))) {
             ret = factory->create(decoration);
         }
     }

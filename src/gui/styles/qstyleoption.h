@@ -547,7 +547,7 @@ protected:
 };
 
 template <typename T>
-T qt_cast(const QStyleOption *opt)
+T qobject_cast(const QStyleOption *opt)
 {
     if (opt && opt->version <= static_cast<T>(0)->Version && (opt->type == static_cast<T>(0)->Type
         || int(static_cast<T>(0)->Type) == QStyleOption::SO_Default
@@ -558,7 +558,7 @@ T qt_cast(const QStyleOption *opt)
 }
 
 template <typename T>
-T qt_cast(QStyleOption *opt)
+T qobject_cast(QStyleOption *opt)
 {
     if (opt && opt->version <= static_cast<T>(0)->Version && (opt->type == static_cast<T>(0)->Type
         || int(static_cast<T>(0)->Type) == QStyleOption::SO_Default
@@ -596,7 +596,7 @@ public:
 };
 
 template <typename T>
-T qt_cast(const QStyleHintReturn *hint)
+T qobject_cast(const QStyleHintReturn *hint)
 {
     if (hint && hint->version <= static_cast<T>(0)->Version &&
         (hint->type == static_cast<T>(0)->Type || int(static_cast<T>(0)->Type) == QStyleHintReturn::SH_Default))
@@ -605,7 +605,7 @@ T qt_cast(const QStyleHintReturn *hint)
 }
 
 template <typename T>
-T qt_cast(QStyleHintReturn *hint)
+T qobject_cast(QStyleHintReturn *hint)
 {
     if (hint && hint->version <= static_cast<T>(0)->Version &&
         (hint->type == static_cast<T>(0)->Type || int(static_cast<T>(0)->Type) == QStyleHintReturn::SH_Default))

@@ -459,7 +459,7 @@ void Q3DockWindowHandle::minimize()
     if (!dockWindow->area())
         return;
 
-    Q3MainWindow *mw = qt_cast<Q3MainWindow*>(dockWindow->area()->parentWidget());
+    Q3MainWindow *mw = qobject_cast<Q3MainWindow*>(dockWindow->area()->parentWidget());
     if (mw && mw->isDockEnabled(dockWindow, Qt::DockMinimized))
         mw->moveDockWindow(dockWindow, Qt::DockMinimized);
 }
@@ -1014,13 +1014,13 @@ void Q3DockWindow::init()
     if (parentWidget())
         parentWidget()->installEventFilter(this);
     QWidget *mw = parentWidget();
-    Q3DockArea *da = qt_cast<Q3DockArea*>(parentWidget());
+    Q3DockArea *da = qobject_cast<Q3DockArea*>(parentWidget());
     if (da) {
         if (curPlace == InDock)
             da->moveDockWindow(this);
         mw = da->parentWidget();
     }
-    if (qt_cast<Q3MainWindow*>(mw)) {
+    if (qobject_cast<Q3MainWindow*>(mw)) {
         if (place() == InDock) {
             Qt::Dock myDock = Qt::DockTop;
             // make sure we put the window in the correct dock.
@@ -1104,7 +1104,7 @@ Q3DockWindow::~Q3DockWindow()
     Q3DockArea *a = area();
     if (!a && dockWindowData)
         a = ((Q3DockArea::DockWindowData*)dockWindowData)->area;
-    Q3MainWindow *mw = a ? qt_cast<Q3MainWindow*>(a->parentWidget()) : 0;
+    Q3MainWindow *mw = a ? qobject_cast<Q3MainWindow*>(a->parentWidget()) : 0;
     if (mw)
         mw->removeDockWindow(this);
 
@@ -1140,12 +1140,12 @@ QWidget *Q3DockWindow::areaAt(const QPoint &gp)
         w = parentWidget()->childAt(parentWidget()->mapFromGlobal(gp));
 
     while (w) {
-        if (qt_cast<Q3DockArea*>(w)) {
+        if (qobject_cast<Q3DockArea*>(w)) {
             Q3DockArea *a = (Q3DockArea*)w;
             if (a->isDockWindowAccepted(this))
                 return w;
         }
-        if (qt_cast<Q3MainWindow*>(w)) {
+        if (qobject_cast<Q3MainWindow*>(w)) {
             Q3MainWindow *mw = (Q3MainWindow*)w;
             Q3DockArea *a = mw->dockingArea(mw->mapFromGlobal(gp));
             if (a && a->isDockWindowAccepted(this))
@@ -1166,8 +1166,8 @@ void Q3DockWindow::handleMove(const QPoint &pos, const QPoint &gp, bool drawRect
     if (titleBar->ctrlDown || horHandle->ctrlDown || verHandle->ctrlDown)
         w = 0;
     currRect.moveBy(pos.x(), pos.y());
-    if (!qt_cast<Q3DockArea*>(w)) {
-        if (startOrientation != Qt::Horizontal && qt_cast<Q3ToolBar*>(this))
+    if (!qobject_cast<Q3DockArea*>(w)) {
+        if (startOrientation != Qt::Horizontal && qobject_cast<Q3ToolBar*>(this))
             swapRect(currRect, Qt::Horizontal, startOffset, (Q3DockArea*)w);
         if (drawRect) {
             rubberBand->setGeometry(currRect);
@@ -1347,14 +1347,14 @@ void Q3DockWindow::updatePosition(const QPoint &globalPos)
     } else {
         if (dockArea) {
             Q3MainWindow *mw = (Q3MainWindow*)dockArea->parentWidget();
-            if (qt_cast<Q3MainWindow*>(mw) &&
+            if (qobject_cast<Q3MainWindow*>(mw) &&
                  (!mw->isDockEnabled(Qt::DockTornOff) ||
                    !mw->isDockEnabled(this, Qt::DockTornOff)))
                 return;
             delete (Q3DockArea::DockWindowData*)dockWindowData;
             dockWindowData = dockArea->dockWindowData(this);
             dockArea->removeDockWindow(this, true,
-                startOrientation != Qt::Horizontal && qt_cast<Q3ToolBar*>(this));
+                startOrientation != Qt::Horizontal && qobject_cast<Q3ToolBar*>(this));
         }
         dockArea = 0;
         QPoint topLeft = currRect.topLeft();
@@ -1368,7 +1368,7 @@ void Q3DockWindow::updatePosition(const QPoint &globalPos)
         move(topLeft);
     }
 
-    if (curPlace == InDock && state == OutsideDock && !qt_cast<Q3ToolBar*>(this)) {
+    if (curPlace == InDock && state == OutsideDock && !qobject_cast<Q3ToolBar*>(this)) {
         if (lastSize != QSize(-1, -1))
             resize(lastSize);
     }
@@ -1382,7 +1382,7 @@ void Q3DockWindow::updatePosition(const QPoint &globalPos)
     tmpDockArea = 0;
     if (doAdjustSize) {
         QApplication::sendPostedEvents(this, QEvent::LayoutHint);
-        if (qt_cast<Q3ToolBar*>(this))
+        if (qobject_cast<Q3ToolBar*>(this))
             adjustSize();
         setAttribute(Qt::WA_Resized, false); // Ensures size is recalculated (non-opaque).
         show();
@@ -1643,7 +1643,7 @@ Qt::Orientation Q3DockWindow::orientation() const
 {
     if (dockArea)
         return dockArea->orientation();
-    if (qt_cast<const Q3ToolBar*>(this))
+    if (qobject_cast<const Q3ToolBar*>(this))
         return Qt::Horizontal;
     return (((Q3DockWindow*)this)->boxLayout()->direction() == QBoxLayout::LeftToRight ||
              ((Q3DockWindow*)this)->boxLayout()->direction() == QBoxLayout::RightToLeft ?
@@ -1798,7 +1798,7 @@ void Q3DockWindow::undock(QWidget *w)
 {
     Q3MainWindow *mw = 0;
     if (area())
-        mw = qt_cast<Q3MainWindow*>(area()->parentWidget());
+        mw = qobject_cast<Q3MainWindow*>(area()->parentWidget());
     if (mw && !mw->isDockEnabled(this, Qt::DockTornOff))
         return;
     if ((place() == OutsideDock && !w))
@@ -1810,7 +1810,7 @@ void Q3DockWindow::undock(QWidget *w)
     if (dockArea) {
         delete (Q3DockArea::DockWindowData*)dockWindowData;
         dockWindowData = dockArea->dockWindowData(this);
-        dockArea->removeDockWindow(this, true, orientation() != Qt::Horizontal && qt_cast<Q3ToolBar*>(this));
+        dockArea->removeDockWindow(this, true, orientation() != Qt::Horizontal && qobject_cast<Q3ToolBar*>(this));
     }
     dockArea = 0;
     if (lastPos != QPoint(-1, -1) && lastPos.x() > 0 && lastPos.y() > 0)
@@ -1823,7 +1823,7 @@ void Q3DockWindow::undock(QWidget *w)
     updateGui();
     emit orientationChanged(orientation());
     QApplication::sendPostedEvents(this, QEvent::LayoutHint);
-    if (qt_cast<Q3ToolBar*>(this))
+    if (qobject_cast<Q3ToolBar*>(this))
         adjustSize();
     if (!w) {
         if (!parentWidget() || parentWidget()->isVisible()) {
@@ -2027,7 +2027,7 @@ void Q3DockWindow::contextMenuEvent(QContextMenuEvent *e)
 {
     QObject *o = this;
     while (o) {
-        if (qt_cast<Q3MainWindow*>(o))
+        if (qobject_cast<Q3MainWindow*>(o))
             break;
         o = o->parent();
     }

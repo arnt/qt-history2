@@ -201,7 +201,7 @@ void SetPropertyCommand::undo()
 
 bool SetPropertyCommand::mergeMeWith(QtCommand *other)
 {
-    if (SetPropertyCommand *cmd = qt_cast<SetPropertyCommand*>(other)) {
+    if (SetPropertyCommand *cmd = qobject_cast<SetPropertyCommand*>(other)) {
         if (cmd->propertyName() == propertyName() && cmd->widget() == widget()) {
             m_newValue = cmd->newValue();
             return true;
@@ -543,9 +543,9 @@ void BreakLayoutCommand::init(const QList<QWidget*> &widgets, QWidget *layoutBas
 
     m_layout = 0;
     if (lay == LayoutInfo::HBox)
-        m_layout = new HorizontalLayout(widgets, m_layoutBase, formWindow(), m_layoutBase, qt_cast<QSplitter*>(m_layoutBase) != 0);
+        m_layout = new HorizontalLayout(widgets, m_layoutBase, formWindow(), m_layoutBase, qobject_cast<QSplitter*>(m_layoutBase) != 0);
     else if (lay == LayoutInfo::VBox)
-        m_layout = new VerticalLayout(widgets, m_layoutBase, formWindow(), m_layoutBase, qt_cast<QSplitter*>(m_layoutBase) != 0);
+        m_layout = new VerticalLayout(widgets, m_layoutBase, formWindow(), m_layoutBase, qobject_cast<QSplitter*>(m_layoutBase) != 0);
     else if (lay == LayoutInfo::Grid)
         m_layout = new GridLayout(widgets, m_layoutBase, formWindow(), m_layoutBase, QSize(qMax(5, grid.x()), qMax(5, grid.y())));
     // ### StackedLayout

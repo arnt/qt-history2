@@ -53,7 +53,7 @@ bool Delegate::eventFilter(QObject *object, QEvent *event)
             }
             if (ke->key() == Qt::Key_Enter || ke->key() == Qt::Key_Return) {
                 QWidget *widget = static_cast<QWidget*>(object);
-                if (QSpinBox *spinBox = qt_cast<QSpinBox*>(widget)) { // ### hack (remove me)
+                if (QSpinBox *spinBox = qobject_cast<QSpinBox*>(widget)) { // ### hack (remove me)
                     spinBox->interpretText();
                 }
                 emit commitData(widget);
@@ -186,6 +186,6 @@ void Delegate::sync()
 
 void Delegate::resetProperty()
 {
-    QMessageBox::information(qt_cast<QWidget*>(parent()), tr("Designer"), tr("Feature not implemented yet!"));
+    QMessageBox::information(qobject_cast<QWidget*>(parent()), tr("Designer"), tr("Feature not implemented yet!"));
 }
 

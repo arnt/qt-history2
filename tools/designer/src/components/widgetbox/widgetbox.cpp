@@ -386,7 +386,7 @@ WidgetCollectionModel::Category WidgetCollectionModel::loadCustomCategory()
         QObject *o = pm->instance(path);
         if (o == 0)
             continue;
-        ICustomWidget *c = qt_cast<ICustomWidget*>(o);
+        ICustomWidget *c = qobject_cast<ICustomWidget*>(o);
         if (c == 0)
             continue;
         QString dom_xml = c->domXml();

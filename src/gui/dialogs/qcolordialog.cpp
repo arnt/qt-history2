@@ -316,7 +316,7 @@ void QWellArray::setSelected(int row, int col)
     if (row >= 0)
         emit selected(row, col);
 
-    if (isVisible() && qt_cast<QMenu*>(parentWidget()))
+    if (isVisible() && qobject_cast<QMenu*>(parentWidget()))
         parentWidget()->close();
 }
 

@@ -76,14 +76,14 @@ QWidget *BoolProperty::createEditor(QWidget *parent, const QObject *target, cons
 
 void BoolProperty::updateEditorContents(QWidget *editor)
 {
-    if (QComboBox *combo = qt_cast<QComboBox*>(editor)) {
+    if (QComboBox *combo = qobject_cast<QComboBox*>(editor)) {
         combo->setCurrentIndex(m_value ? 1 : 0);
     }
 }
 
 void BoolProperty::updateValue(QWidget *editor)
 {
-    if (QComboBox *combo = qt_cast<QComboBox*>(editor)) {
+    if (QComboBox *combo = qobject_cast<QComboBox*>(editor)) {
         bool newValue = combo->currentIndex() ? true : false;
 
         if (newValue != m_value) {
@@ -232,7 +232,7 @@ QWidget *StringProperty::createEditor(QWidget *parent, const QObject *target, co
 
 void StringProperty::updateEditorContents(QWidget *editor)
 {
-    if (QLineEdit *lineEdit = qt_cast<QLineEdit*>(editor)) {
+    if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(editor)) {
         if (lineEdit->text() != m_value)
             lineEdit->setText(m_value);
     }
@@ -240,7 +240,7 @@ void StringProperty::updateEditorContents(QWidget *editor)
 
 void StringProperty::updateValue(QWidget *editor)
 {
-    if (QLineEdit *lineEdit = qt_cast<QLineEdit*>(editor)) {
+    if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(editor)) {
         QString newValue = lineEdit->text();
 
         if (newValue != m_value) {
@@ -282,14 +282,14 @@ QWidget *ListProperty::createEditor(QWidget *parent, const QObject *target, cons
 
 void ListProperty::updateEditorContents(QWidget *editor)
 {
-    if (QComboBox *combo = qt_cast<QComboBox*>(editor)) {
+    if (QComboBox *combo = qobject_cast<QComboBox*>(editor)) {
         combo->setCurrentIndex(m_value);
     }
 }
 
 void ListProperty::updateValue(QWidget *editor)
 {
-    if (QComboBox *combo = qt_cast<QComboBox*>(editor)) {
+    if (QComboBox *combo = qobject_cast<QComboBox*>(editor)) {
         int newValue = combo->currentIndex();
 
         if (newValue != m_value) {
@@ -373,7 +373,7 @@ QWidget *IntProperty::createEditor(QWidget *parent, const QObject *target, const
 
 void IntProperty::updateEditorContents(QWidget *editor)
 {
-    if (QSpinBox *spinBox = qt_cast<QSpinBox*>(editor)) {
+    if (QSpinBox *spinBox = qobject_cast<QSpinBox*>(editor)) {
         spinBox->setValue(m_value);
         spinBox->selectAll();
     }
@@ -381,7 +381,7 @@ void IntProperty::updateEditorContents(QWidget *editor)
 
 void IntProperty::updateValue(QWidget *editor)
 {
-    if (QSpinBox *spinBox = qt_cast<QSpinBox*>(editor)) {
+    if (QSpinBox *spinBox = qobject_cast<QSpinBox*>(editor)) {
         int newValue = spinBox->value();
 
         if (newValue != m_value) {
@@ -626,14 +626,14 @@ QWidget *MapProperty::createEditor(QWidget *parent, const QObject *target, const
 
 void MapProperty::updateEditorContents(QWidget *editor)
 {
-    if (QComboBox *combo = qt_cast<QComboBox*>(editor)) {
+    if (QComboBox *combo = qobject_cast<QComboBox*>(editor)) {
         combo->setCurrentIndex(indexOf(m_value));
     }
 }
 
 void MapProperty::updateValue(QWidget *editor)
 {
-    if (QComboBox *combo = qt_cast<QComboBox*>(editor)) {
+    if (QComboBox *combo = qobject_cast<QComboBox*>(editor)) {
         QString key = combo->currentText();
         QVariant newValue = m_items.value(key);
 
@@ -673,7 +673,7 @@ void FlagsProperty::updateEditorContents(QWidget *editor)
 {
     int v = m_value.toInt();
 
-    if (FlagBox *box = qt_cast<FlagBox*>(editor)) {
+    if (FlagBox *box = qobject_cast<FlagBox*>(editor)) {
         for (int i=0; i<box->count(); ++i) {
             FlagBoxModelItem &item = box->item(i);
             item.setChecked((v & item.value()) != 0);
@@ -685,7 +685,7 @@ void FlagsProperty::updateValue(QWidget *editor)
 {
     int v = 0;
 
-    if (FlagBox *box = qt_cast<FlagBox*>(editor)) {
+    if (FlagBox *box = qobject_cast<FlagBox*>(editor)) {
         for (int i=0; i<box->count(); ++i) {
             FlagBoxModelItem &item = box->item(i);
             if (item.isChecked())
@@ -779,14 +779,14 @@ QWidget *DateTimeProperty::createEditor(QWidget *parent, const QObject *target, 
 
 void DateTimeProperty::updateEditorContents(QWidget *editor)
 {
-    if (QDateTimeEdit *lineEdit = qt_cast<QDateTimeEdit*>(editor)) {
+    if (QDateTimeEdit *lineEdit = qobject_cast<QDateTimeEdit*>(editor)) {
         lineEdit->setDateTime(m_value);
     }
 }
 
 void DateTimeProperty::updateValue(QWidget *editor)
 {
-    if (QDateTimeEdit *lineEdit = qt_cast<QDateTimeEdit*>(editor)) {
+    if (QDateTimeEdit *lineEdit = qobject_cast<QDateTimeEdit*>(editor)) {
         QDateTime newValue = lineEdit->date();
 
         if (newValue != m_value) {
@@ -822,14 +822,14 @@ QWidget *DateProperty::createEditor(QWidget *parent, const QObject *target, cons
 
 void DateProperty::updateEditorContents(QWidget *editor)
 {
-    if (QDateTimeEdit *lineEdit = qt_cast<QDateTimeEdit*>(editor)) {
+    if (QDateTimeEdit *lineEdit = qobject_cast<QDateTimeEdit*>(editor)) {
         lineEdit->setDate(m_value);
     }
 }
 
 void DateProperty::updateValue(QWidget *editor)
 {
-    if (QDateTimeEdit *lineEdit = qt_cast<QDateTimeEdit*>(editor)) {
+    if (QDateTimeEdit *lineEdit = qobject_cast<QDateTimeEdit*>(editor)) {
         QDate newValue = lineEdit->date();
 
         if (newValue != m_value) {
@@ -865,14 +865,14 @@ QWidget *TimeProperty::createEditor(QWidget *parent, const QObject *target, cons
 
 void TimeProperty::updateEditorContents(QWidget *editor)
 {
-    if (QDateTimeEdit *lineEdit = qt_cast<QDateTimeEdit*>(editor)) {
+    if (QDateTimeEdit *lineEdit = qobject_cast<QDateTimeEdit*>(editor)) {
         lineEdit->setTime(m_value);
     }
 }
 
 void TimeProperty::updateValue(QWidget *editor)
 {
-    if (QDateTimeEdit *lineEdit = qt_cast<QDateTimeEdit*>(editor)) {
+    if (QDateTimeEdit *lineEdit = qobject_cast<QDateTimeEdit*>(editor)) {
         QTime newValue = lineEdit->time();
 
         if (newValue != m_value) {
@@ -931,14 +931,14 @@ QWidget *CursorProperty::createEditor(QWidget *parent, const QObject *target, co
 
 void CursorProperty::updateEditorContents(QWidget *editor)
 {
-    if (QComboBox *combo = qt_cast<QComboBox*>(editor)) {
+    if (QComboBox *combo = qobject_cast<QComboBox*>(editor)) {
         combo->setCurrentIndex(m_value.shape());
     }
 }
 
 void CursorProperty::updateValue(QWidget *editor)
 {
-    if (QComboBox *combo = qt_cast<QComboBox*>(editor)) {
+    if (QComboBox *combo = qobject_cast<QComboBox*>(editor)) {
         QCursor newValue(static_cast<Qt::CursorShape>(combo->currentIndex()));
 
         if (newValue.shape() != m_value.shape()) {
@@ -1032,14 +1032,14 @@ QWidget *KeySequenceProperty::createEditor(QWidget *parent, const QObject *targe
 
 void KeySequenceProperty::updateEditorContents(QWidget *editor)
 {
-    if (KeySequenceEditor *lineEdit = qt_cast<KeySequenceEditor*>(editor)) {
+    if (KeySequenceEditor *lineEdit = qobject_cast<KeySequenceEditor*>(editor)) {
         lineEdit->setKeySequence(m_value);
     }
 }
 
 void KeySequenceProperty::updateValue(QWidget *editor)
 {
-    if (KeySequenceEditor *lineEdit = qt_cast<KeySequenceEditor*>(editor)) {
+    if (KeySequenceEditor *lineEdit = qobject_cast<KeySequenceEditor*>(editor)) {
         QKeySequence newValue = lineEdit->keySequence();
 
         if (newValue != m_value) {

@@ -41,7 +41,7 @@ private:
 
 void QActionGroupPrivate::actionChanged()
 {
-    QAction *action = qt_cast<QAction*>(q->sender());
+    QAction *action = qobject_cast<QAction*>(q->sender());
     Q_ASSERT_X(action != 0, "QWidgetGroup::actionChanged", "internal error");
     if(exclusive && action->isChecked() && action != current) {
         if(current)
@@ -52,7 +52,7 @@ void QActionGroupPrivate::actionChanged()
 
 void QActionGroupPrivate::actionTriggered()
 {
-    QAction *action = qt_cast<QAction*>(q->sender());
+    QAction *action = qobject_cast<QAction*>(q->sender());
     Q_ASSERT_X(action != 0, "QWidgetGroup::actionTriggered", "internal error");
     emit q->triggered(action);
     emit q->selected(action);
@@ -60,7 +60,7 @@ void QActionGroupPrivate::actionTriggered()
 
 void QActionGroupPrivate::actionHovered()
 {
-    QAction *action = qt_cast<QAction*>(q->sender());
+    QAction *action = qobject_cast<QAction*>(q->sender());
     Q_ASSERT_X(action != 0, "QWidgetGroup::actionHovered", "internal error");
     emit q->hovered(action);
 }
@@ -310,10 +310,10 @@ bool QActionGroup::isVisible() const
 void QActionGroup::childEvent(QChildEvent* e)
 {
     if(e->type() == QEvent::ChildAdded) {
-        if(QAction *action = qt_cast<QAction*>(e->child()))
+        if(QAction *action = qobject_cast<QAction*>(e->child()))
             addAction(action);
     } else if(e->type() == QEvent::ChildRemoved) {
-        if(QAction *action = qt_cast<QAction*>(e->child()))
+        if(QAction *action = qobject_cast<QAction*>(e->child()))
             removeAction(action);
     }
     QObject::childEvent(e);

@@ -1020,7 +1020,7 @@ QString QIODevice::errorString() const
     specific error handling, please refer to the individual device
     documentation.
 
-    \sa qt_cast<>()
+    \sa qobject_cast<>()
 */
 
 /*!     \fn void QIODevice::resetStatus()
@@ -1030,7 +1030,7 @@ QString QIODevice::errorString() const
     device specific error handling, please refer to the individual
     device documentation.
 
-    \sa qt_cast<>()
+    \sa qobject_cast<>()
 */
 
 /*!
@@ -1172,7 +1172,7 @@ QString QIODevice::errorString() const
 QIODevice::Status QIODevice::status() const
 {
 #if !defined(QT_NO_QOBJECT)
-    const QFile *f = qt_cast<const QFile *>(this);
+    const QFile *f = qobject_cast<const QFile *>(this);
     if (f) return (int) f->error();
 #endif
     return isOpen() ? 0 /* IO_Ok */ : 8 /* IO_UnspecifiedError */;
@@ -1181,7 +1181,7 @@ QIODevice::Status QIODevice::status() const
 void QIODevice::resetStatus()
 {
 #if !defined(QT_NO_QOBJECT)
-    QFile *f = qt_cast<QFile *>(this);
+    QFile *f = qobject_cast<QFile *>(this);
     if (f) f->unsetError();
 #endif
 }

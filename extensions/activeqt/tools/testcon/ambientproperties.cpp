@@ -43,7 +43,7 @@ void AmbientProperties::on_buttonBackground_clicked()
     QPalette p = backSample->palette(); p.setColor(backSample->backgroundRole(), c); backSample->setPalette(p);
     p = container->palette(); p.setColor(container->backgroundRole(), c); container->setPalette(p);
 
-    if (Q3Workspace *ws = qt_cast<Q3Workspace*>(container)) {
+    if (Q3Workspace *ws = qobject_cast<Q3Workspace*>(container)) {
 	QWidgetList list( ws->windowList() );
 	for (int i = 0; i < list.count(); ++i) {
 	    QWidget *widget = list.at(i);
@@ -58,7 +58,7 @@ void AmbientProperties::on_buttonForeground_clicked()
     QPalette p = foreSample->palette(); p.setColor(foreSample->backgroundRole(), c); foreSample->setPalette(p);
     p = container->palette(); p.setColor(container->foregroundRole(), c); container->setPalette(p);
 
-    if (Q3Workspace *ws = qt_cast<Q3Workspace*>(container)) {
+    if (Q3Workspace *ws = qobject_cast<Q3Workspace*>(container)) {
 	QWidgetList list( ws->windowList() );
 	for (int i = 0; i < list.count(); ++i) {
 	    QWidget *widget = list.at(i);
@@ -76,7 +76,7 @@ void AmbientProperties::on_buttonFont_clicked()
     fontSample->setFont( f );
     container->setFont( f );
 
-    if (Q3Workspace *ws = qt_cast<Q3Workspace*>(container)) {
+    if (Q3Workspace *ws = qobject_cast<Q3Workspace*>(container)) {
 	QWidgetList list( ws->windowList() );
 	for (int i = 0; i < list.count(); ++i) {
 	    QWidget *widget = list.at(i);

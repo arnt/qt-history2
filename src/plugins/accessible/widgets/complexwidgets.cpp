@@ -48,7 +48,7 @@ QAccessibleHeader::QAccessibleHeader(QWidget *w)
 /*! Returns the QHeaderView. */
 QHeaderView *QAccessibleHeader::header() const
 {
-    return qt_cast<QHeaderView*>(object());
+    return qobject_cast<QHeaderView*>(object());
 }
 
 /*! \reimp */
@@ -140,7 +140,7 @@ QAccessibleTabBar::QAccessibleTabBar(QWidget *w)
 /*! Returns the QTabBar. */
 QTabBar *QAccessibleTabBar::tabBar() const
 {
-    return qt_cast<QTabBar*>(object());
+    return qobject_cast<QTabBar*>(object());
 }
 
 QAbstractButton *QAccessibleTabBar::button(int child) const
@@ -330,7 +330,7 @@ QAccessibleComboBox::QAccessibleComboBox(QWidget *w)
 */
 QComboBox *QAccessibleComboBox::comboBox() const
 {
-    return qt_cast<QComboBox*>(object());
+    return qobject_cast<QComboBox*>(object());
 }
 
 /*! \reimp */

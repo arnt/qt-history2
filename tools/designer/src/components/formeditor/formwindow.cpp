@@ -152,7 +152,7 @@ static void recursiveUpdate(QWidget *w)
     const QObjectList &l = w->children();
     QObjectList::const_iterator it = l.begin();
     for (; it != l.end(); ++it) {
-        if (QWidget *w = qt_cast<QWidget*>(*it))
+        if (QWidget *w = qobject_cast<QWidget*>(*it))
             recursiveUpdate(w);
     }
 }
@@ -171,7 +171,7 @@ void FormWindow::setCursorToAll(const QCursor &c, QWidget *start)
     QListIterator<QWidget*> it(l);
     while (it.hasNext()) {
         QWidget *w = it.next();
-        if (!qt_cast<WidgetHandle*>(w)) {
+        if (!qobject_cast<WidgetHandle*>(w)) {
             w->setCursor(c);
         }
     }
@@ -189,7 +189,7 @@ void FormWindow::restoreCursors(QWidget *start, FormWindow *fw)
     QListIterator<QWidget*> it(l);
     while (it.hasNext()) {
         QWidget *w = it.next();
-        if (!qt_cast<WidgetHandle*>(w))
+        if (!qobject_cast<WidgetHandle*>(w))
             restoreCursors(w, fw);
     }
 }
@@ -286,8 +286,8 @@ void FormWindow::setMainContainer(QWidget *w)
 void FormWindow::handlePaintEvent(QWidget *w, QPaintEvent *e)
 {
     static_cast<FriendlyWidget*>(w)->paintEvent(e);
-    QAbstractButton *btn = qt_cast<QAbstractButton*>(w);
-    if (btn && qt_cast<QGroupBox*>(w->parentWidget()) != 0) {
+    QAbstractButton *btn = qobject_cast<QAbstractButton*>(w);
+    if (btn && qobject_cast<QGroupBox*>(w->parentWidget()) != 0) {
         QPainter p(btn);
         p.setBrush(Qt::red);
         p.drawEllipse(btn->width() - 12, 2, 10, 5);
@@ -351,7 +351,7 @@ void FormWindow::handleMousePressEvent(QWidget *w, QMouseEvent *e)
     case TabOrderEditMode:
         if (!isMainContainer(w)) { // press on a child widget
 
-            if (OrderIndicator *i = qt_cast<OrderIndicator*>(w)) {
+            if (OrderIndicator *i = qobject_cast<OrderIndicator*>(w)) {
                 w = i->widget();
             }
 
@@ -519,7 +519,7 @@ void FormWindow::selectWidget(QWidget* w, bool select)
         return;
     }
 
-    if (qt_cast<QMainWindow*>(mainContainer()) && w == static_cast<QMainWindow*>(mainContainer())->centralWidget()) {
+    if (qobject_cast<QMainWindow*>(mainContainer()) && w == static_cast<QMainWindow*>(mainContainer())->centralWidget()) {
         QWidget *opw = m_currentWidget;
         setCurrentWidget(mainContainer());
         repaintSelection(opw);
@@ -646,7 +646,7 @@ QWidget *FormWindow::designerWidget(QWidget *w) const
 
 bool FormWindow::isCentralWidget(QWidget *w) const
 {
-    if (QMainWindow *mainWindow = qt_cast<QMainWindow*>(mainContainer()))
+    if (QMainWindow *mainWindow = qobject_cast<QMainWindow*>(mainContainer()))
         return w == mainWindow->centralWidget();
 
     return false;
@@ -672,7 +672,7 @@ bool FormWindow::unify(QObject *w, QString &s, bool changeIt)
             }
         }
 
-        if (qt_cast<QMainWindow*>(mainContainer())) {
+        if (qobject_cast<QMainWindow*>(mainContainer())) {
             if (!found) {
                 QList<QDockWidget*> l = qFindChildren<QDockWidget*>(mainContainer());
                 QListIterator<QDockWidget*> it(l);
@@ -818,7 +818,7 @@ QWidget *FormWindow::containerAt(const QPoint &pos, QWidget *notParentOf)
     QListIterator<QWidget*> it(m_widgets);
     while (it.hasNext()) {
         QWidget *wit = it.next();
-        if (qt_cast<QLayoutWidget*>(wit) || qt_cast<QSplitter*>(wit))
+        if (qobject_cast<QLayoutWidget*>(wit) || qobject_cast<QSplitter*>(wit))
             continue;
         if (!wit->isVisibleTo(this))
             continue;
@@ -1120,7 +1120,7 @@ void FormWindow::manageWidget(QWidget *w)
 
     setCursorToAll(Qt::ArrowCursor, w);
 
-    if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(w))
+    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(w))
         manageWidget(promoted->child());
 
     emit changed();
@@ -1171,7 +1171,7 @@ void FormWindow::breakLayout(QWidget *w)
                 commandHistory()->push(cmd);
             }
 
-            if (!qt_cast<QLayoutWidget*>(w) && !qt_cast<QSplitter*>(w))
+            if (!qobject_cast<QLayoutWidget*>(w) && !qobject_cast<QSplitter*>(w))
                 break;
         }
 
@@ -1311,7 +1311,7 @@ void FormWindow::handleContextMenu(QWidget *w, QContextMenuEvent *e)
         // if widget is laid out, find the first non-laid out super-widget
         QWidget *realWidget = w; // but store the original one
 
-        if (qt_cast<QMainWindow*>(mainContainer()) && static_cast<QMainWindow*>(mainContainer())->centralWidget() == realWidget) {
+        if (qobject_cast<QMainWindow*>(mainContainer()) && static_cast<QMainWindow*>(mainContainer())->centralWidget() == realWidget) {
             e->accept();
 #ifndef VS_CTX_MENU
             QMenu *menu = createPopupMenu(this);
@@ -1508,18 +1508,18 @@ void FormWindow::layoutVerticalSplit()
 QMenu *FormWindow::createPopupMenu(QWidget *w)
 {
     AbstractFormWindowManager *manager = core()->formWindowManager();
-    bool isFormWindow = qt_cast<FormWindow*>(w);
+    bool isFormWindow = qobject_cast<FormWindow*>(w);
 
     QMenu *popup = new QMenu(this);
 
-    if (qt_cast<QDesignerTabWidget*>(w)) {
+    if (qobject_cast<QDesignerTabWidget*>(w)) {
         QDesignerTabWidget *tabWidget = static_cast<QDesignerTabWidget*>(w);
         if (tabWidget->count()) {
             popup->addAction(tabWidget->actionDeletePage());
         }
         popup->addAction(tabWidget->actionInsertPage());
         popup->addSeparator();
-    } else if (qt_cast<QDesignerStackedWidget*>(w)) {
+    } else if (qobject_cast<QDesignerStackedWidget*>(w)) {
         QDesignerStackedWidget *stackedWidget = static_cast<QDesignerStackedWidget*>(w);
         if (stackedWidget->count()) {
             popup->addAction(stackedWidget->actionDeletePage());
@@ -1528,7 +1528,7 @@ QMenu *FormWindow::createPopupMenu(QWidget *w)
         popup->addAction(stackedWidget->actionNextPage());
         popup->addAction(stackedWidget->actionPreviousPage());
         popup->addSeparator();
-    } else if (qt_cast<QDesignerToolBox*>(w)) {
+    } else if (qobject_cast<QDesignerToolBox*>(w)) {
         QDesignerToolBox *toolBox = static_cast<QDesignerToolBox*>(w);
         if (toolBox->count()) {
             popup->addAction(toolBox->actionDeletePage());
@@ -1576,7 +1576,7 @@ void FormWindow::showOrderIndicators()
     int order = 1;
 
     foreach (QWidget *widget, widgets()) {
-        if (qt_cast<QLayoutWidget*>(widget)
+        if (qobject_cast<QLayoutWidget*>(widget)
                 || widget == mainContainer()
                 || !widget->isExplicitlyHidden()
                 || !canBeBuddy(widget))
@@ -1671,13 +1671,13 @@ QWidget *FormWindow::findContainer(QWidget *w, bool excludeLayout) const
     QWidget *container = widgetFactory->containerOfWidget(mainContainer()); // default parent for new widget is the formwindow
     if (!isMainContainer(w)) { // press was not on formwindow, check if we can find another parent
         while (w) {
-            if (qt_cast<InvisibleWidget*>(w) || !metaDataBase->item(w)) {
+            if (qobject_cast<InvisibleWidget*>(w) || !metaDataBase->item(w)) {
                 w = w->parentWidget();
                 continue;
             }
 
             bool isContainer = widgetDataBase->isContainer(w, true) || w == mainContainer();
-            if (!isContainer || (excludeLayout && qt_cast<QLayoutWidget*>(w))) { // ### skip QSplitter
+            if (!isContainer || (excludeLayout && qobject_cast<QLayoutWidget*>(w))) { // ### skip QSplitter
                 w = w->parentWidget();
             } else {
                 container = w;
@@ -1708,9 +1708,9 @@ void FormWindow::simplifySelection(QList<QWidget*> *sel)
 FormWindow *FormWindow::findFormWindow(QWidget *w)
 {
     while (w) {
-        if (FormWindow *fw = qt_cast<FormWindow*>(w)) {
+        if (FormWindow *fw = qobject_cast<FormWindow*>(w)) {
             return fw;
-        } else if (qt_cast<QMainWindow*>(w)) {
+        } else if (qobject_cast<QMainWindow*>(w)) {
             /* skip me */
         } else if (w->isWindow())
             break;
@@ -1759,9 +1759,9 @@ static QWidget *childAt_SkipDropLine(QWidget *w, QPoint pos)
         QObject *child_obj = child_list[i];
         if (!child_obj->isWidgetType())
             continue;
-        if (qt_cast<DropLine*>(child_obj) != 0)
+        if (qobject_cast<DropLine*>(child_obj) != 0)
             continue;
-        if (qt_cast<WidgetHandle*>(child_obj) != 0)
+        if (qobject_cast<WidgetHandle*>(child_obj) != 0)
             continue;
         QWidget *child = static_cast<QWidget*>(child_obj);
         if (!child->geometry().contains(pos))
@@ -1780,7 +1780,7 @@ static QWidget *childAt_SkipDropLine(QWidget *w, QPoint pos)
 QWidget *FormWindow::widgetAt(const QPoint &pos)
 {
     QWidget *w = childAt(pos);
-    if (qt_cast<DropLine*>(w) != 0 || qt_cast<WidgetHandle*>(w) != 0)
+    if (qobject_cast<DropLine*>(w) != 0 || qobject_cast<WidgetHandle*>(w) != 0)
         w = childAt_SkipDropLine(this, pos);
     return w == 0 ? this : w;
 }
@@ -1794,7 +1794,7 @@ void FormWindow::highlightWidget(QWidget *widget, const QPoint &pos, HighlightMo
 
     QWidget *container = findContainer(widget, false);
 
-    Q_ASSERT(!qt_cast<ConnectionEdit*>(widget));
+    Q_ASSERT(!qobject_cast<ConnectionEdit*>(widget));
 
     if (container == 0 || core()->metaDataBase()->item(container) == 0)
         return;
@@ -1841,7 +1841,7 @@ QList<QWidget *> FormWindow::widgets(QWidget *widget) const
     QList<QWidget *> l;
 
     foreach (QObject *o, widget->children()) {
-        QWidget *w = qt_cast<QWidget*>(o);
+        QWidget *w = qobject_cast<QWidget*>(o);
         if (w && isManaged(w))
             l.append(w);
     }

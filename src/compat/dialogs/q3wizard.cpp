@@ -403,7 +403,7 @@ void Q3Wizard::help()
 	return;
 
 #if 0
-    Q3WizardPage *wpage = ::qt_cast<Q3WizardPage*>(page);
+    Q3WizardPage *wpage = ::qobject_cast<Q3WizardPage*>(page);
     if ( wpage )
 	emit wpage->helpClicked();
 #endif

@@ -71,7 +71,7 @@ public:
     { return widget()->layout(); }
 
     inline QGridLayout *gridLayout() const
-    { return qt_cast<QGridLayout*>(layout()); }
+    { return qobject_cast<QGridLayout*>(layout()); }
 
     inline AbstractFormWindow *formWindow() const
     { return m_formWindow; }

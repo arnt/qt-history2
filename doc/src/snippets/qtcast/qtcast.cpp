@@ -7,16 +7,16 @@ MyWidget::MyWidget()
 {
     QObject *obj = new MyWidget;
 
-    QWidget *widget = qt_cast<QWidget *>(obj);
+    QWidget *widget = qobject_cast<QWidget *>(obj);
 
-    MyWidget *myWidget = qt_cast<MyWidget *>(obj);
+    MyWidget *myWidget = qobject_cast<MyWidget *>(obj);
 
-    QLabel *label = qt_cast<QLabel *>(obj);
+    QLabel *label = qobject_cast<QLabel *>(obj);
     // label is 0
 
-    if (QLabel *label = qt_cast<QLabel *>(obj)) {
+    if (QLabel *label = qobject_cast<QLabel *>(obj)) {
         label->setText(tr("Ping"));
-    } else if (QPushButton *button = qt_cast<QPushButton *>(obj)) {
+    } else if (QPushButton *button = qobject_cast<QPushButton *>(obj)) {
         button->setText(tr("Pong!"));
     }
 }

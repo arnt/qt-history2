@@ -56,7 +56,7 @@ QList<QAction*> GroupBoxTaskMenu::taskActions() const
 
 bool GroupBoxTaskMenu::eventFilter(QObject *object, QEvent *event)
 {
-    QLineEdit *lineEditor = qt_cast<QLineEdit*>(object);
+    QLineEdit *lineEditor = qobject_cast<QLineEdit*>(object);
     if (!lineEditor)
         return false;
 
@@ -115,7 +115,7 @@ GroupBoxTaskMenuFactory::GroupBoxTaskMenuFactory(QExtensionManager *extensionMan
 
 QObject *GroupBoxTaskMenuFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
 {
-    if (QGroupBox *groupbox = qt_cast<QGroupBox*>(object)) {
+    if (QGroupBox *groupbox = qobject_cast<QGroupBox*>(object)) {
         if (iid == Q_TYPEID(ITaskMenu)) {
             return new GroupBoxTaskMenu(groupbox, parent);
         }

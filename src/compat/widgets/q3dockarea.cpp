@@ -209,7 +209,7 @@ static int point_pos(const QPoint &p, Qt::Orientation o, bool swap = false)
 
 static void shrink_extend(Q3DockWindow *dw, int &dockExtend, int /*spaceLeft*/, Qt::Orientation o)
 {
-    Q3ToolBar *tb = qt_cast<Q3ToolBar*>(dw);
+    Q3ToolBar *tb = qobject_cast<Q3ToolBar*>(dw);
     if (o == Qt::Horizontal) {
         int mw = 0;
         if (!tb)
@@ -232,7 +232,7 @@ static void place_line(QList<DockData> &lastLine, Qt::Orientation o, int linestr
     Q3DockWindow *last = 0;
     QRect lastRect;
     for (QList<DockData>::Iterator it = lastLine.begin(); it != lastLine.end(); ++it) {
-        if (tbstrut != -1 && qt_cast<Q3ToolBar*>((*it).w))
+        if (tbstrut != -1 && qobject_cast<Q3ToolBar*>((*it).w))
             (*it).rect.setHeight(tbstrut);
         if (!last) {
             last = (*it).w;
@@ -361,7 +361,7 @@ int Q3DockAreaLayout::layoutItems(const QRect &rect, bool testonly)
         // do some calculations and add the remember the rect which the docking widget requires for the placing
         QRect dwRect(pos, sectionpos, dockExtend, dock_strut(dw, orientation() ));
         lastLine.append(DockData(dw, dwRect));
-        if (qt_cast<Q3ToolBar*>(dw))
+        if (qobject_cast<Q3ToolBar*>(dw))
             tbstrut = qMax(tbstrut, dock_strut(dw, orientation()));
         linestrut = qMax(dock_strut(dw, orientation()), linestrut);
         add_size(dockExtend, pos, orientation());
@@ -914,7 +914,7 @@ void Q3DockArea::updateLayout()
 bool Q3DockArea::eventFilter(QObject *o, QEvent *e)
 {
     if (e->type() == QEvent::Close) {
-        if (qt_cast<Q3DockWindow*>(o)) {
+        if (qobject_cast<Q3DockWindow*>(o)) {
             o->removeEventFilter(this);
             QApplication::sendEvent(o, e);
             if (((QCloseEvent*)e)->isAccepted())
@@ -1078,7 +1078,7 @@ bool Q3DockArea::isDockWindowAccepted(Q3DockWindow *dw)
     if (forbiddenWidgets.contains(dw))
         return false;
 
-    Q3MainWindow *mw = qt_cast<Q3MainWindow*>(parentWidget());
+    Q3MainWindow *mw = qobject_cast<Q3MainWindow*>(parentWidget());
     if (!mw)
         return true;
     if (!mw->hasDockWindow(dw))
@@ -1137,7 +1137,7 @@ int Q3DockArea::maxSpace(int hint, Q3DockWindow *dw)
         return dw->height();
     }
     int min = 0;
-    Q3ToolBar *tb = qt_cast<Q3ToolBar*>(w);
+    Q3ToolBar *tb = qobject_cast<Q3ToolBar*>(w);
     if (orientation() == Qt::Horizontal) {
         w->setFixedExtentWidth(-1);
         if (!tb)

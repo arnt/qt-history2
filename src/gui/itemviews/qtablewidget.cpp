@@ -346,7 +346,7 @@ bool QTableModel::setData(const QModelIndex &index, const QVariant &value, int r
         return true;
     }
 
-    QTableWidget *view = qt_cast<QTableWidget*>(QObject::parent());
+    QTableWidget *view = qobject_cast<QTableWidget*>(QObject::parent());
     if (!view)
         return false;
 
@@ -942,7 +942,7 @@ class QTableWidgetPrivate : public QTableViewPrivate
     Q_DECLARE_PUBLIC(QTableWidget)
 public:
     QTableWidgetPrivate() : QTableViewPrivate(), sortingEnabled(false) {}
-    inline QTableModel *model() const { return ::qt_cast<QTableModel*>(q_func()->model()); }
+    inline QTableModel *model() const { return ::qobject_cast<QTableModel*>(q_func()->model()); }
     void setup();
     // view signals
     void emitItemPressed(const QModelIndex &index);

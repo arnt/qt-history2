@@ -158,7 +158,7 @@
     of the correct type before using it. For example:
 
     \code
-        QSpinBox *spinBox = qt_cast<QSpinBox *>(widget);
+        QSpinBox *spinBox = qobject_cast<QSpinBox *>(widget);
         if (spinBox) {
             ...
         }

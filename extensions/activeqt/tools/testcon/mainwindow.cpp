@@ -100,7 +100,7 @@ void MainWindow::on_actionFileLoad_triggered()
 
 void MainWindow::on_actionFileSave_triggered()
 {
-    QAxWidget *container = qt_cast<QAxWidget*>(workspace->activeWindow());
+    QAxWidget *container = qobject_cast<QAxWidget*>(workspace->activeWindow());
     if (!container)
         return;
 
@@ -120,7 +120,7 @@ void MainWindow::on_actionFileSave_triggered()
 
 void MainWindow::on_actionContainerSet_triggered()
 {
-    QAxWidget *container = qt_cast<QAxWidget*>(workspace->activeWindow());
+    QAxWidget *container = qobject_cast<QAxWidget*>(workspace->activeWindow());
     if (!container)
         return;
 
@@ -132,7 +132,7 @@ void MainWindow::on_actionContainerSet_triggered()
 
 void MainWindow::on_actionContainerClear_triggered()
 {
-    QAxWidget *container = qt_cast<QAxWidget*>(workspace->activeWindow());
+    QAxWidget *container = qobject_cast<QAxWidget*>(workspace->activeWindow());
     if (container)
 	container->clear();
     updateGUI();
@@ -150,7 +150,7 @@ void MainWindow::on_actionContainerProperties_triggered()
 
 void MainWindow::on_actionControlInfo_triggered()
 {
-    QAxWidget *container = qt_cast<QAxWidget*>(workspace->activeWindow());
+    QAxWidget *container = qobject_cast<QAxWidget*>(workspace->activeWindow());
     if (!container)
         return;
 
@@ -161,7 +161,7 @@ void MainWindow::on_actionControlInfo_triggered()
 
 void MainWindow::on_actionControlProperties_triggered()
 {
-    QAxWidget *container = qt_cast<QAxWidget*>(workspace->activeWindow());
+    QAxWidget *container = qobject_cast<QAxWidget*>(workspace->activeWindow());
     if (!container)
         return;
 
@@ -175,7 +175,7 @@ void MainWindow::on_actionControlProperties_triggered()
 
 void MainWindow::on_actionControlMethods_triggered()
 {
-    QAxWidget *container = qt_cast<QAxWidget*>(workspace->activeWindow());
+    QAxWidget *container = qobject_cast<QAxWidget*>(workspace->activeWindow());
     if (!container)
         return;
 
@@ -187,7 +187,7 @@ void MainWindow::on_actionControlMethods_triggered()
 
 void MainWindow::on_actionControlDocumentation_triggered()
 {
-    QAxWidget *container = qt_cast<QAxWidget*>(workspace->activeWindow());
+    QAxWidget *container = qobject_cast<QAxWidget*>(workspace->activeWindow());
     if (!container)
         return;
     
@@ -203,7 +203,7 @@ void MainWindow::on_actionControlDocumentation_triggered()
 
 void MainWindow::on_actionControlPixmap_triggered()
 {
-    QAxWidget *container = qt_cast<QAxWidget*>(workspace->activeWindow());
+    QAxWidget *container = qobject_cast<QAxWidget*>(workspace->activeWindow());
     if (!container)
 	return;
 
@@ -283,7 +283,7 @@ void MainWindow::on_actionScriptingLoad_triggered()
 
 void MainWindow::updateGUI()
 {
-    QAxWidget *container = qt_cast<QAxWidget*>(workspace->activeWindow());
+    QAxWidget *container = qobject_cast<QAxWidget*>(workspace->activeWindow());
 
     bool hasControl = container && !container->isNull();
     actionFileNew->setEnabled(TRUE);
@@ -306,7 +306,7 @@ void MainWindow::updateGUI()
     while (it != list.end()) {
 	QWidget *container = *it;
 
-	QAxWidget *ax = qt_cast<QAxWidget*>(container);
+	QAxWidget *ax = qobject_cast<QAxWidget*>(container);
 	if (ax) {
 	    container->disconnect(SIGNAL(signal(const QString&, int, void*)));
 	    if (actionLogSignals->isChecked())
@@ -329,7 +329,7 @@ void MainWindow::updateGUI()
 
 void MainWindow::logPropertyChanged(const QString &prop)
 {
-    QAxWidget *container = qt_cast<QAxWidget*>(workspace->activeWindow());
+    QAxWidget *container = qobject_cast<QAxWidget*>(workspace->activeWindow());
     if (!container)
         return;
 
@@ -339,7 +339,7 @@ void MainWindow::logPropertyChanged(const QString &prop)
 
 void MainWindow::logSignal(const QString &signal, int argc, void *argv)
 {
-    QAxWidget *container = qt_cast<QAxWidget*>(workspace->activeWindow());
+    QAxWidget *container = qobject_cast<QAxWidget*>(workspace->activeWindow());
     if (!container)
         return;
 
@@ -362,7 +362,7 @@ void MainWindow::logSignal(const QString &signal, int argc, void *argv)
 
 void MainWindow::logException(int code, const QString&source, const QString&desc, const QString&help)
 {
-    QAxWidget *container = qt_cast<QAxWidget*>(sender());
+    QAxWidget *container = qobject_cast<QAxWidget*>(sender());
     if (!container)
         return;
 

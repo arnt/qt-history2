@@ -217,7 +217,7 @@ QSGIStyle::polish(QWidget* w)
                              sgiPal.color(QPalette::Disabled, QPalette::Base));
         }
 
-        if (qt_cast<QLineEdit*>(w) || qt_cast<QTextEdit*>(w)) {
+        if (qobject_cast<QLineEdit*>(w) || qobject_cast<QTextEdit*>(w)) {
             // different basecolor and highlighting in Q(Multi)LineEdit
             sgiPal.setColor(QPalette::Base, QColor(211,181,181));
             sgiPal.setColor(QPalette::Active, QPalette::Highlight,
@@ -232,27 +232,27 @@ QSGIStyle::polish(QWidget* w)
                              sgiPal.color(QPalette::Disabled, QPalette::Midlight));
             sgiPal.setColor(QPalette::Disabled, QPalette::HighlightedText,
                              sgiPal.color(QPalette::Disabled, QPalette::Text));
-        } else if (qt_cast<Q3MenuBar*>(w) || qt_cast<QToolBar*>(w)) {
+        } else if (qobject_cast<Q3MenuBar*>(w) || qobject_cast<QToolBar*>(w)) {
             sgiPal.setColor(QPalette::Button, sgiPal.color(QPalette::Active, QPalette::Midlight));
         }
 
         w->setPalette(sgiPal);
     }
 
-    if (qt_cast<QButton*>(w) || qt_cast<QSlider*>(w) || qt_cast<QScrollBar*>(w)) {
+    if (qobject_cast<QButton*>(w) || qobject_cast<QSlider*>(w) || qobject_cast<QScrollBar*>(w)) {
         w->installEventFilter(this);
         w->setMouseTracking(true);
 #ifndef QT_NO_SCROLLBAR
-        if (qt_cast<QScrollBar*>(w))
+        if (qobject_cast<QScrollBar*>(w))
             w->setAttribute(QWidget::WA_NoSystemBackground, true);
 #endif
-    } else if (qt_cast<QComboBox*>(w)) {
+    } else if (qobject_cast<QComboBox*>(w)) {
         QFont f = QApplication::font();
         f.setBold(true);
         f.setItalic(true);
         w->setFont(f);
 #ifndef QT_NO_MENUBAR
-    } else if (qt_cast<Q3MenuBar*>(w)) {
+    } else if (qobject_cast<Q3MenuBar*>(w)) {
         ((QFrame*) w)->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
         QFont f = QApplication::font();
         f.setBold(true);
@@ -260,7 +260,7 @@ QSGIStyle::polish(QWidget* w)
         w->setFont(f);
 #endif
 #ifndef QT_NO_MENU
-    } else if (qt_cast<QMenu*>(w)) {
+    } else if (qobject_cast<QMenu*>(w)) {
         QFont f = QApplication::font();
         f.setBold(true);
         f.setItalic(true);
@@ -268,7 +268,7 @@ QSGIStyle::polish(QWidget* w)
 #endif
 #ifdef QT3_SUPPORT
 #ifndef QT_NO_POPUPMENU
-    } else if (qt_cast<Q3PopupMenu*>(w)) {
+    } else if (qobject_cast<Q3PopupMenu*>(w)) {
         ((QFrame*) w)->setLineWidth(pixelMetric(PM_DefaultFrameWidth) + 1);
         QFont f = QApplication::font();
         f.setBold(true);
@@ -283,21 +283,21 @@ QSGIStyle::polish(QWidget* w)
 void
 QSGIStyle::unpolish(QWidget* w)
 {
-    if (qt_cast<QButton*>(w) || qt_cast<QSlider*>(w) || qt_cast<QScrollBar*>(w)) {
+    if (qobject_cast<QButton*>(w) || qobject_cast<QSlider*>(w) || qobject_cast<QScrollBar*>(w)) {
         w->removeEventFilter(this);
 #ifndef QT_NO_MENU
-    } else if (qt_cast<QMenu*>(w)) {
+    } else if (qobject_cast<QMenu*>(w)) {
         w->setFont(QApplication::font());
 #endif
 #ifdef QT3_SUPPORT
 #ifndef QT_NO_POPUPMENU
-    } else if (qt_cast<Q3PopupMenu*>(w)) {
+    } else if (qobject_cast<Q3PopupMenu*>(w)) {
         ((QFrame*)w)->setLineWidth(pixelMetric(PM_DefaultFrameWidth));
         w->setFont(QApplication::font());
 #endif
 #endif
 #if !defined(QT_NO_MENUBAR) || !defined(QT_NO_COMBOBOX)
-    } else if (qt_cast<Q3MenuBar*>(w) || qt_cast<QComboBox*>(w)) {
+    } else if (qobject_cast<Q3MenuBar*>(w) || qobject_cast<QComboBox*>(w)) {
         w->setFont(QApplication::font());
 #endif
     }
@@ -315,7 +315,7 @@ bool QSGIStyle::eventFilter(QObject* o, QEvent* e)
     case QEvent::MouseButtonPress:
         {
 #ifndef QT_NO_SCROLLBAR
-            if (qt_cast<QScrollBar*>(widget)) {
+            if (qobject_cast<QScrollBar*>(widget)) {
                 d->lastScrollbarRect.rect = subControlRect(QStyle::CC_ScrollBar, widget,  QStyle::SC_ScrollBarSlider);
                 d->lastScrollbarRect.scrollbar = ((QScrollBar*)widget);
                 widget->repaint();
@@ -323,7 +323,7 @@ bool QSGIStyle::eventFilter(QObject* o, QEvent* e)
 #endif
             {
 #ifndef QT_NO_SLIDER
-                if (qt_cast<QSlider*>(widget)) {
+                if (qobject_cast<QSlider*>(widget)) {
                     d->lastScrollbarRect.rect = subControlRect(QStyle::CC_Slider, widget,  QStyle::SC_SliderHandle);
                     d->lastSliderRect.slider = ((QSlider*)widget);
                     widget->repaint();
@@ -337,13 +337,13 @@ bool QSGIStyle::eventFilter(QObject* o, QEvent* e)
         {
             if (0) {
 #ifndef QT_NO_SCROLLBAR
-            } else if (qt_cast<QScrollBar*>(widget)) {
+            } else if (qobject_cast<QScrollBar*>(widget)) {
                 QRect oldRect = d->lastScrollbarRect.rect;
                 d->lastScrollbarRect.rect = QRect(0, -1, 0, -1);
                 widget->repaint(oldRect);
 #endif
 #ifndef QT_NO_SLIDER
-            } else if (qt_cast<QSlider*>(widget)) {
+            } else if (qobject_cast<QSlider*>(widget)) {
                 QRect oldRect = d->lastSliderRect.rect;
                 d->lastSliderRect.rect = QRect(0, -1, 0, -1);
                 widget->repaint(oldRect);

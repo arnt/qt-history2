@@ -54,7 +54,7 @@ static void reparentChildrenOf(QWidget* parent)
     if (children.isEmpty())
         return; // nothing to do
     for (int i = 0; i < children.size(); ++i) {
-	QWidget *widget = qt_cast<QWidget *>(children.at(i));
+	QWidget *widget = qobject_cast<QWidget *>(children.at(i));
 	if (! widget)
             continue;
        	XReparentWindow(widget->x11Info().display(), widget->winId(),
@@ -278,7 +278,7 @@ QXtWidget::~QXtWidget()
     QList<QWidget *> list = qFindChildren<QWidget *>(0);
     for (int i = 0; i < list.size(); ++i) {
 	QWidget *c;
-        while ((c = qt_cast<QWidget*>(list.at(i))) != 0)
+        while ((c = qobject_cast<QWidget*>(list.at(i))) != 0)
             delete c;
     }
 

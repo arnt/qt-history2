@@ -57,7 +57,7 @@ QAccessibleSpinBox::QAccessibleSpinBox(QWidget *w)
 */
 QSpinBox *QAccessibleSpinBox::spinBox() const
 {
-    return qt_cast<QSpinBox*>(object());
+    return qobject_cast<QSpinBox*>(object());
 }
 
 /*! \reimp */
@@ -230,7 +230,7 @@ QAccessibleScrollBar::QAccessibleScrollBar(QWidget *w, const QString &name)
 /*! Returns the scroll bar. */
 QScrollBar *QAccessibleScrollBar::scrollBar() const
 {
-    return qt_cast<QScrollBar*>(object());
+    return qobject_cast<QScrollBar*>(object());
 }
 
 /*! \reimp */
@@ -378,7 +378,7 @@ QAccessibleSlider::QAccessibleSlider(QWidget *w, const QString &name)
 /*! Returns the slider. */
 QSlider *QAccessibleSlider::slider() const
 {
-    return qt_cast<QSlider*>(object());
+    return qobject_cast<QSlider*>(object());
 }
 
 /*! \reimp */

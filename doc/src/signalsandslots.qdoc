@@ -269,10 +269,10 @@
     \printuntil toggle
     \printline }
 
-    The meta-object information is also used by qt_cast<T>(), which
+    The meta-object information is also used by qobject_cast<T>(), which
     is similar to QObject::inherits() but is less error-prone:
 
-    \skipto qt_cast
+    \skipto qobject_cast
     \printuntil toggle
 
     See \l{metaobjects.html}{Meta-Object System} for more

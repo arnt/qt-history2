@@ -180,7 +180,7 @@ QWhatsThat::QWhatsThat(const QString& txt, QWidget* parent, QWidget *showTextFor
         doc = new QTextDocument();
         doc->setUndoRedoEnabled(false);
         doc->setHtml(text);
-        QTextDocumentLayout *layout = qt_cast<QTextDocumentLayout *>(doc->documentLayout());
+        QTextDocumentLayout *layout = qobject_cast<QTextDocumentLayout *>(doc->documentLayout());
         layout->setDefaultFont(QApplication::font(this));
         layout->adjustSize();
         r.setTop(0);

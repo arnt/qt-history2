@@ -29,7 +29,7 @@ static QWidgetList childWidgets(const QWidget *widget)
     QObjectList list = widget->children();
     QWidgetList widgets;
     for (int i = 0; i < list.size(); ++i) {
-        QWidget *w = qt_cast<QWidget *>(list.at(i));
+        QWidget *w = qobject_cast<QWidget *>(list.at(i));
         if (w)
             widgets.append(w);
     }
@@ -45,12 +45,12 @@ static QString buddyString(const QWidget *widget)
         return QString();
     QObjectList ol = parent->children();
     for (int i = 0; i < ol.size(); ++i) {
-        QLabel *label = qt_cast<QLabel*>(ol.at(i));
+        QLabel *label = qobject_cast<QLabel*>(ol.at(i));
         if (label && label->buddy() == widget)
             return label->text();
     }
 
-    QGroupBox *groupbox = qt_cast<QGroupBox*>(parent);
+    QGroupBox *groupbox = qobject_cast<QGroupBox*>(parent);
     if (groupbox)
         return groupbox->title();
 
@@ -159,7 +159,7 @@ QAccessibleWidget::~QAccessibleWidget()
 */
 QWidget *QAccessibleWidget::widget() const
 {
-    return qt_cast<QWidget*>(object());
+    return qobject_cast<QWidget*>(object());
 }
 
 /*!
@@ -710,7 +710,7 @@ int QAccessibleWidget::childCount() const
 int QAccessibleWidget::indexOfChild(const QAccessibleInterface *child) const
 {
     QWidgetList cl = childWidgets(widget());
-    int index = cl.indexOf(qt_cast<QWidget *>(child->object()));
+    int index = cl.indexOf(qobject_cast<QWidget *>(child->object()));
     if (index != -1)
         ++index;
     return index;

@@ -28,7 +28,7 @@ QAccessibleMenu::QAccessibleMenu(QWidget *w)
 
 QMenu *QAccessibleMenu::menu() const
 {
-    return qt_cast<QMenu*>(object());
+    return qobject_cast<QMenu*>(object());
 }
 
 int QAccessibleMenu::childCount() const
@@ -166,7 +166,7 @@ QAccessibleMenuBar::QAccessibleMenuBar(QWidget *w)
 
 QMenuBar *QAccessibleMenuBar::menuBar() const
 {
-    return qt_cast<QMenuBar*>(object());
+    return qobject_cast<QMenuBar*>(object());
 }
 
 int QAccessibleMenuBar::childCount() const

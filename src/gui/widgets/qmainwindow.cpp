@@ -191,7 +191,7 @@ void QMainWindow::setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle)
 */
 QMenuBar *QMainWindow::menuBar() const
 {
-    QMenuBar *menubar = qt_cast<QMenuBar *>(d->layout->menuBar());
+    QMenuBar *menubar = qobject_cast<QMenuBar *>(d->layout->menuBar());
     if (!menubar) {
 	QMainWindow *self = const_cast<QMainWindow *>(this);
 	menubar = new QMenuBar(self);

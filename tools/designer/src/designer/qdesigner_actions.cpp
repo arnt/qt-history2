@@ -172,7 +172,7 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
     m_editWidgetsAction->setEnabled(false);
     QList<QObject*> builtinPlugins = QPluginLoader::staticInstances();
     foreach (QObject *plugin, builtinPlugins) {
-        if (AbstractFormEditorPlugin *formEditorPlugin = qt_cast<AbstractFormEditorPlugin*>(plugin)) {
+        if (AbstractFormEditorPlugin *formEditorPlugin = qobject_cast<AbstractFormEditorPlugin*>(plugin)) {
             m_toolActions->addAction(formEditorPlugin->action());
             formEditorPlugin->action()->setCheckable(true);
         }

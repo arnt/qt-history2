@@ -417,7 +417,7 @@ bool axc_FilterProc(void *m)
         while (!ax && hwnd) {
             widget = QWidget::find(hwnd);
             if (widget)
-                ax = qt_cast<QAxWidget*>(widget);
+                ax = qobject_cast<QAxWidget*>(widget);
             hwnd = ::GetParent(hwnd);
         }
         if (ax && msg->hwnd != ax->winId()) {
@@ -1274,7 +1274,7 @@ HRESULT WINAPI QAxClientSite::GetBorder(LPRECT lprectBorder)
 {
     AX_DEBUG(QAxClientSite::GetBorder);
 
-    QMainWindow *mw = qt_cast<QMainWindow*>(widget->window());
+    QMainWindow *mw = qobject_cast<QMainWindow*>(widget->window());
     if (!mw)
         return INPLACE_E_NOTOOLSPACE;
 
@@ -1287,7 +1287,7 @@ HRESULT WINAPI QAxClientSite::RequestBorderSpace(LPCBORDERWIDTHS /*pborderwidths
 {
     AX_DEBUG(QAxClientSite::RequestBorderSpace);
 
-    QMainWindow *mw = qt_cast<QMainWindow*>(widget->window());
+    QMainWindow *mw = qobject_cast<QMainWindow*>(widget->window());
     if (!mw)
         return INPLACE_E_NOTOOLSPACE;
 
@@ -1302,7 +1302,7 @@ HRESULT WINAPI QAxClientSite::SetBorderSpace(LPCBORDERWIDTHS pborderwidths)
     if (!pborderwidths)
         return S_OK;
 
-    QMainWindow *mw = qt_cast<QMainWindow*>(widget->window());
+    QMainWindow *mw = qobject_cast<QMainWindow*>(widget->window());
     if (!mw)
         return OLE_E_INVALIDRECT;
 
@@ -1534,7 +1534,7 @@ bool QAxHostWidget::event(QEvent *e)
 bool QAxHostWidget::eventFilter(QObject *o, QEvent *e)
 {
     // focus goes to Qt while ActiveX still has it - deactivate
-    QWidget *newFocus = qt_cast<QWidget*>(o);
+    QWidget *newFocus = qobject_cast<QWidget*>(o);
     if (e->type() == QEvent::FocusIn && hasFocus 
         && newFocus && newFocus->window() == window()) {
         if (axhost && axhost->m_spInPlaceActiveObject && axhost->m_spInPlaceObject)

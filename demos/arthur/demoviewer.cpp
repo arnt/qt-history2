@@ -213,7 +213,7 @@ void DemoViewer::itemSelected()
 
     Q_ASSERT(demoWidget);
 
-    DemoWidget *oldDemoWidget = qt_cast<DemoWidget*>(widgets->currentWidget());
+    DemoWidget *oldDemoWidget = qobject_cast<DemoWidget*>(widgets->currentWidget());
     if (oldDemoWidget)
         oldDemoWidget->stopAnimation();
 
@@ -225,21 +225,21 @@ void DemoViewer::itemSelected()
 void DemoViewer::antialiasChanged(bool val)
 {
     attributes->antialias = val;
-    if (DemoWidget *w = qt_cast<DemoWidget*>(widgets->currentWidget()))
+    if (DemoWidget *w = qobject_cast<DemoWidget*>(widgets->currentWidget()))
         w->resetState();
 }
 
 void DemoViewer::alphaChanged(bool val)
 {
     attributes->alpha = val;
-    if (DemoWidget *w = qt_cast<DemoWidget*>(widgets->currentWidget()))
+    if (DemoWidget *w = qobject_cast<DemoWidget*>(widgets->currentWidget()))
         w->resetState();
 }
 
 void DemoViewer::fillModeChanged(int mode)
 {
     attributes->fillMode = static_cast<Attributes::BackgroundFill>(mode);
-    if (DemoWidget *w = qt_cast<DemoWidget*>(widgets->currentWidget()))
+    if (DemoWidget *w = qobject_cast<DemoWidget*>(widgets->currentWidget()))
         w->resetState();
 }
 
@@ -254,7 +254,7 @@ void DemoViewer::showEvent(QShowEvent *)
 
 void DemoViewer::hideEvent(QHideEvent *)
 {
-    if (DemoWidget *demoWidget = qt_cast<DemoWidget*>(widgets->currentWidget()))
+    if (DemoWidget *demoWidget = qobject_cast<DemoWidget*>(widgets->currentWidget()))
         demoWidget->stopAnimation();
 }
 
@@ -265,7 +265,7 @@ void DemoViewer::openSource(bool on)
     } else {
         QString name =
             listWidget->model()->data(listWidget->selectionModel()->currentIndex()).toString();
-        DemoWidget *oldDemoWidget = qt_cast<DemoWidget*>(widgets->currentWidget());
+        DemoWidget *oldDemoWidget = qobject_cast<DemoWidget*>(widgets->currentWidget());
         if (oldDemoWidget)
             oldDemoWidget->stopAnimation();
 

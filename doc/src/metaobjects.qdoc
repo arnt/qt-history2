@@ -70,8 +70,8 @@
     \endlist
 
     \target qtcast
-    It is also possible to perform dynamic casts using qt_cast<T>()
-    on QObject classes. The qt_cast<T>() function behaves similarly
+    It is also possible to perform dynamic casts using qobject_cast<T>()
+    on QObject classes. The qobject_cast<T>() function behaves similarly
     to the standard C++ \c dynamic_cast<T>(), with the advantages
     that it doesn't require RTTI support and it works across dynamic
     library boundaries. It attempts to cast its argument to the
@@ -89,17 +89,17 @@
     The \c obj variable, of type \c{QObject *}, actually refers to a
     \c MyWidget object.
 
-    \printline widget = qt_cast
+    \printline widget = qobject_cast
 
     The cast from QObject to QWidget is successful, because the
     object is actually a \c MyWidget, which is a widget.
 
-    \printline myWidget = qt_cast
+    \printline myWidget = qobject_cast
 
-    Likewise, the cast to \c MyWidget is successful. qt_cast<T>()
+    Likewise, the cast to \c MyWidget is successful. qobject_cast<T>()
     makes no distinction between built-in Qt types and custom types.
 
-    \printline label = qt_cast
+    \printline label = qobject_cast
     \printline //
 
     The cast to QLabel, on the other hand, fails. The pointer is then

@@ -116,7 +116,7 @@ Document::~Document()
 
 Application *Document::application() const
 {
-    return qt_cast<DocumentList*>(parent())->application();
+    return qobject_cast<DocumentList*>(parent())->application();
 }
 
 QString Document::title() const
@@ -140,7 +140,7 @@ DocumentList::DocumentList(Application *application)
 
 Application *DocumentList::application() const
 {
-    return qt_cast<Application*>(parent());
+    return qobject_cast<Application*>(parent());
 }
 
 int DocumentList::count() const

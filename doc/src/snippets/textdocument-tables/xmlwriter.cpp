@@ -64,7 +64,7 @@ void XmlWriter::processFrame(QDomElement &parent, QTextFrame *frame)
         QTextBlock childBlock = it.currentBlock();
 
         if (childFrame) {
-            QTextTable *childTable = qt_cast<QTextTable*>(childFrame);
+            QTextTable *childTable = qobject_cast<QTextTable*>(childFrame);
 
             if (childTable)
                 processTable(frameElement, childTable);

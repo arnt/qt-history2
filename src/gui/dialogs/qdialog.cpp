@@ -608,13 +608,13 @@ void QDialog::setVisible(bool visible)
             QWidget *first = fw;
             while ((first = first->nextInFocusChain()) != fw && first->focusPolicy() == Qt::NoFocus)
                 ;
-            if (first != d->mainDef && qt_cast<QPushButton*>(first))
+            if (first != d->mainDef && qobject_cast<QPushButton*>(first))
                 d->mainDef->setFocus();
         }
         if (!d->mainDef && isWindow()) {
             QWidget *w = fw;
             while ((w = w->nextInFocusChain()) != fw) {
-                QPushButton *pb = qt_cast<QPushButton *>(w);
+                QPushButton *pb = qobject_cast<QPushButton *>(w);
                 if (pb && pb->autoDefault() && pb->focusPolicy() != Qt::NoFocus) {
                     pb->setDefault(true);
                     break;

@@ -479,7 +479,7 @@ void Q3Workspace::childEvent(QChildEvent * e)
 {
     if (e->type() == QEvent::ChildInserted && e->child()->isWidgetType()) {
         QWidget* w = static_cast<QWidget*>(e->child());
-        if (!w || qt_cast<Q3WorkspaceChild*>(w)
+        if (!w || qobject_cast<Q3WorkspaceChild*>(w)
             || !(w->windowType() == Qt::Widget || w->windowType() == Qt::Dialog || w->windowType() == Qt::Tool || w->windowType() == Qt::Window)
             || d->icons.contains(w) || w == d->vbar || w == d->hbar || w == d->corner)
             return;
@@ -1014,7 +1014,7 @@ QWidgetList Q3Workspace::windowList(WindowOrder order) const
     if (order == StackingOrder) {
         QObjectList cl = children();
         for (int i = 0; i < cl.size(); ++i) {
-            Q3WorkspaceChild *c = qt_cast<Q3WorkspaceChild*>(cl.at(i));
+            Q3WorkspaceChild *c = qobject_cast<Q3WorkspaceChild*>(cl.at(i));
             if (c && c->windowWidget())
                 windows.append(c->windowWidget());
         }
@@ -1067,7 +1067,7 @@ bool Q3Workspace::eventFilter(QObject *o, QEvent * e)
     case QEvent::HideToParent:
         break;
     case QEvent::ShowToParent:
-        if (Q3WorkspaceChild *c = qt_cast<Q3WorkspaceChild*>(o))
+        if (Q3WorkspaceChild *c = qobject_cast<Q3WorkspaceChild*>(o))
             if (!d->focus.contains(c))
                 d->focus.append(c);
         d->updateWorkspace();
@@ -1100,7 +1100,7 @@ bool Q3Workspace::eventFilter(QObject *o, QEvent * e)
                 if (c->shademode)
                     c->showShaded();
             }
-        } else if (qt_cast<Q3WorkspaceChild*>(o)) {
+        } else if (qobject_cast<Q3WorkspaceChild*>(o)) {
             d->popup->hide();
         }
         d->updateWorkspace();
@@ -1778,7 +1778,7 @@ Q3WorkspaceChild::~Q3WorkspaceChild()
     if (iconw)
         delete iconw->parentWidget();
 
-    Q3Workspace *workspace = qt_cast<Q3Workspace*>(parentWidget());
+    Q3Workspace *workspace = qobject_cast<Q3Workspace*>(parentWidget());
     if (workspace) {
         workspace->d->focus.removeAll(this);
         if (workspace->d->active == this)
@@ -2081,7 +2081,7 @@ void Q3WorkspaceChild::changeEvent(QEvent *ev)
     if(ev->type() == QEvent::StyleChange) {
         resizeEvent(0);
         if (iconw) {
-            QVBoxWidget *vbox = qt_cast<QVBoxWidget*>(iconw->parentWidget());
+            QVBoxWidget *vbox = qobject_cast<QVBoxWidget*>(iconw->parentWidget());
             Q_ASSERT(vbox);
             if (!style()->styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar)) {
                 vbox->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
@@ -2509,7 +2509,7 @@ QRect Q3WorkspacePrivate::updateWorkspace()
             m = true;
         }
         if (m) {
-            if (Q3WorkspaceChild *child = qt_cast<Q3WorkspaceChild*>(w))
+            if (Q3WorkspaceChild *child = qobject_cast<Q3WorkspaceChild*>(w))
                 child->move(x, y);
             else
                 w->move(x, y);

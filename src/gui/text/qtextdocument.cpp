@@ -804,9 +804,9 @@ void QTextDocument::print(QPrinter *printer) const
 */
 QVariant QTextDocument::loadResource(int type, const QUrl &name)
 {
-    if (QTextDocument *doc = qt_cast<QTextDocument *>(parent()))
+    if (QTextDocument *doc = qobject_cast<QTextDocument *>(parent()))
         return doc->loadResource(type, name);
-    else if (QTextEdit *edit = qt_cast<QTextEdit *>(parent()))
+    else if (QTextEdit *edit = qobject_cast<QTextEdit *>(parent()))
         return edit->loadResource(type, name);
     return QVariant();
 }
@@ -1076,7 +1076,7 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
             if (imgFmt.hasProperty(QTextFormat::ImageHeight))
                 emitAttribute("height", QString::number(imgFmt.height()));
 
-            if (QTextFrame *imageFrame = qt_cast<QTextFrame *>(doc->objectForFormat(imgFmt)))
+            if (QTextFrame *imageFrame = qobject_cast<QTextFrame *>(doc->objectForFormat(imgFmt)))
                 emitFloatStyle(imageFrame->format().position());
 
             html += QLatin1String(" />");
@@ -1379,7 +1379,7 @@ void QTextHtmlExporter::emitFrame(QTextFrame::Iterator frameIt)
 
     for (QTextFrame::Iterator it = frameIt;
          !it.atEnd(); ++it) {
-        if (QTextTable *table = qt_cast<QTextTable *>(it.currentFrame()))
+        if (QTextTable *table = qobject_cast<QTextTable *>(it.currentFrame()))
             emitTable(table);
         else if (it.currentBlock().isValid())
             emitBlock(it.currentBlock());

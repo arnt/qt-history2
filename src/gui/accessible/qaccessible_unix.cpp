@@ -42,7 +42,7 @@ void QAccessible::initialize()
     const QStringList l = loader()->keys();
     for (int i = 0; i < l.count(); ++i) {
         if (QAccessibleBridgeFactoryInterface *factory =
-                qt_cast<QAccessibleBridgeFactoryInterface*>(loader()->instance(l.at(i)))) {
+                qobject_cast<QAccessibleBridgeFactoryInterface*>(loader()->instance(l.at(i)))) {
             QAccessibleBridge * bridge = factory->create(l.at(i));
             if (bridge)
                 bridges()->append(bridge);

@@ -53,7 +53,7 @@ QAccessibleButton::QAccessibleButton(QWidget *w, Role role)
 /*! Returns the button. */
 QAbstractButton *QAccessibleButton::button() const
 {
-    return qt_cast<QAbstractButton*>(object());
+    return qobject_cast<QAbstractButton*>(object());
 }
 
 /*! \reimp */
@@ -72,7 +72,7 @@ QString QAccessibleButton::actionText(int action, Text text, int child) const
             {
                 if (state(child) & Checked)
                     return QCheckBox::tr("Uncheck");
-                QCheckBox *cb = qt_cast<QCheckBox*>(object());
+                QCheckBox *cb = qobject_cast<QCheckBox*>(object());
                 if (!cb || !cb->isTristate() || cb->checkState() == Qt::PartiallyChecked)
                     return QCheckBox::tr("Check");
                 return QCheckBox::tr("Toggle");
@@ -98,7 +98,7 @@ bool QAccessibleButton::doAction(int action, int child, const QVariantList &para
     case DefaultAction:
     case Press:
         {
-            QPushButton *pb = qt_cast<QPushButton*>(object());
+            QPushButton *pb = qobject_cast<QPushButton*>(object());
             if (pb && pb->menu())
                 pb->showMenu();
             else
@@ -117,7 +117,7 @@ QString QAccessibleButton::text(Text t, int child) const
     switch (t) {
     case Accelerator:
         {
-            QPushButton *pb = qt_cast<QPushButton*>(object());
+            QPushButton *pb = qobject_cast<QPushButton*>(object());
             if (pb && pb->isDefault())
                 str = (QString)QKeySequence(Qt::Key_Enter);
             if (str.isEmpty())
@@ -141,14 +141,14 @@ QAccessible::State QAccessibleButton::state(int child) const
     State state = QAccessibleWidget::state(child);
 
     QAbstractButton *b = button();
-    QCheckBox *cb = qt_cast<QCheckBox *>(b);
+    QCheckBox *cb = qobject_cast<QCheckBox *>(b);
     if (b->isChecked())
         state |= Checked;
     else if (cb && cb->checkState() == Qt::PartiallyChecked)
         state |= Mixed;
     if (b->isDown())
         state |= Pressed;
-    QPushButton *pb = qt_cast<QPushButton*>(b);
+    QPushButton *pb = qobject_cast<QPushButton*>(b);
     if (pb) {
         if (pb->isDefault())
             state |= DefaultButton;
@@ -190,7 +190,7 @@ QAccessibleToolButton::QAccessibleToolButton(QWidget *w, Role role)
 /*! Returns the button. */
 QToolButton *QAccessibleToolButton::toolButton() const
 {
-    return qt_cast<QToolButton*>(object());
+    return qobject_cast<QToolButton*>(object());
 }
 
 /*!
@@ -361,7 +361,7 @@ QAccessibleDisplay::QAccessibleDisplay(QWidget *w, Role role)
 /*! \reimp */
 QAccessible::Role QAccessibleDisplay::role(int child) const
 {
-    QLabel *l = qt_cast<QLabel*>(object());
+    QLabel *l = qobject_cast<QLabel*>(object());
     if (l) {
         if (l->pixmap() || l->picture())
             return Graphic;
@@ -373,7 +373,7 @@ QAccessible::Role QAccessibleDisplay::role(int child) const
         if (l->movie())
             return Animation;
 #endif
-    } else if (qt_cast<QProgressBar*>(object())) {
+    } else if (qobject_cast<QProgressBar*>(object())) {
         return ProgressBar;
     }
     return QAccessibleWidget::role(child);
@@ -385,12 +385,12 @@ QString QAccessibleDisplay::text(Text t, int child) const
     QString str;
     switch (t) {
     case Name:
-        if (qt_cast<QLabel*>(object())) {
-            str = qt_cast<QLabel*>(object())->text();
-        } else if (qt_cast<QGroupBox*>(object())) {
-            str = qt_cast<QGroupBox*>(object())->title();
-        } else if (qt_cast<QLCDNumber*>(object())) {
-            QLCDNumber *l = qt_cast<QLCDNumber*>(object());
+        if (qobject_cast<QLabel*>(object())) {
+            str = qobject_cast<QLabel*>(object())->text();
+        } else if (qobject_cast<QGroupBox*>(object())) {
+            str = qobject_cast<QGroupBox*>(object())->title();
+        } else if (qobject_cast<QLCDNumber*>(object())) {
+            QLCDNumber *l = qobject_cast<QLCDNumber*>(object());
             if (l->numDigits())
                 str = QString::number(l->value());
             else
@@ -398,8 +398,8 @@ QString QAccessibleDisplay::text(Text t, int child) const
         }
         break;
     case Value:
-        if (qt_cast<QProgressBar*>(object()))
-            str = QString::number(qt_cast<QProgressBar*>(object())->value());
+        if (qobject_cast<QProgressBar*>(object()))
+            str = QString::number(qobject_cast<QProgressBar*>(object())->value());
         break;
     default:
         break;
@@ -418,8 +418,8 @@ QAccessible::Relation QAccessibleDisplay::relationTo(int child, const QAccessibl
         return relation;
 
     QObject *o = other->object();
-    QLabel *label = qt_cast<QLabel*>(object());
-    QGroupBox *groupbox = qt_cast<QGroupBox*>(object());
+    QLabel *label = qobject_cast<QLabel*>(object());
+    QGroupBox *groupbox = qobject_cast<QGroupBox*>(object());
     if (label) {
         if (o == label->buddy())
             relation |= Label;
@@ -436,8 +436,8 @@ int QAccessibleDisplay::navigate(RelationFlag rel, int entry, QAccessibleInterfa
     *target = 0;
     if (rel == Labelled) {
         QObject *targetObject = 0;
-        QLabel *label = qt_cast<QLabel*>(object());
-        QGroupBox *groupbox = qt_cast<QGroupBox*>(object());
+        QLabel *label = qobject_cast<QLabel*>(object());
+        QGroupBox *groupbox = qobject_cast<QGroupBox*>(object());
         if (label) {
             if (entry == 1)
                 targetObject = label->buddy();
@@ -472,7 +472,7 @@ QAccessibleLineEdit::QAccessibleLineEdit(QWidget *w, const QString &name)
 /*! Returns the line edit. */
 QLineEdit *QAccessibleLineEdit::lineEdit() const
 {
-    return qt_cast<QLineEdit*>(object());
+    return qobject_cast<QLineEdit*>(object());
 }
 
 /*! \reimp */

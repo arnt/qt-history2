@@ -282,7 +282,7 @@ QAbstractButton *Q3ButtonGroup::find(int id) const
 
 void Q3ButtonGroup::buttonPressed()
 {
-    QAbstractButton *senderButton = ::qt_cast<QAbstractButton *>(sender());
+    QAbstractButton *senderButton = ::qobject_cast<QAbstractButton *>(sender());
     Q_ASSERT(senderButton);
     int senderId = id(senderButton);
     if (senderId != -1)
@@ -297,7 +297,7 @@ void Q3ButtonGroup::buttonPressed()
 
 void Q3ButtonGroup::buttonReleased()
 {
-    QAbstractButton *senderButton = ::qt_cast<QAbstractButton *>(sender());
+    QAbstractButton *senderButton = ::qobject_cast<QAbstractButton *>(sender());
     Q_ASSERT(senderButton);
     int senderId = id(senderButton);
     if (senderId != -1)
@@ -312,7 +312,7 @@ void Q3ButtonGroup::buttonReleased()
 
 void Q3ButtonGroup::buttonClicked()
 {
-    QAbstractButton *senderButton = ::qt_cast<QAbstractButton *>(sender());
+    QAbstractButton *senderButton = ::qobject_cast<QAbstractButton *>(sender());
     Q_ASSERT(senderButton);
     int senderId = id(senderButton);
     if (senderId != -1)
@@ -399,9 +399,9 @@ bool Q3ButtonGroup::event(QEvent * e)
 {
     if (e->type() == QEvent::ChildInserted) {
         QChildEvent * ce = (QChildEvent *) e;
-        if (QAbstractButton *button = qt_cast<QRadioButton*>(ce->child())) {
+        if (QAbstractButton *button = qobject_cast<QRadioButton*>(ce->child())) {
             button->setAutoExclusive(false);
-            if (excl_grp || (radio_excl && qt_cast<QRadioButton*>(button)))
+            if (excl_grp || (radio_excl && qobject_cast<QRadioButton*>(button)))
                 insert(button);
         }
     }

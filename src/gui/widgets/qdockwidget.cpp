@@ -223,7 +223,7 @@ void QDockWidgetTitle::mousePressEvent(QMouseEvent *event)
         return;
 
     QMainWindowLayout *layout =
-        qt_cast<QMainWindowLayout *>(dockwidget->parentWidget()->layout());
+        qobject_cast<QMainWindowLayout *>(dockwidget->parentWidget()->layout());
     if (!layout)
         return;
     layout->saveLayoutInfo();
@@ -262,7 +262,7 @@ void QDockWidgetTitle::mouseMoveEvent(QMouseEvent *event)
     // see if there is a main window under us, and ask it to place the tool window
     QWidget *widget = QApplication::widgetAt(event->globalPos());
     if (widget) {
-	while (widget && !qt_cast<QMainWindow *>(widget)) {
+	while (widget && !qobject_cast<QMainWindow *>(widget)) {
 	    if (widget->isWindow()) {
 		widget = 0;
 		break;
@@ -271,10 +271,10 @@ void QDockWidgetTitle::mouseMoveEvent(QMouseEvent *event)
 	}
 
 	if (widget) {
-            QMainWindow *mainwindow = qt_cast<QMainWindow *>(widget);
+            QMainWindow *mainwindow = qobject_cast<QMainWindow *>(widget);
             if (mainwindow && mainwindow == dockwidget->parentWidget()) {
 		QMainWindowLayout *layout =
-                    qt_cast<QMainWindowLayout *>(dockwidget->parentWidget()->layout());
+                    qobject_cast<QMainWindowLayout *>(dockwidget->parentWidget()->layout());
                 Q_ASSERT(layout != 0);
                 QRect request = state->origin;
                 request.moveTopLeft(event->globalPos() - state->offset);
@@ -316,7 +316,7 @@ void QDockWidgetTitle::mouseReleaseEvent(QMouseEvent *event)
     if (!state) return;
 
     QMainWindowLayout *layout =
-        qt_cast<QMainWindowLayout *>(dockwidget->parentWidget()->layout());
+        qobject_cast<QMainWindowLayout *>(dockwidget->parentWidget()->layout());
     if (!layout)
         return;
     layout->discardLayoutInfo();
@@ -333,7 +333,7 @@ void QDockWidgetTitle::mouseReleaseEvent(QMouseEvent *event)
     QWidget *widget = QApplication::widgetAt(event->globalPos());
     bool dropped = false;
     if (state->canDrop && widget) {
-        while (widget && !qt_cast<QMainWindow *>(widget)) {
+        while (widget && !qobject_cast<QMainWindow *>(widget)) {
             if (widget->isWindow()) {
                 widget = 0;
                 break;
@@ -342,10 +342,10 @@ void QDockWidgetTitle::mouseReleaseEvent(QMouseEvent *event)
         }
 
         if (widget) {
-            QMainWindow *mainwindow = qt_cast<QMainWindow *>(widget);
+            QMainWindow *mainwindow = qobject_cast<QMainWindow *>(widget);
             if (mainwindow && mainwindow == dockwidget->parentWidget()) {
                 QMainWindowLayout *layout =
-                    qt_cast<QMainWindowLayout *>(dockwidget->parentWidget()->layout());
+                    qobject_cast<QMainWindowLayout *>(dockwidget->parentWidget()->layout());
                 Q_ASSERT(layout != 0);
                 QRect request = state->origin;
                 request.moveTopLeft(event->globalPos() - state->offset);
@@ -695,7 +695,7 @@ void QDockWidget::setFloating(bool floating)
     setWindowFlags(Qt::FramelessWindowHint | (floating ? Qt::Tool : Qt::Widget));
 
     if (floating) {
-        if (QMainWindowLayout *layout = qt_cast<QMainWindowLayout *>(parentWidget()->layout()))
+        if (QMainWindowLayout *layout = qobject_cast<QMainWindowLayout *>(parentWidget()->layout()))
             layout->invalidate();
     }
 

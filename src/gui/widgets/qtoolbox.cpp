@@ -401,7 +401,7 @@ int QToolBox::insertItem(int index, QWidget *widget, const QIcon &icon, const QS
 void QToolBoxPrivate::buttonClicked()
 {
     Q_Q(QToolBox);
-    QToolBoxButton *tb = ::qt_cast<QToolBoxButton*>(q->sender());
+    QToolBoxButton *tb = ::qobject_cast<QToolBoxButton*>(q->sender());
     QWidget* item = 0;
     for (QToolBoxPrivate::PageList::ConstIterator i = pageList.constBegin(); i != pageList.constEnd(); ++i)
         if ((*i).button == tb) {

@@ -151,7 +151,7 @@ QAbstractTextDocumentLayout::QAbstractTextDocumentLayout(QAbstractTextDocumentLa
 */
 void QAbstractTextDocumentLayout::registerHandler(int formatType, QObject *component)
 {
-    QTextObjectInterface *iface = qt_cast<QTextObjectInterface *>(component);
+    QTextObjectInterface *iface = qobject_cast<QTextObjectInterface *>(component);
     if (!iface)
         return; // ### print error message on terminal?
 
@@ -270,7 +270,7 @@ void QAbstractTextDocumentLayoutPrivate::handlerDestroyed(QObject *obj)
 */
 int QAbstractTextDocumentLayout::formatIndex(int pos)
 {
-    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->docHandle();
+    QTextDocumentPrivate *pieceTable = qobject_cast<QTextDocument *>(parent())->docHandle();
     return pieceTable->find(pos).value()->format;
 }
 
@@ -281,7 +281,7 @@ int QAbstractTextDocumentLayout::formatIndex(int pos)
 */
 QTextCharFormat QAbstractTextDocumentLayout::format(int pos)
 {
-    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->docHandle();
+    QTextDocumentPrivate *pieceTable = qobject_cast<QTextDocument *>(parent())->docHandle();
     int idx = pieceTable->find(pos).value()->format;
     return pieceTable->formatCollection()->charFormat(idx);
 }
@@ -293,7 +293,7 @@ QTextCharFormat QAbstractTextDocumentLayout::format(int pos)
 */
 QTextDocument *QAbstractTextDocumentLayout::document() const
 {
-    return qt_cast<QTextDocument *>(parent());
+    return qobject_cast<QTextDocument *>(parent());
 }
 
 
@@ -309,7 +309,7 @@ QString QAbstractTextDocumentLayout::anchorAt(const QPoint& pos) const
     if (cursorPos == -1)
         return QString();
 
-    QTextDocumentPrivate *pieceTable = qt_cast<const QTextDocument *>(parent())->docHandle();
+    QTextDocumentPrivate *pieceTable = qobject_cast<const QTextDocument *>(parent())->docHandle();
     QTextDocumentPrivate::FragmentIterator it = pieceTable->find(cursorPos);
     QTextCharFormat fmt = pieceTable->formatCollection()->charFormat(it->format);
     return fmt.anchorHref();

@@ -56,7 +56,7 @@ QObject *SpacerPropertySheetFactory::createExtension(QObject *object, const QStr
     if (iid != Q_TYPEID(IPropertySheet))
         return 0;
 
-    if (Spacer *o = qt_cast<Spacer*>(object))
+    if (Spacer *o = qobject_cast<Spacer*>(object))
         return new SpacerPropertySheet(o, parent);
 
     return 0;
