@@ -1207,6 +1207,7 @@ QDir &QDir::operator=(const QDir &dir)
         delete d->data;
     ++dir.d->data->ref;
     d->data = dir.d->data;
+    return *this;
 }
 
 /*!
