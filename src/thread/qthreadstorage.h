@@ -33,6 +33,8 @@ public:
     bool ensure_constructed(void (*func)(void *));
 };
 
+#if !defined( QT_MOC_CPP )
+// MOC_SKIP_BEGIN
 
 // pointer specialization
 template <typename T>
@@ -83,6 +85,9 @@ void qThreadStorage_setLocalData(QThreadStorageData &d, T *t)
 { (void) d.set(new T(*t)); }
 
 #endif // QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
+
+// MOC_SKIP_END
+#endif
 
 template <class T>
 class QThreadStorage

@@ -17,7 +17,7 @@
 
 #ifndef QT_H
 #include <qiodevice.h>
-#endif
+#endif // QT_H
 
 template<typename T> class QList;
 template<typename T> class QLinkedList;

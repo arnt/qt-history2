@@ -3,6 +3,7 @@
 use File::Find;
 
 @IGNORE = qw {
+    qtextlayout_p.h
     qfontdata_p.h
     qfiledefs_p.h
     qaccessible.h
@@ -15,7 +16,7 @@ use File::Find;
     moc_yacc.h
     y.tab.h
     qconfig.h
-    qgfxlinuxfb_qws.h
+    qasyncio.h
     qvfbhdr_qws.h
     qwsdisplay_qws.h
     qxt.h
@@ -54,6 +55,7 @@ use File::Find;
 };
 
 $IGNORE=join "|", (@IGNORE_RE, map { "\Q$_" } @IGNORE);
+$IGNORE="^(?:$IGNORE)\$";
 
 $verbose = 0;
 
@@ -72,6 +74,7 @@ if ( defined($ARGV[0]) && $ARGV[0] eq "--fix" ) {
 @QWS_HEADERS = ();
 @WCE_HEADERS = ();
 @MAC_HEADERS = ();
+@WIN_HEADERS = ();
 
 opendir SRC, "$QTDIR/src"
     || die "Reading QTDIR/src/";
@@ -80,7 +83,7 @@ map {
     opendir SUBSRC, "$dir";
     map {
 	if ( m/\.h$/ &&
-	    !m/^$IGNORE$/ &&
+	    !m/$IGNORE/ &&
 	   ########## ! -f "$ENV{QTDIR}/src/compat/$_"  &&
 	    ! -f "$ENV{QTDIR}/src/attic/$_" )
 	{
@@ -91,6 +94,8 @@ map {
 		push @WCE_HEADERS, "$p";
 	    } elsif ( /_mac\./ || /qaquastyle/ ) {
 		push @MAC_HEADERS, "$p";
+	    } elsif ( /_win\./ ) {
+		push @WIN_HEADERS, "$p";
 	    } elsif ( /_p\./ ) {
 		push @QT_HEADERS_P, "$p";
 	    } else {
@@ -249,9 +254,16 @@ do_headers @QT_HEADERS;
 $printpath=1;
 print QT_H "\n#if defined( QT_MOC_CPP ) || defined( QT_H_CPP )\n";
 do_headers @QT_HEADERS_P;
+print QT_H "#undef d\n";
+print QT_H "#undef q\n";
 print QT_H "#endif // Private headers\n\n";
 
 $printpath=0;
+print QT_H "\n#ifdef Q_WS_WIN\n";
+do_headers @WIN_HEADERS;
+print QT_H "#endif // Q_WS_WIN\n\n";
+
+
 print QT_H "\n#ifdef Q_WS_MAC\n";
 do_headers @MAC_HEADERS;
 print QT_H "#endif // Q_WS_MAC\n\n";

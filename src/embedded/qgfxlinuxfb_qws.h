@@ -15,8 +15,11 @@
 #ifndef QGFXLINUXFB_QWS_H
 #define QGFXLINUXFB_QWS_H
 
-#ifndef QT_NO_QWS_LINUXFB
+#ifndef QT_H
 #include "qgfx_qws.h"
+#endif // QT_H
+
+#ifndef QT_NO_QWS_LINUXFB
 
 class QLinuxFb_Shared
 {

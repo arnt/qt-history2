@@ -4,7 +4,7 @@
 **
 ** This header file efficiently includes all Qt GUI Toolkit functionality.
 **
-** Generated : Tue Jun 10 12:13:31 CEST 2003
+** Generated : Fri Jul 18 17:33:23 EST 2003
 
 **
 ** Copyright (C) 1995-2000 Trolltech AS.  All rights reserved.
@@ -22,87 +22,85 @@
 #include "qatomic.h"
 #include "qbytearray.h"
 #include "qptrcollection.h"
-#include "qobjectdefs.h"
+#include "qshared.h"
 #include "qchar.h"
 #include "qstring.h"
-#include "qgdict.h"
-#include "qwindowdefs.h"
+#include "qobjectdefs.h"
 #include "qtextcodec.h"
 #include "qglist.h"
+#include "qwindowdefs.h"
 #include "qiterator.h"
-#include "qlist.h"
 #include "qiodevice.h"
 #include "qkeysequence.h"
 #include "qobject.h"
-#include "qshared.h"
+#include "qlist.h"
 #include "qdatastream.h"
 #include "qpoint.h"
 #include "qsize.h"
+#include "qgdict.h"
 #include "qfont.h"
-#include "qfontinfo.h"
-#include "qptrlist.h"
-#include <qclipboard.h>
 #include "qstringlist.h"
-#include "qsizepolicy.h"
+#include <qclipboard.h>
+#include "qcolor.h"
+#include "qfontinfo.h"
 #include "qrect.h"
-#include "qfontmetrics.h"
+#include "qpaintdevice.h"
 #include "qstyle.h"
 #include <qcstring.h>
 #include "qcommonstyle.h"
 #include "qsql.h"
 #include "qpair.h"
-#include "qcolor.h"
-#include "qpaintdevice.h"
+#include "qsizepolicy.h"
+#include "qfontmetrics.h"
 #include "qdatetime.h"
-#include "qmime.h"
-#include "qgarray.h"
+#include "qtl.h"
+#include "qvector.h"
 #include "qbrush.h"
 #include "qpalette.h"
 #include "qdict.h"
 #include <stdio.h>
 #include "qhostaddress.h"
-#include "qmemarray.h"
-#include "qvector.h"
 #include "qregion.h"
+#include "qwidget.h"
 #include <qdom.h>
-#include "qevent.h"
+#include "qptrlist.h"
 #include <qdrawutil.h>
 #include <qdropsite.h>
 #include "qvariant.h"
-#include "qwidget.h"
+#include "qframe.h"
 #include "qjpunicode.h"
 #include <qeuckrcodec.h>
-#include "qframe.h"
+#include "qmime.h"
 #include "qsocketnotifier.h"
-#include "qbasictimer.h"
-#include "qfile.h"
 #include "qpixmap.h"
+#include "qfile.h"
+#include "qpen.h"
 #include "qstrlist.h"
-#include "qdialog.h"
-#include <qfontdatabase.h>
-#include <qfontdialog.h>
 #include <qcombobox.h>
+#include <qfontdatabase.h>
+#include "qdialog.h"
+#include <qdataview.h>
 #include "qbitmap.h"
 #include "qguardedptr.h"
 #include "qurlinfo.h"
-#include "qrangecontrol.h"
+#include "qgarray.h"
 #include "qgb18030codec.h"
 #include <qgbkcodec.h>
 #include "qgcache.h"
 #include <qasciicache.h>
 #include <qgif.h>
-#include "qgroupbox.h"
+#include "qmemarray.h"
 #include <q3cache.h>
 #include "qbitarray.h"
 #include "qgplugin.h"
 #include <qgrid.h>
-#include "qscrollbar.h"
-#include "qbuttongroup.h"
-#include <qdataview.h>
+#include "qrangecontrol.h"
+#include "qgroupbox.h"
+#include <qdatetimeedit.h>
 #include "qgvector.h"
 #include "qfileinfo.h"
 #include "qhbox.h"
-#include <qhbuttongroup.h>
+#include "qbuttongroup.h"
 #include "qiconset.h"
 #include <qhgroupbox.h>
 #include <qdns.h>
@@ -126,10 +124,10 @@
 #include <qlcdnumber.h>
 #include <qlibrary.h>
 #include <qinputdialog.h>
-#include <qlinkedlist.h>
-#include "qpen.h"
+#include "qlinkedlist.h"
+#include <qcleanuphandler.h>
+#include "qscrollbar.h"
 #include "qscrollview.h"
-#include <qlistview.h>
 #include "qnetworkprotocol.h"
 #include "qtextstream.h"
 #include <qcache.h>
@@ -146,12 +144,13 @@
 #include "qbutton.h"
 #include <qnetwork.h>
 #include <qftp.h>
-#include "qtl.h"
+#include <qlistview.h>
 #include <qobjectcleanuphandler.h>
 #include "qsqlfield.h"
 #include "qasciidict.h"
 #include "qwindowsstyle.h"
 #include "qheader.h"
+#include <qhbuttongroup.h>
 #include <qhttp.h>
 #include "qdockwindow.h"
 #include "qpointarray.h"
@@ -161,7 +160,7 @@
 #include <qplatinumstyle.h>
 #include <qpngio.h>
 #include <qcursor.h>
-#include <qdatetimeedit.h>
+#include <qdesktopwidget.h>
 #include <qpolygonscanner.h>
 #include "qpopupmenu.h"
 #include <qprintdialog.h>
@@ -171,7 +170,7 @@
 #include "qsemimodal.h"
 #include <qobjectdict.h>
 #include "qptrdict.h"
-#include <qcleanuphandler.h>
+#include <qerrormessage.h>
 #include <qptrqueue.h>
 #include <qptrstack.h>
 #include "qstylesheet.h"
@@ -180,7 +179,7 @@
 #include <qdial.h>
 #include "qwmatrix.h"
 #include "qregexp.h"
-#include <qerrormessage.h>
+#include <qevent.h>
 #include <qlistbox.h>
 #include <qgridview.h>
 #include <qsemaphore.h>
@@ -189,8 +188,8 @@
 #include <qsessionmanager.h>
 #include <qsettings.h>
 #include <qsgistyle.h>
-#include <qcolordialog.h>
-#include "qtimer.h"
+#include <qfontdialog.h>
+#include <qmenubar.h>
 #include <qsignalmapper.h>
 #include <qsimplerichtext.h>
 #include <qpaintdevicemetrics.h>
@@ -222,10 +221,10 @@
 #include <qsqlresult.h>
 #include <qsqlselectcursor.h>
 #include <qstack.h>
-//###### #include <qstackarray.h>
+#include <qstackarray.h>
 #include <qstatusbar.h>
-#include <qmenubar.h>
-#include "qdesktopwidget.h"
+#include "qbasictimer.h"
+#include <qapplication.h>
 #include "qurl.h"
 #include <qstrvec.h>
 #include <qinterlacestyle.h>
@@ -245,7 +244,7 @@
 #include "qtoolbar.h"
 #include <qtextview.h>
 #include <qthreadstorage.h>
-//########## #include <qasyncio.h>
+#include <qtimer.h>
 #include <qiconview.h>
 #include <qmainwindow.h>
 #include <qtoolbox.h>
@@ -270,10 +269,10 @@
 #include <qvgroupbox.h>
 #include <qwaitcondition.h>
 #include <qwhatsthis.h>
-#include <qapplication.h>
+#include <qcheckbox.h>
 #include <qwidgetplugin.h>
 #include <qwidgetstack.h>
-#include <qcheckbox.h>
+#include <qcolordialog.h>
 #include <qcompactstyle.h>
 #include <qwindowsxpstyle.h>
 #include <qwizard.h>
@@ -298,7 +297,7 @@
 #include "qmutex.h"
 #include "private/qmutexpool_p.h"
 #include "private/qeffects_p.h"
-////#include "private/qobject_p.h"
+#include "private/qobject_p.h"
 #include "private/qeventloop_p.h"
 #include "private/qgpluginmanager_p.h"
 #include "private/qinternal_p.h"
@@ -317,20 +316,25 @@
 #include "private/qfontcodecs_p.h"
 #include "private/qtextcodecinterface_p.h"
 #include "private/qscriptengine_p.h"
-#include "private/qtextlayout_p.h"
 #include "private/qpsprinter_p.h"
 #include "private/qthreadinstance_p.h"
 #include "private/qtitlebar_p.h"
 #include "private/qunicodetables_p.h"
 #include "private/qpluginmanager_p.h"
 #include "private/qsettings_p.h"
-#include "private/qsqlextension_p.h"
 #include "private/qdialogbuttons_p.h"
-////#include "private/qwidget_p.h"
+#include "private/qwidget_p.h"
 #include "private/qwidgetinterface_p.h"
 #include "private/qwidgetresizehandler_p.h"
 #include "private/qlibrary_p.h"
+#undef d
+#undef q
 #endif // Private headers
+
+
+#ifdef Q_WS_WIN
+#include <qatomic_win.h>
+#endif // Q_WS_WIN
 
 
 #ifdef Q_WS_MAC
@@ -343,15 +347,14 @@
 #include <private/qtextengine_p.h>
 #include "qfontmanager_qws.h"
 #include <qfontfactorybdf_qws.h>
-//###### #include "qgfxlinuxfb_qws.h"
-#include <qgfxmach64_qws.h>
-#include <qgfxmatrox_qws.h>
-#include <qgfxvga16_qws.h>
-//##### #include "qwsgfx_qnx.h"
+#include "qmemorymanager_qws.h"
+#include "qgfx_qws.h"
+#include "qgfxlinuxfb_qws.h"
 #include <qgfxvoodoo_qws.h>
 #include <qgfxvoodoodefs_qws.h>
 #include <qgfxmatroxdefs_qws.h>
 #include <qgfxdriverplugin_qws.h>
+#include <qgfxmach64_qws.h>
 #include "qkbd_qws.h"
 #include <qkbddriverfactory_qws.h>
 #include <qkbddriverplugin_qws.h>
@@ -361,9 +364,8 @@
 #include <qkbdusb_qws.h>
 #include <qkbdvr41xx_qws.h>
 #include <qkbdyopy_qws.h>
-//#### #include <qkeyboard_qws.h>
-#include "qmemorymanager_qws.h"
-#include "qgfx_qws.h"
+#include <qgfxvfb_qws.h>
+#include <qgfxmatrox_qws.h>
 #include "qmouse_qws.h"
 #include <qmousedriverfactory_qws.h>
 #include <qmousedriverplugin_qws.h>
@@ -373,15 +375,15 @@
 #include <qmouseyopy_qws.h>
 #include <qcopchannel_qws.h>
 #include <qdirectpainter_qws.h>
-#include <qgfxtransformed_qws.h>
+#include <qgfxrepeater_qws.h>
 #include <qmousebus_qws.h>
 #include "qwsdisplay_qws.h"
 #include <qfontfactoryttf_qws.h>
 #include "qgfxraster_qws.h"
 #include <qsoundqss_qws.h>
-#include <qgfxvfb_qws.h>
+#include <qgfxvga16_qws.h>
 #include <qgfxdriverfactory_qws.h>
-#include <qgfxrepeater_qws.h>
+#include <qgfxtransformed_qws.h>
 #include "qwssocket_qws.h"
 #include "qwsdecoration_qws.h"
 #include "qwsutils_qws.h"
@@ -390,7 +392,6 @@
 #include "qwsdefaultdecoration_qws.h"
 #include <qgfxshadowfb_qws.h>
 #include "qwscommand_qws.h"
-#include <qgfxvnc_qws.h>
 #include <qwshydrodecoration_qws.h>
 #include <qwskde2decoration_qws.h>
 #include <qwskdedecoration_qws.h>
