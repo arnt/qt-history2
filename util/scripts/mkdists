@@ -4,6 +4,8 @@
 CREATED_MANIFEST=no
 TMP_DIR=/tmp
 TMP_FILE=${TMP_DIR}/qt-tmpf-$$
+MYNAME=`whoami`
+[ -z $MYNAME ] && MYNAME="shellssuck"
 
 #version info
 REL_VERSION=0.0.0
@@ -60,6 +62,8 @@ showhelp()
     echo "  :   -version and -local are mutually exclusive, if you :"
     echo "  :   specify -version you may also specify -branch      :"
     echo "  :   do not use -branch with -local                     :"
+    echo "  :   Additionally you may use -branch by itself, and    :"
+    echo "  :   will check out the HEAD of the given -branch       :"
     echo
 
     echo "Paths:"
@@ -213,21 +217,24 @@ if [ "$BRANCH" = "auto" ]; then
 fi
 
 BRANCH_DIGITS=`echo $BRANCH | sed "s,\.,,g" | sed "s,\(\d\d\d\).*,\1,"`
-MYNAME=`whoami`
-[ -z $MYNAME ] && MYNAME="shellssuck"
+[ -z "$BRANCH_DIGITS" ] && BRANCH_DIGITS="000"
+
 DISTDIR="${TMP_DIR}/qt-$BRANCH-$MYNAME-$$"
 
 #Checkout P4
 if [ -z $LOCAL_TREE ]; then
+    checkoutlabel=""
     if ! p4 fstat //depot/qt/$BRANCH/doc.conf 2>&1 | grep " depotFile " >/dev/null 2>&1 ; then
 	die "//depot/qt/$BRANCH/... is not in the depot, stopped"
     fi
-    if ! p4 labels 2>&1 | grep "^Label $LABEL" >/dev/null 2>&1 ; then
-	die "Label $LABEL does not exist, stopped"
-    fi
-    checkoutlabel=""
-    if p4 label -o $LABEL | grep '^Options:.*locked' >/dev/null 2>&1; then
-	checkoutlabel="@${LABEL}"
+    if [ ! -z $LABEL ]; then
+	if ! p4 labels 2>&1 | grep "^Label $LABEL" >/dev/null 2>&1 ; then
+	    die "Label $LABEL does not exist, stopped"
+	fi
+
+	if p4 label -o $LABEL | grep '^Options:.*locked' >/dev/null 2>&1; then
+	    checkoutlabel="@${LABEL}"
+	fi
     fi
     status "Exporting the entire Qt depot $checkoutlabel..";
 
