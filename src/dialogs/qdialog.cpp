@@ -75,7 +75,8 @@
   Note that QDialog uses the parent widget slightly differently from
   other classes in Qt. A dialog is always a top-level widget, but if
   it has a parent, its default location is centered on top of the
-  parent. It will also share the parent's taskbar entry.
+  parent's top-level widget (if it is not top-level itself). It will 
+  also share the parent's taskbar entry.
 
   The difference between a modal dialog and a modeless dialog is
   this:
