@@ -24,7 +24,7 @@ class Q_EXPORT QDockWidget : public QFrame
 public:
     enum Place { InDock, OutsideDock };
 
-    QDockWidget( QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
+    QDockWidget( Place p = InDock, QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
 
     virtual void setWidget( QWidget *w );
     QWidget *widget() const;

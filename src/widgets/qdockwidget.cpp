@@ -174,7 +174,7 @@ void QDockWidgetResizeHandle::drawLine( const QPoint &globalPos )
 
 static QPoint realWidgetPos( QWidget *w )
 {
-    if ( !w->parentWidget() )
+    if ( !w->parentWidget() || !w->parentWidget()->inherits( "QDockArea" ) )
 	return w->pos();
     return w->parentWidget()->mapToGlobal( w->geometry().topLeft() );
 }
@@ -380,9 +380,9 @@ void QDockWidgetTitleBar::updateGui()
 
 
 
-QDockWidget::QDockWidget( QWidget *parent, const char *name, WFlags f )
-    : QFrame( parent, name, f | WStyle_Customize | WStyle_NoBorderEx ), curPlace( parent ? InDock : OutsideDock ),
-      wid( 0 ), unclippedPainter( 0 ), dockArea( 0 ), tmpDockArea( 0 ), closeEnabled( FALSE ), resizeEnabled( FALSE ),
+QDockWidget::QDockWidget( Place p, QWidget *parent, const char *name, WFlags f )
+    : QFrame( parent, name, f | ( p == OutsideDock ? WStyle_Customize | WStyle_NoBorderEx | WType_TopLevel | WStyle_Dialog : 0 ) ), 
+      curPlace( p ), wid( 0 ), unclippedPainter( 0 ), dockArea( 0 ), tmpDockArea( 0 ), closeEnabled( FALSE ), resizeEnabled( FALSE ),
       offs( 0 ), fExtend( -1, -1 ), nl( FALSE )
 {
     hbox = new QVBoxLayout( this );
@@ -514,27 +514,29 @@ void QDockWidget::updateGui()
 		vHandleRight->raise();
 		vHandleLeft->raise();
 	    }
-	    
-	    if ( orientation() == Horizontal ) {
-		if ( area()->gravity() == QDockArea::Normal ) {
-		    hHandleBottom->show();
-		    hHandleTop->hide();
-		} else {
-		    hHandleTop->show();
-		    hHandleBottom->hide();
-		}
-		vHandleRight->show();
-		vHandleLeft->hide();
-	    } else {
-		if ( area()->gravity() == QDockArea::Normal ) {
+	
+	    if ( area() ) {
+		if ( orientation() == Horizontal ) {
+		    if ( area()->gravity() == QDockArea::Normal ) {
+			hHandleBottom->show();
+			hHandleTop->hide();
+		    } else {
+			hHandleTop->show();
+			hHandleBottom->hide();
+		    }
 		    vHandleRight->show();
 		    vHandleLeft->hide();
 		} else {
-		    vHandleLeft->show();
-		    vHandleRight->hide();
+		    if ( area()->gravity() == QDockArea::Normal ) {
+			vHandleRight->show();
+			vHandleLeft->hide();
+		    } else {
+			vHandleLeft->show();
+			vHandleRight->hide();
+		    }
+		    hHandleBottom->show();
+		    hHandleTop->hide();
 		}
-		hHandleBottom->show();
-		hHandleTop->hide();
 	    }
 	}
 	setLineWidth( 1 );

@@ -183,7 +183,7 @@ QSize QToolBarSeparator::sizeHint() const
 QToolBar::QToolBar( const QString &label,
 		    QMainWindow * parent, QMainWindow::ToolBarDock dock,
 		    bool newLine, const char * name )
-    : QDockWidget( parent, name )
+    : QDockWidget( InDock, parent, name )
 {
     mw = parent;
     init();
@@ -205,7 +205,7 @@ QToolBar::QToolBar( const QString &label,
 QToolBar::QToolBar( const QString &label, QMainWindow * mainWindow,
 		    QWidget * parent, bool newLine, const char * name,
 		    WFlags f )
-    : QDockWidget( parent, name, f )
+    : QDockWidget( InDock, parent, name, f )
 {
     mw = mainWindow;
     init();
@@ -220,7 +220,7 @@ QToolBar::QToolBar( const QString &label, QMainWindow * mainWindow,
   useless. */
 
 QToolBar::QToolBar( QMainWindow * parent, const char * name )
-    : QDockWidget( parent, name )
+    : QDockWidget( InDock, parent, name )
 {
     mw = parent;
     init();
