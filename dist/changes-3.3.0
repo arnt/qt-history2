@@ -42,8 +42,8 @@ The QAxContainer library is now static even for shared configurations of Qt,
 which simplifies deployment and allows using both QAxServer and QAxContainer 
 in one project (ie. an OLE automatable application that uses COM objects 
 itself). The semantic of QAxBase::setControl() has been extended to allow 
-creating of COM objects on remote machines via DCOM, and to create controls
-requiring a license key.
+creating of COM objects on remote machines via DCOM, to create controls
+requiring a license key and to connect to already running objects.
 
 Calling of COM object methods with out-parameters of type short is now 
 supported (the parameters are of type int& in the Qt wrapper), and QVariants
@@ -72,7 +72,7 @@ Sun CC 5.0.
 ****************************************************************************
 
 - QAction
-	Added a setDislabled() slot similar to QWidget::setDisabled. Actions
+	Added a setDisabled() slot similar to QWidget::setDisabled. Actions
 	with the "text" properties including '&' and with now "menuText" set
 	explicitly encode the '&' to "&&" so that the ampersand is visible in
 	the menu.
