@@ -31,6 +31,7 @@
 #include "qbuffer.h"
 #include "qgif.h"
 #include "qregexp.h"
+#include "qdir.h"
 #include <ctype.h>
 
 // both a struct for storing stuff in and a wrapper to avoid polluting
@@ -1419,17 +1420,18 @@ QByteArray QUriDrag::localFileToUri(const QString& filename)
     QString r = filename;
 
     //check that it is an absolute file
+    if (QDir::isRelativePath(r))
+	return QByteArray();
 #ifdef Q_WS_WIN
-    if (!(r.length() > 3 && r[0].isLetter() && r[1] == ':' && (r[2] == '\\' || r[2] == '/')))
-	return QByteArray();
-    else if (r.length() == 2 && !(r[0].isLetter() && r[1] == ':'))
-	return QByteArray();
-#else
-    if (!(r.length() >= 1 && r[0] == '/'))
-	return QByteArray();
-#endif
 
-#ifdef Q_WS_WIN
+
+    bool hasHost = false;
+    // convert form network path
+    if (r.left(2) == "\\\\" || r.left(2) == "//") {
+	r.remove(0, 2);
+	hasHost = true;
+    }
+
     // Slosh -> Slash
     int slosh;
     while ( (slosh=r.indexOf('\\')) >= 0 ) {
@@ -1437,7 +1439,7 @@ QByteArray QUriDrag::localFileToUri(const QString& filename)
     }
 
     // Drive
-    if ( r[0] != '/' )
+    if ( r[0] != '/' && !hasHost)
 	r.insert(0,'/');
 
 #endif
@@ -1540,6 +1542,14 @@ QString QUriDrag::uriToLocalFile(const char* uri)
 	// Leave slash as slashes.
 #endif
     }
+#ifdef Q_WS_WIN
+    else {
+	file = uriToUnicodeUri(uri);
+	// convert to network path
+	file.insert(1, '/'); // leave as forward slashes 
+    }
+#endif
+
     return file;
 }
 
