@@ -2061,7 +2061,7 @@ QFontCache *QFontPrivate::fontCache = 0;
 
 QFontCache::QFontCache() :
     QObject(0, "global font cache"),
-    QCache<QFontStruct>(qtFontCacheMin, qtFontCacheSize),
+    QCache<QFontStruct>(qtFontCacheMin, qtFontCacheSize, FALSE),
     timer_id(0), fast(FALSE)
 {
     setAutoDelete(TRUE);
@@ -2276,9 +2276,11 @@ int QFontPrivate::getFontWeight(const QCString &weightString, bool adjustScore)
 QString QFontPrivate::key() const
 {
     if (request.rawMode)
-	return request.family.lower();
+	return request.family;
 
-    int len = (request.family.length() * 2) +
+    QString family = request.family;
+
+    int len = (family.length() * 2) +
 	      2 +  // point size
 	      1 +  // font bits
 	      1 +  // weight
