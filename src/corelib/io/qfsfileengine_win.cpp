@@ -658,43 +658,43 @@ QFSFileEnginePrivate::doStat() const
                 could_stat = (QT_STAT(QFSFileEnginePrivate::win95Name(statName), &st) != -1);
             });
         }
-	if(could_stat) {
-	    bool is_dir=false;
-	    if(file.length() >= 2
-		&& (file.at(0) == '/' && file.at(1) == '/'
-		    || file.at(0) == '\\' && file.at(1) == '\\'))
-	    {
-		// UNC - stat doesn't work for all cases (Windows bug)
-		int s = file.indexOf(file.at(0),2);
-		if(s > 0) {
-		    // "\\server\..."
-		    s = file.indexOf(file.at(0),s+1);
-		    if(s > 0) {
-			// "\\server\share\..."
-			if(file.at(s+1) != 0) {
-			    // "\\server\share\notfound"
-			} else {
-			    // "\\server\share\"
-			    is_dir=true;
-			}
-		    } else {
-			// "\\server\share"
-			is_dir=true;
-		    }
-		} else {
-		    // "\\server"
-		    is_dir=true;
-		}
-	    }
-	    if(is_dir) {
-		// looks like a UNC dir, is a dir.
-		memset(&st,0,sizeof(st));
-		st.st_mode = QT_STAT_DIR;
-		st.st_nlink = 1;
-		could_stat = true;;
-	    }
-	}
-	SetErrorMode(oldmode);
+        if(could_stat) {
+            bool is_dir=false;
+            if (file.length() >= 2
+                && (file.at(0) == '/' && file.at(1) == '/'
+                || file.at(0) == '\\' && file.at(1) == '\\'))
+            {
+                // UNC - stat doesn't work for all cases (Windows bug)
+                int s = file.indexOf(file.at(0),2);
+                if (s > 0) {
+                    // "\\server\..."
+                    s = file.indexOf(file.at(0),s+1);
+                    if (s > 0) {
+                        // "\\server\share\..."
+                        if (s == file.size() - 1) {
+                            // "\\server\share\"
+                            is_dir=true;
+                        } else {
+                            // "\\server\share\notfound" 
+                        }
+                    } else {
+                        // "\\server\share"
+                        is_dir=true;
+                    }
+                } else {
+                    // "\\server"
+                    is_dir=true;
+                }
+            }
+            if (is_dir) {
+                // looks like a UNC dir, is a dir.
+                memset(&st,0,sizeof(st));
+                st.st_mode = QT_STAT_DIR;
+                st.st_nlink = 1;
+                could_stat = true;;
+            }
+        }
+        SetErrorMode(oldmode);
     }
     return could_stat;
 }
