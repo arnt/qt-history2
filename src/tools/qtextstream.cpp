@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#76 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#77 $
 **
 ** Implementation of QTextStream class
 **
@@ -407,7 +407,7 @@ QTextStream::QTextStream( QString& str, int filemode )
     dev = new QStringBuffer( str );
     ((QStringBuffer *)dev)->open( filemode );
     owndev = TRUE;
-    setEncoding(Unicode);
+    setEncoding(RawUnicode);
     reset();
 }
 
@@ -1840,6 +1840,12 @@ void QTextStream::setEncoding( Encoding e )
 	latin1 = FALSE;
 	doUnicodeHeader = TRUE;
 	swapUnicode = TRUE; //###
+	break;
+    case RawUnicode:
+	mapper = 0;
+	latin1 = FALSE;
+	doUnicodeHeader = FALSE;
+	swapUnicode = !QChar::networkOrdered; //### FALSE
 	break;
     case Locale: {
 	latin1 = TRUE; //fallback to Latin 1
