@@ -445,7 +445,7 @@
     <include location="global" impldecl="in implementation">qlineedit.h</include>
     <include location="global" impldecl="in implementation">qsettings.h</include>
     <include location="global" impldecl="in implementation">qcheckbox.h</include>
-    <include location="global" impldecl="in declaration">qlist.h</include>
+    <include location="global" impldecl="in declaration">qptrlist.h</include>
     <include location="global" impldecl="in declaration">qguardedptr.h</include>
     <include location="global" impldecl="in declaration">qmap.h</include>
     <include location="local" impldecl="in declaration">finddialog.h</include>
