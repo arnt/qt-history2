@@ -54,7 +54,6 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
     \brief The QGL namespace contains miscellaneous identifiers used
     in the Qt OpenGL module.
 
-    \module OpenGL
     \ingroup multimedia
 */
 
@@ -94,7 +93,6 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
     rendering context.
 
     \ingroup multimedia
-    \module OpenGL
 
     A display format has several characteristics:
     \list
@@ -939,7 +937,6 @@ struct DDSFormat {
     \brief The QGLContext class encapsulates an OpenGL rendering context.
 
     \ingroup multimedia
-    \module OpenGL
 
     An OpenGL
     \footnote
@@ -1650,7 +1647,6 @@ const QGLContext* QGLContext::currentContext()
 
     \ingroup multimedia
     \mainclass
-    \module OpenGL
 
     QGLWidget provides functionality for displaying OpenGL
     \footnote

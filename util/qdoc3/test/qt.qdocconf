@@ -120,7 +120,7 @@ HTML.footer		= ""
 
 HTML.address		= "<p /><address><hr /><div align=\"center\">\n" \
 			  "<table width=\"100%\" cellspacing=\"0\" border=\"0\"><tr>\n" \
-			  "<td width=\"30%\">Copyright &copy; \$THISYEAR\$ <a href=\"troll.html\">Trolltech</a></td>\n" \
+			  "<td width=\"30%\">Copyright &copy; \$THISYEAR\$ <a href=\"trolltech.html\">Trolltech</a></td>\n" \
 			  "<td width=\"40%\" align=\"center\"><a href=\"trademarks.html\">Trademarks</a></td>\n" \
 			  "<td width=\"30%\" align=\"right\"><div align=\"right\">Qt \\version</div></td>\n" \
 			  "</tr></table></div></address>"

@@ -426,11 +426,8 @@
 */
 
 /*!
-    \fn QListIterator::~QListIterator()
     \fn QListMutableIterator::~QListMutableIterator()
-    \fn QLinkedListIterator::~QLinkedListIterator()
     \fn QLinkedListMutableIterator::~QLinkedListMutableIterator()
-    \fn QVectorIterator::~QVectorIterator()
     \fn QVectorMutableIterator::~QVectorMutableIterator()
 
     Destroys the iterator.
@@ -838,9 +835,6 @@
         }
     \endcode
 
-    QMapIterator also provides findNextKey() and findPreviousKey() to
-    find all occurrences of a particular key.
-
     Multiple iterators can be used on the same map. If the map is
     modified while a QMapIterator is active, the QMapIterator will
     continue iterating over the original map, ignoring the modified
@@ -912,9 +906,6 @@
         }
     \endcode
 
-    QHashIterator also provides findNextKey() and findPreviousKey() to
-    find all occurrences of a particular key.
-
     Multiple iterators can be used on the same hash. If the hash is
     modified while a QHashIterator is active, the QHashIterator will
     continue iterating over the original hash, ignoring the modified
@@ -985,9 +976,6 @@
 		 << i.key() << endl;
         }
     \endcode
-
-    QMapMutableIterator also provides findNextKey() and findPreviousKey()
-    to find all occurrences of a particular key.
 
     If you want to remove items as you iterate over the map, use
     remove(). If you want to modify the value of an item, use
@@ -1073,9 +1061,6 @@
         }
     \endcode
 
-    QHashMutableIterator also provides findNextKey() and findPreviousKey()
-    to find all occurrences of a particular key.
-
     If you want to remove items as you iterate over the hash, use
     remove(). If you want to modify the value of an item, use
     setValue().
@@ -1116,9 +1101,7 @@
 */
 
 /*!
-    \fn QMapIterator::~QMapIterator()
     \fn QMapMutableIterator::~QMapMutableIterator()
-    \fn QHashIterator::~QHashIterator()
     \fn QHashMutableIterator::~QHashMutableIterator()
 
     Destroys the iterator.
@@ -1309,12 +1292,11 @@
 
     Returns the value of the last item that was jumped over using one
     of the traversal functions (next(), previous(), findNext(),
-    findPrevious(), findNextKey(), findPreviousKey()).
+    findPrevious()).
 
     After a call to next() or findNext() or findNextKey(), value() is
-    equivalent to peekPrevious().value(). After a call to previous() or
-    findPrevious() or findPreviousKey(), value() is equivalent to
-    peekNext().value().
+    equivalent to peekPrevious().value(). After a call to previous()
+    or findPrevious(), value() is equivalent to peekNext().value().
 
     \sa key()
 */
@@ -1325,12 +1307,11 @@
 
     Returns the value of the last item that was jumped over using one
     of the traversal functions (next(), previous(), findNext(),
-    findPrevious(), findNextKey(), findPreviousKey()).
+    findPrevious()).
 
     After a call to next() or findNext() or findNextKey(), value() is
-    equivalent to peekPrevious().value(). After a call to previous() or
-    findPrevious() or findPreviousKey(), value() is equivalent to
-    peekNext().value().
+    equivalent to peekPrevious().value(). After a call to previous()
+    or findPrevious(), value() is equivalent to peekNext().value().
 
     \sa key(), setValue()
 */
@@ -1342,12 +1323,11 @@
 
     Returns the key of the last item that was jumped over using one
     of the traversal functions (next(), previous(), findNext(),
-    findPrevious(), findNextKey(), findPreviousKey()).
+    findPrevious()).
 
     After a call to next() or findNext() or findNextKey(), key() is
     equivalent to peekPrevious().key(). After a call to previous() or
-    findPrevious() or findPreviousKey(), key() is equivalent to
-    peekNext().key().
+    findPrevious(), key() is equivalent to peekNext().key().
 
     \sa value()
 */
@@ -1381,47 +1361,14 @@
     just before the matching item; otherwise, the iterator is
     positioned at the front of the container.
 
-    \sa findPreviousKey(), findNext()
-*/
-
-/*! \fn bool QMapIterator::findNextKey(const Key &key)
-    \fn bool QHashIterator::findNextKey(const Key &key)
-    \fn bool QMapMutableIterator::findNextKey(const Key &key)
-    \fn bool QHashMutableIterator::findNextKey(const Key &key)
-
-    Searches for \a key starting from the current iterator position
-    forward. Returns true if a (key, value) pair with key \a key is
-    found; otherwise returns false.
-
-    After the call, if \a key was found, the iterator is positioned
-    just after the matching item; otherwise, the iterator is
-    positioned at the back of the container.
-
-    \sa findPreviousKey(), findNext()
-*/
-
-/*! \fn bool QMapIterator::findPreviousKey(const Key &key)
-    \fn bool QHashIterator::findPreviousKey(const Key &key)
-    \fn bool QMapMutableIterator::findPreviousKey(const Key &key)
-    \fn bool QHashMutableIterator::findPreviousKey(const Key &key)
-
-    Searches for \a key starting from the current iterator position
-    backward. Returns true if a (key, value) pair with key \a key is
-    found; otherwise returns false.
-
-    After the call, if \a key was found, the iterator is positioned
-    just before the matching item; otherwise, the iterator is
-    positioned at the front of the container.
-
-    \sa findNextKey(), findPrevious()
+    \sa findNext()
 */
 
 /*! \fn void QMapMutableIterator::remove()
     \fn void QHashMutableIterator::remove()
 
     Removes the last item that was jumped over using one of the
-    traversal functions (next(), previous(), findNext(), findPrevious(),
-    findNextKey(), findPreviousKey()).
+    traversal functions (next(), previous(), findNext(), findPrevious()).
 
     \sa setValue()
 */
@@ -1433,7 +1380,7 @@
     one of the traversal functions with \a value.
 
     The traversal functions are next(), previous(), findNext(), and
-    findPrevious(), findNextKey(), and findPreviousKey().
+    findPrevious().
 
     \sa key(), value(), remove()
 */
