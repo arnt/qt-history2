@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtstream.h#7 $
+** $Id: //depot/qt/main/src/tools/qtstream.h#8 $
 **
 ** Definition of QTextStream class
 **
@@ -14,6 +14,7 @@
 #define QTSTREAM_H
 
 #include "qiodev.h"
+#include "qstring.h"
 #include <stdio.h>
 
 
@@ -22,7 +23,8 @@ class QTextStream				// text stream class
 public:
     QTextStream();
     QTextStream( QIODevice * );
-    QTextStream( FILE * );
+    QTextStream( QByteArray, int mode );
+    QTextStream( FILE *, int mode );
     virtual ~QTextStream();
 
     QIODevice	*device() const;		// get current stream device
@@ -72,7 +74,7 @@ public:
 	uppercase = 0x0400,			// upper-case hex output
 	showpos	  = 0x0800,			// add '+' to positive integers
 	scientific= 0x1000,			// scientific float output
-	fixed	  = 0x2000,			// fixed float output
+	fixed	  = 0x2000			// fixed float output
     };
 
     static const long basefield;		// bin | oct | dec | hex
@@ -103,7 +105,7 @@ private:
     int		 fillchar;			// fill char
     int		 fprec;				// float precision
     bool	 fstrm;				// using file stream (cheat flag)
-    bool	 owndev;			// self-created device
+    bool	 owndev;			// internally created device
 };
 
 typedef QTextStream QTS;
