@@ -1348,9 +1348,10 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	    } else {
 		uchar *b = bits;
 		int w = (image.width()*image.depth() + 7)/8;
+		int incr = w + ( (4-w) & 3 );
 		for( int y=image.height()-1; y >= 0 ; y-- ) {
 		    memcpy( b, image.scanLine( y ), w );
-		    b += w;
+		    b += incr;
 		}
 	    }
 
