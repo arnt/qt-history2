@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.7 1998/09/03 08:53:23 paul Exp $
+** $Id: porting.doc,v 1.8 1998/09/27 19:33:36 agulbra Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -152,6 +152,12 @@ much testing of its values.
 template instantiations instead.  (e.g. QCache<QPixmap> instead of
 Q_DECLARE(QCache,QPixmap).)
 
-<p> The ButtonState enum has changed.  ### TO WHAT?
+<p> The GrayText painter flag has ben removed.  use
+setPen( palette().disabled().foreground() ) instead.
+
+<p> Many previously global identifiers have been moved into our new
+namespace class, Qt (qnamespace.h).  The <code>qt/bin/qt20fix</code>
+script helps to fix the code that needs adaption.  Most code does not
+need any change.
 
 */
