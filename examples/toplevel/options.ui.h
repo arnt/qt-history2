@@ -80,13 +80,15 @@ void OptionsDialog::apply()
 	QPushButton *okButton = new QPushButton( "Close", widget );
 	connect( okButton, SIGNAL(clicked()), widget, SLOT(close()) );
 	widget->move( pos() );
-	widget->show();
     } else {
-	widget->reparent( parent, f, widget->geometry().topLeft(), TRUE );
+	widget->reparent( parent, f, widget->geometry().topLeft(), FALSE);
     }
 
     widget->setCaption( leCaption->text() );
     widget->setIcon( leIcon->text() );
+    widget->setWindowTransparency(double(slTransparency->value()) / 100);
+
+    widget->show();
 }
 
 void OptionsDialog::pickIcon()

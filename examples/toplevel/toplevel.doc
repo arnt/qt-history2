@@ -102,7 +102,8 @@
 
   \printto else
   The widget is created if it has not been created yet, or if it was
-  closed (since we use the \c WDestructiveClose flag). 
+  closed (since we use the \c WDestructiveClose flag). Note that the
+  window is not visible yet.
   \footnote The example uses QGuardedPtr to make sure that the 
   pointer is reset to zero when the widget object is destroyed 
   due to the \c WDestructiveClose flag. \endfootnote
@@ -110,11 +111,16 @@
   \printto setCaption
   If the widget has already been created the reparent() function is
   used to modify the widget's flags. The widget's geometry is not
-  changed, and the widget is shown again immediately.
+  changed, and the window is not shown again.
+
+  \printuntil show()
+  Finally the higher level properties such as the window's caption and
+  icon are set. The window transparency is set according to the slider
+  value. Note that this will only have effect on systems that support
+  this attribute for toplevel window.
 
   \printuntil }
-  Finally the higher level properties such as the window's caption and
-  icon are set.
+  Finally the window is shown with the new attributes.
 
   To build the example go to the toplevel directory
   (\c QTDIR/examples/toplevel) 
