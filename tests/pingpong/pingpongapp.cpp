@@ -65,7 +65,7 @@ PingPongApp::PingPongApp( QWidget * parent, const char * name )
 
 void PingPongApp::init()
 {
-    setCaption( "Scandinavian Pingpong Association (NPA) League Table" );
+    setCaption( "Skandinavisk Bordtennis Forbund (SBF) - Ligatabell" );
     QPixmap icon( "pingpong.xpm" );
     setIcon( icon );
 
