@@ -31,17 +31,21 @@ public:
     inline QDeepCopy( const T &t )
 	: deepcopy( t )
     {
+	deepcopy.detach();
     }
 
     inline QDeepCopy<T> &operator=( const T &t )
     {
 	deepcopy = t;
+	deepcopy.detach();
 	return *this;
     }
 
     inline operator T ()
     {
-	return deepcopy;
+	T tmp = deepcopy;
+	tmp.detach();
+	return tmp;
     }
 
 private:
