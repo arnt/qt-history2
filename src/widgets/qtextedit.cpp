@@ -1772,9 +1772,6 @@ void QTextEdit::removeSelection( int selNum )
 
 void QTextEdit::removeSelectedText( int selNum )
 {
-    if ( isReadOnly() )
-	return;
-
     QTextCursor c1 = doc->selectionStartCursor( selNum );
     c1.restoreState();
     QTextCursor c2 = doc->selectionEndCursor( selNum );
