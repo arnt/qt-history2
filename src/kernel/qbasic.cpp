@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qbasic.cpp#21 $
 **
 **  Geometry Management
 **
@@ -13,7 +13,7 @@
 #include "qlist.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#20 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#21 $");
 
 
 
@@ -678,4 +678,16 @@ bool QBasicManager::addBranch( QChain *destination, QChain *branch,
     if ( ! success )
 	warning( "QBasicManager: Couldn't add branch" );
     return success;
+}
+
+
+/*!
+  Sets the stretch factor on \a c to \a s. This stretch factor is overridden
+  by add(), so it's no point in calling this function before you add() the chain.
+  \sa add()
+*/
+
+void QBasicManager::setStretch( QChain *c, int s )
+{
+    c->setStretch( s );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.h#12 $
+** $Id: //depot/qt/main/src/kernel/qbasic.h#13 $
 **
 **   Geometry Management
 **
@@ -14,7 +14,6 @@
 
 #include "qintdict.h"
 #include "qwidget.h"
-
 
 class QChain;
 
@@ -39,12 +38,10 @@ public:
 
     bool addBranch( QChain *destination, QChain *branch, int fromIndex,
 		    int toIndex );
-
+    void setStretch( QChain*, int );
     bool doIt();
 
     void freeze( int w = 0, int h = 0 );
-    //	  void freezeH( int w = 0 );
-    //	  void freezeV( int h = 0 );
 
     QChain *xChain() {	return xC; }
     QChain *yChain() {	return yC; }

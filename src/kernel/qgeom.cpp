@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qgeom.cpp#17 $
 **
 **  Geometry Management
 **
@@ -11,9 +11,129 @@
 #include "qgeom.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#16 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#17 $");
 
 
+
+/*!
+  \class QLayout qgeom.h
+  \brief QLayout is the base class of geometry specifiers.
+
+*/
+
+
+
+/*!
+  Creates a new QLayout with main widget \a
+  parent.  \a parent may not be 0.
+
+  \a border is the number of pixels between the edge of the widget and
+  the managed children.	 \a autoBorder sets the value of defaultBorder(), which
+  is interpreted by subclasses.  If \a autoBorder is -1 the value
+  of \a border is used.
+
+  \a name is the internal object name
+
+  \sa direction()
+*/
+
+QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name )
+    : QObject( parent, name )
+{
+    topLevel = TRUE;
+    bm = new QBasicManager( parent, name );
+
+    if ( autoBorder < 0 )
+	defBorder = border;
+    else
+	defBorder = autoBorder;
+    bm->setBorder( border );
+}
+
+
+
+/*!
+  Constructs a new QLayout, within another QLayout \a parent.
+  If \a autoBorder is -1, this QLayout inherits \a parent's
+  defaultBorder(), otherwise \a autoBorder is used.
+*/
+QLayout::QLayout( QLayout *parent, int autoBorder, const char *name )
+    : QObject( parent, name )
+{
+    topLevel = FALSE;
+    bm = parent->bm;
+    if ( autoBorder == -1 )
+	defBorder =  parent->defBorder;
+    else
+	defBorder = autoBorder;
+}
+
+
+
+/*!  
+  \fn QChain *QLayout::mainVerticalChain()
+  Implement this function to return the main vertical chain.
+*/
+
+/*!  
+  \fn QChain *QLayout::mainHorizontalChain()
+  Implement this function to return the main horizontal chain.
+*/
+
+/*!
+  \fn QChain *QLayout::horChain( QLayout * )
+  This function works around a terrible case of brain damage in 
+  the C++ language definition, to provide access to mainHorizontalChain().
+ */
+
+
+/*!
+  \fn QChain *QLayout::verChain( QLayout * )
+  This function works around a terrible case of brain damage in 
+  the C++ language definition, to provide access to mainVerticalChain().
+ */
+
+
+/*!
+  \fn int QLayout::defaultBorder() const
+  Returns the default border for the geometry manager.
+*/
+
+/*!
+  \fn bool QBoxLayout::doIt()
+
+  Starts geometry management - equivalent to show() for widgets.
+*/
+
+
+/*!
+  \overload void QLayout::freeze()
+
+  This version of the method fixes the main widget at its minimum size.
+  You can also achieve this with freeze( 0, 0 );
+*/
+
+
+/*!
+  Fixes the size of the main widget and distributes the available
+  space to the child widgets, for widgets which should not be
+  resizable but where a QLayout subclass is used to set up the initial
+  geometry.
+
+  The size is adjusted to a valid value. Thus freeze(0,0) fixes the
+  widget to its minimum size.  
+*/
+
+void QLayout::freeze( int w, int h )
+{
+    if ( !topLevel ) {
+	warning( "Only top-level QBoxLayout can be frozen." );
+	return;
+    }
+    bm->freeze( w, h );
+    delete bm;
+    bm = 0;
+}
 
 /*!
   \class QBoxLayout qgeom.h
@@ -25,7 +145,6 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#16 $");
   A QBoxLayout (box for short) can contain widgets or other
   boxes.
 */
-
 
 static inline bool horz( QBasicManager::Direction dir )
 {
@@ -39,7 +158,6 @@ static inline QBasicManager::Direction perp( QBasicManager::Direction dir )
     else
 	return QBasicManager::LeftToRight;
 }
-
 
 /*!
   Creates a new QBoxLayout with direction \a d and main widget \a
@@ -57,90 +175,96 @@ static inline QBasicManager::Direction perp( QBasicManager::Direction dir )
 
 QBoxLayout::QBoxLayout( QWidget *parent, QBasicManager::Direction d,
 			int border, int autoBorder, const char *name )
-    : QObject( parent, name )
+    : QLayout( parent, border, autoBorder, name )
 {
-    topLevel = TRUE;
-    bm = new QBasicManager( parent, name );
     pristine = TRUE;
     dir = d;
 
-    if ( autoBorder < 0 )
-	defBorder = border;
-    else
-	defBorder = autoBorder;
-    bm->setBorder( border );
-
-    serChain = bm->newSerChain( d );
+    serChain = basicManager()->newSerChain( d );
     if ( horz( d )  ) {
-	bm->add( bm->xChain(), serChain );
-	parChain = bm->yChain();
+	basicManager()->add( basicManager()->xChain(), serChain );
+	parChain = basicManager()->yChain();
     } else {
-	bm->add( bm->yChain(), serChain );
-	parChain = bm->xChain();
+	basicManager()->add( basicManager()->yChain(), serChain );
+	parChain = basicManager()->xChain();
     }
 }
 
-
-
 /*!
-  \fn int QBoxLayout::defaultBorder() const
-  Returns the default border for the geometry manager.
-*/
-
-/*!
-  \fn bool QBoxLayout::doIt()
-
-  Starts geometry management - equivalent to show() for widgets.
-*/
-
-
-/*!
-  \overload void QBoxLayout::freeze()
-
-  This version of the method fixes the widget at its minimum size.
-  You can also achieve this with freeze( 0, 0 );
-*/
-
-
-/*!
-  Fixes the size of the main widget and distributes the available
-  space to the child widgets, for widgets which should not be
-  resizable but where QBoxLayout is used to set up the initial geometry.
-
-  The size is adjusted to a valid value. Thus freeze(0,0) fixes the
-  widget to its minimum size.
-*/
-
-void QBoxLayout::freeze( int w, int h )
-{
-    if ( !topLevel ) {
-	warning( "Only top-level QBoxLayout can be frozen." );
-	return;
-    }
-    bm->freeze( w, h );
-    delete bm;
-    bm = 0;
-}
-
-/*!
-  \internal
   Constructs a new box with direction \a d, within \a parent.
+  If \a autoBorder is -1, this QBoxLayout inherits \a parent's
+  defaultBorder(), otherwise \a autoBorder is used.
+
+  You then have to insert it into \a parent.
 */
-QBoxLayout::QBoxLayout(	 QBoxLayout *parent, QBasicManager::Direction d,
-			 const char *name )
-    : QObject( parent, name )
+QBoxLayout::QBoxLayout(	 QLayout *parent, QBasicManager::Direction d,
+			 int autoBorder, const char *name )
+    : QLayout( parent, autoBorder, name )
 {
-    topLevel = FALSE;
     pristine = TRUE;
     dir = d;
-    bm = parent->bm;
-    defBorder = parent->defBorder;
-    serChain = bm->newSerChain( d );
+    serChain = basicManager()->newSerChain( d );
     // parChain is perpendicular to serChain
-    parChain = bm->newParChain( perp( d ) );
+    parChain = basicManager()->newParChain( perp( d ) );
 }
 
 
+
+/*!
+  Adds \a layout to the box, with serial stretch factor \a stretch.
+
+  \warning The 
+
+  \sa addWidget(), addSpacing()
+*/
+void QBoxLayout::addLayout( QLayout *layout, int stretch )
+{
+    if ( !pristine && defaultBorder() )
+	basicManager()->addSpacing( serChain, defaultBorder(), 0, defaultBorder() );
+
+    addB( layout, stretch );
+    pristine = FALSE;
+}
+
+void QBoxLayout::addB( QLayout * l, int stretch )
+{
+    if ( horz( dir ) ) {
+	basicManager()->QBasicManager::add( parChain, verChain( l ) );
+	basicManager()->QBasicManager::add( serChain, horChain( l ),
+					    stretch );
+    } else {
+	basicManager()->QBasicManager::add( parChain, horChain( l ) );
+	basicManager()->QBasicManager::add( serChain, verChain( l ),
+					    stretch );
+    }
+}
+
+
+/*!
+  Returns the main vertical chain, so that a box can be put into
+  other boxes (or other types of QLayout.
+*/
+
+QChain * QBoxLayout::mainVerticalChain()
+{
+    if ( horz(direction()) )
+	return parChain;
+    else
+	return serChain;
+}
+
+/*!
+  Returns the main horizontal chain, so that a box can be put into
+  other boxes (or other types of QLayout.
+*/
+
+QChain * QBoxLayout::mainHorizontalChain()
+{
+    if ( horz(direction()) )
+	return serChain;
+    else
+	return parChain;
+}
 
 /*!
   Adds a non-stretchable space with size \a size.  QBoxLayout gives
@@ -151,7 +275,7 @@ QBoxLayout::QBoxLayout(	 QBoxLayout *parent, QBasicManager::Direction d,
 //###... Should perhaps replace default space?
 void QBoxLayout::addSpacing( int size )
 {
-	bm->addSpacing( serChain, size, 0, size );
+    basicManager()->addSpacing( serChain, size, 0, size );
 }
 
 /*!
@@ -163,10 +287,8 @@ void QBoxLayout::addSpacing( int size )
 //###... Should perhaps replace default space?
 void QBoxLayout::addStretch( int stretch )
 {
-    bm->addSpacing( serChain, 0, stretch );
+    basicManager()->addSpacing( serChain, 0, stretch );
 }
-
-
 
 /*!
   Limits the perpendicular dimension of the box (e.g. height if the
@@ -177,9 +299,8 @@ void QBoxLayout::addStretch( int stretch )
 */
 void QBoxLayout::addStrut( int size )
 {
-    bm->addSpacing( parChain, size, 0, 0 );
+    basicManager()->addSpacing( parChain, size, 0, 0 );
 }
-
 
 /*
   Limits the perpendicular dimension of the box (e.g. height if
@@ -188,7 +309,7 @@ void QBoxLayout::addStrut( int size )
 
   \sa addMinStrut()
 
-void QBox::addMaxStrut( int size)
+void QBoxLayout::addMaxStrut( int size)
 {
     gm->QBasicManager::addSpacing( parChain, 0, 0, size );
 }
@@ -200,7 +321,7 @@ void QBox::addMaxStrut( int size)
 
   The stretch factor applies only in the \link direction() direction
   \endlink of the QBoxLayout, and is relative to the other boxes and
-  widgets in this QBoxLayout.  Widgets and boxes with higher strech
+  widgets in this QBoxLayout.  Widgets and boxes with higher stretch
   factor grow more.
 
   If the stretch factor is 0 and nothing else in the QBoxLayout can
@@ -215,7 +336,6 @@ void QBox::addMaxStrut( int size)
   <li> \c alignCenter centers vertically in the box.
   <li> \c alignTop aligns to the top border of the box.
   <li> \c alignBottom aligns to the bottom border of the box.
-  <li> \c alignBoth aligns to both the top and bottom borders of the box.
   </ul>
 
   For vertical boxes, the possible alignments are
@@ -223,14 +343,12 @@ void QBox::addMaxStrut( int size)
   <li> \c alignCenter centers horizontally in the box.
   <li> \c alignLeft aligns to the left border of the box.
   <li> \c alignRight aligns to the right border of the box.
-  <li> \c alignBoth aligns to both the right and left borders of the box.
   </ul>
 
   Alignment only has effect if the size of the box is greater than the
-  widget's maximum size. \c alignBoth limits the maximum size of the
-  box.
+  widget's maximum size. 
 
-  \sa addNewBox(), addSpacing()
+  \sa addLayout(), addSpacing()
 */
 
 void QBoxLayout::addWidget( QWidget *widget, int stretch, alignment a )
@@ -238,107 +356,57 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, alignment a )
 
 #if defined(DEBUG)
     if ( !widget ) {
-	debug( "QBoxLayout::addWidget: widget == 0" );
+	warning( "QBoxLayout::addWidget: widget == 0" );
 	return;
     }
 
-    QBoxLayout * ancestor = this;
+    QObject * ancestor = this;
     while ( ancestor && !ancestor->isWidgetType() )
-	ancestor = (QBoxLayout *)(ancestor->parent());
+	ancestor = ((QBoxLayout*)ancestor)->parent();
     if ( !ancestor || !ancestor->isWidgetType() ) {
-	debug( "QBoxLayout::addWidget: no widget ancestor found" );
+	warning( "QBoxLayout::addWidget: no widget ancestor found" );
 	return;
     }
 
-    // ooh! a cast and then ANOTHER cast!
-    if ( (QWidget *)((QObject *)ancestor) != widget->parentWidget() ) {
-	debug( "QBoxLayout::addWidget: %s(%s) is not a child of %s(%s)",
-	       widget->name(), widget->className(),
-	       ancestor->name(), ancestor->className() );
+    if ( (QWidget *)ancestor != widget->parentWidget() ) {
+	warning( "QBoxLayout::addWidget: %s(%s) is not a child of %s(%s)",
+		 widget->name(), widget->className(),
+		 ancestor->name(), ancestor->className() );
 	return;
     }
 #endif
 
     if ( !pristine && defaultBorder() )
-	bm->addSpacing( serChain, defaultBorder(), 0, defaultBorder() );
+	basicManager()->addSpacing( serChain, defaultBorder(), 0, defaultBorder() );
 
     if ( 0/*a == alignBoth*/ ) {
-	bm->addWidget( parChain, widget, 0 );
+	basicManager()->addWidget( parChain, widget, 0 );
     } else {
 	QBasicManager::Direction d = perp( direction() );
-	QChain *sc = bm->newSerChain( d );
+	QChain *sc = basicManager()->newSerChain( d );
 	if ( a == alignCenter || a == alignBottom ) {
-	    bm->addSpacing(sc, 0);
+	    basicManager()->addSpacing(sc, 0);
 	}
-	bm->addWidget( sc, widget, 1 );
+	basicManager()->addWidget( sc, widget, 1 );
 	if ( a == alignCenter ||  a == alignTop ) {
-	    bm->addSpacing(sc, 0);
+	    basicManager()->addSpacing(sc, 0);
 	}
-	bm->add( parChain, sc );
+	basicManager()->add( parChain, sc );
     }
-    bm->addWidget( serChain, widget, stretch );
+    basicManager()->addWidget( serChain, widget, stretch );
     pristine = FALSE;
 }
 
 /*!
-  Creates a new box and adds it, with serial stretch factor \a stretch.
-  and \link addWidget alignment \endlink \a a. Returns a pointer to the new
-  box.
-
-  \sa addWidget(), addSpacing()
-*/
-QBoxLayout *QBoxLayout::addNewBox( QBasicManager::Direction d, int stretch )
-{
-    if ( !pristine && defaultBorder() )
-	bm->addSpacing( serChain, defaultBorder(), 0, defaultBorder() );
-
-    QBoxLayout *b = new QBoxLayout( this, d );
-
-#if 1
-    addB( b, stretch );
-#else
-//### duplication of logic from addWidget
-    if ( a == alignBoth ) {
-	addB( b, stretch );
-    } else {
-	QBasicManager::Direction d = perp( direction() );
-	QBoxLayout *sb = new QBoxLayout( b, d );
-	if ( a == alignCenter || a == alignBottom ) {
-	    sb->addSpacing(0);
-	}
-	sb->addB( b, 1 );
-	if ( a == alignCenter ||  a == alignTop ) {
-	    sb->addSpacing(0);
-	}
-	addB( sb, stretch );
-    }
-#endif
-    pristine = FALSE;
-    return b;
-}
-
-
-/*!
-  \fn QBasicManager::Direction QBox::direction() const
+  \fn QBasicManager::Direction QBoxLayout::direction() const
 
   Returns the (serial) direction of the box. addWidget(), addBox()
   and addSpacing() works in this direction; the stretch stretches
-  in this direction. \link QBox::addWidget Alignment \endlink
+  in this direction. \link QBoxLayout::addWidget Alignment \endlink
   works perpendicular to this direction.
   \sa addWidget(), addBox(), addSpacing()
 */
 
-
-void QBoxLayout::addB( QBoxLayout * b,	int stretch )
-{
-    if ( horz( dir ) == horz( b->dir ) ) {
-	bm->QBasicManager::add( parChain, b->parChain );
-	bm->QBasicManager::add( serChain, b->serChain, stretch );
-    } else {
-	bm->QBasicManager::add( parChain, b->serChain );
-	bm->QBasicManager::add( serChain, b->parChain, stretch );
-    }
-}
 
 
 
@@ -351,8 +419,6 @@ void QBoxLayout::addB( QBoxLayout * b,	int stretch )
   see the QBoxLayout class.
 */
 
-
-
 /*!
   Constructs a new QGridLayout with \a nRows, nCols columns
    and main widget \a  parent.  \a parent may not be 0.
@@ -363,46 +429,68 @@ void QBoxLayout::addB( QBoxLayout * b,	int stretch )
   of \a border is used.
 
   \a name is the internal object name.
-
-
 */
 
 QGridLayout::QGridLayout( QWidget *parent, int nRows, int nCols, int border ,
 			  int autoBorder , const char *name )
-    : QObject( parent, name )
+    : QLayout( parent, border, autoBorder, name )
 {
-    bm = new QBasicManager( parent, name );
+    horChain = basicManager()->newSerChain( QBasicManager::LeftToRight );
+    verChain = basicManager()->newSerChain( QBasicManager::Down );
+    basicManager()->add( basicManager()->xChain(), horChain );
+    basicManager()->add( basicManager()->yChain(), verChain );
+    init( nRows, nCols );
+}
 
-    if ( autoBorder < 0 )
-	defBorder = border;
-    else
-	defBorder = autoBorder;
-    bm->setBorder( border );
 
-    horChain = bm->newSerChain( QBasicManager::LeftToRight );
-    verChain = bm->newSerChain( QBasicManager::Down );
-    bm->add( bm->xChain(), horChain );
-    bm->add( bm->yChain(), verChain );
+
+/*!
+  Constructs a new grid with direction \a d, within \a parent.
+  If \a autoBorder is -1, this QGridLayout inherits \a parent's
+  defaultBorder(), otherwise \a autoBorder is used.
+
+  You then have to insert it into \a parent.
+*/
+QGridLayout::QGridLayout( QLayout *parent, int nRows, int nCols, 
+			   int autoBorder, const char *name )
+     : QLayout( parent, autoBorder, name )
+{
+    horChain = basicManager()->newSerChain( QBasicManager::LeftToRight );
+    verChain = basicManager()->newSerChain( QBasicManager::Down );
+    init( nRows, nCols );
+}
+
+
+
+/*!
+  Sets up the table and other internal stuff
+*/
+
+void QGridLayout::init( int nRows, int nCols )
+{
 
     rows = new QArray<QChain*> ( nRows );
     cols = new QArray<QChain*> ( nCols );
 
-
     int i;
     for ( i = 0; i< nRows; i++ ) {
 	if ( i != 0 )
-	    bm->addSpacing( verChain, defBorder, 0, defBorder );
-	(*rows)[i] = bm->newParChain( QBasicManager::Down );
-	bm->add( verChain, (*rows)[i] );
+	    basicManager()->addSpacing( verChain, defaultBorder(), 0,
+					defaultBorder() );
+	(*rows)[i] = basicManager()->newParChain( QBasicManager::Down );
+	basicManager()->add( verChain, (*rows)[i] );
     }
 
     for ( i = 0; i< nCols; i++ ) {
 	if ( i != 0 )
-	    bm->addSpacing( horChain, defBorder, 0, defBorder );
-	(*cols)[i] = bm->newParChain( QBasicManager::LeftToRight );
-	bm->add( horChain, (*cols)[i] );
+	    basicManager()->addSpacing( horChain, defaultBorder(), 0, 
+					defaultBorder() );
+	(*cols)[i] = basicManager()->newParChain( QBasicManager::LeftToRight );
+	basicManager()->add( horChain, (*cols)[i] );
     }
+    
 }
+
 
 /*!
 
@@ -436,48 +524,95 @@ void QGridLayout::addWidget( QWidget *w, int row, int col, int align )
 void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow, 
 					int fromCol, int toCol, int align  )
 {
-    int col = fromCol;
-
     const int hFlags = AlignHCenter | AlignLeft | AlignRight;
     const int vFlags = AlignVCenter | AlignTop | AlignBottom;
-
 
     int a = align & hFlags;
 
     QChain *c;
     if ( a || fromCol != toCol ) {
-	c = bm->newSerChain( QBasicManager::LeftToRight );
+	c = basicManager()->newSerChain( QBasicManager::LeftToRight );
 	if ( fromCol == toCol )
-	    bm->add( (*cols)[ fromCol ], c );
+	    basicManager()->add( (*cols)[ fromCol ], c );
 	else
-	    bm->addBranch( horChain, c, fromCol*2, toCol*2 );
+	    basicManager()->addBranch( horChain, c, fromCol*2, toCol*2 );
     }
     else
-	c =  (*cols)[ col ];
+	c =  (*cols)[ fromCol ];
 
-    if ( a ) {
-	if ( a & (AlignHCenter|AlignLeft) )
-	    bm->addSpacing( c, 0 );
-	bm->addWidget( c, w );
-	if ( a & (AlignHCenter|AlignRight) )
-	    bm->addSpacing( c, 0 );
-    } else
-	bm->addWidget( c, w );
+    if ( a & (AlignHCenter|AlignLeft) )
+	basicManager()->addSpacing( c, 0 );
+    basicManager()->addWidget( c, w );
+    if ( a & (AlignHCenter|AlignRight) )
+	basicManager()->addSpacing( c, 0 );
 
-
-    int row = fromRow;
-    if ( fromRow != toRow )
-	warning( "multi row not implemented" );
+    // vertical dimension:
     a = align & vFlags;
-    if ( a ) {
-	QChain *c = bm->newSerChain( QBasicManager::Down );
-	bm->add( (*rows)[ row ], c );
-	if ( a & (AlignVCenter|AlignTop) )
-	    bm->addSpacing( c, 0 );
-	bm->addWidget( c, w );
-	if ( a & (AlignVCenter|AlignBottom) )
-	    bm->addSpacing( c, 0 );
-    } else
-	bm->addWidget( (*rows)[ row ], w );
+    if ( a || fromRow != toRow ) {
+	c = basicManager()->newSerChain( QBasicManager::Down );
+	if ( fromRow == toRow )
+	    basicManager()->add( (*rows)[ fromRow ], c );
+	else
+	    basicManager()->addBranch( verChain, c, fromRow*2, toRow*2 );
+    }
+    else
+	c =  (*rows)[ fromRow ];
+
+    if ( a & (AlignVCenter|AlignTop) )
+	basicManager()->addSpacing( c, 0 );
+    basicManager()->addWidget( c, w );
+    if ( a & (AlignVCenter|AlignBottom) )
+	basicManager()->addSpacing( c, 0 );
 }
 
+
+
+/*!
+  Places another layout at position (\a row, \a col) in the grid.
+*/
+
+void QGridLayout::addLayout( QLayout *layout, int row, int col)
+{
+    QChain *c =  (*cols)[ col ];
+    basicManager()->add( c, QLayout::horChain( layout ) );
+
+    c =  (*rows)[ row ];
+    basicManager()->add( c, QLayout::verChain( layout ) );
+}
+
+
+
+/*!
+  Sets the stretch factor of row \a row to \a stretch.
+
+  The stretch factor  is relative to the other rows in this grid.
+  Rows with higher stretch factor take more of the available space.
+
+  If the stretch factor is 0 and no other row in this table can
+  grow at all, the row may still grow.
+
+*/
+
+void QGridLayout::setRowStretch( int row, int stretch )
+{
+    QChain *c =  (*rows)[ row ];
+    basicManager()->setStretch( c, stretch );
+}
+
+
+/*!
+  Sets the stretch factor of column \a col to \a stretch.
+
+  The stretch factor  is relative to the other columns in this grid.
+  Columns with higher stretch factor take more of the available space.
+
+  If the stretch factor is 0 and no other column in this table can
+  grow at all, the column may still grow.
+
+*/
+
+void QGridLayout::setColStretch( int col, int stretch )
+{
+    QChain *c =  (*cols)[ col ];
+    basicManager()->setStretch( c, stretch );
+}
