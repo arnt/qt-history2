@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#55 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -123,6 +123,24 @@ void QLayoutItem::setAlignment( int a )
   if nothing else wants the space.
 */
 
+
+/*!
+  Changes this spacer item to have preferred width \a w, preferred height
+  \a h, horizontal size policy \a hData and vertical size policy
+  \a vData.  
+
+  The default values gives a gap that is able to stretch,
+  if nothing else wants the space.
+*/
+void QSpacerItem::changeSize( int w, int h, QSizePolicy::SizeType hData,
+			      QSizePolicy::SizeType vData )
+{
+    width = w;
+    height = h; 
+    sizeP = QSizePolicy( hData, vData );
+}
+
+
 /*! \fn QWidgetItem::QWidgetItem (QWidget * w)
 
   Creates an item containing \a w.
@@ -148,8 +166,59 @@ void QLayoutItem::invalidate()
 }
 
 
+
+
 /*!
-  If this item consists of a single QWidget, that widget is returned.
+  If this item is a QLayout, return it as a QLayout, otherwise return 0.
+  This function provides type-safe casting.
+*/
+
+QLayout * QLayoutItem::layout()
+{
+    return 0;
+}
+
+
+
+
+/*!
+  If this item is a QSpacerItem, return it as a QSpacerItem, otherwise
+  return 0.  This function provides type-safe casting.
+
+*/
+
+QSpacerItem * QLayoutItem::spacerItem()
+{
+    return 0;
+}
+
+
+
+
+/*!
+  \reimp
+*/
+
+QLayout * QLayout::layout()
+{
+    return this;
+}
+
+
+/*!
+  \reimp
+*/
+
+QSpacerItem * QSpacerItem::spacerItem()
+{
+    return this;
+}
+
+
+
+
+/*!
+  If this item is a QWidgetItem, the managed widget is returned.
   The default implementation returns 0;
 */
 
@@ -1117,7 +1186,7 @@ bool QLayout::activate()
     QWidget *mainW = mainWidget();
     if ( !mainW ) {
 #if defined( CHECK_NULL )
-	    qWarning( "QLayout::activate(): %s \"%s\" does not have a " 
+	    qWarning( "QLayout::activate(): %s \"%s\" does not have a "
 		      "main widget.",
 		     QObject::className(), QObject::name() );
 
@@ -1453,4 +1522,5 @@ void QLayout::setAutoAdd( bool b )
 {
     autoNewChild = b;
 }
+
 

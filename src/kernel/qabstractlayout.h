@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#23 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#24 $
 **
 ** Definition of the abstract layout base class
 **
@@ -36,6 +36,8 @@ class QMenuBar;
 class QWidget;
 struct QLayoutData;
 class QLayoutItem;
+class QLayout;
+class QSpacerItem;
 
 class Q_EXPORT QGLayoutIterator : public QShared
 {
@@ -85,7 +87,9 @@ public:
 
     virtual QWidget *widget();
     virtual QLayoutIterator iterator();
-
+    virtual QLayout *layout();
+    virtual QSpacerItem *spacerItem();
+    
     int alignment() const { return align; }
     virtual void setAlignment( int a );
 protected:
@@ -96,10 +100,14 @@ protected:
 class Q_EXPORT QSpacerItem : public QLayoutItem
 {
  public:
-    QSpacerItem( int w, int h, QSizePolicy::SizeType hData=QSizePolicy::Minimum,
+    QSpacerItem( int w, int h, 
+		 QSizePolicy::SizeType hData=QSizePolicy::Minimum,
 		 QSizePolicy::SizeType vData= QSizePolicy::Minimum )
 	:width(w), height(h), sizeP(hData, vData )
 	{}
+    void changeSize( int w, int h, 
+		QSizePolicy::SizeType hData=QSizePolicy::Minimum,
+		QSizePolicy::SizeType vData=QSizePolicy::Minimum );
     QSize sizeHint() const ;
     QSize minimumSize() const ;
     QSize maximumSize() const ;
@@ -107,7 +115,8 @@ class Q_EXPORT QSpacerItem : public QLayoutItem
     bool isEmpty() const;
     void setGeometry( const QRect& );
     QRect geometry() const;
- private:
+    QSpacerItem *spacerItem();
+private:
     int width, height;
     QSizePolicy sizeP;
     QRect rect;
@@ -188,6 +197,7 @@ public:
     QSize totalMinimumSize() const;
     QSize totalMaximumSize() const;
     QSize totalSizeHint() const;
+    QLayout *layout();
 protected:
     bool  eventFilter( QObject *, QEvent * );
     void addChildLayout( QLayout *l );
