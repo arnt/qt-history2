@@ -88,7 +88,7 @@ const char * const qt_normalize_xpm[] = {
 ".#######...",
 "..........."};
 
-char * const qt_normalizeup_xpm[] = {
+const char * const qt_normalizeup_xpm[] = {
 "12 12 2 1",
 "# c #000000",
 ". c None",
@@ -517,7 +517,8 @@ bool QTitleBar::eventFilter( QObject * o, QEvent * e)
 
 void QTitleBar::enterEvent( QEvent * )
 {
-    QApplication::sendEvent( parentWidget(), new QEvent( QEvent::Leave ) );
+    QEvent e( QEvent::Leave );
+    QApplication::sendEvent( parentWidget(), &e );
 }
 
 void QTitleBar::resizeEvent( QResizeEvent * )
@@ -767,6 +768,7 @@ bool QTitleBarLabel::event( QEvent* e )
 
 void QTitleBarLabel::setActive( bool a )
 {
+    act = a;
     if ( a ) {
 	textc = atextc;
 	leftc = aleftc;
