@@ -1009,7 +1009,7 @@ QColor QColor::toHsv() const
     const float min = qMin(r, qMin(g, b));
     const float delta = max - min;
     color.ahsv.value = ushort(max * USHRT_MAX);
-    if (max == 0.0f) {
+    if (delta == 0.0f) {
         // achromatic case, hue is undefined
         color.ahsv.hue = USHRT_MAX;
         color.ahsv.saturation = 0;
