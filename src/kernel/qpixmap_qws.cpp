@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/fb/src/kernel/qpixmap_fb.cpp#2 $
+** $Id: //depot/qt/fb/src/kernel/qpixmap_qws.cpp#2 $
 **
 ** Implementation of QPixmap class for FB
 **
 ** Created : 991026
 **
-** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -13,7 +13,7 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing.
 **
 *****************************************************************************/
