@@ -1011,6 +1011,14 @@ QPrinter::PageRange QPrinter::pageRange() const
 }
 
 /*!
+  Default constructor. Provides an invalid page size
+*/
+QPrinterPageSize::QPrinterPageSize()
+  : d( 0 )
+{  
+} 
+
+/*!
   \fn QPrinterPageSize::pageSize( const QString &name )
 
   Looks up the page size that has the name \a name. The name must be a

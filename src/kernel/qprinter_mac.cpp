@@ -414,8 +414,8 @@ void QPrinter::margins(uint *top, uint *left, uint *bottom, uint *right) const
 	*right = (uint)(paperr.right - pager.right);
 }
 
-QPrinterPageSize::QPrinterPageSize( const QString &name, const QSize &size )
-    d( 0 )
+QPrinterPageSize::QPrinterPageSize( const QString &, const QSize & )
+   : d( 0 )
 {
     // ###
 }
@@ -426,20 +426,20 @@ bool QPrinterPageSize::isValid() const
     return FALSE;
 }
 
-QPrinterPageSize::QPrinterPageSize pageSize( const QString &name )
+QPrinterPageSize  QPrinterPageSize::pageSize( const QString & )
 {
     // ###
     return QPrinterPageSize();
 }
 
-QPrinterPageSize::definePageSize( const QString &name
-					 const QSize &dim )
+QPrinterPageSize QPrinterPageSize::definePageSize( const QString &,
+						   const QSize & )
 {
     // ###
     return QPrinterPageSize();
 }
 
-void QPrinterPageSize::undefinePageSize( const QString &name )
+void QPrinterPageSize::undefinePageSize( const QString & )
 {
     // ###
 }
