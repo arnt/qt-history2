@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#39 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -22,13 +22,13 @@
 #include "qfile.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#38 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#39 $");
 
 #if !defined(QT_HEADER_PS)
      // produced from qpshdr.txt
 static char *ps_header =
 "%\n"
-"% $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#38 $\n"
+"% $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#39 $\n"
 "%\n"
 "% Postscript routines for QPSPrinter class\n"
 "%\n"
@@ -558,7 +558,7 @@ static void ps_setFont( QTextStream *s, const QFont *f, QString *fonts )
     QString ps;
     int	 weight = f->weight();
     bool italic = f->italic();
-    
+
     family = family.lower();
     if ( family == "courier" ) {
 	ps = "/Courier ";
@@ -678,7 +678,7 @@ static void ps_setFont( QTextStream *s, const QFont *f, QString *fonts )
     //ps.replace( QRegExp( "/Lucida " ), "/Lucida " );
     ps.replace( QRegExp( "/AvantGarde " ), "/AvantGarde-Book " );
     ps.replace( QRegExp( "/Utopia " ), "/Utopia-Regular " );
-    
+
     QString key;
     key.sprintf( "%p %s %d", s, ps.data(), f->pointSize() );
     QString fontName;
@@ -1018,9 +1018,12 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    break;
 	}
 	case PDC_SAVE:
+	    if ( dirtyMatrix )
+		matrixSetup( paint );
 	    stream << "SV\n";
 	    break;
 	case PDC_RESTORE:
+	    dirtyMatrix = FALSE;
 	    stream << "RS\n";
 	    break;
 	case PDC_SETBKCOLOR:
