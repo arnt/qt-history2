@@ -277,6 +277,7 @@ class P4Interface : public QObject, public ActionInterface, public QLibraryInter
 
 public:
     P4Interface();
+    ~P4Interface();
 
     QUnknownInterface *queryInterface( const QUuid& );
     unsigned long addRef();
@@ -288,6 +289,7 @@ public:
     void connectTo( QUnknownInterface *ai );
 
     bool init();
+    void cleanup();
     bool canUnload() const;
 
 private slots:
@@ -326,6 +328,12 @@ P4Interface::P4Interface()
 : appInterface( 0 ), ref( 0 )
 {
     aware = TRUE;
+}
+
+P4Interface::~P4Interface()
+{
+    if ( appInterface )
+	appInterface->release();
 }
 
 QStringList P4Interface::featureList() const
@@ -772,6 +780,11 @@ unsigned long P4Interface::release()
 bool P4Interface::init()
 {
     return TRUE;
+}
+
+void P4Interface::cleanup() 
+{
+    actions.clear();
 }
 
 bool P4Interface::canUnload() const
