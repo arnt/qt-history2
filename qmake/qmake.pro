@@ -34,8 +34,7 @@ SOURCES+=qchar.cpp qstring.cpp qtextstream.cpp \
 	 qfileinfo.cpp qdatetime.cpp qlinkedlist.cpp \
 	 qstringlist.cpp qmap.cpp \
 	 qsettings.cpp qunicodetables.cpp \
-	 qlibrary.cpp qlocale.cpp \
-	 qunicodetables.cpp 
+	 qlibrary.cpp qlocale.cpp 
 
 exists($$QT_BUILD_TREE/src/tools/qconfig.cpp) {  #qconfig.cpp
     DEFINES += HAVE_QCONFIG_CPP
