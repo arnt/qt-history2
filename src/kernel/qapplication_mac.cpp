@@ -170,7 +170,7 @@ static short qt_mac_find_window( int x, int y, QWidget **w=NULL )
     p.v = y;
     WindowPtr wp;
     short ret = FindWindow(p, &wp);
-#ifndef QMAC_NO_FAKECURSOR
+#if !defined( QMAC_NO_FAKECURSOR ) && !defined( MACOSX_102 )
     if(wp && !unhandled_dialogs.find((void *)wp)) {
 	QWidget *tmp_w = QWidget::find((WId)wp);
 	if(tmp_w && !strcmp(tmp_w->className(),"QMacCursorWidget")) {
@@ -1642,7 +1642,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	qDebug("------------ Mapping modifiers and key -----------");
 #endif
 	if(modifiers & (Qt::ControlButton | Qt::AltButton | Qt::MetaButton)) {
-	    if(chr > 127)
+	    if(chr & (1 << 7))
 		chr = 0;
 	} else {  	//now get the real ascii value
 	    UInt32 tmp_mod = 0L;

@@ -56,6 +56,10 @@
 # define QMAC_DEFAULT_STYLE "QAquaStyle" //DefaultStyle
 #endif
 
+#if !defined(Q_WS_MACX) || !defined(MACOSX_102)
+# define QMAC_NO_FAKECURSOR
+#endif
+
 #undef DEBUG
 #ifdef OLD_DEBUG
 #define DEBUG OLD_DEBUG

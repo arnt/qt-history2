@@ -130,7 +130,7 @@ void updateDragMode(DragReference drag) {
 bool QDropEvent::provides(const char *fmt) const
 {
     const char *fmt2 = NULL;
-    for(int i = 0; (fmt2 = format(i)); i++ ) {
+    for(int i = 0; (fmt2 = format(i)); i++) {
 	if(!qstrnicmp(fmt, fmt2, strlen(fmt)))
 	    return TRUE;
     }
@@ -295,7 +295,7 @@ const char* QDropEvent::format(int i) const
 	    if((info >> 16) == ('QTxx' >> 16)) {
 		if(found++ != i)
 		    continue;
-		if(GetFlavorDataSize( current_dropobj, ref, info, &flavorsize) || flavorsize < 4) {
+		if(GetFlavorDataSize(current_dropobj, ref, info, &flavorsize) || flavorsize < 4) {
 		    qDebug("Failure to get ScrapFlavorSize for %s:%d %d %d", __FILE__, __LINE__, 
 			    (int)flavorsize, (int)info);
 		    return 0;
@@ -373,9 +373,9 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
     DragReference theDrag;
     QByteArray ar;
 
-    if ( (result = NewDrag(&theDrag)) ) {
+    if((result = NewDrag(&theDrag))) {
 	dragSource = 0;
-	return( !result );
+	return(!result);
     }
 
     if (!noDropCursor) {
@@ -593,7 +593,7 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler(DragTrackingMessage theMessage,
     while(widget && (!widget->acceptDrops()))
 	widget = widget->parentWidget(TRUE);
     //Dispatch events
-    if (widget && theMessage == kDragTrackingInWindow && widget == current_drag_widget ) {
+    if (widget && theMessage == kDragTrackingInWindow && widget == current_drag_widget) {
         QDragMoveEvent de(widget->mapFromGlobal(globalMouse));
 	de.setAction(current_drag_action);
 	if(macDndExtra->acceptact)
@@ -620,7 +620,7 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler(DragTrackingMessage theMessage,
 	    if(widget != current_drag_widget) {
 		QDragEnterEvent de(widget->mapFromGlobal(globalMouse));
 		de.setAction(current_drag_action);
-		QApplication::sendEvent(widget, &de );
+		QApplication::sendEvent(widget, &de);
 		macDndExtra->acceptfmt = de.isAccepted();
 		macDndExtra->acceptact = de.isActionAccepted();
 		acceptfmt = macDndExtra->acceptfmt;
@@ -633,7 +633,7 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler(DragTrackingMessage theMessage,
     //set the cursor
     const QCursor *cursor = NULL;
     if(widget && macDndExtra->acceptfmt) {
-#if 0
+#ifndef QMAC_NO_FAKECURSOR
 	if(current_drag_action == QDropEvent::Move)
 	    cursor = moveCursor;
 	else if(current_drag_action == QDropEvent::Copy)
