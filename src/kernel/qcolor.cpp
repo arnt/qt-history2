@@ -13,6 +13,7 @@
 ****************************************************************************/
 
 #include "qcolor.h"
+#include "qcolor_p.h"
 #include "qnamespace.h"
 #include "qdatastream.h"
 
