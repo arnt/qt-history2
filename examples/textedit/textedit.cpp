@@ -24,7 +24,6 @@
 #include <qfile.h>
 #include <qprinter.h>
 #include <qpaintdevicemetrics.h>
-#include <qsimplerichtext.h>
 #include <qcolordialog.h>
 #include <qpainter.h>
 #include <qlist.h>
@@ -238,7 +237,8 @@ void TextEdit::fileNew()
 
 void TextEdit::fileOpen()
 {
-    QString fn = QFileDialog::getOpenFileName(QString::null, tr("HTML-Files (*.htm *.html);;All Files (*)"), this);
+    QString fn = QFileDialog::getOpenFileName(this, tr("Open File..."),
+                                              QString(), tr("HTML-Files (*.htm *.html);;All Files (*)"));
     if (!fn.isEmpty())
         load(fn);
 }
@@ -263,7 +263,8 @@ void TextEdit::fileSaveAs()
 {
     if (!currentEditor)
         return;
-    QString fn = QFileDialog::getSaveFileName(QString::null, tr("HTML-Files (*.htm *.html);;All Files (*)"), this);
+    QString fn = QFileDialog::getSaveFileName(this, tr("Save as..."),
+                                              QString::null, tr("HTML-Files (*.htm *.html);;All Files (*)"));
     if (!fn.isEmpty()) {
         filenames.insert(currentEditor, fn);
         fileSave();
@@ -277,7 +278,7 @@ void TextEdit::filePrint()
         return;
 #ifndef QT_NO_PRINTER
     QPrinter printer(QPrinter::HighResolution);
-    printer.setFullPage(true);
+    //printer.setFullPage(true);
 
     QPrintDialog *dlg = new QPrintDialog(&printer, this);
     if (dlg->exec() == QDialog::Accepted) {
@@ -317,28 +318,6 @@ void TextEdit::filePrint()
             page++;
         } while (true);
 
-        /*
-	QSimpleRichText richText(edit->plainText(), font,
-				  edit->context(),
-				  edit->styleSheet(),
-				  edit->mimeSourceFactory(),
-				  body.height());
-	richText.setWidth(&p, body.width());
-  	QRect view(body);
-	int page = 1;
-	do {
-	    richText.draw(&p, body.left(), body.top(), view, palette());
-	    view.moveBy(0, body.height());
-	    p.translate(0 , -body.height());
-	    p.setFont(font);
-	    p.drawText(view.right() - p.fontMetrics().width(QString::number(page)),
-			view.bottom() + p.fontMetrics().ascent() + 5, QString::number(page));
-	    if (view.top()  >= richText.height())
-		break;
-	    printer.newPage();
-	    page++;
-	} while (true);
-        */
     }
     delete dlg;
 #endif
@@ -575,12 +554,8 @@ QTextEdit *TextEdit::createNewEditor(const QString &title)
     connect(edit, SIGNAL(currentCharFormatChanged(const QTextCharFormat &)),
             this, SLOT(currentCharFormatChanged(const QTextCharFormat &)));
 
-    if (!title.isEmpty())
-        tabWidget->addTab(edit, title);
-    else
-        tabWidget->addTab(edit, tr("noname"));
-
-    tabWidget->showPage(edit);
+    int tab = tabWidget->addTab(edit, title.isEmpty() ? tr("noname") : title);
+    tabWidget->setCurrentIndex(tab);
     edit->viewport()->setFocus();
 
     return edit;
