@@ -31,6 +31,7 @@ SOURCES =	mocgen.cpp \
 		..\tools\qglobal.cpp \
 		..\tools\qgvector.cpp \
 		..\tools\qiodevice.cpp \
+		..\tools\qregexp.cpp \
 		..\tools\qstring.cpp
 OBJECTS =	mocgen.obj \
 		qbuffer.obj \
@@ -43,6 +44,7 @@ OBJECTS =	mocgen.obj \
 		qglobal.obj \
 		qgvector.obj \
 		qiodevice.obj \
+		qregexp.obj \
 		qstring.obj
 SRCMOC	=	
 OBJMOC	=	
@@ -92,6 +94,7 @@ clean:
 	-del qglobal.obj
 	-del qgvector.obj
 	-del qiodevice.obj
+	-del qregexp.obj
 	-del qstring.obj
 	-del $(TARGET)
 
@@ -219,6 +222,18 @@ qiodevice.obj: ..\tools\qiodevice.cpp \
 		..\..\include\qiodevice.h \
 		..\..\include\qglobal.h
 	$(CC) -c $(CFLAGS) $(INCPATH) -Foqiodevice.obj ..\tools\qiodevice.cpp
+
+qregexp.obj: ..\tools\qregexp.cpp \
+		..\..\include\qregexp.h \
+		..\..\include\qstring.h \
+		..\..\include\qarray.h \
+		..\..\include\qgarray.h \
+		..\..\include\qshared.h \
+		..\..\include\qglobal.h \
+		..\..\include\qgeneric.h \
+		..\..\include\qdatastream.h \
+		..\..\include\qiodevice.h
+	$(CC) -c $(CFLAGS) $(INCPATH) -Foqregexp.obj ..\tools\qregexp.cpp
 
 qstring.obj: ..\tools\qstring.cpp \
 		..\..\include\qstring.h \
