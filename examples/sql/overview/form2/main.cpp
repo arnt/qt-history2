@@ -33,6 +33,8 @@ FormDialog::FormDialog()
     grid->activate();
 
     idIndex = staffCursor.index( "id" );
+    staffCursor.setTrimmed( "forename", TRUE );
+    staffCursor.setTrimmed( "surname",  TRUE );
     staffCursor.select( idIndex );
     staffCursor.first();
 
