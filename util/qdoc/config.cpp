@@ -226,7 +226,7 @@ Config::Config( int argc, char **argv )
 	if ( !matchLine(&key, &val) )
 	    break;
 
-	if ( key.contains(QChar('.')) == 1 ) {
+	if ( key.count(QChar('.')) == 1 ) {
 	    QString t = val.join( " " );
 	    aliasMap.insert( key + QString::number(numParams(t)), t );
 	} else {

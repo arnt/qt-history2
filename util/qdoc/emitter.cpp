@@ -252,7 +252,7 @@ void DocEmitter::nailDownDocs()
 		if ( !classDecl->isObsolete() ) {
 		    QString got = classDecl->headerFile();
 		    QString expected = classDecl->name().lower() + ".h";
-		    if ( expected != got && got.contains("_qws") == 0 &&
+		    if ( expected != got && got.count("_qws") == 0 &&
 			 expected != "qt.h" )
 			headerfilesynonyms.puts( (expected + " " + got + "\n")
 						.latin1() );

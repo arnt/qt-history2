@@ -779,7 +779,7 @@ static void matchDocsAndStuff( DocEmitter *emitter )
 				 " found",
 				 yyLastDecl->fullMangledName().latin1() );
 			if ( yyLastDecl->fullMangledName()
-			     .contains(QChar(':')) == 0 )
+			     .count(QChar(':')) == 0 )
 			    warning( 2, fn->location(),
 				     "(the class name appears to be missing)" );
 		    }

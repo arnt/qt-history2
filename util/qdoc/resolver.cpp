@@ -38,7 +38,7 @@ QString Resolver::href( const QString& name, const QString& text ) const
     int k = name.find( QChar('(') );
     if ( k == -1 || (name.length() >= 10 &&
 		     name[(int) name.length() - 3] == QChar('r') &&
-		     name.right(10) == *opParenParen) )
+		     name.right(10) == opParenParen) )
 	k = name.length();
 
     QString left, right, link;
