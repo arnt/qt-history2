@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#87 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#88 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#87 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#88 $");
 
 
 static const int fontFields = 14;
@@ -405,6 +405,7 @@ static void resetFontDef( QFontDef *def )	// used by initFontInfo()
     def->strikeOut     = FALSE;
     def->fixedPitch    = FALSE;
     def->hintSetByUser = FALSE;
+    def->lbearing      = -1;
     def->rbearing      = -1;
 }
 
