@@ -243,7 +243,7 @@
 void qt_init( int *, char **, QApplication::Type );
 void qt_cleanup();
 #if defined(Q_WS_X11)
-void qt_init( Display* dpy );
+void qt_init( Display* dpy, Qt::HANDLE, Qt::HANDLE );
 #endif
 
 QApplication *qApp = 0;			// global application object
@@ -603,11 +603,14 @@ QApplication::Type QApplication::type() const
 #if defined(Q_WS_X11)
 // note: #ifdef'ed stuff is NOT documented.
 /*!
-  Create an application, given an already open display.  This is
-  available only on X11.
+  Create an application, given an already open display \a dpy.  If \a visual
+  and \a colormap are non-zero, the application will use those as the default
+  Visual and Colormap contexts.
+
+  This is available only on X11.
 */
 
-QApplication::QApplication( Display* dpy )
+QApplication::QApplication( Display* dpy, HANDLE visual, HANDLE colormap )
 {
     static int aargc = 1;
     // ### a string literal is a cont char*
@@ -618,7 +621,7 @@ QApplication::QApplication( Display* dpy )
     qt_is_gui_used = TRUE;
     init_precmdline();
     // ... no command line.
-    qt_init( dpy );
+    qt_init( dpy, visual, colormap );
 
 #if defined(QT_THREAD_SUPPORT)
     qt_mutex = new QMutex(TRUE);
@@ -627,11 +630,12 @@ QApplication::QApplication( Display* dpy )
     initialize( aargc, aargv );
 }
 
-QApplication::QApplication(Display *dpy, int argc, char **argv)
+QApplication::QApplication(Display *dpy, int argc, char **argv,
+			   HANDLE visual, HANDLE colormap)
 {
     qt_is_gui_used = TRUE;
     init_precmdline();
-    qt_init(dpy);
+    qt_init(dpy, visual, colormap);
 
 #if defined(QT_THREAD_SUPPORT)
     qt_mutex = new QMutex(TRUE);

@@ -1584,7 +1584,8 @@ static Visual *find_truecolor_visual( Display *dpy, int *depth, int *ncols )
 // ### in qpaintdevice.h which then should have a static too but can't have
 // ### it because "storage class specifiers invalid in friend function
 // ### declarations" :-) Ideas anyone?
-void qt_init_internal( int *argcptr, char **argv, Display *display )
+void qt_init_internal( int *argcptr, char **argv,
+		       Display *display, Qt::HANDLE visual, Qt::HANDLE colormap )
 {
     if ( display ) {
 	// Qt part of other application
@@ -1752,34 +1753,51 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 
 	// Set X paintdevice parameters
 
-	Visual *vis = DefaultVisual(appDpy,appScreen);
-	QPaintDevice::x_appdisplay     = appDpy;
-	QPaintDevice::x_appscreen      = appScreen;
-	QPaintDevice::x_appdepth       = DefaultDepth(appDpy,appScreen);
-	QPaintDevice::x_appcells       = DisplayCells(appDpy,appScreen);
-	QPaintDevice::x_appvisual      = vis;
-	QPaintDevice::x_appdefvisual   = TRUE;
+	QPaintDevice::x_appdisplay = appDpy;
+	QPaintDevice::x_appscreen = appScreen;
+	QPaintDevice::x_appdepth = DefaultDepth(appDpy,appScreen);
+	QPaintDevice::x_appcells = DisplayCells(appDpy,appScreen);
 
-	if ( qt_visual_option == TrueColor ||	// find custom visual
+	Visual *vis;
+	if (! visual) {
+	    // use the default visual
+	    vis = DefaultVisual(appDpy,appScreen);
+	    QPaintDevice::x_appvisual = vis;
+	    QPaintDevice::x_appdefvisual = TRUE;
+	} else {
+	    // use the provided visual
+	    vis = (Visual *) visual;
+	    QPaintDevice::x_appvisual = vis;
+	    QPaintDevice::x_appdefvisual = FALSE;
+	}
+
+	if ( qt_visual_option == TrueColor ||
 	     QApplication::colorSpec() == QApplication::ManyColor ) {
+	    // find custom visual
 	    vis = find_truecolor_visual( appDpy, &QPaintDevice::x_appdepth,
 					 &QPaintDevice::x_appcells );
+
 	    QPaintDevice::x_appdefvisual =
 		(XVisualIDFromVisual(vis) ==
 		 XVisualIDFromVisual(DefaultVisual(appDpy,appScreen)));
 	    QPaintDevice::x_appvisual = vis;
 	}
 
-	if ( vis->c_class == TrueColor ) {
-	    QPaintDevice::x_appdefcolormap = QPaintDevice::x_appdefvisual;
+	if (! colormap) {
+	    if ( vis->c_class == TrueColor )
+		QPaintDevice::x_appdefcolormap = QPaintDevice::x_appdefvisual;
+	    else
+		QPaintDevice::x_appdefcolormap = !qt_cmap_option;
+
+
+	    if ( QPaintDevice::x_appdefcolormap )
+		QPaintDevice::x_appcolormap = DefaultColormap(appDpy,appScreen);
+	    else
+		QPaintDevice::x_appcolormap = XCreateColormap(appDpy, appRootWin,
+							      vis, AllocNone);
 	} else {
-	    QPaintDevice::x_appdefcolormap = !qt_cmap_option;
-	}
-	if ( QPaintDevice::x_appdefcolormap ) {
-	    QPaintDevice::x_appcolormap = DefaultColormap(appDpy,appScreen);
-	} else {
-	    QPaintDevice::x_appcolormap = XCreateColormap(appDpy, appRootWin,
-							  vis, AllocNone);
+	    QPaintDevice::x_appcolormap = colormap;
+	    QPaintDevice::x_appdefcolormap = FALSE;
 	}
 
 	// Support protocols
@@ -1995,12 +2013,12 @@ void QApplication::x11_initialize_style()
 
 void qt_init( int *argcptr, char **argv, QApplication::Type )
 {
-    qt_init_internal( argcptr, argv, 0 );
+    qt_init_internal( argcptr, argv, 0, 0, 0 );
 }
 
-void qt_init( Display *display )
+void qt_init( Display *display, Qt::HANDLE visual, Qt::HANDLE colormap )
 {
-    qt_init_internal( 0, 0, display );
+    qt_init_internal( 0, 0, display, visual, colormap );
 }
 
 

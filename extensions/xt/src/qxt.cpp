@@ -314,13 +314,14 @@ QXtApplication::QXtApplication(int& argc, char** argv,
 
 /*!
   Constructs a QApplication from the \a display of an already-initialized
-  Xt application.
+  Xt application.  If \a visual and \a colormap are non-zero, the application
+  will use those as the default Visual and Colormap contexts.
 
   Use this constructor when introducing Qt widgets into an existing
   Xt/Motif application.
 */
-QXtApplication::QXtApplication(Display *display) :
-    QApplication(display)
+QXtApplication::QXtApplication(Display *display, HANDLE visual, HANDLE colormap) :
+    QApplication(display, visual, colormap)
 {
     my_xt = FALSE;
     init();
@@ -328,8 +329,9 @@ QXtApplication::QXtApplication(Display *display) :
 }
 
 
-QXtApplication::QXtApplication(Display *display, int argc, char **argv)
-    : QApplication(display, argc, argv)
+QXtApplication::QXtApplication(Display *display, int argc, char **argv,
+			       HANDLE visual, HANDLE colormap)
+    : QApplication(display, argc, argv, visual, colormap)
 {
     my_xt = FALSE;
     init();
@@ -437,8 +439,8 @@ void QXtWidget::init(const char* name, WidgetClass widget_class,
   application.  The QXtWidget is a QWidget, so you can create
   subwidgets, layouts, etc. using Qt functionality.
 */
-QXtWidget::QXtWidget(const char* name, Widget parent, bool managed) :
-    xtw(NULL), QWidget( 0, name, WResizeNoErase )
+QXtWidget::QXtWidget(const char* name, Widget parent, bool managed)
+    : QWidget( 0, name, WResizeNoErase ), xtw(NULL)
 {
     init(name, qWidgetClass, parent, 0, 0, 0, managed);
     Arg reqargs[20];
@@ -465,8 +467,8 @@ QXtWidget::QXtWidget(const char* name, Widget parent, bool managed) :
 */
 QXtWidget::QXtWidget(const char* name, WidgetClass widget_class,
 		     QWidget *parent, ArgList args, Cardinal num_args,
-		     bool managed) :
-    xtw(NULL), QWidget( parent, name, WResizeNoErase )
+		     bool managed)
+    : QWidget( parent, name, WResizeNoErase ), xtw(NULL)
 {
     if ( !parent )
 	init(name, widget_class, 0, 0, args, num_args, managed);

@@ -226,7 +226,7 @@ protected:
 				 int, int, int, int, Qt::RasterOp, bool );
 #endif
 #if defined(Q_WS_X11)
-    friend void qt_init_internal( int *, char **, Display * );
+    friend void qt_init_internal( int *, char **, Display *, Qt::HANDLE, Qt::HANDLE );
 #endif
 
 private:

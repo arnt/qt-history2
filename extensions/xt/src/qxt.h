@@ -40,18 +40,24 @@
 
 #include <qapplication.h>
 #include <qwidget.h>
+
 #include <X11/Intrinsic.h>
+
+#ifdef Bool
+#undef Bool
+#endif // Bool
 
 class QXtApplication : public QApplication {
     Q_OBJECT
     void init();
+
 public:
     QXtApplication(int& argc, char** argv,
 	const char* appclass=0,
 	XrmOptionDescRec *options=0, int num_options=0,
 	const char** resources=0);
-    QXtApplication(Display*);
-    QXtApplication(Display *, int, char **);
+    QXtApplication(Display *, HANDLE = 0, HANDLE = 0);
+    QXtApplication(Display *, int, char **, HANDLE = 0, HANDLE = 0);
     ~QXtApplication();
 };
 

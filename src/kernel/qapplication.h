@@ -63,7 +63,7 @@ class QMutex;
 #endif
 
 // REMOVE IN 3.0 (just here for moc source compatibility)
-#define QNonBaseApplication QApplication
+// #define QNonBaseApplication QApplication
 
 class Q_EXPORT QApplication : public QObject
 {
@@ -74,8 +74,9 @@ public:
     enum Type { Tty, GuiClient, GuiServer };
     QApplication( int &argc, char **argv, Type );
 #if defined(Q_WS_X11)
-    QApplication( Display* dpy );
-    QApplication( Display *dpy, int argc, char **argv);
+    QApplication( Display* dpy, HANDLE visual = 0, HANDLE cmap = 0 );
+    QApplication( Display *dpy, int argc, char **argv,
+		  HANDLE visual = 0, HANDLE cmap= 0 );
 #endif
     virtual ~QApplication();
 
