@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#92 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#93 $
 **
 ** Definition of QIconView widget class
 **
@@ -601,6 +601,7 @@ QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after, const QSt
 void QIconViewItem::init()
 {
     if ( view ) {
+	dirty = TRUE;
 	fm = new QFontMetrics( view->font() );
 	itemViewMode = view->viewMode();
 
@@ -1083,6 +1084,7 @@ bool QIconViewItem::acceptDrop( const QMimeSource *mime ) const
 
 void QIconViewItem::rename()
 {
+    oldRect = rect();
     renameBox = new QIconViewItemLineEdit( itemText, view->viewport(), this );
     renameBox->resize( textRect().width() + fm->width( ' ' ), textRect().height() );
     view->addChild( renameBox, textRect( FALSE ).x(), textRect( FALSE ).y() );
@@ -1109,7 +1111,8 @@ void QIconViewItem::renameItem()
 
     QRect r = itemRect;
     setText( renameBox->text() );
-    view->repaintContents( r.x() - 1, r.y() - 1, r.width() + 2, r.height() + 2 );
+    view->repaintContents( oldRect.x() - 1, oldRect.y() - 1, oldRect.width() + 2, oldRect.height() + 2, FALSE );
+    view->repaintContents( r.x() - 1, r.y() - 1, r.width() + 2, r.height() + 2, FALSE );
     removeRenameBox();
 }
 
@@ -1121,7 +1124,8 @@ void QIconViewItem::cancelRenameItem()
 {
     QRect r = itemRect;
     calcRect();
-    view->repaintContents( r.x() - 1, r.y() - 1, r.width() + 2, r.height() + 2 );
+    view->repaintContents( oldRect.x() - 1, oldRect.y() - 1, oldRect.width() + 2, oldRect.height() + 2, FALSE );
+    view->repaintContents( r.x() - 1, r.y() - 1, r.width() + 2, r.height() + 2, FALSE );
 
     if ( !renameBox )
 	return;
@@ -1533,7 +1537,7 @@ QIconView::QIconView( QWidget *parent, const char *name )
     setMouseTracking( TRUE );
     viewport()->setMouseTracking( TRUE );
 
-    viewport()->setBackgroundMode( PaletteBase );
+    viewport()->setBackgroundMode( NoBackground );
     viewport()->setFocusProxy( this );
     viewport()->setFocusPolicy( QWidget::WheelFocus );
 }
@@ -1608,7 +1612,7 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
 	    d->cachedW = QMAX( d->cachedW, item->x() + item->width() );
 	    d->cachedH= QMAX( d->cachedH, item->y() + item->height() );
 
-	    d->updateTimer->start( 1, TRUE );
+	    d->updateTimer->start( 10, TRUE );
 	} else {
 	    insertInGrid( item );
 	}
@@ -1864,7 +1868,7 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 
     QIconViewItem *item = d->firstItem;
     for ( ; item; item = item->next )
-	if ( item->rect().intersects( QRect( cx, cy, cw, ch ) ) )
+	if ( item->rect().intersects( QRect( cx, cy, cw, ch ) ) && !item->dirty )
 	    item->paintItem( p );
 
     if ( ( hasFocus() || viewport()->hasFocus() ) && d->currentItem &&
@@ -1913,8 +1917,9 @@ void QIconView::alignItemsInGrid( const QSize &grid )
 		    ny * grid.height() );// + ( grid.height() - item->height() / 2 ) );
 	w = QMAX( w, item->x() + item->width() );
 	h = QMAX( h, item->y() + item->height() );
+	item->dirty = FALSE;
     }
-    
+
     resizeContents( w, h );
 }
 
@@ -1930,9 +1935,9 @@ void QIconView::alignItemsInGrid()
 	w = QMAX( w, item->width() );
 	h = QMAX( h, item->height() );
     }
-    
-    alignItemsInGrid( QSize( QMAX( d->rastX, w ), 
-			     QMAX( d->rastY, h ) ) );
+
+    alignItemsInGrid( QSize( QMAX( d->rastX + d->spacing, w ),
+			     QMAX( d->rastY + d->spacing, h ) ) );
 }
 
 /*!
@@ -2021,12 +2026,12 @@ void QIconView::selectAll( bool select )
 
 void QIconView::repaintItem( QIconViewItem *item )
 {
-    if ( !item )
+    if ( !item || item->dirty )
 	return;
 
     if ( QRect( contentsX(), contentsY(), contentsWidth(), contentsHeight() ).
 	 intersects( QRect( item->x() - 1, item->y() - 1, item->width() + 2, item->height() + 2 ) ) )
-	repaintContents( item->x() - 1, item->y() - 1, item->width() + 2, item->height() + 2 );
+	repaintContents( item->x() - 1, item->y() - 1, item->width() + 2, item->height() + 2, FALSE );
 }
 
 /*!
@@ -2097,7 +2102,7 @@ void QIconView::clear()
     d->tmpCurrentItem = 0;
     d->drawDragShade = FALSE;
 
-    viewport()->repaint( TRUE );
+    viewport()->repaint( FALSE );
 
     d->cleared = TRUE;
 }
@@ -2179,7 +2184,7 @@ void QIconView::setItemTextPos( ItemTextPos pos )
 	item->calcRect();
 
     orderItemsInGrid();
-    repaintContents( contentsX(), contentsY(), contentsWidth(), contentsHeight() );
+    repaintContents( contentsX(), contentsY(), contentsWidth(), contentsHeight(), FALSE );
 }
 
 /*!
@@ -2583,7 +2588,7 @@ void QIconView::contentsDropEvent( QDropEvent *e )
 	int h = d->currentItem->y() + d->currentItem->height() + 1;
 
 	repaintItem( d->currentItem );
-	repaintContents( r.x(), r.y(), r.width(), r.height() );
+	repaintContents( r.x(), r.y(), r.width(), r.height(), FALSE );
 
 	if ( d->selectionMode != Single ) {
 	    int dx = d->currentItem->x() - r.x();
@@ -2595,7 +2600,7 @@ void QIconView::contentsDropEvent( QDropEvent *e )
 		    QRect pr = item->rect();
 		    item->moveBy( dx, dy );
 		    repaintItem( item );
-		    repaintContents( pr.x(), pr.y(), pr.width(), pr.height() );
+		    repaintContents( pr.x(), pr.y(), pr.width(), pr.height(), FALSE );
 		    w = QMAX( w, item->x() + item->width() + 1 );
 		    h = QMAX( h, item->y() + item->height() + 1 );
 		}
@@ -2611,8 +2616,8 @@ void QIconView::contentsDropEvent( QDropEvent *e )
 	resizeContents( QMAX( contentsWidth(), w ), QMAX( contentsHeight(), h ) );
 
 	if ( fullRepaint ) {
-	    repaintContents( oldw, 0, contentsWidth() - oldw, contentsHeight() );
-	    repaintContents( 0, oldh, contentsWidth(), contentsHeight() - oldh );
+	    repaintContents( oldw, 0, contentsWidth() - oldw, contentsHeight(), FALSE );
+	    repaintContents( 0, oldh, contentsWidth(), contentsHeight() - oldh, FALSE );
 	}
 	e->acceptAction();
     } else if ( !i && e->source() != viewport() || d->cleared )
@@ -3058,6 +3063,7 @@ void QIconView::insertInGrid( QIconViewItem *item )
 	// #### make this efficient - but it's not too dramatic
 	int y = d->spacing;
 
+	item->dirty = FALSE;
 	if ( item == d->firstItem ) {
 	    makeRowLayout( item, y );
 	    return;
@@ -3073,6 +3079,7 @@ void QIconView::insertInGrid( QIconViewItem *item )
 
 	    begin = begin->next;
 	}
+	item->dirty = FALSE;
     } else {
 	QRegion r( QRect( 0, 0, QMAX( contentsWidth(), visibleWidth() ),
 			  QMAX( contentsHeight(), visibleHeight() ) ) );
@@ -3107,6 +3114,7 @@ void QIconView::insertInGrid( QIconViewItem *item )
 	
 	resizeContents( QMAX( contentsWidth(), item->x() + item->width() ),
 			QMAX( contentsHeight(), item->y() + item->height() ) );	
+	item->dirty = FALSE;
     }
 }
 
@@ -3359,6 +3367,7 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 	    // now move the items
 	    item = begin;
 	    while ( TRUE ) {
+		item->dirty = FALSE;
 		if ( item == begin )
 		    item->move( d->spacing, y + h - item->height() );
 		else
@@ -3408,6 +3417,7 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 	    i = 0;
 	    sp = 0;
 	    while ( TRUE ) {
+		item->dirty = FALSE;
 		int r = calcGridNum( item->width(), d->rastX );
 		if ( item == begin ) {
 		    if ( d->itemTextPos == Bottom )
@@ -3463,6 +3473,7 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 	    // now move the items
 	    item = begin;
 	    while ( TRUE ) {
+		item->dirty = FALSE;
 		if ( d->itemTextPos == Bottom ) {
 		    if ( item == begin )
 			item->move( x + ( w - item->width() ) / 2, d->spacing );
