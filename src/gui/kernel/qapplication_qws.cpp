@@ -1479,10 +1479,11 @@ static void init_display()
 
     qApp->setObjectName(appName);
 
-    QFont f;
-    f = QFont("helvetica", 10);
-    QApplication::setFont(f);
-
+    if (!QApplicationPrivate::app_font) {
+        QFont f;
+        f = QFont("helvetica", 10);
+        QApplication::setFont(f);
+    }
     qt_set_qws_resources();
 }
 
