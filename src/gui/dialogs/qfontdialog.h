@@ -50,7 +50,7 @@ private:
                           QWidget* parent=0, const char* name=0);
 
     QFontDialog(QWidget* parent=0, const char* name=0, bool modal=false,
-                 WFlags f=0);
+                 Qt::WFlags f=0);
     ~QFontDialog();
 
     QFont font() const;

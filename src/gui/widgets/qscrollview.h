@@ -42,7 +42,7 @@ class Q_GUI_EXPORT QScrollView : public QFrame
 #endif
 
 public:
-    QScrollView(QWidget* parent=0, const char* name=0, WFlags f=0);
+    QScrollView(QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
     ~QScrollView();
 
     enum ResizePolicy { Default, Manual, AutoOne, AutoOneFit };
@@ -140,7 +140,7 @@ public slots:
     void        setEnabled(bool enable);
 
 protected:
-    QScrollView(QScrollViewPrivate &, QWidget* parent=0, const char* name=0, WFlags f=0);
+    QScrollView(QScrollViewPrivate &, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
     virtual void drawContents(QPainter*, int cx, int cy, int cw, int ch);
     virtual void drawContentsOffset(QPainter*, int ox, int oy,
                     int cx, int cy, int cw, int ch);

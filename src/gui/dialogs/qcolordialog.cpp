@@ -120,7 +120,7 @@ struct QWellArrayData {
 
 QWellArray::QWellArray(QWidget *parent, const char * name, bool popup)
     : QGridView(parent, name,
-                 (popup ? (Qt::WStyle_Customize|Qt::WStyle_Tool|Qt::WStyle_NoBorder) : WFlags(0)))
+                 (popup ? (Qt::WStyle_Customize|Qt::WStyle_Tool|Qt::WStyle_NoBorder) : Qt::WFlags(0)))
 {
     d = 0;
     setFocusPolicy(Qt::StrongFocus);

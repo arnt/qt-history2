@@ -127,7 +127,7 @@ public:
 */
 
 QFontDialog::QFontDialog(QWidget *parent, const char *name,
-                          bool modal, WFlags f)
+                          bool modal, Qt::WFlags f)
     : QDialog(parent, name, modal, f)
 {
     setSizeGripEnabled(true);

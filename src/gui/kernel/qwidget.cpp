@@ -297,7 +297,7 @@ QWidgetPrivate::~QWidgetPrivate()
     \e{Qt Designer} (you can name a widget in \e{Qt Designer}, and
     connect() to it using the name in your code). The dumpObjectTree()
     debugging function also uses it.
-    \i \c{WFlags f = 0} (where available) sets the widget flags; the
+    \i \c{Qt::WFlags f = 0} (where available) sets the widget flags; the
     default is suitable for almost all widgets, but to get, for
     example, a top-level widget without a window system frame, you
     must use special flags.
@@ -714,7 +714,7 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
     whatever flags you want.
 */
 
-QWidget::QWidget(QWidget *parent, WFlags f)
+QWidget::QWidget(QWidget *parent, Qt::WFlags f)
     : QObject(*new QWidgetPrivate, ((parent && parent->isDesktop()) ? 0 : parent)), QPaintDevice(QInternal::Widget)
 {
     d->init(f);
@@ -724,7 +724,7 @@ QWidget::QWidget(QWidget *parent, WFlags f)
     \overload
     \obsolete
  */
-QWidget::QWidget(QWidget *parent, const char *name, WFlags f)
+QWidget::QWidget(QWidget *parent, const char *name, Qt::WFlags f)
     : QObject(*new QWidgetPrivate, ((parent && parent->isDesktop()) ? 0 : parent)), QPaintDevice(QInternal::Widget)
 {
     d->init(f);
@@ -734,7 +734,7 @@ QWidget::QWidget(QWidget *parent, const char *name, WFlags f)
 
 /*! \internal
 */
-QWidget::QWidget(QWidgetPrivate &dd, QWidget* parent, WFlags f)
+QWidget::QWidget(QWidgetPrivate &dd, QWidget* parent, Qt::WFlags f)
     : QObject(dd, ((parent && parent->isDesktop()) ? 0 : parent)), QPaintDevice(QInternal::Widget)
 {
     d->init(f);
@@ -1267,7 +1267,7 @@ QWidget *QWidget::find(WId id)
 */
 
 /*!
-    \fn WFlags QWidget::getWFlags() const
+    \fn Qt::WFlags QWidget::getWFlags() const
 
     Returns the widget flags for this this widget.
 
@@ -1277,7 +1277,7 @@ QWidget *QWidget::find(WId id)
 */
 
 /*!
-    \fn void QWidget::setWFlags(WFlags f)
+    \fn void QWidget::setWFlags(Qt::WFlags f)
 
     Sets the widget flags \a f.
 
@@ -1287,7 +1287,7 @@ QWidget *QWidget::find(WId id)
 */
 
 /*!
-    \fn void QWidget::clearWFlags(WFlags f)
+    \fn void QWidget::clearWFlags(Qt::WFlags f)
 
     Clears the widget flags \a f.
 
@@ -4365,7 +4365,7 @@ QSize QWidget::minimumSizeHint() const
 */
 
 /*!
-    \fn WFlags QWidget::testWFlags(WFlags f) const
+    \fn Qt::WFlags QWidget::testWFlags(WFlags f) const
 
     Returns the bitwise AND of the widget flags and \a f.
 
@@ -4387,7 +4387,7 @@ QSize QWidget::minimumSizeHint() const
 */
 
 /*!
-  \fn WState QWidget::testWState(WState s) const
+  \fn Qt::WState QWidget::testWState(WState s) const
   \internal
 
   Returns the bitwise AND of the widget states and \a s.
@@ -4402,7 +4402,7 @@ QSize QWidget::minimumSizeHint() const
 */
 
 /*!
-    \fn void QWidget::setWState(WState f)
+    \fn void QWidget::setWState(Qt::WState f)
 
     \internal
 
@@ -4410,7 +4410,7 @@ QSize QWidget::minimumSizeHint() const
 */
 
 /*!
-    \fn void QWidget::clearWState(WState f)
+    \fn void QWidget::clearWState(Qt::WState f)
 
     \internal
 
@@ -5773,7 +5773,7 @@ void QWidget::setParent_helper(QObject *parent)
     \sa getWFlags()
 */
 
-void QWidget::setParent(QWidget *parent, WFlags f)
+void QWidget::setParent(QWidget *parent, Qt::WFlags f)
 {
     bool resized = testAttribute(Qt::WA_Resized);
     reparent_sys(parent, f, mapToGlobal(QPoint(0, 0)), false);

@@ -197,7 +197,7 @@ QTabWidget::QTabWidget(QWidget *parent)
     Constructs a tabbed widget called \a name with parent \a parent,
     and widget flags \a f.
 */
-QTabWidget::QTabWidget(QWidget *parent, const char *name, WFlags f)
+QTabWidget::QTabWidget(QWidget *parent, const char *name, Qt::WFlags f)
     : QWidget(*new QTabWidgetPrivate, parent, f)
 {
     setObjectName(name);

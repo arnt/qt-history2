@@ -30,7 +30,7 @@ class Q_GUI_EXPORT QGroupBox : public QWidget
     Q_DECLARE_PRIVATE(QGroupBox)
 
     Q_PROPERTY(QString title READ title WRITE setTitle)
-    Q_PROPERTY(Alignment alignment READ alignment WRITE setAlignment)
+    Q_PROPERTY(Qt::Alignment alignment READ alignment WRITE setAlignment)
     Q_PROPERTY(bool flat READ isFlat WRITE setFlat)
     Q_PROPERTY(bool checkable READ isCheckable WRITE setCheckable)
     Q_PROPERTY(bool checked READ isChecked WRITE setChecked)

@@ -25,9 +25,9 @@ class Q_GUI_EXPORT QGrid : public QFrame
 {
     Q_OBJECT
 public:
-    QGrid(int n, QWidget* parent=0, const char* name=0, WFlags f = 0);
+    QGrid(int n, QWidget* parent=0, const char* name=0, Qt::WFlags f = 0);
     QGrid(int n, Qt::Orientation orient, QWidget* parent=0, const char* name=0,
-           WFlags f = 0);
+           Qt::WFlags f = 0);
 
     void setSpacing(int);
 

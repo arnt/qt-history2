@@ -777,7 +777,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
     }
 }
 
-void QWidget::reparent_sys(QWidget *parent, WFlags f, const QPoint &p, bool showIt)
+void QWidget::reparent_sys(QWidget *parent, Qt::WFlags f, const QPoint &p, bool showIt)
 {
     extern void qPRCreate(const QWidget *, Window);
 

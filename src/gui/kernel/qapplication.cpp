@@ -3279,7 +3279,7 @@ void MyApplication::commitData(QSessionManager& sm) {
 */
 
 /*!
-  \fn Qt::Alignment QApplication::horizontalAlignment(Alignment align)
+  \fn Qt::Alignment QApplication::horizontalAlignment(Qt::Alignment align)
 
   Strips out vertical alignment flags and transforms an
   alignment \a align of Qt::AlignAuto into Qt::AlignLeft or

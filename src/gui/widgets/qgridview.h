@@ -32,7 +32,7 @@ class Q_GUI_EXPORT QGridView : public QScrollView
     Q_PROPERTY(int cellHeight READ cellHeight WRITE setCellHeight)
 public:
 
-    QGridView(QWidget *parent=0, const char *name=0, WFlags f=0);
+    QGridView(QWidget *parent=0, const char *name=0, Qt::WFlags f=0);
    ~QGridView();
 
     int numRows() const;

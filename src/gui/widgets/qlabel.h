@@ -30,7 +30,7 @@ class Q_GUI_EXPORT QLabel : public QFrame
     Q_PROPERTY(Qt::TextFormat textFormat READ textFormat WRITE setTextFormat)
     Q_PROPERTY(QPixmap pixmap READ pixmap WRITE setPixmap)
     Q_PROPERTY(bool scaledContents READ hasScaledContents WRITE setScaledContents)
-    Q_PROPERTY(Alignment alignment READ alignment WRITE setAlignment)
+    Q_PROPERTY(Qt::Alignment alignment READ alignment WRITE setAlignment)
     Q_PROPERTY(int margin READ margin WRITE setMargin)
     Q_PROPERTY(int indent READ indent WRITE setIndent)
     Q_OVERRIDE(Qt::BackgroundMode backgroundMode DESIGNABLE true)
@@ -38,14 +38,14 @@ class Q_GUI_EXPORT QLabel : public QFrame
 
 public:
 #ifdef QT_COMPAT
-    QLabel(QWidget *parent, const char* name, WFlags f=0);
+    QLabel(QWidget *parent, const char* name, Qt::WFlags f=0);
     QLabel(const QString &text, QWidget *parent, const char* name,
-           WFlags f=0);
+           Qt::WFlags f=0);
     QLabel(QWidget *buddy, const QString &,
-           QWidget *parent=0, const char* name=0, WFlags f=0);
+           QWidget *parent=0, const char* name=0, Qt::WFlags f=0);
 #endif
-    QLabel(QWidget *parent=0, WFlags f=0);
-    QLabel(const QString &text, QWidget *parent=0, WFlags f=0);
+    QLabel(QWidget *parent=0, Qt::WFlags f=0);
+    QLabel(const QString &text, QWidget *parent=0, Qt::WFlags f=0);
     ~QLabel();
 
     QString text() const;

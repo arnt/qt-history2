@@ -208,7 +208,7 @@
   \sa QWidget::setWFlags() Qt::WindowFlags
 */
 
-QDialog::QDialog(QWidget *parent, WFlags f)
+QDialog::QDialog(QWidget *parent, Qt::WFlags f)
     : QWidget(*new QDialogPrivate, parent, f | Qt::WType_Dialog)
 {
 }
@@ -217,7 +217,7 @@ QDialog::QDialog(QWidget *parent, WFlags f)
     \overload
     \obsolete
 */
-QDialog::QDialog(QWidget *parent, const char *name, bool modal, WFlags f)
+QDialog::QDialog(QWidget *parent, const char *name, bool modal, Qt::WFlags f)
     : QWidget(*new QDialogPrivate, parent,
               (modal ? (f|Qt::WShowModal) : f) | Qt::WType_Dialog)
 {
@@ -229,7 +229,7 @@ QDialog::QDialog(QWidget *parent, const char *name, bool modal, WFlags f)
   \overload
   \internal
 */
-QDialog::QDialog(QDialogPrivate &dd, QWidget *parent, WFlags f)
+QDialog::QDialog(QDialogPrivate &dd, QWidget *parent, Qt::WFlags f)
     : QWidget(dd, parent, f | Qt::WType_Dialog)
 {
 }

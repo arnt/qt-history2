@@ -72,13 +72,13 @@ QCoreVariant operator*(const QCoreVariant &arg1, int multiplier);
     \l alignment defaults to Qt::AlignLeft. // ### qlocale
 */
 
-QAbstractSpinBox::QAbstractSpinBox(QWidget *parent, WFlags f)
+QAbstractSpinBox::QAbstractSpinBox(QWidget *parent, Qt::WFlags f)
     : QWidget(*new QAbstractSpinBoxPrivate, parent, f)
 {
     d->init();
 }
 
-QAbstractSpinBox::QAbstractSpinBox(QAbstractSpinBoxPrivate &dd, QWidget *parent, WFlags f)
+QAbstractSpinBox::QAbstractSpinBox(QAbstractSpinBoxPrivate &dd, QWidget *parent, Qt::WFlags f)
     : QWidget(dd, parent, f)
 {
     d->init();
@@ -253,10 +253,10 @@ Qt::Alignment QAbstractSpinBox::alignment() const
     if (d->dirty)
 	d->updateEdit();
 
-    return (Alignment)d->edit->alignment();
+    return (Qt::Alignment)d->edit->alignment();
 }
 
-void QAbstractSpinBox::setAlignment(Alignment flag)
+void QAbstractSpinBox::setAlignment(Qt::Alignment flag)
 {
     if (d->dirty)
 	d->updateEdit();

@@ -32,7 +32,7 @@ class Q_COMPAT_EXPORT QWizard : public QDialog
 
 public:
     QWizard(QWidget* parent=0, const char* name=0, bool modal=false,
-             WFlags f=0);
+             Qt::WFlags f=0);
     ~QWizard();
 
     void show();

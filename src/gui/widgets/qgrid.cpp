@@ -46,7 +46,7 @@
     rows. The widget flags \a f are passed to the QFrame constructor.
 */
 QGrid::QGrid(int n, Qt::Orientation orient, QWidget *parent, const char *name,
-              WFlags f)
+              Qt::WFlags f)
     : QFrame(parent, name, f)
 {
     int nCols, nRows;
@@ -67,7 +67,7 @@ QGrid::QGrid(int n, Qt::Orientation orient, QWidget *parent, const char *name,
     \a n specifies the number of columns. The widget flags \a f are
     passed to the QFrame constructor.
  */
-QGrid::QGrid(int n, QWidget *parent, const char *name, WFlags f)
+QGrid::QGrid(int n, QWidget *parent, const char *name, Qt::WFlags f)
     : QFrame(parent, name, f)
 {
     lay = new QGridLayout(this, -1, n, 0, 0, name);

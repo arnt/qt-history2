@@ -1249,7 +1249,7 @@ bool QGLContext::create(const QGLContext* shareContext)
 #define q q_func()
 
 QGLWidget::QGLWidget(QWidget *parent, const char *name,
-                      const QGLWidget* shareWidget, WFlags f)
+                      const QGLWidget* shareWidget, Qt::WFlags f)
     : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::WWinOwnDC | Qt::WNoAutoErase)
 {
     if (name)
@@ -1290,7 +1290,7 @@ QGLWidget::QGLWidget(QWidget *parent, const char *name,
 
 QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent,
                       const char *name, const QGLWidget* shareWidget,
-                      WFlags f)
+                      Qt::WFlags f)
     : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::WWinOwnDC | Qt::WNoAutoErase)
 {
     if (name)
@@ -1324,7 +1324,7 @@ QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent,
     \sa QGLFormat::defaultFormat(), isValid()
 */
 QGLWidget::QGLWidget(QGLContext *context, QWidget *parent,
-                      const char *name, const QGLWidget *shareWidget, WFlags f)
+                      const char *name, const QGLWidget *shareWidget, Qt::WFlags f)
     : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::WWinOwnDC | Qt::WNoAutoErase)
 {
     if (name)

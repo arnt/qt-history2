@@ -37,7 +37,7 @@ class Q_GUI_EXPORT QFrame : public QWidget
     QDOC_PROPERTY(QRect frameRect READ frameRect WRITE setFrameRect)
 
 public:
-    QFrame(QWidget* parent = 0, WFlags f = 0);
+    QFrame(QWidget* parent = 0, Qt::WFlags f = 0);
     ~QFrame();
 
     int         frameStyle()    const;
@@ -85,7 +85,7 @@ public:
     void setFrameRect(const QRect &);
 
 protected:
-    QFrame(QFramePrivate &, QWidget* parent, WFlags f = 0);
+    QFrame(QFramePrivate &, QWidget* parent, Qt::WFlags f = 0);
     void        paintEvent(QPaintEvent *);
     void        changeEvent(QEvent *);
 
@@ -99,7 +99,7 @@ private:
 
 #ifdef QT_COMPAT
 public:
-    QFrame(QWidget* parent, const char* name, WFlags f = 0);
+    QFrame(QWidget* parent, const char* name, Qt::WFlags f = 0);
 #endif
 };
 
@@ -110,7 +110,7 @@ class Q_GUI_EXPORT Q3Frame : public QFrame
     Q_PROPERTY(int margin READ margin WRITE setMargin)
 
 public:
-    Q3Frame(QWidget* parent, const char* name = 0, WFlags f = 0);
+    Q3Frame(QWidget* parent, const char* name = 0, Qt::WFlags f = 0);
     ~Q3Frame();
 #ifndef Q_QDOC
     bool        lineShapesOk()  const { return true; }

@@ -138,7 +138,7 @@ public:
     static void setReverseLayout(bool b);
     static bool reverseLayout();
 
-    static Alignment horizontalAlignment(Alignment align);
+    static Qt::Alignment horizontalAlignment(Alignment align);
 
     static bool            isEffectEnabled(Qt::UIEffect);
     static void            setEffectEnabled(Qt::UIEffect, bool enable = true);
@@ -341,7 +341,7 @@ inline QSize QApplication::globalStrut()
     return app_strut;
 }
 
-inline Qt::Alignment QApplication::horizontalAlignment(Alignment align)
+inline Qt::Alignment QApplication::horizontalAlignment(Qt::Alignment align)
 {
     align &= Qt::AlignHorizontal_Mask;
     if (align == Qt::AlignAuto) {

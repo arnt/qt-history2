@@ -462,14 +462,14 @@ void QDockWindowPrivate::place(Qt::DockWindowArea area, Qt::Orientation directio
   Tool window
  */
 
-QDockWindow::QDockWindow(QMainWindow *parent, WFlags flags)
+QDockWindow::QDockWindow(QMainWindow *parent, Qt::WFlags flags)
     : QFrame(*(new QDockWindowPrivate(parent)), parent,
              flags | Qt::WStyle_Customize | Qt::WStyle_NoBorder)
 {
     d->init();
 }
 
-QDockWindow::QDockWindow(QMainWindow *parent, Qt::DockWindowArea area, WFlags flags)
+QDockWindow::QDockWindow(QMainWindow *parent, Qt::DockWindowArea area, Qt::WFlags flags)
     : QFrame(*(new QDockWindowPrivate(parent)), parent,
              flags | Qt::WStyle_Customize | Qt::WStyle_NoBorder)
 {

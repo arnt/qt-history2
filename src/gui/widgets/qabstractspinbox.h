@@ -15,13 +15,13 @@ class Q_GUI_EXPORT QAbstractSpinBox : public QWidget
     Q_ENUMS(ButtonSymbols)
     Q_PROPERTY(bool wrapping READ wrapping WRITE setWrapping)
     Q_PROPERTY(bool tracking READ tracking WRITE setTracking)
-    Q_PROPERTY(Alignment alignment READ alignment WRITE setAlignment)
+    Q_PROPERTY(Qt::Alignment alignment READ alignment WRITE setAlignment)
     Q_PROPERTY(ButtonSymbols buttonSymbols READ buttonSymbols WRITE setButtonSymbols)
     QDOC_PROPERTY(QString text READ text)
     QDOC_PROPERTY(QString cleanText READ cleanText)
 
 public:
-    QAbstractSpinBox(QWidget *parent = 0, WFlags f = 0);
+    QAbstractSpinBox(QWidget *parent = 0, Qt::WFlags f = 0);
     ~QAbstractSpinBox();
 
     enum StepEnabledFlags { StepUpEnabled = 0x100, StepDownEnabled = 0x200 };
@@ -41,8 +41,8 @@ public:
     bool wrapping() const;
     void setWrapping(bool w);
 
-    void setAlignment(Alignment flag);
-    Alignment alignment() const;
+    void setAlignment(Qt::Alignment flag);
+    Qt::Alignment alignment() const;
 
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
@@ -73,7 +73,7 @@ private:
     Q_PRIVATE_SLOT(void editorCursorPositionChanged(int, int));
 
 protected:
-    QAbstractSpinBox(QAbstractSpinBoxPrivate &dd, QWidget *parent, WFlags f);
+    QAbstractSpinBox(QAbstractSpinBoxPrivate &dd, QWidget *parent, Qt::WFlags f);
 };
 
 #endif

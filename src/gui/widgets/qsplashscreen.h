@@ -27,7 +27,7 @@ class Q_GUI_EXPORT QSplashScreen : public QWidget
 {
     Q_OBJECT
 public:
-    QSplashScreen(const QPixmap &pixmap = QPixmap(), WFlags f = 0);
+    QSplashScreen(const QPixmap &pixmap = QPixmap(), Qt::WFlags f = 0);
     virtual ~QSplashScreen();
 
     void setPixmap(const QPixmap &pixmap);

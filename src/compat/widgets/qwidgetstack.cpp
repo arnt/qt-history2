@@ -83,7 +83,7 @@ public:
   The \a parent, \a name and \a f arguments are passed to the QFrame
   constructor.
 */
-QWidgetStack::QWidgetStack(QWidget * parent, const char *name, WFlags f)
+QWidgetStack::QWidgetStack(QWidget * parent, const char *name, Qt::WFlags f)
     : QFrame(parent, name, f)
 {
    d = new QWidgetStackPrivate;

@@ -143,7 +143,7 @@ QString QDoubleSpinBoxPrivate::delimiter = "."; // ### this should probably come
     setLineStep()
 */
 
-QSpinBox::QSpinBox(QWidget *parent, WFlags f)
+QSpinBox::QSpinBox(QWidget *parent, Qt::WFlags f)
     : QAbstractSpinBox(*new QSpinBoxPrivate, parent, f)
 {
     d->minimum = QCoreVariant(INT_MIN);
@@ -163,7 +163,7 @@ QSpinBox::QSpinBox(QWidget *parent, WFlags f)
     setLineStep()
 */
 
-QSpinBox::QSpinBox(int min, int max, int step, QWidget *parent, WFlags f)
+QSpinBox::QSpinBox(int min, int max, int step, QWidget *parent, Qt::WFlags f)
     : QAbstractSpinBox(*new QSpinBoxPrivate, parent, f)
 {
     d->minimum = QCoreVariant(qMin(min, max));
@@ -570,7 +570,7 @@ int QSpinBox::mapTextToValue(QString *txt, QValidator::State *state) const
 */
 
 
-QDoubleSpinBox::QDoubleSpinBox(QWidget *parent, WFlags f)
+QDoubleSpinBox::QDoubleSpinBox(QWidget *parent, Qt::WFlags f)
     : QAbstractSpinBox(*new QDoubleSpinBoxPrivate, parent, f)
 {
     d->minimum = QCoreVariant(-DBL_MAX);
@@ -591,7 +591,7 @@ QDoubleSpinBox::QDoubleSpinBox(QWidget *parent, WFlags f)
     precision(), setPrecision(), setLineStep()
 */
 
-QDoubleSpinBox::QDoubleSpinBox(double min, double max, double step, int prec, QWidget *parent, WFlags f)
+QDoubleSpinBox::QDoubleSpinBox(double min, double max, double step, int prec, QWidget *parent, Qt::WFlags f)
     : QAbstractSpinBox(*new QDoubleSpinBoxPrivate, parent, f)
 {
     d->minimum = QCoreVariant(qMin(min, max));

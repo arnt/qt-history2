@@ -27,7 +27,7 @@ class Q_COMPAT_EXPORT Q3GroupBox : public QWidget
     Q_DECLARE_PRIVATE(Q3GroupBox)
 
     Q_PROPERTY(QString title READ title WRITE setTitle)
-    Q_PROPERTY(Alignment alignment READ alignment WRITE setAlignment)
+    Q_PROPERTY(Qt::Alignment alignment READ alignment WRITE setAlignment)
     Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation DESIGNABLE false)
     Q_PROPERTY(int columns READ columns WRITE setColumns DESIGNABLE false)
     Q_PROPERTY(bool flat READ isFlat WRITE setFlat)

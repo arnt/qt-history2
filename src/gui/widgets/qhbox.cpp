@@ -46,7 +46,7 @@
     The parent, name and widget flags, \a f, are passed to the QFrame
     constructor.
 */
-QHBox::QHBox(QWidget *parent, const char *name, WFlags f)
+QHBox::QHBox(QWidget *parent, const char *name, Qt::WFlags f)
     :QFrame(parent, name, f)
 {
     lay = new QHBoxLayout(this, frameWidth(), frameWidth(), name);
@@ -64,7 +64,7 @@ QHBox::QHBox(QWidget *parent, const char *name, WFlags f)
     QFrame constructor.
 */
 
-QHBox::QHBox(bool horizontal, QWidget *parent , const char *name, WFlags f)
+QHBox::QHBox(bool horizontal, QWidget *parent , const char *name, Qt::WFlags f)
     :QFrame(parent, name, f)
 {
     lay = new QBoxLayout(this,

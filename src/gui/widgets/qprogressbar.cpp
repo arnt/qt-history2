@@ -70,7 +70,7 @@
     \sa setTotalSteps()
 */
 
-QProgressBar::QProgressBar(QWidget *parent, const char *name, WFlags f)
+QProgressBar::QProgressBar(QWidget *parent, const char *name, Qt::WFlags f)
     : QFrame(parent, name, f),
       total_steps(100),
       progress_val(-1),
@@ -101,7 +101,7 @@ QProgressBar::QProgressBar(QWidget *parent, const char *name, WFlags f)
 */
 
 QProgressBar::QProgressBar(int totalSteps,
-                            QWidget *parent, const char *name, WFlags f)
+                            QWidget *parent, const char *name, Qt::WFlags f)
     : QFrame(parent, name, f),
       total_steps(totalSteps),
       progress_val(-1),

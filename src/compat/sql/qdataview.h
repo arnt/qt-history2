@@ -30,7 +30,7 @@ class Q_COMPAT_EXPORT QDataView : public QWidget
     Q_OBJECT
 
 public:
-    QDataView(QWidget* parent=0, const char* name=0, WFlags fl = 0);
+    QDataView(QWidget* parent=0, const char* name=0, Qt::WFlags fl = 0);
     ~QDataView();
 
     virtual void setForm(QSqlForm* form);

@@ -66,7 +66,7 @@
     The \a parent, \a name and widget flag, \a f, arguments are passed
     to the QScrollView constructor.
 */
-QGridView::QGridView(QWidget *parent, const char *name, WFlags f)
+QGridView::QGridView(QWidget *parent, const char *name, Qt::WFlags f)
     :QScrollView(parent, name, f | Qt::WStaticContents),
      nrows(5), ncols(5), cellw(12), cellh(12)
 {

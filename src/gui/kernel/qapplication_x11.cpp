@@ -432,10 +432,10 @@ extern void qt_create_std_palette();
 class QETWidget : public QWidget                // event translator widget
 {
 public:
-    void setWState(WState f)                { QWidget::setWState(f); }
-    void clearWState(WState f)        { QWidget::clearWState(f); }
-    void setWFlags(WFlags f)                { QWidget::setWFlags(f); }
-    void clearWFlags(WFlags f)        { QWidget::clearWFlags(f); }
+    void setWState(Qt::WState f)                { QWidget::setWState(f); }
+    void clearWState(Qt::WState f)        { QWidget::clearWState(f); }
+    void setWFlags(Qt::WFlags f)                { QWidget::setWFlags(f); }
+    void clearWFlags(Qt::WFlags f)        { QWidget::clearWFlags(f); }
     bool translateMouseEvent(const XEvent *);
     bool translateKeyEventInternal(const XEvent *, int& count, QString& text, int& state, int &code,
                                     QEvent::Type &type, bool willRepeat=false);

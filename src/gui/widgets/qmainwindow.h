@@ -15,7 +15,7 @@ class Q_GUI_EXPORT QMainWindow : public QWidget
     Q_DECLARE_PRIVATE(QMainWindow);
 
 public:
-    QMainWindow(QWidget *parent = 0, WFlags flags = 0);
+    QMainWindow(QWidget *parent = 0, Qt::WFlags flags = 0);
     ~QMainWindow();
 
     QMenuBar *menuBar() const;

@@ -40,10 +40,10 @@ class Q_GUI_EXPORT QProgressDialog : public QDialog
 
 public:
     QProgressDialog(QWidget* parent=0, const char* name=0, bool modal=false,
-                     WFlags f=0);
+                     Qt::WFlags f=0);
     QProgressDialog(const QString& labelText, const QString &cancelButtonText,
                      int totalSteps, QWidget* parent=0, const char* name=0,
-                     bool modal=false, WFlags f=0);
+                     bool modal=false, Qt::WFlags f=0);
     ~QProgressDialog();
 
     void setLabel(QLabel *);

@@ -36,8 +36,8 @@ class Q_GUI_EXPORT QDialog : public QWidget
     Q_PROPERTY(bool modal READ isModal WRITE setModal)
 
 public:
-    QDialog(QWidget *parent, WFlags f = 0);
-    QDialog(QWidget *parent, const char *name, bool modal=false, WFlags f=0); // deprecated
+    QDialog(QWidget *parent, Qt::WFlags f = 0);
+    QDialog(QWidget *parent, const char *name, bool modal=false, Qt::WFlags f=0); // deprecated
     ~QDialog();
 
     enum DialogCode { Rejected, Accepted };
@@ -76,7 +76,7 @@ protected slots:
     void showExtension(bool);
 
 protected:
-    QDialog(QDialogPrivate &, QWidget *parent, WFlags f = 0);
+    QDialog(QDialogPrivate &, QWidget *parent, Qt::WFlags f = 0);
 
     void setResult(int r);
     void keyPressEvent(QKeyEvent *);

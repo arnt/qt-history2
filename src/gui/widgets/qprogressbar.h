@@ -36,8 +36,8 @@ class Q_GUI_EXPORT QProgressBar : public QFrame
     Q_PROPERTY(bool percentageVisible READ percentageVisible WRITE setPercentageVisible)
 
 public:
-    QProgressBar(QWidget* parent=0, const char* name=0, WFlags f=0);
-    QProgressBar(int totalSteps, QWidget* parent=0, const char* name=0, WFlags f=0);
+    QProgressBar(QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
+    QProgressBar(int totalSteps, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
 
     int                totalSteps() const;
     int                progress()   const;

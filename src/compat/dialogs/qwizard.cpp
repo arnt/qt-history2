@@ -137,7 +137,7 @@ public:
 */
 
 QWizard::QWizard(QWidget *parent, const char *name, bool modal,
-                  WFlags f)
+                  Qt::WFlags f)
     : QDialog(parent, name, modal, f)
 {
     d = new QWizardPrivate();

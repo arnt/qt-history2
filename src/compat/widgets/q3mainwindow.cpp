@@ -798,7 +798,7 @@ void QHideToolTip::maybeTip(const QPoint &pos)
     f to 0.
 */
 
-Q3MainWindow::Q3MainWindow(QWidget * parent, const char * name, WFlags f)
+Q3MainWindow::Q3MainWindow(QWidget * parent, const char * name, Qt::WFlags f)
     : QWidget(*new Q3MainWindowPrivate, parent, f)
 {
     setObjectName(name);

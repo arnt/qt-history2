@@ -39,7 +39,7 @@ class Q_GUI_EXPORT QLineEdit : public QWidget
     Q_PROPERTY(EchoMode echoMode READ echoMode WRITE setEchoMode)
     Q_PROPERTY(QString displayText READ displayText)
     Q_PROPERTY(int cursorPosition READ cursorPosition WRITE setCursorPosition)
-    Q_PROPERTY(Alignment alignment READ alignment WRITE setAlignment)
+    Q_PROPERTY(Qt::Alignment alignment READ alignment WRITE setAlignment)
     Q_PROPERTY(bool modified READ isModified)
     Q_PROPERTY(bool hasSelectedText READ hasSelectedText)
     Q_PROPERTY(QString selectedText READ selectedText)

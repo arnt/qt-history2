@@ -301,10 +301,10 @@ extern "C" LRESULT CALLBACK QtWndProc(HWND, UINT, WPARAM, LPARAM);
 class QETWidget : public QWidget                // event translator widget
 {
 public:
-    void        setWFlags(WFlags f)        { QWidget::setWFlags(f); }
-    void        clearWFlags(WFlags f) { QWidget::clearWFlags(f); }
-    void        setWState(WState f)        { QWidget::setWState(f); }
-    void        clearWState(WState f) { QWidget::clearWState(f); }
+    void        setWFlags(Qt::WFlags f)        { QWidget::setWFlags(f); }
+    void        clearWFlags(Qt::WFlags f) { QWidget::clearWFlags(f); }
+    void        setWState(Qt::WState f)        { QWidget::setWState(f); }
+    void        clearWState(Qt::WState f) { QWidget::clearWState(f); }
     QWExtra    *xtra()                        { return d->extraData(); }
     bool        winEvent(MSG *m)        { return QWidget::winEvent(m); }
     void        markFrameStrutDirty()        { data->fstrut_dirty = 1; }

@@ -18,8 +18,8 @@ class Q_GUI_EXPORT QSpinBox : public QAbstractSpinBox
 
 
 public:
-    QSpinBox(QWidget *parent = 0, WFlags f = 0);
-    QSpinBox(int min, int max, int step = 1, QWidget *parent = 0, WFlags f = 0);
+    QSpinBox(QWidget *parent = 0, Qt::WFlags f = 0);
+    QSpinBox(int min, int max, int step = 1, QWidget *parent = 0, Qt::WFlags f = 0);
 #ifdef QT_COMPAT
     QSpinBox(QWidget *parent, const char *name);
     QSpinBox(int min, int max, int step, QWidget *parent, const char *name);
@@ -87,8 +87,8 @@ class Q_GUI_EXPORT QDoubleSpinBox : public QAbstractSpinBox
 
 
 public:
-    QDoubleSpinBox(QWidget *parent = 0, WFlags f = 0);
-    QDoubleSpinBox(double min, double max, double step = 1, int prec = 0, QWidget *parent = 0, WFlags f = 0);
+    QDoubleSpinBox(QWidget *parent = 0, Qt::WFlags f = 0);
+    QDoubleSpinBox(double min, double max, double step = 1, int prec = 0, QWidget *parent = 0, Qt::WFlags f = 0);
 
     double value() const;
 

@@ -81,7 +81,7 @@ class QViewportWidget : public QWidget
     Q_OBJECT
 
 public:
-    QViewportWidget(QScrollView* parent=0, const char* name=0, WFlags f = 0)
+    QViewportWidget(QScrollView* parent=0, const char* name=0, Qt::WFlags f = 0)
         : QWidget(parent, name, f) {}
 };
 
@@ -90,7 +90,7 @@ class QClipperWidget : public QWidget
     Q_OBJECT
 
 public:
-    QClipperWidget(QWidget * parent=0, const char * name=0, WFlags f=0)
+    QClipperWidget(QWidget * parent=0, const char * name=0, Qt::WFlags f=0)
         : QWidget (parent,name,f) {}
 };
 
@@ -102,7 +102,7 @@ QScrollViewPrivate::QScrollViewPrivate(): QFramePrivate()
 
 void QScrollViewPrivate::init()
 {
-    WFlags f = q->getWFlags();
+    Qt::WFlags f = q->getWFlags();
     flags = Qt::WResizeNoErase | (f&Qt::WPaintClever) | (f&Qt::WNoAutoErase) | (f&Qt::WStaticContents);
     hbar = new QScrollBar(QScrollBar::Horizontal, q, "qt_hbar");
     vbar = new QScrollBar(QScrollBar::Vertical, q, "qt_vbar");
@@ -544,7 +544,7 @@ void QScrollViewPrivate::viewportResized(int w, int h)
     widget flags are propagated to the parent constructor as usual.
 */
 
-QScrollView::QScrollView(QWidget *parent, const char *name, WFlags f) :
+QScrollView::QScrollView(QWidget *parent, const char *name, Qt::WFlags f) :
     QFrame(*new QScrollViewPrivate, parent, f & (~Qt::WStaticContents) & (~Qt::WNoAutoErase))
 {
     if (name)
@@ -553,7 +553,7 @@ QScrollView::QScrollView(QWidget *parent, const char *name, WFlags f) :
 }
 
 /*! \internal */
-QScrollView::QScrollView(QScrollViewPrivate &dd, QWidget* parent, const char* name, WFlags f) :
+QScrollView::QScrollView(QScrollViewPrivate &dd, QWidget* parent, const char* name, Qt::WFlags f) :
     QFrame(dd, parent, f & (~Qt::WStaticContents) & (~Qt::WNoAutoErase))
 {
     if (name)
@@ -1265,7 +1265,7 @@ void QScrollView::setCornerWidget(QWidget* corner)
         d->corner = corner;
 
         if (corner && corner->parentWidget() != this) {
-            // #### No clean way to get current WFlags
+            // #### No clean way to get current Qt::WFlags
             corner->setParent(this, (((QScrollView*)corner))->getWFlags());
         }
 

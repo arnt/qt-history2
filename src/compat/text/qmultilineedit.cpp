@@ -363,7 +363,7 @@ QPoint QMultiLineEdit::cursorPoint() const
 
   \sa Qt::AlignmentFlags
 */
-void QMultiLineEdit::setAlignment(Alignment flag)
+void QMultiLineEdit::setAlignment(Qt::Alignment flag)
 {
     if (flag == Qt::AlignCenter)
         flag = Qt::AlignHCenter;

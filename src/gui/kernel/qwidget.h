@@ -163,8 +163,8 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
 
 
 public:
-    QWidget(QWidget* parent = 0, WFlags f = 0);
-    QWidget(QWidget* parent, const char *name, WFlags f = 0); // deprecated
+    QWidget(QWidget* parent = 0, Qt::WFlags f = 0);
+    QWidget(QWidget* parent, const char *name, Qt::WFlags f = 0); // deprecated
     ~QWidget();
 
     WId winId() const;
@@ -415,7 +415,7 @@ public:
     void updateGeometry();
 
     inline void setParent(QWidget *parent) { setParent_helper(parent); }
-    void setParent(QWidget *parent, WFlags f);
+    void setParent(QWidget *parent, Qt::WFlags f);
 
     void scroll(int dx, int dy);
     void scroll(int dx, int dy, const QRect&);
@@ -445,8 +445,8 @@ public:
 
     QWidget *parentWidget() const;
 
-    WState testWState(WState s) const;
-    WFlags testWFlags(WFlags f) const;
+    Qt::WState testWState(WState s) const;
+    Qt::WFlags testWFlags(WFlags f) const;
     static QWidget *find(WId);
     static QWidgetMapper *wmapper();
 
@@ -535,26 +535,26 @@ protected:
     void destroy(bool destroyWindow = true,
                  bool destroySubWindows = true);
 
-    WState getWState() const;
-    void setWState(WState f);
-    void clearWState(WState f);
+    Qt::WState getWState() const;
+    void setWState(Qt::WState f);
+    void clearWState(Qt::WState f);
 
-    inline WFlags getWFlags() const;
-    void setWFlags(WFlags f);
-    void clearWFlags(WFlags f);
+    inline Qt::WFlags getWFlags() const;
+    void setWFlags(Qt::WFlags f);
+    void clearWFlags(Qt::WFlags f);
 
     virtual bool focusNextPrevChild(bool next);
 
     void setMicroFocusHint(int x, int y, int w, int h, bool text=true, QFont *f = 0);
 
 protected:
-    QWidget(QWidgetPrivate &d, QWidget* parent, WFlags f);
+    QWidget(QWidgetPrivate &d, QWidget* parent, Qt::WFlags f);
 private:
     void setWinId(WId);
     void showChildren(bool spontaneous);
     void hideChildren(bool spontaneous);
     void setParent_helper(QObject *parent);
-    void reparent_sys(QWidget *parent, WFlags, const QPoint &,  bool showIt);
+    void reparent_sys(QWidget *parent, Qt::WFlags, const QPoint &,  bool showIt);
     void deactivateWidgetCleanup();
     void setGeometry_sys(int, int, int, int, bool);
     void show_helper();
@@ -628,11 +628,11 @@ public:
     QT_COMPAT QRect visibleRect() const;
     inline QT_COMPAT void iconify() { showMinimized(); }
     inline QT_COMPAT void constPolish() const { ensurePolished(); }
-    inline QT_COMPAT void reparent(QWidget *parent, WFlags f, const QPoint &p, bool showIt=false)
+    inline QT_COMPAT void reparent(QWidget *parent, Qt::WFlags f, const QPoint &p, bool showIt=false)
     { setParent(parent, f); move(p); if (showIt) show(); }
     inline QT_COMPAT void reparent(QWidget *parent, const QPoint &p, bool showIt=false)
     { setParent(parent, getWFlags() & ~Qt::WType_Mask); move(p); if (showIt) show(); }
-    inline QT_COMPAT void recreate(QWidget *parent, WFlags f, const QPoint & p, bool showIt=false)
+    inline QT_COMPAT void recreate(QWidget *parent, Qt::WFlags f, const QPoint & p, bool showIt=false)
     { setParent(parent, f); move(p); if (showIt) show(); }
     inline QT_COMPAT bool hasMouse() const { return testAttribute(Qt::WA_UnderMouse); }
 #ifndef QT_NO_CURSOR
@@ -738,10 +738,10 @@ template <> inline QWidget *qt_cast<QWidget*>(const QObject *o)
 }
 #endif
 
-inline Qt::WState QWidget::testWState(WState s) const
+inline Qt::WState QWidget::testWState(Qt::WState s) const
 { return QFlag(data->widget_state & s); }
 
-inline Qt::WFlags QWidget::testWFlags(WFlags f) const
+inline Qt::WFlags QWidget::testWFlags(Qt::WFlags f) const
 { return QFlag(data->widget_flags & f); }
 
 inline WId QWidget::winId() const
@@ -846,19 +846,19 @@ inline QWidgetMapper *QWidget::wmapper()
 inline Qt::WState QWidget::getWState() const
 { return QFlag(data->widget_state); }
 
-inline void QWidget::setWState(WState f)
+inline void QWidget::setWState(Qt::WState f)
 { data->widget_state |= f; }
 
-inline void QWidget::clearWState(WState f)
+inline void QWidget::clearWState(Qt::WState f)
 { data->widget_state &= ~f; }
 
 inline Qt::WFlags QWidget::getWFlags() const
 { return QFlag(data->widget_flags); }
 
-inline void QWidget::setWFlags(WFlags f)
+inline void QWidget::setWFlags(Qt::WFlags f)
 { data->widget_flags |= f; }
 
-inline void QWidget::clearWFlags(WFlags f)
+inline void QWidget::clearWFlags(Qt::WFlags f)
 { data->widget_flags &= ~f; }
 
 inline void QWidget::setSizePolicy(QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw)

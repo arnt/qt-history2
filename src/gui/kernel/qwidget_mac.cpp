@@ -999,7 +999,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
     setWinId(0);
 }
 
-void QWidget::reparent_sys(QWidget *parent, WFlags f, const QPoint &p, bool showIt)
+void QWidget::reparent_sys(QWidget *parent, Qt::WFlags f, const QPoint &p, bool showIt)
 {
     QCursor oldcurs;
     bool setcurs=testAttribute(Qt::WA_SetCursor);

@@ -41,7 +41,7 @@ public:
     QMessageBox(const QString& caption, const QString &text, Icon icon,
                  int button0, int button1, int button2,
                  QWidget* parent=0, const char* name=0, bool modal=true,
-                 WFlags f=Qt::WStyle_DialogBorder );
+                 Qt::WFlags f=Qt::WStyle_DialogBorder );
     ~QMessageBox();
 
     enum { NoButton = 0, Ok = 1, Cancel = 2, Yes = 3, No = 4, Abort = 5,

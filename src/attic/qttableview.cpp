@@ -140,7 +140,7 @@ void QCornerSquare::paintEvent(QPaintEvent *)
 
 */
 
-QtTableView::QtTableView(QWidget *parent, const char *name, WFlags f)
+QtTableView::QtTableView(QWidget *parent, const char *name, Qt::WFlags f)
     : QFrame(parent, name, f)
 {
     nRows                 = nCols      = 0;        // zero rows/cols

@@ -100,7 +100,7 @@ public:
 */
 
 QInputDialog::QInputDialog(const QString &label, QWidget* parent,
-                            const char* name, bool modal, Type type, WFlags f)
+                            const char* name, bool modal, Type type, Qt::WFlags f)
     : QDialog(parent, name, modal, f)
 {
     d = new QInputDialogPrivate;
@@ -268,7 +268,7 @@ QInputDialog::~QInputDialog()
 
 QString QInputDialog::getText(const QString &caption, const QString &label,
                                QLineEdit::EchoMode mode, const QString &text,
-                               bool *ok, QWidget *parent, const char *name, WFlags f)
+                               bool *ok, QWidget *parent, const char *name, Qt::WFlags f)
 {
     QInputDialog *dlg = new QInputDialog(label, parent,
                                           name ? name : "qt_inputdlg_gettext",
@@ -326,7 +326,7 @@ QString QInputDialog::getText(const QString &caption, const QString &label,
 
 int QInputDialog::getInteger(const QString &caption, const QString &label,
                               int value, int minValue, int maxValue, int step, bool *ok,
-                              QWidget *parent, const char *name, WFlags f)
+                              QWidget *parent, const char *name, Qt::WFlags f)
 {
     QInputDialog *dlg = new QInputDialog(label, parent,
                                           name ? name : "qt_inputdlg_getint",
@@ -386,7 +386,7 @@ int QInputDialog::getInteger(const QString &caption, const QString &label,
 double QInputDialog::getDouble(const QString &caption, const QString &label,
                                 double value, double minValue, double maxValue,
                                 int decimals, bool *ok, QWidget *parent,
-                                const char *name, WFlags f)
+                                const char *name, Qt::WFlags f)
 {
     QInputDialog dlg(label, parent,
                       name ? name : "qt_inputdlg_getdbl", true, LineEdit, f);
@@ -440,7 +440,7 @@ double QInputDialog::getDouble(const QString &caption, const QString &label,
 
 QString QInputDialog::getItem(const QString &caption, const QString &label, const QStringList &list,
                                int current, bool editable,
-                               bool *ok, QWidget *parent, const char *name, WFlags f)
+                               bool *ok, QWidget *parent, const char *name, Qt::WFlags f)
 {
     QInputDialog *dlg = new QInputDialog(label, parent, name ? name : "qt_inputdlg_getitem", true, editable ? EditableComboBox : ComboBox, f);
 #ifndef QT_NO_WIDGET_TOPEXTRA

@@ -293,10 +293,10 @@ public:
     void invalidate();
 
     inline void addWidget(QWidget *w) { QLayout::addWidget(w); }
-    void addWidget(QWidget *, int row, int col, Alignment = 0);
-    void addWidget(QWidget *, int row, int col, int rowSpan, int colSpan, Alignment = 0);
-    void addLayout(QLayout *, int row, int col, Alignment = 0);
-    void addLayout(QLayout *, int row, int col, int rowSpan, int colSpan, Alignment = 0);
+    void addWidget(QWidget *, int row, int col, Qt::Alignment = 0);
+    void addWidget(QWidget *, int row, int col, int rowSpan, int colSpan, Qt::Alignment = 0);
+    void addLayout(QLayout *, int row, int col, Qt::Alignment = 0);
+    void addLayout(QLayout *, int row, int col, int rowSpan, int colSpan, Qt::Alignment = 0);
 
     void setOrigin(Qt::Corner);
     Qt::Corner origin() const;
@@ -304,7 +304,7 @@ public:
     QLayoutItem *takeAt(int);
     void setGeometry(const QRect&);
 
-    void addItem(QLayoutItem *item, int row, int col, int rowSpan = 1, int colSpan = 1, Alignment = 0);
+    void addItem(QLayoutItem *item, int row, int col, int rowSpan = 1, int colSpan = 1, Qt::Alignment = 0);
 protected:
     bool findWidget(QWidget* w, int *r, int *c);
     void addItem(QLayoutItem *);
@@ -320,11 +320,11 @@ public:
     void expand(int rows, int cols);
     inline void addRowSpacing(int row, int minsize) { addItem(new QSpacerItem(0,minsize), row, 0); }
     inline void addColSpacing(int col, int minsize) { addItem(new QSpacerItem(minsize,0), 0, col); }
-    inline void addMultiCellWidget(QWidget *w, int fromRow, int toRow, int fromCol, int toCol, Alignment align = 0)
+    inline void addMultiCellWidget(QWidget *w, int fromRow, int toRow, int fromCol, int toCol, Qt::Alignment align = 0)
         { addWidget(w, fromRow, fromCol, toRow - fromRow + 1, toCol - fromCol + 1, align); }
-    inline void addMultiCell(QLayoutItem *l, int fromRow, int toRow, int fromCol, int toCol, Alignment align = 0)
+    inline void addMultiCell(QLayoutItem *l, int fromRow, int toRow, int fromCol, int toCol, Qt::Alignment align = 0)
         { addItem(l, fromRow, fromCol, toRow - fromRow + 1, toCol - fromCol + 1, align); }
-    inline void addMultiCellLayout(QLayout *layout, int fromRow, int toRow, int fromCol, int toCol, Alignment align = 0)
+    inline void addMultiCellLayout(QLayout *layout, int fromRow, int toRow, int fromCol, int toCol, Qt::Alignment align = 0)
         { addLayout(layout, fromRow, fromCol, toRow - fromRow + 1, toCol - fromCol + 1, align); }
 #endif
 };
@@ -359,7 +359,7 @@ public:
 
     void addSpacing(int size);
     void addStretch(int stretch = 0);
-    void addWidget(QWidget *, int stretch = 0, Alignment alignment = 0);
+    void addWidget(QWidget *, int stretch = 0, Qt::Alignment alignment = 0);
     void addLayout(QLayout *layout, int stretch = 0);
     void addStrut(int);
     void addItem(QLayoutItem *);
@@ -367,14 +367,14 @@ public:
     void insertSpacing(int index, int size);
     void insertStretch(int index, int stretch = 0);
     void insertWidget(int index, QWidget *widget, int stretch = 0,
-                       Alignment alignment = 0);
+                       Qt::Alignment alignment = 0);
     void insertLayout(int index, QLayout *layout, int stretch = 0);
 
     bool setStretchFactor(QWidget *w, int stretch);
     bool setStretchFactor(QLayout *l, int stretch);
-    bool setAlignment(QWidget *w, Alignment alignment);
-    bool setAlignment(QLayout *l, Alignment alignment);
-    inline void setAlignment(Alignment alignment) { QLayoutItem::setAlignment(alignment); }
+    bool setAlignment(QWidget *w, Qt::Alignment alignment);
+    bool setAlignment(QLayout *l, Qt::Alignment alignment);
+    inline void setAlignment(Qt::Alignment alignment) { QLayoutItem::setAlignment(alignment); }
 
     QSize sizeHint() const;
     QSize minimumSize() const;

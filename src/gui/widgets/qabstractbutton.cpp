@@ -943,7 +943,7 @@ QIconSet *QAbstractButton::iconSet() const
     return 0;
 }
 
-QAbstractButton::QAbstractButton(QWidget *parent, const char *name, WFlags f)
+QAbstractButton::QAbstractButton(QWidget *parent, const char *name, Qt::WFlags f)
     :QWidget(*new QAbstractButtonPrivate, parent, f)
 {
     setObjectName(name);

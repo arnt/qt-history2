@@ -28,7 +28,7 @@ class Q_GUI_EXPORT QHBox : public QFrame
 {
     Q_OBJECT
 public:
-    QHBox(QWidget* parent=0, const char* name=0, WFlags f=0);
+    QHBox(QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
 
     void setMargin(int);
     void setSpacing(int);
@@ -36,7 +36,7 @@ public:
     QSize sizeHint() const;
 
 protected:
-    QHBox(bool horizontal, QWidget* parent=0, const char* name=0, WFlags f = 0);
+    QHBox(bool horizontal, QWidget* parent=0, const char* name=0, Qt::WFlags f = 0);
     void childEvent(QChildEvent *);
 
 private:

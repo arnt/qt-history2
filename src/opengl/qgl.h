@@ -239,11 +239,11 @@ class QM_EXPORT_OPENGL QGLWidget : public QWidget, public QGL
     Q_DECLARE_PRIVATE(QGLWidget)
 public:
     QGLWidget(QWidget* parent=0, const char* name=0,
-               const QGLWidget* shareWidget = 0, WFlags f=0);
+               const QGLWidget* shareWidget = 0, Qt::WFlags f=0);
     QGLWidget(QGLContext *context, QWidget* parent=0, const char* name=0,
-               const QGLWidget* shareWidget = 0, WFlags f=0);
+               const QGLWidget* shareWidget = 0, Qt::WFlags f=0);
     QGLWidget(const QGLFormat& format, QWidget* parent=0, const char* name=0,
-               const QGLWidget* shareWidget = 0, WFlags f=0);
+               const QGLWidget* shareWidget = 0, Qt::WFlags f=0);
     ~QGLWidget();
 
     void qglColor(const QColor& c) const;

@@ -2691,7 +2691,7 @@ void QIconViewItem::checkRect()
     parent and using the widget flags \a f.
 */
 
-QIconView::QIconView(QWidget *parent, const char *name, WFlags f)
+QIconView::QIconView(QWidget *parent, const char *name, Qt::WFlags f)
     : QScrollView(parent, name, Qt::WStaticContents | Qt::WNoAutoErase  | f)
 {
     if (!unknown_icon) {

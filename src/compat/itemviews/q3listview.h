@@ -230,7 +230,7 @@ class Q_COMPAT_EXPORT Q3ListView: public QScrollView
     Q_PROPERTY(RenameAction defaultRenameAction READ defaultRenameAction WRITE setDefaultRenameAction)
 
 public:
-    Q3ListView(QWidget* parent=0, const char* name=0, WFlags f = 0);
+    Q3ListView(QWidget* parent=0, const char* name=0, Qt::WFlags f = 0);
     ~Q3ListView();
 
     int treeStepSize() const;

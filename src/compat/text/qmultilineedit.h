@@ -31,7 +31,7 @@ class Q_COMPAT_EXPORT QMultiLineEdit : public Q3TextEdit
     Q_PROPERTY(int numLines READ numLines)
     Q_PROPERTY(bool atBeginning READ atBeginning)
     Q_PROPERTY(bool atEnd READ atEnd)
-    Q_PROPERTY(Alignment alignment READ alignment WRITE setAlignment)
+    Q_PROPERTY(Qt::Alignment alignment READ alignment WRITE setAlignment)
     Q_PROPERTY(bool edited READ edited WRITE setEdited DESIGNABLE false)
 
 public:
@@ -54,8 +54,8 @@ public:
     bool atBeginning() const;
     bool atEnd() const;
 
-    void setAlignment(Alignment flags);
-    Alignment alignment() const;
+    void setAlignment(Qt::Alignment flags);
+    Qt::Alignment alignment() const;
 
     void setEdited(bool);
     bool edited() const;

@@ -158,19 +158,19 @@ QFramePrivate::QFramePrivate()
     constructor.
 */
 
-QFrame::QFrame(QWidget* parent, WFlags f)
+QFrame::QFrame(QWidget* parent, Qt::WFlags f)
     : QWidget(*new QFramePrivate, parent, f)
 {
 }
 
 /*! \internal */
-QFrame::QFrame(QFramePrivate &dd, QWidget* parent, WFlags f)
+QFrame::QFrame(QFramePrivate &dd, QWidget* parent, Qt::WFlags f)
     : QWidget(dd, parent, f)
 {
 }
 
 #ifdef QT_COMPAT
-QFrame::QFrame(QWidget *parent, const char *name, WFlags f)
+QFrame::QFrame(QWidget *parent, const char *name, Qt::WFlags f)
     : QWidget(*new QFramePrivate, parent, f)
 {
     setObjectName(name);
@@ -620,7 +620,7 @@ void QFrame::changeEvent(QEvent *ev)
 
 
 
-Q3Frame::Q3Frame(QWidget* parent, const char* name, WFlags f)
+Q3Frame::Q3Frame(QWidget* parent, const char* name, Qt::WFlags f)
     :QFrame(parent, f), marg(0)
 {
     if (name)

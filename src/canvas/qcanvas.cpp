@@ -3431,7 +3431,7 @@ void QCanvasSprite::draw(QPainter& painter)
     with a canvas, so you must to call setCanvas() to view a
     canvas.
 */
-QCanvasView::QCanvasView(QWidget* parent, const char* name, WFlags f) :
+QCanvasView::QCanvasView(QWidget* parent, const char* name, Qt::WFlags f) :
     QScrollView(parent,name,f|Qt::WResizeNoErase|Qt::WStaticContents)
 {
     d = new QCanvasViewData;
@@ -3446,7 +3446,7 @@ QCanvasView::QCanvasView(QWidget* parent, const char* name, WFlags f) :
     Constructs a QCanvasView which views canvas \a canvas, with parent
     \a parent, and name \a name, using the widget flags \a f.
 */
-QCanvasView::QCanvasView(QCanvas* canvas, QWidget* parent, const char* name, WFlags f) :
+QCanvasView::QCanvasView(QCanvas* canvas, QWidget* parent, const char* name, Qt::WFlags f) :
     QScrollView(parent,name,f|Qt::WResizeNoErase|Qt::WStaticContents)
 {
     d = new QCanvasViewData;

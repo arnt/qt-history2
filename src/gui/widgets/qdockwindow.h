@@ -13,14 +13,14 @@ class Q_GUI_EXPORT QDockWindow : public QFrame
     Q_PROPERTY(bool closable READ isClosable WRITE setClosable)
     Q_PROPERTY(bool movable READ isMovable WRITE setMovable)
     Q_PROPERTY(bool floatable READ isFloatable WRITE setFloatable)
-    Q_PROPERTY(DockWindowAreaFlags allowedAreas READ allowedAreas WRITE setAllowedAreas)
+    Q_PROPERTY(Qt::DockWindowAreaFlags allowedAreas READ allowedAreas WRITE setAllowedAreas)
     Q_PROPERTY(Qt::DockWindowArea currentArea READ currentArea WRITE setCurrentArea)
 
     Q_DECLARE_PRIVATE(QDockWindow)
 
 public:
-    QDockWindow(QMainWindow *parent, WFlags flags = 0);
-    QDockWindow(QMainWindow *parent, Qt::DockWindowArea area, WFlags flags = 0);
+    QDockWindow(QMainWindow *parent, Qt::WFlags flags = 0);
+    QDockWindow(QMainWindow *parent, Qt::DockWindowArea area, Qt::WFlags flags = 0);
     ~QDockWindow();
 
     void setParent(QMainWindow *parent);
@@ -38,8 +38,8 @@ public:
     void setFloated(bool floated = true, const QPoint &pos = QPoint());
     bool isFloated() const;
 
-    void setAllowedAreas(DockWindowAreaFlags areas);
-    DockWindowAreaFlags allowedAreas() const;
+    void setAllowedAreas(Qt::DockWindowAreaFlags areas);
+    Qt::DockWindowAreaFlags allowedAreas() const;
 
     inline bool isDockable(Qt::DockWindowArea area)
     { return (allowedAreas() & area) == area; }

@@ -119,7 +119,7 @@ public:
     parent. The format is set to "yyyy.MM.dd_hh:mm.ss"
 */
 
-QDateTimeEdit::QDateTimeEdit(QWidget *parent, WFlags f)
+QDateTimeEdit::QDateTimeEdit(QWidget *parent, Qt::WFlags f)
     : QAbstractSpinBox(*new QDateTimeEditPrivate, parent, f)
 {
     d->minimum = QCoreVariant(DATETIME_MIN);
@@ -135,7 +135,7 @@ QDateTimeEdit::QDateTimeEdit(QWidget *parent, WFlags f)
     "yyyy.MM.dd_hh:mm.ss"
 */
 
-QDateTimeEdit::QDateTimeEdit(const QDateTime &datetime, QWidget *parent, WFlags f)
+QDateTimeEdit::QDateTimeEdit(const QDateTime &datetime, QWidget *parent, Qt::WFlags f)
     : QAbstractSpinBox(*new QDateTimeEditPrivate, parent, f)
 {
     d->minimum = QCoreVariant(DATETIME_MIN);
@@ -150,7 +150,7 @@ QDateTimeEdit::QDateTimeEdit(const QDateTime &datetime, QWidget *parent, WFlags 
     parent. The value is set to \a time. The format is set to "hh:mm.ss".
 */
 
-QDateTimeEdit::QDateTimeEdit(const QTime &time, QWidget *parent, WFlags f)
+QDateTimeEdit::QDateTimeEdit(const QTime &time, QWidget *parent, Qt::WFlags f)
     : QAbstractSpinBox(*new QDateTimeEditPrivate, parent, f)
 {
     d->minimum = QCoreVariant(DATETIME_MIN);

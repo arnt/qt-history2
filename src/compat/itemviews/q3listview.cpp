@@ -2580,7 +2580,7 @@ void Q3ListViewItem::ignoreDoubleClick()
 
     \sa QWidget::setAttribute()
 */
-Q3ListView::Q3ListView(QWidget * parent, const char *name, WFlags f)
+Q3ListView::Q3ListView(QWidget * parent, const char *name, Qt::WFlags f)
     : QScrollView(parent, name, f | Qt::WStaticContents | Qt::WNoAutoErase)
 {
     init();

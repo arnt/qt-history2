@@ -105,7 +105,7 @@ public:
     There should be no need to set the widget flags, \a f, except
     perhaps \c Qt::WDestructiveClose or \c Qt::WStyle_StaysOnTop.
 */
-QSplashScreen::QSplashScreen(const QPixmap &pixmap, WFlags f)
+QSplashScreen::QSplashScreen(const QPixmap &pixmap, Qt::WFlags f)
     : QWidget(0, 0, Qt::WStyle_Customize | Qt::WStyle_Splash | f)
 {
     d = new QSplashScreenPrivate();

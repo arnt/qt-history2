@@ -773,7 +773,7 @@ int QListBoxPixmap::rtti() const
     \sa QWidget::clearWFlags() Qt::WindowFlags
 */
 
-QListBox::QListBox(QWidget *parent, const char *name, WFlags f)
+QListBox::QListBox(QWidget *parent, const char *name, Qt::WFlags f)
     : QScrollView(parent, name, f | Qt::WStaticContents | Qt::WNoAutoErase)
 {
     d = new QListBoxPrivate(this);

@@ -530,7 +530,7 @@ QMessageBox::QMessageBox(const QString& caption,
                           const QString &text, Icon icon,
                           int button0, int button1, int button2,
                           QWidget *parent, const char *name,
-                          bool modal, WFlags f)
+                          bool modal, Qt::WFlags f)
     : QDialog(parent, name, modal, f | Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu)
 {
     init(button0, button1, button2);

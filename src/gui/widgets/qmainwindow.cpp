@@ -18,7 +18,7 @@ public:
 };
 
 
-QMainWindow::QMainWindow(QWidget *parent, WFlags flags)
+QMainWindow::QMainWindow(QWidget *parent, Qt::WFlags flags)
     : QWidget(*(new QMainWindowPrivate()), parent, flags)
 { d->layout = new QMainWindowLayout(this); }
 
