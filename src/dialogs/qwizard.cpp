@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#19 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#20 $
 **
 ** Implementation of something useful.
 **
@@ -564,7 +564,7 @@ void QWizard::layOutTitleRow( QHBoxLayout * layout, const QString & title )
     if ( !d->title )
 	d->title = new QLabel( this );
     d->title->setText( title );
-    layout->addWidget( d->title );
+    layout->addWidget( d->title, 10 );
     d->title->repaint();
 }
 
