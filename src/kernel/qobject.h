@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#64 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#65 $
 **
 ** Definition of QObject class
 **
@@ -55,7 +55,8 @@ public:
     bool	inherits( const char * ) const;
     QStringList superClasses( bool includeThis = FALSE ) const;
 
-    const char *name( const char * defaultName = "unnamed" ) const;
+    const char *name() const;
+    const char *name( const char * defaultName ) const;
 
     virtual void	setName( const char *name );
     bool	isWidgetType()	  const { return isWidget; }

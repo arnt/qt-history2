@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#191 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#192 $
 **
 ** Implementation of QObject class
 **
@@ -488,7 +488,7 @@ bool QObject::isA( const char *clname ) const
 
   \sa isA(), metaObject()
 */
-  
+
 bool QObject::inherits( const char *clname ) const
 {
     QMetaObject *meta = queryMetaObject();
@@ -523,17 +523,37 @@ QStringList QObject::superClasses( bool includeThis ) const
   return lst;
 }
 
+
 /*!
-  Returns the name of this object, or \a defaultName if the object
-  does not have a name.  \a defaultName defaults to "unnamed" so that
-  printf() (used in debug()) will not be asked to output a null
-  pointer.  If you want a null pointer to be returned for unnamed
-  objects, you can call name(0).
+  \fn const char *QObject::name() const
+
+  Returns the name of this object. If the object does not have a name,
+  it will return "unnamed", so that printf() (used in debug()) will
+  not be asked to output a null pointer.  If you want a null pointer
+  to be returned for unnamed objects, you can call name(0).
 
   \code
     debug( "MyClass::setPrecision(): (%s) unable to set precision to %f",
 	    name(), newPrecision );
   \endcode
+
+  The object name is set by the constructor or by the setName() function.
+  The object name is not very useful in the current version of Qt, but
+  will become increasingly important in the future.
+
+  The queryList() function searches the object tree for objects that
+  matches a particular object name.
+
+  \sa setName(), className(), queryList()
+*/
+const char * QObject::name() const
+{
+    return objname ? objname : "unnamed";
+}
+
+/*!
+  Returns the name of this object, or \a defaultName if the object
+  does not have a name.
 */
 
 const char * QObject::name( const char * defaultName ) const
@@ -1036,7 +1056,7 @@ void QObject::removeChild( QObject *obj )
 
 	// remove events must be sent, not posted!!!
 	QChildEvent ce( QEvent::ChildRemoved, obj );
-	QApplication::sendEvent( this, &ce ); 
+	QApplication::sendEvent( this, &ce );
     }
 }
 
