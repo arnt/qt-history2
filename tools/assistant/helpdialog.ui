@@ -300,6 +300,12 @@
         <slot>showTopic()</slot>
     </connection>
     <connection language="C++">
+        <sender>listContents</sender>
+        <signal>clicked(QListViewItem*)</signal>
+        <receiver>HelpDialogBase</receiver>
+        <slot>showTopic()</slot>
+    </connection>
+    <connection language="C++">
         <sender>listIndex</sender>
         <signal>selectionChanged(QListBoxItem*)</signal>
         <receiver>HelpDialogBase</receiver>
