@@ -293,9 +293,9 @@ void fix_minmax(QVector<QLayoutStruct> &ls,
     };
 
     if (layout->layout_info[pos].item) {
-        if ((layout->corners[order[pos].corner1] != static_cast<Qt::DockWindowArea>(pos)
+        if ((layout->corners[order[pos].corner1] != Qt::DockWindowArea(pos)
              || !layout->layout_info[order[pos].perp1].item)
-            && (layout->corners[order[pos].corner2] != static_cast<Qt::DockWindowArea>(pos)
+            && (layout->corners[order[pos].corner2] != Qt::DockWindowArea(pos)
                 || !layout->layout_info[order[pos].perp2].item)) {
             ls[1].minimumSize = qMax(pick_perp(pos, layout->layout_info[pos].item->minimumSize()),
                                      ls[1].minimumSize);
@@ -305,14 +305,14 @@ void fix_minmax(QVector<QLayoutStruct> &ls,
             const int min = pick_perp(pos, layout->layout_info[pos].item->minimumSize()),
                       dis = min / 2;
             if (layout->layout_info[order[pos].perp1].item) {
-                if (layout->corners[order[pos].corner1] == static_cast<Qt::DockWindowArea>(pos)
-                    && layout->corners[order[pos].corner2] != static_cast<Qt::DockWindowArea>(pos)) {
+                if (layout->corners[order[pos].corner1] == Qt::DockWindowArea(pos)
+                    && layout->corners[order[pos].corner2] != Qt::DockWindowArea(pos)) {
                     ls[0].minimumSize = qMax(ls[0].minimumSize, dis);
                     ls[1].minimumSize = qMax(ls[1].minimumSize, min - dis);
                 }
             } else if (layout->layout_info[order[pos].perp2].item) {
-                if (layout->corners[order[pos].corner2] == static_cast<Qt::DockWindowArea>(pos)
-                    && layout->corners[order[pos].corner1] != static_cast<Qt::DockWindowArea>(pos)) {
+                if (layout->corners[order[pos].corner2] == Qt::DockWindowArea(pos)
+                    && layout->corners[order[pos].corner1] != Qt::DockWindowArea(pos)) {
                     ls[2].minimumSize = qMax(ls[2].minimumSize, dis);
                     ls[1].minimumSize = qMax(ls[1].minimumSize, min - dis);
                 }
