@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#199 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#200 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#199 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#200 $");
 
 
 /*****************************************************************************
@@ -1023,6 +1023,11 @@ void QPainter::setBackgroundMode( BGMode m )
 	updateBrush();				// update brush setting
 }
 
+static short ropCodes[] = {
+    GXcopy, GXor, GXxor, GXandInverted,
+    GXcopyInverted, GXorInverted, GXequiv, GXand, GXinvert
+};
+
 /*!
   Sets the raster operation to \e r.
 
@@ -1044,10 +1049,6 @@ void QPainter::setBackgroundMode( BGMode m )
 
 void QPainter::setRasterOp( RasterOp r )
 {
-    static short ropCodes[] = {
-	GXcopy, GXor, GXxor, GXandInverted,
-	GXcopyInverted, GXorInverted, GXequiv, GXand, GXinvert };
-
     if ( !isActive() ) {
 #if defined(CHECK_STATE)
 	warning( "QPainter::setRasterOp: Call begin() first" );
@@ -1635,8 +1636,6 @@ static void fix_neg_rect( int *x, int *y, int *w, int *h )
   Draws a rectangle with upper left corner at \e (x,y) and with
   width \e w and height \e h.
 
-  The width and height include both lines.
-
   \sa drawRoundRect()
 */
 
@@ -1674,6 +1673,50 @@ void QPainter::drawRect( int x, int y, int w, int h )
     }
     if ( cpen.style() != NoPen )
 	XDrawRectangle( dpy, hd, gc, x, y, w-1, h-1 );
+}
+
+/*!
+  Draws a Windows focus rectangle with upper left corner at \e (x,y) and with
+  width \e w and height \e h.
+
+  This function draws a stippled XOR rectangle that is used to indicate
+  keyboard focus (when the \link QApplication::style() GUI style\endlink
+  is \c WindowStyle).
+
+  \warning This function draws nothing if the coordinate system has been
+  \link rotate() rotated\endlink or \link shear() sheared\endlink.
+
+  \sa drawRect(), QApplication::style()
+*/
+
+void QPainter::drawWinFocusRect( int x, int y, int w, int h )
+{
+    if ( !isActive() || txop == TxRotShear )
+	return;
+
+    QPen     old_pen = cpen;
+    RasterOp old_rop = (RasterOp)rop;
+    setPen( black );
+    setRasterOp( XorROP );
+
+    if ( testf(ExtDev|VxF|WxF) ) {
+	if ( testf(ExtDev) ) {
+	    QPDevCmdParam param[1];
+	    QRect r( x, y, w, h );
+	    param[0].rect = &r;
+	    if ( !pdev->cmd(PDC_DRAWRECT,this,param) || !hd )
+		return;
+	}
+	map( x, y, w, h, &x, &y, &w, &h );
+    }
+    if ( w <= 0 || h <= 0 ) {
+	if ( w == 0 || h == 0 )
+	    return;
+	fix_neg_rect( &x, &y, &w, &h );
+    }
+    XDrawRectangle( dpy, hd, gc, x, y, w-1, h-1 );
+    setRasterOp( old_rop );
+    setPen( old_pen );
 }
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#84 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#85 $
 **
 ** Definition of QPainter class
 **
@@ -130,7 +130,9 @@ public:
     void	drawLine( const QPoint &, const QPoint & );
     void	drawRect( int x, int y, int w, int h );
     void	drawRect( const QRect & );
-    void	drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd);
+    void	drawWinFocusRect( int x, int y, int w, int h );
+    void	drawWinFocusRect( const QRect & );
+    void	drawRoundRect( int x, int y, int w, int h, int, int );
     void	drawRoundRect( const QRect &, int, int );
     void	drawEllipse( int x, int y, int w, int h );
     void	drawEllipse( const QRect & );
@@ -418,6 +420,11 @@ inline void QPainter::drawLine( const QPoint &p1, const QPoint &p2 )
 inline void QPainter::drawRect( const QRect &r )
 {
     drawRect( r.x(), r.y(), r.width(), r.height() );
+}
+
+inline void QPainter::drawWinFocusRect( const QRect &r )
+{
+    drawWinFocusRect( r.x(), r.y(), r.width(), r.height() );
 }
 
 inline void QPainter::drawRoundRect( const QRect &r, int xRnd, int yRnd )
