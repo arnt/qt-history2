@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#54 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#55 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -91,7 +91,7 @@ typedef uint HDC;
 typedef struct tagMSG MSG;
 
 HANDLE qWinAppInst();
-HANDLE qWinPrevAppInst();
+HANDLE qWinAppPrevInst();
 int    qWinAppCmdShow();
 
 #endif // _WS_WIN16_ or _WS_WIN32_
@@ -154,7 +154,6 @@ char *qAppName();				// get application name
 
 // Misc functions
 
-void  qAddPreRoutine( void (*)() );
 void  qAddPostRoutine( void (*)() );
 
 
