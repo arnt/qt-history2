@@ -433,8 +433,10 @@ void Project::parse()
     loadConnections();
 
     QStringList images = parse_multiline_part( contents, "IMAGES" );
-    for ( QStringList::ConstIterator it = images.begin(); it != images.end(); ++it )
-	pixCollection->load( *it );
+    {
+	for ( QStringList::ConstIterator it = images.begin(); it != images.end(); ++it )
+	    pixCollection->load( *it );
+    }
 }
 
 void Project::clear()
