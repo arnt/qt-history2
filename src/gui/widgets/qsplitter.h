@@ -113,7 +113,7 @@ Q_GUI_EXPORT QTextStream& operator>>(QTextStream&, QSplitter&);
 //#endif
 
 class QSplitterHandlePrivate;
-class QSplitterHandle : public QWidget
+class Q_GUI_EXPORT QSplitterHandle : public QWidget
 {
     Q_OBJECT
 public:

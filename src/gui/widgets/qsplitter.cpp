@@ -119,6 +119,29 @@ public:
     QSplitter *s;
 };
 
+/*!
+    \class QSplitterHandle
+    \brief The QSplitterHandle class provides handle functionality of the splitter.
+
+    \ingroup organizers
+    \mainclass
+
+    QSplitterHandle is typically what people think about when they think about
+    a splitter. It is the handle that is used to resize the widgets.
+
+    A typical developer using QSplitter will never have to worry about QSplitterHandle.
+    It is provided for developers who want splitter handles that do more. The typical
+    way one would create splitter handles is to subclass QSplitter and then
+    reimplement QSplitter::createHandle() to instatiate the custom splitter
+    handle.
+
+    Most of the functions inside QSplitterHandle are forwards to QSplitter or
+    like orientation() and opaqueResize(), controlled by the QSplitter.
+*/
+
+/*!
+    Create a QSplitter handle with orientation \a o and QSplitter \a parent for its parent.
+*/
 QSplitterHandle::QSplitterHandle(Qt::Orientation o, QSplitter *parent)
     : QWidget(*new QSplitterHandlePrivate, parent, 0)
 {
@@ -126,24 +149,56 @@ QSplitterHandle::QSplitterHandle(Qt::Orientation o, QSplitter *parent)
     setOrientation(o);
 }
 
+/*!
+    Set the orientation of the splitter handle to \a o. This is usually
+    propogated from the QSplitter.
 
+    \sa QSplitter::setOrientation()
+*/
+void QSplitterHandle::setOrientation(Qt::Orientation o)
+{
+    d->orient = o;
+#ifndef QT_NO_CURSOR
+    setCursor(o == Qt::Horizontal ? Qt::SplitHCursor : Qt::SplitVCursor);
+#endif
+}
+
+/*!
+   Return the handle's orientation. This is usually propagated from the QSplitter.
+
+   \sa QSplitter::orientation()
+*/
 Qt::Orientation QSplitterHandle::orientation() const
 {
     return d->orient;
 }
 
+
+/*!
+
+    Returns true if widgets are resized dynamically (opaquely), otherwise
+    returns false. This value is controlled by the QSplitter
+
+    \sa QSplitter::opaqueResize()
+
+*/
 bool QSplitterHandle::opaqueResize() const
 {
     return d->s->opaqueResize();
 }
 
+
+/*!
+  Returns the splitter associated with this splitter handle.
+
+  \sa QSplitter
+*/
 QSplitter *QSplitterHandle::splitter() const
 {
     return d->s;
 }
 
 /*!
-
     Tells the splitter to move this handle to position /a p, which is
     the distance from the left (or top) edge of the widget.
 
@@ -151,7 +206,7 @@ QSplitter *QSplitterHandle::splitter() const
     right-to-left languages. This function will map \a p to the
     appropriate position before calling QSplitter::moveSplitter().
 
-  \sa QSplitter::moveSplitter()
+  \sa QSplitter::moveSplitter() closestLegalPosition()
 */
 void QSplitterHandle::moveSplitter(int p)
 {
@@ -190,20 +245,7 @@ QSize QSplitterHandle::sizeHint() const
         .expandedTo(QApplication::globalStrut());
 }
 
-/*
-    Set the orientation of the splitter handle. This is usually propogated from the QSplitter
-
-    \sa QSplitter::setOrientation()
-*/
-void QSplitterHandle::setOrientation(Qt::Orientation o)
-{
-    d->orient = o;
-#ifndef QT_NO_CURSOR
-    setCursor(o == Qt::Horizontal ? Qt::SplitHCursor : Qt::SplitVCursor);
-#endif
-}
-
-/*
+/*!
     \reimp
 */
 void QSplitterHandle::mouseMoveEvent(QMouseEvent *e)
@@ -219,7 +261,7 @@ void QSplitterHandle::mouseMoveEvent(QMouseEvent *e)
     }
 }
 
-/*
+/*!
    \reimp
 */
 void QSplitterHandle::mousePressEvent(QMouseEvent *e)
@@ -228,7 +270,7 @@ void QSplitterHandle::mousePressEvent(QMouseEvent *e)
         mouseOffset = d->pick(e->pos());
 }
 
-/*
+/*!
    \reimp
 */
 void QSplitterHandle::mouseReleaseEvent(QMouseEvent *e)
@@ -241,7 +283,7 @@ void QSplitterHandle::mouseReleaseEvent(QMouseEvent *e)
     }
 }
 
-/*
+/*!
    \reimp
 */
 void QSplitterHandle::paintEvent(QPaintEvent *)
@@ -863,14 +905,15 @@ QSplitterLayoutStruct *QSplitterPrivate::insertWidget(int index, QWidget *w)
 
     \inlineimage qsplitter-m.png Screenshot in Motif style
     \inlineimage qsplitter-w.png Screenshot in Windows style
+    \inlineimage qsplitter-mac.png Screenshot in Mac style
 
     \sa QTabBar QSplitterHandle
 */
 
 
 /*!
-    Constructs a horizontal splitter with the \a parent and \a name
-    arguments being passed on to the QFrame constructor.
+    Constructs a horizontal splitter with the \a parent
+    arguments is passed on to the QFrame constructor.
 */
 QSplitter::QSplitter(QWidget *parent)
     : QFrame(*new QSplitterPrivate, parent)
@@ -919,7 +962,7 @@ void QSplitter::refresh()
     side). The possible orientations are \c Qt::Horizontal and
     \c Qt::Vertical.
 
-    \sa QSplitterHandle::setOrientation()
+    \sa QSplitterHandle::orientation()
 */
 
 void QSplitter::setOrientation(Qt::Orientation o)
@@ -1049,6 +1092,8 @@ int QSplitter::indexOf(QWidget *w) const
   Returns a new splitter handle as a child widget of this splitter.
   This function can be reimplemented in subclasses to provide support
   for custom handles.
+
+  \sa QSplitterHandle
 */
 QSplitterHandle *QSplitter::createHandle()
 {
@@ -1210,7 +1255,7 @@ bool QSplitter::event(QEvent *e)
     reversed.  \a p is then the distance from the right (or top) edge
     of the widget.
 
-    \sa idAfter(), splitterMoved()
+    \sa splitterMoved()
 */
 void QSplitter::moveSplitter(int p, int index)
 {
@@ -1260,8 +1305,6 @@ void QSplitter::moveSplitter(int p, int index)
 /*!
     Returns the valid range of the splitter with index \a index in
     \c{*}\a{min} and \c{*}\a{max} if \a min and \a max are not 0.
-
-    \sa idAfter()
 */
 
 void QSplitter::getRange(int index, int *min, int *max) const
@@ -1277,8 +1320,6 @@ void QSplitter::getRange(int index, int *min, int *max) const
     For Arabic, Hebrew and other right-to-left languages the layout is
     reversed.  Positions are then measured from the right (or top) edge
     of the widget.
-
-    \sa idAfter()
 */
 
 int QSplitter::closestLegalPosition(int pos, int index)
