@@ -442,8 +442,10 @@ void QBrush::setColor(const QColor &c)
 */
 QPixmap *QBrush::pixmap() const
 {
-    return d->style == Qt::CustomPattern
-                     ? &static_cast<QTexturedBrushData*>(d)->pixmap : 0;
+    if (d->style != Qt::CustomPattern)
+        return 0;
+    QTexturedBrushData *data  = static_cast<QTexturedBrushData*>(d);
+    return data->pixmap.isNull() ? 0 : &data->pixmap;
 }
 #endif
 
