@@ -110,6 +110,23 @@
   The private object.
  *****************************************************************************/
 
+// extra flags from moc.y
+enum Flags  {
+    Invalid		= 0x00000000,
+    Readable		= 0x00000001,
+    Writable		= 0x00000002,
+    EnumOrSet		= 0x00000004,
+    UnresolvedEnum	= 0x00000008,
+    StdSet		= 0x00000100,
+    Override		= 0x00000200,
+    NotDesignable	= 0x00001000,
+    DesignableOverride  = 0x00002000,
+    NotScriptable	= 0x00004000,
+    ScriptableOverride  = 0x00008000,
+    NotStored 		= 0x00010000,
+    StoredOverride 	= 0x00020000
+};
+
 static QAsciiDict<void> *qt_metaobjects = 0;
 
 class QMetaObjectPrivate
@@ -784,8 +801,11 @@ bool QMetaObject::hasMetaObject( const char *class_name )
 }
 
 #ifndef QT_NO_PROPERTIES
-/*! \internal */
+/*! \internal
 
+### this functions will go away. It exists purely for the sake of meta
+### object code generated with Qt 3.1.0
+*/
 bool QMetaObject::qt_static_property( QObject* o, int id, int f, QVariant* v)
 {
     if ( d->qt_static_property )
@@ -1067,10 +1087,16 @@ bool QMetaProperty::designable( QObject* o ) const
 {
     if ( !isValid() || !writable() )
 	return FALSE;
-    int idx = _id >= 0 ? _id : (*meta)->indexOfProperty( this, TRUE );
-    if ( idx < 0 )
-	return 0;
-    return (*meta)->qt_static_property( o, idx, 3, 0 );
+    if ( o ) {
+	int idx = _id >= 0 ? _id : (*meta)->indexOfProperty( this, TRUE );
+	return idx >= 0 && o->qt_property( idx, 3, 0 );
+    }
+    if ( testFlags( DesignableOverride ) ) {
+	const QMetaObject* mo = (*meta);
+	const QMetaProperty* parent = mo->resolveProperty( this );
+	return parent ? parent->designable() : FALSE;
+    }
+    return !testFlags( NotDesignable );
 }
 
 /*!
@@ -1082,10 +1108,16 @@ bool QMetaProperty::designable( QObject* o ) const
  */
 bool QMetaProperty::scriptable( QObject* o ) const
 {
-    int idx = _id >= 0 ? _id : (*meta)->indexOfProperty( this, TRUE );
-    if ( idx < 0 )
-	return 0;
-    return (*meta)->qt_static_property( o, idx, 4, 0 );
+    if ( o ) {
+	int idx = _id >= 0 ? _id : (*meta)->indexOfProperty( this, TRUE );
+	return idx >= 0 && o->qt_property( idx, 4, 0 );
+    }
+    if ( testFlags( ScriptableOverride ) ) {
+	const QMetaObject* mo = (*meta);
+	const QMetaProperty* parent = mo->resolveProperty( this );
+	return parent ? parent->scriptable() : FALSE;
+    }
+    return !testFlags( NotScriptable );
 }
 
 /*!
@@ -1099,10 +1131,16 @@ bool QMetaProperty::stored( QObject* o ) const
 {
     if ( !isValid() || !writable() )
 	return FALSE;
-    int idx = _id >= 0 ? _id : (*meta)->indexOfProperty( this, TRUE );
-    if ( idx < 0 )
-	return 0;
-    return (*meta)->qt_static_property( o, idx, 5, 0 );
+    if ( o ) {
+	int idx = _id >= 0 ? _id : (*meta)->indexOfProperty( this, TRUE );
+	return idx >= 0 && o->qt_property( idx, 5, 0 );
+    }
+    if ( testFlags( StoredOverride ) ) {
+	const QMetaObject* mo = (*meta);
+	const QMetaProperty* parent = mo->resolveProperty( this );
+	return parent ? parent->scriptable() : FALSE;
+    }
+    return !testFlags( NotStored );
 }
 
 
