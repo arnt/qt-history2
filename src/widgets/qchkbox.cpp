@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#3 $
 **
 ** Implementation of QCheckBox class
 **
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qchkbox.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qchkbox.cpp#3 $";
 #endif
 
 
@@ -85,7 +85,7 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
     QPainter  pmpaint;
     int wx, wy;
     if ( use_pm ) {
-	pm = new QPixMap( QSize(w, h) );	// create new pixmap
+	pm = new QPixMap( w, h );		// create new pixmap
 	CHECK_PTR( pm );
 	savePixmap( pmkey, pm );		// save for later use
 	pmpaint.begin( pm );

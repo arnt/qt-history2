@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#4 $
 **
 ** Implementation of QPushButton class
 **
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#4 $";
 #endif
 
 
@@ -163,7 +163,7 @@ void QPushButton::drawButton( QPainter *paint )
     bool use_pm = acceptPixmap( w, h ) && !isDown();
     QPainter  pmpaint;
     if ( use_pm ) {
-	pm = new QPixMap( QSize(w, h) );	// create new pixmap
+	pm = new QPixMap( w, h );		// create new pixmap
 	CHECK_PTR( pm );
 	savePixmap( pmkey, pm );		// save for later use
 	pmpaint.begin( pm );

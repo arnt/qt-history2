@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#4 $
 **
 ** Implementation of QRadioButton class
 **
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#4 $";
 #endif
 
 
@@ -89,7 +89,7 @@ void QRadioButton::drawButton( QPainter *paint )
     QPainter  pmpaint;
     int wx, wy;
     if ( use_pm ) {
-	pm = new QPixMap( QSize(w, h) );	// create new pixmap
+	pm = new QPixMap( w, h );		// create new pixmap
 	CHECK_PTR( pm );
 	savePixmap( pmkey, pm );		// save for later use
 	pmpaint.begin( pm );
