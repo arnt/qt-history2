@@ -426,8 +426,10 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	    ((QAccel*)obj)->repairEventFilter();
 	if(obj->isWidgetType()) {
 	    QWidget *w = (QWidget *)obj;
-	    w->hd = hd; //all my children hd's are now mine!
-	    w->posInTLChanged = TRUE;
+	    if(w->topLevelWidget() == topLevelWidget()) {
+		w->hd = hd; //all my children hd's are now mine!
+		w->posInTLChanged = TRUE;
+	    }
 	}
     }
     delete accelerators;
