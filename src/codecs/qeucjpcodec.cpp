@@ -48,7 +48,7 @@
   provide support for EUC-JP, the main legacy encoding for Unix
   machines in Japan.
 
-  The environment variable UNICODEMAP_JP can be used to fine-tune
+  The environment variable \c UNICODEMAP_JP can be used to fine-tune
   QJisCodec, QSjisCodec and QEucJpCodec. The \l QJisCodec
   documentation describes how to use this variable.
 

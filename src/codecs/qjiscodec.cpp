@@ -93,7 +93,7 @@
   For example, if you want to use Unicode style conversion but with
   NEC's extension, set \c UNICODEMAP_JP to
   <nobr>\c {unicode-0.9, nec-vdc}.</nobr> (You will probably
-  need to quote that in the shell command.)
+  need to quote that in a shell command.)
 
   Most of the code here was written by Serika Kurusugawa,
   a.k.a. Junji Takagi, and is included in Qt with the author's

@@ -294,21 +294,6 @@ OutputIterator, but in backwards fashion, for example:
     // in reverse order (300, 200, then 100)
 \endcode
 
-\target qMakePair
-Another template function is qMakePair(). This is a convenience
-function which is used for creating QPair\<\> objects.  For example:
-\code
-    QMap<QString,QString> m;
-    m.insert( qMakePair("Clinton", "Bill") );
-\endcode
-
-The above code is equivalent to:
-\code
-    QMap<QString,QString> m;
-    QPair<QString,QString> p( "Clinton", "Bill" );
-    m.insert( p );
-\endcode
-
 In addition, you can use any Qt Template Library iterator as the
 OutputIterator. Just make sure that the right hand of the iterator has
 as many elements present as you want to insert. The following example
@@ -361,4 +346,24 @@ The container can be read in again with:
 \endcode
 
 The same applies to QStringList, QValueStack and QMap.
+*/
+
+/*!
+    \fn QPair qMakePair(T1 t1, T2 t2)
+
+    \relates QPair
+
+This is a template convenience function. It is used to create a
+QPair\<\> object that contains \a t1 and \a t2.  For example:
+\code
+    QMap<QString,QString> m;
+    m.insert( qMakePair("Clinton", "Bill") );
+\endcode
+
+The above code is equivalent to:
+\code
+    QMap<QString,QString> m;
+    QPair<QString,QString> p( "Clinton", "Bill" );
+    m.insert( p );
+\endcode
 */

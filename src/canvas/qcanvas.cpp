@@ -3315,15 +3315,17 @@ void QCanvasSprite::draw(QPainter& painter)
     Use setWorldMatrix() to set the canvas view's world matrix: you must
     ensure that the world matrix is invertible. The current world matrix
     is retrievable with worldMatrix(), and its inversion is retrievable
-    with inverseWorldMatrix().  For example:
+    with inverseWorldMatrix().
+
+    Example:
 
     The following code finds the part of the canvas that is visible in
     this view, i.e. the bounding rectangle of the view in canvas coordinates.
 
   \code
     QRect canvasRect;
-    QRect rc = QRect(myCanvasView->contentsX(), myCanvasView->contentsY(),
-               myCanvasView->visibleWidth(), myCanvasView->visibleHeight());
+    QRect rc = QRect( myCanvasView->contentsX(), myCanvasView->contentsY(),
+                      myCanvasView->visibleWidth(), myCanvasView->visibleHeight() );
     canvasRect = myCanvasView->inverseWorldMatrix().mapRect(rc);
   \endcode
 
@@ -3513,6 +3515,7 @@ void QCanvasView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 
 /*!
   \reimp
+  \internal
 
   (Implemented to get rid of a compiler warning.)
 */
@@ -3546,11 +3549,11 @@ QSize QCanvasView::sizeHint() const
 
   The mostly rectangular classes, such as QCanvasSprite and QCanvasText,
   use the object's bounding rectangle for movement, repainting and
-  collision calculation. However, for most other items, the bounding
-  rectangle can be far too large -- a diagonal line being the worst
-  case, but there are many other cases that are very bad.
-  QCanvasPolygonalItem provides polygon-based bounding rectangle
-  handling, etc., much speeding up such cases.
+  collision calculations. For most other items, the bounding rectangle
+  can be far too large -- a diagonal line being the worst case, and
+  there are many other cases which are also bad. QCanvasPolygonalItem
+  provides polygon-based bounding rectangle handling, etc., which is
+  much faster for non-rectangular items.
 
   Derived classes should try to define as small an area as possible to
   maximize efficiency, but the polygon must \e definitely be contained
@@ -4034,8 +4037,8 @@ void QCanvasPolygon::moveBy(double dx, double dy)
   one extra point.
 
   The beziers are not necessarily joined "smoothly". To ensure this,
-  set control points appropriately (general references about beziers
-  will explain this in detail).
+  set control points appropriately (general reference texts about
+  beziers will explain this in detail).
 
   Like any other canvas item splines can be moved with
   QCanvasItem::move() and QCanvasItem::moveBy(), or by setting coordinates
@@ -4100,7 +4103,8 @@ QPointArray QCanvasSpline::controlPoints() const
 }
 
 /*!
-  Returns whether the control points are considered a closed set.
+  Returns TRUE if the control points are a closed set; otherwise
+  returns FALSE.
 */
 bool QCanvasSpline::closed() const
 {
@@ -4318,8 +4322,8 @@ QPointArray QCanvasLine::areaPoints() const
   QCanvasPolygon.
 
   The rectangle's size and initial position can be set in the
-  constructor. The size can set or changed later using setSize(). Use
-  height() and width() to retrieve the rectangle's dimensions.
+  constructor. The size can be set or changed later using setSize().
+  Use height() and width() to retrieve the rectangle's dimensions.
 
   The rectangle can be drawn on a painter with drawShape().
 
@@ -4409,6 +4413,7 @@ void QCanvasRectangle::setSize(int width, int height)
 
 /*!
   \fn QRect QCanvasRectangle::rect() const
+
   Returns the integer-converted x(), y() position and size() of the rectangle
   as a QRect.
 */
@@ -4638,7 +4643,7 @@ void QCanvasEllipse::drawShape(QPainter & p)
 */
 
 /*!
-  Constructs a QCanvasText with the text "\\<text>", on \a canvas.
+  Constructs a QCanvasText with the text "\<text\>", on \a canvas.
 */
 QCanvasText::QCanvasText(QCanvas* canvas) :
     QCanvasItem(canvas),
@@ -4672,7 +4677,7 @@ QCanvasText::QCanvasText(const QString& t, QFont f, QCanvas* canvas) :
 }
 
 /*!
-  Destroys the canvas text.
+  Destroys the canvas text item.
 */
 QCanvasText::~QCanvasText()
 {
@@ -4691,6 +4696,7 @@ void QCanvasText::setRect()
 
 /*!
   \fn int QCanvasText::textFlags() const
+
   Returns the currently set alignment flags.
   \sa setTextFlags() Qt::AlignmentFlags
 */
@@ -4864,7 +4870,7 @@ a QCanvas to be an efficient indexed storage mechanism.
 
 Make your derived classes return their own values for rtti(), so that you
 can distinguish between objects returned by QCanvas::at(). You should
-use values greater than 1000 to allow extensions to this class.
+use values greater than 1000 to allow for extensions to this class.
 
 Overuse of this functionality can damage it's extensibility.
 For example, once you have identified a base class of a QCanvasItem

@@ -47,7 +47,7 @@
   provide support for Shift-JIS, an encoding of JIS X 0201 Latin, JIS
   X 0201 Kana or JIS X 0208.
 
-  The environment variable UNICODEMAP_JP can be used to fine-tune
+  The environment variable \c UNICODEMAP_JP can be used to fine-tune
   QJisCodec, QSjisCodec and QEucJpCodec. The \l QJisCodec
   documentation describes how to use this variable.
 
@@ -99,7 +99,7 @@ static const uchar Esc = 0x1b;
 #define	QValidChar(u)	((u) ? QChar((ushort)(u)) : QChar::replacement)
 
 /*!
-  Creates a Shift-JIS codec.  Note that this is done automatically by
+  Creates a Shift-JIS codec. Note that this is done automatically by
   the QApplication, you do not need construct your own.
 */
 QSjisCodec::QSjisCodec() : conv(QJpUnicodeConv::newConverter(QJpUnicodeConv::Default))
