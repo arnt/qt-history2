@@ -60,21 +60,23 @@ bool Conv2ui::reinit()
 bool Conv2ui::convert( const QString & filename, const QDir & dest )
 {
     if ( !importFiltersManager ) {
-	qFatal( "Conv2ui: no QPluginManager was found" );
+	qWarning( "Conv2ui: no QPluginManager was found" );
+	return FALSE;
     }
 
     if ( !QFile::exists( absName( filename ) ) ) {
-	qFatal( "Conv2ui: can not find file %s", filename.latin1() );
+	qWarning( "Conv2ui: can not find file %s", filename.latin1() );
+	return FALSE;
     }
 
     QString tag = getTag( filename ); // ###FIX: file tag == type ( for now )
     QStringList lst = importFiltersManager->featureList();
 
     for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
-	
+
 	ImportFilterInterface * interface = 0;
 	importFiltersManager->queryInterface( *it, &interface );
-	
+
 	if ( !interface ) continue;
 
 	if ( (*it).contains( tag, FALSE ) ) {
@@ -85,9 +87,9 @@ bool Conv2ui::convert( const QString & filename, const QDir & dest )
 	    interface->import( *it, absfile ); // resulting files go into the current dir
 	    QDir::setCurrent( current );
 	}
-	
+
 	interface->release();
-	
+
     }
 
     return TRUE;
@@ -121,8 +123,8 @@ void printHelpMessage( QStringList & formats )
 {
 	printf( "Usage: conv2ui [options] <file> <destination directory>\n\n" );
 	printf( "Options:\n");
-	printf( "\t-h\tDisplay this information\n" );
-	printf( "\t-s\tDon't write any messages\n");
+	printf( "\t-help\tDisplay this information\n" );
+	printf( "\t-silent\tDon't write any messages\n");
 	printf( "Supported file formats:\n" );
 	for ( QStringList::Iterator it = formats.begin(); it != formats.end(); ++it ) {
 	    printf( "\t%s\n", (*it).latin1() );
@@ -139,16 +141,20 @@ int main( int argc, char ** argv )
     bool help = TRUE;
     bool silent = FALSE;
     bool unrecognized = FALSE;
-    
+
     // parse options
     int argi = 1;
     while ( argi < argc && argv[argi][0] == '-' ) {
 	int i = 1;
 	while ( argv[argi][i] != '\0' ) {
-	    
+
 	    if ( argv[argi][i] == 's' ) {
 		silent = TRUE;
-	    } else if ( argv[argi][i] != 'h' ) { // 'h' is a reconized option
+		break;
+	    } else if ( argv[argi][i] == 'h' ) {
+		help = TRUE;
+		break;
+	    } else {
 		unrecognized = TRUE;
 	    }
 	    i++;
@@ -182,7 +188,7 @@ int main( int argc, char ** argv )
     }
 
     // do the magic
-    conv.convert( src, dst );
-
-    return 0;
+    if ( conv.convert( src, dst ) )
+	return 0;
+    return -1;
 }
