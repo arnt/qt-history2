@@ -425,21 +425,23 @@ void QLineEdit::init()
 
 void QLineEdit::setText( const QString &text )
 {
+    d->undoRedoInfo.clear();
     QString oldText = this->text();
     d->parag->truncate( 0 );
     d->parag->append( text );
+    d->parag->commands()->clear();
     d->cursor->setIndex( d->parag->length() - 1 );
     if ( hasFocus() )
 	setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
     deselect();
     update();
+    setEdited( FALSE );
     if ( oldText != text ) {
 	emit textChanged( text );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
 #endif
     }
-    setEdited( FALSE );
 }
 
 
@@ -494,7 +496,7 @@ QString QLineEdit::text() const
     // calls to text() will get the same shared value.
     QString s = d->parag->string()->toString();
     s.remove( s.length() - 1, 1 ); // get rid of trailing space
-    if ( d->txtBuffer != s ) 
+    if ( d->txtBuffer != s )
 	d->txtBuffer = s;
     return d->txtBuffer;
 }
@@ -1903,11 +1905,7 @@ void QLineEdit::setFont( const QFont & f )
 
 void QLineEdit::clear()
 {
-    d->selectionStart = 0;
-    d->cursor->gotoEnd();
-    updateSelection();
-    del();
-    update();
+    setText( QString::fromLatin1("") );
 }
 
 
