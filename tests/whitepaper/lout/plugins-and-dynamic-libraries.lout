@@ -82,13 +82,11 @@ public:
 
 Q_EXPORT_PLUGIN( CopperStylePlugin )
 @End @CP
-@PP
 The new style can be set like this:
   qapplication @Index { QApplication }
 @IndentedDisplay @CP @Begin
 QApplication::setStyle( QStyleFactory::create("CopperStyle") );
 @End @CP
-@PP
 Database drivers, codecs, custom widgets and image formats that are
 supplied as plugins are detected and used by the application
 automatically.

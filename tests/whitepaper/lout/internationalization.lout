@@ -219,6 +219,7 @@ Qt itself contains about 400 user-visible strings, for which
 Trolltech provides French and German translations.
   french @Index { French }
   german @Index { German }
+@NP
 @End @SubSection
 @SubSection
     @Title { Qt Linguist }

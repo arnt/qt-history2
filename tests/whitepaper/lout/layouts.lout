@@ -46,18 +46,21 @@ QVBoxLayout and @Class QGridLayout.
   qhboxlayout @Index { QHBoxLayout }
   qvboxlayout @Index { QVBoxLayout }
 @Figure
-    @Caption { @Class QHBoxLayout with five child widgets }
+    @Caption { @Class QHBoxLayout }
 0.5 @Scale @IncludeGraphic { "images/qhbox.eps" }
-@Figure
-    @Caption { @Class QVBoxLayout with five child widgets }
-0.5 @Scale @IncludeGraphic { "images/qvbox.eps" }
-@Figure
-    @Caption { @Class QGridLayout with five child widgets }
-0.5 @Scale @IncludeGraphic { "images/qgrid.eps" }
 @PP
 @Class QHBoxLayout organizes the managed widgets in a single
-horizontal row from left to right. @Class QVBoxLayout organizes the
+horizontal row from left to right. 
+@Figure
+    @Caption { @Class QVBoxLayout }
+0.5 @Scale @IncludeGraphic { "images/qvbox.eps" }
+@PP
+@Class QVBoxLayout organizes the
 managed widgets in a single vertical column, from top to bottom.
+@Figure
+    @Caption { @Class QGridLayout }
+0.5 @Scale @IncludeGraphic { "images/qgrid.eps" }
+@PP
 @Class QGridLayout organizes the managed widgets in a grid of cells;
 widgets may span multiple cells.
   boxlayout @Index { Box layout }
@@ -97,7 +100,7 @@ provide appropriate reimplementations.
 @ListItem {
 @I{Setting stretch factors.} Stretch factors allow relative growth of
 child widgets, e.g. two thirds of any extra space made available
-should be allocated to widget A and one third to widget B. 
+should be allocated to widget A and one third to widget~B. 
   relativegrowth @Index { Relative growth }
   stretchfactor @Index { Stretch factor }
 }
@@ -163,17 +166,15 @@ QVBoxLayout *topLevelBox = new QVBoxLayout( this, 6, 11 );
 topLevelBox->addWidget( new QLabel("Select a country", this) );
 topLevelBox->addLayout( middleBox );
 @End @CP
-@PP
 Qt makes layouts so easy that programmers rarely use fixed
 positioning.
   designer @Index { Designer }
   fixedpositioning @Index { Fixed positioning }
   qtdesigner @Index { Qt Designer }
-@PP
 @Figure
     @Caption { Laying out a form in @QDR }
 0.5 @Scale @IncludeGraphic { "images/countries-designer.eps" }
-@LLP
+@PP
 @QDR makes layouts even easier. With only 17 mouse clicks, you can
 create and lay out the widgets for the dialog shown above.
 @End @SubSection

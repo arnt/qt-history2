@@ -93,7 +93,6 @@ a 2-pixel wide dashed red outline:
 painter.setPen( QPen(red, 2, DashLine) );
 painter.drawRect( 25, 15, 120, 60 );
 @End @CP
-@PP
 By default, the top-left corner of a widget is located at coordinates
 (0, 0), and the bottom-right corner is located at (@Func width() - 1,
 @Func height() - 1). The coordinate system of a @Class QPainter
@@ -148,7 +147,6 @@ void BarGraph::draw_bar( QPainter *painter, int month, int barHeight,
 		       barHeight );
 }
 @End @CP
-@PP
 The widget is drawn correctly at different sizes because the code
 uses the @Func width(), @Func height() and @Func rect() functions.
 The widget produced by this code is shown below.
@@ -320,7 +318,6 @@ that accept a @Class QColor argument and work in any mode.
   qcolor @Index { QColor }
   qglclearcolor @Index { qglClearColor() }
   qglcolor @Index { qglColor() }
-@NP
 @End @SubSection
 @SubSection
     @Title { A 3D Example }
@@ -362,7 +359,6 @@ private:
     GLfloat rotX, rotY, rotZ;
 };
 @End @CP
-@PP
 In @File box3d.cpp, the functions declared in @File box3d.h are
 implemented:
 @IndentedDisplay @CP @Begin
@@ -425,7 +421,6 @@ GLuint Box3D::makeObject()
     return list;
 }
 @End @CP
-@PP
 In @File main.cpp, a @Class Box3D instance and three sliders are
 created:
 @IndentedDisplay @CP @Begin

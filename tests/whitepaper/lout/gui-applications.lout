@@ -126,7 +126,6 @@ bar->insertItem( "&File", fileMenu );
 bar->insertItem( "&Edit", editMenu );
 bar->insertItem( "&Help", helpMenu );
 @End @CP
-@PP
 Qt's menu system is very flexible. Menu items can be enabled,
 disabled, added or removed dynamically. Menu items with customized
 appearance and behavior can be created by subclassing @Class
@@ -192,7 +191,6 @@ toolbar button:
 @IndentedDisplay @CP @Begin
 QWhatsThis::add( saveButton, "Saves the current file." );
 @End @CP
-@PP
 The @Class QToolTip and @Class QWhatsThis classes provide virtual
 functions that can be reimplemented for more specialized behavior.
 For example, to display different text according to the position
@@ -249,7 +247,6 @@ saveAct->setWhatsThis( "Saves the current file." );
 saveAct->addTo( fileMenu );
 saveAct->addTo( toolbar );
 @End @CP
-@PP
 In addition to avoiding duplication, using a @Class QAction ensures
 that the state of menu items stays in sync with the state of toolbar
 buttons, and that tool tips are displayed when necessary. Disabling
@@ -408,7 +405,6 @@ if ( dialog.exec() == QDialog::Accepted ) {
     do_something_with_file( dialog.selectedFile() );
 }
 @End @CP
-@PP
 Programmers can create their own dialogs by subclassing @Class
 QDialog, which inherits @Class QWidget.
 @End @SubSection
@@ -497,7 +493,6 @@ QThread, @Class QMutex, @Class QSemaphore and @Class QWaitCondition.
 @DP
 @OLREF @LP
 @Href{"http://doc.trolltech.com/3.0/threads.html"}@LLP
-@NP
 @End @SubSection
 @EndSubSections
 @End @Section

@@ -49,7 +49,7 @@
   @InitialSpace	{ tex			} # initial space style
   @InitialLanguage	{ English		} # initial language
   # @InitialColour	{ black			} # initial colour
-  @OptimizePages	{ Yes			} # optimize page breaks?
+  @OptimizePages	{ No			} # optimize page breaks?
   # @HeadingFont	{ Bold			} # font for @Heading
   @ParaGap		{ 1.5vx @OrIfPlain 1f	} # gap between paragraphs
     # @ParaIndent	{ 2.00f	@OrIfPlain 5s	} # first-line indent for @PP

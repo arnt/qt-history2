@@ -91,7 +91,6 @@ if ( query.isActive() ) {
 	    << " staff" << endl;
 }
 @End @CP
-@PP
 For programmers who are not comfortable writing raw SQL, the @Class
 QSqlCursor class provides a high-level interface for browsing and
 editing records in SQL tables or views without the need to write SQL
@@ -107,7 +106,6 @@ while ( cur.next() ) {
 	    << cur.value( "surname" ).toString() << endl;
 }
 @End @CP
-@PP
 @Class QSqlCursor also supports the ordering and filtering that are
 achieved using the @F ORDER @F BY and @F WHERE clauses in SQL
 statements.

@@ -102,7 +102,6 @@ private:
     int curBalance;
 };
 @End @CP
-@PP
 In the style of most C++ classes, the class @Class BankAccount has a
 constructor, a get function @Func balance(), and a set function @Func
 setBalance().

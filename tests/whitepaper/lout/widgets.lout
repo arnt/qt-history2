@@ -267,16 +267,15 @@ private:
     bool showingColon;
 };
 @End @CP
-  nameofwidget @Index { Name of widget }
-  parentwidget @Index { Parent widget }
-  timer @Index { Timer }
-@PP
 @Class Clock inherits its LCD functionality from the @Class
 QLCDNumber widget. It has a constructor typical of widget classes,
 with optional @F parent and @F name parameters. (Testing and
 debugging are easier if @F name is set.) The @Func timerEvent()
 function is inherited from @Class QObject and is called at regular
 intervals by the system.
+  nameofwidget @Index { Name of widget }
+  parentwidget @Index { Parent widget }
+  timer @Index { Timer }
 @PP
 In @File clock.cpp, the functions declared in @File clock.h are
 implemented:
@@ -306,7 +305,6 @@ void Clock::showTime()
     showingColon = !showingColon;
 }
 @End @CP
-@PP
 The constructor calls @Func showTime() to initialize the clock with
 the current time, and tells the system to call @Func timerEvent()
 every 1000 milliseconds to refresh the LCD display.
@@ -332,7 +330,6 @@ int main( int argc, char **argv )
     return app.exec();
 }
 @End @CP
-@PP
 This example program contains a single widget (the @Class Clock) and
 no child widgets. Complex widgets are built by combining widgets in
 layouts.

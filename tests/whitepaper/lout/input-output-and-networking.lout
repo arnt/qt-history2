@@ -40,7 +40,6 @@ if ( file.open(IO_WriteOnly) ) {
 	<< QColor( "skyblue" );
 }
 @End @CP
-@PP
 The data can easily be retrieved and used, for example:
 @IndentedDisplay @CP @Begin
 QString str;
@@ -98,7 +97,6 @@ for ( int i = 0; i < names.count(); i++ ) {
 	    << info.size() << endl;
 }
 @End @CP
-@PP
 Transparent access to remote files is provided by @Class
 QUrlOperator. In addition to local file system access, Qt supports
 the the FTP and HTTP protocols and can be extended to support other
@@ -114,7 +112,6 @@ QUrlOperator op;
 op.copy( QString("ftp://ftp.trolltech.com/qt/INSTALL"),
 	    QString("file:/tmp") );
 @End @CP
-@PP
 URLs can easily be parsed and recomposed using @Class QUrl.
 @PP
 Image files are usually read by creating a @Class QImage with the
@@ -200,7 +197,6 @@ connect( socket, SIGNAL(readyRead()),
 The socket is created in the @Class Converter constructor. Socket
 communication is asynchronous, and the socket emits the @Func
 readyRead() signal when there is data available to read.
-@PP
 @IndentedDisplay @CP @Begin
 void Converter::convert()
 {
@@ -218,7 +214,6 @@ ccp.banca-monica.nu. @Class QSocket automatically uses @Class QDns to
 resolve @F cpp.banca-monica.nu to its IP address. All these
 operations are non-blocking to keep the user interface responsive.
   qdns @Index { QDns }
-@PP
 @IndentedDisplay @CP @Begin
 void Converter::updateTargetAmount()
 {

@@ -133,7 +133,6 @@ An application's style can be set like this:
 @IndentedDisplay @CP @Begin
 QApplication::setStyle( new MyCustomStyle );
 @End @CP
-@PP
 A style can also be compiled as a plugin. Plugins make it possible to
 preview a form in a custom style in @QDR without recompiling Qt or
 @QDR. The style of an existing Qt application can be changed using a
