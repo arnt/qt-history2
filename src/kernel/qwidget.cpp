@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#98 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#99 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#98 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#99 $")
 
 
 /*----------------------------------------------------------------------------
@@ -1303,7 +1303,10 @@ void QWidget::keyReleaseEvent( QKeyEvent *e )
   A widget must \link setAcceptFocus() accept focus\endlink initially in
   order to receive focus events.
 
-  The default implementation does nothing.
+  The default implementation calls repaint() since the widget's \link
+  QColorGroup color group \endlink changes from normal to active.  You
+  may want to call repaint( FALSE ) to reduce flicker in any
+  reimplementation.
 
   \sa focusOutEvent(), setAcceptFocus(),
   keyPressEvent(), keyReleaseEvent(), event(), QFocusEvent
@@ -1311,6 +1314,7 @@ void QWidget::keyReleaseEvent( QKeyEvent *e )
 
 void QWidget::focusInEvent( QFocusEvent * )
 {
+    repaint();
 }
 
 /*----------------------------------------------------------------------------
@@ -1320,7 +1324,10 @@ void QWidget::focusInEvent( QFocusEvent * )
   A widget must \link setAcceptFocus() accept focus\endlink initially in
   order to receive focus events.
 
-  The default implementation does nothing.
+  The default implementation calls repaint() since the widget's \link
+  QColorGroup color group \endlink changes from active to normal.  You
+  may want to call repaint( FALSE ) to reduce flicker in any
+  reimplementation.
 
   \sa focusInEvent(), setAcceptFocus(),
   keyPressEvent(), keyReleaseEvent(), event(), QFocusEvent
@@ -1328,6 +1335,7 @@ void QWidget::focusInEvent( QFocusEvent * )
 
 void QWidget::focusOutEvent( QFocusEvent * )
 {
+    repaint();
 }
 
 /*----------------------------------------------------------------------------
