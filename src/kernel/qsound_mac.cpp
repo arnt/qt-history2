@@ -98,7 +98,6 @@ QMAC_PASCAL OSErr FSpLocationFromFullPath( short fullPathLength,
     result = NewAliasMinimalFromFullPath( fullPathLength, fullPath, nullString,
 					  nullString, &alias );
     if ( result == noErr ) {
-        qDebug( "first 1" );
 	/* Let the Alias Manager resolve the alias. */
 	result = ResolveAlias( NULL, alias, spec, &wasChanged );
 		

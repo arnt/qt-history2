@@ -60,7 +60,7 @@
 #include "qsocketnotifier.h"
 #include "qsessionmanager.h"
 #include "qvaluelist.h"
-#include "qdict.h"
+#include "qptrdict.h"
 #include "qguardedptr.h"
 #include "qclipboard.h"
 #include "qpaintdevicemetrics.h"
@@ -103,6 +103,7 @@ static Cursor *currentCursor;                  //current cursor
 QObject	       *qt_clipboard = 0;
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 QWidget        *qt_mouseover = 0;
+QPtrDict<void> unhandled_dialogs;             //all unhandled dialogs (ie mac file dialog)
 
 //special case popup handlers - look where these are used, they are very hacky,
 //and very special case, if you plan on using these variables be VERY careful!!
@@ -212,6 +213,8 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
 	    { kEventClassMouse, kEventMouseUp },
 	    { kEventClassMouse, kEventMouseDragged },
 	    { kEventClassMouse, kEventMouseMoved },
+	    { kEventClassWindow, kEventWindowShown },
+	    { kEventClassWindow, kEventWindowHidden },
 
 	    { kEventClassKeyboard, kEventRawKeyUp },
 	    { kEventClassKeyboard, kEventRawKeyDown },
@@ -400,7 +403,7 @@ QWidget *QApplication::widgetAt( int x, int y, bool child)
     p.v=y;
     WindowPtr wp;
     FindWindow(p,&wp);
-    if(!wp)
+    if(!wp || unhandled_dialogs.find((void *)wp))
 	return NULL; //oh well, not my widget!
 
     //get that widget
@@ -1228,7 +1231,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
     QApplication *app = (QApplication *)data;
     if ( app->macEventFilter( event ) )
 	return 1;
-
     QWidget *widget = NULL;
 
     UInt32 ekind = GetEventKind(event);
@@ -1523,8 +1525,14 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	GetEventParameter(event, kEventParamDirectObject, typeWindowRef, NULL,
 			  sizeof(WindowRef), NULL, &wid);
 	widget = QWidget::find( (WId)wid );
+
 	if(!widget) {
-	    qWarning("Couldn't find EventClasWindow widget for %d", (int)wid);
+	    if(ekind == kEventWindowShown )
+		unhandled_dialogs.insert((void *)wid, (void *)1);
+	    else if(ekind == kEventWindowHidden)
+		unhandled_dialogs.remove((void *)wid);		
+	    else 
+		qWarning("Couldn't find EventClasWindow widget for %d", (int)wid);
 	    break;
 	}
 
