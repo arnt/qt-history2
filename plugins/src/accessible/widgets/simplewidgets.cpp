@@ -128,8 +128,12 @@ int QAccessibleButton::state(int child) const
     if (b->isDown())
 	state |= Pressed;
     QPushButton *pb = qt_cast<QPushButton*>(b);
-    if (pb && pb->isDefault())
-	state |= DefaultButton;
+    if (pb) {
+	if (pb->isDefault())
+	    state |= DefaultButton;
+	if (pb->popup())
+	    state |= HasPopup;
+    }
 
     return state;
 }
