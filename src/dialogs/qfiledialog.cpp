@@ -2562,7 +2562,7 @@ QStringList QFileDialog::selectedFiles() const
     } else {
 	lst << selectedFile();
     }
-    
+
     return lst;
 }
 
@@ -3131,8 +3131,9 @@ void QFileDialog::cancelClicked()
 /*!\reimp
 */
 
-void QFileDialog::resizeEvent( QResizeEvent * )
+void QFileDialog::resizeEvent( QResizeEvent * e )
 {
+    QDialog::resizeEvent( e );
     updateGeometries();
 }
 
