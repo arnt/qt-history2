@@ -155,23 +155,19 @@ Win32MakefileGenerator::findHighestVersion(const QString &d, const QString &stem
 	return -1;
     if(!project->variables()["QMAKE_" + stem.upper() + "_VERSION_OVERRIDE"].isEmpty()) 
 	return project->variables()["QMAKE_" + stem.upper() + "_VERSION_OVERRIDE"].first().toInt();
-    QString bd = d;
+    QString bd = d; 
     fixEnvVariables(bd);
-    QDir dir(bd, stem + "*.lib");
+    QDir dir(bd);
+    int biggest=-1;
     QStringList entries = dir.entryList();
-    int nbeg, nend, biggest=-1;
+    QRegExp regx("(" + stem + "([0-9]*)).lib");
     for(QStringList::Iterator it = entries.begin(); it != entries.end(); ++it) {
-	if((nbeg = (*it).find(QRegExp("[0-9]"))) != -1) {
-	    nend = (*it).findRev(QRegExp("[0-9]", nbeg)) + 1;
-	    int n = (*it).mid(nbeg, nend - nbeg).toInt();
-	    if(n > biggest)
-		biggest = n;
-	} else if(biggest == -1) {
-	    biggest = 0;
-	}
+	if(regx.exactMatch((*it))) 
+	    biggest = QMAX(biggest, (regx.cap(1) == stem || regx.cap(2).isEmpty()) ? 0 : regx.cap(2).toInt());
     }
     return biggest;
 }
+
 bool 
 Win32MakefileGenerator::findLibraries(const QString &where)
 {
