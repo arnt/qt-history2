@@ -1196,7 +1196,7 @@ QCString QFont_Private::bestFamilyMember( const QString& foundry,
 	int alternator = 0;
 	int next;
 	int bias = 0;
-	while ( alternator < family.length() ) {
+	while ( alternator < (int)family.length() ) {
 	    next = family.find(alt,alternator);
 	    if ( next < alternator ) next = family.length();
 	    QString fam = family.mid(alternator,next-alternator);
