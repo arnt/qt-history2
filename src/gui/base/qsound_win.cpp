@@ -92,21 +92,31 @@ DWORD WINAPI SoundPlayProc(LPVOID param)
     // and all other sounds have to wait
     WaitForSingleObject(mutex, INFINITE);
 
+    if (loops == -1) {
+	server->current = 0;
+	QT_WA( {
+	    PlaySoundW( (TCHAR*)filename.ucs2(), 0, SND_FILENAME|SND_ASYNC|SND_LOOP );
+	} , {
+	    PlaySoundA( QFile::encodeName(filename).data(), 0, SND_FILENAME|SND_ASYNC|SND_LOOP );
+	} );
+    } 
+    
     // signal GUI thread to continue - sound might be reset!
     SetEvent(event);
 
-    for (int l = 0; l < loops && server->current; ++l) {
-	QT_WA( {
-	    PlaySoundW( (TCHAR*)filename.ucs2(), 0, SND_FILENAME|SND_SYNC );
-	} , {
-	    PlaySoundA( QFile::encodeName(filename).data(), 0, SND_FILENAME|SND_SYNC );
-	} );
-
-	if (sound)
-	    server->decLoop(sound);
+    if (loops != -1) {
+	for (int l = 0; l < loops && server->current; ++l) {
+	    QT_WA( {
+		PlaySoundW( (TCHAR*)filename.ucs2(), 0, SND_FILENAME|SND_SYNC );
+	    } , {
+		PlaySoundA( QFile::encodeName(filename).data(), 0, SND_FILENAME|SND_SYNC );
+	    } );
+	    
+	    if (sound)
+		server->decLoop(sound);
+	}
+	server->current = 0;
     }
-
-    server->current = 0;
     ReleaseMutex(mutex);
 
     return 0;
