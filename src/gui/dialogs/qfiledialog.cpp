@@ -966,12 +966,9 @@ void QFileDialog::fileNameChanged(const QString &text)
 void QFileDialog::lookInChanged(const QString &text)
 {
     if (d->lookInEdit->hasFocus()) {
-        // FIXME: this is a combobox focus problem:
-        // the lineedit gets focus after the listview, and so this fuction believes that
-        // the user wrote something in the lineedit and tries to autocomplete it
 
         int key = d->lookInEdit->lastKeyPressed();
-        if (key == QDir::separator())
+        if (key == QDir::separator() || text == QString(QDir::separator()))
             return;
 
         // text is the local path format (on windows separator is '\\')
