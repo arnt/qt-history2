@@ -28,7 +28,7 @@ class GraphWidgetPrivate
 public:
     GraphWidgetPrivate() {
 	moving = 0;
-	speed = 200;
+	speed = 275;
     }
     ~GraphWidgetPrivate() {
 	delete canvas;
