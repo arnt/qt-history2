@@ -60,7 +60,7 @@ public:
     QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
 
     bool isSortable() const;
-    void sort(int column, const QModelIndex &parent, Qt::SortOrder order);
+    void sort(int column, Qt::SortOrder order, const QModelIndex &parent);
     void sortAll(int column, Qt::SortOrder);
 
     static bool itemLessThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right);
@@ -542,7 +542,7 @@ bool QTreeModel::isSortable() const
   in the given \a order by the values in the given \a column.
 */
 
-void QTreeModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order)
+void QTreeModel::sort(int column, Qt::SortOrder order, const QModelIndex &parent)
 {
     if (column == -1)
         return;

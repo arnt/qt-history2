@@ -45,7 +45,7 @@ public:
     QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
 
     bool isSortable() const;
-    void sort(int column, const QModelIndex &parent, Qt::SortOrder order);
+    void sort(int column, Qt::SortOrder order, const QModelIndex &parent);
 
     static bool itemLessThan(const QListWidgetItem *left, const QListWidgetItem *right);
     static bool itemGreaterThan(const QListWidgetItem *left, const QListWidgetItem *right);
@@ -219,7 +219,7 @@ bool QListModel::isSortable() const
     return true;
 }
 
-void QListModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order)
+void QListModel::sort(int column, Qt::SortOrder order, const QModelIndex &parent)
 {
     if (column != 0 || parent.isValid())
         return;
@@ -927,7 +927,7 @@ void QListWidget::setCurrentItem(QListWidgetItem *item)
 */
 void QListWidget::sortItems(Qt::SortOrder order)
 {
-    d->model()->sort(0, QModelIndex(), order);
+    d->model()->sort(0, order, QModelIndex());
 }
 
 /*!

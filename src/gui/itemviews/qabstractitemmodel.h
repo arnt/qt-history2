@@ -33,14 +33,14 @@ public:
     inline int column() const { return c; }
     inline void *data() const { return d; }
     inline QModelIndex parent() const;
+    inline QModelIndex sibling(int row, int column) const;
+    inline QModelIndex child(int row, int column) const;
     inline const QAbstractItemModel *model() const { return m; }
     inline bool isValid() const { return (r >= 0) && (c >= 0) && (m != 0); }
     inline bool operator==(const QModelIndex &other) const
         { return (other.r == r && other.c == c && other.d == d && other.m == m); }
     inline bool operator!=(const QModelIndex &other) const
         { return !(*this == other); }
-    inline bool operator==(const QPersistentModelIndex &other) const;
-    inline bool operator!=(const QPersistentModelIndex &other) const;
 private:
     inline QModelIndex(int row, int column, void *data, const QAbstractItemModel *model)
         : r(row), c(column), d(data), m(model) {}
@@ -83,11 +83,6 @@ private:
 #endif
 };
 Q_DECLARE_TYPEINFO(QPersistentModelIndex, Q_MOVABLE_TYPE);
-
-inline bool QModelIndex::operator==(const QPersistentModelIndex &o) const
-{ return o.operator==(*this); }
-inline bool QModelIndex::operator!=(const QPersistentModelIndex &o) const
-{ return o.operator!=(*this); }
 
 #ifndef QT_NO_DEBUG
 Q_GUI_EXPORT QDebug operator<<(QDebug, const QPersistentModelIndex &);
@@ -300,5 +295,11 @@ private:
 
 inline QModelIndex QModelIndex::parent() const
 { return m ? m->parent(*this) : QModelIndex(); }
+
+inline QModelIndex QModelIndex::sibling(int row, int column) const
+{ return m ? m->index(row, column, m->parent(*this)) : QModelIndex(); }
+
+inline QModelIndex QModelIndex::child(int row, int column) const
+{ return m ? m->index(row, column, *this) : QModelIndex(); }
 
 #endif

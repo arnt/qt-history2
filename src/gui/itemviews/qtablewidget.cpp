@@ -64,7 +64,7 @@ public:
     QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
 
     bool isSortable() const;
-    void sort(int column, const QModelIndex &parent, Qt::SortOrder order);
+    void sort(int column, Qt::SortOrder order, const QModelIndex &parent);
 
     static bool itemLessThan(const QTableWidgetItem *left, const QTableWidgetItem *right);
     static bool itemGreaterThan(const QTableWidgetItem *left, const QTableWidgetItem *right);
@@ -358,7 +358,7 @@ bool QTableModel::isSortable() const
     return true;
 }
 
-void QTableModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order)
+void QTableModel::sort(int column, Qt::SortOrder order, const QModelIndex &parent)
 {
     Q_UNUSED(parent);
     QVector<QTableWidgetItem*> sorting(rowCount());
@@ -1286,7 +1286,7 @@ void QTableWidget::setCurrentItem(QTableWidgetItem *item)
 */
 void QTableWidget::sortItems(int column, Qt::SortOrder order)
 {
-    d->model()->sort(column, QModelIndex(), order);
+    d->model()->sort(column, order, QModelIndex());
     horizontalHeader()->setSortIndicator(column, order);
 }
 

@@ -751,7 +751,7 @@ bool QSqlTableModel::isSortable() const
 
     \sa setSort(), isSortable(), select(), orderByStatement()
  */
-void QSqlTableModel::sort(int column, Qt::SortOrder order)
+void QSqlTableModel::sort(int column, Qt::SortOrder order, const QModelIndex &)
 {
     d->sortColumn = column;
     d->sortOrder = order;
