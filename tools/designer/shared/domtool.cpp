@@ -83,12 +83,8 @@ QStringList DomTool::propertiesOfType( const QDomElement& e, const QString& type
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName() == "property" ) {
 	    QDomElement n2 = n.firstChild().toElement();
-	    if ( n2.tagName() == "name" ) {
-		QString prop = n2.firstChild().toText().data();
-		n2 = n2.nextSibling().toElement();
-		if ( n2.tagName() == type )
-		    result += prop;
-	    }
+	    if ( n2.tagName() == type )
+		result += n.attribute( "name" );
 	}
     }
     return result;
