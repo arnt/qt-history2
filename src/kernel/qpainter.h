@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#32 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#33 $
 **
 ** Definition of QPainter class
 **
@@ -183,17 +183,17 @@ public:
     void	drawText( const QPoint &, const char *str, int len = -1 );
     void	drawText( int x, int y, int w, int h, int flags,
 			  const char *str, int len = -1,
-			  QSize *s=0, char **i=0 );
+			  char **i=0, QSize *s=0 );
     void	drawText( const QRect &, int flags,
 			  const char *str, int len = -1,
-			  QSize *s=0, char **i=0 );
+			  char **i=0, QSize *s=0 );
 
   // Text drawing functions
 
     QRect	boundingRect( int x, int y, int w, int h, int flags,
-			      const char *str, int len = -1 );
+			      const char *str, int len = -1, char **i=0 );
     QRect	boundingRect( const QRect &, int flags,
-			      const char *str, int len = -1 );
+			      const char *str, int len = -1, char **i=0 );
 
     int		tabStops() const	{ return tabstops; }
     void	setTabStops( int );
@@ -414,15 +414,16 @@ inline void QPainter::drawText( const QPoint &p, const char *s, int len )
 }
 
 inline void QPainter::drawText( const QRect &r, int tf,
-				const char *str, int len, QSize *s, char **i )
+				const char *str, int len, char **i, QSize *s )
 {
-    drawText( r.x(), r.y(), r.width(), r.height(), tf, str, len, s, i );
+    drawText( r.x(), r.y(), r.width(), r.height(), tf, str, len, i, s );
 }
 
 inline QRect QPainter::boundingRect( const QRect &r, int tf,
-				     const char *str, int len )
+				     const char *str, int len, char **i )
 {
-    return boundingRect( r.x(), r.y(), r.width(), r.height(), tf, str, len );
+    return boundingRect( r.x(), r.y(), r.width(), r.height(), tf, str, len,
+			 i );
 }
 
 #endif // inline functions
