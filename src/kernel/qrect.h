@@ -228,17 +228,17 @@ inline QSize QRect::size() const
 { return QSize(x2-x1+1, y2-y1+1); }
 
 // worth inlining since proper is usually a constant (and usually FALSE)
-#ifndef QRECT_C
-inline bool QRect::contains( const QPoint &p, bool proper ) const
-{
-    if ( proper )
-        return p.x() > x1 && p.x() < x2 &&
-               p.y() > y1 && p.y() < y2;
-    else
-        return p.x() >= x1 && p.x() <= x2 &&
-               p.y() >= y1 && p.y() <= y2;
-}
-#endif
+// #ifndef QRECT_C
+// inline bool QRect::contains( const QPoint &p, bool proper ) const
+// {
+//     if ( proper )
+//         return p.x() > x1 && p.x() < x2 &&
+//                p.y() > y1 && p.y() < y2;
+//     else
+//         return p.x() >= x1 && p.x() <= x2 &&
+//                p.y() >= y1 && p.y() <= y2;
+// }
+// #endif
 inline bool QRect::contains( int x, int y, bool proper ) const
 {
     if ( proper )

@@ -341,6 +341,7 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  kernel/qbitmap.cpp \
 		  kernel/qclipboard.cpp \
 		  kernel/qcolor.cpp \
+		  kernel/qcolor_p.cpp \
 		  kernel/qconnection.cpp \
 		  kernel/qcursor.cpp \
 		  kernel/qdialog.cpp \

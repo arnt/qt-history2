@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#375 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#376 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -503,7 +503,7 @@ static void qt_set_windows_resources()
   qt_init() - initializes Qt for Windows
  *****************************************************************************/
 
-void qt_init( int *argcptr, char **argv )
+void qt_init( int *argcptr, char **argv, int )
 {
     // Detect the Windows version
     (void) QApplication::winVersion();
