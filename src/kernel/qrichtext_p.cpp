@@ -417,6 +417,10 @@ QString QTextString::toString( const QMemArray<QTextStringChar> &data )
 	// properly, actually this should be fixed in QFont somewhere
 	if ( *uc == (char)0xa0 )
 	    *uc = 0x20;
+	// ### woraround so that \n are drawn
+	// properly, actually this should be fixed in QFont somewhere
+	if ( *uc == '\n' )
+	    *uc = 0x20;
 	uc++;
 	c++;
     }
@@ -436,6 +440,10 @@ QString QTextString::toReverseString() const
 	// ### woraround so that non-breaking whitespaces are drawn
 	// properly, actually this should be fixed in QFont somewhere
 	if ( *uc == (char)0xa0 )
+	    *uc = 0x20;
+	// ### woraround so that \n are drawn
+	// properly, actually this should be fixed in QFont somewhere
+	if ( *uc == '\n' )
 	    *uc = 0x20;
 	uc++;
 	c--;

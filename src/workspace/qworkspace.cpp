@@ -1565,6 +1565,8 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     connect( widgetResizeHandler, SIGNAL( activate() ),
 	     this, SLOT( activate() ) );
     widgetResizeHandler->setExtraHeight( th + 1 );
+
+    setBaseSize( baseSize() );
 }
 
 QWorkspaceChild::~QWorkspaceChild()

@@ -1253,6 +1253,7 @@ QString QTime::toString( Qt::DateFormat f ) const
 	    st.wHour = hour();
 	    st.wMinute = minute();
 	    st.wSecond = second();
+	    st.wMilliseconds = 0;
 #if defined(UNICODE)
 	    if ( qWinVersion() & Qt::WV_NT_based ) {
 		TCHAR buf[255];

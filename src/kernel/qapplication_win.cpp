@@ -48,6 +48,7 @@
 #include "qthread.h"
 #include "qlibrary.h"
 #include "qt_windows.h"
+#include <private/qinternal_p.h>
 
 #include <windowsx.h>
 #include <limits.h>
@@ -838,6 +839,7 @@ void qt_cleanup()
     QCursor::cleanup();
     QFont::cleanup();
     QColor::cleanup();
+    QSharedDoubleBuffer::cleanup();
 #if defined(QT_THREAD_SUPPORT)
     QThread::cleanup();
 #endif
