@@ -55,8 +55,8 @@ public:
     ~QNullResult(){}
 protected:
     QVariant    data( int ) { return QVariant(); }
-    bool        reset ( const QString& sqlquery ) { QString s(sqlquery); return FALSE; }
-    bool        fetch( int i ) { i = i; return FALSE; }
+    bool        reset ( const QString& /*sqlquery*/ ) { return FALSE; }
+    bool        fetch( int /*i*/ ) { return FALSE; }
     bool        fetchFirst() { return FALSE; }
     bool        fetchLast() { return FALSE; }
     bool        isNull( int ) {return FALSE; }
