@@ -1414,6 +1414,8 @@ void QAbstractSocket::close()
 
     d->resetSocketLayer();
     d->state = Qt::UnconnectedState;
+    setFlags(flags() & ~(Open | ReadWrite));
+
     emit stateChanged(d->state);
     emit closed();
 }
