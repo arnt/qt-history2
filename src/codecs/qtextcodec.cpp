@@ -695,9 +695,11 @@ static QTextCodec * ru_RU_hack( const char * i ) {
 static QTextCodec * localeMapper = 0;
 
 /*!
-  Set the codec to \a c; this will be returned by \sa codecForLocale.
+  Set the codec to \a c; this will be returned by codecForLocale.
   This might be needed for some applications, that want to use their
   own mechanism for setting the locale.
+
+  \sa codecForLocale
 */
 void QTextCodec::setCodecForLocale(QTextCodec *c) { localeMapper = c;
 }

@@ -1076,8 +1076,6 @@ void QWidget::deactivateWidgetCleanup()
   The window identifier type depends by the underlying window system,
   see qwindowdefs.h for the actual definition.
   If there is no widget with this identifier, a null pointer is returned.
-
-  \sa wmapper(), id()
 */
 
 QWidget *QWidget::find( WId id )
@@ -1862,7 +1860,7 @@ void QWidget::setFixedWidth( int w )
   Sets both the minimum and maximum heights of the widget to \a h
   without changing the widths.  Provided for convenience.
 
-  \sa sizeHint() minimumSize() maximumSize() setFixedSize() and more
+  \sa sizeHint() minimumSize() maximumSize() setFixedSize()
 */
 
 void QWidget::setFixedHeight( int h )
@@ -1977,7 +1975,7 @@ QWidget *QWidget::topLevelWidget() const
   background mode is PaletteButton the palette entry
   QColorGroup::ButtonText is set to color.
 
-  \sa setPalette() QApplication:setPalette() backgroundMode()
+  \sa setPalette() QApplication::setPalette() backgroundMode()
       foregroundColor() setBackgroundMode() setEraseColor()
 */
 const QColor &QWidget::paletteForegroundColor() const
@@ -2017,7 +2015,7 @@ const QColor &QWidget::foregroundColor() const
 
   Returns the erase color of the widget.
 
-  \sa setEraseColor() setErasePixmap() backgroundColor
+  \sa setEraseColor() setErasePixmap() backgroundColor()
 */
 
 /*!
@@ -2027,7 +2025,7 @@ const QColor &QWidget::foregroundColor() const
   paintEvent() is called. If there is an erase pixmap (set using
   setErasePixmap()), then this property has an indeterminate value.
 
-  \sa erasePixmap(), backgroundColor, backgroundMode, palette
+  \sa erasePixmap(), backgroundColor(), backgroundMode(), palette()
 */
 void QWidget::setEraseColor( const QColor & color )
 {
@@ -2396,7 +2394,7 @@ void QWidget::setPaletteBackgroundPixmap( const QPixmap &pixmap )
     The background brush depends on a widget's palette and its
     background mode.
 
-  \sa backgroundColor,  backgroundPixmap, eraseColor,  palette, QApplication::setPalette()
+  \sa backgroundColor(), backgroundPixmap(), eraseColor(),  palette, QApplication::setPalette()
 */
 const QBrush& QWidget::backgroundBrush() const
 {
@@ -3553,7 +3551,7 @@ void QWidget::show()
   You almost never have to reimplement this function. If you need to
   do something after a widget is hidden, use hideEvent() instead.
 
-  \sa isHhideEvent(), isHidden(), show(), showMinimized(), isVisible(), close()
+  \sa hideEvent(), isHidden(), show(), showMinimized(), isVisible(), close()
 */
 
 void QWidget::hide()
