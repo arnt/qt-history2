@@ -25,7 +25,7 @@ HEADERS =	qaccel.h	qapp.h		qbitmap.h	qbrush.h      \
 		qpmcache.h	qpntarry.h	qpoint.h	qprinter.h    \
 		qpsprn.h	qrect.h		qregion.h	qsignal.h     \
 		qsize.h		qtimer.h	qwidcoll.h	qwidget.h     \
-		qwindefs.h	qwindow.h	qwmatrix.h
+		qwindefs.h	qwindow.h	qwmatrix.h	qsocknot.h
 SOURCES =	qaccel.cpp	qapp.cpp	qapp_x11.cpp	qbitmap.cpp   \
 		qcol_x11.cpp	qcolor.cpp	qconnect.cpp	qcur_x11.cpp  \
 		qcursor.cpp	qdialog.cpp	qdrawutl.cpp	qevent.cpp    \
@@ -36,7 +36,7 @@ SOURCES =	qaccel.cpp	qapp.cpp	qapp_x11.cpp	qbitmap.cpp   \
 		qprn_x11.cpp	qpsprn.cpp	qptd_x11.cpp	qptr_x11.cpp  \
 		qrect.cpp	qregion.cpp	qrgn_x11.cpp	qsignal.cpp   \
 		qsize.cpp	qtimer.cpp	qwid_x11.cpp	qwidget.cpp   \
-		qwindow.cpp	qwmatrix.cpp
+		qwindow.cpp	qwmatrix.cpp	qsocknot.cpp
 OBJECTS =	qaccel.o	qapp.o		qapp_x11.o	qbitmap.o     \
 		qcol_x11.o	qcolor.o	qconnect.o	qcur_x11.o    \
 		qcursor.o	qdialog.o	qdrawutl.o	qevent.o      \
@@ -47,11 +47,11 @@ OBJECTS =	qaccel.o	qapp.o		qapp_x11.o	qbitmap.o     \
 		qprn_x11.o	qpsprn.o	qptd_x11.o	qptr_x11.o    \
 		qrect.o		qregion.o	qrgn_x11.o	qsignal.o     \
 		qsize.o		qtimer.o	qwid_x11.o	qwidget.o     \
-		qwindow.o	qwmatrix.o
+		qwindow.o	qwmatrix.o	qsocknot.o
 SRCMETA	=	maccel.cpp	mapp.cpp	mdialog.cpp	mtimer.cpp    \
-		mwidget.cpp	mwindow.cpp
+		mwidget.cpp	mwindow.cpp	msocknot.cpp
 OBJMETA	=	maccel.o	mapp.o		mdialog.o	mtimer.o      \
-		mwidget.o	mwindow.o
+		mwidget.o	mwindow.o	msocknot.o
 TARGET	=	$(LIBDIR)/libqkernel.a
 
 ####### Implicit rules
@@ -117,6 +117,9 @@ mapp.cpp: qapp.h
 
 mdialog.cpp: qdialog.h
 	$(QTDIR)/bin/moc qdialog.h -o mdialog.cpp
+
+msocknot.cpp: qsocknot.h
+	$(QTDIR)/bin/moc qsocknot.h -o msocknot.cpp
 
 mtimer.cpp: qtimer.h
 	$(QTDIR)/bin/moc qtimer.h -o mtimer.cpp
