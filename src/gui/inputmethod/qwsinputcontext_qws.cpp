@@ -14,6 +14,7 @@
 
 static QWidget* activeWidget = 0;
 
+//#define EXTRA_DEBUG
 
 QWSInputContext::QWSInputContext(QObject *parent)
     :QInputContext(parent)
@@ -32,15 +33,24 @@ void QWSInputContext::setFocusWidget( QWidget *w )
     if (oldFocus == w)
         return;
 
-    //########### if (language() != QLatin1String("ja"))
-        reset();
+    if (oldFocus) {
+        QWidget *tlw = oldFocus->window();
+        int winid = tlw->winId();
 
-    // unsetfocus ???
+        int widgetid = oldFocus->winId();
+        QPaintDevice::qwsDisplay()->sendIMUpdate(QWSIMUpdateCommand::FocusOut, winid, widgetid);
+    }
 
     QInputContext::setFocusWidget(w);
 
     if (!w)
         return;
+
+    QWidget *tlw = w->window();
+    int winid = tlw->winId();
+
+    int widgetid = w->winId();
+    QPaintDevice::qwsDisplay()->sendIMUpdate(QWSIMUpdateCommand::FocusIn, winid, widgetid);
 
     //setfocus ???
 
@@ -134,10 +144,10 @@ bool QWSInputContext::translateIMEvent(QWidget *w, const QWSIMEvent *e)
             data = qVariant(qic->standardFormat(static_cast<QInputContext::StandardFormat>(data.toInt())));
         attrs << QInputMethodEvent::Attribute(static_cast<QInputMethodEvent::AttributeType>(type), start, length, data);
     }
-
+#ifdef EXTRA_DEBUG
     qDebug() << "preedit" << preedit << "len" << preedit.length() <<"commit" << commit << "len" << commit.length()
              << "n attr" << attrs.count();
-
+#endif
 
 
     QInputMethodEvent ime(preedit, attrs);

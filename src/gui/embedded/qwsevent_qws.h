@@ -24,10 +24,14 @@ struct QWSEvent : QWSProtocolItem {
 
     QWSEvent(int t, int len, char *ptr) : QWSProtocolItem(t,len,ptr) {}
 
+
+
     enum Type {
         NoEvent,
         Connected,
-        Mouse, Focus, Key,
+        Mouse,
+        Focus,
+        Key,
         RegionModified,
         Creation,
         PropertyNotify,
@@ -39,7 +43,6 @@ struct QWSEvent : QWSProtocolItem {
         QCopMessage,
         WindowOperation,
         IMEvent,
-
         IMQuery,
         IMInit,
         NEvent

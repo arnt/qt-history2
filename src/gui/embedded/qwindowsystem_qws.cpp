@@ -1240,6 +1240,8 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state, int wheel)
     //reset input method if we click outside
     //####### we can't do this; IM may want to do something different
 
+    // TODO: add an attribute IMTransparent
+
     static int oldstate = 0;
     bool isPress = state > oldstate;
     oldstate = state;
@@ -1573,6 +1575,7 @@ void QWSServer::sendIMEvent(IMState state, const QString& txt, int cpos, int sel
 
     current_IM_State = state;
     current_IM_win = win;
+    current_IM_winId = win->winId();
 }
 
 
@@ -1600,9 +1603,8 @@ void QWSServer::sendIMQuery(int property)
 */
 void QWSServer::setCurrentInputMethod(QWSInputMethod *im)
 {
-    //###### IM should decide
-    if (current_IM_State != InputMethodEnd && im != current_IM && qwsServer)
-        qwsServer->sendIMEvent(InputMethodEnd, "", -1, 0);
+    if (current_IM)
+        current_IM->reset(); //??? send an update event instead ?
     current_IM = im;
 }
 
@@ -1777,9 +1779,11 @@ void QWSServer::setFocus(QWSWindow* changingw, bool gain)
          loser = focusw;
       But these five lines can be reduced to one:
     */
-    QWSWindow *loser =  (!gain == (focusw==changingw)) ? focusw : 0;
-    if (loser && loser->winId() == current_IM_winId)
-        resetInputMethod();
+    if (current_IM) {
+        QWSWindow *loser =  (!gain == (focusw==changingw)) ? focusw : 0;
+        if (loser && loser->winId() == current_IM_winId)
+            current_IM->updateHandler(QWSIMUpdateCommand::FocusOut);
+    }
 #endif
     if (gain) {
         if (focusw != changingw) {
@@ -2048,15 +2052,11 @@ void QWSServer::invokeQCopSend(QWSQCopSendCommand *cmd, QWSClient *client)
 #ifndef QT_NO_QWS_IM
 void QWSServer::resetInputMethod()
 {
-    if (current_IM && current_IM_State == InputMethodEnd)
-        current_IM_State = IMInternal;
-
     if (current_IM && qwsServer) {
       current_IM->reset();
     }
-    if (current_IM_State != InputMethodEnd) // IM didn't send InputMethodEnd //##### GET RID OF THIS !!!
-        qwsServer->sendIMEvent(InputMethodEnd, QString::null, -1, -1);
     current_IM_winId = -1;
+    current_IM_win = 0;
 }
 
 void QWSServer::invokeIMResponse(const QWSIMResponseCommand *cmd,
@@ -2069,6 +2069,10 @@ void QWSServer::invokeIMResponse(const QWSIMResponseCommand *cmd,
 void QWSServer::invokeIMUpdate(const QWSIMUpdateCommand *cmd,
                                  QWSClient *)
 {
+    if (cmd->simpleData.type == QWSIMUpdateCommand::Update ||
+        cmd->simpleData.type == QWSIMUpdateCommand::FocusIn)
+        current_IM_winId = cmd->simpleData.windowid;
+
     if (current_IM)
         current_IM->updateHandler(cmd->simpleData.type);
 }
@@ -3020,10 +3024,14 @@ QWSInputMethod::~QWSInputMethod()
 
 /*!
     Implemented in subclasses to reset the state of the input method.
+
+    The default implementation calls sendIMEvent() with empty preedit
+    and commit strings, if the input method is in compose mode.
 */
 void QWSInputMethod::reset()
 {
-
+    if (current_IM_State != QWSServer::InputMethodEnd)
+        sendIMEvent(QWSServer::InputMethodEnd, QString(), 0, 0);
 }
 
 /*
