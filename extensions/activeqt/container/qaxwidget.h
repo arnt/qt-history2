@@ -47,9 +47,9 @@ protected:
     void paletteChange( const QPalette &old );
     void fontChange( const QFont &old );
     void windowActivationChange( bool old );
-    
-    void resizeEvent( QResizeEvent * );
 
+    void resizeEvent( QResizeEvent * );
+    virtual bool translateKeyEvent(int message, int keycode) const;
 private:
     friend class QAxHostWindow;
 

@@ -247,6 +247,12 @@ public:
     QSize minimumSizeHint() const;
 
     bool invisibleAtRuntime() const;
+    bool translateKeyEvent(int message, int keycode) const
+    {
+	if (!widget)
+	    return FALSE;
+	return widget->translateKeyEvent(message, keycode);
+    }
 
     bool qt_emit( int isignal, QUObject *obj );
 
@@ -295,7 +301,7 @@ LRESULT CALLBACK axc_FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
     int	   button;
     int	   state;
     int	   i;
-    if ( !reentrant && lParam ) {
+    if ( !reentrant && lParam && nCode >= 0 ) {
 	reentrant = TRUE;
 	MSG *msg = (MSG*)lParam;
 	const uint message = msg->message;
@@ -310,32 +316,12 @@ LRESULT CALLBACK axc_FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 		    ax = (QAxWidget*)widget->qt_cast( "QAxWidget" );
 		hwnd = ::GetParent( hwnd );
 	    }
-	    // ### ugl-hack for MS Office Spreadsheet
-	    if ( ax && msg->hwnd != ax->winId() && ax->control() != "{0002E510-0000-0000-C000-000000000046}" ) {
+	    if (ax && msg->hwnd != ax->winId()) {
 		if ( message >= WM_KEYFIRST && message <= WM_KEYLAST ) {
 		    QAxHostWidget *host = (QAxHostWidget*)ax->child( "QAxHostWidget", "QWidget" );
 		    QAxHostWindow *site = host ? host->clientSite() : 0;
-		    if (site && site->inPlaceObject()) {
-			if ( msg->wParam == VK_TAB ) { 
-			    // give the control a chance to move the focus
-			    // The control will call our TranslateAccelerator if it doesn't want the message
-			    site->inPlaceObject()->TranslateAccelerator(msg);
-			} else if (msg->message == WM_SYSKEYDOWN) {
-			    site->inPlaceObject()->TranslateAccelerator(msg);
-			} else if (msg->message == WM_KEYDOWN) {
-			    DWORD mod = 0;
-			    if (GetKeyState(VK_SHIFT) < 0)
-				mod |= 0x01; //KEYMOD_SHIFT;
-			    if (GetKeyState(VK_CONTROL) < 0)
-				mod |= 0x02; //KEYMOD_CONTROL;
-			    if (GetKeyState(VK_MENU) < 0)
-				mod |= 0x04; //KEYMOD_ALT;
-			    if (mod)
-				site->inPlaceObject()->TranslateAccelerator(msg);
-			} else if (msg->message == WM_SYSKEYUP && msg->wParam == VK_MENU) {
-			    site->inPlaceObject()->TranslateAccelerator(msg);
-			}
-		    }
+		    if (site && site->inPlaceObject() && site->translateKeyEvent(msg->message, msg->wParam))
+			site->inPlaceObject()->TranslateAccelerator(msg);
 		} else {
 		    for ( i=0; (UINT)mouseTbl[i] != message && mouseTbl[i]; i += 3 )
 			;
@@ -1643,4 +1629,69 @@ void QAxWidget::resizeEvent( QResizeEvent *e )
 	container->hostWidget()->resize( size() );
 
     QWidget::resizeEvent( e );
+}
+
+/*!
+    Reimplement this function to pass certain key events to the
+    ActiveX control. \a message is the Window message identifier
+    specifying the message type (ie. WM_KEYDOWN), and \a keycode is
+    the virtual keycode (ie. VK_TAB).
+    
+    If the function returns TRUE the key event is passed on to the 
+    ActiveX control, which then either processes the event or passes 
+    the event on to Qt.
+
+    If the function returns FALSE the processing of the key event is
+    ignored by ActiveQt, ie. the ActiveX control might handle it or
+    not.
+
+    The default implementation returns TRUE for the following cases:
+
+    \table
+    \header
+    \i WM_SYSKEYDOWN
+    \i WM_SYSKEYUP
+    \i WM_KEYDOWN
+    \row
+    \i All keycodes
+    \i VK_MENU
+    \i VK_TAB, VK_DELETE and all non-arrow-keys in combination with VK_SHIFT, 
+       VK_CONTROL or VK_MENU
+    \endtable
+
+    This table is the result of experimenting with popular ActiveX controls,
+    ie. Internet Explorer and Microsoft Office applications, but for some
+    controls it might require modification.
+*/
+bool QAxWidget::translateKeyEvent(int message, int keycode) const
+{
+    bool translate = FALSE;
+
+    switch (message) {
+    case WM_SYSKEYDOWN:
+	translate = TRUE;
+	break;
+    case WM_KEYDOWN:
+	translate = keycode == VK_TAB
+		 || keycode == VK_DELETE;
+	if (!translate) {
+	    int state = 0;
+	    if (GetKeyState(VK_SHIFT) < 0)
+		state |= 0x01;
+	    if (GetKeyState(VK_CONTROL) < 0)
+		state |= 0x02;
+	    if (GetKeyState(VK_MENU) < 0)
+		state |= 0x04;
+	    if (state) {
+		state = keycode < VK_LEFT || keycode > VK_DOWN;
+	    }
+	    translate = state;
+	}
+	break;
+    case WM_SYSKEYUP:
+	translate = keycode == VK_MENU;
+	break;
+    }
+
+    return translate;
 }
