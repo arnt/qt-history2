@@ -1,10 +1,9 @@
 #!/usr/bin/perl -w
 
-$maxChanges = 30;
-
 $abort = 0;
 $P4 = "p4";
 $P4I = "p4i";
+$maxChanges = 30;
 
 # Simplify program name, if it is a path.
 $0 =~ s/.*\///;
@@ -12,6 +11,10 @@ $0 =~ s/.*\///;
 $userName = `whoami`;
 chomp $userName;
 
+
+# Check if "--help" is an argument, or use
+# argument as username
+# ------------------------------------------------
 if ( $#ARGV == 0 ) {
   if ( $ARGV[0] eq "--help" ) {
     printf "$0 [p4client username]\n";
@@ -22,7 +25,8 @@ if ( $#ARGV == 0 ) {
   }
 }
 
-# Verify that we can execute P4 and P4
+# Verify that we can execute P4
+# ------------------------------------------------
 open( P4, "$P4 -V |") || die "$0: Couldn't exec $P4: $!\n";
 $line = <P4>;
 close( P4 );
@@ -33,20 +37,20 @@ if ( $line !~ /^Perforce/ ) {
 
 
 # Get your latest change list
-# ----------------------------------------------
+# ------------------------------------------------
 open( P4, "$P4 changes -m $maxChanges | grep $userName | cut -f 2 -d\" \" |" ) || die "$0: Couldn't exec $P4: $!\n";
 @myChanges = <P4>;
 close( P4 );
 chomp @myChanges;
-
 if ( $#myChanges == -1 ) {
   printf "$0: Couldn't find any submitts by $userName in the $maxChanges last changes\n";
   exit 1;
 }
 
 
-# Check if change contains the word intergration in some form
-# ----------------------------------------------
+# Check if change contains the word intergration
+# in some form
+# ------------------------------------------------
 open ( P4, "$P4 describe -s $myChanges[0] |") || die "$0: Couldn't get description of change #$myChanges[0]";
 @description = <P4>;
 close( P4 );
@@ -63,7 +67,7 @@ if ( $abort ) {
 }
 
 # Check if change is on main branch
-# ----------------------------------------------
+# ------------------------------------------------
 grep {
   if ( /\/\/depot\/qt\/main\// ) {
     $abort = 1;
@@ -78,4 +82,5 @@ if ( $abort ) {
 
 
 # Everthing seems to ready to go for intergration
+# ------------------------------------------------
 exec "$P4I $myChanges[0]" || die "$0: Couldn't execute $P4I, please check your path!";
