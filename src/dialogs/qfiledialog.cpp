@@ -2537,6 +2537,31 @@ QString QFileDialog::selectedFilter() const
 }
 
 /*!
+  Selects the \a n filter in the list.
+*/
+
+void QFileDialog::setSelectedFilter( int n )
+{
+    d->types->setCurrentItem( n );
+}
+
+/*!
+  Selects the first filter that contains \a mask.
+*/
+
+void QFileDialog::setSelectedFilter( const QString& mask )
+{
+    int n;
+
+    for ( n = 0; n < d->types->count(); n++ ) {
+	if ( d->types->text( n ).contains( mask, FALSE ) ) {
+	    d->types->setCurrentItem( n );
+	    return;
+	}
+    }
+}
+
+/*!
   Returns a list of selected files. This is only useful,
   if the mode of the filedialog is ExistingFiles. Else
   the list will only contain one entry, which is the

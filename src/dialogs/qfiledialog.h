@@ -144,6 +144,9 @@ public:
 
     QString selectedFile() const;
     QString selectedFilter() const;
+    void setSelectedFilter( const QString& ) const;
+    void setSelectedFilter( int ) const;
+
     void setSelection( const QString &);
 
     void selectAll( bool b );
