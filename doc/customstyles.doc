@@ -1,0 +1,336 @@
+/****************************************************************************
+** $Id: //depot/qt/main/doc/customstyles.doc#1 $
+**
+** Documentation for creating custom styles with QStyle
+**
+** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Trolltech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
+/*! \page customstyles.html
+
+\title How to create custom styles in Qt
+
+A style in Qt implements the look & feel found in GUIs on different
+platforms. For instance the Windows style used in Windows and the Motif
+style that are common on many Unix platforms.
+
+Nice pictures of something in windows and motif styles goes here!
+
+This is a short guide that describes the steps that are necessary to
+create and use custom styles with the style API in Qt 3.x.
+First, we go through the steps necessary to create a style: 1) picking
+a base style to inherit from and 2) re-implementing the necessary
+functions in the derived class. Then we show how to use the new style
+within your own applications, or as a plug-in together with existing
+Qt applications without having to re-compile or change the application
+source code.
+
+\section1 Creating a custom style
+
+1. Pick a base style to inherit from.
+
+The first step is to pick one of the base style to build your custom
+style on. Which of the available styles to start from does of course
+depend on what look & feel you want. Basically you should choose from
+the QWindowsStyle derived classes or QMotifStyle derived
+classes. These are the two base look & feel classes in the Qt style
+engine. Inheriting directly from QCommonStyle is also an option if you
+want to start almost from scratch when implementing your style. In
+this example we will inherit from QWindowsStyle. We get the following
+class declaration:
+
+\code
+#include <qwindowsstyle.h>
+
+class CustomStyle : public QWindowsStyle {
+    Q_OBJECT
+public:
+    CustomStyle();
+    ~CustomStyle();
+
+    void drawPrimitive( PrimitiveElement pe,
+			QPainter *p,
+			const QRect &r,
+			const QColorGroup &cg,
+			PFlags flags = PStyle_Default,
+			void **data = 0 ) const;
+
+private:
+    // Disabled copy constructor and operator=
+    CustomStyle( const CustomStyle & );
+    CustomStyle& operator=( const CustomStyle & );
+};
+\endcode
+
+Note that we disable the copy constructor and the '=' operator for our
+style. QObject is the base class for all style classes in Qt, and a
+QObject inherently cannot be copied; there are some aspects of it that
+are not copyable.
+
+2. Re-implement the necessary functions in your derived class.
+
+Depending on which parts of the base style you want to change, you
+have to re-implement the functions that are used to draw those parts
+of the interface. If you take a look at the QStyle documentation, you
+will find a list of the different primitives, controls and complex
+controls. You'll also find an illustration of where the different
+primitives, controls and complex controls are used. In this example we
+will first change the look of the standard arrows that are used in the
+QWindowsStyle.
+
+The arrows are PrimitiveElements, which means that we have to
+re-implement drawPrimitive() to be able to change the way arrows are
+drawn. From the QStyle docs we see that PE_ArrowUp, PE_ArrowDown,
+PE_ArrowLeft and PE_ArrowRight are the primitives we need to do
+something with. We get the following in our drawPrimitive() function:
+
+\code
+}
+
+CustomStyle::~CustomStyle()
+{
+}
+
+void CustomStyle::drawPrimitive( PrimitiveElement pe,
+				 QPainter *p,
+				 const QRect &r,
+				 const QColorGroup &cg,
+				 PFlags flags = PStyle_Default,
+				 void **data = 0 ) const
+{
+    // we are only interested in the arrows
+    if (pe >= PE_ArrowUp && pe <= PE_ArrowLeft) {
+	QPointArray pa( 3 );
+	// make the arrow cover half the area it is supposed to be 
+	// painted on
+	int x = r.x();
+	int y = r.y();
+	int w = r.width() / 2;
+	int h = r.height() / 2;
+	x += (r.width() - w) / 2;
+	y += (r.height() - h) /2;
+
+	switch( pe ) {
+	case PE_ArrowDown:
+	    pa.setPoint( 0, x, y );
+	    pa.setPoint( 1, x + w, y );
+	    pa.setPoint( 2, x + w / 2, y + h );
+	    break;
+	case PE_ArrowUp:
+	    pa.setPoint( 0, x, y + h );
+	    pa.setPoint( 1, x + w, y + h );
+	    pa.setPoint( 2, x + w / 2, y );
+	    break;
+	case PE_ArrowLeft:
+	    pa.setPoint( 0, x + w, y );
+	    pa.setPoint( 1, x + w, y + h );
+	    pa.setPoint( 2, x, y + h / 2 );
+	    break;
+	case PE_ArrowRight:
+	    pa.setPoint( 0, x, y );
+	    pa.setPoint( 1, x, y + h );
+	    pa.setPoint( 2, x + w, y + h / 2 );
+	    break;
+	default: break;
+	    
+	}
+
+	// use different colors to indicate that the arrow is 
+	// enabled/disabled
+	if ( flags & PStyle_Enabled ) {
+	    p->setPen( cg.mid() );
+	    p->setBrush( cg.brush( QColorGroup::ButtonText ) );
+	} else {
+	    p->setPen( cg.buttonText() );
+	    p->setBrush( cg.brush( QColorGroup::Mid ) );
+	}
+	p->drawPolygon( pa );
+    } else {
+	// let the base style handle the other primitives
+	QWindowsStyle::drawPrimitive( pe, p, r, cg, flags, data );
+    }
+}
+\endcode
+
+\section2 Using a custom style
+
+There are several ways of using a custom style in a Qt
+application. The easiest and most simple way is to include the following
+lines of code in the application's main() function:
+
+\code
+#include "customstyle.h"
+
+int main( int argc, char ** argv )
+{
+    QApplication::setStyle( new CustomStyle() );
+    // do the usual routine on creating your QApplication object etc.
+}
+\endcode
+
+Note that you also have to include the customstyle.h and
+customstyle.cpp files in your project.
+
+2. Creating a pluggable style
+
+You may want to use your custom style in a Qt application that you
+don't want to, or have the opportunity to re-compile. The Qt component
+style interface makes it possible to create styles as plug-ins, which
+can be loaded as a shared object at run-time by Qt itself. This may
+sound a bit scary, but it is a simple and straightforward task thanks
+to the Qt component system. All you have to do is to create a small
+class that inherits from QStyleFactoryInterface and QLibraryInterface.
+This class then re-implements a few functions that are necessary for
+Qt to identify, load and create an instance of your style. The
+following code is the complete implementation of a plug-in for
+CustomStyle:
+
+\code
+#include <qstyleinterface.h>
+#include <qobjectcleanuphandler.h>
+#include "customstyle.h"
+
+class CustomStyleInterface : 
+    public QStyleFactoryInterface, public QLibraryInterface
+{
+public:
+    Q_REFCOUNT
+
+    CustomStyleInterface();
+    virtual ~CustomStyleInterface() {}
+    QRESULT queryInterface( const QUuid&, QUnknownInterface ** );
+	
+    QStringList featureList() const;
+    QStyle *create( const QString& );
+
+    bool init();
+    void cleanup();
+    bool canUnload() const;
+
+private:
+    QObjectCleanupHandler styles;
+
+    unsigned long ref;
+};
+
+CustomStyleInterface::CustomStyleInterface()
+: ref( 0 )
+{
+}
+
+QRESULT CustomStyleInterface::queryInterface( const QUuid &uuid,
+					      QUnknownInterface **iface )
+{
+    *iface = 0;
+
+    if ( uuid == IID_QUnknown )
+	*iface = (QUnknownInterface*)(QStyleFactoryInterface*)this;
+    else if ( uuid == IID_QFeatureList )
+	*iface = (QFeatureListInterface*)this;
+    else if ( uuid == IID_QStyleFactory )
+	*iface = (QStyleFactoryInterface*)this;
+    else if ( uuid == IID_QLibrary )
+	*iface = (QLibraryInterface*)this;
+    else
+	return QE_NOINTERFACE;
+
+    (*iface)->addRef();
+    return QS_OK;
+}
+
+QStringList CustomStyleInterface::featureList() const
+{
+    QStringList list;
+    list << "Custom";
+    return list;
+}
+
+QStyle* CustomStyleInterface::create( const QString& s )
+{
+    if ( s.lower() == "custom" ) {
+        QStyle *style = new CustomStyle();
+	styles.add( style );
+	return style;
+    }
+    return 0;
+}
+
+bool CustomStyleInterface::init()
+{
+    return TRUE;
+}
+
+void CustomStyleInterface::cleanup()
+{
+    styles.clear();;
+}
+
+bool CustomStyleInterface::canUnload() const
+{
+    return styles.isEmpty();
+}
+
+Q_EXPORT_INTERFACE()
+{
+    Q_CREATE_INSTANCE( CustomStyleInterface )
+}
+\endcode
+
+Compile it and put it into $QTDIR/plugins/styles (if you use a .pro
+file similar to the one below you don't have to copy it). We now have
+a pluggable style that Qt can load automatically. To use your new
+style with existing applications, simply start the application with
+the following argument:
+
+\code
+./application -style custom
+\endcode
+
+The application should appear with the look & feel from the custom
+style you implemented. If not, please flame mark@trolltech.com (this
+is a test to check if you actually read the crap I write :).
+
+You can use a similar .pro file to compile your style as a plug-in:
+
+\code
+TEMPLATE	= lib
+CONFIG	       += qt warn_on debug plugin
+
+HEADERS		= $(QTDIR)/include/qwindowsstyle.h \
+		  customstyle.h
+
+SOURCES		= main.cpp \
+		  $(QTDIR)/src/styles/qwindowsstyle.cpp \
+		  customstyle.cpp
+
+TARGET		= customstyle
+DESTDIR		= $(QTDIR)/plugins/styles
+\endcode
+
+*/
