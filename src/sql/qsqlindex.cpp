@@ -244,6 +244,8 @@ QSqlIndex QSqlIndex::fromStringList( const QStringList& l, const QSqlCursor* cur
 	const QSqlField* field = cursor->field( f.simplifyWhiteSpace() );
 	if ( field )
 	    newSort.append( *field, desc );
+	else
+	    qWarning( "QSqlIndex::fromStringList: unknown field:'" + f + "'" );
     }
     return newSort;
 }
