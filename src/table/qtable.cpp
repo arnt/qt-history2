@@ -1002,7 +1002,7 @@ bool QCheckTableItem::isChecked() const
   QTable has been designed to use no more memory than strictly
   needed. Thus, for an empty cell, no memory at all is allocated.
   The table content is by default stored in individual \l{QTableItem}s
-  attached to the cell in question.
+  attached to the cells in question.
 
   To begin with all cells of a QTable object are empty.
   In order to add data, there are two possibilities: 
@@ -1023,6 +1023,9 @@ bool QCheckTableItem::isChecked() const
   \printline QTableItem
   \printuntil setItem
 
+  (Code taken from \link wineorder-example.html 
+   table/wineorder/productlist.cpp \endlink)
+
   Cells can also contain combo boxes and check boxes. In this
   case QComboTableItem and QCheckTableItem objects are
   linked to the relevant cells using setItem().
@@ -1041,7 +1044,7 @@ bool QCheckTableItem::isChecked() const
 
   Cell editing can be done in two different ways: You can offer an
   edit widget where the user enters data that will afterwards replace the
-  current cell content. Or he or her can directly change the data 
+  current cell content. Or he or she can directly change the data 
   with an in-place editor located directly in the cell.
   If you don't want the user to replace the cell content, but still wish to
   allow for editing of the current
@@ -1076,16 +1079,16 @@ bool QCheckTableItem::isChecked() const
   edited, you have to reimplement createEditor(). This function should
   return 0 for cells that must not be edited at all.
 
+  If you wish to draw custom content in a cell you have to implement your
+  own subclass of QTableItem and reimplement the QTableItem::paint()
+  method.
+
   It is possible to use QTable without QTableItems. In this case
   you have to reimplement createEditor() and
   setCellContentFromEditor() to allow for in-place editing without
   QTableItems.
   The documentation of these two functions explains
   details you need to know for that matter.
-
-  In order to draw custom content in a cell you have to implement your
-  own subclass of QTableItem and reimplement the QTableItem::paint()
-  method.
 
   If your application already stores its data in a way that allocating
   a QTableItem for each data containing cell seems inappropriate, you
@@ -1123,7 +1126,7 @@ bool QCheckTableItem::isChecked() const
 
   Returns the current column.
 
-  Note that the column counting starts with zero.
+  Note that column counting starts with zero.
 
   \sa currentRow()
 */
@@ -1131,7 +1134,7 @@ bool QCheckTableItem::isChecked() const
 /*! \enum QTable::EditMode
 
 
-  \value NotEditing  A cell is currently not being edited.
+  \value NotEditing  No cell is currently being edited.
   \value Editing  A cell is currently being edited. To start with the
                   user was presented with the old content.
   \value Replacing  A cell is currently being edited, and was cleared at the time
@@ -1149,7 +1152,7 @@ bool QCheckTableItem::isChecked() const
 /*! \fn void QTable::clicked( int row, int col, int button, const QPoint &mousePos )
 
   This signal is emitted as soon as a user clicks on \a row and \a col
-  using mousebutton \a button.  The actual mouse position is passed as
+  using mouse button \a button.  The actual mouse position is passed as
   \a mousePos.
 */
 
@@ -1162,8 +1165,9 @@ bool QCheckTableItem::isChecked() const
 
 /*! \fn void QTable::pressed( int row, int col, int button, const QPoint &mousePos )
 
-  This signal is emitted whenever the mousebutton \a button is pressed above
-  the cell located in  \a row and \a col.
+  This signal is emitted whenever the mouse button \a button is pressed in
+  the cell located at  position \a row , \a col.
+
   The actual mouse position is passed as \a mousePos.
 */
 
@@ -1323,7 +1327,8 @@ QTable::~QTable()
   Note that if \a b is TRUE this setting overrides
   individual settings of the QComboTableItem::isEditable() property.
 
-  \l EditType::Always settings of individual QTableItems are not affected.
+  EditType settings of individual \l{QTableItem}s reading \c Always 
+  are not affected.
 
   \sa isRowReadOnly() setRowReadOnly() setColumnReadOnly()
 */
@@ -1384,7 +1389,7 @@ void QTable::setColumnReadOnly( int col, bool ro )
 
 /*! Returns whether the table is read-only (not editable) or not.
 
-  \sa setReadOnly()
+  \sa setReadOnly() isColumnReadOnly() isRowReadOnly()
 */
 
 bool QTable::isReadOnly() const
@@ -1397,7 +1402,7 @@ bool QTable::isReadOnly() const
   Note that a combination of isRowReadOnly() FALSE and isReadOnly() TRUE
   means that the row is read-only in practice.
 
-  \sa setRowReadOnly
+  \sa setRowReadOnly isColumnReadOnly()
 */
 
 bool QTable::isRowReadOnly( int row ) const
@@ -1410,7 +1415,7 @@ bool QTable::isRowReadOnly( int row ) const
   Note that a combination of isColumnReadOnly() FALSE and isReadOnly() TRUE
   means that the column is read-only in practice.
 
-  \sa setColumnReadOnly()
+  \sa setColumnReadOnly() isRowReadOnly()
 */
 
 bool QTable::isColumnReadOnly( int col ) const
@@ -1566,6 +1571,8 @@ void QTable::resizeData( int len )
   This is used by sorting
   mechanisms or when the user changes the order of the rows. If you
   don't use QTableItems you might wish to reimplement this function.
+
+  \sa swapColumns() swapCells()
 */
 
 void QTable::swapRows( int row1, int row2 )
@@ -1643,9 +1650,9 @@ void QTable::setLeftMargin( int m )
 /*! Sets the top margin to \a m pixels.
 
   To get rid of the top header entirely set the top margin to
-  zero and QHeader::hide() the topheader().
+  zero and QHeader::hide() the horizontalHeader().
 
-  \sa topMargin() setLeftMargin() horizontalHeader()
+  \sa topMargin() setLeftMargin()
 */
 
 void QTable::setTopMargin( int m )
@@ -1722,7 +1729,7 @@ void QTable::swapColumns( int col1, int col2 )
 
   This function is used for sorting cells.
 
-  \sa swapColumns()
+  \sa swapColumns() swapRows()
 */
 
 void QTable::swapCells( int row1, int col1, int row2, int col2 )
@@ -1768,8 +1775,9 @@ void QTable::swapCells( int row1, int col1, int row2, int col2 )
 }
 
 /*! Draws the table contents on the painter \a p. This function is
-  optimized to exclusively draw the cells inside the relevant clipping
-  rectangle \a cx, \a cy, \a cw, \a ch.
+  optimized to exclusively draw the cells inside the \a cw pixels
+  wide and \a ch pixels high clipping
+  rectangle at position \a cx, \a cy.
 
   Additionally, drawContents() highlights the current cell.
 */
@@ -1847,7 +1855,7 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
     paintEmptyArea( p, cx, cy, cw, ch );
 }
 
-/*! Paints the cell at the position \a row, \a col on the painter \a
+/*! Paints the cell at position \a row, \a col on the painter \a
   p. The painter has already been translated to the cell's origin. \a
   cr describes the cell coordinates in the content coordinate system.
 
@@ -1857,7 +1865,7 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
   paintCell() to do the custom drawing, or subclass QTableItem
   and reimplement QTableItem::paint().
 
-  Reimplementing this function is probably better e.g. for data you
+  Reimplementing this function is probably better for data you
   retrieve from a database and draw at once, while using
   QTableItem::paint() has its advantages for example if you wish these data
   to be stored in a data structure in the table.
@@ -1933,7 +1941,8 @@ void QTable::paintFocus( QPainter *p, const QRect &cr )
     }
 }
 
-/*! This function fills the rectangle \a cx, \a cy, \a cw, \a ch with the
+/*! This function fills the \a cw pixels wide and \a ch pixels high
+  rectangle starting at position \a cx, \a cy with the
   background color using the painter \a p.
 
   paintEmptyArea() is invoked by drawContents() to erase
@@ -1972,7 +1981,7 @@ QTableItem *QTable::item( int row, int col ) const
 
 /*! Fills the cell \a row, \a col with \a item and repaints the cell.
 
-  If a cell item already exists in that position, the old one is deleted:
+  If a cell item already exists in that position, the old one is deleted.
 
   \walkthrough table/euroconversion/converter.h
   \skipto currencies
@@ -1985,11 +1994,12 @@ QTableItem *QTable::item( int row, int col ) const
   (Code taken from \link euroconvert-example.html table/euroconversion/converter.cpp
   \endlink)
 
-  Note that the first row/column is the one with \a row resp. \a col
+  Note that the first row/column is the one with \a row respectively \a col
   being 0.
 
-  A QTableItem might be set to serve as cell content in a table which is
-  not its parent but it can't be set in two or more QTables at the same time.
+  A QTableItem might serve as cell content in a table that is
+  not its parent but it can't be set in two or more QTable objects 
+  at the same time.
   If it is unavoidable to use the same item in more than one tables remember
   to take the item out of the old table using takeItem() before setting it
   into the new one.
@@ -2018,7 +2028,7 @@ void QTable::setItem( int row, int col, QTableItem *item )
 
 /*! Removes the QTableItem in position \a row, \a col.
 
-  To show an empty cell afterwards you have to updateCell()
+  To show an empty cell immediately you have to updateCell()
   manually.
 */
 
@@ -2039,11 +2049,11 @@ void QTable::clearCell( int row, int col )
   \skipto setText
   \printline setText
 
-  (Code taken from \link euroconvert-example.html table/euroconversion/converter.cpp
-  \endlink)
+  (Code taken from \link euroconvert-example.html 
+  table/euroconversion/converter.cpp \endlink)
 
-  Note that the first row/column is the one with \a row resp. \a col
-  being 0.
+  Note that the first row/column is the one with \a row respectively 
+  \a col being 0.
 
   \sa text() setPixmap() setItem()
 */
@@ -2062,7 +2072,7 @@ void QTable::setText( int row, int col, const QString &text )
 }
 
 /*! Adds \a pix to the cell \a row, \a col or exchanges
-  an old pixmap this cell with \a pix.
+  the old pixmap of this cell with \a pix.
 
   If no QTableItem belongs to the cell yet, an item of EditType
   QTableItem::OnTyping is created.
@@ -2070,7 +2080,7 @@ void QTable::setText( int row, int col, const QString &text )
   A scaled pixmap that fits into the relevant row is set like this:
 
   \walkthrough table/small-table-demo/main.cpp
-  \skipto QPixmap
+  \skipto QImage
   \printuntil setPixmap
 
   (Code taken from \link small-table-demo-example.html
@@ -2093,9 +2103,9 @@ void QTable::setPixmap( int row, int col, const QPixmap &pix )
 }
 
 /*! Returns the text in cell \a row, \a col, or an empty string if
-  the relevant item does not exist or includes no text.
+  the relevant item does not exist or has no text.
 
-  \sa setText()
+  \sa setText() setPixmap()
 */
 
 QString QTable::text( int row, int col ) const
@@ -2214,6 +2224,8 @@ bool QTable::isSelected( int row, int col ) const
   If \a full is TRUE, the entire row must be selected for this
   function to return TRUE. If \a full is FALSE, at least one cell in
   \a row must be selected.
+
+  \sa isColumnSelected() isSelected()
 */
 
 bool QTable::isRowSelected( int row, bool full ) const
@@ -2251,6 +2263,8 @@ bool QTable::isRowSelected( int row, bool full ) const
   If \a full is TRUE, the entire column must be selected for this
   function to return TRUE.  If \a full is FALSE, at least one cell in
   \a col must be selected.
+
+  \sa isRowSelected() isSelected()
 */
 
 bool QTable::isColumnSelected( int col, bool full ) const
@@ -2310,7 +2324,7 @@ QTableSelection QTable::selection( int num ) const
  number or -1 if the selection is invalid.
 
  Don't forget to call QTableSelection::init() and
- QTableSelection::expandTo() to make it valid (see also
+ QTableSelection::expandTo() to make the selection valid (see also
  QTableSelection::isActive()).
 
  \sa numSelections() removeSelection() clearSelection()
@@ -2858,7 +2872,7 @@ static bool inUpdateCell = FALSE;
 
   This is for example necessary after you deleted
   cell contents using clearCell() and don't
-  wish the old content being visible any longer.
+  wish the old content to be visible any longer.
 */
 
 void QTable::updateCell( int row, int col )
@@ -3016,7 +3030,7 @@ void QTable::columnIndexChanged( int, int, int )
 }
 
 /*! This function is called when the order of the rows is to be
-  changed, i.e. the user moved the row header \a section
+  changed, i.e. the user moved the row header section \a section
   from \a fromIndex to \a toIndex.
 
   If you want to change the order programmatically, call
@@ -3051,8 +3065,8 @@ void QTable::columnClicked( int col )
     sortColumn( lastSortCol, asc );
 }
 
-/*! If \a b is set to TRUE, clicking on the header of a column sorts
-  this column.
+/*! If \a b is set to TRUE, a click on the header of a column sorts
+  the appropriate column.
 
   \sa sortColumn() sorting()
 */
@@ -3328,7 +3342,7 @@ void QTable::setNumCols( int c )
     topHeader->update();
 }
 
-/*! This function returns a widget which should be used as editor for
+/*! This function returns the widget which should be used as editor for
   the cell \a row, \a col. Returning 0 means that the cell is not editable.
 
   If \a initFromCell is TRUE, the editor is
@@ -3343,15 +3357,15 @@ void QTable::setNumCols( int c )
   the cell. If no table item exists and \a initFromCell is TRUE or
   QTableItem::isReplaceable() is FALSE, the item of
   the cell is asked to create the editor using QTableItem::createEditor().
-  Otherwise a QLineEdit is used as the editor.
+  Otherwise a QLineEdit with left alignment is used as the editor.
 
   If you want to create your own editor for certain cells,
   implement a custom QTableItem subclass and reimplement
   QTableItem::createEditor(). 
 
-  You do not need to reimplement this function in most cases. However if
-  you decide to fill your table without the help of QTableItems and 
-  choose a different editor than QLineEdit as default editor, 
+  In most cases you do not need to reimplement this function. However if
+  you decide to fill your table without the help of \l{QTableItem}s and 
+  choose an editor other than QLineEdit as default, 
   reimplement this function and use code like
 
   \walkthrough table/wineorder/productlist.cpp
@@ -3363,9 +3377,9 @@ void QTable::setNumCols( int c )
   \printline }
   \printline return create
 
-  to create the appropriate editor for the cells. 
-  (Code taken from \link wineorder-example.html table/wineorder/productlist.cpp
-  \endlink .) 
+  to create the appropriate editor for the cells 
+  (code taken from \link wineorder-example.html table/wineorder/productlist.cpp
+  \endlink). 
 
   Additionally reimplement setCellContentFromEditor() to make sure that the 
   data is stored in your custom data structure.
@@ -3402,13 +3416,13 @@ QWidget *QTable::createEditor( int row, int col, bool initFromCell ) const
 /*! This function is called to start in-place editing of the cell \a
   row, \a col. If \a replace is TRUE the content of this cell will be
   replaced by the content of the editor later, otherwise the current
-  content of that cell (if existing) will be edited by the editor.
+  content of the cell (if existing) will be modified by the editor.
 
   This function calls createEditor() to obtain the editor which should be
   used for editing the cell. After that setCellWidget() is used to make this
   editor the widget of the cell.
 
-  \sa createEditor(), setCellWidget(), endEdit()
+  \sa endEdit()
 */
 
 QWidget *QTable::beginEdit( int row, int col, bool replace )
@@ -3432,10 +3446,10 @@ QWidget *QTable::beginEdit( int row, int col, bool replace )
 }
 
 /*! This function is called when in-place editing of the cell \a row,
-  \a col should stop.
+  \a col is requested to stop.
 
   If \a accept is TRUE the content of the
-  editor of this cell has to be transferred to the cell. If \a replace
+  editor has to be transferred to the relevant cell. If \a replace
   is TRUE the current content of this cell should be replaced by the
   content of the editor (this means removing the current QTableItem of
   the cell and creating a new one for the cell). Otherwise (if possible)
@@ -3443,9 +3457,9 @@ QWidget *QTable::beginEdit( int row, int col, bool replace )
   QTableItem of this cell.
 
   If the cell contents should be replaced or if no QTableItem
-  yet exists for the cell, setCellContentFromEditor() is called, else
-  QTableItem::setContentFromEditor() is called on the QTableItem
-  of the cell.
+  exists for the cell yet, setCellContentFromEditor() is called.
+  Otherwise QTableItem::setContentFromEditor() is called on the 
+  QTableItem of the cell.
 
   After that clearCellWidget() is called to get rid of the editor
   widget.
@@ -3491,11 +3505,11 @@ void QTable::endEdit( int row, int col, bool accept, bool replace )
 }
 
 /*! This function is called to set the contents of the cell \a row,
-  \a col from the editor of this cell to this cell. If
-  a QTableItem already exists for this cell, this is removed first (see
+  \a col from the editor to this cell. If
+  a QTableItem already exists for this cell, it is removed first (see
   clearCell()).
 
-  If you for esample want to create different QTableItems depending on the
+  If you for example want to create different QTableItems depending on the
   contents of the editor, you might reimplement this function. Also if
   you want to work without QTableItems, you need to reimplement this
   function to save the data the user entered to your
@@ -3702,7 +3716,7 @@ QRect QTable::rangeGeometry( int topRow, int leftCol,
     return rect;
 }
 
-/*! This is called to activate the next cell if in-place editing was
+/*! This function is called to activate the next cell if in-place editing was
   stopped by pressing the Return key.
 
   If you want a different behavior than going from top to bottom,
@@ -3783,7 +3797,7 @@ static int cmpTableItems( const void *n1, const void *n2 )
   TRUE, else in descending order.
 
   If \a wholeRows is TRUE changing data of the cells is done
-  using swapRows() otherwise swapCells() is called.
+  using swapRows(). Otherwise swapCells() is called.
 
   \sa swapRows()
 */
@@ -3848,7 +3862,7 @@ void QTable::sortColumn( int col, bool ascending, bool wholeRows )
 
 /*! Hides the row \a row.
 
-  \sa showRow()
+  \sa showRow() hideColumn()
 */
 
 void QTable::hideRow( int row )
@@ -3860,7 +3874,7 @@ void QTable::hideRow( int row )
 
 /*! Hides the column \a col.
 
-  \sa showColumn()
+  \sa showColumn() hideRow()
 */
 
 void QTable::hideColumn( int col )
@@ -3872,7 +3886,7 @@ void QTable::hideColumn( int col )
 
 /*! Shows the row \a row.
 
-  \sa hideRow()
+  \sa hideRow() showColumn()
 */
 
 void QTable::showRow( int row )
@@ -3884,7 +3898,7 @@ void QTable::showRow( int row )
 
 /*! Shows the column \a col.
 
-  \sa hideColumn()
+  \sa hideColumn() showRow()
 */
 
 void QTable::showColumn( int col )
@@ -3964,9 +3978,9 @@ void QTable::adjustRow( int row )
 /*! Makes the column \a col stretchable if \a stretch is TRUE
   and prevents \a col from being stretched if \a stretch is FALSE.
 
-  This means that whenever the table widget gets wider than its
+  This means that whenever the table widget becomes wider than its
   contents, stretchable columns are stretched so that the table
-  contents fit exactly into to widget.
+  contents fit exactly into the widget.
 
   \sa isColumnStretchable() setRowStretchable()
 */
@@ -3979,7 +3993,7 @@ void QTable::setColumnStretchable( int col, bool stretch )
 /*! Makes the row \a row stretchable if \a stretch is TRUE and
   prevents it from being streched otherwise.
 
-  This means that whenever the table widgets gets higher than its
+  This means that whenever the table widgets becomes higher than its
   contents, stretchable rows are stretched so that the table contents fit
   exactly into the widget.
 
@@ -4038,6 +4052,15 @@ void QTable::takeItem( QTableItem *i )
 }
 
 /*! Places the widget \a e into the cell \a row, \a col.
+
+  \walkthrough table/wineorder/productlist.cpp
+  \skipto QSpinBox
+  \printline quantities
+  \skipto setCellWidget(
+  \printline setCellWidget(
+
+  (Code taken from \link wineorder-example.html
+  table/wineorder/productlist.cpp \endlink)
 
   If the cell geometry changes setCellWidget() takes care about
   correct resizing and replacement.
@@ -4133,8 +4156,8 @@ void QTable::clearCellWidget( int row, int col )
   \a e gives you all information about the drop.
 */
 
-/*! If \a b is TRUE, the table starts a drag (see dragObject())
-  when user presses and moves the mouse on a selected cell.
+/*! If \a b is TRUE, the table starts a drag procedure (see dragObject())
+  when the user presses and moves the mouse on a selected cell.
 */
 
 void QTable::setDragEnabled( bool b )
@@ -4155,6 +4178,8 @@ bool QTable::dragEnabled() const
 #ifndef QT_NO_DRAGANDDROP
 
 /*! Inserts an empty row at the index \a row.
+  
+  \sa insertColumn() removeRow()
 */
 
 void QTable::insertRow( int row )
@@ -4171,6 +4196,8 @@ void QTable::insertRow( int row )
 }
 
 /*! Inserts an empty column at the index \a col.
+  
+  \sa insertRow() removeColumn()
 */
 
 void QTable::insertColumn( int col )
@@ -4187,6 +4214,8 @@ void QTable::insertColumn( int col )
 }
 
 /*! Removes the row \a row.
+  
+  \sa hideRow() insertRow() removeColumn()
 */
 
 void QTable::removeRow( int row )
@@ -4201,6 +4230,8 @@ void QTable::removeRow( int row )
 }
 
 /*! Removes the column \a col.
+  
+  \sa hideColumn() insertColumn() removeRow()
 */
 
 void QTable::removeColumn( int col )
@@ -4276,13 +4307,15 @@ void QTable::contentsDropEvent( QDropEvent *e )
     emit dropped( e );
 }
 
-/*! If the user presses the mouse on a selected cell and starts moving
-  and dragEnabled() is TRUE, this function is called to get a drag
-  object and a drag is started using that unless dragObject() returns
-  0.
+/*! If the user presses the mouse on a selected cell, starts moving,
+  and dragEnabled() is TRUE, this function is called to obtain a drag
+  object. A drag procedure using this object is started 
+  immediately unless dragObject() returns 0.
 
   By default this function returns 0. You might reimplement it and
   create a QDragObject depending on the selected items.
+
+  \sa dropped()
 */
 
 QDragObject *QTable::dragObject()
@@ -4290,7 +4323,7 @@ QDragObject *QTable::dragObject()
     return 0;
 }
 
-/*! Starts a drag.
+/*! Starts a drag procedure.
 
   Usually you don't need to call or reimplement this function
   yourself.
