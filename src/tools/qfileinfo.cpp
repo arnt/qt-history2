@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#48 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#49 $
 **
 ** Implementation of QFileInfo class
 **
@@ -630,9 +630,9 @@ QString QFileInfo::readLink() const
     char s[PATH_MAX+1];
     if ( !isSymLink() )
 	return QString();
-    int len = readlink( fn.local8Bit(), s, PATH_MAX );
+    int len = readlink( QFile::encodeName(fn), s, PATH_MAX );
     if ( len >= 0 )
-	r = QString::fromLocal8Bit(s);
+	r = QFile::decodeName(s);
 #endif
 
     return r;
@@ -656,7 +656,7 @@ QString QFileInfo::owner() const
 #if defined(UNIX)
     passwd *pw = getpwuid( ownerId() );
     if ( pw )
-	return QString::fromLocal8Bit( pw->pw_name );
+	return QFile::decodeName( pw->pw_name );
 #endif
     return QString::null;
 }
@@ -699,7 +699,7 @@ QString QFileInfo::group() const
 #if defined(UNIX)
     struct group *gr = getgrgid( groupId() );
     if ( gr )
-	return QString::fromLocal8Bit( gr->gr_name );
+	return QFile::decodeName( gr->gr_name );
 #endif
     return QString::null;
 }
@@ -853,7 +853,7 @@ void QFileInfo::doStat() const
     that->fic->isSymLink = FALSE;
 
 #if defined( UNIX ) && defined(S_IFLNK)
-    if ( ::lstat(fn.local8Bit(),b) == 0 ) {
+    if ( ::lstat(QFile::encodeName(fn),b) == 0 ) {
 	if ( S_ISLNK( b->st_mode ) )
 	    that->fic->isSymLink = TRUE;
 	else
@@ -862,7 +862,7 @@ void QFileInfo::doStat() const
 #endif
     int r;
 #if defined (UNIX)
-    r = STAT( fn.local8Bit(), b );
+    r = STAT( QFile::encodeName(fn), b );
 #else
 debug("QDir::doStat");
     if ( qt_winunicode ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#76 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#77 $
 **
 ** Implementation of QDir class
 **
@@ -348,9 +348,9 @@ QString QDir::canonicalPath() const
     char tmp[PATH_MAX];
 
     GETCWD( cur, PATH_MAX );
-    if ( CHDIR(dPath.local8Bit()) >= 0 ) {
+    if ( CHDIR(QFile::encodeName(dPath)) >= 0 ) {
 	GETCWD( tmp, PATH_MAX );
-	r = QString::fromLocal8Bit(tmp);
+	r = QFile::decodeName(tmp);
     }
     CHDIR( cur );
 
@@ -824,7 +824,7 @@ const QFileInfoList *QDir::entryInfoList( const QString &nameFilter,
 bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
 {
 #if defined (UNIX) || defined(__CYGWIN32__)
-    return MKDIR( filePath(dirName,acceptAbsPath).local8Bit(), 0777 ) == 0;
+    return MKDIR( QFile::encodeName(filePath(dirName,acceptAbsPath)), 0777 ) == 0;
 #else
     if ( qt_winunicode ) {
 	return _tmkdir((const TCHAR*)qt_winTchar(filePath(dirName,acceptAbsPath),TRUE)) == 0;
@@ -851,7 +851,7 @@ bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
 bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
 {
 #if defined (UNIX) || defined(__CYGWIN32__)
-    return RMDIR( filePath(dirName,acceptAbsPath).local8Bit() ) == 0;
+    return RMDIR( QFile::encodeName(filePath(dirName,acceptAbsPath)) ) == 0;
 #else
     if ( qt_winunicode ) {
 	return _trmdir((const TCHAR*)qt_winTchar(filePath(dirName,acceptAbsPath),TRUE)) == 0;
@@ -873,7 +873,7 @@ bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
 bool QDir::isReadable() const
 {
 #if defined (UNIX) || defined(__CYGWIN32__)
-    return ACCESS( dPath.local8Bit(), R_OK | X_OK ) == 0;
+    return ACCESS( QFile::encodeName(dPath), R_OK | X_OK ) == 0;
 #else
 debug("QDir::isReadable");
     if ( qt_winunicode ) {
@@ -1052,7 +1052,8 @@ bool QDir::rename( const QString &name, const QString &newName,
     QString fn1 = filePath( name, acceptAbsPaths );
     QString fn2 = filePath( newName, acceptAbsPaths );
 #if defined (UNIX) || defined(__CYGWIN32__)
-    return ::rename( fn1.local8Bit(), fn2.local8Bit() ) == 0;
+    return ::rename( QFile::encodeName(fn1),
+		     QFile::encodeName(fn2) ) == 0;
 #else
     if ( qt_winunicode ) {
 	TCHAR* t2 = (TCHAR*)qt_winTchar_new(fn1);
@@ -1128,7 +1129,7 @@ debug("QDir::setCurrent");
 	r = _chdir(path.ascii());
     }
 #else
-    r = CHDIR( path.local8Bit() );
+    r = CHDIR( QFile::encodeName(path) );
 #endif
 
     return r >= 0;
@@ -1197,7 +1198,7 @@ QString QDir::currentDirPath()
 	    {
 		char currentName[PATH_MAX];
 		if ( GETCWD( currentName, PATH_MAX ) != 0 ) {
-		    result = QString::fromLocal8Bit(currentName);
+		    result = QFile::decodeName(currentName);
 		}
 	    }
 #endif
@@ -1228,7 +1229,7 @@ QString QDir::currentDirPath()
 QString QDir::homeDirPath()
 {
     QString d;
-    d = QString::fromLocal8Bit(getenv("HOME"));
+    d = QFile::decodeName(getenv("HOME"));
     slashify( d );
     if ( d.isNull() )
 	d = rootDirPath();
@@ -1641,17 +1642,17 @@ debug("<QDir::readDirEntries");
     DIR	     *dir;
     dirent   *file;
 
-    dir = opendir( dPath.local8Bit() );
+    dir = opendir( QFile::encodeName(dPath) );
     if ( !dir ) {
 #if defined(CHECK_NULL)
 	warning( "QDir::readDirEntries: Cannot read the directory: %s",
-		 dPath.local8Bit().data() );
+		 QFile::encodeName(dPath).data() );
 #endif
 	return FALSE;
     }
 
     while ( (file = readdir(dir)) ) {
-	QString fn = QString::fromLocal8Bit(file->d_name);
+	QString fn = QFile::decodeName(file->d_name);
 	fi.setFile( *this, fn );
 	if ( wc.match(fn) == -1 && !(allDirs && fi.isDir()) )
 	    continue;

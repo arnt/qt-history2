@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#79 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#80 $
 **
 ** Implementation of QFile class
 **
@@ -169,7 +169,7 @@ bool qt_file_access( const QString& fn, int t )
     if ( fn.isEmpty() )
 	return FALSE;
 #if defined (UNIX) || defined(__CYGWIN32__)
-    return ACCESS( fn.local8Bit(), t ) == 0;
+    return ACCESS( QFile::encodeName(fn), t ) == 0;
 #else
     if ( qt_winunicode ) {
 	return _taccess((const TCHAR*)qt_winTchar(fn,TRUE), t) == 0;
@@ -226,7 +226,7 @@ bool QFile::remove( const QString &fileName )
         return FALSE;
     }
 #if defined(UNIX)
-    return unlink( fileName.local8Bit() ) == 0;	// unlink more common in UNIX
+    return unlink( QFile::encodeName(fileName) ) == 0;	// unlink more common in UNIX
 #else
     // use standard ANSI remove
     if ( qt_winunicode ) {
@@ -349,7 +349,7 @@ bool QFile::open( int m )
 	    oflags |= OPEN_ASYNC;
 #endif
 #if defined(UNIX)
-	fd = OPEN( fn.local8Bit(), oflags, 0666 );
+	fd = OPEN( QFile::encodeName(fn), oflags, 0666 );
 #else
 	if ( qt_winunicode ) {
 	    fd = _topen((const TCHAR*)qt_winTchar(fn,TRUE), oflags, 0666 );
@@ -396,7 +396,7 @@ bool QFile::open( int m )
 #endif
 	while (1) { // At most twice
 #if defined(UNIX)
-	    fh = fopen( fn.local8Bit(), perm2 );
+	    fh = fopen( QFile::encodeName(fn), perm2 );
 #else
 	    if ( qt_winunicode ) {
 		TCHAR tperm2[4];
@@ -596,7 +596,7 @@ uint QFile::size() const
 	FSTAT( fh ? FILENO(fh) : fd, &st );
     else {
 #if defined (UNIX)
-	STAT( fn.local8Bit(), &st );
+	STAT( QFile::encodeName(fn), &st );
 #else
 	if ( qt_winunicode ) {
 	    _tstat((const TCHAR*)qt_winTchar(fn,TRUE), &st);
@@ -1005,3 +1005,78 @@ int QFile::handle() const
     else
 	return fd;
 }
+
+#ifdef UNIX
+static
+QCString locale_encoder( const QString &fileName )
+{
+    return fileName.local8Bit();
+}
+
+static QFile::EncoderFn encoder = locale_encoder;
+
+/*!
+  When you use QFile, QFileInfo, and QDir to access the filesystem
+  with Qt, you can use Unicode filenames.  On Unix, these filenames
+  are converted to an 8-bit encoding.  If you want to do your own
+  file I/O on Unix, you should convert the filename using this
+  function.  On Windows NT, Unicode filenames are supported directly
+  in the filesystem and this function is not necessary or available.
+
+  By default, this function converts to the local 8-bit encoding
+  determined by the user's locale.  This is sufficient for
+  filenames that the user chooses.  Filenames hard-coded into the
+  application should only use 7-bit ASCII filename characters.
+
+  The conversion scheme can be changed using setEncodingFunction().
+  This might be useful if you wish to give the user an option to
+  store in filenames in UTF-8, etc., but beware that such filenames
+  would probably then be unrecognizable when seen by other programs.
+
+  \sa decodedName().
+*/
+QCString QFile::encodeName( const QString &fileName )
+{
+    return (*encoder)(fileName);
+}
+
+/*!
+  Sets the function for encoding Unicode filenames.
+  The default encodes in the locale-specific 8-bit encoding.
+
+  \sa encodeName()
+*/
+void QFile::setEncodingFunction( EncoderFn f )
+{
+    encoder = f;
+}
+
+static
+QString locale_decoder( const QCString &localFileName )
+{
+    return QString::fromLocal8Bit(localFileName);
+}
+
+static QFile::DecoderFn decoder = locale_decoder;
+
+/*!
+  This does the reverse of QFile::encodeName().
+
+  \sa setDecodingFunction()
+*/
+QString QFile::decodeName( const QCString &localFileName )
+{
+    return (*decoder)(localFileName);
+}
+
+/*!
+  Sets the function for decoding 8-bit filenames.
+  The default uses the locale-specific 8-bit encoding.
+
+  \sa encodeName(), decodedName()
+*/
+void QFile::setDecodingFunction( DecoderFn f )
+{
+    decoder = f;
+}
+#endif

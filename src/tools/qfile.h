@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.h#34 $
+** $Id: //depot/qt/main/src/tools/qfile.h#35 $
 **
 ** Definition of QFile class
 **
@@ -44,6 +44,15 @@ public:
 
     QString	name()	const;
     void	setName( const QString &name );
+
+#ifdef UNIX
+    typedef QCString (*EncoderFn)( const QString &fileName );
+    typedef QString (*DecoderFn)( const QCString &localfileName );
+    static QCString encodeName( const QString &fileName );
+    static QString decodeName( const QCString &localFileName );
+    static void setEncodingFunction( EncoderFn );
+    static void setDecodingFunction( DecoderFn );
+#endif
 
     bool	exists()   const;
     static bool exists( const QString &fileName );
