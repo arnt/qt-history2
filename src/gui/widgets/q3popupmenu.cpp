@@ -577,6 +577,8 @@ void Q3PopupMenu::popup(const QPoint &pos, int indexAtPoint)
             }
 
             updateSize(true); //now set the size using the scrollable/scrollableSize as above
+            w = width();
+            h = height();
             if(off_top && indexAtPoint >= 0) { //scroll to it
                 int tmp_y = 0;
                 for (int i = 0; i < mitems->size(); ++i) {
