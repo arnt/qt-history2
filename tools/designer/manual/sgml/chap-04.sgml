@@ -1,0 +1,454 @@
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
+<chapter>
+<title>Using Automatic Layout Management</title>
+
+    <para>
+    Let's start with a simple truth: each form in each application
+    needs to have a layout. You might not have given this much
+    thought, but when you created the pizza entry form in Chapter 3
+    you were actually laying out the dialogs; you decided where to put
+    the individual widgets, what size they should be, and so on.
+    </para>
+
+    <para>
+    However, doing layouts this way by hand leads to a number of
+    problems:
+    </para>
+
+    <itemizedlist>
+	<listitem>
+	<para>
+	The layout process gets increasingly difficult in larger
+	dialogs.
+	</para>
+	</listitem>
+
+	<listitem>
+	<para>
+	If the form is a dialog, it will not resize correctly; once
+	the user resizes the dialog, a carefully crafted layout is
+	shredded to pieces. Of course, you can make the dialog
+	non-resizable, but users will not be happy with this.
+	</para>
+	</listitem>
+
+	<listitem>
+	<para>
+	Your handcrafted layouts will not work if you want to
+	internationalize your program. Internationalizing a program
+	means preparing it for eventual translation. But translations,
+	especially from English to other languages, have the nasty
+	property that the translated text is often longer than the
+	original text. Imagine a check box whose label has become
+	larger after translating; the check box might not be large
+	enough to accommodate its own label, and even if it could
+	somehow magically resize itself, the check box would no longer
+	fit in the surrounding group box, and so on.
+	</para>
+	</listitem>
+
+	<listitem>
+	<para>
+	Problems will also occur if you want to allow the user to run
+	the program with different application fonts.
+	</para>
+	</listitem>
+
+	<listitem>
+	<para>
+	Or if you want to be able to switch widget styles dynamically
+	(or let the user do so), you do not want to hardcode the
+	widget style.
+	</para>
+	</listitem>
+    </itemizedlist>
+
+    <para>
+    Handcrafted layouts are thus time consuming and counterproductive.
+    Qt however, provides a sophisticated layout system that does all
+    the laying out for you. To program layouts using the Qt system
+    directly, you have to learn quite a lot and follow a number of
+    rules, but with Qt Designer, using automatic layouts is quite
+    intuitive.
+    </para>
+
+    <sect1>
+    <title>Putting A Form Together</title>
+
+	<para>
+	In this section we will create a form similar to the pizza
+	one, using automatic layout management. The final form will
+	look very much like the earlier one but will avoid the
+	inherent problems of resizing, etc. And you will find that the
+	design actually goes faster with automatic layout management
+	once you get used to it.
+	</para>
+
+	<para>
+	We begin with an empty form. Start Qt Designer if it is not
+	yet running and click on the icon for creating a new form.
+	Select <guilabel>Dialog</> as the form type.
+	</para>
+
+	<para>
+	Again, we start with the toppings, but this time we will begin
+	with the button group right away and just put the check boxes
+	on top of it. Select the button group tool and insert a button
+	group; give it the text <guilabel>Toppings</> and make it
+	large enough so that you can put four check boxes onto it
+	without problems. You can even make the group outsized; we
+	will automatically resize it later.
+	</para>
+
+	<para>
+	Now select the check box tool and put a check box onto the
+	button group. Change the label to <guilabel>Mushrooms</>.
+	Repeat the process with three more check boxes, labeled
+	<guilabel>Ham</>, <guilabel>Pineapple</>, and
+	<guilabel>Anchovies</> respectively. Don't bother about
+	alignment; just put the four check boxes roughly below each
+	other. When you are done your form might look like Figure 4-1.
+	</para>
+
+	<figure>
+	    <title>The check boxes are not laid out yet</title>
+	    <graphic format="jpg" fileref="images"></graphic>
+	</figure>
+
+	<para>
+	Now we want to align this button group with its four check
+	boxes. This requires some thinking. Automatic layout in Qt is
+	always done with respect to a container; it is the container
+	that is laid out. In practice, the container is just any
+	widget that happens to have widget children, so there is
+	nothing special about containers.<footnote>
+	<para>### footnote goes here ###</para>
+	</footnote> Just remember that when you want to arrange a few
+	widgets&mdash;like the four check boxes in our case&mdash;the
+	layout process does not apply to the widgets, but rather to
+	their container (parent)&mdash;in our case the button group.
+	</para>
+
+	<para>
+	The next thing to consider is what kind of alignment you want.
+	Qt currently provides three kinds: one arranges widgets
+	horizontally (in a row), one arranges widgets vertically (in a
+	column), and one arranges both horizontally and vertically (in
+	a grid). You can also combine different layout styles to
+	achieve the desired result; for example, you might find the
+	grid layout too restrictive and resort to putting together
+	some rows and columns, which offer more flexibility.
+	</para>
+
+	<para>
+	For our button group with the four check boxes, it is obvious
+	that we want a vertical layout, i.e., the check boxes in a
+	column. Since to put all this together we need to apply the
+	layout to the button group, not to the check boxes themselves,
+	click on the background of the button group widget and select
+	<guimenuitem>Lay Out|Lay Out Vertically</>, then click on the
+	vertical layout button on the toolbar (Figure 4-2), or select
+	<guilabel>Lay Out Vertically</> from the button group's
+	context menu. Magically, all the buttons are now aligned, and
+	the button group has exactly the size it needs to accommodate
+	the buttons (Figure 4-3).
+	</para>
+
+	<figure>
+	    <title>The vertical layout icon</title>
+	    <graphic format="jpg" fileref="images"></graphic>
+	</figure>
+
+	<figure>
+	    <title>Check boxes are aligned vertically</title>
+	    <graphic format="jpg" fileref="images"></graphic>
+	</figure>
+
+	<para>
+	Using the automatic layout has some other consequences. If you
+	click on one of the check boxes, you will see that the handles
+	are no longer black but gray. You will also notice that you
+	can no longer move or resize the check boxes; this is because
+	the column layout manager that you assigned to the button
+	group has taken over the responsibility for the sizes and
+	positions of the widgets. If you look closely at the property
+	editor, you will also notice that the property
+	<literal>geometry</> has disappeared&mdash;again, because you
+	can no longer change it.
+	</para>
+
+	<para>
+	To change the sizes or positions of these widgets again, you
+	have to <emphasis>break the layout</>by removing the layout
+	manager. You do this by selecting <guimenuitem>Lay Out|Break
+	Layout</> from the menu bar, selecting <guilabel>Break
+	Layout</> from the context menu of the button group or by
+	clicking on the special toolbar button which breaks the layout
+	(Figure 4-4).
+	</para>
+
+	<figure>
+	    <title>The break layout icon</title>
+	    <graphic format="jpg" fileref="images"></graphic>
+	</figure>
+
+	<para>
+	You might want to try other layout arrangements. Break the
+	vertical column layout and align the widgets horizontally in a
+	row layout instead (see Figure 4-5). You can also try a grid
+	layout, but you will not find it as effective in this instance
+	for reasons we will explain later (see Section 5.3).
+	Regardless, whenever you experiment like this, you can always
+	go back with the undo button (Figure 4-6) or by selecting
+	<guimenuitem>Edit|Undo</> from the menu bar. The undo and redo
+	functionality allows you to explore various options for your
+	forms without irretrievable commitment to any one that you
+	cannot change later.
+	</para>
+
+	<figure>
+	    <title>Check boxes aligned horizontally</title>
+	    <graphic format="jpg" fileref="images"></graphic>
+	</figure>
+
+	<figure>
+	    <title>The undo icon</title>
+	    <graphic format="jpg" fileref="images"></graphic>
+	</figure>
+
+	<para>
+	When you are done trying other alignment options, restore the
+	state of Figure 4-3 and start working on the button group for
+	the pizza size. You should put it somewhere to the right of
+	the toppings button group, but again, don't worry about
+	alignment; this will later be done automatically. When you are
+	ready, assign a vertical layout to the pizza size button group
+	as well. Your form should now look roughly like the one in
+	Figure 4-7.
+	</para>
+
+	<figure>
+	    <title>Two aligned button groups</title>
+	    <graphic format="jpg" fileref="images"></graphic>
+	</figure>
+
+	<para>
+	Add the remaining elements to the form by inserting the
+	<guilabel>Extra Cheese</> check box and the <guibutton>OK</>
+	and <guibutton>Cancel</> push buttons. Put them roughly where
+	they were before. Your form should now look like the one in
+	Figure 4-8.
+	</para>
+
+	<figure>
+	    <title>Alignment of additional widgets</title>
+	    <graphic format="jpg" fileref="images"></graphic>
+	</figure>
+
+	<para>
+	At this point we have five different elements on the form: the
+	two button groups, the <guilabel>Extra Cheese</> check box,
+	and the two push buttons. It is irrelevant that the button
+	groups are actually compound elements; they are laid out and
+	complete, just elementary widgets at the moment. But now we
+	want to re-align these five elements. This is a typical
+	situation when designing a form with Qt Designer. The idea is
+	to do the design in two different stages: first you put all
+	the widgets onto the form and assign them the desired
+	properties, then you rearrange them automatically with layout
+	managers. In real terms you will often have to revert to stage
+	one on occasion&mdash;breaking layouts to add, remove, or
+	change some widgets&mdash;and then return to the layout
+	function. The distinction between these two stages is a
+	conceptual one, nothing dictated by the program.
+	</para>
+
+	<para>
+	For example, we could arrange these five elements into a grid,
+	but it would probably look unnatural. Instead, we will try to
+	find a good combination of rows and columns. This is not
+	complicated, and you will learn easily by experimenting and
+	looking at other dialogs (if not from your own mistakes!).
+	Usually the main orientation in good dialog design is
+	vertical, i.e., the dialog consists of a number of rows laid
+	out on top of each other. Sometimes the rows have internal
+	vertical structure as well, and sometimes these internal
+	vertical structures have a horizontal structure, but this is
+	rather rare.
+	</para>
+
+	<para>
+	If you look at your form in its current state, you might
+	recognize this pattern. We could assemble the two button
+	groups in a row, leave the <guilabel>Extra Cheese</> check box
+	in a row by itself, and put the two push buttons in a third
+	row. Then we just put these three rows on top of each other in
+	a vertical layout.
+	</para>
+
+	<para>
+	Let's follow this plan by putting the two button groups in a
+	row. We stated earlier (Section 4.1.) that layout managers are
+	always applied to a container, but it is difficult to see a
+	suitable container for the two button groups here. The only
+	parent that they have is the form as a whole, and this will
+	not work because assigning a row layout to the form would mean
+	that all five components would be put in one row, which is
+	certainly not what we want.
+	</para>
+
+	<para>
+	However, we can select the particular widgets that we want to
+	be laid out and a layout arrangement just for them. Qt
+	Designer will then automatically provide an invisible
+	container. In the generated dialog or widget these invisible
+	containers will be sublayouts. To see how this works, click on
+	the left button group, hold down the <keycap>Shift</> key, and
+	click on the second button group so that these two (and
+	nothing else) are selected. Now assign them horizontal layout.
+	The two button groups are aligned, and a thin red frame
+	indicates the invisible container that was created to hold the
+	row layout manager (see Figure 4-9).
+	</para>
+
+	<figure>
+	    <title>Realignment with invisible container</title>
+	    <graphic format="jpg" fileref="images"></graphic>
+	</figure>
+
+	<para>
+	Make a similar invisible container for the two push buttons.
+	With these simple steps we now have three elements to align
+	instead of five&mdash;the two horizontal rows and the single
+	check box in between. It is not necessary at this point to put
+	the check box in a row by itself.
+	</para>
+
+	<para>
+	Next, select the form by clicking on the background and assign
+	a vertical layout. This will rearrange the three elements one
+	above the other. Now all the widgets are grouped together with
+	a common left margin as you can see in Figure 4-10. Some
+	things might not be perfect (for example, the <guilabel>Extra
+	Cheese</> check box should be centered between the button
+	groups), but we'll fix that later.
+	</para>
+
+	<figure>
+	    <title>Widgets in vertical layout</title>
+	    <graphic format="jpg" fileref="images"></graphic>
+	</figure>
+
+	<para>
+	To test the correct behavior of the dialog while resizing,
+	preview it (<guilabel>Preview</> menu) and try to resize the
+	dialog. Note how the space is distributed among the
+	widgets&mdash;and that you cannot make the dialog smaller than
+	the minimum size needed to accommodate all the widgets.
+	</para>
+    </sect1>
+
+    <sect1>
+    <title>Working With Spacers</title>
+
+	<para>
+	Now let's fix the position of the <guilabel>Extra Cheese</>
+	check box by centering it. One way do to this is by using
+	so-called <emphasis>spacers</>.
+	</para>
+
+	<para>
+	Think of a spacer as a spring that has the power to move a
+	block (a widget) but not to deform it. So if you have a
+	horizontal layout containing two widgets and you put a spacer
+	in between them, the widgets will be pushed to the left and
+	right sides as far as possible, but they will still keep their
+	original size. If the user widens the dialog, the spring will
+	take up the additional space; if the user makes it smaller,
+	the spring will shrink accordingly.
+	</para>
+
+	<para>
+	To center the <guilabel>Extra Cheese</> check box we just put
+	a spacer at each end of the check box line; since the two
+	spacers (springs) have equal strength, they will always keep
+	the check box line centered in the form.<footnote>
+	<para>### footnote goes here ###</para>
+	</footnote>
+	</para>
+
+	<para>
+	Starting from the previously aligned form shown in Fig. 4-10,
+	you first have to break the outermost layout. Then make the
+	<guilabel>Extra Cheese</> check box a bit smaller and move it
+	a bit to the right so that there is space to the left of it.
+	</para>
+
+	<para>
+	Now select <guimenuitem>Lay Out|Add Spacer</> from the menu
+	bar or click on the spacer icon (Figure 4-11) and insert two
+	spacers to the left and right of the check box line. When you
+	try to insert a spacer, a tiny popup menu will open and ask
+	you whether the spacer should be horizontal or vertical. Since
+	we are talking about horizontal orientation here, select
+	horizontal both times. Your form should now look roughly like
+	the one in Figure 4-12.
+	</para>
+
+	<figure>
+	    <title>The spacer icon</title>
+	    <graphic format="jpg" fileref="images"></graphic>
+	</figure>
+
+	<figure>
+	    <title>Inserting spacers into a form</title>
+	    <graphic format="jpg" fileref="images"></graphic>
+	</figure>
+
+	<para>
+	Next make a row out of the two spacers and the check box line
+	by selecting all three and assigning horizontal alignment. The
+	result (Figure 4-13) will probably not be what you expected,
+	but this problem will automatically go away in a minute.
+	</para>
+
+	<figure>
+	    <title>Figure 4-13. Combining spacers and the check box
+	    line into a row</title>
+	    <graphic format="jpg" fileref="images"></graphic>
+	</figure>
+
+	<para>
+	Now re-create the outer layout that you broke to add the
+	spacers: reassemble the three rows into vertical alignment.
+	When you change into test mode you will see that the
+	<guilabel>Extra Cheese</> check box line is automatically
+	centered (Figure 4-14).
+	</para>
+
+	<figure>
+	    <title>Check box line centered automatically</title>
+	    <graphic format="jpg" fileref="images"></graphic>
+	</figure>
+
+	<para>
+	Of course, there are many other uses for spacers. For example,
+	look at the size button group. Perhaps the three radio buttons
+	should be evenly spaced across the button group; to try this,
+	just put spacers between the radio buttons. If you add another
+	two spacers above the first and below the last radio button,
+	the remaining space will be evenly distributed above, between,
+	and below the radio buttons. Or you might want them close
+	together but in the lower part of the button group; you would
+	then use just one spacer and put it on top of the radio
+	buttons. As you can see, spacers offer a number of alignment
+	options.
+	</para>
+
+	<para>
+	There are many other forms of layouts. See Section 5.3 for
+	details about grid layouts and various properties that the
+	layout managers themselves have.
+	</para>
+    </sect1>
+</chapter>

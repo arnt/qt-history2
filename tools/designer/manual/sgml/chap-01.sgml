@@ -1,0 +1,86 @@
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
+
+<chapter>
+<title>Why Use Qt Designer?</title>
+
+    <para>
+    If you are already familiar with GUI programming, you might
+    question the value of a GUI designer. After all, you have written
+    lots of dialogs yourself without any help from these new-fashioned
+    code generators, GUI builders, and whatnots. Aren't these things
+    for newbies only, for people who never learned to get their hands
+    dirty in a text editor?
+    </para>
+
+    <para>
+    You have a point. If you are really good at writing dialogs by
+    hand, know the Qt layout system inside and out, and are generally
+    a good, quick coder, you might be able to write dialogs yourself
+    just as fast. But be honest: You <emphasis>do</> sometimes use
+    pencil and paper to draw a sketch of your dialog, don't you? Then
+    why not let Qt Designer be your pencil and paper? You avoid the
+    expense and the trouble and can save a few trees in the bargain!
+    </para>
+
+    <para>
+    Another consideration: even if you are very good, your dialogs do
+    not always look the way you want them to when you compile and run
+    your program for the first time. So it's back to the editor, fix
+    whatever needs fixing, then recompile, relink, and restart. Using
+    a good GUI builder shortens this development cycle, because it has
+    a preview mode that lets you see your dialog &ldquo;for
+    real&rdquo; right away, without any compiling.
+    </para>
+
+    <para>
+    Perhaps you like the general idea of a GUI builder, and you have
+    already tried some but felt that they decreased your productivity
+    rather than increased it. The GUI builder may have been written to
+    support a different work or design style than yours, or it may
+    have been just plain bad. Having an expensive-looking case or
+    four-color ads in famous programming magazines does not
+    necessarily mean that the tool is actually any good.
+    </para>
+
+    <para>
+    We suggest you give Qt Designer a try. It is a well-crafted tool
+    that does not force you into any specific design style, supports
+    all Qt widgets as well as your own, and is especially helpful with
+    using those pesky layout managers.
+    </para>
+
+    <para>
+    There is yet another reason why you might want to use a GUI
+    builder or even advocate its use in your organization: in large
+    organizations there are usually different groups working on the
+    design of the dialogs in an application and their actual
+    implementation. The designers know a lot about user interface
+    design and usability issues but not necessarily enough about
+    programming to write at least the skeletons of the dialogs
+    themselves. Without a GUI builder, the designers usually draw
+    dialogs either on a sheet of paper or with a drawing program, and
+    the programmers then try to implement this design as close to the
+    draft as possible. With a GUI builder, on the other hand, the
+    designers can just design the dialogs in the GUI builder and click
+    on the <guibutton>Generate</> button (or use whichever means of
+    code generation the GUI builder provides), and the code is already
+    written&mdash;the programmers can concentrate on other jobs. In
+    fact, if you are a programmer, you do not even need to tell the
+    designers about the <guibutton>Generate</> button&mdash;just ask
+    them to save their design; then you can take the file, load it
+    into the GUI builder, and click that <guibutton>Generate</> button
+    yourself. The designers and your boss will think that it takes you
+    half a day to implement a dialog design, while it actually takes
+    you only five seconds&mdash;and you can play Quake the rest of the
+    time!
+    </para>
+
+    <para>
+    We hope you can now appreciate the special value of Qt Designer.
+    Let's begin with simple processes that will teach the basics of Qt
+    Designer. Thereafter we will consider various ways to optimize Qt
+    Designer's special features. Definition of terms and other useful
+    reference notes are summarized thereafter in Part II.
+    </para>
+</chapter>
+

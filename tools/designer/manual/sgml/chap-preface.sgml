@@ -1,0 +1,83 @@
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
+<chapter>
+<title>Preface</title>
+
+    <sect1>
+    <title>Preface</title>
+    <para>
+    This manual introduces Qt Designer, a unique tool that makes
+    designing and implementing user interfaces much easier. With Qt
+    Designer you can create your own dialogs and arrange user
+    interface elements in the dialogs. Dialogs will look nice, natural
+    and accommodate various environments, such as different languages
+    and user settings.
+    </para>
+
+    <para>
+    The manual is divided into two parts. Part I begins with an
+    introduction to Qt Designer and leads to creating dialogs for a
+    simple application. It explains how to use the user interface
+    compiler, <command>uic</>, to create source code from the user
+    interface description files that Qt Designer saves and how to
+    integrate these files into an application. It also shows you how
+    to modify an already existing dialog, how to use layout management
+    to develop more flexible and powerful dialogs, and how to
+    customize dialogs created with Qt Designer by creating a subclass.
+    </para>
+
+    <para>
+    Part II of the manual is a reference-style description of Qt
+    Designer. It explains each menu entry and each dialog in detail.
+    If you are unsure about what to insert in one of the configuration
+    dialogs of Qt Designer and the online help is not enough, this is
+    the place to look for help.
+    </para>
+</sect1>
+
+<sect1>
+<title>What You Should Know</title>
+
+    <para>
+    We assume that you have some knowledge of writing Qt programs and,
+    consequently, of C++ programming. If you feel unsure about your Qt
+    knowledge, you might want to consult the Qt Tutorial that ships
+    with Qt, or the book <emphasis>Programming with Qt</> by Matthias
+    Kalle Dalheimer (published by O'Reilly &amp; Associates). Or you
+    can just try to follow the examples in this manual and then read
+    more about any Qt features about which you are uncertain.
+    </para>
+</sect1>
+
+<sect1>
+<title>Feedback</title>
+
+    <para>
+    We are very interested in your feedback, whether positive or
+    negative. We would like to know if you come across anything in
+    this manual that you consider wrong, ill-formulated, or explained
+    in too difficult a manner. It is equally helpful for us to hear of
+    your satisfaction, suggestions for further editions of both the
+    manual and Qt Designer itself, or anything else that you would
+    like to comment on in the world of Qt. Bug reports should be sent
+    to &lt;<literal>qt-bugs&commat;trolltech.com</>&gt;. Otherwise
+    please contact us at
+    &lt;<literal>info&commat;trolltech.com</>&gt;.
+    </para>
+
+    <para>
+    If you hold a commercial Qt license, you can also use the support
+    channels that were assigned to you when you bought your license.
+    </para>
+</sect1>
+
+<sect1>
+<title>Credits</title>
+
+    <para>
+    Qt Designer and the accompanying <command>uic</> are a product of
+    Trolltech AS. This manual was written by Matthias Kalle Dalheimer
+    of Klarälvdalens Datakonsult AB, proofread and edited by Elaine
+    Haug, and typeset and produced by Trolltech AS.
+    </para>
+</sect1>
+</chapter>

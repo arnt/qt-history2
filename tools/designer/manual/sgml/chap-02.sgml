@@ -1,0 +1,837 @@
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
+<chapter>
+<title>Creating A Simple Application With Qt Designer</title>
+
+    <para>
+    In this chapter we will write a small application with the help of
+    Qt Designer. The exercise will be to write a &ldquo;pizza
+    order-entry application&rdquo; with a choice of size, various
+    toppings, extra cheese, and so on. Clicking on the
+    <guibutton>OK</> button should send your order to a pizza delivery
+    service, but we will have to leave the actual order transmission
+    to you and concentrate on creating and showing the order dialog
+    instead.
+    </para>
+
+    <sect1>
+    <title>Becoming Familiar With Qt Designer</title>
+
+	<para>
+	Begin by bringing up Qt Designer. If you have installed Qt
+	according to the installation instructions, you should be able
+	to invoke it as:
+	</para>
+
+	<screen>
+designer
+</screen>
+
+	<para>
+	in a Unix shell or a Windows command-line prompt; or you can
+	click on the Qt Designer icon in Windows. After the splash
+	screen disappears, you should see the screen shown in Figure
+	2-1 below.<footnote>
+	<para>### footnote goes here ###</para>
+	</footnote>
+	</para>
+
+	<figure>
+	    <title>The startup screen of Qt Designer</title>
+	    <graphic format="jpg" fileref="images"></graphic>
+	</figure>
+
+	<para>
+	Now we can start creating the first dialog. Choose
+	<guimenuitem>File|New</> from the menu or press
+	<keycap>Ctrl-N</>. You will then see the dialog in Figure 2-2.
+	Here you can choose from several types of forms, the most
+	common ones probably being a new dialog and a new widget. If
+	you have developed software with Qt before, you probably know
+	the difference: a dialog is always a window of its own, while
+	widgets usually are integrated into some other widget or a
+	dialog. Among the other options that you have at this point
+	are creating a wizard and creating a dialog with some
+	predefined buttons.
+	</para>
+
+	<para>
+	The term <emphasis>form</> might need some explanation.
+	Everything that you design in Qt Designer is a form. This
+	could be a widget, a dialog, or a wizard, and maybe other
+	things. We'll use the term &ldquo;form&rdquo; here when it
+	does not matter whether we are working with a dialog or a
+	widget or something else and we just want to refer to
+	&ldquo;whatever you are currently designing in the right half
+	of the Qt Designer window&rdquo;.
+	</para>
+
+	<figure>
+	    <title>Selecting the type of form to create</title>
+	    <graphic format="jpg" fileref="images"></graphic>
+	</figure>
+
+	<para>
+	Since we want a dialog in which we can specify pizza
+	preferences, click on <guilabel>Dialog</> here. Now the Qt
+	Designer screen changes fundamentally, as you can see in
+	Figure 2-3 below.
+	</para>
+
+	<figure>
+	    <title>An empty dialog form</title>
+	    <graphic format="jpg" fileref="images"></graphic>
+	</figure>
+    </sect1>
+
+    <sect1>
+    <title>The Property Editor</title>
+
+	<para>
+	Let's quickly review what is now visible on the screen. To the
+	left you can see the so-called property editor, which
+	obviously lets you edit various properties of your dialog and,
+	as we will see later, the UI components that you put in your
+	dialogs. In Qt lingo, a property is one attribute or
+	characteristic of a UI component. This could be the size, a
+	color, the title bar of a dialog (the so-called
+	&ldquo;caption&rdquo;), switches that change the behavior of
+	the component, and many other things. Depending on the type of
+	the property, there are various possibilities to edit it.
+	Let's look at just the first three properties that Qt Designer
+	displays for our freshly started dialog.
+	</para>
+
+	<para>
+	The property <literal>name</> specifies the internal name of
+	the dialog. It is nothing that your users will ever see, but
+	is a moniker that will help you, the developer, find all your
+	components easily. Since names are strings, Qt Designer
+	provides a text-entry field next to the property name. There
+	is already a default name, <literal>Form1</>, filled in here,
+	but this is not very descriptive, so click in the text-entry
+	field and change the name to something more suitable, like
+	<classname>PizzaEntryForm</>. You will notice that the property
+	name is now displayed in bold type; this indicates that the
+	property has been changed from its default value. If during
+	your editing you'd rather have the old value of a property
+	back so that you can start over, a click on the little cross
+	icon next to the edit field sometimes restores the initial
+	value. Whether or not this works depends on whether the
+	property really has an initial value. In any case, you can
+	revert from your changes by selecting
+	<guimenuitem>Edit|Undo</> on the menu or by clicking the
+	corresponding toolbar button.
+	</para>
+
+	<para>
+	The next property in the property editor is called
+	<literal>enabled</>and has a boolean value, i.e., it can be
+	either <literal>true</>or <literal>false</>. Obviously we want
+	our dialog to be enabled (otherwise we could not enter our
+	pizza order), but let's try changing the value of this
+	property anyway. Instead of a text-entry field, the property
+	editor provides you with a combo box where you can choose
+	between the values <literal>true</> and <literal>false</>. You
+	will find these combo boxes wherever there is a fixed number
+	of values to choose from. This will usually be a boolean
+	choice of <literal>true</> or <literal>false</>, but there
+	will be combo boxes for Qt's enumeration types, too.
+	</para>
+
+	<para>
+	Before you continue to the next property, make sure the value
+	of the property <literal>enabled</> is reset to
+	<literal>true</>.
+	</para>
+
+	<para>
+	The next property, <literal>sizePolicy</>, could be called a
+	compound property because it has several subproperties that
+	each have a value of their own. The compound property itself
+	does not have a real value, but Qt Designer displays all the
+	individual values of the subproperties here.
+	</para>
+
+	<para>
+	You can see that <literal>sizePolicy</> is a compound property
+	because it has a little plus sign next to its name. If you
+	click on the plus sign, a new level will open with the
+	subproperties (in this case: <literal>hSizeType</> and
+	<literal>vSizeType</>). It does not matter here what these
+	properties mean; without more intimate knowledge of the layout
+	system in Qt you would not understand it anyway. All you need
+	to know at this point is that the plus sign indicates a
+	compound property with subproperties hidden behind the
+	surface; each subproperty has a name and value of its own.
+	</para>
+
+	<para>
+	If you are a beginner in Qt programming, you will see many
+	properties whose purposes you do not know yet; even if you are
+	a seasoned programmer, you might not know the meanings of all
+	of them. This is no problem. All properties have reasonable
+	default values, so you can just ignore any properties that you
+	do not understand and come back later to change them, if
+	necessary. And you can always click on a property and hit the
+	<keycap>F1</> key to get information about it.
+	</para>
+    </sect1>
+
+    <sect1>
+    <title>The Form Editor</title>
+
+	<para>
+	We've seen the property editor on the left half of the Qt
+	Designer window; the form editor occupies the right half. Here
+	you &ldquo;draw&rdquo; your dialogs by placing UI components
+	on the empty space provided and arranging them.
+	</para>
+
+	<para>
+	<emphasis>Manual Placement and Layouts</>
+	</para>
+
+	<para>
+	In this exercise we will use manual placement, i.e.,
+	explicitly assign positions and sizes to the UI components you
+	placed in the dialog. This serves our purpose now but has
+	disadvantages in the long run. You will learn in Chapter 4 how
+	to use Qt's layout system from within Qt Designer to get an
+	automatic layout.
+	</para>
+
+	<para>
+	Let's start bringing a few components into the dialog. We want
+	the user to choose from the following toppings: mushrooms,
+	ham, pineapple, and anchovies.<footnote>
+	<para>### footnote goes here ###</para>
+	</footnote> It should be possible to select whether extra
+	cheese is desired and whether the size of the pizza should be
+	junior, standard, or family. Once the user has made the
+	choices, he or she can either click the <guibutton>OK</> button
+	to send the order (in a real application) or back out by
+	clicking
+	<guibutton>Cancel</>.
+	</para>
+
+	<para>
+	First, let's do the topping selection. In our application (and
+	probably in any decent pizza service), one can choose any
+	combination of toppings, including all the available ones or
+	none. This kind of selection, letting the user choose any
+	number from a fixed number of options, is done with so-called
+	check boxes. These boxes have different looks depending on the
+	GUI style, but are usually some type of square. Because we
+	want the user to know that the selection here is toppings (and
+	not the color of the cardboard box the pizzas will be
+	delivered in), we will draw a rectangular frame with a title
+	around the check boxes. These frames are called
+	<emphasis>group boxes</>,because they group other UI elements
+	visually.
+	</para>
+
+	<para>
+	Now we bring the first check box onto the form. To do this,
+	select the <emphasis>check box tool</>. With Qt Designer,
+	forms are designed by employing a number of tools, each of
+	which lets you either insert a special kind of UI element or
+	perform some other action, like choosing. To select the check
+	box tool, either click on the check box icon (Figure 2-4) or
+	select <guimenuitem>Tools|Buttons|CheckBox</>from the menu.
+	The changed text in the status bar indicates that you have
+	selected a new tool; the mouse cursor now becomes a cross
+	instead of an arrow when you move it over a form.
+	</para>
+
+	<figure>
+	    <title>The check box tool icon</title>
+	    <graphic format="jpg" fileref="images"></graphic>
+	</figure>
+
+	<para>
+	To bring the first check box onto the form, simply
+	&ldquo;draw&rdquo; it. Press the left mouse button where you
+	want the upper-left corner to be, hold it down, and move the
+	mouse to the point where you want the lower-right corner to
+	be. Then release the mouse button. Immediately, you will see
+	your check box in the form. You should put it somewhere near
+	the upper-left corner of the form but not too close, so
+	there's still space for the group box we want to draw later
+	(see Figure 2-5). To do this, switch from the check box tool
+	to the ordinary selection tool by clicking on the pointer icon
+	(each click on the form itself will insert another check box).
+	</para>
+
+	<para>
+	If you do not like the position chosen, you can always move
+	the check box simply by &ldquo;grabbing&rdquo; it with the
+	mouse and dragging it to where you want it to be.
+	</para>
+
+	<para>
+	If you'd rather not decide on a suitable size for the check
+	box now but let Qt Designer give it a reasonable default size,
+	just click on the form: the check box will then be inserted
+	with its default value,<footnote>
+	<para>### footnote goes here ###</para>
+	</footnote> with the upper-left corner where the mouse
+	clicked. Size can always be adjusted later, either by dragging
+	the handles or automatically; you will learn soon how to do
+	the latter.
+	</para>
+
+	<figure>
+	    <title>The first check box on the form</title>
+	    <graphic format="jpg" fileref="images"></graphic>
+	</figure>
+
+	<para>
+	You may have noticed that the property editor changed when you
+	inserted the check box. The property editor always displays
+	the properties of the currently selected element, which now is
+	the check box. To see how this works, just click with the
+	mouse anywhere else on the form. The property editor will then
+	display the properties of the whole form instead of those of
+	the check box. Click again on the check box. Qt Designer has
+	by default given it the text label <guilabel>CheckBox1</>, but
+	of course that's not what we want; we want
+	<guilabel>Mushrooms</>. So, click on the text field in the
+	value column next to the text property, delete the old text,
+	and enter <literal>Mushrooms</>. Watch how the
+	label of the check box in the form changes immediately while
+	you type. Talk about instant feedback!
+	</para>
+
+	<para>
+	The check box might not be wide enough to accommodate the full
+	label text. In this case, just make the check box wider by
+	clicking on it and dragging the handle in the middle of the
+	right margin farther to the right until the label fits. Or
+	even easier, click with the right mouse button to open the
+	context menu and select <guilabel>Adjust Size</>, which will
+	give the check box the exact size it needs to display the
+	little square and the label.
+	</para>
+
+	<para>
+	Once you are satisfied with your first check box, add three
+	more for Ham, Pineapple, and Anchovies in the same way. Place
+	the four check boxes below each other, as in Figure 2-6.
+	</para>
+
+	<figure>
+	    <title>Four check boxes</title>
+	    <graphic format="jpg" fileref="images"></graphic>
+	</figure>
+
+	<para>
+	You do not necessarily need to use the property editor to
+	change the text labels of the check boxes. Changing the label
+	of a check box is such a common operation that there is a
+	shortcut for it: right-click on an already inserted check box
+	while the selection tool is active, and a context menu will
+	pop up. Here, you can select <guimenuitem>Edit Text...</>,
+	which will open a small dialog box where you can enter the new
+	label. This has the same effect as changing the text property
+	in the property editor. Qt Designer also has the nice feature
+	of letting you change the most important property by simply
+	double-clicking on the widget on the form whose property you
+	want to change. Which property is considered the most
+	important depends on the widget; it is always the one that is
+	shown at the top of the context menu you get when you
+	right-click on the widget.
+	</para>
+
+	<para>
+	Now we are done with the check boxes and want to put a group
+	box around them so they are grouped together visually. To do
+	this, choose the button group tool (Figure 2-7). Button groups
+	are like group boxes but provide some extra functionality to
+	the included buttons that we need not bother with now.
+	</para>
+
+	<figure>
+	    <title>The button group icon</title>
+	    <graphic format="jpg" fileref="images"></graphic>
+	</figure>
+
+	<para>
+	&ldquo;Draw&rdquo; the button group so that it surrounds your
+	check boxes. Oops! When you release the mouse button, the
+	group box is smart enough to know that you do not want to put
+	it over the check boxes (if you wanted to do that, would you
+	have inserted the check boxes in the first place?); the system
+	recognizes that you want the group box to be a parent of the
+	check boxes, meaning that it is responsible for where the
+	check boxes are and that the check boxes lie on top of the
+	group box. If you already know programming with Qt (or with
+	most other toolkits, for that matter), you understand the
+	principles involved. (For more details about parent-child
+	relationships and how Qt Designer handles them, please see the
+	text-box <emphasis>&ldquo;Parent-Child Relationships In Qt
+	Designer.&rdquo;</>)
+	</para>
+
+	<para>
+	Before we continue with the next widget, we need to give the
+	button group a good header text. So, select <guimenuitem>Edit
+	Title...</> from the context menu to give the button group the
+	title <literal>Toppings</>, or achieve the same result by
+	changing the title property in the property editor.
+	</para>
+    </sect1>
+
+    <sect1>
+    <title>Adding Widgets</title>
+
+	<para>
+	It is time to get more widgets onto our form so we have an
+	example to run.
+	</para>
+
+	<para>
+	First add another check box with the label <literal>Extra
+	Cheese</> (how to do this should be obvious by now).
+	</para>
+
+	<para>
+	Your next task is to choose the pizza size. This time we will
+	do it in a different order and create the button group first.
+	Select the button group tool from the menu (you will find it
+	in the submenu <guimenuitem>Tools|Containers</>) or from the
+	toolbar. Draw the button group and give it the title
+	<literal>Size</>. Now select the radio button tool from the
+	menu or the toolbar (Figure 2-9) and create three radio
+	buttons within the new button group. Label these three radio
+	buttons <literal>Junior</>, <literal>Standard</>, and
+	<literal>Family</>.
+	</para>
+
+	<figure>
+	    <title>The radio button icon</title>
+	    <graphic format="jpg" fileref="images"></graphic>
+	</figure>
+
+	<para>
+	To finish the dialog, create two push buttons by selecting the
+	push button tool from the submenu
+	<guimenuitem>Tools|Buttons</> or the toolbar (Figure 2-10) and
+	give them the labels <guibutton>OK</>and <guibutton>Cancel</>.
+	</para>
+
+	<figure>
+	    <title>The push button icon</title>
+	    <graphic format="jpg" fileref="images"></graphic>
+	</figure>
+
+	<para>
+	Since the form is probably too big for the few components that
+	we have put onto it, we can resize it with the same feature we
+	used for the check boxes: click on the background of the form
+	so that no widget is selected, then right-click to open the
+	context menu, and select <guilabel>Adjust Size</>. The form
+	will now have a nice size that is just large enough to
+	accommodate its contents.
+	</para>
+
+	<para>
+	While working on the form you might want to see how it looks
+	&ldquo;for real,&rdquo; without the grid dots, like a real
+	dialog. Press <keycap>Ctrl-T</>, which will open the dialog in
+	&ldquo;test mode&rdquo; (see Figure 2-11). The widget
+	style<footnote>
+	<para>### footnote goes here ###</para>
+	</footnote> used is the default style of the system Qt is
+	running on, i.e., Motif style on Unix and Windows style on
+	Windows. If you want to see your dialog in a different style,
+	just select one of the entries in the <guilabel>Preview</>
+	menu.
+	</para>
+
+	<figure>
+	    <title>The test mode</title>
+	    <graphic format="jpg" fileref="images"></graphic>
+	</figure>
+
+	<para>
+	Finally, give the form a name that is more descriptive than
+	<literal>Form1</>: Click on the background of the form so that
+	no component on it is selected, then select the
+	<guilabel>name</> property in the property editor and change
+	it from <literal>Form1</> to <classname>PizzaEntry</>. This name
+	will also be the class name of your generated source code.
+	</para>
+
+	<para>
+	When you are done the dialog should look more or less like the
+	one in Figure 2-12. Using the <guimenuitem>File|Save As...</>
+	menu entry, save it under the name <filename>pizza.ui</>.
+	</para>
+
+	<figure>
+	    <title>This is how the first dialog should look</title>
+	    <graphic format="jpg" fileref="images"></graphic>
+	</figure>
+    </sect1>
+
+    <sect1>
+    <title>Generating C++ Source Code From The Qt Designer
+	File</title>
+
+	<para>
+	As you might have guessed from the filename extension
+	<filename>.ui</>, Qt Designer does not generate C++ source
+	code right away. While this would be possible, it would make
+	it much more difficult to change the dialogs later by using Qt
+	Designer.
+	</para>
+
+	<para>
+	Out of curiosity, you might be wondering what it is that Qt
+	Designer saves in its <filename>.ui</> files. These files are
+	a textual description of the dialog you just created. The
+	format used is the markup language XML. Here is what
+	<filename>pizza.ui</> can look like; your file might have
+	slightly different values for sizes and positions.
+	</para>
+
+	<programlisting>
+&lt;!DOCTYPE UI&gt;&lt;UI&gt;
+&lt;class&gt;PizzaEntry&lt;/class&gt;
+&lt;widget&gt;
+    &lt;class&gt;QDialog&lt;/class&gt;
+    &lt;property&gt;
+        &lt;name&gt;name&lt;/name&gt;
+        &lt;cstring&gt;PizzaEntry&lt;/cstring&gt;
+    &lt;/property&gt;
+    &lt;property&gt;
+        &lt;name&gt;geometry&lt;/name&gt;
+        &lt;rect&gt;
+            &lt;x&gt;0&lt;/x&gt;
+            &lt;y&gt;0&lt;/y&gt;
+            &lt;width&gt;310&lt;/width&gt;
+            &lt;height&gt;222&lt;/height&gt;
+        &lt;/rect&gt;
+    &lt;/property&gt;
+    &lt;property&gt;
+        &lt;name&gt;caption&lt;/name&gt;
+        &lt;string&gt;Form1&lt;/string&gt;
+    &lt;/property&gt;
+    &lt;widget&gt;
+        &lt;class&gt;QButtonGroup&lt;/class&gt;
+        &lt;property&gt;
+            &lt;name&gt;name&lt;/name&gt;
+            &lt;cstring&gt;ButtonGroup1&lt;/cstring&gt;
+        &lt;/property&gt;
+        &lt;property&gt;
+            &lt;name&gt;geometry&lt;/name&gt;
+            &lt;rect&gt;
+                &lt;x&gt;30&lt;/x&gt;
+                &lt;y&gt;10&lt;/y&gt;
+                &lt;width&gt;122&lt;/width&gt;
+                &lt;height&gt;119&lt;/height&gt;
+            &lt;/rect&gt;
+        &lt;/property&gt;
+        &lt;property&gt;
+            &lt;name&gt;title&lt;/name&gt;
+            &lt;string&gt;Toppings&lt;/string&gt;
+        &lt;/property&gt;
+
+		...
+
+    &lt;/widget&gt;
+
+		...
+
+&lt;/widget&gt;
+&lt;/UI&gt;
+</programlisting>
+
+	<para>
+	The first few lines specify that this is a Qt Designer file
+	and that it describes a dialog that should be called
+	<classname>PizzaEntry</>. The remaining lines describe the
+	individual widgets by listing their names, their classes, and
+	some of their properties. Only those properties that are
+	different from the default&mdash;i.e., those values that were
+	automatically set when you created the widget in the
+	form&mdash;are listed. You could in theory change values here,
+	but this is not recommended; you might break the format if you
+	do not know exactly what you are doing. It is better to edit
+	these files using Qt Designer.
+	</para>
+
+	<para>
+	Of course, no C++ compiler can use such a file, so you will
+	first have to convert it. Conversion is the task of another
+	program that comes with Qt Designer: <command>uic</>, the user
+	interface compiler.
+	</para>
+
+	<para>
+	You will have to call <command>uic</> twice to generate both
+	the header file and the implementation file of your dialog
+	class. Assuming that <command>uic</> is in your search path,
+	you can generate the header file as follows:
+	</para>
+
+	<screen>
+uic -o PizzaEntry.h pizza.ui
+</screen>
+
+	<para>
+	The option <literal>-o</>tells <command>uic</> how to name the
+	header file; <filename>pizza.ui</>is the name of the file you
+	saved with Qt Designer. As with the XML file, let's look at
+	the generated file:
+	</para>
+
+	<programlisting>
+/****************************************************************************
+** Form interface generated from reading ui file 'pizza.ui'
+**
+** Created: Tue Jun 20 13:22:32 2000
+**      by:  The User Interface Compiler (uic)
+**
+** WARNING! All changes made in this file will be lost!
+****************************************************************************/
+&num;ifndef PIZZAENTRY&lowbar;H
+&num;define PIZZAENTRY&lowbar;H
+
+&num;include &lt;qdialog.h&gt;
+class QVBoxLayout;
+class QHBoxLayout;
+class QGridLayout;
+class QButtonGroup;
+class QCheckBox;
+class QPushButton;
+class QRadioButton;
+
+class PizzaEntry : public QDialog
+{
+    Q&lowbar;OBJECT
+
+public:
+    PizzaEntry( QWidget* parent = 0, const char* name = 0,
+		    bool modal = FALSE, WFlags f = 0 );
+    ~PizzaEntry();
+
+    QButtonGroup* ButtonGroup1;
+    QCheckBox* CheckBox1;
+    QCheckBox* CheckBox2;
+    QCheckBox* CheckBox3;
+    QCheckBox* CheckBox4;
+    QButtonGroup* ButtonGroup2;
+    QRadioButton* RadioButton1;
+    QRadioButton* RadioButton2;
+    QRadioButton* RadioButton3;
+    QCheckBox* CheckBox5;
+    QPushButton* PushButton1&lowbar;2&lowbar;2;
+    QPushButton* PushButton1&lowbar;2;
+
+protected:
+};
+
+&num;endif // PIZZAENTRY&lowbar;H
+</programlisting>
+
+	<para>
+	If you have programmed with Qt before, the only thing that
+	might surprise you here is the fact that all the widget
+	members of the dialog are made <literal>public</>. We'll
+	discuss later why this is so.
+	</para>
+
+	<para>
+	The next step is to create the implementation file. You tell
+	<command>uic</> that you want to create an implementation file
+	instead of a header file by specifying the option
+	<literal>-i</>and use the name of the already generated header
+	file as argument:
+	</para>
+
+	<screen>
+uic -i PizzaEntry.h -o PizzaEntry.cpp pizza.ui
+</screen>
+
+	<para>
+	As before, the option <literal>-o</> determines the name of
+	the generated file. Again, let's look at the result:
+	</para>
+
+	<programlisting>
+/****************************************************************************
+** Form implementation generated from reading ui file 'pizza.ui'
+**
+** Created: Tue Jun 20 13:23:00 2000
+**      by:  The User Interface Compiler (uic)
+**
+** WARNING! All changes made in this file will be lost!
+****************************************************************************/
+&num;include "PizzaEntry.h"
+
+&num;include &lt;qbuttongroup.h&gt;
+&num;include &lt;qcheckbox.h&gt;
+&num;include &lt;qpushbutton.h&gt;
+&num;include &lt;qradiobutton.h&gt;
+&num;include &lt;qlayout.h&gt;
+&num;include &lt;qvariant.h&gt;
+&num;include &lt;qtooltip.h&gt;
+&num;include &lt;qwhatsthis.h&gt;
+
+/*
+ *  Constructs a PizzaEntry which is a child of 'parent', with the
+ *  name 'name' and widget flags set to 'f'
+ *
+ *  The dialog will by default be modeless, unless you set 'modal' to
+ *  TRUE to construct a modal dialog.
+ */
+PizzaEntry::PizzaEntry( QWidget* parent,  const char* name,
+			     bool modal, WFlags f )
+    : QDialog( parent, name, modal, f )
+{
+    if ( !name )
+        setName( "PizzaEntry" );
+    resize( 310, 222 );
+    setCaption( tr( "Form1"  ) );
+
+    ButtonGroup1 = new QButtonGroup( this, "ButtonGroup1" );
+    ButtonGroup1-&gt;setGeometry( QRect( 30, 10, 122, 119 ) );
+    ButtonGroup1-&gt;setTitle( tr( "Toppings"  ) );
+
+    CheckBox1 = new QCheckBox( ButtonGroup1, "CheckBox1" );
+    CheckBox1-&gt;setGeometry( QRect( 10, 20, 102, 19 ) );
+    CheckBox1-&gt;setText( tr( "Mushrooms"  ) );
+
+    CheckBox2 = new QCheckBox( ButtonGroup1, "CheckBox2" );
+    CheckBox2-&gt;setGeometry( QRect( 10, 40, 51, 19 ) );
+    CheckBox2-&gt;setText( tr( "Ham"  ) );
+
+    CheckBox3 = new QCheckBox( ButtonGroup1, "CheckBox3" );
+    CheckBox3-&gt;setGeometry( QRect( 10, 60, 88, 19 ) );
+    CheckBox3-&gt;setText( tr( "Pineapple"  ) );
+
+    CheckBox4 = new QCheckBox( ButtonGroup1, "CheckBox4" );
+    CheckBox4-&gt;setGeometry( QRect( 10, 80, 79, 19 ) );
+    CheckBox4-&gt;setText( tr( "Anchovies"  ) );
+
+    ButtonGroup2 = new QButtonGroup( this, "ButtonGroup2" );
+    ButtonGroup2-&gt;setGeometry( QRect( 180, 20, 100, 99 ) );
+    ButtonGroup2-&gt;setTitle( tr( "Size"  ) );
+
+    RadioButton1 = new QRadioButton( ButtonGroup2, "RadioButton1" );
+    RadioButton1-&gt;setGeometry( QRect( 10, 20, 56, 19 ) );
+    RadioButton1-&gt;setText( tr( "Junior"  ) );
+
+    RadioButton2 = new QRadioButton( ButtonGroup2, "RadioButton2" );
+    RadioButton2-&gt;setGeometry( QRect( 10, 40, 71, 19 ) );
+    RadioButton2-&gt;setText( tr( "Standard"  ) );
+
+    RadioButton3 = new QRadioButton( ButtonGroup2, "RadioButton3" );
+    RadioButton3-&gt;setGeometry( QRect( 10, 60, 58, 19 ) );
+    RadioButton3-&gt;setText( tr( "Family"  ) );
+
+    CheckBox5 = new QCheckBox( this, "CheckBox5" );
+    CheckBox5-&gt;setGeometry( QRect( 110, 150, 101, 19 ) );
+    CheckBox5-&gt;setText( tr( "Extra Cheese"  ) );
+
+    PushButton1&lowbar;2&lowbar;2 = new QPushButton( this, "PushButton1&lowbar;2&lowbar;2" );
+    PushButton1&lowbar;2&lowbar;2-&gt;setGeometry( QRect( 50, 180, 108, 32 ) );
+    PushButton1&lowbar;2&lowbar;2-&gt;setText( tr( "OK"  ) );
+
+    PushButton1&lowbar;2 = new QPushButton( this, "PushButton1&lowbar;2" );
+    PushButton1&lowbar;2-&gt;setGeometry( QRect( 170, 180, 108, 32 ) );
+    PushButton1&lowbar;2-&gt;setText( tr( "Cancel"  ) );
+}
+
+/*
+ *  Destroys the object and frees any allocated resources
+ */
+PizzaEntry::~PizzaEntry()
+{
+    // no need to delete child widgets, Qt does it all for us
+}
+</programlisting>
+
+	<para>
+	You might feel that this source code is wordier than
+	handcrafted code, but this is typical of machine-generated
+	code.
+	</para>
+    </sect1>
+
+    <sect1>
+    <title>Putting It All Together</title>
+
+	<para>
+	Now that we have the code for our dialog, we need some test
+	code to try it. The following code is about the simplest piece
+	you can have:
+	</para>
+
+	<programlisting>
+&num;include &lt;qapplication.h&gt;
+&num;include "PizzaEntry.h"
+
+int main( int argc, char* argv[] )
+{
+  QApplication app( argc, argv );
+
+  PizzaEntry pizzaEntry;
+  app.setMainWidget( &amp;pizzaEntry );
+  pizzaEntry.show();
+  int ret = app.exec();
+  return ret;
+}
+</programlisting>
+
+	<para>
+	Save this as <filename>PizzaEntryTest.cpp</>. Now you can
+	start building your program. On a Unix system with the
+	<command>g++</> compiler, these could be your command lines:
+	</para>
+
+	<screen>
+moc -o moc&lowbar;PizzaEntry.cpp PizzaEntry.h
+g++ -I&dollar;QTDIR/include PizzaEntry.cpp
+PizzaEntryTest.cpp moc&lowbar;PizzaEntry.cpp &bsol;
+-L&dollar;QTDIR/lib -lqt
+</screen>
+
+	<para>
+	and on a Windows system with the Microsoft Visual C++
+	compiler:
+	</para>
+
+	<screen>
+moc -o moc&lowbar;PizzaEntry.cpp PizzaEntry.h
+cl -c -nologo -I&percnt;QTDIR&percnt;/include &bsol; -FoPizzaEntry.obj PizzaEntry.cpp
+cl -c -nologo -I&percnt;QTDIR&percnt;/include &bsol; -FoPizzaEntryTest.obj PizzaEntryTest.cpp
+cl -c -nologo -I&percnt;QTDIR&percnt;/include &bsol; -Fomoc&lowbar;PizzaEntry.obj moc&lowbar;PizzaEntry.cpp
+link /NOLOGO /SUBSYSTEM:windows &bsol;
+/OUT:PizzaEntry PizzaEntry.obj &bsol; PizzaEntryTest.obj
+moc&lowbar;PizzaEntry.obj &percnt;QTDIR&percnt;/lib/qt.lib &bsol;
+kernel32.lib user32.lib gdi32.lib &bsol; comdlg32.lib &bsol;
+advapi32.lib shell32.lib ole32.lib &bsol;
+oleaut32.lib uuid.lib imm32.lib winmm.lib &bsol;
+wsock32.lib
+</screen>
+
+	<para>
+	You might have to change the compiler command and some of the
+	options if you use a different compiler (if you do not know
+	what the line starting with <command>moc</> is for, please see
+	the Qt Tutorial or <emphasis>Programming with Qt)</>.
+	</para>
+
+	<para>
+	Finally, you can run your program. Figure 2-13 shows the
+	result.
+	</para>
+
+	<figure>
+	    <title>Our first program in action</title>
+	    <graphic format="jpg" fileref="images"></graphic>
+	</figure>
+    </sect1>
+</chapter>
