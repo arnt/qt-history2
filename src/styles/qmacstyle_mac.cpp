@@ -131,13 +131,13 @@ public:
     QMacStyleFocusWidget(QWidget *w) : QAquaFocusWidget(FALSE, w) { }
 
 protected:
-    void drawFocusRect(QMacPainter *p);
+    void drawFocusRect(QMacPainter *p) const;
 
-    virtual QRegion focusRegion();
+    virtual QRegion focusRegion() const;
     virtual void paintEvent(QPaintEvent *);
-    virtual int focusOutset();
+    virtual int focusOutset() const;
 };
-QRegion QMacStyleFocusWidget::focusRegion()
+QRegion QMacStyleFocusWidget::focusRegion() const
 {
     const QRgb fillColor = qRgb(192, 191, 190);
     QImage img;
@@ -167,14 +167,14 @@ void QMacStyleFocusWidget::paintEvent(QPaintEvent *)
     QMacPainter p(this);
     drawFocusRect(&p);
 }
-void QMacStyleFocusWidget::drawFocusRect(QMacPainter *p)
+void QMacStyleFocusWidget::drawFocusRect(QMacPainter *p) const
 {
     p->setport();
     QRect r(focusOutset(), focusOutset(),  width() - (focusOutset()*2),
 	    height() - (focusOutset()*2));
     DrawThemeFocusRect(qt_glb_mac_rect(r, p, TRUE, QRect(1, 1, 1, 1)), true);
 }
-int QMacStyleFocusWidget::focusOutset()
+int QMacStyleFocusWidget::focusOutset() const
 {
     SInt32 ret = 0;
     GetThemeMetric(kThemeMetricFocusRectOutset, &ret);

@@ -310,11 +310,11 @@ public:
     {
     }
 
-    int columnNumber()
+    int columnNumber() const
     {
 	return ( reader->columnNr == -1 ? -1 : reader->columnNr + 1 );
     }
-    int lineNumber()
+    int lineNumber() const
     {
 	return ( reader->lineNr == -1 ? -1 : reader->lineNr + 1 );
     }
