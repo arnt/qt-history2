@@ -1049,7 +1049,8 @@ static void load(const QString &family = QString::null, int script = -1)
     }
 
 #ifdef QFONTDATABASE_DEBUG
-    FD_DEBUG("QFontDatabase: load(%s, %d) took %d ms", family.latin1(), script, t.elapsed());
+    FD_DEBUG("QFontDatabase: load(%s, %d) took %d ms",
+             family.toLatin1().constData(), script, t.elapsed());
 #endif
 }
 
