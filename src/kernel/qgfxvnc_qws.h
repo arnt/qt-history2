@@ -26,6 +26,8 @@
 
 #ifndef QT_NO_QWS_VNC
 
+class QTimer;
+
 class QRfbRect
 {
 public:
@@ -154,17 +156,19 @@ private:
     void pointerEvent();
     void keyEvent();
     void clientCutText();
-    bool checkFill( const QRfbRect &r );
+    bool checkFill( const uchar *data, int numPixels );
     int getPixel( uchar ** );
     void sendHextile();
     void sendRaw();
 
 private slots:
     void readClient();
+    void checkUpdate();
     void discardClient();
 
 private:
     enum ClientState { Protocol, Init, Connected };
+    QTimer *timer;
     QSocket *client;
     ClientState state;
     Q_UINT8 msgType;
@@ -174,6 +178,7 @@ private:
     int encodingsPending;
     int cutTextPending;
     bool supportHextile;
+    bool wantUpdate;
 };
 
 #endif // QT_NO_QWS_VNC

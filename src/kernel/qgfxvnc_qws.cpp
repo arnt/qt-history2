@@ -2,7 +2,7 @@
 ** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#73 $
 **
 ** Implementation of QGfxvnc (remote frame buffer driver)
-** Proof of concept driver only.
+** Proof of concept driver only, but quite complete.
 ** 
 ** Created : 20000703
 **
@@ -31,9 +31,10 @@
 #include "qwindowsystem_qws.h"
 #include "qgfxvnc_qws.h"
 
-#define MAP_TILE_SIZE	16
-#define MAP_WIDTH	1280/MAP_TILE_SIZE
-#define MAP_HEIGHT	1024/MAP_TILE_SIZE
+#define MAP_TILE_SIZE	    16
+#define MAP_WIDTH	    1280/MAP_TILE_SIZE
+#define MAP_HEIGHT	    1024/MAP_TILE_SIZE
+#define UPDATE_FREQUENCY    40
 
 bool qvncEnabled = FALSE;
 
@@ -348,11 +349,13 @@ QVNCServer::QVNCServer()
     encodingsPending = 0;
     cutTextPending = 0;
     keymod = 0;
+    timer = new QTimer( this );
+    connect( timer, SIGNAL(timeout()), this, SLOT(checkUpdate()) );
 }
 
 QVNCServer::~QVNCServer()
 {
-    delete client;
+    discardClient();
 }
 
 void QVNCServer::newConnection( int socket )
@@ -365,12 +368,15 @@ void QVNCServer::newConnection( int socket )
     client = new QSocket(this);
     connect(client,SIGNAL(readyRead()),this,SLOT(readClient()));
     connect(client,SIGNAL(delayedCloseFinished()),this,SLOT(discardClient()));
+    connect(client,SIGNAL(closed()),this,SLOT(discardClient()));
     client->setSocket(socket);
     client->setMode(QSocket::Binary);
     handleMsg = FALSE;
     encodingsPending = 0;
     cutTextPending = 0;
     supportHextile = FALSE;
+    wantUpdate = FALSE;
+    timer->start( UPDATE_FREQUENCY );
 
     // send protocol version
     char *proto = "RFB 003.003\n";
@@ -430,8 +436,23 @@ void QVNCServer::readClient()
 			format.blueShift = 0;
 			break;
 
+		    case 8:
+			format.bitsPerPixel = 8;
+			format.depth = 8;
+			format.bigEndian = 0;
+			format.trueColor = FALSE;
+			format.redBits = 0;
+			format.greenBits = 0;
+			format.blueBits = 0;
+			format.redShift = 0;
+			format.greenShift = 0;
+			format.blueShift = 0;
+			break;
+
 		    default:
-			qFatal( "QVNC cannot drive depth %d", qvnc_screen->depth() );
+			qDebug( "QVNC cannot drive depth %d", qvnc_screen->depth() );
+			discardClient();
+			return;
 		}
 		sim.width = qvnc_screen->width();
 		sim.height = qvnc_screen->height();
@@ -544,10 +565,7 @@ void QVNCServer::frameBufferUpdateRequest()
 	    qvnc_screen->setDirty( r );
 	    QWSDisplay::ungrab();
 	}
-	if ( supportHextile )
-	    sendHextile();
-	else
-	    sendRaw();
+	wantUpdate = TRUE;
 	handleMsg = FALSE;
     }
 }
@@ -601,33 +619,30 @@ void QVNCServer::clientCutText()
     }
 }
 
-bool QVNCServer::checkFill( const QRfbRect &rect )
+bool QVNCServer::checkFill( const uchar *data, int numPixels )
 {
-    if ( qvnc_screen->depth() == 16 ) {
-	ushort *data = (ushort *)(qvnc_screen->base() +
-			rect.y * qvnc_screen->linestep() + rect.x * 2);
-	ushort pixel = *data;
-	for ( int i = rect.y; i < rect.y+rect.h; i++ ) {
-	    data = (ushort *)(qvnc_screen->base() +
-		    i * qvnc_screen->linestep() + rect.x * 2);
-	    for ( int j = 0; j < rect.w; j++ ) {
-		if ( pixel != *data )
-		    return FALSE;
-		data++;
-	    }
+    if ( qvnc_screen->depth() == 8 ) {
+	uchar pixel = *data++;
+	for ( int i = 1; i < numPixels; i++ ) {
+	    if ( pixel != *data )
+		return FALSE;
+	    data++;
+	}
+    } else if ( qvnc_screen->depth() == 16 ) {
+	ushort pixel = *((ushort *)data);
+	data+=2;
+	for ( int i = 1; i < numPixels; i++ ) {
+	    if ( pixel != *((ushort *)data) )
+		return FALSE;
+	    data+=2;
 	}
     } else if ( qvnc_screen->depth() == 32 ) {
-	Q_UINT32 *data = (Q_UINT32 *)(qvnc_screen->base() +
-			rect.y * qvnc_screen->linestep() + rect.x * 4);
-	Q_UINT32 pixel = *data;
-	for ( int i = rect.y; i < rect.y+rect.h; i++ ) {
-	    data = (Q_UINT32 *)(qvnc_screen->base() +
-		    i * qvnc_screen->linestep() + rect.x * 4);
-	    for ( int j = 0; j < rect.w; j++ ) {
-		if ( pixel != *data )
-		    return FALSE;
-		data++;
-	    }
+	Q_UINT32 pixel = *((Q_UINT32 *)data);
+	data += 4;
+	for ( int i = 1; i < numPixels; i++ ) {
+	    if ( pixel != *((Q_UINT32 *)data) )
+		return FALSE;
+	    data += 4;
 	}
     }
 
@@ -638,7 +653,13 @@ int QVNCServer::getPixel( uchar **data )
 {
     int r, g, b;
 
-    if ( qvnc_screen->depth() == 16 ) {
+    if ( qvnc_screen->depth() == 8 ) {
+	QRgb rgb = qvnc_screen->clut()[ **data ];
+	r = qRed( rgb );
+	g = qGreen( rgb );
+	b = qBlue( rgb );
+	(*data)++;
+    } else if ( qvnc_screen->depth() == 16 ) {
 	ushort p = *((ushort *)*data);
 	r = (p >> 11) & 0x1f;
 	g = (p >> 5) & 0x3f;
@@ -653,6 +674,9 @@ int QVNCServer::getPixel( uchar **data )
 	g = (p >> 8) & 0xff;
 	b = p & 0xff;
 	*data += 4;
+    } else {
+	r = g = b = 0;
+	qDebug( "QVNCServer: don't support %dbpp display", qvnc_screen->depth() );
     }
 
     r >>= (8 - pixelFormat.redBits);
@@ -664,6 +688,11 @@ int QVNCServer::getPixel( uchar **data )
 	   (b << pixelFormat.blueShift);
 }
 
+/*
+  Send dirty rects using hextile encoding.  We only actually use the Raw
+  and BackgroundSpecified subencodings.  The BackgroundSpecified encoding
+  is only used to send areas of a single colour.
+*/
 void QVNCServer::sendHextile()
 {
     QWSDisplay::grab( TRUE );
@@ -679,12 +708,14 @@ void QVNCServer::sendHextile()
     }
 
     char tmp = 0;
-    client->writeBlock( &tmp, 1 ); // type
+    client->writeBlock( &tmp, 1 ); // msg type
     client->writeBlock( &tmp, 1 ); // padding
     count = htons( count );
     client->writeBlock( (char *)&count, 2 );
 
     if ( qvnc_screen->hdr->dirty ) {
+	int pixelSize = qvnc_screen->depth() / 8;
+	uchar *screendata = new uchar [MAP_TILE_SIZE*MAP_TILE_SIZE*pixelSize];
 	QRfbRect rect;
 	rect.y = 0;
 	rect.h = MAP_TILE_SIZE;
@@ -702,25 +733,31 @@ void QVNCServer::sendHextile()
 		    Q_UINT32 encoding = htonl(5);	// hextile encoding
 		    client->writeBlock( (char *)&encoding, 4 );
 
-		    if ( checkFill( rect ) ) {
-			Q_UINT8 subenc = 2;			// subencoding
+		    // grab screen memory
+		    uchar *sptr = screendata;
+		    for ( int i = rect.y; i < rect.y+rect.h; i++ ) {
+			uchar *data = qvnc_screen->base() +
+				    i * qvnc_screen->linestep() +
+				    rect.x * pixelSize;
+			memcpy( sptr, data, MAP_TILE_SIZE * pixelSize );
+			sptr += MAP_TILE_SIZE * pixelSize;
+		    }
+
+		    sptr = screendata;
+		    if ( checkFill( screendata, rect.w * rect.h ) ) {
+			// This area is a single colour
+			Q_UINT8 subenc = 2; // BackgroundSpecified subencoding
 			client->writeBlock( (char *)&subenc, 1 );
 			int pixel;
-			uchar *data = qvnc_screen->base() +
-					rect.y * qvnc_screen->linestep() +
-					rect.x * qvnc_screen->depth() / 8;
-			pixel = getPixel( &data );
+			pixel = getPixel( &sptr );
 			client->writeBlock( (char *)&pixel, pixelFormat.bitsPerPixel/8);
 		    } else {
-			Q_UINT8 subenc = 1;			// subencoding
+			Q_UINT8 subenc = 1; // Raw subencoding
 			client->writeBlock( (char *)&subenc, 1 );
 			int pixel;
 			for ( int i = rect.y; i < rect.y+rect.h; i++ ) {
-			    uchar *data = qvnc_screen->base() +
-					    i * qvnc_screen->linestep() +
-					    rect.x * qvnc_screen->depth() / 8;
 			    for ( int j = 0; j < rect.w; j++ ) {
-				pixel = getPixel( &data );
+				pixel = getPixel( &sptr );
 				client->writeBlock( (char *)&pixel, pixelFormat.bitsPerPixel/8);
 			    }
 			}
@@ -729,24 +766,34 @@ void QVNCServer::sendHextile()
 		rect.x += MAP_TILE_SIZE;
 	    }
 	    rect.y += MAP_TILE_SIZE;
+	    client->flush();
 	}
 
 	qvnc_screen->hdr->dirty = FALSE;
-	memset( qvnc_screen->hdr->map, 0, MAP_WIDTH*MAP_HEIGHT );
+	memset( qvnc_screen->hdr->map, 0, MAP_WIDTH*vtiles );
+	delete [] screendata;
     }
 
     QWSDisplay::ungrab();
 }
 
+/*
+  Send dirty rects as raw data.  The rectangles are merged into larger
+  rects before sending.
+*/
 void QVNCServer::sendRaw()
 {
     QWSDisplay::grab( TRUE );
 
     QRegion rgn;
 
+    int vtiles = (qvnc_screen->height()+MAP_TILE_SIZE-1)/MAP_TILE_SIZE;
+    int htiles = (qvnc_screen->width()+MAP_TILE_SIZE-1)/MAP_TILE_SIZE;
     if ( qvnc_screen->hdr->dirty ) {
-	for ( int y = 0; y < MAP_HEIGHT; y++ )
-	    for ( int x = 0; x < MAP_WIDTH; x++ )
+	// make a region from the dirty rects and send the region's merged
+	// rects.
+	for ( int y = 0; y < vtiles; y++ )
+	    for ( int x = 0; x < htiles; x++ )
 		if ( qvnc_screen->hdr->map[y][x] )
 		    rgn += QRect( x*MAP_TILE_SIZE, y*MAP_TILE_SIZE, MAP_TILE_SIZE, MAP_TILE_SIZE );
 
@@ -754,42 +801,56 @@ void QVNCServer::sendRaw()
     }
 
     char tmp = 0;
-    client->writeBlock( &tmp, 1 ); // type
+    client->writeBlock( &tmp, 1 ); // msg type
     client->writeBlock( &tmp, 1 ); // padding
     Q_UINT16 count = htons( rgn.rects().count() );
     client->writeBlock( (char *)&count, 2 );
 
-    for ( unsigned int idx = 0; idx < rgn.rects().count(); idx++ ) {
-	QRfbRect rect;
-	rect.x = rgn.rects()[idx].x();
-	rect.y = rgn.rects()[idx].y();
-	rect.w = rgn.rects()[idx].width();
-	rect.h = rgn.rects()[idx].height();
-	rect.write( client );
+    if ( rgn.rects().count() ) {
+	for ( unsigned int idx = 0; idx < rgn.rects().count(); idx++ ) {
+	    QRfbRect rect;
+	    rect.x = rgn.rects()[idx].x();
+	    rect.y = rgn.rects()[idx].y();
+	    rect.w = rgn.rects()[idx].width();
+	    rect.h = rgn.rects()[idx].height();
+	    rect.write( client );
 
-	Q_UINT32 encoding = htonl(0);	// raw encoding
-	client->writeBlock( (char *)&encoding, 4 );
+	    Q_UINT32 encoding = htonl(0);	// raw encoding
+	    client->writeBlock( (char *)&encoding, 4 );
 
-	int pixel;
-	for ( int i = rect.y; i < rect.y+rect.h; i++ ) {
-	    uchar *data = qvnc_screen->base() + i * qvnc_screen->linestep() +
-			    rect.x * qvnc_screen->depth() / 8;
-	    for ( int j = 0; j < rect.w; j++ ) {
-		pixel = getPixel( &data );
-		client->writeBlock( (char *)&pixel, pixelFormat.bitsPerPixel/8);
+	    int pixel;
+	    for ( int i = rect.y; i < rect.y+rect.h; i++ ) {
+		uchar *data = qvnc_screen->base() + i * qvnc_screen->linestep() +
+				rect.x * qvnc_screen->depth() / 8;
+		for ( int j = 0; j < rect.w; j++ ) {
+		    pixel = getPixel( &data );
+		    client->writeBlock( (char *)&pixel, pixelFormat.bitsPerPixel/8);
+		}
 	    }
 	}
+	qvnc_screen->hdr->dirty = FALSE;
+	memset( qvnc_screen->hdr->map, 0, MAP_WIDTH*vtiles );
     }
-    qvnc_screen->hdr->dirty = FALSE;
-    memset( qvnc_screen->hdr->map, 0, MAP_WIDTH*MAP_HEIGHT );
 
     QWSDisplay::ungrab();
+}
+
+void QVNCServer::checkUpdate()
+{
+    if ( wantUpdate && qvnc_screen->hdr->dirty ) {
+	if ( supportHextile )
+	    sendHextile();
+	else
+	    sendRaw();
+	wantUpdate = FALSE;
+    }
 }
 
 void QVNCServer::discardClient()
 {
     delete client;
     client = 0;
+    timer->stop();
     qDebug( "QVNCServer::discardClient()" );
 }
 
@@ -1075,11 +1136,17 @@ QGfx * QVNCScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linest
 #endif
 #ifndef QT_NO_QWS_DEPTH_8
     } else if (d==8) {
-	ret = new QGfxRaster<8,0>(bytes,w,h);
+	if ( bytes == qt_screen->base() )
+	    ret = new QGfxVNC<8,0>(bytes,w,h);
+	else
+	    ret = new QGfxRaster<8,0>(bytes,w,h);
 #endif
 #ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
     } else if (d==8) {
-	ret = new QGfxRaster<8,0>(bytes,w,h);
+	if ( bytes == qt_screen->base() )
+	    ret = new QGfxVNC<8,0>(bytes,w,h);
+	else
+	    ret = new QGfxRaster<8,0>(bytes,w,h);
 #endif
 #ifndef QT_NO_QWS_DEPTH_32
     } else if (d==32) {
