@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#205 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#206 $
 **
 ** Implementation of QListView widget class
 **
@@ -1135,8 +1135,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 int QListViewItem::width(const QFontMetrics& fm,
 			 const QListView* lv, int c) const
 {
-    int w = -(fm.minLeftBearing()+fm.minRightBearing()) +
-	    fm.width(text(c)) + lv->itemMargin() * 2;
+    int w = fm.width(text(c)) + lv->itemMargin() * 2;
     const QPixmap * pm = pixmap( c );
     if ( pm )
 	w += pm->width() + lv->itemMargin(); // ### correct margin stuff?
@@ -1548,22 +1547,14 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		d->dirtyItems->remove( (void *)i );
 	}
 	if ( d->dirtyItems->count() ) {
-	    // there are still items left that need repainting.
-	    QRegion ir;
-	    QPtrDictIterator<void> it( *(d->dirtyItems) );
-	    QListViewItem * i;
-	    while( (i=(QListViewItem *)(it.currentKey())) != 0 ) {
-		++it;
-		ir = ir.unite( itemRect(i) );
-	    }
-	    // send a paint event for the remaining region
-	    QApplication::postEvent( viewport(),
-				     new QPaintEvent( ir.subtract( QRegion( br ) ),
-						      FALSE ) );
+	    // there are still items left that need repainting
+	    d->dirtyItemTimer->start( 0, TRUE );
+	} else {
+	    // we're painting all items that need to be painted
+	    delete d->dirtyItems;
+	    d->dirtyItems = 0;
+	    d->dirtyItemTimer->stop();
 	}
-	delete d->dirtyItems;
-	d->dirtyItems = 0;
-	d->dirtyItemTimer->stop();
     }
 
     p->setFont( font() );
@@ -3675,8 +3666,7 @@ void QCheckListItem::paintBranches( QPainter * p, const QColorGroup & cg,
 
 
 /*!  Returns a size suitable for this scroll view.  This is as wide as
-  mostly upon QHeader's sizeHint() recommends and tall enough for
-  perhaps 10 items.
+  QHeader's sizeHint() recommends and tall enough for perhaps 10 items.
 */
 
 QSize QListView::sizeHint() const
