@@ -3217,8 +3217,11 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 	    *workingDirectory = startWith;
 	} else {
 	    if ( u.isLocalFile() ) {
-		*workingDirectory = QFileInfo( u.path() ).dirPath( TRUE );
-		initialSelection = u.fileName();
+		QFileInfo fi( u.dirPath() );
+		if ( fi.exists() ) {
+		    *workingDirectory = u.dirPath();
+		    initialSelection = u.fileName();
+		}
 	    } else {
 		*workingDirectory = u.toString();
 		initialSelection = QString::null;//u.fileName();
@@ -3335,8 +3338,11 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 	    *workingDirectory = startWith;
 	} else {
 	    if ( u.isLocalFile() ) {
-		*workingDirectory = QFileInfo( u.path() ).dirPath( TRUE );
-		initialSelection = u.fileName();
+		QFileInfo fi( u.dirPath() );
+		if ( fi.exists() ) {
+		    *workingDirectory = u.dirPath();
+		    initialSelection = u.fileName();
+		}
 	    } else {
 		*workingDirectory = u.toString();
 		initialSelection = QString::null;//u.fileName();
