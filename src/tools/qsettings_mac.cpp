@@ -192,6 +192,15 @@ QSettingsSysPrivate::QSettingsSysPrivate()
     }
 }
 
+struct {
+    CFStringRef user;
+    CFStringRef host;
+} scopes[] = {
+    { kCFPreferencesAnyUser, kCFPreferencesCurrentHost },
+    { kCFPreferencesCurrentUser, kCFPreferencesAnyHost },
+    { NULL, NULL } 
+};
+
 bool QSettingsSysPrivate::writeEntry(QString key, CFPropertyListRef plr, bool global)
 {
     while(key.right(1) == "/")
@@ -200,9 +209,8 @@ bool QSettingsSysPrivate::writeEntry(QString key, CFPropertyListRef plr, bool gl
     bool ret = FALSE;
     for(int i = searchPaths.size() - 1; i >= 0; --i) {
 	search_keys k(searchPaths.at(i), key, "writeEntry");
-	CFStringRef scopes[] = { kCFPreferencesAnyUser, kCFPreferencesCurrentUser, NULL };
-	for(int scope = (global ? 0 : 1); scopes[scope]; scope++) {
-	    CFPreferencesSetValue(k.key(), plr, k.id(), scopes[scope], kCFPreferencesCurrentHost);
+	for(int scope = (global ? 0 : 1); scopes[scope].user; scope++) {
+	    CFPreferencesSetValue(k.key(), plr, k.id(), scopes[scope].user, scopes[scope].host);
 	    if(TRUE) { //no way to tell if there is success!?! --Sam
 		if(!syncKeys.indexOf(k.qtId()) != -1)
 		    syncKeys.append(k.qtId());
@@ -219,10 +227,8 @@ CFPropertyListRef QSettingsSysPrivate::readEntry(QString key, bool global)
 {
     for(int i = searchPaths.size() - 1; i >= 0; --i) {
 	search_keys k(searchPaths.at(i), key, "readEntry");
-	CFStringRef scopes[] = { kCFPreferencesAnyUser, kCFPreferencesCurrentUser, NULL };
-	for(int scope = (global ? 0 : 1); scopes[scope]; scope++) {
-	    if(CFPropertyListRef ret = CFPreferencesCopyValue(k.key(), k.id(), 
-							      scopes[scope], kCFPreferencesCurrentHost)) 
+	for(int scope = (global ? 0 : 1); scopes[scope].user; scope++) {
+	    if(CFPropertyListRef ret = CFPreferencesCopyValue(k.key(), k.id(), scopes[scope].user, scopes[scope].host)) 
 		return ret;
 	}
     }
@@ -234,9 +240,8 @@ QStringList QSettingsSysPrivate::entryList(QString key, bool subkey, bool global
     QStringList ret;
     for(int i = searchPaths.size() - 1; i >= 0; --i) {
 	search_keys k(searchPaths.at(i), key, subkey ? "subkeyList" : "entryList");
-	CFStringRef scopes[] = { kCFPreferencesAnyUser, kCFPreferencesCurrentUser, NULL };
-	for(int scope = (global ? 0 : 1); scopes[scope]; scope++) {
-	    if(CFArrayRef cfa = CFPreferencesCopyKeyList(k.id(), scopes[scope], kCFPreferencesCurrentHost)) {
+	for(int scope = (global ? 0 : 1); scopes[scope].user; scope++) {
+	    if(CFArrayRef cfa = CFPreferencesCopyKeyList(k.id(), scopes[scope].user, scopes[scope].host)) {
 		QString qk = cfstring2qstring(k.key());
 		for(CFIndex i = 0, cnt = CFArrayGetCount(cfa); i < cnt; i++) {
 		    QString s = cfstring2qstring((CFStringRef)CFArrayGetValueAtIndex(cfa, i));
