@@ -158,7 +158,7 @@ QIcon QFileIconProvider::icon(const QFileInfo &info) const
 	case DRIVE_UNKNOWN:
             return d_ptr->generic;
 	case DRIVE_NO_ROOT_DIR:
-            return QIcon();
+            return d_ptr->generic;
 	}
     }
 #else
@@ -476,13 +476,17 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
 
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
         switch (index.column()) {
-	case 0:	if (node->info.isRoot()) {
-                    QString s = node->info.absoluteFilePath();
+	    case 0:
+                if (node->info.isRoot()) {
+                    QString name = node->info.absoluteFilePath();
 #ifdef Q_OS_WIN
-                    s.chop(1);
+                    if (name.at(0) == '/') // UNC host
+                        return node->info.fileName();
+                    if (name.at(name.length() - 1) == '/')
+                        name.chop(1);
 #endif
-                    return s;
-		}
+                    return name;
+                }
                 return node->info.fileName();
         case 1: return node->size();
         case 2: return d->iconProvider->type(node->info);
