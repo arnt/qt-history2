@@ -371,7 +371,8 @@ void QWellArray::setCellBrush( int row, int col, const QBrush &b )
 {
     if ( !d ) {
 	d = new QWellArrayData;
-	d->brush = new QBrush[numRows()*numCols()];
+	int i = numRows()*numCols();
+	d->brush = new QBrush[i];
     }
     if ( row >= 0 && row < numRows() && col >= 0 && col < numCols() )
 	d->brush[row*numCols()+col] = b;
