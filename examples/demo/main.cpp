@@ -53,36 +53,29 @@
 int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
+
+    // #### how about a splash screen?
+
     Frame frame;
 
-    QImage img( "../listboxcombo/qtlogo.png" );
-    QPixmap pix;
-    pix.convertFromImage( img.smoothScale( 48, 48 ) );
-
-    QPixmap widgetpix( widgeticon );
-    QPixmap widgetpix_sel( widgeticon_sel );
-    QPixmap dbpix( dbicon );
-    QPixmap dbpix_sel( dbicon_sel );
-    QPixmap textpix( texticon );
-    QPixmap textpix_sel( texticon_sel );
-    QPixmap twodpix( twodicon );
-    QPixmap twodpix_sel( twodicon_sel );
-    QPixmap threedpix( threedicon );
-    QPixmap threedpix_sel( threedicon_sel );
-    QPixmap internpix( internicon );
-    QPixmap internpix_sel( internicon_sel );
-    QPixmap joypix( joyicon );
-    QPixmap joypix_sel( joyicon_sel );
+    QTabWidget *tab = 0;
+    QWidget *w = 0;
 
     // example 1
-    QTabWidget *tab = new QTabWidget();
-    QWidget *w = new WidgetsBase( tab );
+    QPixmap widgetpix( widgeticon );
+    QPixmap widgetpix_sel( widgeticon_sel );
+
+    tab = new QTabWidget();
+    w = new WidgetsBase( tab );
     tab->addTab( w, "Widget" );
     tab->addTab( new DnDDemo, "Drag and Drop" );
     frame.addCategory( tab, widgetpix, widgetpix_sel, "Widgets" );
 
 #if defined(QT_MODULE_SQL)
     // Database
+    QPixmap dbpix( dbicon );
+    QPixmap dbpix_sel( dbicon_sel );
+
     tab = new QTabWidget();
     w = new BookForm( tab );
     tab->addTab( new SqlEx(), "SQL Explorer" );
@@ -92,6 +85,9 @@ int main( int argc, char **argv )
 
 #if defined(QT_MODULE_CANVAS)
     // 2D Graphics
+    QPixmap twodpix( twodicon );
+    QPixmap twodpix_sel( twodicon_sel );
+
     tab = new QTabWidget();
     w = new GraphWidget( tab );
     tab->addTab( w, "Graph Drawing" );
@@ -101,6 +97,9 @@ int main( int argc, char **argv )
 
 #if defined(QT_MODULE_OPENGL)
     // 3D Graphics
+    QPixmap threedpix( threedicon );
+    QPixmap threedpix_sel( threedicon_sel );
+
     tab = new QTabWidget();
     w = new GLWorkspace( tab );
     tab->addTab( w, "3d Demo" );
@@ -110,6 +109,9 @@ int main( int argc, char **argv )
 #endif
 
     // example 4
+    QPixmap textpix( texticon );
+    QPixmap textpix_sel( texticon_sel );
+
     tab = new QTabWidget();
     TextEdit *te = new TextEdit( tab );
     te->load( "textdrawing/example.html" );
@@ -121,12 +123,20 @@ int main( int argc, char **argv )
     tab->addTab( w, "Help Browser" );
     frame.addCategory( tab, textpix, textpix_sel, "Text Drawing/Editing" );
 
+    // example 5
+    QPixmap internpix( internicon );
+    QPixmap internpix_sel( internicon_sel );
+
     tab = new QTabWidget();
     w = new I18nDemo(tab);
     tab->addTab(w, "Internationalization");
     frame.addCategory( tab, internpix, internpix_sel, "Internationalization");
 
 #if defined(QT_MODULE_CANVAS)
+    // example 6
+    QPixmap joypix( joyicon );
+    QPixmap joypix_sel( joyicon_sel );
+
     tab = new QTabWidget();
     w = new KAstTopLevel(tab);
     tab->addTab(w, "Games");
