@@ -2676,28 +2676,29 @@ void QWidget::reparentFocusWidgets( QWidget * oldtlw )
     if ( oldtlw == topLevelWidget() )
 	return; // nothing to do
 
-    QFocusData * from = oldtlw->focusData();
+    QFocusData * from = oldtlw->topData()->focusData;
     from->focusWidgets.first();
     QFocusData * to;
     to = focusData();
 
-    do {
-	QWidget * pw = from->focusWidgets.current();
-	while( pw && pw != this )
-	    pw = pw->parentWidget();
-	if ( pw == this ) {
-	    QWidget * w = from->focusWidgets.take();
-	    if ( w == from->it.current() )
-		// probably best to clear keyboard focus, or
-		// the user might become rather confused
-		w->clearFocus();
-	    if ( !isTopLevel() )
-		to->focusWidgets.append( w );
-	    from->focusWidgets.next();
-	} else {
-	    from->focusWidgets.next();
-	}
-    } while( from->focusWidgets.current() );
+    if ( from ) {
+	do {
+	    QWidget * pw = from->focusWidgets.current();
+	    while( pw && pw != this )
+		pw = pw->parentWidget();
+	    if ( pw == this ) {
+		QWidget * w = from->focusWidgets.take();
+		if ( w == from->it.current() )
+		    // probably best to clear keyboard focus, or
+		    // the user might become rather confused
+		    w->clearFocus();
+		if ( !isTopLevel() )
+		    to->focusWidgets.append( w );
+	    } else {
+		from->focusWidgets.next();
+	    }
+	} while( from->focusWidgets.current() );
+    }
 
     if ( to->focusWidgets.findRef(this) < 0 )
 	to->focusWidgets.append( this );
