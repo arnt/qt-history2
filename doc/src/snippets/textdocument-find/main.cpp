@@ -23,18 +23,18 @@ int main(int argc, char *argv[])
     QString searchString = QObject::tr("text");
 
     QTextDocument *document = editor->document();
-    QTextCursor modifyCursor(document);
+    QTextCursor newCursor(document);
 
-    while (!modifyCursor.isNull() && !modifyCursor.atEnd()) {
-        modifyCursor = document->find(searchString, modifyCursor);
+    while (!newCursor.isNull() && !newCursor.atEnd()) {
+        newCursor = document->find(searchString, newCursor);
 
-        if (!modifyCursor.isNull()) {
-            modifyCursor.movePosition(QTextCursor::WordRight,
+        if (!newCursor.isNull()) {
+            newCursor.movePosition(QTextCursor::WordRight,
                                       QTextCursor::KeepAnchor);
 
-            QString text = modifyCursor.selectedText();
-            modifyCursor.removeSelectedText();
-            modifyCursor.insertText(text, colorFormat);
+            QString text = newCursor.selectedText();
+            newCursor.removeSelectedText();
+            newCursor.insertText(text, colorFormat);
         }
     }
 
