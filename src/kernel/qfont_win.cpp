@@ -29,6 +29,7 @@
 
 #include "qfont.h"
 #include "qfontdata_p.h"
+#include "qcomplextext_p.h"
 #include "qfontmetrics.h"
 #include "qfontinfo.h"
 
@@ -776,7 +777,7 @@ int QFontMetrics::width( const QString &str, int len ) const
 
 int QFontMetrics::charWidth( const QString &str, int pos ) const
 {
-	return width( str.at(pos) );
+	return width( QComplexText::shapedCharacter( str, pos ) );
 }
 
 QRect QFontMetrics::boundingRect( const QString &str, int len ) const

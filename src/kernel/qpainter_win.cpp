@@ -39,6 +39,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "qapplication_p.h"
+#include "qcomplextext_p.h"
 #include "qt_windows.h"
 
 
@@ -2089,7 +2090,9 @@ static void ins_text_bitmap( const QString &key, QBitmap *bm )
 
 void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 {
-    drawText( x, y, str.mid(pos, len) );
+	int lenOut;
+	QChar *shaped = (QChar *)QComplexText::shapedString( str, pos, len, &lenOut );
+    drawText( x, y, QConstString( shaped, lenOut ).string(), lenOut );
 }
 
 void QPainter::drawText( int x, int y, const QString &str, int len )
