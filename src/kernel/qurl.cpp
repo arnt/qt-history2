@@ -471,6 +471,18 @@ void QUrl::setPort( int port )
 }
 
 /*!
+  Returns TRUE if the URL contains a port;
+  otherwise returns FALSE.
+
+  \sa setPort()
+*/
+
+bool QUrl::hasPort() const
+{
+    return d->port >= 0;
+}
+
+/*!
   Sets the path of the URL to \a path.
 
   \sa path() hasPath()

@@ -72,6 +72,7 @@ public:
 
     int port() const;
     virtual void setPort( int port );
+    bool hasPort() const;
 
     QString path( bool correct = TRUE ) const;
     virtual void setPath( const QString& path );
