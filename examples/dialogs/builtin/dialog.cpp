@@ -228,13 +228,9 @@ void Dialog::setExistingDirectory()
 {
     QString directory = QFileDialog::getExistingDirectory(
                                 this, tr("QFileDialog::getExistingDirectory()"),
-                                directoryLabel->text()
-                                );
-                                /*
-                                ,
+                                directoryLabel->text(),
                                 QFileDialog::DontResolveSymlinks|
                                 QFileDialog::ShowDirsOnly);
-                                */
     if (!directory.isEmpty())
         directoryLabel->setText(directory);
 }
