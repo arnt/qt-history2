@@ -37,7 +37,7 @@ void rmDirRecursive( const QDir &dir )
 int main( int argc, char** argv )
 {
     app = new QApplication( argc, argv );
-    progress = new UninstallDlg;
+    progress = new UninstallDlg( 0, 0, 0, Qt::WStyle_Customize|Qt::WStyle_NormalBorder|Qt::WStyle_Title);
     
     if( argc != 4 )
 	qFatal( "Incorrect parameters" );
