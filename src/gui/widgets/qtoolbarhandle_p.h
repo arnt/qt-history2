@@ -32,24 +32,25 @@ class QToolBar;
 class QToolBarHandle : public QWidget
 {
     Q_OBJECT
-
-public:
-    QToolBarHandle(QToolBar *parent);
-
-    Qt::Orientation orientation();
-
-    QSize sizeHint() const;
-
-    void paintEvent(QPaintEvent *e);
-    void mousePressEvent(QMouseEvent *e);
-    void mouseReleaseEvent(QMouseEvent *e);
-    void mouseMoveEvent(QMouseEvent *e);
-
+    Qt::Orientation orient;
     struct DragState {
 	QPoint offset;
 	bool canDrop;
     };
     DragState *state;
+
+public:
+    QToolBarHandle(QToolBar *parent);
+
+    void setOrientation(Qt::Orientation orientation);
+    Qt::Orientation orientation() const;
+
+    QSize sizeHint() const;
+
+    void mousePressEvent(QMouseEvent *e);
+    void mouseReleaseEvent(QMouseEvent *e);
+    void mouseMoveEvent(QMouseEvent *e);
+    void paintEvent(QPaintEvent *e);
 };
 
 #endif // QTOOLBARHANDLE_P_H

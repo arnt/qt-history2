@@ -22,42 +22,47 @@
 
 #include <private/qmainwindowlayout_p.h>
 
-QToolBarHandle::QToolBarHandle(QToolBar *parent)
-    : QWidget(parent), state(0)
+static QStyleOption getStyleOption(const QToolBarHandle *tbh)
 {
-    setCursor(Qt::SizeAllCursor);
-    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    QStyleOption opt;
+    opt.init(tbh);
+    if (tbh->orientation() == Qt::Horizontal)
+	opt.state |= QStyle::Style_Horizontal;
+    return opt;
 }
 
-Qt::Orientation QToolBarHandle::orientation()
+QToolBarHandle::QToolBarHandle(QToolBar *parent)
+    : QWidget(parent), orient(parent->orientation()), state(0)
+{ setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum); }
+
+void QToolBarHandle::setOrientation(Qt::Orientation orientation)
 {
-    QBoxLayout *box = qt_cast<QBoxLayout *>(parentWidget()->layout());
-    if (box->direction() == QBoxLayout::LeftToRight || box->direction() == QBoxLayout::RightToLeft)
-	return Qt::Horizontal;
-    return Qt::Vertical;
+    orient = orientation;
+
+    // if we're dragging - swap the offset coords around as well
+    if (state) {
+	QPoint p = state->offset;
+	state->offset = QPoint(p.y(), p.x());
+    }
+
+    update();
 }
+
+Qt::Orientation QToolBarHandle::orientation() const
+{ return orient; }
 
 QSize QToolBarHandle::sizeHint() const
 {
-    const int extent = QApplication::style().pixelMetric(QStyle::PM_DockWindowHandleExtent);
+    QStyleOption opt = getStyleOption(this);
+    const int extent = style().pixelMetric(QStyle::PM_ToolBarHandleExtent, &opt, this);
     return QSize(extent, extent);
 }
 
-void QToolBarHandle::paintEvent(QPaintEvent *e)
+void QToolBarHandle::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    QStyleOptionDockWindow opt;
-    opt.state = QStyle::Style_None;
-    if (isEnabled())
-	opt.state |= QStyle::Style_Enabled;
-    QBoxLayout *box = qt_cast<QBoxLayout *>(parentWidget()->layout());
-    if (box->direction() == QBoxLayout::LeftToRight || box->direction() == QBoxLayout::RightToLeft)
-	opt.state |= QStyle::Style_Horizontal;
-
-    opt.rect = QStyle::visualRect(rect(), this);
-    opt.palette = palette();
-    style().drawPrimitive(QStyle::PE_DockWindowHandle, &opt, &p, this);
-    QWidget::paintEvent(e);
+    QStyleOption opt = getStyleOption(this);
+    style().drawPrimitive(QStyle::PE_ToolBarHandle, &opt, &p, this);
 }
 
 void QToolBarHandle::mousePressEvent(QMouseEvent *event)
@@ -102,7 +107,7 @@ void QToolBarHandle::mouseMoveEvent(QMouseEvent *event)
     QPoint p = parentWidget()->mapFromGlobal(event->globalPos()) - state->offset;
 
     // ### the offset is measured from the widget origin
-    if (orientation() == Qt::Vertical)
+    if (orient == Qt::Vertical)
         p.setX(state->offset.x() + p.x());
     else
         p.setY(state->offset.y() + p.y());
