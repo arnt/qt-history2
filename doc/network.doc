@@ -367,7 +367,7 @@ The last method you must reimplement is
     bool QNetworkProtocol::checkConnection( QNetworkOperation *op );
 \endcode
 
-Here you must return TRUE, if the connection is up and okay (this means
+Here you must return true, if the connection is up and okay (this means
 operations on the protocol can be done). If the connection is not okay,
 return false and start to try opening it. If you cannot open the
 connection at all (e.g. because the host is not found), emit a \c finished()

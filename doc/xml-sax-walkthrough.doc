@@ -66,7 +66,7 @@ First we overload \l QXmlContentHandler::startDocument() with a non-empty versio
 At the beginning of the document we simply 
 set \e indent to an empty string because we
 want to print out the root element without any indentation.
-Also we return TRUE so that the parser continues without 
+Also we return true so that the parser continues without 
 reporting an error.
 
 Because we want to be informed when the parser comes
@@ -86,7 +86,7 @@ If another element follows before the current element's end tag
 it should be indented. Therefore we add four spaces to the
 \e indent string.
 
-Finally we return TRUE in order to let the parser continue without
+Finally we return true in order to let the parser continue without
 errors.
 
 The last functionality we need to add is the parser's behaviour when an 

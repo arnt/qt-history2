@@ -482,12 +482,12 @@ contain:
 	  if ( ke->key() == Key_Tab ) {
 	      // special tab handling here
 	      ke->accept();
-	      return TRUE;
+	      return true;
 	  }
       } else if ( evt->type() >= QEvent::User ) {
 	  QCustomEvent *ce = (QCustomEvent*) evt;
 	  // custom event handling here
-	  return TRUE;
+	  return true;
       }
       return QWidget::event( evt );
   }
