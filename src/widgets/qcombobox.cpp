@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#108 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#109 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#108 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#109 $");
 
 
 /*!
@@ -877,7 +877,8 @@ void QComboBox::resizeEvent( QResizeEvent * )
 void QComboBox::paintEvent( QPaintEvent *event )
 {
     QPainter p( this );
-    if (event) p.setClipRect( event->rect() );
+    if ( event )
+	p.setClipRect( event->rect() );
     QColorGroup g  = colorGroup();
 
     if ( width() < 5 || height() < 5 ) {
@@ -889,7 +890,7 @@ void QComboBox::paintEvent( QPaintEvent *event )
     bool has_focus = hasFocus()
 	|| (d && d->usingListBox && d->ed && d->ed->hasFocus());
 
-    if ( !d->usingListBox ) {		// motif 1.x style
+    if ( !d->usingListBox ) {			// motif 1.x style
 	int dist, buttonH, buttonW;
 	QBrush fill( g.background() );
 
@@ -952,19 +953,19 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	qDrawShadePanel( &p, rect(), g, FALSE, 2, &fill );
 
 	qDrawArrow( &p, DownArrow, MotifStyle, FALSE,
-		    ax, ay, awh, awh, colorGroup() );
+		    ax, ay, awh, awh, g );
 
-	p.setPen( colorGroup().light() );
+	p.setPen( g.light() );
 	p.drawLine( ax, sy, ax+awh-1, sy );
 	p.drawLine( ax, sy, ax, sy+sh-1 );
-	p.setPen( colorGroup().dark() );
+	p.setPen( g.dark() );
 	p.drawLine( ax+1, sy+sh-1, ax+awh-1, sy+sh-1 );
 	p.drawLine( ax+awh-1, sy+1, ax+awh-1, sy+sh-1 );
 
-	QRect clip( 4, 2, ax - 2 - 4, height() - 4 );
+	QRect clip( 3, 3, width() - 3 - 3 - 21, height() - 3 - 3 );
 	const char *str = d->listBox->text( d->current );
 	if ( str ) {
-	    p.setPen( colorGroup().foreground() );
+	    p.setPen( g.foreground() );
 	    p.drawText( clip, AlignCenter | SingleLine, str );
 	} else {
 	    const QPixmap *pix = d->listBox->pixmap( d->current );
@@ -1007,8 +1008,8 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	if ( str ) {
 	    p.setPen(
 		has_focus
-		? colorGroup().base()
-		: colorGroup().text()
+		? g.base()
+		: g.text()
 	    );
 	    p.drawText( textR, AlignLeft | AlignVCenter | SingleLine, str);
 	} else {
@@ -1258,7 +1259,7 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	    int c;
 	    if ( d->usingListBox &&
 		 (e->key() == Key_Up ||
-		  (style() == MotifStyle && e->key() == Key_Left)) ) {
+		  (style() == MotifStyle && e->key() == Key_Left && !d->ed)) ){
 		c = currentItem();
 		if ( c > 0 )
 		    setCurrentItem( c-1 );
@@ -1267,7 +1268,8 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		e->accept();
 	    } else if ( d->usingListBox &&
 			(e->key() == Key_Down ||
-			 (style() == MotifStyle && e->key() == Key_Right)) ) {
+			 (style() == MotifStyle && e->key() == Key_Right &&
+			  !d->ed)) ) {
 		c = currentItem();
 		if ( ++c < count() )
 		    setCurrentItem( c );
