@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#38 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#39 $
 
 $base = "/tmp/striptree-$$";
 $days_stored = 60;
@@ -127,7 +127,10 @@ cd ../..
 
 # Package Windows-only source files separately
 WINFILES=`find src -name '*_win*'; find include -name '*_win*'`
-zip -9 $base/qtwin-`date +%Y%m%d`.zip \$WINFILES
+rm -f \$WINZIP
+WINZIP=/local/qt/dist/qtwin-snapshot-`date +%Y%m%d`.zip
+rm -f 
+zip -9 \$WINZIP \$WINFILES
 rm \$WINFILES
 rm -rf $base/cvs/qt/*/*/*_win*
 
