@@ -757,12 +757,14 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 		    if(wclass != kModalWindowClass)
 			wattr |= kWindowResizableAttribute;
 		}
-		if(testWFlags(WStyle_Maximize))
-		    wattr |= kWindowFullZoomAttribute;
-		if(testWFlags(WStyle_Minimize))
-		    wattr |= kWindowCollapseBoxAttribute;
-		if(testWFlags(WStyle_Title) || testWFlags(WStyle_SysMenu))
-		    wattr |= kWindowCloseBoxAttribute;
+		if(wclass != kModalWindowClass && wclass != kMovableModalWindowClass) { //no choice for these..
+		    if(testWFlags(WStyle_Maximize))
+			wattr |= kWindowFullZoomAttribute;
+		    if(testWFlags(WStyle_Minimize))
+			wattr |= kWindowCollapseBoxAttribute;
+		    if(testWFlags(WStyle_Title) || testWFlags(WStyle_SysMenu))
+		       wattr |= kWindowCloseBoxAttribute;
+		}
 	    }
 	}
 
@@ -830,9 +832,14 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	/* Just to be extra careful we will change to the kUtilityWindowClass if the
 	   requested attributes cannot be used */
 	if((GetAvailableWindowAttributes(wclass) & wattr) != wattr) {
-	    if(!grp)
-		grp = GetWindowGroupOfClass(wclass);
-	    wclass = kFloatingWindowClass;
+	    WindowClass tmp_class = wclass;
+	    if(wclass == kToolbarWindowClass || wclass == kUtilityWindowClass)
+		wclass = kFloatingWindowClass;
+	    if(tmp_class != wclass) {
+		if(!grp)
+		    grp = GetWindowGroupOfClass(wclass);
+		wclass = tmp_class;
+	    }
 	}
 
 #ifdef QMAC_USE_WDEF
