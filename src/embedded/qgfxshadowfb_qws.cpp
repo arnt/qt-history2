@@ -11,7 +11,7 @@
 #include <linux/fb.h>
 #endif
 
-#define QT_SHADOWFB_TIMER_INTERVAL 20     
+#define QT_SHADOWFB_TIMER_INTERVAL 20
 // Update screen every 20 milliseconds, or 50 times a second
 
 #ifndef QT_NO_QWS_CURSOR
@@ -291,9 +291,20 @@ void QShadowFbScreen::doUpdate()
 {
     QArray<QRect> rectlist=to_update.rects();
     QRect screen(0,0,w,h);
+#ifdef SHADOWFB_USE_QGFX
+    // This is here to allow accelerated shadowfb copies
+    // You'd need to #define the above and to alter QShadowFbScreen
+    // to inherit from your accelerated screen instead of LinuxFb to use it
+    // (and also change the line that instantiates the gfx)
+    QGfx * gfx=QScreen::createGfx(real_screen,w,h,d,lstep);
+    gfx->setSource(data,w,h,lstep,d,&screenclut,screencols);
+#endif
     for(unsigned int loopc=0;loopc<rectlist.size();loopc++) {
 	QRect r=rectlist[loopc];
 	r=r.intersect(screen);
+#ifdef SHADOWFB_USE_QGFX
+	gfx->blt(r.left(),r.top(),r.width(),r.height(),r.left(),r.top());
+#else
 	for(int loopc2=r.top();loopc2<=r.bottom();loopc2++) {
 	    int offset=( ( r.left() * d )/8 );
 	    int width=( ( ( r.right()-r.left() ) +1 ) * d )/8;
@@ -309,7 +320,11 @@ void QShadowFbScreen::doUpdate()
 		src++;
 	    }
 	}
+#endif
     }
+#ifdef SHADOWFB_USE_QGFX
+    delete gfx;
+#endif
     to_update=QRegion();
 }
 
