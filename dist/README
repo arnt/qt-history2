@@ -1,44 +1,12 @@
-This is Qt version 3.0.3, the cross-platform C++ GUI toolkit.
+This is Qt version 3.1.0-beta1, the cross-platform C++ GUI toolkit.
 
-Qt 3 contains many new features, improvements and extensions. It also
-includes a significantly improved Qt Designer, and introduces Qt
-Linguist, Qt Assistant and a new multi-platform build tool, 'qmake'.
-In addition to the traditional Qt platforms, Linux, Unix and the
-various flavors of MS-Windows, Qt 3 introduces a native port to 
-Mac OS X.
+Qt 3.1 introduces new features as well as many improvements over the
+3.0.x series. See the changes file for details.
 
-Detailed information about the changes and new features for Qt 3 is
-included in the Online Reference Documentation.
+The Qt version 3.1 series is binary compatible with the 3.0.x series -
+applications compiled for 3.0 will continue to run with 3.1.
 
-Due to our recently increased development team, we have been able
-to realize far more of your requests in this release. Qt 3 is a great
-step towards achieving our vision of an ideal cross-platform
-development tool.
-
-The Qt version 3.x series is not binary compatible with the 2.x
-series. This means programs compiled with Qt version 2.x must be
-recompiled to work with Qt 3.
-
-Qt 3 is mostly, but not completely, source compatible with the Qt 2.x
-series. See the document "Porting from Qt 2.x to Qt 3.0" in the Online
-Reference Documentation for information on how to port an existing Qt
-2.x-based program to Qt 3. Disclaimer: the guide is not entirely
-complete, so it is possible that you'll discover issues that are not
-yet covered in the documentation.
-
-The most visible change for long term Qt users is the reworked build
-system. On MS-Windows, run qt-win-commercial-3.0.3.exe; on Unix and
-Mac OS X, unpack the package and run ./configure. Compiling and
-installing Qt uses a new utility 'qmake' which we recommend for
-writing Qt­based applications. 'qmake' is the successor of our free
-software add-on 'tmake', and is written using Qt rather than
-Perl. 'qmake' is fully compatible with 'tmake'.
-
-To improve maintainability between different platforms, all specific
-platform #defines and #includes have been moved out of the Qt sources
-into a platform specific qplatformdefs.h file.  The files are located
-in mkspec/<platform>-<compiler>/qplatformdefs.h. For this release, the
-following platforms have been tested:
+For this release, the following platforms have been tested:
 
 win32-borland
 win32-msvc
@@ -72,8 +40,8 @@ contact us at qt-bugs@trolltech.com so that we can assist you.
 How to get the release:
 
 Qt Free Edition: Download the .tar.gz archive from
-ftp.trolltech.com. For faster download times, use ftpsearch and
-search for qt-x11-free-3.0.3.tar.gz to find it on a mirror ftp site
+ftp.trolltech.com. For faster download times, use ftpsearch and search
+for qt-x11-free-3.1.0-beta1.tar.gz to find it on a mirror ftp site
 near you.
 
 Qt Professional Edition, Qt Enterprise Edition: Holders of valid
@@ -82,8 +50,7 @@ get the new release. Contact sales@trolltech.com if you are a
 Professional or Enterprise Edition licensee and have not received this
 e-mail.
 
-
-Any problems encountered with Qt 3.0 should be reported to
+Any problems encountered with Qt 3.1 should be reported to
 qt-bugs@trolltech.com.
 
 Qt is a trademark of Trolltech AS.
