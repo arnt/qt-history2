@@ -309,7 +309,6 @@ void QMenuPrivate::setCurrentAction(QAction *action, int popup, bool activateFir
 
 QAction *QMenuPrivate::actionAt(QPoint p) const
 {
-    const_cast<QMenuPrivate*>(d)->updateActions();
     if(!q->rect().contains(p))     //sanity check
        return 0;
 
@@ -1016,7 +1015,6 @@ void QMenu::clear()
 */
 int QMenu::columnCount() const
 {
-    const_cast<QMenuPrivate*>(d)->updateActions();
     return d->ncols;
 }
 
@@ -1042,7 +1040,6 @@ QAction *QMenu::actionAtPos(const QPoint &pt, bool ignoreSeparator) const
 */
 QRect QMenu::actionGeometry(QAction *act) const
 {
-    const_cast<QMenuPrivate*>(d)->updateActions();
     return d->actionRect(act);
 }
 
@@ -1327,8 +1324,6 @@ void QMenu::hideEvent(QHideEvent *)
 */
 void QMenu::paintEvent(QPaintEvent *e)
 {
-    d->updateActions();
-
     QPainter p(this);
     QRegion emptyArea = QRegion(rect());
 
@@ -1507,6 +1502,11 @@ QMenu::event(QEvent *e)
             keyPressEvent(ke);
             return true;
         }
+    } else if (e->type() == QEvent::Resize) {
+        d->itemsDirty = 1;
+        d->updateActions();
+    } else if (e->type() == QEvent::Show) {
+        d->updateActions();
     }
     return QWidget::event(e);
 }
@@ -1839,8 +1839,10 @@ void QMenu::actionEvent(QActionEvent *e)
         e->action()->disconnect(this);
     }
 
-    if(isVisible())
+    if(isVisible()) {
+        d->updateActions();
         update();
+    }
 }
 
 /*!
