@@ -487,11 +487,14 @@ bool QLinuxFbScreen::initDevice()
 	entries=(QPoolEntry *)pos;
 	*entryp=0;
 	*lowest=mapsize;
-	shared->fifocount=0;
     } else {
 	optype = &shared->optype;
 	lastop = &shared->lastop;
     }
+
+    shared->fifocount=0;
+    shared->buffer_offset=0xffffffff;  // 0 would be a sensible offset (screen)
+    shared->linestep=0;
 
 #ifndef QT_NO_QWS_REPEATER
     screen_optype=(int *)optype;

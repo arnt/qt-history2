@@ -104,7 +104,7 @@ private:
     unsigned int get_color(unsigned int);
 
     bool checkSourceDest();
-    bool checkDest();
+    void setDest();
     void do_scissors(QRect &);
 
     unsigned int src_pixel_offset;
@@ -153,11 +153,33 @@ inline void QGfxMatrox<depth,type>::sync()
 }
 
 template<const int depth,const int type>
-inline bool QGfxMatrox<depth,type>::checkDest()
+inline void QGfxMatrox<depth,type>::setDest()
 {
     ulong buffer_offset;
-    if (!gfx_screen->onCard(buffer,buffer_offset)) {
-	return FALSE;
+    if(!gfx_screen->onCard(buffer,buffer_offset)) {
+      qFatal("Not on card!");
+    }
+
+    unsigned int b=(buffer_offset >> 6) << 6;
+    b=(b*8)/depth;
+
+    int t=linestep();
+    t=(t*8)/depth;
+    if(t & 0x1f) {
+	qDebug("Unaligned pixel linestep %d",t);
+	return;
+    }
+
+    // fillRect stops working if this isn't done here
+    matrox_regw(YTOP,b);
+    matrox_regw(YBOT,(height*t)+b);
+
+    QLinuxFb_Shared * tmp=(QLinuxFb_Shared *)shared_data;
+    if(tmp->buffer_offset==buffer_offset && tmp->linestep==linestep()) {
+      return;
+    } else {
+      tmp->buffer_offset=buffer_offset;
+      tmp->linestep=linestep();
     }
 
     int d;
@@ -170,32 +192,19 @@ inline bool QGfxMatrox<depth,type>::checkDest()
 	d=0;
     }
 
-    int t=linestep();
-    t=(t*8)/depth;
-    if(t & 0x1f) {
-	qDebug("Unaligned pixel linestep %d",t);
-	return false;
-    }
-    unsigned int b=(buffer_offset >> 6) << 6;
-    b=(b*8)/depth;
-    matrox_regw(PITCH,0x8000 | t);
     matrox_regw(YDSTORG,b);
+    matrox_regw(PITCH,0x8000 | t);
     matrox_regw(MACCESS,d);
     matrox_regw(CXLEFT,0);
     matrox_regw(CXRIGHT,width);
-    matrox_regw(YTOP,(0*t)+b);
-    matrox_regw(YBOT,(height*t)+b);
     matrox_regw(PLNWT,0xffffffff);
 
-    return TRUE;
 }
 
 template<const int depth,const int type>
 inline bool QGfxMatrox<depth,type>::checkSourceDest()
 {
-    if ( !checkDest() ) {
-	return FALSE;
-    }
+    setDest();
 
     ulong src_buffer_offset;
     if (srctype == SourcePen) {
@@ -243,13 +252,7 @@ void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
     QWSDisplay::grab( TRUE );
 #endif
 
-    if(!checkDest()) {
-#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
-	QWSDisplay::ungrab();
-#endif
-	QGfxRaster<depth,type>::fillRect(rx,ry,w,h);
-	return;
-    }
+    setDest();
 
     GFX_START(QRect(rx+xoffs, ry+yoffs, w+1, h+1))
 
@@ -270,7 +273,7 @@ void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
 
     QColor tmp=cbrush.color();
 
-    checkDest();
+    setDest();
 
 #ifndef QT_NO_QWS_REPEATER
     QScreen * tmp2=qt_screen;
@@ -316,81 +319,76 @@ void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
 template<const int depth,const int type>
 void QGfxMatrox<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 {
-    if(ncliprect<1 || myrop!=CopyROP || cpen.style()!=SolidLine) {
-	QGfxRaster<depth,type>::drawLine(x1,y1,x2,y2);
-	return;
-    }
+  if(ncliprect<1 || myrop!=CopyROP || cpen.style()!=SolidLine) {
+    QGfxRaster<depth,type>::drawLine(x1,y1,x2,y2);
+    return;
+  }
 
 #if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
-    QWSDisplay::grab( TRUE );
+  QWSDisplay::grab( TRUE );
 #endif
 
-    if(checkDest()) {
+  setDest();
 
-	(*gfx_optype)=1;
-	(*gfx_lastop)=LASTOP_LINE;
+  (*gfx_optype)=1;
+  (*gfx_lastop)=LASTOP_LINE;
 
-	x1+=xoffs;
-	y1+=yoffs;
-	x2+=xoffs;
-	y2+=yoffs;
+  x1+=xoffs;
+  y1+=yoffs;
+  x2+=xoffs;
+  y2+=yoffs;
 
-	int dx,dy;
-	dx=abs(x2-x1);
-	dy=abs(y2-y1);
+  int dx,dy;
+  dx=abs(x2-x1);
+  dy=abs(y2-y1);
 
-        GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, QABS(dy)+1))
+  GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, QABS(dy)+1))
 
-	QColor tmp=cpen.color();
+    QColor tmp=cpen.color();
 
-	QScreen * tmpscreen=qt_screen;
-	qt_screen=gfx_screen;
-	unsigned int tmp2=tmp.alloc();
-	qt_screen=tmpscreen;
+  QScreen * tmpscreen=qt_screen;
+  qt_screen=gfx_screen;
+  unsigned int tmp2=tmp.alloc();
+  qt_screen=tmpscreen;
 
-	int loopc;
+  int loopc;
 
-	int b=dy<dx ? dy : dx;   // min
-	int a=dy<dx ? dx : dy;   // max
+  int b=dy<dx ? dy : dx;   // min
+  int a=dy<dx ? dx : dy;   // max
 
-	unsigned int sgn=0;
+  unsigned int sgn=0;
 
-	if(dx>dy) {
-	    sgn |= 0x1;
-	}
-	if(x2<x1) {
-	    sgn |= 0x2;
-	}
-	if(y2<y1) {
-	    sgn |= 0x4;
-	}
+  if(dx>dy) {
+    sgn |= 0x1;
+  }
+  if(x2<x1) {
+    sgn |= 0x2;
+  }
+  if(y2<y1) {	    sgn |= 0x4;
+  }
 
-	for(loopc=0;loopc<ncliprect;loopc++) {
-	    do_scissors(cliprect[loopc]);
-	    matrox_regw(FCOL,tmp2);
-	    matrox_regw(DWGCTL,DWG_LINE_CLOSE | DWG_REPLACE |
-			DWG_SOLID | DWG_SHIFTZERO | DWG_BFCOL);
-	    matrox_regw(AR0,b*2);
-	    matrox_regw(AR1,(b*2)-a-(y2-y1));
-	    matrox_regw(AR2,(b*2)-(a*2));
-	    matrox_regw(SGN,sgn);
-	    matrox_regw(XDST,x1);
-	    int p=y1;
-	    int t=linestep();
-	    t=(t*8)/depth;
-	    //t&=0x1f;
-	    p*=(t >> 5);
-	    matrox_regw(YDST,p);
-	    matrox_regw(LEN | EXEC,a);  // Vector length
-	}
+  for(loopc=0;loopc<ncliprect;loopc++) {
+    do_scissors(cliprect[loopc]);
+    matrox_regw(FCOL,tmp2);
+    matrox_regw(DWGCTL,DWG_LINE_CLOSE | DWG_REPLACE |
+		DWG_SOLID | DWG_SHIFTZERO | DWG_BFCOL);
+    matrox_regw(AR0,b*2);
+    matrox_regw(AR1,(b*2)-a-(y2-y1));
+    matrox_regw(AR2,(b*2)-(a*2));
+    matrox_regw(SGN,sgn);
+    matrox_regw(XDST,x1);
+    int p=y1;
+    int t=linestep();
+    t=(t*8)/depth;
+    //t&=0x1f;
+    p*=(t >> 5);
+    matrox_regw(YDST,p);
+    matrox_regw(LEN | EXEC,a);  // Vector length
+  }
 
-	GFX_END
-	QWSDisplay::ungrab();
-	return;
-    } else {
-	QWSDisplay::ungrab();
-	QGfxRaster<depth,type>::drawLine(x1,y1,x2,y2);
-    }
+  GFX_END
+    QWSDisplay::ungrab();
+  return;
 }
 
 template<const int depth,const int type>
@@ -686,6 +684,7 @@ QGfx * QMatroxScreen::createGfx(unsigned char * b,int w,int h,int d,
 	    ret = new QGfxMatrox<8,0>(b,w,h);
 	}
 	if(ret) {
+	    ret->setShared(shared);
 	    ret->setLineStep(linestep);
 	    return ret;
 	}

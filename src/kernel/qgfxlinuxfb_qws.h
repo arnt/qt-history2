@@ -44,7 +44,8 @@ public:
     volatile int fifocount;   // Accel drivers only
     volatile int fifomax;
     unsigned int forecol;     // Foreground colour cacheing
-
+    unsigned int buffer_offset;   // Destination
+    unsigned int linestep;
 };
 
 class QLinuxFbScreen : public QScreen
