@@ -10,10 +10,10 @@ functionality required for making state-of-the-art GUI applications for
 Unix/X11 and Microsoft Windows, replacing the need to use Motif/Xt
 or Microsoft Foundation Classes libraries.
 
-The 1.40 version of Qt introduces more than 11 new GUI elements
-(widgets) which increase the ease of creating modern style GUIs, for
-example a hierarchical list view and multi-columned lists, in the
-style of e.g. Windows Explorer, and tool bars with tool buttons. 
+The 1.40 version of Qt introduces 11 new GUI elements (widgets) which
+increase the ease of creating modern style GUIs, for example a
+hierarchical list view and multi-columned lists, in the style of
+e.g. Windows Explorer, and tool bars with tool buttons.
 
 Qt 1.40 also introduces native Drag-and-Drop support.
 
@@ -21,9 +21,9 @@ With Qt 1.40 is included the new Qt Xt/Motif Extension, which aids the
 migration of Motif or Xt-based legacy code by allowing such code to
 coexist and communicate with Qt-based code in the same application.
 
-In addition, Qt 1.40 adds a wide range of smaller improvements and
-functionality enhancements. For details, please see
-http://www.troll.no/changes/
+In addition, Qt 1.40 adds around 30 other new classes and a wide range
+of smaller improvements and functionality enhancements. For details,
+please see http://www.troll.no/changes/
 
 This new release of Qt retains source compatibility as well as dynamic
 library binary compatibility with the previous Qt 1.x versions.
