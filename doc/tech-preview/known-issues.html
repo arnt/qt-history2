@@ -1,0 +1,70 @@
+<html>
+<head>
+<title>Know issues</title>
+<link rel="stylesheet" href="trollstyle.css">
+</head>
+<body bgcolor="#ffffff">
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tr bgcolor="#E5E5E5">
+        <td><img src="../doctitle.png" width="443" height="32" border="0"></td>
+        <td align="right" valign="center"></td></tr></table>
+<h1>Known Issues: Qt 4.0.0 Technology Preview 1</h1>
+<p>
+    This is the list of known and reported issues for the the Qt 4.0.0 
+    Technology Preview 1. This list is updated daily.
+</p>
+<br><br>
+<table width="100%">
+    <tr><td align="left"><b><a href="#buildissues">Build Issues</a></b></td></tr>
+    <tr><td align="left"><b><a href="#general">General</a></b></td></tr>
+    <tr><td align="left"><b><a href="#demos">Demos</a></b></td></tr>
+    <tr><td align="left"><b><a href="#window">Windows specific</a></b></td></tr>
+    <tr><td align="left"><b><a href="#x11">X11 specific</a></b></td></tr>
+    <tr><td align="left"><b><a href="#mac">Mac specific</a></b></td></tr>
+</table>
+<br><br>
+<a name="buildissues"></a><h2>Build Issues</h2>
+<p>
+        <h3>Static libraries on Mac OS X</h3> Building a static build on mac will
+        fail the first time, qmake needs to be run again for it to work.
+
+        <h3>QTDIR</h3>QTDIR and PATH must be set as INSTALL
+        dictates. It is needed by uic3 for example.
+</p>
+<a name="general"></a><h2>General</h2>
+<p>
+        <h3>N/A</h3>
+
+</p>
+<a name="demos"></a><h2>Demos</h2>
+<p>
+        <h3>N/A</h3>
+
+
+</p>
+<a name="window"></a><h2>Windows specific</h2>
+<p>
+        <h3>Qt Assistant</h3> Problems with zooming and laying out
+        text. Sometimes the text overlaps.
+
+</p>
+<a name="x11"></a><h2>X11 specific</h2>
+<p>
+        <h3>N/A</h3>
+
+</p>
+<a name="mac"></a><h2>Mac specific</h2>
+<p>
+        <h3>QComboBox</h3> Does not have the native Mac look'n'feel
+        yet, it is rendered more in a Windows style.
+
+        <h3>Clicking on widgets</h3> <i>Jaguar 10.2 only:</i> Clicking
+        on widgets that has a focusrect may fail. Use 10.3 for now.
+
+</p>
+<table width="100%">
+    <tr><td><hr size="1" noshade></td></tr>
+    <tr><td align="center" valign="bottom"><a href="http://www.trolltech.com">www.trolltech.com</a></td></tr>
+</table>
+</body>
+</html>
