@@ -107,7 +107,7 @@ bool QFileInfo::isSymLink() const
 
 /*!
   Returns the name a symlink (on Windows, this is the same as a shortcut)
-  points to, or a null QString if the object does not refer to a symbolic 
+  points to, or a null QString if the object does not refer to a symbolic
   link.
 
   This name may not represent an existing file; it is only a string.
