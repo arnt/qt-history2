@@ -16,10 +16,11 @@
 
 #include <qmetaobject.h>
 #include <qsettings.h>
+#include <qwidget.h>
 
 /*!
-    \class QAxFactoryInterface qactiveqt.h
-    \brief The QAxFactoryInterface class is an interface for the creation of ActiveX components.
+    \class QAxFactoryInterface qaxfactory.h
+    \brief The QAxFactoryInterface class is an interface for the creation of COM components.
 \if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
@@ -55,8 +56,8 @@
 */
 
 /*!
-    \class QAxFactory qaxbindable.h
-    \brief The QAxFactory class defines a factory for the creation of ActiveX components.
+    \class QAxFactory qaxfactory.h
+    \brief The QAxFactory class defines a factory for the creation of COM components.
 \if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
@@ -65,6 +66,9 @@
     \extension ActiveQt
     \keyword QAXFACTORY_DEFAULT
     \keyword QAXFACTORY_EXPORT
+    \keyword QAXFACTORY_BEGIN
+    \keyword QAXFACTORY_END
+    \keyword QAXCLASS
 
     Implement this factory once in your ActiveX server to provide
     information about the components the server can create. If your
@@ -91,7 +95,7 @@
     \endcode
 
     If you implement your own factory reimplement the pure virtual
-    functions to provide the unique identifiers for the ActiveX
+    functions, provide the unique identifiers for the ActiveX
     controls, and use the \c QAXFACTORY_EXPORT macro to instantiate
     and export it:
 
@@ -146,8 +150,20 @@
 	)
     \endcode
 
-    Alternatively you can provide the unique identifiers using the
-    Q_CLASSINFO macro in your class declaration.
+    If you use the \c Q_CLASSINFO macro to provide the unique identifiers
+    or other attributes for your class you can use the \c QAXFACTORY_BEGIN,
+    \c QAXCLASS and \c QAXFACTORY_END macros to expose one or more classes
+    as COM objects.
+
+    \code
+    QAXFACTORY_BEGIN(
+	"{01234567-89AB-CDEF-0123-456789ABCDEF}", // type library ID
+	"{01234567-89AB-CDEF-0123-456789ABCDEF}"  // application ID
+    )
+	QAXCLASS(Class1)
+	QAXCLASS(Class2)
+    QAXFACTORY_END()
+    \endcode
 
     Only one QAxFactory implementation may be instantiated and
     exported by an ActiveX server application.
@@ -224,13 +240,41 @@ QUuid QAxFactory::appID() const
 */
 
 /*!
-    \fn QWidget *QAxFactory::create( const QString &key, QWidget *parent = 0, const char *name = 0 )
+    Reimplement this function to return a new widget for \a key.
+    Propagate \a parent and \a name to the QWidget constructor. Return 
+    0 if this factory doesn't support the value of \a key.
 
-    Reimplement this function to return a new widget for each \a key
-    returned by the featureList() implementation. Propagate \a parent
-    and \a name to the QWidget constructor. Return 0 if this factory
-    doesn't support the value of \a key.
+    The returned widget will be exposed as an ActiveX control, e.g.
+    a COM object that can be embedded as a control into applications.
+
+    The default implementation returns 0.
 */
+QWidget *QAxFactory::create( const QString &key, QWidget *parent, const char *name )
+{
+    Q_UNUSED(key)
+    Q_UNUSED(parent)
+    Q_UNUSED(name)
+    return 0;
+}
+
+/*!
+    Reimplement this function to return a new object for \a key.
+    Propagate \a parent and \a name to the QWidget constructor. Return 
+    0 if this factory doesn't support the value of \a key.
+
+    If the object returned is a QWidget it will be exposed as an ActiveX
+    control, otherwise the returned object will be exposed as a COM object.
+
+    The default implementation returns the result QAxFactory::create() if 
+    \a parent is 0 or a widget, otherwise returns 0.
+*/
+QObject *QAxFactory::createObject( const QString &key, QObject *parent, const char *name )
+{
+    if (!parent || parent->isWidgetType())
+	return create(key, (QWidget*)parent, name);
+
+    return 0;
+}
 
 /*!
     Reimplement this function return the QMetaObject corresponding to
@@ -412,7 +456,6 @@ extern bool qAxIsServer;
 
 	return app.exec() // standard event processing
     }
-
     \endcode
 */
 
@@ -434,19 +477,31 @@ bool QAxFactory::isService() const
 }
 
 /*!
-    \fn bool QAxFactory::startServer();
+    \enum QAxFactory::ServerType
 
-    Starts the COM server and returns TRUE if successful, otherwise 
-    returns FALSE.
+    This enum specifies the different types of servers that can be
+    started with startServer.
+
+    \value SingleInstance The server can create only one instance of each 
+    supplied class.
+    \value MultipleInstances The server can create multiple instances of
+    each supplied class.
+*/
+
+/*!
+    \fn bool QAxFactory::startServer(ServerType type);
+
+    Starts the COM server with \a type and returns TRUE if successful, 
+    otherwise returns FALSE.
 
     Calling this function if the server is already running (or for an
     in-process server) does nothing and returns TRUE.
 
-    The server is started automatically before the main() function is 
-    called if the server executable has been started with the \c -activex 
+    The server is started automatically with \a type set to MultipleUse 
+    if the server executable has been started with the \c -activex 
     command line parameter.
 */
-// implementation in qaxservermain.cpp
+// implementation in qaxserver.cpp
 
 /*!
     \fn bool QAxFactory::stopServer();
@@ -463,4 +518,4 @@ bool QAxFactory::isService() const
 
     The server is stopped automatically when the main() function returns.
 */
-// implementation in qaxservermain.cpp
+// implementation in qaxserver.cpp

@@ -150,12 +150,12 @@ extern HRESULT GetClassObject( const GUID &clsid, const GUID &iid, void **ppUnk 
 /*
     Start the COM server (if necessary).
 */
-bool QAxFactory::startServer()
+bool QAxFactory::startServer(ServerType type)
 {
     if (qAxIsServer)
 	return TRUE;
 	    
-    HRESULT hRes = CoInitialize(NULL);
+    HRESULT hRes = CoInitialize(0);
 
     const QStringList keys = qAxFactory()->featureList();
     if ( !keys.count() )
@@ -173,7 +173,9 @@ bool QAxFactory::startServer()
 	// Create a QClassFactory (implemented in qaxserverbase.cpp)
 	HRESULT hRes = GetClassObject( clsid, IID_IClassFactory, (void**)&p );
 	if ( SUCCEEDED(hRes) )
-	    hRes = CoRegisterClassObject( clsid, p, CLSCTX_LOCAL_SERVER, REGCLS_MULTIPLEUSE, classRegistration+object );
+	    hRes = CoRegisterClassObject( clsid, p, CLSCTX_LOCAL_SERVER, 
+					  type == MultipleInstances ? REGCLS_MULTIPLEUSE : REGCLS_SINGLEUSE,
+					  classRegistration+object );
 	if ( p )
 	    p->Release();
     }
@@ -264,7 +266,7 @@ HRESULT UpdateRegistry(BOOL bRegister)
 	QStringList keys = qAxFactory()->featureList();
 	for ( QStringList::Iterator key = keys.begin(); key != keys.end(); ++key ) {
 	    const QString className = *key;
-	    QObject *object = qAxFactory()->create( className );
+	    QObject *object = qAxFactory()->createObject( className );
 	    const QMetaObject *mo = object ? object->metaObject() : 0;
 
 	    const QString classId = qAxFactory()->classID(className).toString().upper();
@@ -920,19 +922,20 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
     }
 
     out << "\t[" << endl;
-    out << "\t\tuuid(" << classID << ")," << endl;
 
     if (qstricmp(mo->classInfo("Aggregatable", TRUE), "no"))
 	out << "\t\taggregatable," << endl;
-
-    out << "\t\thelpstring(\"" << className << " Class\")";
+    if (mo->classInfo("LicenseKey", TRUE))
+	out << "\t\tlicensed," << endl;
+    const char *helpString = mo->classInfo("Description", TRUE);
+    if (helpString)
+	out << "\t\thelpstring(\"" << helpString << "\")," << endl;
+    else
+	out << "\t\thelpstring(\"" << className << " Class\")," << endl;
     const char *classVersion = mo->classInfo( "Version", TRUE );
-    if ( classVersion ) {
-	out << "," << endl;
-	out << "\t\tversion(" << classVersion << ")" << endl;
-    } else {
-	out << endl;
-    }
+    if ( classVersion )
+	out << "\t\tversion(" << classVersion << ")," << endl;
+    out << "\t\tuuid(" << classID << ")" << endl;
     out << "\t]" << endl;
     out << "\tcoclass " << className << endl;
     out << "\t{" << endl;
@@ -990,9 +993,7 @@ extern "C" HRESULT __stdcall DumpIDL( const QString &outfile, const QString &ver
     out << "** WARNING! All changes made in this file will be lost!" << endl;
     out << "****************************************************************************/" << endl << endl;
 
-    out << "import \"oaidl.idl\";" << endl;
-    out << "import \"ocidl.idl\";" << endl;
-    out << "#include \"olectl.h\"" << endl << endl << endl;
+    out << "#include <olectl.h>" << endl << endl;
 
     // dummy application to create widgets
     int argc;
@@ -1020,7 +1021,7 @@ extern "C" HRESULT __stdcall DumpIDL( const QString &outfile, const QString &ver
 	// We have meta object information for this type. Forward declare it.
 	if ( mo ) {
 	    out << "\tcoclass " << className << ";" << endl;
-	    QObject *o = qAxFactory()->create( className );
+	    QObject *o = qAxFactory()->createObject( className );
 	    // It's not a control class, so it is actually a subtype. Define it.
 	    if ( !o ) {
 		if ( !subtypes )
@@ -1040,10 +1041,10 @@ extern "C" HRESULT __stdcall DumpIDL( const QString &outfile, const QString &ver
 
     for ( key = keys.begin(); key != keys.end(); ++key ) {
 	QString className = *key;
-	QWidget *w = qAxFactory()->create( className );
-	if ( !w )
+	QObject *o = qAxFactory()->createObject( className );
+	if ( !o )
 	    continue;
-	QAxBindable *bind = (QAxBindable*)w->qt_cast( "QAxBindable" );
+	QAxBindable *bind = (QAxBindable*)o->qt_cast( "QAxBindable" );
 	bool isBindable =  bind != 0;
 
 	delete mapping;
@@ -1053,8 +1054,8 @@ extern "C" HRESULT __stdcall DumpIDL( const QString &outfile, const QString &ver
 	    subtypes = new QStrList;
 	subtypes->append( className );
 	subtypes->append( className + "*" );
-	res = classIDL( w, w->metaObject(), className, isBindable, out );
-	delete w;
+	res = classIDL( o, o->metaObject(), className, isBindable, out );
+	delete o;
 	if (res != S_OK)
 	    break;
     }

@@ -13,6 +13,7 @@
 #include <qapplication.h>
 #include <qbuffer.h>
 #include <qeventloop.h>
+#include <qfile.h>
 #include <qfocusdata.h>
 #include <qguardedptr.h>
 #include <qintdict.h>
@@ -696,7 +697,7 @@ private:
 extern Q_EXPORT void qWinProcessConfigRequests();
 extern bool qax_ownQApp;
 extern HHOOK hhook;
-LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
+LRESULT CALLBACK axs_FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 {
     if ( qApp ) {
 	qApp->sendPostedEvents();
@@ -709,11 +710,11 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 
 // COM Factory class, mapping COM requests to ActiveQt requests.
 // One instance of this class for each ActiveX the server can provide.
-class QClassFactory : public IClassFactory
+class QClassFactory : public IClassFactory2
 {
 public:
     QClassFactory( CLSID clsid )
-	: ref( 0 )
+	: ref( 0 ), licensed(FALSE)
     {
 	InitializeCriticalSection( &refCountSection );
 
@@ -725,7 +726,14 @@ public:
 		break;
 	    }
 	}
+
+	QMetaObject *mo = qAxFactory()->metaObject(className);
+	if (mo && mo->classInfo("LicenseKey", TRUE)) {
+	    licensed = TRUE;
+	    classKey = QString::fromLatin1(mo->classInfo("LicenseKey", TRUE));
+	}
     }
+
     ~QClassFactory()
     {
 	DeleteCriticalSection( &refCountSection );
@@ -758,6 +766,8 @@ public:
 	    *iface = (IUnknown*)this;
 	else if ( iid == IID_IClassFactory )
 	    *iface = (IClassFactory*)this;
+	else if ( iid == IID_IClassFactory2 && licensed )
+	    *iface = (IClassFactory2*)this;
 	else
 	    return E_NOINTERFACE;
 
@@ -765,8 +775,7 @@ public:
 	return S_OK;
     }
 
-    // IClassFactory
-    HRESULT WINAPI CreateInstance( IUnknown *pUnkOuter, REFIID iid, void **ppObject )
+    HRESULT WINAPI CreateInstanceHelper( IUnknown *pUnkOuter, REFIID iid, void **ppObject )
     {
 	if ( pUnkOuter ) {
 	    if (iid != IID_IUnknown)
@@ -782,9 +791,9 @@ public:
 	    int argc = 0;
 	    (void)new QApplication( argc, 0 );
 	    QT_WA( {
-		hhook = SetWindowsHookExW( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
+		hhook = SetWindowsHookExW( WH_GETMESSAGE, axs_FilterProc, 0, GetCurrentThreadId() );
 	    }, {
-		hhook = SetWindowsHookExA( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
+		hhook = SetWindowsHookExA( WH_GETMESSAGE, axs_FilterProc, 0, GetCurrentThreadId() );
 	    } );
 	}
 
@@ -803,6 +812,16 @@ public:
 	}
 	return res;
     }
+
+    // IClassFactory
+    HRESULT WINAPI CreateInstance( IUnknown *pUnkOuter, REFIID iid, void **ppObject )
+    {
+	// class is licensed
+	if (!classKey.isEmpty())
+	    return CLASS_E_NOTLICENSED;
+
+	return CreateInstanceHelper(pUnkOuter, iid, ppObject);
+    }
     HRESULT WINAPI LockServer( BOOL fLock )
     {
 	if ( fLock )
@@ -810,7 +829,68 @@ public:
 	else
 	    qAxUnlock();
 
+	return S_OK;	
+    }
+
+    // License helpers
+
+    // Return a license key for the current machine
+    QString machineLicense()
+    {
+	// ### this should be in that magic C function...
+	if (licFile.isEmpty()) {
+	    extern char qAxModuleFilename[MAX_PATH];
+	    QString licFile = QFile::decodeName(qAxModuleFilename);
+	    int ext = licFile.findRev('.');
+	    if (ext != -1)
+		licFile = licFile.left(ext) + ".LIC";
+	}
+	if (QFile::exists(licFile))
+	    return classKey;
+	return QString();
+    }
+
+    // IClassFactory2
+    HRESULT WINAPI RequestLicKey(DWORD, BSTR *pKey)
+    {
+	if (!pKey)
+	    return E_POINTER;
+	*pKey = 0;
+
+	// This of course works only on fully licensed machines
+	QString machineKey = machineLicense();
+	if (machineKey.isEmpty())
+	    return CLASS_E_NOTLICENSED;
+
+	classKey = machineKey;
+	*pKey = QStringToBSTR(classKey);
 	return S_OK;
+    }
+
+    HRESULT WINAPI GetLicInfo(LICINFO *pLicInfo)
+    {
+	if (!pLicInfo)
+	    return E_POINTER;
+	pLicInfo->cbLicInfo = sizeof(LICINFO);
+
+	// class specific license key?
+	QMetaObject *mo = qAxFactory()->metaObject(className);
+	const char *key = mo->classInfo("LicenseKey", TRUE);
+	pLicInfo->fRuntimeKeyAvail = key && key[0];
+
+	// machine fully licensed?
+	pLicInfo->fLicVerified = !machineLicense().isEmpty();
+
+	return S_OK;
+    }
+
+    HRESULT WINAPI CreateInstanceLic(IUnknown *pUnkOuter, IUnknown *pUnkReserved, REFIID iid, BSTR bKey, PVOID *ppObject)
+    {
+	QString key(BSTRToQString(bKey));
+	if ( (!key.isEmpty() && key != classKey) ||
+	     (key.isEmpty() && machineLicense().isEmpty()) )
+	    return CLASS_E_NOTLICENSED;
+	return CreateInstanceHelper(pUnkOuter, iid, ppObject);
     }
 
     QString className;
@@ -818,6 +898,9 @@ public:
 protected:
     CRITICAL_SECTION refCountSection;
     unsigned long ref;
+    bool licensed;
+    QString classKey;
+    QString licFile;
 };
 
 // Create a QClassFactory object for class \a iid
@@ -1085,7 +1168,7 @@ bool QAxServerBase::internalCreate()
     if ( qt.object )
 	return TRUE;
 
-    qt.object = qAxFactory()->create( class_name );
+    qt.object = qAxFactory()->createObject( class_name );
     Q_ASSERT(qt.object);
     if ( !qt.object )
 	return FALSE;
