@@ -144,9 +144,7 @@ DemoViewer::DemoViewer(QWidget *parent)
 
     layout->addWidget(horSplit);
 
-    QSplitter *verSplit = new QSplitter(Qt::Vertical, horSplit);
-    widgets = new QStackedBox(verSplit);
-
+    widgets = new QStackedBox(horSplit);
     QGroupBox *opts = new QGroupBox("Options", vbox);
     QBoxLayout *props = new QBoxLayout(QBoxLayout::TopToBottom, opts);
 
@@ -165,6 +163,13 @@ DemoViewer::DemoViewer(QWidget *parent)
     props->addWidget(alpha);
     props->addWidget(bgMode);
     props->addItem(new QSpacerItem(1, 1));
+
+    QApplication::sendPostedEvents();
+
+    QList<int> l;
+    l.append(100);
+    l.append(700);
+    horSplit->setSizes(l);
 
     // Setting it up...
     listView->setModel(new ItemModel);
