@@ -265,7 +265,7 @@ class Q_CORE_EXPORT QCoreVariant
 #endif
 
 protected:
-    friend bool QVariant_to_helper(const QCoreVariant &, QCoreVariant::Type, void *);
+    friend inline bool QVariant_to_helper(const QCoreVariant &, QCoreVariant::Type, void *);
 
     Private d;
 
