@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/xt/src/qxt.h#3 $
+** $Id: //depot/qt/main/extensions/xt/src/qxt.h#4 $
 **
 ** Definition of Qt extension classes for Xt/Motif support.
 **
@@ -29,6 +29,7 @@
 #include <X11/Intrinsic.h>
 
 class QXtApplication : public QApplication {
+    Q_OBJECT
     void init();
 public:
     QXtApplication(int& argc, char** argv,
@@ -42,6 +43,7 @@ public:
 };
 
 class QXtWidget : public QWidget {
+    Q_OBJECT
     Widget xtw;
     void init(const char* name, WidgetClass widget_class,
 		    Widget parent, ArgList args, Cardinal num_args,
