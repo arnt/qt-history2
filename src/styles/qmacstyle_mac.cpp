@@ -567,13 +567,11 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	if(pe == PE_ExclusiveIndicator) {
 	    p->fillRect(r, white);
 	    ((QMacPainter *)p)->setport();
-	    DrawThemeButton(qt_glb_mac_rect(r, p), bkind,
-			    &info, NULL, NULL, NULL, 0);
+	    DrawThemeButton(qt_glb_mac_rect(r, p), bkind, &info, NULL, NULL, NULL, 0);
 	} else {
 	    p->save();
 	    QRegion rgn;
-	    GetThemeButtonRegion(qt_glb_mac_rect(r, p), bkind,
-				 &info, rgn.handle(TRUE));
+	    GetThemeButtonRegion(qt_glb_mac_rect(r, p), bkind, &info, rgn.handle(TRUE));
 	    p->setClipRegion(rgn);
 	    p->fillRect(r, color1);
 	    p->restore();
@@ -1291,6 +1289,8 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    DrawThemeTrackTickMarks(&ttdi, sldr->maxValue() / sldr->pageStep(), NULL, 0);
 	break; }
     case CC_ComboBox: {
+	p->fillRect(r, cg.brush(QColorGroup::Button)); //make sure it is filled
+
 	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
 	((QMacPainter *)p)->setport();
 	DrawThemeButton(qt_glb_mac_rect(r, p, TRUE, QRect(1, 0, 0, 0)), kThemePopupButton,

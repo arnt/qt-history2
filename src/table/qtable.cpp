@@ -691,7 +691,7 @@ void QTableItem::paint( QPainter *p, const QColorGroup &cg,
 QWidget *QTableItem::createEditor() const
 {
     QLineEdit *e = new QLineEdit( table()->viewport(), "qt_tableeditor" );
-    e->setFrame( FALSE );
+//    e->setFrame( FALSE );
     e->setText( text() );
     return e;
 }
@@ -1160,7 +1160,10 @@ void QComboTableItem::paint( QPainter *p, const QColorGroup &cg,
 	c.setColor( QColorGroup::Text, cg.highlightedText() );
     }
 
-    table()->style().drawComplexControl( QStyle::CC_ComboBox, p, fakeCombo, fakeCombo->rect(), c );
+    QStyle::SFlags flags = QStyle::Style_Default;
+    if(isEnabled() && table()->isEnabled())
+	flags |= QStyle::Style_Enabled;
+    table()->style().drawComplexControl( QStyle::CC_ComboBox, p, fakeCombo, fakeCombo->rect(), c, flags );
 
     p->save();
     QRect textR = table()->style().querySubControlMetrics(QStyle::CC_ComboBox, fakeCombo,
@@ -4708,7 +4711,7 @@ QWidget *QTable::createEditor( int row, int col, bool initFromCell ) const
     // no contents in the cell yet, so open the default editor
     if ( !e ) {
 	e = new QLineEdit( viewport(), "qt_lineeditor" );
-	( (QLineEdit*)e )->setFrame( FALSE );
+//	( (QLineEdit*)e )->setFrame( FALSE );
     }
 
     return e;
@@ -6190,7 +6193,7 @@ void QTableHeader::paintSection( QPainter *p, int index, const QRect& fr )
 	 orientation() == Horizontal && isRowSelection( table->selectionMode() ) ) {
 	QHeader::paintSection( p, index, fr );
    } else {
-       QStyle::SFlags flags = ( orient == Horizontal ? QStyle::Style_Horizontal : 0 );
+       QStyle::SFlags flags = QStyle::Style_Off | ( orient == Horizontal ? QStyle::Style_Horizontal : 0 );
        if(isEnabled())
 	   flags |= QStyle::Style_Enabled;
        if(isClickEnabled()) {
