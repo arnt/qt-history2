@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#10 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#10 $";
 #endif
 
 
@@ -205,6 +205,54 @@ static char *rmWS( char *dest, const char *src )// remove white space
 }
 
 
+#if defined(CHECK_RANGE)
+
+static bool check_signal_macro( QObject *sender, const char *signal,
+				const char *func, const char *op )
+{
+    int sigcode = (int)(*signal) - '0';
+    if ( sigcode != SIGNAL_CODE ) {
+	if ( sigcode == SLOT_CODE )
+	    warning( "QObject::%s: Attempt to %s non-signal %s::%s",
+		     func, op, sender->className(), signal+1 );
+	else
+	    warning( "QObject::%s: Use the SIGNAL macro to %s %s::%s",
+		     func, op, sender->className(), signal );
+	return FALSE;
+    }
+    return TRUE;
+}
+
+static bool check_member_code( int code, QObject *object, const char *member,
+			       const char *func )
+{
+    if ( code != SLOT_CODE && code != SIGNAL_CODE ) {
+	warning( "QObject::%s: Use the SLOT or SIGNAL macro to "
+		 "%s %s::%s", func, func, object->className(), member );
+	return FALSE;
+    }
+    return TRUE;
+}
+
+static void err_member_notfound( int code, QObject *object, const char *member,
+				 const char *func )
+{
+    const char *type = 0;
+    switch ( code ) {
+	case SLOT_CODE:   type = "slot";   break;
+	case SIGNAL_CODE: type = "signal"; break;
+    }
+    if ( strchr(member,')') == 0 )		// common typing mistake
+	warning( "QObject::%s: Parentheses expected, %s %s::%s",
+		 func, type, object->className(), member );
+    else
+	warning( "QObject::%s: No such %s %s::%s",
+		 func, type, object->className(), member );
+}
+
+#endif // CHECK_RANGE
+
+
 bool QObject::connect( QObject *sender,         const char *signal,
 		       const QObject *receiver, const char *member )
 {
@@ -226,27 +274,14 @@ bool QObject::connect( QObject *sender,         const char *signal,
 	return FALSE;
 
 #if defined(CHECK_RANGE)
-    int sigcode = (int)(*signal) - '0';
-    if ( sigcode != SIGNAL_CODE ) {
-	if ( sigcode == SLOT_CODE )
-	    warning( "QObject::connect: Attempt to bind non-signal %s::%s",
-		     sender->className(), signal+1 );
-	else
-	    warning( "QObject::connect: Use the SIGNAL macro to bind %s::%s",
-		     sender->className(), signal );
+    if ( !check_signal_macro( sender, signal, "connect", "bind" ) )
 	return FALSE;
-    }
 #endif
     signal++;					// skip member type code
     QMetaData *sm;
     if ( !(sm=smeta->signal(signal,TRUE)) ) {	// no such signal
 #if defined(CHECK_RANGE)
-	if ( strchr(signal,')') == 0 )		// common typing mistake
-	    warning( "QObject::connect: Parentheses expected, signal %s::%s",
-		     sender->className(), signal );
-	else
-	    warning( "QObject::connect: No such signal %s::%s",
-		     sender->className(), signal );
+	err_member_notfound( SIGNAL_CODE, sender, signal, "connect" );
 #endif
         return FALSE;
     }
@@ -255,11 +290,8 @@ bool QObject::connect( QObject *sender,         const char *signal,
     int membcode = member[0] - '0';		// get member code
     QObject *r = (QObject *)receiver;		// set receiver object
 #if defined(CHECK_RANGE)
-    if ( membcode != SLOT_CODE && membcode != SIGNAL_CODE ) {
-	warning( "QObject::connect: Use the SLOT or SIGNAL macro to connect %s::%s",
-		 r->className(), member );
-        return FALSE;
-    }
+    if ( !check_member_code( membcode, r, member, "connect" ) )
+	return FALSE;
 #endif
     member++;					// skip code
     QMetaData *rm = 0;
@@ -272,17 +304,7 @@ bool QObject::connect( QObject *sender,         const char *signal,
     }
     if ( !rm ) {				// no such member
 #if defined(CHECK_RANGE)
-	char *memberType = 0;
-	switch ( membcode ) {			// set member type string
-	    case SLOT_CODE:   memberType = "slot";   break;
-	    case SIGNAL_CODE: memberType = "signal"; break;
-	}
-	if ( strchr(member,')') == 0 )		// common typing mistake
-	    warning( "QObject::connect: Parentheses expected, %s %s::%s",
-		     memberType, r->className(), member );
-	else
-	    warning( "QObject::connect: No such %s: %s::%s", memberType,
-		     r->className(), member );
+	err_member_notfound( membcode, r, member, "connect" );
 #endif
 	return FALSE;
     }
@@ -344,11 +366,8 @@ bool QObject::disconnect( QObject *sender, const char *signal,
 	member = member_tmp.data();
 	int membcode = member[0] - '0';
 #if defined(CHECK_RANGE)
-	if ( membcode != SLOT_CODE && membcode != SIGNAL_CODE ) {
-	    warning( "QObject::disconnect: Use the SLOT or SIGNAL macro to "
-		     "disconnect %s::%s", r->className(), member );
+	if ( !check_member_code( membcode, r, member, "disconnect" ) )
 	    return FALSE;
-	}
 #endif
 	member++;
 	QMetaObject *rmeta = r->queryMetaObject();
@@ -360,17 +379,7 @@ bool QObject::disconnect( QObject *sender, const char *signal,
 	}
 	if ( !rm ) {				// no such member
 #if defined(CHECK_RANGE)
-	    char *memberType = 0;
-	    switch ( membcode ) {		// set member type string
-		case SLOT_CODE:   memberType = "slot";   break;
-		case SIGNAL_CODE: memberType = "signal"; break;
-	    }
-	    if ( strchr(member,')') == 0 )	// common typing mistake
-		warning( "QObject::disconnect: Parentheses expected, %s %s::%s",
-			 memberType, r->className(), member );
-	    else
-		warning( "QObject::disconnect: No such %s: %s::%s", memberType,
-			 r->className(), member );
+	    err_member_notfound( membcode, r, member, "disconnect" );
 #endif
 	    return FALSE;
 	}
@@ -408,16 +417,8 @@ bool QObject::disconnect( QObject *sender, const char *signal,
 	rmWS( signal_tmp.data(), signal );
 	signal = signal_tmp.data();
 #if defined(CHECK_RANGE)
-	int sigcode = (int)(*signal) - '0';
-	if ( sigcode != SIGNAL_CODE ) {
-	    if ( sigcode == SLOT_CODE )
-		warning( "QObject::disconnect: Attempt to unbind non-signal %s::%s",
-			 sender->className(), signal+1 );
-	    else
-		warning( "QObject::disconnect: Use the SIGNAL macro to bind %s::%s",
-			 sender->className(), signal );
+        if ( !check_signal_macro( sender, signal, "disconnect", "unbind" ) )
 	    return FALSE;
-	}
 #endif
 	signal++;
 	clist = sender->connections->find( signal );
