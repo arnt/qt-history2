@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#4 $
 **
 ** Implementation of QCheckBox class
 **
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#4 $";
 #endif
 
 
@@ -49,7 +49,7 @@ void QCheckBox::setChecked( bool checked )
 void QCheckBox::drawButton( QPainter *paint )	// draw check box
 {
     register QPainter *p = paint;
-    GuiStyle gs = guiStyle();
+    GUIStyle gs = style();
     QSize sz = clientSize();
     int x=0, y, w, h;
     switch ( gs ) {				// calculate coords

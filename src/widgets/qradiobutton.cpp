@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#5 $
 **
 ** Implementation of QRadioButton class
 **
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#5 $";
 #endif
 
 
@@ -56,7 +56,7 @@ bool QRadioButton::hitButton( const QPoint &pos ) const
 void QRadioButton::drawButton( QPainter *paint )
 {
     register QPainter *p = paint;
-    GuiStyle gs = guiStyle();
+    GUIStyle gs = style();
     QSize sz = clientSize();
     int x=0, y, w, h;
     switch ( gs ) {

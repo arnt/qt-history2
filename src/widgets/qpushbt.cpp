@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#5 $
 **
 ** Implementation of QPushButton class
 **
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbt.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbt.cpp#5 $";
 #endif
 
 
@@ -46,7 +46,7 @@ void QPushButton::init()
 {
     initMetaObject();
     autoDefButton = defButton = lastDown = lastDef = FALSE;
-    if ( guiStyle() != MacStyle )
+    if ( style() != MacStyle )
 	setBackgroundColor( lightGray );
 }
 
@@ -63,7 +63,7 @@ void QPushButton::setDefault( bool def )	// set default on/off
     defButton = def;
     if ( defButton )
 	emit becameDefault();
-    int gs = guiStyle();
+    int gs = style();
     if ( gs != MacStyle && gs != MotifStyle ) {
 	if ( isVisible() )
 	    paintEvent( 0 );
@@ -97,7 +97,7 @@ bool QPushButton::changeGeometry( int x, int y, int w, int h )
 
 bool QPushButton::extraSize( int &wx, int &hx, bool onlyWhenDefault )
 {
-    int gs = guiStyle();
+    int gs = style();
     int w=0, h=0;
     bool hasExtra = TRUE;
     if ( gs == MacStyle ) {			// larger def mac buttons
@@ -138,7 +138,7 @@ void QPushButton::fixDefButton()
 void QPushButton::drawButton( QPainter *paint )
 {
     register QPainter *p = paint;
-    GuiStyle gs = guiStyle();
+    GUIStyle gs = style();
     bool updated = isDown() != lastDown || lastDef != defButton;
     int x1, y1, x2, y2;
     clientRect().coords( &x1, &y1, &x2, &y2 );
@@ -301,7 +301,7 @@ void QPushButton::drawButtonFace( QPainter *paint )
     register QPainter *p = paint;
     QSize sz = clientSize();
     int w = sz.width();
-    GuiStyle gs = guiStyle();
+    GUIStyle gs = style();
     QPoint pos( w/2 - strlen(text())*3, sz.height()/2 + 4 );
     int dt;
     switch ( gs ) {
