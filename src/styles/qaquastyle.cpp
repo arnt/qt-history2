@@ -81,8 +81,10 @@ static const int aquaTabSpacing        = 12;   // space between text and tab
 static const int aquaCheckMarkHMargin  = 2;    // horiz. margins of check mark
 static const int aquaRightBorder       = 12;   // right border on aqua
 static const int aquaCheckMarkWidth    = 12;   // checkmarks width on aqua
-static QColor qt_mac_highlight_color = QColor( 0xC2, 0xC2, 0xC2 ); //color of highlighted text
+static QColor qt_mac_highlight_active_color = QColor( 0xC2, 0xC2, 0xC2 ); //color of highlighted text
+static QColor qt_mac_highlight_inactive_color = qt_mac_highlight_active_color.light();
 static bool qt_mac_scrollbar_arrows_together = FALSE; //whether scroll arrows go together
+QCString p2qstring(const unsigned char *c); //qglobal.cpp
 
 //Perhaps this QAquaFocusWidget should be defined elsewhere??
 QAquaFocusWidget::QAquaFocusWidget( )
@@ -524,10 +526,9 @@ void QAquaStyle::polish( QApplication* app )
     pal.setColor( QPalette::Disabled, QColorGroup::ButtonText,
                   QColor( 148,148,148 ));
 
-    pal.setColor( QPalette::Active, QColorGroup::Highlight, qt_mac_highlight_color );
-    pal.setColor( QPalette::Inactive, QColorGroup::Highlight, qt_mac_highlight_color.light() );
+    pal.setColor( QPalette::Active, QColorGroup::Highlight, qt_mac_highlight_active_color );
+    pal.setColor( QPalette::Inactive, QColorGroup::Highlight, qt_mac_highlight_inactive_color );
     pal.setColor( QPalette::Disabled, QColorGroup::Highlight, QColor( 0xC2, 0xC2, 0xC2 ) );
-
     pal.setColor( QColorGroup::HighlightedText, Qt::black);
 
     app->setPalette( pal, TRUE );
@@ -2017,6 +2018,10 @@ int QAquaStyle::styleHint(StyleHint sh, const QWidget *w, const QStyleOption &op
 }
 
 #ifdef Q_WS_MAC
+//these came from carbon mailing list waiting for addition of
+//kThemeBrush[Primary|Secondary]HighlightColor in Appearance.h
+#define MAC_ACTIVE_HIGHLIGHT_COLOR -3
+#define MAC_INACTIVE_HIGHLIGHT_COLOR -4
 void QAquaStyle::appearanceChanged()
 {
     bool changed = FALSE;
@@ -2041,22 +2046,20 @@ void QAquaStyle::appearanceChanged()
 	    changed = TRUE;
 	}
 
-	RGBColor color;
-	s = sizeof(color);
-	if(!GetCollectionItem(c, kThemeHighlightColorTag, 0, &s, &color)) {
-	    QColor qc(color.red/256, color.green/256, color.blue/256);
-	    if(qt_mac_highlight_color != qc) {
-		changed = TRUE;
-		qt_mac_highlight_color = qc;
-		QPalette pal = qApp->palette();
-		pal.setColor( QPalette::Active, QColorGroup::Highlight,
-			      qt_mac_highlight_color );
-		pal.setColor( QPalette::Inactive, QColorGroup::Highlight, 
-			      qt_mac_highlight_color.light() );
-		qApp->setPalette( pal, TRUE );
-	    }
-	} else {
-	    qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
+	RGBColor clr;
+	GetThemeBrushAsColor(MAC_ACTIVE_HIGHLIGHT_COLOR, 32, true, &clr );
+	QColor hac = QColor(clr.red / 256, clr.green / 256, clr.blue / 256);
+	GetThemeBrushAsColor(MAC_INACTIVE_HIGHLIGHT_COLOR, 32, true, &clr );
+	QColor hic = QColor(clr.red / 256, clr.green / 256, clr.blue / 256);
+	if(qt_mac_highlight_active_color != hac || 
+	   qt_mac_highlight_inactive_color != hic) {
+	    changed = TRUE;
+	    qt_mac_highlight_active_color = hac;
+	    qt_mac_highlight_inactive_color = hic;
+	    QPalette pal = qApp->palette();
+	    pal.setColor(QPalette::Active, QColorGroup::Highlight, qt_mac_highlight_active_color);
+	    pal.setColor(QPalette::Inactive, QColorGroup::Highlight, qt_mac_highlight_inactive_color);
+	    qApp->setPalette( pal, TRUE );
 	}
 
 	ThemeScrollBarArrowStyle arrows;
