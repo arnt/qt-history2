@@ -5443,7 +5443,9 @@ static bool isRoot( const QUrl &u )
 	    return TRUE;
     }
 #else
+#if defined(Q_CC_GNU)
 #warning "case not covered.."
+#endif
 #endif
 
     if ( !u.isLocalFile() && u.path() == "/" )

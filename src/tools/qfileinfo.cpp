@@ -5,7 +5,7 @@
 **
 ** Created : 950628
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -547,7 +547,7 @@ bool QFileInfo::isDir() const
   Returns the file size in bytes, or 0 if the file does not exist or if
   the size is 0 or if the size cannot be fetched.
 */
-uint QFileInfo::size() const
+uint QFileInfo::size() const // ### Qt 4: make it Q_LONG
 {
     if ( !fic || !cache )
 	doStat();

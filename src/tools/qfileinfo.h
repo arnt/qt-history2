@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QFileInfo class
 **
 ** Created : 950628
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -113,7 +113,7 @@ public:
 
     bool	permission( int permissionSpec ) const;
 
-    uint	size()		const;
+    uint	size()		const; // ### Qt 4: make it Q_LONG
 
     QDateTime	created()	const;
     QDateTime	lastModified()	const;
