@@ -26,8 +26,9 @@
 **********************************************************************/
 
 #include "qplatformdefs.h"
-#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
+#if defined(Q_WS_MAC)
 #include "qt_mac.h"
+#if !defined(QMAC_QMENUBAR_NO_NATIVE)
 
 #include <qpopupmenu.h>
 #include <qmenubar.h>
@@ -52,6 +53,8 @@ QCString p2qstring(const unsigned char *); //qglobal.cpp
 void qt_event_request_menubarupdate(); //qapplication_mac.cpp
 bool qt_modal_state(); //qapplication_mac.cpp
 
+#endif
+
 void qt_mac_command_set_enabled(UInt32 cmd, bool b)
 {
 #if 0
@@ -69,6 +72,8 @@ void qt_mac_command_set_enabled(UInt32 cmd, bool b)
 	    DisableMenuCommand(mr, cmd);
     }
 }
+
+#if !defined(QMAC_QMENUBAR_NO_NATIVE)
 
 static void qt_mac_set_modal_state(bool b)
 {
@@ -825,4 +830,5 @@ void QMenuBar::macWidgetChangedWindow()
 	menuContentsChanged();
 }
 
+#endif //!defined(QMAC_QMENUBAR_NO_NATIVE)
 #endif //WS_MAC
