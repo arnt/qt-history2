@@ -62,7 +62,6 @@ embedded {
 		    $$KERNEL_CPP/qpaintdevice_qws.cpp \
 		    $$KERNEL_CPP/qpainter_qws.cpp \
 		    $$KERNEL_CPP/qpixmap_qws.cpp \
-		    $$KERNEL_CPP/qprinter_qws.cpp \
 		    $$KERNEL_CPP/qregion_qws.cpp \
 		    $$KERNEL_CPP/qsound_qws.cpp \
 		    $$KERNEL_CPP/qsoundqss_qws.cpp \

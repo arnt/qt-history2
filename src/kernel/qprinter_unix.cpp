@@ -1,13 +1,17 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_qws.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#72 $
 **
-** Implementation of QPrinter class for FB
+** Implementation of QPrinter class for Unix
 **
-** Created : 991026
+** Created : 950810
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Trolltech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -15,14 +19,15 @@
 ** packaging of this file.
 **
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses for Qt/Embedded may use this file in accordance with the
-** Qt Embedded Commercial License Agreement provided with the Software.
+** licenses for Unix/X11 may use this file in accordance with the Qt Commercial
+** License Agreement provided with the Software.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 **   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
 ** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
 ** Contact info@trolltech.com if any conditions of this licensing are
@@ -35,10 +40,8 @@
 #ifndef QT_NO_PRINTER
 
 #include "qpaintdevicemetrics.h"
-#include "qfile.h"
-#include "qfileinfo.h"
-#include "qdir.h"
 #include "qpsprinter_p.h"
+#include "qprintdialog.h"
 #include "qapplication.h"
 #include <stdlib.h>
 
@@ -60,6 +63,8 @@
 #include <process.h>
 #endif
 
+// NOT REVISED
+
 /*****************************************************************************
   QPrinter member functions
  *****************************************************************************/
@@ -71,6 +76,10 @@
 #define PST_ERROR	2
 #define PST_ABORTED	3
 
+
+/*!
+  Constructs a printer paint device.
+*/
 
 QPrinter::QPrinter()
     : QPaintDevice( QInternal::Printer | QInternal::ExternalDevice )
@@ -84,7 +93,12 @@ QPrinter::QPrinter()
     state = PST_IDLE;
     output_file = FALSE;
     to_edge	= FALSE;
+    res = 72;
 }
+
+/*!
+  Destructs the printer paint device and cleans up.
+*/
 
 QPrinter::~QPrinter()
 {
@@ -97,12 +111,24 @@ QPrinter::~QPrinter()
 }
 
 
+/*!
+  Advances to a new page on the printer.
+  Returns TRUE if successful, otherwise FALSE.
+*/
+
 bool QPrinter::newPage()
 {
     if ( state == PST_ACTIVE && pdrv )
 	return ((QPSPrinter*)pdrv)->cmd( QPSPrinter::NewPage, 0, 0 );
     return FALSE;
 }
+
+
+/*!
+  Aborts the print job.
+  Returns TRUE if successful, otherwise FALSE.
+  \sa aborted()
+*/
 
 bool QPrinter::abort()
 {
@@ -118,35 +144,45 @@ bool QPrinter::abort()
     return state == PST_ABORTED;
 }
 
+/*!
+  Returns TRUE is the printer job was aborted, otherwise FALSE.
+  \sa abort()
+*/
+
 bool QPrinter::aborted() const
 {
     return state == PST_ABORTED;
 }
 
 
+/*!
+  Opens a printer setup dialog and asks the user to specify what printer
+  to use and miscellaneous printer settings.
+
+  Returns TRUE if the user pressed "OK" to print, or FALSE if the
+  user cancelled the operation.
+*/
+
 bool QPrinter::setup( QWidget * /*parent*/ )
 {
-    return TRUE;
+    return QPrintDialog::getPrinterSetup( this );
 }
+
+
+/*!
+  \internal
+  Handles painter commands to the printer.
+*/
 
 bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 {
     if ( c ==  PdcBegin ) {
 	if ( state == PST_IDLE ) {
 	    if ( output_file ) {
-#if defined(Q_OS_WIN32)
-		int fd;
-		if ( qt_winver == Qt::WV_NT )
-		    fd = _topen( qt_winTchar(output_filename,TRUE),
-				_O_CREAT | _O_BINARY | _O_TRUNC | _O_WRONLY );
-		else
-		    fd = _open( output_filename.ascii(),
-				_O_CREAT | _O_BINARY | _O_TRUNC | _O_WRONLY );
-#else
-		int fd = ::open( output_filename.local8Bit(),
-				 O_CREAT | O_NOCTTY | O_TRUNC | O_WRONLY,
-				 0666 );
-#endif
+		int fd = 0;
+		fd = ::open( output_filename.local8Bit(),
+			     O_CREAT | O_NOCTTY | O_TRUNC | O_WRONLY,
+			     0666 );
 		if ( fd >= 0 ) {
 		    pdrv = new QPSPrinter( this, fd );
 		    state = PST_ACTIVE;
@@ -155,10 +191,6 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		QString pr;
 		if ( printer_name )
 		    pr = printer_name;
-#if defined(Q_OS_WIN32)
-		// Not implemented
-		// lpr needs -Sserver argument
-#else
 		QApplication::flushX();
 		int fds[2];
 		if ( pipe( fds ) != 0 ) {
@@ -166,13 +198,15 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    state = PST_ERROR;
 		    return FALSE;
 		}
+		
+// ### shouldn't we use QProcess here????   
 #if 0 && defined(Q_OS_OS2EMX)
 		// this code is still not used, and maybe it's not
 		// usable either, any more.  if you want to use it,
 		// you may need to fix it first.
-		
+
 		// old comment:
-		
+
 		// this code is usable but not in use.  spawn() is
 		// preferable to fork()/exec() for very large
 		// programs.  if fork()/exec() is a problem and you
@@ -206,7 +240,13 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    // files, if possible.  if not we assume it's the
 		    // larger of 256 and the fd we got
 		    int i;
-#if defined(_SC_OPEN_MAX)
+#if defined(Q_OS_OS2EMX)
+		    LONG req_count = 0;
+		    ULONG rc, handle_count;
+		    rc = DosSetRelMaxFH (&req_count, &handle_count);
+		    /* if (rc != NO_ERROR) ... */
+		    i = (int)handle_count;
+#elif defined(_SC_OPEN_MAX)
 		    i = (int)sysconf( _SC_OPEN_MAX );
 #elif defined(_POSIX_OPEN_MAX)
 		    i = (int)_POSIX_OPEN_MAX;
@@ -214,7 +254,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    i = (int)OPEN_MAX;
 #else
 		    i = QMAX( 256, fds[0] );
-#endif // ways-to-set i
+#endif // Q_OS_OS2EMX 		// ways-to-set i
 		    while( --i > 0 )
 			::close( i );
 
@@ -230,10 +270,14 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 			QString lprhack;
 			const char * lparg = 0;
 			QString lphack;
-			if ( pr && option_string ) {
-			    lprhack = QString::fromLatin1( "-P" ) + pr;
+			if ( pr || option_string ) {
+			    lprhack = pr;
+			    lprhack.prepend( option_string ? option_string :
+					     QString::fromLatin1( "-P" ) );
 			    lprarg = lprhack.ascii();
-			    lphack = QString::fromLatin1( "-d" ) + pr;
+			    lphack = pr;
+			    lphack.prepend( option_string ? option_string :
+					    QString::fromLatin1( "-d" ) );
 			    lparg = lphack.ascii();
 			}
 			(void)execlp( "lp", "lp", lparg, 0 );
@@ -256,7 +300,6 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    state = PST_ACTIVE;
 		}
 #endif // else part of Q_OS_OS2EMX
-#endif // else part for #if Q_OS_WIN32
 	    }
 	    if ( state == PST_ACTIVE && pdrv )
 		return ((QPSPrinter*)pdrv)->cmd( c, paint, p );
@@ -283,6 +326,15 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 }
 
 
+/*!
+  Internal implementation of the virtual QPaintDevice::metric() function.
+
+  Use the QPaintDeviceMetrics class instead.
+
+  \internal
+  Hard coded return values for PostScript under X.
+*/
+
 int QPrinter::metric( int m ) const
 {
     int val;
@@ -295,53 +347,80 @@ int QPrinter::metric( int m ) const
 			     2920, 2064, 91, 1460, 1032, 729, 516, 363, 258,
 			     181, 127, 461, 297, 312, 595, 1224, 792 };
 
-    static int heights[] = { 842, 729, 791, 1009, 720,
+    static int heights[] = { 842, 729, 792, 1009, 720,
 			     3370, 2384, 1684, 1191, 595, 420, 297, 210, 148,
 			     4127, 2920, 127, 2064, 1460, 1032, 729, 516, 363,
 			     258, 181, 648, 684, 624, 935, 792, 1224 };
     switch ( m ) {
-	case QPaintDeviceMetrics::PdmWidth:
-	    val = orient == Portrait ? widths[ s ] : heights[ s ];
-	    if ( !fullPage() )
-		val -= 2*margins().width();
-	    break;
-	case QPaintDeviceMetrics::PdmHeight:
-	    val = orient == Portrait ? heights[ s ] : widths[ s ];
-	    if ( !fullPage() )
-		val -= 2*margins().height();
-	    break;
-	case QPaintDeviceMetrics::PdmDpiX:
+    case QPaintDeviceMetrics::PdmWidth:
+	val = orient == Portrait ? widths[ s ] : heights[ s ];
+	if ( res != 72 )
+	    val = (val * res + 36) / 72;
+	if ( !fullPage() )
+	    val -= 2*margins().width();
+	break;
+    case QPaintDeviceMetrics::PdmHeight:
+	val = orient == Portrait ? heights[ s ] : widths[ s ];
+	if ( res != 72 )
+	    val = (val * res + 36) / 72;
+	if ( !fullPage() )
+	    val -= 2*margins().height();
+	break;
+    case QPaintDeviceMetrics::PdmDpiX:
+	val = res;
+	break;
+    case QPaintDeviceMetrics::PdmDpiY:
+	val = res;
+	break;
+	case QPaintDeviceMetrics::PdmPhysicalDpiX:
+	case QPaintDeviceMetrics::PdmPhysicalDpiY:
 	    val = 72;
 	    break;
-	case QPaintDeviceMetrics::PdmDpiY:
-	    val = 72;
-	    break;
-	case QPaintDeviceMetrics::PdmWidthMM:
-	    val = metric( QPaintDeviceMetrics::PdmWidth );
-	    val = (val * 254 + 360) / 720; // +360 to get the right rounding
-	    break;
-	case QPaintDeviceMetrics::PdmHeightMM:
-	    val = metric( QPaintDeviceMetrics::PdmHeight );
-	    val = (val * 254 + 360) / 720;
-	    break;
-	case QPaintDeviceMetrics::PdmNumColors:
-	    val = 16777216;
-	    break;
-	case QPaintDeviceMetrics::PdmDepth:
-	    val = 24;
-	    break;
-	default:
-	    val = 0;
+    case QPaintDeviceMetrics::PdmWidthMM:
+	// double rounding error here.  hooray.
+	val = metric( QPaintDeviceMetrics::PdmWidth );
+	val = (val * 254 + 5*res) / (10*res);
+	break;
+    case QPaintDeviceMetrics::PdmHeightMM:
+	val = metric( QPaintDeviceMetrics::PdmHeight );
+	val = (val * 254 + 5*res) / (10*res);
+	break;
+    case QPaintDeviceMetrics::PdmNumColors:
+	val = 16777216;
+	break;
+    case QPaintDeviceMetrics::PdmDepth:
+	val = 24;
+	break;
+    default:
+	val = 0;
 #if defined(QT_CHECK_RANGE)
-	    qWarning( "QPixmap::metric: Invalid metric command" );
+	qWarning( "QPixmap::metric: Invalid metric command" );
 #endif
     }
     return val;
 }
 
+
+/*!  Returns the width of the left/right and top/bottom margins of the
+printer.  This is a best-effort guess, not based on perfect knowledge.
+
+If you have called setFullPage( TRUE ) (this is recommended for
+high-quality printing), margins().width() may be treated as the
+smallest sane left/right margin you can use, and margins().height() as
+the smallest sane top/bottom margins you can use.
+
+If you have called setFullPage( FALSE ) (this is the default),
+margins() is automatically subtracted from the pageSize() by QPrinter.
+
+\sa setFullPage() QPaintDeviceMetrics PageSize
+*/
+
 QSize QPrinter::margins() const
 {
-    return QSize( 36, 22 );
+    if (orient == Portrait)
+	return QSize( res/2, res/3 );
+
+    return QSize( res/3, res/2 );
 }
 
-#endif // QT_NO_PRINTER
+#endif

@@ -126,7 +126,6 @@ kernel {
 			  $$KERNEL_CPP/qfont_x11.cpp \
 			  $$KERNEL_CPP/qmotifdnd_x11.cpp \
 			  $$KERNEL_CPP/qpixmap_x11.cpp \
-			  $$KERNEL_CPP/qprinter_x11.cpp \
 			  $$KERNEL_CPP/qpaintdevice_x11.cpp \
 			  $$KERNEL_CPP/qpainter_x11.cpp \
 			  $$KERNEL_CPP/qregion_x11.cpp \
@@ -156,6 +155,7 @@ kernel {
         }
 
 	unix:SOURCES += $$KERNEL_CPP/qpsprinter.cpp \
+		    $$KERNEL_CPP/qprinter_unix.cpp \
 		    $$KERNEL_CPP/qprocess_unix.cpp \
 		    $$KERNEL_CPP/qthread_unix.cpp
 
