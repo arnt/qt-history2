@@ -216,16 +216,7 @@ void FormWindowManager::setActiveFormWindow(AbstractFormWindow *w)
 
     if (m_activeFormWindow) {
         m_activeFormWindow->emitSelectionChanged();
-    }
-
-    if (old != 0) {
-        disconnect(m_actionUndo, 0, old->commandHistory(), 0);
-        disconnect(m_actionRedo, 0, old->commandHistory(), 0);
-    }
-
-    if (m_activeFormWindow != 0) {
-        connect(m_actionUndo, SIGNAL(triggered()), m_activeFormWindow->commandHistory(), SLOT(undo()));
-        connect(m_actionRedo, SIGNAL(triggered()), m_activeFormWindow->commandHistory(), SLOT(redo()));
+        m_activeFormWindow->commandHistory()->setCurrent();
     }
 }
 

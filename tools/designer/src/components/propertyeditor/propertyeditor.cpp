@@ -97,6 +97,7 @@ IconPropertyEditor::IconPropertyEditor(AbstractFormEditor *core, const QIcon &pm
     m_core = core;
 
     QHBoxLayout *layout = new QHBoxLayout(this);
+    layout->setMargin(2);
     
     m_label = new QLabel(tr("<no icon>"), this);
     layout->addWidget(m_label);

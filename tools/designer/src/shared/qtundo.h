@@ -96,6 +96,8 @@ class QT_SHARED_EXPORT QtUndoStack : public QObject, private QList<QtCommand*>
         QStringList redoList() const;
         bool isClean() const;
 
+        void setCurrent();
+        
         QAction *createUndoAction(QObject *parent) const;
         QAction *createRedoAction(QObject *parent) const;
 
@@ -160,10 +162,10 @@ class QT_SHARED_EXPORT QtUndoManager : public QObject
         uint undoLimit() const;
         QStringList undoList() const;
         QStringList redoList() const;
+        QtUndoStack *currentStack() const;
+        void setCurrentStack(QtUndoStack *stack);
 
         static QtUndoManager *manager();
-
-        virtual bool eventFilter(QObject *obj, QEvent *e);
 
     public slots:
         void undo(int count = 1);
@@ -186,10 +188,8 @@ class QT_SHARED_EXPORT QtUndoManager : public QObject
     private:
         typedef QMap<QObject*, QtUndoStack*> StackMap;
 
-        QtUndoStack *currentStack() const;
-
         StackMap m_stack_map;
-        mutable QtUndoStack *m_current_stack;
+        QtUndoStack *m_current_stack;
 
         static QtUndoManager *m_manager; // singleton
         static uint m_undo_limit;

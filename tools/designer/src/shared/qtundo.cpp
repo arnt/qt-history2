@@ -870,6 +870,11 @@ QString QtUndoStack::redoDescription() const
         return QString();
 }
 
+void QtUndoStack::setCurrent()
+{
+    QtUndoManager::manager()->setCurrentStack(this);
+}
+
 /*!
     Clears all the commands on this undo stack.
 
@@ -1157,8 +1162,6 @@ QtUndoManager::QtUndoManager()
     m_can_redo = false;
 
     updateActions();
-
-    qApp->installEventFilter(this);
 }
 
 /*!
@@ -1227,8 +1230,6 @@ QAction *QtUndoManager::createRedoAction(QObject *parent) const
 
 void QtUndoManager::updateActions()
 {
-    bool changed = false;
-
     QtUndoStack *stack = currentStack();
 
     bool undo_enabled = stack != 0 && stack->canUndo();
@@ -1237,12 +1238,11 @@ void QtUndoManager::updateActions()
         undo_description += " " + stack->undoDescription();
 
     if (undo_enabled != m_can_undo) {
-        changed = true;
         m_can_undo = undo_enabled;
         emit canUndoChanged(undo_enabled);
     }
+    
     if (undo_description != m_undo_description) {
-        changed = true;
         m_undo_description = undo_description;
         emit undoDescriptionChanged(undo_description);
     }
@@ -1253,17 +1253,13 @@ void QtUndoManager::updateActions()
         redo_description += " " + stack->redoDescription();
 
     if (redo_enabled != m_can_redo) {
-        changed = true;
         m_can_redo = redo_enabled;
         emit canRedoChanged(redo_enabled);
     }
     if (redo_description != m_redo_description) {
-        changed = true;
         m_redo_description = redo_description;
         emit redoDescriptionChanged(redo_description);
     }
-/*    if (changed)
-            emit QtUndoManager::changed(); */
 }
 
 /*!
@@ -1412,6 +1408,12 @@ QtUndoManager *QtUndoManager::manager()
     \sa associateView()
 */
 
+void QtUndoManager::setCurrentStack(QtUndoStack *stack)
+{
+    m_current_stack = stack;
+    updateActions();
+}
+
 void QtUndoManager::disassociateView(QObject *obj)
 {
     if (obj == 0) {
@@ -1491,28 +1493,8 @@ void QtUndoManager::setUndoLimit(uint i)
 
 /*! \internal */
 
-bool QtUndoManager::eventFilter(QObject*, QEvent *e)
-{
-    if (e->type() == QEvent::FocusIn || e->type() == QEvent::FocusOut)
-        updateActions();
-
-    return false;
-}
-
-/*! \internal */
-
 QtUndoStack *QtUndoManager::currentStack() const
 {
-    QWidget *w = qApp->focusWidget();
-    while (w != 0) {
-        StackMap::const_iterator it = m_stack_map.find(w);
-        if (it != m_stack_map.end()) {
-            m_current_stack = (QtUndoStack*) *it;
-            break;
-        }
-        w = w->parentWidget();
-    }
-
     return m_current_stack;
 }
 
