@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#29 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#30 $
 **
 ** Implementation of QBuffer class
 **
@@ -12,7 +12,7 @@
 #include "qbuffer.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#29 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#30 $");
 
 
 /*!
@@ -243,7 +243,7 @@ int QBuffer::readBlock( char *p, uint len )
 	    setStatus( IO_ReadError );
 	    return -1;
 	} else {
-	    len = a.size() - (uint)index - 1;
+	    len = a.size() - (uint)index;
 	}
     }
     memcpy( p, a.data()+index, len );
