@@ -220,11 +220,6 @@ QString	QAccessibleWidget::defaultAction( int who ) const
 
 /*!
   \reimp
-
-  Returns the object's className() when no description is provided 
-  and if compiled with debug symbols.
-
-  \sa QObject::className
 */
 QString	QAccessibleWidget::description( int who ) const
 {
@@ -232,10 +227,8 @@ QString	QAccessibleWidget::description( int who ) const
 #if defined(QT_DEBUG)
     if ( who )
 	qWarning( "QAccessibleWidget::description: This implementation does not support subelements!" );
-    return !!description_ ? description_ : widget_->className();
-#else
-    return description_;
 #endif
+    return description_;
 }
 
 /*!
@@ -267,11 +260,10 @@ QString	QAccessibleWidget::accelerator( int who ) const
 /*!
   \reimp
 
-  If the widget is a top level widget, the caption() is returned.
-  Returns the object's name when no  name is provided otherwise and
-  if compiled with debug symbols 
+  If the widget is a top level widget and no name has been set in the constructor, 
+  the widget's caption() is returned.
 
-  \a QWidget::caption, QObject::name
+  \a QWidget::caption
 */
 QString	QAccessibleWidget::name( int who ) const
 {
@@ -280,13 +272,9 @@ QString	QAccessibleWidget::name( int who ) const
     if ( who )
 	qWarning( "QAccessibleWidget::name: This implementation does not support subelements!" );
 #endif
-    if ( widget_->isTopLevel() )
+    if ( name_.isNull() && widget_->isTopLevel() )
 	return widget_->caption();
-#if defined(QT_DEBUG)
-    return !!name_ ? name_ : widget_->name();
-#else
     return name_;
-#endif
 }
 
 /*!

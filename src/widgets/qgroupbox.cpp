@@ -680,7 +680,7 @@ QSize QGroupBox::sizeHint() const
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 QAccessibleInterface *QGroupBox::accessibleInterface()
 {
-    return new QAccessibleWidget( this, QAccessible::Grouping );
+    return new QAccessibleDisplay( this, QAccessible::Grouping );
 }
 #endif
 
