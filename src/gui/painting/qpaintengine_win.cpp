@@ -432,7 +432,8 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
     SelectObject(d->hdc, stock_nullBrush);
     SelectObject(d->hdc, stock_blackPen);
 
-    setDirty(DirtyBackground);
+    setDirty(QPaintEngine::DirtyBackground);
+    setDirty(QPaintEngine::DirtyBrush);
 
     d->ellipseHack = false;
 
