@@ -762,8 +762,8 @@ for plat in mac win x11 embedded; do
 	if [ "$plat" = "win" ]; then
 	    rm -rf "$PLATDIR/doc/man"
 	    #since there is no man pages, move all docs to doc/
-	    mv $PLATDIR/doc/html/* $PLATDIR/doc
-	    rm -rf $PLATDIR/doc/html
+	    #mv $PLATDIR/doc/html/* $PLATDIR/doc
+	    #rm -rf $PLATDIR/doc/html
 	fi
 
 	#remove excess files needed to generate documentation, but no longer needed for package
