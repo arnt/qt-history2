@@ -166,7 +166,7 @@ for file in $FILES; do
 	 myexpr "$file" : '^tests\/' ||
 
 	 # utils, except scripts
-	 { myexpr "$file" : '^util\/' && ! myexpr "$file" : '^util\/scripts\/' } ||
+	 { myexpr "$file" : '^util\/' && ! myexpr "$file" : '^util\/scripts\/' ; } ||
 
 	 # no ~ files
 	 myexpr "$file_BASE" : '.*~$' ||
@@ -179,13 +179,13 @@ for file in $FILES; do
 	 [ "$file" = "LICENSE.TROLL" ] ||
 
 	 # no makefiles, except freetype2
-	 { [ "$file_BASE" = "GNUmakefile" ] && myexpr "$file" : 'src\/3rdparty\/freetype2\/' }   ||
-	 { [ "$file_BASE" = "GNUmakefile-kde" ] && myexpr "$file" : 'src\/3rdparty\/freetype2\/' } ||
-	 { [ "$file_BASE" = "Makefile" ] && myexpr "$file" : 'src\/3rdparty\/freetype2\/' } ||
+	 { [ "$file_BASE" = "GNUmakefile" ] && myexpr "$file" : 'src\/3rdparty\/freetype2\/' ; }   ||
+	 { [ "$file_BASE" = "GNUmakefile-kde" ] && myexpr "$file" : 'src\/3rdparty\/freetype2\/' ; } ||
+	 { [ "$file_BASE" = "Makefile" ] && myexpr "$file" : 'src\/3rdparty\/freetype2\/' ; } ||
 	 myexpr "$file" : 'src\/Makefile\..*' ||
 
 	 # no mak files
-	 { myexpr "$file_BASE" : '.*\.mak$' && ! myexpr "$file_BASE" : '.*\/libpng\/' } ||
+	 { myexpr "$file_BASE" : '.*\.mak$' && ! myexpr "$file_BASE" : '.*\/libpng\/' ; } ||
 
 	 # no *.inc files
 	 myexpr "$file_BASE" : '.*\.inc$' ||
@@ -200,7 +200,7 @@ for file in $FILES; do
 	 myexpr "$file" : "^util\/scripts\/" ||
 
 	 # everything in the subdirectories of src/doc/
-	 { myexpr "$file" : "^src\/doc\/" && [ ! "$file_BASE" = "Makefile" ] } ||
+	 { myexpr "$file" : "^src\/doc\/" && [ ! "$file_BASE" = "Makefile" ] ; } ||
 
 	 # all c++ files under .../src/
 	 myexpr "$file" : "\(^|\/\)src\/.*\.\(\(cpp\)|h|c|\(pro\)\)$" ||
@@ -275,7 +275,7 @@ for file in $FILES; do
 	 myexpr "$file" : "src\/3rdparty\/libmng\/" ||
 	 myexpr "$file" : "src\/3rdparty\/libpng\/" ||
 	 myexpr "$file" : "src\/3rdparty\/freetype2\/" ||
-	 { myexpr "$file" : 'src\/3rdparty\/zlib\/' && [ ! "$file_BASE" = "Makefile" ] } ||
+	 { myexpr "$file" : 'src\/3rdparty\/zlib\/' && [ ! "$file_BASE" = "Makefile" ] ; } ||
 	 # More  of nsplugin example
 	 myexpr "$file" : "extensions\/nsplugin\/examples\/.*\.\(\(mng\)|\(def\)|\(rc\)|\(cgi\)|\(g1n\)\)$" ||
 
@@ -305,7 +305,7 @@ if [ "$type" != "-snapshot" ] && ! myexpr "$type" : "^-beta[0-9]*$"; then
     die "The qt version is $BRANCH$type, which confuses me terribly";
 fi
 
-#fix $Id: //depot/qt/main/util/scripts/mkdists#52 $
+#fix $Id: //depot/qt/main/util/scripts/mkdists#53 $
 echo "Marking \$ID\$..."
 for a in `find $DISTDIR/qt`; do
     if [ -f $a ] && [ ! -L $a ] && grep $a '\$Id.*\$' >/dev/null 2>&1; then
@@ -313,7 +313,7 @@ for a in `find $DISTDIR/qt`; do
 	[ -x $a ] && execut="yes"
 
 	tag_ID="`echo $a | sed "s,^.*/,qt/,"`   ${version}${type}   edit FIXME"
-	sed "s,\$Id: //depot/qt/main/util/scripts/mkdists#52 $]*\$,$Id: //depot/qt/main/util/scripts/mkdists#52 ${tag_ID} $,g" $a >/tmp/tmpf
+	sed "s,\$Id: //depot/qt/main/util/scripts/mkdists#53 $]*\$,$Id: //depot/qt/main/util/scripts/mkdists#53 ${tag_ID} $,g" $a >/tmp/tmpf
 	rm -f $a
 	mv /tmp/tmpf $a
 	if [ "$execut" = "yes" ]; then
