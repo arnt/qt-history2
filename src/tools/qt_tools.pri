@@ -28,6 +28,7 @@ tools {
 		  $$TOOLS_H/qgeneric.h \
 		  $$TOOLS_H/qglist.h \
 		  $$TOOLS_H/qglobal.h \
+		  $$TOOLS_H/qhash.h \
 		  $$TOOLS_H/qlist.h \
 		  $$TOOLS_P/qgpluginmanager_p.h \
 		  $$TOOLS_H/qgvector.h \
@@ -60,7 +61,8 @@ tools {
 		  $$TOOLS_H/qvaluevector.h \
 		  $$TOOLS_P/qcom_p.h \
 		  $$TOOLS_P/qucom_p.h \
-		  $$TOOLS_H/quuid.h
+		  $$TOOLS_H/quuid.h \
+		  $$TOOLS_H/qvector.h
 
 	win32:SOURCES += $$TOOLS_CPP/qdir_win.cpp \
 	 	  $$TOOLS_CPP/qfile_win.cpp \
@@ -105,6 +107,7 @@ tools {
 		  $$TOOLS_CPP/qgdict.cpp \
 		  $$TOOLS_CPP/qglist.cpp \
 		  $$TOOLS_CPP/qglobal.cpp \
+		  $$TOOLS_CPP/qhash.cpp \
 		  $$TOOLS_CPP/qlist.cpp \
 		  $$TOOLS_CPP/qgpluginmanager.cpp \
 		  $$TOOLS_CPP/qgvector.cpp \
@@ -119,5 +122,6 @@ tools {
 		  $$TOOLS_CPP/qtextstream.cpp \
 		  $$TOOLS_CPP/qunicodetables.cpp \
 		  $$TOOLS_CPP/qucom.cpp \
-		  $$TOOLS_CPP/quuid.cpp
+		  $$TOOLS_CPP/quuid.cpp \
+		  $$TOOLS_CPP/qvector.cpp
 }
