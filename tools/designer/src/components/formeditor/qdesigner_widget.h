@@ -15,6 +15,7 @@
 #define QDESIGNER_WIDGET_H
 
 #include "formeditor_global.h"
+#include "layoutdecoration.h"
 #include <abstractmetadatabase.h>
 
 #include <QWidget>
@@ -57,14 +58,6 @@ class QT_FORMEDITOR_EXPORT QLayoutSupport: public QObject
 {
     Q_OBJECT
 public:
-    enum InsertMode
-    {
-        InsertWidgetMode,
-        InsertRowMode,
-        InsertColumnMode
-    };
-
-public:
     QLayoutSupport(FormWindow *formWindow, QWidget *widget, QObject *parent = 0);
     virtual ~QLayoutSupport();
 
@@ -82,7 +75,7 @@ public:
     inline int currentIndex() const
     { return m_currentIndex; }
 
-    inline InsertMode currentInsertMode() const
+    inline ILayoutDecoration::InsertMode currentInsertMode() const
     { return m_currentInsertMode; }
 
     inline QPair<int, int> currentCell() const
@@ -121,7 +114,7 @@ private:
     QPointer<QWidget> m_indicatorRight;
     QPointer<QWidget> m_indicatorBottom;
     int m_currentIndex;
-    InsertMode m_currentInsertMode;
+    ILayoutDecoration::InsertMode m_currentInsertMode;
     QPair<int, int> m_currentCell;
 };
 
@@ -144,6 +137,9 @@ public:
 
     inline FormWindow *formWindow() const
     { return m_formWindow; }
+
+    inline QLayoutSupport *support() const
+    { return const_cast<QLayoutSupport*>(&m_support); }
 
     inline int findItemAt(const QPoint &pos) const
     { return m_support.findItemAt(pos); }

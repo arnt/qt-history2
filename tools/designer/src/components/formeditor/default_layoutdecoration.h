@@ -29,12 +29,17 @@ class QT_FORMEDITOR_EXPORT QDesignerLayoutDecoration: public QObject, public ILa
 public:
     QDesignerLayoutDecoration(QLayoutWidget *widget, QObject *parent = 0);
     QDesignerLayoutDecoration(FormWindow *formWindow, QWidget *widget, QObject *parent = 0);
-    
+
+    virtual InsertMode currentInsertMode() const;
+    virtual int currentIndex() const;
+    virtual QPair<int, int> currentCell() const;
+    virtual void insertWidget(QWidget *widget);
+    virtual void removeWidget(QWidget *widget);
+
     virtual int findItemAt(const QPoint &pos) const;
     virtual void adjustIndicator(const QPoint &pos, int index);
-    
+
 private:
-    QLayoutWidget *m_layoutWidget;
     QLayoutSupport *m_layoutSupport;
 };
 

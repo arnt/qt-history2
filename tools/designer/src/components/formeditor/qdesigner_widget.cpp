@@ -375,7 +375,7 @@ QLayoutSupport::QLayoutSupport(FormWindow *formWindow, QWidget *widget, QObject 
       m_formWindow(formWindow),
       m_widget(widget),
       m_currentIndex(-1),
-      m_currentInsertMode(QLayoutSupport::InsertWidgetMode)
+      m_currentInsertMode(ILayoutDecoration::InsertWidgetMode)
 {
     QPalette p;
     p.setColor(QPalette::Background, Qt::red);
@@ -428,7 +428,7 @@ void QLayoutSupport::adjustIndicator(const QPoint &pos, int index)
     }
 
     m_currentIndex = index;
-    m_currentInsertMode = QLayoutSupport::InsertWidgetMode;
+    m_currentInsertMode = ILayoutDecoration::InsertWidgetMode;
 
     QLayoutItem *item = layout()->itemAt(index);
     QRect g = item->geometry();
@@ -483,7 +483,7 @@ void QLayoutSupport::adjustIndicator(const QPoint &pos, int index)
                 m_indicatorRight->raise();
 
                 if (QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout())) {
-                    m_currentInsertMode = QLayoutSupport::InsertColumnMode;
+                    m_currentInsertMode = ILayoutDecoration::InsertColumnMode;
                     int row, column, rowspan, colspan;
                     gridLayout->getItemPosition(m_currentIndex, &row, &column, &rowspan, &colspan);
                     int incr = (mx == dx1) ? 0 : +1;
@@ -499,7 +499,7 @@ void QLayoutSupport::adjustIndicator(const QPoint &pos, int index)
                 m_indicatorBottom->raise();
 
                 if (QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout())) {
-                    m_currentInsertMode = QLayoutSupport::InsertRowMode;
+                    m_currentInsertMode = ILayoutDecoration::InsertRowMode;
                     int row, column, rowspan, colspan;
                     gridLayout->getItemPosition(m_currentIndex, &row, &column, &rowspan, &colspan);
                     int incr = (my == dy1) ? 0 : +1;
@@ -602,7 +602,7 @@ void QLayoutSupport::insertWidget(QWidget *widget)
             int index = currentIndex() != -1 ? currentIndex() : findItemAt(pos);
 
             switch (currentInsertMode()) {
-                case QLayoutSupport::InsertColumnMode: {
+                case ILayoutDecoration::InsertColumnMode: {
                     insertColumn(currentCell().second);
                     layout()->activate();
                     int new_index = findItemAt(currentCell().first, currentCell().second);
@@ -610,14 +610,14 @@ void QLayoutSupport::insertWidget(QWidget *widget)
                     insertWidget(new_index, widget);
                 } break;
 
-                case QLayoutSupport::InsertRowMode: {
+                case ILayoutDecoration::InsertRowMode: {
                     insertRow(currentCell().first);
                     int new_index = findItemAt(currentCell().first, currentCell().second);
                     Q_ASSERT(new_index != -1);
                     insertWidget(new_index, widget);
                 } break;
 
-                case QLayoutSupport::InsertWidgetMode: {
+                case ILayoutDecoration::InsertWidgetMode: {
                     insertWidget(index, widget);
                     return;
                 } break;

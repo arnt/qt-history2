@@ -20,33 +20,52 @@
 
 // ---- QDesignerLayoutDecoration ----
 QDesignerLayoutDecoration::QDesignerLayoutDecoration(QLayoutWidget *widget, QObject *parent)
-    : QObject(parent), 
-      m_layoutWidget(widget), 
-      m_layoutSupport(0)
+    : QObject(parent),
+      m_layoutSupport(widget->support())
 {
+    Q_ASSERT(m_layoutSupport);
 }
 
 QDesignerLayoutDecoration::QDesignerLayoutDecoration(FormWindow *formWindow, QWidget *widget, QObject *parent)
     : QObject(parent),
-      m_layoutWidget(0),
       m_layoutSupport(new QLayoutSupport(formWindow, widget, this))
 {
+    Q_ASSERT(m_layoutSupport);
 }
-    
+
+QDesignerLayoutDecoration::InsertMode QDesignerLayoutDecoration::currentInsertMode() const
+{
+    return m_layoutSupport->currentInsertMode();
+}
+
+void QDesignerLayoutDecoration::insertWidget(QWidget *widget)
+{
+    m_layoutSupport->insertWidget(widget);
+}
+
+void QDesignerLayoutDecoration::removeWidget(QWidget *widget)
+{
+    m_layoutSupport->removeWidget(widget);
+}
+
+int QDesignerLayoutDecoration::currentIndex() const
+{
+    return m_layoutSupport->currentIndex();
+}
+
+QPair<int, int> QDesignerLayoutDecoration::currentCell() const
+{
+    return m_layoutSupport->currentCell();
+}
+
 int QDesignerLayoutDecoration::findItemAt(const QPoint &pos) const
 {
-    if (m_layoutWidget)
-        return m_layoutWidget->findItemAt(pos);
-        
     return m_layoutSupport->findItemAt(pos);
 }
 
 void QDesignerLayoutDecoration::adjustIndicator(const QPoint &pos, int index)
 {
-    if (m_layoutWidget)
-        m_layoutWidget->adjustIndicator(pos, index);
-    else
-        m_layoutSupport->adjustIndicator(pos, index);
+    m_layoutSupport->adjustIndicator(pos, index);
 }
 
 // ---- QDesignerLayoutDecorationFactory ----
@@ -59,7 +78,7 @@ QObject *QDesignerLayoutDecorationFactory::createExtension(QObject *object, cons
 {
     if (iid != Q_TYPEID(ILayoutDecoration))
         return 0;
-        
+
     if (QLayoutWidget *widget = qt_cast<QLayoutWidget*>(object)) {
         return new QDesignerLayoutDecoration(widget, parent);
     } else if (QWidget *widget = static_cast<QWidget*>(object)) {
@@ -67,7 +86,7 @@ QObject *QDesignerLayoutDecorationFactory::createExtension(QObject *object, cons
             AbstractMetaDataBaseItem *item = fw->core()->metaDataBase()->item(widget->layout());
             return item ? new QDesignerLayoutDecoration(fw, widget, parent) : 0;
         }
-    } 
-    
+    }
+
     return 0;
 }

@@ -16,13 +16,27 @@
 
 #include <extension.h>
 #include <QObject>
+#include <qpair.h>
 
 class QPoint;
 
 struct ILayoutDecoration
 {
+    enum InsertMode
+    {
+        InsertWidgetMode,
+        InsertRowMode,
+        InsertColumnMode
+    };
+
     virtual ~ILayoutDecoration() {}
-    
+
+    virtual InsertMode currentInsertMode() const = 0;
+    virtual int currentIndex() const = 0;
+    virtual QPair<int, int> currentCell() const = 0;
+    virtual void insertWidget(QWidget *widget) = 0;
+    virtual void removeWidget(QWidget *widget) = 0;
+
     virtual int findItemAt(const QPoint &pos) const = 0;
     virtual void adjustIndicator(const QPoint &pos, int index) = 0;
 };

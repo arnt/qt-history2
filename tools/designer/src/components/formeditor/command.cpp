@@ -220,14 +220,14 @@ void InsertWidgetCommand::redo()
     checkObjectName(m_widget);
 
     QWidget *parentWidget = m_widget->parentWidget();
-    if (QLayoutWidget *g = qt_cast<QLayoutWidget*>(parentWidget)) {
-        g->insertWidget(m_widget);
-        formWindow()->emitGeometryChanged(parentWidget);
-    } else if (hasLayout(parentWidget)) {
-        QLayoutSupport support(formWindow(), parentWidget);
-        support.insertWidget(m_widget);
-        formWindow()->emitGeometryChanged(parentWidget);
-    }
+
+    AbstractFormEditor *core = formWindow()->core();
+    ILayoutDecoration *deco = qt_extension<ILayoutDecoration*>(core->extensionManager(), parentWidget);
+    if (!deco && hasLayout(parentWidget))
+        deco = qt_extension<ILayoutDecoration*>(core->extensionManager(), parentWidget);
+
+    if (deco)
+        deco->insertWidget(m_widget);
 
     formWindow()->manageWidget(m_widget);
     m_widget->show();
@@ -236,12 +236,14 @@ void InsertWidgetCommand::redo()
 void InsertWidgetCommand::undo()
 {
     QWidget *parentWidget = m_widget->parentWidget();
-    if (QLayoutWidget *g = qt_cast<QLayoutWidget*>(parentWidget)) {
-        g->removeWidget(m_widget);
-        formWindow()->emitGeometryChanged(parentWidget);
-    } else if (hasLayout(parentWidget)) {
-        QLayoutSupport support(formWindow(), parentWidget);
-        support.removeWidget(m_widget);
+
+    AbstractFormEditor *core = formWindow()->core();
+    ILayoutDecoration *deco = qt_extension<ILayoutDecoration*>(core->extensionManager(), parentWidget);
+    if (!deco && hasLayout(parentWidget))
+        deco = qt_extension<ILayoutDecoration*>(core->extensionManager(), parentWidget);
+
+    if (deco) {
+        deco->removeWidget(m_widget);
         formWindow()->emitGeometryChanged(parentWidget);
     }
 
