@@ -21,7 +21,8 @@ version.
 Documentation
 -------------
 
-Overall enhancements including fixed typos and the addition of several images and code examples.
+Overall enhancements including fixed typos and the addition of several
+images and code examples.
 
 QStyle (and derived classes)
 ----------------------------
@@ -33,7 +34,7 @@ by a small set of more general functions. The new API is:
 
  - much more consistent
  - less work have to be done to create custom styles
- - easier to extend and maintain binary compatibility 
+ - easier to extend and maintain binary compatibility
 
 The old API relied upon a host of virtual functions that were
 re-implemented in the different styles. These functions were used to
@@ -346,7 +347,7 @@ New function:
 	virtual const QBrush& backgroundBrush() const;
 
 QWMatrix
--------- 
+--------
 
  - New functions for mapping of geometric elements via matrix
    multiplication semantics.
