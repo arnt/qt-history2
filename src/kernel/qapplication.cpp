@@ -52,7 +52,7 @@
 #include <stdlib.h>
 #include "qcomponentfactory.h"
 
-#ifndef QT_NO_REMOTE
+#if defined(QT_REMOTE_SUPPORT)
 #include "qremotecontrol_p.h"
 #endif
 
@@ -318,8 +318,8 @@ bool	  QApplication::fade_tooltip	= FALSE;
 QApplication::Type qt_appType=QApplication::Tty;
 QStringList *QApplication::app_libpaths = 0;
 
-#ifndef QT_NO_REMOTE
-QRemoteControlInterface *QApplication::remoteControl = 0;
+#if defined(QT_REMOTE_SUPPORT)
+static QRemoteControlInterface *remoteControl = 0;
 #endif
 
 void qt_setMaxWindowRect(const QRect& r)
@@ -809,7 +809,7 @@ void QApplication::initialize( int argc, char **argv )
 	qApp->lock();
 #endif
 
-#ifndef QT_NO_REMOTE
+#if defined(QT_REMOTE_SUPPORT)
 
     remoteControl = 0;
     QString S;
@@ -854,7 +854,7 @@ void QApplication::initialize( int argc, char **argv )
 	    break;
 	}
     }
-#endif //QT_NO_REMOTE
+#endif //QT_REMOTE_SUPPORT
 
 }
 
@@ -912,11 +912,11 @@ QWidget *QApplication::activeModalWidget()
 
 QApplication::~QApplication()
 {
-#ifndef QT_NO_REMOTE
+#if defined(QT_REMOTE_SUPPORT)
     if (remoteControl != 0)
     	remoteControl->release();
     remoteControl = 0;
-#endif // QT_NO_REMOTE
+#endif // QT_REMOTE_SUPPORT
 
     delete desktopWidget;
     desktopWidget = 0;
@@ -1844,7 +1844,7 @@ void QApplication::closeAllWindows()
 
 bool QApplication::notify( QObject *receiver, QEvent *e )
 {
-#ifndef QT_NO_REMOTE
+#if defined(QT_REMOTE_SUPPORT)
     if (remoteControl != 0) {
 	if (remoteControl->handleNotification(receiver, e))
 	    return TRUE;

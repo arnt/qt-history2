@@ -53,9 +53,6 @@ class QTranslator;
 #if defined(Q_WS_QWS)
 class QWSDecoration;
 #endif
-#ifndef QT_NO_REMOTE
-class QRemoteControlInterface;
-#endif
 
 template <class type> class QPtrList;
 
@@ -367,11 +364,6 @@ private:
 #if defined(Q_WS_WIN)
     friend bool qt_sendSpontaneousEvent( QObject*, QEvent* );
 #endif
-
-#ifndef QT_NO_REMOTE
-private:
-    static QRemoteControlInterface *remoteControl;
-#endif // QT_NO_REMOTE
 
 private: // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
