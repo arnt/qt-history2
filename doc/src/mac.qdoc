@@ -154,6 +154,40 @@ do this:
 
 Do not forget to enclosure this in an #if defined(Q_OS_MAC) macro statement.
 
+\section2 Translating the Application Menu and native dialogs
+
+You need to do a little extra to get the Application Menu and native dialogs
+localized. This is a requirement of Mac OS X and not of Qt.
+
+First, you must add a localized resource folder inside the Bundle see:
+
+http://developer.apple.com/documentation/CoreFoundation/Conceptual/CFBundles/index.html
+
+And look for the heading: Adding Localized Resources
+
+The main thing you need to do is create a file called locversion.plist.
+Here is an example one for Norwegian:
+
+\code
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN"
+"http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+        <key>LprojCompatibleVersion</key>
+        <string>123</string>
+        <key>LprojLocale</key>
+        <string>no</string>
+        <key>LprojRevisionLevel</key>
+        <string>1</string>
+        <key>LprojVersion</key>
+        <string>123</string>
+</dict>
+</plist>
+\endcode
+
+Then when you run the application with your preferred language set to Norwegian
+you should see menu items like "Avslutt" instead of "Quit"
 
 \section1 User Interface
 
