@@ -2,145 +2,154 @@
 $USAGE='
  Examine differences between two Qt versions.
 
- Usage:  qtlibdiff [-s] $QTOLDDIR $QTDIR
+ Usage:  qtlibdiff $QTOLDDIR $QTDIR
    directories must contain include/ and lib/ of Qt release.
-
-   -s   Symbols only, not full check
 ';
-
-if ( $ARGV[0] eq "-s" ) {
-    $symbols_only=1;
-    shift;
-}
 
 die "$USAGE" if $#ARGV != 1;
 
 $OLD=$ARGV[0];
 $NEW=$ARGV[1];
-$OLDLIB="$OLD/lib/libqt.so";
-$NEWLIB="$NEW/lib/libqt.so";
+$OLDLIB="$OLD/lib/libqt-mt.so";
+$NEWLIB="$NEW/lib/libqt-mt.so";
 
-#open OUT, "| cat";
-open OUT, "| c++filt | sort";
 
-open OSYMS, "nm --size-sort $OLDLIB | sort +2 |";
-while (<OSYMS>) {
-    ($size,$type,$symbol) = $_ =~ /(\S+)\s+(\S+)\s+(\S+)/;
-    next if $symbol =~ /^__thunk_/; # my c++filt crashes on multi-param thunks
-#print OUT "OLD: ",'($size,$type,$symbol)'," = ($size,$type,$symbol)\n";
-    if ( $type =~ /[A-Z]/ && $symbol !~ /^__thunk_/ ) {
-	$osize{$symbol} = $size;
-	$otype{$symbol} = $type;
+sub sizes {
+  my ($dir) = @_;
+  my (%objectsize);
+  my (%pubclasses);
+
+  print STDERR "Analyzing $dir...\n";
+
+  open CPP, ">/tmp/t$$.cpp";
+
+  open HEADERS, "/bin/ls $dir/include ".q{| grep -v -e 'qfontdta.h' -e 'qgl.h' -e 'qgeneric.h' \
+					  -e 'q1xcompatibility.h' -e 'qwindow.h' -e 'qpaintdc.h' -e 'qpaintdevicedefs.h' \
+					  -e 'qgmanagr.h' -e 'qt_windows.h' -e 'qfiledef.h' -e 'qt_mac9.h' \
+					  -e 'qmotifwidget.h' -e 'qmotif.h' -e 'qmotifdialog.h' -e 'qaccessible.h' \
+					  -e 'qinterlacestyle.h' -e 'qaquastyle.h' -e 'qax.*\.h' -e 'qwindowsxpstyle.h' \
+					  -e '_mac.h' -e '_x11.h' -e '_win.h' -e '_qws.h' \
+					  -e '_wce.h' -e '_qnx6.h' -e '_qnx4.h' -e 'qt\.h' \
+					  | grep '^q.*\.h' |};
+
+  print CPP "#include <qt.h>\n\n";
+  while (<HEADERS>) {
+    chomp;
+    $h = $_;
+
+    open HEADER, "<$dir/include/$h";
+    $skip=0;
+    while (<HEADER>) {
+      if ( /(template\s*<.*>[\n\s]*[^;]*$)/ ) {
+	$skip=1;
+	next;
+      }
+      if ( /class\s+Q.+EXPORT\S*\s+([^\s\{:;]+)[^;]*$/ ) {
+	$skip--,next if $skip;
+	next if $1 =~ /[a-z][TM]$/;
+	next if $1 eq "QWindowsMime";
+	next if $1 eq "QSignalDictIt";
+	next if $1 eq "QSignalDict";
+	next if $1 eq "Server";
+	next if $1 eq "MailServer";
+	$pubclasses{$1}=1;
+	$comment{$1}=$h;
+      } elsif ( /\(/ ) {
+	$skip = 0;
+      }
     }
-}
+  }
 
-open NSYMS, "nm --size-sort $NEWLIB | sort +2 |";
-while (<NSYMS>) {
-    ($size,$type,$symbol) = $_ =~ /(\S+)\s+(\S+)\s+(\S+)/;
-    if ( $type =~ /[A-Z]/ && $symbol !~ /^__thunk_/ ) {
-			# my c++filt crashes on multi-param thunks
-	$nsize{$symbol} = $size;
-	$ntype{$symbol} = $type;
-    }
-}
-
-for $symbol ( keys %osize ) {
-    if ( defined($nsize{$symbol}) ) {
- #print OUT "OK: $symbol\n";
-	if ( $symbol =~ /^_vt\.\d+([^\.]*)/ ) {
-	    $classname = $1;
-	    if ( $nsize{$symbol} ne $osize{$symbol} ) {
-		print OUT "WARNING: Virtual table of $classname:".
-		      "  $osize{$symbol} -> $nsize{$symbol}\n";
-	    }
-	    $classes{$classname}=1;
-	} elsif ( $symbol =~ /^__(\d+)([^\.]*)/ ) {
-	    $classname = substr $2, 0, $1;
-	    $classes{$classname}=1;
-	}#
-    } else {
-	next if $symbol =~ /^_GLOBAL_/;
-	next if $symbol =~ /^__/;
-	push @gone, $symbol;
-	print OUT "REMOVED ($otype{$symbol}): $symbol\n";
-    }
-}
-for $symbol ( keys %nsize ) {
-    next if $symbol =~ /^_GLOBAL_/;
-    next if $symbol =~ /^__/;
-    print OUT "NEW ($ntype{$symbol}): $symbol\n" if !defined($osize{$symbol});
-}
-
-exit 0 if $symbols_only;
-
-sub sizes
-{
-    my ($dir) = @_;
-    my (%objectsize);
-    my (%pubclasses);
-
-    print STDERR "Analyzing $dir...\n";
-
-    open CPP, ">/tmp/t$$.cpp";
-    print CPP "#define INCLUDE_MENUITEM_DEF\n";
-
-    open HEADERS, "/bin/ls $dir/include ".q{| grep -v -e 'qmutex.h' -e 'qgl.h' -e 'qgeneric.h' \
-	    -e 'q1xcompatibility.h' -e 'qwindow.h' -e 'qpaintdc.h' -e 'qpaintdevicedefs.h' \
-	    -e 'qgmanagr.h' -e 'qt_windows.h' -e 'qt_x11.h' -e 'qt_mac.h' | grep '^q.*\.h$' |};
-    while (<HEADERS>) {
-	chomp;
-	$h = $_;
-
-	next if $dir =~ /qt-2.0.2/ &&
-	    $h eq "qserversocket.h";
-
-	open HEADER, "<$dir/include/$h";
-	$skip=0;
-	while (<HEADER>) {
-	    if ( /(template\s*<.*>[\n\s]*)/ ) {
-		$skip=1;
-		next;
-	    }
-	    if ( /class\s+Q_EXPORT\s+([^\s:;{]+)[^;]*$/ ) {
-		$skip--,next if $skip;
-		next if $1 =~ /[a-z][TM]$/;
-		next if $1 eq "QWindowsMime";
-		next if $1 eq "QSignalDictIt";
-		next if $1 eq "QSignalDict";
-		next if $1 eq "QTextEdit";
-		$pubclasses{$1}=1;
-		$comment{$1}=$h;
-	    } elsif ( /\(/ ) {
-		$skip = 0;
-	    }
-	}
-	print CPP "#include \"$h\"\n";
-    }
-
-    print CPP "main() {\n";
-    for $class ( keys %pubclasses ) {
-	print CPP qq{  printf("$class %d\\n",sizeof($class)); // $comment{$class}\n}
-    }
-    print CPP "}\n";
-    close CPP;
-    system("gcc -DQT_THREAD_SUPPORT /tmp/t$$.cpp -I$dir/include -L$dir/lib -lqt");
-    open SIZES, "LD_LIBRARY_PATH=$dir/lib:\$LD_LIBRARY_PATH ./a.out |";
-    while (<SIZES>) {
-	($class,$size) = $_ =~ /(\S+) (\S+)/;
-	$objectsize{$class}=$size;
-    }
-    return %objectsize;
+  print CPP "int main() {\n";
+  for $class ( keys %pubclasses ) {
+    print CPP qq{  printf("$class %d\\n",sizeof($class)); // $comment{$class}\n}
+  }
+  print CPP "}\n";
+  close CPP;
+  system("gcc -DQT_THREAD_SUPPORT /tmp/t$$.cpp -I$dir/include -I$dir/mkspecs/linux-g++ -L$dir/lib -lqt-mt");
+  open SIZES, "LD_LIBRARY_PATH=$dir/lib:\$LD_LIBRARY_PATH ./a.out |";
+  while (<SIZES>) {
+    ($class,$size) = $_ =~ /(\S+) (\S+)/;
+    $objectsize{$class}=$size;
+  }
+  return %objectsize;
 }
 
 %old = sizes $OLD;
 %new = sizes $NEW;
 
-for $c ( keys %old ) {
-    if ( defined($new{$c}) ) {
-	print OUT "OBJECTSIZE: $c $old{$c} -> $new{$c}\n" if $old{$c} ne $new{$c};
-    } elsif ( $old{$c} ne $new{$c} ) {
-	print OUT "REMOVED: $c\n";
+
+#open OUT, "| cat";
+open OUT, "| sort";
+
+open OSYMS, "nm --size-sort -C $OLDLIB | sort +2 |";
+while (<OSYMS>) {
+  ($size,$type,$symbol) = $_ =~ /(\S+)\s+(\S+)\s+(.+$)/;
+  if ( $type =~ /[A-Z]/ ) {
+    $osize{$symbol} = $size;
+    $otype{$symbol} = $type;
+    ($cls) = $symbol =~ /([a-zA-Z]*)/;
+#    if ( $symbol != $cls ) {
+      $oclass{$symbol} = $cls;
+#    }
+#    print OUT "OLD: ",'($size,$type,$symbol,$cls)'," = ($size,$type,$symbol, $old{$cls})\n";
+  }
+}
+
+open NSYMS, "nm --size-sort -C $NEWLIB | sort +2 |";
+while (<NSYMS>) {
+  ($size,$type,$symbol) = $_ =~ /(\S+)\s+(\S+)\s+(.+$)/;
+  if ( $type =~ /[A-Z]/ ) {
+    $nsize{$symbol} = $size;
+    $ntype{$symbol} = $type;
+    ($cls) = $symbol =~ /([a-zA-Z]*)/;
+#    if ( $symbol != $cls ) {
+      $nclass{$symbol} = $cls;
+#    }
+#    print OUT "NEW: ",'($size,$type,$symbol,$cls)'," = ($size,$type,$symbol, $cls)\n";
+  }
+}
+
+for $symbol ( keys %osize ) {
+  if ( defined($nsize{$symbol}) ) {
+    #print OUT "OK: $symbol\n";
+    if ( $symbol =~ /^(\S+) virtual table/ ) {
+      $classname = $1;
+      if ( $nsize{$symbol} ne $osize{$symbol} ) {
+	print OUT "$classname WARNING: Virtual table size changed:".
+	  "  $osize{$symbol} -> $nsize{$symbol}\n";
+      }
+      $classes{$classname}=1;
+    } elsif ( $symbol =~ /^__(\d+)([^\.]*)/ ) {
+      $classname = substr $2, 0, $1;
+      $classes{$classname}=1;
+    }				#
+  } else {
+    next if $symbol =~ /^_GLOBAL_/;
+    next if $symbol =~ /^__/;
+    if ( defined($old{$oclass{$symbol}}) ) {
+      print OUT "$oclass{$symbol} REMOVED: ($otype{$symbol}) $symbol\n";
     }
+  }
+}
+
+for $symbol ( keys %nsize ) {
+  next if $symbol =~ /^_GLOBAL_/;
+  next if $symbol =~ /^__/;
+  if ( !defined($osize{$symbol}) ) {
+    if ( defined($new{$nclass{$symbol}}) ) {
+      print OUT "$nclass{$symbol} NEW: ($ntype{$symbol}) $symbol\n";
+    }
+  }
+}
+
+
+for $c ( keys %old ) {
+  if ( defined($new{$c}) ) {
+    print OUT "$c OBJECTSIZE: $old{$c} -> $new{$c}\n" if $old{$c} ne $new{$c};
+  } elsif ( $old{$c} ne $new{$c} ) {
+    print OUT "$c REMOVED\n";
+  }
 }
 
 close OUT;
