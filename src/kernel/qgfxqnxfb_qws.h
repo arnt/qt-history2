@@ -12,13 +12,17 @@
 #ifndef QWSQNXFB_H
 #define QWSQNXFB_H
 
-#include <display.h>
-#include <disputil.h>
+#ifndef QT_H
 #include <qgfxraster_qws.h>
 #include <qgfx_qws.h>
 #include <qpolygonscanner.h>
 #include <qpen.h>
 #include <qstring.h>
+#endif // QT_H
+
+#include <display.h>
+#include <disputil.h>
+
 
 // QnxFb Gfx class
 template <const int depth, const int type> class QQnxFbGfx : public QGfxRaster<depth, type> {

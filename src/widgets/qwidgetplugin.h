@@ -68,4 +68,4 @@ private:
     QWidgetPluginPrivate *d;
 };
 
-#endif // QSTYLEPLUGIN_H
+#endif // QWIDGETPLUGIN_H

@@ -21,8 +21,11 @@
 #ifndef QWIDGETINTERFACE_H
 #define QWIDGETINTERFACE_H
 
+
+#ifndef QT_H
 #include <private/qcom_p.h>
 #include <qiconset.h>
+#endif // QT_H
 
 //
 //  W A R N I N G
