@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#86 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#87 $
 **
 ** Implementation of QLabel widget class
 **
@@ -529,7 +529,7 @@ void QLabel::drawContents( QPainter *p )
 }
 
 
-void QLabel::setAutoMask(bool b) 
+void QLabel::setAutoMask(bool b)
 {
     if (b)
 	setBackgroundMode( PaletteText );
@@ -594,8 +594,8 @@ void QLabel::updateLabel()
     // ##### perhaps we should just use repaint(contentsRect())
 
     QPainter paint( this );
-//     if ( backgroundMode() != NoBackground )
-// 	paint.eraseRect( contentsRect() );
+    if ( backgroundMode() != NoBackground )
+ 	paint.eraseRect( contentsRect() );
     drawContents( &paint );
     if ( autoMask() )
 	updateMask();
