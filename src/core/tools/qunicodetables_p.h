@@ -77,7 +77,7 @@ namespace QUnicodeTables {
 
 #include "qunicodedata_p.h"
 
-    Q_CORE_EXPORT int script(const QChar &c);
+    Q_CORE_EXPORT int script(const QChar &ch);
 };
 
 
