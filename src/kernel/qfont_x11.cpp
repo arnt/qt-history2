@@ -438,6 +438,8 @@ Qt::HANDLE QFont::handle() const
     switch ( engine->type() ) {
     case QFontEngine::XLFD:
 	return ((QFontEngineXLFD *) engine)->handle();
+    case QFontEngine::LatinXLFD:
+	return ((QFontEngineLatinXLFD *) engine)->handle();
 
     default: break;
     }

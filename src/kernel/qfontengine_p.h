@@ -32,6 +32,7 @@ public:
 	// X11 types
 	Box,
 	XLFD,
+	LatinXLFD,
 	Xft,
 
 	// MS Windows types
@@ -405,7 +406,7 @@ public:
 
     void setScale( double scale );
     double scale() const { return _engines[0]->scale(); }
-    Type type() const { return XLFD; }
+    Type type() const { return LatinXLFD; }
 
     Qt::HANDLE handle() const { return ((QFontEngineXLFD *) _engines[0])->handle(); }
 
