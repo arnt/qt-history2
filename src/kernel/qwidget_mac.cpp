@@ -455,23 +455,22 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	else
 	    wclass = kDocumentWindowClass;
 
+	WindowGroupRef grp = NULL;
 	WindowAttributes wattr = kWindowNoAttributes /*| kWindowLiveResizeAttribute*/;
 	if(testWFlags(WType_Popup) || testWFlags(WStyle_Tool) )
 	    wattr |= kWindowNoActivatesAttribute;
 	if( testWFlags(WStyle_Customize) ) {
 	    if ( testWFlags(WStyle_NormalBorder) || testWFlags( WStyle_DialogBorder) ) {
 		if(wclass == kToolbarWindowClass)
-		    wclass = kDocumentWindowClass;
+		    wclass = kFloatingWindowClass;
 		if(wclass == kDocumentWindowClass || wclass == kFloatingWindowClass ) 
 		    wattr |= kWindowStandardDocumentAttributes;
 	    } else {
-		if(wclass == kFloatingWindowClass && testWFlags(WStyle_NoBorder))
-		    wclass = kToolbarWindowClass;
-		else if(wclass == kDocumentWindowClass )
+		grp = GetWindowGroupOfClass(wclass);
 #ifdef Q_WS_MACX
-		    wclass = kSheetWindowClass;
+		wclass = kSheetWindowClass;
 #else
-                    wclass = kToolbarWindowClass;
+		wclass = kToolbarWindowClass;
 #endif
 		if( testWFlags( WStyle_Maximize ) ) 
 		    wattr |= kWindowFullZoomAttribute;
@@ -503,6 +502,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	    SetWindowGroupLevel(extra->topextra->group, kCGMaximumWindowLevel);
 	    SetWindowGroupParent(extra->topextra->group, GetWindowGroupOfClass(kAllWindowClasses));
 	    SetWindowGroup((WindowPtr)id, extra->topextra->group);
+	} else if(grp) {
+	    SetWindowGroup((WindowPtr)id, grp);
 	}
 #endif
 	InstallWindowContentPaintProc((WindowPtr)id, NewWindowPaintUPP(qt_erase), 0, this);
