@@ -145,6 +145,7 @@ static GLfloat angle = 0.0;
 static void draw()
 {
     angle += 2.0;
+    view_roty += 1.0;
 
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
@@ -166,8 +167,9 @@ static void draw()
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef( -3.1, 4.2, 0.0 );
-    glRotatef( -2.0*angle-25.0, 0.0, 0.0, 1.0 );
+    glTranslatef( -3.1, 2.2, -1.8 );
+    glRotatef( 90.0, 1.0, 0.0, 0.0 );
+    glRotatef( 2.0*angle-2.0, 0.0, 0.0, 1.0 );
     glCallList(gear3);
     glPopMatrix();
 
@@ -260,14 +262,13 @@ int main( int argc, char **argv )
 {
     QApplication::setColorSpec( QApplication::CustomColor );
     QApplication a( argc, argv );
-    GearWidget w;
-    if ( !w.isValid() ) {
-	// Try without double-buffering
-	QGLFormat fmt( FALSE );
-	w.setFormat( fmt );
-	if ( !w.isValid() )
-	    fatal("Failed to create OpenGL rendering context on this display");
+
+    if ( !QGLFormat::hasOpenGL() ) {
+	warning( "This system has no OpenGL support. Exiting." );
+	return -1;
     }
+
+    GearWidget w;
     a.setMainWidget( &w );
     w.show();
     return a.exec();

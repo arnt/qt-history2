@@ -1,0 +1,25 @@
+
+Instructions for installing a pre-release version of Qt OpenGL Extension
+------------------------------------------------------------------------
+
+(These instructions apply for both Unix/X11 and Windows. The beta
+archive is identical.)
+
+1. Rename the existing qt/extensions/opengl directory to opengl-orig,
+   for backup purposes.
+
+2. Unpack the beta archive in the qt/extensions directory, this will
+   create a new qt/extensions/opengl directory
+
+3. Copy the makefiles from opengl-orig/src into opengl/src, or create
+   new ones using tmake, if you have that.
+
+4. (Windows only:) copy qt/extensions/opengl/src/qgl.h to qt/include
+
+5. Do a 'make' in the opengl/src directory
+
+The new Qt OpenGL Extension library version is now installed. A list
+of changes from previous versions can be found in the file CHANGES.
+
+To test the example programs, copy the Makefiles from opengl-orig, or
+create new ones using tmake, if you have that.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/box/globjwin.cpp#6 $
+** $Id: //depot/qt/main/extensions/opengl/examples/texture/globjwin.cpp#1 $
 **
 ** Implementation of GLObjectWindow widget class
 **
@@ -15,42 +15,45 @@
 #include <qapplication.h>
 #include <qkeycode.h>
 #include "globjwin.h"
-#include "glbox.h"
+#include "gltexobj.h"
 
 
 GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
     : QWidget( parent, name )
 {
 
-    // Create a menu
-    QPopupMenu *file = new QPopupMenu( this );
-    file->insertItem( "Exit",  qApp, SLOT(quit()), CTRL+Key_Q );
+    // Create nice frames to put around the OpenGL widgets
+    QFrame* f1 = new QFrame( this, "frame1" );
+    f1->setFrameStyle( QFrame::Sunken | QFrame::Panel );
+    f1->setLineWidth( 2 );
 
+    // Create an OpenGL widget
+    GLTexobj* c = new GLTexobj( f1, "glbox1");
+
+    // Create a menu
+    QPopupMenu *file = new QPopupMenu();
+    file->insertItem( "Toggle Animation", c, SLOT(toggleAnimation()),
+		      CTRL+Key_A );
+    file->insertSeparator();
+    file->insertItem( "Exit",  qApp, SLOT(quit()), CTRL+Key_Q );
+    
     // Create a menu bar
     QMenuBar *m = new QMenuBar( this );
     m->setSeparator( QMenuBar::InWindowsStyle );
     m->insertItem("&File", file );
 
-    // Create a nice frame to put around the OpenGL widget
-    QFrame* f = new QFrame( this, "frame" );
-    f->setFrameStyle( QFrame::Sunken | QFrame::Panel );
-    f->setLineWidth( 2 );
-
-    // Create our OpenGL widget
-    GLBox* c = new GLBox( f, "glbox");
-
     // Create the three sliders; one for each rotation axis
     QSlider* x = new QSlider ( 0, 360, 60, 0, QSlider::Vertical, this, "xsl" );
     x->setTickmarks( QSlider::Left );
-    QObject::connect( x, SIGNAL(valueChanged(int)),c,SLOT(setXRotation(int)) );
+    connect( x, SIGNAL(valueChanged(int)), c, SLOT(setXRotation(int)) );
 
     QSlider* y = new QSlider ( 0, 360, 60, 0, QSlider::Vertical, this, "ysl" );
     y->setTickmarks( QSlider::Left );
-    QObject::connect( y, SIGNAL(valueChanged(int)),c,SLOT(setYRotation(int)) );
+    connect( y, SIGNAL(valueChanged(int)), c, SLOT(setYRotation(int)) );
 
     QSlider* z = new QSlider ( 0, 360, 60, 0, QSlider::Vertical, this, "zsl" );
     z->setTickmarks( QSlider::Left );
-    QObject::connect( z, SIGNAL(valueChanged(int)),c,SLOT(setZRotation(int)) );
+    connect( z, SIGNAL(valueChanged(int)), c, SLOT(setZRotation(int)) );
 
 
     // Now that we have all the widgets, put them into a nice layout
@@ -62,12 +65,13 @@ GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
     vlayout->addWidget( z );
 
     // Put the GL widget inside the frame
-    QHBoxLayout* flayout = new QHBoxLayout( f, 2, 2, "flayout");
-    flayout->addWidget( c, 1 );
+    QHBoxLayout* flayout1 = new QHBoxLayout( f1, 2, 2, "flayout1");
+    flayout1->addWidget( c, 1 );
 
     // Top level layout, puts the sliders to the left of the frame/GL widget
     QHBoxLayout* hlayout = new QHBoxLayout( this, 20, 20, "hlayout");
     hlayout->setMenuBar( m );
     hlayout->addLayout( vlayout );
-    hlayout->addWidget( f, 1 );
+    hlayout->addWidget( f1, 1 );
+
 }

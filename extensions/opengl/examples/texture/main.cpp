@@ -1,8 +1,6 @@
 //
-// Qt OpenGL example: Box
+// Qt OpenGL example: Texture
 //
-// A small example showing how a GLWidget can be used just as any Qt widget
-// 
 // File: main.cpp
 //
 // The main() function 
@@ -25,7 +23,7 @@ int main( int argc, char **argv )
 	warning( "This system has no OpenGL support. Exiting." );
 	return -1;
     }
-
+    
     GLObjectWindow w;
     w.resize( 400, 350 );
     a.setMainWidget( &w );

@@ -1,31 +1,32 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/sharedbox/glbox.h#2 $
+** $Id: //depot/qt/main/extensions/opengl/examples/texture/gltexobj.h#1 $
 **
 ** Definition of GLBox
-** This is a simple QGLWidget displaying a box
+** This is a simple QGLWidget displaying an openGL wireframe box
 **
 ****************************************************************************/
 
-#ifndef GLBOX_H
-#define GLBOX_H
+#ifndef GLTEXOBJ_H
+#define GLTEXOBJ_H
 
 #include <qgl.h>
 
 
-class GLBox : public QGLWidget
+class GLTexobj : public QGLWidget
 {
     Q_OBJECT
 
 public:
 
-    GLBox( QWidget* parent, const char* name, const QGLWidget* shareWidget=0 );
-    ~GLBox();
+    GLTexobj( QWidget* parent, const char* name );
+    ~GLTexobj();
 
 public slots:
 
     void		setXRotation( int degrees );
     void		setYRotation( int degrees );
     void		setZRotation( int degrees );
+    void		toggleAnimation();
 
 protected:
 
@@ -33,19 +34,14 @@ protected:
     void		paintGL();
     void		resizeGL( int w, int h );
 
-    virtual GLuint 	makeObject();
+    virtual GLuint 	makeObject( const QImage& tex1, const QImage& tex2 );
 
 private:
-
-    GLuint		object;
-    GLuint		localDisplayList;
-
-    static GLuint	sharedDisplayList;
-    static int		sharedListUsers;
-
+    bool animation;
+    GLuint object;
     GLfloat xRot, yRot, zRot, scale;
-
+    QTimer* timer;
 };
 
 
-#endif // GLBOX_H
+#endif // GLTEXOBJ_H

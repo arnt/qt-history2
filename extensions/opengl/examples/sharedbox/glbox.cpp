@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/sharedbox/glbox.cpp#1 $
+** $Id: //depot/qt/main/extensions/opengl/examples/sharedbox/glbox.cpp#2 $
 **
 ** Implementation of GLBox
 ** This is a simple QGLWidget displaying a box
@@ -11,12 +11,15 @@
 
 #include "glbox.h"
 
+// Initialize static class variables:
+
 // Shared display list id:
-GLuint GLBox::object = 0;
+GLuint GLBox::sharedDisplayList = 0;
 
 // Counter keeping track of number of GLBox instances sharing 
 // the display list, so that the last instance can delete it:
-int GLBox::listUsers = 0;
+int GLBox::sharedListUsers = 0;
+
 
 /*!
   Create a GLBox widget
@@ -27,8 +30,40 @@ GLBox::GLBox( QWidget* parent, const char* name, const QGLWidget* shareWidget )
 {
     xRot = yRot = zRot = 0.0;		// default object rotation
     scale = 1.0;			// default object scale
-    listUsers++;
+    object = 0;
+    localDisplayList = 0;
 }
+
+
+/*!
+  Set up the OpenGL rendering state. Robustly access shared display list.
+*/
+
+void GLBox::initializeGL()
+{
+    glClearColor( 0.0, 0.0, 0.0, 0.0 ); // Let OpenGL clear to black
+    glEnable(GL_DEPTH_TEST);
+
+    if ( sharedListUsers == 0 ) {	// No shared list has been made yet
+	sharedDisplayList = makeObject();	// Make one
+	object = sharedDisplayList;		// Use it
+	sharedListUsers++;				// Keep reference count
+	debug( "GLBox %s created shared display list.", name() );
+    }
+    else {				// There is a shared diplay list
+	if ( isSharing() ) {		// Can we access it?
+	    object = sharedDisplayList;		// Yes, use it
+	    sharedListUsers++;			// Keep reference count
+	    debug( "GLBox %s uses shared display list.", name() );
+	}
+	else {				
+	    localDisplayList = makeObject();	// No, roll our own
+	    object = localDisplayList;		// and use that
+	    debug( "GLBox %s uses private display list.", name() );
+	}
+    }
+}
+
 
 
 /*!
@@ -37,10 +72,17 @@ GLBox::GLBox( QWidget* parent, const char* name, const QGLWidget* shareWidget )
 
 GLBox::~GLBox()
 {
-    listUsers--;
-    if ( listUsers == 0 ) { // I.e. this was the last object using display list
-	glDeleteLists( object, 1 );
-	object = 0;
+    if ( localDisplayList != 0 ) {		// Did we make our own?
+	glDeleteLists( localDisplayList, 1 );	// Yes, delete it
+	debug( "GLBox %s deleted private display list.", name() );
+    }
+    else {
+	sharedListUsers--;	// No, we used the shared one; keep refcount
+	if ( sharedListUsers == 0 ) { 			// Any sharers left?
+	    glDeleteLists( sharedDisplayList, 1 );	// No, delete it
+	    sharedDisplayList = 0;
+	    debug( "GLBox %s deleted shared display list.", name() );
+	}
     }
 }
 
@@ -66,18 +108,6 @@ void GLBox::paintGL()
     glCallList( object );
 }
 
-
-/*!
-  Set up the OpenGL rendering state, and define display list
-*/
-
-void GLBox::initializeGL()
-{
-    glClearColor( 0.0, 0.0, 0.0, 0.0 ); // Let OpenGL clear to black
-    if ( object == 0 )	      		// If the display list is not made yet
-	object = makeObject();		// ...make it
-    glEnable(GL_DEPTH_TEST);
-}
 
 
 
