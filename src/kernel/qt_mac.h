@@ -3,6 +3,7 @@
 
 #include "Carbon.h"
 #include "Movies.h"
+#include "PMCore.h"
 
 class QMacSavedPortInfo
 {

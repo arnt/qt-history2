@@ -93,6 +93,9 @@ class QWidgetListIt;
 
 #if defined(Q_WS_MAC)
 
+typedef struct OpaquePMPrintSession *PMPrintSession;
+typedef struct OpaquePMPrintSettings *PMPrintSettings;
+typedef struct OpaquePMPageFormat *PMPageFormat;
 typedef struct Point Point;
 typedef struct OpaqueEventHandlerCallRef*  EventHandlerCallRef;
 typedef struct OpaqueEventRef*          EventRef;

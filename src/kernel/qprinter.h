@@ -131,6 +131,14 @@ private:
     QPaintDevice *pdrv;
     int		pid;
 #endif
+#if defined(Q_WS_MAC)
+    PMPageFormat pformat;
+    PMPrintSettings psettings;
+    PMPrintSession psession;
+    bool prepare(PMPrintSettings *);
+    bool prepare(PMPageFormat *);
+#endif
+    
     int		state;
     QString	printer_name;
     QString	option_string;
