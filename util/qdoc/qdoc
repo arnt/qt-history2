@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#160 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#161 $
 #
 # this is a massive hack, written very quickly
 #
@@ -690,7 +690,7 @@ sub writepages {
 	    
 	    print O $doctype, "<html><head><meta name=\"robots\" content=\"noindex\">", $doc, "\n";
 	} else {
-	    print O $doc, "\n";
+	    print O $doc;
 	}
 	if (defined($classes{$file})) {
 	    $p = "<p>Classes:<ul plain>\n";
@@ -1218,7 +1218,13 @@ sub readc {
 	    $perlbuginversion5003fodder++;
 	} elsif ($doc =~ m@^\\page\s+([\w\.-]+)\s+(.*?)\s*$@s) {
             # it's a \page
-	    $pages{$1} = $2;
+	    $pages{$1} = $2 . "\n";
+	    $anchor{$1} = $1;
+	} elsif ($doc =~ m@^\\uudecode\s+([\w\.-]+)\s+(.*?)\s*$@s) {
+            # it's a \uudecode
+	    my $warwick;
+	    $warwick = pack( "c", 32 + 0.75 * length $2 );
+	    $pages{$1} = unpack( "u", $warwick . $2 );
 	    $anchor{$1} = $1;
 	} elsif ( $doc =~ m@^\\defgroup\s+([\w\.-]+)\s+(.*?)\s*$@s ) {
 	    # it's a \defgroup
