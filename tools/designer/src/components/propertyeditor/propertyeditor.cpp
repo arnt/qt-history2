@@ -236,6 +236,7 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
                 p = new RectProperty(value.toRect(), pname);
                 break;
             case QVariant::Pixmap:
+            case QVariant::Icon:
                 p = new PixmapProperty(m_core, value.toPixmap(), pname);
                 break;
             case QVariant::Font:

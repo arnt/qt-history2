@@ -23,6 +23,7 @@
 class QActionGroup;
 class QMenu;
 class QVariant;
+class QComboBox;
 
 class AbstractFormEditor;
 class AbstractFormWindowManager;
@@ -78,6 +79,7 @@ private slots:
     void showTheNewStuff();
     void aboutDesigner();
     void editMode(QAction *action);
+    void editMode(int i);
     void showPreferenceDialog();
 
 private:
@@ -107,6 +109,7 @@ private:
     QAction *m_widgetEditMode;
     QAction *m_connectionEditMode;
     QAction *m_tabOrderEditMode;
+    QActionGroup *m_editModeGrp;
     QMenu *m_menuWindow;
     bool m_closeForm;
     bool m_settingsSaved;
@@ -122,6 +125,7 @@ private:
 
     QWidget *invisibleParent;
     QAssistantClient *assistant;
+    QComboBox *m_editModeSelector;
 };
 
 #endif // MAINWINDOW_H

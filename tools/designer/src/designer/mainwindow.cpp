@@ -59,6 +59,8 @@
 #include <QtGui/QToolBar>
 #include <QtGui/QVBoxWidget>
 #include <QtGui/QVariant>
+#include <QtGui/QComboBox>
+#include <qdebug.h>
 
 #define IDE_NO_DEBUGVIEWS
 
@@ -78,6 +80,7 @@ MainWindow::MainWindow()
     setupWidgetBox();
     setupMenuBar();
     setupToolBar();
+    enableFormActions(false);
 
     connect(core->propertyEditor(), SIGNAL(propertyChanged(const QString&, const QVariant&)),
             this, SLOT(propertyChanged(const QString&, const QVariant&)));
@@ -177,6 +180,7 @@ void MainWindow::enableFormActions(bool enable)
     m_widgetEditMode->setEnabled(enable);
     m_connectionEditMode->setEnabled(enable);
     m_tabOrderEditMode->setEnabled(enable);
+    m_editModeSelector->setEnabled(enable);
 }
 
 void MainWindow::windowChanged()
@@ -390,19 +394,22 @@ void MainWindow::setupMenuBar()
     menu->addSeparator();
     m_widgetEditMode = menu->addAction(tr("Edit Widgets"));
     m_widgetEditMode->setCheckable(true);
+    m_widgetEditMode->setShortcut(Qt::Key_F2);
     m_widgetEditMode->setShortcutContext(Qt::ShortcutOnApplication);
     m_connectionEditMode = menu->addAction(tr("Edit Connections"));
     m_connectionEditMode->setCheckable(true);
+    m_connectionEditMode->setShortcut(Qt::Key_F3);
     m_connectionEditMode->setShortcutContext(Qt::ShortcutOnApplication);
     m_tabOrderEditMode = menu->addAction(tr("Edit Tab order"));
     m_tabOrderEditMode->setCheckable(true);
+    m_tabOrderEditMode->setShortcut(Qt::Key_F4);
     m_tabOrderEditMode->setShortcutContext(Qt::ShortcutOnApplication);
-    QActionGroup *editModeGrp = new QActionGroup(this);
-    editModeGrp->setExclusive(true);
-    editModeGrp->addAction(m_widgetEditMode);
-    editModeGrp->addAction(m_connectionEditMode);
-    editModeGrp->addAction(m_tabOrderEditMode);
-    connect(editModeGrp, SIGNAL(triggered(QAction*)), this, SLOT(editMode(QAction*)));
+    m_editModeGrp = new QActionGroup(this);
+    m_editModeGrp->setExclusive(true);
+    m_editModeGrp->addAction(m_widgetEditMode);
+    m_editModeGrp->addAction(m_connectionEditMode);
+    m_editModeGrp->addAction(m_tabOrderEditMode);
+    connect(m_editModeGrp, SIGNAL(triggered(QAction*)), this, SLOT(editMode(QAction*)));
 
     m_readOnly = menu->addAction(tr("Read-Only"));
     m_readOnly->setCheckable(true);
@@ -461,8 +468,6 @@ void MainWindow::setupMenuBar()
     act->setShortcutContext(Qt::ShortcutOnApplication);
     act = menu->addAction(tr("About Qt"), qApp, SLOT(aboutQt()));
     act->setShortcutContext(Qt::ShortcutOnApplication);
-
-    enableFormActions(false);
 }
 
 void MainWindow::setupToolBar()
@@ -477,6 +482,18 @@ void MainWindow::setupToolBar()
     formToolbar->addAction(m_formWindowManager->actionGridLayout());
     formToolbar->addAction(m_formWindowManager->actionBreakLayout());
     formToolbar->addAction(m_formWindowManager->actionAdjustSize());
+    
+    m_editModeSelector = new QComboBox(formToolbar);
+    formToolbar->addWidget(m_editModeSelector);
+    QList<QAction*> editModeActions = m_editModeGrp->actions();
+    foreach (QAction *action, editModeActions)
+        m_editModeSelector->insertItem(action->text());
+    connect(m_editModeSelector, SIGNAL(activated(int)), this, SLOT(editMode(int)));
+}
+
+void MainWindow::editMode(int idx)
+{
+    editMode(m_editModeGrp->actions().at(idx));
 }
 
 void MainWindow::editMode(QAction *action)
@@ -490,6 +507,15 @@ void MainWindow::editMode(QAction *action)
             fw->setEditMode(AbstractFormWindow::TabOrderEditMode);
         else
             Q_ASSERT(0);
+    }
+    
+    QList<QAction*> editModeActions = m_editModeGrp->actions();
+    for (int i = 0; i < editModeActions.size(); ++i) {
+        if (editModeActions.at(i) == action) {
+            if (m_editModeSelector->currentItem() != i);
+                m_editModeSelector->setCurrentItem(i);
+            break;
+        }
     }
 }
 
