@@ -45,8 +45,8 @@ MyWidget::MyWidget( QWidget *parent, const char *name )
 
     QGrid *grid = new QGrid( 4, this );
 
-    for( int c = 0 ; c < 4 ; c++ )
-	for( int r = 0 ; r < 4 ; r++ )
+    for( int r = 0 ; r < 4 ; r++ )
+	for( int c = 0 ; c < 4 ; c++ )
 	    (void)new LCDRange( grid );
 }
 
