@@ -58,15 +58,15 @@ typedef QStack<QWMatrix> QWMatrixStack;
 // REVISED: arnt
 /*!
   \class QPainter qpainter.h
-  \brief The QPainter class paints on paint devices.
+  \brief The QPainter class does low-level painting e.g. on widgets.
 
   \ingroup drawing
 
-  The painter provides efficient graphics rendering on any
-  QPaintDevice object. QPainter can draw everything from simple lines
-  to complex shapes like pies and chords. It can also draw aligned
-  text and pixmaps.  Normally, it draws in a "natural" coordinate
-  system, but it can also do view and world transformation.
+  The painter provides highly optimized functions to do most of the
+  drawing GUI programs require. QPainter can draw everything from
+  simple lines to complex shapes like pies and chords. It can also
+  draw aligned text and pixmaps.  Normally, it draws in a "natural"
+  coordinate system, but it can also do view and world transformation.
 
   The typical use of a painter is:
 
@@ -78,8 +78,9 @@ typedef QStack<QWMatrix> QWMatrixStack;
   </ol>
 
   Mostly, all this is done inside a paint event.  (In fact, 99% of all
-  QPainter use is in a reimplementation of QWidget::paintEvent()).
-  Here's one very simple example:
+  QPainter use is in a reimplementation of QWidget::paintEvent(), and
+  the painter is heavily optimized for such use.)  Here's one very
+  simple example:
 
   \code
     void SimpleExampleWidget::paintEvent()
@@ -142,8 +143,12 @@ typedef QStack<QWMatrix> QWMatrixStack;
   functions to draw most primitives: drawPoint(), drawPoints(),
   drawLine(), drawRect(), drawWinFocusRect(), drawRoundRect(),
   drawEllipse(), drawArc(), drawPie(), drawChord(),
-  drawLineSegments(), drawPolyline(), drawPolygon(), and
-  drawQuadBezier().
+  drawLineSegments(), drawPolyline(), drawPolygon(),
+  drawConvexPolygon() and drawQuadBezier().  All of these functions
+  take integer coordinates; there are no floating-point
+  versions. Floatint-point operations are outside the scope of
+  QPainter (providing \e fast drawing of the things GUI programs
+  draw).
 
   There are functions to draw pixmaps/images, namely drawPixmap(),
   drawImage() and drawTiledPixmap().  drawPixmap() and drawImage()
@@ -176,7 +181,7 @@ typedef QStack<QWMatrix> QWMatrixStack;
   rectangle that maps to viewport().  What's draws inside the window()
   ends up being inside the viewport().  The window's default is the
   same as the viewport, and if you don't use the transformations, they
-  are optimized away, gaining a little speed.
+  are optimized away, gaining another little bit of speed.
 
   After all the coordinate transformation is done, QPainter can clip
   the drawing to and arbitrary rectangle or region.  hasClipping() is
@@ -186,11 +191,11 @@ typedef QStack<QWMatrix> QWMatrixStack;
   rule of thumb, you can assume that drawing speed is inversely
   proportional to the number of rectangles in the clip region.
 
-  After QPainter's clipping, the paint device too will clip a bit.
-  For example, most widgets clip away the pixels used by child
-  widgets, and most printers clip away an area near the edges of the
-  paper.  This additional clipping is \e not reflected by the return
-  value of clipRegion() or hasClipping().
+  After QPainter's clipping, the paint device too may clip.  For
+  example, most widgets clip away the pixels used by child widgets,
+  and most printers clip away an area near the edges of the paper.
+  This additional clipping is not reflected by the return value of
+  clipRegion() or hasClipping().
 
   Finally, QPainter includes some little-used functions that are very
   handy the few times you need them.
@@ -205,13 +210,13 @@ typedef QStack<QWMatrix> QWMatrixStack;
   redirect().  We recommend not using it, but for some hacks it's
   perfect.
 
-  setTabStops() and setTabArray() can change where the
-  tab stops are, but these are very seldomly used.
+  setTabStops() and setTabArray() can change where the tab stops are,
+  but these are very seldomly used.
 
   \warning Note that QPainter does not attempt to work around
   coordinate limitations in the underlying window system.  Some
-  platforms may behave incorrectly with coordinates as small as +/-
-  4000.
+  platforms may behave incorrectly with coordinates as small as
+  +/-4000.
 
   \header qdrawutil.h
 
