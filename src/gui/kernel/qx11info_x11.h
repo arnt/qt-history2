@@ -64,6 +64,7 @@ protected:
     friend class QX11PaintEngine;
     friend class QPixmap;
     friend class QWidget;
+    friend class QWidgetPrivate;
     friend class QGLWidget;
     friend void qt_init(QApplicationPrivate *priv, int, Display *display, Qt::HANDLE visual,
                         Qt::HANDLE colormap);

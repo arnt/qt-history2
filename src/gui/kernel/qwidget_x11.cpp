@@ -321,7 +321,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         // desktop on a certain screen other than the default requested
         QX11InfoData *xd = &X11->screens[qt_x11_create_desktop_on_screen];
         xinfo.setX11Data(xd);
-    } else if (parentWidget() &&  parentWidget()->d->xinfo.screen() != d->xinfo.screen()) {
+    } else if (q->parentWidget() &&  q->parentWidget()->d->xinfo.screen() != d->xinfo.screen()) {
         xinfo = q->parentWidget()->d->xinfo;
     }
 
@@ -339,7 +339,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     } else if (topLevel) {                        // calc pos/size from screen
         q->data->crect.setRect(sw/4, 3*sh/10, sw/2, 4*sh/10);
     } else {                                        // child widget
-        qw->data->crect.setRect(0, 0, 100, 30);
+        q->data->crect.setRect(0, 0, 100, 30);
     }
 
     parentw = topLevel ? root_win : q->parentWidget()->winId();
@@ -348,7 +348,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 
     if (window) {                                // override the old window
         if (destroyOldWindow)
-            destroyw = data->winid;
+            destroyw = data.winid;
         id = window;
         setWinId(window);
         XWindowAttributes a;
@@ -382,7 +382,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         xinfo.setX11Data(xd);
     } else if (desktop) {                        // desktop widget
         id = (WId)parentw;                        // id = root window
-        QWidget *otherDesktop = find(id);        // is there another desktop?
+        QWidget *otherDesktop = QWidget::find(id);        // is there another desktop?
         if (otherDesktop && otherDesktop->testWFlags(Qt::WPaintDesktop)) {
             otherDesktop->d->setWinId(0);        // remove id from widget mapper
             d->setWinId(id);                     // make sure otherDesktop is
@@ -403,8 +403,8 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             wsa.border_pixel = BlackPixel(dpy, d->xinfo.screen());
             wsa.colormap = d->xinfo.colormap();
             id = (WId)qt_XCreateWindow(q, dpy, parentw,
-                                       data->crect.left(), data->crect.top(),
-                                       data->crect.width(), data->crect.height(),
+                                       data.crect.left(), data.crect.top(),
+                                       data.crect.width(), data.crect.height(),
                                        0, d->xinfo.depth(), InputOutput,
                                        (Visual *) d->xinfo.visual(),
                                        CWBackPixel|CWBorderPixel|CWColormap,
@@ -440,58 +440,58 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     if (topLevel && ! (desktop || popup)) {
         ulong wsa_mask = 0;
 
-        if (testWFlags(Qt::WStyle_Splash)) {
+        if (q->testWFlags(Qt::WStyle_Splash)) {
             if (qt_net_supports(ATOM(_NET_WM_WINDOW_TYPE_SPLASH))) {
-                clearWFlags(Qt::WX11BypassWM);
+                q->clearWFlags(Qt::WX11BypassWM);
                 net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_SPLASH);
             } else {
-                setWFlags(Qt::WX11BypassWM | Qt::WStyle_Tool | Qt::WStyle_NoBorder);
+                q->setWFlags(Qt::WX11BypassWM | Qt::WStyle_Tool | Qt::WStyle_NoBorder);
             }
         }
-        if (testWFlags(Qt::WStyle_Customize)) {
+        if (q->testWFlags(Qt::WStyle_Customize)) {
             mwmhints.decorations = 0L;
             mwmhints.flags |= MWM_HINTS_DECORATIONS;
 
-            if (testWFlags(Qt::WStyle_NoBorder)) {
+            if (q->testWFlags(Qt::WStyle_NoBorder)) {
                 // override netwm type - quick and easy for KDE noborder
                 net_wintypes[curr_wintype++] = ATOM(_KDE_NET_WM_WINDOW_TYPE_OVERRIDE);
             } else {
-                if (testWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_DialogBorder)) {
+                if (q->testWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_DialogBorder)) {
                     mwmhints.decorations |= MWM_DECOR_BORDER;
                     mwmhints.decorations |= MWM_DECOR_RESIZEH;
                 }
 
-                if (testWFlags(Qt::WStyle_Title))
+                if (q->testWFlags(Qt::WStyle_Title))
                     mwmhints.decorations |= MWM_DECOR_TITLE;
 
-                if (testWFlags(Qt::WStyle_SysMenu))
+                if (q->testWFlags(Qt::WStyle_SysMenu))
                     mwmhints.decorations |= MWM_DECOR_MENU;
 
-                if (testWFlags(Qt::WStyle_Minimize))
+                if (q->testWFlags(Qt::WStyle_Minimize))
                     mwmhints.decorations |= MWM_DECOR_MINIMIZE;
 
-                if (testWFlags(Qt::WStyle_Maximize))
+                if (q->testWFlags(Qt::WStyle_Maximize))
                     mwmhints.decorations |= MWM_DECOR_MAXIMIZE;
             }
 
-            if (testWFlags(Qt::WStyle_Tool)) {
+            if (q->testWFlags(Qt::WStyle_Tool)) {
                 wsa.save_under = True;
                 wsa_mask |= CWSaveUnder;
             }
-        } else if (testWFlags(Qt::WType_Dialog)) {
-            setWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu | Qt::WStyle_ContextHelp);
+        } else if (q->testWFlags(Qt::WType_Dialog)) {
+            q->setWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu | Qt::WStyle_ContextHelp);
         } else {
-            setWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_Title | Qt::WStyle_MinMax | Qt::WStyle_SysMenu);
+            q->setWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_Title | Qt::WStyle_MinMax | Qt::WStyle_SysMenu);
         }
 
         // ### need a better way to do this
-        if (inherits("QMenu")) {
+        if (q->inherits("QMenu")) {
             // menu netwm type
             net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_MENU);
-        } else if (inherits("QToolBar")) {
+        } else if (q->inherits("QToolBar")) {
             // toolbar netwm type
             net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_TOOLBAR);
-        } else if (testWFlags(Qt::WStyle_Customize) && testWFlags(Qt::WStyle_Tool)) {
+        } else if (q->testWFlags(Qt::WStyle_Customize) && q->testWFlags(Qt::WStyle_Tool)) {
             // utility netwm type
             net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_UTILITY);
         }
@@ -501,7 +501,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         // normal netwm type - default
         net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_NORMAL);
 
-        if (testWFlags(Qt::WX11BypassWM)) {
+        if (q->testWFlags(Qt::WX11BypassWM)) {
             wsa.override_redirect = True;
             wsa_mask |= CWOverrideRedirect;
         }
@@ -509,8 +509,8 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         if (wsa_mask && initializeWindow)
             XChangeWindowAttributes(dpy, id, wsa_mask, &wsa);
     } else {
-        if (! testWFlags(Qt::WStyle_Customize))
-            setWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_Title |
+        if (! q->testWFlags(Qt::WStyle_Customize))
+            q->setWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_Title |
                       Qt::WStyle_MinMax | Qt::WStyle_SysMenu);
     }
 
@@ -527,11 +527,11 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             create_wm_client_leader();
 
         // real parent
-        QWidget *p = parentWidget();
+        QWidget *p = q->parentWidget();
         if (p)
             p = p->window();
 
-        if (dialog || testWFlags(Qt::WStyle_DialogBorder) || testWFlags(Qt::WStyle_Tool)) {
+        if (dialog || q->testWFlags(Qt::WStyle_DialogBorder) || q->testWFlags(Qt::WStyle_Tool)) {
             if (p) {
                 // transient for window
                 XSetTransientForHint(dpy, id, p->winId());
@@ -543,10 +543,10 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 
         XSizeHints size_hints;
         size_hints.flags = USSize | PSize | PWinGravity;
-        size_hints.x = data->crect.left();
-        size_hints.y = data->crect.top();
-        size_hints.width = data->crect.width();
-        size_hints.height = data->crect.height();
+        size_hints.x = data.crect.left();
+        size_hints.y = data.crect.top();
+        size_hints.width = data.crect.width();
+        size_hints.height = data.crect.height();
         size_hints.win_gravity =
             QApplication::isRightToLeft() ? NorthEastGravity : NorthWestGravity;
 
@@ -563,14 +563,14 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 
         XSetWMProperties(dpy, id, 0, 0, 0, 0, &size_hints, &wm_hints, &class_hint);
 
-        XResizeWindow(dpy, id, data->crect.width(), data->crect.height());
+        XResizeWindow(dpy, id, data.crect.width(), data.crect.height());
         XStoreName(dpy, id, appName.data());
         Atom protocols[4];
         int n = 0;
         protocols[n++] = ATOM(WM_DELETE_WINDOW);        // support del window protocol
         protocols[n++] = ATOM(WM_TAKE_FOCUS);                // support take focus window protocol
         protocols[n++] = ATOM(_NET_WM_PING);                // support _NET_WM_PING protocol
-        if (testWFlags(Qt::WStyle_ContextHelp))
+        if (q->testWFlags(Qt::WStyle_ContextHelp))
             protocols[n++] = ATOM(_NET_WM_CONTEXT_HELP);
         XSetWMProtocols(dpy, id, protocols, n);
 
@@ -595,10 +595,10 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
                         (unsigned char *) &curr_pid, 1);
 
         // when we create a toplevel widget, the frame strut should be dirty
-        data->fstrut_dirty = 1;
+        data.fstrut_dirty = 1;
 
         // declare the widget's object name as window role
-        QByteArray objName = objectName().toLocal8Bit();
+        QByteArray objName = q->objectName().toLocal8Bit();
         XChangeProperty(dpy, id,
                         ATOM(WM_WINDOW_ROLE), XA_STRING, 8, PropModeReplace,
                         (unsigned char *)objName.constData(), objName.length());
@@ -610,7 +610,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     } else {
         // non-toplevel widgets don't have a frame, so no need to
         // update the strut
-        data->fstrut_dirty = 0;
+        data.fstrut_dirty = 0;
     }
 
     if (initializeWindow) {
@@ -621,7 +621,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 
     // set X11 event mask
     if (desktop) {
-        QWidget* main_desktop = find(id);
+        QWidget* main_desktop = QWidget::find(id);
         if (main_desktop->testWFlags(Qt::WPaintDesktop))
             XSelectInput(dpy, id, stdDesktopEventMask | ExposureMask);
         else
@@ -639,21 +639,21 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     }
 
     if (desktop) {
-        setAttribute(Qt::WA_WState_Visible);
+        q->setAttribute(Qt::WA_WState_Visible);
     } else if (topLevel) {                        // set X cursor
-        setAttribute(Qt::WA_SetCursor);
+        q->setAttribute(Qt::WA_SetCursor);
         if (initializeWindow)
-            qt_x11_enforce_cursor(this);
+            qt_x11_enforce_cursor(q);
     }
 
     if (destroyw)
-        qt_XDestroyWindow(this, dpy, destroyw);
+        qt_XDestroyWindow(q, dpy, destroyw);
 
     // newly created windows are positioned at the window system's
     // (0,0) position. If the parent uses wrect mapping to expand the
     // coordinate system, we must also adjust this widget's window
     // system position
-    if (!topLevel && !parentWidget()->data->wrect.topLeft().isNull())
+    if (!topLevel && !q->parentWidget()->data->wrect.topLeft().isNull())
         d->setWSGeometry();
 
 #if !defined(QT_NO_IM)
