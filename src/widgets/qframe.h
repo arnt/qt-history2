@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.h#10 $
+** $Id: //depot/qt/main/src/widgets/qframe.h#11 $
 **
 ** Definition of QFrame widget class
 **
@@ -36,6 +36,8 @@ public:
 
     int		frameStyle()	const { return fstyle; }
     void	setFrameStyle( int );
+
+    bool	lineShapesOk()	const { return lineok; }
 
     int		lineWidth()	const { return lwidth; }
     void	setLineWidth( int );
