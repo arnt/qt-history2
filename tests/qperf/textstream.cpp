@@ -27,7 +27,6 @@ static void textstream_init()
 		    t << c;
 		t << ENDL;
 	    }
-	    t << "ghih\r\r\r\n\r\n\rhig\r\n";
 	    f.close();
 	}
     }
@@ -82,29 +81,16 @@ static int textstream_read( const char *fileName,
 	QTextCodec *tc, int numIter=10 )
 {
     int i;
-QString s;
 
     QFile f( fileName );
     for ( i=0; i<numIter; i++ ) {
 	if ( !f.open( IO_ReadOnly ) )
-	{
-//	    return i; // is this possible?
-	}
+	    return i; // is this possible?
 	QTextStream ts(&f);
 	ts.setCodec( tc );
-	s=ts.read();
+	ts.read();
 	f.close();
     }
-{
-    // create a sample text-file (Latin1)
-    QFile f( "blubber-out" );
-    if ( f.open( IO_WriteOnly ) ) {
-	QTextStream t(&f);
-	t.setEncoding( QTextStream::Latin1 );
-	t << "s";
-	f.close();
-    }
-}
     return i;
 }
 
