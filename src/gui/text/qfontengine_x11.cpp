@@ -1065,13 +1065,6 @@ public:
 
 };
 
-static inline void getGlyphInfo( XGlyphInfo *xgi, XftFont *font, int glyph )
-{
-    FT_UInt x = glyph;
-    XftGlyphExtents( QX11Info::appDisplay(), font, &x, 1, xgi );
-}
-
-
 
 QFontEngineXft::QFontEngineXft( XftFont *font, XftPattern *pattern, int cmap )
     : _font( font ), _pattern( pattern ), _openType( 0 ), _cmap( cmap ), transformed_fonts(0)
@@ -1133,7 +1126,7 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, QGly
 	    if ( !glyphs[i].glyph ) {
 		if (uc == 0xa0)
 		    uc = 0x20;
-		glyph_t glyph = XftCharIndex( QX11Info::appDisplay(), _font, uc );
+		glyph_t glyph = FT_Get_Char_Index( _face, uc );
 		glyphs[i].glyph = glyph;
 		if ( uc < cmapCacheSize )
 		    ((QFontEngineXft *)this)->cmapCache[uc] = glyph;
@@ -1146,7 +1139,7 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, QGly
 	    if ( !glyphs[i].glyph ) {
 		if (uc == 0xa0)
 		    uc = 0x20;
-		glyph_t glyph = XftCharIndex( QX11Info::appDisplay(), _font, uc );
+		glyph_t glyph = FT_Get_Char_Index( _face, uc );
 		glyphs[i].glyph = glyph;
 		if ( uc < cmapCacheSize )
 		    ((QFontEngineXft *)this)->cmapCache[uc] = glyph;
@@ -1373,7 +1366,8 @@ glyph_metrics_t QFontEngineXft::boundingBox( const QGlyphLayout *glyphs, int num
     Q26Dot6 ymax;
     Q26Dot6 xmax;
     for (int i = 0; i < numGlyphs; i++) {
-	getGlyphInfo( &xgi, _font, glyphs[i].glyph );
+	FT_UInt gl = glyphs[i].glyph;
+	XftGlyphExtents( QX11Info::appDisplay(), _font, &gl, 1, &xgi );
 	Q26Dot6 x = overall.xoff + glyphs[i].offset.x - xgi.x;
 	Q26Dot6 y = overall.yoff + glyphs[i].offset.y - xgi.y;
 	overall.x = qMin( overall.x, x );
@@ -1399,7 +1393,8 @@ glyph_metrics_t QFontEngineXft::boundingBox( const QGlyphLayout *glyphs, int num
 glyph_metrics_t QFontEngineXft::boundingBox( glyph_t glyph )
 {
     XGlyphInfo xgi;
-    getGlyphInfo( &xgi, _font, glyph );
+    FT_UInt x = glyph;
+    XftGlyphExtents( QX11Info::appDisplay(), _font, &x, 1, &xgi );
     glyph_metrics_t gm = glyph_metrics_t(-xgi.x, -xgi.y, xgi.width, xgi.height, xgi.xOff, -xgi.yOff);
     if ( _scale != Q26Dot6(1) ) {
 	gm.x *= _scale;
@@ -1525,8 +1520,7 @@ bool QFontEngineXft::canRender( const QChar *string, int len )
     bool allExist = TRUE;
 
     for ( int i = 0; i < len; i++ ) {
-	if ( ! XftCharExists( QX11Info::appDisplay(), _font,
-			      string[i].unicode() ) ) {
+	if (!FT_Get_Char_Index(_face, string[i].unicode())) {
 	    allExist = FALSE;
 	    break;
 	}
