@@ -82,7 +82,7 @@ void ProdThread::run()
     int lastpostedpos = 0;
 
     ProdEvent *pe = new ProdEvent(pos, done);
-    QThread::postEvent(receiver, pe);
+    QApplication::postEvent(receiver, pe);
 
     while (! stop) {
 	oldpos = pos;
@@ -113,7 +113,7 @@ void ProdThread::run()
 	if ( pos - lastpostedpos > PRGSTEP || stop ) {
 	    lastpostedpos = pos;
 	    ProdEvent *pe = new ProdEvent(pos, stop);
-	    QThread::postEvent(receiver, pe);
+	    QApplication::postEvent(receiver, pe);
 	}
 
 	loop++;
@@ -184,7 +184,7 @@ void ConsThread::run()
     long lastsize = 0;
 
     ConsEvent *ce = new ConsEvent(size);
-    QThread::postEvent(receiver, ce);
+    QApplication::postEvent(receiver, ce);
 
     while (! stop) {
 	mutex->lock();
@@ -209,7 +209,7 @@ void ConsThread::run()
 	if ( size - lastsize > 1000 || stop ) {
 	    lastsize = size;
 	    ConsEvent *ce = new ConsEvent(size);
-	    QThread::postEvent(receiver, ce);
+	    QApplication::postEvent(receiver, ce);
 	}
     }
 
