@@ -2680,7 +2680,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
     case QEvent::MouseButtonPress:
 	if ( o->inherits( "QDesignerPopupMenu" ) )
 	    break;
-	if ( o && ( o->inherits( "QDesignerMenuBar" ) ||
+	if ( o && currentTool() == POINTER_TOOL && ( o->inherits( "QDesignerMenuBar" ) ||
 		    o->inherits( "QDesignerToolBar" ) ||
 		    ( o->inherits( "QComboBox") || o->inherits( "QToolButton" ) || o->inherits( "QDesignerToolBarSeparator" ) ) &&
 		    o->parent() && o->parent()->inherits( "QDesignerToolBar" ) ) ) {
@@ -2701,6 +2701,8 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	if ( o && ( o->inherits( "QDesignerToolBar" ) || o->inherits( "QDockWindowHandle" ) )
 	     && ( (QMouseEvent*)e )->button() == RightButton )
 	    break;
+	if ( isAToolBarChild( o ) && currentTool() != CONNECT_TOOL )
+	    break;
 	if ( o && o->inherits( "QSizeGrip" ) )
 	    break;
 	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) )
@@ -2717,6 +2719,8 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	return !passiveInteractor;
     case QEvent::MouseButtonRelease:
 	lastPressWidget = 0;
+	if ( isAToolBarChild( o )  && currentTool() != CONNECT_TOOL )
+	    break;
 	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) )
 	    break;
 	if ( !passiveInteractor )
@@ -2727,6 +2731,8 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	}
 	return !passiveInteractor;
     case QEvent::MouseMove:
+	if ( isAToolBarChild( o )  && currentTool() != CONNECT_TOOL )
+	    break;
 	if ( lastPressWidget != (QWidget*)o ||
 	     ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) ) )
 	    break;
@@ -2871,6 +2877,18 @@ QWidget *MainWindow::isAFormWindowChild( QObject *o ) const
 	o = o->parent();
     }
     return 0;
+}
+
+bool MainWindow::isAToolBarChild( QObject *o ) const
+{
+    while ( o ) {
+	if ( o->inherits( "QDesignerToolBar" ) )
+	    return TRUE;
+	if ( o->inherits( "FormWindow" ) )
+	    return FALSE;
+	o = o->parent();
+    }
+    return FALSE;
 }
 
 FormWindow *MainWindow::formWindow()

@@ -11,7 +11,39 @@
 #include <qdragobject.h>
 #include <qbitmap.h>
 #include <qinputdialog.h>
+#include "mainwindow.h"
+#include "defs.h"
+#include "widgetfactory.h"
+#include "formwindow.h"
 
+bool QDesignerAction::addTo( QWidget *w )
+{
+    if ( !widgetToInsert )
+	return QAction::addTo( w );
+
+    if ( w->inherits( "QPopupMenu" ) )
+	return FALSE;
+
+    widgetToInsert->reparent( w, QPoint( 0, 0 ), FALSE );
+    addedTo( widgetToInsert, w );
+    return TRUE;
+}
+
+bool QDesignerAction::removeFrom( QWidget *w )
+{
+    if ( !widgetToInsert )
+	return QAction::removeFrom( w );
+
+    remove();
+    return TRUE;
+}
+
+void QDesignerAction::remove()
+{
+    if ( !widgetToInsert )
+	return;
+    widgetToInsert->reparent( 0, QPoint( 0, 0 ), FALSE );
+}
 
 class QDesignerIndicatorWidget : public QWidget
 {
@@ -114,6 +146,8 @@ QDesignerToolBar::QDesignerToolBar( QMainWindow *mw )
     indicator = new QDesignerIndicatorWidget( this );
     indicator->hide();
     installEventFilter( this );
+    widgetInserting = FALSE;
+    findFormWindow();
 }
 
 QDesignerToolBar::QDesignerToolBar( QMainWindow *mw, Dock dock )
@@ -126,6 +160,18 @@ QDesignerToolBar::QDesignerToolBar( QMainWindow *mw, Dock dock )
     indicator->hide();
     MetaDataBase::addEntry( this );
     installEventFilter( this );
+    widgetInserting = FALSE;
+    findFormWindow();
+}
+
+void QDesignerToolBar::findFormWindow()
+{
+    QWidget *w = this;
+    while ( w ) {
+	if ( w->inherits( "FormWindow" ) )
+	    formWindow = (FormWindow*)w;
+	w = w->parentWidget();
+    }
 }
 
 void QDesignerToolBar::addAction( QAction *a )
@@ -146,9 +192,15 @@ void QDesignerToolBar::addAction( QAction *a )
     }
 }
 
+static void fixObject( QObject *&o )
+{
+    while ( o && !o->parent()->inherits( "QDesignerToolBar" ) )
+	o = o->parent();
+}
+
 bool QDesignerToolBar::eventFilter( QObject *o, QEvent *e )
 {
-    if ( !o || !e )
+    if ( !o || !e || o->inherits( "QDockWindowHandle" ) )
 	return QToolBar::eventFilter( o, e );
 
     if ( o == this && e->type() == QEvent::MouseButtonPress &&
@@ -162,11 +214,18 @@ bool QDesignerToolBar::eventFilter( QObject *o, QEvent *e )
 
     if ( e->type() == QEvent::MouseButtonPress ) {
 	QMouseEvent *ke = (QMouseEvent*)e;
+	fixObject( o );
 	buttonMousePressEvent( ke, o );
 	return TRUE;
     } else if ( e->type() == QEvent::MouseMove ) {
 	QMouseEvent *ke = (QMouseEvent*)e;
+	fixObject( o );
 	buttonMouseMoveEvent( ke, o );
+	return TRUE;
+    } else if ( e->type() == QEvent::MouseButtonRelease ) {
+	QMouseEvent *ke = (QMouseEvent*)e;
+	fixObject( o );
+	buttonMouseReleaseEvent( ke, o );
 	return TRUE;
     } else if ( e->type() == QEvent::DragEnter ) {
 	QDragEnterEvent *de = (QDragEnterEvent*)e;
@@ -195,7 +254,8 @@ void QDesignerToolBar::paintEvent( QPaintEvent *e )
 
 void QDesignerToolBar::mousePressEvent( QMouseEvent *e )
 {
-    qDebug( "here" );
+    widgetInserting = FALSE;
+
     if ( e->button() == RightButton ) {
 	QPopupMenu menu( 0 );
 	menu.insertItem( tr( "Delete Toolbar" ), 1 );
@@ -203,10 +263,41 @@ void QDesignerToolBar::mousePressEvent( QMouseEvent *e )
 	if ( res != -1 )
 	    delete this;
     }
+
+    if ( e->button() == LeftButton &&
+	 MainWindow::self->currentTool() != POINTER_TOOL &&
+	 MainWindow::self->currentTool() != ORDER_TOOL ) {
+
+	if ( MainWindow::self->currentTool() == CONNECT_TOOL ) {
+	
+	} else {
+	    widgetInserting = TRUE;
+	}
+	
+	return;
+    }
+}
+
+void QDesignerToolBar::mouseReleaseEvent( QMouseEvent *e )
+{
+    if ( widgetInserting )
+	doInsertWidget( mapFromGlobal( e->globalPos() ) );
+    widgetInserting = FALSE;
+}
+
+void QDesignerToolBar::buttonMouseReleaseEvent( QMouseEvent *e, QObject *w )
+{
+    if ( widgetInserting )
+	doInsertWidget( mapFromGlobal( e->globalPos() ) );
+    else if ( w->isWidgetType() && formWindow->widgets()->find( w ) )
+	formWindow->selectWidget( w );
+    widgetInserting = FALSE;
 }
 
 void QDesignerToolBar::buttonMousePressEvent( QMouseEvent *e, QObject *o )
 {
+    widgetInserting = FALSE;
+
     if ( e->button() == MidButton )
 	return;
 
@@ -221,9 +312,10 @@ void QDesignerToolBar::buttonMousePressEvent( QMouseEvent *e, QObject *o )
 	menu.insertItem( tr( "Delete Toolbar" ), ID_DELTOOLBAR );
 	int res = menu.exec( e->globalPos() );
 	if ( res == ID_DELETE ) {
-	    QAction *a = *actionMap.find( (QWidget*)o );
-	    if ( !a )
+	    QMap<QWidget*, QAction*>::Iterator it = actionMap.find( (QWidget*)o );
+	    if ( it == actionMap.end() )
 		return;
+	    QAction *a = *it;
 	    actionList.remove( a );
 	    a->removeFrom( this );
 	} else if ( res == ID_SEP ) {
@@ -248,14 +340,33 @@ void QDesignerToolBar::buttonMousePressEvent( QMouseEvent *e, QObject *o )
 	return;
     }
 
+    if ( e->button() == LeftButton &&
+	 MainWindow::self->currentTool() != POINTER_TOOL &&
+	 MainWindow::self->currentTool() != ORDER_TOOL ) {
+
+	if ( MainWindow::self->currentTool() == CONNECT_TOOL ) {
+	
+	} else {
+	    widgetInserting = TRUE;
+	}
+	
+	return;
+    }
+
+
     dragStartPos = e->pos();
 }
 
 void QDesignerToolBar::buttonMouseMoveEvent( QMouseEvent *e, QObject *o )
 {
+    if ( widgetInserting )
+	return;
     if ( QABS( QPoint( dragStartPos - e->pos() ).manhattanLength() ) < QApplication::startDragDistance() )
 	return;
-    QAction *a = *actionMap.find( (QWidget*)o );
+    QMap<QWidget*, QAction*>::Iterator it = actionMap.find( (QWidget*)o );
+    if ( it == actionMap.end() )
+	return;
+    QAction *a = *it;
     if ( !a )
 	return;
     a->removeFrom( this );
@@ -268,6 +379,10 @@ void QDesignerToolBar::buttonMouseMoveEvent( QMouseEvent *e, QObject *o )
     QString s = QString::number( (long)a ); // #### huha, that is evil
     drag->setEncodedData( QCString( s.latin1() ) );
     drag->setPixmap( a->iconSet().pixmap() );
+    if ( a->inherits( "QDesignerAction" ) ) {
+	if ( formWindow->widgets()->find( ( (QDesignerAction*)a )->widget() ) )
+	    formWindow->selectWidget( ( (QDesignerAction*)a )->widget(), FALSE );
+    }
     if ( !drag->drag() ) {
 	actionList.insert( idx, a );
 	reInsert();
@@ -280,6 +395,7 @@ void QDesignerToolBar::buttonMouseMoveEvent( QMouseEvent *e, QObject *o )
 
 void QDesignerToolBar::dragEnterEvent( QDragEnterEvent *e )
 {
+    widgetInserting = FALSE;
     lastIndicatorPos = QPoint( -1, -1 );
     if ( e->provides( "application/x-designer-actions" ) ||
 	 e->provides( "application/x-designer-actiongroup" ) ||
@@ -499,7 +615,47 @@ void QDesignerToolBar::drawIndicator( const QPoint &pos )
     }
 }
 
+void QDesignerToolBar::doInsertWidget( const QPoint &p )
+{
+    if ( formWindow != MainWindow::self->formWindow() )
+	return;
+    calcIndicatorPos( p );
+    QWidget *w = WidgetFactory::create( MainWindow::self->currentTool(), this, 0, TRUE );
+    installEventFilters( w );
+    MainWindow::self->formWindow()->insertWidget( w, TRUE );
+    QDesignerAction *a = new QDesignerAction( w, parent() );
+    connect( a, SIGNAL( destroyed() ), this, SLOT( actionRemoved() ) );
+    a->addTo( this );
+    int index = actionList.findRef( *actionMap.find( insertAnchor ) );
+    if ( index != -1 && afterAnchor )
+	++index;
+    if ( !insertAnchor )
+	index = 0;
+    qDebug( "%d %p", index, a->widget() );
+    if ( index == -1 )
+	actionList.append( a );
+    else
+	actionList.insert( index, a );
+    reInsert();
+    MainWindow::self->resetTool();
+}	
 
+void QDesignerToolBar::clear()
+{
+    for ( QAction *a = actionList.first(); a; a = actionList.next() ) {
+	if ( a->inherits( "QDesignerAction" ) )
+	    ( (QDesignerAction*)a )->remove();
+    }
+    QToolBar::clear();
+}
+
+void QDesignerToolBar::installEventFilters( QWidget *w )
+{
+    QObjectList *l = w->queryList( "QWidget" );
+    for ( QObject *o = l->first(); o; o = l->next() )
+	o->installEventFilter( this );
+    delete l;
+}
 
 
 
@@ -882,6 +1038,12 @@ void QDesignerPopupMenu::dropEvent( QDropEvent *e )
 	} else {
 	    s = QString( e->encodedData( "application/x-designer-actions" ) );
 	    a = (QDesignerAction*)s.toLong(); // #### huha, that is evil
+	    if ( !( (QDesignerAction*)a )->supportsMenu() ) {
+		qDebug( "Gere" );
+		e->ignore();
+		indicator->hide();
+		return;
+	    }
 	}
 	a->addTo( this );
 	actionList.insert( insertAt, a );

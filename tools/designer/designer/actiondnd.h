@@ -11,6 +11,7 @@
 
 class QDesignerPopupMenu;
 class QDesignerIndicatorWidget;
+class FormWindow;
 
 class QDesignerActionGroup : public QActionGroup
 {
@@ -48,10 +49,18 @@ class QDesignerAction : public QAction
 
 public:
     QDesignerAction( QObject *parent )
-	: QAction( parent ), wid( 0 ), idx( -1 ) {}
+	: QAction( parent ), wid( 0 ), idx( -1 ), widgetToInsert( 0 ) {}
+    QDesignerAction( QWidget *w, QObject *parent )
+	: QAction( parent ), wid( 0 ), idx( -1 ), widgetToInsert( w ) {}
 
     QWidget *widget() const { return wid; }
     int index() const { return idx; }
+
+    bool addTo( QWidget *w );
+    bool removeFrom( QWidget *w );
+
+    void remove();
+    bool supportsMenu() const { return !widgetToInsert; }
 
 protected:
     void addedTo( QWidget *w, QWidget * ) {
@@ -64,6 +73,7 @@ protected:
 private:
     QWidget *wid;
     int idx;
+    QWidget *widgetToInsert;
 
 };
 
@@ -114,6 +124,9 @@ public:
     QList<QAction> insertedActions() const { return actionList; }
     void addAction( QAction *a );
 
+    void clear();
+    void installEventFilters( QWidget *w );
+
 protected:
     bool eventFilter( QObject *, QEvent * );
     void paintEvent( QPaintEvent * );
@@ -124,6 +137,7 @@ protected:
     void dropEvent( QDropEvent * );
 #endif
     void mousePressEvent( QMouseEvent *e );
+    void mouseReleaseEvent( QMouseEvent *e );
 
 private slots:
     void actionRemoved();
@@ -134,6 +148,9 @@ private:
     void reInsert();
     void buttonMousePressEvent( QMouseEvent *e, QObject *o );
     void buttonMouseMoveEvent( QMouseEvent *e, QObject *o );
+    void buttonMouseReleaseEvent( QMouseEvent *e, QObject *o );
+    void doInsertWidget( const QPoint &p );
+    void findFormWindow();
 
 private:
     QPoint lastIndicatorPos;
@@ -143,6 +160,8 @@ private:
     QMap<QWidget*, QAction*> actionMap;
     QPoint dragStartPos;
     QDesignerIndicatorWidget *indicator;
+    bool widgetInserting;
+    FormWindow *formWindow;
 
 };
 
