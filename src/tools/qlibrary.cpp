@@ -300,9 +300,9 @@ QString QLibrary::library() const
 #ifdef Q_OS_MACX
     QString filter = ".dylib";
 #elif defined(Q_OS_HPUX)
-    QString filter = "sl";
+    QString filter = ".sl";
 #else
-    QString filter = "so";
+    QString filter = ".so";
 #endif
     if ( filename.find(filter) == -1 ) {
 	if(QFile::exists(filename + filter)) {
