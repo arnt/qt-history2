@@ -31,7 +31,7 @@
 
 #include "qmenu_p.h"
 #include "qmenubar_p.h"
-
+#include "qdebug.h"
 #include <private/qaction_p.h>
 #ifdef QT_COMPAT
 #include <qmenudata.h>
@@ -245,7 +245,7 @@ void QMenuPrivate::hideUpToMenuBar()
 
 void QMenuPrivate::popupAction(QAction *action, int delay, bool activateFirst)
 {
-    if (action && action->menu()) {
+    if (action && action->menu() && action->isEnabled() && action->menu()->isEnabled()) {
         if (!delay) {
             q->internalDelayedPopup();
         } else {
@@ -574,7 +574,7 @@ bool QMenuPrivate::mouseEventTaken(QMouseEvent *e)
 
 void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e)
 {
-    if (!action)
+    if (!action || !action->isEnabled() || !q->isEnabled())
         return;
 
     /* I have to save the caused stack here because it will be undone after popup execution (ie in the hide).
@@ -1567,7 +1567,7 @@ void QMenu::mouseReleaseEvent(QMouseEvent *e)
     for(QWidget *caused = this; caused;) {
         if (QMenu *m = qt_cast<QMenu*>(caused)) {
             caused = m->d->causedPopup;
-            if (m->d->eventLoop) // synchronous operation
+            if (m->d->eventLoop && action->isEnabled()) // synchronous operation
                 m->d->syncAction = action;
         } else {
             break;
@@ -1603,6 +1603,7 @@ void QMenu::changeEvent(QEvent *e)
     } else if (e->type() == QEvent::EnabledChange) {
         if (d->tornPopup) // torn-off menu
             d->tornPopup->setEnabled(isEnabled());
+        d->menuAction->setEnabled(isEnabled());
     }
     QWidget::changeEvent(e);
 }
@@ -1814,13 +1815,6 @@ void QMenu::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Return:
     case Qt::Key_Enter: {
             if (!d->currentAction)
-                break;
-#ifndef QT_NO_WHATSTHIS
-            bool whats_this_mode = QWhatsThis::inWhatsThisMode();
-#else
-            const bool whats_this_mode = false;
-#endif
-            if (!d->currentAction->isEnabled() && !whats_this_mode)
                 break;
             if (d->currentAction->menu())
                 d->popupAction(d->currentAction, 20, true);

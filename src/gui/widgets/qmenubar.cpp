@@ -124,8 +124,10 @@ void QMenuBarPrivate::setKeyboardMode(bool b)
 void QMenuBarPrivate::popupAction(QAction *action, bool activateFirst)
 {
     Q_Q(QMenuBar);
+    if(!action || !action->menu())
+        return;
     popupState = true;
-    if(action && action->menu()) {
+    if (action->isEnabled() && action->menu()->isEnabled()) {
         closePopupMode = 0;
         activeMenu = action->menu();
         activeMenu->d_func()->causedPopup = q;
@@ -133,7 +135,7 @@ void QMenuBarPrivate::popupAction(QAction *action, bool activateFirst)
         QRect adjustedActionRect = actionRect(action);
         QPoint pos(q->mapToGlobal(QPoint(adjustedActionRect.left(), adjustedActionRect.bottom() + 1)));
         QSize popup_size = activeMenu->sizeHint();
-        if(q->isRightToLeft()) 
+        if(q->isRightToLeft())
             pos.setX(pos.x()-(popup_size.width()-adjustedActionRect.width()));
 
         QRect screenRect = QApplication::desktop()->screenGeometry(pos);
@@ -151,8 +153,8 @@ void QMenuBarPrivate::popupAction(QAction *action, bool activateFirst)
         activeMenu->popup(pos);
         if(activateFirst)
             activeMenu->d_func()->setFirstActionActive();
-        q->update(actionRect(action));
     }
+    q->update(actionRect(action));
 }
 
 void QMenuBarPrivate::setCurrentAction(QAction *action, bool popup, bool activateFirst)
@@ -276,7 +278,7 @@ void QMenuBarPrivate::calcActionRects(int max_width, int start, QMap<QAction*, Q
 
 void QMenuBarPrivate::activateAction(QAction *action, QAction::ActionEvent action_e)
 {
-    if(!action)
+    if (!action || !action->isEnabled())
         return;
     action->activate(action_e);
 //     if(action_e == QAction::Trigger)
