@@ -1343,8 +1343,11 @@ void QTextDocument::setPlainText( const QString &text )
 	if ( !fParag )
 	    fParag = lParag;
 	s = *it;
-	if ( !s.isEmpty() )
+	if ( !s.isEmpty() ) {
+	    if ( s[ (int)s.length() - 1 ] == '\r' )
+		s.remove( s.length() - 1, 1 );
 	    lParag->append( s );
+	}
     }
 
     if ( !lParag )
