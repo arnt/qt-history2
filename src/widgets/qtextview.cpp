@@ -1360,7 +1360,7 @@ void QTextView::insert( const QString &text, bool indent, bool checkNewLine, boo
     QTextCursor c2 = *cursor;
     QString txt( text );
     drawCursor( FALSE );
-    if ( doc->hasSelection( QTextDocument::Standard ) && removeSelected ) {
+    if ( !isReadOnly() && doc->hasSelection( QTextDocument::Standard ) && removeSelected ) {
 	checkUndoRedoInfo( UndoRedoInfo::RemoveSelected );
 	if ( !undoRedoInfo.valid() ) {
 	    doc->selectionStart( QTextDocument::Standard, undoRedoInfo.id, undoRedoInfo.index );
@@ -2344,6 +2344,7 @@ int QTextView::heightForWidth( int w ) const
 
 void QTextView::append( const QString &text )
 {
+    doc->removeSelection( QTextDocument::Standard );
     TextFormat f = doc->textFormat();
     if ( f == AutoText ) {
 	if ( QStyleSheet::mightBeRichText( text ) )
