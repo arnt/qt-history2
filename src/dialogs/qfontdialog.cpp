@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#1 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#2 $
 **
 ** C++ file skeleton
 **
@@ -17,8 +17,10 @@
 #include "qlayout.h"
 #include "qgrpbox.h"
 #include "qlabel.h"
+#include "qkeycode.h"
+#include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#1 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#2 $");
 
 
 struct QFontDialogPrivate
@@ -70,7 +72,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->familyEdit = new QLineEdit( this, "font family I" );
     d->familyEdit->setFocusPolicy( StrongFocus );
     d->familyList = new QListBox( this, "font family II" );
-    d->familyList->setFocusPolicy( ClickFocus );
+    d->familyList->setFocusPolicy( NoFocus );
     d->familyAccel
 	= new QLabel( d->familyEdit, "&Font", this, "family accelerator" );
     d->familyAccel->setMargin( 2 );
@@ -78,7 +80,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->styleEdit = new QLineEdit( this, "font style I" );
     d->styleEdit->setFocusPolicy( StrongFocus );
     d->styleList = new QListBox( this, "font style II" );
-    d->styleList->setFocusPolicy( ClickFocus );
+    d->styleList->setFocusPolicy( NoFocus );
     d->styleAccel
 	= new QLabel( d->styleEdit, "Font st&yle", this, "style accelerator" );
     d->styleAccel->setMargin( 2 );
@@ -86,7 +88,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->sizeEdit = new QLineEdit( this, "font size I" );
     d->sizeEdit->setFocusPolicy( StrongFocus );
     d->sizeList = new QListBox( this, "font size II" );
-    d->sizeList->setFocusPolicy( ClickFocus );
+    d->sizeList->setFocusPolicy( NoFocus );
     d->sizeAccel
 	= new QLabel ( d->sizeEdit, "&Size", this, "size accelerator" );
     d->sizeAccel->setMargin( 2 );
@@ -157,10 +159,13 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     mainGrid->setRowStretch( 4, 2 );
     // next numbers must match with those in updateGeometry()
     mainGrid->setColStretch( 0, 94 );
+    mainGrid->addColSpacing( 1, 16);
     mainGrid->setColStretch( 2, 64 );
+    mainGrid->addColSpacing( 3, 14 );
     mainGrid->setColStretch( 4, 32 );
+    mainGrid->addColSpacing( 5, 14 );
 
-    // set row 3 to 10 pixels height
+    mainGrid->addRowSpacing( 3, 10 );
 
     mainGrid->addWidget( d->effects, 4, 0 );
 
@@ -181,12 +186,12 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
 
     d->buttonLayout->addStretch( 1 );
 
-    connect( d->familyList, SIGNAL(highlighted(int)),
-	     SLOT(familyHighlighted(int)) );
-    connect( d->styleList, SIGNAL(highlighted(int)),
-	     SLOT(styleHighlighted(int)) );
-    connect( d->sizeList, SIGNAL(highlighted(int)),
-	     SLOT(sizeHighlighted(int)) );
+    connect( d->familyList, SIGNAL(highlighted(const char *)),
+	     SLOT(familyHighlighted(const char *)) );
+    connect( d->styleList, SIGNAL(highlighted(const char *)),
+	     SLOT(styleHighlighted(const char *)) );
+    connect( d->sizeList, SIGNAL(highlighted(const char *)),
+	     SLOT(sizeHighlighted(const char *)) );
 
     connect( d->familyEdit, SIGNAL(returnPressed()),
 	     SLOT(familySelected()) );
@@ -195,15 +200,15 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     connect( d->sizeEdit, SIGNAL(returnPressed()),
 	     SLOT(sizeSelected()) );
 
-    connect( d->familyList, SIGNAL(highlighted(const char *)),
-	     d->familyEdit, SLOT(setText(const char *)) );
-    connect( d->styleList, SIGNAL(highlighted(const char *)),
-	     d->styleEdit, SLOT(setText(const char *)) );
-    connect( d->sizeList, SIGNAL(highlighted(const char *)),
-	     d->sizeEdit, SLOT(setText(const char *)) );
-
     resize( 1, 1 );
     updateGeometry();
+
+    d->familyEdit->installEventFilter( this );
+    d->styleEdit->installEventFilter( this );
+    d->sizeEdit->installEventFilter( this );
+    d->familyList->installEventFilter( this );
+    d->styleList->installEventFilter( this );
+    d->sizeList->installEventFilter( this );
 }
 
 
@@ -395,4 +400,94 @@ void QFontDialog::updateGeometry()
     d->sampleLayout->activate();
     d->sampleEditLayout->activate();
     d->topLevelLayout->activate();
+}
+
+
+/*!  Event filter to make up, down, pageup and pagedown work correctly
+  in the line edits.
+*/
+
+bool QFontDialog::eventFilter( QObject * o , QEvent * e )
+{
+    if ( !o || !e )
+	return FALSE;
+
+
+    if ( e->type() == Event_KeyPress ) {
+    QListBox * lb = 0;
+    QLineEdit * le = 0;
+
+	if ( o == d->familyEdit ) {
+	    lb = d->familyList;
+	    le = d->familyEdit;
+	} else if ( o == d->styleEdit ) {
+	    lb = d->styleList;
+	    le = d->styleEdit;
+	} else if ( o == d->sizeEdit ) {
+	    lb = d->sizeList;
+	    le = d->sizeEdit;
+	} else {
+	    return FALSE;
+	}
+    
+	QKeyEvent * k = (QKeyEvent *)e;
+	if ( k->key() == Key_Up ||
+	     k->key() == Key_Down ||
+	     k->key() == Key_Prior ||
+	     k->key() == Key_Next ) {
+	    int ci = lb->currentItem();
+	    (void)QApplication::sendEvent( lb, k );
+	    if ( ci != lb->currentItem() && style() == WindowsStyle )
+		le->selectAll();
+	    return TRUE;
+	}
+    } else if ( e->type() == Event_FocusIn ) {
+	if ( o == d->familyEdit )
+	    d->familyEdit->selectAll();
+	else if ( o == d->styleEdit )
+	    d->styleEdit->selectAll();
+	else if ( o == d->sizeEdit )
+	    d->sizeEdit->selectAll();
+    } else if ( e->type() == Event_MouseButtonPress ) {
+	if ( o == d->familyList )
+	    d->familyEdit->setFocus();
+	else if ( o == d->styleList )
+	    d->styleEdit->setFocus();
+	else if ( o == d->sizeList )
+	    d->sizeEdit->setFocus();
+    }
+    return FALSE;
+}
+
+
+/*!
+
+*/
+
+void QFontDialog::familyHighlighted( const char * t )
+{
+    d->familyEdit->setText( t );	
+    d->familyEdit->selectAll();
+}
+
+
+/*!
+
+*/
+
+void QFontDialog::styleHighlighted( const char * t )
+{
+    d->styleEdit->setText( t );	
+    d->styleEdit->selectAll();
+}
+
+
+/*!
+
+*/
+
+void QFontDialog::sizeHighlighted( const char * t )
+{
+    d->sizeEdit->setText( t );	
+    d->sizeEdit->selectAll();
 }

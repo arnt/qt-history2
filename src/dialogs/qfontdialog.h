@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.h#1 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.h#2 $
 **
 ** Definition of 
 **
@@ -27,6 +27,8 @@ public:
 
     void show();
 
+    bool eventFilter( QObject *, QEvent * );
+
 protected:
     QListBox * fontFamilyListBox() const;
     virtual void updateFontFamilies();
@@ -43,6 +45,11 @@ protected slots:
     void familySelected();
     void styleSelected();
     void sizeSelected();
+
+private slots:
+    void familyHighlighted( const char * );
+    void styleHighlighted( const char * );
+    void sizeHighlighted( const char * );
 
 private:
     QFontDialogPrivate * d;
