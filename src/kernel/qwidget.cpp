@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#225 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#226 $
 **
 ** Implementation of QWidget class
 **
@@ -29,7 +29,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#225 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#226 $");
 
 
 /*!
@@ -2154,8 +2154,9 @@ void QWidget::setTabOrder( QWidget* first, QWidget *second )
 void QWidget::reparentFocusWidgets( QWidget * parent )
 {
     if ( focusData() &&
-	 ( parentObj == 0 || parent == 0 ||
-	   parent->topLevelWidget() != topLevelWidget() ) ) {
+	 ( parent == 0 ? parentObj != 0
+		       : parent->topLevelWidget() != topLevelWidget() ) )
+    {
 	QFocusData * from = focusData();
 	from->focusWidgets.first();
 	QFocusData * to;
