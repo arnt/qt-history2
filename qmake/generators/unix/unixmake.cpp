@@ -231,7 +231,10 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t";
 	    if(!destdir.isEmpty())
 		t << "[ -d " << destdir << " ] || mkdir -p " << destdir << "\n\t";
-	    t << "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)" << endl << endl;
+	    t << "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)";
+	    if(!project->isEmpty("QMAKE_POST_LINK"))
+		t << "\n\t" << var("QMAKE_POST_LINK");
+	    t << endl << endl;
 	}
     } else if(!project->isActiveConfig("staticlib")) {
 	t << "all: " << ofile << " " << varGlue("ALL_DEPS",""," ","") << " " <<  var("DESTDIR_TARGET") << endl << endl;
@@ -270,6 +273,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    t << "\n\t"
 	      << "-rm -f $(TARGETD)" << "\n\t"
 	      << var("QMAKE_LINK_SHLIB_CMD");
+	    if(!project->isEmpty("QMAKE_POST_LINK"))
+		t << var("QMAKE_POST_LINK") << "\n\t";
 	    if(!destdir.isEmpty())
 		t << "\n\t"
 		  << "-mv $(TARGETD) " << var("DESTDIR");
@@ -277,8 +282,10 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	} else if(project->variables()["QMAKE_HPUX_SHLIB"].isEmpty()) {
 	    t << "\n\t"
 	      << "-rm -f $(TARGET) $(TARGET0) $(TARGET1) $(TARGET2)" << "\n\t"
-	      << var("QMAKE_LINK_SHLIB_CMD") << "\n\t"
-	      << varGlue("QMAKE_LN_SHLIB",""," "," $(TARGET) $(TARGET0)")  << "\n\t"
+	      << var("QMAKE_LINK_SHLIB_CMD") << "\n\t";
+	    if(!project->isEmpty("QMAKE_POST_LINK"))
+		t << var("QMAKE_POST_LINK") << "\n\t";
+	    t << varGlue("QMAKE_LN_SHLIB",""," "," $(TARGET) $(TARGET0)")  << "\n\t"
 	      << varGlue("QMAKE_LN_SHLIB",""," "," $(TARGET) $(TARGET1)") << "\n\t"
 	      << varGlue("QMAKE_LN_SHLIB",""," "," $(TARGET) $(TARGET2)");
 	    if(!destdir.isEmpty())
@@ -292,8 +299,10 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	} else {
 	    t << "\n\t"
 	      << "-rm -f $(TARGET) $(TARGET0)" << "\n\t"
-	      << var("QMAKE_LINK_SHLIB_CMD") << "\n\t"
-	      << varGlue("QMAKE_LN_SHLIB",""," "," $(TARGET) $(TARGET0)");
+	      << var("QMAKE_LINK_SHLIB_CMD") << "\n\t";
+	    if(!project->isEmpty("QMAKE_POST_LINK"))
+		t << var("QMAKE_POST_LINK") << "\n\t";
+	    t << varGlue("QMAKE_LN_SHLIB",""," "," $(TARGET) $(TARGET0)");
 	    if(!destdir.isEmpty())
 		t  << "\n\t"
 		   << "-rm -f " << var("DESTDIR") << "$(TARGET)\n\t"
@@ -321,8 +330,11 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    t << "[ -d " << destdir << " ] || mkdir -p " << destdir << "\n\t";
 	}
 	t << "-rm -f $(TARGET)" << "\n\t"
-	  << var("QMAKE_AR_CMD") << "\n\t"
-	  << varGlue("QMAKE_RANLIB",""," "," $(TARGET)")
+	  << var("QMAKE_AR_CMD") << "\n\t";
+	if(!project->isEmpty("QMAKE_POST_LINK"))
+	    t << var("QMAKE_POST_LINK") << "\n\t";
+
+	t << varGlue("QMAKE_RANLIB",""," "," $(TARGET)")
 	  << endl << endl;
     }
 
