@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>212</width>
-            <height>207</height>
+            <width>208</width>
+            <height>205</height>
         </rect>
     </property>
     <property name="caption">
@@ -143,13 +143,6 @@
         <widget class="QLabel" row="6" column="0">
             <property name="name">
                 <cstring>TextLabel1_2</cstring>
-            </property>
-            <property name="backgroundColor">
-                <color>
-                    <red>192</red>
-                    <green>192</green>
-                    <blue>192</blue>
-                </color>
             </property>
             <property name="text">
                 <string>&amp;Port</string>
