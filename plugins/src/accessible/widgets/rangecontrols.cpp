@@ -7,7 +7,7 @@
 #include <qslider.h>
 #include <qstyle.h>
 
-QString Q_EXPORT qacc_stripAmp(const QString &text);
+QString Q_GUI_EXPORT qacc_stripAmp(const QString &text);
 
 /*!
   \class QAccessibleSpinBox qaccessiblewidget.h
@@ -140,6 +140,7 @@ bool QAccessibleSpinBox::doAction(int action, int child)
     if (!widget()->isEnabled())
 	return false;
 
+/* // ### vohi - what's that code?
     if (action == Press) switch(child) {
     case ValueUp:
 	if (spinBox()->value() >= spinBox()->maxValue())
@@ -154,6 +155,7 @@ bool QAccessibleSpinBox::doAction(int action, int child)
     default:
 	break;
     }
+    */
     return QAccessibleWidget::doAction(action, 0);
 }
 
@@ -271,6 +273,7 @@ QAccessible::Role QAccessibleScrollBar::role(int child) const
 /*! \reimp */
 bool QAccessibleScrollBar::doAction(int action, int child)
 {
+/*
     if (action == Press) switch (child) {
     case LineUp:
 	scrollBar()->subtractLine();
@@ -285,6 +288,7 @@ bool QAccessibleScrollBar::doAction(int action, int child)
 	scrollBar()->addLine();
 	return true;
     }
+*/
     return false;
 }
 
@@ -388,6 +392,7 @@ QAccessible::Role QAccessibleSlider::role(int child) const
 /*! \reimp */
 int QAccessibleSlider::defaultAction(int child) const
 {
+/*
     switch (child) {
     case SliderSelf:
 	return SetFocus;
@@ -396,12 +401,14 @@ int QAccessibleSlider::defaultAction(int child) const
     case PageRight:
 	return Press;
     }
-    return NoAction;
+*/
+    return 0;
 }
 
 /*! \reimp */
 bool QAccessibleSlider::doAction(int action, int child)
 {
+/*
     switch(child) {
     case SliderSelf:
 	if (action == SetFocus) {
@@ -431,5 +438,6 @@ bool QAccessibleSlider::doAction(int action, int child)
 	}
 	break;
     }
+*/
     return false;
 }

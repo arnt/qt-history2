@@ -11,7 +11,7 @@
 #include <qtooltip.h>
 #include <qwhatsthis.h>
 
-QString Q_EXPORT qacc_stripAmp(const QString &text);
+QString Q_GUI_EXPORT qacc_stripAmp(const QString &text);
 
 /*!
   \class QAccessibleHeader qaccessiblewidget.h

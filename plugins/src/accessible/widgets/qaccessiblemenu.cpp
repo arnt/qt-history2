@@ -5,8 +5,8 @@
 #include <qmenubar.h>
 #include <qstyle.h>
 
-QString Q_EXPORT qacc_stripAmp(const QString &text);
-QString Q_EXPORT qacc_hotKey(const QString &text);
+QString Q_GUI_EXPORT qacc_stripAmp(const QString &text);
+QString Q_GUI_EXPORT qacc_hotKey(const QString &text);
 
 class MyPopupMenu : public QPopupMenu
 {

@@ -104,17 +104,19 @@ int QAccessibleViewport::state(int child) const
 
 bool QAccessibleViewport::setSelected(int child, bool on, bool extend)
 {
-    return scrollView()->setSelected(child, on, extend);
+//###    return scrollView()->setSelected(child, on, extend);
+    return 0;
 }
 
 void QAccessibleViewport::clearSelection()
 {
-    scrollView()->clearSelection();
+//###    scrollView()->clearSelection();
 }
 
 QVector<int> QAccessibleViewport::selection() const
 {
-    return scrollView()->selection();
+//###    return scrollView()->selection();
+    return QVector<int>();
 }
 
 /*!
