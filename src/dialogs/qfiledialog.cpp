@@ -2815,7 +2815,7 @@ QStringList QFileDialog::selectedFiles() const
   absolute, setDir() is also called to set the file dialog's working
   directory to the filename's directory.
 
-  \internal
+  \omit
   Only for external use.  Not useful inside QFileDialog.
 */
 
