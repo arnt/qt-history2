@@ -218,7 +218,7 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 			    QStringList uil = project->variables()["INTERFACES"];
 			    for(QStringList::Iterator it = uil.begin(); it != uil.end(); ++it) {
 				if((*it).find(QRegExp(uip)) != -1) { 
-				    fqn = (*it).left((*it).length()-3) + uip.right(uip.length()-extn);
+				    fqn = (*it).left((*it).length()-3) + inc.right(inc.length()-extn);
 				    break;
 				}
 			    }
@@ -414,9 +414,8 @@ MakefileGenerator::init()
 	QStringList &l = v["INTERFACES"];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	    QFileInfo fi((*it));
-	    QString uidir = v["MOC_DIR"].isEmpty() ? (fi.dirPath() + Option::dir_sep) : v["MOC_DIR"].first();
-	    QString impl =  uidir + fi.baseName() + Option::cpp_ext;
-	    QString decl = uidir + fi.baseName() + Option::h_ext;
+	    QString impl =  fi.dirPath() + Option::dir_sep + fi.baseName() + Option::cpp_ext;
+	    QString decl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::h_ext;
 	    decls.append(decl);
 	    impls.append(impl);
 	    depends[impl].append(decl);
@@ -442,8 +441,7 @@ MakefileGenerator::init()
 	QStringList &l = v["LEXSOURCES"];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	    QFileInfo fi((*it));
-	    QString lexdir = v["MOC_DIR"].isEmpty() ? (fi.dirPath() + Option::dir_sep) : v["MOC_DIR"].first();
-	    QString impl = lexdir + fi.baseName() + Option::lex_mod + Option::cpp_ext;
+	    QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext;
 	    impls.append(impl);
 #ifndef MOC_YACC_LEX_HACKS
 	    v["SOURCES"].append(impl);
@@ -459,9 +457,8 @@ MakefileGenerator::init()
 	QStringList &l = v["YACCSOURCES"];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	    QFileInfo fi((*it));
-	    QString yaccdir = v["MOC_DIR"].isEmpty() ? (fi.dirPath() + Option::dir_sep) : v["MOC_DIR"].first();
-	    QString impl = yaccdir + fi.baseName() + Option::yacc_mod + Option::cpp_ext;
-	    QString decl = yaccdir + fi.baseName() + Option::yacc_mod + Option::h_ext;
+	    QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::cpp_ext;
+	    QString decl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::h_ext;
 	    decls.append(decl);
 	    impls.append(impl);
 	    v["SOURCES"].append(impl);
@@ -479,13 +476,11 @@ MakefileGenerator::init()
     //moc files
 
     if ( mocAware() ) {
+    if(!project->variables()["MOC_DIR"].isEmpty())
+	project->variables()["INCLUDEPATH"].append(project->variables()["MOC_DIR"].first());
 	v["OBJMOC"] = createObjectList("_HDRMOC") + createObjectList("_UIMOC");
 	v["SRCMOC"] = v["_HDRMOC"] + v["_SRCMOC"] + v["_UIMOC"];
     }
-
-    //the temp dir is added to include path
-    if(!project->variables()["MOC_DIR"].isEmpty())
-	project->variables()["INCLUDEPATH"].append(project->variables()["MOC_DIR"].first());
 }
 
 bool
