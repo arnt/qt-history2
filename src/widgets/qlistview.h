@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#101 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#102 $
 **
 ** Definition of QListView widget class
 **
@@ -187,6 +187,7 @@ public:
 
     virtual int addColumn( const QString &label, int size = -1);
     virtual int addColumn( const QIconSet& iconset, const QString &label, int size = -1);
+    void removeColumn( int index ); // #### make virtual in next major release!
     virtual void setColumnText( int column, const QString &label );
     virtual void setColumnText( int column, const QIconSet& iconset, const QString &label );
     QString columnText( int column ) const;
@@ -235,7 +236,7 @@ public:
     bool rootIsDecorated() const;
 
     virtual void setSorting( int column, bool increasing = TRUE );
-    void refreshSorting();
+    void refreshSorting(); // #### make virtual in next major release
 
     void setAutoResort( bool b );
     bool autoResort() const;

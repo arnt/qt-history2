@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#95 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#96 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -378,6 +378,7 @@ int QHeader::cellAt( int c ) const
 	while ( i >= 0 && pos < cellPos( i ) )
 	    i--;
     }
+    
     return i >= count() ? -1 : i;
 }
 
@@ -690,6 +691,36 @@ int QHeader::addLabel( const QIconSet& iconset, const QString &s, int size )
     data->iconsets.resize( n + 1 );
     data->iconsets.insert( n - 1, new QIconSet( iconset ) );
     return addLabel( s, size );
+}
+
+/*!
+  Removes the section at the position \a index.
+*/
+
+void QHeader::removeLabel( int index )
+{
+    if ( index < 0 || index > count() - 1 )
+	return;
+    
+    if ( index < count() - 1 ) {
+	for ( int i = index; i < count() - 1; ++i ) {
+	    int ns = cellSize( i + 1 );
+	    if ( iconSet( i + 1 ) )
+		setLabel( i, *iconSet( i + 1 ), label( i + 1 ) );
+	    else
+		setLabel( i, label( i + 1 ) );
+	    setCellSize( i, ns );
+	}
+    }
+    
+    data->sizes.resize( data->sizes.size() - 1 );
+    data->heights.resize( data->heights.size() - 1 );
+    data->labels.resize( data->labels.size() - 1 );
+    data->iconsets.resize( data->iconsets.size() - 1 );
+    data->a2l.resize( data->a2l.size() - 1 );
+    data->l2a.resize( data->l2a.size() - 1 );
+
+    repaint();
 }
 
 /*!

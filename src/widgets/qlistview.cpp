@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#315 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#316 $
 **
 ** Implementation of QListView widget class
 **
@@ -106,7 +106,7 @@ struct QListViewPrivate
     class ItemColumnInfo {
       public:
 	ItemColumnInfo(): pm( 0 ), next( 0 ) {}
-	~ItemColumnInfo() { delete pm; delete next; }
+	~ItemColumnInfo() { delete pm; if ( next ) delete next; }
 	QString text;
 	QPixmap * pm;
 	ItemColumnInfo * next;
@@ -115,7 +115,7 @@ struct QListViewPrivate
     class ViewColumnInfo {
       public:
 	ViewColumnInfo(): align(Qt::AlignLeft), sortable(TRUE), next( 0 ) {}
-	~ViewColumnInfo() { delete next; }
+	~ViewColumnInfo() { if ( next ) delete next; }
 	int align;
 	bool sortable;
 	ViewColumnInfo * next;
@@ -2053,6 +2053,71 @@ int QListView::addColumn( const QIconSet& iconset, const QString &label, int wid
     d->column.insert( c, new QListViewPrivate::Column );
     d->column[c]->wmode = width >=0 ? Manual : Maximum;
     return c;
+}
+
+/*!
+  Removes the column at position \a index.
+*/
+
+void QListView::removeColumn( int index )
+{
+    if ( index < 0 || index > (int)d->column.count() - 1 )
+	return;
+    
+    if ( d->vci ) {
+	QListViewPrivate::ViewColumnInfo *vi = d->vci, *prev = 0, *next = 0;
+	for ( int i = 0; i < index; ++i ) {
+	    if ( vi ) {
+		prev = vi;
+		vi = vi->next;
+	    }
+	}
+	if ( vi ) {
+	    next = vi->next;
+	    if ( prev )
+		prev->next = next;
+	    vi->next = 0;
+	    delete vi;
+	    if ( index == 0 )
+		d->vci = next;
+	}
+    }
+    
+    QListViewItemIterator it( this );
+    for ( ; it.current(); ++it ) {
+	QListViewPrivate::ItemColumnInfo *ci = (QListViewPrivate::ItemColumnInfo*)it.current()->columns;
+	if ( ci ) {
+	    QListViewPrivate::ItemColumnInfo *prev = 0, *next = 0;
+	    for ( int i = 0; i < index; ++i ) {
+		if ( ci ) {
+		    prev = ci;
+		    ci = ci->next;
+		}
+	    }
+	    if ( ci ) {
+		next = ci->next;
+		if ( prev )
+		    prev->next = next;
+		ci->next = 0;
+		delete ci;
+		if ( index == 0 )
+		    it.current()->columns = next;
+	    }
+	}
+    }
+
+    for ( int i = index; i < (int)d->column.count() - 1; ++i ) {
+	d->column.take( i );
+	d->column.insert( i, d->column[ i + 1 ] );
+    }
+    d->column.take( d->column.size() - 1 );
+    d->column.resize( d->column.size() - 1 );
+    
+    d->h->removeLabel( index );
+    
+    triggerUpdate();
+    if ( d->column.count() == 0 )
+	clear();
 }
 
 /*!
