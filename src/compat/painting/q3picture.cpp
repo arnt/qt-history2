@@ -74,6 +74,27 @@ int Q3SvgDevice::metric(PaintDeviceMetric m) const
 #define d d_func()
 #define q q_func()
 
+/*!
+    \class Q3Picture
+    \brief The Q3Picture class is a paint device that records and
+    replays Q3Painter commands.
+
+    Q3Picture can also read and write SVG (Scalable Vector Graphics)
+    files; these files are in an XML format specified by \link
+    http://www.w3.org/Graphics/SVG/ W3C\endlink. (See the load() and
+    save() functions.)
+
+    \sa QPicture
+*/
+
+/*!
+    \overload
+    Loads the picture in the specified \a format from a file with the
+    given \a fileName. Returns true if the file is loaded successfully;
+    otherwise returns false.
+
+    \sa save()
+*/
 bool Q3Picture::load(const QString &fileName, const char *format)
 {
     QFile f(fileName);
@@ -82,6 +103,14 @@ bool Q3Picture::load(const QString &fileName, const char *format)
     return load(&f, format);
 }
 
+/*!
+    \fn bool Q3Picture::load(QIODevice *device, const char *format)
+
+    Loads the picture in the specified \a format from the given \a device.
+    Returns true if the file is loaded successfully; otherwise returns false.
+
+    \sa save()
+*/
 bool Q3Picture::load(QIODevice *dev, const char *format)
 {
     if (qstrcmp(format, "svg" ) == 0) {
@@ -97,6 +126,13 @@ bool Q3Picture::load(QIODevice *dev, const char *format)
     return QPicture::load(dev, format);
 }
 
+/*!
+    \overload
+    Saves the picture in the specified \a format to the file with the
+    given \a fileName.
+
+    \sa load()
+*/
 bool Q3Picture::save(const QString &fileName, const char *format)
 {
     if (paintingActive()) {
@@ -119,6 +155,13 @@ bool Q3Picture::save(const QString &fileName, const char *format)
     return QPicture::save(fileName, format);
 }
 
+/*!
+    \fn bool Q3Picture::save(QIODevice *device, const char *format)
+
+    Saves the picture in the specified \a format to the given \a device.
+
+    \sa load()
+*/
 bool Q3Picture::save(QIODevice *dev, const char *format)
 {
     if (paintingActive()) {

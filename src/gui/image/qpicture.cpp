@@ -49,11 +49,6 @@
     painted can also be stored in a picture, e.g. fonts, pixmaps,
     regions, transformed graphics, etc.
 
-    QPicture can also read and write SVG (Scalable Vector Graphics)
-    files; these files are in an XML format specified by \link
-    http://www.w3.org/Graphics/SVG/ W3C\endlink. (See the load() and
-    save() functions.)
-
     QPicture is an \link shclass.html implicitly shared\endlink class.
 
     Example of how to record a picture:
@@ -229,10 +224,6 @@ void QPicture::setData(const char* data, uint size)
     is only needed for importing picture data stored in a different
     format.
 
-    Currently, the only external format supported is the \link
-    http://www.w3.org/Graphics/SVG/ W3C SVG\endlink format. The
-    corresponding \a format string is "svg".
-
     \sa save()
 */
 
@@ -281,10 +272,7 @@ bool QPicture::load(QIODevice *dev, const char *format)
     true if successful; otherwise returns false.
 
     Specifying the file \a format string is optional. By default the
-    data will be saved in the native QPicture file format. Currently
-    the only other format that you can save in is \link
-    http://www.w3.org/Graphics/SVG/ W3C's SVG format\endlink; use a
-    \a format name of "svg" to save in SVG format.
+    data will be saved in the native QPicture file format.
 
     \sa load()
 */
@@ -765,7 +753,7 @@ int QPicture::metric(PaintDeviceMetric m) const
 */
 
 /*! \fn bool QPicture::isDetached() const
-    \internal
+\internal
 */
 void QPicture::detach_helper()
 {
@@ -1057,9 +1045,6 @@ QList<QByteArray> QPicture::outputFormats()
     QPictureIO contains a QIODevice object that is used for picture data
     I/O. The programmer can install new picture file formats in addition
     to those that Qt provides.
-
-    Qt currently only supports \link http://www.w3.org/Graphics/SVG/
-    W3C SVG \endlink picture file formats (with type string svg).
 
     You don't normally need to use this class; QPicture::load(),
     QPiicture::save().
