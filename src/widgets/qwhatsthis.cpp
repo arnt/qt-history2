@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#43 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#44 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -33,6 +33,7 @@
 #include "qshared.h"
 #include "qcursor.h"
 #include "qbitmap.h"
+#include "qtooltip.h"
 #include "qml.h"
 
 /*!
@@ -112,7 +113,7 @@ public:
     // setup and teardown
     static void tearDownWhatsThis();
     static void setUpWhatsThis();
-    
+
     void leaveWhatsThisMode();
 
     // variables
@@ -296,7 +297,7 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 		if ( !i )
 		    w = w->parentWidget();
 	    }
-	    
+	
 	    if (!i )
 		return FALSE;
 	    leaveWhatsThisMode();
@@ -318,7 +319,7 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 		    return TRUE;
 		}
 	    }
-	    else if ( kev->state() == kev->stateAfter() && kev->key() != Key_Meta ) // not a modifier key 
+	    else if ( kev->state() == kev->stateAfter() && kev->key() != Key_Meta ) // not a modifier key
 		leaveWhatsThisMode();
 	}
 	break;
@@ -387,6 +388,7 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
 	whatsThat = new QWidget( 0, "automatic what's this? widget",
 				 WType_Popup );
 	whatsThat->setBackgroundMode( QWidget::NoBackground );
+	whatsThat->setPalette( QToolTip::palette(), TRUE );
 	whatsThat->installEventFilter( this );
     }
 
@@ -430,7 +432,7 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
 
     if ( widget && w > widget->width() + 16 )
 	    x = pos.x() + widget->width()/2 - w/2;
-    else 
+    else
 	x = ppos.x() - w/2;
 
     // squeeze it in if that would result in part of what's this
@@ -470,12 +472,12 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
     // now for super-clever shadow stuff.  super-clever mostly in
     // how many window system problems it skirts around.
 
-    p.setPen( QApplication::palette()->normal().foreground() );
+    p.setPen( whatsThat->colorGroup().foreground() );
     p.drawRect( 0, 0, w, h );
-    p.setPen( QApplication::palette()->normal().mid() );
-    p.setBrush( QColor( 255, 255, 240 ) );
+    p.setPen( whatsThat->colorGroup().mid() );
+    p.setBrush( whatsThat->colorGroup().background() );
     p.drawRect( 1, 1, w-2, h-2 );
-    p.setPen( black );
+    p.setPen( whatsThat->colorGroup().foreground() );
 
     if ( qmlDoc ) {
 	qmlDoc->draw( &p, leftMargin, normalMargin, r, whatsThat->colorGroup(), 0 );
@@ -486,6 +488,8 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
 		    AlignLeft + AlignTop + WordBreak + ExpandTabs,
 		    text );
     }
+    p.setPen( whatsThat->colorGroup().shadow() );
+    
     p.drawPoint( w + 5, 6 );
     p.drawLine( w + 3, 6,
 		w + 5, 8 );
@@ -762,7 +766,7 @@ void QWhatsThis::enterWhatsThisMode()
 
 /*!
   Returns whether the application is in What's This mode.
-  
+
 \sa enterWhatsThisMode(), leaveWhatsThisMode()
  */
 bool QWhatsThis::inWhatsThisMode()
@@ -780,7 +784,7 @@ bool QWhatsThis::inWhatsThisMode()
   it.  An example for such a kind of widget is QPopupMenu: Menus still
   work normally in What's This mode, but provide help texts for single
   menu items instead.
-  
+
   If \e text is not a null string, then a What's This help window is
   displayed at the global position \e pos of the screen.
 
@@ -790,7 +794,7 @@ void QWhatsThis::leaveWhatsThisMode( const QString& text, const QPoint& pos )
 {
     if ( !inWhatsThisMode() )
 	return;
-    
+
     wt->leaveWhatsThisMode();
     if ( !text.isNull() )
 	wt->say( 0, text, pos );
