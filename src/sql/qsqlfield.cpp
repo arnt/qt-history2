@@ -26,7 +26,7 @@ public:
 	      int required, int length, int prec,
 	      const QCoreVariant& defValue,
 	      int sqlType, int autogen) :
-	nm(name), ro(false), type(type), req(required), 
+	nm(name), ro(false), type(type), req(required),
 	len(length), pr(prec), def(defValue), tp(sqlType), gen(autogen)
     {
 	ref = 1;
@@ -44,8 +44,8 @@ public:
 	tp = other.tp;
 	gen = other.gen;
 	return *this;
-    }    
-    
+    }
+
     bool operator==(const QSqlFieldPrivate& other) const
     {
 	return (nm == other.nm
@@ -57,8 +57,8 @@ public:
 		&& def == other.def
 		&& tp == other.tp
 		&& gen == other.gen );
-    }    
-    
+    }
+
     QAtomic ref;
     QString nm;
     uint ro: 1;
@@ -133,9 +133,9 @@ QSqlField::QSqlField(const QString& fieldName,
 	      int prec,
 	      const QCoreVariant& defValue,
 	      int sqlType,
-	      int autogen)	      
+	      int autogen)
 {
-    d = new QSqlFieldPrivate(fieldName, type, required, 
+    d = new QSqlFieldPrivate(fieldName, type, required,
 			     fieldLength, prec, defValue, sqlType, autogen);
     val.cast(type);
 }
@@ -172,7 +172,7 @@ QSqlField& QSqlField::operator=( const QSqlField& other )
 */
 bool QSqlField::operator==(const QSqlField& other) const
 {
-    return (*d == *other.d 
+    return ((d == other.d || *d == *other.d)
 	    && val == other.val);
 }
 
@@ -247,7 +247,7 @@ void QSqlField::setName( const QString& name )
     \obsolete
 
     use clear() instead.
-    
+
     \sa clear().
 */
 
@@ -272,8 +272,8 @@ void QSqlField::setReadOnly( bool readOnly )
     Returns the name of the field.
 */
 QString QSqlField::name() const
-{ 
-    return d->nm; 
+{
+    return d->nm;
 }
 
 /*!
@@ -285,9 +285,9 @@ QCoreVariant::Type QSqlField::type() const
 }
 
 void QSqlField::setType(QCoreVariant::Type type)
-{ 
+{
     detach();
-    d->type = type; 
+    d->type = type;
 }
 
 
