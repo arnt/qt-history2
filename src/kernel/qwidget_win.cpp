@@ -906,13 +906,21 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     if ( testWState(WState_ConfigPending) ) {	// processing config event
 	qWinRequestConfig( winId(), 2, x, y, w, h );
     } else {
-	//setCRect( QRect(x,y,w,h) );
 	setWState( WState_ConfigPending );
+	//setCRect( QRect( x, y, w, h ) );
 	if ( isTopLevel() ) {
 	    QRect fr( frameGeometry() );
+	    if ( extra ) {
+		fr.setLeft( fr.left() + x - crect.left() );
+		fr.setTop( fr.top() + y - crect.top() );
+		fr.setRight( fr.right() + ( x + w - 1 ) - crect.right() );
+		fr.setBottom( fr.bottom() + ( y + h - 1 ) - crect.bottom() );
+	    }
 	    MoveWindow( winId(), fr.x(), fr.y(), fr.width(), fr.height(), TRUE );
-	} else
+	} else {
 	    MoveWindow( winId(), x, y, w, h, TRUE );
+	    setCRect( QRect( x, y, w, h ) );
+	}
 	clearWState( WState_ConfigPending );
     }
 
