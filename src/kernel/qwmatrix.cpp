@@ -49,107 +49,109 @@ double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
 #ifndef QT_NO_WMATRIX
 
 /*!
-  \class QWMatrix qwmatrix.h
-  \ingroup graphics
-  \ingroup images
-  \brief The QWMatrix class specifies 2D transformations of a
-  coordinate system.
+    \class QWMatrix qwmatrix.h
+    \brief The QWMatrix class specifies 2D transformations of a
+    coordinate system.
 
-  The standard coordinate system of a \link QPaintDevice paint
-  device\endlink has the origin located at the top-left position. X
-  values increase to the right; Y values increase downward.
+    \ingroup graphics
+    \ingroup images
 
-  This coordinate system is default for the QPainter, which renders
-  graphics in a paint device. A user-defined coordinate system can be
-  specified by setting a QWMatrix for the painter.
+    The standard coordinate system of a \link QPaintDevice paint
+    device\endlink has the origin located at the top-left position. X
+    values increase to the right; Y values increase downward.
 
-  Example:
-  \code
-    MyWidget::paintEvent( QPaintEvent * )
-    {
-      QPainter p;			// our painter
-      QWMatrix m;			// our transformation matrix
-      m.rotate( 22.5 );			// rotated coordinate system
-      p.begin( this );			// start painting
-      p.setWorldMatrix( m );		// use rotated coordinate system
-      p.drawText( 30,20, "detator" );	// draw rotated text at 30,20
-      p.end();				// painting done
-    }
-  \endcode
+    This coordinate system is the default for the QPainter, which
+    renders graphics in a paint device. A user-defined coordinate
+    system can be specified by setting a QWMatrix for the painter.
 
-  A matrix specifies how to translate, scale, shear or rotate the
-  graphics; the actual transformation is performed by the drawing
-  routines in QPainter and by QPixmap::xForm().
+    Example:
+    \code
+	MyWidget::paintEvent( QPaintEvent * )
+	{
+            QPainter p;                      // our painter
+            QWMatrix m;                      // our transformation matrix
+            m.rotate( 22.5 );                // rotated coordinate system
+            p.begin( this );                 // start painting
+            p.setWorldMatrix( m );           // use rotated coordinate system
+            p.drawText( 30,20, "detator" );  // draw rotated text at 30,20
+            p.end();                         // painting done
+	}
+    \endcode
 
-  The QWMatrix class contains a 3*3 matrix of the form:
-  \code
-    m11	 m12  0
-    m21	 m22  0
-    dx	 dy   1
-  \endcode
+    A matrix specifies how to translate, scale, shear or rotate the
+    graphics; the actual transformation is performed by the drawing
+    routines in QPainter and by QPixmap::xForm().
 
-  A matrix transforms a point in the plane to another point:
-  \code
-    x' = m11*x + m21*y + dx
-    y' = m22*y + m12*x + dy
-  \endcode
+    The QWMatrix class contains a 3x3 matrix of the form:
+    <table align=center border=1 cellpadding=1 cellspacing=0>
+    <tr align=center><td>m11</td><td>m12</td><td>&nbsp;0 </td></tr>
+    <tr align=center><td>m21</td><td>m22</td><td>&nbsp;0 </td></tr>
+    <tr align=center><td>dx</td> <td>dy</td> <td>&nbsp;1 </td></tr>
+    </table>
 
-  The point \e (x, y) is the original point, and \e (x', y') is the
-  transformed point.  \e (x', y') can be transformed back to \e (x, y)
-  by performing the same operation on the \link QWMatrix::invert()
-  inverted matrix\endlink.
+    A matrix transforms a point in the plane to another point:
+    \code
+	x' = m11*x + m21*y + dx
+	y' = m22*y + m12*x + dy
+    \endcode
 
-  The elements \e dx and \e dy specify horizontal and vertical
-  translation. The elements \e m11 and \e m22 specify horizontal and
-  vertical scaling.  The elements \e m12 and \e m21 specify horizontal and
-  vertical shearing.
+    The point \e (x, y) is the original point, and \e (x', y') is the
+    transformed point. \e (x', y') can be transformed back to \e (x,
+    y) by performing the same operation on the \link
+    QWMatrix::invert() inverted matrix\endlink.
 
-  The identity matrix has \e m11 and \e m22 set to 1; all others are set
-  to 0. This matrix maps a point to itself.
+    The elements \e dx and \e dy specify horizontal and vertical
+    translation. The elements \e m11 and \e m22 specify horizontal and
+    vertical scaling. The elements \e m12 and \e m21 specify
+    horizontal and vertical shearing.
 
-  Translation is the simplest transformation. Setting \e dx and \e dy
-  will move the coordinate system \e dx units along the X axis and \e
-  dy units along the Y axis.
+    The identity matrix has \e m11 and \e m22 set to 1; all others are
+    set to 0. This matrix maps a point to itself.
 
-  Scaling can be done by setting \e m11 and \e m22.  For example,
-  setting \e m11 to 2 and \e m22 to 1.5 will double the height and
-  increase the width by 50%.
+    Translation is the simplest transformation. Setting \e dx and \e
+    dy will move the coordinate system \e dx units along the X axis
+    and \e dy units along the Y axis.
 
-  Shearing is controlled by \e m12 and \e m21. Setting these elements
-  to values different from zero will twist the coordinate system.
+    Scaling can be done by setting \e m11 and \e m22. For example,
+    setting \e m11 to 2 and \e m22 to 1.5 will double the height and
+    increase the width by 50%.
 
-  Rotation is achieved by carefully setting both the shearing factors
-  and the scaling factors.  The QWMatrix has a function that sets
-  \link rotate() rotation \endlink directly.
+    Shearing is controlled by \e m12 and \e m21. Setting these
+    elements to values different from zero will twist the coordinate
+    system.
 
-  QWMatrix lets you combine transformations like this:
-  \code
-    QWMatrix m;           // identity matrix
-    m.translate(10, -20); // first translate (10,-20)
-    m.rotate(25);         // then rotate 25 degrees
-    m.scale(1.2, 0.7);    // finally scale it
-  \endcode
+    Rotation is achieved by carefully setting both the shearing
+    factors and the scaling factors. The QWMatrix also has a function
+    that sets \link rotate() rotation \endlink directly.
 
-  Here's the same example using basic matrix operations:
-  \code
-    double a    = pi/180 * 25;         // convert 25 to radians
-    double sina = sin(a);
-    double cosa = cos(a);
-    QWMatrix m1(0, 0, 0, 0, 10, -20);  // translation matrix
-    QWMatrix m2( cosa, sina,           // rotation matrix
-                 -sina, cosa, 0, 0 );
-    QWMatrix m3(1.2, 0, 0, 0.7, 0, 0); // scaling matrix
-    QWMatrix m;
-    m = m3 * m2 * m1;                  // combine all transformations
-  \endcode
+    QWMatrix lets you combine transformations like this:
+    \code
+	QWMatrix m;           // identity matrix
+	m.translate(10, -20); // first translate (10,-20)
+	m.rotate(25);         // then rotate 25 degrees
+	m.scale(1.2, 0.7);    // finally scale it
+    \endcode
 
-  \l QPainter has functions to translate, scale, shear and rotate the
-  coordinate system without using a QWMatrix.  Although these
-  functions are very convenient, it can be more efficient to build a
-  QWMatrix and call QPainter::setWorldMatrix() if you want to perform
-  more than a single transform operation.
+    Here's the same example using basic matrix operations:
+    \code
+	double a    = pi/180 * 25;         // convert 25 to radians
+	double sina = sin(a);
+	double cosa = cos(a);
+	QWMatrix m1(0, 0, 0, 0, 10, -20);  // translation matrix
+	QWMatrix m2( cosa, sina,           // rotation matrix
+		    -sina, cosa, 0, 0 );
+	QWMatrix m3(1.2, 0, 0, 0.7, 0, 0); // scaling matrix
+	QWMatrix m;
+	m = m3 * m2 * m1;                  // combine all transformations
+    \endcode
 
-  \sa QPainter::setWorldMatrix(), QPixmap::xForm()
+    \l QPainter has functions to translate, scale, shear and rotate the
+    coordinate system without using a QWMatrix. Although these
+    functions are very convenient, it can be more efficient to build a
+    QWMatrix and call QPainter::setWorldMatrix() if you want to perform
+    more than a single transform operation.
+
+    \sa QPainter::setWorldMatrix(), QPixmap::xForm()
 */
 
 bool qt_old_transformations = TRUE;
@@ -250,8 +252,8 @@ QWMatrix::TransformationMode QWMatrix::transformationMode()
  *****************************************************************************/
 
 /*!
-  Constructs an identity matrix.  All elements are set to zero
-  except \e m11 and \e m22 (scaling), which are set to 1.
+    Constructs an identity matrix. All elements are set to zero except
+    \e m11 and \e m22 (scaling), which are set to 1.
 */
 
 QWMatrix::QWMatrix()
@@ -261,8 +263,8 @@ QWMatrix::QWMatrix()
 }
 
 /*!
-  Constructs a matrix with the elements, \a m11, \a m12, \a m21, \a
-  m22, \a dx and \a dy.
+    Constructs a matrix with the elements, \a m11, \a m12, \a m21, \a
+    m22, \a dx and \a dy.
 */
 
 QWMatrix::QWMatrix( double m11, double m12, double m21, double m22,
@@ -275,8 +277,8 @@ QWMatrix::QWMatrix( double m11, double m12, double m21, double m22,
 
 
 /*!
-  Sets the matrix elements to the specified values, \a m11, \a m12, \a m21,
-  \a m22, \a dx and \a dy.
+    Sets the matrix elements to the specified values, \a m11, \a m12,
+    \a m21, \a m22, \a dx and \a dy.
 */
 
 void QWMatrix::setMatrix( double m11, double m12, double m21, double m22,
@@ -289,51 +291,52 @@ void QWMatrix::setMatrix( double m11, double m12, double m21, double m22,
 
 
 /*!
-  \fn double QWMatrix::m11() const
+    \fn double QWMatrix::m11() const
 
-  Returns the X scaling factor.
+    Returns the X scaling factor.
 */
 
 /*!
-  \fn double QWMatrix::m12() const
+    \fn double QWMatrix::m12() const
 
-  Returns the vertical shearing factor.
+    Returns the vertical shearing factor.
 */
 
 /*!
-  \fn double QWMatrix::m21() const
+    \fn double QWMatrix::m21() const
 
-  Returns the horizontal shearing factor.
+    Returns the horizontal shearing factor.
 */
 
 /*!
-  \fn double QWMatrix::m22() const
+    \fn double QWMatrix::m22() const
 
-  Returns the Y scaling factor.
+    Returns the Y scaling factor.
 */
 
 /*!
-  \fn double QWMatrix::dx() const
+    \fn double QWMatrix::dx() const
 
-  Returns the horizontal translation.
+    Returns the horizontal translation.
 */
 
 /*!
-  \fn double QWMatrix::dy() const
+    \fn double QWMatrix::dy() const
 
-  Returns the vertical translation.
+    Returns the vertical translation.
 */
 
 
 /*!
-  \overload
+    \overload
 
-  Transforms ( \a x, \a y ) to ( \a *tx, \a *ty ) using the following formulae:
+    Transforms ( \a x, \a y ) to ( \a *tx, \a *ty ) using the
+    following formulae:
 
-  \code
-    *tx = m11*x + m21*y + dx
-    *ty = m22*y + m12*x + dy
-  \endcode
+    \code
+	*tx = m11*x + m21*y + dx
+	*ty = m22*y + m12*x + dy
+    \endcode
 */
 
 void QWMatrix::map( double x, double y, double *tx, double *ty ) const
@@ -342,12 +345,12 @@ void QWMatrix::map( double x, double y, double *tx, double *ty ) const
 }
 
 /*!
-  Transforms ( \a x, \a y ) to ( \a *tx, \a *ty ) using the formulae:
+    Transforms ( \a x, \a y ) to ( \a *tx, \a *ty ) using the formulae:
 
-  \code
-    *tx = m11*x + m21*y + dx  (rounded to the nearest integer)
-    *ty = m22*y + m12*x + dy  (rounded to the nearest integer)
-  \endcode
+    \code
+	*tx = m11*x + m21*y + dx  (rounded to the nearest integer)
+	*ty = m22*y + m12*x + dy  (rounded to the nearest integer)
+    \endcode
 */
 
 void QWMatrix::map( int x, int y, int *tx, int *ty ) const
@@ -384,13 +387,15 @@ void QWMatrix::map( int x, int y, int *tx, int *ty ) const
 
 
 /*!
-  Returns the transformed rectangle \a rect.
+    Returns the transformed rectangle \a rect.
 
-  The bounding rectangle is returned if rotation or shearing has been specified.
+    The bounding rectangle is returned if rotation or shearing has
+    been specified.
 
-  If you need to know the exact region \a rect maps to use \l operator*().
+    If you need to know the exact region \a rect maps to use \l
+    operator*().
 
-  \sa operator*()
+    \sa operator*()
 */
 
 QRect QWMatrix::mapRect( const QRect &rect ) const
@@ -458,12 +463,12 @@ QRect QWMatrix::mapRect( const QRect &rect ) const
 
 
 /*!
-   Transforms \a p to using the formulae:
+    Transforms \a p to using the formulae:
 
-  \code
-    retx = m11*px + m21*py + dx  (rounded to the nearest integer)
-    rety = m22*py + m12*px + dy  (rounded to the nearest integer)
-  \endcode
+    \code
+	retx = m11*px + m21*py + dx  (rounded to the nearest integer)
+	rety = m22*py + m12*px + dy  (rounded to the nearest integer)
+    \endcode
 */
 QPoint QWMatrix::operator *( const QPoint &p ) const
 {
@@ -480,9 +485,9 @@ struct QWMDoublePoint {
 };
 
 /*!
-  \overload
+    \overload
 
-  Returns the point array \a a transformed by calling map for each point.
+    Returns the point array \a a transformed by calling map for each point.
 */
 QPointArray QWMatrix::operator *( const QPointArray &a ) const
 {
@@ -554,17 +559,17 @@ QPointArray QWMatrix::operator *( const QPointArray &a ) const
 }
 
 /*!
-  \overload
+    \overload
 
-  Transforms the rectangle \a rect.
+    Transforms the rectangle \a rect.
 
-  Rotation and shearing a rectangle results in a more general
-  region, which is returned here.
+    Rotation and shearing a rectangle results in a more general
+    region, which is returned here.
 
-  Calling this method can be rather expensive, if rotations or
-  shearing are used.  If you just need to know the bounding rectangle
-  of the returned region, use mapRect() which is a lot
-  faster than this function.
+    Calling this method can be rather expensive, if rotations or
+    shearing are used. If you just need to know the bounding rectangle
+    of the returned region, use mapRect() which is a lot faster than
+    this function.
 
     \sa QWMatrix::mapRect()
 */
@@ -694,12 +699,12 @@ QPointArray QWMatrix::mapToPolygon( const QRect &rect ) const
 }
 
 /*!
-  \overload
+    \overload
 
-  Transforms the region \a r.
+    Transforms the region \a r.
 
-  Calling this method can be rather expensive, if rotations or
-  shearing are used.
+    Calling this method can be rather expensive, if rotations or
+    shearing are used.
 */
 QRegion QWMatrix::operator * (const QRegion &r ) const
 {
@@ -761,12 +766,12 @@ QRegion QWMatrix::operator * (const QRegion &r ) const
 }
 
 /*!
-  Resets the matrix to an identity matrix.
+    Resets the matrix to an identity matrix.
 
-  All elements are set to zero, except \e m11 and \e m22 (scaling)
-  that are set to 1.
+    All elements are set to zero, except \e m11 and \e m22 (scaling)
+    which are set to 1.
 
-  \sa isIdentity()
+    \sa isIdentity()
 */
 
 void QWMatrix::reset()
@@ -776,9 +781,9 @@ void QWMatrix::reset()
 }
 
 /*!
-  Returns TRUE if the matrix is the identity matrix; otherwise returns FALSE.
+    Returns TRUE if the matrix is the identity matrix; otherwise returns FALSE.
 
-  \sa reset()
+    \sa reset()
 */
 bool QWMatrix::isIdentity() const
 {
@@ -787,12 +792,12 @@ bool QWMatrix::isIdentity() const
 }
 
 /*!
-  Moves the coordinate system \a dx along the X-axis and \a dy
-  along the Y-axis.
+    Moves the coordinate system \a dx along the X-axis and \a dy along
+    the Y-axis.
 
-  Returns a reference to the matrix.
+    Returns a reference to the matrix.
 
-  \sa scale(), shear(), rotate()
+    \sa scale(), shear(), rotate()
 */
 
 QWMatrix &QWMatrix::translate( double dx, double dy )
@@ -803,12 +808,12 @@ QWMatrix &QWMatrix::translate( double dx, double dy )
 }
 
 /*!
-  Scales the coordinate system unit by \a sx horizontally and \a sy
-  vertically.
+    Scales the coordinate system unit by \a sx horizontally and \a sy
+    vertically.
 
-  Returns a reference to the matrix.
+    Returns a reference to the matrix.
 
-  \sa translate(), shear(), rotate()
+    \sa translate(), shear(), rotate()
 */
 
 QWMatrix &QWMatrix::scale( double sx, double sy )
@@ -821,11 +826,12 @@ QWMatrix &QWMatrix::scale( double sx, double sy )
 }
 
 /*!
-  Shears the coordinate system	by \a sh horizontally and \a sv vertically.
+    Shears the coordinate system by \a sh horizontally and \a sv
+    vertically.
 
-  Returns a reference to the matrix.
+    Returns a reference to the matrix.
 
-  \sa translate(), scale(), rotate()
+    \sa translate(), scale(), rotate()
 */
 
 QWMatrix &QWMatrix::shear( double sh, double sv )
@@ -844,11 +850,11 @@ QWMatrix &QWMatrix::shear( double sh, double sv )
 const double deg2rad = 0.017453292519943295769;	// pi/180
 
 /*!
-  Rotates the coordinate system \a a degrees counterclockwise.
+    Rotates the coordinate system \a a degrees counterclockwise.
 
-  Returns a reference to the matrix.
+    Returns a reference to the matrix.
 
-  \sa translate(), scale(), shear()
+    \sa translate(), scale(), shear()
 */
 
 QWMatrix &QWMatrix::rotate( double a )
@@ -870,11 +876,12 @@ QWMatrix &QWMatrix::rotate( double a )
     return *this;
 }
 
-/*! \fn bool QWMatrix::isInvertible() const
+/*!
+    \fn bool QWMatrix::isInvertible() const
 
-  Returns TRUE if the matrix is invertible; otherwise returns FALSE.
+    Returns TRUE if the matrix is invertible; otherwise returns FALSE.
 
-  \sa invert()
+    \sa invert()
 */
 
 /*! \fn double QWMatrix::det() const
@@ -884,16 +891,16 @@ QWMatrix &QWMatrix::rotate( double a )
 
 
 /*!
-  Returns the inverted matrix.
+    Returns the inverted matrix.
 
-  If the matrix is singular (not invertible), the identity matrix is
-  returned.
+    If the matrix is singular (not invertible), the identity matrix is
+    returned.
 
-  If \a invertible is not null, the value of \a *invertible is set
-  to TRUE if the matrix is invertible or to FALSE if the matrix is
-  not invertible.
+    If \a invertible is not null: the value of \a *invertible is set
+    to TRUE if the matrix is invertible; otherwise \a *invertible is
+    set to  FALSE.
 
-  \sa isInvertible()
+    \sa isInvertible()
 */
 
 QWMatrix QWMatrix::invert( bool *invertible ) const
@@ -919,7 +926,7 @@ QWMatrix QWMatrix::invert( bool *invertible ) const
 
 
 /*!
-  Returns TRUE if this matrix is equal to \a m; otherwise returns FALSE.
+    Returns TRUE if this matrix is equal to \a m; otherwise returns FALSE.
 */
 
 bool QWMatrix::operator==( const QWMatrix &m ) const
@@ -933,7 +940,7 @@ bool QWMatrix::operator==( const QWMatrix &m ) const
 }
 
 /*!
-  Returns TRUE if this matrix is not equal to \a m; otherwise returns FALSE.
+    Returns TRUE if this matrix is not equal to \a m; otherwise returns FALSE.
 */
 
 bool QWMatrix::operator!=( const QWMatrix &m ) const
@@ -947,7 +954,7 @@ bool QWMatrix::operator!=( const QWMatrix &m ) const
 }
 
 /*!
-  Returns the result of multiplying this matrix with matrix \a m.
+    Returns the result of multiplying this matrix with matrix \a m.
 */
 
 QWMatrix &QWMatrix::operator*=( const QWMatrix &m )
@@ -965,12 +972,12 @@ QWMatrix &QWMatrix::operator*=( const QWMatrix &m )
 }
 
 /*!
-  \overload
-  \relates QWMatrix
-  Returns the product of \a m1 * \a m2.
+    \overload
+    \relates QWMatrix
+    Returns the product of \a m1 * \a m2.
 
-  Note that matrix multiplication is not commutative, i.e.
-  a*b != b*a.
+    Note that matrix multiplication is not commutative, i.e. a*b !=
+    b*a.
 */
 
 QWMatrix operator*( const QWMatrix &m1, const QWMatrix &m2 )
@@ -986,6 +993,7 @@ QWMatrix operator*( const QWMatrix &m1, const QWMatrix &m2 )
 #ifndef QT_NO_DATASTREAM
 /*!
   \relates QWMatrix
+
   Writes the matrix \a m to the stream \a s and returns a reference to the stream.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
@@ -1004,6 +1012,7 @@ QDataStream &operator<<( QDataStream &s, const QWMatrix &m )
 
 /*!
   \relates QWMatrix
+
   Reads the matrix \a m from the stream \a s and returns a reference to the stream.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
