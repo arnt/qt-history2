@@ -257,12 +257,13 @@ QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, QGly
     int overhang = (qWinVersion() & Qt::WV_DOS_based) ? tm.a.tmOverhang : 0;
     for( register int i = 0; i < len; i++ ) {
 	glyph = glyphs[i].glyph;
-	glyphs[i].advance = (glyph < widthCacheSize) ? widthCache[glyph] : 0;
+	glyphs[i].advance.x = (glyph < widthCacheSize) ? widthCache[glyph] : 0;
+	glyphs[i].advance.y = 0;
 	// font-width cache failed
-	if ( !glyphs[i].advance ) {
+	if ( !glyphs[i].advance.x ) {
 	    SIZE size;
 	    GetTextExtentPoint32W( hdc, (wchar_t *)str, 1, &size );
-	    glyphs[i].advance = size.cx - overhang;
+	    glyphs[i].advance.x = size.cx - overhang;
 	    // if glyph's within cache range, store it for later
 	    if ( glyph < widthCacheSize )
 		widthCache[glyph] = size.cx - overhang;
@@ -358,7 +359,7 @@ void QFontEngineWin::draw( QPaintEngine *p, int x, int y, const QTextItem &si, i
 		QConstString str( &chr, 1 );
 		QByteArray cstr = str.string().toLocal8Bit();
 		TextOutA( hdc, x + glyphs->offset.x, y + glyphs->offset.y, cstr.data(), cstr.length() );
-		x += glyphs->advance;
+		x += glyphs->advance.x;
 		glyphs++;
 	    }
 	} else {
@@ -369,7 +370,7 @@ void QFontEngineWin::draw( QPaintEngine *p, int x, int y, const QTextItem &si, i
 		    haveOffsets = TRUE;
 		    break;
 		}
-		w += glyphs[i].advance;
+		w += glyphs[i].advance.x;
 	    }
 
 	    if ( haveOffsets || transform ) {
@@ -380,7 +381,7 @@ void QFontEngineWin::draw( QPaintEngine *p, int x, int y, const QTextItem &si, i
 		    if ( transform )
 			state->painter->map( xp, yp, &xp, &yp );
     		    ExtTextOutW( hdc, xp, yp, options, 0, &chr, 1, 0 );
-		    x += glyphs->advance;
+		    x += glyphs->advance.x;
 		    glyphs++;
 		}
 	    } else {
@@ -403,7 +404,7 @@ void QFontEngineWin::draw( QPaintEngine *p, int x, int y, const QTextItem &si, i
 	    if ( transform )
 		state->painter->map( xp, yp, &xp, &yp );
     	    ExtTextOutW( hdc, xp, yp, options, 0, &chr, 1, 0 );
-	    x += glyphs->advance;
+	    x += glyphs->advance.x;
 	}
     }
 
@@ -432,7 +433,7 @@ glyph_metrics_t QFontEngineWin::boundingBox( const QGlyphLayout *glyphs, int num
     int w = 0;
     const QGlyphLayout *end = glyphs + numGlyphs;
     while( end > glyphs )
-	w += (--end)->advance;
+	w += (--end)->advance.x;
 
     return glyph_metrics_t(0, -tm.w.tmAscent, w, tm.w.tmHeight, w, 0 );
 }
@@ -695,7 +696,7 @@ QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *,  int len, QGlyph
     *nglyphs = len;
 
     for ( int i = 0; i < len; i++ )
-	(glyphs++)->advance = _size;
+	(glyphs++)->advance.x = _size;
 
     return NoError;
 }

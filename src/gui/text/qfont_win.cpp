@@ -379,7 +379,7 @@ int QFontMetrics::width( QChar ch ) const
     int nglyphs = 7;
     engine->stringToCMap( &ch, 1, glyphs, &nglyphs, FALSE );
 
-    return glyphs[0].advance;
+    return glyphs[0].advance.x;
 }
 
 
