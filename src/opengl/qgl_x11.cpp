@@ -750,10 +750,13 @@ void QGLWidget::init( const QGLFormat& format, const QGLWidget* shareWidget )
 void QGLWidget::reparent( QWidget* parent, WFlags f, const QPoint& p,
 			  bool showIt )
 {
-    QWidget::reparent( parent, f, p, FALSE );
-    setContext( new QGLContext( glcx->requestedFormat(), this ) );
-    if ( showIt )
-	show();
+    // ### This have to be investigated further - trying to set
+    // ### a new GL context in an existing window seems to have
+    // ### severe effects on some platforms (ie. SGI, Linux).
+    QWidget::reparent( parent, f, p, showIt);
+    //     setContext( new QGLContext( glcx->requestedFormat(), this ) );
+    //     if ( showIt )
+    //         show();
 }
 
 
