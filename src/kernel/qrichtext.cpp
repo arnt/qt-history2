@@ -248,6 +248,24 @@ void QTextHorizontalLine::draw(QPainter* p, int x, int y,
     }
 }
 
+QTextLineBreak::QTextLineBreak(const QMap<QString, QString> &attr )
+{
+    clr = QTextCustomItem::ClearNone;
+    if ( attr.contains("clear") ) {
+ 	QString s = attr["clear"].lower();
+ 	if ( s  == "left" )
+ 	    clr = QTextCustomItem::ClearLeft;
+ 	else if ( s == "right" )
+ 	    clr = QTextCustomItem::ClearRight;
+	else if ( s == "both" || s == "all")
+	    clr = QTextCustomItem::ClearBoth;
+    }
+}
+
+QTextLineBreak::~QTextLineBreak()
+{
+}
+
 //************************************************************************
 
 
@@ -452,6 +470,8 @@ bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle,
 	    QTextCustomItem* custom = sheet_->tag( tagname, attr, contxt, *factory_ , emptyTag );
 	    if ( custom || tagname == "br") {
 		PROVIDE_DUMMY
+		if ( !custom && !attr.isEmpty() )
+		    custom = new QTextLineBreak( attr );
 		if ( custom ) {
 		    (dummy?dummy:current)->text.append( "", fmt.makeTextFormat( nstyle, attr, custom ) );
 		    if ( custom->ownLine() && custom->placeInline() ) {
@@ -1260,6 +1280,17 @@ void QTextParagraph::init()
 	else
 	    align = Qt::AlignLeft;
     }
+    
+    clear = QTextCustomItem::ClearNone;
+    if ( attributes_.contains("clear") ) {
+ 	QString s = attributes_["clear"].lower();
+ 	if ( s  == "left" )
+ 	    clear = QTextCustomItem::ClearLeft;
+ 	else if ( s == "right" )
+ 	    clear = QTextCustomItem::ClearRight;
+	else if ( s == "both" || s == "all")
+	    clear = QTextCustomItem::ClearBoth;
+    }
 }
 
 QTextParagraph::~QTextParagraph()
@@ -1519,9 +1550,12 @@ void QRichTextFormatter::gotoParagraph( QPainter* p, QTextParagraph* b )
     alignment = paragraph->alignment();
 
     width = flow->width;
-    lmargin = flow->adjustLMargin( y_, static_lmargin );
-    lmargin += static_labelmargin;
-    rmargin = flow->adjustRMargin( y_, static_rmargin );
+    
+    int mm = adjustHorizontalMargins( paragraph->clear );
+    if ( mm ) {
+	flow->adjustFlow( y_, widthUsed, mm + m ) ;
+	y_ += mm + m;
+    }
 
     current = 0;
 
@@ -1530,6 +1564,30 @@ void QRichTextFormatter::gotoParagraph( QPainter* p, QTextParagraph* b )
     currentoffsetx = 0;
     updateCharFormat( p );
 
+}
+
+
+int QRichTextFormatter::adjustHorizontalMargins( QTextCustomItem::Clear clear )
+{
+    int m = 0;
+    lmargin = flow->adjustLMargin( y_ + m, static_lmargin, 4 * xscale );
+    if ( clear == QTextCustomItem::ClearLeft ||
+	 clear == QTextCustomItem::ClearBoth ) {
+	while ( lmargin > static_lmargin ) {
+	    m += int( QMAX( xscale, 1 ) );
+	    lmargin = flow->adjustLMargin( y_ + m, static_lmargin, 4 * xscale );
+	}
+    }
+    lmargin += static_labelmargin;
+    rmargin = flow->adjustRMargin( y_ + m, static_rmargin, 4 * xscale );
+    if ( clear == QTextCustomItem::ClearRight ||
+	 clear == QTextCustomItem::ClearBoth ) {
+	while ( rmargin > static_rmargin ) {
+	    m += int( QMAX( xscale, 1 ) );
+	    rmargin = flow->adjustRMargin( y_ + m, static_rmargin, 4 * xscale );
+	}
+    }
+    return m;
 }
 
 void QRichTextFormatter::update( QPainter* p )
@@ -1561,18 +1619,18 @@ bool QRichTextFormatter::gotoNextLine( QPainter* p )
 	    y_ += m;
 	}
 	width = flow->width;
-	lmargin = flow->adjustLMargin( y_, static_lmargin );
+	lmargin = flow->adjustLMargin( y_, static_lmargin, 4 * xscale );
 	lmargin += static_labelmargin;
-	rmargin = flow->adjustRMargin( y_, static_rmargin );
+	rmargin = flow->adjustRMargin( y_, static_rmargin, 4 * xscale );
 	paragraph->height = y() - paragraph->ypos; //####
 	paragraph->dirty = FALSE;
 	return FALSE;
     }
     y_ += height + 1;
     width = flow->width;
-    lmargin = flow->adjustLMargin( y_, static_lmargin );
+    lmargin = flow->adjustLMargin( y_, static_lmargin, 4 * xscale );
     lmargin += static_labelmargin;
-    rmargin = flow->adjustRMargin( y_, static_rmargin );
+    rmargin = flow->adjustRMargin( y_, static_rmargin, 4 * xscale );
     current++;
     currentx = lmargin;
 
@@ -2025,6 +2083,7 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
     QList<QTextCustomItem> floatingItems;
 
     bool isTableRow = FALSE;
+    QTextCustomItem::Clear clear = QTextCustomItem::ClearNone;
     while ( !pastEnd() ) {
 
 	if ( !paragraph->text.haveSameFormat( fmt_current, current ) ) {
@@ -2069,10 +2128,11 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
 		rdesc = currentdesc;
 
 	    gotoNextItem( p );
-   	    if ( custombreak ) {
+   	    if ( custombreak || (custom && custom->breakLine() ) ) {
    		// also break _behind_ a custom expander
    		++current;
   		lastc = '\n';
+		clear = custom->clearBehind();
    	    }
 	}
 	// if a wordbreak is possible and required, do it. Unless we
@@ -2124,6 +2184,14 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
 	widthUsed = min + rmargin;
     if ( widthUsed > width )
 	fill = 0; // fall back to left alignment if there isn't sufficient space
+
+    if ( clear != QTextCustomItem::ClearNone ) {
+	int lm = lmargin;
+	int rm = rmargin;
+	height = QMAX( height, adjustHorizontalMargins( clear ) );
+	lmargin = lm;
+	rmargin = rm;
+    }
 
     flow->adjustFlow( y_, widthUsed, height, !isTableRow ) ;
 
@@ -2201,20 +2269,20 @@ void QTextFlow::initialize( int w)
     rightItems.clear();
 }
 
-int QTextFlow::adjustLMargin( int yp, int margin )
+int QTextFlow::adjustLMargin( int yp, int margin, int space )
 {
     for ( QTextCustomItem* item = leftItems.first(); item; item = leftItems.next() ) {
 	if ( yp >= item->ypos && yp < item->ypos + item->height )
-	    margin = QMAX( margin, item->xpos + item->width + 4 );
+	    margin = QMAX( margin, item->xpos + item->width + space );
     }
     return margin;
 }
 
-int QTextFlow::adjustRMargin( int yp, int margin )
+int QTextFlow::adjustRMargin( int yp, int margin, int space )
 {
     for ( QTextCustomItem* item = rightItems.first(); item; item = rightItems.next() ) {
 	if ( yp >= item->ypos && yp < item->ypos + item->height )
-	    margin = QMAX( margin, width - item->xpos - 4 );
+	    margin = QMAX( margin, width - item->xpos - space );
     }
     return margin;
 }

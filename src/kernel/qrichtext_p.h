@@ -165,6 +165,10 @@ public:
     enum Placement { PlaceInline = 0, PlaceLeft, PlaceRight };
     virtual Placement placement() const { return PlaceInline; }
     bool placeInline() { return placement() == PlaceInline; }
+    
+    virtual bool breakLine() const { return ownLine(); }
+    enum Clear { ClearNone, ClearLeft, ClearRight, ClearBoth }; //  move to QStyleSheetItem?
+    virtual Clear clearBehind() const { return ClearNone; }
 
     virtual bool noErase() const { return FALSE; };
     virtual bool expandsHorizontally() const { return FALSE; }
@@ -192,6 +196,22 @@ public:
 
     bool expandsHorizontally() const { return TRUE; }
 private:
+};
+
+class QTextLineBreak : public QTextCustomItem
+{
+public:
+    QTextLineBreak(const QMap<QString, QString> &attr );
+    ~QTextLineBreak();
+
+    bool breakLine() const { return TRUE; }
+    Clear clearBehind() const { return clr; }
+
+    void draw(QPainter* , int , int ,
+	      int, int, int, int, int, int,
+	      QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to ){}
+private:
+    Clear clr;
 };
 
 
@@ -279,6 +299,8 @@ public:
     bool dirty;
     bool selected;
     int id;
+    
+    QTextCustomItem::Clear clear;
 
     QTextFlow* flow() const;
 
@@ -444,7 +466,7 @@ private:
     QTextCharFormat* formatinuse;
     int alignment;
     double xscale, yscale;
-
+    int adjustHorizontalMargins( QTextCustomItem::Clear );
 };
 
 
@@ -543,8 +565,8 @@ public:
 
     void initialize( int w );
 
-    int adjustLMargin( int yp, int margin );
-    int adjustRMargin( int yp, int margin );
+    int adjustLMargin( int yp, int margin, int space );
+    int adjustRMargin( int yp, int margin, int space );
 
     void registerFloatingItem( QTextCustomItem* item, bool right = FALSE );
     void drawFloatingItems(QPainter* p,

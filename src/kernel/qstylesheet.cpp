@@ -1013,7 +1013,7 @@ void QStyleSheet::init()
     style->setDisplayMode(QStyleSheetItem::DisplayListItem);
     style->setSelfNesting( FALSE );
     style->setContexts(QString::fromLatin1("ol ul"));
-    //    style-> setMargin(QStyleSheetItem::MarginVertical, 4);
+    style-> setMargin(QStyleSheetItem::MarginVertical, 4);
 
     style = new QStyleSheetItem( this, QString::fromLatin1("code") );
     style->setFontFamily( QString::fromLatin1("courier") );
