@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#64 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#65 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#64 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#65 $");
 
 
 /*!
@@ -404,6 +404,7 @@ void QLineEdit::focusInEvent( QFocusEvent * )
 {
     pm = new QPixmap( width(), height() );   // used for flicker-free update
     CHECK_PTR( pm );
+    killTimers();
     startTimer( blinkTime );
     cursorOn = TRUE;
     repaint( !hasFocus() );
