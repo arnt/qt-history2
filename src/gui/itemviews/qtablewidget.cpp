@@ -63,6 +63,8 @@ public:
     bool isValid(const QModelIndex &index) const;
     inline long tableIndex(int row, int column) const {  return (row * c) + column; }
 
+    void clear();
+
 private:
     int r, c;
     QVector<QTableWidgetItem*> table;
@@ -77,24 +79,7 @@ QTableModel::QTableModel(int rows, int columns, QTableWidget *parent)
 
 QTableModel::~QTableModel()
 {
-    for (int i = 0; i < r * c; ++i) {
-        if (table.at(i)) {
-            table.at(i)->model = 0;
-            delete table.at(i);
-        }
-    }
-    for (int j = 0; j < r; ++j) {
-        if (verticalHeader.at(j)) {
-            verticalHeader.at(j)->model = 0;
-            delete verticalHeader.at(j);
-        }
-    }
-    for (int k = 0; k < c; ++k) {
-        if (horizontalHeader.at(k)) {
-            horizontalHeader.at(k)->model = 0;
-            delete horizontalHeader.at(k);
-        }
-    }
+    clear();
 }
 
 bool QTableModel::insertRows(int, const QModelIndex &, int)
@@ -343,6 +328,30 @@ bool QTableModel::setHeaderData(int section, Qt::Orientation orientation, int ro
 bool QTableModel::isValid(const QModelIndex &index) const
 {
     return index.isValid() && index.row() < r && index.column() < c;
+}
+
+void QTableModel::clear()
+{
+    for (int i = 0; i < r * c; ++i) {
+        if (table.at(i)) {
+            table.at(i)->model = 0;
+            delete table.at(i);
+        }
+    }
+    for (int j = 0; j < r; ++j) {
+        if (verticalHeader.at(j)) {
+            verticalHeader.at(j)->model = 0;
+            delete verticalHeader.at(j);
+        }
+    }
+    for (int k = 0; k < c; ++k) {
+        if (horizontalHeader.at(k)) {
+            horizontalHeader.at(k)->model = 0;
+            delete horizontalHeader.at(k);
+        }
+    }
+
+    emit reset();
 }
 
 // item
@@ -717,6 +726,28 @@ void QTableWidget::setSelected(const QTableWidgetItem *item, bool select)
 {
     QModelIndex index = d->model()->index(item);
     selectionModel()->select(index, select ? QItemSelectionModel::Select : QItemSelectionModel::Deselect);
+}
+
+/*!
+  Returns a list of all selected items.
+*/
+
+QList<QTableWidgetItem*> QTableWidget::selectedItems() const
+{
+    QModelIndexList indexes = selectionModel()->selectedIndexes();
+    QList<QTableWidgetItem*> items;
+    for (int i = 0; i < indexes.count(); ++i)
+        items.append(d->model()->item(indexes.at(i)));
+    return items;
+}
+
+/*!
+  Removes all items in the view.
+*/
+
+void QTableWidget::clear()
+{
+    d->model()->clear();
 }
 
 void QTableWidget::removeItem(QTableWidgetItem *item)

@@ -15,6 +15,7 @@
 #define QLISTWIDGET_H
 
 #include <qlistview.h>
+#include <qlist.h>
 
 class QListWidget;
 class QListModel;
@@ -132,6 +133,9 @@ public:
     bool isSelected(const QListWidgetItem *item) const;
     void setSelected(const QListWidgetItem *item, bool select);
     QList<QListWidgetItem*> selectedItems() const;
+
+public slots:
+    void clear();
 
 signals:
     void clicked(QListWidgetItem *item, int button);

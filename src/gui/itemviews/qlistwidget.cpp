@@ -22,6 +22,7 @@ public:
     QListModel(QListWidget *parent = 0);
     ~QListModel();
 
+    void clear();
     QListWidgetItem *at(int row) const;
     void insert(int row, QListWidgetItem *item);
     void remove(QListWidgetItem *item);
@@ -54,12 +55,18 @@ QListModel::QListModel(QListWidget *parent)
 
 QListModel::~QListModel()
 {
+    clear();
+}
+
+void QListModel::clear()
+{
     for (int i = 0; i < lst.count(); ++i) {
         if (lst.at(i)) {
             lst.at(i)->model = 0;
             delete lst.at(i);
         }
     }
+    emit reset();
 }
 
 QListWidgetItem *QListModel::at(int row) const
@@ -666,6 +673,9 @@ bool QListWidget::isSelected(const QListWidgetItem *item) const
     return selectionModel()->isSelected(index);
 }
 
+/*!
+  ###
+*/
 void QListWidget::setSelected(const QListWidgetItem *item, bool select)
 {
     QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
@@ -675,13 +685,22 @@ void QListWidget::setSelected(const QListWidgetItem *item, bool select)
 /*!
   Returns a list of all selected items.
 */
+
 QList<QListWidgetItem*> QListWidget::selectedItems() const
 {
-    QModelIndexList indexList = selectionModel()->selectedIndexes();
-    QList<QListWidgetItem*> itemList;
-    for (int i=0; i<indexList.count(); ++i)
-        itemList.append(d->model()->at(indexList.at(i).row()));
-    return itemList;
+    QModelIndexList indexes = selectionModel()->selectedIndexes();
+    QList<QListWidgetItem*> items;
+    for (int i = 0; i < indexes.count(); ++i)
+        items.append(d->model()->at(indexes.at(i).row()));
+    return items;
+}
+
+/*!
+  Removes all items in the view.
+*/
+void QListWidget::clear()
+{
+    d->model()->clear();
 }
 
 /*!

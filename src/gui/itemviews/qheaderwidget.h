@@ -110,9 +110,18 @@ public:
     void setItem(int section, QHeaderWidgetItem *item);
     QHeaderWidgetItem *takeItem(int section);
 
+public slots:
+    void clear();
+
+signals:
+    void clicked(QHeaderWidgetItem *item, Qt::ButtonState state);
+
 protected:
     void removeItem(QHeaderWidgetItem *item);
     void setModel(QAbstractItemModel *model);
+
+private:
+    Q_PRIVATE_SLOT(d, void emitClicked(int section, Qt::ButtonState state));
 };
 
 #endif

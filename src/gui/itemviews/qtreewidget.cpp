@@ -27,6 +27,7 @@ public:
     QTreeModel(int columns = 0, QObject *parent = 0);
     ~QTreeModel();
 
+    void clear();
     void setColumnCount(int columns);
 
     QTreeWidgetItem *item(const QModelIndex &index) const;
@@ -89,12 +90,22 @@ QTreeModel::QTreeModel(int columns, QObject *parent)
 
 QTreeModel::~QTreeModel()
 {
+    clear();
+}
+
+/*!
+  ###
+*/
+
+void QTreeModel::clear()
+{
     for (int i = 0; i < tree.count(); ++i) {
         tree.at(i)->par = 0;
         tree.at(i)->view = 0;
         delete tree.at(i);
     }
     delete header;
+    emit reset();
 }
 
 /*!
@@ -918,6 +929,28 @@ void QTreeWidget::setSelected(const QTreeWidgetItem *item, bool select)
 {
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item));
     selectionModel()->select(index, select ? QItemSelectionModel::Select : QItemSelectionModel::Deselect);
+}
+
+/*!
+  Returns a list of all selected items.
+*/
+
+QList<QTreeWidgetItem*> QTreeWidget::selectedItems() const
+{
+    QModelIndexList indexes = selectionModel()->selectedIndexes();
+    QList<QTreeWidgetItem*> items;
+    for (int i = 0; i < indexes.count(); ++i)
+        items.append(d->model()->item(indexes.at(i)));
+    return items;
+}
+
+/*!
+  ###
+*/
+
+void QTreeWidget::clear()
+{
+    d->model()->clear();
 }
 
 /*!

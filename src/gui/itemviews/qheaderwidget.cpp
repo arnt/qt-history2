@@ -23,6 +23,7 @@ class QHeaderModel : public QAbstractTableModel
     friend class QHeaderWidget;
 public:
     QHeaderModel(Qt::Orientation orientation, int sections, QHeaderWidget *parent);
+    ~QHeaderModel();
 
     bool insertRows(int row, const QModelIndex &parent = QModelIndex::Null, int count = 1);
     bool insertColumns(int column, const QModelIndex &parent = QModelIndex::Null, int count = 1);
@@ -44,6 +45,8 @@ public:
     int rowCount() const;
     int columnCount() const;
 
+    void clear();
+
 private:
     QVector<QHeaderWidgetItem*> items;
     Qt::Orientation orientation;
@@ -54,6 +57,11 @@ QHeaderModel::QHeaderModel(Qt::Orientation orientation, int sections, QHeaderWid
       orientation(orientation)
 {
     setSectionCount(sections);
+}
+
+QHeaderModel::~QHeaderModel()
+{
+    clear();
 }
 
 bool QHeaderModel::insertRows(int row, const QModelIndex &, int count)
@@ -156,6 +164,15 @@ int QHeaderModel::columnCount() const
     return orientation == Qt::Horizontal ? items.count() : 1;
 }
 
+void QHeaderModel::clear()
+{
+    for (int i = 0; i < items.count(); ++i) {
+        delete items.at(i);
+        items[i] = 0;
+    }
+    emit reset();
+}
+
 // item
 
 QHeaderWidgetItem::QHeaderWidgetItem(QHeaderWidget *view)
@@ -195,6 +212,9 @@ QVariant QHeaderWidgetItem::data(int role) const
     return QVariant();
 }
 
+#define d d_func()
+#define q q_func()
+
 // private
 
 class QHeaderWidgetPrivate : public QHeaderViewPrivate
@@ -203,10 +223,15 @@ class QHeaderWidgetPrivate : public QHeaderViewPrivate
 public:
     QHeaderWidgetPrivate() : QHeaderViewPrivate() {}
     inline QHeaderModel *model() const { return ::qt_cast<QHeaderModel*>(q_func()->model()); }
+    void emitClicked(int section, Qt::ButtonState state);
 };
 
-#define d d_func()
-#define q q_func()
+void QHeaderWidgetPrivate::emitClicked(int section, Qt::ButtonState state)
+{
+    emit q->clicked(model()->item(section), state);
+}
+
+// public
 
 QHeaderWidget::QHeaderWidget(Qt::Orientation orientation, QWidget *parent)
     : QHeaderView(orientation, parent)
@@ -216,7 +241,6 @@ QHeaderWidget::QHeaderWidget(Qt::Orientation orientation, QWidget *parent)
 
 QHeaderWidget::~QHeaderWidget()
 {
-
 }
 
 void QHeaderWidget::setSectionCount(int sections)
@@ -239,6 +263,11 @@ QHeaderWidgetItem *QHeaderWidget::takeItem(int section)
     return d->model()->takeItem(section);
 }
 
+void QHeaderWidget::clear()
+{
+    d->model()->clear();
+}
+
 void QHeaderWidget::removeItem(QHeaderWidgetItem *item)
 {
     d->model()->removeItem(item);
@@ -248,3 +277,5 @@ void QHeaderWidget::setModel(QAbstractItemModel *model)
 {
     QHeaderView::setModel(model);
 }
+
+#include "moc_qheaderwidget.cpp"

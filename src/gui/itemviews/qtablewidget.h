@@ -15,6 +15,7 @@
 #define QTABLEWIDGET_H
 
 #include <qtableview.h>
+#include <qlist.h>
 
 class QTableModel;
 
@@ -140,6 +141,10 @@ public:
 
     bool isSelected(const QTableWidgetItem *item) const;
     void setSelected(const QTableWidgetItem *item, bool select);
+    QList<QTableWidgetItem*> selectedItems() const;
+
+public slots:
+    void clear();
 
 signals:
     void clicked(QTableWidgetItem *item, int button);

@@ -134,6 +134,10 @@ public:
     
     bool isSelected(const QTreeWidgetItem *item) const;
     void setSelected(const QTreeWidgetItem *item, bool select);
+    QList<QTreeWidgetItem*> selectedItems() const;
+
+public slots:
+    void clear();
 
 signals:
     void clicked(QTreeWidgetItem *item, int column, int button);
