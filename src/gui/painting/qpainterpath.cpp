@@ -186,7 +186,7 @@ void QPainterPathPrivate::flatten()
   matrix \a xform defines the world matrix. \pathPos
 */
 QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
-                                          const QWMatrix &xform,
+                                          const QWMatrix &/*xform*/,
                                           QRect *boundingRect)
 {
     Q_ASSERT(!bits);

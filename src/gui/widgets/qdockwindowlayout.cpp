@@ -462,8 +462,7 @@ QDockWindowLayoutInfo &QDockWindowLayout::insert(int index, QLayoutItem *layouti
 	    // insert a separator
 	    QLayoutItem *sep_item = 0;
 	    if (!dummy) {
-		QDockWindowLayoutInfo &next_info = layout_info[it];
-                Q_ASSERT(!next_info.is_sep);
+                Q_ASSERT(!layout_info[it].is_sep);
 
 		QDockWindowSeparator *sep = new QDockWindowSeparator(this, parentWidget());
 		if (parentWidget()->isVisible())
@@ -490,8 +489,7 @@ QDockWindowLayoutInfo &QDockWindowLayout::insert(int index, QLayoutItem *layouti
 
     // append the dockwindow
     if (!layout_info.isEmpty()) {
-	QDockWindowLayoutInfo &info = layout_info.last();
-	Q_ASSERT(!info.is_sep);
+	Q_ASSERT(!layout_info.last().is_sep);
 
 	// insert a separator before the dockwindow
 	QLayoutItem *sep_item = 0;
