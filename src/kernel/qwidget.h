@@ -45,13 +45,66 @@ struct QTLWExtra;
 class QFocusData;
 class QStyle;
 
-#if 0
-Q_OBJECT
-#endif
-
 class Q_EXPORT QWidget : public QObject, public QPaintDevice
 {
     Q_OBJECT
+    Q_ENUMS( BackgroundMode PropagationMode FocusPolicy )
+    Q_PROPERTY( bool isTopLevel READ isTopLevel )
+    Q_PROPERTY( bool isModal READ isModal )
+    Q_PROPERTY( bool isPopup READ isPopup )
+    Q_PROPERTY( bool isDesktop READ isDesktop )
+    Q_PROPERTY( bool enabled READ isEnabled WRITE setEnabled )
+    Q_PROPERTY( bool enabledToTLW READ isEnabledToTLW )
+    Q_PROPERTY( QRect geometry READ geometry WRITE setGeometry )
+    Q_PROPERTY( QRect frameGeometry READ frameGeometry )
+    Q_PROPERTY( int x READ x )
+    Q_PROPERTY( int y READ y )
+    Q_PROPERTY( QPoint pos READ pos )
+    Q_PROPERTY( QSize frameSize READ frameSize )
+    Q_PROPERTY( QSize size READ size WRITE resize DESIGNABLE false )
+    Q_PROPERTY( int width READ width )
+    Q_PROPERTY( int height READ height )
+    Q_PROPERTY( QRect rect READ rect )
+    Q_PROPERTY( QRect childrenRect READ childrenRect )
+    Q_PROPERTY( QRegion childrenRegion READ childrenRegion )
+    Q_PROPERTY( QSize minimumSize READ minimumSize WRITE setMinimumSize )
+    Q_PROPERTY( QSize maximumSize READ maximumSize WRITE setMaximumSize )
+    Q_PROPERTY( int minimumWidth READ minimumWidth WRITE setMinimumWidth STORED false )
+    Q_PROPERTY( int minimumHeight READ minimumHeight WRITE setMinimumHeight STORED false )
+    Q_PROPERTY( int maximumWidth READ maximumWidth WRITE setMaximumWidth STORED false )
+    Q_PROPERTY( int maximumHeight READ maximumHeight WRITE setMaximumHeight STORED false )
+    Q_PROPERTY( QSize sizeIncrement READ sizeIncrement WRITE setSizeIncrement )
+    Q_PROPERTY( QSize baseSize READ baseSize WRITE setBaseSize )
+    Q_PROPERTY( BackgroundMode backgroundMode READ backgroundMode WRITE setBackgroundMode )
+    Q_PROPERTY( QColor backgroundColor READ backgroundColor WRITE setBackgroundColor )
+    Q_PROPERTY( QColor foregroundColor READ foregroundColor )
+    Q_PROPERTY( QPixmap backgroundPixmap READ backgroundPixmap WRITE setBackgroundPixmap )
+    Q_PROPERTY( QColorGroup colorGroup READ colorGroup )
+    Q_PROPERTY( QPalette palette READ palette WRITE setPalette )
+    Q_PROPERTY( QFont font READ font WRITE setFont )
+    Q_PROPERTY( PropagationMode fontPropagation READ fontPropagation WRITE setFontPropagation )
+    Q_PROPERTY( PropagationMode palettePropagation READ palettePropagation WRITE setPalettePropagation )
+    Q_PROPERTY( QCursor cursor READ cursor WRITE setCursor )
+    Q_PROPERTY( QString caption READ caption WRITE setCaption )
+    Q_PROPERTY( QPixmap icon READ icon WRITE setIcon )
+    Q_PROPERTY( QString iconText READ iconText WRITE setIconText )
+    Q_PROPERTY( bool mouseTracking READ hasMouseTracking WRITE setMouseTracking )
+    Q_PROPERTY( bool isActiveWindow READ isActiveWindow )
+    Q_PROPERTY( bool focusEnabled READ isFocusEnabled )
+    Q_PROPERTY( FocusPolicy focusPolicy READ focusPolicy WRITE setFocusPolicy )
+    Q_PROPERTY( bool focus READ hasFocus )
+    Q_PROPERTY( bool updatesEnabled READ isUpdatesEnabled WRITE setUpdatesEnabled DESIGNABLE false )
+    Q_PROPERTY( bool visible READ isVisible )
+    Q_PROPERTY( bool visibleToTLW READ isVisibleToTLW )
+    Q_PROPERTY( QRect visibleRect READ visibleRect )
+    Q_PROPERTY( bool isMinimized READ isMinimized )
+    Q_PROPERTY( QSize sizeHint READ sizeHint )
+    Q_PROPERTY( QSize minimumSizeHint READ minimumSizeHint )
+    Q_PROPERTY( QRect microFocusHint READ microFocusHint )
+    Q_PROPERTY( bool acceptDrops READ acceptDrops WRITE setAcceptDrops )
+    Q_PROPERTY( bool autoMask READ autoMask WRITE setAutoMask );
+    Q_PROPERTY( bool customWhatsThis READ customWhatsThis )
+	
 public:
     QWidget( QWidget *parent=0, const char *name=0, WFlags f=0 );
     ~QWidget();
