@@ -383,5 +383,3 @@ bool QSqlRelationalTableModel::select()
     return QSqlTableModel::select();
 }
 
-#include "moc_qsqlrelationaltablemodel.cpp"
-
