@@ -72,7 +72,7 @@ static int keycode( int i2, int j )
   
 */
 
-int Keyboard::getKey( int &w, int j = -1 ) {
+int Keyboard::getKey( int &w, int j ) {
     static const uchar *row = 0;
     static int key_i = 0;
     static int scancode = 0;
