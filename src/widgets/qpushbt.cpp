@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#103 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#104 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#103 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#104 $");
 
 
 /*!
@@ -261,10 +261,6 @@ void QPushButton::drawButton( QPainter *paint )
     register QPainter *p = paint;
     GUIStyle gs   = style();
     QColorGroup g = colorGroup();
-    bool updated  = ( isDown() != (bool)lastDown ||
-		      lastDef != defButton ||
-		      isEnabled() != (bool)lastEnabled);
-
     int x1, y1, x2, y2;
 
     rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
@@ -278,6 +274,7 @@ void QPushButton::drawButton( QPainter *paint )
     p->setBrush( QBrush(g.background(),NoBrush) );
 
     if ( gs == WindowsStyle ) {		// Windows push button
+	bool clearBackground = TRUE;
 	if ( isDown() ) {
 	    if ( defButton ) {
 		p->setPen( black );
@@ -297,13 +294,12 @@ void QPushButton::drawButton( QPainter *paint )
 	    if ( isToggleButton() && isOn() && isEnabled() ) {
 		QBrush fill(white, Dense4Pattern );
 		qDrawWinButton( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE, &fill );
-		updated = FALSE;
+		clearBackground = FALSE;
 	    } else {
 		qDrawWinButton( p, x1, y1, x2-x1+1, y2-y1+1, g, isOn() );
 	    }
 	}
-	// ### next two lines ignore backgroundPixmap()
-	if ( updated )
+	if ( clearBackground )
 	    p->fillRect( x1+2, y1+2, x2-x1-3, y2-y1-3, g.background() );
     } else if ( gs == MotifStyle ) {		// Motif push button
 	QBrush fill;
