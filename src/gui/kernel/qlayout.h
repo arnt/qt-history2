@@ -332,12 +332,13 @@ public:
 #endif
 };
 
-class QBoxLayoutData;
+class QBoxLayoutPrivate;
 class QDockWindow;
 
 class Q_GUI_EXPORT QBoxLayout : public QLayout
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QBoxLayout)
 public:
     enum Direction { LeftToRight, RightToLeft, TopToBottom, BottomToTop,
                      Down = TopToBottom, Up = BottomToTop };
@@ -356,7 +357,7 @@ public:
     ~QBoxLayout();
 
 
-    Direction direction() const { return dir; }
+    Direction direction() const;
     void setDirection(Direction);
 
     void addSpacing(int size);
@@ -397,7 +398,6 @@ protected:
     void insertItem(int index, QLayoutItem *);
 
 private:
-    friend class QDockWindow;
 #if defined(Q_DISABLE_COPY)
     QBoxLayout(const QBoxLayout &);
     QBoxLayout &operator=(const QBoxLayout &);
@@ -405,9 +405,6 @@ private:
 
     void setupGeom();
     void calcHfw(int);
-    QBoxLayoutData *data;
-    Direction dir;
-    QBoxLayout *createTmpCopy();
 };
 
 class Q_GUI_EXPORT QHBoxLayout : public QBoxLayout

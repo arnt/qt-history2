@@ -1113,6 +1113,7 @@ void QDockWindow::resizeEvent(QResizeEvent *e)
 
 void QDockWindow::swapRect(QRect &r, Qt::Orientation o, const QPoint &offset, QDockArea *)
 {
+#if 0
     QBoxLayout *bl = boxLayout()->createTmpCopy();
     bl->setDirection(o == Horizontal ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom);
     bl->activate();
@@ -1125,6 +1126,9 @@ void QDockWindow::swapRect(QRect &r, Qt::Orientation o, const QPoint &offset, QD
     else
         r.moveBy(reverse ? - r.width() : 0, -r.height() / 2 );
     r.moveBy(offset.x(), offset.y());
+#else
+    qWarning("Can't do that anymore");
+#endif
 }
 
 QWidget *QDockWindow::areaAt(const QPoint &gp)
