@@ -10,6 +10,7 @@
 *****************************************************************************/
 
 #include <qlistbox.h>
+#include <private/qucomextra_p.h>
 
 void InvokeMethod::invoke()
 {
@@ -66,6 +67,10 @@ void InvokeMethod::methodSelected( const QString &method )
 	    ptype = "<unknown type>";
 	} else if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
 	    ptype = (const char*)param->typeExtra;
+	} else if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
+	    ptype = QVariant::typeToName( (QVariant::Type)*(int*)param->typeExtra );
+	} else if ( QUType::isEqual( param->type, &static_QUType_QVariant ) ) {
+	    ptype = param->type->desc();
 	} else if ( QUType::isEqual( param->type, &static_QUType_enum ) ) {
 	    QUEnum *uEnum = (QUEnum*)param->typeExtra;
 	    ptype = uEnum->name;
