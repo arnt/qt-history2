@@ -16,12 +16,12 @@ MOC	=	moc
 
 ####### Files
 
-HEADERS =	..\..\include\qgl.h
+HEADERS =	..\..\..\include\qgl.h
 SOURCES =	qgl.cpp
 OBJECTS =	qgl.obj
 SRCMOC	=	moc_qgl.cpp
 OBJMOC	=	moc_qgl.obj
-TARGET	=	..\..\lib\qgl.lib
+TARGET	=	..\..\..\lib\qgl.lib
 
 ####### Implicit rules
 
@@ -54,8 +54,8 @@ clean:
 qgl.obj: qgl.cpp
 
 moc_qgl.obj: moc_qgl.cpp \
-		..\..\include\qgl.h
+		..\..\..\include\qgl.h
 
-moc_qgl.cpp: ..\..\include\qgl.h
-	$(MOC) ..\..\include\qgl.h -o moc_qgl.cpp
+moc_qgl.cpp: ..\..\..\include\qgl.h
+	$(MOC) ..\..\..\include\qgl.h -o moc_qgl.cpp
 
