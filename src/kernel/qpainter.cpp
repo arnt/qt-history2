@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#159 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#160 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -29,6 +29,8 @@
 #include "qwidget.h"
 #include "qimage.h"
 #include <stdlib.h>
+
+typedef QStack<QWMatrix> QWMatrixStack;
 
 /*!
   \class QPainter qpainter.h
@@ -202,6 +204,8 @@ QPainter::~QPainter()
 	delete [] tabarray;
     if ( ps_stack )
 	killPStack();
+    if (wm_stack )
+	delete (QWMatrixStack *)wm_stack;
 }
 
 
@@ -418,10 +422,6 @@ void QPainter::restore()
     tabstops = ps->ts;
     tabarray = ps->ta;
     delete ps;
-    if ( pss->isEmpty() ) {
-	delete pss;
-	ps_stack = 0;
-    }
 }
 
 
@@ -956,6 +956,27 @@ const QWMatrix &QPainter::worldMatrix() const
 	setWorldMatrix( wxmat );
     }
   \endcode
+  
+  Furthermore, you can easily save and restore the current world
+  transformation matrix with the convenient functions
+  saveWorldMatrix() and restoreWorldMatrix(), respectively. If you
+  need to draw some top-to-bottom text at the position (x y), for
+  instance, but everything else shall remain unrotated, you can easily
+  achieve this with:
+
+  \code
+    void MyWidget::paintEvent()
+    {
+	QPainter paint( this );
+	...
+	paint.saveWorldMatrix();
+	paint.translate( x, y );
+	paint.rotate( 90 );
+	paint.drawText( 0, 0, "top-to-bottom text" );
+	paint.restoreWorldMatrix();
+	....
+    }
+  \endcode
 
   See the \link QWMatrix QWMatrix documentation\endlink for a general
   discussion on coordinate system transformations.
@@ -989,6 +1010,47 @@ void QPainter::setWorldMatrix( const QWMatrix &m, bool combine )
 	setWorldXForm( TRUE );
     else
 	updateXForm();
+}
+
+/*!
+  Saves the current world matrix (pushes the matrix onto a stack).
+
+  In sane code a save() has a corresponding restoreWorldMatrix().
+
+  \sa restoreWorldMatrix()
+*/
+
+void QPainter::saveWorldMatrix()
+{
+    QWMatrixStack *stack = (QWMatrixStack *)wm_stack;
+    if ( stack == 0 ) {
+	stack  = new QStack<QWMatrix>;
+	CHECK_PTR( stack );
+	stack->setAutoDelete( TRUE );
+	wm_stack = stack;
+    }
+    
+    stack->push( new QWMatrix( wxmat ) );
+
+}
+
+/*!
+  Restores the current world matrix (pops a saved matrix off the stack).
+  \sa saveWorldMatrix()
+*/
+
+void QPainter::restoreWorldMatrix()
+{
+    QWMatrixStack *stack = (QWMatrixStack *)wm_stack;
+    if ( stack == 0 || stack->isEmpty() ) {
+#if defined(CHECK_STATE)
+	warning( "QPainter::restoreWorldMatrix: Empty stack error" );
+#endif
+	return;
+    }
+    QWMatrix* m = stack->pop();
+    setWorldMatrix( *m );
+    delete m;
 }
 
 

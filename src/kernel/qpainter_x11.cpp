@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#275 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#276 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -460,6 +460,7 @@ void QPainter::init()
     tabarray = 0;
     tabarraylen = 0;
     ps_stack = 0;
+    wm_stack = 0;
     gc = gc_brush = 0;
     pdev = 0;
     dpy  = 0;

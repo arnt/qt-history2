@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#115 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#116 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -329,6 +329,7 @@ void QPainter::init()
     tabarray = 0;
     tabarraylen = 0;
     ps_stack = 0;
+    wm_stack = 0;
     pdev = 0;
     hdc = hpen = hbrush = hbrushbm = 0;
     txop = txinv = 0;

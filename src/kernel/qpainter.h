@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#122 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#123 $
 **
 ** Definition of QPainter class
 **
@@ -113,10 +113,15 @@ public:
     const QWMatrix &worldMatrix() const;	// get/set world xform matrix
     void	setWorldMatrix( const QWMatrix &, bool combine=FALSE );
 
+    void	saveWorldMatrix();
+    void	restoreWorldMatrix();
+
+    
     void	translate( double dx, double dy );
     void	scale( double sx, double sy );
     void	shear( double sh, double sv );
     void	rotate( double a );
+
     void	resetXForm();
 
     QPoint	xForm( const QPoint & ) const;	// map virtual -> device
@@ -274,6 +279,8 @@ private:
     // Cached composition (and inverse) of transformations
     QWMatrix	xmat;
     QWMatrix	ixmat;
+    
+    
 
     double	m11() const { return xmat.m11(); }
     double      m12() const { return xmat.m12(); }
@@ -293,6 +300,7 @@ private:
     void       *penRef;				// pen cache ref
     void       *brushRef;			// brush cache ref
     void       *ps_stack;
+    void       *wm_stack;
     void	killPStack();
 
 protected:
