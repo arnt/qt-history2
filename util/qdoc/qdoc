@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#57 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#58 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1472,25 +1472,20 @@ if ($#ARGV > -1) {
 	&readc($ARGV[$arg]);
     }
 } else {
-    $hdir = "/local/qt/include";
-    chdir("/local/qt/src/tools");
-    opendir(D, ".");
-    foreach $d ( readdir(D) ) {
-	&readc( $d ) if ( -f $d );
+    my($sources, $dirs);
+    chdir($ENV{"QTDIR"} . "/src") || die "can't cd to QTDIR/src";
+    $hdir = $ENV{"QTDIR"} . "/include";
+    foreach $dirs ( "tools", "kernel", "widgets", "doc" ) {
+	chdir( $dirs ) || die "can't cd to $dirs";
+	open(F, "make showsources |") || die "can't make showsources";
+	$sources = <F>;
+	close F;
+	foreach $d ( split(/\s+/, $sources) ) {
+	    $_ = $d;
+	    &readc( $_ );
+	}
+	chdir( ".." ) || die "can't cd back to QTDIR";
     }
-    closedir(D);
-    chdir("/local/qt/src/kernel");
-    opendir(D, ".");
-    foreach $d ( readdir(D) ) {
-	&readc( $d ) if ( -f $d );
-    }
-    closedir(D);
-    chdir("/local/qt/src/widgets");
-    opendir(D, ".");
-    foreach $d ( readdir(D) ) {
-	&readc( $d ) if ( -f $d );
-    }
-    closedir(D);
 }
 
 &templates();
