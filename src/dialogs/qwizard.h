@@ -74,7 +74,7 @@ public:
 
     QWidget * currentPage() const;
 
-    QWidget* page( int pos ) const;
+    QWidget* page( int ) const;
     int pageCount() const;
     int indexOf( QWidget* ) const;
 
