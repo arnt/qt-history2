@@ -1236,15 +1236,16 @@ void QListViewItem::sortChildItems( int column, bool ascending )
     lsc = column;
     lso = ascending;
 
+    const int nColumns = listView()->columns();
+
     // and don't sort if we already have the right sorting order
-    if ( column == Unsorted || childItem == 0 || childItem->siblingItem == 0 )
+    if ( column > nColumns || childItem == 0 || childItem->siblingItem == 0 )
 	return;
 
     // make an array for qHeapSort()
     QListViewPrivate::SortableItem * siblings
 	= new QListViewPrivate::SortableItem[nChildren];
     QListViewItem * s = childItem;
-    int nColumns = listView()->columns();
     int i = 0;
     while ( s && i < nChildren ) {
 	siblings[i].numCols = nColumns;
@@ -5122,7 +5123,9 @@ QRect QListView::itemRect( const QListViewItem * i ) const
   is FALSE.
 
   If \a column is -1, sorting is disabled and the user cannot sort
-  columns by clicking on the column headers.
+  columns by clicking on the column headers. If \a column is larger than
+  the number of columns the user has to click on a column header to 
+  sort the list view.
 */
 
 void QListView::setSorting( int column, bool ascending )
