@@ -112,8 +112,6 @@ struct Font
     bool underline;
     bool strikeout;
 
-    // ### implement the destroy
-
     inline void init()
     {
         common.kind = Common::Kind_Font;

@@ -235,7 +235,7 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
         w->setElementAction(ui_action_list);
 
     ui->setElementWidget(w);
-    ui->setElementClass(w->attributeName()); // ### remove me!
+    ui->setElementClass(w->attributeName());
 
     if (!ui->elementImages())
         ui->setElementPixmapFunction(pixmapFunction);
@@ -436,7 +436,7 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
             if (ui_layout_list.isEmpty()) {
                 ui_layout_list.append(lay);
             } else {
-                // ### throw an error.. it's not possible to have more than one layout for widget!
+                // it's not possible to have more than one layout for widget!
                 delete lay;
             }
         } else if (t == QLatin1String("spacer")) {
@@ -667,7 +667,6 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
                 continue;
             }
 
-            // ### check if className inheriths from QFrame
             // changes in QFrame
             if (name == QLatin1String("contentsRect")) {
                 fprintf(stderr, "property '%s' not supported\n", name.latin1());
@@ -773,7 +772,7 @@ DomProperty *Ui3Reader::readProperty(const QDomElement &e)
         name = e.firstChild().nextSibling().toElement().tagName().toLower();
 
     DomProperty *p = new DomProperty;
-    p->read(e); // ### check if the name is valid!
+    p->read(e);
 
     if (p->kind() == DomProperty::Unknown) {
         delete p;
