@@ -156,8 +156,8 @@ private:
 	struct {
 	    QRgb argb;
 	    ulong pix;
-	    bool invalid() const { return argb==Invalid && pix==Dirt; }
-	    bool probablyDirty() const { return pix==Dirt; }
+	    bool invalid() const { return argb == QColor::Invalid && pix == QColor::Dirt; }
+	    bool probablyDirty() const { return pix == QColor::Dirt; }
 	} d32;
     } d;
 };
