@@ -366,7 +366,7 @@ static void renderAllFormats()
     EmptyClipboard();
 
     const char* mime;
-    QList<QWindowsMime> all = QWindowsMime::all();
+    QPtrList<QWindowsMime> all = QWindowsMime::all();
     for (int i = 0; mime = s->format(i); i++) {
 	for (QWindowsMime* c = all.first(); c; c = all.next()) {
 	    if ( c->cfFor(mime) ) {

@@ -36,7 +36,7 @@ int QDesktopWidgetPrivate::primaryScreen = 0;
 QDesktopWidgetPrivate::EnumFunc QDesktopWidgetPrivate::enumDisplayMonitors = 0;
 QDesktopWidgetPrivate::InfoFunc QDesktopWidgetPrivate::getMonitorInfo = 0;
 HMODULE QDesktopWidgetPrivate::user32hnd = 0;
-QArray<QRect> *QDesktopWidgetPrivate::rects = 0;
+QMemArray<QRect> *QDesktopWidgetPrivate::rects = 0;
 static int screen_number = 0;
 
 BOOL CALLBACK enumCallback( HMONITOR hMonitor, HDC, LPRECT, LPARAM )
