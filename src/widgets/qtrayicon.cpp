@@ -147,7 +147,7 @@ bool QTrayIcon::event( QEvent *e )
 
   \sa mousePressEvent(), mouseReleaseEvent(), mouseDoubleClickEvent(),  QMouseEvent
 */
-void QTrayIcon::mouseMoveEvent( QMouseEvent *e )
+void QTrayIcon::mouseMoveEvent( QMouseEvent * /*e*/ )
 {
     e->ignore();
 }
@@ -159,7 +159,7 @@ void QTrayIcon::mouseMoveEvent( QMouseEvent *e )
   \sa mouseReleaseEvent(), mouseDoubleClickEvent(),
   mouseMoveEvent(), QMouseEvent
 */
-void QTrayIcon::mousePressEvent( QMouseEvent *e )
+void QTrayIcon::mousePressEvent( QMouseEvent * /*e*/ )
 {
     e->ignore();
 }

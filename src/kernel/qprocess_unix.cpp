@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#58 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -45,6 +45,17 @@
 #include "qsocketnotifier.h"
 #include "qtimer.h"
 #include "qcleanuphandler.h"
+
+// On Irix the correct type for sigaction.sa_handler is used in C++.
+// But C++ is detected using _LANGUAGE_C_PLUS_PLUS which is ridiculous
+// because this macro is only defined by the SGI compiler while the portable
+// macro __cplusplus could have been used instead.
+#if defined(_OS_IRIX_) && defined(_CC_GNU_)
+#define _LANGUAGE_C_PLUS_PLUS
+#endif
+// On Tru64 the correct type for sigaction.sa_handler is used when XPG4v2
+// is specified.
+#define _XOPEN_SOURCE_EXTENDED
 
 #include <stdio.h>
 #include <stdlib.h>

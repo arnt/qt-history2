@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#20 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#21 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -50,6 +50,7 @@
 #if defined(Q_OS_OSF) && defined(_XOPEN_SOURCE_EXTENDED)
 // Tru64 redefines accept() to _accept() when XNS4 is specified using
 // _XOPEN_SOURCE_EXTENDED.  Avoid it as it breaks our sources.
+// No! Find another solution! We should use recent APIs.
 #undef _XOPEN_SOURCE_EXTENDED
 #endif
 
@@ -137,23 +138,30 @@
 #  define SOCKLEN_T int
 #elif defined(BSD4_4)
 // freebsd
-#  define SOCKLEN_T socklen_t
+#define SOCKLEN_T socklen_t
 #elif defined(Q_OS_UNIXWARE7)
 #  define SOCKLEN_T size_t
 #elif defined(Q_OS_AIX)
-#  ifdef _AIX42
-// AIX 4.2 and better.
-// The AIX 4.3 online documentation says 'size_t' and it worked so far.
-// However this is not at all 64-bit safe and not Unix 98 or even Unix 95
-// compliant. This is only compliant to some bogus POSIX draft. There must
-// be some way to use 'socklen_t' or at least revert to 'int'.
+#  ifdef _AIX43
+// AIX 4.3
+// The AIX 4.3 online documentation says 'size_t'. A user asked IBM
+// and they are reported to have told him the documentation is wrong.
+// Sometimes 'size_t' works and sometimes 'socklen_t' is needed.
+// I really don't know. Does someone have a clue? Do IBM compilers
+// have their own set of header files that supersede system header
+// files?
+#    define SOCKLEN_T socklen_t
+#  elif _AIX42
+// _AIX41 should be defined on AIX 4.1 and better. It is actually defined.
+// _AIX42 should be defined on AIX 4.2 and better. It appears _not_ to be
+// defined on some AIX 4.3 versions.
 #    define SOCKLEN_T size_t
 #  else
 // AIX 4.1
 #    define SOCKLEN_T int
 #  endif
 #elif defined(Q_OS_QNX)
-#define SOCKLEN_T size_t
+#  define SOCKLEN_T size_t
 #else
 // Most unixes are Single Unix 1995 compliant (at least by default) including
 // irix, osf1/tru64, solaris, hp-ux and old linux. We do not specify Single
@@ -951,4 +959,3 @@ void QSocketDevice::fetchConnectionParameters()
     }
 }
 #endif //QT_NO_NETWORK
-

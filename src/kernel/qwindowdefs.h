@@ -124,6 +124,7 @@ typedef int WId;
 
 #if defined(Q_WS_X11)
 
+
 typedef struct _XDisplay Display;
 typedef union  _XEvent XEvent;
 typedef struct _XGC *GC;
