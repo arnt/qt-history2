@@ -30,10 +30,12 @@ static void report_error(int code, const char *where, const char *what)
 }
 
 /*! \class QReadWriteLock
-
     \brief The QReadWriteLock class provides read-write locking.
 
-    \preliminary
+    \threadsafe
+
+    \group thread
+    \group environment
 
     It is useful for synchronizing multithreaded access to resources
     that support multiple readers, but only one writer.
