@@ -283,6 +283,7 @@ static void createCRC16Table()			// build CRC16 lookup table
   The checksum is independent of the byte order (endianness).
 */
 
+#ifndef QT_QMAKE
 Q_UINT16 qChecksum( const char *data, uint len )
 {
     if ( !crc_tbl_init ) {			// create lookup table
@@ -300,6 +301,7 @@ Q_UINT16 qChecksum( const char *data, uint len )
     }
     return ~crc & 0xffff;
 }
+#endif
 
 /*! \fn QByteArray qCompress( const QByteArray& data)
   \relates QByteArray
@@ -315,6 +317,7 @@ Q_UINT16 qChecksum( const char *data, uint len )
   \sa qUncompress()
 */
 
+#ifndef QT_QMAKE
 QByteArray qCompress( const uchar* data, int nbytes )
 {
     ulong len = nbytes * 2;
@@ -343,6 +346,7 @@ QByteArray qCompress( const uchar* data, int nbytes )
 
     return bazip;
 }
+#endif
 
 /*! \fn QByteArray qUncompress( const QByteArray& data, int expectedSize )
   \relates QByteArray
