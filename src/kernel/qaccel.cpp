@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#21 $
 **
 ** Implementation of QAccel class
 **
@@ -16,7 +16,7 @@
 #include "qlist.h"
 #include "qsignal.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#20 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#21 $")
 
 
 /*!
@@ -361,7 +361,8 @@ bool QAccel::eventFilter( QObject *, QEvent *e )
 
 /*!
   \internal
-
+  This slot is called when the top level widget that owns the accelerator
+  is destroyed.
 */
 
 void QAccel::tlwDestroyed()
