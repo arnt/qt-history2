@@ -62,8 +62,6 @@ while($#ARGV >= 0) {
 $basedir =~ s=\\=/=g;
 $includedir =~ s=\\=/=g;
 
-undef $/;
-
 mkdir $includedir, 0777;
 
 my @ignore_headers = ();
@@ -79,6 +77,7 @@ my %dirs = (
 	 "src/canvas" => "QtCanvas",
 	 "src/compat" => "Qt3Compat",
 );
+
 $dirs{"mkspecs" . $ENV{"MKSPEC"}} = "QCore" if defined $ENV{"MKSPEC"}; 
 
 my $dir;
@@ -107,6 +106,7 @@ foreach $dir (keys %dirs) {
 		$header = 0 if("$header" eq "$_");
 	    }
 	    if("$header") {
+		my $iheader = $basedir . "/" . $subdir . "/" . $header;
 		if($showonly) {
 		    print "$header [$lib]\n";
 		} else {
@@ -119,26 +119,30 @@ foreach $dir (keys %dirs) {
 			$master_header_out .= "#include \"$public_header\"\n" if($public_header);
 		    }
 		    #now sync the header file (ie symlink/include it)
-		    sync_header($header, $basedir . "/" . $subdir . "/" . $header, $lib);
+		    sync_header($header, $iheader, $lib);
 		}
+		sync_classnames($iheader, $lib) unless($header =~ /_/);
 	    }
 	}
     }
 
-    #finally generate the "master" include file
-    my $master_include = "$includedir/$lib/$lib";
-    if(-e "$master_include") {
-	open MASTERINCLUDE, "<$master_include";
-	binmode MASTERINCLUDE;
-	my $oldmaster = <MASTERINCLUDE>;
-	close MASTERINCLUDE;
-	$master_include = 0 if($oldmaster eq $master_header_out);
-    }
-    if($master_include) {
-	print "header (master) created for $lib\n";
-	open MASTERINCLUDE, ">$master_include";
-	print MASTERINCLUDE "$master_header_out";
-	close MASTERINCLUDE;
+    unless($showonly) {
+	#finally generate the "master" include file
+	my $master_include = "$includedir/$lib/$lib";
+	if(-e "$master_include") {
+	    open MASTERINCLUDE, "<$master_include";
+	    local $/;
+	    binmode MASTERINCLUDE;
+	    my $oldmaster = <MASTERINCLUDE>;
+	    close MASTERINCLUDE;
+	    $master_include = 0 if($oldmaster eq $master_header_out);
+	}
+	if($master_include) {
+	    print "header (master) created for $lib\n";
+	    open MASTERINCLUDE, ">$master_include";
+	    print MASTERINCLUDE "$master_header_out";
+	    close MASTERINCLUDE;
+	}
     }
 }
 
@@ -149,6 +153,98 @@ if(!check_unix()) {
 }
 
 exit 0;
+
+# sync_classnames(iheader, library)
+#
+#
+# all classnames found in iheader are synced into library's include structure
+#
+sub sync_classnames {
+    my $ret = 0;
+    my ($iheader, $library) = @_;
+
+    my $parsable = "";
+    if(open(F, "<$iheader")) {
+	while(<F>) {
+	    my $line = $_;
+	    chomp $line;
+	    if($line =~ /^\#/) {
+		if($line =~ /\\$/) {
+		    while($line = <F>) {
+			chomp $line;
+			last unless($line =~ /\\$/);
+		    }
+		} else {
+		    $line = 0;
+		}
+	    }
+	    $line =~ s,//.*$,,; #remove c++ comments
+	    $parsable .= $line if($line);
+	}
+	close(F);
+    }
+
+    my $last_definition = 0;
+    for(my $i = 0; $i < length($parsable); $i++) {
+	my $definition = 0;
+	my $character = substr($parsable, $i, 1);
+	if($character eq "/" && substr($parsable, $i+1, 1) eq "*") { #I parse like this for greedy reasons
+	    for($i+=2; $i < length($parsable); $i++) {
+		my $end = substr($parsable, $i, 2);
+		if($end eq "*/") {
+		    $last_definition = $i+2;
+		    $i++;
+		    last;
+		}
+	    }
+	} elsif($character eq "{") {
+	    my $brace_depth = 1;
+	    my $block_start = $i + 1;
+	  BLOCK: for($i+=1; $i < length($parsable); $i++) {
+	      my $ignore = substr($parsable, $i, 1);
+	      if($ignore eq "{") {
+		  $brace_depth++;
+	      } elsif($ignore eq "}") {
+		  $brace_depth--;
+		  unless($brace_depth) {
+		      for(my $i2 = $i+1; $i2 < length($parsable); $i2++) {
+			  my $end = substr($parsable, $i2, 1);
+			  if($end eq ";" || $end ne " ") {
+			      $definition = substr($parsable, $last_definition, $block_start - $last_definition) . "}";
+			      $i = $i2 if($end eq ";");
+			      $last_definition = $i + 1;
+			      last BLOCK;
+			  }
+		      }
+		  }
+	      }
+	  }
+	} elsif($character eq ";") {
+	    $definition = substr($parsable, $last_definition, $i - $last_definition + 1);
+	    $last_definition = $i + 1;
+	}
+	if($definition) {
+	    my $symbol = 0;
+	    if($definition =~ m/^typedef *.*\(\*([^\)]*)\)\(.*\);$/) {
+		$symbol = $1;
+	    } elsif($definition =~ m/^typedef *(.*) *([^ ]*);$/) {
+		$symbol = $2;
+	    } elsif($definition =~ m/^(template<.*> *)?(class|struct) +([^ ]* +)?([^ ]+) ?((,|:) *(public|private) *.*)? *\{\}$/) {
+		$symbol = $4;
+	    }
+	    if($symbol && $symbol =~ /^Q/) {
+		$ret++;
+		if($showonly) {
+		    print "SYMBOL: $symbol\n";
+		} else {
+#		    print "$iheader: $symbol\n";
+		}
+	    }
+	}
+    }
+    print "SYMBOLS: Found $ret\n" if($showonly);
+    return $ret;
+}
 
 #
 # sync_header(header, iheader, library)
@@ -179,27 +275,8 @@ sub sync_header {
 		my $header_out_dir = dirname($header_out);
 		mkdir $header_out_dir, 0777;
 
-		my $iheader_out = $iheader;
-		my $iheader_out_dir = dirname($iheader_out);
-
-		#relativification
-		my $match_dir = 0;
-		for(my $i = 1; $i < length($iheader_out_dir); $i++) {
-		    my $tmp = substr($iheader_out_dir, 0, $i);
-		    last unless($header_out_dir =~ /^$tmp/);
-		    $match_dir = $tmp;
-		}
-		if($match_dir) {
-		    my $after = substr($header_out_dir, length($match_dir));
-		    my $count = ($after =~ tr,/,,);
-		    my $dots = "";
-		    for(my $i = 0; $i <= $count; $i++) {
-			$dots .= "../";
-		    }
-		    $iheader_out =~ s,^$match_dir,$dots,;
-		}
-
 		#write it
+		my $iheader_out = fix_paths($iheader, $header);
 		open HEADER, ">$header_out" || die "Could not open $header_out for writing!\n";
 		print HEADER "#include \"$iheader_out\"\n";
 		close HEADER;
@@ -207,6 +284,39 @@ sub sync_header {
 	}
 	print "header created for $iheader_no_basedir\n" if($headers_created > 0);
     }
+}
+
+#
+# fix_paths(file1, file2)
+#
+# 
+# file1 is made relative (if possible) of file2 and returned
+sub fix_paths {
+    my ($file1, $file2) = @_;
+    $file1 =~ s=\\=/=g;
+    $file2 =~ s=\\=/=g;
+
+    my $ret = $file1;
+    my $file1_dir = dirname($file1);
+    my $file2_dir = dirname($file2);
+
+    #guts
+    my $match_dir = 0;
+    for(my $i = 1; $i < length($file1_dir); $i++) {
+	my $tmp = substr($file1_dir, 0, $i);
+	last unless($file2_dir =~ /^$tmp/);
+	$match_dir = $tmp;
+    }
+    if($match_dir) {
+	my $after = substr($file2_dir, length($match_dir));
+	my $count = ($after =~ tr,/,,);
+	my $dots = "";
+	for(my $i = 0; $i <= $count; $i++) {
+	    $dots .= "../";
+	}
+	$ret =~ s,^$match_dir,$dots,;
+    }
+    return $ret;
 }
 
 #
@@ -235,10 +345,12 @@ sub symlink_file
     } else {
 	# Bi-directional synchronization
 	open( I, "< " . $file ) || die "Could not open $file for reading";
+	local $/;
 	binmode I;
 	$filecontents = <I>;
 	close I;
 	if ( open(I, "< " . $ifile) ) {
+	    local $/;
 	    binmode I;
 	    $ifilecontents = <I>;
 	    close I;
@@ -253,12 +365,14 @@ sub symlink_file
     if ( $knowdiff || ($filecontents ne $ifilecontents) ) {
 	if ( $copy > 0 ) {
 	    open(O, "> " . $file) || die "Could not open $file for writing";
+	    local $/;
 	    binmode O;
 	    print O $ifilecontents;
 	    close O;
 	    print "$file written\n";
 	} elsif ( $copy < 0 ) {
 	    open(O, "> " . $ifile) || die "Could not open $ifile for writing";
+	    local $/;
 	    binmode O;
 	    print O $filecontents;
 	    close O;
