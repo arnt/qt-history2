@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#301 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#302 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1015,7 +1015,7 @@ void QListBox::clear()
     d->numColumns = 1;
     d->currentRow = 0;
     d->currentColumn = 0;
-    d->mousePressRow = -1; 
+    d->mousePressRow = -1;
     d->mousePressColumn = -1;
     d->mouseMoveRow = -1;
     d->mouseMoveColumn = -1;
@@ -1310,14 +1310,14 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 		d->current->s = FALSE;
 		updateItem( d->current );
 	    }
-	} else
-	    clearSelection();
+	}/* else
+	    clearSelection();*/
     }
 
     switch( selectionMode() ) {
     default:
     case Single:
-	//nothing ;
+	// nothing
 	break;
     case Extended:
 	if ( i ) {
@@ -1333,8 +1333,11 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 	}
 	break;
     }
-    if ( i )
+    if ( i ) {
+	if ( selectionMode() == Single )
+	    i->s = TRUE;
 	setCurrentItem( i );
+    }
     // for sanity, in case people are event-filtering or whatnot
     delete d->scrollTimer;
     d->scrollTimer = 0;
