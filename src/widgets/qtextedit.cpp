@@ -4585,7 +4585,7 @@ void QTextEdit::setEnabled( bool b )
   specifies whether the text of this selection should be inverted with \a
   invertText.
 
-  This only works for \selNum > 0. The default selection (\selNum ==
+  This only works for \a selNum > 0. The default selection (\a selNum ==
   0) gets its attributes from the colorGroup() of this widget.
 */
 
