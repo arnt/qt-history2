@@ -19,17 +19,3 @@ options = $$find(CONFIG, "debug") $$find(CONFIG, "release")
 count(options, 2) {
     message(Both release and debug specified.)
 }
-
-defineReplace(headersAndSources) {
-    for(file, ARGS) {
-        header = $${file}.h
-        exists($$header) {
-            headers += $$header
-        }
-    }
-}
-
-files = delegate.h model.h view.h
-temp = $$headersAndSources($$files)
-message($$files)
-message($$temp)
