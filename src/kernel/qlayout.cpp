@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#16 $
 **
 ** Implementation of layout classes
 **
@@ -12,7 +12,7 @@
 #include "qlayout.h"
 #include "qmenubar.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#16 $");
 
 
 /*!
@@ -355,7 +355,8 @@ void QBoxLayout::addLayout( QLayout *layout, int stretch )
 {
     if ( !basicManager() ) {
 #if defined(CHECK_STATE)
-	warning( "QBoxLayout::addLayout: Box must be inserted before use" );
+	warning( "QBoxLayout::addLayout: Box must have a widget parent or be\n"
+		 "                       added in another layout before use" );
 #endif
 	return;
     }
@@ -417,7 +418,8 @@ void QBoxLayout::addSpacing( int size )
 {
     if ( !basicManager() ) {
 #if defined(CHECK_STATE)
-	warning( "QBoxLayout::addSpacing: Box must be inserted before use" );
+	warning("QBoxLayout::addSpacing: Box must have a widget parent or be\n"
+		"                        added in another layout before use.");
 #endif
 	return;
     }
@@ -435,7 +437,8 @@ void QBoxLayout::addStretch( int stretch )
 {
     if ( !basicManager() ) {
 #if defined(CHECK_STATE)
-	warning("QBoxLayout::addStretch: Box must be inserted before use" );
+	warning("QBoxLayout::addStretch: Box must have a widget parent or be\n"
+		 "                       added in another layout before use.");
 #endif
 	return;
     }
@@ -454,7 +457,8 @@ void QBoxLayout::addStrut( int size )
 {
     if ( !basicManager() ) {
 #if defined(CHECK_STATE)
-	warning( "QBoxLayout::addStrut: Box must be inserted before use" );
+	warning( "QBoxLayout::addStrut: Box must have a widget parent or be\n"
+		 "                      added in another layout before use." );
 #endif
 	return;
     }
@@ -514,7 +518,8 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
 {
     if ( !basicManager() ) {
 #if defined(CHECK_STATE)
-	warning( "QBoxLayout::addLayout: Box must be inserted before use" );
+	warning( "QBoxLayout::addLayout: Box must have a widget parent or be\n"
+		 "                       added in another layout before use.");
 #endif
 	return;
     }
@@ -688,7 +693,8 @@ void QGridLayout::addWidget( QWidget *w, int row, int col, int align )
 {
     if ( !basicManager() ) {
 #if defined(CHECK_STATE)
-	warning( "QGridLayout::addWidget: Grid must be inserted before use" );
+       warning("QGridLayout::addWidget: Grid must have a widget parent or be\n"
+	       "                        added in another layout before use." );
 #endif
 	return;
     }
@@ -715,7 +721,8 @@ void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
     if ( !basicManager() ) {
 #if defined(CHECK_STATE)
 	warning( "QGridLayout::addMultiCellWidget: "
-		 "Grid must be inserted before use" );
+		 "Grid must have a widget parent or be\n"
+		 "        added in another layout before use." );
 #endif
 	return;
     }
@@ -768,7 +775,8 @@ void QGridLayout::addLayout( QLayout *layout, int row, int col)
 {
     if ( !basicManager() ) {
 #if defined(CHECK_STATE)
-	warning( "QGridLayout::addLayout: Grid must be inserted before use" );
+       warning("QGridLayout::addLayout: Grid must have a widget parent or be\n"
+	       "                        added in another layout before use." );
 #endif
 	return;
     }
@@ -796,7 +804,8 @@ void QGridLayout::setRowStretch( int row, int stretch )
 {
     if ( !basicManager() ) {
 #if defined(CHECK_STATE)
-	warning( "QGridLayout::setRowStretch: Grid must be inserted before use");
+	warning( "QGridLayout::setRowStretch: Grid must have a widget parent\n"
+		 "        or be added in another layout before use.");
 #endif
 	return;
     }
@@ -821,7 +830,8 @@ void QGridLayout::setColStretch( int col, int stretch )
 {
     if ( !basicManager() ) {
 #if defined(CHECK_STATE)
-	warning( "QGridLayout::setColStretch: Grid must be inserted before use");
+	warning( "QGridLayout::setColStretch: Grid must have a widget parent\n"
+		 "        or be added in another layout before use.");
 #endif
 	return;
     }
@@ -837,7 +847,8 @@ void QGridLayout::addRowSpacing( int row, int minsize )
 {
     if ( !basicManager() ) {
 #if defined(CHECK_STATE)
-	warning( "QGridLayout::setColStretch: Grid must be inserted before use");
+	warning( "QGridLayout::setColStretch: Grid must have a widget parent\n"
+		 "        or be added in another layout before use.");
 #endif
 	return;
     }
@@ -852,7 +863,8 @@ void QGridLayout::addColSpacing( int col, int minsize )
 {
     if ( !basicManager() ) {
 #if defined(CHECK_STATE)
-	warning( "QGridLayout::setColStretch: Grid must be inserted before use");
+	warning( "QGridLayout::setColStretch: Grid must have a widget parent\n"
+		 "        or be added in another layout before use.");
 #endif
 	return;
     }
