@@ -48,13 +48,15 @@ The configuration system is designed to allow platform-specific options
 to be added, but in general all Linux systems which have framebuffer
 support can use the "linux-generic-g++" platform.
 The configuration system also supports cross-compilers:
-to build \e on Linux/x86 \e for the Linux/MIPSEL target, you would use:
+to build on Linux/x86  for the Linux/MIPSEL target, you would use:
 \code
-    ./configure -platform linux-x86-g++ -xplatform linux-mips-g++
+    ./configure -embedded mips
 \endcode
 
-Only a small number of configurations are predefined, all much the same.
-Configurations files are found in \c configs/.
+Only a small number of configurations are predefined.
+You can create your own custom configuration by adding new files
+ to the \c mkspecs/qws/ directory.  Use existing similar configurations
+  as a starting point.
 
 \i Enable framebuffer support.
 
@@ -141,13 +143,18 @@ Configurations files are found in \c configs/.
 \endcode
 
   The communication between client and server is done through the
-  named pipe \c /tmp/.QtEmbedded; sometimes it may need to be deleted
-  (e.g. if you run Qt/Embedded as root then later as an unprivileged user).
+  named pipe \c /tmp/qtembedded-username/QtEmbedded-0; sometimes it may need to be deleted
+  (e.g. if you run Qt/Embedded with root privileges then later as an unprivileged user).
 
 \i Customization.
 
    The Qt/Embedded library can be reduced in size by
    \link emb-features.html removing unnecessary features \endlink.
+
+\i This document shows how to use Qt/Embedded with the Linux framebuffer. For
+development and debugging purposes it is often easier to use the \link
+emb-qvfb.html Qt/Embedded virtual framebuffer\endlink instead.
+
 
 \endlist
 
