@@ -130,11 +130,16 @@ void QProcessPrivate::readyReadStandardError(int)
 {
     Q_Q(QProcess);
     Q_LONGLONG available = bytesAvailableFromStderr();
+#if defined QPROCESS_DEBUG
+    qDebug("QProcessPrivate::readyReadStandardError(), %lld bytes available",
+           available);
+#endif
+
     if (available == 0)
         return;
 
     char *ptr = errorReadBuffer.reserve(available);
-    Q_LONGLONG readBytes = readFromStdout(ptr, available);
+    Q_LONGLONG readBytes = readFromStderr(ptr, available);
     if (readBytes == -1) {
         processError = QProcess::ReadError;
         q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Error reading from process"));
@@ -291,6 +296,10 @@ Q_LONGLONG QProcess::bytesAvailable() const
     const QRingBuffer *readBuffer = (d->processChannel == QProcess::StandardError)
                                     ? &d->errorReadBuffer
                                     : &d->outputReadBuffer;
+#if defined QPROCESS_DEBUG
+    qDebug("QProcess::bytesAvailable() == %i (%s)", readBuffer->size(),
+           (d->processChannel == QProcess::StandardError) ? "stderr" : "stdout");
+#endif
     return readBuffer->size();
 }
 
@@ -409,6 +418,24 @@ Q_LONGLONG QProcess::writeData(const char *data, Q_LONGLONG len)
     memcpy(dest, data, len);
     d->writeSocketNotifier->setEnabled(true);
     return len;
+}
+
+QByteArray QProcess::readAllStandardOutput()
+{
+    ProcessChannel tmp = inputChannel();
+    setInputChannel(StandardOutput);
+    QByteArray data = readAll();
+    setInputChannel(tmp);
+    return data;
+}
+
+QByteArray QProcess::readAllStandardError()
+{
+    ProcessChannel tmp = inputChannel();
+    setInputChannel(StandardError);
+    QByteArray data = readAll();
+    setInputChannel(tmp);
+    return data;
 }
 
 void QProcess::start(const QString &program, const QStringList &arguments)
