@@ -69,7 +69,7 @@ foreach $file ( @branchFiles ) {
 }
 
 # Check all files are closed
-$files = join( " ", @mainFiles );
+$files = join( " ", map { "'$_'" } @mainFiles );
 print "Checking files are closed: $files\n";
 # Unbelievable... p4 writes this file list to stderr!?
 open( P4, "$P4 opened $files 2>&1 |") || die "$0: Couldn't exec $P4: $!\n";
@@ -108,7 +108,7 @@ if ( $abort ) {
 
 print "Checking for gaps in integration: $files\n";
 for ( $count = 0; $count < @branchFiles; $count++ ) {
-    open( P4, "$P4 integrate -n $branchFiles[$count]\@$change $mainFiles[$count] |") || die "$0: Couldn't exec $P4: $!\n";
+    open( P4, "$P4 integrate -n '$branchFiles[$count]\@$change' '$mainFiles[$count]' |") || die "$0: Couldn't exec $P4: $!\n";
     while ( $line = <P4> ) {
 	chomp( $line );
 	($file, $message) = split( m/ - /, $line );
@@ -134,7 +134,7 @@ if ( $abort ) {
 
 print "Integrating: $files\n";
 for ( $count = 0; $count < @branchFiles; $count++ ) {
-    open( P4, "$P4 integrate $branchFiles[$count]\@$change $mainFiles[$count] |") || die "$0: Couldn't exec $P4: $!\n";
+    open( P4, "$P4 integrate '$branchFiles[$count]\@$change' '$mainFiles[$count]' |") || die "$0: Couldn't exec $P4: $!\n";
     while ( $line = <P4> ) {
 	chomp( $line );
 	# Discard revisions here.
@@ -157,7 +157,7 @@ if ( $abort ) {
 
 @filesToResolve = @mainFiles;
 while ( @filesToResolve ) {
-    $files = join( " ", @filesToResolve );
+    $files = join( " ", map { "'$_'" } @filesToResolve );
     open( P4, "$P4 resolve -am $files |") || die "$0: Couldn't exec $P4: $!\n";
     while ( $line = <P4> ) {
 	chomp( $line );
@@ -215,12 +215,12 @@ sub printNeededRevisions {
     my ($count, $rev, @fileLog, $revisionChange, $line);
 
     for ($count = $start; $count <= $end; $count++ ) {
-	open( MYP4, "$P4 integrate -n $branchFile#$count,#$count $mainFile 2>&1 |") || die "$0: Couldn't exec $P4: $!\n";
+	open( MYP4, "$P4 integrate -n '$branchFile#$count,#$count' '$mainFile' 2>&1 |") || die "$0: Couldn't exec $P4: $!\n";
 	$line = <MYP4>;
 	chomp( $line );
 	close( MYP4 );
 	if ( $line ne "$mainFile - all revision(s) already integrated." ) {
-	    open( MYP4, "$P4 filelog -m 1 $branchFile#$count |" ) || die "$0: Couldn't exec $P4: $!\n";
+	    open( MYP4, "$P4 filelog -m 1 '$branchFile#$count' |" ) || die "$0: Couldn't exec $P4: $!\n";
 	    # The first line is the filename; the second is the rev we want.
 	    $line = <MYP4>;
 	    $line = <MYP4>;
