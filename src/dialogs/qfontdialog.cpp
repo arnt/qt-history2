@@ -523,7 +523,11 @@ bool QFontDialog::eventFilter( QObject * o , QEvent * e )
 	     k->key() == Key_Prior ||
 	     k->key() == Key_Next ) {
 	    int ci = lb->currentItem();
-	    (void)QApplication::sendEvent( lb, k );
+
+	    // copy spontaneous event into a non-spontaneous event.
+	    QKeyEvent ev( k->type(), k->key(), k->ascii(), k->state(), k->text(), k->isAutoRepeat(), k->count() );
+	    (void)QApplication::sendEvent( lb, &ev );
+
 	    if ( ci != lb->currentItem() &&
 		 style().styleHint(QStyle::SH_FontDialog_SelectAssociatedText, this))
 		le->selectAll();
