@@ -66,7 +66,7 @@ void InvokeMethod::methodSelected( const QString &method )
 
     if (listParameters->firstChild())
 	listParameters->setCurrentItem( listParameters->firstChild() );
-    editReturn->setText(slot.type());
+    editReturn->setText(slot.typeName());
 }
 
 void InvokeMethod::parameterSelected( QListViewItem *item )

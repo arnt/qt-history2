@@ -74,7 +74,7 @@ void ChangeProperties::setValue()
     if ( !value.isValid() ) {
 	const QMetaObject *mo = activex->metaObject();
 	const QMetaProperty property = mo->property(mo->indexOfProperty(prop.latin1()));
-	type = QVariant::nameToType( property.type() );
+	type = QVariant::nameToType( property.typeName() );
     }
     switch ( type ) {
     case QVariant::Color:
@@ -188,7 +188,7 @@ void ChangeProperties::updateProperties()
 	    const QMetaProperty property = mo->property(i);
 	    QListViewItem *item = new QListViewItem(listProperties);
 	    item->setText(0, property.name());
-	    item->setText(1, property.type());
+	    item->setText(1, property.typeName());
 	    QVariant var = activex->property(property.name());
 	    
 	    switch ( var.type() ) {
@@ -228,7 +228,7 @@ void ChangeProperties::updateProperties()
 		break;
 	    case QVariant::Int:
 		if (property.isEnumType()) {
-		    const QMetaEnum enumerator = mo->enumerator(mo->indexOfEnumerator(property.type()));
+		    const QMetaEnum enumerator = mo->enumerator(mo->indexOfEnumerator(property.typeName()));
 		    item->setText(2, enumerator.valueToKey(var.toInt()));
 		    break;
 		}

@@ -34,6 +34,6 @@ void ControlInfo::setControl( QAxWidget *activex )
     item = new QListViewItem(listInfo, "Properties", QString::number(mo->propertyCount()));    
     for (i = mo->propertyOffset(); i < mo->propertyCount(); ++i) {
 	const QMetaProperty property = mo->property(i);
-	(void)new QListViewItem(item, property.name(), property.type());
+	(void)new QListViewItem(item, property.name(), property.typeName());
     }
 }
