@@ -363,10 +363,7 @@ QScreen * qt_probe_bus()
 
 #else
 
-#ifdef QT_NO_QWS_REPEATER
-const
-#endif
-char * qt_qws_hardcoded_slot="/proc/bus/pci/01/00.0";
+const char * qt_qws_hardcoded_slot="/proc/bus/pci/01/00.0";
 
 const unsigned char* qt_probe_bus()
 {

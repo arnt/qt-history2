@@ -113,10 +113,8 @@ struct QWSCommand : QWSProtocolItem
 	QCopSend,
 	RegionName,
 	Identify,
-	GrabKeyboard
-#ifndef QT_NO_QWS_REPEATER
-	,RepaintRegion
-#endif
+	GrabKeyboard,
+	RepaintRegion
     };
     static QWSCommand *factory( int type );
 };
@@ -295,7 +293,6 @@ struct QWSSetPropertyCommand : public QWSCommand
     char *data;
 };
 
-#ifndef QT_NO_QWS_REPEATER
 struct QWSRepaintRegionCommand : public QWSCommand
 {
     QWSRepaintRegionCommand() :
@@ -314,7 +311,6 @@ struct QWSRepaintRegionCommand : public QWSCommand
     QRect * rectangles;
 
 };
-#endif
 
 struct QWSRemovePropertyCommand : public QWSCommand
 {

@@ -1,8 +1,15 @@
+
+
+#include "qgfxrepeater_qws.h"
+
 #include <qptrlist.h>
 #include <qwidget.h>
 #include <qpainter.h>
 #include <qbitmap.h>
 #include <qwindowsystem_qws.h>
+#include "qgfxdriverfactory_qws.h"
+#include "qgfxraster_qws.h"
+#include "qgfxlinuxfb_qws.h"
 
 /*
 #include "qgfxmatrox_qws.cpp"
@@ -566,32 +573,6 @@ public:
 
 };
 
-class QRepeaterScreen : public QScreen {
-
-public:
-
-    QRepeaterScreen(int);
-    virtual ~QRepeaterScreen();
-
-    virtual bool connect(const QString &);
-    virtual QGfx * createGfx(unsigned char *,int,int,int,int);
-    virtual bool initDevice();
-    virtual void disconnect() {}
-    virtual void setMode(int,int,int) {}
-    virtual int initCursor(void *,bool=FALSE);
-    virtual void setDirty(const QRect &);
-    virtual int sharedRamSize(void *);
-    QImage * readScreen(int,int,int,int,QRegion &);
-    QRegion getRequiredUpdate(int,int,int,int,int,int);
-
-private:
-
-    bool sw_cursor_exists;
-
-    QPtrList<QScreenRec> screens;
-
-};
-
 int QRepeaterScreen::sharedRamSize(void * end)
 {
     int count=0;
@@ -666,7 +647,19 @@ QImage * QRepeaterScreen::readScreen(int x,int y,int w,int h,QRegion & r)
 
 extern char * qt_qws_hardcoded_slot;
 
-extern QScreen *qt_lookup_screen( int , QString );
+static QScreen *qt_lookup_screen( int display_id, QString driver )
+{
+    QStringList driverList = QGfxDriverFactory::keys();
+    QStringList::Iterator it;
+    for ( it = driverList.begin(); it != driverList.end(); ++it ) {
+	if ( driver.isEmpty() || QString( *it ) == driver ) {
+	    QScreen *ret = QGfxDriverFactory::create( *it, display_id );
+	    if ( ret )
+		return ret;
+	}
+    }
+    return 0;
+}
 
 QRepeaterScreen::QRepeaterScreen(int)
     : QScreen(0)
@@ -944,7 +937,3 @@ void QRepeaterCursor::draw()
 }
 */
 
-QScreen * qt_get_screen_repeater(int)
-{
-    return new QRepeaterScreen(0);
-}

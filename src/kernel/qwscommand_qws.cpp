@@ -203,11 +203,9 @@ QWSCommand *QWSCommand::factory( int type )
     case QWSCommand::Identify:
 	command = new QWSIdentifyCommand;
 	break;
-#ifndef QT_NO_QWS_REPEATER
     case QWSCommand::RepaintRegion:
 	command = new QWSRepaintRegionCommand;
 	break;
-#endif
     default:
 	qDebug( "QWSCommand::factory : Type error - got %08x!", type );
     }

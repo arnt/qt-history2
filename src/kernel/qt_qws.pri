@@ -164,6 +164,12 @@ embedded {
 	}
 	else:DEFINES += QT_NO_QWS_SHADOWFB
 
+	contains( gfx-drivers, repeater ) {
+		HEADERS += $$KERNEL_H/qgfxrepeater_qws.h
+		SOURCES += $$KERNEL_CPP/qgfxrepeater_qws.cpp
+	}
+	else:DEFINES += QT_NO_QWS_REPEATER
+
 
 	PRECOMPH=$(QTDIR)/include/qt.h
 	INCLUDEPATH += 3rdparty/freetype2/include 3rdparty/libpng 3rdparty/zlib

@@ -239,9 +239,7 @@ public:
 
     // the following are internal.
     void refresh();
-#ifndef QT_NO_QWS_REPEATER
     void refresh(QRegion &);
-#endif
 
     void enablePainting(bool);
     static void processEventQueue();
@@ -324,10 +322,8 @@ private:
 				QWSClient *client );
     void invokeQCopSend( QWSQCopSendCommand *cmd, QWSClient *client );
 #endif
-#ifndef QT_NO_QWS_REPEATER
     void invokeRepaintRegion( QWSRepaintRegionCommand *cmd, 
 			      QWSClient *client );
-#endif
 
     QWSMouseHandler* newMouseHandler(const QString& spec);
 #ifndef QT_NO_QWS_KEYBOARD

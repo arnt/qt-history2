@@ -251,10 +251,8 @@ public:
 
     virtual int memoryNeeded(const QString&);
 
-#ifndef QT_NO_QWS_REPEATER
     int * opType() { return screen_optype; }
     int * lastOp() { return screen_lastop; }
-#endif
 
 protected:
 

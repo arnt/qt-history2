@@ -36,6 +36,7 @@
 #include "qmemorymanager_qws.h"
 #include "qwsregionmanager_qws.h"
 #include "qwsdisplay_qws.h"
+#include "qgfxdriverfactory_qws.h"
 
 
 #ifdef Q_CC_EDG_
@@ -5890,24 +5891,6 @@ bool QScreen::onCard(unsigned char * p, ulong& offset) const
 #endif
 
 */
-
-#include "qgfxdriverfactory_qws.h"
-
-#ifndef QT_NO_QWS_REPEATER
-QScreen *qt_lookup_screen( int display_id, QString driver )
-{
-    QStringList driverList = QGfxDriverFactory::keys();
-    QStringList::Iterator it;
-    for ( it = driverList.begin(); it != driverList.end(); ++it ) {
-	if ( driver.isEmpty() || QString( *it ) == driver ) {
-	    QScreen *ret = QGfxDriverFactory::create( *it, display_id );
-	    if ( ret )
-		return ret;
-	}
-    }
-    return 0;
-}
-#endif
 
 /*
 Given a display_id (number of the Qt/Embedded server to connect to)

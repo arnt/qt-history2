@@ -67,7 +67,7 @@
 		    endDraw(); \
 		    if(swc_do_save) \
 			gfx_screencursor->saveUnder(); \
-}
+		 }
 #else //QT_NO_QWS_CURSOR
 
 # define GFX_START(r) if(is_screen_gfx) \
@@ -222,7 +222,6 @@ public:
 
     virtual void setScreen(QScreen * t,QScreenCursor * c,bool swc,int * ot,
 			   int * lo) {
-#ifndef QT_NO_QWS_REPEATER
 	gfx_screen=t;
 #ifndef QT_NO_QWS_CURSOR
 	gfx_screencursor=c;
@@ -231,7 +230,6 @@ public:
 	gfx_lastop=lo;
 	gfx_optype=ot;
 	setClut(gfx_screen->clut(),gfx_screen->numCols());
-#endif
     }
 
     void save();

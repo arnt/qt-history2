@@ -401,7 +401,7 @@ bool QVFbScreen::connect( const QString &displaySpec )
 	shmrgn = (unsigned char *)shmat( shmId, 0, 0 );
 
     if ( (int)shmrgn == -1 || shmrgn == 0 ) {
-	qDebug("No shmrgn %d",shmrgn);
+	qDebug("No shmrgn %d", (int)shmrgn);
 	return FALSE;
     }
 
