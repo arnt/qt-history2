@@ -60,6 +60,7 @@
 #include "qsqldriverinterface_p.h"
 #include <private/qpluginmanager_p.h>
 #include "qobject.h"
+#include "qguardedptr.h"
 #include "qdict.h"
 #include <stdlib.h>
 
@@ -163,7 +164,7 @@ QDriverDict* QSqlDatabaseManager::driverDict()
 */
 QSqlDatabaseManager* QSqlDatabaseManager::instance()
 {
-    static QSqlDatabaseManager *sqlConnection = 0;
+    static QGuardedPtr<QSqlDatabaseManager> sqlConnection = 0;
     if ( !sqlConnection ) {
 	if( qApp == 0 ){
 	    qFatal( "QSqlDatabaseManager: A QApplication object has to be "
@@ -172,7 +173,7 @@ QSqlDatabaseManager* QSqlDatabaseManager::instance()
 	}
 	sqlConnection = new QSqlDatabaseManager( qApp, "database manager" );
     }
-    return sqlConnection;
+    return (QSqlDatabaseManager*)sqlConnection;
 }
 
 /*!
