@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#4 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#5 $
 **
 ** Implementation of QGArray class
 **
@@ -28,7 +28,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgarray.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgarray.cpp#5 $";
 #endif
 
 
@@ -201,7 +201,7 @@ QGArray &QGArray::duplicate( const QGArray &a ) // deep copy
     }
     else					// delete after copy was made
 	oldptr = p->data;
-    if ( a.p->count ) {				// duplicate data
+    if ( a.p->len ) {				// duplicate data
 	p->data = NEW(char,a.p->len);
 	CHECK_PTR( p->data );
 	if ( p->data )
