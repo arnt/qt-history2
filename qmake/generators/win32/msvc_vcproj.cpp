@@ -117,6 +117,14 @@ bool VcprojGenerator::writeMakefile(QTextStream &t)
         debug_msg(1, "Generator: MSVC.NET: Writing solution file");
         writeSubDirs(t);
         return true;
+    } else 
+    // Generate single configuration project file
+    if(project->first("TEMPLATE") == "vcapp" ||
+       project->first("TEMPLATE") == "vclib") {
+        debug_msg(1, "Generator: MSVC.NET: Writing single configuration project file");
+        XmlOutput xmlOut(t);
+        xmlOut << vcProject;
+        return true;
     }
     return false;
 }
