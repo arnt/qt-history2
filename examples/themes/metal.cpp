@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/themes/metal.cpp#2 $
+** $Id: //depot/qt/main/examples/themes/metal.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -158,6 +158,13 @@ void MetalStyle::polish( QWidget* w)
     // the polish function will set some widgets to transparent mode,
     // to get the full benefit from the nice pixmaps in the color
     // group.
+    
+
+    if (w->inherits("QPushButton")){
+	w->setBackgroundMode( QWidget::NoBackground );
+	return;
+    }
+    return; // we don't need this thanks to the fancy stone pixmap
 
     if (w->inherits("QTipLabel")){
 	return;
@@ -166,10 +173,6 @@ void MetalStyle::polish( QWidget* w)
 	return;
     }
 
-    if (w->inherits("QPushButton")){
-	w->setBackgroundMode( QWidget::NoBackground );
-	return;
-    }
 
     if ( w->inherits("QRadioButton") || w->inherits("QCheckBox") ){
 	w->setAutoMask( TRUE );
@@ -180,7 +183,7 @@ void MetalStyle::polish( QWidget* w)
     if ( !w->isTopLevel() ) {
  	if (w->inherits("QLabel")
 	    || w->inherits("QGroupBox")
-	    || w->inherits("QSlider")
+ 	    || w->inherits("QSlider")
 	    || w->inherits("QProgressBar")
 	    || w->inherits( "QTabBar" )
 	    || w->inherits( "QTabWidget" )
@@ -197,6 +200,13 @@ void MetalStyle::unPolish( QWidget* w)
     // to get the full benefit from the nice pixmaps in the color
     // group.
 
+    if (w->inherits("QPushButton")){
+	w->setBackgroundMode( QWidget::PaletteButton );
+	return;
+    }
+    
+    return; // we don't need this thanks to the fancy stone pixmap
+
     if (w->inherits("QTipLabel")){
 	return;
     }
@@ -204,11 +214,7 @@ void MetalStyle::unPolish( QWidget* w)
 	return;
     }
 
-    if (w->inherits("QPushButton")){
-	w->setBackgroundMode( QWidget::PaletteButton );
-	return;
-    }
-    
+
     if ( w->inherits("QRadioButton") || w->inherits("QCheckBox") ){
 	w->setAutoMask( FALSE );
 	return;
@@ -352,8 +358,8 @@ void MetalStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
     if ( btn->isMenuButton() )
 	dx = (y2-y1) / 3;
     if ( btn->isOn() || btn->isDown() ) {
-	//dx++;
-	dy++;
+	dx--;
+	dy--;
     }
     if ( dx || dy )
 	p->translate( dx, dy );
