@@ -87,16 +87,16 @@ Q_GUI_EXPORT void qDrawPlainRect(QPainter *p, const QRect &r, const QColor &,
 // Other obsolete drawing functions.
 // Use QStyle::itemRect(), QStyle::drawItem() and QStyle::drawArrow() instead.
 //
-Q_GUI_EXPORT QRect qItemRect(QPainter *p, Qt::GUIStyle gs, int x, int y, int w, int h,
+Q_GUI_EXPORT QT_COMPAT QRect qItemRect(QPainter *p, Qt::GUIStyle gs, int x, int y, int w, int h,
                           int flags, bool enabled,
                           const QPixmap *pixmap, const QString& text, int len=-1);
 
-Q_GUI_EXPORT void qDrawItem(QPainter *p, Qt::GUIStyle gs, int x, int y, int w, int h,
+Q_GUI_EXPORT QT_COMPAT void qDrawItem(QPainter *p, Qt::GUIStyle gs, int x, int y, int w, int h,
                          int flags, const QPalette &pal, bool enabled,
                          const QPixmap *pixmap, const QString& text,
                          int len=-1, const QColor* penColor = 0);
 
-Q_GUI_EXPORT void qDrawArrow(QPainter *p, Qt::ArrowType type, Qt::GUIStyle style, bool down,
+Q_GUI_EXPORT QT_COMPAT void qDrawArrow(QPainter *p, Qt::ArrowType type, Qt::GUIStyle style, bool down,
                           int x, int y, int w, int h,
                           const QPalette &pal, bool enabled);
 #endif
