@@ -2967,6 +2967,7 @@ bool QAxBase::dynamicCallHelper(const QByteArray &name, void *inout, QList<QVari
     if (varc) {
         arg = varc == 1 ? &staticarg : new VARIANT[varc];
         for (int i = 0; i < varc; ++i) {
+            QVariant var(vars.at(i));
             VariantInit(arg + (varc - i - 1));
             bool out = false;
             QByteArray paramType;
@@ -2976,8 +2977,17 @@ bool QAxBase::dynamicCallHelper(const QByteArray &name, void *inout, QList<QVari
                 paramType = 0;
             else
                 paramType = d->metaobj->paramType(name, i, &out);
-            
-            QVariantToVARIANT(vars.at(i), arg[varc - i - 1], paramType, out);
+
+            if (var.type() == QVariant::String || var.type() == QVariant::ByteArray) {
+                int enumIndex = metaObject()->indexOfEnumerator(paramType);
+                if (enumIndex != -1) {
+                    QMetaEnum metaEnum = metaObject()->enumerator(enumIndex);
+                    QVariantToVARIANT(metaEnum.keyToValue(var.toByteArray()), arg[varc - i - 1], "int", out);
+                }
+            }
+
+            if (arg[varc - i - 1].vt == VT_EMPTY)
+                QVariantToVARIANT(var, arg[varc - i - 1], paramType, out);
         }
     }
     
