@@ -83,18 +83,18 @@ public:
     int indexForFormat(const QTextFormat &f);
     bool hasFormatCached(const QTextFormat &format) const;
 
-    QTextFormat format(int idx, int defaultFormatType = -1) const;
+    QTextFormat format(int idx) const;
 
     inline QTextBlockFormat blockFormat(int index) const
-    { return format(index, QTextFormat::BlockFormat).toBlockFormat(); }
+    { return format(index).toBlockFormat(); }
     inline QTextCharFormat charFormat(int index) const
-    { return format(index, QTextFormat::CharFormat).toCharFormat(); }
+    { return format(index).toCharFormat(); }
     inline QTextListFormat listFormat(int index) const
-    { return format(index, QTextFormat::ListFormat).toListFormat(); }
+    { return format(index).toListFormat(); }
     inline QTextTableFormat tableFormat(int index) const
-    { return format(index, QTextFormat::TableFormat).toTableFormat(); }
+    { return format(index).toTableFormat(); }
     inline QTextImageFormat imageFormat(int index) const
-    { return format(index, QTextFormat::ImageFormat).toImageFormat(); }
+    { return format(index).toImageFormat(); }
 
     inline int numFormats() const { return formats.count(); }
 

@@ -515,10 +515,10 @@ int QTextFormatCollection::indexForGroup(QTextFormatGroup *group)
     return -1;
 }
 
-QTextFormat QTextFormatCollection::format(int idx, int defaultFormatType) const
+QTextFormat QTextFormatCollection::format(int idx) const
 {
     if (idx == -1 || idx > formats.count())
-	return QTextFormat(defaultFormatType);
+	return QTextFormat();
 
     Q_ASSERT(formats.at(idx));
     // ##### does this detach the formatprivate?
