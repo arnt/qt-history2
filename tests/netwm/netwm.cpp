@@ -278,7 +278,7 @@ static void readIcon(NETWinInfoPrivate *p) {
     unsigned char *data_ret;
 
     int ret =
-	XGetWindowProperty(p->display, p->window, net_wm_icon, 0l, 1l, False,
+	XGetWindowProperty(p->display, p->window, net_wm_icon, 0l, 3l, False,
 			   XA_CARDINAL, &type_ret, &format_ret, &nitems_ret,
 			   &after_ret, &data_ret);
 
@@ -294,7 +294,7 @@ static void readIcon(NETWinInfoPrivate *p) {
 
     // allocate space after_ret (bytes remaining in property) + 4
     // (the single 32bit quantity we just read)
-    unsigned long proplen = after_ret + 4;
+    unsigned long proplen = after_ret + 12;
     unsigned char *buffer = new unsigned char[proplen];
     unsigned long offset = 0, buffer_offset = 0;
 
@@ -312,13 +312,19 @@ static void readIcon(NETWinInfoPrivate *p) {
     CARD32 *d = (CARD32 *) buffer;
     for (i = 0, j = 0; i < proplen - 3; i++) {
 	p->icons[j].size.width = *d++;
+	i += 4;
 	p->icons[j].size.height = *d++;
-
+	i += 4;
+	
 	unsigned long s = (p->icons[j].size.width *
 			   p->icons[j].size.height * 4);
+	if ( i + s > proplen )
+	    break;
 	if (p->icons[j].data) delete [] p->icons[j].data;
+	p->icons[j].data = new CARD32[ s/4 ];
 	memcpy(p->icons[j].data, d, s);
-	d += s;
+	i += s;
+	d += s/4;
 	j++;
     }
 }
@@ -339,8 +345,11 @@ RArray<Z>::~RArray() {
 
 template <class Z>
 Z &RArray<Z>::operator[](int index) {
-    if (! d) d = new Z[index + 1];
-    else if (index >= sz) {
+    if (!d) {
+	d = new Z[index + 1];
+	memset( (void*) &d[0], 0, sizeof(Z) );
+	sz = 1;
+    } else if (index >= sz) {
 	// allocate space for the new data
 	Z *newdata = new Z[index + 1];
 
@@ -348,7 +357,8 @@ Z &RArray<Z>::operator[](int index) {
 	int i;
 	for (i = 0; i < sz; i++)
 	    newdata[i] = d[i];
-	memset((newdata + i), 0, sizeof(Z));
+	for (; i <= index; i++ )
+	    memset( (void*) &newdata[i], 0, sizeof(Z) );
 
 	sz = index + 1;
 
@@ -1265,12 +1275,13 @@ void NETWinInfo::setIcon(NETIcon icon, Bool replace) {
 	p->icon_count = 0;
     }
 
-    p->icons[p->icon_count++] = icon;
+    p->icons[p->icon_count] = icon;
+    p->icon_count++;
 
     // do a deep copy, we want to own the data
     NETIcon& ni = p->icons[ p->icon_count - 1 ];
-    ni.data = new CARD32[ ni.size.width * ni.size.height * 4 ];
-    (void) memcpy( icon.data, ni.data, ni.size.width * ni.size.height * 4 );
+    ni.data = new CARD32[ ni.size.width * ni.size.height ];
+    (void) memcpy( ni.data, icon.data, ni.size.width * ni.size.height * 4 );
 
     int proplen, i;
     for (i = 0, proplen = 0; i < p->icon_count; i++)
@@ -1285,12 +1296,12 @@ void NETWinInfo::setIcon(NETIcon icon, Bool replace) {
 	sz = (p->icons[i].size.width *
 	      p->icons[i].size.height * 4);
 	(void) memcpy(pprop, p->icons[i].data, sz);
-	pprop += sz;
+	pprop += sz/4;
     }
-    
+
     XChangeProperty(p->display, p->window, net_wm_icon, XA_CARDINAL, 32,
 		    PropModeReplace, (unsigned char *) prop, proplen);
-    
+
     delete [] prop;
 }
 
@@ -1435,7 +1446,6 @@ NETIcon NETWinInfo::icon(int w, int h) const {
 	ni.data = 0;
 	return ni;
     }
-
 
     // find the icon that's closest in size to w x h...
     // return the first icon if w and h are -1
