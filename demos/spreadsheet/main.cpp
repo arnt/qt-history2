@@ -214,7 +214,7 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
     addToolBar(toolBar = new QToolBar());
 
     sumAction = toolBar->addAction(QPixmap(":/images/sum.xpm"), tr("Sum"));
-    sumAction->setShortcut(Qt::CTRL|Qt::Key_S);
+    sumAction->setShortcut(Qt::ALT|Qt::Key_S);
     connect(sumAction, SIGNAL(triggered()), this, SLOT(sum()));
 
     lineEdit = new QLineEdit();
@@ -223,11 +223,11 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
     toolBar->addSeparator();
 
     fontAction = toolBar->addAction(QPixmap(":/images/font.xpm"), tr("Font..."));
-    fontAction->setShortcut(Qt::CTRL|Qt::Key_F);
+    fontAction->setShortcut(Qt::ALT|Qt::Key_F);
     connect(fontAction, SIGNAL(triggered()), this, SLOT(selectFont()));
     
     colorAction = toolBar->addAction(QPixmap(16, 16), tr("&Color..."));
-    colorAction->setShortcut(Qt::CTRL|Qt::Key_C);
+    colorAction->setShortcut(Qt::ALT|Qt::Key_C);
     connect(colorAction, SIGNAL(triggered()), this, SLOT(selectColor()));
     updateColor(0);
 
@@ -351,10 +351,12 @@ void SpreadSheet::selectFont()
 void SpreadSheet::sum()
 {
     QList<QTableWidgetItem*> selected = table->selectedItems();
+    if (selected.isEmpty())
+        return;
     QTableWidgetItem *first = selected.first();
     QTableWidgetItem *last = selected.last();
     QTableWidgetItem *current = table->currentItem();
-    if (first && last && current)
+    if (current)
         current->setText(QString("sum %1%2 %3%4").
                          arg(QChar('A' + (table->column(first)))).
                          arg((table->row(first) + 1)).
