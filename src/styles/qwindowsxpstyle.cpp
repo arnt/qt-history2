@@ -1890,9 +1890,9 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 		QRect oldHeader = d->hotHeader;
 
 		if ( header->orientation() == Horizontal )
-		    d->hotHeader = header->sectionRect( header->sectionAt( d->hotSpot.x() ) );
+		    d->hotHeader = header->sectionRect( header->sectionAt( d->hotSpot.x() + header->offset() ) );
 		else
-		    d->hotHeader = header->sectionRect( header->sectionAt( d->hotSpot.y() ) );
+		    d->hotHeader = header->sectionRect( header->sectionAt( d->hotSpot.y() + header->offset() ) );
 
 		if ( oldHeader != d->hotHeader ) {
 		    if ( oldHeader.isValid() )
