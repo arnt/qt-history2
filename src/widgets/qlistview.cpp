@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#78 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#79 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#78 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#79 $");
 
 
 const int Unsorted = 32767;
@@ -686,8 +686,11 @@ const char * QListViewItem::text( int column ) const
   properties of \a p (pen, brush etc) are undefined.  \a cg is the
   color group to use.  \a column is the logical column number within
   the item that is to be painted; 0 is the column which may contain a
-  tree. This function may use QListView::itemMargin() for readability
-  spacing on the left and right sides of information such as text.
+  tree.
+
+  This function may use QListView::itemMargin() for readability
+  spacing on the left and right sides of information such as text,
+  and should honour isSelected() and QListView::allColumnsShowFocus().
 
   If re-implementing this function, you should also re-implement width().
 
@@ -720,9 +723,6 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
     const char * t = text( column );
     if ( t ) {
 	int marg = lv ? lv->itemMargin() : 2;
-
-	if ( lv )
-	    p->setFont( lv->font() );
 
 	if ( isSelected() &&
 	     (column==0 || listView()->allColumnsShowFocus()) ) {
@@ -1135,6 +1135,8 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	d->dirtyItems = 0;
 	d->dirtyItemTimer->stop();
     }
+
+    p->setFont( font() );
 
     QListIterator<QListViewPrivate::DrawableItem> it( *(d->drawables) );
 
