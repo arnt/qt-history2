@@ -686,6 +686,15 @@ public:
         SP_ItemUnchecked,
         SP_ToolBarHorizontalExtensionButton,
         SP_ToolBarVerticalExtensionButton,
+        SP_FileDialogStart,
+        SP_FileDialogEnd,
+        SP_FileDialogToParent,
+        SP_FileDialogNewFolder,
+        SP_FileDialogDetailedView,
+        SP_FileDialogInfoView,
+        SP_FileDialogContentsView,
+        SP_FileDialogListView,
+        SP_FileDialogBack,
 
         // do not add any values below/greater than this
         SP_CustomBase = 0xf0000000
