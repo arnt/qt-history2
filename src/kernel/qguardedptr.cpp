@@ -202,6 +202,18 @@ QGuardedPtrPrivate::~QGuardedPtrPrivate()
 {
 }
 
+void QGuardedPtrPrivate::reconnect( QObject *o )
+{
+    if ( obj == o )
+	return;
+    if ( obj )
+	disconnect( obj, SIGNAL( destroyed() ),
+		    this, SLOT( objectDestroyed() ) );
+    obj = o;
+    if ( obj )
+	connect( obj, SIGNAL( destroyed() ),
+		 this, SLOT( objectDestroyed() ) );
+}
 
 void QGuardedPtrPrivate::objectDestroyed()
 {

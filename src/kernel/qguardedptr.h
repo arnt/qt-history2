@@ -42,16 +42,19 @@
 #include "qobject.h"
 #endif // QT_H
 
-class Q_EXPORT QGuardedPtrPrivate : public  QObject, public QShared
+class Q_EXPORT QGuardedPtrPrivate : public QObject, public QShared
 {
     Q_OBJECT
 public:
-    QGuardedPtrPrivate( QObject*);
+    QGuardedPtrPrivate( QObject* );
     ~QGuardedPtrPrivate();
 
     QObject* object() const;
+    void reconnect( QObject* );
+
 private slots:
     void objectDestroyed();
+
 private:
     QObject* obj;
 };
@@ -83,8 +86,12 @@ public:
     }
 
     QGuardedPtr<T> &operator=(T* o) {
-	deref();
-	priv = new QGuardedPtrPrivate( static_cast<QObject*>(o) );
+	if ( priv->count == 1 ) {
+	    priv->reconnect( o );
+	} else {
+	    deref();
+	    priv = new QGuardedPtrPrivate( static_cast<QObject*>(o) );
+	}
 	return *this;
     }
 
