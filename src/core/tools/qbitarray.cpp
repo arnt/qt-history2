@@ -366,10 +366,22 @@ void QBitArray::fill(bool value, int first, int last)
     \overload
 */
 
+/*! \fn QBitArray::QBitArray(const QBitArray &other)
+
+    Constructs a copy of \a other.
+
+    This operation takes \l{constant time}, because QBitArray is
+    \l{implicitly shared}. This makes returning a QBitArray from a
+    function very fast. If a shared instance is modified, it will be
+    copied (copy-on-write), and that takes \l{linear time}.
+
+    \sa operator=()
+*/
+
 /*! \fn QBitArray &QBitArray::operator=(const QBitArray &other)
 
     Assigns \a other to this bit array and returns a reference to
-    this byte array.
+    this bit array.
 */
 
 /*! \fn bool QBitArray::operator==(const QBitArray &other) const

@@ -15,6 +15,7 @@ class Q_CORE_EXPORT QBitArray
 public:
     inline QBitArray() {}
     QBitArray(int size, bool val = false);
+    QBitArray(const QBitArray &other) : d(other.d) {}
     inline QBitArray &operator=(const QBitArray &other) { d = other.d; return *this; }
 
     inline int size() const { return (d.size() << 3) - *d.constData(); }
