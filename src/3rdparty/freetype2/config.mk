@@ -34,7 +34,7 @@ FTSYS_SRC := $(BUILD)/ftsystem.c
 #   make -f $TOP/Makefile setup [options]
 #   make -f $TOP/Makefile
 #
-OBJ_DIR := ../../.obj/release
+OBJ_DIR := .obj
 
 
 # The directory where all library files are placed
