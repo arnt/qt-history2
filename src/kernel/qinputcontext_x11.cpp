@@ -470,7 +470,7 @@ void QInputContext::setXFontSet(QFont *f)
 
 	font = *f;
     } else {
-	fontset = XCreateFontSet(dpy, "-*-fixed-*--14-*",
+	fontset = XCreateFontSet(dpy, "-*-fixed-medim-r-*-*-14-*",
 				 &missList, &missCount, &defStr);
 	font = QApplication::font();
     }
