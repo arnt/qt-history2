@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.h#10 $
+** $Id: //depot/qt/main/src/tools/qgdict.h#11 $
 **
 ** Definition of QGDict and QGDictIterator classes
 **
@@ -16,89 +16,73 @@
 #include "qcollect.h"
 
 
-class Qbucket;					// internal classes
+class QBucket;					// internal classes
 class QListM_QGDictIterator;
 #define Qditlst QListM_QGDictIterator
 
 
-// --------------------------------------------------------------------------
-// QGDict class
-//
-
-class QGDict : public QCollection		// hash dictionary class
+class QGDict : public QCollection		// generic dictionary class
 {
 friend class QGDictIterator;
 public:
-    uint    count() const { return numItems; }	// return number of items
-    uint    size()  const { return vlen; }
-    GCI	    look( const char *key, GCI, bool);	// find/insert item
+    uint    	count() const	{ return numItems; }
+    uint    	size()  const	{ return vlen; }
+    GCI	    	look( const char *key, GCI, int );// find/insert/replace item
 
     QDataStream &read( QDataStream & );		// read dict from stream
     QDataStream &write( QDataStream & ) const;	// write dict to stream
 
 protected:
-    QGDict( uint sz, bool cs, bool ck, bool th );
-    QGDict( const QGDict & );			// make copy of other dict
+    QGDict( uint len, bool cs, bool ck, bool th );
+    QGDict( const QGDict & );
    ~QGDict();
 
-    QGDict &operator=( const QGDict & );	// assign from other dict
+    QGDict     &operator=( const QGDict & );
 
-    bool    remove( const char *key );
-    GCI	    take( const char *key );
-    void    clear();				// delete all items
+    bool    	remove( const char *key );
+    GCI	    	take( const char *key );
+    void    	clear();
 
-    void    statistics() const;			// output statistics
+    void    	statistics() const;		// output statistics (debug)
 
     virtual QDataStream &read( QDataStream &, GCI & );
     virtual QDataStream &write( QDataStream &, GCI ) const;
 
 private:
-    Qbucket **vec;				// hash array
-    uint    vlen;				// size of array
-    uint    numItems;				// number of items
-    uint    cases	: 1;			// case sensitive
-    uint    copyk	: 1;			// copy keys
-    uint    trivial	: 1;			// trivial hashing
-    Qditlst *iterators;				// list of iterators
-    Qbucket *unlink( const char * );		// unlink bucket
+    QBucket   **vec;
+    uint    	vlen;
+    uint    	numItems;
+    uint    	cases	: 1;
+    uint    	copyk	: 1;
+    uint    	trivial	: 1;
+    Qditlst    *iterators;
+    QBucket    *unlink( const char * );
     virtual int hashKey( const char * );	// hash function
 };
 
 
-// --------------------------------------------------------------------------
-// QGDict stream functions
-//
-
-QDataStream &operator>>( QDataStream &, QGDict & );
-QDataStream &operator<<( QDataStream &, const QGDict & );
-
-
-// --------------------------------------------------------------------------
-// QGDictIterator class
-//
-
-class QGDictIterator				// QGDict iterator
+class QGDictIterator				// generic dictionary iterator
 {
 friend class QGDict;
 public:
     QGDictIterator( const QGDict & );
    ~QGDictIterator();
 
-    GCI	  toFirst();				// move to first item
+    GCI	  	toFirst();
 
-    GCI	  get() const;				// get current item
-    const char *getKey() const;			// get current key
+    GCI	  	get()	 const;
+    const char *getKey() const;
 
-    GCI	  operator()();				// get current and move to next
-    GCI	  operator++();				// move to next item (prefix)
-    GCI	  operator+=(uint);
+    GCI	  	operator()();
+    GCI	  	operator++();
+    GCI	  	operator+=(uint);
 
 protected:
-    QGDict  *dict;				// reference to dict
+    QGDict     *dict;
 
 private:
-    Qbucket *curNode;				// current node in dict
-    uint     curIndex;				// current index in array
+    QBucket    *curNode;
+    uint	curIndex;
 };
 
 
