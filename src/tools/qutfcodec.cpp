@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qutfcodec.cpp#9 $
+** $Id: //depot/qt/main/src/tools/qutfcodec.cpp#10 $
 **
 ** Implementation of QEucCodec class
 **
@@ -184,13 +184,13 @@ public:
     {
 	if ( headerdone ) {
 	    len_in_out = uc.length()*sizeof(QChar);
-	    QCString d(len_in_out+1);
+	    QCString d(len_in_out);
 	    memcpy(d.data(),uc.unicode(),len_in_out);
 	    return d;
 	} else {
 	    headerdone = TRUE;
 	    len_in_out = (1+uc.length())*sizeof(QChar);
-	    QCString d(len_in_out+1);
+	    QCString d(len_in_out);
 	    memcpy(d.data(),&QChar::byteOrderMark,sizeof(QChar));
 	    memcpy(d.data()+sizeof(QChar),uc.unicode(),uc.length()*sizeof(QChar));
 	    return d;
