@@ -80,7 +80,7 @@ void QDesignerSettings::saveGeometryHelper(const QWidget *w, const QString &key)
 {
     beginGroup(key);
     setValue("screen", QApplication::desktop()->screenNumber(w));
-    setValue("geometry", w->geometry());
+    setValue("geometry", QRect(w->pos(), w->size()));
     setValue("visible", w->isVisible());
     endGroup();
 

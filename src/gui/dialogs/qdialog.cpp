@@ -367,7 +367,7 @@ int QDialog::exec()
     setAttribute(Qt::WA_DeleteOnClose, false);
 
     bool wasShowModal = testAttribute(Qt::WA_ShowModal);
-    setAttribute(Qt::WA_ShowModal, false);
+    setAttribute(Qt::WA_ShowModal, true);
     setResult(0);
 
     show();

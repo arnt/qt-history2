@@ -2065,7 +2065,7 @@ void QWidgetPrivate::setWSGeometry(bool dontShow)
             QObject *object = children.at(i);
             if (object->isWidgetType()) {
                 QWidget *w = static_cast<QWidget *>(object);
-                if (!w->testAttribute(Qt::WA_OutsideWSRange) && !w->testAttribute(Qt::WA_Mapped) && w->isShown()) {
+                if (!w->testAttribute(Qt::WA_OutsideWSRange) && !w->testAttribute(Qt::WA_Mapped) && !w->isExplicitlyHidden()) {
                     w->setAttribute(Qt::WA_Mapped);
                     XMapWindow(dpy, w->data->winid);
                 }

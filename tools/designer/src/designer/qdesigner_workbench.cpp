@@ -166,8 +166,7 @@ void QDesignerWorkbench::switchToNeutralMode()
             QPoint pos = tw->window()->pos();
             if (!tw->isWindow())
                 if (QWidget *p = tw->parentWidget())
-                    if (QWidget *pp = p->parentWidget())
-                        pos = tw->mapTo(pp, pos); // in workspace
+                    pos = p->pos(); // in workspace
 
             m_geometries.insert(tw, QRect(pos, tw->size()));
         }
@@ -181,8 +180,7 @@ void QDesignerWorkbench::switchToNeutralMode()
             QPoint pos = fw->window()->pos();
             if (!fw->isWindow())
                 if (QWidget *p = fw->parentWidget())
-                    if (QWidget *pp = p->parentWidget())
-                        pos = fw->mapTo(pp, pos); // in workspace
+                    pos = p->pos(); // in workspace
 
             m_geometries.insert(fw, QRect(pos, fw->size()));
         }
@@ -272,7 +270,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
     }
 
     foreach (QDesignerFormWindow *fw, m_formWindows) {
-        fw->setParent(magicalParent(), Qt::WType_TopLevel);
+        fw->setParent(magicalParent(), Qt::Dialog);
         QRect g = m_geometries.value(fw, fw->geometryHint());
         fw->resize(g.size());
         fw->move(g.topLeft());
@@ -288,7 +286,7 @@ QDesignerFormWindow *QDesignerWorkbench::createFormWindow()
     Qt::WFlags flags = 0;
 
     if (m_mode == QDesignerWorkbench::TopLevelMode)
-        flags |= Qt::WType_TopLevel;
+        flags = Qt::Dialog;
 
     formWindow->setParent(magicalParent(), flags);
     formWindow->setAttribute(Qt::WA_DeleteOnClose, true);

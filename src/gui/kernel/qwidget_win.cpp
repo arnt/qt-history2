@@ -1313,13 +1313,13 @@ void QWidget::showNormal()
                 exsty = 0;
 
             style |= (val & Qt::WStyle_DialogBorder ? WS_POPUP : 0);
-            style |= (val & Qt::WStyle_Title        ? WS_CAPTION : 0);
-            style |= (val & Qt::WStyle_SysMenu        ? WS_SYSMENU : 0);
-            style |= (val & Qt::WStyle_Minimize        ? WS_MINIMIZEBOX : 0);
-            style |= (val & Qt::WStyle_Maximize        ? WS_MAXIMIZEBOX : 0);
-            exsty |= (val & Qt::WStyle_Tool                ? WS_EX_TOOLWINDOW : 0);
-            exsty |= (val & Qt::WType_Popup                ? WS_EX_TOOLWINDOW : 0);
-            exsty |= (val & Qt::WStyle_ContextHelp        ? WS_EX_CONTEXTHELP : 0);
+            style |= (val & Qt::WStyle_Title ? WS_CAPTION : 0);
+            style |= (val & Qt::WStyle_SysMenu ? WS_SYSMENU : 0);
+            style |= (val & Qt::WStyle_Minimize ? WS_MINIMIZEBOX : 0);
+            style |= (val & Qt::WStyle_Maximize ? WS_MAXIMIZEBOX : 0);
+            exsty |= (val & Qt::WStyle_Tool ? WS_EX_TOOLWINDOW : 0);
+            exsty |= (val & Qt::WType_Popup ? WS_EX_TOOLWINDOW : 0);
+            exsty |= (val & Qt::WStyle_ContextHelp ? WS_EX_CONTEXTHELP : 0);
 
             SetWindowLong(winId(), GWL_STYLE, style);
             if (exsty)
@@ -1354,15 +1354,12 @@ void QWidget::showNormal()
 
 void QWidgetPrivate::raise_sys()
 {
-    uint f = ((q->windowType() == Qt::Popup) || (q->windowType() == Qt::Tool)) ? SWP_NOACTIVATE : 0;
-    SetWindowPos(q->winId(), HWND_TOP, 0, 0, 0, 0, f | SWP_NOMOVE | SWP_NOSIZE);
+    SetWindowPos(q->winId(), HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 }
 
 void QWidgetPrivate::lower_sys()
 {
-    uint f = ((q->windowType() == Qt::Popup) || (q->windowType() == Qt::Tool)) ? SWP_NOACTIVATE : 0;
-    SetWindowPos(q->winId(), HWND_BOTTOM, 0, 0, 0, 0, f | SWP_NOMOVE |
-                  SWP_NOSIZE);
+    SetWindowPos(q->winId(), HWND_BOTTOM, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 }
 
 void QWidgetPrivate::stackUnder_sys(QWidget* w)

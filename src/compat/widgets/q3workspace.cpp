@@ -469,7 +469,7 @@ void Q3Workspace::childEvent(QChildEvent * e)
     if (e->type() == QEvent::ChildInserted && e->child()->isWidgetType()) {
         QWidget* w = static_cast<QWidget*>(e->child());
         if (!w || qt_cast<Q3WorkspaceChild*>(w)
-            || !(w->windowType() == Qt::Widget || w->windowType() == Qt::Tool || w->windowType() == Qt::Window)
+            || !(w->windowType() == Qt::Widget || w->windowType() == Qt::Dialog || w->windowType() == Qt::Tool || w->windowType() == Qt::Window)
             || d->icons.contains(w) || w == d->vbar || w == d->hbar || w == d->corner)
             return;
         addWindow(w, w->windowFlags());
