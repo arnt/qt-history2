@@ -2264,10 +2264,10 @@ QString QTextDocument::plainText() const
 		if ( p->at( i )->isCustom() ) {
 		    if ( p->at( i )->customItem()->isNested() ) {
 			s += "\n";
-			QTextTable *t = (QTextTable*)p->at( i )->customItem();
-			QList<QTextTableCell *> cells = t->tableCells();
+			Q3TextTable *t = (Q3TextTable*)p->at( i )->customItem();
+			QList<Q3TextTableCell *> cells = t->tableCells();
 			for (int idx = 0; idx < cells.size(); ++idx) {
-			    QTextTableCell *c = cells.at(idx);
+			    Q3TextTableCell *c = cells.at(idx);
 			    s += c->richText()->plainText() + "\n";
 			}
 			s += "\n";
@@ -2822,10 +2822,10 @@ QString QTextDocument::selectedText( int id, bool asRichText ) const
 		if ( p->at( i )->isCustom() ) {
 		    if ( p->at( i )->customItem()->isNested() ) {
 			s += "\n";
-			QTextTable *t = (QTextTable*)p->at( i )->customItem();
-			QList<QTextTableCell *> cells = t->tableCells();
+			Q3TextTable *t = (Q3TextTable*)p->at( i )->customItem();
+			QList<Q3TextTableCell *> cells = t->tableCells();
 			for (int idx = 0; idx < cells.size(); ++idx) {
-			    QTextTableCell *c = cells.at(idx);
+			    Q3TextTableCell *c = cells.at(idx);
 			    s += c->richText()->plainText() + "\n";
 			}
 			s += "\n";
@@ -2854,10 +2854,10 @@ QString QTextDocument::selectedText( int id, bool asRichText ) const
 		    if ( p->at( i )->isCustom() ) {
 			if ( p->at( i )->customItem()->isNested() ) {
 			    s += "\n";
-			    QTextTable *t = (QTextTable*)p->at( i )->customItem();
-			    QList<QTextTableCell *> cells = t->tableCells();
+			    Q3TextTable *t = (Q3TextTable*)p->at( i )->customItem();
+			    QList<Q3TextTableCell *> cells = t->tableCells();
 			    for (int idx = 0; idx < cells.size(); ++idx) {
-				QTextTableCell *c = cells.at(idx);
+				Q3TextTableCell *c = cells.at(idx);
 				s += c->richText()->plainText() + "\n";
 			    }
 			    s += "\n";
@@ -3438,13 +3438,13 @@ bool QTextDocument::focusNextPrevChild( bool next )
 #ifndef QT_NO_TEXTCUSTOMITEM
 		} else if ( p->at( i )->isCustom() ) {
 		    if ( p->at( i )->customItem()->isNested() ) {
-			QTextTable *t = (QTextTable*)p->at( i )->customItem();
-			QList<QTextTableCell *> cells = t->tableCells();
+			Q3TextTable *t = (Q3TextTable*)p->at( i )->customItem();
+			QList<Q3TextTableCell *> cells = t->tableCells();
 			// first try to continue
 			int idx;
 			bool resetCells = TRUE;
 			for (idx = 0; idx < cells.size(); ++idx) {
-			    QTextTableCell *c = cells.at(idx);
+			    Q3TextTableCell *c = cells.at(idx);
 			    if ( c->richText()->hasFocusParagraph() ) {
 				if ( c->richText()->focusNextPrevChild( next ) ) {
 				    p->setChanged( TRUE );
@@ -3465,7 +3465,7 @@ bool QTextDocument::focusNextPrevChild( bool next )
 			if ( resetCells )
 			    idx = 0;
 			for (; idx < cells.size(); ++idx) {
-			    QTextTableCell *c = cells.at(idx);
+			    Q3TextTableCell *c = cells.at(idx);
 			    if ( c->richText()->focusNextPrevChild( next ) ) {
 				p->setChanged( TRUE );
 				focusIndicator.parag = p;
@@ -3511,13 +3511,13 @@ bool QTextDocument::focusNextPrevChild( bool next )
 #ifndef QT_NO_TEXTCUSTOMITEM
 		} else if ( p->at( i )->isCustom() ) {
 		    if ( p->at( i )->customItem()->isNested() ) {
-			QTextTable *t = (QTextTable*)p->at( i )->customItem();
-			QList<QTextTableCell *> cells = t->tableCells();
+			Q3TextTable *t = (Q3TextTable*)p->at( i )->customItem();
+			QList<Q3TextTableCell *> cells = t->tableCells();
 			// first try to continue
 			int idx;
 			bool resetCells = TRUE;
 			for (idx = cells.size()-1; idx >= 0; --idx) {
-			    QTextTableCell *c = cells.at(idx);
+			    Q3TextTableCell *c = cells.at(idx);
 			    if ( c->richText()->hasFocusParagraph() ) {
 				if ( c->richText()->focusNextPrevChild( next ) ) {
 				    p->setChanged( TRUE );
@@ -3538,7 +3538,7 @@ bool QTextDocument::focusNextPrevChild( bool next )
 			if ( resetCells )
 			    idx = cells.size()-1;
 			for (; idx >= 0; --idx) {
-			    QTextTableCell *c = cells.at(idx);
+			    Q3TextTableCell *c = cells.at(idx);
 			    if ( c->richText()->focusNextPrevChild( next ) ) {
 				p->setChanged( TRUE );
 				focusIndicator.parag = p;
@@ -6768,10 +6768,10 @@ bool QTextDocument::hasPrefix( const QChar* doc, int length, int pos, const QStr
 }
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-static bool qt_is_cell_in_use( QList<QTextTableCell *>& cells, int row, int col )
+static bool qt_is_cell_in_use( QList<Q3TextTableCell *>& cells, int row, int col )
 {
     for (int idx = 0; idx < cells.size(); ++idx) {
-	QTextTableCell *c = cells.at(idx);
+	Q3TextTableCell *c = cells.at(idx);
 	if ( row >= c->row() && row < c->row() + c->rowspan()
 	     && col >= c->column() && col < c->column() + c->colspan() )
 	    return TRUE;
@@ -6783,7 +6783,7 @@ QTextCustomItem* QTextDocument::parseTable( const QMap<QString, QString> &attr, 
 					    const QChar* doc, int length, int& pos, QTextParagraph *curpar )
 {
 
-    QTextTable* table = new QTextTable( this, attr );
+    Q3TextTable* table = new Q3TextTable( this, attr );
     int row = -1;
     int col = -1;
 
@@ -6791,7 +6791,7 @@ QTextCustomItem* QTextDocument::parseTable( const QMap<QString, QString> &attr, 
     QString rowalign;
     QString tablebgcolor = attr["bgcolor"];
 
-    QList<QTextTableCell *> multicells;
+    QList<Q3TextTableCell *> multicells;
 
     QString tagname;
     (void) eatSpace(doc, length, pos);
@@ -6855,7 +6855,7 @@ QTextCustomItem* QTextDocument::parseTable( const QMap<QString, QString> &attr, 
 			    }
 			    end++;
 			}
-			QTextTableCell* cell  = new QTextTableCell( table, row, col,
+			Q3TextTableCell* cell  = new Q3TextTableCell( table, row, col,
 					    attr2, s, fmt.makeTextFormat( s, attr2, scaleFontsFactor ),
 					    contxt, *factory_, sheet_,
 					    QConstString( doc + pos, end - pos ).string() );
@@ -7501,7 +7501,7 @@ void QTextCustomItem::pageBreak( int /*y*/ , QTextFlow* /*flow*/ )
 #endif
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-QTextTable::QTextTable( QTextDocument *p, const QMap<QString, QString> & attr  )
+Q3TextTable::Q3TextTable( QTextDocument *p, const QMap<QString, QString> & attr  )
     : QTextCustomItem( p )
 {
     cells.setAutoDelete( FALSE );
@@ -7563,12 +7563,12 @@ QTextTable::QTextTable( QTextDocument *p, const QMap<QString, QString> & attr  )
     pageBreakFor = -1;
 }
 
-QTextTable::~QTextTable()
+Q3TextTable::~Q3TextTable()
 {
     delete layout;
 }
 
-QString QTextTable::richText() const
+QString Q3TextTable::richText() const
 {
     QString s;
     s = "<table ";
@@ -7580,7 +7580,7 @@ QString QTextTable::richText() const
     int lastRow = -1;
     bool needEnd = FALSE;
     for (int idx = 0; idx < cells.size(); ++idx) {
-	QTextTableCell *cell = cells.at(idx);
+	Q3TextTableCell *cell = cells.at(idx);
 	if ( lastRow != cell->row() ) {
 	    if ( lastRow != -1 )
 		s += "</tr>\n";
@@ -7602,7 +7602,7 @@ QString QTextTable::richText() const
     return s;
 }
 
-void QTextTable::adjustToPainter( QPainter* p )
+void Q3TextTable::adjustToPainter( QPainter* p )
 {
     cellspacing = scale( us_cs, p );
     cellpadding = scale( us_cp, p );
@@ -7612,16 +7612,16 @@ void QTextTable::adjustToPainter( QPainter* p )
     width = 0;
     cachewidth = 0;
     for (int idx = 0; idx < cells.size(); ++idx) {
-	QTextTableCell *cell = cells.at(idx);
+	Q3TextTableCell *cell = cells.at(idx);
 	cell->adjustToPainter( p );
     }
 }
 
-void QTextTable::adjustCells( int y , int shift )
+void Q3TextTable::adjustCells( int y , int shift )
 {
     bool enlarge = FALSE;
     for (int idx = 0; idx < cells.size(); ++idx) {
-	QTextTableCell *cell = cells.at(idx);
+	Q3TextTableCell *cell = cells.at(idx);
 	QRect r = cell->geometry();
 	if ( y <= r.top() ) {
 	    r.moveBy(0, shift );
@@ -7637,7 +7637,7 @@ void QTextTable::adjustCells( int y , int shift )
 	height += shift;
 }
 
-void QTextTable::pageBreak( int  yt, QTextFlow* flow )
+void Q3TextTable::pageBreak( int  yt, QTextFlow* flow )
 {
     if ( flow->pageSize() <= 0 )
         return;
@@ -7649,7 +7649,7 @@ void QTextTable::pageBreak( int  yt, QTextFlow* flow )
     }
     pageBreakFor = yt;
     for (int idx = 0; idx < cells.size(); ++idx) {
-	QTextTableCell *cell = cells.at(idx);
+	Q3TextTableCell *cell = cells.at(idx);
 	int y = yt + outerborder + cell->geometry().y();
 	int shift = flow->adjustFlow( y - cellspacing, width, cell->richText()->height() + 2*cellspacing );
 	adjustCells( y - outerborder - yt, shift );
@@ -7657,7 +7657,7 @@ void QTextTable::pageBreak( int  yt, QTextFlow* flow )
 }
 
 
-void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
+void Q3TextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 		      const QPalette &pal, bool selected )
 {
     if ( placement() != PlaceInline ) {
@@ -7666,7 +7666,7 @@ void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
     }
 
     for (int idx = 0; idx < cells.size(); ++idx) {
-	QTextTableCell *cell = cells.at(idx);
+	Q3TextTableCell *cell = cells.at(idx);
 	if ( cx < 0 && cy < 0 ||
 	     QRect( cx, cy, cw, ch ).intersects( QRect( x + outerborder + cell->geometry().x(),
 							y + outerborder + cell->geometry().y(),
@@ -7721,12 +7721,12 @@ void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 
 }
 
-int QTextTable::minimumWidth() const
+int Q3TextTable::minimumWidth() const
 {
     return fixwidth ? fixwidth : ((layout ? layout->minimumSize().width() : 0) + 2 * outerborder);
 }
 
-void QTextTable::resize( int nwidth )
+void Q3TextTable::resize( int nwidth )
 {
     if ( fixwidth && cachewidth != 0 )
 	return;
@@ -7763,24 +7763,24 @@ void QTextTable::resize( int nwidth )
     height = layout->geometry().height()+2*outerborder;
 }
 
-void QTextTable::format( int w )
+void Q3TextTable::format( int w )
 {
     for ( int i = 0; i < (int)cells.count(); ++i ) {
-	QTextTableCell *cell = cells.at( i );
+	Q3TextTableCell *cell = cells.at( i );
 	QRect r = cell->geometry();
 	r.setWidth( w - 2*outerborder );
 	cell->setGeometry( r );
     }
 }
 
-void QTextTable::addCell( QTextTableCell* cell )
+void Q3TextTable::addCell( Q3TextTableCell* cell )
 {
     cells.append( cell );
     layout->addMultiCell( cell, cell->row(), cell->row() + cell->rowspan()-1,
 			  cell->column(), cell->column() + cell->colspan()-1 );
 }
 
-bool QTextTable::enter( QTextCursor *c, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy, bool atEnd )
+bool Q3TextTable::enter( QTextCursor *c, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy, bool atEnd )
 {
     currCell.remove( c );
     if ( !atEnd )
@@ -7789,14 +7789,14 @@ bool QTextTable::enter( QTextCursor *c, QTextDocument *&doc, QTextParagraph *&pa
     return prev( c, doc, parag, idx, ox, oy );
 }
 
-bool QTextTable::enterAt( QTextCursor *c, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy, const QPoint &pos )
+bool Q3TextTable::enterAt( QTextCursor *c, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy, const QPoint &pos )
 {
     currCell.remove( c );
     int lastCell = -1;
     int lastY = -1;
     int i;
     for ( i = 0; i < (int)cells.count(); ++i ) {
-	QTextTableCell *cell = cells.at( i );
+	Q3TextTableCell *cell = cells.at( i );
 	if ( !cell )
 	    continue;
 	QRect r( cell->geometry().x(),
@@ -7825,7 +7825,7 @@ bool QTextTable::enterAt( QTextCursor *c, QTextDocument *&doc, QTextParagraph *&
 	    return FALSE;
     }
 
-    QTextTableCell *cell = cells.at( *currCell.find( c ) );
+    Q3TextTableCell *cell = cells.at( *currCell.find( c ) );
     if ( !cell )
 	return FALSE;
     doc = cell->richText();
@@ -7836,7 +7836,7 @@ bool QTextTable::enterAt( QTextCursor *c, QTextDocument *&doc, QTextParagraph *&
     return TRUE;
 }
 
-bool QTextTable::next( QTextCursor *c, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy )
+bool Q3TextTable::next( QTextCursor *c, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy )
 {
     int cc = -1;
     if ( currCell.find( c ) != currCell.end() )
@@ -7848,7 +7848,7 @@ bool QTextTable::next( QTextCursor *c, QTextDocument *&doc, QTextParagraph *&par
     if ( cc >= (int)cells.count() ) {
 	currCell.insert( c, 0 );
 	QTextCustomItem::next( c, doc, parag, idx, ox, oy );
-	QTextTableCell *cell = cells.first();
+	Q3TextTableCell *cell = cells.first();
 	if ( !cell )
 	    return FALSE;
 	doc = cell->richText();
@@ -7858,7 +7858,7 @@ bool QTextTable::next( QTextCursor *c, QTextDocument *&doc, QTextParagraph *&par
 
     if ( currCell.find( c ) == currCell.end() )
 	return FALSE;
-    QTextTableCell *cell = cells.at( *currCell.find( c ) );
+    Q3TextTableCell *cell = cells.at( *currCell.find( c ) );
     if ( !cell )
 	return FALSE;
     doc = cell->richText();
@@ -7869,7 +7869,7 @@ bool QTextTable::next( QTextCursor *c, QTextDocument *&doc, QTextParagraph *&par
     return TRUE;
 }
 
-bool QTextTable::prev( QTextCursor *c, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy )
+bool Q3TextTable::prev( QTextCursor *c, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy )
 {
     int cc = -1;
     if ( currCell.find( c ) != currCell.end() )
@@ -7881,7 +7881,7 @@ bool QTextTable::prev( QTextCursor *c, QTextDocument *&doc, QTextParagraph *&par
     if ( cc < 0 ) {
 	currCell.insert( c, 0 );
 	QTextCustomItem::prev( c, doc, parag, idx, ox, oy );
-	QTextTableCell *cell = cells.first();
+	Q3TextTableCell *cell = cells.first();
 	if ( !cell )
 	    return FALSE;
 	doc = cell->richText();
@@ -7891,7 +7891,7 @@ bool QTextTable::prev( QTextCursor *c, QTextDocument *&doc, QTextParagraph *&par
 
     if ( currCell.find( c ) == currCell.end() )
 	return FALSE;
-    QTextTableCell *cell = cells.at( *currCell.find( c ) );
+    Q3TextTableCell *cell = cells.at( *currCell.find( c ) );
     if ( !cell )
 	return FALSE;
     doc = cell->richText();
@@ -7902,15 +7902,15 @@ bool QTextTable::prev( QTextCursor *c, QTextDocument *&doc, QTextParagraph *&par
     return TRUE;
 }
 
-bool QTextTable::down( QTextCursor *c, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy )
+bool Q3TextTable::down( QTextCursor *c, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy )
 {
     if ( currCell.find( c ) == currCell.end() )
 	return FALSE;
-    QTextTableCell *cell = cells.at( *currCell.find( c ) );
+    Q3TextTableCell *cell = cells.at( *currCell.find( c ) );
     if ( cell->row_ == layout->numRows() - 1 ) {
 	currCell.insert( c, 0 );
 	QTextCustomItem::down( c, doc, parag, idx, ox, oy );
-	QTextTableCell *cell = cells.first();
+	Q3TextTableCell *cell = cells.first();
 	if ( !cell )
 	    return FALSE;
 	doc = cell->richText();
@@ -7940,15 +7940,15 @@ bool QTextTable::down( QTextCursor *c, QTextDocument *&doc, QTextParagraph *&par
     return TRUE;
 }
 
-bool QTextTable::up( QTextCursor *c, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy )
+bool Q3TextTable::up( QTextCursor *c, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy )
 {
     if ( currCell.find( c ) == currCell.end() )
 	return FALSE;
-    QTextTableCell *cell = cells.at( *currCell.find( c ) );
+    Q3TextTableCell *cell = cells.at( *currCell.find( c ) );
     if ( cell->row_ == 0 ) {
 	currCell.insert( c, 0 );
 	QTextCustomItem::up( c, doc, parag, idx, ox, oy );
-	QTextTableCell *cell = cells.first();
+	Q3TextTableCell *cell = cells.first();
 	if ( !cell )
 	    return FALSE;
 	doc = cell->richText();
@@ -7978,7 +7978,7 @@ bool QTextTable::up( QTextCursor *c, QTextDocument *&doc, QTextParagraph *&parag
     return TRUE;
 }
 
-QTextTableCell::QTextTableCell( QTextTable* table,
+Q3TextTableCell::Q3TextTableCell( Q3TextTable* table,
 				int row, int column,
 				const QMap<QString, QString> &attr,
 				const QStyleSheetItem* /*style*/, // ### use them
@@ -8065,7 +8065,7 @@ QTextTableCell::QTextTableCell( QTextTable* table,
     parent->addCell( this );
 }
 
-QTextTableCell::~QTextTableCell()
+Q3TextTableCell::~Q3TextTableCell()
 {
     delete background;
     background = 0;
@@ -8073,7 +8073,7 @@ QTextTableCell::~QTextTableCell()
     richtext = 0;
 }
 
-QSize QTextTableCell::sizeHint() const
+QSize Q3TextTableCell::sizeHint() const
 {
     int extra = 2 * ( parent->innerborder + parent->cellpadding + border_tolerance);
     int used = richtext->widthUsed() + extra;
@@ -8086,27 +8086,27 @@ QSize QTextTableCell::sizeHint() const
     return QSize( used, 0 ).expandedTo( minimumSize() );
 }
 
-QSize QTextTableCell::minimumSize() const
+QSize Q3TextTableCell::minimumSize() const
 {
     int extra = 2 * ( parent->innerborder + parent->cellpadding + border_tolerance);
     return QSize( qMax( richtext->minimumWidth() + extra, minw), 0 );
 }
 
-QSize QTextTableCell::maximumSize() const
+QSize Q3TextTableCell::maximumSize() const
 {
     return QSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
 }
 
-QSizePolicy::ExpandData QTextTableCell::expanding() const
+QSizePolicy::ExpandData Q3TextTableCell::expanding() const
 {
     return QSizePolicy::BothDirections;
 }
 
-bool QTextTableCell::isEmpty() const
+bool Q3TextTableCell::isEmpty() const
 {
     return FALSE;
 }
-void QTextTableCell::setGeometry( const QRect& r )
+void Q3TextTableCell::setGeometry( const QRect& r )
 {
     int extra = 2 * ( parent->innerborder + parent->cellpadding );
     if ( r.width() != cached_width )
@@ -8115,30 +8115,30 @@ void QTextTableCell::setGeometry( const QRect& r )
     geom = r;
 }
 
-QRect QTextTableCell::geometry() const
+QRect Q3TextTableCell::geometry() const
 {
     return geom;
 }
 
-bool QTextTableCell::hasHeightForWidth() const
+bool Q3TextTableCell::hasHeightForWidth() const
 {
     return TRUE;
 }
 
-int QTextTableCell::heightForWidth( int w ) const
+int Q3TextTableCell::heightForWidth( int w ) const
 {
     int extra = 2 * ( parent->innerborder + parent->cellpadding );
     w = qMax( minw, w );
 
     if ( cached_width != w ) {
-	QTextTableCell* that = (QTextTableCell*) this;
+	Q3TextTableCell* that = (Q3TextTableCell*) this;
 	that->richtext->doLayout( Q3TextFormat::painter(), w - extra );
 	that->cached_width = w;
     }
     return richtext->height() + extra;
 }
 
-void QTextTableCell::adjustToPainter( QPainter* p )
+void Q3TextTableCell::adjustToPainter( QPainter* p )
 {
     QTextParagraph *parag = richtext->firstParagraph();
     while ( parag ) {
@@ -8147,12 +8147,12 @@ void QTextTableCell::adjustToPainter( QPainter* p )
     }
 }
 
-int QTextTableCell::horizontalAlignmentOffset() const
+int Q3TextTableCell::horizontalAlignmentOffset() const
 {
     return parent->cellpadding;
 }
 
-int QTextTableCell::verticalAlignmentOffset() const
+int Q3TextTableCell::verticalAlignmentOffset() const
 {
     if ( (align & Qt::AlignVCenter ) == Qt::AlignVCenter )
 	return ( geom.height() - richtext->height() ) / 2;
@@ -8161,7 +8161,7 @@ int QTextTableCell::verticalAlignmentOffset() const
     return parent->cellpadding;
 }
 
-void QTextTableCell::draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
+void Q3TextTableCell::draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 			   const QPalette &pal, bool )
 {
     if ( cached_width != geom.width() ) {

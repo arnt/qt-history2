@@ -68,9 +68,9 @@ bool QTextFlow::isEmpty() { return TRUE; }
 #endif
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-void QTextTableCell::invalidate() { cached_width = -1; cached_sizehint = -1; }
+void Q3TextTableCell::invalidate() { cached_width = -1; cached_sizehint = -1; }
 
-void QTextTable::invalidate() { cachewidth = -1; }
+void Q3TextTable::invalidate() { cachewidth = -1; }
 #endif
 
 QTextParagraphData::~QTextParagraphData() {}

@@ -516,7 +516,7 @@ class Q_GUI_EXPORT QTextFlow
 {
     friend class QTextDocument;
 #ifndef QT_NO_TEXTCUSTOMITEM
-    friend class QTextTableCell;
+    friend class Q3TextTableCell;
 #endif
 
 public:
@@ -559,20 +559,20 @@ private:
 inline int QTextFlow::width() const { return w; }
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-class QTextTable;
+class Q3TextTable;
 
-class Q_GUI_EXPORT QTextTableCell : public QLayoutItem
+class Q_GUI_EXPORT Q3TextTableCell : public QLayoutItem
 {
-    friend class QTextTable;
+    friend class Q3TextTable;
 
 public:
-    QTextTableCell( QTextTable* table,
+    Q3TextTableCell( Q3TextTable* table,
 		    int row, int column,
 		    const QMap<QString, QString> &attr,
 		    const QStyleSheetItem* style,
 		    const Q3TextFormat& fmt, const QString& context,
 		    QMimeSourceFactory &factory, QStyleSheet *sheet, const QString& doc );
-    virtual ~QTextTableCell();
+    virtual ~Q3TextTableCell();
 
     QSize sizeHint() const ;
     QSize minimumSize() const ;
@@ -594,7 +594,7 @@ public:
     int stretch() const { return stretch_; }
 
     QTextDocument* richText()  const { return richtext; }
-    QTextTable* table() const { return parent; }
+    Q3TextTable* table() const { return parent; }
 
     void draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 	       const QPalette &cg, bool selected );
@@ -607,7 +607,7 @@ public:
 
 private:
     QRect geom;
-    QTextTable* parent;
+    Q3TextTable* parent;
     QTextDocument* richtext;
     int row_;
     int col_;
@@ -627,13 +627,13 @@ private:
 
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-class Q_GUI_EXPORT QTextTable: public QTextCustomItem
+class Q_GUI_EXPORT Q3TextTable: public QTextCustomItem
 {
-    friend class QTextTableCell;
+    friend class Q3TextTableCell;
 
 public:
-    QTextTable( QTextDocument *p, const QMap<QString, QString> &attr );
-    virtual ~QTextTable();
+    Q3TextTable( QTextDocument *p, const QMap<QString, QString> &attr );
+    virtual ~Q3TextTable();
 
     void adjustToPainter( QPainter *p );
     void pageBreak( int  y, QTextFlow* flow );
@@ -658,17 +658,17 @@ public:
 
     int minimumWidth() const;
 
-    QList<QTextTableCell *> tableCells() const { return cells; }
+    QList<Q3TextTableCell *> tableCells() const { return cells; }
 
     bool isStretching() const { return stretch; }
 
 private:
     void format( int w );
-    void addCell( QTextTableCell* cell );
+    void addCell( Q3TextTableCell* cell );
 
 private:
     QGridLayout* layout;
-    QList<QTextTableCell *> cells;
+    QList<Q3TextTableCell *> cells;
     int cachewidth;
     int fixwidth;
     int cellpadding;
@@ -688,7 +688,7 @@ private:
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-class QTextTableCell;
+class Q3TextTableCell;
 class QTextParagraph;
 #endif
 
@@ -704,7 +704,7 @@ class Q_GUI_EXPORT QTextDocument : public QObject
     Q_OBJECT
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-    friend class QTextTableCell;
+    friend class Q3TextTableCell;
 #endif
     friend class QTextCursor;
     friend class QTextEdit;
@@ -848,8 +848,8 @@ public:
     bool useFormatCollection() const { return useFC; }
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-    QTextTableCell *tableCell() const { return tc; }
-    void setTableCell( QTextTableCell *c ) { tc = c; }
+    Q3TextTableCell *tableCell() const { return tc; }
+    void setTableCell( Q3TextTableCell *c ) { tc = c; }
 #endif
 
     void setPlainText( const QString &text );
@@ -940,7 +940,7 @@ private:
     QTextDocument *par;
     QTextParagraph *parentPar;
 #ifndef QT_NO_TEXTCUSTOMITEM
-    QTextTableCell *tc;
+    Q3TextTableCell *tc;
 #endif
     QBrush *backBrush;
     QPixmap *buf_pixmap;
@@ -1199,7 +1199,7 @@ public:
     bool isFullWidth() const { return fullWidth; }
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-    QTextTableCell *tableCell() const;
+    Q3TextTableCell *tableCell() const;
 #endif
 
     QBrush *background() const;
@@ -1923,7 +1923,7 @@ inline QTextParagraphPseudoDocument *QTextParagraph::pseudoDocument() const
 
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-inline QTextTableCell *QTextParagraph::tableCell() const
+inline Q3TextTableCell *QTextParagraph::tableCell() const
 {
     return hasdoc ? document()->tableCell () : 0;
 }
