@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#464 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#465 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1443,6 +1443,18 @@ QString imestring_to_unicode(char *s, int len)
     }
 }
 
+void qt_winEndImeComposition( QWidget *fw )
+{
+    if ( !imeComposition || imeComposition->isNull() )
+	return;
+    QIMEvent e( QEvent::IMEnd, *imeComposition, -1 );
+    QApplication::sendEvent( fw, &e );
+    *imeComposition = QString::null;
+    imePosition = -1;
+    HIMC imc = ImmGetContext( fw->winId() ); // Should we store it?
+    ImmNotifyIME( imc, NI_COMPOSITIONSTR, CPS_CANCEL, 0 );
+    ImmReleaseContext( fw->winId(), imc );
+}
 
 //
 // QtWndProc() receives all messages from the main event loop
@@ -1776,31 +1788,34 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     		    QWidget *fw = qApp->focusWidget();
 		    if ( fw ) {
 			QIMEvent e( QEvent::IMStart, QString::null, -1 );
-			result = QApplication::sendEvent( fw, &e );	
+			result = QApplication::sendEvent( fw, &e );
+			imePosition = 0;
 		    }
 		}
 		break;
 	    case WM_IME_ENDCOMPOSITION:
 		{
 		    QWidget *fw = qApp->focusWidget();
-	        
-		    if ( fw ) {
+		    qDebug("EndComposition: lparam=%x", lParam);	        
+		    if ( fw && imePosition != -1 ) {
 			QIMEvent e( QEvent::IMEnd, *imeComposition, -1 );
 			result = QApplication::sendEvent( fw, &e );
 			*imeComposition = QString::null;
-			imePosition = 0;
+			imePosition = -1;
 		    }
 		}
 		break;
 	    case WM_IME_COMPOSITION:
 		{
 		    QWidget *fw = qApp->focusWidget();
-		    if ( fw ) {
+		    qDebug("Composition: lparam=%x", lParam);
+		    if ( fw && imePosition != -1 ) {
 			HIMC imc = ImmGetContext( fw->winId() ); // Should we store it?
 			char buffer[256];
 			LONG buflen = -1;
-			if ( lParam & GCS_CURSORPOS )
+			if ( lParam & GCS_CURSORPOS ) {
 			    imePosition = ImmGetCompositionString( imc, GCS_CURSORPOS, &buffer, 255 ) & 0xffff;
+			}
 			if ( lParam & GCS_COMPSTR ) {
 			    buflen = ImmGetCompositionString( imc, GCS_COMPSTR, &buffer, 255 );
 			} else if (lParam & GCS_RESULTSTR ) {

@@ -546,6 +546,15 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, 
 	extraData()->micro_focus_hint.setRect( x, y, width, height );
 }
 
+// defined in qapplication_win.cpp
+extern void qt_winEndImeComposition( QWidget *fw );
+
+void QWidget::resetInputContext()
+{
+    qt_winEndImeComposition( this );
+}
+
+
 #if 0
 void QWidget::setSizeGrip(bool /* sizegrip */)
 {

@@ -188,6 +188,9 @@ protected:
     void contentsMouseReleaseEvent( QMouseEvent *e );
     void contentsMouseDoubleClickEvent( QMouseEvent *e );
     void contentsWheelEvent( QWheelEvent *e );
+    void imStartEvent( QIMEvent * );
+    void imComposeEvent( QIMEvent * );
+    void imEndEvent( QIMEvent * );
 #ifndef QT_NO_DRAGANDDROP
     void contentsDragEnterEvent( QDragEnterEvent *e );
     void contentsDragMoveEvent( QDragMoveEvent *e );
