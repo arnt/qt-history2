@@ -85,7 +85,7 @@ shared:
 	$(MAKE) lib 'CC=$(CC)' 'CFLAGS=$(CFLAGS) $(CSHAREDFLAGS)' 'OBJDIR=obj/shared'
 	/bin/rm -f $(SHAREDTARGET)
 	$(CC) -shared -Wl,-soname,libqt.so.1 -o $(SHAREDTARGET) \
-		obj/shared/*/*.o -lX11 -lgcc -lc
+		obj/shared/*/*.o -L/usr/X11R6/lib -lX11 -lc
 
 shareddbg:
 	$(MAKE) lib 'CC=$(CC)' 'CFLAGS=$(CDBGFLAGS) $(CSHAREDFLAGS)' 'OBJDIR=obj/shareddbg'
@@ -110,10 +110,10 @@ depend:
 include:
 	-rm -f $(INCDIR)/*.h
 	( cd $(INCDIR) ; \
-	  ln -s ../src/tools/*.h . ; \
-	  ln -s ../src/kernel/*.h . ; \
-	  ln -s ../src/widgets/*.h . ; \
-	  ln -s ../src/dialogs/*.h . )
+	  ln -s -f ../src/tools/*.h . ; \
+	  ln -s -f ../src/kernel/*.h . ; \
+	  ln -s -f ../src/widgets/*.h . ; \
+	  ln -s -f ../src/dialogs/*.h . )
 
 clean:
 	-rm -f dodepend
