@@ -1221,7 +1221,7 @@ bool QAxHostWidget::event( QEvent *e )
 	if ( axhost && ((QTimerEvent*)e)->timerId() == setFocusTimer ) {
 	    killTimer( setFocusTimer );
 	    setFocusTimer = 0;
-	    RECT rcPos = { x(), y(), x()+sizeHint().width(), y()+sizeHint().height() };
+	    RECT rcPos = { x(), y(), x()+size().width(), y()+size().height() };
 	    HRESULT res = axhost->m_spOleObject->DoVerb( OLEIVERB_UIACTIVATE, 0, (IOleClientSite*)axhost, 0, winId(), &rcPos );
 	}
 	break;
