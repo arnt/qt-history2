@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#141 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#142 $
 **
 ** Definition of QWidget class
 **
@@ -125,14 +125,14 @@ public:
     virtual void setCursor( const QCursor & );
 
     const char	*caption()	const;
-    void	 setCaption( const char * );
     const QPixmap *icon()	const;
-    void	 setIcon( const QPixmap & );
     const char	*iconText()	const;
-    void	 setIconText( const char * );
-
     bool	 hasMouseTracking() const;
+
 public slots:
+    void	 setCaption( const char * );
+    void	 setIcon( const QPixmap & );
+    void	 setIconText( const char * );
     void	 setMouseTracking( bool enable );
 
   // Keyboard input focus functions
@@ -186,6 +186,7 @@ public:
     bool	 isVisible()	const;
     bool	 isVisibleToTLW() const;
 
+public slots:
     void	 raise();
     void	 lower();
     virtual void move( int x, int y );
@@ -195,9 +196,9 @@ public:
     virtual void setGeometry( int x, int y, int w, int h );
     void	 setGeometry( const QRect & );
 
+public:
     virtual QSize sizeHint() const;
     virtual void  adjustSize();
-
 
     void	 recreate( QWidget *parent, WFlags, const QPoint &,
 			   bool showIt=FALSE );
@@ -213,11 +214,11 @@ public:
   // Misc. functions
 
     QWidget     *focusWidget() const;
-    
+
   // drag and drop
 
     void	 registerDropType( const char * mimeType );
-				  
+				
 public:
     QWidget	*parentWidget() const;
     bool	 testWFlags( WFlags n ) const;
