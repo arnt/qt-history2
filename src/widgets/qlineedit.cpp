@@ -1841,9 +1841,9 @@ void QLineEditPrivate::drag()
     dndTimer = 0;
     QTextDrag *tdo = new QTextDrag( q->selectedText(), q );
     if ( tdo->drag() && !readOnly ) {
-	int undoState = this->undoState;
+	int us = undoState;
 	removeSelectedText();
-	finishChange( undoState );
+	finishChange( us );
     }
 #ifndef QT_NO_CURSOR
     q->setCursor( readOnly ? arrowCursor : ibeamCursor );
