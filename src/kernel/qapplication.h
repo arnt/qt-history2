@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#4 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#5 $
 **
 ** Definition of QApplication class
 **
@@ -31,14 +31,14 @@ public:
     static GUIStyle style()	{ return appStyle; }
     static void	    setStyle( GUIStyle );
 
-    int	     exec( QWidget *mainWidget );	// start event handing
-    static void quit( int retcode = 0 );	// quit application
+    int	     	 exec( QWidget *mainWidget );	// start event handing
+    static void  quit( int retcode = 0 );	// quit application
 
-    QWidget *mainWidget() const { return main_widget; }
+    QWidget 	*mainWidget() const { return main_widget; }
 
     virtual bool notify( QObject *, QEvent * ); // send event to object
 
-    static void cleanup();			// cleanup application
+    static void  cleanup();			// cleanup application
 
 protected:
     static QWidget *main_widget;		// main application widget
