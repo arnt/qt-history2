@@ -474,7 +474,7 @@ void Uic::createPopupMenuImpl( const QDomElement &e, const QString &parentClass,
 		out << indent << "QPopupMenu *" << itemName << " = new QPopupMenu( this );" << endl;
 		out << indent << parent << "->setAccel( tr( \"" << n2.attribute( "accel" ) << "\" ), " << endl;
 		out << indent << indent << parent << "->insertItem( " << n.attribute( "name" ) << "->iconSet(),";
-		out << "\"" << itemText << "\", " << itemName << " ) );" << endl;
+		out << trcall( itemText ) << ", " << itemName << " ) );" << endl;
 		createPopupMenuImpl( n2, parentClass, itemName );
 		n = n2;
 	    } else {
