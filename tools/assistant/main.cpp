@@ -171,6 +171,7 @@ bool AddDoc::addDocFile( const QString &file )
 void AddDoc::addItemToList( const QString &rcEntry, const QString &item )
 {
     QSettings settings;
+    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
     QStringList list = settings.readListEntry( rcEntry );
     QStringList::iterator it = list.begin();
     for ( ; it != list.end(); ++it ) {

@@ -114,6 +114,7 @@ SettingsDialog::SettingsDialog( QWidget *parent, const char* name )
 void SettingsDialog::init()
 {
     QSettings settings;
+    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
     changed = FALSE;
     selectionChanged = FALSE;
 
@@ -364,6 +365,7 @@ void SettingsDialog::browseWebApp()
 void SettingsDialog::accept()
 {
     QSettings *settings = new QSettings();
+    settings->insertSearchPath( QSettings::Windows, "/Trolltech" );
     settings->writeEntry( "/Qt Assistant/3.1/AdditionalDocFiles/", docuFileList );
     settings->writeEntry( "/Qt Assistant/3.1/AdditionalDocTitles/", docuTitleList );
     settings->writeEntry( "/Qt Assistant/3.1/CategoriesAvailable/", catListAvail );

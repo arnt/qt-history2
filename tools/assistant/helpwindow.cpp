@@ -59,6 +59,7 @@ void HelpWindow::setSource( const QString &name )
 
     if ( name.left( 7 ) == "http://" || name.left( 6 ) == "ftp://" ) {
 	QSettings settings;
+	settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
 	QString webbrowser = settings.readEntry( "/Qt Assistant/3.1/Webbrowser/" );
 	if ( webbrowser.isEmpty() ) {
 	    QMessageBox::information( this, tr( "Help" ), tr( "Currently no webbrowser is selected.\nPlease use the settingsdialog to specify one!\n" ) );

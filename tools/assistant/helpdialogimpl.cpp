@@ -318,6 +318,7 @@ void HelpDialog::generateNewDocu()
 bool HelpDialog::isValidCategory( QString category )
 {
     QSettings settings;
+    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
     QStringList list = settings.readListEntry( "/Qt Assistant/3.1/CategoriesSelected/" );
     QStringList::iterator it = list.begin();
     for( ; it != list.end(); ++it ){
@@ -388,6 +389,7 @@ void HelpDialog::loadIndexFile()
 Q_UINT32 HelpDialog::getFileAges()
 {
     QSettings settings;
+    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
     QStringList addDocuFiles = settings.readListEntry( "/Qt Assistant/3.1/AdditionalDocFiles" );
     QStringList::iterator i = addDocuFiles.begin();
 
@@ -401,6 +403,7 @@ Q_UINT32 HelpDialog::getFileAges()
 void HelpDialog::buildKeywordDB()
 {
     QSettings settings;
+    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
     QStringList addDocuFiles = settings.readListEntry( "/Qt Assistant/3.1/AdditionalDocFiles" );
     QStringList::iterator i = addDocuFiles.begin();
 
@@ -496,6 +499,7 @@ void HelpDialog::setupTitleMap()
 void HelpDialog::buildTitlemapDB()
 {
     QSettings settings;
+    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
     QStringList docuFiles = settings.readListEntry( "/Qt Assistant/3.1/AdditionalDocFiles" );
 
     titleMap.clear();
@@ -747,6 +751,7 @@ void HelpDialog::insertContents()
 #endif
 
     QSettings settings;
+    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
     QStringList addDocuFiles = settings.readListEntry( "/Qt Assistant/3.1/AdditionalDocFiles" );
     QStringList::iterator i = addDocuFiles.begin();
     for( ; i != addDocuFiles.end(); i++ ){
@@ -769,7 +774,6 @@ void HelpDialog::insertContents()
 #ifdef QT_PALMTOPCENTER_DOCS
     settings.insertSearchPath( QSettings::Unix,
 			       QDir::homeDirPath() + "/.palmtopcenter/" );
-    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
 
     QString manualdir = "qtopiadesktop.html";
     //insertContents( manualdir, tr( "Qtopia Desktop Manual" ), lastItem, handbook );
