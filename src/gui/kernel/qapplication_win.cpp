@@ -269,8 +269,9 @@ static bool        sm_cancel;
 
 static bool replayPopupMouseEvent = false; // replay handling when popups close
 
-static bool ignoreNextMouseReleaseEvent = false; // ignore the next release event if
-                                                 // return from a modal widget
+// ignore the next release event if return from a modal widget
+Q_GUI_EXPORT bool qt_win_ignoreNextMouseReleaseEvent = false; 
+
 #if defined(QT_DEBUG)
 static bool        appNoGrab        = false;        // mouse/keyboard grabbing
 #endif
@@ -1233,19 +1234,20 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
     case WM_MBUTTONDOWN:
     case WM_RBUTTONDOWN:
     case WM_XBUTTONDOWN:
-        if (ignoreNextMouseReleaseEvent)
-            ignoreNextMouseReleaseEvent = false;
+        if (qt_win_ignoreNextMouseReleaseEvent)
+            qt_win_ignoreNextMouseReleaseEvent = false;
         break;
+
     case WM_LBUTTONUP:
     case WM_MBUTTONUP:
     case WM_RBUTTONUP:
     case WM_XBUTTONUP:
-        if (ignoreNextMouseReleaseEvent) {
-            ignoreNextMouseReleaseEvent = false;
-            if (qt_button_down && qt_button_down->winId() == autoCaptureWnd) {
-                releaseAutoCapture();
-                qt_button_down = 0;
-            }
+	if (qt_win_ignoreNextMouseReleaseEvent) {
+	    qt_win_ignoreNextMouseReleaseEvent = false;
+	    if (qt_button_down && qt_button_down->winId() == autoCaptureWnd) {
+		releaseAutoCapture();
+		qt_button_down = 0;
+	    }
 
             RETURN(0);
         }
@@ -1936,7 +1938,7 @@ void Q_GUI_EXPORT qt_enter_modal(QWidget *widget)
     app_do_modal = true;
     curWin = 0;
     qt_button_down = 0;
-    ignoreNextMouseReleaseEvent = false;
+    qt_win_ignoreNextMouseReleaseEvent = false;
 }
 
 
@@ -1952,7 +1954,7 @@ void Q_GUI_EXPORT qt_leave_modal(QWidget *widget)
             qt_dispatchEnterLeave(w, QWidget::find(curWin)); // send synthetic enter event
             curWin = w? w->winId() : 0;
         }
-        ignoreNextMouseReleaseEvent = true;
+        qt_win_ignoreNextMouseReleaseEvent = true;
     }
     app_do_modal = qt_modal_stack != 0;
 
