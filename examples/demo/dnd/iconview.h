@@ -1,7 +1,8 @@
+#ifndef ICONVIEW_H
+#define ICONVIEW_H
+
 #include <qiconview.h>
 #include <qstring.h>
-
-#include "dnd.h"
 
 class IconViewItem : public QIconViewItem
 {
@@ -27,5 +28,7 @@ public:
     QDragObject *dragObject();
 
 public slots:
-    void slotNewItem( QDropEvent *t, const QLinkedList<QIconDragItem>& );
+    void slotNewItem( QDropEvent *t, const QList<QIconDragItem>& );
 };
+
+#endif // ICONVIEW_H

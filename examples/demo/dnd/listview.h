@@ -1,3 +1,6 @@
+#ifndef LISTVIEW_H
+#define LISTVIEW_H
+
 #include <qlistview.h>
 
 class ListViewItem : public QListViewItem
@@ -33,3 +36,5 @@ private:
     QPoint pressPos;
     bool dragging;
 };
+
+#endif // LISTVIEW_H
