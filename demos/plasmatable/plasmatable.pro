@@ -8,5 +8,7 @@ SOURCES         = main.cpp \
                   plasmamodel.cpp \
                   plasmadelegate.cpp \
                   colorfilter.cpp
+RESOURCES	= plasmatable.qrc
+
 build_all:CONFIG += release
 

@@ -111,6 +111,7 @@ int main(int argc, char *argv[])
         hexView->resizeRowToContents(r);
     }
 
+    splitter.setWindowIcon(QPixmap(":/images/interview.png"));
     app.setMainWidget(&splitter);
     splitter.show();
 
