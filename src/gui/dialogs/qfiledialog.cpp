@@ -230,24 +230,18 @@ const char *qt_file_dialog_filter_reg_exp =
 class QFileDialogLineEdit : public QLineEdit
 {
 public:
-    QFileDialogLineEdit(QWidget *parent);
+    QFileDialogLineEdit(QWidget *parent)
+        : QLineEdit(parent), key(0) {}
     inline int lastKeyPressed() { return key; }
 protected:
-    virtual void keyPressEvent(QKeyEvent *e);
+    virtual void keyPressEvent(QKeyEvent *e)
+    {
+        key = e->key();
+        QLineEdit::keyPressEvent(e);
+    }
 private:
     int key;
 };
-
-QFileDialogLineEdit::QFileDialogLineEdit(QWidget *parent)
-    : QLineEdit(parent), key(0)
-{
-}
-
-void QFileDialogLineEdit::keyPressEvent(QKeyEvent *e)
-{
-    key = e->key();
-    QLineEdit::keyPressEvent(e);
-}
 
 class QFileDialogPrivate : public QDialogPrivate
 {
