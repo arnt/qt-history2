@@ -23,7 +23,7 @@
 
 enum {
     Compressed = 0x01
-}
+};
 Q_GLOBAL_STATIC(QStringList, qt_resource_search_paths)
 
 
