@@ -515,7 +515,7 @@ static inline bool canRender( QFontEngine *fe, const QChar &sample )
 }
 #endif // Q_WS_X11 || Q_WS_WIN
 
-
+#ifndef Q_WS_MAC
 static
 QFontEngine *loadEngine( QFont::Script script, const QFontDef &request,
 			 QtFontFamily *family, QtFontFoundry *foundry,
@@ -524,7 +524,7 @@ QFontEngine *loadEngine( QFont::Script script, const QFontDef &request,
 			 , QtFontEncoding *encoding, int screen
 #endif
 			 );
-
+#endif
 
 
 

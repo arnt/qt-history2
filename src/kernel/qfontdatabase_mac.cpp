@@ -114,6 +114,27 @@ void QFontDatabase::createDatabase()
     }
 }
 
-static inline void load(const QString & = QString::null,
-                        int = -1 ) {}
+static inline void load(const QString & = QString::null, int = -1 ) 
+{
+}
+
+#if 0
+static
+QFontEngine *loadEngine( QFont::Script, const QFontDef &request,
+			 QtFontFamily *, QtFontFoundry *,
+			 QtFontStyle *, QtFontSize *)
+{
+    QFontEngineMac *ret = new QFontEngineMac;
+    ret->fontDef = request;
+    if(!ret->info) {
+	ret->info = (FontInfo *)malloc(sizeof(FontInfo));
+	QMacSetFontInfo fi(this, paintdevice); //this is wrong..
+	GetFontInfo(ret->info);
+	ret->calculateCost();
+    }
+    return ret;
+}
+#endif
+
+
 
