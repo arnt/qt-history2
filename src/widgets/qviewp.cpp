@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qviewp.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qviewp.cpp#2 $
 **
 ** Implementation of QViewport class
 **
@@ -29,19 +29,15 @@ The QViewport can be used in two ways:
 To use a QViewport in the first way, use view(QWidget*) to set the large
 widget to be viewed.
 
-For the second way, you must inherit from QViewport and override
-viewX(),
-viewY(),
-viewWidth(),
-viewHeight(),
-viewVisible(),
-moveView(int,int), and one of
-drawContents(QPainter*) or 
-drawContentsOffset(QPainter*,int,int). Also in this case you must
-call updateScrollBars() when the values of the first 5 methods changes.
+For the second technique, you must inherit from QViewport and override
+one of drawContents(QPainter*) or 
+drawContentsOffset(QPainter*,int,int), and use viewResized() to set
+the size of the viewed area.
 
 QWidgets have a maximum size, limited by the underlying window system,
-of 32767 by 32767 pixels.
+of 32767 by 32767 pixels.  The second technique is not constrained by
+this limitation, but currently the scrollbars fail beyond about
+1000000 pixels due to integer overflow.
 
 <img src=qviewp-m.gif> <img src=qviewp-w.gif>
 */
@@ -174,8 +170,18 @@ An override - ensures scrollbars are correct size upon showing.
 */
 void QViewport::show()
 {
-    updateScrollBars();
     QWidget::show();
+    updateScrollBars();
+}
+
+/*!
+An override - ensures scrollbars are correct size upon resize.
+*/
+void QViewport::resize( int w, int h )
+{
+    // Need both this and resize event, due to deferred resize event.
+    QWidget::resize( w, h );
+    updateScrollBars();
 }
 
 /*!
@@ -336,11 +342,22 @@ void QViewport::setBackgroundPixmap(const QPixmap& pm)
 }
 
 /*!
+ Move such that ( x, y ) is visible and with at least 50-pixel
+ margins ( if possible, otherwise, centered ).
+*/
+void QViewport::ensureVisible( int x, int y )
+{
+    ensureVisible(x, y, 50, 50);
+}
+
+/*!
  Move such that ( x, y ) is visible and with at least the given
  pixel margins ( if possible, otherwise, centered ).
 */
 void QViewport::ensureVisible( int x, int y, int xmargin, int ymargin )
 {
+    updateScrollBars();
+
     int pw=porthole.width();
     int ph=porthole.height();
 
@@ -382,7 +399,8 @@ void QViewport::ensureVisible( int x, int y, int xmargin, int ymargin )
 }
 
 /*!
- Completely centered ( except at edges of playfield )
+ Scroll so as to be completely centered on (x,y), except at edges of viewport
+ where this is impossible.
 */
 void QViewport::centerOn( int x, int y )
 {
@@ -390,7 +408,15 @@ void QViewport::centerOn( int x, int y )
 }
 
 /*!
- Margins as fraction of visible area.
+ Scroll such that (x,y) is in the middle 50% of visible area.
+*/
+void QViewport::centralize( int x, int y )
+{
+    centralize(x, y, 0.5, 0.5);
+}
+
+/*!
+ Scroll such that (x,y) has given margins (as fractions of visible area).
    0.0 = Allow (x,y) to be on edge of visible area.
    0.5 = Ensure (x,y) is in middle 50% of visible area.
    1.0 = CenterOn (x,y).
@@ -403,6 +429,7 @@ void QViewport::centralize( int x, int y, float xmargin, float ymargin )
 }
 
 /*!
+  Moves the viewed widget or area.
 */
 void QViewport::moveView(int x, int y)
 {
@@ -420,43 +447,86 @@ void QViewport::moveView(int x, int y)
     }
 }
 
+/*!
+  The horizontal position of the viewed widget/area.
+*/
 int QViewport::viewX() const
 {
     return viewed ? viewed->x() : vx;
 }
 
+/*!
+  The vertical position of the viewed widget/area.
+*/
 int QViewport::viewY() const
 {
     return viewed ? viewed->y() : vy;
 }
 
+/*!
+  The width of the viewed area.
+*/
 int QViewport::viewWidth() const
 {
     return viewed ? viewed->width() : vwidth;
 }
 
+/*!
+  The width of the viewed area.
+*/
 int QViewport::viewHeight() const
 {
     return viewed ? viewed->height() : vheight;
 }
 
+/*!
+  Is the view visible?
+*/
 bool QViewport::viewVisible() const
 {
     return !viewed || viewed->isVisible();
 }
 
+/*!
+  Set the size of the viewed area.
+*/
 void QViewport::viewResize( int w, int h )
 {
-    if ( viewed ) fatal("Called QViewport::view() then QViewport::viewResize()");
-
+    if ( viewed ) {
+	// Strange.  Why did the programmer do that.  Oh well, do it.
+	viewed->resize(w,h);
+    }
     vwidth = w;
     vheight = h;
+
+    // Could more efficiently scroll if shrinking, repaint if growing, etc.
+    updateScrollBars();
+    update();
 }
 
+/*!
+  \fn void QViewport::drawContents(QPainter*, int x, int y, int w, int h)
+
+  Override this method if you are not just viewing a widget.
+
+  Draw the contents of the viewed area, clipped to the given area.
+  The coordinate system of the painter has been translated, so draw
+  in world coordinates.  The default implementation does nothing.
+*/
 void QViewport::drawContents(QPainter*, int, int, int, int)
 {
+    // Do nothing.
 }
 
+/*!
+  Override this method if drawContents is insufficient for your purposes.
+
+  Draw the contents of the viewed area, offset by the given
+  amount, clipped to the given area.
+  The coordinate system of the painter has been translated, so draw
+  in world coordinates.  The default implementation translate the
+  painter's coordinate system and calls drawContents().
+*/
 void QViewport::drawContentsOffset(QPainter* p, int ox, int oy,
     int cx, int cy, int cw, int ch)
 {

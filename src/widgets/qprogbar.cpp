@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogbar.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qprogbar.cpp#3 $
 **
 ** Implementation of QProgressBar class
 **
@@ -9,62 +9,23 @@
 **
 *****************************************************************************/
 
-#include "qprogbar.h"
+#include <qprogbar.h>
 #include <qpainter.h>
 #include <qdrawutl.h>
 #include <qapp.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qprogbar.cpp#2 $");
-
-// If the operation is expected to take this long (as predicted by
-// progress time), show the progress bar.
-static const int showTime    = 4000;  // Arnt: as per Macintosh guidelines
-// Wait at least this long before attempting to make a prediction.
-static const int minWaitTime = 50;
-
-// Various layout values
-static const int margin_lr   = 10;
-static const int margin_tb   = 10;
-static const int disp_height = 20;
-static const int spacing     = 4;
-
+RCSTAG("$Id: //depot/qt/main/src/widgets/qprogbar.cpp#3 $");
 
 /*!
   \class QProgressBar qprogbar.h
   \brief The QProgressBar widget provides a horizontal progress bar.
   \ingroup realwidgets
 
-  A progress bar is used to give the user an indication of how long an
-  operation is going to take to perform, and to reassure them that the
-  application has not crashed.
- 
-  A potential problem with progress bars is that it is difficult to know
-  when to use them, as operations take different amounts of time on different
-  computer hardware.  QProgressBar offers a solution to this problem:
-  it estimates the time the operation will take (based on time for
-  steps), and only shows itself if that estimate is beyond 3 seconds.
+  A progress bar is used to give the user an indication of progress
+  of an operation. To reassure them that the application has not crashed.
 
-  Example:
-  \code
-    QProgressBar pb("Doing stuff...", steps, this);
-    for (int i=0; i<steps; i++) {
-	pb.setProgress(i);
-	...
-    }
-    pb.setProgress(steps);
-  \endcode
-
-  A QProgressBar may also have a `cancel' button to abort progress:
-
-  \code
-    QProgressBar pb("Doing stuff...", steps, this);
-    pb.setCancelButton("Abort");
-    for (int i=0; i<steps; i++) {
-	if (pb.setProgress(i)) break;
-	...
-    }
-    pb.setProgress(steps);
-  \endcode
+  QProgressBar only implements the basic progress display, while
+  QProgressDialog provides a fuller encapsulation.
 
   <img src=qprogbar-m.gif> <img src=qprogbar-w.gif>
 */
@@ -73,60 +34,32 @@ static const int spacing     = 4;
 /*!
   Constructs a progress bar.
 
-  \arg \e label_text is text telling the user what is progressing.
   \arg \e total_steps is the total number of steps in the operation of which
     this progress bar shows the progress.  For example, if the operation
     is to examine 50 files, this value would be 50, then before examining
     the first file, call setProgress(0), and after examining the last file
     call setProgress(50).
-  \arg \e parent, \e name, \e modal, and \e f are sent to the
-    QDialog::QDialog() constructor. Note that \e modal defaults to
-    TRUE, unlike in QDialog::QDialog().
+  \arg \e parent, \e name, \e f, and \e allowLines are sent to the
+    QFrame::QFrame() constructor.
 */
-QProgressBar::QProgressBar( const char* label_text, int total_steps,
-	QWidget *parent, const char *name, bool modal, WFlags f ) :
-    QDialog( parent, name, modal, f),
+QProgressBar::QProgressBar( int total_steps,
+	QWidget *parent, const char *name, WFlags f, bool allowLines ) :
+    QFrame( parent, name, f, allowLines),
     totalsteps( total_steps ),
-    progress( -1 ),
-    percentage( -1 ),
-    cancel( "", this ),
-    cancellation_flag( TRUE ),
-    label( "", this )
+    progr( -1 ),
+    percentage( -1 )
 {
-    cancel.hide();
-    connect( &cancel, SIGNAL(clicked()), this, SIGNAL(cancelled()) );
-    connect( this, SIGNAL(cancelled()), this, SLOT(reset()) );
-    label.setAlignment( AlignCenter );
-    setLabel( label_text );
-}
-
-/*!
-  \fn void QProgressBar::cancelled()
-
-  This signal is emitted when the cancel button is clicked.
-*/
-
-/*!
-  Sets the label for the cancellation button (eg. "Cancel" or "Abort").
-  If this is 0, any previous cancellation button is removed.
-  The progress bar resizes to fit.
-
-  \sa cancelled()
-*/
-void QProgressBar::setCancelButton( const char* c )
-{
-    if ( c ) {
-	cancel.setText( c );
-	cancel.show();
+    if ( style() == WindowsStyle ) {
+	setFrameStyle(QFrame::WinPanel | QFrame::Sunken);
     } else {
-	cancel.hide();
+	setFrameStyle(QFrame::Panel | QFrame::Sunken);
+	setLineWidth( 2 );
     }
-    resize(sizeHint());
 }
 
 /*!
   Reset the progress bar, changing the total number of steps
-  to a new value. The progress bar becomes hidden.
+  to a new value. The progress bar `rewinds'.
 */
 void QProgressBar::reset( int total_steps )
 {
@@ -136,74 +69,35 @@ void QProgressBar::reset( int total_steps )
 
 /*!
   Reset the progress bar.
-  The progress bar becomes hidden.
+  The progress bar `rewinds'.
 */
 void QProgressBar::reset()
 {
-    if ( progress >= 0 ) {
-	QWidget* p = parentWidget();
-	if ( p ) p->setCursor( parentCursor );
-    }
-    hideNoLoop();
-    progress = -1;
+    progr = -1;
     percentage = -1;
-    cancellation_flag = TRUE;
 }
 
 /*!
   Sets the current amount of progress made to \e prog units of the
-  total number of steps.  For the progress bar to work correctly,
-  you must at least call this with the parameter 0 initially, then
-  later with QProgressBar::totalSteps().
-
-  \warning This method calls QApplication::processEvents(), although making
-  the progress bar modal (see QProgressBar::QProgressBar()), will block
-  most events from receipt by your application.
-
-  Returns TRUE if the user has clicked the cancellation button. 
+  total number of steps.
 */
-bool QProgressBar::setProgress( int prog )
+void QProgressBar::setProgress( int prog )
 {
-    cancellation_flag = FALSE;
+    if ( prog <= progr ) return;
+    if ( prog==0 && progr > 0 ) return;
 
-    if ( prog <= progress ) return cancellation_flag;
-    if ( prog==0 && progress > 0 ) return cancellation_flag;
-    if ( prog!=0 && progress < 0 ) return cancellation_flag;
+    progr = prog;
 
-    progress = prog;
-
-    if ( isVisible() ) {
-	if (setIndicator( progress_str, progress, totalsteps )) {
-	    repaint( barArea(), FALSE );
-	    qApp->processEvents();
-	}
-    } else {
-	if ( progress == 0 ) {
-	    QWidget* p = parentWidget();
-	    if ( p ) {
-		parentCursor = p->cursor();
-		p->setCursor( waitCursor );
-	    }
-	    starttime.start();
-	} else {
-	    int elapsed = starttime.elapsed();
-	    if ( elapsed > minWaitTime ) {
-		int estimate = elapsed * ( totalsteps - progress ) / progress;
-		if ( estimate > showTime ) {
-		    setIndicator( progress_str, progress, totalsteps );
-		    showNoLoop();
-		    qApp->processEvents();
-		}
-	    }
-	}
+    if (isVisible()) {
+	if (setIndicator( progress_str, progr, totalsteps ))
+	    repaint( FALSE );
     }
+}
 
-    if ( progress == totalsteps ) {
-	reset();
-	qApp->processEvents();
-    }
-
-    return cancellation_flag;
+void QProgressBar::show()
+{
+    setIndicator( progress_str, progr, totalsteps );
+    QFrame::show();
 }
 
 /*! 
@@ -227,75 +121,32 @@ bool QProgressBar::setIndicator( QString& indicator, int progress, int totalstep
 }
 
 /*!
-  Change the label on the progress bar.
-  The progress bar resizes to fit.
-*/
-void QProgressBar::setLabel( const char* txt )
-{
-    label.setText( txt );
-    resize(sizeHint());
-}
-
-/*!
   Returns a size which fits the contents of the progress bar.
-  The progress bar resizes itself as required, so this should not
-  be needed in user code.
 */
 
 QSize QProgressBar::sizeHint() const
 {
-    QSize sh = label.sizeHint();
-    int h = margin_tb*2 + disp_height + sh.height() + spacing;
-    if ( cancel.isVisible() )
-	h += cancel.sizeHint().height() + spacing;
-    return QSize( QMAX(200, sh.width()), h );
-}
-
-/*!
-  Handles resize events for the progress bar, sizing the label,
-  bar, and cancellation button.
-*/
-void QProgressBar::resizeEvent( QResizeEvent * )
-{
-    int lh = height() - margin_tb - disp_height - spacing;
-    if ( cancel.isVisible() ) {
-	QSize cs = cancel.sizeHint();
-	cancel.setGeometry( width()/2 - cs.width()/2,
-	    height() - margin_tb - cs.height() + spacing,
-	    cs.width(), cs.height() );
-	lh -= cs.height() + spacing;
-    }
-    label.setGeometry( 0, 0, width(), lh );
-}
-
-QRect QProgressBar::barArea() const
-{
-    return QRect(margin_lr, label.height() + spacing,
-	width() - 2*margin_lr, disp_height);
+    QFontMetrics fm = fontMetrics();
+    return QSize(fm.width("100%")*2, fm.height()+8);
 }
 
 /*!
   Handles paint events for the progress bar.
 */
-void QProgressBar::paintEvent( QPaintEvent * )
+void QProgressBar::drawContents( QPainter *p )
 {
-    QPainter p( this );
+    QRect bar = contentsRect();
+    int pw = bar.width() * progr / totalsteps;
 
-    QRect bar = barArea();
-    int pw = bar.width() * progress / totalsteps;
+    p->setPen( white );
+    p->setClipRect( bar.x(), bar.y(), pw, bar.height() );
+    p->fillRect( bar, blue );
+    p->drawText( bar, AlignCenter, progress_str );
 
-    qDrawShadePanel( &p, bar.x()-2, bar.y()-2, bar.width()+4, bar.height()+4,
-	colorGroup(), TRUE, 2, 0 );
-
-    p.setPen( white );
-    p.setClipRect( bar.x(), bar.y(), pw, bar.height() );
-    p.fillRect( bar, blue );
-    p.drawText( bar, AlignCenter, progress_str );
-
-    p.setPen( blue );
-    p.setClipRect( bar.x()+pw+1, bar.y(), bar.width()-pw, bar.height() );
-    p.fillRect( bar, white );
-    p.drawText( bar, AlignCenter, progress_str );
+    p->setPen( blue );
+    p->setClipRect( bar.x()+pw, bar.y(), bar.width()-pw, bar.height() );
+    p->fillRect( bar, white );
+    p->drawText( bar, AlignCenter, progress_str );
 }
 
 /*!

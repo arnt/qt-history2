@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogbar.h#2 $
+** $Id: //depot/qt/main/src/widgets/qprogbar.h#3 $
 **
 ** Definition of QProgressBar class
 **
@@ -12,51 +12,37 @@
 #ifndef QPROGBAR_H
 #define QPROGBAR_H
 
-#include "qdialog.h"
-#include "qdatetm.h"
-#include "qpushbt.h"
-#include "qlabel.h"
+#include <qframe.h>
 
 
-class QProgressBar : public QDialog
+class QProgressBar : public QFrame
 {
     Q_OBJECT
 public:
-    QProgressBar( const char* label, int totalsteps, QWidget *parent=0,
-	const char *name=0, bool modal=TRUE, WFlags f=0 );
+    QProgressBar( int totalsteps, QWidget *parent=0,
+	const char *name=0, WFlags f=0, bool allowLines=TRUE );
 
-    void	setCancelButton( const char* );
     void	reset( int totalsteps );
+    void	reset();
 
     QSize	sizeHint() const;
 
     int		totalSteps () const;
-    bool	setProgress( int progress );
+    int		progress () const;
+    void	setProgress( int progress );
 
-public slots:
-    void	setLabel( const char* );
-    void	reset();
-
-signals:
-    void	cancelled();
+    void	show();
 
 protected:
-    void	resizeEvent( QResizeEvent * );
-    void	paintEvent( QPaintEvent * );
+    void	drawContents( QPainter * );
     virtual bool setIndicator( QString& progress_str, int progress,
-        int totalsteps );
+				int totalsteps );
 
 private:
     int		totalsteps;
-    int		progress;
+    int		progr;
     int		percentage;
     QString	progress_str;
-    QTime	starttime;
-    QPushButton	cancel;
-    bool	cancellation_flag;
-    QLabel	label;
-    QRect	barArea() const;
-    QCursor	parentCursor;
 
 private:	// Disabled copy constructor and operator=
     QProgressBar( const QProgressBar & ) {}
@@ -64,5 +50,6 @@ private:	// Disabled copy constructor and operator=
 };
 
 inline int QProgressBar::totalSteps() const { return totalsteps; }
+inline int QProgressBar::progress() const { return progr; }
 
 #endif // QPROGBAR_H

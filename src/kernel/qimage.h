@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#44 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#45 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -72,7 +72,6 @@ public:
     static DitherMode	getDitherMode();
 
     QImage	createAlphaMask( bool dither=FALSE ) const;
-    QImage	createAlphaMask( DitherMode dmode ) const;
     QImage	createHeuristicMask( bool clipTight=TRUE ) const;
 
     static QImage::Endian systemBitOrder();

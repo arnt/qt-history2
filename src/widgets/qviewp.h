@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qviewp.h#1 $
+** $Id: //depot/qt/main/src/widgets/qviewp.h#2 $
 **
 ** Definition of QViewport class
 **
@@ -27,10 +27,6 @@ public:
 
     void show();
 
-    void ensureVisible(int x, int y, int xmargin=50, int ymargin=50);
-    void centerOn(int x, int y);
-    void centralize(int x, int y, float xmargin=0.5, float ymargin=0.5);
-
     // Visual properties.
     virtual int scrollBarWidth() const;
     virtual bool scrollBarOnLeft() const;
@@ -42,29 +38,41 @@ public:
     virtual void setBackgroundPixmap(const QPixmap&);
 
     void viewResize( int w, int h );
+    int viewWidth() const;
+    int viewHeight() const;
+
+    void resize( int w, int h );
+
+public slots:
+    void centerOn(int x, int y);
+    void ensureVisible(int x, int y);
+    void ensureVisible(int x, int y, int xmargin, int ymargin);
+    void centralize(int x, int y);
+    void centralize(int x, int y, float xmargin, float ymargin);
+
+    void updateScrollBars();
 
 protected:
     void resizeEvent(QResizeEvent*);
     bool eventFilter( QObject *, QEvent *e );
-
-    virtual void moveView(int x, int y);
-    virtual int viewX() const;
-    virtual int viewY() const;
-    virtual int viewWidth() const;
-    virtual int viewHeight() const;
-    virtual bool viewVisible() const;
 
     virtual void drawContents(QPainter*, int cx, int cy, int cw, int ch);
     virtual void drawContentsOffset(QPainter*, int ox, int oy,
 		    int cx, int cy, int cw, int ch);
 
 private:
+    void moveView(int x, int y);
+
+    int viewX() const;
+    int viewY() const;
+
+    bool viewVisible() const;
+
     QScrollBar hbar;
     QScrollBar vbar;
     QWidget porthole;
     QWidget* viewed;
     static bool signal_choke;
-    void updateScrollBars();
     int vx, vy, vwidth, vheight; // for drawContents-style usage
 
 private slots:

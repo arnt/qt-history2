@@ -1,0 +1,317 @@
+/****************************************************************************
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#1 $
+**
+** Implementation of QProgressDialog class
+**
+** Created : 970521
+**
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
+**
+*****************************************************************************/
+
+#include "qprogdlg.h"
+#include <qpainter.h>
+#include <qdrawutl.h>
+#include <qapp.h>
+
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#1 $");
+
+// If the operation is expected to take this long (as predicted by
+// progress time), show the progress dialog.
+static const int showTime    = 4000;  // Arnt: as per Macintosh guidelines
+// Wait at least this long before attempting to make a prediction.
+static const int minWaitTime = 50;
+
+// Various layout values
+static const int margin_lr   = 10;
+static const int margin_tb   = 10;
+static const int spacing     = 4;
+
+
+/*!
+  \class QProgressDialog qprogdlg.h
+  \brief The QProgressDialog widget provides a horizontal progress dialog.
+  \ingroup realwidgets
+
+  A progress dialog is used to give the user an indication of how long an
+  operation is going to take to perform, and to reassure them that the
+  application has not crashed.
+ 
+  A potential problem with progress dialogs is that it is difficult to know
+  when to use them, as operations take different amounts of time on different
+  computer hardware.  QProgressDialog offers a solution to this problem:
+  it estimates the time the operation will take (based on time for
+  steps), and only shows itself if that estimate is beyond 3 seconds.
+
+  Example:
+  \code
+    QProgressDialog pb("Doing stuff...", steps, this);
+    for (int i=0; i<steps; i++) {
+	pb.setProgress(i);
+	...
+    }
+    pb.setProgress(steps);
+  \endcode
+
+  A QProgressDialog may also have a `cancel' button to abort progress:
+
+  \code
+    QProgressDialog pb("Doing stuff...", steps, this);
+    pb.setCancelButton("Abort");
+    for (int i=0; i<steps; i++) {
+	if (pb.setProgress(i)) break;
+	...
+    }
+    pb.setProgress(steps);
+  \endcode
+
+  <img src=qprogdlg-m.gif> <img src=qprogdlg-w.gif>
+*/
+
+
+/*!
+  Constructs a progress dialog.
+
+  \arg \e label_text is text telling the user what is progressing.
+  \arg \e total_steps is the total number of steps in the operation of which
+    this progress dialog shows the progress.  For example, if the operation
+    is to examine 50 files, this value would be 50, then before examining
+    the first file, call setProgress(0), and after examining the last file
+    call setProgress(50).
+  \arg \e parent, \e name, \e modal, and \e f are sent to the
+    QDialog::QDialog() constructor. Note that \e modal defaults to
+    TRUE, unlike in QDialog::QDialog().
+*/
+QProgressDialog::QProgressDialog( const char* label_text, int total_steps,
+	QWidget *parent, const char *name, bool modal, WFlags f ) :
+    QDialog( parent, name, modal, f),
+    the_bar( 0 ),
+    cancel( "", this ),
+    cancellation_flag( TRUE ),
+    label( "", this ),
+    totalsteps( total_steps )
+{
+    cancel.hide();
+    connect( &cancel, SIGNAL(clicked()), this, SIGNAL(cancelled()) );
+    connect( this, SIGNAL(cancelled()), this, SLOT(reset()) );
+    label.setAlignment( AlignCenter );
+    setLabel( label_text );
+}
+
+/*!
+  \fn void QProgressDialog::cancelled()
+
+  This signal is emitted when the cancel button is clicked.
+*/
+
+/*!
+  Sets the label for the cancellation button (eg. "Cancel" or "Abort").
+  If this is 0, any previous cancellation button is removed.
+  The progress dialog resizes to fit.
+
+  \sa cancelled()
+*/
+void QProgressDialog::setCancelButton( const char* c )
+{
+    if ( c ) {
+	cancel.setText( c );
+	cancel.show();
+    } else {
+	cancel.hide();
+    }
+    if (isVisible()) resize(sizeHint());
+}
+
+/*!
+  Reset the progress dialog, changing the total number of steps
+  to a new value. The progress dialog becomes hidden.
+*/
+void QProgressDialog::reset( int total_steps )
+{
+    totalsteps = total_steps;
+    reset();
+}
+
+/*!
+  Reset the progress dialog.
+  The progress dialog becomes hidden.
+*/
+void QProgressDialog::reset()
+{
+    int progress = bar().progress();
+
+    if (isVisible()) {
+	if ( progress >= 0 ) {
+	    QWidget* p = parentWidget();
+	    if ( p ) p->setCursor( parentCursor );
+	}
+	hideNoLoop();
+    }
+
+    bar().reset( totalsteps );
+
+    cancellation_flag = TRUE;
+}
+
+/*!
+  Sets the current amount of progress made to \e prog units of the
+  total number of steps.  For the progress dialog to work correctly,
+  you must at least call this with the parameter 0 initially, then
+  later with QProgressDialog::totalSteps().
+
+  \warning This method calls QApplication::processEvents(), although making
+  the progress dialog modal (see QProgressDialog::QProgressDialog()), will block
+  most events from receipt by your application.
+
+  Returns TRUE if the user has clicked the cancellation button. 
+*/
+bool QProgressDialog::setProgress( int prog )
+{
+    int progress = bar().progress();
+
+    cancellation_flag = FALSE;
+
+    if ( prog <= progress ) return cancellation_flag;
+    if ( prog==0 && progress > 0 ) return cancellation_flag;
+    if ( prog!=0 && progress < 0 ) return cancellation_flag;
+
+    bar().setProgress(prog);
+
+    if ( isVisible() ) {
+	qApp->processEvents();
+    } else {
+	if ( prog == 0 ) {
+	    QWidget* p = parentWidget();
+	    if ( p ) {
+		parentCursor = p->cursor();
+		p->setCursor( waitCursor );
+	    }
+	    starttime.start();
+	} else {
+	    int elapsed = starttime.elapsed();
+	    if ( elapsed > minWaitTime ) {
+		int estimate = elapsed * ( totalsteps - prog ) / prog;
+		if ( estimate > showTime ) {
+		    resize(sizeHint());
+		    showNoLoop();
+		    qApp->processEvents();
+		}
+	    }
+	}
+    }
+
+    if ( prog == totalsteps ) {
+	reset();
+	qApp->processEvents();
+    }
+
+    return cancellation_flag;
+}
+
+/*!
+  Change the label on the progress dialog.
+  The progress dialog resizes to fit.
+*/
+void QProgressDialog::setLabel( const char* txt )
+{
+    label.setText( txt );
+    if (isVisible()) resize(sizeHint());
+}
+
+/*!
+  Returns a size which fits the contents of the progress dialog.
+  The progress dialog resizes itself as required, so this should not
+  be needed in user code.
+*/
+
+QSize QProgressDialog::sizeHint() const
+{
+    QSize sh = label.sizeHint();
+    QSize bh = bar().sizeHint();
+    int h = margin_tb*2 + bh.height() + sh.height() + spacing;
+    if ( cancel.isVisible() )
+	h += cancel.sizeHint().height() + spacing;
+    return QSize( QMAX(200, sh.width()), h );
+}
+
+/*!
+  Handles resize events for the progress dialog, sizing the label,
+  dialog, and cancellation button.
+*/
+void QProgressDialog::resizeEvent( QResizeEvent * )
+{
+    int sp = spacing;
+    int mtb = margin_tb;
+    int mlr = QMIN(width()/10, margin_lr);
+
+    QSize cs = cancel.sizeHint();
+    QSize bh = bar().sizeHint();
+    int cspc;
+    int lh;
+
+    // Find spacing and sizes that fit.  It is important that a progress
+    // dialog can be made very small if the user demands it so.
+    for (int attempt=5; attempt--; ) {
+	cspc = cancel.isVisible() ? cs.height() + sp : 0;
+	lh = QMAX(0, height() - mtb - bh.height() - sp - cspc);
+
+	if ( lh < height()/4 ) {
+	    // Getting cramped
+	    sp /= 2;
+	    mtb /= 2;
+	    if (cancel.isVisible()) {
+		cs.setHeight(QMAX(4,cs.height()-sp-2));
+	    }
+	    bh.setHeight(QMAX(4,bh.height()-sp-1));
+	} else {
+	    break;
+	}
+    }
+
+    if ( cancel.isVisible() ) {
+	cancel.setGeometry( width()/2 - cs.width()/2,
+	    height() - mtb - cs.height() + sp,
+	    cs.width(), cs.height() );
+    }
+
+    label.setGeometry( 0, 0, width(), lh );
+    bar().setGeometry( mlr, lh+sp,
+	width()-mlr*2, bh.height() );
+}
+
+/*!
+  \fn int QProgressDialog::totalSteps() const
+  Returns the total number of steps, as set at construction or by reset(int).
+*/
+
+/*!
+  This method is called once when a QProgressBar is first required.
+  Override this if you want to use your own subclass of QProgressBar.
+  Note that ownership of the progress bar transfers to the QProgressDialog,
+  so you should pass a newly allocated QProgressBar with the given
+  \e total_steps and \e this as the parent.
+*/
+QProgressBar* QProgressDialog::progressBar(int total_steps)
+{
+    return new QProgressBar(total_steps, this, "bar");
+}
+
+/*!
+ \internal
+ Ensures bar exists.
+*/
+QProgressBar& QProgressDialog::bar()
+{
+    if (!the_bar) the_bar = progressBar(totalsteps);
+    return *the_bar;
+}
+
+/*!
+ \internal
+ Ensures bar exists.
+*/
+const QProgressBar& QProgressDialog::bar() const
+{
+    QProgressDialog* non_const_this = (QProgressDialog*)this;
+    return non_const_this->bar();
+}

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#89 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#90 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#89 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#90 $");
 
 
 /*!
@@ -100,10 +100,12 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#89 $");
   A combo box has a default focusPolicy() of \c TabFocus, i.e. it will
   not grab focus if clicked.  This differs from both Windows and Motif.
 
-  <img src=qcombo1-m.gif> (Motif 1, read-only)<br>
-  <img src=qcombo2-m.gif> (Motif 2, read-write)<br>
-  <img src=qcombo3-m.gif> (Motif 2, read-only)<br>
-  <img src=qcombo1-w.gif> (Windows style)
+  <table>
+   <tr><td><img src=qcombo1-m.gif> <td>(Motif 1, read-only)<br>
+   <tr><td><img src=qcombo2-m.gif> <td>(Motif 2, read-write)<br>
+   <tr><td><img src=qcombo3-m.gif> <td>(Motif 2, read-only)<br>
+   <tr><td><img src=qcombo1-w.gif> <td>(Windows style)
+  </table>
 */
 
 

@@ -17,15 +17,15 @@ CC	=	gcc
 
 INTERNAL= 	
 HEADERS =	qfiledlg.h	qmsgbox.h	qprndlg.h	qtabdlg.h \
-		qfontdialog.h
+		qfontdialog.h	qprogdlg.h
 SOURCES =	qfiledlg.cpp	qmsgbox.cpp	qprndlg.cpp	qtabdlg.cpp \
-		qfontdialog.cpp
+		qfontdialog.cpp	qprogdlg.cpp
 OBJECTS =	qfiledlg.o	qmsgbox.o	qprndlg.o	qtabdlg.o \
-		qfontdialog.o
+		qfontdialog.o	qprogdlg.o
 SRCMETA =	mfiledlg.cpp	mmsgbox.cpp	mprndlg.cpp	mtabdlg.cpp \
-		mfontdialog.cpp
+		mfontdialog.cpp	mprogdlg.cpp
 OBJMETA =	mfiledlg.o	mmsgbox.o	mprndlg.o	mtabdlg.o \
-		mfontdialog.o
+		mfontdialog.o	mprogdlg.o
 TARGET = $(LIBDIR)/libqdialogs.a
 
 #######	Implicit rules
@@ -86,5 +86,8 @@ mtabdlg.cpp: qtabdlg.h
 
 mfontdialog.cpp: qfontdialog.h
 	moc qfontdialog.h -o mfontdialog.cpp
+
+mprogdlg.cpp: qprogdlg.h
+	moc qprogdlg.h -o mprogdlg.cpp
 
 -include .depend
