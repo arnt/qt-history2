@@ -17,39 +17,29 @@
 #ifndef GLTEXOBJ_H
 #define GLTEXOBJ_H
 
-#include <qgl.h>
+#include "glcontrolwidget.h"
 
-
-class GLTexobj : public QGLWidget
+class GLTexobj : public GLControlWidget
 {
     Q_OBJECT
 
 public:
-
-    GLTexobj( QWidget* parent, const char* name );
+    GLTexobj( QWidget* parent, const char* name = 0, WFlags f = 0 );
     ~GLTexobj();
 
-public slots:
-
-    void		setXRotation( int degrees );
-    void		setYRotation( int degrees );
-    void		setZRotation( int degrees );
-    void		toggleAnimation();
-
 protected:
-
+    void		animate();
     void		initializeGL();
     void		paintGL();
     void		resizeGL( int w, int h );
 
     virtual GLuint 	makeObject( const QImage& tex1, const QImage& tex2 );
 
-private:
-    bool animation;
-    GLuint object;
-    GLfloat xRot, yRot, zRot, scale;
-    QTimer* timer;
-};
+    void		setRotationImpulse( double x, double y, double z );
 
+private:
+    GLuint object;
+    double impX, impY, impZ;
+};
 
 #endif // GLTEXOBJ_H

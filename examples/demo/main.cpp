@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/main.cpp#18 $
+** $Id: //depot/qt/main/examples/demo/main.cpp#19 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -17,7 +17,7 @@
 #include "textdrawing/helpwindow.h"
 
 #if defined(QT_MODULE_OPENGL)
-#include "opengl/globjwin.h"
+#include "opengl/glworkspace.h"
 #endif
 
 #include <stdlib.h>
@@ -27,6 +27,7 @@
 #include <qwindowsstyle.h>
 #include <qtabwidget.h>
 #include <qfont.h>
+#include <qworkspace.h>
 
 int main( int argc, char **argv )
 {
@@ -65,8 +66,8 @@ int main( int argc, char **argv )
 #if defined(QT_MODULE_OPENGL)
     // 3D Graphics
     tab = new QTabWidget();
-    w = new GLObjectWindow( tab );
-    tab->addTab( w, "3d Demo" );
+    GLWorkspace *ws = new GLWorkspace( tab );
+    tab->addTab( ws, "3D Demo" );
     frame.addCategory( tab, threedpix, "3D Graphics" );
 #endif
     // example 4

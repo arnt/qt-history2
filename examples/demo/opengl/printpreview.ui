@@ -1,0 +1,310 @@
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<class>PrintPreview</class>
+<include location="global" impldecl="in declaration">qimage.h</include>
+<include location="global" impldecl="in declaration">qpixmap.h</include>
+<variable>QPixmap pix</variable>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>PrintPreview</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>634</width>
+            <height>195</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Print Preview</string>
+    </property>
+    <property name="sizeGripEnabled">
+        <bool>true</bool>
+    </property>
+    <grid>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <property name="margin">
+            <number>11</number>
+        </property>
+        <property name="spacing">
+            <number>6</number>
+        </property>
+        <widget class="QGroupBox" row="0" column="0">
+            <property name="name">
+                <cstring>GroupBox1</cstring>
+            </property>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>7</hsizetype>
+                    <vsizetype>7</vsizetype>
+                </sizepolicy>
+            </property>
+            <property name="title">
+                <string>Preview</string>
+            </property>
+            <hbox>
+                <property name="margin">
+                    <number>11</number>
+                </property>
+                <property name="spacing">
+                    <number>6</number>
+                </property>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>pixmapLabel</cstring>
+                    </property>
+                    <property name="text">
+                        <string>TextLabel1</string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+        <widget class="QGroupBox" row="0" column="1">
+            <property name="name">
+                <cstring>GroupBox2</cstring>
+            </property>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>4</hsizetype>
+                    <vsizetype>7</vsizetype>
+                </sizepolicy>
+            </property>
+            <property name="title">
+                <string>Modify</string>
+            </property>
+            <vbox>
+                <property name="margin">
+                    <number>11</number>
+                </property>
+                <property name="spacing">
+                    <number>6</number>
+                </property>
+                <widget class="QCheckBox">
+                    <property name="name">
+                        <cstring>checkInvert</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Invert Colors</string>
+                    </property>
+                </widget>
+                <widget class="QCheckBox">
+                    <property name="name">
+                        <cstring>checkMirror</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Mirror</string>
+                    </property>
+                </widget>
+                <widget class="QCheckBox">
+                    <property name="name">
+                        <cstring>checkFlip</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Flip</string>
+                    </property>
+                </widget>
+                <widget class="QCheckBox">
+                    <property name="name">
+                        <cstring>checkLeft</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Rotate 90° &amp;left</string>
+                    </property>
+                </widget>
+                <widget class="QCheckBox">
+                    <property name="name">
+                        <cstring>checkRight</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Rotate 90° &amp;right</string>
+                    </property>
+                </widget>
+            </vbox>
+        </widget>
+        <widget class="QLayoutWidget" row="1" column="0" rowspan="1" colspan="2">
+            <property name="name">
+                <cstring>Layout1</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
+                    <number>0</number>
+                </property>
+                <property name="spacing">
+                    <number>6</number>
+                </property>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>buttonHelp</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Help</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <spacer>
+                    <property name="name">
+                        <cstring>Horizontal Spacing2</cstring>
+                    </property>
+                    <property name="orientation">
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>20</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>buttonOk</cstring>
+                    </property>
+                    <property name="caption">
+                        <string></string>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Print</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>true</bool>
+                    </property>
+                    <property name="default">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>buttonCancel</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Discard</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+    </grid>
+</widget>
+<connections>
+    <connection>
+        <sender>buttonOk</sender>
+        <signal>clicked()</signal>
+        <receiver>PrintPreview</receiver>
+        <slot>accept()</slot>
+    </connection>
+    <connection>
+        <sender>buttonCancel</sender>
+        <signal>clicked()</signal>
+        <receiver>PrintPreview</receiver>
+        <slot>reject()</slot>
+    </connection>
+    <connection>
+        <sender>checkLeft</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>checkRight</receiver>
+        <slot>setDisabled(bool)</slot>
+    </connection>
+    <connection>
+        <sender>checkRight</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>checkLeft</receiver>
+        <slot>setDisabled(bool)</slot>
+    </connection>
+    <connection>
+        <sender>checkInvert</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>PrintPreview</receiver>
+        <slot>invertColors(bool)</slot>
+    </connection>
+    <connection>
+        <sender>checkMirror</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>PrintPreview</receiver>
+        <slot>mirror(bool)</slot>
+    </connection>
+    <connection>
+        <sender>checkFlip</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>PrintPreview</receiver>
+        <slot>flip(bool)</slot>
+    </connection>
+    <connection>
+        <sender>checkLeft</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>PrintPreview</receiver>
+        <slot>rotateLeft(bool)</slot>
+    </connection>
+    <connection>
+        <sender>checkRight</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>PrintPreview</receiver>
+        <slot>rotateRight(bool)</slot>
+    </connection>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <slot access="public" language="C++" returnType="void">updatePreview()</slot>
+    <slot access="public" language="C++" returnType="void">flip( bool )</slot>
+    <slot access="public" language="C++" returnType="void">invertColors( bool )</slot>
+    <slot access="public" language="C++" returnType="void">mirror( bool )</slot>
+    <slot access="public" language="C++" returnType="void">rotateLeft( bool )</slot>
+    <slot access="public" language="C++" returnType="void">rotateRight( bool )</slot>
+    <slot access="public" language="C++" returnType="void">setPixmap( const QPixmap &amp; pm )</slot>
+</connections>
+<functions>
+    <function name="init()" >{
+
+}</function>
+    <function name="destroy()" >{
+
+}</function>
+    <function name="updatePreview()" >{
+    QImage img = pix.convertToImage();
+    if ( checkInvert-&gt;isChecked() ) {
+	img.invertPixels();
+    }
+    if ( checkMirror-&gt;isChecked() ) {
+	img = img.mirror( TRUE, FALSE );
+    }
+    if ( checkFlip-&gt;isChecked() ) {
+	img = img.mirror( FALSE, TRUE );
+    }
+    if ( checkLeft-&gt;isEnabled() &amp;&amp; checkLeft-&gt;isChecked() ) {
+    }
+    if ( checkRight-&gt;isEnabled() &amp;&amp; checkRight-&gt;isChecked() ) {
+    }
+    QPixmap pm;
+    pm.convertFromImage( img );
+    pixmapLabel-&gt;setPixmap( pm );
+}</function>
+    <function name="flip(bool)" >{
+    updatePreview();
+}</function>
+    <function name="invertColors(bool)" >{
+    updatePreview();
+}</function>
+    <function name="mirror(bool)" >{
+    updatePreview();
+}</function>
+    <function name="rotateLeft(bool)" >{
+    updatePreview();
+}</function>
+    <function name="rotateRight(bool)" >{
+    updatePreview();
+}</function>
+    <function name="setPixmap(const QPixmap&amp;)" >{
+    pix = pm;
+    updatePreview();
+}</function>
+</functions>
+</UI>

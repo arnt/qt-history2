@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/texture/globjwin.h#4 $
+** $Id: //depot/qt/main/examples/box/glbox.h#4 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -10,24 +10,35 @@
 
 /****************************************************************************
 **
-** The GLObjectWindow contains a GLBox and three sliders connected to
-** the GLBox's rotation slots.
+** This is a simple QGLWidget displaying an openGL wireframe box
 **
 ****************************************************************************/
 
-#ifndef GLOBJWIN_H
-#define GLOBJWIN_H
+#ifndef GLBOX_H
+#define GLBOX_H
 
-#include <qwidget.h>
+#include "glcontrolwidget.h"
 
-
-class GLObjectWindow : public QWidget
+class GLBox : public GLControlWidget
 {
     Q_OBJECT
-public:
-    GLObjectWindow( QWidget* parent = 0, const char* name = 0 );
 
+public:
+
+    GLBox( QWidget* parent = 0, const char* name = 0, WFlags f = 0 );
+    ~GLBox();
+
+protected:
+
+    void		initializeGL();
+    void		paintGL();
+    void		resizeGL( int w, int h );
+
+    virtual GLuint 	makeObject();
+
+private:
+    GLuint object;
 };
 
 
-#endif // GLOBJWIN_H
+#endif // GLBOX_H

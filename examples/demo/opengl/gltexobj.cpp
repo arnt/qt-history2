@@ -19,28 +19,17 @@
 
 #include "gltexobj.h"
 #include <qimage.h>
-#include <qtimer.h>
 #include <GL/glu.h>
-
-
-const int redrawWait = 50;
 
 /*!
   Create a GLTexobj widget
 */
 
-GLTexobj::GLTexobj( QWidget* parent, const char* name )
-    : QGLWidget( parent, name )
+GLTexobj::GLTexobj( QWidget* parent, const char* name, WFlags f )
+    : GLControlWidget( parent, name, 0, f ), impX( -2 ), impY( 0.5 ), impZ( 1 )
 {
-    xRot = yRot = zRot = 0.0;		// default object rotation
-    scale = 5.0;			// default object scale
     object = 0;
-    animation = TRUE;
-    timer = new QTimer( this );
-    connect( timer, SIGNAL(timeout()), SLOT(update()) );
-    timer->start( redrawWait, TRUE );
 }
-
 
 /*!
   Release allocated resources
@@ -59,24 +48,11 @@ GLTexobj::~GLTexobj()
 
 void GLTexobj::paintGL()
 {
-    if ( animation ) {
-	xRot += 1.0;
-	yRot += 2.5;
-	zRot -= 5.0;
-    }
     glClear( GL_COLOR_BUFFER_BIT );
-    glPushMatrix();
-    glRotatef( xRot, 1.0, 0.0, 0.0 ); 
-    glRotatef( yRot, 0.0, 1.0, 0.0 ); 
-    glRotatef( zRot, 0.0, 0.0, 1.0 );
-    glScalef( scale, scale, scale );
+    glPushMatrix();    
+    transform();
     glCallList( object );
     glPopMatrix();
-
-    if ( animation ) {
-	glFlush(); // Make sure everything is drawn before restarting timer
-	timer->start( redrawWait, TRUE ); // Wait this many msecs before redraw
-    }
 }
 
 
@@ -193,49 +169,26 @@ GLuint GLTexobj::makeObject( const QImage& tex1, const QImage& tex2 )
     return cylinderObj;
 }
 
-
-/*!
-  Set the rotation angle of the object to \e degrees around the X axis.
-*/
-
-void GLTexobj::setXRotation( int degrees )
+void GLTexobj::animate()
 {
-    xRot = (GLfloat)(degrees % 360);
+    xRot += impX;
+    yRot += impY;
+    zRot -= impZ;
+
+    impX -= impX * 0.05;
+    impY -= impY * 0.05;
+    impZ -= impZ * 0.05;
+
     updateGL();
 }
 
-
-/*!
-  Set the rotation angle of the object to \e degrees around the Y axis.
-*/
-
-void GLTexobj::setYRotation( int degrees )
+void GLTexobj::setRotationImpulse( double x, double y, double z )
 {
-    yRot = (GLfloat)(degrees % 360);
-    updateGL();
-}
-
-
-/*!
-  Set the rotation angle of the object to \e degrees around the Z axis.
-*/
-
-void GLTexobj::setZRotation( int degrees )
-{
-    zRot = (GLfloat)(degrees % 360);
-    updateGL();
-}
-
-
-/*!
-  Turns animation on or off
-*/
-
-void GLTexobj::toggleAnimation()
-{
-    animation = !animation;
-    if ( animation )
-	updateGL();
-    else
-	timer->stop();
+    if ( animation ) {
+	impX += 180*x;
+	impY += 180*y;
+	impZ += 180*z;
+    } else {
+	GLControlWidget::setRotationImpulse( x, y, z );
+    }
 }
