@@ -47,6 +47,8 @@ public:
     enum DriverFeature { Transactions, QuerySize, BLOB, Unicode, PreparedQueries,
                          NamedPlaceholders, PositionalPlaceholders };
 
+    enum StatementType { WhereStatement, UpdateStatement, InsertStatement, DeleteStatement };
+
     QSqlDriver(QObject *parent=0);
     ~QSqlDriver();
     virtual bool isOpen() const;
@@ -70,7 +72,9 @@ public:
     { return field ? formatValue(*field, trimStrings) : QString(); }
 #endif
     virtual QString formatValue(const QSqlField& field, bool trimStrings = false) const;
-    virtual QString whereClause(const QSqlRecord &rec, bool preparedStatement) const;
+
+    virtual QString sqlStatement(StatementType type, const QString &tableName,
+                                 const QSqlRecord &rec, bool preparedStatement) const;
 
     QSqlError lastError() const;
 

@@ -303,34 +303,77 @@ QSqlRecord QSqlDriver::record(const QString& ) const
 }
 
 /*!
-    \internal
-
-    Returns a WHERE class for the record \a rec, inserting
-    placeholders if it isn't a \a preparedStatement.
 */
-QString QSqlDriver::whereClause(const QSqlRecord &rec, bool preparedStatement) const
+
+QString QSqlDriver::sqlStatement(StatementType type, const QString &tableName,
+                                 const QSqlRecord &rec, bool preparedStatement) const
 {
+    int i;
     QString s;
     s.reserve(128);
-    if (preparedStatement) {
-        for (int i = 0; i < rec.count(); ++i) {
-            s.append(rec.fieldName(i));
-            QString val = formatValue(rec.field(i));
-            if (val == QLatin1String("NULL"))
-                s.append(QLatin1String(" IS NULL"));
-            else
-                s.append(" = ").append(val);
-            s.append(" AND ");
+    switch (type) {
+    case WhereStatement:
+        if (preparedStatement) {
+            for (i = 0; i < rec.count(); ++i) {
+                s.append(rec.fieldName(i));
+                QString val = formatValue(rec.field(i));
+                if (val == QLatin1String("NULL"))
+                    s.append(QLatin1String(" IS NULL"));
+                else
+                    s.append(" = ").append(val);
+                s.append(" AND ");
+            }
+        } else {
+            for (int i = 0; i < rec.count(); ++i)
+                s.append(rec.fieldName(i)).append(" = ? AND ");
         }
-    } else {
-        for (int i = 0; i < rec.count(); ++i)
-            s.append(rec.fieldName(i)).append(" = ? AND ");
+        if (!s.isEmpty())
+            s.chop(5); // remove trailing AND
+        break;
+    case UpdateStatement:
+        s.append("UPDATE TABLE ").append(tableName).append(" SET ");
+        for (i = 0; i < rec.count(); ++i) {
+            if (!rec.isGenerated(i))
+                continue;
+            s.append(rec.fieldName(i)).append("=");
+            if (preparedStatement)
+                s.append("?");
+            else
+                s.append(formatValue(rec.field(i)));
+            s.append(", ");
+        }
+        if (s.endsWith(", "))
+            s.chop(2);
+        else
+            s = QString();
+        break;
+    case DeleteStatement:
+        s.append("DELETE FROM ").append(tableName);
+        break;
+    case InsertStatement: {
+        s.append("INSERT INTO ").append(tableName).append(" (");
+        QString vals;
+        for (i = 0; i < rec.count(); ++i) {
+            if (!rec.isGenerated(i))
+                continue;
+            s.append(rec.fieldName(i)).append(", ");
+            if (preparedStatement)
+                vals.append("?");
+            else
+                vals.append(formatValue(rec.field(i)));
+            vals.append(", ");
+        }
+        if (vals.isEmpty()) {
+            s = QString();
+        } else {
+            vals.chop(2); // remove trailing comma
+            s[s.length() - 2] = QLatin1Char(')');
+            s.append("VALUES (").append(vals).append(")");
+        }
+        break; }
     }
-    if (!s.isEmpty())
-        s.chop(5); // remove trailing AND
     return s;
 }
-
 
 /*!
     Returns a string representation of the \a field value for the

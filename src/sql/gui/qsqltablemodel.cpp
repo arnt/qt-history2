@@ -373,7 +373,10 @@ QString QSqlTableModel::updateStatement(const QSqlRecord &values) const
 
 bool QSqlTableModel::update(int row, const QSqlRecord &values)
 {
-    const QString stmt(updateStatement(values));
+    QSqlRecord rec(values);
+    emit beforeUpdate(row, rec);
+
+    const QString stmt(updateStatement(rec));
     if (stmt.isEmpty() || row < 0 || row >= rowCount())
         return false; // nothing to update
     if (d->editQuery.lastQuery() != stmt) {
@@ -382,8 +385,8 @@ bool QSqlTableModel::update(int row, const QSqlRecord &values)
             return false;
         }
     }
-    for (int i = 0; i < values.count(); ++i) {
-        const QVariant v(values.value(i));
+    for (int i = 0; i < rec.count(); ++i) {
+        const QVariant v(rec.value(i));
         if (v.isValid()) // ### generated?
             d->editQuery.addBindValue(v);
     }
