@@ -408,7 +408,7 @@ QSqlFieldList QPSQLResult::fields()
 	QSqlField rf( name, i, type );
 	if ( isActive() && isValid() )
 	    rf.setValue( data( i ) );
-	fil.append( rf );
+	fil.append( &rf );
     }
     return fil;
 }
@@ -555,7 +555,7 @@ QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
     while ( i.isActive() && i.next() ) {
 	QSqlField f = qMakeField( this, tablename,  i.value(0).toString() );
 	f.setFieldNumber( i.at() );
-	idx.append( f );
+	idx.append( &f );
     }
     return idx;
 }
@@ -575,7 +575,7 @@ QSqlFieldList QPSQLDriver::fields( const QString& tablename ) const
     while ( fi.next() ) {
 	QSqlField f = qMakeField( this, tablename, fi.value(0).toString() );
 	f.setFieldNumber( fi.at() );
-	fil.append( f );
+	fil.append( &f );
     }
     return fil;
 }
