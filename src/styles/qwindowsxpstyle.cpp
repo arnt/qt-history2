@@ -190,6 +190,7 @@ public:
     QPoint hotSpot;
     QRgb groupBoxTextColor;
     QRgb groupBoxTextColorDisabled;
+    QRgb tabPaneBorderColor;
 
 private:
     static QWidget *limboWidget;
@@ -203,8 +204,8 @@ QPixmap *QWindowsXPStylePrivate::tabbody = 0;
 
 struct XPThemeData
 {
-    XPThemeData( const QWidget *w = 0, QPainter *p = 0, const QString &theme = QString::null, int part = 0, int state = 0, const QRect &r = QRect() )
-        : widget( w ), painter( p ), name( theme ),partId( part ), stateId( state ), rec( r ), htheme( 0 )
+    XPThemeData( const QWidget *w = 0, QPainter *p = 0, const QString &theme = QString::null, int part = 0, int state = 0, const QRect &r = QRect(), QRgb tabBorderColor = 0 )
+        : widget( w ), painter( p ), name( theme ),partId( part ), stateId( state ), rec( r ), tbBorderColor( tabBorderColor ), htheme( 0 )
     {
     }
     ~XPThemeData()
@@ -283,6 +284,8 @@ struct XPThemeData
 	    pDrawThemeBackground( handle(), p.handle(), partId, stateId, &rect(), 0 );
 	    rec = oldrec;
 	    painter->drawPixmap( rec.x(), rec.y(), pm );
+	    painter->setPen( tbBorderColor );
+	    painter->drawLine( rec.left(), rec.bottom(), rec.right()+1, rec.bottom() );
 	} else {
 	    ulong res = pDrawThemeBackground( handle(), painter->handle(), partId, stateId, &rect(), 0 );
 	}
@@ -291,6 +294,7 @@ struct XPThemeData
     int partId;
     int stateId;
     QRect rec;
+    QRgb tbBorderColor;
 
 private:
     const QWidget *widget;
@@ -308,6 +312,12 @@ const QPixmap *QWindowsXPStylePrivate::tabBody( QWidget *widget )
 	XPThemeData theme( widget, &painter, "TAB", TABP_BODY, 0 );
 	SIZE sz;
 	pGetThemePartSize( theme.handle(), painter.handle(), TABP_BODY, 0, 0, TS_TRUE, &sz );
+
+	// Get color for border of tab pane
+	COLORREF cref;
+	pGetThemeColor( theme.handle(), TABP_PANE, 0, TMT_BORDERCOLORHINT, &cref );
+	tabPaneBorderColor = qRgb( GetRValue(cref), GetGValue(cref), GetBValue(cref) );
+
 	painter.end();
 	tabbody->resize( sz.cx, QApplication::desktop()->screenGeometry().height() );
 	painter.begin( tabbody );
@@ -807,10 +817,11 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 	    QTab *t = opt.tab();
 	    int idx = bar->indexOf( t->identifier() );
 	    int aidx = bar->indexOf( bar->currentTab() );
+	    int lastTab = bar->count()-1;
 	    if ( idx == 0 )
 		partId = TABP_TABITEMLEFTEDGE;
-	    else if ( idx == bar->count()-1 )
-		partId = TABP_TABITEMRIGHTEDGE;
+	    else if ( idx == lastTab )
+		partId = TABP_TABITEM;
 	    else
 		partId = TABP_TABITEM;
 
@@ -863,7 +874,7 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 	break;
     }
 
-    XPThemeData theme( widget, p, name, partId, stateId, rect );
+    XPThemeData theme( widget, p, name, partId, stateId, rect, d->tabPaneBorderColor );
     if ( !theme.isValid() ) {
 	QWindowsStyle::drawControl( element, p, widget, rect, cg, flags, opt );
 	return;
@@ -1750,7 +1761,7 @@ int QWindowsXPStyle::pixelMetric( PixelMetric metric,
     	return 2;
 
     case PM_TabBarBaseOverlap:
-	return -1;
+	return 0;
 
     case PM_TabBarBaseHeight:
 	return 0;
