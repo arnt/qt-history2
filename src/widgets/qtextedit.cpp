@@ -3565,8 +3565,11 @@ void QTextEdit::pasteSubType( const QCString& subtype )
     if ( !t.isEmpty() ) {
 #if defined(Q_OS_WIN32)
 	// Need to convert CRLF to NL
-	QRegExp crlf( QString::fromLatin1("\r\n") );
-	t.replace( crlf, QChar('\n') );
+	int index = t.find( QString::fromLatin1("\r\n"), 0 );
+	while ( index != -1 ) {
+	    t.replace( index, 2, QChar('\n') );
+	    index = t.find( "\r\n", index );
+	}
 #endif
 	for ( int i=0; (uint) i<t.length(); i++ ) {
 	    if ( t[ i ] < ' ' && t[ i ] != '\n' && t[ i ] != '\t' )
