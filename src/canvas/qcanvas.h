@@ -149,7 +149,7 @@ protected:
     void update() { changeChunks(); }
 
 private:
-    // For friendly sublasses...
+    // For friendly subclasses...
 
     friend class QCanvasPolygonalItem;
     friend class QCanvasSprite;
@@ -167,7 +167,7 @@ private:
 			       const QCanvasPolygonalItem*,
 			       const QCanvasRectangle*,
 			       const QCanvasEllipse*,
-			       const QCanvasText* ) const=0;
+			       const QCanvasText* ) const = 0;
     // End of friend stuff
 
     QCanvas* cnv;
