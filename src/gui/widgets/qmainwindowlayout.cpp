@@ -186,9 +186,13 @@ QWidget *QMainWindowLayout::centralWidget() const
 
 void QMainWindowLayout::setCentralWidget(QWidget *cw)
 {
-    addChildWidget(cw);
     delete layout_info[CENTER].item;
-    layout_info[CENTER].item = new QWidgetItem(cw);
+    if (cw) {
+        addChildWidget(cw);
+        layout_info[CENTER].item = new QWidgetItem(cw);
+    } else {
+        layout_info[CENTER].item = 0;
+    }
     layout_info[CENTER].size = QSize();
     invalidate();
 }
