@@ -457,19 +457,17 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
 {
     switch (control) {
     case CC_Slider: {
-        if (!w)
-            break;
         const QSlider *slider = static_cast<const QSlider *>(w);
         bool tracking = slider->hasTracking();
         HIThemeTrackDrawInfo tdi;
         tdi.version = qt_mac_hitheme_version;
-        //tdi.kind = qt_aqua_size_constrain(w) == QAquaSizeSmall ? kThemeSmallSlider
-        //                                                      : kThemeMediumSlider;
-        tdi.kind = kThemeSlider;
+        tdi.kind = qt_aqua_size_constrain(w) == QAquaSizeSmall ? kThemeSmallSlider
+                                                              : kThemeMediumSlider;
+        //tdi.kind = kThemeSlider;
         tdi.bounds = *qt_glb_mac_rect(r, p);
         tdi.min = slider->minimum();
         tdi.max = slider->maximum();
-        tdi.value = slider->value();
+        tdi.value = slider->sliderPosition();
         tdi.reserved = 0;
         tdi.attributes = kThemeTrackShowThumb;
         if (qMacVersion() >= Qt::MV_JAGUAR) {
@@ -490,20 +488,13 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
 	else if (subActive == SC_SliderHandle)
 	    tdi.trackInfo.slider.pressState = kThemeThumbPressed;
         HIRect macRect;
-        HIThemeGetTrackBounds(&tdi, &macRect);
-        // Make sure that the items are in the rectangle.
-        if (macRect.origin.x < 0) {
-            macRect.size.width += -macRect.origin.x;
-            macRect.origin.x = 0;
-        }
-        
-        if (macRect.origin.y < 0) {
-            macRect.size.height += -macRect.origin.y;
-            macRect.origin.y = 0;
-        }
-        tdi.bounds = macRect;
-        if (!tracking)
-            macRect = *qt_glb_mac_rect(querySubControlMetrics(CC_Slider, w, SC_SliderHandle));
+        if (!tracking) {
+            HIShapeRef shape;
+            HIThemeGetTrackThumbShape(&tdi, &shape);
+            HIShapeGetBounds(shape, &macRect);
+            CFRelease(shape);
+	    tdi.value = slider->value();
+	}
         HIThemeDrawTrack(&tdi, tracking ? 0 : &macRect, static_cast<CGContextRef>(p->handle()),
                          kHIThemeOrientationNormal);
         if (sub && SC_SliderTickmarks) {
@@ -570,18 +561,13 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl control, const QWidget 
     switch (control) {
     case CC_Slider: {
         const QSlider *slider = static_cast<const QSlider *>(widget);
-        int available = pixelMetric(PM_SliderSpaceAvailable, slider);
         HIThemeTrackDrawInfo tdi;
         tdi.version = qt_mac_hitheme_version;
         tdi.kind = kThemeSlider;
         tdi.bounds = *qt_glb_mac_rect(widget->rect());
         tdi.min = slider->minimum();
         tdi.max = slider->maximum();
-        if (!slider->hasTracking())
-            tdi.value = QStyle::valueFromPosition(slider->minimum(), slider->maximum(),
-                                                  slider->sliderPosition(), available);
-        else
-            tdi.value = slider->value();
+	tdi.value = slider->sliderPosition();
         tdi.attributes = kThemeTrackShowThumb;
         if (qMacVersion() >= Qt::MV_JAGUAR && slider->hasFocus())
             tdi.attributes |= kThemeTrackHasFocus;
@@ -594,20 +580,8 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl control, const QWidget 
             tdi.trackInfo.slider.thumbDir = kThemeThumbDownward;
         if (slider->tickmarks() == QSlider::NoMarks)
             tdi.trackInfo.slider.thumbDir = kThemeThumbPlain;
-        
+
         HIRect macRect;
-        HIThemeGetTrackBounds(&tdi, &macRect);
-        // Make sure that the items are in the rectangle.
-        if (macRect.origin.x < 0) {
-            macRect.size.width += -macRect.origin.x;
-            macRect.origin.x = 0;
-        }
-        
-        if (macRect.origin.y < 0) {
-            macRect.size.height += -macRect.origin.y;
-            macRect.origin.y = 0;
-        }
-        tdi.bounds = macRect;
         switch (sc) {
         case SC_SliderGroove:
             HIThemeGetTrackBounds(&tdi, &macRect);
