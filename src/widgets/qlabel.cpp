@@ -35,6 +35,7 @@
 #include "qapplication.h"
 #include "qsimplerichtext.h"
 #include "qstylesheet.h"
+#include "qlineedit.h"
 
 
 class QLabelPrivate
@@ -764,8 +765,11 @@ void QLabel::acceleratorSlot()
     if ( !w->hasFocus() &&
 	 w->isEnabled() &&
 	 w->isVisible() &&
-	 w->focusPolicy() != NoFocus )
+	 w->focusPolicy() != NoFocus ) {
 	w->setFocus();
+	if ( w->inherits( "QLineEdit" ) )
+	    ( (QLineEdit*)w )->selectAll();
+    }
 }
 
 
