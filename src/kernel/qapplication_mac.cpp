@@ -1387,15 +1387,15 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 
 	    QPoint p( where.h, where.v );
 	    QPoint plocal(popupwidget->mapFromGlobal( p ));
-	    bool not_context = TRUE;
+	    bool was_context = FALSE;
 	    if(etype == QEvent::MouseButtonPress && 	
 	       ((button == QMouseEvent::RightButton) ||
 		(button == QMouseEvent::LeftButton && (keys & Qt::ControlButton)))) {
 		QContextMenuEvent cme(QContextMenuEvent::Mouse, plocal, p );
 		QApplication::sendEvent( popupwidget, &cme );
-		not_context = cme.isAccepted();
+		was_context = cme.isAccepted();
 	    }
-	    if(not_context) {
+	    if(!was_context) {
 		if(wheel_delta) {
 		    QWheelEvent qwe( plocal, p, wheel_delta, state | keys);
 		    QApplication::sendEvent( popupwidget, &qwe);
@@ -1496,15 +1496,15 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 
 	    QPoint p( where.h, where.v );
 	    QPoint plocal(widget->mapFromGlobal( p ));
-	    bool not_context = TRUE;
+	    bool was_context = FALSE;
 	    if(etype == QEvent::MouseButtonPress && 	
 	       ((button == QMouseEvent::RightButton) ||
 		(button == QMouseEvent::LeftButton && (keys & Qt::ControlButton)))) {
 		QContextMenuEvent cme(QContextMenuEvent::Mouse, plocal, p );
 		QApplication::sendEvent( widget, &cme );
-		not_context = cme.isAccepted();
+		was_context = cme.isAccepted();
 	    }
-	    if(not_context) {
+	    if(!was_context) {
 #ifdef DEBUG_MOUSE_MAPS
 		char *desc = NULL;
 		switch(ekind) {
