@@ -855,6 +855,34 @@ void LightStyle::drawScrollBarControls( QPainter* p, const QScrollBar* scrollbar
 }
 
 
+void LightStyle::drawToolBarHandle(QPainter *p, const QRect &rect,
+				   Qt::Orientation orientation,
+				   bool, const QColorGroup &g, bool)
+{
+    p->save();
+    p->setPen(g.highlight());
+    p->setBrush(g.brush(QColorGroup::Highlight));
+
+    if (orientation == Qt::Horizontal) {
+	QRect l, r;
+	l.setRect(rect.x(), rect.y(), rect.width() - 3, rect.height());
+	r.setRect(l.right() + 1, l.y(), 3, l.height());
+
+	p->drawRect(l);
+       	qDrawShadePanel(p, r, g, FALSE);
+    } else {
+	QRect t, b;
+	t.setRect(rect.x(), rect.y(), rect.width(), rect.height() - 3);
+	b.setRect(t.x(), t.bottom() + 1, t.width(), 3);
+
+	p->drawRect(t);
+       	qDrawShadePanel(p, b, g, FALSE);
+    }
+
+    p->restore();
+}
+
+
 bool LightStyle::eventFilter(QObject *object, QEvent *event)
 {
     switch(event->type()) {

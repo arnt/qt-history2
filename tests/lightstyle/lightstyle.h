@@ -74,6 +74,9 @@ public:
                           const QColorGroup& g, QCOORD,
                           Orientation );
 
+    void drawToolBarHandle(QPainter *, const QRect &, Qt::Orientation,
+			   bool, const QColorGroup &, bool = FALSE );
+
     QSize scrollBarExtent() const;
     int buttonDefaultIndicatorWidth() const;
     int buttonMargin() const;
