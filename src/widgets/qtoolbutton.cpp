@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#16 $
 **
 ** Implementation of QToolButton class
 **
@@ -22,7 +22,7 @@
 #include "qiconset.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#16 $");
 
 
 static QToolButton * threeDeeButton = 0;
@@ -50,9 +50,6 @@ QToolButton::QToolButton( QWidget * parent, const char * name )
 {
     init();
     setUsesBigPixmap( FALSE );
-    if ( parent->inherits( "QToolBar" ) )
-	 connect( parent, SIGNAL(useBigPixmaps(bool)),
-		  this, SLOT(setUsesBigPixmap(bool)) );
 }
 
 
