@@ -259,6 +259,10 @@ void QGLContext::fixBufferRect()
 	QWidget *w = (QWidget *)d->paintDevice;
 	QRegion clp = w->clippedRegion();
 	if(clp.isNull() || clp.isEmpty()) {
+#ifdef MACOSX_102
+	    if(aglIsEnabled((AGLContext)cx, AGL_CLIP_REGION))
+		aglDisable((AGLContext)cx, AGL_CLIP_REGION);
+#endif
 	    if(!d->oldR.isNull()) {
 		update = TRUE;
 		d->oldR = QRect();
