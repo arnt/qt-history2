@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#288 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#289 $
 **
 ** Implementation of QListView widget class
 **
@@ -2543,6 +2543,15 @@ void QListViewItem::widthChanged( int c ) const
 */
 
 
+/*! \fn void QListView::clicked( QListViewItem *item )
+
+  This signal is emitted whenever the user clicks on an listview item.
+  \a item is the pointer to the clicked listview item.
+  
+  Note that you may not delete any QListViewItem objects in slots
+  connected to this signal.
+*/
+
 /*! \fn void QListView::selectionChanged( QListViewItem * )
 
   This signal is emitted whenever the selected item has changed in
@@ -2610,7 +2619,7 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 	return;
 
     emit clicked( i );
-    
+
     if ( (i->isExpandable() || i->childCount()) &&
 	 d->h->mapToLogical( d->h->cellAt( vp.x() ) ) == 0 ) {
 	int x1 = vp.x() +
