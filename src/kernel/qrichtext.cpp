@@ -4308,10 +4308,12 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
     QRect cursorRect;
     drawSelections &= ( mSelections != 0 );
     // macintosh full-width selection style
+    bool fullWidthStyle = QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection);
     int fullSelectionWidth = 0;
-    if ( drawSelections && QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) )
+    int lastSelection = -1, lastxend, lasty, lasth;
+    if ( drawSelections && fullWidthStyle )
 	fullSelectionWidth = (hasdoc ? document()->width() : r.width());
-
+	
     QString qstr = str->toString();
     // ### workaround so that \n are not drawn, actually this should
     // be fixed in QFont somewhere (under Windows you get ugly boxes
@@ -4323,6 +4325,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 
     int line = -1;
     int paintStart = 0;
+    int selection = -1;
     for ( i = 0; i < length(); i++ ) {
 	chr = at( i );
 
@@ -4363,14 +4366,17 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 
 	// init a new line
 	if ( chr->lineStart ) {
+	    if (fullWidthStyle && drawSelections && lastSelection >= 0)
+		painter.fillRect( lastxend, lasty, fullSelectionWidth - lastxend, lasth,
+				  (selection == QTextDocument::Standard || !hasdoc) ?
+				  cg.color( QColorGroup::Highlight ) :
+				  document()->selectionColor( selection ) );
 	    ++line;
 	    paintStart = i;
 	    lineInfo( line, y, h, baseLine );
 	    if ( clipy != -1 && cliph != 0 && y + r.y() - h > clipy + cliph ) { // outside clip area, leave
 		break;
 	    }
-	    if ( fullSelectionWidth )
-		painter.fillRect( chr->x, y, fullSelectionWidth - chr->x, h, backgroundBrush(cg ) );
 
 	    // if this is the first line and we are a list item, draw the the bullet label
 	    if ( line == 0 && isListItem() )
@@ -4385,7 +4391,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 	}
 
 	// check if we are in a selection and store which one it is
-	int selection = -1;
+	selection = -1;
 	if ( drawSelections ) {
 	    for ( QMap<int, QTextParagraphSelection>::ConstIterator it = mSelections->begin();
 		  it != mSelections->end(); ++it )
@@ -4397,6 +4403,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 		}
 	}
 
+	lastSelection = -1;
 	if ( flush ) {  // something changed, draw what we have so far
 	    int xstart, xend;
 	    if ( chr->rightToLeft ) {
@@ -4417,17 +4424,28 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 					     clipx == -1 ? clipx : (clipx - r.x()),
 					     clipy == -1 ? clipy : (clipy - r.y()),
 					     clipw, cliph, cg, selection >= 0 );
-		if ( fullSelectionWidth && chr->lineStart && selection >= 0 ) {
-		    if ( !hasdoc || document()->invertSelectionText( selection ) )
-			painter.setPen( cg.color( QColorGroup::HighlightedText ) );
-		    painter.fillRect( xend, y, fullSelectionWidth - xend, h,
-				      (selection == QTextDocument::Standard || !hasdoc) ?
-				      cg.color( QColorGroup::Highlight ) : document()->selectionColor( selection ) );
-		}
 	    }
 	    paintStart = i+1;
+	    if (fullWidthStyle && drawSelections && selection >= 0) {
+		lastSelection = selection;
+		lastxend = xend;
+		lasty = y;
+		lasth = h;
+	    }
 	}
+	
     }
+
+    if (fullWidthStyle && drawSelections && lastSelection >= 0 && next() && next()->mSelections)
+	for ( QMap<int, QTextParagraphSelection>::ConstIterator it = next()->mSelections->begin();
+	      it != next()->mSelections->end(); ++it )
+	    if (((*it).start) == 0) {
+		painter.fillRect( lastxend, lasty, fullSelectionWidth - lastxend, lasth,
+				  (selection == QTextDocument::Standard || !hasdoc) ?
+				  cg.color( QColorGroup::Highlight ) :
+				  document()->selectionColor( selection ) );
+		break;
+	    }
 
     // time to draw the cursor
     const int cursor_extent = 4;
