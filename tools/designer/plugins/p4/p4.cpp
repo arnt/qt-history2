@@ -50,12 +50,14 @@ void P4Edit::processExited()
 	if ( fstatData.find( "clientFile" ) == -1 ) {
 	    if ( !silent )
 		QMessageBox::information( 0, tr( "P4 Edit" ), tr( "Opening the file\n%1\nfor edit failed!" ).arg( fileName ) );
+	    else
+		emit showStatusBarMessage( tr( "P4: Opening file %1 for edit failed!" ).arg( fileName ), 3000 );
 	    state = Done;
 	    return;
 	}
 	if ( fstatData.find( "... action edit" ) == -1 ) {
-	    if ( silent ) {
-		if ( QMessageBox::information( 0, tr( "P4 Edir" ), tr( "The file\n%1\nis under Perforce Source Control and not " 
+	    if ( !silent ) {
+		if ( QMessageBox::information( 0, tr( "P4 Edit" ), tr( "The file\n%1\nis under Perforce Source Control and not " 
 								       "opened for edit.\n"
 								       "Do you want to open it for edit?" ).
 					       arg( fileName ),
@@ -63,6 +65,8 @@ void P4Edit::processExited()
 		    state = Done;
 		    return;
 		}
+	    } else {
+		emit showStatusBarMessage( tr( "P4: Opening file %1 for edit..." ).arg( fileName ), 0 );
 	    }
 	    QStringList args;
 	    args << "p4" << "edit" << fileName;

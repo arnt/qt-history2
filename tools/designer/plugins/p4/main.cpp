@@ -73,7 +73,8 @@ bool P4Interface::connectNotify( QApplication* theApp )
 QStringList P4Interface::featureList()
 {
     QStringList list;
-    list << "P4 Aware" << "P4 Sync" << "P4 Edit" << "P4 Submit" << "P4 Revert" << "P4 Add" << "P4 Delete" << "P4 Diff";
+//    list << "P4 Aware" << "P4 Sync" << "P4 Edit" << "P4 Submit" << "P4 Revert" << "P4 Add" << "P4 Delete" << "P4 Diff";
+    list << "P4";
     return list;
 }
 
@@ -104,6 +105,18 @@ QAction* P4Interface::create( const QString& actionname, QObject* parent )
     } else if ( actionname == "P4 Diff" ) {
 	a = new QAction( actionname, QIconSet(), "Di&ff", 0, parent, actionname );
 	connect( a, SIGNAL( activated() ), this, SLOT( p4Diff() ) );
+    } else if ( actionname == "P4" && parent->isWidgetType() ) {
+	QActionGroup* ag = new QActionGroup( (QWidget*)parent, 0, FALSE );
+	ag->insert( create( "P4 Aware", ag ) );
+	ag->insert( create( "P4 Sync", ag ) );
+	ag->insert( create( "P4 Edit", ag ) );
+	ag->insert( create( "P4 Submit", ag ) );
+	ag->insert( create( "P4 Revert", ag ) );
+	ag->insert( create( "P4 Add", ag ) );
+	ag->insert( create( "P4 Delete", ag ) );
+	ag->insert( create( "P4 Diff", ag ) );
+
+	a = ag;
     } else {
 	return 0;
     }
@@ -175,7 +188,7 @@ void P4Interface::p4MightEdit( bool b, const QString &s )
     QComponentInterface *mwIface = 0;
     if ( !( mwIface = appInterface->queryInterface( "DesignerMainWindowInterface" ) ) )
 	return;
-    P4Edit *edit = new P4Edit( s, mwIface, TRUE );
+    P4Edit *edit = new P4Edit( s, mwIface, FALSE );
     edit->edit();
 }
 
