@@ -30,7 +30,7 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     dictionary[ "DEBUG" ] = "no";
     dictionary[ "SHARED" ] = "yes";
     dictionary[ "GIF" ] = "no";
-    dictionary[ "THREAD" ] = "no";
+    dictionary[ "THREAD" ] = "yes";
     dictionary[ "ZLIB" ] = "yes";
     dictionary[ "LIBPNG" ] = "yes";
     dictionary[ "JPEG" ] = "yes";
@@ -40,6 +40,7 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     dictionary[ "QMAKESPEC" ] = QEnvironment::getEnv( "QMAKESPEC" );
     dictionary[ "QMAKE_INTERNAL" ] = "yes";
     dictionary[ "LEAN" ] = "no";
+    dictionary[ "NOPROCESS" ] = "no";
     dictionary[ "STL" ] = "no";
     dictionary[ "ACCESSIBILITY" ] = "no";
     dictionary[ "VERSION" ] = "300";
@@ -150,6 +151,8 @@ void ConfigureApp::parseCmdLine()
 	    dictionary[ "QMAKE_INTERNAL" ] = "yes";
 	else if( (*args) == "-no-qmake" )
 	    dictionary[ "BUILD_QMAKE" ] = "no";
+	else if( (*args) == "-dont-process" )
+	    dictionary[ "NOPROCESS" ] = "yes";
 	else if( (*args) == "-D" ) {
 	    ++args;
             qmakeDefines += (*args);
@@ -250,8 +253,8 @@ bool ConfigureApp::displayHelp()
 	cout << "-release          * Disable debug information." << endl;
 	cout << "-shared           * Build Qt as a shared library." << endl;
 	cout << "-static             Build Qt as a static library." << endl;
-	cout << "-thread             Configure Qt with thread support." << endl;
-	cout << "-no-thread        * Configure Qt without thread support." << endl;
+	cout << "-thread           * Configure Qt with thread support." << endl;
+	cout << "-no-thread          Configure Qt without thread support." << endl;
 	cout << "-platform           Specify a platform, uses %QMAKESPEC% as default." << endl;
 	cout << "-qconfig            Specify config, available configs:" << endl;
 	for( QStringList::Iterator config = allConfigs.begin(); config != allConfigs.end(); ++config )
@@ -601,65 +604,74 @@ void ConfigureApp::findProjects( const QString& dirName )
     QFileInfoListIterator it( *list );
     QFileInfo* fi;
 
-    while( ( fi = it.current() ) ) {
-	entryName = dirName + "/" + fi->fileName();
-	if( fi->fileName()[ 0 ] != '.' ) {
-	    if( fi->isDir() )
-		findProjects( entryName );
-	    else {
-		if( fi->fileName().right( 4 ) == ".pro" ) {
-		    makeList += dirName;
-		    makeList += fi->fileName();
-		    if( fi->fileName() == "qtmain.pro" )
-			makeList += "Makefile.main";
-		    else
-			makeList += "Makefile";
-
-		    if( dictionary[ "DSPFILES" ] == "yes" ) {
+    if( dictionary[ "NOPROCESS" ] == "no" ) {
+	while( ( fi = it.current() ) ) {
+	    entryName = dirName + "/" + fi->fileName();
+	    if( fi->fileName()[ 0 ] != '.' ) {
+		if( fi->isDir() )
+		    findProjects( entryName );
+		else {
+		    if( fi->fileName().right( 4 ) == ".pro" ) {
 			makeList += dirName;
 			makeList += fi->fileName();
-			makeList += fi->fileName().left( fi->fileName().length() - 4 ) + ".dsp";
+			if( fi->fileName() == "qtmain.pro" )
+			    makeList += "Makefile.main";
+			else
+			    makeList += "Makefile";
+
+			if( dictionary[ "DSPFILES" ] == "yes" ) {
+			    makeList += dirName;
+			    makeList += fi->fileName();
+			    makeList += fi->fileName().left( fi->fileName().length() - 4 ) + ".dsp";
+			}
 		    }
 		}
 	    }
+	    ++it;
 	}
-	++it;
     }
 }
 void ConfigureApp::generateMakefiles()
 {
-    cout << "Creating makefiles in src..." << endl;
+    if( dictionary[ "NOPROCESS" ] == "no" ) {
+	cout << "Creating makefiles in src..." << endl;
 
-    if( dictionary[ "QMAKESPEC" ] != "win32-msvc" )
-	dictionary[ "DSPFILES" ] = "no";
+	if( dictionary[ "QMAKESPEC" ] != "win32-msvc" )
+	    dictionary[ "DSPFILES" ] = "no";
 
-    if( dictionary[ "LEAN" ] == "yes" ) {
-	makeList += qtDir + "/src";
-	makeList += "qt.pro";
-	makeList += "Makefile";
-	if( dictionary[ "DSPFILES" ] == "yes" ) {
+	if( dictionary[ "LEAN" ] == "yes" ) {
 	    makeList += qtDir + "/src";
 	    makeList += "qt.pro";
-	    makeList += "qt.dsp";
-	}
-	makeList += qtDir + "/src";
-	makeList += "qtmain.pro";
-	makeList += "Makefile.main";
-	if( dictionary[ "DSPFILES" ] == "yes" ) {
+	    makeList += "Makefile";
+	    if( dictionary[ "DSPFILES" ] == "yes" ) {
+		makeList += qtDir + "/src";
+		makeList += "qt.pro";
+		makeList += "qt.dsp";
+	    }
 	    makeList += qtDir + "/src";
 	    makeList += "qtmain.pro";
-	    makeList += "qtmain.dsp";
+	    makeList += "Makefile.main";
+	    if( dictionary[ "DSPFILES" ] == "yes" ) {
+		makeList += qtDir + "/src";
+		makeList += "qtmain.pro";
+		makeList += "qtmain.dsp";
+	    }
 	}
+	else
+	    findProjects( qtDir );
+
+	// Start the qmakes for the makelist.
+	makeListIterator = makeList.begin();
+
+	// We call this directly, as the code is the same for the first as
+	// for subsequent items.
+	qmakeDone();
     }
-    else
-	findProjects( qtDir );
-
-    // Start the qmakes for the makelist.
-    makeListIterator = makeList.begin();
-
-    // We call this directly, as the code is the same for the first as
-    // for subsequent items.
-    qmakeDone();
+    else {
+	cout << "Processing of project files have been disabled." << endl;
+	cout << "Only use this option if you really know what you're doing." << endl << endl;
+	quit();
+    }
 }
 
 void ConfigureApp::readQmakeError()
