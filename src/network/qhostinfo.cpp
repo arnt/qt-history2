@@ -81,8 +81,8 @@ Q_GLOBAL_STATIC(QHostInfoAgent, agent)
     QHostInfo supports Internationalized Domain Names (IDNs) through the
     IDNA and Punycode standards.
 
-    To retrieve the name of the current host, use the static
-    QHostInfo::getHostName() function.
+    To retrieve the name of the local host, use the static
+    QHostInfo::localHostName() function.
 
     \sa QAbstractSocket, {http://ietf.org/rfc/rfc3492}{RFC 3492}
 */
@@ -385,7 +385,7 @@ void QHostInfo::setAddresses(const QList<QHostAddress> &addresses)
 /*!
     Returns the name of the host whose IP addresses were looked up.
 
-    \sa getHostName()
+    \sa localHostName()
 */
 QString QHostInfo::hostName() const
 {
@@ -466,7 +466,7 @@ void QHostInfo::setErrorString(const QString &str)
 }
 
 /*!
-    \fn QString QHostInfo::getHostName()
+    \fn QString QHostInfo::localHostName()
 
     Returns the host name of this machine.
 

@@ -128,7 +128,7 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
     return results;
 }
 
-QString QHostInfo::getHostName()
+QString QHostInfo::localHostName()
 {
     char hostName[512];
     if (gethostname(hostName, sizeof(hostName)) == -1)

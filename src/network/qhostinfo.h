@@ -53,7 +53,7 @@ public:
     static void abortHostLookup(int lookupId);
     
     static QHostInfo fromName(const QString &name);
-    static QString getHostName();
+    static QString localHostName();
 
 private:
     QHostInfoPrivate *d;

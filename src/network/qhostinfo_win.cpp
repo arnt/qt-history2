@@ -168,7 +168,7 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
     return results;
 }
 
-QString QHostInfo::getHostName()
+QString QHostInfo::localHostName()
 {
     QSocketLayer bust; // makes sure WSAStartup was callled
 
