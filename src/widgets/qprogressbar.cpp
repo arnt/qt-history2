@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#93 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#94 $
 **
 ** Implementation of QProgressBar class
 **
@@ -323,59 +323,14 @@ void QProgressBar::drawContents( QPainter *p )
     paint.setFont( p->font() );
 
     if ( !total_steps ) { // draw busy indicator
-/*
-	} else {
-	    bool right = TRUE;
-	    int bw = u*unit_width + 2;
-	    int x = progress_val % ( (bw-ox) * 2 );
-	    if ( x > bw-ox ) {
-		x = 2 * (bw-ox) - x;
-		right = FALSE;
-	    }
-	    x += ox + bar.x();
-
-	    QRect all( ox + bar.x(), bar.y(), bw-1, bar.height() );
-	    QRect ind( x, bar.y(), 18, bar.height() );
-
-	    p->setClipRegion( QRegion( all ) - QRegion( ind ) );
-	    p->eraseRect( all );
-
-	    if ( progress_val > -1 ) {
-		p->setClipRegion( QRegion( all ) );
-		QColor base = colorGroup().background();
-		QColor high = palette().active().highlight();
-		int dr = ( base.red() - high.red() ) / 20;
-		int dg = ( base.green() - high.green() ) / 20;
-		int db = ( base.blue() - high.blue() ) / 20;
-		for ( int i = 0; i < 20; i++ ) {
-		    QColor d;
-		    if ( right )
-			d.setRgb( base.red() - dr*i, base.green() - dg*i, base.blue() - db * i );
-		    else
-			d.setRgb( high.red() + dr*i, high.green() + dg*i, high.blue() + db * i );
-		    p->setPen( d );
-		    p->drawLine( x+i, bar.y(), x+i, bar.height() );
-		}
-	    }
-
-	    p->setClipping( FALSE );
-	}
-*/
-/*
-	} else {
-	    int bw = bar.width();
-	    int x = progress_val % ( bw * 2 );
-	    if ( x > bw )
-		x = 2 * bw - x;
-	    x += bar.x();
-
-	    p->setClipRegion( QRegion( bar ) - QRegion( x, bar.y(), 1, bar.height() ) );
-	    p->eraseRect( bar );
-	    p->setClipRect( bar );
-	    p->setPen( colorGroup().highlight() );
-	    p->drawLine( x, bar.y(), x, bar.height() );
-	}
-*/
+	int bw = bar.width();
+	int x = progress_val % ( bw * 2 );
+	if ( x > bw )
+	    x = 2 * bw - x;
+	x += bar.x();
+	style().drawProgressBar( &paint, bar.x(), bar.y(), bar.width(), bar.height(), colorGroup() );
+	paint.setPen( QPen( colorGroup().highlight(), 4 ) );
+	paint.drawLine( x, bar.y()+1, x, bar.height()-2 );
     } else {
 	const int unit_width = style().progressChunkWidth();
 
