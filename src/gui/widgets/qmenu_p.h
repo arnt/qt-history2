@@ -40,8 +40,8 @@ public:
     Q4MenuAction *currentAction;
     Q4MenuAction *actionAt(QPoint p);
     void setFirstActionActive();
-    void setCurrentAction(Q4MenuAction *);
-    void popupAction(Q4MenuAction *, bool =false);
+    void setCurrentAction(Q4MenuAction *, bool =false, bool =false);
+    void popupAction(Q4MenuAction *, bool);
 
     //scrolling support
     struct Q4MenuScroller {
@@ -105,13 +105,12 @@ public:
     Q4MenuAction *currentAction;
     uint mouseDown : 1, closePopupMode : 1;
     Q4MenuAction *actionAt(QPoint p);
-    void setCurrentAction(Q4MenuAction *);
-    void popupAction(Q4MenuAction *, bool =false);
+    void setCurrentAction(Q4MenuAction *, bool =false, bool =false);
+    void popupAction(Q4MenuAction *, bool);
 
     //active popup state
     uint popupState : 1;
     QPointer<Q4Menu> activeMenu;
-    void setPopupMode(bool);
 
     //keyboard mode for keyboard navigation
     void setKeyboardMode(bool);

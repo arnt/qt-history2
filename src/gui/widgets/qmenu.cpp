@@ -226,7 +226,7 @@ void Q4MenuPrivate::setFirstActionActive()
     }
 }
 
-void Q4MenuPrivate::setCurrentAction(Q4MenuAction *action)
+void Q4MenuPrivate::setCurrentAction(Q4MenuAction *action, bool popup, bool activateFirst)
 {
     if(action == currentAction)
 	return;
@@ -241,6 +241,8 @@ void Q4MenuPrivate::setCurrentAction(Q4MenuAction *action)
     currentAction = action;
     if(action) {
 	action->action->activate(QAction::Hover);
+	if(popup)
+	    popupAction(d->currentAction, activateFirst);
 	q->update(actionRect(action));
     }
 }
@@ -743,8 +745,7 @@ void Q4Menu::mousePressEvent(QMouseEvent *e)
     d->mouseDown = true;
 
     Q4MenuAction *action = d->actionAt(e->pos());
-    d->setCurrentAction(action);
-    d->popupAction(action);
+    d->setCurrentAction(action, true);
 }
 
 void Q4Menu::mouseReleaseEvent(QMouseEvent *e)
@@ -758,8 +759,12 @@ void Q4Menu::mouseReleaseEvent(QMouseEvent *e)
     if(d->sync)
 	d->syncAction = action ? action->action : 0;
     if(action && action->action->isEnabled()) {
-	action->action->activate(QAction::Trigger);
-	d->hideUpToMenuBar();
+	if(action->action->menu()) {
+	    action->action->menu()->d->setFirstActionActive();
+	} else {
+	    action->action->activate(QAction::Trigger);
+	    d->hideUpToMenuBar();
+	}
     }
 }
 
@@ -993,10 +998,8 @@ void Q4Menu::keyPressEvent(QKeyEvent *e)
 		    next_action = firstAfterCurrent;
 	    }
 	    if(next_action) {
-		d->setCurrentAction(next_action);
-		if(next_action->action->menu()) {
-		    d->popupAction(next_action, true);
-		} else {
+		d->setCurrentAction(next_action, true, true);
+		if(!next_action->action->menu()) {
 		    next_action->action->activate(QAction::Trigger);
 		    d->hideUpToMenuBar();
 		}
@@ -1016,8 +1019,7 @@ void Q4Menu::mouseMoveEvent(QMouseEvent *e)
     d->mouseDown = e->state() & LeftButton;
 
     Q4MenuAction *action = d->actionAt(e->pos());
-    d->setCurrentAction(action);
-    d->popupAction(action);
+    d->setCurrentAction(action, true);
 }
 
 void Q4Menu::leaveEvent(QEvent *)
@@ -1137,18 +1139,6 @@ void Q4MenuBarPrivate::updateActions()
     itemsDirty = 0;
 }
 
-void Q4MenuBarPrivate::setPopupMode(bool b)
-{
-    popupState = b;
-    if(!popupState && activeMenu) {
-	Q4Menu *menu = activeMenu;
-	activeMenu = NULL;
-	menu->hide();
-    }
-    if(d->currentAction)
-	q->update(d->currentAction->rect);
-}
-
 void Q4MenuBarPrivate::setKeyboardMode(bool b)
 {
     d->altPressed = false;
@@ -1166,7 +1156,7 @@ void Q4MenuBarPrivate::setKeyboardMode(bool b)
 
 void Q4MenuBarPrivate::popupAction(Q4MenuAction *action, bool activateFirst)
 {
-    setPopupMode(true);
+    popupState = true;
     if(action && action->action->menu()) {
 	d->closePopupMode = 0;
 	activeMenu = action->action->menu();
@@ -1179,9 +1169,9 @@ void Q4MenuBarPrivate::popupAction(Q4MenuAction *action, bool activateFirst)
     }
 }
 
-void Q4MenuBarPrivate::setCurrentAction(Q4MenuAction *action)
+void Q4MenuBarPrivate::setCurrentAction(Q4MenuAction *action, bool popup, bool activateFirst)
 {
-    if(currentAction == action)
+    if(currentAction == action && popup == popupState)
 	return;
     if(activeMenu) {
 	Q4Menu *menu = activeMenu;
@@ -1191,13 +1181,15 @@ void Q4MenuBarPrivate::setCurrentAction(Q4MenuAction *action)
     if(currentAction)
 	q->update(currentAction->rect);
 
+    popupState = popup;
     currentAction = action;
     if(action) {
 	action->action->activate(QAction::Hover);
+	if(popup)
+	    popupAction(action, activateFirst);
 	q->update(action->rect);
     } else {
 	setKeyboardMode(false);
-	setPopupMode(false);
     }
 }
 
@@ -1356,9 +1348,7 @@ void Q4MenuBar::mousePressEvent(QMouseEvent *e)
 	if((d->closePopupMode = (style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle)))
 	    q->update(action->rect);
     } else {
-	d->setCurrentAction(action);
-	if(action)
-	    d->popupAction(action);
+	d->setCurrentAction(action, true);
     }
 }
 
@@ -1371,8 +1361,7 @@ void Q4MenuBar::mouseReleaseEvent(QMouseEvent *e)
     if((d->closePopupMode && action == d->currentAction) || !action || !action->action->menu()) {
 	if(action) 
 	    action->action->activate(QAction::Trigger);
-	d->setCurrentAction(action);
-	d->setPopupMode(false);
+	d->setCurrentAction(action, false);
     }
     d->closePopupMode = 0;
 }
@@ -1424,10 +1413,7 @@ void Q4MenuBar::keyPressEvent(QKeyEvent *e)
 		    nextAction = d->actionItems.first();
 	    }
 	    if(nextAction) {
-		bool popupState = d->popupState;
-		d->setCurrentAction(nextAction);
-		if(popupState)
-		    d->popupAction(nextAction, true);
+		d->setCurrentAction(nextAction, d->popupState, true);
 		key_consumed = true;
 	    }
 	}
@@ -1474,10 +1460,8 @@ void Q4MenuBar::keyPressEvent(QKeyEvent *e)
 	    else
 		next_action = firstAfterCurrent;
 	}
-	if(next_action) {
-	    d->setCurrentAction(next_action);
-	    d->popupAction(next_action, true);
-	}
+	if(next_action) 
+	    d->setCurrentAction(next_action, true, true);
     }
 }
 
@@ -1486,11 +1470,8 @@ void Q4MenuBar::mouseMoveEvent(QMouseEvent *e)
     d->mouseDown = e->state() & LeftButton;
     Q4MenuAction *action = d->actionAt(e->pos());
     bool popupState = d->popupState || d->mouseDown;
-    if(action || !popupState) {
-	d->setCurrentAction(action);
-	if(popupState)
-	    d->popupAction(action);
-    }
+    if(action || !popupState) 
+	d->setCurrentAction(action, popupState);
 }
 
 void Q4MenuBar::leaveEvent(QEvent *)
@@ -1661,8 +1642,7 @@ void Q4MenuBar::internalShortcutActivated(int id)
     for(int i = 0; i < d->actionItems.count(); i++) {
 	Q4MenuAction *act = d->actionItems.at(i);
 	if(QAccel::shortcutKey(act->action->text()) == key) {
-	    d->setCurrentAction(act);
-	    d->popupAction(act);
+	    d->setCurrentAction(act, true);
 	    break;
 	}
     }
