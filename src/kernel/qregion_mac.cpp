@@ -38,6 +38,61 @@
 #undef FALSE
 #define FALSE (bool)OLD_FALSE
 
+#ifdef Q_WS_MACX
+#define RGN_CACHE_SIZE 200
+static bool rgncache_init=FALSE;
+static int rgncache_used;
+static RgnHandle rgncache[RGN_CACHE_SIZE];
+void cleanup_rgncache() {
+    for(int i = 0; i < RGN_CACHE_SIZE; i++) {
+	if(rgncache[i]) {
+	    rgncache_used--;
+	    DisposeRgn(rgncache[i]);
+	    rgncache[i] = 0;
+	}
+    }
+}
+inline RgnHandle get_rgn() {
+    RgnHandle ret = NULL;
+    if(!rgncache_init) {
+	rgncache_used = 0;
+	rgncache_init = TRUE;
+	for(int i = 0; i < RGN_CACHE_SIZE; i++) 
+	    rgncache[i] = 0;
+	qAddPostRoutine(cleanup_rgncache);
+    } else if(rgncache_used) {
+	for(int i = 0; i < RGN_CACHE_SIZE; i++) {
+	    if(rgncache[i]) {
+		ret = rgncache[i];
+		SetEmptyRgn(ret);
+		rgncache[i] = NULL;
+		rgncache_used--;
+		break;
+	    }
+	}
+    }
+    if(!ret) 
+	ret = NewRgn();
+    return ret;
+}
+inline void dispose_rgn(RgnHandle r) {
+    if(rgncache_init && rgncache_used < RGN_CACHE_SIZE) {
+	for(int i = 0; i < RGN_CACHE_SIZE; i++) {
+	    if(!rgncache[i]) {
+		rgncache_used++;
+		rgncache[i] = r;
+		break;
+	    }
+	}
+    } else {
+	DisposeRgn(r);
+    }
+}
+#else
+#define get_rgn NewRgn
+#define dispose_rgn DisposeRgn
+#endif
+
 // NOT REVISED
 
 static QRegion *empty_region = 0;
@@ -65,7 +120,7 @@ QRegion::QRegion(RgnHandle rgn)
     Q_CHECK_PTR(data);
     data->is_null = FALSE;
     data->is_rect = FALSE;
-    data->rgn = NewRgn();
+    data->rgn = get_rgn();
     CopyRgn(rgn, data->rgn);
 }    
 
@@ -79,7 +134,7 @@ QRegion::rectifyRegion()
 	data->is_null = FALSE;
     }
     data->is_rect = FALSE;
-    data->rgn = NewRgn();
+    data->rgn = get_rgn();
     if(!data->rect.isEmpty()) {
 	Rect rect;
 	SetRect(&rect, data->rect.x(), data->rect.y(), 
@@ -108,16 +163,11 @@ QRegion::QRegion( bool is_null )
     data = new QRegionData;
     Q_CHECK_PTR( data );
     if((data->is_null = is_null)) {
-#if 1
 	data->is_rect = TRUE;
 	data->rect = QRect();
-#else
-	data->is_rect = FALSE;
-	data->rgn = NewRgn();
-#endif
     } else {
 	data->is_rect = FALSE;
-	data->rgn = NewRgn();
+	data->rgn = get_rgn();
     }
 }
 
@@ -128,24 +178,13 @@ QRegion::QRegion( const QRect &r, RegionType t )
     Q_CHECK_PTR( data );
     data->is_null = FALSE;
     if(t == Rectangle )	{		// rectangular region
-#if 1
 	data->is_rect = TRUE;
 	data->rect = r;
-#else
-	data->rgn = NewRgn();
-	if(!r.isEmpty()) {
-	    Rect rect;
-	    SetRect(&rect, r.x(), r.y(), r.right()+1, r.bottom()+1);
-	    OpenRgn();
-	    FrameRect(&rect);
-	    CloseRgn(data->rgn);
-	}
-#endif
     } else {
 	Rect rect;
 	SetRect(&rect, rr.x(), rr.y(), rr.right()+1, rr.bottom()+1);
 	data->is_rect = FALSE;
-	data->rgn = NewRgn();
+	data->rgn = get_rgn();
 	OpenRgn();
 	FrameOval(&rect);
 	CloseRgn(data->rgn);
@@ -158,7 +197,7 @@ QRegion::QRegion( const QPointArray &a, bool winding)
     Q_CHECK_PTR( data );
     data->is_null = FALSE;
     data->is_rect = FALSE;
-    data->rgn = NewRgn();
+    data->rgn = get_rgn();
 
     OpenRgn();
     MoveTo( a[0].x(), a[0].y() );
@@ -182,13 +221,13 @@ static RgnHandle qt_mac_bitmapToRegion(const QBitmap& bitmap)
 {
     QImage image = bitmap.convertToImage();
 
-    RgnHandle region = NewRgn(), rr;
+    RgnHandle region = get_rgn(), rr;
 
 #define AddSpan \
 	{ \
     	   Rect rect; \
 	   SetRect(&rect, prev1, y, (x-1)+1, (y+1)); \
-	   rr = NewRgn(); \
+	   rr = get_rgn(); \
     	   OpenRgn(); \
 	   FrameRect(&rect); \
 	   CloseRgn(rr); \
@@ -262,7 +301,7 @@ QRegion::QRegion( const QBitmap &bm )
     data->is_null = FALSE;
     data->is_rect = FALSE;
 #if 0 //this should work, but didn't
-    data->rgn = NewRgn();
+    data->rgn = get_rgn();
     BitMapToRegion(data->rgn, (BitMap *)*GetGWorldPixMap((GWorldPtr)bm.handle()));
 #else
     data->rgn = qt_mac_bitmapToRegion(bm);
@@ -274,7 +313,7 @@ QRegion::~QRegion()
 {
     if ( data->deref() ) {
 	if(!data->is_rect)
-	    DisposeRgn( data->rgn );
+	    dispose_rgn( data->rgn );
 	delete data;
     }
 }
@@ -285,7 +324,7 @@ QRegion &QRegion::operator=( const QRegion &r )
     r.data->ref();				// beware of r = r
     if ( data->deref() ) {
 	if(!data->is_rect)
-	    DisposeRgn( data->rgn );
+	    dispose_rgn( data->rgn );
 	delete data;
     }
     data = r.data;
