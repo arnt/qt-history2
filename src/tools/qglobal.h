@@ -326,10 +326,8 @@
 #  define Q_CC_DEC
 /* Compaq C++ V6 compilers are EDG-based but I'm not sure about older
    DEC C++ V5 compilers. */
-#  if defined(__EDG) || defined(__EDG__)
-#    if !defined(Q_CC_EDG)
-#      define Q_CC_EDG
-#    endif
+#  if defined(__EDG__)
+#    define Q_CC_EDG
 #  endif
 /* Compaq have disabled EDG's _BOOL macro and use _BOOL_EXISTS instead
    - observed on Compaq C++ V6.3-002.
@@ -348,9 +346,7 @@
    __EDG documented by SGI, observed on MIPSpro 7.3.1.1 and KAI C++ 4.0b
    __EDG__ documented in EDG online docs, observed on Compaq C++ V6.3-002 */
 #elif defined(__EDG) || defined(__EDG__)
-#  if !defined(Q_CC_EDG)
-#    define Q_CC_EDG
-#  endif
+#  define Q_CC_EDG
 /* From the EDG documentation (does not seem to apply to Compaq C++):
    _BOOL
     	Defined in C++ mode when bool is a keyword. The name of this
