@@ -239,7 +239,8 @@ protected slots:
 private slots:
     void refreshSlot();
     void doAutoScroll();
-
+    void adjustItems();
+    
 private:
     void tryGeometry( int, int ) const;
     int currentRow() const;
