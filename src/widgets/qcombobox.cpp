@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#170 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#171 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -1174,7 +1174,17 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
 {
     int c;
 
-    if ( d->usingListBox && e->key() == Key_Up ) {
+    if ( e->key() == Key_F4 ||
+	 ( e->key() == Key_Down && (e->state() & AltButton) ) ||
+	 ( !d->ed && e->key() == Key_Space ) ) {
+	e->accept();
+	if ( count() ) {
+	    d->popup->setActiveItem( d->current );
+	    popup();
+	}
+	return;
+    }
+    else if ( d->usingListBox && e->key() == Key_Up ) {
 	c = currentItem();
 	if ( c > 0 )
 	    setCurrentItem( c-1 );
@@ -1188,14 +1198,6 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
 	else
 	    setCurrentItem( 0 );
 	e->accept();
-    } else if ( e->key() == Key_F4 ||
-		( !d->ed && e->key() == Key_Space ) ) {
-	e->accept();
-	if ( count() ) {
-	    d->popup->setActiveItem( d->current );
-	    popup();
-	}
-	return;
     } else {
 	e->ignore();
 	return;
@@ -1468,6 +1470,11 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	    break;
 	case QEvent::KeyPress:
 	    switch( ((QKeyEvent *)event)->key() ) {
+	    case Key_Up:
+	    case Key_Down:
+ 		if ( !(((QKeyEvent *)event)->state() & AltButton) )
+		    break;
+	    case Key_F4:
 	    case Key_Escape:
 		popDownListBox();
 		((QKeyEvent*)event)->accept();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#400 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#401 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -266,7 +266,7 @@ public:
     bool translateKeyEventInternal( const XEvent *, int& count, QString& text, int& state, char& ascii, int &code );
     bool translateKeyEvent( const XEvent *, bool grab );
     bool translatePaintEvent( const XEvent * );
-    bool translateConfigEvent( const XEvent * );
+    bool translateConfigEvent( const XEvent *, bool do_compress = TRUE  );
     bool translateCloseEvent( const XEvent * );
     bool translateScrollDoneEvent( const XEvent * );
 };
@@ -3128,7 +3128,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		     focusProxy()? (focusProxy()->focusPolicy() & ClickFocus)
 		     : (focusPolicy() & ClickFocus ) ) {
 		    setFocus();
-		    QWidget* active_window = qApp->activeWindow();
+		    QWidget* active_window = topLevelWidget();
 		    if (active_window && active_window->extra->topextra->embedded) {
 			((XEvent*)event)->xfocus.window = active_window->extra->topextra->parentWinId;
 			XSendEvent(appDpy, active_window->extra->topextra->parentWinId, NoEventMask, FALSE, (XEvent*)event);
@@ -3840,9 +3840,11 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 
     if ( info.config ) {
 	XConfigureEvent *c = (XConfigureEvent *)&xevent;
+	c->window  = info.window;
+	c->event  = info.window;
 	c->width  = info.w;
 	c->height = info.h;
-	translateConfigEvent( (XEvent*)c );
+	translateConfigEvent( (XEvent*)c, TRUE );
     }
 
     if ( should_clip ) {
@@ -3889,20 +3891,35 @@ bool QETWidget::translateScrollDoneEvent( const XEvent *event )
 // always!  It is safer (but slower) to translate the window coordinates.
 //
 
-bool QETWidget::translateConfigEvent( const XEvent *event )
+bool QETWidget::translateConfigEvent( const XEvent *event, bool do_compress )
 {
-    if ( parentWidget() && !testWFlags(WType_Modal) )
+    if ( !testWFlags(WType_TopLevel) )
 	return TRUE;				// child widget
 
-    while (XCheckTypedWindowEvent(dpy, winId(), ConfigureNotify, (XEvent*)event)); // compress
+    QSize  newSize( event->xconfigure.width, event->xconfigure.height );
 
+    {
+	XEvent otherEvent;
+	while ( XCheckTypedEvent(dpy, ConfigureNotify, &otherEvent) ) {
+	    if (otherEvent.type != ConfigureNotify
+		|| otherEvent.xconfigure.window != event->xconfigure.window
+		|| otherEvent.xconfigure.event != event->xconfigure.event) {
+		XPutBackEvent( dpy, &otherEvent );
+		break;
+	    }
+	    if (qApp->x11EventFilter(&otherEvent))
+		break;
+	    newSize.setWidth( otherEvent.xconfigure.width );
+	    newSize.setHeight( otherEvent.xconfigure.height );
+	}
+
+    }
 
     Window child;
     int	   x, y;
     XTranslateCoordinates( dpy, winId(), DefaultRootWindow(dpy),
 			   0, 0, &x, &y, &child );
     QPoint newPos( x, y );
-    QSize  newSize( event->xconfigure.width, event->xconfigure.height );
     QRect  r = geometry();
     if ( newSize != size() ) {			// size changed
   	XClearArea( dpy, winId(), 0, 0, 0, 0, FALSE );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#64 $
 **
 ** Implementation of QDialog class
 **
@@ -111,6 +111,7 @@ QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
 {
     rescode = 0;
     did_move = did_resize = FALSE;
+    mainDef = 0;
 }
 
 /*!
@@ -136,11 +137,17 @@ void QDialog::setDefault( QPushButton *pushButton )
     QObjectList *list = queryList( "QPushButton" );
     QObjectListIt it( *list );
     QPushButton *pb;
+    bool hasMain = FALSE;
     while ( (pb = (QPushButton*)it.current()) ) {
+	hasMain |= pb == mainDef;
 	if ( pb != pushButton )
 	    pb->setDefault( FALSE );
 	++it;
     }
+    if (!pushButton && hasMain)
+	mainDef->setDefault( TRUE );
+    if (!hasMain)
+	mainDef = pushButton;
     delete list;
 }
 

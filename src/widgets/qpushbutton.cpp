@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#127 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#128 $
 **
 ** Implementation of QPushButton class
 **
@@ -77,8 +77,9 @@ QPushButton::QPushButton( const QString &text, QWidget *parent,
 
 void QPushButton::init()
 {
-    autoDefButton = defButton = lastDown = lastDef = lastEnabled
-		  = hasMenuArrow = FALSE;
+    defButton = lastDown = lastDef = lastEnabled
+	      = hasMenuArrow = FALSE;
+    autoDefButton = TRUE;
     setBackgroundMode( PaletteButton );
 }
 
@@ -349,6 +350,20 @@ void QPushButton::focusInEvent( QFocusEvent *e )
     if ( autoDefButton )
 	setDefault( TRUE );
     QButton::focusInEvent( e );
+}
+
+/*!
+  Handles focus out events for the push button.
+*/
+
+void QPushButton::focusOutEvent( QFocusEvent *e )
+{
+    if ( defButton && autoDefButton ) {
+	QWidget *p = topLevelWidget();
+	if ( p->inherits("QDialog") )
+	    ((QDialog*)p)->setDefault( 0 );
+    }
+    QButton::focusOutEvent( e );
 }
 
 

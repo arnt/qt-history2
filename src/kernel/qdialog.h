@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.h#30 $
+** $Id: //depot/qt/main/src/kernel/qdialog.h#31 $
 **
 ** Definition of QDialog class
 **
@@ -70,6 +70,7 @@ private:
     int		rescode;
     uint	did_move   : 1;
     uint	did_resize : 1;
+    QPushButton* mainDef;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
