@@ -73,7 +73,7 @@ private:
     QWidget *d;
 };
 
-class QAquaAnimatePrivate;
+struct QAquaAnimatePrivate;
 class QAquaAnimate : public QObject
 {
     Q_OBJECT
