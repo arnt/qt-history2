@@ -521,7 +521,9 @@ QString QMultiLineEdit::textLine( int line ) const
 {
     if ( line < 0 || line >= numLines() )
 	return QString::null;
-    return document()->paragAt( line )->string()->toString();
+    QString str = document()->paragAt( line )->string()->toString();
+    str.truncate( str.length() - 1 );
+    return str;
 }
 
 #endif
