@@ -13,6 +13,7 @@
 #include <oaidl.h>
 #include "../../shared/types.h"
 #include "docuwindow.h"
+#include <qinputdialog.h>
 #include <qlabel.h>
 
 void MainWindow::changeProperties()
@@ -136,6 +137,7 @@ void MainWindow::init()
     dlgInvoke = 0;
     dlgProperties = 0;
     dlgAmbient = 0;
+    scriptManager = 0;
     debuglog = logDebug;
     oldDebugHandler = qInstallMsgHandler( redirectDebugOutput );
     QHBoxLayout *layout = new QHBoxLayout( Workbase );
@@ -259,7 +261,8 @@ void MainWindow::fileNew()
     QActiveXSelect select( this, 0, TRUE );
     if ( select.exec() ) {
 	QAxWidget *container = new QAxWidget( select.selectedControl(), workspace, 0, WDestructiveClose );
-	container->show();	
+	container->setName(container->caption().latin1());
+	container->show();
     }
     updateGUI();
 }
@@ -302,4 +305,54 @@ void MainWindow::renderPixmap()
     label->setCaption( container->caption() + " - Pixmap" );
 
     label->show();
+}
+
+void MainWindow::runMacro()
+{
+    if (!scriptManager)
+	return;
+
+    QStringList macroList = scriptManager->functions();
+    QString macro = QInputDialog::getItem("Select Macro", "Macro:", macroList, 0, FALSE, 0, this);
+
+    if (macro.isEmpty())
+	return;
+
+    scriptManager->call(macro);
+}
+
+void MainWindow::loadScript()
+{
+    QString script = QFileDialog::getOpenFileName(QString::null, "Script Files (*.dsm *.js);;"
+								 "Macro Files (*.dsm);;"
+								 "JavaScript (*.js);;"
+								 "All Files (*.*)",
+						  this, 0, "Open Script");
+
+    if (script.isEmpty())
+	return;
+
+    if (!scriptManager) {
+	scriptManager = new QAxScriptManager(this);
+	connect(scriptManager, SIGNAL(scriptError(int, const QString&, int, const QString&)),
+			 this,   SLOT(macroError(int,  const QString&, int, const QString&)));
+    }
+
+    QWidgetList widgets = workspace->windowList();
+    QWidgetListIt it(widgets);
+    while (it.current()) {
+	QAxBase *ax = (QAxBase*)it.current()->qt_cast("QAxBase");
+	++it;
+	if (!ax)
+	    continue;
+	scriptManager->addObject(ax);
+    }
+
+    if (scriptManager->load(script, script))
+	actionScriptingRun->setEnabled(TRUE);
+}
+
+void MainWindow::macroError( int code, const QString &description, int sourcePosition, const QString &sourceText )
+{
+    logMacro->append(QString("Error: %1 '%2' at %3 ('%4')").arg(code).arg(description).arg(sourcePosition).arg(sourceText));
 }
