@@ -118,8 +118,6 @@ public:
 
     static LRESULT CALLBACK ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-    int PreTranslateMessage( MSG *pMsg );
-
 // IUnknown
     unsigned long WINAPI AddRef()
     {
@@ -1016,7 +1014,11 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 		    that->activeqt->focusWidget()->setFocus();
 		else {
 		    QFocusData *focusData = ((HackWidget*)that->activeqt)->focusData();
-		    QWidget *candidate = focusData->first();
+		    QWidget *candidate = 0;
+		    if ( ::GetKeyState(VK_SHIFT) < 0 )
+			candidate = focusData->last();
+		    else
+			candidate = focusData->first();
 		    if ( candidate->focusPolicy() != QWidget::NoFocus )
 			candidate->setFocus();
 		    else
@@ -2619,6 +2621,10 @@ HRESULT WINAPI QAxServerBase::ReactivateAndUndo()
 
 //**** IOleInPlaceActiveObject
 
+/*
+    This event filter is called by QtWndProc.
+    only messages sent to Qt widgets are visible here.
+*/
 int QAxEventFilter( MSG *pMsg )
 {
     if ( !ax_ServerMapper )
@@ -2640,35 +2646,10 @@ int QAxEventFilter( MSG *pMsg )
     if ( !axbase )
 	return ret;
 
-    return axbase->PreTranslateMessage( pMsg );
-}
-
-int QAxServerBase::PreTranslateMessage( MSG *pMsg )
-{
-    if ( TranslateAcceleratorW( pMsg ) == S_OK )
-	return TRUE;
-
-    if ( !m_spClientSite )
-	return FALSE;
-
-    IOleControlSite *controlSite = 0;
-    m_spClientSite->QueryInterface( IID_IOleControlSite, (void**)&controlSite );
-    if ( !controlSite )
-	return FALSE;
-
-    DWORD dwKeyMod = 0;
-    if (::GetKeyState(VK_SHIFT) < 0)
-	dwKeyMod += 1;	// KEYMOD_SHIFT
-    if (::GetKeyState(VK_CONTROL) < 0)
-	dwKeyMod += 2;	// KEYMOD_CONTROL
-    if (::GetKeyState(VK_MENU) < 0)
-	dwKeyMod += 4;	// KEYMOD_ALT
-
-    controlSite->TranslateAcceleratorW(pMsg, dwKeyMod);
-
-    controlSite->Release();
-
-    return FALSE;
+    HRESULT hres = axbase->TranslateAcceleratorW( pMsg );
+    if ( hres == S_OK )
+	return 1;
+    return 0;
 }
 
 HRESULT WINAPI QAxServerBase::TranslateAcceleratorW( MSG *pMsg )
@@ -2678,37 +2659,65 @@ HRESULT WINAPI QAxServerBase::TranslateAcceleratorW( MSG *pMsg )
 
     switch ( LOWORD( pMsg->wParam ) ) {
     case VK_TAB:
-	{
-	    if ( isUIActive ) {
-		bool shift = ::GetKeyState(VK_SHIFT) < 0;
-		QFocusData *data = ((HackWidget*)activeqt)->focusData();
-		bool giveUp = TRUE;
-		if ( shift ) {
-		    if ( activeqt->focusWidget() != data->first() ) {
-			giveUp = FALSE;
-			((HackWidget*)activeqt)->focusNextPrevChild( FALSE );
-		    }
-		} else {
-		    if ( activeqt->focusWidget() != data->last() ) {
-			giveUp = FALSE;
-			((HackWidget*)activeqt)->focusNextPrevChild( TRUE );
-		    }
+	if ( isUIActive ) {
+	    bool shift = ::GetKeyState(VK_SHIFT) < 0;
+	    QFocusData *data = ((HackWidget*)activeqt)->focusData();
+	    bool giveUp = TRUE;
+	    if ( shift ) {
+		if ( activeqt->focusWidget() != data->first() ) {
+		    giveUp = FALSE;
+		    ((HackWidget*)activeqt)->focusNextPrevChild( FALSE );
+		    if ( activeqt->focusWidget() == data->last() )
+			giveUp = TRUE;
 		}
-		if ( giveUp ) {
-/*		    IOleControlSite *spSite = 0;
-		    m_spClientSite->QueryInterface( IID_IOleControlSite, (void**)&spSite );
-		    if ( spSite ) {
-			spSite->OnFocus(FALSE);
-			spSite->Release();
-		    }*/
-		} else {
-		    return S_OK;
+	    } else {
+		if ( activeqt->focusWidget() != data->last() ) {
+		    giveUp = FALSE;
+		    ((HackWidget*)activeqt)->focusNextPrevChild( TRUE );
 		}
 	    }
+	    if ( giveUp ) {
+		HWND hwnd = ::GetParent( m_hWndCD );
+		::SetFocus( hwnd );
+	    } else {
+		return S_OK;
+	    }
 	}
-	return S_FALSE;
+	break;
+
+    case VK_LEFT:
+    case VK_RIGHT:
+    case VK_UP:
+    case VK_DOWN:
+	if ( isUIActive )
+	    return S_FALSE;
+	break;
+
+    default:
+	break;
     }
-    return S_FALSE;
+
+    if ( !m_spClientSite )
+	return S_FALSE;
+
+    IOleControlSite *controlSite = 0;
+    m_spClientSite->QueryInterface( IID_IOleControlSite, (void**)&controlSite );
+    if ( !controlSite )
+	return S_FALSE;
+
+    DWORD dwKeyMod = 0;
+    if (::GetKeyState(VK_SHIFT) < 0)
+	dwKeyMod += 1;	// KEYMOD_SHIFT
+    if (::GetKeyState(VK_CONTROL) < 0)
+	dwKeyMod += 2;	// KEYMOD_CONTROL
+    if (::GetKeyState(VK_MENU) < 0)
+	dwKeyMod += 4;	// KEYMOD_ALT
+
+    HRESULT hres = controlSite->TranslateAcceleratorW(pMsg, dwKeyMod);
+
+    controlSite->Release();
+
+    return hres;
 }
 
 HRESULT WINAPI QAxServerBase::TranslateAcceleratorA( MSG *pMsg )
