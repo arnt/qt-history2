@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#124 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#125 $
 **
 ** Implementation of QTextStream class
 **
@@ -30,6 +30,10 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
+
+#if defined(_OS_WIN32_)
+#include <windows.h>
+#endif
 
 // NOT REVISED
 /*!
@@ -579,14 +583,13 @@ QChar QTextStream::ts_getc()
 		decoder = mapper->makeDecoder();
 	    QString s;
 	    do {
-		char b[1];
 		int c = dev->getch();
 		if ( c == EOF )
 		    return QEOF;
-		b[0] = c;
-		s  = decoder->toUnicode( b, 1 );
+		char b = c;
+		s  = decoder->toUnicode( &b, 1 );
 	    } while ( s.isEmpty() );
-	    r = s[0];
+	    r = s.constref(0);
 	}
     } else if ( latin1 ) {
 	int c = dev->getch();
@@ -1294,10 +1297,7 @@ QString QTextStream::readLine()
     QString result;
     QChar c = ts_getc();
 
-    while ( c != QEOF ) {
-	if ( c == '\n' ) {
-	    break;
-	}
+    while ( c != QEOF && c != '\n' ) {
 	result += c;
 	c = ts_getc();
     }
@@ -1950,12 +1950,14 @@ void QTextStream::setEncoding( Encoding e )
 	internalOrder = TRUE;
 	break;
     case Locale:
-	latin1 = TRUE; //fallback to Latin 1
+	latin1 = TRUE; 				// fallback to Latin 1
 	mapper = QTextCodec::codecForLocale();
-	if ( mapper && mapper->mibEnum() == 4 ) {
-	    // Use optimized latin1 processing
-	    mapper = 0;
-	}
+#if defined(_OS_WIN32_)
+	if ( GetACP() == 1252 )
+	    mapper = 0;				// Optimized latin1 processing
+#endif
+	if ( mapper && mapper->mibEnum() == 4 )
+	    mapper = 0;				// Optimized latin1 processing
 	doUnicodeHeader = TRUE; // If it reads as Unicode, accept it
 	break;
     case Latin1:
