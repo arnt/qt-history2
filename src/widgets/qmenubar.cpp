@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#132 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#133 $
 **
 ** Implementation of QMenuBar class
 **
@@ -256,7 +256,6 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
     if ( object == parent() && event->type() == QEvent::Resize ) {
 	QResizeEvent *e = (QResizeEvent *)event;
 	setGeometry( 0, y(), e->size().width(), height() );
-	calculateRects();
 	return FALSE;
     }
 
@@ -728,10 +727,10 @@ void QMenuBar::drawContents( QPainter *p )
 	    } else { // motif
 		if ( i == actItem ) // active item
 		    qDrawShadePanel( p, r, palette().normal(), FALSE,
-				     motifItemFrame, 
+				     motifItemFrame,
 			    &palette().normal().brush( QColorGroup::Button ));
 		else // other item
-		    p->fillRect(r, 
+		    p->fillRect(r,
 			    palette().normal().brush( QColorGroup::Button ));
 // 		    qDrawPlainRect( p, r, palette().normal().button(),
 // 				    motifItemFrame, &palette().normal().fillButton() );
@@ -995,7 +994,7 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
   Handles resize events for the menu bar.
 */
 
-void QMenuBar::resizeEvent( QResizeEvent *e )
+void QMenuBar::resizeEvent( QResizeEvent * )
 {
     QRect frect = frameRect();
     if ( !frect.isNull() ) {
@@ -1003,13 +1002,9 @@ void QMenuBar::resizeEvent( QResizeEvent *e )
 	setFrameRect( r );
     }
 
-    if ( e->oldSize().height() == height() ) {
-	update( rightSide, 0, width(), height()-frameWidth()*2 );
-    } else {
-	update();
-    }
-
     badSize = TRUE;
+    calculateRects();
+    
 }
 
 
