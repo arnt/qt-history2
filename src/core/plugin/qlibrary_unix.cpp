@@ -15,6 +15,7 @@
 #include "qplatformdefs.h"
 #include "qlibrary_p.h"
 #include <qfile.h>
+#include <qfileinfo.h>
 
 #if defined(QT_AOUT_UNDERSCORE)
 #include <string.h>
@@ -25,6 +26,8 @@
 bool QLibraryPrivate::load_sys()
 {
     pHnd = (void*)shl_load(QFile::encodeName(fileName), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0);
+    if (!pHnd)
+        pHnd = (void*)shl_load(QFile::encodeName(QFileInfo(fileName).dirPath() + "lib" + QFileInfo(fileName).fileName() + ".sl"), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0);
     if (!pHnd)
         qWarning("%s: Failed to load library", (const char*) QFile::encodeName(fileName));
     return pHnd != 0;
@@ -53,6 +56,26 @@ void* QLibraryPrivate::resolve_sys(const char* symbol)
 bool QLibraryPrivate::load_sys()
 {
     pHnd = dlopen(QFile::encodeName(fileName), RTLD_LAZY);
+# if defined(Q_OS_HPUX)
+    if (!pHnd)
+        pHnd = dlopen(QFile::encodeName(QFileInfo(fileName).dirPath() + "lib" + QFileInfo(fileName).fileName() + ".sl"), RTLD_LAZY);
+# else
+    if (!pHnd)
+        pHnd = dlopen(QFile::encodeName(QFileInfo(fileName).dirPath() + "lib" + QFileInfo(fileName).fileName() + ".so"), RTLD_LAZY);
+# endif
+# ifdef Q_OS_MAC
+    if (!pHnd)
+        pHnd = dlopen(QFile::encodeName(QFileInfo(fileName).dirPath() + "lib" + QFileInfo(fileName).fileName() + ".bundle"), RTLD_LAZY);
+    if (!pHnd)
+        pHnd = dlopen(QFile::encodeName(QFileInfo(fileName).dirPath() + "lib" + QFileInfo(fileName).fileName() + ".dylib"), RTLD_LAZY);
+    if (!pHnd) {
+        if(QCFType<CFBundleRef> bundle = CFBundleGetBundleWithIdentifier(QCFString(fileName))) {
+            QCFType<CFURLRef> url = CFBundleCopyExecutableURL(bundle);
+            QCFString str = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
+            pHnd = dlopen(QFile::encodeName(str), RTLD_LAZY);
+        }
+    }
+# endif
     if (!pHnd)
         qWarning("%s", dlerror());
     return (pHnd != 0);

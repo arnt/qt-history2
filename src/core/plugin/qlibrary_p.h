@@ -58,8 +58,7 @@ public:
     void release();
     void *resolve(const char *);
 
-    static QString findLib(const QString &fileName);
-    static QLibraryPrivate *findOrCreate(const QString &canonicalFileName);
+    static QLibraryPrivate *findOrCreate(const QString &fileName);
 
     typedef QObject *(*InstanceFn)();
     InstanceFn instance;

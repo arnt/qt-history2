@@ -14,8 +14,8 @@
 
 #include "qplatformdefs.h"
 #include "qpluginloader.h"
+#include <qfileinfo.h>
 #include "qlibrary_p.h"
-#include <qdir.h>
 
 /*!
     \class QPluginLoader
@@ -90,9 +90,7 @@ void QPluginLoader::setFileName(const QString &fileName)
         d = 0;
         did_load = false;
     }
-    QString lib = QLibraryPrivate::findLib(fileName);
-    if (!lib.isEmpty())
-        d = QLibraryPrivate::findOrCreate(QDir(lib).canonicalPath());
+    d = QLibraryPrivate::findOrCreate(QFileInfo(fileName).absFilePath());
     if (d && d->pHnd && d->instance)
         did_load = true;
 }

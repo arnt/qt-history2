@@ -14,7 +14,8 @@
 
 #include "qplatformdefs.h"
 #include "qlibrary_p.h"
-#include <qfile.h>
+#include "qfile.h"
+#include "qfileinfo.h"
 
 #include "qt_windows.h"
 
@@ -25,6 +26,16 @@ bool QLibraryPrivate::load_sys()
     } , {
         pHnd = LoadLibraryA(QFile::encodeName(fileName).data());
     });
+
+    if (!pHnd) {
+        QString name = fileName + ".dll";
+        QT_WA({
+            pHnd = LoadLibraryW((TCHAR*)name.utf16());
+        } , {
+            pHnd = LoadLibraryA(QFile::encodeName(name).data());
+        });
+    }
+
     if (!pHnd)
         qSystemWarning("Failed to load library %s", QFile::encodeName(fileName).data());
     return pHnd != 0;

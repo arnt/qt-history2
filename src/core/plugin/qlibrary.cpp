@@ -17,7 +17,7 @@
 #include "qlibrary_p.h"
 #include <qstringlist.h>
 #include <qfile.h>
-#include <qdir.h>
+#include <qfileinfo.h>
 #include <qmutex.h>
 #include <qmap.h>
 #include <qsettings.h>
@@ -333,14 +333,14 @@ QLibraryPrivate::QLibraryPrivate(const QString &canonicalFileName)
     libraryMap()->insert(canonicalFileName, this);
 }
 
-QLibraryPrivate *QLibraryPrivate::findOrCreate(const QString &canonicalFileName)
+QLibraryPrivate *QLibraryPrivate::findOrCreate(const QString &fileName)
 {
-    if (QLibraryPrivate *lib = libraryMap()->value(canonicalFileName)) {
+    if (QLibraryPrivate *lib = libraryMap()->value(fileName)) {
         ++lib->libraryUnloadCount;
         ++lib->libraryRefCount;
         return lib;
     }
-    return new QLibraryPrivate(canonicalFileName);
+    return new QLibraryPrivate(fileName);
 }
 
 QLibraryPrivate::~QLibraryPrivate()
@@ -389,70 +389,6 @@ bool QLibraryPrivate::loadPlugin()
         return instance;
     }
     return false;
-}
-
-
-QString QLibraryPrivate::findLib(const QString &fileName)
-{
-    QString lib = fileName;
-
-#if defined(Q_WS_WIN)
-    if (lib.lastIndexOf('.') <= lib.lastIndexOf('/'))
-        lib += ".dll";
-#else
-    QStringList filters;
-# ifdef Q_OS_MAC
-    filters << ".so" << ".bundle" << ".dylib"; //the last one is also the default one..
-# elif defined(Q_OS_HPUX)
-    filters << ".sl";
-# else
-    filters << ".so";
-# endif
-#endif
-    bool found = QFile::exists(lib);
-#ifndef Q_WS_WIN
-    if(!found) {
-        for (int i = 0; i < filters.count(); ++i) {
-            const QString filter(filters.at(i));
-            if (QFile::exists(lib + filter)) {
-                found = true;
-                lib += filter;
-                break;
-            } else if (!filter.isEmpty()) {
-                QString tmplib = lib;
-                const int x = tmplib.lastIndexOf("/");
-                if (x != -1) {
-                    QString path = tmplib.left(x + 1);
-                    QString file = tmplib.right(tmplib.length() - x - 1);
-                    tmplib = QString("%1lib%2").arg(path).arg(file);
-                } else {
-                    tmplib = QString("lib%1").arg(lib);
-                }
-                tmplib += filter;
-                if (QFile::exists(tmplib)) {
-                    found = true;
-                    lib = tmplib;
-                    break;
-                }
-            }
-        }
-    }
-#endif
-#ifdef Q_OS_MAC
-    if(!found) {
-        if(QCFType<CFBundleRef> bundle = CFBundleGetBundleWithIdentifier(QCFString(lib))) {
-            found = true;
-            QCFType<CFURLRef> url = CFBundleCopyExecutableURL(bundle);
-            QCFString str = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
-            lib = str;
-        }
-    }
-#endif
-
-    if (found)
-        return lib;
-    qWarning("QLibrary: no such library %s", fileName.local8Bit());
-    return QString();
 }
 
 bool QLibraryPrivate::isPlugin()
@@ -689,9 +625,7 @@ void QLibrary::setFileName(const QString &fileName)
         d = 0;
         did_load = false;
     }
-    QString lib = QLibraryPrivate::findLib(fileName);
-    if (!lib.isEmpty())
-        d = QLibraryPrivate::findOrCreate(QDir(lib).canonicalPath());
+    d = QLibraryPrivate::findOrCreate(fileName);
     if (d && d->pHnd)
         did_load = true;
 
