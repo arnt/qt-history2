@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#6 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#7 $
 **
 ** Global type declarations and definitions
 **
@@ -67,7 +67,7 @@
 
 #if defined(__SC__)
 #define _CC_SYM_
-#elif defined(applec)
+#elif defined(appled)
 #define _CC_MPW_
 #elif defined(_MSC_VER)
 #define _CC_MSC_
