@@ -115,3 +115,7 @@ void QFontDatabase::createDatabase()
 	FMDisposeFontFamilyIterator(&it);
     }
 }
+
+static inline void load(const QString &family = QString::null,  int = -1 )
+{
+}
