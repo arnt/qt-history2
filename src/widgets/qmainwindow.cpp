@@ -865,7 +865,7 @@ QMenuBar * QMainWindow::menuBar() const
 
   Note that \a newStatusBar \e must be a child of this main window, and
   that it is not automatically displayed.  If you call this function
-  after show(), you will probably also need to call \a
+  after show(), you will probably also need to call 
   newStatusBar->show().
 
   \sa setMenuBar() statusBar()
@@ -1640,10 +1640,10 @@ void QMainWindow::styleChange( QStyle& old )
     Finds the location of the dock window \a dw.
 
     If the \a dw dock window is found in the main window the function
-    returns TRUE and populates the \a dock variable with the \a dw's
-    dock area and the \a index with the \a dw's position within the dock
+    returns TRUE and populates the \a dock variable with the dw's
+    dock area and the \a index with the dw's position within the dock
     area. It also sets \a nl to TRUE if the \a dw begins a new line
-    (otherwise FALSE), and \a extraOffset with the \a dw's offset.
+    (otherwise FALSE), and \a extraOffset with the dw's offset.
 
     If the \a dw dock window is not found the function returns FALSE and
     the state of \a dock, \a index, \a nl and \a extraOffset is
