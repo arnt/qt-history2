@@ -2002,12 +2002,11 @@ void QLineEditPrivate::updateMicroFocusHint()
 
 void QLineEditPrivate::moveCursor(int pos, bool mark)
 {
-    if (pos != cursor)
+    if (pos != cursor) {
         separate();
-    if (maskData && pos > cursor)
-        pos = nextMaskBlank(pos);
-    else if (maskData && pos < cursor)
-        pos = prevMaskBlank(pos);
+        if (maskData)
+            pos = pos > cursor ? nextMaskBlank(pos) : prevMaskBlank(pos);
+    }
     bool fullUpdate = mark || hasSelectedText();
     if (mark) {
         int anchor;
