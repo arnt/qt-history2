@@ -560,33 +560,6 @@ static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiContr
 // -----------------------------------------------------------------------------------------------------
 
 
-QScriptItemArray::~QScriptItemArray()
-{
-    clear();
-    free( d );
-}
-
-void QScriptItemArray::clear()
-{
-    if ( d ) {
-	for ( unsigned int i = 0; i < d->size; i++ ) {
-	    QScriptItem &si = d->items[i];
-	    if ( si.fontEngine )
-		si.fontEngine->deref();
-	}
-	d->size = 0;
-    }
-}
-
-void QScriptItemArray::resize( int s )
-{
-    int alloc = ((s + 8) >> 3) << 3;
-    d = (QScriptItemArrayPrivate *)realloc( d, sizeof( QScriptItemArrayPrivate ) +
-		 sizeof( QScriptItem ) * alloc );
-    d->alloc = alloc;
-}
-
-
 void QTextEngine::shape( int item ) const
 {
     QScriptItem &si = items[item];
@@ -610,7 +583,7 @@ void QTextEngine::shape( int item ) const
 		// either some asian language or something Uniscribe doesn't recognise
 		// we look at the first character to find out what it is
 		script = (QFont::Script)scriptForChar( string.unicode()[si.position].unicode() );
-		if ((script >= QFont::Han && script <= QFont::Yi) 
+		if ((script >= QFont::Han && script <= QFont::Yi)
 		    || script == QFont::KatakanaHalfWidth || script == QFont::UnknownScript) {
 		    // maybe some asian language
 		    int i;

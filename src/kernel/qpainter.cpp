@@ -1128,7 +1128,7 @@ void QPainter::drawText(int x, int y, const QString &str, int pos, int len, Text
 
     if ( dir != Auto ) {
 	int level = dir == RTL ? 1 : 0;
-	for ( int i = engine->items.size(); i >= 0; i-- )
+	for ( int i = engine->items.size()-1; i >= 0; i-- )
 	    engine->items[i].analysis.bidiLevel = level;
     }
 

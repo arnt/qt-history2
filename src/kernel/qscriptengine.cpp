@@ -19,6 +19,7 @@
 #include "qtextengine_p.h"
 #include "qfontengine_p.h"
 #include <stdlib.h>
+#include <qstackarray.h>
 
 
 #undef None
@@ -860,15 +861,8 @@ static void arabicSyriacOpenTypeShape( int script, QOpenType *openType, const QS
     convertToCMap( string.unicode() + from, len, engine, si );
     heuristicSetGlyphAttributes( string, from, len, engine, si );
 
-    unsigned char gv[256];
-    unsigned char *glyphVariant = gv;
-    bool ap[256];
-    bool *apply = ap;
-
-    if ( si->num_glyphs > 255 ) {
-	glyphVariant = (unsigned char *)malloc(si->num_glyphs*sizeof(unsigned char));
-	apply = (bool *)malloc(si->num_glyphs*sizeof(bool));
-    }
+    QStackArray<char> glyphVariant(si->num_glyphs);
+    QStackArray<bool> apply(si->num_glyphs);
 
     for ( int i = 0; i < si->num_glyphs; i++ )
 	glyphVariant[i] = glyphVariantLogical( string, from + i );
@@ -933,11 +927,6 @@ static void arabicSyriacOpenTypeShape( int script, QOpenType *openType, const QS
     openType->applyGPOSFeatures();
     si->num_glyphs = 0;
     openType->appendTo(engine, si);
-
-    if (glyphVariant != gv) {
-	free(glyphVariant);
-	free(apply);
-    }
 }
 
 #endif
@@ -979,19 +968,18 @@ static void arabic_shape( int /*script*/, const QString &string, int from, int l
     GlyphAttributes *glyphAttributes = engine->glyphAttributes( si );
     unsigned short *logClusters = engine->logClusters( si );
 
-    QChar *shapedChars = (QChar *)::malloc( len * sizeof( QChar ) );
+    QStackArray<unsigned short> shapedChars(len);
 
     int slen;
-    shapedString( text, from, len, shapedChars, &slen, (si->analysis.bidiLevel%2),
+    shapedString( text, from, len, (QChar *)(unsigned short*)shapedChars, &slen, (si->analysis.bidiLevel%2),
 		  glyphAttributes, logClusters );
 
-    convertToCMap( shapedChars, slen, engine, si );
+    convertToCMap( (QChar *)(unsigned short*)shapedChars, slen, engine, si );
     advance_t *advances = engine->advances(si);
     for (int i = 0; i < slen; ++i)
 	if (glyphAttributes[i].mark)
 	    advances[i] = 0;
 
-    ::free( shapedChars );
     q_heuristicPosition( engine, si );
 }
 

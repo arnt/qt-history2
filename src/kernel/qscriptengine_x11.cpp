@@ -1163,20 +1163,10 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
     int len = syllableLength;
     IDEBUG(">>>>> devanagari shape: from=%d, len=%d invalid=%d", from, len, invalid);
 
-    unsigned short r[64];
-    unsigned short *reordered = r;
-    GlyphAttributes ga[64];
-    GlyphAttributes *glyphAttributes = ga;
-    glyph_t gl[64];
-    glyph_t *glyphs = gl;
-    unsigned char p[64];
-    unsigned char *position = p;
-    if ( len > 60 ) {
-	reordered = (unsigned short *)malloc((len+4)*sizeof(unsigned short));
-	glyphAttributes = (GlyphAttributes *)malloc((len+4)*sizeof(GlyphAttributes));
-	glyphs = (glyph_t *)malloc((len+4)*sizeof(glyph_t));
-	position = (unsigned char*)malloc((len+4)*sizeof(unsigned char));
-    }
+    QStackArray<unsigned short> reordered(len+4);
+    QStackArray<GlyphAttributes> glyphAttributes(len+4);
+    QStackArray<glyph_t> glyphs(len+4);
+    QStackArray<unsigned char> position(len+4);
 
     unsigned char properties = scriptProperties[script-QFont::Devanagari];
 
@@ -1485,21 +1475,15 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 
 #ifndef QT_NO_XFTFREETYPE
     if (openType) {
-	int error = si->fontEngine->stringToCMap((QChar *)reordered, len, glyphs, 0, &len,
+	int error = si->fontEngine->stringToCMap((QChar *)(unsigned short *)reordered, len, glyphs, 0, &len,
 						 (si->analysis.bidiLevel %2));
 	assert (!error);
 
 	// we need to keep track of where the base glyph is for some scripts and abuse the logcluster feature for this.
 	// This also means we have to correct the logCluster output from the open type engine manually afterwards.
 	// for indic this is rather simple, as all chars just point to the first glyph in the syllable.
-	unsigned short lc[64];
-	unsigned short *logClusters = lc;
-	bool w[64];
-	bool *where = w;
-	if (len > 63) {
-	    where = (bool *)malloc(len*sizeof(bool));
-	    logClusters = (unsigned short *)malloc((len+4)*sizeof(unsigned short));
-	}
+	QStackArray<unsigned short> logClusters(len);
+	QStackArray<bool> where(len);
 	memset(where, 0, len*sizeof(bool));
 	for (i = 0; i < len; ++i)
 	    logClusters[i] = i;
@@ -1627,10 +1611,6 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 
 	openType->appendTo(engine, si, FALSE);
 
-	if (w != where) {
-	    free(where);
-	    free(logClusters);
-	}
     } else
 #endif
     {
@@ -1642,7 +1622,7 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	advance_t *advances = engine->advances(si);
 	GlyphAttributes *ga = engine->glyphAttributes(si);
 
-	int error = si->fontEngine->stringToCMap((QChar *)reordered, len, glyphs, advances, &len,
+	int error = si->fontEngine->stringToCMap((QChar *)(unsigned short *)reordered, len, glyphs, advances, &len,
 						 (si->analysis.bidiLevel %2));
 	assert (!error);
 
@@ -1656,12 +1636,6 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
     for (i = 0; i < syllableLength; ++i)
 	logClusters[i] = firstGlyph;
 
-    if (r != reordered) {
-	free(reordered);
-	free(glyphAttributes);
-	free(glyphs);
-	free(position);
-    }
     IDEBUG("<<<<<<");
 }
 
@@ -1900,24 +1874,16 @@ static void tibetan_shape_syllable( const QString &string, int from, int syllabl
     int len = syllableLength;
 
     int i;
-    unsigned short r[64];
-    unsigned short *reordered = r;
-    GlyphAttributes ga[64];
-    GlyphAttributes *glyphAttributes = ga;
-    glyph_t gl[64];
-    glyph_t *glyphs = gl;
-    if ( len > 60 ) {
-	reordered = (unsigned short *)malloc((len+4)*sizeof(unsigned short));
-	glyphAttributes = (GlyphAttributes *)malloc((len+4)*sizeof(GlyphAttributes));
-	glyphs = (glyph_t *)malloc((len+4)*sizeof(glyph_t));
-    }
+    QStackArray<unsigned short> reordered(len+4);
+    QStackArray<GlyphAttributes> glyphAttributes(len+4);
+    QStackArray<glyph_t> glyphs(len+4);
 
     const QChar *str = string.unicode() + from;
     if ( invalid ) {
 	*reordered = 0x25cc;
 	memcpy( reordered+1, str, len*sizeof( QChar ) );
 	len++;
-	str = (QChar *)reordered;
+	str = (QChar *)(unsigned short *)reordered;
     }
 
     for (i = 0; i < len; i++) {
@@ -1942,10 +1908,7 @@ static void tibetan_shape_syllable( const QString &string, int from, int syllabl
 	// we need to keep track of where the base glyph is for some scripts and abuse the logcluster feature for this.
 	// This also means we have to correct the logCluster output from the open type engine manually afterwards.
 	// for indic this is rather simple, as all chars just point to the first glyph in the syllable.
-	unsigned short lc[64];
-	unsigned short *logClusters = lc;
-	if (len > 63)
-	    logClusters = (unsigned short *)malloc((len+4)*sizeof(unsigned short));
+	QStackArray<unsigned short> logClusters(len);
 	for (i = 0; i < len; ++i)
 	    logClusters[i] = i;
 
@@ -1965,9 +1928,6 @@ static void tibetan_shape_syllable( const QString &string, int from, int syllabl
 	    ga[i] = glyphAttributes[char_map[i]];
 
 	openType->appendTo(engine, si, FALSE);
-
-	if (lc != logClusters)
-	    free(logClusters);
     } else
 #endif
     {
@@ -1992,12 +1952,6 @@ static void tibetan_shape_syllable( const QString &string, int from, int syllabl
     unsigned short *logClusters = engine->logClusters(si)+from-si->position;
     for (i = 0; i < syllableLength; ++i)
 	logClusters[i] = firstGlyph;
-
-    if (gl != glyphs) {
-	free(reordered);
-	free(glyphAttributes);
-	free(glyphs);
-    }
 }
 
 
@@ -2662,17 +2616,9 @@ static void hangul_shape_syllable( const QString &string, int from, int syllable
 #ifndef QT_NO_XFTFREETYPE
     if (openType && !composed) {
 
-	GlyphAttributes ga[32];
-	GlyphAttributes *glyphAttributes = ga;
-	glyph_t gl[32];
-	glyph_t *glyphs = gl;
-	unsigned short lc[32];
-	unsigned short *logClusters = lc;
-	if (len > 32) {
-	    glyphAttributes = (GlyphAttributes *)malloc(len * sizeof(GlyphAttributes));
-	    glyphs = (glyph_t *)malloc(len * sizeof(glyph_t));
-	    logClusters = (unsigned short *)malloc(len * sizeof(unsigned short));
-	}
+	QStackArray<GlyphAttributes> glyphAttributes(len);
+	QStackArray<glyph_t> glyphs(len);
+	QStackArray<unsigned short> logClusters(len);
 
 	for (i = 0; i < len; i++) {
 	    glyphAttributes[i].mark = FALSE;
@@ -2712,12 +2658,6 @@ static void hangul_shape_syllable( const QString &string, int from, int syllable
 
 	openType->appendTo(engine, si, FALSE);
 
-
-	if (glyphs != gl) {
-	    free(glyphAttributes);
-	    free(glyphs);
-	    free(logClusters);
-	}
     } else
 #endif
     {

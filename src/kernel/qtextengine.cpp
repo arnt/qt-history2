@@ -20,6 +20,49 @@
 #include <private/qunicodetables_p.h>
 #include <stdlib.h>
 
+
+QScriptItem::QScriptItem(const QScriptItem &o)
+    : position( o.position ), analysis(o.analysis),
+      isSpace( o.isSpace ), isTab( o.isTab ),
+      isObject( o.isObject ), hasPositioning( o.hasPositioning ),
+      descent( o.descent ), ascent( o.ascent ), width( o.width ),
+      x( o.x ), y( o.y ), num_glyphs( o.num_glyphs ), glyph_data_offset( o.glyph_data_offset ),
+      fontEngine( o.fontEngine ), custom(o.custom)
+{
+    if (fontEngine) fontEngine->ref();
+}
+
+QScriptItem &QScriptItem::operator=(const QScriptItem &o)
+{
+    position = o.position;
+    analysis = o.analysis;
+    isSpace = o.isSpace;
+    isTab = o.isTab;
+    isObject = o.isObject;
+    hasPositioning = o.hasPositioning;
+    descent = o.descent;
+    ascent = o.ascent;
+    width = o.width;
+    x = o.x; y = o.y;
+    num_glyphs = o.num_glyphs;
+    glyph_data_offset = o.glyph_data_offset;
+    o.fontEngine->ref();
+    if (fontEngine && fontEngine->deref())
+	delete fontEngine;
+    fontEngine = o.fontEngine;
+    custom = o.custom;
+
+    return *this;
+}
+
+QScriptItem::~QScriptItem() { if (fontEngine && fontEngine->deref()) delete fontEngine; }
+void QScriptItem::setFont(QFontEngine *e) {
+    if (e) e->ref();
+    if (fontEngine && fontEngine->deref()) delete fontEngine;
+    fontEngine = e;
+}
+
+
 // -----------------------------------------------------------------------------------------------------
 //
 // The BiDi algorithm
@@ -904,7 +947,7 @@ const QCharAttributes *QTextEngine::attributes()
     if ( haveCharAttributes )
 	return charAttributes;
 
-    if ( !items.d )
+    if ( !items )
 	itemize();
 
     for ( int i = 0; i < items.size(); i++ ) {
@@ -913,7 +956,7 @@ const QCharAttributes *QTextEngine::attributes()
 	int len = length( i );
 	int script = si.analysis.script;
 	Q_ASSERT( script < QFont::NScripts );
-	scriptEngines[si.analysis.script].charAttributes( script, string, from, len, charAttributes );
+	scriptEngines[si.analysis.script].charAttributes(script, string, from, len, charAttributes);
     }
 
     calcLineBreaks(string, charAttributes);
@@ -937,10 +980,7 @@ void QTextEngine::setProperty(int from, int length, QFontPrivate *font, int cust
 	QScriptItem &si = items[item];
 	QFont::Script script = (QFont::Script)si.analysis.script;
 
-	if (si.fontEngine && si.fontEngine->deref())
-	    delete si.fontEngine;
-	si.fontEngine = font->engineForScript( script );
-	si.fontEngine->ref();
+	si.setFont(font->engineForScript(script));
 	si.custom = custom;
 	++item;
     }
@@ -967,19 +1007,10 @@ void QTextEngine::splitItem( int item, int pos )
     if ( pos <= 0 )
 	return;
 
-    if ( items.d->size == items.d->alloc )
-	items.resize( items.d->size + 1 );
-
-    int numMove = items.d->size - item-1;
-    if ( numMove > 0 )
-	memmove( items.d->items + item+2, items.d->items +item+1, numMove*sizeof( QScriptItem ) );
-    items.d->size++;
-    QScriptItem &newItem = items.d->items[item+1];
-    QScriptItem &oldItem = items.d->items[item];
-    newItem = oldItem;
-    items.d->items[item+1].position += pos;
-    if ( newItem.fontEngine )
-	newItem.fontEngine->ref();
+    items.insert(item+1, QScriptItem(items[item]));
+    QScriptItem &oldItem = items[item];
+    QScriptItem &newItem = items[item+1];
+    newItem.position += pos;
 
     if (oldItem.num_glyphs) {
 	// already shaped, break glyphs aswell
@@ -1011,7 +1042,7 @@ int QTextEngine::width( int from, int len ) const
 
 //     qDebug("QTextEngine::width( from = %d, len = %d ), numItems=%d, strleng=%d", from,  len, items.size(), string.length() );
     for ( int i = 0; i < items.size(); i++ ) {
-	QScriptItem *si = &items[i];
+	const QScriptItem *si = items.constData() + i;
 	int pos = si->position;
 	int ilen = length( i );
 //  	qDebug("item %d: from %d len %d", i, pos, ilen );
@@ -1058,13 +1089,7 @@ int QTextEngine::width( int from, int len ) const
 
 void QTextEngine::itemize( int mode )
 {
-    if ( !items.d ) {
-	int size = 8;
-	items.d = (QScriptItemArrayPrivate *)malloc( sizeof( QScriptItemArrayPrivate ) +
-						    sizeof( QScriptItem ) * size );
-	items.d->alloc = size;
-    }
-    items.d->size = 0;
+    items.clear();
     if ( string.length() == 0 )
 	return;
 
@@ -1089,7 +1114,7 @@ glyph_metrics_t QTextEngine::boundingBox( int from,  int len ) const
     glyph_metrics_t gm;
 
     for ( int i = 0; i < items.size(); i++ ) {
-	QScriptItem *si = &items[i];
+	const QScriptItem *si = items.constData() + i;
 	int pos = si->position;
 	int ilen = length( i );
 	if ( pos > from + len )

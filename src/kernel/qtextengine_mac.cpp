@@ -11,32 +11,6 @@
 ****************************************************************************/
 
 
-QScriptItemArray::~QScriptItemArray()
-{
-    clear();
-    free( d );
-}
-
-void QScriptItemArray::clear()
-{
-    if ( d ) {
-	for ( unsigned int i = 0; i < d->size; i++ ) {
-	    QScriptItem &si = d->items[i];
-	    if ( si.fontEngine )
-		si.fontEngine->deref();
-	}
-	d->size = 0;
-    }
-}
-
-void QScriptItemArray::resize( int s )
-{
-    int alloc = (s + 8) >> 3 << 3;
-    d = (QScriptItemArrayPrivate *)realloc( d, sizeof( QScriptItemArrayPrivate ) +
-		 sizeof( QScriptItem ) * alloc );
-    d->alloc = alloc;
-}
-
 void QTextEngine::shape( int item ) const
 {
     QScriptItem &si = items[item];

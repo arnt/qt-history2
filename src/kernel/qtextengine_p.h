@@ -18,6 +18,7 @@
 #include "qstring.h"
 #include "qnamespace.h"
 #include <private/qfontdata_p.h>
+#include <qvector.h>
 #endif // QT_H
 
 #include <stdlib.h>
@@ -61,6 +62,7 @@ struct glyph_metrics_t
     int xoff;
     int yoff;
 };
+Q_DECLARE_TYPEINFO(glyph_metrics_t, Q_PRIMITIVE_TYPE);
 
 #if defined( Q_WS_X11 ) || defined ( Q_WS_QWS )
 typedef unsigned short glyph_t;
@@ -69,6 +71,7 @@ struct qoffset_t {
     short x;
     short y;
 };
+Q_DECLARE_TYPEINFO(qoffset_t, Q_PRIMITIVE_TYPE);
 
 typedef int advance_t;
 
@@ -87,6 +90,7 @@ struct QScriptAnalysis
     }
 
 };
+Q_DECLARE_TYPEINFO(QScriptAnalysis, Q_PRIMITIVE_TYPE);
 
 #elif defined( Q_WS_MAC )
 
@@ -96,6 +100,7 @@ struct qoffset_t {
     short x;
     short y;
 };
+Q_DECLARE_TYPEINFO(qoffset_t, Q_PRIMITIVE_TYPE);
 
 typedef int advance_t;
 
@@ -114,6 +119,7 @@ struct QScriptAnalysis
     }
 
 };
+Q_DECLARE_TYPEINFO(QScriptAnalysis, Q_PRIMITIVE_TYPE);
 
 #elif defined( Q_WS_WIN )
 
@@ -126,6 +132,7 @@ struct qoffset_t {
     int x;
     int y;
 };
+Q_DECLARE_TYPEINFO(qoffset_t, Q_PRIMITIVE_TYPE);
 
 typedef int advance_t;
 
@@ -149,6 +156,7 @@ struct QScriptAnalysis {
     unsigned short reserved          :1;
     unsigned short engineReserved    :2;
 };
+Q_DECLARE_TYPEINFO(QScriptAnalysis, Q_PRIMITIVE_TYPE);
 
 inline bool operator == ( const QScriptAnalysis &sa1, const QScriptAnalysis &sa2 )
 {
@@ -188,6 +196,7 @@ struct GlyphAttributes {
     unsigned short reserved        :1;
     unsigned short combiningClass  :8;
 };
+Q_DECLARE_TYPEINFO(GlyphAttributes, Q_PRIMITIVE_TYPE);
 
 // also this is compatible to uniscribe. Do not change.
 struct QCharAttributes {
@@ -198,6 +207,7 @@ struct QCharAttributes {
     uchar invalid        :1;
     uchar reserved       :3;
 };
+Q_DECLARE_TYPEINFO(QCharAttributes, Q_PRIMITIVE_TYPE);
 
 class QFontEngine;
 
@@ -208,6 +218,11 @@ struct QScriptItem
 			   descent( -1 ), ascent( -1 ), width( -1 ),
 			   x( 0 ), y( 0 ), num_glyphs( 0 ), glyph_data_offset( 0 ),
 			   fontEngine( 0 ), custom(0) { }
+    QScriptItem(const QScriptItem &o);
+    ~QScriptItem();
+    QScriptItem &operator=(const QScriptItem &o);
+
+    void setFont(QFontEngine *e);
     int position;
     QScriptAnalysis analysis;
     unsigned short isSpace  : 1;
@@ -226,38 +241,9 @@ struct QScriptItem
     int custom;
 };
 
-struct QScriptItemArrayPrivate
-{
-    unsigned int alloc;
-    unsigned int size;
-    QScriptItem items[1];
-};
+Q_DECLARE_TYPEINFO(QScriptItem, Q_MOVABLE_TYPE);
 
-class QScriptItemArray
-{
-public:
-    QScriptItemArray() : d( 0 ) {}
-    ~QScriptItemArray();
-
-    inline QScriptItem &operator[] (int i) const {return d->items[i];   }
-    inline void append( const QScriptItem &item ) {
-	if ( d->size == d->alloc )
-	    resize( d->size + 1 );
-	d->items[d->size] = item;
-	d->size++;
-    }
-    inline int size() const { return d ? d->size : 0; }
-
-    void resize( int s );
-    void clear();
-
-    QScriptItemArrayPrivate *d;
-private:
-#ifdef Q_DISABLE_COPY
-    QScriptItemArray( const QScriptItemArray & );
-    QScriptItemArray &operator = ( const QScriptItemArray & );
-#endif
-};
+typedef QVector<QScriptItem> QScriptItemArray;
 
 class QFontPrivate;
 
@@ -296,7 +282,7 @@ public:
 
     void enableKerning(bool enable) { kern = enable; }
 
-    QScriptItemArray items;
+    mutable QScriptItemArray items;
     QString string;
     QFontPrivate *fnt;
     int lineWidth;

@@ -13,32 +13,6 @@
 #include <assert.h>
 
 
-QScriptItemArray::~QScriptItemArray()
-{
-    clear();
-    free( d );
-}
-
-void QScriptItemArray::clear()
-{
-    if ( d ) {
-	for ( unsigned int i = 0; i < d->size; i++ ) {
-	    QScriptItem &si = d->items[i];
-	    if ( si.fontEngine )
-		si.fontEngine->deref();
-	}
-	d->size = 0;
-    }
-}
-
-void QScriptItemArray::resize( int s )
-{
-    int alloc = (s + 8) >> 3 << 3;
-    d = (QScriptItemArrayPrivate *)realloc( d, sizeof( QScriptItemArrayPrivate ) +
-		 sizeof( QScriptItem ) * alloc );
-    d->alloc = alloc;
-}
-
 #ifndef FT_KERNING_DEFAULT
 #  define FT_KERNING_DEFAULT ft_kerning_default
 #endif
@@ -91,7 +65,7 @@ void QTextEngine::shape( int item ) const
 	}
     }
 #endif
-    
+
     si.width = 0;
     advance_t *end = advances + si.num_glyphs;
     while ( advances < end )
