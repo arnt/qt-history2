@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qmime.cpp#7 $
 **
 ** Implementation of MIME support
 **
@@ -158,7 +158,7 @@ const QMimeSource* QMimeSourceFactory::data(const QString& abs_name) const
     QStringList::Iterator it;
     for ( it = d->path.begin(); !r && it != d->path.end(); ++it ) {
 	QString filename = *it;
-	if ( filename[filename.length()-1] != '/' )
+	if ( filename[(int)filename.length()-1] != '/' )
 	    filename += '/';
 	filename += abs_name;
 	QFileInfo fi(filename);
