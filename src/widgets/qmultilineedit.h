@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#22 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#23 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -33,6 +33,7 @@
 #endif // QT_H
 
 struct QMultiLineData;
+class QMultiLineEditCommand;
 class QValidator;
 
 class Q_EXPORT QMultiLineEdit : public QTableView
@@ -108,6 +109,11 @@ public:
     bool autoUpdate()	const;
     virtual void setAutoUpdate( bool );
 
+    void setUndoEnabled( bool );
+    bool isUndoEnabled() const;
+    void setUndoDepth( int );
+    int undoDepth() const;
+    
     bool isReadOnly() const;
     bool isOverwriteMode() const;
     QString text() const;
@@ -127,10 +133,14 @@ public slots:
     void       copy() const;
     void       cut();
     void       insert( const QString& );
+    void       undo();
+    void       redo();
 
 signals:
     void	textChanged();
     void	returnPressed();
+    void	undoAvailable( bool );
+    void	redoAvailable( bool );
 
 protected:
     void	paintCell( QPainter *, int row, int col );
@@ -173,12 +183,12 @@ protected:
     virtual void home( bool mark=FALSE );
     virtual void end( bool mark=FALSE );
 
-    bool	getMarkedRegion( int *line1, int *col1,
-				 int *line2, int *col2 ) const;
-    int		lineLength( int row ) const;
-    QString	*getString( int row ) const;
-    bool		isEndOfParagraph( int row ) const;
-    QString     stringShown( int row ) const;
+    bool getMarkedRegion( int *line1, int *col1,
+			  int *line2, int *col2 ) const;
+    int lineLength( int row ) const;
+    QString *getString( int row ) const;
+    bool isEndOfParagraph( int row ) const;
+    QString stringShown( int row ) const;
 
 protected:
     bool	cursorOn;	
@@ -254,12 +264,24 @@ private:
     void	wrapLine( int line, int removed = 0);
     void	rebreakParagraph( int line, int removed = 0 );
     void	rebreakAll();
+    void	insertAtAux( const QString &s, int line, int col, bool mark = FALSE );
+    void	killLineAux();
+    void	delAux();
+    int	positionToOffsetInternal( int row, int col ) const;
+    void	offsetToPositionInternal( int position, int *row, int *col ) const;
+    void	deleteNextChar( int offset, int row, int col );
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QMultiLineEdit( const QMultiLineEdit & );
     QMultiLineEdit &operator=( const QMultiLineEdit & );
 #endif
+    
+    friend class QDelTextCmd;
+    friend class QInsTextCmd;
+    
+    void addUndoCmd(QMultiLineEditCommand*);
+    void addRedoCmd(QMultiLineEditCommand*);
 };
 
 inline bool QMultiLineEdit::isReadOnly() const { return readOnly; }
