@@ -863,8 +863,10 @@ int QPopupMenu::itemAtPos( const QPoint &pos, bool ignoreSeparator ) const
 	   y >= contentsRect().height() - style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this))
 	    return -1;
 	++it;
-	if ( !mi->isVisible() )
+	if ( !mi->isVisible() ) {
+	    ++row;
 	    continue;
+	}
 	int itemh = itemHeight( mi );
 
 	sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
@@ -920,8 +922,10 @@ QRect QPopupMenu::itemGeometry( int index )
 	   y >= contentsRect().height() - scrollh)
 	    break;
 	++it;
-	if ( !mi->isVisible() )
+	if ( !mi->isVisible() ) {
+	    ++row;
 	    continue;
+	}
 	int itemh = itemHeight( mi );
 
 	sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
@@ -992,8 +996,9 @@ void QPopupMenu::updateSize()
 
     for ( QMenuItemListIt it2( *mitems ); it2.current(); ++it2 ) {
 	mi = it2.current();
-	if ( !mi->isVisible() )
+	if ( !mi->isVisible() ) {
 	    continue;
+	}
 	int w = 0;
 	int itemHeight = QPopupMenu::itemHeight( mi );
 
@@ -1422,8 +1427,10 @@ void QPopupMenu::drawContents( QPainter* p )
 	   y >= contentsRect().height() - style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this))
 	    break;
 	++it;
-	if ( !mi->isVisible() )
+	if ( !mi->isVisible() ) {
+	    ++row;
 	    continue;
+	}
 	int itemh = itemHeight( mi );
 	sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
 				      QSize(0, itemh),
@@ -1447,7 +1454,8 @@ void QPopupMenu::drawContents( QPainter* p )
 	    y = contentsRect().y();
 	    x +=itemw;
 	}
-	drawItem( p, tab, mi, row == actItem, x, y, itemw, itemh );
+	if ( !mi->widget() )
+	    drawItem( p, tab, mi, row == actItem, x, y, itemw, itemh );
 	y += itemh;
 	++row;
     }
