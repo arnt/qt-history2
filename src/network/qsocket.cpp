@@ -394,10 +394,10 @@ void QSocket::tryConnecting()
     qDebug( "QSocket (%s)::tryConnecting()", name() );
 #endif
     // ### this ifdef isn't correct - addresses() also does /etc/hosts and
+    // numeric-address-as-string handling.
 #ifndef QT_NO_DNS
     static QList<QHostAddress> l;
     if ( d->state == HostLookup ) {
-	// numeric-address-as-string handling.
 	l = d->dns->addresses();
 #if defined(QSOCKET_DEBUG)
 	qDebug( "QSocket (%s)::tryConnecting: host %s, port %d, %d addresses",
@@ -419,9 +419,7 @@ void QSocket::tryConnecting()
 	emit hostFound();
 	d->addr = l[0]; // just use the first address
 	d->state = Connecting; // enter the next if clause
-    }
 
-    if ( d->state == Connecting ) {
 	d->setSocketDevice( this, 0, d->addr.isIPv4Address() ? QSocketDevice::IPv4 : QSocketDevice::IPv6 );
 	if ( d->socket->connect( d->addr, d->port ) == FALSE ) {
 	    if ( d->socket->error() == QSocketDevice::NoError ) {
