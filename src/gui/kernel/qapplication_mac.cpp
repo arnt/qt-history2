@@ -1928,7 +1928,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 }
                 if(!widget) //fallback
                     widget = QApplication::widgetAt(where.h, where.v);
-                if(ekind == kEventMouseUp) {
+                if(ekind == kEventMouseUp && widget) {
                     short part = qt_mac_window_at(where.h, where.v);
                     if(part == inDrag) {
                         UInt32 count = 0;
