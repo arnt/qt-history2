@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#20 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -16,9 +16,10 @@
 #include "qkeycode.h"
 #include "qstrlist.h"
 #include "qpixmap.h"
+#include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombo.cpp#19 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombo.cpp#20 $";
 #endif
 
 /*!
@@ -63,7 +64,7 @@ static bool getMetrics( int width, int height,
     int drawH = height - 4;
     *dist     = ( drawH + 1 ) / 3;
     *buttonH  = drawH - 2*(*dist);
-    *buttonW  = (*buttonH)*162/100;	   // use the golden section
+    *buttonW  = (*buttonH)*162/100;		// use the golden section
     if ( width - 4 < *buttonW )
 	*buttonW = width - 6;
     if ( drawH < 5 || *buttonW < 5 )
@@ -98,18 +99,13 @@ static inline bool checkIndex( const char *method, int count, int index )
 
 
 /*!
-Constructs a combo box widget with a parent and a name.
+  Constructs a combo box widget with a parent and a name.
 */
 
 QComboBox::QComboBox( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
     initMetaObject();
-    init();
-}
-
-void QComboBox::init()
-{
     d		  = new QComboData;
     d->popup	  = new QPopupMenu;
     d->current	  = 0;
@@ -118,19 +114,30 @@ void QComboBox::init()
     connect( d->popup, SIGNAL(highlighted(int)),SLOT(internalHighlight(int)) );
 }
 
+//
+// To be removed
+//
+
+void QComboBox::init()
+{
+}
+
 /*!
-Destroys the combo box.
+  Destroys the combo box.
 */
 
 QComboBox::~QComboBox()
 {
-    delete d->popup;
+    if ( !QApplication::closingDown() )
+	delete d->popup;
+    else
+	d->popup = 0;
     delete d;
 }
 
 
 /*!
-Returns the number of items in the combo box.
+  Returns the number of items in the combo box.
 */
 
 int QComboBox::count() const
