@@ -8,17 +8,9 @@ TabDialog::TabDialog(const QString &fileName, QWidget *parent)
     QFileInfo fileInfo(fileName);
 
     tabWidget = new QTabWidget(this);
-    tabWidget->addTab(new GeneralTab(fileInfo),
-//                      QIcon(QPixmap("/Users/twschulz/troll/qt/main/pics/generic.png")),
-                      tr("Tab 1"));
-    tabWidget->addTab(new PermissionsTab(fileInfo),
-           // QIcon(QPixmap("/Users/twschulz/troll/qt/main/pics/generic.png")),
-            tr("Tab 2"));
-    tabWidget->addTab(new ApplicationsTab(fileInfo),
-            //QIcon(QPixmap("/Users/twschulz/troll/qt/main/pics/generic.png")),
-            tr("Applications"));
-    tabWidget->setTabPosition(QTabWidget::West);
-//    tabWidget->setTabShape(QTabWidget::Triangular);
+    tabWidget->addTab(new GeneralTab(fileInfo), tr("General"));
+    tabWidget->addTab(new PermissionsTab(fileInfo), tr("Permissions"));
+    tabWidget->addTab(new ApplicationsTab(fileInfo), tr("Applications"));
 
     QPushButton *okButton = new QPushButton(tr("OK"), this);
     QPushButton *cancelButton = new QPushButton(tr("Cancel"), this);
