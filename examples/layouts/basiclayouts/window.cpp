@@ -44,6 +44,7 @@ Window::Window()
 
     QPushButton *okButton = new QPushButton(tr("OK"), this);
     QPushButton *cancelButton = new QPushButton(tr("Cancel"), this );
+    okButton->setDefault(true);
 
     connect(okButton, SIGNAL(clicked()), qApp, SLOT(quit()));
     connect(cancelButton, SIGNAL(clicked()), qApp, SLOT(quit()));

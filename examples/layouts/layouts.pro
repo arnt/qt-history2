@@ -1,2 +1,3 @@
 TEMPLATE      = subdirs
-SUBDIRS       = basiclayouts
+SUBDIRS       = basiclayouts \
+                borderlayout
