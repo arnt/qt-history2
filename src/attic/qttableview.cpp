@@ -53,12 +53,10 @@ void QCornerSquare::paintEvent( QPaintEvent * )
 }
 
 
-// NOT REVISED
 /*!
   \class QtTableView qttableview.h
   \brief The QtTableView class provides an abstract base for tables.
-
-  \obsolete
+  \internal
 
   A table view consists of a number of abstract cells organized in rows
   and columns, and a visible part called a view. The cells are identified

@@ -115,10 +115,8 @@ public:
 
 /*!
   \class QtMultiLineEdit qtmultilineedit.h
-
   \brief The QtMultiLineEdit widget is a simple editor for inputting text.
-
-  \obsolete
+  \internal
 
   The QtMultiLineEdit widget provides multiple line text input and display.
   It is intended for moderate amounts of text. There are no arbitrary

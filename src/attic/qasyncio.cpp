@@ -20,8 +20,8 @@
 
 /*!
   \class QAsyncIO qasyncio.h
-  \obsolete
   \brief The QAsyncIO class encapsulates I/O asynchronicity.
+  \internal
 
   The Qt classes for asynchronous input/output provide a simple
   mechanism to allow large files or slow data sources to be processed
@@ -61,8 +61,8 @@ void QAsyncIO::ready()
 
 /*!
   \class QDataSink qasyncio.h
-  \obsolete
   \brief The QDataSink class is an asynchronous consumer of data.
+  \internal
 
   A data sink is an object which receives data from some source in an
   asynchronous manner.  This means that at some time not determined by
@@ -107,8 +107,8 @@ void QDataSink::maybeReady()
 
 /*!
   \class QDataSource qasyncio.h
-  \obsolete
   \brief The QDataSource class is an asynchronous producer of data.
+  \internal
 
   A data source is an object which provides data from some source in an
   asynchronous manner.  This means that at some time not determined by
@@ -184,8 +184,8 @@ void QDataSource::rewind()
 
 /*!
   \class QIODeviceSource qasyncio.h
-  \obsolete
   \brief The QIODeviceSource class is a QDataSource that draws data from a QIODevice.
+  \internal
 
   This class encapsulates retrieving data from a QIODevice (such as a QFile).
 */
@@ -272,8 +272,8 @@ void QIODeviceSource::rewind()
 
 /*!
   \class QDataPump qasyncio.h
-  \obsolete
   \brief The QDataPump class moves data from a QDataSource to a QDataSink during event processing.
+  \internal
 
   For a QDataSource to provide data to a QDataSink, a controller must exist
   to examine the QDataSource::readyToSend() and QDataSink::readyToReceive()
