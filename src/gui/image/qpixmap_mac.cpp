@@ -735,11 +735,13 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
 
     //acquire and cleanup
     IconRef ret;
+    static int counter = 0;
     const OSType kQtCreator = 'CUTE';
-    RegisterIconRefFromIconFamily(kQtCreator, (OSType)px.serialNumber(), iconFamily, &ret);
+    RegisterIconRefFromIconFamily(kQtCreator, (OSType)counter, iconFamily, &ret);
     AcquireIconRef(ret);
-    UnregisterIconRef(kQtCreator, (OSType)px.serialNumber());
+    UnregisterIconRef(kQtCreator, (OSType)counter);
     DisposeHandle(reinterpret_cast<Handle>(iconFamily));
+    counter++;
     return ret;
 
 }
