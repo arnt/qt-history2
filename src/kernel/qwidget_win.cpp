@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#194 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#195 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -407,7 +407,7 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text)
 	QWidget* w = this;
 	while ( !w->isTopLevel() ) {
 	    p = w->mapToParent(p);
-	    w = parentWidget();
+	    w = w->parentWidget();
 	}
 
 	COMPOSITIONFORM cf;
