@@ -160,6 +160,7 @@ private:
 DrawView::DrawView()
 {
     setCaption( "Qt Draw Demo Application" );
+    setBackgroundMode(PaletteBase);
 
     // Create a button group to contain all buttons
     bgroup = new QButtonGroup( this );
