@@ -70,6 +70,7 @@ static WId serial_id = 0;
 QWidget *mac_mouse_grabber = 0;
 QWidget *mac_keyboard_grabber = 0;
 int mac_window_count = 0;
+extern bool app_request_propagate;
 
 
 /*****************************************************************************
@@ -1109,6 +1110,9 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		    CopyBits(scrn, scrn, &oldr, &newr, srcCopy, 0);
 		}
 	    }
+	    if(isResize)
+		app_request_propagate = TRUE;
+
 	    //finally issue "expose" event
 	    QRegion upd((oldregion + clpreg) - bltregion); 
 	    if(isResize && !testWFlags(WNorthWestGravity))

@@ -108,6 +108,7 @@ QObject	       *qt_clipboard = 0;
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 QWidget        *qt_mouseover = 0;
 QPtrDict<void> unhandled_dialogs;             //all unhandled dialogs (ie mac file dialog)
+bool           app_request_propagate = FALSE;
 
 //special case popup handlers - look where these are used, they are very hacky,
 //and very special case, if you plan on using these variables be VERY careful!!
@@ -880,8 +881,10 @@ bool QApplication::processNextEvent( bool canWait )
 
 	    if(ret == eventLoopTimedOutErr || ret == eventLoopQuitErr)
 		break;
+
 	    ret = SendEventToApplication(event);
-	    if(GetEventClass(event) == kEventClassMouse && GetEventKind(event) == kEventMouseDragged) {
+	    if(app_request_propagate) {
+		app_request_propagate = FALSE;
 		QWidgetList *list   = qApp->topLevelWidgets();
 		for ( QWidget     *widget = list->first(); widget; widget = list->next() ) {
 		    if ( !widget->isHidden() && !widget->isDesktop())
@@ -905,6 +908,7 @@ bool QApplication::processNextEvent( bool canWait )
 		QMenuBar::macUpdateMenuBar();
 #endif
 		//take this moment to try to propagate..
+		app_request_propagate = FALSE;
 		QWidgetList *list   = qApp->topLevelWidgets();
 		for ( QWidget     *widget = list->first(); widget; widget = list->next() ) {
 		    if ( !widget->isHidden() && !widget->isDesktop())
