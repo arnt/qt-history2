@@ -661,7 +661,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
             }
 
             int alignment = QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft;
-            drawItem(p, r, alignment | Qt::AlignVCenter | Qt::ShowPrefix, pal,
+            drawItem(p, r, alignment | Qt::AlignVCenter | Qt::TextShowMnemonic, pal,
                      flags & Style_Enabled,
                      !checkbox->icon().isNull() ? checkbox->icon().pixmap(QIconSet::Small,
                                                                           QIconSet::Normal)
@@ -690,7 +690,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
             }
 
             int alignment = QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft;
-            drawItem(p, r, alignment | Qt::AlignVCenter | Qt::ShowPrefix, pal,
+            drawItem(p, r, alignment | Qt::AlignVCenter | Qt::TextShowMnemonic, pal,
                      flags & Style_Enabled,
                     !radiobutton->icon().isNull() ? radiobutton->icon().pixmap(QIconSet::Small,
                                                                                QIconSet::Normal)
@@ -718,7 +718,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
 
             QAction *mi = opt.action();
             QPixmap pix = mi->icon().pixmap(QIconSet::Small, QIconSet::Normal);
-            drawItem(p, r, Qt::AlignCenter | Qt::ShowPrefix | Qt::DontClip | Qt::SingleLine,
+            drawItem(p, r, Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine,
                      pal, flags & Style_Enabled, pix, mi->text(), -1,
                      &pal.buttonText().color());
 #endif
@@ -738,7 +738,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
             else
                 p->fillRect(r, pal.button());
 
-            drawItem(p, r, Qt::AlignCenter | Qt::ShowPrefix | Qt::DontClip | Qt::SingleLine,
+            drawItem(p, r, Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine,
                      pal, flags & Style_Enabled, *mi->pixmap(), mi->text(), -1,
                      &pal.buttonText().color());
 #endif
@@ -844,7 +844,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
             if (!s.isNull()) {                        // draw text
                 int t = s.indexOf('\t');
                 int m = 2;
-                int text_flags = Qt::AlignVCenter|Qt::ShowPrefix | Qt::DontClip | Qt::SingleLine;
+                int text_flags = Qt::AlignVCenter|Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
                 text_flags |= (QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft);
                 if (t >= 0) {                         // draw tab text
                     QRect vr = visualRect(QRect(x+w-tab-2-2,
@@ -976,7 +976,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
             if (!s.isNull()) {                        // draw text
                 int t = s.indexOf('\t');
                 int m = 2;
-                int text_flags = Qt::AlignVCenter|Qt::ShowPrefix | Qt::DontClip | Qt::SingleLine;
+                int text_flags = Qt::AlignVCenter|Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
                 text_flags |= (QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft);
                 if (t >= 0) {                         // draw tab text
                     QRect vr = visualRect(QRect(x+w-tab-2-2,

@@ -241,7 +241,7 @@ void QCompactStyle::drawControl(ControlElement element, QPainter *p, const QWidg
             if (!s.isNull()) {                        // draw text
                 int t = s.find('\t');
                 int m = motifItemVMargin;
-                const int text_flags = Qt::AlignVCenter|Qt::ShowPrefix | Qt::DontClip | Qt::SingleLine;
+                const int text_flags = Qt::AlignVCenter|Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
                 if (t >= 0) {                                // draw tab text
                     if (dis && !act) {
                         p->setPen(pal.light());

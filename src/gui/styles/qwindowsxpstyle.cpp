@@ -1306,9 +1306,9 @@ void QWindowsXPStyle::drawControl(ControlElement element,
             QString s = mi->text();
             if (!s.isNull()) {                        // draw text
                 int t = s.indexOf('\t');
-                int text_flags = Qt::AlignVCenter|Qt::ShowPrefix | Qt::DontClip | Qt::SingleLine;
+                int text_flags = Qt::AlignVCenter|Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
                 if (!styleHint(SH_UnderlineShortcut, widget))
-                    text_flags |= Qt::NoAccel;
+                    text_flags |= Qt::TextHideMnemonic;
                 text_flags |= (QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft);
                 if (t >= 0) {                         // draw tab text
                     int xp = x + w - tab - windowsItemHMargin - windowsItemFrame + 1;
@@ -1370,7 +1370,7 @@ void QWindowsXPStyle::drawControl(ControlElement element,
 
             QAction *mi = opt.action();
             QPixmap pix = mi->icon().pixmap(QIconSet::Small, QIconSet::Normal);
-            drawItem(p, r, Qt::AlignCenter | Qt::ShowPrefix | Qt::DontClip | Qt::SingleLine, pal,
+            drawItem(p, r, Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine, pal,
                      flags & Style_Enabled, pix, mi->text(), -1,
                      flags & Style_Active ? &pal.highlightedText().color() : &pal.buttonText().color());
         }
@@ -1388,7 +1388,7 @@ void QWindowsXPStyle::drawControl(ControlElement element,
             else
                 p->fillRect(r, pal.brush(QPalette::Button));
 
-            drawItem(p, r, Qt::AlignCenter | Qt::ShowPrefix | Qt::DontClip | Qt::SingleLine, pal,
+            drawItem(p, r, Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine, pal,
                      flags & Style_Enabled, mi->pixmap() ? *mi->pixmap() : QPixmap(), mi->text(), -1,
                      flags & Style_Active ? &pal.highlightedText().color() : &pal.buttonText().color());
         }
@@ -2011,7 +2011,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl control,
                                      QPalette::Active : QPalette::Inactive,
                                      QPalette::HighlightedText));
                 p->drawText(ir.x()+2, ir.y(), ir.width(), ir.height(),
-                            Qt::AlignAuto | Qt::AlignVCenter | Qt::SingleLine, titlebar->windowTitle());
+                            Qt::AlignAuto | Qt::AlignVCenter | Qt::TextSingleLine, titlebar->windowTitle());
             }
             if (sub & SC_TitleBarSysMenu) {
                 theme.rec = visualRect(querySubControlMetrics(CC_TitleBar, w, SC_TitleBarSysMenu), w);

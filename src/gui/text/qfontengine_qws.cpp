@@ -169,11 +169,11 @@ void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int
     if (textFlags) {
         int lw = lineThickness().toInt();
         GFX(p)->setBrush(p->painterState()->pen.color());
-        if (textFlags & Qt::Underline)
+        if (textFlags & Qt::TextUnderline)
             GFX(p)->fillRect(x, y+underlinePosition().toInt(), si.width, lw);
-        if (textFlags & Qt::StrikeOut)
+        if (textFlags & Qt::TextStrikeOut)
             GFX(p)->fillRect(x, y-ascent().toInt()/3, si.width, lw);
-        if (textFlags & Qt::Overline)
+        if (textFlags & Qt::TextOverline)
             GFX(p)->fillRect(x, y-ascent().toInt()-1, si.width, lw);
         GFX(p)->setBrush(p->painterState()->brush);
     }

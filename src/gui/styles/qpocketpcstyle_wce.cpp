@@ -1050,7 +1050,7 @@ QRect QPocketPCStyle::subRect(SubRect             subrect,
             // don't create a painter if we have an active one
             QPainter *p = activePainter ? 0 : new QPainter(checkbox);
             rect = itemRect((activePainter ? activePainter : p),
-                            cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::ShowPrefix,
+                            cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
                             checkbox->isEnabled(),
                             checkbox->pixmap(),
                             checkbox->text());
@@ -1094,7 +1094,7 @@ QRect QPocketPCStyle::subRect(SubRect             subrect,
             // don't create a painter if we have an active one
             QPainter *p = activePainter ? 0 : new QPainter(radiobutton);
             rect = itemRect((activePainter ? activePainter : p),
-                            cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::ShowPrefix,
+                            cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
                             radiobutton->isEnabled(),
                             radiobutton->pixmap(),
                             radiobutton->text());
@@ -2338,7 +2338,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
             if (t->identifier() == tb->currentTab())
                 tr.setBottom(tr.bottom() - PM_DEFAULTFRAMEWIDTH); // pixelMetric(QStyle::PM_DefaultFrameWidth, tb));
 
-            drawItem(p, tr, Qt::AlignCenter | Qt::ShowPrefix, pal, tb->isEnabled() &&
+            drawItem(p, tr, Qt::AlignCenter | Qt::TextShowMnemonic, pal, tb->isEnabled() &&
                       t->isEnabled(), 0, t->text());
 
             //if (has_focus)
@@ -2473,7 +2473,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
             if (!s.isNull()) {                        // draw text
                 int t = s.indexOf('\t');
                 int m = CE_ITEMVMARGIN;
-                const int text_flags = Qt::AlignVCenter|Qt::ShowPrefix | Qt::DontClip | Qt::SingleLine;
+                const int text_flags = Qt::AlignVCenter|Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
                 if (t >= 0) {                         // draw tab text
                     int xp;
                     xp = x + w - tab - CE_RIGHTBORDER - CE_ITEMHMARGIN -
@@ -2552,7 +2552,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
 
             QAction *mi = opt.action();
             QPixmap pix = mi->icon().pixmap(QIconSet::Small, QIconSet::Normal);
-            drawItem(p, r, Qt::AlignCenter|Qt::ShowPrefix|Qt::DontClip|Qt::SingleLine, pal,
+            drawItem(p, r, Qt::AlignCenter|Qt::TextShowMnemonic|Qt::TextDontClip|Qt::TextSingleLine, pal,
                       mi->isEnabled(), pix.isNull() ? 0 : &pix, mi->text(), -1,
                       &pal.color(QPalette::ButtonText));
             //QCommonStyle::drawControl(element, p, widget, pr, pal, how, opt);
@@ -2586,7 +2586,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                 break;
 
             Q3MenuItem *mi = opt.menuItem();
-            drawItem(p, r, Qt::AlignCenter|Qt::ShowPrefix|Qt::DontClip|Qt::SingleLine, pal,
+            drawItem(p, r, Qt::AlignCenter|Qt::TextShowMnemonic|Qt::TextDontClip|Qt::TextSingleLine, pal,
                       mi->isEnabled(), mi->pixmap(), mi->text(), -1,
                       &pal.color(QPalette::ButtonText));
             //QCommonStyle::drawControl(element, p, widget, pr, pal, how, opt);
@@ -2627,7 +2627,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
             const QCheckBox *checkbox = (const QCheckBox *) widget;
 
             int alignment = QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft;
-            drawItem(p, r, alignment | Qt::AlignVCenter | Qt::ShowPrefix, pal,
+            drawItem(p, r, alignment | Qt::AlignVCenter | Qt::TextShowMnemonic, pal,
                      flags & Style_Enabled, checkbox->pixmap(), checkbox->text());
 
             if (checkbox->hasFocus()) {
@@ -2668,7 +2668,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
             const QRadioButton *radiobutton = (const QRadioButton *) widget;
 
             int alignment = QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft;
-            drawItem(p, r, alignment | Qt::AlignVCenter | Qt::ShowPrefix, pal,
+            drawItem(p, r, alignment | Qt::AlignVCenter | Qt::TextShowMnemonic, pal,
                      flags & Style_Enabled, radiobutton->pixmap(), radiobutton->text());
 
             if (radiobutton->hasFocus()) {
@@ -2732,7 +2732,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
     case CE_ProgressBarLabel:
         {
             const QProgressBar *progressbar = (const QProgressBar *) widget;
-            drawItem(p, r, Qt::AlignCenter | Qt::SingleLine, pal, progressbar->isEnabled(), 0,
+            drawItem(p, r, Qt::AlignCenter | Qt::TextSingleLine, pal, progressbar->isEnabled(), 0,
                      progressbar->progressString());
         }
         break;
@@ -2778,7 +2778,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                 ir.setWidth(ir.width() - mbi);
             }
 
-            int tf=Qt::AlignVCenter | Qt::ShowPrefix;
+            int tf=Qt::AlignVCenter | Qt::TextShowMnemonic;
 #ifndef QT_NO_ICONSET
             if (button->iconSet() && ! button->iconSet()->isNull()) {
                 QIconSet::Mode mode =
@@ -2850,7 +2850,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                 if (toolbutton->iconSet().isNull() &&
                     ! toolbutton->text().isNull() &&
                     ! toolbutton->usesTextLabel()) {
-                    drawItem(p, rect, Qt::AlignCenter | Qt::ShowPrefix, pal,
+                    drawItem(p, rect, Qt::AlignCenter | Qt::TextShowMnemonic, pal,
                              flags & Style_Enabled, 0, toolbutton->text(),
                              toolbutton->text().length(), &btext);
                 } else {
@@ -2877,7 +2877,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                             pr.addCoords(0, 1, 0, -fh-3);
                             tr.addCoords(0, pr.bottom(), 0, -3);
                             drawItem(p, pr, Qt::AlignCenter, pal, true, &pm, QString::null);
-                            drawItem(p, tr, Qt::AlignCenter | Qt::ShowPrefix, pal,
+                            drawItem(p, tr, Qt::AlignCenter | Qt::TextShowMnemonic, pal,
                                       flags & Style_Enabled, 0, toolbutton->textLabel(),
                                       toolbutton->textLabel().length(), &btext);
                         } else {
@@ -2887,7 +2887,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                             pr.setWidth(pm.width() + 8);
                             tr.addCoords(pr.right(), 0, 0, 0);
                             drawItem(p, pr, Qt::AlignCenter, pal, true, &pm, QString::null);
-                            drawItem(p, tr, Qt::AlignLeft | Qt::AlignVCenter | Qt::ShowPrefix, pal,
+                            drawItem(p, tr, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic, pal,
                                       flags & Style_Enabled, 0, toolbutton->textLabel(),
                                       toolbutton->textLabel().length(), &btext);
                         }
@@ -3735,7 +3735,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
 
                 p->setPen(titlePal.highlightedText());
                 p->drawText(ir.x()+2, ir.y(), ir.width()-2, ir.height(),
-                            Qt::AlignAuto | Qt::AlignVCenter | Qt::SingleLine, titlebar->visibleText());
+                            Qt::AlignAuto | Qt::AlignVCenter | Qt::TextSingleLine, titlebar->visibleText());
             }
 
             QRect ir;

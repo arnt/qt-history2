@@ -171,11 +171,11 @@ QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int tex
     }
     if(w && textFlags != 0) {
         int lw = lineThickness().toInt();
-        if(textFlags & Qt::Underline)
+        if(textFlags & Qt::TextUnderline)
             p->drawRect(QRect(x, y+underlinePosition().toInt(), si.right_to_left ? -w : w, lw));
-        if(textFlags & Qt::Overline)
+        if(textFlags & Qt::TextOverline)
             p->drawRect(QRect(x, y + (ascent().toInt() + 1), si.right_to_left ? -w : w, lw));
-        if(textFlags & Qt::StrikeOut)
+        if(textFlags & Qt::TextStrikeOut)
             p->drawRect(QRect(x, y + (ascent().toInt() / 3), si.right_to_left ? -w : w, lw));
     }
     if(p->type() == QPaintEngine::CoreGraphics && textAA != lineAA)

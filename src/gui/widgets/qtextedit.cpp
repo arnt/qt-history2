@@ -1044,9 +1044,9 @@ void QTextEdit::resizeEvent(QResizeEvent *)
     Q_ASSERT(layout);
 
     if (d->wordWrap == NoWrap)
-        layout->setBlockTextFlags(layout->blockTextFlags() | Qt::SingleLine);
+        layout->setBlockTextFlags(layout->blockTextFlags() | Qt::TextSingleLine);
     else
-        layout->setBlockTextFlags(layout->blockTextFlags() & ~Qt::SingleLine);
+        layout->setBlockTextFlags(layout->blockTextFlags() & ~Qt::TextSingleLine);
 
     int width = d->viewport->width();
     if (d->wordWrap == FixedPixelWidth)

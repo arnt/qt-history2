@@ -1060,7 +1060,7 @@ void QSGIStyle::drawControl(ControlElement element,
             if (s.size()) {
                 int t = s.indexOf('\t');
                 int m = sgiItemVMargin;
-                const int text_flags = Qt::AlignVCenter | Qt::DontClip | Qt::SingleLine; //special underline for &x
+                const int text_flags = Qt::AlignVCenter | Qt::TextDontClip | Qt::TextSingleLine; //special underline for &x
 
                 QString miText = s;
                 if (t>=0) {
@@ -1198,7 +1198,7 @@ void QSGIStyle::drawControl(ControlElement element,
             if (s.size()) {
                 int t = s.indexOf('\t');
                 int m = sgiItemVMargin;
-                const int text_flags = Qt::AlignVCenter | Qt::DontClip | Qt::SingleLine; //special underline for &x
+                const int text_flags = Qt::AlignVCenter | Qt::TextDontClip | Qt::TextSingleLine; //special underline for &x
 
                 QString miText = s;
                 if (t>=0) {
@@ -1253,18 +1253,18 @@ void QSGIStyle::drawControl(ControlElement element,
             QAction *mi = opt.action();
             if (!mi->icon().isNull()) {
                 QPixmap pix = mi->icon().pixmap(QIconSet::Small, QIconSet::Normal);
-                drawItem(p, r, Qt::AlignCenter|Qt::DontClip|Qt::SingleLine,
+                drawItem(p, r, Qt::AlignCenter|Qt::TextDontClip|Qt::TextSingleLine,
                         pal, mi->isEnabled(), pix, "", -1, &pal.buttonText().color());
             }
 
             if (mi->text().size()) {
                 QString* text = new QString(mi->text());
                 QRect br = p->fontMetrics().boundingRect(x, y-2, w+1, h,
-                        Qt::AlignCenter|Qt::DontClip|Qt::SingleLine|Qt::ShowPrefix, mi->text());
+                        Qt::AlignCenter|Qt::TextDontClip|Qt::TextSingleLine|Qt::TextShowMnemonic, mi->text());
 
                 drawSGIPrefix(p, br.x()+p->fontMetrics().leftBearing((*text)[0]),
                         br.y()+br.height()+p->fontMetrics().underlinePos()-2, text);
-                p->drawText(x, y-2, w+1, h, Qt::AlignCenter|Qt::DontClip|Qt::SingleLine, *text, text->length());
+                p->drawText(x, y-2, w+1, h, Qt::AlignCenter|Qt::TextDontClip|Qt::TextSingleLine, *text, text->length());
                 delete text;
             }
 #endif
@@ -1294,17 +1294,17 @@ void QSGIStyle::drawControl(ControlElement element,
             }
 
             if (mi->pixmap())
-                drawItem(p, r, Qt::AlignCenter|Qt::DontClip|Qt::SingleLine,
+                drawItem(p, r, Qt::AlignCenter|Qt::TextDontClip|Qt::TextSingleLine,
                         pal, mi->isEnabled(), *mi->pixmap(), "", -1, &pal.buttonText().color());
 
             if (mi->text().size()) {
                 QString* text = new QString(mi->text());
                 QRect br = p->fontMetrics().boundingRect(x, y-2, w+1, h,
-                        Qt::AlignCenter|Qt::DontClip|Qt::SingleLine|Qt::ShowPrefix, mi->text());
+                        Qt::AlignCenter|Qt::TextDontClip|Qt::TextSingleLine|Qt::TextShowMnemonic, mi->text());
 
                 drawSGIPrefix(p, br.x()+p->fontMetrics().leftBearing((*text)[0]),
                         br.y()+br.height()+p->fontMetrics().underlinePos()-2, text);
-                p->drawText(x, y-2, w+1, h, Qt::AlignCenter|Qt::DontClip|Qt::SingleLine, *text, text->length());
+                p->drawText(x, y-2, w+1, h, Qt::AlignCenter|Qt::TextDontClip|Qt::TextSingleLine, *text, text->length());
                 delete text;
             }
 #endif

@@ -876,7 +876,7 @@ void QPlatinumStyle::drawControl(ControlElement element,
             }
 #endif
             drawItem(p, QRect(x, y, w, h),
-                      Qt::AlignCenter | Qt::ShowPrefix,
+                      Qt::AlignCenter | Qt::TextShowMnemonic,
                       btn->palette(), btn->isEnabled(),
                       QPixmap(), btn->text(), -1,
                       on ? &btn->palette().brightText().color()

@@ -2328,10 +2328,10 @@ QRect QFontMetrics::boundingRect(QChar ch) const
     \i \c Qt::AlignBottom aligns to the bottom border.
     \i \c Qt::AlignVCenter aligns vertically centered
     \i \c Qt::AlignCenter (== \c{Qt::AlignHCenter | Qt::AlignVCenter})
-    \i \c Qt::SingleLine ignores newline characters in the text.
-    \i \c Qt::ExpandTabs expands tabs (see below)
-    \i \c Qt::ShowPrefix interprets "&amp;x" as "<u>x</u>", i.e. underlined.
-    \i \c Qt::WordBreak breaks the text to fit the rectangle.
+    \i \c Qt::TextSingleLine ignores newline characters in the text.
+    \i \c Qt::TextExpandTabs expands tabs (see below)
+    \i \c Qt::TextShowMnemonic interprets "&amp;x" as "<u>x</u>", i.e. underlined.
+    \i \c Qt::TextWordBreak breaks the text to fit the rectangle.
     \endlist
 
     Qt::Horizontal alignment defaults to \c Qt::AlignAuto and vertical
@@ -2342,7 +2342,7 @@ QRect QFontMetrics::boundingRect(QChar ch) const
 
     These flags are defined in \c qnamespace.h.
 
-    If \c Qt::ExpandTabs is set in \a flgs, then: if \a tabarray is
+    If \c Qt::TextExpandTabs is set in \a flgs, then: if \a tabarray is
     non-null, it specifies a 0-terminated sequence of pixel-positions
     for tabs; otherwise if \a tabstops is non-zero, it is used as the
     tab spacing (in pixels).
@@ -2394,15 +2394,15 @@ QRect QFontMetrics::boundingRect(int x, int y, int w, int h, int flgs,
 
     The \a flgs argument is the bitwise OR of the following flags:
     \list
-    \i \c Qt::SingleLine ignores newline characters.
-    \i \c Qt::ExpandTabs expands tabs (see below)
-    \i \c Qt::ShowPrefix interprets "&amp;x" as "<u>x</u>", i.e. underlined.
-    \i \c Qt::WordBreak breaks the text to fit the rectangle.
+    \i \c Qt::TextSingleLine ignores newline characters.
+    \i \c Qt::TextExpandTabs expands tabs (see below)
+    \i \c Qt::TextShowMnemonic interprets "&amp;x" as "<u>x</u>", i.e. underlined.
+    \i \c Qt::TextWordBreak breaks the text to fit the rectangle.
     \endlist
 
     These flags are defined in \c qnamespace.h.
 
-    If \c Qt::ExpandTabs is set in \a flgs, then: if \a tabarray is
+    If \c Qt::TextExpandTabs is set in \a flgs, then: if \a tabarray is
     non-null, it specifies a 0-terminated sequence of pixel-positions
     for tabs; otherwise if \a tabstops is non-zero, it is used as the
     tab spacing (in pixels).

@@ -1248,7 +1248,7 @@ void QMacStyleQD::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
             if (!s.isEmpty()) {                        // draw text
                 int t = s.indexOf('\t');
                 int m = macItemVMargin;
-                int text_flags = Qt::AlignRight | Qt::AlignVCenter | Qt::NoAccel | Qt::SingleLine;
+                int text_flags = Qt::AlignRight | Qt::AlignVCenter | Qt::TextHideMnemonic | Qt::TextSingleLine;
                 if (t >= 0) {                         // draw tab text
                     int xp;
                     if (reverse)

@@ -1692,11 +1692,11 @@ void QLineEdit::paintEvent(QPaintEvent *)
     bool supressCursor = d->readOnly;
     int textflags = 0;
     if (font().underline())
-        textflags |= Qt::Underline;
+        textflags |= Qt::TextUnderline;
     if (font().strikeOut())
-        textflags |= Qt::StrikeOut;
+        textflags |= Qt::TextStrikeOut;
     if (font().overline())
-        textflags |= Qt::Overline;
+        textflags |= Qt::TextOverline;
 
     QTextLayout::Selection sel[4];
     int nSel = 0;

@@ -157,7 +157,7 @@ QSize QToolBoxButton::sizeHint() const
     QSize iconSize(8, 8);
     if (!icon().isNull())
         iconSize += icon().pixmap(QIconSet::Small, QIconSet::Normal).size() + QSize(2, 0);
-    QSize textSize = fontMetrics().size(Qt::ShowPrefix, text()) + QSize(0, 8);
+    QSize textSize = fontMetrics().size(Qt::TextShowMnemonic, text()) + QSize(0, 8);
 
     QSize total(iconSize.width() + textSize.width(), qMax(iconSize.height(), textSize.height()));
     return total.expandedTo(QApplication::globalStrut());
@@ -239,9 +239,9 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
          !tb->testAttribute(Qt::WA_NoSystemBackground))
         fill = &pal.color(foregroundRole());
 
-    int alignment = Qt::AlignLeft | Qt::AlignVCenter | Qt::ShowPrefix;
+    int alignment = Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic;
     if (!style().styleHint(QStyle::SH_UnderlineShortcut, this))
-        alignment |= Qt::NoAccel;
+        alignment |= Qt::TextHideMnemonic;
     style().drawItem(p, tr, alignment, pal,
                       isEnabled(), QPixmap(), txt, -1, fill);
 

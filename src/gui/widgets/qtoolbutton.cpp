@@ -348,7 +348,7 @@ QSize QToolButton::sizeHint() const
     }
 
     if (usesTextLabel()) {
-        QSize textSize = fm.size(Qt::ShowPrefix, text());
+        QSize textSize = fm.size(Qt::TextShowMnemonic, text());
         textSize.setWidth(textSize.width() + fm.width(' ')*2);
         if (d->textPos == Under) {
             h += 4 + textSize.height();

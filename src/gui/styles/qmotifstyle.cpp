@@ -945,16 +945,16 @@ void QMotifStyle::drawControl(ControlElement element,
                 if (pb->indicatorFollowsStyle() || pb->centerIndicator()) {
                     p->setPen(pal.highlightedText());
                     p->setClipRect(r.x(), r.y(), x, r.height());
-                    p->drawText(r, Qt::AlignCenter | Qt::SingleLine, pb->progressString());
+                    p->drawText(r, Qt::AlignCenter | Qt::TextSingleLine, pb->progressString());
 
                     if (pb->progress() != pb->totalSteps()) {
                         p->setClipRect(r.x() + x, r.y(), r.width() - x, r.height());
                         p->setPen(pal.highlight());
-                        p->drawText(r, Qt::AlignCenter | Qt::SingleLine, pb->progressString());
+                        p->drawText(r, Qt::AlignCenter | Qt::TextSingleLine, pb->progressString());
                     }
                 } else {
                     p->setPen(pal.text());
-                    p->drawText(r, Qt::AlignCenter | Qt::SingleLine, pb->progressString());
+                    p->drawText(r, Qt::AlignCenter | Qt::TextSingleLine, pb->progressString());
                 }
             }
 #endif
@@ -1086,7 +1086,7 @@ void QMotifStyle::drawControl(ControlElement element,
         if (!s.isNull()) {                        // draw text
             int t = s.indexOf('\t');
             int m = motifItemVMargin;
-            int text_flags = Qt::AlignVCenter|Qt::ShowPrefix | Qt::DontClip | Qt::SingleLine;
+            int text_flags = Qt::AlignVCenter|Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
             text_flags |= (QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft);
             if (t >= 0) {                         // draw tab text
                 QRect vr = visualRect(QRect(x+w-tab-motifItemHMargin-motifItemFrame,
@@ -1231,7 +1231,7 @@ void QMotifStyle::drawControl(ControlElement element,
             if (!s.isNull()) {                        // draw text
                 int t = s.indexOf('\t');
                 int m = motifItemVMargin;
-                int text_flags = Qt::AlignVCenter|Qt::ShowPrefix | Qt::DontClip | Qt::SingleLine;
+                int text_flags = Qt::AlignVCenter|Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
                 text_flags |= (QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft);
                 if (t >= 0) {                         // draw tab text
                     QRect vr = visualRect(QRect(x+w-tab-motifItemHMargin-motifItemFrame,

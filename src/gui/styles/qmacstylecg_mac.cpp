@@ -956,7 +956,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
             if (!s.isEmpty()) {
                 int t = s.indexOf('\t');
                 int m = 2;
-                int text_flags = Qt::AlignRight | Qt::AlignVCenter | Qt::NoAccel | Qt::SingleLine;
+                int text_flags = Qt::AlignRight | Qt::AlignVCenter | Qt::TextHideMnemonic | Qt::TextSingleLine;
                 if (t >= 0) {
                     int xp = x + w - tabwidth - macRightBorder
                              - macItemHMargin - macItemFrame + 1;

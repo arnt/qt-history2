@@ -129,7 +129,7 @@ QSize QRadioButton::sizeHint() const
 {
     ensurePolished();
     QFontMetrics fm = fontMetrics();
-    QSize sz = style().itemRect(fm, QRect(0, 0, 1, 1), Qt::ShowPrefix, false, text()).size();
+    QSize sz = style().itemRect(fm, QRect(0, 0, 1, 1), Qt::TextShowMnemonic, false, text()).size();
     QStyleOptionButton opt = getStyleOption(this);
     return (style().sizeFromContents(QStyle::CT_RadioButton, &opt, sz, fm, this).
             expandedTo(QApplication::globalStrut()));

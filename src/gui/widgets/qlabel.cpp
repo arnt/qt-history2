@@ -267,7 +267,7 @@ void QLabelPrivate::init()
 #ifndef QT_NO_PICTURE
     lpicture = 0;
 #endif
-    align = Qt::AlignAuto | Qt::AlignVCenter | Qt::ExpandTabs;
+    align = Qt::AlignAuto | Qt::AlignVCenter | Qt::TextExpandTabs;
     extraMargin = -1;
     scaledcontents = false;
     textformat = Qt::AutoText;
@@ -333,13 +333,13 @@ void QLabel::setText(const QString &text)
 #ifndef QT_NO_RICHTEXT
     if (useRichText) {
         if (!hadRichtext)
-            d->align |= Qt::WordBreak;
+            d->align |= Qt::TextWordBreak;
         QString t = d->ltext;
         if (d->align & Qt::AlignRight)
             t.prepend("<div d->align=\"right\">");
         else if (d->align & Qt::AlignHCenter)
             t.prepend("<div d->align=\"center\">");
-        if ((d->align & Qt::WordBreak) == 0 )
+        if ((d->align & Qt::TextWordBreak) == 0 )
             t.prepend("<nobr>");
         d->doc = new QTextDocument();
         d->doc->setUndoRedoEnabled(false);
@@ -457,19 +457,19 @@ void QLabel::setNum(double num)
     \brief the alignment of the label's contents
 
     The alignment is a bitwise OR of \c Qt::AlignmentFlag and \c
-    Qt::TextFlag values. The \c Qt::ExpandTabs, \c Qt::SingleLine and \c
-    Qt::ShowPrefix flags apply only if the label contains plain text;
-    otherwise they are ignored. The \c Qt::DontClip flag is always
-    ignored. \c Qt::WordBreak applies to both rich text and plain text
-    labels. The \c Qt::BreakAnywhere flag is not supported in QLabel.
+    Qt::TextFlag values. The \c Qt::TextExpandTabs, \c Qt::TextSingleLine and \c
+    Qt::TextShowMnemonic flags apply only if the label contains plain text;
+    otherwise they are ignored. The \c Qt::TextDontClip flag is always
+    ignored. \c Qt::TextWordBreak applies to both rich text and plain text
+    labels. The \c Qt::TextBreakAnywhere flag is not supported in QLabel.
 
-    If the label has a buddy, the \c Qt::ShowPrefix flag is forced to
+    If the label has a buddy, the \c Qt::TextShowMnemonic flag is forced to
     true.
 
-    The default alignment is \c{Qt::AlignAuto | Qt::AlignVCenter | Qt::ExpandTabs}
+    The default alignment is \c{Qt::AlignAuto | Qt::AlignVCenter | Qt::TextExpandTabs}
     if the label doesn't have a buddy and \c{Qt::AlignAuto | Qt::AlignVCenter
-    | Qt::ExpandTabs | Qt::ShowPrefix} if the label has a buddy. If the label
-    contains rich text, additionally \c Qt::WordBreak is turned on.
+    | Qt::TextExpandTabs | Qt::TextShowMnemonic} if the label has a buddy. If the label
+    contains rich text, additionally \c Qt::TextWordBreak is turned on.
 
     \sa Qt::Alignment, alignment, setBuddy(), text
 */
@@ -480,7 +480,7 @@ void QLabel::setAlignment(int alignment)
         return;
 #ifndef QT_NO_ACCEL
     if (d->lbuddy)
-        d->align = alignment | Qt::ShowPrefix;
+        d->align = alignment | Qt::TextShowMnemonic;
     else
 #endif
         d->align = alignment;
@@ -608,7 +608,7 @@ QSize QLabelPrivate::sizeForWidth(int w) const
         QTextDocumentLayout *layout = qt_cast<QTextDocumentLayout *>(doc->documentLayout());
         Q_ASSERT(layout);
         int oldW = layout->pageSize().width();
-        if (d->align & Qt::WordBreak) {
+        if (d->align & Qt::TextWordBreak) {
             if (w < 0)
                 layout->adjustSize();
             else
@@ -619,7 +619,7 @@ QSize QLabelPrivate::sizeForWidth(int w) const
     }
 #endif
     else {
-        bool tryWidth = (w < 0) && (d->align & Qt::WordBreak);
+        bool tryWidth = (w < 0) && (d->align & Qt::TextWordBreak);
         if (tryWidth)
             w = xw * 80;
         else if (w < 0)
@@ -649,7 +649,7 @@ int QLabel::heightForWidth(int w) const
 #ifndef QT_NO_RICHTEXT
         d->doc ||
 #endif
-        (d->align & Qt::WordBreak))
+        (d->align & Qt::TextWordBreak))
         return d->sizeForWidth(w).height();
     return QWidget::heightForWidth(w);
 }
@@ -683,7 +683,7 @@ QSize QLabel::minimumSizeHint() const
 #ifndef QT_NO_RICHTEXT
          !d->doc &&
 #endif
-         (d->align & Qt::WordBreak) == 0) {
+         (d->align & Qt::TextWordBreak) == 0) {
         sz = d->sh;
     } else {
         // think about caching these for performance
@@ -847,8 +847,8 @@ void QLabel::paintEvent(QPaintEvent *)
         }
 #endif
         int alignment = d->align;
-        if ((alignment & Qt::ShowPrefix) && !style().styleHint(QStyle::SH_UnderlineShortcut, this))
-            alignment |= Qt::NoAccel;
+        if ((alignment & Qt::TextShowMnemonic) && !style().styleHint(QStyle::SH_UnderlineShortcut, this))
+            alignment |= Qt::TextHideMnemonic;
         // ordinary text or pixmap label
         style().drawItem(&paint, cr, alignment, palette(), isEnabled(), pix, d->ltext);
     }
@@ -863,7 +863,7 @@ void QLabelPrivate::updateLabel()
 {
     valid_hints = false;
     QSizePolicy policy = q->sizePolicy();
-    bool wordBreak = align & Qt::WordBreak;
+    bool wordBreak = align & Qt::TextWordBreak;
     policy.setHeightForWidth(wordBreak);
     if (policy != q->sizePolicy())
         q->setSizePolicy(policy);
@@ -905,7 +905,7 @@ void QLabel::mnemonicSlot()
     The buddy mechanism is only available for QLabels that contain
     plain text in which one letter is prefixed with an ampersand, \&.
     This letter is set as the shortcut key. The letter is displayed
-    underlined, and the '\&' is not displayed (i.e. the \c Qt::ShowPrefix
+    underlined, and the '\&' is not displayed (i.e. the \c Qt::TextShowMnemonic
     alignment flag is turned on; see setAlignment()).
 
     In a dialog, you might create two data entry widgets and a label
@@ -934,9 +934,9 @@ void QLabel::mnemonicSlot()
 void QLabel::setBuddy(QWidget *buddy)
 {
     if (buddy)
-        setAlignment(alignment() | Qt::ShowPrefix);
+        setAlignment(alignment() | Qt::TextShowMnemonic);
     else
-        setAlignment(alignment() & ~Qt::ShowPrefix);
+        setAlignment(alignment() & ~Qt::TextShowMnemonic);
 
     d->lbuddy = buddy;
 
