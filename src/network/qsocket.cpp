@@ -1012,6 +1012,8 @@ void QSocket::sn_read()
 	    return;
 	}
     }
+    if ( state() == Idle )
+	return;
 
     if ( nbytes <= 0 ) {			// connection closed?
 	// On Windows this may happen when the connection is still open.
