@@ -250,7 +250,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
                                tr("Maximize"),
 #endif
                                this);
-    connect(m_minimizeAction, SIGNAL(triggered()), this, SLOT(zoomForm()));
+    connect(m_zoomAction, SIGNAL(triggered()), this, SLOT(zoomForm()));
     m_windowActions->addAction(m_zoomAction);
 
     sep = new QAction(this);
