@@ -68,7 +68,7 @@ public:
         }
     ~QMacCursorWidget() { }
 protected:
-    void paintEvent(QPaintEvent *) { QPainter p(this); p.drawPixmap(&bitmap); }
+    void paintEvent(QPaintEvent *) { QPainter p(this); p.drawPixmap(0, 0, bitmap); }
 };
 #include "qcursor_mac.moc"
 
