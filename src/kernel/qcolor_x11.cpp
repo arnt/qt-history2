@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#48 $
 **
 ** Implementation of QColor class for X11
 **
@@ -16,7 +16,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#47 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#48 $");
 
 
 /*****************************************************************************
@@ -458,7 +458,6 @@ void QColor::leaveAllocContext()
 	return 0;
     }
     current_alloc_context = context_stack[--context_ptr];
-    return current_alloc_context;
 }
 
 

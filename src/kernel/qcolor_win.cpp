@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#30 $
 **
 ** Implementation of QColor class for Win32
 **
@@ -20,7 +20,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_win.cpp#29 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_win.cpp#30 $");
 
 
 /*****************************************************************************
@@ -223,7 +223,6 @@ void QColor::leaveAllocContext()
 	return 0;
     }
     current_alloc_context = context_stack[--context_ptr];
-    return current_alloc_context;
 }
 
 
