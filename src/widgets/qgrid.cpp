@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrid.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qgrid.cpp#3 $
 **
 ** Implementation of grid layout widget
 **
@@ -16,7 +16,7 @@
   \class QGrid qgrid.h
   \brief The QGrid widget performs geometry management on its children
 
-  The number of rows and columns is defined in the constructor. All its
+  The number of rows or columns is defined in the constructor. All its
   children will be placed and sized according to their sizeHint()s.
   
   \sa QVBox and QHBox
@@ -25,7 +25,9 @@
 
 
 /*!
-  Constructs a \a rows x \a cols grid widget with parent \a parent and name \a name
+  Constructs a grid widget with parent \a parent and name \a name. If \a d is
+  \c Horizontal, \a n specifies the number of columns. If \a d is \c Vertical,
+  \a n specifies the number of rows.
  */
 QGrid::QGrid( int n, Direction d, QWidget *parent, const char *name )
     :QWidget( parent, name )
@@ -37,8 +39,8 @@ QGrid::QGrid( int n, Direction d, QWidget *parent, const char *name )
 	nCols = 1;
 	nRows = n;
     }
-
-    lay = new QGridLayout( this, nRows, nCols, 5, -1, name ); //### border
+    dir = d;
+    lay = new QGridLayout( this, nRows, nCols, parent?0:5, 5, name ); //### border
     row = col = 0;
 }
 
@@ -65,7 +67,7 @@ void QGrid::childEvent( QChildEvent *c )
 	    col = 0;
 	    row++;
 	}
-    } else {
+    } else { //Vertical
 	if ( row+1 < nRows ) {
 	    row++;
 	} else {

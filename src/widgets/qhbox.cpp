@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qhbox.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qhbox.cpp#3 $
 **
 ** Implementation of hbox layout widget
 **
@@ -30,7 +30,7 @@
 QHBox::QHBox( QWidget *parent, const char *name )
     :QWidget( parent, name )
 {
-    lay = new QHBoxLayout( this, 5, -1, name ); //### border
+    lay = new QHBoxLayout( this, parent?0:5, 5, name ); //### border
 }
 
 
@@ -47,7 +47,7 @@ QHBox::QHBox( QWidget *parent, const char *name )
 {
     lay = new QBoxLayout( this, 
 			  horizontal ? QBoxLayout::LeftToRight : QBoxLayout::Down,
-			  5, -1, name ); //### border
+			  parent?0:5, 5, name ); //### border
 }
 
 
