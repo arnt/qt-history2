@@ -77,7 +77,6 @@ static PtrFreeSid ptrFreeSid = 0;
 
 static void resolveLibs()
 {
-#ifndef QT_NO_COMPONENT
     static bool triedResolve = FALSE;
     if ( !triedResolve ) {
 	triedResolve = TRUE;
@@ -97,7 +96,6 @@ static void resolveLibs()
 	    ptrFreeSid = (PtrFreeSid) lib.resolve( "FreeSid" );
 	}
     }
-#endif
 }
 
 
