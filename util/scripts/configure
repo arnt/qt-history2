@@ -321,7 +321,7 @@ fi
 
 QT_CXX=""
 [ "x$GIF" = "xyes" ] && QT_CXX="${QT_CXX} -DQT_BUILTIN_GIF_READER"
-[ "x$SM" = "xyes" ] && QT_CXX="${QT_CXX} -DQT_SUPPORT_SM"
+[ "x$SM" = "xyes" ] && QT_CXX="${QT_CXX} -DQT_SM_SUPPORT"
 [ "x$ZLIB" = "xyes" ] && I_FLAGS="${I_FLAGS} -I\$(QTDIR)/src/3rdparty/zlib"
 [ "x$LIBPNG" = "xyes" ] && I_FLAGS="${I_FLAGS} -I\$(QTDIR)/src/3rdparty/libpng"
 
