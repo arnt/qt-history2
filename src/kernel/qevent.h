@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#24 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#25 $
 **
 ** Definition of event classes
 **
@@ -43,7 +43,8 @@
 class QEvent					// event base class
 {
 public:
-    QEvent( int type )		{ t=type; posted=FALSE; }
+    QEvent( int type )
+	: t(type), posted(FALSE) {}
    ~QEvent()			{ if ( posted ) peErrMsg(); }
     int	  type()	const	{ return t; }	// event type
 protected:
@@ -58,7 +59,7 @@ class QTimerEvent : public QEvent		// timer event
 {
 public:
     QTimerEvent( int timerId )
-	: QEvent(Event_Timer)	{ id=timerId; }
+	: QEvent(Event_Timer), id(timerId) {}
     int	  timerId()	const	{ return id; }	// timer identifier
 protected:
     int	  id;
@@ -81,7 +82,7 @@ class QMouseEvent : public QEvent		// mouse event
 {
 public:
     QMouseEvent( int type, const QPoint &pos, int button, int state )
-	: QEvent(type)		{ p=pos; b=button; st=(ushort)state; }
+	: QEvent(type), p(pos), b(button),st((ushort)state) {}
     const QPoint &pos() const	{ return p; }	// mouse position
     int	   button()	const	{ return b; }	// button which caused event
     int	   state()	const	{ return st; }	// button state (OR'ed)
@@ -98,8 +99,7 @@ class QKeyEvent : public QEvent			// keyboard event
 {
 public:
     QKeyEvent( int type, int kc, uchar ac, int state )
-	: QEvent(type)		{ k=(ushort)kc; a=ac; st=(ushort)state;
-				  accpt=TRUE; }
+	: QEvent(type), k((ushort)kc), a(ac), st((ushort)state), accpt(TRUE) {}
     int	   key()	const	{ return k; }	// key code
     uchar  ascii()	const	{ return (uchar )a; } // ascii value
     int	   state()	const	{ return st; }	// keyboard status
@@ -118,7 +118,7 @@ class QFocusEvent : public QEvent		// widget focus event
 {
 public:
     QFocusEvent( int type )
-	: QEvent(type)		{}
+	: QEvent(type) {}
     bool   gotFocus()	const { return type() == Event_FocusIn; }
     bool   lostFocus()	const { return type() == Event_FocusOut; }
 };
@@ -130,7 +130,7 @@ class QPaintEvent : public QEvent		// widget paint event
 {
 public:
     QPaintEvent( const QRect &paintRect )
-	: QEvent(Event_Paint)	{ r=paintRect; }
+	: QEvent(Event_Paint), r(paintRect) {}
     const QRect &rect() const	{ return r; }	// rectangle to be painted
 protected:
     QRect r;
@@ -143,7 +143,7 @@ class QMoveEvent : public QEvent		// widget move event
 {
 public:
     QMoveEvent( const QPoint &pos, const QPoint &oldPos )
-	: QEvent(Event_Move)	{ p=pos; oldp=oldPos; }
+	: QEvent(Event_Move), p(pos), oldp(oldPos) {}
     const QPoint &pos()	  const { return p; }	// new widget position
     const QPoint &oldPos()const { return oldp;} // old widget position
 protected:
@@ -157,7 +157,7 @@ class QResizeEvent : public QEvent		// widget resize event
 {
 public:
     QResizeEvent( const QSize &size, const QSize &oldSize )
-	: QEvent(Event_Resize)	{ s=size; olds=oldSize; }
+	: QEvent(Event_Resize), s(size), olds(oldSize) {}
     const QSize &size()	  const { return s; }	// new widget size
     const QSize &oldSize()const { return olds;} // old widget size
 protected:
@@ -171,7 +171,7 @@ class QCloseEvent : public QEvent		// widget close event
 {
 public:
     QCloseEvent()
-	: QEvent(Event_Close)	{ accpt = TRUE; }
+	: QEvent(Event_Close), accpt(TRUE) {}
     bool   isAccepted() const	{ return accpt; }
     void   accept()		{ accpt = TRUE; }
     void   ignore()		{ accpt = FALSE; }
