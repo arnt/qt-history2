@@ -5,7 +5,7 @@
 **
 ** Created : 970101
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -646,7 +646,7 @@ bool QSpinBox::eventFilter( QObject* o, QEvent* ev )
 	} else if ( k->key() == Key_Down ) {
 	    stepDown();
 	    retval = TRUE;
-	} else if ( k->key() == Key_Return ) {
+	} else if ( k->key() == Key_Enter || k->key() == Key_Return ) {
 	    interpretText();
 	    return FALSE;
 	}
