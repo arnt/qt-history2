@@ -368,8 +368,10 @@
             return S_OK;
         }
 
-        long AddRef();
-        long Release();
+        // IUnknown functions ...
+        HRESULT QueryInterface( REFIID iid, void **iface );
+        unsigned long AddRef();
+        unsigned long Release();
 
         // IComInterface functions ...</b>
     };
@@ -377,14 +379,24 @@
     \endraw
 
     Since \c IComInterface inherits from \c IUnknown the class must
-    also implement \c AddRef() and \c Release(). Call the addRef() and
-    Release() functions provided by QAxBindable in those
-    implementations.
+    also implement \c QueryInterface, \c AddRef() and \c Release(). 
+    Call the queryInterface(), addRef() and release() functions provided 
+    by QAxBindable in those implementations.
 
     \code
-    long MyActiveX::AddRef()
+    HERSULT MyActiveX::QueryInterface( REFIID iid, void **iface )
+    {
+        return queryInterface( iid, iface );
+    }
+    
+    unsigned long MyActiveX::AddRef()
     {
         return addRef();
+    }
+
+    unsigned long MyActiveX::Release()
+    {
+        return release();
     }
     \endcode
 
