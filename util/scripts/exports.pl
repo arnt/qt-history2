@@ -64,7 +64,7 @@ sub find_classnames {
 		$line = 0;
 	    }
 	}
-	$line =~ s,//.*$,,; #remove c++ comments
+	$line =~ s,(\"[^\"]*\")?//.*$,,; #remove c++ comments
 	$parsable .= $line if($line);
     }
     close(F);
@@ -73,7 +73,15 @@ sub find_classnames {
     for(my $i = 0; $i < length($parsable); $i++) {
 	my $definition = 0;
 	my $character = substr($parsable, $i, 1);
-	if($character eq "/" && substr($parsable, $i+1, 1) eq "*") { #I parse like this for greedy reasons
+	if($character eq "\"" || $character eq "'") {
+	    for($i+=1; $i < length($parsable); $i++) {
+		my $end = substr($parsable, $i, 1);
+		if($end eq $character) {
+		    $last_definition = $i+1;
+		    last;
+		}
+	    }
+	} elsif($character eq "/" && substr($parsable, $i+1, 1) eq "*") { #I parse like this for greedy reasons
 	    for($i+=2; $i < length($parsable); $i++) {
 		my $end = substr($parsable, $i, 2);
 		if($end eq "*/") {
