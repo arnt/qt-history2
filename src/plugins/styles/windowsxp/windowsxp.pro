@@ -13,3 +13,5 @@ SOURCES		= \
 
 target.path += $$[QT_INSTALL_PLUGINS]/styles
 INSTALLS += target
+
+LIBS += gdi32.lib user32.lib

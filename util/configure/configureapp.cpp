@@ -1158,17 +1158,17 @@ void Configure::generateConfigfiles()
 	outStream << endl << "// Compile time features" << endl;
 
         QStringList qconfigList;
-        if(dictionary["STL"] == "no")               qconfigList += "QT_NO_STL";
-        if(dictionary["STYLE_WINDOWS"] == "no")     qconfigList += "QT_NO_STYLE_WINDOWS";
-	if(dictionary["STYLE_WINDOWSXP"] == "no")   qconfigList += "QT_NO_STYLE_WINDOWSXP";
-	if(dictionary["STYLE_MOTIF"] == "no")       qconfigList += "QT_NO_STYLE_MOTIF";
-	if(dictionary["STYLE_MOTIFPLUS"] == "no")   qconfigList += "QT_NO_STYLE_MOTIFPLUS";
-	if(dictionary["STYLE_PLATINUM"] == "no")    qconfigList += "QT_NO_STYLE_PLATINUM";
-	if(dictionary["STYLE_SGI"] == "no")         qconfigList += "QT_NO_STYLE_SGI";
-	if(dictionary["STYLE_CDE"] == "no")         qconfigList += "QT_NO_STYLE_CDE";
-	if(dictionary["STYLE_COMPACT"] == "no")     qconfigList += "QT_NO_STYLE_COMPACT";
-	if(dictionary["STYLE_POCKETPC"] == "no")    qconfigList += "QT_NO_STYLE_POCKETPC";
-	if(dictionary["STYLE_MAC"] == "no")         qconfigList += "QT_NO_STYLE_MAC";
+        if(dictionary["STL"] == "no")                qconfigList += "QT_NO_STL";
+        if(dictionary["STYLE_WINDOWS"] != "yes")     qconfigList += "QT_NO_STYLE_WINDOWS";
+	if(dictionary["STYLE_WINDOWSXP"] != "yes")   qconfigList += "QT_NO_STYLE_WINDOWSXP";
+	if(dictionary["STYLE_MOTIF"] != "yes")       qconfigList += "QT_NO_STYLE_MOTIF";
+	if(dictionary["STYLE_MOTIFPLUS"] != "yes")   qconfigList += "QT_NO_STYLE_MOTIFPLUS";
+	if(dictionary["STYLE_PLATINUM"] != "yes")    qconfigList += "QT_NO_STYLE_PLATINUM";
+	if(dictionary["STYLE_SGI"] != "yes")         qconfigList += "QT_NO_STYLE_SGI";
+	if(dictionary["STYLE_CDE"] != "yes")         qconfigList += "QT_NO_STYLE_CDE";
+	if(dictionary["STYLE_COMPACT"] != "yes")     qconfigList += "QT_NO_STYLE_COMPACT";
+	if(dictionary["STYLE_POCKETPC"] != "yes")    qconfigList += "QT_NO_STYLE_POCKETPC";
+	if(dictionary["STYLE_MAC"] != "yes")         qconfigList += "QT_NO_STYLE_MAC";
 
         if(dictionary["GIF"] == "yes")              qconfigList += "QT_BUILTIN_GIF_READER=1";
         if(dictionary["PNG"] == "no")               qconfigList += "QT_NO_IMAGEIO_PNG";
