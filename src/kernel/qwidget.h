@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#129 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#130 $
 **
 ** Definition of QWidget class
 **
@@ -93,18 +93,19 @@ public:
   // Widget attribute functions
 
     enum BackgroundMode { FixedColor, FixedPixmap, NoBackground,
-	    PaletteForeground, PaletteBackground, PaletteLight,
-	    PaletteMidlight, PaletteDark, PaletteMid,
-	    PaletteText, PaletteBase };
-    BackgroundMode backgroundMode() const;
-    void setBackgroundMode( BackgroundMode );
+			  PaletteForeground, PaletteBackground, PaletteLight,
+			  PaletteMidlight, PaletteDark, PaletteMid,
+			  PaletteText, PaletteBase };
 
-    const QColor &backgroundColor() const;
-    const QColor &foregroundColor() const;
-    virtual void setBackgroundColor( const QColor & );
+    BackgroundMode backgroundMode() const;
+    void	   setBackgroundMode( BackgroundMode );
+
+    const QColor  &backgroundColor() const;
+    const QColor  &foregroundColor() const;
+    virtual void  setBackgroundColor( const QColor & );
 
     const QPixmap *backgroundPixmap() const;
-    virtual void setBackgroundPixmap( const QPixmap & );
+    virtual void   setBackgroundPixmap( const QPixmap & );
 
     const QColorGroup &colorGroup() const;
     const QPalette    &palette()    const;
