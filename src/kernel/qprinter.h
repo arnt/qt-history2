@@ -78,6 +78,10 @@ public:
                        EnvelopeManual, Auto, Tractor, SmallFormat,
                        LargeFormat, LargeCapacity, Cassette, FormSource };
 
+    enum PageRange   { All = 0x1,
+		       Selection = 0x2,
+		       Range = 0x4 };
+
     QString printerName() const;
     virtual void setPrinterName( const QString &);
     bool outputToFile() const;
@@ -118,7 +122,7 @@ public:
     QSize       margins()       const;
     void setMargins( uint top, uint left, uint bottom, uint right );
     void margins( uint *top, uint *left, uint *bottom, uint *right ) const;
-    
+
     int         fromPage()      const;
     int         toPage()        const;
     virtual void setFromTo( int fromPage, int toPage );
@@ -128,11 +132,17 @@ public:
     int         numCopies()     const;
     virtual void setNumCopies( int );
 
-    bool	collateCopiesEnabled() const;    
+    bool	collateCopiesEnabled() const;
     void	setCollateCopiesEnabled(bool );
 
     bool	collateCopies() const;
     void	setCollateCopies(bool );
+
+    uint 	pageRangeEnabled() const;
+    void 	setPageRangeEnabled( uint mask );
+
+    PageRange	pageRange() const;
+    void 	setPageRange( PageRange );
 
     bool        newPage();
     bool        abort();

@@ -114,7 +114,7 @@
     printer (see the \link simple-application.html#printersimple print
     function\endlink in the Application walk-through). Note that the
     paint device metrics are valid only after the QPrinter has been
-    set up, i.e. after setup() has returned successfully. 
+    set up, i.e. after setup() has returned successfully.
 
     If you want to abort the print job, abort() will try its best to
     stop printing. It may cancel the entire job or just some of it.
@@ -292,6 +292,51 @@
     \value LargeCapacity
     \value Cassette
     \value FormSource
+*/
+
+/*!
+  \n QPrinter::PageRange
+
+  This enum type is used to specify which of the page range options
+  are enabled in the print dialog. It is also used to specify which
+  of the options is selected by default when the print dialog opens.
+
+  \value All All pages are printed, on windows this cannot be disabled.
+  \value Selection Only the selection is printed
+  \value Range From page, to page option.
+*/
+
+/*!
+  \fn void setPageRangeEnabled( uint mask )
+
+  Enables the page range options that should be visible in the print
+  setup dialog. \mask is a bitmask of possible QPrinter::PageRange.
+
+  \sa QPrinter::PageRange
+*/
+
+/*!
+  \fn uint pageRangeEnabled() const
+
+  Returns a bitmask of QPrinter::PageRange describing which of the
+  page ranges are enabled in the print setup dialog.
+
+  \sa QPrinter::PageRange
+*/
+
+/*!
+  \fn void setPageRange( PageRange range )
+
+  Sets the default selected page range to be used when the print setup
+  dialog is opened to \range. If the PageRange specified by \range is
+  currently disabled the function does nothing.
+*/
+
+/*!
+  \fn PageRange pageRange() const
+
+  Returns the PageRange of the QPrinter. After the print setup dialog
+  has been opened, this function returns the value selected by the user.
 */
 
 /*!
@@ -687,7 +732,7 @@ void QPrinter::setMinMax( int minPage, int maxPage )
     Returns the number of copies to be printed. The default value is 1.
 
     After a call to setup(), this value will return the number of
-    times the application is required to print in order to match the 
+    times the application is required to print in order to match the
     number specified in the printer setup dialog. This has been done since
     some printer drivers are not capable of buffering up the copies and
     the application in those cases have to make an explicit call to the

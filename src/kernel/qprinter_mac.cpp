@@ -56,6 +56,11 @@
 #define PST_ERROR       2
 #define PST_ABORTED     3
 
+class QPrinterPrivate
+{
+    QPrinter::PageRange pageRange;
+    uint pageRangeEnabled;
+}
 
 QPrinter::QPrinter(PrinterMode m) : QPaintDevice(QInternal::Printer | QInternal::ExternalDevice)
 {
@@ -107,6 +112,9 @@ QPrinter::QPrinter(PrinterMode m) : QPaintDevice(QInternal::Printer | QInternal:
     state = PST_IDLE;
     output_file = FALSE;
     to_edge     = FALSE;
+
+    setPageRangeEnabled( All | Range );
+    setPageRange( All );
 }
 
 QPrinter::~QPrinter()
@@ -204,9 +212,9 @@ bool QPrinter::setup(QWidget *)
         Boolean ret;
 	QMacBlockingFunction block;
         //setup
-        if(!prepare(&psettings)) 
+        if(!prepare(&psettings))
             return FALSE;
-        if(PMSessionPrintDialog(psession, psettings, pformat, &ret) != noErr || !ret ) 
+        if(PMSessionPrintDialog(psession, psettings, pformat, &ret) != noErr || !ret )
             return FALSE;
 
         //get values
@@ -227,9 +235,9 @@ bool QPrinter::setup(QWidget *)
             setColorMode(cm == kPMGray ? GrayScale : Color);
 
         //page format
-        if(!prepare(&pformat)) 
+        if(!prepare(&pformat))
             return FALSE;
-        if(PMSessionPageSetupDialog(psession, pformat, &ret) != noErr || !ret) 
+        if(PMSessionPageSetupDialog(psession, pformat, &ret) != noErr || !ret)
             return FALSE;
 
         //get values
@@ -240,7 +248,7 @@ bool QPrinter::setup(QWidget *)
 	//Finally we update the scale so the resolution is effected by it
 	double oldscale=0;
 	PMGetScale(pformat, &oldscale);
-	PMSetScale(pformat, (((double)7200.0) / res) * (oldscale / 100));	
+	PMSetScale(pformat, (((double)7200.0) / res) * (oldscale / 100));
 	PMSessionValidatePageFormat(psession, pformat, kPMDontWantBoolean);
         return TRUE;
     } else if(QPrintDialog::getPrinterSetup(this)) {
@@ -278,7 +286,7 @@ bool QPrinter::cmd(int c, QPainter *, QPDevCmdParam *)
             return FALSE;
         if(PMSessionBeginPage(psession, pformat, &rect) != noErr ) //begin the page
             return FALSE;
-        if(PMSessionGetGraphicsContext(psession, kPMGraphicsContextQuickdraw, 
+        if(PMSessionGetGraphicsContext(psession, kPMGraphicsContextQuickdraw,
 					&hd) != noErr) //get the gworld
             return FALSE;
 	if(fullPage()) {
@@ -400,6 +408,32 @@ void QPrinter::margins(uint *top, uint *left, uint *bottom, uint *right) const
 	*bottom = (uint)(paperr.bottom - pager.bottom);
     if(right)
 	*right = (uint)(paperr.right - pager.right);
+}
+
+void QPrinter::setPageRangeEnabled( uint mask )
+{
+    d->pageRangeEnabled = mask & ( All | Selection | Range ) )
+    if( !( d->pageRangeEnabled & d->pageRange ) )
+	d->pageRange = All;
+    if( ( mask & Range ) && min_pg==0 && max_pg==0 ) {
+	max_pg = 9999;
+    }
+}
+
+uint QPrinter::pageRangeEnabled() const
+{
+    return d->pageRangeEnabled;
+}
+
+void QPrinter::setPageRange( QPrinter::PageRange range )
+{
+    if( d->pageRangeEnabled & range )
+	d->pageRange = range;
+}
+
+QPrinter::PageRange QPrinter::pageRange() const
+{
+    return d->pageRange;
 }
 
 #endif

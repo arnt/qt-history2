@@ -70,6 +70,9 @@ struct QPrinterPrivate
     uint leftMargin;
     uint bottomMargin;
     uint rightMargin;
+
+    uint pageRangeEnabled;
+    QPrinter::PageRange pageRange;
 };
 
 /*****************************************************************************
@@ -119,7 +122,13 @@ QPrinter::QPrinter( PrinterMode m )
     state = PST_IDLE;
     output_file = FALSE;
     to_edge     = FALSE;
-    d = 0;
+    QPrinterPrivate *tmp = new QPrinterPrivate;
+    margins( &(tmp->topMargin), &(tmp->leftMargin),
+	     &(tmp->bottomMargin), &(tmp->rightMargin) );
+    d = tmp;
+    setPageRangeEnabled( All | Range );
+    setPageRange( All );
+
     switch ( m ) {
 	case ScreenResolution:
 #ifdef Q_WS_QWS
@@ -623,13 +632,36 @@ void QPrinter::margins( uint *top, uint *left, uint *bottom, uint *right ) const
 */
 void QPrinter::setMargins( uint top, uint left, uint bottom, uint right )
 {
-    if ( !d )
-	d = new QPrinterPrivate;
     d->topMargin = top;
     d->leftMargin = left;
     d->bottomMargin = bottom;
     d->rightMargin = right;
 }
 
+void QPrinter::setPageRangeEnabled( uint mask )
+{
+    d->pageRangeEnabled = mask & ( All | Selection | Range ) )
+    if( !( d->pageRangeEnabled & d->pageRange ) )
+	d->pageRange = All;
+    if( ( mask & Range ) && min_pg==0 && max_pg==0 ) {
+	max_pg = 9999;
+    }
+}
+
+uint QPrinter::pageRangeEnabled() const
+{
+    return d->pageRangeEnabled;
+}
+
+void QPrinter::setPageRange( QPrinter::PageRange range )
+{
+    if( d->pageRangeEnabled & range )
+	d->pageRange = range;
+}
+
+QPrinter::PageRange QPrinter::pageRange() const
+{
+    return d->pageRange;
+}
 
 #endif

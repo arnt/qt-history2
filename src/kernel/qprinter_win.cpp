@@ -52,6 +52,8 @@ class QPrinterPrivate
 {
 public:
     QPrinter::PrinterMode printerMode;
+    uint pageRangeEnabled;
+    QPrinter::PageRange pageRange;
 };
 
 // QPrinter states
@@ -168,6 +170,8 @@ QPrinter::QPrinter( PrinterMode m )
     doc_name = "document1";
     hdevmode  = 0;
     hdevnames = 0;
+    setPageRangeEnabled( All | Range );
+    setPageRange( All );
 
     switch ( m ) {
     case ScreenResolution:
@@ -463,6 +467,14 @@ void QPrinter::readPdlg( void* pdv )
         usercolcopies = TRUE;
     else
         usercolcopies = FALSE;
+
+    if ( pd->Flags & PD_PAGENUMS )
+	d->pageRange = Range;
+    else if ( pd->Flags & PD_SELECTION )
+	d->pageRange = Selection;
+    else
+	d->pageRange = All;
+
     if ( hdc ) {
 	DeleteDC( hdc );
 	viewOffsetDone = FALSE;
@@ -553,6 +565,14 @@ void QPrinter::readPdlgA( void* pdv )
 	DeleteDC( hdc );
 	viewOffsetDone = FALSE;
     }
+
+    if ( pd->Flags & PD_PAGENUMS )
+	d->pageRange = Range;
+    else if ( pd->Flags & PD_SELECTION )
+	d->pageRange = Selection;
+    else
+	d->pageRange = All;
+
     hdc	= pd->hDC;
     if ( pd->hDevMode ) {
 	DEVMODEA* dm = (DEVMODEA*)GlobalLock( pd->hDevMode );
@@ -945,15 +965,26 @@ bool QPrinter::setup( QWidget *parent )
 	if ( result ) {
 	    // writePdlg {
 	    pd.Flags = PD_RETURNDC;
-	    // We want the Collate checkbox to be visible -- for that we have
-	    // to specify PD_NOPAGENUMS if we don't set pd.nMinPage and
-	    // pd.nMaxPage. In all other cases, we don't need to specify this
-	    // option; furthermore, it is harmful to specify it in those cases,
-	    // since that disables the selection of only printing certain
-	    // pages. (I don't know why this is like this, but my experiments
-	    // showed this behaviour.)
-	    if ( min_pg==0 && max_pg==0 )
+
+	    if ( ! ( d->pageRangeEnabled & Selection ) )
+		pd.Flags |= PD_NOSELECTION;
+	    if ( d->pageRangeEnabled & Range ) {
+		pd.nMinPage = min_pg;
+		pd.nMaxPage = max_pg;
+	    }
+
+	    if ( d->pageRange == Selection )
+		pd.Flags |= PD_SELECTION;
+	    else if ( d->pageRange == Range )
+		pd.Flags |= PD_PAGENUMS;
+	    else
+		pd.Flags |= PD_ALLPAGES;
+
+	    // As stated by MSDN, to enable collate option when minpage==maxpage==0
+	    // set the PD_NOPAGENUMS flag
+	    if ( pd.nMinPage==0 && pd.nMaxPage==0 )
 		pd.Flags |= PD_NOPAGENUMS;
+
 	    if ( usercolcopies )
 		pd.Flags |= PD_COLLATE;
             if ( outputToFile() )
@@ -963,10 +994,6 @@ bool QPrinter::setup( QWidget *parent )
             pd.nToPage   = QMIN(to_pg,max_pg);
             if ( pd.nFromPage > pd.nToPage )
                 pd.nFromPage = pd.nToPage = 0;
-	    else
-		pd.Flags |= PD_PAGENUMS;
-            pd.nMinPage  = min_pg;
-            pd.nMaxPage  = max_pg;
             pd.nCopies   = ncopies;
 
 	    if ( pd.hDevMode ) {
@@ -1002,16 +1029,28 @@ bool QPrinter::setup( QWidget *parent )
         }
 
 	if ( result ) {
+	    // writePdlg {
 	    pd.Flags = PD_RETURNDC;
-	    // We want the Collate checkbox to be visible -- for that we have
-	    // to specify PD_NOPAGENUMS if we don't set pd.nMinPage and
-	    // pd.nMaxPage. In all other cases, we don't need to specify this
-	    // option; furthermore, it is harmful to specify it in those cases,
-	    // since that disables the selection of only printing certain
-	    // pages. (I don't know why this is like this, but my experiments
-	    // showed this behaviour.)
-	    if ( min_pg==0 && max_pg==0 )
+
+	    if ( ! ( d->pageRangeEnabled & Selection ) )
+		pd.Flags |= PD_NOSELECTION;
+	    if ( d->pageRangeEnabled & Range ) {
+		pd.nMinPage = min_pg;
+		pd.nMaxPage = max_pg;
+	    }
+
+	    if ( d->pageRange == Selection )
+		pd.Flags |= PD_SELECTION;
+	    else if ( d->pageRange == Range )
+		pd.Flags |= PD_PAGENUMS;
+	    else
+		pd.Flags |= PD_ALLPAGES;
+
+	    // As stated by MSDN, to enable collate option when minpage==maxpage==0
+	    // set the PD_NOPAGENUMS flag
+	    if ( pd.nMinPage==0 && pd.nMaxPage==0 )
 		pd.Flags |= PD_NOPAGENUMS;
+
 	    if ( usercolcopies )
 		pd.Flags |= PD_COLLATE;
             if ( outputToFile() )
@@ -1021,10 +1060,6 @@ bool QPrinter::setup( QWidget *parent )
             pd.nToPage   = QMIN(to_pg,max_pg);
             if ( pd.nFromPage > pd.nToPage )
                 pd.nFromPage = pd.nToPage = 0;
-	    else
-		pd.Flags |= PD_PAGENUMS;
-            pd.nMinPage  = min_pg;
-            pd.nMaxPage  = max_pg;
             pd.nCopies   = ncopies;
 
 	    if ( pd.hDevMode ) {
@@ -1482,5 +1517,36 @@ void QPrinter::reinit()
 	}
     }
 }
+
+
+void QPrinter::setPageRangeEnabled( uint mask )
+{
+    d->pageRangeEnabled = ( mask & ( Selection | Range ) ) | All;
+    if( !( d->pageRangeEnabled & d->pageRange ) )
+	d->pageRange = All;
+    if( ( mask & Range ) && min_pg==0 && max_pg==0 ) {
+	max_pg = 9999;
+    }
+}
+
+
+uint QPrinter::pageRangeEnabled() const
+{
+    return d->pageRangeEnabled;
+}
+
+
+void QPrinter::setPageRange( QPrinter::PageRange range )
+{
+    if( d->pageRangeEnabled & range )
+	d->pageRange = range;
+}
+
+
+QPrinter::PageRange QPrinter::pageRange() const
+{
+    return d->pageRange;
+}
+
 
 #endif // QT_NO_PRINTER
