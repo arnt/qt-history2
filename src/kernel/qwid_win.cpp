@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#33 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#32 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#33 $")
 
 
 const char *qt_reg_winclass( int type );	// defined in qapp_win.cpp
@@ -75,7 +75,7 @@ bool QWidget::create()
 	modal = popup = FALSE;			// force this flags off
     }
 
-    parentw = topLevel ? 0 : parentWidget()->id();
+    parentw = topLevel ? 0 : parentWidget()->winId();
 
     char *title = 0;
     DWORD style = WS_CHILD;
@@ -113,14 +113,13 @@ bool QWidget::create()
 	id = GetDesktopWindow();
 	QWidget *otherDesktop = find( id );	// is there another desktop?
 	if ( otherDesktop && otherDesktop->testWFlags(WPaintDesktop) ) {
-	    otherDesktop->set_id( 0 );		// remove id from widget mapper
+	    otherDesktop->setWinId( 0 );	// remove id from widget mapper
 	    set_id( id );			// make sure otherDesktop is
-	    otherDesktop->set_id( id );		//   found first
+	    otherDesktop->setWinId( id );	//   found first
+	} else {
+	    setWinId( id );
 	}
-	else
-	    set_id( id );
-    }
-    else if ( topLevel ) {			// create top level widget
+    }  else if ( topLevel ) {			// create top level widget
 	if ( popup )
 	    id = CreateWindowEx( WS_EX_TOOLWINDOW, wcln, title, style,
 				 CW_USEDEFAULT, CW_USEDEFAULT,
@@ -136,19 +135,16 @@ bool QWidget::create()
 				 CW_USEDEFAULT, CW_USEDEFAULT,
 				 CW_USEDEFAULT, CW_USEDEFAULT,
 				 parentw, 0, appinst, 0 );
-	set_id( id );
-	if ( popup ) {
-	    SetWindowPos( id, HWND_TOPMOST, 0, 0, 100, 100,
-			  SWP_NOACTIVATE );
-	}
-    }
-    else {					// create child widget
+	setWinId( id );
+	if ( popup )
+	    SetWindowPos( id, HWND_TOPMOST, 0, 0, 100, 100, SWP_NOACTIVATE );
+    } else {					// create child widget
 	int x, y, w, h;
 	x = y = 10;
 	w = h = 40;
 	id = CreateWindow( wcln, title, style, x, y, w, h,
 			   parentw, NULL, appinst, NULL );
-	set_id( id );
+	setWinId( id );
     }
 
     if ( desktop ) {
@@ -197,7 +193,7 @@ bool QWidget::destroy()
 	else if ( testWFlags(WType_Popup) )
 	    qt_close_popup( this );
 	if ( !testWFlags(WType_Desktop) )
-	    DestroyWindow( id() );
+	    DestroyWindow( winId() );
 	set_id( 0 );
     }
     return TRUE;
@@ -216,7 +212,7 @@ QPoint QWidget::mapToGlobal( const QPoint &pos ) const
     POINT p;
     p.x = pos.x();
     p.y = pos.y();
-    ClientToScreen( id(), &p );
+    ClientToScreen( winId(), &p );
     return QPoint( p.x, p.y );
 }
 
@@ -225,7 +221,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
     POINT p;
     p.x = pos.x();
     p.y = pos.y();
-    ScreenToClient( id(), &p );
+    ScreenToClient( winId(), &p );
     return QPoint( p.x, p.y );
 }
 
@@ -277,7 +273,7 @@ void QWidget::setCaption( const char *caption )
     else
 	createExtra();
     extra->caption = qstrdup( caption );
-    SetWindowText( id(), extra->caption );
+    SetWindowText( winId(), extra->caption );
 }
 
 void QWidget::setIcon( const QPixmap &pixmap )
@@ -325,7 +321,7 @@ void QWidget::grabMouse()
 	journalRec = SetWindowsHookEx( WH_JOURNALRECORD,
 				       (HOOKPROC)qJournalRecordProc,
 				       GetModuleHandle(0), 0 );
-	SetCapture( id() );
+	SetCapture( winId() );
 	mouseGrb = this;
     }
 }
@@ -338,7 +334,7 @@ void QWidget::grabMouse( const QCursor &cursor )
 	journalRec = SetWindowsHookEx( WH_JOURNALRECORD,
 				       (HOOKPROC)qJournalRecordProc,
 				       GetModuleHandle(0), 0 );
-	SetCapture( id() );
+	SetCapture( winId() );
 	mouseGrbCur = new QCursor( cursor );
 	SetCursor( mouseGrbCur->handle() );
 	mouseGrb = this;
@@ -390,7 +386,7 @@ QWidget *QWidget::keyboardGrabber()
 
 void QWidget::setActiveWindow()
 {
-    SetActiveWindow( topLevelWidget()->id() );
+    SetActiveWindow( topLevelWidget()->winId() );
 }
 
 
@@ -443,7 +439,7 @@ bool QWidget::focusPrevChild()
 void QWidget::update()
 {
     if ( (flags & (WState_Visible|WState_DisUpdates)) == WState_Visible )
-	InvalidateRect( id(), 0, TRUE );
+	InvalidateRect( winId(), 0, TRUE );
 }
 
 void QWidget::update( int x, int y, int w, int h )
@@ -460,7 +456,7 @@ void QWidget::update( int x, int y, int w, int h )
 	    r.bottom = crect.height();
 	else
 	    r.bottom = y + h;
-	InvalidateRect( id(), &r, TRUE );
+	InvalidateRect( winId(), &r, TRUE );
     }
 }
 
@@ -499,12 +495,12 @@ void QWidget::show()
 	}
     }
     if ( testWFlags(WType_Popup) )
-	SetWindowPos( id(), 0,
+	SetWindowPos( winId(), 0,
 		      frect.x(), frect.y(), crect.width(), crect.height(),
 		      SWP_NOACTIVATE | SWP_SHOWWINDOW );
     else
-	ShowWindow( id(), SW_SHOW );
-    UpdateWindow( id() );
+	ShowWindow( winId(), SW_SHOW );
+    UpdateWindow( winId() );
     setWFlags( WState_Visible );
     clearWFlags( WExplicitHide );
     if ( testWFlags(WType_Modal) )
@@ -527,19 +523,19 @@ void QWidget::hide()
 	qt_leave_modal( this );
     else if ( testWFlags(WType_Popup) )
 	qt_close_popup( this );
-    ShowWindow( id(), SW_HIDE );
+    ShowWindow( winId(), SW_HIDE );
     clearWFlags( WState_Visible );
 }
 
 
 void QWidget::raise()
 {
-    SetWindowPos( id(), HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
+    SetWindowPos( winId(), HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
 }
 
 void QWidget::lower()
 {
-    SetWindowPos( id(), HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
+    SetWindowPos( winId(), HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
 }
 
 
@@ -553,12 +549,12 @@ void qWinRequestConfig( WId, int, int, int, int, int );
 void QWidget::move( int x, int y )
 {
     if ( testWFlags(WConfigPending) )		// processing config event
-	qWinRequestConfig( id(), 0, x, y, 0, 0 );
+	qWinRequestConfig( winId(), 0, x, y, 0, 0 );
     else {
 	if ( !testWFlags(WState_Visible) )
 	    setFRect( QRect(x,y,frect.width(),frect.height()) );
 	setWFlags( WConfigPending );
-	MoveWindow( id(), x, y, frect.width(), frect.height(), TRUE );
+	MoveWindow( winId(), x, y, frect.width(), frect.height(), TRUE );
 	clearWFlags( WConfigPending );
     }
 }
@@ -566,7 +562,7 @@ void QWidget::move( int x, int y )
 void QWidget::resize( int w, int h )
 {
     if ( testWFlags(WConfigPending) )		// processing config event
-	qWinRequestConfig( id(), 1, 0, 0, w, h );
+	qWinRequestConfig( winId(), 1, 0, 0, w, h );
     else {
 	int x = frect.x();
 	int y = frect.y();
@@ -575,7 +571,7 @@ void QWidget::resize( int w, int h )
 	if ( !testWFlags(WState_Visible) )
 	    setFRect( QRect(x,y,w,h) );
 	setWFlags( WConfigPending );
-	MoveWindow( id(), x, y, w, h, TRUE );
+	MoveWindow( winId(), x, y, w, h, TRUE );
 	clearWFlags( WConfigPending );
     }
 }
@@ -583,12 +579,12 @@ void QWidget::resize( int w, int h )
 void QWidget::setGeometry( int x, int y, int w, int h )
 {
     if ( testWFlags(WConfigPending) )		// processing config event
-	qWinRequestConfig( id(), 2, x, y, w, h );
+	qWinRequestConfig( winId(), 2, x, y, w, h );
     else {
 	if ( !testWFlags(WState_Visible) )
 	    setFRect( QRect(x,y,w,h) );
 	setWFlags( WConfigPending );
-	MoveWindow( id(), x, y, w, h, TRUE );
+	MoveWindow( winId(), x, y, w, h, TRUE );
 	clearWFlags( WConfigPending );
     }
 }
@@ -636,7 +632,7 @@ void QWidget::erase( int x, int y, int w, int h )
 
     if ( !hdc ) {
 	tmphdc = TRUE;
-	hdc = GetDC( id() );
+	hdc = GetDC( winId() );
     } else {
 	tmphdc = FALSE;
     }
@@ -651,7 +647,7 @@ void QWidget::erase( int x, int y, int w, int h )
     FillRect( hdc, &r, brush );
     DeleteObject( brush );
     if ( tmphdc ) {
-	ReleaseDC( id(), hdc );
+	ReleaseDC( winId(), hdc );
 	hdc = 0;
     }
     else if ( pal )
@@ -661,7 +657,7 @@ void QWidget::erase( int x, int y, int w, int h )
 
 void QWidget::scroll( int dx, int dy )
 {
-    ScrollWindow( id(), dx, dy, 0, 0 );
+    ScrollWindow( winId(), dx, dy, 0, 0 );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#37 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#36 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#37 $")
 
 
 /*****************************************************************************
@@ -804,26 +804,26 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 	    break;
 
 	case WM_PALETTECHANGED:			// our window changed palette
-	    if ( QColor::hPal() && (WId)wParam != widget->id() ) {
-		HDC hdc = GetDC( widget->id() );
+	    if ( QColor::hPal() && (WId)wParam != widget->winId() ) {
+		HDC hdc = GetDC( widget->winId() );
 		HPALETTE hpalT = SelectPalette( hdc, QColor::hPal(), FALSE );
 		RealizePalette( hdc );
 		UpdateColors( hdc );
 		if ( hpalT )
 		    SelectPalette( hdc, hpalT, FALSE );
-		ReleaseDC( widget->id(), hdc );
+		ReleaseDC( widget->winId(), hdc );
 		return 0;
 	    }
 	    break;
 
 	case WM_QUERYNEWPALETTE:		// realize own palette
 	    if ( QColor::hPal() ) {
-		HDC hdc = GetDC( widget->id() );
+		HDC hdc = GetDC( widget->winId() );
 		HPALETTE hpalT = SelectPalette( hdc, QColor::hPal(), FALSE );
 		RealizePalette( hdc );
 		if ( hpalT )
 		    SelectPalette( hdc, hpalT, FALSE );
-		ReleaseDC( widget->id(), hdc );
+		ReleaseDC( widget->winId(), hdc );
 		return TRUE;
 	    }
 	    break;
@@ -975,7 +975,7 @@ void qt_open_popup( QWidget *popup )
     }
     popupWidgets->append( popup );		// add to end of list
     if ( popupWidgets->count() == 1 && !qt_nograb() ) {
-	SetCapture( popup->id() );		// grab mouse/keyboard
+	SetCapture( popup->winId() );		// grab mouse/keyboard
 	popup->grabKeyboard();
     }
 }
@@ -1276,7 +1276,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    SetCursor( c->handle() );
 	else					// use widget cursor
 	    SetCursor( cursor().handle() );
-	if ( curWin != id() ) {			// new current window
+	if ( curWin != winId() ) {		// new current window
 	    if ( curWin ) {			// send leave event
 		QWidget *curWidget = QWidget::find(curWin);
 		if ( curWidget ) {
@@ -1284,7 +1284,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 		    QApplication::sendEvent( curWidget, &leave );
 		}
 	    }
-	    curWin = id();
+	    curWin = winId();
 	    QEvent enter( Event_Enter );	// send enter event
 	    QApplication::sendEvent( this, &enter );
 	}
@@ -1292,7 +1292,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    return TRUE;			// no button
 	POINT curPos;
 	GetCursorPos( &curPos );		// compress mouse move
-	ScreenToClient( id(), &curPos );
+	ScreenToClient( winId(), &curPos );
 	if ( curPos.x == pos.x() && curPos.y == pos.y() )
 	    return TRUE;			// same position
 	pos.rx() = (short)curPos.x;
@@ -1318,7 +1318,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	if ( (type == Event_MouseButtonPress ||
 	      type == Event_MouseButtonDblClick) && bs == button ) {
 	    if ( QWidget::mouseGrabber() == 0 ) {
-		SetCapture( id() );
+		SetCapture( winId() );
 		capture = TRUE;
 	    }
 	}
@@ -1452,13 +1452,13 @@ bool QETWidget::translatePaintEvent( const MSG &msg )
 {
     PAINTSTRUCT ps;
     RECT rect;
-    GetUpdateRect( id(), &rect, FALSE );
+    GetUpdateRect( winId(), &rect, FALSE );
     QRect r( QPoint(rect.left,rect.top), QPoint(rect.right,rect.bottom) );
     QPaintEvent e( r );
     setWFlags( WState_PaintEvent );
-    hdc = BeginPaint( id(), &ps );
+    hdc = BeginPaint( winId(), &ps );
     QApplication::sendEvent( this, &e );
-    EndPaint( id(), &ps );
+    EndPaint( winId(), &ps );
     hdc = 0;
     clearWFlags( WState_PaintEvent );
     return TRUE;
@@ -1484,10 +1484,10 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	QApplication::sendEvent( this, &e );
 	QWExtra *xtra = extraData();
 	if ( xtra ) {				// update caption/icon text
-	    if ( IsIconic(id()) && iconText() )
-		SetWindowText( id(), iconText() );
+	    if ( IsIconic(winId()) && iconText() )
+		SetWindowText( winId(), iconText() );
 	    else
-		SetWindowText( id(), caption() );
+		SetWindowText( winId(), caption() );
 	}
 	else if ( !testWFlags(WType_TopLevel) )	// manual redraw
 	    update();
