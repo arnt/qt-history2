@@ -227,6 +227,22 @@
     setValue(). If you want to insert a new item in the list, use
     insert().
 
+    Example:
+    \code
+	QListMutableIterator<float> i(list);
+        while (i.hasNext()) {
+	    float val = i.next();
+            if (val < 0.0) {
+		i.setValue(-val);
+            } else if (val == 0.0) {
+		i.remove();
+            }
+        }
+    \endcode
+
+    The example traverses a list, replacing negative numbers with the
+    opposite positive numbers and eliminating zeroes.
+
     \sa QListIterator, QList::iterator
 */
 
@@ -281,6 +297,22 @@
     remove(). If you want to modify the value of an item, use
     setValue(). If you want to insert a new item in the list, use
     insert().
+
+    Example:
+    \code
+	QLinkedListMutableIterator<float> i(list);
+        while (i.hasNext()) {
+	    float val = i.next();
+            if (val < 0.0) {
+		i.setValue(-val);
+            } else if (val == 0.0) {
+		i.remove();
+            }
+        }
+    \endcode
+
+    The example traverses a list, replacing negative numbers with the
+    opposite positive numbers and eliminating zeroes.
 
     \sa QLinkedListIterator, QLinkedList::iterator
 */
@@ -341,6 +373,22 @@
     remove(). If you want to modify the value of an item, use
     setValue(). If you want to insert a new item in the vector, use
     insert().
+
+    Example:
+    \code
+	QVectorMutableIterator<float> i(vector);
+        while (i.hasNext()) {
+	    float val = i.next();
+            if (val < 0.0) {
+		i.setValue(-val);
+            } else if (val == 0.0) {
+		i.remove();
+            }
+        }
+    \endcode
+
+    The example traverses a vector, replacing negative numbers with
+    the opposite positive numbers and eliminating zeroes.
 
     \sa QVectorIterator, QVector::iterator
 */
@@ -702,23 +750,320 @@
 */
 
 /*! \class QMapIterator
+    \brief The QMapIterator class provides a Java-style const iterator for QMap and QMultiMap.
 
-    ###
+    QMap features both \l{Java-style iterators} and \l{STL-style
+    iterators}. The Java-style iterators are more high-level and
+    easier to use than the STL-style iterators; on the other hand,
+    they are slightly less efficient.
+
+    QMapIterator\<Key, T\> allows you to iterate over a QMap (or a
+    QMultiMap). If you want to modify the map as you iterate over
+    it, use QMapMutableIterator instead.
+
+    The QMapIterator constructor takes a QMap as argument. After
+    construction, the iterator is located at the very beginning of
+    the map (before the first item). Here's how to iterate over all
+    the elements sequentially:
+
+    \code
+	QMap<int, QWidget *> map;
+        ...
+	QMapIterator<QString, QWidget *> i(map);
+        while (i.hasNext()) {
+	    i.next();
+	    cout << i.key() << ": " << i.value() << endl;
+	}
+    \endcode
+
+    The next() function returns the next item in the map and
+    advances the iterator. The key() and value() functions return the
+    key and value of the last item that was jumped over.
+
+    Unlike STL-style iterators, Java-style iterators point \e between
+    items rather than directly \e at items. The first call to next()
+    advances the iterator to the position between the first and
+    second item, and returns the first item; the second call to
+    next() advances the iterator to the position between the second
+    and third item; and so on.
+
+    \img javaiterators1.png
+
+    Here's how to iterate over the elements in reverse order:
+
+    \code
+	QMapIterator<int, QWidget *> i(map);
+        i.toBack();
+        while (i.hasPrev()) {
+	    i.prev();
+	    cout << i.key() << ": " << i.value() << endl;
+	}
+    \endcode
+
+    If you want to find all occurrences of a certain value, use
+    findNext() or findPrev() in a loop. For example:
+
+    \code
+	QMapIterator<int, QWidget *> i(map);
+        while (i.findNext(widget)) {
+	    cout << "Found widget " << widget << " under key "
+		 << i.key() << endl;
+        }
+    \endcode
+
+    QMapIterator also provides findNextKey() and findPrevKey() to
+    find all occurrences of a certain key.
+
+    Multiple iterators can be used on the same map. If the map is
+    modified while the QMapIterator is active, QMapIterator continues
+    iterating over the original map.
+
+    \sa QMapMutableIterator, QMap::const_iterator
 */
 
 /*! \class QHashIterator
 
-    ###
+    \brief The QHashIterator class provides a Java-style const iterator for QHash and QMultiHash.
+
+    QHash features both \l{Java-style iterators} and \l{STL-style
+    iterators}. The Java-style iterators are more high-level and
+    easier to use than the STL-style iterators; on the other hand,
+    they are slightly less efficient.
+
+    QHashIterator\<Key, T\> allows you to iterate over a QHash (or a
+    QMultiHash). If you want to modify the hash as you iterate over
+    it, use QHashMutableIterator instead.
+
+    The QHashIterator constructor takes a QHash as argument. After
+    construction, the iterator is located at the very beginning of
+    the hash (before the first item). Here's how to iterate over all
+    the elements sequentially:
+
+    \code
+	QHash<int, QWidget *> hash;
+        ...
+	QHashIterator<QString, QWidget *> i(hash);
+        while (i.hasNext()) {
+	    i.next();
+	    cout << i.key() << ": " << i.value() << endl;
+	}
+    \endcode
+
+    The next() function returns the next item in the hash and
+    advances the iterator. The key() and value() functions return the
+    key and value of the last item that was jumped over.
+
+    Unlike STL-style iterators, Java-style iterators point \e between
+    items rather than directly \e at items. The first call to next()
+    advances the iterator to the position between the first and
+    second item, and returns the first item; the second call to
+    next() advances the iterator to the position between the second
+    and third item; and so on.
+
+    \img javaiterators1.png
+
+    Here's how to iterate over the elements in reverse order:
+
+    \code
+	QHashIterator<int, QWidget *> i(hash);
+        i.toBack();
+        while (i.hasPrev()) {
+	    i.prev();
+	    cout << i.key() << ": " << i.value() << endl;
+	}
+    \endcode
+
+    If you want to find all occurrences of a certain value, use
+    findNext() or findPrev() in a loop. For example:
+
+    \code
+	QHashIterator<int, QWidget *> i(hash);
+        while (i.findNext(widget)) {
+	    cout << "Found widget " << widget << " under key "
+		 << i.key() << endl;
+        }
+    \endcode
+
+    QHashIterator also provides findNextKey() and findPrevKey() to
+    find all occurrences of a certain key.
+
+    Multiple iterators can be used on the same hash. If the hash is
+    modified while the QHashIterator is active, QHashIterator continues
+    iterating over the original hash.
+
+    \sa QHashMutableIterator, QHash::const_iterator
 */
 
 /*! \class QMapMutableIterator
+    \brief The QMapMutableIterator class provides a Java-style non-const iterator for QMap and QMultiMap.
 
-    ###
+    QMap features both \l{Java-style iterators} and \l{STL-style
+    iterators}. The Java-style iterators are more high-level and
+    easier to use than the STL-style iterators; on the other hand,
+    they are slightly less efficient.
+
+    QMapMutableIterator\<Key, T\> allows you to iterate over a QMap
+    (or a QMultiMap) and modify the map. If you want to iterate over
+    a const QMap, use QMapIterator instead.
+
+    The QMapMutableIterator constructor takes a QMap as argument.
+    After construction, the iterator is located at the very beginning
+    of the map (before the first item). Here's how to iterate over
+    all the elements sequentially:
+
+    \code
+	QMap<int, QWidget *> map;
+        ...
+	QMapMutableIterator<QString, QWidget *> i(map);
+        while (i.hasNext()) {
+	    i.next();
+	    cout << i.key() << ": " << i.value() << endl;
+	}
+    \endcode
+
+    The next() function returns the next item in the map and
+    advances the iterator. The key() and value() functions return the
+    key and value of the last item that was jumped over.
+
+    Unlike STL-style iterators, Java-style iterators point \e between
+    items rather than directly \e at items. The first call to next()
+    advances the iterator to the position between the first and
+    second item, and returns the first item; the second call to
+    next() advances the iterator to the position between the second
+    and third item; and so on.
+
+    \img javaiterators1.png
+
+    Here's how to iterate over the elements in reverse order:
+
+    \code
+	QMapMutableIterator<int, QWidget *> i(map);
+        i.toBack();
+        while (i.hasPrev()) {
+	    i.prev();
+	    cout << i.key() << ": " << i.value() << endl;
+	}
+    \endcode
+
+    If you want to find all occurrences of a certain value, use
+    findNext() or findPrev() in a loop. For example:
+
+    \code
+	QMapMutableIterator<int, QWidget *> i(map);
+        while (i.findNext(widget)) {
+	    cout << "Found widget " << widget << " under key "
+		 << i.key() << endl;
+        }
+    \endcode
+
+    QMapMutableIterator also provides findNextKey() and findPrevKey()
+    to find all occurrences of a certain key.
+
+    If you want to remove items as you iterate over the map, use
+    remove(). If you want to modify the value of an item, use
+    setValue().
+
+    Example:
+
+    \code
+	QMapMutableIterator<QString, QString> i(map);
+        while (i.hasNext()) {
+	    i.next();
+            if (i.key() == i.value())
+		i.remove();
+        }
+    \endcode
+
+    The example removes all (key, value) pairs where the key and the
+    value are equals.
+
+    \sa QMapIterator, QMap::iterator
 */
 
 /*! \class QHashMutableIterator
+    \brief The QHashMutableIterator class provides a Java-style non-const iterator for QHash and QMultiHash.
 
-    ###
+    QHash features both \l{Java-style iterators} and \l{STL-style
+    iterators}. The Java-style iterators are more high-level and
+    easier to use than the STL-style iterators; on the other hand,
+    they are slightly less efficient.
+
+    QHashMutableIterator\<Key, T\> allows you to iterate over a QHash
+    (or a QMultiHash) and modify the hash. If you want to iterate over
+    a const QHash, use QHashIterator instead.
+
+    The QHashMutableIterator constructor takes a QHash as argument.
+    After construction, the iterator is located at the very beginning
+    of the hash (before the first item). Here's how to iterate over
+    all the elements sequentially:
+
+    \code
+	QHash<int, QWidget *> hash;
+        ...
+	QHashMutableIterator<QString, QWidget *> i(hash);
+        while (i.hasNext()) {
+	    i.next();
+	    cout << i.key() << ": " << i.value() << endl;
+	}
+    \endcode
+
+    The next() function returns the next item in the hash and
+    advances the iterator. The key() and value() functions return the
+    key and value of the last item that was jumped over.
+
+    Unlike STL-style iterators, Java-style iterators point \e between
+    items rather than directly \e at items. The first call to next()
+    advances the iterator to the position between the first and
+    second item, and returns the first item; the second call to
+    next() advances the iterator to the position between the second
+    and third item; and so on.
+
+    \img javaiterators1.png
+
+    Here's how to iterate over the elements in reverse order:
+
+    \code
+	QHashMutableIterator<int, QWidget *> i(hash);
+        i.toBack();
+        while (i.hasPrev()) {
+	    i.prev();
+	    cout << i.key() << ": " << i.value() << endl;
+	}
+    \endcode
+
+    If you want to find all occurrences of a certain value, use
+    findNext() or findPrev() in a loop. For example:
+
+    \code
+	QHashMutableIterator<int, QWidget *> i(hash);
+        while (i.findNext(widget)) {
+	    cout << "Found widget " << widget << " under key "
+		 << i.key() << endl;
+        }
+    \endcode
+
+    QHashMutableIterator also provides findNextKey() and findPrevKey()
+    to find all occurrences of a certain key.
+
+    If you want to remove items as you iterate over the hash, use
+    remove(). If you want to modify the value of an item, use
+    setValue().
+
+    Example:
+
+    \code
+	QHashMutableIterator<QString, QString> i(hash);
+        while (i.hasNext()) {
+	    i.next();
+            if (i.key() == i.value())
+		i.remove();
+        }
+    \endcode
+
+    The example removes all (key, value) pairs where the key and the
+    value are equals.
+
+    \sa QHashIterator, QHash::iterator
 */
 
 /*! \fn QMapIterator::QMapIterator(const QMap<Key, T> &map)
