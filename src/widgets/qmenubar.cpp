@@ -1130,6 +1130,7 @@ void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
     if ( item >= 0 && !mitems->at(item)->isEnabled() ||
 	 actItem >= 0 && !mitems->at(actItem)->isEnabled() ) {
 	hidePopups();
+	setActiveItem( -1 );
 	return;
     }
     bool showMenu = TRUE;
@@ -1340,7 +1341,7 @@ void QMenuBar::setActiveItem( int i, bool show, bool activate_first_item )
 
     hidePopups();
 
-    if ( !popupvisible && actItem >= 0 ) {
+    if ( !popupvisible && actItem >= 0 && irects ) {
 	QRect mfrect = irects[actItem];
 	setMicroFocusHint( mfrect.x(), mfrect.y(), mfrect.width(), mfrect.height(), FALSE );
     }
