@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#130 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#131 $
 **
 ** Definition of QWidget class
 **
@@ -165,6 +165,7 @@ public slots:
     void	 setUpdatesEnabled( bool enable );
     void	 update();
     void	 update( int x, int y, int w, int h);
+    void	 update( const QRect& );
     void	 repaint( bool erase=TRUE );
     void	 repaint( int x, int y, int w, int h, bool erase=TRUE );
     void	 repaint( const QRect &, bool erase=TRUE );
@@ -415,6 +416,9 @@ inline QWidget::FocusPolicy QWidget::focusPolicy() const
 
 inline bool QWidget::isUpdatesEnabled() const
 { return !testWFlags(WState_BlockUpdates); }
+
+inline void QWidget::update( const QRect &r )
+{ update( r.x(), r.y(), r.width(), r.height() ); }
 
 inline void QWidget::repaint( bool erase )
 { repaint( 0, 0, crect.width(), crect.height(), erase ); }
