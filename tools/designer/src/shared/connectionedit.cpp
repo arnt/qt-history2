@@ -562,7 +562,9 @@ static QPoint rotate(QPoint pos, double alpha)
 enum EdgeType { HorEdge, VerEdge };
 static EdgeType classifyEdge(QPoint p1, QPoint p2, const QRect &rect)
 {
-    Q_ASSERT(rect.contains(p2));
+    if (rect.width() > 0 && rect.height() > 0) {
+        Q_ASSERT(rect.contains(p2));
+    }
 
     int dx = p1.x() - p2.x();
     int dy = p2.y() - p1.y();
@@ -593,7 +595,9 @@ static EdgeType classifyEdge(QPoint p1, QPoint p2, const QRect &rect)
 
 static QPoint enterPos(const QPoint &p1, const QPoint &p2, const QRect &rect)
 {
-    Q_ASSERT(rect.contains(p2));
+    if (rect.width() > 0 && rect.height() > 0) {
+        Q_ASSERT(rect.contains(p2));
+    }
 
     int dx = p1.x() - p2.x();
     int dy = p2.y() - p1.y();
@@ -1292,7 +1296,9 @@ ConnectionEdit::LineType ConnectionEdit::classifyLine(CEWidgetItem *source, CEWi
         (!isDescendant(source->widget(), target->widget())
             && !isDescendant(target->widget(), source->widget()))) {
         QRect r = source->rect();
-        Q_ASSERT(!r.contains(pos));
+        if (r.width() > 0 && r.height() > 0) {
+            Q_ASSERT(!r.contains(pos));
+        }
 
         if (pos.x() < r.left()) {
             return LeftLine;
@@ -1306,7 +1312,9 @@ ConnectionEdit::LineType ConnectionEdit::classifyLine(CEWidgetItem *source, CEWi
         }
     } else {
         QRect r = target->rect();
-        Q_ASSERT(r.contains(pos));
+        if (r.width() > 0 && r.height() > 0) {
+            Q_ASSERT(r.contains(pos));
+        }
 
         int min_dist = pos.y() - r.top();
         LineType result = TopLoopLine;
@@ -1880,6 +1888,9 @@ void ConnectionEdit::updateLine(CEEdgeItem *e)
     Q_ASSERT(source != 0);
     QRect sr = source->rect();
 
+    if (sr.width() <= 0 || sr.height() <= 0)
+        return;
+    
     for (CEEdgeItem *edge = first_edge; edge != 0; edge = nextEdge(edge)) {
         edge->setVisible(true);
         edge->setEnterPos(QPoint(-1, -1));
@@ -1915,6 +1926,9 @@ void ConnectionEdit::updateLine(CEEdgeItem *e)
     if (target != 0) {
         QRect tr = target->rect();
 
+        if (tr.width() <= 0 || tr.height() <= 0)
+            return;
+        
         for (CEEdgeItem *edge = last_edge; edge != 0; edge = prevEdge(edge)) {
             QPoint pos1 = edge->endPoint1()->pos();
             QPoint pos2 = edge->endPoint2()->pos();
