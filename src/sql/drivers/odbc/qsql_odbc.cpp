@@ -1249,7 +1249,7 @@ bool QODBCResult::exec()
             default: {
                 QByteArray ba = tmpStorage.takeFirst();
                 if (bindValueType(i) & QSql::Out)
-                    values[i] = QString::fromLocal8Bit(tmpStorage.takeFirst().constData());
+                    values[i] = QString::fromAscii(tmpStorage.takeFirst().constData());
                 break; }
         }
         if (indicators[i] == SQL_NULL_DATA)

@@ -731,7 +731,7 @@ bool QDB2Result::exec()
 #endif
             // fall through
             default: {
-                QByteArray ba = values.at(i).toString().toLocal8Bit();
+                QByteArray ba = values.at(i).toString().toAscii();
                 int len = ba.length() + 1;
                 if (*ind != SQL_NULL_DATA)
                     *ind = ba.length();
@@ -809,7 +809,7 @@ bool QDB2Result::exec()
 #endif
                 // fall through
             default: {
-                values[i] = QString::fromLocal8Bit(tmpStorage.takeFirst().constData());
+                values[i] = QString::fromAscii(tmpStorage.takeFirst().constData());
                 break; }
         }
         if (indicators[i] == SQL_NULL_DATA)

@@ -244,7 +244,7 @@ QVariant QPSQLResult::data(int i)
     case QVariant::Bool:
         return QVariant((bool)(val[0] == 't'));
     case QVariant::String:
-        return d->driver->isUtf8 ? QString::fromUtf8(val) : QString::fromLocal8Bit(val);
+        return d->driver->isUtf8 ? QString::fromUtf8(val) : QString::fromAscii(val);
     case QVariant::LongLong:
         if (val[0] == '-')
             return QString::fromLatin1(val).toLongLong();
