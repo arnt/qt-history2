@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.h#4 $
+** $Id: //depot/qt/main/src/kernel/qprinter.h#5 $
 **
 ** Definition of QPrinter class
 **
@@ -24,15 +24,27 @@ public:
    ~QPrinter();
 
     enum Orientation { Portrait, Landscape };
+    enum PageSize    { A4, B5, Letter, Legal, Executive };
 
     const char *printerName()	const;
     void	setPrinterName( const char * );
+    bool	outputToFile()	const;
+    void	setOutputToFile( bool );
+    const char *outputFileName()const;
+    void	setOutputFileName( const char * );
+    const char *printProgram()	const;
+    void	setPrintProgram( const char * );
+
     const char *docName()	const;
     void	setDocName( const char * );
     const char *creator()	const;
     void	setCreator( const char * );
+
+    PageSize	pageSize()	const;
+    void	setPageSize( PageSize );
     Orientation orientation()	const;
     void	setOrientation( Orientation );
+
     int		fromPage()	const;
     int		toPage()	const;
     void	setFromTo( int fromPage, int toPage );
@@ -57,8 +69,12 @@ private:
 #endif
     int		state;
     QString	printer_name;
+    QString	output_filename;
+    bool	output_file;
+    QString	print_prog;
     QString	doc_name;
     QString	creator_name;
+    PageSize	page_size;
     Orientation	orient;
     short	from_pg, to_pg;
     short	min_pg,  max_pg;
@@ -69,11 +85,23 @@ private:
 inline const char *QPrinter::printerName() const
 { return printer_name; }
 
+inline bool QPrinter::outputToFile() const
+{ return output_file; }
+
+inline const char *QPrinter::outputFileName() const
+{ return output_filename; }
+
+inline const char *QPrinter::printProgram() const
+{ return print_prog; }
+
 inline const char *QPrinter::docName() const
 { return doc_name; }
 
 inline const char *QPrinter::creator() const
 { return creator_name; }
+
+inline QPrinter::PageSize QPrinter::pageSize() const
+{ return page_size; }
 
 inline QPrinter::Orientation QPrinter::orientation() const
 { return orient; }

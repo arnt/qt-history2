@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#2 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -19,7 +19,7 @@
 #include "qbuffer.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpsprn.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpsprn.cpp#2 $";
 #endif
 
 
@@ -43,6 +43,49 @@ QPSPrinter::QPSPrinter( QPrinter *prt )
 
 QPSPrinter::~QPSPrinter()
 {
+}
+
+
+//
+// Sets a new font for PostScript
+//
+
+static void ps_setFont( QTextStream *s, const QFont *f )
+{
+    QString family = f->family();
+    QString ps;
+    int  weight = f->weight();
+    bool italic = f->italic();
+    bool times  = FALSE;
+    family = family.lower();
+    if ( family == "courier" )
+	ps = "/Courier";
+    else if ( family == "times" ) {
+	ps = "/Times";
+	times = TRUE;
+    }
+    else
+	ps = "/Helvetica";
+    QString extra;
+    if ( weight > 60 )
+	extra = "Bold";
+    if ( italic ) {
+	if ( times )
+	    extra += "Italic";
+	else
+	    extra += "Oblique";
+    }
+    if ( !extra.isEmpty() ) {
+	ps += '-';
+	ps += extra;
+    }
+    else {
+	if ( times )
+	    ps += "-Roman";
+    }
+    QString fontMatrix;
+    fontMatrix.sprintf( "[ %d 0 0 -%d 0 0 ]", f->pointSize(), f->pointSize() );
+    *s << ps << " findfont " << fontMatrix << " makefont setfont\n";
 }
 
 
@@ -76,7 +119,7 @@ QPSPrinter::~QPSPrinter()
 
 bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 {
-    if ( c == PDC_BEGIN ) {
+    if ( c == PDC_BEGIN ) {			// start painting
 	pageCount   = 1;			// initialize state
 	dirtyMatrix = TRUE;
 
@@ -99,7 +142,8 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    stream << "/#copies " << printer->numCopies() << " def\n";
 
 	QFile f( "/usr/lib/qtheader.ps" );	// read predefined PS header
-	f.open( IO_ReadOnly|IO_Raw );
+	if ( !f.open(IO_ReadOnly|IO_Raw) )
+	    fatal( "Cannot open /usr/lib/qtheader.ps" );
 	QByteArray a(f.size());
 	f.readBlock( a.data(), f.size() );
 	f.close();
@@ -108,7 +152,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	return TRUE;
     }
     
-    if ( c == PDC_END ) {
+    if ( c == PDC_END ) {			// painting done
 	stream << "QtFinish\n";
 	stream << "%%Trailer\n";
 	stream << "%%Pages: " << pageCount << '\n';
@@ -134,6 +178,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 		   << tmp.m11() << ' ' << tmp.m12() << ' '
 		   << tmp.m21() << ' ' << tmp.m22() << ' '
 		   << tmp.dx()  << ' ' << tmp.dy()  << " ] ST\n";
+	    dirtyMatrix = FALSE;
 	}
     }
 
@@ -169,31 +214,58 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    stream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "CH\n";
 	    break;
 	case PDC_DRAWLINESEGS:
+	    if ( PA(0)->size() > 0 ) {
+		QPointArray a = *PA(0);
+		QPoint pt;
+		for ( int i=0; i<a.size(); i+=2 ) {
+		    pt = a.point( i );
+		    stream << XCOORD(pt.x()) << ' '
+			   << YCOORD(pt.y()) << " MT\n";
+		    pt = a.point( i+1 );
+		    stream << XCOORD(pt.x()) << ' '
+			   << YCOORD(pt.y()) << " LT\n";
+		}
+	    }
 	    break;
 	case PDC_DRAWPOLYLINE:
+	    if ( PA(0)->size() > 0 ) {
+		QPointArray a = *PA(0);
+		QPoint pt = a.point( 0 );
+		stream << XCOORD(pt.x()) << ' ' << YCOORD(pt.y()) << " MT\n";
+		for ( int i=1; i<a.size(); i++ ) {
+		    pt = a.point( i );
+		    stream << XCOORD(pt.x()) << ' '
+			   << YCOORD(pt.y()) << " LT\n";
+		}
+	    }
 	    break;
-	case PDC_DRAWPOLYGON: {
-	    QPointArray a = *PA(0);
-	    if ( a.size() == 0 )
-		return TRUE;
-	    QPoint tmp = a.point(0);
-	    stream << "NP\n";
-	    stream << (float)tmp.x() << ' '
-		   << (float)tmp.y() << " MT\n";
-	    for( int i=1; i<(int)a.size(); i++) {
-		tmp = a.point( i );
-		stream << (float)tmp.x() << ' '
-		       << (float)tmp.y() << " LT\n";
+	case PDC_DRAWPOLYGON:
+	    if ( PA(0)->size() > 0 ) {
+		QPointArray a = *PA(0);
+		QPoint pt = a.point(0);
+		stream << "NP\n";
+		stream << XCOORD(pt.x()) << ' '
+		       << XCOORD(pt.y()) << " MT\n";
+		for( int i=1; i<(int)a.size(); i++) {
+		    pt = a.point( i );
+		    stream << XCOORD(pt.x()) << ' '
+			   << YCOORD(pt.y()) << " LT\n";
+		}
+		stream << "CP\n";
+		stream << "QtFill\n";
+		stream << "QtStroke\n";
 	    }
-	    stream << "CP\n";
-	    stream << "QtFill\n";
-	    stream << "QtStroke\n";
-	    }
+	    break;
+	case PDC_DRAWBEZIER:
 	    break;
 	case PDC_DRAWTEXT:
 	    stream << POINT(0) << "(" << p[1].str << ") T\n";
 	    break;
-	case PDC_DRAWTEXTFRMT:
+	case PDC_DRAWTEXTFRMT: {
+	    QPoint pt = p[0].rect->topLeft();
+	    stream << XCOORD(pt.x()) << ' ' << YCOORD(pt.y())
+		   << " (" << p[3].str << ") T\n";
+	    }
 	    break;
 	case PDC_SAVE:
 	    stream << "SV\n";
@@ -218,6 +290,11 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 		debug( "QPSPrinter: Raster operation setting not supported" );
 #endif
 	    break;
+	case PDC_SETBRUSHORIGIN:
+	    break;
+	case PDC_SETFONT:
+	    ps_setFont( &stream, p[0].font );
+	    break;	    
 	case PDC_SETPEN:
 	    if ( p[0].pen->width() == 0 )
 		stream << p[0].pen->style()	       << " 0.3 "
@@ -229,6 +306,12 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	case PDC_SETBRUSH:
 	    stream << p[0].brush->style() << ' ' 
 		   << COLOR(p[0].brush->color()) << "B\n";
+	    break;
+	case PDC_SETTABSTOPS:
+	    break;
+	case PDC_SETTABARRAY:
+	    break;
+	case PDC_SETUNIT:
 	    break;
 	case PDC_SETVXFORM:
 	case PDC_SETWINDOW:

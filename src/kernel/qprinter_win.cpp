@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#3 $
 **
 ** Implementation of QPrinter class for Windows
 **
 ** Author  : Haavard Nord
-** Created : 940112
+** Created : 950810
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -16,7 +16,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter_win.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter_win.cpp#3 $";
 #endif
 
 

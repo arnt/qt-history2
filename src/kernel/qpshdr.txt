@@ -1,12 +1,12 @@
 %
-% $Id: //depot/qt/main/src/kernel/qpshdr.txt#2 $
+% $Id: //depot/qt/main/src/kernel/qpshdr.txt#3 $
 %
-% Postscript routines for QInternalPrinter class
+% Postscript routines for QPSPrinter class
 %
 % Author  : Eirik Eng
 % Created : 940920
 %
-% Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+% Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 %
 
 /D  {bind def} bind def
@@ -26,28 +26,27 @@
 /GR {grestore} D
 
 
-/BSt 0 def		% brush style
-/LWi 1 def		% line width
-/PSt 1 def		% pen style
-/Cx  0 def		% current x position
-/Cy  0 def		% current y position
-/WFi true def		% winding fill
-/OMo false def		% opaque mode (not transparent)
+/BSt 0 def			% brush style
+/LWi 1 def			% line width
+/PSt 1 def			% pen style
+/Cx  0 def			% current x position
+/Cy  0 def			% current y position
+/WFi true def			% winding fill
+/OMo false def			% opaque mode (not transparent)
 
-/BCol  [ 1 1 1 ] def	% brush color
-/PCol  [ 0 0 0 ] def	% pen color
-/BkCol [ 1 1 1 ] def	% background color
+/BCol  [ 1 1 1 ] def		% brush color
+/PCol  [ 0 0 0 ] def		% pen color
+/BkCol [ 1 1 1 ] def		% background color
 
-/nS 0 def               % number of saved painter states
+/nS 0 def			% number of saved painter states
 
-% /defM matrix CM def % default transformation matrix
 
 /QtStroke {
     PSt 0 ne			% != NO_PEN
     { LWi SW			% set line width
       GS
       PCol SC  % set pen color
-      true GPS 0 setdash S	  % draw line pattern
+      true GPS 0 setdash S	% draw line pattern
       OMo PSt 1 ne and		% opaque mode and not solid line?
       { GR BkCol SC
 	false GPS dup 0 get setdash S	% fill in opaque pattern
@@ -65,11 +64,13 @@
     GR
 } D 
 
+
 /ArcDict 6 dict def
 ArcDict begin
     /tmp matrix def
 end
-/ARC{     % Generic ARC function   X Y W H ang1 ang2 
+
+/ARC {				% Generic ARC function	 X Y W H ang1 ang2 
     ArcDict begin
     /ang2 ED /ang1 ED /h ED /w ED /y ED /x ED
     tmp CM pop
@@ -81,6 +82,7 @@ end
     tmp SM
     end
 } D
+
 
 /QtInit {
     GS
@@ -95,7 +97,7 @@ end
 
     PageX PageY TR
     1 -1 scale
-    /defM matrix CM def       % default transformation matrix
+    /defM matrix CM def		% default transformation matrix
 } D
 
 /QtFinish {
@@ -103,23 +105,23 @@ end
     showpage
 } D
 
-/P {        % PDC_DRAWPOINT        X Y
+/P {				% PDC_DRAWPOINT [x y]
     NP
     MT
     0.5 0.5 rmoveto
     0  -1 RL
-    -1  0 RL
-    0   1 RL
+    -1	0 RL
+    0	1 RL
     CP
     PCol SC
     fill
 } D
 
-/M {        % PDC_MOVETO           X Y
+/M {				% PDC_MOVETO [x y]
     /Cy ED /Cx ED
 } D
 
-/L {        % PDC_LINETO           X Y
+/L {				% PDC_LINETO [x y]
     NP
     Cx Cy MT
     /Cy ED /Cx ED
@@ -127,7 +129,7 @@ end
     QtStroke
 } D
 
-/DL {        % PDC_DRAWLINE        X0 Y0 X1 Y1
+/DL {				% PDC_DRAWLINE [x0 y0 x1 y1]
     4 2 roll
     NP
     MT
@@ -136,7 +138,7 @@ end
 } D
 
 /RDict 4 dict def
-/R {        % PDC_DRAWRECT         X Y W H
+/R {				% PDC_DRAWRECT [x y w h]
     RDict begin
     /h ED /w ED /y ED /x ED
     NP
@@ -151,28 +153,28 @@ end
 } D
 
 /RRDict 6 dict def
-/RR {        % PDC_DRAWROUNDRECT   X Y W H XR YR
+/RR {				% PDC_DRAWROUNDRECT [x y w h xr yr]
     RRDict begin
     /yr ED /xr ED /h ED /w ED /y ED /x ED    
     xr 0 le yr 0 le or
-    {x y w h R}      % Do rectangle if one of rounding values is less than 0.
+    {x y w h R}	     % Do rectangle if one of rounding values is less than 0.
     {xr 100 ge yr 100 ge or
-        {x y w h E}  % Do ellipse if both rounding values are larger than 100
-        {
-         /rx xr w mul 200 div def
-         /ry yr h mul 200 div def
-         /rx2 rx 2 mul def
-         /ry2 ry 2 mul def
-         NP
-         x rx add y MT
-         x w add rx2 sub y               rx2 ry2 90  -90 ARC 
-         x w add rx2 sub y h add ry2 sub rx2 ry2 0   -90 ARC 
-         x               y h add ry2 sub rx2 ry2 270 -90 ARC 
-         x               y               rx2 ry2 180 -90 ARC 
-         CP
-         QtFill
-         QtStroke
-        } ifelse
+	{x y w h E}  % Do ellipse if both rounding values are larger than 100
+	{
+	 /rx xr w mul 200 div def
+	 /ry yr h mul 200 div def
+	 /rx2 rx 2 mul def
+	 /ry2 ry 2 mul def
+	 NP
+	 x rx add y MT
+	 x w add rx2 sub y		 rx2 ry2 90  -90 ARC 
+	 x w add rx2 sub y h add ry2 sub rx2 ry2 0   -90 ARC 
+	 x		 y h add ry2 sub rx2 ry2 270 -90 ARC 
+	 x		 y		 rx2 ry2 180 -90 ARC 
+	 CP
+	 QtFill
+	 QtStroke
+	} ifelse
     } ifelse
     end
 } D
@@ -182,7 +184,7 @@ end
 EDict begin
 /tmp matrix def
 end
-/E {        % PDC_DRAWELLIPSE    X Y W H
+/E {				% PDC_DRAWELLIPSE [x y w h]
     EDict begin
     /h ED /w ED /y ED /x ED
     tmp CM pop
@@ -197,7 +199,7 @@ end
 } D
  
 
-/A {        % PDC_DRAWARC    X Y W H ang1 ang2
+/A {				% PDC_DRAWARC [x y w h ang1 ang2]
     16 div exch 16 div exch
     NP
     ARC
@@ -206,7 +208,7 @@ end
 
 
 /PieDict 6 dict def
-/PIE {        % PDC_DRAWPIE    X Y W H ang1 ang2
+/PIE {				% PDC_DRAWPIE [x y w h ang1 ang2]
     PieDict begin
     /ang2 ED /ang1 ED /h ED /w ED /y ED /x ED
     NP
@@ -218,7 +220,7 @@ end
     end
 } D
 
-/CH {        % PDC_DRAWCHORD    X Y W H ang1 ang2
+/CH {				% PDC_DRAWCHORD [x y w h ang1 ang2]
     16 div exch 16 div exch
     NP
     ARC
@@ -228,20 +230,20 @@ end
 } D
 
 
-/CRGB {     % Compute RGB    R G B => R/255 G/255 B/255
+/CRGB {				% Compute RGB [R G B] => R/255 G/255 B/255
     255 div 3 1 roll
     255 div 3 1 roll
     255 div 3 1 roll
 } D
 
 
-/SV {       % Save painter state
+/SV {				% Save painter state
     BSt LWi PSt Cx Cy WFi OMo BCol PCol BkCol
     /nS nS 1 add def
     GS
 } D
 
-/RS {       % Restore painter state
+/RS {				% Restore painter state
     nS 0 gt
     { GR 
       /BkCol ED /PCol ED /BCol ED /OMo ED /WFi ED 
@@ -251,38 +253,38 @@ end
     
 } D
 
-/BC {       % PDC_SETBKCOLOR  R G B
+/BC {				% PDC_SETBKCOLOR [R G B]
     CRGB
     BkCol astore pop
 } D
 
-/B {        % PDC_SETBRUSH  style R G B
+/B {				% PDC_SETBRUSH [style R G B]
     CRGB
     BCol astore pop
     /BSt ED
 } D
 
-/PE {       % PDC_SETPEN  style width R G B
+/PE {				% PDC_SETPEN [style width R G B]
     CRGB
     PCol astore pop
     /LWi ED
     /PSt ED
 } D
 
-/ST {        % SET TRANSFORM    matrix
+/ST {				% SET TRANSFORM [matrix]
     defM setmatrix
     concat
 } D
 
-/T {        % PDC_DRAWTEXT    X Y string
+/T {				% PDC_DRAWTEXT [x y string]
     3 1 roll
     MT				% !!!! Uff
     show
 } D
 
 /BFDict 2 dict def
-/BF {       % brush fill
-    BSt 7 ge BSt 12 le and      % valid brush pattern?
+/BF {				% brush fill
+    BSt 7 ge BSt 12 le and	% valid brush pattern?
     {
      BFDict begin
      GS
@@ -290,42 +292,42 @@ end
      defM SM
      pathbbox			% left upper right lower
      3 index 3 index translate
-     4 2 roll                    % right lower left upper
-     3 2 roll                    % right left upper lower
+     4 2 roll			% right lower left upper
+     3 2 roll			% right left upper lower
      exch			% left right lower upper
      sub /h ED
      sub /w ED
      OMo {
-          NP
-          0 0 MT
-          0 h RL
-          w 0 RL
-          0 h neg RL
-          CP
-          BkCol SC
-          fill
+	  NP
+	  0 0 MT
+	  0 h RL
+	  w 0 RL
+	  0 h neg RL
+	  CP
+	  BkCol SC
+	  fill
      } if
      BCol SC
      0.3 SW
-     BSt 7 eq BSt 9 eq or 	% horiz or cross pattern
+     BSt 7 eq BSt 9 eq or	% horiz or cross pattern
      { 0 4 h			% draw horiz lines !!! alignment
        { NP dup 0 exch MT w exch LT S } for
      } if
-     BSt 8 eq BSt 9 eq or 	% vert or cross pattern
+     BSt 8 eq BSt 9 eq or	% vert or cross pattern
      { 0 4 w			% draw vert lines !!! alignment
        { NP dup 0 MT h LT S } for
      } if
      BSt 10 eq BSt 12 eq or	% F-diag or diag cross
      { w h gt
        { 0 6 w h add
- 	{ NP dup h MT h sub 0 LT S } for }
+	{ NP dup h MT h sub 0 LT S } for }
        { 0 6 w h add
- 	 { NP dup w exch MT w add 0 exch LT S } for } ifelse
+	 { NP dup w exch MT w add 0 exch LT S } for } ifelse
      } if
      BSt 11 eq BSt 12 eq or
      { w h gt
        { 0 6 w h add
- 	 { NP dup 0 MT h sub h LT S } for }
+	 { NP dup 0 MT h sub h LT S } for }
        { 0 6 w h add
 	 { NP dup 0 exch MT w add w exch LT S } for } ifelse
      } if
@@ -342,8 +344,8 @@ end
     [ 5 3 3 3 3 3 ]  [ 3 5 3 3 3 3 ]	%   dash dot dot line
 ] def
 
-/GPS { 		% get penstyle	BOOL => dash_pattern
-		% arg BOOL: true=draw pattern,  false=fill pattern
+/GPS {			% get penstyle	BOOL => dash_pattern
+			% arg BOOL: true=draw pattern,	false=fill pattern
     PSt 1 ge PSt 5 le and			% valid pen pattern?
     { { LArr PSt 1 sub 2 mul get }		% draw pattern
       { LArr PSt 2 mul 1 sub get } ifelse	% opaque pattern
@@ -351,12 +353,6 @@ end
     { [] } ifelse				% out of range => solid line
 } D
 
-%/ {        % PDC_DRAWPOINT    X Y
-
 QtInit
 
 %%EndProlog
-
-
-
-
