@@ -87,7 +87,7 @@ performed through the cursor-based interface.
 \section2 Editing and content creation
 
 Documents can be edited via the interface provided by the \c QTextCursor
-class; cursor are either created using a constructor or obtained from
+class; cursors are either created using a constructor or obtained from
 an editor widget. The cursor is used to perform editing operations that
 correspond exactly to those the user is able to make themselves in an
 editor. As a result, information about the document structure is also
