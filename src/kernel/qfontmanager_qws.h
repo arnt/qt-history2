@@ -36,13 +36,15 @@
 #ifndef QT_H
 #include "qfont.h"
 #include "qlist.h"
-#include "qfontdata_p.h"
+//#include "qfontdata_p.h"
 #endif // QT_H
 
 // These are stored in the shared memory segment in front of their
 // data, and indexed at the start of the segment
 
 // This needs to be a multiple of 64 bits
+
+class QFontDef;
 
 class Q_PACKED QGlyphMetrics {
 
