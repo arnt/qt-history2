@@ -72,6 +72,11 @@ MainWindow* FindDialog::mainWindow()
     return (MainWindow*) parent();
 }
 
+bool FindDialog::hasFindExpression()
+{
+    return !findExpr.isEmpty();
+}
+
 void FindDialog::statusMessage(const QString &message)
 {
     if (isVisible())

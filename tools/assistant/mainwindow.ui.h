@@ -293,7 +293,7 @@ void MainWindow::find()
 
 void MainWindow::findAgain()
 {
-    if (!findDialog) {
+    if (!findDialog || !findDialog->hasFindExpression()) {
 	find();
 	return;
     }
@@ -302,7 +302,7 @@ void MainWindow::findAgain()
 
 void MainWindow::findAgainPrev()
 {
-    if (!findDialog) {
+    if (!findDialog || !findDialog->hasFindExpression()) {
 	find();
 	return;
     }

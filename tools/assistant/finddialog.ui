@@ -273,6 +273,7 @@
 </slots>
 <functions>
     <function specifier="non virtual" returnType="MainWindow *">mainWindow()</function>
+    <function specifier="non virtual" returnType="bool">hasFindExpression()</function>
 </functions>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
