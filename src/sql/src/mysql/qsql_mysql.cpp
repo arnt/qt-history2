@@ -39,11 +39,6 @@
 #include <qdatetime.h>
 #include <qmap.h>
 
-#if defined (Q_OS_WIN32)
-#define NO_CLIENT_LONG_LONG
-#include <qt_windows.h>
-#endif
-
 #define QMYSQL_DRIVER_NAME "QMYSQL"
 
 class QMYSQLDriverPrivate
