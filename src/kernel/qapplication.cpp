@@ -2198,6 +2198,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	    }
 	}
 	break;
+#if defined (QT_TABLET_SUPPORT)
     case QEvent::TabletMove:
     case QEvent::TabletPress:
     case QEvent::TabletRelease:
@@ -2233,8 +2234,10 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	    if ( tablet->isAccepted() )
 		chokeMouse = TRUE;
 #endif
+
 	}
 	break;
+#endif
     default:
 	res = internalNotify( receiver, e );
 	break;
