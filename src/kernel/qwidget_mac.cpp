@@ -241,13 +241,12 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	Rect r; 
 	SetRect(&r, crect.left(), crect.top(), crect.right(), crect.bottom());
 
-#if 1
 	WindowClass wclass = kSheetWindowClass;
 	if(testWFlags(WShowModal)) 
 	    wclass = kModalWindowClass;
-	else if(testWFlags(WType_Dialog) ) 
-	    wclass = kFloatingWindowClass;
-	else if(testWFlags( WStyle_Tool ) || testWFlags(WType_Popup) ) 
+	else if(testWFlags(WType_Dialog)  || testWFlags(WType_Popup) ) 
+	    wclass = kToolbarWindowClass;
+	else if(testWFlags( WStyle_Tool )) 
 	    wclass = kSheetWindowClass;
 	else if(testWFlags(WType_TopLevel) )
 	    wclass = kDocumentWindowClass;
@@ -255,6 +254,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	    wclass = kDesktopWindowClass;
 
 	WindowAttributes wattr = kWindowNoAttributes;
+
+	if(testWFlags( WStyle_Tool ) )
+	    wattr |= kWindowNoShadowAttribute;
+
 	if( testWFlags(WStyle_Customize) ) {
 	    if ( testWFlags(WStyle_NormalBorder) || testWFlags( WStyle_DialogBorder) ) {
 		if(wclass == kDocumentWindowClass ) 
@@ -275,23 +278,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	    }
 	} 
 	CreateNewWindow(wclass, wattr, &r, (WindowRef *)&id);
-#else
-	char title[2];
-	title[0]=0;
-	title[1]='\0';
-	short procid;
-	if ( popup || testWFlags(WStyle_Tool ) ) {
-	    procid = plainDBox;
-	} else {
-	    procid = zoomDocProc;
-	}
-	id = (WId)NewCWindow( nil, &r, (const unsigned char*)title,
-			      0, procid, (WindowPtr)-1, TRUE, 0);
-#endif
+	InstallWindowContentPaintProc((WindowPtr)id, macSpecialErase, 0, this);
 
 	hd = (void *)id;
 	setWinId(id);
-	InstallWindowContentPaintProc((WindowPtr)hd, macSpecialErase, 0, this);
     } else {
 	while(QWidget::find(++serial_id));
 	setWinId(serial_id);
