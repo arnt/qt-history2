@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#179 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#180 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -43,7 +43,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#179 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#180 $");
 
 
 #if !defined(XlibSpecificationRelease)
@@ -1004,9 +1004,9 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 	CHECK_PTR( sn );
 	sn->obj = obj;
 	sn->fd	= sockfd;
-	if ( list->isEmpty() )
+	if ( list->isEmpty() ) {
 	    list->insert( 0, sn );
-	else {					// sort list by fd, decreasing
+	} else {				// sort list by fd, decreasing
 	    QSockNot *p = list->first();
 	    while ( p && p->fd > sockfd )
 		p = list->next();
@@ -1021,8 +1021,7 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 	}
 	FD_SET( sockfd, fds );
 	sn_highest = QMAX(sn_highest,sockfd);
-    }
-    else {					// disable notifier
+    } else {					// disable notifier
 	if ( list == 0 )
 	    return FALSE;			// no such fd set
 	QSockNot *sn = list->first();
@@ -1078,8 +1077,8 @@ static void sn_activate()
     for ( int i=0; i<3; i++ ) {			// for each list...
 	if ( *sn_vec[i].list ) {		// any entries?
 	    QSNList  *list = *sn_vec[i].list;
-	    fd_set   *fds = sn_vec[i].fdres;
-	    QSockNot *sn = list->first();
+	    fd_set   *fds  = sn_vec[i].fdres;
+	    QSockNot *sn   = list->first();
 	    while ( sn ) {
 		if ( FD_ISSET(sn->fd,fds) )	// store away for activation
 		    sn_rnd_dict->insert( rand(), sn->obj );
@@ -1090,9 +1089,10 @@ static void sn_activate()
     if ( sn_rnd_dict->count() > 0 ) {		// activate entries
 	QEvent event( Event_SockAct );
 	QObjRndDictIt it( *sn_rnd_dict );
-	while ( it.current() ) {
-	    QApplication::sendEvent( it.current(), &event );
+	QObject *obj;
+	while ( (obj=it.current()) ) {
 	    ++it;
+	    QApplication::sendEvent( obj, &event );
 	}
 	sn_rnd_dict->clear();
     }
