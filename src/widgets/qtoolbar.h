@@ -77,7 +77,7 @@ public:
     virtual void setLabel( const QString & );
     QString label() const;
 
-    void clear();
+    virtual void clear();
 
     QSize minimumSize() const;
     QSize minimumSizeHint() const;
