@@ -49,17 +49,22 @@ PLATFORM_QNX=no
 
 if [ -d /System/Library/Frameworks/Carbon.framework ]
 then
-	# Qt/Mac
-	# ~ the Carbon SDK is present
-	PLATFORM_MAC=yes
+    # Qt/Mac
+    # ~ the Carbon SDK is present
+    PLATFORM_MAC=yes
 elif [ -d $relpath/mkspecs/qws ]
 then
-	# Qt/Embedded
-	# ~ mkspecs/qws is present
-	# ~ this is the free or commercial edition
-	# ~ this is the internal edition and Qt/Embedded is explicitly enabled
-	# ~ this is the internal edition and the OS is QNX
+    # Qt/Embedded
+    # ~ mkspecs/qws is present
+    # ~ this is the free or commercial edition
+    # ~ this is the internal edition and Qt/Embedded is explicitly enabled
+    # ~ this is the internal edition and the OS is QNX
+    if [ "$UNAME_SYSTEM" = "QNX" ]
+    then
+	PLATFORM_QNX=maybe
+    else
 	PLATFORM_QWS=maybe
+    fi
 fi
 
 
@@ -79,7 +84,7 @@ then
 # Qt/X11, Qt/Embedded, Qt/Mac
 elif [ -f $relpath/LICENSE.TROLL ]
 then
-    [ "$UNAME_SYSTEM" = "QNX" -a "$PLATFORM_QWS" = "maybe" ] && $PLATFORM_QWS=yes
+    [ "$PLATFORM_QNX" = "maybe" ] && PLATFORM_QNX=yes
     Edition="troll"
     Licensee="Trolltech"
     Products="qt-internal"
@@ -220,7 +225,7 @@ CFG_LAZY_DEPS_ALLOWED=no
 CFG_EXCEPTION_SUPPORT=unspecified
 CFG_INCREMENTAL=auto
 CFG_QCONFIG=full
-CFG_EMBEDDED=
+CFG_EMBEDDED=no
 CFG_DEBUG=no
 CFG_SHARED=yes
 CFG_GIF=no
@@ -302,14 +307,23 @@ do
 	# this option may or may not be followed by an argument
 	if echo $1 | grep '^-' >/dev/null 2>&1
 	then
+	    CFG_EMBEDDED=auto
+	else
 	    shift;
 	    CFG_EMBEDDED=$1
 	fi
-	if [ "$PLATFORM_QWS" = "maybe" ]
+	if [ "$PLATFORM_QNX" != "no" -a "$PLATFORM_QWS" != "no" ]
 	then
-	    PLATFORM_QWS=yes
+	    if [ "$PLATFORM_QNX" = "maybe" ]
+	    then
+		PLATFORM_QNX=yes
+	    elif [ "$PLATFORM_QWS" = "maybe" ]
+	    then
+		PLATFORM_QWS=yes
+	    fi
 	else
-	    echo "Qt/Embedded is not supported. Disabling."
+	    echo "No license exists to enable Qt/Embedded. Disabling."
+	    CFG_EMBEDDED=no
 	fi
 	;;
     -depths)
@@ -633,7 +647,7 @@ done
 # build tree initialization
 #-------------------------------------------------------------------------------
 
-# skip this if the user just needs help...
+### skip this if the user just needs help...
 if [ "$OPT_HELP" != "yes" ]
 then
 
@@ -656,10 +670,10 @@ then
 fi
 echo "// All modules enabled while building qmake" >$outpath/include/qmodules.h
 
-# make sure qconfig.h and qmodules.h are restored if Ctrl+C
-# - using 130 as an exit value because on bash the return value of a
-#   simple command is 128+n if the command is terminated by signal n
-#   and Ctrl+C results in SIGINT which on Linux is 2
+### make sure qconfig.h and qmodules.h are restored if Ctrl+C
+### a better solution would be to copy to a qmake specific
+### directory that would be included by qmake only and then
+### erased
 if [ "$PLATFORM_MAC" = "no" ]
 then
 trap "\
@@ -810,60 +824,39 @@ fi ### help
 # auto-detect all that hasn't been specified in the arguments
 #-------------------------------------------------------------------------------
 
-if [ "PLATFORM_QWS" = "yes" ]
+if [ "$CFG_EMBEDDED" != "no" ]
 then
     case "$UNAME_SYSTEM:$UNAME_RELEASE" in
     QNX:*)
-	if [ -n "$CFG_EMBEDDED" ]
-	then
-	    echo "Cannot specify architecture on $UNAME_SYSTEM. Disabling."
-	fi
-	if [ -z "$PLATFORM" ]
-	then
-	    PLATFORM=qws/qnx6-generic-g++
-	fi
+	[ -z "$PLATFORM" ] && PLATFORM=qws/qnx6-generic-g++
 	if [ -z "$XPLATFORM" ]
 	then
-	    XPLATFORM=qws/qnx6-generic-g++
+	    [ "$CFG_EMBEDDED" = "auto" ] && CFG_EMBEDDED=generic
+	    XPLATFORM="qws/qnx6-$CFG_EMBEDDED-g++"
 	fi
 	CFG_STL=no ### why?
 	;;
     FreeBSD:*)
-	if [ -n "$CFG_EMBEDDED" ]
-	then
-	    echo "Cannot specify architecture $UNAME_SYSTEM. Disabling."
-	fi
-	if [ -z "$PLATFORM" ]
-	then
-	    PLATFORM=qws/freebsd-generic-g++
-	fi
+	[ -z "$PLATFORM" ] && PLATFORM=qws/freebsd-generic-g++
 	if [ -z "$XPLATFORM" ]
 	then
-	    XPLATFORM=qws/freebsd-generic-g++
+	    [ "$CFG_EMBEDDED" = "auto" ] && CFG_EMBEDDED=generic
+	    XPLATFORM="qws/freebsd-$CFG_EMBEDDED-g++"
 	fi
 	;;
     SunOS:5*)
-	if [ -n "$CFG_EMBEDDED" ]
-	then
-	    echo "Cannot specify architecture on Solaris. Disabling."
-	fi
-	if [ -z "$PLATFORM" ]
-	then
-	    PLATFORM=qws/solaris-generic-g++
-	fi
+	[ -z "$PLATFORM" ] && PLATFORM=qws/solaris-generic-g++
 	if [ -z "$XPLATFORM" ]
 	then
-	    XPLATFORM=qws/solaris-generic-g++
+	    [ "$CFG_EMBEDDED" = "auto" ] && CFG_EMBEDDED=generic
+	    XPLATFORM="qws/solaris-$CFG_EMBEDDED-g++"
 	fi
 	;;
     Linux:*)
-	if [ -z "$PLATFORM" ]
-	then
-	    PLATFORM=qws/linux-generic-g++
-	fi
+	[ -z "$PLATFORM" ] && PLATFORM=qws/linux-generic-g++
 	if [ -z "$XPLATFORM" ]
 	then
-	    if [ -z "$CFG_EMBEDDED" ]
+	    if [ "$CFG_EMBEDDED" = "auto" ]
 	    then
 		case "$UNAME_MACHINE" in
 		*86)
@@ -874,18 +867,18 @@ then
 		    ;;
 		esac
 	    fi
-	    XPLATFORM=qws/linux-generic-g++
+	    XPLATFORM="qws/linux-$CFG_EMBEDDED-g++"
 	fi
 	;;
     *)
 	echo "Qt/Embedded is not supported on this platform. Disabling."
+	CFG_EMBEDDED=no
 	PLATFORM_QWS=no
-	PLATFORM=
-	XPLATFORM=
+	PLATFORM_QNX=no
 	;;
     esac
 fi
-if [ "PLATFORM_QWS" != "yes" -a -z "$PLATFORM" ]
+if [ "$CFG_EMBEDDED" != "yes" -a -z "$PLATFORM" ]
 then
     PLATFORM_NOTES=
     case "$UNAME_SYSTEM:$UNAME_RELEASE" in
@@ -1013,7 +1006,7 @@ then
     esac
 fi
 
-if [ "PLATFORM_QWS" = "yes" ]
+if [ "$CFG_EMBEDDED" = "yes" ]
 then
     CFG_SM=no
     MODULES=`echo $MODULES | sed -e 's/opengl//'`
@@ -1051,6 +1044,8 @@ if [ "$QMAKESPEC" = "$XQMAKESPEC" ]
 then
     QMAKE_CONFIG="$QMAKE_CONFIG nocrosscompiler"
 fi
+
+# check specified platforms are supported
 if [ '!' -d "$QMAKESPEC" ]
 then
     echo
@@ -1071,8 +1066,6 @@ then
     echo
     exit 2
 fi
-
-# setup qplatformdefs.h
 if [ '!' -f "${XQMAKESPEC}/qplatformdefs.h" ]
 then
     echo
@@ -1089,7 +1082,7 @@ fi
 
 # now look at the configs and figure out what platform we are config'd for
 [ ! -z "`grep QMAKE_LIBS_X11 $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ] && PLATFORM_X11=yes
-echo "$XQMAKESPEC" | grep mkspecs/qws >/dev/null 2>&1 && PLATFORM_QWS=yes
+### echo "$XQMAKESPEC" | grep mkspecs/qws >/dev/null 2>&1 && PLATFORM_QWS=yes
 
 # find default thread option for target
 if grep >/dev/null '^QMAKE_LIBS_THREAD' $XQMAKESPEC/qmake.conf
@@ -1100,9 +1093,9 @@ else
     AUTOTHREAD=never
 fi
 # common qmake.conf file but dependency on OS version
-if echo $PLATFORM | grep "hpux" >/dev/null 2>&1
+if [ "$UNAME_SYSTEM" = "HP-UX" ]
 then
-    if echo `uname -r` | grep -E "^B\.(09|10)" >/dev/null 2>&1
+    if echo $UNAME_RELEASE | grep -E "^B\.(09|10)" >/dev/null 2>&1
     then
 	AUTOTHREAD=never
     fi
@@ -1133,7 +1126,8 @@ unixtests=$relpath/config.tests/unix
 if echo $MODULES | grep sql >/dev/null
 then
     CFG_SQL_AVAILABLE=`find $relpath/plugins/src/sqldrivers/* -prune -type d -print | awk -F/ '{print $NF}'`
-    CFG_SQL_AVAILABLE=`echo $CFG_SQL_AVAILABLE` ### is this really needed???
+    ### is the following line really needed???
+#    CFG_SQL_AVAILABLE=`echo $CFG_SQL_AVAILABLE`
     MYSQL_REQ="-lmysqlclient mysql.h"
     OCI_REQ="-lclntsh -lwtc8 oci.h"
     PSQL_REQ="-lpq postgres.h libpq/libpq-fs.h catalog/pg_type.h libpq-fe.h"
@@ -1172,8 +1166,6 @@ fi
     then
 	CFG_NIS=yes
 	$unixtests/nis.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS && CFG_NIS=no
-    else
-	CFG_NIS=no
     fi
 
 # x11
@@ -1246,12 +1238,13 @@ then
     fi
 fi
 
-# embedded
-if [ "$PLATFORM_QWS" = "yes" ]
+# embedded graphics
+if [ "$CFG_EMBEDDED" = "yes" ]
 then
     CFG_GFX_AVAILABLE=`find $relpath/plugins/src/gfxdrivers/* -prune -type d -print | awk -F/ '{print $NF}'`
     CFG_GFX_AVAILABLE=`echo $CFG_GFX_AVAILABLE`
 fi
+
 
 #-------------------------------------------------------------------------------
 # help - interactive parts of the script _after_ this section please
@@ -1500,7 +1493,7 @@ Qt/X11 only:
 EOF
 fi
 
-if [ "$PLATFORM_QWS" = "yes" ]
+if [ "$PLATFORM_QWS" = "yes" -o "$PLATFORM_QNX" = "yes" ]
 then
     cat << EOF
 
@@ -1565,9 +1558,9 @@ then
 	    echo "Type 'Q' to view the Q Public License."
 	    affix="either"
 	else
-	    echo >&2
-	    echo "Internal error." >&2
-	    echo >&2
+	    echo
+	    echo "Internal error."
+	    echo
 	    exit 2
 	fi
 	echo "Type 'G' to view the GNU General Public License."
@@ -1598,7 +1591,10 @@ then
     done
 elif [ "$Edition" = "troll" ]
 then
-    if [ "$PLATFORM_QWS" = "yes" ]
+    if [ "$PLATFORM_QNX" = "yes" ]
+    then
+	Platform="Qt/QNX"
+    elif [ "$PLATFORM_QWS" = "yes" ]
     then
 	Platform="Qt/Embedded"
     elif [ "$PLATFORM_X11" = "yes" ]
@@ -1848,11 +1844,6 @@ then
     then
 	QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_DEPTH_32"
     fi
-fi
-
-if [ "$CFG_EMBEDDED" != "no" ]
-then
-    MODULES=`echo $MODULES | sed -e 's/opengl//'`
 fi
 
 
