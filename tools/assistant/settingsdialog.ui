@@ -399,10 +399,6 @@
     </widget>
    </item>
    <item>
-    <widget class="QWidget" name="Layout1" >
-     <property name="objectName" >
-      <cstring>Layout1</cstring>
-     </property>
      <layout class="QHBoxLayout" >
       <property name="objectName" >
        <cstring>unnamed</cstring>
@@ -453,7 +449,6 @@
        </widget>
       </item>
      </layout>
-    </widget>
    </item>
   </layout>
  </widget>

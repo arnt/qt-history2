@@ -223,7 +223,7 @@ void HelpDialog::initialize()
     actionOpenLinkInNewTab = new QAction(this);
     actionOpenLinkInNewTab->setText(tr("Open Link in New Tab"));
 
-    itemPopup = new QPopupMenu(this);
+    itemPopup = new QMenu(this);
     itemPopup->addAction(actionOpenCurrentTab);
     itemPopup->addAction(actionOpenLinkInNewWindow);
     itemPopup->addAction(actionOpenLinkInNewTab);
@@ -345,19 +345,19 @@ void HelpDialog::loadIndexFile()
 
     QList<IndexKeyword>::ConstIterator it = lst.begin();
     for (; it!=lst.end(); ++it) {
-	if ((*it).keyword == twoAgoStr) {
-	    twoAgo->addLink((*it).link);
-	} else if ((*it).keyword == oneAgoStr) {
-	    oneAgo->addLink((*it).link);
-	} else {
-	    if (oneAgo) {
-		twoAgo = oneAgo;
-		twoAgoStr = oneAgoStr;
-	    }
-	    oneAgo = new HelpNavigationListItem(ui.listIndex, (*it).keyword);
-	    oneAgo->addLink((*it).link);
-	    oneAgoStr = (*it).keyword;
-	}
+        if ((*it).keyword == twoAgoStr) {
+            twoAgo->addLink((*it).link);
+        } else if ((*it).keyword == oneAgoStr) {
+            oneAgo->addLink((*it).link);
+        } else {
+            if (oneAgo) {
+                twoAgo = oneAgo;
+                twoAgoStr = oneAgoStr;
+            }
+            oneAgo = new HelpNavigationListItem(ui.listIndex, (*it).keyword);
+            oneAgo->addLink((*it).link);
+            oneAgoStr = (*it).keyword;
+        }
     }
 
     ui.framePrepare->hide();

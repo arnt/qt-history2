@@ -23,7 +23,7 @@
 #include <qmap.h>
 #include <qstringlist.h>
 #include <qvalidator.h>
-#include <qpopupmenu.h>
+#include <qmenu.h>
 #include <qhash.h>
 
 class QProgressBar;
@@ -149,7 +149,7 @@ private:
     bool initDoneMsgShown;
     void getAllContents();
     QHash<QString, ContentList> contentList;
-    QPopupMenu *itemPopup;
+    QMenu *itemPopup;
     QString cacheFilesPath;
 
     QAction *actionOpenCurrentTab;
