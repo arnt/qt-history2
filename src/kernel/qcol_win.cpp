@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_win.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qcol_win.cpp#22 $
 **
 ** Implementation of QColor class for Win32
 **
@@ -21,7 +21,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_win.cpp#21 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_win.cpp#22 $")
 
 
 /*****************************************************************************
@@ -115,7 +115,7 @@ void QColor::cleanup()
 }
 
 
-uint QColor::realizePal( QWidget *widget )	// realize palette
+uint QColor::realizePal( QWidget *widget )
 {
     if ( !hpal )				// not using palette
 	return 0;
