@@ -2612,7 +2612,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    int skip = 0;
 	    while ( l-- ) {
 		if ( *cin == '&' ) {
-		    if ( l > 1 && *(cin+1) != '&' ) {
+		    if ( l ) {
 			cin++;
 			skip++;
 			l--;
@@ -2624,6 +2624,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    }
 	    if ( skip )
 		parStr.setLength( len-skip );
+
 	}
 	int w = fm.width( parStr );
 	int h = fm.height();
@@ -2670,7 +2671,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    if ( !noaccel )
 		parStr = parStr2;
 	    if ( !showprefix || noaccel ) {
-		painter->drawText( xoff, yoff, parStr, len );
+		painter->drawText( xoff, yoff, parStr, parStr.length() );
 	    } else {
 		QFont uf( font );
 		uf.setUnderline( TRUE );
