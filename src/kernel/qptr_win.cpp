@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#48 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -30,7 +30,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#47 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#48 $")
 
 
 #define COLOR_VALUE(c) ((flags & RGBColor) ? c.rgb() : c.pixel())
@@ -1924,16 +1924,22 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     if ( len == 0 )				// empty string
 	return;
 
-    if ( testf(ExtDev) && (tf & DontPrint) == 0 ) {
-	QPDevCmdParam param[3];
-	QRect r( x, y, w, h );
-	QString newstr = str;
-	newstr.truncate( len );
-	param[0].rect = &r;
-	param[1].ival = tf;
-	param[2].str = newstr.data();
-	if ( !pdev->cmd(PDC_DRAWTEXTFRMT,this,param) || !hdc )
-	    return;
+    if ( testf(DirtyFont|ExtDev) ) {
+	if ( testf(DirtyFont) )
+	    updateFont();
+	if ( testf(ExtDev) && (tf & DontPrint) == 0 ) {
+	    QPDevCmdParam param[3];
+	    QRect r( x, y, w, h );
+	    QString newstr = str;
+	    newstr.truncate( len );
+	    param[0].rect = &r;
+	    param[1].ival = tf;
+	    param[2].str = newstr.data();
+	    if ( pdev->devType() != PDT_PRINTER ) {
+		if ( !pdev->cmd(PDC_DRAWTEXTFRMT,this,param) || !hdc )
+		    return;			// QPrinter wants PDC_DRAWTEXT
+	    }
+	}
     }
 
     if ( w <= 0 || h <= 0 ) {
@@ -1943,28 +1949,6 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     }
 
     QFontMetrics fm = fontMetrics();		// get font metrics
-    bool wordbreak  = (tf & WordBreak)	!= 0;
-    bool expandtabs = (tf & ExpandTabs) != 0;
-    bool singleline = (tf & SingleLine) != 0;
-    bool showprefix = (tf & ShowPrefix) != 0;
-    bool containsnl;
-
-    if ( singleline )
-	containsnl = FALSE;
-    else {
-	if ( str[len] == '\0' )
-	    containsnl = strchr(str,'\n') != 0;
-	else {					// there's no strnchr
-	    const char *p = str;
-	    containsnl = FALSE;
-	    for ( int i=0; i<len; i++ ) {
-		if ( p[i] == '\n' ) {
-		    containsnl = TRUE;
-		    break;
-		}
-	    }
-	}
-    }
 
     struct text_info {				// internal text info
 	char  tag[4];				// contains "qptr"
@@ -2009,12 +1993,19 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     int cw;					// character width
     int k;					// index for p
     int tw;					// text width
-    short charwidth[255];			// TO BE REMOVED LATER!!!
+    short charwidth[255];			// character widths
     memset( charwidth, -1, 255*sizeof(short) );
 
 #define CWIDTH(x) (charwidth[x]>=0 ? charwidth[x] : (charwidth[x]=fm.width(x)))
+#undef  UCHAR
+#define UCHAR(x)  (uchar)(x)
 
-    int	 spacewidth = CWIDTH( ' ' );		// width of space char
+    bool wordbreak  = (tf & WordBreak)	== WordBreak;
+    bool expandtabs = (tf & ExpandTabs) == ExpandTabs;
+    bool singleline = (tf & SingleLine) == SingleLine;
+    bool showprefix = (tf & ShowPrefix) == ShowPrefix;
+
+    int	 spacewidth = CWIDTH( (int)' ' );	// width of space char
 
     nlines = 0;
     index  = 1;					// first index contains BEGLINE
@@ -2026,18 +2017,18 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 
     while ( k < len ) {				// convert string to codes
 
-	if ( *p > 32 ) {			// printable character
+	if ( UCHAR(*p) > 32 ) {			// printable character
 	    if ( *p == '&' && showprefix ) {
 		cc = '&';			// assume ampersand
 		if ( k < len-1 ) {
 		    k++;
 		    p++;
-		    if ( *p != '&' && isprint(*p) )
-			cc = PREFIX | *p;	// use prefix char
+		    if ( *p != '&' && isprint(UCHAR(*p)) )
+			cc = PREFIX | UCHAR(*p);// use prefix char
 		}
+	    } else {
+		cc = UCHAR(*p);
 	    }
-	    else
-		cc = *p;
 	    cw = CWIDTH( cc & 0xff );
 	}
 
@@ -2075,8 +2066,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 		    if ( cw == 0 && tabstops )	// use fixed tab stops
 			cw = tabstops - tw%tabstops;
 		    cc = TABSTOP | QMIN(tw+cw,MAXWIDTH);
-		}
-		else {				// convert TAB to space
+		} else {			// convert TAB to space
 		    cc = ' ';
 		    cw = spacewidth;
 		}
@@ -2180,16 +2170,16 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     char    p_array[200];
     bool    p_alloc;
 
-    if ( (tf & AlignVCenter) != 0 )		// vertically centered text
+    if ( (tf & AlignVCenter) == AlignVCenter )	// vertically centered text
 	yp = h/2 - nlines*fheight/2;
-    else if ( (tf & AlignBottom) != 0 )		// bottom aligned
+    else if ( (tf & AlignBottom) == AlignBottom)// bottom aligned
 	yp = h - nlines*fheight;
     else					// top aligned
 	yp = 0;
-    if ( (tf & AlignRight) != 0 )		// right aligned
-	xp = w - maxwidth;
-    else if ( (tf & AlignHCenter) != 0 )	// horizontally centered text
-	xp = w/2 - maxwidth/2;
+    if ( (tf & AlignRight) == AlignRight )
+	xp = w - maxwidth;			// right aligned
+    else if ( (tf & AlignHCenter) == AlignHCenter )
+	xp = w/2 - maxwidth/2;			// centered text
     else
 	xp = 0;					// left aligned
 
@@ -2262,18 +2252,18 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	tw = *cp++ & WIDTHBITS;			// text width
 
 	if ( tw == 0 ) {			// ignore empty line
-	    while ( *cp && (*cp & BEGLINE) == 0 )
+	    while ( *cp && (*cp & BEGLINE) != BEGLINE )
 		cp++;
 	    yp += fheight;
 	    continue;
 	}
 
-	if ( (tf & AlignRight) != 0 )		// right aligned
-	    xp = w - tw;
-	else if ( (tf & AlignHCenter) != 0 )	// centered text
-	    xp = w/2 - tw/2;
-	else					// left aligned
-	    xp = 0;
+	if ( (tf & AlignRight) == AlignRight )
+	    xp = w - tw;			// right aligned
+	else if ( (tf & AlignHCenter) == AlignHCenter )
+	    xp = w/2 - tw/2;			// centered text
+	else
+	    xp = 0;				// left aligned
 
 	if ( pp )				// erase pixmap if gray text
 	    pp->eraseRect( 0, 0, w, fheight );
@@ -2282,7 +2272,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	while ( TRUE ) {
 	    k = 0;
 	    while ( *cp && (*cp & (BEGLINE|TABSTOP)) == 0 ) {
-		if ( (*cp & PREFIX) != 0 ) {
+		if ( (*cp & PREFIX) == PREFIX ) {
 		    int xcpos = fm.width( p, k );
 		    if ( pp )			// gray text
 			pp->fillRect( xp+xcpos, fascent+fm.underlinePos(),
@@ -2299,13 +2289,13 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 		pp->drawText( xp, fascent, p, k );
 	    else
 		drawText( x+xp, y+yp, p, k );	// draw the text
-	    if ( (*cp & TABSTOP) != 0 )
+	    if ( (*cp & TABSTOP) == TABSTOP )
 		xp = bx + (*cp++ & WIDTHBITS);
 	    else				// *cp == 0 || *cp == BEGLINE
 		break;
 	}
 	if ( pp ) {				// gray text
-	    pp->setPen( NoPen );
+	    pp->cpen.setStyle( NoPen );
 	    pp->drawRect( bx, 0, tw, fheight );
 	    drawPixmap( x, y+yp-fascent, *pm );
 	}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#183 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#184 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -26,7 +26,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#183 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#184 $")
 
 
 /*****************************************************************************
@@ -2693,6 +2693,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	    }
 	}
     }
+
     if ( w <= 0 || h <= 0 ) {
 	if ( w == 0 || h == 0 )
 	    return;
@@ -2748,6 +2749,8 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     memset( charwidth, -1, 255*sizeof(short) );
 
 #define CWIDTH(x) (charwidth[x]>=0 ? charwidth[x] : (charwidth[x]=fm.width(x)))
+#undef  UCHAR
+#define UCHAR(x)  (uchar)(x)
 
     bool wordbreak  = (tf & WordBreak)	== WordBreak;
     bool expandtabs = (tf & ExpandTabs) == ExpandTabs;
@@ -2766,17 +2769,17 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 
     while ( k < len ) {				// convert string to codes
 
-	if ( *(unsigned char *)p > 32 ) {	// printable character
+	if ( UCHAR(*p) > 32 ) {			// printable character
 	    if ( *p == '&' && showprefix ) {
 		cc = '&';			// assume ampersand
 		if ( k < len-1 ) {
 		    k++;
 		    p++;
-		    if ( *p != '&' && isprint(*p) )
-			cc = PREFIX | *p;	// use prefix char
+		    if ( *p != '&' && isprint(UCHAR(*p)) )
+			cc = PREFIX | UCHAR(*p);// use prefix char
 		}
 	    } else {
-		cc = *(unsigned char *)p;
+		cc = UCHAR(*p);
 	    }
 	    cw = CWIDTH( cc & 0xff );
 	}
@@ -2815,8 +2818,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 		    if ( cw == 0 && tabstops )	// use fixed tab stops
 			cw = tabstops - tw%tabstops;
 		    cc = TABSTOP | QMIN(tw+cw,MAXWIDTH);
-		}
-		else {				// convert TAB to space
+		} else {			// convert TAB to space
 		    cc = ' ';
 		    cw = spacewidth;
 		}
@@ -2947,8 +2949,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	p = new char[len];			// buffer for printable string
 	CHECK_PTR( p );
 	p_alloc = TRUE;
-    }
-    else {
+    } else {
 	p = p_array;
 	p_alloc = FALSE;
     }
