@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#562 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#563 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -1094,7 +1094,7 @@ void qt_cleanup()
     if ( QApplication::is_gui_used && !appForeignDpy )
 	XCloseDisplay( appDpy );		// close X display
     appDpy = 0;
-    
+
     delete activeBeforePopup;
     activeBeforePopup = 0;
 }
@@ -3780,9 +3780,10 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 		break;
 	    }
 	    if (!XCheckTypedWindowEvent(dpy,event->xkey.window,XKeyPress,
-					&evPress))
+					&evPress)) {
 		XPutBackEvent(dpy, &evRelease);
-	    break;
+		break;
+	    }
 	    if ( evPress.xkey.keycode != event->xkey.keycode ||
 		 evRelease.xkey.time != evPress.xkey.time){
 		XPutBackEvent(dpy, &evRelease);
