@@ -469,7 +469,7 @@ bool QPSQLDriver::open( const QString & db,
     if ( port > -1 )
 	connectString += QString("port=%1 ").arg( port );
     d->connection = PQconnectdb( connectString.local8Bit().data() );
-    if ( PQstatus( d->connection) == CONNECTION_BAD ) {
+    if ( PQstatus( d->connection ) == CONNECTION_BAD ) {
 	setLastError( qMakeError("Unable to connect", QSqlError::Connection, d ) );
 	setOpenError( TRUE );
 	return FALSE;
@@ -561,24 +561,17 @@ bool QPSQLDriver::rollbackTransaction()
     return TRUE;
 }
 
-QStringList QPSQLDriver::tables( const QString& user ) const
+QStringList QPSQLDriver::tables( const QString& /* user */ ) const
 {
     QStringList tl;
     if ( !isOpen() )
 	return tl;
     QSqlQuery t = createQuery();
     QString stmt;
-    switch( pro ) {
-    case QPSQLDriver::Version6:
-    case QPSQLDriver::Version7:
-	stmt = "select relname from pg_class, pg_user "
-		  "where usename like '%1'"
-		  "and relkind = 'r' "
-		  "and int4out(usesysid) = int4out(relowner) "
-		  "order by relname;";
-	break;
-    }
-    t.exec( stmt.arg( user ) );
+    stmt = "select relname from pg_class where ( relkind = 'r' ) "
+		"and ( relname !~ '^Inv' ) "
+		"and ( relname !~ '^pg_' ) ";
+    t.exec( stmt );
     while ( t.isActive() && t.next() )
 	tl.append( t.value(0).toString() );
     return tl;
