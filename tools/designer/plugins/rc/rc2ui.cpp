@@ -829,12 +829,10 @@ bool RC2UI::makeStringTable()
 	} while ( line != "BEGIN" );
 
 	QString outputFile = QString(stringtable).lower() + ".h";
-	if (outputFile ) {
-	    fileOut.setName( outputFile );
-	    if (!fileOut.open( IO_WriteOnly ) )
-		qFatal( "rc2ui: Could not open output file '%s'", outputFile.latin1() );
-	    out = new QTextStream( &fileOut );
-	}
+	fileOut.setName( outputFile );
+	if (!fileOut.open( IO_WriteOnly ) )
+	    qFatal( "rc2ui: Could not open output file '%s'", outputFile.latin1() );
+	out = new QTextStream( &fileOut );
 
 	*out << "#ifndef STRINGTABLE_H" << endl;
 	*out << "#define STRINGTABLE_H" << endl;
