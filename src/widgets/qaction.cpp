@@ -57,7 +57,7 @@
   appear both in menus and tool bars.
 
   In modern GUIs many user commands can be invoked via a menu entry, a
-  tool button and/or a keyboard accelerator. 
+  tool button and/or a keyboard accelerator.
   To make the program less error-prone it is advisable to not
   implement all these incidences separately but use an abstraction that ties
   together all invokation methods. These abstractions are called \e actions.
@@ -66,7 +66,7 @@
   an accelerator, a help text, a tool tip etc. that \e represent the user command.
   These items are referred to with the term \e properties. Although the term
   \e action might suggest so they do not include the function to be invoked itself.
-  On user interaction QActions emit signals that should be used to tie the 
+  On user interaction QActions emit signals that should be used to tie the
   functionality to the user interface.
 
   There are two basic kinds of user interface actions, command actions
@@ -85,7 +85,7 @@
   Whether an action is a command action or a toggle action can be defined via
   the setToggleAction() function.
 
-  To insert an action into a menu or a tool bar, use addTo(). 
+  To insert an action into a menu or a tool bar, use addTo().
   It will appear as either a menu entry or a tool button:
 
   \dontinclude action/application.cpp
@@ -310,7 +310,7 @@ QAction::QAction( QObject* parent, const char* name, bool toggle )
   and named \a name. As long as \a toggle isn't set to TRUE the new
   object is a command action.
 
-  Note that with a non-widget as \a parent the QAction created 
+  Note that with a non-widget as \a parent the QAction created
   neither displays status tips nor responds to accelerators.
 
   If  \a parent is a QActionGroup, the action automatically becomes a
@@ -431,8 +431,6 @@ void QAction::setText( const QString& text )
   text() in combination with
   accel() serves as menu text, tool tip and status tip.
 
-  \bug If this action is a QActionGroup accel() is not shown in the menu text. 
-
   \sa setText(), setMenuText(), setToolTip(), setStatusTip()
  */
 QString QAction::text() const
@@ -444,9 +442,7 @@ QString QAction::text() const
 /*! Sets a special text \a text for menu entries.
 
   The entire menu entry will consist of iconSet() (if defined), \a text
-  and accel() (if defined). 
-
-  \bug If this action is a QActionGroup accel() is never shown. 
+  and accel() (if defined).
 
   Use setMenuText() whenever different wording
   in menu items, tool tips and button text is appropriate.
@@ -491,8 +487,6 @@ void QAction::setToolTip( const QString& tip )
   toolTip() serves as statusTip() as long as no
   separate message for the status bar has been set.
 
-  \bug If this QAction is a QActionGroup tool tips are never displayed.
-
   \sa setToolTip(), setStatusTip(), text(), accel(), QAccel::keyToString()
 */
 QString QAction::toolTip() const
@@ -518,8 +512,6 @@ void QAction::setStatusTip( const QString& tip )
 
   If no status tip has been defined yet, this is the same as toolTip().
 
-  \bug If this QAction is a QActionGroup no status tips are displayed.
-
   \sa setStatusTip(), toolTip()
 */
 QString QAction::statusTip() const
@@ -544,6 +536,8 @@ QString QAction::statusTip() const
  */
 void QAction::setWhatsThis( const QString& whatsThis )
 {
+    if ( d->whatsthis == whatsThis )
+	return;
     d->whatsthis = whatsThis;
     if ( !d->whatsthis.isEmpty() && d->accel )
 	d->accel->setWhatsThis( d->accelid, d->whatsthis );
@@ -554,8 +548,6 @@ void QAction::setWhatsThis( const QString& whatsThis )
 
   Unlike for tips and menu entries text() does not serve
   as default value here.
-
-  \bug If this QAction is a QActionGroup no What's This? help is displayed.
 
   \sa setWhatsThis()
  */
@@ -611,8 +603,6 @@ void QAction::setAccel( int key )
 /*! Returns the acceleration key.
 
   The hexadecimal keycodes can be found in \l Qt::Key and \l Qt::Modifier.
-
-  \bug QActionGroups don't respond to their accelerators. 
 
   \sa setAccel()
  */
@@ -1034,48 +1024,48 @@ void QActionGroupPrivate::update( const QActionGroup* that )
 
   This makes it easier to deal with actions that
   belong together. As a QActionGroup they can be
-  added to and removed from a menu or a tool bar with a single call: 
+  added to and removed from a menu or a tool bar with a single call:
 
   \dontinclude action/actiongroup/editor.cpp
   \skipto QActionGroup
   \printuntil redfontcolor
   \skipto colors->addTo
   \printline colors->addTo
-  
+
   (code taken from the action/actiongroup example)
 
-  The order in which member actions appear in a widget follows the 
-  sequence they were inserted into QActionGroup. A QAction 
+  The order in which member actions appear in a widget follows the
+  sequence they were inserted into QActionGroup. A QAction
   created as a child of an action group is inserted at creation time.
 
   QActionGroup is an action on its own and thus can be treated as
   such. Standard action functions like addTo(), removeFrom() and
   setEnabled() are automatically performed on all members of the
   group, i.e. for example that adding a group to a tool bar creates a
-  tool bar entry for each child action. 
+  tool bar entry for each child action.
 
-  Whilst a QActionGroup emits an activated() signal when 
+  Whilst a QActionGroup emits an activated() signal when
   one of its members is activated, the QAction::toggled() signal
   is not propagated as an action group on its own can't
-  be setOn(). 
+  be setOn().
 
-  For toggle actions an action group provides "one of many" choice 
+  For toggle actions an action group provides "one of many" choice
   similar to a group of radio buttons (see QRadioButton).
   This is controlled by the \e exclusive flag
   which is TRUE by default. An exclusive group switches off all
-  toggle actions except the one that was activated, thereby 
+  toggle actions except the one that was activated, thereby
   emitting the selected() signal. On command action members of an
   exclusive QActionGroup this property has no effect.
 
-  Per default member actions of a QActionGroup can't be visibly 
-  distinguished from single actions in a menu or a tool bar. To place 
-  group members in a separate subwidget use setUsesDropDown(). 
+  Per default member actions of a QActionGroup can't be visibly
+  distinguished from single actions in a menu or a tool bar. To place
+  group members in a separate subwidget use setUsesDropDown().
   Whilst some QAction properties like isToggleAction() and isOn()
-  don't make sense with action groups, this is where iconSet(), 
+  don't make sense with action groups, this is where iconSet(),
   text() and menuText() come handy.
 
-  \bug Other QAction properties like toolTip(), statusTip(), whatsThis() and 
-  accel() have no effect with action groups.
+  Other QAction properties like toolTip(), statusTip(), whatsThis()
+  and accel() have no effect with action groups.
 */
 
 /*! Constructs an action group with parent \a parent and name \a name.
@@ -1114,7 +1104,7 @@ QActionGroup::~QActionGroup()
 	++cbit;
 	cb->disconnect(  SIGNAL(destroyed()), this, SLOT(objectDestroyed()) );
     }
-    QListIterator<QToolButton> mbit( d->menubuttons ); 
+    QListIterator<QToolButton> mbit( d->menubuttons );
     while ( mbit.current() ) {
 	QToolButton *mb = mbit.current();
 	++mbit;
@@ -1133,7 +1123,7 @@ QActionGroup::~QActionGroup()
 
   Exclusive groups can't have more than one toggle action set on
   at a time.
-  Whenever a toggle action member of an exclusive group is toggled on, 
+  Whenever a toggle action member of an exclusive group is toggled on,
   every other toggle action member changes its isOn() property to FALSE.
   Command action members are not affected.
 
@@ -1155,19 +1145,19 @@ bool QActionGroup::isExclusive() const
 }
 
 /*! When \a enable is TRUE, the group members are displayed in a
-  logical subwidget of the widget(s) the action group is added to. 
-  
-  Exclusive action groups added to a tool bar display their members 
+  logical subwidget of the widget(s) the action group is added to.
+
+  Exclusive action groups added to a tool bar display their members
   in a combobox with the action's text() and
-  iconSet() properties shown. Non-exclusive groups are represented 
-  by a tool button showing their iconSet() and -- 
+  iconSet() properties shown. Non-exclusive groups are represented
+  by a tool button showing their iconSet() and --
   depending on QMainWindow::usesTextLabel() -- text() property. A
   submenu popup assists in displaying the member actions.
 
   In a popup menu the member actions are grouped in a separate submenu.
   Its menu entry can be adjusted by changing the action group's menuText()
   and iconSet() properties:
-  
+
   \dontinclude action/actiongroup/editor.cpp
   \skipto QActionGroup
   \printline QActionGroup
@@ -1214,6 +1204,12 @@ void QActionGroup::insert( QAction* action )
 	return;
 
     d->actions.append( action );
+    
+    if ( action->whatsThis().isNull() )
+	action->setWhatsThis( whatsThis() );
+    if ( action->toolTip().isNull() )
+	action->setToolTip( toolTip() );
+    
     connect( action, SIGNAL( destroyed() ), this, SLOT( childDestroyed() ) );
     connect( action, SIGNAL( activated() ), this, SIGNAL( activated() ) );
     connect( action, SIGNAL( toggled( bool ) ), this, SLOT( childToggled( bool ) ) );
@@ -1245,23 +1241,23 @@ void QActionGroup::insertSeparator()
 
 /*! Adds this action group to the widget \a w.
 
-  Depending on the class of \a w all member actions are automatically presented 
-  as menu or tool bar entries. 
+  Depending on the class of \a w all member actions are automatically presented
+  as menu or tool bar entries.
 
   An exclusive action group with usesDropDown() enabled is presented in
-  a combobox if \a w is a toolbar. For non-exclusive groups using the drop down 
+  a combobox if \a w is a toolbar. For non-exclusive groups using the drop down
   property a tool button featuring an additional popup menu is created. To
   present it properly, the action group's iconSet() and text() must be set.
   If usesDropDown() is FALSE each member QAction in this group shows up as a
   separate tool button.
- 
+
   Drop down action groups to be displayed as submenus in a popup menu should
   at least have their menuText() or text() property set. No difference is made
   in the submenu representation of exclusive and non-exclusive action groups.
   If usesDropDown() is FALSE each member action is displayed as a menu entry
   of the popup menu the group was added to.
 
-  Note that only actions that have been inserted so far are displayed. 
+  Note that only actions that have been inserted so far are displayed.
   Make sure to insert() all potential member actions before adding this
   action group to a widget.
 
@@ -1477,7 +1473,10 @@ void QActionGroup::setToolTip( const QString& text )
 {
     if ( text == toolTip() )
 	return;
-
+    for ( QListIterator<QAction> it( d->actions); it.current(); ++it ) {
+	if ( it.current()->toolTip().isNull() )
+	    it.current()->setToolTip( text );
+    }
     QAction::setToolTip( text );
     d->update( this );
 }
@@ -1488,7 +1487,10 @@ void QActionGroup::setWhatsThis( const QString& text )
 {
     if ( text == whatsThis() )
 	return;
-
+    for ( QListIterator<QAction> it( d->actions); it.current(); ++it ) {
+	if ( it.current()->whatsThis().isNull() )
+	    it.current()->setWhatsThis( text );
+    }
     QAction::setWhatsThis( text );
     d->update( this );
 }
@@ -1529,23 +1531,23 @@ void QActionGroup::childEvent( QChildEvent *e )
 
 /*! \fn void QActionGroup::selected( QAction* )
 
-  This signal is emitted from exclusive groups when member toggle actions 
-  change state. 
+  This signal is emitted from exclusive groups when member toggle actions
+  change state.
 
   Its argument denotes to the action whose state changed to on.
 
-  To call a user program depending on which action was switched on connect 
+  To call a user program depending on which action was switched on connect
   this signal to a slot that takes care of the action argument
   (c.f. the action/actiongroup example ):
 
   \dontinclude action/actiongroup/editor.cpp
   \skipto QActionGroup
-  \printline QActionGroup    
+  \printline QActionGroup
   \skipto QObject::connect
   \printuntil SLOT
 
   \skipto setFontColor
-  \printuntil } 
+  \printuntil }
 
   \sa setExclusive(), isOn()
 */
