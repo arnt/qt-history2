@@ -594,13 +594,12 @@ void QPainter::flush(const QRegion &rgn, CoordinateMode m)
     initPaintDevice();
 
     QRegion b;
-    if(m == CoordDevice) {
+    if(m == CoordDevice) 
 	b = rgn;
-	b.translate(d->offx, d->offy);
-    } else {
+    else 
 	b = xmat * rgn;
-    }
-    QMacSavedPortInfo::flush(pdev, b & d->clippedreg, TRUE);
+    b.translate(d->offx, d->offy);
+    QMacSavedPortInfo::flush(pdev, b & d->paintreg, TRUE);
 }
 
 void QPainter::flush()
@@ -608,7 +607,7 @@ void QPainter::flush()
     if(!isActive())
 	return;
     initPaintDevice();
-    QMacSavedPortInfo::flush(pdev, d->clippedreg, TRUE);
+    QMacSavedPortInfo::flush(pdev, d->paintreg, TRUE);
 }
 
 void QPainter::setBackgroundColor( const QColor &c )
