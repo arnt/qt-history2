@@ -2160,12 +2160,16 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	ret = 16;
 	break;
     case PM_TitleBarHeight: {
-	if ( widget && widget->testWFlags( WStyle_Tool ) ) {
-	    ret = QMAX( widget->fontMetrics().lineSpacing(), 16 );
-	} else if ( widget && widget->inherits( "QDockWindow" ) ) {
-	    ret = QMAX( widget->fontMetrics().lineSpacing(), 13 );
+	if ( widget ) {
+	    if ( widget->testWFlags( WStyle_Tool ) ) {
+		ret = QMAX( widget->fontMetrics().lineSpacing(), 16 );
+	    } else if ( widget->inherits( "QDockWindow" ) ) {
+		ret = QMAX( widget->fontMetrics().lineSpacing(), 13 );
+	    } else {
+		ret = QMAX( widget->fontMetrics().lineSpacing(), 18 );
+	    }
 	} else {
-	    ret = QMAX( widget->fontMetrics().lineSpacing(), 18 );
+	    ret = 0;
 	}
 
 	break; }
