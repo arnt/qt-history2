@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/listbox_combo/listbox_combo.cpp#1 $
+** $Id: //depot/qt/main/examples/listbox_combo/listbox_combo.cpp#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -40,7 +40,7 @@ ListBoxCombo::ListBoxCombo( QWidget *parent, const char *name )
     lb1->setMultiSelection( TRUE );
 
     // ...insert a pixmap item...
-    lb1->insertItem( QPixmap( "flag.bmp" ) );
+    lb1->insertItem( QPixmap( "qtlogo.png" ) );
     // ...and 100 text items
     for ( i = 0; i < 100; i++ ) {
         str = QString( "Listbox Item %1" ).arg( i );
