@@ -52,7 +52,7 @@
 Types</a></li>
 <li><a href="#advanced">Advanced Drag-and-Drop</a></li>
 <li><a href="#inter-operating-with-other-applications">Inter-operating
-with Other Applications</a></li> 
+with Other Applications</a></li>
 </ul>
 
   For drag and drop examples see (in increasing order of
@@ -141,10 +141,10 @@ with Other Applications</a></li>
   transfers on QDragObject, you not only get drag-and-drop, but you
   also get traditional cut-and-paste for free - the QClipboard has
   two functions:
-  \code 
+  \code
       setData(QMimeSource*)
       QMimeSource* data()const
-  \endcode  
+  \endcode
   With these functions you can trivially put your drag-and-drop oriented
   information on the clipboard:
   \code
@@ -356,7 +356,7 @@ with Other Applications</a></li>
   <h3><a name="inter-operating-with-other-applications">Inter-operating
   with Other Applications</a></h3>
   On X11, the public
-  <a class="r" href="http://www.cco.caltech.edu/~jafl/xdnd/">XDND protocol</a>
+  <a class="r" href="http://www.newplanetsoftware.com/xdnd/">XDND protocol</a>
   is used, while on Windows Qt uses the OLE standard, and Qt/Mac uses the
   Carbon Drag Manager.  On X11, XDND uses MIME, so no translation is necessary.
   The Qt API is the same regardless of the platform.
@@ -376,7 +376,7 @@ with Other Applications</a></li>
   and Trolltech. Here is the original copyright notice:
 
   \legalese
-  
+
   Copyright 1996 Daniel Dardailler.
 
   Permission to use, copy, modify, distribute, and sell this software
