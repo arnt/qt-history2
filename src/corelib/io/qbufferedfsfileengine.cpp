@@ -4,6 +4,11 @@
 #include "qfileengine.h"
 #include "qbufferedfsfileengine_p.h"
 
+// Required to build with msvc.net 2002
+#ifndef S_ISREG
+#define S_ISREG(x)   (((x) & S_IFMT) == S_IFREG)
+#endif
+
 QBufferedFSFileEngine::QBufferedFSFileEngine()
     : QFSFileEngine(*new QBufferedFSFileEnginePrivate)
 {
