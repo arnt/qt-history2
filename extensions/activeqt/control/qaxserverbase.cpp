@@ -3226,9 +3226,6 @@ bool QAxServerBase::eventFilter( QObject *o, QEvent *e )
 	}
 	break;
     case QEvent::KeyPress:
-	if ( inDesignMode )
-	    return TRUE;
-
 	if ( o == activeqt && hasStockEvents ) {
 	    QKeyEvent *ke = (QKeyEvent*)e;
 	    QUObject obj[3];
@@ -3240,9 +3237,6 @@ bool QAxServerBase::eventFilter( QObject *o, QEvent *e )
 	}
 	break;
     case QEvent::KeyRelease:
-	if ( inDesignMode )
-	    return TRUE;
-
 	if ( o == activeqt && hasStockEvents ) {
 	    QKeyEvent *ke = (QKeyEvent*)e;
 	    QUObject obj[3];
@@ -3252,9 +3246,6 @@ bool QAxServerBase::eventFilter( QObject *o, QEvent *e )
 	}
 	break;
     case QEvent::MouseMove:
-	if ( inDesignMode )
-	    return TRUE;
-
 	if ( o == activeqt && hasStockEvents ) {
 	    QMouseEvent *me = (QMouseEvent*)e;
 	    QUObject obj[5]; // 0 = return value
@@ -3266,9 +3257,6 @@ bool QAxServerBase::eventFilter( QObject *o, QEvent *e )
 	}
 	break;
     case QEvent::MouseButtonRelease:
-	if ( inDesignMode )
-	    return TRUE;
-
 	if ( o == activeqt && hasStockEvents ) {
 	    QMouseEvent *me = (QMouseEvent*)e;
 	    QUObject obj[5]; // 0 = return value
@@ -3281,18 +3269,12 @@ bool QAxServerBase::eventFilter( QObject *o, QEvent *e )
 	}
 	break;
     case QEvent::MouseButtonDblClick:
-	if ( inDesignMode )
-	    return TRUE;
-
 	if ( o == activeqt && hasStockEvents ) {
 	    QMouseEvent *me = (QMouseEvent*)e;
 	    qt_emit( DISPID_DBLCLICK, 0 );
 	}
 	break;
     case QEvent::MouseButtonPress:
-	if ( inDesignMode )
-	    return TRUE;
-
 	{
 	    if ( o == activeqt && hasStockEvents ) {
 		QMouseEvent *me = (QMouseEvent*)e;
