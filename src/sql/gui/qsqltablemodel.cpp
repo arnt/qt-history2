@@ -37,6 +37,7 @@ public:
     QSqlRecord primaryValues(int index);
     void clearEditBuffer();
     QSqlRecord record(const QVector<QVariant> &values) const;
+    bool removeRow(int row);
 
     QSqlDatabase db;
     int editIndex;
@@ -54,19 +55,29 @@ public:
 
     QSqlRecord editBuffer;
 
+    QList<int> deleteIndexes;
     QList<int> insertIndexes;
     typedef QMap<int, QVector<QVariant> > CacheMap;
     CacheMap cache;
-
-    inline bool insertIndexesContains(int row) const
-    {
-        return qBinaryFind(insertIndexes.constBegin(), insertIndexes.constEnd(), row)
-                != insertIndexes.constEnd();
-    }
-
 };
 
+// searches a sorted list for i
+static inline bool qListContains(const QList<int> &list, int i)
+{
+    return qBinaryFind(list.constBegin(), list.constEnd(), i) != list.constEnd();
+}
+
+// inserts sorted if not already in the list
+static inline void qListInsert(QList<int> &list, int i)
+{
+    QList<int>::Iterator it = qUpperBound(list.begin(), list.end(), i);
+    if (it != list.begin() && !list.isEmpty() && (*(it - 1) == i))
+        return;
+    list.insert(it, i);
+}
+
 #define d d_func()
+#define q q_func()
 
 /*! \internal
     Populates our record with values
@@ -116,6 +127,51 @@ QSqlRecord QSqlTableModelPrivate::primaryValues(int row)
             record.setValue(i, query.value(rec.indexOf(record.fieldName(i))));
     }
     return record;
+}
+
+bool QSqlTableModelPrivate::removeRow(int row)
+{
+    if (row < 0 || row >= q->rowCount())
+        return false;
+
+    emit q->beforeDelete(row);
+
+    const QSqlRecord values(primaryValues(row));
+    bool prepStatement = db.driver()->hasFeature(QSqlDriver::PreparedQueries);
+    QString stmt = db.driver()->sqlStatement(QSqlDriver::DeleteStatement, tableName,
+                                             QSqlRecord(), prepStatement);
+    QString where = db.driver()->sqlStatement(QSqlDriver::WhereStatement, tableName,
+                                              values, prepStatement);
+
+    if (stmt.isEmpty() || where.isEmpty()) {
+        error = QSqlError(QLatin1String("Unable to delete row"), QString(),
+                          QSqlError::StatementError);
+        return false;
+    }
+    stmt.append(QLatin1Char(' ')).append(where);
+
+    if (prepStatement) {
+        if (editQuery.lastQuery() != stmt) {
+            if (!editQuery.prepare(stmt)) {
+                error = editQuery.lastError();
+                return false;
+            }
+        }
+        for (int i = 0; i < values.count(); ++i)
+            editQuery.addBindValue(values.value(i));
+
+        if (!editQuery.exec()) {
+            error = editQuery.lastError();
+            return false;
+        }
+    } else {
+        if (!editQuery.exec(stmt)) {
+            error = d->editQuery.lastError();
+            return false;
+        }
+    }
+
+    return true;
 }
 
 /*!
@@ -235,9 +291,9 @@ bool QSqlTableModel::select()
         return false;
 
     cancelChanges();
-    QSqlQuery q(query, d->db);
-    setQuery(q);
-    return q.isActive();
+    QSqlQuery qu(query, d->db);
+    setQuery(qu);
+    return qu.isActive();
 }
 
 /*!
@@ -271,7 +327,7 @@ QVariant QSqlTableModel::data(const QModelIndex &idx, int role) const
         break;
     case OnManualSubmit: {
         QVariant var = d->cache.value(idx.row()).value(item.column());
-        if (var.isValid() || d->insertIndexesContains(idx.row()))
+        if (var.isValid() || qListContains(d->insertIndexes, idx.row()))
             return var;
         break; }
     }
@@ -288,8 +344,10 @@ QVariant QSqlTableModel::headerData(int section, Qt::Orientation orientation, in
                 return QLatin1String("*");
             break;
         case OnManualSubmit:
-            if (d->insertIndexesContains(section))
+            if (qListContains(d->insertIndexes, section))
                 return QLatin1String("*");
+            else if (qListContains(d->deleteIndexes, section))
+                return QLatin1String("!");
             break;
         }
     }
@@ -520,7 +578,7 @@ bool QSqlTableModel::submitChanges()
     case OnManualSubmit:
         QSqlTableModelPrivate::CacheMap::const_iterator i = d->cache.constBegin();
         while (i != d->cache.constEnd()) {
-            if (d->insertIndexesContains(i.key())) {
+            if (qListContains(d->insertIndexes, i.key())) {
                 if (!insert(d->record(i.value()))) {
                     isOk = false;
                     break;
@@ -735,57 +793,45 @@ bool QSqlTableModel::removeColumn(int column, const QModelIndex &parent)
 }
 
 /*!
-    Removes the given \a row from the \a parent model.
+    Removes \a count rows starting at \a row. Since this model
+    does not support hierarchical structures, \a parent must be
+    an invalid model index.
 
-    \sa removeColumn()
+    Emits the beforeDelete() signal before a row is deleted.
+
+    Returns true if all rows could be removed, otherwise false.
+    Detailed error information can be retrieved with lastError().
+
+    \sa removeColumns()
 */
-bool QSqlTableModel::removeRow(int row, const QModelIndex &parent)
+bool QSqlTableModel::removeRows(int row, const QModelIndex &parent, int count)
 {
-    // ### also handle manual update strategy...?
-    if (row < 0 || row >= rowCount() || parent.isValid())
+    if (parent.isValid() || row < 0 || count <= 0)
         return false;
 
-    emit beforeDelete(row);
-
-    const QSqlRecord values(d->primaryValues(row));
-    bool prepStatement = d->db.driver()->hasFeature(QSqlDriver::PreparedQueries);
-    QString stmt = d->db.driver()->sqlStatement(QSqlDriver::DeleteStatement, d->tableName,
-                                                QSqlRecord(), prepStatement);
-    QString where = d->db.driver()->sqlStatement(QSqlDriver::WhereStatement, d->tableName,
-                                                values, prepStatement);
-
-    if (stmt.isEmpty() || where.isEmpty()) {
-        d->error = QSqlError(QLatin1String("Unable to delete row"), QString(),
-                             QSqlError::StatementError);
-        return false;
-    }
-    stmt.append(QLatin1Char(' ')).append(where);
-
-    if (prepStatement) {
-        if (d->editQuery.lastQuery() != stmt) {
-            if (!d->editQuery.prepare(stmt)) {
-                d->error = d->editQuery.lastError();
+    int i;
+    switch (d->strategy) {
+    case OnFieldChange:
+    case OnRowChange:
+        for (i = 0; i < count; ++i) {
+            if (!d->removeRow(row + i))
                 return false;
-            }
+            // ### REFRESH?
         }
-        for (int i = 0; i < values.count(); ++i)
-            d->editQuery.addBindValue(values.value(i));
-
-        if (!d->editQuery.exec()) {
-            d->error = d->editQuery.lastError();
-            return false;
+        break;
+    case OnManualSubmit:
+        for (i = 0; i < count; ++i) {
+            int idx = row + i;
+            if (idx >= rowCount())
+                return false;
+            qListInsert(d->deleteIndexes, idx);
         }
-    } else {
-        if (!d->editQuery.exec(stmt)) {
-            d->error = d->editQuery.lastError();
-            return false;
-        }
+        break;
     }
-
     return true;
 }
 
-/*!
+/*! // TODO document manual updates
     Inserts an empty row at position \a row. Note that \a parent has to be invalid, since
     this model does not support parent-child relations.
 
@@ -797,8 +843,9 @@ bool QSqlTableModel::removeRow(int row, const QModelIndex &parent)
 
     \sa primeInsert()
  */
-bool QSqlTableModel::insertRow(int row, const QModelIndex &parent, int count)
+bool QSqlTableModel::insertRows(int row, const QModelIndex &parent, int count)
 {
+    // TODO - count >= 1
     if (count != 1 || row < 0 || row > rowCount() || parent.isValid())
         return false;
 
@@ -807,6 +854,11 @@ bool QSqlTableModel::insertRow(int row, const QModelIndex &parent, int count)
                 qUpperBound(d->insertIndexes.begin(), d->insertIndexes.end(), row), row);
         while (++vit != d->insertIndexes.end())
             *vit += 1;
+        vit = qUpperBound(d->deleteIndexes.begin(), d->deleteIndexes.end(), row);
+        while (vit != d->deleteIndexes.end()) {
+            *vit += 1;
+            ++vit;
+        }
 
         QMapMutableIterator<int, QVector<QVariant> > it(d->cache);
         it.toBack();
