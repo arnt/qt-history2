@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#75 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#76 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#75 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#76 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -188,7 +188,8 @@ QLineEdit::~QLineEdit()
 
 
 /*!
-  Sets the line editor text to \e text.
+  Sets the line editor text to \e text, clears the selection and moves
+  the cursor to the end of the line.
 
   If necessary the text is truncated to fit maxLength().
 
@@ -197,15 +198,18 @@ QLineEdit::~QLineEdit()
 
 void QLineEdit::setText( const char *text )
 {
-    if ( tbuf == text )				// no change
-	return;
+    QString oldText( text );
     tbuf = text ? text : "";
     if ( (int)tbuf.length() > maxLen )
 	tbuf.resize( maxLen+1 );
-    cursorPos = 0;
     offset    = 0;
+    cursorPos = 0;
+    markAnchor = 0;
+    markDrag = 0;
+    end( FALSE );
     repaint( !hasFocus() );
-    emit textChanged( tbuf.data() );
+    if ( oldText != tbuf )
+	emit textChanged( tbuf );
 }
 
 
@@ -491,7 +495,10 @@ void QLineEdit::focusOutEvent( QFocusEvent * )
     pm		  = 0;
     cursorOn	  = FALSE;
     dragScrolling = FALSE;
-    repaint( !hasFocus() );
+    if ( style() == WindowsStyle )
+	deselect(); // repaints
+    else
+	repaint( !hasFocus() );
 }
 
 
@@ -755,13 +762,14 @@ void QLineEdit::paintText( QPainter *p, const QSize &s, bool )
 	    mark2 = 0;
 	}
 
-	// display code come here - a bit yucky but it works
+	// display code comes here - a bit yucky but it works
 	if ( mark1 != mark2 ) {
 	    QString marked( displayText.mid( mark1, mark2 - mark1 ) );
 	    int xpos1 =  margin + fm.width( displayText, mark1 );
 	    int xpos2 =  xpos1 + fm.width( marked ) - 1;
 	    p->fillRect( xpos1, ypos - fm.ascent(),
-			 xpos2 - xpos1, fm.height(), g.text() );
+			 xpos2 - xpos1, fm.height(),
+			 style() == WindowsStyle ? darkBlue : g.text() );
 	    p->setPen( g.base() );
 	    p->drawText( xpos1, ypos, marked );
 	}
