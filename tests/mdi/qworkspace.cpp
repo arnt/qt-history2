@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/mdi/qworkspace.cpp#3 $
+** $Id: //depot/qt/main/tests/mdi/qworkspace.cpp#4 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -26,7 +26,8 @@
 #include <qapplication.h>
 #include <qobjectlist.h>
 #include "qworkspacechild.h"
-
+#include <qhbox.h>
+#include <qtoolbutton.h>
 
 //
 //  W A R N I N G
@@ -43,6 +44,57 @@
 
 #define OFFSET 20
 
+static const char * close_xpm[] = {
+/* width height num_colors chars_per_pixel */
+"16 16 3 1",
+/* colors */
+"       s None  c None",
+".      c white",
+"X      c #707070",
+/* pixels */
+"                ",
+"                ",
+"  .X        .X  ",
+"  .XX      .XX  ",
+"   .XX    .XX   ",
+"    .XX  .XX    ",
+"     .XX.XX     ",
+"      .XXX      ",
+"      .XXX      ",
+"     .XX.XX     ",
+"    .XX  .XX    ",
+"   .XX    .XX   ",
+"  .XX      .XX  ",
+"  .X        .X  ",
+"                ",
+"                "};
+
+static const char * normalize_xpm[] = {
+/* width height num_colors chars_per_pixel */
+"16 16 3 1",
+/* colors */
+" 	s None	c None",
+".	c white",
+"X	c #707070",
+/* pixels */
+"                ",
+"                ",
+"     ........   ",
+"     .XXXXXXXX  ",
+"     .X     .X  ",
+"     .X     .X  ",
+"  ....X...  .X  ",
+"  .XXXXXXXX .X  ",
+"  .X     .XXXX  ",
+"  .X     .X     ",
+"  .X     .X     ",
+"  .X......X     ",
+"  .XXXXXXXX     ",
+"                ",
+"                ",
+"                "};
+
+
 
 class QWorkspaceData {
 public:
@@ -51,6 +103,7 @@ public:
     QList<QWidget> icons;
     QWorkspaceChild* maxClient;
     QRect maxRestore;
+    QHBox* maxhandle;
 
     int px;
     int py;
@@ -59,10 +112,13 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
     d = new QWorkspaceData;
+    d->maxhandle = 0;
     d->active = 0;
 
     d->px = 0;
     d->py = 0;
+    
+    topLevelWidget()->installEventFilter( this );
 
 }	
 
@@ -102,9 +158,16 @@ void QWorkspace::childEvent( QChildEvent * e)
 	}
 	if( e->child() == d->active )
 	    d->active = 0;
-	if ( e->child() == d->maxClient  && !d->windows.isEmpty() ) {
-	    activateClient( d->windows.first()->clientWidget() );
-	}
+	
+	if (  !d->windows.isEmpty() ) {
+	    if ( e->child() == d->maxClient  ) {
+		d->maxClient = 0;
+		maximizeClient( d->windows.first()->clientWidget() );
+	    } else {
+		activateClient( d->windows.first()->clientWidget() );
+	    }
+	} else if ( e->child() == d->maxClient )
+	    d->maxClient = 0;
     }
 }
 
@@ -119,7 +182,7 @@ void QWorkspace::activateClient( QWidget* w)
 
     if (!d->active)
 	return;
-    
+
     if ( d->maxClient && d->maxClient != d->active )
 	maximizeClient( d->active->clientWidget() );
 
@@ -242,18 +305,19 @@ void QWorkspace::normalizeClient( QWidget* w)
 	    removeIcon( c->iconWidget() );
 	    c->show();
 	}
+	hideMaxHandles();
     }
 }
 
 void QWorkspace::maximizeClient( QWidget* w)
 {
     QWorkspaceChild* c = findChild( w );
-    
+
     if ( c &&  c == d->maxClient ) {
 	normalizeClient( w );
 	return;
     }
-    
+
     if ( c ) {
 	if (d->icons.contains(c->iconWidget()) )
 	    normalizeClient( w );
@@ -267,6 +331,7 @@ void QWorkspace::maximizeClient( QWidget* w)
 	d->maxRestore = r;
 	
 	activateClient( w);
+	showMaxHandles();
     }
 }
 
@@ -288,10 +353,57 @@ QWorkspaceChild* QWorkspace::findChild( QWidget* w)
     return 0;
 }
 
+bool QWorkspace::eventFilter( QObject *o, QEvent * e)
+{
+    if ( d->maxhandle && e->type() == QEvent::Resize && o == topLevelWidget() )
+	showMaxHandles();
+    
+    return FALSE;
+}
+
+#define BUTTON_SIZE 18
 void QWorkspace::showMaxHandles()
 {
+    if ( !d->maxhandle ) {
+	d->maxhandle = new QHBox( topLevelWidget() );
+	d->maxhandle->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
+	QToolButton* restoreB = new QToolButton( d->maxhandle, "restore" );
+	restoreB->setFocusPolicy( NoFocus );
+	restoreB->setIconSet( QPixmap( normalize_xpm ));
+ 	restoreB->setFixedSize(BUTTON_SIZE, BUTTON_SIZE);
+	connect( restoreB, SIGNAL( clicked() ), this, SLOT( normalizeActive() ) );
+	QToolButton* closeB = new QToolButton( d->maxhandle, "close" );
+	closeB->setFocusPolicy( NoFocus );
+	closeB->setIconSet( QPixmap( close_xpm ) );
+ 	closeB->setFixedSize(BUTTON_SIZE, BUTTON_SIZE);
+	connect( closeB, SIGNAL( clicked() ), this, SLOT( closeActive() ) );
+	//d->maxhandle->adjustSize();
+
+	//### layout doesn't work
+	d->maxhandle->setFixedSize( 2* BUTTON_SIZE+2*d->maxhandle->frameWidth(),
+				    BUTTON_SIZE+2*d->maxhandle->frameWidth() );
+    }
+    
+    d->maxhandle->move ( topLevelWidget()->width() - d->maxhandle->width() - 4, 4 );
+    d->maxhandle->show();
+    d->maxhandle->raise();
 }
 
 void QWorkspace::hideMaxHandles()
 {
+    delete d->maxhandle;
+    d->maxhandle = 0;
+}
+
+void QWorkspace::closeActive()
+{
+    QWidget* w = activeClient();
+    if ( w )
+	w->close();
+}
+
+void QWorkspace::normalizeActive()
+{
+    if  ( d->active )
+	d->active->showNormal();
 }

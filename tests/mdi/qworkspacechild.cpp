@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/mdi/qworkspacechild.cpp#3 $
+** $Id: //depot/qt/main/tests/mdi/qworkspacechild.cpp#4 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -586,7 +586,8 @@ void QWorkspaceChild::enterEvent( QEvent * )
 
 void QWorkspaceChild::leaveEvent( QEvent * )
 {
-    setCursor( arrowCursor );
+    if ( !buttonDown )
+	setCursor( arrowCursor );
 }
 
 
@@ -681,7 +682,7 @@ void QWorkspaceChild::showNormal()
 
 void QWorkspaceChild::adjustToFullscreen()
 {
-    setGeometry( -clientw->x(), -clientw->y(), 
+    setGeometry( -clientw->x(), -clientw->y(),
 		 parentWidget()->width() + width() - clientw->width(),
 		 parentWidget()->height() + height() - clientw->height() );
 }
