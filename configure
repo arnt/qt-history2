@@ -3696,7 +3696,6 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     echo "Session management .. $CFG_SM"
     echo "XShape support ...... $CFG_XSHAPE"
     echo "Xinerama support .... $CFG_XINERAMA"
-    echo "Tablet support ...... $CFG_TABLET"
     echo "Xcursor support ..... $CFG_XCURSOR"
     echo "XRandR support ...... $CFG_XRANDR"
     echo "XRender support ..... $CFG_XRENDER"
@@ -3704,8 +3703,6 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     echo "XKB Support ......... $CFG_XKB"
     echo "immodule support .... $CFG_IM"
     echo "immodule ext support  $CFG_IM_EXT"
-elif [ "$PLATFORM_MAC" = "yes" ]; then
-    echo "Tablet support ...... $CFG_TABLET"
 fi
 
 # complain about not being able to use plugins if we are using a static build
