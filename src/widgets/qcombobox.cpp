@@ -270,7 +270,7 @@
 class QComboBoxPopup : public QPopupMenu
 {
 public:
-    QComboBoxPopup( QWidget *parent = 0, const char *name = 0 )
+    QComboBoxPopup( QWidget *Q_PARENT, const char *Q_NAME )
 	: QPopupMenu( parent, name )
     {
     }

@@ -360,7 +360,7 @@ class QIconViewItemLineEdit : public QTextEdit
     Q_OBJECT
 
 public:
-    QIconViewItemLineEdit( const QString &text, QWidget *parent, QIconViewItem *theItem, const char *name = 0 );
+    QIconViewItemLineEdit( const QString &text, QWidget *parent, QIconViewItem *theItem, const char* Q_NAME );
 
 protected:
     void keyPressEvent( QKeyEvent *e );
@@ -369,7 +369,6 @@ protected:
 protected:
     QIconViewItem *item;
     QString startText;
-
 };
 
 QIconViewItemLineEdit::QIconViewItemLineEdit( const QString &text, QWidget *parent,
@@ -1618,7 +1617,7 @@ void QIconViewItem::rename()
     if ( renameBox )
 	removeRenameBox();
     oldRect = rect();
-    renameBox = new QIconViewItemLineEdit( itemText, view->viewport(), this );
+    renameBox = new QIconViewItemLineEdit( itemText, view->viewport(), this, "qt_renamebox" );
     QRect tr( textRect( FALSE ) );
     view->addChild( renameBox, tr.x() + ( tr.width() / 2 - renameBox->width() / 2 ), tr.y() - 3 );
     renameBox->selectAll();

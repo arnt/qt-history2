@@ -119,7 +119,7 @@ private slots:
 
 private:
     static QFont getFont( bool *ok, const QFont *def,
-			  QWidget *parent = 0, const char* name = 0);
+			  QWidget* Q_PARENT, const char* Q_NAME);
 
     QFontDialogPrivate * d;
     friend class QFontDialogPrivate;

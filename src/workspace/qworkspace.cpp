@@ -132,7 +132,7 @@ class QWorkspaceChild : public QFrame
 
 public:
     QWorkspaceChild( QWidget* window,
-		     QWorkspace *parent=0, const char *name=0 );
+		     QWorkspace* Q_PARENT, const char* Q_NAME );
     ~QWorkspaceChild();
 
     void setActive( bool );
@@ -341,7 +341,7 @@ void QWorkspace::childEvent( QChildEvent * e)
 	    w->adjustSize();
 
 	QRect wrect = QRect( w->x(), w->y(), w->width(), w->height() );
-	QWorkspaceChild* child = new QWorkspaceChild( w, this );
+	QWorkspaceChild* child = new QWorkspaceChild( w, this, "qt_workspacechild" );
 	child->installEventFilter( this );
 	connect( child, SIGNAL( popupOperationMenu( const QPoint& ) ),
 		 this, SLOT( popupOperationMenu( const QPoint& ) ) );
@@ -1383,7 +1383,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     }
 
     if ( window && window->testWFlags( WStyle_Title ) ) {
-	titlebar = new QTitleBar( window, this );
+	titlebar = new QTitleBar( window, this, "qt_ws_titlebar" );
 	connect( titlebar, SIGNAL( doActivate() ),
 		 this, SLOT( activate() ) );
 	connect( titlebar, SIGNAL( doClose() ),

@@ -51,7 +51,7 @@ class QSplitterHandle : public QWidget
     Q_OBJECT
 public:
     QSplitterHandle( Qt::Orientation o,
-		       QSplitter *parent, const char* name=0 );
+		       QSplitter *parent, const char* Q_NAME );
     void setOrientation( Qt::Orientation o );
     Qt::Orientation orientation() const { return orient; }
 
@@ -341,7 +341,7 @@ QSplitterLayoutStruct *QSplitter::addWidget( QWidget *w, bool first )
     if ( data->list.count() > 0 ) {
 	s = new QSplitterLayoutStruct;
 	s->mode = KeepSize;
-	newHandle = new QSplitterHandle( orientation(), this );
+	newHandle = new QSplitterHandle( orientation(), this, "qt_splithandle" );
 	s->wid = newHandle;
 	newHandle->setId(data->list.count());
 	s->isSplitter = TRUE;

@@ -75,7 +75,7 @@ class QWellArray : public QGridView
     Q_PROPERTY( int selectedRow READ selectedRow )
 
 public:
-    QWellArray( QWidget *parent=0, const char *name=0, bool popup = FALSE );
+    QWellArray( QWidget* Q_PARENT, const char* Q_NAME, bool popup = FALSE );
 
     ~QWellArray() {}
     QString cellContent( int row, int col ) const;
@@ -628,7 +628,7 @@ class QColorPicker : public QFrame
 {
     Q_OBJECT
 public:
-    QColorPicker(QWidget* parent=0, const char* name=0);
+    QColorPicker(QWidget* Q_PARENT, const char* Q_NAME);
     ~QColorPicker();
 
 public slots:
@@ -662,7 +662,7 @@ class QColorLuminancePicker : public QWidget
 {
     Q_OBJECT
 public:
-    QColorLuminancePicker(QWidget* parent=0, const char* name=0);
+    QColorLuminancePicker(QWidget* Q_PARENT, const char* Q_NAME);
     ~QColorLuminancePicker();
 
 public slots:
@@ -903,7 +903,7 @@ QValidator::State QColIntValidator::validate( QString &s, int &pos ) const
 class QColNumLineEdit : public QLineEdit
 {
 public:
-    QColNumLineEdit( QWidget *parent, const char* name = 0 )
+    QColNumLineEdit( QWidget *parent, const char* Q_NAME )
 	: QLineEdit( parent, name ) { setMaxLength( 3 );}
     QSize sizeHint() const {
 	return QSize( 30, //#####
@@ -924,7 +924,7 @@ class QColorShower : public QWidget
 {
     Q_OBJECT
 public:
-    QColorShower( QWidget *parent, const char *name = 0 );
+    QColorShower( QWidget *parent, const char *Q_NAME );
 
     //things that don't emit signals
     void setHsv( int h, int s, int v );
@@ -1084,49 +1084,49 @@ QColorShower::QColorShower( QWidget *parent, const char *name )
     connect( lab, SIGNAL( colorDropped( QRgb ) ),
 	     this, SLOT( setRgb( QRgb ) ) );
 
-    hEd = new QColNumLineEdit( this );
+    hEd = new QColNumLineEdit( this, "qt_hue_edit" );
     hEd->setValidator( val360 );
     QLabel *l = new QLabel( hEd, QColorDialog::tr("Hu&e:"), this, "qt_hue_lbl" );
     l->setAlignment( AlignRight|AlignVCenter );
     gl->addWidget( l, 0, 1 );
     gl->addWidget( hEd, 0, 2 );
 
-    sEd = new QColNumLineEdit( this );
+    sEd = new QColNumLineEdit( this, "qt_sat_edit" );
     sEd->setValidator( val256 );
     l = new QLabel( sEd, QColorDialog::tr("&Sat:"), this, "qt_sat_lbl" );
     l->setAlignment( AlignRight|AlignVCenter );
     gl->addWidget( l, 1, 1 );
     gl->addWidget( sEd, 1, 2 );
 
-    vEd = new QColNumLineEdit( this );
+    vEd = new QColNumLineEdit( this, "qt_val_edit" );
     vEd->setValidator( val256 );
     l = new QLabel( vEd, QColorDialog::tr("&Val:"), this, "qt_val_lbl" );
     l->setAlignment( AlignRight|AlignVCenter );
     gl->addWidget( l, 2, 1 );
     gl->addWidget( vEd, 2, 2 );
 
-    rEd = new QColNumLineEdit( this );
+    rEd = new QColNumLineEdit( this, "qt_red_edit" );
     rEd->setValidator( val256 );
     l = new QLabel( rEd, QColorDialog::tr("&Red:"), this, "qt_red_lbl" );
     l->setAlignment( AlignRight|AlignVCenter );
     gl->addWidget( l, 0, 3 );
     gl->addWidget( rEd, 0, 4 );
 
-    gEd = new QColNumLineEdit( this );
+    gEd = new QColNumLineEdit( this, "qt_grn_edit" );
     gEd->setValidator( val256 );
     l = new QLabel( gEd, QColorDialog::tr("&Green:"), this, "qt_grn_lbl" );
     l->setAlignment( AlignRight|AlignVCenter );
     gl->addWidget( l, 1, 3 );
     gl->addWidget( gEd, 1, 4 );
 
-    bEd = new QColNumLineEdit( this );
+    bEd = new QColNumLineEdit( this, "qt_blue_edit" );
     bEd->setValidator( val256 );
     l = new QLabel( bEd, QColorDialog::tr("Bl&ue:"), this, "qt_blue_lbl" );
     l->setAlignment( AlignRight|AlignVCenter );
     gl->addWidget( l, 2, 3 );
     gl->addWidget( bEd, 2, 4 );
 
-    alphaEd = new QColNumLineEdit( this );
+    alphaEd = new QColNumLineEdit( this, "qt_aplha_edit" );
     alphaEd->setValidator( val256 );
     alphaLab = new QLabel( alphaEd, QColorDialog::tr("A&lpha channel:"), this, "qt_alpha_lbl" );
     alphaLab->setAlignment( AlignRight|AlignVCenter );
@@ -1346,13 +1346,13 @@ QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog ) :
 
 
     QVBoxLayout *cLay = new QVBoxLayout( pickLay );
-    cp = new QColorPicker( dialog );
+    cp = new QColorPicker( dialog, "qt_colorpicker" );
     cp->setFrameStyle( QFrame::Panel + QFrame::Sunken );
     cLay->addSpacing( lumSpace );
     cLay->addWidget( cp );
     cLay->addSpacing( lumSpace );
 
-    lp = new QColorLuminancePicker( dialog );
+    lp = new QColorLuminancePicker( dialog, "qt_luminance_picker" );
     lp->setFixedWidth( 20 ); //###
     pickLay->addWidget( lp );
 
@@ -1361,7 +1361,7 @@ QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog ) :
 
     rightLay->addStretch();
 
-    cs = new QColorShower( dialog );
+    cs = new QColorShower( dialog, "qt_colorshower" );
     connect( cs, SIGNAL(newCol(QRgb)), this, SLOT(newColorTypedIn(QRgb)));
     rightLay->addWidget( cs );
 
