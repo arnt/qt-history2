@@ -1693,6 +1693,10 @@ void QCanvas::setDoubleBuffering(bool y)
 
     The width and height of \a p must be a multiple of \a tilewidth
     and \a tileheight. If they are not the function will do nothing.
+
+    If you want to unset any tiling set, then just pass in a null 
+    pixmap and 0 for \a h, \a v, \a tilewidth, and
+    \a tileheight.
 */
 void QCanvas::setTiles( QPixmap p,
 			int h, int v, int tilewidth, int tileheight )
