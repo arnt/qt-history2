@@ -1150,7 +1150,7 @@ static bool inSelection( int x, QTextParagraph *p )
 */
 void QLineEdit::mousePressEvent( QMouseEvent *e )
 {
-    if ( e->button() != LeftButton ) {
+    if ( e->button() == RightButton ) {
 	e->ignore();
 	return;
     }
@@ -1236,8 +1236,6 @@ void QLineEdit::doDrag()
 */
 void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 {
-    if ( e->button() == RightButton )
-	return;
 #ifndef QT_NO_CURSOR
     if ( !d->mousePressed ) {
 	if ( !isReadOnly() && dragEnabled()
