@@ -327,16 +327,20 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 
     if(!project->isActiveConfig("staticlib")) { //DUMP LIBRARIES
 	QStringList &libdirs = project->variables()["QMAKE_PBX_LIBPATHS"];
-	QString libs[] = { "QMAKE_LIBDIR_FLAGS", "QMAKE_LIBS", QString::null };
+	QString libs[] = { "QMAKE_LFLAGS", "QMAKE_LIBDIR_FLAGS", "QMAKE_LIBS", QString::null };
 	for(i = 0; !libs[i].isNull(); i++) {
 	    tmp = project->variables()[libs[i]];
 	    for(QStringList::Iterator it = tmp.begin(); it != tmp.end();) {
 		bool remove = FALSE;
 		QString library, name, opt = (*it).stripWhiteSpace();
+		qDebug("%s", opt.latin1());
 		if(opt.startsWith("-L")) {
 		    QString r = opt.right(opt.length() - 2);
 		    fixEnvVariables(r);
 		    libdirs.append(r);
+		} else if(opt == "-prebind") {
+		    project->variables()["QMAKE_DO_PREBINDING"].append("TRUE");
+		    remove = TRUE;
 		} else if(opt.startsWith("-l")) {
 		    name = opt.right(opt.length() - 2);
 		    QString lib("lib" + name);
@@ -677,7 +681,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	varGlue("DEFINES"," -D"," -D","") << "\";" << "\n"
       << "\t\t\t\t" << "OTHER_REZFLAGS = \"\";" << "\n"
       << "\t\t\t\t" << "SECTORDER_FLAGS = \"\";" << "\n"
-      << "\t\t\t\t" << "WARNING_CFLAGS = \"\";" << "\n";
+      << "\t\t\t\t" << "WARNING_CFLAGS = \"\";" << "\n"
+      << "\t\t\t\t" << "PREBINDING = " << (project->isEmpty("QMAKE_DO_PREBINDING") ? "NO" : "YES") << ";" << "\n";
 #if 1
     t << "\t\t\t\t" << "BUILD_ROOT = \"" << QDir::currentDirPath() << "\";" << "\n";
 #endif
