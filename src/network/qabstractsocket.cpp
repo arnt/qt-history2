@@ -1175,8 +1175,8 @@ bool QAbstractSocket::waitForReadyRead(int msecs)
     qDebug("QAbstractSocket::waitForReadyRead(%i)", msecs);
 #endif
 
-    if (socketState() != Qt::ConnectedState && socketState() != Qt::BoundState) {
-        qWarning("QAbstractSocket::waitForReadyRead() is only allowed in connected state");
+    if (socketState() == Qt::UnconnectedState) {
+        qWarning("QAbstractSocket::waitForReadyRead() is not allowed in UnconnectedState");
         return false;
     }
 
@@ -1208,8 +1208,8 @@ bool QAbstractSocket::waitForBytesWritten(int msecs)
     qDebug("QAbstractSocket::waitForBytesWritten(%i)", msecs);
 #endif
 
-    if (socketState() != Qt::ConnectedState && socketState() != Qt::BoundState) {
-        qWarning("QAbstractSocket::waitForBytesWritten() is only allowed in connected state");
+    if (socketState() == Qt::UnconnectedState) {
+        qWarning("QAbstractSocket::waitForReadyRead() is not allowed in UnconnectedState");
         return false;
     }
 
@@ -1218,7 +1218,7 @@ bool QAbstractSocket::waitForBytesWritten(int msecs)
         d->socketError = d->socketLayer.socketError();
         setErrorString(d->socketLayer.errorString());
 #if defined (QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::waitForReadyRead(%i) failed (%s)",
+    qDebug("QAbstractSocket::waitForBytesWritten(%i) failed (%s)",
            msecs, errorString().latin1());
 #endif
         emit error(d->socketError);
