@@ -765,7 +765,7 @@ void QToolBar::resizeEvent(QResizeEvent *event)
 				      max_item_extent);
         } else {
 	    d->extension->setGeometry(margin,
-				      height() - d->extension->sizeHint().height() - margin*2,
+				      height() - d->extension->sizeHint().height() - margin,
 				      max_item_extent,
 				      d->extension->sizeHint().height());
         }
