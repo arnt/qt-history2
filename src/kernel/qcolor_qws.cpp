@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_qws.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qcolor_qws.cpp#32 $
 **
 ** Implementation of QColor class for FB
 **
@@ -139,7 +139,7 @@ uint QColor::alloc()
     const int g = qGreen(d.argb);\
     const int b = qBlue(d.argb);
 
-    switch (qApp->desktop()->qwsDisplay()->depth()) {
+    switch (qt_screen->depth()) {
       case 1: {
 	GET
 	return d.d8.pix = qGray(r,g,b) < 128 ? 1 : 0;
