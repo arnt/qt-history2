@@ -2308,21 +2308,23 @@ uint QWidget::clippedSerial(bool do_children)
 */
 Qt::HANDLE QWidget::macCGHandle(bool do_children) const
 {
+    //setup handle
+    Rect port_rect;
+    GetPortBounds(GetWindowPort((WindowPtr)handle()), &port_rect);
     if(!cg_hd) {
 	CreateCGContextForPort(GetWindowPort((WindowPtr)handle()), (CGContextRef*)&cg_hd);
-#if defined( USE_TRANSLATED_CG_CONTEXT )
-	CGContextTranslateCTM((CGContextRef)cg_hd, 0, topLevelWidget()->height());
+#ifdef USE_TRANSLATED_CG_CONTEXT
+	CGContextTranslateCTM((CGContextRef)cg_hd, 0, (port_rect.bottom - port_rect.top));
 	CGContextScaleCTM((CGContextRef)cg_hd, 1, -1);
 #endif
     }
+    //do clipping
     QRegion rgn = ((QWidget*)this)->clippedRegion(do_children);
     if(!rgn.handle()) {
 	QRect qr = rgn.boundingRect();
 	CGContextClipToRect((CGContextRef)cg_hd, CGRectMake(qr.x(), qr.y(), qr.width(), qr.height()));
     } else {
-	Rect r;
-	GetPortBounds(GetWindowPort((WindowPtr)handle()), &r);
-	ClipCGContextToRegion((CGContextRef)cg_hd, &r, rgn.handle());
+	ClipCGContextToRegion((CGContextRef)cg_hd, &port_rect, rgn.handle());
     }
     return cg_hd;
 }
