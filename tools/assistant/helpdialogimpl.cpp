@@ -737,7 +737,7 @@ void HelpDialog::insertContents()
 
 	HelpNavigationContentsItem *newEntry;
 	newEntry = new HelpNavigationContentsItem( listContents, 0 );
-	newEntry->setPixmap( 0, QPixmap::fromMimeSource( "book.xpm" ) );
+	newEntry->setPixmap( 0, QPixmap::fromMimeSource( "book.png" ) );
 
 	HelpNavigationContentsItem *contentEntry;
 	QPtrStack<HelpNavigationContentsItem> stack;

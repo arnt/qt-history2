@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.1" stdsetdef="1">
 <class>MainWindow</class>
 <comment>*********************************************************************
 ** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
@@ -117,7 +117,7 @@
             <string>Print the currently displayed page.</string>
         </property>
         <property name="accel">
-            <number>272629840</number>
+            <string>Ctrl+P</string>
         </property>
     </action>
     <action>
@@ -151,7 +151,7 @@
             <string>Copy the selected text to the clipboard.</string>
         </property>
         <property name="accel">
-            <number>272629827</number>
+            <string>Ctrl+C</string>
         </property>
     </action>
     <action>
@@ -171,7 +171,7 @@
             <string>Open the Find dialog. Qt Assistant will search the currently displayed page for the text you enter.</string>
         </property>
         <property name="accel">
-            <number>272629830</number>
+            <string>Ctrl+F</string>
         </property>
     </action>
     <action>
@@ -191,7 +191,7 @@
             <string>Go to the home page. Qt Assistant's home page is the Qt Reference Documentation.</string>
         </property>
         <property name="accel">
-            <number>4198416</number>
+            <string>Ctrl+Home</string>
         </property>
     </action>
     <action>
@@ -211,7 +211,7 @@
             <string>Go to the previous page.</string>
         </property>
         <property name="accel">
-            <number>8392722</number>
+            <string>Alt+Left</string>
         </property>
     </action>
     <action>
@@ -231,7 +231,7 @@
             <string>Go to the next page.</string>
         </property>
         <property name="accel">
-            <number>8392724</number>
+            <string>Alt+Right</string>
         </property>
     </action>
     <action>
@@ -281,7 +281,7 @@
             <cstring>actionGoDesigner</cstring>
         </property>
         <property name="iconSet">
-            <iconset>designer.xpm</iconset>
+            <iconset>designer.png</iconset>
         </property>
         <property name="text">
             <string>Qt Designer Manual</string>
@@ -307,7 +307,7 @@
             <string>Zoom in on the document, i.e. increase the font size.</string>
         </property>
         <property name="accel">
-            <number>272629803</number>
+            <string>Ctrl++</string>
         </property>
     </action>
     <action>
@@ -327,7 +327,7 @@
             <string>Zoom out on the document, i.e. decrease the font size.</string>
         </property>
         <property name="accel">
-            <number>272629805</number>
+            <string>Ctrl+-</string>
         </property>
     </action>
     <action>
@@ -335,7 +335,7 @@
             <cstring>actionGoLinguist</cstring>
         </property>
         <property name="iconSet">
-            <iconset>linguist.xpm</iconset>
+            <iconset>linguist.png</iconset>
         </property>
         <property name="text">
             <string>Qt Linguist Manual</string>
@@ -372,7 +372,7 @@
             <string>Open a new window.</string>
         </property>
         <property name="accel">
-            <number>4194382</number>
+            <string>Ctrl+N</string>
         </property>
     </action>
     <action>
@@ -393,6 +393,9 @@
         <property name="name">
             <cstring>actionGoAssistant</cstring>
         </property>
+        <property name="iconSet">
+            <iconset>assistant.png</iconset>
+        </property>
         <property name="text">
             <string>Qt Assistant Manual</string>
         </property>
@@ -400,7 +403,7 @@
             <string>Display the Qt Assistant manual.</string>
         </property>
         <property name="accel">
-            <number>4144</number>
+            <string>F1</string>
         </property>
     </action>
     <action>
@@ -431,7 +434,7 @@
             <string>"What's This?" context sensitive help.</string>
         </property>
         <property name="accel">
-            <number>2101296</number>
+            <string>Shift+F1</string>
         </property>
     </action>
 </actions>
@@ -588,8 +591,8 @@
     <slot>saveToolbarSettings()</slot>
 </slots>
 <functions>
+    <function access="private">setupGoActions( const QStringList &amp;, const QStringList &amp; )</function>
     <function access="private" returnType="bool">insertActionSeparator()</function>
-    <function access="private" returnType="void">setupGoActions( const QStringList &amp;, const QStringList &amp; )</function>
     <function returnType="bool">close( bool )</function>
 </functions>
 <pixmapinproject/>
