@@ -895,7 +895,7 @@ void QAbstractSpinBoxPrivate::init()
 {
     spinclicktimerinterval = q->style()->styleHint(QStyle::SH_SpinBox_ClickAutoRepeatRate, 0, q);
     spinkeytimerinterval = q->style()->styleHint(QStyle::SH_SpinBox_KeyPressAutoRepeatRate, 0, q);
-    edit->setFrame(false);
+    lineEdit()->setFrame(false);
     q->setFocusProxy(edit);
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     if (useprivate) {
