@@ -78,6 +78,10 @@ echo "Removing internal files..." >&2
 cd ${DISTDIR}/qt/src
 rm -fv `make showinternal`
 
+# Remove Netscape-owned code (docs direct user to PluginSDK)
+rm -rf ${DISTDIR}/qt/extensions/nsplugin/src/np*
+rm -rf ${DISTDIR}/qt/extensions/nsplugin/src/jri*
+
 VERSION=`grep "#define.*QT_VERSION_STR" ${DISTDIR}/qt/src/tools/qglobal.h | fmt -1 | grep '"' | sed -e 's/"//g'`
 VERSIONMAJOR=`echo ${VERSION} | sed -e 's/\..*$//'`
 echo "Auto-detected the Qt version number -- " $VERSION >&2
@@ -125,10 +129,6 @@ rm -rf qt/examples/scrollview
 rm -rf qt/examples/network
 rm -rf qt/examples/validator
 rm -f qt/src/qtinternal.pro
-
-# Remove Netscape-owned code (docs direct user to PluginSDK)
-rm -rf qt/extensions/nsplugin/src/np*
-rm -rf qt/extensions/nsplugin/src/jri*
 
 echo "Removing kernel .cpp files for other platforms..." >&2
 cd ${DISTDIR}/qt/src/kernel
