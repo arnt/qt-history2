@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#44 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#45 $
 **
 ** Implementation of QTextCodec class
 **
@@ -333,10 +333,14 @@ QTextCodec* QTextCodec::codecForLocale()
     char * p = lang ? strchr( lang, '.' ) : 0;
     if( p && *p == '.' ) {
 	 // if there is an encoding and we don't know it, we return 0
-	localeMapper = codecForName( p+1 );
-	if ( !localeMapper )
-	    localeMapper = codecForName( lang );
-    } else {
+	// User knows what they are doing.  Codecs will believe them.
+	localeMapper = codecForName( lang );
+	if ( !localeMapper ) {
+	    // Use or codec disagree.
+	    localeMapper = codecForName( p+1 );
+	}
+    }
+    if ( !localeMapper || !(p && *p == '.') ) {
 	// if there is none, we default to 8859-1 :)
 	if ( try_locale_list( iso8859_2locales, lang ) )
 	    localeMapper = codecForName( "ISO 8859-2" );
