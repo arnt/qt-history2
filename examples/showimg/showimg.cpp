@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/showimg/showimg.cpp#2 $
+** $Id: //depot/qt/main/examples/showimg/showimg.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -612,6 +612,7 @@ void ImageViewer::paste()
 	resize( w, h );				// we resize to fit image
 
 	reconvertImage();
+	repaint( image.hasAlphaBuffer() );
 
 	updateStatus();
 	setMenuItemFlags();
