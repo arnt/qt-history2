@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#51 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#52 $
 **
 ** Implementation of QDir class
 **
@@ -1071,7 +1071,7 @@ QString QDir::currentDirPath()
     static bool forcecwd = TRUE;
     static ino_t cINode;
     static dev_t cDevice;
-    static QString currentName( PATH_MAX );
+    QString currentName( PATH_MAX );
 
     STATBUF st;
 
