@@ -158,7 +158,7 @@ LicensePageImpl::LicensePageImpl( QWidget* parent, const char* name, WFlags fl )
     key->hide();
     readLicenseButton->hide();
 #else
-    licenseID->setValidator( new QIntValidator( -1, 100000, licenseID ) );
+    licenseID->setValidator( new QIntValidator( -1, 9999999, licenseID ) );
 
     // expiryDate and productsString comes from the license key
     expiryDate->setEnabled( FALSE );
