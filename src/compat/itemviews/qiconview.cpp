@@ -567,13 +567,12 @@ bool QIconDragData::operator==(const QIconDragData &i) const
     \module iconview
 
     A QIconDrag object is used to maintain information about the
-    positions of dragged items and the data associated with the
-    dragged items. QIconViews are able to use this information to
-    paint the dragged items in the correct positions. Internally
-    QIconDrag stores the data associated with drag items in
-    QIconDragItem objects.
+    positions of dragged items and the data associated with them.
+    QIconViews are able to use this information to paint the dragged
+    items in the correct positions. Internally, QIconDrag stores the
+    data associated with drag items in QIconDragItem objects.
 
-    If you want to use the extended drag-and-drop functionality of
+    If you want to use the extended drag and drop functionality of
     QIconView, create a QIconDrag object in a reimplementation of
     QIconView::dragObject(). Then create a QIconDragItem for each item
     which should be dragged, set the data it represents with
