@@ -74,7 +74,7 @@ This will cause qvfb to check for updated regions more quickly.  The rate
 is a target only.  If little drawing is being done, the framebuffer will
 not show any updates between drawing events.  If an application is displaying
 an animation the updates will be frequent, and the application and
-qvfb will fight for processor time.
+qvfb will compete for processor time.
 <p>
 Mouse and keyboard events are passed to the Qt/Embedded master process via
 named pipes.
