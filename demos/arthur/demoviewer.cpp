@@ -5,12 +5,12 @@
 #include <qapplication.h>
 #include <qcheckbox.h>
 #include <qcombobox.h>
+#include <qgenericlistview.h>
+#include <qgroupbox.h>
 #include <qlayout.h>
-#include <qlistview.h>
 #include <qpainter.h>
 #include <qsplitter.h>
 #include <qstackedbox.h>
-#include <qgroupbox.h>
 #include <qvbox.h>
 
 #include <qdebug.h>
@@ -31,6 +31,54 @@ public:
     {
         return QSize(100, 30);
     }
+};
+
+class ItemModel : public QAbstractItemModel
+{
+public:
+    QVariant data(const QModelIndex &index, int role) const {
+        if ((role == Role_Display)
+            && index.type() == QModelIndex::View  && index.isValid()
+            && index.row() < rowCount(parent(index))
+            && index.column() < columnCount(parent(index))) {
+            if (role == Role_Display)
+                return list.at(index.row());
+        }
+        return QVariant::Invalid;
+    }
+
+    int columnCount(const QModelIndex &) const {
+        return 1;
+    }
+
+    int rowCount(const  QModelIndex &) const {
+        return list.count();
+    }
+
+    bool setData(const QModelIndex &index, int role, const QVariant &value) {
+        if (role == Role_Display) {
+            list[index.row()] = value.toString();
+            emit dataChanged(index, index);
+            return true;
+        }
+        return false;
+    }
+
+    bool isEditable(const QModelIndex &) const {
+        return false;
+    }
+
+    bool insertRows(int row, const QModelIndex &parent, int count) {
+        if (parent.isValid() || count < 1 || row < 0 || row > rowCount(QModelIndex()))
+            return false;
+        while (count--)
+            list.insert(row, QString());
+        emit rowsInserted(parent, row, row+count-1);
+        return true;
+    }
+
+private:
+    QList<QString> list;
 };
 
 void ItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &options,
@@ -85,7 +133,7 @@ DemoViewer::DemoViewer(QWidget *parent)
     vbox->setSpacing(6);
     QGroupBox *categories = new QGroupBox("Categories", vbox);
     QBoxLayout *glayout = new QBoxLayout(QBoxLayout::TopToBottom, categories);
-    listView = new QListView(categories);
+    listView = new QGenericListView(categories);
     glayout->addWidget(listView);
     glayout->setMargin(6);
 
@@ -114,16 +162,8 @@ DemoViewer::DemoViewer(QWidget *parent)
     props->addWidget(bgMode);
     props->addItem(new QSpacerItem(1, 1));
 
-//     QPalette textPalette = palette();
-//     textPalette.setBrush(QPalette::All, QPalette::Base,
-//                          QBrush(QPoint(0, 0), QColor(0, 120, 200),
-//                                 QPoint(0, 600), QColor(224, 224, 224)));
-//     textPalette.setBrush(QPalette::All, QPalette::Background,
-//                          QBrush(QPoint(0, 0), QColor(0, 120, 200),
-//                                 QPoint(0, 600), QColor(224, 224, 224)));
-//     setPalette(textPalette);
-
     // Setting it up...
+    listView->setModel(new ItemModel);
     listView->setSelectionMode(QAbstractItemView::SingleSelection);
     listView->setItemDelegate(new ItemDelegate(listView->model()));
     connect(listView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)),
@@ -140,9 +180,9 @@ DemoViewer::DemoViewer(QWidget *parent)
 
 void DemoViewer::addDemoWidget(const QString &name, DemoWidget *widget)
 {
-    QListViewItem item;
-    item.setText(name);
-    listView->appendItem(item);
+    QAbstractItemModel *model = listView->model();
+    model->insertRows(model->rowCount(), QModelIndex(), 1);
+    model->setData(model->index(model->rowCount()-1, 0), QAbstractItemModel::Role_Display, name);
 
     widget->setParent(widgets);
     widget->setAttributes(attributes);
@@ -157,7 +197,7 @@ QSize DemoViewer::sizeHint() const
 
 void DemoViewer::itemSelected()
 {
-    QString name = listView->text(listView->currentItem().row());
+    QString name = listView->model()->data(listView->selectionModel()->currentItem()).toString();
 
     Q_ASSERT(!name.isEmpty());
     DemoWidget *demoWidget = widgetByName[name];

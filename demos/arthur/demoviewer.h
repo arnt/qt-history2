@@ -8,7 +8,7 @@ class Attributes;
 class DemoWidget;
 class QCheckBox;
 class QComboBox;
-class QListView;
+class QGenericListView;
 class QStackedBox;
 
 class DemoViewer : public QWidget
@@ -31,7 +31,7 @@ public slots:
     void fillModeChanged(int);
 
 private:
-    QListView *listView;
+    QGenericListView *listView;
     QStackedBox *widgets;
     QHash<QString, DemoWidget *> widgetByName;
     Attributes *attributes;
