@@ -122,12 +122,10 @@ void CIndent::setTabSize( int ts )
 {
     tabSize = ts;
     ::setTabSize( ts );
-    reindent();
 }
 
 void CIndent::setIndentSize( int is )
 {
     indentSize = is;
     ::setIndentSize( is );
-    reindent();
 }

@@ -14,7 +14,7 @@ public:
     void setTabSize( int ts );
     void setIndentSize( int is );
     void setAutoIndent( bool ai ) { autoIndent = ai; reindent(); }
-    void setKeepTabs( bool kt ) { keepTabs = kt; reindent(); }
+    void setKeepTabs( bool kt ) { keepTabs = kt; }
 
 private:
     void reindent();
