@@ -178,13 +178,25 @@ public:
 
     friend bool operator==(char ch, QChar c);
     friend bool operator==(QChar c, char ch);
+    friend bool operator==(QChar c, unsigned short ch);
+    friend bool operator==(unsigned short c, QChar c);
     friend bool operator==(QChar c1, QChar c2);
+    friend bool operator==(int ch, QChar c);
+    friend bool operator==(QChar c, int ch);
     friend bool operator!=(QChar c1, QChar c2);
     friend bool operator!=(char ch, QChar c);
     friend bool operator!=(QChar c, char ch);
+    friend bool operator!=(QChar c, unsigned short ch);
+    friend bool operator!=(unsigned short c, QChar c);
+    friend bool operator!=(int ch, QChar c);
+    friend bool operator!=(QChar c, int ch);
     friend bool operator<=(QChar c, char ch);
     friend bool operator<=(char ch, QChar c);
     friend bool operator<=(QChar c1, QChar c2);
+    friend bool operator<=(QChar c, unsigned short ch);
+    friend bool operator<=(unsigned short c, QChar c);
+    friend bool operator<=(int ch, QChar c);
+    friend bool operator<=(QChar c, int ch);
 
 private:
     ushort ucs;
@@ -244,45 +256,40 @@ inline QChar::QChar(uint rc) : ucs((ushort) (rc & 0xffff)){}
 inline QChar::QChar(int rc) : ucs((ushort) (rc & 0xffff)){}
 inline QChar::QChar(QChar::SpecialChars s) : ucs((ushort) s) {}
 
+inline bool operator==(QChar c1, QChar c2) { return c1.ucs == c2.ucs; }
+inline bool operator!=(QChar c1, QChar c2) { return c1.ucs != c2.ucs; }
+inline bool operator<=(QChar c1, QChar c2) { return c1.ucs <= c2.ucs; }
+inline bool operator>=(QChar c1, QChar c2) { return c2 <= c1; }
+inline bool operator<(QChar c1, QChar c2) { return !(c2<=c1); }
+inline bool operator>(QChar c1, QChar c2) { return !(c2>=c1); }
+
 #ifndef QT_NO_CAST_FROM_ASCII
 #ifndef QT_NO_CODEC_FOR_C_STRINGS
 inline bool operator==(char ch, QChar c) { return ((uchar) ch) == c.ucs; }
 inline bool operator==(QChar c, char ch) { return ((uchar) ch) == c.ucs; }
-inline bool operator==(QChar c1, QChar c2) { return c1.ucs == c2.ucs; }
-inline bool operator!=(QChar c1, QChar c2) { return c1.ucs != c2.ucs; }
 inline bool operator!=(char ch, QChar c) { return ((uchar)ch) != c.ucs; }
 inline bool operator!=(QChar c, char ch) { return ((uchar) ch) != c.ucs; }
 inline bool operator<=(QChar c, char ch) { return c.ucs <= ((uchar) ch); }
 inline bool operator<=(char ch, QChar c) { return ((uchar) ch) <= c.ucs; }
-inline bool operator<=(QChar c1, QChar c2) { return c1.ucs <= c2.ucs; }
 inline bool operator>=(QChar c, char ch) { return ch <= c; }
 inline bool operator>=(char ch, QChar c) { return c <= ch; }
-inline bool operator>=(QChar c1, QChar c2) { return c2 <= c1; }
 inline bool operator<(QChar c, char ch) { return !(ch<=c); }
 inline bool operator<(char ch, QChar c) { return !(c<=ch); }
-inline bool operator<(QChar c1, QChar c2) { return !(c2<=c1); }
 inline bool operator>(QChar c, char ch) { return !(ch>=c); }
 inline bool operator>(char ch, QChar c) { return !(c>=ch); }
-inline bool operator>(QChar c1, QChar c2) { return !(c2>=c1); }
 #else
 inline bool operator==(char ch, QChar c) { return QChar(ch) == c; }
 inline bool operator==(QChar c, char ch) { return QChar(ch) == c; }
-inline bool operator==(QChar c1, QChar c2) { return c1.ucs == c2.ucs; }
-inline bool operator!=(QChar c1, QChar c2) { return c1.ucs != c2.ucs; }
 inline bool operator!=(char ch, QChar c) { return c != ch; }
 inline bool operator!=(QChar c, char ch) { return QChar(ch) != c; }
 inline bool operator<=(QChar c, char ch) { return c <= QChar(ch); }
 inline bool operator<=(char ch, QChar c) { return QChar(ch) <= c; }
-inline bool operator<=(QChar c1, QChar c2) { return c1.ucs <= c2.ucs; }
 inline bool operator>=(QChar c, char ch) { return QChar(ch) <= c; }
 inline bool operator>=(char ch, QChar c) { return QChar(c) <= ch; }
-inline bool operator>=(QChar c1, QChar c2) { return c2 <= c1; }
 inline bool operator<(QChar c, char ch) { return !(ch<=c); }
 inline bool operator<(char ch, QChar c) { return !(c<=ch); }
-inline bool operator<(QChar c1, QChar c2) { return !(c2<=c1); }
 inline bool operator>(QChar c, char ch) { return !(ch>=c); }
 inline bool operator>(char ch, QChar c) { return !(c>=ch); }
-inline bool operator>(QChar c1, QChar c2) { return !(c2>=c1); }
 #endif
 #endif
 
@@ -298,5 +305,31 @@ inline bool operator<=(const QChar &ch, QChar::SpecialChars sc)
 { return ch.unicode() < sc; }
 inline bool operator<=(QChar::SpecialChars sc, const QChar &ch)
 { return sc < ch.unicode(); }
+
+inline bool operator==(unsigned short ch, QChar c) { return ch == c.ucs; }
+inline bool operator==(QChar c, unsigned short ch) { return ch == c.ucs; }
+inline bool operator!=(unsigned short ch, QChar c) { return ch != c.ucs; }
+inline bool operator!=(QChar c, unsigned short ch) { return ch != c.ucs; }
+inline bool operator<=(unsigned short ch, QChar c) { return ch <= c.ucs; }
+inline bool operator<=(QChar c, unsigned short ch) { return c.ucs <= ch; }
+inline bool operator>=(QChar c, unsigned short ch) { return ch <= c; }
+inline bool operator>=(unsigned short ch, QChar c) { return c <= ch; }
+inline bool operator<(QChar c, unsigned short ch) { return !(ch<=c); }
+inline bool operator<(unsigned short ch, QChar c) { return !(c<=ch); }
+inline bool operator>(QChar c, unsigned short ch) { return !(ch>=c); }
+inline bool operator>(unsigned short ch, QChar c) { return !(c>=ch); }
+
+inline bool operator==(int ch, QChar c) { return ch == c.ucs; }
+inline bool operator==(QChar c, int ch) { return ch == c.ucs; }
+inline bool operator!=(int ch, QChar c) { return ch != c.ucs; }
+inline bool operator!=(QChar c, int ch) { return ch != c.ucs; }
+inline bool operator<=(int ch, QChar c) { return ch <= c.ucs; }
+inline bool operator<=(QChar c, int ch) { return c.ucs <= ch; }
+inline bool operator>=(QChar c, int ch) { return ch <= c; }
+inline bool operator>=(int ch, QChar c) { return c <= ch; }
+inline bool operator<(QChar c, int ch) { return !(ch<=c); }
+inline bool operator<(int ch, QChar c) { return !(c<=ch); }
+inline bool operator>(QChar c, int ch) { return !(ch>=c); }
+inline bool operator>(int ch, QChar c) { return !(c>=ch); }
 
 #endif // QCHAR
