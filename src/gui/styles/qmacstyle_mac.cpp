@@ -3352,7 +3352,11 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                 if (act)
                     menuTDS = kThemeStatePressed;
                 int xp = x;
-                QCFString checkmark = QString(QChar(kCheckUnicode));
+                QCFString checkmark;
+                if (mi->checkType == QStyleOptionMenuItem::Exclusive)
+                    checkmark = QString(QChar(kDiamondUnicode));
+                else
+                    checkmark = QString(QChar(kCheckUnicode));
                 Point macpt;
                 SInt16 macbaseline;
                 GetThemeTextDimensions(checkmark, kThemeMenuItemMarkFont, menuTDS, false, &macpt,
