@@ -42,6 +42,15 @@ class QToolBar;
 class Q_EXPORT QToolButton: public QButton
 {
     Q_OBJECT
+    Q_PROPERTY( QIconSet, "onIconSet", onIconSet, setOnIconSet )
+    Q_PROPERTY( QIconSet, "offIconSet", offIconSet, setOffIconSet )
+    Q_PROPERTY( bool, "usesBigPixmap", usesBigPixmap, setUsesBigPixmap )
+    Q_PROPERTY( bool, "usesTextLabel", usesTextLabel, setUsesTextLabel )
+    Q_PROPERTY( QString, "textLabel", textLabel, setTextLabel )
+    Q_PROPERTY( int, "popupDelay", popupDelay, setPopupDelay )
+    Q_PROPERTY( bool, "autoRaise", autoRaise, setAutoRaise )
+    Q_PROPERTY( bool, "on", 0, setOn )
+	
 public:
     QToolButton( QWidget * parent, const char *name = 0 );
     QToolButton( const QPixmap & pm, const QString &textLabel, //### fjern 3.0
@@ -58,9 +67,13 @@ public:
     QSize sizeHint() const;
     QSizePolicy sizePolicy() const;
 
-    virtual void setIconSet( const QIconSet &, bool on = FALSE);
+    void setOnIconSet( const QIconSet& );
+    void setOffIconSet( const QIconSet& );
+    QIconSet onIconSet() const;    
+    QIconSet offIconSet( ) const;
+    virtual void setIconSet( const QIconSet &, bool on = FALSE );
     QIconSet iconSet( bool on = FALSE) const;
-
+    
     bool usesBigPixmap() const { return ubp; }
     bool usesTextLabel() const { return utl; }
     QString textLabel() const { return tl; }
