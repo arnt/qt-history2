@@ -92,9 +92,6 @@ public:
     int sortIndicatorSection() const;
     Qt::SortOrder sortIndicatorOrder() const;
 
-    QRect itemViewportRect(const QModelIndex &index) const;
-    void ensureItemVisible(const QModelIndex &index);
-
     void doItemsLayout();
 
 public slots:
@@ -132,17 +129,19 @@ protected:
     virtual void paintSection(QPainter *painter, const QRect &rect, int section) const;
     virtual QSize sectionSizeFromContents(int section) const;
 
-    QModelIndex itemAt(int x, int y) const;
-    bool isIndexHidden(const QModelIndex &index) const;
-
     int horizontalOffset() const;
     int verticalOffset() const;
+    void updateGeometries();
+
+    QRect itemViewportRect(const QModelIndex &index) const;
+    void ensureItemVisible(const QModelIndex &index);
+
+    QModelIndex itemAt(int x, int y) const;
+    bool isIndexHidden(const QModelIndex &index) const;
     
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState state);
-    void setSelection(const QRect&, QItemSelectionModel::SelectionFlags) {}
+    void setSelection(const QRect&, QItemSelectionModel::SelectionFlags);
     QRect selectionViewportRect(const QItemSelection &selection) const;
-
-    void updateGeometries();
 };
 
 #endif
