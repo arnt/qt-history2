@@ -1900,7 +1900,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
 #endif
                 break;
             }
-        }
+       }
         mouse_button_state = after_state;
 #ifdef DEBUG_MOUSE_MAPS
         qDebug("%s:%d Mouse_button_state = %d", __FILE__, __LINE__, mouse_button_state);
@@ -1909,11 +1909,11 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         switch(ekind) {
         case kEventMouseDragged:
         case kEventMouseMoved:
-        {
             if((QWidget *)qt_mouseover != widget) {
 #ifdef DEBUG_MOUSE_MAPS
                 qDebug("Entering: %p - %s (%s), Leaving %s (%s)", (QWidget*)widget,
-                       widget ? widget->metaObject()->className() : "none", widget ? widget->objectName().local8Bit() : "",
+                       widget ? widget->metaObject()->className() : "none", 
+                       widget ? widget->objectName().local8Bit() : "",
                        qt_mouseover ? qt_mouseover->metaObject()->className() : "none",
                        qt_mouseover ? qt_mouseover->objectName().local8Bit() : "");
 #endif
@@ -1921,7 +1921,6 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 qt_mouseover = widget;
             }
             break;
-        }
         case kEventMouseDown:
             if(button == Qt::LeftButton && !mac_context_timer && qt_mac_press_and_hold_context) {
                 remove_context_timer = false;

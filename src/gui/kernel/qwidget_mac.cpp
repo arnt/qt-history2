@@ -277,7 +277,7 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
         }
         break;
     case kEventClassMouse: {
-        handled_event = (SendEventToApplication(event) == noErr);
+        handled_event = false;
         break; }
     default:
         handled_event = false;
@@ -1371,9 +1371,6 @@ void QWidget::update(const QRegion &rgn)
     if(!testWState(Qt::WState_BlockUpdates) && isVisible())
         HIViewSetNeedsDisplayInRegion((HIViewRef)winId(), rgn.handle(true), true);
 }
-
-
-
 
 void QWidget::repaint(const QRegion &rgn)
 {
