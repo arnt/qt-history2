@@ -1983,9 +1983,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     	    result = QInputContext::startComposition();
 	    break;
 	case WM_IME_ENDCOMPOSITION:
-	    // don't call endComposition here, as it might send the
-	    // end event to the wrong window. Everything will work anyways...
-	    //result = QInputContext::endComposition();
+	    result = QInputContext::endComposition();
 	    break;
 	case WM_IME_COMPOSITION:
 	    result = QInputContext::composition( lParam );

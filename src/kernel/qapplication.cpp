@@ -54,6 +54,7 @@
 #include "qstyle.h"
 #include "qstylefactory.h"
 #include "qfile.h"
+#include "qinputcontext_p.h"
 
 #if defined(QT_THREAD_SUPPORT)
 #  include "qmutex.h"
@@ -3194,6 +3195,9 @@ void QApplication::setActiveWindow( QWidget* act )
 	QFocusEvent out( QEvent::FocusOut );
 	QWidget *tmp = focus_widget;
 	focus_widget = 0;
+#ifdef Q_WS_WIN
+	QInputContext::accept( tmp );
+#endif
 	QApplication::sendSpontaneousEvent( tmp, &out );
     } else if ( active_window ) {
 	QWidget *w = active_window->focusWidget();

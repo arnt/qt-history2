@@ -391,7 +391,7 @@ void QInputContext::setFocusHint( int x, int y, int /*width*/, int height, const
 bool QInputContext::endComposition( QWidget *fw )
 {
 #ifdef Q_IME_DEBUG
-    qDebug("endComposition!");
+    qDebug("endComposition! fw = %s", fw ? fw->className() : "(null)" );
 #endif
     bool result = TRUE;
     if( imePosition == -1 )
@@ -407,7 +407,7 @@ bool QInputContext::endComposition( QWidget *fw )
 	fw = qApp->focusWidget();
 
     if ( fw ) {
-	QIMEvent e( QEvent::IMEnd, imeComposition ? *imeComposition : QString::null, -1 );
+	QIMEvent e( QEvent::IMEnd, QString::null, -1 );
 	result = qt_sendSpontaneousEvent( fw, &e );
     }
 
@@ -417,6 +417,32 @@ bool QInputContext::endComposition( QWidget *fw )
 
     return result;
 }
+
+void QInputContext::accept( QWidget *fw )
+{
+    if ( !fw )
+	fw = qApp->focusWidget();
+#ifdef Q_IME_DEBUG
+    qDebug( "sending accept to focus widget %s", fw ? fw->className() : "(null)" );
+#endif
+
+    if ( fw && imePosition != -1 ) {
+	QIMEvent e( QEvent::IMEnd, imeComposition ? *imeComposition : QString::null, -1 );
+	qt_sendSpontaneousEvent( fw, &e );
+    }
+
+    if ( imeComposition )
+	*imeComposition = QString::null;
+    imePosition = -1;
+
+    if ( fw ) {
+	HIMC imc = getContext( fw->winId() );
+	notifyIME( imc, NI_COMPOSITIONSTR, CPS_CANCEL, 0 );
+	releaseContext( fw->winId(), imc );
+    }
+
+}
+
 
 bool QInputContext::startComposition()
 {
@@ -494,4 +520,27 @@ bool QInputContext::composition( LPARAM lParam )
     qDebug("imecomposition: cursor pos at %d, str=%x", imePosition, str[0].unicode() );
 #endif
     return result;
+}
+
+static HIMC defaultContext = 0;
+
+void QInputContext::enable( bool b)
+{
+    QWidget *fw = qApp->focusWidget();
+#ifdef Q_IME_DEBUG
+    qDebug( "enable: fw=%s, enable = %s", fw ? fw->className() : "(null)" , b ? "true" : "false" );
+#endif
+    HIMC imc = getContext( fw->winId() );
+    if( aimm ) {
+	aimm->SetOpenStatus( imc, b );
+    } else {
+	if ( !b ) {
+	    HIMC oldimc = ImmAssociateContext( fw->winId(), 0 );
+	    if ( !defaultContext )
+		defaultContext = oldimc;
+	} else if ( defaultContext ) {
+	    ImmAssociateContext( fw->winId(), defaultContext );
+	}
+    }
+    releaseContext( fw->winId(), imc );
 }

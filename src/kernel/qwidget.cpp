@@ -58,6 +58,7 @@
 #endif
 #if defined(Q_WS_WIN)
 #include "qt_windows.h"
+#include "qinputcontext_p.h"
 #endif
 #if defined(Q_WS_QWS)
 #include "qwsmanager_qws.h"
@@ -3016,6 +3017,15 @@ void QWidget::setFocus()
 
     if ( isActiveWindow() ) {
 	QWidget * prev = qApp->focus_widget;
+	if ( prev ) {
+	    if ( prev != this )
+		prev->resetInputContext();
+	}
+#if defined(Q_WS_WIN)
+	else {
+	    QInputContext::endComposition();
+	}
+#endif
 	qApp->focus_widget = this;
 #if defined(Q_WS_X11)
 	focusInputContext();
@@ -3035,10 +3045,10 @@ void QWidget::setFocus()
 
 	if ( prev != this ) {
 	    if ( prev ) {
-		prev->resetInputContext();
 		QFocusEvent out( QEvent::FocusOut );
 		QApplication::sendEvent( prev, &out );
 	    }
+
 	    if ( qApp->focus_widget == this ) {
 		QFocusEvent in( QEvent::FocusIn );
 		QApplication::sendEvent( this, &in );
