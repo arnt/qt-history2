@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QDATETIMEEDIT_H
-#define QDATETIMEEDIT_H
+#ifndef Q3DATETIMEEDIT_H
+#define Q3DATETIMEEDIT_H
 
 #ifndef QT_H
 #include "qwidget.h"
