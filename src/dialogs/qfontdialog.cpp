@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#5 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#6 $
 **
 ** C++ file skeleton
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#5 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#6 $");
 
 
 struct QFontDialogPrivate
@@ -461,7 +461,7 @@ bool QFontDialog::eventFilter( QObject * o , QEvent * e )
 		le->selectAll();
 	    return TRUE;
 	}
-    } else if ( e->type() == Event_FocusIn ) {
+    } else if ( e->type() == Event_FocusIn && style() == WindowsStyle ) {
 	if ( o == d->familyEdit )
 	    d->familyEdit->selectAll();
 	else if ( o == d->styleEdit )
