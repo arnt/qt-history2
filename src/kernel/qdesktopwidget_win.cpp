@@ -32,7 +32,7 @@ BOOL CALLBACK enumCallback( HMONITOR hMonitor, HDC, LPRECT, LPARAM )
     BOOL res = GetMonitorInfoA( hMonitor, &info );
 
     RECT r = info.rcMonitor;
-    QRect qr( QPoint( r.left, r.top ), QPoint( r.right, r.bottom ) );
+    QRect qr( QPoint( r.left, r.top ), QPoint( r.right - 1, r.bottom - 1 ) );
     QDesktopWidgetPrivate::rects.at( sn ) = qr;
 
     if ( info.dwFlags & MONITORINFOF_PRIMARY )
