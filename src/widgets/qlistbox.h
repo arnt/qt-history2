@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#49 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#50 $
 **
 ** Definition of QListBox widget class
 **
@@ -159,9 +159,10 @@ public:
 signals:
     void	highlighted( int index );
     void	selected( int index );
-    void	selected( int index, bool );
     void	highlighted( const char * );
     void	selected( const char * );
+
+    void	selectionChanged();
 
 protected:
     QListBoxItem *item( int index ) const;
@@ -193,6 +194,8 @@ private:
     void	insert( const QListBoxItem *, int, bool );
     void	change( const QListBoxItem *lbi, int );
     void	setMaxItemWidth( int );
+
+    void	emitChangedSignal( bool );
 
     uint	doDrag		: 1;
     uint	doAutoScroll	: 1;

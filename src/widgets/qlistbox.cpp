@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#109 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#110 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,8 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#109 $");
-
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#110 $");
 
 Q_DECLARE(QListM, QListBoxItem);
 
@@ -1273,6 +1272,7 @@ void QListBox::mouseReleaseEvent( QMouseEvent *e )
 	killTimer( itemList->timerId );
 	isTiming = FALSE;
     }
+    emitChangedSignal( FALSE );
 }
 
 /*!
@@ -1411,6 +1411,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
     default:
 	break;
     }
+    emitChangedSignal( FALSE );
 }
 
 
@@ -1422,6 +1423,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 
 void QListBox::focusInEvent( QFocusEvent * )
 {
+    emitChangedSignal( FALSE );
     if ( currentItem() < 0 && numRows() > 0 )
 	setCurrentItem( topItem() );
     updateCell( currentItem(), 0); //show focus
@@ -1435,6 +1437,7 @@ void QListBox::focusInEvent( QFocusEvent * )
 
 void QListBox::focusOutEvent( QFocusEvent * )
 {
+    emitChangedSignal( FALSE );
     if ( currentItem() >= 0 )
 	updateCell( currentItem(), 0); //show lack of focus
 }
@@ -1713,7 +1716,7 @@ void QListBox::toggleCurrentItem()
 
     i->selected = !i->selected;
     updateItem( currentItem() );
-    emit selected( currentItem(), i->selected );
+    emitChangedSignal( TRUE );
 }
 
 
@@ -1737,7 +1740,7 @@ void QListBox::setSelected( int index, bool select )
 
     lbi->selected = select;
     updateItem( index );
-    emit selected( currentItem(), select );
+    emitChangedSignal( TRUE );
 }
 
 
@@ -1756,6 +1759,7 @@ bool QListBox::isSelected( int i ) const
 }
 
 
+
 /*!
   Deselects all items. Does nothing if the listbox is a single-selection 
   listbox.
@@ -1765,4 +1769,27 @@ void QListBox::clearSelection()
 {
     for ( int i = 0; i < (int)count(); i++ )
 	setSelected( i, FALSE );
+}
+
+    
+    
+
+#if QT_VERSION == 200
+#error "Remove QListBox pointer."
+#endif
+
+static QListBox * changedListBox = 0;
+
+/*!  If \a lazy is FALSE, maybe emit the changed() signal.  If \a lazy
+  is TRUE, note that it's to be sent out at some later time.
+*/
+ 
+void QListBox::emitChangedSignal( bool lazy ) {
+    if ( !multiSelect )
+	return;
+
+    if ( changedListBox && (!lazy || changedListBox != this) )
+	emit changedListBox->selectionChanged();
+
+    changedListBox = lazy ? this : 0;
 }
