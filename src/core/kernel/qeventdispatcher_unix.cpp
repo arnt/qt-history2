@@ -669,7 +669,6 @@ bool QEventDispatcherUNIX::processEvents(QEventLoop::ProcessEventsFlags flags)
     }
 
     // activate socket notifiers
-    Q_Q(QEventDispatcherUNIX);
     if (! (flags & QEventLoop::ExcludeSocketNotifiers) && nsel > 0 && d->sn_highest >= 0) {
         // if select says data is ready on any socket, then set the socket notifier
         // to pending
