@@ -1578,26 +1578,14 @@ void QMenu::keyPressEvent(QKeyEvent *e)
     }
 
     if(!key_consumed) {                                // send to menu bar
-        if(QWidget *caused = d->causedPopup) {
-            while(QMenu *m = qt_cast<QMenu*>(caused))
-                caused = m->d->causedPopup;
-            if(QMenuBar *mb = qt_cast<QMenuBar*>(caused)) {
-                QMenuAction *oldAct = mb->d->currentAction;
-                QApplication::sendEvent(mb, e);
-                if(mb->d->currentAction != oldAct)
-                    key_consumed = true;
-            }
-        }
-
-
-        if(!key_consumed && (!e->state() || e->state() == AltButton || e->state() == ShiftButton) && e->text().length()==1) {
+        if((!e->state() || e->state() == AltButton || e->state() == ShiftButton) && e->text().length()==1) {
             int clashCount = 0;
             QMenuAction *first = 0, *currentSelected = 0, *firstAfterCurrent = 0;
             {
                 QChar c = e->text()[0].toUpper();
                 for(int i = 0; i < d->actionItems.size(); ++i) {
                     register QMenuAction *act = d->actionItems.at(i);
-                    QString s = act->action->menuText();
+                    QString s = act->action->text();
                     if(!s.isEmpty()) {
                         int ampersand = s.indexOf('&');
                         if(ampersand >= 0) {
@@ -1630,6 +1618,19 @@ void QMenu::keyPressEvent(QKeyEvent *e)
                 }
             }
         }
+        if(!key_consumed) {
+            if(QWidget *caused = d->causedPopup) {
+                while(QMenu *m = qt_cast<QMenu*>(caused))
+                    caused = m->d->causedPopup;
+                if(QMenuBar *mb = qt_cast<QMenuBar*>(caused)) {
+                    QMenuAction *oldAct = mb->d->currentAction;
+                    QApplication::sendEvent(mb, e);
+                    if(mb->d->currentAction != oldAct)
+                        key_consumed = true;
+                }
+            }
+        }
+
 #ifdef Q_OS_WIN32
         if (key_consumed && (e->key() == Key_Control || e->key() == Key_Shift || e->key() == Key_Meta))
             qApp->beep();
