@@ -912,22 +912,34 @@ void QLayout::invalidate()
 }
 
 
+// ###
+
+// this is an ugly workaround.  for some reason, the layout system
+// would add TWO QWidgetItems for some QWidgets, and can then later
+// delete one and derefence the other.  the scope of this bug is
+// unknown.  I submit this hack so that we can work while I look for
+// the 'double-add' bug.
+
+// ###
+
 static bool removeWidget( QLayoutItem *lay, QWidget *w )
 {
+    bool foo = FALSE;
     QLayoutIterator it = lay->iterator();
     QLayoutItem *child;
     while ( (child = it.current() ) ) {
 	if ( child->widget() == w ) {
 	    it.deleteCurrent();
 	    lay->invalidate();
-	    return TRUE;
+	    foo = TRUE;
 	} else if ( removeWidget( child, w ) ) {
 	    lay->invalidate();
-	    return TRUE;
+	    foo = TRUE;
+	} else {
+	    ++it;
 	}
-	++it;
     }
-    return FALSE;
+    return foo;
 }
 
 /*!
@@ -1292,7 +1304,7 @@ bool QLayout::activate()
     invalidateRecursive( this );
     if ( !topLevel )
 	return FALSE;
-    
+
     QWidget *mainW = mainWidget();
     if ( !mainW ) {
 #if defined( CHECK_NULL )
@@ -1695,10 +1707,10 @@ void QLayout::setAutoAdd( bool b )
 
 /*!
   \fn  bool QLayout::supportsMargin() const
-  
+
   Returns TRUE if this layout supports setMargin() on non-toplevel
   layouts.
-  
+
   \sa setMargin()
 */
 
@@ -1708,11 +1720,11 @@ void QLayout::setAutoAdd( bool b )
   margin() handling is implemented by the subclass. If \a b is
   FALSE (the default) QLayout will add margin() around top-level
   layouts.
-  
+
   If \a b is TRUE, margin handling needs to be implemented in
   setGeometry(), maximumSize(), minimumSize(), sizeHint() and
   heightForWidth().
-  
+
   \sa supportsMargin()
 */
 
@@ -1725,7 +1737,7 @@ void QLayout::setSupportsMargin( bool b )
 /*!
   Returns the rectangle that should be covered when the geometry of
   this layout is set to \a r, if this layout supports setAlignment().
-  
+
   The result is calculated from sizeHint() and expanding(). It is
   never larger than \a r.
  */
@@ -1742,10 +1754,10 @@ QRect QLayout::alignmentRect( const QRect &r ) const
     } else if ( hasHeightForWidth() ) {
 	s.setHeight( QMIN( s.height(), heightForWidth(s.width()) ) );
     }
-        
+
     int x = r.x();
     int y = r.y();
-    
+
     if ( a & Qt::AlignRight )
 	x = x + ( r.width() - s.width() );
     else if ( !(a & Qt::AlignLeft) )
@@ -1757,5 +1769,5 @@ QRect QLayout::alignmentRect( const QRect &r ) const
 	y = y + ( r.height() - s.height() ) / 2;
 
     return QRect( x, y, s.width(), s.height() );
-	 
+
 }
