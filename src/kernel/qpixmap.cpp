@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#41 $
 **
 ** Implementation of QPixmap class
 **
@@ -12,10 +12,12 @@
 
 #include "qpixmap.h"
 #include "qimage.h"
+#include "qwidget.h"
+#include "qpainter.h"
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#40 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#41 $")
 
 
 /*----------------------------------------------------------------------------
@@ -177,6 +179,35 @@ QPixmap &QPixmap::operator=( const QImage &image )
 
   \sa defaultDepth(), isNull(), QImage::convertDepth()
  ----------------------------------------------------------------------------*/
+
+
+/*----------------------------------------------------------------------------
+  \fn void QPixmap::fill( const QWidget *widget, const QPoint &ofs )
+  Fills the pixmap with the widget's background color or pixmap.
+
+  The \e ofs point is an offset in the widget.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  Fills the pixmap with the widget's background color or pixmap.
+
+  The \e xofs and \e yofs is an offset in the widget.
+ ----------------------------------------------------------------------------*/
+
+void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
+{
+    if ( widget->backgroundPixmap() ) {
+	QPainter p;
+	p.begin( this );
+	p.setPen( NoPen );
+	p.setBrush( QBrush( black,*widget->backgroundPixmap() ) );
+	p.setBrushOrigin( -xofs, -yofs );
+	p.drawRect( 0, 0, width(), height() );
+	p.end();
+    } else {
+	fill( widget->backgroundColor() );
+    }
+}
 
 
 /*----------------------------------------------------------------------------

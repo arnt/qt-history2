@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#47 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#48 $
 **
 ** Definition of QPixmap class
 **
@@ -42,8 +42,11 @@ public:
     static int  defaultDepth();
 
     void	fill( const QColor &fillColor=white );
+    void	fill( const QWidget *, int xofs, int yofs );
+    void	fill( const QWidget *, const QPoint &ofs );
     void	resize( int width, int height );
     void	resize( const QSize & );
+
 
     static  QPixmap  grabWindow( WId, int x=0, int y=0, int w=-1, int h=-1 );
 
@@ -111,6 +114,12 @@ inline void QPixmap::resize( const QSize &s )
 {
     resize( s.width(), s.height() );
 }
+
+inline void QPixmap::fill( const QWidget *w, const QPoint &ofs )
+{
+    fill( w, ofs.x(), ofs.y() );
+}
+
 
 inline bool QPixmap::isNull() const
 {
