@@ -17,8 +17,7 @@
 
 #include <qtundo.h>
 #include <qdesigner_command.h>
-
-#include <QtGui/QLabel>
+#include <qdesigner_widget.h>
 
 /*******************************************************************************
 ** BuddyConnection
@@ -39,7 +38,7 @@ void BuddyConnection::inserted()
 {
     QWidget *source = widget(EndPoint::Source);
     QWidget *target = widget(EndPoint::Target);
-    if (qobject_cast<QLabel*>(source) == 0) {
+    if (qobject_cast<QDesignerLabel*>(source) == 0) {
         qWarning("BuddyConnection::inserted(): not a label");
         return;
     }
@@ -51,7 +50,7 @@ void BuddyConnection::inserted()
 void BuddyConnection::removed()
 {
     QWidget *source = widget(EndPoint::Source);
-    if (qobject_cast<QLabel*>(source) == 0) {
+    if (qobject_cast<QDesignerLabel*>(source) == 0) {
         qWarning("BuddyConnection::removed(): not a label");
         return;
     }
@@ -75,7 +74,7 @@ QWidget *BuddyEditor::widgetAt(const QPoint &pos) const
     QWidget *w = ConnectionEdit::widgetAt(pos);
 
     if (state() == Editing) {
-        QLabel *label = qobject_cast<QLabel*>(w);
+        QDesignerLabel *label = qobject_cast<QDesignerLabel*>(w);
         if (label == 0)
             return 0;
         int cnt = connectionCount();

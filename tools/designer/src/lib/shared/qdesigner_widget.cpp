@@ -114,3 +114,9 @@ void QDesignerWidget::dragEnterEvent(QDragEnterEvent *)
 {
 //    e->setAccepted(QTextDrag::canDecode(e));
 }
+
+QDesignerLabel::QDesignerLabel(QWidget *parent)
+    : QLabel(parent)
+{
+    qDebug() << "created QDesignerLabel";
+}

@@ -74,18 +74,20 @@ private:
 class QT_SHARED_EXPORT QDesignerLabel : public QLabel
 {
     Q_OBJECT
-    Q_PROPERTY(QByteArray buddy READ buddyWidget WRITE setBuddyWidget)
+    Q_PROPERTY(QByteArray buddy READ buddy WRITE setBuddy)
 public:
-    QDesignerLabel(QWidget *parent = 0)
-        : QLabel(parent) {}
+    using QLabel::buddy;
+    using QLabel::setBuddy;
 
-    inline void setBuddyWidget(const QByteArray &b)
+    QDesignerLabel(QWidget *parent = 0);
+
+    inline void setBuddy(const QByteArray &b)
     {
         myBuddy = b;
         updateBuddy();
     }
 
-    inline QByteArray buddyWidget() const
+    inline QByteArray buddy() const
     { return myBuddy; }
 
 protected:

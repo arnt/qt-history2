@@ -87,8 +87,6 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
         w = new QDesignerStackedWidget(parentWidget);
     } else if (widgetName == QLatin1String("QToolBox")) {
         w = new QDesignerToolBox(parentWidget);
-    } else if (widgetName == QLatin1String("QLabel")) {
-        w = new QDesignerLabel(parentWidget);
     } else if (widgetName == QLatin1String("QLayoutWidget")) {
         w = fw ? new QLayoutWidget(fw, parentWidget) : new QWidget(parentWidget);
     } else if (widgetName == QLatin1String("Spacer")) {
