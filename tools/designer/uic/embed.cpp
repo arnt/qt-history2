@@ -194,7 +194,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 
 	out << "\n"
 	    "static QDict<QImage> *" << cProject << "image_dict = 0;\n"
-	    "static QImage& uic_findImage( const QString& name )\n"
+	    "static QImage& uic_findImage_" << cProject << "( const QString& name )\n"
 	    "{\n"
 	    "    if ( !" << cProject << "image_dict ) {\n"
 	    "        " << cProject << "image_dict = new QDict<QImage>;\n"
@@ -235,7 +235,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	out << "    const QMimeSource* data( const QString& abs_name ) const {" << endl;
 	out << "\tQImage img;" << endl;
 	out << "\tif ( !!abs_name )" << endl;
-	out << "\t    img = uic_findImage( abs_name );" << endl;
+	out << "\t    img = uic_findImage_" << cProject << "( abs_name );" << endl;
 	out << "\tif ( !img.isNull() ) {" << endl;
 	out << "\t    QMimeSourceFactory::defaultFactory()->setImage( abs_name, img );" << endl;
 	out << "\t    return QMimeSourceFactory::defaultFactory()->data( abs_name );" << endl;
