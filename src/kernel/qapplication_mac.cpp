@@ -1234,17 +1234,46 @@ static bool qt_try_modal( QWidget *widget, EventRef event )
     return !block_event;
 }
 
+static EventLoopTimerRef mac_trap_context = NULL;
+QMAC_PASCAL void 
+QApplication::qt_trap_context_mouse(EventLoopTimerRef r, void *)
+{
+    if(r == mac_trap_context)
+	mac_trap_context = NULL;
+    else
+	return;
+
+    //figure out which widget to send it to
+    QPoint where = QCursor::pos();
+    QWidget *widget = NULL;
+    if( qt_button_down )
+	widget = qt_button_down;
+    else
+	widget = QApplication::widgetAt( where.x(), where.y(), true );
+
+    //finally send the event to the widget if its not the popup
+    if ( widget ) {
+	QPoint plocal(widget->mapFromGlobal( where ));
+	QMouseEvent qme( QEvent::MouseButtonPress, plocal, where, 
+			 QMouseEvent::RightButton, QMouseEvent::RightButton );
+#ifdef DEBUG_MOUSE_MAPS
+	qDebug("Going to send hacked context menu: %s %s", widget->className(), widget->name());
+#endif
+	QApplication::sendEvent( widget, &qme );
+    }
+}
 
 QMAC_PASCAL OSStatus
 QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *data)
 {
+    bool remove_context_timer = TRUE;
     QApplication *app = (QApplication *)data;
     if ( app->macEventFilter( event ) )
 	return 1;
     QWidget *widget = NULL;
 
-    UInt32 ekind = GetEventKind(event);
-    switch(GetEventClass(event))
+    UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);
+    switch(eclass)
     {
     case kEventClassMouse:
     {
@@ -1257,24 +1286,29 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	}
 
 	QEvent::Type etype = QEvent::None;
-
+	int keys;
+	GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, NULL,
+			  sizeof(keys), NULL, &keys);
+	keys = get_modifiers(keys);
 	int button=QEvent::NoButton, state=0, wheel_delta=0, after_state=mouse_button_state;
 	if(ekind == kEventMouseDown || ekind == kEventMouseUp) {
 	    EventMouseButton mb;
 	    GetEventParameter(event, kEventParamMouseButton, typeMouseButton, NULL,
 			      sizeof(mb), NULL, &mb);
-	    if(mb == kEventMouseButtonPrimary)
-		button = QMouseEvent::LeftButton;
-	    else if(mb == kEventMouseButtonSecondary)
-		button = QMouseEvent::RightButton;
-	    else
-		button = QMouseEvent::MidButton;
-	}
 
-	int keys;
-	GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, NULL,
-			  sizeof(keys), NULL, &keys);
-	keys = get_modifiers(keys);
+	    if(mb == kEventMouseButtonPrimary) {
+		if(keys & Qt::ControlButton) {
+		    keys &= ~(Qt::ControlButton);
+		    button = QMouseEvent::RightButton;
+		} else {
+		    button = QMouseEvent::LeftButton;
+		}
+	    } else if(mb == kEventMouseButtonSecondary) {
+		button = QMouseEvent::RightButton;
+	    } else {
+		button = QMouseEvent::MidButton;
+	    }
+	}
 
 	Point where;
 	GetEventParameter(event, kEventParamMouseLocation, typeQDPoint, NULL,
@@ -1300,6 +1334,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    break;
 	case kEventMouseDragged:
 	case kEventMouseMoved:
+	    remove_context_timer = FALSE;
 	    etype = QEvent::MouseMove;
 	    state = after_state;
 	    break;
@@ -1392,6 +1427,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    break;
 	}
 	case kEventMouseDown:
+	    if(button == QMouseEvent::LeftButton && !mac_trap_context) {
+		remove_context_timer = FALSE;
+		InstallEventLoopTimer(GetMainEventLoop(), .250, 0, 
+				      NewEventLoopTimerUPP(qt_trap_context_mouse), app, 
+				      &mac_trap_context);
+	    }
 	    qt_button_down = widget;
 	    break;
 	case kEventMouseUp:
@@ -1582,7 +1623,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		app->setActiveWindow(NULL);
 	    while(app->inPopupMode())
 		app->activePopupWidget()->close();
-	}
+	} 
 	break;
     case kEventClassApplication:
 	if(ekind == kEventAppActivated)
@@ -1625,6 +1666,11 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	}
 	break;
     }
+    }
+
+    if(remove_context_timer && mac_trap_context) {
+	RemoveEventLoopTimer(mac_trap_context);
+	mac_trap_context = NULL;
     }
     return noErr;
 }

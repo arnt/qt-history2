@@ -100,6 +100,7 @@ typedef struct OpaquePMPageFormat *PMPageFormat;
 typedef struct Point Point;
 typedef struct FSSpec FSSpec;
 typedef struct OpaqueEventHandlerCallRef*  EventHandlerCallRef;
+typedef struct OpaqueEventLoopTimerRef* EventLoopTimerRef;
 typedef struct OpaqueEventRef*          EventRef;
 typedef long int OSStatus;
 typedef struct OpaqueScrapRef *ScrapRef;

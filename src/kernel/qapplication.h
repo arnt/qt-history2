@@ -215,10 +215,7 @@ public:
     static void	    setEffectEnabled( Qt::UIEffect, bool enable = TRUE );
 
 #if defined(Q_WS_MAC)
-    bool	     do_mouse_down(Point *);
     virtual bool     macEventFilter( EventRef );
-    static QMAC_PASCAL OSStatus globalEventProcessor(EventHandlerCallRef,  EventRef, void *);
-    friend void qt_mac_destroy_widget(QWidget *);
 #elif defined(Q_WS_WIN)
     virtual bool     winEventFilter( MSG * );
 #elif defined(Q_WS_X11)
@@ -279,6 +276,14 @@ private:
 #if defined(Q_WS_QWS)
     static QWidget *findChildWidget( const QWidget *p, const QPoint &pos );
     static QWidget *findWidget( const QObjectList&, const QPoint &, bool rec );
+#endif
+
+#if defined(Q_WS_MAC)
+    bool	     do_mouse_down(Point *);
+    static QMAC_PASCAL OSStatus globalEventProcessor(EventHandlerCallRef,  EventRef, void *);
+    static QMAC_PASCAL void qt_trap_context_mouse(EventLoopTimerRef, void *);
+    friend void qt_mac_destroy_widget(QWidget *);
+    friend void qt_init(int *, char **, QApplication::Type);
 #endif
 
 #if defined(QT_THREAD_SUPPORT)
