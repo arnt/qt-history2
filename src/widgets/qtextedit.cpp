@@ -2159,10 +2159,7 @@ void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
 	QTextCursor c1 = *cursor;
 	QTextCursor c2 = *cursor;
 	c1.gotoLineStart();
-	c2.gotoLineStart();
-	c2.gotoDown();
-	if (c1 == c2)
-	    c2.gotoLineEnd();
+	c2.gotoLineEnd();
 	doc->setSelectionStart( QTextDocument::Standard, c1 );
 	doc->setSelectionEnd( QTextDocument::Standard, c2 );
 	*cursor = c2;
