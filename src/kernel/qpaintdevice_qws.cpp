@@ -51,7 +51,7 @@ QPaintDevice::~QPaintDevice()
 }
 
 
-bool QPaintDevice::cmd( int c, QPainter *p, QPDevCmdParam *pa )
+bool QPaintDevice::cmd( int, QPainter *, QPDevCmdParam * )
 {
 #if defined(CHECK_STATE)
     qWarning( "QPaintDevice::cmd: Not a paintable device" );

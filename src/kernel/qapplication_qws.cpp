@@ -121,7 +121,7 @@ extern "C" void dumpmem(const char* m)
     static int init=0;
     static int prev=0;
     FILE* f = fopen("/proc/meminfo","r");
-    char line[100];
+    //    char line[100];
     int total=0,used=0,free=0,shared=0,buffers=0,cached=0;
     fscanf(f,"%*[^M]Mem: %d %d %d %d %d %d",&total,&used,&free,&shared,&buffers,&cached);
     used -= buffers + cached;

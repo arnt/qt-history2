@@ -112,7 +112,7 @@ bool QPrinter::aborted() const
 }
 
 
-bool QPrinter::setup( QWidget * parent )
+bool QPrinter::setup( QWidget * /*parent*/ )
 {
     return TRUE;
 }

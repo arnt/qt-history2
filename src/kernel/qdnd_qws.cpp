@@ -30,6 +30,7 @@
 #include "qobjectlist.h"
 #include "qbitmap.h"
 
+#if 0
 static QPixmap *defaultPm = 0;
 
 #define noDropCursorWidth 20
@@ -63,18 +64,18 @@ static const char* default_pm[] = {
 " X X X X X X ",
 "X X X X X X X",
 };
-
-void QDragManager::timerEvent( QTimerEvent* e )
+#endif
+void QDragManager::timerEvent( QTimerEvent*  )
 {
 }
 
-bool QDragManager::eventFilter( QObject * o, QEvent * e)
+bool QDragManager::eventFilter( QObject * , QEvent * )
 {
     return FALSE;
 }
 
 
-void QDragManager::updateMode( ButtonState newstate )
+void QDragManager::updateMode( ButtonState /*newstate*/ )
 {
 }
 
@@ -84,11 +85,11 @@ void QDragManager::updateCursor()
 }
 
 
-void QDragManager::cancel( bool deleteSource )
+void QDragManager::cancel( bool /*deleteSource*/ )
 {
 }
 
-void QDragManager::move( const QPoint & globalPos )
+void QDragManager::move( const QPoint & /*globalPos*/ )
 {
 }
 
@@ -97,22 +98,22 @@ void QDragManager::drop()
 {
 }
 
-bool QDropEvent::provides( const char *mimeType ) const
+bool QDropEvent::provides( const char */*mimeType*/ ) const
 {
     return FALSE;
 }
 
-QByteArray QDropEvent::encodedData( const char *format ) const
+QByteArray QDropEvent::encodedData( const char */*format*/ ) const
 {
     return QByteArray();
 }
 
-const char* QDropEvent::format( int n ) const
+const char* QDropEvent::format( int ) const
 {
     return 0;
 }
 
-bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
+bool QDragManager::drag( QDragObject *, QDragObject::DragMode )
 {
     return FALSE;
 }

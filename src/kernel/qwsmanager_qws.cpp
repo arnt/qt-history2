@@ -750,7 +750,7 @@ void QWSButton::paint()
   This class is non-portable.  It is available \e only in Qt/Embedded.
 */
 
-const QPixmap* QWSDefaultDecorator::pixmapFor(const QWidget* w, QWSManager::Region type, bool on, int& xoff, int& yoff)
+const QPixmap* QWSDefaultDecorator::pixmapFor(const QWidget* w, QWSManager::Region type, bool on, int& xoff, int& /*yoff*/)
 {
     static QPixmap *menuPixmap=0;
     static QPixmap *closePixmap=0;

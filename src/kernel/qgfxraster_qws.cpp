@@ -3658,7 +3658,7 @@ bool QScreen::initCard()
 	} else {
 	    mtrr_sentry sentry;
 	    sentry.base=(unsigned long int)finfo.smem_start;
-	    qDebug("Physical framebuffer address %ld",finfo.smem_start);
+	    qDebug("Physical framebuffer address %p",finfo.smem_start);
 	    // Size needs to be in 4k chunks, but that's not always
 	    // what we get thanks to graphics card registers. Write combining
 	    // these is Not Good, so we write combine what we can
@@ -3678,7 +3678,6 @@ bool QScreen::initCard()
 
     if(vinfo.bits_per_pixel==8) {
 	screencols=256;
-	unsigned int loopc;
 	fb_cmap cmap;
 	cmap.start=0;
 	cmap.len=256;
@@ -3692,6 +3691,7 @@ bool QScreen::initCard()
 		    malloc(sizeof(unsigned short int)*256);
 #if QT_FEATURE_QWS_DEPTH_8GRAYSCALE
 	// Build greyscale palette
+	unsigned int loopc;
 	for(loopc=0;loopc<256;loopc++) {
 	    cmap.red[loopc]=loopc << 8;
 	    cmap.green[loopc]=loopc << 8;
@@ -3700,6 +3700,7 @@ bool QScreen::initCard()
 	    screenclut[loopc]=qRgb(loopc,loopc,loopc);
 	}
 #elif QT_FEATURE_QWS_DEPTH_8DIRECT
+	unsigned int loopc;
 	for(loopc=0;loopc<256;loopc++) {
 	    int a,b,c;
 	    a=((loopc & 0xe0) >> 5) << 5;
