@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#81 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#82 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -21,7 +21,7 @@
 #include <ctype.h>
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#81 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#82 $");
 
 
 /*!
@@ -84,6 +84,14 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#81 $");
   To get font size information use the class QFontMetrics.
 
   QFont objects make use of implicit sharing.
+  
+  For more general information on fonts, see the
+  <a href="http://www.ora.com/homepages/comp.fonts/ifa/">Internet Font
+  Archive</a> and in particular its extensive FAQs: <ul>
+  <li> <a href="http://www.oreilly.com/homepages/comp.fonts/FAQ/">questions
+  about fonts in general</a> (from <a href="news:comp.fonts">comp.fonts</a>)
+  <li> <a href="http://www.ora.com/homepages/comp.fonts/ifa/faq.htm">questions
+  about the IFA and fonts on the Internet.</a></ul>
 
   \sa QApplication::setFont(), QWidget::setFont(), QPainter::setFont()
 */
@@ -116,7 +124,7 @@ void QFont::init()
 
 /*!
   \internal
-  Constructs a font that gets a 
+  Constructs a font that gets a
   \link shclass.html deep copy\endlink of \e data.
 */
 
@@ -309,7 +317,7 @@ int QFont::pointSize() const
 /*!
   Sets the point size to \a pointSize. The point size must be greater
   than zero.
-  
+
   Example:
   \code
     QFont font( "courier" );
@@ -525,8 +533,8 @@ bool QFont::fixedPitch() const
 
 /*!
   Sets fixed pitch on or off.
-  
-  A fixed pitch font is a font that has constant character pixel width.  
+
+  A fixed pitch font is a font that has constant character pixel width.
   If the mode selected is not available the other will be used.
 
   \sa fixedPitch(), QFontInfo, \link fontmatch.html font matching\endlink
@@ -1600,7 +1608,7 @@ bool QFontInfo::strikeOut() const
 
 /*!
   Returns the fixed pitch value of the matched window system font.
-  A fixed pitch font is a font that has constant character pixel width.  
+  A fixed pitch font is a font that has constant character pixel width.
   \sa QFont::fixedPitch()
 */
 
@@ -1727,7 +1735,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
   Horizontal alignment defaults to AlignLeft and vertical alignment
   defaults to AlignTop.
 
-  If several of the horizontal or several of the vertical alignment flags   
+  If several of the horizontal or several of the vertical alignment flags
   are set, the resulting alignment is undefined.
 
   These flags are defined in qwindefs.h.
