@@ -2292,6 +2292,7 @@ void QApplication::installTranslator( QTranslator * mf )
 	++it;
 	postEvent( w, new QEvent( QEvent::LanguageChange ) );
     }
+    delete list;
 }
 
 /*!
@@ -2319,6 +2320,7 @@ void QApplication::removeTranslator( QTranslator * mf )
 	    ++it;
 	    postEvent( w, new QEvent( QEvent::LanguageChange ) );
 	}
+	delete list;
     }
 }
 

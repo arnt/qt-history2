@@ -595,6 +595,8 @@ bool QTranslator::save( const QString & filename, SaveMode mode )
 
 void QTranslator::clear()
 {
+    bool wasUsed = d->messages && d->messages->count();
+
     if ( d->unmapPointer && d->unmapLength ) {
 #if defined(QT_USE_MMAP)
 	munmap( d->unmapPointer, d->unmapLength );
@@ -624,7 +626,7 @@ void QTranslator::clear()
     d->messages = 0;
 #endif
 
-    if ( qApp && qApp->translators && qApp->translators->contains(this) && qApp->loopLevel() ) {
+    if ( qApp && qApp->loopLevel() && wasUsed ) {
 	qApp->setReverseLayout( qt_detectRTLLanguage() );
 
 	QWidgetList *list = QApplication::topLevelWidgets();
