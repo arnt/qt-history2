@@ -46,6 +46,7 @@ QMenuData
   make it public or provide another API (e.g. methods in QMenuData) for
   asking about the contents of an existing menu.
 
+
 Specific enhancements
 ---------------------
 
@@ -75,7 +76,8 @@ QWorkspace (vohi)
   Support focusPolicy() for mdi clients to prevent them becoming the active window
 
 QTabWidget
-  QWidget *page( int pos) function like in QWizard
+  QWidget *page( int pos ) function like in QWizard
+
 
 Feature Requests
 ----------------
@@ -129,6 +131,7 @@ QFont/X11 (brad & lars)
   that contains eg all of arabic, chinese and russian. Will make 
   QFont/X11 more compatible with the windows version, and remove the 
   burden of handling charset/encoding issues from the developer.
+
 
 New functionality
 -----------------
@@ -203,6 +206,9 @@ XML Query mechanism (rms?)
     Also consider integrating this mechanism into the database classes (would
     require a SQL parser though...).
 
+Multi-head display support?
+    ... was asked by a lot of people on qt-interest.
+
 
 Extending existing functionality
 --------------------------------
@@ -230,7 +236,7 @@ QThread (Volker, Brad)
     Evaluate possibility of event-loop passing and provide API for
     accessing low-level properties (e.g. priority and rights)
 
-Widgetflags (Matthias )
+Widgetflags (Matthias)
     Reordering, cleanups. Introducing of a new WType_Dialog for
     secondard windows. Fix testWState and testWFlags. Currently
     they return true if _something_ is set. This is pretty pointless
