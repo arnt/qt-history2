@@ -677,109 +677,104 @@ bool QX11PaintEngine::end()
     return true;
 }
 
-void QX11PaintEngine::drawLine(const QLineF &line)
+void QX11PaintEngine::drawLines(const QLine *lines, int lineCount)
 {
-    if (!isActive())
-        return;
-
+    Q_ASSERT(lines);
+    Q_ASSERT(lineCount);
     if (d->use_path_fallback) {
-        QPainterPath path(line.p1());
-        path.lineTo(line.p2());
-        drawPath(path);
+        for (int i = 0; i < lineCount; ++i) {
+            QPainterPath path(lines[i].p1());
+            path.lineTo(lines[i].p2());
+            drawPath(path);
+        }
         return;
     }
     if (d->cpen.style() != Qt::NoPen) {
-        XDrawLine(d->dpy, d->hd, d->gc,
-                  qRound(line.x1()), qRound(line.y1()),
-                  qRound(line.x2()), qRound(line.y2()));
+        for (int i = 0; i < lineCount; ++i)
+            XDrawLine(d->dpy, d->hd, d->gc,
+                      qRound(lines[i].x1()), qRound(lines[i].y1()),
+                      qRound(lines[i].x2()), qRound(lines[i].y2()));
     }
 }
 
-void QX11PaintEngine::drawRect(const QRectF &rect)
+void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
 {
-    if (!isActive())
-        return;
+    Q_ASSERT(rects);
+    Q_ASSERT(rectCount);
 
     if (d->use_path_fallback) {
-        QPainterPath path;
-        path.addRect(rect);
-        drawPath(path);
+        for (int i = 0; i < rectCount; ++i) {
+            QPainterPath path;
+            path.addRect(rects[i]);
+            drawPath(path);
+        }
         return;
     }
-
-    QRect r = rect.toRect().intersect(d->polygonClipper.boundingRect()).normalize();
 
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
     ::Picture pict = d->picture;
 
     if (X11->use_xrender && !testf(MonoDev) && pict && d->cbrush.style() != Qt::NoBrush
-        && d->cbrush.color().alpha() != 255) {
-	XRenderColor xc;
-	QColor qc = d->cbrush.color();
+        && d->cbrush.color().alpha() != 255)
+    {
+        XRenderColor xc;
+        QColor qc = d->cbrush.color();
 
-	const uint A = qc.alpha(),
-		   R = qc.red(),
-		   G = qc.green(),
-		   B = qc.blue();
+        const uint A = qc.alpha(),
+                   R = qc.red(),
+                   G = qc.green(),
+                   B = qc.blue();
 
-	xc.alpha = (A | A << 8);
-	xc.red   = (R | R << 8) * xc.alpha / 0x10000;
-	xc.green = (B | G << 8) * xc.alpha / 0x10000;
-	xc.blue  = (B | B << 8) * xc.alpha / 0x10000;
-        XRenderFillRectangle(d->dpy, PictOpOver, pict, &xc, r.x(), r.y(), r.width(), r.height());
-	if (d->cpen.style() != Qt::NoPen)
-	    XDrawRectangle(d->dpy, d->hd, d->gc, r.x(), r.y(), r.width(), r.height());
+        xc.alpha = (A | A << 8);
+        xc.red   = (R | R << 8) * xc.alpha / 0x10000;
+        xc.green = (B | G << 8) * xc.alpha / 0x10000;
+        xc.blue  = (B | B << 8) * xc.alpha / 0x10000;
+        for (int i = 0; i < rectCount; ++i) {
+            QRect r = rects[i].intersect(d->polygonClipper.boundingRect()).normalize();
+            XRenderFillRectangle(d->dpy, PictOpOver, pict, &xc, r.x(), r.y(), r.width(), r.height());
+            if (d->cpen.style() != Qt::NoPen)
+                XDrawRectangle(d->dpy, d->hd, d->gc, r.x(), r.y(), r.width(), r.height());
+        }
     } else
 #endif // !QT_NO_XFT && !QT_NO_XRENDER
     {
-        if (d->cbrush.style() != Qt::NoBrush)
-            XFillRectangle(d->dpy, d->hd, d->gc_brush, r.x(), r.y(), r.width(), r.height());
+        if (d->cbrush.style() != Qt::NoBrush && d->cpen.style() != Qt::NoPen) {
+            for (int i = 0; i < rectCount; ++i) {
+                QRect r = rects[i].intersect(d->polygonClipper.boundingRect()).normalize();
+                if (d->cbrush.style() != Qt::NoBrush)
+                    XFillRectangle(d->dpy, d->hd, d->gc_brush, r.x(), r.y(), r.width(), r.height());
+                if (d->cpen.style() != Qt::NoPen)
+                    XDrawRectangle(d->dpy, d->hd, d->gc, r.x(), r.y(), r.width(), r.height());
+            }
+        } else {
+            QVarLengthArray<XRectangle> xrects(rectCount);
+            for (int i = 0; i < rectCount; ++i) {
+                QRect r = rects[i].intersect(d->polygonClipper.boundingRect()).normalize();
+                xrects[i].x = short(r.x());
+                xrects[i].y = short(r.y());
+                xrects[i].width = ushort(r.width());
+                xrects[i].height = ushort(r.height());
+            }
+
+            if (d->cbrush.style() != Qt::NoBrush && d->cpen.style() == Qt::NoPen) {
+                XFillRectangles(d->dpy, d->hd, d->gc_brush, xrects.data(), rectCount);
+            } else if (d->cpen.style() != Qt::NoPen && d->cbrush.style() == Qt::NoBrush) {
+                XDrawRectangles(d->dpy, d->hd, d->gc, xrects.data(), rectCount);
+            }
+        }
+    }
+}
+
+void QX11PaintEngine::drawPoints(const QPoint *points, int pointCount)
+{
+    Q_ASSERT(points);
+    Q_ASSERT(pointCount);
+
+    for (int i = 0; i < pointCount; ++i) {
+        QPointF xformed = d->matrix.map(points[i]);
         if (d->cpen.style() != Qt::NoPen)
-            XDrawRectangle(d->dpy, d->hd, d->gc, r.x(), r.y(), r.width(), r.height());
+            XDrawPoint(d->dpy, d->hd, d->gc, qRound(xformed.x()), qRound(xformed.y()));
     }
-}
-
-void QX11PaintEngine::drawRects(const QRectF *rects, int rectCount)
-{
-    if (!isActive())
-        return;
-
-    if (d->use_path_fallback) {
-        QPainterPath path;
-        for (int i = 0; i < rectCount; ++i)
-            path.addRect(rects[i]);
-        drawPath(path);
-        return;
-    }
-
-    if (d->cbrush.style() != Qt::NoBrush && d->cpen.style() != Qt::NoPen) {
-	for (int i = 0; i < rectCount; ++i)
-	    drawRect(rects[i]);
-        return;
-    }
-
-    QVarLengthArray<XRectangle> xrects(rectCount);
-    for (int i = 0; i < rectCount; ++i) {
-	xrects[i].x = short(qIntCast(rects[i].x()));
-	xrects[i].y = short(qIntCast(rects[i].y()));
-	xrects[i].width = ushort(qIntCast(rects[i].width()));
-	xrects[i].height = ushort(qIntCast(rects[i].height()));
-    }
-
-    if (d->cbrush.style() != Qt::NoBrush && d->cpen.style() == Qt::NoPen) {
-	XFillRectangles(d->dpy, d->hd, d->gc_brush, xrects.data(), rectCount);
-    } else if (d->cpen.style() != Qt::NoPen && d->cbrush.style() == Qt::NoBrush) {
-        XDrawRectangles(d->dpy, d->hd, d->gc, xrects.data(), rectCount);
-    }
-}
-
-void QX11PaintEngine::drawPoint(const QPointF &p)
-{
-    if (!isActive())
-        return;
-    QPointF xformed = d->matrix.map(p);
-    if (d->cpen.style() != Qt::NoPen)
-        XDrawPoint(d->dpy, d->hd, d->gc, qRound(xformed.x()), qRound(xformed.y()));
 }
 
 QPainter::RenderHints QX11PaintEngine::supportedRenderHints() const
@@ -969,7 +964,7 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
     }
 }
 
-void QX11PaintEngine::drawEllipse(const QRectF &rect)
+void QX11PaintEngine::drawEllipse(const QRect &rect)
 {
     if (d->use_path_fallback) {
         QPainterPath path;
@@ -978,11 +973,10 @@ void QX11PaintEngine::drawEllipse(const QRectF &rect)
         return;
     }
 
-    QRect r = rect.toRect();
-    int x = r.x();
-    int y = r.y();
-    int w = r.width();
-    int h = r.height();
+    int x = rect.x();
+    int y = rect.y();
+    int w = rect.width();
+    int h = rect.height();
     if (w < 1 || h < 1)
         return;
     if (w == 1 && h == 1) {

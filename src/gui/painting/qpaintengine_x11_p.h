@@ -73,11 +73,18 @@ public:
     void updateMatrix(const QMatrix &matrix);
     void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
 
-    void drawLine(const QLineF &line);
-    void drawRect(const QRectF &r);
-    void drawRects(const QRectF *lines, int lineCount);
-    void drawPoint(const QPointF &p);
-    void drawEllipse(const QRectF &r);
+    void drawLines(const QLine *lines, int lineCount);
+    inline void drawLines(const QLineF *lines, int lineCount) { QPaintEngine::drawLines(lines, lineCount); }
+
+    void drawRects(const QRect *rects, int rectCount);
+    inline void drawRects(const QRectF *rects, int rectCount) { QPaintEngine::drawRects(rects, rectCount); }
+
+    void drawPoints(const QPoint *points, int pointCount);
+    inline void drawPoints(const QPointF *points, int pointCount) { QPaintEngine::drawPoints(points, pointCount); }
+
+    void drawEllipse(const QRect &r);
+    inline void drawEllipse(const QRectF &r) { QPaintEngine::drawEllipse(r); }
+
     virtual void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
     inline void drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode)
         { QPaintEngine::drawPolygon(points, pointCount, mode); }
