@@ -503,10 +503,11 @@ QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l)
                 strOff += i * sizeof(QChar);
                 return QTextStreamPrivate::TS_END_OF_INPUT;
             } else if(int end = ts_end(data+i, remaining - i, end_flags)) {
-                i += end - leaveEnd;
                 if(l)
                     *l = i;
                 strOff += i * sizeof(QChar);
+                if (!leaveEnd)
+                    strOff += end * sizeof(QChar);
                 return QTextStreamPrivate::TS_END_FOUND;
             }
             if(out)
@@ -641,7 +642,6 @@ QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l)
                     }
                     if(end) {
                         used_len += (end - leaveEnd);
-                        rnum += (end - 1);
                         ret = QTextStreamPrivate::TS_END_FOUND;
                         break;
                     }
@@ -678,13 +678,14 @@ QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l)
                     if(!end)
                         end = ts_end(&next_c, 1, end_flags);
                     if(end) {
-                        used_len += (end - leaveEnd);
-                        rnum += (end - leaveEnd);
+                        if (!leaveEnd)
+                            used_len += 2;
                         ret = QTextStreamPrivate::TS_END_FOUND;
                     }
                 }
                 if(ret == QTextStreamPrivate::TS_END_FOUND) {
-                    ungetcBuf += next_c;
+                    if ((next_c != QLatin1Char('\n') && next_c != QLatin1Char('\r')) || leaveEnd)
+                        ungetcBuf += next_c;
                 } else {
                     if(out)
                         *(out++) = next_c;
@@ -2462,7 +2463,7 @@ bool QTextStream::atEnd() const
 {
     Q_D(const QTextStream);
     //just append directly onto the string (optimization)
-    if (d->sourceType == QTextStreamPrivate::String) 
+    if (d->sourceType == QTextStreamPrivate::String)
         return d->strOff == (d->str->length()*sizeof(QChar));
     //device
     return ((!d->dev || d->dev->atEnd()) && d->ungetcBuf.isEmpty());
