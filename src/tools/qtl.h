@@ -291,7 +291,7 @@ void qDeleteAll(InputIterator b, InputIterator e)
 template <class Container>
 void qDeleteAll(const Container &c)
 {
-    return qDeleteAll(c.begin(), c.end());
+    qDeleteAll(c.begin(), c.end());
 }
 
 
