@@ -223,11 +223,10 @@ void QListModel::itemChanged(QListWidgetItem *item)
     Creates an empty list widget item and inserts it into \a view if
     view is not 0.
 */
-
 QListWidgetItem::QListWidgetItem(QListWidget *view)
-    : itemFlags(QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsEnabled),
-      view(view), model(0)
+    : view(view), model(0),
+      itemFlags(QAbstractItemModel::ItemIsSelectable
+                |QAbstractItemModel::ItemIsEnabled)
 {
     if (view)
         model = ::qt_cast<QListModel*>(view->model());
@@ -239,11 +238,10 @@ QListWidgetItem::QListWidgetItem(QListWidget *view)
     Creates a list widget item with text \a text and inserts it into
     \a view if view is not 0.
 */
-
 QListWidgetItem::QListWidgetItem(const QString &text, QListWidget *view)
-    : itemFlags(QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsEnabled),
-      view(view), model(0)
+    : view(view), model(0),
+      itemFlags(QAbstractItemModel::ItemIsSelectable
+                |QAbstractItemModel::ItemIsEnabled)
 {
     setData(QAbstractItemModel::DisplayRole, text);
     if (view)
@@ -255,13 +253,15 @@ QListWidgetItem::QListWidgetItem(const QString &text, QListWidget *view)
 /*!
   Destroys the list item.
 */
-
 QListWidgetItem::~QListWidgetItem()
 {
     if (model)
         model->remove(this);
 }
 
+/*!
+  If \a hide is true the item will be hidden, otherwise it will be shown.
+*/
 void QListWidgetItem::setHidden(bool hide)
 {
     if (view) {
@@ -270,6 +270,9 @@ void QListWidgetItem::setHidden(bool hide)
     }
 }
 
+/*!
+  Returns true if the item is explicitly hidden, otherwise returns false.
+*/
 bool QListWidgetItem::isHidden() const
 {
     if (view) {
@@ -284,7 +287,6 @@ bool QListWidgetItem::isHidden() const
   {QAbstractItemModel::Role}). Reimplemnt this function if you need
   extra roles or special behavior for certain roles.
 */
-
 void QListWidgetItem::setData(int role, const QVariant &value)
 {
     role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
