@@ -16,7 +16,7 @@
 #include <ocidl.h>
 #include <olectl.h>
 
-#include "types.h"
+#include "qaxtypes.h"
 #include <qcolormap.h>
 #include <qcursor.h>
 #include <qpixmap.h>

@@ -63,7 +63,7 @@
 #   endif
 #endif
 
-#include "../shared/types.h"
+#include "../shared/qaxtypes.h"
 
 static QAbstractEventDispatcher::EventFilter previous_filter = 0;
 static int filter_ref = 0;

@@ -32,7 +32,7 @@
 #include <activscp.h>
 #endif
 
-#include "..\shared\types.h"
+#include "..\shared\qaxtypes.h"
 
 struct QAxEngineDescriptor { QString name, extension, code; };
 static QList<QAxEngineDescriptor> engines;

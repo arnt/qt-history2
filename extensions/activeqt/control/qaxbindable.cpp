@@ -16,7 +16,7 @@
 #include <qmetaobject.h>
 
 #include <qt_windows.h> //IUnknown
-#include "../shared/types.h"
+#include "../shared/qaxtypes.h"
 
 /*!
     \class QAxBindable qaxbindable.h

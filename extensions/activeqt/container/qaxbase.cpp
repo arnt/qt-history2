@@ -31,7 +31,7 @@
 #include <ocidl.h>
 #include <ctype.h>
 
-#include "../shared/types.h"
+#include "../shared/qaxtypes.h"
 
 
 /*

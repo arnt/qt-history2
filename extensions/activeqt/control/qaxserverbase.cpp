@@ -37,7 +37,7 @@
 #include "qaxbindable.h"
 #include "qaxaggregated.h"
 
-#include "../shared/types.h"
+#include "../shared/qaxtypes.h"
 
 #ifndef Q_OS_WIN64
 #define ULONG_PTR DWORD

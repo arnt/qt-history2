@@ -15,7 +15,6 @@
 #include <qwidget.h>
 
 #include <qt_windows.h>
-#include "../shared/types.h"
 
 bool qax_ownQApp = false;
 HHOOK qax_hhook = 0;

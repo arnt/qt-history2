@@ -17,7 +17,7 @@
 #include <qt_windows.h>
 #include <qtextstream.h>
 
-#include "../shared/types.h"
+#include "../shared/qaxtypes.h"
 
 static QString docuFromName(ITypeInfo *typeInfo, const QString &name)
 {
