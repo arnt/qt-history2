@@ -345,7 +345,7 @@ QCString p2qstring(const unsigned char *c) {
 
 #ifdef Q_OS_MAC9
 
-// #include "qt_mac.h"
+#include "qt_mac.h"
 
 extern bool	  qt_is_gui_used;
 static void mac_default_handler(const char *msg)
