@@ -15,7 +15,6 @@
 #define QLINE_H
 
 #include <QtCore/qpoint.h>
-#include <private/qnumeric_p.h>
 
 /*******************************************************************************
  * class QLine
@@ -146,7 +145,7 @@ public:
     inline QLineF(qreal x1, qreal y1, qreal x2, qreal y2);
     inline QLineF(const QLine &line) : pt1(line.p1()), pt2(line.p2()) { }
 
-    inline bool isNull() const;
+    bool isNull() const;
 
     inline QPointF p1() const;
     inline QPointF p2() const;
@@ -201,12 +200,6 @@ inline QLineF::QLineF(const QPointF &pt1, const QPointF &pt2)
 inline QLineF::QLineF(qreal x1, qreal y1, qreal x2, qreal y2)
     : pt1(x1, y1), pt2(x2, y2)
 {
-}
-
-inline bool QLineF::isNull() const
-{
-    return (qFuzzyCompare(pt1.x(), pt2.x()) &&
-            qFuzzyCompare(pt1.y(), pt2.y())) ? true : false;
 }
 
 inline qreal QLineF::x1() const
