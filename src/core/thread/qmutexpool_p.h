@@ -45,6 +45,8 @@ private:
     bool recurs;
 };
 
+extern Q_CORE_EXPORT QMutexPool *qt_global_mutexpool;
+
 #else // QT_NO_THREAD
 
 class QMutexPool
@@ -57,8 +59,8 @@ public:
     { return 0; }
 };
 
-#endif // QT_NO_THREAD
+static QMutexPool *qt_global_mutexpool = 0;
 
-extern Q_CORE_EXPORT QMutexPool *qt_global_mutexpool;
+#endif // QT_NO_THREAD
 
 #endif // QMUTEXPOOL_P_H

@@ -13,9 +13,9 @@
 
 #include "qmutexpool_p.h"
 
-Q_CORE_EXPORT QMutexPool *qt_global_mutexpool = 0;
-
 #ifndef QT_NO_THREAD
+
+Q_CORE_EXPORT QMutexPool *qt_global_mutexpool = 0;
 
 /*!
     \class QMutexPool qmutexpool_p.h
