@@ -1,0 +1,60 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: example-Qt-message-extraction\n"
+"POT-Creation-Date: 1999-02-23 15:38+0200\n"
+"PO-Revision-Date: 1999-02-23 15:38+0200\n"
+"Last-Translator: \n"
+"Content-Type: text/plain; charset=iso-8859-1\n"
+
+#: mywidget.cpp:39
+msgid "MyWidget::English"
+msgstr "Englisch"
+
+#: mywidget.cpp:57
+msgid "MyWidget::First"
+msgstr "Erstens"
+
+#: mywidget.cpp:37
+msgid "MyWidget::German"
+msgstr "Deutsch"
+
+#: mywidget.cpp:25
+msgid "MyWidget::Internationalization Example"
+msgstr "Internationalisierungs Beispiel"
+
+#: mywidget.cpp:50
+msgid "MyWidget::Isometric"
+msgstr "Isometrisch"
+
+#: mywidget.cpp:34
+msgid "MyWidget::Language:"
+msgstr "Sprache"
+
+#: mywidget.cpp:41
+msgid "MyWidget::Norwegian"
+msgstr "Norwegisch"
+
+#: mywidget.cpp:51
+msgid "MyWidget::Oblique"
+msgstr "Schief"
+
+#: mywidget.cpp:49
+msgid "MyWidget::Perspective"
+msgstr "Perspektivisch"
+
+#: mywidget.cpp:58
+msgid "MyWidget::Second"
+msgstr "Zweitens"
+
+#: mywidget.cpp:45
+msgid "MyWidget::The Main Window"
+msgstr "Das Hauptfenster"
+
+#: mywidget.cpp:59
+msgid "MyWidget::Third"
+msgstr "Drittens"
+
+#: mywidget.cpp:48
+msgid "MyWidget::View"
+msgstr "Ansicht"
+
