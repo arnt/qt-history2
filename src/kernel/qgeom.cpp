@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qgeom.cpp#20 $
 **
 **  Geometry Management
 **
@@ -11,7 +11,7 @@
 #include "qgeom.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#19 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#20 $");
 
 
 
@@ -42,9 +42,10 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#19 $");
 QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name )
     : objName( name )
 {
-    topLevel = TRUE;
+    topLevel     = TRUE;
     parentLayout = 0;
-    bm = new QBasicManager( parent, name );
+    bm           = new QBasicManager( parent, name );
+    children	 = 0;
 
     if ( autoBorder < 0 )
 	defBorder = border;
@@ -63,11 +64,11 @@ QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name 
 QLayout::QLayout( int autoBorder, const char *name )
     : objName( name )
 {
-    topLevel = FALSE;
-    children = 0;
+    topLevel     = FALSE;
     parentLayout = 0;
-    bm = 0;
-    defBorder = autoBorder;
+    bm           = 0;
+    children	 = 0;
+    defBorder    = autoBorder;
 }
 
 
