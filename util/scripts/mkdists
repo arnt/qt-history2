@@ -665,6 +665,10 @@ for plat in mac win x11 embedded; do
 	#clean the tree a little
 	status "First cleanup.."
 	case $edition in
+	professional|professional-US)
+	    #remove demo example, which currently is a PITA to compile in professional version
+	    [ -d "$PLATDIR/examples/demo" ] && rm -rf "$PLATDIR/examples/demo"
+	    ;;
 	free)
 	    #remove non-GPL sql stuff
 	    for f in src/sql/src/oci; do
