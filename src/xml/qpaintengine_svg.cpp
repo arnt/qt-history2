@@ -579,7 +579,6 @@ void QSVGPaintEngine::applyTransform(QDomElement *e) const
     e->setAttribute( "transform", s );
 }
 
-
 bool QSVGPaintEngine::play(QPainter *pt)
 {
     if ( !pt ) {
@@ -607,13 +606,6 @@ bool QSVGPaintEngine::play(QPainter *pt)
     pt->setWorldXForm(true);
 
     QDomNamedNodeMap attr = svg.attributes();
-
-//     qDebug("dom doc: %s",d->doc.toString().latin1());
-
-    qDebug("attr count: %d - %s",attr.count(), svg.nodeValue().latin1());
-    for (int i=0; i<attr.count(); ++i)
-	qDebug("%s",attr.item(i).nodeValue().latin1());
-
     int x = lenToInt(attr, "x");
     int y = lenToInt(attr, "y");
     d->brect.setX(x);
@@ -628,11 +620,8 @@ bool QSVGPaintEngine::play(QPainter *pt)
     d->brect.setWidth(int(width) - x);
     d->brect.setHeight(int(height) - y);
     pt->setClipRect(d->brect, QPainter::CoordPainter);
-    qDebug(wstr.latin1());
-    qDebug("ViewBox: %d,%d %f,%f -- %d,%d",x,y,width,height, d->wwidth, d->wheight);
 
     if (attr.contains("viewBox")) {
-	qDebug("does contain viewbox");
 	QRegExp re(QString::fromLatin1("\\s*(\\S+)\\s*,?\\s*(\\S+)\\s*,?"
 				       "\\s*(\\S+)\\s*,?\\s*(\\S+)\\s*"));
 	if (re.search(attr.namedItem("viewBox").nodeValue() ) < 0) {
