@@ -518,16 +518,9 @@ void QSpinBox::stepDown()
   passed as \a obj and the event is passed as \a ev.
 */
 
-bool QSpinBox::eventFilter( QObject* obj, QEvent* ev )
+bool QSpinBox::eventFilter( QObject* /* obj */, QEvent* ev )
 {
-    if ( obj != vi ) {
-	if ( ev->type() == QEvent::FocusOut || ev->type() == QEvent::Leave || ev->type() == QEvent::Hide ) {
-	    if ( edited ) {
-		interpretText();
-	    }
-	}
-	return FALSE;
-    } else if ( ev->type() == QEvent::KeyPress ) {
+    if ( ev->type() == QEvent::KeyPress ) {
 	QKeyEvent* k = (QKeyEvent*)ev;
 
 	if( (k->key() == Key_Tab) || (k->key() == Key_BackTab) ){
@@ -549,6 +542,7 @@ bool QSpinBox::eventFilter( QObject* obj, QEvent* ev )
 	if ( edited ) {
 	    interpretText();
 	}
+	return FALSE;
     }
     return FALSE;
 }
