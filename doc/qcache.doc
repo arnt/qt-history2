@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qcache.doc,v 2.8 1998/06/30 16:47:07 aavit Exp $
+** $Id: qcache.doc,v 2.9 1998/07/03 10:25:26 aavit Exp $
 **
 ** QCache and QCacheIterator class documentation
 **
@@ -66,8 +66,9 @@
 
 /*!  \fn QCache::QCache( const QCache<type> &c )
 
-  The copy constructor must never be used.  It leads to a fatal
-  error.
+  \internal
+
+  Do not use. A QCache cannot be copied. Calls fatal() in debug version.
 */
 
 
@@ -81,12 +82,17 @@
   FALSE.
 */
 
-
 /*! \fn QCache::~QCache()
 
   Destroys the object and all objects in it.
 */
 
+/*! \fn QCache<type>& QCache::operator=( const QCache<type> &c )
+
+  \internal
+
+  Do not use. A QCache cannot be copied. Calls fatal() in debug version.
+*/
 
 /*! \fn int QCache::maxCost() const
 
@@ -279,14 +285,23 @@
 
   Constructs an iterator for the same cache as \a ci.  The new
   iterator starts at the same item as ci.current(), but moves
-  independently from there on.
+  independently thereafter.
 */
+
 
 
 /*!
   \fn QCacheIterator::~QCacheIterator()
 
   Destroys the iterator.  Does not affect the cache itself.
+*/
+
+/*!
+  \fn QCacheIterator<type>& QCacheIterator::operator=( const QCacheIterator<type> &ci )
+
+  Makes this an iterator for the same cache as \a ci.  The new
+  iterator starts at the same item as ci.current(), but moves
+  independently thereafter.
 */
 
 /*!
@@ -360,6 +375,13 @@
 
   Returns the item \e jump positions after the current item, or null if
   it is beyond the last item.  Makes this the current item.
+*/
+
+/*!
+  \fn type *QCacheIterator::operator-=( uint jump )
+
+  Returns the item \e jump positions before the current item, or null if
+  it is beyond the first item.  Makes this the current item.
 */
 
 
@@ -437,8 +459,9 @@
 
 /*!  \fn QIntCache::QIntCache( const QIntCache<type> &c )
 
-  The copy constructor must never be used.  It leads to a fatal
-  error.
+  \internal 
+
+  Do not use. A QCache cannot be copied. Calls fatal() in debug version.
 */
 
 
@@ -452,6 +475,14 @@
 /*! \fn QIntCache::~QIntCache()
 
   Destroys the object and all objects in it.
+*/
+
+
+/*!  \fn QIntCache<type>& QIntCache::operator=( const QIntCache<type> &c )
+
+  \internal 
+
+  Do not use. A QIntCache cannot be copied. Calls fatal() in debug version.
 */
 
 
@@ -658,9 +689,17 @@
 */
 
 /*!
+  \fn QIntCacheIterator<type>& QIntCacheIterator::operator=( const QIntCacheIterator<type> &ci )
+
+  Makes this an iterator for the same cache as \a ci.  The new
+  iterator starts at the same item as ci.current(), but moves
+  independently thereafter.
+*/
+
+/*!
   \fn uint QIntCacheIterator::count() const
 
-  Returns the number of items in the cache on whichthis iterator operates.
+  Returns the number of items in the cache on which this iterator operates.
   \sa isEmpty()
 */
 
