@@ -22,7 +22,7 @@ FormWindowDnDItem::FormWindowDnDItem(QWidget *widget, const QPoint &pos)
 {
     m_dom_ui = 0;
     m_widget = widget;
-    QLabel *label = new QLabel(0, Qt::Overlay);
+    QLabel *label = new QLabel(0, Qt::ToolTip);
     label->setPixmap(QPixmap::grabWidget(m_widget));
     label->setWindowOpacity(0.8);
 
@@ -40,7 +40,7 @@ FormWindowDnDItem::FormWindowDnDItem(DomUI *dom_ui, QWidget *widget, const QPoin
     m_dom_ui = dom_ui;
     m_widget = 0;
 
-    QLabel *label = new QLabel(0, Qt::Overlay);
+    QLabel *label = new QLabel(0, Qt::ToolTip);
     label->setPixmap(QPixmap::grabWidget(widget));
     label->setWindowOpacity(0.8);
     QRect geometry = widget->geometry();
