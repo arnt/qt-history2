@@ -165,11 +165,9 @@
                                    // IEEE Std 1003.1b (1993) / POSIX.1b
                                    // IEEE Std 1003.1 (1990) / POSIX.1
 // 3) Some functions are neither in the current X/Open specification nor in
-//    any current POSIX standard. BSD string functions on pre-XPG5 systems
-//    are a typical example. However they are still made available either
-//    using platform-dependant macros like _OSF_SOURCE or by including
-//    specific header files like <strings.h> in addition to <string.h> (to be
-//    avoided).
+//    any current POSIX standard. However they are still made available either
+//    by including specific platform-dependant header files (to be avoided)
+//    or using platform-dependant macros like _BSD_SOURCE.
 //    Such exceptional things are better controlled near to the code that
 //    needs the specific functions. So for now add platform-specific macros
 //    and include platform-specific header files near to the code that needs

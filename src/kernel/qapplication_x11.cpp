@@ -38,14 +38,6 @@
 #define select		_qt_hide_select
 #define gettimeofday	_qt_hide_gettimeofday
 
-// Step 3)
-#if defined(Q_OS_LINUX)
-// strcasecmp() in <string.h> - alternative would be to include <strings.h>
-#  define _BSD_SOURCE
-#endif
-// Step 4)
-#include <unistd.h>
-
 #include "qglobal.h"
 #if defined(Q_OS_WIN32)
 #undef select
@@ -101,6 +93,9 @@
 #endif
 
 #if defined(Q_OS_UNIX)
+
+// strcasecmp() in <strings.h> on both UNIX 95 and UNIX 98
+#include <strings.h>
 
 #if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7)
 // Needed for FIONREAD.
