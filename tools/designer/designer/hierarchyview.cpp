@@ -251,6 +251,12 @@ void HierarchyList::resizeEvent( QResizeEvent *e )
 {
     QListView::resizeEvent( e );
     int lastSection = 1; // normal view
+    if ( inherits( "FunctionList" ) ) {
+	header()->resizeSection( 0, e->size().width() );
+	header()->repaint( FALSE );
+	viewport()->repaint( FALSE );
+	return;
+    }
     QSize vs = viewportSize( 0, contentsHeight() );
 
 #if defined(QT_MODULE_SQL)
@@ -501,6 +507,7 @@ FunctionList::FunctionList( QWidget *parent, HierarchyView *view )
     : HierarchyList( parent, view, TRUE )
 {
     header()->hide();
+    removeColumn( 1 );
 }
 
 void FunctionList::setup()
