@@ -214,7 +214,7 @@ static QMAC_PASCAL void qt_mac_display_change_callbk(void *, SInt16 msg, void *)
 }
 
 #ifdef DEBUG_PLATFORM_SETTINGS
-static void qt_mac_debug_palette(const QPalette &pal, const char *where)
+static void qt_mac_debug_palette(const QPalette &pal, const QPalette &pal2, const char *where)
 {
     const char *groups[] = { "Disabled", "Active", "Inactive" };
     const char *roles[] = { "Foreground", "Button", "Light", "Midlight", "Dark", "Mid",
@@ -225,14 +225,15 @@ static void qt_mac_debug_palette(const QPalette &pal, const char *where)
     for(int grp = 0; grp < QPalette::NColorGroups; grp++) {
 	for(int role = 0; role < QColorGroup::NColorRoles; role++) {
 	    QBrush b = pal.brush((QPalette::ColorGroup)grp, (QColorGroup::ColorRole)role);
-	    qDebug("  %s::%s %d::%d::%d [%p]", groups[grp], roles[role], b.color().red(), 
-		   b.color().green(), b.color().blue(), b.pixmap());
+	    qDebug("  %s::%s %d::%d::%d [%p]%s", groups[grp], roles[role], b.color().red(), 
+		   b.color().green(), b.color().blue(), b.pixmap(),
+		   pal2.brush((QPalette::ColorGroup)grp, (QColorGroup::ColorRole)role) != b ? " (*)" : "");
 	}
     }
     
 }
 #else
-#define qt_mac_debug_palette(x, y)
+#define qt_mac_debug_palette(x, y, z)
 #endif
 
 /* lookup widget helper function */
@@ -336,7 +337,7 @@ void qt_mac_update_os_settings()
 	if(!(pal == QApplication::palette())) {
 	    QApplication::setPalette(pal);
 #ifdef DEBUG_PLATFORM_SETTINGS
-	    qt_mac_debug_palette(pal, "Global Palette");
+	    qt_mac_debug_palette(pal, QApplication::palette(), "Global Palette");
 #endif
 	}
     }
@@ -447,7 +448,7 @@ void qt_mac_update_os_settings()
 	    if(set_palette && pal != apppal) {
 		QApplication::setPalette(pal, TRUE, mac_widget_colours[i].qt_class);
 #ifdef DEBUG_PLATFORM_SETTINGS
-		qt_mac_debug_palette(pal, QString("Palette for ") + mac_widget_colours[i].qt_class);
+		qt_mac_debug_palette(pal, apppal, QString("Palette for ") + mac_widget_colours[i].qt_class);
 #endif
 	    }
 	}
