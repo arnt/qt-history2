@@ -20,7 +20,7 @@ LFLAGS=@QMAKE_LFLAGS@
 qmake: $(OBJS) $(QOBJS)
 	$(CXX) -o $@ $(OBJS) $(QOBJS) $(LFLAGS)
 	rm -f @BUILD_PATH@/bin/$@
-	ln -s @BUILD_PATH@/qmake/$@ @BUILD_PATH@/bin/$@
+	ln -s ../qmake/$@ @BUILD_PATH@/bin/$@
 
 install: qmake
 	[ -d @QT_INSTALL_BINS@ ] || mkdir -p @QT_INSTALL_BINS@
