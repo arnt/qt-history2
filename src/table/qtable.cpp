@@ -5552,7 +5552,8 @@ void QTableHeader::mouseMoveEvent( QMouseEvent *e )
 
 bool QTableHeader::doSelection( QMouseEvent *e )
 {
-    if ( isRowSelection( table->selectionMode() ) )
+    if ( isRowSelection( table->selectionMode() ) 
+	    && orientation() != Vertical )
 	return TRUE;
     int p = real_pos( e->pos(), orientation() ) + offset();
     if ( startPos == -1 ) {
@@ -5748,7 +5749,7 @@ void QTableHeader::updateWidgetStretches()
 void QTableHeader::updateSelections()
 {
     if ( table->selectionMode() == QTable::NoSelection ||
-	 isRowSelection( table->selectionMode() ) )
+	 (isRowSelection( table->selectionMode() ) && orientation() != Vertical  ) )
 	return;
     int a = sectionAt( startPos );
     int b = sectionAt( endPos );
