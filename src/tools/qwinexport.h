@@ -1,10 +1,7 @@
 /****************************************************************************
-
 ** $Id$
 **
 ** Global type declarations and definitions
-**
-** Created : 920529
 **
 ** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
