@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: shclass.doc,v 1.1 1995/12/11 13:55:42 hanord Exp $
+** $Id: shclass.doc,v 1.2 1995/12/11 17:30:59 hanord Exp $
 **
 ** Qt Shared Classes Documentation
 **
@@ -64,7 +64,7 @@ Example:
   b = a.copy();			// 8)    1/"too"     1/"too"      1/"tao"
 \endcode
 
-The assignment <code>a = b<\code> on line 3 throws away a's original
+The assignment <code>a = b</code> on line 3 throws away a's original
 shared block (the reference count becomes zero), sets a's shared block
 to point to b's shared block and increments the reference count.
 
