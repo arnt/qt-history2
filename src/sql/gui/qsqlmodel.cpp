@@ -171,12 +171,17 @@ QVariant QSqlModel::data(const QModelIndex &item, int role) const
 void QSqlModel::setQuery(const QSqlQuery &query)
 {
     d->error = QSqlError();
+    d->atEnd = false;
     d->query = query;
     d->rec = query.record();
     d->colOffsets.resize(d->rec.count());
     memset(d->colOffsets.data(), 0, d->colOffsets.size() * sizeof(int));
-    if (d->bottom.isValid())
-        emit rowsRemoved(QModelIndex(), 0, d->bottom.row());
+    if (d->bottom.isValid()) {
+        QModelIndex old(d->bottom);
+        d->bottom = QModelIndex();
+        emit rowsRemoved(QModelIndex(), 0, old.row());
+        emit columnsRemoved(QModelIndex(), 0, old.column());
+    }
     if (!query.isActive() || query.isForwardOnly()) {
         d->atEnd = true;
         d->bottom = QModelIndex();
@@ -192,6 +197,7 @@ void QSqlModel::setQuery(const QSqlQuery &query)
         d->bottom = createIndex(d->query.size(), d->rec.count() - 1);
     } else {
         d->bottom = createIndex(0, d->rec.count() - 1);
+        fetchMore();
     }
     emit rowsInserted(QModelIndex(), 0, d->bottom.row());
 }
