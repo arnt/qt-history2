@@ -491,7 +491,7 @@ format due to differences between the two tools; these are listed below:
     system than \qd, namely stretches and spacings. Qt
     Designer will attempt to cope with \f[.dlg] files that use these
     features, but sometimes the resizing will be far from perfect. 
-    The solution typically involves changing the
+    The solution typically involves setting the
     "sizePolicy" properties of some widgets and inserting or
     deleting spacers.
     </para>
@@ -502,11 +502,11 @@ format due to differences between the two tools; these are listed below:
     </para>
     <para>
     Widgets in \f[.dlg] files may have two names: a unique name used
-    within Qt Architect (see the "Name" in the "Widget" tab of the
+    within Qt Architect (the "Name" in the "Widget" tab of the
     "Widget Properties" dialog), and an optional name used in the
-    generated C++ code (see the "Variable Name" in the "Mapping" tab
-    of the "Widget Properties" dialog). \qd will only
-    recognize the former which it will use as the "name" property.
+    generated C++ code (the "Variable Name" in the "Mapping" tab of
+    the "Widget Properties" dialog). \qd will only recognize the
+    former which it will use as the "name" property.
     </para>
 
     \item
@@ -559,7 +559,7 @@ as listed below:
     Ampersands (&amp;) in labels
     </para>
     <para>
-    Qt displays an ampersand ("&amp;") when a \class[QLabel] has no buddy.
+    Qt displays an ampersand when a \class[QLabel] has no buddy.
     (A buddy is a widget that accepts focus on behalf of a \class[QLabel].)
     Glade allows GtkLabel widgets with an (underlined)
     accelerator key but with no buddy. This is an error since
@@ -581,7 +581,7 @@ as listed below:
     \Item
     \item
     <para>
-    Qt sometimes has no equivalent for a GTK+ or GNOME widget
+    GTK+ or GNOME widget with no Qt equivalent
     </para>
     <para>
     Qt has equivalents for most GTK+ widgets, but Glade also
@@ -638,30 +638,30 @@ as listed below:
     GNOME standard icons
     </para>
     <para>
-    GNOME provides a rich set of standard icons. \qd will
+    GNOME provides a large set of standard icons. \qd will
     ignore references to these. If you are porting to KDE, you
     might want to manually set the standard KDE icons.
     </para>
     \Item
     \item
     <para>
-    The packer layout
+    Packer layout
     </para>
     <para>
-    GTK+ provides a class called GtkPacker that provides for
-    exotic layouts; Qt has no equivalent layout. \qd
+    GTK+ provides a class called GtkPacker that provides for exotic
+    layouts; Qt provides no \class[QPackerLayout] and never will. \qd
     will treat packer layouts as if they were vertical layouts and
-    you will probably have to change them to whatever combination
-    of layouts produces the right effect.
+    you will probably have to change them to whatever combination of
+    layouts that produces the right effect.
     </para>
     \Item
     \item
     <para>
-    Text is sometimes justified incorrectly after conversion
+    Incorrectly-justified text after conversion
     </para>
     <para>
-    This is a known problem, but it seems to be a bug in Glade.
-    The solution is to set the "hAlign" property manually.
+    The "hAlign" property is sometimes set wrongly, and then you have
+    to change it manually. It is caused by a quirk in Glade.
     </para>
     \List
 </sect2>
