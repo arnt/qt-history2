@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#28 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#27 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#28 $";
 #endif
 
 
@@ -144,7 +144,7 @@ conveniently be done with a QString object:
 \sa setText().
 */
 
-char *QLineEdit::text() const
+const char *QLineEdit::text() const
 {
     return tbuf.data();
 }
