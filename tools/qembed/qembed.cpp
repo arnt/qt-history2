@@ -250,6 +250,7 @@ int main( int argc, char **argv )
 	    "		);\n"
 	    "	    if ( embed_image_vec[i].alpha )\n"
 	    "	        img->setAlphaBuffer(TRUE);\n"
+	    "	    dict.insert(name,img);\n"
 	    "	    break;\n"
 	    "	}\n"
 	    "        }\n"
