@@ -457,7 +457,7 @@ bool QListWidgetItem::operator<(const QListWidgetItem &other) const
 
     Sets the text \a color for this list item.
 
-    \sa color() setBackgroundColor()
+    \sa textColor() setBackgroundColor()
 */
 
 /*!
