@@ -2092,7 +2092,9 @@ QString RenameActionCommand::mangle( QString name )
     int idx = ( e ? e->findItem( menu ) : - 1 );
     MenuBarEditorItem * i = ( idx > -1 ? e->item( idx ) : 0 );
     QString m = ( ( !!i ) ? i->menuText() : QString("unknown") );
-    return m.remove( "&" ).lower() + name.remove( "&" ) + "Action";
+    return ( m.remove( "&" ).replace( ' ', '_' ).lower() +
+	     name.remove( "&" ).replace( ' ', '_' ) +
+	     "Action" );
 }
 
 void RenameActionCommand::execute()
@@ -2169,7 +2171,6 @@ void AddMenuCommand::execute()
     if ( !bar ) {
 	bar = new MenuBarEditor( formWindow(), mw );
 	bar->setName( "MenuBar" );
-	bar->show();
     }
     if ( !item ) {
 	QString n = "PopupMenu";

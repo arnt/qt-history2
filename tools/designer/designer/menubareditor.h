@@ -102,6 +102,8 @@ public:
     QSize minimumSize() const { return sizeHint(); }
     QSize minimumSizeHint() const { return sizeHint(); }
     int heightForWidth( int max_width ) const;
+
+    void show();
     
 protected:
 

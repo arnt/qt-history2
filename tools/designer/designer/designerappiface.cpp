@@ -926,9 +926,9 @@ void DesignerFormWindowImpl::onModificationChange( QObject *receiver, const char
 
 void DesignerFormWindowImpl::addMenu( const QString &text, const QString &name )
 {
-    // FIXME: edited. mmonsen 21112002
     if ( !formWindow->mainContainer()->inherits( "QMainWindow" ) )
 	return;
+
     QMainWindow *mw = (QMainWindow*)formWindow->mainContainer();
     PopupMenuEditor *popup = new PopupMenuEditor( formWindow, mw );
     QString n = name;
@@ -944,7 +944,6 @@ void DesignerFormWindowImpl::addMenu( const QString &text, const QString &name )
 
 void DesignerFormWindowImpl::addMenuAction( const QString &menu, QAction *a )
 {
-    //FIXME: edited. mmonsen 21112002
     if ( !formWindow->mainContainer()->inherits( "QMainWindow" ) )
 	return;
     QMainWindow *mw = (QMainWindow*)formWindow->mainContainer();
@@ -958,7 +957,6 @@ void DesignerFormWindowImpl::addMenuAction( const QString &menu, QAction *a )
 
 void DesignerFormWindowImpl::addMenuSeparator( const QString &menu )
 {
-    //FIXME: edited. mmonsen 21112002.
     if ( !formWindow->mainContainer()->inherits( "QMainWindow" ) )
 	return;
     QMainWindow *mw = (QMainWindow*)formWindow->mainContainer();
@@ -1008,8 +1006,6 @@ void DesignerFormWindowImpl::addToolBarSeparator( const QString &tbn )
     tb->addAction( a );
 }
 
-
-
 DesignerDockImpl::DesignerDockImpl()
 {
 }
@@ -1018,11 +1014,6 @@ QDockWindow *DesignerDockImpl::dockWindow() const
 {
     return 0;
 }
-
-
-
-
-
 
 DesignerOutputDockImpl::DesignerOutputDockImpl( OutputWindow *ow )
     : outWin( ow )

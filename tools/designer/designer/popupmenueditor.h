@@ -116,7 +116,7 @@ public:
     void showLineEdit( int index = -1);
     void setAccelerator( int key, Qt::ButtonState state, int index = -1 );
     void resizeToContents();
-    
+
     void showCurrentItemMenu();
     void hideCurrentItemMenu();
     void focusCurrentItemMenu();

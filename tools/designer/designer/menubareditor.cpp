@@ -206,6 +206,8 @@ MenuBarEditor::MenuBarEditor( FormWindow * fw, QWidget * parent, const char * na
     dropLine = new QWidget( this, 0, Qt::WStyle_NoBorder | WStyle_StaysOnTop );
     dropLine->setBackgroundColor( Qt::black );
     dropLine->hide();
+
+    hide();
 }
 
 MenuBarEditor::~MenuBarEditor()
@@ -226,9 +228,10 @@ void MenuBarEditor::insertItem( MenuBarEditorItem * item, int index )
     } else {
 	itemList.append( item );
     }
-    resizeInternals();
     if ( hideWhenEmpty && itemList.count() == 1 ) {
-	show();
+	show(); // calls resizeInternals();
+    } else {
+	resizeInternals();
     }
 }
 
@@ -540,6 +543,12 @@ int MenuBarEditor::heightForWidth( int max_width ) const
     return y + itemHeight;
 }
 
+void MenuBarEditor::show()
+{
+    resizeInternals();
+    QMenuBar::show();
+}
+
 void MenuBarEditor::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
@@ -773,6 +782,14 @@ void MenuBarEditor::keyPressEvent( QKeyEvent * e )
 		showItem();
 		break;
 	    }
+
+	case Qt::Key_T:
+	    if ( e->state() & Qt::ControlButton ) {
+		qDebug( "<Ctrl+T>" );
+		QApplication::sendEvent( formWnd, e );
+		e->accept();
+		return;
+	    }
 	    
 	default:    
 	    showLineEdit();
@@ -831,7 +848,7 @@ void MenuBarEditor::resizeInternals()
 {
     dropLine->resize( 2, itemHeight );
     updateGeometry();
-    showItem();
+    //showItem();
 }
 
 void MenuBarEditor::drawItems( QPainter & p )

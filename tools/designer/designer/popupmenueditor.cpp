@@ -459,9 +459,10 @@ void PopupMenuEditor::insert( PopupMenuEditorItem * item, int index )
 	itemList.insert( index, item );
 	//currentIndex = index;
     }
-    if ( parentMenu ) parentMenu->update(); // draw arrow in parent menu
     emit actionAdded( item->anyAction() ); //FIXME: support w
     resizeToContents();
+    if ( isVisible() && parentMenu )
+	parentMenu->update(); // draw arrow in parent menu
 }
 
 void PopupMenuEditor::insert( QAction * action, int index )
@@ -501,8 +502,7 @@ int PopupMenuEditor::find( QAction * action )
 	
 	if ( i->anyAction() == action ) {
 	    return itemList.at();
-	}
-	
+	}	
 	i = itemList.next();
     }
     
@@ -983,14 +983,19 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
 	    if ( currentIndex >= itemList.count() ) {
 		break; // currentIndex is addItem or addSeparator
 	    }
-	    
 	    PopupMenuEditorItem * i = currentItem();
-
 	    hideCurrentItemMenu();
 	    if ( i->isSeparator() ) {
 		break;
 	    } else if ( currentField == 0 ) {
-		i->anyAction()->setIconSet( QIconSet( 0 ) );
+		QIconSet icons( 0 );
+		SetActionIconsCommand * cmd = new SetActionIconsCommand( "Remove icon",
+									 formWnd,
+									 i->anyAction(),
+									 this,
+									 icons );
+		formWnd->commandHistory()->addCommand( cmd );
+		cmd->execute();
 	    } else if ( currentField == 2 ) {
 		i->anyAction()->setAccel( 0 );
 	    }
@@ -1026,8 +1031,8 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
 	case Qt::Key_Down:
 	    
 	    hideCurrentItemMenu();
-	    if ( e->state() & Qt::ControlButton ) {
-		if ( currentIndex < ( itemList.count() - 1 ) ) {
+	    if ( e->state() & Qt::ControlButton ) { // Ctrl pressed
+		if ( currentIndex < ( itemList.count() - 1 ) ) { // safe index
 		    ExchangeActionInPopupCommand * cmd =
 			new ExchangeActionInPopupCommand( "Move Item Down",
 							  formWnd,
@@ -1038,7 +1043,7 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
 		    cmd->execute();
 		    safeInc();
 		}
-	    } else {
+	    } else { // ! Ctrl
 		safeInc();
 	    }
 	    if ( currentIndex >= itemList.count() ) {
@@ -1066,8 +1071,7 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
 	    
 	case Qt::Key_Right:
 
-	    if ( !currentItem()->isSeparator() &&
-		 currentIndex < itemList.count() ) {
+	    if ( !currentItem()->isSeparator() && currentIndex < itemList.count() ) {
 		if ( currentField == 2 ) {
 		    focusCurrentItemMenu();
 		} else {
@@ -1093,10 +1097,10 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
 	{
 	    PopupMenuEditorItem * i = currentItem();
 
-	    if ( i == &addSeparator ) { // addSeparator
+	    if ( i == &addSeparator ) {
 		PopupMenuEditorItem * i = new PopupMenuEditorItem( new QAction( 0 ), this );
 		i->setSeparator( TRUE );
-		AddActionToPopupCommand * cmd = new AddActionToPopupCommand( "Add Item",
+		AddActionToPopupCommand * cmd = new AddActionToPopupCommand( "Add Separator",
 									     formWnd,
 									     this,
 									     i );
@@ -1397,7 +1401,7 @@ QSize PopupMenuEditor::contentsSize()
     QPainter p( this );
     int b2 = borderSize * 2;
     
-    QRect textRect = p.fontMetrics().boundingRect( addSeparator.action()->menuText() /*, Qt::ShowPrefix*/ );
+    QRect textRect = p.fontMetrics().boundingRect( addSeparator.action()->menuText() );
     textWidth = textRect.width() + b2;
     itemHeight = textRect.height() + b2 * 4;
     acceleratorWidth = itemHeight;
