@@ -78,7 +78,7 @@ private:
 class Q_EXPORT QLayoutItem
 {
 public:
-    QLayoutItem( int alignment = 0 ) : align( alignment ) { }
+    QLayoutItem( Qt::Alignment alignment = 0 ) : align( alignment ) { }
     virtual ~QLayoutItem();
     virtual QSize sizeHint() const = 0;
     virtual QSize minimumSize() const = 0;
@@ -97,11 +97,11 @@ public:
     virtual QLayout *layout();
     virtual QSpacerItem *spacerItem();
 
-    int alignment() const { return align; }
-    virtual void setAlignment( int a );
+    Qt::Alignment alignment() const { return align; }
+    virtual void setAlignment( Qt::Alignment a );
 
 protected:
-    int align;
+    Qt::Alignment align;
 };
 
 class Q_EXPORT QSpacerItem : public QLayoutItem
@@ -159,8 +159,7 @@ class Q_EXPORT QLayout : public QObject, public QLayoutItem
     Q_PROPERTY( ResizeMode resizeMode READ resizeMode WRITE setResizeMode )
 
 public:
-    // ### Qt 4.0: put 'Auto' first in enum
-    enum ResizeMode { FreeResize, Minimum, Fixed, Auto };
+    enum ResizeMode { Auto, FreeResize, Minimum, Fixed };
 
     QLayout( QWidget *parent, int margin = 0, int spacing = -1,
 	     const char *name = 0 );
@@ -189,18 +188,15 @@ public:
     QWidget *parentWidget() const;
     bool isTopLevel() const { return topLevel; }
 
-    virtual void setAutoAdd( bool );
-    bool autoAdd() const { return autoNewChild; }
-
     void invalidate();
     QRect geometry() const;
     bool activate();
     void update();
 
-    void add( QWidget *w );
+    void addWidget( QWidget *w );
     virtual void addItem( QLayoutItem * ) = 0;
 
-    void remove( QWidget *w );
+    void removeWidget( QWidget *w );
     void removeItem( QLayoutItem * );
 
     QSizePolicy::ExpandData expanding() const;
@@ -238,12 +234,12 @@ private:
     int outsideBorder;
     uint topLevel : 1;
     uint enabled : 1;
-    uint autoNewChild : 1;
     uint frozen : 1;
     uint activated : 1;
     uint marginImpl : 1;
     uint autoMinimum : 1;
     uint autoResizeMode : 1;
+    uint autoNewChild : 1;
     QRect rect;
     QLayoutData *extraData;
 #ifndef QT_NO_MENUBAR
@@ -260,7 +256,11 @@ private:
 #ifndef QT_NO_COMPAT
 public:
     inline QWidget *mainWidget() const { return parentWidget(); }
+    inline void remove(QWidget *w) { removeWidget(w); }
+    void add(QWidget *w) { addWidget(w); }
 
+    inline void setAutoAdd( bool a ) { autoNewChild = a; }
+    inline bool autoAdd() const { return autoNewChild; }
 #endif
 };
 
@@ -307,28 +307,22 @@ public:
     QSizePolicy::ExpandData expanding() const;
     void invalidate();
 
-    void addItem( QLayoutItem * );
-    void addItem( QLayoutItem *item, int row, int col );
-    void addMultiCell( QLayoutItem *, int fromRow, int toRow,
-		       int fromCol, int toCol, int align = 0 );
-
-    void addWidget( QWidget *, int row, int col, int align = 0 );
-    void addMultiCellWidget( QWidget *, int fromRow, int toRow,
-			     int fromCol, int toCol, int align = 0 );
-    void addLayout( QLayout *layout, int row, int col);
-    void addMultiCellLayout( QLayout *layout, int fromRow, int toRow,
-			     int fromCol, int toCol, int align = 0 );
+    inline void addWidget(QWidget *w) { QLayout::addWidget(w); }
+    void addWidget(QWidget *, int row, int col, Alignment = 0);
+    void addWidget(QWidget *, int row, int col, int rowSpan, int colSpan, Alignment = 0);
+    void addLayout(QLayout *, int row, int col, Alignment = 0);
+    void addLayout(QLayout *, int row, int col, int rowSpan, int colSpan, Alignment = 0);
     void expand( int rows, int cols );
 
-    enum Corner { TopLeft, TopRight, BottomLeft, BottomRight };
     void setOrigin( Corner );
     Corner origin() const;
     QLayoutIterator iterator();
     void setGeometry( const QRect& );
 
+    void addItem( QLayoutItem *item, int row, int col, int rowSpan = 1, int colSpan = 1, Alignment = 0 );
 protected:
     bool findWidget( QWidget* w, int *r, int *c );
-    void add( QLayoutItem*, int row, int col );
+    void addItem( QLayoutItem * );
 
 private:
 #if defined(Q_DISABLE_COPY)
@@ -340,8 +334,14 @@ private:
     QGridLayoutData *data;
 #ifndef QT_NO_COMPAT
 public:
-    void addRowSpacing( int row, int minsize ) { add(new QSpacerItem(0,minsize), row, 0); }
-    void addColSpacing( int col, int minsize ) { add(new QSpacerItem(minsize,0), 0, col); }
+    inline void addRowSpacing( int row, int minsize ) { addItem(new QSpacerItem(0,minsize), row, 0); }
+    inline void addColSpacing( int col, int minsize ) { addItem(new QSpacerItem(minsize,0), 0, col); }
+    inline void addMultiCellWidget(QWidget *w, int fromRow, int toRow, int fromCol, int toCol, Alignment align = 0)
+	{ addWidget(w, fromRow, fromCol, toRow - fromRow + 1, toCol - fromCol + 1, align); }
+    inline void addMultiCell(QLayoutItem *l, int fromRow, int toRow, int fromCol, int toCol, Alignment align = 0)
+	{ addItem(l, fromRow, fromCol, toRow - fromRow + 1, toCol - fromCol + 1, align); }
+    inline void addMultiCellLayout(QLayout *layout, int fromRow, int toRow, int fromCol, int toCol, Alignment align = 0)
+	{ addLayout(layout, fromRow, fromCol, toRow - fromRow + 1, toCol - fromCol + 1, align); }
 #endif
 };
 
@@ -362,28 +362,28 @@ public:
     QBoxLayout( Direction, int spacing = -1, const char *name = 0 );
     ~QBoxLayout();
 
-    void addItem( QLayoutItem * );
 
     Direction direction() const { return dir; }
     void setDirection( Direction );
 
     void addSpacing( int size );
     void addStretch( int stretch = 0 );
-    void addWidget( QWidget *, int stretch = 0, int alignment = 0 );
+    void addWidget( QWidget *, int stretch = 0, Alignment alignment = 0 );
     void addLayout( QLayout *layout, int stretch = 0 );
     void addStrut( int );
+    void addItem( QLayoutItem * );
 
     void insertSpacing( int index, int size );
     void insertStretch( int index, int stretch = 0 );
     void insertWidget( int index, QWidget *widget, int stretch = 0,
-		       int alignment = 0 );
+		       Alignment alignment = 0 );
     void insertLayout( int index, QLayout *layout, int stretch = 0 );
 
     bool setStretchFactor( QWidget *w, int stretch );
     bool setStretchFactor( QLayout *l, int stretch );
-    bool setAlignment( QWidget *w, int alignment );
-    bool setAlignment( QLayout *l, int alignment );
-    void setAlignment( int alignment );
+    bool setAlignment( QWidget *w, Alignment alignment );
+    bool setAlignment( QLayout *l, Alignment alignment );
+    void setAlignment( Alignment alignment );
 
     QSize sizeHint() const;
     QSize minimumSize() const;

@@ -14,7 +14,8 @@
 #ifndef QT_NO_HBOX
 #include "qlayout.h"
 #include "qapplication.h"
-
+#include "qevent.h"
+#include "qmenubar.h"
 
 /*!
     \class QHBox qhbox.h
@@ -49,7 +50,6 @@ QHBox::QHBox( QWidget *parent, const char *name, WFlags f )
     :QFrame( parent, name, f )
 {
     lay = new QHBoxLayout( this, frameWidth(), frameWidth(), name );
-    lay->setAutoAdd( TRUE );
 }
 
 
@@ -70,8 +70,27 @@ QHBox::QHBox( bool horizontal, QWidget *parent , const char *name, WFlags f )
     lay = new QBoxLayout( this,
 		       horizontal ? QBoxLayout::LeftToRight : QBoxLayout::Down,
 			  frameWidth(), frameWidth(), name );
-    lay->setAutoAdd( TRUE );
 }
+
+/*! \reimp
+ */
+void QHBox::childEvent(QChildEvent *e)
+{
+    QWidget *child = e->childWidget();
+    if (!child || child->isTopLevel())
+	return;
+    if (e->added()) {
+	lay->addWidget(child);
+    } else if (e->polished()) {
+	QMenuBar *mb;
+	if ((mb=qt_cast<QMenuBar*>(child))) {
+	    lay->removeWidget(mb);
+	    lay->setMenuBar(mb);
+	}
+    }
+}
+
+
 
 /*!\reimp
  */

@@ -103,7 +103,7 @@ public:
 	AlignTop, AlignBottom, AlignVCenter, AlignCenter
     };
 #else
-    typedef AlignmentFlags Alignment;
+    typedef int Alignment;
 #endif
 
     // documented in qpainter.cpp

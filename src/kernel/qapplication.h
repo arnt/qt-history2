@@ -180,7 +180,7 @@ public:
     static void setReverseLayout( bool b );
     static bool reverseLayout();
 
-    static int horizontalAlignment( int align );
+    static Alignment horizontalAlignment( Alignment align );
 
     static bool	    isEffectEnabled( Qt::UIEffect );
     static void	    setEffectEnabled( Qt::UIEffect, bool enable = TRUE );
@@ -393,7 +393,7 @@ inline QString QApplication::translate( const char *, const char *sourceText,
 }
 #endif
 
-inline int QApplication::horizontalAlignment( int align )
+inline Qt::Alignment QApplication::horizontalAlignment( Alignment align )
 {
     align &= AlignHorizontal_Mask;
     if ( align == AlignAuto ) {

@@ -266,7 +266,7 @@ Q_EXPORT QSize qSmartMinSize( QWidget *w )
     return qSmartMinSize( &item );
 }
 
-Q_EXPORT QSize qSmartMaxSize( const QWidgetItem *i, int align )
+Q_EXPORT QSize qSmartMaxSize( const QWidgetItem *i, Qt::Alignment align )
 {
     QWidget *w = ( (QWidgetItem*)i )->widget();
     if ( align & Qt::AlignHorizontal_Mask && align & Qt::AlignVertical_Mask )
@@ -289,7 +289,7 @@ Q_EXPORT QSize qSmartMaxSize( const QWidgetItem *i, int align )
     return s;
 }
 
-Q_EXPORT QSize qSmartMaxSize( QWidget *w, int align )
+Q_EXPORT QSize qSmartMaxSize( QWidget *w, Qt::Alignment align )
 {
     QWidgetItem item( w );
     return qSmartMaxSize( &item, align );

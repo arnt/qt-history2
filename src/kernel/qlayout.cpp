@@ -51,9 +51,9 @@ public:
     bool hasHeightForWidth() const { return item_->hasHeightForWidth(); }
     int heightForWidth( int w ) const { return item_->heightForWidth(w); }
 
-    void setAlignment( int a ) { item_->setAlignment( a ); }
+    void setAlignment( Qt::Alignment a ) { item_->setAlignment( a ); }
     void setGeometry( const QRect &r ) { item_->setGeometry( r ); }
-    int alignment() const { return item_->alignment(); }
+    Qt::Alignment alignment() const { return item_->alignment(); }
     QLayoutItem *item() { return item_; }
     QLayoutItem *takeItem() { QLayoutItem *i = item_; item_ = 0; return i; }
 
@@ -1145,43 +1145,21 @@ void QGridLayout::addItem( QLayoutItem *item )
 {
     int r, c;
     data->getNextPos( r, c );
-    add( item, r, c );
+    addItem( item, r, c );
 }
 
 /*!
-    Adds \a item at position \a row, \a col. The layout takes
-    ownership of the \a item.
-*/
-void QGridLayout::addItem( QLayoutItem *item, int row, int col )
-{
-    add( item, row, col );
-}
+    Adds \a item at position \a row, \a col, spanning \a rowSpan rows
+    and \a colSpan columns. The layout takes ownership of the \a item.
 
-/*!
-    Adds \a item at position \a row, \a col. The layout takes
-    ownership of the \a item.
+    \warning Do not use this function to add child layouts or child widget items. Use
+    addLayout() or addWidget() instead.
 */
-void QGridLayout::add( QLayoutItem *item, int row, int col )
+void QGridLayout::addItem(QLayoutItem *item, int row, int col, int rowSpan, int colSpan, Alignment alignment)
 {
-    QGridBox *box = new QGridBox( item );
-    data->add( box, row, col );
-    invalidate();
-}
-
-/*!
-    Adds the \a item to the cell grid, spanning multiple rows/columns.
-
-    The cell will span from \a fromRow, \a fromCol to \a toRow, \a
-    toCol. Alignment is specified by \a alignment, which is a bitwise
-    OR of \l Qt::AlignmentFlags values. The default alignment is 0,
-    which means that the widget fills the entire cell.
-*/
-void QGridLayout::addMultiCell( QLayoutItem *item, int fromRow, int toRow,
-				int fromCol, int toCol, int alignment )
-{
-    QGridBox *b = new QGridBox( item );
-    b->setAlignment( alignment );
-    data->add( b, fromRow, toRow, fromCol, toCol );
+    QGridBox *b = new QGridBox(item);
+    b->setAlignment(alignment);
+    data->add(b, row, row + rowSpan - 1, col, col + colSpan - 1);
     invalidate();
 }
 
@@ -1217,9 +1195,8 @@ static bool checkWidget( QLayout *l, QWidget *w )
     the available space, but should be sized according to sizeHint().
     \endlist
 
-    \sa addMultiCellWidget()
 */
-void QGridLayout::addWidget( QWidget *w, int row, int col, int alignment )
+void QGridLayout::addWidget( QWidget *w, int row, int col, Alignment alignment )
 {
     if ( !checkWidget( this, w ) )
 	return;
@@ -1231,29 +1208,23 @@ void QGridLayout::addWidget( QWidget *w, int row, int col, int alignment )
     addChildWidget(w);
     QWidgetItem *b = new QWidgetItem( w );
     b->setAlignment( alignment );
-    add( b, row, col );
+    addItem( b, row, col );
 }
 
 /*!
-    Adds the widget \a w to the cell grid, spanning multiple
-    rows/columns. The cell will span from \a fromRow, \a fromCol to \a
-    toRow, \a toCol.
+  \overload
+    This version adds the widget \a w to the cell grid, spanning multiple
+    rows/columns. The cell will start at \a fromRow, \a fromCol spanning \a
+    rowSpan rows and \a colSpan columns.
 
-    Alignment is specified by \a alignment, which is a bitwise OR of
-    \l Qt::AlignmentFlags values. The default alignment is 0, which
-    means that the widget fills the entire cell.
-
-    A non-zero alignment indicates that the widget should not grow to
-    fill the available space but should be sized according to
-    sizeHint().
-
-    \sa addWidget()
 */
-void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
-				      int fromCol, int toCol, int alignment )
+void QGridLayout::addWidget( QWidget *w, int fromRow, int fromCol,
+			     int rowSpan, int colSpan, Alignment alignment )
 {
     if ( !checkWidget( this, w ) )
 	return;
+    int toRow = fromRow + rowSpan - 1;
+    int toCol = fromCol + colSpan - 1;
     addChildWidget(w);
     QGridBox *b = new QGridBox( w );
     b->setAlignment( alignment );
@@ -1264,21 +1235,6 @@ void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
     Places the \a layout at position (\a row, \a col) in the grid. The
     top-left position is (0, 0).
 
-    \a layout becomes a child of the grid layout.
-
-    \sa addMultiCellLayout()
-*/
-void QGridLayout::addLayout( QLayout *layout, int row, int col )
-{
-    addChildLayout( layout );
-    add( layout, row, col );
-}
-
-/*!
-    Adds the layout \a layout to the cell grid, spanning multiple
-    rows/columns. The cell will span from \a fromRow, \a fromCol to \a
-    toRow, \a toCol.
-
     Alignment is specified by \a alignment, which is a bitwise OR of
     \l Qt::AlignmentFlags values. The default alignment is 0, which
     means that the widget fills the entire cell.
@@ -1287,17 +1243,30 @@ void QGridLayout::addLayout( QLayout *layout, int row, int col )
     fill the available space but should be sized according to
     sizeHint().
 
-    \a layout becomes a child of the grid layout.
 
-    \sa addLayout()
+    \a layout becomes a child of the grid layout.
 */
-void QGridLayout::addMultiCellLayout( QLayout *layout, int fromRow, int toRow,
-				      int fromCol, int toCol, int alignment )
+void QGridLayout::addLayout( QLayout *layout, int row, int col, Alignment alignment )
+{
+    addChildLayout( layout );
+    QGridBox *b = new QGridBox( layout );
+    b->setAlignment(alignment);
+    data->add( b, row, col );
+}
+
+/*!
+  \overload
+    This version adds the layout \a layout to the cell grid, spanning multiple
+    rows/columns. The cell will start at \a row, \a col spanning \a
+    rowSpan rows and \a colSpan columns.
+*/
+void QGridLayout::addLayout( QLayout *layout, int row, int col,
+				      int rowSpan, int colSpan, Alignment alignment )
 {
     addChildLayout( layout );
     QGridBox *b = new QGridBox( layout );
     b->setAlignment( alignment );
-    data->add( b, fromRow, toRow, fromCol, toCol );
+    data->add(b, row, row + rowSpan - 1, col, col + colSpan - 1);
 }
 
 /*!
@@ -2010,7 +1979,7 @@ void QBoxLayout::insertLayout( int index, QLayout *layout, int stretch )
     \sa setAutoAdd(), insertLayout(), insertSpacing()
 */
 void QBoxLayout::insertWidget( int index, QWidget *widget, int stretch,
-			       int alignment )
+			       Alignment alignment )
 {
     if ( !checkWidget(this, widget) )
 	 return;
@@ -2073,7 +2042,7 @@ void QBoxLayout::addStretch( int stretch )
     \sa insertWidget(), setAutoAdd(), addLayout(), addSpacing()
 */
 void QBoxLayout::addWidget( QWidget *widget, int stretch,
-			    int alignment )
+			    Alignment alignment )
 {
     insertWidget( -1, widget, stretch, alignment );
 }
@@ -2177,7 +2146,7 @@ bool QBoxLayout::setStretchFactor( QLayout *l, int stretch )
 
     \sa setStretchFactor()
 */
-bool QBoxLayout::setAlignment( QWidget *w, int alignment )
+bool QBoxLayout::setAlignment( QWidget *w, Alignment alignment )
 {
     QPtrListIterator<QBoxLayoutItem> it( data->list );
     QBoxLayoutItem *box;
@@ -2199,7 +2168,7 @@ bool QBoxLayout::setAlignment( QWidget *w, int alignment )
   returns TRUE if \a l is found in this layout (not including child
   layouts); otherwise returns FALSE.
 */
-bool QBoxLayout::setAlignment( QLayout *l, int alignment )
+bool QBoxLayout::setAlignment( QLayout *l, Alignment alignment )
 {
     QPtrListIterator<QBoxLayoutItem> it( data->list );
     QBoxLayoutItem *box;
@@ -2215,7 +2184,7 @@ bool QBoxLayout::setAlignment( QLayout *l, int alignment )
 }
 
 /*! \reimp */
-void QBoxLayout::setAlignment( int alignment )
+void QBoxLayout::setAlignment( Alignment alignment )
 {
     QLayout::setAlignment( alignment );
 }

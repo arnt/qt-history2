@@ -3449,14 +3449,13 @@ void MyApplication::commitData( QSessionManager& sm ) {
 */
 
 /*!
-  \fn int QApplication::horizontalAlignment( int align )
+  \fn Qt::Alignment QApplication::horizontalAlignment( Alignment align )
 
   Strips out vertical alignment flags and transforms an
   alignment \a align of AlignAuto into AlignLeft or
   AlignRight according to the language used. The other horizontal
   alignment flags are left untouched.
 */
-
 
 /*****************************************************************************
   Stubbed session management support

@@ -364,7 +364,7 @@ QPoint QMultiLineEdit::cursorPoint() const
 
   \sa Qt::AlignmentFlags
 */
-void QMultiLineEdit::setAlignment( int flag )
+void QMultiLineEdit::setAlignment( Alignment flag )
 {
     if ( flag == AlignCenter )
 	flag = AlignHCenter;
@@ -377,7 +377,7 @@ void QMultiLineEdit::setAlignment( int flag )
     }
 }
 
-int QMultiLineEdit::alignment() const
+Qt::Alignment QMultiLineEdit::alignment() const
 {
     return document()->firstParagraph()->alignment();
 }

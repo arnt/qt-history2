@@ -54,8 +54,8 @@ public:
     bool atBeginning() const;
     bool atEnd() const;
 
-    void setAlignment( int flags );
-    int alignment() const;
+    void setAlignment( Alignment flags );
+    Alignment alignment() const;
 
     void setEdited( bool );
     bool edited() const;

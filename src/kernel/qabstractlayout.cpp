@@ -80,7 +80,7 @@ static int menuBarHeightForWidth( QMenuBar *menubar, int w )
 */
 
 /*!
-    \fn QLayoutItem::QLayoutItem( int alignment )
+    \fn QLayoutItem::QLayoutItem( Qt::Alignment alignment )
 
     Constructs a layout item with an \a alignment that is a bitwise OR
     of the \l{Qt::AlignmentFlags}. Not all subclasses support
@@ -88,18 +88,18 @@ static int menuBarHeightForWidth( QMenuBar *menubar, int w )
 */
 
 /*!
-    \fn int QLayoutItem::alignment() const
+    \fn Qt::Alignment QLayoutItem::alignment() const
 
     Returns the alignment of this item.
 */
 
 /*!
-    Sets the alignment of this item to \a a, which is a bitwise OR of
+    Sets the alignment of this item to \a alignment, which is a bitwise OR of
     the \l{Qt::AlignmentFlags}. Not all subclasses support alignment.
 */
-void QLayoutItem::setAlignment( int a )
+void QLayoutItem::setAlignment( Qt::Alignment alignment )
 {
-    align = a;
+    align = alignment;
 }
 
 /*!
@@ -341,7 +341,7 @@ void QWidgetItem::setGeometry( const QRect &r )
 		s.setHeight( QMIN( s.height(), pref.height() ) );
 	}
     }
-    int alignHoriz = QApplication::horizontalAlignment( align );
+    Qt::Alignment alignHoriz = QApplication::horizontalAlignment( align );
     if ( alignHoriz & Qt::AlignRight )
 	x = x + ( r.width() - s.width() );
     else if ( !(alignHoriz & Qt::AlignLeft) )
@@ -612,7 +612,7 @@ void QLayout::init()
     outsideBorder = 0;
     topLevel = FALSE;
     enabled = TRUE;
-    autoNewChild = FALSE;
+//    autoNewChild = FALSE;
     frozen = FALSE;
     activated = true;
     marginImpl = FALSE;
@@ -687,7 +687,7 @@ QLayout::QLayout( int spacing, const char *name )
     Adds widget \a w to this layout in a manner specific to the
     layout. This function uses addItem().
 */
-void QLayout::add( QWidget *w )
+void QLayout::addWidget( QWidget *w )
 {
     addChildWidget(w);
     addItem( new QWidgetItem(w));
@@ -810,9 +810,8 @@ static bool removeWidgetRecursively( QLayoutItem *lay, QWidget *w )
 /*!
     \reimp
     Performs child widget layout when the parent widget is
-    resized.  Also handles removal of widgets, and the addition of
-    widgets in autoAdd mode. \a e is the event the occurred on object
-    \a o.
+    resized.  Also handles removal of widgets. \a e is the
+    event the occurred on object \a o.
 */
 bool QLayout::eventFilter( QObject *o, QEvent *e )
 {
@@ -850,6 +849,7 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 	    }
 	}
 	break;
+#ifndef QT_NO_COMPAT
     case QEvent::ChildInserted:
 	if ( topLevel && autoNewChild ) {
 	    QChildEvent *c = (QChildEvent *)e;
@@ -867,7 +867,6 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 	    }
 	}
 	break;
-#ifndef QT_NO_COMPAT
     case QEvent::LayoutHint:
 	activated = false;
 	// fall through
@@ -1733,34 +1732,6 @@ QLayout::ResizeMode QLayout::resizeMode() const
 }
 
 /*!
-    \fn bool QLayout::autoAdd() const
-
-    Returns TRUE if this layout automatically grabs all new
-    parentWidget()'s new children and adds them as defined by addItem();
-    otherwise returns FALSE. This has effect only for top-level
-    layouts, i.e. layouts that are direct children of their
-    parentWidget().
-
-    autoAdd() is disabled by default.
-
-    Note that a top-level layout is not necessarily associated with
-    the top-level widget.
-
-    \sa setAutoAdd()
-*/
-
-/*!
-    If \a b is TRUE, auto-add is enabled; otherwise auto-add is
-    disabled.
-
-    \sa autoAdd()
-*/
-void QLayout::setAutoAdd( bool b )
-{
-    autoNewChild = b;
-}
-
-/*!
     \fn  bool QLayout::supportsMargin() const
 
     Returns TRUE if this layout supports \l QLayout::margin on
@@ -1797,7 +1768,7 @@ void QLayout::setSupportsMargin( bool b )
 QRect QLayout::alignmentRect( const QRect &r ) const
 {
     QSize s = sizeHint();
-    int a = alignment();
+    Qt::Alignment a = alignment();
 
     /*
       This is a hack to obtain the real maximum size, not
@@ -1846,7 +1817,7 @@ QRect QLayout::alignmentRect( const QRect &r ) const
 
     \sa removeItem(), QWidget::setGeometry(), add()
 */
-void QLayout::remove( QWidget *widget )
+void QLayout::removeWidget( QWidget *widget )
 {
     QLayoutIterator it = iterator();
     QLayoutItem *child;

@@ -30,7 +30,6 @@ public:
 	   WFlags f = 0 );
 
     void setSpacing( int );
-    QSize sizeHint() const;
 
 #ifndef QT_NO_COMPAT
     typedef Orientation Direction;
@@ -38,7 +37,7 @@ public:
 
 protected:
     void frameChanged();
-
+    void childEvent(QChildEvent*);
 private:
     QGridLayout *lay;
 private:	// Disabled copy constructor and operator=

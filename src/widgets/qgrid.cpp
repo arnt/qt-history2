@@ -15,7 +15,8 @@
 #ifndef QT_NO_GRID
 #include "qlayout.h"
 #include "qapplication.h"
-
+#include "qevent.h"
+#include "qmenubar.h"
 /*!
     \class QGrid qgrid.h
     \brief The QGrid widget provides simple geometry management of its children.
@@ -62,7 +63,6 @@ QGrid::QGrid( int n, Orientation orient, QWidget *parent, const char *name,
 	nRows = n;
     }
     lay = new QGridLayout( this, nRows, nCols, 0, 0, name );
-    lay->setAutoAdd( TRUE );
 }
 
 
@@ -76,9 +76,23 @@ QGrid::QGrid( int n, QWidget *parent, const char *name, WFlags f )
     : QFrame( parent, name, f )
 {
     lay = new QGridLayout( this, -1, n, 0, 0, name );
-    lay->setAutoAdd( TRUE );
 }
 
+void QGrid::childEvent(QChildEvent *e)
+{
+    QWidget *child = e->childWidget();
+    if (!child || child->isTopLevel())
+	return;
+    if (e->added()) {
+	lay->addWidget(child);
+    } else if (e->polished()) {
+	QMenuBar *mb;
+	if ((mb=qt_cast<QMenuBar*>(child))) {
+	    lay->removeWidget(mb);
+	    lay->setMenuBar(mb);
+	}
+    }
+}
 
 /*!
     Sets the spacing between the child widgets to \a space.
@@ -98,17 +112,5 @@ void QGrid::frameChanged()
     if ( !layout() )
 	return;
     layout()->setMargin( frameWidth() );
-}
-
-
-/*!
-  \reimp
-*/
-
-QSize QGrid::sizeHint() const
-{
-    QWidget *mThis = (QWidget*)this;
-    QApplication::sendPostedEvents( mThis, QEvent::ChildInserted );
-    return QFrame::sizeHint();
 }
 #endif
