@@ -4536,6 +4536,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 	// we flush at end of document
 	bool flush = i== length()-1;
 	bool selectionStateChanged = FALSE;
+	bool ignoreSoftHyphen = FALSE;
 	if ( !flush ) {
 	    // we flush at end of line
 	    flush |= nextchr->lineStart;
@@ -4550,7 +4551,11 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 	    // we flush before and after tabs
 	    flush |= ( chr->c == '\t' || nextchr->c == '\t' );
 	    // we flush on soft hypens
-	    flush |= ( chr->c.unicode() == 0xad );
+	    if (chr->c.unicode() == 0xad) {
+		flush = TRUE;
+		if (!nextchr->lineStart)
+		    ignoreSoftHyphen = TRUE;
+	    }
 	    // we flush on custom items
 	    flush |= chr->isCustom();
 	    // we flush before custom items
@@ -4624,7 +4629,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 	    if ( (clipx == -1 || clipw <= 0 || (xend >= clipx && xstart <= clipx + clipw)) &&
 		 ( clipy == -1 || clipy < y+r.y()+h ) ) {
 		if ( !chr->isCustom() )
-		    drawString( painter, qstr, paintStart, i - paintStart + 1, xstart, y,
+		    drawString( painter, qstr, paintStart, i - paintStart + (ignoreSoftHyphen ? 0 : 1), xstart, y,
 				baseLine, xend-xstart, h, selection,
 				chr, cg, chr->rightToLeft );
 #ifndef QT_NO_TEXTCUSTOMITEM
