@@ -1824,6 +1824,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		if ( tlw->inherits( "QDockWindow" ) ) {
 		    if ( tlw->focusWidget() )
 			RETURN(MA_ACTIVATE);
+		    SetForegroundWindow( tlw->winId() );
 		    if ( tlw->parentWidget() && !tlw->parentWidget()->isActiveWindow() )
 			tlw->parentWidget()->setActiveWindow();
 		    RETURN(MA_NOACTIVATE);
