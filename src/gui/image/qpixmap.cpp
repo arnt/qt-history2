@@ -186,6 +186,9 @@ Q_GLOBAL_STATIC_WITH_ARGS(QRetainedPixmapCache, qt_retained_pixmaps, (1024*1024)
         and where performance is critical. Generally uses more memory
         than \c NormalOptim and may provide a little more speed.
 
+    \value LoadOptim  Optimize for pixmaps that are loaded from disk
+                      rather than stored in memory.
+
     We recommend using \c DefaultOptim.
 
 */
@@ -256,7 +259,6 @@ QPixmap::QPixmap(int w, int h, int depth, Optimization optimization)
 }
 
 /*!
-    \fn QPixmap::QPixmap(const QSize &size, int depth, Optimization optimization)
     \overload
 
     Constructs a pixmap of size \a size, \a depth bits per pixel,
@@ -271,9 +273,9 @@ QPixmap::QPixmap(const QSize &size, int depth, Optimization optimization)
 
 #ifndef QT_NO_IMAGEIO
 /*!
-    Constructs a pixmap from the file \a fileName. If the file does
-    not exist or is of an unknown format, the pixmap becomes a null
-    pixmap.
+    Constructs a pixmap from the file with the given \a fileName. If the
+    file does not exist or is of an unknown format, the pixmap becomes a
+    null pixmap.
 
     The \a fileName, \a format and \a flags parameters are
     passed on to load(). This means that the data in \a fileName is
@@ -281,11 +283,13 @@ QPixmap::QPixmap(const QSize &size, int depth, Optimization optimization)
     path (e.g. the filename only) the relevant file must be found
     relative to the runtime working directory.
 
+    The way the pixmap is handled is specified by \a optimization.
+
     If the image needs to be modified to fit in a lower-resolution
     result (e.g. converting from 32-bit to 8-bit), use the \a
     flags to specify how you'd prefer this to happen.
 
-    \sa Qt::ImageConversionFlags isNull(), load(), loadFromData(), save(), imageFormat()
+    \sa Qt::ImageConversionFlags isNull() load() loadFromData() save() imageFormat() Optimization
 */
 
 QPixmap::QPixmap(const QString& fileName, const char *format, 
@@ -1173,9 +1177,12 @@ bool QPixmap::loadFromData(const uchar *buf, uint len, const char *format, Color
 #endif
 
 /*!
+    \fn bool QPixmap::convertFromImage(const QImage &image, ColorMode mode)
     \overload
+    \compat
 
-    Converts \a image and sets this pixmap using color mode \a mode.
+    Creates a pixmap from the given \a image with the color mode specified
+    by \a mode.
     Returns true if successful; otherwise returns false.
 
     \sa QPixmap::ColorMode
@@ -1256,3 +1263,35 @@ void QPixmap::deref()
         data = 0;
     }
 }
+
+/*!
+    \fn QImage QPixmap::convertToImage() const
+    \compat
+
+    Converts the pixmap to a device-independent image and returns the result
+    as a new image.
+*/
+
+/*!
+    \fn bool QPixmap::convertFromImage(const QImage &image, ColorMode mode)
+    \compat
+
+    Creates a pixmap from the given \a image with the color mode specified
+    by \a mode.
+*/
+
+/*!
+    \fn bool QPixmap::convertFromImage(const QImage &image, Qt::ImageConversionFlags flags)
+    \compat
+
+    Creates a pixmap from the given \a image using the conversion flags
+    specified by \a flags.
+*/
+
+/*!
+    \fn QPixmap QPixmap::xForm(const QMatrix &matrix) const
+    \compat
+
+    Transforms the pixmap using the given \a matrix and returns the result
+    as a new pixmap.
+*/

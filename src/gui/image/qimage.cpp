@@ -2415,7 +2415,7 @@ bool QImage::isGrayscale() const
                              Qt::TransformationMode transformMode) const
 
     Returns a copy of the image scaled to a rectangle of width \a w
-    and height \a h according to \a aspectRatioMode.
+    and height \a h according to \a aspectRatioMode and \a transformMode.
 
     \list
     \i If \a aspectRatioMode is \c Qt::IgnoreAspectRatio, the image
@@ -2435,9 +2435,12 @@ bool QImage::isGrayscale() const
 */
 
 /*!
+    \fn QT_NO_IMAGE_TRANSFORMATION QImage QImage::scale(const QSize &size, Qt::AspectRatioMode aspectMode, Qt::TransformationMode transformMode) const
+
     \overload
 
-    The requested size of the image is \a s.
+    Scales the image to the given \a size, using the aspect ratio and
+    transformation modes specified by \a aspectMode and \a transformMode.
 */
 #ifndef QT_NO_IMAGE_TRANSFORMATION
 QImage QImage::scale(const QSize& s, Qt::AspectRatioMode aspectMode, Qt::TransformationMode mode) const
@@ -2577,11 +2580,12 @@ QMatrix QImage::trueMatrix(const QMatrix &matrix, int w, int h)
 static QImage smoothXForm(const QImageData *src, const QMatrix &matrix);
 
 /*!
-    Returns a copy of the image that is transformed using the
-    transformation matrix, \a matrix.
+    Returns a copy of the image that is transformed with the transformation
+    matrix specified by \a matrix and using the transformation mode specified
+    by \a mode.
 
     The transformation \a matrix is internally adjusted to compensate
-    for unwanted translation, i.e. xForm() returns the smallest image
+    for unwanted translation; i.e. the image produced is the smallest image
     that contains all the transformed points of the original image.
 
     \sa scale() QPixmap::transform() QPixmap::trueMatrix() QMatrix
@@ -4290,3 +4294,11 @@ QImage smoothXForm(const QImageData *data, const QMatrix &matrix)
 
     return final;
 }
+
+/*!
+    \fn QImage QImage::xForm(const QMatrix &matrix) const
+    \compat
+
+    Transforms the image using the given \a matrix and returns the result
+    as a new image.
+*/
