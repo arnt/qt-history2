@@ -13,7 +13,7 @@
   class used by programmers to perform drawing operations, such as \c
   drawLine() and \l drawRect(). \l QPaintDevice is an object that can
   be painted on using \l QPainter, including \l QWidget and \l
-  QPixmap. \l QPaintEngine is the painters means of drawing to a
+  QPixmap. \l QPaintEngine is the painter's means of drawing to a
   specific device type.
 
   \section2 A look back on Qt 3.x
@@ -22,19 +22,20 @@
   could also be used to draw to printers on Windows and Mac OS
   X). When other paint devices needed to be supported, such as
   QPrinter on X11, this was done by deriving from QPaintDevice and
-  reimplementing the virtual function QPaintDevice::cmd() and marked
-  as external devices.
+  reimplementing the virtual function QPaintDevice::cmd(). A
+  reimplemented paint device was treated as an external device.
 
-  QPainter was capable of recognized external devices and could
+  QPainter was capable of recognizing external devices and could
   serialize each paint operation to the reimplemented cmd()
   function. This allowed reimplementation of arbitrary devices, but
-  the approach has some dissadvantages which we have addresssed in Qt
+  the approach has some disadvantages which we have addressed in Qt
   4. One of these is that an external device could not reuse any
-  functionallity implemented in QPainter since QPainter is tied to
+  functionality implemented in QPainter since QPainter is tied to
   widget/pixmap painting on a the current platform. Supporting
-  multiple device backends, such as OpenGL, was also problamatic.
+  multiple device backends, such as OpenGL, was therefore inconvenient
+  and not efficient enough.
 
-  We therefore wanted to provide a more convinient and intuitive
+  We therefore wanted to provide a more convenient and intuitive
   API. Both to our users and to ourselves.
 
   \section2 How it is done in Qt 4
@@ -153,26 +154,31 @@
   \section2 Extensive use of native graphics operations
 
   In the Qt 4 Painting Framework we make more use of native graphics
-  operations. The benefit we gain from this is that we these
-  operations can potentially be performed in hardware which gives
-  significant speed improvement.
+  operations. The benefit we gain from this is that these operations
+  can potentially be performed in hardware which gives significant
+  speed improvements.
 
   Among these are native transformations (Windows 2000/XP and Mac OS
-  X, OpenGL) making painting with a world matrix is much faster. Some
+  X, OpenGL) making painting with a world matrix much faster. Some
   pixmap operations have also been moved closer to hardware.
 
 
   \section2 QPainterPath
 
-  A painter path is a complex graphical object set of graphical shapes each
-  composed of lines, arcs and splines. Each graphical shape is called
-  a subpath and may be closed, meaning that the first and last point
-  in the shape are the same.
+  A painter path is a object composed of a number of graphical
+  building blocks, such as rects, ellipses, lines and curves. A can be
+  used for filling, outlining and for clipping. The main advantage of
+  painter paths over normal drawing operations is that it is possible
+  to build up nonlinear shapes which can be drawn later one go.
+
+  Building blocks can be joined in closed subpaths, such as a
+  rectangle or an ellipse, or they can exist independently as unclosed
+  subpaths, though an unclosed path will not be filled.
 
   Below is listed a code example on how a path can be used. The
-  painter in this case has a pen width of 3 and a semitransparent
-  brush. We first add a rectangle, which becomes a closed subpath.
-  We then add two bezier curves along.
+  painter in this case has a pen width of 3 and a light blue brush. We
+  first add a rectangle, which becomes a closed subpath.  We then add
+  two bezier curves along.
 
   \code
   QPainterPath path;
@@ -187,6 +193,40 @@
   \img pathexample.png
 
 
+  \section2 Widget double buffering
+
+  In Qt 4, all widgets are double buffered by default.
+
+  In previous versions of Qt double buffereing was acheived by
+  painting to an offscreen pixmap then copying the pixmap to the
+  screen. e.g.
+
+  \code
+  QPixmap buffer(size());
+  QPainter painter(&buffer);
+
+  // Paint code here
+
+  painter.end();
+  bitBlt(this, 0, 0, &buffer);
+  \endcode
+
+  Since the double buffering is handled by QWidget internally this now becomes:
+
+  \code
+  QPainter painter(this);
+
+  // Paint code here
+
+  painter.end();
+  \endcode
+
+  Double buffering is turned on by default, but can be turned off by
+  setting the widget attribute Qt::WA_PaintOnScreen.
+
+  \code
+  unbufferedWidget->setAttribute(Qt::WA_PaintOnScreen);
+  \endcode
 
   \section1 More to come
 
@@ -199,9 +239,13 @@
   features we mention:
 
   \list
-  \i QPainterPath does not support filling on X11
   \i Gradients cannot have alpha color on X11
   \i Antialiasing of lines on X11, (though this might not be present at all).
+  \i Clipping regions on OpenGL.
+  \i Transformation of pen widths.
+  \i Transformation of fill patterns.
   \endlist
+
+
 
 */
