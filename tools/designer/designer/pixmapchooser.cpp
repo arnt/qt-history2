@@ -22,7 +22,7 @@
 
 #include "pixmapchooser.h"
 #include "formwindow.h"
-#if defined(DESIGNER)
+#if defined(DESIGNER) && !defined(RESOURCE)
 #include "pixmapfunction.h"
 #endif
 #include "metadatabase.h"

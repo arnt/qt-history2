@@ -22,3 +22,4 @@ TARGET		= qresource
 INCLUDEPATH	= ../shared ../util ../../../src/3rdparty/zlib/
 DESTDIR		= $(QTDIR)/lib
 VERSION		= 1.0.0
+DEFINES		+= RESOURCE
