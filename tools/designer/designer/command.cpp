@@ -591,7 +591,12 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
     }
 
     if ( p->isSetType() ) {
-	;
+	QStrList strlst;
+	QStringList lst = QStringList::split( "|", currentItemText );
+	QValueListConstIterator<QString> it = lst.begin();
+	for ( ; it != lst.end(); ++it )
+	    strlst.append( (*it).latin1() );
+	widget->setProperty( propName, p->keysToValue( strlst ) );
     } else if ( p->isEnumType() ) {
 	widget->setProperty( propName, p->keyToValue( currentItemText ) );
     } else if ( qstrcmp( p->name(), "buddy" ) == 0 ) {

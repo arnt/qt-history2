@@ -924,8 +924,8 @@ void Uic::createFormImpl( const QDomElement &e )
 
     // constructor
     if ( objClass == "QDialog" || objClass == "QWizard" ) {
-	out << "/* " << endl;
-	out << " *  Constructs a " << nameOfClass << " as a child of 'parent', with the " << endl;
+	out << "/*" << endl;
+	out << " *  Constructs a " << nameOfClass << " as a child of 'parent', with the" << endl;
 	out << " *  name 'name' and widget flags set to 'f'." << endl;
 	out << " *" << endl;
 	out << " *  The " << objClass.mid(1).lower() << " will by default be modeless, unless you set 'modal' to" << endl;
@@ -934,15 +934,15 @@ void Uic::createFormImpl( const QDomElement &e )
 	out << nameOfClass << "::" << bareNameOfClass << "( QWidget* parent, const char* name, bool modal, WFlags fl )" << endl;
 	out << "    : " << objClass << "( parent, name, modal, fl )";
     } else if ( objClass == "QWidget" )  {
-	out << "/* " << endl;
-	out << " *  Constructs a " << nameOfClass << " as a child of 'parent', with the " << endl;
+	out << "/*" << endl;
+	out << " *  Constructs a " << nameOfClass << " as a child of 'parent', with the" << endl;
 	out << " *  name 'name' and widget flags set to 'f'." << endl;
 	out << " */" << endl;
 	out << nameOfClass << "::" << bareNameOfClass << "( QWidget* parent, const char* name, WFlags fl )" << endl;
 	out << "    : " << objClass << "( parent, name, fl )";
     } else if ( objClass == "QMainWindow" ) {
-	out << "/* " << endl;
-	out << " *  Constructs a " << nameOfClass << " as a child of 'parent', with the " << endl;
+	out << "/*" << endl;
+	out << " *  Constructs a " << nameOfClass << " as a child of 'parent', with the" << endl;
 	out << " *  name 'name' and widget flags set to 'f'." << endl;
 	out << " *" << endl;
 	out << " */" << endl;
@@ -950,8 +950,8 @@ void Uic::createFormImpl( const QDomElement &e )
 	out << "    : " << objClass << "( parent, name, fl )";
 	isMainWindow = TRUE;
     } else {
-	out << "/* " << endl;
-	out << " *  Constructs a " << nameOfClass << " which is a child of 'parent', with the " << endl;
+	out << "/*" << endl;
+	out << " *  Constructs a " << nameOfClass << " which is a child of 'parent', with the" << endl;
 	out << " *  name 'name'.' " << endl;
 	out << " */" << endl;
 	out << nameOfClass << "::" << bareNameOfClass << "( QWidget* parent,  const char* name )" << endl;

@@ -28,6 +28,8 @@
 #include <qguardedptr.h>
 #include <qtabwidget.h>
 #include <qmodules.h>
+#include <qptrlist.h>
+#include <qlayout.h>
 #include "hierarchyview.h"
 #include "metadatabase.h"
 
@@ -41,6 +43,7 @@ class QPushButton;
 class QHBox;
 class QSpinBox;
 class QLabel;
+class QFrame;
 class FormWindow;
 class QCloseEvent;
 class QResizeEvent;
@@ -48,6 +51,7 @@ class PropertyWhatsThis;
 class QDateEdit;
 class QTimeEdit;
 class QDateTimeEdit;
+class QCheckBox;
 
 class PropertyItem : public QListViewItem
 {
@@ -547,6 +551,97 @@ private:
     QGuardedPtr<QHBox> box;
     bool withField;
 
+};
+
+struct EnumItem {
+    EnumItem( const QString &k, bool s )
+	: key( k ), selected( s ) {}
+    EnumItem() : key( QString::null ), selected( FALSE ) {}
+    bool operator==( const EnumItem &item ) const {
+	return key == item.key;
+    }
+    QString key;
+    bool selected;
+};
+
+class EnumBox : public QWidget
+{
+    Q_OBJECT
+
+public:
+    EnumBox( QWidget *parent, const char *name = 0 );
+    ~EnumBox() {};
+    void setText( const QString &text );
+
+signals:
+    void popup();
+
+protected:
+    void paintEvent( QPaintEvent * );
+    void mousePressEvent( QMouseEvent *e );
+
+protected slots:
+    void restoreArrow();
+
+private:
+    bool arrowDown;
+    QString str;
+
+};
+
+class EnumPopup : public QFrame
+{
+    Q_OBJECT
+
+public:
+    EnumPopup( QWidget *parent, const char *name, WFlags f=0 );
+    ~EnumPopup();
+    void insertEnums( QValueList<EnumItem> lst );
+    QValueList<EnumItem> enumList() const;
+
+signals:
+    void closed();
+    void hidden();
+
+protected:
+    void closeEvent( QCloseEvent *e );
+    void keyPressEvent( QKeyEvent *e );
+
+private:
+    QValueList<EnumItem> itemList;
+    QPtrList<QCheckBox> checkBoxList;
+    QVBoxLayout *popLayout;
+};
+
+
+class PropertyEnumItem : public QObject,
+			 public PropertyItem
+{
+    Q_OBJECT
+
+public:
+    PropertyEnumItem( PropertyList *l, PropertyItem *after, PropertyItem *prop,
+		      const QString &propName );
+    ~PropertyEnumItem();
+
+    void showEditor();
+    void hideEditor();
+    void setValue( const QVariant &v );
+    QString currentItem() const;
+    QString currentItemFromObject() const;
+    void setCurrentValues( QStrList lst );
+
+private slots:
+    void popup();
+    void setValue();
+    void popupHidden();
+
+private:
+    QGuardedPtr<EnumBox> box;
+    QValueList<EnumItem> enumList;
+    QString enumString;
+    EnumPopup *pop;
+    bool popShown;
 };
 
 class PropertyList : public QListView
