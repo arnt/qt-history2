@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#66 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#67 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#66 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#67 $";
 #endif
 
 
@@ -676,10 +676,9 @@ void QWidget::show()				// show widget
 
 void QWidget::hide()				// hide widget
 {
-    if ( !testFlag(WState_Visible) ) {		// not visible
-	setFlag( WExplicitHide );
+    setFlag( WExplicitHide );
+    if ( !testFlag(WState_Visible) )		// not visible
 	return;
-    }
     if ( qApp->focus_widget == this )
 	qApp->focus_widget = 0;			// reset focus widget
     if ( parentWidget() && parentWidget()->focusChild == this )
