@@ -100,7 +100,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
     if(!project->isEmpty("MAKEFILE"))
 	t << "MAKEFILE=	" << var("MAKEFILE") << endl;
     t << "QMAKE =	" << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") : var("QMAKE_QMAKE")) << endl;
-    t << "SUBDTARGETS	= ";
+    t << "SUBTARGETS	= ";
     for( it.toFirst(); it.current(); ++it) 
 	t << " \\\n\t\t" << it.current()->target;
     t << endl << endl;
