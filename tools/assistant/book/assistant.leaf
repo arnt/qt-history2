@@ -317,14 +317,14 @@ patterns can be used:
 
 The wildcard (*) character cannot be used within quotes. 
 
-Since the search engine is built and optimized for a fast search instead
-of perfect string matching, some words are not considered. For example the
-english word 'a' is such a word. An other reason for doing that is it would
-not make sense either because 'a' contains no information. Looking for 'a'
-would return thousands of documends without knowing anything about these 
-documents, except they all contain 'a', of course.
-This means if you are looking for the phrase 'this is a string' you will
-get all phrases which best match the searching phrase.
+Since the search engine is built and optimized for a fast search
+instead of perfect string matching, some words are not considered in
+the search. One example is the English word 'a'. It would not make
+sense to search for 'a' because it contains no information. Searching
+for 'a' will return thousands of documents without knowing anything
+about these documents, except that they all contain 'a'. But searching
+for a more meaningful phrase such as 'this is a string', will return in
+all documents which contain the phrase.
 
 The list of documents is ordered according to the number of
 occurrences of the search text they contain, with those with the
@@ -346,7 +346,7 @@ the \Menu{Documentation Files} tab. Now click \Button Add to invoke a
 file open dialog. Select the new documentation's content file. (This
 file must be an XML file in \QA's documentation content file format.)
 
-An other way to add your own documentation is, to start \QA with the
+Another way to add your own documentation is, to start \QA with the
 commandline option '-addContentFile' followed by the documentation
 content file.
 Example: assistant -addContentFile /mycompany/myapp/help.xml
