@@ -3107,7 +3107,7 @@ QString QString::fromAscii(const char *str, int size)
 }
 
 /*!
-    Returns a QString initialized with the first \a size characters
+    Returns a QString initialized with the first \a size bytes
     of the UTF-8 string \a str.
 
     If \a size is -1 (the default), it is taken to be qstrlen(\a
