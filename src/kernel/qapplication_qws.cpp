@@ -1187,6 +1187,7 @@ void QWSDisplay::grabMouse( QWidget *w, bool grab )
     cmd.simpleData.windowid = top->winId();
     cmd.simpleData.grab = grab;
     d->sendCommand( cmd );
+    d->flush();
 }
 
 void QWSDisplay::grabKeyboard( QWidget *w, bool grab )
@@ -1196,6 +1197,7 @@ void QWSDisplay::grabKeyboard( QWidget *w, bool grab )
     cmd.simpleData.windowid = top->winId();
     cmd.simpleData.grab = grab;
     d->sendCommand( cmd );
+    d->flush();
 }
 
 QPtrList<QWSWindowInfo> * QWSDisplay::windowList()
