@@ -1026,8 +1026,11 @@ QString QCoreApplication::translate(const char *context, const char *sourceText,
 }
 
 #ifndef QT_NO_TEXTCODEC
-/*! \obsolete
-  This is the same as QTextCodec::setCodecForTr().
+/*!
+    \obsolete
+
+    Sets the codec to be used for tr() calls to \a codec. Use
+    QTextCodec::setCodecForTr() instead.
 */
 void QCoreApplication::setDefaultCodec(QTextCodec* codec)
 {

@@ -268,8 +268,8 @@ QFileInfo::QFileInfo(const QFile &file) : d_ptr(new QFileInfoPrivate(this))
 }
 
 /*!
-    Constructs a new QFileInfo that gives information about the file
-    called \a fileName in the directory \a dir.
+    Constructs a new QFileInfo that gives information about the given
+    \a file in the directory \a dir.
 
     If \a dir has a relative path, the QFileInfo will also have a
     relative path.
@@ -285,7 +285,7 @@ QFileInfo::QFileInfo(const QDir &dir, const QString &file) : d_ptr(new QFileInfo
 #endif
 
 /*!
-    Constructs a new QFileInfo that is a copy of \a fi.
+    Constructs a new QFileInfo that is a copy of the given \a fileinfo.
 */
 
 QFileInfo::QFileInfo(const QFileInfo &fileinfo) : d_ptr(new QFileInfoPrivate(this, &fileinfo))
@@ -305,7 +305,7 @@ QFileInfo::~QFileInfo()
 }
 
 /*!
-    Makes a copy of \a fi and assigns it to this QFileInfo.
+    Makes a copy of the given \a fileinfo and assigns it to this QFileInfo.
 */
 
 QFileInfo &QFileInfo::operator=(const QFileInfo &fileinfo)
@@ -371,9 +371,9 @@ QFileInfo::setFile(const QFile &file)
     \overload
 
     Sets the file that the QFileInfo provides information about to \a
-    fileName in directory \a dir.
+    file in directory \a dir.
 
-    If \a fileName includes a relative path, the QFileInfo will also
+    If \a file includes a relative path, the QFileInfo will also
     have a relative path.
 
     \sa isRelative()

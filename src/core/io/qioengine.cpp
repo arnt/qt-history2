@@ -29,13 +29,21 @@
     \mainclass
 
     The QIOEngine class is used to directly read and write to the
-    backing store for a QIODevice. All read/write operations will be
+    backing store for a QIODevice. All read/write operations are
     based on simple characters, making operations completely platform
     independent.
 
-    \omit
-    QTextStream will in turn interpret the bytes the same when read.
-    \endomit
+    \omit QTextStream will in turn interpret the bytes the same when read. \endomit
+    \omit concepts and usage \endomit
+
+    I/O devices are opened with the open() function. They can be read
+    using getch(), readLine(), readBlock() and readAll(). For devices
+    that support random access isSequential() returns false and seek()
+    can be used. The position in the file is given by at(), and if the
+    position is at the end atEnd() returns true. Writable devices can
+    be written to using putch() and writeBlock() (and ungetch()).
+    Devices are closed with close() and if an error occurs
+    errorStatus() and errorString() provide error information.
 
 */
 

@@ -1771,12 +1771,13 @@ bool QSettings::writeEntry(const QString &key, const QStringList &value)
 
 /*!
     \fn QStringList QSettings::readListEntry(const QString &key, const QChar &separator, bool *ok) const
+
     \overload
 
     Reads the entry specified by \a key as a string. The \a separator
     is used to create a QStringList by calling entry.split(\a
-    separator). If \a ok is not 0: \a *ok is set to true
-    if the key was read, otherwise \a *ok is set to false.
+    separator). If \a ok is not 0: \c{*}\a{ok} is set to true
+    if the key was read, otherwise \c{*}\a{ok} is set to false.
 
     \warning If the string list argument to the writeEntry() function
     contains null strings, the return value of this function will not
@@ -1813,9 +1814,10 @@ QStringList QSettings::readListEntry(const QString &key, const QChar &separator,
 
 /*!
     \fn QStringList QSettings::readListEntry(const QString &key, bool *ok) const
+
     Reads the entry specified by \a key as a string. If \a ok is not
-    0, \a *ok is set to true if the key was read, otherwise \a *ok is
-    set to false.
+    0, \c{*}\a{ok} is set to true if the key was read, otherwise
+    \c{*}\a{ok} is set to false.
 
     Note that if you want to iterate over the list, you should iterate
     over a copy, e.g.

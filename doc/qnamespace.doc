@@ -275,3 +275,45 @@
 
     \sa QSize::scale(), QImage::scale(), QImage::smoothScale()
 */
+
+/*!
+    \enum Qt::RectangleEdge
+
+    \value LeftEdge
+    \value TopEdge
+    \value RightEdge
+    \value BottomEdge
+*/
+
+/*!
+    \enum Qt::CaseSensitivity
+
+    \value CaseInsensitive
+    \value CaseSensitive
+*/
+
+/*!
+    \enum Qt::ToolBarArea
+
+    \value ToolBarAreaLeft
+    \value ToolBarAreaRight
+    \value ToolBarAreaTop
+    \value ToolBarAreaBottom
+    \value AllToolBarAreas
+
+    \omitvalue ToolBarAreaMask
+    \omitvalue NToolBarAreas
+*/
+
+/*!
+    \enum Qt::DockWindowArea
+
+    \value DockWindowAreaLeft
+    \value DockWindowAreaRight
+    \value DockWindowAreaTop
+    \value DockWindowAreaBottom
+    \value AllDockWindowAreas
+
+    \omitvalue DockWindowAreaMask
+    \omitvalue NDockWindowAreas
+*/

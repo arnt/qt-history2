@@ -860,7 +860,7 @@ public:
         AnchorHref
     };
 
-    // Documented in qmainwindow.cpp
+    // Documented in qnamespace.doc
     enum DockWindowArea {
         DockWindowAreaLeft   = 0x1,
         DockWindowAreaRight  = 0x2,
@@ -875,7 +875,7 @@ public:
 
     Q_DECLARE_FLAGS(DockWindowAreas, DockWindowArea);
 
-    // Documented in qmainwindow.cpp
+    // Documented in qnamespace.doc
     enum ToolBarArea {
         ToolBarAreaLeft   = 0x1,
         ToolBarAreaRight  = 0x2,
@@ -969,7 +969,7 @@ public:
     };
 #endif
 
-    // Documented in qstring.cpp
+    // Documented in qnamespace.doc
     enum CaseSensitivity {
         CaseInsensitive,
         CaseSensitive

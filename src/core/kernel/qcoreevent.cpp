@@ -74,6 +74,7 @@
     \value ActionAdded        A new action has been added.
     \value ActionRemoved      An action has been removed.
     \value ActivationChange   A widget's top-level window activation state has changed.
+    \value ApplicationWindowIconChange The application's icon has changed.
     \value ApplicationFontChange    The default application font has changed.
     \value ApplicationPaletteChange The default application palette has changed.
     \value ChildAdded     An object gets a child, \l{QChildEvent}.

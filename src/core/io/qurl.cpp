@@ -1845,7 +1845,7 @@ QString QUrl::fragment() const
          QUrl relativeUrl("../products/solutions");
          qDebug(baseUrl.resolved(relativeUrl).toString());
          // prints "http://www.trolltech.com/products/solutions"
-    \encode
+    \endcode
 
     Calling resolved() with ".." returns a QUrl whose directory is
     one level higher than the original. Similarly, calling resolved()
