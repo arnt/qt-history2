@@ -167,7 +167,10 @@ void QDns::getHostByName(const QString &name, QObject *receiver,
     if (!agent->isRunning())
         agent->start();
 #else
-    agent->run();
+    if (!agent->isRunning())
+        agent->run();
+    else
+        agent->wakeOne();
 #endif
 }
 
@@ -234,6 +237,11 @@ void QDnsAgent::run()
         query->object->emitResultsReady(getHostByName(query->hostName));
         query->object = 0;
         delete query;
+
+        mutex.lock();
+        if (queries.isEmpty())
+            cond.wait(&mutex);
+        mutex.unlock();
     }
 }
 

@@ -18,6 +18,7 @@
 #include <private/qcoreapplication_p.h>
 #include "qdns.h"
 #include <qmutex.h>
+#include <qwaitcondition.h>
 #include <qobject.h>
 #include <qpointer.h>
 
@@ -71,6 +72,7 @@ public:
     {
         QMutexLocker locker(&mutex);
         queries << new QDnsQuery(name, result);
+        cond.wakeOne();
     }
 
 public slots:
@@ -80,12 +82,14 @@ public slots:
             QMutexLocker locker(&mutex);
             queries.clear();
         }
+        cond.wakeOne();
         wait();
     }
 
 private:
     QList<QDnsQuery *> queries;
     QMutex mutex;
+    QWaitCondition cond;
 };
 
 class QDnsHostInfoPrivate
