@@ -36,7 +36,7 @@
 
 inline QObjectData::~QObjectData() {}
 
-enum { QObjectPrivateVersion = 1 };
+enum { QObjectPrivateVersion = QT_VERSION };
 
 class Q_CORE_EXPORT QObjectPrivate : public QObjectData
 {
