@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#20 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#21 $
 **
 ** Implementation of QMessageBox class
 **
@@ -13,7 +13,7 @@
 #include "qlabel.h"
 #include "qpushbt.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#20 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#21 $");
 
 
 /*!
@@ -223,7 +223,7 @@ int QMessageBox::message( const char *caption,
 
 */
 
-int QMessageBox::query( const char *caption,
+bool QMessageBox::query( const char *caption,
 			       const char *text,
 			       const char *yesButtonText,
 			       const char *noButtonText,

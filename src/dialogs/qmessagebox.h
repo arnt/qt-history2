@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#11 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#12 $
 **
 ** Definition of QMessageBox class
 **
@@ -26,10 +26,10 @@ public:
 			const char *text,  const char *buttonText=0,
 			QWidget *parent=0, const char *name=0 );
 
-    static int query( const char *caption,
-		      const char *text,  const char *yesButtonText=0,
-		      const char *noButtonText=0,
-		      QWidget *parent=0, const char *name=0 );
+    static bool query( const char *caption,
+		       const char *text,  const char *yesButtonText=0,
+		       const char *noButtonText=0,
+		       QWidget *parent=0, const char *name=0 );
 
     QMessageBox( QWidget *parent=0, const char *name=0 );
 
