@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#188 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#189 $
 **
 ** Implementation of QObject class
 **
@@ -1129,6 +1129,29 @@ static void err_info_about_objects( const char * func,
 	warning( "QObject::%s:  (receiver name: '%s')", func, b );
 }
 
+static void err_info_about_candidates( int code,
+				       const QMetaObject* mo,
+				       const char* member,
+				       const char *func	)
+{
+    if ( strstr(member,"const char*") ) {
+	// porting help
+	QString newname = member;
+	int p;
+	while ( (p=newname.find("const char*")) >= 0 ) {
+	    newname.replace(p, 11, "const QString&");
+	}
+	QMetaData *rm = 0;
+	switch ( code ) {
+	    case SLOT_CODE:   rm = mo->slot( newname, TRUE );	  break;
+	    case SIGNAL_CODE: rm = mo->signal( newname, TRUE ); break;
+	}
+	if ( rm ) {
+	    warning("QObject::%s:  Candidate: %s", func, newname.ascii());
+	}
+    }
+}
+
 
 #endif // CHECK_RANGE
 
@@ -1343,6 +1366,7 @@ bool QObject::connect( const QObject *sender,	const char *signal,
     if ( !(sm=smeta->signal(signal,TRUE)) ) {	// no such signal
 #if defined(CHECK_RANGE)
 	err_member_notfound( SIGNAL_CODE, sender, signal, "connect" );
+	err_info_about_candidates( SIGNAL_CODE, smeta, signal, "connect" );
 	err_info_about_objects( "connect", sender, receiver );
 #endif
 	return FALSE;
@@ -1370,6 +1394,7 @@ bool QObject::connect( const QObject *sender,	const char *signal,
     if ( !rm ) {				// no such member
 #if defined(CHECK_RANGE)
 	err_member_notfound( membcode, r, member, "connect" );
+	err_info_about_candidates( membcode, rmeta, member, "connect" );
 	err_info_about_objects( "connect", sender, receiver );
 #endif
 	return FALSE;
@@ -1506,6 +1531,7 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 	if ( !rm ) {				// no such member
 #if defined(CHECK_RANGE)
 	    err_member_notfound( membcode, r, member, "disconnect" );
+	    err_info_about_candidates( membcode, rmeta, member, "connect" );
 	    err_info_about_objects( "disconnect", sender, receiver );
 #endif
 	    return FALSE;
