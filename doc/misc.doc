@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 1.13 1996/02/08 13:53:27 agulbra Exp $
+** $Id: misc.doc,v 1.14 1996/02/18 23:32:44 agulbra Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,52 +8,40 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 1.13 1996/02/08 13:53:27 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 1.14 1996/02/18 23:32:44 agulbra Exp $";
 #endif
 
 /*! \page license.html
 
 <title>Qt License Statement</title>
 </head><body>
-
 <h1>All Rights Reserved</h1>
-
-Copyright &copy; 1992-1995 Troll Tech AS.  All rights reserved.
-
 <p>
-
+Copyright &copy; 1992-1995 Troll Tech AS.  All rights reserved.
+<p>
 Qt is a product of Troll Tech AS and is provided for use on computers
 running the Linux operating system.
-
 <p>
-
 Users may copy this beta version of the Qt toolkit provided that the
 entire archive is distributed as a whole, including this notice.
-
 <p>
-
 Users may use the Qt toolkit to create programs provided that these
 programs are either for internal/own use or freely distributable.  THIS
 BETA VERSION OF QT MAY NOT BE USED IN COMMERCIAL PROGRAMS.
-
 <p>
-
 Troll Tech makes no obligation to support or upgrade Qt, or assist in
 use of Qt.
-
 <p>
-
 In no event shall Troll Tech be liable for any lost revenue or profits or
 other special, indirect or consequential damages, even if Troll Tech has
 been advised of the possibility of such damages.
-
 <p><strong>
-
 QT IS PROVIDED AS IS WITH NO WARRANTY OF ANY KIND, INCLUDING THE WARRANY
 OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-
 </strong>
-
+<p>
+(Qt is also available under other licences; send mail to <a
+href=mailto:info@troll.no>info@troll.no</a> for details.)
 */
 
 /*! \page troll.html
