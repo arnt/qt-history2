@@ -1,8 +1,0 @@
-#!/bin/sh
-
-if echo '\c' | grep '\c' >/dev/null
-then
-    echo -n "$1"
-else
-    echo "$1\c"
-fi
