@@ -2032,6 +2032,9 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		    QPixmap *pm = getCacheBuffer( ps );
 		    pm->fill( colorGroup().color( QColorGroup::Base ) );
 		    QPainter dp( pm );
+		    dp.setFont( p->font() );
+		    dp.setPen( p->pen() );
+		    dp.setBrush( p->brush() );
 		    current->i->paintCell( &dp, colorGroup(), ac, r.width(),
 					   columnAlignment( ac ) );
 		    dp.end();
@@ -2047,7 +2050,6 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	    if ( current->i == d->focusItem && hasFocus() &&
 		 !d->allColumnsShowFocus ) {
 		p->save();
-		p->setClipping( FALSE );
 		int c = d->h->mapToActual( 0 );
 		QRect r( d->h->cellPos( c ) - ox, current->y - oy, d->h->cellSize( c ), ih );
 		if ( current->i->parentItem )
