@@ -38,10 +38,6 @@
 #ifndef    QMUTEX_P_H
 #define    QMUTEX_P_H
 
-#ifndef QT_H
-#include <qatomic.h>
-#endif // QT_H
-
 //
 //  W A R N I N G
 //  -------------
@@ -75,7 +71,7 @@ public:
     unsigned int count;
     QAtomic waiters;
 
-    Qt::HANDLE event;
+    HANDLE event;
 };
 #endif
 

@@ -38,7 +38,7 @@
 class QSemaphorePrivate
 {
 public:
-    Qt::HANDLE handle;
+    HANDLE handle;
     int count;
     int maxCount;
     QMutex protect;

@@ -28,10 +28,11 @@
 #include "qwaitcondition.h"
 #include "qmutex.h"
 
-#define Q_MUTEX_T void*
+#include <windows.h>
+#include <qatomic.h>
+
 #include "qmutex_p.h"
 
-#include <windows.h>
 
 /*
   QWaitConditionPrivate
@@ -44,8 +45,8 @@ public:
     ~QWaitConditionPrivate();
 
     int wait( unsigned long time = ULONG_MAX , bool countWaiter = TRUE);
-    Qt::HANDLE manual;
-    Qt::HANDLE autoreset;
+    HANDLE manual;
+    HANDLE autoreset;
     QMutex mutex;
     int waitersCount;
 };
@@ -81,7 +82,7 @@ int QWaitConditionPrivate::wait( unsigned long time , bool countWaiter )
     mutex.lock();
     if ( countWaiter )
 	waitersCount++;
-    Qt::HANDLE hnds[2] = { manual, autoreset };
+    HANDLE hnds[2] = { manual, autoreset };
     mutex.unlock();
     int ret = WaitForMultipleObjects( 2, hnds, FALSE, time );
     mutex.lock();

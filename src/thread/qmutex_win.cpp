@@ -28,6 +28,7 @@
 #include <windows.h>
 
 #include "qmutex.h"
+#include <qatomic.h>
 #include "qmutex_p.h"
 
 

@@ -228,11 +228,14 @@
 /* proper support of bool for _MSC_VER >= 1100 */
 #  define Q_CANNOT_DELETE_CONSTANT
 #  define Q_INLINE_TEMPLATES inline
+#  define QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
 /* Visual C++.Net issues for _MSC_VER >= 1300 */
 #  if _MSC_VER >= 1300
 #    define Q_CC_MSVC_NET
 #    if _MSC_VER < 1310
 #      define Q_TYPENAME
+#    else
+#      undef QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
 #    endif
 #  endif
 #  define Q_NO_USING_KEYWORD /* ### check "using" status */

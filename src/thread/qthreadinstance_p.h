@@ -53,6 +53,9 @@
 #ifdef Q_OS_UNIX
 #include <pthread.h>
 #endif
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
 
 struct QThreadInstance {
 public:
@@ -80,7 +83,7 @@ public:
 #endif // Q_OS_UNIX
 
 #ifdef Q_OS_WIN32
-    Qt::HANDLE handle;
+    HANDLE handle;
     unsigned int id;
 
     static unsigned int __stdcall start( void * );

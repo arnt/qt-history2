@@ -36,7 +36,7 @@
 #include "qplatformdefs.h"
 
 #include "qthreadstorage.h"
-#include <qthreadinstance_p.h>
+#include "qthreadinstance_p.h"
 
 #include <string.h>
 
