@@ -54,8 +54,7 @@
 
 #include "qpixmapcache.h"
 
-#include <stdlib.h> // qsort
-#include <ctype.h> // tolower
+#include "qtl.h"
 
 const int Unsorted = 16383;
 
@@ -106,6 +105,10 @@ struct QListViewPrivate
     public:
 	QString key;
 	QListViewItem * i;
+	bool operator<( const SortableItem& i ) const { return key < i.key; }
+	bool operator<=(const SortableItem& i ) const { return key <= i.key; }
+	bool operator>( const SortableItem& i ) const { return key > i.key; }
+	bool operator>=( const SortableItem& i ) const { return key >= i.key; }
     };
 
     class ItemColumnInfo {
@@ -717,24 +720,6 @@ QString QListViewItem::key( int column, bool ) const
 }
 
 
-#if defined(Q_C_CALLBACKS)
-extern "C" {
-#endif
-
-static int cmp( const void *n1, const void *n2 )
-{
-    if ( !n1 || !n2 )
-	return 0;
-
-    return ((QListViewPrivate::SortableItem *)n1)->key.
-	    compare( ((QListViewPrivate::SortableItem *)n2)->key );
-}
-
-#if defined(Q_C_CALLBACKS)
-}
-#endif
-
-
 /*!  Sorts the children of this item by the return values of
   key(\a column, \a ascending), in ascending order if \a ascending
   is TRUE and in descending order of \a descending is FALSE.
@@ -763,7 +748,7 @@ void QListViewItem::sortChildItems( int column, bool ascending )
     if ( childItem == 0 || childItem->siblingItem == 0 )
 	return;
 
-    // make an array we can sort in a thread-safe way using qsort()
+    // make an array for qHeapSort
     QListViewPrivate::SortableItem * siblings
 	= new QListViewPrivate::SortableItem[nChildren];
     QListViewItem * s = childItem;
@@ -775,9 +760,8 @@ void QListViewItem::sortChildItems( int column, bool ascending )
 	i++;
     }
 
-    // and do it.
-    qsort( siblings, nChildren,
-	   sizeof( QListViewPrivate::SortableItem ), cmp );
+    // and sort it.
+    qHeapSort( siblings, siblings+(nChildren-1) );
 
     // build the linked list of siblings, in the appropriate
     // direction, and finally set this->childItem to the new top
@@ -1355,7 +1339,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 
     bool reverse = QApplication::reverseLayout();
     int iconWidth = 0;
-    
+
     if ( icon ) {
 	iconWidth = icon->width() + listView()->itemMargin();
 	int x = r;
