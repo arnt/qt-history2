@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#39 $
 **
 ** Implementation of QNetworkProtocol class
 **
@@ -204,6 +204,7 @@ struct QNetworkProtocolPrivate
 QNetworkProtocol::QNetworkProtocol()
     : QObject()
 {
+
     d = new QNetworkProtocolPrivate;
     d->url = 0;
     d->opInProgress = 0;
@@ -248,6 +249,7 @@ QNetworkProtocol::~QNetworkProtocol()
 {
     if ( !d )
 	return;
+    d->removeTimer->stop();
     if ( d->opInProgress == d->operationQueue.head() )
 	d->operationQueue.dequeue();
     delete d->opInProgress;
@@ -734,9 +736,10 @@ bool QNetworkProtocol::autoDelete() const
 
 void QNetworkProtocol::removeMe()
 {
-    delete url();
-    if ( d->autoDelete )
-	delete this;
+    if ( d->autoDelete ) {
+	qDebug( "******************** autodelet of QNetworkProtocol %p ****************", this );
+	delete url();
+    }
 }
 
 /*!

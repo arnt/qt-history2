@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocket.cpp#9 $
+** $Id: //depot/qt/main/extensions/network/src/qsocket.cpp#10 $
 **
 ** Implementation of Network Extension Library
 **
@@ -860,7 +860,7 @@ int QSocket::writeBlock( const char *data, uint len )
     // a write immediately if there isn't data queued up already, and
     // the write notifier is off, and this blob of data isn't
     // ridiculously small.
-    
+
     if ( a && a->size() + len < 128 ) {		// small buffer, resize
 	int i = a->size();
 	a->resize( i+len );

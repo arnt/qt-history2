@@ -39,7 +39,7 @@ static QStrList * domains = 0;
 
 static void doResInit( void );
 
-#define DEBUG_QDNS
+//#define DEBUG_QDNS
 
 class QDnsPrivate {
 public:
@@ -510,7 +510,7 @@ void QDnsAnswer::notify()
 
 //
 //
-// QDnsManager 
+// QDnsManager
 //
 //
 
@@ -1173,7 +1173,7 @@ QValueList<QHostAddress> QDns::addresses() const
 	}
     }
 
-    
+
 #if 0
     int i = l.length()-1;
     bool abbrev = FALSE;
@@ -1206,7 +1206,7 @@ QValueList<QHostAddress> QDns::addresses() const
 	setLabel( realLabel );
     }
 #endif
-    
+
     QList<QDnsRR> * cached = QDnsDomain::cached( l, t );
 
     (void)cached->first();

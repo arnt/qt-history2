@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#66 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#67 $
 **
 ** Implementation of QUrl class
 **
@@ -195,6 +195,7 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
 QUrl::~QUrl()
 {
     delete d;
+    d = 0;
 }
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#29 $
 **
 ** Implementation of QUrlOperator class
 **
@@ -28,7 +28,7 @@
 #include "qnetworkprotocol.h"
 #include "qmap.h"
 #include "qapplication.h"
-#include "qqueue.h"
+#include "qptrdict.h"
 
 struct QUrlOperatorPrivate
 {
@@ -38,10 +38,10 @@ struct QUrlOperatorPrivate
     QDir dir;
 
     // maps needed for copy/move operations
-    QMap<QNetworkOperation*, QNetworkOperation*> getOpPutOpMap;
-    QMap<QNetworkOperation*, QNetworkProtocol*> getOpPutProtMap;
-    QMap<QNetworkOperation*, QNetworkProtocol*> getOpGetProtMap;
-    QMap<QNetworkOperation*, QNetworkOperation*> getOpRemoveOpMap;
+    QPtrDict<QNetworkOperation> getOpPutOpMap;
+    QPtrDict<QNetworkProtocol> getOpPutProtMap;
+    QPtrDict<QNetworkProtocol> getOpGetProtMap;
+    QPtrDict<QNetworkOperation> getOpRemoveOpMap;
 };
 
 // NOT REVISED
@@ -160,12 +160,12 @@ struct QUrlOperatorPrivate
 /*!
   \fn void QUrlOperator::dataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation *op )
 
-  When transferring data (using put or get) this signal is emitted during the progress. 
+  When transferring data (using put or get) this signal is emitted during the progress.
   \a bytesDone tells how much bytes of \a bytesTotal are transferred, more information
   about the operation is stored in the \a op, the pointer to the network operation
   which is processed. \a bytesTotal may be -1, which means that the number of total
   bytes is not known.
-  
+
   \sa QNetworkOperation::QNetworkOperation()
 */
 
@@ -273,9 +273,13 @@ QUrlOperator::QUrlOperator( const QUrlOperator& url, const QString& relUrl_ )
 
 QUrlOperator::~QUrlOperator()
 {
+    if ( !d )
+	return;
+    
     if ( d->networkProtocol )
 	delete d->networkProtocol;
     delete d;
+    d = 0;
 }
 
 /*!
@@ -423,7 +427,7 @@ const QNetworkOperation *QUrlOperator::rename( const QString &oldname, const QSt
 
 /*!
   Copies the file \a from to \a to. If \a move is TRUE,
-  the file is moved (copied and removed). 
+  the file is moved (copied and removed).
   The copying is done using get and put operations. So if you want to get notified
   about the progress of the operation, connect to the \c dataTransferProgress
   signal. But you have to know, that the get and the put operations emit
@@ -431,7 +435,7 @@ const QNetworkOperation *QUrlOperator::rename( const QString &oldname, const QSt
   argument in this signal isn't related to the the whole copy operation, but
   first to the get and then to the put operation. So always check for
   the operation from which the signal comes.
-  
+
   Also at the end finished( QNetworkOperation * ) (on success or failure) is emitted,
   so check the state of the network operation object to see if the
   operation was successful or not.
@@ -489,15 +493,15 @@ QList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString 
 	connect( pProt, SIGNAL( finished( QNetworkOperation * ) ),
 		 this, SLOT( emitFinished( QNetworkOperation * ) ) );
 
-	d->getOpPutProtMap[ opGet ] = pProt;
-	d->getOpGetProtMap[ opGet ] = gProt;
-	d->getOpPutOpMap[ opGet ] = opPut;
+	d->getOpPutProtMap.insert( (void*)opGet, pProt );
+	d->getOpGetProtMap.insert( (void*)opGet, gProt );
+	d->getOpPutOpMap.insert( (void*)opGet, opPut );
 
 	if ( move && gProt->supportedOperations() & QNetworkProtocol::OpRemove ) {
 	    QNetworkOperation *opRm = new QNetworkOperation( QNetworkProtocol::OpRemove, frm,
 							     QString::null, QString::null );
 	    ops.append( opRm );
-	    d->getOpRemoveOpMap[ opGet ] = opRm;
+	    d->getOpRemoveOpMap.insert( (void*)opGet, opRm );
 	    gProt->setAutoDelete( FALSE );
 	}	
 
@@ -805,7 +809,7 @@ bool QUrlOperator::checkValid()
 
 void QUrlOperator::getGotData( const QByteArray &data, QNetworkOperation *op )
 {
-    QNetworkOperation *put= d->getOpPutOpMap[ op ];
+    QNetworkOperation *put = d->getOpPutOpMap[ (void*)op ];
     if ( put ) {
 	QByteArray s;
 	s.resize( put->rawArg2().size() + data.size() );
@@ -825,14 +829,14 @@ void QUrlOperator::finishedGet( QNetworkOperation *op )
     if ( op->operation() != QNetworkProtocol::OpGet )
 	return;
 
-    QNetworkOperation *put = d->getOpPutOpMap[ op ];
-    QNetworkProtocol *gProt = d->getOpGetProtMap[ op ];
-    QNetworkProtocol *pProt = d->getOpPutProtMap[ op ];
-    QNetworkOperation *rm = d->getOpRemoveOpMap[ op ];
-    d->getOpPutOpMap.remove( op );
-    d->getOpGetProtMap.remove( op );
-    d->getOpPutProtMap.remove( op );
-    d->getOpRemoveOpMap.remove( op );
+    QNetworkOperation *put = d->getOpPutOpMap[ (void*)op ];
+    QNetworkProtocol *gProt = d->getOpGetProtMap[ (void*)op ];
+    QNetworkProtocol *pProt = d->getOpPutProtMap[ (void*)op ];
+    QNetworkOperation *rm = d->getOpRemoveOpMap[ (void*)op ];
+    d->getOpPutOpMap.take( op );
+    d->getOpGetProtMap.take( op );
+    d->getOpPutProtMap.take( op );
+    d->getOpRemoveOpMap.take( op );
     if ( pProt )
 	pProt->setAutoDelete( TRUE );
     if ( put && pProt )

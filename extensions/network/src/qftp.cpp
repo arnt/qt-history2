@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#48 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#49 $
 **
 ** Implementation of Network Extension Library
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#368 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#369 $
 **
 ** Implementation of QFileDialog class
 **
@@ -695,7 +695,8 @@ void QFileListBox::viewportMouseMoveEvent( QMouseEvent *e )
 
 void QFileListBox::dragObjDestroyed()
 {
-    filedialog->rereadDir();
+    //#######
+    //filedialog->rereadDir();
 }
 
 void QFileListBox::viewportDragEnterEvent( QDragEnterEvent *e )
@@ -770,8 +771,9 @@ void QFileListBox::viewportDragLeaveEvent( QDragLeaveEvent * )
     dragScrollTimer->stop();
     filedialog->drawDragShapes( oldDragPos, TRUE, urls );
     setCurrentDropItem( QPoint( -1, -1 ) );
-    if ( startDragDir != filedialog->url() )
-	filedialog->setUrl( startDragUrl );
+//########
+//     if ( startDragDir != filedialog->url() )
+// 	filedialog->setUrl( startDragUrl );
 }
 
 void QFileListBox::viewportDropEvent( QDropEvent *e )
@@ -1115,7 +1117,8 @@ void QFileListView::viewportMouseMoveEvent( QMouseEvent *e )
 
 void QFileListView::dragObjDestroyed()
 {
-    filedialog->rereadDir();
+    //######
+    //filedialog->rereadDir();
 }
 
 void QFileListView::viewportDragEnterEvent( QDragEnterEvent *e )
@@ -1190,8 +1193,9 @@ void QFileListView::viewportDragLeaveEvent( QDragLeaveEvent * )
     dragScrollTimer->stop();
     filedialog->drawDragShapes( oldDragPos, FALSE, urls );
     setCurrentDropItem( QPoint( -1, -1 ) );
-    if ( startDragDir != filedialog->url() )
-	filedialog->setUrl( startDragUrl );
+//########
+//     if ( startDragDir != filedialog->url() )
+// 	filedialog->setUrl( startDragUrl );
 }
 
 void QFileListView::viewportDropEvent( QDropEvent *e )
