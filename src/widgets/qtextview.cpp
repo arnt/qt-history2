@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.cpp#235 $
+** $Id: //depot/qt/main/src/widgets/qtextview.cpp#236 $
 **
 ** Implementation of the QTextView class
 **
@@ -49,8 +49,8 @@
 
 /*! \reimp */
 
-QTextView::QTextView( const QString& text, const QString& context = QString::null,
-		      QWidget *parent = 0, const char *name = 0)
+QTextView::QTextView( const QString& text, const QString& context,
+		      QWidget *parent, const char *name )
     : QTextEdit( text, context, parent, name )
 {
     setReadOnly( TRUE );
@@ -58,7 +58,7 @@ QTextView::QTextView( const QString& text, const QString& context = QString::nul
 
 /*! \reimp */
 
-QTextView::QTextView( QWidget *parent = 0, const char *name = 0 )
+QTextView::QTextView( QWidget *parent, const char *name )
     : QTextEdit( parent, name )
 {
     setReadOnly( TRUE );
