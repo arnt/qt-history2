@@ -42,6 +42,7 @@
 #include "qkbdusb_qws.h"
 #include "qkbdsl5000_qws.h"
 #include "qkbdyopy_qws.h"
+#include "qkbdvr41xx_qws.h"
 #include <stdlib.h>
 
 #if (!defined(Q_OS_WIN32) && !defined(Q_OS_WIN64)) || defined(QT_MAKEDLL)
@@ -110,6 +111,10 @@ QWSKeyboardHandler *QKbdDriverFactory::create( const QString& key )
     if ( driver == "yopy" || driver.isEmpty() )
 	return new QWSYopyKeyboardHandler();
 #endif
+#ifdef QT_QWS_CASSIOPEIA
+    if ( driver == "vr41xx" || driver.isEmpty() )
+	return new QWSVr41xxKeyboardHandler();
+#endif
 #ifndef QT_NO_QWS_KBDTTY
     if ( driver =="tty" || driver.isEmpty() )
 	return new QWSTtyKeyboardHandler();
@@ -156,6 +161,10 @@ QStringList QKbdDriverFactory::keys()
 #ifdef QT_QWS_YOPY
     if ( !list.contains( "SL5000" ) )
 	list << "SL5000";
+#endif
+#ifdef QT_QWS_CASSIOPEIA
+    if ( !list.contains( "VR41xx" ) )
+	list << "VR41xx";
 #endif
 #ifndef QT_NO_QWS_KBDTTY
     if ( !list.contains( "TTY" ) )
