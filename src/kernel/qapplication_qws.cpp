@@ -1799,8 +1799,8 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
 	cursorStack->removeLast();
     cursorStack->append( app_cursor );
     QWidget *w = QWidget::mouseGrabber();
-    if ( !w )
-	w = widgetAt(qt_last_x, qt_last_y, FALSE);
+    if ( !w && qt_last_x )
+	w = widgetAt(*qt_last_x, *qt_last_y, FALSE);
     if ( !w )
 	w = desktop();
     QPaintDevice::qwsDisplay()->selectCursor(w, (int)app_cursor->handle());
@@ -1813,8 +1813,8 @@ void QApplication::restoreOverrideCursor()
     cursorStack->removeLast();
     app_cursor = cursorStack->last();
     QWidget *w = QWidget::mouseGrabber();
-    if ( !w )
-	w = widgetAt(qt_last_x, qt_last_y, FALSE);
+    if (!w && qt_last_x)
+	w = widgetAt(*qt_last_x, *qt_last_y, FALSE);
     if ( !w )
 	w = desktop();
     if ( !app_cursor ) {
