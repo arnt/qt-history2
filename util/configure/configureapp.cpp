@@ -1153,12 +1153,14 @@ void Configure::generateConfigfiles()
 	if(dictionary["STYLE_MAC"] == "no")         qconfigList += "QT_NO_STYLE_MAC";
 
         if(dictionary["GIF"] == "yes")              qconfigList += "QT_BUILTIN_GIF_READER=1";
-        if(dictionary["PNG"] != "qt") qconfigList += "QT_NO_IMAGEIO_PNG";
-        if(dictionary["JPEG"] != "qt")             qconfigList += "QT_NO_IMAGEIO_JPEG";
-        if(dictionary["MNG"] != "qt")              qconfigList += "QT_NO_IMAGEIO_MNG";
-        if(dictionary["ZLIB"] == "no")            { qconfigList += "QT_NO_ZLIB";
-                                                    qconfigList += "QT_NO_COMPRESS"; }
-        
+        if(dictionary["PNG"] == "no")               qconfigList += "QT_NO_IMAGEIO_PNG";
+        if(dictionary["JPEG"] == "no")              qconfigList += "QT_NO_IMAGEIO_JPEG";
+        if(dictionary["MNG"] == "no")               qconfigList += "QT_NO_IMAGEIO_MNG";
+        if(dictionary["ZLIB"] == "no") {
+            qconfigList += "QT_NO_ZLIB";
+            qconfigList += "QT_NO_COMPRESS";
+        }
+
         if(dictionary["COMPAT"] == "no")            qconfigList += "QT_NO_COMPAT";
         if(dictionary["ACCESSIBILITY"] == "no")     qconfigList += "QT_NO_ACCESSIBILITY";
         if(dictionary["EXCEPTIONS"] == "no")        qconfigList += "QT_NO_EXCEPTIONS";
