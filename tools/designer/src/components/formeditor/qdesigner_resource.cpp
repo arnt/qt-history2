@@ -395,6 +395,22 @@ DomTabStops *QDesignerResource::saveTabStops()
     return 0;
 }
 
+void QDesignerResource::applyTabStops(QWidget *widget, DomTabStops *tabStops)
+{
+    if (!tabStops)
+        return;
+        
+    QList<QWidget*> tabOrder;
+    foreach (QString widgetName, tabStops->elementTabStop()) {
+        if (QWidget *w = qFindChild<QWidget*>(widget, widgetName)) {
+            tabOrder.append(w);
+        }
+    }
+
+    AbstractMetaDataBaseItem *item = m_core->metaDataBase()->item(m_formWindow);
+    Q_ASSERT(item);
+    item->setTabOrder(tabOrder);
+}
 
 DomWidget *QDesignerResource::saveWidget(QWidget *widget, IContainer *container, DomWidget *ui_parentWidget)
 {
