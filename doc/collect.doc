@@ -44,30 +44,30 @@ certain data structure and performs operations on the contained items;
 insert, remove, find etc.
 
 Qt has several value-based and several pointer-based collection
-classes.  The pointer based collection classes work with pointers to
-items, while the value based classes store copies of their items. The
+classes.  The pointer-based collection classes work with pointers to
+items, while the value-based classes store copies of their items. The
 value-based collections are very similar to STL container classes, and
 can be used with STL algorithms and containers.  See the \link
 qtl.html Qt Template Library\endlink documentation for details.
 
-The value based collections are:
-<ul>
-<li> \l QValueList a value based list
-<li> \l QValueVector a value based vector structure
-<li> \l QValueStack a value based stack structure
-<li> \l QMap a value based dictionary structure
-</ul>
+The value-based collections are:
+\list
+\i \l QValueList, a value-based list
+\i \l QValueVector, a value-based vector structure
+\i \l QValueStack, a value-based stack structure
+\i \l QMap, a value-based dictionary structure
+\endlist
 
 The pointer-based collections are:
-<ul>
-<li> \l QCache QCache and \l QIntCache
+\list
+\i \l QCache and \l QIntCache,
 	LRU (least recently used) cache structures.
-<li> \l QDict, \l QIntDict and \l QPtrDict dictionary structures.
-<li> \l QPtrList a double linked list structure.
-<li> \l QPtrQueue a FIFO (first in, first out) queue structure.
-<li> \l QPtrStack a LIFO (last in, first out) stack structure.
-<li> \l QPtrVector a vector structure.
-</ul>
+\i \l QDict, \l QIntDict and \l QPtrDict dictionary structures.
+\i \l QPtrList, a double linked list structure.
+\i \l QPtrQueue, a FIFO (first in, first out) queue structure.
+\i \l QPtrStack, a LIFO (last in, first out) stack structure.
+\i \l QPtrVector, a vector structure.
+\endlist
 
 \l QMemArray is exceptional; it is neither pointer nor value based,
 but memory based. For maximum efficiency with the simple data types
@@ -76,35 +76,35 @@ array elements.
 
 Some of these classes have corresponding iterators.  An iterator
 is a class for traversing the items in a collection:
-<ul>
-<li> \link QCacheIterator QCacheIterator\endlink and
+\list
+\i \link QCacheIterator QCacheIterator\endlink and
 	\link QIntCacheIterator QIntCacheIterator\endlink
-<li> \link QDictIterator QDictIterator\endlink,
+\i \link QDictIterator QDictIterator\endlink,
 	\link QIntDictIterator QIntDictIterator\endlink, and
 	\link QPtrDictIterator QPtrDictIterator\endlink
-<li> \link QPtrListIterator QPtrListIterator\endlink
-<li> \link QValueListIterator QValueListIterator\endlink, and
+\i \link QPtrListIterator QPtrListIterator\endlink
+\i \link QValueListIterator QValueListIterator\endlink, and
 	\link QValueListConstIterator QValueListConstIterator\endlink
-<li> \link QMapIterator QMapIterator\endlink, and
+\i \link QMapIterator QMapIterator\endlink, and
 	\link QMapConstIterator QMapConstIterator\endlink
-</ul>
+\endlist
 
-The value based collections plus algorithms operating on them are
-grouped together in the <a href="qtl.html">Qt Template
-Library</a>. See the respective documentation for details. 
+The value-based collections plus algorithms operating on them are
+grouped together in the \link qtl.html Qt Template
+Library\endlink. See the respective documentation for details. 
 
-The rest of this page talks about the pointer based containers only.
+The rest of this page dicusses the pointer-based containers.
 
-\section1 Architecture of the pointer based containers
+\section1 Architecture of the pointer-based containers
 
-There are three internal base classes for the pointer based
-containers; QGCache, QGDict and QGList that operate on
+There are four internal base classes for the pointer-based
+containers (QGCache, QGDict, QGList and QGVector) that operate on
 void pointers.  A thin template layer implements the actual
 collections by casting item pointers to and from void pointers.
 
 This strategy allows Qt's templates to be very economical on space
-(instantiating one of these templates adds only inline-able calls to
-the base classes), while it does not hurt performance much.
+(instantiating one of these templates adds only inlinable calls to
+the base classes), while it does not hurt performance.
 
 \section1 A QPtrList Example
 
@@ -148,14 +148,14 @@ them out in the reverse order:
 
 Program output:
 \code
-	Ron earns 60000
-	Steve earns 80000
-	Bill earns 50000
+    Ron earns 60000
+    Steve earns 80000
+    Bill earns 50000
 \endcode
 
 \section1 Managing Collection Items
 
-All pointer based collections inherit the \l QPtrCollection base class.
+All pointer-based collections inherit the \l QPtrCollection base class.
 This class knows only the number of items in the collection and the
 delete strategy.
 
@@ -180,31 +180,31 @@ if auto-deletion is enabled.
 
 \section1 Usage
 
-A pointer based collection class, such as QPtrList\<type\>, defines a
+A pointer-based collection class, such as QPtrList\<type\>, defines a
 collection of \e pointers to \e type objects.  The pointer (*) is
 implicit.
 
 We discuss \l QPtrList here, but the same techniques apply for all
-pointer based collection classes and all collection class iterators.
+pointer-based collection classes and all collection class iterators.
 
 Template instantiation:
 \code
-  QPtrList<Employee> list;		// wherever the list is used
+    QPtrList<Employee> list;		// wherever the list is used
 \endcode
 
 The item's class or type, Employee in our example, must be defined prior
 to the list definition.
 
 \code
-  // Does not work: Employee is not defined
-  class Employee;
-  QPtrList<Employee> list;
+    // Does not work: Employee is not defined
+    class Employee;
+    QPtrList<Employee> list;
 
-  // This works: Employee is defined before it is used
-  class Employee {
-    ...
-  };
-  QPtrList<Employee> list;
+    // This works: Employee is defined before it is used
+    class Employee {
+        ...
+    };
+    QPtrList<Employee> list;
 \endcode
 
 \section1 Iterators
@@ -225,16 +225,16 @@ QCacheIterator.
 \section1 Predefined Collections
 
 Qt has the following predefined collection classes:
-<ul>
-<li> String lists: \l QStrList, \l QStrIList (\l qstrlist.h) and
+\list
+\i String lists: \l QStrList, \l QStrIList (\l qstrlist.h) and
 	\l QStringList (\l qstringlist.h)
-<li> String vectors: QStrVec and QStrIVec (qstrvec.h); these are obsolete
-</ul>
+\i String vectors: QStrVec and QStrIVec (qstrvec.h); these are obsolete
+\endlist
 
 In almost all cases you would choose \l QStringList, a value
 list of implicitly shared QString unicode strings. QPtrStrList and
 QPtrStrIList store only char pointers, not the strings themselves.
 
-\section1 Full Class List
+\section1 List of All Container Classes and Related Iterator Classes
 
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qptrqueue.h#2 $
+** $Id: //depot/qt/main/src/tools/qptrqueue.h#3 $
 **
 ** Definition of QPtrQueue template/macro class
 **
@@ -42,13 +42,13 @@
 #include "qglist.h"
 #endif // QT_H
 
-
-template<class type> class QPtrQueue : private QGList
+template<class type>
+class QPtrQueue : protected QGList
 {
 public:
     QPtrQueue()				{}
     QPtrQueue( const QPtrQueue<type> &q ) : QGList(q) {}
-   ~QPtrQueue()				{ clear(); }
+    ~QPtrQueue()			{ clear(); }
     QPtrQueue<type>& operator=(const QPtrQueue<type> &q)
 			{ return (QPtrQueue<type>&)QGList::operator=(q); }
     bool  autoDelete() const		{ return QPtrCollection::autoDelete(); }
@@ -62,6 +62,13 @@ public:
     type *head()    const		{ return (type *)QGList::cfirst(); }
 	  operator type *() const	{ return (type *)QGList::cfirst(); }
     type *current() const		{ return (type *)QGList::cfirst(); }
+
+#ifdef Q_QDOC
+protected:
+    virtual QDataStream& read( QDataStream&, QPtrCollection::Item& );
+    virtual QDataStream& write( QDataStream&, QPtrCollection::Item ) const;
+#endif
+
 private:
     void  deleteItem( Item d ) { if ( del_item ) delete (type *)d; }
 };
@@ -70,4 +77,4 @@ private:
 #define QQueue QPtrQueue
 #endif
 
-#endif // QQUEUE_H
+#endif // QPTRQUEUE_H

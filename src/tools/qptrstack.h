@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qptrstack.h#2 $
+** $Id: //depot/qt/main/src/tools/qptrstack.h#3 $
 **
 ** Definition of QPtrStack pointer based template class
 **
@@ -42,13 +42,13 @@
 #include "qglist.h"
 #endif // QT_H
 
-
-template<class type> class QPtrStack : private QGList
+template<class type>
+class QPtrStack : protected QGList
 {
 public:
-    QPtrStack()				{}
-    QPtrStack( const QPtrStack<type> &s ) : QGList(s) {}
-   ~QPtrStack()				{ clear(); }
+    QPtrStack()				{ }
+    QPtrStack( const QPtrStack<type> &s ) : QGList( s ) { }
+    ~QPtrStack()			{ clear(); }
     QPtrStack<type> &operator=(const QPtrStack<type> &s)
 			{ return (QPtrStack<type>&)QGList::operator=(s); }
     bool  autoDelete() const		{ return QPtrCollection::autoDelete(); }
@@ -62,6 +62,13 @@ public:
     type *top()	    const		{ return (type *)QGList::cfirst(); }
 	  operator type *() const	{ return (type *)QGList::cfirst(); }
     type *current() const		{ return (type *)QGList::cfirst(); }
+
+#ifdef Q_QDOC
+protected:
+    virtual QDataStream& read( QDataStream&, QPtrCollection::Item& );
+    virtual QDataStream& write( QDataStream&, QPtrCollection::Item ) const;
+#endif
+
 private:
     void  deleteItem( Item d ) { if ( del_item ) delete (type *)d; }
 };
@@ -70,5 +77,4 @@ private:
 #define QStack QPtrStack
 #endif
 
-
-#endif // QSTACK_H
+#endif // QPTRSTACK_H

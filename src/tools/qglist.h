@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.h#48 $
+** $Id: //depot/qt/main/src/tools/qglist.h#49 $
 **
 ** Definition of QGList and QGListIterator classes
 **
@@ -42,11 +42,6 @@
 #include "qptrcollection.h"
 #endif // QT_H
 
-
-/*****************************************************************************
-  QLNode class (internal doubly linked list node)
- *****************************************************************************/
-
 class Q_EXPORT QLNode
 {
 friend class QGList;
@@ -59,11 +54,6 @@ private:
     QLNode *next;
     QLNode( QPtrCollection::Item d ) { data = d; }
 };
-
-
-/*****************************************************************************
-  QGList class
- *****************************************************************************/
 
 class QGListIteratorList; // internal helper class
 

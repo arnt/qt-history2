@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#81 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#82 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -42,7 +42,9 @@
 
 /*!
   \class QLNode qglist.h
-  \brief The QLNode class is an internal class for the QList template collection.
+  \brief The QLNode class is an internal class for the QPtrList template collection.
+
+  \internal
 
   QLNode is a doubly-linked list node. It has three pointers:
   \list 1
@@ -52,12 +54,12 @@
   \endlist
 
   It might sometimes be practical to have direct access to the list nodes
-  in a QList, but it is seldom required.
+  in a QPtrList, but it is seldom required.
 
   Be very careful if you want to access the list nodes. The heap can
   easily get corrupted if you make a mistake.
 
-  \sa QList::currentNode(), QList::removeNode(), QList::takeNode()
+  \sa QPtrList::currentNode(), QPtrList::removeNode(), QPtrList::takeNode()
 */
 
 /*!
@@ -73,7 +75,7 @@
   \internal
 
   QGList is a strictly internal class that acts as a base class for
-  several collection classes; QList, QQueue and QStack.
+  several collection classes; QPtrList, QPtrQueue and QPtrStack.
 
   QGList has some virtual functions that can be reimplemented to
   customize the subclasses, namely compareItems(), read() and
@@ -158,36 +160,8 @@ private:
  *****************************************************************************/
 
 /*!
-  This virtual function compares two list items.
-
-  Returns:
-  <ul>
-  <li> 0 if \e item1 == \e item2
-  <li> non-zero if \e item1 != \e item2
-  </ul>
-
-  This function returns \e int rather than \e bool so that
-  reimplementations can return three values and use it to sort by:
-
-  <ul>
-  <li> 0 if \e item1 == \e item2
-  <li> \> 0 (positive integer) if \e item1 \> \e item2
-  <li> \< 0 (negative integer) if \e item1 \< \e item2
-  </ul>
-
-  The QList::inSort() function requires that compareItems() is implemented
-  as described here.
-
-  This function should not modify the list because some const functions
-  call compareItems().
-
-  The default implementation compares the pointers:
-  \code
-
-  \endcode
+  Documented as QPtrList::compareItems().
 */
-
-
 int QGList::compareItems( QPtrCollection::Item item1, QPtrCollection::Item item2 )
 {
     return item1 != item2;			// compare pointers

@@ -41,12 +41,17 @@
 #endif // QT_H
 
 
-template<class type> class Q_EXPORT QPtrList : public QGList
+template<class type> class Q_EXPORT QPtrList
+#ifdef Q_QDOC
+	: public QPtrCollection
+#else
+	: public QGList
+#endif
 {
 public:
     QPtrList()				{}
     QPtrList( const QPtrList<type> &l ) : QGList(l) {}
-   ~QPtrList()				{ clear(); }
+    ~QPtrList()				{ clear(); }
     QPtrList<type> &operator=(const QPtrList<type> &l)
 			{ return (QPtrList<type>&)QGList::operator=(l); }
     bool operator==( const QPtrList<type> &list ) const
@@ -87,6 +92,14 @@ public:
     type *next()			{ return (type *)QGList::next(); }
     type *prev()			{ return (type *)QGList::prev(); }
     void  toVector( QGVector *vec )const{ QGList::toVector(vec); }
+
+#ifdef Q_QDOC
+protected:
+    virtual int compareItems( QPtrCollection::Item, QPtrCollection::Item );
+    virtual QDataStream& read( QDataStream&, QPtrCollection::Item& );
+    virtual QDataStream& write( QDataStream&, QPtrCollection::Item ) const;
+#endif
+
 private:
     void  deleteItem( QPtrCollection::Item d );
 };

@@ -35,39 +35,38 @@
 
 
 /*!
-  \class QPtrQueue qptrqueue.h
+  \class QPtrQueue
   \brief The QPtrQueue class is a template class that provides a queue.
 
   \ingroup collection
   \ingroup tools
 
-  QPtrQueue is implemented as a template class. A template instance
-  QPtrQueue\<X\> is a queue that operates on pointers to X.
+  A template instance QPtrQueue\<X\> is a queue that operates on
+  pointers to X.
 
   A queue is a first in, first out structure. Items are added to the
   tail of the queue with enqueue() and retrieved from the head with
   dequeue(). You can peek at the head item without dequeing it using
   head().
 
-  QPtrQueue also has some functions for compatibility with the other
-  collection classes, such as isEmpty(), count(), clear(), current(),
-  and remove(). current() and remove() both operate on the head().
+  For compatibility with the QPtrCollection classes, current() and
+  remove() are provided; both operate on the head().
 
-  \sa collection classes
+  \sa QPtrList QPtrStack \link collection.html Collection Classes\endlink
 */
 
 /*! \fn QPtrQueue::QPtrQueue ()
   Creates an empty queue with autoDelete() set to FALSE.
 */
 
-/*! \fn QPtrQueue::QPtrQueue (const QPtrQueue<type>& queue)
+/*! \fn QPtrQueue::QPtrQueue( const QPtrQueue<type>& queue )
   Creates a queue from another.
 
   Only the pointers are copied - the items are not.  The autoDelete()
   flag is set to FALSE.
 */
 
-/*! \fn QPtrQueue::~QPtrQueue ()
+/*! \fn QPtrQueue::~QPtrQueue()
 
   Destroys the queue.  Items in the queue are deleted if autoDelete()
   is TRUE.
@@ -86,7 +85,7 @@
   double-deletion of the items.
 */
 
-/*! \fn bool QPtrQueue::isEmpty () const
+/*! \fn bool QPtrQueue::isEmpty() const
 
   Returns TRUE if the queue is empty and FALSE if there is at least
   one item enqueued.
@@ -180,4 +179,28 @@
   queues deleting the same items.
 
   \sa autoDelete()
+*/
+
+/*!
+  \fn QDataStream& QPtrQueue::read( QDataStream& s,
+				    QPtrCollection::Item& item )
+
+  Reads a queue item from the stream \a s and returns a reference to
+  the stream.
+
+  The default implementation sets \a item to 0.
+
+  \sa write()
+*/
+
+/*!
+  \fn QDataStream& QPtrQueue::write( QDataStream& s,
+				     QPtrCollection::Item item ) const
+
+  Writes a queue item to the stream \a s and returns a reference to the
+  stream.
+
+  The default implementation does nothing.
+
+  \sa read()
 */

@@ -39,15 +39,16 @@
  *****************************************************************************/
 
 /*!
-  \class QPtrList qptrlist.h
+  \class QPtrList
   \brief The QPtrList class is a template class that provides doubly-linked lists.
 
   \ingroup collection
   \ingroup tools
 
-  In Qt 2.0, QPtrList is only implemented as a template class. Define a
-  template instance QPtrList\<X\> to create a list that operates on pointers
-  to X, or X*.
+  \important autoDelete setAutoDelete
+
+  Define a template instance QPtrList\<X\> to create a list that
+  operates on pointers to X, or X*.
 
   Example:
   \code
@@ -84,19 +85,19 @@
 
   Program output:
   \code
-	Bill earns 50000
-	Steve earns 80000
-	Ron earns 60000
+    Bill earns 50000
+    Steve earns 80000
+    Ron earns 60000
   \endcode
 
   The list class is indexable and has a \link at() current index\endlink
   and a \link current() current item\endlink.  The first item corresponds
   to index 0.  The current index is -1 if the current item is null.
 
-  QPtrList has several member functions for traversing the list, but using
-  a QPtrListIterator can be more practical. Multiple list iterators may
-  traverse the same list, independent of each other and independent of
-  the current list item.
+  QPtrList has several member functions for traversing the list, but
+  using a QPtrListIterator can be more practical. Multiple list
+  iterators may traverse the same list, independently of each other
+  and of the current list item.
 
   In the example above we make the call setAutoDelete(TRUE).
   Enabling auto-deletion tells the list to delete items that are removed
@@ -107,12 +108,13 @@
   List items are stored as \c void* in an internal QLNode, which also
   holds pointers to the next and previous list items.  The functions
   currentNode(), removeNode(), and takeNode() operate directly on the
-  QLNode, but they should be used with care.
+  QLNode, but they should be used with care. The data component of the
+  node is available through QLNode::getData().
 
   When inserting an item into a list only the pointer is copied, not the
   item itself. This is called a shallow copy. It is possible to make the
   list copy all of the item's data (known as a deep copy) when an item is
-  inserted.  insert(), inSort(), and append() call the virtual function
+  inserted.  insert(), inSort() and append() call the virtual function
   QPtrCollection::newItem() for the item to be inserted.
   Inherit a list and reimplement it if you want deep copies.
 
@@ -120,16 +122,15 @@
   QPtrCollection::deleteItem() is called.  QPtrList's default implementation
   is to delete the item if auto-deletion is enabled.
 
-  The virtual function QGList::compareItems() can be reimplemented to
+  The virtual function compareItems() can be reimplemented to
   compare two list items. This function is called from all list functions
   that need to compare list items, for instance remove(const type*).
   If you only want to deal with pointers, there are functions that
   compare pointers instead, for instance removeRef(const type*).
   These functions are somewhat faster than those that call compareItems().
 
-  The QStrList class in qstrlist.h is a list of \c char*.  QStrList is
-  a good example of a list that reimplements newItem(), deleteItem(), and
-  compareItems()
+  The QStrList class in \l qstrlist.h is a list of \c char*.  It
+  reimplements newItem(), deleteItem() and compareItems().
 
   \sa QPtrListIterator, \link collection.html Collection Classes\endlink
 */
@@ -142,9 +143,9 @@
 
 /*!
   \fn QPtrList::QPtrList( const QPtrList<type> &list )
-  Constructs a copy of \e list.
+  Constructs a copy of \a list.
 
-  Each item in \e list is \link append() appended\endlink to this list.
+  Each item in \a list is \link append() appended\endlink to this list.
   Only the pointers are copied (shallow copy).
 */
 
@@ -159,9 +160,9 @@
 
 /*!
   \fn QPtrList<type> &QPtrList::operator=(const QPtrList<type> &list)
-  Assigns \e list to this list and returns a reference to this list.
+  Assigns \a list to this list and returns a reference to this list.
 
-  This list is first cleared and then each item in \e list is
+  This list is first cleared and then each item in \a list is
   \link append() appended\endlink to this list.  Only the pointers are copied
   (shallow copy) unless newItem() has been reimplemented().
 */
@@ -204,29 +205,29 @@
 
 /*!
   \fn bool QPtrList::insert( uint index, const type *item )
-  Inserts the \e item at the position \e index in the list.
+  Inserts the \a item at the position \a index in the list.
 
-  Returns TRUE if successful or FALSE if \e index is out of range.
-  The valid range is <code>0 .. count()</code> inclusive.
-  The item is appended if \e index == count().
+  Returns TRUE if successful or FALSE if \a index is out of range.
+  The valid range is 0 to count() (inclusively).
+  The item is appended if \a index == count().
 
   The inserted item becomes the current list item.
 
-  The \e item must not be a null pointer.
+  The \a item must not be a null pointer.
 
   \sa append(), current()
 */
 
 /*!
   \fn void QPtrList::inSort( const type *item )
-  Inserts the \e item at its sorted position in the list.
+  Inserts the \a item at its sorted position in the list.
 
-  The sort order depends on the virtual QGList::compareItems() function.
+  The sort order depends on the virtual compareItems() function.
   All items must be inserted with inSort() to maintain the sorting order.
 
   The inserted item becomes the current list item.
 
-  The \e item must not be a null pointer.
+  The \a item must not be a null pointer.
 
   Please note that inSort is slow. If you want to insert lots of items
   in a list and sort after inserting, you should use sort().
@@ -235,18 +236,18 @@
   for the same task. So you inSort() only if you already have a presorted
   list and want to insert only a few additional items.
 
-  \sa insert(), QGList::compareItems(), current(), sort()
+  \sa insert(), compareItems(), current(), sort()
 */
 
 /*!
   \fn void QPtrList::append( const type *item )
-  Inserts the \e item at the end of the list.
+  Inserts the \a item at the end of the list.
 
   The inserted item becomes the current list item.
   This is equivalent to \c insert(count(),item).
 
 
-  The \e item must not be a null pointer.
+  The \a item must not be a null pointer.
 
   \sa insert(), current(), prepend()
 */
@@ -254,24 +255,24 @@
 /*!
   \fn void QPtrList::prepend( const type *item )
 
-  Inserts the \e item at the start of the list.
+  Inserts the \a item at the start of the list.
 
   The inserted item becomes the current list item.
-  This is equivalent to \c insert(0,item).
+  This is equivalent to insert(0, \a item).
 
-  The \e item must not be a null pointer.
+  The \a item must not be a null pointer.
 
   \sa append(), insert(), current()
 */
 
 /*!
   \fn bool QPtrList::remove( uint index )
-  Removes the item at position \e index in the list.
+  Removes the item at position \a index in the list.
 
-  Returns TRUE if successful, or FALSE if \e index is out of range.
+  Returns TRUE if successful, or FALSE if \a index is out of range.
   The valid range is <code>0 .. (count() - 1)</code> inclusive.
 
-  The removed item is deleted if \link QPtrCollection::setAutoDelete()
+  The removed item is deleted if \link setAutoDelete()
   auto-deletion\endlink is enabled.
 
   The item after the removed item becomes the new current list item if
@@ -292,7 +293,7 @@
 
   Returns TRUE if successful, or FALSE if the current item is null.
 
-  The removed item is deleted if \link QPtrCollection::setAutoDelete()
+  The removed item is deleted if \link setAutoDelete()
   auto-deletion\endlink is enabled.
 
   The item after the removed item becomes the new current list item if
@@ -309,12 +310,12 @@
 
 /*!
   \fn bool QPtrList::remove( const type *item )
-  Removes the first occurrence of \e item from the list.
+  Removes the first occurrence of \a item from the list.
 
   Returns TRUE if successful, or FALSE if the item could not be found in the
   list.
 
-  The removed item is deleted if \link QPtrCollection::setAutoDelete()
+  The removed item is deleted if \link setAutoDelete()
   auto-deletion\endlink is enabled.
 
   The compareItems() function is called when searching for the item
@@ -335,15 +336,15 @@
 
 /*!
   \fn bool QPtrList::removeRef( const type *item )
-  Removes the first occurrence of \e item from the list.
+  Removes the first occurrence of \a item from the list.
 
   Returns TRUE if successful, or FALSE if the item cannot be found in the
   list.
 
-  The removed item is deleted if \link QPtrCollection::setAutoDelete()
+  The removed item is deleted if \link setAutoDelete()
   auto-deletion\endlink is enabled.
 
-  The list is scanned until the pointer \e item is found.  It is removed
+  The list is scanned until the pointer \a item is found.  It is removed
   if it is found.
 
   Equivalent to:
@@ -366,11 +367,11 @@
 
 /*!
   \fn void QPtrList::removeNode( QLNode *node )
-  Removes the \e node from the list.
+  Removes the \a node from the list.
 
   This node must exist in the list, otherwise the program may crash.
 
-  The removed item is deleted if \link QPtrCollection::setAutoDelete()
+  The removed item is deleted if \link setAutoDelete()
   auto-deletion\endlink is enabled.
 
   The first item in the list will become the new current list item.
@@ -390,7 +391,7 @@
   Removes the first item from the list.
   Returns TRUE if successful, or FALSE if the list is empty.
 
-  The removed item is deleted if \link QPtrCollection::setAutoDelete()
+  The removed item is deleted if \link setAutoDelete()
   auto-deletion\endlink is enabled.
 
   The first item in the list becomes the new current list item.
@@ -407,7 +408,7 @@
   Removes the last item from the list.
   Returns TRUE if successful, or FALSE if the list is empty.
 
-  The removed item is deleted if \link QPtrCollection::setAutoDelete()
+  The removed item is deleted if \link setAutoDelete()
   auto-deletion\endlink is enabled.
 
   The last item in the list becomes the new current list item.
@@ -421,9 +422,9 @@
 
 /*!
   \fn type *QPtrList::take( uint index )
-  Takes the item at position \e index out of the list without
-  deleting it (even if \link QPtrCollection::setAutoDelete()
-  auto-deletion\endlink is enabled).
+  Takes the item at position \a index out of the list without
+  deleting it (even if \link setAutoDelete() auto-deletion\endlink
+  is enabled).
 
   Returns a pointer to the item taken out of the list, or null if
   the index is out of range.
@@ -444,7 +445,7 @@
 /*!
   \fn type *QPtrList::take()
   Takes the current item out of the list without deleting it (even if
-  \link QPtrCollection::setAutoDelete() auto-deletion\endlink is enabled).
+  \link setAutoDelete() auto-deletion\endlink is enabled).
   Returns a pointer to the item taken out of the list, or null if
   the current item is null.
 
@@ -462,8 +463,8 @@
 
 /*!
   \fn type *QPtrList::takeNode( QLNode *node )
-  Takes the \e node out of the list without deleting its item (even if
-  \link QPtrCollection::setAutoDelete() auto-deletion\endlink is enabled).
+  Takes the \a node out of the list without deleting its item (even if
+  \link setAutoDelete() auto-deletion\endlink is enabled).
   Returns a pointer to the item taken out of the list.
 
   This node must exist in the list, otherwise the program may crash.
@@ -483,7 +484,7 @@
   \fn void QPtrList::clear()
   Removes all items from the list.
 
-  The removed items are deleted if \link QPtrCollection::setAutoDelete()
+  The removed items are deleted if \link setAutoDelete()
   auto-deletion\endlink is enabled.
 
   All list iterators that access this list will be reset.
@@ -493,7 +494,7 @@
 
 /*!
   \fn int QPtrList::find( const type *item )
-  Finds the first occurrence of \e item in the list.
+  Finds the first occurrence of \a item in the list.
 
   If the item is found, the list sets the current item to point to
   the found item and returns the index of this item.
@@ -509,7 +510,7 @@
 
 /*!
   \fn int QPtrList::findNext( const type *item )
-  Finds the next occurrence of \e item in the list, starting from
+  Finds the next occurrence of \a item in the list, starting from
   the current list item.
 
   If the item is found, the list sets the current item to point to
@@ -526,7 +527,7 @@
 
 /*!
   \fn int QPtrList::findRef( const type *item )
-  Finds the first occurrence of \e item in the list.
+  Finds the first occurrence of \a item in the list.
 
   If the item is found, the list sets the current item to point to
   the found item and returns the index of this item.
@@ -534,7 +535,7 @@
   the current index to -1, and returns -1.
 
   Calling this function is much faster than find() because find()
-  compares \e item with each list item using compareItems().
+  compares \a item with each list item using compareItems().
   This function only compares the pointers.
 
   \sa findNextRef(), find(), current()
@@ -542,7 +543,7 @@
 
 /*!
   \fn int QPtrList::findNextRef( const type *item )
-  Finds the next occurrence of \e item in the list, starting from the
+  Finds the next occurrence of \a item in the list, starting from the
   current list item.
 
   If the item is found, the list sets the current item to point to
@@ -551,7 +552,7 @@
   the current index to -1, and returns -1.
 
   Calling this function is much faster than findNext() because findNext()
-  compares \e item with each list item using compareItems().
+  compares \a item with each list item using compareItems().
   This function only compares the pointers.
 
   \sa findRef(), findNext(), current()
@@ -559,9 +560,9 @@
 
 /*!
   \fn uint QPtrList::contains( const type *item ) const
-  Counts and returns the number of occurrences of \e item in the list.
+  Counts and returns the number of occurrences of \a item in the list.
 
-  The compareItems() function is called when looking for the \e item
+  The compareItems() function is called when looking for the \a item
   in the list. If compareItems() is not reimplemented, it is more
   efficient to call containsRef().
 
@@ -572,10 +573,10 @@
 
 /*!
   \fn uint QPtrList::containsRef( const type *item ) const
-  Counts and returns the number of occurrences of \e item in the list.
+  Counts and returns the number of occurrences of \a item in the list.
 
   Calling this function is much faster than contains() because contains()
-  compares \e item with each list item using compareItems().
+  compares \a item with each list item using compareItems().
   This function only compares the pointers.
 
   Does not affect the current list item.
@@ -585,14 +586,14 @@
 
 /*!
   \fn type *QPtrList::at( uint index )
-  Returns a pointer to the item at position \e index in the list, or
+  Returns a pointer to the item at position \a index in the list, or
   null if the index is out of range.
 
-  Sets the current list item to this item if \e index is valid.
+  Sets the current list item to this item if \a index is valid.
   The valid range is <code>0 .. (count() - 1)</code> inclusive.
 
   This function is very efficient.  It starts scanning from the first
-  item, last item, or current item, whichever is closest to \e index.
+  item, last item, or current item, whichever is closest to \a index.
 
   \sa current()
 */
@@ -684,7 +685,7 @@
 
 /*!
   \fn void QPtrList::toVector( QGVector *vec ) const
-  Stores all list items in the vector \e vec.
+  Stores all list items in the vector \a vec.
 
   The vector must be have the same item type, otherwise the result
   will be undefined.
@@ -803,8 +804,8 @@
 
 /*!
   \fn QPtrListIterator::QPtrListIterator( const QPtrList<type> &list )
-  Constructs an iterator for \e list.  The current iterator item is
-  set to point on the first item in the \e list.
+  Constructs an iterator for \a list.  The current iterator item is
+  set to point on the first item in the \a list.
 */
 
 /*!
@@ -890,7 +891,7 @@
 
 /*!
   \fn type *QPtrListIterator::operator+=( uint jump )
-  Sets the current item to the item \e jump positions after the current item
+  Sets the current item to the item \a jump positions after the current item
   and returns a pointer to that item.
 
   If that item is beyond the last item or if the dictionary is  empty,
@@ -908,7 +909,7 @@
 
 /*!
   \fn type *QPtrListIterator::operator-=( uint jump )
-  Returns the item \e jump positions before the current item or null if
+  Returns the item \a jump positions before the current item or null if
   it is beyond the first item.  Makes this the current item.
 */
 
@@ -959,15 +960,15 @@
 /*!
   \fn QStrList::QStrList( bool deepCopies )
   Constructs an empty list of strings.  Will make deep copies of all inserted
-  strings if \e deepCopies is TRUE, or uses shallow copies if \e deepCopies
+  strings if \a deepCopies is TRUE, or uses shallow copies if \a deepCopies
   is FALSE.
 */
 
 /*!
   \fn QStrList::QStrList( const QStrList &list )
-  Constructs a copy of \e list.
+  Constructs a copy of \a list.
 
-  If \e list has deep copies, this list will also get deep copies.
+  If \a list has deep copies, this list will also get deep copies.
   Only the pointers are copied (shallow copy) if the other list does not
   use deep copies.
 */
@@ -979,9 +980,9 @@
 
 /*!
   \fn QStrList& QStrList::operator=( const QStrList& list )
-  Assigns \e list to this list and returns a reference to this list.
+  Assigns \a list to this list and returns a reference to this list.
 
-  If \e list has deep copies, this list will also get deep copies.
+  If \a list has deep copies, this list will also get deep copies.
   Only the pointers are copied (shallow copy) if the other list does not
   use deep copies.
 */
@@ -1012,7 +1013,7 @@ case-insensitive compare.
 /*!
   \fn QStrIList::QStrIList( bool deepCopies )
   Constructs a list of strings.  Will make deep copies of all inserted
-  strings if \e deepCopies is TRUE, or uses shallow copies if \e deepCopies
+  strings if \a deepCopies is TRUE, or uses shallow copies if \a deepCopies
   is FALSE.
 */
 
@@ -1021,6 +1022,58 @@ case-insensitive compare.
   Destroys the list.  All strings are removed.
 */
 
+/*!
+  \fn int QPtrList::compareItems( QPtrCollection::Item item1,
+				  QPtrCollection::Item item2 )
+
+  This virtual function compares two list items.
+
+  Returns:
+  \list
+  \i zero if \a item1 == \a item2
+  \i nonzero if \a item1 != \a item2
+  \endlist
+
+  This function returns \a int rather than \a bool so that
+  reimplementations can return three values and use it to sort by:
+
+  \list
+  \i 0 if \a item1 == \a item2
+  \i \> 0 (positive integer) if \a item1 \> \a item2
+  \i \< 0 (negative integer) if \a item1 \< \a item2
+  \endlist
+
+  inSort() requires that compareItems() is implemented as described here.
+
+  This function should not modify the list because some const functions
+  call compareItems().
+
+  The default implementation compares the pointers.
+*/
+
+/*!
+  \fn QDataStream& QPtrList::read( QDataStream& s,
+				   QPtrCollection::Item& item )
+
+  Reads a list item from the stream \a s and returns a reference to
+  the stream.
+
+  The default implementation sets \a item to 0.
+
+  \sa write()
+*/
+
+/*!
+  \fn QDataStream& QPtrList::write( QDataStream& s,
+				    QPtrCollection::Item item ) const
+
+  Writes a list item to the stream \a s and returns a reference to the
+  stream.
+
+  The default implementation does nothing.
+
+  \sa read()
+*/
 
 /*****************************************************************************
   QStrListIterator documentation

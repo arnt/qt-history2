@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qptrcollection.cpp#3 $
+** $Id: //depot/qt/main/src/tools/qptrcollection.cpp#4 $
 **
 ** Implementation of base class for all pointer based collection classes
 **
@@ -40,14 +40,13 @@
 // NOT REVISED
 /*!
   \class QPtrCollection qptrcollection.h
-  \brief The QPtrCollection class is the base class of all Qt collections.
+  \brief The QPtrCollection class is the base class of most value-based Qt collections.
 
   \ingroup collection
   \ingroup tools
 
   The QPtrCollection class is an abstract base class for the Qt \link
-  collection.html collection classes\endlink QDict, QList, etc. via QGDict,
-  QGList, etc.
+  collection.html collection classes\endlink QDict, QList, etc.
 
   A QPtrCollection knows only about the number of objects in the
   collection and the deletion strategy (see setAutoDelete()).

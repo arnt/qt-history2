@@ -44,9 +44,9 @@
 
   \ingroup tools
 
-  QPtrStack is implemented as a template class. Define a template
-  instance QPtrStack\<X\> to create a stack that operates on pointers to
-  X, or X*, for example a stack to store QListViewItems:
+  Define a template instance QPtrStack\<X\> to create a stack that
+  operates on pointers to X, or X*, for example a stack to store
+  QListViewItems:
 
   \walkthrough xml/tagreader-with-features/structureparser.h 
   \skipto QPtrStack<QListViewItem>
@@ -64,10 +64,10 @@
   \skipto stack.push
   \printline stack.push
 
-  (c.f. \link xml/tagreader-with-features/structureparser.cpp
-  xml/tagreader-with-features/structureparser.cpp \endlink )
+  (cf. \link xml/tagreader-with-features/structureparser.cpp
+  xml/tagreader-with-features/structureparser.cpp \endlink)
 
-  \sa \link collection.html Collection Classes\endlink
+  \sa QPtrList QPtrQueue \link collection.html Collection Classes\endlink
 */
 
 /*! \fn QPtrStack::QPtrStack () 
@@ -151,4 +151,28 @@
   FALSE. 
  
   \sa autoDelete()
+*/
+
+/*!
+  \fn QDataStream& QPtrStack::read( QDataStream& s,
+				    QPtrCollection::Item& item )
+
+  Reads a stack item from the stream \a s and returns a reference to
+  the stream.
+
+  The default implementation sets \a item to 0.
+
+  \sa write()
+*/
+
+/*!
+  \fn QDataStream& QPtrStack::write( QDataStream& s,
+				     QPtrCollection::Item item ) const
+
+  Writes a stack item to the stream \a s and returns a reference to the
+  stream.
+
+  The default implementation does nothing.
+
+  \sa read()
 */
