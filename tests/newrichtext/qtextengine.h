@@ -319,6 +319,7 @@ struct QTextEngine {
 
     int width( int item ) const;
     int width( int charFrom, int numChars ) const;
+    QGlyphMetrics boundingBox( int from,  int len ) const;
 
     int cursorToX( int item, int cpos, Edge edge = Leading ) const;
     int xToCursor( int item, int x ) const;

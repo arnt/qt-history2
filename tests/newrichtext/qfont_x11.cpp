@@ -1261,19 +1261,7 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
     SCRIPT_FOR_CHAR( script, str.unicode()[pos] );
     d->load( script );
 
-    // ### need to optimise this and not hardcode arabic.
-    if ( script != QFont::Arabic ) {
-	QFontEngine *fe = d->x11data.fontstruct[script];
-	if ( fe->type() == QFontEngine::Box )
-	    return ((QFontEngineBox *)fe)->size();
-
-	glyph_t glyphs[10];
-	int nglyphs = 9;
-	fe->stringToCMap( str.unicode()+pos, 1, glyphs, &nglyphs );
-	// ### can nglyphs != 1 happen at all? Not currently I think
-	QGlyphMetrics gi = fe->boundingBox( glyphs[0] );
-	return gi.xoff;
-    }
+    // ### optimise for non complex case
 
     QTextEngine layout( str,  d );
     return layout.width( pos, 1 );
@@ -1298,6 +1286,8 @@ int QFontMetrics::width( const QString &str, int len ) const
 	len = str.length();
     if (len == 0)
 	return 0;
+
+    // ### optimise for non complex case
 
     QTextEngine layout( str, d );
     return layout.width( 0, len );
@@ -1330,33 +1320,11 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
     if (len == 0)
 	return QRect();
 
+    // ### optimise for non complex case
 
     QTextEngine layout( str, d );
-#if 0
-    // ########
-    layout.itemize();
-    QShapedItem shaped;
-    int nchars;
-    QGlyphMetrics gm;
-    for ( int i = 0; i < layout.items.size() && (nchars = len-layout.items[i].position) > 0; i++ ) {
-	layout.shape( shaped, QFont( d ), i );
-	// ### not the best way to ensure positioning has happened.
-	(void)layout.width( shaped );
-	QFont::Script script = (QFont::Script)shaped.d->analysis.script;
-	d->load( script );
-	// #### take care of length argument
-	QFontEngine *fe = d->x11data.fontstruct[script];
-	QGlyphMetrics m = fe->boundingBox( shaped.d->glyphs, shaped.d->advances, shaped.d->offsets, shaped.d->num_glyphs );
-	gm.x = QMIN( gm.x, m.x + gm.xoff );
-	gm.y = QMIN( gm.y, m.x + gm.yoff );
-	gm.width = QMAX( gm.width, m.width+gm.xoff );
-	gm.height = QMAX( gm.height, m.height+gm.yoff );
-	gm.xoff += m.xoff;
-	gm.yoff += m.yoff;
-    }
+    QGlyphMetrics gm = layout.boundingBox( 0, len );
     return QRect( gm.x, gm.y, gm.width, gm.height );
-#endif
-    return QRect();
 }
 
 
@@ -1369,7 +1337,7 @@ int QFontMetrics::maxWidth() const
     int w = 0;
 
     for (int i = 0; i < QFont::LastPrivateScript - 1; i++) {
-	if (! d->x11data.fontstruct[i])
+	if ( !d->x11data.fontstruct[i] )
 	    continue;
 
 	d->load((QFont::Script) i);

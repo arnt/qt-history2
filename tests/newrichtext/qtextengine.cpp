@@ -249,49 +249,102 @@ int QTextEngine::xToCursor( int item, int x ) const
 
 int QTextEngine::width( int item ) const
 {
-#if 0
     const QShapedItem *shaped = shape( item );
     int width = 0;
     for ( int i = 0; i < shaped->num_glyphs; i++ )
 	width += shaped->advances[i].x;
     return width;
-#endif
-    return 0;
 }
 
-int QTextEngine::width( int charFrom, int numChars ) const
+int QTextEngine::width( int from, int len ) const
 {
-#if 0
-    if ( !shaped.d->isPositioned )
-	position( shaped );
+    int w = 0;
 
-    if ( charFrom + numChars > shaped.d->length )
-	numChars = shaped.d->length - charFrom;
-    if ( numChars <= 0 )
-	return 0;
+    for ( int i = 0; i < items.size(); i++ ) {
+	QScriptItem &item = items[i];
+	int pos = item.position;
+	int ilen = length( i );
+	if ( pos > from + len )
+	    break;
+	if ( pos + len > from ) {
+	    const QShapedItem *shaped = shape( i );
+	    // do the simple thing for now and give the first glyph in a cluster the full width, all other ones 0.
+	    int charFrom = from - pos;
+	    if ( charFrom < 0 )
+		charFrom = 0;
+	    int glyphStart = shaped->logClusters[charFrom];
+	    int charEnd = from + len - 1 - pos;
+	    if ( charEnd >= ilen )
+		charEnd = ilen-1;
+	    if ( charFrom > 0 && shaped->logClusters[charFrom-1] == glyphStart ) {
+		while ( charFrom < len && shaped->logClusters[charFrom] == glyphStart )
+		    charFrom++;
+		if ( charFrom == len )
+		    glyphStart = shaped->num_glyphs;
+		else
+		    glyphStart = shaped->logClusters[charFrom];
+	    }
+	    int glyphEnd = shaped->logClusters[charEnd];
+	    while ( charEnd < len && shaped->logClusters[charEnd] == glyphEnd )
+		charEnd++;
+	    glyphEnd = (charEnd == len) ? shaped->num_glyphs-1 : shaped->logClusters[charEnd]-1;
 
-    // do the simple thing for now and give the first glyph in a cluster the full width, all other ones 0.
-    int glyphStart = shaped.d->logClusters[charFrom];
-    int charEnd = charFrom + numChars - 1;
-    if ( charFrom > 0 && shaped.d->logClusters[charFrom-1] == glyphStart ) {
-	while ( charFrom < shaped.d->length && shaped.d->logClusters[charFrom] == glyphStart )
-	    charFrom++;
-	if ( charFrom == shaped.d->length )
-	    return 0;
-	glyphStart = shaped.d->logClusters[charFrom];
+	    for ( int i = glyphStart; i <= glyphEnd; i++ )
+		w += shaped->advances[i].x;
+	}
     }
-    int glyphEnd = shaped.d->logClusters[charEnd];
-    while ( charEnd < shaped.d->length && shaped.d->logClusters[charEnd] == glyphEnd )
-	charEnd++;
-    glyphEnd = (charEnd == shaped.d->length) ? shaped.d->num_glyphs-1 : shaped.d->logClusters[charEnd]-1;
-
-    int width = 0;
-    for ( int i = glyphStart; i <= glyphEnd; i++ )
-	width += shaped.d->advances[i].x;
-    return width;
-#endif
-    return 0;
+    return w;
 }
+
+QGlyphMetrics QTextEngine::boundingBox( int from,  int len ) const
+{
+    QGlyphMetrics gm;
+
+    for ( int i = 0; i < items.size(); i++ ) {
+	QScriptItem &item = items[i];
+	int pos = item.position;
+	int ilen = length( i );
+	if ( pos > from + len )
+	    break;
+	if ( pos + len > from ) {
+	    const QShapedItem *shaped = shape( i );
+	    // do the simple thing for now and give the first glyph in a cluster the full width, all other ones 0.
+	    int charFrom = from - pos;
+	    if ( charFrom < 0 )
+		charFrom = 0;
+	    int glyphStart = shaped->logClusters[charFrom];
+	    int charEnd = from + len - 1 - pos;
+	    if ( charEnd >= ilen )
+		charEnd = ilen-1;
+	    if ( charFrom > 0 && shaped->logClusters[charFrom-1] == glyphStart ) {
+		while ( charFrom < len && shaped->logClusters[charFrom] == glyphStart )
+		    charFrom++;
+		if ( charFrom == len )
+		    glyphStart = shaped->num_glyphs;
+		else
+		    glyphStart = shaped->logClusters[charFrom];
+	    }
+	    int glyphEnd = shaped->logClusters[charEnd];
+	    while ( charEnd < len && shaped->logClusters[charEnd] == glyphEnd )
+		charEnd++;
+	    glyphEnd = (charEnd == len) ? shaped->num_glyphs-1 : shaped->logClusters[charEnd]-1;
+
+	    if ( glyphStart <= glyphEnd  ) {
+		QFontEngine *fe = item.fontEngine;
+		QGlyphMetrics m = fe->boundingBox( shaped->glyphs+glyphStart, shaped->advances+glyphStart,
+						   shaped->offsets+glyphStart, glyphEnd-glyphStart );
+		gm.x = QMIN( gm.x, m.x + gm.xoff );
+		gm.y = QMIN( gm.y, m.x + gm.yoff );
+		gm.width = QMAX( gm.width, m.width+gm.xoff );
+		gm.height = QMAX( gm.height, m.height+gm.yoff );
+		gm.xoff += m.xoff;
+		gm.yoff += m.yoff;
+	    }
+	}
+    }
+    return gm;
+}
+
 
 #if 0
 bool QTextEngine::split( int item, QShapedItem &shaped, QCharAttributesArray &attrs,
