@@ -3122,22 +3122,24 @@ void QTextParag::join( QTextParag *s )
     else if ( doc )
 	doc->setLastParag( this );
 
-    int start = str->length();
-    if ( length() > 0 && at( length() - 1 )->c == ' ' ) {
-	remove( length() - 1, 1 );
-	--start;
-    }
-    append( s->str->toString(), TRUE );
-
-    for ( int i = 0; i < s->length(); ++i ) {
-	if ( !doc || doc->useFormatCollection() ) {
-	    s->str->at( i ).format()->addRef();
-	    str->setFormat( i + start, s->str->at( i ).format(), TRUE );
+    if ( length() == 0 || s->length() > 1 ) {
+	int start = str->length();
+	if ( length() > 0 && at( length() - 1 )->c == ' ' ) {
+	    remove( length() - 1, 1 );
+	    --start;
 	}
-	if ( s->str->at( i ).isCustom() ) {
-	    QTextCustomItem * item = s->str->at( i ).customItem();
-	    str->at( i + start ).setCustomItem( item );
-	    s->str->at( i ).loseCustomItem();
+	append( s->str->toString(), TRUE );
+
+	for ( int i = 0; i < s->length(); ++i ) {
+	    if ( !doc || doc->useFormatCollection() ) {
+		s->str->at( i ).format()->addRef();
+		str->setFormat( i + start, s->str->at( i ).format(), TRUE );
+	    }
+	    if ( s->str->at( i ).isCustom() ) {
+		QTextCustomItem * item = s->str->at( i ).customItem();
+		str->at( i + start ).setCustomItem( item );
+		s->str->at( i ).loseCustomItem();
+	    }
 	}
     }
 
