@@ -115,7 +115,7 @@ protected:
 
 private:
     friend class QFont;
-    friend class FontEngineXLFD;
+    friend class QFontEngineXLFD;
     void fromUnicodeInternal( const QChar *in, unsigned short *out,  int length );
 
     static QTextCodec *cftr;
