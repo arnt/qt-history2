@@ -1511,9 +1511,7 @@ int QFtp::cd( const QString &dir )
 
     If you don't read the data immediately it becomes available, i.e.
     when the readyRead() signal is emitted, it is still available
-    until the next command is started or (if the get() was the last
-    pending command) until all slots connected to the done() signal
-    are finished.
+    until the next command is started.
 
     For example, if you want to present the data to the user as soon
     as there is something available, connect to the readyRead() signal
@@ -1977,8 +1975,6 @@ void QFtp::piFinished( const QString& )
     d->pending.removeFirst();
     if ( d->pending.isEmpty() ) {
 	emit done( FALSE );
-	if ( bytesAvailable() )
-	    readAll(); // clear the data
     } else {
 	startNextCommand();
     }
@@ -2036,8 +2032,6 @@ void QFtp::piError( int errorCode, const QString &text )
 
     d->pending.clear();
     emit done( TRUE );
-    if ( bytesAvailable() )
-	readAll(); // clear the data
 }
 
 void QFtp::piConnectState( int state )

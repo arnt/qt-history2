@@ -1828,8 +1828,6 @@ void QHttp::finishedWithSuccess()
     emit requestFinished( r->id, FALSE );
     d->pending.removeFirst();
     if ( d->pending.isEmpty() ) {
-	if ( bytesAvailable() )
-	    readAll(); // clear the data
 	emit done( FALSE );
     } else {
 	startNextRequest();
@@ -1848,8 +1846,6 @@ void QHttp::finishedWithError( const QString& detail, int errorCode )
 
     d->pending.clear();
     emit done( TRUE );
-    if ( bytesAvailable() )
-	readAll(); // clear the data
 }
 
 void QHttp::slotClosed()
