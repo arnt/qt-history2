@@ -132,7 +132,6 @@ static QPtrDict<void> *inprogress=0;
 
 static void callback( AuServer*, AuEventHandlerRec*, AuEvent* e, AuPointer p)
 {
-qDebug("Event %d",e->type);
     if ( inprogress->find(p) && e ) {
 	if (e->type==AuEventTypeElementNotify &&
 		    e->auelementnotify.kind==AuElementNotifyKindState) {
