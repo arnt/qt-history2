@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#112 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#113 $
 **
 ** Implementation of QScrollBar class
 **
@@ -195,7 +195,7 @@ static const int repeatTime	= 10;
 */
 
 QScrollBar::QScrollBar( QWidget *parent, const char *name )
-    : QWidget( parent, name )
+    : QWidget( parent, name, WResizeNoErase )
 {
     orient = Vertical;
     init();
@@ -480,6 +480,7 @@ void QScrollBar::keyPressEvent( QKeyEvent *e )
 void QScrollBar::resizeEvent( QResizeEvent * )
 {
     positionSliderFromValue();
+    repaint(rect());
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#70 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#71 $
 **
 ** Implementation of QSlider class
 **
@@ -68,7 +68,7 @@ static int sliderStartVal = 0; //##### class member?
 */
 
 QSlider::QSlider( QWidget *parent, const char *name )
-    : QWidget( parent, name )
+    : QWidget( parent, name, WResizeNoErase )
 {
     orient = Vertical;
     init();
@@ -83,7 +83,7 @@ QSlider::QSlider( QWidget *parent, const char *name )
 */
 
 QSlider::QSlider( Orientation orientation, QWidget *parent, const char *name )
-    : QWidget( parent, name )
+    : QWidget( parent, name, WResizeNoErase )
 {
     orient = orientation;
     init();
@@ -104,7 +104,7 @@ QSlider::QSlider( Orientation orientation, QWidget *parent, const char *name )
 QSlider::QSlider( int minValue, int maxValue, int pageStep,
 		  int value, Orientation orientation,
 		  QWidget *parent, const char *name )
-    : QWidget( parent, name ),
+    : QWidget( parent, name, WResizeNoErase ),
       QRangeControl( minValue, maxValue, 1, pageStep, value )
 {
     orient = orientation;
@@ -282,6 +282,7 @@ void QSlider::resizeEvent( QResizeEvent * )
     initTicks();
     if ( autoMask() )
 	updateMask();
+    repaint( rect() );
 }
 
 

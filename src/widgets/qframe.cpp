@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#71 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#72 $
 **
 ** Implementation of QFrame widget class
 **
@@ -503,9 +503,9 @@ void QFrame::resizeEvent( QResizeEvent *e )
     // Since we use WResizeNoErase, we repaint the relevant parts:
     updateResizedBorder( e, frameWidth() );
 
-    update( contentsRect() );
     if ( autoMask())
 	updateMask();
+    repaint( contentsRect() );
 }
 
 

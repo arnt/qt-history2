@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#43 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#44 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -74,13 +74,8 @@ QGroupBox::QGroupBox( const QString &title, QWidget *parent, const char *name )
 void QGroupBox::init()
 {
     int fs;
-    if ( style() == WindowsStyle ) {
-	align = AlignLeft;
-	fs = QFrame::Box | QFrame::Sunken;
-    } else {
-	align = AlignHCenter;
-	fs = QFrame::Box | QFrame::Plain;
-    }
+    align = AlignLeft;
+    fs = QFrame::Box | QFrame::Sunken;
     setFrameStyle( fs );
 }
 
@@ -106,7 +101,7 @@ void QGroupBox::setTitle( const QString &title )
   \fn int QGroupBox::alignment() const
   Returns the alignment of the group box title.
 
-  The default alignment is \c AlignHCenter.
+  The default alignment is \c AlignLeft.
 
   \sa setAlignment()
 */
@@ -133,6 +128,17 @@ void QGroupBox::setAlignment( int alignment )
     repaint();
 }
 
+/*!
+  Override to only use QFrame's smart resize repaint if alignment()
+  is AlignLeft.
+*/
+void QGroupBox::resizeEvent( QResizeEvent *e )
+{
+    if ( align == AlignLeft )
+	QFrame::resizeEvent(e);
+    else
+	repaint( rect() );
+}
 
 /*!
   Handles paint events for the group box.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#55 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#56 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -559,6 +559,8 @@ void QSpinBox::resizeEvent( QResizeEvent* e )
 	down->setPixmap( bm );
     }
 
+    repaint( rect() );
+
     int y = style() == WindowsStyle ? frameWidth() : 0;
     int x = width() - y - bs.width();
     up->move( x, y );
@@ -568,8 +570,6 @@ void QSpinBox::resizeEvent( QResizeEvent* e )
 			 x - frameWidth(), height() - 2*frameWidth() );
     else
 	vi->setGeometry( contentsRect() );
-
-    updateResizedBorder( e, frameWidth() );
 }
 
 /*!
