@@ -5167,12 +5167,12 @@ void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 	     QRect( cx, cy, cw, ch ).intersects( QRect( x + outerborder + cell->geometry().x(),
 							y + outerborder + cell->geometry().y(),
 							cell->geometry().width(), cell->geometry().height() ) ) ) {
-	    cell->draw( x+outerborder+innerborder, y+outerborder+innerborder, cx, cy, cw, ch, cg );
+	    cell->draw( x+outerborder, y+outerborder, cx, cy, cw, ch, cg );
 	    if ( border ) {
-		QRect r( x+outerborder+cell->geometry().x() - us_ib,
-			 y+outerborder+cell->geometry().y() - us_ib,
-			 cell->geometry().width() + 2 * us_ib,
-			 cell->geometry().height() + 2 * us_ib );
+		QRect r( x+outerborder+cell->geometry().x() - innerborder,
+			 y+outerborder+cell->geometry().y() - innerborder,
+			 cell->geometry().width() + 2 * innerborder,
+			 cell->geometry().height() + 2 * innerborder );
 		int s = cellspacing;
 		if ( is_printer( p ) ) {
 		    qDrawPlainRect( p, r, cg.text(), us_ib );
@@ -5305,8 +5305,8 @@ void QTextTable::enterAt( QTextDocument *&doc, QTextParag *&parag, int &idx, int
     doc = cell->richText();
     parag = doc->firstParag();
     idx = 0;
-    ox += cell->geometry().x() + outerborder + parent->x() + innerborder;
-    oy += cell->geometry().y() + outerborder + innerborder;
+    ox += cell->geometry().x() + outerborder + parent->x();
+    oy += cell->geometry().y() + outerborder;
 }
 
 void QTextTable::next( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy )
@@ -5325,8 +5325,8 @@ void QTextTable::next( QTextDocument *&doc, QTextParag *&parag, int &idx, int &o
     doc = cell->richText();
     parag = doc->firstParag();
     idx = 0;
-    ox += cell->geometry().x() + outerborder + parent->x() + innerborder;
-    oy += cell->geometry().y() + outerborder + innerborder;
+    ox += cell->geometry().x() + outerborder + parent->x();
+    oy += cell->geometry().y() + outerborder;
 }
 
 void QTextTable::prev( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy )
@@ -5345,8 +5345,8 @@ void QTextTable::prev( QTextDocument *&doc, QTextParag *&parag, int &idx, int &o
     doc = cell->richText();
     parag = doc->firstParag();
     idx = parag->length() - 1;
-    ox += cell->geometry().x() + outerborder + parent->x() + innerborder;
-    oy += cell->geometry().y() + outerborder + innerborder;
+    ox += cell->geometry().x() + outerborder + parent->x();
+    oy += cell->geometry().y() + outerborder;
 }
 
 void QTextTable::down( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy )
@@ -5373,8 +5373,8 @@ void QTextTable::down( QTextDocument *&doc, QTextParag *&parag, int &idx, int &o
     doc = cell->richText();
     parag = doc->firstParag();
     idx = 0;
-    ox += cell->geometry().x() + outerborder + parent->x() + innerborder;
-    oy += cell->geometry().y() + outerborder + innerborder;
+    ox += cell->geometry().x() + outerborder + parent->x(),
+    oy += cell->geometry().y() + outerborder;
 }
 
 void QTextTable::up( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy )
@@ -5401,8 +5401,8 @@ void QTextTable::up( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox,
     doc = cell->richText();
     parag = doc->lastParag();
     idx = parag->length() - 1;
-    ox += cell->geometry().x() + outerborder + innerborder + parent->x();
-    oy += cell->geometry().y() + outerborder + innerborder;
+    ox += cell->geometry().x() + outerborder + parent->x();
+    oy += cell->geometry().y() + outerborder;
 }
 
 QTextTableCell::QTextTableCell( QTextTable* table,
