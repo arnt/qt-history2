@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#37 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#38 $
 **
 ** Implementation of QML classes
 **
@@ -926,7 +926,6 @@ QMLStyleSheet::QMLStyleSheet( QObject *parent, const char *name )
 */
 QMLStyleSheet::~QMLStyleSheet()
 {
-    delete nullstyle;
 }
 
 /*!
