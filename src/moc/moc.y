@@ -645,6 +645,7 @@ enum ProperyFlags  {
 %token			Q_CLASSINFO
 %token			Q_ENUMS
 %token			Q_FLAGS
+%token			ATTRIBUTE
 
 %token			READ
 %token			WRITE
@@ -654,6 +655,7 @@ enum ProperyFlags  {
 %token			STORED
 %token			EDITABLE
 
+%type  <string>		class_modifs
 %type  <string>		class_name
 %type  <string>		template_class_name
 %type  <string>		template_spec
@@ -807,6 +809,7 @@ decl_specifier:		  storage_class_specifier { $$ = ""; }
 			| fct_specifier		  { $$ = ""; }
 			| FRIEND		  { skipFunc = TRUE; $$ = ""; }
 			| TYPEDEF		  { skipFunc = TRUE; $$ = ""; }
+                        | ATTRIBUTE               { $$ = ""; }
 			;
 
 decl_specifiers:	  decl_specs_opt type_name decl_specs_opt
@@ -1069,13 +1072,18 @@ whatever:		  IDENTIFIER
 			;
 
 
+class_modifs:             IDENTIFIER { $$ = ""; } /* possible DLL EXPORT macro and other attributes */
+                        | ATTRIBUTE { $$ = ""; }
+                        | IDENTIFIER ATTRIBUTE { $$ = ""; }
+                        ;
+
 class_head:		  class_key
 			  qualified_class_name	{ g->className = $2;
 						  if (g->className == "QObject")
 						     Q_OBJECTdetected = TRUE;
 						}
 			| class_key
-			  IDENTIFIER		/* possible DLL EXPORT macro */
+			  class_modifs
 			  class_name		{ g->className = $3;
 						  if (g->className == "QObject")
 						     Q_OBJECTdetected = TRUE;

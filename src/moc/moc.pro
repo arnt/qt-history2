@@ -60,3 +60,7 @@ INSTALLS += target
    LIBS += $$MWERKSDIR/Libraries/PluginLib4.shlb
    SOURCES += mwerks_mac.cpp
 }
+
+# ##### for now, until the mess is a bit more cleaned up and we can 
+# enable COMPAT warnings.
+DEFINES += QT_COMPAT

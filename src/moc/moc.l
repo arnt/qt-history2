@@ -127,6 +127,8 @@ STRING		{ALMOSTSTRING}\"
 <QT_DEF>"Q_ENUMS"		{ X; return Q_ENUMS; }
 <QT_DEF>"Q_FLAGS"		{ X; return Q_FLAGS; }
 <QT_DEF>"Q_SETS"		{ X; return Q_FLAGS; }
+<QT_DEF>"QT_COMPAT"		{ X; return ATTRIBUTE; } 
+<QT_DEF>"QT_DEPRECATED"		{ X; return ATTRIBUTE; } 
 
 <IN_FCT>"{"			{ fctLevel++;Y; }
 <IN_FCT>"}"			{ fctLevel--;Y;if (fctLevel==0){X;return '}';}}
