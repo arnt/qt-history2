@@ -37,7 +37,7 @@
 #include <qpainter.h>
 #endif // QT_H
 
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
 
 class QDirectPainter : public QPainter {
 public:

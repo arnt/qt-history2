@@ -32,7 +32,7 @@
 
 #include "qdirectpainter_qws.h"
 
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
 
 #include <qgfxraster_qws.h>
 
