@@ -772,6 +772,9 @@ void HtmlGenerator::generateTableOfContents(const Node *node, CodeMarker *marker
         out() << "<table width=\"100%\">\n<tr valign=\"top\">" << tdTag << "\n";
     }
 
+    // disable nested links in table of contents
+    inLink = true;
+
     for (int i = 0; i < toc.size(); ++i) {
         Atom *atom = toc.at(i);
 
@@ -813,6 +816,7 @@ void HtmlGenerator::generateTableOfContents(const Node *node, CodeMarker *marker
     if (numColumns > 1)
         out() << "</td></tr></table>\n";
 
+    inLink = false;
 }
 
 #if 0
