@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#30 $ 
+** $Id: //depot/qt/main/src/tools/qglobal.h#31 $ 
 **
 ** Global type declarations and definitions
 **
@@ -116,7 +116,11 @@
 //
 
 #if !defined(DEFAULT_MACROCLASS) && !defined(DEFAULT_TEMPLATECLASS)
+#if defined(USE_TEMPLATECLASS)
+#define DEFAULT_TEMPLATECLASS
+#else
 #define DEFAULT_MACROCLASS
+#endif
 #endif
 
 #if !defined(USE_TEMPLATECLASS) && defined(DEFAULT_TEMPLATECLASS)
