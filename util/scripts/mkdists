@@ -840,7 +840,7 @@ for plat in mac win x11 qnx6 embedded; do
 	edition_plat_license=
 	for lic in "${plat}-${edition}" "${edition}"; do
 	    if [ -f "$DISTDIR/qt/dist/licenses/$lic" ]; then
-		edition_plat_license="$DISTDIR/qt/dist/$lic"
+		edition_plat_license="$DISTDIR/qt/dist/licenses/$lic"
 		break;
 	    fi
 	done
@@ -1072,15 +1072,20 @@ for plat in mac win x11 qnx6 embedded; do
 
 	#insert license headers
 	status "Licensing.." "1"
-	for a in `find $DISTDIR/qt/`; do
+	for a in `find $PLATDIR`; do
            if [ -f $a ] && ! binary_file "$a" && [ ! -L $a ] && grep '^** EDITIONS: ' $a >>$LOG 2>&1; then
 	      allowed_editions=`grep '^** EDITIONS: ' $a | cut -d ':' -f2- | sed -e "s/, */ /g" -e "s/^ *//g" -e "s/ *$//g"`
-	      if [ "$edition" = "free" ] && ! echo "$allowed_editions" | grep "FREE" >/dev/null 2>&1; then
+	      if [ "$allowed_editions" = "UNKNOWN" ]; then
+	          status "!! Warning: $a has unknown license [$allowed_editions] !!"
+	      elif [ "$allowed_editions" != "NOLIMITS" ]; then
+	        if [ "$edition" = "free" ] && ! echo "$allowed_editions" | grep "FREE" >/dev/null 2>&1; then
 	          status "!! Warning: $a is not licensed for $edition package [$allowed_editions] !!"
 		  continue
-	      elif [ "$edition" = "commercial" ] && ! echo "$allowed_editions" | grep "\(PROFESSIONAL\|ENTERPRISE\)" >/dev/null 2>&1; then
+	        elif [ "$edition" = "commercial" ] && 
+                     ! echo "$allowed_editions" | grep "\(PROFESSIONAL\|ENTERPRISE\)" >/dev/null 2>&1; then
 	          status "!! Warning: $a is not licensed for $edition package [$allowed_editions] !!"
 		  continue
+                fi
 	      fi
 	      execut=444
 	      [ -x $a ] && execut=555
