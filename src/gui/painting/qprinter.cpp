@@ -1230,12 +1230,22 @@ bool QPrinter::setup(QWidget *parent)
     Use printerState() == QPrinter::Aborted instead.
 */
 
+/*!
+    Executes a page setup dialog so that the user can configure the type of
+    page used for printing. Returns true if the contents of the dialog are
+    accepted; returns false if the dialog is canceled.
+*/
 bool QPrinter::pageSetup(QWidget *parent)
 {
     QPageSetupDialog psd(this, parent);
     return psd.exec() != 0;
 }
 
+/*!
+    Executes a print setup dialog so that the user can configure the printing
+    process. Returns true if the contents of the dialog are accepted; returns
+    false if the dialog is canceled.
+*/
 bool QPrinter::printSetup(QWidget *parent)
 {
     QPrintDialog pd(this, parent);
