@@ -1239,7 +1239,7 @@ QCoreVariant::QCoreVariant(const char *val)
 QCoreVariant::QCoreVariant(Type type)
 { d = create(type, 0); }
 QCoreVariant::QCoreVariant(int typeOrUserType, const void *copy)
-{ d = create(typeOrUserType, copy); if (copy) d->is_null = false; }
+{ d = create(typeOrUserType, copy); d->is_null = false; }
 QCoreVariant::QCoreVariant(int val)
 { d = create(Int, &val); }
 QCoreVariant::QCoreVariant(uint val)
