@@ -1498,25 +1498,27 @@ QVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
     // sure that days are lowered if needed.
 
     // changing one section should only modify that section, if possible
-    if (!(s & AmPmSection) && (v < minimum || v > maximum)) {
+    if (s != AmPmSection && (v < minimum || v > maximum)) {
+
         const int localmin = getDigit(minimum, s);
         const int localmax = getDigit(maximum, s);
 
         if (wrapping) {
             // just because we hit the roof in one direction, it
             // doesn't mean that we hit the floor in the other
-            QVariant oldv = v;
             if (steps > 0) {
                 setDigit(v, s, min);
                 if (v < minimum) {
-                    v = oldv;
                     setDigit(v, s, localmin);
+                    if (v < minimum)
+                        setDigit(v, s, localmin + 1);
                 }
             } else {
                 setDigit(v, s, max);
                 if (v > maximum) {
-                    v = oldv;
                     setDigit(v, s, localmax);
+                    if (v > maximum)
+                        setDigit(v, s, localmax - 1);
                 }
             }
         } else {
@@ -1531,22 +1533,22 @@ QVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
     if (v < minimum) {
         QVariant t = v;
         setDigit(t, s, steps < 0 ? max : min);
-        if (!(t < minimum || t > maximum)) {
+        if (t >= minimum && t <= maximum) {
             v = t;
         } else {
             setDigit(t, s, getDigit(steps < 0 ? maximum : minimum, s));
-            if (!(t < minimum || t > maximum)) {
+            if (t >= minimum && t <= maximum) {
                 v = t;
             }
         }
     } else if (v > maximum) {
         QVariant t = v;
         setDigit(t, s, steps > 0 ? min : max);
-        if (!(t < minimum || t > maximum)) {
+        if (t >= minimum && t <= maximum) {
             v = t;
         } else {
             setDigit(t, s, getDigit(steps > 0 ? minimum : maximum, s));
-            if (!(t < minimum || t > maximum)) {
+            if (t >= minimum && t <= maximum) {
                 v = t;
             }
         }
