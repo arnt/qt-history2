@@ -82,7 +82,7 @@ bool TsHandler::startElement( const QString& /* namespaceURI */,
 		if ( n != 0 )
 		    accum += QChar( n );
 	    }
-	}	
+	}
     } else {
 	if ( qName == QString("context") ) {
 	    context.truncate( 0 );
@@ -375,19 +375,19 @@ bool MetaTranslator::save( const QString& filename ) const
 	TMMInv inv;
 	TMMInv::Iterator i;
 	bool contextIsUtf8 = m.key().utf8();
-	QCString context = m.key().context();
-	QCString comment = "";
+	QByteArray context = m.key().context();
+	QByteArray comment = "";
 
 	do {
-	    if ( QCString(m.key().sourceText()) == ContextComment ) {
+	    if (QByteArray(m.key().sourceText()) == ContextComment) {
 		if ( m.key().type() != MetaTranslatorMessage::Obsolete ) {
 		    contextIsUtf8 = m.key().utf8();
-		    comment = QCString( m.key().comment() );
+		    comment = QByteArray(m.key().comment());
 		}
 	    } else {
 		inv.insert( *m, m.key() );
 	    }
-	} while ( ++m != mm.end() && QCString(m.key().context()) == context );
+	} while ( ++m != mm.end() && QByteArray(m.key().context()) == context );
 
 	t << "<context";
 	if ( contextIsUtf8 )
@@ -484,30 +484,29 @@ bool MetaTranslator::release( const QString& filename, bool verbose,
 	fprintf( stderr,
 		 " %d finished, %d unfinished and %d untranslated messages\n",
 		 finished, unfinished, untranslated );
-		
+
     return saved;
 }
 
 bool MetaTranslator::contains( const char *context, const char *sourceText,
 			       const char *comment ) const
 {
-    return mm.find( MetaTranslatorMessage(context, sourceText, comment) ) !=
-	   mm.end();
+    return mm.contains(MetaTranslatorMessage(context, sourceText, comment));
 }
 
 void MetaTranslator::insert( const MetaTranslatorMessage& m )
 {
     int pos = mm.count();
-    TMM::Iterator n = mm.find( m );
-    if ( n != mm.end() )
-	pos = *n;
-    mm.replace( m, pos );
+    if (mm.contains(m)) {
+	pos = mm.value(m);
+	mm.remove(m);
+    }
+    mm.insert(m, pos);
 }
 
 void MetaTranslator::stripObsoleteMessages()
 {
     TMM newmm;
-
     TMM::Iterator m = mm.begin();
     while ( m != mm.end() ) {
 	if ( m.key().type() != MetaTranslatorMessage::Obsolete )
@@ -558,7 +557,7 @@ QString MetaTranslator::toUnicode( const char *str, bool utf8 ) const
 	return codec->toUnicode( str );
 }
 
-QValueList<MetaTranslatorMessage> MetaTranslator::messages() const
+QList<MetaTranslatorMessage> MetaTranslator::messages() const
 {
     int n = mm.count();
     TMM::ConstIterator *t = new TMM::ConstIterator[n + 1];
@@ -566,7 +565,7 @@ QValueList<MetaTranslatorMessage> MetaTranslator::messages() const
     for ( m = mm.begin(); m != mm.end(); ++m )
 	t[*m] = m;
 
-    QValueList<MetaTranslatorMessage> val;
+    QList<MetaTranslatorMessage> val;
     for ( int i = 0; i < n; i++ )
 	val.append( t[i].key() );
 
@@ -574,9 +573,9 @@ QValueList<MetaTranslatorMessage> MetaTranslator::messages() const
     return val;
 }
 
-QValueList<MetaTranslatorMessage> MetaTranslator::translatedMessages() const
+QList<MetaTranslatorMessage> MetaTranslator::translatedMessages() const
 {
-    QValueList<MetaTranslatorMessage> val;
+    QList<MetaTranslatorMessage> val;
     TMM::ConstIterator m;
     for ( m = mm.begin(); m != mm.end(); ++m ) {
 	if ( m.key().type() == MetaTranslatorMessage::Finished )

@@ -14,7 +14,7 @@
 #define SIMTEXTH_H
 
 #include <qstring.h>
-#include <qvaluelist.h>
+#include <qlist.h>
 
 class MetaTranslator;
 
@@ -34,7 +34,7 @@ inline bool operator!=( const Candidate& c, const Candidate& d ) {
     return !operator==( c, d );
 }
 
-typedef QValueList<Candidate> CandidateList;
+typedef QList<Candidate> CandidateList;
 
 CandidateList similarTextHeuristicCandidates( const MetaTranslator *tor,
 					      const char *text,

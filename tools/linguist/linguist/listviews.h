@@ -59,17 +59,17 @@ public:
     QString fullContext() const;
     bool    finished() const { return unfinishedCount == 0; }
 
-    MessageLVI * firstMessageItem() { return messageItems.first(); }
-    MessageLVI * nextMessageItem() { return messageItems.next(); }
-    MessageLVI * takeMessageItem( int i ) { return messageItems.take( i ); }
-    void         appendMessageItem( QListView * lv, MessageLVI * i );
-    void         instantiateMessageItem( QListView * lv, MessageLVI * i );
-    int          messageItemsInList() { return messageItems.count(); }
+    MessageLVI *firstMessageItem() { return messageItems.first(); }
+    MessageLVI * takeMessageItem( int i ) { return messageItems.takeAt( i ); }
+    QList<MessageLVI*> messageItemLst() { return messageItems; }
+    void appendMessageItem( QListView * lv, MessageLVI * i );
+    void instantiateMessageItem( QListView * lv, MessageLVI * i );
+    int messageItemsInList() { return messageItems.count(); }
 
-    void paintCell( QPainter * p, const QColorGroup & cg, int column,
+    void paintCell( QPainter * p, const QPalette &cg, int column,
 		    int width, int align );
 private:
-    QPtrList<MessageLVI> messageItems;
+    QList<MessageLVI*> messageItems;
     QString com;
     int unfinishedCount;
     int dangerCount;
@@ -90,9 +90,9 @@ public:
     void setDanger( bool danger );
 
     void setContextLVI( ContextLVI * c ) { ctxt = c; }
-    ContextLVI * contextLVI() const { return ctxt; }
+    ContextLVI *contextLVI() const { return ctxt; }
     void updateTranslationText();
-    
+
     QString context() const;
     QString sourceText() const { return tx; }
     QString comment() const { return com; }
@@ -100,7 +100,7 @@ public:
     bool finished() const { return fini; }
     MetaTranslatorMessage message() const;
 
-    void paintCell( QPainter * p, const QColorGroup & cg, int column,
+    void paintCell( QPainter * p, const QPalette &cg, int column,
 		    int width, int align );
 private:
     MetaTranslatorMessage m;

@@ -14,7 +14,7 @@
 #define PHRASE_H
 
 #include <qstring.h>
-#include <qvaluelist.h>
+#include <qlist.h>
 
 class Phrase
 {
@@ -41,7 +41,7 @@ inline bool operator!=( const Phrase& p, const Phrase& q ) {
     return !( p == q );
 }
 
-class PhraseBook : public QValueList<Phrase>
+class PhraseBook : public QList<Phrase>
 {
 public:
     PhraseBook() { }

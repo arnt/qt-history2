@@ -17,7 +17,7 @@
 #include <qpaintdevicemetrics.h>
 #include <qpainter.h>
 #include <qrect.h>
-#include <qvaluelist.h>
+#include <qlist.h>
 #include <qdatetime.h>
 
 class QPrinter;
@@ -76,7 +76,7 @@ private:
 
     struct Paragraph {
 	QRect rect;
-	QValueList<Box> boxes;
+	QList<Box> boxes;
 
 	Paragraph() { }
 	Paragraph( QPoint p ) : rect( p, QSize(0, 0) ) { }

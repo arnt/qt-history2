@@ -21,7 +21,7 @@
 #include <qsplitter.h>
 #include <qstring.h>
 #include <qstringlist.h>
-#include <qvaluelist.h>
+#include <qlist.h>
 #include <qscrollview.h>
 #include <qpixmap.h>
 #include <qbitmap.h>
@@ -55,7 +55,7 @@ public:
 	}
 	setBackgroundPixmap( px );
 	setFixedSize( px.size() );
-	
+
 	QRect r( 34, 0, width()-34, 19 );
 	QToolTip::add( this, r, tr("Next unfinished phrase") );
 	r.setSize( QSize(width()-34, height()-20) );
@@ -63,40 +63,40 @@ public:
 	r.setY( 20 );
 	QToolTip::add( this, r, tr("Previous unfinished phrase") );
     }
-    
+
 protected:
     void mouseReleaseEvent( QMouseEvent * e )
     {
 	int x = e->pos().x() - 14;
 	int y = e->pos().y() - 8;
-		
+
 	if ( y <= x )
 	    emit nextPage();
 	else
 	    emit prevPage();
     }
-    
+
 signals:
     void prevPage();
     void nextPage();
 };
 
 class ShadowWidget : public QWidget
-{    
+{
 public:
     ShadowWidget( QWidget * parent = 0, const char * name = 0 );
     ShadowWidget( QWidget * child, QWidget * parent = 0, const char * name = 0 );
-    
+
     void setShadowWidth( int width ) { sWidth = width; }
     int  shadowWidth() const { return sWidth; }
     void setMargin( int margin ){ wMargin = margin; }
     int  margin() const { return wMargin; }
     void setWidget( QWidget * child);
-    
+
 protected:
     void resizeEvent( QResizeEvent * e );
     void paintEvent( QPaintEvent * e );
-    
+
 private:
     int sWidth;
     int wMargin;
@@ -108,14 +108,14 @@ class EditorPage : public QFrame
     Q_OBJECT
 public:
     EditorPage( QWidget * parent = 0, const char * name = 0 );
-    
+
 protected:
     void resizeEvent( QResizeEvent * );
     void layoutWidgets();
     void updateCommentField();
     void calculateFieldHeight( QTextView * field );
     void fontChange( const QFont & );
-    
+
 private:
     PageCurl * pageCurl;
     QLabel * srcTextLbl;
@@ -125,12 +125,12 @@ private:
     MED   * translationMed;
 
     friend class MessageEditor;
-    
+
 private slots:
     void handleTranslationChanges();
     void handleSourceChanges();
     void handleCommentChanges();
-    
+
 signals:
     void pageHeightUpdated( int height );
 };
@@ -143,13 +143,13 @@ public:
 		   const char * name = 0 );
     QListView * sourceTextList() const;
     QListView * phraseList() const;
-    
+
     void showNothing();
     void showContext( const QString& context, bool finished );
     void showMessage( const QString& text, const QString& comment,
 		      const QString& fullContext, const QString& translation,
 		      MetaTranslatorMessage::Type type,
-		      const QValueList<Phrase>& phrases );
+		      const QList<Phrase>& phrases );
     void setFinished( bool finished );
     bool eventFilter( QObject *, QEvent * );
 
@@ -159,7 +159,7 @@ signals:
     void prevUnfinished();
     void nextUnfinished();
     void updateActions( bool enable );
-    
+
     void undoAvailable( bool avail );
     void redoAvailable( bool avail );
     void cutAvailable( bool avail );
@@ -168,7 +168,7 @@ signals:
 
     void focusSourceList();
     void focusPhraseList();
-    
+
 public slots:
     void undo();
     void redo();
@@ -191,10 +191,10 @@ private slots:
     void toggleFinished();
 
     void updatePageHeight( int height );
-    
+
 protected:
     void resizeEvent( QResizeEvent * );
-    
+
 private:
     void setTranslation( const QString& translation, bool emitt );
     void setEditionEnabled( bool enabled );
@@ -209,10 +209,10 @@ private:
     PhraseLV * phraseLv;
     QAccel * accel;
     bool itemFinished;
-    
+
     ShadowWidget * sw;
     QScrollView * sv;
-    
+
     MetaTranslator *tor;
     QString sourceText;
     QStringList guesses;

@@ -19,7 +19,7 @@
 
 #include <qmainwindow.h>
 #include <qlist.h>
-#include <qdict.h>
+#include <qhash.h>
 #include <qprinter.h>
 #include <qstringlist.h>
 #include <qpixmap.h>
@@ -62,7 +62,7 @@ protected:
 
 signals:
     void statsChanged( int w, int c, int cs, int w2, int c2, int cs2 );
-    
+
 private slots:
     void doneAndNext();
     void prev();
@@ -107,8 +107,8 @@ private slots:
     void updateStatistics();
 
 private:
-    typedef QList<PhraseBook *> PBL;
-    typedef QDict<PhraseBook> PBD;
+    typedef QList<PhraseBook> PBL;
+    typedef QHash<QString, PhraseBook> PBD;
 
     static QString friendlyString( const QString& str );
 
@@ -130,9 +130,8 @@ private:
     QListViewItem * indexToItem( QListView * view, int index );
     bool searchItem( const QString & searchWhat, QListViewItem * j,
 		     QListViewItem * k );
-    void countStats( QListViewItem * ci, QListViewItem * mi, int& trW, int& trC, int& trCS );
     void doCharCounting( const QString& text, int& trW, int& trC, int& trCS );
-    
+
     QListView     * plv;
     QListView     * lv;
     QListView     * slv;

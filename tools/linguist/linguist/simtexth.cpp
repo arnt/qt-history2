@@ -19,11 +19,11 @@
 #include <qmap.h>
 #include <qstring.h>
 #include <qstringlist.h>
-#include <qvaluelist.h>
+#include <qlist.h>
 
 #include <string.h>
 
-typedef QValueList<MetaTranslatorMessage> TML;
+typedef QList<MetaTranslatorMessage> TML;
 
 /*
   How similar are two texts?  The approach used here relies on co-occurrence
@@ -167,20 +167,19 @@ CandidateList similarTextHeuristicCandidates( const MetaTranslator *tor,
 					    const char *text,
 					    int maxCandidates )
 {
-    QValueList<int> scores;
+    QList<int> scores;
     CandidateList candidates;
     CoMatrix cmTarget( text );
     int targetLen = qstrlen( text );
 
     TML all = tor->translatedMessages();
-    TML::Iterator it;
 
-    for ( it = all.begin(); it != all.end(); ++it ) {
-	if ( (*it).type() == MetaTranslatorMessage::Unfinished ||
-	     (*it).translation().isEmpty() )
+    foreach ( MetaTranslatorMessage mtm, all ) {
+	if ( mtm.type() == MetaTranslatorMessage::Unfinished ||
+	     mtm.translation().isEmpty() )
 	    continue;
 
-	QString s = tor->toUnicode( (*it).sourceText(), (*it).utf8() );
+	QString s = tor->toUnicode( mtm.sourceText(), mtm.utf8() );
 	CoMatrix cm( s.latin1() );
 	int delta = QABS( (int) s.length() - targetLen );
 
@@ -193,23 +192,23 @@ CandidateList similarTextHeuristicCandidates( const MetaTranslator *tor,
 
 	if ( (int) candidates.count() == maxCandidates &&
 	     score > scores[maxCandidates - 1] )
-	    candidates.remove( candidates.last() );
+	    candidates.removeAt( candidates.size()-1 );
 	if ( (int) candidates.count() < maxCandidates && score >= 190 ) {
-	    Candidate cand( s, (*it).translation() );
+	    Candidate cand( s, mtm.translation() );
 
 	    int i;
-	    for ( i = 0; i < (int) candidates.count(); i++ ) {
-		if ( score >= scores[i] ) {
-		    if ( score == scores[i] ) {
-			if ( candidates[i] == cand )
+	    for ( i = 0; i < (int) candidates.size(); i++ ) {
+		if ( score >= scores.at(i) ) {
+		    if ( score == scores.at(i) ) {
+			if ( candidates.at(i) == cand )
 			    goto continue_outer_loop;
 		    } else {
 			break;
 		    }
 		}
 	    }
-	    scores.insert( scores.at(i), score );
-	    candidates.insert( candidates.at(i), cand );
+	    scores.insert( i, score );
+	    candidates.insert( i, cand );
 	}
     continue_outer_loop:
 	;

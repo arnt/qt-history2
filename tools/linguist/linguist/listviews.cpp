@@ -56,7 +56,7 @@ void LVI::drawObsoleteText( QPainter * p, const QColorGroup & cg, int column,
     if ( isSelected() && (column==0 || listView()->allColumnsShowFocus()) )
 	p->fillRect( r - marg, 0, width - r + marg, height(),
 		     cg.brush( QColorGroup::Highlight ) );
-	    
+
     // Do the ellipsis thingy
     QString t = text( column );
     QString tmp;
@@ -75,12 +75,12 @@ void LVI::drawObsoleteText( QPainter * p, const QColorGroup & cg, int column,
 	p->setPen( lv->palette().disabled().highlightedText() );
     else
 	p->setPen( lv->palette().disabled().text() );
-    
+
     if ( !t.isEmpty() ) {
 	p->drawText( r, 0, width-marg-r, height(),
 		     align | AlignVCenter | SingleLine, t );
     }
-	    
+
 }
 
 int LVI::compare( QListViewItem *other, int column, bool ascending ) const
@@ -139,23 +139,23 @@ void MessageLVI::updateTranslationText()
     setText( 2, fixEllipsis( m.translation(), Text1MaxLen ) );
 }
 
-void MessageLVI::paintCell( QPainter * p, const QColorGroup & cg, int column, 
+void MessageLVI::paintCell( QPainter * p, const QPalette &cg, int column,
 			    int width, int align )
-{    
+{
     if ( column == 0 ) {
 	int x = (width/2) - TrWindow::pxOn->width()/2;
 	int y = (height()/2) - TrWindow::pxOn->height()/2;
 
 	int marg = listView() ? listView()->itemMargin() : 1;
 	int r = marg;
-	
+
 	if ( isSelected() )
 	    p->fillRect( r - marg, 0, width - r + marg, height(),
 			 cg.brush( QColorGroup::Highlight ) );
 	else
-	    p->fillRect( 0, 0, width, height(), 
+	    p->fillRect( 0, 0, width, height(),
 			 cg.brush( QColorGroup::Base ) );
-		
+
   	if ( m.type() == MetaTranslatorMessage::Unfinished && danger() )
   	    p->drawPixmap( x, y, *TrWindow::pxDanger );
   	else if ( m.type() == MetaTranslatorMessage::Finished )
@@ -220,8 +220,6 @@ MetaTranslatorMessage MessageLVI::message() const
 ContextLVI::ContextLVI( QListView *lv, const QString& context  )
     : LVI( lv ), com( "" )
 {
-    messageItems.setAutoDelete( TRUE );
-
     unfinishedCount = 0;
     dangerCount   = 0;
     obsoleteCount = 0;
@@ -230,13 +228,13 @@ ContextLVI::ContextLVI( QListView *lv, const QString& context  )
 }
 
 void ContextLVI::instantiateMessageItem( QListView * lv, MessageLVI * i )
-{ 
+{
     itemCount++;
     appendMessageItem( lv, i );
 }
 
 void ContextLVI::appendMessageItem( QListView * lv, MessageLVI * i )
-{ 
+{
     lv->takeItem( i );
     messageItems.append( i );
 }
@@ -244,12 +242,12 @@ void ContextLVI::appendMessageItem( QListView * lv, MessageLVI * i )
 void ContextLVI::updateStatus()
 {
     QString s;
-    s.sprintf( "%d/%d", itemCount - unfinishedCount - obsoleteCount, 
+    s.sprintf( "%d/%d", itemCount - unfinishedCount - obsoleteCount,
 	       itemCount - obsoleteCount );
     setText( 2, s );
 }
 
-void ContextLVI::paintCell( QPainter * p, const QColorGroup & cg, int column, 
+void ContextLVI::paintCell( QPainter * p, const QPalette &cg, int column,
 		    int width, int align )
 {
     if ( column == 0 ) {
@@ -258,14 +256,14 @@ void ContextLVI::paintCell( QPainter * p, const QColorGroup & cg, int column,
 
 	int marg = listView() ? listView()->itemMargin() : 1;
 	int r = marg;
-	
+
 	if ( isSelected() )
 	    p->fillRect( r - marg, 0, width - r + marg, height(),
 			 cg.brush( QColorGroup::Highlight ) );
 	else
 	    p->fillRect( 0, 0, width, height(),
 			 cg.brush( QColorGroup::Base ) );
-		
+
 	if ( isContextObsolete() )
   	    p->drawPixmap( x, y, *TrWindow::pxObsolete );
   	else if ( unfinishedCount == 0 )

@@ -17,7 +17,7 @@
 #include <qstring.h>
 #include <qcstring.h>
 #include <qtranslator.h>
-#include <qvaluelist.h>
+#include <qlist.h>
 
 class QTextCodec;
 
@@ -80,8 +80,8 @@ public:
     void setCodec( const char *name );
     QString toUnicode( const char *str, bool utf8 ) const;
 
-    QValueList<MetaTranslatorMessage> messages() const;
-    QValueList<MetaTranslatorMessage> translatedMessages() const;
+    QList<MetaTranslatorMessage> messages() const;
+    QList<MetaTranslatorMessage> translatedMessages() const;
 
 private:
     typedef QMap<MetaTranslatorMessage, int> TMM;

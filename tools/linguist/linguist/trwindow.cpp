@@ -29,7 +29,7 @@
 #include <qaction.h>
 #include <qapplication.h>
 #include <qbitmap.h>
-#include <qdict.h>
+#include <qhash.h>
 #include <qdockarea.h>
 #include <qdockwindow.h>
 #include <qfile.h>
@@ -86,7 +86,7 @@ static const uchar pagecurl_mask_bits[] = {
    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00,
    0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08 };
 
-typedef QValueList<MetaTranslatorMessage> TML;
+typedef QList<MetaTranslatorMessage> TML;
 
 static const int ErrorMS = 600000; // for error messages
 static const int MessageMS = 2500;
@@ -321,8 +321,6 @@ TrWindow::~TrWindow()
 {
     writeConfig();
     delete stats;
-    while (!phraseBooks.isEmpty())
-	delete phraseBooks.takeFirst();
 }
 
 void TrWindow::openFile( const QString& name )
@@ -349,37 +347,38 @@ void TrWindow::openFile( const QString& name )
 	    foundScope = 0;
 
 	    TML all = tor.messages();
-	    TML::Iterator it;
-	    QDict<ContextLVI> contexts( 1009 );
+	    QHash<QString,ContextLVI*> contexts;
 
 	    srcWords = 0;
 	    srcChars = 0;
 	    srcCharsSpc = 0;
-	    for ( it = all.begin(); it != all.end(); ++it ) {
+	    foreach (MetaTranslatorMessage mtm, all) {
 		qApp->processEvents();
-		ContextLVI *c = contexts.find( QString((*it).context()) );
-		if ( c == 0 ) {
-		    c = new ContextLVI( lv, tor.toUnicode((*it).context(),
-							  (*it).utf8()) );
-		    contexts.insert( QString((*it).context()), c );
+		ContextLVI *c = 0;
+		if (contexts.contains(QString(mtm.context())))
+		    c = contexts.value( QString(mtm.context()) );
+		else {
+		    c = new ContextLVI( lv, tor.toUnicode(mtm.context(),
+							  mtm.utf8()) );
+		    contexts.insert( QString(mtm.context()), c );
 		}
-		if ( QCString((*it).sourceText()) == ContextComment ) {
-		    c->appendToComment( tor.toUnicode((*it).comment(),
-						      (*it).utf8()) );
+		if ( QByteArray(mtm.sourceText()) == ContextComment ) {
+		    c->appendToComment( tor.toUnicode(mtm.comment(),
+						      mtm.utf8()) );
 		} else {
-		    MessageLVI * tmp = new MessageLVI( slv, *it,
-					   tor.toUnicode((*it).sourceText(),
-							 (*it).utf8()),
-					   tor.toUnicode((*it).comment(),
-							 (*it).utf8()), c );
+		    MessageLVI *tmp = new MessageLVI( slv, mtm,
+					   tor.toUnicode(mtm.sourceText(),
+							 mtm.utf8()),
+					   tor.toUnicode(mtm.comment(),
+							 mtm.utf8()), c );
 		    tmp->setDanger( danger(tmp->sourceText(),
 					   tmp->translation()) &&
 				    tmp->message().type() ==
 				    MetaTranslatorMessage::Finished );
 		    c->instantiateMessageItem( slv, tmp );
-		    if ( (*it).type() != MetaTranslatorMessage::Obsolete ) {
+		    if ( mtm.type() != MetaTranslatorMessage::Obsolete ) {
 			numNonobsolete++;
-			if ( (*it).type() == MetaTranslatorMessage::Finished )
+			if ( mtm.type() == MetaTranslatorMessage::Finished )
 			    numFinished++;
 			doCharCounting( tmp->sourceText(), srcWords, srcChars, srcCharsSpc );
 		    } else {
@@ -418,7 +417,7 @@ void TrWindow::openFile( const QString& name )
 #ifdef notyet
 		replaceAct->setEnabled( TRUE );
 #endif
-		lv->setCurrentItem( lv->firstChild() );
+	lv->setCurrentItem( lv->firstChild() );
 	    }
 	    addRecentlyOpenedFile( name, recentFiles );
 	    updateStatistics();
@@ -757,7 +756,7 @@ void TrWindow::openPhraseBook()
 	tr("Open Phrase Book") );
     if ( !name.isEmpty() && !phraseBookNames.contains(name) ) {
 	if ( openPhraseBook(name) ) {
-	    int n = phraseBooks.at( phraseBooks.count() - 1 )->count();
+	    int n = phraseBooks.at( phraseBooks.count() - 1 ).count();
 	    statusBar()->message( tr("%1 phrase(s) loaded.").arg(n),
 				  MessageMS );
 	}
@@ -767,7 +766,7 @@ void TrWindow::openPhraseBook()
 void TrWindow::closePhraseBook( int id )
 {
     int index = closePhraseBookp->indexOf( id );
-    delete phraseBooks.takeAt( index );
+    phraseBooks.removeAt(index);
     phraseBookNames.remove( phraseBookNames.at(index) );
     updatePhraseDict();
 
@@ -779,13 +778,13 @@ void TrWindow::closePhraseBook( int id )
 void TrWindow::editPhraseBook( int id )
 {
     int index = editPhraseBookp->indexOf( id );
-    PhraseBookBox box( phraseBookNames[index], *phraseBooks.at(index), this,
+    PhraseBookBox box( phraseBookNames.at(index), phraseBooks.at(index), this,
 		       "phrase book box", TRUE );
     box.setCaption( tr("%1 - %2").arg(tr("Qt Linguist"))
 				 .arg(friendlyPhraseBookName(index)) );
     box.resize( 500, 300 );
     box.exec();
-    *phraseBooks.at( index ) = box.phraseBook();
+    phraseBooks.replace(index, box.phraseBook());
     updatePhraseDict();
 }
 
@@ -795,19 +794,18 @@ void TrWindow::printPhraseBook( int id )
     int pageNum = 0;
 
     if ( printer.setup(this) ) {
-	printer.setDocName( phraseBookNames[index] );
+	printer.setDocName(phraseBookNames.at(index));
 	statusBar()->message( tr("Printing...") );
 	PrintOut pout( &printer );
-	PhraseBook *phraseBook = phraseBooks.at( index );
-	PhraseBook::Iterator p;
+	PhraseBook phraseBook = phraseBooks.at(index);
 	pout.setRule( PrintOut::ThinRule );
-	for ( p = phraseBook->begin(); p != phraseBook->end(); ++p ) {
-	    pout.setGuide( (*p).source() );
-	    pout.addBox( 29, (*p).source() );
+	foreach (Phrase p, phraseBook) {
+	    pout.setGuide( p.source() );
+	    pout.addBox( 29, p.source() );
 	    pout.addBox( 4 );
-	    pout.addBox( 29, (*p).target() );
+	    pout.addBox( 29, p.target() );
 	    pout.addBox( 4 );
-	    pout.addBox( 34, (*p).definition(), PrintOut::Emphasis );
+	    pout.addBox( 34, p.definition(), PrintOut::Emphasis );
 
 	    if ( pout.pageNum() != pageNum ) {
 		pageNum = pout.pageNum();
@@ -919,17 +917,17 @@ void TrWindow::updateCaption()
 //
 void TrWindow::showNewScope( QListViewItem *item )
 {
-    static ContextLVI * oldContext = 0;
+    static ContextLVI *oldContext = 0;
 
     if( item != 0 ) {
-	ContextLVI * c = (ContextLVI *) item;
+	ContextLVI *c = (ContextLVI *) item;
 	bool upe = slv->isUpdatesEnabled();
 	slv->setUpdatesEnabled( FALSE );
 	slv->viewport()->setUpdatesEnabled( FALSE );
 	if ( oldContext != 0 ) {
 	    MessageLVI * tmp;
 	    slv->blockSignals( TRUE );
-	    while ( (tmp = (MessageLVI *) slv->firstChild()) != 0 )
+	    while ( (tmp = (MessageLVI*) slv->firstChild()) != 0 )
 		oldContext->appendMessageItem( slv, tmp );
 	    slv->blockSignals( FALSE );
 	}
@@ -995,12 +993,13 @@ void TrWindow::updateTranslation( const QString& translation )
 		m->contextLVI()->updateStatus();
 		updateProgress();
 	    }
-	    tor.insert( m->message() );
+	    //tor.insert( m->message() );
 	    if ( !dirty ) {
 		dirty = TRUE;
 		updateCaption();
 	    }
 	    m->updateTranslationText();
+	    tor.insert(m->message());
 	}
     }
 }
@@ -1031,7 +1030,7 @@ void TrWindow::updateFinished( bool finished )
 
 void TrWindow::doneAndNext()
 {
-    MessageLVI * m = (MessageLVI *) slv->currentItem();
+    MessageLVI *m = (MessageLVI *) slv->currentItem();
     bool dngr = FALSE;
 
     if ( !m ) return;
@@ -1668,13 +1667,13 @@ void TrWindow::setCurrentMessageItem( QListViewItem *item )
 
 QString TrWindow::friendlyPhraseBookName( int k )
 {
-    return QFileInfo( phraseBookNames[k] ).fileName();
+    return QFileInfo(phraseBookNames.at(k)).fileName();
 }
 
 bool TrWindow::openPhraseBook( const QString& name )
 {
-    PhraseBook *pb = new PhraseBook;
-    if ( !pb->load(name) ) {
+    PhraseBook pb;
+    if ( !pb.load(name) ) {
 	QMessageBox::warning( this, tr("Qt Linguist"),
 			      tr("Cannot read from phrase book '%1'.")
 			      .arg(name) );
@@ -1725,21 +1724,19 @@ void TrWindow::updateProgress()
 
 void TrWindow::updatePhraseDict()
 {
-    PhraseBook::Iterator p;
-    PhraseBook *ent;
     phraseDict.clear();
-    for (int i = 0; i < phraseBooks.count(); ++i) {
-	PhraseBook *pb = phraseBooks.at(i);
-	for ( p = pb->begin(); p != pb->end(); ++p ) {
-	    QString f = friendlyString( (*p).source() );
+
+    for (int i = 0; i < phraseBooks.size(); ++i) {
+	PhraseBook pb = phraseBooks.at(i);
+	foreach ( Phrase p, pb ) {
+	    QString f = friendlyString( p.source() );
 	    if ( f.length() > 0 ) {
 		f = QStringList::split( QChar(' '), f ).first();
-		ent = phraseDict.find( f );
-		if ( ent == 0 ) {
-		    ent = new PhraseBook;
-		    phraseDict.insert( f, ent );
+		if (!phraseDict.contains(f)) {
+		    PhraseBook pbe;
+		    phraseDict.insert( f, pbe );
 		}
-		ent->append( *p );
+		phraseDict[f].append(p);
 	    }
 	}
     }
@@ -1749,17 +1746,15 @@ void TrWindow::updatePhraseDict()
 PhraseBook TrWindow::getPhrases( const QString& source )
 {
     PhraseBook phrases;
-    QString f = friendlyString( source );
+    QString f = friendlyString(source);
     QStringList lookupWords = QStringList::split( QChar(' '), f );
-    QStringList::Iterator w;
-    PhraseBook::Iterator p;
 
-    for ( w = lookupWords.begin(); w != lookupWords.end(); ++w ) {
-	PhraseBook *ent = phraseDict.find( *w );
-	if ( ent != 0 ) {
-	    for ( p = ent->begin(); p != ent->end(); ++p ) {
-		if ( f.find(friendlyString((*p).source())) >= 0 )
-		    phrases.append( *p );
+    foreach (QString s, lookupWords) {
+	if (phraseDict.contains(s)) {
+	    PhraseBook ent = phraseDict.value(s);
+	    foreach (Phrase p, ent) {
+		if ( f.indexOf(friendlyString((p).source())) >= 0 )
+		    phrases.append( p );
 	    }
 	}
     }
@@ -1797,22 +1792,24 @@ bool TrWindow::danger( const QString& source, const QString& translation,
 	QString fsource = friendlyString( source );
 	QString ftranslation = friendlyString( translation );
 	QStringList lookupWords = QStringList::split( QChar(' '), fsource );
-	QStringList::Iterator w;
-	PhraseBook::Iterator p;
 
-	for ( w = lookupWords.begin(); w != lookupWords.end(); ++w ) {
-	    PhraseBook *ent = phraseDict.find( *w );
-	    if ( ent != 0 ) {
-		for ( p = ent->begin(); p != ent->end(); ++p ) {
-		    if ( fsource.find(friendlyString((*p).source())) < 0 ||
-			 ftranslation.find(friendlyString((*p).target())) >= 0 )
+	bool phraseFound;
+	foreach (QString s, lookupWords) {
+	    if (phraseDict.contains(s)) {
+		PhraseBook ent = phraseDict.value(s);
+		phraseFound = false;
+		foreach (Phrase p, ent) {
+		    if ( fsource.indexOf(friendlyString(p.source())) < 0 ||
+			 ftranslation.indexOf(friendlyString(p.target())) >= 0 ) {
+			phraseFound = true;
 			break;
+		    }
 		}
-		if ( p == ent->end() ) {
+		if (!phraseFound) {
 		    if ( verbose )
 			statusBar()->message( tr("A phrase book suggestion for"
 						 " '%1' was ignored.")
-						 .arg(*w), ErrorMS );
+						 .arg(s), ErrorMS );
 		    return TRUE;
 		}
 	    }
@@ -1956,10 +1953,10 @@ void TrWindow::recentFileActivated( int id )
 
 void TrWindow::addRecentlyOpenedFile( const QString &fn, QStringList &lst )
 {
-    if ( lst.find( fn ) != lst.end() )
+    if (lst.contains(fn))
 	return;
     if ( lst.count() >= 10 )
-	lst.remove( lst.begin() );
+	lst.removeAt(0);
     lst << fn;
 }
 
@@ -2008,28 +2005,27 @@ void TrWindow::updateStatistics()
     int trW = 0;
     int trC = 0;
     int trCS = 0;
-    while ( ci ) {
- 	countStats( ci, ((ContextLVI *)ci)->firstMessageItem(), trW, trC, trCS );
+    while (ci) {
+	QList<MessageLVI*> lst = (reinterpret_cast<ContextLVI*>(ci))->messageItemLst();
+	foreach (MessageLVI *mi, lst) {
+	    if (mi->finished() && !(mi->message().type() == MetaTranslatorMessage::Obsolete))
+		doCharCounting(mi->translation(), trW, trC, trCS);
+	}
 	ci = ci->nextSibling();
     }
     // ..and the items in the source list
-    countStats( 0, slv->firstChild(), trW, trC, trCS );
-    emit statsChanged( srcWords, srcChars, srcCharsSpc, trW, trC, trCS );
-}
+    if (slv->firstChild()) {
+	QListViewItem *lvi = slv->firstChild();
+	MessageLVI *mi;
+	while (lvi) {
+	    mi = reinterpret_cast<MessageLVI*>(lvi);
+	    if (mi->finished() && !(mi->message().type() == MetaTranslatorMessage::Obsolete))
+		doCharCounting(mi->translation(), trW, trC, trCS);
+	    lvi = lvi->nextSibling();
+	}
 
-
-void TrWindow::countStats( QListViewItem* ci, QListViewItem* mi, int& trW, int& trC, int& trCS )
-{
-    MessageLVI * m;
-    while ( mi ) {
-	m = (MessageLVI *) mi;
-	if ( m->finished() && !(m->message().type() == MetaTranslatorMessage::Obsolete) )
-	    doCharCounting( m->translation(), trW, trC, trCS );
-	if ( ci )
-	    mi = ((ContextLVI *)ci)->nextMessageItem();
-	else
-	    mi = mi->nextSibling();
     }
+    emit statsChanged(srcWords, srcChars, srcCharsSpc, trW, trC, trCS);
 }
 
 void TrWindow::doCharCounting( const QString& text, int& trW, int& trC, int& trCS )

@@ -28,6 +28,7 @@ HEADERS	+= finddialog.h \
 TRANSLATIONS	= linguist_de.ts \
 		  linguist_fr.ts
 
+DEFINES	+= QT_KEYWORDS
 QCONFIG += compat
 !xml:DEFINES	+= QT_INTERNAL_XML
 else:QCONFIG += xml

@@ -637,7 +637,7 @@ void MessageEditor::showMessage( const QString& text,
 				 const QString& fullContext,
 				 const QString& translation,
 				 MetaTranslatorMessage::Type type,
-				 const QValueList<Phrase>& phrases )
+				 const QList<Phrase>& phrases )
 {
     bool obsolete = ( type == MetaTranslatorMessage::Obsolete );
     setEditionEnabled( !obsolete );
@@ -659,7 +659,7 @@ void MessageEditor::showMessage( const QString& text,
 
     setTranslation( translation, FALSE );
     setFinished( type != MetaTranslatorMessage::Unfinished );
-    QValueList<Phrase>::ConstIterator p;
+    QList<Phrase>::ConstIterator p;
     phraseLv->clear();
     for ( p = phrases.begin(); p != phrases.end(); ++p )
  	(void) new PhraseLVI( phraseLv, *p );
@@ -669,7 +669,7 @@ void MessageEditor::showMessage( const QString& text,
 							   sourceText.latin1(),
 							   MaxCandidates );
 	int n = 0;
-	QValueList<Candidate>::Iterator it = cl.begin();
+	QList<Candidate>::Iterator it = cl.begin();
 	while ( it != cl.end() ) {
 	    QString def;
 	    if ( n < 9 )
