@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindefs.h#22 $
+** $Id: //depot/qt/main/src/kernel/qwindefs.h#23 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -204,6 +204,7 @@ typedef ulong WFlags;
 #define WExplicitHide	0x08000000
 #define WPaintDesktop	0x10000000
 #define WPaintUnclipped	0x20000000
+#define WRecreated	0x40000000
 
 
 // Extra Widget data
