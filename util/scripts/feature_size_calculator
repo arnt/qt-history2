@@ -93,7 +93,7 @@ for $macro ( @macros_to_test ) {
     sleep 1;
     unlink "$MOCDIR/allmoc.cpp";
     unlink $lib;
-    system("make >log 2>\&1");
+    system("make -k >log 2>\&1");
     if ( -f $lib ) {
 	if ( $justcompile ) {
 	    print "Build OK with only $macro defined\n";

@@ -62,7 +62,7 @@
 // 1-bit monochrome
 //#define QT_NO_QWS_DEPTH_1
 
-// 15 or 16-bit color (define QT_QWS_DEPTH16_RGB as 555 for 15-bit)
+// 15 or 16-bit color
 //#define QT_NO_QWS_DEPTH_16
 
 // 24-bit color
@@ -92,13 +92,13 @@
 // Window Manager
 //#define QT_NO_QWS_MANAGER
 
-// Matrox MGA acceleration (Millennium/Millennium II/Mystique/G200/G400)
+// Matrox MGA acceleration
 //#define QT_NO_QWS_MATROX
 
 // Autodetecting mouse driver
 //#define QT_NO_QWS_MOUSE_AUTO
 
-// Non-autodetecting mouse driver (uses env. variable QWS_MOUSE_PROTO
+// Non-autodetecting mouse driver
 //#define QT_NO_QWS_MOUSE_MANUAL
 
 // Qt/Embedded window system properties.
@@ -134,7 +134,7 @@
 // QStringList
 //#define QT_NO_STRINGLIST
 
-// QTextCodec class and subclasses
+// Character set conversions
 //#define QT_NO_TEXTCODEC
 
 // QTextStream
@@ -152,7 +152,7 @@
 // QVariant
 //#define QT_NO_VARIANT
 
-// QAccel
+// Keyboard accelerators and shortcuts
 #if !defined(QT_NO_ACCEL) && (defined(QT_NO_SPRINTF))
 #define QT_NO_ACCEL
 #endif
@@ -162,12 +162,12 @@
 #define QT_NO_ASYNC_IMAGE_IO
 #endif
 
-// QTextCodec classes
+// Non-Unicode text conversions
 #if !defined(QT_NO_CODECS) && (defined(QT_NO_TEXTCODEC))
 #define QT_NO_CODECS
 #endif
 
-// Palmtop Communication Protocol
+// QCop IPC
 #if !defined(QT_NO_COP) && (defined(QT_NO_DATASTREAM))
 #define QT_NO_COP
 #endif
@@ -247,7 +247,7 @@
 #define QT_NO_QWS_HYDRO_WM_STYLE
 #endif
 
-// Window Manager Styles
+// The "KDE2" style
 #if !defined(QT_NO_QWS_KDE2_WM_STYLE) && (defined(QT_NO_QWS_MANAGER))
 #define QT_NO_QWS_KDE2_WM_STYLE
 #endif
@@ -292,12 +292,17 @@
 #define QT_NO_SESSIONMANAGER
 #endif
 
+// Month and day names in dates
+#if !defined(QT_NO_TEXTDATE) && (defined(QT_NO_STRINGLIST))
+#define QT_NO_TEXTDATE
+#endif
+
 // Translations via QObject::tr()
 #if !defined(QT_NO_TRANSLATION) && (defined(QT_NO_DATASTREAM))
 #define QT_NO_TRANSLATION
 #endif
 
-// QWidget icon, caption etc.
+// Window icon and caption
 #if !defined(QT_NO_WIDGET_TOPEXTRA) && (defined(QT_NO_IMAGE_HEURISTIC_MASK))
 #define QT_NO_WIDGET_TOPEXTRA
 #endif
@@ -323,13 +328,8 @@
 #endif
 
 // Template classes in QVariant
-#if !defined(QT_NO_TEMPLATE_VARIANT) && (defined(QT_NO_STRINGLIST) || defined(QT_NO_VARIANT))
+#if !defined(QT_NO_TEMPLATE_VARIANT) && (defined(QT_NO_VARIANT) || defined(QT_NO_STRINGLIST))
 #define QT_NO_TEMPLATE_VARIANT
-#endif
-
-// Textual representation of dates with month and day names.
-#if !defined(QT_NO_TEXTDATE) && (defined(QT_NO_STRINGLIST) || defined(QT_NO_STRINGLIST))
-#define QT_NO_TEXTDATE
 #endif
 
 // XPM image I/O
@@ -343,7 +343,7 @@
 #endif
 
 // Network file access
-#if !defined(QT_NO_NETWORKPROTOCOL) && (defined(QT_NO_DIR) || defined(QT_NO_NETWORK))
+#if !defined(QT_NO_NETWORKPROTOCOL) && (defined(QT_NO_NETWORK) || defined(QT_NO_DIR))
 #define QT_NO_NETWORKPROTOCOL
 #endif
 
@@ -373,7 +373,7 @@
 #endif
 
 // QIconSet
-#if !defined(QT_NO_ICONSET) && (defined(QT_NO_IMAGE_SMOOTHSCALE) || defined(QT_NO_PALETTE) || defined(QT_NO_IMAGEIO) || defined(QT_NO_IMAGE_HEURISTIC_MASK))
+#if !defined(QT_NO_ICONSET) && (defined(QT_NO_IMAGEIO) || defined(QT_NO_IMAGE_SMOOTHSCALE) || defined(QT_NO_PALETTE) || defined(QT_NO_IMAGE_HEURISTIC_MASK))
 #define QT_NO_ICONSET
 #endif
 
@@ -392,7 +392,7 @@
 #define QT_NO_STYLE_MOTIF
 #endif
 
-// Internal class
+// Internal titlebar widget
 #if !defined(QT_NO_TITLEBAR) && (defined(QT_NO_STYLE))
 #define QT_NO_TITLEBAR
 #endif
@@ -473,7 +473,7 @@
 #endif
 
 // Dynamic module linking
-#if !defined(QT_NO_COMPONENT) && (defined(QT_NO_SETTINGS) || defined(QT_NO_QUUID_STRING))
+#if !defined(QT_NO_COMPONENT) && (defined(QT_NO_QUUID_STRING) || defined(QT_NO_SETTINGS))
 #define QT_NO_COMPONENT
 #endif
 
@@ -492,7 +492,7 @@
 #define QT_NO_HBOX
 #endif
 
-// Menu-like widgets
+// Menu-oriented widgets
 #if !defined(QT_NO_MENUDATA) && (defined(QT_NO_ICONSET) || defined(QT_NO_VARIANT))
 #define QT_NO_MENUDATA
 #endif
@@ -532,13 +532,13 @@
 #define QT_NO_HGROUPBOX
 #endif
 
-// Cut and paste of complex data types (non-text)
+// Cut and paste non-text
 #if !defined(QT_NO_MIMECLIPBOARD) && (defined(QT_NO_CLIPBOARD))
 #define QT_NO_MIMECLIPBOARD
 #endif
 
 // Properties
-#if !defined(QT_NO_PROPERTIES) && (defined(QT_NO_STRINGLIST) || defined(QT_NO_ICONSET) || defined(QT_NO_VARIANT))
+#if !defined(QT_NO_PROPERTIES) && (defined(QT_NO_VARIANT) || defined(QT_NO_STRINGLIST) || defined(QT_NO_ICONSET))
 #define QT_NO_PROPERTIES
 #endif
 
@@ -627,6 +627,11 @@
 #define QT_NO_COMPLEXTEXT
 #endif
 
+// FTP file access
+#if !defined(QT_NO_NETWORKPROTOCOL_FTP) && (defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_DNS) || defined(QT_NO_TEXTDATE))
+#define QT_NO_NETWORKPROTOCOL_FTP
+#endif
+
 // Scrollable view widgets
 #if !defined(QT_NO_SCROLLVIEW) && (defined(QT_NO_SCROLLBAR) || defined(QT_NO_FRAME))
 #define QT_NO_SCROLLVIEW
@@ -640,11 +645,6 @@
 // QGridView
 #if !defined(QT_NO_GRIDVIEW) && (defined(QT_NO_SCROLLVIEW))
 #define QT_NO_GRIDVIEW
-#endif
-
-// FTP file access
-#if !defined(QT_NO_NETWORKPROTOCOL_FTP) && (defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_DNS) || defined(QT_NO_TEXTDATE))
-#define QT_NO_NETWORKPROTOCOL_FTP
 #endif
 
 // Popup-menus
@@ -698,7 +698,7 @@
 #endif
 
 // Tab widgets
-#if !defined(QT_NO_TABWIDGET) && (defined(QT_NO_WIDGETSTACK) || defined(QT_NO_TABBAR))
+#if !defined(QT_NO_TABWIDGET) && (defined(QT_NO_TABBAR) || defined(QT_NO_WIDGETSTACK))
 #define QT_NO_TABWIDGET
 #endif
 
@@ -743,7 +743,7 @@
 #endif
 
 // QWizard
-#if !defined(QT_NO_WIZARD) && (defined(QT_NO_WIDGETSTACK) || defined(QT_NO_DIALOG) || defined(QT_NO_PUSHBUTTON) || defined(QT_NO_LAYOUT) || defined(QT_NO_LABEL))
+#if !defined(QT_NO_WIZARD) && (defined(QT_NO_DIALOG) || defined(QT_NO_WIDGETSTACK) || defined(QT_NO_PUSHBUTTON) || defined(QT_NO_LAYOUT) || defined(QT_NO_LABEL))
 #define QT_NO_WIZARD
 #endif
 
@@ -753,7 +753,7 @@
 #endif
 
 // QListView
-#if !defined(QT_NO_LISTVIEW) && (defined(QT_NO_HEADER) || defined(QT_NO_SCROLLVIEW) || defined(QT_NO_LINEEDIT))
+#if !defined(QT_NO_LISTVIEW) && (defined(QT_NO_SCROLLVIEW) || defined(QT_NO_HEADER) || defined(QT_NO_LINEEDIT))
 #define QT_NO_LISTVIEW
 #endif
 
@@ -773,7 +773,7 @@
 #endif
 
 // QColorDialog
-#if !defined(QT_NO_COLORDIALOG) && (defined(QT_NO_LABEL) || defined(QT_NO_PUSHBUTTON) || defined(QT_NO_DIALOG) || defined(QT_NO_LINEEDIT) || defined(QT_NO_VALIDATOR) || defined(QT_NO_GRIDVIEW))
+#if !defined(QT_NO_COLORDIALOG) && (defined(QT_NO_DIALOG) || defined(QT_NO_LABEL) || defined(QT_NO_PUSHBUTTON) || defined(QT_NO_LINEEDIT) || defined(QT_NO_VALIDATOR) || defined(QT_NO_GRIDVIEW))
 #define QT_NO_COLORDIALOG
 #endif
 
@@ -783,17 +783,17 @@
 #endif
 
 // QWorkSpace
-#if !defined(QT_NO_WORKSPACE) && (defined(QT_NO_TITLEBAR) || defined(QT_NO_RESIZEHANDLER) || defined(QT_NO_POPUPMENU) || defined(QT_NO_LABEL) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_VBOX) || defined(QT_NO_SCROLLBAR))
+#if !defined(QT_NO_WORKSPACE) && (defined(QT_NO_SCROLLBAR) || defined(QT_NO_VBOX) || defined(QT_NO_TITLEBAR) || defined(QT_NO_RESIZEHANDLER) || defined(QT_NO_POPUPMENU) || defined(QT_NO_LABEL) || defined(QT_NO_TOOLBUTTON))
 #define QT_NO_WORKSPACE
 #endif
 
 // QAction
-#if !defined(QT_NO_ACTION) && (defined(QT_NO_COMBOBOX) || defined(QT_NO_TOOLBUTTON))
+#if !defined(QT_NO_ACTION) && (defined(QT_NO_TOOLBUTTON) || defined(QT_NO_COMBOBOX))
 #define QT_NO_ACTION
 #endif
 
 // QTable
-#if !defined(QT_NO_TABLE) && (defined(QT_NO_HEADER) || defined(QT_NO_COMBOBOX) || defined(QT_NO_CHECKBOX))
+#if !defined(QT_NO_TABLE) && (defined(QT_NO_COMBOBOX) || defined(QT_NO_HEADER) || defined(QT_NO_CHECKBOX))
 #define QT_NO_TABLE
 #endif
 
@@ -818,7 +818,7 @@
 #endif
 
 // QFileDialog
-#if !defined(QT_NO_FILEDIALOG) && (defined(QT_NO_LISTVIEW) || defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_COMBOBOX) || defined(QT_NO_MESSAGEBOX) || defined(QT_NO_SEMIMODAL) || defined(QT_NO_REGEXP_CAPTURE) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_BUTTONGROUP) || defined(QT_NO_VBOX) || defined(QT_NO_SPLITTER) || defined(QT_NO_PROGRESSBAR) || defined(QT_NO_WIDGETSTACK))
+#if !defined(QT_NO_FILEDIALOG) && (defined(QT_NO_MESSAGEBOX) || defined(QT_NO_LISTVIEW) || defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_COMBOBOX) || defined(QT_NO_SEMIMODAL) || defined(QT_NO_REGEXP_CAPTURE) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_BUTTONGROUP) || defined(QT_NO_VBOX) || defined(QT_NO_SPLITTER) || defined(QT_NO_PROGRESSBAR) || defined(QT_NO_WIDGETSTACK))
 #define QT_NO_FILEDIALOG
 #endif
 
