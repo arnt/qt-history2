@@ -206,7 +206,6 @@ void QAssistantClient::openAssistant()
 void QAssistantClient::readPort()
 {
     QString p = proc->readLineStdout();
-    qDebug( "read from assistant: " + p );
     Q_UINT16 port = p.toUShort();
     if ( port == 0 ) {
 	emit error( tr( "Cannot connect to Qt Assistant." ) );
