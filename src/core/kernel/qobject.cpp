@@ -447,32 +447,6 @@ QMetaCallEvent::~QMetaCallEvent()
     on to any level), of the given \a child; otherwise returns false.
 */
 
-//
-// Remove white space from SIGNAL and SLOT names.
-// Internal for QObject::connect() and QObject::disconnect()
-//
-
-static inline bool isIdentChar(char x)
-{                                                // Avoid bug in isalnum
-    return x == '_' || (x >= '0' && x <= '9') ||
-         (x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z');
-}
-
-static inline bool isSpace(char x)
-{
-#if defined(Q_CC_BOR)
-  /*
-    Borland C++ 4.5 has a weird isspace() bug.
-    isspace() usually works, but not here.
-    This implementation is sufficient for our internal use: rmWS()
-  */
-    return (uchar) x <= 32;
-#else
-    return isspace((uchar) x);
-#endif
-}
-
-// Event functions, implemented in qapplication_xxx.cpp
 /*!
     \relates QObject
 
