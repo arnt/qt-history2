@@ -719,24 +719,26 @@ public:
 	MV_PANTHER      = MV_10_DOT_3
     };
 
+#ifdef QT_COMPAT
     // documented in qapplication_win.cpp
     enum WindowsVersion {
-	WV_32s 		= 0x0001,
-	WV_95 		= 0x0002,
-	WV_98		= 0x0003,
-	WV_Me		= 0x0004,
-	WV_DOS_based	= 0x000f,
+	WV_32s 		= QSysInfo::WV_32s,
+	WV_95 		= QSysInfo::WV_95,
+	WV_98		= QSysInfo::WV_98,
+	WV_Me		= QSysInfo::WV_Me,
+	WV_DOS_based	= QSysInfo::WV_DOS_based,
 
-	WV_NT 		= 0x0010,
-	WV_2000 	= 0x0020,
-	WV_XP		= 0x0030,
-	WV_2003		= 0x0040,
-	WV_NT_based	= 0x00f0,
+	WV_NT 		= QSysInfo::WV_NT,
+	WV_2000 	= QSysInfo::WV_2000,
+	WV_XP		= QSysInfo::WV_XP,
+	WV_2003		= QSysInfo::WV_2003,
+	WV_NT_based	= QSysInfo::WV_NT_based,
 
-	WV_CE           = 0x0100,
-	WV_CENET	= 0x0200,
-	WV_CE_based	= 0x0f00
+	WV_CE           = QSysInfo::WV_CE,
+	WV_CENET	= QSysInfo::WV_CENET,
+	WV_CE_based	= QSysInfo::WV_CE_based
     };
+#endif
 
     // documented in qstyle.cpp
     enum UIEffect {

@@ -274,7 +274,7 @@ bool QProcess::start( QStringList *env )
     bool success;
     d->newPid();
 #ifdef UNICODE
-    if( qt_winunicode ) {
+    if( qt_winUnicode() ) {
 	STARTUPINFOW startupInfo = {
 	    sizeof( STARTUPINFO ), 0, 0, 0,
 	    (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,

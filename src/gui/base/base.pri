@@ -26,6 +26,7 @@ HEADERS += \
 	base/qsizepolicy.h \
 	base/qsound.h \	
 	base/qtooltip.h \
+	base/qvariant.h \
 	base/qwhatsthis.h \
 	base/qwidget.h \
 	base/qwindowdefs.h

@@ -998,7 +998,7 @@ Q_CORE_EXPORT bool qt_winUnicode();
 // System information
 //
 
-class QSysInfo {
+class Q_CORE_EXPORT QSysInfo {
 public:
     enum {
 	WordSize = (sizeof(Q_ULONG)<<3)
@@ -1026,7 +1026,34 @@ public:
 #    error "Qt not configured correctly, please run configure."
 #  endif
 #endif
+#ifdef Q_WS_WIN
+    enum WinVersion {
+	WV_32s 		= 0x0001,
+	WV_95 		= 0x0002,
+	WV_98		= 0x0003,
+	WV_Me		= 0x0004,
+	WV_DOS_based	= 0x000f,
+
+	WV_NT 		= 0x0010,
+	WV_2000 	= 0x0020,
+	WV_XP		= 0x0030,
+	WV_2003		= 0x0040,
+	WV_NT_based	= 0x00f0,
+
+	WV_CE           = 0x0100,
+	WV_CENET	= 0x0200,
+	WV_CE_based	= 0x0f00
+    };
+    static const WinVersion WindowsVersion;
+#endif
 };
+
+Q_CORE_EXPORT const char *qVersion();
+Q_CORE_EXPORT bool qSharedBuild();
+
+#if defined(Q_OS_MAC)
+int qMacVersion();
+#endif
 
 #ifdef QT_COMPAT
 inline QT_COMPAT bool qSysInfo( int *wordSize, bool *bigEndian )
@@ -1037,29 +1064,23 @@ inline QT_COMPAT bool qSysInfo( int *wordSize, bool *bigEndian )
 }
 #endif
 
-Q_CORE_EXPORT const char *qVersion();
-Q_CORE_EXPORT bool qSharedBuild();
-#if defined(Q_OS_MAC)
-int qMacVersion();
-#elif defined(Q_WS_WIN)
-Q_CORE_EXPORT int qWinVersion();
-#if defined(UNICODE)
-#define QT_WA( uni, ansi ) if ( qt_winUnicode() ) { uni } else { ansi }
-#define QT_WA_INLINE( uni, ansi ) ( qt_winUnicode() ? uni : ansi )
+#if defined(Q_WS_WIN)
+#if defined(QT_COMPAT) 
+inline QT_COMPAT bool qt_winUnicode() { return !(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based); }
+inline QT_COMPAT int qWinVersion() { return QSysInfo::WindowsVersion; }
+#endif
+
+#ifdef Q_OS_TEMP
+#define QT_WA( uni, ansi ) uni
+#define QT_WA_INLINE( uni, ansi ) ( uni )
+#elif defined(UNICODE)
+#define QT_WA( uni, ansi ) if ( !(QSysInfo::WindowsVersion& QSysInfo::WV_DOS_based) ) { uni } else { ansi }
+#define QT_WA_INLINE( uni, ansi ) ( !(QSysInfo::WindowsVersion& QSysInfo::WV_DOS_based) ? uni : ansi )
 #else
 #define QT_WA( uni, ansi ) ansi
 #define QT_WA_INLINE( uni, ansi ) ansi
 #endif
-#endif
-
-#ifdef Q_OS_TEMP
-#ifdef QT_WA
-#undef QT_WA
-#undef QT_WA_INLINE
-#endif
-#define QT_WA( uni, ansi ) uni
-#define QT_WA_INLINE( uni, ansi ) ( uni )
-#endif
+#endif // Q_WS_WIN
 
 #ifndef Q_OUTOFLINE_TEMPLATE
 #  define Q_OUTOFLINE_TEMPLATE
