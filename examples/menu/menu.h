@@ -50,7 +50,6 @@ private:
 
 
     QMenuBar *menu;
-    QPopupMenu *contextMenu;
     QLabel   *label;
     bool isBold;
     bool isUnderline;

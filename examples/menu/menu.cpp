@@ -120,7 +120,6 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
     QPixmap p1( p1_xpm );
     QPixmap p2( p2_xpm );
     QPixmap p3( p3_xpm );
-
     QPopupMenu *print = new QPopupMenu( this );
     Q_CHECK_PTR( print );
     print->insertTearOffHandle();
@@ -187,21 +186,6 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
     menu->insertItem( "&Help", help );
     menu->setSeparator( QMenuBar::InWindowsStyle );
 
-    contextMenu = new QPopupMenu( this );
-    Q_CHECK_PTR( contextMenu );
-    QLabel *caption = new QLabel( "<font color=darkblue><u><b>"
-				"Context Menu</b></u></font>", this );
-    caption->setAlignment( Qt::AlignCenter );
-    contextMenu->insertItem( caption );
-    contextMenu->insertItem( "&New",  this, SLOT(news()), CTRL+Key_N );
-    contextMenu->insertItem( "&Open...", this, SLOT(open()), CTRL+Key_O );
-    contextMenu->insertItem( "&Save", this, SLOT(save()), CTRL+Key_S );
-    QPopupMenu *submenu = new QPopupMenu( this );
-    Q_CHECK_PTR( submenu );
-    submenu->insertItem( "&Print to printer", this, SLOT(printer()) );
-    submenu->insertItem( "Print to &file", this, SLOT(file()) );
-    submenu->insertItem( "Print to fa&x", this, SLOT(fax()) );
-    contextMenu->insertItem( "&Print", submenu );
 
     QLabel *msg = new QLabel( this );
     Q_CHECK_PTR( msg );
@@ -222,12 +206,29 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
 	     label, SLOT(setText(const QString&)) );
 
     setMinimumSize( 100, 80 );
+    setFocusPolicy( QWidget::ClickFocus );
 }
 
 
 void MenuExample::contextMenuEvent( QContextMenuEvent * )
 {
+    QPopupMenu*	contextMenu = new QPopupMenu( this );
+    Q_CHECK_PTR( contextMenu );
+    QLabel *caption = new QLabel( "<font color=darkblue><u><b>"
+	"Context Menu</b></u></font>", this );
+    caption->setAlignment( Qt::AlignCenter );
+    contextMenu->insertItem( caption );
+    contextMenu->insertItem( "&New",  this, SLOT(news()), CTRL+Key_N );
+    contextMenu->insertItem( "&Open...", this, SLOT(open()), CTRL+Key_O );
+    contextMenu->insertItem( "&Save", this, SLOT(save()), CTRL+Key_S );
+    QPopupMenu *submenu = new QPopupMenu( this );
+    Q_CHECK_PTR( submenu );
+    submenu->insertItem( "&Print to printer", this, SLOT(printer()) );
+    submenu->insertItem( "Print to &file", this, SLOT(file()) );
+    submenu->insertItem( "Print to fa&x", this, SLOT(fax()) );
+    contextMenu->insertItem( "&Print", submenu );
     contextMenu->exec( QCursor::pos() );
+    delete contextMenu;
 }
 
 
