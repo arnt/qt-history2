@@ -129,7 +129,7 @@
 QThread::QThread()
 {
     d = new QThreadInstance;
-    Q_CHECK_PTR( d );
+    d->init(0);
 }
 
 /*!
@@ -146,8 +146,8 @@ QThread::QThread()
 */
 QThread::QThread( unsigned int stackSize )
 {
-    d = new QThreadInstance( stackSize );
-    Q_CHECK_PTR( d );
+    d = new QThreadInstance;
+    d->init(stackSize);
 }
 
 /*!
@@ -170,6 +170,7 @@ QThread::~QThread()
 	return;
     }
 
+    d->deinit();
     delete d;
 }
 

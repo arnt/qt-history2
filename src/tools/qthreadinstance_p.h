@@ -51,16 +51,13 @@
 #ifdef QT_THREAD_SUPPORT
 
 #include "qmutex.h"
-#ifdef Q_OS_UNIX
-#include "qwaitcondition.h"
-#endif // Q_OS_UNIX
-
 
 class QThreadInstance {
 public:
     static QThreadInstance *current();
 
-    QThreadInstance( unsigned int stackSize = 0 );
+    void init(unsigned int stackSize);
+    void deinit();
 
     QMutex *mutex() const;
     void terminate();
@@ -73,7 +70,7 @@ public:
     bool orphan   : 1;
 
 #ifdef Q_OS_UNIX
-    QWaitCondition thread_done;
+    pthread_cond_t thread_done;
     pthread_t thread_id;
 
     static void *start( void * );

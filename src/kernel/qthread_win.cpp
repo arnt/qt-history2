@@ -46,7 +46,9 @@
 #endif
 
 
-static QThreadInstance *main_instance = 0;
+static QThreadInstance main_instance = {
+    0, { 0, 0 }, 0, 0, 1, 0, 0, 0
+};
 
 
 static QMutexPool *qt_thread_mutexpool = 0;
@@ -74,13 +76,14 @@ QThreadInstance *QThreadInstance::current()
     create_tls();
     QThreadInstance *ret = (QThreadInstance *) TlsGetValue( qt_tls_index );
     if ( ! ret ) {
-	if ( main_instance ) {
-	    qWarning( "QThread: ERROR: creating QThreadInstance for unknown thread %lx\n"
-		      "This instance and all per-thread data will be leaked.",
-		      QThread::currentThread() );
-	}
+        if (main_instance.running) {
+            qWarning("QThread: ERROR: creating QThreadInstance for unknown thread %lx\n"
+                     "This instance and all per-thread data will be leaked.",
+                     QThread::currentThread());
+        }
 
 	ret = new QThreadInstance;
+        ret->init(0);
 	ret->args[1] = ret;
 	ret->running = TRUE;
 	ret->orphan = TRUE;
@@ -92,12 +95,17 @@ QThreadInstance *QThreadInstance::current()
     return ret;
 }
 
-QThreadInstance::QThreadInstance( unsigned int stackSize )
-    :  stacksize( stackSize ), thread_storage( 0 ),
-       finished( FALSE ), running( FALSE ), orphan( FALSE ),
-       handle( 0 ), id( 0 )
+void QThreadInstance::init(unsigned int stackSize)
 {
+    stacksize = stackSize;
     args[0] = args[1] = 0;
+    thread_storage = 0;
+    finished = FALSE;
+    running = FALSE;
+    orphan = FALSE;
+
+    handle = 0;
+    id = 0;
 
     // threads have not been initialized yet, do it now
     if ( ! qt_thread_mutexpool ) QThread::initialize();
@@ -138,8 +146,10 @@ void QThreadInstance::finish( QThreadInstance *d )
 
     d->id = 0;
 
-    if ( d->orphan )
+    if ( d->orphan ) {
+        d->deinit();
 	delete d;
+    }
 }
 
 QMutex *QThreadInstance::mutex() const
@@ -163,8 +173,10 @@ void QThreadInstance::terminate()
     args[0] = args[1] = 0;
     id = 0;
 
-    if ( orphan )
+    if ( orphan ) {
+        deinit();
 	delete this;
+    }
 
     TerminateThread( handle, 0 );
 
@@ -190,16 +202,14 @@ void QThread::initialize()
 
     // get a QThreadInstance for the main() thread
     create_tls();
-    main_instance = (QThreadInstance *) TlsGetValue( qt_tls_index );
-    if ( ! main_instance ) {
-	main_instance = new QThreadInstance;
-	main_instance->args[1] = main_instance;
-	main_instance->running = TRUE;
-	main_instance->orphan = TRUE;
-	main_instance->handle = GetCurrentThread();
-	main_instance->id = GetCurrentThreadId();
+    if (! main_instance.running) {
+        main_instance.init(0);
+        main_instance.args[1] = &main_instance;
+        main_instance.running = TRUE;
+        main_instance.handle = GetCurrentThread();
+        main_instance.thread_id = GetCurrentThreadId();
 
-	TlsSetValue( qt_tls_index, main_instance );
+	TlsSetValue( qt_tls_index, &main_instance );
     }
 }
 
@@ -210,8 +220,7 @@ void QThread::cleanup()
     delete qt_thread_mutexpool;
     qt_thread_mutexpool = 0;
 
-    QThreadInstance::finish( main_instance );
-    main_instance = 0;
+    QThreadInstance::finish( &main_instance );
     TlsSetValue( qt_tls_index, 0 );
 }
 
@@ -381,8 +390,10 @@ void QThread::exit()
 
     CloseHandle( d->handle );
 
-    if ( d->orphan )
+    if ( d->orphan ) {
+        d->deinit();
 	delete d;
+    }
 
     _endthreadex(0);
 }

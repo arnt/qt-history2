@@ -37,8 +37,11 @@
 
 #include "qplatformdefs.h"
 
+typedef pthread_mutex_t Q_MUTEX_T;
+
 #include "qthread.h"
 #include <private/qthreadinstance_p.h>
+#include <private/qmutex_p.h>
 #include <private/qmutexpool_p.h>
 #include <qthreadstorage.h>
 
@@ -46,7 +49,9 @@
 #include <sched.h>
 
 
-static QThreadInstance *main_instance = 0;
+static QThreadInstance main_instance = {
+    0, { 0, 0 }, 0, 0, 0, 0, PTHREAD_COND_INITIALIZER, 0
+};
 
 
 static QMutexPool *qt_thread_mutexpool = 0;
@@ -69,32 +74,43 @@ QThreadInstance *QThreadInstance::current()
     pthread_once( &storage_key_once, create_storage_key );
     QThreadInstance *ret = (QThreadInstance *) pthread_getspecific( storage_key );
     if ( ! ret ) {
-	if ( main_instance ) {
-	    qWarning( "QThread: ERROR: creating QThreadInstance for unknown thread %lx\n"
-		      "This instance and all per-thread data will be leaked.",
-		      (long)QThread::currentThread() );
-	}
+        if (main_instance.running) {
+            qWarning("QThread: ERROR: creating QThreadInstance for unknown thread %lx\n"
+                     "This instance and all per-thread data will be leaked.",
+                     (long)QThread::currentThread());
+        }
 
 	ret = new QThreadInstance;
+        ret->init(0);
 	ret->args[1] = ret;
 	ret->running = TRUE;
 	ret->orphan = TRUE;
 	ret->thread_id = pthread_self();
 
-	pthread_setspecific( storage_key, ret );
+	pthread_setspecific(storage_key, ret);
     }
     return ret;
 }
 
-QThreadInstance::QThreadInstance( unsigned int stackSize )
-    :  stacksize( stackSize ), thread_storage( 0 ),
-       finished( FALSE ), running( FALSE ), orphan( FALSE ),
-       thread_id( 0 )
+void QThreadInstance::init(unsigned int stackSize)
 {
+    stacksize = stackSize;
     args[0] = args[1] = 0;
+    thread_storage = 0;
+    finished = FALSE;
+    running = FALSE;
+    orphan = FALSE;
+
+    pthread_cond_init(&thread_done, NULL);
+    thread_id = 0;
 
     // threads have not been initialized yet, do it now
-    if ( ! qt_thread_mutexpool ) QThread::initialize();
+    if (! qt_thread_mutexpool) QThread::initialize();
+}
+
+void QThreadInstance::deinit()
+{
+    pthread_cond_destroy(&thread_done);
 }
 
 void *QThreadInstance::start( void *_arg )
@@ -133,10 +149,12 @@ void QThreadInstance::finish( void * )
     d->thread_storage = 0;
 
     d->thread_id = 0;
-    d->thread_done.wakeAll();
+    pthread_cond_broadcast(&d->thread_done);
 
-    if ( d->orphan )
+    if (d->orphan) {
+        d->deinit();
 	delete d;
+    }
 }
 
 QMutex *QThreadInstance::mutex() const
@@ -180,15 +198,14 @@ void QThread::initialize()
 
     // create a QThreadInstance for the main() thread
     pthread_once( &storage_key_once, create_storage_key );
-    main_instance = (QThreadInstance *) pthread_getspecific( storage_key );
-    if ( ! main_instance ) {
-	main_instance = new QThreadInstance;
-	main_instance->args[1] = main_instance;
-	main_instance->running = TRUE;
-	main_instance->orphan = TRUE;
-	main_instance->thread_id = pthread_self();
 
-	pthread_setspecific( storage_key, main_instance );
+    if (! main_instance.running) {
+        main_instance.init(0);
+        main_instance.args[1] = &main_instance;
+        main_instance.running = TRUE;
+        main_instance.thread_id = pthread_self();
+
+	pthread_setspecific(storage_key, &main_instance);
     }
 }
 
@@ -202,10 +219,8 @@ void QThread::cleanup()
     qt_global_mutexpool = 0;
     qt_thread_mutexpool = 0;
 
-    // cleanup the QThreadInstance for the main() thread
-    QThreadInstance::finish( main_instance );
-    main_instance = 0;
-    pthread_setspecific( storage_key, 0 );
+    QThreadInstance::finish(&main_instance);
+    pthread_setspecific(storage_key, 0);
 }
 
 /*!
@@ -300,7 +315,7 @@ void QThread::start(Priority priority)
     QMutexLocker locker( d->mutex() );
 
     if ( d->running )
-	d->thread_done.wait( locker.mutex() );
+        pthread_cond_wait(&d->thread_done, &locker.mutex()->d->handle);
     d->running = TRUE;
     d->finished = FALSE;
 
@@ -420,7 +435,27 @@ bool QThread::wait( unsigned long time )
 
     if ( d->finished || ! d->running )
 	return TRUE;
-    return d->thread_done.wait( locker.mutex(), time );
+
+    int ret;
+    if (time != ULONG_MAX) {
+	struct timeval tv;
+	gettimeofday(&tv, 0);
+
+	timespec ti;
+	ti.tv_nsec = (tv.tv_usec + (time % 1000) * 1000) * 1000;
+	ti.tv_sec = tv.tv_sec + (time / 1000) + (ti.tv_nsec / 1000000000);
+	ti.tv_nsec %= 1000000000;
+
+	ret = pthread_cond_timedwait(&d->thread_done, &locker.mutex()->d->handle, &ti);
+    } else
+	ret = pthread_cond_wait(&d->thread_done, &locker.mutex()->d->handle);
+
+#ifdef QT_CHECK_RANGE
+    if (ret && ret != ETIMEDOUT)
+	qWarning("Wait condition wait failure: %s",strerror(ret));
+#endif
+
+    return (ret == 0);
 }
 
 
