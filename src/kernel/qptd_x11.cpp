@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#32 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#31 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#32 $";
 #endif
 
 
@@ -78,7 +78,7 @@ QPaintDevice::QPaintDevice( uint devflags )
 {
     if ( !qApp ) {				// global constructor
 #if defined(CHECK_STATE)
-	fatal( "QPaintDevice: Global paint device objects are not allowed" );
+	fatal( "QPaintDevice: Must construct a QApplication before a QPaintDevice" );
 #endif
 	return;
     }    
