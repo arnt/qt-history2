@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#14 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#15 $
 **
 ** Global type declarations and definitions
 **
@@ -206,7 +206,7 @@ void fatal( const char *, ... );		// print message and exit
 #define debug	   warning
 #define location() warning("In file %s, line %d:",__FILE__,__LINE__)
 
-#if defined(_CC_SUN_)
+#if defined(_OLD_CPP_)
 #define ASSERT(x)  if ( !(x) )\
 	warning("ASSERT: \"%s\" in %s (%d)","x",__FILE__,__LINE__)
 #else
