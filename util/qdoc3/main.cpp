@@ -53,7 +53,7 @@ static Tree *treeForLanguage(const QString &lang)
 
 static void printHelp()
 {
-    Location::information( tr("Usage: qdoc [options] file1.qdoc...\n"
+    Location::information( tr("Usage: qdoc [options] file1.qdocconf ...\n"
 			      "Options:\n"
 			      "    -help  Display this information and exit\n"
 			      "    -verbose\n"
