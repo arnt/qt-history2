@@ -25,7 +25,7 @@
 
 #include "qaccel.h"
 
-#ifndef QT_ACCEL
+#ifndef QT_NO_ACCEL
 
 #include "qapplication.h"
 #include "qwidget.h"

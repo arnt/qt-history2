@@ -30,7 +30,7 @@
 #include "qobject.h"
 #endif // QT_H
 
-#ifndef QT_ACCEL
+#ifndef QT_NO_ACCEL
 class QAccelPrivate;				// internal class
 
 
