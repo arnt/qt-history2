@@ -678,8 +678,9 @@ public:
 	DockBottom,
 	DockRight,
 	DockLeft,
-	DockMinimized,
+	DockMinimized
 #ifndef QT_NO_COMPAT
+        ,
 	Unmanaged = DockUnmanaged,
 	TornOff = DockTornOff,
 	Top = DockTop,
