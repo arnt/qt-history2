@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#12 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#13 $
 **
 ** Implementation of QBuffer class
 **
@@ -13,7 +13,7 @@
 #include "qbuffer.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#12 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#13 $")
 
 /*! \class QBuffer qbuffer.h
 
@@ -68,13 +68,13 @@ bool QBuffer::open( int m  )			// open buffer
 #endif
 	return FALSE;
     }
-    if ( flags() & IO_Truncate )		// truncate buffer
+    setMode( m );
+    if ( m & IO_Truncate )			// truncate buffer
 	a.resize( 0 );
-    if ( flags() & IO_Append )			// append to end of buffer
+    if ( m & IO_Append )			// append to end of buffer
 	index = a.size();
     else
 	index = 0;
-    setMode( m );
     setState( IO_Open );
     setStatus( 0 );
     return TRUE;
