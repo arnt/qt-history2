@@ -1156,11 +1156,10 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
     short windowPart = qt_mac_find_window(pt->h, pt->v, &widget);
     if(inPopupMode() && widget != activePopupWidget()) {
 	while(inPopupMode()) {
-	    QWidget *act_pop = activePopupWidget();
-	    if(widget == act_pop)
-		break;
-	    act_pop->close();
+	    activePopupWidget()->close();
 	    popup_close_count++;
+	    if(windowPart == inContent)
+		break;
 	}
     }
 
