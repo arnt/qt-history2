@@ -547,7 +547,7 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
     }
 
     if ( fw->project() ) {
-	QStringList::Iterator it;
+	QStringList::ConstIterator it;
 	for ( it = databases.begin(); it != databases.end(); ++it )
 	    fw->project()->openDatabase( *it, FALSE );
     }
@@ -1309,7 +1309,7 @@ void MainWindow::activeWindowChanged( QWidget *w )
 
 	actionEditor->setFormWindow( lastActiveFormWindow );
 	if ( wspace && fw->project() && fw->project() != currentProject ) {
-	    for ( QMap<QAction*, Project *>::Iterator it = projects.begin(); it != projects.end(); ++it ) {
+	    for ( QMap<QAction*, Project *>::ConstIterator it = projects.begin(); it != projects.end(); ++it ) {
 		if ( *it == fw->project() ) {
 		    projectSelected( it.key() );
 		    break;
@@ -1363,7 +1363,7 @@ void MainWindow::activeWindowChanged( QWidget *w )
 	    hierarchyView->showClasses( se );
 	actionEditor->setFormWindow( 0 );
 	if ( wspace && se->project() && se->project() != currentProject ) {
-	    for ( QMap<QAction*, Project *>::Iterator it = projects.begin(); it != projects.end(); ++it ) {
+	    for ( QMap<QAction*, Project *>::ConstIterator it = projects.begin(); it != projects.end(); ++it ) {
 		if ( *it == se->project() ) {
 		    projectSelected( it.key() );
 		    break;
@@ -1440,7 +1440,7 @@ void MainWindow::popupFormWindowMenu( const QPoint & gp, FormWindow *fw )
     handleRMBProperties( r, commands, fw );
     handleRMBSpecialCommands( r, commands, fw );
 
-    for ( QValueList<uint>::Iterator i = ids.begin(); i != ids.end(); ++i )
+    for ( QValueList<uint>::ConstIterator i = ids.begin(); i != ids.end(); ++i )
 	rmbFormWindow->removeItem( *i );
 }
 
@@ -1458,7 +1458,7 @@ void MainWindow::popupWidgetMenu( const QPoint &gp, FormWindow * /*fw*/, QWidget
     handleRMBProperties( r, commands, w );
     handleRMBSpecialCommands( r, commands, w );
 
-    for ( QValueList<uint>::Iterator i = ids.begin(); i != ids.end(); ++i )
+    for ( QValueList<uint>::ConstIterator i = ids.begin(); i != ids.end(); ++i )
 	rmbWidgets->removeItem( *i );
 }
 
@@ -2067,15 +2067,15 @@ void MainWindow::writeConfig()
 	l << QString::number( w->sizeHint.width() );
 	l << QString::number( w->sizeHint.height() );
 	l << QString::number( w->lstSignals.count() );
-	for ( QValueList<QCString>::Iterator it = w->lstSignals.begin(); it != w->lstSignals.end(); ++it )
+	for ( QValueList<QCString>::ConstIterator it = w->lstSignals.begin(); it != w->lstSignals.end(); ++it )
 	    l << QString( fixArgs( *it ) );
 	l << QString::number( w->lstSlots.count() );
-	for ( QValueList<MetaDataBase::Function>::Iterator it2 = w->lstSlots.begin(); it2 != w->lstSlots.end(); ++it2 ) {
+	for ( QValueList<MetaDataBase::Function>::ConstIterator it2 = w->lstSlots.begin(); it2 != w->lstSlots.end(); ++it2 ) {
 	    l << fixArgs( (*it2).function );
 	    l << (*it2).access;
 	}
 	l << QString::number( w->lstProperties.count() );
-	for ( QValueList<MetaDataBase::Property>::Iterator it3 = w->lstProperties.begin(); it3 != w->lstProperties.end(); ++it3 ) {
+	for ( QValueList<MetaDataBase::Property>::ConstIterator it3 = w->lstProperties.begin(); it3 != w->lstProperties.end(); ++it3 ) {
 	    l << (*it3).property;
 	    l << (*it3).type;
 	}
@@ -2254,7 +2254,7 @@ void MainWindow::readConfig()
     if ( !l.isEmpty() ) {
 	QPtrList<QAction> lst;
 	commonWidgetsPage.clear();
-	for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it ) {
+	for ( QStringList::ConstIterator it = l.begin(); it != l.end(); ++it ) {
 	    for ( QAction *a = toolActions.first(); a; a = toolActions.next() ) {
 		if ( *it == a->text() ) {
 		    lst.append( a );
@@ -2620,7 +2620,7 @@ void MainWindow::projectSelected( QAction *a )
 
 void MainWindow::openProject( const QString &fn )
 {
-    for ( QMap<QAction*, Project*>::Iterator it = projects.begin(); it != projects.end(); ++it ) {
+    for ( QMap<QAction*, Project*>::ConstIterator it = projects.begin(); it != projects.end(); ++it ) {
 	if ( (*it)->fileName() == fn ) {
 	    projectSelected( it.key() );
 	    return;
@@ -2651,7 +2651,7 @@ void MainWindow::checkTempFiles()
 					      "written when Qt Designer crashed last time. Do you want to\n"
 					      "load these files?" ), tr( "&Yes" ), tr( "&No" ) ) == 0;
     QApplication::setOverrideCursor( waitCursor );
-    for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
+    for ( QStringList::ConstIterator it = lst.begin(); it != lst.end(); ++it ) {
 	if ( load )
 	    openFormWindow( s + "/" + *it, FALSE );
 	d.remove( *it );
@@ -2720,7 +2720,7 @@ void MainWindow::setupActionManager()
     actionPluginManager = new QPluginManager<ActionInterface>( IID_Action, QApplication::libraryPaths(), pluginDirectory() );
 
     QStringList lst = actionPluginManager->featureList();
-    for ( QStringList::Iterator ait = lst.begin(); ait != lst.end(); ++ait ) {
+    for ( QStringList::ConstIterator ait = lst.begin(); ait != lst.end(); ++ait ) {
 	ActionInterface *iface = 0;
 	actionPluginManager->queryInterface( *ait, &iface );
 	if ( !iface )
@@ -2805,7 +2805,7 @@ void MainWindow::setupRecentlyFilesMenu()
 {
     recentlyFilesMenu->clear();
     int id = 0;
-    for ( QStringList::Iterator it = recentlyFiles.begin(); it != recentlyFiles.end(); ++it ) {
+    for ( QStringList::ConstIterator it = recentlyFiles.begin(); it != recentlyFiles.end(); ++it ) {
 	recentlyFilesMenu->insertItem( *it, id );
 	id++;
     }
@@ -2815,7 +2815,7 @@ void MainWindow::setupRecentlyProjectsMenu()
 {
     recentlyProjectsMenu->clear();
     int id = 0;
-    for ( QStringList::Iterator it = recentlyProjects.begin(); it != recentlyProjects.end(); ++it ) {
+    for ( QStringList::ConstIterator it = recentlyProjects.begin(); it != recentlyProjects.end(); ++it ) {
 	recentlyProjectsMenu->insertItem( *it, id );
 	id++;
     }
@@ -2950,7 +2950,7 @@ void MainWindow::setupPluginManagers()
 
     if ( preferencePluginManager ) {
 	QStringList lst = preferencePluginManager->featureList();
-	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
+	for ( QStringList::ConstIterator it = lst.begin(); it != lst.end(); ++it ) {
 	    PreferenceInterface *i = 0;
 	    preferencePluginManager->queryInterface( *it, &i );
 	    if ( !i )
@@ -2966,7 +2966,7 @@ void MainWindow::setupPluginManagers()
     }
     if ( projectSettingsPluginManager ) {
 	QStringList lst = projectSettingsPluginManager->featureList();
-	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
+	for ( QStringList::ConstIterator it = lst.begin(); it != lst.end(); ++it ) {
 	    ProjectSettingsInterface *i = 0;
 	    projectSettingsPluginManager->queryInterface( *it, &i );
 	    if ( !i )
@@ -3370,7 +3370,7 @@ bool MainWindow::openProjectSettings( Project *pro )
 {
     ProjectSettings dia( pro, this, 0, TRUE );
     SenderObject *senderObject = new SenderObject( designerInterface() );
-    QValueList<Tab>::Iterator it;
+    QValueList<Tab>::ConstIterator it;
     for ( it = projectTabs.begin(); it != projectTabs.end(); ++it ) {
 	Tab t = *it;
 	if ( t.title != pro->language() )
