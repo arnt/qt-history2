@@ -1161,8 +1161,8 @@ void QUrlOperator::slotItemChanged(QNetworkOperation *op)
 
         QMap<QString, QUrlInfo>::iterator mi = d->entryMap.find(op->arg(0));
         if (mi != d->entryMap.end()) {
-            mi.data().setName(op->arg(1));
-            d->entryMap[op->arg(1)] = mi.data();
+            mi.value().setName(op->arg(1));
+            d->entryMap[op->arg(1)] = mi.value();
             d->entryMap.erase(mi);
         }
         break;
