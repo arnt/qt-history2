@@ -1061,7 +1061,7 @@ void QIconViewItem::setSelected( bool s, bool cb )
 
 	repaint();
 	if ( !view->signalsBlocked() )
-	    view->emitSelectionChanged();
+	    view->emitSelectionChanged( this );
     }
 }
 
@@ -2363,10 +2363,16 @@ QIconViewItem *QIconView::currentItem() const
 
 void QIconView::setCurrentItem( QIconViewItem *item )
 {
+    if ( item == d->currentItem || !item )
+	return;
     QIconViewItem *old = d->currentItem;
     d->currentItem = item;
     emit currentChanged();
     emit currentChanged( d->currentItem );
+#if 0
+    if ( d->selectionMode == Single )
+	item->setSelected( TRUE );
+#endif
 
     if ( old )
 	repaintItem( old );
@@ -2576,8 +2582,9 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
     }
 
     if ( ( hasFocus() || viewport()->hasFocus() ) && d->currentItem &&
-	 d->currentItem->rect().intersects( r ) )
+	 d->currentItem->rect().intersects( r ) ) {
 	d->currentItem->paintFocus( p, colorGroup() );
+    }
 }
 
 /*!
@@ -3351,9 +3358,12 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 {
     d->dragStartPos = e->pos();
     QIconViewItem *item = findItem( e->pos() );
-
+    
     if ( d->currentItem )
 	d->currentItem->renameItem();
+
+    if ( !d->currentItem && !item && d->firstItem )
+	setCurrentItem( d->firstItem );
 
     d->startDrag = FALSE;
 
@@ -3425,7 +3435,8 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 	    else
 		item->setSelected( TRUE, e->state() & ControlButton );
 	}
-    } else if ( d->selectionMode == Single || !( e->state() & ControlButton ) )
+    } else if ( ( d->selectionMode != Single || e->button() == RightButton ) 
+		&& !( e->state() & ControlButton ) )
 	selectAll( FALSE );
 
     setCurrentItem( item );
@@ -3479,7 +3490,7 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
 
 	p.end();
 
-	if ( ( d->rubber->topLeft() - d->rubber->bottomRight() ).manhattanLength() > 
+	if ( ( d->rubber->topLeft() - d->rubber->bottomRight() ).manhattanLength() >
 	     QApplication::startDragDistance() )
 	    emitClicked = FALSE;
 	delete d->rubber;
@@ -4041,11 +4052,11 @@ void QIconView::keyPressEvent( QKeyEvent *e )
   \reimp
 */
 
-void QIconView::focusInEvent( QFocusEvent * )
+void QIconView::focusInEvent( QFocusEvent *e )
 {
     if ( d->currentItem )
 	repaintItem( d->currentItem );
-    else
+    else if ( d->firstItem && e->reason() != QFocusEvent::Mouse )
 	setCurrentItem( d->firstItem );
 }
 
@@ -4200,11 +4211,11 @@ void QIconView::insertInGrid( QIconViewItem *item )
   Emits signals, that indciate selection changes.
 */
 
-void QIconView::emitSelectionChanged()
+void QIconView::emitSelectionChanged( QIconViewItem *i )
 {
     emit selectionChanged();
     if ( d->selectionMode == Single )
-	emit selectionChanged( d->currentItem );
+	emit selectionChanged( i ? i : d->currentItem );
 }
 
 /*!

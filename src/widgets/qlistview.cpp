@@ -1878,8 +1878,8 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		lc = c;
 		// also make sure that the top item indicates focus,
 		// if nothing would otherwise
-		if ( !d->focusItem && hasFocus() )
-		    d->focusItem = current->i;
+// 		if ( !d->focusItem && hasFocus() )
+// 		    d->focusItem = current->i;
 	    }
 
 	    x = fx;
@@ -2968,8 +2968,16 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 
     QListViewItem * i = itemAt( vp );
     QListViewItem *oldCurrent = currentItem();
-    if ( !i )
+    if ( !oldCurrent && !i && firstChild() ) {
+	setCurrentItem( firstChild() );
+	oldCurrent = currentItem();
+    }
+
+    if ( !i ) {
+	if ( isMultiSelection() )
+	    clearSelection();
 	goto emit_signals;
+    }
 
     if ( (i->isExpandable() || i->childCount()) &&
 	 d->h->mapToLogical( d->h->cellAt( vp.x() ) ) == 0 ) {
@@ -3270,14 +3278,12 @@ void QListView::doAutoScroll()
 /*!\reimp
 */
 
-void QListView::focusInEvent( QFocusEvent * )
+void QListView::focusInEvent( QFocusEvent *e )
 {
     if ( d->focusItem )
 	repaintItem( d->focusItem );
-    else if ( d->r ) {
-	d->focusItem = d->r;
-	repaintItem( d->focusItem );
-    }
+    else if ( firstChild() && e->reason() != QFocusEvent::Mouse ) 
+	setCurrentItem( firstChild() );
 }
 
 
@@ -3726,6 +3732,9 @@ QListViewItem * QListView::selectedItem() const
 
 void QListView::setCurrentItem( QListViewItem * i )
 {
+    if ( !i )
+	return;
+    
     QListViewItem * prev = d->focusItem;
     d->focusItem = i;
 
@@ -3735,8 +3744,10 @@ void QListView::setCurrentItem( QListViewItem * i )
 	if ( prev )
 	    repaintItem( prev );
 	emit currentChanged( i );
+#if 0
 	if ( d->selectionMode == Single )
 	    setSelected( i, TRUE );
+#endif
     }
 }
 

@@ -1400,18 +1400,20 @@ void QListBox::setCurrentItem( int index )
 
 void QListBox::setCurrentItem( QListBoxItem * i )
 {
-    if ( d->current == i )
+    if ( d->current == i || !i )
 	return;
     QListBoxItem * o = d->current;
     d->current = i;
 
+#if 0
     if ( selectionMode() == Single ) {
 	if ( o )
 	    setSelected( o, FALSE );
 	if ( i )
 	    setSelected( i, TRUE );
     }
-
+#endif
+    
     int ind = index( i );
     d->currentColumn = ind / numRows();
     d->currentRow = ind % numRows();
@@ -1512,8 +1514,10 @@ void QListBox::viewportMousePressEvent( QMouseEvent *e )
 void QListBox::mousePressEvent( QMouseEvent *e )
 {
     QListBoxItem * i = itemAt( e->pos() );
+    if ( !i && !d->current && d->head )
+	setCurrentItem( d->head );
 
-    if ( !i && e->button() == RightButton )
+    if ( !i && ( e->button() == RightButton || isMultiSelection() ) )
 	clearSelection();
 
     switch( selectionMode() ) {
@@ -1795,8 +1799,10 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 {
     if ( count() == 0 )
 	return;
+    QListBoxItem *old = d->current;
     if ( currentItem() == 0 )
 	setCurrentItem( d->head );
+    old = d->current;
 
     switch ( e->key() ) {
     case Key_Up:
@@ -2009,7 +2015,12 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 		d->currInputString = QString::null;
 	    }
 	}
-	return;
+    }
+    if ( d->selectionMode == Single ) {
+	if ( old )
+	    setSelected( old, FALSE );
+	if ( d->current )
+	    setSelected( d->current, TRUE );
     }
     emitChangedSignal( FALSE );
 }
@@ -2021,13 +2032,13 @@ void QListBox::keyPressEvent( QKeyEvent *e )
   \sa keyPressEvent(), focusOutEvent()
 */
 
-void QListBox::focusInEvent( QFocusEvent * )
+void QListBox::focusInEvent( QFocusEvent *e )
 {
-    emitChangedSignal( FALSE );
-    if ( !d->current && d->head )
+    if ( e->reason() != QFocusEvent::Mouse && !d->current && d->head )
 	setCurrentItem( d->head );
     if ( d->current )
 	updateItem( currentItem() );
+    emitChangedSignal( FALSE );
 }
 
 
@@ -2038,9 +2049,9 @@ void QListBox::focusInEvent( QFocusEvent * )
 
 void QListBox::focusOutEvent( QFocusEvent * )
 {
-    emitChangedSignal( FALSE );
     if ( d->current )
 	updateItem( currentItem() );
+    emitChangedSignal( FALSE );
 }
 
 
@@ -3187,11 +3198,11 @@ QRect QListBox::itemRect( QListBoxItem *item ) const
 
 /*!
   Inserts \a lbi at its sorted position in the list box.
- 
+
   All items must be inserted with inSort() to maintain the sorting
   order.  inSort() treats any pixmap (or user-defined type) as
   lexicographically less than any string.
- 
+
   \sa insertItem()
 */
 void QListBox::inSort( const QListBoxItem * lbi )
@@ -3212,11 +3223,11 @@ void QListBox::inSort( const QListBoxItem * lbi )
 
 /*!
   Inserts a new item of \a text at its sorted position in the list box.
- 
+
   All items must be inserted with inSort() to maintain the sorting
   order.  inSort() treats any pixmap (or user-defined type) as
   lexicographically less than any string.
- 
+
   \sa insertItem()
 */
 void QListBox::inSort( const QString& text )

@@ -420,7 +420,7 @@ protected:
     virtual void initDragEnter( QDropEvent *e );
     virtual void drawBackground( QPainter *p, const QRect &r );
 
-    void emitSelectionChanged();
+    void emitSelectionChanged( QIconViewItem * i = 0 );
     void emitRenamed( QIconViewItem *item );
 
     void setDragObjectIsKnown( QDropEvent *e );
