@@ -2683,9 +2683,8 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
     case QEvent::MouseButtonPress:
 	if ( o->inherits( "QDesignerPopupMenu" ) )
 	    break;
-	if ( ( (QMouseEvent*)e )->button() == LeftButton &&
-	     o && ( o->inherits( "QDesignerMenuBar" ) ||
-		   o->inherits( "QDesignerToolBar" ) ||
+	if ( o && ( o->inherits( "QDesignerMenuBar" ) ||
+		    o->inherits( "QDesignerToolBar" ) ||
 		    ( o->inherits( "QComboBox") || o->inherits( "QToolButton" ) || o->inherits( "QDesignerToolBarSeparator" ) ) &&
 		    o->parent() && o->parent()->inherits( "QDesignerToolBar" ) ) ) {
 	    QWidget *w = (QWidget*)o;
@@ -2695,8 +2694,9 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    while ( pw ) {
 		if ( pw->inherits( "FormWindow" ) ) {
 		    ( (FormWindow*)pw )->emitShowProperties( w );
-		    return !o->inherits( "QToolButton" ) && !o->inherits( "QMenuBar" ) &&
-			!o->inherits( "QComboBox" ) && !o->inherits( "QDesignerToolBarSeparator" );
+		    if ( !o->inherits( "QDesignerToolBar" ) )
+			return !o->inherits( "QToolButton" ) && !o->inherits( "QMenuBar" ) &&
+			    !o->inherits( "QComboBox" ) && !o->inherits( "QDesignerToolBarSeparator" );
 		}
 		pw = pw->parentWidget();
 	    }

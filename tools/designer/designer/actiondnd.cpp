@@ -13,6 +13,18 @@
 #include <qinputdialog.h>
 
 
+class QDesignerIndicatorWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    QDesignerIndicatorWidget( QWidget *p )
+	: QWidget( p, "qt_dockwidget_internal" ) {
+	    setBackgroundColor( black );
+    }
+
+};
+
 QDesignerToolBarSeparator::QDesignerToolBarSeparator(Orientation o , QToolBar *parent,
                                      const char* name )
     : QWidget( parent, name )
@@ -99,6 +111,9 @@ QDesignerToolBar::QDesignerToolBar( QMainWindow *mw )
     setAcceptDrops( TRUE );
     MetaDataBase::addEntry( this );
     lastIndicatorPos = QPoint( -1, -1 );
+    indicator = new QDesignerIndicatorWidget( this );
+    indicator->hide();
+    installEventFilter( this );
 }
 
 QDesignerToolBar::QDesignerToolBar( QMainWindow *mw, Dock dock )
@@ -107,7 +122,10 @@ QDesignerToolBar::QDesignerToolBar( QMainWindow *mw, Dock dock )
     insertAnchor = 0;
     afterAnchor = TRUE;
     setAcceptDrops( TRUE );
+    indicator = new QDesignerIndicatorWidget( this );
+    indicator->hide();
     MetaDataBase::addEntry( this );
+    installEventFilter( this );
 }
 
 void QDesignerToolBar::addAction( QAction *a )
@@ -130,7 +148,16 @@ void QDesignerToolBar::addAction( QAction *a )
 
 bool QDesignerToolBar::eventFilter( QObject *o, QEvent *e )
 {
-    if ( !o || !e || o == this )
+    if ( !o || !e )
+	return QToolBar::eventFilter( o, e );
+
+    if ( o == this && e->type() == QEvent::MouseButtonPress &&
+	 ( ( QMouseEvent*)e )->button() == LeftButton ) {
+	mousePressEvent( (QMouseEvent*)e );
+	return TRUE;
+    }
+
+    if ( o == this )
 	return QToolBar::eventFilter( o, e );
 
     if ( e->type() == QEvent::MouseButtonPress ) {
@@ -163,9 +190,7 @@ void QDesignerToolBar::paintEvent( QPaintEvent *e )
     QToolBar::paintEvent( e );
     if ( e->rect() != rect() )
 	return;
-    QPoint p = lastIndicatorPos;
     lastIndicatorPos = QPoint( -1, -1 );
-    drawIndicator( p );
 }
 
 void QDesignerToolBar::mousePressEvent( QMouseEvent *e )
@@ -189,8 +214,11 @@ void QDesignerToolBar::buttonMousePressEvent( QMouseEvent *e, QObject *o )
 	QPopupMenu menu( 0 );
 	const int ID_DELETE = 1;
 	const int ID_SEP = 2;
+	const int ID_DELTOOLBAR = 3;
 	menu.insertItem( tr( "Delete Item" ), ID_DELETE );
 	menu.insertItem( tr( "Insert Separator" ), ID_SEP );
+	menu.insertSeparator();
+	menu.insertItem( tr( "Delete Toolbar" ), ID_DELTOOLBAR );
 	int res = menu.exec( e->globalPos() );
 	if ( res == ID_DELETE ) {
 	    QAction *a = *actionMap.find( (QWidget*)o );
@@ -214,6 +242,8 @@ void QDesignerToolBar::buttonMousePressEvent( QMouseEvent *e, QObject *o )
 	    else
 		actionList.insert( index, a );
 	    reInsert();
+	} else if ( res == ID_DELTOOLBAR ) {
+	    delete this;	
 	}
 	return;
     }
@@ -269,8 +299,7 @@ void QDesignerToolBar::dragMoveEvent( QDragMoveEvent *e )
 
 void QDesignerToolBar::dragLeaveEvent( QDragLeaveEvent * )
 {
-    if ( lastIndicatorPos != QPoint( -1, -1 ) )
-	drawIndicator( QPoint( -1, -1 ) );
+    indicator->hide();
     insertAnchor = 0;
     afterAnchor = TRUE;
 }
@@ -316,8 +345,7 @@ void QDesignerToolBar::dropEvent( QDropEvent *e )
 	    actionList.insert( index, a );
 	reInsert();
 	connect( a, SIGNAL( destroyed() ), this, SLOT( actionRemoved() ) );
-	if ( lastIndicatorPos != QPoint( -1, -1 ) )
-	    drawIndicator( QPoint( -1, -1 ) );
+	indicator->hide();
     } else {
 	QDesignerActionGroup *a = (QDesignerActionGroup*)s.toLong(); // #### huha, that is evil
 	if ( a->usesDropDown() ) {
@@ -361,8 +389,7 @@ void QDesignerToolBar::dropEvent( QDropEvent *e )
 	}
 	reInsert();
 	connect( a, SIGNAL( destroyed() ), this, SLOT( actionRemoved() ) );
-	if ( lastIndicatorPos != QPoint( -1, -1 ) )
-	    drawIndicator( QPoint( -1, -1 ) );
+	indicator->hide();
     }
     lastIndicatorPos = QPoint( -1, -1 );
 }
@@ -455,27 +482,19 @@ void QDesignerToolBar::drawIndicator( const QPoint &pos )
     if ( lastIndicatorPos == pos )
 	return;
     if ( orientation() == Horizontal ) {
-	setWFlags( WPaintUnclipped );
-	QPainter p( this );
-	clearWFlags( WPaintUnclipped );
-	p.setPen( QPen( gray, 2 ) );
-	p.setRasterOp( XorROP );
-	if ( lastIndicatorPos != QPoint( -1, -1 ) )
-	    p.drawLine( lastIndicatorPos.x(), 1, lastIndicatorPos.x(), height() - 1 );
+	indicator->resize( 3, height() );
+	if ( pos != QPoint( -1, -1 ) )
+	     indicator->move( pos.x() - 1, 0 );
+	indicator->show();
+	indicator->raise();
 	lastIndicatorPos = pos;
-	if ( lastIndicatorPos != QPoint( -1, -1 ) )
-	    p.drawLine( lastIndicatorPos.x(), 1, lastIndicatorPos.x(), height() - 1 );
     } else {
-	setWFlags( WPaintUnclipped );
-	QPainter p( this );
-	clearWFlags( WPaintUnclipped );
-	p.setPen( QPen( gray, 2 ) );
-	p.setRasterOp( XorROP );
-	if ( lastIndicatorPos != QPoint( -1, -1 ) )
-	    p.drawLine( 1, lastIndicatorPos.y(), width() - 1, lastIndicatorPos.y() );
+	indicator->resize( width(), 3 );
+	if ( pos != QPoint( -1, -1 ) )
+	     indicator->move( 0, pos.y() - 1 );
+	indicator->show();
+	indicator->raise();
 	lastIndicatorPos = pos;
-	if ( lastIndicatorPos != QPoint( -1, -1 ) )
-	    p.drawLine( 1, lastIndicatorPos.y(), width() - 1, lastIndicatorPos.y() );
     }
 }
 
@@ -493,6 +512,8 @@ QDesignerMenuBar::QDesignerMenuBar( QWidget *mw )
     mousePressed = FALSE;
     lastIndicatorPos = QPoint( -1, -1 );
     insertAt = -1;
+    indicator = new QDesignerIndicatorWidget( this );
+    indicator->hide();
 }
 
 void QDesignerMenuBar::mousePressEvent( QMouseEvent *e )
@@ -628,7 +649,7 @@ void QDesignerMenuBar::dropEvent( QDropEvent *e )
     QPopupMenu *popup = (QPopupMenu*)s1.toLong();  // #### huha, that is evil
     QString txt = s2;
     insertItem( txt, popup, -1, insertAt );
-    lastIndicatorPos = QPoint( -1, -1 );
+    indicator->hide();
 }
 
 #endif
@@ -653,16 +674,11 @@ void QDesignerMenuBar::drawIndicator( const QPoint &pos )
 {
     if ( lastIndicatorPos == pos )
 	return;
-    setWFlags( WPaintUnclipped );
-    QPainter p( this );
-    clearWFlags( WPaintUnclipped );
-    p.setPen( QPen( gray, 2 ) );
-    p.setRasterOp( XorROP );
-    if ( lastIndicatorPos != QPoint( -1, -1 ) )
-	p.drawLine( lastIndicatorPos.x(), 0, lastIndicatorPos.x(), height() );
+    indicator->resize( 3, height() );
+    indicator->move( pos.x() - 1, 0 );
+    indicator->show();
+    indicator->raise();
     lastIndicatorPos = pos;
-    if ( lastIndicatorPos != QPoint( -1, -1 ) )
-	p.drawLine( lastIndicatorPos.x(), 0, lastIndicatorPos.x(), height() );
 }
 
 void QDesignerMenuBar::setItemNumber( int num )
@@ -712,6 +728,8 @@ QDesignerPopupMenu::QDesignerPopupMenu( QWidget *w )
     insertAt = -1;
     mousePressed = FALSE;
     lastIndicatorPos = QPoint( -1, -1 );
+    indicator = new QDesignerIndicatorWidget( this );
+    indicator->hide();
 }
 
 void QDesignerPopupMenu::mousePressEvent( QMouseEvent *e )
@@ -816,8 +834,7 @@ void QDesignerPopupMenu::dragMoveEvent( QDragMoveEvent *e )
 void QDesignerPopupMenu::dragLeaveEvent( QDragLeaveEvent * )
 {
     mousePressed = FALSE;
-    if ( lastIndicatorPos != QPoint( -1, -1 ) )
-	drawIndicator( QPoint( -1, -1 ) );
+    indicator->hide();
     insertAt = -1;
 }
 
@@ -870,7 +887,7 @@ void QDesignerPopupMenu::dropEvent( QDropEvent *e )
 	reInsert();
 	connect( a, SIGNAL( destroyed() ), this, SLOT( actionRemoved() ) );
     }
-    lastIndicatorPos = QPoint( -1, -1 );
+    indicator->hide();
 }
 
 #endif
@@ -886,16 +903,11 @@ void QDesignerPopupMenu::drawIndicator( const QPoint &pos )
 {
     if ( lastIndicatorPos == pos )
 	return;
-    setWFlags( WPaintUnclipped );
-    QPainter p( this );
-    clearWFlags( WPaintUnclipped );
-    p.setPen( QPen( gray, 2 ) );
-    p.setRasterOp( XorROP );
-    if ( lastIndicatorPos != QPoint( -1, -1 ) )
-	p.drawLine( 0, lastIndicatorPos.y(), width(), lastIndicatorPos.y() );
+    indicator->resize( width(), 3 );
+    indicator->move( 0, pos.y() - 1 );
+    indicator->show();
+    indicator->raise();
     lastIndicatorPos = pos;
-    if ( lastIndicatorPos != QPoint( -1, -1 ) )
-	p.drawLine( 0, lastIndicatorPos.y(), width(), lastIndicatorPos.y() );
 }
 
 QPoint QDesignerPopupMenu::calcIndicatorPos( const QPoint &pos )
@@ -932,5 +944,6 @@ void QDesignerPopupMenu::paintEvent( QPaintEvent *e )
 	return;
     QPoint p = lastIndicatorPos;
     lastIndicatorPos = QPoint( -1, -1 );
-    drawIndicator( p );
 }
+
+#include "actiondnd.moc"

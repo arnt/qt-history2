@@ -10,6 +10,7 @@
 #include <qaction.h>
 
 class QDesignerPopupMenu;
+class QDesignerIndicatorWidget;
 
 class QDesignerActionGroup : public QActionGroup
 {
@@ -141,6 +142,7 @@ private:
     QList<QAction> actionList;
     QMap<QWidget*, QAction*> actionMap;
     QPoint dragStartPos;
+    QDesignerIndicatorWidget *indicator;
 
 };
 
@@ -184,6 +186,7 @@ private:
     bool mousePressed;
     QPoint lastIndicatorPos;
     int insertAt;
+    QDesignerIndicatorWidget *indicator;
 
 };
 
@@ -222,6 +225,7 @@ private:
     QList<QAction> actionList;
     QPoint dragStartPos;
     bool mousePressed;
+    QDesignerIndicatorWidget *indicator;
 
 };
 
