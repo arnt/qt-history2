@@ -40,6 +40,7 @@
 #include <sys/stat.h>
 #include <sys/file.h>
 #else
+#include <sys/types.h>
 #include <sys/sem.h>
 #if defined(__GNU_LIBRARY__) && !defined(_SEM_SEMUN_UNDEFINED) \
     || defined(Q_OS_FREEBSD) || defined(Q_OS_NETBSD) || defined(Q_OS_BSDI)
@@ -154,7 +155,7 @@ QLock::~QLock()
 #ifdef Q_NO_SEMAPHORE
     if(isValid()) {
 	close(data->id);
-	if( data->owned ) 
+	if( data->owned )
 	    unlink( data->file );
     }
 #else
@@ -201,13 +202,13 @@ void QLock::lock( Type t )
     if ( !data->count ) {
 #ifdef Q_NO_SEMAPHORE
 	int op = LOCK_SH;
-	if(t == Write) 
+	if(t == Write)
 	    op = LOCK_EX;
 	for( int rv=1; rv; ) {
 	    rv = flock(data->id, op);
-	    if (rv == -1 && errno != EINTR) 
+	    if (rv == -1 && errno != EINTR)
 		qDebug("Semop lock failure %s",strerror(errno));
-	} 
+	}
 #else
 	sembuf sops;
 	sops.sem_num = 0;
@@ -250,7 +251,7 @@ void QLock::unlock()
 #ifdef Q_NO_SEMAPHORE
 	    for( int rv=1; rv; ) {
 		rv = flock(data->id, LOCK_UN);
-		if (rv == -1 && errno != EINTR) 
+		if (rv == -1 && errno != EINTR)
 		    qDebug("Semop lock failure %s",strerror(errno));
 	    }
 #else
