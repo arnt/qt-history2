@@ -431,7 +431,7 @@ static char* readArrayBuffer(QList<QCoreVariant>& list, char *buffer, short curD
                 }
                 break; }
             case blr_long:
-                valList = toList<long>(&buffer, numElements[dim]);
+                valList = toList<long>(&buffer, numElements[dim], 0);
                 break;
             case blr_short:
                 valList = toList<short>(&buffer, numElements[dim]);
@@ -618,7 +618,7 @@ static char* createArrayBuffer(char *buffer, const QList<QCoreVariant> &list,
             break;
         case QCoreVariant::Double:
             if (arrayDesc->array_desc_dtype == blr_float)
-                buffer = fillList<float>(buffer, list);
+                buffer = fillList<float>(buffer, list, 0);
             else
                 buffer = fillList<double>(buffer, list);
             break;
