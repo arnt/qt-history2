@@ -393,7 +393,19 @@ FormWindow *DesignerWidgetListInterfaceImpl::formWindow() const
 
 uint DesignerWidgetListInterfaceImpl::count() const
 {
-    return dictIterator->count();
+    FormWindow *fw = formWindow();
+    if ( !fw )
+	return 0;
+
+    QWidget *mc = fw->mainContainer();
+    if ( !mc )
+	return 0;
+
+    QObjectList *list = mc->queryList( "QWidget" );
+    int count = list->count();
+    delete list;
+
+    return count;
 }
 
 DesignerWidgetInterface* DesignerWidgetListInterfaceImpl::toFirst()

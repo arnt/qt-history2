@@ -16,7 +16,11 @@ public:
 */
 
 /*!
-  Constructs a QUnknownInterface with parent interface /a parent.
+  Constructs a QUnknownInterface with parent interface \a parent and name \a name.
+  The object name is a text that can be used to identify this QObject, and is particularly
+  convenient for debugging.
+
+  \sa parent, name
 */
 
 QUnknownInterface::QUnknownInterface( QUnknownInterface *parent, const char *name )
@@ -35,6 +39,11 @@ QUnknownInterface::~QUnknownInterface()
 {
     if ( par )
 	par->removeChild( this );
+
+#if defined(DEBUG)
+    if ( refcount )
+	qDebug( "Interface %s is destroyed while referenced %d times", objname, refcount );
+#endif
 
     if ( children ) {
 	QListIterator<QUnknownInterface> it( *children );
@@ -59,6 +68,8 @@ const char *QUnknownInterface::name() const
 
 /*!
   Makes interface \a child a child of this interface.
+
+  \sa removeChild, parent
 */
 
 void QUnknownInterface::insertChild( QUnknownInterface *child )
@@ -71,6 +82,8 @@ void QUnknownInterface::insertChild( QUnknownInterface *child )
 
 /*!
   Removes \a child from the list of children of this interface.
+
+  \sa insertChild
 */
 
 void QUnknownInterface::removeChild( QUnknownInterface *child )
@@ -155,10 +168,28 @@ bool QUnknownInterface::release()
 
 /*!
   Returns a string identifying the interface. Subclasses of QUnknownInterface
-  have to reimplement this function, so that implementations of the interfaces
-  can be recognized.
+  must reimplement this function like
 
-  \sa demangledID
+  \code
+
+    class MyInterface : public QUnknownInterface
+    {
+       ...
+    };
+
+    ...
+
+    QString MyInterface::interfaceID() const
+    {
+	return createID( QUnknownInterface::interfaceID(), "MyInterface" );
+    }
+
+  \endcode
+
+  This will return a string "/QUnknownInterface/MyInterface", identifying the
+  interface uniquely in runtime.
+    
+  \sa ID
 */
 
 QString QUnknownInterface::interfaceID() const
@@ -167,14 +198,12 @@ QString QUnknownInterface::interfaceID() const
 }
 
 /*!
-  Returns a readable version of the interface identifier. If provided, \a unique
-  will receive the unique part of the ID, and \a hierarchy will receive the interface
-  path, including the ID of this interface.
+  Returns a the ID of this interface, that is, the last part of the interfaceID.
 
   \sa interfaceID
 */
 
-QString QUnknownInterface::ID( QString *hierarchy ) const
+QString QUnknownInterface::ID() const
 {
     const QString id = interfaceID();
 
@@ -183,12 +212,14 @@ QString QUnknownInterface::ID( QString *hierarchy ) const
 }
 
 /*!
-  Returns a QString that represents the interface hierarchy
+  Returns a QString that represents the interface hierarchy using \a parent and \a id
+
+  \sa interfaceID, ID
 */
 
-QString QUnknownInterface::createID( const QString &parent, const QString &that ) const
+QString QUnknownInterface::createID( const QString &parent, const QString &id ) const
 {
-    return parent + "/" + that;
+    return parent + "/" + id;
 }
 
 /*!
@@ -197,6 +228,8 @@ QString QUnknownInterface::createID( const QString &parent, const QString &that 
   Reimplement this function and return TRUE if the initialization succeeded,
   or FALSE when the process failed. The default implementation always returns
   TRUE. Reimplementations of this function have to  call the parent class implementation.
+
+  \a ref, release, cleanUp
 */
 
 bool QUnknownInterface::initialize( QApplicationInterface* appIface )
@@ -210,6 +243,8 @@ bool QUnknownInterface::initialize( QApplicationInterface* appIface )
   references to this interface exist.
   Reimplement this function and return TRUE if the cleanup process succeeded,
   otherwise return FALSE. The default implementation always returns TRUE.
+
+  \sa initialize, release
 */
 
 bool QUnknownInterface::cleanUp( QApplicationInterface* )
@@ -221,6 +256,8 @@ bool QUnknownInterface::cleanUp( QApplicationInterface* )
   Returns TRUE if this interface has a child interface with an interfaceID
   \a request. If \a rec is TRUE, this function will look for the requested interface
   in the child interfaces, too.
+
+  \sa queryInterface
 */
 
 bool QUnknownInterface::hasInterface( const QString &request, bool rec ) const
@@ -247,6 +284,8 @@ bool QUnknownInterface::hasInterface( const QString &request, bool rec ) const
 /*!
   Returns the list of interface IDs this interface can provide. If \a rec is TRUE, this function
   will return all interface IDs the child interfaces can provide, too.
+
+  \sa hasInterface
 */
 
 QStringList QUnknownInterface::interfaceList( bool rec ) const
@@ -276,8 +315,9 @@ QStringList QUnknownInterface::interfaceList( bool rec ) const
 /*!
   Returns an interface that matches \a request. If \a rec is TRUE, this function will
   look for the requested interface in the child interfaces, too.
-  The function returns NULL if this interface can't provide an interface
-  with the requested interfaceID.
+  The function returns NULL if this interface can't provide the requested interface.
+
+  \sa interfaceID, hasInterface, interfaceList, 
 */
 
 QUnknownInterface* QUnknownInterface::queryInterface( const QString& request, bool rec )
@@ -369,7 +409,7 @@ QString QPlugInInterface::interfaceID() const
   The default implementation returns QString::null.
 */
 
-QString QPlugInInterface::name() const
+QString QPlugInInterface::brief() const
 {
     return QString::null;
 }
@@ -432,10 +472,10 @@ QString QApplicationInterface::interfaceID() const
 /*!
   \reimp
 
-  Provides a default implementation that returns the name() of the QApplication object.
+  Provides a default implementation that returns the name of the QApplication object.
 */
 
-QString QApplicationInterface::name() const
+QString QApplicationInterface::brief() const
 {
     return qApp->name();
 }
@@ -465,9 +505,7 @@ QString QApplicationInterface::command() const
 */
 
 /*!
-  Creates a QApplicationComponentInterface that provides an interface to the application component
-  \a object.
-  Note that \a object must not be null.
+  Creates a QApplicationComponentInterface that provides an interface to the application component \a object.
 */
 QApplicationComponentInterface::QApplicationComponentInterface( QObject* object, QUnknownInterface *parent, const char* name )
 : QUnknownInterface( parent, name )
@@ -493,6 +531,13 @@ QString QApplicationComponentInterface::interfaceID() const
 
   Returns the pointer to the handled object.
 */
+
+/*!
+  \fn void QApplicationComponentInterface::setComponent( QObject* c )
+  
+  Sets the handled object to \a c.
+*/
+
 
 #ifndef QT_NO_PROPERTIES
 

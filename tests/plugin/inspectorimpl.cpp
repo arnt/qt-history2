@@ -56,7 +56,7 @@ void LibraryInspector::showLibrary( QListViewItem *item )
 	QRegExp regexp( "*QPlugInInterface*", TRUE, TRUE );
 	if ( regexp.match( iface->interfaceID() ) ) {
 	    QPlugInInterface *piface = (QPlugInInterface*)iface;
-	    text += QString("<tr><td><b>Name:</b></td><td>%1</td></tr>").arg( piface->name() );
+	    text += QString("<tr><td><b>Name:</b></td><td>%1</td></tr>").arg( piface->brief() );
 	    text += QString("<tr><td><b>Description:</b></td><td>%1</td></tr>").arg( piface->description() );
 	    text += QString("<tr><td><b>Author:</b></td><td>%1</td></tr>").arg( piface->author() );
 	    text += QString("<tr><td><b>Version:</b></td><td>%1</td></tr>").arg( piface->version() );
@@ -79,21 +79,10 @@ void LibraryInspector::showLibrary( QListViewItem *item )
     details->setText( text );
 }
 
-static QString demangle( const QString& id, QString *unique = 0, QString *hierarchy = 0 )
+static QString demangle( const QString& id )
 {
-    QString uni;
-    QString hier;
-
-    int end = id.findRev( '%' );
-    uni = ( end == -1 ) ? QString::null : id.right( id.length() - end - 1 );
-    hier = ( end == -1 ) ? id : id.left( end );
-    if ( unique )
-	*unique = uni;
-    if ( hierarchy )
-	*hierarchy = hier;
-
-    int last = hier.findRev( '/' );
-    return ( last == -1 ) ? hier : hier.right( hier.length() - last - 1 );
+    int last = id.findRev( '/' );
+    return ( last == -1 ) ? id : id.right( id.length() - last - 1 );
 }
 
 /*
@@ -104,11 +93,9 @@ void LibraryInspector::addInterface( QListViewItem *parent, QUnknownInterface *i
     if ( !iface )
 	return;
 
-    QString uni;
-    QString hier;
-    QString intID = iface->ID( &hier );
+    QString ID = iface->ID();
 
-    QListViewItem *item = new QListViewItem( parent, intID, hier, uni );
+    QListViewItem *item = new QListViewItem( parent, iface->ID(), iface->interfaceID() );
 
     QStringList ifaces = iface->interfaceList( FALSE );
     for ( QStringList::Iterator it = ifaces.begin(); it != ifaces.end(); ++it ) {
@@ -118,10 +105,7 @@ void LibraryInspector::addInterface( QListViewItem *parent, QUnknownInterface *i
 	if ( sub ) {
 	    addInterface( item, sub );
 	} else {
-	    QString uni2;
-	    QString hier2;
-	    QString intID2 = demangle( *it, &uni2, &hier2 );
-	    new QListViewItem( item, intID2, hier2, uni2 );
+	    new QListViewItem( item, demangle( *it ), *it );
 	}
     }
     iface->release();

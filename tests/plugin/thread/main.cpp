@@ -117,6 +117,8 @@ void TestInterface::countWidgets()
     if ( !wlIface )
 	return;
 
+    wlIface->selectAll();
+
     int c = wlIface->count();
     wlIface->release();
 

@@ -73,7 +73,7 @@
   \class QPlugIn qplugin.h
 
   \brief This class provides a wrapper for library loading and unloading.
-  \ingroup plugin
+  \ingroup component
 */
 
 /*!
@@ -83,18 +83,16 @@
   policy.
   Defined values are:
   <ul>
-  <li> \c Default - The library get's loaded on first need and never unloaded
-  <li> \c OptimizeSpeed - The library is loaded as soon as possible at the cost of memory
+  <li> \c Default - The library get's loaded as soon as needed
+  <li> \c OptimizeSpeed - The library is loaded immediately
   <li> \c Manual - The library has to be loaded and unloaded manually
   </ul>
 */
 
 /*!
-  Creates a QPlugIn object for the shared library \a filename.
-
-  The library get's loaded immediately if \a pol is OptimizeSpeed,
-  as soon as necessary if \a pol is Default, or not automatically
-  if \a pol is Manual.
+  Creates a QPlugIn object for the shared library \a filename, propagating \a appIface 
+  to all interfaces created within this library.
+  The library get's loaded immediately if \a pol is OptimizeSpeed.
 
   \sa setPolicy(), load()
 */
@@ -108,7 +106,7 @@ QPlugIn::QPlugIn( const QString& filename, QApplicationInterface* appIface, Libr
 /*!
   Deletes the QPlugIn object.
 
-  When the library policy is not Manual, the plugin will try to unload the library.
+  When the library policy is not Manual, the library will be unloaded.
 
   \sa unload()
 */
@@ -120,14 +118,15 @@ QPlugIn::~QPlugIn()
 
 /*!
   Loads the shared library and initializes the connection to the QPlugInInterface.
-  Returns TRUE if the library was loaded successfully, otherwise returns FALSE.
+  Returns a pointer to the QPlugInInterface if the library was loaded successfully, 
+  otherwise returns null.
 
   This function gets called automatically if the policy is not Manual. 
   Otherwise you have to make sure that the library has been loaded before usage.
 
   \sa setPolicy()
 */
-bool QPlugIn::load()
+QPlugInInterface* QPlugIn::load()
 {
     if ( libfile.isEmpty() )
 	return FALSE;
@@ -140,12 +139,21 @@ bool QPlugIn::load()
     }
 
     if ( pHnd )
-	return info ? TRUE : loadInterface();
-    return FALSE;
+	return info ? info : loadInterface();
+    return 0;
+}
+
+/*!
+  Returns TRUE if the library is loaded.
+*/
+bool QPlugIn::loaded() const
+{
+    return pHnd != 0;
 }
 
 /*!
   Releases the QPlugInInterface and unloads the library when successful.
+  Returns TRUE if the library could be unloaded, otherwise FALSE.
 
   \warning
   If \a force is set to TRUE, the library gets unloaded
@@ -186,13 +194,7 @@ bool QPlugIn::use()
     return TRUE;
 }
 
-/*!
-  Loads the interface of the shared library and calls the initialize function.
-  Returns TRUE if successful, or FALSE if the interface could not be loaded.
-
-  \sa QApplicationInterface
-*/
-bool QPlugIn::loadInterface()
+QPlugInInterface* QPlugIn::loadInterface()
 {
     if ( !pHnd ) {
 #if defined(CHECK_RANGE)
@@ -206,29 +208,24 @@ bool QPlugIn::loadInterface()
     infoProc = (QtLoadInfoProc) qt_resolve_symbol( pHnd, "qt_load_interface" );
 
     if ( !infoProc )
-	return FALSE;
+	return 0;
     info = infoProc();
     
     if ( info ) {
 	info->appInterface = appInterface;
-	return info->ref();
+	if ( !info->ref() ) {
+	    delete info;
+	    info = 0;
+	}
+	return info;
     }
 
     return FALSE;
 }
 
 /*!
-  Returns TRUE if the library is loaded.
-*/
-bool QPlugIn::loaded() const
-{
-    return pHnd != 0;
-}
-
-/*!
   Sets the current policy to \a pol.
-  Forces the library to load if \a pol is set to
-  OptimizeSpeed.
+  If \a pol is set to OptimizeSpeed, the library gets load immediately.
 
   \sa LibraryPolicy
 */

@@ -62,7 +62,7 @@ public:
     QPlugIn( const QString& filename, QApplicationInterface* appIface = 0, LibraryPolicy = Default );
     ~QPlugIn();
 
-    bool load();
+    QPlugInInterface* load();
     bool unload( bool force = FALSE );
     bool loaded() const;
 
@@ -75,7 +75,7 @@ public:
 
 private:
     bool use();
-    bool loadInterface();
+    QPlugInInterface* loadInterface();
     QPlugInInterface* info;
 
 #ifdef Q_WS_WIN

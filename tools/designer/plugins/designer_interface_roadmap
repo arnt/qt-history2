@@ -4,87 +4,16 @@ Roadmap for Qt Designer Interface hierarchy
 General
 =======
 
-The Interface architecture of Qt's plugin system is based on three 
-classes:
+Qt's interface architecture is based on four classes:
 
-- QPlugInInterface to enable the application to load and access
-  functionality of the plugin, using the helper classes QPlugIn
-  and QPlugInManager.
-- QApplicationInterface and QComponentInterface to enable the plugin 
-  to access functionality or data of the application.
+- QUnknownInterface is the base class for all interfaces, and provides
+  the functionality to identify and access further interfaces
+- QApplicationInterface and QApplicationComponentInterface build the
+  application's side of the interface hierarchy and provide access to
+  application components.
+- QPlugInInterface serves as an entry point interface for shared
+  libraries and provides information about the library.
 
-  There is only one QApplicationInterface, and it is requested from 
-the QApplication derived class using the virtual 
-queryInterface method. A plugin can acquire this interface in it's 
-connectNotify reimplementation.
-  Each QComponentInterface represents one instance of a QObject 
-derived class, e.g. a main window. The existing functionality provides 
-methods to use the read and write methods of the property system, 
-methods to set up connections (in both directions) and a method to 
-install the plugin to host an eventfilter for the object. All methods 
-are named requestXYZ, indicating that it is on the application's side 
-of the interface implementation to process or reject the request. 
-  Interfaces that only reimplement the functionality of 
-QComponentInterface - e.g. to allow only a subset of properties to
-be accessed, or to add properties that are not part of the property
-system of the handled object - should be totally hidden within the 
-application. It's not necessary to include any declaration files 
-into the plugin, as all relevant methods of QComponentInterface are 
-virtual.
-  Interfaces that extend the functionality of QComponentInterface
-have to be declared as abstract classes, all functions being pure
-virtual. Thus the plugin doesn't have to know about any implementation
-details (that is, it does not have to link against any library etc.).
-The Interface has to be implemented within the application module by
-subclassing.
-
-  Similar to the QComponentInterface, the QPlugInInterface has to be 
-implemented on both sides, too. In the application module this is
-done using multiple inheritance from both QPlugIn, which provides the
-basic loading and unloading functionality, and the custom Interface 
-class. The queryPlugInInterface method has to be reimplemented inline 
-in the declaration of custom widgets AND in the QPlugIn subclass (even 
-though it is inherited from the interface this seems to be necessary 
-for most compilers). QPlugInInterface already provides some convenient 
-functions that are not necessary to reimplement in custom interfaces. 
-All new functions should be pure virtual.
-  The implementation has to use the plugInterface method of QPlugIn
-to access the implementation in the library, and just forward the
-functioncall. As the library may not be loaded in this moment it is 
-strongly suggested to call the use-function before accessing the 
-plugin interface.
-  The library just has to subclass the interface and implement the
-functions. Additionally, a C function "loadInterface" has to be 
-provided that returns a new interface. This can be done platform 
-independantly using the QT_EXPORT_INTERFACE macro.
-
-
-Difficulties using dynamic loading of libraries
------------------------------------------------
-
-A common problem with dynamic linking is that memory allocated in the
-library is likely to be referenced in some way within the application.
-When unloading the library, all pointers to such memory become invalid,
-causing segmentation faults when dereferencing.
-  As the interface architecture provides something like a "library
-destructor" (the interface is destroyed when the library is unloaded)
-it is possible to cleanup all memory allocated. This can be done 
-easily using the templates QCleanUpHandler for normal pointers, and 
-QGuardedCleanUpHandler for pointers to QObject derived classes. As 
-long as those objects are not referenced to in any special way this is
-enough (e.g. the deletion of a QObject deletes all connections, parent
-children etc.).
-  There are more subtle problems associated with the usage of classes 
-that provide sharing, e.g. all QString related classes. Interface 
-methods returning QString or QStringList return data that is allocated 
-in the library's memory, thus leaving even copies of the - shared - 
-classes with references to memory already deallocated when the library 
-has been unloaded. It is of critical importance to make either deep 
-copies of the returned values, or to guarantee that all references to 
-this data is destroyed before the library is unloaded. For copies on 
-the stack this can be done using an additional scope.
-
-### Qt's copy methods for those classes are very poor at the moment ###
 
 
 Interfaces in the Qt Designer (sketch)
@@ -96,15 +25,6 @@ tools\designer\plugins subdirectory of your local Qt installation.
 
 Supported PlugIn Interfaces:
 ----------------------------
-
-  All Interfaces here are subclasses of QPlugInInterface, which provides
-a standard set of methods for convenience. 
-
-  The functions name(), author() and description() are implemented in
-QPlugInInterface and return QString::null, so it's not necessary, but
-useful to reimplement these in each plugin.
-Additionally, the featureList() function is supposed to return 
-the list of features the plugin is able to provide. 
 
 - ActionInterface
 
@@ -145,34 +65,30 @@ Provided Application Interfaces:
 
 DesignerApplicationInterface
     |
-    |-- DesignerPropertyEditorInterface 
-    |	    |
-    |	    |-- DesignerWidgetInterface
-    |
-    |
-    |-- DesignerFormListInterface
-    |	    |
-    |	    |-- DesignerFormWindowInterface
-    |		    |
-    |		    |-- DesignerSelectionInterface
-    |			    |
-    |			    |-- DesignerWidgetInterface
-    |
-    |
-    |-- DesignerHierarchyViewInterface
-    |	    |
-    |	    |-- DesignerWidgetInterface
+    |-- DesignerFormListInterface			*DesignerFormWindowInterface
+    |	    |						    |
+    |	    |-- DesignerActiveFormWindowInterface	    |-- DesignerWidgetListInterface	*DesignerWidgetInterface
+    |							    |
+    |							    |-- DesignerActiveWidgetInterface
     |
     |
     |-- DesignerMainWindowInterface
     |	    |
-    |	    |-- DesignerMenuBarInterface
-    |	    |
     |	    |-- DesignerStatusBarInterface
+    |	    |
+    |	    |-- DesignerPropertyEditorInterface
+    |	    |
+    |	    |-- DesignerHierarchyViewInterface
     |
     |
     |-- DesignerConfigurationInterface
 
+
+Interfaces in general are accessible using queryInterface(...). 
+Interfaces marked with * are results of an iteration over the 
+corresponding list interface (since it can't be specified which 
+instance of a certain interface queryInterface() will return it 
+wouldn't make sense to query for a DesignerWidgetInterface)
 
 
 Comments
@@ -224,9 +140,6 @@ Comments
 
   Functions:
     - delete
-    - selectNext
-    - selectPrevious
-    - selectParent
 
 - DesignerPropertyEditorInterface
 
@@ -244,7 +157,6 @@ Comments
   can provide a DesignerFormWindowInterface.
   Properties
     - count (read only)
-    - fileList (read only)
 
   Functions:
     - newForm

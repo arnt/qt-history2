@@ -21,7 +21,7 @@ public:
     virtual ~QUnknownInterface();
 
     virtual QString interfaceID() const;
-    QString ID( QString *hierarchy = 0 ) const;
+    QString ID() const;
 
     virtual bool initialize( QApplicationInterface* = 0 );
     virtual bool cleanUp( QApplicationInterface* = 0 );
@@ -40,8 +40,8 @@ public:
     const char *name() const;   
 
 protected:
-    void insertChild( QUnknownInterface * );
-    void removeChild( QUnknownInterface * );
+    virtual void insertChild( QUnknownInterface * );
+    virtual void removeChild( QUnknownInterface * );
     QUnknownInterface *child( const QString & ) const;
     QString createID( const QString& parent, const QString& that ) const;
 
@@ -60,7 +60,7 @@ public:
 
     QString interfaceID() const;
 
-    virtual QString name() const;
+    virtual QString brief() const;
     virtual QString description() const;
     virtual QString author() const;
     virtual QString version() const;
@@ -72,7 +72,7 @@ public:
     QApplicationInterface( const char* name = 0 );
     QString interfaceID() const;
 
-    QString name() const;
+    QString brief() const;
 
     QString workDirectory() const;
     QString command() const;
