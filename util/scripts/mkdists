@@ -32,6 +32,7 @@ DO_US=yes
 #other
 DO_GZIP=auto
 DO_BZIP=auto
+DO_STUFF=auto
 DO_ID=auto
 DO_DOC=auto
 SET_TYPE=auto
@@ -100,6 +101,7 @@ showhelp()
     echo "  -no-doc  / -do-doc   : Toggle whether to generate documentation"
     echo "  -no-gzip / -do-gzip  : Toggle whether to add a gzip package"
     echo "  -no-bzip / -do-bzip  : Toggle whether to add a bzip package"
+    echo "  -no-stuff / -do-stuff: Toggle whether to add a stuffit package"
 
     echo "=-________________________________________________________________-="
     echo "All options can be in long form --option=value as well (where value "
@@ -198,6 +200,7 @@ while [ -n "$1" ]; do
        LABEL="qt/$VAL"
        ;;
    #other
+   stuff) DO_STUFF=$VAL ;;
    doc) DO_DOC=$VAL ;;
    gzip)DO_GZIP=$VAL;;
    bzip)DO_BZIP=$VAL;;
@@ -238,6 +241,13 @@ if [ "$DO_BZIP" = "auto" ]; then
 	DO_BZIP=yes
     else
 	DO_BZIP=no
+    fi
+fi
+if [ "$DO_STUFF" = "auto" ]; then
+    if [ ! -z `which stuff` ]; then
+	DO_STUFF=yes
+    else
+	DO_STUFF=no
     fi
 fi
 if [ "$BRANCH" = "auto" ]; then
@@ -862,6 +872,10 @@ for plat in mac win x11 embedded; do
 	    tar cf "$OUT_TREE/${PLATNAME}.tar" "${PLATNAME}"
 	    [ "$DO_GZIP" = "yes" ] && status "Gzip.." && gzip -c "$OUT_TREE/${PLATNAME}.tar" >"$OUT_TREE/${PLATNAME}.tar.gz"
 	    [ "$DO_BZIP" = "yes" ] && status "Bzip2.." && bzip2 -z -c "$OUT_TREE/${PLATNAME}.tar" >"$OUT_TREE/${PLATNAME}.tar.bz2"
+            if [ "$plat" = "mac" ] && [ "$DO_STUFF" = "yes" ]; then
+               status "Stuffit.."
+               stuff -q "-n=${OUT_TREE}/${PLATNAME}.sit" "${PLATNAME}"
+            fi
 	elif [ "$plat" = "win" ]; then
 	    txtfiles=""
 	    binfiles=""
