@@ -1452,20 +1452,14 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
     int sh = pixmap.height();
     if (!sw || !sh )
 	return;
-
-    // huh?
-    sx += x - bro.x();
-    sy += y - bro.y();
-
     if ( sx < 0 )
-        sx = sw - -sx % sw;
+	sx = sw - -sx % sw;
     else
-        sx = sx % sw;
+	sx = sx % sw;
     if ( sy < 0 )
-        sy = sh - -sy % sh;
+	sy = sh - -sy % sh;
     else
-        sy = sy % sh;
-
+	sy = sy % sh;
     drawTile( this, x, y, w, h, pixmap, sx, sy );
 }
 
