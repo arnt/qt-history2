@@ -48,19 +48,31 @@ for(QTLIB, $$list($$lower($$unique(QT)))) {
          }
 	 isEqual(QTLIB, opengl):CONFIG += opengl
 	 isEqual(QTLIB, qt3support):DEFINES *= QT3_SUPPORT
-	 mac:!qt_no_framework:exists(/Library/Frameworks/$${qlib}.framework/$${qlib}) {
-	    FRAMEWORK_INCLUDE = /Library/Frameworks/$${qlib}.framework/Headers
-	    !qt_no_framework_direct_includes:exists($$FRAMEWORK_INCLUDE) {
-	       INCLUDEPATH -= $$FRAMEWORK_INCLUDE
-	       INCLUDEPATH = $$FRAMEWORK_INCLUDE $$INCLUDEPATH
+
+	 QT_LINKAGE =
+	 mac:!qt_no_framework {
+	    for(frmwrk_dir, $$list($$QMAKE_LIBDIR $$(DYLD_FRAMEWORK_PATH) /Library/Frameworks)) {
+	       exists($${frmwrk_dir}/$${qlib}.framework/$${qlib}) {
+	           LIBS *= -F$${frmwrk_dir}
+	           FRAMEWORK_INCLUDE = $$frmwrk_dir/$${qlib}.framework/Headers
+	           !qt_no_framework_direct_includes:exists($$FRAMEWORK_INCLUDE) {
+	              INCLUDEPATH -= $$FRAMEWORK_INCLUDE
+	              INCLUDEPATH = $$FRAMEWORK_INCLUDE $$INCLUDEPATH
+                   }
+		   QT_LINKAGE = -framework $${qlib}
+		   break()
+               }
             }
-	    LIBS   += -framework $${qlib}
-	 } else:CONFIG(debug, debug|release) {
-	    win32:LIBS   += -l$${qlib}d
-	    else:LIBS   += -l$${qlib}_debug
-	 } else { 
- 	    LIBS   += -l$${qlib}
+	 }
+         isEmpty(QT_LINKAGE) {
+	    CONFIG(debug, debug|release) {
+	       win32:QT_LINKAGE = -l$${qlib}d
+	       else:QT_LINKAGE  = -l$${qlib}_debug
+	    } else { 
+ 	       QT_LINKAGE = -l$${qlib}
+            }
          }
+	 LIBS += $$QT_LINKAGE
       }
    }
 }
