@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#67 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#68 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -152,6 +152,7 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     setCursor( ibeamCursor );
     ((QScrollBar*)verticalScrollBar())->setCursor( arrowCursor );
     ((QScrollBar*)horizontalScrollBar())->setCursor( arrowCursor );
+    dummy = FALSE;
     insertLine( "", -1 );
     readOnly 	   = FALSE;
     cursorOn	   = FALSE;
