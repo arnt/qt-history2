@@ -56,6 +56,7 @@
 #include <qfeatures.h>
 #include <qaccel.h>
 #include <qpixmapcache.h>
+#include <qbitmap.h>
 
 static void setCursorToAll( const QCursor &c, QWidget *start )
 {
@@ -211,13 +212,18 @@ void FormWindow::paintGrid( QWidget *w, QPaintEvent *e )
     grid_name.sprintf("FormWindowGrid_%d_%d", mainWindow()->grid().x(), mainWindow()->grid().y());
     if( !QPixmapCache::find( grid_name, grid ) ) {
 	grid = QPixmap( 150 + (150 % mainWindow()->grid().x()), 150 + (150 % mainWindow()->grid().y()) );
-	QPainter p( &grid );
-	p.fillRect(0, 0, grid.width(), grid.height(), w->backgroundColor());
-	p.setPen( colorGroup().foreground() );
-	for ( int y = 0; y < grid.width(); y += mainWindow()->grid().y()) {
-	    for ( int x = 0; x < grid.height(); x += mainWindow()->grid().x() ) {
-		p.drawPoint( x, y );
+	{
+	    grid.fill(black);
+	    QBitmap mask(grid.width(), grid.height());
+	    mask.fill(white);
+	    QPainter p( &mask );
+	    p.setPen( black );
+	    for ( int y = 0; y < grid.width(); y += mainWindow()->grid().y()) {
+		for ( int x = 0; x < grid.height(); x += mainWindow()->grid().x() ) {
+		    p.drawPoint( x, y );
+		}
 	    }
+	    grid.setMask(mask);
 	}
 	QPixmapCache::insert( grid_name, grid );
     }
