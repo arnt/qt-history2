@@ -32,6 +32,7 @@ class QWidget;
 #include "qobject.h"
 #include "qimage.h"
 #include "qstrlist.h"
+#include "qcolor.h"
 #endif // QT_H
 
 
@@ -147,6 +148,20 @@ public:
     static bool decode( const QMimeSource* e, QStrList& i );
     static bool decodeToUnicodeUris( const QMimeSource* e, QStringList& i );
     static bool decodeLocalFiles( const QMimeSource* e, QStringList& i );
+};
+
+class QColorDrag : public QStoredDrag
+{
+    Q_OBJECT
+    QColor color;
+
+public:
+    QColorDrag( const QColor &col, QWidget *dragsource = 0, const char *name = 0 );
+    QColorDrag( QWidget * dragSource = 0, const char * name = 0 );
+    void setColor( const QColor &col );
+
+    static bool canDecode( QMimeSource * );
+    static bool decode( QMimeSource *, QColor &col );
 };
 
 #ifndef QT_NO_COMPAT

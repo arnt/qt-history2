@@ -1308,3 +1308,79 @@ QWidget* QDropEvent::source() const
 {
     return manager ? manager->dragSource : 0;
 }
+
+/*! \class QColorDrag qdragobject.h
+
+  \brief The QColorDrag provides a drag-and-drop object for
+	      transferring colors.
+
+  \ingroup kernel
+
+  This class provides a drag object which can be used to transfere
+  data about colors for drag-and-drop and over the clipboard. It's
+  e.g. used in the QColorDialog.
+  
+  For detailed information about drag-and-drop, see the QDragObject class.
+*/
+
+/*!
+  Constructs a color drag with the color \a col.
+*/
+
+QColorDrag::QColorDrag( const QColor &col, QWidget *dragsource, const char *name )
+    : QStoredDrag( "application/x-color", dragsource, name )
+{
+    setColor( col );
+}
+
+/*!
+  Constructs a color drag with a while color
+*/
+
+QColorDrag::QColorDrag( QWidget *dragsource, const char *name )
+    : QStoredDrag( "application/x-color", dragsource, name )
+{
+    setColor( Qt::white );
+}
+
+/*!
+  Sets the color of the color drag to \a col
+*/
+
+void QColorDrag::setColor( const QColor &col )
+{
+    QByteArray data;
+    ushort rgba[ 4 ];
+    data.resize( sizeof( rgba ) );
+    rgba[ 0 ] = col.red()  * 0xFF;
+    rgba[ 1 ] = col.green() * 0xFF;
+    rgba[ 2 ] = col.blue()  * 0xFF;
+    rgba[ 3 ] = 0xFFFF; // Alpha not supported yet.
+    memcpy( data.data(), rgba, sizeof( rgba) );
+    setEncodedData( data );
+}
+
+/*!
+  Returns TRUE, if the color drag object can decode the
+  mime source \a e.
+*/
+
+bool QColorDrag::canDecode( QMimeSource *e )
+{
+    return e->provides( "application/x-color" );
+}
+
+/*!
+  Decodes the mime source \a e and sets the decoded values to \a col.
+*/
+
+bool QColorDrag::decode( QMimeSource *e, QColor &col )
+{
+    QByteArray data = e->encodedData( "application/x-color" );
+    ushort rgba[ 4 ];
+    if( data.size() != sizeof( rgba ) )
+	return FALSE;
+    memcpy( rgba, data.data(), sizeof( rgba ) );
+    col.setRgb( rgba[ 0 ] / 0xFF, rgba[ 1 ] / 0xFF, rgba[ 2 ] / 0xFF );
+    return TRUE;
+}

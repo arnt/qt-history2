@@ -37,6 +37,7 @@
 #include "qvalidator.h"
 #include "qdragobject.h"
 #include "qapplication.h"
+#include "qdragobject.h"
 
 static bool initrgb = FALSE;
 static QRgb stdrgb[6*8];
@@ -102,57 +103,6 @@ static inline void rgb2hsv( QRgb rgb, int&h, int&s, int&v )
     QColor c;
     c.setRgb( rgb );
     c.getHsv(h,s,v);
-}
-
-class QColorDrag : public QStoredDrag
-{
-     Q_OBJECT
-
-public:
-     QColorDrag( const QColor &col, QWidget *dragsource = 0, const char *name = 0 );
-     void setColor( const QColor &col );
-
-     static bool canDecode( QMimeSource * );
-     static bool decode( QMimeSource *, QColor &col );
-
-protected:
-     QColor color;
-
-};
-
-QColorDrag::QColorDrag( const QColor &col, QWidget *dragsource, const char *name )
-    : QStoredDrag( "application/x-color", dragsource, name )
-{
-     setColor( col );
-}
-
-void QColorDrag::setColor( const QColor &col )
-{
-     QByteArray data;
-     ushort rgba[ 4 ];
-     data.resize( sizeof( rgba ) );
-     rgba[ 0 ] = col.red()  * 0xFF;
-     rgba[ 1 ] = col.green() * 0xFF;
-     rgba[ 2 ] = col.blue()  * 0xFF;
-     rgba[ 3 ] = 0xFFFF; // Alpha not supported yet.
-     memcpy( data.data(), rgba, sizeof( rgba) );
-     setEncodedData( data );
-}
-
-bool QColorDrag::canDecode( QMimeSource *e )
-{
-     return e->provides( "application/x-color" );
-}
-
-bool QColorDrag::decode( QMimeSource *e, QColor &col )
-{
-    QByteArray data = e->encodedData( "application/x-color" );
-     ushort rgba[ 4 ];
-     if( data.size() != sizeof( rgba ) )
-	 return FALSE;
-     memcpy( rgba, data.data(), sizeof( rgba ) );
-     col.setRgb( rgba[ 0 ] / 0xFF, rgba[ 1 ] / 0xFF, rgba[ 2 ] / 0xFF );
-     return TRUE;
 }
 
 class QColorWell : public QWellArray
