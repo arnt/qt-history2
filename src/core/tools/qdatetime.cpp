@@ -59,68 +59,87 @@ static QString getFmtString(const QString& f, const QTime* dt = 0, const QDate* 
         return QString();
 
     QString buf = f;
+    int removed = 0;
 
     if (dt) {
-        if (f == QLatin1String("h")) {
-            if ((am_pm) && (dt->hour() > 12))
-                buf = QString::number(dt->hour() - 12);
-            else if ((am_pm) && (dt->hour() == 0))
-                buf = QLatin1String("12");
-            else
-                buf = QString::number(dt->hour());
-        } else if (f == QLatin1String("hh")) {
+        if (f.startsWith(QLatin1String("hh"))) {
             if ((am_pm) && (dt->hour() > 12))
                 buf = QString::number(dt->hour() - 12).rightJustified(2, QLatin1Char('0'), true);
             else if ((am_pm) && (dt->hour() == 0))
                 buf = QLatin1String("12");
             else
                 buf = QString::number(dt->hour()).rightJustified(2, QLatin1Char('0'), true);
-        } else if (f == QLatin1String("m")) {
-            buf = QString::number(dt->minute());
-        } else if (f == QLatin1String("mm")) {
+            removed = 2;
+        } else if (f.at(0) == QLatin1Char('h')) {
+            if ((am_pm) && (dt->hour() > 12))
+                buf = QString::number(dt->hour() - 12);
+            else if ((am_pm) && (dt->hour() == 0))
+                buf = QLatin1String("12");
+            else
+                buf = QString::number(dt->hour());
+            removed = 1;
+        } else if (f.startsWith(QLatin1String("mm"))) {
             buf = QString::number(dt->minute()).rightJustified(2, QLatin1Char('0'), true);
-        } else if (f == QLatin1String("s")) {
-            buf = QString::number(dt->second());
-        } else if (f == QLatin1String("ss")) {
+            removed = 2;
+        } else if (f.at(0) == (QLatin1Char('m'))) {
+            buf = QString::number(dt->minute());
+            removed = 1;
+        } else if (f.startsWith(QLatin1String("ss"))) {
             buf = QString::number(dt->second()).rightJustified(2, QLatin1Char('0'), true);
-        } else if (f == QLatin1String("z")) {
-            buf = QString::number(dt->msec());
-        } else if (f == QLatin1String("zzz")) {
+            removed = 2;
+        } else if (f.at(0) == QLatin1Char('s')) {
+            buf = QString::number(dt->second());
+        } else if (f.startsWith(QLatin1String("zzz"))) {
             buf = QString::number(dt->msec()).rightJustified(3, QLatin1Char('0'), true);
-        } else if (f == QLatin1String("ap")) {
+            removed = 3;
+        } else if (f.at(0) == QLatin1Char('z')) {
+            buf = QString::number(dt->msec());
+            removed = 1;
+        } else if (f.startsWith(QLatin1String("ap"))) {
             buf = dt->hour() < 12 ? QLatin1String("am") : QLatin1String("pm");
-        } else if (f == QLatin1String("AP")) {
+            removed = 2;
+        } else if (f.startsWith(QLatin1String("AP"))) {
             buf = dt->hour() < 12 ? QLatin1String("AM") : QLatin1String("PM");
+            removed = 2;
         }
     }
 
     if (dd) {
-        if (f == QLatin1String("d")) {
-            buf = QString::number(dd->day());
-        } else if (f == QLatin1String("dd")) {
-            buf = QString::number(dd->day()).rightJustified(2, QLatin1Char('0'), true);
-        } else if (f == QLatin1String("M")) {
-            buf = QString::number(dd->month());
-        } else if (f == QLatin1String("MM")) {
-            buf = QString::number(dd->month()).rightJustified(2, QLatin1Char('0'), true);
-#ifndef QT_NO_TEXTDATE
-        } else if (f == QLatin1String("ddd")) {
-            buf = dd->shortDayName(dd->dayOfWeek());
-        } else if (f == QLatin1String("dddd")) {
+        if (f.startsWith(QLatin1String("dddd"))) {
             buf = dd->longDayName(dd->dayOfWeek());
-        } else if (f == QLatin1String("MMM")) {
-            buf = dd->shortMonthName(dd->month());
-        } else if (f == QLatin1String("MMMM")) {
+            removed = 4;
+        } else if (f.startsWith(QLatin1String("ddd"))) {
+            buf = dd->shortDayName(dd->dayOfWeek());
+            removed = 3;
+        } else if (f.startsWith(QLatin1String("dd"))) {
+            buf = QString::number(dd->day()).rightJustified(2, QLatin1Char('0'), true);
+            removed = 2;
+        } else if (f.at(0) == QLatin1Char('d')) {
+            buf = QString::number(dd->day());
+            removed = 1;
+        } else if (f.startsWith(QLatin1String("MMMM"))) {
             buf = dd->longMonthName(dd->month());
-#endif
-        } else if (f == QLatin1String("yy")) {
-            buf = QString::number(dd->year()).right(2);
-        } else if (f == QLatin1String("yyyy")) {
+            removed = 4;
+        } else if (f.startsWith(QLatin1String("MMM"))) {
+            buf = dd->shortMonthName(dd->month());
+            removed = 3;
+        } else if (f.startsWith(QLatin1String("MM"))) {
+            buf = QString::number(dd->month()).rightJustified(2, QLatin1Char('0'), true);
+            removed = 2;
+        } else if (f.at(0) == QLatin1Char('M')) {
+            buf = QString::number(dd->month());
+            removed = 1;
+        } else if (f.startsWith(QLatin1String("yyyy"))) {
             buf = QString::number(dd->year());
+            removed = 4;
+        } else if (f.startsWith(QLatin1String("yy"))) {
+            buf = QString::number(dd->year()).right(2);
+            removed = 2;
         }
     }
-
-    return buf;
+    if (removed == 0 || removed >= f.size())
+        return buf;
+    return buf + getFmtString(f.mid(removed), dt, dd, am_pm);
 }
 
 // checks if there is an unqoted 'AP' or 'ap' in the string
@@ -170,11 +189,7 @@ static QString fmtDateTime(const QString& f, const QTime* dt = 0, const QDate* d
     for (int i = 0; i < (int)f.length(); ++i) {
         if (f.at(i) == quote) {
             if (status == quote) {
-                if (!buf.isEmpty() && f.at(i - 1) == QLatin1Char('\\')) {
-                    buf[buf.length() - 1] = quote;
-                } else {
-                    status = QLatin1Char('0');
-                }
+                status = QLatin1Char('0');
             } else {
                 if (!frm.isEmpty()) {
                     buf += getFmtString(frm, dt, dd, ap);
