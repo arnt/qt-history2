@@ -302,6 +302,7 @@ private:
     friend class QTextLine;
     friend class QGLContext;
     friend class QWin32PaintEngine;
+    friend class QPainterPath;
 
 #ifndef QT_NO_DATASTREAM
     friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QFont &);

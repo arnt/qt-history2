@@ -1144,6 +1144,90 @@ glyph_metrics_t QFontEngineXft::boundingBox(glyph_t glyph)
     return gm;
 }
 
+static void addCurve(QPainterPath *path, const QPointF &cp, const QPointF &endPoint,
+                     int startOff, int nOff, FT_GlyphSlot g)
+{
+    int j;
+    QPointF c0 = QPointF(g->outline.points[startOff-1].x/64., -g->outline.points[startOff-1].y/64.);
+    QPointF current = QPointF(g->outline.points[startOff].x/64., -g->outline.points[startOff].y/64.);
+    for(j = 1; j <= nOff; j++) {
+        QPointF next = (j == nOff)
+                       ? endPoint
+                       : QPointF(g->outline.points[startOff + j].x/64., -g->outline.points[startOff + j].y/64.);
+        QPointF c3 = (j == nOff) ? next : (next + current)/2;
+        QPointF c1 = (2*current + c0)/3;
+        QPointF c2 = (2*current + c3)/3;
+//         qDebug("curveTo %f/%f %f/%f %f/%f", (cp + c1).x(),  (cp + c1).y(),
+//                (cp + c2).x(),  (cp + c2).y(), (cp + c3).x(),  (cp + c3).y());
+        path->curveTo(cp + c1, cp + c2, cp + c3);
+        c0 = c3;
+        current = next;
+    }
+}
+
+void QFontEngineXft::addOutlineToPath(float x, float y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path)
+{
+    FT_Face face = XftLockFace(_font);
+    if (FT_IS_SCALABLE(face)) {
+        QPointF point = QPointF(x, y);
+        for (int i = 0; i < numGlyphs; i++) {
+            FT_UInt glyph = glyphs[i].glyph;
+            QPointF cp = point + glyphs[i].offset;
+            point += glyphs[i].advance;
+
+            FT_Load_Glyph(face, glyph, FT_LOAD_NO_HINTING|FT_LOAD_NO_BITMAP);
+
+            FT_GlyphSlot g = face->glyph;
+            if (g->format != FT_GLYPH_FORMAT_OUTLINE)
+                continue;
+
+            // convert the outline to a painter path
+            int i = 0;
+            for (int c = 0; c < g->outline.n_contours; ++c) {
+                QPointF p = cp + QPointF(g->outline.points[i].x/64., -g->outline.points[i].y/64.);
+//                 qDebug("contour: %d -- %d", i, g->outline.contours[c]);
+//                 qDebug("first point at %f %f", p.x(), p.y());
+                path->moveTo(p);
+
+                int first = i;
+                int startOff = 0;
+                int nOff = 0;
+                ++i;
+                while (i <= g->outline.contours[c]) {
+                    QPointF p = cp + QPointF(g->outline.points[i].x/64., -g->outline.points[i].y/64.);
+//                     qDebug("     point at %f %f, on curve=%d", p.x(), p.y(), g->outline.tags[i] & 1);
+                    if (!(g->outline.tags[i] & 1)) {
+                        /* Off curve */
+                        if (!startOff) {
+                            startOff = i;
+                            nOff = 1;
+                        } else {
+                            ++nOff;
+                        }
+                    } else {
+                        /* On Curve */
+                        if (startOff) {
+                            // ###### fix 3rd order beziers
+                            addCurve(path, cp, QPointF(g->outline.points[i].x/64., -g->outline.points[i].y/64.),
+                                     startOff, nOff, g);
+                            startOff = 0;
+                        } else {
+                            p = cp + QPointF(g->outline.points[i].x/64., -g->outline.points[i].y/64.);
+                            path->lineTo(p);
+                        }
+                    }
+                    ++i;
+                }
+                QPointF end(g->outline.points[first].x/64., -g->outline.points[first].y/64.);
+                if (startOff)
+                    addCurve(path, cp, end, startOff, nOff, g);
+                else
+                    path->lineTo(end + cp);
+            }
+        }
+    }
+    XftUnlockFace(_font);
+}
 
 
 float QFontEngineXft::ascent() const

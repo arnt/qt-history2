@@ -48,6 +48,9 @@ public:
     void addRect(const QRectF &rect);
     inline void addRect(float x, float y, float w, float h);
 
+    void addText(const QPointF &point, const QFont &f, const QString &text);
+    inline void addText(float x, float y, const QFont &f, const QString &text);
+
     QPainterPath createPathOutline(int width);
 
     QRectF boundingRect() const;
@@ -92,6 +95,11 @@ inline void QPainterPath::curveTo(float ctrlPt1x, float ctrlPt1y, float ctrlPt2x
 inline void QPainterPath::addRect(float x, float y, float w, float h)
 {
     addRect(QRectF(x, y, w, h));
+}
+
+inline void QPainterPath::addText(float x, float y, const QFont &f, const QString &text)
+{
+    addText(QPointF(x, y), f, text);
 }
 
 #endif // QPAINTERPATH_H

@@ -21,6 +21,9 @@
 #include <qmatrix.h>
 #include <qvarlengtharray.h>
 #include <qpen.h>
+#include <qtextlayout.h>
+#include <private/qtextengine_p.h>
+#include <private/qfontengine_p.h>
 
 #include <qdebug.h>
 
@@ -958,6 +961,62 @@ void QPainterPath::addRect(const QRectF &r)
     sp.lineTo(r.bottomLeft());
     closeSubpath();
 }
+
+#undef d
+
+/*!
+    Adds the \a text to this path as a set of closed subpaths. The
+    text is outlined using the font \a f.
+*/
+void QPainterPath::addText(const QPointF &point, const QFont &f, const QString &text)
+{
+    if (text.isEmpty())
+        return;
+
+    QTextLayout layout(text, f);
+    QTextEngine *eng = layout.engine();
+    eng->itemize(QTextEngine::SingleLine);
+
+    QTextLine line = layout.createLine();
+    line.layout(0x01000000);
+    const QScriptLine &sl = eng->lines[0];
+    if (!sl.length)
+        return;
+
+    int textFlags = 0;
+    if (f.underline()) textFlags |= Qt::TextUnderline;
+    if (f.overline()) textFlags |= Qt::TextOverline;
+    if (f.strikeOut()) textFlags |= Qt::TextStrikeOut;
+
+    int nItems = eng->items.size();
+
+    float x(point.x());
+    float y(point.y());
+
+    QVarLengthArray<int> visualOrder(nItems);
+    QVarLengthArray<uchar> levels(nItems);
+    for (int i = 0; i < nItems; ++i)
+        levels[i] = eng->items[i].analysis.bidiLevel;
+    QTextEngine::bidiReorder(nItems, levels.data(), visualOrder.data());
+
+    for (int i = 0; i < nItems; ++i) {
+        int item = visualOrder[i];
+        QScriptItem &si = eng->items[item];
+
+        if (!si.isTab && !si.isObject) {
+            QGlyphLayout *glyphs = eng->glyphs(&si);
+
+            QFontEngine *fe = f.d->engineForScript((QFont::Script)si.analysis.script);
+            Q_ASSERT(fe);
+
+            fe->addOutlineToPath(x, y, glyphs, si.num_glyphs, this);
+        }
+        x += si.width;
+    }
+
+}
+
+#define d d_func()
 
 #if 0
 void QPainterPath::transform(const QMatrix &matrix)

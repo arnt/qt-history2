@@ -2301,12 +2301,6 @@ void QPainter::drawText(const QPoint &p, const QString &str, TextDirection dir)
     QTextLine line = layout.createLine();
     line.layout(0x01000000);
     const QScriptLine &sl = engine->lines[0];
-
-    int textFlags = 0;
-    if (d->state->font.underline()) textFlags |= Qt::TextUnderline;
-    if (d->state->font.overline()) textFlags |= Qt::TextOverline;
-    if (d->state->font.strikeOut()) textFlags |= Qt::TextStrikeOut;
-
     line.draw(this, p.x(), qRound(p.y() - sl.ascent));
 }
 
