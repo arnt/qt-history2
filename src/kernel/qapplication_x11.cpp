@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#46 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -15,6 +15,7 @@
 #include "qwidget.h"
 #include "qwidcoll.h"
 #include "qpainter.h"
+#include "qpixmap.h"
 #include <stdlib.h>
 #include <signal.h>
 #define	 GC GC_QQQ
@@ -28,7 +29,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#45 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#46 $";
 #endif
 
 
@@ -252,6 +253,7 @@ int main( int argc, char **argv )
     if ( qApp )
 	delete qApp;
     QApplication::cleanup();
+    QPixMap::cleanup();
     QCursor::cleanup();
     QFont::cleanup();
     QColor::cleanup();
