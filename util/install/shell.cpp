@@ -259,6 +259,7 @@ HRESULT WinShell::createShortcut( QString folderName, bool common, QString short
 	if( SUCCEEDED( hr = CoCreateInstance( CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLinkA, (void**)&link ) ) ) {
 	    if( SUCCEEDED( hr = link->QueryInterface( IID_IPersistFile, (void**)&linkFile ) ) ) {
 		link->SetPath( QString( target.latin1() ) );
+		link->SetWorkingDirectory( target.left( target.findRev( '\\' ) ) );
 		if( description.length() )
 		    link->SetDescription( description.latin1() );
 		if( arguments.length() )
