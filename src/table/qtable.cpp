@@ -4344,7 +4344,6 @@ void QTable::restoreContents( QPtrVector<QTableItem> &tmp,
 
 void QTable::finishContentsResze( bool updateBefore )
 {
-    leftHeader->calculatePositions();
     QRect r( cellGeometry( numRows() - 1, numCols() - 1 ) );
     resizeContents( r.right() + 1, r.bottom() + 1 );
     updateGeometries();
@@ -4382,6 +4381,7 @@ void QTable::setNumRows( int r )
 
     restoreContents( tmp, tmp2 );
 
+    leftHeader->calculatePositions();
     finishContentsResze( updateBefore );
     leftHeader->setUpdatesEnabled( isUpdatesEnabled );
     if ( isUpdatesEnabled )
@@ -4405,6 +4405,7 @@ void QTable::setNumCols( int c )
 
     restoreContents( tmp, tmp2 );
 
+    topHeader->calculatePositions();
     finishContentsResze( updateBefore );
     topHeader->setUpdatesEnabled( isUpdatesEnabled );
     if ( isUpdatesEnabled )
