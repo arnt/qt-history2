@@ -53,7 +53,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     }
 
     //FIXME@!!!!!!@$!@$!@#
-    init( img.width(), img.height(), img.depth(), isQBitmap(), DefaultOptim);
+    init( img.width(), img.height(), 32, isQBitmap(), DefaultOptim);
     if(!hd)
 	return FALSE;
 
