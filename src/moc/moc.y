@@ -553,7 +553,7 @@ int	   tmpYYStart2;			// Used to store the lexers current mode
 					//  (if tmpYYStart is already used)
 
 // if the format revision changes, you MUST change it in qmetaobject.h too
-const int formatRevision = 42;		// moc output format revision
+const int formatRevision = 43;		// moc output format revision
 
 // if the flags change, you HAVE to change it in qmetaobject.h too
 enum ProperyFlags  {
@@ -3200,11 +3200,11 @@ void generateClass()		      // generate C++ source code for a class
 //
 // Generate smart cast function
 //
-    fprintf(out, "\nvoid *%s::qt_metacast(const char *clname)\n{\n",
+    fprintf(out, "\nvoid *%s::qt_metacast(const char *clname) const\n{\n",
 	     (const char*)qualifiedClassName());
     fprintf(out, "    if (!clname) return 0;\n");
     fprintf(out, "    if (!strcmp(clname, qt_meta_stringdata_%s))\n"
-		  "\treturn this;\n",
+		  "\treturn (void*)this;\n",
 	     (const char*)qualifiedClassName());
     for (const char* cname = g->multipleSuperClasses.first(); cname; cname = g->multipleSuperClasses.next())
 	fprintf(out, "    if (!strcmp(clname, \"%s\"))\n"

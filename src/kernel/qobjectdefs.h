@@ -63,7 +63,7 @@ class QByteArray;
 public: \
     virtual const QMetaObject *metaObject() const; \
     static const QMetaObject staticMetaObject; \
-    virtual void *qt_metacast(const char *); \
+    virtual void *qt_metacast(const char *) const; \
     static inline QString tr(const char *s, const char *c = 0) \
 	{ return staticMetaObject.tr(s, c); } \
     static inline QString trUtf8(const char *s, const char *c = 0) \
@@ -214,13 +214,5 @@ inline const QMetaObject *QMetaObject::superClass() const
 inline const char *QMetaObject::superClassName() const
 { return d.superdata ? d.superdata->className() : 0; }
 #endif
-
-//### TODO: add interface support using metacast. Also use proper
-//### partial template specialization on systems that support it to
-//### get nicer error messages.
-template <class Type>
-Q_INLINE_TEMPLATES Type qt_cast(const QObject *object)
-{ Type t = 0; return (Type) t->staticMetaObject.cast(object); }
-
 
 #endif // QOBJECTDEFS_H
