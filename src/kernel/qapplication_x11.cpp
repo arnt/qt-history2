@@ -1913,7 +1913,7 @@ void qt_init_internal( int *argcptr, char **argv,
 	    XRenderPictFormat *format =
 		XRenderFindVisualFormat(appDpy,
 					(Visual *) QPaintDevice::x_appvisual);
-	    qt_use_xrender = (format != 0);
+	    qt_use_xrender = (format != 0) && (QPaintDevice::x_appdepth != 8);
 	}
 #endif // QT_NO_XRENDER
 
