@@ -406,7 +406,7 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
                 }
                 SetPort(qdref); //restore the state..
 
-                //remove the old pointers (this is just a hack of course..) --Sam
+                //remove the old pointers, not necessary long-term, but short term it simplies things --Sam
                 widget->d->clp_serial++;
                 widget->d->clp = QRegion();
                 widget->d->cg_hd = 0;
@@ -422,7 +422,11 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
             if(widget && !widget->isTopLevel()) {
                 ControlPartCode part;
                 GetEventParameter(event, kEventParamControlPart, typeControlPartCode, 0, sizeof(part), 0, &part);
-                if(part == kControlStructureMetaPart) {
+                if(part == kControlStructureMetaPart
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+                   || part == kControlClickableMetaPart
+#endif
+                    ) {
                     RgnHandle rgn;
                     GetEventParameter(event, kEventParamControlRegion, typeQDRgnHandle, NULL, sizeof(rgn), NULL, &rgn);
                     SetRectRgn(rgn, 0, 0, widget->width(), widget->height());
