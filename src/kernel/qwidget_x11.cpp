@@ -1420,7 +1420,7 @@ struct QX11DoubleBuffer
 };
 static QX11DoubleBuffer *global_double_buffer = 0;
 
-void qt_x11_discard_double_buffer()
+void qt_discard_double_buffer()
 {
     if (!global_double_buffer) return;
 
@@ -1455,7 +1455,7 @@ void qt_x11_get_double_buffer(Qt::HANDLE &hd, Qt::HANDLE &rendhd,
 	width  = qMax(global_double_buffer->width,  width);
 	height = qMax(global_double_buffer->height, height);
 
-	qt_x11_discard_double_buffer();
+	qt_discard_double_buffer();
     }
 
     global_double_buffer = new QX11DoubleBuffer;
