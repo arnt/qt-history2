@@ -290,6 +290,7 @@ QString QCoreSettingsPrivate::variantToStringCoreImpl(const QCoreVariant &v)
 
     switch (v.type()) {
         case QCoreVariant::Invalid:
+            result = QLatin1String("@Invalid()");
             break;
 
         case QCoreVariant::ByteArray: {
@@ -343,6 +344,8 @@ QCoreVariant QCoreSettingsPrivate::stringToVariantCoreImpl(const QString &s)
             QCoreVariant result;
             stream >> result;
             return result;
+        } else if (s == QLatin1String("@Invalid()")) {
+            return QCoreVariant();
         }
     }
 

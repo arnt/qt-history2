@@ -35,7 +35,7 @@ static QString qtKey(CFStringRef cfkey)
 }
 
 static QCFType<CFPropertyListRef> macValue(const QCoreVariant &value,
-                                        QCoreSettingsPrivate::VariantToStringFunc variantToString);
+                                           QCoreSettingsPrivate::VariantToStringFunc variantToString);
 
 static CFArrayRef macList(const QList<QCoreVariant> &list,
                           QCoreSettingsPrivate::VariantToStringFunc variantToString)
@@ -49,7 +49,7 @@ static CFArrayRef macList(const QList<QCoreVariant> &list,
 }
 
 static QCFType<CFPropertyListRef> macValue(const QCoreVariant &value,
-                                        QCoreSettingsPrivate::VariantToStringFunc variantToString)
+                                           QCoreSettingsPrivate::VariantToStringFunc variantToString)
 {
     CFPropertyListRef result;
 
@@ -122,7 +122,6 @@ static QCFType<CFPropertyListRef> macValue(const QCoreVariant &value,
     case QCoreVariant::Bool:
         result = value.toBool() ? kCFBooleanTrue : kCFBooleanFalse;
         break;
-    case QCoreVariant::Invalid:
     case QCoreVariant::Int:
     case QCoreVariant::UInt:
         {
