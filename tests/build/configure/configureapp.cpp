@@ -39,14 +39,11 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     dictionary[ "QMAKESPEC" ] = QEnvironment::getEnv( "QMAKESPEC" );
     dictionary[ "QMAKE_INTERNAL" ] = "yes";
     dictionary[ "LEAN" ] = "no";
+    dictionary[ "STL" ] = "no";
 
     QString tmp = QEnvironment::getEnv( "QMAKESPEC" );
     tmp = tmp.mid( tmp.findRev( "\\" ) + 1 );
     dictionary[ "QMAKESPEC" ] = tmp;
-
-    allModules = QStringList::split( ' ', "tools kernel widgets dialogs iconview workspace network canvas table xml opengl sql styles" );
-    allSqlDrivers = QStringList::split( ' ', "mysql oci odbc psql" );
-    allConfigs = QStringList::split( ' ', "minimal small medium large full" );
 
     buildModulesList();
     buildSqlList();
@@ -66,6 +63,13 @@ void ConfigureApp::buildModulesList()
     QFileInfoListIterator listIter( *fiList );
     QFileInfo* fi;
 
+    allModules = QStringList::split( ' ', "styles tools kernel widgets dialogs iconview workspace" );
+    
+    readLicense();
+    
+    if( ( licenseInfo[ "PRODUCTS" ].length() ) && ( licenseInfo[ "PRODUCTS" ] != "qt-professional" ) )
+	allModules += QStringList::split( ' ', "network canvas table xml opengl sql" );
+
     while( ( fi = listIter.current() ) ) {
 	if( allModules.findIndex( fi->fileName() ) != -1 )
 	    modules += fi->fileName();
@@ -79,6 +83,8 @@ void ConfigureApp::buildSqlList()
     const QFileInfoList* fiList = dir.entryInfoList();
     QFileInfoListIterator listIter( *fiList );
     QFileInfo* fi;
+
+    allSqlDrivers = QStringList::split( ' ', "mysql oci odbc psql" );
 
     while( ( fi = listIter.current() ) ) {
 	if( allSqlDrivers.findIndex( fi->fileName() ) != -1 )
@@ -156,6 +162,10 @@ void ConfigureApp::parseCmdLine()
 	    dictionary[ "DSPFILES" ] = "yes";
 	else if( (*args) == "-lean" )
 	    dictionary[ "LEAN" ] = "yes";
+	else if( (*args) == "-stl" )
+	    dictionary[ "STL" ] = "yes";
+	else if( (*args) == "-no-stl" )
+	    dictionary[ "STL" ] = "no";
 
 	// Scan to see if any specific modules and drivers are enabled or disabled
 	for( QStringList::Iterator module = modules.begin(); module != modules.end(); ++module ) {
@@ -178,6 +188,8 @@ void ConfigureApp::validateArgs()
 {
     QStringList configs;
     // Validate the specified config
+
+    allConfigs = QStringList::split( ' ', "minimal small medium large full" );
 
     for( QStringList::Iterator config = allConfigs.begin(); config != allConfigs.end(); ++config ) {
 	configs += (*config) + "-config";
@@ -219,6 +231,8 @@ bool ConfigureApp::displayHelp()
 	cout << "-system-mng         Enable MNG support." << endl;
 	cout << "-no-jpeg          * Disable JPEG support." << endl;
 	cout << "-system-jpeg        Enable JPEG support." << endl << endl;
+	cout << "-stl                Enable STL support." << endl;
+	cout << "-no-stl           * Disable STL support." << endl << endl;
 	cout << "-no-dsp             Disable the generation of VC++ .DSP-files." << endl;
 	cout << "-dsp                Enable the generation of VC++ .DSP-files." << endl;
 	cout << "-lean               Only process the Qt core projects." << endl;
@@ -226,8 +240,10 @@ bool ConfigureApp::displayHelp()
 	cout << "-D <define>         Add <define> to the list of defines." << endl;
 	cout << "-I <includepath>    Add <includepath> to the include searchpath." << endl;
 	cout << "-L <libpath>        Add <libpath> to the library searchpath." << endl;
-	cout << "-enable-*           Enable the specified module." << endl;
-	cout << "-disable-*          Disable the specified module." << endl << endl;
+	cout << "-enable-*           Enable the specified module, where module is one of" << endl;
+	cout << "                    " << modules.join( " " ) << endl;
+	cout << "-disable-*          Disable the specified module, where module is one of" << endl;
+	cout << "                    " << modules.join( " " ) << endl << endl;
 	cout << "-sql-*              Compile the specified SQL driver." << endl << endl;
 	return true;
     }
@@ -255,12 +271,18 @@ void ConfigureApp::generateOutputVars()
     }
     else
 	dictionary[ "QMAKE_OUTDIR" ] += "_static";
+    if( dictionary[ "STL" ] == "no" ) {
+	qmakeDefines += "QT_NO_STL";
+    }
 
     qmakeVars += QString( "QMAKE_LIBDIR_QT=" ) + QDir::convertSeparators( qtDir + "/lib" );
     qmakeVars += QString( "OBJECTS_DIR=" ) + QDir::convertSeparators( "tmp/obj/" + dictionary[ "QMAKE_OUTDIR" ] );
     qmakeVars += QString( "MOC_DIR=" ) + QDir::convertSeparators( "tmp/moc/" + dictionary[ "QMAKE_OUTDIR" ] );
     qmakeVars += QString( "sql-drivers+=" ) + qmakeSql.join( " " );
     qmakeVars += QString( "DEFINES+=" ) + qmakeDefines.join( " " );
+    if( licenseInfo[ "PRODUCTS" ].length() )
+	qmakeVars += QString( "QT_PRODUCT=" ) + licenseInfo[ "PRODUCTS" ];
+
     if( dictionary[ "JPEG" ] == "yes" )
 	qmakeConfig += "jpeg";
     if( dictionary[ "MNG" ] == "yes" )
@@ -355,6 +377,7 @@ void ConfigureApp::displayConfig()
     // Give some feedback
     cout << "QMAKESPEC..................." << dictionary[ "QMAKESPEC" ] << endl;
     cout << "Configuration..............." << qmakeConfig.join( " " ) << endl;
+    cout << "STL support................." << dictionary[ "STL" ] << endl;
     cout << "Thread support.............." << dictionary[ "THREAD" ] << endl;
     cout << "GIF support................." << dictionary[ "GIF" ] << endl;
     cout << "MNG support................." << dictionary[ "MNG" ] << endl;
@@ -679,6 +702,33 @@ bool ConfigureApp::isProjectLibrary( const QString& proFileName )
 	    }
 	}
 	proFile.close();
+    }
+    return false;
+}
+
+bool ConfigureApp::readLicense()
+{
+    QFile licenseFile( qtDir + "/.qt-license" );
+
+    if( QFile::exists( qtDir + "/LICENSE.TROLL" ) ) {
+	licenseInfo[ "PRODUCTS" ] = "qt-internal";
+	return true;
+    }
+    if( licenseFile.open( IO_ReadOnly ) ) {
+	QString buffer;
+
+	while( licenseFile.readLine( buffer, 1024 ) != -1 ) {
+	    if( buffer[ 0 ] != '#' ) {
+		QStringList components = QStringList::split( '=', buffer );
+		QStringList::Iterator it = components.begin();
+		QString key = (*it++).stripWhiteSpace().replace( QRegExp( QString( "\"" ) ), QString::null ).upper();
+		QString value = (*it++).stripWhiteSpace().replace( QRegExp( QString( "\"" ) ), QString::null );
+
+		licenseInfo[ key ] = value;
+	    }
+	}
+	licenseFile.close();
+	return true;
     }
     return false;
 }

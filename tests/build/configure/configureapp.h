@@ -24,6 +24,8 @@ public:
     void findProjects( const QString& dirName );
     void copyDefsFile();
 
+    bool readLicense();
+
     bool isProjectLibrary( const QString& proFileName );
 private:
     QProcess qmakeBuilder;
@@ -47,7 +49,7 @@ private:
     QStringList::Iterator makeListIterator;
     
     QString qtDir;
-
+    QMap<QString,QString> licenseInfo;
     QString outputLine;
 
 private slots:
