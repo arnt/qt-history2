@@ -16,8 +16,8 @@
 
 \title About Qt
 
-Qt is a cross-platform C++ GUI toolkit created and maintained by\link
-troll.html Trolltech\endlink. It provides application developers with
+Qt is a cross-platform C++ GUI toolkit created and maintained by
+\l{troll.html}{Trolltech}. It provides application developers with
 all the functionality needed to build applications with
 state-of-the-art graphical user interfaces. Qt is fully
 object-oriented, easily extensible, and allows true component
