@@ -88,6 +88,7 @@ public:
     QBool contains(const T &t) const;
     int count(const T &t) const;
 
+    class const_iterator;
     class iterator {
         Node *i;
     public:
