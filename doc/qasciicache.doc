@@ -100,27 +100,26 @@
 /*!
   \fn QAsciiCache::QAsciiCache( int maxCost, int size, bool caseSensitive, bool copyKeys )
 
-  Constructs a cache with the following properties:
-  \arg \a maxCost is the maximum allowed total cost.
-  \arg \a size is the size of the internal hash array.
-  \arg \a caseSensitive specifies whether to use case sensitive lookup or not.
-  \arg \a copyKeys specifies whether to copy the key strings.
+  Constructs a cache whose contents will never have a total cost
+  greater than \a maxCost and which is expected to contain less than
+  \a size items.
+
+  \a size is actually the size of an internal hash array; it's usually
+  best to make it prime and at least 50% bigger than the largest
+  expected number of items in the cache.
 
   Each inserted item is associated with a cost.  When inserting a new
   item, if the total cost of all items in the cache will exceed
   \a maxCost, the cache will start throwing out the older (recently least
   used) items until there is enough room for the new item to be inserted.
 
-  Setting \a size to a suitably large \link primes.html prime
-  number\endlink (equal to or greater than the expected number of entries)
-  makes the hash distribution better and hence the lookup faster.
-
-  Setting \a caseSensitive to TRUE will treat "abc" and "Abc" as different
-  keys.  Setting it to FALSE will make the dictionary ignore case.
-
-  Setting \a copyKeys to TRUE will make the dictionary copy the key
-  when an item is inserted.  Setting it to FALSE will make the dictionary
-  only use the pointer to the key.
+  If \a caseSensitive is TRUE (the default), the cache keys are case
+  sensitive; if it is FALSE, they are
+  case-insensitive. Case-insensitive comparison includes only the 26
+  letters in US-ASCII.  If \a copyKeys is TRUE (the default),
+  QAsciiCache makes a copy of the cache keys, otherwise it copies just
+  the const char * pointer - slightly faster if you can guarantee that
+  the keys will never change, but very risky.
 */
 
 /*!
@@ -182,7 +181,7 @@
 /*!
   \fn bool QAsciiCache::isEmpty() const
 
-  Returns TRUE if the cache is empty, or TRUE if there is at least one
+  Returns TRUE if the cache is empty, or FALSE if there is at least one
   object in it.
 */
 

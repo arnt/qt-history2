@@ -103,23 +103,23 @@
 /*!
   \fn QCache::QCache( int maxCost, int size, bool caseSensitive )
 
-  Constructs a cache with the following properties:
-  \arg \a maxCost is the maximum allowed total cost.
-  \arg \a size is the size of the internal hash array.
-  \arg \a caseSensitive specifies whether to use case-sensitive lookup or not.
+  Constructs a cache whose contents will never have a total cost
+  greater than \a maxCost and which is expected to contain less than
+  \a size items.
+
+  \a size is actually the size of an internal hash array; it's usually
+  best to make it prime and at least 50% bigger than the largest
+  expected number of items in the cache.
 
   Each inserted item is associated with a cost.  When inserting a new
-  item, if the total cost of all items in the cache will exceed
-  \a maxCost the cache will start throwing out the older (recently least
-  used) items until there is enough room for the new item to be inserted.
+  item, if the total cost of all items in the cache will exceed \a
+  maxCost, the cache will start throwing out the older (least recently
+  used) items until there is enough room for the new item to be
+  inserted.
 
-  Setting \a size to a suitably large prime
-  number (equal to or greater than the expected number of entries)
-  makes the hash distribution better and hence the loopup faster.
-
-  Setting \a caseSensitive to TRUE will treat "abc" and "Abc" as different
-  keys.  Setting it to FALSE will make the dictionary ignore case.
-  Case insensitive comparison includes the whole Unicode alphabet.
+  If \a caseSensitive is TRUE (the default), the cache keys are case
+  sensitive; if it is FALSE, they are case-insensitive.
+  Case-insensitive comparison includes all letters in Unicode.
 */
 
 /*!

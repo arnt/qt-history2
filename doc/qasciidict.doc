@@ -165,23 +165,21 @@
 
 /*!
   \fn QAsciiDict::QAsciiDict( int size, bool caseSensitive, bool copyKeys )
-  Constructs a dictionary with the following properties:
-  \arg \e size is the size of the internal hash array.
-  \arg \e caseSensitive specifies whether to use case-sensitive lookup or not.
-  \arg \e copyKeys specifies whether to copy the key strings.
 
-  Setting \e size to a suitably large prime
-  number (equal to or greater than the expected number of entries)
-  makes the hash distribution better and hence the loopup faster.
+  Constructs a dictionary optimized for less than \a size entries.
 
-  Setting \e caseSensitive to TRUE will treat "abc" and "Abc" as different
-  keys.  Setting it to FALSE will make the dictionary ignore case.
-  Case-insensitive comparison includes only the 26 standard letters (A to Z),
-  no French or German accents or Scandinavian letters.
+  We recommend setting \e size to a suitably large prime number (a bit
+  greater than the expected number of entries). This makes the hash
+  distribution better and hence the loopup faster.
 
-  Setting \e copyKeys to TRUE will make the dictionary copy the key
-  when an item is inserted.  Setting it to FALSE will make the dictionary
-  only use the pointer to the key.
+  When \a caseSensitive is TRUE (the default) QAsciiDict treats "abc"
+  and "Abc" as different keys; when it is FALSE "abc" and "Abc" are
+  the same.  Case-insensitive comparison includes only the 26 letters
+  in US-ASCII.
+
+  If \a copyKeys is TRUE (the default), the dictionary copies keys
+  using strcpy; if it is FALSE, the dictionary just copies the
+  pointers.
 */
 
 /*!
