@@ -188,7 +188,7 @@ TrWindow::TrWindow()
     tv->setSelectionMode(QAbstractItemView::SingleSelection);
     tv->setRootIsDecorated(false);
     dwScope->setWidget(tv);
-    extendDockWindowArea(Qt::DockWindowAreaLeft, dwScope, Qt::Horizontal);
+    addDockWindow(Qt::DockWindowAreaLeft, dwScope);
 
     QFontMetrics fm(font());
     tv->header()->setResizeMode(QHeaderView::Stretch, 1);
@@ -282,10 +282,10 @@ void TrWindow::sortContexts(int section, Qt::MouseButton state)
         }
 
         if (cmdl->contextsInList() > 0) {
+            tv->clearSelection();
             tv->header()->setSortIndicator(section, order);
             tv->header()->setSortIndicatorShown(true);
             cmdl->sort(section, QModelIndex::Null, order);
-            tv->clearSelection();
             mmdl->setContextItem(0);
         }
     }
@@ -310,10 +310,10 @@ void TrWindow::sortMessages(int section, Qt::MouseButton state)
         }
 
         if (c != 0) {
+            stv->clearSelection();
             stv->header()->setSortIndicator(section, order);
             stv->header()->setSortIndicatorShown(true);
             mmdl->sort(section, QModelIndex::Null, order);
-            stv->clearSelection();
         }
     }
 }
@@ -322,6 +322,7 @@ void TrWindow::sortPhrases(int section, Qt::MouseButton state)
 {
     if ((state == Qt::LeftButton) && 
         ((section >= 0) && (section <= 2))) {
+        ptv->clearSelection();
 
         Qt::SortOrder order;
         int column;
@@ -335,11 +336,10 @@ void TrWindow::sortPhrases(int section, Qt::MouseButton state)
         else {
             order = Qt::AscendingOrder;
         }
-
+        
         ptv->header()->setSortIndicator(section, order);
         ptv->header()->setSortIndicatorShown(true);
         pmdl->sort(section, QModelIndex::Null, order);
-        ptv->clearSelection();
     }
 }
 
@@ -357,6 +357,8 @@ void TrWindow::openFile( const QString& name )
         QMessageBox::warning(this, tr("Qt Linguist"), tr("Cannot open '%1'.").arg(name));
         return;
     }
+
+    tv->clearSelection();
 
     mmdl->setContextItem(0);
     cmdl->clearContextList();
@@ -405,7 +407,6 @@ void TrWindow::openFile( const QString& name )
     }
 
     cmdl->updateAll();
-    tv->clearSelection();
 
     setEnabled(true);
     updateProgress();
@@ -811,10 +812,10 @@ void TrWindow::revertSorting()
     if (cmdl->contextsInList() < 0)
         return;
 
+    tv->clearSelection();
     tv->header()->setSortIndicator(1, Qt::AscendingOrder);
     tv->header()->setSortIndicatorShown(true);
     cmdl->sort(1, QModelIndex::Null, Qt::AscendingOrder);
-    tv->clearSelection();
     mmdl->setContextItem(0);
 
     foreach(ContextItem *c, cmdl->contextList()) {
@@ -1841,51 +1842,25 @@ void TrWindow::readConfig()
         }
     }
 
-    //TODO
-    // ### enable me
-/*    QDockWindow * dw;
-    dw = (QDockWindow *) lv->parent();
-    int place;
-    place = config.readNumEntry( keybase + "Geometry/ContextwindowInDock" );
-    r.setX( config.readNumEntry( keybase + "Geometry/ContextwindowX" ) );
-    r.setY( config.readNumEntry( keybase + "Geometry/ContextwindowY" ) );
-    r.setWidth( config.readNumEntry( keybase +
-                                     "Geometry/ContextwindowWidth" ) );
-    r.setHeight( config.readNumEntry( keybase +
-                                      "Geometry/ContextwindowHeight" ) );
-    if ( place == QDockWindow::OutsideDock ) {
-        dw->undock();
-        dw->show();
-    }
-    dw->setGeometry( r );
+    QDockWindow *dw;
+    dw = static_cast<QDockWindow *>(tv->parent());
+    Qt::DockWindowArea place;
+    place = static_cast<Qt::DockWindowArea>(config.value(keybase + "Geometry/ContextwindowInDock",
+        dockWindowArea(dw)).toInt());
+    if (dockWindowArea(dw) != place)
+        addDockWindow(place, dw);
 
-    dw = (QDockWindow *) slv->parent();
-    place = config.readNumEntry( keybase + "Geometry/SourcewindowInDock" );
-    r.setX( config.readNumEntry( keybase + "Geometry/SourcewindowX" ) );
-    r.setY( config.readNumEntry( keybase + "Geometry/SourcewindowY" ) );
-    r.setWidth( config.readNumEntry( keybase +
-                                     "Geometry/SourcewindowWidth" ) );
-    r.setHeight( config.readNumEntry( keybase +
-                                      "Geometry/SourcewindowHeight" ) );
-    if ( place == QDockWindow::OutsideDock ) {
-        dw->undock();
-        dw->show();
-    }
-    dw->setGeometry( r );
+    dw = static_cast<QDockWindow *>(stv->parent());
+    place = static_cast<Qt::DockWindowArea>(config.value(keybase + "Geometry/SourcewindowInDock",
+        dockWindowArea(dw)).toInt());
+    if (dockWindowArea(dw) != place)
+        addDockWindow(place, dw);
 
-    dw = (QDockWindow *) plv->parent()->parent();
-    place = config.readNumEntry( keybase + "Geometry/PhrasewindowInDock" );
-    r.setX( config.readNumEntry( keybase + "Geometry/PhrasewindowX" ) );
-    r.setY( config.readNumEntry( keybase + "Geometry/PhrasewindowY" ) );
-    r.setWidth( config.readNumEntry( keybase +
-                                     "Geometry/PhrasewindowWidth" ) );
-    r.setHeight( config.readNumEntry( keybase +
-                                      "Geometry/PhrasewindowHeight" ) );
-    if ( place == QDockWindow::OutsideDock ) {
-        dw->undock();
-        dw->show();
-    }
-    dw->setGeometry( r );*/
+    dw = static_cast<QDockWindow *>(ptv->parent()->parent());
+    place = static_cast<Qt::DockWindowArea>(config.value(keybase + "Geometry/PhrasewindowInDock",
+        dockWindowArea(dw)).toInt());
+    if (dockWindowArea(dw) != place)
+        addDockWindow(place, dw);
 
     QApplication::sendPostedEvents();
 }
@@ -1904,30 +1879,14 @@ void TrWindow::writeConfig()
     config.setValue(keybase + "Geometry/MainwindowWidth", width());
     config.setValue(keybase + "Geometry/MainwindowHeight", height());
 
-    //TODO
-    // ### enable me
-/*    QDockWindow * dw =(QDockWindow *) lv->parent();
-    config.writeEntry( keybase + "Geometry/ContextwindowInDock", dw->place() );
-    config.writeEntry( keybase + "Geometry/ContextwindowX", dw->x() );
-    config.writeEntry( keybase + "Geometry/ContextwindowY", dw->y() );
-    config.writeEntry( keybase + "Geometry/ContextwindowWidth", dw->width() );
-    config.writeEntry( keybase + "Geometry/ContextwindowHeight", dw->height() );
+    QDockWindow * dw = static_cast<QDockWindow *>(tv->parent());
+    config.setValue(keybase + "Geometry/ContextwindowInDock", dockWindowArea(dw));
 
-    dw =(QDockWindow *) slv->parent();
-    config.writeEntry( keybase + "Geometry/SourcewindowInDock",
-                       dw->place() );
-    config.writeEntry( keybase + "Geometry/SourcewindowX", dw->geometry().x() );
-    config.writeEntry( keybase + "Geometry/SourcewindowY", dw->geometry().y() );
-    config.writeEntry( keybase + "Geometry/SourcewindowWidth", dw->width() );
-    config.writeEntry( keybase + "Geometry/SourcewindowHeight", dw->height() );
+    dw = static_cast<QDockWindow *>(stv->parent());
+    config.setValue(keybase + "Geometry/SourcewindowInDock", dockWindowArea(dw));
 
-    dw =(QDockWindow *) plv->parent()->parent();
-    config.writeEntry( keybase + "Geometry/PhrasewindowInDock",
-                       dw->place() );
-    config.writeEntry( keybase + "Geometry/PhrasewindowX", dw->geometry().x() );
-    config.writeEntry( keybase + "Geometry/PhrasewindowY", dw->geometry().y() );
-    config.writeEntry( keybase + "Geometry/PhrasewindowWidth", dw->width() );
-    config.writeEntry( keybase + "Geometry/PhrasewindowHeight", dw->height() );*/
+    dw = static_cast<QDockWindow *>(ptv->parent()->parent());
+    config.setValue(keybase + "Geometry/PhrasewindowInDock", dockWindowArea(dw));
 }
 
 void TrWindow::setupRecentFilesMenu()

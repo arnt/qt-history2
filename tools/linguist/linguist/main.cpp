@@ -23,14 +23,18 @@
 #include <qsettings.h>
 #include <qsplashscreen.h>
 #include <qcursor.h>
+#include <qlocale.h>
 
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
+    QString lang = QLocale::system().name();
+    lang.chop(3); //remove country
     QTranslator translator(0);
-    translator.load(QString("linguist_") + QTextCodec::locale(), ".");
+    translator.load(QString("linguist_") + lang, ".");
+
     app.installTranslator(&translator);
 
     QString keybase("/Qt Linguist/4.0/");

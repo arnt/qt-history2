@@ -76,7 +76,7 @@ void PhraseBookBox::sortPhrases(int section, Qt::MouseButton state)
 {
     if ((state == Qt::LeftButton) && 
         ((section >= 0) && (section <= 2))) {
-
+        phraseList->clearSelection();
         Qt::SortOrder order;
         int column;
 
@@ -93,7 +93,6 @@ void PhraseBookBox::sortPhrases(int section, Qt::MouseButton state)
         phraseList->header()->setSortIndicator(section, order);
         phraseList->header()->setSortIndicatorShown(true);
         phrMdl->sort(section, QModelIndex::Null, order);
-        phraseList->clearSelection();
     }
 }
 

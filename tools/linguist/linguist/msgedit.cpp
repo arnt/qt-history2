@@ -23,6 +23,8 @@
 #include "messagemodel.h"
 #include "phrasemodel.h"
 
+#include <qmenu.h>
+#include <qaction.h>
 #include <qapplication.h>
 #include <qclipboard.h>
 #include <qlabel.h>
@@ -41,6 +43,10 @@
 #include <qfont.h>
 #include <qtreeview.h>
 #include <qwidgetview.h>
+#include <qtextdocumentfragment.h>
+#include <qtextcursor.h>
+#include <QTextCharFormat>
+#include <QTextBlock>
 
 static const int MaxCandidates = 5;
 
@@ -98,6 +104,47 @@ QString richText(const QString& text)
             rich += QString("<br>");
     }
     return rich;
+}
+
+SourceTextEdit::SourceTextEdit(QWidget *parent) : QTextEdit(parent)
+{
+    actCopy = new QAction(tr("&Copy"), this);
+    actCopy->setShortcut(QKeySequence(tr("Ctrl+C")));
+    actSelect = new QAction(tr("Select &All"), this);
+    actSelect->setShortcut(QKeySequence(tr("Ctrl+A")));
+    connect(actCopy, SIGNAL(triggered()), this, SLOT(copySelection()));
+    connect(actSelect, SIGNAL(triggered()), this, SLOT(selectAll()));
+}
+
+void SourceTextEdit::copySelection()
+{
+    QTextDocumentFragment tdf = textCursor().selection();
+    QTextDocument td;
+    QTextCursor tc(&td);
+    tc.insertFragment(tdf);
+
+    int pos = 0;
+    tc.setPosition(pos);
+    while(!tc.atEnd())
+    {
+        // checking for blue is not the best approach,
+        // but it works...
+        if (tc.charFormat().textColor() == Qt::blue)
+            tc.deletePreviousChar();
+        else
+            ++pos;
+        tc.setPosition(pos);
+    }
+
+    QApplication::clipboard()->setText(td.plainText());
+}
+
+QMenu *SourceTextEdit::createPopupMenu(const QPoint &pos)
+{
+    QMenu *pMenu = new QMenu(this);
+    pMenu->addAction(actCopy);
+    pMenu->addAction(actSelect);
+    return pMenu;
 }
 
 /*
@@ -198,7 +245,7 @@ EditorPage::EditorPage(QWidget *parent, const char *name)
     srcTextLbl->setFont(fnt);
     transLbl->setFont(fnt);
 
-    srcText = new QTextEdit(this);
+    srcText = new SourceTextEdit(this);
     srcText->setFrameStyle(QFrame::NoFrame);
     srcText->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,
         QSizePolicy::Minimum));
@@ -247,8 +294,8 @@ EditorPage::EditorPage(QWidget *parent, const char *name)
     setFocusPolicy(Qt::StrongFocus);
     transLbl->setFocusProxy(transText);
     srcTextLbl->setFocusProxy(transText);
-    cmtText->setFocusProxy(transText);
     srcText->setFocusProxy(transText);
+    cmtText->setFocusProxy(transText);
     setFocusProxy(transText);
 
     updateCommentField();
@@ -375,10 +422,8 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
     : QWidget(parent), tor(t)
 {
     doGuesses = true;
-    v = new QVBoxLayout(this);
-
     topDockWnd = new QDockWindow(parent);
-    topDockWnd->setAllowedAreas(Qt::DockWindowAreaTop);
+    topDockWnd->setAllowedAreas(Qt::AllDockWindowAreas);
     topDockWnd->setFeatures(QDockWindow::AllDockWindowFeatures);
     topDockWnd->setWindowTitle(tr("Source text"));
 
@@ -398,23 +443,7 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
     srcTextView->header()->resizeSection(2, 300);
 
     topDockWnd->setWidget(srcTextView);
-    parent->extendDockWindowArea(Qt::DockWindowAreaTop, topDockWnd, Qt::Vertical);
-
-    sv = new QWidgetView(this);
-    sv->setObjectName("widget view");
-    sv->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    sv->setFrameStyle(QFrame::NoFrame);
-
-    editorPage = new EditorPage(sv, "editor page");
-    connect(editorPage, SIGNAL(pageHeightUpdated(int)),
-             SLOT(updatePageHeight(int)));
-
-    editorPage->transText->installEventFilter(this);
-
-    sw = new ShadowWidget(editorPage, sv);
-    sw->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
-    sw->setMinimumSize(QSize(100, 150));
-    sv->setWidget(sw);
+    parent->addDockWindow(Qt::DockWindowAreaTop, topDockWnd);
 
     bottomDockWnd = new QDockWindow(parent);
     bottomDockWnd->setAllowedAreas(Qt::AllDockWindowAreas);
@@ -448,8 +477,23 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
     }
     
     bottomDockWnd->setWidget(w);
-    parent->extendDockWindowArea(Qt::DockWindowAreaBottom, bottomDockWnd, Qt::Vertical);
+    parent->addDockWindow(Qt::DockWindowAreaBottom, bottomDockWnd);
 
+    v = new QVBoxLayout(this);
+    sv = new QWidgetView(this);
+    sv->setObjectName("widget view");
+    sv->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    sv->setFrameStyle(QFrame::NoFrame);
+
+    editorPage = new EditorPage(sv, "editor page");
+    connect(editorPage, SIGNAL(pageHeightUpdated(int)),
+             SLOT(updatePageHeight(int)));
+
+    sw = new ShadowWidget(editorPage, sv);
+    sw->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+    sw->setMinimumSize(QSize(100, 150));
+    sv->setWidget(sw);
+    editorPage->transText->installEventFilter(this);
     v->addWidget(sv);
 
     // Signals
@@ -495,10 +539,24 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
 
 bool MessageEditor::eventFilter(QObject *o, QEvent *e)
 {
-    // TODO:
-    // Handle keypresses in the message editor - scroll the view if the current
-    // line is hidden.
-    // handle the ESC key in the list views
+    if (e->type() == QEvent::KeyPress &&
+        editorPage->srcText->underMouse())
+    {
+        QKeyEvent *ke = static_cast<QKeyEvent *>(e);
+        if (ke->modifiers() & Qt::ControlModifier)
+        {
+            if (ke->key() == Qt::Key_A)
+            {
+                editorPage->srcText->selectAll();
+                return true; // don't handle it further
+            }
+            if (ke->key() == Qt::Key_C)
+            {
+                editorPage->srcText->copySelection();
+                return true;
+            }
+        }
+    }
 
     return QWidget::eventFilter(o, e);
 }

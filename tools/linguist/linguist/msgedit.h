@@ -23,6 +23,7 @@
 #include <qevent.h>
 #include <qshortcut.h>
 #include <qframe.h>
+#include <qtextedit.h>
 
 class QWidgetView;
 template <typename T> class QList;
@@ -30,11 +31,27 @@ class QSplitter;
 class QDockWindow;
 class QLabel;
 class QTreeView;
-class QTextEdit;
 class QVBoxLayout;
 
 class EditorPage;
 class MetaTranslator;
+
+class SourceTextEdit : public QTextEdit
+{
+    Q_OBJECT
+public:
+    SourceTextEdit(QWidget *parent = 0);
+
+public slots:
+    void copySelection();
+
+protected:
+    QMenu *createPopupMenu (const QPoint &pos);
+
+private:
+    QAction *actCopy;
+    QAction *actSelect;
+};
 
 class GuessShortcut : public QShortcut
 {
@@ -105,10 +122,10 @@ protected:
     }
     void mouseReleaseEvent(QMouseEvent *e)
     {
-        int x = e->pos().x() - 14;
-        int y = e->pos().y() - 8;
+        int x = e->pos().x()-10;
+        int y = e->pos().y();
 
-        if ( y <= x )
+        if (y < x)
             emit nextPage();
         else
             emit prevPage();
@@ -158,7 +175,7 @@ private:
     PageCurl *pageCurl;
     QLabel *srcTextLbl;
     QLabel *transLbl;
-    QTextEdit *srcText;
+    SourceTextEdit *srcText;
     QTextEdit *cmtText;
     QTextEdit *transText;
 
