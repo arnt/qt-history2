@@ -54,6 +54,7 @@ FormFile::FormFile( const QString &fn, bool temp, Project *p, const char *name )
     : QObject( 0, name ), filename( fn ), fileNameTemp( temp ), pro( p ), fw( 0 ), ed( 0 ),
       timeStamp( 0, fn + codeExtension() ), codeEdited( FALSE )
 {
+    fake = qstrcmp( name, "qt_fakewindow" ) == 0;
     LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
     if ( iface )
 	seperateSource = iface->supports( LanguageInterface::StoreFormCodeSeperate );
@@ -63,7 +64,6 @@ FormFile::FormFile( const QString &fn, bool temp, Project *p, const char *name )
     loadCode();
     if ( !temp )
 	checkFileName( FALSE );
-    fake = qstrcmp( name, "qt_fakewindow" ) == 0;
 }
 
 FormFile::~FormFile()
