@@ -1891,7 +1891,7 @@ void qt_cleanup()
         delete [] X11->net_virtual_root_list;
     X11->net_virtual_root_list = 0;
 
-#if !defined(QT_NO_XFT)
+#if !defined(QT_NO_XFT) && FC_VERSION >= 20291
     if (X11->has_xft)
         FcFini();
 #endif
