@@ -260,6 +260,9 @@ void SetupWizardImpl::integratorDone()
 	uninstaller << ( QString( "\"" ) + shell.commonProgramsFolderName + QString( "\\" ) + folderPath->text() + QString( "\"" ) );
     else
 	uninstaller << ( QString( "\"" ) + shell.localProgramsFolderName + QString( "\\" ) + folderPath->text() + QString( "\"" ) );
+
+    uninstaller << DISTVER;
+
     QEnvironment::recordUninstall( QString( "Qt " ) + DISTVER, uninstaller.join( " " ) );
 
     setNextEnabled( buildPage, true );
