@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qiconview/qiconview.cpp#7 $
+** $Id: //depot/qt/main/examples/qiconview/qiconview.cpp#8 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -1257,10 +1257,10 @@ void QtIconView::contentsDropEvent( QDropEvent *e )
             QtIconViewItem *item = d->firstItem;
             for ( ; item; item = item->next )
                 if ( item->isSelected() && item != d->currentItem ) {
-                    QRect or = item->rect();
+                    QRect pr = item->rect();
                     item->moveBy( dx, dy );
                     repaintItem( item );
-                    repaintContents( or.x(), or.y(), or.width(), or.height() );
+                    repaintContents( pr.x(), pr.y(), pr.width(), pr.height() );
                     w = QMAX( w, item->x() + item->width() + 1 );
                     h = QMAX( h, item->y() + item->height() + 1 );
                 }
