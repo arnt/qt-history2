@@ -195,8 +195,8 @@ protected:
     bool focusNextPrevChild( bool next );
     virtual QWidget *createEditor( int row, int col, bool initFromCell ) const;
     virtual void setCellContentFromEditor( int row, int col );
-    virtual QWidget *showEditor( int row, int col, bool replace );
-    virtual void hideEditor( int row, int col, bool accept, bool replace );
+    virtual QWidget *beginEdit( int row, int col, bool replace );
+    virtual void endEdit( int row, int col, bool accept, bool replace );
 
 protected slots:
     virtual void columnWidthChanged( int col );

@@ -362,7 +362,7 @@ int QTableItem::colSpan() const
   details. For in-place editing these functions plus some additional
   for more specific handling are provided.
 
-  When in-plcae editing is started showEditor() is called. This
+  When in-plcae editing is started beginEdit() is called. This
   creates the editor widget for the required cell, places and shows
   it. To create an editor widget this function calls createEditor() for
   the required cell. See the documentation of createEditor() for more
@@ -384,8 +384,8 @@ int QTableItem::colSpan() const
   gets the current cell or that it is not editable at all. This
   edit-type has to be specified in the constructor of a QTableItem.
 
-  Now when the user finishes editing hideEditor() is called. Look at
-  the documentation of hideEditor() for more information on that
+  Now when the user finishes editing endEdit() is called. Look at
+  the documentation of endEdit() for more information on that
   (e.g. how the contents from the editor is transferred to the item
   and how the editor gets destroyed.)
 
@@ -890,7 +890,7 @@ void QTable::setCurrentCell( int row, int col )
     if ( curRow != row || curCol != col ) {
 	itm = oldIitem;
 	if ( itm && itm->editType() != QTableItem::Always )
-	    hideEditor( curRow, curCol, TRUE, FALSE );
+	    endEdit( curRow, curCol, TRUE, FALSE );
 	int oldRow = curRow;
 	int oldCol = curCol;
 	curRow = row;
@@ -912,7 +912,7 @@ void QTable::setCurrentCell( int row, int col )
 	    viewport()->setFocus();
 	
 	if ( itm && itm->editType() == QTableItem::OnCurrent ) {
-	    if ( showEditor( curRow, curCol, FALSE ) ) {
+	    if ( beginEdit( curRow, curCol, FALSE ) ) {
 		edMode = Editing;
 		editRow = row;
 		editCol = col;
@@ -1060,7 +1060,7 @@ bool QTable::selection( int num, int &topRow, int &leftCol, int &bottomRow, int 
 void QTable::contentsMousePressEvent( QMouseEvent* e )
 {
     if ( isEditing() )
- 	hideEditor( editRow, editCol, TRUE, edMode == Editing ? FALSE : TRUE );
+ 	endEdit( editRow, editCol, TRUE, edMode == Editing ? FALSE : TRUE );
 
     int curRow = rowAt( e->pos().y() );
     int curCol = columnAt( e->pos().x() );
@@ -1101,7 +1101,7 @@ void QTable::contentsMouseDoubleClickEvent( QMouseEvent *e )
     int curRow = rowAt( e->pos().y() );
     int curCol = columnAt( e->pos().x() );
     if ( curRow != -1 && curCol != -1 ) {
-	if ( showEditor( curRow, curCol, FALSE ) ) {
+	if ( beginEdit( curRow, curCol, FALSE ) ) {
 	    edMode = Editing;
 	    editRow = curRow;
 	    editCol = curCol;
@@ -1184,13 +1184,13 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 	    QKeyEvent *ke = (QKeyEvent*)e;
 	    if ( ke->key() == Key_Escape ) {
 		if ( !itm || itm->editType() == QTableItem::OnActivate )
-		    hideEditor( editRow, editCol, FALSE, edMode == Editing ? FALSE : TRUE );
+		    endEdit( editRow, editCol, FALSE, edMode == Editing ? FALSE : TRUE );
 		return TRUE;
 	    }
 
 	    if ( ke->key() == Key_Return || ke->key() == Key_Enter ) {
 		if ( !itm || itm->editType() == QTableItem::OnActivate )
-		    hideEditor( editRow, editCol, TRUE, edMode == Editing ? FALSE : TRUE );
+		    endEdit( editRow, editCol, TRUE, edMode == Editing ? FALSE : TRUE );
 		activateNextCell();
 		return TRUE;
 	    }
@@ -1200,7 +1200,7 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 		   ke->key() == Key_Down || ke->key() == Key_Next || ke->key() == Key_End ||
 		   ke->key() == Key_Left || ke->key() == Key_Right ) ) {
 		if ( !itm || itm->editType() == QTableItem::OnActivate )
-		    hideEditor( editRow, editCol, TRUE, edMode == Editing ? FALSE : TRUE );
+		    endEdit( editRow, editCol, TRUE, edMode == Editing ? FALSE : TRUE );
 		keyPressEvent( ke );
 		return TRUE;
 	    }
@@ -1226,7 +1226,7 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 	if ( isEditing() && editorWidget && o == editorWidget ) {
 	    QTableItem *itm = item( editRow, editCol );
  	    if ( !itm || itm->editType() == QTableItem::OnActivate ) {
- 		hideEditor( editRow, editCol, TRUE, edMode == Editing ? FALSE : TRUE );
+ 		endEdit( editRow, editCol, TRUE, edMode == Editing ? FALSE : TRUE );
 		return TRUE;
 	    }
 	}
@@ -1286,7 +1286,7 @@ void QTable::keyPressEvent( QKeyEvent* e )
 	    QTableItem *itm = item( curRow, curCol );
 	    if ( !itm || itm->editType() == QTableItem::OnActivate ) {
 		QWidget *w;
-		if ( ( w = showEditor( curRow, curCol, itm ? itm->isReplacable() : TRUE ) ) ) {
+		if ( ( w = beginEdit( curRow, curCol, itm ? itm->isReplacable() : TRUE ) ) ) {
 		    edMode = ( !itm || itm && itm->isReplacable() ? Replacing : Editing );
 		    editRow = curRow;
 		    editCol = curCol;
@@ -1681,7 +1681,7 @@ void QTable::setNumCols( int c )
   QTableItem::createEditor(). If you want to use a different editor
   than a QLineEdit as default editor, reimplement this function and
   use a code like
-  
+
   \code
     QTableItem *i = item( row, col );
     if ( initFromCell || i && !i->isReplacable() )
@@ -1720,7 +1720,7 @@ QWidget *QTable::createEditor( int row, int col, bool initFromCell ) const
 	e = new QLineEdit( viewport() );
 	( (QLineEdit*)e )->setFrame( FALSE );
     }
-    
+
     return e;
 }
 
@@ -1736,7 +1736,7 @@ QWidget *QTable::createEditor( int row, int col, bool initFromCell ) const
   \sa createEditor(), setCellWidget()
 */
 
-QWidget *QTable::showEditor( int row, int col, bool replace )
+QWidget *QTable::beginEdit( int row, int col, bool replace )
 {
     QTableItem *itm = item( row, col );
     if ( itm && cellWidget( itm->row, itm->col ) )
@@ -1771,7 +1771,7 @@ QWidget *QTable::showEditor( int row, int col, bool replace )
   \sa setCellContentFromEditor()
 */
 
-void QTable::hideEditor( int row, int col, bool accept, bool replace )
+void QTable::endEdit( int row, int col, bool accept, bool replace )
 {
     QWidget *editor = cellWidget( row, col );
     if ( !editor )
@@ -2282,7 +2282,7 @@ void QTable::setCellWidget( int row, int col, QWidget *e )
 
     QWidget *w = cellWidget( row, col );
     if ( w && row == editRow && col == editCol )
- 	hideEditor( editRow, editCol, FALSE, edMode == Editing ? FALSE : TRUE );
+ 	endEdit( editRow, editCol, FALSE, edMode == Editing ? FALSE : TRUE );
 
     e->installEventFilter( this );
     clearCellWidget( row, col );
