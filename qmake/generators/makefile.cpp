@@ -679,10 +679,10 @@ MakefileGenerator::init()
 		// attribute deps of lex file to impl file
 		QStringList &lexdeps = depends[(*it)];
 		QStringList &impldeps = depends[impl];
-		QStringList::ConstIterator d = lexdeps.begin();
-		for( ; d != lexdeps.end(); ++d)
+		for(QStringList::ConstIterator d = lexdeps.begin(); d != lexdeps.end(); ++d) {
 		    if(!impldeps.contains(*d))		    
 			impldeps.append(*d);
+		}
 		lexdeps.clear();
 	    }
 	}
@@ -704,20 +704,22 @@ MakefileGenerator::init()
  	    impldeps.append(decl);
 	    // attribute deps of yacc file to impl file
 	    QStringList &yaccdeps = depends[(*it)];
-	    QStringList::ConstIterator d = yaccdeps.begin();
-	    for( ; d != yaccdeps.end(); ++d)
+	    for(QStringList::ConstIterator d = yaccdeps.begin(); d != yaccdeps.end(); ++d) {
 		if(!impldeps.contains(*d))		
 		    impldeps.append(*d);
+	    }
 	    if( project->isActiveConfig("lex_included")) {
 		// is there a matching lex file ? Transfer its dependencies.
-		QString leximpl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext;
-		if(v["LEXIMPLS"].findIndex(leximpl) != -1) {
-		    impldeps.append(leximpl);
-		    QStringList &lexdeps = depends[leximpl];
-		    QStringList::ConstIterator d = lexdeps.begin();
-		    for( ; d != lexdeps.end(); ++d)
+		QString lexsrc = fi.baseName() + Option::lex_ext;
+		if(fi.dirPath() != ".")
+		    lexsrc.prepend(fi.dirPath() + Option::dir_sep);
+		if(v["LEXSOURCES"].findIndex(lexsrc) != -1) {
+		    impldeps.append(lexsrc);
+		    QStringList &lexdeps = depends[lexsrc];
+		    for(QStringList::ConstIterator d = lexdeps.begin(); d != lexdeps.end(); ++d) {
 			if(!impldeps.contains(*d))
 			    impldeps.append(*d);
+		    }
 		}
 	    }
 	    yaccdeps.clear();
@@ -893,7 +895,7 @@ MakefileGenerator::writeLexSrc(QTextStream &t, const QString &src)
 	QFileInfo fi((*it));
 	QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext;
 
-	t << impl << ": " << (*it) << "\n\t"
+	t << impl << ": " << (*it) << " " << depends[(*it)].join(" \\\n\t\t") << "\n\t"
 	  << "$(LEX) $(LEXFLAGS) " << (*it) << "\n\t"
 	  << "-$(DEL) " << impl << " " << "\n\t"
 	  << "-$(MOVE) lex.yy.c " << impl << endl << endl;
