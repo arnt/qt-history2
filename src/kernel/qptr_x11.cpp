@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#239 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#240 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#239 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#240 $");
 
 
 /*****************************************************************************
@@ -2331,23 +2331,20 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
       Requirements for optimizing tiled pixmaps::
        - not an external device
        - not scale or rotshear
-       - not both clipping and mask
        - not mono pixmap
+       - no mask
     */
     QBitmap *mask = (QBitmap *)pixmap.mask();
-    if ( !testf(ExtDev) && txop <= TxTranslate &&
-	 !(mask && hasClipping()) && pixmap.depth() > 1 ) {
+    if ( !testf(ExtDev) && txop <= TxTranslate && pixmap.depth() > 1 &&
+	 mask == 0 ) {
 	if ( txop == TxTranslate )
 	    map( x, y, &x, &y );
-	if ( mask )
-	    XSetClipMask( dpy, gc, mask->handle() );
+	XSetTile( dpy, gc, pixmap.handle() );
 	XSetFillStyle( dpy, gc, FillTiled );
-	XSetTSOrigin( dpy, gc, -sx, -sy );
+	XSetTSOrigin( dpy, gc, x-sx, y-sy );
 	XFillRectangle( dpy, hd, gc, x, y, w, h );
-	XSetTSOrigin( dpy, gc, 0, 0 );	    
+	XSetTSOrigin( dpy, gc, 0, 0 );
 	XSetFillStyle( dpy, gc, FillSolid );
-	if ( mask )
-	    XSetClipMask( dpy, gc, 0 );
 	return;
     }
     if ( sw*sh < 8192 ) {
