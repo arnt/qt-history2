@@ -206,7 +206,7 @@ MainWindow::MainWindow( bool asClient )
     delete w;
 
     statusBar()->setSizeGripEnabled( TRUE );
-    
+
 }
 
 MainWindow::~MainWindow()
@@ -698,8 +698,8 @@ void MainWindow::setupFileActions()
     a->addTo( menu );
 
     a = new QAction( this, 0 );
-    a->setText( tr( "Save as" ) );
-    a->setMenuText( tr( "Save &as..." ) );
+    a->setText( tr( "Save As" ) );
+    a->setMenuText( tr( "Save &As..." ) );
     a->setStatusTip( tr( "Saves the current form with a new filename" ) );
     a->setWhatsThis( tr( "Save the current form with a new filename" ) );
     connect( a, SIGNAL( activated() ), this, SLOT( fileSaveAs() ) );
@@ -707,8 +707,8 @@ void MainWindow::setupFileActions()
     a->addTo( menu );
 
     a = new QAction( this, 0 );
-    a->setText( tr( "Save all" ) );
-    a->setMenuText( tr( "Sa&ve all" ) );
+    a->setText( tr( "Save All" ) );
+    a->setMenuText( tr( "Sa&ve All" ) );
     a->setStatusTip( tr( "Saves all open forms" ) );
     a->setWhatsThis( tr( "Save all open forms" ) );
     connect( a, SIGNAL( activated() ), this, SLOT( fileSaveAll() ) );
