@@ -257,21 +257,33 @@ void QAlphaWidget::alphaBlend()
     const double ia = 1-alpha;
     const int sw = front.width();
     const int sh = front.height();
-    Q_UINT32** md = (Q_UINT32**)mixed.jumpTable();
-    Q_UINT32** bd = (Q_UINT32**)back.jumpTable();
-    Q_UINT32** fd = (Q_UINT32**)front.jumpTable();
+    switch( front.depth() ) {
+    case 32:
+	{
+	    Q_UINT32** md = (Q_UINT32**)mixed.jumpTable();
+	    Q_UINT32** bd = (Q_UINT32**)back.jumpTable();
+	    Q_UINT32** fd = (Q_UINT32**)front.jumpTable();
 
-    for (int sy = 0; sy < sh; sy++ ) {
-	Q_UINT32* bl = ((Q_UINT32*)bd[sy]);
-	Q_UINT32* fl = ((Q_UINT32*)fd[sy]);
-	for (int sx = 0; sx < sw; sx++ ) {
-	    Q_UINT32 bp = bl[sx];
-	    Q_UINT32 fp = fl[sx];
+	    for (int sy = 0; sy < sh; sy++ ) {
+		Q_UINT32* bl = ((Q_UINT32*)bd[sy]);
+		Q_UINT32* fl = ((Q_UINT32*)fd[sy]);
+		for (int sx = 0; sx < sw; sx++ ) {
+		    Q_UINT32 bp = bl[sx];
+		    Q_UINT32 fp = fl[sx];
 
-	    ((Q_UINT32*)(md[sy]))[sx] =  qRgb(int (qRed(bp)*ia + qRed(fp)*alpha),
-					    int (qGreen(bp)*ia + qGreen(fp)*alpha),
-					    int (qBlue(bp)*ia + qBlue(fp)*alpha) );
+		    ((Q_UINT32*)(md[sy]))[sx] =  qRgb(int (qRed(bp)*ia + qRed(fp)*alpha),
+						    int (qGreen(bp)*ia + qGreen(fp)*alpha),
+						    int (qBlue(bp)*ia + qBlue(fp)*alpha) );
+		}
+	    }
 	}
+	break;
+    case 24:
+	break;
+    case 16:
+	break;
+    default:
+	break;
     }
 }
 
