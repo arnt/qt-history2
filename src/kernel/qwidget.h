@@ -515,6 +515,9 @@ protected:
 
     virtual void setKeyCompression(bool);
     virtual void setMicroFocusHint(int x, int y, int w, int h, bool text=TRUE, QFont *f = 0);
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *createAccessibilityInterface();
+#endif
 
 #if defined(Q_WS_MAC)
     void dirtyClippedRegion(bool);

@@ -50,6 +50,7 @@
 #include "qlayout.h"
 #include "qstylefactory.h"
 #include "qcleanuphandler.h"
+#include "qaccessible.h"
 #if defined(Q_WS_WIN)
 #include "qt_windows.h"
 #endif
@@ -3432,6 +3433,10 @@ void QWidget::show()
     if ( sendShowWindowRequest )
 	QApplication::postEvent( this, new QEvent( QEvent::ShowWindowRequest ) );
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    emit accessibilityChanged( QAccessible::ObjectShow );
+#endif
+
     in_show = FALSE;
 }
 
@@ -3492,6 +3497,10 @@ void QWidget::hide()
 
     if ( testWFlags(WType_Modal) )
 	qt_leave_modal( this );
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    emit accessibilityChanged( QAccessible::ObjectHide );
+#endif
 }
 
 
@@ -5115,6 +5124,13 @@ void QWidget::showFullScreen()
   \sa setPalette(), unsetPalette()
 */
 
+/*!
+  \reimp
+*/
+QAccessibleInterface *QWidget::createAccessibilityInterface()
+{
+    return new QAccessibleWidget( this );
+}
 
 
 static QPixmap* qdb_shared_pixmap = 0;
