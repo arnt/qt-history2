@@ -34,32 +34,20 @@
 #include "fileopen.xpm"
 #include "fileprint.xpm"
 
-const char * fileOpenText = "<img source=\"fileopen\"> "
-"Click this button to open a <em>new file</em>. <br><br>"
-"You can also select the <b>Open command</b> from the File menu.";
-const char * fileSaveText = "Click this button to save the file you are "
-"editing.  You will be prompted for a file name.\n\n"
-"You can also select the Save command from the File menu.\n\n"
-"Note that implementing this function is left as an exercise for the reader.";
-const char * filePrintText = "Click this button to print the file you "
-"are editing.\n\n"
-"You can also select the Print command from the File menu.";
 
 ApplicationWindow::ApplicationWindow()
     : QMainWindow( 0, "example application main window", WDestructiveClose )
 {
-    int id;
-
     printer = new QPrinter;
     QPixmap openIcon, saveIcon, printIcon;
 
     fileTools = new QToolBar( this, "file operations" );
-    fileTools->setLabel( tr( "File Operations" ) );
+    fileTools->setLabel( "File Operations" );
 
     openIcon = QPixmap( fileopen );
     QToolButton * fileOpen
 	= new QToolButton( openIcon, "Open File", QString::null,
-			   this, SLOT(load()), fileTools, "open file" );
+			   this, SLOT(choose()), fileTools, "open file" );
 
     saveIcon = QPixmap( filesave );
     QToolButton * fileSave
@@ -71,37 +59,65 @@ ApplicationWindow::ApplicationWindow()
 	= new QToolButton( printIcon, "Print File", QString::null,
 			   this, SLOT(print()), fileTools, "print file" );
 
+    
     (void)QWhatsThis::whatsThisButton( fileTools );
 
+    const char * fileOpenText = "<p><img source=\"fileopen\"> "
+	         "Click this button to open a <em>new file</em>. <br>"
+                 "You can also select the <b>Open</b> command "
+                 "from the <b>File</b> menu.</p>";
+
     QWhatsThis::add( fileOpen, fileOpenText );
+
     QMimeSourceFactory::defaultFactory()->setPixmap( "fileopen", openIcon );
+
+    const char * fileSaveText = "<p>Click this button to save the file you are "
+                 "editing.  You will be prompted for a file name.\n"
+                 "You can also select the <b>Save</b> command "
+                 "from the <b>File</b> menu.</p>";
+
     QWhatsThis::add( fileSave, fileSaveText );
+
+    const char * filePrintText = "Click this button to print the file you "
+                 "are editing.\n You can also select the Print "
+                 "command from the File menu.";
+
     QWhatsThis::add( filePrint, filePrintText );
+
 
     QPopupMenu * file = new QPopupMenu( this );
     menuBar()->insertItem( "&File", file );
 
+
     file->insertItem( "&New", this, SLOT(newDoc()), CTRL+Key_N );
 
+    int id;
     id = file->insertItem( openIcon, "&Open",
-			   this, SLOT(load()), CTRL+Key_O );
+			   this, SLOT(choose()), CTRL+Key_O );
     file->setWhatsThis( id, fileOpenText );
 
     id = file->insertItem( saveIcon, "&Save",
 			   this, SLOT(save()), CTRL+Key_S );
     file->setWhatsThis( id, fileSaveText );
+
     id = file->insertItem( "Save &as...", this, SLOT(saveAs()) );
     file->setWhatsThis( id, fileSaveText );
+    
     file->insertSeparator();
+
     id = file->insertItem( printIcon, "&Print",
 			   this, SLOT(print()), CTRL+Key_P );
     file->setWhatsThis( id, filePrintText );
+
     file->insertSeparator();
+
     file->insertItem( "&Close", this, SLOT(close()), CTRL+Key_W );
+
     file->insertItem( "&Quit", qApp, SLOT( closeAllWindows() ), CTRL+Key_Q );
 
-    QPopupMenu * help = new QPopupMenu( this );
     menuBar()->insertSeparator();
+
+    QPopupMenu * help = new QPopupMenu( this );
     menuBar()->insertItem( "&Help", help );
 
     help->insertItem( "&About", this, SLOT(about()), Key_F1 );
@@ -113,6 +129,7 @@ ApplicationWindow::ApplicationWindow()
     e->setFocus();
     setCentralWidget( e );
     statusBar()->message( "Ready", 2000 );
+
     resize( 450, 600 );
 }
 
@@ -130,7 +147,7 @@ void ApplicationWindow::newDoc()
     ed->show();
 }
 
-void ApplicationWindow::load()
+void ApplicationWindow::choose()
 {
     QString fn = QFileDialog::getOpenFileName( QString::null, QString::null,
 					       this);
@@ -203,11 +220,11 @@ void ApplicationWindow::print()
     if ( printer->setup(this) ) {		// printer dialog
 	statusBar()->message( "Printing..." );
 	QPainter p;
-	if( !p.begin( printer ) )
-	    return;				// paint on printer
+	if( !p.begin( printer ) )               // paint on printer 
+	    return;				
 
 	p.setFont( e->font() );
-	int yPos	= 0;			// y position for each line
+	int yPos	= 0;			// y-position for each line
 	QFontMetrics fm = p.fontMetrics();
 	QPaintDeviceMetrics metrics( printer ); // need width/height
 						// of printer surface

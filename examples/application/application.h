@@ -20,6 +20,7 @@ class QPopupMenu;
 class ApplicationWindow: public QMainWindow
 {
     Q_OBJECT
+
 public:
     ApplicationWindow();
     ~ApplicationWindow();
@@ -29,7 +30,7 @@ protected:
 
 private slots:
     void newDoc();
-    void load();
+    void choose();
     void load( const QString &fileName );
     void save();
     void saveAs();
