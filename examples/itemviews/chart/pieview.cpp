@@ -448,7 +448,7 @@ void PieView::paintEvent(QPaintEvent *event)
 
                 QPointF textPosition(textRect.x(), textRect.y() + fontHeight);
 
-                painter.drawText(textPosition, label, QPainter::Auto);
+                painter.drawText(textPosition, label);
                 keyNumber++;
             }
         }
