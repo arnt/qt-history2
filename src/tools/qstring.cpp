@@ -47,7 +47,7 @@
 #ifndef QT_NO_TEXTCODEC
 #include "qtextcodec.h"
 #endif
-#include "qstack.h"
+#include "qptrstack.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -11329,7 +11329,7 @@ static int ucstrnicmp( const QChar *a, const QChar *b, int l )
 \brief The QChar class provides a lightweight Unicode character.
 
 Unicode characters are (so far) 16-bit entities without any markup or
-structure.  This class represents such an entity.  It is 
+structure.  This class represents such an entity.  It is
 lightweight, so it can be used everywhere.  Most compilers treat it
 like a "short int."  (In a few years it may be necessary
 to make QChar 32-bit when more than 65536 Unicode code points have
