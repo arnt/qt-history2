@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qsize.cpp#18 $
 **
 ** Implementation of QSize class
 **
@@ -13,7 +13,7 @@
 #include "qsize.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qsize.cpp#17 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qsize.cpp#18 $");
 
 
 /*!
@@ -51,7 +51,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qsize.cpp#17 $");
 
 /*!
   \fn bool QSize::isEmpty() const
-  Returns TRUE if the width is less than 0 or the height is less than 0,
+  Returns TRUE if the width is <= 0 or the height is <= 0,
   otherwise FALSE.
 */
 
