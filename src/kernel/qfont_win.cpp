@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#95 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#96 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -447,11 +447,17 @@ HFONT QFont::create( bool *stockFont, HDC hdc, bool VxF ) const
     lf.lfItalic		= d->req.italic;
     lf.lfUnderline	= d->req.underline;
     lf.lfStrikeOut	= d->req.strikeOut;
+
+    /*
+	We use DEFAULT_CHARSET as much as possible, so that
+	we get good Unicode-capable fonts on international
+	platforms (eg. Japanese Windows NT).
+    */
     int cs;
     switch ( charSet() ) {
 	case AnyCharSet:
 	case ISO_8859_1:
-	    cs = ANSI_CHARSET;
+	    cs = DEFAULT_CHARSET;
 	    break;
 	case ISO_8859_2:
 	    cs = EASTEUROPE_CHARSET;
@@ -463,11 +469,9 @@ HFONT QFont::create( bool *stockFont, HDC hdc, bool VxF ) const
 	    cs = GREEK_CHARSET;
 	    break;
 	default:
-	    cs = ANSI_CHARSET;
+	    cs = DEFAULT_CHARSET;
 	    break;
     }
-
-    // cs = SHIFTJIS_CHARSET; // ##### WA test line
 
     lf.lfCharSet	= cs;
     lf.lfOutPrecision   = OUT_DEFAULT_PRECIS;
@@ -687,7 +691,7 @@ int QFontMetrics::minRightBearing() const
 	    delete [] abc;
 	} else {
 	    if ( qt_winver == Qt::WV_NT ) {
-		TEXTMETRICW *tm = TMW;
+		TEXTMETRIC *tm = TMW;
 		int n = tm->tmLastChar - tm->tmFirstChar+1;
 		ABCFLOAT *abc = new ABCFLOAT[n];
 		GetCharABCWidthsFloat(hdc(),tm->tmFirstChar,tm->tmLastChar,abc);
