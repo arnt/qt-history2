@@ -24,8 +24,9 @@ class QWidget;
 
 class AbstractFormEditor;
 
-struct AbstractMetaDataBaseItem
+class AbstractMetaDataBaseItem
 {
+public:
     virtual ~AbstractMetaDataBaseItem() {}
 
     virtual QString name() const = 0;
@@ -48,7 +49,7 @@ struct AbstractMetaDataBaseItem
 
     virtual int margin() const = 0;
     virtual void setMargin(int margin) = 0;
-    
+
     virtual bool enabled() const = 0;
     virtual void setEnabled(bool b) = 0;
 };

@@ -19,8 +19,9 @@
 #include <QtCore/QList>
 #include <QtCore/QByteArray>
 
-struct IMemberSheet
+class IMemberSheet
 {
+public:
     virtual ~IMemberSheet() {}
 
     virtual int count() const = 0;

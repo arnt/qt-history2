@@ -22,8 +22,9 @@
 class QWidget;
 class AbstractFormEditor;
 
-struct ICustomWidget
+class ICustomWidget
 {
+public:
     virtual ~ICustomWidget() {}
 
     virtual QString name() const = 0;

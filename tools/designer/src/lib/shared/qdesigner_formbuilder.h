@@ -20,7 +20,7 @@
 #include <QtCore/QMap>
 
 class AbstractFormEditor;
-struct ICustomWidget;
+class ICustomWidget;
 
 class QT_SHARED_EXPORT QDesignerFormBuilder: public FormBuilder
 {

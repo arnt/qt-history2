@@ -62,8 +62,15 @@ private:
 };
 
 // ### fake - remove when actions are implemented
-struct QT_FORMEDITOR_EXPORT ActionListElt {
-    QString name, objectName, menu, icon, iconText, shortcut;
+class QT_FORMEDITOR_EXPORT ActionListElt
+{
+public:
+    QString name;
+    QString objectName;
+    QString menu;
+    QString icon;
+    QString iconText;
+    QString shortcut;
 };
 typedef QList<ActionListElt> ActionList;
 

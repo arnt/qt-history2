@@ -24,8 +24,9 @@ class DomLayout;
 class QWidget;
 class AbstractFormWindow;
 
-struct IExtraInfo
+class IExtraInfo
 {
+public:
     virtual ~IExtraInfo() {}
 
     virtual void saveExtraInfo(DomUI *ui, AbstractFormWindow *formWindow) = 0;

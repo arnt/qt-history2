@@ -17,7 +17,7 @@
 #include "qdesigner_widget.h"
 
 class FormWindow;
-struct AbstractWidgetDataBaseItem;
+class AbstractWidgetDataBaseItem;
 
 class QDesignerCustomWidget: public QDesignerWidget
 {

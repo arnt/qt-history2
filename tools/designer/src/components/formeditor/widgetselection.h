@@ -19,7 +19,7 @@
 
 #include <QtCore/QHash>
 
-struct ITaskMenu;
+class ITaskMenu;
 class QMouseEvent;
 class FormWindow;
 class AbstractFormEditor;

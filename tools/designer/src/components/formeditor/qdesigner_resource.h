@@ -31,8 +31,8 @@ class QDesignerStackedWidget;
 class QDesignerToolBox;
 class QLayoutWidget;
 
-struct IContainer;
-struct AbstractWidgetDataBaseItem;
+class IContainer;
+class AbstractWidgetDataBaseItem;
 
 class QT_FORMEDITOR_EXPORT QDesignerResource : public Resource
 {

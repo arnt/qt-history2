@@ -142,8 +142,8 @@ private:
     Q3Workspace *m_workspace;
     QHash<QWidget*, QRect> m_geometries;
 
-    struct ToolWindowExtra {};
-    struct FormWindowExtra {};
+    class ToolWindowExtra {};
+    class FormWindowExtra {};
     QHash<QDesignerToolWindow*, ToolWindowExtra> m_toolWindowExtras;
     QHash<QDesignerFormWindow*, FormWindowExtra> m_formWindowExtras;
 

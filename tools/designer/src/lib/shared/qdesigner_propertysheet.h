@@ -63,8 +63,9 @@ protected:
     QObject *m_object;
     const QMetaObject *meta;
 
-    struct Info
+    class Info
     {
+    public:
         QString group;
         uint changed: 1;
         uint visible: 1;

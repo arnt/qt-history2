@@ -21,8 +21,9 @@
 class AbstractFormEditor;
 class QAction;
 
-struct QT_SDK_EXPORT AbstractFormEditorPlugin
+class QT_SDK_EXPORT AbstractFormEditorPlugin
 {
+public:
     virtual ~AbstractFormEditorPlugin() {}
 
     virtual bool isInitialized() const = 0;

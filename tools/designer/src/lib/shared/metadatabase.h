@@ -21,8 +21,9 @@
 #include <QtCore/QHash>
 #include <QtGui/QCursor>
 
-struct QT_SHARED_EXPORT MetaDataBaseItem: public AbstractMetaDataBaseItem
+class QT_SHARED_EXPORT MetaDataBaseItem: public AbstractMetaDataBaseItem
 {
+public:
     MetaDataBaseItem(QObject *object);
     virtual ~MetaDataBaseItem();
 

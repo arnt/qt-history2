@@ -77,7 +77,7 @@ private:
     QList<QtCommand*> m_command_list;    
 };
 
-struct QtUndoState;
+class QtUndoState;
 
 class QT_SHARED_EXPORT QtUndoStack : public QObject, private QList<QtCommand*>
 {

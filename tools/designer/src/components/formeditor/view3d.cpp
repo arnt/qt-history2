@@ -319,7 +319,7 @@ void View3DWidget::contextMenuEvent(QContextMenuEvent *e)
 ** Misc tools
 */
 
-struct WalkWidgetTreeFunction
+class WalkWidgetTreeFunction
 {
     virtual void operator () (int depth, QWidget *widget) const = 0;
 };
@@ -404,7 +404,7 @@ static QPixmap grabWidget(QWidget * widget, AbstractFormEditor *core)
 ** View3D
 */
 
-struct AddTexture : public WalkWidgetTreeFunction
+class AddTexture : public WalkWidgetTreeFunction
 {
     inline AddTexture(AbstractFormEditor *core, View3DWidget *w)
         : m_core(core), m_3d_widget(w) {}
@@ -414,7 +414,7 @@ struct AddTexture : public WalkWidgetTreeFunction
     View3DWidget *m_3d_widget;
 };
 
-struct AddWidget : public WalkWidgetTreeFunction
+class AddWidget : public WalkWidgetTreeFunction
 {
     inline AddWidget(View3DWidget *w) : m_3d_widget(w) {}
     inline virtual void operator ()(int depth, QWidget *w) const

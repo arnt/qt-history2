@@ -21,8 +21,9 @@
 
 class QVariant;
 
-struct IPropertySheet
+class IPropertySheet
 {
+public:
     virtual ~IPropertySheet() {}
 
     virtual int count() const = 0;
@@ -50,16 +51,18 @@ struct IPropertySheet
 };
 Q_DECLARE_EXTENSION_INTERFACE(IPropertySheet, "http://trolltech.com/Qt/IDE/PropertySheet")
 
-struct EnumType
+class EnumType
 {
+public:
     QVariant value;
     QMap<QString, QVariant> items;
 };
 
 Q_DECLARE_METATYPE(EnumType)
 
-struct FlagType
+class FlagType
 {
+public:
     QVariant value;
     QMap<QString, QVariant> items;
 };

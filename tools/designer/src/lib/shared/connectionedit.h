@@ -29,12 +29,15 @@ class QtUndoStack;
 class Connection;
 class ConnectionEdit;
 
-struct QT_SHARED_EXPORT CETypes
+class QT_SHARED_EXPORT CETypes
 {
+public:
     typedef QList<Connection*> ConnectionList;
     typedef QMap<Connection*, Connection*> ConnectionSet;
     typedef QMap<QWidget*, QWidget*> WidgetSet;
-    struct EndPoint {
+
+    class EndPoint {
+    public:
         enum Type { Source, Target };
         EndPoint(Connection *_con = 0, Type _type = Source) : con(_con), type(_type) {}
         bool isNull() const { return con == 0; }

@@ -30,8 +30,8 @@ class AbstractFormWindowManager;
 class AbstractFormWindow;
 class Layout;
 
-struct IPropertySheet;
-struct AbstractMetaDataBaseItem;
+class IPropertySheet;
+class AbstractMetaDataBaseItem;
 
 class QToolBox;
 class QTabWidget;

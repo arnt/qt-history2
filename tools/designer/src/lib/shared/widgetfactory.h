@@ -27,7 +27,7 @@ class QObject;
 class QWidget;
 class QLayout;
 class AbstractFormEditor;
-struct ICustomWidget;
+class ICustomWidget;
 
 class QT_SHARED_EXPORT WidgetFactory: public AbstractWidgetFactory
 {

@@ -19,24 +19,27 @@
 
 #define Q_TYPEID(IFace) QLatin1String(IFace##_iid)
 
-struct Extensible
+class Extensible
 {
+public:
     virtual ~Extensible() {}
 
     virtual QObject *extension(const QString &iid) const = 0;
 };
 Q_DECLARE_INTERFACE(Extensible, "http://trolltech.com/Qt/Extensible")
 
-struct ExtensionFactory
+class ExtensionFactory
 {
+public:
     virtual ~ExtensionFactory() {}
 
     virtual QObject *extension(QObject *object, const QString &iid) const = 0;
 };
 Q_DECLARE_INTERFACE(ExtensionFactory, "http://trolltech.com/Qt/ExtensionFactory")
 
-struct ExtensionManager
+class ExtensionManager
 {
+public:
     virtual ~ExtensionManager() {}
 
     virtual void registerExtensions(ExtensionFactory *factory, const QString &iid) = 0;

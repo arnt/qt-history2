@@ -27,8 +27,9 @@
 class QWidget;
 class QComboBox;
 
-struct QT_PROPERTYEDITOR_EXPORT IProperty
+class QT_PROPERTYEDITOR_EXPORT IProperty
 {
+public:
     enum Kind
     {
         Property_Normal,
@@ -90,8 +91,9 @@ protected:
     uint m_reset : 1;
 };
 
-struct QT_PROPERTYEDITOR_EXPORT IPropertyGroup: public IProperty
+class QT_PROPERTYEDITOR_EXPORT IPropertyGroup: public IProperty
 {
+public:
     virtual int indexOf(IProperty *property) const = 0;
     virtual int propertyCount() const = 0;
     virtual IProperty *propertyAt(int index) const = 0;

@@ -39,11 +39,12 @@ public:
     static Type layoutType(AbstractFormEditor *core, QLayout *layout);
     static Type layoutType(AbstractFormEditor *core, QWidget *w);
     static QWidget *layoutParent(AbstractFormEditor *core, QLayout *layout);
-    
-    struct Interval
+
+    class Interval
     {
+    public:
         int v1, v2;
-        inline Interval(int _v1 = 0, int _v2 = 0) 
+        inline Interval(int _v1 = 0, int _v2 = 0)
             : v1(_v1), v2(_v2) {}
         bool operator < (const Interval &other) const
             { return v1 < other.v1; }

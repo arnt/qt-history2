@@ -467,8 +467,9 @@ void QtUndoStack::setClean()
             emit cleanChanged(isClean());
 }
 
-struct QtUndoState
+class QtUndoState
 {
+public:
     bool can_undo, can_redo, clean;
     QString undo_description, redo_description;
 };
@@ -1241,7 +1242,7 @@ void QtUndoManager::updateActions()
         m_can_undo = undo_enabled;
         emit canUndoChanged(undo_enabled);
     }
-    
+
     if (undo_description != m_undo_description) {
         m_undo_description = undo_description;
         emit undoDescriptionChanged(undo_description);

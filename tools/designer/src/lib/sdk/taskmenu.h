@@ -18,8 +18,9 @@
 
 class QAction;
 
-struct ITaskMenu
+class ITaskMenu
 {
+public:
     virtual ~ITaskMenu() {}
 
     virtual QList<QAction*> taskActions() const = 0;

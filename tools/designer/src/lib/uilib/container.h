@@ -19,8 +19,9 @@
 
 class QWidget;
 
-struct IContainer
+class IContainer
 {
+public:
     virtual ~IContainer() {}
 
     virtual int count() const = 0;

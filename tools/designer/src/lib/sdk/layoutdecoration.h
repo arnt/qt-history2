@@ -20,8 +20,9 @@
 
 class QPoint;
 
-struct ILayoutDecoration
+class ILayoutDecoration
 {
+public:
     enum InsertMode
     {
         InsertWidgetMode,
