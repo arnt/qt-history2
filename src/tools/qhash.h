@@ -270,10 +270,10 @@ inline typename QHash<Key, T>::Node *QHash<Key, T>::node_create(uint h, const Ke
 }
 
 template <class Key, class T>
-void QHash<Key, T>::free(QHashData *d)
+void QHash<Key, T>::free(QHashData *x)
 {
-    Node **bucket = (Node **) d->buckets;
-    int n = d->numBuckets;
+    Node **bucket = (Node **) x->buckets;
+    int n = x->numBuckets;
     while (n--) {
 	Node *cur = *bucket++;
 	while (cur != e) {
@@ -282,7 +282,7 @@ void QHash<Key, T>::free(QHashData *d)
 	    cur = next;
 	}
     }
-    delete [] d->buckets;
+    delete [] x->buckets;
 }
 
 template <class Key, class T>
