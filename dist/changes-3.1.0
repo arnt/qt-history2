@@ -1,4 +1,4 @@
-#77199
+#78429
 
 Qt 3.1 introduces many significant new features and many improvements
 over the 3.0.x series. For an overview of the main changes between
@@ -45,15 +45,34 @@ the changes between Qt 3.1 beta2 and Qt 3.1 final.
 	Windows only: make Qt's filedialog work properly with network
 	paths.
 
+- QFontMetrics:
+	Windows only: Fixed QFontMetrics::boundingRect( QChar c ) to
+	work for non true type fonts.
+
+- QHeader
+	Speeded up sectionSizeHont() calculation which in return
+	speeds up all size/label calculations of QHeader.
+
 - QIconFactory
 	Avoid infinite loops when recursively calling
 	QPixmap::pixmap().
+
+- QIconView
+	Fixed navigation and selection with arrow keys. Some speedups
+	when repainting.
+
+- QKeySequence
+	Treat unicode characters in string defined sequences
+	correctly. So, now letters like Æ, Ø and Å should work as
+	accelerators, even through translation files.
 
 - QLayout
 	alignmentRect() respects the layout's maximum size.
 
 - QLineEdit
-	Added signal lostFocus().
+	Added signal lostFocus(). Doubleclicking only uses spaces as
+	word bounderies for the selection now, not dots, commans,
+	etc. Support doubleclick+mousemove selection.
 
 - QListBox:
 	Fixed the item which is passed into the contextMenuRequested()
@@ -63,17 +82,24 @@ the changes between Qt 3.1 beta2 and Qt 3.1 final.
 - QListView
 	Shift selection in Extended mode now follows Windows
 	Shift-selection standard. Erase empty area when drawing
-	listviews without columns.
+	listviews without columns. Only drops on items that have drop
+	enabled accept drops.
+
+- QListViewItem
+	Speeded up size claculation for multi-line items.
 
 - QMainWindow
 	Base the minimumSizeHint() on the sizeHint()s of the left and
 	dock area (instead of the minimumSize()).
 
 - QMenuBar
-	Fixed broken Alt release detection. Fixed flickering.
+	Fixed broken Alt release detection. Fixed flickering. Fixed
+	empty menubars resizing properly.
 
 - QObject:
-	Fixed return value of disconnect().
+	Fixed return value of disconnect(). Fixed disconnect()ing
+	SIGNALs from SIGNALs and disconnect()ing multiple euqally
+	named SLOTs from a SIGNAL.
 
 - QProcess
 	Unix only: Don't eat the filedescriptors if a lot of processes
@@ -84,16 +110,32 @@ the changes between Qt 3.1 beta2 and Qt 3.1 final.
 	distribution under Windows. Better handling of network,
 	datetime and geometrical datatypes.
 
+- QRegion
+	Fixed setRects() to calculate the bounding rectangle
+	correctly.
+
 - QScrollView
 	Doesn't reposition the view when the user is scrolling the
 	view.
+
+- QSpinBox
+	Fixed setValue() so that input yet not interpreted is ignored
+	when setting a new value.
 
 - QString
 	Support QTextCodec::codecForCStrings(). Support
 	string<-->QString conversation when STL support is on.
 
+- QSyntaxHighlighter:
+	Added function rehighlight(). Improved internals to be more
+	efficient (less calls to highlightParagraph() necessary).
+
 - QTable
-	Fixed Tab/BackTab handling to always work.
+	Fixed Tab/BackTab handling to always work. Fixed
+	setColumnLabels() and setRowLabels().
+
+- QTableItem (and subclasses)
+	Supports now global struts. (see QApplication::globalStrut()).
 
 - QTDSDriver
 	Binary datatypes work now.
@@ -106,7 +148,9 @@ the changes between Qt 3.1 beta2 and Qt 3.1 final.
 	not being erased correctly. Make sure to repaint is updated
 	after changing the underline-links setting. Renamed
 	'allowTabs' property to 'tabChangesFocus' (inverted
-	value). Added a new property 'autoFormatting'
+	value). Added a new property 'autoFormatting'. When exporting
+	HTML also quote quotes. Fixed a background erasing bug which
+	messed up the view.
 
 - QUrl
 	Recognize Windows drive letters not only in the form of "c:/"
