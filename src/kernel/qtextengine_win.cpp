@@ -475,7 +475,7 @@ void QTextEngine::bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOr
 
 void QTextEngine::itemize( int mode )
 {
-    if ( doBidi ) {
+    if ( !(mode & NoBidi) ) {
 	if ( direction == QChar::DirON )
 	    direction = basicDirection( string );
     }
@@ -542,7 +542,7 @@ void QTextEngine::itemize( int mode )
 	return;
     }
 
-    if ( !(Mode & NoBidi) ) {
+    if ( !(mode & NoBidi) ) {
 	bidiItemize( string, items, direction == QChar::DirR );
     } else {
 	BidiControl control( false );
