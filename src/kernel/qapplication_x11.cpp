@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#15 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#15 $";
 #endif
 
 
@@ -38,6 +38,7 @@ static Display *appDpy;				// X11 application display
 static char    *appDpyName = 0;			// X11 display name
 static int	appScreen;			// X11 screen number
 static Window	appRootWin;			// X11 root window
+static QWidget *desktopWidget = 0;		// root window widget
 Atom		q_wm_delete_window;		// delete window protocol
 
 typedef void  (*VFPTR)();
@@ -210,7 +211,7 @@ void qAddPostRoutine( void (*p)() )		// add post routine
 
 
 // --------------------------------------------------------------------------
-// Global functions that important data
+// Some implementation-specific functions
 //
 
 char *qAppName()				// get application name
@@ -231,6 +232,15 @@ int qXScreen()					// get current X screen
 Window qXRootWin()				// get X root window
 {
     return appRootWin;
+}
+
+QWidget *QApplication::desktop()
+{
+    if ( !desktopWidget ) {			// not created yet
+	desktopWidget = new QWidget( 0, "desktop", WType_Desktop );
+	CHECK_PTR( desktopWidget );
+    }
+    return desktopWidget;
 }
 
 
@@ -813,7 +823,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	state = translateButtonState( event->xmotion.state );
 	if ( !buttonDown ) {
 	    state &= ~(LeftButton|MidButton|RightButton);
-	    if ( !testFlag(WEtc_MouseMove) )
+	    if ( !testFlag(WGetMouseMove) )
 		return FALSE;			// unexpected event
 	}
     }
