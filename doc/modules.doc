@@ -92,15 +92,21 @@ tables,
 \endif
 and even other workspaces.
 
+Child windows can be managed easily, especially when the workspace
+is used with the
+\link http://www.trolltech.com/products/solutions/catalog/Widgets/qtwindowlistmenu/
+Window Menu \endlink from Qt Solutions.
+
 \img workspace.png
 
 \section1 Details
 
 Workspaces in Qt are implemented in the QWorkspace class, a dervied
 class of QWidget. Workspace widgets can be added to any container
-widgets that accept QWidgets.
+widgets that accept QWidgets, making it easy to add MDI functionality
+to an application.
 
-Standard Qt widgets are added to the workspace to represent document
+Standard Qt widgets are added to the workspace to become child
 windows. These child widgets can either be created with the workspace
 as their parent, or reparented into the workspace from elsewhere.
 
@@ -108,7 +114,6 @@ A workspace manages the layout of its child widgets in a different
 way to that of other container widgets, like QHBox, QVBox, and QGrid.
 The user can freely arrange the child windows within the workspace, and
 functions also exist to tidy the windows into cascaded and tiled arrangements.
-
 Child windows can be maximized, minimized, and restored by the user just
 like normal top-level widgets; functions also exist to achieve this from within
 the application. In the common case, when used as the central widget of a
@@ -116,7 +121,7 @@ the application. In the common case, when used as the central widget of a
 menu bar to provide maximized child windows with window furniture.
 
 Workspaces can be made to automatically provide scrollbars, so that the
-user can access all documents windows if the required workspace area
+user can access all child windows if the required workspace area
 exceeds the visible size of the workspace.
 
 Please see the \link qworkspace.html class documentation \endlink for
