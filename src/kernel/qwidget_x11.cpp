@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#233 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#234 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -29,7 +29,7 @@ typedef char *XPointer;
 #undef  X11R4
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#233 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#234 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -236,7 +236,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 		p = pp;				// find real parent
 		pp = pp->parentWidget();
 	    }
-	    if ( p )				// modal to one widget
+	    if ( p && p->isVisible() )		// modal to one widget
 		XSetTransientForHint( dpy, id, p->winId() );
 	    else				// application-modal
 		XSetTransientForHint( dpy, id, root_win );
@@ -1629,7 +1629,7 @@ int QWidget::metric( int m ) const
 /*!  Registers \a mimeType as a possible drop type and announces to
   the system that this widget \e may be able to accept \a mimeType
   drop.
-  
+
   \code
     registerDropType( "text/plain" );
     retisterDropType( "image/gif" );
