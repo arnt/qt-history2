@@ -11,10 +11,25 @@
 #ifndef _TABLET_STATS_
 #define _TABLET_STATS_
 
-#include <qmainwindow.h>
+#include <qwidget.h>
+#include <qframe.h>
 #include "canvas.h"
 
 class QLabel;
+
+class MyOrientation : public QFrame  
+{
+    Q_OBJECT
+public:
+    MyOrientation( QWidget *parent = 0, const char *name = 0 );
+    virtual ~MyOrientation();
+
+public slots:
+    void newOrient( int tiltX, int tiltY );
+
+protected:
+    void resizeEvent( QResizeEvent *e );
+};
 
 class StatsCanvas : public Canvas
 {
@@ -33,6 +48,7 @@ protected:
     void tabletEvent( QTabletEvent *e );
     void mouseMoveEvent( QMouseEvent *e );
     void paintEvent( QPaintEvent *e );
+    void mouseReleaseEvent( QMouseEvent *e );
 };
 
 class TabletStats : public QWidget
@@ -56,6 +72,7 @@ protected:
 	   *lblXPos,
 	   *lblYPos;
     StatsCanvas *statCan;
+    MyOrientation *orient;
 };
 
 #endif
