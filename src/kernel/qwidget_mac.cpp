@@ -466,6 +466,9 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
  	    fd->focusWidgets.append( this );
     }
 
+    if(isVisible()) //finally paint my new area
+	paint_children( parentWidget(), geometry());
+
     QEvent e( QEvent::Reparent );
     QApplication::sendEvent( this, &e );
 }
