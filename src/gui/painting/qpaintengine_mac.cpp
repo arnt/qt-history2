@@ -959,14 +959,15 @@ static void qt_mac_dispose_pattern(void *info)
 //gradiant callback
 static void qt_mac_color_gradient_function(void *info, const float *in, float *out)
 {
-    QBrush *brush = (QBrush*)info;
+    QBrush *brush = static_cast<QBrush *>(info);
     const float red = qt_mac_convert_color_to_cg(brush->color().red());
     out[0] = red + in[0] * (qt_mac_convert_color_to_cg(brush->gradientColor().red())-red);
     const float green = qt_mac_convert_color_to_cg(brush->color().green());
     out[1] = green + in[0] * (qt_mac_convert_color_to_cg(brush->gradientColor().green())-green);
     const float blue = qt_mac_convert_color_to_cg(brush->color().blue());
     out[2] = blue + in[0] * (qt_mac_convert_color_to_cg(brush->gradientColor().blue())-blue);
-    out[3] = 1; //100%
+    const float alpha = qt_mac_convert_color_to_cg(brush->color().alpha());
+    out[3] = alpha + in[0] * (qt_mac_convert_color_to_cg(brush->gradientColor().alpha()) - alpha);
 }
 
 //clipping handling
