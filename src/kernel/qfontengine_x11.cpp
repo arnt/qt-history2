@@ -926,6 +926,7 @@ void QFontEngineLatinXLFD::draw( QPainter *p, int x, int y, const QTextEngine *e
     if ( !si->num_glyphs ) return;
 
     glyph_t *glyphs = engine->glyphs( si );
+    advance_t *advances = engine->advances( si );
     int which = glyphs[0] >> 8;
 
     int start = 0;
@@ -944,17 +945,12 @@ void QFontEngineLatinXLFD::draw( QPainter *p, int x, int y, const QTextEngine *e
 	si2.num_glyphs = end - start;
 	_engines[which]->draw( p, x, y, engine, &si2, textFlags );
 
-	// advance
-	glyph_metrics_t gm = _engines[which]->boundingBox( engine->glyphs( &si2 ),
-							   engine->advances( &si2 ),
-							   engine->offsets( &si2 ),
-							   si2.num_glyphs );
-	x += gm.xoff;
-
-	// reset the high byte for all glyphs
+	// reset the high byte for all glyphs and advance to the next sub-string
 	const int hi = which << 8;
-	for ( i = start; i < end; ++i )
+	for ( i = start; i < end; ++i ) {
 	    glyphs[i] = hi | glyphs[i];
+	    x += advances[i];
+	}
 
 	// change engine
 	start = end;
@@ -1008,10 +1004,11 @@ glyph_metrics_t QFontEngineLatinXLFD::boundingBox( const glyph_t *glyphs_const,
 
 	overall.x = QMIN( overall.x, gm.x );
 	overall.y = QMIN( overall.y, gm.y );
-	overall.width += gm.width;
+	overall.width = overall.xoff + gm.width;
+	overall.height = QMAX( overall.height + overall.y, gm.height + gm.y ) -
+			 QMIN( overall.y, gm.y );
 	overall.xoff += gm.xoff;
-	// ### is this right?
-	overall.height = QMAX( overall.height, gm.height - gm.yoff );
+	overall.yoff += gm.yoff;
 
 	// reset the high byte for all glyphs
 	const int hi = which << 8;
@@ -1036,10 +1033,11 @@ glyph_metrics_t QFontEngineLatinXLFD::boundingBox( const glyph_t *glyphs_const,
 
     overall.x = QMIN( overall.x, gm.x );
     overall.y = QMIN( overall.y, gm.y );
-    overall.width += gm.width;
+    overall.width = overall.xoff + gm.width;
+    overall.height = QMAX( overall.height + overall.y, gm.height + gm.y ) -
+		     QMIN( overall.y, gm.y );
     overall.xoff += gm.xoff;
-    // ### is this right?
-    overall.height = QMAX( overall.height, gm.height - gm.yoff );
+    overall.yoff += gm.yoff;
 
     // reset the high byte for all glyphs
     const int hi = which << 8;
