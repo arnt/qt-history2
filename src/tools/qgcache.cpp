@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#42 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#43 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -635,10 +635,21 @@ QCollection::Item QGCacheIterator::get() const
   Returns the key of the current item.
 */
 
-const char *QGCacheIterator::getKey() const
+QString QGCacheIterator::getKey() const
 {
     register QCacheItem *item = it->current();
-    return item ? item->key : 0;
+    return item ? QString::fromUtf8(item->key) : QString::null;
+}
+
+/*!
+  \internal
+  Returns the key of the current item, as a long.
+*/
+
+long QGCacheIterator::getKeyLong() const
+{
+    register QCacheItem *item = it->current();
+    return item ? (long)item->key : 0L;
 }
 
 

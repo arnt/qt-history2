@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.h#23 $
+** $Id: //depot/qt/main/src/tools/qgcache.h#24 $
 **
 ** Definition of QGCache and QGCacheIterator classes
 **
@@ -99,7 +99,8 @@ protected:
     QCollection::Item toLast();			// move to last item
 
     QCollection::Item get() const;		// get current item
-    const char *getKey() const;			// get current key
+    QString getKey() const;			// get current key
+    long getKeyLong() const;			// get current key as a long
     QCollection::Item operator()();		// get current and move to next
     QCollection::Item operator++();		// move to next item (prefix)
     QCollection::Item operator+=( uint );	// move n positions forward
