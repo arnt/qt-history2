@@ -59,7 +59,7 @@ public:
 
     virtual void setRelation(int column, const QSqlRelation &relation);
     QSqlRelation relation(int column) const;
-    virtual QSqlTableModel *relationModel(int column);
+    virtual QSqlTableModel *relationModel(int column) const;
 
 public slots:
     void revertRow(int row);

@@ -38,7 +38,7 @@ public:
         : QSqlTableModelPrivate(qq)
     {}
 
-    QVector<Relation> relations;
+    mutable QVector<Relation> relations;
     void clearChanges();
 };
 
@@ -220,7 +220,7 @@ QString QSqlRelationalTableModel::selectStatement() const
     return query;
 }
 
-QSqlTableModel *QSqlRelationalTableModel::relationModel(int column)
+QSqlTableModel *QSqlRelationalTableModel::relationModel(int column) const
 {
     Relation relation = d->relations.value(column);
     if (!relation.rel.isValid())
@@ -228,12 +228,9 @@ QSqlTableModel *QSqlRelationalTableModel::relationModel(int column)
 
     QSqlTableModel *childModel = relation.model;
     if (!childModel) {
-        childModel = new QSqlTableModel(this, database());
+        childModel = new QSqlTableModel(const_cast<QSqlRelationalTableModel *>(this), database());
         childModel->setTable(relation.rel.tableName());
-        if (!childModel->select())
-            qDebug("error looking up child relation: %s", childModel->lastError().text().ascii());
-            // TODO ### error-handling
-        childModel->fetchMore(); // ### HACK
+        childModel->select();
         d->relations[column].model = childModel;
     }
     return childModel;
