@@ -1279,37 +1279,118 @@ bool QLayoutWidget::event( QEvent *e )
     return QWidget::event( e );
 }
 
+/*
+  I, Jasmin, am heavily editing these things. I will fix all of that
+  when I come back from Stockholm.
+*/
+#if 0
+static QString strx( int n )
+{
+    QString s;
+    if ( n & (int) QSizePolicy::Minimum )
+	s += "MayGrow|";
+    if ( n & (int) QSizePolicy::Maximum )
+	s += "MayShrink|";
+    if ( n & (int) (QSizePolicy::Expanding & ~QSizePolicy::Preferred) )
+	s += "ExpMask|";
+    if ( s.isEmpty() )
+	s = "0";
+    else
+	s.truncate( s.length() - 1 );
+    return s;
+}
+#endif
+
 void QLayoutWidget::updateSizePolicy()
 {
-    if ( TRUE || !children() || children()->count() == 0 ) {
+    if ( !children() || children()->count() == 0 ) {
 	sp = QWidget::sizePolicy();
 	return;
     }
 
+    /*
+      We do some very evil stuff here, assuming:
 
-    QObjectListIt it( *children() );
-    QObject *o;
-    QSizePolicy::SizeType vt = QSizePolicy::Preferred;
-    QSizePolicy::SizeType ht = QSizePolicy::Preferred;
-    while ( ( o = it.current() ) ) {
-	++it;
-	if ( !o->inherits( "QWidget" ) || ( (QWidget*)o )->testWState( WState_ForceHide ) )
-	    continue;
-	QWidget *w = (QWidget*)o;
-	if ( w->sizePolicy().mayGrowHorizontally() )
+	  Fixed = 0
+	  Maximum = MayShrink
+	  Minimum = MayGrow
+	  Preferred = MayShrink | MayGrow
+    */
+
+    int ht = (int) QSizePolicy::Preferred;
+    int vt = (int) QSizePolicy::Preferred;
+
+    if ( layout() ) {
+	QLayout *parentLayout = 0;
+	if ( parent() && parent()->isWidgetType() && ((QWidget *)parent())->layout() )
+	    parentLayout = ((QWidget *)parent())->layout();
+#if 0
+if ( parentLayout )
+qDebug( "%s has a %s parent layout", layout()->className(), parentLayout->className() );
+#endif
+
+	QObjectListIt it( *children() );
+	QObject *o;
+
+	if ( layout()->inherits("QVBoxLayout") ) {
+	    if ( parentLayout && parentLayout->inherits("QHBoxLayout") )
+		vt = QSizePolicy::Minimum;
+	    else
+		vt = QSizePolicy::Fixed;
+
+	    while ( ( o = it.current() ) ) {
+		++it;
+		if ( !o->inherits( "QWidget" ) || ( (QWidget*)o )->testWState( WState_ForceHide ) )
+		    continue;
+		QWidget *w = (QWidget*)o;
+
+		if ( !w->sizePolicy().mayGrowHorizontally() )
+		    ht &= ~QSizePolicy::Minimum;
+		if ( !w->sizePolicy().mayShrinkHorizontally() )
+		    ht &= ~QSizePolicy::Maximum;
+		if ( w->sizePolicy().mayGrowVertically() )
+		    vt |= QSizePolicy::Minimum;
+		if ( w->sizePolicy().mayShrinkVertically() )
+		    vt |= QSizePolicy::Maximum;
+	    }
+	} else if ( layout()->inherits("QHBoxLayout") ) {
+	    if ( parentLayout && parentLayout->inherits("QVBoxLayout") )
+		ht = QSizePolicy::Minimum;
+	    else
+		ht = QSizePolicy::Fixed;
+
+	    while ( ( o = it.current() ) ) {
+		++it;
+		if ( !o->inherits( "QWidget" ) || ( (QWidget*)o )->testWState( WState_ForceHide ) )
+		    continue;
+		QWidget *w = (QWidget*)o;
+
+		if ( w->sizePolicy().mayGrowHorizontally() )
+		    ht |= QSizePolicy::Minimum;
+		if ( w->sizePolicy().mayShrinkHorizontally() )
+		    ht |= QSizePolicy::Maximum;
+		if ( !w->sizePolicy().mayGrowVertically() )
+		    vt &= ~QSizePolicy::Minimum;
+		if ( !w->sizePolicy().mayShrinkVertically() )
+		    vt &= ~QSizePolicy::Maximum;
+	    }
+	} else if ( layout()->inherits("QGridLayout") ) {
+	    // ###
+	}
+	if ( layout()->expanding() & QSizePolicy::Horizontal )
 	    ht = QSizePolicy::Expanding;
-	else if ( w->sizePolicy().horData() == QSizePolicy::Fixed && ht != QSizePolicy::Expanding )
-	    ht = QSizePolicy::Fixed;
-	if ( w->sizePolicy().verData() == QSizePolicy::Expanding ||
-	     w->sizePolicy().verData() == QSizePolicy::MinimumExpanding )
+	if ( layout()->expanding() & QSizePolicy::Vertical )
 	    vt = QSizePolicy::Expanding;
-	else if ( w->sizePolicy().verData() == QSizePolicy::Fixed && vt != QSizePolicy::Expanding )
-	    vt = QSizePolicy::Fixed;
+
+	layout()->invalidate();
     }
 
-    sp = QSizePolicy( ht, vt );
-    if ( layout() )
-	layout()->invalidate();
+#if 0
+qDebug( "%s:%s %s %s", layout()->name("?"), layout()->className(),
+strx(ht).latin1(), strx(vt).latin1() );
+#endif
+
+    sp = QSizePolicy( (QSizePolicy::SizeType) ht, (QSizePolicy::SizeType) vt );
     updateGeometry();
 }
 
