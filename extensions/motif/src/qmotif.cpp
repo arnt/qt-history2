@@ -527,7 +527,7 @@ void QMotif::unregisterWidget( QWidget* w )
 {
     if ( !static_d )
 	return;
-    static_d->mapper.erase( w->winId() );
+    static_d->mapper.remove(w->winId());
 }
 
 
@@ -595,7 +595,7 @@ void QMotif::unregisterSocketNotifier( QSocketNotifier *notifier )
     }
 
     XtRemoveInput( it.key() );
-    d->sock_not_mapper.erase( it.key() );
+    d->sock_not_mapper.erase(it);
 
     QGuiEventLoop::unregisterSocketNotifier( notifier );
 }
