@@ -14,7 +14,7 @@ main(int argc, char** argv)
     //#define USE_Qt100_QString // or Q1String if you prefer
 
     int err=0;
-    #define TEST(A,E) printf("%d\n",__LINE__);\
+    #define TEST(A,E) /*printf("%d\n",__LINE__);*/\
 	if ( (A)!=(E) ) { err++; printf("TEST(%s,%s) failed at %d\n",#A,#E,__LINE__); }
 
     // In a perfect world, these would all be defined, and QString would work.
