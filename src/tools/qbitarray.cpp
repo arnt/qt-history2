@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.cpp#39 $
+** $Id: //depot/qt/main/src/tools/qbitarray.cpp#40 $
 **
 ** Implementation of QBitArray class
 **
@@ -12,7 +12,7 @@
 #include "qbitarry.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbitarray.cpp#39 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qbitarray.cpp#40 $");
 
 
 #define SHBLOCK	 ((bitarr_data*)(sharedBlock()))
@@ -186,9 +186,9 @@ bool QBitArray::fill( bool v, int size )
     if ( size >= 0 ) {				// resize first
 	if ( !resize( size ) )
 	    return FALSE;			// cannot resize
-    }
-    else
+    } else {
 	size = this->size();
+    }
     memset( data(), v ? 0xff : 0, (size+7)/8 ); // set many bytes, fast
     if ( v )
 	pad0();
