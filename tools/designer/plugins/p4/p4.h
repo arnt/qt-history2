@@ -12,7 +12,7 @@ struct P4Info
 {
     enum Action { None, Edit, Add, Delete, Integrate };
 
-    P4Info() : controlled( FALSE ), action( None ), uptodate(TRUE) {}
+    P4Info() : action( None ), controlled( FALSE ), uptodate(TRUE) {}
     bool operator==(const P4Info &other ) const
     {
 	return action == other.action &&

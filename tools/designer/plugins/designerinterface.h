@@ -7,6 +7,7 @@
 */
 
 #include <qcomponentinterface.h>
+#include <qlist.h>
 #include "../designer/actioniface.h"
 #include "../shared/widgetinterface.h"
 #include "../designer/filteriface.h"
