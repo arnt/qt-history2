@@ -30,34 +30,22 @@
 #endif
 #include "qdnd_p.h"
 
+//#define QDND_DEBUG
+
+#ifdef QDND_DEBUG
+extern QString dragActionsToString(QDrag::DropActions actions);
+#endif
+
 static HCURSOR *cursor = 0;
 static QDragPrivate *global_src = 0;
 static bool acceptact = false;
 
-/* OleStdGetDropEffect
-** -------------------
-**
-** Convert a keyboard state into a DROPEFFECT.
-**
-** returns the DROPEFFECT value derived from the key state.
-**    the following is the standard interpretation:
-**          no modifier -- Default Drop     (0 is returned)
-**          Qt::CTRL        -- DROPEFFECT_COPY
-**          Qt::SHIFT       -- DROPEFFECT_MOVE
-**          Qt::CTRL-Qt::SHIFT  -- DROPEFFECT_LINK
-**
-**    Default Drop: this depends on the type of the target application.
-**    this is re-interpretable by each target application. a typical
-**    interpretation is if the drag is local to the same document
-**    (which is source of the drag) then a MOVE operation is
-**    performed. if the drag is not local, then a COPY operation is
-**    performed.
-*/
-#define OleStdGetDropEffect(grfKeyState)    \
-    ((grfKeyState & MK_CONTROL) ?          \
-        ((grfKeyState & MK_SHIFT) ? DROPEFFECT_LINK : DROPEFFECT_COPY) :  \
-        ((grfKeyState & MK_SHIFT) ? DROPEFFECT_MOVE : 0))
 
+class QWinMimeData : public QMimeData
+{
+};
+
+/*
 // Returns a LPFORMATETC enumerating all CF's that ms can be produced.
 static
 LPFORMATETC allFormats(int& n)
@@ -161,43 +149,43 @@ LPFORMATETC someFormats(const QMimeData* ms, int& n)
     return fmtetc;
 }
 
-
+*/
 
 class QOleDropSource : public IDropSource
 {
-    QWidget* src;
 public:
-    QOleDropSource(QWidget* w) :
-        src(w)
+    QOleDropSource()
     {
         m_refs = 1;
+        currentAction = QDrag::IgnoreAction;
     }
 
-    /* IUnknown methods */
+    // IUnknown methods
     STDMETHOD(QueryInterface)(REFIID riid, void ** ppvObj);
     STDMETHOD_(ULONG,AddRef)(void);
     STDMETHOD_(ULONG,Release)(void);
 
-    /* IDropSource methods */
+    // IDropSource methods
     STDMETHOD(QueryContinueDrag)(BOOL fEscapePressed, DWORD grfKeyState);
     STDMETHOD(GiveFeedback)(DWORD dwEffect);
 
 private:
     ULONG m_refs;
+    QDrag::DropAction currentAction;
 };
 
 
 class QOleDataObject : public IDataObject
 {
 public:
-    QOleDataObject(QDragPrivate *);
+    QOleDataObject(QMimeData *mimeData);
 
-    /* IUnknown methods */
+    // IUnknown methods 
     STDMETHOD(QueryInterface)(REFIID riid, void FAR* FAR* ppvObj);
     STDMETHOD_(ULONG,AddRef)(void);
     STDMETHOD_(ULONG,Release)(void);
 
-    /* IDataObject methods */
+    // IDataObject methods 
     STDMETHOD(GetData)(LPFORMATETC pformatetcIn,  LPSTGMEDIUM pmedium);
     STDMETHOD(GetDataHere)(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium);
     STDMETHOD(QueryGetData)(LPFORMATETC pformatetc);
@@ -212,13 +200,11 @@ public:
 
 private:
     ULONG m_refs;
-    QDragPrivate *object;
+    QMimeData *data;
 };
 
 class QOleDropTarget : public IDropTarget
 {
-    QWidget* widget;
-
 public:
     QOleDropTarget(QWidget* w);
 
@@ -227,22 +213,24 @@ public:
         widget = 0;
     }
 
-    /* IUnknown methods */
+    // IUnknown methods 
     STDMETHOD(QueryInterface)(REFIID riid, void FAR* FAR* ppvObj);
     STDMETHOD_(ULONG, AddRef)(void);
     STDMETHOD_(ULONG, Release)(void);
 
-    /* IDropTarget methods */
+    // IDropTarget methods 
     STDMETHOD(DragEnter)(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect);
     STDMETHOD(DragOver)(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect);
     STDMETHOD(DragLeave)();
     STDMETHOD(Drop)(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect);
 
-    /* Utility function to read type of drag from key state*/
-    STDMETHOD_(BOOL, QueryDrop)(DWORD grfKeyState, LPDWORD pdwEffect);
-
 private:
     ULONG m_refs;
+    QWidget* widget;
+    QRect acceptRect;
+    DWORD choosenEffect;
+
+        //////////////
     BOOL acceptfmt;
 
     POINTL last_pt;
@@ -293,7 +281,7 @@ void QDragManager::drop()
 {
     // not used in windows implementation
 }
-
+/*
 static
 QString dnd_format(int fn)
 {
@@ -316,10 +304,10 @@ QString dnd_format(int fn)
 
     return fmt;
 }
-
+*/
 bool QDropData::hasFormat(const QString &mimeType) const
 {
-    if (!current_dropobj) // Sanity
+  /*  if (!current_dropobj) // Sanity
         return false;
 
     int n;
@@ -333,11 +321,14 @@ bool QDropData::hasFormat(const QString &mimeType) const
     }
     delete [] fmtetc;
     return does;
+    */
+    return false;
 }
 
 
 QStringList QDropData::formats() const
 {
+    /*
     QStringList fmts;
     if (!current_dropobj) // Sanity
         return fmts;
@@ -352,8 +343,10 @@ QStringList QDropData::formats() const
     delete [] fmtetc;
 
     return fmts;
+    */
+    return QStringList();
 }
-
+/*
 QByteArray qt_olednd_obtain_data(const QString &format)
 {
     QByteArray result;
@@ -420,17 +413,21 @@ QByteArray qt_olednd_obtain_data(const QString &format)
 #endif
     return result;
 }
+*/
 
 QVariant QDropData::retrieveData(const QString &format, QVariant::Type) const
 {
-    return qt_olednd_obtain_data(format);
+    //return qt_olednd_obtain_data(format);
+    return QVariant();
 }
 
-static QDrag::DropAction current_mode = QDrag::CopyAction;
-
-QDrag::DropAction QDragManager::drag(QDrag *d)
+QDrag::DropAction QDragManager::drag(QDrag *drag)
 {
-   /* if (object == o || !o->source)
+#ifdef QDND_DEBUG
+    qDebug("QDragManager::drag(QDrag *drag)");
+    qDebug("actions = %s", dragActionsToString(dragPrivate(drag)->request_action).latin1());
+#endif
+  /*  if (object == o || !o->source)
         return QDrag::NoAction;
 
     if (object) {
@@ -442,71 +439,47 @@ QDrag::DropAction QDragManager::drag(QDrag *d)
     object = o;
     global_src = o;
     o->target = 0;
-
+*/
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::DragDropStart);
 #endif
 
-    QStringList fmts = o->data->formats();
+  /*  QStringList fmts = o->data->formats();
     for(int i = 0; i < fmts.size(); ++i)
         QWindowsMime::registerMimeType(fmts.at(i).latin1());
-
+*/
     DWORD result_effect;
-    QOleDropSource *src = new QOleDropSource(o->source);
-    QOleDataObject *obj = new QOleDataObject(o);
+    QOleDropSource *src = new QOleDropSource();
+    QOleDataObject *obj = new QOleDataObject(drag->mimeData());
     DWORD allowed_effects = 0;
-    current_mode = mode;
-    switch (mode) {
-      case QDrag::DefaultAction:
-        allowed_effects = DROPEFFECT_MOVE|DROPEFFECT_COPY;
-        break;
-      case QDrag::MoveAction:
-        allowed_effects = DROPEFFECT_MOVE;
-        break;
-      case QDrag::CopyAction:
+    if (dragPrivate(drag)->request_action & QDrag::LinkAction)
+        allowed_effects = DROPEFFECT_LINK;
+    if (dragPrivate(drag)->request_action & QDrag::CopyAction)
         allowed_effects = DROPEFFECT_COPY;
-        break;
-        // ### What enum is this?
-//       case QDrag::CopyOrMoveDrag:
-//         allowed_effects = DROPEFFECT_MOVE|DROPEFFECT_COPY;
-//         break;
-      case QDrag::LinkAction:
-        allowed_effects = 0;
-        break;
-    }
-    acceptact = false;
-    allowed_effects |= DROPEFFECT_LINK;
+    if (dragPrivate(drag)->request_action & QDrag::MoveAction)
+        allowed_effects = DROPEFFECT_MOVE;
+    
     updatePixmap();
+
 #ifdef Q_OS_TEMP
     HRESULT r = 0;
     result_effect = 0;
 #else
     HRESULT r = DoDragDrop(obj, src, allowed_effects, &result_effect);
 #endif
-    if (object->source) {
-        QDragResponseEvent e(r == DRAGDROP_S_DROP);
-        QApplication::sendEvent(o->source, &e);
-    }
+
     obj->Release();        // Will delete obj if refcount becomes 0
     src->Release();        // Will delete src if refcount becomes 0
-    if (!global_src->target)
-        acceptact = false;
-
-    current_dropobj = 0;
-    global_src = 0;
-    object = 0;
-    current_mode = QDrag::DefaultAction;
-
-    updatePixmap();
-
-    // ###### wrong return values!
-    if(r == DRAGDROP_S_DROP
-        && (result_effect & DROPEFFECT_MOVE))
-        return QDrag::MoveAction;
-    return QDrag::CopyAction;
-        //&& !acceptact;
-        */
-    return QDrag::CopyAction;
+    
+    if (r == DRAGDROP_S_DROP) {
+        if (result_effect & DROPEFFECT_LINK)
+            return QDrag::LinkAction;
+        if (result_effect & DROPEFFECT_COPY)
+            return QDrag::CopyAction;
+        if (result_effect & DROPEFFECT_MOVE)
+            return QDrag::MoveAction;
+    }
+    return QDrag::IgnoreAction;
 }
 
 void qt_olednd_unregister(QWidget* widget, QOleDropTarget *dst)
@@ -591,7 +564,6 @@ QOleDropSource::QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState)
     } else if (!(grfKeyState & (MK_LBUTTON|MK_MBUTTON|MK_RBUTTON))) {
         return ResultFromScode(DRAGDROP_S_DROP);
     } else {
-        qApp->sendPostedEvents();
         return NOERROR;
     }
 }
@@ -599,24 +571,25 @@ QOleDropSource::QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState)
 STDMETHODIMP
 QOleDropSource::GiveFeedback(DWORD dwEffect)
 {
-    if (cursor) {
-        int c = -1;
-        switch (dwEffect) {
-          case DROPEFFECT_MOVE:
-            c = 0;
-            break;
-          case DROPEFFECT_COPY:
-            c = 1;
-            break;
-          case DROPEFFECT_LINK:
-            c = 2;
-            break;
-        }
-        if (c >= 0) {
-            SetCursor(cursor[c]);
-            return ResultFromScode(S_OK);
-        }
+    QDrag::DropAction action = QDrag::IgnoreAction;
+
+    if (dwEffect & DROPEFFECT_MOVE)
+        action = QDrag::MoveAction;
+    else if (dwEffect & DROPEFFECT_COPY)
+        action = QDrag::CopyAction;
+    else if (dwEffect & DROPEFFECT_LINK)
+        action = QDrag::LinkAction;
+    
+    if (action != currentAction) {
+        currentAction = action;
+       //### emit action changed signal 
     }
+    //###set the correct cursor
+    //HCURSOR c = dragManager->hCursors[dragManager->cursorIndex(action)];
+//	if (c) {
+//	    SetCursor(c);
+//	    return ResultFromScode(S_OK);
+//	}
     return ResultFromScode(DRAGDROP_S_USEDEFAULTCURSORS);
 }
 
@@ -625,10 +598,10 @@ QOleDropSource::GiveFeedback(DWORD dwEffect)
 //                    QOleDataObject Constructor
 //---------------------------------------------------------------------
 
-QOleDataObject::QOleDataObject(QDragPrivate* o) :
-    object(o)
+QOleDataObject::QOleDataObject(QMimeData *mimeData)
 {
     m_refs = 1;
+    data = mimeData;
 }
 
 //---------------------------------------------------------------------
@@ -687,39 +660,29 @@ extern bool qt_CF_HDROP_valid(const QString &mime, int cf, QMimeData *src);
 STDMETHODIMP
 QOleDataObject::GetData(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium)
 {
-    // This method is called by the drag-drop target to obtain the data
-    // that is being dragged.
-
+#ifdef QDND_DEBUG
+    qDebug("QOleDataObject::GetData(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium)");
+#endif
     pmedium->tymed = 0;
     pmedium->pUnkForRelease = NULL;
     pmedium->hGlobal = NULL;
-
-    QWindowsMime *wm;
-
-    QStringList fmts = object->data->formats();
-    for (int i=0; i < fmts.size(); i++) {
-        QString fmt = fmts.at(i);
-        if ((wm=QWindowsMime::convertor(fmt.latin1(),pformatetc->cfFormat))
-            && (pformatetc->dwAspect & DVASPECT_CONTENT) &&
-               (pformatetc->tymed & TYMED_HGLOBAL) &&
-               qt_CF_HDROP_valid(fmt.latin1(), pformatetc->cfFormat, object->data)) {
-            QByteArray data = wm->convertFromMime(object->data->data(fmt), fmt.latin1(), pformatetc->cfFormat);
-            if (data.size()) {
-                HGLOBAL hData = GlobalAlloc(0, data.size());
-                if (!hData)
-                    return ResultFromScode(E_OUTOFMEMORY);
-
-                void* out = GlobalLock(hData);
-                memcpy(out, data.data(), data.size());
-                GlobalUnlock(hData);
-                pmedium->tymed = TYMED_HGLOBAL;
-                pmedium->hGlobal = hData;
-                return ResultFromScode(S_OK);
-            } else {
+    
+    if (pformatetc->dwAspect & DVASPECT_CONTENT && pformatetc->tymed & TYMED_HGLOBAL) {
+        if (pformatetc->cfFormat == CF_TEXT) {
+            HGLOBAL hData = GlobalAlloc(0, data->text().length() + 1);
+            if (!hData) {
+                return ResultFromScode(E_OUTOFMEMORY);
             }
+            void* out = GlobalLock(hData);
+            memcpy(out, data->text().latin1(), data->text().length() + 1);
+            GlobalUnlock(hData);
+            pmedium->tymed = TYMED_HGLOBAL;
+            pmedium->hGlobal = hData;
+            return ResultFromScode(S_OK);
         }
     }
     return ResultFromScode(DATA_E_FORMATETC);
+    
 }
 
 STDMETHODIMP
@@ -731,16 +694,13 @@ QOleDataObject::GetDataHere(LPFORMATETC, LPSTGMEDIUM)
 STDMETHODIMP
 QOleDataObject::QueryGetData(LPFORMATETC pformatetc)
 {
-    // This method is called by the drop target to check whether the source
-    // provides data in a format that the target accepts.
-
-    QStringList fmts = object->data->formats();
-    for (int i=0; i < fmts.size(); i++) {
-        if (QWindowsMime::convertor(fmts.at(i), pformatetc->cfFormat) &&
-           (pformatetc->dwAspect & DVASPECT_CONTENT) &&
-           (pformatetc->tymed & TYMED_HGLOBAL) &&
-           qt_CF_HDROP_valid(fmts.at(i), pformatetc->cfFormat, object->data))
-            return ResultFromScode(S_OK);
+#ifdef QDND_DEBUG
+    qDebug("QOleDataObject::QueryGetData(LPFORMATETC pformatetc)");
+#endif
+    if (pformatetc->dwAspect & DVASPECT_CONTENT &&
+        pformatetc->tymed & TYMED_HGLOBAL &&
+        pformatetc->cfFormat == CF_TEXT) {
+        return ResultFromScode(S_OK);
     }
     return ResultFromScode(S_FALSE);
 }
@@ -765,33 +725,25 @@ QOleDataObject::SetData(LPFORMATETC, STGMEDIUM *, BOOL)
 STDMETHODIMP
 QOleDataObject::EnumFormatEtc(DWORD dwDirection, LPENUMFORMATETC FAR* ppenumFormatEtc)
 {
-    // A standard implementation is provided by OleStdEnumFmtEtc_Create
-    // which can be found in \ole2\samp\ole2ui\enumfetc.c in the OLE 2 SDK.
-    // This code from ole2ui is copied to the enumfetc.c file in this sample.
-
+#ifdef QDND_DEBUG
+    qDebug("QOleDataObject::EnumFormatEtc(DWORD dwDirection, LPENUMFORMATETC FAR* ppenumFormatEtc)");
+#endif
     SCODE sc = S_OK;
-    int n;
-    LPFORMATETC fmtetc = someFormats(object->data, n);
-
-    if (dwDirection == DATADIR_GET){
-        *ppenumFormatEtc = OleStdEnumFmtEtc_Create(n, fmtetc);
+    ///### just text for now
+    FORMATETC fmtetc[1];
+    if (dwDirection == DATADIR_GET) {
+        fmtetc[0].cfFormat = CF_TEXT;
+        fmtetc[0].dwAspect = DVASPECT_CONTENT;
+        fmtetc[0].lindex = -1;
+        fmtetc[0].ptd =  NULL;
+        fmtetc[0].tymed = TYMED_HGLOBAL;
+        *ppenumFormatEtc = OleStdEnumFmtEtc_Create(1, fmtetc);
         if (*ppenumFormatEtc == NULL)
             sc = E_OUTOFMEMORY;
-
-    } else if (dwDirection == DATADIR_SET){
-        // A data transfer object that is used to transfer data
-        //    (either via the clipboard or drag/drop does NOT
-        //    accept SetData on ANY format.
-        sc = E_NOTIMPL;
-        goto error;
     } else {
         sc = E_INVALIDARG;
-        goto error;
     }
-
-error:
-
-    delete [] fmtetc;
+    
     return ResultFromScode(sc);
 }
 
@@ -870,113 +822,120 @@ QOleDropTarget::Release(void)
 //                    IDropTarget Methods
 //---------------------------------------------------------------------
 
+QDrag::DropActions translateToQDragDropActions(DWORD pdwEffects)
+{
+    QDrag::DropActions actions = QDrag::IgnoreAction;
+    if (pdwEffects & DROPEFFECT_LINK)
+        actions |= QDrag::LinkAction;
+    if (pdwEffects & DROPEFFECT_COPY)
+        actions |= QDrag::CopyAction;
+    if (pdwEffects & DROPEFFECT_MOVE)
+        actions |= QDrag::MoveAction;
+    return actions;
+}
+
+DWORD translateToWinDragEffect(QDrag::DropAction action)
+{
+    if (action & QDrag::LinkAction)
+        return DROPEFFECT_LINK;
+    if (action & QDrag::CopyAction)
+        return DROPEFFECT_COPY;
+    if (action & QDrag::MoveAction)
+        return DROPEFFECT_MOVE;
+    return DROPEFFECT_NONE;
+}
+
 STDMETHODIMP
 QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 {
-    if (!qt_tryModalHelper(widget)) {
+#ifdef QDND_DEBUG
+    qDebug("QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)");
+#endif
+
+   /* //### ?????
+       if (!qt_tryModalHelper(widget)) {
         *pdwEffect = DROPEFFECT_NONE;
         return NOERROR;
     }
+    */
 
-    current_dropobj = pDataObj;
-    QDragEnterEvent de(widget->mapFromGlobal(QPoint(pt.x,pt.y)), QDrag::CopyAction, QDragManager::self()->dropData);
+    QWinMimeData winMimeData;
+    QDragEnterEvent dragEnterEvent(widget->mapFromGlobal(QPoint(pt.x,pt.y)), translateToQDragDropActions(*pdwEffect), &winMimeData);
+    QApplication::sendEvent(widget, &dragEnterEvent);
 
-    acceptfmt = true; // set this true to get the correct initial action
-    QueryDrop(grfKeyState, pdwEffect);
-/*
-    if (*pdwEffect & DROPEFFECT_MOVE)
-        de.setAction(QDropEvent::Move);
-    else if (*pdwEffect & DROPEFFECT_LINK)
-        de.setAction(QDropEvent::Link);
 
-    de.acceptAction(false);
-    de.accept(false);
 
-    QApplication::sendEvent(widget, &de);
-    acceptfmt = de.isAccepted();
-    acceptact = de.isActionAccepted();
+   // acceptfmt = true; // set this true to get the correct initial action
+   // QueryDrop(grfKeyState, pdwEffect);
 
-    if (!acceptfmt)
-        *pdwEffect = DROPEFFECT_NONE;
-    else if (de.action() == QDropEvent::Move)
-        *pdwEffect = DROPEFFECT_MOVE;
-    else if (de.action() == QDropEvent::Copy)
-        *pdwEffect = DROPEFFECT_COPY;
-    else if (de.action() == QDropEvent::Link)
-        *pdwEffect = DROPEFFECT_LINK;
-*/
+    acceptRect = dragEnterEvent.answerRect();
+    choosenEffect = translateToWinDragEffect(dragEnterEvent.dropAction());
+    *pdwEffect = choosenEffect;
+
     return NOERROR;
 }
 
 STDMETHODIMP
 QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 {
-    if (!qt_tryModalHelper(widget)) {
+#ifdef QDND_DEBUG
+    qDebug("QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)");
+#endif
+    
+     /* //### ?????
+       if (!qt_tryModalHelper(widget)) {
         *pdwEffect = DROPEFFECT_NONE;
         return NOERROR;
     }
+    */
 
-    bool old_acceptfmt = acceptfmt; // set this to get the correct action.
-    acceptfmt = true;
-    QueryDrop(grfKeyState, pdwEffect);
-    acceptfmt = old_acceptfmt;
+    QWinMimeData winMimeData;
+    QDragMoveEvent dragMoveEvent(widget->mapFromGlobal(QPoint(pt.x,pt.y)), translateToQDragDropActions(*pdwEffect), &winMimeData);
+    QApplication::sendEvent(widget, &dragMoveEvent);
 
-    if (pt.x == last_pt.x && pt.y == last_pt.y &&
-        *pdwEffect == last_effect && grfKeyState == last_keystate) {
-        if (!acceptact&&!acceptfmt)
-            *pdwEffect = DROPEFFECT_NONE;
-        return NOERROR;
-    }
+    acceptRect = dragMoveEvent.answerRect();
+    choosenEffect = translateToWinDragEffect(dragMoveEvent.dropAction());
+    *pdwEffect = choosenEffect;
 
-    last_pt = pt;
-    last_effect = *pdwEffect;
-    last_keystate = grfKeyState;
-
-    QDragMoveEvent de(widget->mapFromGlobal(QPoint(pt.x,pt.y)), QDrag::CopyAction, QDragManager::self()->dropData);
-   /* if (*pdwEffect & DROPEFFECT_MOVE)
-        de.setAction(QDropEvent::Move);
-    else if (*pdwEffect & DROPEFFECT_LINK)
-        de.setAction(QDropEvent::Link);
-    de.acceptAction(acceptact);
-    de.accept(acceptfmt);
-
-    QApplication::sendEvent(widget, &de);
-    acceptfmt = de.isAccepted();
-    acceptact = de.isActionAccepted();
-
-    if (!acceptfmt)
-        *pdwEffect = DROPEFFECT_NONE;
-    else if (de.action() == QDropEvent::Move)
-        *pdwEffect = DROPEFFECT_MOVE;
-    else if (de.action() == QDropEvent::Copy)
-        *pdwEffect = DROPEFFECT_COPY;
-    else if (de.action() == QDropEvent::Link)
-        *pdwEffect = DROPEFFECT_LINK;
-*/
     return NOERROR;
 }
 
 STDMETHODIMP
 QOleDropTarget::DragLeave()
 {
-    if (!qt_tryModalHelper(widget))
-        return NOERROR;
+#ifdef QDND_DEBUG
+    qDebug("QOleDropTarget::DragLeave()");
+#endif
+ //   if (!qt_tryModalHelper(widget))
+  //      return NOERROR;
 
-    acceptfmt = false;
-    current_dropobj = 0;
-    QDragLeaveEvent de;
-    QApplication::sendEvent(widget, &de);
+    QDragLeaveEvent dragLeaveEvent;
+    QApplication::sendEvent(widget, &dragLeaveEvent);
     return NOERROR;
 }
 
 STDMETHODIMP
 QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 {
-    if (!qt_tryModalHelper(widget)) {
-        *pdwEffect = DROPEFFECT_NONE;
-        return NOERROR;
-    }
+#ifdef QDND_DEBUG
+    qDebug("QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)");
+#endif
+   // if (!qt_tryModalHelper(widget)) {
+   //     *pdwEffect = DROPEFFECT_NONE;
+   //     return NOERROR;
+   // }
 
+    QWinMimeData winMimeData;
+    QDragMoveEvent dropEvent(widget->mapFromGlobal(QPoint(pt.x,pt.y)), translateToQDragDropActions(*pdwEffect), &winMimeData);
+    QApplication::sendEvent(widget, &dropEvent);
+
+    choosenEffect = translateToWinDragEffect(dropEvent.dropAction());
+    *pdwEffect = choosenEffect;
+
+    return NOERROR;
+
+    /*
+  
     if (QueryDrop(grfKeyState, pdwEffect))
     {
         current_dropobj = pDataObj;
@@ -984,7 +943,7 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
         if (global_src)
             global_src->target = widget;
         QDropEvent de(widget->mapFromGlobal(QPoint(pt.x,pt.y)), QDrag::CopyAction, QDragManager::self()->dropData);
-     /*   if (*pdwEffect & DROPEFFECT_MOVE)
+        if (*pdwEffect & DROPEFFECT_MOVE)
             de.setAction(QDropEvent::Move);
         else if (*pdwEffect & DROPEFFECT_LINK)
             de.setAction(QDropEvent::Link);
@@ -996,12 +955,12 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
 
         acceptfmt = de.isAccepted();
         acceptact = de.isActionAccepted();
-*/
+
         if (!acceptfmt)
             *pdwEffect = DROPEFFECT_NONE;
         else if (acceptact)
-            *pdwEffect = DROPEFFECT_NONE; /* NONE because the source should do nothing ..
-                                          the tagret is responsible to perform the correct action*/
+            *pdwEffect = DROPEFFECT_NONE; // NONE because the source should do nothing ..
+                                          //the tagret is responsible to perform the correct action
         else if (de.action() == QDropEvent::Move)
             *pdwEffect = DROPEFFECT_MOVE;
         else if (de.action() == QDropEvent::Copy)
@@ -1016,48 +975,15 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
         acceptfmt = false;
         current_dropobj = 0;
         
+        
         return NOERROR;
     }
 
     *pdwEffect = DROPEFFECT_NONE;
     return ResultFromScode(DATA_E_FORMATETC);
+    */
 }
 
-//---------------------------------------------------------------------
-// QOleDropTarget::QueryDrop: Given key state, determines the type of
-// acceptable drag and returns the a dwEffect.
-//---------------------------------------------------------------------
-STDMETHODIMP_(BOOL)
-QOleDropTarget::QueryDrop(DWORD grfKeyState, LPDWORD pdwEffect)
-{
-    DWORD dwOKEffects = *pdwEffect;
-
-    if (!acceptfmt)
-        goto dropeffect_none;
-
-    *pdwEffect = OleStdGetDropEffect(grfKeyState);
-    if (*pdwEffect == 0) {
-        // No modifier keys used by user while dragging. Try in order: MOVE, COPY, LINK.
-        if (DROPEFFECT_MOVE & dwOKEffects) {
-            *pdwEffect = DROPEFFECT_MOVE;
-        } else if (DROPEFFECT_COPY & dwOKEffects) {
-            *pdwEffect = DROPEFFECT_COPY;
-        } else if (DROPEFFECT_LINK & dwOKEffects) {
-            *pdwEffect = DROPEFFECT_LINK;
-        }
-        else goto dropeffect_none;
-    } else {
-        // Check if the drag source application allows the drop effect desired by user.
-        // The drag source specifies this in DoDragDrop
-        if (!(*pdwEffect & dwOKEffects))
-            goto dropeffect_none;
-    }
-    return true;
-
-dropeffect_none:
-    *pdwEffect = DROPEFFECT_NONE;
-    return false;
-}
 
 extern HBITMAP qt_createIconMask(const QBitmap &bitmap);
 
