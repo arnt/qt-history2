@@ -3135,8 +3135,9 @@ QString QString::fromLocal8Bit(const char *str)
     if (!str)
         return QString::null;
 #if defined(Q_OS_DARWIN)
-    return fromUtf8(str,len);
+    return fromUtf8(str,strlen(str));
 #elif defined(Q_OS_WIN32)
+    int len = strlen(str);
     if (len >= 0) {
         QByteArray s(str,len+1);
         return qt_winMB2QString(s);
