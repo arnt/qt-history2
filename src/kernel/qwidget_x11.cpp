@@ -1605,6 +1605,9 @@ void QWidget::repaint(const QRegion& r)
     }
 
     clearWState(WState_InPaintEvent);
+
+    if (testAttribute(WA_ContentsPropagated))
+	d->updatePropagatedBackground(&r);
 }
 
 void QWidget::setWindowState(uint newstate)

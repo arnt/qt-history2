@@ -908,6 +908,9 @@ void QWidget::repaint(const QRegion& r)
 
     qt_clear_paintevent_clipping();
     clearWState(WState_InPaintEvent);
+
+    if (testAttribute(WA_ContentsPropagated))
+	d->updatePropagatedBackground(&r);
 }
 
 

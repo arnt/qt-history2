@@ -1045,11 +1045,15 @@ void QWidgetPrivate::updateInheritedBackground(bool force)
 
   Call this only when WA_ContentsPropagated is set.
  */
-void QWidgetPrivate::updatePropagatedBackground()
+void QWidgetPrivate::updatePropagatedBackground(const QRegion *reg)
 {
     for (int i = 0; i < children.size(); ++i)
-	if (children.at(i)->isWidgetType())
-	    static_cast<QWidget*>(children.at(i))->d->updateInheritedBackground(true);
+	if (children.at(i)->isWidgetType()) {
+	    QWidget *w = static_cast<QWidget*>(children.at(i));
+	    if (reg && !reg->contains(w->geometry()))
+		continue;
+	    w->d->updateInheritedBackground(true);
+	}
 }
 
 void QWidgetPrivate::propagatePaletteChange()

@@ -714,6 +714,9 @@ void QWidget::repaint( const QRegion& r )
     QApplication::sendSpontaneousEvent( this, &e );
     qt_clear_paintevent_clipping();
     clearWState(WState_InPaintEvent);
+
+    if (testAttribute(WA_ContentsPropagated))
+	d->updatePropagatedBackground(&r);
 }
 
 void QWidget::showWindow()

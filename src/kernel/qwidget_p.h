@@ -162,7 +162,7 @@ public:
     bool isBackgroundInherited() const;
     bool isTransparent() const;
     void updateInheritedBackground(bool force = false);
-    void updatePropagatedBackground();
+    void updatePropagatedBackground(const QRegion * = 0);
 
     QRect clipRect() const;
 
