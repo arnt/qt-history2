@@ -271,10 +271,8 @@ void QTextCursor::gotoIntoNested( const QPoint &globalPos )
     oy = y + string->rect().y();
     nested = TRUE;
     QPoint p( globalPos.x() - offsetX(), globalPos.y() - offsetY() );
-    QTextDocument *oldDoc = doc;
+    ASSERT( string->at( idx )->isCustom );
     string->at( idx )->customItem()->enterAt( doc, string, idx, ox, oy, p );
-    if ( doc == oldDoc )
-	pop();
 }
 
 void QTextCursor::invalidateNested()
@@ -437,30 +435,32 @@ void QTextCursor::place( const QPoint &pos, QTextParag *s )
     int cw;
     int curpos = i;
     int dist = QABS(s->at(i)->x + x - pos.x());
+    bool inCustom = FALSE;
     while ( i < nextLine ) {
 	chr = s->at(i);
 	int cpos = x + chr->x;
 	cw = s->string()->width( i );
-	if ( chr->isCustom && chr->customItem()->isNested() )
-	    cw *= 2;
-	if( chr->rightToLeft )
-	    cpos += cw;
-	int d = cpos - pos.x();
-	bool dm = d < 0 ? !chr->rightToLeft : chr->rightToLeft;
-	if ( QABS( d ) < dist || (dist == d && dm == TRUE ) ) {
-	    dist = QABS( d );
-	    curpos = i;
+	if ( chr->isCustom && chr->customItem()->isNested() ) {
+	    if ( pos.x() >= cpos && pos.x() <= cpos + cw &&
+		 pos.y() >= y + cy && pos.y() <= y + cy + ch )
+		inCustom = TRUE;
+	} else {
+	    if( chr->rightToLeft )
+		cpos += cw;
+	    int d = cpos - pos.x();
+	    bool dm = d < 0 ? !chr->rightToLeft : chr->rightToLeft;
+	    if ( QABS( d ) < dist || (dist == d && dm == TRUE ) ) {
+		dist = QABS( d );
+		curpos = i;
+	    }
 	}
 	i++;
     }
 
     setIndex( curpos, FALSE );
 
-    if ( doc && parag()->at( curpos )->isCustom && parag()->at( curpos )->customItem()->isNested() ) {
-	QTextDocument *oldDoc = doc;
+    if ( inCustom && doc && parag()->at( curpos )->isCustom && parag()->at( curpos )->customItem()->isNested() ) {
 	gotoIntoNested( pos );
-	if ( doc == oldDoc )
-	    return;
 	QPoint p( pos.x() - offsetX(), pos.y() - offsetY() );
 	place( p, document()->firstParag() );
     }
