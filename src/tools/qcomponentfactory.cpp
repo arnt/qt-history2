@@ -179,8 +179,8 @@ QRESULT QComponentFactory::unregisterServer( const QString &filename )
 /*!
   Registers the component with id \a cid in the system component registry and
   returns TRUE if the component was registerd successfully, otherwise returns
-  FALSE. The component is registered with an optional \a name and \a description 
-  and is provided by the server at \a filepath. 
+  FALSE. The component is provided by the server at \a filepath and registered 
+  with an optional \a name, \a version and \a description. 
   
   This function does nothing and returns FALSE if a component with an identical 
   \a cid does already exist on the system.
@@ -193,7 +193,7 @@ QRESULT QComponentFactory::unregisterServer( const QString &filename )
 
   \sa unregisterComponent(), registerServer(), createInstance()
 */
-bool QComponentFactory::registerComponent( const QUuid &cid, const QString &filepath, const QString &name, const QString &description )
+bool QComponentFactory::registerComponent( const QUuid &cid, const QString &filepath, const QString &name, const QString &version, const QString &description )
 {
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Classes" );
@@ -210,10 +210,22 @@ bool QComponentFactory::registerComponent( const QUuid &cid, const QString &file
 
     // register the human-readable part
     if ( ok && !!name ) {
-	settings.writeEntry( "/CLSID/" + cidStr + "/ProgID/Default", name );
-	ok = settings.writeEntry( "/" + name + "/CLSID/Default", cidStr );
+	QString vName = !!version ? name + "." + version : name;
+	settings.writeEntry( "/CLSID/" + cidStr + "/ProgID/Default", vName );
+	ok = settings.writeEntry( "/" + vName + "/CLSID/Default", cidStr );
 	if ( ok && !!description )
-	    settings.writeEntry( "/" + name + "/Default", description );
+	    settings.writeEntry( "/" + vName + "/Default", description );
+
+	if ( ok && !!version ) {
+	    settings.writeEntry( "/CLSID/" + cidStr + "/VersionIndependentProgID/Default", name );
+	    QString curVer = settings.readEntry( "/" + name + "/CurVer/Default" );
+	    if ( !curVer || curVer < vName ) { // no previous, or a lesser version installed
+		settings.writeEntry( "/" + name + "/CurVer/Default", vName );
+		ok = settings.writeEntry( "/" + name + "/CLSID/Default", cidStr );
+		if ( ok && !!description )
+		    settings.writeEntry( "/" + name + "/Default", description );
+	    }
+	}
     }
 
     return ok;
@@ -239,12 +251,40 @@ bool QComponentFactory::unregisterComponent( const QUuid &cid )
 	return FALSE;
 
     // unregister the human-readable part
-    QString name = settings.readEntry( "/CLSID/" + cidStr + "/ProgID/Default", QString::null, &ok );
+    QString vName = settings.readEntry( "/CLSID/" + cidStr + "/ProgID/Default", QString::null, &ok );
     if ( ok ) {
-	settings.removeEntry( "/" + name + "/CLSID/Default" );
-	settings.removeEntry( "/" + name + "/Default" );
+	QString name = settings.readEntry( "/CLSID/" + cidStr + "/VersionIndependentProgID/Default", QString::null );
+	if ( !!name && settings.readEntry( "/" + name + "/CurVer/Default" ) == vName ) {
+	    // unregistering the current version -> change CurVer to previous version
+	    QString version = vName.right( vName.length() - name.length() - 1 );
+	    QString newVerName;
+	    QString newCidStr;
+	    if ( version.find( '.' ) == -1 ) {
+		int ver = version.toInt();
+		while ( ver-- ) {
+		    newVerName = name + "." + QString::number( ver );
+		    newCidStr = settings.readEntry( "/" + newVerName + "/CLSID/Default" );
+		    if ( !!newCidStr )
+			break;
+		}
+	    } else {
+		// oh well...
+	    }
+	    if ( !!newCidStr ) {
+		settings.writeEntry( "/" + name + "/CurVer/Default", newVerName );
+		settings.writeEntry( "/" + name + "/CLSID/Default", newCidStr );
+	    } else {
+		settings.removeEntry( "/" + name + "/CurVer/Default" );
+		settings.removeEntry( "/" + name + "/CLSID/Default" );
+		settings.removeEntry( "/" + name + "/Default" );
+	    }
+	}
+
+	settings.removeEntry( "/" + vName + "/CLSID/Default" );
+	settings.removeEntry( "/" + vName + "/Default" );
     }
 
+    settings.removeEntry( "/CLSID/" + cidStr + "/VersionIndependentProgID/Default" );
     settings.removeEntry( "/CLSID/" + cidStr + "/ProgID/Default" );
     settings.removeEntry( "/CLSID/" + cidStr + "/InprocServer32/Default" );
     ok = settings.removeEntry( "/CLSID/" + cidStr + "/Default" );

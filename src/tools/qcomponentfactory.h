@@ -51,7 +51,8 @@ public:
     static QRESULT registerServer( const QString &filename );
     static QRESULT unregisterServer( const QString &filename );
 
-    static bool registerComponent( const QUuid &cid, const QString &filename, const QString &name = QString::null, const QString &description = QString::null );
+    static bool registerComponent( const QUuid &cid, const QString &filename, const QString &name = QString::null, 
+				   const QString &version = QString::null, const QString &description = QString::null );
     static bool unregisterComponent( const QUuid &cid );
 };
 
