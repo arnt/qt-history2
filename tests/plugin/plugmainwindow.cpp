@@ -60,7 +60,6 @@ void PlugMainWindow::fileOpen()
     if ( file.isEmpty() )
 	return;
 
-    // creating all available widgets and adding them to the little test scenario
     QPlugIn* plugin = 0;
     if ( ( plugin = widgetManager->addLibrary( file ) ) ) {
 	statusBar()->message( tr("Widget-Plugin \"%1\" loaded").arg( plugin->name() ), 3000 );
@@ -105,36 +104,29 @@ void PlugMainWindow::fileClose()
     connect( &ok, SIGNAL( clicked() ), &dialog, SLOT( accept() ) );
 
     QList<QPlugIn> pl;
-    if ( widgetManager )
+    if ( widgetManager ) {
 	pl = widgetManager->plugInList();
-    if ( actionManager ) {
-	QList<QPlugIn> al = actionManager->plugInList();
-	QListIterator<QPlugIn> it( al );
+	QListIterator<QPlugIn> it( pl );
 	while ( it.current() ) {
-	    pl.append( it.current() );
+	    QPlugIn* p = it.current();
 	    ++it;
+	    QListViewItem* item = new QListViewItem( wplugins, p->name(), p->description(), p->author(), p->library() );
+	    QStringList wl = p->featureList();
+	    for ( uint i = 0; i < wl.count(); i++ )
+		new QListViewItem( item, wl[i] );	    
 	}
     }
-//	pl.join( actionManager->plugInList() );
-
-    QListIterator<QPlugIn> it( pl );
-    while ( it.current() ) {
-	QPlugIn* p = it.current();
-	QString ifc = it.current()->queryPlugInInterface();
-	if ( ifc == "QWidgetInterface" ) {
-	    QListViewItem* item = new QListViewItem( wplugins, p->name(), p->description(), p->author(), p->library() );
-	    QStringList wl = it.current()->featureList();
-	    for ( uint i = 0; i < wl.count(); i++ )
-		new QListViewItem( item, wl[i] );
-	} else if ( ifc == "QActionInterface" ) {
+    if ( actionManager ) {
+	QList<QPlugIn> pl = actionManager->plugInList();
+	QListIterator<QPlugIn> it( pl );
+	while ( it.current() ) {
+	    QPlugIn* p = it.current();	    
+	    ++it;
 	    QListViewItem* item = new QListViewItem( aplugins, p->name(), p->description(), p->author(), p->library() );
-	    QStringList al = it.current()->featureList();
+	    QStringList al = p->featureList();
 	    for ( uint i = 0; i < al.count(); i++ )
 		new QListViewItem( item, al[i] );
-	} else {
-	    qDebug("Bogus plugin!");
 	}
-	++it;
     }
 
     if ( dialog.exec() && _box.currentItem() ) {
