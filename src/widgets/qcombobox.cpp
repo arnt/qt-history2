@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#192 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#193 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -452,7 +452,7 @@ void QComboBox::insertStrList( const QStrList *list, int index )
 	if ( d->usingListBox )
 	    d->listBox->insertItem( tmp, index );
 	else
-	    d->popup->insertItem( tmp, index );
+	    d->popup->insertItem( tmp, index, index );
 	if ( index++ == d->current && d->current < count() ) {
 	    if ( d->ed )
 		d->ed->setText( text( d->current ) );
@@ -494,7 +494,7 @@ void QComboBox::insertStrList( const char **strings, int numStrings, int index)
 	if ( d->usingListBox )
 	    d->listBox->insertItem( strings[i], index );
 	else
-	    d->popup->insertItem( strings[i], index );
+	    d->popup->insertItem( strings[i], index, index );
 	i++;
 	if ( index++ == d->current && d->current < count()  ) {
 	    if ( d->ed )
@@ -522,7 +522,7 @@ void QComboBox::insertItem( const QString &t, int index )
     if ( d->usingListBox )
         d->listBox->insertItem( t, index );
     else
-        d->popup->insertItem( t, index );
+        d->popup->insertItem( t, index, index );
     if ( index != cnt )
 	reIndex();
     if ( index == d->current && d->current < count()  ) {
@@ -554,7 +554,7 @@ void QComboBox::insertItem( const QPixmap &pixmap, int index )
     if ( d->usingListBox )
         d->listBox->insertItem( pixmap, index );
     else
-        d->popup->insertItem( pixmap, index );
+        d->popup->insertItem( pixmap, index, index );
     if ( !append )
 	reIndex();
     if ( index == d->current )
