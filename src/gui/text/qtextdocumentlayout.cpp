@@ -348,7 +348,8 @@ void QTextDocumentLayout::documentChange(int from, int oldLength, int length)
 //     qDebug("documentChange: from=%d, oldLength=%d, length=%d", from, oldLength, length);
     QTextBlockIterator it = findBlock(from);
     QTextBlockIterator end = findBlock(from + length - 1);
-    ++end;
+    if (!end.atEnd()) // can happen when removing text from the beginning: from = 0, oldLength = something, length = 0
+        ++end;
     d->currentYPos = 0;
     if (it != begin()) {
         QTextBlockIterator prev = it;
