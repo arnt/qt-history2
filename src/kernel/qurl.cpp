@@ -342,6 +342,8 @@ QString QUrl::protocol() const
 void QUrl::setProtocol( const QString& protocol )
 {
     d->protocol = protocol;
+    if ( hasHost() )
+	d->isValid = TRUE;
 }
 
 /*!
@@ -441,6 +443,8 @@ QString QUrl::host() const
 void QUrl::setHost( const QString& host )
 {
     d->host = host;
+    if ( !d->protocol.isNull() && d->protocol != "file" )
+	d->isValid = TRUE;
 }
 
 /*!
@@ -499,6 +503,7 @@ void QUrl::setPath( const QString& path )
     d->path = path;
     slashify( d->path );
     d->cleanPathDirty = TRUE;
+    d->isValid = TRUE;
 }
 
 /*!
