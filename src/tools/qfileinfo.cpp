@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#13 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#14 $
 **
 ** Implementation of QFileInfo class
 **
@@ -19,7 +19,7 @@
 # include <grp.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfileinfo.cpp#13 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qfileinfo.cpp#14 $")
 
 
 struct QFileInfoCache
@@ -256,9 +256,9 @@ bool QFileInfo::exists() const
 
 void QFileInfo::refresh() const
 {
-    QFileInfo *This = (QFileInfo*)this;		// Mutable function
-    delete This->fic;
-    This->fic = 0;
+    QFileInfo *that = (QFileInfo*)this;		// Mutable function
+    delete that->fic;
+    that->fic = 0;
 }
 
 /*----------------------------------------------------------------------------
