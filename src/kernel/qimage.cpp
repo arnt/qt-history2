@@ -2669,6 +2669,8 @@ void pnmscale(const QImage& src, QImage& dst)
     scaling the image. The purpose of these modes is to retain the
     ratio of the image if this is required.
 
+    \img scaling.png
+
     \value ScaleFree The image is scaled freely: the resulting image
 	fits exactly into the specified size; the ratio will not
 	necessarily be preserved.

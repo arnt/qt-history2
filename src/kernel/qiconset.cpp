@@ -854,13 +854,14 @@ QPixmap *QIconFactory::createPixmap( const QIconSet& /* iconSet */,
 }
 
 /*!
-  \fn void QIconFactory::setAutoDelete( bool autoDelete )
+    \fn void QIconFactory::setAutoDelete( bool autoDelete )
 
-  Sets the icon factory to automatically delete itself when it is no
-  longer referenced by any QIconSet and isn't the default factory. By
-  default auto-deletion is disabled.
+    If \a autoDelete is TRUE, sets the icon factory to automatically
+    delete itself when it is no longer referenced by any QIconSet and
+    isn't the default factory. If \a autoDelete is FALSE (the default)
+    auto-deletion is disabled.
 
-  \sa autoDelete(), defaultFactory()
+    \sa autoDelete(), defaultFactory()
 */
 
 /*!

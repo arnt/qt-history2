@@ -135,6 +135,8 @@ void QSize::transpose()
 
     This enum type defines the different ways of scaling a size.
 
+    \img scaling.png
+
     \value ScaleFree  The size is scaled freely. The ratio is not preserved.
     \value ScaleMin  The size is scaled to a rectangle as large as possible
                      inside a given rectangle, preserving the aspect ratio.
