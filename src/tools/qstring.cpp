@@ -3445,6 +3445,60 @@ QString &QString::insert( uint index, const QString &s )
     return insert( index, s.unicode(), s.length() );
 }
 
+/*! \fn QString &QString::insert( uint index, const QByteArray &s )
+    \overload
+
+    Inserts \a s into the string at position \a index and returns
+    a reference to the string.
+*/
+
+/*! \fn QString &QString::insert( uint index, const char *s )
+    \overload
+
+    Inserts \a s into the string at position \a index and returns
+    a reference to the string.
+*/
+
+#ifndef QT_NO_CAST_ASCII
+QString &QString::insertHelper( uint index, const char *s, uint len )
+{
+    if ( s ) {
+#ifndef QT_NO_TEXTCODEC
+	if ( QTextCodec::codecForCStrings() )
+	    return insert( index, fromAscii( s ) );
+#endif
+	if ( len == UINT_MAX )
+	    len = strlen( s );
+	if ( len == 0 )
+	    return *this;
+
+	uint olen = length();
+	int nlen = olen + len;
+
+	if ( index >= olen ) {                      // insert after end of string
+	    setLength( len + index );
+	    int n = index - olen;
+	    QChar* uc = d->unicode + olen;
+	    while ( n-- )
+		*uc++ = ' ';
+
+	    uc = d->unicode + index;
+	    while ( len-- )
+		*uc++ = *s++;
+	} else {                                    // normal insert
+	    setLength( nlen );
+	    memmove( d->unicode + index + len, unicode() + index,
+		    sizeof(QChar) * (olen - index) );
+
+	    QChar* uc = d->unicode + index;
+	    while ( len-- )
+		*uc++ = *s++;
+	}
+    }
+    return *this;
+}
+#endif
+
 /*!
     \overload
 
@@ -4866,6 +4920,31 @@ QString& QString::operator+=( const QString &str )
     return *this;
 }
 
+#ifndef QT_NO_CAST_ASCII
+QString &QString::operatorPlusEqHelper( const char *s, uint len2 )
+{
+    if ( s ) {
+#ifndef QT_NO_TEXTCODEC
+	if ( QTextCodec::codecForCStrings() )
+	    return operator+=( fromAscii( s ) );
+#endif
+
+	uint len1 = length();
+	if ( len2 == UINT_MAX )
+	    len2 = strlen( s );
+	if ( len2 ) {
+	    setLength( len1 + len2 );
+	    QChar* uc = d->unicode + len1;
+	    while ( len2-- )
+		*uc++ = *s++;
+	} else if ( isNull() ) {   // ## just for 1.x compat:
+	    *this = fromLatin1( "" );
+	}
+    }
+    return *this;
+}
+#endif
+
 /*!
     \overload
 
@@ -4873,26 +4952,8 @@ QString& QString::operator+=( const QString &str )
 */
 QString& QString::operator+=( const char *str )
 {
-    if ( str ) {
-#ifndef QT_NO_TEXTCODEC
-	if ( QTextCodec::codecForCStrings() )
-	    return operator+=( fromAscii( str ) );
-#endif
-
-	uint len1 = length();
-	uint len2 = strlen( str );
-	if ( len2 ) {
-	    setLength(len1+len2);
-	    uint i = 0;
-	    while ( i < len2 ) {
-		d->unicode[len1+i] = str[i];
-		i++;
-	    }
-	} else if ( isNull() ) {   // ## just for 1.x compat:
-	    *this = fromLatin1( "" );
-	}
-    }
-    return *this;
+    // ### Qt 4: make this function inline
+    return operatorPlusEqHelper( str );
 }
 
 /*! \overload

@@ -42,6 +42,10 @@
 #include "qcstring.h"
 #endif // QT_H
 
+#ifndef QT_NO_CAST_ASCII
+#include <limits.h>
+#endif
+
 #ifndef QT_NO_STL
 #include <string>
 #if defined(Q_WRONG_SB_CTYPE_MACROS) && defined(_SB_CTYPE_MACROS)
@@ -500,6 +504,10 @@ public:
     QString     simplifyWhiteSpace()    const;
 
     QString    &insert( uint index, const QString & );
+#ifndef QT_NO_CAST_ASCII
+    QString    &insert( uint index, const QByteArray & );
+    QString    &insert( uint index, const char * );
+#endif
     QString    &insert( uint index, const QChar*, uint len );
     QString    &insert( uint index, QChar );
     QString    &insert( uint index, char c ) { return insert(index,QChar(c)); }
@@ -695,6 +703,10 @@ private:
 		      const QString& a4 = QString::null ) const;
 
     void checkSimpleText() const;
+#ifndef QT_NO_CAST_ASCII
+    QString &insertHelper( uint index, const char *s, uint len=UINT_MAX );
+    QString &operatorPlusEqHelper( const char *s, uint len2=UINT_MAX );
+#endif
 
     static QChar* latin1ToUnicode( const char*, uint * len, uint maxlen=(uint)-1 );
     static QChar* latin1ToUnicode( const QByteArray&, uint * len );
@@ -848,6 +860,17 @@ inline bool QString::isEmpty() const
 inline QString QString::copy() const
 { return QString( *this ); }
 
+#ifndef QT_NO_CAST_ASCII
+inline QString &QString::insert( uint index, const char *s )
+{ return insertHelper( index, s ); }
+
+inline QString &QString::insert( uint index, const QByteArray &s )
+{
+    int pos = s.find( 0 );
+    return insertHelper( index, s, pos==-1 ? s.size() : pos );
+}
+#endif
+
 inline QString &QString::prepend( const QString & s )
 { return insert(0,s); }
 
@@ -859,7 +882,7 @@ inline QString &QString::prepend( char c )
 
 #ifndef QT_NO_CAST_ASCII
 inline QString &QString::prepend( const QByteArray & s )
-{ return insert(0,s.data()); }
+{ return insert(0,s); }
 #endif
 
 #ifndef QT_NO_STL
@@ -872,7 +895,7 @@ inline QString &QString::append( const QString & s )
 
 #ifndef QT_NO_CAST_ASCII
 inline QString &QString::append( const QByteArray &s )
-{ return operator+=(s.data()); }
+{ return operator+=(s); }
 
 inline QString &QString::append( const char * s )
 { return operator+=(s); }
@@ -886,7 +909,10 @@ inline QString &QString::append( char c )
 
 #ifndef QT_NO_CAST_ASCII
 inline QString &QString::operator+=( const QByteArray &s )
-{ return operator+=(s.data()); }
+{
+    int pos = s.find( 0 );
+    return operatorPlusEqHelper( s, pos==-1 ? s.size() : pos );
+}
 #endif
 
 #ifndef QT_NO_STL
