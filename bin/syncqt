@@ -210,11 +210,11 @@ sub sync_classnames {
 	}
 	if($definition) {
 	    my $symbol = 0;
-	    if($definition =~ m/^typedef *.*\(\*([^\)]*)\)\(.*\);$/) {
+	    if($definition =~ m/^ *typedef *.*\(\*([^\)]*)\)\(.*\);$/) {
 		$symbol = $1;
-	    } elsif($definition =~ m/^typedef +(.*) +([^ ]*);$/) {
+	    } elsif($definition =~ m/^ *typedef +(.*) +([^ ]*);$/) {
 		$symbol = $2;
-	    } elsif($definition =~ m/^(template<.*> *)?(class|struct) +([^ ]* +)?([^ ]+) ?((,|:) *(public|private) *.*)? *\{\}$/) {
+	    } elsif($definition =~ m/^ *(template<.*> *)?(class|struct) +([^ ]* +)?([^ ]+) ?((,|:) *(public|private) *.*)? *\{\}$/) {
 		$symbol = $4;
 	    }
 	    if($symbol && $symbol =~ /^Q/) {
