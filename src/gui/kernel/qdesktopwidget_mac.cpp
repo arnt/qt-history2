@@ -92,12 +92,7 @@ const QRect& QDesktopWidget::availableGeometry(int screen) const
     if(screen < 0 || screen >= d->screenCount)
         screen = d->appScreen;
     Rect r;
-    RgnHandle rgn = qt_mac_get_rgn();
-    if(GetAvailableWindowPositioningRegion(d->devs[screen], rgn) == noErr)
-        GetRegionBounds(rgn, &r);
-    else
-        GetAvailableWindowPositioningBounds(d->devs[screen], &r);
-    qt_mac_dispose_rgn(rgn);
+    GetAvailableWindowPositioningBounds(d->devs[screen], &r);
     //we use avail_rects to avoid returning a reference to a temporary. This API is just WRONG!!! We
     //it should not assume the platform returns a const reference.
     return d->avail_rects[screen] = QRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
