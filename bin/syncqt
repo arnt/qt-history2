@@ -62,15 +62,6 @@ my %dirs = (
 	 "src/canvas" => "QtCanvas",
 	 "src/compat" => "Qt3Compat",
 );
-my %exports = (
-	 "QtGUI" => "Q_GUI_EXPORT",
-	 "QtOpenGL" => "Q_OPENGL_EXPORT",
-	 "QtCore" => "Q_CORE_EXPORT",
-	 "QtXML" => "Q_XML_EXPORT",
-	 "QtSQL" => "Q_SQL_EXPORT",
-	 "QtNetwork" => "Q_NETWORK_EXPORT",
-	 "QtCanvas" => "Q_CANVAS_EXPORT",
-);
 
 $dirs{"mkspecs" . $ENV{"MKSPEC"}} = "QCore" if defined $ENV{"MKSPEC"}; 
 
@@ -115,10 +106,7 @@ foreach $dir (keys %dirs) {
 		    #now sync the header file (ie symlink/include it)
 		    sync_header($header, $iheader, $lib);
 		}
-		unless($header =~ /_/) {
-		    my $classes = sync_classnames($iheader, $lib);
-		    print "SYMBOLS: Found $classes\n" if($showonly);
-		}
+		sync_classnames($iheader, $lib) unless($header =~ /_/);
 	    }
 	}
     }
@@ -157,10 +145,8 @@ exit 0;
 # all classnames found in iheader are synced into library's include structure
 #
 sub sync_classnames {
-    my ($iheader, $library) = @_;
-    return 0 unless defined $exports{$library};
-    my $export_symbol = $exports{$library};
     my $ret = 0;
+    my ($iheader, $library) = @_;
 
     my $parsable = "";
     if(open(F, "<$iheader")) {
@@ -229,8 +215,8 @@ sub sync_classnames {
 		$symbol = $1;
 	    } elsif($definition =~ /^typedef (.*) ([^ ]*);$/) {
 		$symbol = $2;
-	    } elsif($definition =~ /^(class|struct) $export_symbol ([^ ]*) ?((,|:) (public|private) .*)? ?\{\}$/) {
-		$symbol = $2;
+	    } elsif($definition =~ /^(class|struct) ([^ ]*) ([^ ]*) ?((,|:) (public|private) .*)? ?\{\}$/) {
+		$symbol = $3;
 	    }
 	    if($symbol && $symbol =~ /^Q/) {
 		$ret++;
@@ -241,6 +227,7 @@ sub sync_classnames {
 	    }
 	}
     }
+    print "SYMBOLS: Found $ret\n" if($showonly);
     return $ret;
 }
 
