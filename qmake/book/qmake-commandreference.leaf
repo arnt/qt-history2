@@ -1542,6 +1542,18 @@ this variable is typically handled by \e qmake or
  \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
 
+\section3 QMAKE_UIC
+
+This variable contains the location of uic if it is not in the path.  
+The value of this variable is typically handled by \e qmake or
+ \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+It can be used to specify arguments to uic as well, such as additional plugin 
+paths.  For example:
+
+\code
+	QMAKE_UIC = uic -L /path/to/plugin
+\endcode
 
 
 
