@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#5 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#6 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qglist.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qglist.cpp#6 $";
 #endif
 
 
@@ -59,8 +59,7 @@ QGList::QGList( const QGList & list )		// make copy of other list
     iterators = 0;				// initialize iterator list
     register Qdnode *n = list.firstNode;
     while ( n ) {				// copy all items from list
-	if ( !append(n->getData()) )
-	    break;
+	append( n->getData() );
 	n = n->next;
     }
 }
@@ -84,8 +83,7 @@ QGList& QGList::operator=( const QGList &list ) // assign from other list
     clear();
     register Qdnode *n = list.firstNode;
     while ( n ) {				// copy all items from list
-	if ( !append(n->getData()) )
-	    break;
+	append( n->getData() );
 	n = n->next;
     }
     curNode = firstNode;
@@ -141,13 +139,11 @@ Qdnode *QGList::locate( uint index )		// get node at i'th position
 }
 
 
-bool QGList::insert( GCI d )			// add at list head
+void QGList::insert( GCI d )			// add at list head
 {
     register Qdnode *n = new Qdnode( newItem( d ) );
     CHECK_PTR( n );
     CHECK_PTR( n->data );
-    if ( !(n && n->data) )			// no memory
-	return FALSE;
     n->prev = 0;
     if ( n->next = firstNode )			// list is not empty
 	firstNode->prev = n;
@@ -156,10 +152,9 @@ bool QGList::insert( GCI d )			// add at list head
     firstNode = curNode = n;			// curNode affected
     numNodes++;
     curIndex = 0;
-    return TRUE;
 }
 
-bool QGList::inSort( GCI d )			// add sorted in list
+void QGList::inSort( GCI d )			// add sorted in list
 {
     int index = 0;
     register Qdnode *n = firstNode;
@@ -167,16 +162,14 @@ bool QGList::inSort( GCI d )			// add sorted in list
 	n = n->next;
 	index++;
     }
-    return insertAt( index, d );
+    insertAt( index, d );
 }
 
-bool QGList::append( GCI d )			// add at list tail
+void QGList::append( GCI d )			// add at list tail
 {
     register Qdnode *n = new Qdnode( newItem( d ) );
     CHECK_PTR( n );
     CHECK_PTR( n->data );
-    if ( !(n && n->data) )			// no memory
-	return FALSE;
     n->next = 0;
     if ( n->prev = lastNode )			// list is not empty
 	lastNode->next = n;
@@ -185,16 +178,18 @@ bool QGList::append( GCI d )			// add at list tail
     lastNode = curNode = n;			// curNode affected
     curIndex = numNodes;
     numNodes++;
-    return TRUE;
 }
 
 bool QGList::insertAt( uint index, GCI d )	// add at i'th position
 {
-    if ( index == 0 )				// insert at head of list
-	return insert( d );
-    else
-    if ( index == numNodes )			// append at tail of list
-	return append( d );
+    if ( index == 0 ) {				// insert at head of list
+	insert( d );
+	return TRUE;
+    }
+    else if ( index == numNodes ) {		// append at tail of list
+	append( d );
+	return TRUE;
+    }
     Qdnode *nextNode = locate( index );
     if ( !nextNode )				// illegal position
 	return FALSE;
@@ -202,8 +197,6 @@ bool QGList::insertAt( uint index, GCI d )	// add at i'th position
     register Qdnode *n = new Qdnode( newItem( d ) );
     CHECK_PTR( n );
     CHECK_PTR( n->data );
-    if ( !(n && n->data) )			// no memory
-	return FALSE;
     nextNode->prev = n;
     prevNode->next = n;
     n->prev = prevNode;				// link new node into list
