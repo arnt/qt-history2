@@ -5019,8 +5019,28 @@ void QFileDialog::itemChanged( QNetworkOperation *op )
 	return;
 
     QUrlInfo *i = 0;
-    QListViewItemIterator it( files );
+    QListViewItemIterator it1( files );
     bool ok1 = FALSE, ok2 = FALSE;
+    // first check whether the new file replaces an existing file.
+    for ( i = d->sortedList.first(); it1.current(); ++it1, i = d->sortedList.next() ) {
+	if ( ( (QFileDialogPrivate::File*)it1.current() )->info.name() == op->arg( 1 ) ) {
+	    delete ( (QFileDialogPrivate::File*)it1.current() )->i;
+	    delete it1.current();
+	    ok1 = TRUE;
+	}
+	if ( i && i->name() == op->arg( 1 ) ) {
+	    d->sortedList.removeRef( i );
+	    i = d->sortedList.prev();
+	    ok2 = TRUE;
+	}
+	if ( ok1 && ok2 )
+	    break;
+    }
+    
+    i = 0;
+    QListViewItemIterator it( files );
+    ok1 = FALSE;
+    ok2 = FALSE;
     for ( i = d->sortedList.first(); it.current(); ++it, i = d->sortedList.next() ) {
 	if ( ( (QFileDialogPrivate::File*)it.current() )->info.name() == op->arg( 0 ) ) {
 	    ( (QFileDialogPrivate::File*)it.current() )->info.setName( op->arg( 1 ) );
