@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qplatinumstyle.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qplatinumstyle.cpp#17 $
 **
 ** Implementation of Platinum-like style class
 **
@@ -421,13 +421,29 @@ QPlatinumStyle::drawPushButton( QPushButton* btn, QPainter *p)
 //     }
 	
     // small or square buttons as well as toggle buttons are bevel buttons (what a heuristic....)
-    if ( btn->isToggleButton()
-	 || btn->width() * btn->height() < 1600 || QABS( btn->width() - btn->height()) < 10 )
+    if ( btn->isDefault() && 
+	 (btn->isToggleButton()
+	  || btn->width() * btn->height() < 1600 || QABS( btn->width() - btn->height()) < 10 ))
 	drawBevelButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(),
 			 &fill );
-    else
-	drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(),
-		    &fill );
+    else {
+	if (btn->isDefault() ) {
+	    p->setPen( g.shadow() );
+	    p->drawRect( x1, y1, x2-x1+1, y2-y1+1);
+	    QColorGroup g2 = g;
+	    g2.setBackground( g.shadow() );
+	    x1 += 1;
+	    y1 += 1;
+	    x2 -= 1;
+	    y2 -= 1;
+	    drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g2, btn->isOn() || btn->isDown(),
+			&fill );
+	}
+	else {
+	    drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(),
+			&fill );
+	}
+    }
 	
 
     if ( btn->isMenuButton() ) {
@@ -497,7 +513,7 @@ void QPlatinumStyle::scrollBarMetrics( const QScrollBar* sb, int &sliderMin, int
 	buttonDim = ( length - b*2 )/2 - 1;
 
     sliderMin = b + 1; //b + buttonDim;
-    maxLength  = length - b*2 - buttonDim*2;
+    maxLength  = length - b*2 - buttonDim*2 - 1;
 
      if ( sb->maxValue() == sb->minValue() ) {
  	sliderLength = maxLength;
