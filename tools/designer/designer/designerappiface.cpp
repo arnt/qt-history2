@@ -72,20 +72,20 @@ DesignerFormListInterfaceImpl::DesignerFormListInterfaceImpl( FormList *fl, QUnk
     listIterator = 0;
 }
 
-bool DesignerFormListInterfaceImpl::initialize( QApplicationInterface *app )
+bool DesignerFormListInterfaceImpl::initialize()
 {
     delete listIterator;
     listIterator = new QListViewItemIterator( (FormList*)component() );
 
-    return DesignerFormListInterface::initialize( app );
+    return DesignerFormListInterface::initialize();
 }
 
-bool DesignerFormListInterfaceImpl::cleanUp( QApplicationInterface *app )
+bool DesignerFormListInterfaceImpl::cleanup()
 {
     delete listIterator;
     listIterator = 0;
 
-    return DesignerFormListInterface::cleanUp( app );
+    return DesignerFormListInterface::cleanup();
 }
 
 QString DesignerFormListInterfaceImpl::text( DesignerFormWindowInterface *form, int col ) const
@@ -230,10 +230,10 @@ DesignerFormWindowInterfaceImpl::DesignerFormWindowInterfaceImpl( FormWindow *fw
     new DesignerActiveWidgetInterfaceImpl( pe, this );
 }
 
-bool DesignerFormWindowInterfaceImpl::initialize(  QApplicationInterface * app )
+bool DesignerFormWindowInterfaceImpl::initialize()
 {
     if ( component() )
-	return DesignerFormWindowInterface::initialize( app );
+	return DesignerFormWindowInterface::initialize();
 
     return FALSE;
 }
@@ -282,12 +282,12 @@ DesignerActiveFormWindowInterfaceImpl::DesignerActiveFormWindowInterfaceImpl( Fo
 {
 }
 
-bool DesignerActiveFormWindowInterfaceImpl::initialize( QApplicationInterface * app)
+bool DesignerActiveFormWindowInterfaceImpl::initialize()
 {
     // update the internal component object each time this interface is used
     reconnect();
 
-    return DesignerFormWindowInterfaceImpl::initialize( app );
+    return DesignerFormWindowInterfaceImpl::initialize();
 }
 
 void DesignerActiveFormWindowInterfaceImpl::reconnect()
@@ -370,7 +370,7 @@ DesignerWidgetListInterfaceImpl::DesignerWidgetListInterfaceImpl( FormWindow *fw
 {
 }
 
-bool DesignerWidgetListInterfaceImpl::initialize( QApplicationInterface *app )
+bool DesignerWidgetListInterfaceImpl::initialize()
 {
     FormWindow *fw = (FormWindow*)component();
     if ( !fw )
@@ -379,15 +379,15 @@ bool DesignerWidgetListInterfaceImpl::initialize( QApplicationInterface *app )
     delete dictIterator;
     dictIterator = new QPtrDictIterator<QWidget>( *fw->widgets() );
 
-    return DesignerWidgetListInterface::initialize( app );
+    return DesignerWidgetListInterface::initialize();
 }
 
-bool DesignerWidgetListInterfaceImpl::cleanUp( QApplicationInterface *app )
+bool DesignerWidgetListInterfaceImpl::cleanup()
 {
     delete dictIterator;
     dictIterator = 0;
 
-    return DesignerWidgetListInterface::cleanUp( app );
+    return DesignerWidgetListInterface::cleanup();
 }
 
 FormWindow *DesignerWidgetListInterfaceImpl::formWindow() const
@@ -511,7 +511,7 @@ DesignerActiveWidgetInterfaceImpl::DesignerActiveWidgetInterfaceImpl( PropertyEd
 {
 }
 
-bool DesignerActiveWidgetInterfaceImpl::initialize( QApplicationInterface *appIface )
+bool DesignerActiveWidgetInterfaceImpl::initialize()
 {
     if ( !propertyEditor )
 	return FALSE;
@@ -523,5 +523,5 @@ bool DesignerActiveWidgetInterfaceImpl::initialize( QApplicationInterface *appIf
     if ( !w )
 	return FALSE;
 
-    return DesignerWidgetInterfaceImpl::initialize( appIface );
+    return DesignerWidgetInterfaceImpl::initialize();
 }

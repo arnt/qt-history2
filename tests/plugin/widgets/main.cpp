@@ -98,7 +98,7 @@ public:
     ExtraWidgetsInterface( QUnknownInterface *parent, const char *name = 0 );
     ~ExtraWidgetsInterface();
 
-    bool disconnectNotify();
+    bool cleanup();
 
     QStringList featureList() const;
     QWidget* create( const QString &classname, QWidget* parent = 0, const char* name = 0 );
@@ -122,9 +122,9 @@ ExtraWidgetsInterface::~ExtraWidgetsInterface()
 {
 }
 
-bool ExtraWidgetsInterface::disconnectNotify()
+bool ExtraWidgetsInterface::cleanup()
 {
-    qDebug( "ExtraWidgetsInterface::disconnectNotify()" );
+    qDebug( "ExtraWidgetsInterface::cleanup()" );
     if ( !objects.isEmpty() )
 	return FALSE;
     return TRUE;

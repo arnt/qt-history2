@@ -1,6 +1,5 @@
 #include "../designerinterface.h"
 
-#include <qcleanuphandler.h>
 #include <qapplication.h>
 
 #include "rc2ui.h"

@@ -44,7 +44,7 @@ public:
     TestInterface( QUnknownInterface *parent, const char *name = 0 );
     ~TestInterface();
 
-    bool initialize( QApplicationInterface* );
+    bool initialize();
 
     QStringList featureList() const;
     QAction* create( const QString &actionname, QObject* parent = 0 );
@@ -84,7 +84,7 @@ TestInterface::~TestInterface()
     delete dialog;
 }
 
-bool TestInterface::initialize( QApplicationInterface* )
+bool TestInterface::initialize()
 {
     if ( !applicationInterface() )
 	return FALSE;

@@ -277,8 +277,8 @@ public:
     P4Interface( QUnknownInterface *parent, const char *name = 0 );
     ~P4Interface();
 
-    bool initialize( QApplicationInterface* );
-    bool cleanUp( QApplicationInterface* );
+    bool initialize();
+    bool cleanup();
 
     QStringList featureList() const;
     QAction *create( const QString &actionname, QObject* parent = 0 );
@@ -326,9 +326,9 @@ P4Interface::~P4Interface()
 {
 }
 
-bool P4Interface::initialize( QApplicationInterface* appIface )
+bool P4Interface::initialize()
 {
-    if ( !( appInterface = appIface ) )
+    if ( !( appInterface = applicationInterface() ) )
 	return FALSE;
 
     if ( connected )
@@ -349,15 +349,15 @@ bool P4Interface::initialize( QApplicationInterface* appIface )
 
     connected = TRUE;
 
-    qDebug( "P4Interface::INIT" );
+    qDebug( "P4Interface::initialize" );
 
     P4Init* init = new P4Init;
     return init->execute();
 }
 
-bool P4Interface::cleanUp( QApplicationInterface * )
+bool P4Interface::cleanup()
 {
-    qDebug( "P4Interface::CLEANUP" );
+    qDebug( "P4Interface::cleanup" );
     return TRUE;
 }
 
@@ -736,8 +736,8 @@ public:
     P4PlugIn();
     ~P4PlugIn();
 
-    bool initialize( QApplicationInterface *appIface );
-    bool cleanUp( QApplicationInterface *appIface );
+    bool initialize();
+    bool cleanup();
 
     QString name() const { return "P4 Integration"; }
     QString description() const { return "Integrates P4 Source Control into the Qt Designer"; }
@@ -754,15 +754,15 @@ P4PlugIn::~P4PlugIn()
 {
 }
 
-bool P4PlugIn::initialize( QApplicationInterface * )
+bool P4PlugIn::initialize()
 {
-    qDebug( "P4PlugIn::INIT" );
+    qDebug( "P4PlugIn::initialize" );
     return TRUE;
 }
 
-bool P4PlugIn::cleanUp( QApplicationInterface * )
+bool P4PlugIn::cleanup()
 {
-    qDebug( "P4PlugIn::CLEANUP" );
+    qDebug( "P4PlugIn::cleanup" );
     return TRUE;
 }
 

@@ -10,7 +10,7 @@ public:
     OpenGLWidgetInterface( QUnknownInterface *parent, const char *name = 0 );
     ~OpenGLWidgetInterface();
 
-    bool disconnectNotify();
+    bool cleanup();
 
     QStringList featureList() const;
 
@@ -36,7 +36,7 @@ OpenGLWidgetInterface::~OpenGLWidgetInterface()
 {
 }
 
-bool OpenGLWidgetInterface::disconnectNotify()
+bool OpenGLWidgetInterface::cleanup()
 {
     if ( !objects.isEmpty() )
 	return FALSE;

@@ -93,9 +93,9 @@ void LibraryInspector::addInterface( QListViewItem *parent, QUnknownInterface *i
     if ( !iface )
 	return;
 
-    QString ID = iface->ID();
+    QString ID = iface->Id();
 
-    QListViewItem *item = new QListViewItem( parent, iface->ID(), iface->interfaceId() );
+    QListViewItem *item = new QListViewItem( parent, iface->Id(), iface->interfaceId() );
 
     QStringList ifaces = iface->interfaceList( FALSE );
     for ( QStringList::Iterator it = ifaces.begin(); it != ifaces.end(); ++it ) {

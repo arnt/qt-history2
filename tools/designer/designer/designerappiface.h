@@ -33,7 +33,7 @@ class DesignerFormWindowInterfaceImpl : public DesignerFormWindowInterface
 public:
     DesignerFormWindowInterfaceImpl( FormWindow *fw, QUnknownInterface *parent, const char *name = 0 );
 
-    bool initialize( QApplicationInterface * );
+    bool initialize();
 
     void save() const;
     void close() const;
@@ -48,7 +48,7 @@ public:
 
     QString interfaceId() const { return createId( DesignerFormWindowInterface::interfaceId(), "DesignerActiveFormWindowInterface" ); }
 
-    bool initialize( QApplicationInterface * );
+    bool initialize();
 
     bool requestConnect( const char* signal, QObject* target, const char* slot );
     bool requestConnect( QObject *sender, const char* signal, const char* slot );
@@ -89,8 +89,8 @@ class DesignerFormListInterfaceImpl : public DesignerFormListInterface
 public:
     DesignerFormListInterfaceImpl( FormList *fl, QUnknownInterface* parent  );
 
-    bool initialize( QApplicationInterface * );
-    bool cleanUp( QApplicationInterface * );
+    bool initialize();
+    bool cleanup();
 
     const QPixmap* pixmap( DesignerFormWindowInterface*, int col ) const;
     void setPixmap( DesignerFormWindowInterface*, int col, const QPixmap& );
@@ -117,8 +117,8 @@ class DesignerWidgetListInterfaceImpl : public DesignerWidgetListInterface
 public:
     DesignerWidgetListInterfaceImpl( FormWindow *fw, QUnknownInterface *parent );
 
-    bool initialize( QApplicationInterface * );
-    bool cleanUp( QApplicationInterface * );
+    bool initialize();
+    bool cleanup();
 
     uint count() const;
     DesignerWidgetInterface* toFirst();
@@ -153,7 +153,7 @@ public:
 
     QString interfaceId() const { return createId( DesignerWidgetInterfaceImpl::interfaceId(), "DesignerActiveWidgetInterface" ); }
 
-    bool initialize( QApplicationInterface* );
+    bool initialize();
 
 private:
     QGuardedPtr<PropertyEditor> propertyEditor;
