@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#16 $
 **
 ** Implementation of QAccel class
 **
@@ -16,20 +16,21 @@
 #include "qlist.h"
 #include "qsignal.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#15 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#16 $")
 
 
 /*!
   \class QAccel qaccel.h
-
   \brief The QAccel class handles keyboard accelerator keys.
 
   \ingroup uiclasses
 
-  More stricly, A QAccel is a number of accelerator items. An accelerator
-  item consists of a keyboard code combined with modifiers (\c SHIFT,
-  \c CTRL and \c ALT), for example <code>CTRL + Key_P</code> could be a
-  shortcut for printing a document. The key codes are listed in qkeycode.h.
+  A QAccel contains a list of accelerator items. Each accelerator item
+  consists of an identifier and a keyboard code combined with modifiers
+  (\c SHIFT, \c CTRL, \c ALT or \c ASCII_ACCEL).
+
+  For example, <code>CTRL + Key_P</code> could be a shortcut for printing
+  a document. The key codes are listed in qkeycode.h.
 
   When pressed, an accelerator key sends out the signal activated() with a
   number that identifies this particular accelerator item.  Accelerator
@@ -38,6 +39,14 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#15 $")
 
   A QAccel object handles key events to its parent widget and all children
   of this parent widget.
+
+  Example:
+  \code
+     QAccel *a = new QAccel( myWindow );	// create accels for myWindow
+     a->connectItem( a->insertItem(Key_P+CTRL), // adds Ctrl+P accelerator
+		     myWindow,			// connected to myWindow's
+		     SLOT(printDoc()) );	// printDoc() slot
+  \endcode
 */
 
 struct QAccelItem {				// internal accelerator item
@@ -82,21 +91,20 @@ static QAccelItem *find_key( QAccelList *list, int key, int ascii )
   Creates a QAccel object with a parent widget and a name.
 */
 
-QAccel::QAccel( QWidget *parent, const char *name ) : QObject( 0, name )
+QAccel::QAccel( QWidget *parent, const char *name )
+    : QObject( parent, name )
 {
-    hiPriority = TRUE;				// accel has high priority
     aitems = new QAccelList;
     CHECK_PTR( aitems );
     aitems->setAutoDelete( TRUE );
     enabled = TRUE;
-    if ( parent ) {
-	parent->insertChild( this );		// insert as hi priority obj
-	QEvent e( Event_AccelInserted );
-	QApplication::sendEvent( parent, &e );	// notify parent about accel
+    if ( parent ) {				// install event filter
+	QWidget *tlw = parent->topLevelWidget();
+	tlw->installEventFilter( this );
     }
 #if defined(CHECK_NULL)
     else
-	warning( "QAccel: An accelerator should have a widget parent" );
+	warning( "QAccel: An accelerator must have a parent widget" );
 #endif
 }
 
@@ -106,6 +114,8 @@ QAccel::QAccel( QWidget *parent, const char *name ) : QObject( 0, name )
 
 QAccel::~QAccel()
 {
+    if ( parent() )
+	parent()->removeEventFilter( this );
     emit destroyed();
     delete aitems;
 }
@@ -155,7 +165,7 @@ uint QAccel::count() const
 
 
 /*!
-  Inserts an accelerator item.
+  Inserts an accelerator item and returns the item's identifier.
 
   \arg \e key is a key code plus a combination of SHIFT, CTRL and ALT.
   \arg \e id is the accelerator item id.
@@ -167,7 +177,7 @@ uint QAccel::count() const
     QAccel *a = new QAccel( myWindow );		// create accels for myWindow
     a->insertItem( Key_P + CTRL, 200 );		// Ctrl+P to print document
     a->insertItem( Key_X + ALT , 201 );		// Alt+X  to quit
-    a->insertItem( ASCII_ACCEL + 'q', 201 );	// ASCII 'q' to quit
+    a->insertItem( ASCII_ACCEL + 'q', 202 );	// ASCII 'q' to quit
     a->insertItem( Key_D );			// gets id 2
     a->insertItem( Key_P + CTRL + SHIFT );	// gets id 3
   \endcode
@@ -227,7 +237,7 @@ int QAccel::findKey( int key ) const
 
 /*!
   Returns TRUE if the accelerator items with the identifier \e id
-  is disabled.  Returns FALSE if the item is enabled or cannot
+  is disabled.	Returns FALSE if the item is enabled or cannot
   be found.
   \sa isItemEnabled(), setItemEnabled(), enableItem(), disableItem()
 */
@@ -316,11 +326,12 @@ bool QAccel::disconnectItem( int id, const QObject *receiver,
 
 
 /*!
+  Processes keyboard events intended for the top level widget.
   Handles all types of events for the accelerator.  Overrides standard
   widget event dispatching.
 */
 
-bool QAccel::event( QEvent *e )
+bool QAccel::eventFilter( QObject *, QEvent *e )
 {
     if ( enabled && e->type() == Event_KeyPress ) {
 	QKeyEvent *k = (QKeyEvent *)e;

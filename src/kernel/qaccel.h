@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.h#8 $
+** $Id: //depot/qt/main/src/kernel/qaccel.h#9 $
 **
 ** Definition of QAccel class
 **
@@ -31,7 +31,7 @@ public:
     void	disable();			// disable accelerator
     bool	isDisabled()	const	{ return !enabled; }
 
-    uint	count()	const;
+    uint	count() const;
 
     int		insertItem( int key, int id=-1 );
     void	removeItem( int id );
@@ -56,7 +56,7 @@ signals:
     void	destroyed();			// accelerator destroyed
 
 protected:
-    bool	event( QEvent * );
+    bool	eventFilter( QObject *, QEvent * );
 
 private:
     QAccelList *aitems;
