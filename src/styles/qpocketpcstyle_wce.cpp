@@ -1462,7 +1462,7 @@ QRect QPocketPCStyle::querySubControlMetrics( ComplexControl control,
     default:
 	break;
     }
-    return QWindowsStyle::querySubControlMetrics( control, w, sc, opt);
+    return QWindowsStyle::querySubControlMetrics( control, widget, sc, opt);
 }
 
 

@@ -113,6 +113,18 @@ styles {
 	}
 	else:DEFINES += QT_NO_STYLE_COMPACT
 
+	wince-*:styles += pocketpc
+	contains( styles, pocketpc ) {
+		HEADERS +=$$STYLES_H/qpocketpcstyle_wce.h
+		SOURCES +=$$STYLES_CPP/qpocketpcstyle_wce.cpp
+
+		!contains( styles, windows ) {
+			message( pocketpc requires windows )
+			styles += windows
+		}
+	}
+	else:DEFINES += QT_NO_STYLE_POCKETPC
+
 	contains( styles, windows ) {
 		HEADERS +=$$STYLES_H/qwindowsstyle.h
 		SOURCES +=$$STYLES_CPP/qwindowsstyle.cpp

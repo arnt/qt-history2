@@ -54,6 +54,10 @@
 #ifndef QT_NO_STYLE_AQUA
 #include "qaquastyle.h"
 #endif
+#ifndef QT_NO_STYLE_POCKETPC
+#include "qpocketpcstyle_wce.h"
+#endif
+
 #if !defined( QT_NO_STYLE_MAC ) && defined( Q_WS_MAC )
 QCString p2qstring(const unsigned char *c); //qglobal.cpp
 #include "qt_mac.h"
@@ -160,6 +164,10 @@ QStyle *QStyleFactory::create( const QString& key )
 #ifndef QT_NO_STYLE_AQUA
     if ( style == "aqua" )
         ret = new QAquaStyle;
+#endif
+#ifndef QT_NO_STYLE_POCKETPC
+    if ( style == "pocketpc" )
+        ret = new QPocketPCStyle;
 #endif
 #if !defined( QT_NO_STYLE_MAC ) && defined( Q_WS_MAC )
     if( style.left(9) == "macintosh" )
