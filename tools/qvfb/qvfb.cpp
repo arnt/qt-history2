@@ -167,7 +167,7 @@ void QVFb::init( int display_id, int w, int h, int d, const QString &skin_name )
 	view->setMargin( 0 );
 	view->setFrameStyle( QFrame::NoFrame );
 	setCentralWidget( view );
-	resize(w,menuBar()->height()+h);
+	resize(w,menuBar()->height()+h+2);
 	view->show(); 
     }
 
