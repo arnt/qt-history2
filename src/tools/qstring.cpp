@@ -367,8 +367,6 @@ __END__
 
 // START OF GENERATED DATA
 
-#ifndef QT_NO_UNICODETABLES
-
 static const Q_UINT8 ui_00[] = {
     10, 10, 10, 10, 10, 10, 10, 10,
     10, 10, 10, 10, 10, 10, 10, 10,
@@ -403,6 +401,8 @@ static const Q_UINT8 ui_00[] = {
     16, 16, 16, 16, 16, 16, 16, 27,
     16, 16, 16, 16, 16, 16, 16, 16,
 };
+
+#ifndef QT_NO_UNICODETABLES
 
 static const Q_UINT8 ui_01[] = {
     15, 16, 15, 16, 15, 16, 15, 16,
@@ -11100,24 +11100,7 @@ QChar::Category QChar::category() const
 #else
 // ### just ASCII
     if ( rw == 0 ) {
-	static const int punct[] = { ',', '.', ';', ':', '?', '!', 0 };
-	if ( cl >= '0' && cl <='9' )
-	    return Number_DecimalDigit;
-	if ( cl >= 'a' && cl <='z' )
-	    return Letter_Lowercase;
-	if ( cl >= 'A' && cl <='Z' )
-	    return Letter_Uppercase;
-	if ( cl == ' ' )
-	    return Separator_Space;
-	if ( cl == '\n' )
-	    return Separator_Line;
-	if ( cl < ' ' )
-	    return Other_Control;
-	for ( int i = 0; punct[i]; i++ ) {
-	    if ( cl == punct[i] )
-		return Punctuation_Other;
-	}
-	return Symbol_Other; //#######
+	return (Category)(ui_00[cell()]);
     }
     return Letter_Uppercase; //#######
 #endif
