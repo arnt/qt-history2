@@ -236,6 +236,8 @@ QTextFrameLayoutData::~QTextFrameLayoutData()
     \class QTextFrame
     \brief The QTextFrame class represents a frame in a QTextDocument.
 
+    \ingroup text
+
     Text frames provide structure for the text in a document.
 
     Each frame in a document consists of a frame start character,
