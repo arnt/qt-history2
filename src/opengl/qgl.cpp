@@ -18,7 +18,7 @@
 #include "qimage.h"
 #include "qcleanuphandler.h"
 #include "qmap.h"
-#include "qptrdict.h"
+#include "qhash.h"
 
 static QGLFormat* qgl_default_format = 0;
 static QGLFormat* qgl_default_overlay_format = 0;
@@ -1230,20 +1230,20 @@ public:
     QMap<QString, int> displayListCache;
 };
 
-static QPtrDict<QGLWidgetPrivate> * qgl_d_ptr = 0;
-static QSingleCleanupHandler< QPtrDict<QGLWidgetPrivate> > qgl_cleanup_d_ptr;
+static QHash<const QGLWidget*, QGLWidgetPrivate*> * qgl_d_ptr = 0;
+static QSingleCleanupHandler< QHash<const QGLWidget*, QGLWidgetPrivate*> > qgl_cleanup_d_ptr;
 
 static QGLWidgetPrivate * qgl_d( const QGLWidget * w )
 {
     if ( !qgl_d_ptr ) {
-	qgl_d_ptr = new QPtrDict<QGLWidgetPrivate>;
+	qgl_d_ptr = new QHash<const QGLWidget*, QGLWidgetPrivate*>;
 	qgl_cleanup_d_ptr.set( &qgl_d_ptr );
 	qgl_d_ptr->setAutoDelete( TRUE );
     }
-    QGLWidgetPrivate * ret = qgl_d_ptr->find( (void *) w );
+    QGLWidgetPrivate *ret = qgl_d_ptr->value(w);
     if ( !ret ) {
 	ret = new QGLWidgetPrivate;
-	qgl_d_ptr->replace( (void *) w, ret );
+	qgl_d_ptr->insert(w, ret);
     }
     return ret;
 }
@@ -1251,7 +1251,7 @@ static QGLWidgetPrivate * qgl_d( const QGLWidget * w )
 void qgl_delete_d( const QGLWidget * w )
 {
     if ( qgl_d_ptr ) {
-	QGLWidgetPrivate * d = qgl_d_ptr->find( (void *) w );
+	QGLWidgetPrivate * d = qgl_d_ptr->value(w);
 	((QGLWidget*) w)->makeCurrent();
 	if ( d ) {
 	    QMap<QString, int>::Iterator it;
@@ -1259,7 +1259,7 @@ void qgl_delete_d( const QGLWidget * w )
 		glDeleteLists( it.data(), 256 );
 	    }
 	}
-	qgl_d_ptr->remove( (void *) w );
+	qgl_d_ptr->remove(w);
     }
 }
 

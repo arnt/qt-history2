@@ -49,7 +49,6 @@
 #include "qobject.h"
 #include "qguardedptr.h"
 #include "qcleanuphandler.h"
-#include "qdict.h"
 #include <stdlib.h>
 
 QT_STATIC_CONST_IMPL char * const QSqlDatabase::defaultConnection = "qt_sql_default_connection";
@@ -89,7 +88,7 @@ public:
     QSqlQuery createQuery() const { return QSqlQuery( new QNullResult(this) ); }
 };
 
-typedef QDict<QSqlDriverCreatorBase> QDriverDict;
+typedef QHash<QString, const QSqlDriverCreatorBase*> QDriverDict;
 
 class QSqlDatabaseManager : public QObject
 {
@@ -105,7 +104,7 @@ public:
 
 protected:
     static QSqlDatabaseManager* instance();
-    QDict< QSqlDatabase > dbDict;
+    QHash<QString, QSqlDatabase*> dbDict;
     QDriverDict* drDict;
 };
 
@@ -114,7 +113,7 @@ protected:
 */
 
 QSqlDatabaseManager::QSqlDatabaseManager(QObject * parent)
-    : QObject(parent), dbDict( 1 ), drDict( 0 )
+    : QObject(parent), drDict( 0 )
 {
 }
 
@@ -126,11 +125,10 @@ QSqlDatabaseManager::QSqlDatabaseManager(QObject * parent)
 
 QSqlDatabaseManager::~QSqlDatabaseManager()
 {
-    QDictIterator< QSqlDatabase > it( dbDict );
-    while ( it.current() ) {
-	it.current()->close();
-	delete it.current();
-	++it;
+    for (QHash<QString, QSqlDatabase*>::ConstIterator it = dbDict.begin();
+	 it != dbDict.end(); ++it) {
+	(*it)->close();
+	delete *it;
     }
     delete drDict;
 }
@@ -178,7 +176,7 @@ QSqlDatabase* QSqlDatabaseManager::database( const QString& name, bool open )
 	return 0;
 
     QSqlDatabaseManager* sqlConnection = instance();
-    QSqlDatabase* db = sqlConnection->dbDict.find( name );
+    QSqlDatabase* db = sqlConnection->dbDict.value( name );
     if ( db && !db->isOpen() && open ) {
 	db->open();
 	if ( !db->isOpen() )
@@ -195,10 +193,7 @@ QSqlDatabase* QSqlDatabaseManager::database( const QString& name, bool open )
 bool QSqlDatabaseManager::contains( const QString& name )
 {
    QSqlDatabaseManager* sqlConnection = instance();
-   QSqlDatabase* db = sqlConnection->dbDict.find( name );
-   if ( db )
-       return TRUE;
-   return FALSE;
+   return sqlConnection->dbDict.contains(name);
 }
 
 
@@ -260,15 +255,14 @@ void QSqlDatabaseManager::removeDatabase( QSqlDatabase* db )
     QSqlDatabaseManager* sqlConnection = instance();
     if ( !sqlConnection )
 	return;
-    QDictIterator< QSqlDatabase > it( sqlConnection->dbDict );
-    while ( it.current() ) {
-	if ( it.current() == db ) {
-	    sqlConnection->dbDict.remove( it.currentKey() );
+    for (QHash<QString, QSqlDatabase*>::ConstIterator it = sqlConnection->dbDict.begin();
+	 it != sqlConnection->dbDict.end(); ++it) {
+	if ( *it == db ) {
+	    sqlConnection->dbDict.remove( it.key() );
 	    db->close();
 	    delete db;
 	    break;
 	}
-	++it;
     }
 }
 
@@ -425,11 +419,10 @@ QStringList QSqlDatabase::drivers()
     delete plugIns;
 #endif
 
-    QDictIterator<QSqlDriverCreatorBase> itd( *QSqlDatabaseManager::driverDict() );
-    while ( itd.current() ) {
-	if ( !l.contains( itd.currentKey() ) )
-	    l << itd.currentKey();
-	++itd;
+    QDriverDict *dict = QSqlDatabaseManager::driverDict();
+    for (QDriverDict::ConstIterator itd = dict->begin(); itd != dict->end(); ++itd ) {
+	if ( !l.contains( itd.key() ) )
+	    l << itd.key();
     }
 
 #ifdef QT_SQL_POSTGRES
@@ -608,12 +601,12 @@ void QSqlDatabase::init( const QString& type, const QString& )
     }
 
     if ( !d->driver ) {
-	QDictIterator<QSqlDriverCreatorBase> it( *QSqlDatabaseManager::driverDict() );
-	while ( it.current() && !d->driver ) {
-	    if ( type == it.currentKey() ) {
-		d->driver = it.current()->createObject();
+	QDriverDict *dict = QSqlDatabaseManager::driverDict();
+	for (QDriverDict::ConstIterator it = dict->begin();
+	     it != dict->end() && !d->driver; ++it ) {
+	    if ( type == it.key() ) {
+		d->driver = ((QSqlDriverCreatorBase*)(*it))->createObject();
 	    }
-	    ++it;
 	}
     }
 
