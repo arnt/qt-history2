@@ -378,19 +378,19 @@ class Q_GUI_EXPORT QDropEvent : public QEvent
 // END QT3_SUPPORT
 {
 public:
-    QDropEvent(const QPoint& pos, QDrag::DropActions actions, const QMimeData *data, Type type = Drop);
+    QDropEvent(const QPoint& pos, Qt::DropActions actions, const QMimeData *data, Type type = Drop);
     ~QDropEvent();
 
     inline const QPoint &pos() const { return p; }
     inline Qt::MouseButtons mouseButtons() const { return mouseState; }
     inline Qt::KeyboardModifiers keyboardModifiers() const { return modState; }
     
-    inline QDrag::DropActions possibleActions() const { return act; }
-    inline QDrag::DropAction proposedAction() const { return default_action; }
+    inline Qt::DropActions possibleActions() const { return act; }
+    inline Qt::DropAction proposedAction() const { return default_action; }
     inline void acceptProposedAction() { drop_action = default_action; accept(); }
 
-    inline QDrag::DropAction dropAction() const { return drop_action; }
-    void setDropAction(QDrag::DropAction action);
+    inline Qt::DropAction dropAction() const { return drop_action; }
+    void setDropAction(Qt::DropAction action);
 
     QWidget* source() const;
     inline const QMimeData *mimeData() const { return mdata; }
@@ -416,9 +416,9 @@ protected:
     QPoint p;
     Qt::MouseButtons mouseState;
     Qt::KeyboardModifiers modState;
-    QDrag::DropActions act;
-    QDrag::DropAction drop_action;
-    QDrag::DropAction default_action;
+    Qt::DropActions act;
+    Qt::DropAction drop_action;
+    Qt::DropAction default_action;
     const QMimeData *mdata;
     mutable QList<QByteArray> fmts; // only used for QT3_SUPPORT
 };
@@ -427,7 +427,7 @@ protected:
 class Q_GUI_EXPORT QDragMoveEvent : public QDropEvent
 {
 public:
-    QDragMoveEvent(const QPoint &pos, QDrag::DropActions actions, const QMimeData *data, Type type = DragMove);
+    QDragMoveEvent(const QPoint &pos, Qt::DropActions actions, const QMimeData *data, Type type = DragMove);
     ~QDragMoveEvent();
 
     inline QRect answerRect() const { return rect; }
@@ -450,7 +450,7 @@ protected:
 class Q_GUI_EXPORT QDragEnterEvent : public QDragMoveEvent
 {
 public:
-    QDragEnterEvent(const QPoint &pos, QDrag::DropActions actions, const QMimeData *data);
+    QDragEnterEvent(const QPoint &pos, Qt::DropActions actions, const QMimeData *data);
     ~QDragEnterEvent();
 };
 

@@ -1246,6 +1246,16 @@ public:
         RightToLeft
     };
 
+    enum DropAction {
+        CopyAction = 0x1,
+        MoveAction = 0x2,
+        LinkAction = 0x4,
+        ActionMask = 0xff,
+        TargetMoveAction = 0x8002,
+        IgnoreAction = 0x0
+    };
+    Q_DECLARE_FLAGS(DropActions, DropAction)
+
     enum CheckState {
         Unchecked,
         PartiallyChecked,
@@ -1272,6 +1282,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ImageConversionFlags)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::DockWindowAreas)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ToolBarAreas)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WindowStates)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::DropActions)
 
 class Q_CORE_EXPORT QInternal {
 public:

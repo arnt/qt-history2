@@ -1800,7 +1800,7 @@ void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelI
 /*!
     Starts a drag by calling drag->start() using the given \a supportedActions.
 */
-void QAbstractItemView::startDrag(QDrag::DropActions supportedActions)
+void QAbstractItemView::startDrag(Qt::DropActions supportedActions)
 {
     QModelIndexList indexes = selectionModel()->selectedIndexes();
     if (indexes.count() > 0) {
@@ -1826,7 +1826,7 @@ void QAbstractItemView::startDrag(QDrag::DropActions supportedActions)
         QDrag *drag = new QDrag(this);
         drag->setPixmap(pixmap);
         drag->setMimeData(model()->mimeData(indexes));
-        if (drag->start(supportedActions) == QDrag::MoveAction)
+        if (drag->start(supportedActions) == Qt::MoveAction)
             d->removeSelectedRows();
     }
 }

@@ -212,13 +212,13 @@ QMimeData *QProxyModel::mimeData(const QModelIndexList &indexes) const
     return d->model->mimeData(indexes);
 }
 
-bool QProxyModel::dropMimeData(const QMimeData *data, QDrag::DropAction action,
+bool QProxyModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
                                int row, const QModelIndex &parent)
 {
     return d->model->dropMimeData(data, action, row, parent);
 }
 
-QDrag::DropActions QProxyModel::supportedDropActions() const
+Qt::DropActions QProxyModel::supportedDropActions() const
 {
     return d->model->supportedDropActions();
 }

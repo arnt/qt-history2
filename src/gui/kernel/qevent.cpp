@@ -1486,7 +1486,7 @@ QTabletEvent::~QTabletEvent()
     \warning Do not create a QDragMoveEvent yourself since these
     objects rely on Qt's internal state.
 */
-QDragMoveEvent::QDragMoveEvent(const QPoint& pos, QDrag::DropActions actions, const QMimeData *data, Type type)
+QDragMoveEvent::QDragMoveEvent(const QPoint& pos, Qt::DropActions actions, const QMimeData *data, Type type)
     : QDropEvent(pos, actions, data, type), rect(pos, QSize(1, 1))
 {}
 
@@ -1558,7 +1558,7 @@ QDragMoveEvent::~QDragMoveEvent()
     The drop event contains a proposed action, available from proposedAction(), for
     the widget to either accept or ignore. If the action can be handled by the
     widget, you should call the acceptProposedAction() function. Since the
-    proposed action can be a combination of \l QDrag::DropAction values, it may be
+    proposed action can be a combination of \l Qt::DropAction values, it may be
     useful to either select one of these values as a default action or ask
     the user to select their preferred action. If the required drop action is
     different to the proposed action, you can call setDropAction() instead of
@@ -1583,9 +1583,9 @@ QDragMoveEvent::~QDragMoveEvent()
     drop at the given \a point in a widget. The drag data is stored
     in \a data.
 */ // ### pos is in which coordinate system?
-QDropEvent::QDropEvent(const QPoint& pos, QDrag::DropActions actions, const QMimeData *data, Type type)
+QDropEvent::QDropEvent(const QPoint& pos, Qt::DropActions actions, const QMimeData *data, Type type)
     : QEvent(type), p(pos), act(actions),
-      drop_action(QDrag::CopyAction),
+      drop_action(Qt::CopyAction),
       mdata(data)
 {
     mouseState = QApplication::mouseButtons();
@@ -1674,10 +1674,10 @@ QWidget* QDropEvent::source() const
 }
 
 
-void QDropEvent::setDropAction(QDrag::DropAction action)
+void QDropEvent::setDropAction(Qt::DropAction action)
 {
     if (!(action & act))
-        action = QDrag::CopyAction;
+        action = Qt::CopyAction;
     drop_action = action;
 }
 
@@ -1787,11 +1787,11 @@ void QDropEvent::setDropAction(QDrag::DropAction action)
 QT3_SUPPORT QDropEvent::Action QDropEvent::action() const
 {
     switch(drop_action) {
-    case QDrag::CopyAction:
+    case Qt::CopyAction:
         return Copy;
-    case QDrag::MoveAction:
+    case Qt::MoveAction:
         return Move;
-    case QDrag::LinkAction:
+    case Qt::LinkAction:
         return Link;
     default:
         return Copy;
@@ -1831,7 +1831,7 @@ QT3_SUPPORT QDropEvent::Action QDropEvent::action() const
     \warning Do not create a QDragEnterEvent yourself since these
     objects rely on Qt's internal state.
 */
-QDragEnterEvent::QDragEnterEvent(const QPoint& point, QDrag::DropActions actions, const QMimeData *data)
+QDragEnterEvent::QDragEnterEvent(const QPoint& point, Qt::DropActions actions, const QMimeData *data)
     : QDragMoveEvent(point, actions, data, DragEnter)
 {}
 

@@ -174,9 +174,9 @@ public:
 
     virtual QStringList mimeTypes() const;
     virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
-    virtual bool dropMimeData(const QMimeData *data, QDrag::DropAction action,
+    virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action,
                               int row, const QModelIndex &parent);
-    virtual QDrag::DropActions supportedDropActions() const;
+    virtual Qt::DropActions supportedDropActions() const;
 
     virtual bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex());
     virtual bool insertColumns(int column, int count, const QModelIndex &parent = QModelIndex());

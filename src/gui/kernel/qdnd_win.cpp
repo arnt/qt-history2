@@ -33,40 +33,40 @@
 //#define QDND_DEBUG
 
 #ifdef QDND_DEBUG
-extern QString dragActionsToString(QDrag::DropActions actions);
+extern QString dragActionsToString(Qt::DropActions actions);
 #endif
 
-QDrag::DropActions translateToQDragDropActions(DWORD pdwEffects)
+Qt::DropActions translateToQDragDropActions(DWORD pdwEffects)
 {
-    QDrag::DropActions actions = QDrag::IgnoreAction;
+    Qt::DropActions actions = Qt::IgnoreAction;
     if (pdwEffects & DROPEFFECT_LINK)
-        actions |= QDrag::LinkAction;
+        actions |= Qt::LinkAction;
     if (pdwEffects & DROPEFFECT_COPY)
-        actions |= QDrag::CopyAction;
+        actions |= Qt::CopyAction;
     if (pdwEffects & DROPEFFECT_MOVE)
-        actions |= QDrag::MoveAction;
+        actions |= Qt::MoveAction;
     return actions;
 }
 
-QDrag::DropAction translateToQDragDropAction(DWORD pdwEffect)
+Qt::DropAction translateToQDragDropAction(DWORD pdwEffect)
 {
     if (pdwEffect & DROPEFFECT_LINK)
-        return QDrag::LinkAction;
+        return Qt::LinkAction;
     if (pdwEffect & DROPEFFECT_COPY)
-        return QDrag::CopyAction;
+        return Qt::CopyAction;
     if (pdwEffect & DROPEFFECT_MOVE)
-        return QDrag::MoveAction;
-    return QDrag::IgnoreAction;
+        return Qt::MoveAction;
+    return Qt::IgnoreAction;
 }
 
-DWORD translateToWinDragEffects(QDrag::DropActions action)
+DWORD translateToWinDragEffects(Qt::DropActions action)
 {
     DWORD effect = DROPEFFECT_NONE;
-    if (action & QDrag::LinkAction)
+    if (action & Qt::LinkAction)
         effect |= DROPEFFECT_LINK;
-    if (action & QDrag::CopyAction)
+    if (action & Qt::CopyAction)
         effect |= DROPEFFECT_COPY;
-    if (action & QDrag::MoveAction)
+    if (action & Qt::MoveAction)
         effect |= DROPEFFECT_MOVE;
     return effect;
 }
@@ -90,7 +90,7 @@ public:
     STDMETHOD(GiveFeedback)(DWORD dwEffect);
 
 private:
-    QDrag::DropAction currentAction;
+    Qt::DropAction currentAction;
     int numCursors;
     HCURSOR * cursor;
 
@@ -145,7 +145,7 @@ STDAPI_(LPENUMFORMATETC)
 QOleDropSource::QOleDropSource()
 {
     m_refs = 1;
-    currentAction = QDrag::CopyAction;
+    currentAction = Qt::CopyAction;
     numCursors = 0;
     cursor = 0;
 }
@@ -172,8 +172,8 @@ void QOleDropSource::createCursors()
         && (!manager->object->pixmap().isNull()
         || manager->hasCustomDragCursors())) {
         QPixmap pm = manager->object->pixmap();
-        QList<QDrag::DropAction> actions;
-        actions << QDrag::MoveAction << QDrag::CopyAction << QDrag::LinkAction;
+        QList<Qt::DropAction> actions;
+        actions << Qt::MoveAction << Qt::CopyAction << Qt::LinkAction;
         cursor = new HCURSOR[actions.size()];
         QPoint hotSpot = manager->object->hotSpot();
         for (int cnum=0; cnum<actions.size(); cnum++) {
@@ -300,7 +300,7 @@ QOleDropSource::QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState)
 STDMETHODIMP
 QOleDropSource::GiveFeedback(DWORD dwEffect)
 {
-    QDrag::DropAction action = translateToQDragDropAction(dwEffect);
+    Qt::DropAction action = translateToQDragDropAction(dwEffect);
 
 #ifdef QDND_DEBUG
     qDebug("QOleDropSource::GiveFeedback(DWORD dwEffect)");
@@ -313,11 +313,11 @@ QOleDropSource::GiveFeedback(DWORD dwEffect)
     }
 
     if (cursor) {
-        if (currentAction == QDrag::MoveAction)
+        if (currentAction == Qt::MoveAction)
             SetCursor(cursor[0]);
-        else if (currentAction == QDrag::CopyAction)
+        else if (currentAction == Qt::CopyAction)
             SetCursor(cursor[1]);
-        else if (currentAction == QDrag::LinkAction)
+        else if (currentAction == Qt::LinkAction)
             SetCursor(cursor[2]);
         else
             return ResultFromScode(DRAGDROP_S_USEDEFAULTCURSORS);
@@ -696,8 +696,8 @@ QOleDropTarget::Drop(LPDATAOBJECT /*pDataObj*/, DWORD grfKeyState, POINTL pt, LP
     QApplication::sendEvent(widget, &e);
 
     if (e.isAccepted()) {
-        if (e.dropAction() == QDrag::MoveAction || e.dropAction() == QDrag::TargetMoveAction) {
-            if (e.dropAction() == QDrag::MoveAction)
+        if (e.dropAction() == Qt::MoveAction || e.dropAction() == Qt::TargetMoveAction) {
+            if (e.dropAction() == Qt::MoveAction)
                 choosenEffect = DROPEFFECT_MOVE;
             else
                 choosenEffect = DROPEFFECT_COPY;
@@ -781,7 +781,7 @@ QCoreVariant QDropData::retrieveData(const QString &mimeType, QCoreVariant::Type
     return result;
 }
 
-QDrag::DropAction QDragManager::drag(QDrag *o)
+Qt::DropAction QDragManager::drag(QDrag *o)
 
 {
 #ifdef QDND_DEBUG
@@ -789,7 +789,7 @@ QDrag::DropAction QDragManager::drag(QDrag *o)
 #endif
 
     if (object == o || !o || !o->d_func()->source)
-        return QDrag::IgnoreAction;
+        return Qt::IgnoreAction;
 
     if (object) {
         cancel();
@@ -829,10 +829,10 @@ QDrag::DropAction QDragManager::drag(QDrag *o)
     HRESULT r = DoDragDrop(obj, src, allowedEffects, &resultEffect);
 #endif
 
-    QDrag::DropAction ret = QDrag::IgnoreAction;
+    Qt::DropAction ret = Qt::IgnoreAction;
     if (r == DRAGDROP_S_DROP) {
         if (obj->reportedPerformedEffect() == DROPEFFECT_MOVE && resultEffect != DROPEFFECT_MOVE) {
-            ret = QDrag::TargetMoveAction;
+            ret = Qt::TargetMoveAction;
             resultEffect = DROPEFFECT_MOVE;
         } else {
             ret = translateToQDragDropAction(resultEffect);
@@ -840,7 +840,7 @@ QDrag::DropAction QDragManager::drag(QDrag *o)
         // Force it to be a copy if an unsuported operation occured.
         // This indicates a bug in the drop target.
         if (resultEffect != DROPEFFECT_NONE && !(resultEffect & allowedEffects))
-            ret = QDrag::CopyAction;
+            ret = Qt::CopyAction;
     } else {
         dragPrivate()->target = 0;
     }

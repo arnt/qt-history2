@@ -891,11 +891,11 @@ QMimeData *QAbstractItemModel::mimeData(const QModelIndexList &indexes) const
 
     \sa supportedDropActions()
 */
-bool QAbstractItemModel::dropMimeData(const QMimeData *data, QDrag::DropAction action,
+bool QAbstractItemModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
                                       int row, const QModelIndex &parent)
 {
     // check if the action is supported
-    if (action != QDrag::CopyAction)
+    if (action != Qt::CopyAction)
         return false;
     // check if the format is supported
     QString format = mimeTypes().at(0);
@@ -913,11 +913,11 @@ bool QAbstractItemModel::dropMimeData(const QMimeData *data, QDrag::DropAction a
 /*!
   Returns the drop actions supported by this model.
 
-  \sa QDrag::DropActions
+  \sa Qt::DropActions
 */
-QDrag::DropActions QAbstractItemModel::supportedDropActions() const
+Qt::DropActions QAbstractItemModel::supportedDropActions() const
 {
-    return QDrag::CopyAction;
+    return Qt::CopyAction;
 }
 
 /*!

@@ -129,12 +129,12 @@ struct mac_enum_mapper
     int qt_code;
 };
 static mac_enum_mapper dnd_action_symbols[] = {
-    { kDragActionAlias, MAP_MAC_ENUM(QDrag::LinkAction) },
-    { kDragActionMove, MAP_MAC_ENUM(QDrag::MoveAction) },
-    { kDragActionCopy, MAP_MAC_ENUM(QDrag::CopyAction) },
+    { kDragActionAlias, MAP_MAC_ENUM(Qt::LinkAction) },
+    { kDragActionMove, MAP_MAC_ENUM(Qt::MoveAction) },
+    { kDragActionCopy, MAP_MAC_ENUM(Qt::CopyAction) },
     { 0, MAP_MAC_ENUM(0) }
 };
-static DragActions qt_mac_dnd_map_qt_actions(QDrag::DropActions qActions)
+static DragActions qt_mac_dnd_map_qt_actions(Qt::DropActions qActions)
 {
     DragActions ret = kDragActionNothing;
     for(int i = 0; dnd_action_symbols[i].qt_code; ++i) {
@@ -143,36 +143,36 @@ static DragActions qt_mac_dnd_map_qt_actions(QDrag::DropActions qActions)
     }
     return ret;
 }
-static QDrag::DropActions qt_mac_dnd_map_mac_actions(DragActions macActions)
+static Qt::DropActions qt_mac_dnd_map_mac_actions(DragActions macActions)
 {
-    QDrag::DropActions ret = QDrag::IgnoreAction;
+    Qt::DropActions ret = Qt::IgnoreAction;
     for(int i = 0; dnd_action_symbols[i].qt_code; ++i) {
         if(macActions & dnd_action_symbols[i].mac_code)
-            ret |= QDrag::DropAction(dnd_action_symbols[i].qt_code);
+            ret |= Qt::DropAction(dnd_action_symbols[i].qt_code);
     }
     return ret;
 }
-static QDrag::DropAction qt_mac_dnd_map_mac_default_action(DragActions macActions)
+static Qt::DropAction qt_mac_dnd_map_mac_default_action(DragActions macActions)
 {
-    static QDrag::DropAction preferred_actions[] = { QDrag::CopyAction, QDrag::LinkAction, //in order
-                                                     QDrag::MoveAction, QDrag::IgnoreAction };
-    const QDrag::DropActions qtActions = qt_mac_dnd_map_mac_actions(macActions);
-    for(int i = 0; preferred_actions[i] != QDrag::IgnoreAction; ++i) {
+    static Qt::DropAction preferred_actions[] = { Qt::CopyAction, Qt::LinkAction, //in order
+                                                     Qt::MoveAction, Qt::IgnoreAction };
+    const Qt::DropActions qtActions = qt_mac_dnd_map_mac_actions(macActions);
+    for(int i = 0; preferred_actions[i] != Qt::IgnoreAction; ++i) {
         if(qtActions & preferred_actions[i])
             return preferred_actions[i];
     }
-    return QDrag::IgnoreAction;
+    return Qt::IgnoreAction;
 }
 static void qt_mac_dnd_update_action(DragReference dragRef) {
     SInt16 modifiers;
     GetDragModifiers(dragRef, &modifiers, 0, 0);
     qt_mac_send_modifiers_changed(modifiers, qApp);
 
-    QDrag::DropAction qtAction = QDrag::IgnoreAction;
+    Qt::DropAction qtAction = Qt::IgnoreAction;
     {
         DragActions macAllowed = kDragActionNothing;
         GetDragAllowableActions(dragRef, &macAllowed);
-        QDrag::DropActions qtAllowed = qt_mac_dnd_map_mac_actions(macAllowed);
+        Qt::DropActions qtAllowed = qt_mac_dnd_map_mac_actions(macAllowed);
         qtAction = QDragManager::self()->defaultAction(qtAllowed);
 #if 1
         if(!(qtAllowed & qtAction))
@@ -350,7 +350,7 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
     //lookup the possible actions
     DragActions allowed = kDragActionNothing;
     GetDragAllowableActions(dragRef, &allowed);
-    QDrag::DropActions qtAllowed = qt_mac_dnd_map_mac_actions(allowed);
+    Qt::DropActions qtAllowed = qt_mac_dnd_map_mac_actions(allowed);
 
     //lookup the source
     QMimeData *dropdata = QDragManager::self()->dropData;
@@ -419,16 +419,16 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
         DragActions action = kDragActionNothing;
         GetDragDropAction(dragRef, &action);
         switch(qt_mac_dnd_map_mac_default_action(action)) {
-        case QDrag::IgnoreAction:
+        case Qt::IgnoreAction:
             found_cursor = false;
             break;
-        case QDrag::MoveAction:
+        case Qt::MoveAction:
             SetThemeCursor(kThemeArrowCursor);
             break;
-        case QDrag::CopyAction:
+        case Qt::CopyAction:
             SetThemeCursor(kThemeCopyArrowCursor);
             break;
-        case QDrag::LinkAction:
+        case Qt::LinkAction:
             SetThemeCursor(kThemeAliasArrowCursor);
             break;
         default:
@@ -461,18 +461,18 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
     return ret;
 }
 
-QDrag::DropAction QDragManager::drag(QDrag *o)
+Qt::DropAction QDragManager::drag(QDrag *o)
 {
     if(qt_mac_in_drag) {     //just make sure..
         qWarning("Qt: internal: WH0A, unexpected condition reached.");
-        return QDrag::IgnoreAction;
+        return Qt::IgnoreAction;
     }
     if(object == o)
-        return QDrag::IgnoreAction;
+        return Qt::IgnoreAction;
     /* At the moment it seems clear that Mac OS X does not want to drag with a non-left button
        so we just bail early to prevent it */
     if(!(GetCurrentEventButtonState() & kEventMouseButtonPrimary))
-        return QDrag::IgnoreAction;
+        return Qt::IgnoreAction;
 
     if(object) {
         o->d->source->removeEventFilter(this);
@@ -490,7 +490,7 @@ QDrag::DropAction QDragManager::drag(QDrag *o)
     OSErr result;
     DragRef dragRef;
     if((result = NewDrag(&dragRef)))
-        return QDrag::IgnoreAction;
+        return Qt::IgnoreAction;
     SetDragSendProc(dragRef, make_sendUPP(), o->d); //fullfills the promise!
     //setup the actions
     SetDragAllowableActions(dragRef, //local
@@ -596,7 +596,7 @@ QDrag::DropAction QDragManager::drag(QDrag *o)
         return qt_mac_dnd_map_mac_default_action(ret);
     }
     DisposeDrag(dragRef); //cleanup
-    return QDrag::IgnoreAction;
+    return Qt::IgnoreAction;
 }
 
 void QDragManager::updatePixmap()

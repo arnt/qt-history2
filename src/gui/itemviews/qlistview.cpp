@@ -726,7 +726,7 @@ void QListView::dropEvent(QDropEvent *e)
 /*!
   \reimp
 */
-void QListView::startDrag(QDrag::DropActions supportedActions)
+void QListView::startDrag(Qt::DropActions supportedActions)
 {
     if (d->movement == Free)
         internalDrag(supportedActions);
@@ -763,7 +763,7 @@ void QListView::internalDrop(QDropEvent *e)
   Called whenever the user starts dragging items and the items are movable,
   enabling internal dragging and dropping of items.
  */
-void QListView::internalDrag(QDrag::DropActions supportedActions)
+void QListView::internalDrag(Qt::DropActions supportedActions)
 {
     // This function does the same thing as in QAbstractItemView::startDrag(),
     // plus adding viewitems to the draggedItems list.
@@ -776,9 +776,9 @@ void QListView::internalDrag(QDrag::DropActions supportedActions)
                 d->draggedItems.push_back(*it);
         QDrag *drag = new QDrag(this);
         drag->setMimeData(model()->mimeData(indexes));
-        QDrag::DropAction action = drag->start(supportedActions);
+        Qt::DropAction action = drag->start(supportedActions);
         d->draggedItems.clear();
-        if (action == QDrag::MoveAction)
+        if (action == Qt::MoveAction)
             d->removeSelectedRows();
     }
 }

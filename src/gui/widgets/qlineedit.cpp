@@ -1905,7 +1905,7 @@ void QLineEdit::dropEvent(QDropEvent* e)
     QString str = e->mimeData()->text();
 
     if (!str.isNull() && !d->readOnly) {
-        if (e->source() == this && e->dropAction() == QDrag::CopyAction)
+        if (e->source() == this && e->dropAction() == Qt::CopyAction)
             deselect();
         d->cursor =d->xToPos(e->pos().x());
         int selStart = d->cursor;
@@ -1915,7 +1915,7 @@ void QLineEdit::dropEvent(QDropEvent* e)
         e->acceptProposedAction();
         insert(str);
         if (e->source() == this) {
-            if (e->dropAction() == QDrag::MoveAction) {
+            if (e->dropAction() == Qt::MoveAction) {
                 if (selStart > oldSelStart && selStart <= oldSelEnd)
                     setSelection(oldSelStart, str.length());
                 else if (selStart > oldSelEnd)
@@ -1939,8 +1939,8 @@ void QLineEditPrivate::drag()
     data->setText(q->selectedText());
     QDrag *drag = new QDrag(q);
     drag->setMimeData(data);
-    QDrag::DropAction action = drag->start();
-    if (action == QDrag::MoveAction && !readOnly && drag->target() != q) {
+    Qt::DropAction action = drag->start();
+    if (action == Qt::MoveAction && !readOnly && drag->target() != q) {
         int priorState = undoState;
         removeSelectedText();
         finishChange(priorState);

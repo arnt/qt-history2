@@ -189,30 +189,30 @@ static const char * const link_xpm[] = {
 //#define QDND_DEBUG
 
 #ifdef QDND_DEBUG
-QString dragActionsToString(QDrag::DropActions actions)
+QString dragActionsToString(Qt::DropActions actions)
 {
     QString str;
-    if (actions == QDrag::IgnoreAction) {
+    if (actions == Qt::IgnoreAction) {
         if (!str.isEmpty())
             str += " | ";
         str += "IgnoreAction";
     }
-    if (actions & QDrag::LinkAction) {
+    if (actions & Qt::LinkAction) {
         if (!str.isEmpty())
             str += " | ";
         str += "LinkAction";
     }
-    if (actions & QDrag::CopyAction) {
+    if (actions & Qt::CopyAction) {
         if (!str.isEmpty())
             str += " | ";
         str += "CopyAction";
     }
-    if (actions & QDrag::MoveAction) {
+    if (actions & Qt::MoveAction) {
         if (!str.isEmpty())
             str += " | ";
         str += "MoveAction";
     }
-    if ((actions & QDrag::TargetMoveAction) == QDrag::TargetMoveAction ) {
+    if ((actions & Qt::TargetMoveAction) == Qt::TargetMoveAction ) {
         if (!str.isEmpty())
             str += " | ";
         str += "TargetMoveAction";
@@ -283,16 +283,16 @@ QDragManager *QDragManager::self()
     return instance;
 }
 
-QPixmap QDragManager::dragCursor(QDrag::DropAction action) const
+QPixmap QDragManager::dragCursor(Qt::DropAction action) const
 {
     QDragPrivate * d = dragPrivate();
     if (d && d->customCursors.contains(action))
         return d->customCursors[action];
-    else if (action == QDrag::MoveAction)
+    else if (action == Qt::MoveAction)
         return pm_cursor[0];
-    else if (action == QDrag::CopyAction)
+    else if (action == Qt::CopyAction)
         return pm_cursor[1];
-    else if (action == QDrag::LinkAction)
+    else if (action == Qt::LinkAction)
         return pm_cursor[2];
     return 0;
 }
@@ -303,33 +303,33 @@ bool QDragManager::hasCustomDragCursors() const
     return d && !d->customCursors.isEmpty();
 }
 
-QDrag::DropAction QDragManager::defaultAction(QDrag::DropActions possibleActions) const
+Qt::DropAction QDragManager::defaultAction(Qt::DropActions possibleActions) const
 {
-    QDrag::DropAction defaultAction = QDrag::CopyAction;
+    Qt::DropAction defaultAction = Qt::CopyAction;
 
     //### on windows these are not updated as part of the drag ... need to put a hook some where for this
     Qt::KeyboardModifiers modifiers = QApplication::keyboardModifiers();
 #ifdef QDND_DEBUG
-    qDebug("QDragManager::defaultAction(QDrag::DropActions possibleActions)");
+    qDebug("QDragManager::defaultAction(Qt::DropActions possibleActions)");
     qDebug("keyboard modifiers : %s", KeyboardModifiersToString(modifiers).latin1());
 #endif
 
 #ifdef Q_WS_MAC
     if (modifiers & Qt::ControlModifier && modifiers & Qt::AltModifier)
-        defaultAction = QDrag::LinkAction;
+        defaultAction = Qt::LinkAction;
     else if (modifiers & Qt::AltModifier)
-        defaultAction = QDrag::CopyAction;
+        defaultAction = Qt::CopyAction;
     else
-        defaultAction = QDrag::MoveAction;
+        defaultAction = Qt::MoveAction;
 #else
     if (modifiers & Qt::ControlModifier && modifiers & Qt::ShiftModifier)
-        defaultAction = QDrag::LinkAction;
+        defaultAction = Qt::LinkAction;
     else if (modifiers & Qt::ControlModifier)
-        defaultAction = QDrag::CopyAction;
+        defaultAction = Qt::CopyAction;
     else if (modifiers & Qt::ShiftModifier)
-        defaultAction = QDrag::MoveAction;
+        defaultAction = Qt::MoveAction;
     else if (modifiers & Qt::AltModifier)
-        defaultAction = QDrag::LinkAction;
+        defaultAction = Qt::LinkAction;
 #endif
 
     // if the object is set take the list of possibles from it
@@ -342,7 +342,7 @@ QDrag::DropAction QDragManager::defaultAction(QDrag::DropActions possibleActions
 
     // Check if the action determined is allowed
     if (!(possibleActions & defaultAction))
-        defaultAction = QDrag::CopyAction;
+        defaultAction = Qt::CopyAction;
 
 #ifdef QDND_DEBUG
     qDebug("default action : %s", dragActionsToString(defaultAction).latin1());

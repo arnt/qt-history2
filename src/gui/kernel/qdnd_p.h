@@ -43,9 +43,9 @@ public:
     QMimeData *data;
     QPixmap pixmap;
     QPoint hotspot;
-    QDrag::DropActions possible_actions;
-    QDrag::DropAction executed_action;
-    QMap<QDrag::DropAction, QPixmap> customCursors;
+    Qt::DropActions possible_actions;
+    Qt::DropAction executed_action;
+    QMap<Qt::DropAction, QPixmap> customCursors;
 };
 
 class QDropData : public QMimeData
@@ -84,7 +84,7 @@ class Q_GUI_EXPORT QDragManager: public QObject {
     void timerEvent(QTimerEvent*);
 
 public:
-    QDrag::DropAction drag(QDrag *);
+    Qt::DropAction drag(QDrag *);
 
     void cancel(bool deleteSource = true);
     void move(const QPoint &);
@@ -94,7 +94,7 @@ public:
     QDragPrivate *dragPrivate() const { return object ? object->d_func() : 0; }
 
     static QDragManager *self();
-    QDrag::DropAction defaultAction(QDrag::DropActions possibleActions) const;
+    Qt::DropAction defaultAction(Qt::DropActions possibleActions) const;
 
     QDrag *object;
 
@@ -105,13 +105,13 @@ public:
     bool willDrop;
     QEventLoop *eventLoop;
 
-    QPixmap dragCursor(QDrag::DropAction action) const;
+    QPixmap dragCursor(Qt::DropAction action) const;
 
     bool hasCustomDragCursors() const;
     
     QDropData *dropData;
 
-    void emitActionChanged(QDrag::DropAction newAction) { if (object) emit object->actionChanged(newAction); }
+    void emitActionChanged(Qt::DropAction newAction) { if (object) emit object->actionChanged(newAction); }
     void emitTargetChanged(QWidget *newTarget) { if (object) emit object->targetChanged(newTarget); }
 private:
     QPixmap *pm_cursor;

@@ -43,8 +43,8 @@ static const char* default_pm[] = {
 };
 
 // Shift/Ctrl handling, and final drop status
-static QDrag::DropAction global_accepted_action = QDrag::CopyAction;
-static QDrag::DropActions possible_actions = QDrag::IgnoreAction;
+static Qt::DropAction global_accepted_action = Qt::CopyAction;
+static Qt::DropActions possible_actions = Qt::IgnoreAction;
 
 
 // static variables in place of a proper cross-process solution
@@ -177,11 +177,11 @@ bool QDragManager::eventFilter(QObject *o, QEvent *e)
             if (manager->object)
                 possible_actions =  manager->dragPrivate()->possible_actions;
             else
-                possible_actions = QDrag::IgnoreAction;
+                possible_actions = Qt::IgnoreAction;
 
             QMouseEvent *me = (QMouseEvent *)e;
             if (me->buttons()) {
-                QDrag::DropAction prevAction = global_accepted_action;
+                Qt::DropAction prevAction = global_accepted_action;
                 QWidget *cw = QApplication::widgetAt(me->globalPos());
 
                 // Fix for when we move mouse on to the deco widget
@@ -194,7 +194,7 @@ bool QDragManager::eventFilter(QObject *o, QEvent *e)
                         QDragLeaveEvent dle;
                         QApplication::sendEvent(object->target(), &dle);
                         willDrop = false;
-                        global_accepted_action = QDrag::IgnoreAction;
+                        global_accepted_action = Qt::IgnoreAction;
                         updateCursor();
                         restoreCursor = true;
                         object->d_func()->target = 0;
@@ -204,7 +204,7 @@ bool QDragManager::eventFilter(QObject *o, QEvent *e)
                         QDragEnterEvent dee(cw->mapFromGlobal(me->globalPos()), possible_actions, dropData);
                         QApplication::sendEvent(object->target(), &dee);
                         willDrop = dee.isAccepted();
-                        global_accepted_action = willDrop ? dee.dropAction() : QDrag::IgnoreAction;
+                        global_accepted_action = willDrop ? dee.dropAction() : Qt::IgnoreAction;
                         updateCursor();
                         restoreCursor = true;
                     }
@@ -214,7 +214,7 @@ bool QDragManager::eventFilter(QObject *o, QEvent *e)
                     QDragMoveEvent dme(cw->mapFromGlobal(me->globalPos()), possible_actions, dropData);
                     QApplication::sendEvent(cw, &dme);
                     willDrop = dme.isAccepted();
-                    global_accepted_action = willDrop ? dme.dropAction() : QDrag::IgnoreAction;
+                    global_accepted_action = willDrop ? dme.dropAction() : Qt::IgnoreAction;
                     updatePixmap();
                     updateCursor();
                 }
@@ -256,10 +256,10 @@ bool QDragManager::eventFilter(QObject *o, QEvent *e)
     return false;
 }
 
-QDrag::DropAction QDragManager::drag(QDrag *o)
+Qt::DropAction QDragManager::drag(QDrag *o)
 {
     if (object == o || !o || !o->source())
-         return QDrag::IgnoreAction;
+         return Qt::IgnoreAction;
 
     if (object) {
         cancel();
@@ -279,7 +279,7 @@ QDrag::DropAction QDragManager::drag(QDrag *o)
     object->d_func()->target = 0;
     qApp->installEventFilter(this);
 
-    global_accepted_action = QDrag::CopyAction;
+    global_accepted_action = Qt::CopyAction;
 #ifndef QT_NO_CURSOR
     qApp->setOverrideCursor(Qt::ArrowCursor);
     restoreCursor = true;
@@ -331,7 +331,7 @@ void QDragManager::cancel(bool deleteSource)
     delete qt_qws_dnd_deco;
     qt_qws_dnd_deco = 0;
 
-    global_accepted_action = QDrag::IgnoreAction;
+    global_accepted_action = Qt::IgnoreAction;
 }
 
 

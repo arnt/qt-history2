@@ -72,7 +72,7 @@
 */
 
 /*!
-    \enum QDrag::DropAction
+    \enum Qt::DropAction
 
     \value CopyAction       Copy the data to the target.
     \value MoveAction       Move the date from the source to the target.
@@ -93,8 +93,8 @@ QDrag::QDrag(QWidget *dragSource)
     d->target = 0;
     d->data = 0;
     d->hotspot = QPoint(-10, -10);
-    d->possible_actions = QDrag::CopyAction;
-    d->executed_action = QDrag::IgnoreAction;
+    d->possible_actions = Qt::CopyAction;
+    d->executed_action = Qt::IgnoreAction;
 }
 
 /*!
@@ -189,7 +189,7 @@ QWidget *QDrag::target() const
     user when the drag and drop operation is completed are specified in
     \a request.
 */
-QDrag::DropAction QDrag::start(QDrag::DropActions request)
+Qt::DropAction QDrag::start(Qt::DropActions request)
 {
     Q_D(QDrag);
     Q_ASSERT_X(d->data, "QDrag", "No mimedata set before starting the drag");
@@ -208,10 +208,10 @@ QDrag::DropAction QDrag::start(QDrag::DropActions request)
     The \a action can only be CopyAction, MoveAction or LinkAction.
     All other values of DropAction are ignored.
 */
-void QDrag::setDragCursor(const QPixmap &cursor, DropAction action)
+void QDrag::setDragCursor(const QPixmap &cursor, Qt::DropAction action)
 {
     Q_D(QDrag);
-    if (action != CopyAction || action != MoveAction || action != LinkAction)
+    if (action != Qt::CopyAction || action != Qt::MoveAction || action != Qt::LinkAction)
         return;
     if (cursor.isNull())
         d->customCursors.remove(action);

@@ -353,23 +353,23 @@ bool Q3DragObject::drag(DragMode mode)
     drag->setPixmap(d->pixmap);
     drag->setHotSpot(d->hot);
 
-    QDrag::DropActions op;
+    Qt::DropActions op;
     switch(mode) {
     case DragDefault:
     case DragCopyOrMove:
-        op = QDrag::CopyAction|QDrag::MoveAction;
+        op = Qt::CopyAction|Qt::MoveAction;
         break;
     case DragCopy:
-        op = QDrag::CopyAction;
+        op = Qt::CopyAction;
         break;
     case DragMove:
-        op = QDrag::MoveAction;
+        op = Qt::MoveAction;
         break;
     case DragLink:
-        op = QDrag::LinkAction;
+        op = Qt::LinkAction;
         break;
     }
-    bool retval = (drag->start(op) == QDrag::MoveAction);
+    bool retval = (drag->start(op) == Qt::MoveAction);
     last_target = drag->target();
 
     return retval;

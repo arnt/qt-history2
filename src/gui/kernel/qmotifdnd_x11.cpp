@@ -766,7 +766,7 @@ void QX11Data::motifdndHandle(QWidget * /* w */ , const XEvent * xe, bool /* pas
                 c = c->parentWidget();
             }
 
-            QDragMoveEvent me(p, QDrag::CopyAction, QDragManager::self()->dropData);
+            QDragMoveEvent me(p, Qt::CopyAction, QDragManager::self()->dropData);
 
             if (c != 0L && c->acceptDrops()) {
 
@@ -774,7 +774,7 @@ void QX11Data::motifdndHandle(QWidget * /* w */ , const XEvent * xe, bool /* pas
                      drop_widget != c) {
                     QDragLeaveEvent e;
                     QApplication::sendEvent(drop_widget, &e);
-                    QDragEnterEvent de(p, QDrag::CopyAction, QDragManager::self()->dropData);
+                    QDragEnterEvent de(p, Qt::CopyAction, QDragManager::self()->dropData);
                     QApplication::sendEvent(c, &de);
                 }
 
@@ -796,7 +796,7 @@ void QX11Data::motifdndHandle(QWidget * /* w */ , const XEvent * xe, bool /* pas
                                cur_window, False, 0,
                                (XEvent *)&cm) ;
 
-                    QDragEnterEvent de(p, QDrag::CopyAction, QDragManager::self()->dropData);
+                    QDragEnterEvent de(p, Qt::CopyAction, QDragManager::self()->dropData);
                     QApplication::sendEvent(drop_widget, &de);
                     if (de.isAccepted()) {
                         me.accept(de.answerRect());
@@ -895,7 +895,7 @@ void QX11Data::motifdndHandle(QWidget * /* w */ , const XEvent * xe, bool /* pas
         Dnd_selection_time = dnd_data.time;
 
         QPoint p(dnd_data.x, dnd_data.y);
-        QDropEvent de(drop_widget->mapFromGlobal(p), QDrag::CopyAction, QDragManager::self()->dropData);
+        QDropEvent de(drop_widget->mapFromGlobal(p), Qt::CopyAction, QDragManager::self()->dropData);
         QApplication::sendEvent(drop_widget, &de);
 
         if (in_drop_site)

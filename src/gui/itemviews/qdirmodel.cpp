@@ -568,7 +568,7 @@ QMimeData *QDirModel::mimeData(const QModelIndexList &indexes) const
     \sa supportedDropActions()
 */
 
-bool QDirModel::dropMimeData(const QMimeData *data, QDrag::DropAction action,
+bool QDirModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
                              int row, const QModelIndex &parent)
 {
     Q_UNUSED(row);
@@ -586,19 +586,19 @@ bool QDirModel::dropMimeData(const QMimeData *data, QDrag::DropAction action,
     QList<QUrl>::const_iterator it = urls.begin();
 
     switch (action) {
-    case QDrag::CopyAction:
+    case Qt::CopyAction:
         for (; it != urls.end(); ++it) {
             QString path = (*it).toLocalFile();
             success = QFile::copy(path, to + QFileInfo(path).fileName()) && success;
         }
         break;
-    case QDrag::LinkAction:
+    case Qt::LinkAction:
         for (; it != urls.end(); ++it) {
             QString path = (*it).toLocalFile();
             success = QFile::link(path, to + QFileInfo(path).fileName()) && success;
         }
         break;
-    case QDrag::MoveAction:
+    case Qt::MoveAction:
         for (; it != urls.end(); ++it) {
             QString path = (*it).toLocalFile();
             success = QFile::copy(path, to + QFileInfo(path).fileName())
@@ -618,12 +618,12 @@ bool QDirModel::dropMimeData(const QMimeData *data, QDrag::DropAction action,
 /*!
   Returns the drop actions supported by this model.
 
-  \sa QDrag::DropActions
+  \sa Qt::DropActions
 */
 
-QDrag::DropActions QDirModel::supportedDropActions() const
+Qt::DropActions QDirModel::supportedDropActions() const
 {
-    return QDrag::CopyAction | QDrag::MoveAction; // FIXME: LinkAction is not supported yet
+    return Qt::CopyAction | Qt::MoveAction; // FIXME: LinkAction is not supported yet
 }
 
 /*!

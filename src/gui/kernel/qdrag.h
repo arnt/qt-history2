@@ -31,16 +31,6 @@ public:
     explicit QDrag(QWidget *dragSource);
     ~QDrag();
 
-    enum DropAction {
-        CopyAction = 0x1,
-        MoveAction = 0x2,
-        LinkAction = 0x4,
-        ActionMask = 0xff,
-        TargetMoveAction = 0x8002,
-        IgnoreAction = 0x0
-    };
-    Q_DECLARE_FLAGS(DropActions, DropAction)
-
     void setMimeData(QMimeData *data);
     QMimeData *mimeData() const;
 
@@ -53,12 +43,12 @@ public:
     QWidget *source() const;
     QWidget *target() const;
 
-    DropAction start(DropActions supportedActions = CopyAction);
+    Qt::DropAction start(Qt::DropActions supportedActions = Qt::CopyAction);
 
-    void setDragCursor(const QPixmap &cursor, DropAction action);
+    void setDragCursor(const QPixmap &cursor, Qt::DropAction action);
 
 signals:
-    void actionChanged(DropAction action);
+    void actionChanged(Qt::DropAction action);
     void targetChanged(QWidget *newTarget);
 
 private:
@@ -68,7 +58,5 @@ private:
     friend class QDragManager;
     Q_DISABLE_COPY(QDrag)
 };
-
-Q_DECLARE_OPERATORS_FOR_FLAGS(QDrag::DropActions)
 
 #endif // QDRAG_H
