@@ -1,0 +1,30 @@
+diff -ru template/Makefile netbsd/Makefile
+--- template/Makefile	Fri Sep  6 11:17:23 1996
++++ netbsd/Makefile	Fri Sep  6 15:21:05 1996
+@@ -5,8 +5,8 @@
+ #
+ 
+ CC	= gcc
+-CFLAGS	= -O2 -fno-strength-reduce -Wall -W
+-LFLAGS	= -lqt
++CFLAGS	= -O2 -fno-strength-reduce -Wall -W -I/usr/X11R6/include
++LFLAGS	= -lqt -L/usr/X11R6/lib
+ 
+ all: library tutorial examples
+ 
+diff -ru template/library/Makefile netbsd/library/Makefile
+--- template/library/Makefile	Fri Sep  6 11:17:41 1996
++++ netbsd/library/Makefile	Fri Sep  6 15:22:29 1996
+@@ -86,9 +86,10 @@
+ 
+ library: $(OBJECTS) $(METAOBJ)
+ 	-rm -f ../lib/libqt.so.$(VERSION)
+-	$(CC) -shared -Wl,-soname,libqt.so.1 \
++	ld -Bshareable \
+ 		-o ../lib/libqt.so.$(VERSION) \
+-		$(OBJECTS) $(METAOBJ) -lX11
++		`lorder /usr/lib/c++rt0.o $(OBJECTS) $(METAOBJ) | tsort` \
++		-L/usr/X11R6/lib -lX11
+ 	-rm -f ../lib/libqt.so
+ 	-ln -sf libqt.so.$(VERSION) ../lib/libqt.so
+ 	-rm -f ../lib/libqt.so.1
