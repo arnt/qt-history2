@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: indices.doc,v 2.21 1998/07/08 15:26:30 agulbra Exp $
+** $Id: indices.doc,v 2.22 1998/09/09 22:16:54 warwick Exp $
 **
 ** Miscellaneous index pages
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: indices.doc,v 2.21 1998/07/08 15:26:30 agulbra Exp $";
+static char ident[] = "$Id: indices.doc,v 2.22 1998/09/09 22:16:54 warwick Exp $";
 #endif
 
 /*! \page index.html
@@ -44,6 +44,7 @@ Reference Documentation
 <li><a href="metaobjects.html">Introduction to Signals and Slots</a>
 <li><a href="moc.html">Using the Meta Object Compiler (moc)</a>
 <li><a href="debug.html">Debugging Techniques</a>
+<li><a href="faq.html">Hints and tips - the Qt Technical FAQ</a>
 </ul>
 
 </td></tr><tr><td width="50%" valign="top">
