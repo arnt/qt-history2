@@ -49,6 +49,8 @@
 
   \important autoDelete setAutoDelete
 
+  QValueVector is an STL-compatible alternative to this class.
+
   QPtrVector is implemented as a template class. Defines a template
   instance QPtrVector\<X\> to create a vector that contains pointers to
   X (X*).

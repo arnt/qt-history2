@@ -63,10 +63,11 @@ Arabic and Hebrew) and also provides improved support for Asian
 languages.
 
 Many new classes have been added to the Qt Library. Amongst them are
-classes that provide a docking architecture (QDockArea/QDockWindow), a
-powerful rich text editor (QTextEdit), a class to store and access
-application settings (QSettings) and a class to create and communicate
-with processes (QProcess).
+classes that provide a docking architecture
+(\l{QDockArea}/\l{QDockWindow}), a powerful rich text editor
+(QTextEdit), a class to store and access application settings
+(QSettings) and a class to create and communicate with processes
+(QProcess).
 
 Apart from the changes in the library itself a lot has been done to
 make the development of Qt applications with Qt 3.0 even easier than
@@ -90,11 +91,11 @@ overview.
 
 \section2 Database support
 
-One of the major new features in Qt 3.0 is the SQL module that
-provides cross-platform access to SQL databases, making database
-application programming with Qt seamless and portable. The API, built
-with standard SQL, is database-neutral and software development is
-independent of the underlying database.
+One of the major new features in Qt 3.0 is the \link sql.html SQL
+module\endlink that provides cross-platform access to SQL databases,
+making database application programming with Qt seamless and portable.
+The API, built with standard SQL, is database-neutral and software
+development is independent of the underlying database.
 
 A collection of tightly focused C++ classes are provided to give the
 programmer direct access to SQL databases. Developers can send raw SQL
@@ -148,6 +149,8 @@ additional styles, database drivers and text codecs from plugins.
 Qt Designer supports custom widgets in plugins, and will use the
 widgets both when designing and previewing forms.
 
+See the \link plugins-howto.html plugins documentation\endlink.
+
 
 \section2 Rich text engine and editor
 
@@ -156,8 +159,8 @@ optimized and extended to support editing. It allows editing formatted
 text with different fonts, colors, paragraph styles, tables and
 images. The editor supports different word wrap modes, command-based
 undo/redo, multiple selections, drag and drop, and many other
-features.  The engine is highly optimized for proccesing and displaying
-large documents quickly and efficiently.
+features.  The new QTextEdit engine is highly optimized for proccesing
+and displaying large documents quickly and efficiently. 
 
 
 \section2 Unicode
@@ -202,9 +205,9 @@ existing code which uses these classes will continue to work.
 Qt has always provided regular expression support, but that support
 was pretty much limited to what was required in common GUI control
 elements such as file dialogs. Qt 3.0 introduces a new regular
-expression engine that supports most of Perl's regex features and is
-Unicode based. The most useful additions are support for parentheses
-(capturing and non-capturing) and backreferences.
+expression engine, QRegExp, that supports most of Perl's regex
+features and is Unicode based. The most useful additions are support
+for parentheses (capturing and non-capturing) and backreferences.
 
 
 \section2 Storing application settings
@@ -323,18 +326,19 @@ This class provides a simple interface for HTTP downloads and uploads.
 
 \section2 Compatibility with the Standard Template Library (STL)
 
-Support for the C++ Standard Template Library has been added to the Qt
-Template Library (QTL).  The QTL classes now contain appropriate copy
-constructors and typedefs so that they can be freely mixed with other
-STL containers and algorithms.  In addition, new member functions have
-been added to QTL template classes which correspond to STL-style
-naming conventions (e.g., push_back()).
+Support for the C++ Standard Template Library has been added to the
+\link qt-template-lib.html Qt Template Library (QTL)\endlink.  The QTL
+classes now contain appropriate copy constructors and typedefs so that
+they can be freely mixed with other STL containers and algorithms.  In
+addition, new member functions have been added to QTL template classes
+which correspond to STL-style naming conventions (e.g., push_back()).
 
 
 \section1 Qt Designer
 
-Qt Designer was a pure dialog editor in Qt 2.2 but has now been
-extended to provide the full functionality of a GUI design tool.
+\link designer-manual.book Qt Designer\endlink was a pure dialog
+editor in Qt 2.2 but has now been extended to provide the full
+functionality of a GUI design tool.
 
 This includes the ability to lay out main windows with menus and
 toolbars. Actions can be edited within Qt Designer and then plugged
@@ -373,9 +377,9 @@ QResource library.
 
 \section1 Qt Linguist
 
-Qt Linguist is a GUI utility to support translating the user-visible
-text in applications written with Qt. It comes with two command-line
-tools: lupdate and lrelease.
+\link linguist-manual.book Qt Linguist\endlink is a GUI utility to
+support translating the user-visible text in applications written with
+Qt. It comes with two command-line tools: lupdate and lrelease.
 
 Translation of a Qt application is a three-step process:
 
@@ -423,20 +427,23 @@ you can easily find and check them.
 
 \section1 Qt Assistant
 
-Due to the positive feedback we received about the help system built
-into Qt Designer, we decided to offer this part as a separate
-application called Qt Assistant. Qt Assistant can be used to browse
-the Qt class documentation as well as the manuals for Qt Designer and
-Qt Linguist. It offers index searching, a contents overview, bookmarks
-history and incremental search. Qt Assistant is used by both Qt
-Designer and Qt Linguist for browsing their help documentation.
+Thanks to the positive feedback we received about the help system
+built into \link designer-manual.book Qt Designer\endlink, we decided
+to offer this part as a separate application called \link
+assistant.book Qt Assistant\endlink. Qt Assistant can be used to
+browse the Qt class documentation as well as the manuals for Qt
+Designer and Qt Linguist. It offers index searching, a contents
+overview, bookmarks history and incremental search. Qt Assistant is
+used by both Qt Designer and Qt Linguist for browsing their help
+documentation.
 
 
-\section1 QMake
+\section1 qmake
 
-To ease portability we now provide the qmake utility to replace tmake.
-QMake is a C++ version of tmake which offers additional functionallity
-that is difficult to reproduce in tmake. Trolltech uses qmake in its
-build system for Qt and related products and we have released it as
-free software.
+To ease portability we now provide the \link qmake-manual.book
+qmake\endlink utility to replace tmake. QMake is a C++ version of
+tmake which offers additional functionallity that is difficult to
+reproduce in tmake. Trolltech uses qmake in its build system for Qt
+and related products and we have released it as free software.
+
 */

@@ -35,56 +35,50 @@
 
 /*! \page winsystem.html
 
-\title Windowsystem-specific Notes
+\title Window System-specific Notes
 
 Qt is a cross-platform GUI toolkit, so almost the entire API is the
-same on all platforms and windowsystems. However some development tasks
-may require you to write small windowsystem-specific tasks.
-This page documents the windowsystem-specific parts of the Qt API.
-Note that any use of these features renders your application non-portable
-to other Qt-supported windowsystems, so protect such code with appropriate
-"#ifdef" directives (see below), preferably with code for each platform to which
-you wish to retain portability.
+same on all platforms and window systems. If you wish to use
+platform-specific features, and still maintain a platform-independent
+source tree, you should protect the platform-specific code using the
+appropriate \c{#ifdef} statements (see below).
 
 For information about which platforms are supported by Qt, see the
-<a href="http://www.trolltech.com/products/platforms/">Platform Notes</a>.
+\link http://www.trolltech.com/products/platforms/ Platform
+Notes\endlink.
 
-<a name=x11>
-<h2>Qt/X11</h2>
-</a>
+\target x11
+\section1 Qt/X11
 
-When compiling for this platform, the macro <tt>Q_WS_X11</tt> is defined.
+When compiling for this platform, the macro \c{Q_WS_X11} is defined.
 
-<p>
-<i>Not documented here. Please contact Trolltech Technical Support
-if you have queries.</i>
+\e{Not documented here. Please contact Trolltech Technical Support
+if you have queries.}
 
-<a name=win>
-<h2>Qt/Windows</h2>
-</a>
+\target win
+\section1 Qt/Windows
 
-When compiling for this platform, the macro <tt>Q_WS_WIN</tt> is defined.
+When compiling for this platform, the macro \c{Q_WS_WIN} is defined.
 
-<i>Not documented here. Please contact Trolltech Technical Support
-if you have queries.</i>
+\e{Not documented here. Please contact Trolltech Technical Support
+if you have queries.}
 
-<a name=qws>
-<h2>Qt/Embedded</h2>
-</a>
+\target qws
+\section1 Qt/Embedded
 
-When compiling for this platform, the macro <tt>Q_WS_QWS</tt> is defined
+When compiling for this platform, the macro \c{Q_WS_QWS} is defined
 (the window system is literally the Qt Window System).
 
-<ul>
- <li><a href=install-qws.html>Installation</a>
- <li><a href=performance-qws.html>Qt/Embedded performance tuning</a>
- <li><a href=running-qws.html>Running Qt/Embedded applications</a>
- <li><a href=porting-qws.html>Porting your applications to Qt/Embedded</a>
- <li><a href=fonts-qws.html>Font formats and definitions</a>
- <li><a href=charinput-qws.html>Character input (keyboard, pen, ...)</a>
- <li><a href=pointer-qws.html>Pointer handling (mouse, pen, ...)</a>
- <li><a href=features.html>Reduce memory use with the feature definition file</a>
- <li><a href=casestudy-qws.html>A case study embedding on Cassiopeia</a>
-</ul>
+\list
+ \i \link install-qws.html Installation\endlink
+ \i \link performance-qws.html Qt/Embedded performance tuning\endlink
+ \i \link running-qws.html Running Qt/Embedded applications\endlink
+ \i \link porting-qws.html Porting your applications to Qt/Embedded\endlink
+ \i \link fonts-qws.html Font formats and definitions\endlink
+ \i \link charinput-qws.html Character input (keyboard, pen, ...)\endlink
+ \i \link pointer-qws.html Pointer handling (mouse, pen, ...)\endlink
+ \i \link features.html Reduce memory use with the feature definition file\endlink
+ \i \link casestudy-qws.html A case study embedding on Cassiopeia\endlink
+\endlist
 
 */

@@ -41,12 +41,23 @@ When you install Qt, certain modules are built into the library. For
 the Qt Enterprise Edition, Qt Evaluation Edition and Qt Free Edition
 this is all modules. For Qt Professional Edition, the base modules
 are available -
-the <i>tools</i>, <i>kernel</i>, <i>widgets</i>, <i>dialog</i>,
-<i>iconview</i>, and <i>workspace</i> modules.
+the \e{tools}, \e{kernel}, \e{widgets}, \e{dialog},
+\e{iconview}, and \e{workspace} modules.
 Trolltech does not currently offer modules for sale individually.
 
 All modules may be used only under the terms of the licenses associated
 with each Edition.
+
+\list
+\i \link canvas.html Canvas Module\endlink
+\i \link iconview.html IconView Module\endlink
+\i \link network.html Network Module\endlink
+\i \link opengl.html OpenGL Module\endlink
+\i \link sql.html SQL Module\endlink
+\i \link table.html Table Module\endlink
+\i \link workspace.html Workspace (MDI) Module\endlink
+\i \link xml.html XML Module\endlink
+\endlist
 
 */
 

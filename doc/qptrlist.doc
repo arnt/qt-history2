@@ -48,6 +48,8 @@
 
   \important autoDelete setAutoDelete
 
+  QValueList is an STL-compatible alternative to this class.
+
   Define a template instance QPtrList\<X\> to create a list that
   operates on pointers to X (X*).
 

@@ -44,6 +44,8 @@
 
   \ingroup tools
 
+  QValueStack is an STL-compatible alternative to this class.
+
   Define a template instance QPtrStack\<X\> to create a stack that
   operates on pointers to X, (X*). 
 

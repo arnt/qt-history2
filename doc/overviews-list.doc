@@ -2,14 +2,59 @@
 
 \page overviews-list.html
 
-\title Overviews and HOWTOs
+\title All Overviews and HOWTOs
 
-\table
-\row \i15
-<b>General</b><br>
+<table cellpadding=2 cellspacing=1 border=0 width=100% bgcolor=#e5e5e5>
+
+<tr>
+<th bgcolor=#a2c511>Qt Object Model</th>
+<th bgcolor=#a2c511>Geometry and Layout</th></tr>
+</tr>
+
+<tr>
+<td rowspan=3 valign=top>
+\list
+\i \link object.html Qt Object Model \endlink
+\i \link objecttrees.html Object Trees and Object Ownership \endlink
+\i \link signalsandslots.html Signals and Slots \endlink
+\i \link metaobjects.html Meta Object System \endlink
+\i \link properties.html Properties \endlink
+\i \link moc.html Using the Meta Object Compiler \endlink
+\i \link templates.html Why doesn't Qt use templates for signals and slots? \endlink
+\endlist
+</td>
+
+<td valign=top>
+\list
+\i \link layout.html Layout Classes \endlink
+\i \link customlayout.html Writing your own layout manager \endlink
+\i \link coordsys.html The Coordinate System \endlink
+\i \link geometry.html Window Geometry \endlink
+\endlist
+</td></tr>
+
+<tr>
+<th bgcolor=#a2c511>Internationalization</th>
+</tr>
+
+<td valign=top>
+\list
+\i \link i18n.html Internationalization with Qt \endlink
+\i \link scripts.html Qt's Text Engine \endlink
+\i \link unicode.html About Unicode \endlink
+\endlist
+</td>
+</tr>
+
+<tr>
+<th bgcolor=#a2c511>General</th>
+<th bgcolor=#a2c511>Qt/Embedded</th>
+</tr>
+
+<tr><td rowspan=5 valign=top>
 \list
 \i \link porting.html Porting to Qt 3.x \endlink
-\i \link commonproblems.html Common Problems and Special Use Cases \endlink
+\i \link commonproblems.html FAQs \endlink
 \i \link plugins-howto.html Qt Plugins\endlink
 \omit
 \i \link component.html The Qt Component Model \endlink
@@ -35,38 +80,15 @@
 \i \link pictures.html Pictures of Most Qt Widgets \endlink
 \i \link xt.html Qt Xt/Motif Support Extension \endlink
 \endlist
+</td>
 
-\row \i
-<b>Qt Object Model</b><br>
+</tr>
+
+<tr><td rowspan=3 valign=top>
 \list
-\i \link object.html Qt Object Model \endlink
-\i \link objecttrees.html Object Trees and Object Ownership \endlink
-\i \link signalsandslots.html Signals and Slots \endlink
-\i \link metaobjects.html Meta Object System \endlink
-\i \link properties.html Properties \endlink
-\i \link moc.html Using the Meta Object Compiler \endlink
-\i \link templates.html Why doesn't Qt use templates for signals and slots? \endlink
+\i \link qembed.html  QEmbed tool - inline files/images \endlink
+\i \link qvfb-qws.html  QVFb tool - virtual framebuffer for Qt/Embedded \endlink
 \endlist
-
-\row \i
-<b>Internationalization</b><br>
-\list
-\i \link i18n.html Internationalization with Qt \endlink
-\i \link scripts.html Qt's Text Engine \endlink
-\i \link unicode.html About Unicode \endlink
-\endlist
-
-\row \i
-<b>Geometry and Layout</b><br>
-\list
-\i \link layout.html Layout Classes \endlink
-\i \link customlayout.html Writing your own layout manager \endlink
-\i \link coordsys.html The Coordinate System \endlink
-\i \link geometry.html Window Geometry \endlink
-\endlist
-
-\row \i
-<b>Qt/Embedded</b><br>
 \list
 \i \link install-qws.html Installing Qt/Embedded \endlink
 \i \link features.html The Feature Definition File \endlink
@@ -84,7 +106,8 @@
 \i \link performance-qws.html Qt/Embedded Performance Tuning \endlink
 \i \link vnc-qws.html Qt/Embedded as a VNC Server \endlink
 \endlist
+</td></tr>
 
-\endtable
+</table>
 
 */

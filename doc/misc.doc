@@ -90,23 +90,36 @@ only. It is provided free of charge under the terms of the
 */
 
 /*! \page commonproblems.html
-\title Common Issues and Special Use Cases
+\title FAQs
 
 This document describes how to use more than one Qt version on one
 machine and how to use Qt on X11 without a window manager. In addition
 it explains the most common source of link errors with Qt.
 
 Other frequently asked questions can be found in the
-\link http://www.trolltech.com/developer/faq/ FAQ index \endlink .
+\link http://www.trolltech.com/developer/faq/ FAQ index\endlink and
+in the \link http://www.trolltech.com/faq/tech.html Technical FAQ\endlink.
 
-\section1 Link error, complaining about a lack of \c vtbl, \c _vtbl, \c
-__vtbl or similar
+\list
+\i \link #linkerror Link error, complaining about a lack of \c vtbl, \c _vtbl, \c __vtbl or similar\endlink
+\i \link #diffver Using different versions of Qt on the same
+machine\endlink
+    \list
+    \i \link #qtbin Developers building for a single version of Qt on Unix - Qt binary packages\endlink
+    \i \link #qtsrc Developers building for two versions of Qt on Unix - Qt sources\endlink
+    \endlist
+\i \link #nowinman Using Qt on X11 without a window manager\endlink
+\endlist
+
+\target linkerror
+\section1 Link error, complaining about a lack of \c vtbl, \c _vtbl, \c __vtbl or similar
 
 This indicates that you've included the Q_OBJECT macro in a class
 declaration and probably also run the moc, but forgot to link the
 moc-generated object code into your executable. See \link moc.html
 Using the Meta Object Compiler\endlink for details on how to use moc.
 
+\target diffver
 \section1 Using different versions of Qt on the same machine
 
 Qt programs need the following components of a Qt distribution:
@@ -173,8 +186,8 @@ Depending on how you are using Qt, you need to make specific parts of
 the Qt distribution available to your programs.  Typical situations are
 described below.
 
-\section2 Developers building for a single version of Qt on Unix
-- Qt binary packages
+\target qtbin
+\section2 Developers building for a single version of Qt on Unix - Qt binary packages
 
 You build programs with a single version of Qt, but you still need
 to run programs linked with another version of Qt.  You are typically
@@ -198,6 +211,7 @@ or similar) and Qt 2.x (\c qt2 or similar).
 Just install the packages, \c qt2, \c qt3, and \c qt3-dev. You may
 need to set the environment variable \c QTDIR to point to Qt 3.x.
 
+\target qtsrc
 \section2 Developers building for two versions of Qt on Unix - Qt sources
 
 You build and run programs for Qt 2.x and Qt 3.x. You will need:
@@ -272,6 +286,7 @@ include the proper header files and link with the proper libraries.
 Setting the \c PATH ensures that the proper version of moc and other
 tools is being used.
 
+\target nowinman
 \section1 Using Qt on X11 without a window manager
 
 When using Qt without a window manager on Unix/X11, you will most
@@ -290,11 +305,6 @@ physically visible during this event cycle. However, without a window
 manager running, this is guaranteed to happen. For the curious reader:
 setActiveWindow() emulates a window manager by explicitly setting the
 X Input Focus to a widget's top level window.
-
-\section1 Other common problems
-
-Other common problems are covered by the online
-\link http://www.trolltech.com/faq/tech.html Technical FAQ\endlink.
 
 */
 

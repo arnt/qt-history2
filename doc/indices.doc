@@ -56,8 +56,7 @@ What's New
 \list
 \i \link aboutqt.html About Qt \endlink
 \i \link editions.html Qt Editions \endlink
-\i \link commonproblems.html Common Problems\endlink
-\i \link http://www.trolltech.com/developer/faq/ FAQs\endlink
+\i \link commonproblems.html FAQs\endlink
 \i \link winsystem.html  Window system specific notes \endlink
 \i \link buyhowto.html How to buy Qt \endlink
 \endlist
@@ -164,8 +163,8 @@ Appendix
   \i \link linguist-manual.book  Qt Linguist \endlink
   \i \link assistant.book  Qt Assistant \endlink
   \i \link qmake-manual.book  qmake \endlink
-  \i \link qembed.html  QEmbed - inline files/images \endlink
-  \i \link qvfb-qws.html  QVFb - virtual framebuffer for Qt/Embedded \endlink
+  \i \link qembed.html  QEmbed\endlink
+  \i \link qvfb-qws.html  QVFb\endlink
 \endlist
 </td>
 <td valign=top>
