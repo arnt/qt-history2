@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#258 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#259 $
 **
 ** Implementation of QListBox widget class
 **
@@ -2694,6 +2694,11 @@ int QListBox::rowAt( int y ) const
     return row;
 }
 
+
+/*!  Returns the rectangle on the screen \a item occupies in
+  viewport()'s coordinates, or an invalid rectangle if \a i is a null
+  pointer or is not currently visible.
+*/
 
 QRect QListBox::itemRect( QListBoxItem *item ) const
 {

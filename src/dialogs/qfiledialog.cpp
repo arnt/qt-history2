@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#192 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#193 $
 **
 ** Implementation of QFileDialog class
 **
@@ -543,7 +543,7 @@ void QFileListView::startRename()
     QRect r = itemRect( i );
     int d = i->pixmap( 0 ) ?
             i->pixmap( 0 )->width() + 2 : 22;
-    int x = r.x() + d - contentsX();
+    int x = r.x() + d;
     int y = r.y() + 1;
     int w = columnWidth( 0 ) - d - 1;
     int h = r.height() - 2;

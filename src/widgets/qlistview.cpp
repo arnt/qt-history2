@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#246 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#247 $
 **
 ** Implementation of QListView widget class
 **
@@ -3219,7 +3219,7 @@ QRect QListView::itemRect( const QListViewItem * i ) const
 	int y = c->y - contentsY();
 	if ( y + c->i->height() >= 0 &&
 	     y < ((QListView *)this)->visibleHeight() ) {
-	    QRect r( 0, y, d->h->width(), i->height() );
+	    QRect r( -contentsX(), y, d->h->width(), i->height() );
 	    return r;
 	}
     }
@@ -3640,7 +3640,7 @@ void QCheckListItem::setOn( bool b  )
 {
     if ( listView() && !listView()->isEnabled() )
         return;
-    
+
     if ( b == on )
         return;
     if ( myType == CheckBox ) {
