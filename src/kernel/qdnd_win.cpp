@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#58 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -34,7 +34,7 @@ extern Qt::WindowsVersion qt_winver;
 
 static HCURSOR *cursor = 0;
 static QDragObject *global_src = 0;
-static bool user_wants_move = FALSE;
+static bool acceptact = FALSE;
 
 /* OleStdGetDropEffect
 ** -------------------
@@ -446,6 +446,7 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
 	allowed_effects = DROPEFFECT_MOVE|DROPEFFECT_COPY;
 	break;
     }
+    acceptact = FALSE;
     allowed_effects |= DROPEFFECT_LINK;
     updatePixmap();
     HRESULT r = DoDragDrop(obj, src, allowed_effects, &result_effect);
@@ -453,6 +454,8 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     QApplication::sendEvent( dragSource, &e );
     obj->Release();	// Will delete obj if refcount becomes 0
     src->Release();	// Will delete src if refcount becomes 0
+    if ( !global_src->target() )
+	acceptact=FALSE;
 
     current_dropobj = 0;
     dragSource = 0;
@@ -460,7 +463,9 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     object = 0;
     updatePixmap();
 
-    return r == DRAGDROP_S_DROP && result_effect == DROPEFFECT_MOVE;
+    return r == DRAGDROP_S_DROP
+	&& result_effect == DROPEFFECT_MOVE
+	&& !acceptact;
 }
 
 void qt_olednd_unregister( QWidget* widget, QOleDropTarget *dst )
@@ -536,8 +541,6 @@ QOleDropSource::Release(void)
 STDMETHODIMP
 QOleDropSource::QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState)
 {
-    user_wants_move = OleStdGetDropEffect(grfKeyState) == DROPEFFECT_MOVE;
-
     if (fEscapePressed)
         return ResultFromScode(DRAGDROP_S_CANCEL);
     else if (!(grfKeyState & MK_LBUTTON))
@@ -556,10 +559,7 @@ QOleDropSource::GiveFeedback(DWORD dwEffect)
 	    c = 0;
 	    break;
 	  case DROPEFFECT_COPY:
-	    if ( user_wants_move )
-		c = 0;
-	    else
-		c = 1;
+	    c = 1;
 	    break;
 	  case DROPEFFECT_LINK:
 	    c = 2;
@@ -832,8 +832,7 @@ QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, L
 	de.setAction( QDropEvent::Link );
     QApplication::sendEvent( widget, &de );
     acceptfmt = de.isAccepted();
-    //if ( !de.isActionAccepted() )
-	//*pdwEffect = DROPEFFECT_COPY;
+    acceptact = de.isActionAccepted();
 
     QueryDrop(grfKeyState, pdwEffect);
     return NOERROR;
@@ -853,8 +852,7 @@ QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 	de.ignore();
     QApplication::sendEvent( widget, &de );
     acceptfmt = de.isAccepted();
-    //if ( !de.isActionAccepted() )
-	//*pdwEffect = DROPEFFECT_COPY;
+    acceptact = de.isActionAccepted();
 
     QueryDrop(grfKeyState, pdwEffect);
     return NOERROR;
@@ -885,8 +883,7 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
 	else if ( *pdwEffect & DROPEFFECT_LINK )
 	    de.setAction( QDropEvent::Link );
 	QApplication::sendEvent( widget, &de );
-	//if ( !de.isActionAccepted() )
-	    //*pdwEffect = DROPEFFECT_COPY;
+	acceptact = de.isActionAccepted();
 	DragLeave();
 	return NOERROR;
     }

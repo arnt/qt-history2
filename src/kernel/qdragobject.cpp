@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#87 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#88 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -341,6 +341,15 @@ QPoint QDragObject::pixmapHotSpot() const
 
   The function returns TRUE if the caller should delete the
   original copy of the dragged data (but also note target()).
+
+  Note that if the drag contains \e references to information
+  (eg. file names is a QUriDrag are references)
+  then the return value should always be ignored, as the target
+  is expected to manipulate the referred-to content directly.
+  On X11 the return value should always be correct anyway, but
+  on Windows this is not necessarily the case (eg. the file manager
+  starts a background process to move files, so the source 
+  <em>must not</em> delete the files!)
 */
 bool QDragObject::drag()
 {
