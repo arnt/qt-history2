@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#240 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#241 $
 **
 ** Implementation of QFileDialog class
 **
@@ -701,7 +701,7 @@ void QFileListBox::viewportDragLeaveEvent( QDragLeaveEvent * )
 void QFileListBox::viewportDropEvent( QDropEvent *e )
 {
     changeDirTimer.stop();
-    
+
     if ( !QUriDrag::canDecode( e ) ) {
         e->ignore();
         return;
@@ -1034,11 +1034,13 @@ void QFileListView::viewportDragMoveEvent( QDragMoveEvent *e )
     if ( eraseDragShape )
         filedialog->drawDragShapes( oldDragPos, FALSE, urls );
 
-    if ( e->pos().y() < 16 || e->pos().y() > viewport()->height() - 16 && !dragScrollTimer.isActive() ) {
+    if ( ( e->pos().y() < 16 || e->pos().y() > viewport()->height() - 16 ||
+           e->pos().x() < 16 || e->pos().x() > viewport()->width() - 16 ) && !
+         dragScrollTimer.isActive() ) {
         dragScrollTimer.start( 100, FALSE );
         e->accept( QRect( 0, 0, 0, 0 ) ); // Keep sending move events
     }
-    
+
     if ( acceptDrop( e->pos(), e->source() ) ) {
         e->accept();
         setCurrentDropItem( e->pos() );
