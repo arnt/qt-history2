@@ -17,6 +17,7 @@
 #include <qcursor.h>
 #include <qevent.h>
 #include <string.h>
+#include <unistd.h>
 
 /*****************************************************************************
   Externals
