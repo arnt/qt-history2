@@ -445,13 +445,12 @@ static void cleanup() {
 #if defined(_WS_WIN_)
 class QWindowsIconProvider : public QFileIconProvider
 {
-    Q_OBJECT
 public:
     QWindowsIconProvider( QWidget *parent=0, const char *name=0 );
     ~QWindowsIconProvider();
 
     const QPixmap * pixmap( const QFileInfo &fi );
-    
+
 private:
     QPixmap defaultFolder;
     QPixmap defaultFile;
@@ -459,7 +458,7 @@ private:
     QPixmap pix;
     int pixw, pixh;
     QMap< QString, QPixmap > cache;
-    
+
 };
 #endif
 
@@ -4041,7 +4040,7 @@ QWindowsIconProvider::QWindowsIconProvider( QWidget *parent, const char *name )
     int r;
     QString s;
     UINT res;
-    
+
     // ---------- get default folder pixmap
     r = RegOpenKeyExA( HKEY_CLASSES_ROOT,
 		       "folder\\DefaultIcon",
@@ -4069,7 +4068,7 @@ QWindowsIconProvider::QWindowsIconProvider( QWidget *parent, const char *name )
     } else {
 	RegCloseKey( k );
     }
-    
+
     //------------------------------- get default file pixmap
     res = ExtractIconEx( (TCHAR*)qt_winTchar( "shell32.dll", TRUE ),
 			 0, 0, &si, 1 );
@@ -4112,7 +4111,7 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
     QString key = ext;
     ext.prepend( "." );
     QMap< QString, QPixmap >::Iterator it;
-    
+
     if ( fi.isDir() ) {
 	return &defaultFolder;
     } else if ( ext.lower() != ".exe" ) {
@@ -4191,7 +4190,7 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	
 	return &pix;	
     }
-    
+
     // can't happen!
     return 0;
 }
