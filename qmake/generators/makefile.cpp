@@ -713,9 +713,26 @@ MakefileGenerator::writeProjectMakefile()
             st->target = project->isEmpty((*it) + ".target") ? (*it) : project->first((*it) + ".target");
         }
     }
-    t << "first: " << targets.first()->target << endl;
-    t << "install: " << targets.first()->target << "-install" << endl;
-    t << "uninstall: " << targets.first()->target << "-uinstall" << endl;
+    if(project->isActiveConfig("build_all")) {
+        t << "first: all" << endl;
+        QList<SubTarget*>::Iterator it;
+
+        //install
+        t << "install: ";
+        for(it = targets.begin(); it != targets.end(); ++it) 
+            t << (*it)->target << "-install ";
+        t << endl;
+
+        //uninstall
+        t << "uninstall: ";
+        for(it = targets.begin(); it != targets.end(); ++it) 
+            t << (*it)->target << "-uninstall ";
+        t << endl;
+    } else {
+        t << "first: " << targets.first()->target << endl
+          << "install: " << targets.first()->target << "-install" << endl
+          << "uninstall: " << targets.first()->target << "-uinstall" << endl;
+    }
     writeSubTargets(t, targets, false);
     return true;
 }
@@ -1630,7 +1647,10 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
             st->directory = QDir::convertSeparators(st->directory);
         }
     }
-    t << "first: make_first" << endl;
+    if(project->isActiveConfig("build_all"))
+        t << "first: all" << endl;    
+    else
+        t << "first: make_first" << endl;
     writeSubTargets(t, targets, true);
 
     if (project->isActiveConfig("ordered")) {         // generate dependencies
