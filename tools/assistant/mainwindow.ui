@@ -76,7 +76,7 @@
         <action name="actionNextPage"/>
         <action name="actionPrevPage"/>
     </item>
-    <item text="&amp;Bookmarks" name="bookmarkMenu">
+    <item text="Boo&amp;kmarks" name="bookmarkMenu">
     </item>
     <item text="&amp;Help" name="helpMenu">
         <action name="actionHelpAssistant"/>

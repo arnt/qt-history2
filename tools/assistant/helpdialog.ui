@@ -149,7 +149,7 @@
                     <cstring>Widget9</cstring>
                 </property>
                 <attribute name="title">
-                    <string>Boo&amp;kmarks</string>
+                    <string>&amp;Bookmarks</string>
                 </attribute>
                 <vbox>
                     <property name="name">
@@ -248,7 +248,7 @@
                     <cstring>searchTab</cstring>
                 </property>
                 <attribute name="title">
-                    <string>Se&amp;arch</string>
+                    <string>&amp;Search</string>
                 </attribute>
                 <grid>
                     <property name="name">
