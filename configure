@@ -87,8 +87,10 @@ then
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_MOC_SRC=$relpath/src/moc\""
 else
     # Override the Windows Makefile
-    rm -f $outpath/Makefile
-    cp $relpath/GNUmakefile $outpath/Makefile
+    if [ -e "$relpath/GNUmakefile" ]; then
+	rm -f $outpath/Makefile
+	cp $relpath/GNUmakefile $outpath/Makefile
+    fi
 
     touch .test.qt.
     if [ '!' -f ${QTDIR}/.test.qt. ]
