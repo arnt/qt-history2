@@ -504,7 +504,7 @@ int QFont::deciPointSize() const
 */
 int QFont::pointSize() const
 {
-    return d->request.pointSize == -1 ? -1 : d->request.pointSize/ 10;
+    return d->request.pointSize == -1 ? -1 : (d->request.pointSize + 5) / 10;
 }
 
 
@@ -2082,7 +2082,7 @@ QString QFontInfo::family() const
 */
 int QFontInfo::pointSize() const
 {
-    return d->actual.pointSize / 10;
+    return (d->actual.pointSize + 5) / 10;
 }
 
 /*!
