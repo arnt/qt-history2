@@ -497,6 +497,8 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 		case QVariant::String:
 		    static_QUType_varptr.set( obj, new QString( str ) );
 		    break;
+                default:
+                    break;
 		}
 	    } else {
 		static_QUType_QString.set( obj, str );
@@ -558,6 +560,8 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	    case QVariant::Int:
 		static_QUType_varptr.set( obj, new int(intvalue) );
 		break;
+            default:
+                break;
 	    }
 	} else {
 	    static_QUType_int.set( obj, intvalue );
@@ -624,6 +628,8 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	    case QVariant::UInt:
 		static_QUType_varptr.set( obj, new uint( uintvalue ) );
 		break;
+            default:
+                break;
 	    }
 	}
 	break;
