@@ -179,6 +179,25 @@ int QToolBarPrivate::indexOf(QAction *action) const
 */
 
 /*!
+    \fn void QToolBar::iconSizeChanged(Qt::IconSize iconSize)
+
+    This signal is emitted when the icon size is changed.  The \a
+    iconSize parameter holds the toolbar's new icon size.
+
+    \sa QToolBar::iconSize QMainWindow::iconSize
+*/
+
+/*!
+    \fn void QToolBar::toolButtonStyleChanged(Qt::ToolButtonStyle toolButtonStyle)
+
+    This signal is emitted when the tool button style is changed.  The
+    \a toolButtonStyle parameter holds the toolbar's new tool button
+    style.
+
+    \sa QToolBar::toolButtonStyle QMainWindow::toolButtonStyle
+*/
+
+/*!
     Constructs a QToolBar with the given \a parent.
 */
 QToolBar::QToolBar(QWidget *parent)
