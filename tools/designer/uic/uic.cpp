@@ -2029,7 +2029,7 @@ void Uic::createExclusiveProperty( const QDomElement & e, const QString& exclusi
 const char* const ColorRole[] = {
     "Foreground", "Button", "Light", "Midlight", "Dark", "Mid",
     "Text", "BrightText", "ButtonText", "Base", "Background", "Shadow",
-    "Highlight", "HighlightedText", 0
+    "Highlight", "HighlightedText", "Link", "LinkVisited", 0
 };
 
 
