@@ -1366,7 +1366,7 @@ const char *QCoreVariant::typeToName(Type typ)
 
 
 /*!
-    Converts the string representation of the storage type gven in \a
+    Converts the string representation of the storage type given in \a
     name, to its enum representation.
 
     If the string representation cannot be converted to any enum
