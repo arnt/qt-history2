@@ -837,7 +837,7 @@ DspMakefileGenerator::init()
 
     MakefileGenerator::init();
     if(msvcdsp_project.isEmpty())
-        msvcdsp_project = Option::output.name();
+        msvcdsp_project = Option::output.fileName();
 
     msvcdsp_project = msvcdsp_project.right(msvcdsp_project.length() - msvcdsp_project.lastIndexOf("\\") - 1);
     int dotFind = msvcdsp_project.lastIndexOf(".");
@@ -1081,18 +1081,18 @@ bool
 DspMakefileGenerator::openOutput(QFile &file, const QString &build) const
 {
     QString outdir;
-    if(!file.name().isEmpty()) {
-        if(QDir::isRelativePath(file.name()))
-            file.setName(Option::output_dir + file.name()); //pwd when qmake was run
+    if(!file.fileName().isEmpty()) {
+        if(QDir::isRelativePath(file.fileName()))
+            file.setFileName(Option::output_dir + file.fileName()); //pwd when qmake was run
         QFileInfo fi(file);
         if(fi.isDir())
-            outdir = file.name() + QDir::separator();
+            outdir = file.fileName() + QDir::separator();
     }
-    if(!outdir.isEmpty() || file.name().isEmpty())
-        file.setName(outdir + project->first("TARGET") + project->first("DSP_EXTENSION"));
-    if(QDir::isRelativePath(file.name())) {
+    if(!outdir.isEmpty() || file.fileName().isEmpty())
+        file.setFileName(outdir + project->first("TARGET") + project->first("DSP_EXTENSION"));
+    if(QDir::isRelativePath(file.fileName())) {
         QString ofile;
-        ofile = file.name();
+        ofile = file.fileName();
         int slashfind = ofile.lastIndexOf('\\');
         if(slashfind == -1) {
             ofile = ofile.replace(QRegExp("-"), "_");
@@ -1103,7 +1103,7 @@ DspMakefileGenerator::openOutput(QFile &file, const QString &build) const
                 hypenfind = ofile.indexOf('-', hypenfind + 1);
             }
         }
-        file.setName(Option::fixPathToLocalOS(QDir::currentPath() + Option::dir_sep + ofile));
+        file.setFileName(Option::fixPathToLocalOS(QDir::currentPath() + Option::dir_sep + ofile));
     }
     return Win32MakefileGenerator::openOutput(file, build);
 }

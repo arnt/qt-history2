@@ -37,7 +37,7 @@ MetaMakefileGenerator::init()
 
     const QStringList &builds = project->variables()["BUILDS"];
     bool use_single_build = builds.isEmpty();
-    if(!use_single_build && Option::output.name() == "-") {
+    if(!use_single_build && Option::output.fileName() == "-") {
         use_single_build = true;
         warn_msg(WarnLogic, "Cannot direct to stdout when using multiple BUILDS.");
     } else if(0 && !use_single_build && project->first("TEMPLATE") == "subdirs") {
@@ -86,9 +86,9 @@ MetaMakefileGenerator::write(const QString &oldpwd)
     }
 
     bool ret = true;
-    const QString &output_name = Option::output.name();
+    const QString &output_name = Option::output.fileName();
     for(int i = 0; ret && i < makefiles.count(); i++) {
-        Option::output.setName(output_name);
+        Option::output.setFileName(output_name);
         Build *build = makefiles[i];
 
         bool using_stdout = false;
@@ -98,18 +98,18 @@ MetaMakefileGenerator::write(const QString &oldpwd)
             || (build->makefile->supportsMergedBuilds() && (!glue || build == glue)))) {
             //open output
             if(!(Option::output.state() & IO_Open)) {
-                if(Option::output.name() == "-") {
-                    Option::output.setName("");
+                if(Option::output.fileName() == "-") {
+                    Option::output.setFileName("");
                     Option::output_dir = QDir::currentPath();
                     Option::output.open(IO_WriteOnly | IO_Translate, stdout);
                     using_stdout = true;
                 } else {
-                    if(Option::output.name().isEmpty() && Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE)
-                        Option::output.setName(project->first("QMAKE_MAKEFILE"));
+                    if(Option::output.fileName().isEmpty() && Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE)
+                        Option::output.setFileName(project->first("QMAKE_MAKEFILE"));
                     Option::output_dir = oldpwd;
                     if(!build->makefile->openOutput(Option::output, build->name)) {
                         fprintf(stderr, "Failure to open file: %s\n",
-                                Option::output.name().isEmpty() ? "(stdout)" : Option::output.name().latin1());
+                                Option::output.fileName().isEmpty() ? "(stdout)" : Option::output.fileName().latin1());
                         return false;
                     }
                 }
@@ -130,7 +130,7 @@ MetaMakefileGenerator::write(const QString &oldpwd)
         if(!using_stdout) {
             Option::output.close();
             if(!ret)
-                QFile::remove(Option::output.name());
+                Option::output.remove();
         }
 
         // debugging

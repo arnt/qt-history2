@@ -714,11 +714,11 @@ QMakeProject::read(const QString &file, QMap<QString, QStringList> &place)
     bool ret = false, using_stdin = false;
     QFile qfile;
     if(!strcmp(filename, "-")) {
-        qfile.setName("");
+        qfile.setFileName("");
         ret = qfile.open(IO_ReadOnly, stdin);
         using_stdin = true;
     } else {
-        qfile.setName(filename);
+        qfile.setFileName(filename);
         ret = qfile.open(IO_ReadOnly);
     }
     if(ret) {

@@ -56,7 +56,7 @@ ProjectGenerator::init()
     v["TEMPLATE_ASSIGN"] += templ;
 
     //figure out target
-    if(Option::output.name() == "-" || Option::output.name().isEmpty())
+    if(Option::output.fileName() == "-" || Option::output.fileName().isEmpty())
         v["TARGET"] = QStringList("unknown");
 
     //the scary stuff
@@ -135,7 +135,7 @@ ProjectGenerator::init()
         QStringList dirs = Option::projfile::project_dirs;
         if(Option::projfile::do_pwd)
             dirs.prepend(".");
-        const QString out_file = fileFixify(Option::output.name());
+        const QString out_file = fileFixify(Option::output.fileName());
         for(int i = 0; i < dirs.count(); ++i) {
             QString pd = dirs.at(i);
             if(QFile::exists(pd)) {
@@ -197,7 +197,7 @@ ProjectGenerator::init()
                                 QString nd = newdir + QDir::separator() + d[i];
                                 fileFixify(nd);
                                 if(d[i] != "." && d[i] != ".." && !subdirs.contains(nd)) {
-                                    if(newdir + d[i] != Option::output_dir + Option::output.name())
+                                    if(newdir + d[i] != Option::output_dir + Option::output.fileName())
                                         subdirs.append(nd);
                                 }
                             }
@@ -450,17 +450,17 @@ bool
 ProjectGenerator::openOutput(QFile &file, const QString &build) const
 {
     QString outdir;
-    if(!file.name().isEmpty()) {
+    if(!file.fileName().isEmpty()) {
         QFileInfo fi(file);
         if(fi.isDir())
             outdir = fi.path() + QDir::separator();
     }
-    if(!outdir.isEmpty() || file.name().isEmpty()) {
+    if(!outdir.isEmpty() || file.fileName().isEmpty()) {
         QString dir = QDir::currentPath();
         int s = dir.lastIndexOf('/');
         if(s != -1)
             dir = dir.right(dir.length() - (s + 1));
-        file.setName(outdir + dir + Option::pro_ext);
+        file.setFileName(outdir + dir + Option::pro_ext);
     }
     return MakefileGenerator::openOutput(file, build);
 }

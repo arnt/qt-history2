@@ -187,7 +187,7 @@ Option::internalParseCommandLine(int argc, char **argv, int skip)
             }
             //all modes
             if(opt == "o" || opt == "output") {
-                Option::output.setName(argv[++x]);
+                Option::output.setFileName(argv[++x]);
             } else if(opt == "after") {
                 before = false;
             } else if(opt == "t" || opt == "template") {

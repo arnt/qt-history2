@@ -968,7 +968,7 @@ bool QSettings::sync()
         QFile file(filename + ".tmp");
         if (! file.open(IO_WriteOnly)) {
             qWarning("QSettings::sync: failed to open '%s' for writing",
-                     file.name().latin1());
+                     file.fileName().latin1());
             success = false;
             continue;
         }
@@ -1013,7 +1013,7 @@ bool QSettings::sync()
         if (success) {
             QDir dir(QFileInfo(file).absoluteDir());
             if (dir.exists(filename) && !dir.remove(filename) ||
-                 !dir.rename(file.name(), filename, true)) {
+                 !dir.rename(file.fileName(), filename, true)) {
                 qWarning("QSettings::sync: error writing file '%s'",
                           QFile::encodeName(filename).constData());
                 success = false;

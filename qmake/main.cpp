@@ -46,7 +46,7 @@ int main(int argc, char **argv)
     }
     Option::output_dir = oldpwd; //for now this is the output dir
 
-    if(Option::output.name() != "-") {
+    if(Option::output.fileName() != "-") {
         QFileInfo fi(Option::output);
         QString dir;
         if(fi.isDir()) {

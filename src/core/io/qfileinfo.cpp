@@ -264,7 +264,7 @@ QFileInfo::QFileInfo(const QString &file) : d_ptr(new QFileInfoPrivate(this))
 
 QFileInfo::QFileInfo(const QFile &file) : d_ptr(new QFileInfoPrivate(this))
 {
-    d->initFileEngine(file.name());
+    d->initFileEngine(file.fileName());
 }
 
 /*!
@@ -363,7 +363,7 @@ QFileInfo::setFile(const QString &file)
 void
 QFileInfo::setFile(const QFile &file)
 {
-    d->initFileEngine(file.name());
+    d->initFileEngine(file.fileName());
 }
 
 #ifndef QT_NO_DIR

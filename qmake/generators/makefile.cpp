@@ -1530,7 +1530,7 @@ QString MakefileGenerator::build_args()
     ret += buildArgs();
 
     //output
-    QString ofile = Option::fixPathToTargetOS(fileFixify(Option::output.name()));
+    QString ofile = Option::fixPathToTargetOS(fileFixify(Option::output.fileName()));
     if(!ofile.isEmpty() && ofile != project->first("QMAKE_MAKEFILE"))
         ret += " -o " + ofile;
 
@@ -1620,7 +1620,7 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
     for(QStringList::Iterator qeui_it = qeui.begin(); qeui_it != qeui.end(); ++qeui_it)
         t << "include " << (*qeui_it) << endl;
 
-    QString ofile = Option::output.name();
+    QString ofile = Option::output.fileName();
     if(ofile.lastIndexOf(Option::dir_sep) != -1)
         ofile = ofile.right(ofile.length() - ofile.lastIndexOf(Option::dir_sep) -1);
     t << "MAKEFILE =        " << ofile << endl;
@@ -1763,7 +1763,7 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
 void
 MakefileGenerator::writeMakeQmake(QTextStream &t)
 {
-    QString ofile = Option::fixPathToTargetOS(fileFixify(Option::output.name()));
+    QString ofile = Option::fixPathToTargetOS(fileFixify(Option::output.fileName()));
     if(project->isEmpty("QMAKE_FAILED_REQUIREMENTS") && !project->isActiveConfig("no_autoqmake") &&
        !project->isEmpty("QMAKE_INTERNAL_PRL_FILE")) {
         QStringList files = fileFixify(Option::mkfile::project_files);
@@ -2173,29 +2173,29 @@ MakefileGenerator::openOutput(QFile &file, const QString &build) const
 {
     {
         QString outdir;
-        if(!file.name().isEmpty()) {
-            if(QDir::isRelativePath(file.name()))
-                file.setName(Option::output_dir + file.name()); //pwd when qmake was run
+        if(!file.fileName().isEmpty()) {
+            if(QDir::isRelativePath(file.fileName()))
+                file.setFileName(Option::output_dir + file.fileName()); //pwd when qmake was run
             QFileInfo fi(file);
             if(fi.isDir())
-                outdir = file.name() + QDir::separator();
+                outdir = file.fileName() + QDir::separator();
         }
-        if(!outdir.isEmpty() || file.name().isEmpty()) {
+        if(!outdir.isEmpty() || file.fileName().isEmpty()) {
             QString fname = "Makefile";
             if(!project->isEmpty("MAKEFILE"))
                fname = project->first("MAKEFILE");
-            file.setName(outdir + fname);
+            file.setFileName(outdir + fname);
         }
     }
-    if(QDir::isRelativePath(file.name()))
-        file.setName(Option::output_dir + file.name()); //pwd when qmake was run
+    if(QDir::isRelativePath(file.fileName()))
+        file.setFileName(Option::output_dir + file.fileName()); //pwd when qmake was run
     if(!build.isEmpty())
-        file.setName(file.name() + "." + build);
+        file.setFileName(file.fileName() + "." + build);
     if(project->isEmpty("QMAKE_MAKEFILE"))
-        project->variables()["QMAKE_MAKEFILE"].append(file.name());
-    int slsh = file.name().lastIndexOf(Option::dir_sep);
+        project->variables()["QMAKE_MAKEFILE"].append(file.fileName());
+    int slsh = file.fileName().lastIndexOf(Option::dir_sep);
     if(slsh != -1)
-        createDir(file.name().left(slsh));
+        createDir(file.fileName().left(slsh));
     if(file.open(IO_WriteOnly | IO_Translate | IO_Truncate)) {
         QFileInfo fi(Option::output);
         QString od = Option::fixPathToTargetOS((fi.isSymLink() ? fi.readLink() : fi.path()));

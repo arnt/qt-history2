@@ -162,7 +162,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
         return false;
     }
     QTextStream xml(&file);
-    createFork(Option::output.name());
+    createFork(Option::output.fileName());
 
     int rep;
     QString line;
@@ -471,7 +471,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!project->isEmpty("CODEWARRIOR_PREFIX_HEADER")) {
         QFile prefixfile(project->first("CODEWARRIOR_PREFIX_HEADER"));
         if(!prefixfile.open(IO_WriteOnly)) {
-            fprintf(stderr, "Cannot open PREFIX file: %s\n", prefixfile.name().latin1());
+            fprintf(stderr, "Cannot open PREFIX file: %s\n", prefixfile.fileName().latin1());
         } else {
             createFork(project->first("CODEWARRIOR_PREFIX_HEADER"));
             QTextStream prefix(&prefixfile);
@@ -784,12 +784,12 @@ bool
 MetrowerksMakefileGenerator::openOutput(QFile &file, const QString &build) const
 {
     QString outdir;
-    if(!file.name().isEmpty()) {
+    if(!file.fileName().isEmpty()) {
         QFileInfo fi(file);
         if(fi.isDir())
-            outdir = file.name() + QDir::separator();
+            outdir = file.fileName() + QDir::separator();
     }
-    if(!outdir.isEmpty() || file.name().isEmpty())
-        file.setName(outdir + project->first("TARGET") + ".xml");
+    if(!outdir.isEmpty() || file.fileName().isEmpty())
+        file.setFileName(outdir + project->first("TARGET") + ".xml");
     return MakefileGenerator::openOutput(file, build);
 }

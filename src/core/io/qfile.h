@@ -30,8 +30,12 @@ public:
     QFile(const QString &name);
     ~QFile();
 
-    QString name() const;
-    void setName(const QString &name);
+    QString fileName() const;
+    void setFileName(const QString &name);
+#ifdef QT_COMPAT
+    inline QT_COMPAT QString name() const { return fileName(); }
+    inline QT_COMPAT void setName(const QString &name) { setFileName(name); }
+#endif
 
     typedef QByteArray (*EncoderFn)(const QString &fileName);
     typedef QString (*DecoderFn)(const QByteArray &localfileName);

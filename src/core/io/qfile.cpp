@@ -87,7 +87,7 @@ QFilePrivate::openExternalFile(int flags, int fd)
     QDataStream or QTextStream.
 
     The file name is usually passed in the constructor but can be
-    changed with setName(). You can check for a file's existence with
+    changed with setFileName(). You can check for a file's existence with
     exists() and remove a file with remove().
 
     The file is opened with open(), closed with close() and flushed
@@ -166,7 +166,7 @@ QFile::QFile() : QIODevice(*new QFilePrivate)
 /*!
     Constructs a QFile with a file name \a name.
 
-    \sa setName()
+    \sa setFileName()
 */
 QFile::QFile(const QString &name) : QIODevice(*new QFilePrivate)
 {
@@ -184,12 +184,12 @@ QFile::~QFile()
 }
 
 /*!
-    Returns the name set by setName().
+    Returns the name set by setFileName().
 
-    \sa setName(), QFileInfo::fileName()
+    \sa setFileName(), QFileInfo::fileName()
 */
 QString
-QFile::name() const
+QFile::fileName() const
 {
     return d->fileName;
 }
@@ -208,7 +208,7 @@ QFile::name() const
     \code
         QFile file;
         QDir::setCurrent("/tmp");
-        file.setName("readme.txt");
+        file.setFileName("readme.txt");
         QDir::setCurrent("/home");
         file.open(QIODevice::ReadOnly);      // opens "/home/readme.txt" under Unix
     \endcode
@@ -216,10 +216,10 @@ QFile::name() const
     Note that the directory separator "/" works for all operating
     systems supported by Qt.
 
-    \sa name(), QFileInfo, QDir
+    \sa fileName(), QFileInfo, QDir
 */
 void
-QFile::setName(const QString &name)
+QFile::setFileName(const QString &name)
 {
     if(d->fileEngine)
         d->fileEngine->setFileName(name);
@@ -314,7 +314,7 @@ QFile::setDecodingFunction(DecoderFn f)
 
     Returns true if this file exists; otherwise returns false.
 
-    \sa name()
+    \sa fileName()
 */
 
 bool
@@ -340,7 +340,7 @@ QFile::exists(const QString &fileName)
 
     The file is closed before it is removed.
 
-    \sa setName()
+    \sa setFileName()
 */
 
 bool
@@ -383,7 +383,7 @@ QFile::remove(const QString &fileName)
 
     The file is closed before it is renamed.
 
-    \sa setName()
+    \sa setFileName()
 */
 
 bool

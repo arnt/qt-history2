@@ -995,7 +995,7 @@ void VcprojGenerator::initOld()
 
 
     if(msvcproj_project.isEmpty())
-        msvcproj_project = Option::output.name();
+        msvcproj_project = Option::output.fileName();
 
     msvcproj_project = msvcproj_project.right(msvcproj_project.length() - msvcproj_project.lastIndexOf("\\") - 1);
     msvcproj_project = msvcproj_project.left(msvcproj_project.lastIndexOf("."));
@@ -1117,19 +1117,19 @@ QString VcprojGenerator::replaceExtraCompilerVariables(const QString &var, const
 bool VcprojGenerator::openOutput(QFile &file, const QString &build) const
 {
     QString outdir;
-    if(!file.name().isEmpty()) {
+    if(!file.fileName().isEmpty()) {
         QFileInfo fi(file);
         if(fi.isDir())
-            outdir = file.name() + QDir::separator();
+            outdir = file.fileName() + QDir::separator();
     }
-    if(!outdir.isEmpty() || file.name().isEmpty()) {
+    if(!outdir.isEmpty() || file.fileName().isEmpty()) {
         QString ext = project->first("VCPROJ_EXTENSION");
         if(project->first("TEMPLATE") == "vcsubdirs")
             ext = project->first("VCSOLUTION_EXTENSION");
-        file.setName(outdir + project->first("TARGET") + ext);
+        file.setFileName(outdir + project->first("TARGET") + ext);
     }
-    if(QDir::isRelativePath(file.name()))
-        file.setName(Option::fixPathToLocalOS(QDir::currentPath() + Option::dir_sep + fixFilename(file.name())));
+    if(QDir::isRelativePath(file.fileName()))
+        file.setFileName(Option::fixPathToLocalOS(QDir::currentPath() + Option::dir_sep + fixFilename(file.fileName())));
     return Win32MakefileGenerator::openOutput(file, build);
 }
 

@@ -1243,22 +1243,22 @@ ProjectBuilderMakefileGenerator::keyFor(const QString &block)
 bool
 ProjectBuilderMakefileGenerator::openOutput(QFile &file, const QString &build) const
 {
-    if(QDir::isRelativePath(file.name()))
-        file.setName(Option::output_dir + file.name()); //pwd when qmake was run
+    if(QDir::isRelativePath(file.fileName()))
+        file.setFileName(Option::output_dir + file.fileName()); //pwd when qmake was run
     QFileInfo fi(file);
-    if(fi.suffix() != "pbxproj" || file.name().isEmpty()) {
-        QString output = file.name();
+    if(fi.suffix() != "pbxproj" || file.fileName().isEmpty()) {
+        QString output = file.fileName();
         if(fi.isDir())
             output += QDir::separator();
         if(!output.endsWith(projectSuffix())) {
-            if(file.name().isEmpty() || fi.isDir())
+            if(file.fileName().isEmpty() || fi.isDir())
                 output += project->first("TARGET");
             output += projectSuffix() + QDir::separator();
         } else if(output[(int)output.length() - 1] != QDir::separator()) {
             output += QDir::separator();
         }
         output += QString("project.pbxproj");
-        file.setName(output);
+        file.setFileName(output);
     }
     bool ret = UnixMakefileGenerator::openOutput(file, build);
     ((ProjectBuilderMakefileGenerator*)this)->pbx_dir = Option::output_dir.section(Option::dir_sep, 0, -1);
