@@ -10,7 +10,7 @@ then
     echo "Please run start_demo from the directory containing it."
     exit 1
 fi
-if [ ! -f ./examples/launcher/launcher ]
+if [ ! -f ./examples/launcher/launcher -a ! -f launcher ]
 then
 	echo "Could not find demo program. Will try to make it."
 	QTDIR=`pwd`
@@ -182,13 +182,14 @@ gpm -k
 trap "( kbd_mode -a; stty sane; setterm -cursor on )" EXIT
 
 # Set up execution environment
-QTDIR=`pwd`
-if [ ! -f launcher ]
+if [ -f launcher ]
 then
-    QWSDIR=`pwd`
+    continue
+else
+    QTDIR=`pwd`
 fi
-LD_LIBRARY_PATH=$QWSDIR/lib:$LD_LIBRARY_PATH
-export QWS_MOUSE_PROTO QTDIR QWSDIR LD_LIBRARY_PATH
+LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
+export QWS_MOUSE_PROTO QTDIR LD_LIBRARY_PATH
 
 # Start the demo, throwing away debug messages
 cd examples/$DEMO
