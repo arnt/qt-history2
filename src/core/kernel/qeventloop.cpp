@@ -21,7 +21,7 @@
 
 class QEventLoopPrivate : public QObjectPrivate
 {
-    Q_DECLARE_PUBLIC(QEventLoop);
+    Q_DECLARE_PUBLIC(QEventLoop)
 public:
     inline QEventLoopPrivate()
         : exit(false), returnCode(0)
