@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#2 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#3 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -37,20 +37,16 @@ struct QMultiLineData;
 class Q_EXPORT QMultiLineEdit : public QTableView
 {
     Q_OBJECT
+    Q_BUILDER( "Texteditor", "qmultilineedit.xpm", DefaultInspector )
 public:
     QMultiLineEdit( QWidget *parent=0, const char *name=0 );
    ~QMultiLineEdit();
 
     QString textLine( int line ) const;
-    QString text() const;
-
     int numLines() const;
 
     QSize sizeHint() const;
     QSizePolicy sizePolicy() const;
-
-    bool	isReadOnly() const;
-    bool	isOverwriteMode() const;
 
     virtual void	setFont( const QFont &font );
     virtual void insertLine( const QString &s, int line = -1 );
@@ -63,22 +59,26 @@ public:
     bool	atBeginning() const;
     bool	atEnd() const;
 
-    bool	autoUpdate()	const;
-    virtual void	setAutoUpdate( bool );
-
     virtual void	setFixedVisibleLines( int lines );
-
 
     int 	maxLineWidth() const;
 
+q_properties:
+    bool	autoUpdate()	const;
+    virtual void	setAutoUpdate( bool );
+
+    bool	isReadOnly() const;
+    bool	isOverwriteMode() const;
+    QString text() const;
+
 public slots:
     void       clear();
-    virtual void       setText( const QString &);
+    virtual void       setText( const QString &) q_prop;
     void       append( const QString &);
     void       deselect();
     void       selectAll();
-    virtual void       setReadOnly( bool );
-    virtual void       setOverwriteMode( bool );
+    virtual void       setReadOnly( bool ) q_prop;
+    virtual void       setOverwriteMode( bool ) q_prop;
     void       paste();
     void       copyText();
     void       cut();
