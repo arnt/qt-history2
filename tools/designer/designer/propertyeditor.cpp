@@ -4112,7 +4112,9 @@ void PropertyEditor::setWidget( QObject *w, FormWindow *fw )
 	w = fw->project()->objectForFakeForm( fw );
     eList->setFormWindow( fw );
     if ( w && w == wid ) {
-	bool ret = TRUE;
+	// if there is no properties displayed then we really should show them.
+	// to do this check the number of properties in the list.
+	bool ret = (listview->childCount() > 0) ? TRUE : FALSE;
 	if ( wid->isWidgetType() && WidgetFactory::layoutType( (QWidget*)wid ) != WidgetFactory::NoLayout ) {
 	    QListViewItemIterator it( listview );
 	    ret = FALSE;
