@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#63 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#64 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -291,6 +291,7 @@ void QLCDNumber::init()
     smallPoint = FALSE;
     setNumDigits( ndigits );
     setSegmentStyle( Outline );
+    d = 0;
 }
 
 /*!
@@ -791,10 +792,10 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 	    r.setRect( x, y + segLen - width/2, segLen, width);
 	    break;
 	case 4:
-	    r.setRect( x, y + segLen, width, segLen );	    
+	    r.setRect( x, y + segLen, width, segLen );	
 	    break;
 	case 5:
-	    r.setRect( x +segLen - width, y + segLen, width, segLen );	    
+	    r.setRect( x +segLen - width, y + segLen, width, segLen );	
 	    break;
 	case 6:
 	    r.setRect( x, y + 2*segLen - width + 1, segLen, width);
@@ -815,10 +816,10 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 	//p.setBrush(green); p.drawRect(r);
 	update( r );
 	return;
-    } 
+    }
     QColorGroup g = colorGroup();
     QColor lightColor,darkColor,fgColor;
-    
+
     lightColor = g.light();
     darkColor  = g.dark();
     fgColor    = g.foreground();

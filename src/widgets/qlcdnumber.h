@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.h#39 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.h#40 $
 **
 ** Definition of QLCDNumber class
 **
@@ -30,6 +30,8 @@
 #endif // QT_H
 
 
+class QLCDNumberPrivate;
+
 class Q_EXPORT QLCDNumber : public QFrame		// LCD number widget
 {
     Q_OBJECT
@@ -38,22 +40,22 @@ public:
     QLCDNumber( uint numDigits, QWidget *parent=0, const char *name=0 );
    ~QLCDNumber();
 
-    enum Mode { HEX, DEC, OCT, BIN };
+    enum Mode { Hex, HEX=Hex, Dec, DEC=Dec, Oct, OCT=Oct, Bin, BIN=Bin };
     enum SegmentStyle { Outline, Filled, Flat };
 
     bool    smallDecimalPoint() const;
 
     int	    numDigits() const;
-    virtual void    setNumDigits( int nDigits );
+    virtual void setNumDigits( int nDigits );
 
     bool    checkOverflow( double num ) const;
     bool    checkOverflow( int	  num ) const;
 
     Mode mode() const;
-    virtual void    setMode( Mode );
+    virtual void setMode( Mode );
 
     SegmentStyle segmentStyle() const;
-    virtual void    setSegmentStyle( SegmentStyle );
+    virtual void setSegmentStyle( SegmentStyle );
 
     double  value() const;
     int	    intValue() const;
@@ -65,11 +67,11 @@ public slots:
     void    display( int num );
     void    display( double num );
     void    display( const QString &str );
-    virtual void    setHexMode();
-    virtual void    setDecMode();
-    virtual void    setOctMode();
-    virtual void    setBinMode();
-    virtual void    setSmallDecimalPoint( bool );
+    virtual void setHexMode();
+    virtual void setDecMode();
+    virtual void setOctMode();
+    virtual void setBinMode();
+    virtual void setSmallDecimalPoint( bool );
 
 signals:
     void    overflow();
@@ -93,6 +95,7 @@ private:
     uint    shadow	: 1;
     QString digitStr;
     QBitArray points;
+    QLCDNumberPrivate * d;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#29 $
 **
 ** Implementation of QProgressBar class
 **
@@ -57,9 +57,10 @@
 
 QProgressBar::QProgressBar( QWidget *parent, const char *name, WFlags f )
     : QFrame( parent, name, f ),
-	total_steps( 100 ),
-	progress_val( -1 ),
-	percentage( -1 )
+      total_steps( 100 ),
+      progress_val( -1 ),
+      percentage( -1 ),
+      d( 0 )
 {
     if ( style() == MotifStyle ) {
 	setFrameStyle(QFrame::WinPanel | QFrame::Sunken);
@@ -86,9 +87,10 @@ QProgressBar::QProgressBar( QWidget *parent, const char *name, WFlags f )
 QProgressBar::QProgressBar( int totalSteps,
 			    QWidget *parent, const char *name, WFlags f )
     : QFrame( parent, name, f ),
-	total_steps( totalSteps ),
-	progress_val( -1 ),
-	percentage( -1 )
+      total_steps( totalSteps ),
+      progress_val( -1 ),
+      percentage( -1 ),
+      d( 0 )
 {
     if ( style() == MotifStyle ) {
 	setFrameStyle(QFrame::WinPanel | QFrame::Sunken);

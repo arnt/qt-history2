@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.h#16 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.h#17 $
 **
 ** Definition of QProgressBar class
 **
@@ -29,6 +29,9 @@
 #endif // QT_H
 
 
+class QProgressBarPrivate;
+
+
 class Q_EXPORT QProgressBar : public QFrame
 {
     Q_OBJECT
@@ -47,8 +50,8 @@ public:
 
 public slots:
     void	reset();
-    virtual void	setTotalSteps( int totalSteps );
-    virtual void	setProgress( int progress );
+    virtual void setTotalSteps( int totalSteps );
+    virtual void setProgress( int progress );
 
 protected:
     void	drawContents( QPainter * );
@@ -61,6 +64,7 @@ private:
     int		progress_val;
     int		percentage;
     QString	progress_str;
+    QProgressBarPrivate * d;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
