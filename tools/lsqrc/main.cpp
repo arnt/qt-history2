@@ -18,11 +18,12 @@
 
 #ifdef Q_OS_DARWIN
 # include <util.h>
+#elif defined(Q_OS_UNIX)
+# include <termio.h>
 #endif
 #ifdef Q_OS_UNIX
 # include <sys/ioctl.h>
 # include <stdio.h>
-# include <termio.h>
 #endif
 
 int
