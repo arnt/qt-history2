@@ -38,7 +38,5 @@ static char ident[] = "$Id: headers.doc,v 1.8 1999/10/25 14:49:28 arnt Exp $";
 
 <p>Here are the header files that make up the Qt API:
 
-<multicol cols=3>
 \headerfilelist
-</multicol>
 */

@@ -89,48 +89,46 @@ in the collective conscious that is the Qt Developer Community!
 
 <h2 align=center>The Porting Notes</h2>
 
-<multicol cols=3>
 <ul>
- <li><b><a href=#Namespace>Namespace</a></b>
- <li><b><a href=#Virtual>Virtual Functions</a></b>
- <li><b><a href=#Collection>Collection classes</a></b>
- <li><b><a href=#DefaultParent>No Default 0 Parent Widget</a></b>
- <li><b><a href=#DebugVsRelease>Debug vs. Release</a></b>
+ <li><b><a href="#Namespace">Namespace</a></b>
+ <li><b><a href="#Virtual">Virtual Functions</a></b>
+ <li><b><a href="#Collection">Collection classes</a></b>
+ <li><b><a href="#DefaultParent">No Default 0 Parent Widget</a></b>
+ <li><b><a href="#DebugVsRelease">Debug vs. Release</a></b>
 
- <li><b><a href=#QApplication>QApplication</a></b>
- <li><b><a href=#QClipboard>QClipboard</a></b>
- <li><b><a href=#QColor>QColor</a></b>
- <li><b><a href=#QDataStream>QDataStream</a></b>
- <li><b><a href=#QDialog>QDialog</a></b>
- <li><b><a href=#QDropSite>QDropSite</a></b>
- <li><b><a href=#QEvent>QEvent</a></b>
- <li><b><a href=#QFile>QFile</a></b>
- <li><b><a href=#QFontMetrics>QFontMetrics</a></b>
- <li><b><a href=#QIODevice>QIODevice</a></b>
- <li><b><a href=#QLabel>QLabel</a></b>
- <li><b><a href=#QLayout>QLayout</a></b>
- <li><b><a href=#QListView>QListView</a></b>
- <li><b><a href=#QMenuData>QMenuData</a></b>
- <li><b><a href=#QMenuData>QPopupMenu</a></b>
- <li><b><a href=#QMultiLineEdit>QMultiLineEdit</a></b>
- <li><b><a href=#QPainter>QPainter</a></b>
- <li><b><a href=#QPicture>QPicture</a></b>
- <li><b><a href=#QPoint>QPoint, QPointArray, QSize and QRect</a></b>
- <li><b><a href=#QPixmap>QPixmap</a></b>
- <li><b><a href=#QRgb>QRgb</a></b>
- <li><b><a href=#QScrollView>QScrollView</a></b>
- <li><b><a href=#QStrList>QStrList</a></b>
- <li><b><a href=#QString>QString</a></b>
- <li><b><a href=#QTextStream>QTextStream</a></b>
- <li><b><a href=#QUriDrag>QUriDrag / QUrlDrag</a></b>
- <li><b><a href=#QValidator>QComboBox</a></b>
- <li><b><a href=#QValidator>QLineEdit</a></b>
- <li><b><a href=#QValidator>QSpinBox</a></b>
- <li><b><a href=#QValidator>QValidator</a></b>
- <li><b><a href=#QWidget>QWidget</a></b>
- <li><b><a href=#QWindow>QWindow</a></b>
+ <li><b><a href="#QApplication">QApplication</a></b>
+ <li><b><a href="#QClipboard">QClipboard</a></b>
+ <li><b><a href="#QColor">QColor</a></b>
+ <li><b><a href="#QDataStream">QDataStream</a></b>
+ <li><b><a href="#QDialog">QDialog</a></b>
+ <li><b><a href="#QDropSite">QDropSite</a></b>
+ <li><b><a href="#QEvent">QEvent</a></b>
+ <li><b><a href="#QFile">QFile</a></b>
+ <li><b><a href="#QFontMetrics">QFontMetrics</a></b>
+ <li><b><a href="#QIODevice">QIODevice</a></b>
+ <li><b><a href="#QLabel">QLabel</a></b>
+ <li><b><a href="#QLayout">QLayout</a></b>
+ <li><b><a href="#QListView">QListView</a></b>
+ <li><b><a href="#QMenuData">QMenuData</a></b>
+ <li><b><a href="#QMenuData">QPopupMenu</a></b>
+ <li><b><a href="#QMultiLineEdit">QMultiLineEdit</a></b>
+ <li><b><a href="#QPainter">QPainter</a></b>
+ <li><b><a href="#QPicture">QPicture</a></b>
+ <li><b><a href="#QPoint">QPoint, QPointArray, QSize and QRect</a></b>
+ <li><b><a href="#QPixmap">QPixmap</a></b>
+ <li><b><a href="#QRgb">QRgb</a></b>
+ <li><b><a href="#QScrollView">QScrollView</a></b>
+ <li><b><a href="#QStrList">QStrList</a></b>
+ <li><b><a href="#QString">QString</a></b>
+ <li><b><a href="#QTextStream">QTextStream</a></b>
+ <li><b><a href="#QUriDrag">QUriDrag / QUrlDrag</a></b>
+ <li><b><a href="#QValidator">QComboBox</a></b>
+ <li><b><a href="#QValidator">QLineEdit</a></b>
+ <li><b><a href="#QValidator">QSpinBox</a></b>
+ <li><b><a href="#QValidator">QValidator</a></b>
+ <li><b><a href="#QWidget">QWidget</a></b>
+ <li><b><a href="#QWindow">QWindow</a></b>
 </ul>
-</multicol>
 
 <hr>
 
