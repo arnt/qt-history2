@@ -85,6 +85,13 @@
 # define QT_NO_SQL
 #endif
 
+#include <qglobal.h>
+#ifdef Q_WS_MAC9
+#  ifndef QMAC_VIRTUAL_PIXMAP_SUPPORT
+#    define QMAC_VIRTUAL_PIXMAP_SUPPORT
+#  endif
+#endif
+
 // Data structures
 /*!
     QStringList

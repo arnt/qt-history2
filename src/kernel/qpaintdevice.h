@@ -96,7 +96,7 @@ public:
     virtual Qt::HANDLE	handle() const;
     virtual Qt::HANDLE  x11RenderHandle() const;
 #elif defined(Q_WS_MAC)
-    Qt::HANDLE      handle() const;
+    virtual Qt::HANDLE      handle() const;
 #elif defined(Q_WS_QWS)
     virtual Qt::HANDLE	handle() const;
 #endif

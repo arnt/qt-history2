@@ -6,21 +6,120 @@
 #include "qwmatrix.h"
 #include "qt_mac.h"
 
+#ifdef QMAC_VIRTUAL_PIXMAP_SUPPORT
+#include <qintcache.h>
+
+class QMacInternalPixmapCache : public QIntCache<QPixmap>
+{
+public:
+    static int pixmap_key, cache_used;
+    QMacInternalPixmapCache() : QIntCache<QPixmap>(640*480*4, 149) { } //640x480 32bit
+    ~QMacInternalPixmapCache() { }
+    Qt::HANDLE getGWorld(const QPixmap *);
+protected:
+    virtual void deleteItem(Item);
+};
+
+void QMacInternalPixmapCache::deleteItem(Item d)
+{
+    QPixmap *p = (QPixmap *)d;
+    if(p->data->cache.gworld) {
+	p->data->cache.img = new QImage(p->convertToImage());
+#ifdef ONE_PIXEL_LOCK
+	UnlockPixels(GetGWorldPixMap((GWorldPtr)p->data->cache.gworld));
+#endif
+	DisposeGWorld((GWorldPtr)p->data->cache.gworld);
+	p->data->cache.gworld = NULL;
+	p->data->cache.key = -1;
+    }
+}
+Qt::HANDLE QMacInternalPixmapCache::getGWorld(const QPixmap *p)
+{
+    QPixmap *pm = const_cast<QPixmap *>(p); //mutable
+    if(pm->data->cache.gworld) {
+	find(pm->data->cache.key); //most recently used now baby!
+	return pm->data->cache.gworld;
+    }
+
+    //not in the cache already..
+    int w = pm->width(), h = pm->height();
+    if(w<1 || h<1) 
+	return NULL;
+    Rect rect;
+    SetRect(&rect,0,0,w,h);
+    int cost = w * h * pm->depth() / 4; //some cost
+
+    for(int tries = 1; TRUE; tries++) {
+	QDErr e = 0;
+	const int params = alignPix | stretchPix | newDepth;
+#if 0    
+	if(w <= 300 && h <= 100) //try to get it into distant memory
+	    e = NewGWorld((GWorldPtr *)&pm->data->cache.gworld, 32, &rect, pm->data->clut ? &pm->data->clut : NULL, 0, 
+			  useDistantHdwrMem | params);
+	if(!pm->data->cache.gworld) //oh well I tried
+#endif  
+	    e = NewGWorld((GWorldPtr *)&pm->data->cache.gworld, 32, &rect, pm->data->clut ? &pm->data->clut : NULL, 0,
+			  params);
+
+	/* error? */
+	if((e & gwFlagErr)!=0) {
+	    pm->data->cache.gworld=0; //just to be sure
+	    if(int mc = maxCost()) {
+		setMaxCost(mc > (cost * tries) ? mc - (cost*tries) : 0); //throw away some things
+		setMaxCost(mc + (cost * tries)); //get ready to try again
+	    } else {
+		qDebug( "QPixmap::init Something went wrong");
+		Q_ASSERT(0);
+		break;
+	    }
+	} else {
+#ifdef ONE_PIXEL_LOCK
+	    Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pm->data->cache.gworld)));
+#endif
+	    cache_used += cost;
+	    if(cache_used > maxCost())
+		setMaxCost(cache_used);
+	    insert(pm->data->cache.key = pixmap_key++, p, cost);
+	    if(pm->data->cache.img) { 	    //back like it was before
+		pm->convertFromImage(*pm->data->cache.img);
+		delete pm->data->cache.img;
+		pm->data->cache.img = NULL;
+	    }
+	    break;
+	}
+    }
+    return pm->data->cache.gworld;
+}
+int QMacInternalPixmapCache::pixmap_key = 0;
+int QMacInternalPixmapCache::cache_used = 0;
+static QMacInternalPixmapCache g_pixmap_cache;
+
+/*! \internal
+  This is conditionally implemented to support virtual pixmaps.
+*/
+Qt::HANDLE QPixmap::handle() const
+{
+    Qt::HANDLE hd = g_pixmap_cache.getGWorld(this);
+    return hd;
+}
+#endif
+
 extern const uchar *qt_get_bitflip_array();		// defined in qimage.cpp
 
 QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     : QPaintDevice( QInternal::Pixmap )
 {
     init(w, h, 1, TRUE, DefaultOptim);
+    GWorldPtr hd = (GWorldPtr)handle();
     if(!hd)
 	qDebug("Some weirdness! %s %d", __FILE__, __LINE__);
 
 #ifndef ONE_PIXEL_LOCK
-    Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
+    Q_ASSERT(LockPixels(GetGWorldPixMap(hd)));
 #endif
 
-    long *dptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)hd)), *drow, q;
-    unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)hd));
+    long *dptr = (long *)GetPixBaseAddr(GetGWorldPixMap(hd)), *drow, q;
+    unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap(hd));
 
     char mode = true32b;
     SwapMMUMode(&mode);
@@ -42,7 +141,7 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
 
     SwapMMUMode(&mode);
 #ifndef ONE_PIXEL_LOCK
-    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
+    UnlockPixels(GetGWorldPixMap(hd));    
 #endif
 }
 
@@ -123,10 +222,6 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 					    (d != 1 && depth() != 1) ) ) {
 	// same size etc., use the existing pixmap
 	detach();
-	if(!hd)
-	    init( w, h, 32, isQBitmap(), DefaultOptim);
-	if(!hd)
-	    return FALSE;
 
 	if ( data->mask ) {                     // get rid of the mask
 	    delete data->mask;
@@ -140,15 +235,16 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	*this = pm;
     }
 
+    GWorldPtr hd = (GWorldPtr)handle();
     if(!hd)
 	qDebug("Some weirdness! %s %d", __FILE__, __LINE__);
 
 #ifndef ONE_PIXEL_LOCK
-    Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
+    Q_ASSERT(LockPixels(GetGWorldPixMap(hd)));
 #endif
 
-    long *dptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)hd)), *drow;
-    unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)hd));
+    long *dptr = (long *)GetPixBaseAddr(GetGWorldPixMap(hd)), *drow;
+    unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap(hd));
 
     QRgb q;
     int sdpt = image.depth();
@@ -201,7 +297,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     }
 
 #ifndef ONE_PIXEL_LOCK
-    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
+    UnlockPixels(GetGWorldPixMap(hd));    
 #endif
     return TRUE;
 }
@@ -227,6 +323,7 @@ QImage QPixmap::convertToImage() const
         QImage nullImage;
         return nullImage;
     }
+    GWorldPtr hd = (GWorldPtr)handle();
     if( hd==0 ) {
         QImage nullImage;
         return nullImage;
@@ -266,12 +363,12 @@ QImage QPixmap::convertToImage() const
 	qDebug("Some weirdness! %s %d", __FILE__, __LINE__);
 
 #ifndef ONE_PIXEL_LOCK
-    Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
+    Q_ASSERT(LockPixels(GetGWorldPixMap(hd)));
 #endif
 
     QRgb q;
-    long *sptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)hd)), *srow, r;
-    unsigned short sbpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)hd));
+    long *sptr = (long *)GetPixBaseAddr(GetGWorldPixMap(hd)), *srow, r;
+    unsigned short sbpr = GetPixRowBytes(GetGWorldPixMap(hd));
     char mode = true32b;
     SwapMMUMode(&mode);
 
@@ -294,7 +391,7 @@ QImage QPixmap::convertToImage() const
 
     SwapMMUMode(&mode);
 #ifndef ONE_PIXEL_LOCK
-    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
+    UnlockPixels(GetGWorldPixMap(hd));    
 #endif
 
     //how do I handle a mask?
@@ -356,13 +453,14 @@ QImage QPixmap::convertToImage() const
     }
 
 #ifndef ONE_PIXEL_LOCK
-    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
+    UnlockPixels(GetGWorldPixMap(hd));    
 #endif
     return *image;
 }
 
 void QPixmap::fill( const QColor &fillColor )
 {
+    GWorldPtr hd = (GWorldPtr)handle();
     if(!hd)
 	qDebug("Some weirdness! %s %d", __FILE__, __LINE__);
 	
@@ -372,7 +470,7 @@ void QPixmap::fill( const QColor &fillColor )
     //at the end of this function this will go out of scope and the destructor will restore the state
     QMacSavedPortInfo saveportstate(this); 
 #ifndef ONE_PIXEL_LOCK
-    Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
+    Q_ASSERT(LockPixels(GetGWorldPixMap(hd)));
 #endif
 
     rc.red=fillColor.red()*256;
@@ -383,7 +481,7 @@ void QPixmap::fill( const QColor &fillColor )
     PaintRect(&r);
 
 #ifndef ONE_PIXEL_LOCK
-    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
+    UnlockPixels(GetGWorldPixMap(hd));    
 #endif
 }
 
@@ -437,6 +535,18 @@ void QPixmap::deref()
             delete data->mask;
             data->mask = 0;
         }
+#ifdef QMAC_VIRTUAL_PIXMAP_SUPPORT
+	g_pixmap_cache.take(data->cache.key);
+        if ( data->cache.gworld && qApp ) {
+#ifdef ONE_PIXEL_LOCK
+	    UnlockPixels(GetGWorldPixMap((GWorldPtr)data->cache.gworld));
+#endif
+            DisposeGWorld((GWorldPtr)data->cache.gworld);
+            data->cache.gworld = NULL;
+        }
+	delete data->cache.img;
+	data->cache.img = NULL;
+#else
         if ( hd && qApp ) {
 #ifdef ONE_PIXEL_LOCK
 	    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
@@ -444,7 +554,9 @@ void QPixmap::deref()
             DisposeGWorld((GWorldPtr)hd);
             hd = 0;
         }
+#endif
         delete data;
+	data = NULL;
     }
 }
 
@@ -676,6 +788,11 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     data = new QPixmapData;
     Q_CHECK_PTR( data );
     memset( data, 0, sizeof(QPixmapData) );
+#ifdef QMAC_VIRTUAL_PIXMAP_SUPPORT
+    data->cache.img = NULL;
+    data->cache.gworld = NULL;
+    data->cache.key = -1;
+#endif
     data->count=1;
     data->uninit=TRUE;
     data->bitmap=bitmap;
@@ -702,33 +819,6 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	return;
     data->w=w;
     data->h=h;
-
-    Rect rect;
-    SetRect(&rect,0,0,w,h);
-
-    QDErr e = 0;
-    const int params = alignPix | stretchPix | newDepth;
-#if 0    
-    if(w <= 300 && h <= 100) //try to get it into distant memory
-        e = NewGWorld((GWorldPtr *)&hd, 32, &rect, data->clut ? &data->clut : NULL, 0, 
-                   useDistantHdwrMem | params);
-    if(!hd) //oh well I tried
-#endif  
-       e = NewGWorld((GWorldPtr *)&hd, 32, &rect, data->clut ? &data->clut : NULL, 0,
-                    params);
-                    
-    /* error? */
-    if((e & gwFlagErr)!=0) {
-	qDebug( "QPixmap::init Something went wrong");
-	Q_ASSERT(0);
-	hd=0;
-     } else {
-#ifdef ONE_PIXEL_LOCK
-        Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
-#endif
-	data->w=w;
-	data->h=h;
-    }
 }
 
 int QPixmap::defaultDepth()
@@ -761,9 +851,6 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
     }
     return pm;
 }
-
-
-
 
 
   
