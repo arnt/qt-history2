@@ -1,4 +1,4 @@
-(defvar designer-exec "/home/reggie/troll/qt-main/bin/designer")
+(defvar designer-exec "/home/joe/qt/bin/designer")
 
 (defun designer-open-ui-file ()
   (interactive)
