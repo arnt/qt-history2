@@ -179,7 +179,8 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
 
     QWidget *p = mainwindow ? mainwindow->qWorkspace() : 0;
     toplevel = formwindow = new FormWindow( ff, p, 0 );
-    formwindow->setProject( MainWindow::self ? MainWindow::self->currProject() : 0 );
+    extern Project *qsa_project; // in qsa.cpp
+    formwindow->setProject( MainWindow::self ? MainWindow::self->currProject() : qsa_project );
     if ( mainwindow )
 	formwindow->setMainWindow( mainwindow );
     MetaDataBase::addEntry( formwindow );
