@@ -48,6 +48,9 @@
 #  define for if(0){}else for
 #endif
 
+
+Q_GUI_EXPORT bool qt_enable_test_font = false;
+
 static int ucstricmp(const QString &as, const QString &bs)
 {
     const QChar *a = as.unicode();
@@ -972,12 +975,10 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
              script, scriptName(script).latin1(),
              request.weight, request.italic, request.stretch, request.pixelSize, pitch);
 
-#if !defined(QT_NO_DEBUG)
-    if (request.family == QLatin1String("__Qt__Box__Engine__")) {
+    if (qt_enable_test_font && request.family == QLatin1String("__Qt__Box__Engine__")) {
         fe = new QTestFontEngine(request.pixelSize);
         fe->fontDef = request;
     }
-#endif
 
     bool usesFontConfigFont = false;
 #if defined(Q_WS_X11) && !defined(QT_NO_XFT)
