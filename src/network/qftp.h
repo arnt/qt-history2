@@ -116,6 +116,9 @@ public:
 
     int currentId() const;
     Command currentCommand() const;
+    bool hasPendingCommands() const;
+    void clearPendingCommands();
+
     State state() const;
 
     Error error() const;

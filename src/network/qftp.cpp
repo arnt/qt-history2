@@ -1446,6 +1446,8 @@ int QFtp::rawCommand( const QString &command )
   (version 0.3), wrongly return a positive reply in the case that the abort was
   successful and as a result the commandFinished() signal is emitted, although
   the command was aborted.
+
+  \sa clearPendingCommands()
 */
 void QFtp::abort()
 {
@@ -1453,10 +1455,7 @@ void QFtp::abort()
     if ( d->pending.isEmpty() )
 	return;
 
-    QFtpCommand *c = d->pending.take( 0 );
-    d->pending.clear();
-    d->pending.append( c );
-
+    clearPendingCommands();
     d->pi.abort();
 }
 
@@ -1487,6 +1486,36 @@ QFtp::Command QFtp::currentCommand() const
     if ( c == 0 )
 	return None;
     return c->command;
+}
+
+/*!
+    Returns TRUE if there are any commands scheduled, but not executed yet;
+    otherwise it returns FALSE.
+
+    The command that is currently executed is not considered as a scheduled
+    command.
+
+    \sa clearPendingCommands() currentId() currentCommand()
+*/
+bool QFtp::hasPendingCommands() const
+{
+    QFtpPrivate *d = ::d( this );
+    return d->pending.count() > 1;
+}
+
+/*!
+    Deletes all pending commands from the list of scheduled commands. This does
+    not affect the command that is currently executed. If you want to stop this
+    this as well, use abort().
+
+    \sa hasPendingCommands() abort()
+*/
+void QFtp::clearPendingCommands()
+{
+    QFtpPrivate *d = ::d( this );
+    QFtpCommand *c = d->pending.take( 0 );
+    d->pending.clear();
+    d->pending.append( c );
 }
 
 /*!
