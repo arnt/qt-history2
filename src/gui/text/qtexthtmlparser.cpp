@@ -441,7 +441,7 @@ QTextHtmlParserNode::QTextHtmlParserNode()
     : parent(0), id(-1), isBlock(false), isListItem(false), isListStart(false), isTableCell(false), isAnchor(false),
       fontItalic(false), fontUnderline(false), fontOverline(false), fontStrikeOut(false), fontFixedPitch(false),
       cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false), hasFontPointSize(false),
-      hasCssBlockIndent(false), hasCssListIndent(false), fontPointSize(DefaultFontSize),
+      hasCssBlockIndent(false), hasCssListIndent(false), isEmptyParagraph(false), fontPointSize(DefaultFontSize),
       fontWeight(QFont::Normal), alignment(Qt::AlignAuto), verticalAlignment(QTextCharFormat::AlignNormal),
       listStyle(QTextListFormat::ListStyleUndefined), imageWidth(-1), imageHeight(-1), tableBorder(0), 
       tableCellRowSpan(1), tableCellColSpan(1), tableCellSpacing(2), tableCellPadding(0), cssBlockIndent(0), 
@@ -1269,6 +1269,10 @@ void QTextHtmlParser::parseAttributes()
                     if (setIntAttribute(&node->cssListIndent, s)) {
                         node->hasCssListIndent = true;
                     }
+                } else if (style.startsWith(QLatin1String("-qt-paragraph-type:"))) {
+                    const QString s = style.mid(19).trimmed().toLower();
+                    if (s == QLatin1String("empty"))
+                        node->isEmptyParagraph = true;
                 } else if (style.startsWith(QLatin1String("white-space:"))) {
                     const QString s = style.mid(12).trimmed().toLower();
                     QTextHtmlParserNode::WhiteSpaceMode ws = stringToWhiteSpaceMode(s);

@@ -612,13 +612,15 @@ void QTextHTMLImporter::import()
             if (node->bgColor.isValid())
                 block.setBackgroundColor(node->bgColor);
 
-
-            if (hasBlock) {
+            if (hasBlock && !node->isEmptyParagraph) {
                 d->fragments.last().blockFormat = d->formatCollection.indexForFormat(block);
                 d->fragments.last().charFormat = d->formatCollection.indexForFormat(charFmt);
             } else {
                 appendBlock(block, charFmt, separator);
             }
+
+            if (node->isEmptyParagraph)
+                continue;
 
             hasBlock = true;
         } else if (node->id == Html_img) {

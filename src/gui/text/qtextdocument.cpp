@@ -1138,8 +1138,20 @@ void QTextHtmlExporter::emitBlockAttributes(const QTextBlock &block)
 
 void QTextHtmlExporter::emitBlock(const QTextBlock &block)
 {
-    if (block.begin().atEnd())
+    if (block.begin().atEnd()) {
+        // ### HACK, remove once QTextFrame::Iterator is fixed
+        int p = block.position();
+        if (p > 0)
+            --p;
+        QTextDocumentPrivate::FragmentIterator frag = doc->docHandle()->find(p);
+        QChar ch = doc->docHandle()->buffer().at(frag->stringPosition);
+        if (ch == QTextBeginningOfFrame
+            || ch == QTextEndOfFrame)
+            return;
+
+        html += "<p style=\"-qt-paragraph-type:empty;\">&nbsp;</p>";
         return;
+    }
 
     // save and later restore, in case we 'change' the default format by
     // emitting block char format information
@@ -1297,6 +1309,16 @@ void QTextHtmlExporter::emitTable(const QTextTable *table)
 
 void QTextHtmlExporter::emitFrame(QTextFrame::Iterator frameIt)
 {
+    if (!frameIt.atEnd()) {
+        QTextFrame::Iterator next = frameIt;
+        ++next;
+        if (next.atEnd()
+            && frameIt.currentFrame() == 0
+            && frameIt.parentFrame() != doc->rootFrame()
+            && frameIt.currentBlock().begin().atEnd())
+            return;
+    }
+
     for (QTextFrame::Iterator it = frameIt;
          !it.atEnd(); ++it) {
         if (QTextTable *table = qt_cast<QTextTable *>(it.currentFrame()))

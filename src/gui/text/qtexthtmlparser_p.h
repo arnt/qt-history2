@@ -149,6 +149,7 @@ struct QTextHtmlParserNode {
     uint hasFontPointSize : 1;
     uint hasCssBlockIndent : 1;
     uint hasCssListIndent : 1;
+    uint isEmptyParagraph : 1;
     QString fontFamily;
     int fontPointSize;
     int fontWeight;
