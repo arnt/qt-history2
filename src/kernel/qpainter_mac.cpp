@@ -1699,6 +1699,20 @@ void QPainter::drawLineSegments(const QPointArray &a, int index, int nlines)
 	}
     }
 
+#ifdef USE_CORE_GRAPHICS
+    float cg_x, cg_y;
+    int  x1, y1, x2, y2;
+    uint i = index;
+    while(nlines--) {
+	pa.point(i++, &x1, &y1);
+	pa.point(i++, &x2, &y2);
+	d->cg_mac_point(x1, y1, &cg_x, &cg_y);
+	CGContextMoveToPoint((CGContextRef)hd, cg_x, cg_y);
+	d->cg_mac_point(x2, y2, &cg_x, &cg_y);
+	CGContextAddLineToPoint((CGContextRef)hd, cg_x, cg_y);  
+	CGContextStrokePath((CGContextRef)hd);
+    }
+#else
     int  x1, y1, x2, y2;
     uint i = index;
 
@@ -1713,6 +1727,7 @@ void QPainter::drawLineSegments(const QPointArray &a, int index, int nlines)
 	MoveTo(x1 + d->offx, y1 + d->offy);
 	LineTo(x2 + d->offx, y2 + d->offy);
     }
+#endif
 }
 
 void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
@@ -1745,6 +1760,17 @@ void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
 	    }
 	}
     }
+#ifdef USE_CORE_GRAPHICS
+    float cg_x, cg_y;
+    d->cg_mac_point(a[0].x(), a[0].y(), &cg_x, &cg_y);
+    CGContextMoveToPoint((CGContextRef)hd, cg_x, cg_y);
+    for(int x = 1; x < a.size(); x++) {
+	d->cg_mac_point(a[x].x(), a[x].y(), &cg_x, &cg_y);
+	CGContextAddLineToPoint((CGContextRef)hd, cg_x, cg_y);
+    }
+    if(cpen.style() != NoPen) 
+	CGContextStrokePath((CGContextRef)hd);
+#else
     int x1, y1, x2, y2, xsave, ysave;
     pa.point(index+npoints-2, &x1, &y1);      // last line segment
     pa.point(index+npoints-1, &x2, &y2);
@@ -1776,6 +1802,7 @@ void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
     updatePen();
     FramePoly(poly);
     KillPoly(poly);
+#endif
 }
 
 void QPainter::drawConvexPolygon(const QPointArray &pa,
@@ -1843,7 +1870,26 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index)
 	if(!pdev->cmd(QPaintDevice::PdcDrawCubicBezier, this, param) || !hd)
 	    return;
     }
+    if ( testf(VxF|WxF) ) {
+        if ( txop != TxNone ) {
+            pa = xForm( pa );
+	    pa.translate(-redirection_offset);
+	}
+    }
+#ifdef USE_CORE_GRAPHICS
+    float cg_x, cg_y;
+    d->cg_mac_point(a[0].x(), a[0].y(), &cg_x, &cg_y);
+    CGContextMoveToPoint((CGContextRef)hd, cg_x, cg_y);
+    float c1_x, c1_y, c2_x, c2_y;
+    d->cg_mac_point(a[1].x(), a[1].y(), &c1_x, &c1_y);
+    d->cg_mac_point(a[2].x(), a[2].y(), &c2_x, &c2_y);
+    d->cg_mac_point(a[3].x(), a[3].y(), &cg_x, &cg_y);
+    CGContextAddCurveToPoint((CGContextRef)hd, c1_x, c1_y, c2_x, c2_y, cg_x, cg_y);
+    if(cpen.style() != NoPen) 
+	CGContextStrokePath((CGContextRef)hd);
+#else
     drawPolyline(pa.cubicBezier());
+#endif
 }
 
 void QPainter::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, int sw, int sh)
@@ -2084,10 +2130,17 @@ void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int textFlags)
 
 QPoint QPainter::pos() const
 {
+    QPoint ret;
+#ifdef USE_CORE_GRAPHICS
+    CGPoint pt = CGContextGetPathCurrentPoint((CGContextRef)hd);
+    ret = QPoint((int)(pt.x - d->offx), (int)(d->cg_info.height - pt.y - d->offy));
+#else
     ((QPainter *)this)->initPaintDevice();
     Point pt;
     GetPen(&pt);
-    return xFormDev(QPoint(pt.h - d->offx, pt.v - d->offy));
+    ret = QPoint(pt.h - d->offx, pt.v - d->offy);
+#endif
+    return xFormDev(ret);
 }
 
 /*!
