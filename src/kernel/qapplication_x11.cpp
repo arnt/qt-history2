@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#358 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#359 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -188,6 +188,9 @@ static timeval	watchtime;			// watch if time is turned back
 
 #if !defined(NO_XIM)
 static XIM	xim;
+static XIMStyle xim_style = 0;
+static XIMStyle xim_preferred_style = XIMPreeditNothing | XIMStatusNothing;
+static XFontSet xim_fixed_fontset;
 #endif
 
 timeval        *qt_wait_timer();
@@ -245,6 +248,15 @@ public:
     bool translateScrollDoneEvent( const XEvent * );
 };
 
+static void close_xim()
+{
+    if ( xim_fixed_fontset )
+	XFreeFontSet( appDpy, xim_fixed_fontset );
+    // Calling XCloseIM gives a Purify FMR error
+    // Instead we get a non-critical memory leak
+    // XCloseIM( xim );
+    xim = 0;
+}
 
 /*****************************************************************************
   Default X error handlers
@@ -636,6 +648,22 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 			// ### Should we honor any others?
 		    }
 		}
+#if !defined(NO_XIM)
+	    } else if ( arg == "-inputstyle" ) {
+		if ( ++i < argc ) {
+		    Q1String s = Q1String(argv[i]).lower();
+		    if ( s == "overthespot" ) {
+			xim_preferred_style =
+			    XIMPreeditPosition | XIMStatusNothing;
+		    } else if ( s == "offthespot" ) {
+			xim_preferred_style =
+			    XIMPreeditArea | XIMStatusArea;
+		    } else if ( s == "root" ) {
+			xim_preferred_style =
+			    XIMPreeditNothing | XIMStatusNothing;
+		    }
+		}
+#endif
 	    } else if ( arg == "-cmap" ) {    // xv uses this name
 		qt_cmap_option = TRUE;
 	    }
@@ -738,12 +766,55 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 #if !defined(NO_XIM)
     setlocale( LC_ALL, "" );		// use correct char set mapping
     setlocale( LC_NUMERIC, "C" );	// make sprintf()/scanf() work
+     if(XSetLocaleModifiers ("") == NULL){
+       fprintf(stderr,"Cannot set locale modifiers.\n");
+       exit(1);
+     }
+
+
     if ( XSupportsLocale() &&
 	 ( qstrlen(XSetLocaleModifiers( "" )) ||
 	   qstrlen(XSetLocaleModifiers( "@im=none" ) ) ) )
 	xim = XOpenIM( appDpy, 0, 0, 0 );
     else
 	xim = 0;
+
+    if ( xim ) {
+	XIMStyles *styles;
+	XGetIMValues(xim, XNQueryInputStyle, &styles, NULL, NULL);
+	for (int i = 0; i < styles->count_styles; i++) {
+	    if (styles->supported_styles[i] == xim_preferred_style) {
+	        xim_style = xim_preferred_style;
+		break;
+	    } else if (styles->supported_styles[i] == 
+			XIMPreeditNothing | XIMStatusNothing ) {
+	        if ( !xim_style )
+		    xim_style = 
+			XIMPreeditNothing | XIMStatusNothing;
+	    }
+	}
+	if ( !xim_style ) {
+	    // Give up
+	    warning("Input style unsupported.  See InputMethod documentation.");
+	    close_xim();
+	} else {
+	    char **missing=0;
+	    char *def_string=0;
+	    int nmissing=0;
+	    xim_fixed_fontset = XCreateFontSet( appDpy,
+		"-*-times-medium-r-normal--16-*-*-*-*-*-*-*,"
+		"-*-*-medium-r-normal--16-*-*-*-*-*-*-*,"
+		"*--16-*", &missing, &nmissing, &def_string );
+	    if ( missing ) {
+		warning("Could not load all fonts for this locale");
+		XFreeStringList(missing);
+	    }
+	    if ( !xim_fixed_fontset ) {
+		close_xim();
+	    }
+	}
+    }
+debug("LOCALE %s",XLocaleOfIM(xim));
 #endif
 }
 
@@ -786,10 +857,7 @@ void qt_cleanup()
 
 #if !defined(NO_XIM)
     if ( xim ) {
-	// Calling XCloseIM gives a Purify FMR error
-	// Instead we get a non-critical memory leak
-	// XCloseIM( xim );
-	xim = 0;
+	close_xim();
     }
 #endif
 
@@ -3143,7 +3211,7 @@ static KeySym KeyTbl[] = {			// keyboard mapping table
 
 
 static QIntDict<void>    *keyDict  = 0;
-static QIntDict<QString> *textDict = 0; // ##### Just ASCII now
+static QIntDict<void>    *textDict = 0;
 
 static void deleteKeyDicts()
 {
@@ -3160,7 +3228,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 {
     QEvent::Type type;
     int	   code = -1;
-    char   ascii[16]; // ##### Needs to be Unicode (XIM work)
+    Q1String chars(64);
     int	   count = 0;
     int	   state;
     bool   autor = FALSE;
@@ -3169,8 +3237,8 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     if ( !keyDict ) {
 	keyDict = new QIntDict<void>( 13 );
 	keyDict->setAutoDelete( FALSE );
-	textDict = new QIntDict<QString>( 13 );
-	textDict->setAutoDelete( TRUE );
+	textDict = new QIntDict<void>( 13 );
+	textDict->setAutoDelete( FALSE );
 	qAddPostRoutine( deleteKeyDicts );
     }
 
@@ -3178,13 +3246,18 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 
 #if defined(NO_XIM)
 
-    count = XLookupString( &((XEvent*)event)->xkey, ascii, 16, &key, 0 );
+    count = XLookupString( &((XEvent*)event)->xkey,
+		    chars, chars.size(), &key, 0 );
+
+    if ( count == 1 )
+	ascii = chars[0];
 
 #else
     // Implementation for X11R5 and newer, using XIM
 
     static int composingKeycode;
     int	       keycode = event->xkey.keycode;
+    char       ascii = 0;
     Status     status;
 
     if ( type == QEvent::KeyPress ) {
@@ -3194,40 +3267,59 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 		createExtra();
 		xd = extraData();
 	    }
-	    if ( xd->xic == 0 )
-		xd->xic = (void*)XCreateIC( xim, XNInputStyle,
-					    XIMPreeditNothing+XIMStatusNothing,
-					    XNClientWindow, winId(),
-					    0 );
+	    if ( xd->xic == 0 ) {
+		XPoint spot; spot.x = 1; spot.y = 1; // dummmy
+
+		XVaNestedList preedit_att = XVaCreateNestedList(0,
+				XNFontSet, xim_fixed_fontset,
+				XNSpotLocation, &spot,
+				NULL);
+		XVaNestedList status_att = XVaCreateNestedList(0,
+				XNFontSet, xim_fixed_fontset,
+				NULL);
+
+		xd->xic = (void*)XCreateIC( xim,
+				XNInputStyle, xim_style,
+				XNClientWindow, winId(),
+				XNFocusWindow, winId(),
+				XNPreeditAttributes, preedit_att,
+				XNStatusAttributes, status_att,
+				0 );
+	    }
 	    if ( XFilterEvent( (XEvent*)event, winId() ) ) {
 		composingKeycode = keycode; // ### not documented in xlib
 		return TRUE;
 	    }
 	    count = XmbLookupString( (XIC)(xd->xic), &((XEvent*)event)->xkey,
-				     ascii, 16, &key, &status );
+				     chars.data(), chars.size(), &key, &status );
+	    if ( status == XBufferOverflow ) {
+		chars.resize(count+1);
+		count = XmbLookupString( (XIC)(xd->xic), &((XEvent*)event)->xkey,
+				     chars.data(), chars.size(), &key, &status );
+	    }
 	} else {
 	    count = XLookupString( &((XEvent*)event)->xkey,
-				   ascii, 16, &key, 0 );
+				   chars.data(), chars.size(), &key, 0 );
 	}
 	if ( count && !keycode ) {
 	    keycode = composingKeycode;
 	    composingKeycode = 0;
 	}
 	keyDict->replace( keycode, (void*)key );
-	if ( count < 15 )
-	    ascii[count] = '\0';
-	if ( count )
-	    textDict->replace( keycode, new QString(ascii) );
+	if ( count < (int)chars.size()-1 )
+	    chars[count] = '\0';
+	if ( count == 1 ) {
+	    ascii = chars[0];
+	    textDict->replace( keycode, (void*)ascii );
+	}
     } else {
 	key = (int)(long)keyDict->find( keycode );
 	if ( key )
 	    keyDict->take( keycode );
-	QString * s = textDict->find( keycode );
+	char s = (char)(long)textDict->find( keycode );
 	if ( s ) {
 	    textDict->take( keycode );
-	    qstrcpy( ascii, *s );
-	    count = qstrlen( ascii );
-	    delete s;
+	    ascii = s;
 	}
     }
 #endif // !NO_XIM
@@ -3254,13 +3346,16 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	if ( code == Key_Tab &&
 	     (state & ShiftButton) == Qt::ShiftButton ) {
 	    code = Key_Backtab;
-	    ascii[0] = 0;
+	    chars[0] = 0;
 	}
     }
     if ( qApp->inPopupMode() ) {			// in popup mode
 	if ( popupGrabOk )
 	    XAllowEvents( dpy, SyncKeyboard, CurrentTime );
     }
+
+    // ######### POT: convert chars (8bit) to text (unicode).
+    QString text = chars;
 
     // was this the last auto-repeater?
     static uint curr_autorep = 0;
@@ -3282,10 +3377,10 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     }
 
     // process accelerates before popups
-    QKeyEvent e( type, code, count > 0 ? ascii[0] : 0, state, autor );
+    QKeyEvent e( type, code, ascii, state, text, autor );
     if ( type == QEvent::KeyPress && !grab ) {
 	// send accel event to tlw if the keyboard is not grabbed
-	QKeyEvent a( QEvent::Accel, code, count > 0 ? ascii[0] : 0, state );
+	QKeyEvent a( QEvent::Accel, code, ascii, state, text, autor );
 	a.ignore();
 	QApplication::sendEvent( topLevelWidget(), &a );
 	if ( a.isAccepted() )

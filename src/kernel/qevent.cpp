@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#72 $
 **
 ** Implementation of event classes
 **
@@ -453,13 +453,15 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
 
 /*!
   \fn QKeyEvent::QKeyEvent( Type type, int key, int ascii, int state,
-			    bool autorep )
+			    const QString& text, bool autorep )
   Constructs a key event object.
 
   The \a type parameter must be \c QEvent::KeyPress or \c QEvent::KeyRelease.
 
   If \a key is 0, the event is not a result of a known key (e.g. it
   may be the result of a compose sequence or keyboard macro).
+
+  \a text will be returned by text().
 
   If \a autorep is TRUE then isAutoRepeat() will be TRUE.
 
