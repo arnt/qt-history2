@@ -464,6 +464,9 @@ public:
     void setFormat(const QTextFrameFormat &format) { setCommonFormat(format); }
     QTextFrameFormat format() const { return commonFormat().toFrameFormat(); }
 
+    int start();
+    int end();
+
     QList<QTextFrame *> children();
     QTextFrame *parent();
 };

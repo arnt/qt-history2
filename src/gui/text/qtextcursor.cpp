@@ -1041,8 +1041,8 @@ QTextFrame *QTextCursor::insertFrame(const QTextFrameFormat &format)
     int ca = d->anchor;
 
     int pos2 = selectionEnd();
-    f = d->pieceTable->find(pos2+1);
-    if (pos2+1 == d->pieceTable->length() || pos2+1 != f.position()
+    f = d->pieceTable->find(pos2);
+    if (pos2+1 == d->pieceTable->length() || pos2 != f.position()
         || d->pieceTable->buffer().at(f->stringPosition) != QTextParagraphSeparator) {
         d->insertBlock(d->blockFormat());
     }
@@ -1057,7 +1057,7 @@ QTextFrame *QTextCursor::insertFrame(const QTextFrameFormat &format)
     d->pieceTable->setCharFormat(pos2, 1, cfmt, QTextPieceTable::MergeFormat);
 
     frame->d_func()->fragment_start = d->pieceTable->find(pos1).n;
-    frame->d_func()->fragment_end = d->pieceTable->find(pos2+1).n;
+    frame->d_func()->fragment_end = d->pieceTable->find(pos2).n;
 
     d->adjustCursor(NoMove);
     d->pieceTable->endEditBlock();

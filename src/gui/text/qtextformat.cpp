@@ -698,3 +698,14 @@ QTextFrame *QTextFrame::parent()
 {
     return d->parentFrame;
 }
+
+
+int QTextFrame::start()
+{
+    return d->pieceTable()->fragmentMap().position(d->fragment_start);
+}
+
+int QTextFrame::end()
+{
+    return d->pieceTable()->fragmentMap().position(d->fragment_end);
+}
