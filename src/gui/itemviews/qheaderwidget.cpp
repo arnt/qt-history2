@@ -92,11 +92,13 @@ bool QHeaderModel::removeColumns(int column, const QModelIndex &, int count)
 bool QHeaderModel::insertSections(int section, int count)
 {
     items.insert(section, count, 0);
+	return true;
 }
 
 bool QHeaderModel::removeSections(int section, int count)
 {
     items.remove(section, count);
+	return true;
 }
 
 void QHeaderModel::setSectionCount(int sections)
