@@ -128,6 +128,10 @@ extern IAccessible *qt_createWindowsAccessible( QAccessibleInterface *object );
 #ifndef WM_THEMECHANGED
 #define WM_THEMECHANGED                 0x031A
 #endif
+#ifndef COLOR_MENUHILIGHT
+#define COLOR_MENUHILIGHT		29
+#define COLOR_MENUBAR			30
+#endif
 
 // support for xbuttons
 #ifndef WM_XBUTTONDOWN
@@ -633,8 +637,13 @@ static void qt_set_windows_resources()
 			 (cg.foreground().blue()+cg.button().blue())/2);
 	QColorGroup dcg( disabled, cg.button(), cg.light(), cg.dark(), cg.mid(),
 			 disabled, cg.brightText(), cg.base(), cg.background() );
-	dcg.setColor( QColorGroup::Highlight,
-		      QColor(qt_colorref2qrgb(GetSysColor(COLOR_HIGHLIGHT))) );
+	if ( qt_winver == Qt::WV_XP ) {
+	    dcg.setColor( QColorGroup::Highlight,
+			  QColor(qt_colorref2qrgb(GetSysColor(COLOR_MENUHILIGHT))) );
+	} else {
+	    dcg.setColor( QColorGroup::Highlight,
+			  QColor(qt_colorref2qrgb(GetSysColor(COLOR_HIGHLIGHT))) );
+	}
 	dcg.setColor( QColorGroup::HighlightedText,
 		      QColor(qt_colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))) );
 
@@ -644,6 +653,14 @@ static void qt_set_windows_resources()
 
 	QPalette menu(cg, dcg, icg);
 	QApplication::setPalette( menu, TRUE, "QPopupMenu");
+
+	if ( qt_winver == Qt::WV_XP ) {
+	    QColor menubar(qt_colorref2qrgb(GetSysColor(COLOR_MENUBAR)));
+	    cg.setColor( QColorGroup::Button, menubar );
+	    dcg.setColor( QColorGroup::Button, menubar );
+	    icg = cg;
+	    menu = QPalette( cg, dcg, icg );
+	}
 	QApplication::setPalette( menu, TRUE, "QMenuBar");
     }
 
