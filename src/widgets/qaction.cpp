@@ -507,7 +507,7 @@ QString QAction::toolTip() const
 //#### Please reimp for QActionGroup!
 //#### For consistency reasons even action groups should show
 //#### status tips (as they already do with tool tips)
-//#### Please change QActionGroup class doc appropriately after 
+//#### Please change QActionGroup class doc appropriately after
 //#### reimplementation.
 void QAction::setStatusTip( const QString& tip )
 {
@@ -581,8 +581,8 @@ QString QAction::whatsThis() const
 */
 //#### Please reimp for QActionGroup!
 //#### For consistency reasons even QActionGroups should respond to
-//#### their accelerators and e.g. open the relevant submenu. 
-//#### Please change appropriate QActionGroup class doc after 
+//#### their accelerators and e.g. open the relevant submenu.
+//#### Please change appropriate QActionGroup class doc after
 //#### reimplementation.
 void QAction::setAccel( int key )
 {
@@ -1053,7 +1053,7 @@ void QActionGroupPrivate::update( const QActionGroup* that )
   \skipto colors->addTo
   \printline colors->addTo
 
-  (Please refer to the <A HREF="actiongroup.html">QActionGroup Walkthrough</A> 
+  (Please refer to the <A HREF="actiongroup.html">QActionGroup Walkthrough</A>
   for a detailed explanation.)
 
   The order in which member actions appear in a widget follows the
@@ -1081,10 +1081,10 @@ void QActionGroupPrivate::update( const QActionGroup* that )
   exclusive QActionGroup this property has no effect.
 
   By default member actions of a QActionGroup can't be visibly
-  distinguished from single actions in a menu or a tool bar: 
+  distinguished from single actions in a menu or a tool bar:
 
-  <IMG SRC="qactiongroup_menu.png" ALT="[ a default QActionGroup added to a popup menu ]"> 
-  <IMG SRC="qactiongroup_toolbar.png" ALT="[ a default QActionGroup added to a tool bar ]"> 
+  <IMG SRC="qactiongroup_menu.png" ALT="[ a default QActionGroup added to a popup menu ]">
+  <IMG SRC="qactiongroup_toolbar.png" ALT="[ a default QActionGroup added to a tool bar ]">
 
   To place
   group members in a separate subwidget use setUsesDropDown().
@@ -1109,16 +1109,16 @@ void QActionGroupPrivate::update( const QActionGroup* that )
   <TR>
   <TH>TRUE</TH>
   <TD ROWSPAN=2>
-  <IMG SRC="qactiongroup_menu_subwidget.png" ALT="[ QActionGroup using subwidgets added to a popup menu ]"> 
+  <IMG SRC="qactiongroup_menu_subwidget.png" ALT="[ QActionGroup using subwidgets added to a popup menu ]">
   </TD>
   <TD>
-  <IMG SRC="qactiongroup_toolbar_exclusive_subwidget.png" ALT="[ exclusive QActionGroup using subwidgets added to a tool bar ]"> 
+  <IMG SRC="qactiongroup_toolbar_exclusive_subwidget.png" ALT="[ exclusive QActionGroup using subwidgets added to a tool bar ]">
   </TD>
   </TR>
   <TR>
   <TH>FALSE</TH>
   <TD>
-  <IMG SRC="qactiongroup_toolbar_nonexclusive_subwidget.png" ALT="[ non-exclusive QActionGroup using subwidgets added to a tool bar ]"> 
+  <IMG SRC="qactiongroup_toolbar_nonexclusive_subwidget.png" ALT="[ non-exclusive QActionGroup using subwidgets added to a tool bar ]">
   </TD>
   </TR>
   </TABLE>
@@ -1222,15 +1222,15 @@ bool QActionGroup::isExclusive() const
   \skipto QActionGroup
   \printline QActionGroup
 
-  \skipto QPopupMenu 
+  \skipto QPopupMenu
   \printline QPopupMenu
   \printuntil setUsesDropDown
   \printline setMenuText
 
   \printline colors->addTo
 
-  (For a detailed explanation of the above code please refer to the 
-  <A HREF="actiongroup.html">QActionGroup Walkthrough</A>. 
+  (For a detailed explanation of the above code please refer to the
+  <A HREF="actiongroup.html">QActionGroup Walkthrough</A>.
 
   Changing setUsesDropDown() effects subsequent calls to addTo() only.
 
@@ -1365,7 +1365,7 @@ bool QActionGroup::addTo( QWidget* w )
 		return TRUE;
 	    } else {
 		QComboBox *box = new QComboBox( w );
-		QAction::addedTo( box, w );
+		addedTo( box, w );
 		connect( box, SIGNAL(destroyed()), SLOT(objectDestroyed()) );
 		d->comboboxes.append( box );
 		if ( !!toolTip() )
@@ -1400,7 +1400,7 @@ bool QActionGroup::addTo( QWidget* w )
 		    id = menu->insertItem( menuText(), popup );
 	    }
 
-	    QAction::addedTo( menu->indexOf( id ), menu );
+	    addedTo( menu->indexOf( id ), menu );
 	
 	    QActionGroupPrivate::MenuItem *item = new QActionGroupPrivate::MenuItem;
 	    item->id = id;
@@ -1612,7 +1612,7 @@ void QActionGroup::childEvent( QChildEvent *e )
   \skipto QObject::connect
   \printuntil SLOT
 
-  (This code including the implementation of the 
+  (This code including the implementation of the
   <A HREF="actiongroup.html#setFontColor()">setFontColor()</A>
   slot can be found in the <A HREF="actiongroup.html">QActionGroup Walkthrough</A>.)
 
@@ -1691,6 +1691,22 @@ void QActionGroup::addedTo( int index, QPopupMenu *menu, QAction *a )
     Q_UNUSED( index );
     Q_UNUSED( menu );
     Q_UNUSED( a );
+}
+
+/* \reimp */
+
+void QActionGroup::addedTo( QWidget *actionWidget, QWidget *container )
+{
+    Q_UNUSED( actionWidget );
+    Q_UNUSED( container );
+}
+
+/* \reimp */
+
+void QActionGroup::addedTo( int index, QPopupMenu *menu )
+{
+    Q_UNUSED( index );
+    Q_UNUSED( menu );
 }
 
 #endif
