@@ -72,7 +72,7 @@ Q_DECLARE_TYPEINFO(QBezierLineSegment, Q_PRIMITIVE_TYPE); // actually MOVABLE, b
 */
 QPolygon QBezier::toPolygon() const
 {
-    QBezierLineSegment *lines = (QBezierLineSegment *) malloc(32 * sizeof(QBezierLineSegment));
+    QBezierLineSegment *lines = (QBezierLineSegment *) qMalloc(32 * sizeof(QBezierLineSegment));
     int pos = 0;
     int alloc = 32;
     QPolygon polygon;
@@ -99,12 +99,12 @@ QPolygon QBezier::toPolygon() const
         } else {
             if (pos >= alloc - 2) {
                 alloc *= 2;
-                lines = (QBezierLineSegment *) realloc(lines, alloc*sizeof(QBezierLineSegment));
+                lines = (QBezierLineSegment *) qRealloc(lines, alloc*sizeof(QBezierLineSegment));
             }
             lines[pos++] = QBezierLineSegment(t_half, s.t_end, QLineF(curvePt, s.l.end())); // push
             lines[pos++] = QBezierLineSegment(s.t_start, t_half, QLineF(s.l.start(), curvePt)); // push
         }
     }
-    free(lines);
+    qFree(lines);
     return polygon;
 }

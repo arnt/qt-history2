@@ -28,6 +28,8 @@
 
 #include "qtextdocument_p.h"
 
+#include <limits.h>
+
 /*!
     Returns true if the string \a text is likely to be rich text;
     otherwise returns false.
