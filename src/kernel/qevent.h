@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#83 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#84 $
 **
 ** Definition of event classes
 **
@@ -287,8 +287,8 @@ protected:
 class Q_EXPORT QDropEvent : public QEvent, public QMimeSource
 {
 public:
-    QDropEvent( const QPoint& pos, Type t=Drop )
-	: QEvent(t), p(pos),
+    QDropEvent( const QPoint& pos, Type typ=Drop )
+	: QEvent(typ), p(pos),
 	  act(0), accpt(0), accptact(0), resv(0),
 	  d(0)
 	{}
@@ -325,8 +325,8 @@ protected:
 class Q_EXPORT QDragMoveEvent : public QDropEvent
 {
 public:
-    QDragMoveEvent( const QPoint& pos, Type t=DragMove )
-	: QDropEvent(pos,t),
+    QDragMoveEvent( const QPoint& pos, Type typ=DragMove )
+	: QDropEvent(pos,typ),
 	  rect( pos, QSize( 1, 1 ) ) {}
     QRect answerRect() const { return rect; }
     void accept( bool y=TRUE ) { QDropEvent::accept(y); }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#66 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#67 $
 **
 ** Definition of QFont class
 **
@@ -62,7 +62,7 @@ public:
 		     Set_Th_TH,
 		     Set_Zh,
 		     Set_Zh_TW, Set_N = Set_Zh_TW,
-		     Unicode,
+		     Unicode
 		    };
     enum StyleHint { Helvetica, Times, Courier, OldEnglish,  System, AnyStyle,
 		     SansSerif	= Helvetica,

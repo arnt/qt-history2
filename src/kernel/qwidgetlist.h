@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidgetlist.h#9 $
+** $Id: //depot/qt/main/src/kernel/qwidgetlist.h#10 $
 **
 ** Definition of QWidgetList
 **
@@ -51,9 +51,9 @@ public:
 class Q_EXPORT QWidgetListIt : public QListIterator<QWidget>
 {
 public:
-    QWidgetListIt( const QWidgetList &list ) : QListIterator<QWidget>(list) {}
-    QWidgetListIt &operator=(const QWidgetListIt &list)
-	{ return (QWidgetListIt&)QListIterator<QWidget>::operator=(list); }
+    QWidgetListIt( const QWidgetList &l ) : QListIterator<QWidget>(l) {}
+    QWidgetListIt &operator=(const QWidgetListIt &i)
+	{ return (QWidgetListIt&)QListIterator<QWidget>::operator=(i); }
 };
 
 
