@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#46 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#45 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#46 $")
 
 
 /*
@@ -118,7 +118,6 @@ QPixmap::QPixmap()
     init();
     data->w = data->h = 0;
     data->d = 0;
-    hd = 0;
 }
 
 /*!
@@ -131,8 +130,7 @@ QPixmap::QPixmap()
   current video mode.  If \e depth is negative, then the hardware
   depth of the current video mode will be used.
 
-  If an illegal combination of width, height and depth is specified, a
-  null pixmap is constructed.
+  If either \e width or \e height is zero, a null pixmap is constructed.
 
   \sa isNull()
 */
@@ -152,7 +150,6 @@ QPixmap::QPixmap( int w, int h, int depth )
     if ( make_null || w < 0 || h < 0 || data->d == 0 ) {
 	data->w = data->h = 0;
 	data->d = 0;
-	hd = 0;
 #if defined(CHECK_RANGE)
 	if ( !make_null )			// invalid parameters
 	    warning( "QPixmap: Invalid pixmap parameters" );
@@ -164,7 +161,9 @@ QPixmap::QPixmap( int w, int h, int depth )
     hd = XCreatePixmap( dpy, DefaultRootWindow(dpy), w, h, data->d );
 }
 
-/*! \overload QPixmap::QPixmap( const QSize &size, int depth ) */
+/*!
+  \overload QPixmap::QPixmap( const QSize &size, int depth )
+*/
 
 QPixmap::QPixmap( const QSize &size, int depth )
     : QPaintDevice( PDT_PIXMAP )
@@ -183,7 +182,6 @@ QPixmap::QPixmap( const QSize &size, int depth )
     if ( make_null || w < 0 || h < 0 || data->d == 0 ) {
 	data->w = data->h = 0;
 	data->d = 0;
-	hd = 0;
 #if defined(CHECK_RANGE)
 	if ( !make_null )			// invalid parameters
 	    warning( "QPixmap: Invalid pixmap parameters" );
@@ -204,9 +202,12 @@ QPixmap::QPixmap( int w, int h, const char *bits, bool isXbitmap )
     : QPaintDevice( PDT_PIXMAP )
 {						// for bitmaps only
     init();
+    if ( w <= 0 || h <= 0 ) {			// create null pixmap
+	data->w = data->h = 0;
+	data->d = 0;
+	return;
+    }
     data->uninit = FALSE;
-    if ( w <= 0 ) w = 1;
-    if ( h <= 0 ) h = 1;
     data->w = w;  data->h = h;	data->d = 1;
     uchar *flipped_bits;
     if ( isXbitmap )
@@ -428,10 +429,10 @@ QImage QPixmap::convertToImage() const
     int	    d  = depth();
     bool    mono = d == 1;
 
-    if ( d > 1 && d < 8 )			// set to nearest valid depth
-	d = 8;					//   2..7 ==> 8
+    if ( d > 1 && d <= 8 )			// set to nearest valid depth
+	d = 8;					//   2..8 ==> 8
     else if ( d > 8 || trucol )
-	d = 24;					//   > 9  ==> 24
+	d = 24;					//   > 8  ==> 24
 
     if ( data->optim ) {
 	if ( !data->dirty )
