@@ -91,7 +91,6 @@ public:
 protected:
     QTreeWidgetItem();
 
-private:
     struct Data {
         Data() : role(-1) {}
         Data(int r, QVariant v) : role(r), value(v) {}
