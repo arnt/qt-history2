@@ -330,7 +330,8 @@ public:
     QList<QWidget> icons;
     QWorkspaceChild* maxClient;
     QRect maxRestore;
-    QHBox* maxhandle;
+    QHBox* maxcontrols;
+    bool wantsmaxcontrols;
 
     int px;
     int py;
@@ -387,6 +388,11 @@ public:
   children of a QWorkspace have to be focus enabled. If your MDI
   window does not handle focus itself, use QWidget::setFocusProxy() to
   install a focus-enabled child widget as focus proxy.
+  
+  By default, the workspace generates minimize and restore buttons for
+  maximized child windows, and places them in the top-right corner of
+  the toplevel widgets, usually inside a menubar. This behaviour can
+  be customized with setMaximizeControls().
 
   In general, modern GUI applications should be document-centric
   rather then application-centric. A single document interface (SDI)
@@ -424,7 +430,8 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
     d = new QWorkspaceData;
-    d->maxhandle = 0;
+    d->wantsmaxcontrols = TRUE;
+    d->maxcontrols = 0;
     d->active = 0;
     d->maxClient = 0;
     d->px = 0;
@@ -462,7 +469,7 @@ void QWorkspace::childEvent( QChildEvent * e)
 	if ( d->windows.contains( (QWorkspaceChild*)e->child() ) ) {
 	    d->windows.remove( (QWorkspaceChild*)e->child() );
 	    if ( d->windows.isEmpty() )
-		hideMaxHandles();
+		hideMaximizeControls();
 	    if ( d->icons.contains( (QWidget*)e->child() ) ){
 		d->icons.remove( (QWidget*)e->child() );
 		layoutIcons();
@@ -619,7 +626,7 @@ void QWorkspace::minimizeClient( QWidget* w)
 	if ( d->maxClient == c ) {
 	    c->setGeometry( d->maxRestore );
 	    d->maxClient = 0;
-	    hideMaxHandles();
+	    hideMaximizeControls();
 	}
 
     }
@@ -637,7 +644,7 @@ void QWorkspace::normalizeClient( QWidget* w)
 	    removeIcon( c->iconWidget() );
 	    c->show();
 	}
-	hideMaxHandles();
+	hideMaximizeControls();
     }
 }
 
@@ -661,7 +668,7 @@ void QWorkspace::maximizeClient( QWidget* w)
 	}
 
 	activateClient( w);
-	showMaxHandles();
+	showMaximizeControls();
     }
 }
 
@@ -699,64 +706,104 @@ QWidgetList QWorkspace::clientList() const
  */
 bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 {
-    if ( d->maxhandle && e->type() == QEvent::Resize && o == topLevelWidget() )
-	showMaxHandles();
+    if ( d->maxcontrols && e->type() == QEvent::Resize && o == topLevelWidget() )
+	showMaximizeControls();
 
     return FALSE;
 }
 
-void QWorkspace::showMaxHandles()
+void QWorkspace::showMaximizeControls()
 {
-    if ( !d->maxhandle ) {
-	d->maxhandle = new QHBox( topLevelWidget() );
+    if ( !d->wantsmaxcontrols )
+	return;
+    
+    if ( !d->maxcontrols ) {
+	d->maxcontrols = new QHBox( topLevelWidget() );
 	if ( !win32 )
-	    d->maxhandle->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
-	QToolButton* restoreB = new QToolButton( d->maxhandle, "restore" );
+	    d->maxcontrols->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
+	QToolButton* restoreB = new QToolButton( d->maxcontrols, "restore" );
 	restoreB->setFocusPolicy( NoFocus );
 	restoreB->setIconSet( QPixmap( normalize_xpm ));
  	restoreB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
-	connect( restoreB, SIGNAL( clicked() ), this, SLOT( normalizeActive() ) );
-	QToolButton* closeB = new QToolButton( d->maxhandle, "close" );
+	connect( restoreB, SIGNAL( clicked() ), this, SLOT( normalizeActiveClient() ) );
+	QToolButton* closeB = new QToolButton( d->maxcontrols, "close" );
 	closeB->setFocusPolicy( NoFocus );
 	closeB->setIconSet( QPixmap( close_xpm ) );
  	closeB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
-	connect( closeB, SIGNAL( clicked() ), this, SLOT( closeActive() ) );
+	connect( closeB, SIGNAL( clicked() ), this, SLOT( closeActiveClient() ) );
 
 	if ( win32 ) {
 	    restoreB->setAutoRaise( FALSE );
 	    closeB->setAutoRaise( FALSE );
 	}
-	//d->maxhandle->adjustSize();
+	//d->maxcontrols->adjustSize();
 
 	//### layout doesn't work
-	d->maxhandle->setFixedSize( 2* BUTTON_WIDTH+2*d->maxhandle->frameWidth(),
-				    BUTTON_HEIGHT+2*d->maxhandle->frameWidth() );
+	d->maxcontrols->setFixedSize( 2* BUTTON_WIDTH+2*d->maxcontrols->frameWidth(),
+				    BUTTON_HEIGHT+2*d->maxcontrols->frameWidth() );
     }
 
-    d->maxhandle->move ( topLevelWidget()->width() - d->maxhandle->width() - 4, 4 );
-    d->maxhandle->show();
-    d->maxhandle->raise();
+    d->maxcontrols->move ( topLevelWidget()->width() - d->maxcontrols->width() - 4, 4 );
+    d->maxcontrols->show();
+    d->maxcontrols->raise();
 }
 
-void QWorkspace::hideMaxHandles()
+void QWorkspace::hideMaximizeControls()
 {
-    delete d->maxhandle;
-    d->maxhandle = 0;
+    delete d->maxcontrols;
+    d->maxcontrols = 0;
 }
 
-void QWorkspace::closeActive()
+void QWorkspace::closeActiveClient()
 {
     QWidget* w = activeClient();
     if ( w )
 	w->close();
 }
 
-void QWorkspace::normalizeActive()
+void QWorkspace::normalizeActiveClient()
 {
     if  ( d->active )
 	d->active->showNormal();
 }
 
+
+
+/*!
+  Defines whether the workspace shows control buttons for windows in
+  maximized state.
+  
+  If \a enabled is TRUE, the workspace will generate buttons to
+  iconify or restore maximized windows and place them in the top-right
+  corner of the toplevel widget.
+  
+  By default, maximize controls are enabled.
+  
+  \sa maximizeControls();
+  
+ */
+void QWorkspace::setMaximizeControls( bool enabled )
+{
+    d->wantsmaxcontrols = enabled;
+    if ( !enabled && d->maxcontrols ) {
+	delete d->maxcontrols;
+	d->maxcontrols = 0;
+    }
+}
+
+
+/*!
+  Returns whether the workspace shows control buttons for
+  windows in maximized state or not.
+  
+  The default is TRUE.
+  
+  \sa setMaximizeControls()
+ */
+bool QWorkspace::maximizeControls() const
+{
+    return d->wantsmaxcontrols;
+}
 
 /*!
   \fn void QWorkspace::clientActivated( QWidget* w )
@@ -777,6 +824,7 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* parent
     act = FALSE;
 
     titleL = new QLabel( this, "__workspace_child_title_bar" );
+    titleL->setTextFormat( PlainText );
 
     closeB = new QToolButton( this, "close" );
     closeB->setFocusPolicy( NoFocus );
@@ -812,7 +860,7 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* parent
 
     titleL->setMouseTracking( TRUE );
     titleL->installEventFilter( this );
-    titleL->setAlignment( AlignVCenter );
+    titleL->setAlignment( AlignVCenter | SingleLine );
     QFont fnt = font();
     fnt.setBold( TRUE );
     titleL->setFont( fnt );

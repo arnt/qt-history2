@@ -44,6 +44,9 @@ public:
 
     QWidget* activeClient() const;
     QWidgetList clientList() const;
+    
+    void setMaximizeControls( bool );
+    bool maximizeControls() const;
 
 signals:
     void clientActivated( QWidget* w);
@@ -55,8 +58,8 @@ protected:
     void showEvent( QShowEvent *e );
 
 private slots:
-    void closeActive();
-    void normalizeActive();
+    void closeActiveClient();
+    void normalizeActiveClient();
 
 private:
     void insertIcon( QWidget* w);
@@ -64,8 +67,8 @@ private:
     void place( QWidget* );
 
     QWorkspaceChild* findChild( QWidget* w);
-    void showMaxHandles();
-    void hideMaxHandles();
+    void showMaximizeControls();
+    void hideMaximizeControls();
     void layoutIcons();
     QWorkspaceData* d;
     void activateClient( QWidget* w);
