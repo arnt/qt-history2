@@ -8,7 +8,7 @@
 
 class Some : public QHBox
 {
-    Q_OBJECT;
+    Q_OBJECT
 public:
     Some( const QString& host_, uint port_ );
     ~Some();
