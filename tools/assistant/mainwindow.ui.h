@@ -366,6 +366,8 @@ void MainWindow::showLinkFromClient( const QString &link )
     raise();
     setActiveWindow();
     showLink( link );
+    if (isMinimized())
+	showNormal();
 }
 
 void MainWindow::showLink( const QString &link )
