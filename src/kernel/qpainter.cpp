@@ -2717,11 +2717,13 @@ void QPainter::drawText( const QRect &r, int tf,
 
 #define QChar_linesep QChar(0x2028U)
 
-void qt_format_text( const QFont& font, const QRect &r,
+void qt_format_text( const QFont& font, const QRect &_r,
 		     int tf, const QString& str, int len, QRect *brect,
 		     int tabstops, int* tabarray, int tabarraylen,
 		     QTextParag **internalrag, QPainter* painter )
 {
+    // we need to copy r here to protect against the case (&r == brect).
+    QRect r( _r );
     QTextParagraph** internal = (QTextParagraph**) internalrag;
     bool   decode     = internal && *internal;	// decode from internal data
     bool   encode     = internal && !*internal; // build internal data
