@@ -543,7 +543,7 @@ QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
     return idx;
 }
 
-QSqlRecord QPSQLDriver::fields( const QString& tablename ) const
+QSqlRecord QPSQLDriver::record( const QString& tablename ) const
 {
     QSqlRecord fil;
     QString stmt ( "select a.attname "
@@ -563,7 +563,7 @@ QSqlRecord QPSQLDriver::fields( const QString& tablename ) const
     return fil;
 }
 
-QSqlRecord QPSQLDriver::fields( const QSqlQuery& query ) const
+QSqlRecord QPSQLDriver::record( const QSqlQuery& query ) const
 {
     QSqlRecord fil;
     if ( query.isActive() && query.driver() == this ) {
