@@ -22,7 +22,7 @@
 <h1>Qt Reference Documentation\EDITION</h1><br></td>
 if(EDITION==FREE) {
 <tr><td colspan=3 align=center>Notice: This edition is for the development of
-\link freeditions.html Free and Open Source\endlink software only;
+\link freeeditions.html Free and Open Source\endlink software only;
 see \link commercialeditions.html Commercial
 Editions\endlink.</td></tr>
 }
@@ -62,6 +62,7 @@ General
 \i \link commercialeditions.html Commercial Editions\endlink
 \i \link freeeditions.html Free Edition\endlink
 \i \link troll.html About Trolltech\endlink
+\endlist
 </td>
 </tr>
 <tr>
@@ -263,7 +264,7 @@ images.html Image Processing\endlink)
 
 \row 
 \i \link objectmodel.html   Object Model \endlink
-\i The Qt application framework's underlying object model.
+\i The Qt GUI toolkit's underlying object model.
 
 \row 
 \i \link organizers.html   Organizers \endlink

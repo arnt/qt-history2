@@ -3,17 +3,23 @@
 
 \title About Qt
 
-Qt is a multiplatform C++ GUI application framework. It provides
-application developers with all the functionality needed to build
-applications with state-of-the-art graphical user interfaces. Qt is
-fully object-oriented, easily extensible, and allows true component
-programming.
+Qt is a multiplatform C++ GUI toolkit created and maintained by\link
+troll.html Trolltech\endlink. It provides application developers with
+all the functionality needed to build applications with
+state-of-the-art graphical user interfaces. Qt is fully
+object-oriented, easily extensible, and allows true component
+programming. Read the \link
+http://www.trolltech.com/products/qt/whitepaper.html
+Whitepaper\endlink for a comprehensive technical overview.
 
 Since its commercial introduction in early 1996, Qt has formed the
 basis of many thousands of successful applications worldwide. Qt is
 also the basis of the popular \link http://www.kde.org/ KDE \endlink
 Linux desktop environment, a standard component of all major Linux
-distributions.
+distributions. See our \link http://www.trolltech.com/success/
+Customer Success Stories\endlink for some examples of commercial Qt
+development.
+
 
 Qt is supported on the following platforms:
 \list
@@ -24,8 +30,7 @@ Qt is supported on the following platforms:
  \i <b>Embedded</b> -- Linux platforms with framebuffer support.
 \endlist
 
-Qt is a product of \link troll.html Trolltech\endlink. It is released
-in different editions:
+Qt is released in different editions:
 \list
 \i The \link commercialeditions.html <b>Qt Enterprise
 Edition\endlink</b> and the \link commercialeditions.html <b>Qt

@@ -14,9 +14,8 @@
 
 
 /*! \page commonproblems.html
-\title Old FAQs
+\title Brief Technical FAQ
 
-<b>See \link faq.html FAQs\endlink instead</b>.
 
 This document describes how to use more than one Qt version on one
 machine and how to use Qt on X11 without a window manager. In addition
@@ -27,7 +26,8 @@ Other frequently asked questions can be found in the
 in the \link http://www.trolltech.com/developer/faqs/technical.html Technical FAQ\endlink.
 
 \list
-\i \link #linkerror Link error, complaining about a lack of \c vtbl, \c _vtbl, \c __vtbl or similar\endlink
+\i \link #linkerror Link error, complaining about a lack of
+<tt>vtbl</tt>, <tt>_vtbl</tt>, <tt>__vtbl</tt> or similar\endlink
 \i \link #diffver Using different versions of Qt on the same
 machine\endlink
     \list
@@ -35,6 +35,7 @@ machine\endlink
     \i \link #qtsrc Developers building for two versions of Qt on Unix - Qt sources\endlink
     \endlist
 \i \link #nowinman Using Qt on X11 without a window manager\endlink
+\i \link distributingqt.html Distributing Qt Applications\endlink
 \endlist
 
 \target linkerror
@@ -241,7 +242,8 @@ If you think you have found a bug in Qt, we would like to hear
 about it so that we can fix it.
 
 Before reporting a bug, please check the
-\link http://www.trolltech.com/developer/faqs/ FAQs\endlink and
+\link commonproblems.html Brief Technical FAQ\endlink, the
+\link http://www.trolltech.com/developer/faqs/ FAQs\endlink, and the
 \link http://www.trolltech.com/platforms/ Platform Notes\endlink
 on our web site to see if the issue is already known.
 
@@ -776,14 +778,15 @@ Public License instead of this License.
 
 \title Company Information
 
-Trolltech is an international computer software house. We provide software
-development tools and libraries.
+Trolltech is an international software company with
+headquarters in Oslo, the capital of Norway, and with offices
+in Brisbane, Australia, and Palo Alto, California.
 
-Our flagship product is
-\link http://www.trolltech.com/products/qt.html Qt\endlink, the
-multi-platform C++ application framework. Qt enables you
-to build professional, efficient, portable and maintainable GUI
-applications quickly and easily.
+Our flagship product is \link
+http://www.trolltech.com/products/qt.html Qt\endlink, the
+multi-platform C++ GUI toolkit. Qt enables you to build professional,
+efficient, portable and maintainable GUI applications quickly and
+easily.
 
 \link http://www.trolltech.com/products/embedded/index.html
 Qt/Embedded\endlink, the embedded version of Qt, is designed to power
@@ -846,9 +849,9 @@ Trolltech products</td></tr>
 <td ><br></td>
 <td valign="top"> Comments about our web pages</td>
 <td ><br></td>
-<td valign="top"> For bug reports. Please check the \link http://www.trolltech.com/platforms/ Platform Notes\endlink and
-\link http://www.trolltech.com/faq/ FAQ\endlink to
-see if the issue is already solved.
+<td valign="top">
+Use this address for bug reports; \e please read (the very short)
+\link bughowto.html How to Report a Bug\endlink page \e first.
 </td></tr>
 <tr><td ><br></td>
 <td colspan=4 valign=top>Note that Trolltech uses the

@@ -4,6 +4,8 @@
 
 \title The Qt FAQ
 
+See also the \link commonproblems.html Technical FAQ\endlink.
+
 \tableofcontents
 
 <hr>
@@ -12,7 +14,7 @@
 <hr width=30%>
 \section2    What is Qt?
 
-Qt is a multiplatform C++ GUI application framework. It
+Qt is a multiplatform C++ GUI toolkit. It
 provides application developers with all the functionality
 needed to build applications with state-of-the-art graphical
 user interfaces. Qt is fully object-oriented, easily
@@ -210,21 +212,9 @@ articles is also published online about one month after publication.
 <hr width=30%>
 \section2    I think I have found a bug in Qt. Where can I report it?
 
-If the problem you are reporting is only visible at run-time,
-try to create a small test program that shows the problem when
-run.  Often, such a program can be created with some minor
-changes to one of the many example programs in the
-\c{qt/examples} directory.
-
-Please send the bug report to \link
-mailto:qt-bugs@trolltech.com qt-bugs@trolltech.com\endlink.
-
-Always include the following information in your bug report:
-
-\list 1 \i The name and version number of your compiler \i The
-name and version number of your operating system \i The
-version of Qt you are using, and what configure options it was
-compiled with.  \endlist
+Bugs should be reported to \link mailto:qt-bugs@trolltech.com
+qt-bugs@trolltech.com\endlink. But \e please read (the very short)
+\link bughowto.html How to Report a Bug\endlink page \e first.
 
 
 <hr>
