@@ -45,6 +45,7 @@
 #include "qwidgetlist.h"
 #include "qlayout.h"
 #include "qsizegrip.h"
+#include "qdesktopwidget.h"
 #include "qwhatsthis.h" // ######## dependency
 #include "qpopupmenu.h" // ######## dependency
 
@@ -425,9 +426,10 @@ void QDialog::show()
 	QWidget *w = parentWidget();
 	QPoint p( 0, 0 );
 	int extraw = 0, extrah = 0;
-	QWidget * desk = QApplication::desktop();
 	if ( w )
 	    w = w->topLevelWidget();
+	QDesktopWidget *desktop = (QDesktopWidget*)QApplication::desktop();
+	QRect desk = desktop->geometry( desktop->screenNumber( w ? w : qApp->mainWidget() ) );
 
 	QWidgetList  *list = QApplication::topLevelWidgets();
 	QWidgetListIt it( *list );
@@ -456,21 +458,23 @@ void QDialog::show()
 	    p = QPoint( pp.x() + w->width()/2,
 			pp.y() + w->height()/ 2 );
 	} else {
-	    p = QPoint( desk->width()/2, desk->height()/2 );
+	    // p = middle of the desktop
+	    p = QPoint( desk.x() + desk.width()/2, desk.y() + desk.height()/2 );
 	}
 
+	// p = origin of this
 	p = QPoint( p.x()-width()/2 - extraw,
 		    p.y()-height()/2 - extrah );
 
-	if ( p.x() + extraw + width() > desk->width() )
-	    p.setX( desk->width() - width() - extraw );
-	if ( p.x() < 0 )
-	    p.setX( 0 );
+	if ( p.x() + extraw + width() > desk.x() + desk.width() )
+	    p.setX( desk.x() + desk.width() - width() - extraw );
+	if ( p.x() < desk.x() )
+	    p.setX( desk.x() );
 
-	if ( p.y() + extrah + height() > desk->height() )
-	    p.setY( desk->height() - height() - extrah );
-	if ( p.y() < 0 )
-	    p.setY( 0 );
+	if ( p.y() + extrah + height() > desk.y() + desk.height() )
+	    p.setY( desk.y() + desk.height() - height() - extrah );
+	if ( p.y() < desk.y() )
+	    p.setY( desk.y() );
 
 	move( p );
     }
