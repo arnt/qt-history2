@@ -131,7 +131,7 @@ public:
 
 signals:
     void textChanged(const QString &);
-    void cursorPositionChanged(int);
+    void cursorPositionChanged(int, int);
     void returnPressed();
     void lostFocus();
     void selectionChanged();

@@ -147,10 +147,10 @@ extern void qt_mac_secure_keyboard(bool); //qapplication_mac.cpp
 */
 
 /*!
-    \fn void QLineEdit::cursorPositionChanged(int)
+    \fn void QLineEdit::cursorPositionChanged(int old, int new)
 
-    This signal is emitted whenever the cursor movees. The argument is
-    the new cursorPosition.
+    This signal is emitted whenever the cursor moves. The argument is
+    the old and the new cursorPosition.
 
     \sa setCursorPosition(), cursorPosition()
 */
@@ -787,18 +787,26 @@ bool QLineEdit::getSelection(int *start, int *end)
 
 /*!
     Selects text from position \a start and for \a length characters.
+    Negative lengths are allowed.
 
     \sa deselect() selectAll() selectedText()
 */
 
 void QLineEdit::setSelection(int start, int length)
 {
-    if (start < 0 || start > (int)d->text.length() || length < 0) {
-        d->selstart = d->selend = 0;
+    if (start < 0 || start > (int)d->text.length()) {
+        qWarning("QLineEdit: Invalid start position: %d.", start);
+        return;
     } else {
-        d->selstart = start;
-        d->selend = qMin(start + length, (int)d->text.length());
-        d->cursor = d->selend;
+        if (length > 0) {
+            d->selstart = start;
+            d->selend = qMin(start + length, (int)d->text.length());
+            d->cursor = d->selend;
+        } else {
+            d->selstart = qMax(start + length, 0);
+            d->selend = start;
+            d->cursor = d->selstart;
+        }
     }
     update();
     d->emitCursorPositionChanged();
@@ -2100,7 +2108,7 @@ void QLineEditPrivate::emitCursorPositionChanged()
 {
     if (cursor != lastCursorPos) {
         lastCursorPos = cursor;
-        emit q->cursorPositionChanged(cursor);
+        emit q->cursorPositionChanged(lastCursorPos, cursor);
     }
 }
 
