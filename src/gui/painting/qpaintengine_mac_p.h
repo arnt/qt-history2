@@ -78,7 +78,8 @@ public:
     {
         hd = 0;
         shading = 0;
-        antiAliasingEnabled = 1;
+        lineAntialiasingEnabled = 1;
+        textAntialiasingEnabled = 1;
     }
 
     //state info
@@ -97,7 +98,8 @@ public:
     CGShadingRef shading;
 
     //flags
-    uint antiAliasingEnabled : 1;
+    uint lineAntialiasingEnabled : 1;
+    uint textAntialiasingEnabled : 1;
 
     //internal functions
     enum { CGStroke=0x01, CGFill=0x02 };

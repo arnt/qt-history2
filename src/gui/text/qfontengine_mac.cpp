@@ -97,6 +97,10 @@ bool QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
 void
 QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags)
 {
+    bool textAA = p->renderHints() & QPainter::TextAntialiasing;
+    bool lineAA = p->renderHints() & QPainter::LineAntialiasing;
+    if (textAA != lineAA)
+        p->setRenderHint(QPainter::LineAntialiasing, textAA);
     QPainterState *pState = p->painterState();
     int txop = pState->txop;
     QWMatrix xmat = pState->matrix;
@@ -172,6 +176,8 @@ QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int tex
         if(textFlags & Qt::StrikeOut)
             p->drawRect(QRect(x, y + (ascent().toInt() / 3), si.right_to_left ? -w : w, lw));
     }
+    if (textAA != lineAA)
+        p->setRenderHint(QPainter::LineAntialiasing, lineAA);
 }
 
 glyph_metrics_t

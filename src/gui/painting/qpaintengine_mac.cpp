@@ -1068,7 +1068,8 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool u
         CGShadingRelease(d->shading);
         d->shading = 0;
     }
-    d->antiAliasingEnabled = 1;
+    d->lineAntialiasingEnabled = 1;
+    d->textAntialiasingEnabled = 1;
     d->offx = d->offy = 0; // (quickdraw compat!!)
 
     setupCGClip(0); //get handle to drawable
@@ -1098,7 +1099,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool u
     } else if(d->pdev->devType() == QInternal::Pixmap) {             // device is a pixmap
         QPixmap *pm = (QPixmap*)d->pdev;
         if(pm->depth() == 1)
-            d->antiAliasingEnabled = 0;
+            d->lineAntialiasingEnabled = 0;
         if(pm->isNull()) {
             qWarning("QCoreGraphicsPaintEngine::begin: Cannot paint null pixmap");
             end();
@@ -1110,7 +1111,6 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool u
     updateBrush(state);
     updatePen(state);
     updateClipRegion(state);
-    setRenderHint(QPainter::LineAntialiasing, d->antiAliasingEnabled);
     return true;
 }
 
@@ -1622,21 +1622,26 @@ QCoreGraphicsPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap,
 
 QPainter::RenderHints QCoreGraphicsPaintEngine::supportedRenderHints() const
 {
-    return QPainter::LineAntialiasing;
+    return QPainter::RenderHints(QPainter::LineAntialiasing | QPainter::TextAntialiasing);
 }
 
 QPainter::RenderHints QCoreGraphicsPaintEngine::renderHints() const
 {
     QPainter::RenderHints hints = 0;
-    if(d->antiAliasingEnabled)
+    if (d->lineAntialiasingEnabled)
         hints |= QPainter::LineAntialiasing;
+    if (d->textAntialiasingEnabled)
+        hints |= QPainter::TextAntialiasing;
     return hints;
 }
 
 void QCoreGraphicsPaintEngine::setRenderHint(QPainter::RenderHint hint, bool enable)
 {
-    if(hint == QPainter::LineAntialiasing) {
-        d->antiAliasingEnabled = enable;
+    if (hint == QPainter::LineAntialiasing) {
+        d->lineAntialiasingEnabled = enable;
         CGContextSetShouldAntialias(d->hd, enable);
+    } else if (hint == QPainter::TextAntialiasing) {
+        d->textAntialiasingEnabled = enable;
+        CGContextSetShouldSmoothFonts(d->hd, enable);
     }
 }

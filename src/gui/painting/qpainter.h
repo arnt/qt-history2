@@ -45,7 +45,8 @@ class Q_GUI_EXPORT QPainter : public Qt
 public:
     enum TextDirection { Auto, RTL, LTR };
     enum RenderHint {
-        LineAntialiasing = 1
+        LineAntialiasing = 0x01,
+        TextAntialiasing = 0x02
     };
 
     Q_DECLARE_FLAGS(RenderHints, RenderHint);
