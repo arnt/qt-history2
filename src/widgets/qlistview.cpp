@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#2 $
 **
 ** Implementation of something useful
 **
@@ -16,7 +16,7 @@
 #include "qscrbar.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#1 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#2 $");
 
 /*!  Create a new list view item in the QListView \a parent
   and is named \a name.
@@ -205,7 +205,7 @@ void QListViewItem::invalidateHeight()
     if ( maybeTotalHeight < 0 )
 	return;
     maybeTotalHeight = -1;
-    if ( parent && parentItem->isOpen() )
+    if ( parentItem && parentItem->isOpen() )
 	parentItem->invalidateHeight();
 }
 
