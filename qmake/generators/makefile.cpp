@@ -1190,35 +1190,6 @@ MakefileGenerator::processPrlFile(QString &file)
 	meta_file = tmp;
     }
     meta_file = fileFixify(meta_file);
-    if(!QMakeMetaInfo::libExists(fileFixify(meta_file, QDir::currentDirPath(), Option::output_dir)) &&
-       project->isActiveConfig("qt")) {
-	QString stem = meta_file, dir, extn;
-	int slsh = stem.findRev('/'), hadlib = 0;
-	if(slsh != -1) {
-	    dir = stem.left(slsh + 1);
-	    stem = stem.right(stem.length() - slsh - 1);
-	}
-	if(stem.startsWith("lib")) {
-	    hadlib = 1;
-	    stem = stem.right(stem.length() - 3);
-	}
-	int dot = stem.find('.');
-	if(dot != -1) {
-	    extn = stem.right(stem.length() - dot);
-	    stem = stem.left(dot);
-	}
-	if(stem == "qt" || stem == "qte" || stem == "qte-mt" || stem == "qt-mt") {
-	    if(stem.endsWith("-mt"))
-		stem = stem.left(stem.length() - 3); //lose the -mt
-	    else
-		stem += "-mt"; //try the thread case
-	    meta_file = dir;
-	    if(hadlib)
-		meta_file += "lib";
-	    meta_file += stem + extn;
-	    try_replace_file = TRUE;
-	}
-    }
     QString real_meta_file = Option::fixPathToLocalOS(meta_file);
     if(project->variables()["QMAKE_PRL_INTERNAL_FILES"].findIndex(QMakeMetaInfo::findLib(meta_file)) != -1) {
 	ret = TRUE;

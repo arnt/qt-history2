@@ -690,10 +690,6 @@ void VcprojGenerator::initOld()
     if ( project->variables()["QMAKESPEC"].isEmpty() )
 	project->variables()["QMAKESPEC"].append( getenv("QMAKESPEC") );
 
-    bool is_qt =
-	( project->first("TARGET") == "qt"QTDLL_POSTFIX ||
-	  project->first("TARGET") == "qt-mt"QTDLL_POSTFIX );
-
    QStringList &configs = project->variables()["CONFIG"];
 
     // If we are a dll, then we cannot be a staticlib at the same time...
@@ -720,20 +716,16 @@ void VcprojGenerator::initOld()
 	project->variables()["INCLUDEPATH"] +=	project->variables()["QMAKE_INCDIR_QT"];
 	project->variables()["QMAKE_LIBDIR"] += project->variables()["QMAKE_LIBDIR_QT"];
 
-	if ( is_qt && !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
+	if ( project->isActiveConfig("target_qt") && !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
 	} else {
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
 		int hver = findHighestVersion(project->first("QMAKE_LIBDIR_QT"), "qt");
-		if( hver==-1 ) {
-		    hver = findHighestVersion( project->first("QMAKE_LIBDIR_QT"), "qt-mt" );
-		}
-
 		if(hver != -1) {
 		    QString ver;
-		    ver.sprintf("qt%s" QTDLL_POSTFIX "%d.lib", (project->isActiveConfig("thread") ? "-mt" : ""), hver);
+		    ver.sprintf("qt" QTDLL_POSTFIX "%d.lib", hver);
 		    QStringList &libs = project->variables()["QMAKE_LIBS"];
 		    for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit)
-			(*libit).replace(QRegExp("qt(-mt)?\\.lib"), ver);
+			(*libit).replace(QRegExp("qt\\.lib"), ver);
 		}
 	    }
 	    if ( project->isActiveConfig( "activeqt" ) ) {

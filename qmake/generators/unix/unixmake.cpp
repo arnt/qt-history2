@@ -383,50 +383,46 @@ UnixMakefileGenerator::findLibraries()
 		}
 	    }
 	    if(!stub.isEmpty()) {
-		const QString modifs[] = { "", "-mt", QString::null };
-		for(int modif = 0; !modifs[modif].isNull(); modif++) {
-		    bool found = FALSE;
-		    QStringList extens;
-		    if(!extn.isNull())
-			extens << extn;
-		    else
-			extens << project->variables()["QMAKE_EXTENSION_SHLIB"].first() << "a";
-		    for(QStringList::Iterator extit = extens.begin(); extit != extens.end(); ++extit) {
-			if(dir.isNull()) {
-			    QString lib_stub;
-			    for(MakefileDependDir *mdd = libdirs.first(); mdd; mdd = libdirs.next() ) {
-				if(QFile::exists(mdd->local_dir + Option::dir_sep + "lib" + stub +
-						 modifs[modif] + "." + (*extit))) {
-				    lib_stub = stub + modifs[modif];
-				    break;
-				}
-			    }
-			    if(!lib_stub.isNull()) {
-				(*it) = "-l" + lib_stub;
-				found = TRUE;
-				break;
-			    }
-			} else {
-			    if(QFile::exists("lib" + stub + modifs[modif] + "." + (*extit))) {
-				(*it) = "lib" + stub + modifs[modif] + "." + (*extit);
-				found = TRUE;
-				break;
-			    }
-			}
-		    }
-		    if(!found && project->isActiveConfig("compile_libtool")) {
+		bool found = FALSE;
+		QStringList extens;
+		if(!extn.isNull())
+		    extens << extn;
+		else
+		    extens << project->variables()["QMAKE_EXTENSION_SHLIB"].first() << "a";
+		for(QStringList::Iterator extit = extens.begin(); extit != extens.end(); ++extit) {
+		    if(dir.isNull()) {
+			QString lib_stub;
 			for(MakefileDependDir *mdd = libdirs.first(); mdd; mdd = libdirs.next() ) {
-			    if(QFile::exists(mdd->local_dir + Option::dir_sep + "lib" + stub + modifs[modif] + Option::libtool_ext)) {
-				(*it) = mdd->real_dir + Option::dir_sep + "lib" + stub + modifs[modif] + Option::libtool_ext;
-				found = TRUE;
+			    if(QFile::exists(mdd->local_dir + Option::dir_sep + "lib" + stub +
+					     "." + (*extit))) {
+				lib_stub = stub;
 				break;
 			    }
 			}
+			if(!lib_stub.isNull()) {
+			    (*it) = "-l" + lib_stub;
+			    found = TRUE;
+			    break;
+			}
+		    } else {
+			if(QFile::exists("lib" + stub + "." + (*extit))) {
+			    (*it) = "lib" + stub + "." + (*extit);
+			    found = TRUE;
+			    break;
+			}
 		    }
-		    if(found)
-			break;
-
 		}
+		if(!found && project->isActiveConfig("compile_libtool")) {
+		    for(MakefileDependDir *mdd = libdirs.first(); mdd; mdd = libdirs.next() ) {
+			if(QFile::exists(mdd->local_dir + Option::dir_sep + "lib" + stub + Option::libtool_ext)) {
+			    (*it) = mdd->real_dir + Option::dir_sep + "lib" + stub + Option::libtool_ext;
+			    found = TRUE;
+			    break;
+			}
+		    }
+		}
+		if(found)
+		    break;
 	    }
 	}
     }

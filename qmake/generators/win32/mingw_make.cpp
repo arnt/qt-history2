@@ -290,7 +290,6 @@ MingwMakefileGenerator::init()
 	return;
     }
 
-    bool is_qt = (project->first("TARGET") == "qt"QTDLL_POSTFIX || project->first("TARGET") == "qt-mt"QTDLL_POSTFIX);
     project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
 
     // LIBS defined in Profile comes first for gcc
@@ -313,15 +312,15 @@ MingwMakefileGenerator::init()
            project->variables()["DEFINES"].findIndex("QT_DLL") != -1) ||
           (getenv("QT_DLL") && !getenv("QT_NODLL"))) ) {
 	    project->variables()["QMAKE_QT_DLL"].append("1");
-	    if ( is_qt && !project->variables()["QMAKE_LIB_FLAG"].isEmpty() )
+	    if ( project->isActiveConfig("target_qt") && !project->variables()["QMAKE_LIB_FLAG"].isEmpty() )
 		project->variables()["CONFIG"].append("dll");
 	}
 	if ( project->isActiveConfig("thread") )
-	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_THREAD_SUPPORT");
+	    project->variables()[project->isActiveConfig("target_qt") ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_THREAD_SUPPORT");
 	if ( project->isActiveConfig("accessibility" ) )
-	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
+	    project->variables()[project->isActiveConfig("target_qt") ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
 	if ( project->isActiveConfig("tablet") )
-	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_TABLET_SUPPORT");
+	    project->variables()[project->isActiveConfig("target_qt") ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_TABLET_SUPPORT");
     }
     if ( project->isActiveConfig("dll") || !project->variables()["QMAKE_APP_FLAG"].isEmpty() ) {
 	project->variables()["CONFIG"].remove("staticlib");
@@ -374,8 +373,8 @@ MingwMakefileGenerator::init()
 	project->variables()["INCLUDEPATH"] +=	project->variables()["QMAKE_INCDIR_QT"];
 	project->variables()["QMAKE_LIBDIR"] += project->variables()["QMAKE_LIBDIR_QT"];
 	if ( !project->isActiveConfig("debug") )
-	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_NO_DEBUG");
-	if ( is_qt && !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
+	    project->variables()[project->isActiveConfig("target_qt") ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_NO_DEBUG");
+	if ( project->isActiveConfig("target_qt") && !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty()) {
 		project->variables()["DEFINES"].append("QT_MAKEDLL");
 		project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_QT_DLL"];
@@ -388,15 +387,13 @@ MingwMakefileGenerator::init()
 		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
 		int hver = findHighestVersion(project->first("QMAKE_LIBDIR_QT"), "qt");
-		if ( hver == -1 )
-		    hver = findHighestVersion(project->first("QMAKE_LIBDIR_QT"), "qt-mt");
 		if(hver != -1) {
 		    QString ver;
-		    ver.sprintf("libqt-%s" QTDLL_POSTFIX "%d.a", (project->isActiveConfig("thread") ? "-mt" : ""), hver);
+		    ver.sprintf("libqt" QTDLL_POSTFIX "%d.a", hver);
 		    QStringList &libs = project->variables()["QMAKE_LIBS"];
 // @@@HGTODO maybe we must change the replace regexp if we understand what's going on
 		    for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit)
-			(*libit).replace(QRegExp("qt(-mt)?\\.lib"), ver);
+			(*libit).replace(QRegExp("qt\\.lib"), ver);
 		}
 	    }
 	    if ( project->isActiveConfig( "activeqt" ) ) {
