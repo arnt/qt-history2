@@ -498,29 +498,29 @@ void QtFileIconViewItem::viewModeChanged( QtFileIconView::ViewMode m )
     case Dir: {
 	if ( !QDir( itemFileName ).isReadable() ) {
 	    if ( m == QtFileIconView::Small )
-		setIcon( *iconFolderLockedSmall, FALSE, FALSE );
+		setIcon( *iconFolderLockedSmall, TRUE, FALSE );
 	    else
-		setIcon( *iconFolderLockedLarge, FALSE, FALSE );
+		setIcon( *iconFolderLockedLarge, TRUE, FALSE );
 	} else {
 	    if ( m == QtFileIconView::Small )
-		setIcon( *iconFolderSmall, FALSE, FALSE );
+		setIcon( *iconFolderSmall, TRUE, FALSE );
 	    else
-		setIcon( *iconFolderLarge, FALSE, FALSE );
+		setIcon( *iconFolderLarge, TRUE, FALSE );
 	}
 	setDropEnabled( QDir( itemFileName ).isReadable() );
     } break;
     case File: {
 	    if ( m == QtFileIconView::Small )
-		setIcon( *iconFileSmall, FALSE, FALSE );
+		setIcon( *iconFileSmall, TRUE, FALSE );
 	    else
-		setIcon( *iconFileLarge, FALSE, FALSE );
+		setIcon( *iconFileLarge, TRUE, FALSE );
 	    setDropEnabled( FALSE );
     } break;
     case Link: {
 	    if ( m == QtFileIconView::Small )
-		setIcon( *iconLinkSmall, FALSE, FALSE );
+		setIcon( *iconLinkSmall, TRUE, FALSE );
 	    else
-		setIcon( *iconLinkLarge, FALSE, FALSE );
+		setIcon( *iconLinkLarge, TRUE, FALSE );
 	    setDropEnabled( FALSE );
     } break;
     }
