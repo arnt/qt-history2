@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbrush.h#15 $
+** $Id: //depot/qt/main/src/kernel/qbrush.h#16 $
 **
 ** Definition of QBrush class
 **
@@ -36,8 +36,6 @@ public:
     QBrush( const QBrush & );
    ~QBrush();
     QBrush &operator=( const QBrush & );
-
-    QBrush	copy() const;
 
     BrushStyle	style()	 const		{ return data->style; }
     QColor	color()	 const		{ return data->color; }
