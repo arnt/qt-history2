@@ -687,7 +687,9 @@ void QTextHtmlParser::parseTag()
 
     resolveParent();
     resolveNode();
-    parseAttributes();
+    // _need_ at least one space after the tag name, otherwise there can't be attributes
+    if (pos < len && txt.at(pos).isSpace())
+        parseAttributes();
 
     // special handling for anchors with href attribute (hyperlinks)
     if (node->isAnchor && !node->anchorHref.isEmpty()) {
