@@ -22,6 +22,7 @@
 #include <abstractformwindowmanager.h>
 #include <abstractwidgetdatabase.h>
 #include <iconloader.h>
+#include <qdesigner_promotedwidget.h>
 
 #include <QtGui/QVBoxLayout>
 #include <QtCore/QMetaObject>
@@ -667,16 +668,21 @@ void PropertyEditor::resetProperty(const QString &prop_name)
         return;
     }
 
+    QObject *obj = m_object;
+    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(obj))
+        obj = promoted->child();
+    
     if (!m_prop_sheet->reset(idx)) {
-        int item_idx =  m_core->widgetDataBase()->indexOfObject(m_object);
+        int item_idx =  m_core->widgetDataBase()->indexOfObject(obj);
         if (item_idx == -1) {
             qWarning("PropertyEditor::resetProperty(): object \"%s\" not in widget data base",
-                        m_object->metaObject()->className());
+                        obj->metaObject()->className());
             return;
         }
         AbstractWidgetDataBaseItem *item = m_core->widgetDataBase()->item(item_idx);
-        QVariant value = item->defaultPropertyValues().at(idx);
-        m_prop_sheet->setProperty(idx, value);
+        QList<QVariant> default_prop_values = item->defaultPropertyValues();
+        if (idx < default_prop_values.size())
+            m_prop_sheet->setProperty(idx, default_prop_values.at(idx));
     }
     
     m_prop_sheet->setChanged(idx, false);
