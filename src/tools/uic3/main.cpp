@@ -231,7 +231,7 @@ int main(int argc, char * argv[])
 
     QFile fileOut;
     if (!outputFile.isEmpty()) {
-        fileOut.setName(outputFile);
+        fileOut.setFileName(outputFile);
         if (!fileOut.open(IO_WriteOnly)) {
             fprintf(stderr, "%s: Could not open output file '%s'\n", argv[0], outputFile.data());
             return 1;
