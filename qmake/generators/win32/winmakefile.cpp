@@ -65,7 +65,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 	QStringList subdirs_in = project->variables()["SUBDIRS"];
 	for(QStringList::Iterator it = subdirs_in.begin(); it != subdirs_in.end(); ++it) {
 	    QString file = (*it);
-	    fileFixify(file);
+	    file = fileFixify(file);
 	    SubDir *sd = new SubDir;
 	    subdirs.append(sd);
 	    sd->makefile = "$(MAKEFILE)";
