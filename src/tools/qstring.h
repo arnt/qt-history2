@@ -575,4 +575,9 @@ public:
 
 // Q_DECLARE_SHARED_MOVABLE(QString)
 
+#if defined(Q_OS_WIN32)
+extern Q_EXPORT QByteArray qt_winQString2MB( const QString& s, int len=-1 );
+extern Q_EXPORT QString qt_winMB2QString( const char* mb, int len=-1 );
+#endif
+
 #endif

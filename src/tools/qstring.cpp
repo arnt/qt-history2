@@ -2343,6 +2343,79 @@ QString QString::fromLatin1(const char *s, int size)
     return QString(d);
 }
 
+#ifdef Q_OS_WIN32
+
+QByteArray qt_winQString2MB( const QString& s, int uclen )
+{
+    if ( uclen < 0 )
+	uclen = s.length();
+    if ( s.isNull() )
+	return QByteArray();
+    if ( uclen == 0 )
+	return QByteArray("");
+    BOOL used_def;
+    QByteArray mb(4096);
+    int len;
+    while ( !(len=WideCharToMultiByte(CP_ACP, 0, (const WCHAR*)s.unicode(), uclen,
+		mb.detach(), mb.size()-1, 0, &used_def)) )
+    {
+	int r = GetLastError();
+	if ( r == ERROR_INSUFFICIENT_BUFFER ) {
+	    mb.resize(1+WideCharToMultiByte( CP_ACP, 0,
+				(const WCHAR*)s.unicode(), uclen,
+				0, 0, 0, &used_def));
+		// and try again...
+	} else {
+#ifndef QT_NO_DEBUG
+	    // Fail.
+	    qWarning("WideCharToMultiByte cannot convert multibyte text (error %d): %s (UTF8)",
+		r, s.utf8());
+#endif
+	    break;
+	}
+    }
+    mb.resize(len);
+    return mb;
+}
+
+QString qt_winMB2QString( const char* mb, int mblen )
+{
+    if ( !mb || !mblen )
+	return QString::null;
+    const int wclen_auto = 4096;
+    WCHAR wc_auto[wclen_auto];
+    int wclen = wclen_auto;
+    WCHAR *wc = wc_auto;
+    int len;
+    while ( !(len=MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED,
+		mb, mblen, wc, wclen )) )
+    {
+	int r = GetLastError();
+	if ( r == ERROR_INSUFFICIENT_BUFFER ) {
+	    if ( wc != wc_auto ) {
+		qWarning("Size changed in MultiByteToWideChar");
+		break;
+	    } else {
+		wclen = MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED,
+				    mb, mblen, 0, 0 );
+		wc = new WCHAR[wclen];
+		// and try again...
+	    }
+	} else {
+	    // Fail.
+	    qWarning("MultiByteToWideChar cannot convert multibyte text");
+	    break;
+	}
+    }
+    if ( len <= 0 )
+	return QString::null;
+    QString s( (QChar*)wc, len - 1 ); // len - 1: we don't want terminator
+    if ( wc != wc_auto )
+	delete [] wc;
+    return s;
+}
+#endif // Q_OS_WIN32
+
 /*!
     Returns the Unicode string decoded from the first \a len
     characters of \a local8Bit, ignoring the rest of \a local8Bit. If
