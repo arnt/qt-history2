@@ -1134,36 +1134,41 @@ void QActionGroupPrivate::update( const QActionGroup* that )
 	it.current()->setVisible( that->isVisible() );
     }
     for ( QPtrListIterator<QComboBox> cb( comboboxes ); cb.current(); ++cb ) {
-	cb.current()->setEnabled( that->isEnabled() );
+	QComboBox *combobox = cb.current();
+	combobox->setEnabled( that->isEnabled() );
+	combobox->setShown( that->isVisible() );
 
 #ifndef QT_NO_TOOLTIP
-	QToolTip::remove( cb.current() );
+	QToolTip::remove( combobox );
 	if ( !!that->toolTip() )
-	    QToolTip::add( cb.current(), that->toolTip() );
+	    QToolTip::add( combobox, that->toolTip() );
 #endif
 #ifndef QT_NO_WHATSTHIS
-	QWhatsThis::remove( cb.current() );
+	QWhatsThis::remove( combobox );
 	if ( !!that->whatsThis() )
-	    QWhatsThis::add( cb.current(), that->whatsThis() );
+	    QWhatsThis::add( combobox, that->whatsThis() );
 #endif
+
     }
     for ( QPtrListIterator<QToolButton> mb( menubuttons ); mb.current(); ++mb ) {
-	mb.current()->setEnabled( that->isEnabled() );
+	QToolButton *button = mb.current();
+	button->setEnabled( that->isEnabled() );
+	button->setShown( that->isVisible() );
 
 	if ( !that->text().isNull() )
-	    mb.current()->setTextLabel( that->text() );
+	    button->setTextLabel( that->text() );
 	if ( !that->iconSet().isNull() )
-	    mb.current()->setIconSet( that->iconSet() );
+	    button->setIconSet( that->iconSet() );
 
 #ifndef QT_NO_TOOLTIP
 	QToolTip::remove( mb.current() );
 	if ( !!that->toolTip() )
-	    QToolTip::add( mb.current(), that->toolTip() );
+	    QToolTip::add( button, that->toolTip() );
 #endif
 #ifndef QT_NO_WHATSTHIS
-	QWhatsThis::remove( mb.current() );
+	QWhatsThis::remove( button );
 	if ( !!that->whatsThis() )
-	    QWhatsThis::add( mb.current(), that->whatsThis() );
+	    QWhatsThis::add( button, that->whatsThis() );
 #endif
     }
     for ( QPtrListIterator<QActionGroupPrivate::MenuItem> pu( menuitems ); pu.current(); ++pu ) {
@@ -1171,6 +1176,7 @@ void QActionGroupPrivate::update( const QActionGroup* that )
 	if ( parent->inherits( "QPopupMenu" ) ) {
 	    QPopupMenu* ppopup = (QPopupMenu*)parent;
 	    ppopup->setItemEnabled( pu.current()->id, that->isEnabled() );
+	    ppopup->setItemVisible( pu.current()->id, that->isVisible() );
 	} else {
 	    pu.current()->popup->setEnabled( that->isEnabled() );
 	}
