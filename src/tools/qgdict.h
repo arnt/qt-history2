@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.h#3 $
+** $Id: //depot/qt/main/src/tools/qgdict.h#4 $
 **
 ** Definition of QGDict and QGDictIterator classes
 **
@@ -51,9 +51,9 @@ private:
     Qbucket **vec;				// hash array
     uint    size;				// size of array
     uint    numItems;				// number of items
-    int	    cases	: 1;			// case sensitive
-    int	    copyk	: 1;			// copy keys
-    int	    trivial	: 1;			// trivial hashing
+    uint    cases	: 1;			// case sensitive
+    uint    copyk	: 1;			// copy keys
+    uint    trivial	: 1;			// trivial hashing
     Qditlst *iterators;				// list of iterators
     virtual int	  hashKey( const char * );	// hash function
 };

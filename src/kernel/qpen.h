@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpen.h#2 $
+** $Id: //depot/qt/main/src/kernel/qpen.h#3 $
 **
 ** Definition of QPen class
 **
@@ -51,10 +51,10 @@ private:
 	QColor	  color;
 #if defined(_WS_WIN_)
 	HANDLE	  hpen;
-	int	  invalid  : 1;
-	bool	  stockPen : 1;
+	uint	  invalid  : 1;
+	uint	  stockPen : 1;
 #elif defined(_WS_PM_)
-	int	  invalid  : 3;
+	uint	  invalid  : 3;
 #endif
     } *data;
 };
