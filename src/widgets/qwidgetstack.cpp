@@ -37,7 +37,7 @@
 
 #include "qwidgetstack.h"
 #include "qlayout.h"
-#include "private/qlayoutengine_p.h"
+#include "../kernel/qlayoutengine_p.h"
 #ifndef QT_NO_WIDGETSTACK
 
 #include "qobjectlist.h"
