@@ -40,21 +40,22 @@ void QActionPrivate::sendDataChanged()
     \ingroup application
     \mainclass
 
-    In GUI applications many commands can be invoked via a menu
-    option, a toolbar button and a keyboard shortcut. Since the
-    same action must be performed regardless of how the action was
-    invoked, and since the menu and toolbar should be kept in sync, it
-    is useful to represent a command as an \e action. An action can be
-    added to a menu and a toolbar, and will automatically keep them in
-    sync. For example, in a word processor, if the user presses a
-    Bold toolbar button the Bold menu item will automatically be
-    checked.
+    In applications many common commands can be invoked via menus,
+    toolbar buttons, and keyboard shortcuts. Since the user expects
+    each command to be performed in the same way, regardless of the
+    user interface used, it is useful to represent each command as
+    an \e action.
 
-    A QAction may contain an icon, a menu text, a shortcut, a
-    status text, a "What's This?" text, and a tool tip. Most of these
-    can be set in the constructor. They can also be set independently
-    with setIconSet(), setText(), setMenuText(), setToolTip(),
-    setStatusTip(), setWhatsThis(), and setShortcut().
+    Actions can be added to menus and toolbars, and will
+    automatically keep them in sync. For example, in a word processor,
+    if the user presses a Bold toolbar button, the Bold menu item
+    will automatically be checked.
+
+    A QAction may contain an icon, menu text, a shortcut, status text,
+    "What's This?" text, and a tool tip. Most of these can be set in
+    the constructor. They can also be set independently with
+    setIconSet(), setText(), setMenuText(), setShortcut(),
+    setStatusTip(), setWhatsThis(), and setToolTip().
 
     Actions are added to widgets using QWidget::addAction().
 
@@ -547,16 +548,14 @@ QString QAction::statusTip() const
     \property QAction::whatsThis
     \brief the action's "What's This?" help text
 
-    The whats this text is used to provide a brief description of the
-    action. The text may contain rich text (HTML-like tags -- see
-    QStyleSheet for the list of supported tags). There is no default
-    "What's This" text.
+    The "What's This?" text is used to provide a brief description of
+    the action. The text may contain rich text. There is no default
+    "What's This?" text.
 
-    If the whats this text contains a hyperlink the whatsThisClicked()
-    signal is emitted when the user clicks inside the "What's This?"
-    window.
+    If the text contains a hyperlink, the whatsThisClicked() signal is
+    emitted when the user clicks inside the "What's This?" window.
 
-    \sa QWhatsThis whatsThisClicked()
+    \sa QWhatsThis whatsThisClicked() QStyleSheet
 */
 void QAction::setWhatsThis(const QString &whatsthis)
 {
@@ -725,7 +724,7 @@ void QAction::activate(ActionEvent event)
     \fn void QAction::triggered()
 
     This signal is emitted when an action is activated by the user;
-    for example, when the user clicks a menu option, a toolbar button,
+    for example, when the user clicks a menu option, toolbar button,
     or presses an action's shortcut key combination.
 
     Connect to this signal for command actions. Connect to the
