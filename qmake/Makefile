@@ -1,4 +1,4 @@
-!IF "$(MAKE)" == "NMAKE" || "$(MAKE)" == "Nmake" || "$(MAKE)" == "nmake"
+!IF "$(QMAKESPEC)" == "win32-msvc" || "$(QMAKESPEC)" == "win32-msvc.net"
 #
 # specific stuff for nmake
 #
