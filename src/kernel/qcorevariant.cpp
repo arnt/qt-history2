@@ -17,6 +17,7 @@
 #include "qbitarray.h"
 #include "qbytearray.h"
 #include "qdatastream.h"
+#include "qdebug.h"
 #include "qmap.h"
 #include "qdatetime.h"
 #include "qlist.h"
@@ -2289,5 +2290,67 @@ bool QCoreVariant::isNull() const
     return handler->isNull(d);
 }
 
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug dbg, const QCoreVariant &v)
+{
+    dbg.nospace() << "QCoreVariant(" << v.typeName() << ", ";
+    switch(v.type()) {
+    case QCoreVariant::Int:
+	dbg.nospace() << v.toInt();
+	break;
+    case QCoreVariant::UInt:
+        dbg.nospace() << v.toUInt();
+        break;
+    case QCoreVariant::LongLong:
+	dbg.nospace() << v.toLongLong();
+	break;
+    case QCoreVariant::ULongLong:
+	dbg.nospace() << v.toULongLong();
+	break;
+    case QCoreVariant::Double:
+	dbg.nospace() << v.toDouble();
+	break;
+    case QCoreVariant::Bool:
+	dbg.nospace() << v.toBool();
+	break;
+    case QCoreVariant::String:
+	dbg.nospace() << v.toString();
+	break;
+#ifndef QT_NO_STRINGLIST
+    case QCoreVariant::StringList:
+	dbg.nospace() << v.toStringList();
+	break;
+#endif
+#ifndef QT_NO_TEMPLATE_VARIANT
+    case QCoreVariant::Map:
+	dbg.nospace() << v.toMap();
+	break;
+    case QCoreVariant::List:
+	dbg.nospace() << v.toList();
+	break;
+#endif
+    case QCoreVariant::Date:
+	dbg.nospace() << v.toDate();
+	break;
+    case QCoreVariant::Time:
+	dbg.nospace() << v.toTime();
+	break;
+    case QCoreVariant::DateTime:
+	dbg.nospace() << v.toDateTime();
+	break;
+    case QCoreVariant::ByteArray:
+	dbg.nospace() << v.toByteArray();
+	break;
+    case QCoreVariant::BitArray:
+	dbg.nospace() << v.toBitArray();
+	break;
+    default:
+	break;
+    }
+
+    dbg.nospace() << ')';
+    return dbg.space();
+}
+#endif
 
 #endif //QT_NO_VARIANT

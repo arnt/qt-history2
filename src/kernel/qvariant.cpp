@@ -19,6 +19,7 @@
 #include "qcolor.h"
 #include "qcursor.h"
 #include "qdatastream.h"
+#include "qdebug.h"
 #include "qfont.h"
 #include "qiconset.h"
 #include "qimage.h"
@@ -949,4 +950,74 @@ QPixmap QVariant::toPixmap() const
 
     return *static_cast<QPixmap *>(d->value.ptr);
 }
+
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug dbg, const QVariant &v)
+{
+    switch(v.type()) {
+    case QVariant::Cursor:
+#ifndef QT_NO_CURSOR
+	dbg.nospace() << v.toCursor();
+#endif
+	break;
+    case QVariant::Bitmap:
+	dbg.nospace() << v.toBitmap();
+	break;
+    case QVariant::PointArray:
+	dbg.nospace() << v.toPointArray();
+	break;
+    case QVariant::Region:
+	dbg.nospace() << v.toRegion();
+	break;
+    case QVariant::Font:
+	dbg.nospace() << v.toFont();
+	break;
+    case QVariant::Pixmap:
+	dbg.nospace() << v.toPixmap();
+	break;
+    case QVariant::Image:
+	dbg.nospace() << v.toImage();
+	break;
+    case QVariant::Brush:
+	dbg.nospace() << v.toBrush();
+	break;
+    case QVariant::Point:
+	dbg.nospace() << v.toPoint();
+	break;
+    case QVariant::Rect:
+	dbg.nospace() << v.toRect();
+	break;
+    case QVariant::Size:
+	dbg.nospace() << v.toSize();
+	break;
+    case QVariant::Color:
+	dbg.nospace() << v.toColor();
+	break;
+#ifndef QT_NO_PALETTE
+    case QVariant::Palette:
+	dbg.nospace() << v.toPalette();
+	break;
+#endif
+#ifndef QT_NO_ICONSET
+    case QVariant::IconSet:
+	dbg.nospace() << v.toIconSet();
+	break;
+#endif
+    case QVariant::SizePolicy:
+	dbg.nospace() << v.toSizePolicy();
+	break;
+#ifndef QT_NO_ACCEL
+    case QVariant::KeySequence:
+	dbg.nospace() << v.toKeySequence();
+	break;
+#endif
+    case QVariant::Pen:
+	dbg.nospace() << v.toPen();
+	break;
+    default:
+        break;
+    }
+    return dbg.space();
+}
+#endif
 

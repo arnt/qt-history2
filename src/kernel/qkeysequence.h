@@ -69,6 +69,10 @@ private:
     friend class QAccelManager;
 };
 
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug, const QKeySequence &);
+#endif
+
 #else
 
 class Q_GUI_EXPORT QKeySequence : public Qt

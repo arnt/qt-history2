@@ -74,5 +74,9 @@ private:
     QSqlFieldPrivate* d;
 };
 
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug, const QSqlField &);
+#endif
+
 #endif	// QT_NO_SQL
 #endif

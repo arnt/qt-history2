@@ -21,6 +21,7 @@
 #include "qshared.h"
 #include "qnamespace.h"
 #include "qatomic.h"
+#include "qdebug.h"
 
 #include "qsqlfield.h"
 
@@ -626,5 +627,15 @@ void QSqlRecord::detach()
     if (!--x->ref)
 	delete x;
 }
+
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug dbg, const QSqlRecord &r)
+{
+    dbg.nospace() << "QSqlRecord(" << r.count() << ")";
+    for (int i = 0; i < r.count(); ++i)
+	dbg.nospace() << "\n " << QString("%1: ").arg(i, 2) << *r.field(i);
+    return dbg.space();
+}
+#endif
 
 #endif

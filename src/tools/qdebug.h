@@ -44,6 +44,8 @@ public:
     inline QDebug &operator<<(unsigned int t) { d->ts << t; return maybeSpace(); }
     inline QDebug &operator<<(signed long t) { d->ts << t; return maybeSpace(); }
     inline QDebug &operator<<(unsigned long t) { d->ts << t; return maybeSpace(); }
+    inline QDebug &operator<<(Q_LLONG t) { d->ts << QString::number(t); return maybeSpace(); }
+    inline QDebug &operator<<(Q_ULLONG t) { d->ts << QString::number(t); return maybeSpace(); }
     inline QDebug &operator<<(float t) { d->ts << t; return maybeSpace(); }
     inline QDebug &operator<<(double t) { d->ts << t; return maybeSpace(); }
     inline QDebug &operator<<(const char* t) { d->ts << t; return maybeSpace(); }

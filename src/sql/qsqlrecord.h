@@ -81,5 +81,9 @@ private:
     QSqlRecordPrivate* d;
 };
 
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug, const QSqlRecord &);
+#endif
+
 #endif	// QT_NO_SQL
 #endif

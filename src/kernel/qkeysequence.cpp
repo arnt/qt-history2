@@ -17,6 +17,7 @@
 #ifndef QT_NO_ACCEL
 
 #include "qaccel.h"
+#include "qdebug.h"
 #include "qshared.h"
 #ifndef QT_NO_REGEXP
 # include "qregexp.h"
@@ -694,5 +695,13 @@ QDataStream &operator>>(QDataStream &s, QKeySequence &keysequence)
 }
 
 #endif //QT_NO_DATASTREAM
+
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug dbg, const QKeySequence &p)
+{
+    dbg.nospace() << "QKeySequence(" << QString(p) << ')';
+    return dbg.space();
+}
+#endif
 
 #endif //QT_NO_ACCEL

@@ -372,5 +372,9 @@ template<> QMap<QString,QCoreVariant> qt_cast<QMap<QString,QCoreVariant> >(const
 Q_DECLARE_TYPEINFO(QCoreVariant, Q_MOVABLE_TYPE);
 Q_DECLARE_SHARED(QCoreVariant);
 
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug, const QCoreVariant &);
+#endif
+
 #endif //QT_NO_VARIANT
 #endif // QCOREVARIANT_H

@@ -506,5 +506,9 @@ template<> inline QSize qt_cast<QSize>(const QVariant &v, const QSize*) { return
 Q_DECLARE_TYPEINFO(QVariant, Q_MOVABLE_TYPE);
 Q_DECLARE_SHARED(QVariant);
 
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug, const QVariant &);
+#endif
+
 #endif // QT_NO_VARIANT
 #endif // QVARIANT_H
