@@ -257,6 +257,16 @@ QImageData::~QImageData()
                          operations that are independent of endianness.
     \value BigEndian     Network byte order, as on SPARC and Motorola CPUs.
     \value LittleEndian  PC/Alpha byte order.
+
+    \enum QImage::InvertMode
+
+    This enum type is used to describe how pixel values should be
+    inverted in the invertPixels() function.
+
+    \value InvertRgb    Invert only the RGB values and leave the alpha
+                        channel unchanged.
+
+    \value InvertRgba   Invert all channels, including the alpha channel.
 */
 
 
@@ -1040,11 +1050,12 @@ void QImage::fill(uint pixel)
 /*!
     Inverts all pixel values in the image.
 
-    If the depth is 32: if \a invertAlpha is true, the alpha bits are
+    If the depth is 32: if \a mode is InvertRgba, the alpha bits are
     also inverted, otherwise they are left unchanged.
 
-    If the depth is not 32, the argument \a invertAlpha has no
-    meaning.
+    If the depth is not 32, the argument \a mode has no meaning. The
+    default mode is InvertRgb, which leaves the alpha channel
+    unchanged.
 
     Note that inverting an 8-bit image means to replace all pixels
     using color index \e i with a pixel using color index 255 minus \e
@@ -1053,7 +1064,7 @@ void QImage::fill(uint pixel)
     \sa fill() depth() hasAlphaBuffer()
 */
 
-void QImage::invertPixels(bool invertAlpha)
+void QImage::invertPixels(InvertMode mode)
 {
     detach();
     Q_UINT32 n = numBytes();
@@ -1065,7 +1076,9 @@ void QImage::invertPixels(bool invertAlpha)
     } else {
         Q_UINT32 *p = (Q_UINT32*)bits();
         Q_UINT32 *end = p + n/4;
-        uint xorbits = invertAlpha && depth() == 32 ? 0x00ffffff : 0xffffffff;
+        uint xorbits = 0x00ffffff;
+        if (mode == InvertRgba && depth() == 32)
+            xorbits = 0xffffffff;
         while (p < end)
             *p++ ^= xorbits;
     }

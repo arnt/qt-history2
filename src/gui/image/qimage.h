@@ -49,6 +49,7 @@ class Q_GUI_EXPORT QImage
 {
 public:
     enum Endian { BigEndian, LittleEndian, IgnoreEndian };
+    enum InvertMode { InvertRgb, InvertRgba };
 
     QImage();
     QImage(int width, int height, int depth, int numColors=0, Endian bitOrder=IgnoreEndian);
@@ -114,7 +115,7 @@ public:
     void reset();
 
     void fill(uint pixel);
-    void invertPixels(bool invertAlpha = true);
+    void invertPixels(InvertMode = InvertRgb);
 
     QImage convertDepth(int) const;
 #ifndef QT_NO_IMAGE_TRUECOLOR
@@ -188,6 +189,7 @@ public:
         { return scale(QSize(w, h), mode, Qt::SmoothTransformation); }
     QImage QT_COMPAT smoothScale(const QSize& s, Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio) const
         { return scale(s, mode, Qt::SmoothTransformation); }
+    inline QT_COMPAT void invertPixels(bool invertAlpha) { invertAlpha ? invertPixels(InvertRgba) : invertPixels(InvertRgb); }
 #endif
 
 private:
