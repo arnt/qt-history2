@@ -68,7 +68,7 @@ static QByteArray unzipXPM( QString data, ulong& length )
     return baunzip;
 }
 
-#if QT_VERSION >= 0x030900
+#if QT_VERSION >= 0x040000
 #error Add this functionality to QDir (relativePathTo() maybe?) and \
 remove it from here and from moc
 #endif
@@ -574,7 +574,7 @@ void Uic::createFormDecl( const QDomElement &e )
     registerLayouts( e );
     out << endl;
 
-#if QT_VERSION >= 0x030900
+#if QT_VERSION >= 0x040000
 #error Make languageChange() a virtual protected non-slot member of QWidget
 #endif
 
