@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#16 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#16 $";
 #endif
 
 
@@ -524,6 +524,8 @@ void QWidget::setSizeIncrement( int w, int h )
 
 void QWidget::repaint( const QRect &r, bool eraseArea )
 {
+    if ( !isVisible() )				// ignore if not visible
+	return;
     QPaintEvent e( r );				// send fake paint event
     if ( eraseArea )
 	XClearArea( dpy, ident, r.x(), r.y(), r.width(), r.height(), FALSE );
