@@ -5,8 +5,8 @@
 #include "qwindowdefs.h"
 #include "qwsregionmanager.h"
 
-#define QT_MAX_REGIONS      100
-#define QT_RECTS_PER_REGION 20
+#define QT_MAX_REGIONS      400
+#define QT_RECTS_PER_REGION 4
 
 /*
 
