@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qbasic.cpp#13 $
 **
 **  Studies in Geometry Management
 **
@@ -18,7 +18,7 @@
 #include "qbasic.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#12 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#13 $");
 
 
 
@@ -26,17 +26,14 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#12 $");
   \class QBasicManager qbasic.h
   \brief The QBasicManager class provides one-dimensional geometry management.
 
-  This class is not for the faint of heart. The QBoxLayout class is
-  available for normal application programming. 
-
   This class is intended for those who write geometry managers and
-  graphical designers. 
+  graphical designers.  It is not for the faint of heart. The
+  QBoxLayout class is available for normal application programming.
 
   Each dimension (horizontal and vertical) is handled independently. Widgets
   are organized in chains, which can be parallel or serial.
 
-  \sa QBoxLayout
-  */
+  \sa QBoxLayout */
 
 
 static inline bool horz( QBasicManager::Direction dir )
@@ -412,6 +409,7 @@ QBasicManager::QBasicManager( QWidget *parent, const char *name )
     : QObject( parent, name )
 {
     main = parent;
+    border = 0;
 
     xC = new QParChain( LeftToRight );
     yC = new QParChain(	Down );
@@ -429,6 +427,35 @@ QBasicManager::~QBasicManager()
     delete xC;
     delete yC;
 }
+
+
+/*!
+  \fn QChain *QBasicManager::xChain()
+
+  Returns the main horizontal chain of the manager. All horizontal chains
+  should be inserted into this chain or one of its descendants, otherwise
+  they will be ignored.
+  */
+
+/*!
+  \fn QChain *QBasicManager::yChain()
+
+  Returns the main vertical chain of the manager. All vertical chains
+  should be inserted into this chain or one of its descendants, otherwise
+  they will be ignored.
+  */
+
+
+/*!
+  \fn void QBasicManager::setBorder( int b )
+
+  Sets the border around the edge of the widget. \e b is the number of
+  pixels between the edge of the widget and the area controlled by the
+  manager.
+
+  */
+
+
 /*!
   Creates a new QChain which is \e parallel.
   */
