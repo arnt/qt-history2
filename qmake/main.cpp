@@ -112,6 +112,7 @@ main(int argc, char **argv)
 
 	if(mkfile) {
 	    /* open make file */
+	    bool using_stdout = FALSE;
 	    if(!(Option::output.state() & IO_Open)) {
 		if(Option::output.name().isEmpty()) {
 		    if(!proj.variables()["QMAKE_MAKEFILE"].isEmpty()) 
@@ -124,6 +125,7 @@ main(int argc, char **argv)
 		if(Option::output.name().isEmpty() || Option::output.name() == "-") {
 		    Option::output.setName("");
 		    Option::output.open(IO_WriteOnly | IO_Translate, stdout);
+		    using_stdout = TRUE;
 		} else {
 		    if(QDir::isRelativePath(Option::output.name()))
 			Option::output.setName(oldpwd + Option::dir_sep + Option::output.name());
@@ -138,7 +140,7 @@ main(int argc, char **argv)
 	    }
 	    if(!mkfile->write()) {
 		fprintf(stderr, "Unable to generate makefile for: %s\n", (*pfile).latin1());
-		if(Option::output.handle() != fileno(stdout))
+		if(!using_stdout)
 		    QFile::remove(Option::output.name());
 	    }
 	    delete mkfile;
