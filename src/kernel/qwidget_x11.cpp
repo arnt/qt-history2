@@ -486,8 +486,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 			    XVisualIDFromVisual( (Visual*)x11AppVisual() ) );
 	xd->x_colormap = a.colormap;
 	setX11Data( xd );
-
-	delete xd;
     }
 
     if ( destroyw )
