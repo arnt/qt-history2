@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#27 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#28 $
 **
 ** Implementation of something useful.
 **
@@ -566,8 +566,10 @@ void QWizard::layOutButtonRow( QHBoxLayout * layout )
     }
 
     if ( hasHelp ) {
-	h->addSpacing( 12 );
-	h->addWidget( d->helpButton );
+        h->addSpacing( 12 );
+        h->addWidget( d->helpButton );
+    } else {
+        d->helpButton->hide();
     }
 }
 
