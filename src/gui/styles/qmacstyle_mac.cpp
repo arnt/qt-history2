@@ -2058,37 +2058,6 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             }
         }
         break;
-    case QStyle::CE_ToolBarButton:
-        if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
-            const QRect cr = q->subRect(QStyle::SR_ToolBarButtonContents, btn, w);
-            QIcon::Mode iconMode = (btn->state & QStyle::Style_Enabled) ? QIcon::Normal
-                                                                        : QIcon::Disabled;
-            if (btn->state & QStyle::Style_Down)
-                iconMode = QIcon::Active;
-            QIcon::State iconState = (btn->state & QStyle::Style_On) ? QIcon::On
-                                                                     : QIcon::Off;
-
-            const QPixmap pixmap = btn->icon.pixmap(Qt::LargeIconSize, iconMode, iconState);
-
-            p->drawPixmap((cr.width() - pixmap.width()) / 2, 3, pixmap);
-            if (!btn->text.isEmpty()) {
-                if (btn->state & QStyle::Style_Down)
-                    p->drawText(cr.x(), cr.y() + pixmap.height(), cr.width(),
-                                cr.height() - pixmap.height(), Qt::AlignCenter, btn->text);
-                p->drawText(cr.x(), cr.y() + pixmap.height(), cr.width(),
-                            cr.height() - pixmap.height(), Qt::AlignCenter, btn->text);
-            }
-            if (btn->features & QStyleOptionButton::HasMenu) {
-                QStyleOption arrowOpt(0);
-                arrowOpt.rect = q->subRect(QStyle::SR_ToolBarButtonMenu, btn, w);
-                arrowOpt.rect.setY(arrowOpt.rect.y() + arrowOpt.rect.height() / 2);
-                arrowOpt.rect.setHeight(arrowOpt.rect.height() / 2);
-                arrowOpt.state = btn->state;
-                arrowOpt.palette = btn->palette;
-                q->drawPrimitive(QStyle::PE_ArrowDown, &arrowOpt, p, w);
-            }
-        }
-        break;
     default:
         q->QWindowsStyle::drawControl(ce, opt, p, w);
     }
@@ -2145,8 +2114,6 @@ QRect QMacStylePrivate::HIThemeSubRect(QStyle::SubRect sr, const QStyleOption *o
         else
             r.setY(r.y() + (newStyleTabs ? 4 : 6));
         break; }
-    case QStyle::SR_ToolBarButtonContents:
-    case QStyle::SR_ToolBarButtonMenu:
     default:
         r = q->QWindowsStyle::subRect(sr, opt, widget);
         break;
@@ -3612,37 +3579,6 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             DrawThemeTab(qt_glb_mac_rect(tabr, p, false), tts, ttd, 0, 0);
         }
         break;
-    case QStyle::CE_ToolBarButton:
-        if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
-            const QRect cr = q->subRect(QStyle::SR_ToolBarButtonContents, btn, widget);
-            QIcon::Mode iconMode = (btn->state & QStyle::Style_Enabled) ? QIcon::Normal
-                                                                        : QIcon::Disabled;
-            if (btn->state & QStyle::Style_Down)
-                iconMode = QIcon::Active;
-            QIcon::State iconState = (btn->state & QStyle::Style_On) ? QIcon::On
-                                                                     : QIcon::Off;
-
-            const QPixmap pixmap = btn->icon.pixmap(Qt::LargeIconSize, iconMode, iconState);
-
-            p->drawPixmap((cr.width() - pixmap.width()) / 2, 3, pixmap);
-            if (!btn->text.isEmpty()) {
-                if (btn->state & QStyle::Style_Down)
-                    p->drawText(cr.x(), cr.y() + pixmap.height(), cr.width(),
-                                cr.height() - pixmap.height(), Qt::AlignCenter, btn->text);
-                p->drawText(cr.x(), cr.y() + pixmap.height(), cr.width(),
-                            cr.height() - pixmap.height(), Qt::AlignCenter, btn->text);
-            }
-            if (btn->features & QStyleOptionButton::HasMenu) {
-                QStyleOption arrowOpt(0);
-                arrowOpt.rect = q->subRect(QStyle::SR_ToolBarButtonMenu, btn, widget);
-                arrowOpt.rect.setY(arrowOpt.rect.y() + arrowOpt.rect.height() / 2);
-                arrowOpt.rect.setHeight(arrowOpt.rect.height() / 2);
-                arrowOpt.state = btn->state;
-                arrowOpt.palette = btn->palette;
-                q->drawPrimitive(QStyle::PE_ArrowDown, &arrowOpt, p, widget);
-            }
-        }
-        break;
     default:
         q->QWindowsStyle::drawControl(ce, opt, p, widget);
     }
@@ -3671,10 +3607,6 @@ QRect QMacStylePrivate::AppManSubRect(QStyle::SubRect sr, const QStyleOption *op
         break;
     case QStyle::SR_ProgressBarGroove:
     case QStyle::SR_ProgressBarLabel:
-        break;
-    case QStyle::SR_ToolBarButtonContents:
-    case QStyle::SR_ToolBarButtonMenu:
-        r = q->QWindowsStyle::subRect(sr, opt, widget);
         break;
     case QStyle::SR_PanelTab: {
         r = opt->rect;
@@ -5165,17 +5097,6 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
                 w += 12;
             }
             sz = QSize(w, h);
-        }
-        break;
-    case QStyle::CT_ToolBarButton:
-        if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
-            sz = btn->icon.pixmap(Qt::LargeIconSize, QIcon::Normal).size() + QSize(7, 7);
-            if (!btn->text.isEmpty()) {
-                sz.rheight() += btn->fontMetrics.lineSpacing();
-                sz.rwidth() = qMax(sz.width(), btn->fontMetrics.width(btn->text));
-            }
-            if (btn->features & QStyleOptionButton::HasMenu)
-                sz.rwidth() += 12;
         }
         break;
     default:

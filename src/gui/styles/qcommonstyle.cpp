@@ -1157,48 +1157,6 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
             }
         }
         break;
-    case CE_ToolBarButton:
-        if (const QStyleOptionButton * const button = qt_cast<const QStyleOptionButton *>(opt)) {
-            const QRect cr = subRect(SR_ToolBarButtonContents, opt, widget);
-
-            QIcon::Mode iconMode = (button->state & Style_Enabled)
-                                   ? QIcon::Normal
-                                   : QIcon::Disabled;
-            if (button->state & Style_Down)
-                iconMode = QIcon::Active;
-            QIcon::State iconState = (button->state & Style_On)
-                                     ? QIcon::On
-                                     : QIcon::Off;
-
-            const QPixmap pixmap = button->icon.pixmap(Qt::AutomaticIconSize, iconMode, iconState);
-
-            if (button->state & (Style_On | Style_Down)) {
-                qDrawShadePanel(p, cr, button->palette, true);
-            } else if (button->state & (Style_MouseOver | Style_Open)) {
-                qDrawShadePanel(p, cr, button->palette, false);
-            }
-
-            const QRect ir(cr.topLeft() + QPoint(3, 3), QSize(pixmap.width(), cr.height() - 6));
-            drawItem(p, ir, Qt::AlignCenter, button->palette,
-                     (button->state & Style_Enabled), pixmap);
-            if (!button->text.isEmpty()) {
-                const QRect tr(ir.topRight() + QPoint(2 + 1, 0),
-                               QSize(cr.width() - ir.width() - 9, ir.height()));
-                drawItem(p, tr, Qt::AlignLeft | Qt::AlignVCenter,
-                         button->palette, (button->state & Style_Enabled), button->text);
-            }
-
-            if (button->features & QStyleOptionButton::HasMenu) {
-                QStyleOption mopt(0);
-                mopt.rect = subRect(SR_ToolBarButtonMenu, opt, widget);
-                mopt.palette = button->palette;
-                mopt.state = QStyle::Style_Enabled;
-                if (button->state & (Style_Down | Style_MouseOver | Style_Open))
-                    qDrawShadePanel(p, mopt.rect, button->palette, button->state & Style_Open);
-                drawPrimitive(QStyle::PE_ArrowDown, &mopt, p, widget);
-            }
-        }
-        break;
     default:
         break;
     }
@@ -1390,22 +1348,6 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
     case SR_ToolBoxTabContents:
         r = opt->rect;
         r.addCoords(0, 0, -30, 0);
-        break;
-    case SR_ToolBarButtonContents:
-        if (const QStyleOptionButton * const button = qt_cast<const QStyleOptionButton *>(opt)) {
-            r = opt->rect;
-            if (button->features & QStyleOptionButton::HasMenu) {
-                r.setWidth(r.width() - 12);
-            }
-        }
-        break;
-    case SR_ToolBarButtonMenu:
-        if (const QStyleOptionButton * const button = qt_cast<const QStyleOptionButton *>(opt)) {
-            if (button->features & QStyleOptionButton::HasMenu) {
-                r = opt->rect;
-                r.setLeft(r.right() - (12 - 1));
-            }
-        }
         break;
     case SR_HeaderLabel: {
         int margin = pixelMetric(QStyle::PM_HeaderMargin, opt, widget);
@@ -2575,15 +2517,6 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
         int dfw = pixelMetric(PM_DefaultFrameWidth, opt, widget) * 2;
         sz = QSize(sz.width() + dfw + 21, sz.height() + dfw);
         break; }
-    case CT_ToolBarButton:
-        if (const QStyleOptionButton * const button = qt_cast<const QStyleOptionButton *>(opt)) {
-            sz += QSize(6, 6); // for the icon
-            if (!button->text.isEmpty())
-                sz.rwidth() += 3; // between the text and the icon
-            if (button->features & QStyleOptionButton::HasMenu)
-                sz.rwidth() += 12;
-        }
-        break;
     case CT_HeaderSection:
         if (const QStyleOptionHeader *hdr = qt_cast<const QStyleOptionHeader *>(opt)) {
             int margin = pixelMetric(QStyle::PM_HeaderMargin);

@@ -629,7 +629,7 @@ void QToolBar::actionEvent(QActionEvent *event)
             QToolBarItem item = d->items.takeAt(index);
             layout()->removeWidget(item.widget);
             if (!widgetAction) {
-                // destroy the QToolBarButton/QToolBarSeparator
+                // destroy the QToolButton/QToolBarSeparator
                 delete item.widget;
             } else {
                 if (isShown())

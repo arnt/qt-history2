@@ -387,7 +387,7 @@ void qt_mac_update_os_settings()
                   (f_style & ::bold) ? QFont::Bold : QFont::Normal,
                   (bool)(f_style & ::italic));
 #ifdef DEBUG_PLATFORM_SETTINGS
-        qDebug("qt-internal: Font for Application [%s::%d::%d::%d]", 
+        qDebug("qt-internal: Font for Application [%s::%d::%d::%d]",
                fnt.family().latin1(), fnt.pointSize(), fnt.bold(), fnt.italic());
 #endif
         QApplication::setFont(fnt);
@@ -407,7 +407,7 @@ void qt_mac_update_os_settings()
             { "QTipLabel", kThemeSmallSystemFont },
             { "QMessageBoxLabel", kThemeEmphasizedSystemFont },
             { "QLabel", kThemeSystemFont },
-            { "QToolBarButton", kThemeSmallSystemFont },
+            { "QToolButton", kThemeSmallSystemFont },
             { "QMenuItem", kThemeMenuItemCmdKeyFont },  // It doesn't exist, but its unique.
             { 0, 0 } };
         Str255 f_name;

@@ -230,8 +230,6 @@ public:
         CE_ToolBoxTab,
         CE_HeaderLabel,
 
-        CE_ToolBarButton,
-
         // do not add any values below/greater than this
         CE_CustomBase = 0xf0000000
     };
@@ -276,9 +274,6 @@ public:
         SR_DialogButtonCustom,
 
         SR_ToolBoxTabContents,
-
-        SR_ToolBarButtonContents,
-        SR_ToolBarButtonMenu,
 
         SR_HeaderLabel,
         SR_HeaderArrow,
@@ -473,7 +468,6 @@ public:
         CT_SizeGrip,
         CT_TabWidget,
         CT_DialogButtons,
-        CT_ToolBarButton,
         CT_HeaderSection,
         // do not add any values below/greater than this
         CT_CustomBase = 0xf0000000

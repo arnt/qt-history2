@@ -700,7 +700,6 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     \value CE_ProgressBarLabel  The text label of a QProgressBar
 
     \value CE_ToolButtonLabel  A tool button's label
-    \value CE_ToolBarButton
 
     \value CE_MenuBarItem  A menu item in a QMenuBar
     \value CE_MenuBarEmptyArea  The empty area of a QMenuBar
@@ -850,9 +849,6 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
 
     \value SR_CustomBase  Base value for custom ControlElements
     Custom values must be greater than this value
-
-    \value SR_ToolBarButtonContents
-    \value SR_ToolBarButtonMenu
 
     \value SR_HeaderArrow
     \value SR_HeaderLabel
@@ -1261,7 +1257,6 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     \value CT_TabBarTab
     \value CT_TabWidget
     \value CT_ToolButton
-    \value CT_ToolBarButton
 
     \value CT_CustomBase  Base value for custom ControlElements.
     Custom values must be greater than this value.

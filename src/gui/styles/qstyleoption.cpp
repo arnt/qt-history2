@@ -1158,8 +1158,8 @@ QStyleOptionDockWindow::QStyleOptionDockWindow(int version)
 */
 
 QStyleOptionToolButton::QStyleOptionToolButton()
-    : QStyleOptionComplex(Version, SO_ToolButton), features(None), arrowType(Qt::DownArrow),
-      toolButtonStyle(Qt::ToolButtonIconOnly), iconSize(Qt::SmallIconSize)
+    : QStyleOptionComplex(Version, SO_ToolButton), features(None), arrowType(Qt::DownArrow)
+    , iconSize(Qt::SmallIconSize), toolButtonStyle(Qt::ToolButtonIconOnly)
 {
 }
 
@@ -1167,8 +1167,9 @@ QStyleOptionToolButton::QStyleOptionToolButton()
     \internal
 */
 QStyleOptionToolButton::QStyleOptionToolButton(int version)
-    : QStyleOptionComplex(version, SO_ToolButton), features(None), arrowType(Qt::DownArrow),
-      toolButtonStyle(Qt::ToolButtonIconOnly), iconSize(Qt::SmallIconSize)
+    : QStyleOptionComplex(version, SO_ToolButton), features(None), arrowType(Qt::DownArrow)
+    , iconSize(Qt::SmallIconSize), toolButtonStyle(Qt::ToolButtonIconOnly)
+
 {
 }
 
