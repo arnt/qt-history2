@@ -55,6 +55,7 @@ class Q_EXPORT QWidgetStack: public QFrame
     Q_OBJECT
 public:
     QWidgetStack( QWidget* parent=0, const char* name=0 );
+    QWidgetStack( QWidget* parent, const char* name, WFlags f);
 
     ~QWidgetStack();
 
@@ -89,6 +90,7 @@ protected:
 
 private:
     bool isMyChild( QWidget * );
+    void init();
 
     QWidgetStackPrivate * d;
     QIntDict<QWidget> * dict;

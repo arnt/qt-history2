@@ -109,20 +109,40 @@ public:
 */
 
 
-/*!  Constructs an empty widget stack with parent \a parent and called
-    \a name.
+/*!
+  Constructs an empty widget stack.
+
+    The \a parent and \a name arguments are passed to the QFrame
+    constructor.
 */
 
 QWidgetStack::QWidgetStack( QWidget * parent, const char *name )
     : QFrame( parent, name )
 {
-    d = 0;
-    QWidgetStackEventFilter *ef = new QWidgetStackEventFilter( this );
-    installEventFilter( ef );
-    dict = new QIntDict<QWidget>;
-    focusWidgets = 0;
-    topWidget = 0;
-    invisible = new QWidgetStackPrivate::Invisible( this );
+    init();
+}
+
+/*!
+  Constructs an empty widget stack.
+
+  The \a parent, \a name and \a f arguments are passed to the QFrame
+  constructor.
+*/
+QWidgetStack::QWidgetStack( QWidget * parent, const char *name, WFlags f )
+    : QFrame( parent, name, f ) //## merge constructors in 4.0
+{
+    init();
+}
+
+void QWidgetStack::init()
+{
+   d = 0;
+   QWidgetStackEventFilter *ef = new QWidgetStackEventFilter( this );
+   installEventFilter( ef );
+   dict = new QIntDict<QWidget>;
+   focusWidgets = 0;
+   topWidget = 0;
+   invisible = new QWidgetStackPrivate::Invisible( this );
 }
 
 
