@@ -126,18 +126,6 @@
     restore and close buttons from the document window's frame to the
     workspace window's menu bar. It then inserts a window operations
     menu at the far left of the menu bar.
-
-    The menu items that QWorkspace inserts are widget menu items. If
-    you want to insert your own menu items into a QWorkspace menu, use
-    code like this:
-    \code
-    int lastIndex = menuBar()->count();
-    QMenuItem* lastItem = menuBar()->findItem( menuBar()->idAt( lastIndex - 1 ) );
-    if ( lastItem && lastItem->widget() )
-	lastIndex--;
-
-    menuBar()->insertItem( "New Item", -1, lastIndex );
-    \endcode
 */
 
 static bool inCaptionChange = FALSE;
