@@ -565,7 +565,7 @@ void QTextCursor::insert( const QString &str, bool checkNewLine, QMemArray<QText
 	int lastIndex = 0;
 	for ( ; it != lst.end(); ++it ) {
 	    if ( it != lst.begin() ) {
-		splitAndInsertEmptyParag( FALSE, FALSE );
+		splitAndInsertEmptyParag( FALSE, TRUE );
 		string->setEndState( -1 );
 		string->prev()->format( -1, FALSE );
 	    }
