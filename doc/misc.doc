@@ -67,27 +67,134 @@ href="http://www.troll.no/dl/qtfree-dl.html">download</a>.
 \postheader
 
 <h1 align=center>Common Problems</h1>
+
+<h2>Link error, complaining about a lack of <code>vtbl</code>,
+<code>_vtbl</code>, <code>__vtbl</code> or similar </h2>
+
+This indicates that you include the Q_OBJECT macro in a class declaration
+and probably also run the moc, but forget to link the moc-generated object
+code into your executable. Read <a href="moc.html">Using the Meta Object
+Compiler</a> for details on how to use moc.
+
+<h2>Using different versions of Qt on the same machine</h2>
+
+Qt programs need the following components of the Qt distribution:
+<dl>
+<p>
+<dt><strong>Header files - Compile time</strong>
+<dd>Programmers need to include the Qt header files. Those with a command-line
+compiler will typically use options such as <code>/I%QTDIR%\include</code>
+or <code>-I${QTDIR}/include</code>. They will need the header files of the
+version of Qt they wish to build programs with. The header files are in the
+<code>include</code> subdirectory of Qt distributions.
+<p>
+<dt><strong>Meta Object Compiler - Compile time</strong>
+<dd>Programmers need to run the Meta Object Compiler (<em>moc</em>). The moc
+is found in the <code>bin</code> subdirectory of Qt distributions.
+<p>
+<dt><strong>Static or shared libraries - Link time</strong>
+<dd>Programmers need to link with static or shared libraries. Those with a
+command-line compiler will typically use options such as
+<code>/L%QTDIR%\lib\qt.lib</code> or <code>-L${QTDIR}/lib -lqt</code>. They
+will need the libraries of the version of Qt they wish to build programs
+with. The libraries are in the <code>lib</code> subdirectory of Qt
+distributions.
+<p>
+<dt><strong>Shared libraries - Run time</strong>
+<dd>Users of programs built with the shared Qt libraries need these same shared
+libraries to run the programs<a href="#version">*</a>. The libraries are in
+the <code>lib</code> subdirectory of Qt distributions. Shared libraries are
+made available to programs in places such as <code>C:\windows\system</code>
+on Windows platforms, directories listed in file  <code>/etc/ld.so.conf</code>
+on Linux, standard <code>lib</code> directories on Unix, or the directories
+listed in the environment variable <code>${LD_LIBRARY_PATH}</code> on
+Unix/Linux.
+</dl>
+Binary packages usually consist of two parts:
+<ul>
+<li>run time libraries in the run time package, usually called
+<code>qt2</code>,
+<li>header files, the moc and static libraries in the developpers' kit,
+usually called <code>qt2-dev</code>.
+</ul>
+Depending on how you are using Qt, you need to make specific parts of the Qt
+distribution available to your programs. Typical situations are described below.
+<dl>
+<p>
+<dt><strong>Developpers building for a single version of Qt on Unix
+- Qt packages</strong>
+<dd>
+You build programs with a single version of Qt, but you still need to run
+programs linked with another version of Qt. You are typically a GNU/Linux
+developper who builds programs for Qt&nbsp;2 on a KDE desktop based on
+Qt&nbsp;1. Qt packages are usually split into a shared library package with
+a name like <code>qt</code> and a developper package with a name like
+<code>qt-dev</code>. You will need the appropriate packages:
+<ul>
+<li>To build programs you will need the header files, the moc and the
+libraries of Qt&nbsp;2. They are included in the developper package of
+Qt&nbsp;2 (<code>qt2-dev</code> or the like).
+<li>To run programs you will need the shared libraries of Qt&nbsp;2
+and Qt&nbsp;1. They are included in the regular packages
+of Qt&nbsp;2 (<code>qt2</code> or the like) and Qt&nbsp;1 (<code>qt1</code>
+or the like).
+</ul>
+Just install those 3 packages. You may need to set the environment variable
+<code>QTDIR</code>.
+<p>
+<dt><strong>Developpers building for two versions of Qt on Unix
+- Qt sources</strong>
+<dd>
+You build and run programs for Qt&nbsp;1 and Qt&nbsp;2. You will need:
+<ul>
+<li>the <em>header files</em>, the <em>moc</em> and the <em>libraries</em>
+of Qt&nbsp;2 and Qt&nbsp;1 to build programs,
+<li>the <em>shared libraries</em> of Qt&nbsp;2 and Qt&nbsp;1 to run programs.
+</ul>
+Get source distributions of both Qt&nbsp;1 and Qt&nbsp;2.
 <ol>
+<li>Install and build Qt&nbsp;1 and Qt&nbsp;2, usually in <code>/opt</code> or
+<code>/usr/local</code>. In the case of <code>/opt</code>:
+<pre>
+$ cd /opt
+$ gunzip -c qt-1.44.tar.gz | tar xf -
+$ cd qt-1.44
+$ setenv QTDIR /opt/qt-1.44
+$ configure &lt;...&gt;
+$ make
 
-<p>
-<li><strong>Link error, complaining about a lack of <code>vtbl</code>,
-<code>_vtbl</code>, <code>__vtbl</code> or similar </strong>
-<p>
-This indicates that you include the Q_OBJECT macro in a class
-declaration and probably also run the moc, but forget to link the
-moc-generated object code into your executable. Read <a
-href="moc.html"> Using the Meta Object Compiler</a> for details on
-how to use moc.
-
-<p>
-<li><strong>Using different versions of Qt on the same machine</strong>
-<p>
-Generalities... headers (compile-time) - libs (link-time) - shared libs (run-time)<BR>
-Unix... sources - packages<BR>
-Windows... same as Unix, but lib names do not have a version number?<BR>
-TODO
-
+$ cd /opt
+$ gunzip -c qt-2.1.0.tar.gz | tar xf -
+$ cd qt-2.1.0
+$ setenv QTDIR /opt/qt-2.1.0
+$ configure &lt;...&gt;
+$ make
+</pre>
+<li>Make shared libraries available to programs at run time. Either add both
+<code>/opt/qt-1.44</code> and <code>/opt/qt-2.0.1</code> to your environment
+variable <code>LD_LIBRARY_PATH</code> or make links to the libraries in a
+standard directory like <code>/usr/local/lib</code>:
+<pre>
+cd /usr/local/lib
+ln -s /opt/qt-1.44/lib/libqt.so.1 .
+ln -s /opt/qt-2.1.0/lib/libqt.so.2 .
+</pre>
+<li>To develop with Qt&nbsp;1 use:
+<pre>
+setenv QTDIR /opt/qt-1.44
+setenv PATH ${QTDIR}/bin:${PATH}
+</pre>
+To develop with Qt&nbsp;2 use:
+<pre>
+setenv QTDIR /opt/qt-2.1.0
+setenv PATH ${QTDIR}/bin:${PATH}
+</pre>
+Setting the <code>PATH</code> ensures that the proper version of moc is
+being used. Your <code>Makefile</code> should refer to
+<code>${QTDIR}/include</code> and <code>${QTDIR}/lib</code> to include the
+proper header files and link with the proper libraries.
 </ol>
+</dl>
 */
 
 /*! \page keyfeatures21.html
