@@ -1346,7 +1346,7 @@ void QGLWidget::makeCurrent()
 {
 #ifdef QMAC_OPENGL_DOUBLEBUFFER
     if(!gl_pix)
-	setContext( new QGLContext( req_format, gl_pix = new QPixmap(width(), height(), 
+	setContext( new QGLContext( req_format, gl_pix = new QPixmap(width(), height(),
 								     QPixmap::BestOptim) ));
 #endif
     glcx->makeCurrent();
@@ -1635,7 +1635,7 @@ void QGLWidget::paintEvent( QPaintEvent * )
 
   If the GL rendering context and the desktop have different
   bit depths, the result will most likely look surprising.
-  
+
   Note that the creation of display lists, modifications of the view
   frustum etc. should be done from within initializeGL(). If this is
   not done, the temporary QGLContext will not be initialized properly,
@@ -1929,7 +1929,7 @@ OpenGL only deals with 3D rendering and provides little or no support
 for GUI programming issues. The user interface for an OpenGL<sup>*</sup>
 application must be created with another toolkit, such as Motif on the
 X platform, Microsoft Foundation Classes (MFC) under Windows - or Qt
-on <i>both</i> platforms.
+on \e both platforms.
 
 The Qt OpenGL module makes it easy to use OpenGL in Qt
 applications.  It provides an OpenGL widget class that can be used
@@ -1979,7 +1979,10 @@ colormaps in GL-index mode.
 \endlist
 
 Many applications only need the high-level QGLWidget class. The other QGL
-classes provide advanced features.
+classes provide advanced features. X11 users might like to read the notes on
+\link opengl-x11-overlays.html overlays\endlink.
+
+See also the \link opengl-examples.html OpenGL examples\endlink.
 
 The QGL documentation assumes that you are familiar with OpenGL
 programming. If you're new to the subject a good starting point is

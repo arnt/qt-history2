@@ -38,7 +38,7 @@
 \title Qt Tutorial - The 14 Steps
 
 This tutorial gives an introduction to GUI programming using the Qt
-toolkit.  It doesn't cover everything: The emphasis is on teaching the
+toolkit.  It doesn't cover everything: the emphasis is on teaching the
 programming philosophy of GUI programming, and Qt's features are
 introduced as needed.  Some commonly used features are never used in
 this tutorial.
@@ -46,6 +46,9 @@ this tutorial.
 Chapter one starts with a ten-line hello-world and each subsequent
 chapter introduces one or a few more concepts.  By Chapter 14, the ten
 lines from Chapter 1 have turned into a 650-line game.
+
+If you're completely new to Qt, please read \link how-to-learn-qt.html
+How to Learn Qt\endlink if you haven't already done so.
 
 Tutorial chapters:
 \list 1

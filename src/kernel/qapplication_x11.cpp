@@ -992,7 +992,7 @@ bool QApplication::x11_apply_settings()
 
     qt_use_rtl_extensions =
     	settings.readBoolEntry("/qt/useRtlExtensions", FALSE);
-    
+
     if (update_timestamp) {
 	QBuffer stamp;
 	QDataStream s(stamp.buffer(), IO_WriteOnly);
@@ -3461,11 +3461,11 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 
 
 
-/*! This virtual does the core processing of individual X events,
+/*! This virtual does the core processing of individual X \a{event}s,
 normally by dispatching Qt events to the right destination.
 
 It returns 1 if the event was consumed by special handling, 0 if the
-event was consumed by normal handling, and -1 if the event was for an
+\a event was consumed by normal handling, and -1 if the \a event was for an
 unrecognized widget.
 
 \sa x11EventFilter()

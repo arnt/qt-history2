@@ -64,6 +64,7 @@ What's New
 <td valign=top>
 \list
 \i \link installation.html Installation \endlink
+\i \link how-to-learn-qt.html How to Learn Qt \endlink
 \i \link tutorial.html Tutorial \endlink
 \i \link examples.html Examples \endlink
 \i \link step-by-step-examples.html Step-by-step Examples \endlink
@@ -163,8 +164,8 @@ Appendix
   \i \link linguist-manual.book  Qt Linguist \endlink
   \i \link assistant.book  Qt Assistant \endlink
   \i \link qmake-manual.book  qmake \endlink
-  \i \link qembed.html  QEmbed\endlink
-  \i \link emb-qvfb.html  QVFb\endlink
+  \i \link qembed.html  qembed\endlink
+  \i \link emb-qvfb.html  qvfb\endlink
 \endlist
 </td>
 <td valign=top>
@@ -337,7 +338,7 @@ and Qt basics, and some of them simply want to show you what's possible.
 Note that most of the examples assume that you have some experience with C++ 
 and Qt and therefore are not commented extensively. If you are interested
 in a line-by-line coverage please refer to the
-\link step-by-step-examples.html walkthroughs \endlink.
+\link step-by-step-examples.html step-by-step examples \endlink.
 
 \section1 Qt Base Classes: Assorted Examples
 
@@ -352,6 +353,7 @@ in a line-by-line coverage please refer to the
 \list
 \i \link xml-examples.html XML examples \endlink
 \i \link network-examples.html Network examples \endlink
+\i \link opengl-examples.html OpenGL examples \endlink
 \i \link table-examples.html Table examples \endlink
 \i \link sql-examples.html SQL examples \endlink
 \endlist
@@ -400,6 +402,15 @@ QProcess class.
 
 The following example programs demonstrate the use
 of the Qt network module.
+
+*/
+
+/*! \defgroup opengl-examples 
+
+\title OpenGL Examples 
+
+The following example programs demonstrate the use
+of the Qt OpenGL module.
 
 */
 

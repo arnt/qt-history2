@@ -65,6 +65,7 @@
     \i \link focus.html Keyboard Focus Overview \endlink
     \i \link nsplugin.html Qt-based LiveConnect Plugins \endlink
     \i \link mailinglists.html Mailing Lists \endlink
+    \i \link opengl-x11-overlays.html OpenGL Overlays (X11)\endlink
     \i \link appicon.html Setting the Application Icon \endlink
     \i \link session.html Session Management \endlink
     \i \link shclass.html Shared Classes \endlink
