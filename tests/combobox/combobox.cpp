@@ -47,12 +47,12 @@ int MyListBoxItem::width( const QListBox* lb ) const
 int main( int argc, char **argv )
 {
     QApplication a(argc,argv);
-    QComboBox combo;
+    QComboBox combo(TRUE, 0);
     combo.insertItem( "First line" );
     combo.insertItem( "Second line" );
     combo.insertItem( "Third Line" );
     combo.insertItem( QPixmap("fileopen.xpm"), "Normal item with pixmap" );
-    //combo.listBox()->insertItem( new MyListBoxItem( 20, QPixmap("fileopen.xpm"), "Indented custom item" ) );
+    combo.listBox()->insertItem( new MyListBoxItem( 20, QPixmap("fileopen.xpm"), "Indented custom item" ) );
     combo.adjustSize();
     a.setMainWidget( &combo );
     combo.show();

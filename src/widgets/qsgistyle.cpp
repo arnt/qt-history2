@@ -632,7 +632,11 @@ static void get_combo_parameters( const QRect &r,
     } else {
 	sy = ay+awh+dh;
     }
-    ax = r.x() + r.width() - ew;
+    if( QApplication::reverseLayout() )
+	ax = r.x();
+    else
+	ax = r.x() + r.width() - ew;
+    ax  += (ew-awh)/2;
 }
 
 /*!
@@ -671,7 +675,9 @@ QRect QSGIStyle::comboButtonRect( int x, int y, int w, int h) const
 {
     QRect r = buttonRect( x, y, w, h );
     int ew = get_combo_extra_width( r.height() );
-    return QRect(r.x()+1, r.y()+1, r.width()-6-ew, r.height()-2);
+    if( QApplication::reverseLayout() )
+	r.moveBy( ew + 3, 0 );
+     return QRect(r.x()+1, r.y()+1, r.width()-6-ew, r.height()-2);
 }
 
 /*! \reimp

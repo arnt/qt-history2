@@ -89,6 +89,13 @@ public:
 
   Derived classes may reimplement some or all of the drawing functions
   to modify the look of all widgets which utilize those functions.
+
+  Languages written from right to left (as hebrew and arabic) usually
+  also mirror the whole layout of widgets. If you design a style, you should
+  take special care when drawing asymmetric elements to make sure
+  they also look correct for a mirrored layout. You can start your application
+  with -reverse to check the mirrored layout. Also notice, that for a reversed 
+  layout, the light usually comes from top right instead of top left.
 */
 
 /*! \enum QStyle::ScrollControl

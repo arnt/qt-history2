@@ -1087,7 +1087,11 @@ void QPlatinumStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
     // now the arrow button
 
     {
-	int xx = x+w-20;
+	int xx;
+	if( QApplication::reverseLayout() )
+	    xx = x;
+	else
+	    xx = x+w-20;
 	int yy = y;
 	int ww = 20;
 	int hh = h;
@@ -1167,7 +1171,10 @@ void QPlatinumStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 
 QRect QPlatinumStyle::comboButtonRect( int x, int y, int w, int h) const
 {
-    return QRect(x+3, y+3, w-6-16, h-6);
+    QRect r(x+3, y+3, w-6-16, h-6);
+    if( QApplication::reverseLayout() )
+	r.moveBy( 16, 0 );
+    return r;
 }
 
 /*! \reimp */

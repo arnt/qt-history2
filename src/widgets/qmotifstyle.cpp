@@ -1084,7 +1084,7 @@ void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
     }
 }
 
-static int get_combo_extra_width( int h, int *return_awh=0 )
+int get_combo_extra_width( int h, int *return_awh=0 )
 {
     int awh;
     if ( h < 8 ) {
@@ -1120,7 +1120,11 @@ static void get_combo_parameters( const QRect &r,
     } else {
 	sy = ay+awh+dh;
     }
-    ax = r.x() + r.width() - ew +(ew-awh)/2;
+    if( QApplication::reverseLayout() )
+	ax = r.x();
+    else
+	ax = r.x() + r.width() - ew;
+    ax  += (ew-awh)/2;
 }
 
 /*! \reimp
@@ -1162,6 +1166,8 @@ QRect QMotifStyle::comboButtonRect( int x, int y, int w, int h) const
 {
     QRect r = buttonRect( x, y, w, h );
     int ew = get_combo_extra_width( r.height() );
+    if( QApplication::reverseLayout() )
+	r.moveBy( ew, 0 );
     return QRect(r.x()+1, r.y()+1, r.width()-2-ew, r.height()-2);
 }
 

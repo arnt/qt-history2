@@ -437,7 +437,12 @@ void QMotifPlusStyle::drawComboButton(QPainter *p, int x, int y, int w, int h,
     }
 
     int indent = ((y + h) / 2) - 6;
-    drawArrow(p, Qt::DownArrow, TRUE, x + w - indent - 13, indent,
+    int xpos = x;
+    if( QApplication::reverseLayout() )
+	xpos += indent;
+    else
+	xpos += w - indent - 13;
+    drawArrow(p, Qt::DownArrow, TRUE, xpos, indent,
 	13, 13, g, TRUE, fill);
 }
 
@@ -452,7 +457,8 @@ QRect QMotifPlusStyle::comboButtonRect( int x, int y, int w, int h ) const
 
     int indent = ((y + h) / 2) - defaultFrameWidth();
     r.setRight(r.right() - indent - 13);
-
+    if( QApplication::reverseLayout() ) 
+	r.moveBy( indent + 13, 0 );
     return r;
 }
 

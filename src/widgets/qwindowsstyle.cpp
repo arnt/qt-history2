@@ -482,18 +482,21 @@ void QWindowsStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
     // the special reversed left shadow panel ( slightly different from drawPanel() )
     //qDrawWinPanel(p, w-2-16,2,16,h-4, g, sunken);
     // #### DO SUNKEN!
+    int xpos = x;
+    if( !QApplication::reverseLayout() ) 
+	xpos += w - 2 - 16;
+
     if ( sunken )
-	drawWinShades( p, x+w-2-16, y+2, 16, h-4,
+	drawWinShades( p, xpos, y+2, 16, h-4,
 		       g.dark(), g.dark(), g.button(), g.button(),
 		       fill ? fill : &g.brush( QColorGroup::Button ) );
     else
-	drawWinShades( p, x+w-2-16, y+2, 16, h-4,
+	drawWinShades( p, xpos, y+2, 16, h-4,
 		       g.midlight(), g.shadow(), g.light(), g.dark(),
 		       fill ? fill : &g.brush( QColorGroup::Button ) );
 
-
     drawArrow( p, QStyle::DownArrow, sunken,
-	       x+w-2-16+ 2, y+2+ 2, 16- 4, h-4- 4, g, enabled,
+	       xpos + 2, y+2+ 2, 16- 4, h-4- 4, g, enabled,
 	       fill ? fill : &g.brush( QColorGroup::Button ) );
 
 }
@@ -502,7 +505,10 @@ void QWindowsStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
  */
 QRect QWindowsStyle::comboButtonRect( int x, int y, int w, int h ) const
 {
-    return QRect(x+2, y+2, w-4-16, h-4);
+    QRect r(x+2, y+2, w-4-16, h-4);
+    if( QApplication::reverseLayout() )
+	r.moveBy( 2 + 16, 0 );
+    return r;
 }
 
 
