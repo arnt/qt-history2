@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#174 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#175 $
 **
 ** Implementation of QListBox widget class
 **
@@ -924,6 +924,7 @@ void QListBox::centerCurrentItem()
     if ( top > max )
 	top = max;
     setTopItem( top );
+    ensureCurrentVisible();
 }
 
 /*!
@@ -1257,11 +1258,11 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 {
     int itemClicked = findItem( e->pos().y() );
     if ( itemClicked != -1 ) {
-	setCurrentItem( itemClicked );
+	ensureCurrentVisible( itemClicked );
 	toggleCurrentItem();
     } else if ( contentsRect().contains( e->pos() ) &&
 		lastRowVisible() >= (int) count() ) {
-	setCurrentItem( count()-1 );
+	ensureCurrentVisible( count()-1 );
 	toggleCurrentItem();
     }
 }
@@ -1897,12 +1898,12 @@ void QListBox::ensureCurrentVisible( int newCurrent )
 {
     if ( newCurrent < 0 )
 	newCurrent = currentItem();
-    if ( newCurrent != currentItem() )
-	setCurrentItem( newCurrent );
     if ( newCurrent <= topItem() && newCurrent < lastRowVisible() )
 	 setTopItem( newCurrent );
     else if ( newCurrent >= lastRowVisible() )
 	setBottomItem( newCurrent );
+    if ( newCurrent != currentItem() )
+	setCurrentItem( newCurrent );
 }
 
 /*!
