@@ -216,7 +216,7 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	    if ( item->isEnabled() )
 		p->setPen( QPen( cg.highlightedText(), 2 ) );
 	}
-	
+
 	p->drawRect( x+marg, y+2, w-4, h-4 );
 	/////////////////////
 	x++;
@@ -1471,7 +1471,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 
 		p->save();
 		if( down )
-		    p->translate( pixelMetric(PM_ButtonShiftHorizontal, widget), 
+		    p->translate( pixelMetric(PM_ButtonShiftHorizontal, widget),
 				  pixelMetric(PM_ButtonShiftVertical, widget) );
 		drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
 		p->restore();
@@ -1488,7 +1488,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 
 		    p->save();
 		    if( down )
-			p->translate( pixelMetric(PM_ButtonShiftHorizontal, widget), 
+			p->translate( pixelMetric(PM_ButtonShiftHorizontal, widget),
 				      pixelMetric(PM_ButtonShiftVertical, widget) );
     		    drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
 		    p->restore();
@@ -1509,7 +1509,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 
 		    p->save();
 		    if( down )
-			p->translate( pixelMetric(PM_ButtonShiftHorizontal, widget), 
+			p->translate( pixelMetric(PM_ButtonShiftHorizontal, widget),
 				      pixelMetric(PM_ButtonShiftVertical, widget) );
 		    drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
 		    p->restore();
@@ -1524,7 +1524,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 				  down ? Style_Down : Style_Raised);
 		    p->save();
 		    if( down )
-			p->translate( pixelMetric(PM_ButtonShiftHorizontal, widget), 
+			p->translate( pixelMetric(PM_ButtonShiftHorizontal, widget),
 				      pixelMetric(PM_ButtonShiftVertical, widget) );
 		    drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
 		    p->restore();
@@ -1539,7 +1539,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 				  down ? Style_Down : Style_Raised);
 		    p->save();
 		    if( down )
-			p->translate( pixelMetric(PM_ButtonShiftHorizontal, widget), 
+			p->translate( pixelMetric(PM_ButtonShiftHorizontal, widget),
 				      pixelMetric(PM_ButtonShiftVertical, widget) );
 		    drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
 		    p->restore();
@@ -1711,7 +1711,7 @@ void QCommonStyle::drawComplexControlMask( ComplexControl control,
 QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 					    const QWidget *widget,
 					    SubControl sc,
-					    const QStyleOption&  ) const
+					    const QStyleOption& opt ) const
 {
 
     QRect rect;
@@ -1773,6 +1773,9 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	    break;
 	case SC_ComboBoxEditField:
 	    rect.setRect(x+3, y+3, wi-6-16, he-6);
+	    break;
+	case SC_ComboBoxListBoxPopup:
+	    rect = opt.rect();
 	    break;
 	default:
 	    break;

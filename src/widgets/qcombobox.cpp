@@ -1493,11 +1493,12 @@ void QComboBox::popup()
 	d->popup()->popup( mapToGlobal( QPoint(0,0) ), this->d->current );
     } else {
 	// Send all listbox events to eventFilter():
-	d->listBox()->triggerUpdate( TRUE );
-	d->listBox()->installEventFilter( this );
+	QListBox* lb = d->listBox();
+	lb->triggerUpdate( TRUE );
+	lb->installEventFilter( this );
 	d->mouseWasInsidePopup = FALSE;
-	d->listBox()->resize( d->listBox()->variableWidth() ? d->listBox()->sizeHint().width() : width(),
-			    listHeight( d->listBox(), d->sizeLimit ) + 2 );
+	int w = lb->variableWidth() ? lb->sizeHint().width() : width();
+	int h = listHeight( lb, d->sizeLimit ) + 2;
 	QRect screen = QApplication::desktop()->availableGeometry( this );
 
 	int sx = screen.x();				// screen pos
@@ -1505,12 +1506,9 @@ void QComboBox::popup()
 	int sw = screen.width();			// screen width
 	int sh = screen.height();			// screen height
 	QPoint pos = mapToGlobal( QPoint(0,height()) );
-
-	// ### Similar code is in QPopupMenu
+	// ## Similar code is in QPopupMenu
 	int x = pos.x();
 	int y = pos.y();
-	int w = d->listBox()->width();
-	int h = d->listBox()->height();
 
 	// the complete widget must be visible
 	if ( x + w > sx + sw )
@@ -1520,23 +1518,24 @@ void QComboBox::popup()
 	if (y + h > sy+sh && y - h - height() >= 0 )
 	    y = y - h - height();
 
-	d->listBox()->move( x,y );
-	d->listBox()->raise();
-	bool block = d->listBox()->signalsBlocked();
-	d->listBox()->blockSignals( TRUE );
-	d->listBox()->setCurrentItem( d->listBox()->item( d->current ) );
-	d->listBox()->blockSignals( block );
-	d->listBox()->setVScrollBarMode(QScrollView::Auto);
+	lb->setGeometry( style().querySubControlMetrics( QStyle::CC_ComboBox, this, QStyle::SC_ComboBoxListBoxPopup,
+							 QStyleOption( x, y, w, h ) ) );
+	lb->raise();
+	bool block = lb->signalsBlocked();
+	lb->blockSignals( TRUE );
+	lb->setCurrentItem( lb->item( d->current ) );
+	lb->blockSignals( block );
+	lb->setVScrollBarMode(QScrollView::Auto);
 
 #ifndef QT_NO_EFFECTS
 	if ( QApplication::isEffectEnabled( UI_AnimateCombo ) ) {
-	    if ( d->listBox()->y() < mapToGlobal(QPoint(0,0)).y() )
-		qScrollEffect( d->listBox(), QEffects::UpScroll );
+	    if ( lb->y() < mapToGlobal(QPoint(0,0)).y() )
+		qScrollEffect( lb, QEffects::UpScroll );
 	    else
-		qScrollEffect( d->listBox() );
+		qScrollEffect( lb );
 	} else
 #endif
-	    d->listBox()->show();
+	    lb->show();
     }
     d->poppedUp = TRUE;
 }

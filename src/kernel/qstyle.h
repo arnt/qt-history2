@@ -71,6 +71,7 @@ public:
     QStyleOption(QListViewItem* i) : def(FALSE), li(i) {}
     QStyleOption(QCheckListItem* i) : def(FALSE), cli(i) {}
     QStyleOption(Qt::ArrowType a) : def(FALSE), i1((int)a) {}
+    QStyleOption( const QRect& r ) : def(FALSE), i1(r.x()), i2(r.y()), i3(r.width()),i4(r.height()){}
 
     bool isDefault() const { return def; }
 
@@ -91,6 +92,7 @@ public:
     QListViewItem* listViewItem() const { return li; }
 
     Qt::ArrowType arrowType() const { return (Qt::ArrowType)i1; }
+    QRect rect() const { return QRect( i1, i2, i3, i4 ); }
 
 private:
     // NOTE: none of these components have constructors.
@@ -352,6 +354,7 @@ public:
 	SC_ComboBoxFrame =		0x00000001,
 	SC_ComboBoxEditField =		0x00000002,
 	SC_ComboBoxArrow =		0x00000004,
+	SC_ComboBoxListBoxPopup =	0x00000008,
 
 	SC_SliderGroove =		0x00000001,
 	SC_SliderHandle = 		0x00000002,
@@ -568,7 +571,7 @@ public:
 	SH_Workspace_FillSpaceOnMaximize,
 
 	// bool - supports popup menu comboboxes
-	SH_ComboBox_Popup, 
+	SH_ComboBox_Popup,
 
 	// bool - titlebar has no border
 	SH_TitleBar_NoBorder,
