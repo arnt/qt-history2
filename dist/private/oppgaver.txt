@@ -5,6 +5,8 @@ Dokumentasjon:
     event-driven.html
     which/that
     riktig bruk av X windows, eller hva som naa var riktig...
+    brushe opp websidene
+    dokumenter de siste noen-og-70-funksjonene
 
 Støttefunksjoner:
 -----------------
@@ -20,6 +22,11 @@ PR:
     skrive artikler om qt
     lage pressemeldinger
 
+
+Bugs
+----
+
+    QFileDialog bugen til Dan; klikker nederst og faar oeverste valgt.
 
 Funksjonalitet:
 ---------------
@@ -127,6 +134,13 @@ Eksempler:
     sheet.h
 
     modal dialog.
+
+Widgets:
+--------
+    Windows lignende kontroller:
+	ListCtrl, TreeCtrl, TabCtrl, ToolTipCtrl, ToolBar
+
+
 
 Gjort:
 ------

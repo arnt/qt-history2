@@ -1,0 +1,26 @@
+moc:
+	Moc previously gave a syntax error when the word "class" was found
+	in a string outside a class declaration. This bug has now been
+	fixed.
+
+
+QDate:     
+	static const char *monthNames[];
+	static const char *weekdayNames[];
+	uint  	 jd;
+	    are private (previously protected)
+
+
+QTime:
+
+	uint   ds;
+	    is private (previously protected)
+
+
+
+
+
+
+
+
+
