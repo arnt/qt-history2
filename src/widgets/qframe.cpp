@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#56 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#57 $
 **
 ** Implementation of QFrame widget class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qframe.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#56 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#57 $");
 
 
 /*!
@@ -431,6 +431,17 @@ QSize QFrame::sizeHint() const
 void QFrame::paintEvent( QPaintEvent *event )
 {
     QPainter paint( this );
+
+#if QT_VERSION >= 200
+#error "remove this hack"
+#else
+    
+    QPaintEvent kscdhack( rect() );
+    if ( !event )
+	event = &kscdhack;
+
+#endif
+
     if ( !contentsRect().contains( event->rect() ) ) {
 	paint.save();
 	QRect r( frameRect() );
