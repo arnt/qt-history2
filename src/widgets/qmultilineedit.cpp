@@ -1374,16 +1374,16 @@ void QMultiLineEdit::insertAtAux( const QString &txt, int line, int col, bool ma
 
     textDirty = TRUE;
     d->edited = TRUE;
-    makeVisible();
-    blinkTimer = startTimer(  QApplication::cursorFlashTime() / 2  );
-
-    if ( autoUpdate() && DYNAMIC_WRAP && oldw != contentsRect().width() ) {
-	setAutoUpdate( FALSE );
-	rebreakAll();
-	setAutoUpdate( TRUE );
-	update();
+    if ( autoUpdate() ) {
+	makeVisible();
+	blinkTimer = startTimer(  QApplication::cursorFlashTime() / 2  );
+	if ( DYNAMIC_WRAP && oldw != contentsRect().width() ) {
+	    setAutoUpdate( FALSE );
+	    rebreakAll();
+	    setAutoUpdate( TRUE );
+	    update();
+	}
     }
-
 }
 
 
@@ -3310,11 +3310,11 @@ void QMultiLineEdit::wrapLine( int line, int removed )
 
     yPos += (nlines+1)  * cellHeight();
     int sh = (nlines-removed)  * cellHeight();
-    if ( sh && yPos >= contentsRect().top() && yPos < contentsRect().bottom() )
-	QWidget::scroll( 0, sh, QRect( contentsRect().left(), yPos,
-				       contentsRect().width(),
-				       contentsRect().bottom() - yPos + 1 ) );
     if ( autoUpdate() ) {
+	if ( sh && yPos >= contentsRect().top() && yPos < contentsRect().bottom() )
+	    QWidget::scroll( 0, sh, QRect( contentsRect().left(), yPos,
+					   contentsRect().width(),
+					   contentsRect().bottom() - yPos + 1 ) );
 	for (int ul = 0; ul <= nlines; ++ul )
 	    updateCell( line + ul, 0, FALSE );
     }
