@@ -35,7 +35,7 @@ QPaintDevice::QPaintDevice(uint devflags)
     painters = 0;
     hd = 0;
     cg_hd = 0;
-#if defined( USE_CORE_GRAPHICS ) && 0
+#if defined( USE_CORE_GRAPHICS )
     deviceGC = new QCoreGraphicsGC(this);
 #else
     deviceGC = new QQuickDrawGC(this);
