@@ -318,7 +318,7 @@ QPixmap Config::docIcon( const QString &title ) const
 {
     // ### To allow qdoc generated dcf files to reference the doc icons from qmake_image_col
     QString name = profil->icons[title];
-    QString resName = QLatin1String(":/images/") + name;
+    QString resName = QLatin1String(":/trolltech/assistant/images/") + name;
 
     if (QFile::exists(resName))
         return QPixmap(resName);
@@ -329,7 +329,7 @@ QPixmap Config::docIcon( const QString &title ) const
 QPixmap Config::applicationIcon() const
 {
     QString name = profil->props["applicationicon"];
-    QString resName = QLatin1String(":/images/") + name;
+    QString resName = QLatin1String(":/trolltech/assistant/images/") + name;
 
     if (QFile::exists(resName))
         return QPixmap(resName);

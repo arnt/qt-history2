@@ -800,7 +800,7 @@ void HelpDialog::insertContents()
             ContentItem item = *it;
             if (item.depth == 0) {
                 newEntry = new HelpNavigationContentsItem(ui.listContents, 0);
-                newEntry->setPixmap(0, QPixmap(":/images/book.png"));
+                newEntry->setPixmap(0, QPixmap(":/trolltech/assistant/images/book.png"));
                 newEntry->setText(0, item.title);
                 newEntry->setLink(item.reference);
                 stack.push(newEntry);

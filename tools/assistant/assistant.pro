@@ -67,7 +67,7 @@ TRANSLATIONS        = assistant_de.ts \
 
 unix:!zlib:LIBS        += -lz
 
-QMAKE_RESOURCE_PREFIX = /
+QMAKE_RESOURCE_PREFIX = /trolltech/assistant/
 RESOURCES = images/editcopy.png \
         images/find.png \
         images/home.png \

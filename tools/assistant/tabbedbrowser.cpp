@@ -177,7 +177,7 @@ void TabbedBrowser::init()
     ui.tab->setCornerWidget(newTabButton, Qt::TopLeft);
     newTabButton->setCursor(Qt::arrowCursor);
     newTabButton->setAutoRaise(true);
-    newTabButton->setIcon(QPixmap(":/images/addtab.png"));
+    newTabButton->setIcon(QPixmap(":/trolltech/assistant/images/addtab.png"));
     newTabButton->setFixedSize(s, s);
     QObject::connect(newTabButton, SIGNAL(clicked()), this, SLOT(newTab()));
     newTabButton->setToolTip(tr("Add page"));
@@ -187,8 +187,8 @@ void TabbedBrowser::init()
     ui.tab->setCornerWidget(closeTabButton, Qt::TopRight);
     closeTabButton->setCursor(Qt::arrowCursor);
     closeTabButton->setAutoRaise(true);
-    QIconSet is(QPixmap(":/images/closetab.png"));
-    QPixmap disabledPix = QPixmap(":/images/d_closetab.png");
+    QIconSet is(QPixmap(":/trolltech/assistant/images/closetab.png"));
+    QPixmap disabledPix = QPixmap(":/trolltech/assistant/images/d_closetab.png");
     is.setPixmap(disabledPix, QIconSet::Small, QIconSet::Disabled);
     closeTabButton->setIcon(is);
     closeTabButton->setFixedSize(s, s);

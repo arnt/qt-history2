@@ -145,7 +145,7 @@
           <cstring>actionFilePrint</cstring>
         </property>
         <property name="icon" >
-          <iconSet>:/images/print.png</iconSet>
+          <iconSet>:/trolltech/assistant/images/print.png</iconSet>
         </property>
         <property name="whatsThis" >
           <string>Print the currently displayed page.</string>
@@ -176,7 +176,7 @@
           <cstring>actionEditCopy</cstring>
         </property>
         <property name="icon" >
-          <iconSet>:/images/editcopy.png</iconSet>
+          <iconSet>:/trolltech/assistant/images/editcopy.png</iconSet>
         </property>
         <property name="whatsThis" >
           <string>Copy the selected text to the clipboard.</string>
@@ -193,7 +193,7 @@
           <cstring>actionEditFind</cstring>
         </property>
         <property name="icon" >
-          <iconSet>:/images/find.png</iconSet>
+          <iconSet>:/trolltech/assistant/images/find.png</iconSet>
         </property>
         <property name="whatsThis" >
           <string>Open the Find dialog. Qt Assistant will search the currently displayed page for the text you enter.</string>
@@ -232,7 +232,7 @@
           <cstring>actionGoHome</cstring>
         </property>
         <property name="icon" >
-          <iconSet>:/images/home.png</iconSet>
+          <iconSet>:/trolltech/assistant/images/home.png</iconSet>
         </property>
         <property name="whatsThis" >
           <string>Go to the home page. Qt Assistant's home page is the Qt Reference Documentation.</string>
@@ -249,7 +249,7 @@
           <cstring>actionGoPrevious</cstring>
         </property>
         <property name="icon" >
-          <iconSet>:/images/previous.png</iconSet>
+          <iconSet>:/trolltech/assistant/images/previous.png</iconSet>
         </property>
         <property name="whatsThis" >
           <string>Go to the previous page.</string>
@@ -266,7 +266,7 @@
           <cstring>actionGoNext</cstring>
         </property>
         <property name="icon" >
-          <iconSet>:/images/next.png</iconSet>
+          <iconSet>:/trolltech/assistant/images/next.png</iconSet>
         </property>
         <property name="whatsThis" >
           <string>Go to the next page.</string>
@@ -299,7 +299,7 @@
           <cstring>actionZoomIn</cstring>
         </property>
         <property name="icon" >
-          <iconSet>:/images/zoomin.png</iconSet>
+          <iconSet>:/trolltech/assistant/images/zoomin.png</iconSet>
         </property>
         <property name="whatsThis" >
           <string>Zoom in on the document, i.e. increase the font size.</string>
@@ -316,7 +316,7 @@
           <cstring>actionZoomOut</cstring>
         </property>
         <property name="icon" >
-          <iconSet>:/images/zoomout.png</iconSet>
+          <iconSet>:/trolltech/assistant/images/zoomout.png</iconSet>
         </property>
         <property name="whatsThis" >
           <string>Zoom out on the document, i.e. decrease the font size.</string>
@@ -380,7 +380,7 @@
           <cstring>actionHelpWhatsThis</cstring>
         </property>
         <property name="icon" >
-          <iconSet>:/images/whatsthis.xpm</iconSet>
+          <iconSet>:/trolltech/assistant/images/whatsthis.xpm</iconSet>
         </property>
         <property name="statusTip" >
           <string>&quot;What's This?&quot; context sensitive help.</string>
@@ -444,7 +444,7 @@
           <cstring>actionHelpAssistant</cstring>
         </property>
         <property name="icon" >
-          <iconSet>:/images/assistant.png</iconSet>
+          <iconSet>:/trolltech/assistant/images/assistant.png</iconSet>
         </property>
         <property name="shortcut" >
           <shortcut>F1</shortcut>
