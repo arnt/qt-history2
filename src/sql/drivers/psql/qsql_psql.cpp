@@ -125,12 +125,6 @@ static QVariant::Type qDecodePSQLType( int t )
     return type;
 }
 
-QVariant::Type qFieldType( QPSQLPrivate* p, int i )
-{
-    QVariant::Type type = qDecodePSQLType( PQftype( p->result, i ) );
-    return type;
-}
-
 QPSQLResult::QPSQLResult( const QPSQLDriver* db, const QPSQLPrivate* p )
 : QSqlResult( db ),
   currentSize( 0 )
@@ -195,13 +189,6 @@ static QPoint pointFromString( const QString& s)
 	return QPoint( x, y ) ;
     } else
 	return QPoint();
-}
-
-QDate qDateFromUInt( uint dt )
-{
-    int y,m,d;
-    QDate::julianToGregorian( dt, y, m, d );
-    return QDate( y, m, d );
 }
 
 QVariant QPSQLResult::data( int i )
@@ -434,7 +421,7 @@ QSqlRecord QPSQLResult::record() const
     QSqlRecord info;
     if (!isActive() || !isSelect())
 	return info;
-    
+
     int count = PQnfields(d->result);
     for ( int i = 0; i < count; ++i ) {
 	QString name;
