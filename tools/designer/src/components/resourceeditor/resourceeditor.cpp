@@ -1,6 +1,7 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 #include <QtGui/QHeaderView>
+#include <QtGui/QLayout>
 
 #include <abstractformeditor.h>
 #include <abstractformwindowmanager.h>
@@ -14,6 +15,8 @@ ResourceEditor::ResourceEditor(AbstractFormEditor *core, QWidget *parent)
 {
     setupUi(this);
 
+    layout()->setMargin(0);
+    
     m_resource_tree->setHeaderLabels(QStringList() << tr("Resources"));
     m_resource_tree->header()->hide();
     

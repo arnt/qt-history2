@@ -77,11 +77,10 @@ QWidget *Resource::load(QIODevice *dev, QWidget *parentWidget)
 
     QWidget *w = create(&ui, parentWidget);
 
-    if (ui.elementConnections())
-        createConnections(ui.elementConnections(), w);
-
+    createConnections(ui.elementConnections(), w);
     createAuthor(ui.elementAuthor());
     createComment(ui.elementComment());
+    createResources(ui.elementResources());
 
     return w;
 }
@@ -618,6 +617,7 @@ void Resource::save(QIODevice *dev, QWidget *widget)
     ui->setElementTabStops(saveTabStops());
     ui->setElementAuthor(saveAuthor());
     ui->setElementComment(saveComment());
+    ui->setElementResources(saveResources());
 
     QDomDocument doc;
     doc.appendChild(ui->write(doc));
@@ -1034,6 +1034,11 @@ DomCustomWidgets *Resource::saveCustomWidgets()
 }
 
 DomTabStops *Resource::saveTabStops()
+{
+    return 0;
+}
+
+DomResources *Resource::saveResources()
 {
     return 0;
 }

@@ -45,6 +45,7 @@ class DomCustomWidgets;
 class DomAction;
 class DomActionGroup;
 class DomActionRef;
+class DomResources;
 
 class QT_UILIB_EXPORT Resource
 {
@@ -77,8 +78,9 @@ protected:
     
     virtual void createCustomWidgets(DomCustomWidgets *) {}
     virtual void createConnections(DomConnections *, QWidget *) {}
-    virtual void createAuthor(const QString &) {};
-    virtual void createComment(const QString &) {};
+    virtual void createAuthor(const QString &) {}
+    virtual void createComment(const QString &) {}
+    virtual void createResources(DomResources*) {}
 
     virtual bool addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout);
     virtual bool addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget);
@@ -95,6 +97,7 @@ protected:
     virtual QString saveComment();
     virtual DomCustomWidgets *saveCustomWidgets();
     virtual DomTabStops *saveTabStops();
+    virtual DomResources *saveResources();
     virtual QList<DomProperty*> computeProperties(QObject *obj);
     virtual bool checkProperty(QObject *obj, const QString &prop) const;
     virtual DomProperty *createProperty(QObject *object, const QString &propertyName, const QVariant &value);

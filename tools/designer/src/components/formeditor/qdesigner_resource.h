@@ -63,6 +63,7 @@ protected:
     virtual void createConnections(DomConnections *connections, QWidget *w);
     virtual void createAuthor(const QString&);
     virtual void createComment(const QString&);
+    virtual void createResources(DomResources*);
     virtual void applyTabStops(QWidget *widget, DomTabStops *tabStops);
 
     virtual bool addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout);
@@ -89,6 +90,7 @@ protected:
     DomTabStops *saveTabStops();
     virtual QString saveAuthor();
     virtual QString saveComment();
+    virtual DomResources *saveResources();
 
     void layoutInfo(DomWidget *widget, QObject *parent, int *margin, int *spacing);
 
