@@ -326,6 +326,8 @@ public slots:
     virtual void hideColumn( int col );
     virtual void showRow( int row );
     virtual void showColumn( int col );
+    bool isRowHidden( int row ) const;
+    bool isColumnHidden( int col ) const;
 
     virtual void setColumnWidth( int col, int w );
     virtual void setRowHeight( int row, int h );

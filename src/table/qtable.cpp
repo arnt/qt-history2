@@ -5550,8 +5550,10 @@ void QTable::hideRow( int row )
     if ( curRow == row ) {
 	int r = curRow;
 	int c = curCol;
-	fixCell( r, c, Key_Down );
-	setCurrentCell( r, c );
+	int k = ( r >= numRows() - 1 ? Key_Up : Key_Down );
+	fixCell( r, c, k );
+	if ( numRows() > 0 )
+	    setCurrentCell( r, c );
     }
 }
 
@@ -5574,8 +5576,10 @@ void QTable::hideColumn( int col )
     if ( curCol == col ) {
 	int r = curRow;
 	int c = curCol;
-	fixCell( r, c, Key_Right );
-	setCurrentCell( r, c );
+	int k = ( c >= numCols() - 1 ? Key_Left : Key_Right );
+	fixCell( r, c, k );
+	if ( numCols() > 0 )
+	    setCurrentCell( r, c );
     }
 }
 
@@ -5619,6 +5623,28 @@ void QTable::showColumn( int col )
 	setColumnWidth( col, 20 );
     }
     topHeader->setResizeEnabled( TRUE, col );
+}
+
+/*!
+    Returns TRUE if row \a row is hidden; otherwise returns
+    FALSE.
+
+    \sa hideRow(), isColumnHidden()
+*/
+bool QTable::isRowHidden( int row ) const
+{
+    return d->hiddenRows.find( row );
+}
+
+/*!
+    Returns TRUE if column \a col is hidden; otherwise returns
+    FALSE.
+
+    \sa hideColumn(), isRowHidden()
+*/
+bool QTable::isColumnHidden( int col ) const
+{
+    return d->hiddenCols.find( col );
 }
 
 /*!
