@@ -33,6 +33,7 @@ void QActionPrivate::sendDataChanged()
 QAction::QAction(QActionGroup* parent) : QObject(*(new QActionPrivate), parent)
 {
     d->group = parent;
+    parent->addAction(this);
 }
 
 QAction::QAction(QWidget* parent) : QObject(*(new QActionPrivate), parent)
@@ -42,14 +43,16 @@ QAction::QAction(QWidget* parent) : QObject(*(new QActionPrivate), parent)
 QAction::QAction(const QString &text, Q4Menu *menu, QActionGroup* parent) : QObject(*(new QActionPrivate), parent)
 {
     d->text = text;
-    d->group = parent;
     d->menu = menu;
+    d->group = parent;
+    parent->addAction(this);
 }
 
 QAction::QAction(const QString &text, QActionGroup* parent) : QObject(*(new QActionPrivate), parent)
 {
     d->text = text;
     d->group = parent;
+    parent->addAction(this);
 }
 
 QAction::QAction(const QIconSet &icon, const QString &text, QActionGroup* parent) : QObject(*(new QActionPrivate), parent)
@@ -57,6 +60,7 @@ QAction::QAction(const QIconSet &icon, const QString &text, QActionGroup* parent
     d->icons = new QIconSet(icon);
     d->text = text;
     d->group = parent;
+    parent->addAction(this);
 }
 
 QAction::QAction(const QString &text, Q4Menu *menu, QWidget* parent) : QObject(*(new QActionPrivate), parent)
@@ -143,7 +147,8 @@ void QAction::setActionGroup(QActionGroup *group)
     if(d->group)
         d->group->removeAction(this);
     d->group = group;
-    d->group->addAction(this);
+    if(d->group)
+        d->group->addAction(this);
 }
 
 QActionGroup *QAction::actionGroup() const
@@ -256,7 +261,9 @@ bool QAction::isChecked() const
 void QAction::setEnabled(bool b)
 {
     d->enabled = b;
+    d->forceDisabled = !b;
     d->sendDataChanged();
+    activate(Trigger);
 }
 
 bool QAction::isEnabled() const
@@ -266,6 +273,7 @@ bool QAction::isEnabled() const
 
 void QAction::setVisible(bool b)
 {
+    d->forceInvisible = !b;
     d->visible = b;
     d->sendDataChanged();
 }
@@ -308,12 +316,21 @@ QAction *QActionGroup::addAction(QAction* a)
     if(!d->actions.contains(a)) {
         d->actions.append(a);
         QObject::connect(a, SIGNAL(triggered()), this, SLOT(internalTriggered()));
+        QObject::connect(a, SIGNAL(dataChanged()), this, SLOT(internalDataChanged()));
         QObject::connect(a, SIGNAL(hovered()), this, SLOT(internalHovered()));
     }
     if(d->exclusive)
         a->setCheckable(true);
-    a->setEnabled(d->enabled);
-    a->setVisible(d->visible);
+    if(!a->d->forceDisabled) {
+        a->setEnabled(d->enabled);
+        a->d->forceDisabled = false;
+    }
+    if(!a->d->forceInvisible) {
+        a->setVisible(d->visible);
+        a->d->forceInvisible = false;
+    }
+    if(a->actionGroup() != this)
+        a->setActionGroup(this);
     return a;
 }
 
@@ -331,7 +348,7 @@ QAction *QActionGroup::addAction(const QIconSet& icon, const QString& text, QKey
 
 void QActionGroup::removeAction(QAction *a)
 {
-    d->actions.remove(a);
+    a->setActionGroup(0);
 }
 
 QList<QAction*> QActionGroup::actionList() const
@@ -354,8 +371,12 @@ bool QActionGroup::isExclusive() const
 void QActionGroup::setEnabled(bool b)
 {
     d->enabled = b;
-    for(QList<QAction*>::Iterator it = d->actions.begin(); it != d->actions.end(); ++it)
-        (*it)->setEnabled(b);
+    for(QList<QAction*>::Iterator it = d->actions.begin(); it != d->actions.end(); ++it) {
+        if(!(*it)->d->forceDisabled) {
+            (*it)->setEnabled(b);
+            (*it)->d->forceDisabled = false;
+        }
+    }
 }
 
 bool QActionGroup::isEnabled() const
@@ -371,8 +392,12 @@ QAction *QActionGroup::checked() const
 void QActionGroup::setVisible(bool b)
 {
     d->visible = b;
-    for(QList<QAction*>::Iterator it = d->actions.begin(); it != d->actions.end(); ++it)
-        (*it)->setVisible(b);
+    for(QList<QAction*>::Iterator it = d->actions.begin(); it != d->actions.end(); ++it) {
+        if(!(*it)->d->forceInvisible) {
+            (*it)->setVisible(b);
+            (*it)->d->forceInvisible = false;
+        }
+    }
 }
 
 bool QActionGroup::isVisible() const
@@ -383,10 +408,25 @@ bool QActionGroup::isVisible() const
 void QActionGroup::childEvent(QChildEvent* e)
 {
     if(e->type() == QEvent::ChildAdded) {
-        if(QAction *action = qt_cast<QAction*>(sender()))
+        if(QAction *action = qt_cast<QAction*>(e->child()))
             addAction(action);
+    } else if(e->type() == QEvent::ChildRemoved) {
+        if(QAction *action = qt_cast<QAction*>(e->child()))
+            removeAction(action);
     }
     QObject::childEvent(e);
+}
+
+void QActionGroup::internalDataChanged()
+{
+    QAction *action = qt_cast<QAction*>(sender());
+    if(!action)
+        qWarning("not possible..");
+    if(d->exclusive && action->isChecked() && action != d->current) {
+        if(d->current) 
+            d->current->setChecked(false);
+        d->current = action;
+    }
 }
 
 void QActionGroup::internalTriggered()
@@ -394,7 +434,6 @@ void QActionGroup::internalTriggered()
     QAction *action = qt_cast<QAction*>(sender());
     if(!action)
         qWarning("not possible..");
-    d->current = action;
     emit triggered(action);
 }
 
@@ -403,6 +442,5 @@ void QActionGroup::internalHovered()
     QAction *action = qt_cast<QAction*>(sender());
     if(!action)
         qWarning("not possible..");
-    d->current = action;
     emit hovered(action);
 }

@@ -125,6 +125,7 @@ private slots:
 
 private:
     friend class QWidget;
+    friend class QActionGroup;
 #if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=
     QAction(const QAction &);
     QAction &operator=(const QAction &);
@@ -181,8 +182,9 @@ signals:
     void hovered(QAction *);
 
 private slots:
-     void internalTriggered();
-     void internalHovered();
+    void internalTriggered();
+    void internalDataChanged();
+    void internalHovered();
 
 private:
 #if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=
