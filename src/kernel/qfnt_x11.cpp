@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#103 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#104 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -987,8 +987,8 @@ int QFontMetrics::descent() const
 bool QFontMetrics::inFont(char ch) const
 {
     XFontStruct *f = FS;
-    return (uint)ch >= f->min_char_or_byte2
-        && (uint)ch <= f->max_char_or_byte2;
+    return (uint)(uchar)ch >= f->min_char_or_byte2
+        && (uint)(uchar)ch <= f->max_char_or_byte2;
 }
 
 /*!
@@ -1154,7 +1154,7 @@ int QFontMetrics::width( char ch ) const
     XFontStruct *f = FS;
     if ( !inFont(ch) )
 	ch = f->default_char;
-    XCharStruct* cs = f->per_char ? f->per_char + (ch - f->min_char_or_byte2)
+    XCharStruct* cs = f->per_char ? f->per_char + ((uchar)ch - f->min_char_or_byte2)
 			: &f->max_bounds;
     return printerAdjusted(cs->width);
 }
