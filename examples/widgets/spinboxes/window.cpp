@@ -57,21 +57,34 @@ void Window::createDateTimeEdits()
 {
     editsGroup = new QGroupBox(tr("Date and time spin boxes"), this);
 
-    QLabel *dateLabel = new QLabel(tr("Appointment date:"), editsGroup);
+    QLabel *dateLabel = new QLabel(editsGroup);
     QDateTimeEdit *dateEdit = new QDateTimeEdit(QDate::currentDate(),
                                                 editsGroup);
     dateEdit->setDateRange(QDate(2005, 1, 1), QDate(2010, 12, 31));
+    dateLabel->setText(tr("Appointment date (between %0 and %1):")
+                       .arg(dateEdit->minimumDate().toString())
+                       .arg(dateEdit->maximumDate().toString()));
+    dateLabel->setWordWrap(true);
 
-    QLabel *timeLabel = new QLabel(tr("Appointment time:"), editsGroup);
+    QLabel *timeLabel = new QLabel(editsGroup);
     QDateTimeEdit *timeEdit = new QDateTimeEdit(QTime::currentTime(),
                                                 editsGroup);
     timeEdit->setTimeRange(QTime(9, 0, 0, 0), QTime(16, 30, 0, 0));
+    timeLabel->setText(tr("Appointment time (between %0 and %1):")
+                       .arg(timeEdit->minimumTime().toString())
+                       .arg(timeEdit->maximumTime().toString()));
 
-    QLabel *meetingLabel = new QLabel(tr("Meeting date and time:"),
-                                       editsGroup);
+    QLabel *meetingLabel = new QLabel(editsGroup);
     meetingEdit = new QDateTimeEdit(QDateTime::currentDateTime(), editsGroup);
     meetingEdit->setDateRange(QDate(2004, 11, 1), QDate(2005, 11, 30));
     meetingEdit->setTimeRange(QTime(0, 0, 0, 0), QTime(23, 59, 59, 999));
+
+    meetingLabel->setText(tr("Meeting time (between %0 %1 and %2 %3):")
+                          .arg(timeEdit->minimumDate().toString())
+                          .arg(timeEdit->minimumTime().toString())
+                          .arg(timeEdit->maximumDate().toString())
+                          .arg(timeEdit->maximumTime().toString()));
+    meetingLabel->setWordWrap(true);
 
     QLabel *formatLabel = new QLabel(tr("Format string for the meeting date "
         "and time:"), editsGroup);
@@ -82,6 +95,7 @@ void Window::createDateTimeEdits()
     formatComboBox->addItem("hh:mm:ss dd/MM/yyyy");
     formatComboBox->addItem("hh:mm:ss");
     formatComboBox->addItem("hh:mm ap");
+    meetingEdit->setDisplayFormat(formatComboBox->currentText());
 
     connect(formatComboBox, SIGNAL(activated(const QString &)),
             this, SLOT(setFormatString(const QString &)));
