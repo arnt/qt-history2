@@ -131,7 +131,9 @@ void drawPolygon( QPainter & p, const QRect &r )
     b[1] = QPoint( r.right(), r.center().y() - (int)(r.height()/2*magic) );
     b[2] = QPoint( r.center().x(), r.bottom() );
     p.setPen( QPen( Qt::black, 3 ) );
+    p.setBrush( QBrush( Qt::Dense4Pattern ) );
     p.drawPolygon( a );
+    p.setBrush( Qt::NoBrush );
     p.drawPolygon( b );
     p.setPen( Qt::white );
     p.drawPolygon( a );
