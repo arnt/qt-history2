@@ -6,6 +6,7 @@ SUBDIRS     = arthur \
               mainwindow \
               pimelim \
               plasmatable \
+              scrollarea \
               spreadsheet \
               sqlbrowser \
               textedit \
