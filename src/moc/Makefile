@@ -9,8 +9,8 @@
 
 CC	=	cl
 CXX	=	cl
-CFLAGS	=	-nologo -O2 -DQT_NO_CODECS -DQT_NODLL
-CXXFLAGS=	-nologo -O2 -DQT_NO_CODECS -DQT_NODLL
+CFLAGS	=	-nologo -O1 -DQT_NO_CODECS -DQT_NODLL
+CXXFLAGS=	-nologo -O1 -DQT_NO_CODECS -DQT_NODLL
 INCPATH	=	-I"..\..\include" -I"."
 LINK	=	link
 LFLAGS	=	/NOLOGO /SUBSYSTEM:console
