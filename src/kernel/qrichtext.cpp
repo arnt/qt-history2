@@ -1523,7 +1523,8 @@ bool QTextDocument::setSelectionEnd( int id, QTextCursor *cursor )
 
 	sel.startCursor = start;
 	sel.endCursor = end;
-	sel.swapped = start.index() > end.index();
+	if ( sel.startCursor.parag() == sel.endCursor.parag() )
+	    sel.swapped = sel.startCursor.index() > sel.endCursor.index();
 	
 	return TRUE;
     }
@@ -1618,6 +1619,8 @@ bool QTextDocument::setSelectionEnd( int id, QTextCursor *cursor )
 
     sel.startCursor = start;
     sel.endCursor = end;
+    if ( sel.startCursor.parag() == sel.endCursor.parag() )
+	sel.swapped = sel.startCursor.index() > sel.endCursor.index();
 
     return TRUE;
 }
