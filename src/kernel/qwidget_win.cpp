@@ -875,10 +875,7 @@ void QWidget::raise()
     if ( p && p->childObjects && p->childObjects->findRef(this) >= 0 )
 	p->childObjects->append( p->childObjects->take() );
     uint f = ( isPopup() || testWFlags(WStyle_Tool) ) ? SWP_NOACTIVATE : 0;
-    if ( isTopLevel() )
-        SetWindowPos( winId(), HWND_TOPMOST, 0, 0, 0, 0, f | SWP_NOMOVE | SWP_NOSIZE );
-    else
-        SetWindowPos( winId(), HWND_TOP, 0, 0, 0, 0, f | SWP_NOMOVE | SWP_NOSIZE );
+    SetWindowPos( winId(), HWND_TOP, 0, 0, 0, 0, f | SWP_NOMOVE | SWP_NOSIZE );
 }
 
 void QWidget::lower()
