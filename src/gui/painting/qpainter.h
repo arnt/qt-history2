@@ -147,17 +147,14 @@ class Q_GUI_EXPORT QPainter
     void drawEllipse(const QRect &r);
     inline void drawArc(int x, int y, int w, int h, int a, int alen);
     void drawArc(const QRect &, int a, int alen);
-    void drawPie(int x, int y, int w, int h, int a, int alen);
+    inline void drawPie(int x, int y, int w, int h, int a, int alen);
     void drawPie(const QRect &, int a, int alen);
-    void drawChord(int x, int y, int w, int h, int a, int alen);
+    inline void drawChord(int x, int y, int w, int h, int a, int alen);
     void drawChord(const QRect &, int a, int alen);
     void drawLineSegments(const QPointArray &, int index = 0, int nlines = -1);
     void drawPolyline(const QPointArray &pa, int index = 0, int npoints = -1);
     void drawPolygon(const QPointArray &pa, bool winding = false, int index = 0, int npoints =- 1);
     void drawConvexPolygon(const QPointArray &pa, int index = 0, int npoints = -1);
-#ifndef QT_NO_BEZIER
-    void drawCubicBezier(const QPointArray &pa, int index = 0);
-#endif
 
     void drawTiledPixmap(int x, int y, int w, int h, const QPixmap &, int sx=0, int sy=0,
 			 Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
@@ -187,7 +184,7 @@ class Q_GUI_EXPORT QPainter
     void drawText(const QPoint &p, const QString &s, TextDirection dir = Auto);
     inline void drawText(int x, int y, const QString &s, TextDirection dir = Auto);
 
-    void drawText(int x, int y, int w, int h, int flags, const QString&, int len = -1,
+    inline void drawText(int x, int y, int w, int h, int flags, const QString&, int len = -1,
                   QRect *br=0);
     void drawText(const QRect &, int flags, const QString&, int len = -1, QRect *br=0);
 
@@ -252,6 +249,7 @@ class Q_GUI_EXPORT QPainter
     inline QT_COMPAT void drawImage(const QPoint &p, const QImage &image)
         { drawPixmap(p, QPixmap(image)); }
     QT_COMPAT void drawPoints(const QPointArray &pa, int index, int npoints = -1);
+    QT_COMPAT void drawCubicBezier(const QPointArray &pa, int index = 0);
 
 
     static inline QT_COMPAT void redirect(QPaintDevice *pdev, QPaintDevice *replacement)

@@ -505,9 +505,7 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
                 break;
             case PdcDrawCubicBezier:
                 s >> a;
-#ifndef QT_NO_BEZIER
                 painter->drawCubicBezier(a);
-#endif
                 break;
             case PdcDrawText:
                 s >> p >> str1;

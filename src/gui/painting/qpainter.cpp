@@ -2217,32 +2217,6 @@ void QPainter::drawConvexPolygon(const QPointArray &a, int index, int npoints)
 }
 
 /*!
-    Draws a cubic Bezier curve defined by the control points in \a a,
-    starting at \a{a}\e{[index]} (\a index defaults to 0).
-
-    Control points after \a{a}\e{[index + 3]} are ignored. Nothing happens
-    if there aren't enough control points.
-*/
-
-void QPainter::drawCubicBezier(const QPointArray &a, int index)
-{
-    if (!isActive())
-        return;
-    d->engine->updateState(d->state);
-
-    if ((int)a.size() - index < 4) {
-        qWarning("QPainter::drawCubicBezier: Cubic Bezier needs 4 control "
-                  "points");
-        return;
-    }
-
-    QPainterPath path;
-    path.moveTo(a.at(index));
-    path.curveTo(a.at(index+1), a.at(index+2), a.at(index+3));
-    strokePath(path, d->state->pen);
-}
-
-/*!
     \fn void QPainter::drawPixmap(int x, int y, int w, int h, const QPixmap &pm,
                                   int sx, int sy, int sw, int sh, Qt::PixmapDrawingMode mode)
 
@@ -3196,6 +3170,31 @@ void QPainter::drawPoints(const QPointArray &pa, int index, int npoints)
 
     QPointArray a = pa.mid(index, npoints);
     drawPoints(a);
+}
+
+/*!
+    Draws a cubic Bezier curve defined by the control points in \a a,
+    starting at \a{a}\e{[index]} (\a index defaults to 0).
+
+    Control points after \a{a}\e{[index + 3]} are ignored. Nothing happens
+    if there aren't enough control points.
+*/
+void QPainter::drawCubicBezier(const QPointArray &a, int index)
+{
+    if (!isActive())
+        return;
+    d->engine->updateState(d->state);
+
+    if ((int)a.size() - index < 4) {
+        qWarning("QPainter::drawCubicBezier: Cubic Bezier needs 4 control "
+                  "points");
+        return;
+    }
+
+    QPainterPath path;
+    path.moveTo(a.at(index));
+    path.curveTo(a.at(index+1), a.at(index+2), a.at(index+3));
+    strokePath(path, d->state->pen);
 }
 #endif
 
