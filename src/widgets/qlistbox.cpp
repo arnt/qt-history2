@@ -695,17 +695,19 @@ QListBoxPixmap::QListBoxPixmap( QListBox* listbox, const QPixmap & pix, const QS
 
 void QListBoxPixmap::paint( QPainter *painter )
 {
-    // 2001/1/8 move this down 2 pixels to
-    // stop problems with selection in QComboBox
-    painter->drawPixmap( 3, 2, *pixmap() );
+    int itemHeight = height( listBox() );
+    int yPos;
+
+    const QPixmap *pm = pixmap();
+    if ( pm && ! pm->isNull() ) {
+	yPos = ( itemHeight - pm->height() ) / 2;
+	painter->drawPixmap( 3, yPos, *pm);
+    }
+
     if ( !text().isEmpty() ) {
 	QFontMetrics fm = painter->fontMetrics();
-	int yPos;			// vertical text position
-	if ( pm.height() < fm.height() )
-	    yPos = fm.ascent() + fm.leading()/2;
-	else
-	    yPos = pm.height()/2 - fm.height()/2 + fm.ascent();
-	painter->drawText( pm.width() + 5, yPos, text() );
+	yPos = ( ( itemHeight - fm.height() ) / 2 ) + fm.ascent();
+	painter->drawText( pm->width() + 5, yPos, text() );
     }
 }
 
