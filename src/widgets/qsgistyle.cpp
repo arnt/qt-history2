@@ -396,7 +396,7 @@ QSGIStyle::drawArrow( QPainter *p, ArrowType type, bool /*down*/,
 QSize
 QSGIStyle::indicatorSize() const
 {
-    return QSize( 20, 20 );
+    return QSize(20,20);
 }
 
 /*!
@@ -437,22 +437,26 @@ QSGIStyle::drawCheckMark( QPainter* p, int x, int y, int /*w*/, int /*h*/,
 
     QPen oldPen = p->pen();
 
-    int x1 = x;
-    int y1 = y;
-    if ( act ) {			// shift check mark
-	x1++;
-	y1++;
-    }
     QPointArray amark;
     amark = QPointArray( sizeof(check_mark)/(sizeof(QCOORD)*2), check_mark );
-    amark.translate( x1, y1 );
+    amark.translate( x+1, y+1 );
 
-    p->setPen( dis ? g.dark() : g.shadow() );
-    p->drawLineSegments( amark );
-    amark.translate( -1, -1 );
-    p->setPen( dis ? g.dark() : QColor(255,0,0) );
-    p->drawLineSegments( amark );
-    p->setPen( oldPen );
+    if (act) {
+	p->setPen( dis ? g.dark() : g.shadow() );
+	p->drawLineSegments( amark );
+	amark.translate( -1, -1 );
+	p->setPen( dis ? g.dark() : QColor(255,0,0) );
+	p->drawLineSegments( amark );
+	p->setPen( oldPen );
+    } else
+    {
+	p->setPen( dis ? g.dark() : g.mid() );
+	p->drawLineSegments( amark );
+	amark.translate( -1, -1 );
+	p->setPen( dis ? g.dark() : QColor(230,120,120) );
+	p->drawLineSegments( amark );
+	p->setPen( oldPen );
+    }
 }
 
 /*!
@@ -471,7 +475,7 @@ QSGIStyle::drawIndicatorMask( QPainter* p, int x, int y, int w, int h, int s )
     p->fillRect( x, y, w, h, QBrush(color0) );
     p->fillRect( x+2, y+5, w-7, h-7, QBrush(color1) );
 
-    if (s == QButton::On ) {
+    if (s != QButton::Off ) {
         static QCOORD check_mark[] = {
 	        14,0,  10,0,  11,1,  8,1,  9,2,	 7,2,  8,3,  6,3,
 	        7,4,  1,4,  6,5,  1,5,	6,6,  3,6,  5,7,  4,7,
