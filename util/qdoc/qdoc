@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#136 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#137 $
 #
 # this is a massive hack, written very quickly
 #
@@ -774,6 +774,10 @@ sub storeclass {
 
     $inheritance{$url} = $inh if (defined($inh) && $inh ne "");
 
+    while ( $def =~ /\{[^\{\}]*\{[^\{\}]*\}[^\{\}]*\}/s ) {
+	$def =~ s/\{[^\{\}]*(\{[^\{\}]*\})[^\{\}]*\}/\1/gs;
+    }
+
     $def =~ s/\s+/ /g;
     $def =~ s/Q_OBJECT//;
     $def =~ s/(\)\s*(?:const\s*)?)(?::[^;:\}\{]*)?\{.*?\}/$1;/gs;
@@ -942,7 +946,7 @@ remains with ", $company, "
 
 The example program on this page may be used, distributed and modified
 without limitation.
-
+C0664 510077 qtdoc-1.2-a4-2.ps
 ", $doc, "
 <hr>
 ", $h, $address;
