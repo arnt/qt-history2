@@ -135,7 +135,7 @@ QSocketDevice::QSocketDevice( int socket, Type type )
 	   this, socket, type );
 #endif
     init();
-    d->protocol = initFd();
+    setSocket( socket, type );
 }
 
 /*!
@@ -278,6 +278,7 @@ void QSocketDevice::setSocket( int socket, Type type )
 #endif
     t = type;
     fd = socket;
+    d->protocol = getProtocol( socket );
     e = NoError;
     setFlags( IO_Sequential );
     resetStatus();
