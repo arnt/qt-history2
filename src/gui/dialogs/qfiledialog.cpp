@@ -710,7 +710,7 @@ void QFileDialogPrivate::setup()
     tview->viewport()->setAcceptDrops(true);
     tview->setSelectionModel(selections);
     tview->setShowRootDecoration(false);
-    //tview->header()->setResizeMode(QGenericHeader::Content);
+    tview->header()->setResizeMode(QGenericHeader::Custom);
     tview->header()->setResizeMode(QGenericHeader::Stretch, 0);
     tview->header()->setSortIndicator(0, Qt::Descending);
     tview->hide();
@@ -945,8 +945,7 @@ void QFileDialogPrivate::setSelectionMode(int mode)
 #include <qstyle.h>
 
 extern Q_CORE_EXPORT bool qt_resolve_symlinks; // defined in qapplication.cpp
-static bool qt_use_native_dialogs = true;
-static QString qt_working_dir; // ### ugly, but the old filedialog used this to save cwd
+static QString qt_working_dir; // ### ugly! Used this to save cwd
 
 #if defined(Q_WS_WIN)
 extern QString qt_win_get_open_file_name(const QString &initialSelection,
@@ -1109,11 +1108,11 @@ QString QFileDialog::getOpenFileName(const QString &startWith,
     // create a native dialog
 
 #if defined(Q_WS_WIN)
-    if (qt_use_native_dialogs && qApp->style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle)
+    if (qApp->style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle)
         return qt_win_get_open_file_name(initialSelection, filter, &qt_working_dir,
                                          parent, caption, selectedFilter);
 #elif defined(Q_WS_MAC)
-    if (qt_use_native_dialogs && qApp->style().inherits("QMacStyle")) {
+    if (qApp->style().inherits("QMacStyle")) {
         QStringList files = qt_mac_get_open_file_names(filter, &qt_working_dir, parent,
                                                        caption, selectedFilter, false, false);
         return files.isEmpty() ? QString::null : files.first();
@@ -1197,11 +1196,11 @@ QString QFileDialog::getSaveFileName(const QString &startWith,
     qt_get_dir_and_selection(startWith, &qt_working_dir, &initialSelection);
 
 #if defined(Q_WS_WIN)
-    if (qt_use_native_dialogs && qApp->style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle)
+    if (qApp->style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle)
         return qt_win_get_save_file_name(initialSelection, filter, &qt_working_dir,
 					 parent, caption, selectedFilter);
 #elif defined(Q_WS_MAC)
-    if (qt_use_native_dialogs && qApp->style().inherits("QMacStyle"))
+    if (qApp->style().inherits("QMacStyle"))
         return qt_mac_get_save_file_name(initialSelection, filter, &qt_working_dir, parent, caption, selectedFilter);
 #endif
 
@@ -1274,10 +1273,10 @@ QString QFileDialog::getExistingDirectory(const QString &dir,
     QString initialDir;
     if (!dir.isEmpty() && QFileInfo(dir).isDir())
         initialDir = dir;
-    if (qt_use_native_dialogs && qApp->style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle && dirOnly)
+    if (qApp->style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle && dirOnly)
         return qt_win_get_existing_directory(initialDir, parent, caption);
 #elif defined(Q_WS_MAC)
-    if (qt_use_native_dialogs && qApp->style().inherits("QMacStyle"))
+    if (qApp->style().inherits("QMacStyle"))
         return qt_mac_get_open_file_names("", 0, parent, caption, NULL, false, true).first();
 #endif
 
@@ -1370,10 +1369,10 @@ QStringList QFileDialog::getOpenFileNames(const QString &filter,
     qt_get_dir_and_selection(dir, &qt_working_dir, 0);
 
 #if defined(Q_WS_WIN)
-    if (qt_use_native_dialogs && qApp->style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle)
+    if (qApp->style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle)
         return qt_win_get_open_file_names(filter, &qt_working_dir, parent, caption, selectedFilter);
 #elif defined(Q_WS_MAC)
-    if (qt_use_native_dialogs && qApp->style().inherits("QMacStyle"))
+    if (qApp->style().inherits("QMacStyle"))
         return qt_mac_get_open_file_names(filter, &qt_working_dir, parent, caption, selectedFilter, true, false);
 #endif
 
