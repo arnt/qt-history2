@@ -94,6 +94,8 @@ public:
 #endif
     PID processIdentifier();
 
+    void flushStdin();
+
 signals:
     void readyReadStdout();
     void readyReadStderr();

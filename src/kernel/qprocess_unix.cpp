@@ -1015,6 +1015,18 @@ void QProcess::socketWrite( int fd )
     }
 }
 
+/*!
+  \internal
+  Flushes standard input. This is useful if you want to use QProcess in a
+  synchronous manner.
+  
+  This function should probably go into the public API.
+*/
+void QProcess::flushStdin()
+{
+    socketWrite( d->proc->socketStdin );
+}
+
 /*
   This private slot is only used under Windows (but moc does not know about #if
   defined()).

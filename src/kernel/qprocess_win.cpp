@@ -499,6 +499,11 @@ void QProcess::socketWrite( int fd )
     }
 }
 
+void QProcess::flushStdin()
+{
+    socketWrite( 0 );
+}
+
 /*
   Use a timer for polling misc. stuff.
 */
