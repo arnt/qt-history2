@@ -1389,21 +1389,6 @@ QCoreGraphicsPaintEngine::drawRect(const QRect &r)
 }
 
 void
-QCoreGraphicsPaintEngine::drawRects(const QRect &rects)
-{
-    Q_ASSERT(isActive());
-
-    CGContextBeginPath(d->hdc);
-    QVarLengthArray<CGRect> macRects(rects.size());
-    for (int i=0; i<rects.size(); ++i) {
-        macRects[i] = CGRectMake(rects.at(i).x(), rects.at(i).y(),
-                                 rects.at(i).width(), rects.at(i).height());
-    }
-    CGContextAddRects(d->hd, macRects.constData(), rects.size());
-    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill|QCoreGraphicsPaintEnginePrivate::CGStroke);
-}
-
-void
 QCoreGraphicsPaintEngine::drawPoint(const QPoint &p)
 {
     Q_ASSERT(isActive());
