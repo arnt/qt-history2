@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#40 $
 **
 ** Implementation of QToolBar class
 **
@@ -205,20 +205,21 @@ void QToolBar::setUpGM()
 		    QFrame * f = (QFrame *)obj;
 		    if ( orientation() == Vertical ) {
 			f->setMinimumSize( 0, 6 );
-			f->setMaximumSize( 32767, 6 );
+			f->setMaximumSize( QWIDGETSIZE_MAX, 6 );
 			if ( style() == WindowsStyle )
 			    f->setFrameStyle( QFrame::HLine + QFrame::Sunken );
 			else
 			    f->setFrameStyle( QFrame::NoFrame );
 		    } else {
 			f->setMinimumSize( 6, 0 );
-			f->setMaximumSize( 6, 32767 );
+			f->setMaximumSize( 6, QWIDGETSIZE_MAX );
 			if ( style() == WindowsStyle )
 			    f->setFrameStyle( QFrame::VLine + QFrame::Sunken );
 			else
 			    f->setFrameStyle( QFrame::NoFrame );
 		    }
-		} else if ( w->maximumSize() == QSize(32767,32767)
+		} else if ( w->maximumSize() == QSize(QWIDGETSIZE_MAX,
+						      QWIDGETSIZE_MAX)
 			    && w->minimumSize() == QSize(0,0) ) {
 		    QSize s( w->sizeHint() );
 		    if ( s.width() > 0 && s.height() > 0 )
