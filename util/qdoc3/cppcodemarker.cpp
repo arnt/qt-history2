@@ -506,12 +506,12 @@ const Node *CppCodeMarker::resolveTarget(const QString &target, const Tree *tree
         funcName.chop(2);
 
         QStringList path = funcName.split("::");
-        if ((func = tree->findFunctionNode(path, relative)))
+        if ((func = tree->findFunctionNode(path, relative, Tree::SearchBaseClasses)))
             return func;
     } else {
         QStringList path = target.split("::");
         const Node *node;
-        if ((node = tree->findNode(path, relative)))
+        if ((node = tree->findNode(path, relative, Tree::SearchBaseClasses)))
             return node;
     }
     return 0;

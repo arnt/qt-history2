@@ -41,54 +41,12 @@ Tree::~Tree()
     delete priv;
 }
 
-Node *Tree::findNode(const QStringList &path, Node *relative)
+Node *Tree::findNode(const QStringList &path, Node *relative, FindMode mode)
 {
-    return const_cast<Node *>(const_cast<const Tree *>(this)->findNode(path, relative));
+    return const_cast<Node *>(const_cast<const Tree *>(this)->findNode(path, relative, mode));
 }
 
-const Node *Tree::findNode(const QStringList &path, const Node *relative) const
-{
-    if (!relative)
-        relative = root();
-    do {
-        const Node *node = relative;
-        int i;
-
-        for (i = 0; i < path.size(); ++i) {
-	    if ( node == 0 || !node->isInnerNode() )
-	        break;
-	    node = ((InnerNode *)node)->findNode(path.at(i));
-        }
-        if (node && i == path.size())
-            return node;
-        relative = relative->parent();
-    } while (relative);
-
-    return 0;
-}
-
-Node *Tree::findNode(const QStringList &path, Node::Type type, Node *relative)
-{
-    return const_cast<Node *>(const_cast<const Tree *>(this)->findNode(path, type, relative));
-}
-
-const Node *Tree::findNode(const QStringList &path, Node::Type type, const Node *relative) const
-{
-    const Node *node = findNode(path, relative);
-    if ( node != 0 && node->type() == type ) {
-	return node;
-    } else {
-	return 0;
-    }
-}
-
-FunctionNode *Tree::findFunctionNode(const QStringList& path, Node *relative)
-{
-    return const_cast<FunctionNode *>(
-                const_cast<const Tree *>(this)->findFunctionNode(path, relative));
-}
-
-const FunctionNode *Tree::findFunctionNode(const QStringList &path, const Node *relative) const
+const Node *Tree::findNode(const QStringList &path, const Node *relative, FindMode mode) const
 {
     if (!relative)
         relative = root();
@@ -99,10 +57,80 @@ const FunctionNode *Tree::findFunctionNode(const QStringList &path, const Node *
         for (i = 0; i < path.size(); ++i) {
 	    if (node == 0 || !node->isInnerNode())
 	        break;
+
+            const Node *next = static_cast<const InnerNode *>(node)->findNode(path.at(i));
+            if (!next && node->type() == Node::Class && mode == SearchBaseClasses) {
+                NodeList baseClasses = allBaseClasses(static_cast<const ClassNode *>(node));
+                foreach (const Node *baseClass, baseClasses) {
+                    next = static_cast<const InnerNode *>(baseClass)->findNode(path.at(i));
+                    if (next)
+                        break;
+                }
+            }
+            node = next;
+        }
+        if (node && i == path.size())
+            return node;
+        relative = relative->parent();
+    } while (relative);
+
+    return 0;
+}
+
+Node *Tree::findNode(const QStringList &path, Node::Type type, Node *relative, FindMode mode)
+{
+    return const_cast<Node *>(const_cast<const Tree *>(this)->findNode(path, type, relative, mode));
+}
+
+const Node *Tree::findNode(const QStringList &path, Node::Type type, const Node *relative,
+                           FindMode mode) const
+{
+    const Node *node = findNode(path, relative, mode);
+    if (node != 0 && node->type() == type)
+	return node;
+    return 0;
+}
+
+FunctionNode *Tree::findFunctionNode(const QStringList& path, Node *relative, FindMode mode)
+{
+    return const_cast<FunctionNode *>(
+                const_cast<const Tree *>(this)->findFunctionNode(path, relative, mode));
+}
+
+const FunctionNode *Tree::findFunctionNode(const QStringList &path, const Node *relative,
+                                           FindMode mode) const
+{
+    if (!relative)
+        relative = root();
+    do {
+        const Node *node = relative;
+        int i;
+
+        for (i = 0; i < path.size(); ++i) {
+	    if (node == 0 || !node->isInnerNode())
+	        break;
+
+            const Node *next;
             if (i == path.size() - 1)
-                node = ((InnerNode *) node)->findFunctionNode(path.at(i));
+                next = ((InnerNode *) node)->findFunctionNode(path.at(i));
             else
-                node = ((InnerNode *) node)->findNode(path.at(i));
+                next = ((InnerNode *) node)->findNode(path.at(i));
+
+            if (!next && node->type() == Node::Class && mode == SearchBaseClasses) {
+                NodeList baseClasses = allBaseClasses(static_cast<const ClassNode *>(node));
+                foreach (const Node *baseClass, baseClasses) {
+                    if (i == path.size() - 1)
+                        next = static_cast<const InnerNode *>(baseClass)->
+                                findFunctionNode(path.at(i));
+                    else
+                        next = static_cast<const InnerNode *>(baseClass)->findNode(path.at(i));
+
+                    if (next)
+                        break;
+                }
+            }
+
+            node = next;
         }
         if (node && i == path.size())
             return static_cast<const FunctionNode *>(node);
@@ -113,21 +141,21 @@ const FunctionNode *Tree::findFunctionNode(const QStringList &path, const Node *
 }
 
 FunctionNode *Tree::findFunctionNode(const QStringList &parentPath, const FunctionNode *clone,
-                                     Node *relative)
+                                     Node *relative, FindMode mode)
 {
     return const_cast<FunctionNode *>(
 		const_cast<const Tree *>(this)->findFunctionNode(parentPath, clone,
-                                      				 relative));
+                                      				 relative, mode));
 }
 
 const FunctionNode *Tree::findFunctionNode(const QStringList &parentPath, const FunctionNode *clone,
-                                           const Node *relative) const
+                                           const Node *relative, FindMode mode) const
 {
-    const Node *parent = findNode(parentPath, relative);
+    const Node *parent = findNode(parentPath, relative, mode);
     if ( parent == 0 || !parent->isInnerNode() ) {
 	return 0;
     } else {
-	return ((InnerNode *)parent)->findFunctionNode( clone );
+	return ((InnerNode *)parent)->findFunctionNode(clone);
     }
 }
 
@@ -209,7 +237,7 @@ void Tree::resolveInheritance(int pass, ClassNode *classe)
 	while ( c != classe->childNodes().end() ) {
 	    if ( (*c)->type() == Node::Function ) {
 		FunctionNode *func = (FunctionNode *) *c;
-		FunctionNode *from = findFunctionInBaseClasses( classe, func );
+		FunctionNode *from = findVirtualFunctionInBaseClasses( classe, func );
 		if ( from != 0 ) {
 		    if ( func->virtualness() == FunctionNode::NonVirtual )
 			func->setVirtualness( FunctionNode::ImpureVirtual );
@@ -250,17 +278,26 @@ void Tree::fixInheritance()
     }
 }
 
-FunctionNode *Tree::findFunctionInBaseClasses( ClassNode *classe,
-					       FunctionNode *clone )
+FunctionNode *Tree::findVirtualFunctionInBaseClasses(ClassNode *classe, FunctionNode *clone)
 {
     QList<RelatedClass>::ConstIterator r = classe->baseClasses().begin();
     while ( r != classe->baseClasses().end() ) {
 	FunctionNode *func;
-	if ( ((func = findFunctionInBaseClasses((*r).node, clone)) != 0 ||
+	if ( ((func = findVirtualFunctionInBaseClasses((*r).node, clone)) != 0 ||
 	      (func = (*r).node->findFunctionNode(clone)) != 0) &&
 	     func->virtualness() != FunctionNode::NonVirtual )
 	    return func;
  	++r;
     }
     return 0;
+}
+
+NodeList Tree::allBaseClasses(const ClassNode *classe) const
+{
+    NodeList result;
+    foreach (RelatedClass r, classe->baseClasses()) {
+        result += r.node;
+        result += allBaseClasses(r.node);
+    }
+    return result;
 }

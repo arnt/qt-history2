@@ -758,6 +758,9 @@ bool CppCodeParser::matchClassDecl( InnerNode *parent )
 {
     bool isClass = ( tok == Tok_class );
     readToken();
+
+    bool compat = match(Tok_QT_COMPAT);
+
     if ( tok != Tok_Ident )
 	return false;
     while ( tok == Tok_Ident )
@@ -772,6 +775,8 @@ bool CppCodeParser::matchClassDecl( InnerNode *parent )
     ClassNode *classe = new ClassNode( parent, previousLexeme() );
     classe->setAccess( access );
     classe->setLocation( location() );
+    if (compat)
+        classe->setStatus(Node::Compat);
 
     if ( match(Tok_Colon) && !matchBaseList(classe) )
 	return false;
