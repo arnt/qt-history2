@@ -295,6 +295,8 @@ QString QAccessibleApplication::text(Text t, int) const
     case Description:
         return qApp->applicationFilePath();
         break;
+    default:
+        break;
     }
     return QString();
 }
@@ -341,6 +343,8 @@ QString QAccessibleApplication::actionText(int action, Text text, int child) con
         return QApplication::tr("Activate");
     case Description:
         return QApplication::tr("Activates the application main widget");
+    default:
+        break;
     }
     return QAccessibleObject::actionText(action, text, child);
 }
