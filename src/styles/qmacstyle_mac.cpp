@@ -1538,8 +1538,12 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 
 	((QMacStylePainter *)p)->setport();
 	DrawThemeTrack(&ttdi, NULL, NULL, 0);
-	if(sub & SC_SliderTickmarks)
-	    DrawThemeTrackTickMarks(&ttdi, sldr->maxValue() / sldr->pageStep(), NULL, 0);
+	if(sub & SC_SliderTickmarks) {
+	    int numTicks = sldr->maxValue() / sldr->pageStep();
+	    if(sldr->tickInterval())
+		numTicks = sldr->width() / sldr->tickInterval();
+	    DrawThemeTrackTickMarks(&ttdi, numTicks, NULL, 0);
+	}
 	break; }
     case CC_ComboBox: {
 	if(!widget)
