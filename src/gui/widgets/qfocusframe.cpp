@@ -87,7 +87,7 @@ QFocusFrame::setWidget(QWidget *widget)
 
     if(d->widget)
         d->widget->removeEventFilter(this);
-    if(widget) {
+    if(widget && widget->parentWidget()) {
         d->widget = widget;
         widget->installEventFilter(this);
         setParent(widget->parentWidget());
