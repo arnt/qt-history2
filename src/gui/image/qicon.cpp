@@ -179,8 +179,6 @@ QPixmap QPixmapIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::St
             }
     }
 
-    qDebug() << mode << state << pe.isNull();
-
     if (pe.isNull())
         return pe.pixmap;
 
