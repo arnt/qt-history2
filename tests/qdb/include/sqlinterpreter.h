@@ -211,6 +211,7 @@ private:
     void matchBaseTableElementList();
     void matchCreateStatement();
     void matchDeleteStatement();
+    void matchDropStatement();
     void matchInsertExpr();
     void matchInsertExprList( const QStringList& columns );
     void matchInsertStatement();

@@ -92,15 +92,15 @@ enum { Tok_Eoi, Tok_Equal, Tok_NotEq, Tok_LessThan, Tok_GreaterThan,
        Tok_by, Tok_character, Tok_check, Tok_close, Tok_commit,
        Tok_count, Tok_create, Tok_current, Tok_date, Tok_decimal,
        Tok_declare, Tok_default, Tok_delete, Tok_desc, Tok_distinct,
-       Tok_double, Tok_escape, Tok_float, Tok_for, Tok_foreign,
-       Tok_from, Tok_group, Tok_having, Tok_in, Tok_index,
-       Tok_insert, Tok_integer, Tok_into, Tok_is, Tok_key, Tok_like,
-       Tok_max, Tok_min, Tok_not, Tok_null, Tok_numeric, Tok_of,
-       Tok_on, Tok_or, Tok_order, Tok_precision, Tok_primary,
+       Tok_double, Tok_drop, Tok_escape, Tok_float, Tok_for,
+       Tok_foreign, Tok_from, Tok_group, Tok_having, Tok_in,
+       Tok_index, Tok_insert, Tok_integer, Tok_into, Tok_is, Tok_key,
+       Tok_like, Tok_max, Tok_min, Tok_not, Tok_null, Tok_numeric,
+       Tok_of, Tok_on, Tok_or, Tok_order, Tok_precision, Tok_primary,
        Tok_real, Tok_references, Tok_rollback, Tok_select, Tok_set,
        Tok_smallint, Tok_some, Tok_sum, Tok_table, Tok_to, Tok_union,
-       Tok_unique, Tok_update, Tok_user, Tok_values, Tok_view, Tok_where,
-       Tok_with, Tok_work };
+       Tok_unique, Tok_update, Tok_user, Tok_values, Tok_view,
+       Tok_where, Tok_with, Tok_work };
 
 #define HASH( first, omitted, last ) \
     ( ((((first) << 5) | (omitted)) << 7) | (last) )
@@ -259,6 +259,9 @@ int Parser::getToken()
 	    case HASH( 'd', 2, 'e' ):
 		CHECK( "date" );
 		return Tok_date;
+	    case HASH( 'd', 2, 'p' ):
+		CHECK( "drop" );
+		return Tok_drop;
 	    case HASH( 'd', 4, 'e' ):
 		if ( yyLex[1] == 'e' ) {
 		    CHECK( "delete" );
@@ -666,7 +669,7 @@ void Parser::emitCondition( const QVariant& cond,
     }
 
     if ( NEED_A_LOOP() && constantsForLevel.isEmpty() ) {
-	yyProg->append( new MarkAll(tableId) );    
+	yyProg->append( new MarkAll(tableId) );
     } else {
 	emitConstants( constantsForLevel );
 	if ( saving && !NEED_A_LOOP() ) {
@@ -1388,6 +1391,13 @@ void Parser::matchDeleteStatement()
     matchOptWhereClause();
 }
 
+void Parser::matchDropStatement()
+{
+    yyTok = getToken();
+    matchOrInsert( Tok_table, "'table'" );
+    yyProg->append( new Drop(matchTable()) );
+}
+
 void Parser::matchInsertExpr()
 {
     if ( yyTok == Tok_null ) {
@@ -1607,6 +1617,9 @@ void Parser::matchManipulativeStatement()
 	break;
     case Tok_delete:
 	matchDeleteStatement();
+	break;
+    case Tok_drop:
+	matchDropStatement();
 	break;
     case Tok_insert:
 	matchInsertStatement();
