@@ -91,11 +91,36 @@ MakefileGenerator::generateMocList(QString fn_target)
 	total_size_read += have_read);
     close(file);
 
+    bool ignore_qobject = FALSE;
 #define COMP_LEN 8 //strlen("Q_OBJECT")
 #define OBJ_LEN 8 //strlen("Q_OBJECT")
 #define DIS_LEN 10 //strlen("Q_DISPATCH")
     for(int x = 0; x < (total_size_read-COMP_LEN); x++) {
-	if(*(big_buffer+x) == 'Q' && 
+	if(*(big_buffer + x) == '/') {
+		x++;
+		if(total_size_read >= x) {
+		    if(*(big_buffer + x) == '/') { //c++ style comment
+			for( ;x < total_size_read && *(big_buffer + x) != '\n'; x++);
+		    } else if(*(big_buffer + x) == '*') { //c style comment
+			for( ;x < total_size_read; x++) {
+			    if(*(big_buffer + x) == 't' || *(big_buffer + x) == 'q') { //ignore
+				if(total_size_read >= (x + 20)) {
+				    if(!strncmp(big_buffer + x + 1, "make ignore Q_OBJECT", 20)) {
+					x += 20;
+					ignore_qobject = !ignore_qobject;
+				    }
+				}
+			    } else if(*(big_buffer + x) == '*') {
+				if(total_size_read >= (x+1) && *(big_buffer + (x+1)) == '/') {
+				    x += 2;
+				    break;
+				}
+			    }
+			}
+		    }
+		}
+	}
+	if(!ignore_qobject && *(big_buffer+x) == 'Q' && 
 	   (!strncmp(big_buffer+x, "Q_OBJECT", OBJ_LEN) || !strncmp(big_buffer+x, "Q_DISPATCH", DIS_LEN))) {
 
 	    int ext_pos = fn_target.findRev('.');
@@ -166,9 +191,27 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
     else
 	ftype = C_FILE;
 
+
     for(int x = 0; x < total_size_read; x++) {
 	QString inc;
 	if(ftype == C_FILE) {
+	    if(*(big_buffer + x) == '/') {
+		x++;
+		if(total_size_read >= x) {
+		    if(*(big_buffer + x) == '/') { //c++ style comment
+			for( ; x < total_size_read && *(big_buffer + x) != '\n'; x++);
+		    } else if(*(big_buffer + x) == '*') { //c style comment
+			for( ; x < total_size_read; x++) {
+			    if(*(big_buffer + x) == '*') {
+				if(total_size_read >= (x+1) && *(big_buffer + (x+1)) == '/') {
+				    x += 2;
+				    break;
+				}
+			    }	
+			}
+		    }
+		}
+	    } 
 	    if(*(big_buffer + x) == '#') {
 		x++;
 		if(total_size_read >= x + 8 && !strncmp(big_buffer + x, "include ", 8)) {
@@ -452,7 +495,6 @@ MakefileGenerator::init()
     { //paths
 	QString &asp = v["QMAKE_ABSOLUTE_SOURCE_PATH"].first();
 	asp = Option::fixPathToTargetOS(asp);
-	qDebug("%s %s", asp.latin1(), Option::output_dir.latin1());
 	if(!asp.isEmpty() && asp == Option::output_dir) //if they're the same, why bother?
 	    v["QMAKE_ABSOLUTE_SOURCE_PATH"].clear();
 
