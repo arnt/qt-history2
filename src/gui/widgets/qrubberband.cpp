@@ -22,6 +22,8 @@
 #  include <private/qt_mac_p.h>
 #endif
 
+#include <qdebug.h>
+
 #include <private/qwidget_p.h>
 class QRubberBandPrivate : public QWidgetPrivate
 {
