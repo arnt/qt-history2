@@ -12,6 +12,7 @@ TARGET	= designer
 DEPENDPATH	+= $(QTDIR)/include
 DESTDIR	= ../../../bin
 win32-msvc:RC_FILE = designer.rc
+mac:RC_FILE = designer.icns
 
 sql {
 	SOURCES  += database.cpp dbconnectionimpl.cpp dbconnectionsimpl.cpp

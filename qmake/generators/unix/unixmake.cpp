@@ -224,9 +224,9 @@ UnixMakefileGenerator::init()
 		project->variables()["QMAKE_INFO_PLIST_OUT"].append(project->first("DESTDIR") + 
 								    "../Info.plist");
 		project->variables()["ALL_DEPS"] += project->first("QMAKE_INFO_PLIST_OUT");
-		if(!project->isEmpty("RC_FILE"))
-		    project->variables()["ALL_DEPS"] += project->values(project->first("DESTDIR") +
-			"../Resources/application.icns");
+		if(!project->isEmpty("RC_FILE")) 
+		    project->variables()["ALL_DEPS"] += project->first("DESTDIR") +
+							"../Resources/application.icns";
 	    }
 	}
     }
