@@ -3076,39 +3076,63 @@ QPixmap QCommonStyle::standardPixmap(StandardPixmap standardPixmap, const QStyle
     return QPixmap();
 }
 
+static inline uint qt_intensity(uint r, uint g, uint b)
+{
+    // 30% red, 59% green, 11% blue
+    return (77 * r + 150 * g + 28 * b) / 255;
+}
+
 /*! \reimp */
 QPixmap QCommonStyle::generatedIconPixmap(IconMode iconMode, const QPixmap &pixmap,
                                           const QStyleOption *opt) const
 {
     switch (iconMode) {
     case IM_Disabled: {
+        QImage im = pixmap.toImage();
 
-        QBitmap pixmapMask(pixmap.size());
-        pixmapMask.fill(Qt::color0);
+        // Create a colortable based on the background (black -> bg -> white)
+        QColor bg = opt->palette.color(QPalette::Disabled, QPalette::Background);
+        int red = bg.red();
+        int green = bg.green();
+        int blue = bg.blue();
+        uchar reds[256], greens[256], blues[256];
+        for (int i=0; i<128; ++i) {
+            reds[i]   = uchar((red   * (i<<1)) >> 8);
+            greens[i] = uchar((green * (i<<1)) >> 8);
+            blues[i]  = uchar((blue  * (i<<1)) >> 8);
+        }
+        for (int i=0; i<128; ++i) {
+            reds[i+128]   = uchar(qMin(red   + (i << 1), 255));
+            greens[i+128] = uchar(qMin(green + (i << 1), 255));
+            blues[i+128]  = uchar(qMin(blue  + (i << 1), 255));
+        }
 
-        QPainter painter;
-        painter.begin(&pixmapMask);
-        painter.drawPixmap(0, 0, pixmap);
-        painter.end();
+        int intensity = qt_intensity(red, green, blue);
+        const int factor = 191;
 
-        QPixmap ret(pixmap.width() + 1, pixmap.height() + 1);
-        ret.fill(opt->palette.color(QPalette::Disabled, QPalette::Background));
+        // High intensity colors needs dark shifting in the color table, while
+        // low intensity colors needs light shifting. This is to increase the
+        // percieved contrast.
+        if ((red - factor > green && red - factor > blue)
+            || (green - factor > red && green - factor > blue)
+            || (blue - factor > red && blue - factor > green))
+            intensity = qMin(255, intensity + 91);
+        else if (intensity <= 128)
+            intensity -= 51;
 
-        painter.begin(&ret);
-        painter.setPen(opt->palette.color(QPalette::Disabled, QPalette::Light));
-        painter.drawPixmap(1, 1, pixmapMask);
-        painter.setPen(opt->palette.color(QPalette::Disabled, QPalette::Foreground));
-        painter.drawPixmap(0, 0, pixmapMask);
-        painter.end();
+        for (int y=0; y<im.height(); ++y) {
+            QRgb *scanLine = (QRgb*)im.scanLine(y);
+            for (int x=0; x<im.width(); ++x) {
+                QRgb pixel = *scanLine;
+                // Calculate color table index, taking intensity adjustment
+                // and a magic offset into account.
+                uint ci = uint(qGray(pixel)/3 + (130 - intensity / 3));
+                *scanLine = qRgba(reds[ci], greens[ci], blues[ci], qAlpha(pixel));
+                ++scanLine;
+            }
+        }
 
-        QBitmap mask(ret.size());
-        mask.fill(Qt::color0);
-        painter.begin(&mask);
-        painter.drawPixmap(0, 0, pixmapMask);
-        painter.drawPixmap(1, 1, pixmapMask);
-        painter.end();
-        ret.setMask(mask);
-        return ret;
+        return QPixmap(im);
     }
     case IM_Active:
         return pixmap;
