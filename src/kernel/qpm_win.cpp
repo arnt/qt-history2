@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#24 $
 **
 ** Implementation of QPixmap class for Windows
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#23 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#24 $")
 
 
 bool QPixmap::optimAll = TRUE;
@@ -351,11 +351,6 @@ QImage QPixmap::convertToImage() const
     }
 
     QImage image( w, h, d, ncols, QImage::BigEndian );
-    uchar *bits;
-    int	   bpl	= ((w*d+31)/32)*4;
-    int	   ibpl = image.bytesPerLine();
-    int	   nbytes = bpl*h;
-    bool   newBits = bpl != ibpl;
 
     int	  bmi_data_len = sizeof(BITMAPINFO)+sizeof(RGBQUAD)*ncols;
     char *bmi_data = new char[bmi_data_len];
@@ -368,25 +363,12 @@ QImage QPixmap::convertToImage() const
     bmh->biPlanes	  = 1;
     bmh->biBitCount	  = d;
     bmh->biCompression	  = BI_RGB;
-    bmh->biSizeImage	  = nbytes;
+    bmh->biSizeImage	  = image.numBytes();
     bmh->biClrUsed	  = ncols;
     bmh->biClrImportant	  = 0;
     ulong *coltbl = (ulong*)(bmi_data + sizeof(BITMAPINFOHEADER));
 
-    if ( newBits )
-	bits = new uchar[nbytes];
-    else
-	bits = image.bits();
-    GetDIBits( handle(), hbm(), 0, h, bits, bmi, DIB_RGB_COLORS );
-
-    if ( newBits ) {
-	uchar *p = bits;
-	for ( int y=0; y<h; y++ ) {
-	    memcpy( image.scanLine(y), p, ibpl );
-	    p += bpl;
-	}
-	delete [] bits;
-    }
+    GetDIBits( handle(), hbm(), 0, h, image.bits(), bmi, DIB_RGB_COLORS );
 
     for ( int i=0; i<ncols; i++ ) {		// copy color table
 	RGBQUAD *r = (RGBQUAD*)&coltbl[i];
@@ -451,26 +433,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
     if ( pm.data->optim )
 	tmp_dc = FALSE;				// don't do pm.freeMemDC()
 
-    uchar *bits;
-    int	   bpl	= ((w*d+31)/32)*4;
-    int	   ibpl = image.bytesPerLine();
-    bool   newBits = bpl != ibpl;
-    int	   numBytes;
-    bool   turn = qt_image_did_turn_scanlines();
-
-    if ( newBits ) {				// must align to 32 bits
-	numBytes = bpl*h;
-	bits	 = new uchar[numBytes];
-	uchar *p = bits;
-	for ( int y=0; y<h; y++ ) {
-	    memcpy( p, image.scanLine(y), ibpl );
-	    p += bpl;
-	}
-    }
-    else {					// 32-bits aligned image data
-	numBytes = image.numBytes();
-	bits	 = image.bits();
-    }
+    bool turn = qt_image_did_turn_scanlines();
 
     int	  ncols	   = image.numColors();
     char *bmi_data = new char[sizeof(BITMAPINFO)+sizeof(ulong)*ncols];
@@ -482,7 +445,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
     bmh->biPlanes	  = 1;
     bmh->biBitCount	  = d;
     bmh->biCompression	  = BI_RGB;
-    bmh->biSizeImage	  = numBytes;
+    bmh->biSizeImage	  = image.numBytes();
     bmh->biXPelsPerMeter  = 0;
     bmh->biYPelsPerMeter  = 0;
     bmh->biClrUsed	  = ncols;
@@ -497,11 +460,9 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	r->rgbReserved = 0;
     }
 
-    SetDIBitsToDevice( pm.handle(), 0, 0, w, h, 0, 0, 0, h, bits,
-		       bmi, DIB_RGB_COLORS );
+    SetDIBitsToDevice( pm.handle(), 0, 0, w, h, 0, 0, 0, h,
+		       image.bits(), bmi, DIB_RGB_COLORS );
     delete [] bmi_data;
-    if ( newBits )
-	delete [] bits;
 
     pm.data->uninit = FALSE;
     if ( tmp_dc )
@@ -533,6 +494,8 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
     if ( matrix.m12() == 0.0F  && matrix.m21() == 0.0F &&
 	 matrix.m11() >= 0.0F  && matrix.m22() >= 0.0F ) {
+	if ( matrix.m11() == 1.0F && matrix.m22() == 1.0F )
+	    return *this;			// identity matrix
 	plg = FALSE;
 	w = qRound( matrix.m11()*ws );
 	h = qRound( matrix.m22()*hs );
@@ -597,7 +560,10 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     }
     else
 	src_tmp = FALSE;
+
     QPixmap pm( w, h, depth() );
+    pm.data->bitmap = data->bitmap;
+    pm.data->uninit = FALSE;
     bool dst_tmp;
     if ( !pm.handle() ) {
 	pm.allocMemDC();
@@ -616,8 +582,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	PlgBlt( pm.handle(), p, handle(), 0, 0, ws, hs, 0, 0, 0 );
     }
     else					// scale
-	StretchBlt( pm.handle(), 0, 0, w, h, handle(), 0, 0, ws, hs,
-		    SRCCOPY );
+	StretchBlt( pm.handle(), 0, 0, w, h, handle(), 0, 0, ws, hs, SRCCOPY );
 
     if ( dst_tmp )
 	pm.freeMemDC();
