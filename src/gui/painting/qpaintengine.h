@@ -116,12 +116,6 @@ public:
     virtual void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
     virtual void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s) = 0;
 
-#if defined Q_WS_WIN // ### not liking this!!
-    virtual HDC handle() const = 0;
-#else
-    virtual Qt::HANDLE handle() const = 0;
-#endif
-
     virtual QPainter::RenderHints supportedRenderHints() const;
     virtual QPainter::RenderHints renderHints() const;
     virtual void setRenderHints(QPainter::RenderHints hints);
@@ -252,12 +246,6 @@ public:
                             Qt::BlendMode mode = Qt::AlphaBlend);
     virtual void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
     virtual void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s);
-
-#if defined Q_WS_WIN // ### not liking this!!
-    virtual HDC handle() const { return wrap->handle(); }
-#else
-    virtual Qt::HANDLE handle() const { return wrap->handle(); }
-#endif
 
     inline QPaintEngine *wrapped() const { return wrap; }
     virtual Type type() const { return QPaintEngine::Wrapper; }

@@ -46,6 +46,7 @@ extern int qt_mib_for_xlfd_encoding(const char *encoding);
 extern int qt_xlfd_encoding_id(const char *encoding);
 
 extern void qt_draw_transformed_rect(QPaintEngine *p, int x, int y, int w, int h, bool fill);
+extern Drawable qt_x11Handle(const QPaintDevice *pd);
 
 static void drawLines(QPaintEngine *p, QFontEngine *fe, int baseline, int x1, int w, int textFlags)
 {
@@ -129,7 +130,7 @@ bool QFontEngineBox::stringToCMap(const QChar *, int len, QGlyphLayout *glyphs, 
 void QFontEngineBox::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags)
 {
     Display *dpy = QX11Info::appDisplay();
-    Qt::HANDLE hd = p->handle();
+    Qt::HANDLE hd = qt_x11Handle(p->painter()->device());
     GC gc = static_cast<QX11PaintEngine *>(p)->d->gc;
 
     if (p->painterState()->txop > QPainter::TxTranslate) {
@@ -367,7 +368,7 @@ void QFontEngineXLFD::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem 
 //     qDebug("QFontEngineXLFD::draw(%d, %d, numglyphs=%d", x, y, si.num_glyphs);
 
     Display *dpy = QX11Info::appDisplay();
-    Qt::HANDLE hd = p->handle();
+    Qt::HANDLE hd = qt_x11Handle(p->painter()->device());
     GC gc = static_cast<QX11PaintEngine *>(p)->d->gc;
 
     int xorig = xpos;

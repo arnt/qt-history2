@@ -232,12 +232,6 @@ public:
     RenderHints supportedRenderHints() const;
     RenderHints renderHints() const;
 
-#if defined Q_WS_WIN // ### not liking this!!
-    HDC handle() const;
-#else
-    Qt::HANDLE handle() const;
-#endif
-
     static void setRedirected(const QPaintDevice *device, QPaintDevice *replacement,
                               const QPoint& offset = QPoint());
     static QPaintDevice *redirected(const QPaintDevice *device, QPoint *offset = 0);

@@ -3019,21 +3019,6 @@ QPainter::RenderHints QPainter::renderHints() const
     return d->engine->renderHints();
 }
 
-
-#if defined Q_WS_WIN
-/*! \internal */
-HDC QPainter::handle() const
-#else
-/*! \internal */
-Qt::HANDLE QPainter::handle() const
-#endif
-{
-    Q_ASSERT(isActive());
-    Q_ASSERT(d->engine);
-    d->engine->updateState(d->state);
-    return d->engine->handle();
-}
-
 double QPainter::m11() const { return d->state->matrix.m11(); }
 double QPainter::m12() const { return d->state->matrix.m12(); }
 double QPainter::m21() const { return d->state->matrix.m21(); }
