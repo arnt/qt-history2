@@ -126,6 +126,7 @@ public:
 
     MetaDataBase();
     static void setupDataBase();
+    static void clearDataBase();
 
     static void addEntry( QObject *o );
     static void removeEntry( QObject *o );

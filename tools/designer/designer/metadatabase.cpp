@@ -92,6 +92,14 @@ void MetaDataBase::setupDataBase()
     cWidgets->setAutoDelete( TRUE );
 }
 
+void MetaDataBase::clearDataBase()
+{
+    delete db;
+    db = 0;
+    delete cWidgets;
+    cWidgets = 0;
+}
+
 void MetaDataBase::addEntry( QObject *o )
 {
     if ( !o )
