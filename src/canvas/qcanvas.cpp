@@ -2903,7 +2903,7 @@ bool QCanvasPixmapArray::readPixmaps( const QString& datafilenamepattern,
 				      int fc, bool maskonly)
 {
     if ( !maskonly ) {
-	delete [] img;
+	reset();
 	framecount = fc;
 	if ( !framecount )
 	    framecount=1;
