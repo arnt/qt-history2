@@ -246,7 +246,11 @@ be installed first. Note that every client that uses your application
 is required to have an ODBC driver manager installed, otherwise the
 QODBC3 plugin will not work.
 
-The QODBC3 Plugin needs an ODBC compilant driver manager version 3.0 or
+Be aware that when connecting to an ODBC datasource you must pass in
+the name of the ODBC datasource to the QSqlDatabase::setDatabaseName()
+function - not the actual database name.
+
+The QODBC3 Plugin needs an ODBC compliant driver manager version 3.0 or
 greater to work. Some ODBC drivers claim to be version 3.0 compilant,
 but do not offer all needed functionality. The QODBC3 plugin therefore
 checks whether the data source can be used after a connection has been
