@@ -1,9 +1,11 @@
 /****************************************************************************
 ** $Id$
 **
-** Implementation of platform specific QFontDatabase
+** Implementation of QFontDatabase class for Win32
 **
 ** Created : 970521
+**
+** Copyright (C) 1997-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
