@@ -1,6 +1,7 @@
 TEMPLATE	= lib
 CONFIG		= qt warn_on release
 WIN32:CONFIG   += dll
+WIN32:CONFIG   -= staticlib
 HEADERS		= sqlformwizardimpl.h
 SOURCES		= main.cpp sqlformwizardimpl.cpp
 DESTDIR		= $(QTDIR)/plugins
