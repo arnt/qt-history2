@@ -204,6 +204,7 @@ void QFtpPI::connected()
 //    qDebug( "QFtpPI state: %d [connected()]", state );
 #endif
     emit connectState( QFtp::CsConnected );
+    emit finished( Ok, tr( "Connected to host %1" ).arg( commandSocket.peerName() ) );
 }
 
 void QFtpPI::connectionClosed()
@@ -214,6 +215,17 @@ void QFtpPI::connectionClosed()
 void QFtpPI::delayedCloseFinished()
 {
     emit connectState( QFtp::CsClosed );
+}
+
+void QFtpPI::error( int e )
+{
+    if ( e == QSocket::ErrHostNotFound ) {
+	emit connectState( QFtp::CsHostNotFound );
+	emit finished( Error, tr( "Host %1 not found" ).arg( commandSocket.peerName() ) );
+    } else if ( e == QSocket::ErrConnectionRefused ) {
+	emit connectState( QFtp::CsConnectionRefused );
+	emit finished( Error, tr( "Connection refused to host %1" ).arg( commandSocket.peerName() ) );
+    }
 }
 
 void QFtpPI::readyRead()
@@ -261,14 +273,6 @@ void QFtpPI::readyRead()
 
 	replyText = "";
     }
-}
-
-void QFtpPI::error( int e )
-{
-    if ( e == QSocket::ErrHostNotFound )
-	emit connectState( QFtp::CsHostNotFound );
-    else if ( e == QSocket::ErrConnectionRefused )
-	emit connectState( QFtp::CsConnectionRefused );
 }
 
 void QFtpPI::processReply()
@@ -470,20 +474,6 @@ void QFtp::init()
 }
 
 /*!
-   Connects to the FTP server \a host at the \a port. This function returns
-   immediately and does not block until the connection succeeded. The
-   connectState() signal is emitted when the state of the connecting
-   process changes.
-
-   \sa connectState()
-*/
-void QFtp::connectToHost( const QString &host, Q_UINT16 port )
-{
-    QFtpPrivate *d = ::d( this );
-    d->pi.connectToHost( host, port );
-}
-
-/*!
   \enum QFtp::ConnectState
 
   This enum defines the changes of the connection state:
@@ -496,14 +486,10 @@ void QFtp::connectToHost( const QString &host, Q_UINT16 port )
 
   \sa connectState()
 */
-
 /*!
   \enum QFtp::Command
-
 ###
 */
-
-
 /*!  \fn void QFtp::connectState( int state )
   This signal is emitted when the state of the connection changes. The argument
   \a state is the new state of the connection; it is one of the enum \l
@@ -511,14 +497,13 @@ void QFtp::connectToHost( const QString &host, Q_UINT16 port )
 
   \sa connectToHost() ConnectState
 */
-
 /*!  \fn void QFtp::start( int id )
   This signal is emitted ###
 */
-/*!  \fn void QFtp::finishedSuccess( int )
+/*!  \fn void QFtp::finishedSuccess( int id )
   This signal is emitted ###
 */
-/*!  \fn void QFtp::finishedError( int, const QString& )
+/*!  \fn void QFtp::finishedError( int id, const QString &details )
   This signal is emitted ###
 */
 /*!  \fn void QFtp::doneSuccess()
@@ -527,6 +512,25 @@ void QFtp::connectToHost( const QString &host, Q_UINT16 port )
 /*!  \fn void QFtp::doneError()
   This signal is emitted ###
 */
+
+/*!
+   Connects to the FTP server \a host at the \a port. This function returns
+   immediately and does not block until the connection succeeded. The
+   connectState() signal is emitted when the state of the connecting
+   process changes.
+
+   Returns ###
+   ### mention start() and finished...() signals
+
+   \sa connectState()
+*/
+int QFtp::connectToHost( const QString &host, Q_UINT16 port )
+{
+    QStringList cmds;
+    cmds << host;
+    cmds << QString::number( (uint)port );
+    return addCommand( ConnectToHost, cmds );
+}
 
 /*!
   ###
@@ -588,8 +592,12 @@ void QFtp::startNextCommand()
     if ( c == 0 )
 	return;
     emit start( c->id );
-    if ( !d->pi.sendCommands( c->rawCmds ) ) {
-	// ### error handling (this case should not happen)
+    if ( c->command == ConnectToHost ) {
+	d->pi.connectToHost( c->rawCmds[0], c->rawCmds[1].toUInt() );
+    } else {
+	if ( !d->pi.sendCommands( c->rawCmds ) ) {
+	    // ### error handling (this case should not happen)
+	}
     }
 }
 

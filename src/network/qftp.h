@@ -77,7 +77,7 @@ public:
     };
     enum Command {
 	None,
-//###	ConnectToHost,
+	ConnectToHost,
 	Login,
 //###	Close,
 //###	Cd,
@@ -92,7 +92,7 @@ public:
 	FtpCommand
     };
 
-    void connectToHost( const QString &host, Q_UINT16 port=21 );
+    int connectToHost( const QString &host, Q_UINT16 port=21 );
     int login( const QString &user=QString::null, const QString &password=QString::null );
 
     int currentId() const;
