@@ -311,6 +311,23 @@ QSqlRecord QSqlDriver::record(const QString& ) const
 }
 
 /*!
+    Returns the \a identifier escaped according to the database rules.
+    \a identifier can either be a table name or field name.
+
+    The default implementation encases the identifier with double quotes.
+ */
+QString QSqlDriver::escapeIdentifier(const QString &identifier) const
+{
+    QString res = identifier;
+    res.replace(QLatin1Char('"'), QLatin1String("\"\""));
+    res.prepend(QLatin1Char('"')).append(QLatin1Char('"'));
+    int idx = identifier.indexOf(QLatin1Char('.'));
+    if (idx != -1)
+        res.replace(QLatin1Char('.'), QLatin1String("\".\""));
+    return res;
+}
+
+/*!
     Returns a SQL statement of type \a type for the table \a tableName
     with the values from \a rec. If \a preparedStatement is TRUE, the
     string will contain placeholders instead of values.
@@ -329,20 +346,21 @@ QString QSqlDriver::sqlStatement(StatementType type, const QString &tableName,
     case SelectStatement:
         for (i = 0; i < rec.count(); ++i) {
             if (rec.isGenerated(i))
-                s.append(rec.fieldName(i)).append(QLatin1String(", "));
+                s.append(escapeIdentifier(rec.fieldName(i))).append(QLatin1String(", "));
         }
         if (s.isEmpty())
             return s;
         s.chop(2);
-        s.prepend(QLatin1String("SELECT ")).append(QLatin1String(" FROM ")).append(tableName);
+        s.prepend(QLatin1String("SELECT ")).append(QLatin1String(" FROM ")).append(
+                escapeIdentifier(tableName));
         break;
     case WhereStatement:
         if (preparedStatement) {
             for (int i = 0; i < rec.count(); ++i)
-                s.append(rec.fieldName(i)).append(QLatin1String(" = ? AND "));
+                s.append(escapeIdentifier(rec.fieldName(i))).append(QLatin1String(" = ? AND "));
         } else {
             for (i = 0; i < rec.count(); ++i) {
-                s.append(rec.fieldName(i));
+                s.append(escapeIdentifier(rec.fieldName(i)));
                 QString val = formatValue(rec.field(i));
                 if (val == QLatin1String("NULL"))
                     s.append(QLatin1String(" IS NULL"));
@@ -353,15 +371,16 @@ QString QSqlDriver::sqlStatement(StatementType type, const QString &tableName,
         }
         if (!s.isEmpty()) {
             s.prepend(QLatin1String("WHERE "));
-            s.chop(5); // remove trailing AND
+            s.chop(5); // remove tailing AND
         }
         break;
     case UpdateStatement:
-        s.append(QLatin1String("UPDATE ")).append(tableName).append(QLatin1String(" SET "));
+        s.append(QLatin1String("UPDATE ")).append(escapeIdentifier(tableName)).append(
+                 QLatin1String(" SET "));
         for (i = 0; i < rec.count(); ++i) {
             if (!rec.isGenerated(i) || !rec.value(i).isValid())
                 continue;
-            s.append(rec.fieldName(i)).append(QLatin1Char('='));
+            s.append(escapeIdentifier(rec.fieldName(i))).append(QLatin1Char('='));
             if (preparedStatement)
                 s.append(QLatin1Char('?'));
             else
@@ -374,15 +393,16 @@ QString QSqlDriver::sqlStatement(StatementType type, const QString &tableName,
             s = QString();
         break;
     case DeleteStatement:
-        s.append(QLatin1String("DELETE FROM ")).append(tableName);
+        s.append(QLatin1String("DELETE FROM ")).append(escapeIdentifier(tableName));
         break;
     case InsertStatement: {
-        s.append(QLatin1String("INSERT INTO ")).append(tableName).append(QLatin1String(" ("));
+        s.append(QLatin1String("INSERT INTO ")).append(escapeIdentifier(tableName)).append(
+                 QLatin1String(" ("));
         QString vals;
         for (i = 0; i < rec.count(); ++i) {
             if (!rec.isGenerated(i))
                 continue;
-            s.append(rec.fieldName(i)).append(QLatin1String(", "));
+            s.append(escapeIdentifier(rec.fieldName(i))).append(QLatin1String(", "));
             if (preparedStatement)
                 vals.append(QLatin1String("?"));
             else

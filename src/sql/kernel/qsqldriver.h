@@ -70,6 +70,7 @@ public:
 #endif
     virtual QString formatValue(const QSqlField& field, bool trimStrings = false) const;
 
+    virtual QString escapeIdentifier(const QString &identifier) const;
     virtual QString sqlStatement(StatementType type, const QString &tableName,
                                  const QSqlRecord &rec, bool preparedStatement) const;
 
