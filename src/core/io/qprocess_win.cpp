@@ -24,6 +24,119 @@
 #define SLEEPMIN 10
 #define SLEEPMAX 500
 #define NOTIFYTIMEOUT 100
+#define MAXSINGLEWRITE 10000
+
+
+class QWindowsPipeWriter : public QThread
+{
+    Q_OBJECT
+public:
+    QWindowsPipeWriter(HANDLE writePipe, QObject * parent = 0);
+    ~QWindowsPipeWriter();
+    
+    bool waitForWrite(int msecs);
+    Q_LONGLONG write(const char *data, Q_LONGLONG maxlen);
+
+signals:
+    void canWrite();
+
+protected:
+   void run();
+
+private:
+    QMutex lock;
+    QWaitCondition waitCondition;
+    bool quitNow;
+    HANDLE writePipe;
+    QByteArray data;
+};
+
+
+QWindowsPipeWriter::QWindowsPipeWriter(HANDLE pipe, QObject * parent)
+    : quitNow(false), QThread(parent)
+{
+  
+    DuplicateHandle(GetCurrentProcess(), pipe, GetCurrentProcess(),
+                         &writePipe, 0, FALSE, DUPLICATE_SAME_ACCESS);
+}
+
+
+QWindowsPipeWriter::~QWindowsPipeWriter()
+{
+    lock.lock();
+    quitNow = true;
+    waitCondition.wakeOne();
+    lock.unlock();
+    if (!wait(100))
+        terminate();
+    CloseHandle(writePipe);
+}
+
+bool QWindowsPipeWriter::waitForWrite(int msecs)
+{
+    QMutexLocker locker(&lock);
+    if (data.isEmpty())
+        return true;
+    return waitCondition.wait(&lock, msecs);
+}
+
+Q_LONGLONG QWindowsPipeWriter::write(const char *ptr, Q_LONGLONG maxlen)
+{
+    if (!isRunning())
+        return -1;
+
+    QMutexLocker locker(&lock);
+    if (!data.isEmpty())
+        return 0;
+    data = QByteArray(ptr, maxlen);
+    waitCondition.wakeOne();
+    return maxlen;
+}
+
+
+void QWindowsPipeWriter::run()
+{
+    
+    for (;;) {
+
+        lock.lock();
+
+        while(data.isEmpty() && (!quitNow)) {
+            waitCondition.wakeOne();
+            waitCondition.wait(&lock);
+        }
+
+        if (quitNow) {
+            lock.unlock();
+            break;
+        }
+
+        QByteArray copy = data;
+        data.clear();
+
+        lock.unlock();
+
+        const char *ptrData = copy.data();
+        Q_LONGLONG maxlen = copy.size();
+        Q_LONGLONG totalWritten = 0;
+        while ((!quitNow) && totalWritten < maxlen) {
+            DWORD written = 0;
+            DWORD write = qMin(8192, maxlen - totalWritten);
+            ptrData += totalWritten;
+            //qDebug("about to write : %d", write);
+            if (!WriteFile(writePipe, ptrData, write, &written, 0)) {
+               // qDebug("write failed");
+               // DWORD error = GetLastError(); //NT_STATUS_INVALID_USER_BUFFER
+               // qErrnoWarning("write failed %0xd", GetLastError());
+                return;
+            }
+            totalWritten += written;
+            
+            //qDebug("wrote : %d, totalWritten : %d, of %lld", written, totalWritten, maxlen);
+        }
+        emit canWrite();
+    }
+}
 
 static void qt_create_pipes(QProcessPrivate *that)
 {
@@ -66,6 +179,11 @@ void QProcessPrivate::destroyPipe(Q_PIPE pipe[2])
     if (pipe[1] != INVALID_Q_PIPE) {
         CloseHandle(pipe[1]);
         pipe[1] = INVALID_Q_PIPE;
+    }
+
+    if (pipeWriter) {
+        delete pipeWriter;
+        pipeWriter = 0;
     }
 }
 
@@ -364,26 +482,21 @@ bool QProcessPrivate::waitForFinished(int msecs)
 
 Q_LONGLONG QProcessPrivate::writeToStdin(const char *data, Q_LONGLONG maxlen)
 {
-    Q_LONGLONG totalWritten = 0;
+    Q_Q(QProcess);
 
-    while (totalWritten < maxlen) {
-        DWORD written = 0;
-        DWORD write = qMin(8192, maxlen - totalWritten);
-        data += totalWritten;
-        if (!WriteFile(writePipe[1], data, write, &written, 0)) {
-            totalWritten = -1;
-            break;
-        }
-        totalWritten += written;
+    if (!pipeWriter) {
+        pipeWriter = new QWindowsPipeWriter(writePipe[1], q);
+        pipeWriter->start();
     }
-    return totalWritten;
+    
+    return pipeWriter->write(data, qMin(MAXSINGLEWRITE, maxlen));
 }
 
-bool QProcessPrivate::waitForWrite(int)
+bool QProcessPrivate::waitForWrite(int msecs)
 {
     Q_Q(QProcess);
 
-    if (processStarted())
+    if (!pipeWriter || pipeWriter->waitForWrite(msecs))
         return true;
 
     processError = QProcess::Timedout;
@@ -400,7 +513,7 @@ void QProcessPrivate::notified()
         return;
     }
 
-    if (!writeBuffer.isEmpty())
+    if (!writeBuffer.isEmpty() && (!pipeWriter || pipeWriter->waitForWrite(0)))
         canWrite();
 
     if (bytesAvailableFromStdout())
@@ -414,129 +527,5 @@ void QProcessPrivate::notified()
 
 
 
-class Gate
-{
-public:
-    Gate();
-    void open();
-    void waitForOpenThenClose();
-private:
-    QMutex lock;
-    QWaitCondition wait;
-    bool isOpen;
-};
 
-Gate::Gate()
-    : isOpen(false)
-{
-}
-
-void Gate::open()
-{
-    lock.lock();
-    isOpen = true;
-    wait.wakeAll();
-    lock.unlock();
-}
-
-void Gate::waitForOpenThenClose()
-{
-    lock.lock();
-    while (!isOpen)
-        wait.wait(&lock);
-    isOpen = false;
-    lock.unlock();
-}
-
-
-
-class WindowsPipeWriter : public QThread
-{
-public:
-    WindowsPipeWriter(HANDLE writePipe, QObject * parent = 0);
-    ~WindowsPipeWriter();
-    
-    bool canWrite();
-    Q_LONGLONG write(const char *data, Q_LONGLONG maxlen);
-
-protected:
-   void run();
-
-private:
-    QMutex dataLock;
-    Gate gate;
-    bool writing;
-    bool quitNow;
-    HANDLE writePipe;
-    QByteArray data;
-};
-
-
-WindowsPipeWriter::WindowsPipeWriter(HANDLE pipe, QObject * parent)
-    : writing(false), quitNow(false), QThread(parent)
-{
-  
-    DuplicateHandle(GetCurrentProcess(), pipe, GetCurrentProcess(),
-                         &writePipe, 0, FALSE, DUPLICATE_SAME_ACCESS);
-}
-
-
-WindowsPipeWriter::~WindowsPipeWriter()
-{
-    quitNow = true;
-    gate.open();
-    wait(100);
-    terminate();
-}
-
-bool WindowsPipeWriter::canWrite()
-{
-    return !writing;
-}
-
-
-Q_LONGLONG WindowsPipeWriter::write(const char *data, Q_LONGLONG maxlen)
-{
-    if (!isRunning())
-        return -1;
-
-    if (!canWrite())
-        return 0;
-
-    dataLock.lock();
-    data = QByteArray(data, maxlen);
-    writing = true;
-    gate.open();
-    dataLock.unlock();
-    return maxlen; 
-}
-
-
-void WindowsPipeWriter::run()
-{
-    
-    while (!quitNow) {
-
-        //wait at the gate
-        gate.waitForOpenThenClose();
-       
-        dataLock.lock();
-        const char *ptrData = data.data();
-        Q_LONGLONG maxlen = data.size();
-        Q_LONGLONG totalWritten = 0;
-        while (!quitNow && totalWritten < maxlen) {
-            DWORD written = 0;
-            DWORD write = qMin(8192, maxlen - totalWritten);
-            ptrData += totalWritten;
-            if (!WriteFile(writePipe, ptrData, write, &written, 0)) {
-                totalWritten = -1;
-                exit();
-            }
-            totalWritten += written;
-        }
-        dataLock.unlock();
-        writing = false;
-    }
-
-    CloseHandle(writePipe);
-}
+#include "qprocess_win.moc"
