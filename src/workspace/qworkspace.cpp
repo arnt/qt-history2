@@ -1237,6 +1237,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 	      WStyle_Customize | WStyle_NoBorder  | WDestructiveClose )
 {
     widgetResizeHandler = new QWidgetResizeHandler( this, window );
+    widgetResizeHandler->setMovingEnabled( FALSE );
     connect( widgetResizeHandler, SIGNAL( activate() ),
 	     this, SLOT( activate() ) );
     setMouseTracking( TRUE );
