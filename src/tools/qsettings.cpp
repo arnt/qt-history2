@@ -663,7 +663,25 @@ QSettings::QSettings()
     Q_CHECK_PTR(d);
 
 #if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+    d->sysd = 0;
     d->sysInit();
+#endif
+}
+
+/*!
+  Creates a settings object. If \a unixFormat is TRUE the settings will
+  be written and read following the UNIX strategy. Otherwise they will
+  be stored in a platform specific way (ie. the Windows registry).
+*/
+QSettings::QSettings( bool unixFormat )
+{
+    d = new QSettingsPrivate;
+    Q_CHECK_PTR(d);
+
+#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+    d->sysd = 0;
+    if ( !unixFormat )
+	d->sysInit();
 #endif
 }
 
@@ -677,7 +695,8 @@ QSettings::~QSettings()
     sync();
 
 #if defined(Q_WS_WIN) || defined(Q_OS_MAC)
-    d->sysClear();
+    if ( d->sysd )
+	d->sysClear();
 #endif
 
     delete d;
@@ -691,7 +710,8 @@ QSettings::~QSettings()
 bool QSettings::sync()
 {
 #if defined(Q_WS_WIN) || defined(Q_OS_MAC)
-    d->sysSync();
+    if ( d->sysd )
+	d->sysSync();
 #endif
     if (! d->modified)
 	// fake success
@@ -801,7 +821,8 @@ bool QSettings::sync()
 bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
 {
 #if defined(Q_WS_WIN) || defined(Q_OS_MAC)
-    return d->sysReadBoolEntry( key, def, ok );
+    if ( d->sysd )
+	return d->sysReadBoolEntry( key, def, ok );
 #endif
 
     QString value = readEntry( key, ( def ? "true" : "false" ), ok );
@@ -835,7 +856,8 @@ bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
 double QSettings::readDoubleEntry(const QString &key, double def, bool *ok )
 {
 #if defined(Q_WS_WIN) || defined(Q_OS_MAC)
-    return d->sysReadDoubleEntry( key, def, ok );
+    if ( d->sysd )
+	return d->sysReadDoubleEntry( key, def, ok );
 #endif
 
     QString value = readEntry( key, QString::number(def), ok );
@@ -863,7 +885,8 @@ double QSettings::readDoubleEntry(const QString &key, double def, bool *ok )
 int QSettings::readNumEntry(const QString &key, int def, bool *ok )
 {
 #if defined(Q_WS_WIN) || defined(Q_OS_MAC)
-    return d->sysReadNumEntry( key, def, ok );
+    if ( d->sysd )
+	return d->sysReadNumEntry( key, def, ok );
 #endif
 
     QString value = readEntry( key, QString::number( def ), ok );
@@ -890,19 +913,20 @@ int QSettings::readNumEntry(const QString &key, int def, bool *ok )
 */
 QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
 {
-#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
-    return d->sysReadEntry( key, def, ok );
-#endif
-
-    if ( ok ) // no, everything is not ok
-	*ok = FALSE;
-
     if (key.isNull() || key.isEmpty()) {
 #ifdef QT_CHECK_STATE
 	qWarning("QSettings::readEntry: invalid null/empty key.");
 #endif // QT_CHECK_STATE
 	return def;
     }
+
+#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+    if ( d->sysd )
+	return d->sysReadEntry( key, def, ok );
+#endif
+
+    if ( ok ) // no, everything is not ok
+	*ok = FALSE;
 
     QString realkey;
 
@@ -961,7 +985,8 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
 bool QSettings::writeEntry(const QString &key, bool value)
 {
 #if defined(Q_WS_WIN) || defined(Q_OS_MAC)
-    return d->sysWriteEntry( key, value );
+    if ( d->sysd )
+	return d->sysWriteEntry( key, value );
 #endif
     QString s(value ? "true" : "false");
     return writeEntry(key, s);
@@ -1049,11 +1074,6 @@ bool QSettings::writeEntry(const QString &key, const char *value)
 */
 bool QSettings::writeEntry(const QString &key, const QString &value)
 {
-#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
-    return d->sysWriteEntry( key, value );
-#endif
-    // NOTE: we *do* allow value to be a null/empty string
-
     if (key.isNull() || key.isEmpty()) {
 #ifdef QT_CHECK_STATE
 	qWarning("QSettings::writeEntry: invalid null/empty key.");
@@ -1061,6 +1081,12 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
 
 	return FALSE;
     }
+
+#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+    if ( d->sysd )
+	return d->sysWriteEntry( key, value );
+#endif
+    // NOTE: we *do* allow value to be a null/empty string
 
     QString realkey;
 
@@ -1108,10 +1134,6 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
 */
 bool QSettings::removeEntry(const QString &key)
 {
-#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
-    return d->sysRemoveEntry( key );
-#endif
-
     if (key.isNull() || key.isEmpty()) {
 #ifdef QT_CHECK_STATE
 	qWarning("QSettings::removeEntry: invalid null/empty key.");
@@ -1119,6 +1141,11 @@ bool QSettings::removeEntry(const QString &key)
 
 	return FALSE;
     }
+
+#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+    if ( d->sysd )
+	return d->sysRemoveEntry( key );
+#endif
 
     QString realkey;
 
@@ -1194,7 +1221,8 @@ QStringList QSettings::entryList(const QString &key) const
     }
 
 #if defined(Q_WS_WIN) || defined(Q_OS_MAC)
-    return d->sysEntryList( key );
+    if ( d->sysd )
+	return d->sysEntryList( key );
 #endif
 
     QString realkey;
@@ -1289,7 +1317,8 @@ QStringList QSettings::subkeyList(const QString &key) const
     }
 
 #if defined(Q_WS_WIN) || defined(Q_OS_MAC)
-    return d->sysSubkeyList( key );
+    if ( d->sysd )
+	return d->sysSubkeyList( key );
 #endif
 
     QString realkey;
@@ -1357,11 +1386,6 @@ QStringList QSettings::subkeyList(const QString &key) const
 */
 QDateTime QSettings::lastModficationTime(const QString &key)
 {
-#ifdef Q_WS_WIN
-    if ( d->sysd )
-	return QDateTime();
-#endif
-
     if (key.isNull() || key.isEmpty()) {
 #ifdef QT_CHECK_STATE
 	qWarning("QSettings::lastModficationTime: invalid null/empty key.");
@@ -1369,6 +1393,14 @@ QDateTime QSettings::lastModficationTime(const QString &key)
 
 	return QDateTime();
     }
+
+#ifdef Q_WS_WIN
+    if ( d->sysd )
+	return QDateTime();
+#endif
+#ifdef Q_OS_MAC
+    //###
+#endif
 
     if (key[0] == '/') {
 	// parse our key

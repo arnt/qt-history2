@@ -52,6 +52,8 @@ class Q_EXPORT QSettings
 {
 public:
     QSettings();
+    QSettings( bool unixFormat );
+
     ~QSettings();
 
     enum System {
