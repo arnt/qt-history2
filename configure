@@ -309,11 +309,11 @@ QT_INSTALL_SYSCONF=
 # check SQL drivers and styles available in this package
 #-------------------------------------------------------------------------------
 
-CFG_SQL_AVAILABLE=`find $relpath/plugins/src/sqldrivers/* -prune -type d -exec basename {} \;`
+CFG_SQL_AVAILABLE=`find $relpath/src/plugins/sqldrivers/* -prune -type d -exec basename {} \;`
 # normalize whitespace
 CFG_SQL_AVAILABLE=`echo $CFG_SQL_AVAILABLE`
 
-CFG_STYLE_AVAILABLE=`find $relpath/plugins/src/styles/* -prune -type d -exec basename {} \;`
+CFG_STYLE_AVAILABLE=`find $relpath/src/plugins/styles/* -prune -type d -exec basename {} \;`
 # normalize whitespace
 CFG_STYLE_AVAILABLE=`echo $CFG_STYLE_AVAILABLE`
 
@@ -1613,13 +1613,13 @@ AIX:*:00????????00)
     ;;
 esac
 
-if [ -d "$relpath/arch/$ARCH" ]; then
+if [ -d "$relpath/src/core/arch/$ARCH" ]; then
     if [ "$OPT_VERBOSE" = "yes" ]; then
 	echo "    '$ARCH' is supported"
     fi
 else
     if [ "$OPT_VERBOSE" = "yes" ]; then
-	echo "    '$ARCH' is supported, using 'generic'"
+	echo "    '$ARCH' is unsupported, using 'generic'"
     fi
     ARCH="generic"
 fi
@@ -1630,7 +1630,7 @@ fi
 
 # symlink the arch/$ARCH/arch/ include directory to include/arch/
 rm -f "$outpath/include/arch"
-ln -s "$relpath/arch/$ARCH/arch" "$outpath/include/arch"
+ln -s "$relpath/src/core/arch/$ARCH/arch" "$outpath/include/arch"
 
 #-------------------------------------------------------------------------------
 # tests that don't need qmake (must be run before displaying help)
@@ -1912,7 +1912,7 @@ fi
 
 # embedded graphics
 if [ "$PLATFORM_QWS" = "yes" ]; then
-    CFG_GFX_AVAILABLE=`find $relpath/plugins/src/gfxdrivers/* -prune -type d -print | awk -F/ '{print $NF}'`
+    CFG_GFX_AVAILABLE=`find $relpath/src/plugins/gfxdrivers/* -prune -type d -print | awk -F/ '{print $NF}'`
     CFG_GFX_AVAILABLE=`echo $CFG_GFX_AVAILABLE`
 fi
 
@@ -3296,7 +3296,7 @@ QT_SOURCE_TREE = $relpath
 QT_BUILD_TREE = $outpath
 QMAKE_ABSOLUTE_SOURCE_ROOT = \$\$QT_SOURCE_TREE
 ARCH = $ARCH
-INCLUDEPATH += \$\$QT_SOURCE_TREE/arch/\$\$ARCH
+INCLUDEPATH += \$\$QT_SOURCE_TREE/src/core/arch/\$\$ARCH
 EOF
 # cmdline args
 quoted=no
