@@ -1099,9 +1099,8 @@ void QLabel::changeEvent(QEvent *ev)
     if(ev->type() == QEvent::FontChange) {
         if (!d->ltext.isEmpty()) {
 #ifndef QT_NO_RICHTEXT
-            // #########################
-//             if (d->doc)
-//                 d->doc->setDefaultFont(font());
+            if (d->doc)
+                d->doc->documentLayout()->setDefaultFont(font());
 #endif
             d->updateLabel();
         }
