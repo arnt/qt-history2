@@ -145,10 +145,10 @@ struct IteratorBlock : public ParsableBlock
     bool loop_forever, cause_break, cause_next;
     QStringList list;
 
-    bool exec(QMakeProject *p);
+    bool exec(QMakeProject *p, QMap<QString, QStringList> &place);
     virtual bool continueBlock() { return !cause_next && !cause_break; }
 };
-bool IteratorBlock::exec(QMakeProject *p)
+bool IteratorBlock::exec(QMakeProject *p, QMap<QString, QStringList> &place)
 {
     bool ret = true;
     QStringList::Iterator it;
@@ -167,27 +167,27 @@ bool IteratorBlock::exec(QMakeProject *p)
         //set up the loop variable
         QStringList va;
         if(!variable.isEmpty()) {
-            va = p->variables()[variable];
+            va = place[variable];
             if(loop_forever)
-                p->variables()[variable] = QStringList(QString::number(iterate_count));
+                place[variable] = QStringList(QString::number(iterate_count));
             else
-                p->variables()[variable] = QStringList(*it);
+                place[variable] = QStringList(*it);
         }
         //do the iterations
         bool succeed = true;
         for(QList<Test>::Iterator test_it = test.begin(); test_it != test.end(); ++test_it) {
             ::parser = (*test_it).pi;
-            succeed = p->doProjectTest((*test_it).func, (*test_it).args, p->variables());
+            succeed = p->doProjectTest((*test_it).func, (*test_it).args, place);
             if((*test_it).invert)
                 succeed = !succeed;
             if(!succeed)
                 break;
         }
         if(succeed) 
-            ret = ParsableBlock::eval(p, p->variables());
+            ret = ParsableBlock::eval(p, place);
         //restore the variable in the map
         if(!variable.isEmpty())
-            p->variables()[variable] = va;
+            place[variable] = va;
         //loop counters
         if(!loop_forever)
             ++it;
@@ -365,8 +365,6 @@ QMakeProject::init(QMakeProperty *p, const QMap<QString, QStringList> *vars)
 {
     if(vars)
         base_vars = *vars;
-    iterator = 0;
-    function = 0;
     if(!p) {
         prop = new QMakeProperty;
         own_prop = true;
@@ -374,6 +372,7 @@ QMakeProject::init(QMakeProperty *p, const QMap<QString, QStringList> *vars)
         prop = p;
         own_prop = false;
     }
+    reset();
 }
 
 void
@@ -409,7 +408,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
                 }
                 ScopeBlock sb = scope_blocks.pop();
                 if(sb.iterate)
-                    sb.iterate->exec(this);
+                    sb.iterate->exec(this, place);
                 if(!scope_blocks.top().ignore) {
                     debug_msg(1, "Project Parser: %s:%d : Leaving block %d", parser.file.toLatin1().constData(),
                               parser.line_no, scope_blocks.count()+1);
@@ -474,7 +473,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
             scope_blocks.top().iterate->parser.append(IteratorBlock::Parse(append));
         if(iterate_finished) {
             scope_blocks.top().iterate = 0;
-            bool ret = it->exec(this);
+            bool ret = it->exec(this, place);
             delete it;
             if(!ret)
                 return false;
@@ -686,7 +685,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
                           parser.line_no, scope_blocks.count());
                 ScopeBlock sb = scope_blocks.pop();
                 if(sb.iterate)
-                    sb.iterate->exec(this);
+                    sb.iterate->exec(this, place);
             }
         } else {
             var += *d;
@@ -711,7 +710,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
                   parser.line_no, scope_blocks.count(), scope_failed);
     } else if(iterator) {
         iterator->parser.append(var+QString(d));
-        bool ret = iterator->exec(this);
+        bool ret = iterator->exec(this, place);
         delete iterator;
         return ret;
     }
@@ -737,7 +736,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
                   parser.line_no, scope_blocks.count());
         ScopeBlock sb = scope_blocks.pop();
         if(sb.iterate)
-            sb.iterate->exec(this);
+            sb.iterate->exec(this, place);
         vals.truncate(vals.length()-1);
     } else if(rbraces != lbraces) {
         warn_msg(WarnParser, "Possible braces mismatch {%s} %s:%d",
@@ -793,12 +792,17 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
         if(quote)
             from = QRegExp::escape(from);
         QRegExp regexp(from, case_sense ? Qt::CaseSensitive : Qt::CaseInsensitive);
-        for(QStringList::Iterator varit = varlist.begin(); varit != varlist.end(); ++varit) {
+        for(QStringList::Iterator varit = varlist.begin(); varit != varlist.end();) {
             if((*varit).contains(regexp)) {
                 (*varit) = (*varit).replace(regexp, to);
+                if ((*varit).isEmpty())
+                    varit = varlist.erase(varit);
+                else
+                    ++varit;
                 if(!global)
                     break;
-            }
+            } else
+                ++varit;
         }
     } else {
         if(op == "=") {
@@ -2115,6 +2119,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
         function_blocks.push(defined);
         defined->exec(place, args, ret);
         Q_ASSERT(function_blocks.pop() == defined);
+
         if(ret.isEmpty()) {
             return true;
         } else {
