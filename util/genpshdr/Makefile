@@ -10,8 +10,8 @@ LIBDIR	=	$(BASEDIR)/lib
 
 ####### Compiler
 
-CFLAGS	=	-g
-LFLAGS	=	-L$(LIBDIR) -lqt -lX11
+CFLAGS	=	-O2
+LFLAGS	=	-L$(LIBDIR) -lqtools
 CC	=	gcc
 
 ####### Files
@@ -40,7 +40,7 @@ depend:
 
 clean:
 	/bin/rm -f *.o *.bak *~ *% #*
-	/bin/rm -f $(SRCMETA) $(TARGET)
+	/bin/rm -f $(TARGET)
 
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
