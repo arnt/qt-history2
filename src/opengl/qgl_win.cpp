@@ -37,7 +37,7 @@
 #include <windows.h>
 
 
-class QGLColorMapPrivate : public QShared
+class QGLCmapPrivate : public QShared
 {
 public:
     enum AllocState{ UnAllocated = 0, Allocated = 0x01, Reserved = 0x02 };

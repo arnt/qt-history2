@@ -68,7 +68,7 @@ Q_EXPORT inline const char *qGLVersion() {
 #endif
 
 #if defined(Q_WS_WIN) || defined(Q_WS_MAC)
-class QGLColorMap;
+class QGLCmap;
 #endif
 
 class QPixmap;
