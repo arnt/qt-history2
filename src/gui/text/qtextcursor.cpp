@@ -308,9 +308,9 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
         break;
     }
     case QTextCursor::EndOfBlock:
-        if (blockIt.length() >= 2)
+        if (blockIt.length() >= 1)
             // position right before the block separator
-            position = blockIt.position() + blockIt.length() - 2;
+            position = blockIt.position() + blockIt.length() - 1;
         break;
     case QTextCursor::NextBlock: {
         blockIt = blockIt.next();
