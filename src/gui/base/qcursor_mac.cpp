@@ -425,7 +425,8 @@ void QCursor::update() const
 		}
 	    }
 #ifdef QMAC_USE_BIG_CURSOR_API
-	} else if(QSysInfo::MacintoshVersion >= Qt::MV_10_DOT_2 && d->bm->width() < 64 && d->bm->height() < 64) {
+	} else if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_DOT_2 && d->bm->width() < 64 
+                  && d->bm->height() < 64) {
 	    d->curs.big_cursor_name = (char *)malloc(128);
 	    static int big_cursor_cnt = 0;
 	    sprintf(d->curs.big_cursor_name, "qt_QCursor_%d_%d", getpid(), big_cursor_cnt++);

@@ -343,7 +343,7 @@ void QMacStyleQD::polish(QWidget* w)
     }
 #endif
 
-    if (QSysInfo::MacintoshVersion >= Qt::MV_JAGUAR) {
+    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_JAGUAR) {
 	if (::qt_cast<QGroupBox*>(w))
 	    w->setAttribute(QWidget::WA_ContentsPropagated, true);
     }

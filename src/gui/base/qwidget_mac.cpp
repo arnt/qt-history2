@@ -232,7 +232,7 @@ static OSStatus qt_mac_create_window(WindowClass wclass, WindowAttributes wattr,
 	geo->right++;
     if(geo->bottom == geo->top)
 	geo->bottom++;
-    if(QSysInfo::MacintoshVersion >= Qt::MV_PANTHER) {
+    if(QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
 	Rect null_rect; SetRect(&null_rect, 0, 0, 0, 0);
 	ret = CreateNewWindow(wclass, wattr, &null_rect, w);
 	if (ret == noErr) {
@@ -654,7 +654,7 @@ bool QWidgetPrivate::qt_recreate_root_win() {
 bool QWidgetPrivate::qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = false)
 {
     QWidget *widget = QWidget::find(id);
-    if(QSysInfo::MacintoshVersion == Qt::MV_10_DOT_1) {
+    if(QSysInfo::MacintoshVersion == QSysInfo::MV_10_DOT_1) {
 	switch(wcode) {
             case kWindowOpaqueRgn:
             case kWindowStructureRgn: {
