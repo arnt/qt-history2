@@ -775,7 +775,16 @@ void QLabel::drawContents( QPainter *p )
 	    cg.setColor( QColorGroup::Text, cg.light() );
 	    doc->draw(p, cr.x()+1, cr.y()+yo+1, cr, cg, 0);
 	}
-	doc->draw(p, cr.x(), cr.y()+yo, cr, colorGroup(), 0);
+	
+	// QSimpleRichText always draws with QColorGroup::Text as with
+	// background mode PaletteBase. QLabel typically has
+	// background mode PaletteBackground, so we create a temporary
+	// color group with the text color adjusted.
+	QColorGroup cg = colorGroup();
+	if ( backgroundMode() != PaletteBase )
+	    cg.setColor( QColorGroup::Text, paletteForegroundColor() );
+
+	doc->draw(p, cr.x(), cr.y()+yo, cr, cg, 0);
     } else
 #endif
 #ifndef QT_NO_PICTURE
