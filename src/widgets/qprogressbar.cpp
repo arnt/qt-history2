@@ -209,19 +209,16 @@ QSize QProgressBar::minimumSizeHint() const
 /*!
   \property QProgressBar::centerIndicator
 
-  \brief where the indicator string should be displayed
+  \brief whether the indicator string should be centered
 
-  If set to TRUE, the indicator is displayed centered.
-  Changing this property sets indicatorFollowsStyle to FALSE.
-
-  \sa indicatorFollowsStyle
+  Changing this property sets \l indicatorFollowsStyle to FALSE.
 */
 
 void QProgressBar::setCenterIndicator( bool on )
 {
     if ( !auto_indicator && on == center_indicator )
 	return;
-    auto_indicator   = FALSE;
+    auto_indicator = FALSE;
     center_indicator = on;
     repaint( FALSE );
 }
