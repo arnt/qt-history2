@@ -929,18 +929,18 @@ inline const QColor &QWidget::eraseColor() const { return background(); }
 inline void QWidget::setEraseColor(const QColor &c) { setBackground(c); }
 inline const QColor &QWidget::foregroundColor() const { return foreground(); }
 inline const QPixmap *QWidget::erasePixmap() const { return background(); }
-inline void QWidget::setErasePixmap(const QPixmap &p) { setBackground(p); }
+inline void QWidget::setErasePixmap(const QPixmap &p) { setBackground(QBrush(p)); }
 inline const QColor &QWidget::paletteForegroundColor() const { return foreground(); }
 inline void QWidget::setPaletteForegroundColor(const QColor &c) { setForeground(c); }
 inline const QColor &QWidget::paletteBackgroundColor() const { return background(); }
 inline void QWidget::setPaletteBackgroundColor(const QColor &c) { setBackground(c); }
 inline const QPixmap *QWidget::paletteBackgroundPixmap() const { return background(); }
-inline void QWidget::setPaletteBackgroundPixmap(const QPixmap &p) { setBackground(p); }
+inline void QWidget::setPaletteBackgroundPixmap(const QPixmap &p) { setBackground(QBrush(p)); }
 inline const QBrush& QWidget::backgroundBrush() const { return background(); }
 inline const QColor & QWidget::backgroundColor() const { return background(); }
 inline void QWidget::setBackgroundColor(const QColor &c) { setBackground(c); }
 inline const QPixmap *QWidget::backgroundPixmap() const { return background(); }
-inline void QWidget::setBackgroundPixmap(const QPixmap &p) { setBackground(p); }
+inline void QWidget::setBackgroundPixmap(const QPixmap &p) { setBackground(QBrush(p)); }
 #endif
 
 #define QWIDGETSIZE_MAX 32767
