@@ -4678,18 +4678,18 @@ bool QWidget::event(QEvent *e)
         break;
 
     case QEvent::ToolTip:
-        if (d->toolTip.size() && isActiveWindow()) {
-            static_cast<QHelpEvent *>(e)->accept();
+        if (d->toolTip.size() && isActiveWindow())
             QToolTip::showText(static_cast<QHelpEvent*>(e)->globalPos(), d->toolTip, this);
-        }
+        else
+            static_cast<QHelpEvent *>(e)->ignore();
         break;
 
 #ifndef QT_NO_WHATSTHIS
     case QEvent::WhatsThis:
-        if (d->whatsThis.size()) {
-            static_cast<QHelpEvent *>(e)->accept();
+        if (d->whatsThis.size())
             QWhatsThis::showText(static_cast<QHelpEvent *>(e)->globalPos(), d->whatsThis, this);
-        }
+        else
+            static_cast<QHelpEvent *>(e)->ignore();
         break;
 #endif
 #ifndef QT_NO_ACCESSIBILITY
