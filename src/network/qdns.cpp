@@ -219,13 +219,15 @@ QDnsHostInfo QDns::getHostByName(const QString &name)
 */
 void QDnsAgent::run()
 {
-    for (;;) {
-        QDnsQuery *query = 0;
+    forever {
+        QDnsQuery *query;
         {
             // the queries list is shared between threads. lock all
             // access to it.
             QMutexLocker locker(&mutex);
-            if (queries.isEmpty())
+            if (!quit && queries.isEmpty())
+                cond.wait(&mutex);
+            if (quit)
                 break;
             query = queries.takeFirst();
         }
@@ -237,11 +239,6 @@ void QDnsAgent::run()
         query->object->emitResultsReady(getHostByName(query->hostName));
         query->object = 0;
         delete query;
-
-        mutex.lock();
-        if (queries.isEmpty())
-            cond.wait(&mutex);
-        mutex.unlock();
     }
 }
 

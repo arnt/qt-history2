@@ -61,6 +61,7 @@ public:
         connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), this, SLOT(cleanup()));
         connect(QCoreApplication::instance(), SIGNAL(destroyed(QObject *)), this, SLOT(cleanup()));
         QCoreApplicationPrivate::moveToMainThread(this);
+        quit = false;
     }
     inline ~QDnsAgent()
     { cleanup(); }
@@ -81,8 +82,9 @@ public slots:
         {
             QMutexLocker locker(&mutex);
             queries.clear();
+            quit = true;
+            cond.wakeOne();
         }
-        cond.wakeOne();
         wait();
     }
 
@@ -90,6 +92,7 @@ private:
     QList<QDnsQuery *> queries;
     QMutex mutex;
     QWaitCondition cond;
+    bool quit;
 };
 
 class QDnsHostInfoPrivate
