@@ -321,7 +321,7 @@ void QDnsAnswer::parseMx()
     rr = new QDnsRR( label );
     rr->priority = (answer[pp] << 8) + answer[pp+1];
     pp += 2;
-    rr->target = readString();
+    rr->target = readString().lower();
     if ( !ok ) {
 #if defined(DEBUG_QDNS)
 	qDebug( "QDns: saw bad string in MX for %s", label.ascii() );
@@ -351,7 +351,7 @@ void QDnsAnswer::parseSrv()
     rr->weight = (answer[pp+2] << 8) + answer[pp+3];
     rr->port = (answer[pp+4] << 8) + answer[pp+5];
     pp += 6;
-    rr->target = readString();
+    rr->target = readString().lower();
     if ( !ok ) {
 #if defined(DEBUG_QDNS)
 	qDebug( "QDns: saw bad string in SRV for %s", label.ascii() );
@@ -368,7 +368,7 @@ void QDnsAnswer::parseSrv()
 
 void QDnsAnswer::parseCname()
 {
-    QString target = readString();
+    QString target = readString().lower();
     if ( !ok ) {
 #if defined(DEBUG_QDNS)
 	qDebug( "QDns: saw bad cname for for %s", label.ascii() );
@@ -388,7 +388,7 @@ void QDnsAnswer::parseCname()
 
 void QDnsAnswer::parsePtr()
 {
-    QString target = readString();
+    QString target = readString().lower();
     if ( !ok ) {
 #if defined(DEBUG_QDNS)
 	qDebug( "QDns: saw bad PTR for for %s", label.ascii() );
@@ -493,7 +493,7 @@ void QDnsAnswer::parse()
     // answers and stuff
     int rrno = 0;
     while( rrno < ancount + nscount + adcount && pp < size ) {
-	label = readString();
+	label = readString().lower();
 	if ( !ok )
 	    return;
 	uint rdlength = 0;
@@ -633,7 +633,6 @@ public:
     static void remove( QDns * );
 
     QDnsDomain * domain( const QString & );
-    QDnsQuery * query( const QString &, QDns::RecordType );
 
     void transmitQuery( QDnsQuery * );
     void transmitQuery( int );
@@ -868,21 +867,6 @@ void QDnsManager::transmitQuery( int i )
 	return;
 
     socket->writeBlock( p.data(), pp, *ns->first(), 53 );
-}
-
-
-QDnsQuery * QDnsManager::query( const QString & label,
-				QDns::RecordType type )
-{
-    int q = 0;
-    QDnsManager * m = manager();
-    while ( q < m->queries.size() && ( m->queries[q]->t != type ||
-				       m->queries[q]->l != label ) )
-	q++;
-    if ( q < m->queries.size() )
-	return m->queries[q];
-
-    return 0;
 }
 
 
@@ -1317,9 +1301,8 @@ string.
 The canonical name of a DNS node is its full name, or the full name of
 the target of its CNAME.  For example, if l.troll.no is a CNAME to
 lupinella.troll.no, and the search path for QDns is "troll.no", then
-the canonical name for "lupinella", "l" and for "l.troll.no" is
-"lupinella.troll.no".
-*/
+the canonical name for all of "lupinella", "l", "lupinella.troll.no." 
+and "l.troll.no" is "lupinella.troll.no".  */
 
 QString QDns::canonicalName() const
 {
@@ -1329,6 +1312,8 @@ QString QDns::canonicalName() const
     while( (rr=cached->current()) != 0 ) {
 	if ( rr->current && !rr->nxdomain && rr->domain ) {
 	    delete cached;
+	    if ( label().lower() == rr->domain->name() )
+		return label(); // keep case in this case
 	    return rr->domain->name();
 	}
 	cached->next();
