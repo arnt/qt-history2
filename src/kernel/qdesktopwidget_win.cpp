@@ -40,6 +40,7 @@ public:
     static int primaryScreen;
 
     static QMemArray<QRect> *rects;
+    static QMemArray<QRect> *workrects;
 
     struct MONITORINFO
     {
@@ -64,12 +65,14 @@ QDesktopWidgetPrivate::EnumFunc QDesktopWidgetPrivate::enumDisplayMonitors = 0;
 QDesktopWidgetPrivate::InfoFunc QDesktopWidgetPrivate::getMonitorInfo = 0;
 HMODULE QDesktopWidgetPrivate::user32hnd = 0;
 QMemArray<QRect> *QDesktopWidgetPrivate::rects = 0;
+QMemArray<QRect> *QDesktopWidgetPrivate::workrects = 0;
 static int screen_number = 0;
 
 BOOL CALLBACK enumCallback( HMONITOR hMonitor, HDC, LPRECT, LPARAM )
 {
     QDesktopWidgetPrivate::screenCount++;
     QDesktopWidgetPrivate::rects->resize( QDesktopWidgetPrivate::screenCount );
+    QDesktopWidgetPrivate::workrects->resize( QDesktopWidgetPrivate::screenCount );
     // Get the MONITORINFO block
     QDesktopWidgetPrivate::MONITORINFO info;
     memset( &info, 0, sizeof(QDesktopWidgetPrivate::MONITORINFO) );
@@ -77,6 +80,7 @@ BOOL CALLBACK enumCallback( HMONITOR hMonitor, HDC, LPRECT, LPARAM )
     BOOL res = QDesktopWidgetPrivate::getMonitorInfo( hMonitor, &info );
     if ( !res ) {
 	QDesktopWidgetPrivate::rects->at( screen_number ) = QRect();
+	QDesktopWidgetPrivate::workrects->at( screen_number ) = QRect();
 	return TRUE;
     }
 
@@ -84,6 +88,10 @@ BOOL CALLBACK enumCallback( HMONITOR hMonitor, HDC, LPRECT, LPARAM )
     RECT r = info.rcMonitor;
     QRect qr( QPoint( r.left, r.top ), QPoint( r.right - 1, r.bottom - 1 ) );
     QDesktopWidgetPrivate::rects->at( screen_number ) = qr;
+
+    r = info.rcWork;
+    qr = QRect( QPoint( r.left, r.top ), QPoint( r.right - 1, r.bottom - 1 ) );
+    QDesktopWidgetPrivate::workrects->at( screen_number ) = qr;
 
     if ( info.dwFlags & 0x00000001 ) //MONITORINFOF_PRIMARY
 	QDesktopWidgetPrivate::primaryScreen = screen_number;
@@ -96,6 +104,7 @@ BOOL CALLBACK enumCallback( HMONITOR hMonitor, HDC, LPRECT, LPARAM )
 QDesktopWidgetPrivate::QDesktopWidgetPrivate( QDesktopWidget *that )
 {
     rects = new QMemArray<QRect>();
+    workrects = new QMemArray<QRect>();
     if ( qt_winver & Qt::WV_98 || qt_winver & Qt::WV_2000 || qt_winver == Qt::WV_XP ) {
 	screenCount = 0;  // SM_CMONITORS
 	// Trying to get the function pointers to Win98/2000 only functions
@@ -149,6 +158,8 @@ QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
     user32hnd = 0;
     delete rects;
     rects = 0;
+    delete workrects;
+    workrects = 0;
 }
 
 /*!
@@ -279,14 +290,20 @@ QWidget *QDesktopWidget::screen( int /*screen*/ )
   Returns the available geometry of the screen with index \a screen. What
   is available will be subrect of screenGeometry() based on what the
   platform decides is available (for example excludes the Dock and Menubar
-  on Mac OS X).
+  on Mac OS X, or the taskbar on Windows).
 
   \sa screenNumber(), screenGeometry()
 */
 const QRect& QDesktopWidget::availableGeometry( int screen ) const
 {
-    return screenGeometry(screen);
-//#warning "Implement me so the taskbar is excluded.."
+    if ( qt_winver & Qt::WV_98 || qt_winver & Qt::WV_2000 || qt_winver == Qt::WV_XP ) {
+	if ( screen < 0 || screen >= d->screenCount )
+	    screen = d->primaryScreen;
+
+	return d->workrects->at( screen );
+    } else {
+	return d->workrects->at( d->primaryScreen );
+    }
 }
 
 /*!
