@@ -2698,7 +2698,6 @@ void QWidget::setBackgroundRole(QPalette::ColorRole role)
  */
 QPalette::ColorRole QWidget::foregroundRole() const
 {
-    Q_D(const QWidget);
     const QWidget *w = this;
     while (w->d_func()->isForegroundInherited())
         w = w->parentWidget();
@@ -3021,6 +3020,7 @@ QString QWidget::windowRole() const
 void QWidget::setWindowRole(const QString &role)
 {
 #if defined(Q_WS_X11)
+    Q_D(QWidget);
     d->topData()->role = role;
     d->setWindowRole(role.toUtf8().constData());
 #else
@@ -3241,6 +3241,7 @@ void QWidget::clearFocus()
     }
     if (hasFocus()) {
 #if defined(Q_WS_X11)
+        Q_D(QWidget);
 	d->unfocusInputContext();
 #endif
         QWidget* w = qApp->focusWidget();
@@ -6489,6 +6490,7 @@ void QWidget::releaseDC(HDC hdc) const
 */
 Qt::HANDLE QWidget::handle() const
 {
+    Q_D(const QWidget);
     return d->hd;
 }
 #endif
