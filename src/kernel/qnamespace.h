@@ -127,6 +127,8 @@ public:
 	AlignAuto, AlignLeft, AlignRight, AlignHCenter, AlignJustify,
 	AlignTop, AlignBottom, AlignVCenter, AlignCenter
     };
+#else
+    typedef AlignmentFlags Alignment;
 #endif
 
     // documented in qpainter.cpp

@@ -214,6 +214,7 @@ static QByteArray normalizeType(const char *s)
 
 
 bool isEnumType(const char* type);
+bool isSetType(const char* type);
 int enumIndex(const char* type);
 bool isVariantType(const char* type);
 int qvariant_nameToType(const char* name);
@@ -407,13 +408,25 @@ public:
 
 struct Property
 {
-    Property(int l, const char* t, const char* n, const char* s, const char* g, const char* r,
-	     const QByteArray& d, const QByteArray& sc, const QByteArray& st, const QByteArray& ed,
-	     bool ov)
-	: lineNo(l), type(t), name(n), set(s), get(g), reset(r), setfunc(0), getfunc(0),
-	  sspec(Unspecified), gspec(Unspecified),
-	  designable(d), scriptable(sc), stored(st), editable(ed),
-	  override(ov), oredEnum(-1)
+    Property(int lineNo_,
+	     const QByteArray &typearg,
+	     const QByteArray &name,
+	     const QByteArray &read,
+	     const QByteArray &write,
+	     const QByteArray &reset,
+	     const QByteArray &designable,
+	     const QByteArray &scriptable,
+	     const QByteArray &stored,
+	     const QByteArray &editable,
+	     bool override)
+	: lineNo(lineNo), type(typearg), name(name),
+	  read(read), write(write), reset(reset),
+	  gspec(ValueSpec),
+	  designable(designable),
+	  scriptable(scriptable),
+	  stored(stored),
+	  editable(editable),
+	  override(override)
     {
 	/*
 	  The Q_PROPERTY construct cannot contain any commas, since
@@ -438,8 +451,8 @@ struct Property
     int lineNo;
     QByteArray type;
     QByteArray name;
-    QByteArray set;
-    QByteArray get;
+    QByteArray read;
+    QByteArray write;
     QByteArray reset;
     QByteArray designable;
     QByteArray scriptable;
@@ -447,39 +460,14 @@ struct Property
     QByteArray editable;
     bool override;
 
-    Function* setfunc;
-    Function* getfunc;
-
-    int oredEnum; // If the enums item may be ored. That means the data type is int.
-		  // Allowed values are 1 (True), 0 (False), and -1 (Unset)
-    QByteArray enumsettype; // contains the set function type in case of oredEnum
-    QByteArray enumgettype; // contains the get function type in case of oredEnum
-
-    enum Specification  { Unspecified, Class, Reference, Pointer, ConstCharStar };
-    Specification sspec;
+    enum Specification  { ValueSpec, ReferenceSpec, PointerSpec };
     Specification gspec;
 
     bool stdCppSet() {
 	QByteArray s("set");
 	s += toupper(name[0]);
 	s += name.mid(1);
-	return s == set;
-    }
-
-    static const char* specToString(Specification s)
-    {
-	switch (s) {
-	case Class:
-	    return "Class";
-	case Reference:
-	    return "Reference";
-	case Pointer:
-	    return "Pointer";
-	case ConstCharStar:
-	    return "ConstCharStar";
-	default:
-	    return "Unspecified";
-	}
+	return s == write;
     }
 };
 
@@ -1474,7 +1462,9 @@ property:		IDENTIFIER IDENTIFIER
 					}
 				    }
 				    g->props.append(new Property(lineNo, $1, $2,
-								 g->propWrite, g->propRead, g->propReset,
+								 g->propRead,
+								 g->propWrite,
+								 g->propReset,
 								 g->propDesignable,
 								 g->propScriptable,
 								 g->propStored,
@@ -2392,10 +2382,10 @@ void generateMetacall()
     if (!g->props.isEmpty()) {
 	Property *p;
 	bool needAnything = FALSE;
-	for (p = g->props.first(); p && !p->getfunc; p = g->props.next());
+	for (p = g->props.first(); p && p->read.isEmpty(); p = g->props.next());
 	bool needGet = (p != 0);
 	needAnything |= needGet;
-	for (p = g->props.first(); p && !p->setfunc; p = g->props.next());
+	for (p = g->props.first(); p && p->write.isEmpty(); p = g->props.next());
 	bool needSet = (p != 0);
 	needAnything |= needSet;
 	for (p = g->props.first(); p && p->reset.isEmpty(); p = g->props.next());
@@ -2427,21 +2417,21 @@ void generateMetacall()
 	    int propindex = -1;
 	    for (p = g->props.first(); p; p = g->props.next()) {
 		++propindex;
-		if (!p->getfunc)
+		if (p->read.isEmpty())
 		    continue;
-		if (p->gspec == Property::Pointer)
+		if (p->gspec == Property::PointerSpec)
 		    fprintf(out, "        case %d: _o[0] = (void*)%s(); break;\n",
 			    propindex,
-			    (const char *)p->getfunc->name );
-		else if (p->gspec == Property::Reference)
+			    (const char *)p->read);
+		else if (p->gspec == Property::ReferenceSpec)
 		    fprintf(out, "        case %d: _o[0] = (void*)&%s(); break;\n",
 			    propindex,
-			    (const char *)p->getfunc->name );
+			    (const char *)p->read);
 		else
 		    fprintf(out, "        case %d: *(%s*)_v = %s(); break;\n",
 			    propindex,
 			    !isVariantType(p->type) ? "int" : (const char *)p->type,
-			    (const char *)p->getfunc->name );
+			    (const char *)p->read);
 	    }
 	    fprintf(out,
 		    "        }\n"
@@ -2458,12 +2448,12 @@ void generateMetacall()
 	    int propindex = -1;
 	    for (p = g->props.first(); p; p = g->props.next()) {
 		++propindex;
-		if (p->setfunc) {
+		if (!p->write.isEmpty()) {
 		    fprintf(out, "        case %d: %s(*(%s*)_v); break;\n",
 			    propindex,
-			    (const char *)p->setfunc->name,
-			    p->oredEnum
-			    ? (const char *)p->enumsettype
+			    (const char *)p->write,
+			    isSetType(p->type)
+			    ? "uint"
 			    : (const char *)p->type);
 		}
 	    }
@@ -2648,6 +2638,11 @@ bool isEnumType(const char* type)
     return g->qtEnums.contains(type) || g->qtSets.contains(type);
 }
 
+bool isSetType(const char* type)
+{
+    return g->qtSets.contains(type);
+}
+
 bool isPropertyType(const char* type)
 {
     if (isVariantType(type))
@@ -2699,234 +2694,35 @@ void generateProps()
 		" but no Q_OBJECT macro.", g->className.data());
 
     //
-    // Resolve and verify property access functions
+    // specify get function, for compatibiliy we accept functions
+    // returning pointers, or const char * for QByteArray.
     //
     for(QPtrListIterator<Property> it(g->props); it.current();) {
 	Property* p = it.current();
 	++it;
-
-	// verify get function
-	if (!p->get.isEmpty()) {
-	    FuncList candidates = g->propfuncs.find(p->get);
+	if (!p->read.isEmpty()) {
+	    FuncList candidates = g->propfuncs.find(p->read);
 	    for (Function* f = candidates.first(); f; f = candidates.next()) {
 		if (f->qualifier != "const") // get functions must be const
 		    continue;
 		if (f->args && !f->args->isEmpty()) // and must not take any arguments
 		    continue;
-		QByteArray tmp = f->rawType;
-		Property::Specification spec = Property::Unspecified;
-		if (p->type == "QByteArray" && (tmp == "const char*" || tmp == "const char *")) {
+		Property::Specification spec = Property::ValueSpec;
+		QByteArray tmp = f->type;
+		if (tmp.left(6) == "const ")
+		    tmp = tmp.mid(6);
+		if (p->type == "QByteArray" && (f->type == "const char*")) {
 		    tmp = "QByteArray";
-		    spec = Property::ConstCharStar;
-		} else if (tmp.right(1) == "&") {
-		    tmp = tmp.left(tmp.length() - 1);
-		    spec = Property::Reference;
 		} else if (tmp.right(1) == "*") {
 		    tmp = tmp.left(tmp.length() - 1);
-		    spec = Property::Pointer;
-		} else {
-		    spec = Property::Class;
+		    spec = Property::PointerSpec;
+		} else if (f->rawType.right(1) == "&") {
+		    spec = Property::ReferenceSpec;
 		}
-		if (tmp.left(6) == "const ")
-		    tmp = tmp.mid(6, tmp.length() - 6);
-		tmp = tmp.simplifyWhiteSpace();
-		if (p->type == tmp) {
-		    // If it is an enum then it may not be a set
-		    bool ok = TRUE;
-		    for(QPtrListIterator<Enum> lit(g->enums); lit.current(); ++lit)
-			if (lit.current()->name == p->type && lit.current()->set)
-			    ok = FALSE;
-		    if (!ok) continue;
+		if (p->type == tmp ||
+		    ( isEnumType(p->type) && (tmp == "int" || tmp == "uint"))) {
 		    p->gspec = spec;
-		    p->getfunc = f;
-		    p->oredEnum = 0;
 		    break;
-		}
-		else if (!isVariantType(p->type)) {
-		    if (tmp == "int" || tmp == "uint" || tmp == "unsigned int") {
-			// Test whether the enum is really a set (unfortunately we don't know enums of super classes)
-			bool ok = TRUE;
-			for(QPtrListIterator<Enum> lit(g->enums); lit.current(); ++lit)
-			    if (lit.current()->name == p->type && !lit.current()->set)
-				ok = FALSE;
-			if (!ok) continue;
-			p->gspec = spec;
-			p->getfunc = f;
-			p->oredEnum = 1;
-			p->enumgettype = tmp;
-		    }
-		}
-	    }
-	    if (p->getfunc == 0) {
-		if (displayWarnings) {
-
-		    // Is the type a set, that means, mentioned in Q_SETS?
-		    bool set = FALSE;
-		    for(QPtrListIterator<Enum> lit(g->enums); lit.current(); ++lit)
-			if (lit.current()->name == p->type && lit.current()->set)
-			    set = TRUE;
-
-		    fprintf(stderr, ErrorFormatString" Warning: Property '%s' not available.\n",
-			     g->fileName.data(), p->lineNo, (const char*) p->name);
-		    fprintf(stderr, "   Have been looking for public get functions \n");
-		    if (!set) {
-			fprintf(stderr,
-			     "      %s %s() const\n"
-			     "      %s& %s() const\n"
-			     "      const %s& %s() const\n"
-			     "      %s* %s() const\n",
-			     (const char*) p->type, (const char*) p->get,
-			     (const char*) p->type, (const char*) p->get,
-			     (const char*) p->type, (const char*) p->get,
-			     (const char*) p->type, (const char*) p->get);
-		    }
-		    if (set || !isPropertyType(p->type)) {
-			fprintf(stderr,
-			     "      int %s() const\n"
-			     "      uint %s() const\n"
-			     "      unsigned int %s() const\n",
-			     (const char*) p->get,
-			     (const char*) p->get,
-			     (const char*) p->get);
-		    }
-		    if (p->type == "QByteArray")
-			fprintf(stderr, "      const char* %s() const\n",
-				 (const char*)p->get);
-
-		    if (candidates.isEmpty()) {
-			fprintf(stderr, "   but found nothing.\n");
-		    } else {
-			fprintf(stderr, "   but only found the missmatching candidate(s)\n");
-			for (Function* f = candidates.first(); f; f = candidates.next()) {
-			    QByteArray typstr;
-			    Argument *a = f->args->first();
-			    int count = 0;
-			    while (a) {
-				if (!a->leftType.isEmpty() || ! a->rightType.isEmpty()) {
-				    if (count++)
-					typstr += ",";
-				    typstr += a->leftType;
-				    typstr += a->rightType;
-				}
-				a = f->args->next();
-			    }
-			    fprintf(stderr, "      %s:%d: %s %s(%s) %s\n", g->fileName.data(), f->lineNo,
-				     (const char*) f->type,(const char*) f->name, (const char*) typstr,
-				     f->qualifier.isNull()?"":(const char*) f->qualifier);
-			}
-		    }
-		}
-	    }
-	}
-
-	// verify set function
-	if (!p->set.isEmpty()) {
-	    FuncList candidates = g->propfuncs.find(p->set);
-	    for (Function* f = candidates.first(); f; f = candidates.next()) {
-		if (!f->args || f->args->isEmpty())
-		    continue;
-		QByteArray tmp = f->args->first()->leftType;
-		tmp = tmp.simplifyWhiteSpace();
-		Property::Specification spec = Property::Unspecified;
-		if (tmp.right(1) == "&") {
-		    tmp = tmp.left(tmp.length() - 1);
-		    spec = Property::Reference;
-		}
-		else {
-		    spec = Property::Class;
-		}
-		if (p->type == "QByteArray" && (tmp == "const char*" || tmp == "const char *")) {
-		    tmp = "QByteArray";
-		    spec = Property::ConstCharStar;
-		}
-		if (tmp.left(6) == "const ")
-		    tmp = tmp.mid(6, tmp.length() - 6);
-		tmp = tmp.simplifyWhiteSpace();
-
-		if (p->type == tmp && f->args->count() == 1) {
-		    // If it is an enum then it may not be a set
-		    if (p->oredEnum == 1)
-			continue;
-		    bool ok = TRUE;
-		    for(QPtrListIterator<Enum> lit(g->enums); lit.current(); ++lit)
-			if (lit.current()->name == p->type && lit.current()->set)
-			    ok = FALSE;
-		    if (!ok) continue;
-		    p->sspec = spec;
-		    p->setfunc = f;
-		    p->oredEnum = 0;
-		    break;
-		} else if (!isVariantType(p->type) && f->args->count() == 1) {
-		    if (tmp == "int" || tmp == "uint" || tmp == "unsigned int") {
-			if (p->oredEnum == 0)
-			    continue;
-			// Test wether the enum is really a set (unfortunately we don't know enums of super classes)
-			bool ok = TRUE;
-			for(QPtrListIterator<Enum> lit(g->enums); lit.current(); ++lit)
-			    if (lit.current()->name == p->type && !lit.current()->set)
-				ok = FALSE;
-			if (!ok) continue;
-			p->sspec = spec;
-			p->setfunc = f;
-			p->oredEnum = 1;
-			p->enumsettype = tmp;
-		    }
-		}
-	    }
-	    if (p->setfunc == 0) {
-		if (displayWarnings) {
-
-		    // Is the type a set, that means, mentioned in Q_SETS ?
-		    bool set = FALSE;
-		    for(QPtrListIterator<Enum> lit(g->enums); lit.current(); ++lit)
-			if (lit.current()->name == p->type && lit.current()->set)
-			    set = TRUE;
-
-		    fprintf(stderr, ErrorFormatString" Warning: Property '%s' not writable.\n",
-			     g->fileName.data(), p->lineNo, (const char*) p->name);
-		    fprintf(stderr, "   Have been looking for public set functions \n");
-		    if (!set && p->oredEnum != 1) {
-			fprintf(stderr,
-			     "      void %s(%s)\n"
-			     "      void %s(%s&)\n"
-			     "      void %s(const %s&)\n",
-			     (const char*) p->set, (const char*) p->type,
-			     (const char*) p->set, (const char*) p->type,
-			     (const char*) p->set, (const char*) p->type);
-		    }
-		    if (set || (!isPropertyType(p->type) && p->oredEnum != 0)) {
-			fprintf(stderr,
-			     "      void %s(int)\n"
-			     "      void %s(uint)\n"
-			     "      void %s(unsigned int)\n",
-			     (const char*) p->set,
-			     (const char*) p->set,
-			     (const char*) p->set);
-		    }
-
-		    if (p->type == "QByteArray")
-			fprintf(stderr, "      void %s(const char*) const\n",
-				 (const char*) p->set);
-
-		    if (!candidates.isEmpty()) {
-			fprintf(stderr, "   but only found the missmatching candidate(s)\n");
-			for (Function* f = candidates.first(); f; f = candidates.next()) {
-			    QByteArray typstr;
-			    Argument *a = f->args->first();
-			    int count = 0;
-			    while (a) {
-				if (!a->leftType.isEmpty() || ! a->rightType.isEmpty()) {
-				    if (count++)
-					typstr += ",";
-				    typstr += a->leftType;
-				    typstr += a->rightType;
-				}
-				a = f->args->next();
-			    }
-			    fprintf(stderr, "      %s:%d: %s %s(%s)\n", g->fileName.data(), f->lineNo,
-				     (const char*) f->type,(const char*) f->name, (const char*) typstr);
-			}
-		    }
 		}
 	    }
 	}
@@ -2945,9 +2741,9 @@ void generateProps()
 	} else {
 	    flags |= qvariant_nameToType(it.current()->type) << 24;
 	}
-	if (it.current()->getfunc)
+	if (!it.current()->read.isEmpty())
 	    flags |= Readable;
-	if (it.current()->setfunc) {
+	if (!it.current()->write.isEmpty()) {
 	    flags |= Writable;
 	    if (it.current()->stdCppSet())
 		flags |= StdCppSet;
