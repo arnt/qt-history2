@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#5 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#6 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -102,24 +102,24 @@
 // it's int, who knows what it might be on different modern unixes.
 
 #if defined(SOCKLEN_T)
-#undef SOCKLEN_T
+#  undef SOCKLEN_T
 #endif
 
 #if defined(_OS_LINUX_) && defined(__GLIBC__) && ( __GLIBC__ >= 2 )
 // new linux, not old
-#define SOCKLEN_T socklen_t
+#  define SOCKLEN_T socklen_t
 #elif defined(BSD4_4)
 // freebsd
-#define SOCKLEN_T socklen_t
+#  define SOCKLEN_T socklen_t
 #elif defined(_OS_UNIXWARE7_)
-#define SOCKLEN_T size_t
+#  define SOCKLEN_T size_t
 #elif defined(_OS_AIX_)
-// aix 4.3.3 according to the online documentation
-#define SOCKLEN_T size_t
+// aix 4.2 according to a bug report
+// aix 4.3 according to the online documentation
+#  define SOCKLEN_T size_t
 #else
-// most unixes, including at least irix, osf1/du/tru64, solaris, hp-ux
-// and old linux
-#define SOCKLEN_T int
+// most unixes, including irix, osf1/du/tru64, solaris, hp-ux and old linux
+#  define SOCKLEN_T int
 #endif
 
 // the next mess deals with EAGAIN and/or EWOULDBLOCK
