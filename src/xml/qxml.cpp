@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#38 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#39 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -2317,6 +2317,9 @@ bool QXmlSimpleReader::parse( const QXmlInputSource& input, bool incremental )
     init( input );
     if ( incremental ) {
 	d->initIncrementalParsing();
+    } else {
+	delete d->parseStack;
+	d->parseStack = 0;
     }
     // call the handler
     if ( contentHnd ) {
@@ -2328,23 +2331,38 @@ bool QXmlSimpleReader::parse( const QXmlInputSource& input, bool incremental )
     }
     // parse prolog
     if ( !parseProlog() ) {
-	d->error = XMLERR_ERRORPARSINGPROLOG;
-	goto parseError;
+	if ( incremental && d->error.isNull() ) {
+	    // ### incremental parsing stuff
+	    return TRUE;
+	} else {
+	    d->error = XMLERR_ERRORPARSINGPROLOG;
+	    goto parseError;
+	}
     }
     // parse element
     if ( !parseElement() ) {
-	d->error = XMLERR_ERRORPARSINGMAINELEMENT;
-	goto parseError;
+	if ( incremental && d->error.isNull() ) {
+	    // ### incremental parsing stuff
+	    return TRUE;
+	} else {
+	    d->error = XMLERR_ERRORPARSINGMAINELEMENT;
+	    goto parseError;
+	}
     }
     // parse Misc*
     while ( !atEnd() ) {
 	if ( !parseMisc() ) {
-	    d->error = XMLERR_ERRORPARSINGMISC;
-	    goto parseError;
+	    if ( incremental && d->error.isNull() ) {
+		// ### incremental parsing stuff
+		return TRUE;
+	    } else {
+		d->error = XMLERR_ERRORPARSINGMISC;
+		goto parseError;
+	    }
 	}
     }
     // is stack empty?
-    if ( !d->tags.isEmpty() ) {
+    if ( !d->tags.isEmpty() && !d->error.isNull() ) {
 	d->error = XMLERR_UNEXPECTEDEOF;
 	goto parseError;
     }
@@ -2387,6 +2405,13 @@ bool QXmlSimpleReader::parseContinue( const QXmlInputSource& input )
     }
     return FALSE;
 }
+
+//
+// The following private parse functions have another semantics for the return
+// value: They return TRUE iff parsing has finished successfully (i.e. the end
+// of the XML file must be reached!). If one of these functions return FALSE,
+// there is only an error when d->error.isNULL() is also FALSE.
+//
 
 /*
   Parses the prolog [22].
@@ -3010,12 +3035,10 @@ bool QXmlSimpleReader::parseContent()
 		if ( !charDataRead) {
 		    // reference may be CharData; so clear string to be safe
 		    stringClear();
-		    d->parseReference_charDataRead = charDataRead;
 		    d->parseReference_context = InContent;
 		    parseOk = parseReference();
+		    charDataRead = d->parseReference_charDataRead;
 		} else {
-		    bool tmp;
-		    d->parseReference_charDataRead = tmp;
 		    d->parseReference_context = InContent;
 		    parseOk = parseReference();
 		}
@@ -4595,8 +4618,6 @@ parseError:
 */
 bool QXmlSimpleReader::parseAttValue()
 {
-    bool tmp;
-
     const signed char Init             = 0;
     const signed char Dq               = 1; // double quotes were read
     const signed char DqRef            = 2; // read references in double quotes
@@ -4658,7 +4679,6 @@ bool QXmlSimpleReader::parseAttValue()
 		break;
 	    case DqRef:
 	    case SqRef:
-		d->parseReference_charDataRead = tmp;
 		d->parseReference_context = InAttributeValue;
 		parseOk = parseReference();
 		break;
@@ -5437,8 +5457,6 @@ parseError:
 */
 bool QXmlSimpleReader::parseEntityValue()
 {
-    bool tmp;
-
     const signed char Init             = 0;
     const signed char Dq               = 1; // EntityValue is double quoted
     const signed char DqC              = 2; // signed character
@@ -5514,7 +5532,6 @@ bool QXmlSimpleReader::parseEntityValue()
 		break;
 	    case DqRef:
 	    case SqRef:
-		d->parseReference_charDataRead = tmp;
 		d->parseReference_context = InEntityValue;
 		parseOk = parseReference();
 		break;
@@ -6294,7 +6311,7 @@ void QXmlSimpleReader::init( const QXmlInputSource& i )
     columnNr = -1;
     pos = 0;
     next();
-    d->error = XMLERR_OK;
+    d->error = QString::null;
 }
 
 /*
@@ -6313,8 +6330,13 @@ bool QXmlSimpleReader::entityExist( const QString& e ) const
 
 void QXmlSimpleReader::reportParseError()
 {
-    if ( errorHnd )
-	errorHnd->fatalError( QXmlParseException( d->error, columnNr+1, lineNr+1 ) );
+    if ( errorHnd ) {
+	if ( d->error.isNull() ) {
+	    errorHnd->fatalError( QXmlParseException( XMLERR_OK, columnNr+1, lineNr+1 ) );
+	} else {
+	    errorHnd->fatalError( QXmlParseException( d->error, columnNr+1, lineNr+1 ) );
+	}
+    }
 }
 
 #endif //QT_NO_XML
