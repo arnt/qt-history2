@@ -92,6 +92,14 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 */
 
+/*! \example action/toggleaction/toggleaction.cpp
+
+  \heading A Tiny Example Featuring a Toggle Action
+
+  This example program demonstrates the use of QAction
+  in its incarnation as a toggle action.
+*/
+
 /*! \example mdi/main.cpp
 
   \heading A MDI Application

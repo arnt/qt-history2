@@ -382,9 +382,15 @@ QAction::~QAction()
     delete d;
 }
 
-/*! Sets the icon set to \a icon.
+/*! Sets the icon set to \a icon, e.g.:
 
-  By default it will be used up as tool button icon and in the menu entry.
+  \dontinclude action/toggleaction/toggleaction.cpp
+  \skipto labelonoffaction
+  \printuntil setIconSet
+
+  (c.f. the action/toggleaction example)
+
+  By default \a icon will be used up as tool button icon and in the menu entry.
 
   \sa iconSet();
  */
@@ -409,7 +415,9 @@ QIconSet QAction::iconSet() const
 
 /*! Attaches a descriptive \a text to the action.
 
-  This will be used as the default text in menus and tips if
+  If \l QMainWindow::usesTextLabel() is TRUE \a text shows up as 
+  label in the relevant tool-button. \a text serves furthermore
+  as the default text in menus and tips if
   the relevant properties are not defined otherwise.
 
   \sa text(), setMenuText(), setToolTip(), setStatusTip() 
@@ -422,7 +430,10 @@ void QAction::setText( const QString& text )
 
 /*! Returns the current description text for the respective QAction. 
 
-  If menuText() or toolTip() and statusTip() are not set, text() in combination with 
+  This is used as tool-button label provided 
+  \l QMainWindow::usesTextLabel() is TRUE.
+  If menuText() or toolTip() and statusTip() are not set, 
+  text() in combination with 
   accel() serves as menu text, tool tip and status tip. 
 
   \sa setText(), menuText(), setToolTip(), setStatusTip() 
@@ -867,10 +878,13 @@ void QAction::objectDestroyed()
 /*! \fn void QAction::activated()
 
   This signal is emitted when an action is activated by the user.
+
+  To tie a user command to a command action connect this signal
+  to the slot implementing the user command.
   
-  For toggle actions this is the case regardless whether they are 
+  For toggle actions activated() is emitted regardless whether they are 
   switched on or off. When dealing with this type of actions it
-  is however preferable to connect the toggled() signal to the
+  is preferable to connect the toggled() signal to the
   desired slot and ignore activated().
 */
 
@@ -880,7 +894,19 @@ void QAction::objectDestroyed()
   
   The carried argument denotes to the new state; i.e. TRUE
   when the toggle action was switched on and FALSE when 
-  switched off.
+  it was switched off. 
+
+  To trigger a user command depending on whether a toggle action has 
+  been switched on or off connect it to a slot that takes care
+  about its state, e.g.:
+
+  \dontinclude action/toggleaction/toggleaction.cpp
+  \skipto QMainWindow * window
+  \printline QMainWindow * window
+  \skipto labelonoffaction
+  \printuntil setUsesTextLabel
+
+  (c.f. the action/toggleaction example)
 
   \sa activated(), setToggleAction(), setOn()
 */
