@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#131 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#132 $
 #
 # this is a massive hack, written very quickly
 #
@@ -2175,7 +2175,7 @@ print "Documented ", $countdoc, " member functions, left out ",
 #}
 
 
-if ( defined( $keyfile ) && open( O, "> $keyfile" ) ) {
+if ( 1 == 2 && defined( $keyfile ) && open( O, "> $keyfile" ) ) {
 
     print O "-keys\n";
     foreach ( sort keys %uniqkeys ) {
