@@ -20,7 +20,7 @@ BASE=`pwd`
 
 # prepare the directories for content
 if [ -d include ]; then
-    rm -rf include/*
+    rm -rf include/*.h
 else
     mkdir include
 fi
@@ -59,9 +59,9 @@ for a in `make -s showdirs` ; do
     ln -s `echo * | fmt -1 | grep -v Makefile | \
 	sed 's-^-../../../../examples/'${a}'/-'` \
 	${BASE}/arch/template/examples/${a}
-    mv Makefile ${BASE}/arch/template/examples/${a}/Makefile
+    ln Makefile ${BASE}/arch/template/examples/${a}/Makefile
 done
-mv ${BASE}/examples/Makefile ${BASE}/arch/template/examples/Makefile
+ln ${BASE}/examples/Makefile ${BASE}/arch/template/examples/Makefile
 cd ${BASE}/tutorial
 for a in `make -s showdirs` ; do
     cd ${BASE}/tutorial/${a}
@@ -69,9 +69,9 @@ for a in `make -s showdirs` ; do
     ln -s `make -s showfiles | fmt -1 | grep -v Makefile | \
 	sed 's-^-../../../../tutorial/'${a}'/-'` \
 	${BASE}/arch/template/tutorial/${a}
-    mv Makefile ${BASE}/arch/template/tutorial/${a}/Makefile
+    ln Makefile ${BASE}/arch/template/tutorial/${a}/Makefile
 done
-mv ${BASE}/tutorial/Makefile ${BASE}/arch/template/tutorial/Makefile
+ln ${BASE}/tutorial/Makefile ${BASE}/arch/template/tutorial/Makefile
 cd ${BASE}/arch/template/moc
 ln -s ../../../src/moc/moc.[l1y] ../../../src/moc/moc.cpp ../../../src/moc/lex.yy.c .
 sed -e 's-\.\./tools/-../library/-' < ../../../src/moc/Makefile > Makefile
@@ -274,13 +274,34 @@ done
 exec 1>&2
 
 cd ${BASE}/arch
-for a in ../src/makefiles/*[a-z] ; do
+
+exec > Makefile
+
+cat << EOF
+# this makefile will make architecture link trees
+#
+# e.g. say 'make linux-shared' to make a link tree suitable for making
+# a shared library for linux or 'make solaris-static' to make a static
+# library for solaris 2.
+
+all:
+	echo say e.g. make linux-shared to make an architecture tree
+
+# pseudo target to force mkdir for the others
+
+FORCE:
+
+
+EOF
+
+for a in ../makefiles/*[a-z] ; do
     PLATFORM=`basename $a`
-    mkdir $PLATFORM
+    cat << EOF
+${PLATFORM}: FORCE
+	mkdir ${PLATFORM}
+	cd template ; tar cf - . | ( cd ../${PLATFORM} ; tar xf - )
+EOF
+    [ -s $a ] && echo "	( cd ${PLATFORM} ; patch -p1 -s < ../../makefiles/${PLATFORM} )"
+    echo
 
-    ( cd template ; tar cf - . ) | ( cd ${PLATFORM} ; tar xf - )
-    [ -s ${a} ] && \
-	( cd ${PLATFORM} ; patch -p1 -s < ${BASE}/src/makefiles/${PLATFORM} )
 done
-
-rm -vf `find ${BASE}/arch \( -name \*.orig -o -name \*.rej \) -print`
