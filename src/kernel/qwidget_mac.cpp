@@ -773,7 +773,7 @@ void QWidget::raise()
 	if ( p && p->childObjects && p->childObjects->findRef(this) >= 0 )
 	    p->childObjects->append( p->childObjects->take() );
 	dirtyClippedRegion(TRUE);
-	update(geometry());
+	paint_children( parentWidget(), geometry());
     }
 }
 
@@ -786,7 +786,7 @@ void QWidget::lower()
 	; //how do I lower a window?? FIXME
     else if(p) {
 	dirtyClippedRegion(TRUE);
-	update(geometry());
+	paint_children( parentWidget(), geometry());
     }
 }
 
