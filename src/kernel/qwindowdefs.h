@@ -92,7 +92,7 @@ class QWidgetListIt;
 #if defined(Q_WS_MAC)
 #ifdef MACOSX_102
 typedef struct __EventLoopTimer*        EventLoopTimerRef;
-typedef struct __OpaqueMenuHandleRef*        MenuRef;
+typedef struct OpaqueMenuRef*        MenuRef;
 #else
 typedef struct OpaqueEventLoopTimerRef* EventLoopTimerRef;
 typedef struct OpaqueMenuHandle *MenuRef;
