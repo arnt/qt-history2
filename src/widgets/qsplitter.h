@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.h#23 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.h#24 $
 **
 ** Defintion of  QSplitter class
 **
@@ -63,11 +63,11 @@ public:
 
     QValueList<int> sizes() const;
     void setSizes( QValueList<int> );
-    
+
 protected:
     void childEvent( QChildEvent * );
 
-    void layoutHintEvent( QEvent * );
+    bool event( QEvent * );
     void resizeEvent( QResizeEvent * );
 
     int idAfter( QWidget* ) const;

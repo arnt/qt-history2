@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#57 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#58 $
 **
 **  Splitter widget
 **
@@ -206,6 +206,9 @@ public:
   by the initial size of each widget. You can also use setSizes() to
   set the sizes of all the widgets. The function sizes() returns the
   sizes set by the user.
+
+  If you hide() a child, its space will be distributed among the other
+  children. When you show() it again, it will be reinstated.
   
   <img src=qsplitter-m.gif> <img src=qsplitter-w.gif>
 
@@ -411,12 +414,15 @@ void QSplitter::setRubberband( int p )
 
 
 /*!
-  Tells the splitter that a child widget has changed layout parameters
+  \reimp
+  Handles LayoutHint events
 */
 
-void QSplitter::layoutHintEvent( QEvent * )
+bool QSplitter::event( QEvent *e )
 {
-    recalc( isVisible() );
+    if ( e->type() == QEvent::LayoutHint )
+	recalc( isVisible() );
+    return QWidget::event( e );
 }
 
 
@@ -515,7 +521,9 @@ void QSplitter::moveBefore( int pos, int id, bool upLeft )
     if ( !s )
 	return;
     QWidget *w = s->wid;
-    if ( s->isSplitter ) {
+    if ( w->testWState(WState_ForceHide) ) {
+	moveBefore( pos, id-1, upLeft ); 
+    } else if ( s->isSplitter ) {
 	int d = s->sizer;
 	if ( upLeft ) {
 	    setG( w, pos-d+1, d );
@@ -547,7 +555,9 @@ void QSplitter::moveAfter( int pos, int id, bool upLeft )
     if ( !s )
 	return;
     QWidget *w = s->wid;
-    if ( s->isSplitter ) {
+    if ( w->testWState(WState_ForceHide) ) {
+	moveAfter( pos, id+1, upLeft ); 
+    } else if ( s->isSplitter ) {
 	int d = s->sizer;
 	if ( upLeft ) {
 	    setG( w, pos, d );
@@ -637,7 +647,11 @@ void QSplitter::doResize()
     for ( i = 0; i< n; i++ ) {
 	a[i].init();
 	QSplitterLayoutStruct *s = data->list.at(i);
-	if ( s->isSplitter || s->mode == KeepSize ) {
+	if ( s->wid->testWState(WState_ForceHide) ) {
+	    a[i].stretch = 0;
+	    a[i].sizeHint = a[i].minimumSize = 0;
+	    a[i].maximumSize = 0;
+	} else if ( s->isSplitter || s->mode == KeepSize ) {
 	    a[i].stretch = 0;
 	    a[i].sizeHint = a[i].minimumSize = s->sizer;
 	    a[i].maximumSize = pick( s->wid->maximumSize() );
@@ -669,16 +683,30 @@ void QSplitter::recalc( bool update )
     int maxt = QCOORD_MAX;
     int mint = fi;
     int n = data->list.count();
+    bool first = TRUE;
     for ( int i = 0; i< n; i++ ) {
 	QSplitterLayoutStruct *s = data->list.at(i);
 	if ( s->isSplitter ) {
-	    minl += s->sizer;
-	    maxl += s->sizer;
+	    if ( !s->wid->testWState(WState_ForceHide) ) {
+		minl += s->sizer;
+		maxl += s->sizer;
+	    }
 	} else {
-	    minl += pick( s->wid->minimumSize() );
-	    maxl += pick( s->wid->maximumSize() );
-	    mint = QMAX( mint,  trans( s->wid->minimumSize() ));
-	    maxt = QMIN( maxt,  trans( s->wid->maximumSize() ));
+	    int splid = first?i+1:i-1;
+	    QSplitterLayoutStruct *p = splid < (int)data->list.count() ?
+				      data->list.at( splid ) : 0;	    
+	    if ( !s->wid->testWState(WState_ForceHide) ) {
+		minl += pick( s->wid->minimumSize() );
+		maxl += pick( s->wid->maximumSize() );
+		mint = QMAX( mint,  trans( s->wid->minimumSize() ));
+		maxt = QMIN( maxt,  trans( s->wid->maximumSize() ));
+		first = FALSE;
+		if ( p && p->isSplitter )
+		    p->wid->show(); //may trigger new recalc
+	    } else {
+		if ( p && p->isSplitter )
+		    p->wid->hide(); //may trigger new recalc
+	    }
 	}
     }
     maxl = QMIN( maxl, QCOORD_MAX );
@@ -918,7 +946,7 @@ bool QSplitter::isHidden( QWidget *w ) const
 /*!
   Returns a list of the size parameters of all the widgets in this
   splitter.
-  
+
   Giving the values to setSizes() will give a splitter with the same
   layout as this one.
 */
