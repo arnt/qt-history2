@@ -274,10 +274,10 @@ class P4Interface : public QObject, public ActionInterface
     Q_OBJECT
 
 public:
-    P4Interface();
+    P4Interface( QUnknownInterface *parent );
     ~P4Interface();
 
-    bool connectNotify( QApplicationInterface* );
+    bool initialize( QApplicationInterface* );
     QUnknownInterface* queryInterface( const QString& );
 
     QStringList featureList() const;
@@ -314,7 +314,8 @@ private:
     QApplicationInterface* appInterface;
 };
 
-P4Interface::P4Interface()
+P4Interface::P4Interface( QUnknownInterface *parent )
+: ActionInterface( parent )
 {
     aware = FALSE;
 }
@@ -323,9 +324,8 @@ P4Interface::~P4Interface()
 {
 }
 
-bool P4Interface::connectNotify( QApplicationInterface* appIface )
+bool P4Interface::initialize( QApplicationInterface* appIface )
 {
-    qDebug( "P4Interface::connectNotify" );
     if ( !( appInterface = appIface ) )
 	return FALSE;
 
@@ -704,39 +704,15 @@ public:
     QString name() const { return "P4 Integration"; }
     QString description() const { return "Integrates P4 Source Control into the Qt Designer"; }
     QString author() const { return "Trolltech"; }
-
-    QUnknownInterface* queryInterface( const QString& );
-    QStringList interfaceList() const;
-
-private:
-    P4Interface *p4;
 };
 
 P4PlugIn::P4PlugIn()
-: p4( 0 )
 {
+    new P4Interface( this );
 }
 
 P4PlugIn::~P4PlugIn()
 {
-    delete p4;
-}
-
-QStringList P4PlugIn::interfaceList() const
-{
-    QStringList list;
-
-    list << "P4Interface";
-
-    return list;
-}
-
-QUnknownInterface* P4PlugIn::queryInterface( const QString &request )
-{
-    if ( request == "P4Interface" )
-	return p4 ? p4 : ( p4 = new P4Interface );
-
-    return 0;
 }
 
 Q_EXPORT_INTERFACE( P4PlugIn )

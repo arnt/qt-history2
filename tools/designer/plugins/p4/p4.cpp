@@ -6,6 +6,7 @@
 #include <qheader.h>
 #include <qmultilineedit.h>
 #include <qapplication.h>
+#include <qregexp.h>
 #include "diffdialog.h"
 #include "submitdialog.h"
 
