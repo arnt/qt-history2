@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QDOCKWINDOW_H
-#define QDOCKWINDOW_H
+#ifndef QDOCKWIDGET_H
+#define QDOCKWIDGET_H
 
 #include <QtGui/qframe.h>
 
@@ -29,6 +29,7 @@ class Q_GUI_EXPORT QDockWidget : public QFrame
     Q_PROPERTY(Qt::DockWidgetAreas allowedAreas READ allowedAreas WRITE setAllowedAreas)
 
 public:
+    explicit QDockWidget(const QString &title, QWidget *parent = 0, Qt::WFlags flags = 0);
     explicit QDockWidget(QWidget *parent = 0, Qt::WFlags flags = 0);
     ~QDockWidget();
 
@@ -80,4 +81,4 @@ private:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QDockWidget::DockWidgetFeatures)
 
-#endif // QDOCKWINDOW_H
+#endif // QDOCKWIDGET_H

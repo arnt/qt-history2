@@ -443,7 +443,7 @@ QSlider::TickPosition QSlider::tickPosition() const
     slider will choose between lineStep() and pageStep(). The initial
     value of tickInterval is 0.
 
-    \sa tickPosition, QRangeControl::lineStep(), QRangeControl::pageStep()
+    \sa tickPosition, lineStep(), pageStep()
 */
 
 void QSlider::setTickInterval(int ts)

@@ -588,8 +588,8 @@ void QDockWidgetPrivate::toggleView(bool b)
 */
 
 /*!
-    Constructs a QDockWidget with parent \a parent and widget flags \a
-    flags.  The dock window will be placed in the left dock window
+    Constructs a QDockWidget with parent \a parent and window flags \a
+    flags. The dock window will be placed in the left dock window
     area.
 */
 QDockWidget::QDockWidget(QWidget *parent, Qt::WFlags flags)
@@ -597,6 +597,25 @@ QDockWidget::QDockWidget(QWidget *parent, Qt::WFlags flags)
 {
     Q_D(QDockWidget);
     d->init();
+}
+
+/*!
+    Constructs a QDockWidget with parent \a parent and window flags \a
+    flags. The dock window will be placed in the left dock window
+    area.
+
+    The window title is set to \a title. This title is used when the
+    QDockWidget is docked and undocked. It is also used in the context
+    menu provided by QMainWindow.
+
+    \sa setWindowTitle()
+*/
+QDockWidget::QDockWidget(const QString &title, QWidget *parent, Qt::WFlags flags)
+    : QFrame(*new QDockWidgetPrivate, parent, flags)
+{
+    Q_D(QDockWidget);
+    d->init();
+    setWindowTitle(title);
 }
 
 /*!

@@ -246,6 +246,22 @@ QToolBar::QToolBar(QWidget *parent)
     d->init();
 }
 
+/*!
+    Constructs a QToolBar with the given \a parent.
+
+    The window title is set to \a title. This title is used when the
+    toolbar is floating as an independent window. It is also shown
+    in the context menu provided by QMainWindow.
+
+    \sa setWindowTitle()
+*/
+QToolBar::QToolBar(const QString &title, QWidget *parent)
+    : QWidget(*new QToolBarPrivate, parent, 0)
+{
+    d->init();
+    setWindowTitle(title);
+}
+
 #ifdef QT3_SUPPORT
 /*! \obsolete
     Constructs a QToolBar with the given \a parent and \a name.

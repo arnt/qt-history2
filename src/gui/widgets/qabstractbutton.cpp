@@ -55,23 +55,23 @@ change based on the button translation. The following code creates
 a push button labelled "Ro\underline{c}k & Roll" (where the c is underlined):
 
 \code
-      QPushButton *p = new QPushButton("Ro&ck && Roll", this);
+    QPushButton *button = new QPushButton(tr("Ro&ck && Roll"), this);
 \endcode
 
-In this example, the shortcut Alt+C is assigned to the button, so that when
-the user presses Alt+C the button will call animateClick().
+In this example, the shortcut \key Alt+C is assigned to the button, so that when
+the user presses \key Alt+C the button will call animateClick().
 
 You can also set a custom shortcut key using the setShortcut()
 function. This is useful mostly for buttons that do not have any
 text, because they have no automatic shortcut.
 
 \code
-      p->setPixmap(QPixmap("print.png"));
-      p->setShortcut(Qt::ALT+Qt::Key_F7);
+      button->setPixmap(QPixmap(":/images/print.png"));
+      button->setShortcut(tr("Alt+F7"));
 \endcode
 
-All of the buttons provided by Qt (\l QPushButton, \l QToolButton,
-\l QCheckBox and \l QRadioButton) can display both text and
+All of the buttons provided by Qt (QPushButton, QToolButton,
+QCheckBox, and QRadioButton) can display both text and
 pixmaps.
 
 A button can be made the default button in a dialog are provided by
