@@ -39,7 +39,6 @@ public:
 
 
     QComboBox(QWidget *parent = 0);
-    QComboBox(QAbstractItemModel *model, QWidget *parent = 0);
     ~QComboBox();
 
     int sizeLimit() const;
@@ -72,6 +71,7 @@ public:
     void setItemDelegate(QAbstractItemDelegate *delegate);
 
     QAbstractItemModel *model() const;
+    void setModel(QAbstractItemModel *model);
 
     QModelIndex root() const;
     void setRoot(const QModelIndex &index);
@@ -138,7 +138,7 @@ protected slots:
     void currentChanged(const QModelIndex &old, const QModelIndex &current);
 
 protected:
-    QComboBox(QComboBoxPrivate &dd, QAbstractItemModel *model, QWidget *parent = 0);
+    QComboBox(QComboBoxPrivate &dd, QWidget *parent = 0);
 
     void focusInEvent(QFocusEvent *e);
     void focusOutEvent(QFocusEvent *e);

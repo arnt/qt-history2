@@ -301,27 +301,28 @@ void ListViewContainer::mousePressEvent(QMouseEvent *e)
 QComboBox::QComboBox(QWidget *parent) :
     QWidget(*new QComboBoxPrivate(), parent, 0)
 {
-    d->model = new ComboModel();
     d->init();
+    setModel(new ComboModel());
 }
 
 #ifdef QT_COMPAT
 QComboBox::QComboBox(QWidget *parent, const char *name) :
     QWidget(*new QComboBoxPrivate(), parent, 0)
 {
-    d->model = new ComboModel();
     d->init();
+    setModel(new ComboModel());
     setObjectName(name);
 }
 
 QComboBox::QComboBox(bool rw, QWidget *parent, const char *name) :
     QWidget(*new QComboBoxPrivate(), parent, 0)
 {
-    d->model = new ComboModel();
     d->init();
+    setModel(new ComboModel());
     setEditable(rw);
     setObjectName(name);
 }
+
 #endif //QT_COMPAT
 
 /*!
@@ -420,34 +421,19 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name) :
 */
 
 /*!
-    Constructs a non-editable combobox widget with the given \a parent that
-    uses the item \a model specified.
-*/
-QComboBox::QComboBox(QAbstractItemModel *model, QWidget *parent) :
-    QWidget(*new QComboBoxPrivate(), parent, 0)
-{
-    Q_ASSERT(model);
-    d->model = model;
-    d->init();
-}
-
-/*!
     \internal
 */
 
-QComboBox::QComboBox(QComboBoxPrivate &dd,
-                                   QAbstractItemModel *model, QWidget *parent) :
+QComboBox::QComboBox(QComboBoxPrivate &dd, QWidget *parent) :
     QWidget(dd, parent, 0)
 {
-    Q_ASSERT(model);
-    d->model = model;
     d->init();
 }
 
 void QComboBoxPrivate::init()
 {
     QGenericListView *l = new QGenericListView(0);
-    l->setModel(model);
+    d->model = l->model();
     container = new ListViewContainer(l, q);
     container->setParent(q, Qt::WType_Popup);
     q->setFocusPolicy(Qt::StrongFocus);
@@ -849,6 +835,16 @@ void QComboBox::setItemDelegate(QAbstractItemDelegate *delegate)
 QAbstractItemModel *QComboBox::model() const
 {
     return d->model;
+}
+
+/*!
+  Sets the model to be \a model,
+*/
+
+void QComboBox::setModel(QAbstractItemModel *model)
+{
+    d->model = model;
+    d->container->listView()->setModel(model);
 }
 
 /*!
