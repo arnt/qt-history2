@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#22 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#23 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -14,7 +14,7 @@
 #include "qgvector.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#22 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#23 $")
 
 
 /*----------------------------------------------------------------------------
@@ -45,7 +45,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#22 $")
 
 /*----------------------------------------------------------------------------
   \class QGList qglist.h
-  \brief The QGList is an internal class for implementing the collection classes.
+  \brief The QGList is an internal class for implementing Qt collection classes.
 
   QGList is a strictly internal class that acts as a base class for several
   \link collectionclasses collection classes\endlink; QList, QQueue and
@@ -73,8 +73,8 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#22 $")
   Returns:
   <ul>
   <li> 0 if \e item1 == \e item2
-  <li> >0 if \e item1 > \e item2
-  <li> <0 if \e item1 < \e item2
+  <li> \> 0 (positive integer) if \e item1 > \e item2
+  <li> \< 0 (negative integer) if \e item1 < \e item2
   </ul>
 
   Default implementation:
@@ -133,7 +133,8 @@ QDataStream &QGList::write( QDataStream &s, GCI ) const
 QGList::QGList()
 {
     firstNode = lastNode = curNode = 0;		// initialize list
-    curIndex = numNodes = 0;
+    numNodes  = 0;
+    curIndex  = -1;
     iterators = 0;				// initialize iterator list
 }
 
@@ -145,7 +146,8 @@ QGList::QGList()
 QGList::QGList( const QGList & list )
 {
     firstNode = lastNode = curNode = 0;		// initialize list
-    curIndex = numNodes = 0;
+    numNodes  = 0;
+    curIndex  = -1;
     iterators = 0;				// initialize iterator list
     register QLNode *n = list.firstNode;
     while ( n ) {				// copy all items from list
@@ -186,10 +188,17 @@ QGList& QGList::operator=( const QGList &list )
 	append( n->getData() );
 	n = n->next;
     }
-    curNode = firstNode;
-    curIndex = 0;
+    curNode  = firstNode;
+    curIndex = curNode ? 0 : -1;
     return *this;
 }
+
+
+/*----------------------------------------------------------------------------
+  \fn uint QGList::count() const
+  \internal
+  Returns the number of items in the list.
+ ----------------------------------------------------------------------------*/
 
 
 /*----------------------------------------------------------------------------
@@ -199,8 +208,12 @@ QGList& QGList::operator=( const QGList &list )
 
 QLNode *QGList::locate( uint index )
 {
-    if ( index == curIndex )			// current node ?
+    if ( index == (uint)curIndex )		// current node ?
 	return curNode;
+    if ( !curNode && firstNode ) {		// set current node
+	curNode  = firstNode;
+	curIndex = 0;
+    }
     register QLNode *node;
     int	 distance = index - curIndex;		// node distance to cur node
     bool forward;				// direction to traverse
@@ -216,10 +229,9 @@ QLNode *QGList::locate( uint index )
 	distance = -distance;
     if ( (uint)distance < index && (uint)distance < numNodes - index ) {
 	node =	curNode;
-	forward = index > curIndex;		// start from current node
+	forward = index > (uint)curIndex;	// start from current node
     }
-    else
-    if ( index < numNodes - index ) {		// start from first node
+    else if ( index < numNodes - index ) {	// start from first node
 	node = firstNode;
 	distance = index;
 	forward = TRUE;
@@ -268,7 +280,7 @@ void QGList::inSort( GCI d )
 
 void QGList::prepend( GCI d )
 {
-    register QLNode *n = new QLNode( newItem( d ) );
+    register QLNode *n = new QLNode( newItem(d) );
     CHECK_PTR( n );
     n->prev = 0;
     if ( (n->next = firstNode) )		// list is not empty
@@ -288,7 +300,7 @@ void QGList::prepend( GCI d )
 
 void QGList::append( GCI d )
 {
-    register QLNode *n = new QLNode( newItem( d ) );
+    register QLNode *n = new QLNode( newItem(d) );
     CHECK_PTR( n );
     n->next = 0;
     if ( (n->prev = lastNode) )			// list is not empty
@@ -326,7 +338,7 @@ bool QGList::insertAt( uint index, GCI d )
     prevNode->next = n;
     n->prev = prevNode;				// link new node into list
     n->next = nextNode;
-    curNode = n;
+    curNode = n;				// curIndex set by locate()
     numNodes++;
     return TRUE;
 }
@@ -361,9 +373,9 @@ void QGList::relinkNode( QLNode *n )
 
 QLNode *QGList::unlink()
 {
-    if ( numNodes == 0 ) {			// no items left
+    if ( curNode == 0 ) {			// null current node
 #if defined(CHECK_NULL)
-	warning( "QGList::unlink: Cannot unlink from empty list" );
+	warning( "QGList::unlink: Current node is null" );
 #endif
 	return 0;
     }
@@ -371,8 +383,10 @@ QLNode *QGList::unlink()
     if ( n == firstNode ) {			// removing first node ?
 	if ( (firstNode = n->next) )
 	    firstNode->prev = 0;
-	else
+	else {
 	    lastNode = curNode = 0;		// list becomes empty
+	    curIndex = -1;
+	}
     }
     else {
 	if ( n == lastNode ) {			// removing last node ?
@@ -413,7 +427,7 @@ bool QGList::removeNode( QLNode *n )
 #if defined(CHECK_NULL)
     if ( n == 0 || (n->prev && n->prev->next != n) ||
 	 (n->next && n->next->prev != n) ) {
-	warning( "QGList::removeNode: Attempt to remove invalid node" );
+	warning( "QGList::removeNode: Corrupted node" );
 	return FALSE;
     }
 #endif
@@ -465,6 +479,18 @@ bool QGList::removeRef( GCI d )
 }
 
 /*----------------------------------------------------------------------------
+  \fn bool QGList::removeFirst()
+  \internal
+  Removes the first item in the list.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn bool QGList::removeLast()
+  \internal
+  Removes the last item in the list.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
   \internal
   Removes the item at position \e index from the list.
  ----------------------------------------------------------------------------*/
@@ -492,7 +518,7 @@ GCI QGList::takeNode( QLNode *n )
 #if defined(CHECK_NULL)
     if ( n == 0 || (n->prev && n->prev->next != n) ||
 	 (n->next && n->next->prev != n) ) {
-	warning( "QGList::takeNode: Attempt to take invalid node" );
+	warning( "QGList::takeNode: Corrupted node" );
 	return 0;
     }
 #endif
@@ -610,9 +636,11 @@ int QGList::findRef( GCI d, bool fromStart )
 	n = n->next;
 	index++;
     }
-    if ( n )					// item was found
-	curNode = n;
-    return n ? (int)(curIndex=index) : -1;	// return position of item
+    if ( n ) {					// item was found
+	curNode  = n;
+	curIndex = (int)index;
+    }
+    return n ? (int)index : -1;			// return position of item
 }
 
 /*----------------------------------------------------------------------------
@@ -636,9 +664,11 @@ int QGList::find( GCI d, bool fromStart )
 	n = n->next;
 	index++;
     }
-    if ( n )					// item was found
-	curNode = n;
-    return n ? (int)(curIndex=index) : -1;	// return position of item
+    if ( n ) {					// item was found
+	curNode  = n;
+	curIndex = (int)index;
+    }
+    return n ? (int)index : -1;			// return position of item
 }
 
 
@@ -675,6 +705,43 @@ uint QGList::contains( GCI d )
     }
     return count;
 }
+
+
+/*----------------------------------------------------------------------------
+  \fn GCI QGList::at( uint index )
+  \internal
+  Sets the item at position \e index to the current item.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn int QGList::at() const
+  \internal
+  Returns the current index.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn QLNode *QGList::currentNode() const
+  \internal
+  Returns the current node.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn GCI QGList::get() const
+  \internal
+  Returns the current item.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn GCI QGList::cfirst() const
+  \internal
+  Returns the first item in the list.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn GCI QGList::clast() const
+  \internal
+  Returns the last item in the list.
+ ----------------------------------------------------------------------------*/
 
 
 /*----------------------------------------------------------------------------
@@ -770,7 +837,7 @@ QDataStream &operator<<( QDataStream &s, const QGList &list )
 
 /*----------------------------------------------------------------------------
   \internal
-  Reads a list from the stream \s.
+  Reads a list from the stream \e s.
  ----------------------------------------------------------------------------*/
 
 QDataStream &QGList::read( QDataStream &s )	// read list from stream
@@ -796,8 +863,8 @@ QDataStream &QGList::read( QDataStream &s )	// read list from stream
 	lastNode = n;
 	numNodes++;
     }
-    curNode = firstNode;
-    curIndex = 0;
+    curNode  = firstNode;
+    curIndex = curNode ? 0 : -1;
     return s;
 }
 
