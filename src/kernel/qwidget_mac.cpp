@@ -701,7 +701,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
  
     QWidget * topper=parent;
     while(topper->parentWidget()) {
-	topper=parent->parentWidget();
+	topper=topper->parentWidget();
     }
     
     mytop=topper;
