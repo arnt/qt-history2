@@ -6,7 +6,6 @@
 #include <qfile.h>
 #include <qfileinfo.h>
 #include <qhash.h>
-#include <limits.h>
 
 #include <qregexp.h>
 
@@ -18,6 +17,8 @@
 #include "quoter.h"
 #include "text.h"
 #include "tokenizer.h"
+
+#include <limits.h>
 
 Q_GLOBAL_STATIC(Set<QString>, null_Set_QString)
 Q_GLOBAL_STATIC(QStringList, null_QStringList)
@@ -986,14 +987,14 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
                     while (pos < len) {
                         int latin1Ch = in[pos].latin1();
 
-                        if (::islower(latin1Ch)) {
+                        if (islower(latin1Ch)) {
                             ++numLowercase;
                             ++pos;
-                        } else if (::isupper(latin1Ch)) {
+                        } else if (isupper(latin1Ch)) {
                             if (pos > startPos)
                                 ++numInternalUppercase;
                             ++pos;
-                        } else if (::isdigit(latin1Ch)) {
+                        } else if (isdigit(latin1Ch)) {
                             if (pos > startPos) {
                                 ++numStrangeSymbols;
                                 ++pos;

@@ -5,6 +5,7 @@
 #include <qregexp.h>
 
 #include "text.h"
+#include <stdio.h>
 
 Text::Text()
     : first( 0 ), last( 0 )
