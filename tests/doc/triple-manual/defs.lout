@@ -87,7 +87,7 @@ import @BasicSetup
 def @TitlePageRef right x { 
     x @Case {
 	"" @Yield red @Colour { ?? }
-	else @Yield {``{@TitleOf x}'' [p.~@PageOf{x}]} 
+	else @Yield {@TitleOf x [p.~@PageOf{x}]} 
     }
 }
 
@@ -95,7 +95,7 @@ import @BasicSetup
 def @TitleRef right x { 
     x @Case {
 	"" @Yield red @Colour { ?? }
-	else @Yield {``{@TitleOf x}''} 
+	else @Yield {@TitleOf x} 
     }
 }
 
