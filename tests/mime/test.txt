@@ -1,0 +1,2 @@
+This is plain text.
+Two lines of it, plus a trailing newline.
