@@ -194,7 +194,8 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			"InputPath=.\\" + (*it) + "\n\n" "BuildCmds= \\\n\t" + uicpath + (*it) +
 		     " -o " + fname + ".h \\\n" "\t" + uicpath  + (*it) +
 		     " -i " + fname + ".h -o " + fname + ".cpp \\\n"
-		     "\t" + mocpath + fname + ".h -o " + mocFile + "moc_" + fname + ".cpp \\\n\n"
+//		     "\t" + mocpath + fname + ".h -o " + mocFile + "moc_" + fname + ".cpp \\\n\n"
+		     "\t" + mocpath + fname + ".h -o " + mocablesToMOC[ fname + ".h" ] + "\\\n\n"
 		     "\"" + fname + ".h\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\""  "\n"
 		     "\t$(BuildCmds)\n\n"
 		     "\"" + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
