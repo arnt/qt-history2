@@ -9,7 +9,8 @@ proportion of \QD's functionality and explanations and details are
 mostly left for the more detailed \c colortool tutorial presented in
 chapters two and three.
 
-\img ###.png The Metric Conversion Dialog
+\img qsmetric.png
+\caption The Metric Conversion Dialog
 
 \section1 Starting and Exiting \QD
 
@@ -22,7 +23,7 @@ number, e.g. 3.1.0.)
 \i If you're running a Unix or Linux operating system you can either
 double click the \QD icon or enter \c{designer &} in an xterm.
 \i Start \QD now. When \QD starts, it shows the \Widget{New/Open}
-dialog. We'll just click \CANCEL to skip past it.
+dialog. We'll just click \CANCEL to skip it.
 \endlist
 
 \section2 Exiting
@@ -40,15 +41,18 @@ Create the new project as follows:
 \i Click \Menu File|New to invoke the \Widget{New File} dialog. 
 \i Click "C++ Project" to create a C++ project, then click \OK to pop
 up the \Widget{Project Settings} dialog. 
-\i Click the ellipsis button to invoke the \Widget{Save As} dialog.
-Use this dialog to navigate to where you want to create the new
-project, ideally creating a new folder for it (e.g. called
-"metric"), using the \Button{Create New Folder} toolbar button. 
-\i Enter a filename of "metric.pro", then click \OK. The project's
-name will now be "metric"; click \OK to close the \Widget{Project
-Settings} dialog.
-\i Click \Menu File|Save to save the project.
+\i Click the \Button {ellipsis (...)} button next to the Project File
+line edit to invoke the \Widget{Save As} dialog. Use this dialog to
+navigate to where you want to create the new project, ideally creating
+a new folder for it (e.g. called "metric"), using the \Button{Create
+New Folder} toolbar button.
+\i Enter a filename of "metric.pro", then
+click \Save. The project's name will now be "metric"; click \OK to
+close the \Widget{Project Settings} dialog.
+\i Click \Menu File|Save to save the project. 
 \endlist
+
+\img qsprojset.png
 
 See also \l{Creating the Project}.
 
@@ -64,7 +68,9 @@ its caption to "Metric Conversion".
 click \Button Save to save it.
 \endlist
 
-See \l{Creating Dialogs} and \l{Layouts}.
+\img qsdialog.png \img qsdialog2.png
+
+See also \l{Creating Dialogs} and \l{Layouts}.
 
 \section2 Adding Widgets to the Dialog
 
@@ -81,7 +87,7 @@ labels since the layout tools will handle this automatically.
 \i Click the \Button Pointer toolbar button to deselect the text label.
 \endlist
 
-See \l{Adding the Widgets}.
+See also \l{Adding the Widgets}.
 
 Now we will change the properties of the text labels to suit the
 application.
@@ -100,7 +106,9 @@ to "Convert \&From:".
 "\&Decimals:".
 \endlist
 
-See \l{Using the Property Editor}.
+\img qsaddlab.png
+
+See also \l{Using the Property Editor}.
 
 \section3 Adding Line Edits, Comboboxes, and Spinboxes
 
@@ -109,8 +117,8 @@ See \l{Using the Property Editor}.
 toolbar at the left of \QD's main window.
 \i Click the \Button LineEdit button and then click to the right of
 the Enter Number label. Change its \Property name property to
-"numberLineEdit". Note that whenever you click a widget, its
-properties appear in the \Widget{Property Editor}.
+"numberLineEdit". Change the \Property hAlign property to AlignRight
+and change \Property vAlign to AlignTop. Finally, change \Property wordwrap to False. Note that whenever you click a widget, its properties appear in the \Widget{Property Editor}.
 \i Double click the \Button ComboBox button and click to the right of
 the Convert From label. Now click to the right of the Convert To
 label. Click the \Button Pointer toolbar button to deselect the
@@ -119,8 +127,9 @@ ComboBox. Change the \Property{name} property of the first combobox to
 "toComboBox".
 \i Click the \Button LineEdit button and then click to the right of
 the "Result" label. Change its \Property{name} property to
-"resultLineEdit". Now change the \Property{readOnly} property to
-"False". 
+"resultLineEdit". Change the \Property{paletteBackground} property to
+a shade of yellow (just to make the result stand out). Change \Property hAlign to AlignRight, \Property vAlign to AlignVCenter and \Property wordwrap to False. Now change the \Property{readOnly} property to
+"False", if it isn't already. 
 \i Click the \Button SpinBox button and then click to the right of the
 Decimals label. Place the SpinBox below the right side of the
 resultLineEdit. Change the spinbox's \Property{name} property to
@@ -128,6 +137,8 @@ resultLineEdit. Change the spinbox's \Property{name} property to
 the \Property{value} to "3". 
 \i Click \Menu{File|Save}.
 \endlist
+
+\img qsaddline.png
 
 Now we need to relate each of the text labels to the corresponding
 widget. We do this by creating "buddies". 
@@ -146,7 +157,7 @@ and drag the rubber band to the fromComboBox; then release.
 \i Click the \Button{Set Buddy} button. Click the Convert To label
 and drag the rubber band to the toComboBox; then release.
 \i Click the \Button{Set Buddy} button. Click the Decimals label and
-drag the rubber band tothe decimalsSpinBox; then release.
+drag the rubber band to the decimalsSpinBox; then release.
 \endlist
 
 \section3 Adding Push Buttons
@@ -155,7 +166,7 @@ drag the rubber band tothe decimalsSpinBox; then release.
 \i Click the \Button{Common Widgets} button in the Toolbox.
 \i Double click the \Button Pushbutton button and click towards the
 bottom left of the dialog, below the Decimals label. 
-\i Click to the right of the new push button twice more so that you
+\i Click to the right of the new push button two more times so that you
 have three push buttons horizontally in a row at the bottom of the
 dialog.
 \i Click the \Button Pointer toolbar button to deselect the
@@ -175,6 +186,8 @@ property to "True".
 and its text to "\&Quit".
 \endlist
 
+\img qspush.png
+
 \section3 Adding Spacers 
 
 We need to add spacers to absorb redundant space in our dialog so that
@@ -188,15 +201,17 @@ already know that they will be needed.
 \i Click the \Button Spacer button and click to the right of the
 Decimal label and drag right towards the spinbox; then release. A
 horizontal spacer will appear.
-\i Click the \Button Spacer button again and click to the left of the
+\i Click the \Button Spacer button again and click to the right of the
 Calculate push button and drag right towards the Quit push button; then
 release.  
-\i Click the \Button Spacer button and click just below the line edits
+\i Click the \Button Spacer button and click just below the spin box
 and drag vertically towards the buttons; then release. A vertical
 spacer will appear.
 \endlist
 
-Click \Button Save to save the dialog.
+\img qsaddspace.png
+
+Click \Menu File|Save to save the dialog.
 
 \section3 Editing Widgets
 
@@ -214,6 +229,8 @@ and to "Millimeters" respectively.
 \i Click \Button OK to close the Edit Listbox dialog.
 \endlist
 
+\img qseditwid.png
+
 The toComboBox:
 \list
 \i Right click the toComboBox and then click \Menu Edit from the
@@ -230,27 +247,36 @@ We'll lay out the text labels and their corresponding widgets first
 and we'll do the push buttons last.
 
 \list
-\i Click the decimalsSpinBox and press \Key{Shift+Click} on the spacer
-next to it. Click the \Button{Lay Out Horizontally} (\Key Ctrl+H)
-toolbar button.
+\i Click the decimalsSpinBox and press \Key{Shift+Click} on the
+spacer next to it. Click the \Button{Lay Out Horizontally} (\Key
+Ctrl+H) toolbar button.
 \i Click the form to the left of the text labels and then drag the
 rubber band so that it touches every label and widget and spacer
-except for the push buttons and the spacer between the push buttons.
-Release the rubberband and notice that the desired widgets are
+except for the push buttons and the spacer between the push buttons
+and the spacer below the spin box. Release the rubberband and notice that the desired widgets are
 selected. Click the \Button{Lay Out in a Grid} (\Key Ctrl+G) toolbar button.
+
+\img qslayout1.png
+
 \i Click the Clear push button in the \Widget{Object Explorer} window
 (Objects tab) and then \Key Shift+Click the Calculate push button, the
-Quit push button and the Spacer between the push buttons. Click the
+Quit push button and the Spacer between the push buttons (it should be
+the spacer listed between the Calculate button and the Quit button). Click the
 \Button{Lay Out Horizontally} toolbar button.
+
+\img qslayout2.png
+
 \i Click the form to deselect all widgets and layouts and then click
 the \Button{Lay Out Vertically} (\Key Ctrl+L) toolbar button.
 \i Finally, click the dialog and then click the \Button{Adjust Size}
 (\Key Ctrl+J) toolbar button.
 \endlist
 
-Click \Button Save to save the dialog.
+\img qslayout3.png
 
-See \l{Laying Out the Widgets}.
+Click \Menu File|Save to save the dialog.
+
+See also \l{Laying Out the Widgets}.
 
 \section3 Tab Order
 
@@ -263,11 +289,13 @@ circle will appear next to every widget that can accept focus.
 \i Press \Key Esc to leave tab order mode. 
 \endlist
 
-See \l{Changing the Tab Order}.
+\img qstab.png
+
+See also \l{Changing the Tab Order}.
 
 \section2 Previewing the Dialog
 
-To preview the dialog, click \Key{Ctrl+T}. Try dragging the corner of
+To preview the dialog, press \Key{Ctrl+T}. Try dragging the corner of
 the dialog to adjust the size. Note that the the widgets always stay
 in proportion no matter what size you make the dialog. Check the tab
 order of the widgets by pressing the \Key Tab key.
@@ -285,21 +313,23 @@ We will now connect our clearButton:
 \i Click \Menu{Edit|Connections} to invoke the \Widget{View and Edit
 Connections} dialog.
 \i Click \Button New to enter a new connection.
-\i For the first connection, select clearButton for the Sender,
+\i For the first connection, select clearPushButton for the Sender,
 clicked() for the Signal, numberLineEdit for the Receiver, and clear()
 for the Slot.
 \i Click \Button New again.
-\i Select clearButton for the Sender, clicked() for the Signal,
+\i Select clearPushButton for the Sender, clicked() for the Signal,
 resultLineEdit for the Receiver, and clear() for the Slot. 
 \i Click \Button New again.
-\i Select clearButton for the Sender, clicked() for the Signal,
+\i Select clearPushButton for the Sender, clicked() for the Signal,
 numberLineEdit for the Receiver, and setfocus() for the Slot.
 \endlist
+
+\img qsconnect1.png
 
 We also need to connect the quit button to the form:
 \list
 \i Click \Button New. 
-\i Select quitButton for Sender, clicked() for Signal, ConversionForm
+\i Select quitPushButton for Sender, clicked() for Signal, ConversionForm
 for Receiver, and close() for Slot.
 \endlist
 
@@ -310,13 +340,15 @@ our connections.
 
 \list
 \i Click \Button New.
-\i Select calculateButton for the Sender, clicked() for the Signal,
+\i Select calculatePushButton for the Sender, clicked() for the Signal,
 and ConversionForm for the Receiver. 
 \i Click \Button{Edit Slots} to invoke the \Widget{Edit Functions}
 dialog. Type over the Function name with the name of our new function:
 convert(), then click \OK.
 \i Select convert() from the Slot combobox to complete our connection.
 \endlist
+
+\img qsconnect2.png
 
 We will now connect the last few widgets:
 \list
@@ -331,9 +363,11 @@ Signal, ConversionForm as the Receiver, and convert() as the Slot.
 Signal, ConversionForm as the Receiver, and convert() as the Slot.
 \endlist
 
+\img qsconnect3.png
+
 Click \OK to exit the View and Edit Connections dialog.
 
-Click \Menu File|Save to save the project.
+Click \Button Save to save the project.
 
 \section1 Coding the Dialog
 
