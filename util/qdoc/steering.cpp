@@ -203,13 +203,15 @@ void Steering::emitHtml() const
     */
     StringSet::ConstIterator s = hlist.begin();
     while ( s != hlist.end() ) {
-	if ( config->generateHtmlFile(*s) ) {
+	htmlFileName = config->verbatimHref( *s );
+
+	if ( config->generateHtmlFile(htmlFileName) ) {
 	    QString headerFilePath =
 		    config->findDepth( *s, config->includeDirList() );
 	    if ( headerFilePath.isEmpty() )
 		warning( 1, "Cannot find header file '%s'", (*s).latin1() );
 	    else
-		emitHtmlHeaderFile( headerFilePath, config->verbatimHref(*s) );
+		emitHtmlHeaderFile( headerFilePath, htmlFileName );
 	}
 	++s;
     }
