@@ -1475,6 +1475,10 @@ void QWidget::setEnabled( bool enable )
 	    }
 	}
     }
+#if defined(Q_WS_X11)
+    extern void qt_x11_enforce_cursor( QWidget * w );
+    qt_x11_enforce_cursor( this );
+#endif
 }
 
 /*!

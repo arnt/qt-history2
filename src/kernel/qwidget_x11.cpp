@@ -164,6 +164,23 @@ Window qt_XCreateSimpleWindow( const QWidget *creator,
 void qt_XDestroyWindow( const QWidget *destroyer,
 			Display *display, Window window );
 
+Q_EXPORT void qt_x11_enforce_cursor( QWidget * w )
+{
+    if ( QApplication::overrideCursor() )
+	return;
+
+    if ( w->isEnabled() ) {
+	XDefineCursor( w->x11Display(), w->winId(), w->cursor().handle() );
+    } else {
+	QWidget *parent = w->parentWidget();
+	while ( parent && !parent->isEnabled() )
+		parent = parent->parentWidget();
+	if ( parent ) {
+	    XDefineCursor( w->x11Display(), w->winId(), parent->cursor().handle() );
+	}
+    }
+    XFlush( w->x11Display() );
+}
 
 /*!
     Creates a new widget window if \a window is 0, otherwise sets the
@@ -898,16 +915,13 @@ void QWidget::setCursor( const QCursor &cursor )
 	extra->curs = new QCursor(cursor);
     }
     setWState( WState_OwnCursor );
-    QCursor *oc = QApplication::overrideCursor();
-    XDefineCursor( x11Display(), winId(),
-		   oc ? oc->handle() : cursor.handle() );
-    XFlush( x11Display() );
+    qt_x11_enforce_cursor( this );
 }
 
 void QWidget::unsetCursor()
 {
     if ( !isTopLevel() ) {
-	if (extra ) {
+	if ( extra ) {
 	    delete extra->curs;
 	    extra->curs = 0;
 	}
