@@ -464,50 +464,6 @@ void QOpenGLPaintEngine::drawPoints(const QPointArray &pa, int index, int npoint
     glEnd();
 }
 
-void QOpenGLPaintEngine::drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &bgColor)
-{
-    GLint opmode;
-
-    dgl->makeCurrent();
-    if (xorPaint) {
-        glGetIntegerv(GL_LOGIC_OP_MODE, &opmode);
-        glEnable(GL_COLOR_LOGIC_OP); // ### RGBA only - fix for indexed mode
-        glLogicOp(GL_XOR);
-        dgl->qglColor(white);
-    } else {
-        if (qGray(bgColor.rgb()) < 128)
-            dgl->qglColor(white);
-        else
-            dgl->qglColor(black);
-    }
-
-    glLineStipple(1, 0x5555);
-    glEnable(GL_LINE_STIPPLE);
-
-    // adjusting needed due to differences in how QPainter and OpenGL works
-    QRect rr = r;
-    rr.setWidth(r.width()-1);
-    rr.setHeight(r.height()-1);
-    rr.moveBy(0, 1);
-
-    if (d->cpen.style() != NoPen) {
-        glBegin(GL_LINE_LOOP);
-        {
-            glVertex2i(rr.x(), rr.y());
-            glVertex2i(rr.x()+rr.width(), rr.y());
-            glVertex2i(rr.x()+rr.width(), rr.y()+rr.height());
-            glVertex2i(rr.x(), rr.y()+rr.height());
-        }
-        glEnd();
-    }
-    glDisable(GL_LINE_STIPPLE);
-    if (xorPaint) {
-        glDisable(GL_COLOR_LOGIC_OP);
-        glLogicOp(opmode);
-    }
-    dgl->qglColor(d->cpen.color());
-}
-
 void QOpenGLPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 {
     QPointArray a;

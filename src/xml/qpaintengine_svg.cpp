@@ -291,11 +291,6 @@ void QSVGPaintEngine::drawPoints(const QPointArray &pa, int index, int npoints)
         drawLine(pa[i], pa[i]); // should be drawPoint(), but saves one fu call
 }
 
-void QSVGPaintEngine::drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &bgColor)
-{
-
-}
-
 void QSVGPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 {
     QDomElement e;

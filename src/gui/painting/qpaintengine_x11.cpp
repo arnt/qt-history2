@@ -717,36 +717,6 @@ void QX11PaintEngine::drawPoints(const QPointArray &a, int index, int npoints)
                     npoints, CoordModeOrigin);
 }
 
-void QX11PaintEngine::drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &bgColor)
-{
-    static char winfocus_line[] = {1, 1};
-
-    QPen old_pen = d->cpen;
-    RasterOp old_rop = (RasterOp) d->rop;
-
-    if (xorPaint) {
-        if (QColor::numBitPlanes() <= 8)
-            d->cpen.setColor(color1);
-        else
-            d->cpen.setColor(white);
-        setRasterOp(XorROP);
-    } else {
-        if (qGray(bgColor.rgb()) < 128)
-            d->cpen.setColor(white);
-        else
-            d->cpen.setColor(black);
-    }
-    updatePen(0);
-
-    XSetDashes(d->dpy, d->gc, 0, winfocus_line, 2);
-    XSetLineAttributes(d->dpy, d->gc, 1, LineOnOffDash, CapButt, JoinMiter);
-
-    XDrawRectangle(d->dpy, d->hd, d->gc, r.x(), r.y(), r.width()-1, r.height()-1);
-    XSetLineAttributes(d->dpy, d->gc, 0, LineSolid, CapButt, JoinMiter);
-    setRasterOp(old_rop);
-    updatePen(0);
-}
-
 void QX11PaintEngine::updatePen(QPainterState *state)
 {
     if (state)

@@ -138,8 +138,6 @@ void QWrapperPaintEngine::drawRect(const QRect &r) { wrap->drawRect(r); }
 void QWrapperPaintEngine::drawPoint(const QPoint &p) { wrap->drawPoint(p); }
 void QWrapperPaintEngine::drawPoints(const QPointArray &pa, int index, int npoints)
 { wrap->drawPoints(pa, index, npoints); }
-void QWrapperPaintEngine::drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &bgColor)
-{ wrap->drawWinFocusRect(r, xorPaint, bgColor); }
 void QWrapperPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 { wrap->drawRoundRect(r, xRnd, yRnd); }
 void QWrapperPaintEngine::drawEllipse(const QRect &r)

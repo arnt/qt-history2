@@ -612,28 +612,6 @@ void QWin32PaintEngine::drawPoints(const QPointArray &pts, int index, int npoint
     }
 }
 
-void QWin32PaintEngine::drawWinFocusRect(const QRect &fr, bool, const QColor &bgColor)
-{
-    if (!isActive())
-        return;
-    Q_ASSERT(d->hdc);
-
-    RECT r;
-    r.left   = fr.x();
-    r.right  = fr.x() + fr.width();
-    r.top    = fr.y();
-    r.bottom = fr.y() + fr.height();
-
-    if (qGray(bgColor.rgb()) < 10) { // Use white pen for very dark colors
-        int col = GetBkColor(d->hdc);
-        SetBkColor(d->hdc, col /* ^0x00ffffff */);
-        DrawFocusRect(d->hdc, &r);
-        SetBkColor(d->hdc, col);
-    } else {
-        DrawFocusRect(d->hdc, &r);
-    }
-}
-
 void QWin32PaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 {
     Q_ASSERT(isActive());
@@ -1704,13 +1682,6 @@ void QGdiplusPaintEngine::drawPoints(const QPointArray &pa, int index, int npoin
     if (d->usePen)
         for (int i=0; i<npoints; ++i)
             d->graphics->DrawRectangle(d->pen, pa[index+i].x(), pa[index+i].y(), 0, 0);
-}
-
-void QGdiplusPaintEngine::drawWinFocusRect(const QRect &r, bool, const QColor &)
-{
-    Pen pen(Color(0, 0, 0), 0);
-    pen.SetDashStyle(DashStyleDot);
-    d->graphics->DrawRectangle(&pen, r.x(), r.y(), r.width()-1, r.height()-1);
 }
 
 void QGdiplusPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)

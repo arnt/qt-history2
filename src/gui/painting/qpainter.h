@@ -133,10 +133,6 @@ public:
     void drawPoint(int x, int y);
     void drawPoint(const QPoint &p);
     void drawPoints(const QPointArray &pa, int index = 0, int npoints = -1);
-    void drawWinFocusRect(int x, int y, int w, int h);
-    void drawWinFocusRect(int x, int y, int w, int h, const QColor &bgColor);
-    void drawWinFocusRect(const QRect &r);
-    void drawWinFocusRect(const QRect &r, const QColor &bgColor);
     void drawRoundRect(int x, int y, int w, int h, int = 25, int = 25);
     void drawRoundRect(const QRect &r, int = 25, int = 25);
     void drawEllipse(int x, int y, int w, int h);
@@ -310,16 +306,6 @@ inline void QPainter::drawRect(int x, int y, int w, int h)
 inline void QPainter::drawPoint(int x, int y)
 {
     drawPoint(QPoint(x, y));
-}
-
-inline void QPainter::drawWinFocusRect(int x, int y, int w, int h)
-{
-    drawWinFocusRect(QRect(x, y, w, h));
-}
-
-inline void QPainter::drawWinFocusRect(int x, int y, int w, int h, const QColor &penColor)
-{
-    drawWinFocusRect(QRect(x, y, w, h), penColor);
 }
 
 inline void QPainter::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)

@@ -4884,7 +4884,8 @@ void Q3TextParagraph::drawString(QPainter &painter, const QString &str, int star
            document()->focusIndicator.start + document()->focusIndicator.len <= start + len ||
            document()->focusIndicator.start <= start &&
            document()->focusIndicator.start + document()->focusIndicator.len >= start + len))
-        painter.drawWinFocusRect(QRect(xstart, y, w, h));
+        QApplication::style().drawPrimitive(QStyle::PE_FocusRect, &painter,
+                                            QRect(xstart, y, w, h), pal);
 }
 
 void Q3TextParagraph::drawLabel(QPainter* p, int x, int y, int w, int h, int base,

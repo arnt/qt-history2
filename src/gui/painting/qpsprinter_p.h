@@ -61,7 +61,6 @@ private:
     virtual void drawRect(const QRect &r);
     virtual void drawPoint(const QPoint &p);
     virtual void drawPoints(const QPointArray &pa, int index = 0, int npoints = -1);
-    virtual void drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &bgColor);
     virtual void drawRoundRect(const QRect &r, int xRnd, int yRnd);
     virtual void drawEllipse(const QRect &r);
     virtual void drawArc(const QRect &r, int a, int alen);

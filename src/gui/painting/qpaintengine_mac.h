@@ -48,7 +48,6 @@ public:
     void drawRect(const QRect &r);
     void drawPoint(const QPoint &p);
     void drawPoints(const QPointArray &pa, int index = 0, int npoints = -1);
-    void drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &penColor);
     void drawRoundRect(const QRect &r, int xRnd, int yRnd);
     void drawEllipse(const QRect &r);
     void drawArc(const QRect &r, int a, int alen);
@@ -117,7 +116,6 @@ public:
     void drawRect(const QRect &r);
     void drawPoint(const QPoint &pt);
     void drawPoints(const QPointArray &pa, int index = 0, int npoints = -1);
-    void drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &penColor);
     void drawRoundRect(const QRect &r, int xRnd, int yRnd);
     void drawEllipse(const QRect &r);
     void drawArc(const QRect &r, int a, int alen);

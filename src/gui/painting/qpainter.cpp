@@ -124,7 +124,7 @@ void qt_fill_linear_gradient(const QRect &r, QPixmap *pixmap, const QBrush &brus
 
     The core functionality of QPainter is drawing, and there are
     functions to draw most primitives: drawPoint(), drawPoints(),
-    drawLine(), drawRect(), drawWinFocusRect(), drawRoundRect(),
+    drawLine(), drawRect(), drawRoundRect(),
     drawEllipse(), drawArc(), drawPie(), drawChord(),
     drawLineSegments(), drawPolyline(), drawPolygon(),
     drawConvexPolygon() and drawCubicBezier(). All of these functions
@@ -1243,120 +1243,6 @@ void QPainter::drawPoints(const QPointArray &pa, int index, int npoints)
     }
 
     d->engine->drawPoints(pa, index, npoints);
-}
-
-/*!
-    \fn void QPainter::drawWinFocusRect(int x, int y, int w, int h)
-
-    \overload
-
-    Draws a Windows focus rectangle with upper left corner at (\a x,
-    \a y) and with width \a w and height \a h.
-*/
-
-/*! \fn void QPainter::drawWinFocusRect(int x, int y, int w, int h, const QColor &bgColor)
-
-    \overload
-
-    Draws a Windows focus rectangle with upper left corner at (\a x,
-    \a y) and with width \a w and height \a h using a pen color that
-    contrasts with \a bgColor.
-
-    This function draws a stippled rectangle (XOR is not used) that is
-    used to indicate keyboard focus (when the QApplication::style() is
-    \c WindowStyle).
-
-    The pen color used to draw the rectangle is either white or black
-    depending on the color of \a bgColor (see QColor::gray()).
-
-    \warning This function draws nothing if the coordinate system has
-    been \link rotate() rotated\endlink or \link shear()
-    sheared\endlink.
-
-    \sa drawRect(), QApplication::style()
-*/
-
-
-/*!
-    \overload
-
-    Draws the Windows focus rectangle \a r.
-
-    This function draws a stippled XOR rectangle that is used to
-    indicate keyboard focus (when QApplication::style() is \c
-    WindowStyle).
-
-    \warning This function draws nothing if the coordinate system has
-    been \link rotate() rotated\endlink or \link shear()
-    sheared\endlink.
-
-    \sa drawRect(), QApplication::style()
-*/
-
-void QPainter::drawWinFocusRect(const QRect &r)
-{
-    if (!isActive() || r.isEmpty())
-        return;
-    d->engine->updateState(d->state);
-
-    QRect rect = r.normalize();
-
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasCapability(QPaintEngine::CoordTransform)) {
-        if (d->state->txop == TxRotShear) {
-            QPen cpen = d->state->pen;
-            d->state->pen = QPen(black, 0, DotLine);
-            d->engine->updatePen(d->state);
-            drawPolygon(QPointArray(rect));
-            d->state->pen = cpen;
-            d->engine->updatePen(d->state);
-            return;
-        }
-        rect = xForm(rect);
-    }
-
-    d->engine->drawWinFocusRect(rect, true, color0);
-}
-
-/*!
-    Draws a Windows focus rectangle with the dimensions of \a r,
-    using a pen color that contrasts with \a bgColor.
-
-    This function draws a stippled rectangle (XOR is not used) that is
-    used to indicate keyboard focus (when the QApplication::style() is
-    \c WindowStyle).
-
-    The pen color used to draw the rectangle is either white or black
-    depending on the color of \a bgColor (see QColor::gray()).
-
-    \warning This function draws nothing if the coordinate system has
-    been \link rotate() rotated\endlink or \link shear()
-    sheared\endlink.
-
-    \sa drawRect(), QApplication::style()
-*/
-
-void QPainter::drawWinFocusRect(const QRect &r, const QColor &bgColor)
-{
-    if (!isActive() || r.isEmpty())
-        return;
-    d->engine->updateState(d->state);
-
-    QRect rect = r.normalize();
-
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasCapability(QPaintEngine::CoordTransform)) {
-        if (d->state->txop == TxRotShear) {
-            QPen cpen = d->state->pen;
-            d->state->pen = QPen(black, 0, DotLine);
-            d->engine->updatePen(d->state);
-            drawPolygon(QPointArray(rect));
-            d->state->pen = cpen;
-            d->engine->updatePen(d->state);
-            return;
-        }
-        rect = xForm(rect);
-    }
-
-    d->engine->drawWinFocusRect(rect, false, bgColor);
 }
 
 

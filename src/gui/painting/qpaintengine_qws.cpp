@@ -360,49 +360,6 @@ void QWSPaintEngine::drawPoints(const QPointArray &pa, int index, int npoints)
     d->gfx->drawPoints(pa, index, npoints);
 }
 
-void QWSPaintEngine::drawWinFocusRect(const QRect &r, bool /*xorPaint*/, const QColor &/*bgColor*/)
-{
-    static char winfocus_line[] = { 1, 1 };
-
-//    d->gfx->setBrush(QBrush());
-/*#########
-    if (xorPaint) {
-        if (QColor::numBitPlanes() <= 8)
-            d->gfx->setPen(QPen(color1));
-        else
-            d->gfx->setPen(QPen(white));
-        d->gfx->setRop(XorROP);
-    } else {
-        if (qGray(bgColor.rgb()) < 128)
-            setPen(QPen(white));
-        else
-            setPen(QPen(black));
-    }
-*/
-
-    int x, y, w, h;
-    r.rect(&x, &y, &w, &h);
-
-    d->gfx->setDashes(winfocus_line, 2);
-    d->gfx->setDashedLines(true);
-    if (state->pen.style() != NoPen) {
-        d->gfx->drawLine(x,y,x+(w-1),y);
-        d->gfx->drawLine(x+(w-1),y,x+(w-1),y+(h-1));
-        d->gfx->drawLine(x,y+(h-1),x+(w-1),y+(h-1));
-        d->gfx->drawLine(x,y,x,y+(h-1));
-        x++;
-        y++;
-        w -= 2;
-        h -= 2;
-    }
-//###?????    gfx->fillRect(x,y,w,h);
-
-    d->gfx->setDashedLines(false);
-
-//     setRasterOp(old_rop);
-//     setPen(old_pen);
-//     setBrush(old_brush);
-}
 void QWSPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 {
     QPointArray a;

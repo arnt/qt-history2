@@ -5765,11 +5765,6 @@ void QPSPrinter::drawPoints(const QPointArray &pa, int index, int npoints)
         drawPoint(pa[i+index]);
 }
 
-void QPSPrinter::drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &bgColor)
-{
-    drawRect(r);
-}
-
 void QPSPrinter::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 {
     d->pageStream << RECT(r) << INT_ARG(xRnd) << INT_ARG(yRnd) << "RR\n";

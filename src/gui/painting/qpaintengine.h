@@ -93,7 +93,6 @@ public:
     virtual void drawRects(const QList<QRect> &rects);
     virtual void drawPoint(const QPoint &p) = 0;
     virtual void drawPoints(const QPointArray &pa, int index = 0, int npoints = -1) = 0;
-    virtual void drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &bgColor) = 0;
     virtual void drawRoundRect(const QRect &r, int xRnd, int yRnd) = 0;
     virtual void drawEllipse(const QRect &r) = 0;
     virtual void drawArc(const QRect &r, int a, int alen) = 0;
@@ -220,7 +219,6 @@ public:
     virtual void drawRect(const QRect &r);
     virtual void drawPoint(const QPoint &p);
     virtual void drawPoints(const QPointArray &pa, int index, int npoints = -1);
-    virtual void drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &bgColor);
     virtual void drawRoundRect(const QRect &r, int xRnd, int yRnd);
     virtual void drawEllipse(const QRect &r);
     virtual void drawArc(const QRect &r, int a, int alen);

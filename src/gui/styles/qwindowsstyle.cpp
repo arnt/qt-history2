@@ -351,10 +351,14 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe,
         }
 
     case PE_FocusRect:
-        if (opt.isDefault())
-            p->drawWinFocusRect(r);
-        else
-            p->drawWinFocusRect(r, opt.color());
+        p->save();
+        p->setBrush(QBrush(black, Dense4Pattern));
+        p->setPen(NoPen);
+        p->drawRect(r.left(),  r.top(),    r.width(), 1);          // Top
+        p->drawRect(r.left(),  r.bottom(), r.width(), 1);          // Bottom
+        p->drawRect(r.left(),  r.top(),    1,         r.height()); // Left
+        p->drawRect(r.right(), r.top(),    1,         r.height()); // Right
+        p->restore();
         break;
 
     case PE_Indicator:
@@ -1408,7 +1412,7 @@ QSize QWindowsStyle::sizeFromContents(ContentsType contents,
                 h = 2;
             } else {
                 h = qMax(h, menu->fontMetrics().height() + 8);
-                if(!act->icon().isNull()) 
+                if(!act->icon().isNull())
                     h = qMax(h,act->icon().pixmap(QIconSet::Small, QIconSet::Normal).height() + 2*windowsItemFrame);
             }
 

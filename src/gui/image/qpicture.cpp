@@ -469,10 +469,6 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
                 s >> r >> i1_16 >> i2_16;
                 painter->drawRoundRect(r, i1_16, i2_16);
                 break;
-            case PdcDrawWinFocusRect:
-                s >> r >> color;
-                painter->drawWinFocusRect(r, color);
-                break;
             case PdcDrawEllipse:
                 s >> r;
                 painter->drawEllipse(r);

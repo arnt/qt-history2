@@ -1412,36 +1412,6 @@ QCoreGraphicsPaintEngine::drawPoints(const QPointArray &pa, int index, int npoin
 }
 
 void
-QCoreGraphicsPaintEngine::drawWinFocusRect(const QRect &fr, bool xorPaint, const QColor &bgColor)
-{
-    Q_ASSERT(isActive());
-
-    //save
-    QPainterState old_state = *state;
-
-    //setup
-    if(xorPaint)
-        qWarning("cannot support xor painting!");
-    if(qGray(bgColor.rgb()) < 128)
-        state->pen = QPen(white);
-    else
-        state->pen = QPen(black);
-    state->pen.setStyle(DashLine);
-    state->brush.setStyle(NoBrush);
-    updatePen(state);
-    updateBrush(state);
-
-    //draw
-    if(d->current.pen.style() != NoPen)
-        drawRect(fr);
-
-    //restore
-    *state = old_state;
-    updatePen(state);
-    updateBrush(state);
-}
-
-void
 QCoreGraphicsPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 {
     Q_ASSERT(isActive());
