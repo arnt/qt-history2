@@ -124,33 +124,52 @@ public:
 
     The default property mappings used by Qt widgets are:
     <ul>
-    <li>QLineEdit -- text
-    <li>QSpinBox -- value
-    <li>QDial -- value
-    <li>QCheckButton -- checked
-    <li>QSlider -- value
+    <li>QButton -- text
+    <li>QCheckBox -- checked
     <li>QComboBox -- currentItem
     <li>QDateEdit -- date
-    <li>QTimeEdit -- time
     <li>QDateTimeEdit -- dateTime
+    <li>QDial -- value
     <li>QLabel -- text
+    <li>QLCDNumber -- value
+    <li>QLineEdit -- text
+    <li>QListBox -- currentItem
+    <li>QMultiLineEdit -- text
+    <li>QPushButton -- text
+    <li>QRadioButton -- text
+    <li>QScrollBar -- value
+    <li>QSlider -- value
+    <li>QSpinBox -- value
+    <li>QTextBrowser -- source
+    <li>QTextEdit -- text
+    <li>QTextView -- text
+    <li>QTimeEdit -- time
     </ul>
 
  */
 QSqlPropertyMap::QSqlPropertyMap()
 {
     d = new QSqlPropertyMapPrivate();
-    d->propertyMap["QLineEdit"]    = "text";
-    d->propertyMap["QTextView"]    = "text";
-    d->propertyMap["QSpinBox"]     = "value";
-    d->propertyMap["QDial"]        = "value";
-    d->propertyMap["QCheckBox"] = "checked";
-    d->propertyMap["QSlider"]      = "value";
-    d->propertyMap["QComboBox"]    = "currentItem";
-    d->propertyMap["QDateEdit"]    = "date";
-    d->propertyMap["QTimeEdit"]    = "time";
-    d->propertyMap["QDateTimeEdit"]= "dateTime";
-    d->propertyMap["QLabel"]       = "text";
+    d->propertyMap["QButton"]        = "text";
+    d->propertyMap["QCheckBox"]      = "checked";
+    d->propertyMap["QComboBox"]      = "currentItem";
+    d->propertyMap["QDateEdit"]      = "date";
+    d->propertyMap["QDateTimeEdit"]  = "dateTime";
+    d->propertyMap["QDial"]          = "value";
+    d->propertyMap["QLabel"]         = "text";
+    d->propertyMap["QLCDNumber"]     = "value";
+    d->propertyMap["QLineEdit"]      = "text";
+    d->propertyMap["QListBox"]       = "currentItem";
+    d->propertyMap["QMultiLineEdit"] = "text";
+    d->propertyMap["QPushButton"]    = "text";
+    d->propertyMap["QRadioButton"]   = "text";
+    d->propertyMap["QScrollBar"]     = "value";
+    d->propertyMap["QSlider"]        = "value";
+    d->propertyMap["QSpinBox"]       = "value";
+    d->propertyMap["QTextBrowser"]   = "source";
+    d->propertyMap["QTextEdit"]      = "text";
+    d->propertyMap["QTextView"]      = "text";
+    d->propertyMap["QTimeEdit"]      = "time";
 }
 
 /*!
