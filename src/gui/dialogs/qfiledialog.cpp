@@ -886,8 +886,6 @@ void QFileDialogPrivate::upClicked()
 void QFileDialogPrivate::mkdirClicked()
 {
     QModelIndex parent = root();
-    // ### path is declared, but never used?
-    // QString path = model->path(parent);
     listView->clearSelection();
 
     QModelIndex index = model->mkdir(parent, "New Folder");
