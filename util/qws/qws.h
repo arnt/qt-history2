@@ -84,6 +84,7 @@ private:
     void invokeRemoveProperty( QWSRemovePropertyCommand *cmd );
     void invokeGetProperty( QWSGetPropertyCommand *cmd, QWSClient *client );
     void invokeSetSelectionOwner( QWSSetSelectionOwnerCommand *cmd );
+    void invokeConvertSelection( QWSConvertSelectionCommand *cmd );
 
 private slots:
     void doClient();
@@ -107,7 +108,7 @@ private:
 	    int hour, minute, sec, ms;
 	} time;
     } selectionOwner;
-    
+
     int mouseFD;
     int mouseIdx;
     uchar *mouseBuf;
@@ -141,6 +142,7 @@ public:
     void sendPropertyNotifyEvent( int property, int state );
     void sendPropertyReplyEvent( int property, int len, char *data );
     void sendSelectionClearEvent( int windowid );
+    void sendSelectionRequestEvent( QWSConvertSelectionCommand *cmd, int windowid );
     QWSCommand* readMoreCommand();
     void writeRegion( QRegion reg );
 

@@ -158,6 +158,18 @@ void QWSClient::sendSelectionClearEvent( int windowid )
     flush();
 }
 
+void QWSClient::sendSelectionRequestEvent( QWSConvertSelectionCommand *cmd, int windowid )
+{
+    QWSSelectionRequestEvent event;
+    event.type = QWSEvent::SelectionRequest;
+    event.window = windowid;
+    event.requestor = cmd->simpleData.requestor;
+    event.property = cmd->simpleData.selection;
+    event.mimeTypes = cmd->simpleData.mimeTypes;
+    writeBlock( (char*)&event, sizeof( event ) );
+    flush();
+}
+
 /*********************************************************************
  *
  * Class: QWSServer
@@ -203,7 +215,7 @@ QWSServer::QWSServer( bool fake, QObject *parent=0, const char *name=0 ) :
     // no selection yet
     selectionOwner.windowid = -1;
     selectionOwner.time.set( -1, -1, -1, -1 );
-    
+
     if ( !start() )
 	qFatal("Failed to bind to port %d",QTFB_PORT);
 }
@@ -416,7 +428,7 @@ void QWSServer::invokeGetProperty( QWSGetPropertyCommand *cmd, QWSClient *client
 void QWSServer::invokeSetSelectionOwner( QWSSetSelectionOwnerCommand *cmd )
 {
     qDebug( "QWSServer::invokeSetSelectionOwner" );
-    
+
     SelectionOwner so;
     so.windowid = cmd->simpleData.windowid;
     so.time.set( cmd->simpleData.hour, cmd->simpleData.minute,
@@ -429,10 +441,23 @@ void QWSServer::invokeSetSelectionOwner( QWSSetSelectionOwnerCommand *cmd )
 	else
 	    qDebug( "couldn't find window %d", selectionOwner.windowid );
     }
-    
+
     selectionOwner = so;
 }
 
+void QWSServer::invokeConvertSelection( QWSConvertSelectionCommand *cmd )
+{
+    qDebug( "QWSServer::invokeConvertSelection" );
+    
+    if ( selectionOwner.windowid != -1 ) {
+	QWSWindow *win = findWindow( selectionOwner.windowid, 0 );
+	if ( win )
+	    win->client->sendSelectionRequestEvent( cmd, selectionOwner.windowid );
+	else
+	    qDebug( "couldn't find window %d", selectionOwner.windowid );
+    }
+}
+    
 void QWSWindow::addAllocation(QRegion r)
 {
     allocated_region |= r;
