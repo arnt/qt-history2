@@ -30,7 +30,7 @@ bool QLibraryPrivate::load_sys()
 {
     pHnd = (void*)shl_load(QFile::encodeName(fileName), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0);
     if (!pHnd)
-        pHnd = (void*)shl_load(QFile::encodeName(QFileInfo(fileName).dirPath() + "lib" + QFileInfo(fileName).fileName() + ".sl"), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0);
+        pHnd = (void*)shl_load(QFile::encodeName(QFileInfo(fileName).path() + "lib" + QFileInfo(fileName).fileName() + ".sl"), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0);
     if (!pHnd)
         qWarning("%s: Failed to load library", (const char*) QFile::encodeName(fileName));
     return pHnd != 0;
@@ -61,16 +61,16 @@ bool QLibraryPrivate::load_sys()
     pHnd = dlopen(QFile::encodeName(fileName), RTLD_LAZY);
 # if defined(Q_OS_HPUX)
     if (!pHnd)
-        pHnd = dlopen(QFile::encodeName(QFileInfo(fileName).dirPath() + "lib" + QFileInfo(fileName).fileName() + ".sl"), RTLD_LAZY);
+        pHnd = dlopen(QFile::encodeName(QFileInfo(fileName).path() + "lib" + QFileInfo(fileName).fileName() + ".sl"), RTLD_LAZY);
 # else
     if (!pHnd)
-        pHnd = dlopen(QFile::encodeName(QFileInfo(fileName).dirPath() + "lib" + QFileInfo(fileName).fileName() + ".so"), RTLD_LAZY);
+        pHnd = dlopen(QFile::encodeName(QFileInfo(fileName).path() + "lib" + QFileInfo(fileName).fileName() + ".so"), RTLD_LAZY);
 # endif
 # ifdef Q_OS_MAC
     if (!pHnd)
-        pHnd = dlopen(QFile::encodeName(QFileInfo(fileName).dirPath() + "lib" + QFileInfo(fileName).fileName() + ".bundle"), RTLD_LAZY);
+        pHnd = dlopen(QFile::encodeName(QFileInfo(fileName).path() + "lib" + QFileInfo(fileName).fileName() + ".bundle"), RTLD_LAZY);
     if (!pHnd)
-        pHnd = dlopen(QFile::encodeName(QFileInfo(fileName).dirPath() + "lib" + QFileInfo(fileName).fileName() + ".dylib"), RTLD_LAZY);
+        pHnd = dlopen(QFile::encodeName(QFileInfo(fileName).path() + "lib" + QFileInfo(fileName).fileName() + ".dylib"), RTLD_LAZY);
     if (!pHnd) {
         if(QCFType<CFBundleRef> bundle = CFBundleGetBundleWithIdentifier(QCFString(fileName))) {
             QCFType<CFURLRef> url = CFBundleCopyExecutableURL(bundle);

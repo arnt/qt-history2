@@ -1084,9 +1084,9 @@ static QString resolveSymlinks(const QString& path, int depth = 0)
                     relPath += "/";
                 relPath += path.right(path.length() - slashPos - 1);
             }
-            path2 = QDir::current().absFilePath(relPath);
+            path2 = QDir::current().absoluteFilePath(relPath);
         }
-        path2 = QDir::cleanDirPath(path2);
+        path2 = QDir::cleanPath(path2);
         return resolveSymlinks(path2, depth + 1);
     } else {
         return path;
@@ -1148,7 +1148,7 @@ QString QCoreApplication::applicationFilePath()
           If argv0 contains one or more slashes, it is a file path
           relative to the current directory.
         */
-        absPath = QDir::current().absFilePath(argv0);
+        absPath = QDir::current().absoluteFilePath(argv0);
     } else {
         /*
           Otherwise, the file path has to be determined using the
@@ -1159,7 +1159,7 @@ QString QCoreApplication::applicationFilePath()
         for (QStringList::const_iterator p = paths.begin(); p != paths.end(); ++p) {
             if ((*p).isEmpty())
                 continue;
-            QString candidate = QDir::current().absFilePath(*p + "/" + argv0);
+            QString candidate = QDir::current().absoluteFilePath(*p + "/" + argv0);
             if (QFile::exists(candidate)) {
                 absPath = candidate;
                 break;
@@ -1167,7 +1167,7 @@ QString QCoreApplication::applicationFilePath()
         }
     }
 
-    absPath = QDir::cleanDirPath(absPath);
+    absPath = QDir::cleanPath(absPath);
     if (QFile::exists(absPath)) {
         return resolveSymlinks(absPath);
     } else {
