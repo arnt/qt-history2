@@ -383,15 +383,11 @@ bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
 /*!
     \fn QModelIndex::QModelIndex()
 
-    \internal
-
     Creates a new invalid model index.
 */
 
 /*!
     \fn QModelIndex::QModelIndex(int row, int column, void *data, Type type)
-
-    \internal
 
     Creates a new model index at the given \a row and \a column,
     pointing to data \a data, and of type \a type.
@@ -400,8 +396,6 @@ bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
 /*!
     \fn QModelIndex::QModelIndex(const QModelIndex &other)
 
-    \internal
-
     Creates a new model index that is a copy of the \a other model
     index.
 */
@@ -409,7 +403,7 @@ bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
 /*!
     \fn QModelIndex::~QModelIndex()
 
-    \internal
+    Destroys the model index.
 */
 
 /*!
@@ -508,7 +502,20 @@ bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
     dataChanged(), rowsInserted(), columnsInserted(), rowsRemoved()
     and columnsRemoved().
 
-    \sa \link model-view-programming.html Model/View Programming\endlink.
+    \sa \link model-view-programming.html Model/View Programming\endlink
+*/
+
+/*!
+    \fn QModelIndex QAbstractItemModel::index(int row, int column, const QModelIndex &parent, QModelIndex::Type type) const = 0
+
+    Returns the index of the item in the model specified by the given \a row,
+    \a column, \a parent index, and \a type.
+*/
+
+/*!
+    \fn QModelIndex QAbstractItemModel::parent(const QModelIndex &index) const = 0
+
+    Returns the parent of the model item with the given \a index.
 */
 
 #define d d_func()
@@ -539,20 +546,6 @@ QAbstractItemModel::~QAbstractItemModel()
 }
 
 /*!
-    \fn QModelIndex QAbstractItemModel::topLeft(const QModelIndex &parent = 0) const
-
-    Returns the index of the top-left item for the given \a parent.
-*/
-
-
-/*!
-    \fn QModelIndex QAbstractItemModel::bottomRight(const QModelIndex &parent = 0) const
-
-    Returns the index of the bottom-right item for the given \a parent.
-*/
-
-
-/*!
     \fn QModelIndex QAbstractItemModel::sibling(int row, int column, const QModelIndex &idx) const
 
     Returns the index of the sibling of the item at the given \a row,
@@ -561,14 +554,14 @@ QAbstractItemModel::~QAbstractItemModel()
 
 
 /*!
-    \fn int QAbstractItemModel::rowCount(const QModelIndex &parent = 0) const = 0
+    \fn int QAbstractItemModel::rowCount(const QModelIndex &parent) const = 0
 
     Returns the number of rows under the given \a parent.
 */
 
 
 /*!
-    \fn int QAbstractItemModel::columnCount(const QModelIndex &parent = 0) const = 0;
+    \fn int QAbstractItemModel::columnCount(const QModelIndex &parent) const = 0;
     Returns the number of columns for the given \a parent.
 */
 
@@ -638,37 +631,6 @@ QAbstractItemModel::~QAbstractItemModel()
     \value WhatsThisRole The data displayed for the item in "What's This?"
     mode.
     \value UserRole The first custom role defined by the user.
-*/
-
-/*!
-  \fn QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex(), QModelIndex::Type type = QModelIndex::View) const
-    Returns the index of the data in \a row and \a column with \a
-    parent, of type \a type.
-
-    \sa parent()
- */
-
-/*!
-  \fn parent(const QModelIndex &) const
-    Returns the index of the parent of \a child.
-
-    \sa index() hasChildren()
-*/
-
-/*!
-  \fn rowCount(const QModelIndex &parent) const
-
-  Return the number of rows in the top level table.
-
-  \sa columnCount()
-*/
-
-/*!
-   \fn columnCount(const QModelIndex &parent) const
- 
-  Return the number of columns in the top level table.
-
-  \sa rowCount()
 */
 
 /*!
@@ -1121,8 +1083,46 @@ QDebug operator<<(QDebug dbg, const QModelIndex &idx)
 }
 #endif
 
-/*
-  QAbstractTableModel
+/*!
+    \class QAbstractTableModel
+    \brief The QAbstractTableModel class provides a default model to use with
+    the QGenericTableView class.
+
+    \ingroup model-view
+
+    A QAbstractTableModel is a ready-made model for use with the generic view
+    widgets. In particular, it is intended for use with QGenericTableView.
+    The model provides a two-dimensional model in which data can be stored,
+    containing a number of rows and columns.
+
+    If you need to represent a simple list of items, and only need a model to
+    contain a single column of data, the QAbstractListModel may be more
+    appropriate. For hierarchical lists, for use with QGenericTreeView, it is
+    necessary to subclass QAbstractItemModel.
+
+    The rowCount() and columnCount() functions return the dimensions of the
+    table. To retrieve a model index corresponding to an item in the mode, use
+    index() and provide only the row and column numbers.
+
+    \sa \link model-view-programming.html Model/View Programming\endlink
+        QAbstractItemModel QAbstractListModel
+
+*/
+
+/*!
+    \fn int QAbstractTableModel::rowCount() const = 0
+
+    Returns the number of rows in the model.
+*/
+
+/*!
+    \fn int QAbstractTableModel::columnCount() const = 0
+
+    Returns the number of columns in the model.
+*/
+
+/*!
+    Constructs an abstract table model for the given \a parent.
 */
 
 QAbstractTableModel::QAbstractTableModel(QObject *parent)
@@ -1131,16 +1131,35 @@ QAbstractTableModel::QAbstractTableModel(QObject *parent)
 
 }
 
+/*!
+    \internal
+
+    Constructs an abstract table model with \a dd and the given \a parent.
+*/
+
 QAbstractTableModel::QAbstractTableModel(QAbstractItemModelPrivate &dd, QObject *parent)
     : QAbstractItemModel(dd, parent)
 {
 
 }   
 
+/*!
+    Destroys the abstract table model.
+*/
+
 QAbstractTableModel::~QAbstractTableModel()
 {
 
 }
+
+/*!
+    \fn QModelIndex QAbstractTableModel::index(int row, int column, const QModelIndex &parent = QModelIndex(), QModelIndex::Type type = QModelIndex::View) const
+
+    Returns the index of the data in \a row and \a column with \a
+    parent, of the given \a type.
+
+    \sa parent()
+*/
 
 QModelIndex QAbstractTableModel::index(int row, int column, const QModelIndex &parent,
                                        QModelIndex::Type type) const
@@ -1148,10 +1167,26 @@ QModelIndex QAbstractTableModel::index(int row, int column, const QModelIndex &p
     return isValid(row, column, parent) ? createIndex(row, column, 0, type) : QModelIndex();
 }
 
+/*!
+    \fn QModelIndex QAbstractTableModel::parent(const QModelIndex &index) const
+
+    Returns the parent of the model item with the given \a index.
+
+    \sa index() hasChildren()
+*/
+
 QModelIndex QAbstractTableModel::parent(const QModelIndex &) const
 {
     return QModelIndex();
 }
+
+/*!
+    \internal
+
+    Returns the number of rows in the table with the given \a parent.
+
+    \sa columnCount()
+*/
 
 int QAbstractTableModel::rowCount(const QModelIndex &parent) const
 {
@@ -1160,6 +1195,14 @@ int QAbstractTableModel::rowCount(const QModelIndex &parent) const
     return rowCount();
 }
 
+/*!
+    \internal
+
+    Returns the number of columns in the table with the given \a parent.
+
+    \sa rowCount()
+*/
+
 int QAbstractTableModel::columnCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
@@ -1167,8 +1210,47 @@ int QAbstractTableModel::columnCount(const QModelIndex &parent) const
     return columnCount();
 }
 
-/*
-  QAbstractListModel
+/*!
+    \class QAbstractListModel
+    \brief The QAbstractListModel class provides a default model to use with the
+    QGenericListView class.
+
+    \ingroup model-view
+
+    A QAbstractListModel is used to store a list of items, typically for
+    display in a list view. Since the model represents a simple non-hierarchical
+    sequence of items, it is not suitable for use with a tree view; you will
+    need to subclass QAbstractItemModel for that purpose.
+
+    If you need to use a number of list models to manage data, it may be more
+    appropriate to use the QAbstractTableModel class.
+
+    Since the model represents a one-dimensional structure, the rowCount()
+    function returns the number of items in the model. The columnCount() function
+    is implemented for interoperability with all kinds of generic views, but
+    by default informs views that the model contains only one column.
+
+    \sa \link model-view-programming.html Model/View Programming\endlink
+        QAbstractItemView QAbstractTableView
+
+*/
+
+/*!
+    \fn int QAbstractListModel::rowCount() const
+
+    Returns the number of rows in the model.
+    The number of rows is equal to the number of items stored in the model.
+*/
+
+/*!
+    \fn int QAbstractListModel::columnCount() const
+
+    Returns the number of columns in the model.
+    This list model only contains one column of items.
+*/
+
+/*!
+    Constructs an abstract list model with the given \a parent.
 */
 
 QAbstractListModel::QAbstractListModel(QObject *parent)
@@ -1176,6 +1258,12 @@ QAbstractListModel::QAbstractListModel(QObject *parent)
 {
 
 }
+
+/*!
+    \internal
+
+    Constructs an abstract list model with \a dd and the given \a parent.
+*/
 
 QAbstractListModel::QAbstractListModel(QAbstractItemModelPrivate &dd, QObject *parent)
     : QAbstractItemModel(dd, parent)
