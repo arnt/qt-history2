@@ -1931,9 +1931,11 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    EventRef key_ev;
 	    GetEventParameter(event, kEventParamTextInputSendKeyboardEvent, typeEventRef, NULL,
 			      sizeof(key_ev), NULL, &key_ev);
-	    char keyc;
-	    GetEventParameter(key_ev, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(keyc), NULL, &keyc);
-	    if(keyc < 0) {
+	    char chr;
+	    GetEventParameter(key_ev, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(chr), NULL, &chr);
+	    UInt32 keyc;
+	    GetEventParameter(key_ev, kEventParamKeyCode, typeUInt32, NULL, sizeof(keyc), NULL, &keyc);
+	    if(get_key(chr, keyc) == Qt::Key_unknown) {
 		QIMEvent imstart(QEvent::IMStart, QString::null, -1);
 		QApplication::sendSpontaneousEvent(widget, &imstart);
 		if(imstart.isAccepted()) { //doesn't want the event
@@ -1950,6 +1952,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    QApplication::sendSpontaneousEvent(widget, &imend);
 		}
 	    } 
+	    if(!handled_event)
+		return -1;
 	}
 	break;
     case kEventClassKeyboard: {
@@ -2018,7 +2022,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    handled_event = TRUE;
 		    break;
 		}
-
 		if(modifiers & (Qt::ControlButton | Qt::AltButton)) {
 		    mystr = QString();
 		    chr = 0;
