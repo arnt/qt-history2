@@ -173,7 +173,7 @@ QString DomTreeItem::contentString()
 		QDomDocumentType doctype = _node.toDocument().doctype();
 		s += "<h2>Document Type</h2>";
 		s += doctype.name();
-		s += "<hr/><h3>Entites</h3>";
+		s += "<hr/><h3>Entities</h3>";
 		QDomNamedNodeMap entities = doctype.entities();
 		if ( entities.length() > 0 ) {
 		    s += "<ul>";
@@ -182,23 +182,18 @@ QString DomTreeItem::contentString()
 			s += "<li>";
 			s += "<b>Name:</b> ";
 			s += entity.nodeName();
-			s += "<br/>";
-			bool lineBreak = FALSE;
 			if ( !entity.publicId().isNull() ) {
+			    s += "<br/>";
 			    s += "<b>Public ID:</b> ";
 			    s += entity.publicId();
-			    lineBreak = TRUE;
 			}
 			if ( !entity.systemId().isNull() ) {
-			    if ( lineBreak )
-				s += "<br/>";
+			    s += "<br/>";
 			    s += "<b>System ID:</b> ";
 			    s += entity.systemId();
-			    lineBreak = TRUE;
 			}
 			if ( !entity.notationName().isNull() ) {
-			    if ( lineBreak )
-				s += "<br/>";
+			    s += "<br/>";
 			    s += "<b>Notation Name:</b> ";
 			    s += entity.notationName();
 			}
@@ -210,12 +205,20 @@ QString DomTreeItem::contentString()
 		if ( notations.length() > 0 ) {
 		    s += "<ul>";
 		    for ( uint i=0; i< notations.length(); i++ ) {
+			QDomNotation notation = notations.item(i).toNotation();
 			s += "<li>";
-			s += notations.item(i).nodeName();
-			s += "<b>Public:<b> ";
-			s += notations.item(i).toNotation().publicId();
-			s += "<b>System:<b> ";
-			s += notations.item(i).toNotation().systemId();
+			s += "<b>Name:</b> ";
+			s += notation.nodeName();
+			if ( !notation.publicId().isNull() ) {
+			    s += "<br/>";
+			    s += "<b>Public:</b> ";
+			    s += notation.publicId();
+			}
+			if ( !notation.systemId().isNull() ) {
+			    s += "<br/>";
+			    s += "<b>System:</b> ";
+			    s += notation.systemId();
+			}
 		    }
 		    s += "</ul>";
 		}
