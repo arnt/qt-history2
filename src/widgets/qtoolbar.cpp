@@ -52,6 +52,8 @@
 #include "qpopupmenu.h"
 #include "qtimer.h"
 
+bool toolbarHackFor30Development = TRUE;
+
 class QArrowWidget : public QWidget
 {
 public:
@@ -286,7 +288,7 @@ void QToolBar::init()
 					       QBoxLayout::LeftToRight ),
 			style() == WindowsStyle ? 2 : 1, 0 );
     boxLayout()->setAutoAdd( TRUE );
-    if ( !mw || mw->toolBarsMovable() )
+    if ( !mw || mw->toolBarsMovable() || !toolbarHackFor30Development )
 	boxLayout()->addSpacing( 9 );
 
     if ( mw ) {
@@ -310,7 +312,7 @@ QBoxLayout *QToolBar::boxLayout()
 			     ? QBoxLayout::Down : ( QApplication::reverseLayout() ? QBoxLayout::RightToLeft :
 						    QBoxLayout::LeftToRight ),
 			     style() == WindowsStyle ? 2 : 1, 0 );
-	if ( !mw || mw->toolBarsMovable() )
+	if ( !mw || mw->toolBarsMovable() || !toolbarHackFor30Development )
 	    boxLayout()->addSpacing( 9 );
 	return bl;
     }
@@ -887,7 +889,7 @@ void QToolBar::emulateButtonClicked()
 
 void QToolBar::paintToolBar()
 {
-    if ( mw && !mw->toolBarsMovable() )
+    if ( mw && ( !mw->toolBarsMovable() || !toolbarHackFor30Development ) )
 	return;
 
     QPainter p( this );

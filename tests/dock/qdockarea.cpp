@@ -8,6 +8,8 @@
 #include <qpainter.h>
 #include <qwidgetlist.h>
 
+extern bool toolbarHackFor30Development;
+
 class QDockAreaHandle : public QWidget
 {
 public:
@@ -174,6 +176,7 @@ QDockArea::QDockArea( Orientation o, QWidget *parent, const char *name )
     insertedSplitters.setAutoDelete( TRUE );
     dockWidgets.setAutoDelete( TRUE );
     setMinimumSize( 3, 3 );
+    toolbarHackFor30Development = TRUE;
 }
 
 void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &, const QRect &, bool swap )
@@ -285,7 +288,7 @@ void QDockArea::setupLayout()
 
     if ( lastHandle )
 	lastHandle->hide();
-    
+
     for ( i = 0; i < sections; ++i ) {
 	if ( resizeable[ i ] ) {
 	    QWidget *w = new QDockAreaHandle( orientation(), this, *wlv[ i ] );
