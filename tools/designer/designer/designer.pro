@@ -42,7 +42,9 @@ HEADERS	= command.h \
 		  ../shared/widgetinterface.h \
 		  ../shared/widgetplugin.h \
 		  designerapp.h \
-		  designerappiface.h
+		  designerappiface.h \
+		  actioniface.h \
+		  actionplugin.h
 
 SOURCES	= command.cpp \
 		  formwindow.cpp \
@@ -84,7 +86,8 @@ SOURCES	= command.cpp \
 		  splashloader.cpp \
 		  ../shared/widgetplugin.cpp \
 		  designerapp.cpp \
-		  designerappiface.cpp
+		  designerappiface.cpp \
+		  actionplugin.cpp
 
 INTERFACES	= listboxeditor.ui \
 		  connectioneditor.ui \
