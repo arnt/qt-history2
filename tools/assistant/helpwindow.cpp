@@ -72,7 +72,7 @@ void HelpWindow::setSource(const QString &name)
         if (webbrowser.isEmpty()) {
 #if defined(Q_OS_WIN32)
             QT_WA({
-                ShellExecute(winId(), 0, (TCHAR*)name.ucs2(), 0, 0, SW_SHOWNORMAL);
+                ShellExecute(winId(), 0, (TCHAR*)name.utf16(), 0, 0, SW_SHOWNORMAL);
             } , {
                 ShellExecuteA(winId(), 0, name.local8Bit(), 0, 0, SW_SHOWNORMAL);
             });
