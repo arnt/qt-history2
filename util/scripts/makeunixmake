@@ -1,13 +1,16 @@
 #!/bin/sh
 
+DISTDIR=$QTDIR/qt
+
 if [ "$1" = -v ] ; then echo 'Building top-level make files...' >&2; fi
 
 export UNIX_MKDIST_QT=1
-( cd ${DISTDIR}/qt/src/moc; TMAKEPATH=$DISTDIR}/qttmake:$TMAKEPATH tmake moc.pro >Makefile.in)
+export TMAKEPATH=$DISTDIR/qt/tmake:$TMAKEPATH
+( cd ${DISTDIR}/qt/src/moc; tmake moc.pro >Makefile.in)
 if [ "$1" = -p ] ; then echo 'src/moc/Makefile.in' ; fi
 
-${DISTDIR}/qt/util/scripts/mkconfigs
-${DISTDIR}/qt/util/scripts/makemake
+sh ${DISTDIR}/qt/util/scripts/mkconfigs
+sh ${DISTDIR}/qt/util/scripts/makemake
 (cd ${DISTDIR}/qt/src; tmake -t ../tmake/propagate.t qt.pro |
     perl -p -e "s{$DISTDIR/qt}{\\\$(QTDIR)}" >Makefile.in )
 if [ "$1" = -p ] ; then echo 'src/Makefile.in' ; fi
@@ -17,9 +20,10 @@ if [ "$1" = -p ] ; then echo 'propagate' ; fi
 
 if [ "$1" = -v ] ; then echo "Build tutorial, example, and extensions Makefiles" >&2 ; fi
 
-find ${DISTDIR}/qt/tutorial \
- ${DISTDIR}/qt/examples \
- ${DISTDIR}/qt/extensions -name '*.pro' |
+cd ${DISTDIR}/qt
+find tutorial \
+ examples \
+ extensions -name '*.pro' |
     while read pro_file
     do
 	DIR=$(dirname $pro_file)

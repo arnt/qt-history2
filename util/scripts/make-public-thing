@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#2 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#3 $
 
 use File::Find;
 
@@ -89,8 +89,7 @@ cd ../..
 export QTDIR=$base/cvs/qt
 for B in `util/scripts/makeunixmake -p`
 do
-  cd \$(dirname \$B)
-  ci -mnone -t-'' -u \$(basename \$B)
+  ci -mnone -t-'' -u \$B ../../cvs/qt/\$B
 done
 
 cd $base/cvs/qt
