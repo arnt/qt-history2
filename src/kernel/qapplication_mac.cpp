@@ -92,12 +92,6 @@ static Cursor *currentCursor;                  //current cursor
 QObject	       *qt_clipboard = 0;
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 QWidget        *qt_mouseover = 0;
-static Point  qt_last_point = {0, 0};
-
-struct {
-    EventTime when;
-    int x, y;
-} qt_last_mouse_down = { 0, 0, 0 };
 
 void qt_mac_destroy_widget(QWidget *w)
 {
@@ -255,7 +249,8 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
 	{ kEventClassMouse, kEventMouseDragged },
 	{ kEventClassMouse, kEventMouseMoved },
 	{ kEventClassMouse, kEventMouseDown },
-	{ kEventClassMouse, kEventMouseUp },
+	{ kEventClassMouse, kEventMouseUp }, 
+	{ kEventClassMouse, kEventMouseWheelMoved },
 
 	{ kEventClassKeyboard, kEventRawKeyUp },
 	{ kEventClassKeyboard, kEventRawKeyDown },
@@ -917,35 +912,17 @@ bool QApplication::processNextEvent( bool canWait )
     if(qt_is_gui_used) {
 	sendPostedEvents();
 	EventRef event;
-	if( ! ReceiveNextEvent( 0, 0, canWait ? kEventDurationNoWait : 
-				((kEventDurationSecond)*3), TRUE, &event )) {
-	    nevents++;
-	    SendEventToApplication(event);
-	    ReleaseEvent(event);
-	}
-#if 0
-	if(!GetNextEvent(everyEvent, &event) && 
-	   (qt_button_down || mac_mouse_grabber ) || inPopupMode() ) {
-
-	    Point point;
-	    GetGlobalMouse(&point);
-	    WindowPtr wp;
-	    FindWindow(point,&wp);
-	    if(!QWidget::find((WId)wp)) {
-		if(DeltaPoint(point, qt_last_point)) {
-		    event.what = osEvt;  
-		    event.message = mouseMovedMessage << 24;
-		    event.where = point;
-		} else if(mouse_button_state != Button()) {
-		    event.what = Button() ? mouseDown : mouseUp;
-		    event.where = point;
-		    event.modifiers = GetCurrentKeyModifiers();
-		    event.when = (UInt32) GetCurrentEventTime();
-		}
+	OSStatus ret;
+	do {
+	    ret = ReceiveNextEvent( 0, 0, canWait ? kEventDurationNoWait : 
+				    ((kEventDurationSecond)*3), TRUE, &event );
+	    if(!ret) {
+		nevents++;
+		SendEventToApplication(event);
+		ReleaseEvent(event);
 	    }
-	}
-#endif
-	sendPostedEvents(); //let them accumulate
+	} while(!ret);
+	sendPostedEvents();
     }
 
 #ifndef QT_NO_CLIPBOARD
@@ -1294,19 +1271,17 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 
 	QEvent::Type etype = QEvent::None;
 
-	int button=QEvent::NoButton, state=0;
+	int button=QEvent::NoButton, state=0, wheel_delta=0;
 	if(ekind == kEventMouseDown || ekind == kEventMouseUp) {
+	    EventMouseButton mb;
 	    GetEventParameter(event, kEventParamMouseButton, typeMouseButton, NULL, 
-			      sizeof(button), NULL, &button);
-	    qDebug("%d", button);
-//	    if(button == kEventMouseButtonPrimary)
+			      sizeof(mb), NULL, &mb);
+	    if(mb == kEventMouseButtonPrimary)
 		button = QMouseEvent::LeftButton;
-#if 0
-	    else if(button == kEventMouseButtonSecondary)
-		button = QMouseEvent::RightButton;
+	    else if(mb == kEventMouseButtonSecondary)
+	        button = QMouseEvent::RightButton;
 	    else 
 		button = QMouseEvent::MidButton;
-#endif
 	}
 
 	int keys;
@@ -1319,30 +1294,21 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 			  sizeof(where), NULL, &where);
 
 	bool handle_it = TRUE;
-	EventTime when = GetEventTime(event);
 	switch(ekind) {
 	case kEventMouseDown:
-	    //check if this is the second click, there must be a way to make the
-	    //mac do this for us, FIXME!!
-	    if(qt_last_mouse_down.when &&
-	       (when - qt_last_mouse_down.when <= (uint)app->mouse_double_click_time)) {
-		int x = where.h, y = where.v;
-		if(x >= (qt_last_mouse_down.x-2) && x <= (qt_last_mouse_down.x+4) &&
-		   y >= (qt_last_mouse_down.y-2) && y <= (qt_last_mouse_down.y+4)) {
-		    etype = QEvent::MouseButtonDblClick;
-		    qt_last_mouse_down.when = 0;
-		}
-	    } 
+	{
 
-	    if(etype == QEvent::None) {
+	    UInt32 count;
+	    GetEventParameter(event, kEventParamClickCount, typeUInt32, NULL, 
+			  sizeof(count), NULL, &count);
+	    if(count == 2) 
+		etype = QEvent::MouseButtonDblClick;
+	    else
 		etype = QEvent::MouseButtonPress;
-		qt_last_mouse_down.when = when;
-		qt_last_mouse_down.x = where.h;
-		qt_last_mouse_down.y = where.v;
-	    }
 	    if((handle_it = app->do_mouse_down( &where ))) 
 		mouse_button_state = button;
 	    break;
+	}
 	case kEventMouseUp:
 	    etype = QEvent::MouseButtonRelease;
 	    state = mouse_button_state;
@@ -1352,8 +1318,16 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	case kEventMouseMoved:
 	    etype = QEvent::MouseMove;
 	    state = mouse_button_state;
-	    qt_last_point = where;
 	    break;
+	case kEventMouseWheelMoved:
+	{
+	    long int mdelt;
+	    GetEventParameter(event, kEventParamMouseWheelDelta, typeLongInteger, NULL, 
+			      sizeof(mdelt), NULL, &mdelt);
+	    wheel_delta = mdelt * 100;
+	    state = mouse_button_state;
+	    break;
+	}
 	}
 
 	//handle popup's first
@@ -1377,16 +1351,21 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 
 	    QPoint p( where.h, where.v );
 	    QPoint plocal(popupwidget->mapFromGlobal( p ));
-	    QMouseEvent qme( etype, plocal, p, 
-			     button | (keys & Qt::ControlButton), 	
-			     state | (keys & Qt::ControlButton) );
-	    QApplication::sendEvent( popupwidget, &qme );
+	    if(wheel_delta) {
+		QWheelEvent qwe( plocal, p, wheel_delta, state | keys);
+		QApplication::sendEvent( popupwidget, &qwe);
+	    } else {
+		QMouseEvent qme( etype, plocal, p, button | keys, state | keys );
+		QApplication::sendEvent( popupwidget, &qme );
+	    }
 	}
 
 	if(qt_button_down || mac_mouse_grabber || handle_it) {
 
 	    //figure out which widget to send it to
-	    if( ekind != kEventMouseDown && qt_button_down )
+	    if( active_window && ekind == kEventMouseWheelMoved && active_window->focusWidget())
+		widget = active_window->focusWidget();
+	    else if( ekind != kEventMouseDown && qt_button_down )
 		widget = qt_button_down;
 	    else if( mac_mouse_grabber )
 		widget = mac_mouse_grabber;
@@ -1447,17 +1426,27 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		    }
 		}
 
+#if 0
+		char *desc = NULL;
+		switch(ekind) {
+		case kEventMouseDown: desc = "MouseButtonPress"; break;
+		case kEventMouseUp: desc = "MouseButtonRelease"; break;
+		case kEventMouseDragged: 
+		case kEventMouseMoved: desc = "MouseMove"; break;
+		case kEventMouseWheelMoved: desc = "MouseWheelMove"; break;
+		}
+		qDebug("Would send (%s) event to %s %s (%d %d %d)", desc, 
+		       widget->name(), widget->className(), button|keys, state|keys, wheel_delta);
+#endif
 		QPoint p( where.h, where.v );
 		QPoint plocal(widget->mapFromGlobal( p ));
-		QMouseEvent qme( etype, plocal, p, button, state );
-#if 0
-		qDebug("Would send (%s) event to %s %s (%d %d)", 
-		       etype == QEvent::MouseButtonPress ? "Press" :
-		       etype == QEvent::MouseButtonRelease ? "Release" : 
-		       etype == QEvent::MouseMove ? "Move" : "Double-click",
-		       widget->name(), widget->className(), button, state);
-#endif
-		QApplication::sendEvent( widget, &qme );
+		if(wheel_delta) {
+		    QWheelEvent qwe( plocal, p, wheel_delta, state | keys);
+		    QApplication::sendEvent( widget, &qwe);
+		} else {
+		    QMouseEvent qme( etype, plocal, p, button | keys, state | keys );
+		    QApplication::sendEvent( widget, &qme );
+		}
 	    }
 	}
 	break;
