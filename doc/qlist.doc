@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 2.3 1997/06/15 18:29:24 hanord Exp $
+** $Id: qlist.doc,v 2.4 1997/06/25 16:57:18 warwick Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -867,9 +867,16 @@
 
 /*!
   \fn QStrList::QStrList( bool deepCopies )
-  Constructs a list of strings.  Will make deep copies of all inserted
+  Constructs an empty list of strings.  Will make deep copies of all inserted
   strings if \e deepCopies is TRUE, or uses shallow copies if \e deepCopies
   is FALSE.
+*/
+
+/*!
+  \fn QStrList::QStrList( const QStrList& original )
+  Constructs a list of strings from another list.
+  Will deep copy if original list uses deep copies, otherwise will
+  shallow copy (only the pointers).
 */
 
 /*!
@@ -889,7 +896,7 @@ case insensitive compare.
 
   \ingroup predefcollection
 
-  This class is a QList\<char*\> instance.
+  This class is a QList\<char\> instance (a list of char*).
   It can make deep copies of the strings that are inserted.
 
   The virtual compareItems() function is reimplemented and does a
