@@ -12,6 +12,7 @@ TEMPLATE = subdirs
 
 SUBDIRS  = src/qt.pro \
 	   src/qtmain.pro \
+	   plugins/src \
 	   tools \
 	   examples \
 	   tutorial \
