@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#130 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#131 $
 #
 # this is a massive hack, written very quickly
 #
@@ -820,7 +820,7 @@ sub getfile {
 	$dates{$1} = $2 if (/\$Id\:\s+(.*?),v\s+[0-9\.]+\s+(\S+)\s/);
 	if ( /^#if/ ) {
 	    push @defines, $ifdef;
-	    $ifdef = 1 if ( !/_H$/ && !/\bUSE_TEMPLATECLASS\)?$/ );
+	    $ifdef = 1 if ( !/_H_?$/ && !/\bUSE_TEMPLATECLASS\)?$/ );
 	}
 	if ( !$ifdef ) {
 	    if ( defined( $preprocess ) ) {
@@ -841,7 +841,8 @@ sub readfiles {
 
     undef $/;
     foreach $filename ( keys %headerfiles ) {
-	$_ = ( $filename =~ m-^/- ) ? $filename : "$includedir/$filename";
+	$_ = $filename;
+	$_ = "$includedir/$filename" unless ( -f $_ );
 	next unless -f $_;
 	open(F, "expand < $_ |") || die "can't open $_ for reading";
 	$_ = $filename;
@@ -948,11 +949,11 @@ sub readh {
 
     local( $h );
 
-    $h = getfile( ( -e $filename || $filename =~ m-^/- ) 
-		  ? $filename : "$includedir/$filename" );
+    $h = getfile( ( -f $filename ) ? $filename : "$includedir/$filename" );
+
     print "header file: ", $filename, "\n" if ($debug);
 
-    $h =~ s-(?:(?:(/\*.*?\*/))|(?://[^\n]*))-$1-gs;
+    $h =~ s-(?:(?:(/\*[\-!].*?\*/))|(?:/\*.*?\*/)|(?://[^\n]*))-$1-gs;
 
 # { is \x7b and } is \x7d
     while ($h =~ m-\n(?:template\s*<\s*class\s+(.+?)\s*>\s*)?
@@ -1122,7 +1123,7 @@ sub readc {
 	$def =~ s/\s:\s*\b.*//s; # strip away constructor inheritance
 	$def =~ s/\s+/ /gs;
 
-	if ($doc =~ m@^\\class\s+(\w+) *([\.\w]+)\s+(.*?)\s*$@s) {
+	if ($doc =~ m@^\\class\s+(\w+) *([\.\w/]+)\s+(.*?)\s*$@s) {
 	    # it's a \class
 	    my ($class, $hfile, $rfile, $doc);
 	    my ($url);
@@ -1197,7 +1198,7 @@ sub readc {
 		$class = $1;
 		$name = "_cast";
 	    } else {
-		print "skipped: ", cwd, "/", $filename, ": ", $def, "\n", $doc, "\n";
+		print "skipped: ", &cwd(), "/", $filename, ": ", $def, "\n", $doc, "\n";
 		$skip = 1;
 	    }
 	    $args =~ s/([^:]):[^:].*/$1/s;
@@ -1258,7 +1259,7 @@ sub makenames {
 		(!defined($doc{$_})) ||
 		($doc{$_} =~ /^\s*$/s)) {
 	    $anchor{$name{$_}} = $_ ;
-	    $export{%name{$_}}++;
+	    $export{$name{$_}}++;
 	}
     }
 
@@ -2141,19 +2142,17 @@ foreach $c ( sort keys %doc ) {
     } elsif ( $type{$c} eq "example" || $type{$c} eq "header" ) {
 	# nothing
     } else {
-	print $c, " is a ", $type{$c}, "\n" unless ( $c =~ /\x23/ );
+#	print $c, " is a ", $type{$c}, "\n" unless ( $c =~ /\x23/ );
     }
 }
 
-if ($#ARGV > 4 || $#ARGV < 0) {
-    &inheritanceindex();
-    &classindex();
-    &enumindex();
-    &headerindex();
-    &exampleindex();
-    &memberlists();
-    &functionlist();
-}
+&inheritanceindex();
+&classindex();
+&enumindex();
+&headerindex();
+&exampleindex();
+&memberlists();
+&functionlist();
 
 if ( $internal ) {
     foreach $c ( keys %doc ) {
