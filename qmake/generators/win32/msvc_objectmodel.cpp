@@ -419,8 +419,6 @@ bool VCCLCompilerTool::parseOption( const char* option )
     char third  = option[3];
     char fourth = option[4];
 
-    printf ( "Parsing option: %s\n", option );
-
     switch ( first ) {
     case '?':
     case 'h':
@@ -1014,7 +1012,8 @@ static uint elfHash( const char* name )
 	k = (const uchar *) name;
 	while ( (*k) && 
 		(*k)!= ':' && 
-		(*k)!=',' ) {
+		(*k)!=',' &&
+		(*k)!=' ' ) {
 	    h = ( h << 4 ) + *k++;
 	    if ( (g = (h & 0xf0000000)) != 0 )
 		h ^= g >> 24;
@@ -1342,7 +1341,6 @@ VCMIDLTool::VCMIDLTool()
 	GenerateStublessProxies( unset ),
 	GenerateTypeLibrary( unset ),
 	IgnoreStandardIncludePath( unset ),
-	InterfaceIdentifierFileName( unset ),
 	MkTypLibCompatible( unset ),
 	StructMemberAlignment( midlAlignNotSet ),
 	SuppressStartupBanner( unset ),
@@ -1373,7 +1371,7 @@ QTextStream &operator<<( QTextStream &strm, const VCMIDLTool &tool )
     strm << TPair( _GenerateTypeLibrary, tool.GenerateTypeLibrary );
     strm << SPair( _HeaderFileName, tool.HeaderFileName );
     strm << TPair( _IgnoreStandardIncludePath, tool.IgnoreStandardIncludePath );
-    strm << TPair( _InterfaceIdentifierFileName, tool.InterfaceIdentifierFileName );
+    strm << SPair( _InterfaceIdentifierFileName, tool.InterfaceIdentifierFileName );
     strm << TPair( _MkTypLibCompatible, tool.MkTypLibCompatible );
     strm << SPair( _OutputDirectory4, tool.OutputDirectory );
     strm << XPair( _PreprocessorDefinitions, tool.PreprocessorDefinitions );
@@ -1393,7 +1391,232 @@ QTextStream &operator<<( QTextStream &strm, const VCMIDLTool &tool )
 
 bool VCMIDLTool::parseOption( const char* option )
 {
-    return FALSE;
+#if 0
+    displayHash( "/D name[=def]" ); displayHash( "/I directory-list" ); displayHash( "/Oi" );
+    displayHash( "/Oic" ); displayHash( "/Oicf" ); displayHash( "/Oif" ); displayHash( "/Os" );
+    displayHash( "/U name" ); displayHash( "/WX" ); displayHash( "/W{0|1|2|3|4}" );
+    displayHash( "/Zp {N}" ); displayHash( "/Zs" ); displayHash( "/acf filename" );
+    displayHash( "/align {N}" ); displayHash( "/app_config" ); displayHash( "/c_ext" );
+    displayHash( "/char ascii7" ); displayHash( "/char signed" ); displayHash( "/char unsigned" );
+    displayHash( "/client none" ); displayHash( "/client stub" ); displayHash( "/confirm" );
+    displayHash( "/cpp_cmd cmd_line" ); displayHash( "/cpp_opt options" ); 
+    displayHash( "/cstub filename" ); displayHash( "/dlldata filename" ); displayHash( "/env win32" );
+    displayHash( "/env win64" ); displayHash( "/error all" ); displayHash( "/error allocation" );
+    displayHash( "/error bounds_check" ); displayHash( "/error enum" ); displayHash( "/error none" );
+    displayHash( "/error ref" ); displayHash( "/error stub_data" ); displayHash( "/h filename" );
+    displayHash( "/header filename" ); displayHash( "/iid filename" ); displayHash( "/lcid" );
+    displayHash( "/mktyplib203" ); displayHash( "/ms_ext" ); displayHash( "/ms_union" );
+    displayHash( "/msc_ver <nnnn>" ); displayHash( "/newtlb" ); displayHash( "/no_cpp" );
+    displayHash( "/no_def_idir" ); displayHash( "/no_default_epv" ); displayHash( "/no_format_opt" );
+    displayHash( "/no_warn" ); displayHash( "/nocpp" ); displayHash( "/nologo" ); displayHash( "/notlb" );
+    displayHash( "/o filename" ); displayHash( "/oldnames" ); displayHash( "/oldtlb" ); 
+    displayHash( "/osf" ); displayHash( "/out directory" ); displayHash( "/pack {N}" );
+    displayHash( "/prefix all" ); displayHash( "/prefix client" ); displayHash( "/prefix server" );
+    displayHash( "/prefix switch" ); displayHash( "/protocol all" ); displayHash( "/protocol dce" );
+    displayHash( "/protocol ndr64" ); displayHash( "/proxy filename" ); displayHash( "/robust" );
+    displayHash( "/rpcss" ); displayHash( "/savePP" ); displayHash( "/server none" );
+    displayHash( "/server stub" ); displayHash( "/sstub filename" ); displayHash( "/syntax_check" );
+    displayHash( "/target {system}" ); displayHash( "/tlb filename" ); displayHash( "/use_epv" );
+    displayHash( "/win32" ); displayHash( "/win64" );
+#endif
+    int offset = 0;
+    switch( elfHash(option) ) {
+    case 0x0000334: // /D name[=def]
+	PreprocessorDefinitions += option+3;
+	break;
+    case 0x0000339: // /I directory-list
+	AdditionalIncludeDirectories += option+3;
+	break;
+    case 0x0345f96: // /Oicf
+    case 0x00345f6: // /Oif
+	GenerateStublessProxies = _True;
+	break;
+    case 0x0000345: // /U name
+	UndefinePreprocessorDefinitions += option+3;
+	break;
+    case 0x00034c8: // /WX
+	WarnAsError = _True;
+	break;
+    case 0x3582fde: // /align {N}
+	offset = 3;  // Fallthrough
+    case 0x0003510: // /Zp {N}
+	switch ( *(option+offset+4) ) {
+	case '1':
+	    StructMemberAlignment = ( *(option+offset+5) == '\0' ) ? midlAlignSingleByte : midlAlignSixteenBytes;
+	    break;
+	case '2':
+	    StructMemberAlignment = midlAlignTwoBytes;
+	    break;
+	case '4':
+	    StructMemberAlignment = midlAlignFourBytes;
+	    break;
+	case '8':
+	    StructMemberAlignment = midlAlignEightBytes;
+	    break;
+	default:
+	    return FALSE;
+	}
+	break;
+    case 0x0359e82: // /char {ascii7|signed|unsigned}
+	switch( *(option+6) ) {
+	case 'a':
+	    DefaultCharType = midlCharAscii7;
+	    break;
+	case 's':
+	    DefaultCharType = midlCharSigned;
+	    break;
+	case 'u':
+	    DefaultCharType = midlCharUnsigned;
+	    break;
+	default:
+	    return FALSE;
+	}
+	break;
+    case 0xa766524: // /cpp_opt options
+	CPreprocessOptions += option+9;
+	break;
+    case 0xb32abf1: // /dlldata filename
+	DLLDataFileName = option + 9;
+	break;
+    case 0x0035c56: // /env {win32|win64}
+	TargetEnvironment = ( *(option+8) == '6' ) ? midlTargetWin64 : midlTargetWin32;
+	break;
+    case 0x35c9962: // /error {all|allocation|bounds_check|enum|none|ref|stub_data}
+	EnableErrorChecks = midlEnableCustom;
+	switch ( *(option+7) ) {
+	case 'a':
+	    if ( *(option+10) == '\0' )
+		EnableErrorChecks = midlEnableAll;
+	    else
+		ErrorCheckAllocations = _True;
+	    break;
+	case 'b':
+	    ErrorCheckBounds = _True;
+	    break;
+	case 'e':
+	    ErrorCheckEnumRange = _True;
+	    break;
+	case 'n':
+	    EnableErrorChecks = midlDisableAll;
+	    break;
+	case 'r':
+	    break;
+	    ErrorCheckRefPointers = _True;
+	case 's':
+	    break;
+	    ErrorCheckStubData = _True;
+	default:
+	    return FALSE;
+	}
+	break;
+    case 0x5eb7af2: // /header filename
+	offset = 5;
+    case 0x0000358: // /h filename
+	HeaderFileName = option + offset + 3;
+	break;
+    case 0x0035ff4: // /iid filename
+	InterfaceIdentifierFileName = option+5;
+	break;
+    case 0x64b7933: // /mktyplib203
+	MkTypLibCompatible = _True;
+	break;
+    case 0x8e0b0a2: // /no_def_idir
+	IgnoreStandardIncludePath = _True;
+	break;
+    case 0x65635ef: // /nologo
+	SuppressStartupBanner = _True;
+	break;
+    case 0x3656b22: // /notlb
+	GenerateTypeLibrary = _True;
+	break;
+    case 0x000035f: // /o filename
+	RedirectOutputAndErrors = option+3;
+	break;
+    case 0x00366c4: // /out directory
+	OutputDirectory = option+5;
+	break;
+    case 0x36796f9: // /proxy filename
+	ProxyFileName = option+7;
+	break;
+    case 0x6959c94: // /robust
+	ValidateParameters = _True;
+	break;
+    case 0x6a88df4: // /target {system}
+	if ( *(option+11) == '6' )
+	    TargetEnvironment = midlTargetWin64;
+	else
+	    TargetEnvironment = midlTargetWin32;
+	break;
+    case 0x0036b22: // /tlb filename
+	TypeLibraryName = option+5;
+	break;
+    case 0x36e0162: // /win32
+	TargetEnvironment = midlTargetWin32;
+	break;
+    case 0x36e0194: // /win64
+	TargetEnvironment = midlTargetWin64;
+	break;
+    case 0x0003459: // /Oi
+    case 0x00345f3: // /Oic
+    case 0x0003463: // /Os
+    case 0x0003513: // /Zs
+    case 0x0035796: // /acf filename
+    case 0x5b1cb97: // /app_config
+    case 0x3595cf4: // /c_ext
+    case 0x5a2fc64: // /client {none|stub}
+    case 0xa64d3dd: // /confirm
+    case 0xa765b64: // /cpp_cmd cmd_line
+    case 0x35aabb2: // /cstub filename
+    case 0x03629f4: // /lcid
+    case 0x6495cc4: // /ms_ext
+    case 0x96c7a1e: // /ms_union
+    case 0x4996fa2: // /msc_ver <nnnn>
+    case 0x64ceb12: // /newtlb
+    case 0x6555a40: // /no_cpp
+    case 0xf64d6a6: // /no_default_epv
+    case 0x6dd9384: // /no_format_opt
+    case 0x556dbee: // /no_warn
+    case 0x3655a70: // /nocpp
+    case 0x2b455a3: // /oldnames
+    case 0x662bb12: // /oldtlb
+    case 0x0036696: // /osf
+    case 0x036679b: // /pack {N}
+    case 0x678bd38: // /prefix {all|client|server|switch}
+    case 0x96b702c: // /protocol {all|dce|ndr64}
+    case 0x3696aa3: // /rpcss
+    case 0x698ca60: // /savePP
+    case 0x69c9cf2: // /server {none|stub}
+    case 0x36aabb2: // /sstub filename
+    case 0xce9b12b: // /syntax_check
+    case 0xc9b5f16: // /use_epv
+	AdditionalOptions += option;
+	break;
+    default:
+	// /W{0|1|2|3|4} case
+	if ( *(option+1) == 'W' ) {
+	    switch ( *(option+2) ) {
+	    case '0':
+		WarningLevel = midlWarningLevel_0;
+		break;
+	    case '1':
+		WarningLevel = midlWarningLevel_1;
+		break;
+	    case '2':
+		WarningLevel = midlWarningLevel_2;
+		break;
+	    case '3':
+		WarningLevel = midlWarningLevel_3;
+		break;
+	    case '4':
+		WarningLevel = midlWarningLevel_4;
+		break;
+	    default:
+		return FALSE;
+	    }
+	}
+	break;
+    }
+    return TRUE;
 }
 
 // VCCustomBuildTool ------------------------------------------------

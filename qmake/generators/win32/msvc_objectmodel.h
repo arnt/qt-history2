@@ -237,7 +237,8 @@ enum midlStructMemberAlignOption {
     midlAlignSingleByte,
     midlAlignTwoBytes,
     midlAlignFourBytes,
-    midlAlignEightBytes
+    midlAlignEightBytes,
+    midlAlignSixteenBytes
 };
 enum midlTargetEnvironment {
     midlTargetNotSet,
@@ -530,7 +531,7 @@ public:
     triState		    GenerateTypeLibrary;
     QString		    HeaderFileName;
     triState		    IgnoreStandardIncludePath;
-    triState		    InterfaceIdentifierFileName;
+    QString		    InterfaceIdentifierFileName;
     triState		    MkTypLibCompatible;
     QString		    OutputDirectory;
     QStringList		    PreprocessorDefinitions;

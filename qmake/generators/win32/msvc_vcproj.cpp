@@ -183,10 +183,6 @@ void VcprojGenerator::initConfiguration()
     initCompilerTool();
     initLinkerTool();
     initIDLTool();
-    initCustomBuildTool();
-    initPreBuildEventTools();
-    initPostBuildEventTools();
-    initPreLinkEventTools();
 
     // Own elements -----------------------------
     QString temp = project->first("BuildBrowserInformation");
@@ -221,6 +217,13 @@ void VcprojGenerator::initConfiguration()
     temp = project->first("UseOfMfc");
     if ( !temp.isEmpty() )
         vcProject.Configuration.UseOfMfc = useOfMfc( temp.toShort() );
+
+    // Configuration does not need parameters from 
+    // these sub XML items;
+    initCustomBuildTool();
+    initPreBuildEventTools();
+    initPostBuildEventTools();
+    initPreLinkEventTools();
 }
 
 void VcprojGenerator::initCompilerTool()
@@ -331,6 +334,43 @@ void VcprojGenerator::initPreBuildEventTools()
 
 void VcprojGenerator::initPostBuildEventTools()
 {
+    if( project->isActiveConfig( "activeqt" ) ) { 
+	QString name = project->first( "QMAKE_ORIG_TARGET" );
+	QString nameext = project->first( "TARGET" );
+	QString objdir = project->first( "OBJECTS_DIR" );
+	QString idc = project->first( "QMAKE_IDC" );
+
+	vcProject.Configuration.postBuild.Description = "Finalizing ActiveQt server...";
+
+	if( project->isActiveConfig( "dll" ) ) { // In process
+	    vcProject.Configuration.postBuild.CommandLine = 
+		// call idc to generate .idl file from .dll
+		"@echo on \n " + idc + " " + vcProject.Configuration.OutputDirectory + "\\" + nameext + " -idl " + objdir + name + ".idl -version 1.0 &amp;&amp; "+
+		// call midl to create implementations of the .idl file
+		"echo idc done &amp;&amp; " +
+		project->first( "QMAKE_IDL" ) + " " + objdir + name + ".idl /nologo /o " + objdir + name + ".midl /tlb " + objdir + name + ".tlb /iid " + objdir + 
+		"dump.midl /dlldata " + objdir + "dump.midl /cstub " + objdir + "dump.midl /header " + objdir + "dump.midl /proxy " + objdir + "dump.midl /sstub " + 
+		objdir + "dump.midl &amp;&amp; " +
+		// call idc to replace tlb...
+		"echo midl done &amp;&amp; " +
+		idc + " " + vcProject.Configuration.OutputDirectory + "\\" + nameext + " /tlb " + objdir + name + ".tlb &amp;&amp; " +
+		// register server
+		"echo idc done again &amp;&amp; " +
+		"regserv32 /s " + vcProject.Configuration.OutputDirectory + "\\" + nameext;		
+	} else { // out of process
+	    vcProject.Configuration.postBuild.CommandLine =
+		// call application to dump idl
+		vcProject.Configuration.OutputDirectory + "\\" + nameext + " -dumpidl " + objdir + name + ".idl -version 1.0 &amp;&amp; " +
+		// call midl to create implementations of the .idl file
+		project->first( "QMAKE_IDL" ) + " " + objdir + name + ".idl /nologo /o " + objdir + name + ".midl /tlb " + objdir + name + ".tlb /iid " + objdir + 
+		"dump.midl /dlldata " + objdir + "dump.midl /cstub " + objdir + "dump.midl /header " + objdir + "dump.midl /proxy " + objdir + "dump.midl /sstub " + 
+		objdir + "dump.midl &amp;&amp; " +
+		// call idc to replace tlb...
+		idc + " " + vcProject.Configuration.OutputDirectory + "\\" + nameext + " /tlb " + objdir + name + ".tlb &amp;&amp; " +
+		// call app to register
+		vcProject.Configuration.OutputDirectory + "\\" + nameext + " -regserver";
+	}
+    }
 }
 
 void VcprojGenerator::initPreLinkEventTools()
@@ -413,6 +453,7 @@ void VcprojGenerator::initLexYaccFiles()
     vcProject.LexYaccFiles.Filter = "l;y";
     vcProject.LexYaccFiles.Files += project->variables()["LEXSOURCES"];
     vcProject.LexYaccFiles.Files += project->variables()["YACCSOURCES"];
+    vcProject.LexYaccFiles.Files.sort();
     vcProject.LexYaccFiles.Project = this;
     vcProject.LexYaccFiles.CustomBuild = lexyacc;
 }
@@ -425,6 +466,8 @@ void VcprojGenerator::initResourceFiles()
     vcProject.ResourceFiles.Files += project->variables()["RC_FILE"];
     vcProject.ResourceFiles.Files += project->variables()["QMAKE_IMAGE_COLLECTION"];
     vcProject.ResourceFiles.Files += project->variables()["IMAGES"];
+    vcProject.ResourceFiles.Files += project->variables()["IDLSOURCES"];
+    vcProject.ResourceFiles.Files.sort();
     vcProject.ResourceFiles.Project = this;
     vcProject.ResourceFiles.CustomBuild = none;
 }
