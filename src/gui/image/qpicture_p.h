@@ -38,7 +38,7 @@ extern const char  *qt_mfhdr_tag;
 extern const Q_UINT16 mfhdr_maj;
 extern const Q_UINT16 mfhdr_min;
 
-class QPicturePrivate
+class Q_GUI_EXPORT QPicturePrivate
 {
     Q_DECLARE_PUBLIC(QPicture)
     friend class QPicturePaintEngine;
