@@ -23,7 +23,7 @@ QString project_builtin_regx() //calculate the builtin regular expression..
 {
     QString ret;
     QStringList builtin_exts(".c");
-    builtin_exts << Option::ui_ext << Option::yacc_ext << Option::lex_ext << ".ts";
+    builtin_exts << Option::ui_ext << Option::yacc_ext << Option::lex_ext << ".ts" << ".qrc";
     builtin_exts += Option::h_ext + Option::cpp_ext;
     for(QStringList::Iterator ext_it = builtin_exts.begin();
         ext_it != builtin_exts.end(); ++ext_it) {
@@ -401,6 +401,8 @@ ProjectGenerator::addFile(QString file)
             where = "YACCSOURCES";
         else if(file.endsWith(".ts"))
             where = "TRANSLATIONS";
+        else if(file.endsWith(".qrc"))
+            where = "RESOURCES";
     }
 
     QString newfile = fileFixify(file);
