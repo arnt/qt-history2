@@ -927,18 +927,20 @@ bool QAxBase::setControl(const QString &c)
             if (res == S_OK)
                 d->ctrl = QUuid(clsid).toString();
             else {
-                QSettings controls;
-                d->ctrl = controls.readEntry("/Classes/" + c + "/CLSID/Default");
+                QSettings controls("HKEY_LOCAL_MACHINE\\Software\\Classes\\" + c, Qt::NativeFormat);
+                d->ctrl = controls.value("/CLSID/Default").toString();
                 if (d->ctrl.isEmpty()) {
-                    QStringList clsids = controls.subkeyList("/Classes/CLSID");
+                    controls.beginGroup("/CLSID");
+                    QStringList clsids = controls.childGroups();
                     for (QStringList::Iterator it = clsids.begin(); it != clsids.end(); ++it) {
                         QString clsid = *it;
-                        QString name = controls.readEntry("/Classes/CLSID/" + clsid + "/Default");
+                        QString name = controls.value(clsid + "/Default").toString();
                         if (name == c) {
                             d->ctrl = clsid;
                             break;
                         }
                     }
+                    controls.endGroup();
                 }
             }
         }
@@ -1598,13 +1600,13 @@ QMetaObject *qax_readClassInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const QMe
 }
 
 MetaObjectGenerator::MetaObjectGenerator(QAxBase *ax, QAxBasePrivate *dptr)
-: that(ax), d(dptr), disp(0), typeinfo(0), typelib(0)
+: that(ax), d(dptr), disp(0), typeinfo(0), typelib(0), iidnames("HKEY_LOCAL_MACHINE\\Software\\Classes")
 {
     init();
 }
 
 MetaObjectGenerator::MetaObjectGenerator(ITypeLib *tlib, ITypeInfo *tinfo)
-: that(0), d(0), disp(0), typeinfo(tinfo), typelib(tlib)
+: that(0), d(0), disp(0), typeinfo(tinfo), typelib(tlib), iidnames("HKEY_LOCAL_MACHINE\\Software\\Classes")
 {
     init();
 
@@ -1617,9 +1619,6 @@ MetaObjectGenerator::MetaObjectGenerator(ITypeLib *tlib, ITypeInfo *tinfo)
 
 void MetaObjectGenerator::init()
 {
-    if (!d || d->useClassInfo)
-        iidnames.insertSearchPath(QSettings::Windows, "/Classes");
-
     if (d)
         disp = d->dispatch();
 
@@ -1837,7 +1836,7 @@ void MetaObjectGenerator::readClassInfo()
 #ifndef QAX_NO_CLASSINFO
             // UUID
             if (d->useClassInfo && !hasClassInfo("CoClass")) {
-                QString coClassIDstr = iidnames.readEntry("/CLSID/" + coClassID + "/Default", coClassID);
+                QString coClassIDstr = iidnames.value("/CLSID/" + coClassID + "/Default", coClassID).toString();
                 addClassInfo("CoClass", coClassIDstr.isEmpty() ? coClassID.latin1() : coClassIDstr.latin1());
                 QByteArray version = QByteArray::number(typeattr->wMajorVerNum) + "." + QByteArray::number(typeattr->wMinorVerNum);
                 if (version != "0.0")
@@ -1862,21 +1861,23 @@ void MetaObjectGenerator::readClassInfo()
         typeinfo->GetContainingTypeLib(&typelib, &index);
 
     if (!typelib) {
-        QSettings controls;
-        QString tlid = controls.readEntry("/Classes/CLSID/" + that->control() + "/TypeLib/.");
+        QSettings controls("HKEY_LOCAL_MACHINE\\Software");
+        QString tlid = controls.value("/Classes/CLSID/" + that->control() + "/TypeLib/.").toString();
         QString tlfile;
         if (!tlid.isEmpty()) {
-            QStringList versions = controls.subkeyList("/Classes/TypeLib/" + tlid);
+            controls.beginGroup("/Classes/TypeLib/" + tlid);
+            QStringList versions = controls.childGroups();
             QStringList::Iterator vit = versions.begin();
             while (tlfile.isEmpty() && vit != versions.end()) {
                 QString version = *vit;
                 ++vit;
-                tlfile = controls.readEntry("/Classes/Typelib/" + tlid + "/" + version + "/0/win32/.");
+                tlfile = controls.value("/" + version + "/0/win32/.").toString();
             }
+            controls.endGroup();
         } else {
-            tlfile = controls.readEntry("/Classes/CLSID/" + that->control() + "/InprocServer32/.");
+            tlfile = controls.value("/Classes/CLSID/" + that->control() + "/InprocServer32/.").toString();
             if (tlfile.isEmpty())
-                tlfile = controls.readEntry("/Classes/CLSID/" + that->control() + "/LocalServer32/.");
+                tlfile = controls.value("/Classes/CLSID/" + that->control() + "/LocalServer32/.").toString();
         }
         if (!tlfile.isEmpty()) {
             LoadTypeLib((OLECHAR*)tlfile.utf16(), &typelib);
@@ -2326,7 +2327,7 @@ void MetaObjectGenerator::readInterfaceInfo()
                     // UUID
                     QUuid uuid(typeattr->guid);
                     QString uuidstr = uuid.toString().toUpper();
-                    uuidstr = iidnames.readEntry("/Interface/" + uuidstr + "/Default", uuidstr);
+                    uuidstr = iidnames.value("/Interface/" + uuidstr + "/Default", uuidstr).toString();
                     addClassInfo("Interface " + QByteArray::number(++interface_serial), uuidstr.latin1());
                 }
 #endif
@@ -2477,7 +2478,7 @@ void MetaObjectGenerator::readEventInfo()
 #ifndef QAX_NO_CLASSINFO
                 if (d->useClassInfo) {
                     QString uuidstr = connuuid.toString().toUpper();
-                    uuidstr = iidnames.readEntry("/Interface/" + uuidstr + "/Default", uuidstr);
+                    uuidstr = iidnames.value("/Interface/" + uuidstr + "/Default", uuidstr).toString();
                     addClassInfo("Event Interface " + QByteArray::number(++event_serial), uuidstr.latin1());
                 }
 #endif
