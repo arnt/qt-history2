@@ -93,7 +93,7 @@ MakefileGenerator::generateMocList(QString fn_target)
     close(file);
 
     bool ignore_qobject = FALSE;
-    int line_count = 0;
+    int line_count = 1;
  /* qmake ignore Q_OBJECT */
 #define COMP_LEN 8 //strlen("Q_OBJECT")
 #define OBJ_LEN 8 //strlen("Q_OBJECT")
@@ -231,6 +231,7 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 
 
     struct stat fst;
+    int line_count = 1;
     if(fstat(file, &fst))
 	return FALSE; //shouldn't happen
     char *big_buffer = gimme_buffer(fst.st_size);
@@ -262,6 +263,8 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 				    x += 2;
 				    break;
 				}
+			    } else if(*(big_buffer + x) == '\n') {
+				line_count++;
 			    }
 			}
 		    }
@@ -269,13 +272,11 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 	    }
 	    if(*(big_buffer + x) == '#') {
 		x++;
-		// skip spaces and tabs between the hash and text, so we can handle
-		// #  include
-		while(x < total_size_read &&
+		while(x < total_size_read && //Skip spaces after hash
 		      (*(big_buffer+x) == ' ' || *(big_buffer+x) == '\t'))
 		    x++;
 		if(total_size_read >= x + 8 && !strncmp(big_buffer + x, "include ", 8)) {
-		    for(x+=8;
+		    for(x+=8; //skip spaces after keyword
 			x < total_size_read && (*(big_buffer+x) == ' ' || *(big_buffer+x) == '\t');
 			x++);
 		    char term = *(big_buffer + x);
@@ -289,8 +290,27 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 		    int inc_len;
 		    for(inc_len = 0; *(big_buffer + x + inc_len) != term; inc_len++);
 		    *(big_buffer + x + inc_len) = '\0';
-
 		    inc = big_buffer + x;
+		} else if(total_size_read >= x + 14 && !strncmp(big_buffer + x,  "qmake_warning ", 14)) {
+		    fuck = !fuck;
+		    for(x+=14; //skip spaces after keyword
+			x < total_size_read && (*(big_buffer+x) == ' ' || *(big_buffer+x) == '\t');
+			x++);
+		    char term = '\n';
+		    if(*(big_buffer + x) == '"')
+			term = '"';
+		    if(*(big_buffer + x) == '\'')
+			term = '\'';
+		    if(term != '\n')
+			x++;
+
+		    int msg_len;
+		    for(msg_len = 0; *(big_buffer + x + msg_len) != term; msg_len++);
+		    *(big_buffer + x + msg_len) = '\0';
+		    QString msg = big_buffer + x;
+		    debug_msg(0, "%s:%d qmake_warning -- %s", fix_env_fn.latin1(), 
+			      line_count, msg.latin1());
+		    *(big_buffer + x + msg_len) = term; //put it back
 		}
 	    }
 	} else if(ftype == UI_FILE) {
@@ -311,9 +331,10 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 		}
 	    }
 	}
-	debug_msg(5, "Found dependency from %s to %s", fn.latin1(), inc.latin1());
 
 	if(!inc.isEmpty()) {
+	    debug_msg(5, "%s:%d Found dependency to %s", fix_env_fn.latin1(), 
+		      line_count, inc.latin1());
 	    if(!project->isEmpty("SKIP_DEPENDS")) {
 		bool found = FALSE;
 		QStringList &nodeplist = project->values("SKIP_DEPENDS");
@@ -409,6 +430,7 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 	}
 	//read past new line now..
 	for( ; x < total_size_read && (*(big_buffer + x) != '\n'); x++);
+        line_count++;
     }
 
     if(recurse) {

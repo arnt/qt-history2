@@ -236,7 +236,7 @@ QMakeProject::parse(QString t, QMap<QString, QStringList> &place)
 
     QStringList vallist;  /* vallist is the broken up list of values */
     if((var == "DEPENDPATH" || var == "INCLUDEPATH") && vals.find(';') != -1) { 
-	QRegExp rp("([^;]*)[;$]");
+	QRegExp rp("([^;]*);");
 	for(int x = 0; (x = rp.search(vals, 0)) != -1; ) {
 	    vallist.append("\"" + rp.cap(1) + "\"");
 	    vals.remove(x, rp.matchedLength());
