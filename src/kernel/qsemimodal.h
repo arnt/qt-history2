@@ -39,36 +39,13 @@
 #define QSEMIMODAL_H
 
 #ifndef QT_H
-#include "qwidget.h"
+#include "qdialog.h"
 #endif // QT_H
 
+#ifndef QT_NO_COMPAT
 #ifndef QT_NO_SEMIMODAL
-class Q_EXPORT QSemiModal : public QWidget
-{
-    Q_OBJECT
-public:
-    QSemiModal( QWidget *parent=0, const char *name=0, bool modal=FALSE, WFlags f=0 );
-   ~QSemiModal();
-
-    void	show();
-
-    void	move( int x, int y );
-    void	move( const QPoint &p );
-    void	resize( int w, int h );
-    void	resize( const QSize & );
-    virtual void	setGeometry( int x, int y, int w, int h );
-    virtual void	setGeometry( const QRect & );
-
-private:
-    uint	did_move   : 1;
-    uint	did_resize : 1;
-
-private:	// Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QSemiModal( const QSemiModal & );
-    QSemiModal &operator=( const QSemiModal & );
+typedef QDialog QSemiModal;
 #endif
-};
 #endif
 
 #endif // QSEMIMODAL_H

@@ -59,13 +59,15 @@ public:
     // the common static functions
     static void add( QWidget *, const QString &);
     static void remove( QWidget * );
-    static QString textFor( QWidget *, const QPoint & pos = QPoint() );
+    static QString textFor( QWidget *, const QPoint & pos = QPoint(), bool includeParents = FALSE );
 
     static QToolButton * whatsThisButton( QWidget * parent );
 
     static void enterWhatsThisMode();
     static bool inWhatsThisMode();
     static void leaveWhatsThisMode( const QString& = QString::null, const QPoint& pos = QCursor::pos() );
+    
+    static void display( const QString& text, const QPoint& pos = QCursor::pos() );
 
 };
 

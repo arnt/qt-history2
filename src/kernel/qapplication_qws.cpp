@@ -296,7 +296,7 @@ public:
 private:
 #ifndef QT_NO_QWS_MULTIPROCESS
     QWSSocket *csocket;
-#endif    
+#endif
     QList<QWSEvent> queue;
 
     QWSConnectedEvent* connected_event;
@@ -305,7 +305,7 @@ private:
     QWSRegionModifiedEvent *region_ack;
 #ifndef QT_NO_COP
     QWSQCopMessageEvent *qcop_response;
-#endif    
+#endif
     QWSEvent* current_event;
     QValueList<int> unused_identifiers;
 
@@ -333,7 +333,7 @@ public:
     QWSEvent *peek() {
 	return queue.first();
     }
-#ifndef QT_NO_QWS_MULTIPROCESS   
+#ifndef QT_NO_QWS_MULTIPROCESS
     bool directServerConnection() { return csocket == 0; }
 #else
     bool directServerConnection() { return TRUE; }
@@ -344,7 +344,7 @@ public:
     void waitForCreation();
 #ifndef QT_NO_COP
     void waitForQCopResponse();
-#endif    
+#endif
     void init();
     void create()
     {
@@ -353,7 +353,7 @@ public:
 	if  ( csocket )
 	    cmd.write( csocket );
 	else
-#endif	    
+#endif	
 	    qt_server_enqueue( &cmd );
     }
 
@@ -404,7 +404,7 @@ void QWSDisplayData::init()
 
     QString pipe = QString(QTE_PIPE).arg(qws_display_id); //########
 
-    
+
 #ifndef QT_NO_QWS_MULTIPROCESS
     key_t memkey =  ftok( pipe.latin1(), 'm' );
 
@@ -441,7 +441,7 @@ void QWSDisplayData::init()
 	qt_probe_bus( qws_display_id, qws_display_spec );
     }
     else
-#endif    
+#endif
     {
 
 	// QWS server
@@ -474,7 +474,7 @@ void QWSDisplayData::init()
     int mouseoffset = 0;
 
 #ifndef QT_NO_QWS_CURSOR
-    mouseoffset=qt_screen->initCursor(sharedRam + sharedRamSize, 
+    mouseoffset=qt_screen->initCursor(sharedRam + sharedRamSize,
 #ifndef QT_NO_QWS_MULTIPROCESS
 				      !csocket
 #else
@@ -587,7 +587,7 @@ void QWSDisplayData::fillQueue()
 	    } else {
 		queue.append(e);
 	    }
-#ifndef QT_NO_COP	    
+#ifndef QT_NO_COP	
 	} else if ( e->type == QWSEvent::QCopMessage ) {
 	    QWSQCopMessageEvent *pe = (QWSQCopMessageEvent*)e;
 	    if ( pe->simpleData.is_response ) {
@@ -595,7 +595,7 @@ void QWSDisplayData::fillQueue()
 	    } else {
 		queue.append(e);
 	    }
-#endif	    
+#endif	
 	} else {
 	    queue.append(e);
 	}
@@ -1570,7 +1570,7 @@ void QApplication::setGlobalMouseTracking( bool enable )
   Routines to find a Qt widget from a screen position
  *****************************************************************************/
 
-QWidget *QApplication::findWidget( const QObjectList& list, 
+QWidget *QApplication::findWidget( const QObjectList& list,
 				   const QPoint &pos, bool rec )
 {
     QWidget *w;
@@ -1579,7 +1579,7 @@ QWidget *QApplication::findWidget( const QObjectList& list,
     while ( it.current() ) {
 	if ( it.current()->isWidgetType() ) {
 	    w = (QWidget*)it.current();
-	    if ( w->isVisible() && w->geometry().contains(pos) 
+	    if ( w->isVisible() && w->geometry().contains(pos)
 		 && w->requestedRegion().contains( w->mapToGlobal(w->mapFromParent(pos)) ) ) {
 		if ( !rec )
 		    return w;
@@ -1613,7 +1613,7 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 	it.toLast();
 	while ( it.current() ) {
 	    w = (QWidget*)it.current();
-	    if ( w->isVisible() && w->geometry().contains(pos) 
+	    if ( w->isVisible() && w->geometry().contains(pos)
 		 && w->requestedRegion().contains( w->mapToGlobal(w->mapFromParent(pos)) ) ) {
 		if ( !child )
 		    return w;
@@ -1991,7 +1991,7 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 	QCopChannel::processEvent( e->channel, e->message, e->data );
     }
 #endif
-    
+
     QETWidget *widget = (QETWidget*)QWidget::find( (WId)event->window() );
 
     QETWidget *keywidget=0;
@@ -2376,7 +2376,7 @@ void QApplication::closePopup( QWidget *popup )
 	popupWidgets = 0;
 	if ( popupGrabOk ) {	// grabbing not disabled
 	    	QPaintDevice::qwsDisplay()->grabMouse(popup,FALSE);
-	    
+	
 	    // XXX ungrab keyboard
 	}
 	active_window = (*activeBeforePopup);
@@ -2866,7 +2866,7 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 	    if ( popupButtonFocus ) {
 		QMouseEvent e( type, popupButtonFocus->mapFromGlobal(globalPos),
 			       globalPos, button, state );
-		QApplication::sendEvent( popupButtonFocus, &e );
+		qt_propagateMouseEvent( popupButtonFocus, & e );
 		if ( releaseAfter ) {
 		    popupButtonFocus = 0;
 		    popupOfPopupButtonFocus = 0;
@@ -2874,10 +2874,10 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 	    } else if ( popupChild ) {
 		QMouseEvent e( type, popupChild->mapFromGlobal(globalPos),
 			       globalPos, button, state );
-		QApplication::sendEvent( popupChild, &e );
+		qt_propagateMouseEvent( popupChild, & e );
 	    } else {
 		QMouseEvent e( type, pos, globalPos, button, state );
-		QApplication::sendEvent( popupChild ? popupChild : popup, &e );
+		qt_propagateMouseEvent( popupChild ? popupChild : popup, & e );
 	    }
 
 	    if ( releaseAfter )
@@ -2935,8 +2935,8 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 	    } else
 #endif
 		{
-		QApplication::sendEvent( widget, &e );
-	    }
+		    qt_propagateMouseEvent( widget, &e );
+		}
 	}
 	// }
     return TRUE;
@@ -2995,7 +2995,12 @@ bool QETWidget::translateKeyEvent( const QWSKeyEvent *event, bool grab )
 	if ( a.isAccepted() )
 	    return TRUE;
     }
-    return QApplication::sendEvent( this, &e );
+    
+    
+    //###### TODO lacks AccelOverride functionality, see qapplication_x11 for details
+    
+    
+    return qt_propagateKeyEvent( this, &e );
 }
 
 void QETWidget::repaintHierarchy(QRegion r)
@@ -3350,7 +3355,7 @@ QCopChannel::QCopChannel( const QCString& channel )
 		"before QCopChannel" );
 	return;
     }
-    
+
     if ( !qcopClientMap )
 	qcopClientMap = new QCopClientMap;
 
@@ -3359,7 +3364,7 @@ QCopChannel::QCopChannel( const QCString& channel )
     if ( it == qcopClientMap->end() )
 	it = qcopClientMap->insert( channel, QList<QCopChannel>() );
     it.data().append( this );
-    
+
     // inform server about this channel
     QWSQCopRegisterChannelCommand reg;
     reg.setChannel( channel );
@@ -3386,7 +3391,7 @@ QCopChannel::~QCopChannel()
 	send( "", "detach()", data );
 	qcopClientMap->remove( d->channel );
     }
-    
+
     delete d;
 }
 
@@ -3410,7 +3415,7 @@ QCString QCopChannel::channel() const
 
 /*!
   Queries the server for the existance of \a channel.
-  
+
   Returns TRUE if \a channel is registered.
  */
 
@@ -3421,7 +3426,7 @@ bool QCopChannel::isRegistered( const QCString& channel )
     s << channel;
     if ( !send( "", "isRegistered()", data ) )
 	return FALSE;
-    
+
     // ### ugly
     qt_fbdpy->d->waitForQCopResponse();
     QWSQCopMessageEvent *e = (QWSQCopMessageEvent*)qt_fbdpy->d->dequeue();
@@ -3434,7 +3439,7 @@ bool QCopChannel::isRegistered( const QCString& channel )
 /*!
   Send the message \a msg on \a channel. The message will be distributed
   to all clients subscribed to the channel.
-  
+
   \sa receive()
  */
 
@@ -3447,7 +3452,7 @@ bool QCopChannel::send(const QCString &channel, const QCString &msg )
 /*!
   Same as above function except the additional \a data parameter.
   QDataStream provides a convenient way to fill the byte array with
-  auxiliary data. 
+  auxiliary data.
  */
 
 bool QCopChannel::send(const QCString &channel, const QCString &msg,
@@ -3462,7 +3467,7 @@ bool QCopChannel::send(const QCString &channel, const QCString &msg,
     QWSQCopSendCommand com;
     com.setMessage( channel, msg, data );
     qt_fbdpy->d->sendCommand( com );
-    
+
     return TRUE;
 }
 
@@ -3475,8 +3480,8 @@ void QCopChannel::registerChannel( const QString &ch, const QWSClient *cl )
 {
     if ( !qcopServerMap )
 	qcopServerMap = new QCopServerMap;
-    
-    // do we need a new channel list ? 
+
+    // do we need a new channel list ?
     QCopServerMap::Iterator it = qcopServerMap->find( ch );
     if ( it == qcopServerMap->end() )
 	it = qcopServerMap->insert( ch, QList<QWSClient>() );
@@ -3520,7 +3525,7 @@ void QCopChannel::answer( QWSClient *cl, const QCString &ch,
 	QWSServer::sendQCopEvent( cl, "", "bad", data );
 	return;
     }
-    
+
     QList<QWSClient> clist = (*qcopServerMap)[ ch ];
     if ( clist.isEmpty() ) {
 	qWarning( "QCopChannel: no client registered for requested channel" );
@@ -3542,11 +3547,11 @@ void QCopChannel::processEvent( const QCString &ch, const QCString &msg,
 				const QByteArray &data )
 {
     ASSERT( qcopClientMap );
-    
+
     // filter out internal events
     if ( ch.isEmpty() )
 	return;
-    
+
     // feed local clients with received data
     QList<QCopChannel> clients = (*qcopClientMap)[ ch ];
     for ( QCopChannel *p = clients.first(); p != 0; p = clients.next() )

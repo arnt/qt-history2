@@ -810,8 +810,10 @@ bool QButton::focusNextPrevChild( bool next )
 
 void QButton::mousePressEvent( QMouseEvent *e )
 {
-    if ( e->button() != LeftButton )
+    if ( e->button() != LeftButton ) {
+	e->ignore();
 	return;
+    }
     bool hit = hitButton( e->pos() );
     if ( hit ) {				// mouse press on button
 	mlbDown = TRUE;				// left mouse button down
@@ -831,7 +833,11 @@ void QButton::mousePressEvent( QMouseEvent *e )
 
 void QButton::mouseReleaseEvent( QMouseEvent *e)
 {
-    if ( e->button() != LeftButton || !mlbDown )
+    if ( e->button() != LeftButton ) {
+	e->ignore();
+	return;
+    }
+    if ( !mlbDown )
 	return;
     if ( d )
 	timer()->stop();
@@ -852,8 +858,10 @@ void QButton::mouseReleaseEvent( QMouseEvent *e)
 
 void QButton::mouseMoveEvent( QMouseEvent *e )
 {
-    if ( !((e->state() & LeftButton) && mlbDown) )
+    if ( !((e->state() & LeftButton) && mlbDown) ) {
+	e->ignore();
 	return;					// left mouse button is up
+    }
     if ( hitButton( e->pos() ) ) {		// mouse move in button
 	if ( !buttonDown ) {
 	    buttonDown = TRUE;

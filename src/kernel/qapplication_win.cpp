@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#414 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#415 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1539,7 +1539,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		}
 	    }
 	    widget->translateMouseEvent( msg );	// mouse event
-	} else if ( message == WM95_MOUSEWHEEL ) { 
+	} else if ( message == WM95_MOUSEWHEEL ) {
 	    result = widget->translateWheelEvent( msg ); // win95 mousewheel support
 	} else
 	    switch ( message ) {
@@ -1808,7 +1808,7 @@ static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
 
     QWidget* groupLeader = widget;
     widget = widget->topLevelWidget();
-    
+
     if ( widget->testWFlags(Qt::WType_Modal) )	// widget is modal
 	modal = widget;
 
@@ -1817,7 +1817,7 @@ static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
 
     while ( groupLeader && !groupLeader->testWFlags( Qt::WGroupLeader ) )
 	groupLeader = groupLeader->parentWidget();
-    
+
     if ( groupLeader ) {
 	// Does groupLeader have a child in qt_modal_stack?
 	bool unrelated = TRUE;
@@ -1831,7 +1831,7 @@ static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
 	    if ( p == groupLeader ) unrelated = FALSE;
 	}
 	
-	if ( unrelated ) 
+	if ( unrelated )
 	    return TRUE;		// don't block event
     }
 
@@ -2351,7 +2351,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    QMouseEvent e( type,
 		popupButtonFocus->mapFromGlobal(QPoint(gpos.x,gpos.y)),
 		QPoint(gpos.x,gpos.y), button, state );
-	    QApplication::sendEvent( popupButtonFocus, &e );
+	    qt_propagateMouseEvent( popupButtonFocus, &e );
 	    if ( releaseAfter ) {
 		popupButtonFocus = 0;
 	    }
@@ -2359,10 +2359,10 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    QMouseEvent e( type,
 		popupChild->mapFromGlobal(QPoint(gpos.x,gpos.y)),
 		QPoint(gpos.x,gpos.y), button, state );
-	    QApplication::sendEvent( popupChild, &e );
+	    qt_propagateMouseEvent( popupChild, &e );
 	} else {
 	    QMouseEvent e( type, pos, QPoint(gpos.x,gpos.y), button, state );
-	    QApplication::sendEvent( popupChild ? popupChild : popup, &e );
+	    qt_propagateMouseEvent( popupChild ? popupChild : popup, &e );
 	}
 
 	if ( releaseAfter )
@@ -2421,7 +2421,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    qt_button_down = 0;
 	}
 	QMouseEvent e( type, pos, QPoint(gpos.x,gpos.y), button, state );
-	QApplication::sendEvent( widget, &e );	// send event
+	qt_propagateMouseEvent( widget, &e );
 	if ( type != QEvent::MouseMove )
 	    pos.rx() = pos.ry() = -9999;	// init for move compression
     }
@@ -2817,9 +2817,6 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
     globalPos.rx() = LOWORD ( msg.lParam );
     globalPos.ry() = HIWORD ( msg.lParam );
 
-    QWheelEvent e( globalPos, delta, state );
-    e.ignore();
-
     QWidget* w = QApplication::widgetAt( globalPos, TRUE );
     if ( !w)
 	w = this;
@@ -2833,33 +2830,25 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
     }
 
     // send the event to the widget or its ancestors
-    if (w){
+    {
 	QWidget* popup = qApp->activePopupWidget();
-	if ( popup && popup != w )
+	if ( popup && w != popup )
 	    popup->hide();
-
-	do {
-	    ((QPoint)e.pos()) = w->mapFromGlobal(globalPos); // local coordinates
-	    QApplication::sendEvent( w, &e );
-	    if ( e.isAccepted() )
-		return TRUE;
-	    w = w->isTopLevel()?0:w->parentWidget();
-	} while (w);
+	QWheelEvent e( w->mapFromGlobal( globalPos ), globalPos, delta, state );
+	if ( qt_propagateWheelEvent( w, &e ) )
+	    return TRUE;
     }
 
-    // send the event to the widget that has the focus or its ancestors
-    w = qApp->focus_widget;
-    if (w){
-	do {
-	    ((QPoint)e.pos()) = w->mapFromGlobal(globalPos); // local coordinates
-	    QApplication::sendEvent( w, &e );
-	    if ( e.isAccepted() )
-		return TRUE;
-	    w = w->isTopLevel()?0:w->parentWidget();
-	} while (w);
+    // send the event to the widget that has the focus or its ancestors, if different
+    if ( w != qApp->focusWidget() && ( w = qApp->focusWidget() ) ) {
+	QWidget* popup = qApp->activePopupWidget();
+	if ( popup && w != popup )
+	    popup->hide();
+	QWheelEvent e( w->mapFromGlobal( globalPos ), globalPos, delta, state );
+	if ( qt_propagateWheelEvent( w, &e ) )
+	    return TRUE;
     }
-
-    return TRUE;
+    return FALSE;
 }
 
 
@@ -2875,7 +2864,7 @@ bool QETWidget::sendKeyEvent( QEvent::Type type, int code, int ascii,
     if ( type == QEvent::KeyPress && !grab ) {	// send accel events
 	QKeyEvent aa( QEvent::AccelOverride, code, ascii, state, text, autor );
 	aa.ignore();
-	QApplication::sendEvent( this, &aa );
+	qt_propagateKeyEvent( this, &aa );
 	if ( !aa.isAccepted() ) {
 	    QKeyEvent a( QEvent::Accel, code, ascii, state, text, autor );
 	    a.ignore();
@@ -2887,7 +2876,7 @@ bool QETWidget::sendKeyEvent( QEvent::Type type, int code, int ascii,
     if ( !isEnabled() )
 	return FALSE;
     QKeyEvent e( type, code, ascii, state, text, autor );
-    QApplication::sendEvent( this, &e );
+    qt_propagateKeyEvent( this, &e );
     if ( !isModifierKey(code) && state == QMouseEvent::AltButton
 	 && ((code>=Key_A && code<=Key_Z) || (code>=Key_0 && code<=Key_9))
 	 && type == QEvent::KeyPress && !e.isAccepted() )

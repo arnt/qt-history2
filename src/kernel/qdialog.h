@@ -95,9 +95,11 @@ protected slots:
 
 protected:
     void	setResult( int r )	{ rescode = r; }
+    void	mousePressEvent( QMouseEvent * );
     void	keyPressEvent( QKeyEvent * );
     void	closeEvent( QCloseEvent * );
     void 	resizeEvent( QResizeEvent * );
+    
 private:
     void	setDefault( QPushButton * );
     void		hideDefault();

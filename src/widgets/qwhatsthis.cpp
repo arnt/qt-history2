@@ -367,20 +367,22 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	    if ( w->customWhatsThis() )
 		return FALSE;
 	    QWhatsThisPrivate::WhatsThisItem * i = 0;
+	    QMouseEvent* me = (QMouseEvent*) e;
+	    QPoint p = me->pos();
 	    while( w && !i ) {
 		i = dict->find( w );
-		if ( !i )
-		    w = w->parentWidget();
+		if ( !i ) {
+		    p += w->pos();
+		    w = w->parentWidget( TRUE );
+		}
 	    }
-
 	    leaveWhatsThisMode();
 	    if (!i )
 		return TRUE;
-	    QPoint pos =  ((QMouseEvent*)e)->pos();
 	    if ( i->whatsthis )
-		say( w, i->whatsthis->text( pos ), w->mapToGlobal(pos) );
+		say( w, i->whatsthis->text( p ), me->globalPos() );
 	    else
-		say( w, i->s, w->mapToGlobal(pos) );
+		say( w, i->s, me->globalPos() );
 	    return TRUE;
 	} else if ( e->type() == QEvent::MouseButtonRelease ) {
 	    if ( ( (QMouseEvent*)e)->button() == RightButton )
@@ -412,13 +414,11 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
  	     o->isWidgetType() &&
  	     ((QKeyEvent *)e)->state() == ShiftButton ) {
  	    QWidget * w = ((QWidget *)o)->focusWidget();
- 	    QWhatsThisPrivate::WhatsThisItem *i = w ? dict->find(w) : 0;
- 	    if ( i && !i->s.isNull() ) {
-		if ( i->whatsthis )
-		    say( w, i->whatsthis->text( QPoint(0,0) ),
-			 w->mapToGlobal( w->rect().center() ) );
-		else
-		    say( w, i->s, w->mapToGlobal( w->rect().center() ));
+	    if ( !w )
+		break;
+	    QString s = QWhatsThis::textFor( w, QPoint(0,0), TRUE );
+ 	    if ( !s.isNull() ) {
+		say ( w, s, w->mapToGlobal( w->rect().center() ) );
 		((QKeyEvent *)e)->accept();
 		return TRUE;
  	    }
@@ -667,18 +667,33 @@ void QWhatsThis::remove( QWidget * widget )
 
 
 /*!
-  Returns the text for \a widget, or a null string if there
+  Returns the text for widget \a w, or a null string if there
   is no <i>What's This</i> help for \a widget.
+  
+  If \a includeParents is TRUE, parent widgets are taken into
+  consideration as well.
 
   \sa add()
 */
-QString QWhatsThis::textFor( QWidget * widget, const QPoint& pos)
+QString QWhatsThis::textFor( QWidget * w, const QPoint& pos, bool includeParents )
 {
     QWhatsThisPrivate::setUpWhatsThis();
-    QWhatsThisPrivate::WhatsThisItem * i = wt->dict->find( widget );
+    QWhatsThisPrivate::WhatsThisItem * i = 0;
+    QPoint p = pos;
+    while( w && !i ) {
+	i = wt->dict->find( w );
+	if ( !includeParents )
+	    break;
+	if ( !i ) {
+	    p += w->pos();
+	    w = w->parentWidget( TRUE );
+	}
+    }
     if (!i)
 	return QString::null;
-    return i->whatsthis? i->whatsthis->text( pos ) : i->s;
+    if ( i->whatsthis )
+	return i->whatsthis->text( p );
+    return i->s;
 }
 
 
@@ -792,7 +807,7 @@ QWhatsThis::~QWhatsThis()
 
 
 /*!
-  This virtual functions returns the text for position \e p in the
+  This virtual functions returns the text for position \a p in the
   widget that this <i>What's This</i> object documents.  If there is no
   <i>What's This</i> text for a position, QString::null is returned.
 
@@ -853,8 +868,8 @@ bool QWhatsThis::inWhatsThisMode()
   work normally in <i>What's This</i> mode, but provide help texts for single
   menu items instead.
 
-  If \e text is not a null string, then a <i>What's This</i> help window is
-  displayed at the global screen position \e pos.
+  If \a text is not a null string, then a <i>What's This</i> help window is
+  displayed at the global screen position \a pos.
 
 \sa inWhatsThisMode(), enterWhatsThisMode()
 */
@@ -867,6 +882,21 @@ void QWhatsThis::leaveWhatsThisMode( const QString& text, const QPoint& pos )
     if ( !text.isNull() )
 	wt->say( 0, text, pos );
 }
+
+/*!  
+  Display \a text in a help window at the global screen position 
+  \a  pos.
+*/
+void QWhatsThis::display( const QString& text, const QPoint& pos )
+{
+    if ( inWhatsThisMode() ) {
+	leaveWhatsThisMode( text, pos );
+	return;
+    }
+    QWhatsThisPrivate::setUpWhatsThis();
+    wt->say( 0, text, pos );
+}
+
 
 #include "qwhatsthis.moc"
 #endif

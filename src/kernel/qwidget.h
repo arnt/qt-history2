@@ -402,11 +402,14 @@ public:
     // whats this help
     virtual bool customWhatsThis() const;
 
-    QWidget *		parentWidget() const;
+    QWidget *		parentWidget( bool sameWindow = FALSE ) const;
     bool		testWState( uint n ) const;
     bool		testWFlags( WFlags n ) const;
     static QWidget *	find( WId );
     static QWidgetMapper *wmapper();
+    
+    QWidget  *childAt( int x, int y, bool includeThis = FALSE ) const;
+    QWidget  *childAt( const QPoint &, bool includeThis = FALSE ) const;
 
 #if defined(_WS_QWS_)
     virtual QGfx * graphicsContext() const;
@@ -745,8 +748,12 @@ inline void QWidget::setGeometry( const QRect &r )
 inline void QWidget::drawText( const QPoint &p, const QString &s )
 { drawText( p.x(), p.y(), s ); }
 
-inline QWidget *QWidget::parentWidget() const
-{ return (QWidget *)QObject::parent(); }
+inline QWidget *QWidget::parentWidget( bool sameWindow ) const
+{ 
+    if ( sameWindow )
+	return isTopLevel() ? 0 : (QWidget *)QObject::parent(); 
+    return (QWidget *)QObject::parent(); 
+}
 
 inline QWidgetMapper *QWidget::wmapper()
 { return mapper; }

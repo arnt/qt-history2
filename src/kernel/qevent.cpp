@@ -374,6 +374,38 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 
 
 /*!
+  \fn bool QMouseEvent::isAccepted() const
+  Returns TRUE if the receiver of the event wants to keep the key.
+*/
+
+/*!
+  \fn void QMouseEvent::accept()
+  Sets the accept flag of the mouse event object.
+
+  Setting the accept parameter indicates that the receiver of the event wants
+  the mouse event. Unwanted mouse events are sent to the parent widget.
+
+  The accept flag is set by default.
+
+  \sa ignore()
+*/
+
+
+/*!
+  \fn void QMouseEvent::ignore()
+  Clears the accept flag parameter of the mouse event object.
+
+  Clearing the accept parameter indicates that the event receiver does
+  not want the mouse event. Unwanted mouse events are sent to the parent
+  widget.
+
+  The accept flag is set by default.
+
+  \sa accept()
+*/
+
+
+/*!
   \class QWheelEvent qevent.h
   \brief The QWheelEvent class contains parameters that describe a wheel event.
 

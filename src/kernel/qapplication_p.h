@@ -70,4 +70,12 @@ extern Qt::WindowsVersion qt_winver;
 extern int qt_ncols_option;
 #endif
 
+
+extern void qt_dispatchEnterLeave( QWidget*, QWidget* );
+extern bool  qt_propagateKeyEvent( QWidget* w, QKeyEvent* e );
+extern bool  qt_propagateMouseEvent( QWidget* w, QMouseEvent* e );
+extern bool  qt_propagateWheelEvent( QWidget* w, QWheelEvent* e );
+
+
+
 #endif

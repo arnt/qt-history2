@@ -148,7 +148,7 @@ public:
 
     QMouseEvent( Type type, const QPoint &pos, const QPoint&globalPos,
 		 int button, int state )
-	: QEvent(type), p(pos), g(globalPos), b(button),s((ushort)state) {};
+	: QEvent(type), p(pos), g(globalPos), b(button),s((ushort)state),accpt(TRUE) {};
 
     const QPoint &pos() const	{ return p; }
     const QPoint &globalPos() const { return g; }
@@ -159,11 +159,15 @@ public:
     ButtonState button() const	{ return (ButtonState) b; }
     ButtonState state()	const	{ return (ButtonState) s; }
     ButtonState stateAfter() const;
+    bool   isAccepted() const	{ return accpt; }
+    void   accept()		{ accpt = TRUE; }
+    void   ignore()		{ accpt = FALSE; }
 protected:
     QPoint p;
     QPoint g;
-    int	   b; // ### Make ushort in 3.0? Here it's an int...
-    ushort s; // ### ...and here an ushort. But both are ButtonState!
+    ushort b;
+    ushort s;
+    uint   accpt:1;
 };
 
 

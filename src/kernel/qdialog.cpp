@@ -45,6 +45,8 @@
 #include "qwidgetlist.h"
 #include "qlayout.h"
 #include "qsizegrip.h"
+#include "qwhatsthis.h" // ######## dependency
+#include "qpopupmenu.h" // ######## dependency
 
 
 // REVISED: arnt
@@ -83,7 +85,7 @@
   Enter/Return maps to one value and pressing Escape to the other),
   QDialog supports that.  A dialog can finish by calling the slots
   accept() or reject(), and exec() returns that result.
-  
+
   Note that QDialog uses the parent widget a bit differently from
   other classes in Qt.  A dialog is always a top-level widget, but if
   it has a parent, its default location is on top of the parent, it
@@ -118,6 +120,7 @@ public:
 #ifndef QT_NO_SIZEGRIP
     QSizeGrip* resizer;
 #endif
+    QPoint lastRMBPress;
 };
 
 
@@ -137,7 +140,7 @@ public:
 */
 
 QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
-    : QWidget( parent, name, 
+    : QWidget( parent, name,
 	       (modal ? (f|WType_Modal) : f) | WType_TopLevel | WStyle_Dialog )
 {
     rescode = 0;
@@ -241,13 +244,11 @@ int QDialog::exec()
     setResult( 0 );
     show();
 
-#ifdef _WS_QWS_ // QDialog::show is changed to 3.0 semantics for Qt/Embedded
     if ( testWFlags(WType_Modal) && !in_loop ) {
 	in_loop = TRUE;
 	qApp->enter_loop();
     }
-#endif
-
+    
     return result();
 }
 
@@ -304,6 +305,25 @@ void QDialog::reject()
 /*****************************************************************************
   Event handlers
  *****************************************************************************/
+
+
+void QDialog::mousePressEvent( QMouseEvent * e)
+{
+    if ( e->button() == RightButton ) {
+	QWidget* w = childAt( e->pos(), TRUE );
+	if ( !w )
+	    return;
+	QString s = QWhatsThis::textFor( w, e->pos(), TRUE );
+	if ( !s.isEmpty() ) {
+	    e->accept();
+	    QPopupMenu* p = new QPopupMenu;
+	    p->insertItem( tr("What's This?"), 42 );
+	    if ( p->exec( e->globalPos() ) == 42 )
+		QWhatsThis::display( s, w->mapToGlobal( w->rect().center() ) ); 
+	}
+    }
+}
+
 
 /*! \reimp */
 void QDialog::keyPressEvent( QKeyEvent *e )
@@ -383,11 +403,11 @@ void QDialog::closeEvent( QCloseEvent *e )
   selects a suitable position and size if none has been specified yet.
 
   \warning
-  
+
   In Qt 2.x, calling show() on a modal dialog enters a local event
   loop, and work like exec(), but not returning the result code exec()
   returns. Trolltech has always warned against doing this.
-  
+
   In Qt 3.0 and later, calling show() on a modal dialog will return
   immediately, \e not enter a local event loop. The dialog will of
   course be modal.
@@ -446,23 +466,6 @@ void QDialog::show()
 	move( p );
     }
     QWidget::show();
-
-
-#ifndef _WS_QWS_ // We remove this NOW for Qt/Embedded
-
-    /*########### 3.0:
-
-      This 'feature' is nonsense and will be removed in 3.0.
-      show()
-      should do show() and nothing more.  If these lines are removed,
-      we can finally kill QSemiModal and let QProgressBar inherit
-      QDialog.
-     */
-    if ( testWFlags(WType_Modal) && !in_loop ) {
-	in_loop = TRUE;
-	qApp->enter_loop();
-    }
-#endif
 }
 
 /*! \reimp */
@@ -535,7 +538,7 @@ void QDialog::setGeometry( const QRect &r )
 /*!  Sets the dialog to display its extension to the right of the main
   are if \a orientation is \c Horizonal, and to display it below the
   main area if \a orientation is \c Vertical.
-  
+
   \sa orientation(), setExtension()
 */
 void QDialog::setOrientation( Orientation orientation )

@@ -1672,8 +1672,10 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
     if ( event->type() <= QEvent::MouseMove &&
 	 event->type() >= QEvent::MouseButtonPress &&
 	 ( receiver->isWidgetType() &&
-	   !((QWidget *)receiver)->isEnabled() ) )
+	   !((QWidget *)receiver)->isEnabled() ) ) {
+	( (QMouseEvent*) event)->ignore();
 	return FALSE;
+    }
 
     // throw away any mouse-tracking-only mouse events
     if ( event->type() == QEvent::MouseMove &&
@@ -2360,7 +2362,7 @@ void QApplication::setActiveWindow( QWidget* act )
 	if ( w->topLevelWidget() == old_active || w->topLevelWidget()==active_window ) {
 	    QColorGroup acg = w->palette().active();
 	    QColorGroup icg = w->palette().inactive();
-	    if ( acg != icg && 
+	    if ( acg != icg &&
 		 ( acg.background() != icg.background() ||
 		   acg.base() != icg.base() ||
 		   acg.button() != icg.button() ||
@@ -2398,35 +2400,24 @@ void QApplication::setActiveWindow( QWidget* act )
 }
 
 
-/*
-  Enter/Leave workarounds and 2.x compatibility
- */
-static bool qt_sane_enterleave_b = FALSE; // ### TRUE in 3.0
-void Q_EXPORT qt_set_sane_enterleave( bool b ) {
-    qt_sane_enterleave_b = b;
-}
-bool Q_EXPORT qt_sane_enterleave()
-{
-    return qt_sane_enterleave_b;
-}
-
 /*!\internal
 
   Creates the proper Enter/Leave event when widget \a enter is entered
   and widget \a leave is left.
  */
 void Q_EXPORT qt_dispatchEnterLeave( QWidget* enter, QWidget* leave ) {
-    if ( !qt_sane_enterleave() ) {
-	if ( leave ) {
-	    QEvent e( QEvent::Leave );
-	    QApplication::sendEvent( leave, & e );
-	}
-	if ( enter ) {
-	    QEvent e( QEvent::Enter );
-	    QApplication::sendEvent( enter, & e );
-	}
-	return;
+#if 0
+    if ( leave ) {
+	QEvent e( QEvent::Leave );
+	QApplication::sendEvent( leave, & e );
     }
+    if ( enter ) {
+	QEvent e( QEvent::Enter );
+	QApplication::sendEvent( enter, & e );
+    }
+    return;
+#endif
+    
     QWidget* w ;
     if ( !enter && !leave )
 	return;
@@ -2438,22 +2429,22 @@ void Q_EXPORT qt_dispatchEnterLeave( QWidget* enter, QWidget* leave ) {
 	w = leave;
 	do {
 	    leaveList.prepend( w );
-	} while ( !w->isTopLevel() && (w = w->parentWidget() ) );
+	} while ( (w = w->parentWidget( TRUE ) ) );
     }
     if ( enter && !sameWindow ) {
 	w = enter;
 	do {
 	    enterList.prepend( w );
-	} while ( !w->isTopLevel() && (w = w->parentWidget() ) );
+	} while ( (w = w->parentWidget(TRUE) ) );
     }
     if ( sameWindow ) {
 	int enterDepth = 0;
 	int leaveDepth = 0;
 	w = enter;
-	while ( !w->isTopLevel() && ( w = w->parentWidget() ) )
+	while ( ( w = w->parentWidget( TRUE ) ) )
 	    enterDepth++;
 	w = leave;
-	while ( !w->isTopLevel() && ( w = w->parentWidget() ) )
+	while ( ( w = w->parentWidget( TRUE ) ) )
 	    leaveDepth++;
 	QWidget* wenter = enter;
 	QWidget* wleave = leave;
@@ -2489,6 +2480,72 @@ void Q_EXPORT qt_dispatchEnterLeave( QWidget* enter, QWidget* leave ) {
     for ( w = enterList.first(); w; w = enterList.next() )
 	QApplication::sendEvent( w, &enterEvent );
 }
+
+
+bool  qt_propagateKeyEvent( QWidget* w, QKeyEvent* e )
+{
+    bool def = e->isAccepted();
+    while ( w ) {
+	if ( def )
+	    e->accept();
+	else
+	    e->ignore();
+	QApplication::sendEvent( w, e );
+	if ( e->isAccepted() || w->isTopLevel() )
+	    break;
+	w = w->parentWidget();
+    }
+    return e->isAccepted();
+}
+
+bool  qt_propagateMouseEvent( QWidget* w, QMouseEvent* ev )
+{
+    QMouseEvent* t, *e = ev;
+    while ( w ) {
+	e->accept();
+	QApplication::sendEvent( w, e );
+	if ( e->isAccepted() || w->isTopLevel() )
+	    break;
+	t = e;
+	e = new QMouseEvent( t->type(), t->pos() + w->pos(), t->globalPos(), t->button(), t->state() );
+	if ( t != ev )
+	    delete t;
+	w = w->parentWidget();
+    }
+    if ( e != ev ) {
+	if ( e->isAccepted() )
+	    ev->accept();
+	else 
+	    ev->ignore();
+	delete e;
+    }
+    return ev->isAccepted();
+}
+
+bool  qt_propagateWheelEvent( QWidget* w, QWheelEvent* ev )
+{
+    QWheelEvent* t, *e = ev;
+    while ( w ) {
+	e->accept();
+	QApplication::sendEvent( w, e );
+	if ( e->isAccepted() || w->isTopLevel() )
+	    break;
+	t = e;
+	e = new QWheelEvent( t->pos() + w->pos(), t->globalPos(), t->delta(), t->state() );
+	if ( t != ev )
+	    delete t;
+	w = w->parentWidget();
+    }
+    if ( e != ev ) {
+	if ( e->isAccepted() )
+	    ev->accept();
+	else 
+	    ev->ignore();
+	delete e;
+    }
+    return ev->isAccepted();
+}
+
 
 /*!
   Returns the desktop widget (also called the root window).

@@ -518,7 +518,6 @@ kernel:SOURCES += kernel/qabstractlayout.cpp \
 		  kernel/qprocess.cpp \
 		  kernel/qrect.cpp \
 		  kernel/qregion.cpp \
-		  kernel/qsemimodal.cpp \
 		  kernel/qsignal.cpp \
 		  kernel/qsignalmapper.cpp \
 		  kernel/qsize.cpp \
@@ -697,7 +696,7 @@ database:HEADERS += $$DATABASE_H/qsql.h \
 		    $$DATABASE_H/qsqlerror.h \
 		    $$DATABASE_H/qsqlresult.h \
 		    $$DATABASE_H/qsqlindex.h \
-		    $$DATABASE_H/qsqltable.h 
+		    $$DATABASE_H/qsqltable.h
 database:SOURCES += database/qsql.cpp \
 		    database/qsqlform.cpp \
 		    database/qsqlfieldmapper.cpp \
@@ -714,7 +713,7 @@ database:SOURCES += database/qsql.cpp \
 		    database/qsqlerror.cpp \
 		    database/qsqlresult.cpp \
 		    database/qsqlindex.cpp \
-		    database/qsqltable.cpp 
+		    database/qsqltable.cpp
 
 opengl:HEADERS += $$OPENGL_H/qgl.h
 OPENGL_SOURCES	= opengl/qgl.cpp

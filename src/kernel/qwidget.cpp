@@ -3917,32 +3917,16 @@ bool QWidget::event( QEvent *e )
 	    }
 	    if ( res )
 		break;
-	    QWidget *w = this;
-	    while ( w ) {
-		w->keyPressEvent( k );
-		if ( k->isAccepted() || w->isTopLevel() )
-		    break;
-		if ( w->parentWidget() && w->parentWidget()->focusProxy() == this )
-		    w = w->parentWidget(); //### This breaks KDE, so fix it again
-		w = w->parentWidget();
-		k->accept();
-	    }
+	    keyPressEvent( k );
+	    if ( !k->isAccepted() )
+		return FALSE;
 	    }
 	    break;
 
-	case QEvent::KeyRelease: {
-	    QKeyEvent *k = (QKeyEvent *)e;
-	    QWidget *w = this;
-	    while ( w ) {
-		k->accept();
-		w->keyReleaseEvent( k );
-		if ( k->isAccepted() || w->isTopLevel() )
-		    break;
-		if ( w->parentWidget() && w->parentWidget()->focusProxy() == this )
-		    w = w->parentWidget(); //### This breaks KDE, so fix it again
-		w = w->parentWidget();
-	    }
-	    }
+	case QEvent::KeyRelease:
+	    keyReleaseEvent( (QKeyEvent*)e );
+	    if ( ! ((QKeyEvent*)e)->isAccepted() )
+		return FALSE;
 	    break;
 
 	case QEvent::FocusIn:
@@ -4070,8 +4054,9 @@ bool QWidget::event( QEvent *e )
   mouseDoubleClickEvent(), event(), QMouseEvent
 */
 
-void QWidget::mouseMoveEvent( QMouseEvent * )
+void QWidget::mouseMoveEvent( QMouseEvent * e)
 {
+    e->ignore();
 }
 
 /*!
@@ -4093,7 +4078,9 @@ void QWidget::mouseMoveEvent( QMouseEvent * )
 
 void QWidget::mousePressEvent( QMouseEvent *e )
 {
+    e->ignore();
     if ( isPopup() ) {
+	e->accept();
 	QWidget* w;
 	while ( (w = qApp->activePopupWidget() ) && w != this ){
 	    w->close();
@@ -4114,8 +4101,9 @@ void QWidget::mousePressEvent( QMouseEvent *e )
   mouseMoveEvent(), event(),  QMouseEvent
 */
 
-void QWidget::mouseReleaseEvent( QMouseEvent * )
+void QWidget::mouseReleaseEvent( QMouseEvent * e )
 {
+    e->ignore();
 }
 
 /*!
@@ -4808,6 +4796,41 @@ int QWidget::heightForWidth( int w ) const
 bool QWidget::customWhatsThis() const
 {
     return FALSE;
+}
+
+
+/*!  Returns the visible child widget at pixel position \a (x,y) in
+  the widget's own coordinate system.
+  
+  If \a includeThis is TRUE, and there is no child visible at \a
+  (x,y), the widget itself is returned.
+ */
+QWidget  *QWidget::childAt( int x, int y, bool includeThis ) const
+{
+    if ( !rect().contains( x, y ) )
+	return 0;
+    if ( children() ) {
+	QObjectListIt it( *children() );
+	it.toLast();
+	QWidget *w, *t;
+	while( (w=(QWidget *)it.current()) != 0 ) {
+	    --it;
+	    if ( w->isWidgetType() && !w->isTopLevel() && !w->isHidden() ) {
+		if ( ( t = w->childAt( x - w->x(), y - w->y(), TRUE ) ) )
+		    return t;
+	    }
+	}
+    }
+    if ( includeThis )
+	return (QWidget*)this;
+    return 0;
+}
+
+/*!\overload
+ */
+QWidget  *QWidget::childAt( const QPoint & p, bool includeThis ) const
+{
+    return childAt( p.x(), p.y(), includeThis );
 }
 
 

@@ -188,7 +188,7 @@ public:
 
     static void setReverseLayout( bool b );
     static bool reverseLayout();
-    
+
     static bool	    isEffectEnabled( Qt::UIEffect );
     static void	    setEffectEnabled( Qt::UIEffect, bool enable = TRUE );
 
@@ -255,7 +255,7 @@ private:
     static QWidget *findChildWidget( const QWidget *p, const QPoint &pos );
     static QWidget *findWidget( const QObjectList&, const QPoint &, bool rec );
 #endif
-    
+
 #if defined(QT_THREAD_SUPPORT)
     static QMutex * qt_mutex;
 #endif
