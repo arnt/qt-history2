@@ -6,7 +6,7 @@
 class QHostAddress;
 class QSocketLayerPrivate;
 
-class QSocketLayer
+class Q_NETWORK_EXPORT QSocketLayer
 {
 public:
     QSocketLayer();
