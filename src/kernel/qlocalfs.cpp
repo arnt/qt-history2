@@ -206,6 +206,8 @@ void QLocalFs::operationGet( QNetworkOperation *op )
 	s.resize( QLOCALFS_MAX_BYTES );
 	int remaining = f.size();
 	while ( remaining > 0 ) {
+	    if ( operationInProgress() != op )
+		return;
 	    if ( remaining >= QLOCALFS_MAX_BYTES ) {
 		f.readBlock( s.data(), QLOCALFS_MAX_BYTES );
 		emit data( s, op );
@@ -254,6 +256,8 @@ void QLocalFs::operationPut( QNetworkOperation *op )
     } else {
 	int i = 0;
 	while ( i + QLOCALFS_MAX_BYTES < (int)ba.size() - 1 ) {
+	    if ( operationInProgress() != op )
+		return;
 	    f.writeBlock( &ba.data()[ i ], QLOCALFS_MAX_BYTES );
 	    emit dataTransferProgress( i + QLOCALFS_MAX_BYTES, ba.size(), op );
 	    i += QLOCALFS_MAX_BYTES;

@@ -70,7 +70,8 @@ public:
 	StWaiting = 0,
 	StInProgress,
 	StDone,
-	StFailed
+	StFailed,
+	StStopped
     };
 
     enum Operation {
@@ -129,7 +130,8 @@ public:
     QUrlOperator *url() const;
     QNetworkOperation *operationInProgress() const;
     virtual void clearOperationQueue();
-
+    virtual void stop();
+    
 signals:
     void data( const QByteArray &, QNetworkOperation *res );
     void connectionStateChanged( int state, const QString &data );

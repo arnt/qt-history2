@@ -766,6 +766,24 @@ void QNetworkProtocol::clearOperationQueue()
 }
 
 /*!
+  Stops the current operation which is just processed and clears
+  all waiting operations.
+*/
+
+void QNetworkProtocol::stop()
+{
+    QNetworkOperation *op = d->opInProgress;
+    clearOperationQueue();
+    if ( op ) {
+	op->setState( StStopped );
+	op->setProtocolDetail( tr( "Operation stopped by the user" ) );
+	emit finished( op );
+	setUrl( 0 );
+	delete op;
+    }
+}
+
+/*!
   Because it's sometimes hard to care about removing network protocol
   instances, QNetworkProtocol provides an autodelete meachnism. If
   you set \a b to TRUE, this network protocol instance gets removed

@@ -741,7 +741,7 @@ void QFtp::dataClosed()
 
     reinitCommandSocket();
 
-    if ( !errorInListChildren )
+    if ( !errorInListChildren && operationInProgress() )
 	emit finished( operationInProgress() );
 }
 

@@ -43,6 +43,7 @@ struct QUrlOperatorPrivate
     QPtrDict<QNetworkProtocol> getOpPutProtMap;
     QPtrDict<QNetworkProtocol> getOpGetProtMap;
     QPtrDict<QNetworkOperation> getOpRemoveOpMap;
+    QNetworkProtocol *currPut;
     QStringList waitingCopies;
     QString waitingCopiesDest;
     bool waitingCopiesMove;
@@ -225,6 +226,7 @@ QUrlOperator::QUrlOperator()
     d = new QUrlOperatorPrivate;
     d->networkProtocol = 0;
     d->nameFilter = "*";
+    d->currPut = 0;
 }
 
 /*!
@@ -238,6 +240,7 @@ QUrlOperator::QUrlOperator( const QString &url )
     d->networkProtocol = 0;
     getNetworkProtocol();
     d->nameFilter = "*";
+    d->currPut = 0;
 }
 
 /*!
@@ -252,6 +255,7 @@ QUrlOperator::QUrlOperator( const QUrlOperator& url )
     d->networkProtocol = 0;
     getNetworkProtocol();
     d->nameFilter = "*";
+    d->currPut = 0;
 }
 
 /*!
@@ -266,6 +270,7 @@ QUrlOperator::QUrlOperator( const QUrlOperator& url, const QString& relUrl_ )
 	*d = *url.d;
     d->networkProtocol = 0;
     getNetworkProtocol();
+    d->currPut = 0;
 }
 
 /*!
@@ -280,6 +285,7 @@ QUrlOperator::~QUrlOperator()
     if ( d->networkProtocol )
 	delete d->networkProtocol;
     delete d;
+    d->currPut = 0;
     d = 0;
 }
 
@@ -1003,8 +1009,10 @@ void QUrlOperator::continueCopy( QNetworkOperation *op )
     d->getOpRemoveOpMap.take( op );
     if ( pProt )
 	pProt->setAutoDelete( TRUE );
-    if ( put && pProt )
+    if ( put && pProt ) {
 	pProt->addOperation( put );
+	d->currPut = pProt;
+    }
     if ( gProt )
 	gProt->setAutoDelete( TRUE );
     if ( rm && gProt )
@@ -1021,6 +1029,7 @@ void QUrlOperator::continueCopy( QNetworkOperation *op )
 
 void QUrlOperator::finishedCopy()
 {
+    d->currPut = 0;
     if ( d->waitingCopies.isEmpty() )
 	return;
 
@@ -1031,17 +1040,32 @@ void QUrlOperator::finishedCopy()
 }
 
 /*!
-  Stops the current network operation which is just processed and 
+  Stops the current network operation which is just processed and
   removes all waiting network operations of this QUrlOperator.
 */
 
 void QUrlOperator::stop()
 {
     d->getOpPutOpMap.clear();
-    d->getOpPutProtMap.clear();
-    d->getOpGetProtMap.clear();
     d->getOpRemoveOpMap.clear();
+    d->getOpGetProtMap.setAutoDelete( TRUE );
+    d->getOpPutProtMap.setAutoDelete( TRUE );
+    QPtrDictIterator<QNetworkProtocol> it( d->getOpPutProtMap );
+    for ( ; it.current(); ++it )
+	it.current()->stop();
+    d->getOpPutProtMap.clear();
+    it = QPtrDictIterator<QNetworkProtocol>( d->getOpGetProtMap );
+    for ( ; it.current(); ++it )
+	it.current()->stop();
+    d->getOpGetProtMap.clear();
+    if ( d->currPut ) {
+	d->currPut->stop();
+	delete d->currPut;
+	d->currPut = 0;
+    }
     d->waitingCopies.clear();
+    if ( d->networkProtocol )
+	d->networkProtocol->stop();
     deleteNetworkProtocol();
     getNetworkProtocol();
 }

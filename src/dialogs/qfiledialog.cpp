@@ -531,6 +531,7 @@ struct QFileDialogPrivate {
     QProgressDialog *progressDia;
     bool checkForFilter;
     bool ignoreReturn;
+    bool ignoreStop;
 
 };
 
@@ -1711,6 +1712,7 @@ void QFileDialog::init()
     d->progressDia = 0;
     d->checkForFilter = FALSE;
     d->ignoreReturn = FALSE;
+    d->ignoreStop = FALSE;
 
     d->url = QUrlOperator( QDir::currentDirPath() );
     d->oldUrl = d->url;
@@ -3948,6 +3950,7 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 	    d->ignoreNextKeyPress = TRUE;
 
 	if ( d->progressDia ) {
+	    d->ignoreStop = TRUE;
 	    d->progressDia->close();
 	    delete d->progressDia;
 	    d->progressDia = 0;
@@ -3982,8 +3985,10 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 	}	
     } else if ( op->operation() == QNetworkProtocol::OpPut ) {
  	rereadDir();
-	if ( d->progressDia )
+	if ( d->progressDia ) {
+	    d->ignoreStop = TRUE;
 	    d->progressDia->close();
+	}
 	delete d->progressDia;
 	d->progressDia = 0;
     }
@@ -3995,8 +4000,12 @@ void QFileDialog::dataTransferProgress( int bytesDone, int bytesTotal, QNetworkO
 	return;
     if ( !d->progressDia ) {
 	if ( bytesDone < bytesTotal) {
+	    d->ignoreStop = FALSE;
 	    d->progressDia = new QProgressDialog( tr( "Read: %1" ).arg( op->arg( 0 ) ), QString::null,
 						  bytesTotal, this, 0, TRUE );
+	    d->progressDia->setCancelButton( new QPushButton( tr( "&Cancel" ), d->progressDia ) );
+	    connect( d->progressDia, SIGNAL( cancelled() ),
+		     this, SLOT( stopCopy() ) );
 	    d->progressDia->show();
 	    d->progressDia->setProgress( 0 );
 	    d->progressDia->setTotalSteps( bytesTotal );
@@ -4198,5 +4207,23 @@ void QFileDialog::resortDir()
 	    item->setSelectable( FALSE );
 	    item2->setSelectable( FALSE );
 	}
+    }
+}
+
+/*!
+  Stops the current copy operation.
+*/
+
+void QFileDialog::stopCopy()
+{
+    if ( d->ignoreStop )
+	return;
+
+    d->url.stop();
+    if ( d->progressDia ) {
+	d->ignoreStop = TRUE;
+	d->progressDia->close();
+	delete d->progressDia;
+	d->progressDia = 0;
     }
 }

@@ -52,7 +52,7 @@ public:
     QFileIconProvider( QObject * parent = 0, const char* name = 0 );
 
     virtual const QPixmap * pixmap( const QFileInfo & );
-    virtual const QPixmap * pixmap( const QUrlInfo & );
+    const QPixmap * pixmap( const QUrlInfo & ); // #### make virtual
 };
 
 class QRenameEdit : public QLineEdit
@@ -276,7 +276,8 @@ protected slots:
     void listBoxSelectionChanged();
     void changeMode( int );
     void fileNameEditReturnPressed();
-
+    void stopCopy();
+    
 private slots:
     void fileSelected( int );
     void fileHighlighted( int );
