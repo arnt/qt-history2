@@ -1223,8 +1223,13 @@ QTextStream& operator>>( QTextStream& ts, QSplitter& splitter )
     if ( line[i] == '[' ) {
 	i++;
 	SKIP_SPACES();
-	while ( line[i] != ']' && s != 0 ) {
-	    if ( line[i] == 'H' ) {
+	while ( line[i] != ']' ) {
+	    while ( s != 0 && s->isSplitter )
+		s = splitter.data->list.next();
+	    if ( s == 0 )
+		break;
+
+	    if ( line[i].upper() == 'H' ) {
 		s->wid->hide();
 		i++;
 	    } else {
@@ -1238,12 +1243,16 @@ QTextStream& operator>>( QTextStream& ts, QSplitter& splitter )
 		s->sizer = dim;
 	    }
 	    SKIP_SPACES();
-	    if ( line[i] == ',' )
+	    if ( line[i] == ',' ) {
 		i++;
+	    } else {
+		break;
+	    }
 	    SKIP_SPACES();
 	    s = splitter.data->list.next();
 	}
     }
+    splitter.doResize();
     return ts;
 }
 #endif
