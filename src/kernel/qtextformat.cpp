@@ -183,7 +183,7 @@ const QTextFormatProperty QTextFormatPrivate::property(int propertyId, QTextForm
 
 bool QTextFormatPrivate::operator==(const QTextFormatPrivate &rhs) const
 {
-    if (type != rhs.type)
+    if (type != rhs.type || inheritedType != rhs.inheritedType)
 	return false;
 
     if (properties.size() != rhs.properties.size())
