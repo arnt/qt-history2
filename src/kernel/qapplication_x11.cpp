@@ -3664,9 +3664,9 @@ static const KeySym KeyTbl[] = {		// keyboard mapping table
     XK_KP_End,		Qt::Key_End,
     XK_KP_Left,		Qt::Key_Left,
     XK_KP_Up,		Qt::Key_Up,
-    XK_KP_Right,		Qt::Key_Right,
+    XK_KP_Right,	Qt::Key_Right,
     XK_KP_Down,		Qt::Key_Down,
-    XK_KP_Prior,		Qt::Key_Prior,
+    XK_KP_Prior,	Qt::Key_Prior,
     XK_KP_Next,		Qt::Key_Next,
     XK_Shift_L,		Qt::Key_Shift,		// modifiers
     XK_Shift_R,		Qt::Key_Shift,
@@ -3695,6 +3695,12 @@ static const KeySym KeyTbl[] = {		// keyboard mapping table
     XK_Menu,		Qt::Key_Menu,
     XK_Hyper_L,		Qt::Key_Hyper_L,
     XK_Hyper_R,		Qt::Key_Hyper_R,
+    0x0000FF65,		Qt::Key_Undo,		// hardcoded Sun Undo
+    0x0000FF66,		Qt::Key_Redo,		// hardcoded Sun Again
+    0x0000FF69,		Qt::Key_Cancel,		// hardcoded Sun Stop
+    0x1005FF72,		Qt::Key_Copy,		// hardcoded Sun Copy
+    0x1005FF74,		Qt::Key_Paste,		// hardcoded Sun Paste
+    0x1005FF75,		Qt::Key_Cut,		// hardcoded Sun Cut
     0,			0
 };
 
