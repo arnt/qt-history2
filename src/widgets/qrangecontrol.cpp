@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangecontrol.cpp#36 $
+** $Id: //depot/qt/main/src/widgets/qrangecontrol.cpp#37 $
 **
 ** Implementation of QRangeControl class
 **
@@ -53,16 +53,16 @@
 
   <li> The line step.  This is the smaller of two natural steps
   QRangeControl provides, and typically corresponds to the user
-  pressing an arrow key.  Returned by lineStep(), set using
-  setSteps(), and the addLine() and subtractLine() allow easy
+  pressing an arrow key.  The line step is returned by lineStep()
+  and set using setSteps(). The functions addLine() and subtractLine() allow easy
   movement of the current value by lineStep().
 
   <li> The page step.  This is the larger of two natural steps
   QRangeControl provides, and typically corresponds to the user
-  pressing one of the PageUp and PageDown keys.  Returned by
-  pageStep(), set using setSteps(), and the addPage() and
-  substractPage() allow easy movement of the current value by
-  pageStep().
+  pressing one of the PageUp and PageDown keys.  The page step is
+  returned by pageStep() and set using setSteps().
+  The functions addPage() and substractPage() allow easy movement
+  of the current value by pageStep().
 
   </ul>
 
@@ -70,19 +70,24 @@
   lets you set the current value to any integer in the allowed range,
   not just minValue()+n*lineStep() for integer values of n.  Some
   widgets may allow the user to set any value at all, others may just
-  provide multiples of lineStep()/pageStep().  The choice is up to you.
+  provide multiples of lineStep()/pageStep().
 
   QRangeControl provides three virtual functions that are well-suited
-  e.g. to updating the on-screen representation of range controls and
+  e.g. for updating the on-screen representation of range controls and
   emitting signals, namely valueChange(), rangeChange() and
   stepChange().
 
-  Finally, QRangeControl provides a function called bound() to let you
-  force arbitrary integers to within the range of a range control.
+  Finally, QRangeControl provides a function called bound() which lets you
+  force arbitrary integers to be within the allowed range of the range control.
 
-  We recommend that all widgets provide at least a signal called
+  We recommend that all widgets, which inherit QRangeControl,
+  provide at least a signal called
   valueChanged(), and many widgets will want to provide addStep(),
   addPage(), substractStep() and substractPage() as slots.
+  
+  Note that you have to use multiple inheritance if you plan to implement
+  a widget using QRangeControl, since QRangeControl is not derived from
+  QWidget.
 */
 
 
@@ -107,7 +112,7 @@ QRangeControl::QRangeControl()
   lineStep and page step size is \a pageStep, and whose value is
   initially \a value.
 
-  \a value is forced to be within the legal range.
+  \a value is forced to be within the legal range using the bound() method.
 */
 
 QRangeControl::QRangeControl( int minValue, int maxValue,
@@ -129,29 +134,35 @@ QRangeControl::QRangeControl( int minValue, int maxValue,
   Returns the current range control value.  This is guaranteed to be
   within the range [ minValue() ... maxValue() ].
 
-  \sa setValue(), prevValue()
+  \sa setValue() prevValue()
 */
 
 /*!
   \fn int QRangeControl::prevValue() const
 
-  Returns the previous value of the range control.  When the range
+  Returns the previous value of the range control. "Previous value"
+  means the value before the last change occured. Setting a new range
+  may affect the value, too, since the value is forced to be inside
+  the specified range. When the range
   control is initially created, this is the same as value().
 
-  Note that prevValue() can be outside the legal range if a call to
+  Note that prevValue() can be outside the current legal range if a call to
   setRange() causes the current value to change.  (For example if the
   range was 0-1000 and the current value 500, setRange( 0, 400 ) makes
-  value() return 400 and prevValue() 500.)
+  value() return 400 and prevValue() 500)
 
   \sa value() setRange()
 */
 
 /*!
-  Sets the range control value to \e value and forces it to be within
+  Sets the range controls value to \e value and forces it to be within
   the legal range.
 
   Calls the virtual valueChange() function if the new value is
-  different from the previous value.
+  different from the previous value. The old value can still be
+  retrieved using prevValue().
+  
+   \sa value()
 */
 
 void QRangeControl::setValue( int value )
@@ -166,6 +177,12 @@ void QRangeControl::setValue( int value )
 
   Forces the new value to be within the legal range.
 
+  You will find few cases only where you have to call this function.
+  However, if you want to change the range controls value inside
+  the overloaded method valueChange() then setValue() would call the
+  function valueChange() again. To avoid this recursion you must use
+  directSetValue() instead.
+  
   \sa setValue()
 */
 
@@ -179,7 +196,9 @@ void QRangeControl::directSetValue(int value)
   Equivalent to \code setValue( value()+pageStep() )\endcode plus a
   test for numerical overflow.
 
-  \sa subtractPage()
+  If the value is changed, then valueChange() is called.
+  
+  \sa subtractPage() addLine() setValue()
 */
 
 void QRangeControl::addPage()
@@ -193,7 +212,10 @@ void QRangeControl::addPage()
 /*!
   Equivalent to \code setValue( value()-pageStep() )\endcode  plus a
   test for numerical underflow
-  \sa addPage()
+  
+  If the value is changed, then valueChange() is called.
+    
+  \sa addPage() subtractLine() setValue()
 */
 
 void QRangeControl::subtractPage()
@@ -207,7 +229,10 @@ void QRangeControl::subtractPage()
 /*!
   Equivalent to \code setValue( value()+lineStep() )\endcode  plus a
   test for numerical overflow
-  \sa subtractLine()
+  
+  If the value is changed, then valueChange() is called.
+    
+  \sa subtractLine() addPage() setValue()
 */
 
 void QRangeControl::addLine()
@@ -221,7 +246,10 @@ void QRangeControl::addLine()
 /*!
   Equivalent to \code setValue( value()-lineStep() )\endcode plus a
   test for numerical underflow
-  \sa addLine()
+  
+  If the value is changed, then valueChange() is called.
+    
+  \sa addLine() subtractPage() setValue()
 */
 
 void QRangeControl::subtractLine()
@@ -236,17 +264,17 @@ void QRangeControl::subtractLine()
 /*!
   \fn int QRangeControl::minValue() const
 
-  Returns the current minimum value in the range.
+  Returns the current minimum value of the range.
 
-  \sa setRange(), maxValue()
+  \sa setRange() maxValue()
 */
 
 /*!
   \fn int QRangeControl::maxValue() const
 
-  Returns the current maximum value in the range.
+  Returns the current maximum value of the range.
 
-  \sa setRange(), minValue()
+  \sa setRange() minValue()
 */
 
 /*!
@@ -256,12 +284,12 @@ void QRangeControl::subtractLine()
   Calls the virtual rangeChange() function if one or both of the new
   min and max values are different from the previous setting.  Calls
   the virtual valueChange() function if the current value is adjusted
-  because or was is outside the new range.
+  because it was outside the new range.
 
   If \a maxValue is smaller than \a minValue, \a minValue becomes the
   only legal value.
 
-  \sa minValue(), maxValue()
+  \sa minValue() maxValue()
 */
 
 void QRangeControl::setRange( int minValue, int maxValue )
@@ -289,21 +317,25 @@ void QRangeControl::setRange( int minValue, int maxValue )
 
 /*!
   \fn int QRangeControl::lineStep() const
+  
   Returns the current line step.
-  \sa setSteps(), pageStep()
+  
+  \sa setSteps() pageStep()
 */
 
 /*!
   \fn int QRangeControl::pageStep() const
+
   Returns the current page step.
-  \sa setSteps(), lineStep()
+  
+  \sa setSteps() lineStep()
 */
 
 /*!
   Sets the range line step to \e lineStep and page step to \e pageStep.
 
   Calls the virtual stepChange() function if the new line step and/or
-  page step are different from the previous setting.
+  page step are different from the previous settings.
 
   \sa lineStep() pageStep() setRange()
 */
@@ -323,6 +355,9 @@ void QRangeControl::setSteps(int lineStep,int pageStep)
   changes.  You can reimplement it if you want to be notified when the
   value changes.  The default implementation does nothing.
 
+  Note that this method is called after the value changed. The previous
+  value can be retrieved using prevValue().
+  
   \sa setValue(), addPage(), subtractPage(), addLine(), subtractLine()
   rangeChange(), stepChange()
 */
@@ -333,10 +368,12 @@ void QRangeControl::valueChange()
 
 
 /*!
-  This virtual function is called whenever the range control range
+  This virtual function is called whenever the range controls range
   changes.  You can reimplement it if you want to be notified when the range
   changes.  The default implementation does nothing.
 
+  Note that this method is called after the range changed.
+    
   \sa setRange(), valueChange(), stepChange()
 */
 
@@ -346,10 +383,12 @@ void QRangeControl::rangeChange()
 
 
 /*!
-  This virtual function is called whenever the range control step
-  value changes.  You can reimplement it if you want to be notified
+  This virtual function is called whenever the range controls line/page step
+  settings changes.  You can reimplement it if you want to be notified
   when the step changes.  The default implementation does nothing.
 
+  Note that this method is called after the step settings changed.
+    
   \sa setSteps(), rangeChange(), valueChange()
 */
 
@@ -358,7 +397,7 @@ void QRangeControl::stepChange()
 }
 
 
-/*!  Forces \a v within the range from minValue() to maxValue()
+/*!  Forces \a v to be within the range from minValue() to maxValue()
   inclusive, and returns the result.
 
   This function is provided so that you can easily force other numbers
@@ -383,6 +422,11 @@ int QRangeControl::bound( int v ) const
   maps to \a span, and other values are distributed evenly in between.
 
   This function can handle the entire integer range without overflow.
+  
+  Callings this method is useful when actually drawing a range control
+  like a QScrollBar on the screen.
+  
+  \sa valueFromPosition()
 */
 
 int QRangeControl::positionFromValue( int logical_val, int span ) const
@@ -406,6 +450,12 @@ int QRangeControl::positionFromValue( int logical_val, int span ) const
   in between.
 
   This function can handle the entire integer range without overflow.
+  
+  Calling this method is useful if you actually implemented a range control
+  widget like QScrollBar and want to handle mouse press events. This function
+  maps then screen coordinates to the logical values.
+  
+  \sa positionFromValue()
 */
 
 int QRangeControl::valueFromPosition( int pos, int span ) const
