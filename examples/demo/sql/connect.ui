@@ -194,6 +194,7 @@
     <tabstop>editUsername</tabstop>
     <tabstop>editPassword</tabstop>
     <tabstop>editHostname</tabstop>
+    <tabstop>portSpinBox</tabstop>
     <tabstop>PushButton1</tabstop>
     <tabstop>PushButton2</tabstop>
 </tabstops>
