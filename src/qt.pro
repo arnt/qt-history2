@@ -16,8 +16,8 @@ CONFIG		+= builder
 #
 # Install jpegsrc.v6b.tar.gz (find with http://ftpsearch.lycos.com)
 #
-unix:DEFINES += QT_JPEG_SUPPORT
-unix:LIBS	+= -ljpeg
+#unix:DEFINES += QT_JPEG_SUPPORT
+#unix:LIBS	+= -ljpeg
 #win32:DEFINES += QT_JPEG_SUPPORT
 #win32:LIBS	+= libjpeg.lib
 
@@ -137,10 +137,8 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qsizegrip.h \
 		  $$KERNEL_H/qsizepolicy.h \
 		  $$KERNEL_H/qsocketnotifier.h \
-		  $$KERNEL_H/qsound.h \
 		  $$KERNEL_H/qstyle.h \
 		  $$KERNEL_H/qstylesheet.h \
-		  $$KERNEL_H/qthread.h \
 		  $$KERNEL_H/qtimer.h \
 		  $$KERNEL_H/qurl.h \
 		  $$KERNEL_H/qlocalfs.h \
@@ -208,7 +206,6 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qcdestyle.h \
 		  $$WIDGETS_H/qcombobox.h \
 		  $$WIDGETS_H/qcommonstyle.h \
-	          $$WIDGETS_H/qdial.h \
 		  $$WIDGETS_H/qframe.h \
 		  $$WIDGETS_H/qgrid.h \
 		  $$WIDGETS_H/qgroupbox.h \
@@ -274,9 +271,7 @@ win32:SOURCES	= tools/qdir_win.cpp \
 		  kernel/qpaintdevice_win.cpp \
 		  kernel/qpainter_win.cpp \
 		  kernel/qregion_win.cpp \
-		  kernel/qsound_win.cpp \
 		  kernel/qwidget_win.cpp \
-		  kernel/qthread_win.cpp \
 		  dialogs/qfiledialog_win.cpp
 
 win32:SOURCES  += kernel/qole_win.c
@@ -296,9 +291,7 @@ unix:SOURCES    = tools/qdir_unix.cpp \
 		  kernel/qpaintdevice_x11.cpp \
 		  kernel/qpainter_x11.cpp \
 		  kernel/qregion_x11.cpp \
-		  kernel/qsound_x11.cpp \
 		  kernel/qwidget_x11.cpp \
-		  kernel/qthread_unix.cpp
 
 unix:SOURCES   += dialogs/qprintdialog.cpp \
 		  kernel/qpsprinter.cpp \
@@ -387,7 +380,6 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  kernel/qsizegrip.cpp \
 		  kernel/qstyle.cpp \
 		  kernel/qsocketnotifier.cpp \
-		  kernel/qsound.cpp \
 		  kernel/qstylesheet.cpp \
 		  kernel/qtimer.cpp \
 		  kernel/qurl.cpp \
@@ -404,7 +396,6 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  widgets/qcheckbox.cpp \
 		  widgets/qcombobox.cpp \
 		  widgets/qcommonstyle.cpp \
-	        	  widgets/qdial.cpp \
 		  widgets/qframe.cpp \
 		  widgets/qgrid.cpp \
 		  widgets/qgroupbox.cpp \
