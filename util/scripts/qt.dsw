@@ -3,6 +3,28 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
+Project: "TstCon"=C:\samples\VC98\mfc\ole\tstcon\tstcon.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    tstcon
+    c:\samples\vc98\mfc\ole\tstcon
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name wrapperax
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name menusax
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "aclock"=.\examples\aclock\aclock.dsp - Package Owner=<4>
 
 Package=<5>
@@ -20,6 +42,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name qtmain
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name uic
     End Project Dependency
 }}}
 
@@ -260,6 +285,25 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name qtmt
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qaxcontainer
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "client"=.\examples\network\clientserver\client\client.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    client
+    .\examples\network\clientserver\client
+    end source code control
+}}}
+
+Package=<4>
+{{{
 }}}
 
 ###############################################################################
@@ -522,9 +566,6 @@ Package=<4>
     Project_Dep_Name qactivexlib
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name qassistantclient
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name qui
     End Project Dependency
     Begin Project Dependency
@@ -535,6 +576,12 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name qsqlpsql
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qmotifstyle
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qassistantclient
     End Project Dependency
 }}}
 
@@ -735,6 +782,28 @@ Package=<4>
 
 ###############################################################################
 
+Project: "extension"=.\examples\extension\extension.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    extension
+    .\examples\extension
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name qtmain
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qtmt
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "filechooser"=.\tools\designer\examples\filechooser\plugin\filechooser.dsp - Package Owner=<4>
 
 Package=<5>
@@ -893,6 +962,22 @@ Package=<4>
 
 ###############################################################################
 
+Project: "httpd"=.\examples\network\httpd\httpd.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    httpd
+    .\examples\network\httpd
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "i18n"=.\examples\i18n\i18n.dsp - Package Owner=<4>
 
 Package=<5>
@@ -949,31 +1034,6 @@ Package=<5>
 
 Package=<4>
 {{{
-}}}
-
-###############################################################################
-
-Project: "install"=.\util\install\win\install.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-    begin source code control
-    install
-    .\util\install\win
-    end source code control
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name qtmain
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name qtmt
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name uic
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1154,6 +1214,28 @@ Package=<4>
 
 ###############################################################################
 
+Project: "mail"=.\examples\network\mail\mail.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    mail
+    .\examples\network\mail
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name qtmain
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qtmt
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "mdi"=.\examples\mdi\mdi.dsp - Package Owner=<4>
 
 Package=<5>
@@ -1236,22 +1318,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "mostlywin32"=.\tests\mfc_win32\mostlywin32\mostlywin32.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-    begin source code control
-    mostlywin32
-    .\tests\mfc_win32\mostlywin32
-    end source code control
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
 Project: "movies"=.\examples\movies\movies.dsp - Package Owner=<4>
 
 Package=<5>
@@ -1321,20 +1387,42 @@ Package=<4>
 
 ###############################################################################
 
-Project: "ntservice"=.\tests\ntservice\ntservice.dsp - Package Owner=<4>
+Project: "npgrapher"=.\extensions\nsplugin\examples\grapher\npgrapher.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
     begin source code control
-    ntservice
-    .\tests\ntservice
+    npgrapher
+    .\extensions\nsplugin\examples\grapher
     end source code control
 }}}
 
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name qtmain
+    Project_Dep_Name qnp
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qtmt
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "nptrivial"=.\extensions\nsplugin\examples\trivial\nptrivial.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    nptrivial
+    .\extensions\nsplugin\examples\trivial
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name qnp
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name qtmt
@@ -1686,6 +1774,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name qtmt
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qsgistyle
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1844,6 +1935,38 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name qtmt
     End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "qmotifstyle"=.\plugins\src\styles\motif\qmotifstyle.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    qmotifstyle
+    .
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "qnp"=.\extensions\nsplugin\src\qnp.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    qnp
+    .
+    end source code control
+}}}
+
+Package=<4>
+{{{
 }}}
 
 ###############################################################################
@@ -2281,6 +2404,28 @@ Package=<4>
 
 ###############################################################################
 
+Project: "semaphores"=.\examples\thread\semaphores\semaphores.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    semaphores
+    .\examples\thread\semaphores
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name qtmain
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qtmt
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "settings"=.\tests\qsettings\qsettings_win\settings.dsp - Package Owner=<4>
 
 Package=<5>
@@ -2369,6 +2514,28 @@ Package=<4>
 
 ###############################################################################
 
+Project: "smalltable"=".\examples\table\small-table-demo\smalltable.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    smalltable
+    .\examples\table\small-table-demo
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name qtmain
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qtmt
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "sound"=.\examples\sound\sound.dsp - Package Owner=<4>
 
 Package=<5>
@@ -2420,6 +2587,28 @@ Package=<5>
     begin source code control
     sqltable
     .\examples\sql\sqltable
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name qtmain
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qtmt
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "statistics"=.\examples\table\statistics\statistics.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    statistics
+    .\examples\table\statistics
     end source code control
 }}}
 
