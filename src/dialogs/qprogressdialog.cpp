@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#40 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#41 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -82,6 +82,9 @@ struct QProgressData
   A progress dialog is used to give the user an indication of how long an
   operation is going to take to perform, and to reassure them that the
   application has not frozen.
+
+  QProgressDialog contains a label, a progress bar and a cancellation
+  button.
 
   A potential problem with progress dialogs is that it is difficult to know
   when to use them, as operations take different amounts of time on different
@@ -580,4 +583,15 @@ void QProgressDialog::setMinimumDuration( int ms )
 int QProgressDialog::minimumDuration() const
 {
     return d->showTime;
+}
+
+
+/*!
+  \reimp
+*/
+
+void QProgressDialog::closeEvent( QCloseEvent *e )
+{
+    emit cancelled();
+    QSemiModal::closeEvent( e );
 }
