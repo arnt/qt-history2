@@ -43,6 +43,17 @@ public:
     void init(const QString &label, QInputDialog::Type type);
 };
 
+
+class QInputDialogPrivateStackedLayout : public QStackedLayout
+{
+public:
+    QSize sizeHint() const {
+        if (QWidget *w = currentWidget())
+            return w->sizeHint();
+        return QStackedLayout::sizeHint();
+    }
+};
+
 #define d d_func()
 #define q q_func()
 
@@ -66,7 +77,7 @@ void QInputDialogPrivate::init(const QString &lbl, QInputDialog::Type type)
     vbox->addWidget(label);
     vbox->addStretch(1);
 
-    stack = new QStackedLayout;
+    stack = new QInputDialogPrivateStackedLayout;
     vbox->addLayout(stack);
     lineEdit = new QLineEdit(q);
     stack->addWidget(lineEdit);

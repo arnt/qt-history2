@@ -1444,6 +1444,10 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
      \value SH_ToolBar_IconSize The default icon size for the icons in a toolbar.
 
+     \value SH_FocusFrame_NeedBitMask Whether the focus frame needs a
+     bit mask. If it does, the frame will draw it using
+     drawControlMask() with CE_FocusFrame.
+
      \omitvalue SH_UnderlineAccelerator
 
     \sa styleHint()

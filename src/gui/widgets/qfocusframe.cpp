@@ -55,21 +55,16 @@ void QFocusFramePrivate::updateSize()
                widget->width()+(hmargin*2), widget->height()+(vmargin*2));
     if(geom != q->geometry()) {
         q->setGeometry(geom);
-        updateMask();
+        QStyleOption opt = getStyleOption();
+        if (q->style()->styleHint(QStyle::SH_FocusFrame_NeedBitMask, &opt, q, 0)) {
+            QBitmap bm(q->size());
+            bm.fill(Qt::color0);
+            QStylePainter p(&bm, q);
+            p.drawControlMask(QStyle::CE_FocusFrame, opt);
+            p.end();
+            q->setMask(bm);
+        }
     }
-}
-
-void QFocusFramePrivate::updateMask()
-{
-    Q_Q(QFocusFrame);
-    QBitmap bm(q->size());
-    bm.fill(Qt::color0);
-
-    QStylePainter p(&bm, q);
-    p.drawControlMask(QStyle::CE_FocusFrame, getStyleOption());
-    p.end();
-
-    q->setMask(bm);
 }
 
 QStyleOption QFocusFramePrivate::getStyleOption() const
@@ -132,13 +127,6 @@ QFocusFrame::paintEvent(QPaintEvent *)
     p.drawControl(QStyle::CE_FocusFrame, d->getStyleOption());
 }
 
-/*! \reimp */
-void
-QFocusFrame::resizeEvent(QResizeEvent *)
-{
-    Q_D(QFocusFrame);
-    d->updateMask();
-}
 
 /*! \reimp */
 bool

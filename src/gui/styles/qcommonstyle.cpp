@@ -834,9 +834,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
     case PE_IndicatorSpinDown: {
         QRect r = opt->rect;
         int fw = pixelMetric(PM_DefaultFrameWidth, opt, widget);
-        QRect br;
-        br.setRect(r.x() + fw, r.y() + fw, r.width() - fw*2,
-                   r.height() - fw*2);
+        QRect br = r.adjusted(fw, fw, -fw, -fw);
         p->fillRect(br, opt->palette.brush(QPalette::Button));
         int x = r.x(), y = r.y(), w = r.width(), h = r.height();
         int sw = w-4;
@@ -1527,6 +1525,9 @@ void QCommonStyle::drawControlMask(ControlElement ce, const QStyleOption *opt, Q
         }
         break;
     case CE_FocusFrame: {
+        // only called if SH_FocusFrame_NeedBitMask returns true (the
+        // default is 0). It's cheaper to mask the frame with a
+        // region.
         p->save();
         p->setPen(Qt::NoPen);
         int vmargin = pixelMetric(QStyle::PM_FocusFrameVMargin),
@@ -1905,14 +1906,18 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             QStyleOptionSpinBox copy = *sb;
             PrimitiveElement pe;
 
-            if (sb->subControls & SC_SpinBoxFrame)
-                qDrawWinPanel(p, sb->rect, sb->palette, true); //cstyle == Sunken);
+            if (sb->subControls & SC_SpinBoxFrame) {
+                QRect r = visualRect(opt->direction, opt->rect,
+                                     subControlRect(CC_SpinBox, sb, SC_SpinBoxFrame, widget));
+                qDrawWinPanel(p, r, sb->palette, true); //cstyle == Sunken);
+            }
 
             if (sb->subControls & SC_SpinBoxUp) {
                 copy.subControls = SC_SpinBoxUp;
                 QPalette pal2 = sb->palette;
                 if (!(sb->stepEnabled & QAbstractSpinBox::StepUpEnabled)) {
                     pal2.setCurrentColorGroup(QPalette::Disabled);
+                    copy.state &= ~State_Enabled;
                 }
 
                 copy.palette = pal2;
@@ -1927,7 +1932,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                                        : PE_IndicatorSpinUp);
 
                 copy.rect = visualRect(opt->direction, opt->rect,
-                                       subControlRect(CC_SpinBox, &copy, SC_SpinBoxUp,
+                                       subControlRect(CC_SpinBox, sb, SC_SpinBoxUp,
                                                               widget));
                 drawPrimitive(PE_PanelButtonBevel, &copy, p, widget);
                 drawPrimitive(pe, &copy, p, widget);
@@ -1939,6 +1944,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 QPalette pal2 = sb->palette;
                 if (!(sb->stepEnabled & QAbstractSpinBox::StepDownEnabled)) {
                     pal2.setCurrentColorGroup(QPalette::Disabled);
+                    copy.state &= ~State_Enabled;
                 }
                 copy.palette = pal2;
 
@@ -1951,9 +1957,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 pe = (sb->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_IndicatorSpinMinus
                                                                        : PE_IndicatorSpinDown);
 
-                copy.rect = sb->rect;
                 copy.rect = visualRect(opt->direction, opt->rect,
-                                       subControlRect(CC_SpinBox, &copy, SC_SpinBoxDown,
+                                       subControlRect(CC_SpinBox, sb, SC_SpinBoxDown,
                                                               widget));
                 drawPrimitive(PE_PanelButtonBevel, &copy, p, widget);
                 drawPrimitive(pe, &copy, p, widget);
@@ -1962,9 +1967,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if (sb->subControls & CE_SpinBoxSlider) {
                 copy.state = sb->state;
                 copy.subControls = SC_SpinBoxSlider;
-                copy.rect = sb->rect;
                 copy.rect = visualRect(opt->direction, opt->rect,
-                                       subControlRect(CC_SpinBox, &copy, SC_SpinBoxSlider,
+                                       subControlRect(CC_SpinBox, sb, SC_SpinBoxSlider,
                                        widget));
                 drawControl(CE_SpinBoxSlider, &copy, p, widget);
             }

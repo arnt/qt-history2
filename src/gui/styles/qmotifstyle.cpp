@@ -386,6 +386,10 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         p->drawPolygon(a);
         break; }
 
+    case PE_IndicatorSpinUp:
+    case PE_IndicatorSpinPlus:
+    case PE_IndicatorSpinDown:
+    case PE_IndicatorSpinMinus:
     case PE_IndicatorArrowUp:
     case PE_IndicatorArrowDown:
     case PE_IndicatorArrowRight:
@@ -395,6 +399,10 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         QPolygon bTop;
         QPolygon bBot;
         QPolygon bLeft;
+        if (pe == PE_IndicatorSpinPlus || pe == PE_IndicatorSpinUp)
+            pe = PE_IndicatorArrowUp;
+        else if (pe == PE_IndicatorSpinMinus || pe == PE_IndicatorSpinDown)
+            pe = PE_IndicatorArrowDown;
         bool vertical = pe == PE_IndicatorArrowUp || pe == PE_IndicatorArrowDown;
         bool horizontal = !vertical;
         int dim = rect.width() < rect.height() ? rect.width() : rect.height();
@@ -544,84 +552,6 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
 #undef CLEFT
 #undef CTOP
 #undef CBOT
-        break; }
-
-    case PE_IndicatorSpinPlus:
-    case PE_IndicatorSpinMinus: {
-        p->save();
-        int fw = pixelMetric(PM_DefaultFrameWidth);
-        QRect br;
-        br.setRect(opt->rect.x() + fw, opt->rect.y() + fw, opt->rect.width() - fw*2,
-                   opt->rect.height() - fw*2);
-
-        if (opt->state & State_Sunken)
-            p->fillRect(opt->rect, opt->palette.brush(QPalette::Dark));
-        else
-            p->fillRect(opt->rect, opt->palette.brush(QPalette::Button));
-
-        p->setPen(opt->palette.buttonText().color());
-        p->setBrush(opt->palette.buttonText());
-
-        int length;
-        int x = opt->rect.x(), y = opt->rect.y(), w = opt->rect.width(), h = opt->rect.height();
-        if (w <= 8 || h <= 6)
-            length = qMin(w-2, h-2);
-        else
-            length = qMin(2*w / 3, 2*h / 3);
-
-        if (!(length & 1))
-            length -=1;
-        int xmarg = (w - length) / 2;
-        int ymarg = (h - length) / 2;
-
-        p->drawLine(x + xmarg, (y + h / 2 - 1),
-                    x + xmarg + length - 1, (y + h / 2 - 1));
-        if (pe == PE_IndicatorSpinPlus)
-            p->drawLine((x+w / 2) - 1, y + ymarg,
-                        (x+w / 2) - 1, y + ymarg + length - 1);
-        p->restore();
-        break; }
-
-    case PE_IndicatorSpinUp:
-    case PE_IndicatorSpinDown: {
-        p->save();
-        int fw = pixelMetric(PM_DefaultFrameWidth);
-        QRect br;
-        br.setRect(opt->rect.x() + fw, opt->rect.y() + fw, opt->rect.width() - fw*2,
-                   opt->rect.height() - fw*2);
-        if (opt->state & State_Sunken)
-            p->fillRect(br, opt->palette.brush(QPalette::Mid));
-        else
-            p->fillRect(br, opt->palette.brush(QPalette::Button));
-
-        int x = opt->rect.x(), y = opt->rect.y(), w = opt->rect.width(), h = opt->rect.height();
-        int sw = w-4;
-        if (sw < 3)
-            return;
-        else if (!(sw & 1))
-            sw--;
-        sw -= (sw / 7) * 2;        // Empty border
-        int sh = sw/2 + 2;      // Must have empty row at foot of arrow
-
-        int sx = x + w / 2 - sw / 2 - 1;
-        int sy = y + h / 2 - sh / 2 - 1;
-
-        QPolygon a;
-        if (pe == PE_IndicatorSpinDown)
-            a.setPoints(3,  0, 1,  sw-1, 1,  sh-2, sh-1);
-        else
-            a.setPoints(3,  0, sh-1,  sw-1, sh-1,  sh-2, 1);
-        int bsx = 0;
-        int bsy = 0;
-        if (opt->state & State_Sunken) {
-            bsx = pixelMetric(PM_ButtonShiftHorizontal);
-            bsy = pixelMetric(PM_ButtonShiftVertical);
-        }
-        p->translate(sx + bsx, sy + bsy);
-        p->setPen(opt->palette.buttonText().color());
-        p->setBrush(opt->palette.buttonText());
-        p->drawPolygon(a);
-        p->restore();
         break; }
 
     case PE_IndicatorDockWindowResizeHandle: {
@@ -1241,20 +1171,86 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
             drawControl(CE_ToolButtonLabel, toolbutton, p, widget);
         }
         break;
-    case CC_SpinBox: {
-        if (opt->subControls & SC_SpinBoxFrame)
-            qDrawShadePanel(p, opt->rect, opt->palette, true, pixelMetric(PM_DefaultFrameWidth));
+    case CC_SpinBox:
+        if (const QStyleOptionSpinBox *sb = qt_cast<const QStyleOptionSpinBox *>(opt)) {
+            QStyleOptionSpinBox copy = *sb;
+            PrimitiveElement pe;
 
-        if (opt->subControls & SC_SpinBoxUp || opt->subControls & SC_SpinBoxDown) {
-            QStyleOptionComplex boxOpt = *opt;
-            boxOpt.subControls = SC_None;
-            if (opt->subControls & SC_SpinBoxUp)
-                boxOpt.subControls |= SC_SpinBoxUp;
-            if (opt->subControls & SC_SpinBoxDown)
-                boxOpt.subControls |= SC_SpinBoxDown;
-            QCommonStyle::drawComplexControl(cc, &boxOpt, p, widget);
+            if (sb->subControls & SC_SpinBoxFrame) {
+                QRect r = visualRect(opt->direction, opt->rect,
+                                     subControlRect(CC_SpinBox, sb, SC_SpinBoxFrame, widget));
+                qDrawShadePanel(p, r, opt->palette, false, pixelMetric(PM_SpinBoxFrameWidth));
+            }
+
+            if (sb->subControls & SC_SpinBoxEditField) {
+                int fw = pixelMetric(QStyle::PM_SpinBoxFrameWidth);
+                QRect r = visualRect(opt->direction, opt->rect,
+                                     subControlRect(CC_SpinBox, sb, SC_SpinBoxEditField, widget)).adjusted(-fw,-fw,fw,fw);
+                qDrawShadePanel(p, r, opt->palette, true, fw);
+            }
+
+            if (sb->subControls & SC_SpinBoxUp) {
+                copy.subControls = SC_SpinBoxUp;
+                QPalette pal2 = sb->palette;
+                if (!(sb->stepEnabled & QAbstractSpinBox::StepUpEnabled)) {
+                    pal2.setCurrentColorGroup(QPalette::Disabled);
+                    copy.state &= ~State_Enabled;
+                }
+
+                copy.palette = pal2;
+
+                if (sb->activeSubControls == SC_SpinBoxUp) {
+                    copy.state |= State_On;
+                    copy.state |= State_Sunken;
+                    copy.state |= State_Down;
+                } else {
+                    copy.state |= State_Raised;
+                }
+                pe = (sb->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_IndicatorSpinPlus
+                                                                       : PE_IndicatorSpinUp);
+
+                copy.rect = visualRect(opt->direction, opt->rect,
+                                       subControlRect(CC_SpinBox, sb, SC_SpinBoxUp,
+                                                              widget));
+                drawPrimitive(pe, &copy, p, widget);
+            }
+
+            if (sb->subControls & SC_SpinBoxDown) {
+                copy.subControls = SC_SpinBoxDown;
+                copy.state = sb->state;
+                QPalette pal2 = sb->palette;
+                if (!(sb->stepEnabled & QAbstractSpinBox::StepDownEnabled)) {
+                    pal2.setCurrentColorGroup(QPalette::Disabled);
+                    copy.state &= ~State_Enabled;
+                }
+                copy.palette = pal2;
+
+                if (sb->activeSubControls == SC_SpinBoxDown) {
+                    copy.state |= State_On;
+                    copy.state |= State_Sunken;
+                    copy.state |= State_Down;
+                } else {
+                    copy.state |= State_Raised;
+                }
+                pe = (sb->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_IndicatorSpinMinus
+                                                                       : PE_IndicatorSpinDown);
+
+                copy.rect = visualRect(opt->direction, opt->rect,
+                                       subControlRect(CC_SpinBox, sb, SC_SpinBoxDown,
+                                                              widget));
+                drawPrimitive(pe, &copy, p, widget);
+            }
+
+            if (sb->subControls & CE_SpinBoxSlider) {
+                copy.state = sb->state;
+                copy.subControls = SC_SpinBoxSlider;
+                copy.rect = visualRect(opt->direction, opt->rect,
+                                       subControlRect(CC_SpinBox, sb, SC_SpinBoxSlider,
+                                       widget));
+                drawControl(CE_SpinBoxSlider, &copy, p, widget);
+            }
         }
-        break; }
+        break;
 
     case CC_Slider:
         if (const QStyleOptionSlider *slider = qt_cast<const QStyleOptionSlider *>(opt)) {
@@ -1552,16 +1548,15 @@ QMotifStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
     case CC_SpinBox: {
         int fw = pixelMetric(PM_SpinBoxFrameWidth, opt, widget);
         QSize bs;
-        bs.setHeight(opt->rect.height()/2);
-        if (bs.height() < 8)
-            bs.setHeight(8);
+        bs.setHeight(opt->rect.height()/2 - fw);
         bs.setWidth(qMin(bs.height() * 8 / 5, opt->rect.width() / 4)); // 1.6 -approximate golden mean
         bs = bs.expandedTo(QApplication::globalStrut());
-        int y = 0;
+        int y = fw;
         int x, lx, rx;
         x = opt->rect.width() - y - bs.width();
         lx = fw;
         rx = x - fw * 2;
+        const int margin = 4;
         switch (sc) {
         case SC_SpinBoxUp:
             return QRect(x, y, bs.width(), bs.height());
@@ -1570,10 +1565,9 @@ QMotifStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
         case SC_SpinBoxButtonField:
             return QRect(x, y, bs.width(), opt->rect.height() - 2*fw);
         case SC_SpinBoxEditField:
-            return QRect(lx, fw, rx, opt->rect.height() - 2*fw);
+            return QRect(lx + margin, fw + margin, rx - margin, opt->rect.height() - 2*fw - 2 * margin);
         case SC_SpinBoxFrame:
-            return QRect(0, 0,
-                         opt->rect.width() - bs.width(), opt->rect.height());
+            return opt->rect;
         default:
             break;
         }
@@ -2341,6 +2335,18 @@ QMotifStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWidget *w
 
     case SH_MessageBox_UseBorderForButtonSpacing:
         ret = 1;
+        break;
+
+    case SH_FocusFrame_NeedBitMask:
+        ret = 1;
+        if (widget) {
+            ret = 0;
+            QRegion reg = widget->rect();
+            int vmargin = pixelMetric(QStyle::PM_FocusFrameVMargin),
+                hmargin = pixelMetric(QStyle::PM_FocusFrameHMargin);
+            reg -= QRect(widget->rect().adjusted(hmargin, vmargin, -hmargin, -vmargin));
+            const_cast<QWidget*>(widget)->setMask(reg);
+        }
         break;
 
     default:

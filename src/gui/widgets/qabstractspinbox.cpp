@@ -1183,7 +1183,7 @@ QStyleOptionSpinBox QAbstractSpinBoxPrivate::styleOption() const
     opt.init(q);
     opt.activeSubControls = 0;
     opt.buttonSymbols = buttonsymbols;
-    opt.subControls = QStyle::SC_SpinBoxUp | QStyle::SC_SpinBoxDown;
+    opt.subControls = QStyle::SC_SpinBoxUp | QStyle::SC_SpinBoxDown | QStyle::SC_SpinBoxEditField;
     if (slider)
         opt.subControls |= QStyle::SC_SpinBoxSlider;
 

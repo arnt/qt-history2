@@ -512,6 +512,7 @@ public:
         SH_TitleBar_AutoRaise,
         SH_ToolButton_PopupDelay,
         SH_ToolBar_IconSize,
+        SH_FocusFrame_NeedBitMask,
         // Add new style hint values here
 
 #ifdef QT_COMPAT
