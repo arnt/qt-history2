@@ -12,7 +12,7 @@
 
 
 void error( const QString &msg = QString::null );
-void printFunction( 
+void printFunction(
 	const QString &className, const QString &fn, const QDomDocument & ui );
 
 
@@ -23,7 +23,7 @@ int main( int argc, char **argv )
     QString fn( argv[2] );
 
     QFile uiFile( argv[1] );
-    if ( ! uiFile.open( IO_ReadOnly ) ) 
+    if ( ! uiFile.open( IO_ReadOnly ) )
 	error( QString( "failed to open " ) + argv[1] );
 
     QDomDocument ui( "uifile" );
@@ -48,7 +48,7 @@ int main( int argc, char **argv )
 }
 
 
-void printFunction( 
+void printFunction(
 	const QString &className, const QString &fn, const QDomDocument & ui )
 {
     QRegExp re( "^" + fn + "\\(" );
@@ -59,16 +59,19 @@ void printFunction(
     for ( uint i = 0; i < list.length(); ++i ) {
 	QDomNode node = list.item( i );
 
+	QString tmpRet;
 	QString temp = node.toElement().attribute( "returnType" );
-	if ( ! temp.isNull() ) returnType = temp;
+	if ( ! temp.isNull() ) tmpRet = temp;
 
 	QDomCharacterData nameData = node.firstChild().toCharacterData();
 	temp = nameData.data();
 	if ( re.search( temp ) > -1 ) {
 	    if ( temp.length() > fnName.length() ) fnName = temp;
+	    returnType = tmpRet;
 	}
     }
     if ( returnType.isNull() ) returnType = "void";
+    if ( fnName.isNull() ) error( QString( "function not found: " ) + fn );
     cout << returnType << " " << className << "::" << fnName << "\n";
 
     QString lines;

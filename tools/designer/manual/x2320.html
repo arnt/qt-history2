@@ -148,7 +148,7 @@ WIDTH="100%"
 ><TD
 ><PRE
 CLASS="PROGRAMLISTING"
->int EditorForm::fileNew()
+>void EditorForm::fileNew()
 {
     if ( saveAndContinue( &quot;New&quot; ) )
             textEdit-&gt;clear();
@@ -412,7 +412,7 @@ WIDTH="100%"
 ><TD
 ><PRE
 CLASS="PROGRAMLISTING"
->int EditorForm::changeAlignment( <I
+>void EditorForm::changeAlignment( <I
 CLASS="EMPHASIS"
 >QAction</I
 > * align )
