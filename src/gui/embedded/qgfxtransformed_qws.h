@@ -14,7 +14,7 @@
 #ifndef QGFXTRANSFORMED_QWS_H
 #define QGFXTRANSFORMED_QWS_H
 
-#include "qgfx_qws.h"
+#include "qscreen_qws.h"
 
 #ifndef QT_NO_QWS_TRANSFORMED
 

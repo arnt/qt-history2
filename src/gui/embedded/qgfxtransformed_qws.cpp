@@ -60,11 +60,11 @@ void QTransformedScreen::setTransformation(Transformation t)
 
 bool QTransformedScreen::connect(const QString &displaySpec)
 {
-    if (displaySpec.find(":Rot270") >= 0)
+    if (displaySpec.contains(":Rot270"))
         trans = Rot270;
-    else if (displaySpec.find(":Rot180") >= 0)
+    else if (displaySpec.contains(":Rot180"))
         trans = Rot180;
-    else if (displaySpec.find(":Rot90") >= 0)
+    else if (displaySpec.contains(":Rot90"))
         trans = Rot90;
 
     bool result = QT_TRANS_SCREEN_BASE::connect(displaySpec);
@@ -837,28 +837,8 @@ void QGfxTransformedRaster<depth,type>::tiledBlt(int rx,int ry,int w,int h)
     r.setCoords(tx(rx,ry), ty(rx,ry), tx(rx+w-1,ry+h-1), ty(rx+w-1,ry+h-1));
     r = r.normalize();
 
-    QPoint oldBrushOffs = brushoffs;
-    int brx, bry;
-    switch (qt_trans_screen->transformation()) {
-        case QTransformedScreen::Rot90:
-            brx = brushoffs.y();
-            bry = srcwidth - brushoffs.x() - w;
-            break;
-        case QTransformedScreen::Rot180:
-            brx = srcwidth - brushoffs.x() - w;
-            bry = srcheight - brushoffs.y() - h;
-            break;
-        case QTransformedScreen::Rot270:
-            brx = srcheight - brushoffs.y() - h;
-            bry = brushoffs.x();
-            break;
-        default:
-            brx = brushoffs.x();
-            bry = brushoffs.y();
-            break;
-    }
-    brushoffs = QPoint(brx, bry);
-
+    QPoint oldBrushOrig = brushorig;
+    brushorig = qt_screen->mapToDevice(brushorig, QSize(qt_screen->width(),qt_screen->height()));
     int oldsw = srcwidth;
     int oldsh = srcheight;
     QSize s = qt_screen->mapToDevice(QSize(srcwidth,srcheight));
@@ -869,7 +849,7 @@ void QGfxTransformedRaster<depth,type>::tiledBlt(int rx,int ry,int w,int h)
 
     srcwidth = oldsw;
     srcheight = oldsh;
-    brushoffs = oldBrushOffs;
+    brushorig = oldBrushOrig;
     inDraw = false;
 }
 
