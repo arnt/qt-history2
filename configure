@@ -1095,7 +1095,7 @@ QMAKE_VARS="$QMAKE_VARS \"QMAKE_MOC=$outpath/bin/moc\""
 QMAKE_VARS="$QMAKE_VARS \"QMAKE_UIC=$outpath/bin/uic -L \$\$QT_BUILD_TREE/plugins\""
 QMAKE_VARS="$QMAKE_VARS \"QMAKE_QMAKE=$outpath/bin/qmake\""
 # hacky src line
-QMAKE_VARS="$QMAKE_VARS \"QMAKE_MOC_SRC=$relpath/src/moc\""
+QMAKE_VARS="$QMAKE_VARS \"QMAKE_MOC_SRC=$outpath/src/moc\""
 
 # find out which awk we want to use, prefer gawk, then nawk, then regular awk
 AWK=
