@@ -94,7 +94,11 @@ static const uchar magic[magic_length] = { // magic number for the file
 
 static bool match( const char* found, const char* target )
 {
-    return found[0] == '\0' || qstrcmp(found, target) == 0;
+    /*
+      Here arises the subtle distinction between a null string (means
+      "any") and an empty string (means empty).
+    */
+    return found == 0 || qstrcmp(found, target) == 0;
 }
 
 #if defined(Q_C_CALLBACKS)
@@ -980,12 +984,12 @@ QValueList<QTranslatorMessage> QTranslator::messages() const
   \sa QTranslator
 */
 
-/*!  Constructs a translator message with extended key ( 0, "", "", "" ) and
+/*!  Constructs a translator message with extended key ( 0, 0, 0, 0 ) and
   QString::null as translation.
 */
 
 QTranslatorMessage::QTranslatorMessage()
-    : h( 0 ), cx( "" ), st( "" ), cm( "" )
+    : h( 0 ), cx( 0 ), st( 0 ), cm( 0 )
 {
 }
 
@@ -1001,6 +1005,15 @@ QTranslatorMessage::QTranslatorMessage( const char * context,
 					const QString& translation )
     : cx( context ), st( sourceText ), cm( comment ), tn( translation )
 {
+    /*
+      0 means we don't know, "" means we know it's empty.
+    */
+    if ( cx == 0 )
+	cx = "";
+    if ( st == 0 )
+	st = "";
+    if ( cm == 0 )
+	cm = "";
     h = elfHash( st + cm );
 }
 
@@ -1012,7 +1025,7 @@ QTranslatorMessage::QTranslatorMessage( const char * context,
  */
 
 QTranslatorMessage::QTranslatorMessage( QDataStream & stream )
-    : cx( "" ), st( "" ), cm( "" )
+    : cx( 0 ), st( 0 ), cm( 0 )
 {
     QString str16;
     char tag;
@@ -1046,6 +1059,8 @@ QTranslatorMessage::QTranslatorMessage( QDataStream & stream )
 	    break;
 	case Tag_Context:
 	    stream >> cx;
+	    if ( cx == "" ) // for compatibility
+		cx = 0;
 	    break;
 	case Tag_Comment:
 	    stream >> cm;
@@ -1055,7 +1070,9 @@ QTranslatorMessage::QTranslatorMessage( QDataStream & stream )
 	    break;
 	default:
 	    h = 0;
-	    st = cx = cm = "";
+	    st = 0;
+	    cx = 0;
+	    cm = 0;
 	    tn = QString::null;
 	    return;
 	}
