@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#331 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#332 $
 **
 ** Implementation of QFileDialog class
 **
@@ -627,7 +627,7 @@ void QFileListBox::viewportMouseMoveEvent( QMouseEvent *e )
 	    connect( drag, SIGNAL( destroyed() ),
 		     this, SLOT( dragObjDestroyed() ) );
 	    drag->drag();
-	    
+	
 	    mousePressed = FALSE;
 	}
     }
@@ -3737,7 +3737,8 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 	     ecode == QNetworkProtocol::ErrValid ) {
 	    d->url = d->oldUrl;
 	    rereadDir();
-	}
+	} else
+	    ; // another error happened, no need to go back to last dir
     } else if ( op->operation() == QNetworkProtocol::OpListChildren ) {
 	if ( !d->hadDotDot && d->url.path() != "/" ) {
 	    QUrlInfo ui( d->url, ".." );
