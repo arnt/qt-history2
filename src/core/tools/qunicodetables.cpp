@@ -76,19 +76,46 @@ int QUnicodeTables::lower(uint ucs4)
     return ucs4;
 }
 
-QString QUnicodeTables::decomposition(uint ucs4)
+enum {
+    Hangul_SBase = 0xac00,
+    Hangul_LBase = 0x1100,
+    Hangul_VBase = 0x1161,
+    Hangul_TBase = 0x11a7,
+    Hangul_SCount = 11172,
+    Hangul_LCount = 19,
+    Hangul_VCount = 21,
+    Hangul_TCount = 28,
+    Hangul_NCount = 21*28
+};
+
+// buffer has to have a length of 3. It's needed for Hangul decomposition
+static const unsigned short * QT_FASTCALL decomposition(uint ucs4, int *length, int *tag, unsigned short *buffer)
 {
+    if (uc >= Hangul_SBase && uc < Hangul_SBase + Hangul_SCount) {
+        int SIndex = ucs4 - Hangul_SBase;
+        buffer[0] = Hangul_LBase + SIndex / Hangul_NCount; // L
+        buffer[1] = Hangul_VBase + (SIndex % Hangul_NCount) / Hangul_TCount; // V
+        buffer[2] = Hangul_TBase + SIndex % Hangul_TCount; // T
+        *length = buffer[2] == Hangul_TBase ? 2 : 3;
+        return buffer;
+    }
+
     const unsigned short index = GET_DECOMPOSITION_INDEX(ucs4);
     if (index == 0xffff)
-        return QString();
+        return 0;
     const unsigned short *decomposition = uc_decomposition_map+index;
-    uint length = (*decomposition) >> 8;
-    QString str;
-    str.resize(length);
-    QChar *c = str.data();
-    for (uint i = 0; i < length; ++i)
-        *(c++) = *(++decomposition);
-    return str;
+    *tag = (*decomposition) & 0xff;
+    *length = (*decomposition) >> 8;
+    return decomposition+1;
+}
+
+QString QUnicodeTables::decomposition(uint ucs4)
+{
+    unsigned short buffer[3];
+    int length;
+    int tag;
+    const unsigned short *d = ::decomposition(ucs4, &length, &tag, buffer);
+    return QString::fromUtf16(d, length);
 }
 
 QChar::Decomposition QUnicodeTables::decompositionTag(uint ucs4)
@@ -101,6 +128,22 @@ QChar::Decomposition QUnicodeTables::decompositionTag(uint ucs4)
 
 ushort QUnicodeTables::ligature(ushort u1, ushort u2)
 {
+    // hangul L-V pair
+    int LIndex = u1 - Hangul_LBase;
+    if (0 <= LIndex && LIndex < Hangul_LCount) {
+        int VIndex = u2 - Hangul_VBase;
+        if (0 <= VIndex && VIndex < Hangul_VCount)
+            return Hangul_SBase + (LIndex * Hangul_VCount + VIndex) * Hangul_TCount;
+    }
+
+    // hangul LV-T pair
+    int SIndex = u1 - Hangul_SBase;
+    if (0 <= SIndex && SIndex < Hangul_SCount && (SIndex % Hangul_TCount) == 0) {
+        int TIndex = u2 - Hangul_TBase;
+        if (0 <= TIndex && TIndex <= Hangul_TCount)
+            return u1 + TIndex;
+    }
+
     const unsigned short index = GET_LIGATURE_INDEX(u2);
     if (index == 0xffff)
         return 0;
@@ -114,8 +157,11 @@ ushort QUnicodeTables::ligature(ushort u1, ushort u2)
     return 0;
 }
 
+
 static QString decompose(const QString &str, bool canonical)
 {
+    unsigned short buffer[3];
+
     QString s = str;
 
     const unsigned short *utf16 = s.utf16();
@@ -129,15 +175,13 @@ static QString decompose(const QString &str, bool canonical)
                 ucs4 = (ucs4 - 0xd800)*0x400 + (low - 0xdc00) + 0x10000;
             }
         }
-        const unsigned short index = GET_DECOMPOSITION_INDEX(ucs4);
-        if (index == 0xffff)
-            continue;
-        const unsigned short *decomposition = uc_decomposition_map+index;
-        if (canonical && ((*decomposition) & 0xff) != QChar::Canonical)
+        int length;
+        int tag;
+        const unsigned short *d = decomposition(ucs4, &length, &tag, buffer);
+        if (!d || (canonical && tag != QChar::Canonical))
             continue;
 
-        uint length = (*decomposition) >> 8;
-        s.replace(uc - utf16, ucs4 > 0x10000 ? 2 : 1, (const QChar *)(decomposition+1), length);
+        s.replace(uc - utf16, ucs4 > 0x10000 ? 2 : 1, (const QChar *)d, length);
         // since the insert invalidates the pointers and we do decomposition recursive
         int pos = uc - utf16;
         utf16 = s.utf16();
