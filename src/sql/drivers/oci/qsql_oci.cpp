@@ -79,6 +79,9 @@ public:
     {
 	int r = 0;
 
+	if ( serverVersion < 9 )
+	    return;
+
 	r = OCIAttrSet( (void*)hbnd,
 			OCI_HTYPE_BIND,
 			(void*) &CSID_NCHAR,
@@ -774,17 +777,20 @@ public:
     }
     void setCharset( OCIDefine* dfn )
     {
-	int r = 0;
-	r = OCIAttrSet( (void*)dfn,
-			OCI_HTYPE_DEFINE,
-			(void*)&CSID_NCHAR,
-			(ub4)0,
-			(ub4)OCI_ATTR_CHARSET_FORM,
-			d->err );
+	if ( d->serverVersion > 8 ) {
+	    int r = 0;
+	    r = OCIAttrSet( (void*)dfn,
+			    OCI_HTYPE_DEFINE,
+			    (void*)&CSID_NCHAR,
+			    (ub4)0,
+			    (ub4)OCI_ATTR_CHARSET_FORM,
+			    d->err );
 #ifdef QT_CHECK_RANGE
-	if ( r != 0 )
-	    qWarning( "QOCIResultPrivate::setCharset: cannot switch to NCHAR: " + qOraWarn( d ) );
+	    if ( r != 0 )
+		qWarning( "QOCIResultPrivate::setCharset: cannot switch to NCHAR: " + qOraWarn( d ) );
 #endif
+	}
+
 	r = OCIAttrSet( (void*)dfn,
 			OCI_HTYPE_DEFINE,
 			(void*)&CSID_UTF8,
