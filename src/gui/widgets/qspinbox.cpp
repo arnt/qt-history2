@@ -72,18 +72,16 @@ public:
     values (such as \l{#monthexample}{month names}); use QDoubleSpinBox
     for floating point values.
 
-    QSpinBox allows the user to choose a value by clicking the
-    up/down buttons or pressing up/down on the keyboard to
-    increase/decrease the value currently displayed. The user can also
-    type the value in manually. If the value is entered directly into
-    the spin box, the value will be changed and valueChanged() will be
-    emitted with the new value when Enter/Return is pressed, when the
-    spin box looses focus or when the spin box is deactivated (see
-    QWidget::windowActivationChanged()) If tracking() is true the
-    value will be changed each time the value is changed in the
-    editor. The spin box supports integer values but can be extended
-    to use different strings with validate(), textFromValue() and
-    valueFromText().
+    QSpinBox allows the user to choose a value by clicking the up/down
+    buttons or pressing up/down on the keyboard to increase/decrease
+    the value currently displayed. The user can also type the value in
+    manually. If the value is entered directly into the spin box, the
+    value will be changed and valueChanged() will be emitted with the
+    new value when Enter/Return is pressed, when the spin box looses
+    focus or when the spin box is deactivated (see
+    QWidget::windowActivationChanged()). The spin box supports integer
+    values but can be extended to use different strings with
+    validate(), textFromValue() and valueFromText().
 
     Every time the value changes QSpinBox emits the valueChanged()
     signals. The current value can be fetched with value() and set
@@ -548,11 +546,9 @@ QValidator::State QSpinBox::validate(QString &text, int &pos) const
     into the spin box, the value will be changed and valueChanged()
     will be emitted with the new value when Enter or Return is
     pressed, when the spin box loses focus or when the spin box is
-    deactivated (see QWidget::windowActivationChanged()). If
-    tracking() is true the value will be changed each time the value
-    is changed in the editor. The spin box supports double values but
-    can be extended to use different strings with validate(),
-    textFromValue() and valueFromText().
+    deactivated (see QWidget::windowActivationChanged()). The spin box
+    supports double values but can be extended to use different
+    strings with validate(), textFromValue() and valueFromText().
 
     Every time the value changes QDoubleSpinBox emits the
     valueChanged() signal. The current value can be fetched with

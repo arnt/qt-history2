@@ -124,9 +124,7 @@ public:
     uint spindownenabled : 1;
     uint spinupenabled : 1;
     uint readonly : 1;
-    uint tracking : 1;
     uint wrapping : 1;
-    uint dragging : 1;
     uint ignorecursorpositionchanged : 1;
     uint frame : 1;
     QStyle::SubControl hoverControl;

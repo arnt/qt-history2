@@ -65,9 +65,6 @@
     \i \l wrapping: Whether the QAbstractSpinBox wraps from the
     minimum value to the maximum value and vica versa.
 
-    \i \l tracking: Whether the spinbox validates the text and emits
-    signals for each change in the input.
-
     \endlist
 
     QAbstractSpinBox provides a virtual stepBy() function that is
@@ -90,7 +87,7 @@
 
 /*!
     Constructs an abstract spinbox with the given \a parent with default
-    \l wrapping, \l tracking, and \l alignment properties.
+    \l wrapping, and \l alignment properties.
 */
 
 QAbstractSpinBox::QAbstractSpinBox(QWidget *parent)
@@ -181,44 +178,6 @@ QString QAbstractSpinBox::cleanText() const
     QString t = d->edit->displayText();
     d->strip(&t);
     return t;
-}
-
-
-/*!
-    \property QAbstractSpinBox::tracking
-
-    \brief whether valueChanged is emitted continuously while typing.
-
-    \code
-        QSpinBox *sb = new QSpinBox(this);
-        sb->setTracking(true);
-        // put the keyboard focus in the editor
-        // type 1
-
-        // valueChanged(1) is emitted
-
-        // type 2
-
-        // valueChanged(12) is emitted
-
-        // hit return
-
-        // valueChanged(12) is emitted again
-    \endcode
-
-    By default, tracking is turned off.
-
-    \sa QSpinBox::minimum(), QSpinBox::maximum()
-*/
-
-bool QAbstractSpinBox::tracking() const
-{
-    return d->tracking;
-}
-
-void QAbstractSpinBox::setTracking(bool t)
-{
-    d->tracking = t;
 }
 
 /*!
@@ -711,8 +670,8 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
 
 void QAbstractSpinBox::keyReleaseEvent(QKeyEvent *e)
 {
-    if (style()->styleHint(QStyle::SH_SpinBox_AnimateButton, 0, this)
-        && d->buttonstate & Keyboard && !e->isAutoRepeat()) {
+    if (d->buttonstate & Keyboard && !e->isAutoRepeat()
+        && style()->styleHint(QStyle::SH_SpinBox_AnimateButton, 0, this)) {
         d->resetState();
     } else {
         d->edit->event(e);
@@ -836,10 +795,6 @@ void QAbstractSpinBox::contextMenuEvent(QContextMenuEvent *e)
 
 void QAbstractSpinBox::mouseMoveEvent(QMouseEvent *e)
 {
-    if (e->buttons() & Qt::LeftButton) {
-        d->dragging = true;
-    }
-
     d->updateHoverControl(e->pos());
 
     // If we have a timer ID, update the state
@@ -881,7 +836,6 @@ void QAbstractSpinBox::mousePressEvent(QMouseEvent *e)
 */
 void QAbstractSpinBox::mouseReleaseEvent(QMouseEvent *)
 {
-    d->dragging = false;
     if ((d->buttonstate & Mouse) != 0)
         d->resetState();
 }
@@ -897,8 +851,8 @@ QAbstractSpinBoxPrivate::QAbstractSpinBoxPrivate()
     : edit(0), type(QVariant::Invalid), spinclicktimerid(-1),
       spinclicktimerinterval(100), buttonstate(None), sizehintdirty(true),
       dirty(true), cachedtext("\x01"), cachedstate(QValidator::Invalid),
-      pendingemit(false), readonly(false), tracking(false), wrapping(false),
-      dragging(false), ignorecursorpositionchanged(false), frame(true),
+      pendingemit(false), readonly(false), wrapping(false),
+      ignorecursorpositionchanged(false), frame(true),
       buttonsymbols(QAbstractSpinBox::UpDownArrows)
 {
 }
@@ -1003,28 +957,23 @@ void QAbstractSpinBoxPrivate::emitSignals(EmitPolicy, const QVariant &)
     \internal
 
     Slot connected to the line edit's textChanged(const QString &)
-    signal. Will interpret the text if tracking is true. Otherwise it
-    will set the pendingemit flag to true.
+    signal.
 */
 
 void QAbstractSpinBoxPrivate::editorTextChanged(const QString &t)
 {
-    if (tracking) {
-        QString tmp = t;
-        int pos = edit->cursorPosition();
-        QValidator::State state = q->validate(tmp, pos);
-        if (state == QValidator::Acceptable) {
-            const QVariant v = d->valueFromText(tmp);
-            if (tmp != t) {
-                const bool wasBlocked = edit->blockSignals(true);
-                edit->setText(prefix + tmp + suffix);
-                edit->blockSignals(wasBlocked);
-            }
-	    setValue(v, EmitIfChanged, false);
-            pendingemit = false;
-        } else {
-            pendingemit = true;
+    QString tmp = t;
+    int pos = edit->cursorPosition();
+    QValidator::State state = q->validate(tmp, pos);
+    if (state == QValidator::Acceptable) {
+        const QVariant v = d->valueFromText(tmp);
+        if (tmp != t) {
+            const bool wasBlocked = edit->blockSignals(true);
+            edit->setText(prefix + tmp + suffix);
+            edit->blockSignals(wasBlocked);
         }
+        setValue(v, EmitIfChanged, false);
+        pendingemit = false;
     } else {
         pendingemit = true;
     }
@@ -1042,7 +991,7 @@ void QAbstractSpinBoxPrivate::editorTextChanged(const QString &t)
 
 void QAbstractSpinBoxPrivate::editorCursorPositionChanged(int oldpos, int newpos)
 {
-    if (!ignorecursorpositionchanged && !specialValue() && !dragging) {
+    if (!d->edit->hasSelectedText() && !ignorecursorpositionchanged && !specialValue()) {
         ignorecursorpositionchanged = true;
 
         bool allowSelection = true;

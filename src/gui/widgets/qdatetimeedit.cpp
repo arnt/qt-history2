@@ -116,7 +116,6 @@ public:
     QDateTimeEdit::Sections display;
     mutable int cachedday;
     mutable Section currentsection;
-    Section oldcurrentsection;
     mutable QVariant cached;
     mutable QString cachedText;
 };
@@ -713,7 +712,7 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
 	const QDateTimeEditPrivate::Section closest = d->closestSection(pos - 1, false);
 	QDTEDEBUG << "found those two" << d->sectionName(s)<< d->sectionName(closest);
 	if (s == QDateTimeEditPrivate::LastSection
-		|| (s != QDateTimeEditPrivate::NoSection && pos == d->sectionPos(s))) {
+            || (s != QDateTimeEditPrivate::NoSection && pos == d->sectionPos(s))) {
 	    QString copy = d->edit->displayText();
 	    int cursorCopy = pos;
 	    if (validate(copy, cursorCopy) != QValidator::Acceptable) {
@@ -728,55 +727,61 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
 
     bool forward = true;
     switch((Qt::Key)e->key()) {
-	case Qt::Key_Enter:
-	case Qt::Key_Return:
-	    d->refresh(AlwaysEmit);
-	    d->setSelected(d->currentsection);
-	    return;
+    case Qt::Key_Enter:
+    case Qt::Key_Return:
+        d->refresh(AlwaysEmit);
+        d->setSelected(d->currentsection);
+        return;
 
-	case Qt::Key_Left:
-	    forward = false;
-	case Qt::Key_Right:
+    case Qt::Key_Left:
+        forward = false;
+    case Qt::Key_Right:
 #ifdef Q_WS_MAC
-	    if (e->modifiers() & Qt::ControlModifier) {
+        if ((e->modifiers() & Qt::ShiftModifier) || (e->modifiers() & Qt::ControlModifier))
+#else
+        if ((e->modifiers() & Qt::ShiftModifier) && !(e->modifiers() & Qt::ControlModifier))
+#endif
+        {
+            select = false;
+            break;
+        }
+        if (!(e->modifiers() & Qt::ControlModifier)) {
+            const int selsize = d->edit->selectedText().size();
+            if (selsize == 0 || selsize != d->sectionSize(d->currentsection)) {
                 select = false;
                 break;
             }
-#endif
-	    if (!(e->modifiers() & Qt::ControlModifier)) {
-		const int selsize = d->edit->selectedText().size();
-		if (selsize == 0 || selsize != d->sectionSize(d->currentsection))
-		    break;
-		select = false;
-	    }
-	case Qt::Key_Backtab:
-	case Qt::Key_Tab: {
-	    if (e->key() == Qt::Key_Backtab
-		|| (e->key() == Qt::Key_Tab && e->modifiers() & Qt::ShiftModifier)) {
-		forward = false;
-	    }
+        }
+    case Qt::Key_Backtab:
+    case Qt::Key_Tab: {
+        if (e->key() == Qt::Key_Backtab
+            || (e->key() == Qt::Key_Tab && e->modifiers() & Qt::ShiftModifier)) {
+            forward = false;
+        }
 
-	    if (QApplication::isRightToLeft())
-		forward = !forward;
-	    const QDateTimeEditPrivate::SectionNode newSection =
-		d->nextPrevSection(d->currentsection, forward);
-	    if (select) {
-		d->setSelected(newSection.section);
-	    } else {
-		d->edit->setCursorPosition(forward ? newSection.pos : d->sectionPos(d->currentsection));
-	    }
-	    if (!select)
-		d->edit->deselect();
-	    e->accept();
-	    return; }
-	default:
-	    select = !e->text().isEmpty() && e->text().at(0).isPrint();
-	    break;
+        if (QApplication::isRightToLeft()) {
+            forward = !forward;
+        }
+        const QDateTimeEditPrivate::SectionNode newSection =
+            d->nextPrevSection(d->currentsection, forward);
+        if (select) {
+            d->setSelected(newSection.section);
+        } else {
+            d->edit->setCursorPosition(forward ? newSection.pos : d->sectionPos(d->currentsection));
+        }
+        if (!select)
+            d->edit->deselect();
+        e->accept();
+        return; }
+    default:
+        select = !e->text().isEmpty() && e->text().at(0).isPrint();
+        break;
     }
 
     QAbstractSpinBox::keyPressEvent(e);
-    if (select && d->currentsection != oldCurrent)
+    if (select && d->currentsection != oldCurrent && !(e->modifiers() & Qt::ShiftButton) && !d->edit->hasSelectedText()) {
 	d->setSelected(d->currentsection);
+    }
 }
 
 /*!
@@ -1041,7 +1046,7 @@ QDateTimeEditPrivate::QDateTimeEditPrivate()
     type = QVariant::DateTime;
     display = (QDateTimeEdit::Sections)0;
     cachedday = -1;
-    currentsection = oldcurrentsection = NoSection;
+    currentsection = NoSection;
     first.section = FirstSection;
     first.pos = 0;
     last.section = LastSection;
@@ -1081,38 +1086,29 @@ void QDateTimeEditPrivate::emitSignals(EmitPolicy ep, const QVariant &old)
 
 void QDateTimeEditPrivate::editorCursorPositionChanged(int oldpos, int newpos)
 {
-    if (ignorecursorpositionchanged)
+    if (ignorecursorpositionchanged || d->edit->hasSelectedText())
         return;
     ignorecursorpositionchanged = true;
     Section s = sectionAt(newpos);
-    const Section old = oldcurrentsection;
-    oldcurrentsection = sectionAt(oldpos);
     int c = newpos;
 
-    if (!d->dragging) {
-        const int selstart = d->edit->selectionStart();
-        const Section selSection = sectionAt(selstart);
-        const int l = sectionSize(selSection);
+    const int selstart = d->edit->selectionStart();
+    const Section selSection = sectionAt(selstart);
+    const int l = sectionSize(selSection);
 
-        if (s == NoSection) {
-            if (l > 0 && selstart == sectionPos(selSection) && d->edit->selectedText().size() == l) {
-                s = selSection;
-                setSelected(selSection, true);
-                c = -1;
-            } else {
-                const SectionNode &sn = sectionNode(closestSection(newpos, oldpos < newpos));
-                c = sn.pos + (oldpos < newpos ? 0 : qMax<int>(0, sectionSize(sn.section) - 1));
-                edit->setCursorPosition(c);
-                s = sn.section;
-            }
+    if (s == NoSection) {
+        if (l > 0 && selstart == sectionPos(selSection) && d->edit->selectedText().size() == l) {
+            s = selSection;
+            setSelected(selSection, true);
+            c = -1;
+        } else {
+            const SectionNode &sn = sectionNode(closestSection(newpos, oldpos < newpos));
+            c = sn.pos + (oldpos < newpos ? 0 : qMax<int>(0, sectionSize(sn.section) - 1));
+            edit->setCursorPosition(c);
+            s = sn.section;
         }
     }
-    QDTEDEBUGN("oldpos %d newpos %d", oldpos, newpos);
-    QDTEDEBUGN("(%s)currentsection = %s (%s)oldcurrentsection = %s",
-          sectionName(currentsection).toLatin1().constData(),
-          sectionName(s).toLatin1().constData(),
-          sectionName(old).toLatin1().constData(),
-          sectionName(oldcurrentsection).toLatin1().constData());
+
     if (currentsection != s) {
         QString tmp = edit->displayText();
         int pos = d->edit->cursorPosition();
@@ -1676,6 +1672,7 @@ void QDateTimeEditPrivate::setSelected(Section s, bool forward)
     } else {
         edit->setSelection(d->sectionPos(s) + d->sectionSize(s), -d->sectionSize(s));
     }
+    currentsection = s;
 }
 
 /*!
