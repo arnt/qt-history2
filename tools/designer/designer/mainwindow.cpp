@@ -978,6 +978,7 @@ void MainWindow::setupPropertyEditor()
     dw->setWidget( propertyEditor );
     dw->setFixedExtendWidth( 300 );
     dw->setFixedExtendHeight( 600 );
+    dw->setCaption( tr( "Property Editor" ) );
     QWhatsThis::add( propertyEditor, tr("<b>The Property Editor</b>"
 					"<p>You can change the appearance and behaviour of the selected widget in the "
 					"property editor.</p>"
@@ -1003,8 +1004,8 @@ void MainWindow::setupHierarchyView()
     hierarchyView = new HierarchyView( dw );
     addToolBar( dw, Qt::Right );
     dw->setWidget( hierarchyView );
-    
-    hierarchyView->setCaption( tr( "Object Hierarchy" ) );
+
+    dw->setCaption( tr( "Object Hierarchy" ) );
     dw->setFixedExtendWidth( 300 );
     hvGeom = QRect( -1, -1, 300, 500 );
     QWhatsThis::add( hierarchyView, tr("<b>The Hierarchy View</b>"
@@ -1027,8 +1028,8 @@ void MainWindow::setupFormList()
     addToolBar( dw, Qt::Left );
     dw->setWidget( formList );
     dw->show();
-    
-    formList->setCaption( tr( "Forms" ) );
+
+    dw->setCaption( tr( "Forms" ) );
     flGeom = QRect( -1, -1, 600, 300 );
     QWhatsThis::add( formList, tr("<b>The Form List</b>"
 				  "<p>The Form List displays the filenames of all open forms, and a flag indicates "
