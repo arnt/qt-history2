@@ -1042,6 +1042,7 @@ extern "C" HRESULT __stdcall DumpIDL(const QString &outfile, const QString &ver)
             // It's not a control class, so it is actually a subtype. Define it.
             if (!o)
                 res = classIDL(0, mo, className, false, out);
+            delete o;
         }
     }
 
