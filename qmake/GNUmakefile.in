@@ -14,7 +14,7 @@ vpath %.cpp @SOURCE_PATH@/src/tools:@SOURCE_PATH@/src/codecs:@SOURCE_PATH@/src/k
 
 CFLAGS=@QMAKE_CFLAGS@ -I. -Igenerators -Igenerators/unix -Igenerators/win32 \
 	-Igenerators/mac -I@SOURCE_PATH@/include -I@BUILD_PATH@/include \
-	-DQT_NO_TEXTCODEC -DQT_NO_COMPONENT -DQT_NO_STL -I@QMAKESPEC@
+	-DQT_NO_TEXTCODEC -DQT_NO_COMPONENT -DQT_NO_STL -DQT_QMAKE -I@QMAKESPEC@
 CXXFLAGS= $(CFLAGS)
 LFLAGS=@QMAKE_LFLAGS@
 
@@ -54,7 +54,7 @@ projectgenerator.o: projectgenerator.cpp
 makefile.o: makefile.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) $^
 
-pbuilder_pbx.o: pbuilder_pbx.cpp 
+pbuilder_pbx.o: pbuilder_pbx.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) $^
 
 metrowerks_xml.o: metrowerks_xml.cpp
