@@ -1397,34 +1397,29 @@ static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &r
     if ( size_value > MAXFONTSIZE_XFT )
 	size_value = MAXFONTSIZE_XFT;
 
-    FcPattern *font = 0;
+    QFontEngine *fe = 0;
+
     for (int i = 0; i < fs->nfont; ++i) {
-	FcPattern *test = fs->fonts[i];
+	FcPattern *font = fs->fonts[i];
 	FcCharSet *cs;
-	FcResult res = FcPatternGetCharSet(test, FC_CHARSET, 0, &cs);
+	FcResult res = FcPatternGetCharSet(font, FC_CHARSET, 0, &cs);
 	if (res != FcResultMatch)
 	    continue;
 	if (!FcCharSetHasChar(cs, ch))
 	    continue;
 	FcBool scalable;
-	res = FcPatternGetBool(test, FC_SCALABLE, 0, &scalable);
+	res = FcPatternGetBool(font, FC_SCALABLE, 0, &scalable);
 	if (res != FcResultMatch || !scalable) {
 	    int pixelSize;
-	    res = FcPatternGetInteger(test, FC_PIXEL_SIZE, 0, &pixelSize);
+	    res = FcPatternGetInteger(font, FC_PIXEL_SIZE, 0, &pixelSize);
 	    if (res != FcResultMatch || QABS((size_value-pixelSize)/size_value) > 0.2)
 		continue;
 	}
-	font = test;
-	break;
-    }
-    QFontEngine *fe = 0;
 
-    if (font) {
 	XftPattern *pattern = XftPatternDuplicate(font);
 	// add properties back in as the font selected from the list doesn't contain them.
 	addPatternProps(pattern, key, false, fp, request);
 
-	XftResult res;
 	XftPattern *result =
 	    XftFontMatch( QX11Info::appDisplay(), fp->screen, pattern, &res );
 	XftPatternDestroy(pattern);
@@ -1448,12 +1443,14 @@ static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &r
 	    }
 	    fe->setScale( scale );
 	    fe->fontDef = request;
-	    if ( script != QFont::Unicode && !canRender( fe, QChar(ch) ) ) {
+	    if ( script != QFont::Unicode && !canRender(fe, script) ) {
 		FM_DEBUG( "  WARN: font loaded cannot render sample 0x%04x", ch );
 		delete fe;
 		fe = 0;
 	    }
 	}
+	if (fe)
+	    break;
     }
     FcFontSetDestroy(fs);
     return fe;

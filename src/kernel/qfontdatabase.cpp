@@ -544,6 +544,11 @@ static const unsigned short sample_chars[QFont::LastPrivateScript] =
     // KatakanaHalfWidth
     0xff65,
 
+    // Limbu
+    0x1901,
+    // TaiLe
+    0x1950,
+
     // NScripts
     0x0000,
     // NoScript
@@ -559,21 +564,35 @@ static const unsigned short sample_chars[QFont::LastPrivateScript] =
     0x4e00
 };
 
+static inline bool requiresOpenType(QFont::Script s)
+{
+    return (s >= QFont::Syriac && s <= QFont::Sinhala)
+		 || (s >= QFont::Tibetan && s <= QFont::Khmer);
+}
+
 // returns a sample unicode character for the specified script
 static QChar sampleCharacter(QFont::Script script)
 {
     return QChar(sample_chars[script]);
 }
 
-static inline bool canRender( QFontEngine *fe, const QChar &sample )
+static inline bool canRender( QFontEngine *fe, QFont::Script script )
 {
     if ( !fe ) return FALSE;
 
+    QChar sample = sampleCharacter(script);
     bool hasChar = fe->canRender( &sample, 1 );
 
 #ifdef FONT_MATCH_DEBUG
     if (hasChar)
 	FM_DEBUG("    font has char 0x%04x", sample.unicode() );
+#endif
+#ifdef Q_WS_X11
+    if (hasChar && requiresOpenType(script)) {
+	QOpenType *ot = fe->openType();
+	if (!ot || !ot->supportsScript(script))
+	    return false;
+    }
 #endif
 
     return hasChar;
@@ -1052,10 +1071,9 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
     }
 
     if ( fe ) {
-	QChar sample = sampleCharacter( script );
-	if ( script != QFont::Unicode && !canRender( fe, sample ) ) {
+	if ( script != QFont::Unicode && !canRender( fe, script ) ) {
 	    FM_DEBUG( "  WARN: font loaded cannot render sample 0x%04x",
-		      sample.unicode() );
+		      sampleCharacter(script).unicode() );
 	    delete fe;
 
 	    if ( ! request.family.isEmpty() )
@@ -1092,7 +1110,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	    for ( int i = 0; i < QFont::NScripts; ++i ) {
 		if ( i == script ) continue;
 
-		if ( ! canRender( fe, sampleCharacter( (QFont::Script) i ) ) )
+		if (!canRender(fe, (QFont::Script) i))
 		    continue;
 
 		key.script = i;
