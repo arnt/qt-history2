@@ -19,7 +19,7 @@
 #include "QtGui/qcombobox.h"
 #include "QtSql/qsqlrelationaltablemodel.h"
 
-class Q_SQL_EXPORT QSqlRelationalDelegate: public QItemDelegate
+class QSqlRelationalDelegate: public QItemDelegate
 {
 public:
 
