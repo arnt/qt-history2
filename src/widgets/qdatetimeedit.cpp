@@ -87,6 +87,11 @@ try to get the order of DMY and the date/time separator from the locale settings
 static void readLocaleSettings()
 {
     int dpos, mpos, ypos;
+    if ( lDateSep )
+	delete lDateSep;
+    if ( lTimeSep )
+	delete lTimeSep;
+
     lDateSep = new QString();
     lTimeSep = new QString();
 
@@ -598,6 +603,7 @@ void QDateTimeEditor::setSectionSelection( int sec, int selstart, int selend )
 void QDateTimeEditor::setSeparator( const QString& s )
 {
     d->setSeparator( s );
+    update();
 }
 
 
@@ -1489,6 +1495,10 @@ bool QDateEdit::event( QEvent *e )
 	    emit valueChanged( date() );
 	    d->changed = FALSE;
 	}
+    } else if ( e->type() == QEvent::LocaleChange ) {
+	readLocaleSettings();
+	d->ed->setSeparator( localDateSep() );
+	setOrder( localOrder() );
     }
     return QDateTimeEditBase::event( e );
 }
@@ -1827,6 +1837,9 @@ bool QTimeEdit::event( QEvent *e )
 	    emit valueChanged( time() );
 	    d->changed = FALSE;
 	}
+    } else if ( e->type() == QEvent::LocaleChange ) {
+	readLocaleSettings();
+	d->ed->setSeparator( localTimeSep() );
     }
     return QDateTimeEditBase::event( e );
 }

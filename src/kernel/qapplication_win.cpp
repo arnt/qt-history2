@@ -1840,6 +1840,23 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	break;
 
     case WM_SETTINGCHANGE:
+	if ( !msg.wParam ) {
+	    QString area =
+#if defined(UNICODE)
+		( qt_winver & Qt::WV_NT_based ) ? qt_winQString( (void*)msg.lParam ) :
+#endif
+		QString::fromLocal8Bit( (char*)msg.lParam );
+	    if ( area == "intl" ) {
+		QWidgetList	 *list = QApplication::allWidgets();
+		QWidgetListIt it( *list );         // iterate over the widgets
+		QWidget * w;
+		while ( (w=it.current()) != 0 ) {  // for each widget...
+		    ++it;
+		    qApp->postEvent( w, new QEvent( QEvent::LocaleChange ) );
+		}
+		delete list;                      // delete the list, not the widgets
+	    }
+	}
     case WM_SYSCOLORCHANGE:
 	if ( QApplication::desktopSettingsAware() )
 	    qt_set_windows_resources();
