@@ -487,7 +487,7 @@ void QPainter::drawLine(const QPoint &p1, const QPoint &p2)
 
 void QPainter::drawRect(const QRect &r)
 {
-    if (!isActive())
+    if (!isActive() || r.isEmpty())
 	return;
     dgc->updateState(ds);
 
@@ -543,7 +543,7 @@ void QPainter::drawPoints(const QPointArray &pa, int index, int npoints)
 
 void QPainter::drawWinFocusRect(const QRect &r)
 {
-    if (!isActive())
+    if (!isActive() || r.isEmpty())
 	return;
     dgc->updateState(ds);
 
@@ -567,7 +567,7 @@ void QPainter::drawWinFocusRect(const QRect &r)
 
 void QPainter::drawWinFocusRect(const QRect &r, const QColor &bgColor)
 {
-    if (!isActive())
+    if (!isActive() || r.isEmpty())
 	return;
     dgc->updateState(ds);
 
@@ -799,6 +799,13 @@ void QPainter::drawArc(const QRect &r, int a, int alen)
     if (!isActive())
 	return;
     dgc->updateState(ds);
+
+    if ( a > (360*16) ) {
+	a = a % (360*16);
+    } else if ( a < 0 ) {
+	a = a % (360*16);
+	if ( a < 0 ) a += (360*16);
+    }
 
     QRect rect = fix_rect(ds, r);
 
