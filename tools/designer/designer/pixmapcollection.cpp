@@ -315,10 +315,10 @@ void PixmapCollection::createCppFile()
 	    "    return *img;\n"
 	    "}\n\n";
 	
-	out << "class DesignerMimeSourceFactoty : public QMimeSourceFactory" << endl;
+	out << "class DesignerMimeSourceFactory : public QMimeSourceFactory" << endl;
 	out << "{" << endl;
 	out << "public:" << endl;
-	out << "    DesignerMimeSourceFactoty() {}" << endl;
+	out << "    DesignerMimeSourceFactory() {}" << endl;
 
 	out << "    const QMimeSource* data( const QString& abs_name ) const {" << endl;
 	out << "	QImage img = uic_findImage_" << project->fixedProjectName() << "( abs_name );" << endl;
@@ -329,13 +329,13 @@ void PixmapCollection::createCppFile()
 	out << "    };" << endl;
 	out << "};" << endl;
 
-	out << "static DesignerMimeSourceFactoty *designerMimeSourceFactory = 0;" << endl;
+	out << "static DesignerMimeSourceFactory *designerMimeSourceFactory = 0;" << endl;
 
 	out << "static void qInitImages()" << endl;
 	out << "{" << endl;
 	out << "    if ( designerMimeSourceFactory )" << endl;
 	out << "	return;" << endl;
-	out << "    designerMimeSourceFactory = new DesignerMimeSourceFactoty;" << endl;
+	out << "    designerMimeSourceFactory = new DesignerMimeSourceFactory;" << endl;
 	out << "    QMimeSourceFactory::defaultFactory()->addFactory( designerMimeSourceFactory );" << endl;
 	out << "}" << endl;
 
