@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#159 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#160 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -35,6 +35,9 @@
 #if defined(_CC_BOOL_DEF_)
 #undef	bool
 #include <windows.h>
+#ifndef WM_MOUSEWHEEL
+#define WM_MOUSEWHEEL	0x020A
+#endif
 #define bool int
 #else
 #include <windows.h>
@@ -125,7 +128,7 @@ public:
     bool	winEvent( MSG *m )	{ return QWidget::winEvent(m); }
     bool	translateMouseEvent( const MSG &msg );
     bool	translateKeyEvent( const MSG &msg, bool grab );
-    bool	translateWheelEvent( const MSG &msg, bool grab );
+    bool	translateWheelEvent( const MSG &msg );
     bool	sendKeyEvent( int type, int code, int ascii, int state,
 			      bool grab );
     bool	translatePaintEvent( const MSG &msg );
@@ -1084,7 +1087,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
     msg.message = message;			// time and pt fields ignored
     msg.wParam = wParam;
     msg.lParam = lParam;
-
+ 
     if ( qApp->winEventFilter(&msg) )		// send through app filter
 	return 0;
 
@@ -1287,10 +1290,8 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    
 	    }
 	case WM_MOUSEWHEEL: 
-	    {
-		nase;
-		wKeys = nase
-	    }
+	    result = widget->translateWheelEvent( msg );
+	    break;
 	    
 						// NOTE: fall-through!
 	default:
@@ -2068,7 +2069,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
     return k0 || k1;
 }
 
-bool QETWidget::translateWheelEvent( const MSG &msg, bool grab )
+bool QETWidget::translateWheelEvent( const MSG &msg )
 {
     int  state = 0;
 
@@ -2079,7 +2080,7 @@ bool QETWidget::translateWheelEvent( const MSG &msg, bool grab )
     if ( GetKeyState(VK_MENU) < 0 )
 	state |= AltButton;
 
-    int delta = LOWORD ( msg.wParam );
+    int delta =	(short) HIWORD ( msg.wParam );
     QPoint globalPos;
 
     globalPos.rx() = LOWORD ( msg.lParam ); 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#118 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#119 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -150,7 +150,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	}
     }
     if ( !desktop ) {
-	style |= WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
+	style |= WS_CLIPSIBLINGS | WS_CLIPCHILDREN ;
 	if ( topLevel ) {
 	    if ( testWFlags(WStyle_NormalBorder) )
 		style |= WS_THICKFRAME;
