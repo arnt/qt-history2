@@ -107,7 +107,6 @@ class QAxHostWidget : public QWidget
     friend class QAxClientSite;
 public:
     QAxHostWidget(QWidget *parent, QAxClientSite *ax);
-    ~QAxHostWidget();
     
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
@@ -121,6 +120,7 @@ public:
 protected:
     bool winEvent(MSG *msg, long *result);
     bool event(QEvent *e);
+    bool eventFilter(QObject *o, QEvent *e);
     void resizeEvent(QResizeEvent *e);
     void focusInEvent(QFocusEvent *e);
     void focusOutEvent(QFocusEvent *e);
@@ -128,19 +128,15 @@ protected:
         
 private:
     int setFocusTimer;
+    bool hasFocus;
     QAxClientSite *axhost;
 };
 
 QAxHostWidget::QAxHostWidget(QWidget *parent, QAxClientSite *ax)
-: QWidget(parent), axhost(ax)
+: QWidget(parent), setFocusTimer(0), hasFocus(false), axhost(ax)
 {
     setAttribute(Qt::WA_NoSystemBackground);
     setObjectName("QAxHostWidget");
-    setFocusTimer = 0;
-}
-
-QAxHostWidget::~QAxHostWidget()
-{
 }
 
 
@@ -823,9 +819,15 @@ HRESULT WINAPI QAxClientSite::TranslateAccelerator(LPMSG lpMsg, DWORD /*grfModif
     return S_OK;
 }
 
-HRESULT WINAPI QAxClientSite::OnFocus(BOOL /*bGotFocus*/)
+HRESULT WINAPI QAxClientSite::OnFocus(BOOL bGotFocus)
 {
     AX_DEBUG(QAxClientSite::OnFocus);
+    if (host) {
+        host->hasFocus = bGotFocus;
+        qApp->removeEventFilter(host);
+        if (bGotFocus)
+            qApp->installEventFilter(host);
+    }
     return S_OK;
 }
 
@@ -914,6 +916,10 @@ HRESULT WINAPI QAxClientSite::Scroll(SIZE /*scrollExtant*/)
 HRESULT WINAPI QAxClientSite::OnUIDeactivate(BOOL)
 {
     AX_DEBUG(QAxClientSite::OnUIDeactivate);
+    if (host && host->hasFocus) {
+        qApp->removeEventFilter(host);
+        host->hasFocus = FALSE;
+    }
     return S_OK;
 }
 
@@ -1472,33 +1478,34 @@ bool QAxHostWidget::event(QEvent *e)
     return QWidget::event(e);
 }
 
+bool QAxHostWidget::eventFilter(QObject *o, QEvent *e)
+{
+    // focus goes to Qt while ActiveX still has it - deactivate
+    if (e->type() == QEvent::FocusIn && hasFocus) {
+        if (axhost && axhost->m_spInPlaceActiveObject && axhost->m_spInPlaceObject)
+            axhost->m_spInPlaceObject->UIDeactivate();
+        qApp->removeEventFilter(this);
+    }
+
+    return QWidget::eventFilter(o, e);
+}
+
 void QAxHostWidget::focusInEvent(QFocusEvent *e)
 {
     QWidget::focusInEvent(e);
 
     if (!axhost || !axhost->m_spOleObject)
         return;
-    /*
+
     // this is called by QWidget::setFocus which calls ::SetFocus on "this",
     // so we have to UIActivate the control after all that had happend.
-    setFocusTimer = startTimer(0);
-    */
     AX_DEBUG(Setting focus on in-place object);
-
-    IOleInPlaceActiveObject *activeObject = 0;
-    axhost->m_spOleObject->QueryInterface(IID_IOleInPlaceActiveObject, (void**)&activeObject);
-    if (activeObject) {
-        HWND hwnd;
-        activeObject->GetWindow(&hwnd);
-        ::SetFocus(hwnd);
-        activeObject->Release();
-    }
+    setFocusTimer = startTimer(0);
 }
 
 void QAxHostWidget::focusOutEvent(QFocusEvent *e)
 {
     QWidget::focusOutEvent(e);
-    /*
     if (setFocusTimer) {
         killTimer(setFocusTimer);
         setFocusTimer = 0;
@@ -1511,7 +1518,6 @@ void QAxHostWidget::focusOutEvent(QFocusEvent *e)
     
     AX_DEBUG(Deactivating in-place object);
     axhost->m_spInPlaceObject->UIDeactivate();
-    */
 }
 
 
