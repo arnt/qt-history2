@@ -3,6 +3,7 @@ platforms.
 */
 
 #define _LARGEFILE_SOURCE
+#define _LARGE_FILES
 #define _FILE_OFFSET_BITS 64
 #include <unistd.h>
 #include <sys/types.h>
