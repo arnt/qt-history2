@@ -414,19 +414,23 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
 	    QTextDrag::decode(o, s);
 	    if(s.length() > 13)
 		s = s.left(13) + "...";
-	    //draw it
-	    QFont f(qApp->font());
-	    f.setPointSize(12);
-	    QFontMetrics fm(f);
-	    QPixmap tmp(fm.width(s), fm.height());
-	    QPainter p(&tmp);
-	    p.fillRect(0, 0, tmp.width(), tmp.height(), color0);
-	    p.setPen(color1);
-	    p.setFont(f);
-	    p.drawText(0, fm.ascent(), s);
-	    //save it
-	    pix = tmp;
-	    hotspot = QPoint(tmp.width() / 2, tmp.height() / 2);
+	    if(!s.isEmpty()) {
+		//draw it
+		QFont f(qApp->font());
+		f.setPointSize(12);
+		QFontMetrics fm(f);
+		QPixmap tmp(fm.width(s), fm.height());
+		if(!tmp.isNull()) {
+		    QPainter p(&tmp);
+		    p.fillRect(0, 0, tmp.width(), tmp.height(), color0);
+		    p.setPen(color1);
+		    p.setFont(f);
+		    p.drawText(0, fm.ascent(), s);
+		    //save it
+		    pix = tmp;
+		    hotspot = QPoint(tmp.width() / 2, tmp.height() / 2);
+		}
+	    }
 	} else {
 	    pix = QImage(default_pm);
 	    hotspot = QPoint(default_pm_hotx, default_pm_hoty);
@@ -441,8 +445,10 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
     SetDragItemBounds(theDrag, (ItemReference)1 , &boundsRect);
 
     QRegion dragRegion(boundsPoint.h, boundsPoint.v, pix.width(), pix.height());
-    QRegion r(0, 0, pix.width(), pix.height());
-    SetDragImage(theDrag, GetGWorldPixMap((GWorldPtr)pix.handle()), r.handle(TRUE), boundsPoint, 0);
+    if(!pix.isNull()) {
+	QRegion r(0, 0, pix.width(), pix.height());
+	SetDragImage(theDrag, GetGWorldPixMap((GWorldPtr)pix.handle()), r.handle(TRUE), boundsPoint, 0);
+    }
 
     QWidget *widget = QApplication::widgetAt(fakeEvent.where.h, fakeEvent.where.v);
     if(!widget) {
