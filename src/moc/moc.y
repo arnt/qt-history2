@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#54 $
+** $Id: //depot/qt/main/src/moc/moc.y#55 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -37,7 +37,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#54 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#55 $";
 #endif
 
 
@@ -772,7 +772,8 @@ void initExpression();				// prepare for new expression
 
 QString	  fileName;				// file name
 QString	  ofileName;				// output file name
-bool	  noInclude = FALSE;			// no #include <filename>
+bool	  noInclude     = FALSE;		// no #include <filename>
+bool	  generatedCode = FALSE;		// no code generated
 QString	  className;				// name of parsed class
 QString	  superclassName;			// name of super class
 FuncList  signals;				// signal interface
@@ -874,6 +875,11 @@ int main( int argc, char **argv )		// program starts here
     fclose( yyin );
     if ( !ofileName.isNull() )
 	fclose( out );
+
+    if ( !generatedCode ) {
+        fprintf( stderr, "%s:%d: Warning: %s\n", fileName.data(), 0, 
+		 "No relevant classes found. No output generated." );
+    }
 
     slots.clear();
     signals.clear();
@@ -981,7 +987,7 @@ void moc_err( char *s1, char *s2 )
 void moc_warn( char *msg )
 {
     if ( displayWarnings )
-    fprintf( stderr, "%s:%d: Warning: %s\n", fileName.data(), lineNo, msg );
+	fprintf( stderr, "%s:%d: Warning: %s\n", fileName.data(), lineNo, msg);
 }
 
 void func_warn( char *msg )
@@ -1090,6 +1096,7 @@ void generateClass()		      // generate C++ source code for a class
     if ( !Q_OBJECTdetected ) {
 	if ( signals.count() == 0 && slots.count() == 0 )
 	    return;
+	generatedCode = TRUE;
 	if ( displayWarnings )
 	    moc_err("The declaration of the class \"%s\" contains slots "
 		    "and/or signals\n\t but no Q_OBJECT macro!", className.data());
@@ -1105,6 +1112,7 @@ void generateClass()		      // generate C++ source code for a class
 		 "signals, slots or Q_OBJECT. This will be supported soon." );
 	return;
     }
+    generatedCode = TRUE;
     if ( gen_count++ == 0 ) {			// first class to be generated
 	QDateTime dt = QDateTime::currentDateTime();
 	QString dstr = dt.toString();
