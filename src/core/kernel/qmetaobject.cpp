@@ -139,7 +139,7 @@ static inline const QMetaObjectPrivate *priv(const uint* data)
 { return reinterpret_cast<const QMetaObjectPrivate*>(data); }
 
 
-/*! 
+/*!
     \fn const char *QMetaObject::className() const
 
     Returns the class name.
@@ -1092,13 +1092,13 @@ int QMetaEnum::keysToValue(const char *keys) const
 {
     if (!mobj)
         return -1;
-    QStringList l = QString::fromLatin1(keys).split('|');
+    QStringList l = QString::fromLatin1(keys).split(QLatin1Char('|'));
     //#### TODO write proper code, do not use QStringList
     int value = 0;
     int count = mobj->d.data[handle + 2];
     int data = mobj->d.data[handle + 3];
-    for (int li = 0; li < (int)l.size(); ++li) {
-        QString trimmed = l[li].trimmed();
+    for (int li = 0; li < l.size(); ++li) {
+        QString trimmed = l.at(li).trimmed();
         const char *key = trimmed.latin1();
         int scope = 0;
         const char *qualified_key = key;
