@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.h#1 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.h#2 $
 **
 ** Definition of QTabWidget class
 **
@@ -54,21 +54,22 @@ public:
     QWidget * currentPage() const;
 
     virtual QSize	sizeHint() const;
-    
+
     enum TabPosition { Top, Bottom };
     TabPosition tabPosition() const;
     void setTabPosition( TabPosition );
-    
+
     int margin() const;
     void setMargin( int );
-    
+
 
 protected:
     void showEvent( QShowEvent * );
     void resizeEvent( QResizeEvent * );
     void setTabBar( QTabBar* );
     QTabBar* tabBar() const;
-
+    void styleChange( GUIStyle );
+    
 signals:
     void selected( const QString& );
 

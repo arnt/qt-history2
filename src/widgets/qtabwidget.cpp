@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#5 $
 **
 ** Implementation of QTabWidget class
 **
@@ -433,5 +433,14 @@ int QTabWidget::margin() const
  void QTabWidget::setMargin( int w )
 {
     d->stack->setMargin( w );
+    setUpLayout();
+}
+
+
+/*! \reimp
+ */
+void QTabWidget::styleChange( GUIStyle )
+{
+    d->stack->setLineWidth( style().defaultFrameWidth() );
     setUpLayout();
 }
