@@ -52,7 +52,6 @@ public:
     void updateClipPath(const QPainterPath &path, Qt::ClipOperation op);
     void updateRenderHints(QPainter::RenderHints hints);
 
-    void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode mode);
     void drawTextItem(const QPointF &p, const QTextItem &textItem);
 
     void drawTextItemMulti(const QPointF &p, const QTextItem &textItem);

@@ -14,6 +14,7 @@
 #include <private/qdatabuffer_p.h>
 #include <private/qpainter_p.h>
 #include <private/qtextengine_p.h>
+#include <private/qpixmap_p.h>
 
 #include "qpaintengine_raster_p.h"
 
@@ -29,6 +30,7 @@
 #elif defined(Q_WS_MAC)
 #  include <private/qt_mac_p.h>
 #endif
+
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -498,9 +500,10 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     d->bilinear = false;
     d->opaqueBackground = false;
     d->bgBrush = Qt::white;
-    d->rasterOperation = device->depth() == 1
-                         ? QRasterPaintEnginePrivate::SourceCopy
-                         : QRasterPaintEnginePrivate::SourceOverComposite;
+    d->rasterOperation = // device->depth() == 1
+//                          ? QRasterPaintEnginePrivate::SourceCopy
+//                          :
+                         QRasterPaintEnginePrivate::SourceOverComposite;
 
     d->deviceRect = QRect(0, 0, device->width(), device->height());
 
@@ -520,11 +523,19 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
         }
     }
 
-    if (device->devType() == QInternal::Image) {
-        if (device->depth() != 32) {
-            qWarning("QRasterPaintEngine::begin(), only 32 bit images are supported at this time");
+#ifdef Q_WS_WIN
+    if (device->devType() == QInternal::Pixmap) {
+        QPixmap *pixmap = static_cast<QPixmap *>(device);
+        if (pixmap->isNull()) {
+            qWarning("Cannot paint on a null pixmap");
             return false;
         }
+        QPixmapData *data = static_cast<QPixmap *>(device)->data;
+        device = &data->image;
+    }
+#endif
+
+    if (device->devType() == QInternal::Image && device->depth() == 32) {
         d->flushOnEnd = false; // Direct access so no flush.
         d->rasterBuffer->prepare(static_cast<QImage *>(device));
         if (static_cast<QImage *>(device)->hasAlphaBuffer())
@@ -613,15 +624,33 @@ void QRasterPaintEngine::flush(QPaintDevice *device)
     Q_ASSERT(device);
 
 #if defined(Q_WS_WIN)
-    HDC hdc = device->getDC();
-    Q_ASSERT(hdc);
+    if (device->devType() == QInternal::Widget) {
+        HDC hdc = device->getDC();
+        Q_ASSERT(hdc);
 
-    // blt using paint event clip bounding rect
-    BitBlt(hdc,
-           d->deviceRect.x(), d->deviceRect.y(), d->deviceRect.width(), d->deviceRect.height(),
-           d->rasterBuffer->hdc(), 0, 0,
-           SRCCOPY);
-    device->releaseDC(hdc);
+        // blt using paint event clip bounding rect
+        BitBlt(hdc,
+               d->deviceRect.x(), d->deviceRect.y(), d->deviceRect.width(), d->deviceRect.height(),
+               d->rasterBuffer->hdc(), 0, 0,
+               SRCCOPY);
+        device->releaseDC(hdc);
+        return;
+    } else {
+
+        QImage *target = 0;
+
+        if (device->devType() == QInternal::Pixmap) {
+            target = &static_cast<QPixmap *>(device)->data->image;
+        } else if (device->devType() == QInternal::Image) {
+            target = static_cast<QImage *>(device);
+        }
+
+        Q_ASSERT(target);
+        Q_ASSERT(target->depth() == 1);
+
+        d->rasterBuffer->flushTo1BitImage(target);
+    }
+
 #elif defined(Q_WS_MAC)
 #  ifdef QMAC_NO_COREGRAPHICS
 #    warning "unhandled"
@@ -746,14 +775,9 @@ void QRasterPaintEngine::updateBrush(const QBrush &brush, const QPointF &offset)
 // ### Use a decent cache for this..
 QImage *qt_image_for_pixmap(const QPixmap &pixmap)
 {
-    int serial = pixmap.serialNumber();
-    if (!qt_raster_image_cache.contains(serial)) {
-        if (qt_raster_image_cache.size() > 32)
-            qt_raster_image_cache.clear();
-        qt_raster_image_cache[serial] = pixmap.toImage().convertDepth(32);
-    }
-    Q_ASSERT(qt_raster_image_cache.contains(serial));
-    return &qt_raster_image_cache[serial];
+    static QImage cached_image;
+    cached_image = pixmap.toImage().convertDepth(32);
+    return &cached_image;
 }
 
 
@@ -1227,7 +1251,7 @@ static void drawLine_bresenham(const QLineF &line, qt_span_func span_func, void 
             span.len = x - span.x;
             if (style == LineDrawIncludeLastPixel)
                 ++span.len;
-            if (span.x >= 0 && span.x + span.len <= rb->width() && y >= 0 && y < rb->height())
+            if (span.len > 0 && span.x >= 0 && span.x + span.len <= rb->width() && y >= 0 && y < rb->height())
                 span_func(y, 1, &span, data);
         } else {
             while(x != xe) {
@@ -1349,12 +1373,12 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPai
     Q_ASSERT(fillData);
 
     fillData->rasterBuffer = rasterBuffer;
+    fillData->callback = 0;
+    fillData->data = 0;
 
     switch (brush.style()) {
 
     case Qt::NoBrush:
-        fillData->callback = 0;
-        fillData->data = 0;
         break;
 
     case Qt::SolidPattern:
@@ -1468,6 +1492,10 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPai
         {
             extern QPixmap qt_pixmapForBrush(int brushStyle, bool invert);
             QPixmap pixmap = qt_pixmapForBrush(brush.style(), true);
+
+            if (pixmap.isNull())
+                break;
+
             QImage *image = qt_image_for_pixmap(pixmap);
             image = colorizeBitmap(image, brush.color());
             fillData->data = textureFillData;
@@ -1487,7 +1515,7 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPai
         break;
     }
 
-    if (clipEnabled) {
+    if (clipEnabled && fillData->callback) {
         FillData clipFillData = {
             fillData->rasterBuffer,
             qt_span_fill_clipped,
@@ -1825,7 +1853,6 @@ void qt_span_solidfill(int y, int count, QT_FT_Span *spans, void *userData)
 
     if (rop == QRasterPaintEnginePrivate::SourceOverComposite) {
         for (int span=0; span<count; ++span) {
-
             Q_ASSERT(spans->x >= 0);
             Q_ASSERT(spans->len > 0);
             Q_ASSERT(spans->x + spans->len <= rb->width());
@@ -2071,6 +2098,9 @@ void qt_unite_spans(QSpan *clipSpans, int clipSpanCount,
 void qt_span_fill_clipped(int y, int spanCount, QT_FT_Span *spans, void *userData)
 {
     FillData *fillData = reinterpret_cast<FillData *>(userData);
+
+    Q_ASSERT(fillData->callback);
+
     QRasterBuffer *rb = fillData->rasterBuffer;
 
     QSpan *clippedSpans = 0;
@@ -2190,6 +2220,21 @@ QImage QRasterBuffer::clipImage() const
 }
 #endif
 
+void QRasterBuffer::flushTo1BitImage(QImage *target) const
+{
+    int w = qMin(m_width, target->width());
+    int h = qMin(m_height, target->height());
+
+    // ### Direct scanline access
+    for (int y=0; y<h; ++y) {
+        ARGB *sourceLine = const_cast<QRasterBuffer *>(this)->scanLine(y);
+        for (int x=0; x<w; ++x) {
+            ARGB p = sourceLine[x];
+            target->setPixel(x, y, qGray(p.r, p.g, p.b) > 127 ? 1 : 0);
+        }
+    }
+
+}
 
 void TextureFillData::init(QRasterBuffer *raster, QImage *image, const QMatrix &matrix,
                            Blend b, BlendTransformed func)

@@ -81,7 +81,7 @@ Qt::KeyboardModifiers toQtKeyboardModifiers(DWORD keyState)
         modifiers |= Qt::ControlModifier;
     if (keyState & MK_ALT)
         modifiers |= Qt::AltModifier;
-   
+
     return modifiers;
 }
 
@@ -95,7 +95,7 @@ Qt::MouseButtons toQtMouseButtons(DWORD keyState)
         buttons |= Qt::RightButton;
     if (keyState & MK_MBUTTON)
         buttons |= Qt::MidButton;
-   
+
     return buttons;
 }
 
@@ -195,7 +195,7 @@ extern HBITMAP qt_createIconMask(const QBitmap &bitmap);
 void QOleDropSource::createCursors()
 {
     QDragManager *manager = QDragManager::self();
-    if (manager && manager->object 
+    if (manager && manager->object
         && (!manager->object->pixmap().isNull()
         || manager->hasCustomDragCursors())) {
         QPixmap pm = manager->object->pixmap();
@@ -247,13 +247,7 @@ void QOleDropSource::createCursors()
                 newCursor = cpm;
             }
 
-            QBitmap cursorMask;
-            if (newCursor.mask()) {
-                cursorMask = *newCursor.mask();
-            } else {
-                cursorMask = QBitmap(w, h, true, QPixmap::NormalOptim);
-                cursorMask.fill(Qt::color1);
-            }
+            QBitmap cursorMask = newCursor.mask();
 
             HBITMAP im = qt_createIconMask(cursorMask);
             ICONINFO ii;
@@ -724,7 +718,7 @@ QOleDropTarget::Drop(LPDATAOBJECT /*pDataObj*/, DWORD grfKeyState, POINTL pt, LP
 
     lastPoint = widget->mapFromGlobal(QPoint(pt.x,pt.y));
     // grfKeyState does not all ways contain button state in the drop so if
-    // it doesn't then use the last known button state; 
+    // it doesn't then use the last known button state;
     if ((grfKeyState & KEY_STATE_BUTTON_MASK) == 0)
         grfKeyState |= lastKeyState & KEY_STATE_BUTTON_MASK;
     lastKeyState = grfKeyState;

@@ -301,7 +301,8 @@ struct XPThemeData
         if (pIsThemeBackgroundPartiallyTransparent(handle(), partId, stateId)) {
             HRGN hrgn;
             HDC dc = painter == 0 ? 0 : painter->paintEngine()->getDC();
-            pGetThemeBackgroundRegion(handle(), dc, partId, stateId, &toRECT(), &hrgn);
+            RECT nativeRect = toRECT();
+            pGetThemeBackgroundRegion(handle(), dc, partId, stateId, &nativeRect, &hrgn);
             if (dc)
                 painter->paintEngine()->releaseDC(dc);
             return hrgn;
@@ -359,7 +360,8 @@ struct XPThemeData
             pm.fill(Qt::black);
 
             HDC dc2 = p.paintEngine()->getDC();
-            pDrawThemeBackground(handle(), dc2, partId, stateId, &toRECT(), 0);
+            RECT nativeRect = toRECT();
+            pDrawThemeBackground(handle(), dc2, partId, stateId, &nativeRect, 0);
             p.paintEngine()->releaseDC(dc2);
 
             rec = oldrec;
@@ -369,7 +371,7 @@ struct XPThemeData
             {
                 QImage img = pm.toImage();
                 img = img.mirror(hMirrored, vMirrored);
-                pm = img;
+                pm = QPixmap::fromImage(img);
             }
             painter->drawPixmap(rec.x(), rec.y(), pm);
         } else {
@@ -382,7 +384,8 @@ struct XPThemeData
                     HRGN painterRegion = painter->clipRegion().handle();
                     oldRegion = (HRGN)SelectClipRgn(dc, painterRegion);
                 }
-                pDrawThemeBackground(handle(), dc, partId, stateId, &toRECT(), 0);
+                RECT nativeRect = toRECT();
+                pDrawThemeBackground(handle(), dc, partId, stateId, &nativeRect, 0);
                 if (setClip)
                     SelectClipRgn(dc, oldRegion);
             } else {
@@ -397,7 +400,8 @@ struct XPThemeData
                 p.eraseRect(0, 0, rec.width(), rec.height());
 
                 HDC dc2 = p.paintEngine()->getDC();
-                pDrawThemeBackground(handle(), dc2, partId, stateId, &toRECT(), 0);
+                RECT nativeRect = toRECT();
+                pDrawThemeBackground(handle(), dc2, partId, stateId, &nativeRect, 0);
                 p.paintEngine()->releaseDC(dc2);
 
                 p.end();
@@ -407,7 +411,7 @@ struct XPThemeData
                 {
                     QImage img = pm.toImage();
                     img = img.mirror(hMirrored, vMirrored);
-                    pm = img;
+                    pm = QPixmap::fromImage(img);
                 }
 
                 painter->drawPixmap(rec.x(), rec.y(), pm);

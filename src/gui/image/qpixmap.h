@@ -198,6 +198,7 @@ private:
     friend class QFontEngineXft;
     friend class QwsPixmap;
     friend class QWidgetPrivate;
+    friend class QRasterPaintEngine;
     friend void qt_bit_blt(QPaintDevice *, int, int, const QPaintDevice *, int, int, int, int, bool);
 };
 

@@ -560,10 +560,10 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             QImage image;
             if (d->formatMajor < 4) {
                 s >> p >> image;
-                painter->drawPixmap(p, QPixmap(image));
+                painter->drawPixmap(p, QPixmap::fromImage(image));
             } else {
                 s >> r >> image;
-                painter->drawPixmap(r, QPixmap(image), QRectF(0, 0, r.width(), r.height()));
+                painter->drawPixmap(r, QPixmap::fromImage(image), QRectF(0, 0, r.width(), r.height()));
             }
         }
             break;

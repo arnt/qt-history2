@@ -38,9 +38,6 @@ class Q_COMPAT_EXPORT Q3ListViewItem
 {
     friend class Q3ListViewItemIterator;
     friend class Q3ListViewToolTip;
-#if defined(Q_CC_MSVC)
-    friend class Q3ListViewItem;
-#endif
 
 public:
     Q3ListViewItem(Q3ListView * parent);

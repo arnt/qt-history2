@@ -30,11 +30,20 @@
 #include <qx11info_x11.h>
 #endif
 
-#if defined(Q_WS_WIN)
-#include "qt_windows.h"
-// Internal pixmap memory optimization class for Windows 9x
-struct QMCPI;
-#endif
+
+#if defined Q_WS_WIN
+
+struct QPixmapData { // internal pixmap data
+    QPixmapData() : count(1) { }
+    ~QPixmapData(){};
+    void ref() { ++count; }
+    bool deref() { return !--count; }
+    int count;
+    bool bitmap;
+    QImage image;
+};
+
+#else // non windows
 
 struct QPixmapData { // internal pixmap data
     QPixmapData() : count(1) { }
@@ -42,42 +51,17 @@ struct QPixmapData { // internal pixmap data
 
     void ref() { ++count; }
     bool deref() { return !--count; }
-    uint count;
+    int count;
 
     int w, h;
     short d;
     uint uninit:1;
     uint bitmap:1;
-#if defined(Q_WS_WIN)
-    uint mcp:1;
-#endif
     int ser_no;
 #ifndef Q_WS_X11
     QBitmap *mask;
 #endif
-#if defined(Q_WS_WIN)
-    QPixmap *maskpm;
-    union {
-        HBITMAP hbm; // if mcp == false
-        QMCPI *mcpi; // if mcp == true
-    };
-    inline HBITMAP bm() const;
-    uchar *realAlphaBits;
-    struct MemDC {
-        MemDC() {
-            hdc = 0;
-            ref = 0;
-            bm = 0;
-        }
-        HDC hdc;
-        int ref;
-        HGDIOBJ bm;
-    };
-    MemDC mem_dc;
-#ifdef Q_OS_TEMP
-    uchar *ppvBits; // Pointer to DIBSection bits
-#endif
-#elif defined(Q_WS_X11)
+#if defined(Q_WS_X11)
     bool alpha;
     QX11Info xinfo;
     Qt::HANDLE x11_mask;
@@ -102,20 +86,17 @@ struct QPixmapData { // internal pixmap data
     bool hasAlpha;
 #endif
     QPaintEngine *paintEngine;
-#if !defined(Q_WS_WIN) && !defined(Q_WS_MAC)
+#if !defined(Q_WS_MAC)
     Qt::HANDLE hd;
 #endif
 #ifdef Q_WS_X11
     QBitmap mask_to_bitmap() const;
     static Qt::HANDLE bitmap_to_mask(const QBitmap &, int screen);
 #endif
-
     static int allocCell(const QPixmap *p);
     static void freeCell(QPixmapData *data, bool terminate = false);
-
-#ifdef Q_WS_WIN
-    void releaseDC(HDC hdc) const;
-#endif
 };
+
+#endif // Q_WS_WIN
 
 #endif // QPIXMAP_P_H

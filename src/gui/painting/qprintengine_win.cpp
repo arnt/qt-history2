@@ -452,8 +452,7 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
     QPixmap pixmap = originalPixmap;
     if (sr.x()!=0 || sr.y() != 0 || sr.size() != originalPixmap.size()) {
         QPixmap newPixmap(sr.size().toSize());
-        if (pixmap.mask())
-            newPixmap.fill(QColor(0, 0, 0, 0));
+        newPixmap.fill(QColor(0, 0, 0, 0));
         QPainter p(&newPixmap);
         p.drawPixmap(QPointF(0, 0), originalPixmap, sr, Qt::CopyPixmap);
         p.end();
@@ -512,7 +511,7 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
 
                 int origW = image.width();
                 int origH = image.height();
-                image = image.transform( m );
+                image = image.transformed( m );
                 w = image.width();
                 h = image.height();
                 rect.setWidth(w);
@@ -572,7 +571,7 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
         xs = dw/(qreal)image.width();
         ys = dh/(qreal)image.height();
         if( xs!=1 || ys!=1 )
-            bm = bm.transform( QMatrix( xs, 0, 0, ys, 0, 0 ) );
+            bm = bm.transformed( QMatrix( xs, 0, 0, ys, 0, 0 ) );
         QRegion r( bm );
         r.translate(qRound(pos.x()), qRound(pos.y()) );
         if ( paint->hasClipping() )

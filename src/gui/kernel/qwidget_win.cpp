@@ -622,14 +622,8 @@ HICON qt_createIcon(QIcon icon, int xSize, int ySize, QPixmap **cache)
         if (pm.isNull())
             return 0;
 
-        QBitmap mask(size, false, QPixmap::NormalOptim);
-        if (pm.mask()) {
-            mask.fill(Qt::color0);
-            QPainter maskPainter(&mask);
-            maskPainter.drawPixmap(0, 0, *pm.mask());
-        } else {
-            mask.fill(Qt::color1);
-        }
+        QBitmap mask = pm.mask();
+
         HBITMAP im = qt_createIconMask(mask);
         ICONINFO ii;
         ii.fIcon    = true;
@@ -648,6 +642,7 @@ HICON qt_createIcon(QIcon icon, int xSize, int ySize, QPixmap **cache)
 
 void QWidgetPrivate::setWindowIcon_sys()
 {
+    return;
     if (extra->topextra->iconPixmap)
         // already been set
         return;

@@ -131,7 +131,7 @@ void QAlphaWidget::run(int time)
 
     if (!back.isNull() && checkTime.elapsed() < duration / 2) {
         mixed = back.copy();
-        pm = mixed;
+        pm = QPixmap::fromImage(mixed);
         show();
         setEnabled(false);
 
@@ -238,7 +238,7 @@ void QAlphaWidget::render()
         deleteLater();
     } else {
         alphaBlend();
-        pm = mixed;
+        pm = QPixmap::fromImage(mixed);
         repaint();
     }
 }

@@ -3046,7 +3046,7 @@ QPixmap QCommonStyle::standardPixmap(StandardPixmap standardPixmap, const QStyle
         if (QApplication::layoutDirection() == Qt::RightToLeft) {
             QImage im(tb_extension_arrow_h_xpm);
             im = im.mirror(true, false);
-            return QPixmap(im);
+            return QPixmap::fromImage(im);
         }
         return QPixmap(tb_extension_arrow_h_xpm);
     case SP_ToolBarVerticalExtensionButton:
@@ -3157,7 +3157,7 @@ QPixmap QCommonStyle::generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &p
             }
         }
 
-        return QPixmap(im);
+        return QPixmap::fromImage(im);
     }
     case QIcon::Active:
         return pixmap;

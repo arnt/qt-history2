@@ -11,6 +11,11 @@
 **
 ****************************************************************************/
 
+
+#include <qglobal.h>
+
+#ifndef Q_WS_WIN
+
 #include "qpixmap.h"
 #include "qpixmap_p.h"
 
@@ -34,7 +39,6 @@
 #include "qx11info_x11.h"
 #include <private/qt_x11_p.h>
 #endif
-
 
 /*!
     \class QPixmap
@@ -1162,3 +1166,4 @@ QPixmap QPixmap::scaledToHeight(int h) const
     return transformed(wm);
 }
 
+#endif // !Q_WS_WIN

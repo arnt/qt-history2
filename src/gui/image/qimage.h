@@ -214,6 +214,7 @@ protected:
 private:
     QImageData *d;
 
+    friend class Q_GUI_EXPORT QPixmap;
     friend Q_GUI_EXPORT void bitBlt(QImage* dst, int dx, int dy,
                                     const QImage* src, int sx, int sy,
                                     int sw, int sh, Qt::ImageConversionFlags flags);

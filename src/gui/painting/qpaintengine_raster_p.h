@@ -209,6 +209,8 @@ public:
     QImage clipImage() const;
 #endif
 
+    void flushTo1BitImage(QImage *image) const;
+
     QSpan *clipSpans(int y) const { Q_ASSERT(y >= 0 && y < m_height); return m_clipSpans[y]; }
     int clipSpanCount(int y) const { Q_ASSERT(y >= 0 && y < m_height); return m_clipSpanCount[y]; }
 
