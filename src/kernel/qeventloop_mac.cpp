@@ -54,7 +54,7 @@ extern bool qt_is_gui_used; //qapplication.cpp
 
 //pre/post select callbacks
 typedef void (*VFPTR)();
-typedef QValueList<VFPTR> QVFuncList;
+typedef QList<VFPTR> QVFuncList;
 void qt_install_preselect_handler(VFPTR);
 void qt_remove_preselect_handler(VFPTR);
 static QVFuncList *qt_preselect_handler = 0;
