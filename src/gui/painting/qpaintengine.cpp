@@ -1007,3 +1007,27 @@ QPaintDevice *QPaintEngine::paintDevice() const
 {
     return d->pdev;
 }
+
+
+/*!
+    \internal
+
+    Empty default implementation.
+*/
+
+HDC QPaintEngine::getDC() const
+{
+    return 0;
+}
+
+
+/*!
+    \internal
+
+    Empty default implementation.
+*/
+
+void QPaintEngine::releaseDC(HDC) const
+{
+}
+

@@ -144,6 +144,12 @@ public:
     void setPaintDevice(QPaintDevice *device);
     QPaintDevice *paintDevice() const;
 
+#ifdef Q_WS_WIN
+    virtual HDC getDC() const;
+    virtual void releaseDC(HDC hdc) const;
+#endif
+
+
     enum Type {
         X11,
         Windows, Gdiplus,
@@ -153,6 +159,7 @@ public:
         OpenGL,
         Picture,
         SVG,
+        Raster,
 
         User = 50,    // first user type id
         MaxUser = 100 // last user type id

@@ -1445,9 +1445,13 @@ QPainter::RenderHints QWin32PaintEngine::supportedRenderHints() const
     return 0;
 }
 
-HDC QWin32PaintEngine::winHDC() const
+HDC QWin32PaintEngine::getDC() const
 {
     return d->hdc;
+}
+
+void QWin32PaintEngine::releaseDC(HDC) const
+{
 }
 
 #define COLSCALE(x) uint( (x) * 0xff00 / 255.0 )

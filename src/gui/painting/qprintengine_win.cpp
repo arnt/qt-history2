@@ -1158,7 +1158,7 @@ HDC QWin32PrintEngine::getDC() const
     return d->hdc;
 }
 
-void QWin32PrintEngine::releaseDC(HDC)
+void QWin32PrintEngine::releaseDC(HDC) const
 {
 
 }

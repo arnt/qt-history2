@@ -112,7 +112,7 @@ public:
     QPrinter::PrinterState printerState() const;
 
     HDC getDC() const;
-    void releaseDC(HDC);
+    void releaseDC(HDC) const;
 
 private:
     friend class QPrintDialog;
