@@ -3,8 +3,7 @@
 */
 
 #include <qfile.h>
-#include <qptrstack.h>
-#include <qvaluestack.h>
+#include <qstack.h>
 
 #include <ctype.h>
 #include <stdio.h>
@@ -174,7 +173,7 @@ void Processor::start( bool verbose )
     int prevSectionLevel = 0;
     int sectionLevel = 0;
 
-    QValueStack<OpenedList> openedLists;
+    QStack<OpenedList> openedLists;
 
     while ( yyPos < yyLen ) {
 	QChar ch = yyIn[yyPos++];
@@ -983,8 +982,8 @@ private:
     void fillHtmlPageSequence( const QValueList<Section> *sects, int level );
     QString makeBanner();
 
-    QValueStack<QString> banners;
-    QPtrStack<HtmlWriter> w;
+    QStack<QString> banners;
+    QStack<HtmlWriter*> w;
     SectionNumber sectionCounter;
     QValueList<const Section *> htmlPageSequence;
     int delta;
@@ -996,7 +995,6 @@ HtmlSynthetizer::HtmlSynthetizer( const QString& filePath,
 				  const Resolver *resolver )
     : Synthetizer( filePath, analyzer, resolver )
 {
-    w.setAutoDelete( TRUE );
     w.push( new HtmlWriter(location(), outFileBase() + QString(".html")) );
     w.top()->setTitle( analyzer->title() );
     w.top()->setHeading( analyzer->title() );
@@ -1032,6 +1030,8 @@ HtmlSynthetizer::~HtmlSynthetizer()
 	generateXmlSections( rootXmlSection, product + ".dcf", "qt script for applications/" + product );
     else
 	generateXmlSections( rootXmlSection, product + ".dcf", "qt/" + product );
+    while (!w.isEmpty())
+	delete w.pop();
 }
 
 void HtmlSynthetizer::processAlias( const QString& alias,

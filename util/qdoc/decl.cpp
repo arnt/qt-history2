@@ -186,20 +186,20 @@ static void printHtmlLongMembers( HtmlWriter& out,
 			    className.latin1() );
 	}
 
-	QValueList<Decl *> by = (*m)->reimplementedBy();
+	QList<Decl *> by = (*m)->reimplementedBy();
 	if ( !by.isEmpty() ) {
 	    /*
 	      We don't want totally uninteresting reimplementations
 	      in this list.
 	    */
-	    QValueList<Decl *>::ConstIterator r;
-	    r = by.begin();
-	    while ( r != by.end() ) {
-		Decl *d = *r;
-		++r;
-		if ( d->doc() == 0 || d->isInternal() ||
-		     d->context()->isInternal() )
-		    by.remove( d );
+
+	    int i = 0;
+	    while (i < by.size()) {
+		Decl *d = by.at(i);
+		if (d->doc() == 0 || d->isInternal() || d->context()->isInternal())
+		    by.removeAt(i);
+		else
+		    ++i;
 	    }
 	}
 	if ( !by.isEmpty() ) {

@@ -21,10 +21,10 @@ static int *createLineNoAtOffset( const QString& code )
 {
     int *lineNoAtOffset = new int[code.length() + 1];
     int lineNo = 1;
-    for ( int i = 0; i < (int) code.length(); i++ ) {
+    for ( int i = 0; i < code.length(); ++i ) {
 	// consider the \n as starting a line (this helps us later)
 	if ( code[i] == QChar('\n') )
-	    lineNo++;
+	    ++lineNo;
 	lineNoAtOffset[i] = lineNo;
     }
     return lineNoAtOffset;

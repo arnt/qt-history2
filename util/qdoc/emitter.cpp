@@ -193,7 +193,8 @@ void DocEmitter::addHtmlChunk( const QString& link, const HtmlChunk& chk )
 
 void DocEmitter::addLink( const QString& link, const QString& text )
 {
-    lmap[text].insert( link );
+    if (!text.isEmpty())
+	lmap[text].insert( link );
 }
 
 void DocEmitter::nailDownDecls()

@@ -25,8 +25,9 @@ QString MetaResolver::resolve( const QString& name ) const
 	 (g = (*f).find(member + QString("()"))) != (*f).end() ) {
 	return *g;
     } else if ( cinherits.contains(className) ) {
-	QStringList::ConstIterator s = cinherits[className].begin();
-	while ( s != cinherits[className].end() ) {
+	StringSet ss = cinherits[className];
+	QStringList::ConstIterator s = ss.begin();
+	while ( s != ss.end() ) {
 	    link = r->resolve( *s + QString("::") + member );
 	    if ( !link.isEmpty() )
 		return link;
