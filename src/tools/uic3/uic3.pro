@@ -1,4 +1,3 @@
-
 TEMPLATE = app
 CONFIG += console
 CONFIG -= resource_fork
