@@ -1555,6 +1555,10 @@ QMetaObject *QComBase::metaObject() const
 				    eventtype->GetTypeAttr( &eventattr );
 				    // this is it
 				    if ( eventattr && eventattr->guid == iid ) {
+					QUuid uuid( iid );
+					QString uuidstr = uuid.toString().upper();
+					uuidstr = iidnames.readEntry( "/Interface/" + uuidstr + "/Default", uuidstr );
+					infolist.insert( QString("Events %1").arg(infolist.count()+1), new QString( uuidstr ) );
 					eventinfo = eventtype;
 					break;
 				    }

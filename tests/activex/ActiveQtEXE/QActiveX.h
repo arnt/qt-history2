@@ -13,7 +13,7 @@ Q_EXPORT LRESULT QtWndProcGate( HWND, UINT, WPARAM, LPARAM );
 
 /////////////////////////////////////////////////////////////////////////////
 // QActiveX
-class ATL_NO_VTABLE QActiveX : 
+class QActiveX : 
     public CComObjectRootEx<CComSingleThreadModel>,
     public IDispatchImpl<IQActiveX, &IID_IQActiveX, &LIBID_ACTIVEQTEXELib>,
     public CComControl<QActiveX>,
@@ -114,6 +114,13 @@ private:
 	}
 
 	setupWidgets( m_pWidget );
+	if ( m_spClientSite ) {
+	    QSize prefsize( m_pWidget->sizeHint() );
+	    RECT rect = { 0, 0, prefsize.width(), prefsize.height() };
+	    SIZE sz = { prefsize.width(), prefsize.height() };
+	    AtlPixelToHiMetric( &sz, &m_sizeExtent );
+	    m_spClientSite->RequestNewObjectLayout();
+	}
 
 	return 0;
     }
