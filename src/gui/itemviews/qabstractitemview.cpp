@@ -319,15 +319,6 @@ and keyboard modifiers are specified by \a button and \a modifiers.
 */
 
 /*!
-    \fn void QAbstractItemView::aboutToShowContextMenu(QMenu *menu, const QModelIndex &index)
-
-    This signal is emitted when the context menu is invoked. The \a
-    menu is an empty menu; if you populate it with actions it will be
-    popped up for the user. The current item when the contex menu
-    event occurred is specified by \a index.
-*/
-
-/*!
     \fn QModelIndex QAbstractItemView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::KeyboardModifiers modifiers) = 0
 
     Moves the cursor in the view according to the given \a cursorAction and
@@ -969,8 +960,6 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
     This function is called when a mouse release event \a e
     occurs. It will emit the clicked() signal if an item was being
     pressed.
-
-    \sa contextMenuEvent()
 */
 void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
 {
@@ -1004,24 +993,6 @@ void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *e)
     emit activated(index);
     emit doubleClicked(index);
     edit(index, DoubleClicked, e);
-}
-
-/*!
-    This function is called when context menu event \a e occurs. It
-    emits the aboutToShowContextMenu() signal with a pointer to a
-    QMenu object; if this QMenu object is populated with actions (e.g.
-    in a slot you've connected to the aboutToShowContextMenu()
-    signal), then the menu is shown.
-*/
-void QAbstractItemView::contextMenuEvent(QContextMenuEvent *e)
-{
-    QPoint position = e->pos();
-    QModelIndex index = indexAt(position);
-    QMenu contextMenu(this);
-    contextMenu.move(e->globalPos());
-    emit aboutToShowContextMenu(&contextMenu, index);
-    if (contextMenu.actions().count() > 0)
-        contextMenu.exec();
 }
 
 /*!

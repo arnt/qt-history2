@@ -165,8 +165,6 @@ signals:
     void activated(const QModelIndex &index);
     void entered(const QModelIndex &index);
     void viewportEntered();
-    // to be removed
-    void aboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
 
 protected:
     QAbstractItemView(QAbstractItemViewPrivate &, QWidget *parent = 0);
@@ -221,7 +219,6 @@ protected:
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
     void mouseDoubleClickEvent(QMouseEvent *e);
-    void contextMenuEvent(QContextMenuEvent *e);
     void dragEnterEvent(QDragEnterEvent *e);
     void dragMoveEvent(QDragMoveEvent *e);
     void dragLeaveEvent(QDragLeaveEvent *e);

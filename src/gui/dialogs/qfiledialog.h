@@ -188,7 +188,7 @@ private:
     Q_PRIVATE_SLOT(d, void lookInChanged(const QString &text))
     Q_PRIVATE_SLOT(d, void useFilter(const QString &filter))
     Q_PRIVATE_SLOT(d, void setCurrentDir(const QString &path))
-    Q_PRIVATE_SLOT(d, void populateContextMenu(QMenu *menu, const QModelIndex &index))
+    Q_PRIVATE_SLOT(d, void showContextMenu(const QPoint &pos))
     Q_PRIVATE_SLOT(d, void renameCurrent())
     Q_PRIVATE_SLOT(d, void deleteCurrent())
     Q_PRIVATE_SLOT(d, void reload())

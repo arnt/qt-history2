@@ -116,7 +116,7 @@ public:
     void lookInChanged(const QString &text);
     void useFilter(const QString &filter);
     void setCurrentDir(const QString &path);
-    void populateContextMenu(QMenu *menu, const QModelIndex &index);
+    void showContextMenu(const QPoint &pos);
     void renameCurrent();
     void deleteCurrent();
     void reload();
@@ -1174,34 +1174,43 @@ void QFileDialogPrivate::setCurrentDir(const QString &path)
 /*!
     \internal
 
-    This creates the default context menu for the file list. The
-    context menu is passed in \a menu and the index into the
-    underlying model in \a index.
+    This creates the default context menu for the file list.
 */
 
-void QFileDialogPrivate::populateContextMenu(QMenu *menu, const QModelIndex &index)
+void QFileDialogPrivate::showContextMenu(const QPoint &pos)
 {
+    QAbstractItemView *view = 0;
+    // FIXME: should we have a currentView() ?
+    if (viewMode == QFileDialog::Detail)
+        view = treeView;
+    else
+        view = listView;
+    QModelIndex index = view->indexAt(pos);
+    QMenu menu(view);
+        
     if (index.isValid()) {
         // file context menu
-        menu->addAction(openAction);
-        menu->addSeparator();
-        menu->addAction(renameAction);
-        menu->addAction(deleteAction);
+        menu.addAction(openAction);
+        menu.addSeparator();
+        menu.addAction(renameAction);
+        menu.addAction(deleteAction);
         renameAction->setEnabled(!model->isReadOnly());
         deleteAction->setEnabled(!model->isReadOnly());
     } else {
         // view context menu
-        menu->addAction(reloadAction);
-        QMenu *sort = new QMenu(tr("Sort"));
-        menu->addMenu(sort);
-        sort->addAction(sortByNameAction);
-        sort->addAction(sortBySizeAction);
-        sort->addAction(sortByDateAction);
-        sort->addSeparator();
-        sort->addAction(unsortedAction);
-        menu->addSeparator();
-        menu->addAction(showHiddenAction);
+        menu.addAction(reloadAction);
+        QMenu sort(tr("Sort"));
+        menu.addMenu(&sort);
+        sort.addAction(sortByNameAction);
+        sort.addAction(sortBySizeAction);
+        sort.addAction(sortByDateAction);
+        sort.addSeparator();
+        sort.addAction(unsortedAction);
+        menu.addSeparator();
+        menu.addAction(showHiddenAction);
     }
+
+    menu.exec();
 }
 
 /*!
@@ -1462,8 +1471,8 @@ void QFileDialogPrivate::setupListView(const QModelIndex &current, QGridLayout *
     grid->addWidget(listView, 1, 0, 1, 6);
 
     QObject::connect(listView, SIGNAL(activated(QModelIndex)), q, SLOT(enterSubdir(QModelIndex)));
-    QObject::connect(listView, SIGNAL(aboutToShowContextMenu(QMenu*,QModelIndex)),
-                     q, SLOT(populateContextMenu(QMenu*,QModelIndex)));
+    QObject::connect(listView, SIGNAL(customContextMenuRequested(const QPoint&)),
+                     q, SLOT(showContextMenu(const QPoint&)));
 
     QShortcut *shortcut = new QShortcut(listView);
     shortcut->setKey(QKeySequence("Delete"));
@@ -1493,8 +1502,8 @@ void QFileDialogPrivate::setupTreeView(const QModelIndex &current, QGridLayout *
     grid->addWidget(treeView, 1, 0, 1, 6);
 
     QObject::connect(treeView, SIGNAL(activated(QModelIndex)), q, SLOT(enterSubdir(QModelIndex)));
-    QObject::connect(treeView, SIGNAL(aboutToShowContextMenu(QMenu*,QModelIndex)),
-                     q, SLOT(populateContextMenu(QMenu*,QModelIndex)));
+    QObject::connect(treeView, SIGNAL(customContextMenuRequested(const QPoint&)),
+                     q, SLOT(showContextMenu(const QPoint&)));
 
     QShortcut *shortcut = new QShortcut(treeView);
     shortcut->setKey(QKeySequence("Delete"));
