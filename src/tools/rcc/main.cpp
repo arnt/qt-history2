@@ -24,12 +24,14 @@ enum {
 int
 main(int argc, char **argv)
 {
-    bool show_help = false, recursive = false, 
-	   verbose = false, path = true;;
+    bool show_help = false, recursive = false,
+	   verbose = false, path = true, force_relative = true;
     char *error = 0;
     int compress_level = -1, compress_threshold = 70;
     QString output_file, prefix, init_name;
     QFileInfoList files;
+
+    QString currentPath = QDir::currentPath();
 
     //parse options
     for (int i = 1; i < argc && !error; i++) {
@@ -53,7 +55,7 @@ main(int argc, char **argv)
                     break;
                 }
                 prefix = QDir::cleanPath(argv[++i]);
-                if(prefix.isEmpty() || prefix[0] != '/') 
+                if(prefix.isEmpty() || prefix[0] != '/')
                     error = "Prefix must start with a /";
             } else if(opt == "compress") {
                 if (!(i < argc-1)) {
@@ -80,6 +82,8 @@ main(int argc, char **argv)
                 compress_level = 0;
             } else if(opt == "no-path") {
                 path = false;
+            } else if(opt == "no-relative-path") {
+                force_relative = false;
             } else {
                 error = "Unknown option";
             }
@@ -89,7 +93,22 @@ main(int argc, char **argv)
                 qWarning("%s: File does not exist '%s'", argv[0], argv[i]);
                 return 1;
             }
-            files.append(fi);
+
+            if (force_relative) {
+                QString stripped = fi.absoluteFilePath();
+                if (stripped.startsWith(currentPath)) {
+                    stripped = stripped.mid(currentPath.length());
+                    while (stripped.length() && stripped.at(0) == '/') {
+                        stripped = stripped.mid(1);
+                    }
+                }
+
+                if (stripped.isEmpty())
+                    stripped = ".";
+                files.append(QFileInfo(stripped));
+            } else {
+                files.append(fi);
+            }
         }
     }
     if (!files.size() || error || show_help) {
@@ -152,21 +171,21 @@ main(int argc, char **argv)
             if(compress_level && input.length() > 100) {
                 QByteArray compress = qCompress((uchar *)input.data(), input.size(), compress_level);
                 compressRatio = (int)(((float)input.size())/compress.size()*100);
-                if(compressRatio >= compress_threshold) 
+                if(compressRatio >= compress_threshold)
                     input = compress;
                 else
                     compressRatio = 0;
             }
             if(verbose)
                 qDebug("Read file %s [Compressed %d%%]", files[file].filePath().latin1(), compressRatio);
-            
+
             //header
             const QString resource = QDir::cleanPath(prefix + "/" + (path ? files[file].filePath() : files[file].fileName()));
             QString resource_name = resource;
             resource_name.replace(QRegExp("[^a-zA-Z0-9_]"), "_");
             uchar flags = 0;
             if(compressRatio)
-                flags |= Compressed; 
+                flags |= Compressed;
             fprintf(out, "\n//Generated from '%s'\n", files[file].filePath().latin1());
             fprintf(out, "static uchar %s[] = {\n", resource_name.latin1());
             fprintf(out, "\t0x12, 0x15, 0x19, 0x78, //header\n");
@@ -207,7 +226,7 @@ main(int argc, char **argv)
             fprintf(out, "\n};\n");
 
             //QMetaResource
-            fprintf(out, "Q_GLOBAL_STATIC_WITH_ARGS(QMetaResource, resource_%s, (%s))\n", 
+            fprintf(out, "Q_GLOBAL_STATIC_WITH_ARGS(QMetaResource, resource_%s, (%s))\n",
                     resource_name.latin1(), resource_name.latin1());
             global_resources << "resource_" + resource_name;
         }
@@ -219,14 +238,14 @@ main(int argc, char **argv)
         if(QDir::isRelativePath(init_name))
             init_name.prepend(QDir::currentPath() + "_");
     }
-    init_name.replace(QRegExp("[^a-zA-Z0-9_]"), "_");        
+    init_name.replace(QRegExp("[^a-zA-Z0-9_]"), "_");
     fprintf(out, "\n//resource initialization function\n");
-    fprintf(out, "%sint qInitResources_%s()\n{\n", 
+    fprintf(out, "%sint qInitResources_%s()\n{\n",
             no_name ? "static " : "", init_name.latin1());
     for(int resource = 0; resource < global_resources.count(); resource++)
         fprintf(out, "\t(void)%s();\n", global_resources[resource].latin1());
     fprintf(out, "\treturn %d;\n}\n", global_resources.count());
-    fprintf(out, "static int %s_static_init = qInitResources_%s();\n", 
+    fprintf(out, "static int %s_static_init = qInitResources_%s();\n",
             init_name.latin1(), init_name.latin1());
     //close
     fclose(out);
