@@ -2,6 +2,7 @@
   emitter.cpp
 */
 
+#include <qdatetime.h>
 #include <qdir.h>
 #include <qfile.h>
 #include <qfileinfo.h>
