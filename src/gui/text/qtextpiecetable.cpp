@@ -308,15 +308,13 @@ void QTextPieceTable::setFormat(int pos, int length, const QTextFormat &newForma
 	int length = qMin(endPos - pos, int(fragment->size - offset));
 	int oldFormat = fragment->format;
 
-	it = fragments.find(pos);
-	fragment = it.value();
-
 	if (mode == MergeFormat) {
 	    QTextFormat format = formats.format(fragment->format);
 	    format += newFormat;
 	    fragment->format = formats.indexForFormat(format);
-	} else
+	} else {
 	    fragment->format = newFormatIdx;
+	}
 
 	if (undoEnabled) {
 	    UndoCommand c = { UndoCommand::FormatChanged, true /*undoBlock != 0*/, UndoCommand::MoveCursor, oldFormat,
