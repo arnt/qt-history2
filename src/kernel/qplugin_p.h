@@ -10,21 +10,41 @@
 #   include "qt_windows.h"
 #   include "qapplication_p.h"
 
+extern void qSystemWarning( const QString& messsage );
+
 HINSTANCE qt_load_library( const QString& lib )
 {
+    HINSTANCE handle;
     if ( qt_winver & Qt::WV_NT_based )
-	return LoadLibraryW( (TCHAR*)qt_winTchar(lib, TRUE) );
-    return LoadLibraryA( (const char*)lib.local8Bit() );
+	handle = LoadLibraryW( (TCHAR*)qt_winTchar(lib, TRUE) );
+    else
+	handle = LoadLibraryA( (const char*)lib.local8Bit() );
+#ifdef CHECK_RANGE
+    qSystemWarning( "Failed to load library!" );
+#endif
+
+    return handle;
 }
 
 bool qt_free_library( HINSTANCE handle )
 {
-    return FreeLibrary( handle );
+    bool ok = FreeLibrary( handle );
+#ifdef CHECK_RANGE
+    qSystemWarning( "Failed to unload library!" );
+#endif
+
+    return ok;
 }
 
 void* qt_resolve_symbol( HINSTANCE handle, const char* f )
 {
-    return GetProcAddress( handle, f );
+    void* address = GetProcAddress( handle, f );
+#ifdef CHECK_RANGE
+    if ( !address )
+	qSystemWarning( "Couldn't resolve symbol" );
+#endif
+
+    return address;
 }
 
 #elif defined(_OS_HPUX_)
@@ -73,17 +93,33 @@ void* qt_resolve_symbol( void* handle, const char* f )
 
 void* qt_load_library( const QString& lib )
 {
-    return dlopen( lib, RTLD_LAZY );
+    void* handle = dlopen( lib, RTLD_LAZY );
+#ifdef CHECK_RANGE
+    if ( !handle )
+	qWarning( dlerror() );
+#endif
+    return handle;
 }
 
 bool qt_free_library( void* handle )
 {
     return dlclose( handle );
+#ifdef CHECK_RANGE
+    char* error = dlerror();
+    if ( error )
+	qWarning( error );
+#endif
 }
 
 void* qt_resolve_symbol( void* handle, const char* f )
 {
-    return dlsym( handle, f );
+    void* address = dlsym( handle, f );
+#ifdef CHECK_RANGE
+    char* error = dlerror();
+    if ( error )
+	qWarning( error );
+#endif
+    return address;
 }
 #endif
 
