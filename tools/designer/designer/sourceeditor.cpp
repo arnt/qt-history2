@@ -74,4 +74,5 @@ void SourceEditor::closeEvent( QCloseEvent *e )
 void SourceEditor::save()
 {
     QMap<QString, QString> functions = iFace->functions();
-    MetaDataBase::setFunctionBodies( formWindow, functions );}
+    MetaDataBase::setFunctionBodies( formWindow, functions );
+}
