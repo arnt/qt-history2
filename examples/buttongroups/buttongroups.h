@@ -29,7 +29,8 @@ protected:
     QCheckBox *state;
     QRadioButton *rb21, *rb22, *rb23;
 
-protected slots:    
+protected slots:
+    void buttonClicked();
     void slotChangeGrp3State();
 
 };

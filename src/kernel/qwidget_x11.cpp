@@ -248,7 +248,7 @@ static void qt_net_change_wm_state(const QWidget* w, bool set, Atom one, Atom tw
 
 	Atom *new_states = new Atom[nitems + 2];
 	int i, j = 0;
-	for (i = 0; i < nitems; ++i) {
+	for (i = 0; i < (int)nitems; ++i) {
 	    if (old_states[i] && old_states[i] != one && old_states[i] != two)
 		new_states[j++] = old_states[i];
 	}
@@ -982,7 +982,7 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height,
 }
 
 
-void QWidget::setFontSys( QFont * )
+void QWidgetPrivate::setFont_syshelper( QFont * )
 {
     // Nothing
 }

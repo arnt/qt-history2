@@ -51,6 +51,16 @@ ButtonsGroups::ButtonsGroups( QWidget *parent, const char *name )
 
     // Create a non-exclusive buttongroup
     QButtonGroup *bgrp2 = new QButtonGroup( 1, QGroupBox::Horizontal, "Button Group 2 (non-exclusive)", this );
+
+    QPalette pal;// = bgrp2->palette();
+    pal.setColor(QPalette::Foreground, red);
+    bgrp2->setPalette(pal);
+
+    QFont font;
+    font.setItalic(true);
+    bgrp2->setFont(font);
+
+
     box1->addWidget( bgrp2 );
     bgrp2->setExclusive( FALSE );
 
@@ -88,7 +98,8 @@ ButtonsGroups::ButtonsGroups( QWidget *parent, const char *name )
     box2->addWidget( bgrp4 );
 
     // insert four pushbuttons...
-    (void)new QPushButton( "&Push Button", bgrp4, "push" );
+    QPushButton *tb1 = new QPushButton( "&Push Button", bgrp4, "push" );
+    connect(tb1, SIGNAL(clicked()), this, SLOT(buttonClicked()));
 
     // now make the second one a toggle button
     QPushButton *tb2 = new QPushButton( "&Toggle Button", bgrp4, "toggle" );
@@ -120,4 +131,16 @@ void ButtonsGroups::slotChangeGrp3State()
     rb21->setEnabled( state->isChecked() );
     rb22->setEnabled( state->isChecked() );
     rb23->setEnabled( state->isChecked() );
+}
+
+void ButtonsGroups::buttonClicked()
+{
+    if (ownPalette())
+	unsetPalette();
+    else
+	setPalette(QPalette(green));
+    if (ownFont())
+	unsetFont();
+    else
+	setFont(QFont("times"));
 }

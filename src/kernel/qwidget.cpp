@@ -431,6 +431,7 @@ static QFont qt_naturalWidgetFont( QWidget* w ) {
 	else
 	    naturalfont = w->parentWidget()->font();
     }
+    naturalfont.resolve(0);
     return naturalfont;
 }
 
@@ -443,6 +444,7 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
 	else
 	    naturalpalette = w->parentWidget()->palette();
     }
+    naturalpalette.resolve(0);
     return naturalpalette;
 }
 #endif
@@ -1068,10 +1070,7 @@ void QWidgetPrivate::propagatePaletteChange()
 	    if(!w->isWidgetType() || w->isTopLevel())
 		continue;
 #ifndef QT_NO_PALETTE
-	    if (w->testAttribute(QWidget::WA_SetPalette))
-		w->setPalette_helper(w->pal.resolve(qt_naturalWidgetPalette(w)));
-	    else
-		w->setPalette_helper(qt_naturalWidgetPalette(w));
+	    w->d->resolvePalette();
 #endif
 	}
     }
@@ -2486,19 +2485,12 @@ void QWidget::setForegroundRole(QPalette::ColorRole role)
     \property QWidget::palette
     \brief the widget's palette
 
-    As long as no special palette has been set, or after unsetPalette()
-    has been called, this is either a special palette for the widget
-    class, the parent's palette or (if this widget is a top level
-    widget), the default application palette.
+    As long as no special palette has been set, this is either a
+    special palette for the widget class, the parent's palette or (if
+    this widget is a top level widget), the default application
+    palette.
 
-    Instead of defining an entirely new palette, you can also use the
-    \link QWidget::paletteBackgroundColor paletteBackgroundColor\endlink,
-    \link QWidget::paletteBackgroundPixmap paletteBackgroundPixmap\endlink and
-    \link QWidget::paletteForegroundColor paletteForegroundColor\endlink
-    convenience properties to change a widget's
-    background and foreground appearance only.
-
-    \sa ownPalette, QApplication::palette()
+    \sa QApplication::palette()
 */
 const QPalette &QWidget::palette() const
 {
@@ -2513,24 +2505,22 @@ const QPalette &QWidget::palette() const
 
 void QWidget::setPalette( const QPalette &palette )
 {
-    setAttribute(WA_SetPalette, true);
-    setPalette_helper(palette);
+    setAttribute(WA_SetPalette, palette.resolve() != 0);
+    d->setPalette_helper(palette.resolve(qt_naturalWidgetPalette(this)));
 }
 
-void QWidget::setPalette_helper( const QPalette &palette )
+void QWidgetPrivate::resolvePalette()
 {
-    if (pal == palette && pal.mask() == palette.mask())
+    setPalette_helper(q->pal.resolve(qt_naturalWidgetPalette(q)));
+}
+
+void QWidgetPrivate::setPalette_helper( const QPalette &palette )
+{
+    if (q->pal == palette && q->pal.resolve() == palette.resolve())
 	return;
-    QPalette old = pal;
-    pal = palette.resolve( qt_naturalWidgetPalette( this ) );
-    d->updateSystemBackground();
-    d->propagatePaletteChange();
-}
-
-void QWidget::unsetPalette()
-{
-    setAttribute(WA_SetPalette, false);
-    setPalette_helper( qt_naturalWidgetPalette( this ) );
+    q->pal = palette;
+    updateSystemBackground();
+    propagatePaletteChange();
 }
 
 /*!
@@ -2568,45 +2558,43 @@ void QWidget::unsetPalette()
 
 void QWidget::setFont( const QFont &font )
 {
-    setAttribute(WA_SetFont, true);
-    setFont_helper(font);
+    setAttribute(WA_SetFont, font.resolve() != 0);
+    d->setFont_helper(font);
 }
 
-void QWidget::setFont_helper( const QFont &font )
+void QWidgetPrivate::resolveFont()
 {
-    if (fnt == font && fnt.mask() == font.mask())
+    setFont_helper(q->fnt.resolve(qt_naturalWidgetFont(q)));
+}
+
+void QWidgetPrivate::setFont_helper( const QFont &font )
+{
+    if (q->fnt == font && q->fnt.resolve() == font.resolve())
 	return;
 
-    QFont old = fnt;
-    fnt = font.resolve( qt_naturalWidgetFont( this ) );
+#ifndef QT_NO_COMPAT
+    QFont old = q->fnt;
+#endif
+    q->fnt = font;
 #if defined(Q_WS_X11)
     // make sure the font set on this widget is associated with the correct screen
-    fnt.x11SetScreen( x11Screen() );
+    q->fnt.x11SetScreen( q->x11Screen() );
 #endif
     if ( !d->children.isEmpty() ) {
 	for (int i = 0; i < d->children.size(); ++i) {
 	    QWidget *w = static_cast<QWidget*>(d->children.at(i));
 	    if (!w->isWidgetType() || w->isTopLevel())
 		continue;
-	    if (w->testAttribute(WA_SetFont))
-		w->setFont_helper(w->fnt.resolve(qt_naturalWidgetFont(w)));
-	    else
-		w->setFont_helper(qt_naturalWidgetFont(w));
+	    w->d->resolveFont();
 	}
     }
-    if ( hasFocus() )
-	setFontSys();
+    if ( q->hasFocus() )
+	setFont_syshelper();
     QEvent e(QEvent::FontChange);
-    QApplication::sendEvent(this, &e);
+    QApplication::sendEvent(q, &e);
 #ifndef QT_NO_COMPAT
-    fontChange(old);
+    q->fontChange(old);
 #endif
-}
-
-void QWidget::unsetFont()
-{
-    setAttribute(WA_SetFont, false);
-    setFont_helper( qt_naturalWidgetFont( this ) );
 }
 
 /*!
@@ -4186,7 +4174,7 @@ bool QWidget::event( QEvent *e )
 
     case QEvent::FocusIn:
 	focusInEvent( (QFocusEvent*)e );
-	setFontSys();
+	d->setFont_syshelper();
 	break;
 
     case QEvent::FocusOut:
@@ -4264,23 +4252,20 @@ bool QWidget::event( QEvent *e )
 	break;
 
     case QEvent::ApplicationFontChange:
-	if (testAttribute(WA_SetFont))
-	    setFont_helper(fnt.resolve(qt_naturalWidgetFont(this)));
-	else
-	    setFont_helper(qt_naturalWidgetFont(this));
+	d->resolveFont();
 	break;
 #ifndef QT_NO_PALETTE
     case QEvent::ApplicationPaletteChange:
-	if (!testAttribute(WA_SetPalette) && !isDesktop())
-	    unsetPalette();
+	if (!isDesktop())
+	    d->resolvePalette();
 	break;
 #endif
     case QEvent::Polish:
 	if ( !ownFont() && !QApplication::font(this).isCopyOf(QApplication::font()))
-	    unsetFont();
+	    d->resolveFont();
 #ifndef QT_NO_PALETTE
-	if ( !ownPalette() && !QApplication::palette(this).isCopyOf(QApplication::palette()))
-	    unsetPalette();
+	if (!QApplication::palette(this).isCopyOf(QApplication::palette()))
+	    d->resolvePalette();
 #endif
 	qApp->polish(this);
 #ifndef QT_NO_COMPAT
@@ -5320,15 +5305,9 @@ void QWidget::setParent(QWidget *parent, WFlags f)
     reparent_helper( parent, f, QPoint(0,0), false);
     QEvent e( QEvent::Reparent );
     QApplication::sendEvent( this, &e );
-    if (!testAttribute(WA_SetFont))
-	unsetFont();
-    else
-	setFont_helper( fnt.resolve( qt_naturalWidgetFont( this ) ) );
+    d->resolveFont();
 #ifndef QT_NO_PALETTE
-    if (!testAttribute(WA_SetPalette))
-	unsetPalette();
-    else
-	setPalette_helper( pal.resolve( qt_naturalWidgetPalette( this ) ) );
+    d->resolvePalette();
 #endif
 }
 
@@ -5546,14 +5525,13 @@ void QWidget::drawText(const QPoint &p, const QString &str)
     QWidget::setDisabled()
 
     \row \i WA_SetPalette \i Indicates that the widgets has a palette
-    of its own.  \i Functions QWidget::setPalette() and
-    QWidget::unsetPalette()
+    of its own.  \i Function QWidget::setPalette()
 
     \row \i WA_SetFont \i Indicates that the widgets has a font of its
-    own. \i Functions QWidget::setFont() and QWidget::unsetFont()
+    own. \i Function QWidget::setFont()
 
     \row \i WA_SetCursor \i Indicates that the widgets has a cursor of its
-    own. \i Functions QWidget::setCursor() and QWidget::unsetCursorz()
+    own. \i Functions QWidget::setCursor() and QWidget::unsetCursor()
 
     \row \i WA_SetForegroundRole \i Indicates that the widgets has an
     explicit foreground role \i Function QWidget::setForegroundRole()
@@ -5629,7 +5607,6 @@ void QWidget::setAttribute(WidgetAttribute attribute, bool b)
 	else
 	    d->high_attributes[x / (8*sizeof(uint))] &= ~(1<<x);
     }
-#ifdef Q_WS_X11
     switch (attribute) {
 	case WA_NoSystemBackground:
 	    d->updateSystemBackground();
@@ -5637,7 +5614,6 @@ void QWidget::setAttribute(WidgetAttribute attribute, bool b)
 	default:
 	    break;
     }
-#endif
 }
 
 /*! \fn bool QWidget::testAttribute(WidgetAttribute attribute) const

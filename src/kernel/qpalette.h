@@ -52,7 +52,7 @@ public:
 		     Highlight, HighlightedText, Link, LinkVisited,
 		     NColorRoles };
 
-    inline ColorGroup currentColorGroup() const { return current_group; }
+    inline ColorGroup currentColorGroup() const { return (ColorGroup)current_group; }
     inline void setCurrentColorGroup(ColorGroup cg) { current_group = cg; }
 
     inline const QColor &color(ColorGroup cg, ColorRole cr) const
@@ -110,7 +110,8 @@ public:
     int serialNumber() const;
 
     QPalette resolve( const QPalette & ) const;
-    uint mask() const;
+    inline uint resolve() const { return resolve_mask; }
+    inline void resolve(uint mask) { resolve_mask = mask; }
 
 private:
     void setColorGroup(ColorGroup cr, const QBrush &foreground, const QBrush &button,
@@ -128,7 +129,8 @@ private:
     void detach();
 
     QPalettePrivate *d;
-    ColorGroup current_group : 4;
+    uint current_group : 4;
+    uint resolve_mask : 27;
 #ifndef QT_NO_COMPAT
     friend class QColorGroup;
     uint is_colorgroup : 1;

@@ -279,7 +279,8 @@ public:
 #endif // QT_NO_COMPAT
 
     QFont resolve( const QFont & ) const;
-    uint mask() const;
+    inline uint resolve() const { return resolve_mask; }
+    inline void resolve(uint mask) { resolve_mask = mask; }
 
 protected:
     // why protected?
@@ -315,6 +316,7 @@ private:
 #endif
 
     QFontPrivate *d;
+    uint resolve_mask;
 };
 
 

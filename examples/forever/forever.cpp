@@ -29,17 +29,17 @@
 Forever::Forever( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
-    for (int a=0; a<numColors; a++) {
-	colors[a] = QColor( rand()&255,
-			    rand()&255,
-			    rand()&255 );
-    }
-    rectangles = 0;
-    startTimer( 0 );				// run continuous timer
-    QTimer * counter = new QTimer( this );
-    connect( counter, SIGNAL(timeout()),
-	     this, SLOT(updateCaption()) );
-    counter->start( 1000 );
+//     for (int a=0; a<numColors; a++) {
+// 	colors[a] = QColor( rand()&255,
+// 			    rand()&255,
+// 			    rand()&255 );
+//     }
+//     rectangles = 0;
+//     startTimer( 0 );				// run continuous timer
+//     QTimer * counter = new QTimer( this );
+//     connect( counter, SIGNAL(timeout()),
+// 	     this, SLOT(updateCaption()) );
+//     counter->start( 1000 );
 }
 
 
@@ -58,17 +58,18 @@ void Forever::updateCaption()
 
 void Forever::paintEvent( QPaintEvent * )
 {
+    return;
     QPainter paint( this );			// painter object
     int w = width();
     int h = height();
-    if(w <= 0 || h <= 0) 
+    if(w <= 0 || h <= 0)
 	return;
     paint.setPen( NoPen );			// do not draw outline
     paint.setBrush( colors[rand() % numColors]);// set random brush color
-    
+
     QPoint p1( rand()%w, rand()%h );	// p1 = top left
     QPoint p2( rand()%w, rand()%h );	// p2 = bottom right
-    
+
     QRect r( p1, p2 );
     paint.drawRect( r );			// draw filled rectangle
 }
@@ -79,6 +80,7 @@ void Forever::paintEvent( QPaintEvent * )
 
 void Forever::timerEvent( QTimerEvent * )
 {
+    return;
     for ( int i=0; i<100; i++ ) {
 	repaint( FALSE );			// repaint, don't erase
 	rectangles++;
@@ -94,9 +96,10 @@ int main( int argc, char **argv )
 {
     QApplication a( argc, argv );		// create application object
     Forever always;				// create widget
-    always.resize( 400, 250 );			// start up with size 400x250
-    a.setMainWidget( &always );			// set as main widget
-    always.setCaption("Qt Example - Forever");
+//     always.resize( 400, 250 );			// start up with size 400x250
+//     a.setMainWidget( &always );			// set as main widget
+//     always.setCaption("Qt Example - Forever");
+    always.setAttribute(QWidget::WA_NoSystemBackground);
     always.show();				// show widget
     return a.exec();				// run event loop
 }

@@ -158,9 +158,7 @@ public:
 	Complete      = 0x07ff
     };
 
-    uint mask;
-
-    void resolve( const QFontPrivate *other );
+    void resolve( uint mask, const QFontPrivate *other );
 };
 
 

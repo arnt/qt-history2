@@ -537,7 +537,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 }
 
 
-void QWidget::setFontSys( QFont *f )
+void QWidgetPrivate::setFont_syshelper( QFont *f )
 {
     QInputContext::setFont( this, (f ? *f : font()) );
 }

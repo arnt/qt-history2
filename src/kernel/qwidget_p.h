@@ -158,6 +158,16 @@ public:
     void updateSystemBackground();
     void propagatePaletteChange();
 
+#ifndef QT_NO_PALETTE
+    void setPalette_helper(const QPalette &);
+    void resolvePalette();
+#endif
+
+    void setFont_syshelper( QFont *f = 0 );
+    void setFont_helper(const QFont &);
+    void resolveFont();
+
+
     bool isForegroundInherited() const;
     bool isBackgroundInherited() const;
     bool isTransparent() const;

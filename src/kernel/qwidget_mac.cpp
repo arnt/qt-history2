@@ -1137,7 +1137,7 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool, QFont
     }
 }
 
-void QWidget::setFontSys(QFont *)
+void QWidgetPrivate::setFont_syshelper(QFont *)
 {
 }
 

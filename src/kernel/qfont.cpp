@@ -102,8 +102,7 @@ bool QFontDef::operator==( const QFontDef &other ) const
 
 QFontPrivate::QFontPrivate()
     : engineData( 0 ), paintdevice( 0 ),
-      rawMode( FALSE ), underline( FALSE ), overline( FALSE ), strikeOut( FALSE ),
-      mask( 0 )
+      rawMode( FALSE ), underline( FALSE ), overline( FALSE ), strikeOut( FALSE )
 {
 #ifdef Q_WS_X11
     screen = QPaintDevice::x11AppScreen();
@@ -116,7 +115,7 @@ QFontPrivate::QFontPrivate( const QFontPrivate &other )
     : QShared(), request( other.request ), engineData( 0 ),
       paintdevice( other.paintdevice ), screen( other.screen ),
       rawMode( other.rawMode ), underline( other.underline ), overline( other.overline ),
-      strikeOut( other.strikeOut ), mask( other.mask )
+      strikeOut( other.strikeOut )
 {
 }
 
@@ -141,7 +140,7 @@ QFontPrivate::~QFontPrivate()
     engineData = 0;
 }
 
-void QFontPrivate::resolve( const QFontPrivate *other )
+void QFontPrivate::resolve(uint mask, const QFontPrivate *other)
 {
     Q_ASSERT( other != 0 );
 
@@ -536,14 +535,6 @@ void QFont::detach()
     QFontPrivate *old_d = d;
     d = new QFontPrivate( *old_d );
 
-    /*
-      if this font is a copy of the application default font, set the
-      fontdef mask to zero to indicate that *nothing* has been
-      explicitly set by the programmer.
-    */
-    if (old_d == QApplication::font().d)
-	d->mask = 0;
-
     if ( old_d->deref() )
 	delete old_d;
 }
@@ -554,8 +545,9 @@ void QFont::detach()
     \sa QApplication::setFont(), QApplication::font()
 */
 QFont::QFont()
+    :d(QApplication::font().d),
+     resolve_mask(0)
 {
-    d = QApplication::font().d;
     d->ref();
 }
 
@@ -577,22 +569,20 @@ QFont::QFont()
     setStyleHint() QApplication::font()
 */
 QFont::QFont( const QString &family, int pointSize, int weight, bool italic )
+    :d( new QFontPrivate)
 {
-
-    d = new QFontPrivate;
-
-    d->mask = QFontPrivate::Family;
+    resolve_mask = QFontPrivate::Family;
 
     if (pointSize <= 0) {
 	pointSize = 12;
     } else {
-	d->mask |= QFontPrivate::Size;
+	resolve_mask |= QFontPrivate::Size;
     }
 
     if (weight < 0) {
 	weight = Normal;
     } else {
-	d->mask |= QFontPrivate::Weight | QFontPrivate::Italic;
+	resolve_mask |= QFontPrivate::Weight | QFontPrivate::Italic;
     }
 
     d->request.family = family;
@@ -608,6 +598,7 @@ QFont::QFont( const QString &family, int pointSize, int weight, bool italic )
 QFont::QFont( const QFont &font )
 {
     d = font.d;
+    resolve_mask = font.resolve_mask;
     d->ref();
 }
 
@@ -629,6 +620,7 @@ QFont &QFont::operator=( const QFont &font )
     if ( font.d != d ) {
 	if ( d->deref() )
 	    delete d;
+	resolve_mask = font.resolve_mask;
 	d = font.d;
 	d->ref();
     }
@@ -670,7 +662,7 @@ void QFont::setFamily( const QString &family )
     d->request.addStyle = QString::null;
 #endif // Q_WS_X11
 
-    d->mask |= QFontPrivate::Family;
+    resolve_mask |= QFontPrivate::Family;
 }
 
 /*!
@@ -715,7 +707,7 @@ void QFont::setPointSize( int pointSize )
     d->request.pointSize = pointSize * 10;
     d->request.pixelSize = -1;
 
-    d->mask |= QFontPrivate::Size;
+    resolve_mask |= QFontPrivate::Size;
 }
 
 /*!
@@ -737,7 +729,7 @@ void QFont::setPointSizeFloat( float pointSize )
     d->request.pointSize = qRound(pointSize * 10.0);
     d->request.pixelSize = -1;
 
-    d->mask |= QFontPrivate::Size;
+    resolve_mask |= QFontPrivate::Size;
 }
 
 /*!
@@ -772,7 +764,7 @@ void QFont::setPixelSize( int pixelSize )
     d->request.pixelSize = pixelSize;
     d->request.pointSize = -1;
 
-    d->mask |= QFontPrivate::Size;
+    resolve_mask |= QFontPrivate::Size;
 }
 
 /*!
@@ -818,7 +810,7 @@ void QFont::setItalic( bool enable )
     detach();
 
     d->request.italic = enable;
-    d->mask |= QFontPrivate::Italic;
+    resolve_mask |= QFontPrivate::Italic;
 }
 
 /*!
@@ -864,7 +856,7 @@ void QFont::setWeight( int weight )
     detach();
 
     d->request.weight = weight;
-    d->mask |= QFontPrivate::Weight;
+    resolve_mask |= QFontPrivate::Weight;
 }
 
 /*!
@@ -909,7 +901,7 @@ void QFont::setUnderline( bool enable )
     detach();
 
     d->underline = enable;
-    d->mask |= QFontPrivate::Underline;
+    resolve_mask |= QFontPrivate::Underline;
 }
 
 /*!
@@ -932,7 +924,7 @@ void QFont::setOverline( bool enable )
     detach();
 
     d->overline = enable;
-    d->mask |= QFontPrivate::Overline;
+    resolve_mask |= QFontPrivate::Overline;
 }
 
 /*!
@@ -956,7 +948,7 @@ void QFont::setStrikeOut( bool enable )
     detach();
 
     d->strikeOut = enable;
-    d->mask |= QFontPrivate::StrikeOut;
+    resolve_mask |= QFontPrivate::StrikeOut;
 }
 
 /*!
@@ -981,7 +973,7 @@ void QFont::setFixedPitch( bool enable )
 
     d->request.fixedPitch = enable;
     d->request.ignorePitch = FALSE;
-    d->mask |= QFontPrivate::FixedPitch;
+    resolve_mask |= QFontPrivate::FixedPitch;
 }
 
 /*!
@@ -1085,15 +1077,15 @@ void QFont::setStyleHint( StyleHint hint, StyleStrategy strategy )
 {
     detach();
 
-    if ( ( d->mask & ( QFontPrivate::StyleHint | QFontPrivate::StyleStrategy ) ) &&
+    if ( ( resolve_mask & ( QFontPrivate::StyleHint | QFontPrivate::StyleStrategy ) ) &&
 	 (StyleHint) d->request.styleHint == hint &&
 	 (StyleStrategy) d->request.styleStrategy == strategy )
 	return;
 
     d->request.styleHint = hint;
     d->request.styleStrategy = strategy;
-    d->mask |= QFontPrivate::StyleHint;
-    d->mask |= QFontPrivate::StyleStrategy;
+    resolve_mask |= QFontPrivate::StyleHint;
+    resolve_mask |= QFontPrivate::StyleStrategy;
 
 #if defined(Q_WS_X11)
     d->request.addStyle = QString::null;
@@ -1109,12 +1101,12 @@ void QFont::setStyleStrategy( StyleStrategy s )
 {
     detach();
 
-    if ( ( d->mask & QFontPrivate::StyleStrategy ) &&
+    if ( ( resolve_mask & QFontPrivate::StyleStrategy ) &&
 	 s == (StyleStrategy)d->request.styleStrategy )
 	return;
 
     d->request.styleStrategy = s;
-    d->mask |= QFontPrivate::StyleStrategy;
+    resolve_mask |= QFontPrivate::StyleStrategy;
 }
 
 
@@ -1173,12 +1165,12 @@ void QFont::setStretch( int factor )
 
     detach();
 
-    if ( ( d->mask & QFontPrivate::Stretch ) &&
+    if ( ( resolve_mask & QFontPrivate::Stretch ) &&
 	 d->request.stretch == (uint)factor )
 	return;
 
     d->request.stretch = (uint)factor;
-    d->mask |= QFontPrivate::Stretch;
+    resolve_mask |= QFontPrivate::Stretch;
 }
 
 /*!
@@ -1319,31 +1311,22 @@ bool QFont::rawMode() const
 */
 QFont QFont::resolve( const QFont &other ) const
 {
-    if ( *this == other && d->mask == other.d->mask )
-	return *this;
+    if (*this == other && resolve_mask == other.resolve_mask
+	|| resolve_mask == 0) {
+	QFont o = other;
+	o.resolve_mask = resolve_mask;
+	return o;
+    }
 
     QFont font( *this );
     font.detach();
-
-    /*
-      if this font is a copy of the application default font, set the
-      fontdef mask to zero to indicate that *nothing* has been
-      explicitly set by the programmer.
-    */
-    if (d == QApplication::font().d)
-	font.d->mask = 0;
-
-    font.d->resolve( other.d );
+    font.d->resolve(resolve_mask, other.d);
 
     return font;
 }
 
-/*!\internal
- */
-uint QFont::mask() const
-{
-    return d->mask;
-}
+/*!\internal \fn uint QFont::resolve() const */
+/*!\internal \fn void QFont::resolve(uint mask) */
 
 #ifndef QT_NO_COMPAT
 
@@ -1754,7 +1737,7 @@ QDataStream &operator>>( QDataStream &s, QFont &font )
     if (font.d->deref()) delete font.d;
 
     font.d = new QFontPrivate;
-    font.d->mask = QFontPrivate::Complete;
+    font.resolve_mask = QFontPrivate::Complete;
 
     Q_INT16 pointSize, pixelSize = -1;
     Q_UINT8 styleHint, styleStrategy = QFont::PreferDefault, charSet, weight, bits;

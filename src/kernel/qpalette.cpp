@@ -21,22 +21,11 @@
 static QAtomic qt_palette_count = Q_ATOMIC_INIT(1);
 class QPalettePrivate {
 public:
-    QPalettePrivate():ser_no(++qt_palette_count), mask(0xffffffff){ ref = 1; }
+    QPalettePrivate():ser_no(++qt_palette_count) { ref = 1; }
     QAtomic ref;
     QBrush br[QPalette::NColorGroups][QPalette::NColorRoles];
     int ser_no;
-    uint mask;
-    void resolve( const QPalettePrivate *other );
 };
-
-void QPalettePrivate::resolve( const QPalettePrivate *other )
-{
-    qDebug("resolve palette with mask %d to other with mask %d", mask, other->mask);
-    for(int role = 0; role < (int)QPalette::NColorRoles; role++)
-	if (!(mask & (1<<role)))
-	    for(int grp = 0; grp < (int)QPalette::NColorGroups; grp++)
-		br[grp][role] = other->br[grp][role];
-}
 
 static QColor qt_mix_colors(QColor a, QColor b)
 {
@@ -444,13 +433,14 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
     \sa QApplication::setPalette(), QApplication::palette()
 */
 QPalette::QPalette()
-{
-    d = QApplication::palette().d;
-    ++d->ref;
-    current_group = Active; //as a default..
+    : d(QApplication::palette().d),
+      current_group(Active),
+      resolve_mask(0)
 #ifndef QT_NO_COMPAT
-    is_colorgroup = 0;
+    ,is_colorgroup(0)
 #endif
+{
+    ++d->ref;
 }
 
 /*!\obsolete
@@ -562,6 +552,7 @@ QPalette::QPalette(const QPalette &p)
 {
     d = p.d;
     ++d->ref;
+    resolve_mask = p.resolve_mask;
 #ifndef QT_NO_COMPAT
     is_colorgroup = p.is_colorgroup;
 #endif
@@ -580,6 +571,7 @@ QPalette::~QPalette()
 /*!\internal*/
 void QPalette::init() {
     d = new QPalettePrivate;
+    resolve_mask = 0;
 #ifndef QT_NO_COMPAT
     is_colorgroup = 0;
 #endif
@@ -598,6 +590,7 @@ QPalette &QPalette::operator=(const QPalette &p)
 {
     QPalettePrivate *x = p.d;
     ++x->ref;
+    resolve_mask = p.resolve_mask;
     current_group = p.current_group;
 #ifndef QT_NO_COMPAT
     is_colorgroup = p.is_colorgroup;
@@ -625,7 +618,7 @@ const QBrush &QPalette::brush(ColorGroup gr, ColorRole cr) const
     Q_ASSERT(cr < NColorRoles);
     if(gr >= (int)NColorGroups) {
 	if(gr == Current) {
-	    gr = current_group;
+	    gr = (ColorGroup)current_group;
 	} else {
 	    qWarning("QPalette::brush: Unknown ColorGroup: %d", (int)gr);
 	    gr = Active;
@@ -656,17 +649,17 @@ void QPalette::setBrush(ColorGroup cg, ColorRole cr, const QBrush &b)
 	if(cg == All) {
 	    for(int i = 0; i < (int)NColorGroups; i++)
 		d->br[i][cr] = b;
-	    d->mask |= (1<<cr);
+	    resolve_mask |= (1<<cr);
 	    return;
 	} else if(cg == Current) {
-	    cg = current_group;
+	    cg = (ColorGroup)current_group;
 	} else {
 	    qWarning("QPalette::setBrush: Unknown ColorGroup: %d", (int)cg);
 	    cg = Active;
 	}
     }
     d->br[cg][cr] = b;
-    d->mask |= (1<<cr);
+    resolve_mask |= (1<<cr);
 }
 
 
@@ -696,14 +689,6 @@ void QPalette::detach()
 	    for(int role = 0; role < (int)NColorRoles; role++)
 		x->br[grp][role] = d->br[grp][role];
 	}
-	x->mask = d->mask;
-	/*
-	  if this palette is a copy of the application default palette, set the
-	  palettedef mask to zero to indicate that *nothing* has been
-	  explicitly set by the programmer.
-	*/
-	if (d == QApplication::palette().d)
-	    x->mask = 0;
 	x = qAtomicSetPtr(&d, x);
 	if(!--x->ref)
 	    delete x;
@@ -743,7 +728,7 @@ bool QPalette::isEqual(QPalette::ColorGroup grp1, QPalette::ColorGroup grp2) con
 {
     if(grp1 >= (int)NColorGroups) {
 	if(grp1 == Current) {
-	    grp1 = current_group;
+	    grp1 = (ColorGroup)current_group;
 	} else {
 	    qWarning("QPalette::brush: Unknown ColorGroup(1): %d", (int)grp1);
 	    grp1 = Active;
@@ -751,7 +736,7 @@ bool QPalette::isEqual(QPalette::ColorGroup grp1, QPalette::ColorGroup grp2) con
     }
     if(grp2 >= (int)NColorGroups) {
 	if(grp2 == Current) {
-	    grp2 = current_group;
+	    grp2 = (ColorGroup)current_group;
 	} else {
 	    qWarning("QPalette::brush: Unknown ColorGroup(2): %d", (int)grp2);
 	    grp2 = Active;
@@ -789,31 +774,27 @@ int QPalette::serialNumber() const
 */
 QPalette QPalette::resolve( const QPalette &other ) const
 {
-    if ( *this == other && d->mask == other.d->mask )
-	return *this;
+    if (*this == other && resolve_mask == other.resolve_mask
+	|| resolve_mask == 0) {
+	QPalette o = other;
+	o.resolve_mask = resolve_mask;
+	return o;
+    }
 
     QPalette palette( *this );
     palette.detach();
 
-    /*
-      if this palette is a copy of the application default palette, set the
-      palettedef mask to zero to indicate that *nothing* has been
-      explicitly set by the programmer.
-    */
-    if ( d == QApplication::palette().d )
-	palette.d->mask = 0;
-
-    palette.d->resolve( other.d );
+    for(int role = 0; role < (int)NColorRoles; role++)
+	if (!(resolve_mask & (1<<role)))
+	    for(int grp = 0; grp < (int)NColorGroups; grp++)
+		palette.d->br[grp][role] = other.d->br[grp][role];
 
     return palette;
 }
 
-/*!\internal
- */
-uint QPalette::mask() const
-{
-    return d->mask;
-}
+/*!\internal \fn uint QPalette::resolve() const */
+/*!\internal \fn void QPalette::resolve(uint mask) */
+
 
 /*****************************************************************************
   QPalette stream functions

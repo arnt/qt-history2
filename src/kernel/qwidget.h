@@ -97,9 +97,9 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( QSize sizeIncrement READ sizeIncrement WRITE setSizeIncrement )
     Q_PROPERTY( QSize baseSize READ baseSize WRITE setBaseSize )
 #ifndef QT_NO_PALETTE
-    Q_PROPERTY( QPalette palette READ palette WRITE setPalette RESET unsetPalette )
+    Q_PROPERTY( QPalette palette READ palette WRITE setPalette )
 #endif
-    Q_PROPERTY( QFont font READ font WRITE setFont RESET unsetFont )
+    Q_PROPERTY( QFont font READ font WRITE setFont )
 #ifndef QT_NO_CURSOR
     Q_PROPERTY( QCursor cursor READ cursor WRITE setCursor RESET unsetCursor )
 #endif
@@ -218,7 +218,6 @@ public:
     // Widget appearance functions
     const QPalette &palette() const;
     void setPalette( const QPalette & );
-    void unsetPalette();
 
     void setBackgroundRole(QPalette::ColorRole);
     QPalette::ColorRole backgroundRole() const;
@@ -229,7 +228,6 @@ public:
 
     const QFont &font() const;
     void setFont( const QFont & );
-    void unsetFont();
     QFontMetrics fontMetrics() const;
     QFontInfo fontInfo() const;
 
@@ -565,7 +563,6 @@ protected:
 protected:
     explicit QWidget( QWidgetPrivate *d, QWidget* parent, const char* name, WFlags f);
 private:
-    void	 setFontSys( QFont *f = 0 );
 #if defined(Q_WS_MAC)
     uint    own_id : 1, macDropEnabled : 1;
     EventHandlerRef window_event;
@@ -596,10 +593,6 @@ private:
     void	 reparent_helper( QWidget *parent, WFlags, const QPoint &,  bool showIt);
     void	 deactivateWidgetCleanup();
     void setGeometry_helper(int, int, int, int, bool);
-    void setFont_helper(const QFont &);
-#ifndef QT_NO_PALETTE
-    void setPalette_helper(const QPalette &);
-#endif
     void show_helper();
     void hide_helper();
     void setEnabled_helper(bool);
@@ -690,8 +683,10 @@ public:
 #ifndef QT_NO_CURSOR
     inline bool ownCursor() const { return testAttribute(WA_SetCursor); }
 #endif
-    inline bool ownFont() const  { return testAttribute(WA_SetFont); }
-    inline bool ownPalette() const  { return testAttribute(WA_SetPalette); }
+    inline bool ownFont() const { return testAttribute(WA_SetFont); }
+    inline void unsetFont() { setFont(QFont()); }
+    inline bool ownPalette() const { return testAttribute(WA_SetPalette); }
+    inline void unsetPalette() { setPalette(QPalette()); }
     BackgroundMode backgroundMode() const;
     void setBackgroundMode( BackgroundMode );
     void setBackgroundMode( BackgroundMode, BackgroundMode );

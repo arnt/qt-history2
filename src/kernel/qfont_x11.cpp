@@ -49,9 +49,9 @@
 
 double qt_pixelSize(double pointSize, QPaintDevice *paintdevice, int scr)
 {
-#ifdef Q_Q4PAINTER    
+#ifdef Q_Q4PAINTER
 #define QPaintDevice QX11GC
-#endif    
+#endif
     if (pointSize < 0) return -1.;
 
     double result = pointSize;
@@ -62,15 +62,15 @@ double qt_pixelSize(double pointSize, QPaintDevice *paintdevice, int scr)
 
     return result;
 }
-#ifdef Q_Q4PAINTER    
+#ifdef Q_Q4PAINTER
 #undef QPaintDevice
-#endif    
+#endif
 
 double qt_pointSize(double pixelSize, QPaintDevice *paintdevice, int scr)
 {
-#ifdef Q_Q4PAINTER    
+#ifdef Q_Q4PAINTER
 #define QPaintDevice QX11GC
-#endif    
+#endif
     if (pixelSize < 0) return -1.;
 
     double result = pixelSize;
@@ -82,7 +82,7 @@ double qt_pointSize(double pixelSize, QPaintDevice *paintdevice, int scr)
     return result;
 }
 
-#ifdef Q_Q4PAINTER    
+#ifdef Q_Q4PAINTER
 #undef QPaintDevice
 #endif
 
@@ -494,7 +494,7 @@ void QFont::setRawName( const QString &name )
 	setFamily( name );
 	setRawMode( TRUE );
     } else {
-	d->mask = QFontPrivate::Complete;
+	resolve_mask = QFontPrivate::Complete;
     }
 }
 

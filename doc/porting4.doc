@@ -114,6 +114,10 @@ COMPAT mode, but we recommend not using them in new code.
 
 \list
 \i QWidget::hasMouse() - use QWidget::underMouse() instead.
+\i QWidget::ownPalette() - use QWidget::testAttribute(QWidget::WA_SetPalette) instead.
+\i QWidget::unsetPalette() - use QWidget::setPalette(QPalette()) instead.
+\i QWidget::ownFont() - use QWidget::testAttribute(QWidget::WA_SetFont) instead.
+\i QWidget::unsetFont() - use QWidget::setFont(QFont()) instead.
 \endlist
 
 \list
