@@ -69,7 +69,7 @@ QVariant SpreadSheetItem::data(int role) const
     if (role == QAbstractItemModel::TextAlignmentRole)
         if (!t.isEmpty() && (t.at(0).isNumber() || t.at(0) == '-'))
             return (int)(Qt::AlignRight | Qt::AlignVCenter);
-    
+
     return QTableWidgetItem::data(role);
 }
 
@@ -84,8 +84,8 @@ QVariant SpreadSheetItem::display() const
     QString op = list.at(0).toLower();
     QPoint one = convertCoords(list.at(1));
     QPoint two = convertCoords(list.at(2));
- 
-    QTableWidgetItem *start = view->item(one.y(), one.x());
+
+    const QTableWidgetItem *start = view->item(one.y(), one.x());
     QTableWidgetItem *end = view->item(two.y(), two.x());
 
     if (!start || !end)
@@ -94,9 +94,11 @@ QVariant SpreadSheetItem::display() const
     if (op == "sum") {
         int sum = 0;
         for (int r = view->row(start); r <= view->row(end); ++r)
-            for (int c = view->column(start); c <= view->column(end); ++c)
-                if (view->item(r, c) != this)
-                    sum += view->item(r, c)->text().toInt();
+            for (int c = view->column(start); c <= view->column(end); ++c) {
+                const QTableWidgetItem *tableItem = view->item(r, c);
+                if (tableItem != this)
+                    sum += tableItem->text().toInt();
+            }
         return (sum);
     } else if (op == "+") {
         return (start->text().toInt() + end->text().toInt());
@@ -187,7 +189,7 @@ private:
     QTableWidgetItem *contextItem;
 };
 
-SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent) 
+SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
     : QMainWindow(parent)
 {
     toolBar = new QToolBar(this);
@@ -320,7 +322,7 @@ void SpreadSheet::setupContents()
     // column 0
     table->setItem(0, 0, new SpreadSheetItem("Item"));
     table->item(0, 0)->setBackgroundColor(Qt::yellow);
-    table->item(0, 0)->setToolTip("This column shows the purchased item/service");    
+    table->item(0, 0)->setToolTip("This column shows the purchased item/service");
     table->setItem(1, 0, new SpreadSheetItem("AirportBus"));
     table->setItem(2, 0, new SpreadSheetItem("Flight (Munich)"));
     table->setItem(3, 0, new SpreadSheetItem("Lunch"));
