@@ -139,7 +139,7 @@ QSizePolicy QToolBarSeparator::sizePolicy() const
   (see setOrientation() for details). Generally, QMainWindow will set
   the orientation correctly for you. The toolbar emits a signal
   orientationChanged() each time the orientation changes, in case some
-  child widgets need adjustification.
+  child widgets need adjustments.
 
   \sa QToolButton QMainWindow
   <a href="http://www.iarchitect.com/visual.htm">Parts of Isys on Visual Design</a>
@@ -493,7 +493,7 @@ bool QToolBar::fullwidth() const
 
 
 /*!
-  \fn void QToolBar::orientationChanged( Qt::Orientation newOrientation )
+  \fn void QToolBar::orientationChanged( Orientation newOrientation )
 
   This signal is emitted when the toolbar changed its orientation to
   \a newOrientation.
