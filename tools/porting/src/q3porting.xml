@@ -5436,10 +5436,6 @@
         <Qt3>QPaintDeviceMetrics</Qt3>
     </item>
     <item Type="RenamedClass" >
-        <Qt4>Q3Painter</Qt4>
-        <Qt3>QPainter</Qt3>
-    </item>
-    <item Type="RenamedClass" >
         <Qt4>Q3PolygonScanner</Qt4>
         <Qt3>QPolygonScanner</Qt3>
     </item>
@@ -9133,10 +9129,6 @@
     <item Type="RenamedHeader" >
         <Qt4>qabstractlayout.h</Qt4>
         <Qt3>qlayout.h</Qt3>
-    </item>
-    <item Type="RenamedHeader" >
-        <Qt4>q3painter.h</Qt4>
-        <Qt3>qpainter.h</Qt3>
     </item>
     <item Type="RenamedHeader" >
         <Qt4>qvboxwidget.h</Qt4>
