@@ -43,6 +43,8 @@
 #include "qdir.h"
 #endif // QT_H
 
+#ifndef QT_NO_NETWORKPROTOCOL
+
 struct QUrlPrivate;
 
 class Q_EXPORT QUrl
@@ -119,5 +121,7 @@ private:
     QUrlPrivate *d;
 
 };
+
+#endif
 
 #endif

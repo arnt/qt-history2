@@ -37,11 +37,10 @@
 
 #define QT_CLEAN_NAMESPACE
 
-#include "qfeatures.h"
+#include "qimage.h"
 
 #ifndef QT_NO_IMAGEIO_JPEG
 
-#include "qimage.h"
 #include "qiodevice.h"
 
 #include <stdio.h> // jpeglib needs this to be pre-included
