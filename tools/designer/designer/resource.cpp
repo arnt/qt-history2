@@ -2727,12 +2727,12 @@ void Resource::saveToolBars( QMainWindow *mw, QTextStream &ts, int indent )
 			ts <<  makeIndent( indent ) << "<widget class=\""
 			   << WidgetFactory::classNameOf( w ) << "\">" << endl;
 			indent++;
-			saveObjectProperties( w, ts, indent );
 			const char *className = WidgetFactory::classNameOf( w );
 			if ( w->isA( "CustomWidget" ) )
 			    usedCustomWidgets << QString( className );
 			if ( WidgetFactory::hasItems( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) ) ) )
 			    saveItems( w, ts, indent );
+			saveObjectProperties( w, ts, indent );
 			indent--;
 			ts << makeIndent( indent ) << "</widget>" << endl;
 		    } else {
