@@ -174,45 +174,10 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe,
         qDrawShadeRect(p, r, pal, true, 1, 0, 0);
         break;
 
-    case PE_ButtonCommand:
-    case PE_ButtonBevel:
-    case PE_ButtonTool:
-    case PE_ButtonDropDown:
-    case PE_HeaderSection:
-        qDrawShadePanel(p, r, pal, flags & (Style_Sunken | Style_Down | Style_On) , 1,
-                        &pal.brush(QPalette::Button));
-        break;
-
     case PE_Separator:
         qDrawShadeLine(p, r.left(), r.top(), r.right(), r.bottom(), pal,
                         flags & Style_Sunken, 1, 0);
         break;
-
-    case PE_FocusRect: {
-        const QColor *bg = 0;
-
-        if (!opt.isDefault())
-            bg = &opt.color();
-
-        QPen oldPen = p->pen();
-
-        if (bg) {
-            int h, s, v;
-            bg->getHsv(&h, &s, &v);
-            if (v >= 128)
-                p->setPen(Qt::black);
-            else
-                p->setPen(Qt::white);
-        } else
-            p->setPen(pal.foreground());
-
-        if (flags & Style_FocusAtBorder)
-            p->drawRect(QRect(r.x() + 1, r.y() + 1, r.width() - 2, r.height() - 2));
-        else
-            p->drawRect(r);
-
-        p->setPen(oldPen);
-        break; }
 
     case PE_SpinWidgetPlus:
     case PE_SpinWidgetMinus: {
@@ -284,41 +249,6 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe,
         p->restore();
         break; }
 
-    case PE_Indicator: {
-        if (flags & Style_NoChange) {
-            p->setPen(pal.foreground());
-            p->fillRect(r, pal.brush(QPalette::Button));
-            p->drawRect(r);
-            p->drawLine(r.topLeft(), r.bottomRight());
-        } else
-            qDrawShadePanel(p, r.x(), r.y(), r.width(), r.height(),
-                            pal, flags & (Style_Sunken | Style_On), 1,
-                            &pal.brush(QPalette::Button));
-        break; }
-
-    case PE_IndicatorMask: {
-        p->fillRect(r, color1);
-        break; }
-
-    case PE_ExclusiveIndicator: {
-        QRect ir = r;
-        p->setPen(pal.dark());
-        p->drawArc(r, 0, 5760);
-
-        if (flags & (Style_Sunken | Style_On)) {
-            ir.addCoords(2, 2, -2, -2);
-            p->setBrush(pal.foreground());
-            p->drawEllipse(ir);
-        }
-
-        break; }
-
-    case PE_ExclusiveIndicatorMask: {
-        p->setPen(color1);
-        p->setBrush(color1);
-        p->drawEllipse(r);
-        break; }
-
     case PE_DockWindowHandle: {
         bool highlight = flags & Style_On;
 
@@ -357,15 +287,6 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe,
         qDrawShadeLine(p, p1, p2, pal, 1, 1, 0);
         break; }
 
-    case PE_MenuFrame:
-    case PE_Panel:
-    case PE_PanelPopup: {
-        int lw = opt.isDefault() ? pixelMetric(PM_DefaultFrameWidth)
-                    : opt.lineWidth();
-
-        qDrawShadePanel(p, r, pal, (flags & Style_Sunken), lw);
-        break; }
-
     case PE_PanelDockWindow: {
         int lw = opt.isDefault() ? pixelMetric(PM_DockWindowFrameWidth)
                     : opt.lineWidth();
@@ -373,93 +294,6 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe,
         qDrawShadePanel(p, r, pal, false, lw);
         break; }
 
-    case PE_MenuBarFrame:
-    case PE_PanelMenuBar: {
-        int lw = opt.isDefault() ? pixelMetric(PM_MenuBarFrameWidth)
-                    : opt.lineWidth();
-
-        qDrawShadePanel(p, r, pal, false, lw, &pal.brush(QPalette::Button));
-        break; }
-
-    case PE_SizeGrip: {
-        p->save();
-
-        int x, y, w, h;
-        r.rect(&x, &y, &w, &h);
-
-        int sw = qMin(h,w);
-        if (h > w)
-            p->translate(0, h - w);
-        else
-            p->translate(w - h, 0);
-
-        int sx = x;
-        int sy = y;
-        int s = sw / 3;
-
-        if (QApplication::reverseLayout()) {
-            sx = x + sw;
-            for (int i = 0; i < 4; ++i) {
-                p->setPen(QPen(pal.light(), 1));
-                p->drawLine( x, sy - 1 , sx + 1,  sw);
-                p->setPen(QPen(pal.dark(), 1));
-                p->drawLine( x, sy, sx,  sw);
-                p->setPen(QPen(pal.dark(), 1));
-                p->drawLine( x, sy + 1, sx - 1,  sw);
-                sx -= s;
-                sy += s;
-            }
-        } else {
-            for (int i = 0; i < 4; ++i) {
-                p->setPen(QPen(pal.light(), 1));
-                p->drawLine( sx-1, sw, sw,  sy-1);
-                p->setPen(QPen(pal.dark(), 1));
-                p->drawLine( sx, sw, sw,  sy);
-                p->setPen(QPen(pal.dark(), 1));
-                p->drawLine( sx+1, sw, sw,  sy+1);
-                sx += s;
-                sy += s;
-            }
-        }
-
-        p->restore();
-        break; }
-
-    case PE_CheckMark: {
-        const int markW = r.width() > 7 ? 7 : r.width();
-        const int markH = markW;
-        int posX = r.x() + (r.width() - markW)/2 + 1;
-        int posY = r.y() + (r.height() - markH)/2;
-
-        // Could do with some optimizing/caching...
-        QPointArray a(markH*2);
-        int i, xx, yy;
-        xx = posX;
-        yy = 3 + posY;
-        for (i=0; i<markW/2; i++) {
-            a.setPoint(2*i,   xx, yy);
-            a.setPoint(2*i+1, xx, yy+2);
-            xx++; yy++;
-        }
-        yy -= 2;
-        for (; i<markH; i++) {
-            a.setPoint(2*i,   xx, yy);
-            a.setPoint(2*i+1, xx, yy+2);
-            xx++; yy--;
-        }
-        if (!(flags & Style_Enabled) && !(flags & Style_On)) {
-            int pnt;
-            p->setPen(pal.highlightedText());
-            QPoint offset(1,1);
-            for (pnt = 0; pnt < (int)a.size(); pnt++)
-                a[pnt] += offset;
-            p->drawLineSegments(a);
-            for (pnt = 0; pnt < (int)a.size(); pnt++)
-                a[pnt] -= offset;
-        }
-        p->setPen(pal.text());
-        p->drawLineSegments(a);
-        break; }
 
     case PE_PanelGroupBox: //We really do not need PE_GroupBoxFrame anymore, nasty holdover ###
         drawPrimitive(PE_GroupBoxFrame, p, r, pal, flags, opt);
@@ -475,11 +309,6 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe,
             qDrawPlainRect(p, r.x(), r.y(), r.width(), r.height(), pal.foreground(), lwidth);
 #endif
         break; }
-
-    case PE_ProgressBarChunk:
-        p->fillRect(r.x(), r.y() + 3, r.width() -2, r.height() - 6,
-            pal.brush(QPalette::Highlight));
-        break;
 
     case PE_PanelLineEdit:
     case PE_PanelTabWidget:
@@ -765,6 +594,47 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, 
             p->drawLine(mid_h, aft_v, mid_h, opt->rect.bottom());
         if (opt->state & (Style_Open | Style_Children | Style_Item | Style_Sibling))
             p->drawLine(mid_h, opt->rect.y(), mid_h, bef_v);
+        break; }
+    case PE_SizeGrip: {
+        p->save();
+        int x, y, w, h;
+        opt->rect.rect(&x, &y, &w, &h);
+
+        int sw = qMin(h, w);
+        if (h > w)
+            p->translate(0, h - w);
+        else
+            p->translate(w - h, 0);
+
+        int sx = x;
+        int sy = y;
+        int s = sw / 3;
+
+        if (QApplication::reverseLayout()) {
+            sx = x + sw;
+            for (int i = 0; i < 4; ++i) {
+                p->setPen(QPen(opt->palette.light(), 1));
+                p->drawLine(x, sy - 1 , sx + 1,  sw);
+                p->setPen(QPen(opt->palette.dark(), 1));
+                p->drawLine(x, sy, sx, sw);
+                p->setPen(QPen(opt->palette.dark(), 1));
+                p->drawLine(x, sy + 1, sx - 1,  sw);
+                sx -= s;
+                sy += s;
+            }
+        } else {
+            for (int i = 0; i < 4; ++i) {
+                p->setPen(QPen(opt->palette.light(), 1));
+                p->drawLine(sx - 1, sw, sw,  sy - 1);
+                p->setPen(QPen(opt->palette.dark(), 1));
+                p->drawLine(sx, sw, sw,  sy);
+                p->setPen(QPen(opt->palette.dark(), 1));
+                p->drawLine(sx + 1, sw, sw,  sy + 1);
+                sx += s;
+                sy += s;
+            }
+        }
+        p->restore();
         break; }
     default:
         qWarning("QCommonStyle::drawPrimitive not handled %d", pe);

@@ -501,17 +501,6 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r
         HIThemeDrawTabPane(qt_glb_mac_rect(r, p), &tpdi, static_cast<CGContextRef>(p->handle()),
                            kHIThemeOrientationNormal);
         break; }
-    case PE_SizeGrip: {
-        HIThemeGrowBoxDrawInfo gdi;
-        gdi.version = qt_mac_hitheme_version;
-        gdi.state = tds;
-        gdi.kind = kHIThemeGrowBoxKindNormal;
-        gdi.direction = kThemeGrowLeft | kThemeGrowDown;
-        gdi.size = kHIThemeGrowBoxSizeNormal; // How does one determine the size?
-        HIPoint pt = { r.x(), r.y() };
-        HIThemeDrawGrowBox(&pt, &gdi, static_cast<CGContextRef>(p->handle()),
-                           kHIThemeOrientationNormal);
-        break; }
     case PE_HeaderArrow: {
         QWidget *w = qt_abuse_painter_for_widget(p);
         if (w && w->inherits("QTable"))
@@ -1515,6 +1504,26 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
     case PE_RubberBand:
         p->fillRect(opt->rect, opt->palette.highlight());
         break;
+    case PE_SizeGrip: {
+        HIThemeGrowBoxDrawInfo gdi;
+        gdi.version = qt_mac_hitheme_version;
+        gdi.state = tds;
+        gdi.kind = kHIThemeGrowBoxKindNormal;
+        gdi.direction = kThemeGrowLeft | kThemeGrowDown;
+        switch (qt_aqua_size_constrain(w)) {
+            case QAquaSizeLarge:
+            case QAquaSizeUnknown:
+                gdi.size = kHIThemeGrowBoxSizeNormal;
+                break;
+            case QAquaSizeSmall:
+            case QAquaSizeMini:
+                gdi.size = kHIThemeGrowBoxSizeSmall;
+                break;
+        }
+        HIPoint pt = { opt->rect.x(), opt->rect.y() };
+        HIThemeDrawGrowBox(&pt, &gdi, static_cast<CGContextRef>(p->handle()),
+                           kHIThemeOrientationNormal);
+        break; }
     default:
         QWindowsStyle::drawPrimitive(pe, opt, p, w);
     }

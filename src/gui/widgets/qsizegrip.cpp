@@ -16,11 +16,11 @@
 
 #ifndef QT_NO_SIZEGRIP
 
-#include "qpainter.h"
 #include "qapplication.h"
-#include "qcursor.h"
 #include "qevent.h"
+#include "qpainter.h"
 #include "qstyle.h"
+#include "qstyleoption.h"
 
 #if defined(Q_WS_X11)
 #include <private/qt_x11_p.h>
@@ -142,7 +142,11 @@ void QSizeGrip::paintEvent(QPaintEvent *e)
 {
     QPainter painter(this);
     painter.setClipRegion(e->region());
-    style().drawPrimitive(QStyle::PE_SizeGrip, &painter, rect(), palette());
+    Q4StyleOption opt(0, Q4StyleOption::Default);
+    opt.rect = rect();
+    opt.palette = palette();
+    opt.state = QStyle::Style_Default;
+    style().drawPrimitive(QStyle::PE_SizeGrip, &opt, &painter, this);
 }
 
 /*!

@@ -496,17 +496,6 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe,
 #endif
         p->restore();
         break; }
-    case PE_SizeGrip: {
-        const Rect *rect = qt_glb_mac_rect(r, p);
-        Point orig = { rect->top, rect->left };
-        ((QMacStyleQDPainter *)p)->setport();
-        ThemeGrowDirection dir = kThemeGrowRight | kThemeGrowDown;
-#if 0
-        if(QApplication::reverseLayout())
-            dir = kThemeGrowLeft | kThemeGrowDown;
-#endif
-        DrawThemeStandaloneGrowBox(orig, dir, false, kThemeStateActive);
-        break; }
     case PE_FocusRect:
         break;     //This is not used because of the QAquaFocusWidget thingie..
     case PE_TabBarBase:
@@ -2533,6 +2522,17 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
     case PE_RubberBand:
         p->fillRect(opt->rect, opt->palette.highlight());
         break;
+    case PE_SizeGrip: {
+        const Rect *rect = qt_glb_mac_rect(opt->rect, p);
+        Point orig = { rect->top, rect->left };
+        static_cast<QMacStyleQDPainter *>(p)->setport();
+        ThemeGrowDirection dir = kThemeGrowRight | kThemeGrowDown;
+#if 0
+        if(QApplication::reverseLayout())
+            dir = kThemeGrowLeft | kThemeGrowDown;
+#endif
+        DrawThemeStandaloneGrowBox(orig, dir, false, kThemeStateActive);
+        break; }
     default:
         QWindowsStyle::drawPrimitive(pe, opt, p, w);
         break;
