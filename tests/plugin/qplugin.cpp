@@ -117,11 +117,13 @@ bool QPlugIn::unload( bool force )
 	    if ( dc )
 		if ( !dc( qApp ) )
 		    return FALSE;
+	    qDebug("*********Unloading library*************");
 #if defined(_WS_WIN_)
 	    FreeLibrary( pHnd );
 #elif defined(_WS_X11_)
 	    dlclose( pHnd );
 #endif	
+	    qDebug("*********Library unloaded**************");
 	}
 	emit unloaded();
     }

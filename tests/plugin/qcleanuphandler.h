@@ -1,35 +1,33 @@
 #ifndef QCLEANUPHANDLER_H
 #define QCLEANUPHANDLER_H
 
+template<class Type>
 class QCleanUpHandler
 {
 public:
-    typedef void (*CleanUpProc)();
-
     QCleanUpHandler() 
     {
 	qDebug( "New Cleanup handler %p", this );
     }
-    ~QCleanUpHandler() 
+    ~QCleanUpHandler()
     { 
-	qDebug( "Running cleanup...  %p (%d)", this, cleanUpRoutines.count() );
-	while ( CleanUpProc* rt = cleanUpRoutines.first() ) {
-	    qDebug( "\tcalling %p", rt );
-	    (*rt)();
-	    cleanUpRoutines.remove();
-	    if ( cleanUpRoutines.first() == cleanUpRoutines.last() )
-		break;
+	qDebug( "Running cleanup...  %p (%d)", this, cleanUpObjects.count() );
+	QListIterator<Type> it( cleanUpObjects );
+	while ( it.current() ) {
+	    Type* object = it.current();
+	    ++it;
+	    qDebug( "\tDeleting object %p", object );
+	    delete object;
 	}
     }
 
-    void addCleanUpRoutine( CleanUpProc rt ) {
-	cleanUpRoutines.append( (const CleanUpProc*)&rt );
+    void addCleanUp( Type* object ) {
+	qDebug( "\tCleanup object %p added", object );
+	cleanUpObjects.insert( 0, object );
     }
 
 protected:
-    QList<CleanUpProc> cleanUpRoutines;
+    QList<Type> cleanUpObjects;
 };
-
-static QCleanUpHandler cleanUpHandler;
 
 #endif //QCLEANUPHANDLER_H
