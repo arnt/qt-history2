@@ -288,8 +288,8 @@ static long qt_mode_switch_remove_mask = 0;
 static bool         qt_use_rtl_extensions = false;
 
 static Window        mouseActWindow             = 0;        // window where mouse is
-static int        mouseButtonPressed   = 0;        // last mouse button pressed
-static int        mouseButtonState     = 0;        // mouse button state
+static Qt::MouseButton  mouseButtonPressed   = Qt::NoButton; // last mouse button pressed
+static Qt::MouseButtons mouseButtonState     = Qt::NoButton; // mouse button state
 static Time        mouseButtonPressTime = 0;        // when was a button pressed
 static short        mouseXPos, mouseYPos;                // mouse pres position in act window
 static short        mouseGlobalXPos, mouseGlobalYPos; // global mouse press position
@@ -384,14 +384,17 @@ public:
     void setWFlags(Qt::WFlags f)                { QWidget::setWFlags(f); }
     void clearWFlags(Qt::WFlags f)        { QWidget::clearWFlags(f); }
     bool translateMouseEvent(const XEvent *);
-    bool translateKeyEventInternal(const XEvent *, int& count, QString& text, int& state, int &code,
-                                   QEvent::Type &type, bool /*willRepeat*/=false, bool statefulTranslation=true);
+    bool translateKeyEventInternal(const XEvent *, int& count, QString& text, 
+                                   Qt::KeyboardModifiers& modifiers, int &code,
+                                   QEvent::Type &type, bool /*willRepeat*/=false, 
+                                   bool statefulTranslation=true);
     bool translateKeyEvent(const XEvent *, bool grab);
     bool translatePaintEvent(const XEvent *);
     bool translateConfigEvent(const XEvent *);
     bool translateCloseEvent(const XEvent *);
     bool translateScrollDoneEvent(const XEvent *);
-    bool translateWheelEvent(int global_x, int global_y, int delta, int state, Qt::Orientation orient);
+    bool translateWheelEvent(int global_x, int global_y, int delta, Qt::MouseButtons buttons, 
+                             Qt::KeyboardModifiers modifiers, Qt::Orientation orient);
 #if !defined (QT_NO_TABLET_SUPPORT)
     bool translateXinputEvent(const XEvent*, const TabletDeviceData *tablet);
 #endif
@@ -2587,19 +2590,17 @@ int QApplication::x11ProcessEvent(XEvent* event)
 	if ((event->type == XKeyPress || event->type == XKeyRelease)) {
 	    int code = -1;
 	    int count = 0;
-	    int state;
+	    Qt::KeyboardModifiers modifiers;
 	    QEvent::Type type;
 	    QString text;
 
 	    keywidget->translateKeyEventInternal(event, count, text,
-						  state, code, type,
+                                                 modifiers, code, type,
 						  false, false);
 
 	    // both key press/release is required for some complex
 	    // input methods. don't eliminate anything.
-	    QKeyEvent keyevent(type, code, Qt::KeyboardModifiers(state & Qt::KeyButtonMask),
-                               text, false, count);
-
+	    QKeyEvent keyevent(type, code, modifiers, text, false, count);
 	    if(qic && qic->filterEvent(&keyevent))
 		return true;
 	}
@@ -3247,24 +3248,30 @@ void QApplication::closePopup(QWidget *popup)
 // comparing window, time and position between two mouse press events.
 //
 
-static int translateButtonState(int s)
+static Qt::MouseButtons translateMouseButtons(int s)
 {
-    int bst = 0;
+    Qt::MouseButtons ret = 0;
     if (s & Button1Mask)
-        bst |= Qt::LeftButton;
+        ret |= Qt::LeftButton;
     if (s & Button2Mask)
-        bst |= Qt::MidButton;
+        ret |= Qt::MidButton;
     if (s & Button3Mask)
-        bst |= Qt::RightButton;
+        ret |= Qt::RightButton;
+    return ret;
+}
+
+static Qt::KeyboardModifiers translateModifiers(int s)
+{
+    Qt::KeyboardModifiers ret = 0;
     if (s & ShiftMask)
-        bst |= Qt::ShiftButton;
+        ret |= Qt::ShiftModifier;
     if (s & ControlMask)
-        bst |= Qt::ControlButton;
+        ret |= Qt::ControlModifier;
     if (s & qt_alt_mask)
-        bst |= Qt::AltButton;
+        ret |= Qt::AltModifier;
     if (s & qt_meta_mask)
-        bst |= Qt::MetaButton;
-    return bst;
+        ret |= Qt::MetaModifier;
+    return ret;
 }
 
 bool QETWidget::translateMouseEvent(const XEvent *event)
@@ -3273,8 +3280,9 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
     QEvent::Type type;                                // event parameters
     QPoint pos;
     QPoint globalPos;
-    int button = 0;
-    int state;
+    Qt::MouseButton button = Qt::NoButton;
+    Qt::MouseButtons buttons;
+    Qt::KeyboardModifiers modifiers;
     XEvent nextEvent;
 
     if (sm_blockUserInput) // block user interaction during session management
@@ -3313,10 +3321,9 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         pos = d->mapFromWS(pos);
         globalPos.rx() = lastMotion.x_root;
         globalPos.ry() = lastMotion.y_root;
-        state = translateButtonState(lastMotion.state);
-        if (qt_button_down && (state & (Qt::LeftButton |
-                                        Qt::MidButton |
-                                        Qt::RightButton)) == 0)
+        buttons = translateMouseButtons(lastMotion.state);
+        modifiers = translateModifiers(lastMotion.state);
+        if (qt_button_down && !buttons)
             qt_button_down = 0;
     } else if (event->type == EnterNotify || event->type == LeaveNotify) {
         XEvent *xevent = (XEvent *)event;
@@ -3330,20 +3337,18 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
             return false;
         globalPos.rx() = xevent->xcrossing.x_root;
         globalPos.ry() = xevent->xcrossing.y_root;
-        state = translateButtonState(xevent->xcrossing.state);
-        if (qt_button_down && (state & (Qt::LeftButton |
-                                        Qt::MidButton |
-                                        Qt::RightButton)) == 0)
+        buttons = translateMouseButtons(xevent->xcrossing.state);
+        modifiers = translateModifiers(xevent->xcrossing.state);
+        if (qt_button_down && !buttons)
             qt_button_down = 0;
-        if (!qt_button_down)
-            state = state & ~(Qt::LeftButton | Qt::MidButton | Qt::RightButton);
     } else {                                        // button press or release
         pos.rx() = event->xbutton.x;
         pos.ry() = event->xbutton.y;
         pos = d->mapFromWS(pos);
         globalPos.rx() = event->xbutton.x_root;
         globalPos.ry() = event->xbutton.y_root;
-        state = translateButtonState(event->xbutton.state);
+        buttons = translateMouseButtons(event->xbutton.state);
+        modifiers = translateModifiers(event->xbutton.state);
         switch (event->xbutton.button) {
         case Button1: button = Qt::LeftButton; break;
         case Button2: button = Qt::MidButton; break;
@@ -3377,9 +3382,10 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
                 // backward rotation respectively.
                 int btn = event->xbutton.button;
                 delta *= 120 * ((btn == Button4 || btn == 6) ? 1 : -1);
-                bool hor = ((btn == Button4 || btn == Button5) && (state&Qt::AltButton) ||
+                bool hor = ((btn == Button4 || btn == Button5) && (modifiers & Qt::AltModifier) ||
                             (btn == 6 || btn == 7));
-                translateWheelEvent(globalPos.x(), globalPos.y(), delta, state, (hor)?Qt::Horizontal:Qt::Vertical);
+                translateWheelEvent(globalPos.x(), globalPos.y(), delta, buttons, 
+                                    modifiers, (hor) ? Qt::Horizontal: Qt::Vertical);
             }
             return true;
         }
@@ -3439,7 +3445,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         }
     }
     mouseActWindow = winId();                        // save some event params
-    mouseButtonState = state;
+    mouseButtonState = buttons;
     if (type == 0)                                // don't send event
         return false;
 
@@ -3482,14 +3488,14 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         popupReplayMouse = false;
         if (qt_button_down) {
             QMouseEvent e(type, qt_button_down->mapFromGlobal(globalPos),
-                          globalPos, button, state);
+                          globalPos, button, buttons, modifiers);
             QApplication::sendSpontaneousEvent(qt_button_down, &e);
         } else if (popupChild) {
             QMouseEvent e(type, popupChild->mapFromGlobal(globalPos),
-                          globalPos, button, state);
+                          globalPos, button, buttons, modifiers);
             QApplication::sendSpontaneousEvent(popupChild, &e);
         } else {
-            QMouseEvent e(type, pos, globalPos, button, state);
+            QMouseEvent e(type, pos, globalPos, button, buttons, modifiers);
             QApplication::sendSpontaneousEvent(popup, &e);
         }
 
@@ -3497,7 +3503,8 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
             && popupReplayMouse) {
             // the active popup was closed, replay the mouse event
             if (!isPopup()) {
-                QMouseEvent e(type, mapFromGlobal(globalPos), globalPos, button, state);
+                QMouseEvent e(type, mapFromGlobal(globalPos), globalPos, button, 
+                              buttons, modifiers);
                 QApplication::sendSpontaneousEvent(this, &e);
             }
             popupReplayMouse = false;
@@ -3509,7 +3516,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
                 popupEvent = qt_button_down;
             else if(popupChild)
                 popupEvent = popupChild;
-            QContextMenuEvent e(QContextMenuEvent::Mouse, pos, globalPos, state);
+            QContextMenuEvent e(QContextMenuEvent::Mouse, pos, globalPos);
             QApplication::sendSpontaneousEvent(popupEvent, &e);
         }
 
@@ -3519,7 +3526,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         }
 
         if (!qApp->inPopupMode()) {
-            if (type != QEvent::MouseButtonRelease && state != 0 &&
+            if (type != QEvent::MouseButtonRelease && !buttons &&
                 QWidget::find((WId)mouseActWindow)) {
                 manualGrab = true;                // need to manually grab
                 XGrabPointer(dpy, mouseActWindow, False,
@@ -3541,21 +3548,20 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
             pos = w->mapFromGlobal(globalPos);
         }
 
-        if (type == QEvent::MouseButtonRelease
-            && (state & (~button) & (Qt::LeftButton | Qt::MidButton | Qt::RightButton)) == 0) {
+        if (type == QEvent::MouseButtonRelease && !buttons) {
             // no more buttons pressed on the widget
             qt_button_down = 0;
         }
 
         int oldOpenPopupCount = openPopupCount;
 
-        QMouseEvent e(type, pos, globalPos, button, state);
+        QMouseEvent e(type, pos, globalPos, button, buttons, modifiers);
         QApplication::sendSpontaneousEvent(widget, &e);
 
         if (type == QEvent::MouseButtonPress
             && button == Qt::RightButton
             && (openPopupCount == oldOpenPopupCount)) {
-            QContextMenuEvent e(QContextMenuEvent::Mouse, pos, globalPos, state);
+            QContextMenuEvent e(QContextMenuEvent::Mouse, pos, globalPos);
             QApplication::sendSpontaneousEvent(widget, &e);
         }
     }
@@ -3566,7 +3572,9 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
 //
 // Wheel event translation
 //
-bool QETWidget::translateWheelEvent(int global_x, int global_y, int delta, int state, Qt::Orientation orient)
+bool QETWidget::translateWheelEvent(int global_x, int global_y, int delta, 
+                                    Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers,
+                                    Qt::Orientation orient)
 {
     // send the event to the widget or its ancestors
     {
@@ -3574,7 +3582,7 @@ bool QETWidget::translateWheelEvent(int global_x, int global_y, int delta, int s
         if (popup && topLevelWidget() != popup)
             popup->close();
         QWheelEvent e(mapFromGlobal(QPoint(global_x, global_y)),
-                       QPoint(global_x, global_y), delta, state, orient);
+                       QPoint(global_x, global_y), delta, buttons, modifiers, orient);
         if (QApplication::sendSpontaneousEvent(this, &e))
             return true;
     }
@@ -3586,7 +3594,7 @@ bool QETWidget::translateWheelEvent(int global_x, int global_y, int delta, int s
         if (popup && w != popup)
             popup->hide();
         QWheelEvent e(mapFromGlobal(QPoint(global_x, global_y)),
-                       QPoint(global_x, global_y), delta, state, orient);
+                       QPoint(global_x, global_y), delta, buttons, modifiers, orient);
         if (QApplication::sendSpontaneousEvent(w, &e))
             return true;
     }
@@ -3624,20 +3632,20 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
     const XDeviceMotionEvent *motion = 0;
     XDeviceButtonEvent *button = 0;
     QEvent::Type t;
-    int state = 0;
+    Qt::KeyboardModifiers modifiers = 0;
 
     if (ev->type == tablet->xinput_motion) {
         motion = (const XDeviceMotionEvent*)ev;
         for (;;) {
-            if (!XCheckTypedWindowEvent(x11Display(), winId(), MotionNotify, &mouseMotionEvent))
+            if (!XCheckTypedWindowEvent(X11->display, winId(), MotionNotify, &mouseMotionEvent))
                 break;
-            if (!XCheckTypedWindowEvent(x11Display(), winId(), tablet->xinput_motion, &xinputMotionEvent)) {
-                XPutBackEvent(x11Display(), &mouseMotionEvent);
+            if (!XCheckTypedWindowEvent(X11->display, winId(), tablet->xinput_motion, &xinputMotionEvent)) {
+                XPutBackEvent(X11->display, &mouseMotionEvent);
                 break;
             }
             if (mouseMotionEvent.xmotion.time != motion->time) {
-                XPutBackEvent(x11Display(), &mouseMotionEvent);
-                XPutBackEvent(x11Display(), &xinputMotionEvent);
+                XPutBackEvent(X11->display, &mouseMotionEvent);
+                XPutBackEvent(X11->display, &xinputMotionEvent);
                 break;
             }
             motion = ((const XDeviceMotionEvent*)&xinputMotionEvent);
@@ -3715,20 +3723,20 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
         yTilt = short(motion->axis_data[4]);
         pressure = motion->axis_data[2];
         hiRes = QPoint(motion->axis_data[0], motion->axis_data[1]);
-        state = translateButtonState(motion->state);
+        modifiers = translateModifiers(motion->state);
     } else {
         xTilt = short(button->axis_data[3]);
         yTilt = short(button->axis_data[4]);
         pressure = button->axis_data[2];
         hiRes = QPoint(button->axis_data[0], button->axis_data[1]);
-        state = translateButtonState(button->state);
+        modifiers = translateModifiers(button->state);
     }
     // The only way to get these Ids is to scan the XFree86 log, which I'm not going to do.
     uid = -1;
 #endif
     QTabletEvent e(t, curr, global, hiRes, tablet->minX, tablet->maxX, tablet->minY, tablet->maxY,
                    deviceType, pressure, tablet->minPressure, tablet->maxPressure, xTilt, yTilt,
-                   Qt::KeyboardModifiers(state), uid);
+                   modifiers, uid);
     QApplication::sendSpontaneousEvent(w, &e);
     return true;
 }
@@ -4295,8 +4303,9 @@ static QChar keysymToUnicode(unsigned char byte3, unsigned char byte4)
 }
 #endif
 
-bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QString& text, int& state,
-                                          int& code, QEvent::Type &type, bool /*willRepeat*/, bool statefulTranslation)
+bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QString& text, 
+                                          Qt::KeyboardModifiers &modifiers, int& code, QEvent::Type &type, 
+                                          bool /*willRepeat*/, bool statefulTranslation)
 {
     QTextCodec *mapper = qt_input_mapper;
     // some XmbLookupString implementations don't return buffer overflow correctly,
@@ -4401,13 +4410,13 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
 
     // convert chars (8bit) to text (unicode).
     if (mapper)
-        text = mapper->toUnicode(chars,count);
+        text = mapper->toUnicode(chars.data(), count, 0);
     else if (!mapper && converted.unicode() != 0x0)
         text = converted;
     else
         text = chars;
 
-    state = translateButtonState(keystate);
+    modifiers = translateModifiers(keystate);
 
     static int directionKeyEvent = 0;
     static unsigned int lastWinId = 0;
@@ -4460,7 +4469,7 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
         code = Qt::Key_F1 + ((int)key - XK_F1);        // function keys
     } else if (key >= XK_KP_0 && key <= XK_KP_9) {
         code = Qt::Key_0 + ((int)key - XK_KP_0);        // numeric keypad keys
-        state |= Qt::Keypad;
+        modifiers |= Qt::KeypadModifier;
     } else {
         int i = 0;                                // any other keys
         while (KeyTbl[i]) {
@@ -4491,14 +4500,13 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
         case XK_KP_Subtract:
         case XK_KP_Decimal:
         case XK_KP_Divide:
-            state |= Qt::Keypad;
+            modifiers |= Qt::KeypadModifier;
             break;
         default:
             break;
         }
 
-        if (code == Qt::Key_Tab &&
-            (state & Qt::ShiftButton) == Qt::ShiftButton) {
+        if (code == Qt::Key_Tab && (modifiers & Qt::ShiftModifier)) {
             // map shift+tab to shift+backtab, QShortcutMap knows about it
             // and will handle it.
             code = Qt::Key_Backtab;
@@ -4587,7 +4595,7 @@ bool QETWidget::translateKeyEvent(const XEvent *event, bool grab)
 {
     int           code = -1;
     int           count = 0;
-    int           state;
+    Qt::KeyboardModifiers modifiers;
 
     if (sm_blockUserInput) // block user interaction during session management
         return true;
@@ -4601,7 +4609,7 @@ bool QETWidget::translateKeyEvent(const XEvent *event, bool grab)
     bool    autor = false;
     QString text;
 
-    translateKeyEventInternal(event, count, text, state, code, type,
+    translateKeyEventInternal(event, count, text, modifiers, code, type,
                                qt_mode_switch_remove_mask != 0);
 
 #if !defined QT_NO_COMPAT && !defined(QT_NO_ACCEL)
@@ -4609,7 +4617,7 @@ bool QETWidget::translateKeyEvent(const XEvent *event, bool grab)
     if (type == QEvent::KeyPress && !grab
         && static_cast<QApplicationPrivate*>(qApp->d_ptr)->use_compat()) {
         // send accel events if the keyboard is not grabbed
-        QKeyEvent a(type, code, 0, state, text, autor, qMax(qMax(count,1), int(text.length())));
+        QKeyEvent a(type, code, modifiers, text, autor, qMax(qMax(count,1), int(text.length())));
         if (static_cast<QApplicationPrivate*>(qApp->d_ptr)->qt_tryAccelEvent(this, &a))
             return true;
     }
@@ -4622,7 +4630,7 @@ bool QETWidget::translateKeyEvent(const XEvent *event, bool grab)
 
         // translate the key event again, but this time apply any Mode_switch
         // modifiers
-        translateKeyEventInternal(event, count, text, state, code, type);
+        translateKeyEventInternal(event, count, text, modifiers, code, type);
     }
 
 #ifndef QT_NO_IM
@@ -4679,10 +4687,10 @@ bool QETWidget::translateKeyEvent(const XEvent *event, bool grab)
             QString textIntern;
             int codeIntern = -1;
             int countIntern = 0;
-            int stateIntern;
+            Qt::KeyboardModifiers modifiersIntern;
             QEvent::Type t;
             translateKeyEventInternal(&evPress, countIntern, textIntern,
-                                       stateIntern, codeIntern, t);
+                                       modifiersIntern, codeIntern, t);
             // use stopCompression to stop key compression for the following
             // key event ranges:
             bool stopCompression =
@@ -4696,7 +4704,7 @@ bool QETWidget::translateKeyEvent(const XEvent *event, bool grab)
                 //    to newline text
                 || (codeIntern == 0)
                 || (textIntern.length() == 1 && textIntern.unicode()->unicode() == '\n');
-            if (stateIntern == state && !textIntern.isEmpty() && !stopCompression) {
+            if (modifiersIntern == modifiers && !textIntern.isEmpty() && !stopCompression) {
                 text += textIntern;
                 count += countIntern;
             } else {
@@ -4773,13 +4781,13 @@ bool QETWidget::translateKeyEvent(const XEvent *event, bool grab)
     // try the menukey first
     if (type == QEvent::KeyPress && code == Qt::Key_Menu) {
         QPoint pos = inputMethodQuery(Qt::ImMicroFocus).toRect().center();
-        QContextMenuEvent e(QContextMenuEvent::Keyboard, pos, mapToGlobal(pos), 0);
+        QContextMenuEvent e(QContextMenuEvent::Keyboard, pos, mapToGlobal(pos));
         QApplication::sendSpontaneousEvent(this, &e);
         if(e.isAccepted())
             return true;
     }
 
-    QKeyEvent e(type, code, 0, state, text, autor, qMax(qMax(count,1), int(text.length())));
+    QKeyEvent e(type, code, modifiers, text, autor, qMax(qMax(count,1), int(text.length())));
     return QApplication::sendSpontaneousEvent(this, &e);
 }
 
