@@ -558,8 +558,6 @@ void QSlider::moveSlider( int pos )
     int  a = available();
     int newPos = QMIN( a, QMAX( 0, pos ) );
     int newVal = valueFromPosition( newPos );
-    if ( tracking() && sliderVal != value() )
-	setValue( sliderVal );
     if (style().styleHint(QStyle::SH_Slider_SnapToValue, this))
 	newPos = positionFromValue( newVal );
     if ( sliderPos != newPos )
@@ -568,6 +566,9 @@ void QSlider::moveSlider( int pos )
 	sliderVal = newVal;
 	emit sliderMoved( sliderVal );
     }
+    if ( tracking() && sliderVal != value() )
+	setValue( sliderVal );
+
 }
 
 
