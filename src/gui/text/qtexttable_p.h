@@ -14,7 +14,7 @@ public:
     QTextTablePrivate() : grid(0), nRows(0), dirty(true) {}
     ~QTextTablePrivate();
 
-    static QTextTable *createTable(QTextPieceTable *, int pos, int rows, int cols, const QTextTableFormat &tableFormat);
+    static QTextTable *createTable(QTextDocumentPrivate *, int pos, int rows, int cols, const QTextTableFormat &tableFormat);
     void fragmentAdded(const QChar &type, uint fragment);
     void fragmentRemoved(const QChar &type, uint fragment);
 

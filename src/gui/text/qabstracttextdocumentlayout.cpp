@@ -116,7 +116,7 @@ void QAbstractTextDocumentLayout::invalidate(const QRegion & /* r */)
 
 QTextBlockIterator QAbstractTextDocumentLayout::findBlock(int pos) const
 {
-    QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());
+    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->d_func();
     if (!pieceTable)
         return QTextBlockIterator();
     return QTextBlockIterator(pieceTable, pieceTable->blockMap().findNode(pos));
@@ -124,7 +124,7 @@ QTextBlockIterator QAbstractTextDocumentLayout::findBlock(int pos) const
 
 QTextBlockIterator QAbstractTextDocumentLayout::begin() const
 {
-    QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());
+    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->d_func();
     if (!pieceTable)
         return QTextBlockIterator();
     return QTextBlockIterator(pieceTable, pieceTable->blockMap().begin().n);
@@ -132,7 +132,7 @@ QTextBlockIterator QAbstractTextDocumentLayout::begin() const
 
 QTextBlockIterator QAbstractTextDocumentLayout::end() const
 {
-    QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());
+    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->d_func();
     if (!pieceTable)
         return QTextBlockIterator();
     return QTextBlockIterator(pieceTable, 0);
@@ -140,7 +140,7 @@ QTextBlockIterator QAbstractTextDocumentLayout::end() const
 
 QTextFrame *QAbstractTextDocumentLayout::frameAt(int pos) const
 {
-    QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());
+    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->d_func();
     if (!pieceTable)
         return 0;
     return pieceTable->frameAt(pos);
@@ -148,7 +148,7 @@ QTextFrame *QAbstractTextDocumentLayout::frameAt(int pos) const
 
 QTextFrame *QAbstractTextDocumentLayout::rootFrame() const
 {
-    QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());
+    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->d_func();
     if (!pieceTable)
         return 0;
     return pieceTable->rootFrame();
@@ -157,7 +157,7 @@ QTextFrame *QAbstractTextDocumentLayout::rootFrame() const
 
 int QAbstractTextDocumentLayout::formatIndex(int pos)
 {
-    QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());
+    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->d_func();
     if (!pieceTable)
         return -1;
     return pieceTable->find(pos).value()->format;
@@ -165,7 +165,7 @@ int QAbstractTextDocumentLayout::formatIndex(int pos)
 
 QTextCharFormat QAbstractTextDocumentLayout::format(int pos)
 {
-    QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());
+    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->d_func();
     if (!pieceTable)
         return QTextCharFormat();
     int idx = pieceTable->find(pos).value()->format;
@@ -175,7 +175,7 @@ QTextCharFormat QAbstractTextDocumentLayout::format(int pos)
 
 QTextObject *QAbstractTextDocumentLayout::object(int objectIndex) const
 {
-    QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());
+    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->d_func();
     if (!pieceTable)
         return 0;
     return pieceTable->objectForIndex(objectIndex);
@@ -183,7 +183,7 @@ QTextObject *QAbstractTextDocumentLayout::object(int objectIndex) const
 
 QTextObject *QAbstractTextDocumentLayout::objectForFormat(const QTextFormat &f) const
 {
-    QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());
+    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->d_func();
     if (!pieceTable)
         return 0;
     return pieceTable->objectForFormat(f);

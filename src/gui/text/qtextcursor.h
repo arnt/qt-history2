@@ -13,7 +13,7 @@ class QTextListFormat;
 class QTextTableFormat;
 class QTextFrameFormat;
 class QTextImageFormat;
-class QTextPieceTable;
+class QTextDocumentPrivate;
 class QTextList;
 class QTextTable;
 class QTextFrame;
@@ -26,7 +26,7 @@ public:
     QTextCursor();
     QTextCursor(QTextDocument *document);
     QTextCursor(const QTextBlockIterator &block);
-    QTextCursor(const QTextPieceTable *pt, int pos);
+    QTextCursor(const QTextDocumentPrivate *pt, int pos);
     QTextCursor(const QTextCursor &cursor);
     QTextCursor &operator=(const QTextCursor &other);
     ~QTextCursor();

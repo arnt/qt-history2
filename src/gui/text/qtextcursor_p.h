@@ -12,7 +12,7 @@
 class QTextCursorPrivate : public QSharedData
 {
 public:
-    QTextCursorPrivate(const QTextPieceTable *table);
+    QTextCursorPrivate(const QTextDocumentPrivate *table);
     QTextCursorPrivate(const QTextCursorPrivate &rhs);
     ~QTextCursorPrivate();
 
@@ -39,7 +39,7 @@ public:
     int position;
     int anchor;
     int adjusted_anchor;
-    QTextPieceTable *pieceTable;
+    QTextDocumentPrivate *pieceTable;
 };
 
 #endif // QTEXTCURSOR_P_H

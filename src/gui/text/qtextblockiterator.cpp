@@ -70,8 +70,8 @@ QTextLayout *QTextBlockIterator::layout() const
             int lastTextPosition = 0;
             int textLength = 0;
 
-            QTextPieceTable::FragmentIterator it = pt->find(position());
-            QTextPieceTable::FragmentIterator end = pt->find(position() + length() - 1); // -1 to omit the block separator char
+            QTextDocumentPrivate::FragmentIterator it = pt->find(position());
+            QTextDocumentPrivate::FragmentIterator end = pt->find(position() + length() - 1); // -1 to omit the block separator char
             int lastFormatIdx = it.value()->format;
 
             for (; it != end; ++it) {
@@ -114,7 +114,7 @@ QTextCharFormat QTextBlockIterator::charFormat() const
     if (!pt || !n)
         return QTextFormat().toCharFormat();
 
-    const QTextPieceTable::FragmentMap &fm = pt->fragmentMap();
+    const QTextDocumentPrivate::FragmentMap &fm = pt->fragmentMap();
     int pos = pt->blockMap().position(n);
     if (pos > 0)
         --pos;
@@ -132,8 +132,8 @@ QString QTextBlockIterator::blockText() const
     const QString buffer = pt->buffer();
     QString text;
 
-    QTextPieceTable::FragmentIterator it = pt->find(position());
-    QTextPieceTable::FragmentIterator end = pt->find(position() + length() - 1); // -1 to omit the block separator char
+    QTextDocumentPrivate::FragmentIterator it = pt->find(position());
+    QTextDocumentPrivate::FragmentIterator end = pt->find(position() + length() - 1); // -1 to omit the block separator char
     for (; it != end; ++it) {
         const QTextFragment * const frag = it.value();
         text += QString::fromRawData(buffer.constData() + frag->stringPosition, frag->size);

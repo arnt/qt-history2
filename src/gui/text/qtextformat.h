@@ -448,7 +448,7 @@ class Q_GUI_EXPORT QTextObject : public QObject
 {
     Q_DECLARE_PRIVATE(QTextObject)
     Q_OBJECT
-    friend class QTextPieceTable;
+    friend class QTextDocumentPrivate;
 
 protected:
     QTextObject(QTextDocument *doc);
@@ -469,7 +469,7 @@ class QTextBlockGroup : public QTextObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextBlockGroup)
-    friend class QTextPieceTable;
+    friend class QTextDocumentPrivate;
 
 protected:
     QTextBlockGroup(QTextDocument *doc);
@@ -494,7 +494,7 @@ class QTextFrame : public QTextObject
 {
     Q_DECLARE_PRIVATE(QTextFrame)
     Q_OBJECT
-    friend class QTextPieceTable;
+    friend class QTextDocumentPrivate;
 
 public:
     QTextFrame(QTextDocument *doc);

@@ -7,7 +7,6 @@
 
 class QTextFormatCollection;
 class QTextListFormat;
-class QTextPieceTable;
 class QSize;
 class QRect;
 class QPainter;
@@ -44,7 +43,7 @@ class Q_GUI_EXPORT QTextDocument : public QObject
     Q_PROPERTY(bool undoRedoEnabled READ isUndoRedoEnabled WRITE setUndoRedoEnabled)
     friend class QTextEditor; // ####
     friend class QTextCursor;
-    friend class QTextPieceTable;
+    friend class QAbstractTextDocumentLayout;
 public:
     QTextDocument(QObject *parent = 0);
     QTextDocument(const QString &text, QObject *parent = 0);

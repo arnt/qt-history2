@@ -7,7 +7,7 @@
 #include <qmap.h>
 #include <qrect.h>
 
-class QTextPieceTable;
+class QTextDocumentPrivate;
 
 class QTextFormatProperty
 {
@@ -118,7 +118,7 @@ class QTextObjectPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QTextObject)
 public:
-    QTextPieceTable *pieceTable;
+    QTextDocumentPrivate *pieceTable;
     int objectIndex;
 };
 
@@ -135,7 +135,7 @@ class QTextFrameLayoutData;
 
 class QTextFramePrivate : public QTextObjectPrivate
 {
-    friend class QTextPieceTable;
+    friend class QTextDocumentPrivate;
     Q_DECLARE_PUBLIC(QTextFrame)
 public:
 

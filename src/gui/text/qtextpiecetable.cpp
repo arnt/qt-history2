@@ -18,6 +18,9 @@
 
 #define PMDEBUG if(0) qDebug
 
+#define d d_func()
+#define q q_func()
+
 static bool isValidBlockSeparator(const QChar &ch)
 {
     return ch == QChar::ParagraphSeparator
@@ -74,14 +77,17 @@ bool UndoCommand::tryMerge(const UndoCommand &other)
     return false;
 }
 
-QTextPieceTable::QTextPieceTable(QTextDocument *document, QAbstractTextDocumentLayout *layout)
+QTextDocumentPrivate::QTextDocumentPrivate()
 {
-    doc = document;
     editBlock = 0;
     docChangeFrom = -1;
 
     undoPosition = 0;
+    framesDirty = false;
+}
 
+void QTextDocumentPrivate::init(QAbstractTextDocumentLayout *layout)
+{
     if (!layout)
         layout = new QTextDocumentLayout();
     frame = qt_cast<QTextFrame *>(createObject(QTextFrameFormat()));
@@ -89,14 +95,14 @@ QTextPieceTable::QTextPieceTable(QTextDocument *document, QAbstractTextDocumentL
 
     lout = layout;
     // take ownership
-    lout->setParent(this);
+    lout->setParent(q);
 
     undoEnabled = false;
     insertBlock(0, formats.indexForFormat(QTextBlockFormat()), formats.indexForFormat(QTextCharFormat()));
     undoEnabled = true;
 }
 
-QTextPieceTable::~QTextPieceTable()
+QTextDocumentPrivate::~QTextDocumentPrivate()
 {
     undoPosition = 0;
     undoEnabled = true;
@@ -104,7 +110,7 @@ QTextPieceTable::~QTextPieceTable()
 }
 
 
-void QTextPieceTable::insert_string(int pos, uint strPos, uint length, int format, UndoCommand::Operation op)
+void QTextDocumentPrivate::insert_string(int pos, uint strPos, uint length, int format, UndoCommand::Operation op)
 {
     // ##### optimise when only appending to the fragment!
     Q_ASSERT(noBlockInString(text.mid(strPos, length)));
@@ -132,7 +138,7 @@ void QTextPieceTable::insert_string(int pos, uint strPos, uint length, int forma
     adjustDocumentChangesAndCursors(pos, length, op);
 }
 
-void QTextPieceTable::insert_block(int pos, uint strPos, int format, int blockFormat, UndoCommand::Operation op, int command)
+void QTextDocumentPrivate::insert_block(int pos, uint strPos, int format, int blockFormat, UndoCommand::Operation op, int command)
 {
     split(pos);
     uint x = fragments.insert_single(pos, 1);
@@ -177,7 +183,7 @@ void QTextPieceTable::insert_block(int pos, uint strPos, int format, int blockFo
     adjustDocumentChangesAndCursors(pos, 1, op);
 }
 
-void QTextPieceTable::insertBlock(const QChar &blockSeparator,
+void QTextDocumentPrivate::insertBlock(const QChar &blockSeparator,
                                   int pos, int blockFormat, int charFormat, UndoCommand::Operation op)
 {
     Q_ASSERT(formats.format(blockFormat).isBlockFormat());
@@ -202,12 +208,12 @@ void QTextPieceTable::insertBlock(const QChar &blockSeparator,
     endEditBlock();
 }
 
-void QTextPieceTable::insertBlock(int pos, int blockFormat, int charFormat, UndoCommand::Operation op)
+void QTextDocumentPrivate::insertBlock(int pos, int blockFormat, int charFormat, UndoCommand::Operation op)
 {
     insertBlock(QChar::ParagraphSeparator, pos, blockFormat, charFormat, op);
 }
 
-void QTextPieceTable::insert(int pos, int strPos, int strLength, int format)
+void QTextDocumentPrivate::insert(int pos, int strPos, int strLength, int format)
 {
     if (strLength <= 0)
         return;
@@ -227,7 +233,7 @@ void QTextPieceTable::insert(int pos, int strPos, int strLength, int format)
     endEditBlock();
 }
 
-void QTextPieceTable::insert(int pos, const QString &str, int format)
+void QTextDocumentPrivate::insert(int pos, const QString &str, int format)
 {
     if (str.size() == 0)
         return;
@@ -239,7 +245,7 @@ void QTextPieceTable::insert(int pos, const QString &str, int format)
     insert(pos, strPos, str.length(), format);
 }
 
-int QTextPieceTable::remove_string(int pos, uint length, UndoCommand::Operation op)
+int QTextDocumentPrivate::remove_string(int pos, uint length, UndoCommand::Operation op)
 {
     Q_ASSERT(pos >= 0);
     Q_ASSERT(blocks.length() == fragments.length());
@@ -267,7 +273,7 @@ int QTextPieceTable::remove_string(int pos, uint length, UndoCommand::Operation 
     return w;
 }
 
-int QTextPieceTable::remove_block(int pos, int *blockFormat, int command, UndoCommand::Operation op)
+int QTextDocumentPrivate::remove_block(int pos, int *blockFormat, int command, UndoCommand::Operation op)
 {
     Q_ASSERT(pos >= 0);
     Q_ASSERT(blocks.length() == fragments.length());
@@ -313,7 +319,7 @@ int QTextPieceTable::remove_block(int pos, int *blockFormat, int command, UndoCo
     return w;
 }
 
-void QTextPieceTable::remove(int pos, int length, UndoCommand::Operation op)
+void QTextDocumentPrivate::remove(int pos, int length, UndoCommand::Operation op)
 {
     Q_ASSERT(pos >= 0 && pos+length <= fragments.length());
     Q_ASSERT(blocks.length() == fragments.length());
@@ -361,7 +367,7 @@ void QTextPieceTable::remove(int pos, int length, UndoCommand::Operation op)
     endEditBlock();
 }
 
-void QTextPieceTable::setCharFormat(int pos, int length, const QTextCharFormat &newFormat, FormatChangeMode mode)
+void QTextDocumentPrivate::setCharFormat(int pos, int length, const QTextCharFormat &newFormat, FormatChangeMode mode)
 {
     Q_ASSERT(newFormat.isValid());
 
@@ -418,15 +424,15 @@ void QTextPieceTable::setCharFormat(int pos, int length, const QTextCharFormat &
     if (!endIt.atEnd())
         ++endIt;
     for (; !blockIt.atEnd() && blockIt != endIt; ++blockIt)
-        QTextPieceTable::block(blockIt)->invalidate();
+        QTextDocumentPrivate::block(blockIt)->invalidate();
 
     documentChange(startPos, length);
-    emit contentsChanged();
+    emit q->contentsChanged();
 
     endEditBlock();
 }
 
-void QTextPieceTable::setBlockFormat(const QTextBlockIterator &from, const QTextBlockIterator &to,
+void QTextDocumentPrivate::setBlockFormat(const QTextBlockIterator &from, const QTextBlockIterator &to,
 				     const QTextBlockFormat &newFormat, FormatChangeMode mode)
 {
     beginEditBlock();
@@ -471,13 +477,13 @@ void QTextPieceTable::setBlockFormat(const QTextBlockIterator &from, const QText
     }
 
     documentChange(from.position(), to.position() + to.length() - from.position());
-    emit contentsChanged();
+    emit q->contentsChanged();
 
     endEditBlock();
 }
 
 
-bool QTextPieceTable::split(int pos)
+bool QTextDocumentPrivate::split(int pos)
 {
     uint x = fragments.findNode(pos);
     if (x) {
@@ -501,7 +507,7 @@ bool QTextPieceTable::split(int pos)
     return false;
 }
 
-bool QTextPieceTable::unite(uint f)
+bool QTextDocumentPrivate::unite(uint f)
 {
     uint n = fragments.next(f);
     if (!n)
@@ -523,7 +529,7 @@ bool QTextPieceTable::unite(uint f)
 }
 
 
-void QTextPieceTable::undoRedo(bool undo)
+void QTextDocumentPrivate::undoRedo(bool undo)
 {
     PMDEBUG("%s, undoPosition=%d, undoStack size=%d", undo ? "undo:" : "redo:", undoPosition, undoStack.size());
     if (!undoEnabled || (undo && undoPosition == 0) || (!undo && undoPosition == undoStack.size()))
@@ -624,14 +630,14 @@ void QTextPieceTable::undoRedo(bool undo)
     }
     endEditBlock();
     undoEnabled = true;
-    emit undoAvailable(isUndoAvailable());
-    emit redoAvailable(isRedoAvailable());
+    emit q->undoAvailable(isUndoAvailable());
+    emit q->redoAvailable(isRedoAvailable());
 }
 
 /*!
     Appends a custom undo \a item to the undo stack.
 */
-void QTextPieceTable::appendUndoItem(QAbstractUndoItem *item)
+void QTextDocumentPrivate::appendUndoItem(QAbstractUndoItem *item)
 {
     if (!undoEnabled) {
         delete item;
@@ -644,7 +650,7 @@ void QTextPieceTable::appendUndoItem(QAbstractUndoItem *item)
     appendUndoItem(c);
 }
 
-void QTextPieceTable::appendUndoItem(const UndoCommand &c)
+void QTextDocumentPrivate::appendUndoItem(const UndoCommand &c)
 {
     PMDEBUG("appendUndoItem, command=%d enabled=%d", c.command, undoEnabled);
     if (!undoEnabled)
@@ -659,11 +665,11 @@ void QTextPieceTable::appendUndoItem(const UndoCommand &c)
     }
     undoStack.append(c);
     undoPosition++;
-    emit undoAvailable(true);
-    emit redoAvailable(false);
+    emit q->undoAvailable(true);
+    emit q->redoAvailable(false);
 }
 
-void QTextPieceTable::truncateUndoStack() {
+void QTextDocumentPrivate::truncateUndoStack() {
     if (undoPosition == undoStack.size())
         return;
 
@@ -684,7 +690,7 @@ void QTextPieceTable::truncateUndoStack() {
     undoStack.resize(undoPosition);
 }
 
-void QTextPieceTable::enableUndoRedo(bool enable)
+void QTextDocumentPrivate::enableUndoRedo(bool enable)
 {
     if (!enable) {
         undoPosition = 0;
@@ -693,7 +699,7 @@ void QTextPieceTable::enableUndoRedo(bool enable)
     undoEnabled = enable;
 }
 
-void QTextPieceTable::endEditBlock()
+void QTextDocumentPrivate::endEditBlock()
 {
     if (--editBlock)
         return;
@@ -709,9 +715,9 @@ void QTextPieceTable::endEditBlock()
     docChangeFrom = -1;
 }
 
-void QTextPieceTable::documentChange(int from, int length)
+void QTextDocumentPrivate::documentChange(int from, int length)
 {
-//     qDebug("QTextPieceTable::documentChange: from=%d,length=%d", from, length);
+//     qDebug("QTextDocumentPrivate::documentChange: from=%d,length=%d", from, length);
     if (docChangeFrom < 0) {
         docChangeFrom = from;
         docChangeOldLength = length;
@@ -726,12 +732,12 @@ void QTextPieceTable::documentChange(int from, int length)
     docChangeLength += diff;
 }
 
-void QTextPieceTable::adjustDocumentChangesAndCursors(int from, int addedOrRemoved, UndoCommand::Operation op)
+void QTextDocumentPrivate::adjustDocumentChangesAndCursors(int from, int addedOrRemoved, UndoCommand::Operation op)
 {
     for (int i = 0; i < cursors.size(); ++i)
         cursors.at(i)->adjustPosition(from, addedOrRemoved, op);
 
-//     qDebug("QTextPieceTable::adjustDocumentChanges: from=%d,addedOrRemoved=%d", from, addedOrRemoved);
+//     qDebug("QTextDocumentPrivate::adjustDocumentChanges: from=%d,addedOrRemoved=%d", from, addedOrRemoved);
     if (docChangeFrom < 0) {
         docChangeFrom = from;
         if (addedOrRemoved > 0) {
@@ -743,7 +749,7 @@ void QTextPieceTable::adjustDocumentChangesAndCursors(int from, int addedOrRemov
         }
 //         qDebug("adjustDocumentChanges:");
 //         qDebug("    -> %d %d %d", docChangeFrom, docChangeOldLength, docChangeLength);
-        emit contentsChanged();
+        emit q->contentsChanged();
         return;
     }
 
@@ -768,14 +774,14 @@ void QTextPieceTable::adjustDocumentChangesAndCursors(int from, int addedOrRemov
     docChangeLength += added - removedInside + diff;
 //     qDebug("    -> %d %d %d", docChangeFrom, docChangeOldLength, docChangeLength);
 
-    emit contentsChanged();
+    emit q->contentsChanged();
 }
 
 
-QString QTextPieceTable::plainText() const
+QString QTextDocumentPrivate::plainText() const
 {
     QString result;
-    for (QTextPieceTable::FragmentIterator it = begin(); it != end(); ++it) {
+    for (QTextDocumentPrivate::FragmentIterator it = begin(); it != end(); ++it) {
         const QTextFragment *f = *it;
         result += QString::fromRawData(text.unicode() + f->stringPosition, f->size);
     }
@@ -786,7 +792,7 @@ QString QTextPieceTable::plainText() const
 
 
 
-int QTextPieceTable::nextCursorPosition(int position, QTextLayout::CursorMode mode) const
+int QTextDocumentPrivate::nextCursorPosition(int position, QTextLayout::CursorMode mode) const
 {
     if (position == length()-1)
         return position;
@@ -800,7 +806,7 @@ int QTextPieceTable::nextCursorPosition(int position, QTextLayout::CursorMode mo
     return it.layout()->nextCursorPosition(position-start, mode) + start;
 }
 
-int QTextPieceTable::previousCursorPosition(int position, QTextLayout::CursorMode mode) const
+int QTextDocumentPrivate::previousCursorPosition(int position, QTextLayout::CursorMode mode) const
 {
     if (position == 0)
         return position;
@@ -813,7 +819,7 @@ int QTextPieceTable::previousCursorPosition(int position, QTextLayout::CursorMod
     return it.layout()->previousCursorPosition(position-start, mode) + start;
 }
 
-void QTextPieceTable::changeObjectFormat(QTextObject *obj, int format)
+void QTextDocumentPrivate::changeObjectFormat(QTextObject *obj, int format)
 {
     beginEditBlock();
     int objectIndex = obj->objectIndex();
@@ -838,7 +844,7 @@ void QTextPieceTable::changeObjectFormat(QTextObject *obj, int format)
     c.object = obj;
     appendUndoItem(c);
 
-    emit contentsChanged();
+    emit q->contentsChanged();
     endEditBlock();
 }
 
@@ -855,7 +861,7 @@ static QTextFrame *findChildFrame(QTextFrame *f, int pos)
     return 0;
 }
 
-QTextFrame *QTextPieceTable::frameAt(int pos) const
+QTextFrame *QTextDocumentPrivate::frameAt(int pos) const
 {
     QTextFrame *f = frame;
 
@@ -869,7 +875,7 @@ QTextFrame *QTextPieceTable::frameAt(int pos) const
 
 #define d d_func()
 
-void QTextPieceTable::clearFrame(QTextFrame *f)
+void QTextDocumentPrivate::clearFrame(QTextFrame *f)
 {
     for (int i = 0; i < f->d->childFrames.count(); ++i)
         clearFrame(f->d->childFrames.at(i));
@@ -877,7 +883,7 @@ void QTextPieceTable::clearFrame(QTextFrame *f)
     f->d->parentFrame = 0;
 }
 
-void QTextPieceTable::scan_frames(int pos, int charsRemoved, int charsAddded)
+void QTextDocumentPrivate::scan_frames(int pos, int charsRemoved, int charsAddded)
 {
     // ###### optimise
     Q_UNUSED(pos);
@@ -921,7 +927,7 @@ void QTextPieceTable::scan_frames(int pos, int charsRemoved, int charsAddded)
     Q_ASSERT(f == frame);
 }
 
-void QTextPieceTable::insert_frame(QTextFrame *f)
+void QTextDocumentPrivate::insert_frame(QTextFrame *f)
 {
     int start = f->startPosition();
     int end = f->endPosition();
@@ -950,7 +956,7 @@ void QTextPieceTable::insert_frame(QTextFrame *f)
     f->d->parentFrame = parent;
 }
 
-QTextFrame *QTextPieceTable::insertFrame(int start, int end, const QTextFrameFormat &format)
+QTextFrame *QTextDocumentPrivate::insertFrame(int start, int end, const QTextFrameFormat &format)
 {
     Q_ASSERT(start >= 0 && start < length());
     Q_ASSERT(end >= 0 && end < length());
@@ -984,7 +990,7 @@ QTextFrame *QTextPieceTable::insertFrame(int start, int end, const QTextFrameFor
     return frame;
 }
 
-void QTextPieceTable::removeFrame(QTextFrame *frame)
+void QTextDocumentPrivate::removeFrame(QTextFrame *frame)
 {
     QTextFrame *parent = frame->d->parentFrame;
     if (!parent)
@@ -1003,34 +1009,34 @@ void QTextPieceTable::removeFrame(QTextFrame *frame)
     endEditBlock();
 }
 
-QTextObject *QTextPieceTable::objectForIndex(int objectIndex) const
+QTextObject *QTextDocumentPrivate::objectForIndex(int objectIndex) const
 {
     if (objectIndex < 0)
         return 0;
 
     QTextObject *object = objects.value(objectIndex, 0);
     if (!object) {
-        QTextPieceTable *that = const_cast<QTextPieceTable *>(this);
+        QTextDocumentPrivate *that = const_cast<QTextDocumentPrivate *>(this);
         QTextFormat fmt = formats.objectFormat(objectIndex);
         object = that->createObject(fmt, objectIndex);
     }
     return object;
 }
 
-QTextObject *QTextPieceTable::objectForFormat(int formatIndex) const
+QTextObject *QTextDocumentPrivate::objectForFormat(int formatIndex) const
 {
     int objectIndex = formats.format(formatIndex).objectIndex();
     return objectForIndex(objectIndex);
 }
 
-QTextObject *QTextPieceTable::objectForFormat(const QTextFormat &f) const
+QTextObject *QTextDocumentPrivate::objectForFormat(const QTextFormat &f) const
 {
     return objectForIndex(f.objectIndex());
 }
 
-QTextObject *QTextPieceTable::createObject(const QTextFormat &f, int objectIndex)
+QTextObject *QTextDocumentPrivate::createObject(const QTextFormat &f, int objectIndex)
 {
-    QTextObject *obj = doc->createObject(f);
+    QTextObject *obj = document()->createObject(f);
 
     if (obj) {
         obj->d_func()->pieceTable = this;

@@ -1,5 +1,4 @@
 #include "qtextdocument.h"
-#include "qtextpiecetable_p.h"
 #include <qtextformat.h>
 #include "qtextdocumentlayout_p.h"
 #include "qtextdocumentfragment.h"
@@ -7,18 +6,9 @@
 #include "qtextlist.h"
 #include <qdebug.h>
 
-#include "qtextdocument_p.h"
+#include "qtextpiecetable_p.h"
 #define d d_func()
 #define q q_func()
-
-static void init(QTextDocument *doc, QTextDocumentPrivate *priv, QAbstractTextDocumentLayout *layout = 0)
-{
-    priv->pieceTable = new QTextPieceTable(doc, layout);
-    QObject::connect(static_cast<QTextPieceTable*>(priv->pieceTable), SIGNAL(contentsChanged()), priv->q, SIGNAL(contentsChanged()));
-    QObject::connect(static_cast<QTextPieceTable*>(priv->pieceTable), SIGNAL(undoAvailable(bool)), priv->q, SIGNAL(undoAvailable(bool)));
-    QObject::connect(static_cast<QTextPieceTable*>(priv->pieceTable), SIGNAL(redoAvailable(bool)), priv->q, SIGNAL(redoAvailable(bool)));
-}
-
 
 /*!
     \class QTextDocument qtextdocument.h
@@ -63,7 +53,7 @@ static void init(QTextDocument *doc, QTextDocumentPrivate *priv, QAbstractTextDo
 QTextDocument::QTextDocument(QObject *parent)
     : QObject(*new QTextDocumentPrivate, parent)
 {
-    init(this, d);
+    d->init(0);
 }
 
 /*!
@@ -73,7 +63,7 @@ QTextDocument::QTextDocument(QObject *parent)
 QTextDocument::QTextDocument(const QString &text, QObject *parent)
     : QObject(*new QTextDocumentPrivate, parent)
 {
-    init(this, d);
+    d->init(0);
     QTextCursor(this).insertText(text);
 }
 
@@ -84,7 +74,7 @@ QTextDocument::QTextDocument(const QString &text, QObject *parent)
 QTextDocument::QTextDocument(QAbstractTextDocumentLayout *documentLayout, QObject *parent)
     : QObject(*new QTextDocumentPrivate, parent)
 {
-    init(this, d, documentLayout);
+    d->init(documentLayout);
 }
 
 /*!
@@ -100,7 +90,7 @@ QTextDocument::~QTextDocument()
 */
 QString QTextDocument::plainText() const
 {
-    QString txt = d->pieceTable->plainText();
+    QString txt = d->plainText();
     txt.replace(QChar::ParagraphSeparator, '\n');
     return txt;
 }
@@ -112,7 +102,7 @@ bool QTextDocument::isEmpty() const
 {
     /* because if we're empty we still have one single paragraph as
      * one single fragment */
-    return d->pieceTable->length() <= 1;
+    return d->length() <= 1;
 }
 
 /*!
@@ -133,7 +123,7 @@ bool QTextDocument::isEmpty() const
  */
 void QTextDocument::undoRedo(bool undo)
 {
-    d->pieceTable->undoRedo(undo);
+    d->undoRedo(undo);
 }
 
 /*!
@@ -143,7 +133,7 @@ void QTextDocument::undoRedo(bool undo)
 */
 void QTextDocument::appendUndoItem(QAbstractUndoItem *item)
 {
-    d->pieceTable->appendUndoItem(item);
+    d->appendUndoItem(item);
 }
 
 /*!
@@ -155,12 +145,12 @@ void QTextDocument::appendUndoItem(QAbstractUndoItem *item)
 */
 void QTextDocument::setUndoRedoEnabled(bool enable)
 {
-    d->pieceTable->enableUndoRedo(enable);
+    d->enableUndoRedo(enable);
 }
 
 bool QTextDocument::isUndoRedoEnabled() const
 {
-    return d->pieceTable->isUndoRedoEnabled();
+    return d->isUndoRedoEnabled();
 }
 
 /*!
@@ -190,7 +180,7 @@ bool QTextDocument::isUndoRedoEnabled() const
 */
 bool QTextDocument::isUndoAvailable() const
 {
-    return d->pieceTable->isUndoAvailable();
+    return d->isUndoAvailable();
 }
 
 /*!
@@ -198,7 +188,7 @@ bool QTextDocument::isUndoAvailable() const
 */
 bool QTextDocument::isRedoAvailable() const
 {
-    return d->pieceTable->isRedoAvailable();
+    return d->isRedoAvailable();
 }
 
 
@@ -207,7 +197,7 @@ bool QTextDocument::isRedoAvailable() const
 */
 QAbstractTextDocumentLayout *QTextDocument::documentLayout() const
 {
-    return d->pieceTable->layout();
+    return d->layout();
 }
 
 
@@ -216,7 +206,7 @@ QAbstractTextDocumentLayout *QTextDocument::documentLayout() const
 */
 QString QTextDocument::documentTitle() const
 {
-    return d->pieceTable->config()->title;
+    return d->config()->title;
 }
 
 /*!
@@ -226,7 +216,7 @@ QString QTextDocument::documentTitle() const
 */
 void QTextDocument::setPageSize(const QSize &s)
 {
-    d->pieceTable->layout()->setPageSize(s);
+    d->layout()->setPageSize(s);
 }
 
 /*!
@@ -236,7 +226,7 @@ void QTextDocument::setPageSize(const QSize &s)
 */
 QSize QTextDocument::pageSize() const
 {
-    return d->pieceTable->layout()->pageSize();
+    return d->layout()->pageSize();
 }
 
 /*!
@@ -245,7 +235,7 @@ QSize QTextDocument::pageSize() const
 */
 int QTextDocument::numPages() const
 {
-    return d->pieceTable->layout()->numPages();
+    return d->layout()->numPages();
 }
 
 
@@ -272,12 +262,12 @@ void QTextDocument::setHtml(const QString &html)
 */
 QString QTextDocument::anchorAt(const QPoint& pos) const
 {
-    int cursorPos = d->pieceTable->layout()->hitTest(pos, QText::ExactHit);
+    int cursorPos = d->layout()->hitTest(pos, QText::ExactHit);
     if (cursorPos == -1)
         return QString();
 
-    QTextPieceTable::FragmentIterator it = d->pieceTable->find(cursorPos);
-    QTextCharFormat fmt = d->pieceTable->formatCollection()->charFormat(it->format);
+    QTextDocumentPrivate::FragmentIterator it = d->find(cursorPos);
+    QTextCharFormat fmt = d->formatCollection()->charFormat(it->format);
     return fmt.anchorName();
 }
 
@@ -308,7 +298,7 @@ QTextCursor QTextDocument::find(const QString &expr, int from, StringComparison 
     else
         cs = QString::CaseInsensitive;
 
-    QTextBlockIterator block = d->pieceTable->blocksFind(pos);
+    QTextBlockIterator block = d->blocksFind(pos);
     while (!block.atEnd()) {
         const int blockOffset = qMax(0, pos - block.position());
         QString text = block.blockText();
@@ -337,7 +327,7 @@ QTextCursor QTextDocument::find(const QString &expr, int from, StringComparison 
         }
 
         if (idx >= 0) {
-            QTextCursor cursor(d->pieceTable, block.position() + blockOffset + idx);
+            QTextCursor cursor(d, block.position() + blockOffset + idx);
             cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, expr.length());
             return cursor;
         }

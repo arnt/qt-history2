@@ -10,8 +10,6 @@
 #include <qtextlayout.h>
 #include <qdebug.h>
 
-#include "qtextdocument_p.h"
-
 enum {
     AdjustPrev = 0x1,
     AdjustUp = 0x3,
@@ -19,9 +17,9 @@ enum {
     AdjustDown = 0x12
 };
 
-QTextCursorPrivate::QTextCursorPrivate(const QTextPieceTable *table)
+QTextCursorPrivate::QTextCursorPrivate(const QTextDocumentPrivate *table)
     : x(0), position(0), anchor(0), adjusted_anchor(0),
-      pieceTable(const_cast<QTextPieceTable *>(table))
+      pieceTable(const_cast<QTextDocumentPrivate *>(table))
 {
     Q_ASSERT(pieceTable);
     pieceTable->addCursor(this);
@@ -99,7 +97,7 @@ void QTextCursorPrivate::remove()
 
 bool QTextCursorPrivate::canDelete(int pos) const
 {
-    QTextPieceTable::FragmentIterator fit = pieceTable->find(pos);
+    QTextDocumentPrivate::FragmentIterator fit = pieceTable->find(pos);
     QTextCharFormat fmt = pieceTable->formatCollection()->charFormat((*fit)->format);
     return !fmt.nonDeletable();
 }
@@ -475,7 +473,7 @@ QTextCursor::QTextCursor()
     Constructs a cursor pointing to the beginning of the \a document.
  */
 QTextCursor::QTextCursor(QTextDocument *document)
-    : d(new QTextCursorPrivate(const_cast<const QTextDocument*>(document)->d_func()->pieceTable))
+    : d(new QTextCursorPrivate(const_cast<const QTextDocument*>(document)->d_func()))
 {
 }
 
@@ -493,7 +491,7 @@ QTextCursor::QTextCursor(const QTextBlockIterator &block)
 /*!
   \internal
  */
-QTextCursor::QTextCursor(const QTextPieceTable *pt, int pos)
+QTextCursor::QTextCursor(const QTextDocumentPrivate *pt, int pos)
     : d(new QTextCursorPrivate(pt))
 {
     d->anchor = d->position = pos;
@@ -819,7 +817,7 @@ void QTextCursor::setBlockFormat(const QTextBlockFormat &format)
 
     QTextBlockIterator from = d->pieceTable->blocksFind(pos1);
     QTextBlockIterator to = d->pieceTable->blocksFind(pos2);
-    d->pieceTable->setBlockFormat(from, to, format, QTextPieceTable::SetFormat);
+    d->pieceTable->setBlockFormat(from, to, format, QTextDocumentPrivate::SetFormat);
 }
 
 /*!
@@ -842,7 +840,7 @@ void QTextCursor::mergeBlockFormat(const QTextBlockFormat &modifier)
 
     QTextBlockIterator from = d->pieceTable->blocksFind(pos1);
     QTextBlockIterator to = d->pieceTable->blocksFind(pos2);
-    d->pieceTable->setBlockFormat(from, to, modifier, QTextPieceTable::MergeFormat);
+    d->pieceTable->setBlockFormat(from, to, modifier, QTextDocumentPrivate::MergeFormat);
 }
 
 /*!
@@ -862,7 +860,7 @@ QTextCharFormat QTextCursor::charFormat() const
     Q_ASSERT(pos >= 0 && pos < d->pieceTable->length());
 
 
-    QTextPieceTable::FragmentIterator it = d->pieceTable->find(pos);
+    QTextDocumentPrivate::FragmentIterator it = d->pieceTable->find(pos);
     Q_ASSERT(!it.atEnd());
     int idx = it.value()->format;
 
@@ -892,7 +890,7 @@ void QTextCursor::setCharFormat(const QTextCharFormat &format)
         pos2 = d->position;
     }
 
-    d->pieceTable->setCharFormat(pos1, pos2-pos1, format, QTextPieceTable::SetFormat);
+    d->pieceTable->setCharFormat(pos1, pos2-pos1, format, QTextDocumentPrivate::SetFormat);
 }
 
 /*!
@@ -914,7 +912,7 @@ void QTextCursor::mergeCharFormat(const QTextCharFormat &modifier)
         pos2 = d->position;
     }
 
-    d->pieceTable->setCharFormat(pos1, pos2-pos1, modifier, QTextPieceTable::MergeFormat);
+    d->pieceTable->setCharFormat(pos1, pos2-pos1, modifier, QTextDocumentPrivate::MergeFormat);
 }
 
 /*!

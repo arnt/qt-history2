@@ -6,7 +6,7 @@
 #include <qstring.h>
 #include <qvector.h>
 #include <qlist.h>
-#include <qobject.h>
+#include <private/qobject_p.h>
 #include "qfragmentmap_p.h"
 #include <qtextlayout.h>
 #include <private/qtextformat_p.h>
@@ -95,17 +95,18 @@ public:
 };
 Q_DECLARE_TYPEINFO(UndoCommand, Q_PRIMITIVE_TYPE);
 
-
-class QTextPieceTable : public QObject
+class QTextDocumentPrivate : public QObjectPrivate
 {
-    Q_OBJECT
+    Q_DECLARE_PUBLIC(QTextDocument)
 public:
     typedef QFragmentMap<QTextFragment> FragmentMap;
     typedef FragmentMap::ConstIterator FragmentIterator;
     typedef QFragmentMap<QTextBlock> BlockMap;
 
-    QTextPieceTable(QTextDocument *doc, QAbstractTextDocumentLayout *layout);
-    ~QTextPieceTable();
+    QTextDocumentPrivate();
+    ~QTextDocumentPrivate();
+
+    void init(QAbstractTextDocumentLayout *);
 
     void insert(int pos, const QString &text, int format);
     void insert(int pos, int strPos, int strLength, int format);
@@ -166,11 +167,6 @@ public:
 
     void changeObjectFormat(QTextObject *group, int format);
 
-signals:
-    void contentsChanged();
-    void undoAvailable(bool avail);
-    bool redoAvailable(bool avail);
-
 private:
     bool split(int pos);
     bool unite(uint f);
@@ -201,11 +197,12 @@ public:
 
     QTextObject *createObject(const QTextFormat &newFormat, int objectIndex = -1);
 
-    QTextDocument *document() const { return doc; }
+    QTextDocument *document() { return q_func(); }
+    const QTextDocument *document() const { return q_func(); }
 
 private:
-    QTextPieceTable(const QTextPieceTable& m);
-    QTextPieceTable& operator= (const QTextPieceTable& m);
+    QTextDocumentPrivate(const QTextDocumentPrivate& m);
+    QTextDocumentPrivate& operator= (const QTextDocumentPrivate& m);
 
     void appendUndoItem(const UndoCommand &c);
 
@@ -231,7 +228,7 @@ private:
     QMap<int, QTextObject *> objects;
 
     QTextDocumentConfig docConfig;
-    QTextDocument *doc;
 };
+
 
 #endif // QPIECEMAP_H
