@@ -1053,6 +1053,8 @@ void QSplitter::addWidget(QWidget *widget)
 
     If \a widget is already in the splitter, it will be moved to the new position.
 
+    if \a index is an invalid index, then the widget will be inserted at the end.
+
     \sa addWidget() indexOf() widget()
 */
 void QSplitter::insertWidget(int index, QWidget *widget)
