@@ -2,6 +2,7 @@
 #include "qwsevent.h"
 #include "qwscommand.h"
 #include "qwsutils.h"
+#include "qgfx.h"
 
 #include <qapplication.h>
 #include <qnamespace.h>
@@ -146,6 +147,7 @@ void vtSwitchHandler(int /*sig*/)
 {
     if (vtActive) {
 	server->enablePainting(false);
+	qt_screen->save();
 	if (ioctl(kbdFD, VT_RELDISP, 1) == 0) {
 	    vtActive = false;
 	    server->closeMouse();
@@ -159,6 +161,7 @@ void vtSwitchHandler(int /*sig*/)
 	if (ioctl(kbdFD, VT_RELDISP, VT_ACKACQ) == 0) {
 	    server->enablePainting(true);
 	    vtActive = true;
+	    qt_screen->restore();
 	    server->openMouse();
 	    server->refresh();
 	}

@@ -3905,6 +3905,43 @@ void QScreen::setMode(int nw,int nh,int nd)
     size=w * h * d / 8;
 }
 
+// save the state of the graphics card
+// This is needed so that e.g. we can restore the palette when switching
+// between linux virtual consoles.
+void QScreen::save()
+{
+    // nothing to do.
+}
+
+// restore the state of the graphics card.
+void QScreen::restore()
+{
+    if ( d == 8 ) {
+	fb_cmap cmap;
+	cmap.start=0;
+	cmap.len=screencols;
+	cmap.red=(unsigned short int *)
+		 malloc(sizeof(unsigned short int)*256);
+	cmap.green=(unsigned short int *)
+		   malloc(sizeof(unsigned short int)*256);
+	cmap.blue=(unsigned short int *)
+		  malloc(sizeof(unsigned short int)*256);
+	cmap.transp=(unsigned short int *)
+		    malloc(sizeof(unsigned short int)*256);
+	for ( int loopc = 0; loopc < screencols; loopc++ ) {
+	    cmap.red[loopc] = qRed( screenclut[loopc] ) << 8;
+	    cmap.green[loopc] = qGreen( screenclut[loopc] ) << 8;
+	    cmap.blue[loopc] = qBlue( screenclut[loopc] ) << 8;
+	    cmap.transp[loopc] = 0;
+	}
+	ioctl(fd,FBIOPUTCMAP,&cmap);
+	free(cmap.red);
+	free(cmap.green);
+	free(cmap.blue);
+	free(cmap.transp);
+    }
+}
+
 QGfx * QScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
 {
     QGfx* ret;

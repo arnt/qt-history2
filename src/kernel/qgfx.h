@@ -90,6 +90,8 @@ public:
     virtual void setMode(int,int,int);
     virtual QGfx * createGfx(unsigned char *,int,int,int,int);
     virtual QGfx * screenGfx();
+    virtual void save();
+    virtual void restore();
 
     int width() const { return w; }
     int height() const { return h; }
