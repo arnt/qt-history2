@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id$
 **
-** Definition of QRemoteControlInterface class
+** Definition of QRemoteInterface class
 **
 ** Created : 010301
 **
@@ -35,8 +35,8 @@
 **
 **********************************************************************/
 
-#ifndef QREMOTECONTROL_H
-#define QREMOTECONTROL_H
+#ifndef QREMOTEINTERFACE_P_H
+#define QREMOTEINTERFACE_P_H
 
 //
 //  W A R N I N G
@@ -51,29 +51,40 @@
 //
 
 #ifndef QT_H
-#include "private/qcom_p.h"
+#include <private/qcom_p.h>
 #endif // QT_H
 
+#ifdef QT_REMOTE_CONTROL
 #ifndef QT_NO_COMPONENT
 
+#include <qobject.h>
 class QString;
 class QEvent;
 class QRemoteClient;
 class QPixmap;
 class QSocket;
 
+
 // {70EC01D4-2AB0-406F-B279-5BC348768C61}
-#ifndef IID_QRemoteControl
-#define IID_QRemoteControl QUuid( 0x70ec01d4, 0x2ab0, 0x406f, 0xb2, 0x79, 0x5b, 0xc3, 0x48, 0x76, 0x8c, 0x61)
+#ifndef IID_QRemoteInterface
+#define IID_QRemoteInterface QUuid( 0x70ec01d4, 0x2ab0, 0x406f, 0xb2, 0x79, 0x5b, 0xc3, 0x48, 0x76, 0x8c, 0x61)
 #endif
 
-class QRemoteControlInterface : public QUnknownInterface
+// {3AC6E129-654A-4B7E-B1BA-85ECF379E182} 
+#ifndef IID_QRemoteFactory
+#define IID_QRemoteFactory QUuid( 0x3ac6e129, 0x654a, 0x4b7e, 0xb1, 0xba, 0x85, 0xec, 0xf3, 0x79, 0xe1, 0x82)
+#endif
+
+
+class Q_EXPORT QRemoteInterface : public QObject// public QUnknownInterface
 {
+    Q_OBJECT
+
 public:
 /*!
     Opens a connection to the remote controller (host). The connection is anticipated to
     be a socket connection, hence the parameters \a hostName and \a port.
-    QRemoteControlInterface only defines the interface. The actual connect functionality must be
+    QRemoteInterface only defines the interface. The actual connect functionality must be
     implemented in a derived class.
 */
     virtual void open(const QString& hostname, int port) = 0;
@@ -85,7 +96,7 @@ public:
 
 /*!
     Closes the connection to the remote controller (host).
-    QRemoteControlInterface only defines the interface. The actual close functionality must be
+    QRemoteInterface only defines the interface. The actual close functionality must be
     implemented in a derived class.
 */
     virtual void close() = 0;
@@ -96,7 +107,7 @@ public:
     may be taken.
     The function returns TRUE if the msgType has been handled completely, i.e. doesn't need
     to nor should be handled any more by QApplication::notify() itself.
-    QRemoteControlInterface only defines the interface. The actual handleNotification functionality
+    QRemoteInterface only defines the interface. The actual handleNotification functionality
     must be implemented in a derived class.
 */
     virtual bool handleNotification(QObject *receiver, QEvent * e) = 0;
@@ -109,7 +120,7 @@ public:
 
 /*!
     Posts (e.g. non blocking) an \a msgType and \a message to the remote controller (host).
-    QRemoteControlInterface only defines the interface. The actual postObject functionality must be
+    QRemoteInterface only defines the interface. The actual postObject functionality must be
     implemented in a derived class.
 */
     virtual void postObject(const QString &msgType, const QString &message) = 0;
@@ -126,18 +137,26 @@ public:
     (host) and waits for a \a result. You can use \a timeout to specify the max wait time
     for the reply. If \a timeout == -1 the function waits forever.
     The \a result parameter returns the answer from the receiver of this message.
-    QRemoteControlInterface only defines the interface. The actual sendObject functionality must be
+    QRemoteInterface only defines the interface. The actual sendObject functionality must be
     implemented in a derived class.
 */
     virtual bool sendObject(const QString &msgType, const QString &message, const QPixmap *pixmap, QString &result, int timeout = -1) = 0;
 };
 
-class QRemoteClient : public QObject
+
+class Q_EXPORT QRemoteClient : public QObject
 {
 public:
     virtual bool execCommand(QByteArray *) { return FALSE;};
 };
 
-#endif // QT_NO_COMPONENT
 
-#endif
+struct Q_EXPORT QRemoteFactoryInterface : public QFeatureListInterface
+{
+    virtual QRemoteInterface* create( const QString& type ) = 0;
+};
+
+#endif //QT_NO_COMPONENT
+#endif //QT_REMOTE_CONTROL
+
+#endif //QREMOTEINTERFACE_P_H

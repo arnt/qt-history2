@@ -281,7 +281,7 @@
 #include <private/qlayoutengine_p.h>
 #include <private/qeffects_p.h>
 #include <private/qinternal_p.h>
-#include <private/qremotecontrol_p.h>
+#include <private/qremoteinterface_p.h>
 #include <private/qremotemessage_p.h>
 #include <private/qsqlmanager_p.h>
 #include <private/qcomplextext_p.h>

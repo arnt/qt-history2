@@ -235,8 +235,13 @@ kernel {
 	      win32:SOURCES += $$KERNEL_CPP/qaccessible_win.cpp
 	}
 	remote {
-	      HEADERS += $$KERNEL_P/qremotecontrol_p.h \
-			 $$KERNEL_P/qremotemessage_p.h
-	      SOURCES += $$KERNEL_CPP/qremotemessage.cpp
+	      HEADERS += $$KERNEL_P/qremoteinterface_p.h \
+			 $$KERNEL_P/qremotemessage_p.h \
+			 $$KERNEL_P/qremotefactory.h \
+			 $$KERNEL_P/qremoteplugin.h
+	      SOURCES += $$KERNEL_CPP/qremotemessage.cpp \
+			$$KERNEL_CPP/qremotefactory.cpp \
+			$$KERNEL_CPP/qremoteplugin.cpp
+		DEFINES+=QT_REMOTE_CONTROL
 	}
 }

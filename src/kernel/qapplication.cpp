@@ -54,7 +54,8 @@
 #include <stdlib.h>
 
 #if defined(QT_REMOTE_CONTROL)
-#include "private/qremotecontrol_p.h"
+#include "private/qremoteinterface_p.h"
+#include "qremotefactory.h"
 #endif
 
 #if defined(QT_THREAD_SUPPORT)
@@ -321,7 +322,7 @@ QStringList *QApplication::app_libpaths = 0;
 
 #if defined(QT_REMOTE_CONTROL)
 QUuid application_id = QUuid(0,0,0,0,0,0,0,0,0,0,0);
-static QRemoteControlInterface *remoteControl = 0;
+static QRemoteInterface *remoteControl = 0;
 #endif
 
 void qt_setMaxWindowRect(const QRect& r)
@@ -832,7 +833,7 @@ void QApplication::setEnableRemoteControl(bool enable, const QUuid appId)
     if (!enable) {
 
 	if (remoteControl != 0) {
-	    remoteControl->release();
+//	    remoteControl->release();
 	    remoteControl = 0;
 	}
     } else {
@@ -858,11 +859,14 @@ void QApplication::setEnableRemoteControl(bool enable, const QUuid appId)
 		    hostPort = s.mid(pos+1);
 		    int port = hostPort.toInt();
 		    if (port > 0) {
-
+/*
 			// This is a hack, but since this number will never change...
 			// {C71CE12C-AB3C-459B-87D6-C539FF45975D}
 			QUuid cid( 0xc71ce12c, 0xab3c, 0x459b, 0x87, 0xd6, 0xc5, 0x39, 0xff, 0x45, 0x97, 0x5d);
-			if (QComponentFactory::createInstance(cid,IID_QRemoteControl,(QUnknownInterface**)&remoteControl) == QS_OK) {
+			if (QComponentFactory::createInstance(cid,IID_QRemoteInterface,(QUnknownInterface**)&remoteControl) == QS_OK) {
+*/
+			remoteControl = QRemoteFactory::create("rc1");
+			if (remoteControl != 0) {
 
 			    remoteControl->open(hostIp,port);
 			    qDebug("Remote Control is enabled.");
@@ -958,8 +962,8 @@ QWidget *QApplication::activeModalWidget()
 QApplication::~QApplication()
 {
 #if defined(QT_REMOTE_CONTROL)
-    if (remoteControl != 0)
-    	remoteControl->release();
+//    if (remoteControl != 0)
+//    	remoteControl->release();
     remoteControl = 0;
 #endif // QT_REMOTE_CONTROL
 
