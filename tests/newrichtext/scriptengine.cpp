@@ -1034,127 +1034,127 @@ static const unsigned char indicForms[0xe00-0x900] = {
     Other, Other, Other, Other,
 
     // Gurmukhi
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    Invalid, Invalid, VowelMark, Invalid,
+    Invalid, IndependentVowel, IndependentVowel, IndependentVowel,
+    IndependentVowel, IndependentVowel, IndependentVowel, Invalid,
+    Invalid, Invalid, Invalid, IndependentVowel,
+
+    IndependentVowel, Invalid, Invalid, IndependentVowel,
+    IndependentVowel, Consonant, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
+
+    Consonant, Consonant, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
+    Consonant, Invalid, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
+
+    Consonant, Invalid, Consonant, Consonant,
+    Invalid, Consonant, Consonant, Invalid,
+    Consonant, Consonant, Unknown, Unknown,
+    Nukta, Other, Matra, Matra,
+
+    Matra, Matra, Matra, Invalid,
+    Invalid, Invalid, Invalid, Matra,
+    Matra, Invalid, Invalid, Matra,
+    Matra, Halant, Unknown, Unknown,
 
     Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    Invalid, Unknown, Unknown, Unknown,
+    Invalid, Consonant, Consonant, Consonant,
+    Consonant, Invalid, Consonant, Invalid,
 
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    Other, Other, Invalid, Invalid,
+    Other, Other, Other, Other,
+    Other, Other, Other, Other,
+    Other, Other, Other, Other,
 
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    StressMark, StressMark, Other, Other,
+    Other, Other, Other, Other,
+    Other, Other, Other, Other,
+    Other, Other, Other, Other,
 
     // Gujarati
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    Invalid, VowelMark, VowelMark, VowelMark,
+    Invalid, IndependentVowel, IndependentVowel, IndependentVowel,
+    IndependentVowel, IndependentVowel, IndependentVowel, IndependentVowel,
+    Invalid, IndependentVowel, Invalid, IndependentVowel,
 
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    IndependentVowel, IndependentVowel, Invalid, IndependentVowel,
+    IndependentVowel, Consonant, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
 
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    Consonant, Consonant, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
+    Consonant, Invalid, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
 
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    Consonant, Invalid, Consonant, Consonant,
+    Invalid, Consonant, Consonant, Consonant,
+    Consonant, Consonant, Unknown, Unknown,
+    Nukta, Other, Matra, Matra,
 
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    Matra, Matra, Matra, Matra,
+    Matra, Matra, Invalid, Matra,
+    Matra, Matra, Invalid, Matra,
+    Matra, Halant, Unknown, Unknown,
 
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    Other, Unknown, Unknown, Unknown,
+    Unknown, Unknown, Unknown, Unknown,
+    Unknown, Unknown, Unknown, Unknown,
+    Unknown, Unknown, Unknown, Unknown,
 
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    Other, Other, Other, Other,
+    Other, Other, Other, Other,
+    Other, Other, Other, Other,
+    Other, Other, Other, Other,
 
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    Other, Other, Other, Other,
+    Other, Other, Other, Other,
+    Other, Other, Other, Other,
+    Other, Other, Other, Other,
 
     // Oriya
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    Invalid, VowelMark, VowelMark, VowelMark,
+    Invalid, IndependentVowel, IndependentVowel, IndependentVowel,
+    IndependentVowel, IndependentVowel, IndependentVowel, IndependentVowel,
+    IndependentVowel, Invalid, Invalid, IndependentVowel,
 
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    IndependentVowel, Invalid, Invalid, IndependentVowel,
+    IndependentVowel, Consonant, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
 
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    Consonant, Consonant, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
+    Consonant, Invalid, Consonant, Consonant,
+    Consonant, Consonant, Consonant, Consonant,
 
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    Consonant, Invalid, Consonant, Consonant,
+    Invalid, Invalid, Consonant, Consonant,
+    Consonant, Consonant, Unknown, Unknown,
+    Nukta, Other, Matra, Matra,
 
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    Matra, Matra, Matra, Matra,
+    Invalid, Invalid, Invalid, Matra,
+    Matra, Invalid, Invalid, Matra,
+    Matra, Halant, Unknown, Unknown,
 
+    Other, Invalid, Invalid, Invalid,
+    Invalid, Unknown, LengthMark, LengthMark,
     Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    Consonant, Consonant, Invalid, Consonant,
 
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    Other, Other, Invalid, Invalid,
+    Other, Other, Other, Other,
+    Other, Other, Other, Other,
+    Other, Other, Other, Other,
 
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    Other, Other, Other, Other,
+    Other, Other, Other, Other,
+    Other, Other, Other, Other,
+    Other, Other, Other, Other,
 
     //Tamil
     Invalid, Invalid, VowelMark, VowelMark,
@@ -1472,12 +1472,7 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
 
     // Gurmukhi
-    None, None, None, None,
-    None, None, None, None,
-    None, None, None, None,
-    None, None, None, None,
-
-    None, None, None, None,
+    None, None, Above, None,
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
@@ -1495,7 +1490,12 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
-    None, None, None, None,
+    Below, None, Post, Pre,
+
+    Post, Below, Below, None,
+    None, None, None, Above,
+    Above, None, None, Above,
+    Above, None, None, None,
 
     None, None, None, None,
     None, None, None, None,
@@ -1507,18 +1507,13 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
     None, None, None, None,
 
-    None, None, None, None,
+    Above, Above, None, None,
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
 
     // Gujarati
-    None, None, None, None,
-    None, None, None, None,
-    None, None, None, None,
-    None, None, None, None,
-
-    None, None, None, None,
+    None, Above, Above, Post,
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
@@ -1536,7 +1531,12 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
-    None, None, None, None,
+    None, None, Post, Pre,
+
+    Post, Below, Below, Below,
+    Below, Above, None, Above,
+    Above, Post, None, Post,
+    Post, None, None, None,
 
     None, None, None, None,
     None, None, None, None,
@@ -1554,12 +1554,7 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
 
     // Oriya
-    None, None, None, None,
-    None, None, None, None,
-    None, None, None, None,
-    None, None, None, None,
-
-    None, None, None, None,
+    None, Above, Post, Post,
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
@@ -1577,10 +1572,15 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
-    None, None, None, None,
+    None, None, Post, Above,
+
+    Post, Below, Below, Below,
+    None, None, None, Pre,
+    Split, None, None, Split,
+    Split, None, None, None,
 
     None, None, None, None,
-    None, None, None, None,
+    None, None, Above, Post,
     None, None, None, None,
     None, None, None, None,
 
@@ -1808,6 +1808,34 @@ static inline Position indic_position( const QChar &ch ) {
 }
 
 
+enum IndicScriptProperties {
+    HasReph = 0x01,
+    MovePreToFront = 0x02,
+    HasSplit = 0x04,
+};
+
+const uchar scriptProperties[10] = {
+    // Devanagari,
+    HasReph|MovePreToFront,
+    // Bengali,
+    HasReph|MovePreToFront|HasSplit,
+    // Gurmukhi,
+    MovePreToFront,
+    // Gujarati,
+    HasReph|MovePreToFront,
+    // Oriya,
+    HasReph|MovePreToFront|HasSplit,
+    // Tamil,
+    HasSplit,
+    // Telugu,
+    0,
+    // Kannada,
+    0,
+    // Malayalam,
+    0,
+    // Sinhala,
+};
+
 /* syllables are of the form:
 
    (Consonant Nukta? Halant)* Consonant Matra? VowelMark? StressMark?
@@ -1890,257 +1918,24 @@ static int indic_nextSyllableBoundary( int script, const QString &s, int start, 
 }
 
 
-static QString devanagariReorder( const QString &string, int start, int end, unsigned short *featuresToApply,
-				  GlyphAttributes *attributes, bool invalid )
-{
-    int len = end - start;
-
-    QString reordered = string.mid( start, len );
-    if ( invalid ) {
-	reordered = QChar( 0x25cc ) + reordered;
-	len++;
-    }
-
-    // in case mid() returns the whole string!
-    reordered.setLength( reordered.length() );
-
-    QChar *uc = (QChar *)reordered.unicode();
-
-    for ( int i = 0; i < len; i++ )
-	featuresToApply[i] = 0;
-
-    // nothing to do in this case!
-    if ( len == 1 ) {
-	attributes[0].mark = (category( reordered.unicode()[0] ) == QChar::Mark_NonSpacing);
-	attributes[0].clusterStart = FALSE;
-	return reordered;
-    }
-
-    int base = 0;
-    if ( form( *uc ) == Consonant ) {
-	bool reph = FALSE;
-	if ( len > 2 && isRa( uc[0] ) && form( uc[1] ) == Halant ) {
-	    reph = TRUE;
-// 	    qDebug("Reph");
-	}
-
-	// Rule 1: find base consonant
-	int lastConsonant = 0;
-	for ( int i = len-1; i > 0; i-- ) {
-	    if ( form( uc[i] ) == Consonant ) {
-		if ( !lastConsonant )
-		    lastConsonant = i;
-		// ### The MS specs says, that this should be done only if the syllable starts with a reph,
-		// but they seem to act differently.
-		if ( /*!reph ||*/ !isRa( uc[i] ) ) {
-		    base = i;
-		    break;
-		}
-	    }
-	}
-	if ( reph && base == 0 )
-	    base = lastConsonant;
-
-// 	qDebug("base consonant at %d skipped=%s", base, lastConsonant != base ? "true" :"false" );
-
-	// Rule 2: move halant of base consonant to last one. Only
-	// possible if we skipped consonants while finding the base
-	if ( lastConsonant != base && form( uc[base+1] ) == Halant ) {
-// 	    qDebug("moving halant from %d to %d!", base+1, lastConsonant);
-	    QChar halant = uc[base+1];
-	    for ( int i = base+1; i < lastConsonant; i++ )
-		uc[i] = uc[i+1];
-	    uc[lastConsonant] = halant;
-
-	}
-
-	// Rule 3: Move reph to follow post base matra
-	if ( reph ) {
-	    int toPos = base+1;
-	    if ( toPos < len && form( uc[toPos] ) == Nukta )
-		toPos++;
-	    if ( toPos < len && form( uc[toPos] ) == Matra )
-		toPos++;
-// 	    qDebug("moving reph from %d to %d", 0, toPos );
-	    QChar ra = uc[0];
-	    QChar halant = uc[1];
-	    for ( int i = 2; i < toPos; i++ )
-		uc[i-2] = uc[i];
-	    uc[toPos-2] = ra;
-	    uc[toPos-1] = halant;
-	    featuresToApply[toPos-2] |= RephFeature;
-	    featuresToApply[toPos-1] |= RephFeature;
-	    base -= 2;
-	}
-    }
-
-    // Rule 4: split two part matras into parts
-    // doesn't apply for devanagari
-
-    // Rule 5: identify matra position. there are no post/below base consonats
-    // in devanagari except for [Ra Halant]_Vattu, but these are already at the
-    // right position
-
-    // all reordering happens now to the chars after (base+(reph halant)_vattu?)
-    // so we move base to there
-    int fixed = base+1;
-    if ( fixed < len && form( uc[fixed] ) == Nukta )
-	fixed++;
-    if ( fixed < len - 1 && isRa( uc[fixed] ) && form( uc[fixed+1] ) == Halant )
-	fixed += 2;
-
-
-    // we continuosly position the matras and vowel marks and increase the fixed
-    // until we reached the end.
-    static struct {
-	Form form;
-	Position position;
-    } finalOrder [] = {
-	{ Matra, Pre },
-	{ Matra, Below },
-	{ VowelMark, Below },
-	{ StressMark, Below },
-	{ Matra, Above },
-	{ Matra, Post },
-	{ Consonant, None },
-	{ Halant, None },
-	{ VowelMark, Above },
-	{ StressMark, Above },
-	{ VowelMark, Post },
-	{ (Form)0, None }
-    };
-
-//     qDebug("base=%d fixed=%d", base, fixed );
-    int toMove = 0;
-    while ( fixed < len ) {
-// 	qDebug("fixed = %d", fixed );
-	for ( int i = fixed; i < len; i++ ) {
-	    if ( form( uc[i] ) == finalOrder[toMove].form &&
-		 indic_position( uc[i] ) == finalOrder[toMove].position ) {
-		// need to move this glyph
-		int to = fixed;
-		if ( finalOrder[toMove].position == Pre )
-		    to = 0;
-// 		qDebug("moving from %d to %d", i,  to );
-		QChar ch = uc[i];
-		unsigned short feature = featuresToApply[i];
-		for ( int j = i; j > to; j-- ) {
-		    uc[j] = uc[j-1];
-		    featuresToApply[j] = featuresToApply[j-1];
-		}
-		uc[to] = ch;
-		switch( finalOrder[toMove].position ) {
-		case Pre:
-// 		    feature |= PreSubstFeature;
-		    break;
-		case Above:
-// 		    feature |= AboveSubstFeature;
-		    break;
-		case Below:
-		    feature |= BelowFormFeature;//|BelowSubstFeature;
-		    break;
-		case Post:
-		    feature |= PostSubstFeature;//|PostFormFeature;
-		    break;
-		case None:
-		case Split:
-		    break;
-		}
-		featuresToApply[to] = feature;
-		fixed++;
-	    }
-	}
-	toMove++;
-	if ( finalOrder[toMove].form == 0 )
-	    break;
-    }
-
-    bool halantForm = base < len-1 && (form( uc[base+1] ) == Halant);
-    if ( halantForm ) {
-	// #### we have to take care this doesn't get applied to Akhant ligatures,
-	// but that's currently rather hard (without a bigger rewrite of the open type
-	// API (ftx*.c)
-	featuresToApply[base] |= HalantFeature;
-	featuresToApply[base+1] |= HalantFeature;
-    }
-
-    // set the features we need to apply in OT
-    int state = form( uc[0] );
-    bool lastWasBase = (base == 0);
-    if ( state == Consonant )
-	featuresToApply[0] |= AkhantFeature|NuktaFeature;
-
-    for ( int i = 1; i < len; i++ ) {
-	int newState = form( uc[i] );
-	switch( newState ) {
-	case Consonant:
-	    lastWasBase = (i == base);
-	    featuresToApply[i] |= AkhantFeature|NuktaFeature;
-	    break;
-	case Halant:
-	    if ( state == Nukta || state == Consonant ) {
-		// vattu or halant feature
-		if ( isRa( uc[i-1] ) && len > 2 ) {
-		    if ( !(featuresToApply[i] & RephFeature) ) {
-			featuresToApply[i-1] |= BelowFormFeature|VattuFeature;
-			featuresToApply[i] |= BelowFormFeature|VattuFeature;
-			int j = i-2;
-			while ( j >= 0 ) {
-			    int f = form( uc[j] );
-			    featuresToApply[j] |= VattuFeature;
-			    if ( f == Consonant )
-				break;
-			    j--;
-			}
-		    }
-		}
-		else if ( !lastWasBase  ) {
-		    if ( state == Nukta )
-			featuresToApply[i-2] |= HalfFormFeature;
-		    featuresToApply[i-1] |= HalfFormFeature;
-		    featuresToApply[i] |= HalfFormFeature;
-		}
-	    }
-	    break;
-	case Nukta:
-	    if ( state == Consonant ) {
-		featuresToApply[i-1] |= NuktaFeature;
-		featuresToApply[i] |= NuktaFeature;
-	    }
-	case StressMark:
-	case VowelMark:
-	case Matra:
-	case LengthMark:
-	case IndependentVowel:
-	case Invalid:
-	case Other:
-	    break;
-	}
-	state = newState;
-    }
-
-    for ( int i = 0; i < (int)reordered.length(); i++ ) {
-	attributes[i].mark = (category( reordered.unicode()[0] ) == QChar::Mark_NonSpacing);
-	attributes[i].clusterStart = FALSE;
-    }
-    attributes[0].clusterStart = TRUE;
-
-//     qDebug("reordered:");
-//     for ( int i = 0; i < (int)reordered.length(); i++ )
-// 	qDebug("    %d: %4x apply=%4x clusterStart=%d", i, reordered[i].unicode(), featuresToApply[i], attributes[i].clusterStart );
-
-    return reordered;
-}
-
-
 // vowel matras that have to be split into two parts.
 static const unsigned short bengali_o[2]  = { 0x9c7, 0x9be };
 static const unsigned short bengali_au[2] = { 0x9c7, 0x9d7 };
 
-static QString bengaliReorder( const QString &string, int start, int end, unsigned short *featuresToApply,
+static const unsigned short oriya_ai[2]    = { 0xb47, 0xb56 };
+static const unsigned short oriya_o[2]    = { 0xb47, 0xb3e };
+static const unsigned short oriya_au[2]    = { 0xb47, 0xb57 };
+
+static const unsigned short tamil_o[2]    = { 0xbc6, 0xbbe };
+static const unsigned short tamil_oo[2]   = { 0xbc7, 0xbbe };
+static const unsigned short tamil_au[2]   = { 0xbc6, 0xbd7 };
+
+
+static QString indic_reorder( int script, const QString &string, int start, int end, unsigned short *featuresToApply,
 				GlyphAttributes *attributes, bool invalid )
 {
     int len = end - start;
+    unsigned char properties = scriptProperties[script-QFont::Devanagari];
 
     QString reordered = string.mid( start, len );
     if ( invalid ) {
@@ -2153,26 +1948,44 @@ static QString bengaliReorder( const QString &string, int start, int end, unsign
 
     QChar *uc = (QChar *)reordered.unicode();
 
-    for ( int i = 0; i < len; i++ )
-	featuresToApply[i] = 0;
-
-    // We can do this rule at the beginning, as it doesn't interact with later operations.
-    // Rule 4: split two part matras into parts
-    // This could be done better, but works for now.
-    for ( int i = 0; i < len; i++ ) {
-	const QChar *split = 0;
-	if ( uc[i].unicode() == 0x9cb )
-	    split = (const QChar *)bengali_o;
-	else if ( uc[i].unicode() == 0x9cc )
-	    split = (const QChar *)bengali_au;
-	if ( split ) {
-	    reordered.replace( i, 1, split, 2 );
-	    uc = (QChar *)reordered.unicode();
-	    len++;
-	    break;
+    if ( properties & HasSplit ) {
+	// We can do this rule at the beginning, as it doesn't interact with later operations.
+	// Rule 4: split two part matras into parts
+	// This could be done better, but works for now.
+	for ( int i = 0; i < len; i++ ) {
+	    const QChar *split = 0;
+	    if ( script == QFont::Bengali ) {
+		if ( uc[i].unicode() == 0x9cb )
+		    split = (const QChar *)bengali_o;
+		else if ( uc[i].unicode() == 0x9cc )
+		    split = (const QChar *)bengali_au;
+	    } else if ( script == QFont::Oriya ) {
+		if ( uc[i].unicode() == 0xb48 )
+		    split = (const QChar *)oriya_ai;
+		else if ( uc[i].unicode() == 0xb4b )
+		    split = (const QChar *)oriya_o;
+		else if ( uc[i].unicode() == 0xb4c )
+		    split = (const QChar *)oriya_au;
+	    } else if ( script == QFont::Tamil ) {
+		if ( uc[i].unicode() == 0xbca )
+		    split = (const QChar *)tamil_o;
+		else if ( uc[i].unicode() == 0xbcb )
+		    split = (const QChar *)tamil_oo;
+		else if ( uc[i].unicode() == 0xbcc )
+		    split = (const QChar *)tamil_au;
+	    }
+	    if ( split ) {
+		reordered.replace( i, 1, split, 2 );
+		uc = (QChar *)reordered.unicode();
+		len++;
+		break;
+	    }
 	}
     }
+
 //     qDebug("length=%d",  len );
+    for ( int i = 0; i < len; i++ )
+	featuresToApply[i] = 0;
 
     // nothing to do in this case!
     if ( len == 1 ) {
@@ -2184,7 +1997,7 @@ static QString bengaliReorder( const QString &string, int start, int end, unsign
     int base = 0;
     if ( form( *uc ) == Consonant ) {
 	bool reph = FALSE;
-	if ( len > 2 && isRa( uc[0] ) && form( uc[1] ) == Halant ) {
+	if ( (properties & HasReph) && len > 2 && isRa( uc[0] ) && form( uc[1] ) == Halant ) {
 	    reph = TRUE;
 // 	    qDebug("Reph");
 	}
@@ -2195,15 +2008,13 @@ static QString bengaliReorder( const QString &string, int start, int end, unsign
 	    if ( form( uc[i] ) == Consonant ) {
 		if ( !lastConsonant )
 		    lastConsonant = i;
-		// ### The MS specs says, that this should be done only if the syllable starts with a reph,
-		// but they seem to act differently.
-		if ( /*!reph ||*/ !isRa( uc[i] ) ) {
+		if ( !(properties & HasReph) || !isRa( uc[i] ) ) {
 		    base = i;
 		    break;
 		}
 	    }
 	}
-	if ( reph && base == 0 )
+	if ( (properties & HasReph) && reph && base == 0 )
 	    base = lastConsonant;
 
 // 	qDebug("base consonant at %d skipped=%s", base, lastConsonant != base ? "true" :"false" );
@@ -2285,7 +2096,7 @@ static QString bengaliReorder( const QString &string, int start, int end, unsign
 		// need to move this glyph
 		int to = fixed;
 		if ( finalOrder[toMove].position == Pre )
-		    to = 0;
+		    to = (properties&MovePreToFront) ? 0 : base;
 //  		qDebug("moving from %d to %d", i,  to );
 		QChar ch = uc[i];
 		unsigned short feature = featuresToApply[i];
@@ -2346,7 +2157,7 @@ static QString bengaliReorder( const QString &string, int start, int end, unsign
 	case Halant:
 	    if ( state == Nukta || state == Consonant ) {
 		// vattu or halant feature
-		if ( isRa( uc[i-1] ) && len > 2 ) {
+		if ( (properties & HasReph) && isRa( uc[i-1] ) && len > 2 ) {
 		    if ( !(featuresToApply[i] & RephFeature) ) {
 			featuresToApply[i-1] |= BelowFormFeature|VattuFeature;
 			featuresToApply[i] |= BelowFormFeature|VattuFeature;
@@ -2399,222 +2210,6 @@ static QString bengaliReorder( const QString &string, int start, int end, unsign
 }
 
 
-static const unsigned short tamil_o[2]    = { 0xbc6, 0xbbe };
-static const unsigned short tamil_oo[2]   = { 0xbc7, 0xbbe };
-static const unsigned short tamil_au[2]   = { 0xbc6, 0xbd7 };
-
-static QString tamilReorder( const QString &string, int start, int end, unsigned short *featuresToApply,
-				GlyphAttributes *attributes, bool invalid )
-{
-    int len = end - start;
-
-    QString reordered = string.mid( start, len );
-    if ( invalid ) {
-	reordered = QChar( 0x25cc ) + reordered;
-	len++;
-    }
-
-    // in case mid() returns the whole string!
-    reordered.setLength( reordered.length() );
-
-    QChar *uc = (QChar *)reordered.unicode();
-
-    // We can do this rule at the beginning, as it doesn't interact with later operations.
-    // Rule 4: split two part matras into parts
-    // This could be done better, but works for now.
-    for ( int i = 0; i < len; i++ ) {
-	const QChar *split = 0;
-	if ( uc[i].unicode() == 0xbca )
-	    split = (const QChar *)tamil_o;
-	else if ( uc[i].unicode() == 0xbcb )
-	    split = (const QChar *)tamil_oo;
-	else if ( uc[i].unicode() == 0xbcc )
-	    split = (const QChar *)tamil_au;
-	if ( split ) {
-	    reordered.replace( i, 1, split, 2 );
-	    uc = (QChar *)reordered.unicode();
-	    len++;
-	    break;
-	}
-    }
-
-    for ( int i = 0; i < len; i++ )
-	featuresToApply[i] = 0;
-
-    // nothing to do in this case!
-    if ( len == 1 ) {
-	attributes[0].mark = (category( reordered.unicode()[0] ) == QChar::Mark_NonSpacing);
-	attributes[0].clusterStart = FALSE;
-	return reordered;
-    }
-
-    int base = 0;
-    if ( form( *uc ) == Consonant ) {
-
-	// Rule 1: find base consonant
-	for ( int i = len-1; i > 0; i-- ) {
-	    if ( form( uc[i] ) == Consonant ) {
-		base = i;
-		break;
-	    }
-	}
-
-// 	qDebug("base consonant at %d skipped=%s", base, lastConsonant != base ? "true" :"false" );
-
-    }
-
-    // Rule 5: identify matra position. there are no post/below base consonats
-    // in devanagari except for [Ra Halant]_Vattu, but these are already at the
-    // right position
-
-    // all reordering happens now to the chars after (base+(reph halant)_vattu?)
-    // so we move base to there
-    int fixed = base+1;
-
-
-    // we continuosly position the matras and vowel marks and increase the fixed
-    // until we reached the end.
-    static struct {
-	Form form;
-	Position position;
-    } finalOrder [] = {
-	{ Matra, Pre },
-	{ Matra, Below },
-	{ VowelMark, Below },
-	{ StressMark, Below },
-	{ Matra, Above },
-	{ Matra, Post },
-	{ Consonant, None },
-	{ Halant, None },
-	{ VowelMark, Above },
-	{ StressMark, Above },
-	{ VowelMark, Post },
-	{ (Form)0, None }
-    };
-
-//     qDebug("base=%d fixed=%d", base, fixed );
-    int toMove = 0;
-    while ( fixed < len ) {
-// 	qDebug("fixed = %d", fixed );
-	for ( int i = fixed; i < len; i++ ) {
-	    if ( form( uc[i] ) == finalOrder[toMove].form &&
-		 indic_position( uc[i] ) == finalOrder[toMove].position ) {
-		// need to move this glyph
-		int to = fixed;
-		if ( finalOrder[toMove].position == Pre )
-		    to = base;
-// 		qDebug("moving from %d to %d", i,  to );
-		QChar ch = uc[i];
-		unsigned short feature = featuresToApply[i];
-		for ( int j = i; j > to; j-- ) {
-		    uc[j] = uc[j-1];
-		    featuresToApply[j] = featuresToApply[j-1];
-		}
-		uc[to] = ch;
-		switch( finalOrder[toMove].position ) {
-		case Pre:
-// 		    feature |= PreSubstFeature;
-		    break;
-		case Above:
-// 		    feature |= AboveSubstFeature;
-		    break;
-		case Below:
-		    feature |= BelowFormFeature;//|BelowSubstFeature;
-		    break;
-		case Post:
-		    feature |= PostSubstFeature;//|PostFormFeature;
-		    break;
-		case None:
-		    break;
-		case Split:
-		    break;
-		}
-		featuresToApply[to] = feature;
-		fixed++;
-	    }
-	}
-	toMove++;
-	if ( finalOrder[toMove].form == 0 )
-	    break;
-    }
-
-    bool halantForm = base < len-1 && (form( uc[base+1] ) == Halant);
-    if ( halantForm ) {
-	// #### we have to take care this doesn't get applied to Akhant ligatures,
-	// but that's currently rather hard (without a bigger rewrite of the open type
-	// API (ftx*.c)
-	featuresToApply[base] |= HalantFeature;
-	featuresToApply[base+1] |= HalantFeature;
-    }
-
-    // set the features we need to apply in OT
-    int state = form( uc[0] );
-    bool lastWasBase = (base == 0);
-    if ( state == Consonant )
-	featuresToApply[0] |= AkhantFeature;
-
-    for ( int i = 1; i < len; i++ ) {
-	int newState = form( uc[i] );
-	switch( newState ) {
-	case Consonant:
-	    lastWasBase = (i == base);
-	    featuresToApply[i] |= AkhantFeature;
-	    break;
-	case Halant:
-	    if ( state == Consonant ) {
-		if ( !lastWasBase  ) {
-		    featuresToApply[i-1] |= HalfFormFeature;
-		    featuresToApply[i] |= HalfFormFeature;
-		}
-	    }
-	    break;
-	case StressMark:
-	case VowelMark:
-	case Matra:
-	case LengthMark:
-	case IndependentVowel:
-	case Invalid:
-	case Other:
-	    break;
-	}
-	state = newState;
-    }
-
-    for ( int i = 0; i < (int)reordered.length(); i++ ) {
-	attributes[i].mark = (category( reordered.unicode()[0] ) == QChar::Mark_NonSpacing);
-	attributes[i].clusterStart = FALSE;
-    }
-    attributes[0].clusterStart = TRUE;
-
-//     qDebug("reordered:");
-//     for ( int i = 0; i < (int)reordered.length(); i++ )
-// 	qDebug("    %d: %4x apply=%4x clusterStart=%d", i, reordered[i].unicode(), featuresToApply[i], attributes[i].clusterStart );
-
-    return reordered;
-}
-
-
-
-
-
-typedef QString (*ReorderFunction)( const QString &, int, int,
-				    unsigned short *, GlyphAttributes *, bool );
-
-ReorderFunction reorderFunctions[10] = {
-    devanagariReorder,
-    bengaliReorder,
-    devanagariReorder,
-    devanagariReorder,
-    devanagariReorder,
-    tamilReorder,
-    devanagariReorder,
-    devanagariReorder,
-    devanagariReorder,
-    devanagariReorder
-};
-
-
-
 static QString analyzeSyllables( int script, const QString &string, int from, int length,
 				 unsigned short *featuresToApply, GlyphAttributes *attributes ) {
     QString reordered;
@@ -2628,8 +2223,8 @@ static QString analyzeSyllables( int script, const QString &string, int from, in
 // 	qDebug("syllable from %d, length %d, invalid=%s", sstart, send-sstart,
 // 	       invalid ? "true" : "false" );
 	assert( script >= QFont::Devanagari && script <= QFont::Sinhala );
-	QString str = (reorderFunctions[script-QFont::Devanagari])( string, sstart, send, featuresToApply+fpos,
-								    attributes+fpos, invalid );
+	QString str = indic_reorder( script, string, sstart, send, featuresToApply+fpos,
+				    attributes+fpos, invalid );
 	reordered += str;
 	fpos += str.length();
 
