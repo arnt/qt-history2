@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#8 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1365,7 +1365,7 @@ void QUrl::copy( const QString &from, const QString &to )
 	return;
 
     QFileInfo fi( to );
-    if ( FALSE /*fi.exists()*/ ) { // #### todo
+    if ( fi.exists() ) {
 	if ( !fi.isFile() ) {
 	    f.close();
 	    qWarning( QString( "Couldn't write file\n%1" ).arg( to ) );
@@ -1383,9 +1383,10 @@ void QUrl::copy( const QString &from, const QString &to )
     bool error = FALSE;
     while ( !f.atEnd() ) {
 	int len = f.readBlock( block, 1024 );
-	if ( len == -1 )
+	if ( len == -1 ) {
 	    error = TRUE;
 	    break;
+	}
 	f2.writeBlock( block, len );
 	qApp->processEvents();
     }
