@@ -203,8 +203,6 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
 
     if ( orientation() == Horizontal )
 	flags |= QStyle::Style_Horizontal;
-    else
-	flags |= QStyle::Style_Vertical;
 
     style().drawPrimitive( QStyle::PE_DockWindowSeparator, &p, rect(),
 			   colorGroup(), flags );

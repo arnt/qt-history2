@@ -507,7 +507,34 @@ void QMotifStyle::drawPrimitive( PrimitiveElement pe,
 	    QColor dark( cg.dark() );
 	    QColor light( cg.light() );
 	    unsigned int i;
-	    if ( flags & Style_Vertical ) {
+	    if ( flags & Style_Horizontal ) {
+		int h = r.height();
+		if ( h > 6 ) {
+		    if ( flags & Style_On )
+			p->fillRect( 1, 1, 8, h - 2, cg.highlight() );
+		    QPointArray a( 2 * ((h-6)/3) );
+		    int y = 3 + (h%3)/2;
+		    p->setPen( dark );
+		    p->drawLine( 8, 1, 8, h-2 );
+		    for( i=0; 2*i < a.size(); i ++ ) {
+			a.setPoint( 2*i, 5, y+1+3*i );
+			a.setPoint( 2*i+1, 2, y+2+3*i );
+		    }
+		    p->drawPoints( a );
+		    p->setPen( light );
+		    p->drawLine( 9, 1, 9, h-2 );
+		    for( i=0; 2*i < a.size(); i++ ) {
+			a.setPoint( 2*i, 4, y+3*i );
+			a.setPoint( 2*i+1, 1, y+1+3*i );
+		    }
+		    p->drawPoints( a );
+		    // if ( drawBorder ) {
+		    // p->setPen( QPen( Qt::darkGray ) );
+		    // p->drawLine( 0, r.height() - 1,
+		    // tbExtent, r.height() - 1 );
+		    // }
+		}
+	    } else {
 		int w = r.width();
 		if ( w > 6 ) {
 		    if ( flags & Style_On )
@@ -533,33 +560,6 @@ void QMotifStyle::drawPrimitive( PrimitiveElement pe,
 		    // p->setPen( QPen( Qt::darkGray ) );
 		    // p->drawLine( r.width() - 1, 0,
 		    // r.width() - 1, tbExtent );
-		    // }
-		}
-	    } else {
-		int h = r.height();
-		if ( h > 6 ) {
-		    if ( flags & Style_On )
-			p->fillRect( 1, 1, 8, h - 2, cg.highlight() );
-		    QPointArray a( 2 * ((h-6)/3) );
-		    int y = 3 + (h%3)/2;
-		    p->setPen( dark );
-		    p->drawLine( 8, 1, 8, h-2 );
-		    for( i=0; 2*i < a.size(); i ++ ) {
-			a.setPoint( 2*i, 5, y+1+3*i );
-			a.setPoint( 2*i+1, 2, y+2+3*i );
-		    }
-		    p->drawPoints( a );
-		    p->setPen( light );
-		    p->drawLine( 9, 1, 9, h-2 );
-		    for( i=0; 2*i < a.size(); i++ ) {
-			a.setPoint( 2*i, 4, y+3*i );
-			a.setPoint( 2*i+1, 1, y+1+3*i );
-		    }
-		    p->drawPoints( a );
-		    // if ( drawBorder ) {
-		    // p->setPen( QPen( Qt::darkGray ) );
-		    // p->drawLine( 0, r.height() - 1,
-		    // tbExtent, r.height() - 1 );
 		    // }
 		}
 	    }

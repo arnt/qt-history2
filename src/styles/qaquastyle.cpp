@@ -421,69 +421,72 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
     case PE_FocusRect:
 	break;     // The Mac Aqua style doesn't use focus rectangles
 
-    case PE_DockWindowHandle: {
-	p->save();
-	p->translate( r.x(), r.y() );
-
-	bool highlight = flags & Style_On;
-	QColor dark( cg.dark() );
-	QColor light( cg.light() );
-	unsigned int i;
-	if ( flags & Style_Vertical ) {
-	    int w = r.width();
-	    if ( w > 6 ) {
-		if ( highlight )
-		    p->fillRect( 1, 1, w - 2, 9, cg.highlight() );
-		QPointArray a( 2 * ((w-6)/3) );
-
-		int x = 3 + (w%3)/2;
-		p->setPen( dark );
-		p->drawLine( 1, 8, w-2, 8 );
-		for( i=0; 2*i < a.size(); i ++ ) {
-		    a.setPoint( 2*i, x+1+3*i, 6 );
-		    a.setPoint( 2*i+1, x+2+3*i, 3 );
+    case PE_DockWindowHandle: 
+	{
+	    p->save();
+	    p->translate( r.x(), r.y() );
+	    
+	    bool highlight = flags & Style_On;
+	    QColor dark( cg.dark() );
+	    QColor light( cg.light() );
+	    unsigned int i;
+	    if ( flags & Style_Horizontal ) {
+		int h = r.height();
+		if ( h > 6 ) {
+		    if ( highlight )
+			p->fillRect( 1, 1, 8, h - 2, cg.highlight() );
+		    QPointArray a( 2 * ((h-6)/3) );
+		    int y = 3 + (h%3)/2;
+		    p->setPen( dark );
+		    p->drawLine( 8, 1, 8, h-2 );
+		    for( i=0; 2*i < a.size(); i ++ ) {
+			a.setPoint( 2*i, 5, y+1+3*i );
+			a.setPoint( 2*i+1, 2, y+2+3*i );
+		    }
+		    p->drawPoints( a );
+		    p->setPen( light );
+		    p->drawLine( 9, 1, 9, h-2 );
+		    for( i=0; 2*i < a.size(); i++ ) {
+			a.setPoint( 2*i, 4, y+3*i );
+			a.setPoint( 2*i+1, 1, y+1+3*i );
+		    }
+		    p->drawPoints( a );
 		}
-		p->drawPoints( a );
-		p->setPen( light );
-		p->drawLine( 1, 9, w-2, 9 );
-		for( i=0; 2*i < a.size(); i++ ) {
-		    a.setPoint( 2*i, x+3*i, 5 );
-		    a.setPoint( 2*i+1, x+1+3*i, 2 );
+	    } else {
+		int w = r.width();
+		if ( w > 6 ) {
+		    if ( highlight )
+			p->fillRect( 1, 1, w - 2, 9, cg.highlight() );
+		    QPointArray a( 2 * ((w-6)/3) );
+		    
+		    int x = 3 + (w%3)/2;
+		    p->setPen( dark );
+		    p->drawLine( 1, 8, w-2, 8 );
+		    for( i=0; 2*i < a.size(); i ++ ) {
+			a.setPoint( 2*i, x+1+3*i, 6 );
+			a.setPoint( 2*i+1, x+2+3*i, 3 );
+		    }
+		    p->drawPoints( a );
+		    p->setPen( light );
+		    p->drawLine( 1, 9, w-2, 9 );
+		    for( i=0; 2*i < a.size(); i++ ) {
+			a.setPoint( 2*i, x+3*i, 5 );
+			a.setPoint( 2*i+1, x+1+3*i, 2 );
+		    }
+		    p->drawPoints( a );
 		}
-		p->drawPoints( a );
-	    }
-	} else {
-	    int h = r.height();
-	    if ( h > 6 ) {
-		if ( highlight )
-		    p->fillRect( 1, 1, 8, h - 2, cg.highlight() );
-		QPointArray a( 2 * ((h-6)/3) );
-		int y = 3 + (h%3)/2;
-		p->setPen( dark );
-		p->drawLine( 8, 1, 8, h-2 );
-		for( i=0; 2*i < a.size(); i ++ ) {
-		    a.setPoint( 2*i, 5, y+1+3*i );
-		    a.setPoint( 2*i+1, 2, y+2+3*i );
-		}
-		p->drawPoints( a );
-		p->setPen( light );
-		p->drawLine( 9, 1, 9, h-2 );
-		for( i=0; 2*i < a.size(); i++ ) {
-		    a.setPoint( 2*i, 4, y+3*i );
-		    a.setPoint( 2*i+1, 1, y+1+3*i );
-		}
-		p->drawPoints( a );
+		p->restore();
 	    }
 	}
-	p->restore();
-	break; }
+	break; 
 
     case PE_DockWindowSeparator: {
 	QPixmap px;
-	if( flags & Style_Vertical )
-	    qAquaPixmap( "tbar_vsep_" + QString::number(r.width())+ "_" + QString::number(r.height()), px );
-	else
+	if( flags & Style_Horizontal )
 	    qAquaPixmap( "tbar_hsep_" + QString::number(r.width())+ "_" + QString::number(r.height()), px );
+	else
+	    qAquaPixmap( "tbar_vsep_" + QString::number(r.width())+ "_" + QString::number(r.height()), px );
+	    
 	p->drawPixmap( r.x(), r.y(), px );
 	break; }
 
@@ -1203,42 +1206,42 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 			  ((subActive == SC_ScrollBarSubPage) ?
 			   Style_Down : Style_Default) |
 			  ((scrollbar->orientation() == Qt::Horizontal) ?
-			   Style_Horizontal : Style_Vertical));
+			   Style_Horizontal : 0));
 	if ((sub & SC_ScrollBarAddPage) && addpage.isValid())
 	    drawPrimitive(PE_ScrollBarAddPage, p, addpage, cg,
 			  ((maxedOut) ? Style_Default : Style_Enabled) |
 			  ((subActive == SC_ScrollBarAddPage) ?
 			   Style_Down : Style_Default) |
 			  ((scrollbar->orientation() == Qt::Horizontal) ?
-			   Style_Horizontal : Style_Vertical));
+			   Style_Horizontal : 0));
 	if ((sub & SC_ScrollBarFirst) && first.isValid())
 	    drawPrimitive(PE_ScrollBarFirst, p, first, cg,
 			  ((maxedOut) ? Style_Default : Style_Enabled) |
 			  ((subActive == SC_ScrollBarFirst) ?
 			   Style_Down : Style_Default) |
 			  ((scrollbar->orientation() == Qt::Horizontal) ?
-			   Style_Horizontal : Style_Vertical));
+			   Style_Horizontal : 0));
 	if ((sub & SC_ScrollBarLast) && last.isValid())
 	    drawPrimitive(PE_ScrollBarLast, p, last, cg,
 			  ((maxedOut) ? Style_Default : Style_Enabled) |
 			  ((subActive == SC_ScrollBarLast) ?
 			   Style_Down : Style_Default) |
 			  ((scrollbar->orientation() == Qt::Horizontal) ?
-			   Style_Horizontal : Style_Vertical));
+			   Style_Horizontal : 0));
 	if ((sub & SC_ScrollBarSubLine) && subline.isValid())
 	    drawPrimitive(PE_ScrollBarSubLine, p, subline, cg,
 			  ((maxedOut) ? Style_Default : Style_Enabled) |
 			  ((subActive == SC_ScrollBarSubLine) ?
 			   Style_Down : Style_Default) |
 			  ((scrollbar->orientation() == Qt::Horizontal) ?
-			   Style_Horizontal : Style_Vertical));
+			   Style_Horizontal : 0));
 	if ((sub & SC_ScrollBarAddLine) && addline.isValid())
 	    drawPrimitive(PE_ScrollBarAddLine, p, addline, cg,
 			  ((maxedOut) ? Style_Default : Style_Enabled) |
 			  ((subActive == SC_ScrollBarAddLine) ?
 			   Style_Down : Style_Default) |
 			  ((scrollbar->orientation() == Qt::Horizontal) ?
-			   Style_Horizontal : Style_Vertical));
+			   Style_Horizontal : 0));
 	if ((sub & SC_ScrollBarSlider) && slider.isValid()) {
 	    //cleanup
 	    QRect eraserect(slider);
@@ -1259,14 +1262,14 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 			      ((subActive == SC_ScrollBarAddPage) ?
 			       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       Style_Horizontal : Style_Vertical));
+			       Style_Horizontal : 0));
 	    //now draw
 	    drawPrimitive(PE_ScrollBarSlider, p, slider, cg,
 			  ((maxedOut) ? Style_Default : Style_Enabled) |
 			  ((subActive == SC_ScrollBarSlider) ?
 			   Style_Down : Style_Default) |
 			  ((scrollbar->orientation() == Qt::Horizontal) ?
-			   Style_Horizontal : Style_Vertical));
+			   Style_Horizontal : 0));
 
 	    // ### perhaps this should not be able to accept focus if maxedOut?
 	    if (scrollbar->hasFocus()) {

@@ -144,7 +144,7 @@ void QSplitterHandle::paintEvent( QPaintEvent * )
     QPainter p( this );
     style().drawPrimitive(QStyle::PE_Splitter, &p, rect(), colorGroup(),
 			  (orientation() == Qt::Horizontal ?
-			   QStyle::Style_Horizontal : QStyle::Style_Vertical));
+			   QStyle::Style_Horizontal : 0));
 }
 
 class QSplitterLayoutStruct
@@ -474,7 +474,7 @@ void QSplitter::drawSplitter( QPainter *p,
 {
     style().drawPrimitive(QStyle::PE_Splitter, p, QRect(x, y, w, h), colorGroup(),
 			  (orientation() == Qt::Horizontal ?
-			   QStyle::Style_Horizontal : QStyle::Style_Vertical));
+			   QStyle::Style_Horizontal : 0));
 }
 
 

@@ -1083,7 +1083,7 @@ void LightStyle::drawComplexControl( ComplexControl control,
 			      ((active == SC_ScrollBarSubLine) ?
 			       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       Style_Horizontal : Style_Vertical));
+			       Style_Horizontal : 0));
 
 		if (subline2.isValid())
 		    drawPrimitive(PE_ScrollBarSubLine, p, subline2, cg,
@@ -1091,7 +1091,7 @@ void LightStyle::drawComplexControl( ComplexControl control,
 				  ((active == SC_ScrollBarSubLine) ?
 				   Style_Down : Style_Default) |
 				  ((scrollbar->orientation() == Qt::Horizontal) ?
-				   Style_Horizontal : Style_Vertical));
+				   Style_Horizontal : 0));
 	    }
 	    if ((controls & SC_ScrollBarAddLine) && addline.isValid())
 		drawPrimitive(PE_ScrollBarAddLine, p, addline, cg,
@@ -1099,42 +1099,42 @@ void LightStyle::drawComplexControl( ComplexControl control,
 			      ((active == SC_ScrollBarAddLine) ?
 			       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       Style_Horizontal : Style_Vertical));
+			       Style_Horizontal : 0));
 	    if ((controls & SC_ScrollBarSubPage) && subpage.isValid())
 		drawPrimitive(PE_ScrollBarSubPage, p, subpage, cg,
 			      ((maxedOut) ? Style_Default : Style_Enabled) |
 			      ((active == SC_ScrollBarSubPage) ?
 			       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       Style_Horizontal : Style_Vertical));
+			       Style_Horizontal : 0));
 	    if ((controls & SC_ScrollBarAddPage) && addpage.isValid())
 		drawPrimitive(PE_ScrollBarAddPage, p, addpage, cg,
 			      ((maxedOut) ? Style_Default : Style_Enabled) |
 			      ((active == SC_ScrollBarAddPage) ?
 			       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       Style_Horizontal : Style_Vertical));
+			       Style_Horizontal : 0));
        	    if ((controls & SC_ScrollBarFirst) && first.isValid())
 		drawPrimitive(PE_ScrollBarFirst, p, first, cg,
 			      ((maxedOut) ? Style_Default : Style_Enabled) |
 			      ((active == SC_ScrollBarFirst) ?
 			       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       Style_Horizontal : Style_Vertical));
+			       Style_Horizontal : 0));
 	    if ((controls & SC_ScrollBarLast) && last.isValid())
 		drawPrimitive(PE_ScrollBarLast, p, last, cg,
 			      ((maxedOut) ? Style_Default : Style_Enabled) |
 			      ((active == SC_ScrollBarLast) ?
 			       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       Style_Horizontal : Style_Vertical));
+			       Style_Horizontal : 0));
 	    if ((controls & SC_ScrollBarSlider) && slider.isValid()) {
 		drawPrimitive(PE_ScrollBarSlider, p, slider, cg,
 			      ((maxedOut) ? Style_Default : Style_Enabled) |
 			      ((active == SC_ScrollBarSlider) ?
 			       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       Style_Horizontal : Style_Vertical));
+			       Style_Horizontal : 0));
 
 		// ### perhaps this should not be able to accept focus if maxedOut?
 		if (scrollbar->hasFocus()) {

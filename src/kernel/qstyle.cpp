@@ -412,7 +412,6 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value Style_On
   \value Style_Down
   \value Style_Horizontal
-  \value Style_Vertical
   \value Style_HasFocus
   \value Style_Top
   \value Style_Bottom

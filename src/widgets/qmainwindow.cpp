@@ -319,7 +319,6 @@ protected:
 		continue;
 
 	    QStyle::SFlags flags = QStyle::Style_Default;
-	    flags |= QStyle::Style_Vertical;
 	    if ( i == pressedHandle )
 		flags |= QStyle::Style_On;
 

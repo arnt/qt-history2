@@ -294,18 +294,18 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 
 	p->save();
 	p->translate( r.x(), r.y() );
-	if ( flags & Style_Vertical ) {
-	    if ( r.width() > 4 ) {
-		qDrawShadePanel( p, 2, 4, r.width() - 4, 3,
-				 cg, highlight, 1, 0 );
-		qDrawShadePanel( p, 2, 7, r.width() - 4, 3,
-				 cg, highlight, 1, 0 );
-	    }
-	} else {
+	if ( flags & Style_Horizontal ) {
 	    if ( r.height() > 4 ) {
 		qDrawShadePanel( p, 4, 2, 3, r.height() - 4,
 				 cg, highlight, 1, 0 );
 		qDrawShadePanel( p, 7, 2, 3, r.height() - 4,
+				 cg, highlight, 1, 0 );
+	    }
+	} else {
+	    if ( r.width() > 4 ) {
+		qDrawShadePanel( p, 2, 4, r.width() - 4, 3,
+				 cg, highlight, 1, 0 );
+		qDrawShadePanel( p, 2, 7, r.width() - 4, 3,
 				 cg, highlight, 1, 0 );
 	    }
 	}
@@ -315,12 +315,12 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 
     case PE_DockWindowSeparator: {
 	QPoint p1, p2;
-	if ( flags & Style_Vertical ) {
-	    p1 = QPoint( 0, r.height()/2 );
-	    p2 = QPoint( r.width(), p1.y() );
-	} else {
+	if ( flags & Style_Horizontal ) {
 	    p1 = QPoint( r.width()/2, 0 );
 	    p2 = QPoint( p1.x(), r.height() );
+	} else {
+	    p1 = QPoint( 0, r.height()/2 );
+	    p2 = QPoint( r.width(), p1.y() );
 	}
 	qDrawShadeLine( p, p1, p2, cg, 1, 1, 0 );
 	break; }
@@ -1135,49 +1135,49 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 			      ((active == SC_ScrollBarSubLine) ?
 			       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       Style_Horizontal : Style_Vertical));
+			       Style_Horizontal : 0));
 	    if ((controls & SC_ScrollBarAddLine) && addline.isValid())
 		drawPrimitive(PE_ScrollBarAddLine, p, addline, cg,
 			      ((maxedOut) ? Style_Default : Style_Enabled) |
 			      ((active == SC_ScrollBarAddLine) ?
 			       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       Style_Horizontal : Style_Vertical));
+			       Style_Horizontal : 0));
 	    if ((controls & SC_ScrollBarSubPage) && subpage.isValid())
 		drawPrimitive(PE_ScrollBarSubPage, p, subpage, cg,
 			      ((maxedOut) ? Style_Default : Style_Enabled) |
 			      ((active == SC_ScrollBarSubPage) ?
 			       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       Style_Horizontal : Style_Vertical));
+			       Style_Horizontal : 0));
 	    if ((controls & SC_ScrollBarAddPage) && addpage.isValid())
 		drawPrimitive(PE_ScrollBarAddPage, p, addpage, cg,
 			      ((maxedOut) ? Style_Default : Style_Enabled) |
 			      ((active == SC_ScrollBarAddPage) ?
 			       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       Style_Horizontal : Style_Vertical));
+			       Style_Horizontal : 0));
        	    if ((controls & SC_ScrollBarFirst) && first.isValid())
 		drawPrimitive(PE_ScrollBarFirst, p, first, cg,
 			      ((maxedOut) ? Style_Default : Style_Enabled) |
 			      ((active == SC_ScrollBarFirst) ?
 			       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       Style_Horizontal : Style_Vertical));
+			       Style_Horizontal : 0));
 	    if ((controls & SC_ScrollBarLast) && last.isValid())
 		drawPrimitive(PE_ScrollBarLast, p, last, cg,
 			      ((maxedOut) ? Style_Default : Style_Enabled) |
 			      ((active == SC_ScrollBarLast) ?
 			       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       Style_Horizontal : Style_Vertical));
+			       Style_Horizontal : 0));
 	    if ((controls & SC_ScrollBarSlider) && slider.isValid()) {
 		drawPrimitive(PE_ScrollBarSlider, p, slider, cg,
 			      ((maxedOut) ? Style_Default : Style_Enabled) |
 			      ((active == SC_ScrollBarSlider) ?
 			       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       Style_Horizontal : Style_Vertical));
+			       Style_Horizontal : 0));
 
 		// ### perhaps this should not be able to accept focus if maxedOut?
 		if (scrollbar->hasFocus()) {

@@ -152,17 +152,16 @@ public:
 	Style_On =			0x00000020,
 	Style_Down =			0x00000040,
 	Style_Horizontal =		0x00000080,
-	Style_Vertical =		0x00000100,
-	Style_HasFocus =		0x00000200,
-	Style_Top =			0x00000400,
-	Style_Bottom =			0x00000800,
-	Style_FocusAtBorder =		0x00001000,
-	Style_AutoRaise =		0x00002000,
-	Style_MouseOver =		0x00004000,
-	Style_Up =			0x00008000,
-	Style_Selected =	 	0x00010000,
-	Style_Active =			0x00020000,
-	Style_ButtonDefault =		0x00040000
+	Style_HasFocus =		0x00000100,
+	Style_Top =			0x00000200,
+	Style_Bottom =			0x00000400,
+	Style_FocusAtBorder =		0x00000800,
+	Style_AutoRaise =		0x00001000,
+	Style_MouseOver =		0x00002000,
+	Style_Up =			0x00004000,
+	Style_Selected =	 	0x00008000,
+	Style_Active =			0x00010000,
+	Style_ButtonDefault =		0x00020000
     };
     typedef uint SFlags;
 
