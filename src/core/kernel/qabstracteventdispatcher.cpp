@@ -199,6 +199,12 @@ QAbstractEventDispatcher *QAbstractEventDispatcher::instance(QThread *thread)
     \sa awake()
 */
 
+/*! \fn void QAbstractEventDispatcher::interrupt()
+
+    Interrupts event dispatching, i.e. the event dispatcher will
+    return from processEvents() as soon as possible.
+*/
+
 /*! \fn void QAbstractEventDispatcher::flush()
 
     Flushes the event queue. This normally returns almost

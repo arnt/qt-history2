@@ -87,6 +87,8 @@ QEventDispatcherUNIXPrivate::QEventDispatcherUNIXPrivate()
     sn_highest = -1;
     timerList = 0;
     timerBitVec = 0;
+
+    interrupt = false;
 }
 
 QEventDispatcherUNIXPrivate::~QEventDispatcherUNIXPrivate()
@@ -467,31 +469,6 @@ void QEventDispatcherUNIX::setSocketNotifierPending(QSocketNotifier *notifier)
     }
 }
 
-void QEventDispatcherUNIX::wakeUp()
-{
-    /*
-      Apparently, there is not consistency among different operating
-      systems on how to use FIONREAD.
-
-      FreeBSD, Linux and Solaris all expect the 3rd argument to
-      ioctl() to be an int, which is normally 32-bit even on 64-bit
-      machines.
-
-      IRIX, on the other hand, expects a size_t, which is 64-bit on
-      64-bit machines.
-
-      So, the solution is to use size_t initialized to zero to make
-      sure all bits are set to zero, preventing underflow with the
-      FreeBSD/Linux/Solaris ioctls.
-    */
-    size_t nbytes = 0;
-    char c = 0;
-    Q_D(QEventDispatcherUNIX);
-    if (::ioctl(d->thread_pipe[0], FIONREAD, (char*)&nbytes) >= 0 && nbytes == 0) {
-        ::write( d->thread_pipe[1], &c, 1 );
-    }
-}
-
 int QEventDispatcherUNIX::timeToWait()
 {
     timeval tm;
@@ -705,29 +682,20 @@ bool QEventDispatcherUNIX::processEvents(QEventLoop::ProcessEventsFlags flags)
 
     int nevents = 0;
 
-#if 0
-    if (d->shortcut)
-        return false;
-#endif
-
     QCoreApplication::sendPostedEvents();
 
     QThreadData *data = QThreadData::current();
     const bool canWait = (data->postEventList.size() == 0
-#if 0
-                          && !d->shortcut
-                          && !d->exitloop
-                          && !d->quitnow
-#endif
+                          && !d->interrupt
                           && (flags & QEventLoop::WaitForMoreEvents));
 
     if (canWait)
         emit aboutToBlock();
 
-#if 0
-    if (d->shortcut)
+    if (d->interrupt) {
+        d->interrupt = false;
         return false;
-#endif
+    }
 
     // return the maximum time we can wait for an event.
     timeval *tm = 0;
@@ -747,10 +715,10 @@ bool QEventDispatcherUNIX::processEvents(QEventLoop::ProcessEventsFlags flags)
 
     nevents += d->eventloopSelect(flags, tm);
 
-#if 0
-    if (d->shortcut)
+    if (d->interrupt) {
+        d->interrupt = false;
         return false;
-#endif
+    }
 
     // we are awake, broadcast it
     emit awake();
@@ -769,6 +737,38 @@ bool QEventDispatcherUNIX::hasPendingEvents()
 {
     extern uint qGlobalPostedEventsCount(); // from qapplication.cpp
     return qGlobalPostedEventsCount();
+}
+
+void QEventDispatcherUNIX::wakeUp()
+{
+    /*
+      Apparently, there is not consistency among different operating
+      systems on how to use FIONREAD.
+
+      FreeBSD, Linux and Solaris all expect the 3rd argument to
+      ioctl() to be an int, which is normally 32-bit even on 64-bit
+      machines.
+
+      IRIX, on the other hand, expects a size_t, which is 64-bit on
+      64-bit machines.
+
+      So, the solution is to use size_t initialized to zero to make
+      sure all bits are set to zero, preventing underflow with the
+      FreeBSD/Linux/Solaris ioctls.
+    */
+    size_t nbytes = 0;
+    char c = 0;
+    Q_D(QEventDispatcherUNIX);
+    if (::ioctl(d->thread_pipe[0], FIONREAD, (char*)&nbytes) >= 0 && nbytes == 0) {
+        ::write( d->thread_pipe[1], &c, 1 );
+    }
+}
+
+void QEventDispatcherUNIX::interrupt()
+{
+    Q_D(QEventDispatcherUNIX);
+    d->interrupt = true;
+    wakeUp();
 }
 
 void QEventDispatcherUNIX::flush()

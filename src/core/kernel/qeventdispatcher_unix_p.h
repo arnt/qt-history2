@@ -62,6 +62,8 @@ public:
 
     // pending socket notifiers list
     QList<QSockNot*> sn_pending_list;
+
+    bool interrupt;
 };
 
 #endif // QEVENTDISPATCHER_UNIX_P_H

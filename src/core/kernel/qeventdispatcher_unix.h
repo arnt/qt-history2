@@ -25,6 +25,7 @@ public:
     bool unregisterTimers(QObject *object);
 
     void wakeUp();
+    void interrupt();
     void flush();
 
 #if 0

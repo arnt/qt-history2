@@ -29,6 +29,7 @@ public:
     virtual bool unregisterTimers(QObject *object) = 0;
 
     virtual void wakeUp() = 0;
+    virtual void interrupt() = 0;
     virtual void flush() = 0;
 
     virtual void startingUp();

@@ -25,7 +25,7 @@ QEventDispatcherX11::~QEventDispatcherX11()
 
 bool QEventDispatcherX11::processEvents(QEventLoop::ProcessEventsFlags flags)
 {
-    // Q_D(QEventDispatcherX11);
+    Q_D(QEventDispatcherX11);
 
     int nevents = 0;
 
@@ -33,11 +33,7 @@ bool QEventDispatcherX11::processEvents(QEventLoop::ProcessEventsFlags flags)
 
     // Two loops so that posted events accumulate
     do {
-        while (
-#if 0
-               !d->shortcut &&
-#endif
-	       XEventsQueued(QX11Info::display(), QueuedAlready)) {
+        while (!d->interrupt && XEventsQueued(QX11Info::display(), QueuedAlready)) {
             // process events from the X server
             XEvent event;
             XNextEvent(QX11Info::display(), &event);
@@ -75,16 +71,12 @@ bool QEventDispatcherX11::processEvents(QEventLoop::ProcessEventsFlags flags)
             if (qApp->x11ProcessEvent(&event) == 1)
                 return true;
         }
-    } while (
-#if 0
-             !d->shortcut &&
-#endif
-             XEventsQueued(QX11Info::display(), QueuedAfterFlush));
+    } while (!d->interrupt && XEventsQueued(QX11Info::display(), QueuedAfterFlush));
 
-#if 0
-    if (d->shortcut)
+    if (d->interrupt) {
+        d->interrupt = false;
 	return false;
-#endif
+    }
 
     // 0x08 == ExcludeTimers for X11 only
     const uint exclude_all =
