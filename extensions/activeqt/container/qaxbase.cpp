@@ -997,7 +997,7 @@ QMetaObject *QAxBase::metaObject() const
 
 				if ( funcdesc->wFuncFlags & FUNCFLAG_FBINDABLE ) {
 				    prop->flags |= PropBindable;
-				    if ( !eventSink && !useEventSink )
+				    if ( !eventSink && useEventSink )
 					that->eventSink = new QAxEventSink( that );
 				    // generate changed signal
 				    QString signalName = function + "Changed";
@@ -1210,7 +1210,7 @@ QMetaObject *QAxBase::metaObject() const
 
 			    if ( vardesc->wVarFlags & VARFLAG_FBINDABLE ) {
 				prop->flags |= PropBindable;
-				if ( !eventSink && !useEventSink )
+				if ( !eventSink && useEventSink )
 				    that->eventSink = new QAxEventSink( that );
 				// generate changed signal
 				QString signalName = variableName + "Changed";
@@ -1298,7 +1298,7 @@ QMetaObject *QAxBase::metaObject() const
 
     CComPtr<IConnectionPointContainer> cpoints;
     ptr->QueryInterface( IID_IConnectionPointContainer, (void**)&cpoints );
-    if ( cpoints && !useEventSink ) {
+    if ( cpoints && useEventSink ) {
 	CComPtr<IProvideClassInfo> classinfo;
 	cpoints->QueryInterface( IID_IProvideClassInfo, (void**)&classinfo );
 
@@ -1315,7 +1315,7 @@ QMetaObject *QAxBase::metaObject() const
 
 		IID iid;
 		cpoint->GetConnectionInterface( &iid );
-		if ( !eventSink && !useEventSink )
+		if ( !eventSink && useEventSink )
 		    that->eventSink = new QAxEventSink( that );
 		if ( eventSink )
 		    eventSink->addConnection( cpoint, iid );
