@@ -205,8 +205,7 @@ bool QSvgDevice::play( QPainter *painter )
     int h = int(parseLen( hstr, 0, FALSE ));
     brect.setWidth( w );
     brect.setHeight( h );
-    painter->setViewport( 0, 0, w, h );
-    painter->setClipRect( 0, 0, w, h );
+    painter->setClipRect( 0, 0, w, h, QPainter::CoordPainter );
     if ( attr.contains( "transform" ) )
 	setTransform( attr.namedItem( "transform" ).nodeValue() );
 
@@ -944,7 +943,7 @@ void QSvgDevice::setStyle( const QString &s )
 		else
 		    pt->setBrush( parseColor( val ));
 	    } else if ( prop == "font-size" ) {
-		font.setPointSizeFloat( float(parseLen( val )) );
+		font.setPixelSize( int(parseLen( val )) );
 	    } else if ( prop == "font-family" ) {
 		font.setFamily( val );
 	    } else if ( prop == "text-anchor" ) {
