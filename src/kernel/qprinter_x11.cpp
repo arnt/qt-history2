@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#64 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -88,6 +88,7 @@ QPrinter::QPrinter()
     from_pg = to_pg = min_pg = max_pg = 0;
     state = PST_IDLE;
     output_file = FALSE;
+    to_edge	= FALSE;
 }
 
 /*!
@@ -384,4 +385,18 @@ int QPrinter::metric( int m ) const
 #endif
     }
     return val;
+}
+
+
+/*!
+   Returns the width and height of the unprintable margins around the edge
+   of the page.
+
+   \sa setPrintToEdge(), printToEdge()
+*/
+
+QSize QPrinter::margins() const
+{
+    // ### Not implemented
+    return QSize( 0, 0 );
 }

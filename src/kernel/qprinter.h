@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.h#34 $
+** $Id: //depot/qt/main/src/kernel/qprinter.h#35 $
 **
 ** Definition of QPrinter class
 **
@@ -78,6 +78,10 @@ public:
     virtual void	setColorMode( ColorMode );
     ColorMode	colorMode() const;
 
+    virtual void	setPrintToEdge( bool );
+    bool		printToEdge() const;
+    QSize	margins()	const;
+
     int		fromPage()	const;
     int		toPage()	const;
     virtual void	setFromTo( int fromPage, int toPage );
@@ -117,9 +121,13 @@ private:
     QString	creator_name;
     Orientation orient;
     PageSize	page_size;
+    bool	to_edge;
     short	from_pg, to_pg;
     short	min_pg,	 max_pg;
     short	ncopies;
+#if defined(_WS_WIN_)
+    bool	viewOffsetDone;
+#endif
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

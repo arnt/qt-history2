@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#53 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -45,6 +45,8 @@ QPrinter::QPrinter()
     from_pg     = to_pg = min_pg  = max_pg = 0;
     state       = PST_IDLE;
     output_file = FALSE;
+    to_edge	= FALSE;
+    viewOffsetDone = FALSE;
 }
 
 QPrinter::~QPrinter()
@@ -187,6 +189,7 @@ bool QPrinter::setup( QWidget *parent )
     if ( hdc ) {
 	DeleteDC( hdc );
 	hdc = 0;
+	viewOffsetDone = FALSE;
     }
 
     bool result = FALSE;
@@ -396,6 +399,11 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	}
 	if ( ok && StartPage(hdc) == SP_ERROR )
 	    ok = FALSE;
+	if ( ok && printToEdge() && !viewOffsetDone ) {
+	    QSize margs = margins();
+	    OffsetViewportOrgEx( hdc, -margs.width(), -margs.height(), 0 );
+	    viewOffsetDone = TRUE;
+	}
 	if ( !ok ) {
 	    if ( hdc ) {
 		DeleteDC( hdc );
@@ -504,27 +512,39 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 
 int QPrinter::metric( int m ) const
 {
-    if ( handle() == 0 )			// not ready
+    if ( hdc == 0 )			// not ready
 	return 0;
-    int query;
+    int val = 0;
     switch ( m ) {
     case QPaintDeviceMetrics::PdmWidth:
-	query = HORZRES;
+	val = GetDeviceCaps( hdc, printToEdge() ? PHYSICALWIDTH : HORZRES );
 	break;
     case QPaintDeviceMetrics::PdmHeight:
-	query = VERTRES;
+	val = GetDeviceCaps( hdc, printToEdge() ? PHYSICALHEIGHT : VERTRES );
 	break;
     case QPaintDeviceMetrics::PdmWidthMM:
-	query = HORZSIZE;
+	if ( !printToEdge() ) {
+	    val = GetDeviceCaps( hdc, HORZSIZE );
+	}
+	else {
+	    float wi = 25.4 * GetDeviceCaps( hdc, PHYSICALWIDTH );
+	    val = qRound( wi / GetDeviceCaps( hdc,  LOGPIXELSX ) );
+	}
 	break;
     case QPaintDeviceMetrics::PdmHeightMM:
-	query = VERTSIZE;
+	if ( !printToEdge() ) {
+	    val = GetDeviceCaps( hdc, VERTSIZE );
+	}
+	else {
+	    float hi = 25.4 * GetDeviceCaps( hdc, PHYSICALHEIGHT );
+	    val = qRound( hi / GetDeviceCaps( hdc,  LOGPIXELSY ) );
+	}
 	break;
     case QPaintDeviceMetrics::PdmNumColors:
-	query = NUMCOLORS;
+	val = GetDeviceCaps( hdc, NUMCOLORS );
 	break;
     case QPaintDeviceMetrics::PdmDepth:
-	query = PLANES;
+	val = GetDeviceCaps( hdc, PLANES );
 	break;
     default:
 #if defined(CHECK_RANGE)
@@ -532,5 +552,16 @@ int QPrinter::metric( int m ) const
 #endif
 	return 0;
     }
-    return GetDeviceCaps( handle(), query );
+    return val;
 }
+
+
+QSize QPrinter::margins() const
+{
+    if ( handle() == 0 )			// not ready
+	return QSize( 0, 0 );
+    return QSize( GetDeviceCaps( handle(), PHYSICALOFFSETX ),
+		  GetDeviceCaps( handle(), PHYSICALOFFSETY ) );
+}
+
+		 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#47 $
 **
 ** Implementation of QPrinter class
 **
@@ -529,3 +529,36 @@ void QPrinter::setPrinterSelectionOption( const QString & option )
 {
     option_string = option;
 }
+
+
+/*!
+  Sets whether the printer should print to the edge of the page or whether
+  it should print only in the printable area of the page.
+
+  The default is to print only in the printable area.
+
+  A QPainter opened on a QPrinter which has printToEdge set to TRUE will
+  have its (0,0) coordinate at the corner of the physical paper. If
+  printToEdge is FALSE, (0,0) will be at the corner of the printable area
+  of the paper.
+
+  \sa printToEdge(), margins() 
+*/
+
+void QPrinter::setPrintToEdge( bool on )
+{
+    to_edge = on;
+}
+
+
+/*!
+  Returns the value set by setPrintToEdge().
+
+  \sa setPrintToEdge(), margins() */
+
+bool QPrinter::printToEdge() const
+{
+    return to_edge;
+}
+
+
