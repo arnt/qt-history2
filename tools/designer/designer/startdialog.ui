@@ -21,7 +21,7 @@
         </sizepolicy>
     </property>
     <property name="caption">
-        <string>Designer Startoptions</string>
+        <string>Qt Designer - New/Open</string>
     </property>
     <property name="sizeGripEnabled">
         <bool>true</bool>
@@ -319,9 +319,6 @@
         <slot>recentItemChanged(QIconViewItem*)</slot>
     </connection>
 </connections>
-<includes>
-    <include location="local" impldecl="in implementation">startdialog.ui.h</include>
-</includes>
 <functions>
     <function type="slot">itemChanged( QIconViewItem * )</function>
     <function type="slot">recentItemChanged( QIconViewItem * )</function>
