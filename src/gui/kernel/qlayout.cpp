@@ -2019,7 +2019,8 @@ void QBoxLayout::setGeometry(const QRect &r)
         }
 
         Direction visualDir = d->dir;
-        if (parentWidget()->isRightToLeft()) {
+        QWidget *parent = parentWidget();
+        if (parent && parent->isRightToLeft()) {
             if (d->dir == LeftToRight)
                 visualDir = RightToLeft;
             else if (d->dir == RightToLeft)
