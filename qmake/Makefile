@@ -8,7 +8,7 @@ QTOBJS=qstring.obj qtextstream.obj qiodevice.obj qglobal.obj qgdict.obj qcstring
 	qdir.obj qfileinfo_win.obj qdir_win.obj qfileinfo.obj qdatetime.obj qstringlist.obj qmap.obj qlibrary.obj qtextcodec.obj
 
 CFLAGS=/W3 /Zi /nologo /I. /Igenerators /Igenerators\unix /Igenerators\win32  /I$(QTDIR)\include /I$(QTDIR)\src\tools \
-	/DQT_NO_CODECS /DQT_LITE_COMPONENT /DQT_NODLL /DUSE_GROSS_BIG_BUFFER_THING
+	/DQT_NO_CODECS /DQT_LITE_COMPONENT /DQT_NODLL
 LFLAGS=/DEBUG
 LIBS=ole32.lib
 

@@ -95,7 +95,7 @@ MakefileGenerator::MakefileGenerator(QMakeProject *p) : init_already(FALSE), moc
     QDir::current().cd( currentDir );
 }
 
-#ifdef USE_GROSS_BIG_BUFFER_THING
+#ifndef NO_USE_GROSS_BIG_BUFFER_THING
 static char *gimme_buffer(off_t s)
 {
     static char *big_buffer = NULL;
