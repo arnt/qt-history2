@@ -52,10 +52,6 @@
   Internal QClipboard functions for X11.
  *****************************************************************************/
 
-// from qapplication_x11.cpp
-typedef int (*QX11EventFilter) (XEvent*);
-extern QX11EventFilter qt_set_x11_event_filter (QX11EventFilter filter);
-
 static int clipboard_timeout = 5000; // 5s timeout on clipboard operations
 
 static QWidget * owner = 0;
@@ -234,19 +230,20 @@ public:
 
 typedef QMap<Window,QClipboardINCRTransaction*> TransactionMap;
 static TransactionMap *transactions = 0;
-static QX11EventFilter prev_x11_event_filter = 0;
+static QApplication::EventFilter prev_event_filter = 0;
 static int incr_timer_id = 0;
 
-static int qt_xclb_transaction_event_handler(XEvent *event)
+static bool qt_x11_incr_event_filter(void *message, long *result)
 {
+    XEvent *event = reinterpret_cast<XEvent *>(message);
     TransactionMap::Iterator it = transactions->find(event->xany.window);
     if (it != transactions->end()) {
         if ((*it)->x11Event(event) != 0)
-            return 1;
+            return true;
     }
-    if (prev_x11_event_filter)
-        return prev_x11_event_filter(event);
-    return 0;
+    if (prev_event_filter)
+        return prev_event_filter(event, result);
+    return false;
 }
 
 /*
@@ -273,8 +270,7 @@ QClipboardINCRTransaction::QClipboardINCRTransaction(Window w, Atom p, Atom t, i
     if (! transactions) {
         VDEBUG("QClipboard: created INCR transaction map");
         transactions = new TransactionMap;
-        prev_x11_event_filter = qt_set_x11_event_filter(qt_xclb_transaction_event_handler);
-
+        prev_event_filter = qApp->setEventFilter(qt_x11_incr_event_filter);
         incr_timer_id = QApplication::clipboard()->startTimer(clipboard_timeout);
     }
     transactions->insert(window, this);
@@ -291,7 +287,8 @@ QClipboardINCRTransaction::~QClipboardINCRTransaction(void)
         VDEBUG("QClipboard: no more INCR transactions");
         delete transactions;
         transactions = 0;
-        (void)qt_set_x11_event_filter(prev_x11_event_filter);
+
+        (void)qApp->setEventFilter(prev_event_filter);
 
         if (incr_timer_id != 0) {
             QApplication::clipboard()->killTimer(incr_timer_id);
@@ -369,17 +366,17 @@ bool QClipboard::ownsClipboard() const
 
 // event filter function... captures interesting events while
 // qt_xclb_wait_for_event is running the event loop
-static int qt_xclb_event_filter(XEvent *event)
+static bool qt_x11_clipboard_event_filter(void *message, long *)
 {
+    XEvent *event = reinterpret_cast<XEvent *>(message);
     if (event->xany.type == capture_event_type &&
         event->xany.window == capture_event_win) {
         VDEBUG("QClipboard: event_filter(): caught event type %d", event->type);
         has_captured_event = true;
         captured_event = *event;
-        return 1;
+        return true;
     }
-
-    return 0;
+    return false;
 }
 
 bool QX11Data::clipboardWaitForEvent(Window win, int type, XEvent *event, int timeout)
@@ -396,12 +393,13 @@ bool QX11Data::clipboardWaitForEvent(Window win, int type, XEvent *event, int ti
     capture_event_win = win;
     capture_event_type = type;
 
-    QX11EventFilter old_event_filter = qt_set_x11_event_filter(qt_xclb_event_filter);
+    QApplication::EventFilter old_event_filter =
+        qApp->setEventFilter(qt_x11_clipboard_event_filter);
 
     do {
         if (XCheckTypedWindowEvent(display, win, type, event)) {
             waiting_for_data = false;
-            qt_set_x11_event_filter(old_event_filter);
+            qApp->setEventFilter(old_event_filter);
             return true;
         }
 
@@ -420,13 +418,13 @@ bool QX11Data::clipboardWaitForEvent(Window win, int type, XEvent *event, int ti
         if (has_captured_event) {
             waiting_for_data = false;
             *event = captured_event;
-            qt_set_x11_event_filter(old_event_filter);
+            qApp->setEventFilter(old_event_filter);
             return true;
         }
     } while (started.msecsTo(now) < timeout);
 
     waiting_for_data = false;
-    qt_set_x11_event_filter(old_event_filter);
+    qApp->setEventFilter(old_event_filter);
 
     return false;
 }

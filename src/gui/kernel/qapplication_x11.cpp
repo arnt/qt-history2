@@ -324,22 +324,13 @@ extern bool tabletChokeMouse;
 static uint appliedstamp = 0;
 
 
-typedef int (*QX11EventFilter) (XEvent*);
-
-static QX11EventFilter qt_x11_event_filter = 0;
-Q_GUI_EXPORT QX11EventFilter qt_set_x11_event_filter(QX11EventFilter filter)
-{
-    QX11EventFilter old_filter = qt_x11_event_filter;
-    qt_x11_event_filter = filter;
-    return old_filter;
-}
 static bool qt_x11EventFilter(XEvent* ev)
 {
-    if (qt_x11_event_filter  && qt_x11_event_filter(ev))
+    long unused;
+    if (qApp->filterEvent(ev, &unused))
         return true;
     return qApp->x11EventFilter(ev);
 }
-
 
 
 #if !defined(QT_NO_XIM)
