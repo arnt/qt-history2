@@ -189,12 +189,12 @@
      COMEAU	- Comeau C++
      EDG	- Edison Design Group C++
      OC		- CenterLine C++
-     SUN	- Sun WorkShop or Forte C++
+     SUN	- Sun WorkShop, Forte Developer, or Sun ONE Studio C++
      MIPS	- MIPSpro C++
      DEC	- DEC C++
      HP		- HPUX C++
      HPACC	- HPUX ANSI C++
-     USLC	- SCO UnixWare C++
+     USLC	- SCO OUDK, UDK, and UnixWare 2.X C++
      CDS	- Reliant C++
      KAI	- KAI C++
      INTEL	- Intel C++
@@ -271,10 +271,6 @@
 #    define QT_NO_SQL
 #    define QT_NO_QWS_CURSOR
 #  endif
-
-/* Never tested! */
-#elif defined(__HIGHC__)
-#  define Q_CC_HIGHC
 
 #elif defined(__GNUC__)
 #  define Q_CC_GNU
@@ -366,7 +362,6 @@
 #    define Q_NO_BOOL_TYPE
 #  endif
 
-/* EDG compiler */
 /* The Portland Group compiler is based on EDG and does define __EDG__ */
 #  if defined(__COMO__)
 #    define Q_CC_COMEAU
@@ -431,12 +426,16 @@
 #    define Q_NO_USING_KEYWORD /* ### check "using" status */
 #  endif
 
-/* The older UnixWare compiler is not based on EDG. */
+/* The older UnixWare 2.X compiler? */
 #elif defined(__USLC__) && !defined(__SCO_VERSION__)
 #  define Q_CC_USLC
 #  define Q_NO_BOOL_TYPE
 #  define Q_NO_EXPLICIT_KEYWORD
 #  define Q_NO_USING_KEYWORD
+
+/* Never tested! */
+#elif defined(__HIGHC__)
+#  define Q_CC_HIGHC
 
 #elif defined(__SUNPRO_CC)
 #  define Q_CC_SUN
@@ -556,8 +555,8 @@ typedef unsigned char   uchar;
 typedef unsigned short  ushort;
 typedef unsigned	uint;
 typedef unsigned long   ulong;
-typedef char		   *pchar;
-typedef uchar		   *puchar;
+typedef char	       *pchar;
+typedef uchar	       *puchar;
 typedef const char     *pcchar;
 
 
