@@ -464,19 +464,19 @@ QListViewItem::QListViewItem( QListViewItem * parent, QListViewItem * after,
 }
 
 /*!
-  (Re)sorts all child items of this item using the last
-  sorting configuration (sort column and direction)
+  (Re)sorts all child items of this item using the last sorting
+  configuration (sort column and direction).
+
+  \sa enforceSortOrder()
 */
 
 void QListViewItem::sort()
 {
-    lsc = 9999; // ### some stupid value
-    if ( firstChild() )
-	firstChild()->sort();
-    if ( listView() ) {
-	sortChildItems( listView()->d->sortcolumn, listView()->d->ascending );
-	listView()->triggerUpdate();
-    }
+    if ( !listView() )
+	 return;
+    lsc = Unsorted;
+    enforceSortOrder();
+    listView()->triggerUpdate();
 }
 
 
@@ -525,7 +525,7 @@ QListViewItem::~QListViewItem()
     }
 
     if ( parentItem )
-	parentItem->removeItem( this );
+	parentItem->takeItem( this );
     QListViewItem * i = childItem;
     childItem = 0;
     while ( i ) {
@@ -550,7 +550,7 @@ void QListViewItem::insertItem( QListViewItem * newChild )
     if ( !newChild || newChild->parentItem == this )
 	return;
     if ( newChild->parentItem )
-	newChild->parentItem->removeItem( newChild );
+	newChild->parentItem->takeItem( newChild );
     if ( open )
 	invalidateHeight();
     newChild->siblingItem = childItem;
@@ -577,6 +577,25 @@ void QListViewItem::insertItem( QListViewItem * newChild )
   \sa QListViewItem::insertItem()
 */
 void QListViewItem::removeItem( QListViewItem * item )
+{
+    takeItem( item );
+}
+
+
+/*!
+  Removes \a item from this object's list of children and causes an
+  update of the screen display.  You should normally not need to call
+  this function, as QListViewItem::~QListViewItem() calls it. The normal way
+  to delete an item is \c delete.
+
+  \warning This function leaves \a item and its children in a state
+  where most member functions are unsafe.  Only the few functions that
+  are explicitly documented to work in this state may be used then.
+
+  \sa QListViewItem::insertItem()
+*/
+
+void QListViewItem::takeItem( QListViewItem * item )
 {
     if ( !item )
 	return;
@@ -643,25 +662,6 @@ void QListViewItem::removeItem( QListViewItem * item )
     item->ownHeight = 0;
     item->maybeTotalHeight = -1;
     item->configured = FALSE;
-}
-
-
-/*!
-  Removes \a item from this object's list of children and causes an
-  update of the screen display.  You should normally not need to call
-  this function, as QListViewItem::~QListViewItem() calls it. The normal way
-  to delete an item is \c delete.
-
-  \warning This function leaves \a item and its children in a state
-  where most member functions are unsafe.  Only the few functions that
-  are explicitly documented to work in this state may be used then.
-
-  \sa QListViewItem::insertItem()
-*/
-
-void QListViewItem::takeItem( QListViewItem * item )
-{
-    removeItem( item );
 }
 
 
@@ -974,7 +974,7 @@ void QListViewItem::enforceSortOrder() const
     else if ( !parentItem &&
 	      ( (int)lsc != listView()->d->sortcolumn ||
 		(bool)lso != listView()->d->ascending ) &&
-	       listView()->d->sortcolumn != Unsorted )
+	      listView()->d->sortcolumn != Unsorted )
 	((QListViewItem *)this)->sortChildItems( listView()->d->sortcolumn,
 						 listView()->d->ascending );
 }
@@ -1066,7 +1066,7 @@ QString QListViewItem::text( int column ) const
 
   If \a text() has been reimplemented, this function may be a no-op.
 
-  \sa text() key()
+  \sa text() key() invalidate()
 */
 
 void QListViewItem::setText( int column, const QString &text )
@@ -1089,6 +1089,8 @@ void QListViewItem::setText( int column, const QString &text )
 	return;
 
     l->text = text;
+    if ( column == lsc )
+	lsc = Unsorted;
     QListView * lv = listView();
     int oldW = lv ? lv->columnWidth( column ) : 0;
     widthChanged( column );
@@ -1219,13 +1221,13 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	    ci = (QListViewPrivate::ItemColumnInfo*)columns;
 	    for ( int i = 0; i < column; ++i )
 		ci = ci->next;
-	
+
 	    if ( !ci ) {
 		setText( column, t );
 		ci = 0;
 	    }
 	}
-	
+
 	// if the column width changed and this item was not painted since this change
 	if ( ci && ci->width != width || ci->text != t ) {
 	    QFontMetrics fm( lv->fontMetrics() );
@@ -1245,7 +1247,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 		ci->tmpText += "...";
 	    }
 	}
-	
+
 	// if we have to draw the ellipsis thingy, use the truncated text
 	if ( ci && ci->truncated )
 	    t = ci->tmpText;
@@ -2017,7 +2019,7 @@ void QListView::buildDrawableList() const
 
 	int ih = cur->i->height();
 	int ith = cur->i->totalHeight();
-	
+
 	// is this item, or its branch symbol, inside the viewport?
 	if ( cur->y + ith >= cy && cur->y < cy + ch ) {
 	    dl->append( new QListViewPrivate::DrawableItem(cur));
@@ -2094,10 +2096,10 @@ void QListView::setTreeStepSize( int l )
 
 
 /*!  Inserts \a i into the list view as a top-level item.  You do not
-  need to call this unless you've called removeItem( \a i ) or
-  QListViewItem::removeItem( i ) and need to reinsert \a i elsewhere.
+  need to call this unless you've called takeItem( \a i ) or
+  QListViewItem::takeItem( i ) and need to reinsert \a i elsewhere.
 
-  \sa QListViewItem::removeItem() (important) removeItem()
+  \sa QListViewItem::takeItem() (important) takeItem()
 */
 
 void QListView::insertItem( QListViewItem * i )
@@ -4698,15 +4700,15 @@ int QListViewItem::itemPos() const
 /*!\obsolete
 
   Removes \a i from the list view; \a i must be a top-level item.
-  The warnings regarding QListViewItem::removeItem( i ) apply to this
+  The warnings regarding QListViewItem::takeItem( i ) apply to this
   function too.
 
-  \sa QListViewItem::removeItem() (important) insertItem()
+  \sa QListViewItem::takeItem() (important) insertItem()
 */
 
 void QListView::removeItem( QListViewItem * i )
 {
-    d->r->removeItem( i );
+    takeItem( i );
 }
 
 /*!  Removes \a i from the list view; \a i must be a top-level item.
@@ -4717,7 +4719,7 @@ void QListView::removeItem( QListViewItem * i )
 */
 void QListView::takeItem( QListViewItem * i )
 {
-    removeItem( i );
+    d->r->takeItem( i );
 }
 
 
