@@ -406,6 +406,91 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
                 }
 //                endGroups(t);
                 t << "\n# End Group\n";
+	    } else if(variable == "MSVCDSP_COMPILEROUTS") {
+                if(project->variables()["QMAKE_EXTRA_COMPILERS"].isEmpty())
+                    continue;
+		
+	    } else if(variable == "MSVCDSP_COMPILERSOURCES") {
+                if(project->variables()["QMAKE_EXTRA_COMPILERS"].isEmpty())
+                    continue;
+
+		const QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
+		for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
+		    int output_count = 0;
+		    QString tmp_out = project->variables()[(*it) + ".output"].first();
+		    QString tmp_cmd = project->variables()[(*it) + ".commands"].join(" ");
+		    QString tmp_cmd_name = project->variables()[(*it) + ".name"].join(" ");
+		    QString tmp_dep = project->variables()[(*it) + ".depends"].join(" ");
+		    QString tmp_dep_cmd = project->variables()[(*it) + ".depend_command"].join(" ");
+		    QStringList &vars = project->variables()[(*it) + ".variables"];
+		    if(tmp_out.isEmpty() || tmp_cmd.isEmpty())
+			continue;
+		    QStringList &tmp = project->variables()[(*it) + ".input"];
+		    for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
+			QStringList &inputs = project->variables()[(*it2)];
+			for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); 
+			    ++input) {
+			    QString in = Option::fixPathToTargetOS((*input), false);
+			    QString out = replaceExtraCompilerVariables(tmp_out, (*input), 
+									QString::null);
+			    QString cmd = replaceExtraCompilerVariables(tmp_cmd, (*input), out), deps;
+			    if(!tmp_dep.isEmpty())
+				deps = " " + tmp_dep;
+			    if(!tmp_dep_cmd.isEmpty()) {
+				char buff[256];
+				QString dep_cmd = replaceExtraCompilerVariables(tmp_dep_cmd, 
+										(*input), out);
+				if(FILE *proc = QT_POPEN(dep_cmd.latin1(), "r")) {
+				    while(!feof(proc)) {
+					int read_in = fread(buff, 1, 255, proc);
+					if(!read_in)
+					    break;
+					int l = 0;
+					for(int i = 0; i < read_in; i++) {
+					    if(buff[i] == '\n' || buff[i] == ' ') {
+						deps += " " + QByteArray(buff+l, (i - l) + 1);
+						l = i;
+					    }
+					}
+				    }
+				    fclose(proc);
+				}
+			    }
+			    deps = replaceExtraCompilerVariables(deps, (*input), out);
+			    if(!output_count) 
+				t << "# Begin Group \"" << (*it2) << "\"\n";
+			    t <<  "# Begin Source File\n\nSOURCE=" << in << endl
+			      << "USERDEP_" << in.section('.', 0, 0) << "=\"" << deps << "\"" << endl;
+			    QString cmd_name;
+			    if(!tmp_cmd_name.isEmpty()) {
+				cmd_name = replaceExtraCompilerVariables(tmp_cmd_name, (*input), out);
+			    } else {
+				int space = cmd.indexOf(' ');
+				if(space != -1)
+				    cmd_name = cmd.left(space);
+				else
+				    cmd_name = cmd;
+				if((cmd_name[0] == '\'' || cmd_name[0] == '"') &&
+				   cmd_name[0] == cmd_name[cmd_name.length()-1])
+				    cmd_name = cmd_name.mid(1,cmd_name.length()-2);
+			    }
+			    QString build = "\n\n# Begin Custom Build - " + cmd_name + "'ing " + in + "...\n"
+					    "InputPath=" + in + "\n\n" 
+					    "BuildCmds= \\\n\t" + cmd + " \\\n";
+			    build.append("\n\"" + out + "\" "
+					 " : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\""  "\n"
+					 "\t$(BuildCmds)\n\n");
+			    build.append("# End Custom Build\n\n");
+
+			    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Release\"" << build
+			      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Debug\"" << build
+			      << "!ENDIF \n\n" << "# End Source File" << endl;
+			    output_count++;
+			}
+		    }
+		    if(output_count)
+			t << "\n# End Group\n";
+		}
             } else if(variable == "MSVCDSP_FORMS") {
                 if(project->variables()["FORMS"].isEmpty())
                     continue;
@@ -471,7 +556,6 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
                                  "\t$(BuildCmds)\n\n"
                                  "\"" + mocFile + Option::h_moc_mod + fname + Option::h_moc_ext + "\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
                                  "\t$(BuildCmds)\n\n");
-
 
                     build.append("# End Custom Build\n\n");
 
