@@ -190,7 +190,10 @@ void QColor::setSystemNamedColor( const QString& name )
 	    d.d8.dirty = TRUE;
 	    d.d8.pix = 0;
 	} else {
-	    alloc();
+	    if ( qt_screen )
+		alloc();
+	    else
+		d.d32.pix = d.argb | 0xff000000;
 	}
     } else {
 	// set to invalid color
