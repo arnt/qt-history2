@@ -64,7 +64,8 @@ class Q_EXPORT QLineEdit : public QFrame
     Q_PROPERTY( QString displayText READ displayText )
     Q_PROPERTY( int cursorPosition READ cursorPosition WRITE setCursorPosition )
     Q_PROPERTY( Alignment alignment READ alignment WRITE setAlignment )
-    Q_PROPERTY( bool edited READ edited WRITE setEdited )
+    Q_PROPERTY( bool edited READ edited WRITE setEdited DESIGNABLE false )
+    Q_PROPERTY( bool modified READ isModified )
     Q_PROPERTY( bool hasMarkedText READ hasMarkedText DESIGNABLE false )
     Q_PROPERTY( bool hasSelectedText READ hasSelectedText )
     Q_PROPERTY( QString markedText READ markedText DESIGNABLE false )
@@ -74,6 +75,7 @@ class Q_EXPORT QLineEdit : public QFrame
     Q_PROPERTY( bool undoAvailable READ isUndoAvailable )
     Q_PROPERTY( bool redoAvailable READ isRedoAvailable )
     Q_PROPERTY( QString inputMask READ inputMask WRITE setInputMask )
+    Q_PROPERTY( bool acceptableInput READ hasAcceptableInput )
 
 public:
     QLineEdit( QWidget* parent, const char* name=0 );
@@ -100,7 +102,7 @@ public:
     QSize minimumSizeHint() const;
 
     int cursorPosition() const;
-    bool validateAndSet( const QString &, int, int, int );
+    bool validateAndSet( const QString &, int, int, int ); // obsolete
 
     int alignment() const;
 
@@ -117,12 +119,13 @@ public:
     void home( bool mark );
     void end( bool mark );
 
-    void setEdited( bool );
-    bool edited() const;
+    bool isModified() const;
+
+    bool edited() const; // obsolete, use isModified()
+    void setEdited( bool ); // obsolete, use setText()
 
     bool hasSelectedText() const;
     QString selectedText() const;
-    bool getSelection( int *start, int *end );
 
     bool isUndoAvailable() const;
     bool isRedoAvailable() const;
@@ -132,15 +135,11 @@ public:
     QString markedText() const { return selectedText(); }
 #endif
 
-    void 	setPasswordChar( QChar c );
-    QChar 	passwordChar() const;
-
     bool dragEnabled() const;
-    int characterAt( int xpos, QChar *chr ) const;
 
-    bool hasValidInput() const;
-    void setInputMask( const QString &mask );
     QString inputMask() const;
+    void setInputMask( const QString &inputMask );
+    bool hasAcceptableInput() const;
 
 public slots:
     virtual void setText( const QString &);
@@ -161,11 +160,9 @@ public slots:
     virtual void setSelection( int, int );
     virtual void setCursorPosition( int );
     virtual void setAlignment( int flag );
-#ifndef QT_NO_CLIPBOARD
     virtual void cut();
     virtual void copy() const;
     virtual void paste();
-#endif
     virtual void setDragEnabled( bool b );
 
 signals:
@@ -186,8 +183,8 @@ protected:
     void imEndEvent( QIMEvent * );
     void focusInEvent( QFocusEvent * );
     void focusOutEvent( QFocusEvent * );
-    void drawContents( QPainter *painter );
     void resizeEvent( QResizeEvent * );
+    void drawContents( QPainter * );
 #ifndef QT_NO_DRAGANDDROP
     void dragEnterEvent( QDragEnterEvent * );
     void dragMoveEvent( QDragMoveEvent *e );
@@ -195,45 +192,24 @@ protected:
     void dropEvent( QDropEvent * );
 #endif
     void contextMenuEvent( QContextMenuEvent * );
-
+    void timerEvent( QTimerEvent* );
+    virtual QPopupMenu *createPopupMenu();
+    void windowActivationChange( bool );
 #ifndef QT_NO_COMPAT
     void repaintArea( int, int ) { update(); }
 #endif
 
-    virtual QPopupMenu *createPopupMenu();
-    void windowActivationChange( bool );
-
 private slots:
     void clipboardChanged();
-    void blinkSlot();
-#ifndef QT_NO_DRAGANDDROP
-    void doDrag();
-#endif
-    void dragSlot();
+
+public:
+    void setPasswordChar( QChar c ); // internal obsolete
+    QChar passwordChar() const; // obsolete internal
+    int characterAt( int, QChar* ) const; // obsolete
+    bool getSelection( int *, int * ); // obsolete
 
 private:
-    void init();
-    void blinkOn();
-    void updateOffset();
-    void updateOffset( QTextParagraph *p, QTextCursor *c );
-    void updateSelection();
-    void removeSelectedText();
-    void delOrBackspace( bool backspace );
-    // mask functions
-    void parseMaskFields( const QString & );
-    bool isValidInput( QChar key, QChar mask ) const;
-    QString maskString( uint pos, const QString &str, bool clear = FALSE ) const;
-    QString clearString( uint pos, uint len ) const;
-    QString stripString( const QString &str ) const;
-    QString text( bool strip ) const;
-    void insert( const QString &newText, bool paste);
-    bool validateAndSet( const QString &, int, int, int, bool );
-    void updateOverwriteSelection();
-    bool hasSelectedText( bool ignore ) const;
-    bool hasOverWriteSelection() const;
-    QString selectedText(bool ignore) const;
-    bool getSelection( int *start, int *end, bool ignore );
-
+    friend struct QLineEditPrivate;
     QLineEditPrivate * d;
 
 private:	// Disabled copy constructor and operator=
