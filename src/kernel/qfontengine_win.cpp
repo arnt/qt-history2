@@ -114,19 +114,13 @@ QFontEngineWin::QFontEngineWin( const char * name, HDC _hdc, HFONT _hfont, bool 
     _name = name;
 
     hdc = _hdc;
-
     hfont = _hfont;
+    SelectObject( hdc, hfont );
     stockFont = stockFont;
 
     lbearing = SHRT_MIN;
     rbearing = SHRT_MIN;
 
-    HGDIOBJ obj = SelectObject( dc(), hfont );
-#ifndef QT_NO_DEBUG
-    if ( !obj ) {
-	qSystemWarning( "QFontPrivate: SelectObject failed" );
-    }
-#endif
     BOOL res;
     QT_WA( {
 	res = GetTextMetricsW( dc(), &tm.w );
@@ -201,7 +195,27 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 	} else 
 #endif
 	{
-    	    ExtTextOutW( hdc, x + offsets->x, y + offsets->y, options, 0, (wchar_t *)glyphs, numGlyphs, advances );
+	    bool haveOffsets = FALSE;
+	    for( int i = 0; i < numGlyphs; i++ ) {
+		if ( offsets[i].x || offsets[i].y ) {
+		    haveOffsets = TRUE;
+		    break;
+		}
+	    }
+
+	    if ( haveOffsets ) {
+		for( int i = 0; i < numGlyphs; i++ ) {
+    		    wchar_t chr = *glyphs;
+    		    ExtTextOutW( hdc, x + offsets->x, y + offsets->y, options, 0, &chr, 1, 0 );
+		    x += *advances;
+		    glyphs++;
+		    offsets++;
+		    advances++;
+		}
+	    } else {
+		// fast path
+		ExtTextOutW( hdc, x + offsets->x, y + offsets->y, options, 0, (wchar_t *)glyphs, numGlyphs, advances );
+	    }
 	}
     } else {
 	offsets += numGlyphs;
