@@ -41,7 +41,7 @@
 // Other
 #include <math.h>
 
-// #define QT_DEBUG_DRAW
+//#define QT_DEBUG_DRAW
 #ifdef QT_DEBUG_DRAW
 bool qt_show_painter_debug_output = true;
 #endif
@@ -103,7 +103,7 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output) {
-        printf("QPainter::drawHelper: op=%d, emulation=0x%x ( ", op, emulationSpecifier);
+        printf("QPainter::drawHelper: op=%d, emulation=0x%x ( ", op, engine->emulationSpecifier);
         static struct { uint value; const char *text; } emuMap[] = {
             {    0x0001, "CoordTransform "},
             {    0x0002, "PenWidthTransform "},
@@ -128,7 +128,7 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
             {       0x0, 0x0},
         };
         for (int i = 0; emuMap[i].text; ++i)
-            if (emulationSpecifier & emuMap[i].value)
+            if (engine->emulationSpecifier & emuMap[i].value)
                 printf(emuMap[i].text);
         printf(")\n");
     }
