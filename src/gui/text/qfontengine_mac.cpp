@@ -97,10 +97,6 @@ bool QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
 void
 QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags)
 {
-    bool textAA = p->renderHints() & QPainter::TextAntialiasing;
-    bool lineAA = p->renderHints() & QPainter::LineAntialiasing;
-    if (textAA != lineAA)
-        p->setRenderHint(QPainter::LineAntialiasing, textAA);
     QPainterState *pState = p->painterState();
     int txop = pState->txop;
     QWMatrix xmat = pState->matrix;
@@ -114,11 +110,11 @@ QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int tex
             {
                 QPainter paint(&bm);  // draw text in bitmap
                 paint.setPen(Qt::color1);
-                draw(paint.d->engine, 0, si.ascent, si, textFlags);
+                paint.drawTextItem(QPoint(0, si.ascent), si, textFlags);
                 paint.end();
             }
 
-            QPixmap pm(bm.width(), bm.height());
+            QPixmap pm(bm.size());
             if(pState->painter->backgroundMode() == QPainter::OpaqueMode) {
                 pm = bm;
                 bm.fill(Qt::color1);
@@ -129,11 +125,12 @@ QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int tex
                 paint.end();
                 pm.setMask(bm);
             }
-            p->drawPixmap(QRect(x, y, -1, -1), pm, QRect(0, 0, -1, -1), false);
+
+            pState->painter->drawPixmap(x, y - si.ascent, pm);
             return;
-        } else if(txop == QPainter::TxTranslate) {
+        } 
+        if(txop == QPainter::TxTranslate) 
             pState->painter->map(x, y, &x, &y);
-        }
     }
     if(p->type() == QPaintEngine::QuickDraw) {
         QQuickDrawPaintEngine *mgc = static_cast<QQuickDrawPaintEngine *>(p);
@@ -149,6 +146,10 @@ QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int tex
                                   pState->painter->background().color());
     }
 
+    bool textAA = p->renderHints() & QPainter::TextAntialiasing;
+    bool lineAA = p->renderHints() & QPainter::LineAntialiasing;
+    if (textAA != lineAA)
+        p->setRenderHint(QPainter::LineAntialiasing, textAA);
 
     int w = 0;
     uchar task = DRAW;

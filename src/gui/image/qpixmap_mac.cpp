@@ -880,8 +880,9 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, bool imask)
                 for(int yy=0; yy<h; yy++) {
                     mrow = (long*)(((char*)mptr) + (yy * mbpr));
                     drow = addr + (yy * bpl);
-                    for(int xx=0;xx<w;xx++) 
-                        *(drow + (xx*4)) = *(mrow + xx) ? 0 : 255;
+                    for(int xx=0;xx<w;xx++) {
+                        *(drow + (xx*4)) = (*(mrow + xx) & 0x01) ? 0 : 255;
+                    }
                 }
             } else {
                 imask = true; //there isn't really a "mask"
