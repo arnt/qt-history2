@@ -63,7 +63,7 @@ QMAKE_LIBS_QT_DLL	= $(QTDIR)\lib\qtmain.lib
 
 QMAKE_LIBS_OPENGL	= opengl32.lib glu32.lib
 
-QMAKE_MOC		= moc
+QMAKE_MOC		= $(QTDIR)/bin/moc
 QMAKE_UIC               = uic
 
 QMAKE_LIB		= lib /NOLOGO

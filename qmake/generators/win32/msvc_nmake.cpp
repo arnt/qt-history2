@@ -151,11 +151,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 
     t << "mocables: $(SRCMOC)" << endl << endl;
 
-    t << "qmake: " << "\n\t"
-      << "qmake " << project->projectFile();
-    if (Option::output.name())
-	t << " -o " << Option::output.name();
-    t << endl << endl;
+    writeMakeQmake(t);
 
     t << "dist:" << "\n\t"
       << "$(ZIP) " << var("PROJECT") << ".zip "

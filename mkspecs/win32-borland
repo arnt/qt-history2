@@ -63,7 +63,7 @@ QMAKE_LIBS_QT_DLL	= $(QTDIR)\lib\qtmain.lib
 
 QMAKE_LIBS_OPENGL	=
 
-QMAKE_MOC		= moc
+QMAKE_MOC		= $(QTDIR)/bin/moc
 QMAKE_UIC		= uic
 
 QMAKE_LIB		= tlib /C /P256

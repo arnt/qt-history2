@@ -671,3 +671,22 @@ MakefileGenerator::writeHeader(QTextStream &t)
     t << endl;
 	return TRUE;
 }
+
+
+//makes my life easier..
+bool
+MakefileGenerator::writeMakeQmake(QTextStream &t)
+{
+    QString ofile = Option::output.name();
+    if(ofile.findRev(Option::dir_sep) != -1)
+	ofile = ofile.right(ofile.length() - ofile.findRev(Option::dir_sep) -1);
+
+    t << "qmake " << ofile << ": " << project->projectFile() << " \\\n\t\t"
+      << project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"].join(" \\\n\t\t") << "\n\t"
+      << "qmake " << project->projectFile();
+    if (!ofile.isEmpty())
+	t << " -o " << ofile;
+    t << endl << endl;
+    
+    return TRUE;
+}

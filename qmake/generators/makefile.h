@@ -65,6 +65,7 @@ protected:
 
     bool writeHeader(QTextStream &);
     virtual bool writeMakefile(QTextStream &);
+    virtual bool writeMakeQmake(QTextStream &);
     virtual void init();
 
     QString var(const QString &var);

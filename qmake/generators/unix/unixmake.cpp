@@ -207,11 +207,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << "cp $(QTDIR)/src/moc/moc $(MOC)" << endl << endl;
     }
 
-    t << "qmake " << ofile << ": " << project->projectFile() << "\n\t"
-      << "qmake " << project->projectFile();
-    if (!ofile.isEmpty())
-	t << " -o " << ofile;
-    t << endl << endl;
+    writeMakeQmake(t);
 
     t << "dist: " << "\n\t"
       << "cd ..\n\t"
@@ -268,16 +264,12 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t)
     t << "QMAKE =	" << var("QMAKE") << endl;
     t << "SUBDIRS	=" << varList("SUBDIRS") << endl;
 
-    t << "all: Makefile $(SUBDIRS)" << endl << endl;
+    t << "all: " << ofile << " $(SUBDIRS)" << endl << endl;
 
     t << "$(SUBDIRS): tmake_all FORCE" << "\n\t"
       << "cd $@ && $(MAKE)" << endl << endl;
 
-    t << "qmake " << ofile << ": " << project->projectFile() << "\n\t"
-      << "qmake " << project->projectFile();
-    if (ofile.isEmpty())
-	t << " -o " << ofile;
-    t << endl << endl;
+    writeMakeQmake(t);
 
     t << "tmake_all:" << "\n\t"
       << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; "

@@ -361,6 +361,8 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 	    printf("Project Parser: Including file %s.\n", file.latin1());
 	int l = line_count;
 	bool r = read(file.latin1(), place);
+	if(r)
+	    vars["QMAKE_INTERNAL_INCLUDED_FILES"].append(file);
 	line_count = l;
 	return r;
     } else if(func == "error" || func == "message") {
