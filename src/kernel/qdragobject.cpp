@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#44 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -406,7 +406,8 @@ QWidget * QDragObject::source()
   QDragObject.
   For example, QTextDrag provides
   support for the "<tt>text/plain</tt>" MIME type (ordinary unformated
-  text), QImageDrag provides for "<tt>image/*</tt>", where <tt>*</tt>
+  text), QImageDrag provides for "<tt>image/</tt><tt>*</tt>",
+  where <tt>*</tt>
   is all the \link QImageIO image formats that Qt supports\endlink,
   and the QUrlDrag subclass provides "<tt>url/url</tt>",
   a standard format for transfering a list of filenames.
