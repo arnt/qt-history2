@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#21 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#22 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1491,7 +1491,7 @@ QFileDialog::QFileDialog( QWidget *parent, const char *name, bool modal )
     init();
     d->types->insertItem( QFileDialog::tr( "All files (*)" ) );
     //d->url.convertToAbs();
-    emit dirEntered( d->url.path() ); // #### should this be the full url
+    emit dirEntered( d->url.path() );
     rereadDir();
 }
 
@@ -1520,7 +1520,7 @@ QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
 	d->url = dirName;
 
     //d->url.convertToAbs();
-    emit dirEntered( d->url.path() ); // #### should this be the full url
+    emit dirEntered( d->url.path() );
     rereadDir();
 }
 
@@ -1898,7 +1898,7 @@ void QFileDialog::setSelection( const QString & filename )
 	setDir( filename );
 	nameEdit->setText( QString::fromLatin1("") );
     } else {
-	setDir( u );
+	setUrl( u );
 	nameEdit->setText( info.name() );
     }
     trySetSelection( info, u, FALSE );
@@ -1974,11 +1974,11 @@ void QFileDialog::setDir( const QString & pathstr )
     }
 #endif
 
-    d->url = dr;
+    d->url = QFileInfo( dr ).dirPath();
     QUrlInfo i( d->url, nameEdit->text() );
     trySetSelection( i, d->url, FALSE );
     rereadDir();
-    emit dirEntered( d->url.path() ); // ### should ths be the full url?
+    emit dirEntered( d->url.path() );
 }
 
 /*!
@@ -2004,24 +2004,23 @@ void QFileDialog::setDir( const QDir &dir )
     QString nf( d->url.nameFilter() );
     d->url = dir.canonicalPath();
     d->url.setNameFilter( nf );
-    //d->url.convertToAbs();
-    //d->url.setMatchAllDirs( TRUE );
-    //d->url.setSorting( d->url.sorting() ); // #### sorting has to be done while inserting items, not in the URL
     QUrlInfo i( d->url, nameEdit->text() );
     trySetSelection( i, d->url, FALSE );
     rereadDir();
-    emit dirEntered( d->url.path() ); // same as above
+    emit dirEntered( d->url.path() );
 }
 
 void QFileDialog::setUrl( const QUrl &url )
 {
     QString nf( d->url.nameFilter() );
     d->url = url;
+    if ( !d->url.makeInfo().isDir() )
+	d->url.setPath( QFileInfo( d->url.path() ).dirPath() );
     d->url.setNameFilter( nf );
-//     QUrlInfo i( d->url, nameEdit->text() );
-//     trySetSelection( i, d->url, FALSE );
+    QUrlInfo i( d->url, nameEdit->text() );
+    trySetSelection( i, d->url, FALSE );
     rereadDir();
-//     emit dirEntered( d->url.path() ); // same as above
+    emit dirEntered( d->url.path() );
 }
 
 /*!
@@ -2233,8 +2232,8 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 	if ( inf.isDir() ) {
 	    *workingDirectory = startWith;
 	} else if ( inf.isFile() ) {
-	    *workingDirectory = u.path();
-	    //initialSelection = fi.absFilePath(); // ]#### todo
+	    *workingDirectory = QFileInfo( u.path() ).dirPath();
+	    initialSelection = u;
 	}
     }
 
@@ -2249,11 +2248,11 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 
     QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null,
 					parent, name, TRUE );
-    dlg->setFilters( filters );
     CHECK_PTR( dlg );
     dlg->setCaption( QFileDialog::tr( "Open" ) );
     if ( !initialSelection.isEmpty() )
 	dlg->setSelection( initialSelection );
+    dlg->setFilters( filters );
     dlg->setMode( QFileDialog::ExistingFile );
     QString result;
     if ( dlg->exec() == QDialog::Accepted ) {
@@ -2322,8 +2321,8 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 	if ( inf.isDir() ) {
 	    *workingDirectory = startWith;
 	} else if ( inf.isFile() ) {
-	    *workingDirectory = u.path();
-	    //initialSelection = fi.absFilePath(); // ]#### todo
+	    *workingDirectory = QFileInfo( u.path() ).dirPath();
+	    initialSelection = u;
 	}
     }
 
@@ -2338,11 +2337,11 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 
     QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null, parent, name, TRUE );
     CHECK_PTR( dlg );
-    dlg->setFilters( filters );
     dlg->setCaption( QFileDialog::tr( "Save as" ) );
     QString result;
     if ( !initialSelection.isEmpty() )
 	dlg->setSelection( initialSelection );
+    dlg->setFilters( filters );
     if ( dlg->exec() == QDialog::Accepted ) {
 	result = dlg->selectedFile();
 	*workingDirectory = dlg->dirPath();

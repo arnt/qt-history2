@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.h#8 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.h#9 $
 **
 ** Definition of QFileDialog class
 **
@@ -185,17 +185,17 @@ class Q_EXPORT QFileDialog : public QDialog
     Q_OBJECT
 public:
     QFileDialog( const QString& dirName, const QString& filter = QString::null,
-                 QWidget *parent=0, const char *name=0, bool modal=FALSE );
-    QFileDialog( QWidget *parent=0, const char *name=0, bool modal=FALSE );
+                 QWidget *parent=0, const char *name = 0, bool modal = FALSE );
+    QFileDialog( QWidget *parent=0, const char *name = 0, bool modal = FALSE );
     ~QFileDialog();
 
     // recommended static functions
 
     static QString getOpenFileName( const QString &initially = QString::null,
-                                    const QString &filter= QString::null,
+                                    const QString &filter = QString::null,
                                     QWidget *parent = 0, const char* name = 0);
     static QString getSaveFileName( const QString &initially = QString::null,
-                                    const QString &filter= QString::null,
+                                    const QString &filter = QString::null,
                                     QWidget *parent = 0, const char* name = 0);
     static QString getExistingDirectory( const QString &dir = QString::null,
                                          QWidget *parent = 0,

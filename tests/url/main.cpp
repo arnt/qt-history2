@@ -16,7 +16,7 @@ public:
 	: QLabel( parent ) {}
 
 public slots:
-    void showPreview( const QUrl &u, const QUrlInfo &ui ) {
+    void showPreview( const QUrl &u, const QUrlInfo & ) {
 	setPixmap( QPixmap( u.path() ) );
     }
 
@@ -29,13 +29,16 @@ int main( int argc, char* argv[]  )
 //     QString s = QFileDialog::getOpenFileName();
 //     qDebug ( "file: %s", s.latin1() );
 
-    QFileDialog *fd = new QFileDialog();
-    fd->setContentsPreviewWidget( new MyFilePreview );
+//     QFileDialog *fd = new QFileDialog();
+//     fd->setContentsPreviewWidget( new MyFilePreview );
         
-    fd->resize( 600, 400 );
-    a.setMainWidget( fd );
-    fd->show();
+//     fd->resize( 600, 400 );
+//     a.setMainWidget( fd );
+//     fd->show();
 
+    QString s = QFileDialog::getOpenFileName( "/bin/ls", "*;;*.txt" );
+    qDebug( "%s", s.latin1() );
+    
     a.exec();
 }
 

@@ -9,11 +9,6 @@
 
 #include <qapplication.h>
 #include <qmap.h>
-#include <qpushbutton.h>
-#include <qlineedit.h>
-#include <qlabel.h>
-#include <qvbox.h>
-#include <qhbox.h>
 
 struct QUrlPrivate
 {
@@ -32,26 +27,26 @@ struct QUrlPrivate
 };
 
 /*!
- * Mention that URL has some restrictions regarding the path
- * encoding. URL works intern with the decoded path and
- * and encoded query. For example in
- * <pre>
- * http://localhost/cgi-bin/test%20me.pl?cmd=Hello%20you
- * </pre>
- * would result in a decoded path "/cgi-bin/test me.pl"
- * and in the encoded query "cmd=Hello%20you".
- * Since path is internally always encoded you may NOT use
- * "%00" in the path while this is ok for the query.
- */
+  Mention that URL has some restrictions regarding the path
+  encoding. URL works intern with the decoded path and
+  and encoded query. For example in
+  <pre>
+  http://localhost/cgi-bin/test%20me.pl?cmd=Hello%20you
+  </pre>
+  would result in a decoded path "/cgi-bin/test me.pl"
+  and in the encoded query "cmd=Hello%20you".
+  Since path is internally always encoded you may NOT use
+  "%00" in the path while this is ok for the query.
+*/
 
 /*!
- *  \a url is considered to be encoded. You can pass strings like
- *		 "/home/weis", in this case the protocol "file" is assumed.
- *		 This is dangerous since even this simple path is assumed to be
- *		 encoded. For example "/home/Torben%20Weis" will be decoded to
- *		 "/home/Torben Weis". This means: If you have a usual UNIX like
- *		 path, you have to use @ref encode first before you pass it to URL.
- */
+  \a url is considered to be encoded. You can pass strings like
+  "/home/weis", in this case the protocol "file" is assumed.
+  This is dangerous since even this simple path is assumed to be
+  encoded. For example "/home/Torben%20Weis" will be decoded to
+  "/home/Torben Weis". This means: If you have a usual UNIX like
+  path, you have to use @ref encode first before you pass it to URL.
+*/
 
 QUrl::QUrl()
 {
@@ -85,6 +80,8 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
     // relUrl starts in the root ?
     if ( relUrl[0] == '/' ) {
 	*this = url;
+ 	if ( QFileInfo( d->path ).isFile() )
+ 	    d->path = QFileInfo( d->path ).dirPath();
 	int pos = relUrl.find( '#' );
 	QString tmp;
 	if ( pos == -1 ) {
@@ -98,12 +95,16 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
     } else if ( relUrl[0] == '#' ) {
 	// relUrl just affects the reference ?
 	*this = url;
+ 	if ( QFileInfo( d->path ).isFile() )
+ 	    d->path = QFileInfo( d->path ).dirPath();
 	setRef( relUrl.mid(1) );
-    } else if ( strstr( relUrl, ":/" ) != 0 ) {
+    } else if ( relUrl.find( ":/" ) != -1 ) {
 	// relUrl is a complete QUrl ?
 	*this = relUrl;
     } else {	
 	*this = url;
+ 	if ( QFileInfo( d->path ).isFile() )
+ 	    d->path = QFileInfo( d->path ).dirPath();
 	int pos = relUrl.find( '#' );
 	QString tmp;
 	if ( pos == -1 ) {
@@ -373,7 +374,7 @@ Node7:
     if ( !isdigit( buf[pos++] ) )
 	goto NodeErr;
 
-  // Node 8b: Accept any amount of digits
+    // Node 8b: Accept any amount of digits
     while( isdigit( buf[pos] ) && pos < len ) pos++;
     port = QString( buf + start, pos - start );
     d->port = port.toUShort();
@@ -395,11 +396,11 @@ Node9:
     setEncodedPathAndQuery( QString( buf + start, pos - start ) );
     pos++;
 
-  // Node 10: Accept all the rest
+    // Node 10: Accept all the rest
     d->refEncoded = QString( buf + pos, len - pos );
     goto NodeOk;
 
-  // Node 11 We need at least one character
+    // Node 11 We need at least one character
 Node11:
     start = pos;
     if ( pos++ == len )
@@ -958,6 +959,15 @@ QUrlInfo QUrl::makeInfo() const
     if ( d->entryMap.contains( "." ) )
 	return d->entryMap[ "." ];
 
+    if ( isLocalFile() ) {
+	QFileInfo inf( d->path );
+	return QUrlInfo( inf.fileName(), 0/*permissions*/, inf.owner(), inf.group(),
+			 inf.size(), inf.lastModified(), inf.lastRead(), inf.isDir(), inf.isFile(),
+			 inf.isSymLink(), inf.isWritable(), inf.isReadable(), inf.isExecutable() );
+    }
+    
+    qDebug( "shiiiiiiiiit: %s", toString().latin1() );
+    
     return QUrlInfo();
 }
 
