@@ -34,7 +34,7 @@ class InvoiceDialog : public QDialog
 public:
     typedef enum Mode { Insert, Update, Delete };
 
-    InvoiceDialog( QSqlCursor * cursor, QSqlRecord* buf, Mode mode,
+    InvoiceDialog( QSqlRecord* buf, Mode mode,
 		   QWidget * parent = 0, const char * name = 0 );
 public slots:
     void updateInvoiceItem();
@@ -47,7 +47,9 @@ public slots:
     void updateProductTable( const QSqlRecord * r );
 
 private:
+    void checkInsertInvoice();
     Mode mMode;
+    bool cleanupOrphans;
     QVariant invoiceId;
     QSqlForm   * invoiceForm;
     QSqlTable  * invoiceItems;

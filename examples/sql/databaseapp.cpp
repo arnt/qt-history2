@@ -189,7 +189,7 @@ void DatabaseWgt::insertInvoice()
     QSqlRecord * buf = cr->insertBuffer();
     insertingInvoice( buf );
 
-    InvoiceDialog dlg( cr, buf, InvoiceDialog::Insert, this );
+    InvoiceDialog dlg( buf, InvoiceDialog::Insert, this );
     if( dlg.exec() == QDialog::Accepted ){
 	cr->insert();
 	invoices->refresh( cr->primaryIndex( TRUE ) );
@@ -210,7 +210,7 @@ void DatabaseWgt::updateInvoice()
     }
     QSqlCursor  * v = invoices->cursor();
 
-    InvoiceDialog dlg( v, v->updateBuffer(), InvoiceDialog::Update, this );
+    InvoiceDialog dlg( v->updateBuffer(), InvoiceDialog::Update, this );
     if( dlg.exec() == QDialog::Accepted ){
 	v->update();
 	invoices->refresh( v->primaryIndex( TRUE ) );
@@ -226,8 +226,7 @@ void DatabaseWgt::deleteInvoice()
     }
 
     QSqlCursor  * v = invoices->cursor();
-    InvoiceDialog dlg( v, v->updateBuffer(), InvoiceDialog::Delete, this );
-
+    InvoiceDialog dlg( v->updateBuffer(), InvoiceDialog::Delete, this );
     if( dlg.exec() == QDialog::Accepted ){
 	v->del();
 	invoices->refresh();

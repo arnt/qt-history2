@@ -40,6 +40,7 @@ GenericDialog::GenericDialog( QSqlRecord* buf, Mode mode, QWidget * parent,
     } else if( mMode == Delete ){
 	op      = "&Delete";
 	caption = "Delete record";
+	w->setEnabled( FALSE );
     }
     setCaption( caption );
 
@@ -56,7 +57,7 @@ GenericDialog::GenericDialog( QSqlRecord* buf, Mode mode, QWidget * parent,
 				 QSizePolicy::Minimum ) );
 
     QPushButton * button = new QPushButton( op, this );
-    button->setDefault( TRUE );    
+    button->setDefault( TRUE );
     connect( button, SIGNAL( clicked() ), SLOT( execute() ) );
     h->addWidget( button );
 
@@ -83,12 +84,16 @@ void GenericDialog::execute()
 //  InvoiceDialog
 //
 
-InvoiceDialog::InvoiceDialog( QSqlCursor * cursor, QSqlRecord * buf,
+InvoiceDialog::InvoiceDialog( QSqlRecord * buf,
 			      Mode mode, QWidget * parent, const char * name )
     : QDialog( parent, name, TRUE ),
-      mMode( mode )
+      mMode( mode ),
+      cleanupOrphans( FALSE )
 {
     QString op, caption;
+    QWidget *     form = new QWidget( this );
+    QVBoxLayout * g = new QVBoxLayout( this );
+    QHBoxLayout * h = new QHBoxLayout;
     if( mMode == Insert ){
 	op      = "&Insert";
 	caption = "Insert record";
@@ -98,12 +103,9 @@ InvoiceDialog::InvoiceDialog( QSqlCursor * cursor, QSqlRecord * buf,
     } else if( mMode == Delete ){
 	op      = "&Delete";
 	caption = "Delete record";
+	form->setEnabled( FALSE );
     }
     setCaption( caption );
-
-    QWidget *     form = new QWidget( this );
-    QVBoxLayout * g = new QVBoxLayout( this );
-    QHBoxLayout * h = new QHBoxLayout;
 
     g->setSpacing( 5 );
     g->setMargin( 3 );
@@ -114,7 +116,7 @@ InvoiceDialog::InvoiceDialog( QSqlCursor * cursor, QSqlRecord * buf,
     invoiceForm  = new QSqlForm( form, buf, 2, this);
     invoiceItems = new QSqlTable( this );
 
-    invoiceId = cursor->value("id"); // Save this for later - we need it..
+    invoiceId = buf->value("id"); // Save this for later - we need it..
     itemCursor.select( "invoiceid = " + invoiceId.toString() );
 
     invoiceItems->setCursor( &itemCursor );
@@ -135,14 +137,20 @@ InvoiceDialog::InvoiceDialog( QSqlCursor * cursor, QSqlRecord * buf,
     QPushButton * button = new QPushButton( "U&pdate item", this );
     connect( button, SIGNAL( clicked() ), SLOT( updateInvoiceItem() ) );
     h->addWidget( button );
+    if( mMode == Delete )
+	button->setEnabled( FALSE );
 
     button = new QPushButton( "In&sert item", this );
     connect( button, SIGNAL( clicked() ), SLOT( insertInvoiceItem() ) );
     h->addWidget( button );
+    if( mMode == Delete )
+	button->setEnabled( FALSE );
 
     button = new QPushButton( "Delete i&tem", this );
     connect( button, SIGNAL( clicked() ), SLOT( deleteInvoiceItem() ) );
     h->addWidget( button );
+    if( mMode == Delete )
+	button->setEnabled( FALSE );
 
     h->addItem( new QSpacerItem( 0, 0, QSizePolicy::Expanding,
 				 QSizePolicy::Minimum ) );
@@ -168,7 +176,19 @@ InvoiceDialog::InvoiceDialog( QSqlCursor * cursor, QSqlRecord * buf,
 
 void InvoiceDialog::insertingInvoiceItem( QSqlRecord* buf )
 {
+    checkInsertInvoice();
     buf->setValue( "invoiceid", invoiceId );
+}
+
+void InvoiceDialog::checkInsertInvoice()
+{
+    if ( mMode == Insert ) {
+	qDebug("inserting dummy invoice");
+	QSqlQuery q;
+	q.exec( "insert into invoice (id) values (" + invoiceId.toString() + ");" );
+	cleanupOrphans = TRUE;
+	mMode = Update;
+    }
 }
 
 void InvoiceDialog::updateProductTable( const QSqlRecord * )
@@ -177,6 +197,12 @@ void InvoiceDialog::updateProductTable( const QSqlRecord * )
 
 void InvoiceDialog::updateInvoiceItem()
 {
+    QSqlRecord r = invoiceItems->currentFieldSelection();
+    if ( r.isEmpty() ) {
+	QMessageBox::information( this, "No Selection", "Select an item first!" );
+	return;
+    }
+    
     QSqlCursor * cr = invoiceItems->cursor();
 
     GenericDialog dlg( cr->updateBuffer(), GenericDialog::Delete, this );
@@ -201,6 +227,12 @@ void InvoiceDialog::insertInvoiceItem()
 
 void InvoiceDialog::deleteInvoiceItem()
 {
+    QSqlRecord r = invoiceItems->currentFieldSelection();
+    if ( r.isEmpty() ) {
+	QMessageBox::information( this, "No Selection", "Select an item first!" );
+	return;
+    }
+    
     QSqlCursor * cr = invoiceItems->cursor();
 
     GenericDialog dlg( cr->updateBuffer(), GenericDialog::Delete, this );
@@ -212,11 +244,25 @@ void InvoiceDialog::deleteInvoiceItem()
 
 void InvoiceDialog::close()
 {
+    qDebug("void InvoiceDialog::close()");
+    /* check for orphaned items */
+    if ( cleanupOrphans ) {
+	qDebug("cleaning up orphans");
+	QSqlQuery q;
+	q.exec( "delete from invoiceitems where invoiceid=" + invoiceId.toString() );
+	q.exec( "delete from invoice where id=" + invoiceId.toString() );
+    }
+    qDebug("about to reject");
     reject();
+    qDebug("after reject");
 }
 
 void InvoiceDialog::execute()
 {
     invoiceForm->writeRecord();
+    if ( mMode == Delete ) {
+	QSqlQuery q;
+	q.exec( "delete from invoiceitems where invoiceid=" + invoiceId.toString() );	
+    }
     accept();
 }
