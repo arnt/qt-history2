@@ -74,7 +74,7 @@ public:
 private:
     QXmlNamespaceSupportPrivate *d;
 
-    friend class QXmlSimpleReader;
+    friend class QXmlSimpleReaderPrivate;
 };
 
 
@@ -142,18 +142,8 @@ protected:
     virtual QString fromRawData(const QByteArray &data, bool beginning = false);
 
 private:
+    Q_DISABLE_COPY(QXmlInputSource)
     void init();
-
-    QIODevice *inputDevice;
-    QTextStream *inputStream;
-
-    QString str;
-    const QChar *unicode;
-    int pos;
-    int length;
-    bool nextReturnedEndOfData;
-    QTextDecoder *encMapper;
-
     QXmlInputSourcePrivate *d;
 };
 
@@ -164,9 +154,8 @@ private:
 class Q_XML_EXPORT QXmlParseException
 {
 public:
-    QXmlParseException(const QString& name="", int c=-1, int l=-1, const QString& p="", const QString& s="")
-        : msg(name), column(c), line(l), pub(p), sys(s)
-    { }
+    QXmlParseException(const QString& name="", int c=-1, int l=-1, const QString& p="", const QString& s="");
+    ~QXmlParseException();
 
     int columnNumber() const;
     int lineNumber() const;
@@ -175,12 +164,7 @@ public:
     QString message() const;
 
 private:
-    QString msg;
-    int column;
-    int line;
-    QString pub;
-    QString sys;
-
+    Q_DISABLE_COPY(QXmlParseException)
     QXmlParseExceptionPrivate *d;
 };
 
@@ -245,111 +229,12 @@ public:
     bool parse(const QXmlInputSource* input);
     virtual bool parse(const QXmlInputSource* input, bool incremental);
     virtual bool parseContinue();
-
+    
 private:
-    // variables
-    QXmlContentHandler *contentHnd;
-    QXmlErrorHandler   *errorHnd;
-    QXmlDTDHandler     *dtdHnd;
-    QXmlEntityResolver *entityRes;
-    QXmlLexicalHandler *lexicalHnd;
-    QXmlDeclHandler    *declHnd;
+    Q_DISABLE_COPY(QXmlSimpleReader)
+    Q_DECLARE_PRIVATE(QXmlSimpleReader)
+    QXmlSimpleReaderPrivate* d_ptr;
 
-    QXmlInputSource *inputSource;
-
-    QChar c; // the character at reading position
-    int   lineNr; // number of line
-    int   columnNr; // position in line
-
-    QChar   nameArray[256]; // only used for names
-    QString nameValue; // only used for names
-    int     nameArrayPos;
-    int     nameValueLen;
-    QChar   refArray[256]; // only used for references
-    QString refValue; // only used for references
-    int     refArrayPos;
-    int     refValueLen;
-    QChar   stringArray[256]; // used for any other strings that are parsed
-    QString stringValue; // used for any other strings that are parsed
-    int     stringArrayPos;
-    int     stringValueLen;
-    QString emptyStr;
-
-    QXmlSimpleReaderPrivate* d;
-
-    const QString &string();
-    void stringClear();
-    void stringAddC(QChar);
-    inline void stringAddC() { stringAddC(c); }
-    const QString &name();
-    void nameClear();
-    void nameAddC(QChar);
-    inline void nameAddC() { nameAddC(c); }
-    const QString &ref();
-    void refClear();
-    void refAddC(QChar);
-    inline void refAddC() { refAddC(c); }
-
-    // used by parseReference() and parsePEReference()
-    enum EntityRecognitionContext { InContent, InAttributeValue, InEntityValue, InDTD };
-
-    // private functions
-    bool eat_ws();
-    bool next_eat_ws();
-
-    void QT_FASTCALL next();
-    bool atEnd();
-
-    void init(const QXmlInputSource* i);
-    void initData();
-
-    bool entityExist(const QString&) const;
-
-    bool parseBeginOrContinue(int state, bool incremental);
-
-    bool parseProlog();
-    bool parseElement();
-    bool processElementEmptyTag();
-    bool processElementETagBegin2();
-    bool processElementAttribute();
-    bool parseMisc();
-    bool parseContent();
-
-    bool parsePI();
-    bool parseDoctype();
-    bool parseComment();
-
-    bool parseName();
-    bool parseNmtoken();
-    bool parseAttribute();
-    bool parseReference();
-    bool processReference();
-
-    bool parseExternalID();
-    bool parsePEReference();
-    bool parseMarkupdecl();
-    bool parseAttlistDecl();
-    bool parseAttType();
-    bool parseAttValue();
-    bool parseElementDecl();
-    bool parseNotationDecl();
-    bool parseChoiceSeq();
-    bool parseEntityDecl();
-    bool parseEntityValue();
-
-    bool parseString();
-
-    bool insertXmlRef(const QString&, const QString&, bool);
-
-    bool reportEndEntities();
-    void reportParseError(const QString& error);
-
-    typedef bool (QXmlSimpleReader::*ParseFunction) ();
-    void unexpectedEof(ParseFunction where, int state);
-    void parseFailed(ParseFunction where, int state);
-    void pushParseState(ParseFunction function, int state);
-
-    friend class QXmlSimpleReaderPrivate;
     friend class QXmlSimpleReaderLocator;
 };
 
@@ -482,20 +367,7 @@ private:
     QXmlDefaultHandlerPrivate *d;
 };
 
-
-//
 // inlines
-//
-
-inline bool QXmlSimpleReader::atEnd()
-{ return (c.unicode()|0x0001) == 0xffff; }
-
-inline void QXmlSimpleReader::stringClear()
-{ stringValueLen = 0; stringArrayPos = 0; }
-inline void QXmlSimpleReader::nameClear()
-{ nameValueLen = 0; nameArrayPos = 0; }
-inline void QXmlSimpleReader::refClear()
-{ refValueLen = 0; refArrayPos = 0; }
 
 inline int QXmlAttributes::count() const
 { return length(); }
