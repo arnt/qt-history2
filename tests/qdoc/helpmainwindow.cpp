@@ -270,6 +270,16 @@ void HelpMainWindow::slotFilePrint()
 	QRect view( body );
 	int page = 1;
 	int ls = p.fontMetrics().lineSpacing();
+
+	statusBar()->addWidget( label, 2, TRUE );
+	statusBar()->addWidget( bar, 1, TRUE );
+	bar->setTotalSteps( richText.height() / body.height() );
+	bar->setProgress( 0 );
+	label->show();
+	bar->show();
+	label->setText( tr( "Printing...." ) );
+	
+	qApp->processEvents();
 	do {
 	    richText.draw( &p, body.left(), body.top(), view, colorGroup() );
 	    p.setFont( font );
@@ -285,7 +295,13 @@ void HelpMainWindow::slotFilePrint()
 		break;
 	    printer.newPage();
 	    page++;
+	    bar->setProgress( bar->progress() + 1 );
+	    qApp->processEvents();
 	} while (TRUE);
+	statusBar()->removeWidget( bar );
+	statusBar()->removeWidget( label );
+	bar->hide();
+	label->hide();
     }
 }
 
