@@ -2,13 +2,13 @@
 #include <qgenerictableview.h>
 #include <qgenerictreeview.h>
 #include <qgenericlistview.h>
-#include <qhbox.h>
+#include <qsplitter.h>
 #include "model.h"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    QHBox page;
+    QSplitter page;
 
     QAbstractItemModel *data = new Model(1000, 10, &page);
     QItemSelectionModel *selections = new QItemSelectionModel(data, data);
