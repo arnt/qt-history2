@@ -857,6 +857,9 @@ QQuickDrawPaintEngine::setupQDBrush()
     } else { //unset
 	d->brush_style_pix = 0;
     }
+    Pattern pat;
+    GetQDGlobalsBlack(&pat);
+    PenPat(&pat);
 
     //color
     ::RGBColor f;
