@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#127 $
+** $Id: //depot/qt/main/src/tools/qstring.h#128 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -259,7 +259,6 @@ public:
 #ifndef QT_NO_CAST_ASCII
     QString( const char *str );			// deep copy
 #endif
-    QString( const char *str, uint maxSize );	// deep copy, max length
     inline ~QString();
 
     QString    &operator=( const QString & );	// impl-shared copy
@@ -427,6 +426,7 @@ public:
 
 private:
     QString( int size, bool dummy );		// allocate size incl. \0
+
     void deref();
     void real_detach();
     void setLength( uint pos );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#232 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#233 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -10537,39 +10537,6 @@ QString::QString( const char *str )
 
 
 /*!
-  \internal
-
-  Note: This method is obsolete and should not be used in new code. It
-  is provided only as an aid for porting programs from Qt 1.x to Qt
-  2.x.
-
-  This function is obsolete - the semantics is too tricky.
-  Use QString("helloworld").left(5) instead.
-
-  Constructs a string that is a deep copy of \a str, interpreted as a
-  classic C string. If the size (including the 0-terminator) of \a str
-  is larger than \a maxSize, only the first \a maxSize - 1 characters
-  will be copied.
-
-  If \a str is 0 a null string is created.
-
-  Example:
-  \code
-    QString s( "helloworld", 6 );  // s == "hello"
-  \endcode
-
-  \sa isNull()
-*/
-
-QString::QString( const char *str, uint maxSize )
-{
-    Q2HELPER(stat_construct_charstar++);
-    uint l;
-    QChar *uc = asciiToUnicode( str, &l, maxSize-1 );
-    d = new QStringData(uc,l,l);
-}
-
-/*!
   Deallocates any space reserved solely by this QString.
 */
 
@@ -12546,7 +12513,7 @@ QString QString::fromUtf8(const char* utf8, int len)
     if ( len < 0 ) len = strlen(utf8);
     return codec
 	    ? codec->toUnicode(utf8, len)
-	    : QString(utf8,len+1);
+	    : QString::fromLatin1(utf8, len);
 }
 
 /*!
@@ -12558,13 +12525,14 @@ QString QString::fromUtf8(const char* utf8, int len)
 */
 QString QString::fromLatin1(const char* chars, int len)
 {
+    uint l;
+    QChar *uc;
     if ( len < 0 ) {
-	uint l;
-	QChar *uc = asciiToUnicode(chars,&l);
-	return QString(new QStringData(uc,l,l), TRUE);
+	uc = asciiToUnicode(chars,&l);
     } else {
-	return QString( chars, len+1 );
+	uc = asciiToUnicode(chars,&l,len);
     }
+    return QString(new QStringData(uc,l,l), TRUE);
 }
 
 /*!
@@ -12612,7 +12580,7 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
     if ( len < 0 ) len = strlen(local8Bit);
     return codec
 	    ? codec->toUnicode(local8Bit, len)
-	    : QString(local8Bit,len+1);
+	    : QString::fromLatin1(local8Bit,len);
 #else
     if ( len >= 0 ) {
 	QCString s(local8Bit,len+1);
