@@ -394,6 +394,7 @@ QDebug operator<<(QDebug dbg, const QModelIndex &idx)
 QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 {
     dbg << idx.d->index;
+    return dbg;
 }
 #endif
 
