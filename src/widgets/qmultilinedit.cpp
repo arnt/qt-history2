@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#70 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#71 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -259,7 +259,7 @@ void QMultiLineEdit::setReadOnly( bool on )
 
 QMultiLineEdit::~QMultiLineEdit()
 {
-    
+    delete contents;
 }
 
 const int nBuffers = 3;
@@ -465,7 +465,9 @@ void QMultiLineEdit::timerEvent( QTimerEvent *t )
 }
 
 /*!
-  
+  If there is marked text, sets \a line1, \a col1, \a line2 and \a col2
+  to the start and end of the marked region and returns TRUE. Returns
+  FALSE if there is no marked text.
  */
 bool QMultiLineEdit::getMarkedRegion( int *line1, int *col1, 
 				      int *line2, int *col2 ) const
