@@ -1234,10 +1234,10 @@ void QListViewItem::sortChildItems( int column, bool ascending )
     lso = ascending;
 
     // and don't sort if we already have the right sorting order
-    if ( childItem == 0 || childItem->siblingItem == 0 )
+    if ( column == Unsorted || childItem == 0 || childItem->siblingItem == 0 )
 	return;
 
-    // make an array for qHeapSort
+    // make an array for qHeapSort()
     QListViewPrivate::SortableItem * siblings
 	= new QListViewPrivate::SortableItem[nChildren];
     QListViewItem * s = childItem;
@@ -1526,17 +1526,15 @@ void QListViewItem::setExpandable( bool enable )
 void QListViewItem::enforceSortOrder() const
 {
     QListView *lv = listView();
-    if ( lv && lv->d->clearing )
+    if ( lv && (lv->d->clearing || lv->d->sortcolumn == Unsorted) )
 	return;
-    if( parentItem &&
-	(parentItem->lsc != lsc || parentItem->lso != lso) &&
-	(int)parentItem->lsc != Unsorted )
+    if ( parentItem &&
+	 (parentItem->lsc != lsc || parentItem->lso != lso) )
 	((QListViewItem *)this)->sortChildItems( (int)parentItem->lsc,
 						 (bool)parentItem->lso );
     else if ( !parentItem &&
 	      ( (int)lsc != listView()->d->sortcolumn ||
-		(bool)lso != listView()->d->ascending ) &&
-	      listView()->d->sortcolumn != Unsorted )
+		(bool)lso != listView()->d->ascending ) )
 	((QListViewItem *)this)->sortChildItems( listView()->d->sortcolumn,
 						 listView()->d->ascending );
 }
