@@ -330,13 +330,11 @@ QTextCursor QTextDocument::find(const QString &_expr, int from, FindFlags option
     int pos = from;
 
     QString::CaseSensitivity cs;
-    if (options & SearchCaseSensitive) {
+    if (options & SearchCaseSensitive)
         cs = QString::CaseSensitive;
-        re.setCaseSensitive(true);
-    } else {
+    else
         cs = QString::CaseInsensitive;
-        re.setCaseSensitive(false);
-    }
+    re.setCaseSensitivity(cs);
 
     QTextBlock block = d->blocksFind(pos);
     while (block.isValid()) {
