@@ -1198,7 +1198,7 @@ void QWSServer::hideCursor()
 }
 
 /*!
-    If \a e is TRUE, painting on the display is enabled; if \a is
+    If \a e is TRUE, painting on the display is enabled; if \a e is
     FALSE, painting is disabled.
 */
 
