@@ -346,6 +346,25 @@ QPalette. You should now use a QPalette to implement all things that
 were used by QColorGroup.  A default QPalette is no longer all-black,
 but uses the application palette.
 
+\section1 QRect
+
+QRects are now exclusive. This means that 
+
+    x + width == right
+    y + height == bottom
+
+In Qt 3.x this was:
+    x + width - 1 == right
+    y + height - 1 == bottom
+
+QRect(QPoint(0, 0), QSize(10, 10)) or QRect(0, 0, 10, 10)
+    -> width() == height() == 10, would be 10 in Qt 3.x
+    -> bottom() == right() == 10, would be 9 in Qt 3.x
+
+QRect(QPoint(0, 0), QPoint(10, 10))
+    -> width() == height() == 10, would be 11 in Qt 3.x
+    -> bottom() == right() == 10, would be 10 in Qt 3.x
+
 \section1 QRegion
 
 Null QRegions have been removed, use isEmpty() in most places where
@@ -415,6 +434,18 @@ the direct interface to FTP and HTTP.
 
 The functions sliderStart() and sliderRect() have been removed. You can retrieve this functionality with QAbstractSlider::sliderPosition() and QStyle::querySubControlMetrics() respectively.
 
+\section1 QPaintDevice
+
+To reimplement painter backends one previously needed to reimplement
+the virtual function QPaintDevice::cmd(). This function is taken out
+and should is replaced with the function QPaintDevice::paintEngine()
+and the abstract class QPaintEngine. QPaintEngine provides virtual
+functions for all drawing operations that can be performed on a
+painter backend.
+
+bitBlt and copyBlt are now only compatibility functions. Use QPainter
+and drawPixmap instead.
+
 \section1 QPicture
 
 Probably something needs to be said about new stuff from painting? Don't know, I didn't do that part.
@@ -422,6 +453,12 @@ Probably something needs to be said about new stuff from painting? Don't know, I
 QPicture::copy() is deprecated and QPicture::detach() is now a public internal
 function. In general, one should have never needed to call these functions.
 */
+
+\section1 QPrinter
+
+page setup / print setup -> Use QPrintDialog, QPageSetupDialog
+Compat functions: margins
+Killed -> setMargins 
 
 \section1 QSqlRecord
 
