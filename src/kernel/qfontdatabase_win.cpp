@@ -78,6 +78,7 @@ void add_style( QtFontFamily *family,
         sn += "Italic";
     }
 #endif
+//    sn = sn.stripWhiteSpace();
     QtFontStyle *style = family->styleDict.find( sn );
     if ( !style ) {
         // qWarning( "New style[%s] for [%s][%s][%s]",
