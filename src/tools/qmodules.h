@@ -13,3 +13,4 @@
 #define QT_MODULE_XML
 #define QT_MODULE_OPENGL
 #define QT_MODULE_STYLES
+#define QT_MODULE_SQL
