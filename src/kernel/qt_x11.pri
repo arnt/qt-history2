@@ -13,7 +13,6 @@ unix {
 	   INCLUDEPATH += 3rdparty/opentype
 	   SOURCES += 3rdparty/opentype/ftxopentype.c
         }
-	SOURCES += $$KERNEL_CPP/qtaddons_x11.cpp
 	PRECOMPILED_HEADER = kernel/qt_pch.h
 }
 

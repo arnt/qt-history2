@@ -241,13 +241,6 @@ static void build_scale_table( uint **table, uint nBits )
 
 static int defaultScreen = -1;
 
-#ifndef QT_NO_XFTFREETYPE
-#ifndef QT_XFT2
-// Xft1 doesn't have XftDrawCreateAlpha, so we fake it in qtaddons_x11.cpp
-extern "C" XftDraw *XftDrawCreateAlpha( Display *, Qt::HANDLE, int );
-#endif // QT_XFT2
-#endif // QT_NO_XFTFREETYPE
-
 /*****************************************************************************
   QPixmap member functions
  *****************************************************************************/

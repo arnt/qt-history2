@@ -870,7 +870,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	      script, scriptName( script ).latin1(),
 	      request.weight, request.italic, request.stretch, request.pixelSize, pitch );
 
-#ifdef QT_XFT2
+#if defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE)
     if (family_name.isEmpty()
 	|| family_name == "Sans Serif"
 	|| family_name == "Serif"

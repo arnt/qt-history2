@@ -127,10 +127,8 @@ extern "C" {
 #    else
 #      include <X11/Xft/Xft.h>
 #    endif // QT_USE_XFT2_HEADER
-#    if defined(XFT_VERSION) && XFT_VERSION >= 20000
-#      define QT_XFT2
-#    else
-#      include <X11/Xft/XftFreetype.h>
+#    if defined(XFT_VERSION) && XFT_VERSION < 20000
+#      define QT_NO_XFTFREETYPE
 #    endif // XFT_VERSION
 #  endif // QT_NO_XFTFREETYPE
 #else

@@ -1261,44 +1261,20 @@ public:
 
 };
 
-#ifdef QT_XFT2
 static inline void getGlyphInfo( XGlyphInfo *xgi, XftFont *font, int glyph )
 {
     FT_UInt x = glyph;
     XftGlyphExtents( QX11Info::appDisplay(), font, &x, 1, xgi );
 }
-#else
-static inline XftFontStruct *getFontStruct( XftFont *font )
-{
-    if (font->core)
-	return 0;
-    return font->u.ft.font;
-}
-
-static inline void getGlyphInfo(XGlyphInfo *xgi, XftFont *font, int glyph)
-{
-
-    XftTextExtents32(QX11Info::appDisplay(), font, (XftChar32 *) &glyph, 1, xgi);
-}
-#endif // QT_XFT2
 
 static inline FT_Face lockFTFace( XftFont *font )
 {
-#ifdef QT_XFT2
     return XftLockFace( font );
-#else
-    if (font->core) return 0;
-    return font->u.ft.font->face;
-#endif // QT_XFT2
 }
 
 static inline void unlockFTFace( XftFont *font )
 {
-#ifdef QT_XFT2
     XftUnlockFace( font );
-#else
-    Q_UNUSED( font );
-#endif // QT_XFT2
 }
 
 
@@ -1306,17 +1282,6 @@ static inline void unlockFTFace( XftFont *font )
 QFontEngineXft::QFontEngineXft( XftFont *font, XftPattern *pattern, int cmap )
     : _font( font ), _pattern( pattern ), _openType( 0 ), _cmap( cmap )
 {
-#ifndef QT_XFT2
-    XftFontStruct *xftfs = getFontStruct( _font );
-    if ( xftfs ) {
-	// dirty hack: we set the charmap in the Xftfreetype to -1, so
-	// XftFreetype assumes no encoding and really draws glyph
-	// indices. The FT_Face still has the Unicode encoding to we
-	// can convert from Unicode to glyph index
-	xftfs->charmap = -1;
-    }
-#endif // QT_XFT2
-
     _face = lockFTFace( _font );
 
     cache_cost = _font->height * _font->max_advance_width *
@@ -1362,7 +1327,6 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, QGly
 	return OutOfMemory;
     }
 
-#ifdef QT_XFT2
     if ( mirrored ) {
 	for ( int i = 0; i < len; ++i ) {
 	    unsigned short uc = ::mirroredChar(str[i]).unicode();
@@ -1402,71 +1366,6 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, QGly
 	for ( int i = 0; i < len; i++ )
 	    glyphs[i].advance = qRound(glyphs[i].advance*_scale);
     }
-#else
-    if ( !_face ) {
-	if ( mirrored ) {
-	    for ( int i = 0; i < len; i++ )
-		glyphs[i].glyph = ::mirroredChar(str[i]).unicode();
-	} else {
-	    for ( int i = 0; i < len; i++ )
-		glyphs[i].glyph = str[i].unicode();
-	}
-    } else {
-	if ( _cmap == 1 ) {
-	    // symbol font
-	    for ( int i = 0; i < len; i++ ) {
-		unsigned short uc = str[i].unicode();
-		glyphs[i].glyph = uc < cmapCacheSize ? cmapCache[uc] : 0;
-		if ( !glyphs[i].glyph ) {
-		    glyph_t glyph = FT_Get_Char_Index( _face, uc );
-		    if(!glyph && uc < 0x100)
-			glyph = FT_Get_Char_Index( _face, uc+0xf000 );
-		    glyphs[i].glyph = glyph;
-		    if ( uc < cmapCacheSize )
-			((QFontEngineXft *)this)->cmapCache[uc] = glyph;
-		}
-	    }
-	} else if ( mirrored ) {
-	    for ( int i = 0; i < len; i++ ) {
-		unsigned short uc = ::mirroredChar(str[i]).unicode();
-		glyphs[i].glyph = uc < cmapCacheSize ? cmapCache[uc] : 0;
-		if ( !glyphs[i].glyph ) {
-		    glyph_t glyph = FT_Get_Char_Index( _face, uc );
-		    glyphs[i].glyph = glyph;
-		    if ( uc < cmapCacheSize )
-			((QFontEngineXft *)this)->cmapCache[uc] = glyph;
-		}
-	    }
-	} else {
-	    for ( int i = 0; i < len; i++ ) {
-		unsigned short uc = str[i].unicode();
-		glyphs[i].glyph = uc < cmapCacheSize ? cmapCache[uc] : 0;
-		if ( !glyphs[i].glyph ) {
-		    glyph_t glyph = FT_Get_Char_Index( _face, uc );
-		    glyphs[i].glyph = glyph;
-		    if ( uc < cmapCacheSize )
-			((QFontEngineXft *)this)->cmapCache[uc] = glyph;
-		}
-	    }
-	}
-    }
-
-    for ( int i = 0; i < len; i++ ) {
-	XftChar16 glyph = glyphs[i].glyph;
-	glyphs[i].advance = (glyph < widthCacheSize) ? widthCache[glyph] : 0;
-	if ( !glyphs[i].advance ) {
-	    XGlyphInfo gi;
-	    XftTextExtents16(QX11Info::appDisplay(), _font, &glyph, 1, &gi);
-	    glyphs[i].advance = gi.xOff;
-	    if ( glyph < widthCacheSize && gi.xOff < 0x100 )
-		((QFontEngineXft *)this)->widthCache[glyph] = gi.xOff;
-	}
-    }
-    if ( _scale != 1. ) {
-	for ( int i = 0; i < len; i++ )
-	    glyphs[i].advance = qRound(glyphs[i].advance*_scale);
-    }
-#endif // QT_XFT2
 
     *nglyphs = len;
     return NoError;
@@ -1475,8 +1374,6 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, QGly
 
 void QFontEngineXft::recalcAdvances(int len, QGlyphLayout *glyphs)
 {
-
-#ifdef QT_XFT2
     for ( int i = 0; i < len; i++ ) {
 	FT_UInt glyph = glyphs[i].glyph;
 	glyphs[i].advance = (glyph < widthCacheSize) ? widthCache[glyph] : 0;
@@ -1492,23 +1389,6 @@ void QFontEngineXft::recalcAdvances(int len, QGlyphLayout *glyphs)
 		glyphs[i].advance = qRound(glyphs[i].advance*_scale);
 	}
     }
-#else
-    for ( int i = 0; i < len; i++ ) {
-	XftChar16 glyph = glyphs[i].glyph;
-	glyphs[i].advance = (glyph < widthCacheSize) ? widthCache[glyph] : 0;
-	if ( !glyphs[i].advance ) {
-	    XGlyphInfo gi;
-	    XftTextExtents16(QX11Info::appDisplay(), _font, &glyph, 1, &gi);
-	    glyphs[i].advance = gi.xOff;
-	    if ( glyph < widthCacheSize && gi.xOff < 0x100 )
-		((QFontEngineXft *)this)->widthCache[glyph] = gi.xOff;
-	}
-    }
-    if ( _scale != 1. ) {
-	for ( int i = 0; i < len; i++ )
-	    glyphs[i].advance = qRound(glyphs[i].advance*_scale);
-    }
-#endif // QT_XFT2
 }
 
 
@@ -1616,16 +1496,6 @@ void QFontEngineXft::draw( QPaintEngine *p, int x, int y, const QTextItem &si, i
 	    XftPatternAddMatrix( pattern, XFT_MATRIX, &m2 );
 
 	    fnt = XftFontOpenPattern( dpy, pattern );
-#ifndef QT_XFT2
-	    XftFontStruct *xftfs = getFontStruct( fnt );
-	    if ( xftfs ) {
-		// dirty hack: we set the charmap in the Xftfreetype to -1, so
-		// XftFreetype assumes no encoding and really draws glyph
-		// indices. The FT_Face still has the Unicode encoding to we
-		// can convert from Unicode to glyph index
-		xftfs->charmap = -1;
-	    }
-#endif // QT_XFT2
 	    TransformedFont *trf = new TransformedFont;
 	    trf->xx = (float)m2.xx;
 	    trf->xy = (float)m2.xy;
@@ -1667,7 +1537,6 @@ void QFontEngineXft::draw( QPaintEngine *p, int x, int y, const QTextItem &si, i
     if ( textFlags != 0 )
 	drawLines( p, this, yorig, xorig, si.width, textFlags );
 
-#ifdef QT_XFT2
     QStackArray<XftGlyphSpec,256> glyphSpec(si.num_glyphs);
     if ( si.right_to_left ) {
 	int i = si.num_glyphs;
@@ -1697,54 +1566,6 @@ void QFontEngineXft::draw( QPaintEngine *p, int x, int y, const QTextItem &si, i
     }
 
     XftDrawGlyphSpec( draw, &col, fnt, glyphSpec, si.num_glyphs );
-#else
-    if ( transform || si.hasPositioning ) {
-	if ( si.analysis.bidiLevel % 2 ) {
-	    int i = si.num_glyphs;
-	    while( i-- ) {
-		int xp = x + glyphs[i].offset.x;
-		int yp = y + glyphs[i].offset.y;
-		if ( transform )
-		    p->map( xp, yp, &xp, &yp );
-		// FT_UInt glyph = *(glyphs + i);
-		XftDrawString16( draw, &col, fnt, xp, yp, (XftChar16 *) (glyphs+i), 1);
-#ifdef FONTENGINE_DEBUG
-		glyph_metrics_t gi = boundingBox( glyphs[i] );
-		p->drawRect( x+glyphs[i].offset.x+gi.x, y+glyphs[i].offset.y+100+gi.y, gi.width, gi.height );
-		p->drawLine( x+glyphs[i].offset.x, y + 150 + 5*i , x+glyphs[i].offset.x+glyphs[i].advance, y + 150 + 5*i );
-		p->drawLine( x+glyphs[i].offset.x, y + 152 + 5*i , x+glyphs[i].offset.x+gi.xoff, y + 152 + 5*i );
-		qDebug("bounding ci[%d]=%d %d (%d/%d) / %d %d   offs=(%d/%d) advance=%d", i, gi.x, gi.y, gi.width, gi.height,
-		       gi.xoff, gi.yoff, glyphs[i].offset.x, glyphs[i].offset.y, glyphs[i].advance);
-#endif
-		x += glyphs[i].advance;
-	    }
-	} else {
-	    int i = 0;
-	    while ( i < si.num_glyphs ) {
-		int xp = x + glyphs[i].offset.x;
-		int yp = y + glyphs[i].offset.y;
-		if ( transform )
-		    p->map( xp, yp, &xp, &yp );
-		XftDrawString16( draw, &col, fnt, xp, yp, (XftChar16 *) (glyphs+i), 1 );
-		// 	    qDebug("advance = %d/%d", adv.x, adv.y );
-		x += glyphs[i].advance;
-		i++;
-	    }
-	}
-    } else {
-	// Xft has real trouble drawing the glyphs on their own.
-	// Drawing them as one string increases performance significantly.
-	QStackArray<XftChar16> gl(si.num_glyphs);
-	if ( si.analysis.bidiLevel % 2 ) {
- 	    for ( int i = 0; i < si.num_glyphs; i++ )
- 		gl[i] = glyphs[si.num_glyphs-1-i].glyph;
-	} else {
- 	    for ( int i = 0; i < si.num_glyphs; i++ )
- 		gl[i] = glyphs[i].glyph;
-	}
-	XftDrawString16( draw, &col, fnt, x, y, gl, si.num_glyphs );
-    }
-#endif
 
 #ifdef FONTENGINE_DEBUG
     if ( !si.analysis.bidiLevel % 2 ) {
@@ -1929,7 +1750,6 @@ bool QFontEngineXft::canRender( const QChar *string, int len )
 {
     bool allExist = TRUE;
 
-#ifdef QT_XFT2
     for ( int i = 0; i < len; i++ ) {
 	if ( ! XftCharExists( QX11Info::appDisplay(), _font,
 			      string[i].unicode() ) ) {
@@ -1937,22 +1757,6 @@ bool QFontEngineXft::canRender( const QChar *string, int len )
 	    break;
 	}
     }
-#else
-    QStackArray<QGlyphLayout> glyphs(len);
-    int nglyphs = len;
-    if ( stringToCMap( string, len, glyphs, &nglyphs, false ) == OutOfMemory ) {
-	glyphs.resize(nglyphs);
-	stringToCMap( string, len, glyphs, &nglyphs, false );
-    }
-
-    for ( int i = 0; i < nglyphs; i++ ) {
-	if ( !XftGlyphExists(QX11Info::appDisplay(), _font, glyphs[i].glyph) ) {
-	    allExist = FALSE;
-	    break;
-	}
-    }
-
-#endif // QT_XFT2
 
     return allExist;
 }
