@@ -4179,7 +4179,7 @@ QByteArray QImageIO::imageFormat( QIODevice *d )
     if ( rdlen != buflen )
 	return format;
 
-    strncpy( buf2, buf, buflen );
+    memcpy( buf2, buf, buflen );
 
     for ( int n = 0; n < rdlen; n++ )
 	if ( buf[n] == '\0' )
