@@ -121,6 +121,7 @@ static void construct(QVariant::Private *x, const void *v)
         default:
             qcoreVariantHandler()->construct(x, v);
         }
+        x->is_null = false;
     } else {
         switch (x->type) {
         case QVariant::Bitmap:

@@ -196,6 +196,7 @@ static void construct(QCoreVariant::Private *x, const void *copy)
             Q_ASSERT_X(x->data.shared->value.ptr, "QCoreVariant::construct()", "Unknown datatype");
             break;
         }
+        x->is_null = false;
     } else {
         switch (x->type) {
         case QCoreVariant::Invalid:
@@ -1316,7 +1317,6 @@ QCoreVariant::~QCoreVariant()
 QCoreVariant::QCoreVariant(const QCoreVariant &p)
 {
     d.type = p.d.type;
-    d.is_null = p.d.is_null;
     d.is_shared = p.d.is_shared;
     if (d.is_shared) {
         d.data.shared = p.d.data.shared;
@@ -1324,6 +1324,7 @@ QCoreVariant::QCoreVariant(const QCoreVariant &p)
     } else {
         construct(&d, p.constData());
     }
+    d.is_null = p.d.is_null;
 }
 
 #ifndef QT_NO_DATASTREAM
