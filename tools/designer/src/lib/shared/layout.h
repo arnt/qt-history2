@@ -30,7 +30,7 @@ class AbstractFormWindow;
 
 void add_to_box_layout(QBoxLayout *box, QWidget *widget);
 void insert_into_box_layout(QBoxLayout *box, int index, QWidget *widget);
-void add_to_grid_layout(QGridLayout *grid, QWidget *widget, int r, int c, int rs, int cs, Qt::Alignment align = Qt::AlignAuto);
+void add_to_grid_layout(QGridLayout *grid, QWidget *widget, int r, int c, int rs, int cs, Qt::Alignment align = 0);
 
 class Layout : public QObject
 {
@@ -124,16 +124,16 @@ protected:
 
 class WidgetVerticalSorter
 {
-public:    
-    bool operator()(const QWidget *a, const QWidget *b) const 
-    { return a->y() < b->y(); }    
+public:
+    bool operator()(const QWidget *a, const QWidget *b) const
+    { return a->y() < b->y(); }
 };
 
 class WidgetHorizontalSorter
 {
-public:    
-    bool operator()(const QWidget *a, const QWidget *b) const 
-    { return a->x() < b->x(); }    
+public:
+    bool operator()(const QWidget *a, const QWidget *b) const
+    { return a->x() < b->x(); }
 };
 
 class VerticalLayoutList: public QList<QWidget*>
@@ -144,7 +144,7 @@ public:
 
     static bool lessThan(const QWidget *a, const QWidget *b)
     {  return a->y() < b->y(); }
-    
+
     void sort()
     { qSort(this->begin(), this->end(), WidgetVerticalSorter()); }
 };
@@ -157,7 +157,7 @@ public:
 
     static bool hLessThan(const QWidget *a, const QWidget *b)
     { return a->x() < b->x(); }
-   
+
     void sort()
     { qSort(this->begin(), this->end(), WidgetHorizontalSorter()); }
 };
