@@ -15,7 +15,7 @@ class QXMLParser
 public:
   struct Tag
   {
-    Tag() { postclosed = preclosed = false; isText = false; firstChild = nextSibling = parent = 0; }
+    Tag() { postclosed = preclosed = FALSE; isText = FALSE; firstChild = nextSibling = parent = 0; }
     ~Tag() { if ( firstChild ) delete firstChild; if ( nextSibling ) delete nextSibling; }
 
     Tag* parent;
