@@ -242,7 +242,7 @@ bool ResultSet::setHeader( const qdb::List& list )
     }
     for ( int i = 0; i < (int)list.count(); ++i ) {
 	qdb::List fieldDescription = list[i].toList();
-	if ( fieldDescription.count() != 2 ) {
+	if ( fieldDescription.count() != 4 ) {
 	    env->setLastError("internal error:ResultSet::setHeader: bad field description");
 	    return 0;
 	}
