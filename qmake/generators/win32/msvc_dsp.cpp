@@ -387,20 +387,8 @@ DspMakefileGenerator::init()
 	    (*inner) = Option::fixPathToTargetOS((*inner), FALSE);
     }
     MakefileGenerator::init();
-#if defined(Q_OS_WIN32) && 0
-    tmake_use_win32_registry();
-    $HKEY_CURRENT_USER->Open("Software\\Microsoft\\DevStudio\\5.0",$is_msvc5);
-    if ( $is_msvc5 ) {
-	project->variables()["MSVCDSP_VER"] = "5.00";
-	project->variables()["MSVCDSP_DEBUG_OPT"] = "/Zi";
-    } else {
-	project->variables()["MSVCDSP_VER"] = "6.00";
-	project->variables()["MSVCDSP_DEBUG_OPT"] = "/GZ /ZI";
-    }
-#else
     project->variables()["MSVCDSP_VER"] = "6.00";
     project->variables()["MSVCDSP_DEBUG_OPT"] = "/GZ /ZI";
-#endif
     project->variables()["MSVCDSP_PROJECT"].append(Option::output.name());
     QStringList &proj = project->variables()["MSVCDSP_PROJECT"];
 
