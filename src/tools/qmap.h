@@ -103,11 +103,7 @@ class Q_EXPORT QMapIterator
 #endif
     typedef T          value_type;
 #ifndef QT_NO_STL
-#ifdef Q_CC_MSVC
     typedef ptrdiff_t  difference_type;
-#else
-    typedef std::ptrdiff_t  difference_type;
-#endif
 #else
     typedef int difference_type;
 #endif
@@ -216,11 +212,7 @@ class Q_EXPORT QMapConstIterator
 #endif
     typedef T          value_type;
 #ifndef QT_NO_STL
-#ifdef Q_CC_MSVC
     typedef ptrdiff_t  difference_type;
-#else
-    typedef std::ptrdiff_t  difference_type;
-#endif
 #else
     typedef int difference_type;
 #endif
@@ -563,11 +555,7 @@ public:
     typedef value_type& reference;
     typedef const value_type& const_reference;
 #ifndef QT_NO_STL
-#ifdef Q_CC_MSVC
     typedef ptrdiff_t  difference_type;
-#else
-    typedef std::ptrdiff_t  difference_type;
-#endif
 #else
     typedef int difference_type;
 #endif
