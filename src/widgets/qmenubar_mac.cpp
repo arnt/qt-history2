@@ -54,6 +54,11 @@ bool qt_modal_state(); //qapplication_mac.cpp
 
 void qt_mac_command_set_enabled(UInt32 cmd, bool b)
 {
+#if 0
+    qDebug("setting %c%c%c%c to %s", (char)(cmd >> 24) & 0xFF, (char)(cmd >> 16) & 0xFF, 
+	   (char)(cmd >> 8) & 0xFF, (char)cmd & 0xFF,  b ? "on" : "off");
+#endif
+
     if(b) {
 	EnableMenuCommand(NULL, cmd);
 	if(MenuRef mr = GetApplicationDockTileMenu())
@@ -330,7 +335,7 @@ uint QMenuBar::isCommand(QMenuItem *it, bool just_check)
 		CFRelease(cfref);
 	    }
 	}
-	EnableMenuCommand(0, ret);
+	qt_mac_command_set_enabled(ret, TRUE);
     } else {
 	ret = 0;
     }
@@ -751,6 +756,10 @@ bool QMenuBar::macUpdateMenuBar()
 	    mb->mac_d->mac_menubar = GetMenuBar();
 	} else {
 	    SetMenuBar(mb->mac_d->mac_menubar);
+	    if(mb->mac_d->commands) {
+		for(QIntDictIterator<QMenuBar::MacPrivate::CommandBinding> it(*(mb->mac_d->commands)); it.current(); ++it) 
+		    qt_mac_command_set_enabled(it.currentKey(), TRUE);
+	    }
 	    InvalMenuBar();
 	}
 	if(mb->mac_d->modal != qt_modal_state()) 
