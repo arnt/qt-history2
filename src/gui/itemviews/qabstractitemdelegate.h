@@ -27,11 +27,12 @@ class QModelIndex;
 class Q_GUI_EXPORT QItemOptions
 {
 public:
+    enum Position { Left, Right, Top, Bottom };
     QItemOptions()
         : palette(), itemRect(), selected(false), open(false),
           focus(false), disabled(false), smallItem(true), editing(false),
-          iconAlignment(Qt::AlignAuto|Qt::AlignVCenter),
-          textAlignment(Qt::AlignAuto|Qt::AlignVCenter) {}
+          displayAlignment(Qt::AlignAuto), decorationAlignment(Qt::AlignAuto),
+          decorationPosition(Left) {}
 
     QPalette palette;
     QRect itemRect;
@@ -41,8 +42,9 @@ public:
     uint disabled : 1;
     uint smallItem : 1;
     uint editing : 1;
-    int iconAlignment;
-    int textAlignment;
+    int displayAlignment;
+    int decorationAlignment;
+    Position decorationPosition;
 };
 
 class QAbstractItemDelegatePrivate;

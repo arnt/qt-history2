@@ -527,10 +527,14 @@ void QGenericListView::startDrag()
 void QGenericListView::getViewOptions(QItemOptions *options) const
 {
     QAbstractItemView::getViewOptions(options);
-    bool tiny = (d->size == Automatic ? d->wrap : d->size == Small);
-    options->smallItem = tiny;
-    options->iconAlignment = (tiny ? Qt::AlignVCenter|Qt::AlignAuto : Qt::AlignTop|Qt::AlignHCenter);
-    options->textAlignment = (tiny ? Qt::AlignVCenter|Qt::AlignAuto : Alignment(Qt::AlignCenter));
+    if (d->size == Automatic ? d->wrap : d->size == Small) {
+        options->smallItem = true;
+        options->decorationPosition = QApplication::reverseLayout()
+                                      ? QItemOptions::Right : QItemOptions::Left;
+    } else {
+        options->smallItem = false;
+        options->decorationPosition = QItemOptions::Top;
+    }
 }
 
 void QGenericListView::paintEvent(QPaintEvent *e)

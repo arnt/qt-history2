@@ -13,20 +13,20 @@ static const int border = 0;
 static const char * const unchecked_xpm[] = {
 "16 16 2 1",
 "  c None",
-". c #000000000000",
+"# c #000000000000",
 "                ",
 "                ",
-"  ...........   ",
-"  .         .   ",
-"  .         .   ",
-"  .         .   ",
-"  .         .   ",
-"  .         .   ",
-"  .         .   ",
-"  .         .   ",
-"  .         .   ",
-"  .         .   ",
-"  ...........   ",
+"  ###########   ",
+"  #         #   ",
+"  #         #   ",
+"  #         #   ",
+"  #         #   ",
+"  #         #   ",
+"  #         #   ",
+"  #         #   ",
+"  #         #   ",
+"  #         #   ",
+"  ###########   ",
 "                ",
 "                ",
 "                "};
@@ -34,20 +34,20 @@ static const char * const unchecked_xpm[] = {
 static const char * const checked_xpm[] = {
 "16 16 2 1",
 "  c None",
-". c #000000000000",
+"# c #000000000000",
 "                ",
 "                ",
-"  ...........   ",
-"  .         .   ",
-"  .       . .   ",
-"  .      .. .   ",
-"  . .   ..  .   ",
-"  . .. ..   .   ",
-"  .  ...    .   ",
-"  .   .     .   ",
-"  .         .   ",
-"  .         .   ",
-"  ...........   ",
+"  ###########   ",
+"  #         #   ",
+"  #       # #   ",
+"  #      ## #   ",
+"  # #   ##  #   ",
+"  # ## ##   #   ",
+"  #  ###    #   ",
+"  #   #     #   ",
+"  #         #   ",
+"  #         #   ",
+"  ###########   ",
 "                ",
 "                ",
 "                ",};
@@ -70,7 +70,7 @@ void QItemDelegate::paint(QPainter *painter, const QItemOptions &options, const 
     static unsigned char b = 0;
     painter->fillRect(options.itemRect, QColor(r, g, b));
     r -= 10;
-    g += 30;
+    g += 20;
     b += 10;
     painter->drawRect(options.itemRect);
 #endif
@@ -174,11 +174,11 @@ void QItemDelegate::drawText(QPainter *painter, const QItemOptions &options, con
     }
     QString display;
     if (painter->fontMetrics().width(text) > rect.width())
-        painter->drawText(rect, options.textAlignment,
+        painter->drawText(rect, options.displayAlignment,
                           ellipsisText(painter->fontMetrics(), rect.width(),
-                                       options.textAlignment, text));
+                                       options.displayAlignment, text));
     else
-        painter->drawText(rect, options.textAlignment, text);
+        painter->drawText(rect, options.displayAlignment, text);
     painter->setPen(old);
 }
 
@@ -196,35 +196,44 @@ void QItemDelegate::drawFocus(QPainter *painter, const QItemOptions &options, co
         QApplication::style().drawPrimitive(QStyle::PE_FocusRect, painter, rect, options.palette);
 }
 
-void QItemDelegate::doLayout(const QItemOptions &options, QRect *pixmapRect, QRect *textRect, bool hint) const
+void QItemDelegate::doLayout(const QItemOptions &options, QRect *pixmapRect,
+                             QRect *textRect, bool hint) const
 {
     if (pixmapRect && textRect) {
         int x = options.itemRect.left();
         int y = options.itemRect.top();
-        if (options.iconAlignment & Qt::AlignTop) {
-            int width = hint ? qMax(textRect->width(), pixmapRect->width()) : options.itemRect.width();
-            QRect topRect(x, y, width, pixmapRect->height());
-            QRect bottomRect(x, y + pixmapRect->height(), width, textRect->height());
-            pixmapRect->moveCenter(topRect.center());
-            textRect->setRect(bottomRect.x(), bottomRect.y(), bottomRect.width(), bottomRect.height());
-            return;
-        }
-        int height = hint ? qMax(textRect->height(), pixmapRect->height()) : options.itemRect.height();
-        bool alignAuto = (options.iconAlignment & Qt::AlignHorizontal_Mask) == Qt::AlignAuto;
-        bool reverse = QApplication::reverseLayout() && alignAuto;
-        if (reverse || (options.iconAlignment & Qt::AlignRight)) {
-            int w = hint ? textRect->width() : options.itemRect.width() - pixmapRect->width();
-            textRect->setRect(x, y, w, height);
-            pixmapRect->moveCenter(QRect(x + w, y, pixmapRect->width(), height).center());
-            return;
+        int w, h;
+        if (hint) {
+            w = qMax(textRect->width(), pixmapRect->width());
+            h = qMax(textRect->height(), pixmapRect->height());
         } else {
-            QRect leftRect(x, y, pixmapRect->width(), height);
-            QRect rightRect(x + leftRect.width(), y, textRect->width(), height);
-            pixmapRect->moveCenter(leftRect.center());
-            int w = hint ? rightRect.width() : options.itemRect.width() - leftRect.width();
-            textRect->setRect(rightRect.x(), y, w, height);
-            return;
+            w = options.itemRect.width();
+            h = options.itemRect.height();
         }
+        switch (options.decorationPosition) {
+        case QItemOptions::Top: {
+            pixmapRect->setRect(x, y, w, pixmapRect->height());
+            h = hint ? textRect->height() : options.itemRect.height() - pixmapRect->height();
+            textRect->setRect(x, y + pixmapRect->height(),w, h); 
+            return;}
+        case QItemOptions::Bottom: {
+            textRect->setRect(x, y, w, textRect->height());
+            h = hint ? pixmapRect->height() : options.itemRect.height() - textRect->height();
+            pixmapRect->setRect(x, y + textRect->height(), w, h);
+            return;}
+        case QItemOptions::Left: {
+            pixmapRect->setRect(x, y, pixmapRect->width(), h);
+            w = hint ? textRect->width() : options.itemRect.width() - pixmapRect->width();
+            textRect->setRect(x + pixmapRect->width(), y, w, h);
+            return;}
+        case QItemOptions::Right: {
+            textRect->setRect(x, y, textRect->width(), h);
+            w = hint ? pixmapRect->width() : options.itemRect.width() - textRect->width();
+            pixmapRect->setRect(x + textRect->width(), y, w, h);
+            return;}
+        default:
+            qWarning("doLayout: decoration positon was invalid");
+        }        
     }
 }
 
