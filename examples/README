@@ -1,103 +1,55 @@
 - aclock
   This example displays an analog clock widget.
 
-- addressbook
-  This examples shows how to write a very simple, but complete application
-  using a very simple address book as example.
-
-- biff (Unix only)
-  Biff is a simple graphical program to indicate whether there is new mail;
-  it looks exactly like xbiff but is much shorter.
-
-- dclock
-  This example displays a digital LCD clock and can switch between time
-  and date.
-
-- fileiconview
-  This example implements a simple and not full functional file manager using
-  a widget derived from QIconView to display the current directory and the
-  widget of the DirectoryView example to display the directory tree.
-
-- life
-  An implementation of the life game.  Very UNIX-ish GUI design ;-)
-
-- helpviewer
-  The HelpViewer example implements a simple HTML help browser using
-  Qt's richtext capabilities.
-
-- movies
-  The Movies example displays animated GIF files using the QMovie and
-  QLabel classes.
-
-- qdir
-  Shows how to use and customize Qt's file dialog.  See
-  	qdir --help
-  for details
-
-- qfd
-  This example program displays all characters of a font.
-
-- qmag
-  This is a simple magnifier-type program.  It shows how one can do
-  some quite low-level operations portably using Qt.
-
-  Run it, click in the magnifier window, then click where you want to
-  magnify or drag out a rectangle.  Two combo boxes let you select
-  amplification and refresh frequency, a text label tells you the color
-  of the pixel the cursor is on, and a button lets you save the
-  magnified area as a .bmp file.
-
-- qwerty
-  Small text editor to test different character encodings.
-
-- scribble
-  This example implements the famous scribble example.  You can draw
-  around in the canvas with different pens and save the result as picture.
-
-- showimg
-  This example reads and displays an image in any supported image
-  format (GIF, BMP, PPM, XMP etc.)
-
-- tetrix
-  This is the Qt implementation of the well known game Tetris.
-
-- tictac
-  This is an implementation of the Tic-tac-toe game.
-
-  We didn't put much effort in making a clever algorithm so it's not a
-  challenge to play against the computer. Instead, study the source code
-  to see how you can make reusable components such as the TicTacGameBoard
-  widget.
-
-- application
-  This example program looks like a complete modern application.  It has
-  a menu bar, it has a tool bar, it has a status bar and works like a
-  simple text editor.
-
 - action
   Just like the application example but uses QAction to build
   the menu and the toolbar.
 
+- addressbook
+  This examples shows how to write a very simple, but complete application
+  using a very simple address book as example.
+
+- application
+  This example program looks like a complete modern application. It has
+  a menu bar, it has a tool bar, it has a status bar and works like a
+  simple text editor.
+
+- biff (Unix only)
+  Biff is a simple graphical program to indicate whether there is new mail;
+  it looks exactly like xbiff but is much shorter.
 
 - buttongroups
   This examples shows different types of Groupboxes (Buttongroups, etc.)
   and lots of different kinds of Buttons (Checkboxes, Radiobuttons,
   Pushbuttons, etc.)
 
+- canvas
+  Demonstrates many of QCanvas's facilities, but by no means all of
+  them!
+
 - checklists
-  This example program shows how to use Listviews with different types
-  of checkable Items.
+  Lists with checkbox and radio button items (like those often used by
+  setup programs).
 
 - cursor
-  This example shows how to set a mouse cursor for a widget.
+  This example shows how to set a mouse cursor for a widget. Shows
+  both Qt's cursors and a custom cursor.
 
 - customlayout
   This examples demonstrates how to write a customized layout (geometry)
   manager, like a Card-Layout, Border-Layout and Flow-Layout.
 
+- dclock
+  This example displays a digital LCD clock and can switch between time
+  and date.
+
+- demo
+  Run this to see almost all Qt's widgets in action, including drag
+  and drop, 2D graphics, etc.
+
 - desktop
   The desktop demo contains three routines, each of which draws something
-  on the desktop.  It does some nice stuff with QPainter, and also
+  on the desktop. It does some nice stuff with QPainter, and also
   demonstrates how one can treat the desktop as a widget like any other.
 
 - dirview
@@ -107,26 +59,39 @@
   Listview.
 
 - dragdrop
-  This examples shows how to work with Qt's Drag'n'Drop.
+  Demonstrates image and text drag and drop.
 
 - drawdemo
-  This example demonstrates several drawing functions and printer output.
-  You can easily add you own drawing functions.  See "ourDrawFunctions".
+  Draws a color wheel, text and shapes. This example demonstrates
+  several drawing functions and printer output. You can easily add you
+  own drawing functions. See "ourDrawFunctions".
 
 - drawlines
   This example shows very simple mouse-based user interaction and
   painting without any world transform matrix or other advanced
-  features.  Run the program, click the button, move the mouse,
+  features. Run the program, click the button, move the mouse,
   release the button, and watch the lines get drawn.
 
+- fileiconview
+  This example implements a simple and not full functional file manager using
+  a widget derived from QIconView to display the current directory and the
+  widget of the DirectoryView example to display the directory tree.
+
 - forever
-  This example continuously draws rectangles in a window and
-  has another widget that counts the number of rectangles that
-  are drawn per second.
+  See how fast Qt can draw colored rectangles. This example
+  continuously draws rectangles in a window and has another widget
+  that counts the number of rectangles that are drawn per second.
+  WARNING: this program has a strobe effect.
+
+- gridview
+  A grid view with 100x100 cells.
 
 - hello
-  This example brings up the words "Hello, World" moving up and down,
-  and in different colors.
+  Hello world with colored animated wavy text.
+
+- helpviewer
+  The HelpViewer example implements a simple HTML help browser using
+  Qt's richtext capabilities.
 
 - i18n
   This example shows how to internationalize applications. Start it with
@@ -144,9 +109,15 @@
   This example shows simple and intermediate use of Qt's layout
   classes, QGridLaout, QBoxLayout etc.
 
+- life
+  An implementation of the life game. Very UNIX-ish GUI design ;-)
+
 - lineedits
   The Lineedits example shows how to work with single Lineedit widgets, and
   how to use different Echo Modes and Validators.
+
+- listbox
+  Shows QListBox options.
 
 - listboxcombo
   This example program demonstrates how to use Listboxes (with single
@@ -154,17 +125,21 @@
 
 - listviews
   This examples shows how to work with Listviews (hierarchical and
-  multi-columns).  It also shows how to subclass Listview Items for
+  multi-columns). It also shows how to subclass Listview Items for
   special reasons. It looks and works like the mainwindow of a mail client.
 
 - mdi
-  This example program is just like the application example, but designed as
-  Multiple Document Interface (MDI).
+  Similar to the application and action examples, but this time using
+  MDI (Multiple Document Interface).
 
 - menu
   This example demonstrates simple use of menus (a menu bar and
-  pull-down menus).  Qt also supports popup menus, but this example
-  doesn't contain any.
+  pull-down menus). Qt also supports popup menus, but this example
+  doesn't contain any (but the popup example does).
+
+- movies
+  The Movies example displays animated GIF files using the QMovie and
+  QLabel classes.
 
 - picture
   This example shows how to make, store to file, and read a picture as
@@ -176,11 +151,32 @@
 
 - progress
   This example displays either a simple (text-only) or a
-  custom-labelled (user-supplied widget) progress dialog.  It also
+  custom-labelled (user-supplied widget) progress dialog. It also
   demonstrates simple use of menus.
 
 - progressbar
-  This example shows how to use a progressbar.
+  Shows a QProgressBar.
+
+- qdir
+  Shows how to use and customize Qt's file dialog. See
+  	qdir --help
+  for details
+
+- qfd
+  This example program displays all characters of a font.
+
+- qmag
+  This is a simple magnifier-type program. It shows how one can do
+  some quite low-level operations portably using Qt.
+
+  Run it, click in the magnifier window, then click where you want to
+  magnify or drag out a rectangle. Two combo boxes let you select
+  amplification and refresh frequency, a text label tells you the color
+  of the pixel the cursor is on, and a button lets you save the
+  magnified area as a .bmp file.
+
+- qwerty
+  Small text editor to test different character encodings.
 
 - rangecontrols
   This examples shows the different types of Rangecontrols which
@@ -188,7 +184,7 @@
 
 - richtext
   In this examples it's demonstrated how to display rich text, using
-  Qt, in a widget.  In this example some sayings taken from the famous
+  Qt, in a widget. In this example some sayings taken from the famous
   Unix "Fortune" are displayed nicely formatted.
 
 - rot13
@@ -196,49 +192,74 @@
   and it is displayed in the edit widget at the right transformed using
   the rot13 algorithm.
 
+- scribble
+  This example implements the famous scribble example. You can draw
+  around in the canvas with different pens and save the result as picture.
+
 - scrollview
-  This example shows how to use Qt's Scrollview.  This is a widget
+  This example shows how to use Qt's Scrollview. This is a widget
   which can contain a very large contents and is very optimized for
-  that.  Also child widgets can be inserted.
+  that. Also child widgets can be inserted.
+
+- showimg
+  This example reads and displays an image in any supported image
+  format (GIF, BMP, PPM, XMP etc.)
 
 - splitter
-  This example shows how to use Splitters.  Splitters can contain
+  This example shows how to use Splitters. Splitters can contain
   multiple child items and using the Splitter the user can decide
   herself/himself, how much space each child should get.
 
 - tabdialog
   This example shows how to use a dialog with multiple tabs (pages).
   When starting it you have to specify a filename as first argument.
-  The dialog shows then infos about that file seperated into some tabs.
+  The dialog shows information about that file seperated into some
+  tabs.
 
 - table
-  The table program displays a spreadsheet-like table.  It is an example
+  The table program displays a spreadsheet-like table. It is an example
   of how to inherit the QScrollView widget for presentations of 2D data
   arrays.
+  Left-click the mouse to set a current cell. Press the arrow buttons to
+  move the current mark around. Type something to edit a cell's contents.
 
-  Left-click the mouse to set a current cell.  Press the arrow buttons to
-  move the current mark around.  Type something to edit a cell's contents.
+- tetrix
+  This is the Qt implementation of the well known game Tetris.
+
+- textedit
+  A simple text editor.
 
 - themes
-  This examples demonstrates how to let widgets draw in different
-  styles (themes).  As example, themes looking like wood and metal
-  are implemented.  You can switch between the different styles
-  during runtime using the pulldown menu.
+  This examples demonstrates how to draw widgets in different styles
+  (themes). Example themes looking like wood and metal are
+  implemented. You can switch between the different styles at runtime
+  using the pulldown menu.
+
+- tictac
+  This is an implementation of the Tic-tac-toe game.
+
+  We didn't put much effort in making a clever algorithm so it's not a
+  challenge to play against the computer. Instead, study the source code
+  to see how you can make reusable components such as the TicTacGameBoard
+  widget.
 
 - tooltip
   This example widget demonstrates how to use tool tips for static and
   dynamic regions within a widget.
-
-  It displays two blue and one red rectangle.  The blue ones move every
-  time you click on them, the red one is static.  There are dynamic
+  It displays two blue and one red rectangle. The blue ones move every
+  time you click on them, the red one is static. There are dynamic
   tool tips on the blue rectangles and a static tool tip on the red one.
 
 - validator
-  In this example you see how to write and use an own validator.
+  This example shows how to write and use your own validator.
+
+- widgets
+  Shows the Qt widgets (see the demo example too).
 
 - wizard
-  This example shows the usage of Qt's wizard class. A wizard
-  should be used to help a user with complicated actions.
+  This example shows the usage of Qt's wizard class. Wizards are
+  useful for taking users step-by-step through complex or infrequently
+  used actions.
 
 - xform
   This example lets the user rotate, shear and scale text and graphics

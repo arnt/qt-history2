@@ -13,9 +13,9 @@ framebuffer.
 To use the virtual framebuffer:
 
 1. Ensure QT_NO_QWS_VFB is not set in qconfig.h (when you configure Qt,
-    add the -qvfb option).
+   add the -qvfb option).
 2. Start qvfb (qvfb should be compiled as a normal Qt/X11 application,
-    NOT as a Qt/Embedded application!).
+   NOT as a Qt/Embedded application!).
 3. Start a Qt/Embedded server (i.e. construct QApplication with
    QApplication::GuiServer flag, or run a client with the -qws option).
 
@@ -28,7 +28,7 @@ qvfb supports the following command line options:
 [-qwsdisplay]    the Qt/Embedded display ID, e.g. -qwsdisplay :1 (default :0).
 [-skin skinfile] tells qvfb to load a skin file, e.g. -skin pda.skin
 
-Please refer to the file "pda.skin" as an example of what a skin file looks like.
+Please refer to the file "pda.skin" for an example of what a skin file looks like.
 The format for skin files is:
     Image filename of skin with buttons in their up positions
     Image filename of skin with buttons in their down positions

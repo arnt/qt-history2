@@ -1,16 +1,16 @@
 UNIX system interfaces
 ----------------------
 
-UNIX systems often have many system interfaces versions.
-These various system interfaces usually conform:
-- on BSD platforms to BSD 4.4 which is pretty stable and implements POSIX
-  standards;
-- on System V platforms to various Open Group standards which in turn
+UNIX systems often have many system interface versions.
+These various system interfaces usually conform to:
+- BSD 4.4 on BSD platforms (this is pretty stable and implements POSIX
+  standards);
+- various Open Group standards on System V platforms, which in turn
   implement POSIX standards.
 
-You may find more information about standards by studying the standards(5)
-or stdsyms(5) manual page of some commercial UNIX platforms or by reading
-the POSIX and Open Group standards, starting for example from these Open
+You can find more information about standards by studying the standards(5)
+or stdsyms(5) manual pages of some commercial UNIX platforms or by reading
+the POSIX and Open Group standards, starting for example, from these Open
 Group sites:
 	http://www.opengroup.org/
 	http://www.UNIX-systems.org/
@@ -43,10 +43,10 @@ XNS5
 System V default system interfaces
 ----------------------------------
 
-Today's System V platforms offer recent enough interfaces (SUS/XPG4v2),
-although not always the most recent ones (SUSv2/XPG5). As an example, here
-are the first releases of a selection of platforms to support some Open Group
-and POSIX standards:
+Today's System V platforms offer modern interfaces (SUS/XPG4v2),
+although not always the most recent ones (SUSv2/XPG5). For example,
+here are the first releases of a selection of platforms to support
+some Open Group and POSIX standards:
 
 AIX
 	XPG4			AIX 4.1
@@ -72,15 +72,16 @@ Tru64
 	SUSv2			Tru64 5.0
 	XNS5			Tru64 5.0
 
-A system can switch to any of the supported standards or even mix them. The
-internal magic is based on macros, usually defined in header file <unistd.h>
-or a header file included by <unistd.h>. Sometimes the implementation directly
-defines feature test macros documented by Open Group standards, and sometimes
-the implementation defines internal undocumented macros, thus adding a level
-of indirection. The default, implicit systems interfaces may usually be
-explictly triggered using platform-dependant macros. This is an important
-issue and is therefore covered in detail. Here is an overview for a selection
-of platforms:
+A system can switch to any of the supported standards or even mix
+them. The internal magic is based on macros, usually defined in the
+header file <unistd.h> or a header file included by <unistd.h>.
+Sometimes the implementation directly defines feature test macros
+documented by Open Group standards, and sometimes the implementation
+defines internal undocumented macros, thus adding a level of
+indirection. The default, implicit systems interfaces may usually be
+explictly triggered using platform-dependant macros. This is an
+important issue and is therefore covered in detail. Here is an
+overview for a selection of platforms:
 
 AIX		<standards.h>
 
@@ -289,24 +290,24 @@ QNX		<sys/platform.h>
 
 
 
-And now what with all this?
----------------------------
+So what use is all this?
+------------------------
 
 To configure a system, follow these simple steps.
 
 1) Avoid defining any of the above macros. By default the system should
-   be providing appropriate interfaces.
+   provide the appropriate interfaces.
 
 2) POSIX and Open Group standards more recent than the default standard
-   provided by the system have sometimes to be specified. This is done
+   provided by the system must sometimes be specified. This is done
    by defining well known macros such as _POSIX_C_SOURCE or _XOPEN_SOURCE.
    Be very careful when defining such macros. They specify strict respect
    of a given standard. They hide interfaces that are outside of the scope
    of the standard but otherwise available by default when no macro is
    defined.
    If you have to use such a macro, don't forget to define along with
-   it the platform dependant macro that explicitly specifies the default
-   interface:
+   it, the platform dependent macro that explicitly specifies the
+   default interface:
    	GNU		_GNU_SOURCE
    	HP-UX		_HPUX_SOURCE
    	Irix		_SGI_SOURCE
@@ -318,7 +319,7 @@ To configure a system, follow these simple steps.
 3) Sometimes interfaces may be specified by macros that do not limit
    the scope of other interfaces. _FILE_OFFSET_BITS is such a macro.
    These are usually not dangerous. They do not involve explicitly
-   respecifying the default interface.
+   re-specifying the default interface.
 
 4) Avoid defining internal undocumented macros such as
    	GNU		_UNIX98
@@ -326,7 +327,7 @@ To configure a system, follow these simple steps.
    	Solaris		_XPG5
    This may solve a problem in the short term but is guaranteed to
    be a maintainance nightmare in the long term. If you don't know
-   the canonical way of respecifying the default interfaces on a
+   the canonical way of re-specifying the default interfaces on a
    given platform, ask someone who knows the platform, have a look
    at the system header files and especially at <unistd.h> and the
    first file included by it. Do ask for these files if needed.

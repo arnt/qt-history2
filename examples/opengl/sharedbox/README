@@ -1,7 +1,7 @@
 
 The shared box example
 
-This example program is an extension of the example program "box".
+This example program is an extension of the "box" example program.
 
 It demonstrates how to use OpenGL display list sharing with QGLWidgets.
 

@@ -1,8 +1,8 @@
 			  INSTALLING Qt FOR X11
 
 
-You may need to be root, depending on the permissions of the directories
-where you choose to install Qt.
+You may need to be logged in as root, depending on the permissions of
+the directories where you choose to install Qt.
 
 
 1.  Unpack the archive if you have not done so already:
@@ -51,14 +51,15 @@ where you choose to install Qt.
 
     After you have done this, you will need to login again, or
     re-source the profile before continuing, so that at least $QTDIR
-    and $PATH is set.  The installation will give an error message and
-    not proceed otherwise.
+    and $PATH are set. Without these the installation will halt with an error
+    message.
+
 
     On AIX set LIBPATH and on HP-UX set SHLIB_PATH instead of LD_LIBRARY_PATH.
 
 
 3.  Install your license file as $HOME/.qt-license.
-    For the free edition, you do not need a license file.  For Professional
+    For the free edition, you do not need a license file. For Professional
     and Enterprise editions, install your license file as described in your
     distribution.
 
@@ -66,7 +67,7 @@ where you choose to install Qt.
 4.  Building.
 
     This step compiles the Qt library, and builds the example programs,
-    the tutorial, and the tools (eg. the Designer).
+    the tutorial, and the tools (e.g. Qt Designer).
 
     Type:
 
@@ -77,12 +78,13 @@ where you choose to install Qt.
     to get a list of configuration options. Read PLATFORMS for a
     list of supported platforms.
 
-    To create the library and compile all examples and the tutorial:
+    To create the library and compile all the examples and the
+    tutorial, type:
 
 	make
 
     If your platform or compiler is not supported, please contact us at
-    qt-bugs@trolltech.com so that we can assist you.  If it is supported
+    qt-bugs@trolltech.com so that we can assist you. If it is supported
     but you have problems, see http://www.trolltech.com/platforms/
 
 
@@ -97,12 +99,11 @@ where you choose to install Qt.
 
         make install 
 
-    This will install Qt onto your machine, with these destination options
-    you will able to segment Qt into different places on your system
-    (please see ./configure -help for the install option section for more
-    help). If you choose to install Qt like this, remember you must set
-    your LD_LIBRARY_PATH to match your -libdir and your QTDIR to your
-    -headerdir (as described in 2 above).
+    This will install Qt onto your machine using the paths you've set.
+    (See ./configure -help for more information). If you choose to
+    install Qt like this, remember that you must set your
+    LD_LIBRARY_PATH to match your -libdir and your QTDIR to your
+    -headerdir (as described in (2) above).
 
 
 5.  In very few cases you may need to run /sbin/ldconfig or something
@@ -114,7 +115,7 @@ where you choose to install Qt.
 
     you probably need to put a reference to the qt library in a
     configuration file and run /sbin/ldconfig as root on your system.
-    And don't forget to set LD_LIBRARY_PATH as explained in 2) above.
+    And don't forget to set LD_LIBRARY_PATH as explained in (2) above.
 
 
 6.  The online HTML documentation is installed in /usr/local/qt/doc/html/

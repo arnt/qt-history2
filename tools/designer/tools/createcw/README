@@ -1,14 +1,18 @@
 This small application makes it much easier to create custom widget
-descriptions for the Qt Designer. Using them you can use custom widgets
-in the Qt Designer including their signals, slots and properties. 
+descriptions for Qt Designer. Using them you can use custom widgets
+in Qt Designer including their signals, slots and properties. 
 
-To do that normally you would have to enter all that information in
-the custom widget dialog in the Qt Designer for each widget. But this
-small tool can create for you these description files for your custom
-widgets which you then can simply import into the Qt Designer. So you
-can use your custom widgets without any additional work in your forms
-in the Qt Designer then.
+The usual way to do this is to enter all the information in the custom
+widget dialog in Qt Designer for each widget. But this small tool can
+create these description files for your custom widgets which you then
+can simply import into Qt Designer. So you can use your custom widgets
+without any additional work in your forms in Qt Designer.
 
-To do that you have to modify the sourcecode (main.cpp) a bit and
+To do this you must modify the sourcecode (main.cpp) a bit and
 recompile it afterwards. For further instructions how to use it see
 the comments starting with STEP1 and STEP2 in main.cpp.
+
+Note that Qt Designer now supports widget plugins which are more
+versatile and work just like built-in widgets, so you may prefer to
+make your custom widgets into plugins. See the designer manual for
+more information.
