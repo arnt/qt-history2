@@ -830,7 +830,7 @@ bool QApplication::x11_apply_settings()
     QStringList strlist;
     int i, num;
     QPalette pal(QApplication::palette());
-    qDebug("/qt/Palette/active %d %d", strlist.count(), QColorGroup::NColorRoles);
+    strlist = settings.readListEntry("/qt/Palette/active");
     if (strlist.count() == QColorGroup::NColorRoles) {
 	for (i = 0; i < QColorGroup::NColorRoles; i++)
 	    pal.setColor(QPalette::Active, (QColorGroup::ColorRole) i,
