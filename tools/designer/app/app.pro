@@ -13,7 +13,7 @@ win32 {
 }
 mac {
    RC_FILE	= designer.icns
-   LIBS	+= -lqui -lqassistantclient
+   LIBS	+= -lqui
    staticlib:CONFIG -= global_init_link_order #yuck
 }
 
