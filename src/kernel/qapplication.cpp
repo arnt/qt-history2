@@ -334,6 +334,7 @@ void qt_init( QApplicationPrivate *priv, int type
 #endif
     );
 void qt_cleanup();
+bool qt_tryModalHelper( QWidget *widget, QWidget **rettop );
 
 QStyle   *QApplication::app_style      = 0;	// default application style
 bool      qt_explicit_app_style	       = FALSE; // style explicitly set by programmer
@@ -2036,13 +2037,13 @@ void qt_dispatchEnterLeave( QWidget* enter, QWidget* leave ) {
     QEvent leaveEvent( QEvent::Leave );
     for (int i = 0; i < leaveList.size(); ++i) {
 	w = leaveList.at(i);
-	if ( !qApp->activeModalWidget() || w->topLevelWidget() == qApp->activeModalWidget() )
+	if (!qApp->activeModalWidget() || qt_tryModalHelper( w, 0 ))
 	    QApplication::sendEvent( w, &leaveEvent );
     }
     QEvent enterEvent( QEvent::Enter );
     for (int i = 0; i < enterList.size(); ++i) {
 	w = enterList.at(i);
-	if ( !qApp->activeModalWidget() || w->topLevelWidget() == qApp->activeModalWidget() )
+	if (!qApp->activeModalWidget() || qt_tryModalHelper( w, 0 ))
 	    QApplication::sendEvent( w, &enterEvent );
     }
 }
