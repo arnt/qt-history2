@@ -710,7 +710,7 @@ void QWindowsXPStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
                 const QColorGroup &g, bool sunken, int lineWidth, const QBrush *fill )
 {
 #if defined(Q_WS_WIN)
-    HTHEME htheme = Private::OpenThemeData( d->hwnd, L"TAB" );
+    HTHEME htheme = Private::getThemeData( L"TAB" );
     if ( !htheme ) {
 	QWindowsStyle::drawPanel( p, x, y, w, h, g, sunken, lineWidth, fill );
 	return;
@@ -965,7 +965,7 @@ void QWindowsXPStyle::drawExclusiveIndicator( QPainter* p, int x, int y, int w, 
 		    const QColorGroup &g, bool on, bool down, bool enabled )
 {
 #if defined(Q_WS_WIN)
-    HTHEME htheme = Private::OpenThemeData( d->hwnd, L"BUTTON" );
+    HTHEME htheme = Private::getThemeData( L"BUTTON" );
     if ( !htheme ) {
 	QWindowsStyle::drawExclusiveIndicator( p, x, y, w, h, g, on, down, enabled );
 	return;
@@ -1558,8 +1558,7 @@ void QWindowsXPStyle::drawSpinBoxSymbol( QPainter *p, const QRect &rect, const Q
 void QWindowsXPStyle::drawGroupBoxTitle( QPainter *p, const QRect &rect, const QColorGroup &g, const QString &text, bool enabled )
 {
 #if defined(Q_WS_WIN)
-    HWND hWnd = ((QWidget*)p->device())->winId();
-    HTHEME htheme = Private::OpenThemeData( hWnd, L"BUTTON" );
+    HTHEME htheme = Private::getThemeData( L"BUTTON" );
     if ( !htheme ) {
 	QWindowsStyle::drawGroupBoxTitle( p, rect, g, text, enabled );
 	return;
