@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 2.40 1999/05/26 14:49:53 agulbra Exp $
+** $Id: misc.doc,v 2.41 1999/06/03 15:14:50 warwick Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -22,7 +22,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 2.40 1999/05/26 14:49:53 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 2.41 1999/06/03 15:14:50 warwick Exp $";
 #endif
 
 
@@ -202,7 +202,7 @@ by Oslo City Court.
 <h1 align=center>Contact Information</h1><br clear="all">
 
 <center>
-<img width="168" height="98" src="ttlogo-small.jpg" alt="Troll Tech Logo">
+<img width="168" height="98" src="ttlogo-small.png" alt="Troll Tech Logo">
 </center>
 
 
@@ -332,8 +332,8 @@ ensure the mailing lists are virtually free from spam.</small>
 \postheader
 <h1 align=center>Trademarks</h1><br clear="all">
 
-The <a href="qtlogo.jpg">Qt logo</a> and <a
-href="ttlogo-small.jpg">Troll Tech logo</a> are copyright © Troll
+The <a href="qtlogo.png">Qt logo</a> and <a
+href="ttlogo-small.png">Troll Tech logo</a> are copyright © Troll
 Tech AS.
 
 <tt>Qt</tt> is a trademark of Troll Tech AS.

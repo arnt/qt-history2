@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 2.26 1999/05/26 22:14:24 agulbra Exp $
+** $Id: tutorial.doc,v 2.27 1999/06/03 15:14:53 warwick Exp $
 **
 ** Tutorial
 **
@@ -72,7 +72,7 @@ Qt Tutorial - Chapter 1
 
 <h1 align=center>Chapter 1: Hello, World!</h1><br clear="all">
 
-<center><img src="t1.gif" alt="Screenshot of tutorial one"></center>
+<center><img src="t1.png" alt="Screenshot of tutorial one"></center>
 
 This first program is a simple hello-world example.  It contains only
 the bare minimum you need to get a Qt application up and running.
@@ -200,7 +200,7 @@ Qt Tutorial - Chapter 2
 
 <h1 align=center>Chapter 2: Calling it Quits</h1><br clear="all">
 
-<center><img src="t2.gif" alt="Screenshot of tutorial two"></center>
+<center><img src="t2.png" alt="Screenshot of tutorial two"></center>
 
 Having created a window in \link t1.html chapter one, \endlink we will
 now go on to make the application quit properly when the user tells it to.
@@ -292,7 +292,7 @@ Qt Tutorial - Chapter 3
 
 <h1 align=center>Chapter 3: Family Values</h1><br clear="all">
 
-<center><img src="t3.gif" alt="Screenshot of tutorial three"></center>
+<center><img src="t3.png" alt="Screenshot of tutorial three"></center>
 
 This example shows how to create mother and child widgets.
 
@@ -370,7 +370,7 @@ Qt Tutorial - Chapter 4
 
 <h1 align=center>Chapter 4: Let There Be Widgets</h1><br clear="all">
 
-<center><img src="t4.gif" alt="Screenshot of tutorial four"></center>
+<center><img src="t4.png" alt="Screenshot of tutorial four"></center>
 
 This example shows how to create your own widget, how to control the
 minimum and maximum sizes of a widget, and introduces widget names.
@@ -485,7 +485,7 @@ Qt Tutorial - Chapter 5
 
 <h1 align=center>Chapter 5: Building Blocks</h1><br clear="all">
 
-<center><img src="t5.gif" alt="Screenshot of tutorial five"></center>
+<center><img src="t5.png" alt="Screenshot of tutorial five"></center>
 
 This example shows how to create and connect together several widgets
 using signals and slots, and how to handle resize events.
@@ -580,7 +580,7 @@ Qt Tutorial - Chapter 6
 
 <h1 align=center>Chapter 6: Building Blocks Galore!</h1><br clear="all">
 
-<center><img src="t6.gif" alt="Screenshot of tutorial six"></center>
+<center><img src="t6.png" alt="Screenshot of tutorial six"></center>
 
 This example shows how to encapsulate two widgets into a new component and
 how easy it is to use many widgets.  For the first time, we use a custom
@@ -717,7 +717,7 @@ Qt Tutorial - Chapter 7
 
 <h1 align=center>Chapter 7: One Thing Leads to Another</h1><br clear="all">
 
-<center><img src="t7.gif" alt="Screenshot of tutorial seven"></center>
+<center><img src="t7.png" alt="Screenshot of tutorial seven"></center>
 
 This example shows how to create custom widgets with signals and
 slots, and how to connect them together in more complex ways.  For the
@@ -963,7 +963,7 @@ Qt Tutorial - Chapter 8
 
 <h1 align=center>Chapter 8: Preparing for Battle</h1><br clear="all">
 
-<center><img src="t8.gif" alt="Screenshot of tutorial eight"></center>
+<center><img src="t8.png" alt="Screenshot of tutorial eight"></center>
 
 In this example, we introduce the first custom widget that can paint
 itself.
@@ -1289,7 +1289,7 @@ Qt Tutorial - Chapter 9
 
 <h1 align=center>Chapter 9: With Cannon You Can</h1><br clear="all">
 
-<center><img src="t9.gif" alt="Screenshot of tutorial nine"></center>
+<center><img src="t9.png" alt="Screenshot of tutorial nine"></center>
 
 In this example, we become graphic, by drawing a cute little blue
 cannon.  Only cannon.cpp differs from the previous chapter.
@@ -1373,7 +1373,7 @@ In this case, the coordinate system is first translated, then rotated.
 If the rectangle QRect(33, -4, 15, 8) had been drawn in the translated
 coordinate system, it would have looked like this:
 
-<img src="t9_1.gif" alt="The cannon, translated but not rotated">
+<img src="t9_1.png" alt="The cannon, translated but not rotated">
 
 Note that the rectangle is clipped by the border of the CannonField
 widget.  When we rotate the coordinate system, for instance 60
@@ -1381,7 +1381,7 @@ degrees, the rectangle will be rotated around (0,0), which is the
 bottom left corner, since we have translated the coordinate system.
 The result looks like this:
 
-<img src="t9_2.gif" alt="The cannon, translated and rotated">
+<img src="t9_2.png" alt="The cannon, translated and rotated">
 
 We're done, except that we haven't explained why Windows didn't dither
 this time.
@@ -1500,7 +1500,7 @@ Qt Tutorial - Chapter 10
 
 <h1 align=center>Chapter 10: Smooth as Silk</h1><br clear="all">
 
-<center><img src="t10.gif" alt="Screenshot of tutorial ten"></center>
+<center><img src="t10.png" alt="Screenshot of tutorial ten"></center>
 
 In this example, we introduce painting in a pixmap to remove flickering.
 We also add a force control.
@@ -1775,7 +1775,7 @@ Qt Tutorial - Chapter 11
 
 <h1 align=center>Chapter 11: Giving It a Shot</h1><br clear="all">
 
-<center><img src="t11.gif" alt="Screenshot of tutorial eleven"></center>
+<center><img src="t11.png" alt="Screenshot of tutorial eleven"></center>
 
 In this example, we introduce timer events to implement shooting.
 
@@ -2068,7 +2068,7 @@ Qt Tutorial - Chapter 12
 
 <h1 align=center>Chapter 12: Hanging in the Air the Way Bricks Don't</h1><br clear="all">
 
-<center><img src="t12.gif" alt="Screenshot of tutorial twelve"></center>
+<center><img src="t12.png" alt="Screenshot of tutorial twelve"></center>
 
 In this example, we extend our LCDRange class to include a text label.
 We also provide something to shoot at.
@@ -2480,7 +2480,7 @@ Qt Tutorial - Chapter 13
 
 <h1 align=center>Chapter 13: Game Over</h1><br clear="all">
 
-<center><img src="t13.gif" alt="Screenshot of tutorial thirteen"></center>
+<center><img src="t13.png" alt="Screenshot of tutorial thirteen"></center>
 
 In this example we start to approach a real playable game. We give
 MyWidget a new name; GameBoard and add some slots.
@@ -2819,7 +2819,7 @@ Qt Tutorial - Chapter 14
 
 <h1 align=center>Chapter 14: Facing the Wall</h1><br clear="all">
 
-<center><img src="t14.gif" alt="Screenshot of tutorial fourteen"></center>
+<center><img src="t14.png" alt="Screenshot of tutorial fourteen"></center>
 
 This is the final example, a complete game.
 

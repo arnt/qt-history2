@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: session.doc,v 1.4 1999/06/02 23:35:30 ettrich Exp $
+** $Id: session.doc,v 1.5 1999/06/03 15:14:52 warwick Exp $
 **
 ** Qt session management overview documentation
 **
@@ -64,7 +64,7 @@ the machine!
 TODO
 
 
-<center><img src="session.gif" alt="A typical dialog on shutdown"></center>
+<center><img src="session.png" alt="A typical dialog on shutdown"></center>
 
 TODO	
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: dnd.doc,v 1.5 1999/06/03 13:22:50 paul Exp $
+** $Id: dnd.doc,v 1.6 1999/06/03 15:14:48 warwick Exp $
 **
 ** Drag and drop documentation
 **
@@ -159,6 +159,26 @@ Qt toolkit - Drag and Drop
   provide DXF, DWG, SVF, WMF, or even QPicture data to other
   applications.
 
+  <h3>Drag-and-drop action</h3>
+
+  In the simpler cases, the target of a drag-and-drop receives
+  a copy of the data being dragged and the source decides whether
+  to delete the original.  This is the "Copy" action in QDropEvent.
+  The target may also choose to understand other actions, specifically
+  the Move and Link actions.  If the target understands the Move action,
+  \e it
+  is responsible for both the copy and delete operations and the source
+  will not attempt to delete the data itself.  If the target
+  understands the Link, it stores some kind of reference to the original
+  information, and again the source does not delete the original.
+  The most common use of drag-and-drop actions is when performing a Move
+  within the same widget - see the
+  <a href=#advanced>Advanced Drag-and-Drop</a> section below.
+
+  The other major use of drag actions is when using a reference MIME
+  type such as text/uri-list, where the dragged data is actually references
+  to files or objects.
+
   <h3>Adding new drag-and-drop types</h3>
 
   As suggested in the DXF example above,
@@ -221,7 +241,7 @@ Qt toolkit - Drag and Drop
   the media data and the same static members canDecode()
   and decode() to decode incoming data.
 
-  <h3>Advanced</h3>
+  <a name=advanced><h3>Advanced Drag-and-Drop</h3></a>
 
   In the clipboard model, the user can \e cut or \e copy the source
   information, then later paste it.  Similarly in the drag-and-drop
@@ -250,8 +270,9 @@ Qt toolkit - Drag and Drop
     QString text;
 
     if ( QTextDrag::decode(event, text) ) {
-      if ( event->source() == this && event->movingData() ) {
+      if ( event->source() == this && event->action() == QDropEvent::Move ) {
 	// Careful not to tread on my own feet
+	event->acceptAction();
 	moveMyHighlightedTextTo(event->pos());
       } else {
         pasteTextAt(text, event->pos());
