@@ -1,11 +1,13 @@
 #include "widgetmask.h"
+#include <qbitmap.h>
 #include <qpainter.h>
 #include <qapplication.h>
 #include <stdlib.h>
 
 Main::Main(QWidget* parent, const char* name, int f) :
-    QWidget(parent, name, /*WStyle_Customize | WStyle_Tool |*/ WStyle_NoBorder)
+    QWidget(parent, name, WPaintClever)
 {
+#if USE_REGION_MASKS
     QRegion rgn;
     for (int i=0; i<100; i++) {
 	const int outside=0;
@@ -15,8 +17,8 @@ Main::Main(QWidget* parent, const char* name, int f) :
 	int h=rand()%(height()-y+outside);
 	rgn = rgn.unite(QRegion(x,y,w,h));
     }
-    //rgn = QRegion(0,0,width(),height());
     setMask(rgn);
+#endif
 }
 
 void Main::bang()
@@ -25,6 +27,23 @@ void Main::bang()
 
 void Main::resizeEvent(QResizeEvent*)
 {
+    QBitmap bm(size(),TRUE);
+    {
+	QPainter p(&bm);
+	p.fillRect(rect(),color1);
+	p.setPen(color0);
+	p.setBrush(color0);
+	srand(123);
+	for (int i=0; i<20; i++) {
+	    int x=rand()%(width());
+	    int y=rand()%(height());
+	    int w=rand()%(width()-x);
+	    int h=rand()%(height()-y);
+	    int c=rand();
+	    p.drawRoundRect(x,y,w,h,w/4,h/4);
+	}
+    }
+    setMask(bm);
 }
 
 void Main::keyPressEvent(QKeyEvent*)
@@ -40,8 +59,17 @@ void Main::paintEvent(QPaintEvent* e)
 {
     QPainter p(this);
     p.setClipRect(e->rect());
-    p.drawLine(0,0,width()-1,height()-1);
-    p.drawLine(width()-1,0,0,height()-1);
+    p.setPen(black);
+    srand(123);
+    for (int i=0; i<20; i++) {
+	int x=rand()%(width());
+	int y=rand()%(height());
+	int w=rand()%(width()-x);
+	int h=rand()%(height()-y);
+	int c=rand();
+	p.setBrush(QColor(c&0xffffff));
+	p.drawRoundRect(x,y,w,h,w/4,h/4);
+    }
 }
 
 main(int argc, char** argv)
