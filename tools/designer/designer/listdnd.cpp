@@ -36,7 +36,7 @@ ListDnd::ListDnd( QScrollView * eventSource, const char * name )
     line->hide();
 }
 
-void ListDnd::setDragMode( int mode )
+void ListDnd::setDragMode( const int mode )
 {
     dMode = mode;
 }
