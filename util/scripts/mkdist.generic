@@ -184,7 +184,7 @@ rm -f qt/src/qtinternal.pro
 rm -f qt/make.help qt/variables
 rm -rf qt/bugs qt/etc qt/gif qt/reqs qt/tests
 cd qt/examples
-rm -rf network qfd rot13 sheet
+rm -rf network sheet
 
 cd ${DISTDIR}/qt/bin
 rm -f syncqt*
