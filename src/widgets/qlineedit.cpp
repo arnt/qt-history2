@@ -567,10 +567,10 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    break;
 	case Key_K:
 	    if ( !d->readonly ) {
-		QString t = text();
-		int cursorPos = d->cursor->index();
-		t.truncate( cursorPos );
-		validateAndSet( t, cursorPos, cursorPos, cursorPos );
+		d->selectionStart = d->cursor->index();
+		d->cursor->setIndex( d->parag->length() - 1 );
+		updateSelection();
+		removeSelectedText();
 	    }
 	    break;
 #ifndef QT_NO_CLIPBOARD
@@ -1475,12 +1475,12 @@ void QLineEdit::dropEvent( QDropEvent *e )
 {
     QString str;
     QCString plain = "plain";
-    
+
     // try text/plain
     bool decoded = QTextDrag::decode(e, str, plain);
     // otherwise we'll accept any kind of text (like text/uri-list)
     if (! decoded) decoded = QTextDrag::decode(e, str);
-    
+
     if ( !d->readonly && decoded) {
 	if ( e->source() == this && hasMarkedText() )
 	    deselect();
