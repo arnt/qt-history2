@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#28 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -2346,29 +2346,24 @@ void QMultiLineEdit::setCursorPosition( int line, int col, bool mark )
 
 
 /*!
-  Sets \a line to the current line and \a col to the current character
-  position within that line.
-
-  \sa setCursorPosition()
+  OBSOLETE - Use getCursorPosition() instead.
 */
 
 void QMultiLineEdit::cursorPosition( int *line, int *col ) const
 {
-    if ( line )
-	*line = cursorY;
-    if ( col )
-	*col = cursorX;
+    getCursorPosition(line,col);
 }
 
 
 /*!
-  Sets \a line to the current line and \a col to the current character
-  position within that line.
+  Returns the current line and character
+  position within that line, in the variables pointed to
+  by \a line and \a col respectively.
 
-  OBSOLETE - Use cursorPosition() instead.
+  \sa setCursorPosition()
 */
 
-void QMultiLineEdit::getCursorPosition( int *line, int *col )
+void QMultiLineEdit::getCursorPosition( int *line, int *col ) const
 {
     if ( line )
 	*line = cursorY;

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#9 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#10 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -57,7 +57,7 @@ public:
 
     void 	cursorPosition( int *line, int *col ) const;
     virtual void	setCursorPosition( int line, int col, bool mark = FALSE );
-    void	getCursorPosition( int *line, int *col );
+    void	getCursorPosition( int *line, int *col ) const;
     bool	atBeginning() const;
     bool	atEnd() const;
 
