@@ -38,7 +38,6 @@
 #include "qspinbox.h"
 #ifndef QT_NO_SPINBOX
 
-#include "qspinbox.h"
 #include "qcursor.h"
 #include "qpushbutton.h"
 #include "qpainter.h"
