@@ -205,7 +205,8 @@ QLayoutItem *QDockWindowLayout::find(QWidget *widget)
 {
     for (int i = 0; i < layout_info.count(); ++i) {
 	const QDockWindowLayoutInfo &info = layout_info.at(i);
-	if (info.is_sep) continue;
+	if (info.is_sep)
+            continue;
 	if (widget == info.item->widget())
 	    return info.item;
     }
@@ -219,7 +220,8 @@ QLayoutItem *QDockWindowLayout::itemAt(int index) const
     int x = 0;
     for (int i = 0; i < layout_info.count(); ++i) {
 	const QDockWindowLayoutInfo &info = layout_info.at(i);
-	if (info.is_sep) continue;
+	if (info.is_sep)
+            continue;
 	if (x++ == index) {
 	    VDEBUG("END, widget:    pos %3d index %3d", i, x);
 	    return info.item;
@@ -238,12 +240,15 @@ QLayoutItem *QDockWindowLayout::takeAt(int index)
     int x = 0;
     for (int i = 0; i < layout_info.count(); ++i) {
 	const QDockWindowLayoutInfo &info = layout_info.at(i);
-	if (info.is_sep) continue;
+	if (info.is_sep)
+            continue;
 	if (x++ == index) {
 	    QLayoutItem *layoutitem = info.item;
 
 	    VDEBUG("QDockWindowLayout::takeAt: layoutitem '%s'",
-		   layoutitem->widget() ? layoutitem->widget()->objectName().toLatin1().constData() : "dummy");
+                   (layoutitem->widget()
+                    ? layoutitem->widget()->objectName().toLatin1().constData()
+                    : "dummy"));
 
 	    int prev_separator = -1;
 	    for (int it = 0; it < layout_info.count(); ++it) {
@@ -252,7 +257,8 @@ QLayoutItem *QDockWindowLayout::takeAt(int index)
 		    prev_separator = it;
 		    continue;
 		}
-		if (info.item != layoutitem) continue;
+		if (info.item != layoutitem)
+                    continue;
 
 		QWidget *widget = info.item->widget();
 		VDEBUG("  index %3d pos %4d size %4d %s",
@@ -334,8 +340,10 @@ void QDockWindowLayout::setGeometry(const QRect &rect)
         bool first = true;
         for (int i = 0; i < layout_info.count(); ++i) {
             const QDockWindowLayoutInfo &info = layout_info.at(i);
-            if (info.is_sep) continue;
-            if (info.is_dummy) continue;
+            if (info.is_sep)
+                continue;
+            if (info.is_dummy)
+                continue;
 
             const bool empty = info.item->isEmpty();
             if (i > 0)
@@ -361,7 +369,8 @@ void QDockWindowLayout::setGeometry(const QRect &rect)
 	    ls.init();
 	    ls.empty = info.item->isEmpty();
 
-            if (ls.empty) continue;
+            if (ls.empty)
+                continue;
 
 	    if (info.is_sep) {
 		VDEBUG("    separator");
@@ -372,9 +381,9 @@ void QDockWindowLayout::setGeometry(const QRect &rect)
                     ? info.item->widget()->sizePolicy()
                     : QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
-		bool grow = pass == 0 ?
-			    canExpand(orientation, sp) :
-			    canGrow(orientation, sp);
+		bool grow = pass == 0
+                            ? canExpand(orientation, sp)
+                            : canGrow(orientation, sp);
 
 		if (info.is_dummy || info.is_dropped) {
 		    Q_ASSERT(relayout_type != QInternal::RelayoutNormal);
@@ -382,9 +391,9 @@ void QDockWindowLayout::setGeometry(const QRect &rect)
 		    // layout a dummy item
 		    ls.minimumSize = pick(orientation, info.item->minimumSize());
 		    ls.sizeHint = info.cur_size;
-		    ls.maximumSize = grow ?
-				     pick(orientation, info.item->maximumSize()) :
-				     pick(orientation, info.item->sizeHint());
+		    ls.maximumSize = grow
+                                     ? pick(orientation, info.item->maximumSize())
+                                     : pick(orientation, info.item->sizeHint());
 
 		    // do not use stretch for dummy/dropped items... we want them in the
 		    // exact size we specify
@@ -394,11 +403,12 @@ void QDockWindowLayout::setGeometry(const QRect &rect)
 
 		    if (grow) {
 			ls.maximumSize = pick(orientation, info.item->maximumSize());
-			ls.sizeHint = info.cur_size == -1 ?
-				      pick(orientation, info.item->sizeHint()) :
-				      info.cur_size;
+			ls.sizeHint = info.cur_size == -1
+                                      ? pick(orientation, info.item->sizeHint())
+                                      : info.cur_size;
 
-			if (pass == 0) need_second_pass = false;
+			if (pass == 0)
+                            need_second_pass = false;
 		    } else {
 			ls.maximumSize = pick(orientation, info.item->sizeHint());
 			ls.sizeHint = info.cur_size == -1 ? ls.minimumSize : info.cur_size;
@@ -419,7 +429,8 @@ void QDockWindowLayout::setGeometry(const QRect &rect)
 	    }
 	}
 
-	if (!need_second_pass) break;
+	if (!need_second_pass)
+            break;
     }
 
     qGeomCalc(a, 0, a.count(), 0, pick(orientation, rect.size()), 0);
@@ -428,7 +439,8 @@ void QDockWindowLayout::setGeometry(const QRect &rect)
     VDEBUG("  final placement:");
     for (int i = 0; i < a.count(); ++i) {
 	const QLayoutStruct &ls = a.at(i);
-        if (ls.empty) continue;
+        if (ls.empty)
+            continue;
 
 	QDockWindowLayoutInfo &info = layout_info[i];
 
@@ -530,8 +542,8 @@ bool QDockWindowLayout::isEmpty() const
 {
     for (int i = 0; i < layout_info.count(); ++i) {
         const QDockWindowLayoutInfo &info = layout_info.at(i);
-        if (info.is_sep) continue;
-
+        if (info.is_sep)
+            continue;
         if (!info.item->isEmpty())
             return false;
     }
@@ -655,13 +667,17 @@ void QDockWindowLayout::dump()
 	    DEBUG("  index %3d pos %4d size %4d SEPARATOR", i, info.cur_pos, info.cur_size);
 	} else if (info.item->layout()) {
             DEBUG("  index %3d pos %4d size %4d %s", i, info.cur_pos, info.cur_size,
-		  info.item->layout() ? info.item->layout()->objectName().toLatin1().constData() : "dummy");
+		  (info.item->layout()
+                   ? info.item->layout()->objectName().toLatin1().constData()
+                   : "dummy"));
             QDockWindowLayout *l = qt_cast<QDockWindowLayout *>(info.item->layout());
             Q_ASSERT(l != 0);
             l->dump();
         } else {
             DEBUG("  index %3d pos %4d size %4d %s", i, info.cur_pos, info.cur_size,
-		  info.item->widget() ? info.item->widget()->objectName().toLatin1().constData() : "dummy");
+		  (info.item->widget()
+                   ? info.item->widget()->objectName().toLatin1().constData()
+                   : "dummy"));
 	}
     }
     DEBUG("END of dump");
@@ -674,8 +690,10 @@ void QDockWindowLayout::saveLayoutInfo()
 
     for (int i = 0; i < layout_info.count(); ++i) {
 	const QDockWindowLayoutInfo &info = layout_info.at(i);
-        if (info.is_sep) continue;
-        if (!info.item->layout()) continue;
+        if (info.is_sep)
+            continue;
+        if (!info.item->layout())
+            continue;
 
         QDockWindowLayout *l = qt_cast<QDockWindowLayout *>(info.item->layout());
         Q_ASSERT(l != 0);
@@ -690,8 +708,10 @@ void QDockWindowLayout::resetLayoutInfo()
 
     for (int i = 0; i < layout_info.count(); ++i) {
 	const QDockWindowLayoutInfo &info = layout_info.at(i);
-        if (info.is_sep) continue;
-        if (!info.item->layout()) continue;
+        if (info.is_sep)
+            continue;
+        if (!info.item->layout())
+            continue;
 
         QDockWindowLayout *l = qt_cast<QDockWindowLayout *>(info.item->layout());
         Q_ASSERT(l != 0);
@@ -707,8 +727,10 @@ void QDockWindowLayout::discardLayoutInfo()
 
     for (int i = 0; i < layout_info.count(); ++i) {
 	const QDockWindowLayoutInfo &info = layout_info.at(i);
-        if (info.is_sep) continue;
-        if (!info.item->layout()) continue;
+        if (info.is_sep)
+            continue;
+        if (!info.item->layout())
+            continue;
 
         QDockWindowLayout *l = qt_cast<QDockWindowLayout *>(info.item->layout());
         Q_ASSERT(l != 0);
@@ -865,7 +887,8 @@ QDockWindowLayout::Location QDockWindowLayout::locate(const QPoint &mouse) const
     Location ret;
     for (int i = 0; i < layout_info.count(); ++i) {
         const QDockWindowLayoutInfo &info = layout_info.at(i);
-        if (info.is_sep) continue;
+        if (info.is_sep)
+            continue;
 
         if (pos < (info.cur_pos + info.cur_size - 1)) {
             const QRect current =
@@ -1182,7 +1205,8 @@ void QDockWindowLayout::split(QDockWindow *existing, QDockWindow *with, Qt::Dock
     int which = -1;
     for (int i = 0; which == -1 && i < layout_info.count(); ++i) {
 	const QDockWindowLayoutInfo &info = layout_info.at(i);
-	if (info.is_sep) continue;
+	if (info.is_sep)
+            continue;
 	if (existing == info.item->widget())
             which = i;
     }
