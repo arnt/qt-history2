@@ -26,6 +26,7 @@ namespace QMsNet
 	private System.Windows.Forms.Splitter splitter1;
 	public System.Windows.Forms.RichTextBox txtDescription;
 	private System.ComponentModel.Container components = null;
+	private bool autoUpdateFilename = true;
 
 	public NewQtProject3()
 	{
@@ -86,6 +87,7 @@ namespace QMsNet
 	    this.txtProjectFile.Size = new System.Drawing.Size(232, 20);
 	    this.txtProjectFile.TabIndex = 1;
 	    this.txtProjectFile.Text = "";
+	    this.txtProjectFile.TextChanged += new System.EventHandler(this.txtProjectFile_TextChanged);
 	    // 
 	    // label1
 	    // 
@@ -151,6 +153,7 @@ namespace QMsNet
 	    this.txtProjectName.Size = new System.Drawing.Size(256, 20);
 	    this.txtProjectName.TabIndex = 0;
 	    this.txtProjectName.Text = "newProject";
+	    this.txtProjectName.TextChanged += new System.EventHandler(this.txtProjectName_TextChanged);
 	    // 
 	    // label3
 	    // 
@@ -256,6 +259,17 @@ namespace QMsNet
 	    txtDescription.Select( 0, 29 );
 	    txtDescription.SelectionColor = Color.FromKnownColor(KnownColor.ControlDarkDark);
 	    txtDescription.Select( 0, 0 );
+	}
+
+        private void txtProjectFile_TextChanged(object sender, System.EventArgs e) {
+	    if ( txtProjectFile.Focused )
+		autoUpdateFilename = false;
+	}
+
+        private void txtProjectName_TextChanged(object sender, System.EventArgs e) {
+	    if ( autoUpdateFilename ) {
+		txtProjectFile.Text = txtProjectName.Text + ".pro";
+	    }
 	}
     }
 }
