@@ -362,7 +362,7 @@ void QMacStyleQD::polish(QWidget* w)
         lined->setLineWidth(frame_size);
 #else
         Q_UNUSED(lined);
-# warning "Do we need to replace this with something else for the new QLineEdit? --Sam"
+//# warning "Do we need to replace this with something else for the new QLineEdit? --Sam"
 #endif
     } else if(QDialogButtons *btns = ::qt_cast<QDialogButtons*>(w)) {
         if(btns->buttonText(QDialogButtons::Help).isNull())
@@ -394,6 +394,7 @@ void QMacStyleQD::polish(QWidget* w)
 //        w->font().setPixelSize(10);
         tb->setAutoRaise(true);
     }
+    QWindowsStyle::polish(w);
 }
 
 void QMacStyleQD::unPolish(QWidget* w)
@@ -2843,7 +2844,7 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
 }
 
 void QMacStyleQD::drawControl(ControlElement ce, const Q4StyleOption *opt, QPainter *p,
-                              const QWidget *w) const
+                              const QWidget *widget) const
 {
     ThemeDrawState tds = d->getDrawState(opt->state, opt->palette);
     switch (ce) {
@@ -2854,7 +2855,7 @@ void QMacStyleQD::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
             QString pmkey;
             bool do_draw = false;
             QPixmap buffer;
-            bool darken = d->animatable(QAquaAnimate::AquaPushButton, w);
+            bool darken = d->animatable(QAquaAnimate::AquaPushButton, widget);
             int frame = d->buttonState.frame;
             if (btn->state & Style_On) {
                 darken = true;
@@ -2883,7 +2884,7 @@ void QMacStyleQD::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
                 bkind = kThemePushButton;
             ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
             if (opt->state & Style_HasFocus
-                    && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
+                    && QMacStyle::focusRectPolicy(widget) != QMacStyle::FocusDisabled)
                 info.adornment |= kThemeAdornmentFocus;
             QRect off_rct;
             { //The AppManager draws outside my rectangle, so account for that difference..
@@ -2938,16 +2939,151 @@ void QMacStyleQD::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
                     QPixmapCache::insert(pmkey, buffer);
             }
             if (btn->extras & Q4StyleOptionButton::HasMenu) {
-                int mbi = pixelMetric(PM_MenuButtonIndicator, w);
+                int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
                 QRect ir = btn->rect;
                 Q4StyleOptionButton newBtn = *btn;
                 newBtn.rect = QRect(ir.right() - mbi, ir.height() / 2 - 5, mbi, ir.height() / 2);
-                drawPrimitive(PE_ArrowDown, &newBtn, p, w);
+                drawPrimitive(PE_ArrowDown, &newBtn, p, widget);
+            }
+        }
+        break;
+    case CE_MenuItem:
+        if (const Q4StyleOptionMenuItem *mi = qt_cast<const Q4StyleOptionMenuItem *>(opt)) {
+            bool dis = !(mi->state & Style_Enabled);
+            int tab = mi->tabWidth;
+            int maxpmw = mi->maxIconWidth;
+            bool checkable = mi->checkState != Q4StyleOptionMenuItem::NotCheckable;
+            bool checked = mi->checkState == Q4StyleOptionMenuItem::Checked;
+            bool act = mi->state & Style_Active;
+            Rect mrect = *qt_glb_mac_rect(mi->menurect, p),
+            irect = *qt_glb_mac_rect(mi->rect, p, false);
+
+            if (checkable)
+                maxpmw = qMax(maxpmw, 12); // space for the checkmarks
+
+            ThemeMenuState tms = kThemeMenuActive;
+            if (dis)
+                tms |= kThemeMenuDisabled;
+            if (act)
+                tms |= kThemeMenuSelected;
+            ThemeMenuItemType tmit = kThemeMenuItemPlain;
+            if (mi->menuItemType & Q4StyleOptionMenuItem::HasMenu)
+                tmit |= kThemeMenuItemHierarchical;
+            if (!mi->icon.isNull())
+                tmit |= kThemeMenuItemHasIcon;
+            static_cast<QMacStyleQDPainter *>(p)->setport();
+            if (mi->menuItemType != Q4StyleOptionMenuItem::Separator) {
+                DrawThemeMenuItem(&mrect, &irect, mrect.top, mrect.bottom, tms, tmit, 0, 0);
+            } else {
+                DrawThemeMenuSeparator(&irect);
+                return;
+            }
+
+            int x, y, w, h;
+            mi->rect.rect(&x, &y, &w, &h);
+            int checkcol = maxpmw;
+            bool reverse = QApplication::reverseLayout();
+            int xpos = x;
+            if (reverse)
+                xpos += w - checkcol;
+
+            if (!mi->icon.isNull()) {              // draw iconset
+                if (checked) {
+                    QRect vrect = visualRect(QRect(xpos, y, checkcol, h), mi->rect);
+                    if (act && !dis) {
+                        qDrawShadePanel(p, vrect.x(), y, checkcol, h,
+                                        mi->palette, true, 1, &mi->palette.brush(QPalette::Button));
+                    } else {
+                        QBrush fill(mi->palette.light(), Dense4Pattern);
+                        // set the brush origin for the hash pattern to the x/y coordinate
+                        // of the menu item's checkmark... this way, the check marks have
+                        // a consistent look
+                        QPoint origin = p->brushOrigin();
+                        p->setBrushOrigin(vrect.x(), y);
+                        qDrawShadePanel(p, vrect.x(), y, checkcol, h, mi->palette, true, 1, &fill);
+                        // restore the previous brush origin
+                        p->setBrushOrigin(origin);
+                    }
+                }
+                QIconSet::Mode mode = dis ? QIconSet::Disabled : QIconSet::Normal;
+                if(act && !dis)
+                    mode = QIconSet::Active;
+                QPixmap pixmap;
+                if (mi) {
+                    if (checked)
+                        pixmap = mi->icon.pixmap(QIconSet::Small, mode, QIconSet::On);
+                    else
+                        pixmap = mi->icon.pixmap(QIconSet::Small, mode);
+                }
+                int pixw = pixmap.width();
+                int pixh = pixmap.height();
+                if(act && !dis && mi->checkState == Q4StyleOptionMenuItem::Checked)
+                    qDrawShadePanel(p, xpos, y, checkcol, h, mi->palette, false, 1,
+                                    &mi->palette.brush(QPalette::Button));
+                QRect cr(xpos, y, checkcol, h);
+                QRect pmr(0, 0, pixw, pixh);
+                pmr.moveCenter(cr.center());
+                p->setPen(mi->palette.text());
+                p->drawPixmap(pmr.topLeft(), pixmap);
+            } else  if (checked) {  // just "checking"...
+                Q4StyleOptionMenuItem newMi = *mi;
+                newMi.state = Style_Default;
+                int mw = checkcol + macItemFrame;
+                int mh = h - 2*macItemFrame;
+                int xp = xpos;
+                if (reverse)
+                    xp -= macItemFrame;
+                else
+                    xp += macItemFrame;
+                if (!dis)
+                    newMi.state |= Style_Enabled;
+                if (act)
+                    newMi.state |= Style_On;
+                newMi.rect = QRect(xp, y+macItemFrame, mw, mh);
+                drawPrimitive(PE_CheckMark, &newMi, p, widget);
+            }
+
+            if (dis)
+                p->setPen(mi->palette.text());
+            else if (act)
+                p->setPen(mi->palette.highlightedText());
+            else
+                p->setPen(mi->palette.buttonText());
+
+            int xm = macItemFrame + checkcol + macItemHMargin;
+            if (reverse)
+                xpos = macItemFrame + tab;
+            else
+                xpos += xm;
+            if (mi) {
+                QString s = mi->text;
+                if (!s.isEmpty()) {                        // draw text
+                    int t = s.indexOf('\t');
+                    int m = macItemVMargin;
+                    int text_flags = AlignRight | AlignVCenter | NoAccel | SingleLine;
+                    if (t >= 0) {                         // draw tab text
+                        int xp;
+                        if (reverse)
+                            xp = x + macRightBorder+macItemHMargin+macItemFrame - 1;
+                        else
+                            xp = x + w - tab - macRightBorder-macItemHMargin-macItemFrame + 1;
+                        QFont font(p->font());
+                        int oldWeight = font.weight();
+                        font.setWeight(QFont::Bold);
+                        p->setFont(font);
+                        p->drawText(xp, y + m, tab, h - 2 * m, text_flags, s.mid(t + 1));
+                        s = s.left(t);
+                        font.setWeight(oldWeight);
+                        p->setFont(font);
+                    }
+                    text_flags ^= AlignRight;
+                    p->drawText(xpos, y+m, w-xm-tab+1, h-2*m, text_flags, s, t);
+                }
             }
         }
         break;
     default:
-        QWindowsStyle::drawControl(ce, opt, p, w);
+        QWindowsStyle::drawControl(ce, opt, p, widget);
     }
 }
 
@@ -3211,6 +3347,38 @@ QSize QMacStyleQD::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, c
         sz = QWindowsStyle::sizeFromContents(ct, opt, csz, fm, widget);
         sz = QSize(sz.width() + 16, sz.height()); // No idea why, but it was in the old style.
         break;
+    case CT_MenuItem:
+        if (const Q4StyleOptionMenuItem *mi = qt_cast<const Q4StyleOptionMenuItem *>(opt)) {
+            bool checkable = mi->checkState != Q4StyleOptionMenuItem::NotCheckable;
+            int maxpmw = mi->maxIconWidth;
+            int w = sz.width(),
+                h = sz.height();
+            if (mi->menuItemType == Q4StyleOptionMenuItem::Separator) {
+                w = 10;
+                SInt16 ash;
+                GetThemeMenuSeparatorHeight(&ash);
+                h = ash;
+            } else {
+                h = qMax(h, fm.height() + 2);
+                if (!mi->icon.isNull())
+                    h = qMax(h, mi->icon.pixmap(QIconSet::Small, QIconSet::Normal).height() + 4);
+            }
+            if (mi->text.contains('\t'))
+                w += 12;
+            if (mi->menuItemType == Q4StyleOptionMenuItem::HasMenu)
+                w += 20;
+            if (maxpmw)
+                w += maxpmw + 6;
+            if (checkable)
+                w += 12;
+            if (::qt_cast<QComboBox*>(widget->parentWidget())
+                    && widget->parentWidget()->isVisible())
+                w = qMax(w, querySubControlMetrics(CC_ComboBox, widget->parentWidget(),
+                                                   SC_ComboBoxEditField).width()); // ### old-style
+            else
+                w += 12;
+            sz = QSize(w, h);
+        }
     default:
         sz = QWindowsStyle::sizeFromContents(ct, opt, csz, fm, widget);
     }

@@ -128,7 +128,8 @@ QList<QMenuAction*> QMenuPrivate::calcActionRects() const
         }
 
         //let the style modify the above size..
-        sz = q->style().sizeFromContents(QStyle::CT_MenuItem, q, sz, QStyleOption(action, maxIconWidth, 0));
+        Q4StyleOptionMenuItem opt = getStyleOption(action);
+        sz = q->style().sizeFromContents(QStyle::CT_MenuItem, &opt, sz, q->fontMetrics(), q);
 
         if(!sz.isEmpty()) {
             max_column_width = qMax(max_column_width, sz.width());
@@ -505,18 +506,25 @@ Q4StyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
         opt.state |= QStyle::Style_Active;
     if (mouseDown)
         opt.state |= QStyle::Style_Down;
-    opt.extras = Q4StyleOptionMenuItem::Normal;
-    if (checkable)
-        opt.extras |= Q4StyleOptionMenuItem::Checkmark;
+    if (!checkable)
+        opt.checkState = Q4StyleOptionMenuItem::NotCheckable;
+    else
+        opt.checkState = action->isChecked() ? Q4StyleOptionMenuItem::Checked
+                                             : Q4StyleOptionMenuItem::Unchecked;
     if (action->menu())
-        opt.extras |= Q4StyleOptionMenuItem::HasMenu;
-    if (action->isSeparator())
-        opt.extras |= Q4StyleOptionMenuItem::Separator;
+        opt.menuItemType = Q4StyleOptionMenuItem::HasMenu;
+    else if (action->isSeparator())
+        opt.menuItemType = Q4StyleOptionMenuItem::Separator;
+    else
+        opt.menuItemType = Q4StyleOptionMenuItem::Normal;
     opt.icon = action->icon();
-    opt.text = action->text();
+    QString textAndAccel = action->text();
+    QKeySequence seq = action->shortcut();
+    if (!seq.isEmpty())
+        textAndAccel += '\t' + QString(seq);
+    opt.text = textAndAccel;
     opt.tabWidth = tabWidth;
     opt.maxIconWidth = maxIconWidth;
-    opt.checked = action->isChecked();
     opt.menurect = q->rect();
     return opt;
 }

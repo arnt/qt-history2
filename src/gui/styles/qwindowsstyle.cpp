@@ -2704,13 +2704,13 @@ void QWindowsStyle::drawControl(ControlElement ce, const Q4StyleOption *opt, QPa
             int tab = menuitem->tabWidth;
             int maxpmw = menuitem->maxIconWidth;
             bool dis = !(menuitem->state & Style_Enabled);
-            bool checkable = menuitem->extras & Q4StyleOptionMenuItem::Checkmark;
+            bool checked = menuitem->checkState == Q4StyleOptionMenuItem::Checked;
             bool act = menuitem->state & Style_Active;
 
             int x, y, w, h;
             menuitem->rect.rect(&x, &y, &w, &h);
 
-            if (checkable) {
+            if (menuitem->checkState != Q4StyleOptionMenuItem::NotCheckable) {
                 // space for the checkmarks
                 if (use2000style)
                     maxpmw = qMax(maxpmw, 20);
@@ -2719,7 +2719,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const Q4StyleOption *opt, QPa
             }
 
             int checkcol = maxpmw;
-            if (menuitem->extras & Q4StyleOptionMenuItem::Separator) {
+            if (menuitem->menuItemType == Q4StyleOptionMenuItem::Separator) {
                 p->setPen(menuitem->palette.dark());
                 p->drawLine(x, y, x + w, y);
                 p->setPen(menuitem->palette.light());
@@ -2733,7 +2733,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const Q4StyleOption *opt, QPa
             int xpos = x;
             QRect vrect = visualRect(QRect(xpos, y, checkcol, h), menuitem->rect);
             int xvis = vrect.x();
-            if (menuitem->checked) {
+            if (checked) {
                 if (act && !dis) {
                     qDrawShadePanel(p, xvis, y, checkcol, h,
                                     menuitem->palette, true, 1,
@@ -2761,13 +2761,13 @@ void QWindowsStyle::drawControl(ControlElement ce, const Q4StyleOption *opt, QPa
                 if (act && !dis)
                     mode = QIconSet::Active;
                 QPixmap pixmap;
-                if(checkable && menuitem->checked)
+                if (checked)
                     pixmap = menuitem->icon.pixmap(QIconSet::Small, mode, QIconSet::On);
                 else
                     pixmap = menuitem->icon.pixmap(QIconSet::Small, mode);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
-                if (act && !dis && !menuitem->checked)
+                if (act && !dis && menuitem->checkState == Q4StyleOptionMenuItem::Unchecked)
                     qDrawShadePanel(p, xvis, y, checkcol, h, menuitem->palette, false, 1,
                                     &menuitem->palette.brush(QPalette::Button));
                 QRect pmr(0, 0, pixw, pixh);
@@ -2778,10 +2778,10 @@ void QWindowsStyle::drawControl(ControlElement ce, const Q4StyleOption *opt, QPa
                 fill = menuitem->palette.brush(act ? QPalette::Highlight : QPalette::Button);
                 int xp = xpos + checkcol + 1;
                 p->fillRect(visualRect(QRect(xp, y, w - checkcol - 1, h), menuitem->rect), fill);
-            } else if (checkable && menuitem->checked) {
+            } else if (checked) {
                 Q4StyleOptionMenuItem newMi = *menuitem;
                 newMi.state = Style_Default;
-                if (! dis)
+                if (!dis)
                     newMi.state |= Style_Enabled;
                 if (act)
                     newMi.state |= Style_On;
@@ -2838,7 +2838,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const Q4StyleOption *opt, QPa
                 p->drawText(xvis, y + windowsItemVMargin, w - xm - tab + 1,
                             h - 2 * windowsItemVMargin, text_flags, s, t);
             }
-            if (menuitem->extras & Q4StyleOptionMenuItem::HasMenu) {// draw sub menu arrow
+            if (menuitem->menuItemType == Q4StyleOptionMenuItem::HasMenu) {// draw sub menu arrow
                 int dim = (h - 2 * windowsItemFrame) / 2;
                 PrimitiveElement arrow;
                 arrow = QApplication::reverseLayout() ? PE_ArrowLeft : PE_ArrowRight;
@@ -3090,7 +3090,7 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const Q4StyleOption *opt,
     QSize sz(csz);
     switch (ct) {
     case CT_PushButton:
-        if (Q4StyleOptionButton *btn = qt_cast<Q4StyleOptionButton *>(opt)) {
+        if (const Q4StyleOptionButton *btn = qt_cast<const Q4StyleOptionButton *>(opt)) {
             sz = QCommonStyle::sizeFromContents(ct, opt, csz, fm, widget);
             int w = sz.width(),
                 h = sz.height();
@@ -3102,6 +3102,15 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const Q4StyleOption *opt,
             if (h < 23 + defwidth)
                 h = 23 + defwidth;
             sz = QSize(w, h);
+        }
+        break;
+    case CT_MenuItem:
+        if (const Q4StyleOptionMenuItem *mi = qt_cast<const Q4StyleOptionMenuItem *>(opt)) {
+            sz = QCommonStyle::sizeFromContents(ct, opt, csz, fm, widget);
+            if (!(mi->menuItemType == Q4StyleOptionMenuItem::Separator) && !mi->icon.isNull())
+                 sz.setHeight(qMax(csz.height(),
+                              mi->icon.pixmap(QIconSet::Small, QIconSet::Normal).height()
+                              + 2 * windowsItemFrame));
         }
         break;
     default:

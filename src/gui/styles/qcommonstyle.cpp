@@ -3419,7 +3419,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 }
 
 QSize QCommonStyle::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, const QSize &csz,
-                                     const QFontMetrics &, const QWidget *widget) const
+                                     const QFontMetrics &fm, const QWidget *widget) const
 {
     QSize sz(csz);
     switch (ct) {
@@ -3449,6 +3449,32 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, 
             int margins = (!btn->icon.isNull() && btn->text.isEmpty()) ? 0 : 10;
             sz += QSize(irect.right() + margins, 4);
             sz.setHeight(qMax(sz.height(), h));
+        }
+        break;
+    case CT_MenuItem:
+        if (const Q4StyleOptionMenuItem *mi = qt_cast<const Q4StyleOptionMenuItem *>(opt)) {
+            bool checkable = mi->checkState != Q4StyleOptionMenuItem::NotCheckable;
+            int maxpmw = mi->maxIconWidth;
+            int w = sz.width(),
+                h = sz.height();
+            if (mi->menuItemType & Q4StyleOptionMenuItem::Separator) {
+                w = 10;
+                h = 2;
+            } else {
+                h = qMax(h, fm.height() + 8);
+                if (!mi->icon.isNull())
+                    h = qMax(h, mi->icon.pixmap(QIconSet::Small, QIconSet::Normal).height() + 4);
+            }
+            if (mi->text.contains('\t'))
+                w += 12;
+            if (maxpmw > 0)
+                w += maxpmw + 6;
+            if (checkable && maxpmw < 20)
+                w += 20 - maxpmw;
+            if (checkable || maxpmw > 0)
+                w += 2;
+            w += 12;
+            sz = QSize(w, h);
         }
         break;
     case CT_MenuBar:

@@ -57,9 +57,10 @@ struct Q4StyleOptionTab : public Q4StyleOption {
 
 struct Q4StyleOptionMenuItem : public Q4StyleOption {
     enum { Type = MenuItem };
-    enum MenuItemType { Normal = 0x00, Separator = 0x01, Checkmark = 0x02, HasMenu = 0x04 };
-    uint extras;
-    bool checked;
+    enum MenuItemType { Normal, Separator, HasMenu };
+    enum CheckState { NotCheckable, Checked, Unchecked };
+    MenuItemType menuItemType;
+    CheckState checkState;
     QRect menurect;
     QString text;
     QIconSet icon;
