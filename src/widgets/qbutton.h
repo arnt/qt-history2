@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#9 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#10 $
 **
 ** Definition of QButton widget class
 **
@@ -56,19 +56,13 @@ protected:
     void    paintEvent( QPaintEvent * );
     bool    focusInEvent( QEvent * );
 
-    static bool	    acceptPixmap( int, int );
-    static QPixMap *findPixmap( const char * );
-    static void	    savePixmap( const char *, const QPixMap * );
-
 private:
-    static void	    delPixmaps();
-    static QPixMapDict *pmdict;
-    static long	    pmsize;
     QString btext;
     uint    onOffButton	: 1;
     uint    buttonDown	: 1;
     uint    buttonOn	: 1;
     uint    mlbDown	: 1;
+    uint    inGroup	: 1;
 
     friend class QButtonGroup;
 };

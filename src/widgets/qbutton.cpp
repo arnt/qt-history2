@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#13 $
 **
 ** Implementation of QButton widget class
 **
@@ -14,18 +14,10 @@
 #include "qbutton.h"
 #include "qbttngrp.h"
 #include "qpainter.h"
-#include "qdict.h"
-#include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#13 $";
 #endif
-
-
-declare(QDictM,QPixMap);			// internal pixmap dict
-
-QPixMapDict *QButton::pmdict = 0;		// pixmap dict
-long QButton::pmsize = 0;			// size of all pixmaps
 
 
 QButton::QButton( QWidget *parent, const char *name ) : QWidget( parent, name )
@@ -35,48 +27,18 @@ QButton::QButton( QWidget *parent, const char *name ) : QWidget( parent, name )
     buttonDown = FALSE;				// button is up
     buttonOn = FALSE;				// button is off
     mlbDown = FALSE;				// mouse left button up
-    if ( parent && parent->inherits("QButtonGroup") )
+    if ( parent && parent->inherits("QButtonGroup") ) {
 	((QButtonGroup*)parent)->insert( this );// insert into buttongrp parent
+	inGroup = TRUE;
+    }
+    else
+	inGroup = FALSE;
 }
 
 QButton::~QButton()
 {
-    if ( parent() && parent()->inherits("QButtonGroup") )
-	((QButtonGroup*)parent)->insert( this );// remove from buttongrp parent
-}
-
-
-bool QButton::acceptPixmap( int w, int h )	// accept pixmap
-{
-    long size = w*h;
-    if ( size > 5000 )				// will be slow
-	return FALSE;
-    if ( pmsize + size > 80000 )		// limit reached
-	return FALSE;
-    return TRUE;
-}
-
-QPixMap *QButton::findPixmap( const char *key ) // lookup saved pixmap
-{
-    return pmdict ? pmdict->find( key ) : 0;
-}
-
-void QButton::savePixmap( const char *key, const QPixMap *pm )
-{
-    if ( !pmdict ) {				// create pixmap dict
-	pmdict = new QPixMapDict( 31 );
-	CHECK_PTR( pmdict );
-	qAddPostRoutine( delPixmaps );
-    }
-    pmdict->insert( key, pm );			// insert into dict
-    pmsize += pm->size().width()*pm->size().height();
-}
-
-void QButton::delPixmaps()			// delete all pixmaps
-{
-    pmdict->setAutoDelete( TRUE );
-    pmdict->clear();
-    delete pmdict;
+    if ( inGroup )				// remove from buttongrp parent
+	((QButtonGroup*)parent())->remove( this );
 }
 
 
