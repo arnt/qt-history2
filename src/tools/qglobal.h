@@ -152,10 +152,10 @@
 #  define Q_OS_HITACHI
 #elif defined(_SCO_DS)      /* SCO OpenServer */
 #  define Q_OS_SCO
-#elif defined(__UNIXWARE__) /* UnixWare + GCC */
+#elif defined(__UNIXWARE__) /* UnixWare + GCC, Open UNIX 8 + GCC */
 #  define Q_OS_UNIXWARE
 #  define Q_OS_UNIXWARE7
-#elif defined(__USLC__)     /* UnixWare + UDK */
+#elif defined(__USLC__)     /* UnixWare + UDK, Open UNIX 8 + OUDK */
 #  define Q_OS_UNIXWARE
 #  define Q_OS_UNIXWARE7
 #elif defined(__svr4__)
