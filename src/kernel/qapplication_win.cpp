@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#200 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#201 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -253,11 +253,11 @@ static void qt_set_windows_resources()
     // windows supports special fonts for the menus
     NONCLIENTMETRICS ncm;
     ncm.cbSize = sizeof( NONCLIENTMETRICS );
-    SystemParametersInfo( SPI_GETNONCLIENTMETRICS, 
-			  sizeof( NONCLIENTMETRICS), 
-			  &ncm, 
+    SystemParametersInfo( SPI_GETNONCLIENTMETRICS,
+			  sizeof( NONCLIENTMETRICS),
+			  &ncm,
 			  NULL);
-    
+
     QString menuFontName = qt_winQString(ncm.lfMenuFont.lfFaceName);
     QFont menuFont(menuFontName);
     if (ncm.lfMenuFont.lfItalic)
@@ -267,19 +267,19 @@ static void qt_set_windows_resources()
     }
     float mps = ((float) -ncm.lfMenuFont.lfHeight*72)/ ((float) GetDeviceCaps(qt_display_dc(), LOGPIXELSY));
     menuFont.setPointSize(int(mps+0.5));
-    
+
     if (menuFont != QFont::defaultFont()) {
 	QApplication::setFont( menuFont, FALSE, "QPopupMenu");
 	QApplication::setFont( menuFont, TRUE, "QMenuBar");
     }
-    
+
     // same technique could apply to set the statusbar or tooltip
     // font, but since windows does not allow to change them, we do
     // not care for now.
-    
-    
+
+
     // do the color settings
-    
+
     /*
     debug("Windows:");
 

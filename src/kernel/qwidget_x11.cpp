@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#285 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#286 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -537,34 +537,18 @@ void QWidget::setBackgroundColorDirect( const QColor &color )
 {
     QColor old = bg_col;
     bg_col = color;
-    XSetWindowBackground( dpy, winid, bg_col.pixel() );
     if ( extra && extra->bg_pix ) {		// kill the background pixmap
 	delete extra->bg_pix;
 	extra->bg_pix = 0;
     }
+    XSetWindowBackground( dpy, winid, bg_col.pixel() );
     backgroundColorChange( old );
 }
 
 static int allow_null_pixmaps = 0;
 
-/*!
-  Sets the background pixmap of the widget to \e pixmap.
-  
-  This function is deprecated.  Use setBackgroundMode() or
-  setPalette(), as they ensure the appropriate clearing pixmap or
-  color is used when the widget is in the Active, Normal, or Disabled
-  state.
 
-  The background pixmap is tiled.  Some widgets (e.g. QLineEdit) do
-  not work well with a background pixmap.
-
-  \sa backgroundPixmap(), backgroundPixmapChange(), setBackgroundColor()
-
-  \internal
-  This function is call with a null pixmap by setBackgroundEmpty().
-*/
-
-void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
+void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
 {
     QPixmap old;
     if ( extra && extra->bg_pix )
@@ -593,7 +577,6 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 	    qt_updated_rootinfo();
     }
     if ( !allow_null_pixmaps ) {
-	setBackgroundModeDirect( FixedPixmap );
 	backgroundPixmapChange( old );
     }
 }
@@ -1533,7 +1516,7 @@ void QWidget::erase( int x, int y, int w, int h )
 }
 
 /*!
-  Erases the area defined by \a reg, without generating a 
+  Erases the area defined by \a reg, without generating a
   \link paintEvent() paint event\endlink.
 
   Child widgets are not affected.

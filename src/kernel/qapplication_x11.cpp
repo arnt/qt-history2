@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#374 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#375 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -586,7 +586,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
 	QColorGroup dcg( disabled, btn, btn.light( 125 ), btn.dark(), btn.dark(150),
 			 disabled, Qt::white, Qt::white, bg );
 	QPalette pal( cg, dcg, cg );
-	QApplication::setPalette( pal, TRUE ); 
+	QApplication::setPalette( pal, TRUE );
 	/* ##### TODO Matthias
 	{
 	    QColorGroup cg( fg, Qt::green, btn.light(),
@@ -3072,7 +3072,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		return TRUE;
 	}
 	if ( event->type == ButtonPress ) {	// mouse button pressed
-	    qt_button_down = findChildWidget( this, pos );
+	    qt_button_down = findChildWidget( this, pos );	//magic for masked widgets
 	    if ( !qt_button_down )
 		qt_button_down = this;
 	    qt_window_for_button_down = winId();

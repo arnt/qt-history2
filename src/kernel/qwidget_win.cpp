@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#144 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#145 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -192,7 +192,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    setWinId( id );
 	}
     } else if ( topLevel ) {			// create top-level widget
-	// WWA: I cannot get the Unicode versions to work. 
+	// WWA: I cannot get the Unicode versions to work.
 	if ( exsty )
 	    id = CreateWindowExA( exsty, wcln, title, style,
 				 CW_USEDEFAULT, CW_USEDEFAULT,
@@ -207,7 +207,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	if ( tool )
 	    SetWindowPos( id, HWND_TOPMOST, 0, 0, 100, 100, SWP_NOACTIVATE );
     } else {					// create child widget
-	// WWA: I cannot get the Unicode versions to work. 
+	// WWA: I cannot get the Unicode versions to work.
 	id = CreateWindowA( wcln, title, style, 0, 0, 100, 30,
 			   parentw, NULL, appinst, NULL );
 	SetWindowPos( id, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
@@ -415,6 +415,11 @@ static int allow_null_pixmaps = 0;
 
 void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 {
+    setBackgroundModeDirect( FixedPixmap );
+}
+
+void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
+{
     QPixmap old;
     if ( extra && extra->bg_pix )
 	old = *extra->bg_pix;
@@ -431,7 +436,6 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 	extra->bg_pix = new QPixmap( pixmap );
     }
     if (!allow_null_pixmaps) {
-	setBackgroundModeDirect( FixedPixmap );
 	backgroundPixmapChange( old );
     }
 }

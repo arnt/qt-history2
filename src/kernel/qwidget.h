@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#182 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#183 $
 **
 ** Definition of QWidget class
 **
@@ -375,6 +375,7 @@ private:
     QFocusData	*focusData( bool create );
     void         setBackgroundFromMode();
     void         setBackgroundColorDirect( const QColor & );
+    void   	    setBackgroundPixmapDirect( const QPixmap & );
     void         setBackgroundModeDirect( BackgroundMode );
     void         setBackgroundEmpty();
 
