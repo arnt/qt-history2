@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Form implementation generated from reading ui file 'mainform.ui'
 **
-** Created: Tue Feb 20 17:49:19 2001
+** Created: Wed Feb 21 14:10:18 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -13,7 +13,7 @@
 #include <qpushbutton.h>
 #include <qspinbox.h>
 #include <qwidgetfactory.h>
-#include "dynamic.h"
+#include "receiver.h"
 #include <qmime.h>
 #include <qdragobject.h>
 #include <qlayout.h>
@@ -90,10 +90,10 @@ MainForm::~MainForm()
 
 void MainForm::creditDialog()
 {
-    Dynamic *dynamic = new Dynamic; 
+    Receiver *receiver = new Receiver; 
     QDialog *creditForm = (QDialog *) 
-    QWidgetFactory::create( "../credit/creditformbase.ui", dynamic );   
-    dynamic->setParent( creditForm );   
+    QWidgetFactory::create( "../credit/creditformbase.ui", receiver );   
+    receiver->setParent( creditForm );   
 
     // Set up the dynamic dialog here 
      
@@ -104,7 +104,7 @@ void MainForm::creditDialog()
 	    ratingTextLabel->setText( amount->text() );  
     } 
     
-    delete dynamic; 
+    delete receiver; 
     delete creditForm; 
 }
 

@@ -1,13 +1,11 @@
 TEMPLATE    = app
 CONFIG      = qt warn_on release
-TARGET      = dynamic
+TARGET      = receiver
 SOURCES    += main.cpp
 unix:LIBS  += -lqresource
 win32:LIBS += $(QTDIR)/lib/qresource.lib
-HEADERS += dynamic.h
-SOURCES += dynamic.cpp
 INTERFACES	= mainform.ui 
 IMAGEFILE	= images.cpp
-PROJECTNAME	= dynamic
+PROJECTNAME	= receiver
 LANGUAGE	= C++
 {SOURCES+=images.cpp}

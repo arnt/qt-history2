@@ -2,7 +2,7 @@
 <class>MainForm</class>
 <include location="global" impldecl="in implementation">qwidgetfactory.h</include>
 <include location="global" impldecl="in implementation">qspinbox.h</include>
-<include location="local" impldecl="in implementation">dynamic.h</include>
+<include location="local" impldecl="in implementation">receiver.h</include>
 <pixmapinproject/>
 <widget class="QDialog">
     <property name="name">
@@ -88,10 +88,10 @@
 
 }</function>
     <function name="creditDialog()" >{
-    Dynamic *dynamic = new Dynamic; 
+    Receiver *receiver = new Receiver; 
     QDialog *creditForm = (QDialog *) 
-    QWidgetFactory::create( "../credit/creditformbase.ui", dynamic );   
-    dynamic-&gt;setParent( creditForm );   
+    QWidgetFactory::create( "../credit/creditformbase.ui", receiver );   
+    receiver-&gt;setParent( creditForm );   
 
     // Set up the dynamic dialog here 
      
@@ -102,7 +102,7 @@
 	    ratingTextLabel-&gt;setText( amount-&gt;text() );  
     } 
     
-    delete dynamic; 
+    delete receiver; 
     delete creditForm; 
 }</function>
 </functions>

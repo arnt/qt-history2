@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Form interface generated from reading ui file 'mainform.ui'
 **
-** Created: Tue Feb 20 17:49:17 2001
+** Created: Wed Feb 21 14:10:13 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!

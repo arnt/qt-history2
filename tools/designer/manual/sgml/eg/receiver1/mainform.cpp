@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Form implementation generated from reading ui file 'mainform.ui'
 **
-** Created: Tue Feb 20 15:34:48 2001
+** Created: Wed Feb 21 14:09:41 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -95,7 +95,7 @@ void MainForm::creditDialog()
     
     if ( creditForm->exec() ) {
 	// The user accepted, act accordingly
-	QSpinBox *amount = (QSpinBox *) creditForm->child( "amountSpinBox" );
+	QSpinBox *amount = (QSpinBox *) creditForm->child( "amountSpinBox", "QSpinBox" );
 	if ( amount )
 	    ratingTextLabel->setText( amount->text() ); 
     }

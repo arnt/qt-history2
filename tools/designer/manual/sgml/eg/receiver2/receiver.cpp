@@ -1,14 +1,14 @@
 #include <qradiobutton.h>
 #include <qspinbox.h>
-#include "dynamic.h"
+#include "receiver.h"
 
-void Dynamic::setParent( QDialog *parent )
+void Receiver::setParent( QDialog *parent )
 {
     p = parent;
     setAmount();
 }
 
-void Dynamic::setAmount() 
+void Receiver::setAmount() 
 {
     QSpinBox *amount = 
 	(QSpinBox *) p->child( "amountSpinBox", "QSpinBox" );

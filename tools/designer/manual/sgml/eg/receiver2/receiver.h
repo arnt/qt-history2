@@ -1,7 +1,7 @@
 #include <qobject.h>
 #include <qdialog.h>
 
-class Dynamic : public QObject
+class Receiver : public QObject
 {
     Q_OBJECT
 public:
