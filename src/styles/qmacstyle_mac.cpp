@@ -1293,8 +1293,10 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 		p->fillRect(updown, sw->backgroundColor());
 	    ((QMacPainter *)p)->setport();
 	    ThemeButtonKind kind = kThemeIncDecButton;
+#if QT_MACOSX_VERSION >= 0x1030
 	    if(qt_aqua_size_constrain(widget) == QAquaSizeSmall)
 		kind = kThemeIncDecButtonSmall;
+#endif
 	    DrawThemeButton(qt_glb_mac_rect(updown, p), kind, &info, NULL, NULL, NULL, 0);
 	}
 	break; }
@@ -1494,8 +1496,10 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    ((QMacPainter *)p)->setport();
 
 	    ThemeButtonKind bkind = kThemeArrowButton;
+#if QT_MACOSX_VERSION >= 0x1030
 	    if(qt_aqua_size_constrain(widget) == QAquaSizeSmall)
 		bkind = kThemeArrowButtonSmall;
+#endif
 	    DrawThemeButton(qt_glb_mac_rect(buttonR, p, TRUE, QRect(1, 0, 0, 0)), 
 			    bkind, &info, NULL, NULL, NULL, 0);
 	} else {
