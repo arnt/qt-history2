@@ -63,7 +63,8 @@ DESTDIR		= $$QMAKE_LIBDIR_QT
 DLLDESTDIR	= $$QT_INSTALL_PREFIX/bin
 
 CONFIG		+= qt warn_on depend_includepath
-CONFIG          += qmake_cache target_qt debug_and_release
+CONFIG          += qmake_cache target_qt 
+!win32-msvc:!macx-xcode:CONFIG += debug_and_release
 contains(QT_CONFIG, largefile):CONFIG += largefile
 
 mac {
