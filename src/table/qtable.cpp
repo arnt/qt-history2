@@ -3040,6 +3040,8 @@ int QTable::addSelection( const QTableSelection &s )
 
     repaintSelections( 0, sel, TRUE, TRUE );
 
+    emit selectionChanged();
+
     return selections.count() - 1;
 }
 
