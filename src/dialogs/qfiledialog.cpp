@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#272 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#273 $
 **
 ** Implementation of QFileDialog class
 **
@@ -399,7 +399,7 @@ struct QFileDialogPrivate {
     QList<WaitForStruct> waitFor;
 
     bool ignoreNextKeyPress;
-    
+
 };
 
 QFileDialogPrivate::~QFileDialogPrivate()
@@ -1498,7 +1498,7 @@ void QFileDialog::init()
     d->contentsPreview = TRUE;
     d->hadDotDot = FALSE;
     d->ignoreNextKeyPress = FALSE;
-    
+
     d->waitFor.setAutoDelete( TRUE );
 
     d->url = QUrl( "file:/" );
@@ -1853,7 +1853,8 @@ void QFileDialog::setSelection( const QString & filename )
     QString nf = d->url.nameFilter();
     d->url = QUrl( filename );
     d->url.setNameFilter( nf );
-    d->url.isDir();
+    if ( !d->url.isDir() )
+	d->waitFor.remove( (uint)0 );
 }
 
 void QFileDialog::slotIsDir()
@@ -2037,7 +2038,9 @@ void QFileDialog::setUrl( const QUrl &url )
     d->waitFor.append( wfs );
 
     d->url = url;
-    d->url.isDir();
+    
+    if ( !d->url.isDir() )
+	d->waitFor.remove( (uint)0 );
 }
 
 /*!
@@ -2836,14 +2839,14 @@ void QFileDialog::error( int ecode, const QString &msg )
 {
     if ( d->paths->hasFocus() )
 	d->ignoreNextKeyPress = TRUE;
-    
+
     QMessageBox::critical( this, tr( "ERROR" ), msg );
 
-    if ( ecode == QUrl::ReadDir || ecode == QUrl::ParseError /*|| 
-							       ecode == QUrl::UnknownProtocol*/ ) {
+    if ( ecode == QUrl::ReadDir || ecode == QUrl::ParseError ||
+	 ecode == QUrl::UnknownProtocol ) {
 	// #### todo
 	d->url = "/";
-	setDir( "/" );
+	rereadDir();
     }
 }
 
@@ -3113,7 +3116,7 @@ void QFileDialog::keyPressEvent( QKeyEvent * ke )
     }
 
     d->ignoreNextKeyPress = FALSE;
-    
+
     if ( !ke->isAccepted() ) {
 	QDialog::keyPressEvent( ke );
     }

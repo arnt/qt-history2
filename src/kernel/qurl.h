@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.h#2 $
+** $Id: //depot/qt/main/src/kernel/qurl.h#3 $
 **
 ** Implementation of QFileDialog class
 **
@@ -123,8 +123,8 @@ public:
     virtual void copy( const QString &from, const QString &to );
     virtual void copy( const QStringList &files, const QString &dest, bool move );
 
-    virtual void isDir();
-    virtual void isFile();
+    virtual bool isDir();
+    virtual bool isFile();
 
     virtual void setNameFilter( const QString &nameFilter );
     QString nameFilter() const;
