@@ -107,7 +107,8 @@ class Q_EXPORT QMapIterator
     bool operator!=( const QMapIterator<K,T>& it ) const { return node != it.node; }
     T& operator*() { return node->data; }
     const T& operator*() const { return node->data; }
-    T* operator->() const { return &node->data; }
+    // UDT for T = x*
+    // T* operator->() const { return &node->data; }
 
     const K& key() const { return node->key; }
     T& data() { return node->data; }
@@ -204,7 +205,8 @@ class Q_EXPORT QMapConstIterator
     bool operator==( const QMapConstIterator<K,T>& it ) const { return node == it.node; }
     bool operator!=( const QMapConstIterator<K,T>& it ) const { return node != it.node; }
     const T& operator*()  const { return node->data; }
-    const T* operator->() const { return &node->data; }
+    // UDT for T = x*
+    // const T* operator->() const { return &node->data; }
 
     const K& key() const { return node->key; }
     const T& data() const { return node->data; }

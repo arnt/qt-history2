@@ -88,7 +88,8 @@ class Q_EXPORT QValueListIterator
     bool operator!=( const QValueListIterator<T>& it ) const { return node != it.node; }
     const T& operator*() const { return node->data; }
     T& operator*() { return node->data; }
-    T* operator->() const { return &node->data; }
+    // UDT for T = x*
+    // T* operator->() const { return &node->data; }
 
     QValueListIterator<T>& operator++() {
 	node = node->next;
@@ -138,7 +139,8 @@ class Q_EXPORT QValueListConstIterator
     bool operator==( const QValueListConstIterator<T>& it ) const { return node == it.node; }
     bool operator!=( const QValueListConstIterator<T>& it ) const { return node != it.node; }
     const T& operator*() const { return node->data; }
-    const T* operator->() const { return &node->data; }
+    // UDT for T = x*
+    // const T* operator->() const { return &node->data; }
 
     QValueListConstIterator<T>& operator++() {
 	node = node->next;
