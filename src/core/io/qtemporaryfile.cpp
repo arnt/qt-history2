@@ -57,8 +57,8 @@ QTemporaryFileEngine::open(int)
         oflags |= QT_OPEN_BINARY;
 #endif
         d->fd = d->sysOpen(filename, oflags);
-#endif
     }
+#endif
     if(d->fd != -1) {
         d->file = QString::fromLatin1(filename); //changed now!
         free(filename);
