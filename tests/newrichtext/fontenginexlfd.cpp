@@ -152,41 +152,47 @@ void FontEngineXLFD::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, 
     int yp = y;
 #endif
 
-    if ( _fs->max_byte1 ) {
-	XChar2b ch[256];
-	XChar2b *chars = ch;
-	if ( numGlyphs > 255 )
-	    chars = (XChar2b *)malloc( numGlyphs*sizeof(XChar2b) );
+    XChar2b ch[256];
+    XChar2b *chars = ch;
+    if ( numGlyphs > 255 )
+	chars = (XChar2b *)malloc( numGlyphs*sizeof(XChar2b) );
 
-	for (int i = 0; i < numGlyphs; i++) {
-	    chars[i].byte1 = glyphs[i] >> 8;
-	    chars[i].byte2 = glyphs[i] & 0xff;
-	}
-
-	if (bgmode != Qt::TransparentMode)
-	    XDrawImageString16(dpy, hd, gc, x, y, chars, numGlyphs );
-	else
-	    XDrawString16(dpy, hd, gc, x, y, chars, numGlyphs );
-
-	if ( numGlyphs > 255 )
-	    free( chars );
-    } else {
-	char ch[256];
-	char *chars = ch;
-	if ( numGlyphs > 255 )
-	    chars = (char *)malloc( numGlyphs*sizeof(char) );
-
-	for (int i = 0; i < numGlyphs; i++)
-	    chars[i] = glyphs[i] & 0xff;
-
-	if (bgmode != Qt::TransparentMode)
-	    XDrawImageString(dpy, hd, gc, x, y, chars, numGlyphs );
-	else
-	    XDrawString(dpy, hd, gc, x, y, chars, numGlyphs );
-
-	if ( numGlyphs > 255 )
-	    free( chars );
+    for (int i = 0; i < numGlyphs; i++) {
+	chars[i].byte1 = glyphs[i] >> 8;
+	chars[i].byte2 = glyphs[i] & 0xff;
     }
+
+
+    int start = 0;
+    int i = 1;
+    while ( i < numGlyphs ) {
+	if ( offsets[i].x || offsets[i].y ) {
+// 	    qDebug("drawing from %d to %d at (%d/%d)", start, i-1, x+offsets[start].x, y+offsets[start].y );
+	    if (bgmode != Qt::TransparentMode)
+		XDrawImageString16(dpy, hd, gc, x+offsets[start].x, y+offsets[start].y, chars+start, i-start );
+	    else
+		XDrawString16(dpy, hd, gc, x+offsets[start].x, y+offsets[start].y, chars+start, i-start );
+	    Offset adv = advance( glyphs+start, offsets+start, i-start );
+// 	    qDebug("advance = %d/%d", adv.x, adv.y );
+	    x += adv.x;
+	    y += adv.y;
+	    start = i;
+	}
+	i++;
+    }
+    if ( start < numGlyphs ) {
+// 	qDebug("drawing from %d to %d at (%d/%d)", start, i-1, x+offsets[start].x, y+offsets[start].y );
+	if (bgmode != Qt::TransparentMode)
+	    XDrawImageString16(dpy, hd, gc, x+offsets[start].x, y+offsets[start].y,
+			       (chars+start), numGlyphs - start );
+	else
+	    XDrawString16(dpy, hd, gc, x+offsets[start].x, y+offsets[start].y,
+			       (chars+start), numGlyphs - start );
+    }
+
+    if ( numGlyphs > 255 )
+	free( chars );
+
 #ifdef FONTENGINE_DEBUG
     x = xp;
     y = yp;
