@@ -27,7 +27,7 @@ QTextFormatCollectionState::QTextFormatCollectionState(const QTextFormatCollecti
         if (group) {
             QTextFormat groupFormat = group->commonFormat();
             Q_ASSERT(collection->hasFormatCached(groupFormat));
-            int idx = const_cast<QTextFormatCollection *>(collection)->indexForFormat(groupFormat);
+            const int idx = const_cast<QTextFormatCollection *>(collection)->indexForFormat(groupFormat);
 
             formats[idx] = cloneFormat(groupFormat);
             groups[format.groupIndex()] = idx;
@@ -53,7 +53,7 @@ QMap<int, int> QTextFormatCollectionState::insertIntoOtherCollection(QTextFormat
     for (FormatMap::ConstIterator it = formats.begin(); it != formats.end(); ++it) {
         QTextFormat format = it.value();
 
-        int groupIndex = format.groupIndex();
+        const int groupIndex = format.groupIndex();
         if (groupIndex != -1) {
             groupIndex = insertedGroups.value(groupIndex, -1);
             format.setGroupIndex(groupIndex);
@@ -579,7 +579,6 @@ void QTextHTMLImporter::appendText(const QString &text, const QTextFormat &forma
 QTextDocumentFragment QTextDocumentFragment::fromHTML(const QString &html)
 {
     QTextDocumentFragment res;
-
     res.d = new QTextDocumentFragmentPrivate;
 
     QTextHTMLImporter(res.d, html).import();
@@ -597,6 +596,4 @@ QTextDocumentFragment QTextDocumentFragment::fromHTML(const QByteArray &html)
     QString unicode = codec->toUnicode(html);
     return fromHTML(unicode);
 }
-
-
 
