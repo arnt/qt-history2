@@ -51,7 +51,7 @@ public:
 
     QTextCursor focusIndicator;
 
-    QString findFile(const QString &name) const;
+    QString findFile(const QUrl &name) const;
 
     inline void documentModified()
     {
@@ -69,29 +69,36 @@ static bool isAbsoluteFileName(const QString &name)
 #if defined(Q_WS_WIN)
                || (name[0].isLetter() && name[1] == QLatin1Char(':')) || name.startsWith("\\\\")
 #endif
+               || (name[0]  == QLatin1Char(':') && name[1] == QLatin1Char('/'))
               );
 
 }
 
-QString QTextBrowserPrivate::findFile(const QString &name) const
+QString QTextBrowserPrivate::findFile(const QUrl &name) const
 {
-    if (isAbsoluteFileName(name))
-        return name;
+    QString fileName;
+    if (name.scheme() == QLatin1String("qrc"))
+        fileName = QLatin1String(":/") + name.path();
+    else
+        fileName = name.toLocalFile();
+
+    if (isAbsoluteFileName(fileName))
+        return fileName;
 
     QString slash("/");
 
     foreach (QString path, searchPaths) {
         if (!path.endsWith(slash))
             path.append(slash);
-        path.append(name);
+        path.append(fileName);
         if (QFileInfo(path).isReadable())
             return path;
     }
 
     if (stack.isEmpty())
-        return name;
+        return fileName;
 
-    QFileInfo path(QFileInfo(currentURL.toLocalFile()).absolutePath(), name);
+    QFileInfo path(QFileInfo(currentURL.toLocalFile()).absolutePath(), fileName);
     return path.absoluteFilePath();
 }
 
@@ -728,7 +735,7 @@ QVariant QTextBrowser::loadResource(int /*type*/, const QUrl &name)
     Q_D(QTextBrowser);
 
     QByteArray data;
-    QString fileName = d->findFile(name.toLocalFile());
+    QString fileName = d->findFile(name);
     QFile f(fileName);
     if (f.open(QFile::ReadOnly)) {
         data = f.readAll();
