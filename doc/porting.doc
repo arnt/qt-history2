@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.4 1998/08/17 03:32:23 warwick Exp $
+** $Id: porting.doc,v 1.5 1998/08/27 23:19:28 agulbra Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -104,4 +104,17 @@ Some repaint problems problems might occur with subclasses on QFrame,
 
 <p>
 QClipboard::pixmap() now returns a QPixmap, not a QPixmap*.
+
+<p> The global #define macros in qevent.h have been replaced by an
+enum in QEvent.  Use e.g. QEvent::Paint instead of Event_Paint.
+
+<p> The Q_*_EVENT macros in qevent.h have been deleted.  Use an
+explicit cast instead.
+
+<p> The Q_DECLARE macro and qgeneric.h are obsolete.  Use real
+template instantiations instead.  (e.g. QCache<QPixmap> instead of
+Q_DECLARE(QCache,QPixmap).)
+
+<p> The ButtonState enum has changed.  ### TO WHAT?
+
 */
