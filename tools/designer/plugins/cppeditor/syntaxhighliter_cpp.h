@@ -17,7 +17,7 @@
 #include <private/qrichtext_p.h>
 #include <conf.h>
 
-class SyntaxHighlighter_CPP : public QTextPreProcessor
+class SyntaxHighlighter_CPP : public Q3TextPreProcessor
 {
 public:
     enum CppIds {
@@ -32,20 +32,20 @@ public:
 
     SyntaxHighlighter_CPP();
     virtual ~SyntaxHighlighter_CPP();
-    void process( QTextDocument *doc, QTextParagraph *string, int start, bool invalidate = TRUE );
+    void process( Q3TextDocument *doc, Q3TextParagraph *string, int start, bool invalidate = TRUE );
     void updateStyles( const QMap<QString, ConfigStyle> &styles );
 
     static const char * const keywords[];
 
-    QTextFormat *format( int id );
+    Q3TextFormat *format( int id );
 
 private:
-    void addFormat( int id, QTextFormat *f );
+    void addFormat( int id, Q3TextFormat *f );
     void removeFormat( int id );
 
-    QTextFormat *lastFormat;
+    Q3TextFormat *lastFormat;
     int lastFormatId;
-    QHash<int, QTextFormat*> formats;
+    QHash<int, Q3TextFormat*> formats;
 
 };
 

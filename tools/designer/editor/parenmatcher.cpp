@@ -22,7 +22,7 @@ ParenMatcher::ParenMatcher()
     enabled = TRUE;
 }
 
-bool ParenMatcher::match( QTextCursor *cursor )
+bool ParenMatcher::match( Q3TextCursor *cursor )
 {
     if ( !enabled )
 	return FALSE;
@@ -45,14 +45,14 @@ bool ParenMatcher::match( QTextCursor *cursor )
     return ret;
 }
 
-bool ParenMatcher::checkOpenParen( QTextCursor *cursor )
+bool ParenMatcher::checkOpenParen( Q3TextCursor *cursor )
 {
     if ( !cursor->paragraph()->extraData() )
 	return FALSE;
     ParenList parenList = ( (ParagData*)cursor->paragraph()->extraData() )->parenList;
 
     Paren openParen, closedParen;
-    QTextParagraph *closedParenParag = cursor->paragraph();
+    Q3TextParagraph *closedParenParag = cursor->paragraph();
 
     int i = 0;
     int ignore = 0;
@@ -105,7 +105,7 @@ bool ParenMatcher::checkOpenParen( QTextCursor *cursor )
 		id = Mismatch;
 	    cursor->document()->setSelectionStart( id, *cursor );
 	    int tidx = cursor->index();
-	    QTextParagraph *tstring = cursor->paragraph();
+	    Q3TextParagraph *tstring = cursor->paragraph();
 	    cursor->setParagraph( closedParenParag );
 	    cursor->setIndex( closedParen.pos + 1 );
 	    cursor->document()->setSelectionEnd( id, *cursor );
@@ -119,14 +119,14 @@ bool ParenMatcher::checkOpenParen( QTextCursor *cursor )
     return FALSE;
 }
 
-bool ParenMatcher::checkClosedParen( QTextCursor *cursor )
+bool ParenMatcher::checkClosedParen( Q3TextCursor *cursor )
 {
     if ( !cursor->paragraph()->extraData() )
 	return FALSE;
     ParenList parenList = ( (ParagData*)cursor->paragraph()->extraData() )->parenList;
 
     Paren openParen, closedParen;
-    QTextParagraph *openParenParag = cursor->paragraph();
+    Q3TextParagraph *openParenParag = cursor->paragraph();
 
     int i = parenList.count() - 1;
     int ignore = 0;
@@ -179,7 +179,7 @@ bool ParenMatcher::checkClosedParen( QTextCursor *cursor )
 		id = Mismatch;
 	    cursor->document()->setSelectionStart( id, *cursor );
 	    int tidx = cursor->index();
-	    QTextParagraph *tstring = cursor->paragraph();
+	    Q3TextParagraph *tstring = cursor->paragraph();
 	    cursor->setParagraph( openParenParag );
 	    cursor->setIndex( openParen.pos );
 	    cursor->document()->setSelectionEnd( id, *cursor );

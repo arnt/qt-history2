@@ -21,7 +21,6 @@ PropertyObject::PropertyObject( const QWidgetList &objs )
     : QObject(), objects( objs ), mobj( 0 )
 {
     QVector<QList<QMetaObject*> > v;
-    v.resize( objects.count() );
 
     for (int i = 0; i < objects.size(); ++i) {
 	QObject *o = objects.at(i);

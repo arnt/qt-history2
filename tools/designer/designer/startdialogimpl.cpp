@@ -52,6 +52,7 @@ void StartDialog::accept()
     showInFuture = !checkShowInFuture->isChecked(); // means don't show it anymore
 
     int tabindex = tabWidget->currentPageIndex();
+
     QString filename;
     if( !tabindex ) {
 	if ( !templateView->currentItem() )
@@ -63,7 +64,7 @@ void StartDialog::accept()
 	( (NewItem*)templateView->currentItem() )->insert( pro );
     } else if ( tabindex == 1 ) {
 	filename = fd->selectedFile();
-    } else if ( tabindex == 2 ) {
+    } else if ( tabindex == 2 && recentView->currentItem() ) {
 	filename = recentFiles[recentView->currentItem()->index()];
     }
     if ( tabindex ) {

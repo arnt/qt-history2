@@ -2539,7 +2539,7 @@ bool MainWindow::openEditor( QWidget *w, FormWindow *f )
 	    QString s = QString( w->name() ) + "_" + defSignal;
 	    LanguageInterface *iface = MetaDataBase::languageInterface( f->project()->language() );
 	    if ( iface ) {
-		QList<char*> sigs = iface->signalNames( w );
+		QStringList sigs = iface->signalNames( w );
 		QString fullSignal;
 		for ( int i = 0; i < (int)sigs.count(); ++i ) {
 		    QString sig = sigs.at( i );

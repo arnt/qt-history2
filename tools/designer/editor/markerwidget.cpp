@@ -281,7 +281,7 @@ void MarkerWidget::paintEvent( QPaintEvent * )
 {
     buffer.fill( backgroundColor() );
 
-    QTextParagraph *p = ( (Editor*)viewManager->currentView() )->document()->firstParagraph();
+    Q3TextParagraph *p = ( (Editor*)viewManager->currentView() )->document()->firstParagraph();
     QPainter painter( &buffer );
     int yOffset = ( (Editor*)viewManager->currentView() )->contentsY();
     while ( p ) {
@@ -377,11 +377,11 @@ void MarkerWidget::mousePressEvent( QMouseEvent *e )
     if ( e->button() != LeftButton )
 	return;
     bool supports = ( (Editor*)viewManager->currentView() )->supportsBreakPoints();
-    QTextParagraph *p = ( (Editor*)viewManager->currentView() )->document()->firstParagraph();
+    Q3TextParagraph *p = ( (Editor*)viewManager->currentView() )->document()->firstParagraph();
     int yOffset = ( (Editor*)viewManager->currentView() )->contentsY();
     while ( p ) {
 	if ( e->y() >= p->rect().y() - yOffset && e->y() <= p->rect().y() + p->rect().height() - yOffset ) {
-	    QTextParagraphData *d = p->extraData();
+	    Q3TextParagraphData *d = p->extraData();
 	    if ( !d )
 		return;
 	    ParagData *data = (ParagData*)d;
@@ -419,7 +419,7 @@ void MarkerWidget::contextMenuEvent( QContextMenuEvent *e )
     int toggleBreakPoint = 0;
 //    int editBreakpoints = 0;
 
-    QTextParagraph *p = ( (Editor*)viewManager->currentView() )->document()->firstParagraph();
+    Q3TextParagraph *p = ( (Editor*)viewManager->currentView() )->document()->firstParagraph();
     int yOffset = ( (Editor*)viewManager->currentView() )->contentsY();
     bool supports = ( (Editor*)viewManager->currentView() )->supportsBreakPoints();
     while ( p && supports ) {

@@ -109,7 +109,7 @@ struct LanguageInterface : public QUnknownInterface
     virtual void removeConnection( const QString &sender, const QString &signal,
 				   const QString &receiver, const QString &slot,
 				   QString *code ) = 0;
-    virtual QList<char*> signalNames( QObject *obj ) const = 0;
+    virtual QStringList signalNames( QObject *obj ) const = 0;
 
 };
 

@@ -12,13 +12,14 @@
 
 #include "cindent.h"
 #include "qregexp.h"
+#include <private/qrichtext_p.h>
 
 extern int indentForBottomLine( const QStringList& program, QChar typedIn );
 extern void setTabSize( int s );
 extern void setIndentSize( int s );
 
 CIndent::CIndent()
-    : QTextIndent(), tabSize( 8 ), indentSize( 4 ),
+    : Q3TextIndent(), tabSize( 8 ), indentSize( 4 ),
       autoIndent( TRUE ), keepTabs( TRUE ), lastDoc( 0 )
 {
 }
@@ -76,7 +77,7 @@ void CIndent::tabify( QString &s )
     }
 }
 
-void CIndent::indentLine( QTextParagraph *p, int &oldIndent, int &newIndent )
+void CIndent::indentLine( Q3TextParagraph *p, int &oldIndent, int &newIndent )
 {
     QString indentString;
     indentString.fill( ' ', newIndent );
@@ -96,12 +97,12 @@ void CIndent::indentLine( QTextParagraph *p, int &oldIndent, int &newIndent )
 }
 
 
-void CIndent::indent( QTextDocument *doc, QTextParagraph *p, int *oldIndent, int *newIndent )
+void CIndent::indent( Q3TextDocument *doc, Q3TextParagraph *p, int *oldIndent, int *newIndent )
 {
     lastDoc = doc;
     int oi = indentation( p->string()->toString() );
     QStringList code;
-    QTextParagraph *parag = doc->firstParagraph();
+    Q3TextParagraph *parag = doc->firstParagraph();
     while ( parag ) {
 	code << parag->string()->toString();
 	if ( parag == p )
@@ -122,7 +123,7 @@ void CIndent::reindent()
     if ( !lastDoc )
 	return;
     // #### this is sloooooooow (O(n^2))
-    QTextParagraph *parag = lastDoc->firstParagraph();
+    Q3TextParagraph *parag = lastDoc->firstParagraph();
     while ( parag ) {
 	indent( lastDoc, parag, 0, 0 );
 	parag = parag->next();

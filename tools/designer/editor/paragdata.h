@@ -16,7 +16,7 @@
 #include "parenmatcher.h"
 #include <private/qrichtext_p.h>
 
-struct ParagData : public QTextParagraphData
+struct ParagData : public Q3TextParagraphData
 {
 public:
     enum MarkerType { NoMarker, Error, Breakpoint };
@@ -25,7 +25,7 @@ public:
     ParagData() : lastLengthForCompletion( -1 ), marker( NoMarker ),
 	lineState( Invalid ), functionOpen( TRUE ), step( FALSE ), stackFrame( FALSE ) {}
     ~ParagData() {}
-    void join( QTextParagraphData *data ) {
+    void join( Q3TextParagraphData *data ) {
 	ParagData *d = (ParagData*)data;
 	if ( marker == NoMarker )
 	    marker = d->marker;

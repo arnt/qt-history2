@@ -224,8 +224,8 @@ void EditorInterfaceImpl::scrollTo( const QString &txt, const QString & )
     if ( !viewManager || !viewManager->currentView() )
 	return;
     ( (CppEditor*)viewManager->currentView() )->sync();
-    QTextDocument *doc = ( (CppEditor*)viewManager->currentView() )->document();
-    QTextParagraph *p = doc->firstParagraph();
+    Q3TextDocument *doc = ( (CppEditor*)viewManager->currentView() )->document();
+    Q3TextParagraph *p = doc->firstParagraph();
     while ( p ) {
 	if ( p->string()->toString().find( txt ) != -1 ) {
 	    ( (CppEditor*)viewManager->currentView() )->setCursorPosition( p->paragId() + 2, 0 );

@@ -24,7 +24,7 @@
 #include <qpainter.h>
 
 static QTextEdit *debugoutput = 0;
-bool debugToStderr = FALSE;
+bool debugToStderr = TRUE; // emabled for now!
 
 QtMsgHandler OutputWindow::oldMsgHandler = 0;
 

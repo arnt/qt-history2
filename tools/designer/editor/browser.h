@@ -16,9 +16,9 @@
 #include <qobject.h>
 
 class Editor;
-class QTextCursor;
-class QTextParagraph;
-class QTextFormat;
+class Q3TextCursor;
+class Q3TextParagraph;
+class Q3TextFormat;
 
 class EditorBrowser : public QObject
 {
@@ -31,14 +31,14 @@ public:
     bool eventFilter( QObject *o, QEvent *e );
     virtual void setCurrentEdior( Editor *e );
     virtual void addEditor( Editor *e );
-    virtual bool findCursor( const QTextCursor &c, QTextCursor &from, QTextCursor &to );
+    virtual bool findCursor( const Q3TextCursor &c, Q3TextCursor &from, Q3TextCursor &to );
     virtual void showHelp( const QString & ) {}
 
 protected:
     Editor *curEditor;
-    QTextParagraph *oldHighlightedParag;
+    Q3TextParagraph *oldHighlightedParag;
     QString lastWord;
-    QTextFormat *highlightedFormat;
+    Q3TextFormat *highlightedFormat;
 
 };
 

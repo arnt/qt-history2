@@ -2941,7 +2941,7 @@ void PropertyList::setupProperties()
     bool allProperties = !::qt_cast<Spacer*>(w);
     const QMetaObject *m = w->metaObject();
     int offset = allProperties ? 0 : m->propertyOffset();
-    int propertyCount = w->metaObject()->propertyCount() - offset;    
+    int propertyCount = w->metaObject()->propertyCount() - offset;
     PropertyItem *item = 0;
     QMap<QString, bool> unique;
     QStringList valueSet;
@@ -3252,7 +3252,6 @@ bool PropertyList::addPropertyItem( PropertyItem *&item, const QCString &name, Q
 		if ( l.find( it.value()->name() ) == l.end() )
 		    l << it.value()->name();
 	    }
-	    ++it;
 	}
 	l.sort();
 	itm->setValue( l );
@@ -3839,12 +3838,13 @@ void EventList::setup()
     if ( !formWindow )
 	return;
     LanguageInterface *iface = MetaDataBase::languageInterface( formWindow->project()->language() );
-    QList<char*> sigs;
+    QStringList sigs;
     if ( iface )
 	sigs = iface->signalNames( editor->widget() );
-    for(QList<char*>::Iterator it = sigs.begin(); it != sigs.end(); ++it) {
+    for(QStringList::Iterator it = sigs.begin(); it != sigs.end(); ++it) {
 	HierarchyItem *eventItem = new HierarchyItem( HierarchyItem::Event, this, (HierarchyItem*)0,
 						      (*it), QString::null, QString::null );
+
 	eventItem->setOpen( TRUE );
 	QList<MetaDataBase::Connection> conns =
 	    MetaDataBase::connections( formWindow, editor->widget(), formWindow->mainContainer() );
@@ -3859,7 +3859,6 @@ void EventList::setup()
 						     (*cit).slot, QString::null, QString::null );
 	    item->setPixmap( 0, QPixmap::fromMimeSource( "designer_editslots.png" ) );
 	}
-	++it;
     }
 }
 

@@ -237,7 +237,8 @@ void FormWindow::paintGrid( QWidget *w, QPaintEvent *e )
     grid_name.sprintf("FormWindowGrid_%d_%d", mainWindow()->grid().x(), mainWindow()->grid().y());
     if( !QPixmapCache::find( grid_name, grid ) ) {
 	grid = QPixmap( 350 + ( 350 % mainWindow()->grid().x() ), 350 + ( 350 % mainWindow()->grid().y() ) );
-	grid.fill(palette().foreground());
+	grid.fill(palette().background());
+
 	QBitmap mask( grid.width(), grid.height() );
 	mask.fill( color0 );
 	QPainter p( &mask );
@@ -299,7 +300,7 @@ void FormWindow::drawSizePreview( const QPoint &pos, const QString& text )
 {
     unclippedPainter->save();
     unclippedPainter->setPen( QPen( palette().foreground(), 1  ));
-    unclippedPainter->setRasterOp( CopyROP );
+    unclippedPainter->setRasterOp( CopyROP ); /// robe
     if ( !sizePreviewPixmap.isNull() )
 	unclippedPainter->drawPixmap( sizePreviewPos, sizePreviewPixmap );
     if ( text.isNull() ) {
@@ -1341,7 +1342,7 @@ void FormWindow::selectWidgets()
     for (int i = 0; i < l.size(); ++i) {
 	QObject *o = l.at(i);
 	if ( ( (QWidget*)o )->isVisibleTo( this ) &&
-	     insertedWidgets[ (QWidget*)o ] ) {
+	     insertedWidgets.contains( (QWidget*)o ) ) {
 	    QPoint p = ( (QWidget*)o )->mapToGlobal( QPoint(0,0) );
 	    p = mapFromGlobal( p );
 	    QRect r( p, ( (QWidget*)o )->size() );
@@ -1422,7 +1423,6 @@ void FormWindow::checkSelectionsForMove( QWidget *w )
 	    WidgetSelection *sel = it.value();
 	    if ( it.key() == mainContainer() )
 		continue;
-	    ++it;
 	    if ( l.findIndex( sel->widget() ) == -1 ) {
 		if ( WidgetFactory::layoutType( w ) == WidgetFactory::NoLayout )
 		    sel->setWidget( 0 );
@@ -1592,7 +1592,7 @@ QWidget *FormWindow::designerWidget( QObject *o ) const
     if ( !o || !o->isWidgetType() )
 	return 0;
     QWidget *w = (QWidget*)o;
-    while ( w && !isMainContainer( w ) && !insertedWidgets[ w ] || isCentralWidget( w ) )
+    while ( w && !isMainContainer( w ) && !insertedWidgets.contains( w ) || isCentralWidget( w ) )
 	w = (QWidget*)w->parent();
     return w;
 }
@@ -1735,7 +1735,7 @@ void FormWindow::showOrderIndicators()
     for (int i = 0; i < l.size(); ++i) {
 	QWidget* w = (QWidget*) l.at(i);
 	if ( w->isShown() &&
-	     insertedWidgets[ w ]  &&
+	     insertedWidgets.contains( w )  &&
 	     w->focusPolicy() != NoFocus ) {
 	    OrderIndicator* ind = new OrderIndicator( order++, w, this );
 	    orderIndicators.append( ind );
@@ -1861,7 +1861,7 @@ void FormWindow::checkAccels()
     for (int i = 0; i < l.size(); ++i) {
 	QObject* o = l.at(i);
 	if ( ( (QWidget*)o )->isVisibleTo( this ) &&
-	     insertedWidgets[ (QWidget*)o ] ) {
+	     insertedWidgets.contains( (QWidget*)o ) ) {
 	    QWidget *w = (QWidget*)o;
 	    QMetaProperty text =
 		w->metaObject()->property( w->metaObject()->indexOfProperty( "text" ) );
@@ -1935,7 +1935,7 @@ void FormWindow::selectAll()
     for (int i = 0; i < l.size(); ++i) {
 	QObject* o = l.at(i);
 	if ( ( (QWidget*)o )->isVisibleTo( this ) &&
-	     insertedWidgets[ (QWidget*)o ] ) {
+	     insertedWidgets.contains( (QWidget*)o ) ) {
 	    selectWidget( (QWidget*)o );
 	}
     }

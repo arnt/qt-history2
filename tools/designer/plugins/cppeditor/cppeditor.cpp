@@ -20,6 +20,7 @@
 #include <qpopupmenu.h>
 #include <qinputdialog.h>
 #include <designerinterface.h>
+#include <private/qrichtext_p.h>
 
 CppEditor::CppEditor( const QString &fn, QWidget *parent, const char *name, DesignerInterface *i )
     : Editor( fn, parent, name ), dIface( i )
@@ -39,6 +40,8 @@ CppEditor::CppEditor( const QString &fn, QWidget *parent, const char *name, Desi
 CppEditor::~CppEditor()
 {
     delete completion;
+    completion = 0;
+
     if ( dIface )
 	dIface->release();
 }
@@ -54,12 +57,12 @@ void CppEditor::configChanged()
     parenMatcher->setEnabled( Config::parenMatching( path ) );
     if ( Config::wordWrap( path ) ) {
 	if ( hScrollBarMode() != AlwaysOff ) {
-	    document()->setFormatter( new QTextFormatterBreakInWords );
+	    document()->setFormatter( new Q3TextFormatterBreakInWords );
 	    setHScrollBarMode( AlwaysOff );
 	}
     } else {
 	if ( hScrollBarMode() != AlwaysOn ) {
-	    QTextFormatterBreakWords *f = new QTextFormatterBreakWords;
+	    Q3TextFormatterBreakWords *f = new Q3TextFormatterBreakWords;
 	    f->setWrapEnabled( FALSE );
 	    document()->setFormatter( f );
 	    setHScrollBarMode( AlwaysOn );
@@ -77,7 +80,7 @@ void CppEditor::configChanged()
     else
 	document()->setIndent( indent );
 
-    document()->setTabStops( ( (SyntaxHighlighter_CPP*)document()->preProcessor() )->format( QTextPreProcessor::Standard )->width( 'x' ) * Config::indentTabSize( path ) );
+    document()->setTabStops( ( (SyntaxHighlighter_CPP*)document()->preProcessor() )->format( Q3TextPreProcessor::Standard )->width( 'x' ) * Config::indentTabSize( path ) );
 
     Editor::configChanged();
 }

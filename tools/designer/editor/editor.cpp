@@ -13,8 +13,9 @@
 #include "editor.h"
 #include "parenmatcher.h"
 #include <qfile.h>
-#include <private/qrichtext_p.h>
+#include <qtextedit.h>
 #include "conf.h"
+#include <private/qrichtext_p.h>
 #include <qapplication.h>
 #include <qpopupmenu.h>
 #include <qaccel.h>
@@ -24,15 +25,15 @@
 Editor::Editor( const QString &fn, QWidget *parent, const char *name )
     : QTextEdit( parent, name ), hasError( FALSE )
 {
-    document()->setFormatter( new QTextFormatterBreakInWords );
+    document()->setFormatter( new Q3TextFormatterBreakInWords );
     if ( !fn.isEmpty() )
 	load( fn );
     setHScrollBarMode( QScrollView::AlwaysOff );
     setVScrollBarMode( QScrollView::AlwaysOn );
     document()->setUseFormatCollection( FALSE );
     parenMatcher = new ParenMatcher;
-    connect( this, SIGNAL( cursorPositionChanged( QTextCursor * ) ),
-	     this, SLOT( cursorPosChanged( QTextCursor * ) ) );
+    connect( this, SIGNAL( cursorPositionChanged( Q3TextCursor * ) ),
+	     this, SLOT( cursorPosChanged( Q3TextCursor * ) ) );
     cfg = new Config;
     document()->addSelection( Error );
     document()->addSelection( Step );
@@ -62,7 +63,7 @@ Editor::~Editor()
     delete parenMatcher;
 }
 
-void Editor::cursorPosChanged( QTextCursor *c )
+void Editor::cursorPosChanged( Q3TextCursor *c )
 {
     if ( parenMatcher->match( c ) )
 	repaintChanged();
@@ -99,10 +100,10 @@ void Editor::configChanged()
 
 void Editor::setErrorSelection( int line )
 {
-    QTextParagraph *p = document()->paragAt( line );
+    Q3TextParagraph *p = document()->paragAt( line );
     if ( !p )
 	return;
-    QTextCursor c( document() );
+    Q3TextCursor c( document() );
     c.setParagraph( p );
     c.setIndex( 0 );
     document()->removeSelection( Error );
@@ -115,10 +116,10 @@ void Editor::setErrorSelection( int line )
 
 void Editor::setStepSelection( int line )
 {
-    QTextParagraph *p = document()->paragAt( line );
+    Q3TextParagraph *p = document()->paragAt( line );
     if ( !p )
 	return;
-    QTextCursor c( document() );
+    Q3TextCursor c( document() );
     c.setParagraph( p );
     c.setIndex( 0 );
     document()->removeSelection( Step );
@@ -142,8 +143,8 @@ void Editor::doChangeInterval()
 
 void Editor::commentSelection()
 {
-    QTextParagraph *start = document()->selectionStartCursor( QTextDocument::Standard ).paragraph();
-    QTextParagraph *end = document()->selectionEndCursor( QTextDocument::Standard ).paragraph();
+    Q3TextParagraph *start = document()->selectionStartCursor( Q3TextDocument::Standard ).paragraph();
+    Q3TextParagraph *end = document()->selectionEndCursor( Q3TextDocument::Standard ).paragraph();
     if ( !start || !end )
 	start = end = textCursor()->paragraph();
     while ( start ) {
@@ -154,15 +155,15 @@ void Editor::commentSelection()
 	    break;
 	start = start->next();
     }
-    document()->removeSelection( QTextDocument::Standard );
+    document()->removeSelection( Q3TextDocument::Standard );
     repaintChanged();
     setModified( TRUE );
 }
 
 void Editor::uncommentSelection()
 {
-    QTextParagraph *start = document()->selectionStartCursor( QTextDocument::Standard ).paragraph();
-    QTextParagraph *end = document()->selectionEndCursor( QTextDocument::Standard ).paragraph();
+    Q3TextParagraph *start = document()->selectionStartCursor( Q3TextDocument::Standard ).paragraph();
+    Q3TextParagraph *end = document()->selectionEndCursor( Q3TextDocument::Standard ).paragraph();
     if ( !start || !end )
 	start = end = textCursor()->paragraph();
     while ( start ) {
@@ -174,7 +175,7 @@ void Editor::uncommentSelection()
 	    break;
 	start = start->next();
     }
-    document()->removeSelection( QTextDocument::Standard );
+    document()->removeSelection( Q3TextDocument::Standard );
     repaintChanged();
     setModified( TRUE );
 }

@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+
+ ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
 ** This file is part of Qt Designer.
 ** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
@@ -17,7 +18,7 @@
 #include <qpixmap.h>
 
 class ViewManager;
-class QTextParagraph;
+class Q3TextParagraph;
 
 class MarkerWidget : public QWidget
 {
@@ -28,8 +29,8 @@ public:
 
 signals:
     void markersChanged();
-    void expandFunction( QTextParagraph *p );
-    void collapseFunction( QTextParagraph *p );
+    void expandFunction( Q3TextParagraph *p );
+    void collapseFunction( Q3TextParagraph *p );
     void collapse( bool all /*else only functions*/ );
     void expand( bool all /*else only functions*/ );
     void editBreakPoints();

@@ -213,12 +213,12 @@ void LanguageInterfaceImpl::preferedExtensions( QMap<QString, QString> &extensio
     extensionMap.insert( "h", "C++ Header File" );
 }
 
-QList<char*> LanguageInterfaceImpl::signalNames( QObject *obj ) const
+QStringList LanguageInterfaceImpl::signalNames( QObject *obj ) const
 {
-    QList<char*> sigs;
+    QStringList sigs;
     int signalCount = obj->metaObject()->signalCount();
     for (int i = 0; i < signalCount; ++i)
-	sigs.append((char*)obj->metaObject()->signal(i).signature());
+	sigs.append(obj->metaObject()->signal(i).signature());
     sigs.remove( "destroyed()" );
     return sigs;
 }

@@ -27,7 +27,7 @@ EditorBrowser::EditorBrowser( Editor *e )
 
     QFont fn( curEditor->font() );
     fn.setUnderline( TRUE );
-    highlightedFormat = new QTextFormat( fn, blue );
+    highlightedFormat = new Q3TextFormat( fn, blue );
 }
 
 EditorBrowser::~EditorBrowser()
@@ -45,9 +45,9 @@ bool EditorBrowser::eventFilter( QObject *o, QEvent *e )
 	    me = (QMouseEvent*)e;
 	    if ( ( me->state() & ControlButton ) == ControlButton ) {
 		curEditor->viewport()->setCursor( pointingHandCursor );
-		QTextCursor c( curEditor->document() );
+		Q3TextCursor c( curEditor->document() );
 		curEditor->placeCursor( curEditor->viewportToContents( me->pos() ), &c );
-		QTextCursor from, to;
+		Q3TextCursor from, to;
 		if ( oldHighlightedParag ) {
 		    oldHighlightedParag->setEndState( -1 );
 		    oldHighlightedParag->format();
@@ -112,7 +112,7 @@ void EditorBrowser::addEditor( Editor *e )
     e->installEventFilter( this );
 }
 
-bool EditorBrowser::findCursor( const QTextCursor &c, QTextCursor &from, QTextCursor &to )
+bool EditorBrowser::findCursor( const Q3TextCursor &c, Q3TextCursor &from, Q3TextCursor &to )
 {
     from = c;
     while ( from.paragraph()->at( from.index() )->c != ' ' && from.paragraph()->at( from.index() )->c != '\t'  && from.index() > 0 )

@@ -58,7 +58,7 @@ public:
 			   const QString &, const QString &,
 		
 	   QString * ) {}
-    QList<char*> signalNames( QObject *obj ) const;
+    QStringList signalNames( QObject *obj ) const;
 
 private:
     QUnknownInterface *parent;

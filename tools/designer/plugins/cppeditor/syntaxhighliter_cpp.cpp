@@ -110,19 +110,19 @@ const char * const SyntaxHighlighter_CPP::keywords[] = {
 static QMap<int, QMap<QString, int > > *wordMap = 0;
 
 SyntaxHighlighter_CPP::SyntaxHighlighter_CPP()
-    : QTextPreProcessor(), lastFormat( 0 ), lastFormatId( -1 )
+    : Q3TextPreProcessor(), lastFormat( 0 ), lastFormatId( -1 )
 {
     QFont f( qApp->font() );
 
-    addFormat( Standard, new QTextFormat( f, Qt::black ) );
-    addFormat( Number, new QTextFormat( f, Qt::darkBlue ) );
-    addFormat( String, new QTextFormat( f, Qt::darkGreen ) );
-    addFormat( Type, new QTextFormat( f, Qt::darkMagenta ) );
-    addFormat( Keyword, new QTextFormat( f, Qt::darkYellow ) );
-    addFormat( PreProcessor, new QTextFormat( f, Qt::darkBlue ) );
-    addFormat( Label, new QTextFormat( f, Qt::darkRed ) );
+    addFormat( Standard, new Q3TextFormat( f, Qt::black ) );
+    addFormat( Number, new Q3TextFormat( f, Qt::darkBlue ) );
+    addFormat( String, new Q3TextFormat( f, Qt::darkGreen ) );
+    addFormat( Type, new Q3TextFormat( f, Qt::darkMagenta ) );
+    addFormat( Keyword, new Q3TextFormat( f, Qt::darkYellow ) );
+    addFormat( PreProcessor, new Q3TextFormat( f, Qt::darkBlue ) );
+    addFormat( Label, new Q3TextFormat( f, Qt::darkRed ) );
     f.setFamily( "times" );
-    addFormat( Comment, new QTextFormat( f, Qt::red ) );
+    addFormat( Comment, new Q3TextFormat( f, Qt::red ) );
 
     if ( wordMap )
 	return;
@@ -167,7 +167,7 @@ void SyntaxHighlighter_CPP::updateStyles( const QMap<QString, ConfigStyle> &styl
 {
     for ( QMap<QString, ConfigStyle>::ConstIterator it = styles.begin(); it != styles.end(); ++it ) {
 	int id = string2Id( it.key() );
-	QTextFormat *f = format( id );
+	Q3TextFormat *f = format( id );
 	if ( !f )
 	    continue;
 	f->setFont( (*it).font );
@@ -175,16 +175,16 @@ void SyntaxHighlighter_CPP::updateStyles( const QMap<QString, ConfigStyle> &styl
     }
 }
 
-void SyntaxHighlighter_CPP::process( QTextDocument *doc, QTextParagraph *string, int, bool invalidate )
+void SyntaxHighlighter_CPP::process( Q3TextDocument *doc, Q3TextParagraph *string, int, bool invalidate )
 {
 
-    QTextFormat *formatStandard = format( Standard );
-    QTextFormat *formatComment = format( Comment );
-    QTextFormat *formatNumber = format( Number );
-    QTextFormat *formatString = format( String );
-    QTextFormat *formatType = format( Type );
-    QTextFormat *formatPreProcessor = format( PreProcessor );
-    QTextFormat *formatLabel = format( Label );
+    Q3TextFormat *formatStandard = format( Standard );
+    Q3TextFormat *formatComment = format( Comment );
+    Q3TextFormat *formatNumber = format( Number );
+    Q3TextFormat *formatString = format( String );
+    Q3TextFormat *formatType = format( Type );
+    Q3TextFormat *formatPreProcessor = format( PreProcessor );
+    Q3TextFormat *formatLabel = format( Label );
 
     // states
     const int StateStandard = 0;
@@ -493,7 +493,7 @@ void SyntaxHighlighter_CPP::process( QTextDocument *doc, QTextParagraph *string,
 
     string->setFirstPreProcess( FALSE );
 
-    QTextParagraph *p = string->next();
+    Q3TextParagraph *p = string->next();
     if ( (!!oldEndState || !!string->endState()) && oldEndState != string->endState() &&
 	 invalidate && p && !p->firstPreProcess() && p->endState() != -1 ) {
 	while ( p ) {
@@ -505,18 +505,18 @@ void SyntaxHighlighter_CPP::process( QTextDocument *doc, QTextParagraph *string,
     }
 }
 
-QTextFormat *SyntaxHighlighter_CPP::format( int id )
+Q3TextFormat *SyntaxHighlighter_CPP::format( int id )
 {
     if ( lastFormatId == id  && lastFormat )
 	return lastFormat;
 
-    QTextFormat *f = formats[ id ];
+    Q3TextFormat *f = formats[ id ];
     lastFormat = f ? f : formats[ 0 ];
     lastFormatId = id;
     return lastFormat;
 }
 
-void SyntaxHighlighter_CPP::addFormat( int id, QTextFormat *f )
+void SyntaxHighlighter_CPP::addFormat( int id, Q3TextFormat *f )
 {
     formats.insert( id, f );
 }
