@@ -285,7 +285,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
         position = pieceTable->length() - 1;
         break;
     case QTextCursor::EndOfLine: {
-        if (!line.isValid())
+        if (!line.isValid() || line.length() == 0)
             break;
         // currently we don't draw the space at the end, so move to the next
         // reasonable position.
