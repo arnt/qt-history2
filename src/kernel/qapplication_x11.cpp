@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#474 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#475 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -307,8 +307,8 @@ public:
 static void close_xim()
 {
     // Calling XCloseIM gives a Purify FMR error
-    // Instead we get a non-critical memory leak
     // XCloseIM( qt_xim );
+    // We prefer a less serious memory leak
     qt_xim = 0;
 }
 
@@ -932,36 +932,46 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 
     qt_set_x11_resources(appFont, appFGCol, appBGCol, appBTNCol);
 
+    qt_xim = 0;
+
 #if !defined(NO_XIM)
     setlocale( LC_ALL, "" );		// use correct char set mapping
     setlocale( LC_NUMERIC, "C" );	// make sprintf()/scanf() work
 
-    qt_xim = 0;
-    if ( XSupportsLocale() ) {
-	if(XSetLocaleModifiers ("") == NULL)
-	{
-	    debug("Qt: Cannot set locale modifiers");
-	} else {
-	    qt_xim = XOpenIM( appDpy, 0, 0, 0 );
-#if 0
-	    char* lm;
-	    if ( qstrlen(lm=XSetLocaleModifiers( "" )) ) {
-		qt_xim = XOpenIM( appDpy, 0, 0, 0 );
-	    } else if ( qstrlen(lm=XSetLocaleModifiers( "@im=none" )) ) {
-		debug("Qt: Disabling input methods for this locale, %s",lm);
-		qt_xim = XOpenIM( appDpy, 0, 0, 0 );
-	    } else {
-		debug("Qt: No valid input methods");
-	    }
-#endif
-	}
-    } else {
+    if ( !XSupportsLocale() )
 	debug("Qt: Locales not supported on X server");
-    }
+    else if ( XSetLocaleModifiers ("") == NULL )
+	debug("Qt: Cannot set locale modifiers");
+    else
+	qt_xim = XOpenIM( appDpy, 0, 0, 0 );
 
     if ( qt_xim ) {
 	XIMStyles *styles;
 	XGetIMValues(qt_xim, XNQueryInputStyle, &styles, NULL, NULL);
+	bool done = FALSE;
+	int i;
+	for ( i = 0; !done && i < styles->count_styles; i++ ) {
+	    if ( styles->supported_styles[i] == xim_preferred_style ) {
+	        qt_xim_style = xim_preferred_style;
+		done = TRUE;
+	    }
+	}
+	// if the preferred input style couldn't be found, look for
+	// Nothing and failing that, None.
+	for ( i = 0; !done && i < styles->count_styles; i++ ) {
+	    if ( styles->supported_styles[i] == (XIMPreeditNothing | 
+						 XIMStatusNothing) ) {
+	        qt_xim_style = XIMPreeditNothing | XIMStatusNothing;
+		done = TRUE;
+	    }
+	}
+	for ( i = 0; !done && i < styles->count_styles; i++ ) {
+	    if ( styles->supported_styles[i] == (XIMPreeditNone | 
+						 XIMStatusNone) ) {
+	        qt_xim_style = XIMPreeditNone | XIMStatusNone;
+		done = TRUE;
+	    }
+	}
 	for (int i = 0; i < styles->count_styles; i++) {
 	    if (styles->supported_styles[i] == xim_preferred_style) {
 	        qt_xim_style = xim_preferred_style;
@@ -977,19 +987,21 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	}
 	if ( !qt_xim_style ) {
 	    // Give up
-	    warning("Input style unsupported.  See InputMethod documentation.");
+	    warning( "Input style unsupported."
+		     "  See InputMethod documentation.");
 	    close_xim();
 	}
+
 	if ( qt_xim ) {
-	    const char* locale = XLocaleOfIM(qt_xim);
-	    input_mapper = QTextCodec::codecForName(locale);
-debug("Codec for %s is %s", locale, input_mapper ? input_mapper->name() : "<null>");
+	    const char* locale = XLocaleOfIM( qt_xim );
+	    input_mapper = QTextCodec::codecForName( locale );
+	    debug( "Codec for %s (%p) is %s", locale, qt_xim,
+		   input_mapper ? input_mapper->name() : "<null>" );
 	}
     }
-
-    if ( !qt_xim )
 #endif
-    {
+
+    if ( !qt_xim ) {
 	const char* locale = setlocale( LC_CTYPE, 0 );
 	input_mapper = QTextCodec::codecForName(locale);
     }
