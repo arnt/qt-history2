@@ -15,7 +15,7 @@ DEFINES += QT_NO_TEXTCODEC QT_LITE_COMPONENT QT_NO_STL
 SOURCES+=project.cpp main.cpp makefile.cpp \
          unixmake2.cpp unixmake.cpp \
          borland_bmake.cpp msvc_nmake.cpp \
-	 msvc_dsp.cpp option.cpp winmakefile.cpp \
+	 msvc_dsp.cpp msvc_vcproj.cpp option.cpp winmakefile.cpp \
 	 projectgenerator.cpp metrowerks_xml.cpp \
          pbuilder_pbx.cpp
 
@@ -38,11 +38,11 @@ exists($$QT_BUILD_TREE/src/tools/qconfig.cpp) {  #qconfig.cpp
 #where to find the Qt code, and platform dependant SOURCES
 unix {
    VPATH = $$QT_SOURCE_TREE/src/tools
-   SOURCES += qfile_unix.cpp qfileinfo_unix.cpp qdir_unix.cpp 
+   SOURCES += qfile_unix.cpp qfileinfo_unix.cpp qdir_unix.cpp
 }
 win32 {
    VPATH = $$QT_SOURCE_TREE/src/tools
-   SOURCES += qfile_win.cpp qfileinfo_win.cpp qdir_win.cpp 
+   SOURCES += qfile_win.cpp qfileinfo_win.cpp qdir_win.cpp
    *-msvc:LIBS += ole32.lib
 }
 macx-*: LIBS += -framework Carbon
