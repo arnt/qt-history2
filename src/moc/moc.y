@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#27 $
+** $Id: //depot/qt/main/src/moc/moc.y#28 $
 **
 ** Parser and code generator for meta object compiler
 **
 ** Author  : Haavard Nord
 ** Created : 930417
 **
-** Copyright (C) 1993,1994 by Haavard Nord.  All rights reserved.
+** Copyright (C) 1993,1994 by Troll Tech as.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** This file contains the parser and code generator for the meta object
@@ -35,15 +35,15 @@
 *****************************************************************************/
 
 %{
-#include <qlist.h>
-#include <qstring.h>
-#include <qdatetm.h>
+#include "qlist.h"
+#include "qstring.h"
+#include "qdatetm.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#27 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#28 $";
 #endif
 
 
@@ -687,7 +687,7 @@ void generate()                                 // generate C++ source code
         fprintf( out, hdr2, (pcchar)dstr );
         fprintf( out, hdr3 );
         fprintf( out, hdr4 );
-        fprintf( out, "#include <qmetaobj.h>\n" );
+        fprintf( out, "#include \"qmetaobj.h\"\n" );
         if ( !noInclude )
             fprintf( out, "#include \"%s\"\n", (pcchar)fileName );
 	fprintf( out, "\n\n" );
@@ -711,7 +711,8 @@ void generate()                                 // generate C++ source code
 //
     fprintf( out, "void %s::initMetaObject()\n{\n", (pcchar)className );
     fprintf( out, "    if ( metaObj )\n\treturn;\n" );
-
+    fprintf( out, "    if ( !%s::metaObj )\n\t%s::initMetaObject();\n",
+ 	     (pcchar)superclassName, (pcchar)superclassName );
 //
 // Build methods array in initMetaObject()
 //
