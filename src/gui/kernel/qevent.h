@@ -124,25 +124,34 @@ class Q_GUI_EXPORT QTabletEvent : public QInputEvent
 {
 public:
     enum TabletDevice { NoDevice = -1, Puck, Stylus, Eraser };
-    QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, int device,
-                  int pressure, int minPressure, int maxPressure, int xTilt, int yTilt, 
+    QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, const QPoint &hiResPos, 
+                  int minX, int maxX, int minY, int maxY, int device,
+                  int pressure, int minPressure, int maxPressure, int xTilt, int yTilt,
                   const QPair<int,int> &uId);
     inline int pressure() const { return mPress; }
     inline int xTilt() const { return mXT; }
     inline int yTilt() const { return mYT; }
     inline const QPoint &pos() const { return mPos; }
     inline const QPoint &globalPos() const { return mGPos; }
+    inline const QPoint &hiResPos() const { return mHiResPos; }
     inline int x() const { return mPos.x(); }
     inline int y() const { return mPos.y(); }
     inline int globalX() const { return mGPos.x(); }
     inline int globalY() const { return mGPos.y(); }
+    inline int hiResX() const { return mHiResPos.x(); }
+    inline int hiResY() const { return mHiResPos.y(); }
     inline TabletDevice device() const { return TabletDevice(mDev); }
     inline QPair<int, int> uniqueId() { return QPair<int,int>(mType, mPhy); }
     inline int minPressure() const { return mMinPressure; }
     inline int maxPressure() const { return mMaxPressure; }
-    
+    inline int minHiResX() const { return mHiResMinX; }
+    inline int minHiResY() const { return mHiResMinY; }
+    inline int maxHiResX() const { return mHiResMaxX; }
+    inline int maxHiResY() const { return mHiResMaxY; }
+        
 protected:
-    QPoint mPos, mGPos;
+    QPoint mPos, mGPos, mHiResPos;
+    int mHiResMinX, mHiResMaxX, mHiResMinY, mHiResMaxY;
     int mDev, mPress, mXT, mYT, mType, mPhy;
     int mMinPressure, mMaxPressure;
 };

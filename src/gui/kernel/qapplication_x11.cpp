@@ -1850,11 +1850,19 @@ void qt_init(QApplicationPrivate *priv, int,
                             a = (XAxisInfoPtr) ((char *) v +
                                                 sizeof (XValuatorInfo));
 #if defined (Q_OS_IRIX)
-                            device_data.maxPressure = a[WAC_PRESSURE_I].max_value;
+                            device_data.minX = a[WAC_XCOORD_I].min_value;
+                            device_data.maxX = a[WAC_XCOORD_I].max_value;
+                            device_data.minY = a[WAC_YCOORD_I].min_value;
+                            device_data.maxY = a[WAC_YCOORD_I].max_value;
                             device_data.minPressure = a[WAC_PRESSURE_I].min_value;
+                            device_data.maxPressure = a[WAC_PRESSURE_I].max_value;
 #else
-                            device_data.maxPressure = a[2].max_value;
+                            device_data.minX = a[0].min_value;
+                            device_data.maxX = a[0].max_value;
+                            device_data.minY = a[1].min_value;
+                            device_data.maxY = a[1].max_value;
                             device_data.minPressure = a[2].min_value;
+                            device_data.maxPressure = a[2].max_value;
 #endif
                             
                             // got the max pressure no need to go further...
@@ -3771,7 +3779,7 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
 
     QWidget *w = this;
     QPoint global,
-        curr;
+        curr, hiRes;
     static int pressure = 0;
     static int xTilt = 0,
                yTilt = 0;
@@ -3800,6 +3808,7 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
             motion = ((const XDeviceMotionEvent*)&xinputMotionEvent);
         }
         t = QEvent::TabletMove;
+        global = QPoint(motion->x_root, motion->y_root);
         curr = QPoint(motion->x, motion->y);
     } else {
         if (ev->type == tablet->xinput_button_press) {
@@ -3826,6 +3835,7 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
         qDebug("same_screen:\t%d", button->same_screen);
         qDebug("time:\t%d", button->time);
 */
+        global = QPoint(button->x_root, button->y_root);
         curr = QPoint(button->x, button->y);
     }
 
@@ -3861,7 +3871,7 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
             xTilt = short(vs->valuators[WAC_XTILT_I]);
             yTilt = short(vs->valuators[WAC_YTILT_I]);
             pressure = vs->valuators[WAC_PRESSURE_I];
-            global = QPoint(vs->valuators[WAC_XCOORD_I],
+            hiRes = QPoint(vs->valuators[WAC_XCOORD_I],
                              vs->valuators[WAC_YCOORD_I]);
             break;
         }
@@ -3883,19 +3893,19 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
         xTilt = short(motion->axis_data[3]);
         yTilt = short(motion->axis_data[4]);
         pressure = motion->axis_data[2];
-        global = QPoint(motion->axis_data[0], motion->axis_data[1]);
+        hiRes = QPoint(motion->axis_data[0], motion->axis_data[1]);
     } else {
         xTilt = short(button->axis_data[3]);
         yTilt = short(button->axis_data[4]);
         pressure = button->axis_data[2];
-        global = QPoint(button->axis_data[0], button->axis_data[1]);
+        hiRes = QPoint(button->axis_data[0], button->axis_data[1]);
     }
     // The only way to get these Ids is to scan the XFree86 log, which I'm not going to do.
     tId.first = tId.second = -1;
 #endif
 
-    QTabletEvent e(t, curr, global, deviceType, pressure, tablet->maxPressure, tablet->minPressure,
-                    xTilt, yTilt, tId);
+    QTabletEvent e(t, curr, global, hiRes, tablet->minX, tablet->maxX, tablet->minY, tablet->maxY,
+                    deviceType, pressure, tablet->minPressure, tablet->maxPressure, xTilt, yTilt, tId);
     QApplication::sendSpontaneousEvent(w, &e);
     return true;
 }

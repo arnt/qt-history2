@@ -4034,8 +4034,10 @@ bool QWidgetPrivate::compositeEvent(QEvent *e)
     case QEvent::TabletRelease:
     {
         QTabletEvent *c = (QTabletEvent*)e;
-        QTabletEvent s(c->type(), c->pos() - w->pos(), c->globalPos(), c->device(), c->pressure(),
-                        c->minPressure(), c->maxPressure(), c->xTilt(), c->yTilt(), c->uniqueId());
+        QTabletEvent s(c->type(), c->pos() - w->pos(), c->globalPos(), c->hiResPos(),
+                        c->minHiResX(), c->maxHiResX(), c->minHiResY(), c->maxHiResY(),
+                        c->device(), c->pressure(), c->minPressure(), c->maxPressure(), c->xTilt(), c->yTilt(),
+                        c->uniqueId());
         return QApplication::sendEvent(w, &s);
     }
     case QEvent::ContextMenu:

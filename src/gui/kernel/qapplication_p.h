@@ -76,6 +76,7 @@ struct TabletDeviceData
     int deviceType;
     int minPressure;
     int maxPressure;
+    int minX, maxX, minY, maxY;
 #ifdef Q_WS_X11
     void *device;
     int eventCount;
