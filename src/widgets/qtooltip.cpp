@@ -501,14 +501,16 @@ void QTipManager::showTip()
     if ( label->text().length() ) {
 	label->move( p );
 
+#ifndef QT_NO_EFFECTS
 	if ( QApplication::isEffectEnabled( UI_AnimateTooltip ) == FALSE ||
 	     previousTip || preventAnimation )
 	    label->show();
-#ifndef QT_NO_EFFECTS
 	else if ( QApplication::isEffectEnabled( UI_FadeTooltip ) )
 	    qFadeEffect( label );
 	else
 	    qScrollEffect( label );
+#else
+	label->show();
 #endif
 
 	label->raise();
