@@ -280,7 +280,10 @@ QFtpCommand::~QFtpCommand()
  *
  *********************************************************************/
 QFtpDTP::QFtpDTP( QFtpPI *p, QObject *parent, const char *name ) :
-    QObject( parent, name ), pi( p ), callWriteData( FALSE )
+    QObject( parent, name ),
+    socket( 0, "QFtpDTP_socket" ),
+    pi( p ),
+    callWriteData( FALSE )
 {
     clearData();
 
@@ -604,11 +607,12 @@ void QFtpDTP::socketBytesWritten( int bytes )
  *********************************************************************/
 QFtpPI::QFtpPI( QObject *parent ) :
     QObject( parent ),
-    dtp(this),
-    state(Begin), abortState(None),
-    currentCmd(QString::null),
-    waitForDtpToConnect(FALSE),
-    waitForDtpToClose(FALSE)
+    dtp( this ),
+    commandSocket( 0, "QFtpPI_socket" ),
+    state( Begin ), abortState( None ),
+    currentCmd( QString::null ),
+    waitForDtpToConnect( FALSE ),
+    waitForDtpToClose( FALSE )
 {
     connect( &commandSocket, SIGNAL(hostFound()),
 	    SLOT(hostFound()) );
