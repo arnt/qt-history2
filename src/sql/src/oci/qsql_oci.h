@@ -102,8 +102,8 @@ public:
     QSqlRecord          record( const QString& tablename ) const;
     QSqlRecord          record( const QSqlQuery& query ) const;
     QSqlIndex           primaryIndex( const QString& tablename ) const;
-    QString             formatValue( const QSqlField* field ) const;
-
+	QString				formatValue( const QSqlField* field, 
+									 bool trimStrings ) const;
     OCIEnv*             environment();
     OCISvcCtx*          serviceContext();
 

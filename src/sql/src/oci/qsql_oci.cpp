@@ -160,10 +160,10 @@ QVariant::Type qDecodeOCIType( int ocitype )
 	type = QVariant::DateTime;
 	break;
     default:
-	type = QVariant::Invalid;
+		type = QVariant::Invalid;
 	break;
     }
-    return type;
+	return type;
 }
 
 OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
@@ -389,16 +389,17 @@ public:
 	switch ( type(i) ) {
 	case QVariant::DateTime: {
 	    int century = at(i)[0];
-	    int year = (unsigned char)at(i)[1];
-	    if ( year > 100 && century > 100 ) {
+		if( century >= 100 ){
+	    int year    = (unsigned char)at(i)[1];
 		year = ((century-100)*100) + (year-100);
 		int month = at(i)[2];
-		int day = at(i)[3];
-		int hour = at(i)[5];
-		int min = at(i)[6];
-		int sec = at(i)[7];
+		int day   = at(i)[3];
+		int hour  = at(i)[4] - 1;
+		int min   = at(i)[5] - 1;
+		int sec   = at(i)[6] - 1;
 		v = QVariant( QDateTime( QDate(year,month,day), QTime(hour,min,sec)));
-	    } else {
+		} else {
+		// ### Handle BCE dates here
 		v = QVariant( QDateTime() );
 	    }
 	    break;
@@ -1022,7 +1023,8 @@ QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
     t.exec( stmt.arg( tablename.upper() ) );
     QSqlIndex idx( tablename );
     if ( t.next() ) {
-	QSqlField f( t.value(0).toString(), qDecodeOCIType(t.value(1).toInt()) );
+	// ### This seems a bit fishy - may need the ocilen, ociprec and ociscale params
+	QSqlField f( t.value(0).toString(), qDecodeOCIType(t.value(1).toString(), 0, 0, 0) );
 	idx.append( f );
 	idx.setName( t.value(2).toString() );
     }
@@ -1030,7 +1032,7 @@ QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
     return QSqlIndex();
 }
 
-QString QOCIDriver::formatValue( const QSqlField* field ) const
+QString QOCIDriver::formatValue( const QSqlField* field, bool ) const
 {
     switch ( field->type() ) {
     case QVariant::DateTime: {
@@ -1050,6 +1052,7 @@ QString QOCIDriver::formatValue( const QSqlField* field ) const
 	return datestring;
 	break;
     }
+	// ### what about the Time only type??
     case QVariant::Date: {
 	QDate date = field->value().toDate();
 	QString datestring;
