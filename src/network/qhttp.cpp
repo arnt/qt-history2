@@ -332,9 +332,20 @@ QTextStream& QHttpHeader::write( QTextStream& stream ) const
 }
 
 /*!
-  Returns the value of the special HTTP header entry \c content-length.
+  Returns TRUE if the header has an entry for the special HTTP header field \c
+  content-length; otherwise returns FALSE.
 
-  \sa setContentLength()
+  \sa contentLength() setContentLength()
+*/
+bool QHttpHeader::hasContentLength() const
+{
+    return hasKey( "content-length" );
+}
+
+/*!
+  Returns the value of the special HTTP header field \c content-length.
+
+  \sa setContentLength() hasContentLength()
 */
 uint QHttpHeader::contentLength() const
 {
@@ -342,9 +353,30 @@ uint QHttpHeader::contentLength() const
 }
 
 /*!
-  Returns the value of the special HTTP header entry \c content-type.
+  Sets the value of the special HTTP header field \c content-length to \a len.
 
-  \sa setContentType()
+  \sa contentLength() hasContentLength()
+*/
+void QHttpHeader::setContentLength( int len )
+{
+    m_values[ "content-length" ] = QString::number( len );
+}
+
+/*!
+  Returns TRUE if the head has an entry for the the special HTTP header field
+  \c content-type; otherwise returns FALSE.
+
+  \sa contentType() setContentType()
+*/
+bool QHttpHeader::hasContentType() const
+{
+    return hasKey( "content-type" );
+}
+
+/*!
+  Returns the value of the special HTTP header field \c content-type.
+
+  \sa setContentType() hasContentType()
 */
 QString QHttpHeader::contentType() const
 {
@@ -360,19 +392,9 @@ QString QHttpHeader::contentType() const
 }
 
 /*!
-  Sets the value of the special HTTP header entry \c content-length to \a len.
+  Sets the value of the special HTTP header field \c content-type to \a type.
 
-  \sa contentLength()
-*/
-void QHttpHeader::setContentLength( int len )
-{
-    m_values[ "content-length" ] = QString::number( len );
-}
-
-/*!
-  Sets the value of the special HTTP header entry \c content-type to \a type.
-
-  \sa contentType()
+  \sa contentType() hasContentType()
 */
 void QHttpHeader::setContentType( const QString& type )
 {
@@ -1418,7 +1440,7 @@ void QHttp::reply( const QHttpResponseHeader &rep, const QByteArray & dataA )
 	if ( op->operation() == OpGet && !dataA.isEmpty() ) {
 	    emit data( dataA, op );
 	    bytesRead += dataA.size();
-	    if ( !rep.hasAutoContentLength() ) {
+	    if ( rep.hasContentLength() ) {
 		emit dataTransferProgress( bytesRead, rep.contentLength(), op );
 	    }
 	}
