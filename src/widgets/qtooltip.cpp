@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#29 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -15,7 +15,7 @@
 #include "qpoint.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#28 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#29 $");
 
 
 // Magic value meaning an entire widget - if someone tries to insert a
@@ -83,7 +83,7 @@ private:
 ** QTipManager meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Mon Mar 17 12:39:34 1997
-**      by: The Qt Meta Object Compiler ($Revision: 2.23 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.24 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -428,7 +428,7 @@ void QTipManager::showTip()
     if ( p.x() + label->width() > QApplication::desktop()->width() )
 	p.setX( QApplication::desktop()->width() - label->width() );
     if ( p.y() + label->height() > QApplication::desktop()->height() )
-	p.setY( pos.y() - 20 - label->height() );
+	p.setY( p.y() - 20 - label->height() );
     label->move( p );
     label->show();
     label->raise();
