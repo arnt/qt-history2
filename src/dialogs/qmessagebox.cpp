@@ -501,8 +501,8 @@ errors which can't be easily fixed:
 */
 
 
-struct QMessageBox::QMBData {
-    QMBData(QMessageBox* parent) :
+struct QMessageBoxData {
+    QMessageBoxData(QMessageBox* parent) :
         iconLabel( parent, "icon" )
     {
     }
@@ -670,7 +670,7 @@ void QMessageBox::init( int button0, int button1, int button2 )
 #endif
         button0 = button1 = button2 = 0;
     }
-    mbd = new QMBData(this);
+    mbd = new QMessageBoxData(this);
     Q_CHECK_PTR( mbd );
     mbd->numButtons = 0;
     mbd->button[0] = button0;

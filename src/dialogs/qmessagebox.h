@@ -46,6 +46,7 @@
 
 class  QLabel;
 class  QPushButton;
+struct QMessageBoxData;
 
 class Q_EXPORT QMessageBox : public QDialog
 {
@@ -166,8 +167,7 @@ private:
     int		indexOf( int ) const;
     void	resizeButtons();
     QLabel     *label;
-    struct      QMBData;
-    QMBData    *mbd;
+    QMessageBoxData *mbd;
     void       *reserved1;
     void       *reserved2;
 
