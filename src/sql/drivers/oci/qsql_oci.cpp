@@ -397,7 +397,7 @@ QVariant::Type qDecodeOCIType(int ocitype)
     case SQLT_VCS:
     case SQLT_AVC:
     case SQLT_RDD:
-//    case SQLT_LNG: //???
+    case SQLT_LNG:
 #ifdef SQLT_INTERVAL_YM
     case SQLT_INTERVAL_YM:
 #endif
@@ -415,7 +415,6 @@ QVariant::Type qDecodeOCIType(int ocitype)
     case SQLT_UIN:
         type = QVariant::Double;
         break;
-    case SQLT_LNG:
     case SQLT_VBI:
     case SQLT_BIN:
     case SQLT_LBI:
@@ -687,6 +686,7 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
             dataSize = ofi.oraLength;
         fieldInf[idx].typ = ofi.type;
         fieldInf[idx].oraType = ofi.oraType;
+
         switch (ofi.type) {
         case QVariant::DateTime:
             r = OCIDefineByPos(d->sql,
