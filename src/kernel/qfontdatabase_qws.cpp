@@ -161,7 +161,7 @@ void QFontDatabase::createDatabase()
 	    mystyle->weightDirty=FALSE;
 	    family->addStyle(mystyle);
 	}
-	mystyle->addPointSize( pointSize );
+	mystyle->addPointSize( pointSize/10 );
     }
 #endif
 }
