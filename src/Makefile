@@ -12,8 +12,8 @@ DISTDIR		= /tmp/qt-0.93
 ####### Compiler
 
 #CFLAGS		= -O2 -DNO_DEBUG -DNO_CHECK
-CFLAGS		= -O2 -DCHECK_MEMORY
-CDBGFLAGS	= -g -DCHECK_MEMORY
+CFLAGS		= -O2
+CDBGFLAGS	= -g
 AOUTCFLAGS	= -b i486-linuxaout
 ELFCFLAGS	= -fPIC -b i486-linux
 CC		= gcc
