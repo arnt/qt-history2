@@ -10,7 +10,9 @@
 #include "globjwin.h"
 #include "glbox.h"
 
+#ifdef Q_WS_X11
 #include <GL/glx.h>
+#endif
 
 class MyContext : public QGLContext
 {
@@ -18,6 +20,51 @@ public:
     MyContext( const QGLFormat& format, QPaintDevice * dev )
 	: QGLContext( format, dev ) {}
 protected:
+#ifdef Q_WS_WIN32
+    int choosePixelFormat( void * dummyPfd, HDC pdc )
+    {
+	int pmDepth = 0;
+	PIXELFORMATDESCRIPTOR* p = (PIXELFORMATDESCRIPTOR*)dummyPfd;
+	memset( p, 0, sizeof(PIXELFORMATDESCRIPTOR) );
+	p->nSize = sizeof(PIXELFORMATDESCRIPTOR);
+	p->nVersion = 1;
+	p->dwFlags  = PFD_SUPPORT_OPENGL;
+	if ( deviceIsPixmap() )
+	    p->dwFlags |= PFD_DRAW_TO_BITMAP;
+	else
+	    p->dwFlags |= PFD_DRAW_TO_WINDOW;
+	if ( glFormat.doubleBuffer() && !deviceIsPixmap() )
+	    p->dwFlags |= PFD_DOUBLEBUFFER;
+	if ( glFormat.stereo() )
+	    p->dwFlags |= PFD_STEREO;
+	if ( glFormat.depth() )
+	    p->cDepthBits = 32;
+	else
+	    p->dwFlags |= PFD_DEPTH_DONTCARE;
+	if ( glFormat.rgba() ) {
+	    p->iPixelType = PFD_TYPE_RGBA;
+	    if ( deviceIsPixmap() )
+		p->cColorBits = pmDepth;
+	    else
+		p->cColorBits = 32;
+	} else {
+	    p->iPixelType = PFD_TYPE_COLORINDEX;
+	    p->cColorBits = 8;
+	}
+	if ( glFormat.alpha() )
+	    p->cAlphaBits = 8;
+	if ( glFormat.accum() )
+	    p->cAccumBits = p->cColorBits + p->cAlphaBits;
+	if ( glFormat.stencil() )
+	    p->cStencilBits = 4;
+	p->iLayerType = PFD_MAIN_PLANE;
+	int chosenPfi = ChoosePixelFormat( pdc, p );
+	qWarning( "chosenPfi: %p", chosenPfi );
+	return chosenPfi;
+    }
+#endif
+    
+#ifdef Q_WS_X11
     void* chooseVisual()
     {
 	QGLFormat f = format();
@@ -71,6 +118,7 @@ protected:
 	spec[i] = None;
 	return glXChooseVisual( device()->x11Display(), device()->x11Screen(), spec );
     }
+#endif
 };
 
 GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
@@ -105,9 +153,9 @@ GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
     QObject::connect( z, SIGNAL(valueChanged(int)),c,SLOT(setZRotation(int)) );
 
 
-    QPushButton* btn = new QPushButton( "Reparent GL", this );
+    QPushButton* btn = new QPushButton( "Reparent()", this );
     QObject::connect( btn, SIGNAL(clicked()), this, SLOT(reparentGL()) );
-    QPushButton* btn2 = new QPushButton( "Set Context", this );
+    QPushButton* btn2 = new QPushButton( "SetContext()", this );
     QObject::connect( btn2, SIGNAL(clicked()), this, SLOT(newContext()) );
     QPushButton* btn3 = new QPushButton( "Raise sibling", this );
     QObject::connect( btn3, SIGNAL(clicked()), c, SLOT(raiseSibling()) );
