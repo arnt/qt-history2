@@ -826,6 +826,7 @@ for plat in mac win x11 qnx6 embedded; do
 	    
 	    #Some code is specific to platform though..
 	    remove_file_and_includes "extensions/activeqt" #activeqt is windows only
+	    rm -rf "$PLATDIR/tools/designer/integration/QMsDev"
 	    rm -rf "$PLATDIR/src/3rdparty/gsos"
 	    rm -f "$PLATDIR/src/kernel/qt_windows.h"
 	    if [ "$plat" = "embedded" ] || [ "$plat" = "qnx6" ]; then
