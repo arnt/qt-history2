@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#260 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#261 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -168,7 +168,6 @@ QPopupMenu::~QPopupMenu()
 	syncMenu = 0;
     }
 	
-    delete autoaccel;
     if ( parentMenu )
 	parentMenu->removePopup( this );	// remove from parent menu
 }
@@ -703,10 +702,8 @@ void QPopupMenu::updateAccel( QWidget *parent )
 	}
     }
 
-    if ( autoaccel && parent && autoaccel->parent() != parent ) {
-	delete autoaccel;
-	autoaccel = 0;
-    }
+    delete autoaccel;
+    autoaccel = 0;
 
     if ( parent == 0 && autoaccel == 0 )
  	return;
@@ -716,7 +713,7 @@ void QPopupMenu::updateAccel( QWidget *parent )
     else {
 	// create an autoaccel in any case, even if we might not use
 	// it immediately. Maybe the user needs it later.
-	autoaccel = new QAccel( parent );
+	autoaccel = new QAccel( parent, this );
 	connect( autoaccel, SIGNAL(activated(int)),
 		 SLOT(accelActivated(int)) );
 	connect( autoaccel, SIGNAL(destroyed()),
