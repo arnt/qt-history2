@@ -34,10 +34,16 @@ Bugs
        - Feil markering av fokus når horisontal scrolling
        - Blinkende scrollbar ved resize (cellWidth).
        - Fokus merking bruker widget bredde
+       - Ved windows stil i file dialog:
+             QListBox::pixmap: Index 0 out of range
+             QListBox::text: Index 0 out of range
 
    QMenuBar tastatur-bugs:
        - (Hogne har klaget)
        - Bug i piltast-håndtering ved menu bar item uten meny.
+
+   Modale vinduer skal alltid ligge øverst i applikasjonen, det gjør de
+      ikke nå (ref: FrameMaker måten å gjøre det på, snakk med Eirik)
 
 Funksjonalitet:
 ---------------
