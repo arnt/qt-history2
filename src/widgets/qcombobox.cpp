@@ -1145,7 +1145,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 	}
 	p.setClipping( FALSE );
     } else {					// windows 95 style
-	style().drawComboButton(&p, 0, 0, width(), height(), g, d->arrowDown, d->ed != 0);
+	style().drawComboButton(&p, 0, 0, width(), height(), g, d->arrowDown, d->ed != 0, isEnabled() );
 
 	QRect tmpR = style().comboButtonRect(0,0,width(),height());
 	QRect textR(tmpR.x()+1, tmpR.y()+1, tmpR.width()-2, tmpR.height()-2);

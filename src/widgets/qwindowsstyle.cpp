@@ -76,7 +76,7 @@ QWindowsStyle::~QWindowsStyle()
 
 void QWindowsStyle::drawIndicator( QPainter* p,
 				   int x, int y, int w, int h, const QColorGroup &g,
-				   int s, bool down, bool /*enabled*/ )
+				   int s, bool down, bool enabled )
 {
 #ifndef QT_NO_COMPLEXWIDGETS
     QBrush fill;
@@ -91,7 +91,7 @@ void QWindowsStyle::drawIndicator( QPainter* p,
     } else if ( down )
 	fill = g.brush( QColorGroup::Button );
     else
-	fill = g.brush( QColorGroup::Base );
+	fill = g.brush( enabled ? QColorGroup::Base : QColorGroup::Background );
     qDrawWinPanel( p, x, y, w, h, g, TRUE, &fill );
     if ( s != QButton::Off ) {
 	QPointArray a( 7*2 );
