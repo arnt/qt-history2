@@ -27,9 +27,6 @@
 // To enable verbose output uncomment below
 //#define Debug_QShortcutMap
 
-#define d d_func()
-#define p p_func()
-
 /* \internal
     Entry data for QShortcutMap
     Contains:
@@ -121,7 +118,8 @@ int QShortcutMap::addShortcut(QObject *owner, const QKeySequence &key, Qt::Short
 {
     Q_ASSERT_X(owner, "QShortcutMap::addShortcut", "All shortcuts need an owner");
     Q_ASSERT_X(!key.isEmpty(), "QShortcutMap::addShortcut", "Cannot add keyless shortcuts to map");
-
+    Q_D(QShortcutMap);
+    
     QShortcutEntry newEntry(owner, key, context, --(d->currentId));
     QList<QShortcutEntry>::iterator it = qUpperBound(d->sequences.begin(), d->sequences.end(), newEntry);
     d->sequences.insert(it, newEntry); // Insert sorted
@@ -144,6 +142,7 @@ int QShortcutMap::addShortcut(QObject *owner, const QKeySequence &key, Qt::Short
 
 int QShortcutMap::removeShortcut(int id, QObject *owner, const QKeySequence &key)
 {
+    Q_D(QShortcutMap);
     int itemsRemoved = 0;
     bool allOwners = (owner == 0);
     bool allKeys = key.isEmpty();
@@ -189,6 +188,7 @@ int QShortcutMap::removeShortcut(int id, QObject *owner, const QKeySequence &key
 */
 int QShortcutMap::setShortcutEnabled(bool enable, int id, QObject *owner, const QKeySequence &key)
 {
+    Q_D(QShortcutMap);
     int itemsChanged = 0;
     bool allOwners = (owner == 0);
     bool allKeys = key.isEmpty();
@@ -224,6 +224,7 @@ int QShortcutMap::setShortcutEnabled(bool enable, int id, QObject *owner, const 
 int QShortcutMap::changeShortcut(QObject *owner, const QKeySequence &key, bool enabled)
 {
     Q_ASSERT(owner);
+    Q_D(QShortcutMap);
     QList<QShortcutEntry> newEntries;
 
     int itemsModified = 0;
@@ -281,6 +282,7 @@ int QShortcutMap::changeShortcut(QObject *owner, const QKeySequence &key, bool e
 */
 void QShortcutMap::resetState()
 {
+    Q_D(QShortcutMap);
     d->currentState = QKeySequence::NoMatch;
     clearSequence(d->currentSequence);
 }
@@ -290,6 +292,7 @@ void QShortcutMap::resetState()
 */
 QKeySequence::SequenceMatch QShortcutMap::state()
 {
+    Q_D(QShortcutMap);
     return d->currentState;
 }
 
@@ -301,6 +304,7 @@ QKeySequence::SequenceMatch QShortcutMap::state()
 */
 bool QShortcutMap::tryShortcutEvent(QWidget *w, QKeyEvent *e)
 {
+    Q_D(QShortcutMap);
     bool wasAccepted = e->isAccepted();
     if (d->currentState == QKeySequence::NoMatch) {
         ushort orgType = e->t;
@@ -344,6 +348,7 @@ bool QShortcutMap::tryShortcutEvent(QWidget *w, QKeyEvent *e)
 */
 QKeySequence::SequenceMatch QShortcutMap::nextState(QKeyEvent *e)
 {
+    Q_D(QShortcutMap);
     // Modifiers can NOT be shortcuts...
     if (e->key() >= Qt::Key_Shift &&
         e->key() <= Qt::Key_Alt)
@@ -393,6 +398,7 @@ QKeySequence::SequenceMatch QShortcutMap::nextState(QKeyEvent *e)
 */
 QKeySequence::SequenceMatch QShortcutMap::find(QKeyEvent *e)
 {
+    Q_D(QShortcutMap);
     if (!d->sequences.count())
         return QKeySequence::NoMatch;
 
@@ -474,6 +480,7 @@ void QShortcutMap::clearSequence(QKeySequence &seq)
 */
 void QShortcutMap::createNewSequence(QKeyEvent *e, QKeySequence &seq)
 {
+    Q_D(QShortcutMap);
     seq.setKey(d->currentSequence[0], 0);
     seq.setKey(d->currentSequence[1], 1);
     seq.setKey(d->currentSequence[2], 2);
@@ -561,7 +568,7 @@ bool QShortcutMap::correctContext(Qt::ShortcutContext context, QWidget *w, QWidg
 
 bool QShortcutMap::correctContext(Qt::ShortcutContext context, QAction *a, QWidget *active_window)
 {
-    const QList<QWidget *> &widgets = a->d->widgets;
+    const QList<QWidget *> &widgets = a->d_func()->widgets;
     for (int i = 0; i < widgets.size(); ++i) {
         QWidget *w = widgets.at(i);
         if (QMenu *menu = qobject_cast<QMenu *>(w)) {
@@ -599,6 +606,7 @@ int QShortcutMap::translateModifiers(Qt::KeyboardModifiers modifiers)
 */
 QVector<const QShortcutEntry*> QShortcutMap::matches() const
 {
+    Q_D(const QShortcutMap);
     return d->identicals;
 }
 
@@ -607,6 +615,7 @@ QVector<const QShortcutEntry*> QShortcutMap::matches() const
 */
 void QShortcutMap::dispatchEvent()
 {
+    Q_D(QShortcutMap);
     if (!d->identicals.size())
         return;
 
@@ -649,6 +658,7 @@ void QShortcutMap::dispatchEvent()
 #if defined(Dump_QShortcutMap)
 void QShortcutMap::dumpMap() const
 {
+    Q_D(const QShortcutMap);
     for (int i = 0; i < d->sequences.size(); ++i)
         qDebug().nospace() << &(d->sequences.at(i));
 }

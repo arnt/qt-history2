@@ -23,9 +23,6 @@
 
 #include "qlayoutengine_p.h"
 #include "qlayout_p.h"
-#define d d_func()
-#define q q_func()
-
 
 /*
   Returns true if the widget \a w can be added to the layout \a l;
@@ -133,6 +130,7 @@ void QBoxLayoutPrivate::setupGeom()
     if (!dirty)
         return;
 
+    Q_Q(QBoxLayout);
     int maxw = horz(dir) ? 0 : QLAYOUTSIZE_MAX;
     int maxh = horz(dir) ? QLAYOUTSIZE_MAX : 0;
     int minw = 0;
@@ -221,6 +219,7 @@ void QBoxLayoutPrivate::setupGeom()
 */
 void QBoxLayoutPrivate::calcHfw(int w)
 {
+    Q_Q(QBoxLayout);
     int h = 0;
     int mh = 0;
 
@@ -358,6 +357,7 @@ void QBoxLayoutPrivate::calcHfw(int w)
 QBoxLayout::QBoxLayout(Direction dir, QWidget *parent)
     : QLayout(*new QBoxLayoutPrivate, 0, parent)
 {
+    Q_D(QBoxLayout);
     d->dir = dir;
 }
 
@@ -373,6 +373,7 @@ QBoxLayout::QBoxLayout(Direction dir, QWidget *parent)
 QBoxLayout::QBoxLayout(Direction dir, QLayout *parentLayout)
     : QLayout(*new QBoxLayoutPrivate, parentLayout, 0)
 {
+    Q_D(QBoxLayout);
     d->dir = dir;
 }
 
@@ -384,6 +385,7 @@ QBoxLayout::QBoxLayout(Direction dir, QLayout *parentLayout)
 QBoxLayout::QBoxLayout(Direction dir)
     : QLayout(*new QBoxLayoutPrivate, 0, 0)
 {
+    Q_D(QBoxLayout);
     d->dir = dir;
 }
 
@@ -407,6 +409,7 @@ QBoxLayout::QBoxLayout(QWidget *parent, Direction dir,
                         int margin, int spacing, const char *name)
     : QLayout(*new QBoxLayoutPrivate, 0, parent)
 {
+    Q_D(QBoxLayout);
     d->dir = dir;
     setMargin(margin);
     setObjectName(name);
@@ -426,6 +429,7 @@ QBoxLayout::QBoxLayout(QLayout *parentLayout, Direction dir, int spacing,
                         const char *name)
     : QLayout(*new QBoxLayoutPrivate, parentLayout, 0)
 {
+    Q_D(QBoxLayout);
     d->dir = dir;
     setObjectName(name);
     setSpacing(spacing);
@@ -443,6 +447,7 @@ QBoxLayout::QBoxLayout(QLayout *parentLayout, Direction dir, int spacing,
 QBoxLayout::QBoxLayout(Direction dir, int spacing, const char *name)
     : QLayout(*new QBoxLayoutPrivate,0, 0)
 {
+    Q_D(QBoxLayout);
     d->dir = dir;
     setObjectName(name);
     setSpacing(spacing);
@@ -457,6 +462,7 @@ QBoxLayout::QBoxLayout(Direction dir, int spacing, const char *name)
 */
 QBoxLayout::~QBoxLayout()
 {
+    Q_D(QBoxLayout);
     d->deleteAll(); //must do it before QObject deletes children, so can't be in ~QBoxLayoutPrivate
 }
 
@@ -465,8 +471,9 @@ QBoxLayout::~QBoxLayout()
 */
 QSize QBoxLayout::sizeHint() const
 {
+    Q_D(const QBoxLayout);
     if (d->dirty)
-        const_cast<QBoxLayout*>(this)->d->setupGeom();
+        const_cast<QBoxLayout*>(this)->d_func()->setupGeom();
     int m = margin();
     return d->sizeHint + QSize(2 * m, 2 * m);
 }
@@ -476,8 +483,9 @@ QSize QBoxLayout::sizeHint() const
 */
 QSize QBoxLayout::minimumSize() const
 {
+    Q_D(const QBoxLayout);
     if (d->dirty)
-        const_cast<QBoxLayout*>(this)->d->setupGeom();
+        const_cast<QBoxLayout*>(this)->d_func()->setupGeom();
     int m = margin();
     return d->minSize + QSize(2 * m, 2 * m);
 }
@@ -487,8 +495,9 @@ QSize QBoxLayout::minimumSize() const
 */
 QSize QBoxLayout::maximumSize() const
 {
+    Q_D(const QBoxLayout);
     if (d->dirty)
-        const_cast<QBoxLayout*>(this)->d->setupGeom();
+        const_cast<QBoxLayout*>(this)->d_func()->setupGeom();
     int m = margin();
     QSize s = (d->maxSize + QSize(2 * m, 2 * m))
               .boundedTo(QSize(QLAYOUTSIZE_MAX, QLAYOUTSIZE_MAX));
@@ -505,8 +514,9 @@ QSize QBoxLayout::maximumSize() const
 */
 bool QBoxLayout::hasHeightForWidth() const
 {
+    Q_D(const QBoxLayout);
     if (d->dirty)
-        const_cast<QBoxLayout*>(this)->d->setupGeom();
+        const_cast<QBoxLayout*>(this)->d_func()->setupGeom();
     return d->hasHfw;
 }
 
@@ -515,12 +525,13 @@ bool QBoxLayout::hasHeightForWidth() const
 */
 int QBoxLayout::heightForWidth(int w) const
 {
+    Q_D(const QBoxLayout);
     if (!hasHeightForWidth())
         return -1;
     int m = margin();
     w -= 2 * m;
     if (w != d->hfwWidth)
-        const_cast<QBoxLayout*>(this)->d->calcHfw(w);
+        const_cast<QBoxLayout*>(this)->d_func()->calcHfw(w);
 
     return d->hfwHeight + 2 * m;
 }
@@ -528,6 +539,7 @@ int QBoxLayout::heightForWidth(int w) const
 /*! \internal */
 int QBoxLayout::minimumHeightForWidth(int w) const
 {
+    Q_D(const QBoxLayout);
     (void) heightForWidth(w);
     return d->hasHfw ? (d->hfwMinHeight + 2 * margin()) : -1;
 }
@@ -537,6 +549,7 @@ int QBoxLayout::minimumHeightForWidth(int w) const
 */
 void QBoxLayout::invalidate()
 {
+    Q_D(QBoxLayout);
     d->setDirty();
     QLayout::invalidate();
 }
@@ -546,6 +559,7 @@ void QBoxLayout::invalidate()
 */
 QLayoutItem *QBoxLayout::itemAt(int index) const
 {
+    Q_D(const QBoxLayout);
     return index >= 0 && index < d->list.count() ? d->list.at(index)->item : 0;
 }
 
@@ -555,6 +569,7 @@ QLayoutItem *QBoxLayout::itemAt(int index) const
 */
 QLayoutItem *QBoxLayout::takeAt(int index)
 {
+    Q_D(QBoxLayout);
     if (index >= d->list.count())
         return 0;
     QBoxLayoutItem *b = d->list.takeAt(index);
@@ -573,8 +588,9 @@ QLayoutItem *QBoxLayout::takeAt(int index)
 */
 QSizePolicy::ExpandData QBoxLayout::expanding() const
 {
+    Q_D(const QBoxLayout);
     if (d->dirty)
-        const_cast<QBoxLayout*>(this)->d->setupGeom();
+        const_cast<QBoxLayout*>(this)->d_func()->setupGeom();
     return d->expanding;
 }
 
@@ -583,6 +599,7 @@ QSizePolicy::ExpandData QBoxLayout::expanding() const
 */
 void QBoxLayout::setGeometry(const QRect &r)
 {
+    Q_D(QBoxLayout);
     if (d->dirty || r != geometry()) {
         QLayout::setGeometry(r);
         if (d->dirty)
@@ -646,6 +663,7 @@ void QBoxLayout::setGeometry(const QRect &r)
 */
 void QBoxLayout::addItem(QLayoutItem *item)
 {
+    Q_D(QBoxLayout);
     QBoxLayoutItem *it = new QBoxLayoutItem(item);
     d->list.append(it);
     invalidate();
@@ -662,6 +680,7 @@ void QBoxLayout::addItem(QLayoutItem *item)
 */
 void QBoxLayout::insertItem(int index, QLayoutItem *item)
 {
+    Q_D(QBoxLayout);
     if (index < 0)                                // append
         index = d->list.count();
 
@@ -681,6 +700,7 @@ void QBoxLayout::insertItem(int index, QLayoutItem *item)
 */
 void QBoxLayout::insertSpacing(int index, int size)
 {
+    Q_D(QBoxLayout);
     if (index < 0)                                // append
         index = d->list.count();
 
@@ -707,6 +727,7 @@ void QBoxLayout::insertSpacing(int index, int size)
 */
 void QBoxLayout::insertStretch(int index, int stretch)
 {
+    Q_D(QBoxLayout);
     if (index < 0)                                // append
         index = d->list.count();
 
@@ -734,6 +755,7 @@ void QBoxLayout::insertStretch(int index, int stretch)
 */
 void QBoxLayout::insertLayout(int index, QLayout *layout, int stretch)
 {
+    Q_D(QBoxLayout);
     addChildLayout(layout);
     if (index < 0)                                // append
         index = d->list.count();
@@ -770,6 +792,7 @@ void QBoxLayout::insertLayout(int index, QLayout *layout, int stretch)
 void QBoxLayout::insertWidget(int index, QWidget *widget, int stretch,
                                Qt::Alignment alignment)
 {
+    Q_D(QBoxLayout);
     if (!checkWidget(this, widget))
          return;
     addChildWidget(widget);
@@ -852,6 +875,7 @@ void QBoxLayout::addLayout(QLayout *layout, int stretch)
 */
 void QBoxLayout::addStrut(int size)
 {
+    Q_D(QBoxLayout);
     QLayoutItem *b;
     if (horz(d->dir))
         b = new QSpacerItem(0, size, QSizePolicy::Fixed,
@@ -874,6 +898,7 @@ void QBoxLayout::addStrut(int size)
 */
 int QBoxLayout::findWidget(QWidget* w)
 {
+    Q_D(QBoxLayout);
     const int n = d->list.count();
     for (int i = 0; i < n; i++) {
         if (d->list.at(i)->item->widget() == w)
@@ -891,6 +916,7 @@ int QBoxLayout::findWidget(QWidget* w)
 */
 bool QBoxLayout::setStretchFactor(QWidget *w, int stretch)
 {
+    Q_D(QBoxLayout);
     for (int i = 0; i < d->list.size(); ++i) {
         QBoxLayoutItem *box = d->list.at(i);
         if (box->item->widget() == w) {
@@ -911,6 +937,7 @@ bool QBoxLayout::setStretchFactor(QWidget *w, int stretch)
 */
 bool QBoxLayout::setStretchFactor(QLayout *l, int stretch)
 {
+    Q_D(QBoxLayout);
     for (int i = 0; i < d->list.size(); ++i) {
         QBoxLayoutItem *box = d->list.at(i);
         if (box->item->layout() == l) {
@@ -931,6 +958,7 @@ bool QBoxLayout::setStretchFactor(QLayout *l, int stretch)
 */
 bool QBoxLayout::setAlignment(QWidget *w, Qt::Alignment alignment)
 {
+    Q_D(QBoxLayout);
     for (int i = 0; i < d->list.size(); ++i) {
         QBoxLayoutItem *box = d->list.at(i);
         if (box->item->widget() == w) {
@@ -951,6 +979,7 @@ bool QBoxLayout::setAlignment(QWidget *w, Qt::Alignment alignment)
 */
 bool QBoxLayout::setAlignment(QLayout *l, Qt::Alignment alignment)
 {
+    Q_D(QBoxLayout);
     for (int i = 0; i < d->list.size(); ++i) {
         QBoxLayoutItem *box = d->list.at(i);
         if (box->item->layout() == l) {
@@ -967,6 +996,7 @@ bool QBoxLayout::setAlignment(QLayout *l, Qt::Alignment alignment)
 */
 void QBoxLayout::setDirection(Direction direction)
 {
+    Q_D(QBoxLayout);
     if (d->dir == direction)
         return;
     if (horz(d->dir) != horz(direction)) {
@@ -1014,6 +1044,7 @@ void QBoxLayout::setDirection(Direction direction)
 
 QBoxLayout::Direction QBoxLayout::direction() const
 {
+    Q_D(const QBoxLayout);
     return d->dir;
 }
 
