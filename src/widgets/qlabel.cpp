@@ -1,7 +1,7 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#9 $
 **
-** Implementation of QLabel class
+** Implementation of QLabel widget class
 **
 ** Author  : Eirik Eng
 ** Created : 941215
@@ -12,12 +12,9 @@
 
 #include "qlabel.h"
 #include "qpainter.h"
-#include "qfontmet.h"
-#include "qpixmap.h"
-#include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#9 $";
 #endif
 
 
