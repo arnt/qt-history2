@@ -165,7 +165,9 @@ struct QScrollViewData {
 		 && clipped_viewport->height()+clipped_viewport->y() >=
 		 viewport.height() ) {
 		// clipped_viewport still covers viewport
-		if ( ( !isScroll && !clipped_viewport->testWFlags( Qt::WNorthWestGravity) ) || static_bg )
+		if( static_bg )
+		    clipped_viewport->repaint( clipped_viewport->visibleRect(), true );
+		else if ( ( !isScroll && !clipped_viewport->testWFlags( Qt::WNorthWestGravity) ) || static_bg )
 		    clipped_viewport->repaint( clipped_viewport->visibleRect(),
 			       !clipped_viewport->testWFlags(Qt::WResizeNoErase) );
 		} else {
@@ -199,6 +201,8 @@ struct QScrollViewData {
 	    for (QSVChildRec *r = children.first(); r; r=children.next()) {
 		r->child->move(r->child->x()+dx,r->child->y()+dy);
 	    }
+	    if ( static_bg )
+		viewport.repaint( viewport.visibleRect(), true );
 	}
     }
     void deleteAll()
@@ -1692,7 +1696,7 @@ void QScrollView::moveContents(int x, int y)
     d->vx = x;
     d->vy = y;
 
-    if ( d->clipped_viewport ) {
+    if ( d->clipped_viewport || d->static_bg ) {
 	// Cheap move (usually)
 	d->moveAllBy(dx,dy);
     } else if ( /*dx && dy ||*/
@@ -2173,16 +2177,10 @@ void QScrollView::enableClipper(bool y)
 
   Beware that this mode is quite slow, as a full repaint of the visible area has to be triggered on every contents move.
 
-  Static background does only work when the clipper is enabled, otherwise calling this function is a no op.
-
   \sa hasStaticBackground()
 */
 void  QScrollView::setStaticBackground(bool y)
 {
-    // ignore if clipper is not enabled
-    if( !d->clipped_viewport )
-	y = FALSE;
-
     d->static_bg = y;
 }
 
