@@ -163,7 +163,7 @@ void qt_mac_set_cursor(const QCursor *c, const Point *p)
 static int nextCursorId = Qt::BitmapCursor;
 
 QCursorData::QCursorData(int s)
-    : cshape(s), bm(0), bmm(0), hx(-1), hy(-1), type(TYPE_None), id(s)
+    : cshape(s), bm(0), bmm(0), hx(-1), hy(-1), id(s), type(TYPE_None)
 {
     ref = 1;
     memset(&curs, '\0', sizeof(curs));
