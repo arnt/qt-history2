@@ -61,7 +61,7 @@ final Qt product. The Technology Preview supports:
 
 \list
 \i GNU/Linux with gcc 2.95 or later (x86)
-\i Mac OS X with its native gcc compiler
+\i Mac OS X 10.3 with its native gcc compiler
 \i Microsoft Windows 2000 and later, with MSVC 6 or later
 \endlist
 
