@@ -233,7 +233,7 @@ QImageData::~QImageData()
     are saved to a file with save(). Images are loaded from a file
     with load() (or in the constructor) or from an array of data with
     loadFromData(). The lists of supported formats are available from
-    inputFormatList() and outputFormatList().
+    QImageIO::inputFormats() and QImageIO::outputFormats().
 
     Strings of text may be added to images using setText().
 
