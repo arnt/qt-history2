@@ -3410,12 +3410,12 @@ void EventList::setup()
 	sigs = iface->signalNames( editor->widget() );
     QStrListIterator it( sigs );
     while ( it.current() ) {
-	HierarchyItem *eventItem = new HierarchyItem( HierarchyItem::Event, this, 0,
+	HierarchyItem *eventItem = new HierarchyItem( HierarchyItem::Event, this, (HierarchyItem*)0,
 						      it.current(), QString::null, QString::null );
 	eventItem->setOpen( TRUE );
 	QValueList<MetaDataBase::Connection> conns =
 	    MetaDataBase::connections( formWindow, editor->widget(), formWindow->mainContainer() );
-	HierarchyItem *item;
+	HierarchyItem *item = 0;
 	for ( QValueList<MetaDataBase::Connection>::Iterator cit = conns.begin();
 	      cit != conns.end(); ++cit ) {
 	    QString s = it.current();
