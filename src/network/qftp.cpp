@@ -215,6 +215,11 @@ private:
     bool waitForDtpToClose;
 };
 
+/**********************************************************************
+ *
+ * QFtpCommand implemenatation
+ *
+ *********************************************************************/
 class QFtpCommand
 {
 public:
@@ -235,11 +240,6 @@ public:
     static int idCounter;
 };
 
-/**********************************************************************
- *
- * QFtpCommand implemenatation
- *
- *********************************************************************/
 int QFtpCommand::idCounter = 0;
 
 QFtpCommand::QFtpCommand( QFtp::Command cmd, QStringList raw )
@@ -962,7 +962,8 @@ public:
     QFtpPrivate() :
 	close_waitForStateChange(FALSE),
 	state( QFtp::Unconnected ),
-	error( QFtp::NoError )
+	error( QFtp::NoError ),
+	npWaitForLoginDone( FALSE )
     { pending.setAutoDelete( TRUE ); }
 
     QFtpPI pi;
@@ -971,6 +972,8 @@ public:
     QFtp::State state;
     QFtp::Error error;
     QString errorString;
+
+    bool npWaitForLoginDone;
 };
 
 static QPtrDict<QFtpPrivate> *d_ptr = 0;
@@ -1758,6 +1761,7 @@ void QFtp::piFtpReply( int code, const QString &text )
 QFtp::~QFtp()
 {
     abort();
+    close();
     delete_d( this );
 }
 
@@ -1766,141 +1770,104 @@ QFtp::~QFtp()
  * QFtp implementation of the QNetworkProtocol interface
  *
  *********************************************************************/
-void QFtp::initNetworkProtocol()
-{
-    connect( this, SIGNAL(listInfo(const QUrlInfo &)),
-	    this, SLOT(npListInfo(const QUrlInfo &)) );
-    connect( this, SIGNAL(done(bool)),
-	    this, SLOT(npDone(bool)) );
-    connect( this, SIGNAL(stateChanged(int)),
-	    this, SLOT(npStateChanged(int)) );
-    connect( this, SIGNAL(dataTransferProgress(int,int)),
-	    this, SLOT(npDataTransferProgress(int,int)) );
-    connect( this, SIGNAL(readyRead()),
-	    this, SLOT(npReadyRead()) );
-}
-
-void QFtp::resetNetworkProtocol()
-{
-    disconnect( this, SIGNAL(listInfo(const QUrlInfo &)),
-	    this, SLOT(npListInfo(const QUrlInfo &)) );
-    disconnect( this, SIGNAL(done(bool)),
-	    this, SLOT(npDone(bool)) );
-    disconnect( this, SIGNAL(stateChanged(int)),
-	    this, SLOT(npStateChanged(int)) );
-    disconnect( this, SIGNAL(dataTransferProgress(int,int)),
-	    this, SLOT(npDataTransferProgress(int,int)) );
-    disconnect( this, SIGNAL(readyRead()),
-	    this, SLOT(npReadyRead()) );
-}
-
 /*!  \reimp
 */
 void QFtp::operationListChildren( QNetworkOperation *op )
 {
-    initNetworkProtocol();
     op->setState( StInProgress );
 
-    QString user = url()->user().isEmpty() ? QString( "anonymous" ) : url()->user();
-    QString pass = url()->password().isEmpty() ? QString( "anonymous@" ) : url()->password();
-
-    connectToHost( url()->host(), url()->port() != -1 ? url()->port() : 21 );
-    login( user, pass );
     cd( url()->path().isEmpty() ? QString( "/" ) : url()->path() );
     list();
-    close();
-    emit start( operationInProgress() );
+    emit start( op );
 }
 
 /*!  \reimp
 */
 void QFtp::operationMkDir( QNetworkOperation *op )
 {
-    initNetworkProtocol();
     op->setState( StInProgress );
 
-    QString user = url()->user().isEmpty() ? QString( "anonymous" ) : url()->user();
-    QString pass = url()->password().isEmpty() ? QString( "anonymous@" ) : url()->password();
-
-    connectToHost( url()->host(), url()->port() != -1 ? url()->port() : 21 );
-    login( user, pass );
     mkdir( op->arg( 0 ) );
-    close();
 }
 
 /*!  \reimp
 */
 void QFtp::operationRemove( QNetworkOperation *op )
 {
-    initNetworkProtocol();
     op->setState( StInProgress );
 
-    QString user = url()->user().isEmpty() ? QString( "anonymous" ) : url()->user();
-    QString pass = url()->password().isEmpty() ? QString( "anonymous@" ) : url()->password();
-
-    connectToHost( url()->host(), url()->port() != -1 ? url()->port() : 21 );
-    login( user, pass );
     cd( url()->path().isEmpty() ? QString( "/" ) : url()->path() );
-    remove( QUrl( operationInProgress()->arg( 0 ) ).path() );
-    close();
+    remove( QUrl( op->arg( 0 ) ).path() );
 }
 
 /*!  \reimp
 */
 void QFtp::operationRename( QNetworkOperation *op )
 {
-    initNetworkProtocol();
     op->setState( StInProgress );
 
-    QString user = url()->user().isEmpty() ? QString( "anonymous" ) : url()->user();
-    QString pass = url()->password().isEmpty() ? QString( "anonymous@" ) : url()->password();
-
-    connectToHost( url()->host(), url()->port() != -1 ? url()->port() : 21 );
-    login( user, pass );
     cd( url()->path().isEmpty() ? QString( "/" ) : url()->path() );
-    rename( operationInProgress()->arg( 0 ), operationInProgress()->arg( 1 ));
-    close();
+    rename( op->arg( 0 ), op->arg( 1 ));
 }
 
 /*!  \reimp
 */
 void QFtp::operationGet( QNetworkOperation *op )
 {
-    initNetworkProtocol();
     op->setState( StInProgress );
 
-    QString user = url()->user().isEmpty() ? QString( "anonymous" ) : url()->user();
-    QString pass = url()->password().isEmpty() ? QString( "anonymous@" ) : url()->password();
-    QUrl u( operationInProgress()->arg( 0 ) );
-
-    connectToHost( u.host(), u.port() != -1 ? u.port() : 21 );
-    login( user, pass );
+    QUrl u( op->arg( 0 ) );
     get( u.path() );
-    close();
 }
 
 /*!  \reimp
 */
 void QFtp::operationPut( QNetworkOperation *op )
 {
-    initNetworkProtocol();
     op->setState( StInProgress );
 
-    QString user = url()->user().isEmpty() ? QString( "anonymous" ) : url()->user();
-    QString pass = url()->password().isEmpty() ? QString( "anonymous@" ) : url()->password();
-    QUrl u( operationInProgress()->arg( 0 ) );
-
-    connectToHost( u.host(), u.port() != -1 ? u.port() : 21 );
-    login( user, pass );
-    put( operationInProgress()->rawArg(1), u.path() );
-    close();
+    QUrl u( op->arg( 0 ) );
+    put( op->rawArg(1), u.path() );
 }
 
 /*!  \reimp
 */
 bool QFtp::checkConnection( QNetworkOperation *op )
 {
-    return QNetworkProtocol::checkConnection( op );
+    QFtpPrivate *d = ::d( this );
+    if ( state() == Unconnected ) {
+	connect( this, SIGNAL(listInfo(const QUrlInfo &)),
+		this, SLOT(npListInfo(const QUrlInfo &)) );
+	connect( this, SIGNAL(done(bool)),
+		this, SLOT(npDone(bool)) );
+	connect( this, SIGNAL(stateChanged(int)),
+		this, SLOT(npStateChanged(int)) );
+	connect( this, SIGNAL(dataTransferProgress(int,int)),
+		this, SLOT(npDataTransferProgress(int,int)) );
+	connect( this, SIGNAL(readyRead()),
+		this, SLOT(npReadyRead()) );
+
+	d->npWaitForLoginDone = TRUE;
+	switch ( op->operation() ) {
+	    case OpGet:
+	    case OpPut:
+		{
+		    QUrl u( op->arg( 0 ) );
+		    connectToHost( u.host(), u.port() != -1 ? u.port() : 21 );
+		}
+		break;
+	    default:
+		connectToHost( url()->host(), url()->port() != -1 ? url()->port() : 21 );
+		break;
+	}
+	QString user = url()->user().isEmpty() ? QString( "anonymous" ) : url()->user();
+	QString pass = url()->password().isEmpty() ? QString( "anonymous@" ) : url()->password();
+	login( user, pass );
+    }
+
+    if ( state() == LoggedIn )
+	return TRUE;
+    return FALSE;
 }
 
 /*!  \reimp
@@ -1927,6 +1894,8 @@ void QFtp::npListInfo( const QUrlInfo & i )
 
 void QFtp::npDone( bool err )
 {
+    QFtpPrivate *d = ::d( this );
+
     QNetworkOperation *op = operationInProgress();
     if ( err ) {
 	if ( op ) {
@@ -1958,7 +1927,7 @@ void QFtp::npDone( bool err )
 	    }
 	    emit finished( op );
 	}
-    } else {
+    } else if ( !d->npWaitForLoginDone ) {
 	switch ( op->operation() ) {
 	    case OpRemove:
 		emit removed( op );
@@ -1980,7 +1949,20 @@ void QFtp::npDone( bool err )
 	op->setState( StDone );
 	emit finished( op );
     }
-    resetNetworkProtocol();
+    if ( d->npWaitForLoginDone ) {
+	d->npWaitForLoginDone = FALSE;
+    } else {
+	disconnect( this, SIGNAL(listInfo(const QUrlInfo &)),
+		this, SLOT(npListInfo(const QUrlInfo &)) );
+	disconnect( this, SIGNAL(done(bool)),
+		this, SLOT(npDone(bool)) );
+	disconnect( this, SIGNAL(stateChanged(int)),
+		this, SLOT(npStateChanged(int)) );
+	disconnect( this, SIGNAL(dataTransferProgress(int,int)),
+		this, SLOT(npDataTransferProgress(int,int)) );
+	disconnect( this, SIGNAL(readyRead()),
+		this, SLOT(npReadyRead()) );
+    }
 }
 
 void QFtp::npStateChanged( int state )

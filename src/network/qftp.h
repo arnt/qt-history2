@@ -165,9 +165,7 @@ private:
     void init();
     int addCommand( QFtpCommand * );
 
-    bool checkConnection( QNetworkOperation *op ); // ### Qt 4.0: delete me
-    void initNetworkProtocol();
-    void resetNetworkProtocol();
+    bool checkConnection( QNetworkOperation *op );
 
 private slots:
     void startNextCommand();
