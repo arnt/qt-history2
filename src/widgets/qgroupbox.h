@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.h#22 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.h#23 $
 **
 ** Definition of QGroupBox widget class
 **
@@ -31,6 +31,10 @@
 #endif // QT_H
 
 
+class QAccel;
+class QGroupBoxPrivate;
+
+
 class Q_EXPORT QGroupBox : public QFrame
 {
     Q_OBJECT
@@ -38,22 +42,27 @@ public:
     QGroupBox( QWidget *parent=0, const char *name=0 );
     QGroupBox( const QString &title, QWidget *parent=0, const char* name=0 );
 
-    QString title()		const	{ return str; }
+    QString title() const { return str; }
+    virtual void setTitle( const QString &);
 
-    virtual void	setTitle( const QString &);
-
-    int		alignment()	const	{ return align; }
-    virtual void	setAlignment( int );
+    int alignment() const { return align; }
+    virtual void setAlignment( int );
 
 protected:
-    void	resizeEvent( QResizeEvent * );
-    void	paintEvent( QPaintEvent * );
-    void	updateMask();
+    void resizeEvent( QResizeEvent * );
+    void paintEvent( QPaintEvent * );
+    void updateMask();
+
+private slots:
+    void fixFocus();
 
 private:
     void	init();
-    QString	str;
-    int		align;
+
+    QString str;
+    int align;
+    QAccel * accel;
+    QGroupBoxPrivate * d;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

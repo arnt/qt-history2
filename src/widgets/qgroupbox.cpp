@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#46 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#47 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -26,6 +26,10 @@
 #include "qgroupbox.h"
 #include "qpainter.h"
 #include "qbitmap.h"
+#include "qaccel.h"
+#include "qradiobutton.h"
+#include "qfocusdata.h"
+
 
 /*!
   \class QGroupBox qgroupbox.h
@@ -82,16 +86,55 @@ void QGroupBox::init()
 }
 
 
+/*
+  Internal function that returns the shortcut character in a string.
+  Returns zero if no shortcut character was found.
+  Example:
+    shortcutChar("E&xit") returns 'x'.
+*/
+
+static QChar shortcutChar( const QString &str )
+{
+    int p = 0;
+    while ( p >= 0 ) {
+	p = str.find('&',p);
+	if ( p < 0 )
+	    return QChar::null;
+	p++;
+	if ( str[p] != '&' )
+	    return str[p];
+    }
+    return QChar::null;
+}
+
+
 /*!
-  Sets the group box title text to \e title.
+  Sets the group box title text to \a title, and add a focus-change
+  accelerator if the \a title contains & followed by an appropriate
+  letter.  This produces "User information" with the U underscored and
+  Alt-U moves the keyboard focus into the group.
+  
+  \code
+    g->setTitle( "&User information" );
+  \endcode
 */
 
 void QGroupBox::setTitle( const QString &title )
 {
     if ( str == title )				// no change
 	return;
+    if ( accel )
+	delete accel;
+    accel = 0;
     str = title;
+    QChar s( shortcutChar( title ) );
+    if ( s != QChar::null ) {
+	accel = new QAccel( this, "automatic focus-change accelerator" );
+	accel->connectItem( accel->insertItem( s, 0 ),
+			    this, SLOT(fixFocus()) );
+    }
     repaint();
+
 }
 
 /*!
@@ -193,7 +236,7 @@ void QGroupBox::paintEvent( QPaintEvent *event )
     if ( tw ) {					// draw the title
 	paint.setClipping( FALSE );
 	paint.setPen( g.text() );
-	paint.drawText( r, AlignCenter, str, len );
+	paint.drawText( r, AlignCenter + ShowPrefix, str, len );
     }
     drawContents( &paint );
 }
@@ -237,4 +280,41 @@ void QGroupBox::updateMask(){
 
     setMask( bm );
 
+}
+
+
+/*!  This private slot finds a nice widget in this group box that can
+accept focus, and gives it focus.
+*/
+
+void QGroupBox::fixFocus()
+{
+    QFocusData * fd = focusData();
+    QWidget * orig = fd->focusWidget();
+    QWidget * best = 0;
+    QWidget * candidate = 0;
+    QWidget * w = orig;
+    do {
+	QWidget * p = w;
+	while( p && p != this && !p->isTopLevel() )
+	    p = p->parentWidget();
+	if ( p == this && ( w->focusPolicy() == TabFocus ||
+			    w->focusPolicy() == StrongFocus ) ) {
+	    if ( w->hasFocus() ||
+		 ( !best &&
+		   w->inherits( "QRadioButton" ) &&
+		   ((QRadioButton*)w)->isChecked() ) )
+		// we prefer a checked radio button or a widget that
+		// already has focus, if there is one
+		best = w;
+	    else if ( !candidate )
+		// but we'll accept anything that takes focus
+		candidate = w;
+	}
+	w = fd->next();
+    } while( w != orig );
+    if ( best )
+	best->setFocus();
+    else if ( candidate )
+	candidate->setFocus();
 }
