@@ -760,6 +760,13 @@ int QStyleSheetItem::lineSpacing() const
 	  and display the new document in a small popup similar to
 	  QWhatsThis. Note that links will not work in documents with
 	  \c{<qt type="detail">...</qt>}.
+	\i bgcolor
+	- The background color, for example \c bgcolor="yellow" or \c
+	  bgcolor="#0000FF".
+	\i background
+	- The background pixmap, for example \c
+	  background="granit.xpm". The pixmap name will be resolved by
+	  a QMimeSourceFactory().
 	\endlist
     \i \c{<h1>...</h1>}
 	- A top-level heading.
