@@ -38,7 +38,6 @@ protected:
     void resizeEvent(QResizeEvent *event);
 
 private:
-    QRect itemBr, itemBrOrig;
     QPixmap buffer;
     QList<Item *> items;
     Item *selectedItem;

@@ -161,22 +161,18 @@ void Items::mousePressEvent(QMouseEvent *event)
 {
     for (int i = items.size()-1; i >= 0; --i) {
         if (items.at(i)->contains(event->pos())) {
-            items.last()->setSelected(false);
-            items[i]->setSelected(true);
-            items[i]->setOffset(event->pos());
-            itemBr = items.at(i)->boundingRect();
-            items.move(i, items.size()-1);
-            selectedItem = items.last();
+            if (selectedItem)
+                selectedItem->setSelected(false);
+            selectedItem = items[i];
+            selectedItem->setSelected(true);
+            selectedItem->setOffset(event->pos());
+            items.move(i, items.size()-1); // raise
             break;
         }
     }
-    if (!itemBrOrig.isEmpty())
-        drawItems(itemBrOrig);
-    itemBrOrig = itemBr;
-
-    QPainter px(&buffer);
-    items.last()->draw(&px);
-    px.end();
+    if (!selectedItem)
+        return;
+    drawItems(selectedItem->boundingRect());
 
     update();
 }
@@ -185,7 +181,6 @@ void Items::mouseMoveEvent(QMouseEvent *event)
 {
     if (selectedItem) {
         selectedItem->translate(event->pos());
-        itemBr = selectedItem->boundingRect();
         update();
     }
 }
@@ -194,11 +189,9 @@ void Items::mouseReleaseEvent(QMouseEvent *)
 {
     if (selectedItem) {
         selectedItem->setSelected(false);
-        drawItems(itemBr | selectedItem->boundingRect());
+        QRect br = selectedItem->boundingRect();
         selectedItem = 0;
-        if (!itemBrOrig.isEmpty())
-            drawItems(itemBrOrig);
-        itemBrOrig = itemBr;
+        drawItems(br);
     }
     update();
 }
@@ -218,7 +211,8 @@ void Items::drawItems(const QRect &rect)
     fillBackground(&px);
     for (int i = 0; i < items.size(); ++i) {
         if (rect.isEmpty() || items.at(i)->boundingRect().intersects(rect))
-            items[i]->draw(&px);
+            if (items[i] != selectedItem)
+                items[i]->draw(&px);
     }
 }
 
