@@ -98,7 +98,7 @@ class Q_CORE_EXPORT QVariant
 
     inline QVariant();
     ~QVariant();
-    explicit QVariant(Type type);
+    QVariant(Type type);
     QVariant(int typeOrUserType, const void *copy);
     QVariant(const QVariant &other);
 
