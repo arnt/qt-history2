@@ -522,37 +522,50 @@ void QButtonGroup::moveFocus( int key )
 	    QPoint p(i->button->mapToGlobal(i->button->geometry().center()));
 	    int score = (p.y() - goal.y())*(p.y() - goal.y()) +
 			(p.x() - goal.x())*(p.x() - goal.x());
+	    bool betterScore = score < bestScore || !candidate;
 	    switch( key ) {
 	    case Key_Up:
-		if ( p.y() < goal.y() &&
-		     QABS( p.x() - goal.x() ) < QABS( p.y() - goal.y() ) &&
-		     ( score < bestScore || !candidate ) ) {
-		    candidate = i->button;
-		    bestScore = score;
+		if ( p.y() < goal.y() && betterScore ) {
+		    if ( QABS( p.x() - goal.x() ) < QABS( p.y() - goal.y() ) ) {
+			candidate = i->button;
+			bestScore = score;
+		    } else if ( i->button->x() == f->x() ) {
+			candidate = i->button;
+			bestScore = score/2;
+		    }
 		}
 		break;
 	    case Key_Down:
-		if ( p.y() > goal.y() &&
-		     QABS( p.x() - goal.x() ) < QABS( p.y() - goal.y() ) &&
-		     ( score < bestScore || !candidate ) ) {
-		    candidate = i->button;
-		    bestScore = score;
+		if ( p.y() > goal.y() && betterScore ) {
+		    if ( QABS( p.x() - goal.x() ) < QABS( p.y() - goal.y() ) ) {
+			candidate = i->button;
+			bestScore = score;
+		    } else if ( i->button->x() == f->x() ) {
+			candidate = i->button;
+			bestScore = score/2;
+		    }
 		}
 		break;
 	    case Key_Left:
-		if ( p.x() < goal.x() &&
-		     QABS( p.y() - goal.y() ) < QABS( p.x() - goal.x() ) &&
-		     ( score < bestScore || !candidate ) ) {
-		    candidate = i->button;
-		    bestScore = score;
+		if ( p.x() < goal.x() && betterScore ) {
+		    if ( QABS( p.y() - goal.y() ) < QABS( p.x() - goal.x() ) ) {
+			candidate = i->button;
+			bestScore = score;
+		    } else if ( i->button->y() == f->y() ) {
+			candidate = i->button;
+			bestScore = score/2;
+		    }
 		}
 		break;
 	    case Key_Right:
-		if ( p.x() > goal.x() &&
-		     QABS( p.y() - goal.y() ) < QABS( p.x() - goal.x() ) &&
-		     ( score < bestScore || !candidate ) ) {
-		    candidate = i->button;
-		    bestScore = score;
+		if ( p.x() > goal.x() && betterScore ) {
+		    if ( QABS( p.y() - goal.y() ) < QABS( p.x() - goal.x() ) ) {
+			candidate = i->button;
+			bestScore = score;
+		    } else if ( i->button->y() == f->y() ) {
+			candidate = i->button;
+			bestScore = score/2;
+		    }
 		}
 		break;
 	    }
