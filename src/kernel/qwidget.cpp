@@ -3615,7 +3615,7 @@ void QWidget::show()
 	if ( layout() ) {
 	    if ( layout()->hasHeightForWidth() )
 		s.setHeight( layout()->totalHeightForWidth( s.width() ) );
-	    exp =  layout()->expanding();
+	    exp = layout()->expanding();
 	} else
 #endif
 	    {
@@ -4195,7 +4195,6 @@ QSize QWidget::sizeHint() const
     if ( layout() )
 	return layout()->totalSizeHint();
 #endif
-    constPolish();
     return QSize( -1, -1 );
 }
 
@@ -4222,7 +4221,6 @@ QSize QWidget::minimumSizeHint() const
     if ( layout() )
 	return layout()->totalMinimumSize();
 #endif
-    constPolish();
     return QSize( -1, -1 );
 }
 
