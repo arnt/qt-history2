@@ -102,7 +102,6 @@
         <action name="fileUploadAction"/>
         <action name="fileRemoveAction"/>
         <separator/>
-        <separator/>
         <action name="fileExitAction"/>
     </item>
 </menubar>
