@@ -1663,38 +1663,38 @@ static const struct {
     { 0xFFFF, 0 }
 };
 
+#if 0 // ### Lars, this code is not used! Should we discard it?
 // duplicate entries in the glyph list. Do not download these, to avoid
-// doubly defined gl;yphs
+// doubly defined glyphs
 static const unsigned short duplicateEntries[] = {
     0x00A0,
-	0x0394,
-	0x03a9,
-	0xf6c1,
-	0x021a,
-	0x2215,
-	0x00ad,
-	0x02c9,
-	0x03bc,
-	0x2219,
-	0xf6c2,
-	0x00a0,
-	0x021b,
-	0x0
-	};
+    0x0394,
+    0x03a9,
+    0xf6c1,
+    0x021a,
+    0x2215,
+    0x00ad,
+    0x02c9,
+    0x03bc,
+    0x2219,
+    0xf6c2,
+    0x00a0,
+    0x021b,
+    0x0
+};
 
 static inline bool duplicate( unsigned short unicode )
 {
-    const unsigned short *g = duplicateEntries;
-    bool duplicate = FALSE;
-    while( *g ) {
+    bool result = FALSE;
+    for ( const unsigned short *g = duplicateEntries; *g; ++g ) {
 	if ( *g == unicode ) {
-	    duplicate = TRUE;
+	    result = TRUE;
 	    break;
 	}
-	g++;
     }
-    return duplicate;
+    return result;
 }
+#endif
 
 // ---------------------------------------------------------------------
 // postscript font substitution dictionary. We assume every postscript printer has at least
@@ -4214,8 +4214,10 @@ void QPSPrinterFontTTF::charprocComposite(BYTE *glyph, QTextStream& s)
   int arg2;
   float xscale = 1;
   float yscale = 1;
+#ifdef DEBUG_TRUETYPE
   float scale01 = 0;
   float scale10 = 0;
+#endif
 
   /* Once around this loop for each component. */
   do {
@@ -4248,9 +4250,13 @@ void QPSPrinterFontTTF::charprocComposite(BYTE *glyph, QTextStream& s)
       } else if(flags & WE_HAVE_A_TWO_BY_TWO) {
 	  xscale = f2dot14( getUSHORT(glyph) );
 	  glyph += 2;
+#ifdef DEBUG_TRUETYPE
 	  scale01 = f2dot14( getUSHORT(glyph) );
+#endif
 	  glyph += 2;
+#ifdef DEBUG_TRUETYPE
 	  scale10 = f2dot14( getUSHORT(glyph) );
+#endif
 	  glyph += 2;
 	  yscale = f2dot14( getUSHORT(glyph) );
 	  glyph += 2;
@@ -4273,18 +4279,18 @@ void QPSPrinterFontTTF::charprocComposite(BYTE *glyph, QTextStream& s)
       /* translate the coordinate system. */
       if ( flags & (WE_HAVE_A_TWO_BY_TWO|WE_HAVE_AN_X_AND_Y_SCALE) ) {
 #if 0
-	  // code similar to this would be needed for two_by_tow
+	  // code similar to this would be needed for two_by_two
 	  s << "gsave [ " << xscale << " " << scale01 << " " << scale10 << " "
 	    << yscale << " " << topost(arg1) << " " << topost(arg2) << "] SM\n";
 #endif
 	  if ( flags & WE_HAVE_A_TWO_BY_TWO )
 	      s << "% Two by two transformation, unimplemented\n";
-	  s <<"gsave " << topost(arg1);
+	  s << "gsave " << topost(arg1);
 	  s << " " << topost(arg2);
 	  s << " translate\n";
 	  s << xscale << " " << yscale << " scale\n";
       } else if ( flags & ARGS_ARE_XY_VALUES && ( arg1 != 0 || arg2 != 0 ) ) {
-	  s <<"gsave " << topost(arg1);
+	  s << "gsave " << topost(arg1);
 	  s << " " << topost(arg2);
 	  s << " translate\n";
       }
@@ -4301,9 +4307,9 @@ void QPSPrinterFontTTF::charprocComposite(BYTE *glyph, QTextStream& s)
       /* put it back the way it was. */
       if( (flags & ARGS_ARE_XY_VALUES && (arg1 != 0 || arg2 != 0) ) ||
 	  ( flags & (WE_HAVE_A_TWO_BY_TWO|WE_HAVE_AN_X_AND_Y_SCALE) ) ) {
-	  s <<"grestore ";
+	  s << "grestore ";
       }
-  } while(flags & MORE_COMPONENTS);
+  } while (flags & MORE_COMPONENTS);
 }
 
 /*
