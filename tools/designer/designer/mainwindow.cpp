@@ -2852,9 +2852,9 @@ void MainWindow::setupPluginManagers()
 	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
 	    PreferenceInterface *i = 0;
 	    preferencePluginManager->queryInterface( *it, &i );
-	    i->connectTo( designerInterface() );
 	    if ( !i )
 		continue;
+	    i->connectTo( designerInterface() );
 	    PreferenceInterface::Preference *pf = i->preference();
 	    if ( pf )
 		addPreferencesTab( pf->tab, pf->title, pf->receiver, pf->init_slot, pf->accept_slot );
@@ -2868,9 +2868,9 @@ void MainWindow::setupPluginManagers()
 	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
 	    ProjectSettingsInterface *i = 0;
 	    projectSettingsPluginManager->queryInterface( *it, &i );
-	    i->connectTo( designerInterface() );
 	    if ( !i )
 		continue;
+	    i->connectTo( designerInterface() );
 
 	    ProjectSettingsInterface::ProjectSettings *pf = i->projectSetting();
 	    if ( pf )
