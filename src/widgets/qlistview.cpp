@@ -130,13 +130,14 @@ struct QListViewPrivate
 
     class ItemColumnInfo {
     public:
-	ItemColumnInfo(): pm( 0 ), next( 0 ), truncated( FALSE ), dirty( FALSE ), width( 0 ) {}
+	ItemColumnInfo(): pm( 0 ), next( 0 ), truncated( FALSE ), dirty( FALSE ), allow_rename( FALSE ), width( 0 ) {}
 	~ItemColumnInfo() { delete pm; delete next; }
 	QString text, tmpText;
 	QPixmap * pm;
 	ItemColumnInfo * next;
 	uint truncated : 1;
 	uint dirty : 1;
+	uint allow_rename : 1;
 	int width;
     };
 
@@ -222,6 +223,7 @@ struct QListViewPrivate
     bool toolTips;
     QListViewToolTip *toolTip;
     bool updateHeader;
+    int pressedColumn;
 
 };
 
@@ -616,7 +618,6 @@ void QListViewItem::init()
     allow_drag = FALSE;
     allow_drop = FALSE;
     visible = TRUE;
-    allow_rename = FALSE;
     renameBox = 0;
     enabled = TRUE;
 }
@@ -653,19 +654,44 @@ bool QListViewItem::isVisible() const
     return (bool)visible;
 }
 
-/*! If \a b is TRUE, this item can be in-place renamed by the user,
-  else this is not possible */
+/*! If \a b is TRUE, this item can be in-place renamed in the column
+  \a col by the user, else this is not possible */
 
-void QListViewItem::setRenameEnabled( bool b )
+void QListViewItem::setRenameEnabled( int col, bool b )
 {
-    allow_rename = b;
+    QListViewPrivate::ItemColumnInfo * l = (QListViewPrivate::ItemColumnInfo*)columns;
+    if ( !l ) {
+	l = new QListViewPrivate::ItemColumnInfo;
+	columns = (void*)l;
+    }
+    for( int c = 0; c < col; c++ ) {
+	if ( !l->next )
+	    l->next = new QListViewPrivate::ItemColumnInfo;
+	l = l->next;
+    }
+
+    if ( !l )
+	return;
+    l->allow_rename = b;
 }
 
-/*! Returns whether it is allowed to in-place rename this item. */
+/*! Returns whether it is allowed to in-place rename this item in the
+  column \a col. */
 
-bool QListViewItem::renameEnabled() const
+bool QListViewItem::renameEnabled( int col ) const
 {
-    return (bool)allow_rename;
+    QListViewPrivate::ItemColumnInfo * l = (QListViewPrivate::ItemColumnInfo*)columns;
+    if ( !l )
+	return FALSE;
+
+    while( col && l ) {
+	l = l->next;
+	col--;
+    }
+
+    if ( !l )
+	return FALSE;
+    return (bool)l->allow_rename;
 }
 
 /*! Sets the item to be enabled, if \a b is TRUE, else to disabled. A
@@ -695,24 +721,25 @@ bool QListViewItem::isEnabled() const
 }
 
 /*!  If in-place renaming of this item is enabled (see
-  renameEnabled()), this function starts renaming it, by creating the
-  edit box and intializing that one.
+  renameEnabled()), this function starts renaming it in cloumn \a col,
+  by creating the edit box and intializing that one.
 */
 
-void QListViewItem::startRename()
+void QListViewItem::startRename( int col )
 {
-    if ( !renameEnabled() )
+    if ( !renameEnabled( col ) )
 	return;
     if ( renameBox )
-	cancelRename();
+	cancelRename( col );
     QListView *lv = listView();
     if ( !lv )
 	return;
-    int col = 0;
     QRect r = lv->itemRect( this );
     r = QRect( lv->viewportToContents( r.topLeft() ), r.size() );
-    r.setLeft( r.left() + lv->itemMargin() + ( depth() + ( lv->rootIsDecorated() ? 1 : 0 ) ) * lv->treeStepSize() - 1 );
-    r.setRight( lv->header()->sectionSize( 0 ) - 1 );
+    r.setLeft( lv->header()->sectionPos( col ) );
+    r.setWidth( lv->header()->sectionSize( col ) - 1 );
+    if ( col == 0 )
+	r.setLeft( r.left() + lv->itemMargin() + ( depth() + ( lv->rootIsDecorated() ? 1 : 0 ) ) * lv->treeStepSize() - 1 );
     renameBox = new QLineEdit( lv->viewport() );
     renameBox->setFrameStyle( QFrame::Box | QFrame::Plain );
     renameBox->setText( text( col ) );
@@ -723,27 +750,27 @@ void QListViewItem::startRename()
     lv->viewport()->setFocusProxy( renameBox );
     renameBox->setFocus();
     renameBox->show();
+    renameCol = col;
 }
 
 /*! This function is called after the user renamed this item in-place
-  and pressed return or enter */
+  in column \a col and pressed return or enter */
 
-void QListViewItem::okRename()
+void QListViewItem::okRename( int col )
 {
     QListView *lv = listView();
     if ( !lv || !renameBox )
 	return;
-    int col = 0;
     setText( col, renameBox->text() );
-    cancelRename();
-    emit lv->itemRenamed( this );
-    emit lv->itemRenamed( this, text( col ) );
+    cancelRename( col );
+    emit lv->itemRenamed( this, col );
+    emit lv->itemRenamed( this, col, text( col ) );
 }
 
-/*! This function is called if the user cancels in-place renaming of
-  this item */
+/*! This function is called if the user cancels in-place renaming
+  column \a col of this item */
 
-void QListViewItem::cancelRename()
+void QListViewItem::cancelRename( int )
 {
     QListView *lv = listView();
     if ( !lv || !renameBox )
@@ -2158,17 +2185,17 @@ void QListViewPrivate::Root::setup()
 */
 
 /*!
-  \fn void QListView::itemRenamed (QListViewItem * item)
+  \fn void QListView::itemRenamed (QListViewItem * item, int col )
 
-  This signal is emitted when \a item has bee renamed, usually by
-  in in-place renaming.
+  This signal is emitted when \a item has bee renamed, usually by in
+  in-place renaming, in column \a col.
 */
 
 /*!
-  \fn void QListView::itemRenamed (QListViewItem * item, const QString &text)
+  \fn void QListView::itemRenamed (QListViewItem * item, int col, const QString &text)
 
   This signal is emitted when \a item has been renamed to \a text,
-  usually by in in-place renaming.
+  usually by in in-place renaming, in column \a col.
 */
 
 /*! Constructs a new empty list view, with \a parent as a parent and \a name
@@ -3252,14 +3279,14 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
 		QKeyEvent *ke = (QKeyEvent*)e;
 		if ( ke->key() == Key_Return ||
 		     ke->key() == Key_Enter ) {
-		    currentItem()->okRename();
+		    currentItem()->okRename( currentItem()->renameCol );
 		    return TRUE;
 		} else if ( ke->key() == Key_Escape ) {
-		    currentItem()->cancelRename();
+		    currentItem()->cancelRename( currentItem()->renameCol );
 		    return TRUE;
 		}
 	    } else if ( e->type() == QEvent::FocusOut ) {
-		currentItem()->cancelRename();
+		currentItem()->cancelRename( currentItem()->renameCol );
 		return TRUE;
 	    }
 	}
@@ -3607,7 +3634,7 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 	return;
 
     if ( currentItem() && currentItem()->renameBox )
-	currentItem()->cancelRename();
+	currentItem()->cancelRename( currentItem()->renameCol );
 
     d->startDragItem = 0;
     d->dragStartPos = e->pos();
@@ -3619,8 +3646,10 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
     QListViewItem * i = itemAt( vp );
     if ( i && !i->isEnabled() )
 	return;
-    if ( i == currentItem() && i && i->isSelected() && e->button() == LeftButton )
+    if ( i == currentItem() && i && i->isSelected() && e->button() == LeftButton ) {
 	d->renameTimer->start( QApplication::doubleClickInterval(), TRUE );
+	d->pressedColumn = header()->sectionAt( contentsToViewport( e->pos() ).x() );
+    }
     QListViewItem *oldCurrent = currentItem();
     if ( !oldCurrent && !i && firstChild() ) {
 	d->focusItem = firstChild();
@@ -4237,8 +4266,8 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	e->ignore(); // For QDialog
 	return;
     case Key_F2:
-	if ( currentItem() && currentItem()->renameEnabled() )
-	    currentItem()->startRename();
+	if ( currentItem() && currentItem()->renameEnabled( 0 ) )
+	    currentItem()->startRename( 0 );
     default:
 	if ( e->text().length() > 0 && e->text()[ 0 ].isPrint() ) {
 	    selectCurrent = FALSE;
@@ -6174,7 +6203,7 @@ void QListView::handleItemChange( QListViewItem *old, bool shift, bool control )
 void QListView::startRename()
 {
     if ( currentItem() )
-	currentItem()->startRename();
+	currentItem()->startRename( d->pressedColumn );
 }
 
 void QListView::selectRange( QListViewItem *from, QListViewItem *to, bool invert, bool includeFirst, bool clearSel )

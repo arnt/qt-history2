@@ -165,9 +165,9 @@ public:
     void setVisible( bool b );
     bool isVisible() const;
 
-    virtual void setRenameEnabled( bool b );
-    bool renameEnabled() const;
-    virtual void startRename();
+    virtual void setRenameEnabled( int col, bool b );
+    bool renameEnabled( int col ) const;
+    virtual void startRename( int col );
 
     virtual void setEnabled( bool b );
     bool isEnabled() const;
@@ -185,8 +185,8 @@ protected:
 #endif
     virtual void dragEntered();
     virtual void dragLeft();
-    virtual void okRename();
-    virtual void cancelRename();
+    virtual void okRename( int col );
+    virtual void cancelRename( int col );
 
 private:
     void init();
@@ -207,13 +207,13 @@ private:
     uint allow_drag : 1;
     uint allow_drop : 1;
     uint visible : 1;
-    uint allow_rename : 1;
     uint enabled;
 
     QListViewItem * parentItem;
     QListViewItem * siblingItem;
     QListViewItem * childItem;
     QLineEdit *renameBox;
+    int renameCol;
 
     void * columns;
 
@@ -357,8 +357,8 @@ signals:
 #ifndef QT_NO_DRAGANDDROP
     void dropped( QDropEvent *e );
 #endif
-    void itemRenamed( QListViewItem *item, const QString & );
-    void itemRenamed( QListViewItem *item );
+    void itemRenamed( QListViewItem *item, int col, const QString & );
+    void itemRenamed( QListViewItem *item, int col  );
 
 protected:
     void contentsMousePressEvent( QMouseEvent * e );
