@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#35 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#34 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#35 $";
 #endif
 
 /*!
@@ -310,14 +310,6 @@ If it is not a 1-bit image, this function returns QImage::IgnoreEndian.
 Returns a pointer to the scanline pointer table.
 
 This is the beginning of the data block for contiguous images.
-*/
-
-/*!
-\fn bool QImage::contiguousBits() const
-Returns TRUE if the image data is encoded as a contiguous block, or
-FALSE if it is segmented.
-
-\sa create()
 */
 
 /*!
@@ -625,7 +617,6 @@ void QImage::freeBits()
     }
 }
 
-
 /*! \fn bool QImage::contiguousBits() const
 
 Returns TRUE if the image data bits are encoded as a contiguous array of
@@ -635,6 +626,8 @@ scanline.
 Segmented data can only occur on 16-bits systems, like Windows 3.x, when
 the total image data takes more than 64 kbytes of memory.  All 32-bit
 operating systems (UNIX/X, Win32, OS/2 etc.) use contiguous image data.
+
+\sa create()
 */
 
 
