@@ -83,6 +83,7 @@
 #include <sys/time.h>
 #include <sys/select.h>
 #include <unistd.h>
+#include <qdir.h>
 #endif
 
 #define	 GC GC_QQQ
@@ -196,6 +197,15 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
     // Set application name
     char *p = strrchr( argv[0], '/' );
     appName = p ? p + 1 : argv[0];
+#ifdef Q_WS_MACX
+    //special hack to change working directory to a resource fork when running from finder
+    if(p && !QDir::isRelativePath(p) && QDir::currentDirPath() == "/") {
+	QString path = argv[0];
+	int rfork = path.findRev(QString("/") + appName + ".app/");
+	if(rfork != -1) 
+	    QDir::setCurrent(path.left(rfork+1));
+    }
+#endif
 
     if ( qt_is_gui_used ) {
 	qApp->setName( appName );
