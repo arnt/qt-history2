@@ -129,7 +129,7 @@ static void resolveLibs()
 				wVer3 = HIWORD(pLocalInfo->dwFileVersionLS);
 				wVer4 = LOWORD(pLocalInfo->dwFileVersionLS);
 				// It will not work with secur32.dll version 5.0.2195.2862
-				if ( !(wVer1 == 5 && wVer2 == 0 && wVer3 == 2195 && wVer4 == 2862) ) {
+				if ( !(wVer1 == 5 && wVer2 == 0 && wVer3 == 2195 && (wVer4 == 2862 || wVer4 == 4587) ) ) {
 				    QLibrary userLib("secur32");
 				    typedef BOOL (WINAPI *PtrGetUserNameExW)(EXTENDED_NAME_FORMAT nameFormat, ushort* lpBuffer, LPDWORD nSize);
 				    PtrGetUserNameExW ptrGetUserNameExW = (PtrGetUserNameExW)userLib.resolve( "GetUserNameExW" );
