@@ -44,5 +44,5 @@ void Dialog::broadcast()
     ++messageCount;
 
     broadcastServer->sendDatagram(datagram.data(), datagram.size(),
-                                  QHostAddress("255.255.255.255"), 45454);
+                                  QHostAddress::BroadcastAddress, 45454);
 }
