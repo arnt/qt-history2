@@ -631,12 +631,6 @@ void WidgetView::movieStatus( int s )
 
 void WidgetView::checkBoxClicked( int id )
 {
-    if ( id == 0 ) {
-	if ( cb[0]->isChecked() )
-	    edit->grabKeyboard();
-	else
-	    edit->releaseKeyboard();
-    }
     QString str;
     str = tr("Check box %1 clicked : ").arg(id);
     QString chk = "---";
