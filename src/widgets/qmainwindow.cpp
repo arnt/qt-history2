@@ -2059,7 +2059,7 @@ void QMainWindow::paintEvent( QPaintEvent * )
     if ( style() == WindowsStyle && d->mb && d->top && !d->top->isEmpty() ) {
 	QPainter p( this );
 	int y = d->mb->height() + 1;
-	style().drawSeparator( &p, 0, y, width() - 1, y, colorGroup() );
+	style().drawSeparator( &p, 0, y, width(), y, colorGroup() );
     }
 }
 
@@ -2972,7 +2972,7 @@ bool QMainWindow::isDockMenuEnabled() const
 }
 
 /*!
-  When passing TRUE for \a b here, rightclicking on an empty space on a toolbar dock 
+  When passing TRUE for \a b here, rightclicking on an empty space on a toolbar dock
   or rightclicking on a toolbar handle opens a popup menu which allows lining up toolbars
   and hiding/showing toolbars.
 
