@@ -3163,6 +3163,8 @@ int QListBox::rowAt( int y ) const
 
 QRect QListBox::itemRect( QListBoxItem *item ) const
 {
+    if ( d->resizeTimer->isActive() )
+	return QRect( 0, 0, -1, -1 );
     if ( !d->layoutDirty )
 	doLayout();
 
