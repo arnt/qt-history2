@@ -277,6 +277,10 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
         }
         break;
     case kEventClassMouse: {
+        WindowPartCode wpc;
+        if(GetEventParameter(event, kEventParamWindowPartCode, typeWindowPartCode, NULL,
+                             sizeof(wpc), NULL, &wpc) == noErr && wpc != inContent)
+            return SendEventToApplication(event);
         handled_event = false;
         break; }
     default:
