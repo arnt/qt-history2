@@ -289,7 +289,7 @@ public:		   \
 #ifndef Q_UCM_VERIFICATION_DATA
 #  define Q_UCM_VERIFICATION_DATA \
 	static const char *qt_ucm_verification_data =			\
-            "pattern=QT_UCM_VERIFICATION_DATA\n"			\
+            "pattern=""QT_UCM_VERIFICATION_DATA""\n"			\
             "version="QT_VERSION_STR"\n"				\
             "flags="Q_UCM_FLAGS_STRING"\n"				\
 	    "buildkey="QT_BUILD_KEY"\0";
