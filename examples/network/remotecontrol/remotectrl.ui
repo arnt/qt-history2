@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>235</width>
-            <height>151</height>
+            <width>279</width>
+            <height>185</height>
         </rect>
     </property>
     <property name="caption">
@@ -18,7 +18,7 @@
     <property name="sizeGripEnabled">
         <bool>true</bool>
     </property>
-    <grid>
+    <hbox>
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
@@ -28,11 +28,11 @@
         <property name="spacing">
             <number>6</number>
         </property>
-        <widget class="QLayoutWidget" row="1" column="0" rowspan="1" colspan="3">
+        <widget class="QLayoutWidget">
             <property name="name">
                 <cstring>Layout5</cstring>
             </property>
-            <hbox>
+            <vbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
@@ -47,21 +47,30 @@
                         <cstring>textToSend</cstring>
                     </property>
                 </widget>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>sText</cstring>
+                <spacer>
+                    <property name="name" stdset="0">
+                        <cstring>Spacer5_2</cstring>
                     </property>
-                    <property name="text">
-                        <string>Send text</string>
+                    <property name="orientation">
+                        <enum>Vertical</enum>
                     </property>
-                </widget>
-            </hbox>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>20</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+            </vbox>
         </widget>
-        <widget class="QLayoutWidget" row="3" column="0" rowspan="1" colspan="3">
+        <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>Layout2</cstring>
+                <cstring>Layout6</cstring>
             </property>
-            <hbox>
+            <vbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
@@ -71,12 +80,36 @@
                 <property name="spacing">
                     <number>6</number>
                 </property>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>sText</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Send &amp;Text</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>sImage</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Send &amp;Image...</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>sPalette</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Send &amp;Palette...</string>
+                    </property>
+                </widget>
                 <spacer>
                     <property name="name" stdset="0">
-                        <cstring>Spacer2</cstring>
+                        <cstring>Spacer6</cstring>
                     </property>
                     <property name="orientation">
-                        <enum>Horizontal</enum>
+                        <enum>Vertical</enum>
                     </property>
                     <property name="sizeType">
                         <enum>Expanding</enum>
@@ -93,45 +126,12 @@
                         <cstring>quitButton</cstring>
                     </property>
                     <property name="text">
-                        <string>Quit</string>
+                        <string>&amp;Quit</string>
                     </property>
                 </widget>
-            </hbox>
+            </vbox>
         </widget>
-        <spacer row="2" column="1">
-            <property name="name" stdset="0">
-                <cstring>Spacer5</cstring>
-            </property>
-            <property name="orientation">
-                <enum>Vertical</enum>
-            </property>
-            <property name="sizeType">
-                <enum>Expanding</enum>
-            </property>
-            <property name="sizeHint">
-                <size>
-                    <width>20</width>
-                    <height>20</height>
-                </size>
-            </property>
-        </spacer>
-        <widget class="QPushButton" row="0" column="0">
-            <property name="name">
-                <cstring>sImage</cstring>
-            </property>
-            <property name="text">
-                <string>Send image</string>
-            </property>
-        </widget>
-        <widget class="QPushButton" row="0" column="2">
-            <property name="name">
-                <cstring>sPalette</cstring>
-            </property>
-            <property name="text">
-                <string>Send palette</string>
-            </property>
-        </widget>
-    </grid>
+    </hbox>
 </widget>
 <connections>
     <connection>
