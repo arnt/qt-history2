@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#89 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#90 $
 **
 ** Definition of QListView widget class
 **
@@ -280,6 +280,7 @@ protected slots:
 private slots:
     void changeSortColumn( int );
     void updateDirtyItems();
+    void makeVisible();
     void handleSizeChange( int, int, int );
 
 private:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#252 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#253 $
 **
 ** Implementation of QListView widget class
 **
@@ -129,6 +129,7 @@ struct QListViewPrivate
 
     QTimer * timer;
     QTimer * dirtyItemTimer;
+    QTimer * visibleTimer;
     int levelWidth;
 
     // the list of drawables, and the range drawables covers entirely
@@ -1528,6 +1529,7 @@ QListView::QListView( QWidget * parent, const char *name )
     d->drawables = 0;
     d->dirtyItems = 0;
     d->dirtyItemTimer = new QTimer( this );
+    d->visibleTimer = new QTimer( this );
     d->margin = 1;
     d->multi = 0;
     d->sortcolumn = 0;
@@ -1545,6 +1547,8 @@ QListView::QListView( QWidget * parent, const char *name )
 	     this, SLOT(updateContents()) );
     connect( d->dirtyItemTimer, SIGNAL(timeout()),
 	     this, SLOT(updateDirtyItems()) );
+    connect( d->visibleTimer, SIGNAL(timeout()),
+	     this, SLOT(makeVisible()) );
 
     connect( d->h, SIGNAL(sizeChange( int, int, int )),
 	     this, SLOT(handleSizeChange( int, int, int )) );
@@ -2210,6 +2214,12 @@ void QListView::updateDirtyItems()
 }
 
 
+void QListView::makeVisible()
+{
+    if ( d->focusItem )
+        ensureItemVisible( d->focusItem );
+}
+
 /*!  Ensures that the header is correctly sized and positioned.
 */
 
@@ -2608,47 +2618,48 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 */
 void QListView::contentsMouseReleaseEvent( QMouseEvent * e )
 {
-  // delete and disconnect autoscroll timer, if we have one
+    // delete and disconnect autoscroll timer, if we have one
     if ( d->scrollTimer ) {
-	disconnect( d->scrollTimer, SIGNAL(timeout()),
-		    this, SLOT(doAutoScroll()) );
+        disconnect( d->scrollTimer, SIGNAL(timeout()),
+                    this, SLOT(doAutoScroll()) );
         d->scrollTimer->stop();
-	delete d->scrollTimer;
-	d->scrollTimer = 0;
+        delete d->scrollTimer;
+        d->scrollTimer = 0;
     }
 
     if ( !e )
-	return;
+        return;
 
     QPoint vp = contentsToViewport(e->pos());
 
     if ( e->button() == RightButton ) {
-	QListViewItem * i;
-	if ( viewport()->rect().contains( vp ) )
-	    i = itemAt( vp );
-	else
-	    i = d->currentSelected;
+        QListViewItem * i;
+        if ( viewport()->rect().contains( vp ) )
+            i = itemAt( vp );
+        else
+            i = d->currentSelected;
 
-	if ( i ) {
-	    int c = d->h->mapToLogical( d->h->cellAt( vp.x() ) );
-	    emit rightButtonClicked( i, viewport()->mapToGlobal( vp ),
-				     c );
-	}
-	return;
+        if ( i ) {
+            int c = d->h->mapToLogical( d->h->cellAt( vp.x() ) );
+            emit rightButtonClicked( i, viewport()->mapToGlobal( vp ),
+                                     c );
+        }
+        return;
     }
 
     if ( e->button() != LeftButton || !d->buttonDown )
-	return;
+        return;
 
     QListViewItem * i = itemAt( vp );
     if ( !i )
-	return;
+        return;
 
     if ( i->isSelectable() )
-	setSelected( i, d->select );
+        setSelected( i, d->select );
 
     setCurrentItem( i ); // repaints
-
+    ensureItemVisible( i );
+    
     return;
 }
 
@@ -2732,40 +2743,58 @@ void QListView::contentsMouseMoveEvent( QMouseEvent * e )
 
 void QListView::doAutoScroll()
 {
+    if ( !d->focusItem )
+        return;
+    
     QPoint pos = QCursor::pos();
     pos = viewport()->mapFromGlobal( pos );
 
-    // do the scrolling
-    if ( pos.y() > visibleHeight() ) {
-        scrollBy( 0, verticalScrollBar()->lineStep() );
-	pos.setY( visibleHeight() - 1 );
-    }
-	
-    if ( pos.y() < 0 ) {
-        scrollBy( 0, -verticalScrollBar()->lineStep() );
-	pos.setY( 1 );
+    bool down = pos.y() > itemRect( d->focusItem ).y();
+    
+    int g = pos.y() + contentsY();
+    QListViewItem *c = d->focusItem, *old = 0L;
+    if ( down ) {
+        int y = itemRect( d->focusItem ).y() + contentsY();
+        while( c && y + c->height() <= g ) {
+            y += c->height();
+            old = c;
+            c = c->itemBelow();
+        }
+        if ( !c && old )
+            c = old;
+    } else {
+        int y = itemRect( d->focusItem ).y() + contentsY();
+        while( c && y >= g ) {
+            old = c;
+            c = c->itemAbove();
+            if ( c )
+                y -= c->height();
+        }
+        if ( !c && old )
+            c = old;
     }
 
-    QListViewItem * i = itemAt( pos );
-    if ( !i )
-	return;
+    if ( !c || c == d->focusItem )
+        return;
+
+    QListViewItem * i = c;
 
     if ( isMultiSelection() && d->focusItem ) {
-	// also (de)select the ones in between
-	QListViewItem * b = d->focusItem;
-	bool down = ( itemPos( i ) > itemPos( b ) );
-	while( b && b != i ) {
-	    if ( b->isSelectable() )
-		setSelected( b, d->select );
-	    b = down ? b->itemBelow() : b->itemAbove();
-	}
+        // also (de)select the ones in between
+        QListViewItem * b = d->focusItem;
+        bool down = ( itemPos( i ) > itemPos( b ) );
+        while( b && b != i ) {
+            if ( b->isSelectable() )
+                setSelected( b, d->select );
+            b = down ? b->itemBelow() : b->itemAbove();
+        }
     }
 
     if ( i->isSelectable() )
-	setSelected( i, d->select );
+        setSelected( i, d->select );
 
     setCurrentItem( i );
-    ensureItemVisible( i );
+    d->visibleTimer->start( 1, TRUE );
 }
 
 /*!  Handles focus in events on behalf of viewport().  Since
@@ -2827,6 +2856,8 @@ void QListView::keyPressEvent( QKeyEvent * e )
     QRect r( itemRect( i ) );
     QListViewItem * i2;
 
+    bool singleStep = FALSE;
+    
     switch( e->key() ) {
     case Key_Enter:
     case Key_Return:
@@ -2843,10 +2874,12 @@ void QListView::keyPressEvent( QKeyEvent * e )
     case Key_Down:
         i = i->itemBelow();
         d->currentPrefix.truncate( 0 );
+        singleStep = TRUE;
         break;
     case Key_Up:
         i = i->itemAbove();
         d->currentPrefix.truncate( 0 );
+        singleStep = TRUE;
         break;
     case Key_Home:
         i = firstChild();
@@ -2980,8 +3013,11 @@ void QListView::keyPressEvent( QKeyEvent * e )
                      : TRUE );
 
     setCurrentItem( i );
-    ensureItemVisible( i );
-
+    if ( singleStep )
+        d->visibleTimer->start( 1, TRUE );
+    else
+        ensureItemVisible( i );
+    
     if ( oldCurrent ) {
         QRect r = itemRect( oldCurrent );
         r = r.unite( itemRect( currentItem() ) );
@@ -3068,30 +3104,30 @@ bool QListView::isMultiSelection() const
 void QListView::setSelected( QListViewItem * item, bool selected )
 {
     if ( !item || item->isSelected() == selected || !item->isSelectable() )
-	return;
+        return;
 
     if ( d->currentSelected == item && !selected ) {
-	d->currentSelected = 0;
-	item->setSelected( FALSE );
-	repaintItem( item );
+        d->currentSelected = 0;
+        item->setSelected( FALSE );
+        repaintItem( item );
     }
 
     if ( selected && !isMultiSelection() && d->currentSelected ) {
-	d->currentSelected->setSelected( FALSE );
-	repaintItem( d->currentSelected );
+        d->currentSelected->setSelected( FALSE );
+        repaintItem( d->currentSelected );
     }
 
     if ( item->isSelected() != selected ) {
-	item->setSelected( selected );
-	d->currentSelected = selected ? item : 0;
-	repaintItem( item );
+        item->setSelected( selected );
+        d->currentSelected = selected ? item : 0;
+        repaintItem( item );
     }
 
     if ( item && !isMultiSelection() && selected && d->focusItem != item )
-	setCurrentItem( item );
+        setCurrentItem( item );
 
-    if ( !isMultiSelection() )
-	emit selectionChanged( selected ? item : 0 );
+        if ( !isMultiSelection() )
+            emit selectionChanged( selected ? item : 0 );
     emit selectionChanged();
 }
 
@@ -3984,7 +4020,7 @@ bool QListView::rootIsDecorated() const
 /*!  Ensures that \a i is made visible, scrolling the list view
   vertically as required.
 
-  \sa itemRect() QSCrollView::ensureVisible()
+  \sa itemRect() QScrollView::ensureVisible()
 */
 
 void QListView::ensureItemVisible( const QListViewItem * i )
