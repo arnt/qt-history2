@@ -347,19 +347,21 @@ int TextLayoutQt::width( ShapedItem &shaped, int charFrom, int numChars ) const
 
     // do the simple thing for now and give the first glyph in a cluster the full width, all other ones 0.
     int glyphStart = shaped.d->logClusters[charFrom];
-    int charEnd = charFrom + numChars;
+    int charEnd = charFrom + numChars - 1;
     if ( charFrom > 0 && shaped.d->logClusters[charFrom-1] == glyphStart ) {
 	while ( charFrom < shaped.d->length && shaped.d->logClusters[charFrom] == glyphStart )
 	    charFrom++;
+	if ( charFrom == shaped.d->length )
+	    return 0;
 	glyphStart = shaped.d->logClusters[charFrom];
     }
     int glyphEnd = shaped.d->logClusters[charEnd];
     while ( charEnd < shaped.d->length && shaped.d->logClusters[charEnd] == glyphEnd )
 	charEnd++;
-    glyphEnd = (charEnd == shaped.d->length) ? shaped.d->num_glyphs : shaped.d->logClusters[charEnd];
+    glyphEnd = (charEnd == shaped.d->length) ? shaped.d->num_glyphs-1 : shaped.d->logClusters[charEnd]-1;
 
     int width = 0;
-    for ( int i = glyphStart; i < glyphEnd; i++ )
+    for ( int i = glyphStart; i <= glyphEnd; i++ )
 	width += shaped.d->advances[i].x;
     return width;
 }

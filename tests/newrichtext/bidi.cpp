@@ -99,7 +99,8 @@ static QChar::Direction basicDirection( const QString &str )
 static void appendItems(ScriptItemArray &items, int &start, int &stop, BidiControl &control, QChar::Direction dir,
 			const QChar *text ) {
     if ( start > stop ) {
-	qWarning( "Bidi: appendItems() internal error" );
+	// #### the algorithm is currently not really safe against this. Still needs fixing.
+// 	qWarning( "Bidi: appendItems() internal error" );
 	return;
     }
 

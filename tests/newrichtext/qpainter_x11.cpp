@@ -3126,7 +3126,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 
     int xpos = x;
 
-//     qDebug("QPainter::drawText( pos=%d, len=%d): num items=%d ( start=%d (pos=%d), end=%d (pos=%d) )",  pos, len, numItems, start, items[start].position, end, items[end].position );
+    qDebug("QPainter::drawText( pos=%d, len=%d): num items=%d ( start=%d (pos=%d), end=%d (pos=%d) )",  pos, len, numItems, start, items[start].position, end, items[end].position );
     for ( int i = 0; i < numItems; i++ ) {
 	int current = visualOrder[i] + start;
 	const ScriptItem &it = items[ current ];
@@ -3150,13 +3150,21 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	int length = shaped.count() - from;
 	if ( it.position + from + length > pos + len )
 	    length = pos + len - it.position - from;
-//  	qDebug("drawing item %d (from: %d, length: %d), shaped.count=%d", current, from, length, shaped.count() );
+ 	qDebug("drawing item %d (from: %d, length: %d), shaped.count=%d", current, from, length, shaped.count() );
 
-	from = shaped.d->logClusters[from];
-	length = (from+length >= shaped.d->num_glyphs) ?
-		 shaped.d->num_glyphs - from : shaped.d->logClusters[from+length] - from;
-	fe->draw( this, x,  y, shaped.glyphs()+from, shaped.advances()+from,
-		  shaped.offsets()+from, length, rightToLeft );
+	int f = shaped.d->logClusters[from];
+	if ( from > 0 && shaped.d->logClusters[from-1] == f ) {
+	    // we start on a NSM. Don't print it.
+	    while ( from < shaped.d->length && shaped.d->logClusters[from-1] == f )
+		from++;
+	    f = shaped.d->logClusters[from];
+
+	}
+	int t = (from+length >= shaped.d->length) ?
+		 shaped.d->num_glyphs : shaped.d->logClusters[from+length];
+	qDebug("real drawing from %d to %d", f, t );
+	fe->draw( this, x,  y, shaped.glyphs()+f, shaped.advances()+f,
+		  shaped.offsets()+f, t-f, rightToLeft );
 	if ( from != 0 || length != shaped.d->num_glyphs )
 	    x += layout->width( shaped, from,  length );
 	else
