@@ -108,7 +108,7 @@ QString ExtraWidgetsInterface::group( const QString& description )
 
 QString ExtraWidgetsInterface::iconSet( const QString& description )
 {
-    return QString::null;
+    return "pushbutton.xpm";
 }
 
 QString ExtraWidgetsInterface::includeFile( const QString& description )
@@ -145,5 +145,5 @@ bool ExtraWidgetsInterface::isContainer( const QString& description )
     return FALSE;
 }
 
-QtExportInterface(WidgetInterface, ExtraWidgetsInterface)
+Q_EXPORT_INTERFACE(WidgetInterface, ExtraWidgetsInterface)
 
