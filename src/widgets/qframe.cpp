@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#90 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#91 $
 **
 ** Implementation of QFrame widget class
 **
@@ -176,8 +176,7 @@ QFrame::QFrame( QWidget *parent, const char *name, WFlags f,
   <li> \c WinPanel draws a rectangular panel that can be raised or
   sunken, very like those in Windows 95.  Specifying this shape sets
   the line width to 2 pixels.  WinPanel is provided for compatibility.
-  For GUI style independence we recommend using StyledPanel with
-  setLineWidth(2) instead.
+  For GUI style independence we recommend using StyledPanel instead.
   <li> \c HLine draws a horizontal line (vertically centered).
   <li> \c VLine draws a vertical line (horizontally centered).
   </ul>

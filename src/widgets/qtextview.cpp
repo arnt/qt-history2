@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qtextview.cpp#19 $
 **
 ** Implementation of the QTextView class
 **
@@ -80,7 +80,7 @@
   For even more, like hypertext capabilities, see QTextBrowser.
 
   \bug No selection possible.
-  \bug No table support (yet).
+  No table support (yet).
 */
 
 class QTextViewData

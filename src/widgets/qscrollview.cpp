@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#104 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#105 $
 **
 ** Implementation of QScrollView class
 **
@@ -386,6 +386,8 @@ QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
     connect( &d->vbar, SIGNAL( valueChanged( int ) ),
 	this, SLOT( vslide( int ) ) );
     d->viewport.installEventFilter( this );
+    
+    setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
 }
 
 /*! Destructs the QScrollView.  Any children added with addChild()
