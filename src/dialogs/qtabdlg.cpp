@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#38 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#39 $
 **
 ** Implementation of QTabDialog class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 #include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#38 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#39 $");
 
 
 /*!
@@ -628,10 +628,10 @@ void QTabDialog::setSizes()
 	max.setHeight( min.height() );
 
     // allow for own borders, buttons and tabs, and set own sizes
-    min.setWidth( QMIN( min.width() + 13, 32767 ) );
-    min.setHeight( QMIN( min.height() + d->bh + th + 18, 32767 ) );
-    max.setWidth( QMIN( max.width() + 13, 32767 ) );
-    max.setHeight( QMIN( max.height() + d->bh + th + 18, 32767 ) );
+    min.setWidth( QMIN( min.width() + 17, 32767 ) );
+    min.setHeight( QMIN( 7 + th + min.height() + 6 + d->bh + 8, 32767 ) );
+    max.setWidth( QMIN( max.width() + 17, 32767 ) );
+    max.setHeight( QMIN( 7 + th + max.height() + 6 + d->bh + 8, 32767 ) );
     setMinimumSize( min );
     setMaximumSize( max );
 
