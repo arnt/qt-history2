@@ -431,12 +431,18 @@ void QMenuBar::performDelayedChanges()
 
 void QMenuBar::menuInsPopup( QPopupMenu *popup )
 {
+    connect( popup, SIGNAL(activatedRedirect(int)),
+	     SLOT(subActivated(int)) );
+    connect( popup, SIGNAL(highlightedRedirect(int)),
+	     SLOT(subHighlighted(int)) );
     connect( popup, SIGNAL(destroyed(QObject*)),
 	     this, SLOT(popupDestroyed(QObject*)) );
 }
 
 void QMenuBar::menuDelPopup( QPopupMenu *popup )
 {
+    popup->disconnect( SIGNAL(activatedRedirect(int)) );
+    popup->disconnect( SIGNAL(highlightedRedirect(int)) );
     disconnect( popup, SIGNAL(destroyed(QObject*)),
 		this, SLOT(popupDestroyed(QObject*)) );
 }
@@ -692,12 +698,6 @@ void QMenuBar::openActPopup()
 
     Q_ASSERT( popup->parentMenu == 0 );
     popup->parentMenu = this;			// set parent menu
-    popup->disconnect( SIGNAL(activatedRedirect(int)) );
-    popup->disconnect( SIGNAL(highlightedRedirect(int)) );
-    connect( popup, SIGNAL(activatedRedirect(int)),
-	     SLOT(subActivated(int)) );
-    connect( popup, SIGNAL(highlightedRedirect(int)),
-	     SLOT(subHighlighted(int)) );
 
     popup->snapToMouse = FALSE;
     popup->popup( pos );

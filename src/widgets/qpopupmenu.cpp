@@ -428,12 +428,18 @@ void QPopupMenu::performDelayedChanges()
 
 void QPopupMenu::menuInsPopup( QPopupMenu *popup )
 {
+    connect( popup, SIGNAL(activatedRedirect(int)),
+	     SLOT(subActivated(int)) );
+    connect( popup, SIGNAL(highlightedRedirect(int)),
+	     SLOT(subHighlighted(int)) );
     connect( popup, SIGNAL(destroyed(QObject*)),
 	     this, SLOT(popupDestroyed(QObject*)) );
 }
 
 void QPopupMenu::menuDelPopup( QPopupMenu *popup )
 {
+    popup->disconnect( SIGNAL(activatedRedirect(int)) );
+    popup->disconnect( SIGNAL(highlightedRedirect(int)) );
     disconnect( popup, SIGNAL(destroyed(QObject*)),
 		this, SLOT(popupDestroyed(QObject*)) );
 }
@@ -2000,12 +2006,6 @@ void QPopupMenu::subMenuTimer() {
 
     Q_ASSERT( popup->parentMenu == 0 );
     popup->parentMenu = this;			// set parent menu
-    popup->disconnect( SIGNAL(activatedRedirect(int)) );
-    popup->disconnect( SIGNAL(highlightedRedirect(int)) );
-    connect( popup, SIGNAL(activatedRedirect(int)),
-	     SLOT(subActivated(int)) );
-    connect( popup, SIGNAL(highlightedRedirect(int)),
-	     SLOT(subHighlighted(int)) );
 
     emit popup->aboutToShow();
     supressAboutToShow = TRUE;
