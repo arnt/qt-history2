@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.h#3 $
+** $Id: //depot/qt/main/src/kernel/qpoint.h#4 $
 **
 ** Definition of QPoint class
 **
 ** Author  : Haavard Nord
 ** Created : 931028
 **
-** Copyright (C) 1993,1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -21,7 +21,6 @@ class QPoint					// point class
 public:
     QPoint()	{}				// undefined init values
     QPoint( QCOOT xpos, QCOOT ypos );		// set x=xpos, y=ypos
-    QPoint( QCOOT xpos );			// set x=xpos, y=0
 
     bool   isNull()	const	{ return xp==0 && yp==0; }
 
