@@ -40,7 +40,7 @@
 #include "qtextcodec.h"
 #ifndef QT_NO_TEXTCODEC
 
-#include "qptrlist.h"
+#include "qvaluelist.h"
 #include "qtextcodecfactory.h"
 #include "qutfcodec.h"
 #include "qnamespace.h"
@@ -62,6 +62,10 @@
 #include "qstrlist.h"
 #include "qstring.h"
 
+#ifdef QT_THREAD_SUPPORT
+#  include <private/qmutexpool_p.h>
+#endif // QT_THREAD_SUPPORT
+
 #include <stdlib.h>
 #include <ctype.h>
 #ifndef Q_OS_TEMP
@@ -82,7 +86,7 @@
 #endif
 #endif
 
-static QPtrList<QTextCodec> * all = 0;
+static QValueList<QTextCodec*> *all = 0;
 static bool destroying_is_ok; // starts out as 0
 
 /*!  Deletes all the created codecs.
@@ -105,11 +109,22 @@ void QTextCodec::deleteAllCodecs()
     if ( !all )
 	return;
 
+#ifdef QT_THREAD_SUPPORT
+    QMutexLocker locker( qt_global_mutexpool->get( &all ) );
+#endif // QT_THREAD_SUPPORT
+
     destroying_is_ok = TRUE;
-    QPtrList<QTextCodec> * ball = all;
+
+    QValueList<QTextCodec*> *ball = all;
     all = 0;
+    QValueList<QTextCodec*>::Iterator it;
+    for ( it = ball->begin(); it != ball->end(); ++it ) {
+	delete *it;
+	*it = 0;
+    }
     ball->clear();
     delete ball;
+
     destroying_is_ok = FALSE;
 }
 
@@ -121,18 +136,25 @@ static void realSetup()
 {
 #if defined(QT_CHECK_STATE)
     if ( destroying_is_ok )
-	qWarning( "creating new codec during codec cleanup" );
+	qWarning( "QTextCodec: creating new codec during codec cleanup!" );
 #endif
-    all = new QPtrList<QTextCodec>;
-    all->setAutoDelete( TRUE );
+    all = new QValueList<QTextCodec*>;
     setupBuiltinCodecs();
 }
 
 
 static inline void setup()
 {
-    if ( !all )
-	realSetup();
+    if ( !all ) {
+
+#ifdef QT_THREAD_SUPPORT
+	QMutexLocker locker( qt_global_mutexpool->get( &all ) );
+#endif // QT_THREAD_SUPPORT
+
+	if ( ! all ) {
+	    realSetup();
+	}
+    }
 }
 
 
@@ -396,7 +418,7 @@ QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
 QTextCodec::QTextCodec()
 {
     setup();
-    all->insert(0,this);
+    all->insert( all->begin(), this );
 }
 
 
@@ -495,7 +517,7 @@ int QTextCodec::simpleHeuristicNameMatch(const char* name, const char* hint)
 QTextCodec* QTextCodec::codecForIndex(int i)
 {
     setup();
-    return (uint)i >= all->count() ? 0 : all->at(i);
+    return (uint)i >= all->count() ? 0 : *all->at(i);
 }
 
 
@@ -506,24 +528,21 @@ QTextCodec* QTextCodec::codecForIndex(int i)
 QTextCodec* QTextCodec::codecForMib(int mib)
 {
     setup();
-    QPtrListIterator<QTextCodec> i(*all);
+    QValueList<QTextCodec*>::ConstIterator i;
     QTextCodec* result=0;
-    for ( ; (result=i); ++i ) {
+    for ( i = all->begin(); i != all->end(); ++i ) {
+	result = *i;
 	if ( result->mibEnum()==mib )
 	    return result;
     }
 
-#ifndef QT_NO_COMPONENT
-#ifndef QT_LITE_COMPONENT
-
+#if !defined(QT_NO_COMPONENT) && !defined(QT_LITE_COMPONENT)
     if (result && result->mibEnum() != mib) {
 	QTextCodec *codec = QTextCodecFactory::createForMib(mib);
-
 	if (codec)
 	    result = codec;
     }
-#endif
-#endif // QT_NO_COMPONENT
+#endif // !QT_NO_COMPONENT !QT_LITE_COMPONENT
 
     return result;
 }
@@ -676,30 +695,27 @@ static bool try_locale_list( const char * const locale[], const char * lang )
 static const char * const probably_koi8_rlocales[] = {
     "ru", "ru_SU", "ru_RU", "russian", 0 };
 
-// this means ANY of these locale aliases. if they're aliases for
-// different locales, the code breaks.
-static QTextCodec * ru_RU_codec = 0;
-
 static QTextCodec * ru_RU_hack( const char * i ) {
-    if ( ! ru_RU_codec ) {
-	QCString origlocale = setlocale( LC_CTYPE, i );
-	// unicode   koi8r   latin5   name
-	// 0x044E    0xC0    0xEE     CYRILLIC SMALL LETTER YU
-	// 0x042E    0xE0    0xCE     CYRILLIC CAPITAL LETTER YU
-	int latin5 = tolower( 0xCE );
-	int koi8r = tolower( 0xE0 );
-	if ( koi8r == 0xC0 && latin5 != 0xEE ) {
-	    ru_RU_codec = QTextCodec::codecForName( "KOI8-R" );
-	} else if ( koi8r != 0xC0 && latin5 == 0xEE ) {
-	    ru_RU_codec = QTextCodec::codecForName( "ISO 8859-5" );
-	} else {
-	    // something else again... let's assume... *throws dice*
-	    ru_RU_codec = QTextCodec::codecForName( "KOI8-R" );
-	    qWarning( "QTextCodec: using KOI8-R, probe failed (%02x %02x %s)",
-		      koi8r, latin5, i );
-	}
-	setlocale( LC_CTYPE, origlocale.data() );
+    QTextCodec * ru_RU_codec = 0;
+
+    QCString origlocale = setlocale( LC_CTYPE, i );
+    // unicode   koi8r   latin5   name
+    // 0x044E    0xC0    0xEE     CYRILLIC SMALL LETTER YU
+    // 0x042E    0xE0    0xCE     CYRILLIC CAPITAL LETTER YU
+    int latin5 = tolower( 0xCE );
+    int koi8r = tolower( 0xE0 );
+    if ( koi8r == 0xC0 && latin5 != 0xEE ) {
+	ru_RU_codec = QTextCodec::codecForName( "KOI8-R" );
+    } else if ( koi8r != 0xC0 && latin5 == 0xEE ) {
+	ru_RU_codec = QTextCodec::codecForName( "ISO 8859-5" );
+    } else {
+	// something else again... let's assume... *throws dice*
+	ru_RU_codec = QTextCodec::codecForName( "KOI8-R" );
+	qWarning( "QTextCodec: using KOI8-R, probe failed (%02x %02x %s)",
+		  koi8r, latin5, i );
     }
+    setlocale( LC_CTYPE, origlocale.data() );
+
     return ru_RU_codec;
 }
 
@@ -714,7 +730,8 @@ static QTextCodec * localeMapper = 0;
 
   \sa codecForLocale()
 */
-void QTextCodec::setCodecForLocale(QTextCodec *c) { localeMapper = c;
+void QTextCodec::setCodecForLocale(QTextCodec *c) {
+    localeMapper = c;
 }
 
 /*!  Returns a pointer to the codec most suitable for this locale. */
@@ -726,8 +743,14 @@ QTextCodec* QTextCodec::codecForLocale()
 
     setup();
 
+#ifdef QT_THREAD_SUPPORT
+    QMutexLocker locker( qt_global_mutexpool->get( &localeMapper ) );
+    if ( localeMapper )
+	return localeMapper;
+#endif // QT_THREAD_SUPPORT
+
 #ifdef Q_OS_WIN32
-    localeMapper = new QWindowsLocalCodec;
+    localeMapper = codecForName( "System" );
 #else
 
 #if defined (_XOPEN_UNIX) && !defined(Q_OS_QNX6)
@@ -862,12 +885,12 @@ QTextCodec* QTextCodec::codecForName( const char* name, int accuracy )
 	return 0;
 
     setup();
-    QPtrListIterator<QTextCodec> i( *all );
+    QValueList<QTextCodec*>::ConstIterator i;
     QTextCodec* result = 0;
     int best = accuracy;
     QTextCodec* cursor;
-    while ( (cursor=i.current()) != 0 ) {
-	++i;
+    for ( i = all->begin(); i != all->end(); ++i ) {
+	cursor = *i;
 	int s = cursor->heuristicNameMatch( name );
 	if ( s > best ) {
 	    best = s;
@@ -875,13 +898,10 @@ QTextCodec* QTextCodec::codecForName( const char* name, int accuracy )
 	}
     }
 
-#ifndef QT_NO_COMPONENT
-#ifndef QT_LITE_COMPONENT
-
+#if !defined(QT_NO_COMPONENT) && !defined(QT_LITE_COMPONENT)
     if (! result && localeMapper)
 	result = QTextCodecFactory::createForName(name);
-#endif
-#endif // QT_NO_COMPONENT
+#endif // !QT_NO_COMPONENT !QT_LITE_COMPONENT
 
     return result;
 }
@@ -903,10 +923,12 @@ QTextCodec* QTextCodec::codecForName( const char* name, int accuracy )
 QTextCodec* QTextCodec::codecForContent(const char* chars, int len)
 {
     setup();
-    QPtrListIterator<QTextCodec> i(*all);
+    QValueList<QTextCodec*>::ConstIterator i;
     QTextCodec* result = 0;
     int best=0;
-    for ( QTextCodec* cursor; (cursor=i); ++i ) {
+    QTextCodec* cursor;
+    for ( i = all->begin(); i != all->end(); ++i ) {
+	cursor = *i;
 	int s = cursor->heuristicContentMatch(chars,len);
 	if ( s > best ) {
 	    best = s;
@@ -2506,10 +2528,11 @@ QCString QLatin1Codec::fromUnicode(const QString& uc, int& len ) const
     if ( len <0 || len > (int)uc.length() )
 	len = uc.length();
     QCString r( len+1 );
+    char *d = r.data();
     int i = 0;
     const QChar *ch = uc.unicode();
     while ( i < len ) {
-	r[i] = ch->row() ? '?' : ch->cell();
+	d[i] = ch->row() ? '?' : ch->cell();
 	i++;
 	ch++;
     }
@@ -2594,6 +2617,10 @@ static void setupBuiltinCodecs()
     (void)new QJisCodec;
     (void)new QSjisCodec;
 #endif // QT_NO_BIG_CODECS
+
+#ifdef Q_OS_WIN32
+    (void) new QWindowsLocalCodec;
+#endif // Q_OS_WIN32
 }
 
 #endif // QT_NO_TEXTCODEC
