@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#132 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#133 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -30,7 +30,7 @@
 #include <mywinsock.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#132 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#133 $");
 
 
 /*****************************************************************************
@@ -2084,10 +2084,10 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	r.setSize( newSize );
 	setCRect( r );
 	if ( isTopLevel() ) {			// update caption/icon text
-	    if ( msg.wParam == SC_MINIMIZED )
+	    if ( msg.wParam == SC_MINIMIZE )
 		clearWFlags( WState_Visible );
-	    else if ( !isVisible() && ( msg.wParam == SC_RESTORED ||
-					msg.wParam == SC_MAXIMIZED ) )
+	    else if ( !isVisible() && ( msg.wParam == SC_RESTORE ||
+					msg.wParam == SC_MAXIMIZE ) )
 		setWFlags( WState_Visible );
 	    if ( IsIconic(winId()) && iconText() )
 		SetWindowText( winId(), iconText() );
