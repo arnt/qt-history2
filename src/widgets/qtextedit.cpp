@@ -3714,6 +3714,8 @@ void QTextEdit::setText( const QString &text, const QString &context )
     doc->commands()->clear();
 
     lastFormatted = 0;
+    int oldCursorPos = cursor->index();
+    int oldCursorPar = cursor->paragraph()->paragId();
     cursor->restoreState();
     delete cursor;
     doc->setText( text, context );
@@ -3734,6 +3736,10 @@ void QTextEdit::setText( const QString &text, const QString &context )
     if ( isModified() )
 	setModified( FALSE );
     emit textChanged();
+    if ( cursor->index() != oldCursorPos || cursor->paragraph()->paragId() != oldCursorPar ) {
+	emit cursorPositionChanged( cursor );
+	emit cursorPositionChanged( cursor->paragraph()->paragId(), cursor->index() );
+    }
     formatMore();
     updateCurrentFormat();
     d->scrollToAnchor = QString::null;
