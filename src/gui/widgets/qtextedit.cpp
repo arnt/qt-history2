@@ -1681,19 +1681,19 @@ void QTextEdit::dropEvent(QDropEvent *ev)
 
 /*! \reimp
  */
-void QTextEdit::imEvent(QIMEvent *e)
+void QTextEdit::inputMethodEvent(QInputMethodEvent *e)
 {
     if (d->readOnly) {
         e->ignore();
         return;
     }
     switch(e->type()) {
-    case QEvent::IMStart:
+    case QEvent::InputMethodStart:
         d->cursor.removeSelectedText();
         //d->updateMicroFocusHint();
         //d->imstart = d->imend = d->imselstart = d->imselend = d->cursor;
         break;
-    case QEvent::IMCompose:
+    case QEvent::InputMethodCompose:
         //d->text.replace(d->imstart, d->imend - d->imstart, e->text());
         d->imend = d->imstart + e->text().length();
         d->imselstart = d->imstart + e->cursorPos();
@@ -1712,7 +1712,7 @@ void QTextEdit::imEvent(QIMEvent *e)
         update();
         //d->emitCursorPositionChanged();
         break;
-    case QEvent::IMEnd:
+    case QEvent::InputMethodEnd:
         //d->text.remove(d->imstart, d->imend - d->imstart);
         //d->cursor = d->imselstart = d->imselend = d->imend = d->imstart;
         //d->textDirty = true;
@@ -1725,7 +1725,7 @@ void QTextEdit::imEvent(QIMEvent *e)
 
 /*!\reimp
 */
-QVariant QTextEdit::imQuery(Qt::ImQueryProperty property)
+QVariant QTextEdit::inputMethodQuery(Qt::InputMethodQuery property)
 {
    QTextBlock block = d->cursor.block();
     switch(property) {

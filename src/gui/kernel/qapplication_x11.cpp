@@ -4351,7 +4351,7 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
     bool mb=false;
     // commit string handling is done by
     // QXIMInputContext::x11FilterEvent() and are passed to
-    // widgets via QIMEvent regardless of XIM style, so the
+    // widgets via QInputMethodEvent regardless of XIM style, so the
     // following code is commented out.
     if (!mb) {
         count = XLookupString(&xkeyevent,

@@ -36,7 +36,7 @@ class QStyle;
 class QEventLoop;
 template <typename T> class QList;
 #if defined(Q_WS_X11)
-class QIMEvent;
+class QInputContext;
 #endif
 #if defined(Q_WS_QWS)
 class QDecoration;

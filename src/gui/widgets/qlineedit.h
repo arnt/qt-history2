@@ -144,7 +144,6 @@ protected:
     void mouseReleaseEvent(QMouseEvent *);
     void mouseDoubleClickEvent(QMouseEvent *);
     void keyPressEvent(QKeyEvent *);
-    void imEvent(QIMEvent *);
     void focusInEvent(QFocusEvent *);
     void focusOutEvent(QFocusEvent *);
     void paintEvent(QPaintEvent *);
@@ -160,7 +159,9 @@ protected:
 #ifdef QT_COMPAT
     inline QT_COMPAT void repaintArea(int, int) { update(); }
 #endif
-    QVariant imQuery(Qt::ImQueryProperty);
+
+    void inputMethodEvent(QInputMethodEvent *);
+    QVariant inputMethodQuery(Qt::InputMethodQuery);
 
 public:
 #ifdef QT_COMPAT

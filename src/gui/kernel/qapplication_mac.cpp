@@ -2059,7 +2059,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                     GetEventParameter(event, kEventParamTextInputSendFixLen, typeLongInteger, 0,
                                       sizeof(fixed_length), 0, &fixed_length);
                     if(fixed_length == -1 || fixed_length == (long)unilen) {
-                        QIMEvent imend(QEvent::IMEnd, text, text.length());
+                        QInputMethodEvent imend(QEvent::InputMethodEnd, text, text.length());
                         QApplication::sendSpontaneousEvent(doc->inputWidget(), &imend);
                         if(imend.isAccepted()) {
                             doc->setInputWidget(0);
@@ -2067,31 +2067,31 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                         }
                     } else {
                         if(fixed_length > 0) {
-                            QIMEvent imend(QEvent::IMEnd, text.left(fixed_length / sizeof(UniChar)),
+                            QInputMethodEvent imend(QEvent::InputMethodEnd, text.left(fixed_length / sizeof(UniChar)),
                                            fixed_length / sizeof(UniChar));
                             QApplication::sendSpontaneousEvent(doc->inputWidget(), &imend);
                             if(imend.isAccepted()) {
                                 handled_event = true;
-                                QIMEvent imstart(QEvent::IMStart, text.mid(fixed_length / sizeof(UniChar)),
+                                QInputMethodEvent imstart(QEvent::InputMethodStart, text.mid(fixed_length / sizeof(UniChar)),
                                                  (fixed_length - text.length()) / sizeof(UniChar));
                                 QApplication::sendSpontaneousEvent(doc->inputWidget(), &imstart);
                                 if(imstart.isAccepted())
                                     handled_event = true;
                             }
                         } else {
-                            QIMEvent imcompose(QEvent::IMCompose, text, text.length(), 0);
+                            QInputMethodEvent imcompose(QEvent::InputMethodCompose, text, text.length(), 0);
                             QApplication::sendSpontaneousEvent(doc->inputWidget(), &imcompose);
                             if(imcompose.isAccepted())
                                 handled_event = true;
                         }
                     }
                 } else {
-                    QIMEvent imstart(QEvent::IMStart, text, text.length());
+                    QInputMethodEvent imstart(QEvent::InputMethodStart, text, text.length());
                     QApplication::sendSpontaneousEvent(widget, &imstart);
                     if(imstart.isAccepted()) {
                         handled_event = true;
                         doc->setInputWidget(widget);
-                        QIMEvent imcompose(QEvent::IMCompose, text, text.length(), 0);
+                        QInputMethodEvent imcompose(QEvent::InputMethodCompose, text, text.length(), 0);
                         QApplication::sendSpontaneousEvent(doc->inputWidget(), &imcompose);
                     }
                 }
@@ -2111,11 +2111,11 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             unsigned char chr;
             GetEventParameter(key_ev, kEventParamKeyMacCharCodes, typeChar, 0, sizeof(chr), 0, &chr);
             if(!chr || chr >= 128 || (text.length() > 0 && (text.length() > 1 || text.at(0) != QChar(chr)))) {
-                QIMEvent imstart(QEvent::IMStart, QString::null, -1);
+                QInputMethodEvent imstart(QEvent::InputMethodStart, QString::null, -1);
                 QApplication::sendSpontaneousEvent(widget, &imstart);
                 if(imstart.isAccepted()) { //wants the event
                     handled_event = true;
-                    QIMEvent imend(QEvent::IMEnd, text, 1);
+                    QInputMethodEvent imend(QEvent::InputMethodEnd, text, 1);
                     QApplication::sendSpontaneousEvent(widget, &imend);
                 }
             }

@@ -177,7 +177,7 @@ extern "C" {
 	}
 
 	qic->resetClientState();
-	qic->sendIMEvent( QEvent::IMStart );
+	qic->sendIMEvent( QEvent::InputMethodStart );
 
 #ifdef QT_XIM_DEBUG
 	qDebug("compose start");
@@ -210,7 +210,7 @@ extern "C" {
 	}
 
 	if ( send_imstart )
-	    qic->sendIMEvent( QEvent::IMStart );
+	    qic->sendIMEvent( QEvent::InputMethodStart );
 
 	XIMPreeditDrawCallbackStruct *drawstruct =
 	    (XIMPreeditDrawCallbackStruct *) call_data;
@@ -224,10 +224,10 @@ extern "C" {
 		qDebug( "compose emptied" );
 #endif // QT_XIM_DEBUG
 		// if the composition string has been emptied, we need
-		// to send an IMEnd event
-		qic->sendIMEvent( QEvent::IMEnd );
+		// to send an InputMethodEnd event
+		qic->sendIMEvent( QEvent::InputMethodEnd );
 		qic->resetClientState();
-		// if the commit string has coming after here, IMStart
+		// if the commit string has coming after here, InputMethodStart
 		// will be sent dynamically
 	    }
 	    return 0;
@@ -296,17 +296,16 @@ extern "C" {
 		qDebug( "compose emptied" );
 #endif // QT_XIM_DEBUG
 		// if the composition string has been emptied, we need
-		// to send an IMEnd event
-		qic->sendIMEvent( QEvent::IMEnd );
+		// to send an InputMethodEnd event
+		qic->sendIMEvent( QEvent::InputMethodEnd );
 		qic->resetClientState();
-		// if the commit string has coming after here, IMStart
+		// if the commit string has coming after here, InputMethodStart
 		// will be sent dynamically
 		return 0;
 	    }
 	}
 
-	qic->sendIMEvent( QEvent::IMCompose,
-			  qic->composingText, cursor, sellen );
+	qic->sendIMEvent( QEvent::InputMethodCompose, qic->composingText, cursor, sellen );
 
 	return 0;
     }
@@ -316,11 +315,11 @@ extern "C" {
 	if (! qic)
 	    return 0;
 
-	// Don't send IMEnd here. QXIMInputContext::x11FilterEvent()
-	// handles IMEnd with commit string.
+	// Don't send InputMethodEnd here. QXIMInputContext::x11FilterEvent()
+	// handles InputMethodEnd with commit string.
 #if 0
 	if ( qic->isComposing() )
-	    qic->sendIMEvent( QEvent::IMEnd );
+	    qic->sendIMEvent( QEvent::InputMethodEnd );
 	qic->resetClientState();
 #endif
 
@@ -633,10 +632,10 @@ bool QXIMInputContext::x11FilterEvent( QWidget *keywidget, XEvent *event )
             if (!(xim_style & XIMPreeditCallbacks) || !isComposing()) {
                 // ############### send a regular key event here!
                 // there is no composing state
-                sendIMEvent(QEvent::IMStart);
+                sendIMEvent(QEvent::InputMethodStart);
             }
 
-            sendIMEvent(QEvent::IMEnd, text);
+            sendIMEvent(QEvent::InputMethodEnd, text);
             resetClientState();
 
             return true;
@@ -652,7 +651,7 @@ void QXIMInputContext::sendIMEvent( QEvent::Type type, const QString &text,
 				    int cursorPosition, int selLength )
 {
     QInputContext::sendIMEvent( type, text, cursorPosition, selLength );
-    if ( type == QEvent::IMCompose )
+    if ( type == QEvent::InputMethodCompose )
 	composingText = text;
 }
 
@@ -662,7 +661,7 @@ void QXIMInputContext::reset()
 #if !defined(QT_NO_XIM)
     if (focusWidget() && isComposing() && ! composingText.isNull()) {
 #ifdef QT_XIM_DEBUG
-	qDebug("QXIMInputContext::reset: composing - sending IMEnd (empty) to %p",
+	qDebug("QXIMInputContext::reset: composing - sending InputMethodEnd (empty) to %p",
 	       focusWidget());
 #endif // QT_XIM_DEBUG
 

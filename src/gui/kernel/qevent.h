@@ -330,10 +330,10 @@ protected:
 };
 
 
-class Q_GUI_EXPORT QIMEvent : public QInputEvent
+class Q_GUI_EXPORT QInputMethodEvent : public QInputEvent
 {
 public:
-    QIMEvent(Type type, const QString &text, int cursorPosition, int selLength = 0);
+    QInputMethodEvent(Type type, const QString &text, int cursorPosition, int selLength = 0);
     inline const QString &text() const { return txt; }
     inline int cursorPos() const { return cpos; }
     inline int selectionLength() const { return selLen; }
@@ -343,7 +343,6 @@ private:
     int cpos;
     int selLen;
 };
-
 
 #ifndef QT_NO_DRAGANDDROP
 

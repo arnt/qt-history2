@@ -57,11 +57,11 @@ class QInputContextPrivate : public QObjectPrivate
     Q_DECLARE_PUBLIC(QInputContext)
 public:
     QInputContextPrivate()
-	: holderWidget( 0 ), composingWidget( 0 ), hasFocus( FALSE ),
-	  isComposing( FALSE )
+	: holderWidget(0), composingWidget(0), hasFocus(false),
+	  isComposing(false)
 #if !defined(QT_NO_IM_PREEDIT_RELOCATION)
-	  , preeditString( QString::null ),
-	  cursorPosition( -1 ), selLength ( 0 )
+	  , preeditString(QString::null),
+	  cursorPosition(-1), selLength (0)
 #endif
     {}
 
@@ -70,8 +70,8 @@ public:
     bool hasFocus;
     bool isComposing;
 
-    void updateComposingState( const QString &text,
-			       int newCursorPosition, int newSelLength ) {
+    void updateComposingState(const QString &text,
+			       int newCursorPosition, int newSelLength) {
 #if !defined(QT_NO_IM_PREEDIT_RELOCATION)
 	preeditString = text;
 	cursorPosition = newCursorPosition;
@@ -80,16 +80,16 @@ public:
     }
 
     void resetComposingState() {
-	isComposing = FALSE;
+	isComposing = false;
 #if !defined(QT_NO_IM_PREEDIT_RELOCATION)
 	preeditString = QString::null;
 	cursorPosition = -1;
 	selLength = 0;
 #endif
     }
-    void sendIMEventInternal( QEvent::Type type,
+    void sendIMEventInternal(QEvent::Type type,
 			      const QString &text = QString::null,
-			      int cursorPosition = -1, int selLength = 0 );
+			      int cursorPosition = -1, int selLength = 0);
 
 #if !defined(QT_NO_IM_PREEDIT_RELOCATION)
     QString preeditString;
@@ -273,7 +273,7 @@ public:
     a text widget -> a non-text widget -> another text widget
 
     To enable the preedit relocation feature, the input context class
-    have to reimplement isPreeditRelocationEnabled() as returns TRUE.
+    have to reimplement isPreeditRelocationEnabled() as returns true.
     The implementation requires that the preedit preservation is also
     enabled since preedit relocation is a special case of the preedit
     preservation. If the preedit relocation is disabled, the input
@@ -344,7 +344,7 @@ QWidget *QInputContext::holderWidget() const
 
     \sa holderWidget()
 */
-void QInputContext::setHolderWidget( QWidget *w )
+void QInputContext::setHolderWidget(QWidget *w)
 {
     Q_D(QInputContext);
     d->holderWidget = w;
@@ -377,29 +377,29 @@ QWidget *QInputContext::focusWidget() const
 
     \sa focusWidget()
 */
-void QInputContext::setFocusWidget( QWidget *w )
+void QInputContext::setFocusWidget(QWidget *w)
 {
     Q_D(QInputContext);
-    if ( w ) {
-	bool isFocusingBack = ( w == d->composingWidget );
-	bool isPreeditRelocation = ( ! isFocusingBack  && isComposing() &&
-				     d->composingWidget );
+    if (w) {
+	bool isFocusingBack = (w == d->composingWidget);
+	bool isPreeditRelocation = (! isFocusingBack  && isComposing() &&
+				     d->composingWidget);
 	// invoke sendIMEventInternal() rather than sendIMEvent() to
 	// avoid altering the composing state
-	if ( isPreeditRelocation == TRUE ) {
+	if (isPreeditRelocation == true) {
 	    // clear preedit of previously focused text
 	    // widget. preserved preedit may be exist even if
-	    // isPreeditRelocationEnabled() == FALSE.
-	    d->sendIMEventInternal( QEvent::IMEnd );
+	    // isPreeditRelocationEnabled() == false.
+	    d->sendIMEventInternal(QEvent::InputMethodEnd);
 	}
-	d->composingWidget = w;  // changes recipient of QIMEvent
-	if ( isPreeditRelocation == TRUE ) {
+	d->composingWidget = w;  // changes recipient of QInputMethodEvent
+	if (isPreeditRelocation == true) {
 #if !defined(QT_NO_IM_PREEDIT_RELOCATION)
-	    if ( isPreeditRelocationEnabled() ) {
+	    if (isPreeditRelocationEnabled()) {
 		// copy preedit state to the widget that gaining focus
-		d->sendIMEventInternal( QEvent::IMStart );
-		d->sendIMEventInternal( QEvent::IMCompose, d->preeditString,
-				     d->cursorPosition, d->selLength );
+		d->sendIMEventInternal(QEvent::InputMethodStart);
+		d->sendIMEventInternal(QEvent::InputMethodCompose, d->preeditString,
+                                       d->cursorPosition, d->selLength);
 	    } else
 #endif
 	    {
@@ -409,7 +409,7 @@ void QInputContext::setFocusWidget( QWidget *w )
 	    }
 	}
     }
-    d->hasFocus = w ? TRUE : FALSE;
+    d->hasFocus = w ? true : false;
 }
 
 
@@ -419,19 +419,19 @@ void QInputContext::setFocusWidget( QWidget *w )
     consistency. Ordinary input method must not call this function
     directly.
 */
-void QInputContext::releaseComposingWidget( QWidget *w )
+void QInputContext::releaseComposingWidget(QWidget *w)
 {
     Q_D(QInputContext);
-    if ( d->composingWidget == w ) {
+    if (d->composingWidget == w) {
 	d->composingWidget = 0;
-	d->hasFocus = FALSE;
+	d->hasFocus = false;
     }
 }
 #endif  // Q_WS_X11
 
 /*!
     \internal
-    This function can be reimplemented in a subclass as returning TRUE
+    This function can be reimplemented in a subclass as returning true
     if you want making your input method enable the preedit
     relocation. See the description for preedit relocation of
     QInputContext.
@@ -440,13 +440,13 @@ void QInputContext::releaseComposingWidget( QWidget *w )
 */
 bool QInputContext::isPreeditRelocationEnabled()
 {
-    return FALSE;
+    return false;
 }
 
 /*!
-    This function indicates whether IMStart event had been sent to the
-    text widget. It is ensured that an input context can send IMCompose
-    or IMEnd event safely if this function returned TRUE.
+    This function indicates whether InputMethodStart event had been sent to the
+    text widget. It is ensured that an input context can send InputMethodCompose
+    or InputMethodEnd event safely if this function returned true.
 
     The state is automatically being tracked through sendIMEvent().
 
@@ -463,7 +463,7 @@ bool QInputContext::isComposing() const
     This function can be reimplemented in a subclass to filter input
     events.
 
-    Return TRUE if the \a event has been consumed. Otherwise, the
+    Return true if the \a event has been consumed. Otherwise, the
     unfiltered \a event will be forwarded to widgets as ordinary
     way. Although the input events have accept() and ignore()
     methods, leave it untouched.
@@ -487,38 +487,38 @@ bool QInputContext::isComposing() const
 
     \sa QKeyEvent, x11FilterEvent()
 */
-bool QInputContext::filterEvent( const QEvent * /*event*/ )
+bool QInputContext::filterEvent(const QEvent * /*event*/)
 {
-    return FALSE;
+    return false;
 }
 
 /*!
-    \fn void QInputContext::imEventGenerated( QObject *receiver, QIMEvent *e )
+    \fn void QInputContext::imEventGenerated(QObject *receiver, QInputMethodEvent *e)
 
     \internal
-    This signal is emitted when the user has sent a QIMEvent through
+    This signal is emitted when the user has sent a QInputMethodEvent through
     sendIMEvent(). Ordinary input methods should not emit this signal
     directly.
 
     \a receiver is a platform dependent destination of the \a e.
 
-    \sa QIMEvent, sendIMEvent(), sendIMEventInternal(),
+    \sa QInputMethodEvent, sendIMEvent(), sendIMEventInternal(),
 */
 
 /*!
     \internal
-    Sends a QIMEvent to the client via imEventGenerated()
+    Sends a QInputMethodEvent to the client via imEventGenerated()
     signal. Ordinary input method should not call this function
     directly.
 
-    \sa QIMEvent, QIMComposeEvent, sendIMEvent(), imEventGenerated()
+    \sa QInputMethodEvent, sendIMEvent(), imEventGenerated()
 */
-void QInputContextPrivate::sendIMEventInternal( QEvent::Type type,
+void QInputContextPrivate::sendIMEventInternal(QEvent::Type type,
                                                 const QString &text,
-                                                int cursorPosition, int selLength )
+                                                int cursorPosition, int selLength)
 {
     QObject *receiver = 0;
-    QIMEvent *event = 0;
+    QInputMethodEvent *event = 0;
 
 #if defined(Q_WS_X11)
     receiver = composingWidget;
@@ -528,93 +528,93 @@ void QInputContextPrivate::sendIMEventInternal( QEvent::Type type,
     if (!receiver)
 	return;
 
-    if ( type == QEvent::IMStart ) {
-	qDebug( "sending IMStart with %d chars to %p",
-		text.length(), receiver );
-	event = new QIMEvent( type, text, cursorPosition );
-    } else if ( type == QEvent::IMEnd ) {
-	qDebug( "sending IMEnd with %d chars to %p, text=%s",
-		text.length(), receiver, (const char*)text.local8Bit() );
-	event = new QIMEvent( type, text, cursorPosition );
-    } else if ( type == QEvent::IMCompose ) {
-	qDebug( "sending IMCompose to %p with %d chars, cpos=%d, sellen=%d, text=%s",
+    if (type == QEvent::InputMethodStart) {
+	qDebug("sending InputMethodStart with %d chars to %p",
+		text.length(), receiver);
+	event = new QInputMethodEvent(type, text, cursorPosition);
+    } else if (type == QEvent::InputMethodEnd) {
+	qDebug("sending InputMethodEnd with %d chars to %p, text=%s",
+		text.length(), receiver, (const char*)text.local8Bit());
+	event = new QInputMethodEvent(type, text, cursorPosition);
+    } else if (type == QEvent::InputMethodCompose) {
+	qDebug("sending InputMethodCompose to %p with %d chars, cpos=%d, sellen=%d, text=%s",
 		receiver, text.length(), cursorPosition, selLength,
-		(const char*)text.local8Bit() );
-	event = new QIMEvent( type, text, cursorPosition, selLength );
+		(const char*)text.local8Bit());
+	event = new QInputMethodEvent(type, text, cursorPosition, selLength);
     }
 
-    if ( event )
+    if (event)
         qApp->sendEvent(receiver, event);
     delete event;
 }
 
 
 /*!
-    Call this function to send QIMEvent to the text widget. This
-    function constructs a QIMEvent based on the arguments and send it
+    Call this function to send QInputMethodEvent to the text widget. This
+    function constructs a QInputMethodEvent based on the arguments and send it
     to the appropriate widget. Ordinary input method should not
     reimplement this function.
 
-    \a type is either \c QEvent::IMStart or \c QEvent::IMCompose or \c
-    QEvent::IMEnd. You have to send a \c QEvent::IMStart to start
-    composing, then send several \c QEvent::IMCompose to update the
+    \a type is either \c QEvent::InputMethodStart or \c QEvent::InputMethodCompose or \c
+    QEvent::InputMethodEnd. You have to send a \c QEvent::InputMethodStart to start
+    composing, then send several \c QEvent::InputMethodCompose to update the
     preedit of the widget, and finalize the composition with sending
-    \c QEvent::IMEnd.
+    \c QEvent::InputMethodEnd.
 
-    \c QEvent::IMStart should always be sent without arguments as:
+    \c QEvent::InputMethodStart should always be sent without arguments as:
     \code
-    sendIMEvent( QEvent::IMStart )
+    sendIMEvent(QEvent::InputMethodStart)
     \endcode
 
-    And \c QEvent::IMCompose can be sent without cursor:
+    And \c QEvent::InputMethodCompose can be sent without cursor:
     \code
-    sendIMEvent( QEvent::IMCompose, QString( "a text" ) )
+    sendIMEvent(QEvent::InputMethodCompose, QString("a text"))
     \endcode
 
     Or optionally with cursor with \a cursorPosition:
     \code
-    sendIMEvent( QEvent::IMCompose, QString( "a text with cursor" ), 12 )
+    sendIMEvent(QEvent::InputMethodCompose, QString("a text with cursor"), 12)
     \endcode
     Note that \a cursorPosition also specifies microfocus position.
 
     Or optionally with selection text:
     \code
-    sendIMEvent( QEvent::IMCompose, QString( "a text with selection" ), 12, 9 )
+    sendIMEvent(QEvent::InputMethodCompose, QString("a text with selection"), 12, 9)
     \endcode
     \a cursorPosition and \a selLength must be within the \a text. The
     \a cursorPosition also specifies microfocus position in the case:
 
-    \c QEvent::IMEnd can be sent without arguments to terminate the
+    \c QEvent::InputMethodEnd can be sent without arguments to terminate the
     composition with null string:
     \code
-    sendIMEvent( QEvent::IMEnd )
+    sendIMEvent(QEvent::InputMethodEnd)
     \endcode
 
     Or optionally accepts \a text to commit a string:
     \code
-    sendIMEvent( QEvent::IMEnd, QString( "a text" ) )
+    sendIMEvent(QEvent::InputMethodEnd, QString("a text"))
     \endcode
 
-    \sa QIMEvent, QIMComposeEvent, setMicroFocus()
+    \sa QInputMethodEvent, setMicroFocus()
 */
-void QInputContext::sendIMEvent( QEvent::Type type, const QString &text,
-                                 int cursorPosition, int selLength )
+void QInputContext::sendIMEvent(QEvent::Type type, const QString &text,
+                                 int cursorPosition, int selLength)
 {
     Q_D(QInputContext);
 #if defined(Q_WS_X11)
-    if ( !focusWidget() )
+    if (!focusWidget())
 	return;
 #endif
 
-    if ( type == QEvent::IMStart ) {
-	d->sendIMEventInternal( type, text, cursorPosition, selLength );
-	d->isComposing = TRUE;
-    } else if ( type == QEvent::IMEnd ) {
+    if (type == QEvent::InputMethodStart) {
+	d->sendIMEventInternal(type, text, cursorPosition, selLength);
+	d->isComposing = true;
+    } else if (type == QEvent::InputMethodEnd) {
 	d->resetComposingState();
-	d->sendIMEventInternal( type, text, cursorPosition, selLength );
-    } else if ( type == QEvent::IMCompose ) {
-	d->updateComposingState( text, cursorPosition, selLength );
-	d->sendIMEventInternal( type, text, cursorPosition, selLength );
+	d->sendIMEventInternal(type, text, cursorPosition, selLength);
+    } else if (type == QEvent::InputMethodCompose) {
+	d->updateComposingState(text, cursorPosition, selLength);
+	d->sendIMEventInternal(type, text, cursorPosition, selLength);
     }
 }
 
@@ -682,7 +682,7 @@ void QInputContext::unsetFocus()
     cursor in the preedit string. \a f is the font on the location of
     the cursor.
 */
-void QInputContext::setMicroFocus( const QRect &, const QFont & )
+void QInputContext::setMicroFocus(const QRect &, const QFont &)
 {
 }
 
@@ -694,7 +694,7 @@ void QInputContext::setMicroFocus( const QRect &, const QFont & )
     such as text selection or popup menu for candidate selection.
 
     The parameter \a x is the offset within the string that was sent
-    with the IMCompose event. The alteration boundary of \a x is
+    with the InputMethodCompose event. The alteration boundary of \a x is
     ensured as character boundary of preedit string accurately.
 
     \a type is either \c QEvent::MouseButtonPress or \c
@@ -706,12 +706,12 @@ void QInputContext::setMicroFocus( const QRect &, const QFont & )
     QWSInputMethod::mouseHandler() of Qt/Embedded 2.3.7 and extended
     for desktop system.
  */
-void QInputContext::mouseHandler( int /*x*/, QMouseEvent *event)
+void QInputContext::mouseHandler(int /*x*/, QMouseEvent *event)
 {
     // Default behavior for simple ephemeral input contexts. Some
     // complex input contexts should not be reset here.
-    if ( event->type() == QEvent::MouseButtonPress ||
-	 event->type() == QEvent::MouseButtonDblClick )
+    if (event->type() == QEvent::MouseButtonPress ||
+	 event->type() == QEvent::MouseButtonDblClick)
 	reset();
 }
 
@@ -721,7 +721,7 @@ void QInputContext::mouseHandler( int /*x*/, QMouseEvent *event)
  */
 QFont QInputContext::font() const
 {
-    if ( !focusWidget() )
+    if (!focusWidget())
         return QApplication::font(); //### absolutely last resort
 
     return focusWidget()->font();
@@ -741,14 +741,14 @@ QFont QInputContext::font() const
     in complex input method. In the case, call QInputContext::reset()
     to ensure proper termination of inputting.
 
-    You must not send any QIMEvent except empty IMEnd event using
+    You must not send any QInputMethodEvent except empty InputMethodEnd event using
     QInputContext::reset() at reimplemented reset(). It will break
     input state consistency.
 */
 void QInputContext::reset()
 {
-    if ( isComposing() )
-        sendIMEvent( QEvent::IMEnd );
+    if (isComposing())
+        sendIMEvent(QEvent::InputMethodEnd);
 }
 
 
@@ -782,7 +782,7 @@ void QInputContext::reset()
     consistent with QInputContextPlugin::language().
 
     This information will be used by language tagging feature in
-    QIMEvent. It is required to distinguish unified han characters
+    QInputMethodEvent. It is required to distinguish unified han characters
     correctly. It enables proper font and character code
     handling. Suppose CJK-awared multilingual web browser
     (that automatically modifies fonts in CJK-mixed text) and XML editor
@@ -804,7 +804,7 @@ void QInputContext::addActionsTo(QMenu *menu, MenuAction action)
 {
     QList<QAction *> acts = actions();
     if (!acts.isEmpty()) {
-	if ( action == InsertSeparator )
+	if (action == InsertSeparator)
 	    menu->addSeparator();
 	foreach (QAction *act, acts) {
 	    menu->addAction(act);
@@ -821,7 +821,7 @@ void QInputContext::addActionsTo(QMenu *menu, MenuAction action)
     other input methods may use this to implement some special
     features such as distinguishing Shift_L and Shift_R.
 
-    Return TRUE if the \a event has been consumed. Otherwise, the
+    Return true if the \a event has been consumed. Otherwise, the
     unfiltered \a event will be translated into QEvent and forwarded
     to filterEvent(). Filtering at both x11FilterEvent() and
     filterEvent() in single input method is allowed.
@@ -831,9 +831,9 @@ void QInputContext::addActionsTo(QMenu *menu, MenuAction action)
 
     \sa filterEvent()
 */
-bool QInputContext::x11FilterEvent( QWidget * /*keywidget*/, XEvent * /*event*/ )
+bool QInputContext::x11FilterEvent(QWidget * /*keywidget*/, XEvent * /*event*/)
 {
-    return FALSE;
+    return false;
 }
 #endif
 

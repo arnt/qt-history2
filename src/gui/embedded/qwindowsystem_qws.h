@@ -176,7 +176,7 @@ public:
                                 bool isPress, bool autoRepeat);
 
 #ifndef QT_NO_QWS_IM
-    enum IMState { IMStart /*###remove this*/, IMCompose, IMEnd, IMMarkedText, IMInternal = 42 };
+    enum IMState { InputMethodStart /*###remove this*/, InputMethodCompose, InputMethodEnd, IMMarkedText, IMInternal = 42 };
     enum IMMouse { MousePress, MouseRelease, MouseMove }; //MouseMove reserved but not used
     void sendIMEvent(IMState state, const QString& txt, int cpos, int selLen);
 #endif

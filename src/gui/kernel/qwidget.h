@@ -47,7 +47,7 @@ class QMoveEvent;
 class QResizeEvent;
 class QCloseEvent;
 class QContextMenuEvent;
-class QIMEvent;
+class QInputMethodEvent;
 class QTabletEvent;
 class QDragEnterEvent;
 class QDragMoveEvent;
@@ -516,7 +516,6 @@ protected:
     virtual void resizeEvent(QResizeEvent *);
     virtual void closeEvent(QCloseEvent *);
     virtual void contextMenuEvent(QContextMenuEvent *);
-    virtual void imEvent(QIMEvent *);
     virtual void tabletEvent(QTabletEvent *);
     virtual void actionEvent(QActionEvent *);
 
@@ -531,6 +530,9 @@ protected:
     virtual void hideEvent(QHideEvent *);
 
     virtual void polishEvent(QEvent *);
+
+    virtual void inputMethodEvent(QInputMethodEvent *);
+    virtual QVariant inputMethodQuery(Qt::InputMethodQuery);
 
 #if defined(Q_WS_MAC)
     virtual bool macEvent(EventHandlerCallRef, EventRef);
@@ -552,7 +554,6 @@ protected:
     // Misc. protected functions
     virtual void changeEvent(QEvent *);
 
-    virtual QVariant imQuery(Qt::ImQueryProperty);
     int metric(int) const;
 
     void resetInputContext();

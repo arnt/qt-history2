@@ -1418,8 +1418,8 @@ Qt::ButtonState QContextMenuEvent::state() const
 
 
 /*!
-    \class QIMEvent qevent.h
-    \brief The QIMEvent class provides parameters for input method events.
+    \class QInputMethodEvent qevent.h
+    \brief The QInputMethodEvent class provides parameters for input method events.
 
     \ingroup events
 
@@ -1453,24 +1453,24 @@ Qt::ButtonState QContextMenuEvent::state() const
     \endlist
 
     These three stages are represented by three different types of
-    events: IMStart, IMCompose, and IMEnd. All of these events are
+    events: InputMethodStart, InputMethodCompose, and InputMethodEnd. All of these events are
     delivered to the imEvent() method. When a new input context is
-    created, an IMStart event will be sent to the widget.  The widget
+    created, an InputMethodStart event will be sent to the widget.  The widget
     can then update internal data structures to reflect this.
 
-    After this, an IMCompose event will be sent to the widget for
+    After this, an InputMethodCompose event will be sent to the widget for
     every key the user presses. It will contain the current
     composition string the widget has to show and the current cursor
     position within the composition string. This string is temporary
     and can change with every key the user types, so the widget will
     need to store the state before the composition started (the state
-    it had when it received the IMStart event).
+    it had when it received the InputMethodStart event).
 
     Usually, widgets try to mark the part of the text that is part of
     the current composition in a way that is visible to the user. A
     commonly used visual cue is to use a dotted underline.
 
-    After the user has selected the final string, an IMEnd event will
+    After the user has selected the final string, an InputMethodEnd event will
     be sent to the widget. The event contains the final string the
     user selected, and could be empty if they canceled the
     composition. This string should be accepted as the final text the
@@ -1478,45 +1478,45 @@ Qt::ButtonState QContextMenuEvent::state() const
     cleared.
 
     If the user clicks another widget, taking the focus out of the
-    widget where the composition is taking place, the IMEnd event will
+    widget where the composition is taking place, the InputMethodEnd event will
     be sent and the string it holds will be the result of the
     composition up to that point (which may be an empty string).
 
 */
 
 /*!
-    Constructs a new QIMEvent with the accept flag set to false.  The
-    event \a type can be QEvent::IMStart, QEvent::IMCompose, or
-    QEvent::IMEnd. The \a text contains the current compostion string,
+    Constructs a new QInputMethodEvent with the accept flag set to false.  The
+    event \a type can be QEvent::InputMethodStart, QEvent::InputMethodCompose, or
+    QEvent::InputMethodEnd. The \a text contains the current compostion string,
     and \a cursorPosition is the current position of the cursor inside
     the \a text.  \a selLength characters are selected (default is 0).
 */
-QIMEvent::QIMEvent(Type type, const QString &text, int cursorPosition, int selLength)
+QInputMethodEvent::QInputMethodEvent(Type type, const QString &text, int cursorPosition, int selLength)
     : QInputEvent(type), txt(text), cpos(cursorPosition), selLen(selLength)
 {}
 
 /*!
-    \fn const QString &QIMEvent::text() const
+    \fn const QString &QInputMethodEvent::text() const
 
     Returns the composition text. This is a null string for an
-    IMStart event, and contains the final accepted string (which may be
-    empty) in the IMEnd event.
+    InputMethodStart event, and contains the final accepted string (which may be
+    empty) in the InputMethodEnd event.
 */
 
 /*!
-    \fn int QIMEvent::cursorPos() const
+    \fn int QInputMethodEvent::cursorPos() const
 
     Returns the current cursor position inside the composition string.
-    Will return -1 for IMStart event and IMEnd event.
+    Will return -1 for InputMethodStart event and InputMethodEnd event.
 */
 
 /*!
-    \fn int QIMEvent::selectionLength() const
+    \fn int QInputMethodEvent::selectionLength() const
 
     Returns the number of characters in the composition string,
     starting at cursorPos(), that should be marked as selected by the
     input widget receiving the event.
-    Will return 0 for IMStart event and IMEnd event.
+    Will return 0 for InputMethodStart event and InputMethodEnd event.
 */
 
 

@@ -183,7 +183,6 @@ protected:
     virtual void mouseMoveEvent(QMouseEvent *ev);
     virtual void mouseReleaseEvent(QMouseEvent *ev);
     virtual void mouseDoubleClickEvent(QMouseEvent *ev);
-    virtual void imEvent(QIMEvent *);
     virtual bool focusNextPrevChild(bool next);
     virtual void contextMenuEvent(QContextMenuEvent *ev);
     virtual void dragEnterEvent(QDragEnterEvent *ev);
@@ -196,7 +195,9 @@ protected:
     virtual void wheelEvent(QWheelEvent *ev);
 
     virtual QMenu *createPopupMenu(const QPoint &pos);
-    QVariant imQuery(Qt::ImQueryProperty property);
+
+    virtual void inputMethodEvent(QInputMethodEvent *);
+    QVariant inputMethodQuery(Qt::InputMethodQuery property);
 
     QTextEdit(QTextEditPrivate &dd, QWidget *parent);
 

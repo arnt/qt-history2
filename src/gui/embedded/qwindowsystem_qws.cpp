@@ -141,7 +141,7 @@ static QWSInputMethod *current_IM = 0;
 
 static QFont *current_IM_Font = 0;
 static QRect current_IM_Rect;
-static QWSServer::IMState current_IM_State = QWSServer::IMEnd;
+static QWSServer::IMState current_IM_State = QWSServer::InputMethodEnd;
 static int current_IM_y=0;
 static QWSWindow* current_IM_win=0;
 static int current_IM_winId=-1;
@@ -573,9 +573,9 @@ void QWSClient::sendSelectionRequestEvent(QWSConvertSelectionCommand *cmd, int w
 
     \internal
 
-    \value IMStart  Starting to compose.
-    \value IMCompose Composing.
-    \value IMEnd Finished composing.
+    \value InputMethodStart  Starting to compose.
+    \value InputMethodCompose Composing.
+    \value InputMethodEnd Finished composing.
 */
 
 /*!
@@ -1557,7 +1557,7 @@ void QWSServer::sendIMEvent(IMState state, const QString& txt, int cpos, int sel
     QWSWindow *win = keyboardGrabber ? keyboardGrabber :
         qwsServer->focusw;
 
-    if (current_IM_State == IMCompose && current_IM_win)
+    if (current_IM_State == InputMethodCompose && current_IM_win)
         win = current_IM_win;
 
     event.simpleData.window = win ? win->winId() : 0;
@@ -1616,8 +1616,8 @@ void QWSServer::requestMarkedText()
 */
 void QWSServer::setCurrentInputMethod(QWSInputMethod *im)
 {
-    if (current_IM_State != IMEnd && im != current_IM && qwsServer)
-        qwsServer->sendIMEvent(IMEnd, "", -1, 0);
+    if (current_IM_State != InputMethodEnd && im != current_IM && qwsServer)
+        qwsServer->sendIMEvent(InputMethodEnd, "", -1, 0);
     current_IM = im;
 }
 
@@ -2086,14 +2086,14 @@ void QWSServer::invokeSetIMInfo(const QWSSetIMInfoCommand *cmd,
 
 void QWSServer::resetInputMethod()
 {
-    if (current_IM_State == IMEnd)
+    if (current_IM_State == InputMethodEnd)
         current_IM_State = IMInternal;
 
     if (current_IM && qwsServer) {
       current_IM->reset();
     }
-    if (current_IM_State != IMEnd) // IM didn't send IMEnd
-        qwsServer->sendIMEvent(IMEnd, QString::null, -1, -1);
+    if (current_IM_State != InputMethodEnd) // IM didn't send InputMethodEnd
+        qwsServer->sendIMEvent(InputMethodEnd, QString::null, -1, -1);
     current_IM_winId = -1;
 }
 
@@ -3023,8 +3023,8 @@ void QWSServer::updateClientCursorPos()
     function.
 
     Use sendIMEvent() to send composition events. Composition starts
-    with the input method sending an \c IMStart event, followed by a
-    number of \c IMCompose events and ending with an \c IMEnd event or
+    with the input method sending an \c InputMethodStart event, followed by a
+    number of \c InputMethodCompose events and ending with an \c InputMethodEnd event or
     when the virtual reset() function is called.
 
     The function setMicroFocus() is called when the focus widget changes
@@ -3068,7 +3068,7 @@ QWSInputMethod::~QWSInputMethod()
     press.
 
     All normal key events should be blocked while in compose mode
-    (i.e., between \c IMStart and \c IMEnd).
+    (i.e., between \c InputMethodStart and \c InputMethodEnd).
 
 */
 
@@ -3099,7 +3099,7 @@ void QWSInputMethod::setMicroFocus(int, int)
 
   Implemented in subclasses to handle mouse presses/releases within
   the on-the-spot text. The parameter \a x is the offset within
-  the string that was sent with the IMCompose event.
+  the string that was sent with the InputMethodCompose event.
   \a state is either \c QWSServer::MousePress or \c QWSServer::MouseRelease
  */
 void QWSInputMethod::mouseHandler(int, int)
@@ -3135,13 +3135,13 @@ QRect QWSInputMethod::inputRect() const
     \fn QWSInputMethod::sendIMEvent(QWSServer::IMState state, const QString &txt, int cpos, int selLen)
 
     Causes a QIMEvent to be sent to the focus widget. \a state may be
-    one of \c QWSServer::IMStart, \c QWSServer::IMCompose or \c
-    QWSServer::IMEnd.
+    one of \c QWSServer::InputMethodStart, \c QWSServer::InputMethodCompose or \c
+    QWSServer::InputMethodEnd.
 
     \a txt is the text being composed (or the finished text if state
-    is \c IMEnd). \a cpos is the current cursor position.
+    is \c InputMethodEnd). \a cpos is the current cursor position.
 
-    If state is \c IMCompose, \a selLen is the number of characters in
+    If state is \c InputMethodCompose, \a selLen is the number of characters in
     the composition string (starting at \a cpos) that should be
     marked as selected by the input widget receiving the event.
 */

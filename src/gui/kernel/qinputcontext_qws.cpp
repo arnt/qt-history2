@@ -75,10 +75,10 @@ void QInputContext::translateIMEvent(QWSIMEvent *e, QWidget *keywidget)
     QString txt(e->text, e->simpleData.textLen);
 
 
-    if (e->simpleData.type == QWSServer::IMCompose) {
+    if (e->simpleData.type == QWSServer::InputMethodCompose) {
         //generate start event if we haven't done so already
         if (!composeMode) {
-            QIMEvent out(QEvent::IMStart, "", -1);
+            QInputMethodEvent out(QEvent::InputMethodStart, "", -1);
             qt_sendSpontaneousEvent(keywidget, &out);
             activeWidget = keywidget;
             composeMode = true;
@@ -89,16 +89,16 @@ void QInputContext::translateIMEvent(QWSIMEvent *e, QWidget *keywidget)
         const int cpos = qMax(0, qMin(e->simpleData.cpos, int(txt.length())));
         const int selLen = qMin(e->simpleData.selLen, int(txt.length())-cpos);
 
-        QIMEvent out(QEvent::IMCompose, txt,
+        QInputMethodEvent out(QEvent::InputMethodCompose, txt,
                              cpos,
                              selLen);
         qt_sendSpontaneousEvent(keywidget, &out);
 
         *composition = txt;
-        //qDebug("IMCompose on widget %p", keywidget);
-    } else if (e->simpleData.type == QWSServer::IMEnd) {
-        //IMEnd also known as IMInput
-        //Allow multiple IMEnd events:
+        //qDebug("InputMethodCompose on widget %p", keywidget);
+    } else if (e->simpleData.type == QWSServer::InputMethodEnd) {
+        //InputMethodEnd also known as IMInput
+        //Allow multiple InputMethodEnd events:
         //generate start event if we haven't seen one
         //but only if we actually need to send something.
 
@@ -108,14 +108,14 @@ void QInputContext::translateIMEvent(QWSIMEvent *e, QWidget *keywidget)
 
         if (composeMode) {
             QWidget  *target = (sendEndToPrev && prevFocusW) ? prevFocusW : activeWidget;
-            QIMEvent out(QEvent::IMEnd, txt, e->simpleData.cpos);
+            QInputMethodEvent out(QEvent::InputMethodEnd, txt, e->simpleData.cpos);
             qt_sendSpontaneousEvent(target, &out);
         } else if (!txt.isEmpty()) {
             if (sendEndToPrev && prevFocusW)
                 keywidget = prevFocusW;
-            QIMEvent start(QEvent::IMStart, "", -1);
+            QInputMethodEvent start(QEvent::InputMethodStart, "", -1);
             qt_sendSpontaneousEvent(keywidget, &start);
-            QIMEvent end(QEvent::IMEnd, txt, e->simpleData.cpos);
+            QInputMethodEvent end(QEvent::InputMethodEnd, txt, e->simpleData.cpos);
             qt_sendSpontaneousEvent(keywidget, &end);
         }
         composeMode = false;
@@ -139,7 +139,7 @@ void QInputContext::reset(QWidget *f)
 
     activeWidget = 0;
 
-    //server is obliged to send an IMEnd event in response to this call
+    //server is obliged to send an InputMethodEnd event in response to this call
     QPaintDevice::qwsDisplay()->resetIM();
 }
 
@@ -168,9 +168,9 @@ void QInputContext::notifyWidgetDeletion(QWidget *w)
 void QInputContext::cleanup()
 {
     qDebug("============= QInputContext::cleanup =========");
-    //send appropriate IMEnd event if necessary
+    //send appropriate InputMethodEnd event if necessary
     if (composeMode) {
-        QIMEvent out(QEvent::IMEnd, *composition, -1);
+        QInputMethodEvent out(QEvent::InputMethodEnd, *composition, -1);
         qt_sendSpontaneousEvent(activeWidget, &out);
         activeWidget = 0;
         composeMode = false;

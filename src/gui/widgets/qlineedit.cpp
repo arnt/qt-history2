@@ -1645,19 +1645,19 @@ bool QLineEditPrivate::sendMouseEventToInputContext( QMouseEvent *e )
 
 /*! \reimp
  */
-void QLineEdit::imEvent(QIMEvent *e)
+void QLineEdit::inputMethodEvent(QInputMethodEvent *e)
 {
     if (d->readOnly) {
         e->ignore();
         return;
     }
     switch(e->type()) {
-    case QEvent::IMStart:
+    case QEvent::InputMethodStart:
         d->removeSelectedText();
         d->updateMicroFocusHint();
         d->imstart = d->imend = d->imselstart = d->imselend = d->cursor;
         break;
-    case QEvent::IMCompose:
+    case QEvent::InputMethodCompose:
         d->text.replace(d->imstart, d->imend - d->imstart, e->text());
         d->imend = d->imstart + e->text().length();
         d->imselstart = d->imstart + e->cursorPos();
@@ -1676,7 +1676,7 @@ void QLineEdit::imEvent(QIMEvent *e)
         update();
         d->emitCursorPositionChanged();
         break;
-    case QEvent::IMEnd:
+    case QEvent::InputMethodEnd:
         d->text.remove(d->imstart, d->imend - d->imstart);
         d->cursor = d->imselstart = d->imselend = d->imend = d->imstart;
         d->textDirty = true;
@@ -1689,7 +1689,7 @@ void QLineEdit::imEvent(QIMEvent *e)
 
 /*!\reimp
 */
-QVariant QLineEdit::imQuery(Qt::ImQueryProperty property)
+QVariant QLineEdit::inputMethodQuery(Qt::InputMethodQuery property)
 {
     switch(property) {
     case Qt::ImCursorPosition:
@@ -1817,7 +1817,7 @@ void QLineEdit::paintEvent(QPaintEvent *)
         d->hscroll = widthUsed - lineRect.width() + 1;
     }
     // This updateMicroFocusHint() is corresponding to update() at
-    // IMCompose event. Although the function is invoked from various
+    // InputMethodCompose event. Although the function is invoked from various
     // other points, some situations such as "candidate selection on
     // AlignHCenter'ed text" need this invocation because
     // updateMicroFocusHint() requires updated contentsRect(), and

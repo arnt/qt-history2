@@ -4590,11 +4590,11 @@ bool QWidget::event(QEvent *e)
             return d->compositeEvent(e);
         break;
 
-    case QEvent::IMStart:
-    case QEvent::IMCompose:
-    case QEvent::IMEnd: {
-        QIMEvent *i = (QIMEvent *) e;
-        imEvent(i);
+    case QEvent::InputMethodStart:
+    case QEvent::InputMethodCompose:
+    case QEvent::InputMethodEnd: {
+        QInputMethodEvent *i = static_cast<QInputMethodEvent *>(e);
+        inputMethodEvent(i);
         if (! i->isAccepted())
             return false;
     }
@@ -5357,12 +5357,12 @@ void QWidget::contextMenuEvent(QContextMenuEvent *e)
     is called when the state of the input method changes.
 
     The default implementation calls e->ignore(), which rejects the
-    Input Method event. See the \l QIMEvent documentation for more
+    Input Method event. See the \l QInputMethodEvent documentation for more
     details.
 
-    \sa event(), QIMEvent
+    \sa event(), QInputMethodEvent
 */
-void QWidget::imEvent(QIMEvent *e)
+void QWidget::inputMethodEvent(QInputMethodEvent *e)
 {
     e->ignore();
 }
@@ -5373,9 +5373,9 @@ void QWidget::imEvent(QIMEvent *e)
   to support complex input method operations as support for
   surrounding text and reconversions.
 
-  /sa Qt::ImQueryProperty QIMEvent QInputContext
+  /sa Qt::ImQueryProperty QInputMethodEvent QInputContext
 */
-QVariant QWidget::imQuery(Qt::ImQueryProperty)
+QVariant QWidget::inputMethodQuery(Qt::InputMethodQuery)
 {
     return QVariant();
 }
