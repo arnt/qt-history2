@@ -14,15 +14,6 @@
 #ifndef QATOMIC_H
 #define QATOMIC_H
 
-extern "C" {
-    int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
-    int q_atomic_test_and_set_ptr(volatile void *, void *, void *);
-    int q_atomic_increment(volatile int *);
-    int q_atomic_decrement(volatile int *);
-    int q_atomic_set_int(volatile int *, int);
-    void *q_atomic_set_ptr(volatile void *, void *);
-} // extern "C"
-
 #include <arch/qatomic.h>
 
 #ifndef Q_HAVE_ATOMIC_INCDEC
