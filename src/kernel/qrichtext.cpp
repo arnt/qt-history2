@@ -4719,11 +4719,12 @@ void QTextParagraph::drawString( QPainter &painter, const QString &str, int star
 	    int tmpw = w;
 
 	    selStart = QMAX(selStart, start);
-	    selEnd = QMIN(selEnd, start+real_length);
+	    int real_selEnd = QMIN(selEnd, start+real_length);
+	    selEnd = QMIN(selEnd, start+len);
 	    bool extendRight = FALSE;
 	    bool extendLeft = FALSE;
- 	    if ((selEnd == length()-1 && n && n->hasSelection(it.key()))
-		|| this->str->at(selEnd).lineStart) {
+ 	    if ((real_selEnd == length()-1 && n && n->hasSelection(it.key()))
+		|| this->str->at(real_selEnd).lineStart) {
 		extendRight = (fullSelectionWidth != 0);
  		if (!extendRight && !rightToLeft)
 		    tmpw += painter.fontMetrics().width(' ');
@@ -4740,7 +4741,7 @@ void QTextParagraph::drawString( QPainter &painter, const QString &str, int star
 		extendRight = tmp;
 	    }
 
-	    if ((selStart < selEnd ||
+	    if ((selStart < real_selEnd ||
 		 (fullSelected(0) && fullSelectionWidth && extendRight)) &&
 		// don't draw the standard selection on a printer=
 		(it.key() != QTextDocument::Standard || !is_printer( &painter))) {
