@@ -39,7 +39,7 @@ RangeControls::RangeControls( QWidget *parent, const char *name )
     connect( wrapping, SIGNAL( clicked() ),
 	     this, SLOT( toggleWrapping() ) );
     dial->setWrapping( FALSE );
-    dial->setShowNotches( FALSE );
+    dial->setNotchesVisible( FALSE );
     QLCDNumber *lcd1 = new QLCDNumber( 3, cell1 );
     connect( dial, SIGNAL( valueChanged( int ) ), lcd1, SLOT( display( int ) ) );
 
@@ -89,7 +89,7 @@ RangeControls::RangeControls( QWidget *parent, const char *name )
 
 void RangeControls::toggleShowNotches()
 {
-    dial->setShowNotches( notches->isChecked() );
+    dial->setNotchesVisible( notches->isChecked() );
 }
 
 void RangeControls::toggleWrapping()
