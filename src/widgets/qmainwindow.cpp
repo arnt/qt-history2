@@ -588,7 +588,7 @@ public:
   \value Left  to the left of the central widget.
 
   \value Right to the left of the central widget.
-  
+
   \value Minimized the toolbar is not shown - all handles of minimized
   toolbars are drawn in one row below the menu bar.
 
@@ -1488,6 +1488,14 @@ QList<QDockWindow> QMainWindow::dockWindows( Dock dock ) const
     return lst;
 }
 
+/* Returns the list of dock windows which belong to this main window
+   */
+
+QList<QDockWindow> QMainWindow::dockWindows() const
+{
+    return d->dockWindows;
+}
+
 /*!  Sets the dock windows to be movable if \a enable is TRUE, or
   static otherwise.
 
@@ -1692,6 +1700,106 @@ bool QMainWindow::hasDockWindow( QDockWindow *dw )
 {
     return d->dockWindows.findRef( dw ) != -1;
 }
+
+/*! Returns the left dock area */
+
+QDockArea *QMainWindow::leftDock() const
+{
+    return d->leftDock;
+}
+
+/*! Returns the right dock area */
+
+QDockArea *QMainWindow::rightDock() const
+{
+    return d->rightDock;
+}
+
+/*! Returns the top dock area */
+
+QDockArea *QMainWindow::topDock() const
+{
+    return d->topDock;
+}
+
+/*! Returns the bottom dock area */
+
+QDockArea *QMainWindow::bottomDock() const
+{
+    return d->bottomDock;
+}
+
+#ifndef QT_NO_TEXTSTREAM
+static void saveDockArea( QTextStream &ts, QDockArea *a )
+{
+    QList<QDockWindow> l = a->dockWindowList();
+    for ( QDockWindow *dw = l.first(); dw; dw = l.next() ) {
+	ts << QString( dw->caption() );
+	ts << ",";
+    }
+    ts << endl;
+    ts << *a;
+}
+
+QTextStream &operator<<( QTextStream &ts, const QMainWindow &mainWindow )
+{
+    QList<QDockWindow> l = mainWindow.dockWindows( Qt::Minimized );
+    for ( QDockWindow *dw = l.first(); dw; dw = l.next() ) {
+	ts << dw->caption();
+	ts << ",";
+    }
+    ts << endl;
+
+    l = mainWindow.dockWindows( Qt::TornOff );
+    for ( QDockWindow *dw = l.first(); dw; dw = l.next() ) {
+	ts << dw->caption();
+	ts << ",";
+    }
+    ts << endl;
+
+    saveDockArea( ts, mainWindow.topDock() );
+    saveDockArea( ts, mainWindow.bottomDock() );
+    saveDockArea( ts, mainWindow.rightDock() );
+    saveDockArea( ts, mainWindow.leftDock() );
+    return ts;
+}
+
+static void loadDockArea( const QStringList &names, QDockArea *a, Qt::Dock d, QList<QDockWindow> &l, QMainWindow *mw, QTextStream &ts )
+{
+    for ( QStringList::ConstIterator it = names.begin(); it != names.end(); ++it ) {
+	for ( QDockWindow *dw = l.first(); dw; dw = l.next() ) {
+	    if ( dw->caption() == *it ) {
+		mw->addDockWindow( dw, d );
+		break;
+	    }
+	}
+    }
+    if ( a )
+	ts >> *a;
+}
+
+QTextStream &operator>>( QTextStream &ts, QMainWindow &mainWindow )
+{
+    QList<QDockWindow> l = mainWindow.dockWindows();
+
+    QString s = ts.readLine();
+    QStringList names = QStringList::split( ',', s );
+    loadDockArea( names, 0, Qt::Minimized, l, &mainWindow, ts );
+
+    s = ts.readLine();
+    names = QStringList::split( ',', s );
+    loadDockArea( names, 0, Qt::TornOff, l, &mainWindow, ts );
+
+    int i = 0;
+    QDockArea *areas[] = { mainWindow.topDock(), mainWindow.bottomDock(), mainWindow.rightDock(), mainWindow.leftDock() };
+    for ( int d = (int)Qt::Top; d != (int)Qt::Minimized; ++d, ++i ) {
+	s = ts.readLine();
+	names = QStringList::split( ',', s );
+	loadDockArea( names, areas[ i ], (Qt::Dock)d, l, &mainWindow, ts );
+    }
+    return ts;
+}
+#endif
 
 #include "qmainwindow.moc"
 

@@ -1069,3 +1069,80 @@ bool QDockArea::isLastDockWindow( QDockWindow *dw )
     }
     return FALSE;
 }
+
+#ifndef QT_NO_TEXTSTREAM
+QTextStream &operator<<( QTextStream &ts, const QDockArea &dockArea )
+{
+    QString str;
+    QList<QDockWindow> l = dockArea.dockWindowList();
+
+    for ( QDockWindow *dw = l.first(); dw; dw = l.next() )
+	str += "[" + QString( dw->caption() ) + "," + QString::number( (int)dw->offset() ) +
+	       "," + QString::number( (int)dw->newLine() ) + "," + QString::number( dw->fixedExtent().width() ) +
+	       "," + QString::number( dw->fixedExtent().height() ) + "," + QString::number( !(int)dw->isHidden() ) + "]";
+    ts << str << endl;
+
+    return ts;
+}
+
+QTextStream &operator>>( QTextStream &ts, QDockArea &dockArea )
+{
+    QString s = ts.readLine();
+
+    QString name, offset, newLine, width, height, visible;
+
+    enum State { Pre, Name, Offset, NewLine, Width, Height, Visible, Post };
+    int state = Pre;
+    QChar c;
+    QList<QDockWindow> l = dockArea.dockWindowList();
+
+    for ( int i = 0; i < (int)s.length(); ++i ) {
+	c = s[ i ];
+	if ( state == Pre && c == '[' ) {
+	    state++;
+	    continue;
+	}
+	if ( c == ',' &&
+	     ( state == Name || state == Offset || state == NewLine || state == Width || state == Height ) ) {
+	    state++;
+	    continue;
+	}
+	if ( state == Visible && c == ']' ) {
+	    for ( QDockWindow *dw = l.first(); dw; dw = l.next() ) {
+		if ( QString( dw->caption() ) == name ) {
+		    dw->setNewLine( (bool)newLine.toInt() );
+		    dw->setOffset( offset.toInt() );
+		    dw->setFixedExtentWidth( width.toInt() );
+		    dw->setFixedExtentHeight( height.toInt() );
+		    if ( !(bool)visible.toInt() )
+			dw->hide();
+		    else
+			dw->show();
+		    break;
+		}
+	    }
+	
+	    name = offset = newLine = width = height = visible = "";
+	
+	    state = Pre;
+	    continue;
+	}
+	if ( state == Name )
+	    name += c;
+	else if ( state == Offset )
+	    offset += c;
+	else if ( state == NewLine )
+	    newLine += c;
+	else if ( state == Width )
+	    width += c;
+	else if ( state == Height )
+	    height += c;
+	else if ( state == Visible )
+	    visible += c;
+    }
+
+    dockArea.QWidget::layout()->invalidate();
+    dockArea.QWidget::layout()->activate();
+    return ts;
+}
+#endif

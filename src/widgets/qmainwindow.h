@@ -42,6 +42,7 @@
 #include "qwidget.h"
 #include "qtoolbar.h"
 #include "qlist.h"
+#include "qtextstream.h"
 #endif // QT_H
 
 #ifndef QT_NO_MAINWINDOW
@@ -104,6 +105,7 @@ public:
     bool getLocation( QDockWindow *tb, Dock &dock, int &index, bool &nl, int &extraOffset ) const;
 
     QList<QDockWindow> dockWindows( Dock dock ) const;
+    QList<QDockWindow> dockWindows() const;
     void lineUpDockWindows( bool keepNewLines = FALSE );
 
     bool isDockMenuEnabled() const;
@@ -122,6 +124,10 @@ public:
     void lineUpToolBars( bool keepNewLines = FALSE );
 
     QDockArea *dockingArea( const QPoint &p );
+    QDockArea *leftDock() const;
+    QDockArea *rightDock() const;
+    QDockArea *topDock() const;
+    QDockArea *bottomDock() const;
 
 public slots:
     virtual void setRightJustification( bool );
@@ -217,6 +223,11 @@ inline void QMainWindow::setToolBarsMovable( bool b )
 {
     setDockWindowsMovable( b );
 }
+
+#ifndef QT_NO_TEXTSTREAM
+Q_EXPORT QTextStream &operator<<( QTextStream &, const QMainWindow & );
+Q_EXPORT QTextStream &operator>>( QTextStream &, QMainWindow & );
+#endif
 
 #endif // QT_NO_MAINWINDOW
 

@@ -46,6 +46,7 @@
 #include "qvaluelist.h"
 #include "qlist.h"
 #include "qguardedptr.h"
+#include "qtextstream.h"
 #endif // QT_H
 
 class QSplitter;
@@ -173,6 +174,11 @@ private:	// Disabled copy constructor and operator=
 #endif
 
 };
+
+#ifndef QT_NO_TEXTSTREAM
+Q_EXPORT QTextStream &operator<<( QTextStream &, const QDockArea & );
+Q_EXPORT QTextStream &operator>>( QTextStream &, QDockArea & );
+#endif
 
 #endif
 
