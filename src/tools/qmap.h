@@ -539,7 +539,7 @@ Q_TYPENAME QMap<Key,T>::insert_pair QMap<Key,T>::insert( const Q_TYPENAME QMap<K
 	inserted = TRUE;
 	n->data = x.second;
     }
-    return QPair<Iterator,bool>( it, inserted );
+    return QPair<Iterator,bool>( n, inserted );
 }
 
 template<class Key, class T>
@@ -614,7 +614,7 @@ QMap<Key,T>::QMap( const Q_TYPENAME std::map<Key,T>& m )
 }
 
 template<class Key, class T>
-QMap<Key,T>::QMap<Key,T>& operator= ( const Q_TYPENAME std::map<Key,T>& m )
+QMap<Key,T>& QMap<Key,T>::operator= ( const Q_TYPENAME std::map<Key,T>& m )
 {
     clear();
     Q_TYPENAME std::map<Key,T>::const_iterator it = m.begin();
