@@ -17,6 +17,7 @@ SUBDIRS	=	aclock \
 		dragdrop \
 		drawdemo \
 		drawlines \
+		extension \
 		fonts \
 		forever \
 		gridview \
