@@ -915,9 +915,13 @@ void qt_motifdnd_handle_msg( QWidget * /* w */ , const XEvent * xe, bool /* pass
 	    // we have to convert selection in order to indicate failure to the initiator
 	    XConvertSelection (qt_xdisplay(), dnd_data.property, Dnd_transfer_failure,
 			       dnd_data.property, cur_window, dnd_data.time);
-	    QDragLeaveEvent e;
-	    QApplication::sendEvent( drop_widget, &e );
-	    drop_widget = 0;
+
+	    if (drop_widget) {
+		QDragLeaveEvent e;
+		QApplication::sendEvent( drop_widget, &e );
+		drop_widget = 0;
+	    }
+
 	    return;
 	}
 
