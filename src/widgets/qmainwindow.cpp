@@ -321,6 +321,8 @@ QMainWindowPrivate::ToolBar * QMainWindowPrivate::takeToolBarFromDock( QToolBar 
 
 class QToolLayout : public QLayout
 {
+    Q_OBJECT
+    
 public:
     QToolLayout( QLayout* parent, QMainWindowPrivate::ToolBarDock *d,
 		 QBoxLayout::Direction dd, bool justify,
@@ -617,6 +619,8 @@ void QToolLayout::setGeometry( const QRect &r )
 
 class QMainWindowLayout : public QLayout
 {
+    Q_OBJECT
+    
 public:
     QMainWindowLayout( QLayout* parent = 0 );
     ~QMainWindowLayout() {}
@@ -676,15 +680,15 @@ QSize QMainWindowLayout::minimumSize() const
 
     int w = 0, h = 0;
     if ( left ) {
-	w = QMAX( w, left->minimumSize().width() );
+	w += left->minimumSize().width();
 	h = QMAX( h, left->minimumSize().height() );
     }
     if ( right ) {
-	w = QMAX( w, right->minimumSize().width() );
+	w += right->minimumSize().width();
 	h = QMAX( h, right->minimumSize().height() );
     }
     if ( central ) {
-	w = QMAX( w, QMAX( central->minimumSize().width(), central->minimumSizeHint().width() ) );
+	w += central->minimumSize().width();
 	h = QMAX( h, QMAX( central->minimumSize().height(), central->minimumSizeHint().height() ) );
     }
 
@@ -2332,7 +2336,24 @@ void QMainWindow::setUsesBigPixmaps( bool enable )
 
     d->ubp = enable;
     emit pixmapSizeChanged( enable );
-    triggerLayout( FALSE );
+
+    // #### I don't like that at all!
+    QObjectList *l = queryList( "QToolBar" );
+    if ( !l || !l->first() ) {
+	delete l;
+	return;
+    }
+    for ( QToolBar *t = (QToolBar*)l->first(); t; t = (QToolBar*)l->next() )
+	t->updateArrowStuff();
+    delete l;
+    l = queryList( "QLayout" );
+    if ( !l || !l->first() ) {
+	delete l;
+	return;
+    }
+    for ( QLayout *lay = (QLayout*)l->first(); lay; lay = (QLayout*)l->next() )
+	    lay->activate();
+    delete l;
 }
 
 /*!  Returns the state last set by setUsesTextLabel().  The initial
@@ -2365,7 +2386,24 @@ void QMainWindow::setUsesTextLabel( bool enable )
 
     d->utl = enable;
     emit usesTextLabelChanged( enable );
-    triggerLayout( FALSE );
+
+    // #### I don't like that at all!
+    QObjectList *l = queryList( "QToolBar" );
+    if ( !l || !l->first() ) {
+	delete l;
+	return;
+    }
+    for ( QToolBar *t = (QToolBar*)l->first(); t; t = (QToolBar*)l->next() )
+	t->updateArrowStuff();
+    delete l;
+    l = queryList( "QLayout" );
+    if ( !l || !l->first() ) {
+	delete l;
+	return;
+    }
+    for ( QLayout *lay = (QLayout*)l->first(); lay; lay = (QLayout*)l->next() )
+	    lay->activate();
+    delete l;
 }
 
 
@@ -3183,4 +3221,7 @@ void QMainWindow::setDockMenuEnabled( bool b )
 {
     d->dockMenu = b;
 }
+
+#include "qmainwindow.moc"
+
 #endif
