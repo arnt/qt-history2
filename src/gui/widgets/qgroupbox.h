@@ -52,16 +52,16 @@ public:
 
     virtual void setColumnLayout(int strips, Orientation o);
 
-    QString title() const { return str; }
+    QString title() const;
     virtual void setTitle( const QString &);
 
-    int alignment() const { return align; }
+    int alignment() const;
     virtual void setAlignment( int );
 
     int columns() const;
     void setColumns( int );
 
-    Orientation orientation() const { return dir; }
+    Orientation orientation() const;
     void setOrientation( Orientation );
 
     int insideMargin() const;
@@ -100,32 +100,8 @@ private slots:
     void setChildrenEnabled( bool b );
 
 private:
-    void skip();
-    void init();
-    void calculateFrame();
-    void insertWid( QWidget* );
-    void setTextSpacer();
-#ifndef QT_NO_CHECKBOX
-    void updateCheckBoxGeometry();
-#endif
-    QString str;
-    int align;
-    int lenvisible;
-#ifndef QT_NO_ACCEL
-    QAccel * accel;
-#endif
-    QGroupBoxPrivate * d;
+    Q_DECL_PRIVATE(QGroupBox);
 
-    QVBoxLayout *vbox;
-    QGridLayout *grid;
-    int row;
-    int col : 30;
-    uint bFlat : 1;
-    int nRows, nCols;
-    Orientation dir;
-    int spac, marg;
-
-private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QGroupBox( const QGroupBox & );
     QGroupBox &operator=( const QGroupBox & );
