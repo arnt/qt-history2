@@ -9,9 +9,9 @@
 **
 *****************************************************************************/
 
+#include <qaxobject.h>
 #include <qinputdialog.h>
 #include <qlabel.h>
-#include <qobjectlist.h>
 #include "docuwindow.h"
 
 #include <qt_windows.h>
@@ -313,6 +313,16 @@ void MainWindow::runMacro()
 {
     if (!script)
 	return;
+
+    // If we have only one script loaded we can use the cool dialog
+    QStringList scripts = script->scripts();
+    if (scripts.count() == 1) {
+	InvokeMethod scriptInvoke( this, 0, TRUE );
+	scriptInvoke.setCaption("Execute Script Function");
+	scriptInvoke.setControl(script->scriptEngine(scripts[0]));
+	scriptInvoke.exec();
+	return;
+    }
 
     bool ok = FALSE;
     QStringList macroList = script->functions();
