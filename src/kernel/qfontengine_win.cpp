@@ -60,6 +60,28 @@ QFontEngine::~QFontEngine()
 	ScriptFreeCache( &script_cache );
 }
 
+// ##### get these from windows
+int QFontEngine::lineThickness() const
+{
+    // ad hoc algorithm
+    int score = fontDef.weight * fontDef.pixelSize;
+    int lw = score / 700;
+
+    // looks better with thicker line for small pointsizes
+    if ( lw < 2 && score >= 1050 ) lw = 2;
+    if ( lw == 0 ) lw = 1;
+
+    return lw;
+}
+
+// ##### get these from windows
+int QFontEngine::underlinePosition() const
+{
+    int pos = ( ( lineThickness() * 2 ) + 3 ) / 6;
+    return pos ? pos : 1;
+}
+
+
 HDC QFontEngine::dc() const
 {
     if ( hdc || (qt_winver & Qt::WV_NT_based) ) // either NT_based or Printer
@@ -192,7 +214,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 		offsets++;
 		advances++;
 	    }
-	} else 
+	} else
 #endif
 	{
 	    bool haveOffsets = FALSE;
@@ -273,7 +295,7 @@ glyph_metrics_t QFontEngineWin::boundingBox( glyph_t glyph )
 	    res = GetGlyphOutlineA( dc(), glyph, GGO_METRICS|GGO_GLYPH_INDEX, &gm, 0, 0, &mat );
 	} );
 	if ( res != GDI_ERROR )
-	    return glyph_metrics_t( gm.gmptGlyphOrigin.x, -gm.gmptGlyphOrigin.y-gm.gmBlackBoxY, 
+	    return glyph_metrics_t( gm.gmptGlyphOrigin.x, -gm.gmptGlyphOrigin.y-gm.gmBlackBoxY,
 				  gm.gmBlackBoxX, gm.gmBlackBoxY, gm.gmCellIncX, gm.gmCellIncY );
     }
 #endif
@@ -371,7 +393,7 @@ int QFontEngineWin::minRightBearing() const
 		    }
 		} );
 		n = char_table_entries;
-	    }    
+	    }
 	    ml = abc[0].abcA;
 	    mr = abc[0].abcC;
     	    for ( int i = 1; i < n; i++ ) {
@@ -391,7 +413,7 @@ int QFontEngineWin::minRightBearing() const
 		    for( int i = 0; i < char_table_entries; i++ )
 			GetCharABCWidthsFloat(hdc, char_table[i], char_table[i], abc+i);
 		    n = char_table_entries;
-		}    
+		}
 		float fml = abc[0].abcfA;
 		float fmr = abc[0].abcfC;
 		for (int i=1; i<n; i++) {
@@ -423,7 +445,7 @@ const char *QFontEngineWin::name() const
 bool QFontEngineWin::canRender( const QChar *string,  int len )
 {
     while( len-- ) {
-	if ( getGlyphIndex( cmap, string->unicode() ) == 0 ) 
+	if ( getGlyphIndex( cmap, string->unicode() ) == 0 )
 	    return FALSE;
 	string++;
     }
@@ -438,14 +460,14 @@ QFontEngine::Type QFontEngineWin::type() const
 
 // Uniscribe engine
 #if 0
-typedef HRESULT (WINAPI *fScriptTextOut)( const HDC, SCRIPT_CACHE *, int, int, UINT, const RECT *, const QScriptAnalysis *, 
+typedef HRESULT (WINAPI *fScriptTextOut)( const HDC, SCRIPT_CACHE *, int, int, UINT, const RECT *, const QScriptAnalysis *,
 					 const WCHAR *, int, const WORD *, int, const int *, const int *, const GOFFSET *);
 extern fScriptTextOut ScriptTextOut;
 
 void QFontEngineUniscribe::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 	   const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse )
 {
-    ScriptTextOut( 
+    ScriptTextOut(
     HDC hdc = dc();
     ScriptTextOut( hdc, script_cache, x, y, 0, 0, analysis, 0, 0, glyphs, numGlyphs, advances, 0, offsets );
 }
@@ -675,7 +697,7 @@ static unsigned char *getCMap( HDC hdc )
     unsigned char header[4];
 
     // get the CMAP header and the number of encoding tables
-    DWORD bytes = 
+    DWORD bytes =
 #ifndef Q_OS_TEMP
 	GetFontData( hdc, CMAP, 0, &header, 4 );
 #else

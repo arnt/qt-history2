@@ -18,30 +18,15 @@
 // defined in qfontdatbase_x11.cpp
 extern int qt_mibForXlfd( const char * encoding );
 
-/* ### duplicated from QFontPrivate::lineWidth() */
-static int lineWidth( const QFontDef &fd )
-{
-    // ad hoc algorithm
-    int score = fd.weight * fd.pixelSize;
-    int lw = score / 700;
-
-    // looks better with thicker line for small pointsizes
-    if ( lw < 2 && score >= 1050 ) lw = 2;
-    if ( lw == 0 ) lw = 1;
-
-    return lw;
-}
-
 static void drawLines( Display *dpy, Qt::HANDLE hd, GC gc, QFontEngine *fe, int baseline, int x1,  int w )
 {
-    int lw = lineWidth( fe->fontDef );
+    int lw = fe->lineThickness();
     if ( fe->fontDef.underline ) {
-    	int pos = ( ( lw * 2 ) + 3 ) / 6;
-	if ( !pos ) pos = 1;
+    	int pos = fe->underlinePosition();
 	XFillRectangle( dpy, hd, gc, x1, baseline+pos, w, lw );
     }
     if ( fe->fontDef.overline ) {
-	int pos = fe->ascent();
+	int pos = fe->ascent()+1;
 	if ( !pos ) pos = 1;
 	XFillRectangle( dpy, hd, gc, x1, baseline-pos, w, lw );
     }
@@ -54,6 +39,25 @@ static void drawLines( Display *dpy, Qt::HANDLE hd, GC gc, QFontEngine *fe, int 
 
 QFontEngine::~QFontEngine()
 {
+}
+
+int QFontEngine::lineThickness() const
+{
+    // ad hoc algorithm
+    int score = fontDef.weight * fontDef.pixelSize;
+    int lw = score / 700;
+
+    // looks better with thicker line for small pointsizes
+    if ( lw < 2 && score >= 1050 ) lw = 2;
+    if ( lw == 0 ) lw = 1;
+
+    return lw;
+}
+
+int QFontEngine::underlinePosition() const
+{
+    int pos = ( ( lineThickness() * 2 ) + 3 ) / 6;
+    return pos ? pos : 1;
 }
 
 // ------------------------------------------------------------------
@@ -925,10 +929,32 @@ int QFontEngineXft::descent() const
     return (int)(_font->descent*_scale);
 }
 
+// #### use Freetype to determine this
 int QFontEngineXft::leading() const
 {
     int l = qRound( (_font->ascent + _font->descent) * 0.15 * _scale );
     return (l > 0) ? l : 1;
+}
+
+// #### use Freetype to determine this
+int QFontEngineXft::lineThickness() const
+{
+    // ad hoc algorithm
+    int score = fontDef.weight * fontDef.pixelSize;
+    int lw = score / 700;
+
+    // looks better with thicker line for small pointsizes
+    if ( lw < 2 && score >= 1050 ) lw = 2;
+    if ( lw == 0 ) lw = 1;
+
+    return lw;
+}
+
+// #### use Freetype to determine this
+int QFontEngineXft::underlinePosition() const
+{
+    int pos = ( ( lineThickness() * 2 ) + 3 ) / 6;
+    return pos ? pos : 1;
 }
 
 int QFontEngineXft::maxCharWidth() const

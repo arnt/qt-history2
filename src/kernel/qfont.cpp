@@ -2357,8 +2357,12 @@ QSize QFontMetrics::size( int flgs, const QString &str, int len, int tabstops,
 */
 int QFontMetrics::underlinePos() const
 {
-    int pos = ( ( lineWidth() * 2 ) + 3 ) / 6;
-    return pos ? pos : 1;
+    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
+    return engine->underlinePosition();
 }
 
 /*!
@@ -2393,12 +2397,12 @@ int QFontMetrics::strikeOutPos() const
 */
 int QFontMetrics::lineWidth() const
 {
-    if ( ! d->engineData )
-	d->load( (QFont::Script) fscript );
+    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
 #ifdef QT_CHECK_STATE
-    Q_ASSERT( d->engineData != 0 );
+    Q_ASSERT( engine != 0 );
 #endif // QT_CHECK_STATE
-    return d->engineData->lineWidth;
+
+    return engine->lineThickness();
 }
 
 

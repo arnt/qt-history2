@@ -67,6 +67,10 @@ public:
     virtual int ascent() const = 0;
     virtual int descent() const = 0;
     virtual int leading() const = 0;
+
+    virtual int lineThickness() const;
+    virtual int underlinePosition() const;
+
     virtual int maxCharWidth() const = 0;
     virtual int minLeftBearing() const { return 0; }
     virtual int minRightBearing() const { return 0; }
@@ -235,6 +239,8 @@ public:
     int ascent() const;
     int descent() const;
     int leading() const;
+    int lineThickness() const;
+    int underlinePosition() const;
     int maxCharWidth() const;
     int minLeftBearing() const;
     int minRightBearing() const;
@@ -369,6 +375,8 @@ public:
     int ascent() const { return (int)info->ascent; }
     int descent() const { return (int)info->descent; }
     int leading() const { return (int)info->leading; }
+    int lineThickness() const;
+    int underlinePosition() const;
 #if 0
     int maxCharWidth() const { return (int)info->maxAdvanceWidth; }
 #else
