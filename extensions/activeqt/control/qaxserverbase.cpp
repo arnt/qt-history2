@@ -35,6 +35,7 @@
 
 #include "qaxfactory.h"
 #include "qaxbindable.h"
+#include "qaxaggregated.h"
 
 #include "../shared/types.h"
 

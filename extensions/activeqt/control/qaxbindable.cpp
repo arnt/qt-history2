@@ -170,7 +170,7 @@ QAxAggregated *QAxBindable::createAggregate()
 */
 
 /*!
-    \class QAxAggregated qaxbindable.h
+    \class QAxAggregated qaxaggregated.h
     \brief The QAxAggregated class is an abstract base class for implementations of
     additional COM interfaces.
 \if defined(commercial)
@@ -194,13 +194,10 @@ QAxAggregated *QAxBindable::createAggregate()
 */
 
 /*!
-    \internal
+    \fn QAxAggregated::~QAxAggregated()
 
     The destructor is called by the QAxServerBase, which is a friend.
 */
-QAxAggregated::~QAxAggregated()
-{
-}
 
 /*!
     \fn long QAxAggregated::queryInterface(const QUuid &iid, void **iface)
