@@ -2,34 +2,28 @@
 #define QCLEANUPHANDLER_H
 
 #include <qlist.h>
+#include <qguardedptr.h>
 
 template<class Type>
 class QCleanUpHandler
 {
 public:
-    QCleanUpHandler()
-    {
-	qDebug( "New Cleanup handler %p", this );
-    }
     ~QCleanUpHandler()
     {
-	qDebug( "Running cleanup...  %p (%d)", this, cleanUpObjects.count() );
-	QListIterator<Type> it( cleanUpObjects );
+	QListIterator<QGuardedPtr<Type> > it( cleanUpObjects );
 	while ( it.current() ) {
-	    Type* object = it.current();
+	    QGuardedPtr<Type>* guard = it.current();
 	    ++it;
-	    qDebug( "\tDeleting object %p", object );
-	    delete object;
+	    delete *guard;
 	}
     }
 
     void addCleanUp( Type* object ) {
-	qDebug( "\tCleanup object %p added", object );
-	cleanUpObjects.insert( 0, object );
+	cleanUpObjects.insert( 0, new QGuardedPtr<Type>(object) );
     }
 
 protected:
-    QList<Type> cleanUpObjects;
+    QList<QGuardedPtr<Type> > cleanUpObjects;
 };
 
 #endif //QCLEANUPHANDLER_H
