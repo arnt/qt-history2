@@ -94,7 +94,11 @@ kernel {
 		  $$KERNEL_P/qrichtext_p.h \
 		  $$KERNEL_P/qinternal_p.h \
 		  $$KERNEL_H/qgplugin.h \
-		  $$KERNEL_H/qsimplerichtext.h
+		  $$KERNEL_H/qsimplerichtext.h \
+		  $$KERNEL_CPP/qscriptengine_p.h \
+		  $$KERNEL_CPP/qtextengine_p.h \
+		  $$KERNEL_CPP/qfontengine_p.h \
+		  $$KERNEL_CPP/qtextlayout.h
 
 	win32:SOURCES += $$KERNEL_CPP/qapplication_win.cpp \
 		  $$KERNEL_CPP/qclipboard_win.cpp \
@@ -159,7 +163,9 @@ kernel {
              DEFINES += QMAC_ONE_PIXEL_LOCK
         } else:unix {
 	   SOURCES += $$KERNEL_CPP/qprinter_unix.cpp \
-		      $$KERNEL_CPP/qeventloop_unix.cpp
+		      $$KERNEL_CPP/qeventloop_unix.cpp \
+		      $$KERNEL_CPP/qtextengine_x11.cpp \
+		      $$KERNEL_CPP/qfontengine_x11.cpp
         }
 	unix:SOURCES += $$KERNEL_CPP/qpsprinter.cpp \
 		    $$KERNEL_CPP/qprocess_unix.cpp \
@@ -234,7 +240,9 @@ kernel {
 		  $$KERNEL_CPP/qinternal.cpp \
 		  $$KERNEL_CPP/qrichtext_p.cpp \
 		  $$KERNEL_CPP/qgplugin.cpp \
-		  $$KERNEL_CPP/qsimplerichtext.cpp
+		  $$KERNEL_CPP/qsimplerichtext.cpp \
+		  $$KERNEL_CPP/qscriptengine.cpp \
+		  $$KERNEL_CPP/qtextlayout.cpp
 
 	unix:HEADERS   += $$KERNEL_P/qpsprinter_p.h \
 			  $$KERNEL_H/qfontdatabase.h
