@@ -1,17 +1,56 @@
-                                  TMAKE
+		      No more hassle with makefiles
 
-TMAKE is a tool for creating platform-independent makefiles. In brief,
-tmake reads a project file, combines it with a template and generates
-a makefile.
+tmake is an easy-to-use tool for creating and maintaining makefiles across
+many platforms and compilers. You should spend your time writing code, not
+makefiles.
 
-The .pro files in the Qt distribution are project files for TMAKE.
-To create a makefile from a .pro file, do the following:
+We wrote tmake because we spent too much time maintaining makefiles for
+Windows and Unix compilers. We looked for good solutions but found none.
+Therefore we made our own.
 
-	tmake tetrix.pro -o tetrix.mak
+Why use tmake?
+ * It lets you create makefiles in just seconds.
+ * It offers compiler and OS independence.
+ * It scans C++ files for Q_OBJECT and generates rules for
+   Qt moc processing.
 
-This assumes that the TMAKEPATH environment variable contains the
-directory where your compiler's template files are stored (for example
-c:\tmake\lib\win32-watcom).
+Basically, tmake reads a project file and fills in a template. The project
+file contains a list of all files in the project and typically looks like
+this:
 
-Get the latest version of TMAKE from ftp://ftp.troll.no/freebies/tmake/
-To run TMAKE, you need perl version 5 or later: http://www.activeware.com
+	TEMPLATE = app
+	HEADERS	 = hello.h
+	SOURCES	 = hello.cpp \
+		   main.cpp
+	TARGET	 = hello
+
+Before you can create a makefile, tmake must know the OS and compiler you
+want to create makefiles for. Set the TMAKEPATH environment variable, e.g.:
+
+	set TMAKEPATH=c:\tmake\lib\win32-msvc
+    or
+	TMAKEPATH=/local/tmake/lib/irix-n32
+
+The .pro files in the Qt distribution are tmake project files.  To create
+a makefile from a .pro file, do the following:
+
+	tmake hello.pro -o Makefile
+
+We've also added template files for creating a Microsoft Visual C++ IDE
+project. It's much easier to use tmake than to manually build a MSVC++
+project. To create a MSVC++ project file, specify an override template:
+
+	tmake -t vcapp hello.pro -o hello.dsp
+
+tmake is very flexible because it is based on perl and can therefore be
+customized in many different ways. Regular users never see the hairy perl
+stuff, but advanced users can hack tmake templates to make them fit their
+needs.
+
+tmake is free software and can be downloaded from:
+
+	ftp://ftp.troll.no/freebies/tmake/
+
+You will also need perl version 5 or later. Download perl for Win32 from
+
+	http://www.activestate.com
