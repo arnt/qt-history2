@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#8 $
 **
 ** Implementation of QColor class
 **
@@ -14,7 +14,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#8 $";
 #endif
 
 
@@ -175,7 +175,7 @@ QColor QColor::light( double factor ) const	// get light color
     getHSV( &h, &s, &v );
     v = (int)(factor*v);
     if ( v > 255 ) {				// overflow
-	s -= (int)(factor*100);			// adjust saturation
+	s -= (int)(factor*106);			// adjust saturation
 	if ( s < 0 )
 	    s = 0;
 	v = 255;
