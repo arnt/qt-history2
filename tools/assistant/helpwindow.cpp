@@ -17,6 +17,7 @@
 #include "config.h"
 
 #include <qapplication.h>
+#include <qclipboard.h>
 #include <qurl.h>
 #include <qmessagebox.h>
 #include <qdir.h>
@@ -145,7 +146,7 @@ void HelpWindow::setSource( const QString &name )
 	sect = name.left( i );
 
     setCharacterEncoding( sect );
-    setText("<body bgcolor=white>");
+    setText("<body bgcolor=\"" + paletteBackgroundColor().name() + "\">");
     QTextBrowser::setSource( name );
 }
 
@@ -275,3 +276,26 @@ void HelpWindow::keyPressEvent(QKeyEvent *e)
     shiftPressed = ( e->state() & ShiftButton );
     QTextBrowser::keyPressEvent(e);
 }
+
+void HelpWindow::copy()
+{
+    if (textFormat() == PlainText) {
+	QTextEdit::copy();
+    } else {
+	TextFormat oldTf = textFormat();
+	setTextFormat(PlainText);
+	QString selectText = selectedText();
+	selectText.replace("<br>", "\n");
+	selectText.replace("\xa0", " ");
+	selectText.replace("&gt;", ">");
+	selectText.replace("&lt;", "<");
+	selectText.replace("&amp;", "&");
+
+	QClipboard *cb = QApplication::clipboard();
+	if (cb->supportsSelection())
+	    cb->setText(selectText, QClipboard::Selection);
+	cb->setText(selectText, QClipboard::Clipboard);
+	setTextFormat(oldTf);
+    }
+}
+

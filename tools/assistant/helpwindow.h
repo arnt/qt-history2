@@ -38,6 +38,8 @@ public:
 signals:
     void chooseWebBrowser();
 
+public slots:
+    void copy();
 protected slots:
     void ensureCursorVisible();
 
