@@ -495,7 +495,7 @@ QRect QFontPrivate::boundingRect( const QChar &ch )
 	}
     }
     XCharStruct *cs = 0;
-    if ( fs->per_char ) {
+    if ( fs && fs->per_char ) {
 	unsigned short pos;
 	if ( qfs->codec )
 	    pos = qfs->codec->characterFromUnicode( QString( ch ), 0 );
