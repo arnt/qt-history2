@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#124 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#125 $
 **
 ** Implementation of QMenuBar class
 **
@@ -450,6 +450,14 @@ void QMenuBar::openActPopup()
 	pos = mapToGlobal( r.topLeft() );
 	pos.ry() -= (QCOORD)ph;
     }
+
+    if (popup->parentMenu != this ){
+	// reuse
+	if (popup->parentMenu)
+	    popup->parentMenu->menuDelPopup(popup);
+	menuInsPopup(popup);
+    }
+
     popup->popup( pos );
 }
 

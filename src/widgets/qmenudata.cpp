@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#68 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#69 $
 **
 ** Implementation of QMenuData class
 **
@@ -184,8 +184,13 @@ int QMenuData::insertAny( const QString &text, const QPixmap *pixmap,
 	index = mitems->count();
     if ( id < -1 )				// -2, -3 etc.
 	id = get_seq_id();
-    if ( popup && popup->parentMenu )		// popup already in use
-	return 0;
+    if ( popup && popup->parentMenu ){		// popup already in use
+#if defined(CHECK_STATE)
+	warning( "QMenuData::insertItem: "
+		 "popup already in use" );
+#endif
+  	return 0;
+    }
     register QMenuItem *mi = new QMenuItem;
     CHECK_PTR( mi );
     mi->ident = id == -1 ? index : id;

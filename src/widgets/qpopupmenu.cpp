@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#185 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#186 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -501,6 +501,11 @@ void QPopupMenu::frameChanged()
 
 void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 {
+    if (parentMenu && parentMenu->actItem == -1){ 
+	//reuse
+	parentMenu->menuDelPopup( this );
+	parentMenu = 0;
+    }
     // #### should move to QWidget - anything might need this functionality,
     // #### since anything can have WType_Popup window flag.
 
@@ -1552,6 +1557,14 @@ void QPopupMenu::subMenuTimer() {
     QPopupMenu *popup = mi->popup();
     if ( !popup || !popup->isEnabled() )
 	return;
+
+    if (popup->parentMenu != this ){
+	// reuse
+	if (popup->parentMenu)
+	    popup->parentMenu->menuDelPopup(popup);
+	menuInsPopup(popup);
+    }
+    
     emit popup->aboutToShow();
     supressAboutToShow = TRUE;
 
