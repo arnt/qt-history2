@@ -988,6 +988,7 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
 int main(int argc, char **argv)
 {
     extern bool qax_dispatchEqualsIDispatch;
+    qax_dispatchEqualsIDispatch = false;
 
     CoInitialize(0);
 
@@ -1029,8 +1030,8 @@ int main(int argc, char **argv)
                 } else if (arg == "donothing") {
                     category = DoNothing;
                     break;
-                } else if (arg == "no_compat") {
-                    qax_dispatchEqualsIDispatch = false;
+                } else if (arg == "compat") {
+                    qax_dispatchEqualsIDispatch = true;
                     break;
                 } else if (arg == "h") {
                     qWarning("dumpcpp Version1.0\n\n"
@@ -1046,6 +1047,7 @@ int main(int argc, char **argv)
                         "   -nometaobject Don't generate meta object information (no .cpp file)\n"
                         "   -impl Only generate the .cpp file\n"
                         "   -decl Only generate the .h file\n"
+                        "   -compat Treat all coclass parameters as IDispatch\n"
                         "\n"
                         "Examples:\n"
                         "   dumpcpp Outlook.Application -o outlook\n"
