@@ -107,7 +107,7 @@ for file in $OUTPWD/other.exp $OUTPWD/class.exp $DIR/global.exp; do
 	   if [ "$file" = "$OUTPWD/class.exp" ]; then
 	      OUTPUT="$match::* $match?virtual?table $match?type_info?node $match?type_info?function vtable?for?$match typeinfo?for?$match"
 	   else
-	      OUTPUT="$match"
+	      OUTPUT="$match*"
 	   fi
 	   for out in $OUTPUT; do
 	       if [ "$prev" = "1" ]; then
