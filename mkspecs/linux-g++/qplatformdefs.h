@@ -7,8 +7,8 @@
 
 // Set any POSIX/XOPEN defines at the top of this file to turn on specific APIs
 
-// specify POSIX thread interfaces explictly in glibc 2.0
-// some systems need this to include the X/Open stuff
+// 1) need to specify POSIX thread interfaces explicitly in glibc 2.0
+// 2) it seems older glibc need this to include the X/Open stuff
 #ifndef _GNU_SOURCE
 #  define _GNU_SOURCE
 #endif
@@ -81,12 +81,6 @@
 #define QT_SIGNAL_IGNORE	SIG_IGN
 
 #define QT_SOCKLEN_T	socklen_t
-
-inline int qt_socket_accept(int s, struct sockaddr *addr, QT_SOCKLEN_T *addrlen)
-{ return ::accept(s, addr, addrlen); }
-
-inline int qt_socket_listen(int s, int backlog)
-{ return ::listen(s, backlog); }
 
 
 #endif // QPLATFORMDEFS_H

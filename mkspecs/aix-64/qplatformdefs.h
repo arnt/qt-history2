@@ -78,14 +78,8 @@
 // The AIX 4.3 online documentation says 'size_t' but a user asked IBM
 // and they told him the documentation is wrong. Indeed 'size_t' is
 // obviously wrong for 64-bit programming. And anyway 'socklen_t'
-// is reportedly needed by most AIX 4.3 users.
+// reportedly works for all AIX 4.3 users.
 #define QT_SOCKLEN_T socklen_t
-
-inline int qt_socket_accept(int s, struct sockaddr *addr, QT_SOCKLEN_T *addrlen)
-{ return ::accept(s, addr, addrlen); }
-
-inline int qt_socket_listen(int s, int backlog)
-{ return ::listen(s, backlog); }
 
 
 #endif // QPLATFORMDEFS_H

@@ -74,14 +74,9 @@
 #define QT_SIGNAL_ARGS		int
 #define QT_SIGNAL_IGNORE	SIG_IGN
 
-// FreeBSD 4.0 and higher
+// FreeBSD 1.0 - 3.5.1	int
+// FreeBSD 4.0 - 5.0	socklen_t
 #define QT_SOCKLEN_T	socklen_t
-
-inline int qt_socket_accept(int s, struct sockaddr *addr, QT_SOCKLEN_T *addrlen)
-{ return ::accept(s, addr, addrlen); }
-
-inline int qt_socket_listen(int s, int backlog)
-{ return ::listen(s, backlog); }
 
 
 #endif // QPLATFORMDEFS_H

@@ -79,17 +79,11 @@
 #define QT_SIGNAL_ARGS		int
 #define QT_SIGNAL_IGNORE	SIG_IGN
 
-// on Reliant 5.45 and if __LP64__ is defined:
+// on Reliant 5.45 and if __LP64__ *is* defined:
 // - socket functions use 'int'
 // - if _SOCKLEN_T is defined 'socklen_t' is typedef'ed to 'unsigned int'
-//   which seems wrong so let's always use 'int' instead!
+//   which seems to be wrong so let's always use 'int' instead!
 #define QT_SOCKLEN_T int
-
-inline int qt_socket_accept(int s, struct sockaddr *addr, QT_SOCKLEN_T *addrlen)
-{ return ::accept(s, addr, addrlen); }
-
-inline int qt_socket_listen(int s, int backlog)
-{ return ::listen(s, backlog); }
 
 
 #endif // QPLATFORMDEFS_H

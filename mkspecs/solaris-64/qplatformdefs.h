@@ -96,11 +96,5 @@ extern "C" int usleep(useconds_t);
 // On 64-bit platforms (Solaris 7 and better) sockets use socklen_t.
 #define QT_SOCKLEN_T socklen_t
 
-inline int qt_socket_accept(int s, struct sockaddr *addr, QT_SOCKLEN_T *addrlen)
-{ return ::accept(s, addr, addrlen); }
-
-inline int qt_socket_listen(int s, int backlog)
-{ return ::listen(s, backlog); }
-
 
 #endif // QPLATFORMDEFS_H

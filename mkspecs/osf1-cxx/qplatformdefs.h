@@ -88,15 +88,5 @@ extern "C" int usleep(useconds_t);
 #  define QT_SOCKLEN_T int
 #endif
 
-inline int qt_socket_accept(int s, struct sockaddr *addr, QT_SOCKLEN_T *addrlen)
-{ return ::accept(s, addr, addrlen); }
-
-inline int qt_socket_listen(int s, int backlog)
-{ return ::listen(s, backlog); }
-
-#if defined(accept)
-#  undef accept
-#endif
-
 #endif // QPLATFORMDEFS_H
 

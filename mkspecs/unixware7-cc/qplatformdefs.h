@@ -81,11 +81,5 @@
 
 #define QT_SOCKLEN_T	size_t
 
-inline int qt_socket_accept(int s, struct sockaddr *addr, QT_SOCKLEN_T *addrlen)
-{ return ::accept(s, addr, addrlen); }
-
-inline int qt_socket_listen(int s, int backlog)
-{ return ::_listen(s, backlog); }
-
 
 #endif // QPLATFORMDEFS_H

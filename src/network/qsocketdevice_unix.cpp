@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#49 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#50 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -44,6 +44,21 @@
 #include "qplatformdefs.h"
 #include "qsocketdevice.h"
 #include "qwindowdefs.h"
+
+// Tru64 redefines accept() to _accept() when _XOPEN_SOURCE_EXTENDED is
+// defined.  This breaks our sources.
+inline int qt_socket_accept(int s, struct sockaddr *addr, QT_SOCKLEN_T *addrlen)
+{ return ::accept(s, addr, addrlen); }
+#if defined(accept)
+#  undef accept
+#endif
+
+// UnixWare 7 redefines listen() to _listen().  This breaks our sources.
+inline int qt_socket_listen(int s, int backlog)
+{ return ::listen(s, backlog); }
+#if defined(listen)
+#  undef listen
+#endif
 
 //#define QSOCKETDEVICE_DEBUG
 
@@ -424,7 +439,6 @@ bool QSocketDevice::listen( int backlog )
 {
     if ( !isValid() )
 	return FALSE;
-    // qt_socket_listen is defined in qplatformdefs.h
     if ( qt_socket_listen( fd, backlog ) >= 0 )
 	return TRUE;
     if ( !e )
@@ -446,7 +460,6 @@ int QSocketDevice::accept()
 	return FALSE;
     struct sockaddr aa;
     QT_SOCKLEN_T l = sizeof(struct sockaddr);
-    // qt_socket_accept is defined in qplatformdefs.h
     int s = qt_socket_accept( fd, (struct sockaddr*)&aa, &l );
     // we'll blithely throw away the stuff accept() wrote to aa
     if ( s < 0 && e == NoError ) {

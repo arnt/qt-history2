@@ -79,20 +79,15 @@
 #define QT_SIGNAL_ARGS		int
 #define QT_SIGNAL_IGNORE	SIG_IGN
 
-// on Reliant 5.45 and if __LP64__ is not defined:
+// on Reliant 5.45 and if __LP64__ is *not* defined:
 // - socket functions use 'size_t'
 // - if _SOCKLEN_T is defined 'socklen_t' is typedef'ed to 'size_t'
+// note that 'size_t' would always be a good choice in this context
 #if defined(_SOCKLEN_T)
 #  define QT_SOCKLEN_T socklen_t
 #else
 #  define QT_SOCKLEN_T size_t
 #endif
-
-inline int qt_socket_accept(int s, struct sockaddr *addr, QT_SOCKLEN_T *addrlen)
-{ return ::accept(s, addr, addrlen); }
-
-inline int qt_socket_listen(int s, int backlog)
-{ return ::listen(s, backlog); }
 
 
 #endif // QPLATFORMDEFS_H
