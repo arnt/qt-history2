@@ -98,7 +98,7 @@ bool qax_startServer(QAxFactory::ServerType type)
 {
     if (qAxIsServer)
 	return TRUE;
-	    
+
     HRESULT hRes = CoInitialize(0);
 
     const QStringList keys = qAxFactory()->featureList();
@@ -117,7 +117,7 @@ bool qax_startServer(QAxFactory::ServerType type)
 	// Create a QClassFactory (implemented in qaxserverbase.cpp)
 	HRESULT hRes = GetClassObject( clsid, IID_IClassFactory, (void**)&p );
 	if ( SUCCEEDED(hRes) )
-	    hRes = CoRegisterClassObject( clsid, p, CLSCTX_LOCAL_SERVER, 
+	    hRes = CoRegisterClassObject( clsid, p, CLSCTX_LOCAL_SERVER,
 					  type == QAxFactory::MultipleInstances ? REGCLS_MULTIPLEUSE : REGCLS_SINGLEUSE,
 					  classRegistration+object );
 	if ( p )
@@ -144,7 +144,7 @@ bool qax_stopServer()
     int object = 0;
     for ( QStringList::ConstIterator key = keys.begin(); key != keys.end(); ++key, ++object )
 	CoRevokeClassObject( classRegistration[object] );
-    
+
     delete []classRegistration;
     classRegistration = 0;
 
@@ -168,7 +168,7 @@ EXTERN_C int main( int, char ** );
 #endif
 #endif
 
-EXTERN_C int WINAPI WinMain(HINSTANCE hInstance, 
+EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
     HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
     GetModuleFileNameA( 0, qAxModuleFilename, MAX_PATH-1 );
@@ -249,7 +249,8 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
     if (run) {
 	int argc;
 	char* cmdp = 0;
-	cmdp = new char[ cmdLine.length() + 1 ];
+	// Use malloc/free for eval package compability
+	cmdp = (char*) malloc( (cmdLine.length() + 1) * sizeof(char) );
 	qstrcpy( cmdp, cmdLine.latin1() );
 
 	QMemArray<pchar> argv( 8 );
@@ -261,14 +262,14 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
 	QAxFactory::stopServer();
 	qAxCleanup();
 
-	delete[] cmdp;
+	free( cmdp );
     }
 
     return nRet;
 }
 
 
-// until such time as mingw runtime calls winmain instead of main 
+// until such time as mingw runtime calls winmain instead of main
 // in a GUI app we need this.
 #if defined(Q_OS_WIN32) && defined(Q_CC_GNU)
 #include <qtcrtentrypoint.cpp>

@@ -101,7 +101,7 @@ static void axTakeServer( HWND hWnd )
 
     \internal
 */
-class QAxServerBase : 
+class QAxServerBase :
     public QObject,
     public IAxServerBase,
     public IDispatch,
@@ -418,7 +418,7 @@ public:
     HRESULT WINAPI QueryInterface( REFIID iid, void **iface )
     {
 	*iface = 0;
-	
+
 	HRESULT res = E_NOINTERFACE;
 	if ( iid == IID_IUnknown ) {
 	    *iface = (IUnknown*)this;
@@ -478,7 +478,7 @@ public:
 	DeleteCriticalSection( &refCountSection );
     }
 
-    unsigned long __stdcall AddRef() 
+    unsigned long __stdcall AddRef()
     {
 	EnterCriticalSection( &refCountSection );
 	unsigned long r = ++ref;
@@ -592,7 +592,7 @@ public:
 	DeleteCriticalSection( &refCountSection );
     }
 
-    unsigned long __stdcall AddRef() 
+    unsigned long __stdcall AddRef()
     {
 	EnterCriticalSection( &refCountSection );
 	unsigned long r = ++ref;
@@ -858,7 +858,7 @@ public:
 	else
 	    qAxUnlock();
 
-	return S_OK;	
+	return S_OK;
     }
 
     // IClassFactory2
@@ -1247,7 +1247,7 @@ class HackMenuData : public QMenuData
 };
 
 /*
-    Message handler. \a hWnd is always the ActiveX widget hosting the Qt widget. 
+    Message handler. \a hWnd is always the ActiveX widget hosting the Qt widget.
     \a uMsg is handled as follows
     \list
     \i WM_CREATE The ActiveX control is created
@@ -1502,7 +1502,7 @@ HWND QAxServerBase::create(HWND hWndParent, RECT& rcPos )
     LeaveCriticalSection( &createWindowSection );
     if ( !atom  && GetLastError() != ERROR_CLASS_ALREADY_EXISTS )
 	return 0;
-    
+
     Q_ASSERT( !m_hWnd );
 
     HWND hWnd = 0;
@@ -1709,7 +1709,7 @@ void QAxServerBase::readMetaData()
 				    eventinfo = eventtype;
 
 				eventtype->ReleaseTypeAttr( eventattr );
-				if ( eventtype != eventinfo ) 
+				if ( eventtype != eventinfo )
 				    eventtype->Release();
 			    }
 			}
@@ -1819,7 +1819,7 @@ void QAxServerBase::updateGeometry()
 
 /*!
     \internal
-    
+
     Updates the mask of the widget parent.
 */
 void QAxServerBase::updateMask()
@@ -1985,7 +1985,10 @@ bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
 		dispParams.cArgs = signalcount;
 		dispParams.cNamedArgs = 0;
 		dispParams.rgdispidNamedArgs = 0;
-		dispParams.rgvarg = signalcount ? new VARIANTARG[signalcount] : 0;
+		// Use malloc/free for eval package compability
+		dispParams.rgvarg = signalcount
+				    ? (VARIANTARG*) malloc( signalcount * sizeof(VARIANTARG) )
+				    : 0;
 		int p;
 		for ( p = 0; p < signalcount; ++p ) {
 		    QUObject *obj = _o + p + 1;
@@ -2029,7 +2032,7 @@ bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
 		// clean up
 		for ( p = 0; p < signalcount; ++p )
 		    clearVARIANT( dispParams.rgvarg+p );
-		delete [] dispParams.rgvarg;
+		free( dispParams.rgvarg );
 	    }
 	    clist->Release();
 	}
@@ -2145,7 +2148,7 @@ HRESULT WINAPI QAxServerBase::GetClassInfo(ITypeInfo** pptinfo)
 {
     if ( !pptinfo )
 	return E_POINTER;
-    
+
     *pptinfo = 0;
     if ( !qAxTypeLibrary )
 	return DISP_E_BADINDEX;
@@ -2300,7 +2303,7 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 	    bool ok = TRUE;
 	    QUObject *objects = 0;
 	    if ( pcount ) {
-		objects = new QUObject[pcount+1];
+		objects = (QUObject*) malloc( (pcount+1) * sizeof(QUObject) );
 		for ( int p = 0; p < pcount; ++p ) {
 		    // map the VARIANT to the QUObject, and try to get the required type
 		    objects[p+1].payload.ptr = 0;
@@ -2311,7 +2314,7 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		    }
 		}
 	    } else if ( retoff ) {
-		objects = new QUObject[1];
+		objects = (QUObject*) malloc( sizeof(QUObject) );
 	    }
 	    if ( objects )
 		objects[0].payload.ptr = 0;
@@ -2336,7 +2339,7 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		}
 	    }
 
-	    delete [] objects;
+	    free( objects );
 	    res = ok ? S_OK : DISP_E_TYPEMISMATCH;
 	}
 	break;
@@ -2366,7 +2369,7 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		    *puArgErr = 0;
 		return DISP_E_TYPEMISMATCH;
 	    }
-	    
+
 	    res = S_OK;
 
 	    if ( m_spAdviseSink )
@@ -2510,7 +2513,7 @@ HRESULT WINAPI QAxServerBase::Save( IStream *pStm, BOOL clearDirty )
     qtbuffer.open( IO_WriteOnly | IO_Translate );
     QDataStream qtstream( &qtbuffer );
     qtstream << qtstream.version();
-    
+
     readMetaData();
 
     const QMetaObject *mo = qt.object->metaObject();
@@ -2536,7 +2539,7 @@ HRESULT WINAPI QAxServerBase::Save( IStream *pStm, BOOL clearDirty )
     pStm->SetSize( newsize );
     pStm->Write( data, qtarray.size(), &written );
     pStm->Commit( STGC_ONLYIFCURRENT );
-    
+
     return S_OK;
 }
 
@@ -2664,7 +2667,7 @@ HRESULT WINAPI QAxServerBase::Load( IPropertyBag *bag, IErrorLog * /*log*/ )
 	}
 	SysFreeString(bstr);
     }
-    
+
     updateGeometry();
 
     return /*error ? E_FAIL :*/ S_OK;
@@ -3728,7 +3731,7 @@ HRESULT WINAPI QAxServerBase::GetData(FORMATETC *pformatetcIn, STGMEDIUM *pmediu
 /*
     Not implemented.
 */
-HRESULT WINAPI QAxServerBase::DAdvise(FORMATETC * /*pformatetc*/, DWORD /*advf*/, 
+HRESULT WINAPI QAxServerBase::DAdvise(FORMATETC * /*pformatetc*/, DWORD /*advf*/,
 				      IAdviseSink * /*pAdvSink*/, DWORD * /*pdwConnection*/)
 {
     return E_NOTIMPL;

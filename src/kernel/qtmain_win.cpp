@@ -49,7 +49,7 @@ extern "C" int main( int, char ** );
 */
 
 #ifdef Q_OS_TEMP
-int WINAPI WinMain( HINSTANCE instance, HINSTANCE prevInstance, 
+int WINAPI WinMain( HINSTANCE instance, HINSTANCE prevInstance,
 			  LPWSTR wCmdParam, int cmdShow )
 #else
 extern "C"
@@ -64,7 +64,8 @@ int APIENTRY WinMain( HINSTANCE instance, HINSTANCE prevInstance,
     int argc = 0;
     char* cmdp = 0;
     if ( cmdParam ) {
-	cmdp = new char[ qstrlen( cmdParam ) + 1 ];
+	// Use malloc/free for eval package compability
+	cmdp = (char*) malloc( (qstrlen( cmdParam ) + 1) * sizeof(char) );
 	qstrcpy( cmdp, cmdParam );
     }
     QVector<pchar> argv( 8 );
@@ -84,9 +85,9 @@ int APIENTRY WinMain( HINSTANCE instance, HINSTANCE prevInstance,
 	// The app is already running, so we use the unique
 	// ID to create a unique messageNo, which is used
 	// as the registered class name for the windows
-	// created. Set the first instance's window to the 
+	// created. Set the first instance's window to the
 	// foreground, else just terminate.
-	UINT msgNo = RegisterWindowMessage( uid.ucs2() ); 
+	UINT msgNo = RegisterWindowMessage( uid.ucs2() );
 	HWND aHwnd = FindWindow( QString::number(msgNo).ucs2(), 0 );
 	if ( aHwnd )
 	    SetForegroundWindow( aHwnd );
@@ -95,12 +96,12 @@ int APIENTRY WinMain( HINSTANCE instance, HINSTANCE prevInstance,
 #endif // Q_OS_TEMP
 
     int result = main( argc, argv.data() );
-    if ( cmdp ) delete [] cmdp;
+    if ( cmdp ) free( cmdp );
     return result;
 }
 
 
-// untill such time as mingw runtime calls winmain instead of main 
+// untill such time as mingw runtime calls winmain instead of main
 // in a GUI app we need this.
 #if defined(Q_OS_WIN32) && defined(Q_CC_GNU)
 #include <qtcrtentrypoint.cpp>
