@@ -646,7 +646,8 @@ void QCursor::update() const
 					32, 32 );
 	d->pmm = XCreateBitmapFromData( dpy, rootwin, (char *)cursor_bits32[i+1],
 					32, 32);
-	int hs = d->cshape != PointingHandCursor? 16 : 0;
+	int hs = ( d->cshape == PointingHandCursor ||
+		   d->cshape == WhatsThisCursor ) ? 0 : 16;
 	d->hcurs = XCreatePixmapCursor( dpy, d->pm, d->pmm, &fg, &bg, hs, hs );
 	return;
     }
