@@ -165,18 +165,11 @@
         <receiver>MultiLineEditorBase</receiver>
         <slot>cancelClicked()</slot>
     </connection>
-    <connection>
-        <sender>helpButton</sender>
-        <signal>clicked()</signal>
-        <receiver>MultiLineEditorBase</receiver>
-        <slot>helpClicked()</slot>
-    </connection>
 </connections>
 <slots>
     <slot>applyClicked()</slot>
     <slot>okClicked()</slot>
     <slot>cancelClicked()</slot>
-    <slot>helpClicked()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
