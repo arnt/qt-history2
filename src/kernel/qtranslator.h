@@ -71,7 +71,7 @@ public:
 
     enum Prefix { NoPrefix, Hash, HashContext, HashContextSourceText,
 		  HashContextSourceTextComment };
-    void write( QDataStream & s, bool strip,
+    void write( QDataStream & s, bool strip = FALSE,
 		Prefix prefix = HashContextSourceTextComment ) const;
     Prefix commonPrefix( const QTranslatorMessage& ) const;
 
