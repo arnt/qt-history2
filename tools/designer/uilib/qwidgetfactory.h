@@ -41,7 +41,7 @@ class QWidgetFactory
 {
 public:
     QWidgetFactory();
-    virtual ~QWidgetFactory() {}
+    virtual ~QWidgetFactory();
 
     static QWidget *create( const QString &uiFile, QObject *connector = 0, QWidget *parent = 0, const char *name = 0 );
     static QWidget *create( QIODevice *dev, QObject *connector = 0, QWidget *parent = 0, const char *name = 0 );

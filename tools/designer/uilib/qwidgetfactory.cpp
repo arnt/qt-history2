@@ -151,6 +151,17 @@ QWidgetFactory::QWidgetFactory()
 /*! \fn QWidgetFactory::~QWidgetFactory()
     Destructor.
 */
+QWidgetFactory::~QWidgetFactory()
+{
+    delete widgetInterfaceManager;
+    widgetInterfaceManager = 0;
+    delete languageInterfaceManager;
+    languageInterfaceManager = 0;
+    delete interpreterInterfaceManager;
+    interpreterInterfaceManager = 0;
+    delete eventInterfaceManager;
+    eventInterfaceManager = 0;
+}
 
 /*!
 
