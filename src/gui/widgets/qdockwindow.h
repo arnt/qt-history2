@@ -8,6 +8,7 @@ class QDockWindowPrivate;
 
 class Q_GUI_EXPORT QDockWindow : public QFrame
 {
+    Q_DECLARE_PRIVATE(QDockWindow)
     Q_OBJECT
 
     Q_PROPERTY(bool closable READ isClosable WRITE setClosable)
@@ -15,8 +16,6 @@ class Q_GUI_EXPORT QDockWindow : public QFrame
     Q_PROPERTY(bool floatable READ isFloatable WRITE setFloatable)
     Q_PROPERTY(Qt::DockWindowAreaFlags allowedAreas READ allowedAreas WRITE setAllowedAreas)
     Q_PROPERTY(Qt::DockWindowArea area READ area WRITE setArea)
-
-    Q_DECLARE_PRIVATE(QDockWindow)
 
 public:
     QDockWindow(QMainWindow *parent, Qt::WFlags flags = 0);
