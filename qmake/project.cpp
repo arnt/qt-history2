@@ -250,7 +250,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 	}
     }
     if(var == "REQUIRES") /* special case to get communicated to backends! */
-	doProjectCheckReqs(vallist);
+	doProjectCheckReqs(vallist, place);
 
     return TRUE;
 }
@@ -529,25 +529,39 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 }
 
 void
-QMakeProject::doProjectCheckReqs(const QStringList &deps)
+QMakeProject::doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringList> &place)
 {
-    QStringList &configs = vars["CONFIG"];
     for(QStringList::ConstIterator it = deps.begin(); it != deps.end(); ++it) {
-	if((*it).isEmpty())
+	QString chk = (*it);
+	if(chk.isEmpty())
 	    continue;
-
-	QString dep = (*it);
-	bool invert_test = (dep.left(1) == "!");
+	bool invert_test = (chk.left(1) == "!");
 	if(invert_test)
-	    dep = dep.right(dep.length() - 1);
+	    chk = chk.right(chk.length() - 1);
 
-	bool test = (configs.findIndex(dep) != -1);
+	bool test;
+	int lparen = chk.find('(');
+	if(lparen != -1) { /* if there is an lparen in the chk, it IS a function */
+	    int rparen = chk.findRev(')');
+	    if(rparen == -1) {
+		QCString error;
+		error.sprintf("%s: Function (in REQUIRES) missing right paren: %s", 
+			      projectFile().latin1(), chk.latin1());
+		yyerror(error);
+	    } else {
+		QString func = chk.left(lparen);
+		QStringList args = QStringList::split(',', chk.mid(lparen+1, rparen - lparen - 1));
+		for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit)
+		    (*arit) = (*arit).stripWhiteSpace(); /* blah, get rid of space */
+		test = doProjectTest(func, args, place);
+	    }
+	} else {
+	    test = isActiveConfig(chk);
+	}
 	if(invert_test)
 	    test = !test;
-	if(!test) {
-	    vars["QMAKE_FAILED_REQUIREMENTS"].append(dep);
-	    return;
-	}
+	if(!test)
+	    place["QMAKE_FAILED_REQUIREMENTS"].append(chk);
     }
 }
 

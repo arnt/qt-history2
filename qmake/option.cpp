@@ -281,7 +281,7 @@ bool Option::postProcessProject(QMakeProject *project)
 	Option::lex_mod = project->first("QMAKE_MOD_LEX");
     if(!project->isEmpty("QMAKE_MOD_YACC"))
 	Option::yacc_mod = project->first("QMAKE_MOD_YACC");
-    if(!project->isEmpty("QMAKE_DIR_SEP_"))
+    if(!project->isEmpty("QMAKE_DIR_SEP"))
 	Option::dir_sep = project->first("QMAKE_DIR_SEP");
     return TRUE;
 }
