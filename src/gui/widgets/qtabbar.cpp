@@ -774,4 +774,17 @@ void QTabBar::changeEvent(QEvent *e)
 }
 
 
+/*!
+    \fn void QTabBar::setCurrentTab(int index)
+
+    Use setCurrentIndex() instead.
+*/
+
+/*!
+    \fn void QTabBar::selected(int index);
+
+    Use currentChanged() instead.
+*/
+
+
 #include "moc_qtabbar.cpp"

@@ -1000,6 +1000,30 @@ void QTabWidget::paintEvent(QPaintEvent *)
 ###
 */
 
+/*!
+    \fn void QTabWidget::setCurrentPage(int index)
+
+    Use setCurrentIndex() instead.
+*/
+
+/*!
+    \fn void QTabWidget::showPage(QWidget *widget)
+
+    Use setCurrentIndex(indexOf(widget)) instead.
+*/
+
+/*!
+    \fn void QTabWidget::removePage(QWidget *widget)
+
+    Use removeTab(indexOf(widget)) instead.
+*/
+
+/*!
+    \fn void QTabWidget::currentChanged(QWidget *widget)
+
+    Use currentChanged(int) instead.
+*/
+
 
 #include "moc_qtabwidget.cpp"
 #endif

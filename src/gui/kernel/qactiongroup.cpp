@@ -374,5 +374,12 @@ void QActionGroup::childEvent(QChildEvent* e)
     \endcode
 */
 
+/*!
+    \fn void QActionGroup::selected(QAction *action);
+
+    Use triggered() instead.
+
+*/
+
 
 #include "moc_qactiongroup.cpp"

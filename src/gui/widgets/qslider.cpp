@@ -443,4 +443,17 @@ int QSlider::tickInterval() const
 }
 
 
+/*!
+    \fn void QSlider::addStep()
+
+    Use setValue() instead.
+*/
+
+/*!
+    \fn void QSlider::subtractStep()
+
+    Use setValue() instead.
+*/
+
+
 #endif

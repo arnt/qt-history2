@@ -2622,8 +2622,8 @@ void qt_draw_tile(QPaintEngine *gc, int x, int y, int w, int h,
 
 
 /*!
-  \fn void QPainter::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &, int sx=0, int sy=0,
-                                     Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
+  \fn void QPainter::drawTiledPixmap(int x, int y, int w, int h, const
+  QPixmap &pixmap, int sx, int sy, Qt::PixmapDrawingMode mode);
 
     Draws a tiled \a pixmap in the specified rectangle.
 
@@ -2642,11 +2642,10 @@ void qt_draw_tile(QPaintEngine *gc, int x, int y, int w, int h,
 */
 
 /*!
-    \fn void QPainter::drawTiledPixmap(const QRect &r, const QPixmap &pm, const QPoint &sp)
     \overload
 
-    Draws a tiled pixmap, \a pm, inside rectangle \a r with its origin
-    at point \a sp.
+    Draws a tiled \a pixmap, inside rectangle \a r with its origin
+    at point \a sp, using the given drawing \a mode.
 */
 void QPainter::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &sp, Qt::PixmapDrawingMode mode)
 {
@@ -2703,7 +2702,7 @@ void QPainter::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoi
     Replays the picture \a picture at point \a p.
 
     This function does exactly the same as QPicture::play() when
-    called with (\a x, \a y) = (0, 0).
+    called with \a p = QPoint(0, 0).
 */
 
 void QPainter::drawPicture(const QPoint &p, const QPicture &picture)

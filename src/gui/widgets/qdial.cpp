@@ -684,4 +684,24 @@ QSize QDial::sizeHint() const
 {
     return QSize(100, 100).expandedTo(QApplication::globalStrut());
 }
+
+/*!
+    \fn void QDial::dialPressed();
+
+    Use QAbstractSlider::sliderPressed() instead.
+*/
+
+/*!
+    \fn void QDial::dialMoved(int value);
+
+    Use QAbstractSlider::sliderMoved() instead.
+*/
+
+/*!
+    \fn void QDial::dialReleased();
+
+    Use QAbstractSlider::sliderReleased() instead.
+*/
+
+
 #endif // QT_FEATURE_DIAL

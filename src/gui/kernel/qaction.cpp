@@ -908,6 +908,18 @@ void QAction::activate(ActionEvent event)
     Use shortcut() instead.
 */
 
+/*!
+    \fn void QAction::toggled(bool b);
+
+    Use checked() instead.
+*/
+
+/*!
+    \fn void QAction::activated(int i);
+
+    Use triggered() instead.
+*/
+
 
 #include "moc_qaction.cpp"
 

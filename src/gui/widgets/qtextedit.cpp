@@ -2453,4 +2453,47 @@ void QTextEdit::ensureCursorVisible()
     Use textColor() instead.
 */
 
+/*!
+    \fn void QTextEdit::textChanged();
+
+###
+*/
+
+/*!
+    \fn void QTextEdit::undoAvailable(bool b);
+
+###
+*/
+
+/*!
+    \fn void QTextEdit::redoAvailable(bool b);
+
+###
+*/
+
+/*!
+    \fn void QTextEdit::currentFontChanged(const QFont &font);
+
+    Use currentCharFormatChanged() instead.
+*/
+
+/*!
+    \fn void QTextEdit::currentColorChanged(const QColor &color);
+
+    Use currentCharFormatChanged() instead.
+*/
+
+/*!
+    \fn void QTextEdit::setModified(bool m)
+
+    Use document->setModified() instead.
+*/
+
+/*!
+    \fn void QTextEdit::setColor(const QColor &color)
+
+    Use setTextColor() instead.
+*/
+
+
 #include "moc_qtextedit.cpp"

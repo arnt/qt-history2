@@ -1538,4 +1538,17 @@ int QMenuBar::findIdForAction(QAction *act) const
 ###
 */
 
+/*!
+    \fn void QMenuBar::activated(int itemId);
+
+    Use triggered() instead.
+*/
+
+/*!
+    \fn void QMenuBar::highlighted(int itemId);
+
+    Use hovered() instead.
+*/
+
+
 #include <moc_qmenubar.cpp>

@@ -2282,4 +2282,23 @@ int QMenu::findIdForAction(QAction *act) const
 ###
 */
 
+/*!
+    \fn void QMenu::aboutToHide();
+
+    Invert the logic and use aboutToShow() instead.
+*/
+
+/*!
+    \fn void QMenu::activated(int itemId);
+
+    Use triggered() instead.
+*/
+
+/*!
+    \fn void QMenu::highlighted(int itemId);
+
+    Use hovered() instead.
+*/
+
+
 #include "moc_qmenu.cpp"
