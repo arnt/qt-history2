@@ -483,15 +483,19 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 	rect = *p[0].rect;
 	if ( rect.width() == rect.height() ) {
 	    e = doc.createElement( "circle" );
-	    e.setAttribute( "cx", rect.center().x() );
-	    e.setAttribute( "cy", rect.center().y() );
-	    e.setAttribute( "r", rect.width() / 2 );
+	    double cx = rect.x() + (rect.width() / 2.0);
+	    double cy = rect.y() + (rect.height() / 2.0);
+	    e.setAttribute( "cx", cx );
+	    e.setAttribute( "cy", cy );
+	    e.setAttribute( "r", cx - rect.x() );
 	} else {
 	    e = doc.createElement( "ellipse" );
-	    e.setAttribute( "cx", rect.center().x() );
-	    e.setAttribute( "cy", rect.center().y() );
-	    e.setAttribute( "rx", rect.width() / 2 );
-	    e.setAttribute( "ry", rect.height() / 2 );
+    	    double cx = rect.x() + (rect.width() / 2.0);
+	    double cy = rect.y() + (rect.height() / 2.0);
+	    e.setAttribute( "cx", cx );
+	    e.setAttribute( "cy", cy );
+	    e.setAttribute( "rx", cx - rect.x() );
+	    e.setAttribute( "ry", cy - rect.y() );
 	}
 	break;
     case PdcDrawArc:
@@ -749,6 +753,7 @@ bool QSvgDevice::play( const QDomNode &node )
 	}
 
 	int x1, y1, x2, y2, rx, ry, w, h;
+	double cx1, cy1, crx, cry;
 	switch ( t ) {
 	case CommentElement:
 	    // ignore
@@ -776,17 +781,17 @@ bool QSvgDevice::play( const QDomNode &node )
 	    pt->drawRoundRect( x1, y1, w, h, rx, ry );
 	    break;
 	case CircleElement:
-	    x1 = lenToInt( attr, "cx" );
-	    y1 = lenToInt( attr, "cy" );
-	    rx = lenToInt( attr, "r" );
-	    pt->drawEllipse( x1-rx, y1-rx, 2*rx, 2*rx );
+	    cx1 = lenToDouble( attr, "cx" ) + 0.5;
+	    cy1 = lenToDouble( attr, "cy" ) + 0.5;
+	    crx = lenToDouble( attr, "r" );
+	    pt->drawEllipse( cx1-crx, cy1-crx, 2*crx, 2*crx );
 	    break;
 	case EllipseElement:
-	    x1 = lenToInt( attr, "cx" );
-	    y1 = lenToInt( attr, "cy" );
-	    rx = lenToInt( attr, "rx" );
-	    ry = lenToInt( attr, "ry" );
-	    pt->drawEllipse( x1-rx, y1-ry, 2*rx, 2*ry );
+	    cx1 = lenToDouble( attr, "cx" ) + 0.5;
+	    cy1 = lenToDouble( attr, "cy" ) + 0.5;
+	    crx = lenToDouble( attr, "rx" );
+	    cry = lenToDouble( attr, "ry" );
+	    pt->drawEllipse( cx1-crx, cy1-cry, 2*crx, 2*cry );
 	    break;
 	case LineElement:
 	    x1 = lenToInt( attr, "x1" );
@@ -1042,6 +1047,18 @@ int QSvgDevice::lenToInt( const QDomNamedNodeMap &map, const QString &attr,
 	double dbl = parseLen( map.namedItem( attr ).nodeValue(), &ok );
 	if ( ok )
 	    return qRound( dbl );
+    }
+    return def;
+}
+
+double QSvgDevice::lenToDouble( const QDomNamedNodeMap &map, const QString &attr,
+				int def ) const
+{
+    if ( map.contains( attr ) ) {
+	bool ok;
+	double d = parseLen( map.namedItem( attr ).nodeValue(), &ok );
+	if ( ok )
+	    return d;
     }
     return def;
 }
@@ -1403,15 +1420,15 @@ void QSvgDevice::applyTransform( QDomElement *e ) const
 
     QString s;
     bool rot = ( m.m11() != 1.0 || m.m12() != 0.0 ||
-		 m.m21() != 0.0 && m.m22() != 1.0 );
+		 m.m21() != 0.0 || m.m22() != 1.0 );
     if ( !rot && ( m.dx() != 0.0 || m.dy() != 0.0 ) )
-	s = QString( "translate(%1 %2)" ).arg( m.dx() ).arg( m.dy() );
+	s = QString( "translate(%1,%2)" ).arg( m.dx() ).arg( m.dy() );
     else if ( rot ) {
 	if ( m.m12() == 0.0 && m.m21() == 0.0 &&
 	     m.dx() == 0.0 && m.dy() == 0 )
-	    s = QString( "scale(%1 %2)" ).arg( m.m11() ).arg( m.m22() );
+	    s = QString( "scale(%1,%2)" ).arg( m.m11() ).arg( m.m22() );
 	else
-	    s = QString( "matrix(%1 %2 %3 %4 %5 %6)" )
+	    s = QString( "matrix(%1,%2,%3,%4,%5,%6)" )
 		.arg( m.m11() ).arg( m.m12() )
 		.arg( m.m21() ).arg( m.m22() )
 		.arg( m.dx() ).arg( m.dy() );
