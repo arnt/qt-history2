@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#294 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#295 $
 **
 ** Implementation of QListView widget class
 **
@@ -569,7 +569,7 @@ void QListViewItem::removeItem( QListViewItem * item )
 		    i->currentRemoved();
 		i = lv->d->iterators->next();
 	    }
-	}	
+	}
 
 	invalidateHeight();
 
@@ -1766,7 +1766,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
 	if ( tx < 0 )
 	    tx = d->h->cellPos( d->h->mapToActual( 0 ) );
-	
+
 	// do any children of current need to be painted?
 	if ( ih != ith &&
 	     (current->i != d->r || d->rootIsExpandable) &&
@@ -1780,7 +1780,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	    int rbottom = current->y + ith;
 	    int rleft = tx + current->l*treeStepSize();
 	    int rright = rleft + treeStepSize();
-	
+
 	    int crtop = QMAX( rtop, cy );
 	    int crbottom = QMIN( rbottom, cy+ch );
 	    int crleft = QMAX( rleft, cx );
@@ -1807,7 +1807,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	    int x = -contentsX();
 	    int w = header()->cellPos( header()->count() - 1 ) +
 		    header()->cellSize( header()->count() - 1 );
-	
+
 	    r.setRect( x, current->y - oy, w, ih );
 	    //WINDOWSBUG### should use this
 	    //p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
@@ -1985,7 +1985,7 @@ void QListView::clear()
 	    i->curr = 0;
 	    i = d->iterators->next();
 	}
-    }	
+    }
 
     if ( d->drawables )
       d->drawables->clear();
@@ -2692,12 +2692,12 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 
     d->select = isMultiSelection() ? !i->isSelected() : TRUE;
 
-    if ( i->isSelectable() )
-	setSelected( i, d->select );
-
     i->activate();
 
     setCurrentItem( i );
+
+    if ( i->isSelectable() )
+	setSelected( i, d->select );
 
     return;
 }
@@ -2785,7 +2785,7 @@ void QListView::contentsMouseMoveEvent( QMouseEvent * e )
     // check, if we need to scroll
     if ( vp.y() > visibleHeight() || vp.y() < 0 )
 	needAutoScroll = TRUE;
-	
+
     // if we need to scroll and no autoscroll timer is started,
     // connect the timer
     if ( needAutoScroll && !d->scrollTimer ) {
@@ -3815,7 +3815,7 @@ int QCheckListItem::width( const QFontMetrics& fm, const QListView* lv, int colu
 	r += lv->itemMargin();
 	if ( myType == Controller && pixmap( 0 ) ) {
 	    //	     r += 0;
-	} else {	
+	} else {
 	    r += BoxSize + 4;
 	}
     }
@@ -3850,7 +3850,7 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
     if ( myType == Controller ) {
 	if ( !pixmap( 0 ) )
 	    r += BoxSize + 4;
-    } else {	
+    } else {
 	ASSERT( lv ); //###
 	//	QFontMetrics fm( lv->font() );
 	//	int d = fm.height();
