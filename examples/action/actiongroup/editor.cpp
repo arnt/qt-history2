@@ -16,10 +16,10 @@ Editor::Editor()
     QActionGroup * colors = new QActionGroup( this, "colors", TRUE );
 
     QAction * setBlackFont = new QAction( "black", QPixmap( "black.xpm" ),
-                                          "Font color: black", ALT+Key_B,
+                                          "Font color: black", CTRL+Key_B,
                                           colors, "blackfontcolor", TRUE );
     setRedFont = new QAction( "red", QPixmap( "red.xpm" ), "Font color: red",
-                              ALT+Key_R, colors, "redfontcolor", TRUE );
+                              CTRL+Key_R, colors, "redfontcolor", TRUE );
 
     QObject::connect( colors, SIGNAL( selected( QAction * ) ),
                       this, SLOT( setFontColor( QAction * ) ) );
