@@ -584,7 +584,7 @@ void Uic::createFormImpl( const QDomElement &e )
     }
     localIncludes = unique( localIncludes );
     for ( it = localIncludes.begin(); it != localIncludes.end(); ++it ) {
-	if ( !(*it).isEmpty() && *it != QString( fileName + ".h" ) )
+	if ( !(*it).isEmpty() && *it != QFileInfo( fileName + ".h" ).fileName() )
 	    out << "#include \"" << *it << "\"" << endl;
     }
 
@@ -603,7 +603,7 @@ void Uic::createFormImpl( const QDomElement &e )
     }
 
     if ( QFile::exists( fileName + ".h" ) ) {
-	out << "#include \"" << fileName << ".h\"" << endl;
+	out << "#include \"" << QFileInfo(fileName).fileName() << ".h\"" << endl;
 	writeSlotImpl = FALSE;
     }
 
