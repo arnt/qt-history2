@@ -303,6 +303,13 @@
 # define QT_NO_QWS_MULTIPROCESS
 #endif
 
+#if defined(QT_NO_QWS_MULTIPROCESS)
+    /*!
+      Palmtop Communication Protocol
+    */
+# define QT_NO_PCOP
+#endif
+
 /*!
     Visible cursor
 */
