@@ -1064,7 +1064,10 @@ void HierarchyView::widgetsRemoved( const QWidgetList & )
 
 void HierarchyView::namePropertyChanged( QWidget *w, const QVariant & )
 {
-    listview->changeNameOf( w, w->name() );
+    QWidget *w2 = w;
+    if ( w->inherits( "QMainWindow" ) )
+	w2 = ( (QMainWindow*)w )->centralWidget();
+    listview->changeNameOf( w2, w->name() );
 }
 
 
