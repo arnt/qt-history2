@@ -9,6 +9,6 @@ SOURCES         = main.cpp \
                   plasmadelegate.cpp \
                   hexdelegate.cpp
 RESOURCES	= plasmatable.qrc
-unix:x11:LIBS += -lm
+unix:!mac:LIBS += -lm
 build_all:CONFIG += release
 
