@@ -20,6 +20,7 @@
 #endif
 
 #if defined(Q_WS_WIN)
+#include "qt_windows.h"
 // Internal pixmap memory optimization class for Windows 9x
 struct QMCPI;
 #endif
