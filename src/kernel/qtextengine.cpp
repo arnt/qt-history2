@@ -691,9 +691,9 @@ enum break_action {
 
 // The folowing line break classes are not treated by the table:
 // SA, BK, CR, LF, SG, CB, SP
-static const Q_UINT8 breakTable[QUnicodeTables::CM+1][QUnicodeTables::CM+1] =
+static const Q_UINT8 breakTable[QUnicodeTables::LineBreak_CM+1][QUnicodeTables::LineBreak_CM+1] =
 {
-    //   OP,  CL,  QU,  GL, NS,  EX,  SY,  IS,  PR,  PO,  NU,  AL,  ID,  IN,  HY,  BA,  BB,  B2,  ZW,  CM
+    // OP,  CL,  QU,  GL, NS,  EX,  SY,  IS,  PR,  PO,  NU,  AL,  ID,  IN,  HY,  BA,  BB,  B2,  ZW,  CM
     { Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk }, // OP
     { Dbk, Pbk, Ibk, Pbk, Pbk, Pbk, Pbk, Pbk, Dbk, Ibk, Dbk, Dbk, Dbk, Dbk, Ibk, Ibk, Pbk, Pbk, Pbk, Pbk }, // CL
     { Pbk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Pbk, Pbk }, // QU
@@ -725,25 +725,25 @@ static void calcLineBreaks(const QString &str, QCharAttributes *charAttributes)
 
     const QChar *uc = str.unicode();
     int cls = lineBreakClass(*uc);
-    if (cls == QUnicodeTables::CM)
-	cls = QUnicodeTables::ID;
+    if (cls == QUnicodeTables::LineBreak_CM)
+	cls = QUnicodeTables::LineBreak_ID;
 
     charAttributes[0].softBreak = FALSE;
 
     for (int i = 1; i < len; ++i) {
 	int ncls = lineBreakClass(uc[i]);
 
-	if (ncls == QUnicodeTables::SP) {
+	if (ncls == QUnicodeTables::LineBreak_SP) {
 	    charAttributes[i].softBreak = FALSE;
 	    continue;
 	}
-	if (ncls >= QUnicodeTables::SA) {
+	if (ncls >= QUnicodeTables::LineBreak_SA) {
 	    // ### handle complex case
-	    ncls = QUnicodeTables::ID;
+	    ncls = QUnicodeTables::LineBreak_ID;
 	}
 	int brk = charAttributes[i].charStop ? breakTable[cls][ncls] : Pbk;
 	if (brk == Ibk)
-	    charAttributes[i].softBreak = (lineBreakClass(uc[i-1]) == QUnicodeTables::SP);
+	    charAttributes[i].softBreak = (lineBreakClass(uc[i-1]) == QUnicodeTables::LineBreak_SP);
 	else
 	    charAttributes[i].softBreak = (brk == Dbk);
 //	qDebug("char = %c %04x, cls=%d, ncls=%d, brk=%d soft=%d", uc[i].cell(), uc[i].unicode(), cls, ncls, brk, charAttributes[i].softBreak);

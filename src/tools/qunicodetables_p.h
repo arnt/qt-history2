@@ -45,10 +45,12 @@ public:
     // see http://www.unicode.org/reports/tr14/tr14-13.html
     // we don't use the XX and AI properties and map them to AL instead.
     enum LineBreakClass {
-	OP, CL, QU, GL, NS, EX, SY,
-	IS, PR, PO, NU, AL, ID, IN, HY,
-	BA, BB, B2, ZW, CM, SA,
-	BK, CR, LF, SG, CB, SP
+	LineBreak_OP, LineBreak_CL, LineBreak_QU, LineBreak_GL, LineBreak_NS,
+	LineBreak_EX, LineBreak_SY, LineBreak_IS, LineBreak_PR, LineBreak_PO,
+	LineBreak_NU, LineBreak_AL, LineBreak_ID, LineBreak_IN, LineBreak_HY,
+	LineBreak_BA, LineBreak_BB, LineBreak_B2, LineBreak_ZW, LineBreak_CM,
+	LineBreak_SA, LineBreak_BK, LineBreak_CR, LineBreak_LF, LineBreak_SG,
+	LineBreak_CB, LineBreak_SP
     };
 };
 
