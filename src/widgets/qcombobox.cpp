@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#114 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#115 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#114 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#115 $");
 
 
 /*!
@@ -255,6 +255,9 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
 /*!
   Constructs a combo box with a maximum size and either Motif 2.0 or
   Windows look and feel.
+
+  The input field can be edited if \a rw is TRUE, otherwise the user
+  may only choose one of the items in the combo box.
 */
 
 

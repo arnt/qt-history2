@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#45 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#46 $
 **
 ** Definition of QComboBox class
 **
@@ -26,7 +26,7 @@ class QComboBox : public QWidget
     Q_OBJECT
 public:
     QComboBox( QWidget *parent=0, const char *name=0 );
-    QComboBox( bool, QWidget *parent=0, const char *name=0 );
+    QComboBox( bool rw, QWidget *parent=0, const char *name=0 );
    ~QComboBox();
 
     int		count() const;
