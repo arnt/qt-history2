@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#50 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -13,17 +13,17 @@
 #include "qpaintd.h"
 #include "qpaintdc.h"
 #include "qwidget.h"
-#include "qpixmap.h"
+#include "qbitmap.h"
 #include "qapp.h"
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#49 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#50 $")
 
 
-/*!
+/*----------------------------------------------------------------------------
   \class QPaintDevice qpaintd.h
   \brief The QPaintDevice is the base class of objects that can be painted.
 
@@ -62,19 +62,21 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#49 $")
 
   \warning Qt requires that a QApplication object must exist before any paint
   devices can be created.  Paint devices access window system resources, and
-  these resources are not initialized before an application object is created. */
+  these resources are not initialized before an application object is created.
+ ----------------------------------------------------------------------------*/
 
 
-/*!
+/*----------------------------------------------------------------------------
   Constructs a paint device with internal flags \e devflags.
   This constructor can only be invoked from subclasses of QPaintDevice.
-*/
+ ----------------------------------------------------------------------------*/
 
 QPaintDevice::QPaintDevice( uint devflags )
 {
     if ( !qApp ) {				// global constructor
 #if defined(CHECK_STATE)
-	fatal( "QPaintDevice: Must construct a QApplication before a QPaintDevice" );
+	fatal( "QPaintDevice: Must construct a QApplication before a "
+	       "QPaintDevice" );
 #endif
 	return;
     }
@@ -83,9 +85,9 @@ QPaintDevice::QPaintDevice( uint devflags )
     hd	= 0;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Destroys the paint device and frees window system resources.
-*/
+ ----------------------------------------------------------------------------*/
 
 QPaintDevice::~QPaintDevice()
 {
@@ -97,43 +99,43 @@ QPaintDevice::~QPaintDevice()
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   \fn int QPaintDevice::devType() const
   Returns the device type identifier: \c PDT_WIDGET, \c PDT_PIXMAP,
   \c PDT_PRINTER, \c PDT_PICTURE or \c PDT_UNKNOWN.
-*/
+ ----------------------------------------------------------------------------*/
 
-/*!
+/*----------------------------------------------------------------------------
   \fn bool QPaintDevice::isExtDev() const
   Returns TRUE if the device is a so-called external paint device.
 
   External paint devices cannot be bitBlt()'ed from.
   QPicture and QPrinter are external paint devices.
-*/
+ ----------------------------------------------------------------------------*/
 
-/*!
+/*----------------------------------------------------------------------------
   \fn HANDLE QPaintDevice::handle() const
   Returns the window system handle of the paint device.
-*/
+ ----------------------------------------------------------------------------*/
 
-/*!
+/*----------------------------------------------------------------------------
   \fn Display *QPaintDevice::display() const
   Returns a pointer to the X display (X-Windows only).
-*/
+ ----------------------------------------------------------------------------*/
 
-/*!
+/*----------------------------------------------------------------------------
   \fn bool QPaintDevice::paintingActive() const
   Returns TRUE if the device is being painted, i.e. someone has called
   QPainter::begin() and not yet QPainter::end() for this device.
-*/
+ ----------------------------------------------------------------------------*/
 
-/*!
+/*----------------------------------------------------------------------------
   Internal virtual function that interprets drawing commands from
   the painter.
 
   Implemented by subclasses that have no direct support for drawing
   graphics (external paint devices, for example QPicture).
-*/
+ ----------------------------------------------------------------------------*/
 
 bool QPaintDevice::cmd( int, QPainter *, QPDevCmdParam * )
 {
@@ -143,11 +145,11 @@ bool QPaintDevice::cmd( int, QPainter *, QPDevCmdParam * )
     return FALSE;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Internal virtual function that returns paint device metrics.
 
   Please use the QPaintDeviceMetrics class instead.
-*/
+ ----------------------------------------------------------------------------*/
 
 long QPaintDevice::metric( int ) const
 {
@@ -158,7 +160,53 @@ long QPaintDevice::metric( int ) const
 }
 
 
-/*!
+//
+// Internal functions for simple GC caching for blt'ing masked pixmaps.
+//
+
+static bool  init_mask_gc = FALSE;
+static const max_mask_gcs = 11;			// suitable for hashing
+
+struct mask_gc {
+    GC	gc;
+    int mask_no;
+};
+
+static mask_gc gc_vec[max_mask_gcs];
+
+
+static void cleanup_mask_gc()
+{
+    Display *dpy = qt_xdisplay();
+    init_mask_gc = FALSE;
+    for ( int i=0; i<max_mask_gcs; i++ ) {
+	if ( gc_vec[i].gc )
+	    XFreeGC( dpy, gc_vec[i].gc );
+    }
+}
+
+static GC get_mask_gc( Display *dpy, Drawable hd, int mask_no, Pixmap mask )
+{
+    if ( !init_mask_gc ) {			// first time initialization
+	init_mask_gc = TRUE;
+	qAddPostRoutine( cleanup_mask_gc );
+	for ( int i=0; i<max_mask_gcs; i++ )
+	    gc_vec[i].gc = 0;
+    }
+    mask_gc *p = &gc_vec[mask_no % max_mask_gcs];
+    if ( !p->gc || p->mask_no != mask_no ) {	// not a perfect match
+	if ( !p->gc )				// no GC
+	    p->gc = XCreateGC( dpy, hd, 0, 0 );
+	XSetClipMask( dpy, p->gc, mask );
+	p->mask_no = mask_no;
+    }
+    return p->gc;
+}
+
+
+
+
+/*----------------------------------------------------------------------------
   \relates QPaintDevice
   This function copies a block of pixels from one paint device to another
   (bitBlt means bit block transfer).
@@ -197,7 +245,7 @@ long QPaintDevice::metric( int ) const
   <li> The \e src device may not have pixel depth greater than \e dst.
   You cannot copy from an 8 bit pixmap to a 1 bit pixmap.
   </ol>
-*/
+ ----------------------------------------------------------------------------*/
 
 void bitBlt( QPaintDevice *dst, int dx, int dy,
 	     const QPaintDevice *src, int sx, int sy, int sw, int sh,
@@ -287,8 +335,11 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     bool copy_plane = FALSE;
     bool mono = FALSE;
 
-    if ( ts == PDT_PIXMAP )
+    QBitmap *mask = 0;
+    if ( ts == PDT_PIXMAP ) {
 	copy_plane = ((QPixmap*)src)->depth() == 1;
+	mask = ((QPixmap*)src)->data->mask;
+    }
     if ( td == PDT_PIXMAP ) {
 	bool single_plane = ((QPixmap*)dst)->depth() == 1;
 	if ( single_plane && !copy_plane ) {
@@ -301,25 +352,43 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	copy_plane ^= single_plane;
 	((QPixmap*)dst)->detach();		// changes shared pixmap
     }
-    GC	      gc = qt_xget_temp_gc( mono );
+
+    GC gc;
+
+    if ( mask && !mono ) {			// fast masked blt
+	gc = get_mask_gc( dpy, dst->handle(), mask->data->ser_no,
+			  mask->handle() );
+	XSetClipOrigin( dpy, gc, dx-sx, dy-sy );
+	mask = 0;
+    }
+    else					// get a reusable GC
+	gc = qt_xget_temp_gc( mono );
+
     XGCValues gcvals;
-    ulong     gcflags = GCBackground | GCForeground;
+    ulong     gcflags = 0;
 
     if ( rop != CopyROP ) {			// use non-default ROP code
 	gcflags |= GCFunction;
 	gcvals.function = ropCodes[rop];
     }
-    if ( td == PDT_WIDGET ) {			// set GC colors
-	QWidget *w = (QWidget *)dst;
-	gcvals.background = w->backgroundColor().pixel();
-	gcvals.foreground = w->foregroundColor().pixel();
+    if ( copy_plane || mono ) {
+	if ( td == PDT_WIDGET ) {		// set GC colors
+	    QWidget *w = (QWidget *)dst;
+	    gcvals.background = w->backgroundColor().pixel();
+	    gcvals.foreground = w->foregroundColor().pixel();
+	}
+	else {
+	    gcvals.background = white.pixel();
+	    gcvals.foreground = black.pixel();
+	}
+	gcflags = GCBackground | GCForeground;
     }
-    else {
-	gcvals.background = white.pixel();
-	gcvals.foreground = black.pixel();
+    if ( gcflags )
+	XChangeGC( dpy, gc, gcflags, &gcvals );
+    if ( mask ) {
+	XSetClipMask( dpy, gc, mask->handle() );
+	XSetClipOrigin( dpy, gc, dx-sx, dy-sy );
     }
-    XChangeGC( dpy, gc, gcflags, &gcvals );
-
     if ( copy_plane )
 	XCopyPlane( dpy, src->handle(), dst->handle(), gc, sx, sy, sw, sh,
 		    dx, dy, 1 );
@@ -328,14 +397,16 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 		   dx, dy );
     if ( rop != CopyROP )			// reset gc function
 	XSetFunction( dpy, gc, GXcopy );
+    if ( mask )
+	XSetClipMask( dpy, gc, None );
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   \fn void bitBlt( QPaintDevice *dst, const QPoint &dp, const QPaintDevice *src, const QRect &sr, RasterOp rop )
 
   Overloaded bitBlt() with the destination point \e dp and source rectangle
   \e sr.
 
   \relates QPaintDevice
-*/
+ ----------------------------------------------------------------------------*/

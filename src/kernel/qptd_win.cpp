@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_win.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qptd_win.cpp#14 $
 **
 ** Implementation of QPaintDevice class for Windows
 **
@@ -13,18 +13,19 @@
 #include "qpaintd.h"
 #include "qpaintdc.h"
 #include "qwidget.h"
-#include "qpixmap.h"
+#include "qbitmap.h"
 #include "qapp.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_win.cpp#13 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_win.cpp#14 $")
 
 
 QPaintDevice::QPaintDevice( uint devflags )
 {
     if ( !qApp ) {				// global constructor
 #if defined(CHECK_STATE)
-	fatal( "QPaintDevice: Must construct a QApplication before a QPaintDevice" );
+	fatal( "QPaintDevice: Must construct a QApplication before a "
+	       "QPaintDevice" );
 #endif
 	return;
     }
@@ -146,6 +147,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
     if ( td == PDT_PIXMAP )
 	((QPixmap*)dst)->detach();		// changes shared pixmap
+
     HDC	 src_dc	 = src->hdc, dst_dc  = dst->hdc;
     bool src_tmp = FALSE,    dst_tmp = FALSE;
     if ( !src_dc ) {
@@ -172,7 +174,20 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     }
     if ( !(src_dc && dst_dc) )			// not ready, (why?)
 	return;
-    BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
+
+    const QBitmap *mask;
+    if ( ts == PDT_PIXMAP )
+	mask = ((QPixmap*)src)->mask();
+    else
+	mask = 0;
+
+    if ( mask ) {
+	MaskBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, mask->hbm(),
+		 sx, sy, 0xccaa0000 );
+    }
+    else {
+	BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
+    }
     if ( src_tmp ) {
 	switch ( ts ) {
 	    case PDT_WIDGET:

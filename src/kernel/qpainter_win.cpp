@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#28 $
 **
 ** Implementation of QPainter class for Windows
 **
@@ -20,7 +20,7 @@
 #include <math.h>
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#27 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#28 $")
 
 
 // --------------------------------------------------------------------------
@@ -844,8 +844,7 @@ void QPainter::setBrushOrigin( int x, int y )
 	    return;
     }
 #if defined(_WS_WIN32_)
-    POINT dummy;
-    SetBrushOrgEx( hdc, x, y, &dummy );
+    SetBrushOrgEx( hdc, x, y, 0 );
 #else
     SetBrushOrg( hdc, x, y );
 #endif
@@ -1233,7 +1232,7 @@ void QPainter::drawPoint( int x, int y )
 	if ( !pdev->cmd(PDC_DRAWPOINT,this,param) || !hdc )
 	    return;
     }
-    SetPixel( hdc, x, y, cpen.color().pixel() );
+    SetPixelV( hdc, x, y, cpen.color().pixel() );
 }
 
 
@@ -1268,7 +1267,7 @@ void QPainter::lineTo( int x, int y )
 	    return;
     }
     LineTo( hdc, x, y );
-    SetPixel( hdc, x, y, cpen.color().pixel() );
+    SetPixelV( hdc, x, y, cpen.color().pixel() );
 }
 
 
@@ -1302,7 +1301,7 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 	    x2--;
     }
     else if ( cpen.style() == SolidLine )	// draw last pixel
-	SetPixel( hdc, x2, y2, cpen.color().pixel() );
+	SetPixelV( hdc, x2, y2, cpen.color().pixel() );
     LineTo( hdc, x2, y2 );
 }
 
@@ -1592,7 +1591,7 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 		x2--;
 	}
 	else if ( solid )			// draw last pixel
-	    SetPixel( hdc, x2, y2, pixel );
+	    SetPixelV( hdc, x2, y2, pixel );
 #if defined(_WS_WIN32_)
 	MoveToEx( hdc, x1, y1, 0 );
 #else
@@ -1628,7 +1627,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
     Polyline( hdc, (POINT*)(a.data()+index), npoints );
     if ( cpen.style() == SolidLine ) {
 	QPoint p = a.point( index+npoints-1 );	// plot last point
-	SetPixel( hdc, p.x(), p.y(), cpen.color().pixel() );
+	SetPixelV( hdc, p.x(), p.y(), cpen.color().pixel() );
     }
 }
 
@@ -1723,17 +1722,16 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     bool tmp_dc = pm->handle() == 0;
     if ( tmp_dc )
 	pm->allocMemDC();
-#if defined(MASK_WILL_BE_IN_PIXMAP)
-    if ( pm->depth() == 1 && bg_mode == TransparentMode )
-	MaskBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, pm->hbm(),
+    if ( pm->mask() ) {
+	MaskBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, pm->mask()->hbm(),
 		 sx, sy, 0xccaa0000 );
 #if 0
 	SetBkColor( pm->handle(), RGB(255,255,255) );
 	BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, MERGEPAINT );
 	BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, SRCPAINT );
 #endif
+    }
     else
-#endif
 	BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, SRCCOPY );
     if ( tmp_dc )
 	pm->freeMemDC();
