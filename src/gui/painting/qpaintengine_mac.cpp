@@ -300,9 +300,9 @@ QQuickDrawPaintEngine::drawRect(const QRectF &r)
         if(d->current.brush.style() == Qt::SolidPattern) {
             PaintRect(&rect);
         } else {
-            QPixmap *pm = 0;
+            QPixmap pm;
             if(d->brush_style_pix) {
-                pm = d->brush_style_pix;
+                pm = *d->brush_style_pix;
                 if(d->current.bg.mode == Qt::OpaqueMode) {
                     ::RGBColor f;
                     f.red = d->current.bg.brush.color().red()*256;
@@ -312,9 +312,9 @@ QQuickDrawPaintEngine::drawRect(const QRectF &r)
                     PaintRect(&rect);
                 }
             } else {
-                pm = d->current.brush.pixmap();
+                pm = d->current.brush.texture();
             }
-            if(pm && !pm->isNull()) {
+            if(!pm.isNull()) {
                 //save the clip
                 bool clipon = testf(ClipOn);
                 QRegion clip = d->current.clip;
@@ -326,7 +326,7 @@ QQuickDrawPaintEngine::drawRect(const QRectF &r)
                 setClippedRegionInternal(&newclip);
 
                 //draw the brush
-                drawTiledPixmap(r, *pm, QPointF(r.x(), r.y()) - d->current.bg.origin, Qt::ComposePixmap);
+                drawTiledPixmap(r, pm, QPointF(r.x(), r.y()) - d->current.bg.origin, Qt::ComposePixmap);
 
                 //restore the clip
                 setClippedRegionInternal(clipon ? &clip : 0);
@@ -388,9 +388,9 @@ QQuickDrawPaintEngine::drawEllipse(const QRectF &r)
         if(d->current.brush.style() == Qt::SolidPattern) {
             PaintOval(&mac_r);
         } else {
-            QPixmap *pm = 0;
+            QPixmap pm = 0;
             if(d->brush_style_pix) {
-                pm = d->brush_style_pix;
+                pm = *d->brush_style_pix;
                 if(d->current.bg.mode == Qt::OpaqueMode) {
                     ::RGBColor f;
                     f.red = d->current.bg.brush.color().red()*256;
@@ -400,9 +400,9 @@ QQuickDrawPaintEngine::drawEllipse(const QRectF &r)
                     PaintOval(&mac_r);
                 }
             } else {
-                pm = d->current.brush.pixmap();
+                pm = d->current.brush.texture();
             }
-            if(pm && !pm->isNull()) {
+            if(!pm.isNull()) {
                 //save the clip
                 bool clipon = testf(ClipOn);
                 QRegion clip = d->current.clip;
@@ -414,7 +414,7 @@ QQuickDrawPaintEngine::drawEllipse(const QRectF &r)
                 setClippedRegionInternal(&newclip);
 
                 //draw the brush
-                drawTiledPixmap(r, *pm, QPointF(r.x(), r.y()) - d->current.bg.origin, Qt::ComposePixmap);
+                drawTiledPixmap(r, pm, QPointF(r.x(), r.y()) - d->current.bg.origin, Qt::ComposePixmap);
 
                 //restore the clip
                 setClippedRegionInternal(clipon ? &clip : 0);
@@ -509,9 +509,9 @@ QQuickDrawPaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
             if(d->current.brush.style() == Qt::SolidPattern) {
                 PaintPoly(polyHandle);
             } else {
-                QPixmap *pm = 0;
+                QPixmap pm = 0;
                 if(d->brush_style_pix) {
-                    pm = d->brush_style_pix;
+                    pm = *d->brush_style_pix;
                     if(d->current.bg.mode == Qt::OpaqueMode) {
                         ::RGBColor f;
                         f.red = d->current.bg.brush.color().red()*256;
@@ -521,10 +521,10 @@ QQuickDrawPaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
                         PaintPoly(polyHandle);
                     }
                 } else {
-                    pm = d->current.brush.pixmap();
+                    pm = d->current.brush.texture();
                 }
 
-                if(pm && !pm->isNull()) {
+                if(!pm.isNull()) {
                     //save the clip
                     bool clipon = testf(ClipOn);
                     QRegion clip = d->current.clip;
@@ -537,7 +537,7 @@ QQuickDrawPaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
 
                     //draw the brush
                     QRect r(pa.boundingRect());
-                    drawTiledPixmap(r, *pm, r.topLeft() - d->current.bg.origin, Qt::ComposePixmap);
+                    drawTiledPixmap(r, pm, r.topLeft() - d->current.bg.origin, Qt::ComposePixmap);
 
                     //restore the clip
                     setClippedRegionInternal(clipon ? &clip : 0);
@@ -720,10 +720,10 @@ QQuickDrawPaintEngine::setupQDBrush()
         d->brush_style_pix->setMask(qt_pixmapForBrush(bs, true));
         d->brush_style_pix->fill(d->current.brush.color());
     } else if(bs == Qt::CustomPattern) {
-        if(d->current.brush.pixmap()->isQBitmap()) {
-            d->brush_style_pix = new QPixmap(d->current.brush.pixmap()->width(),
-                                             d->current.brush.pixmap()->height());
-            d->brush_style_pix->setMask(*((QBitmap*)d->current.brush.pixmap()));
+        QPixmap texture = d->current.brush.texture();
+        if(texture.isQBitmap()) {
+            d->brush_style_pix = new QPixmap(texture.width(), texture.height());
+            d->brush_style_pix->setMask(*((QBitmap*)&texture));
             d->brush_style_pix->fill(d->current.brush.color());
         }
     }
@@ -1209,7 +1209,7 @@ QCoreGraphicsPaintEngine::updateBrush(const QBrush &brush, const QPointF &brushO
         float components[4] = { 1.0, 1.0, 1.0, 1.0 };
         CGColorSpaceRef base_colorspace = 0;
         if (bs == Qt::CustomPattern) {
-            qpattern->data.pixmap = *brush.pixmap();
+            qpattern->data.pixmap = brush.texture();
             if(qpattern->data.pixmap.isQBitmap()) {
                 const QColor &col = brush.color();
                 components[0] = qt_mac_convert_color_to_cg(col.red());
