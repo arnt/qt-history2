@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#64 $
 **
 ** Implementation of QUrl class
 **
@@ -42,11 +42,27 @@ struct QUrlPrivate
     bool cleanPathDirty;
 };
 
-static void slashify( QString& s )
+/*!
+  Replaces backslashes with slashes and removes multiple occurences
+  of slashes or backslashes.
+*/
+
+static void slashify( QString& s, bool allowMultiple = TRUE )
 {
+    bool justHadSlash = FALSE;
     for ( int i = 0; i < (int)s.length(); i++ ) {
+	if ( !allowMultiple && justHadSlash &&
+	     ( s[ i ] == '/' || s[ i ] == '\\' ) ) {
+	    s.remove( i, 1 );
+	    --i;
+	    continue;
+	}
 	if ( s[ i ] == '\\' )
 	    s[ i ] = '/';
+	if ( s[ i ] == '/' )
+	    justHadSlash = TRUE;
+	else 
+	    justHadSlash = FALSE;
     }
 }
 
@@ -166,8 +182,8 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
 	    if ( p.right( 1 ) != "/" )
 		p += "/";
 	    p += relUrl;
-	    d->cleanPathDirty = TRUE;
 	    d->path = p;
+	    d->cleanPathDirty = TRUE;
 	}
     }
 }
@@ -772,8 +788,6 @@ QString QUrl::path( bool correct ) const
 	return d->path;
 
     if ( d->cleanPathDirty ) {
-	if ( d->path.find( "//" ) != -1 )
-	    d->path.replace( QRegExp( "//" ), "/" );
 	if ( isLocalFile() ) {
 	    QFileInfo fi( d->path );
 	    if ( !fi.exists() )
@@ -799,6 +813,7 @@ QString QUrl::path( bool correct ) const
 	    if ( d->cleanPath.left( 2 ) == "//" )
 		d->cleanPath.remove( d->cleanPath.length() - 1, 1 );
 	}
+	slashify( d->cleanPath, FALSE );
 	d->cleanPathDirty = FALSE;
     }
 
@@ -851,6 +866,7 @@ void QUrl::addPath( const QString& pa )
 	else
 	    d->path += p;
     }
+    d->cleanPathDirty = TRUE;
 }
 
 /*!
