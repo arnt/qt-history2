@@ -130,6 +130,13 @@
     (done already), and make QTextView,QTextBrowser, QTextEdit and
     QSimpleRichText using this engine. Then get rid of QMultiLineEdit</DD>
 
+    <DT><B>text drawing in Qt</B> (Matthias, Reggie, Lars)</DT>
+    <DD>After the above (QRichText merging) and the BiDi stuff is
+    done, use QSimpleRichText or directly QRichText for all text
+    drawing in Qt, like QPainter's magic draw_format_text. Probably
+    don't use it everywhere (too much memory wasting), but everwhere
+    where more than one line, richtext or BiDi is displayed.</DD>
+
 </DL>
 
 
