@@ -128,6 +128,9 @@ typedef int WId;
 #include "qwindowdefs_win.h"
 #endif // Q_WS_WIN
 
+#if defined(Q_OS_TEMP)
+#include "qwinfunctions.h"
+#endif // Q_OS_TEMP
 
 #if defined(Q_WS_X11)
 

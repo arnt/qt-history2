@@ -280,7 +280,11 @@ uint QColor::alloc()
 			colArray[idx] = d.argb;
 			ctxArray[idx] = current_alloc_context;
 			HDC dc = qt_display_dc();
-			UnrealizeObject( hpal );
+#ifndef Q_OS_TEMP
+		    UnrealizeObject( hpal );
+#else
+			GetStockObject( DEFAULT_PALETTE );
+#endif
 			SelectPalette( dc, hpal, FALSE );
 			RealizePalette( dc );
 		    }

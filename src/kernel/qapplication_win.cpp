@@ -1009,7 +1009,8 @@ const QString qt_reg_winclass( int flags )	// register window class
 		wc.hIcon = LoadIcon( 0, IDI_APPLICATION );
 #endif
 	}
-	else {
+	else
+	{
 	    wc.hIcon = 0;
 	}
 	wc.hCursor	= 0;
@@ -1836,14 +1837,13 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 
 	RETURN(0);
     }
-#endif
-
     case WM_DISPLAYCHANGE:
 	if ( qt_desktopWidget ) {
 	    delete qt_desktopWidget;
 	    qt_desktopWidget = 0;
 	}
 	break;
+#endif
 
     case WM_SETTINGCHANGE:
     case WM_SYSCOLORCHANGE:
@@ -2135,6 +2135,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		qApp->winFocus( widget, LOWORD(wParam) == WA_INACTIVE ? 0 : 1 );
 		break;
 
+#ifndef Q_OS_TEMP
 	    case WM_MOUSEACTIVATE:
 		{
 		    const QWidget *tlw = widget->topLevelWidget();
@@ -2148,6 +2149,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    }
 		}
 		break;
+#endif
 
 	    case WM_PALETTECHANGED:			// our window changed palette
 		if ( QColor::hPal() && (WId)wParam == widget->winId() )

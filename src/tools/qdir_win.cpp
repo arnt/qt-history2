@@ -566,7 +566,13 @@ const QFileInfoList * QDir::drives()
 #endif
 
 	char driveName[4];
+
+#ifndef Q_OS_TEMP
 	qstrcpy( driveName, "a:/" );
+#else
+	qstrcpy( driveName, "/" );
+#endif
+
 	while( driveBits ) {
 	    if ( driveBits & 1 )
 		knownMemoryLeak->append(

@@ -109,7 +109,9 @@ static void readLocaleSettings()
 
 #if defined(Q_WS_WIN)
 #if defined(UNICODE)
+#ifndef Q_OS_TEMP
     if ( qWinVersion() & Qt::WV_NT_based ) {
+#endif
 	TCHAR data[10];
 	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDATE, (TCHAR*)&data, 10 );
 	*lDateSep = qt_winQString( data );
@@ -123,8 +125,11 @@ static void readLocaleSettings()
 	    GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_S2359, (TCHAR*)&data, 10 );
 	    lPM = new QString( qt_winQString( data ) );
 	}
+#ifndef Q_OS_TEMP
     } else
 #endif
+#endif
+#ifndef Q_OS_TEMP
     {
 	char data[10];
 	GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SDATE, (char*)&data, 10 );
@@ -140,6 +145,7 @@ static void readLocaleSettings()
 	    lPM = new QString( data );
 	}
     }
+#endif
 #else
     *lDateSep = "-";
     *lTimeSep = ":";

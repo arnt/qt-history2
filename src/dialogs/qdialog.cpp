@@ -632,7 +632,7 @@ void QDialog::adjustPositionInternal( QWidget*w, bool useRelPos)
 	    p = QPoint( desk.x() + desk.width()/2, desk.y() + desk.height()/2 );
 	}
 #if defined( Q_OS_TEMP )
-	p = QPoint( 0, GetSystemMetric( SM_CYCAPTION ) );
+	p = QPoint( 0, GetSystemMetrics( SM_CYCAPTION ) );
 #endif
 
 	// p = origin of this

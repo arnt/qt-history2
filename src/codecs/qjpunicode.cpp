@@ -51,6 +51,10 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+#ifdef Q_OS_TEMP
+#include "qwinfunctions.h"
+#endif
+
 #include "qjpunicode.h"
 
 #define	USE_JISX0212

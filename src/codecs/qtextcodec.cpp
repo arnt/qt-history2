@@ -1621,7 +1621,9 @@ const char* QTextCodec::locale()
 	return lang;
 
 #if defined(UNICODE)
+#ifndef Q_OS_TEMP
     if ( qWinVersion() & Qt::WV_NT_based ) {
+#endif
 	TCHAR out[256];
 	if ( GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME , (TCHAR*)&out, 255 ) )
 	    lang = qt_winQString( out );
@@ -1631,8 +1633,11 @@ const char* QTextCodec::locale()
 	    lang = qt_winQString( out );
 	else if ( GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SENGLANGUAGE, (TCHAR*)&out, 255 ) )
 	    lang = qt_winQString( out );
+#ifndef Q_OS_TEMP
     } else
 #endif
+#endif
+#ifndef Q_OS_TEMP
     {
 	char out[256];
 	if ( GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME, (char*)&out, 255 ) )
@@ -1644,6 +1649,7 @@ const char* QTextCodec::locale()
 	else if ( GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SENGLANGUAGE, (char*)&out, 255 ) )
 	    lang = QString::fromLocal8Bit( out );
     }
+#endif
 #endif
     if ( lang.isEmpty() )
 	lang = "C";

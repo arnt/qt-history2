@@ -11,6 +11,7 @@
 #pragma comment(lib, "ole32.lib")
 #pragma comment(lib, "oleaut32.lib")
 #pragma comment(lib, "uuid.lib")
+#pragma comment(lib, "winsock.lib")
 
 char *getenv(char const *) { return "\\"; }
 char *_getcwd( char *buffer, int maxlen ) { return "\\"; }
@@ -166,7 +167,6 @@ int isspace ( int c ) { return ((c == ' ') || (c == '\t')) ? 1 : 0; }
 #define _countof(array) (sizeof(array)/sizeof(array[0]))
 #endif
 
-
 BOOL SetWindowOrgEx( HDC hdc, int X, int Y, LPPOINT lpPoint ) {
 	// SetViewportOrgEx( hdc, -X, -Y, lpPoint );
 	// return SetViewportOrgEx( hdc, X - 30, Y - 30, lpPoint );
@@ -174,12 +174,9 @@ BOOL SetWindowOrgEx( HDC hdc, int X, int Y, LPPOINT lpPoint ) {
 	return TRUE;
 }
 
-
 BOOL TextOut( HDC hdc, int nXStart, int nYStart, LPCTSTR lpString, int cbString ) { 
     return ExtTextOut( hdc, nXStart, nYStart - 16, 0, NULL, lpString, cbString, NULL );
 }
-
-
 
 BOOL ResizePalette( HPALETTE hpal, UINT nEntries ) {
     return FALSE;
@@ -208,7 +205,7 @@ size_t strftime( char *strDest, size_t maxsize, const char *format, const struct
 BOOL SystemParametersInfo(UINT uiAction, UINT uiParam, PVOID pvParam, UINT fWinIni) {
     return FALSE;
 }
-
+/*
 HMENU GetMenu(HWND hWnd) {
     return NULL;
 }
@@ -234,7 +231,7 @@ void PostCreateWindow( CREATESTRUCT& cs, HWND hWnd, HMENU nIDorHMenu) {
     if((hWnd != NULL) && (HIWORD(nIDorHMenu) != NULL))
 	SetMenu(hWnd, nIDorHMenu);
 }
-
+*/
 HRGN CreateRectRgn(int x1, int y1, int x2, int y2) {
     RECT rect = { x1, y1, x2, y2 };
     return ::CreateRectRgnIndirect(&rect); 

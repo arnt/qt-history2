@@ -15,8 +15,12 @@
 #include <kfuncs.h>
 #include <ctype.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#define POCKET_PC
+#define POCKET_PC         // POCKETPC
+//#undef POCKETPC           // HPCPRO
 
 #define SetWindowLongA		SetWindowLong
 #define GetWindowLongA		GetWindowLong
@@ -27,13 +31,18 @@
 
 
 #ifndef POCKET_PC
+
 int isprint( int c );
 int isdigit( int c );
 int isxdigit( int c );
 int isspace( int c );
+int isgraph( int c );
+
 #else
+
 #define SM_CXCURSOR             13
 #define SM_CYCURSOR             14
+
 #endif
 
 
@@ -53,6 +62,7 @@ struct _stat
 	int st_mtime;
 	int st_atime;
 	int st_nlink;
+	int st_ctime;
 };
 
 
@@ -72,10 +82,12 @@ struct _stat
 
 
 #ifndef POCKET_PC
+
 char *strrchr( const char *string, int c );
 double strtod( const char *nptr, char **endptr );
 long strtol( const char *nptr, char **endptr, int base );
 double atof( const char *string );
+
 #endif
 
 
@@ -126,17 +138,10 @@ DWORD GetLogicalDrives(VOID);
 int _getdrive( void );
 FILE *fdopen(int handle, const char *mode);
 char *getenv(const char *env);
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 FILE *_fdopen(int handle, const char *mode);
 void rewind( FILE *stream );
 FILE *tmpfile( void );
 extern int errno;
-#ifdef __cplusplus
-}
-#endif
 
 #define calloc	_calloc
 
@@ -175,6 +180,8 @@ struct tm {
 
 struct tm *gmtime( const time_t *timer );
 size_t strftime( char *strDest, size_t maxsize, const char *format, const struct tm *timeptr );
+struct tm *localtime(const time_t *);
+
 
 BOOL SetWindowOrgEx(
   HDC hdc,        // handle to device context
@@ -542,117 +549,6 @@ time_t	mktime(struct tm* );
 struct tm *localtime(const time_t *);
 char	*ctime(const time_t* );
 time_t	time(time_t *);
-HINSTANCE GetModuleHandleW(LPCWSTR lpModuleName);
-HICON   ExtractIcon(HINSTANCE hInst, LPCWSTR lpszExeFileName, UINT nIconIndex);
-int     MulDiv(int nNumber, int nNumerator, int nDenominator);
-HINSTANCE GetModuleHandleA(LPCSTR lpModuleName);
-short   GetFileTitle(LPCTSTR lpszFile, LPTSTR lpszTitle, WORD cbBuf);
-
-DWORD   GetVersion();
-void*   calloc(size_t num, size_t size);
-void*	_expand(void* pvMemBlock, size_t iSize);
-void    abort();
-unsigned long _beginthreadex(void *security, unsigned stack_size,
-		unsigned (__stdcall *start_address)(void *), void *arglist, unsigned initflag, unsigned *thrdaddr);
-void    _endthreadex(unsigned nExitCode);
-BOOL    GetCursorPos(LPPOINT lpPoint);
-HDWP    BeginDeferWindowPos(int nNumWindows);
-HDWP    DeferWindowPos(HDWP hWinPosInfo, HWND hWnd, HWND hWndInsertAfter, 
-                                        int x, int y, int cx, int cy, UINT uFlags);
-BOOL    EndDeferWindowPos(HDWP hWinPosInfo);
-BOOL    SystemParametersInfo(UINT uiAction, UINT uiParam, PVOID pvParam, UINT fWinIni);
-FARPROC GetProcAddressA(HMODULE hModule, LPCSTR lpProcName);
-HMODULE LoadLibraryA(LPCSTR lpLibFileName);
-BOOL    WinHelp(HWND hWndMain, LPCTSTR lpszHelp, UINT uCommand, DWORD dwData); 
-wchar_t*AsciiToWide(wchar_t* ws, const char* s);
-wchar_t*AsciiToWide2(const char* s);
-PSTR    T2CAHelper(LPSTR lpszDest, LPCTSTR lpszSrc);
-BOOL    CheckEmulationLibs(HINSTANCE hInstance);
-int     GetClipboardFormatNameA(UINT format, LPSTR lpszFormatName, int cchMaxCount);
-void    WaitMessage();
-BOOL    IsBadStringPtrA(LPCSTR lpsz, UINT ucchMax);
-BOOL    IsBadStringPtrW(LPCWSTR lpsz, UINT ucchMax);
-void    ReportDebugBreak(TCHAR *szFile, int nLine);
-HPEN    CreatePen(int nPenStyle, int nWidth, COLORREF crColor);
-HBRUSH  CreateBrushIndirect(const LOGBRUSH* lplb);
-HFONT   CreateFont(int nHeight, int nWidth, int nEscapement, int nOrientation, int nWeight, BYTE bItalic, BYTE bUnderline, BYTE cStrikeOut, BYTE nCharSet, BYTE nOutPrecision, BYTE nClipPrecision, BYTE nQuality, BYTE nPitchAndFamily, LPCTSTR lpszFacename);
-HRGN    CreateRectRgn(int x1, int y1, int x2, int y2);
-BOOL    SetRectRgn(HRGN hrgn, int nLeftRect, int nTopRect, int nRightRect, int nBottomRect);
-BOOL    GetBrushOrgEx(HDC hdc, LPPOINT lppt);
-int     OffsetClipRgn(HDC hdc, int nXOffset, int nYOffset);
-int     ExtSelectClipRgn(HDC hdc, HRGN hrgn, int fnMode);
-int     ExcludeUpdateRgn(HDC hDC, HWND hWnd);
-BOOL    PolyPolyline(HDC hdc, const POINT* lppt, const DWORD* lpdwPolyPoints, DWORD cCount);
-BOOL    PolyPolygon(HDC hdc, const POINT* lpPoints, const int* lpPolyCounts, int nCount);
-int     FrameRect(HDC hdc, const RECT* lprc, HBRUSH hbr);
-UINT    GetSystemDirectory(LPWSTR lpBuffer, UINT uSize);
-UINT    GetSystemDirectoryA(LPSTR lpBuffer, UINT uSize);
-TCHAR*  GetNextArg(TCHAR* pszArgList, TCHAR szArg[]);
-int     GetArgCount(TCHAR* pszArgList);
-BOOL    ArgvW(int argc, char* argv[]);
-DWORD   GetObjectStoreFreeSpace();
-UINT    GetTempFileName(LPCTSTR lpPathName, LPCTSTR lpPrefixString, UINT uUnique, LPTSTR lpTempFileName);
-DWORD   GetFullPathName(LPCTSTR lpFileName, DWORD nBufferLength, LPTSTR lpBuffer, LPTSTR *lpFilePart);
-short   GetFileTitleW(LPCTSTR lpszFile, LPTSTR lpszTitle, WORD cbBuf);
-HMENU   GetMenu(HWND hWnd);
-BOOL    SetMenu(HWND hWnd, HMENU hMenu);
-UINT    GetMenuItemID(HMENU hMenu, int nPos);
-BOOL    ModifyMenu(HMENU hMnu, UINT uPosition, UINT uFlags, UINT uIDNewItem, LPCTSTR lpNewItem);
-int     GetMenuItemCount(HMENU hMenu);
-int     GetMenuString(HMENU hMenu, UINT uIDItem, LPWSTR lpString, int nMaxCount, UINT uFlag);
-UINT    GetMenuState(HMENU hMenu, UINT uId, UINT uFlags);
-BOOL    InvalidateRgn(HWND hWnd, HRGN hRgn, BOOL bErase);
-int     GetScrollPos(HWND hWnd, int nBar);
-BOOL    GetScrollRange(HWND hWnd, int nBar, LPINT lpMinPos, LPINT lpMaxPos);
-void    ScrollChildren(HWND hWnd, int cx, int cy);
-BOOL    ShowScrollBar(HWND hWnd, int nBar, BOOL bShow);
-BOOL    EnumChildWindows(HWND hWndParent, WNDENUMPROC lpEnumFunc, LPARAM lParam);
-int     GetSystemMetrics(int nIndex);
-BOOL    RedrawWindow(HWND hWnd, CONST RECT *prcUpdate, HRGN hrgnUpdate, UINT afuRedraw);
-BOOL	CALLBACK FirstDlgProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam);
-LRESULT	CALLBACK NullWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam);
-LRESULT	CALLBACK FirstDefWindowProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam);
-BOOL    WriteProfileStringW(LPCWSTR lpAppName, LPCWSTR lpKeyName, LPCWSTR lpString);
-DWORD   GetProfileStringW(LPCWSTR lpAppName, LPCWSTR lpKeyName, LPCWSTR lpDefault, LPWSTR lpReturnedString, DWORD nSize);
-LONG    RegQueryValue(HKEY hKey, LPCWSTR lpSubKey, LPWSTR lpValue, PLONG   lpcbValue);
-LONG    RegOpenKey(HKEY hKey, LPCTSTR lpSubKey, PHKEY phkResult);
-LONG    RegSetValue(HKEY hKey, LPCWSTR lpSubKey, DWORD dwType, LPCWSTR lpData, DWORD cbData);
-LONG    RegCreateKey(HKEY hKey, LPCWSTR lpSubKey, PHKEY phkResult);
-LONG    RegEnumKey(HKEY hKey, DWORD dwIndex, LPTSTR lpName, DWORD cbName);
-LONG    RegQueryValue(HKEY hKey, LPCWSTR lpSubKey, LPWSTR lpValue, PLONG   lpcbValue);
-HWND	FindText(LPFINDREPLACE lpfr);
-HWND	ReplaceText(LPFINDREPLACE lpfr);
-UINT	WINAPI CoTaskMemSize(LPVOID);
-LRESULT CALLBACK IMMWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam);
-void    UnregisterOleWindowClasses();
-HRESULT OleTranslateColor(OLE_COLOR clr, HPALETTE hpal, COLORREF* lpcolorref);
-HRESULT OleCreateFontIndirect(void* lpFontDesc, REFIID riid, LPVOID* lplpvObj);
-HRESULT RegGetMiscStatus(REFCLSID clsid, DWORD *pdwStatus);
-BOOL    LockWindowUpdate(HWND hWnd); 
-UINT    IsDlgButtonChecked(HWND hDlg, int nIDButton);
-BOOL    SetDlgItemText(HWND hDlg, int nIDDlgItem, LPCWSTR lpString);
-LONG    SendDlgItemMessage(HWND hDlg, int nIDDlgItem, UINT uMsg, WPARAM wParam, LPARAM lParam);
-UINT    GetDlgItemText(HWND hDlg, int nIDDlgItem, LPWSTR lpString, int nMaxCount);
-void    CheckDlgButton(HWND hDlg, int nIDButton, UINT uCheck);
-BOOL    IsIconic(HWND hWnd);
-HWND    GetTopWindow(HWND hWnd);
-HWND    GetNextWindow(HWND hWnd, UINT nDirection);
-HWND    GetDesktopWindow();
-HWND    GetLastActivePopup(HWND hWnd);
-BOOL    ScrollWindow(HWND hWnd, int xAmount, int yAmount, LPCRECT lpRect, LPCRECT lpClipRect);
-BOOL    IsMenu(HMENU hMenu);
-BOOL    TrackPopupMenu(HMENU hMenu, UINT uFlags, int x, int y, int nReserved, HWND hWnd, CONST RECT *prcRect);
-BOOL    InvertRect(HDC hdc, const RECT* lprc);
-int     GetMapMode(HDC hdc);
-BOOL    GetViewportOrgEx(HDC hdc, LPPOINT lpPoint);
-BOOL    GetViewportExtEx(HDC hdc, LPSIZE lpSize);
-BOOL    GetWindowOrgEx(HDC hdc, LPPOINT lpPoint);
-BOOL    GetWindowExtEx(HDC hdc, LPSIZE lpSize);
-BOOL    DPtoLP(HDC hdc, LPPOINT lpPoints, int nCount);
-BOOL    LPtoDP(HDC hdc, LPPOINT lpPoints, int nCount);
-BOOL    DrawIcon(HDC hDC, int X, int Y, HICON hIcon);
-HCURSOR LoadCursor(HINSTANCE hInstance,LPCWSTR lpCursorName);
-HBITMAP CreateBitmapIndirect(LPBITMAP lpBitmap);
 
 */
 
@@ -666,6 +562,11 @@ void _endthreadex(unsigned nExitCode);
 unsigned long _beginthreadex(void *security, unsigned stack_size, 
 		    unsigned (__stdcall *start_address)(void *),
 		    void *arglist, unsigned initflag, unsigned *thrdaddr);
+
+
+#ifdef __cplusplus
+}	// Extern C.
+#endif
 
 #endif // Q_OS_TEMP
 
