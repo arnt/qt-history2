@@ -188,6 +188,10 @@ the signal only if \c{v != val}. This prevents infinite looping
 in the case of cyclic connections (e.g. if \c{b.valueChanged()}
 were connected to \c{a.setValue()}).
 
+A signal is emitted for \e{every} connection you make, so if you
+duplicate a connection, two signals will be emitted. You can always
+break a connection using \c{QObject::disconnect()}.
+
 This example illustrates that objects can work together without knowing
 about each other, as long as there is someone around to set up a
 connection between them initially.

@@ -1611,6 +1611,10 @@ QCString QObject::normalizeSignalSlot( const char *signalSlot )
     existence of either \a signal or \a member, or if their signatures
     aren't compatible.
 
+    A signal is emitted for \e{every} connection you make, so if you
+    duplicate a connection, two signals will be emitted. You can
+    always break a connection using \c{disconnect()}.
+
     \sa disconnect()
 */
 
