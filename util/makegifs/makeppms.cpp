@@ -59,6 +59,69 @@
 #include <qkeycode.h>
 #include <stdlib.h>
 
+/* XPM */
+static const char *image_xpm[] = {
+"17 15 9 1",
+" 	c #7F7F7F",
+".	c #FFFFFF",
+"X	c #00B6FF",
+"o	c #BFBFBF",
+"O	c #FF6C00",
+"+	c #000000",
+"@	c #0000FF",
+"#	c #6CFF00",
+"$	c #FFB691",
+"             ..XX",
+" ........o   .XXX",
+" .OOOOOOOo.  XXX+",
+" .O@@@@@@+++XXX++",
+" .O@@@@@@O.XXX+++",
+" .O@@@@@@OXXX+++.",
+" .O######XXX++...",
+" .O#####XXX++....",
+" .O##$#$XX+o+....",
+" .O#$$$$$+.o+....",
+" .O##$$##O.o+....",
+" .OOOOOOOO.o+....",
+" ..........o+....",
+" ooooooooooo+....",
+"+++++++++++++...."
+};
+
+class ImageIconProvider : public QFileIconProvider
+{
+    Q_OBJECT
+    QStrList fmts;
+    QPixmap imagepm;
+
+public:
+    ImageIconProvider( QWidget *parent=0, const char *name=0 );
+    ~ImageIconProvider();
+
+    const QPixmap * pixmap( const QFileInfo &fi );
+};
+
+ImageIconProvider::ImageIconProvider( QWidget *parent, const char *name ) :
+    QFileIconProvider( parent, name ),
+    imagepm(image_xpm)
+{
+    fmts = QImage::inputFormats();
+}
+
+ImageIconProvider::~ImageIconProvider()
+{
+}
+
+const QPixmap * ImageIconProvider::pixmap( const QFileInfo &fi )
+{
+    QString ext = fi.extension().upper();
+    if ( fmts.contains(ext) ) {
+	return &imagepm;
+    } else {
+	return QFileIconProvider::pixmap(fi);
+    }
+}
+
 class WidgetDepicter : QObject
 {
     QWidget* widget;
@@ -1024,6 +1087,7 @@ public:
 int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
+    QFileDialog::setIconProvider( new ImageIconProvider );
 
     bool first = true;
     QString suffix = "-m.png";
@@ -1098,3 +1162,5 @@ wd.depict( new eg(), ofile, wname, TRUE );
 
     return 0;
 }
+
+#include "makeppms.moc"

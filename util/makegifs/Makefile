@@ -20,7 +20,7 @@ SHELL =	/bin/sh
 
 SOURCES	=	makeppms.cpp $(QTDIR)/examples/life/life.cpp $(QTDIR)/examples/dirview/dirview.cpp
 OBJECTS	=	makeppms.o life.o dirview.o
-SRCMETA	=	moc_life.cpp moc_dirview.o
+SRCMETA	=	moc_life.cpp moc_dirview.cpp makeppms.moc
 OBJMETA =	moc_life.o moc_dirview.o
 TARGET	=	makeppms
 
@@ -61,6 +61,8 @@ moc_life.cpp: $(QTDIR)/examples/life/life.h
 	$(MOC) $(QTDIR)/examples/life/life.h -o moc_life.cpp
 moc_dirview.cpp: $(QTDIR)/examples/dirview/dirview.h
 	$(MOC) $(QTDIR)/examples/dirview/dirview.h -o moc_dirview.cpp
+makeppms.moc: makeppms.cpp
+	$(MOC) makeppms.cpp -o makeppms.moc
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 
