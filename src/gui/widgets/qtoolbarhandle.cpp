@@ -33,11 +33,19 @@ static QStyleOption getStyleOption(const QToolBarHandle *tbh)
 
 QToolBarHandle::QToolBarHandle(QToolBar *parent)
     : QWidget(parent), orient(parent->orientation()), state(0)
-{ setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum); }
+{
+    setCursor(Qt::SizeAllCursor);
+}
 
 void QToolBarHandle::setOrientation(Qt::Orientation orientation)
 {
     orient = orientation;
+
+    if (orientation == Qt::Horizontal) {
+        setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
+    } else {
+        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    }
 
     // if we're dragging - swap the offset coords around as well
     if (state) {
