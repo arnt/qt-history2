@@ -150,9 +150,14 @@ private:
 
 struct QTablePrivate
 {
-    QTablePrivate() : hasRowSpan( FALSE ), hasColSpan( FALSE ) {}
+    QTablePrivate() : hasRowSpan( FALSE ), hasColSpan( FALSE )
+    {
+	hiddenRows.setAutoDelete( TRUE );
+	hiddenCols.setAutoDelete( TRUE );
+    }
     uint hasRowSpan : 1;
     uint hasColSpan : 1;
+    QIntDict<int> hiddenRows, hiddenCols;
 };
 
 struct QTableHeaderPrivate
@@ -4838,6 +4843,7 @@ void QTable::sortColumn( int col, bool ascending, bool wholeRows )
 
 void QTable::hideRow( int row )
 {
+    d->hiddenRows.replace( row, new int( leftHeader->sectionSize( row ) ) );
     leftHeader->resizeSection( row, 0 );
     leftHeader->setResizeEnabled( FALSE, row );
     rowHeightChanged( row );
@@ -4850,6 +4856,7 @@ void QTable::hideRow( int row )
 
 void QTable::hideColumn( int col )
 {
+    d->hiddenCols.replace( col, new int( topHeader->sectionSize( col ) ) );
     topHeader->resizeSection( col, 0 );
     topHeader->setResizeEnabled( FALSE, col );
     columnWidthChanged( col );
@@ -4862,7 +4869,13 @@ void QTable::hideColumn( int col )
 
 void QTable::showRow( int row )
 {
-    adjustRow( row );
+    int *h = d->hiddenRows.find( row );
+    if ( h ) {
+	setRowHeight( row, *h );
+	d->hiddenRows.remove( row );
+    } else {
+	setRowHeight( row, 20 );
+    }
     leftHeader->setResizeEnabled( TRUE, row );
 }
 
@@ -4873,7 +4886,13 @@ void QTable::showRow( int row )
 
 void QTable::showColumn( int col )
 {
-    adjustColumn( col );
+    int *w = d->hiddenCols.find( col );
+    if ( w ) {
+	setColumnWidth( col, *w );
+	d->hiddenCols.remove( col );
+    } else {
+	setColumnWidth( col, 20 );
+    }
     topHeader->setResizeEnabled( TRUE, col );
 }
 
