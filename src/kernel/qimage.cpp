@@ -2596,6 +2596,7 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
 
     int y;
     bool depth1 = (bpp == 1);
+    bool alpha = data->alpha;
 
     // compute size of target image
     QWMatrix mat = QPixmap::trueMatrix( matrix, ws, hs );
@@ -2612,6 +2613,7 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
 	QRect r = a.boundingRect().normalize();
 	wd = r.width();
 	hd = r.height();
+	alpha = TRUE;
     }
 
     bool invertible;
@@ -2621,28 +2623,47 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
 	return im;
     }
 
-    if ( depth1 )
-	dbpl = (wd+7)/8;
-    else
-	dbpl = ((wd*bpp+31)/32)*4;
+    // create target image (some of the code is from QImage::create())
+    QImage dImage = copy();
+    dImage.freeBits();
+#ifdef Q_WS_QWS
+    dbpl = (wd*bpp+7)/8;
+#else
+    dbpl = ((wd*bpp+31)/32)*4;
+#endif
     dbytes = dbpl*hd;
-
-    // create target image
-    QImage dImage( wd, hd, bpp, numColors(), bitOrder() );
-    dImage.data->alpha = data->alpha;
+    int ptbl   = hd*sizeof(uchar*);		// pointer table size
+    int size   = dbytes + ptbl;			// total size of data block
+    uchar **pp  = (uchar **)malloc( size );	// alloc image bits
+    if ( !pp ) {				// no memory
+	return QImage();
+    }
+    dImage.data->w = wd;
+    dImage.data->h = hd;
+    dImage.data->nbytes  = dbytes;
+    dImage.data->bits = pp;			// set image pointer
+    uchar *d = (uchar*)(pp + hd);		// setup scanline pointers
+    for ( y=hd; y>0; y-- ) {
+	*pp++ = d;
+	d += dbpl;
+    }
+    dImage.data->alpha = alpha;
     switch ( bpp ) {
 	// initizialize the data
-	// ### choose nice (i.e. transparent) color for the default
 	case 1:
+//qDebug( "bpp == 1" );
 	    memset( dImage.bits(), 0, dImage.numBytes() );
 	    break;
 	case 8:
+//qDebug( "bpp == 8" );
 	    memset( dImage.bits(), Qt::white.pixel(), dImage.numBytes() );
 	    break;
 	case 16:
+//qDebug( "bpp == 16" );
 	    memset( dImage.bits(), 0xff, dImage.numBytes() );
 	    break;
 	case 32:
+//qDebug( "bpp == 32" );
 	    memset( dImage.bits(), 0x00, dImage.numBytes() );
 	    break;
     }
@@ -2662,21 +2683,13 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
     uint maxws = ws<<16;
     uint maxhs = hs<<16;
     uchar *p = dImage.bits();
-    int xbpl, p_inc;
     bool msbfirst = systemByteOrder() == BigEndian; // ### is this right?
 
-    if ( depth1 ) {
-	xbpl  = (wd+7)/8;
-	p_inc = dbpl - xbpl;
-    } else {
-	xbpl  = (wd*bpp)/8;
-	p_inc = dbpl - xbpl;
-    }
-
     for ( y=0; y<hd; y++ ) {			// for each target scanline
+	p = dImage.scanLine( y );
 	trigx = m21ydx;
 	trigy = m22ydy;
-	uchar *maxp = p + xbpl;
+	uchar *maxp = p + dbpl; // ### is this right?
 	if ( !depth1 ) {
 	    switch ( bpp ) {
 		case 8:				// 8 bpp transform
@@ -2757,7 +2770,6 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
 	}
 	m21ydx += m21;
 	m22ydy += m22;
-	p += p_inc;
     }
     return dImage;
 }
