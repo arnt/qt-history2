@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#55 $
+** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#56 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#55 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#56 $")
 
 
 /*----------------------------------------------------------------------------
@@ -33,7 +33,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#55 $")
   QPixmap, QPicture and QPrinter.
 
   The default coordinate system of a paint device has its origin
-  located at the top left position. X increases to the left and Y
+  located at the top left position. X increases to the right and Y
   increases downwards. The unit is one pixel.  There are several ways
   to set up a user-defined coordinate system using the painter, for
   example by QPainter::setWorldMatrix().
