@@ -221,6 +221,10 @@ bool QGArray::isEqual( const QGArray &a ) const
 */
 bool QGArray::resize( uint newsize, Optimization optim )
 {
+#ifndef QT_QGARRAY_SPEED_OPTIM
+    Q_UNUSED(optim);
+#endif
+
     if ( newsize == shd->len
 #ifdef QT_QGARRAY_SPEED_OPTIM
 	 && newsize == shd->maxl
