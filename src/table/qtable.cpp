@@ -3446,6 +3446,8 @@ void QTable::updateGeometries()
 			     leftMargin(), visibleHeight() );
     topHeader->setGeometry( leftMargin() + frameWidth(), frameWidth(),
 			    visibleWidth(), topMargin() );
+    horizontalScrollBar()->raise();
+    verticalScrollBar()->raise();
     inUpdateGeometries = FALSE;
 }
 
@@ -3943,7 +3945,6 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
 	}
     }
 
-    topHeader->setUpdatesEnabled( FALSE );
     if ( updateHorizontal ) {
 	for ( i = 0; i <= numCols(); ++i ) {
 	    if ( !isColumnSelected( i ) )
@@ -3954,10 +3955,7 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
 		topHeader->setSectionState( i, QTableHeader::Bold );
 	}
     }
-    topHeader->setUpdatesEnabled( TRUE );
-    topHeader->repaint( FALSE );
 
-    leftHeader->setUpdatesEnabled( FALSE );
     if ( updateVertical ) {
 	for ( i = 0; i <= numRows(); ++i ) {
 	    if ( !isRowSelected( i ) )
@@ -3968,8 +3966,6 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
 		leftHeader->setSectionState( i, QTableHeader::Bold );
 	}
     }
-    leftHeader->setUpdatesEnabled( TRUE );
-    leftHeader->repaint( FALSE );
 }
 
 /*! Clears all selections and repaints the appropriate
@@ -3983,6 +3979,8 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
 
 void QTable::clearSelection( bool repaint )
 {
+    if ( selections.isEmpty() )
+	return;
     bool needRepaint = !selections.isEmpty();
 
     QRect r;
@@ -4868,9 +4866,9 @@ void QTableHeader::setSectionState( int s, SectionState astate )
     states[ s ] = astate;
     if ( isUpdatesEnabled() ) {
 	if ( orientation() == Horizontal )
-	    repaint( FALSE );
+	    repaint( sectionPos( s ) - offset(), 0, sectionSize( s ), height(), FALSE );
 	else
-	    repaint( FALSE );
+	    repaint( 0, sectionPos( s ) - offset(), width(), sectionSize( s ), FALSE );
     }
 }
 
@@ -5164,15 +5162,12 @@ void QTableHeader::updateSelections()
     int b = sectionAt( endPos );
     int start = QMIN( a, b );
     int end = QMAX( a, b );
-    setUpdatesEnabled( FALSE );
     for ( int i = 0; i < count(); ++i ) {
 	if ( i < start || i > end )
 	    setSectionState( i, (QTableHeader::SectionState)oldStates[ i ] );
 	else
 	    setSectionState( i, Selected );
     }
-    setUpdatesEnabled( TRUE );
-    repaint( FALSE );
 
     QTableSelection oldSelection = *table->currentSel;
     if ( orientation() == Vertical )
