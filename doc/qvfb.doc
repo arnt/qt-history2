@@ -33,7 +33,7 @@
 The virtual framebuffer allows Qt/Embedded programs to be developed on your
 desktop machine, without switching between consoles and X11.
 <p>
-The virtual framebuffer is located in $QTDIR/util/qvfb
+The virtual framebuffer is located in $QTDIR/src/util/qvfb
 
 <h3>Using the virtual framebuffer</h3>
 <ol> 
