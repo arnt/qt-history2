@@ -452,8 +452,7 @@ public:
     // ### remove in Qt 4.0
     bool operator==( const QValueVector<T>& x )
     {
-	// force the const versions of begin() and end() to be called
-	return size()==x.size() ? qEqual( ((const QValueVector<T> *)this)->begin(), ((const QValueVector<T> *)this)->end(), x.begin()) : FALSE;
+	return size()==x.size() ? qEqual( constBegin(), constEnd(), x.begin()) : FALSE;
     }
 
     bool operator==( const QValueVector<T>& x ) const
