@@ -79,11 +79,7 @@ private:
 	*actionAlignLeft,
 	*actionAlignCenter,
 	*actionAlignRight,
-	*actionAlignJustify,
-	*actionInsertTableRow,
-	*actionInsertTableColumn,
-	*actionDeleteTableRow,
-	*actionDeleteTableColumn;
+	*actionAlignJustify;
 
     QMenu *editMenu;
     QToolBar *editToolBar;

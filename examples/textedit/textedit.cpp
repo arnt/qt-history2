@@ -527,12 +527,6 @@ void TextEdit::currentCharFormatChanged(const QTextCharFormat &format)
 
     QTextCursor cursor = currentEditor()->cursor();
     alignmentChanged(cursor.blockFormat().alignment());
-
-    const bool isInTable = (cursor.currentTable());
-    actionInsertTableRow->setEnabled(isInTable);
-    actionInsertTableColumn->setEnabled(isInTable);
-    actionDeleteTableRow->setEnabled(isInTable);
-    actionDeleteTableColumn->setEnabled(isInTable);
 }
 
 void TextEdit::fontChanged( const QFont &f )
