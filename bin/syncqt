@@ -226,6 +226,7 @@ sub syncHeader {
     my ($header, $iheader) = @_;
     $iheader =~ s=\\=/=g;
     $header =~ s=\\=/=g;
+    return copyFile($iheader, $header) if($copy_headers);
 
     my $iheader_no_basedir = $iheader;
     $iheader_no_basedir =~ s,^$basedir/?,,;
@@ -336,8 +337,59 @@ sub fileCompare {
     return $file1contents ne $file2contents ? (stat("$file2"))[9] <=> (stat("$file1"))[9] : 0;
 }
 
+
 ######################################################################
-# Syntax:  symlinkFile(file,ifile)
+# Syntax:  copyFile(file, ifile)
+# Params:  file, string, filename to create duplicate for
+#          ifile, string, destination name of duplicate
+#
+# Purpose: Keeps files in sync so changes in either will be written to the other
+######################################################################
+sub copyFile
+{
+    my ($file,$ifile, $copy,$knowdiff,$filecontents,$ifilecontents) = @_;
+    # Bi-directional synchronization
+    open( I, "< " . $file ) || die "Could not open $file for reading";
+    local $/;
+    binmode I;
+    $filecontents = <I>;
+    close I;
+    if ( open(I, "< " . $ifile) ) {
+	local $/;
+	binmode I;
+	$ifilecontents = <I>;
+	close I;
+	$copy = fileCompare($file, $ifile);
+	$knowdiff = 0,
+    } else {
+	$copy = -1;
+	$knowdiff = 1;
+    }
+
+    if ( $knowdiff || ($filecontents ne $ifilecontents) ) {
+	if ( $copy > 0 ) {
+	    my $file_dir = dirname($file);
+	    mkpath $file_dir, 0777 unless(-e "$file_dir");
+	    open(O, "> " . $file) || die "Could not open $file for writing (no write permission?)";
+	    local $/;
+	    binmode O;
+	    print O $ifilecontents;
+	    close O;
+	} elsif ( $copy < 0 ) {
+	    my $ifile_dir = dirname($ifile);
+	    mkpath $ifile_dir, 0777 unless(-e "$ifile_dir");
+	    open(O, "> " . $ifile) || die "Could not open $ifile for writing (no write permission?)";
+	    local $/;
+	    binmode O;
+	    print O $filecontents;
+	    close O;
+	}
+    }
+    return 1;
+}
+
+######################################################################
+# Syntax:  symlinkFile(file, ifile)
 # Params:  file, string, filename to create "symlink" for
 #          ifile, string, destination name of symlink
 #
@@ -346,7 +398,7 @@ sub fileCompare {
 ######################################################################
 sub symlinkFile
 {
-    my ($file,$ifile, $fast,$copy,$knowdiff,$filecontents,$ifilecontents) = @_;
+    my ($file,$ifile, $copy,$knowdiff,$filecontents,$ifilecontents) = @_;
 
     if ($isunix) {
         print "symlink created for $file ";
@@ -361,47 +413,8 @@ sub symlinkFile
         }
         print "\n";
         symlink($file, $ifile);
-        return;
     } else {
-        # Bi-directional synchronization
-        open( I, "< " . $file ) || die "Could not open $file for reading";
-        local $/;
-        binmode I;
-        $filecontents = <I>;
-        close I;
-        if ( open(I, "< " . $ifile) ) {
-            local $/;
-            binmode I;
-            $ifilecontents = <I>;
-            close I;
-            $copy = fileCompare($file, $ifile);
-            $knowdiff = 0,
-        } else {
-            $copy = -1;
-            $knowdiff = 1;
-        }
-    }
-
-    if ( $knowdiff || ($filecontents ne $ifilecontents) ) {
-        if ( $copy > 0 ) {
-            my $file_dir = dirname($file);
-            mkpath $file_dir, 0777 unless(-e "$file_dir");
-            open(O, "> " . $file) || die "Could not open $file for writing (no write permission?)";
-            local $/;
-            binmode O;
-            print O $ifilecontents;
-            close O;
-            print "$file written\n";
-        } elsif ( $copy < 0 ) {
-            my $ifile_dir = dirname($ifile);
-            mkpath $ifile_dir, 0777 unless(-e "$ifile_dir");
-            open(O, "> " . $ifile) || die "Could not open $ifile for writing (no write permission?)";
-            local $/;
-            binmode O;
-            print O $filecontents;
-            close O;
-            print "$ifile written\n";
-        }
+	copyFile($file, $ifile);
     }
 }
 
@@ -659,24 +672,15 @@ foreach (@modules_to_sync) {
 			my @headers;
 			if ($public_header) {
 			    @headers = ( "$includedir/Qt/$header", "$includedir/$lib/$header" );
+			    foreach(@classes) {
+				push @headers, "$includedir/$lib/$_";
+			    }
 			} else {
 			    @headers = ( "$includedir/Qt/private/$header", "$includedir/$lib/private/$header" );
 			}
-
-                        #do the syncing..
-                        my $old_isunix = $isunix;
-                        $isunix = 0;
-			foreach(@headers) {
-                            if ($copy_headers) {
-			        $header_copies++ if(symlinkFile($iheader, $_));
-			    } else {
-			        $header_copies++ if(syncHeader($_, $iheader));
-			    }
+			foreach(@headers) { #sync them
+			    $header_copies++ if(syncHeader($_, $iheader));
 			}
-    		        foreach(@classes) {
-    		            $header_copies++ if(syncHeader("$includedir/$lib/$_", $copy_headers ? "$header" : "$iheader"));
-    		        }
-                        $isunix = $old_isunix;
 
 			if($public_header) {
 			    #put it into the master file
