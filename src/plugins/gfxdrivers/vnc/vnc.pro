@@ -7,9 +7,9 @@ DESTDIR	 = ../../../gfxdrivers
 DEFINES	-= QT_NO_QWS_VNC
 unix:OBJECTS_DIR	= .obj
 
-HEADERS		= ../../../../include/qgfxvnc_qws.h
+HEADERS		= ../../../../include/Qt/qgfxvnc_qws.h
 SOURCES		= main.cpp \
-		  ../../../../src/embedded/qgfxvnc_qws.cpp
+		  ../../../../src/gui/embedded/qgfxvnc_qws.cpp
 
 
 target.path += $$plugins.path/gfxdrivers

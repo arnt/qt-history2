@@ -7,10 +7,10 @@ DESTDIR	 = ../../../gfxdrivers
 DEFINES	-= QT_NO_QWS_VOODOO3
 unix:OBJECTS_DIR	= .obj
 
-HEADERS		= ../../../../include/qgfxvoodoo_qws.h \
-		  ../../../../include/qgfxvoodoodefs_qws.h
+HEADERS		= ../../../../include/Qt/qgfxvoodoo_qws.h \
+		  ../../../../include/Qt/qgfxvoodoodefs_qws.h
 SOURCES		= main.cpp \
-		  ../../../../src/embedded/qgfxvoodoo_qws.cpp
+		  ../../../../src/gui/embedded/qgfxvoodoo_qws.cpp
 
 
 target.path += $$plugins.path/gfxdrivers

@@ -7,9 +7,9 @@ DESTDIR	 = ../../../gfxdrivers
 DEFINES	-= QT_NO_QWS_VGA16
 unix:OBJECTS_DIR = .obj
 
-HEADERS		= ../../../../include/qgfxvga16_qws.h
+HEADERS		= ../../../../include/Qt/qgfxvga16_qws.h
 SOURCES		= main.cpp \
-		  ../../../../src/embedded/qgfxvga16_qws.cpp
+		  ../../../../src/gui/embedded/qgfxvga16_qws.cpp
 
 
 target.path += $$plugins.path/gfxdrivers

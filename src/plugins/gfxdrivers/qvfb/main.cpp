@@ -37,7 +37,7 @@ QStringList GfxVfbDriver::keys() const
 
 QScreen* GfxVfbDriver::create(const QString& driver, int displayId)
 {
-    if (driver.lower() == "qvfb")
+    if (driver.toLower() == "qvfb")
         return new QVFbScreen(displayId);
 
     return 0;
