@@ -9,10 +9,27 @@
 #define d d_func()
 #define q q_func()
 
+/*!
+    \class QTextTableCellProperties qtexttable.h
+    \brief The properties of a table cell in a QTextDocument
+
+    \ingroup text
+
+    QTextTableCellProperties describes a specific table cell in a QTextTable.
+    It can be queried with the QTextTable::cellAt method.
+*/
+
+/*!
+  Constructs an invalid QTextTableCellProperties object.
+
+  \sa isValid
+*/
 QTextTableCellProperties::QTextTableCellProperties()
     : r(-1), c(-1), rSpan(0), cSpan(0)
 {}
 
+/*! \internal
+ */
 QTextTableCellProperties::QTextTableCellProperties(const QTextTablePrivate *p, int row, int col)
 	: r(row), c(col)
 {
@@ -44,8 +61,83 @@ QTextTableCellProperties::QTextTableCellProperties(const QTextTablePrivate *p, i
     cSpan = fmt.tableCellRowSpan();
 }
 
+/*!
+  \fn int QTextTableCellProperties::row() const
+
+  \returns the row this table cell describes
+*/
+
+/*!
+  \fn int QTextTableCellProperties::col() const
+
+  \returns the col this table cell describes
+*/
+
+/*!
+  \fn int QTextTableCellProperties::rowSpan() const
+
+  \returns the rowSpan of this table cell
+*/
+
+/*!
+  \fn int QTextTableCellProperties::colSpan() const
+
+  \returns the colSpan of this table cell.
+*/
+
+/*!
+  \fn bool QTextTableCellProperties::isValid() const
+
+  \returns if the table cell queried by QTextTable::cellAt describes a
+  valid cell.
+*/
+
+
+/*!
+  \fn QTextCursor QTextTableCellProperties::start() const
+
+  \returns if a QTextCursor pointing to the start of the cell.
+*/
+
+/*!
+  \fn QTextCursor QTextTableCellProperties::end() const
+
+  \returns if a QTextCursor pointing to the end of the cell.
+*/
+
+
+/*!
+  \fn QTextCursor QTextTableCellProperties::operator==(const QTextTableCellProperties &other) const
+
+  \returns true if the two objects describe the same table cell
+*/
+
+/*!
+  \fn QTextCursor QTextTableCellProperties::operator!=(const QTextTableCellProperties &other) const
+
+  \returns true if the two objects do not describe the same table cell
+*/
+
+/*!
+  destroys the object.
+*/
 QTextTableCellProperties::~QTextTableCellProperties() {}
 
+
+/*!
+    \class QTextTable qtexttable.h
+    \brief A table in a QTextDocument
+
+    \ingroup text
+
+    QTextTable represents a table object in a QTextDocument. Tables
+    can be created through QTextCursor::createTable and queried with
+    QTextCursor::currentTable.
+
+*/
+
+/*! \internal
+ */
 QTextTable::QTextTable(QTextPieceTable *pt, QObject *parent)
     : QObject(*new QTextTablePrivate, parent)
 {
@@ -53,11 +145,17 @@ QTextTable::QTextTable(QTextPieceTable *pt, QObject *parent)
     d->pieceTable = pt;
 }
 
+/*! \internal
+ */
 QTextTable::~QTextTable()
 {
 }
 
 
+/*!
+  \returns a QTextTableCellProperties object describing the properties
+  of the table cell at row \a row and column \a col in the table.
+*/
 QTextTableCellProperties QTextTable::cellAt(int row, int col) const
 {
     if (row < 0 || row >= d->rows() || col < 0 || col >= d->cols())
@@ -66,6 +164,10 @@ QTextTableCellProperties QTextTable::cellAt(int row, int col) const
 }
 
 
+/*!
+  \returns a QTextTableCellProperties object describing the properties
+  of the table cell at cursor position \a c.
+*/
 QTextTableCellProperties QTextTable::cellAt(const QTextCursor &c) const
 {
     int row = d->rowAt(c.position());
@@ -81,6 +183,9 @@ QTextTableCellProperties QTextTable::cellAt(const QTextCursor &c) const
     return QTextTableCellProperties();
 }
 
+/*!
+  resizes the table to \a rows rows and \a cols cols.
+*/
 void QTextTable::resize(int rows, int cols)
 {
     d->pieceTable->beginEditBlock();
@@ -101,6 +206,9 @@ void QTextTable::resize(int rows, int cols)
     d->pieceTable->endEditBlock();
 }
 
+/*!
+  inserts \a num rows after row \a pos.
+*/
 void QTextTable::insertRows(int pos, int num)
 {
     d->pieceTable->beginEditBlock();
@@ -131,6 +239,9 @@ void QTextTable::insertRows(int pos, int num)
     d->pieceTable->endEditBlock();
 }
 
+/*!
+  inserts \a num colums after colum \a pos.
+*/
 void QTextTable::insertCols(int pos, int num)
 {
 //     qDebug() << "-------- insertCols" << pos << num;
@@ -154,6 +265,9 @@ void QTextTable::insertCols(int pos, int num)
     d->pieceTable->endEditBlock();
 }
 
+/*!
+  removes \a num rows starting at row \a pos.
+*/
 void QTextTable::removeRows(int pos, int num)
 {
 //     qDebug() << "-------- removeRows" << pos << num;
@@ -179,6 +293,9 @@ void QTextTable::removeRows(int pos, int num)
 //     qDebug() << "-------- end removeRows" << pos << num;
 }
 
+/*!
+  removes \a num columns starting at column \a pos.
+*/
 void QTextTable::removeCols(int pos, int num)
 {
 //     qDebug() << "-------- removeCols" << pos << num;
@@ -207,16 +324,25 @@ void QTextTable::removeCols(int pos, int num)
 //     qDebug() << "-------- end removeCols" << pos << num;
 }
 
+/*!
+  \returns the number of rows in the table
+*/
 int QTextTable::rows() const
 {
     return d->rows();
 }
 
+/*!
+  \returns the number of columns in the table
+*/
 int QTextTable::cols() const
 {
     return d->cols();
 }
 
+/*!
+  Sets the cell at row \a row and column \a col to span \a rowspan rows.
+*/
 void QTextTable::setRowSpan(int row, int col, int rowspan)
 {
     QTextBlockFormat modifier;
@@ -224,6 +350,9 @@ void QTextTable::setRowSpan(int row, int col, int rowspan)
     d->pieceTable->setFormat(d->cellAt(row, col).key(), 1, modifier, QTextPieceTable::MergeFormat);
 }
 
+/*!
+  Sets the cell at row \a row and column \a col to span \a colspan columns.
+*/
 void QTextTable::setColSpan(int row, int col, int colspan)
 {
     QTextBlockFormat modifier;
@@ -231,16 +360,25 @@ void QTextTable::setColSpan(int row, int col, int colspan)
     d->pieceTable->setFormat(d->cellAt(row, col).key(), 1, modifier, QTextPieceTable::MergeFormat);
 }
 
+/*!
+  \returns a QTextCursor pointing to the start of the row that contains \a c.
+*/
 QTextCursor QTextTable::rowStart(const QTextCursor &c) const
 {
     return QTextCursor(d->pieceTable, d->rowStart(c.position()).key());
 }
 
+/*!
+  \returns a QTextCursor pointing to the end of the row that contains \a c.
+*/
 QTextCursor QTextTable::rowEnd(const QTextCursor &c) const
 {
     return QTextCursor(d->pieceTable, d->rowEnd(c.position()).key());
 }
 
+/*!
+  \returns a QTextCursor pointing to the start of the table.
+*/
 QTextCursor QTextTable::start() const
 {
     // + 1 as the cursor position is always to the right, and for determining the
@@ -248,11 +386,17 @@ QTextCursor QTextTable::start() const
     return QTextCursor(d->pieceTable, d->start().key() + 1);
 }
 
+/*!
+  \returns a QTextCursor pointing to the end of the table.
+*/
 QTextCursor QTextTable::end() const
 {
     return QTextCursor(d->pieceTable, d->end().key());
 }
 
+/*!
+  Sets the tables format to \a format.
+*/
 void QTextTable::setFormat(const QTextTableFormat &format)
 {
     if (d->isEmpty())
@@ -261,12 +405,15 @@ void QTextTable::setFormat(const QTextTableFormat &format)
     Q_ASSERT(ref != -1);
 
     int tblIdx = cellAt(0, 0).start().blockFormat().tableFormatIndex();
-    QAbstractUndoItem *cmd = 
+    QAbstractUndoItem *cmd =
 	new QTextFormatReferenceChangeCommand<QTextTableManager>(d->pieceTable->tableManager(), tblIdx, ref, format);
     cmd->redo();
     d->pieceTable->appendUndoItem(cmd);
 }
 
+/*!
+  \returns the format of this table.
+*/
 QTextTableFormat QTextTable::format() const
 {
     if (d->isEmpty())

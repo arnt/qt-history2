@@ -118,6 +118,20 @@ bool QTextFormatProperty::operator==(const QTextFormatProperty &rhs) const
     return true;
 }
 
+
+/*!
+    \class QTextFormat qtextformat.h
+    \brief The format of a part of a QTextDocument
+
+    \ingroup text
+
+    A QTextFormat is a generic class used for describing the format of
+    parts of a QTextDocument.  The derived classes QTextCharFormat,
+    QTextBlockFormat, QTextListFormat and QTextTableFormat are usually
+    more useful, and describe the formatting that gets applied to
+    specific parts of the document.
+*/
+
 QTextFormat::QTextFormat()
     : _type(InvalidFormat), _inheritedType(InvalidFormat)
 {
@@ -335,6 +349,19 @@ bool QTextFormat::operator==(const QTextFormat &rhs) const
     return d->properties == rhs.d->properties;
 }
 
+
+/*!
+    \class QTextCharFormat qtextformat.h
+    \brief The format of a character in a QTextDocument
+
+    \ingroup text
+
+    A QTextCharFormat describes the format to be applied to characters
+    in a QTextDocument. It contains properties as font, color and
+    anchors (if the character belongs to a hyperlink.
+*/
+
+
 void QTextCharFormat::setFont(const QFont &font)
 {
     setFontFamily(font.family());
@@ -376,6 +403,53 @@ QFont QTextCharFormat::font() const
 
     return font;
 }
+
+/*!
+    \class QTextBlockFormat qtextformat.h
+    \brief The format of a block of text in a QTextDocument
+
+    \ingroup text
+
+    A document is composed out a list of blocks, that each contain one
+    paragraph of text. Each block has an associated block format
+    describing block specific properties as alignment, margins,
+    indentation and possibly references to list and table formats.
+*/
+
+/*!
+    \class QTextListFormat qtextformat.h
+    \brief The format of a list in a QTextDocument
+
+    \ingroup text
+
+    Several blocks in a document can together form a list. The list
+    format is a generic format describing the properties common for
+    the whole list, as list style and indentation.
+*/
+
+/*!
+    \class QTextTableFormat qtextformat.h
+    \brief The format of a table in a QTextDocument
+
+    \ingroup text
+
+    Several blocks in a document can together form a table. The table
+    format is a generic format describing the properties common for
+    the whole list, as border style and width.
+*/
+
+/*!
+    \class QTextImageFormat qtextformat.h
+    \brief The format of an image in a QTextDocument
+
+    \ingroup text
+
+    Inline images are represented by an object replacement character
+    (U+fffc in Unicode) with a special image format. The image format
+    contains a name property to locate the image and width and height
+    for the images dimension.
+*/
+
 
 // ------------------------------------------------------
 

@@ -56,21 +56,44 @@ void QTextListPrivate::removeAllFormatIndicesFromBlocks()
     table->endEditBlock();
 }
 
+/*!
+    \class QTextList qtextlist.h
+    \brief A list in a QTextDocument
+
+    \ingroup text
+
+    QTextList represents a list object in a QTextDocument. Lists can
+    be created through QTextCursor::createList and queried with
+    QTextCursor::currentList.
+
+*/
+
+/*! \internal
+ */
 QTextList::QTextList(QTextPieceTable *table, QObject *parent)
     : QObject(*(new QTextListPrivate), parent), tbl(table)
 {
     Q_ASSERT(table);
 }
 
+/*!
+  \internal
+*/
 QTextList::~QTextList()
 {
 }
 
+/*!
+  \returns the number of items in the list.
+*/
 int QTextList::count() const
 {
     return d->blocks.count();
 }
 
+/*!
+  \returns a QTextCursor positioned at the \a i 'th item in this list.
+*/
 QTextCursor QTextList::item(int i) const
 {
     if (i < 0 || i >= d->blocks.count())
@@ -79,6 +102,9 @@ QTextCursor QTextList::item(int i) const
     return QTextCursor(tbl, d->blocks.at(i).key() + 1);
 }
 
+/*!
+  sets the format of the list to \a format.
+*/
 void QTextList::setFormat(const QTextListFormat &format)
 {
     int ref = d->listFormatIndex();
@@ -90,6 +116,9 @@ void QTextList::setFormat(const QTextListFormat &format)
     tbl->appendUndoItem(cmd);
 }
 
+/*!
+  \returns the format of the list.
+*/
 QTextListFormat QTextList::format() const
 {
     return tbl->formatCollection()->listFormat(d->listFormatIndex());

@@ -16,8 +16,6 @@ class Q_GUI_EXPORT QTextList : public QObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextList);
 public:
-    ~QTextList();
-
     int count() const;
 
     inline bool isEmpty() const
@@ -30,6 +28,7 @@ public:
 
 private:
     QTextList(QTextPieceTable *table, QObject *parent);
+    ~QTextList();
 
     friend class QTextListManager;
     friend class QTextListItem;

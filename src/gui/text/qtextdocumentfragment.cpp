@@ -327,11 +327,31 @@ void QTextDocumentFragmentPrivate::appendText(const QString &text, int formatIdx
     fragments << f;
 }
 
+
+/*!
+    \class QTextDocumentFragment qtextdocumentfragment.h
+    \brief A fragment of text
+
+    \ingroup text
+
+    A QTextDocumentFragment is a fragment of rich text, that can be inserted into
+    a QTextDocument, converted from and to XML.
+
+    A QTextDocumentFragment can also be created from HTML.
+*/
+
+
+/*!
+  Constructs an empty QTextDocumentFragment.
+*/
 QTextDocumentFragment::QTextDocumentFragment()
     : d(0)
 {
 }
 
+/*!
+  Converts a QTextDocument into a QTextDocumentFragment.
+*/
 QTextDocumentFragment::QTextDocumentFragment(QTextDocument *document)
     : d(0)
 {
@@ -343,6 +363,11 @@ QTextDocumentFragment::QTextDocumentFragment(QTextDocument *document)
     d = new QTextDocumentFragmentPrivate(cursor);
 }
 
+/*!
+  Creates a QTextDocumentFragment from a selection in the cursor \a
+  range. If the cursor doesn't contain a selection, the created
+  fragment is empty.
+*/
 QTextDocumentFragment::QTextDocumentFragment(const QTextCursor &range)
     : d(0)
 {
@@ -352,12 +377,18 @@ QTextDocumentFragment::QTextDocumentFragment(const QTextCursor &range)
     d = new QTextDocumentFragmentPrivate(range);
 }
 
+/*!
+  Creates a copy of the fragment \a rhs.
+*/
 QTextDocumentFragment::QTextDocumentFragment(const QTextDocumentFragment &rhs)
     : d(0)
 {
     (*this) = rhs;
 }
 
+/*!
+  Assigns \a rhs to this fragment.
+*/
 QTextDocumentFragment &QTextDocumentFragment::operator=(const QTextDocumentFragment &rhs)
 {
     if (&rhs == this || (!d && !rhs.d))
@@ -377,16 +408,25 @@ QTextDocumentFragment &QTextDocumentFragment::operator=(const QTextDocumentFragm
     return *this;
 }
 
+/*!
+  Destroys the fragment.
+*/
 QTextDocumentFragment::~QTextDocumentFragment()
 {
     delete d;
 }
 
-bool QTextDocumentFragment::isNull() const
+/*!
+  \returns true if the fragment is empty.
+*/
+bool QTextDocumentFragment::isEmpty() const
 {
-    return !d;
+    return !d || d->fragments.isEmpty();
 }
 
+/*!
+  Converts the fragment to plain text.
+*/
 QString QTextDocumentFragment::toPlainText() const
 {
     QString result;
@@ -399,6 +439,11 @@ QString QTextDocumentFragment::toPlainText() const
     return result;
 }
 
+/*!
+  Converts the fragment to an XML format.
+
+  \sa fromXML
+*/
 QString QTextDocumentFragment::toXML() const
 {
     QString result;
@@ -407,6 +452,9 @@ QString QTextDocumentFragment::toXML() const
     return result;
 }
 
+/*!
+  Saves the fragment to a QTextStream
+*/
 void QTextDocumentFragment::save(QTextStream &stream) const
 {
     if (!d)
@@ -431,6 +479,9 @@ void QTextDocumentFragment::save(QTextStream &stream) const
     stream << "</QRichText>";
 }
 
+/*!
+  Converts a fragment in XML format back to a QTextDocumentFragment.
+*/
 QTextDocumentFragment QTextDocumentFragment::fromXML(const QString &xml)
 {
     QTextDocumentFragment res;
@@ -467,6 +518,9 @@ QTextDocumentFragment QTextDocumentFragment::fromXML(const QString &xml)
     return res;
 }
 
+/*!
+  Converts \a plainText to a QTextDocumentFragment.
+*/
 QTextDocumentFragment QTextDocumentFragment::fromPlainText(const QString &plainText)
 {
     QTextDocumentFragment res;
@@ -637,6 +691,9 @@ void QTextHTMLImporter::closeTag(int i)
     }
 }
 
+/*!
+  Converts a piece of HTML into a QTextDocumentFragment.
+*/
 QTextDocumentFragment QTextDocumentFragment::fromHTML(const QString &html)
 {
     QTextDocumentFragment res;
@@ -647,6 +704,11 @@ QTextDocumentFragment QTextDocumentFragment::fromHTML(const QString &html)
     return res;
 }
 
+/*!
+  \overload
+
+  Converts a piece of HTML into a QTextDocumentFragment.
+*/
 QTextDocumentFragment QTextDocumentFragment::fromHTML(const QByteArray &html)
 {
     QTextCodec *codec = QTextHtmlParser::codecForStream(html);

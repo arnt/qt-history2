@@ -6,6 +6,25 @@
 #define d d_func()
 #define q q_func()
 
+
+/*!
+    \class QAbstractTextDocumentLayout qabstracttextdocumentlayout.h
+    \brief An abstract base class used to implement custom layouts for QTextDocuments.
+
+    \ingroup text
+
+    QAbstractTextDocumentLayout is an abstract base class that can be
+    used to implement custom layouts for QTextDocuments. The standard
+    layout provided by Qt can handle simple word processing including
+    inline layouting, lists and tables.
+
+    Some applications (e.g. a word processor or a DTP application)
+    might have requirements that need more features the ones offered
+    by Qt's layouting engine. QAbstractTextDocumentLayout can in this
+    case be used to implement a custom layouter for the text document.
+*/
+
+
 QAbstractTextDocumentLayout::QAbstractTextDocumentLayout()
     : QObject(*new QAbstractTextDocumentLayoutPrivate, 0)
 {

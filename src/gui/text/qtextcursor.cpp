@@ -979,7 +979,7 @@ QTextTable *QTextCursor::currentTable() const
  */
 void QTextCursor::insertFragment(const QTextDocumentFragment &fragment)
 {
-    if (!d || fragment.isNull())
+    if (!d || fragment.isEmpty())
 	return;
 
     d->pieceTable->beginEditBlock();

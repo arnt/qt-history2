@@ -19,7 +19,7 @@ public:
     QTextDocumentFragment &operator=(const QTextDocumentFragment &rhs);
     ~QTextDocumentFragment();
 
-    bool isNull() const;
+    bool isEmpty() const;
 
     QString toPlainText() const;
     // ### reconsider

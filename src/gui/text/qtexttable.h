@@ -49,8 +49,6 @@ class Q_GUI_EXPORT QTextTable : public QObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextTable);
 public:
-    ~QTextTable();
-
     void resize(int rows, int cols);
     void insertRows(int pos, int num);
     void insertCols(int pos, int num);
@@ -80,6 +78,7 @@ private:
     friend class QTextTableManager;
 
     QTextTable(QTextPieceTable *pt, QObject *parent);
+    ~QTextTable();
 
 #if defined(Q_DISABLE_COPY)
     QTextTable(const QTextTable &o);
