@@ -11,7 +11,7 @@ TextOutline::TextOutline(QWidget *parent)
 #ifndef Q_WS_QWS
     QFont f("times");
 #else
-    QFont f("babelfish");
+    QFont f("vera_sans");
 #endif
     f.setStyleHint(QFont::Serif);
     f.setStyleStrategy(QFont::ForceOutline);
