@@ -57,6 +57,9 @@ sql {
 		unix {
 			LIBS += -lpq
 		}
+		win32 {
+			LIBS += libpqdll.lib
+		}
 	}
 
 	contains(sql-driver, mysql) {
@@ -66,6 +69,9 @@ sql {
 		unix {
 			LIBS += -lmysqlclient
 		}
+		win32 {
+			LIBS += mysqlclient.lib
+		}
 	}
 	
 	contains(sql-driver, odbc) {
@@ -74,6 +80,9 @@ sql {
 		DEFINES += QT_SQL_ODBC
 		unix {
 			LIBS += -lodbc
+		}
+		win32 {
+			LIBS += odbc32.lib
 		}
 	}
 
