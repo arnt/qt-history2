@@ -279,14 +279,16 @@ void QFontPrivate::initFontInfo()
 #ifdef UNICODE
     if ( qt_winver & Qt::WV_NT_based ) {
 	TCHAR n[64];
-	GetTextFace( fin->dc(), 64, n );
+	GetTextFaceW( fin->dc(), 64, n );
 	fin->s.family = qt_winQString(n);
+	fin->s.fixedPitch = !(fin->textMetricW()->tmPitchAndFamily & TMPF_FIXED_PITCH);
     } else 
 #endif
     {
 	char an[64];
 	GetTextFaceA( fin->dc(), 64, an );
 	fin->s.family = QString::fromLocal8Bit(an);
+	fin->s.fixedPitch = !(fin->textMetricW()->tmPitchAndFamily & TMPF_FIXED_PITCH);
     }
     fin->s.dirty = FALSE;
 }

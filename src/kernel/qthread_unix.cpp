@@ -35,7 +35,6 @@
 **
 **********************************************************************/
 
-
 #if defined(QT_THREAD_SUPPORT)
 
 #include "qplatformdefs.h"
@@ -510,8 +509,7 @@ bool QThread::running() const
 
 /*!
   \class QWaitCondition qthread.h
-  \brief The QWaitCondition class allows waiting/waking for conditions
-	 between threads.
+  \brief The QWaitCondition class allows waiting/waking for conditions between threads.
 
   \ingroup environment
 
