@@ -52,13 +52,13 @@
  *****************************************************************************/
 
 /*!
-  \relates QCString
+    \relates QCString
 
-  This function is normally part of the C library. Qt implements
-  memmove() for platforms that do not provide it.
+    This function is normally part of the C library. Qt implements
+    memmove() for platforms that do not provide it.
 
-  memmove() copies \a len bytes from \a src into \a dst.  The data is
-  copied correctly even if \a src and \a dst overlap.
+    memmove() copies \a len bytes from \a src into \a dst. The data
+    is copied correctly even if \a src and \a dst overlap.
 */
 
 void *qmemmove( void *dst, const void *src, uint len )
@@ -81,15 +81,14 @@ void *qmemmove( void *dst, const void *src, uint len )
 
 
 /*!
-  \relates QCString
+    \relates QCString
 
-  Returns a duplicate string.
+    Returns a duplicate string.
 
-  Allocates space for a copy of \a src, copies it, and returns
-  a pointer to the copy.
-  If \a src is null, it immediately returns 0.
+    Allocates space for a copy of \a src, copies it, and returns a
+    pointer to the copy. If \a src is 0, it immediately returns 0.
 
-  The returned string has to be deleted using \c delete[].
+    The returned string must be deleted using \c delete[].
 */
 
 char *qstrdup( const char *src )
@@ -102,26 +101,27 @@ char *qstrdup( const char *src )
 }
 
 /*!
-  \fn char *qstrcpy( char *dst, const char *src )
-  \relates QCString
+    \fn char *qstrcpy( char *dst, const char *src )
 
-  A safe strcpy() function.
+    \relates QCString
 
-  Copies all characters up to and including the '\0' from \a src into
-  \a dst and returns a pointer to \a dst.
+    A safe strcpy() function.
+
+    Copies all characters up to and including the '\0' from \a src
+    into \a dst and returns a pointer to \a dst.
 */
 
 /*!
-  \relates QCString
+    \relates QCString
 
-  A safe strncpy() function.
+    A safe strncpy() function.
 
-  Copies all characters up to \a len bytes from \a src (or less if \a
-  src is shorter) into \a dst and returns a pointer to \a dst.
-  Guarantees that \a dst is '\0'-terminated. If \a src or \a dst is
-  null, returns 0 immediately.
+    Copies at most \a len bytes from \a src (stopping at \a len or the
+    terminating '\0' whichever comes first) into \a dst and returns a
+    pointer to \a dst. Guarantees that \a dst is '\0'-terminated. If
+    \a src or \a dst is 0, returns 0 immediately.
 
-  \sa qstrcpy()
+    \sa qstrcpy()
 */
 
 char *qstrncpy( char *dst, const char *src, uint len )
@@ -135,63 +135,65 @@ char *qstrncpy( char *dst, const char *src, uint len )
 }
 
 /*!
-  \fn int qstrcmp( const char *str1, const char *str2 );
-  \relates QCString
+    \fn int qstrcmp( const char *str1, const char *str2 );
 
-  A safe strcmp() function.
+    \relates QCString
 
-  Compares \a str1 and \a str2.	 Returns a negative value if \a str1
-  is less than \a str2, 0 if \a str1 is equal to \a str2 or a positive
-  value if \a str1 is greater than \a str2.
+    A safe strcmp() function.
 
-  Special case I: Returns 0 if \a str1 and \a str2 are both null.
+    Compares \a str1 and \a str2. Returns a negative value if \a str1
+    is less than \a str2, 0 if \a str1 is equal to \a str2 or a
+    positive value if \a str1 is greater than \a str2.
 
-  Special case II: Returns a random nonzero value if \a str1 is null
-  or \a str2 is null (but not both).
+    Special case I: Returns 0 if \a str1 and \a str2 are both 0.
 
-  \sa qstrncmp() qstricmp() qstrnicmp()
-      \link #asciinotion Note on character comparisons \endlink
+    Special case II: Returns a random nonzero value if \a str1 is 0
+    or \a str2 is 0 (but not both).
+
+    \sa qstrncmp() qstricmp() qstrnicmp()
+	\link #asciinotion Note on character comparisons \endlink
 */
 
 /*!
-  \fn int qstrncmp( const char *str1, const char *str2, uint len );
-  \relates QCString
+    \fn int qstrncmp( const char *str1, const char *str2, uint len );
 
-  A safe strncmp() function.
+    \relates QCString
 
-  Compares \a str1 and \a str2 up to \a len bytes.
+    A safe strncmp() function.
 
-  Returns a negative value if \a str1 is less than \a str2, 0 if \a str1
-  is equal to \a str2 or a positive value if \a str1 is greater than \a
-  str2.
+    Compares at most \a len bytes of \a str1 and \a str2.
 
-  Special case I: Returns 0 if \a str1 and \a str2 are both null.
+    Returns a negative value if \a str1 is less than \a str2, 0 if \a
+    str1 is equal to \a str2 or a positive value if \a str1 is greater
+    than \a str2.
 
-  Special case II: Returns a random nonzero value if \a str1 is null
-  or \a str2 is null (but not both).
+    Special case I: Returns 0 if \a str1 and \a str2 are both 0.
 
-  \sa qstrcmp(), qstricmp(), qstrnicmp()
-      \link #asciinotion Note on character comparisons \endlink
+    Special case II: Returns a random nonzero value if \a str1 is 0
+    or \a str2 is 0 (but not both).
+
+    \sa qstrcmp(), qstricmp(), qstrnicmp()
+	\link #asciinotion Note on character comparisons \endlink
 */
 
 /*!
-  \relates QCString
+    \relates QCString
 
-  A safe stricmp() function.
+    A safe stricmp() function.
 
-  Compares \a str1 and \a str2 ignoring the case.
+    Compares \a str1 and \a str2 ignoring the case.
 
-  Returns a negative value if \a str1 is less than \a str2, 0 if \a str1
-  is equal to \a str2 or a positive value if \a str1 is greater than \a
-  str2.
+    Returns a negative value if \a str1 is less than \a str2, 0 if \a
+    str1 is equal to \a str2 or a positive value if \a str1 is greater
+    than \a str2.
 
-  Special case I: Returns 0 if \a str1 and \a str2 are both null.
+    Special case I: Returns 0 if \a str1 and \a str2 are both 0.
 
-  Special case II: Returns a random nonzero value if \a str1 is null
-  or \a str2 is null (but not both).
+    Special case II: Returns a random nonzero value if \a str1 is 0
+    or \a str2 is 0 (but not both).
 
-  \sa qstrcmp(), qstrncmp(), qstrnicmp()
-      \link #asciinotion Note on character comparisons \endlink
+    \sa qstrcmp(), qstrncmp(), qstrnicmp()
+	\link #asciinotion Note on character comparisons \endlink
 */
 
 int qstricmp( const char *str1, const char *str2 )
@@ -209,23 +211,23 @@ int qstricmp( const char *str1, const char *str2 )
 }
 
 /*!
-  \relates QCString
+    \relates QCString
 
-  A safe strnicmp() function.
+    A safe strnicmp() function.
 
-  Compares \a str1 and \a str2 up to \a len bytes ignoring the case.
+    Compares at most \a len bytes of \a str1 and \a str2 ignoring the case.
 
-  Returns a negative value if \a str1 is less than \a str2, 0 if \a str1
-  is equal to \a str2 or a positive value if \a str1 is greater than \a
-  str2.
+    Returns a negative value if \a str1 is less than \a str2, 0 if \a str1
+    is equal to \a str2 or a positive value if \a str1 is greater than \a
+    str2.
 
-  Special case I: Returns 0 if \a str1 and \a str2 are both null.
+    Special case I: Returns 0 if \a str1 and \a str2 are both 0.
 
-  Special case II: Returns a random nonzero value if \a str1 is null
-  or \a str2 is null (but not both).
+    Special case II: Returns a random nonzero value if \a str1 is 0
+    or \a str2 is 0 (but not both).
 
-  \sa qstrcmp(), qstrncmp() qstricmp()
-      \link #asciinotion Note on character comparisons \endlink
+    \sa qstrcmp(), qstrncmp() qstricmp()
+	\link #asciinotion Note on character comparisons \endlink
 */
 
 int qstrnicmp( const char *str1, const char *str2, uint len )
@@ -279,10 +281,11 @@ static void createCRC16Table()			// build CRC16 lookup table
 }
 
 /*!
-  \relates QMemArray
-  Returns the CRC-16 checksum of \a len bytes starting at \a data.
+    \relates QMemArray
 
-  The checksum is independent of the byte order (endianness).
+    Returns the CRC-16 checksum of \a len bytes starting at \a data.
+
+    The checksum is independent of the byte order (endianness).
 */
 
 Q_UINT16 qChecksum( const char *data, uint len )
@@ -439,27 +442,28 @@ QByteArray qUncompress( const uchar* data, int nbytes, int expectedSize )
  *****************************************************************************/
 
 /*!
-  \class QByteArray
-  \ingroup collection
-  \ingroup tools
-  \brief The QByteArray class provides an array of bytes.
+    \class QByteArray
+    \brief The QByteArray class provides an array of bytes.
 
-  The QByteArray class provides an explicitly shared array of
-  bytes. It is useful for manipulating memory areas with custom
-  data. QByteArray is implemented as QMemArray\<char\>. See the
-  \l QMemArray documentation for further information.
+    \ingroup collection
+    \ingroup tools
+
+    The QByteArray class provides an explicitly shared array of bytes.
+    It is useful for manipulating memory areas with custom data.
+    QByteArray is implemented as a QMemArray\<char\>. See the \l
+    QMemArray documentation for further information.
 */
 
 /*!
-  \fn QByteArray::QByteArray()
+    \fn QByteArray::QByteArray()
 
-  Constructs an empty QByteArray.
+    Constructs an empty QByteArray.
 */
 
 /*!
-  \fn QByteArray::QByteArray( int size )
+    \fn QByteArray::QByteArray( int size )
 
-  Constructs a QByteArray of size \a size.
+    Constructs a QByteArray of size \a size.
 */
 
 /*****************************************************************************
@@ -467,11 +471,12 @@ QByteArray qUncompress( const uchar* data, int nbytes, int expectedSize )
  *****************************************************************************/
 
 /*!
-  \relates QMemArray
-  Writes byte array \a a to the stream \a s and returns a reference to
-  the stream.
+    \relates QMemArray
 
-  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    Writes byte array \a a to the stream \a s and returns a reference
+    to the stream.
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 #ifndef QT_NO_DATASTREAM
 
@@ -481,11 +486,12 @@ QDataStream &operator<<( QDataStream &s, const QByteArray &a )
 }
 
 /*!
-  \relates QMemArray
-  Reads a byte array into \a a from the stream \a s and returns a
-  reference to the stream.
+    \relates QMemArray
 
-  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    Reads a byte array into \a a from the stream \a s and returns a
+    reference to the stream.
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator>>( QDataStream &s, QByteArray &a )
@@ -514,54 +520,50 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
  *****************************************************************************/
 
 /*!
-  \class QCString qcstring.h
-  \ingroup text
-  \ingroup collection
-  \ingroup tools
-  \ingroup shared
+    \class QCString qcstring.h
+    \brief The QCString class provides an abstraction of the classic C
+    zero-terminated char array (char *).
 
-  \brief The QCString class provides an abstraction of the classic C
-  zero-terminated char array (char *).
+    \ingroup text
+    \ingroup collection
+    \ingroup tools
+    \ingroup shared
 
+    QCString inherits QByteArray, which is defined as
+    QMemArray\<char\>. Since QCString is a QMemArray, it uses \link
+    shclass.html explicit sharing\endlink with a reference count.
 
-  QCString inherits QByteArray, which is defined as QMemArray\<char\>.
+    QCString tries to behave like a more convenient \c{const char *}.
+    The price of doing this is that some algorithms will perform
+    badly. For example, append() is O(length()) since it scans for a
+    null terminator. Although you might use QCString for text that is
+    never exposed to the user, for most purposes, and especially for
+    user-visible text, you should use QString. QString provides
+    implicit sharing, Unicode and other internationalization support,
+    and is well optimized.
 
-  Since QCString is a QMemArray, it uses
-  \link shclass.html explicit sharing\endlink with a reference count.
+    Note that for the QCString methods that take a \c{const char *}
+    parameter the \c{const char *} must either be 0 (null) or not-null
+    and '\0' terminated; otherwise the results are undefined.
 
-  You might use QCString for text that is never exposed to the user.
-  For text the user sees, you should use QString (which provides
-  implicit sharing, Unicode and other internationalization support).
-
-  Note that QCString is one of the weaker classes in Qt; its design is
-  flawed (it tries to behave like a more convenient const char *) and
-  as a result, algorithms that use QCString heavily all too often
-  perform badly.  For example, append() is O(length()) since it scans
-  for a null terminator, which makes many algorithms that use QCString
-  scale badly.
-
-  Note that for the QCString methods that take a \c {const char *}
-  parameter the results are undefined if the QCString is not
-  zero-terminated.  It is legal for the \c {const char *} parameter
-  to be 0.
-
-  A QCString that has not been assigned to anything is \e null, i.e. both
-  the length and the data pointer is 0. A QCString that references the
-  empty string ("", a single '\0' char) is \e empty.	Both null and
-  empty QCStrings are legal parameters to the methods. Assigning
-  \c{const char *} 0 to QCString gives a null QCString.
+    A QCString that has not been assigned to anything is \e null, i.e.
+    both the length and the data pointer is 0. A QCString that
+    references the empty string ("", a single '\0' char) is \e empty.
+    Both null and empty QCStrings are legal parameters to the methods.
+    Assigning \c{const char *} 0 to QCString produces a null QCString.
 
     The length() function returns the length of the string; resize()
-    resizes the string and truncate() truncates the string. A string can
-    be filled with a character using fill(). Strings can be left or
-    right padded with characters using leftJustify() and rightJustify().
-    Characters, strings and regular expressions can be searched for
-    using find() and findRev(), and counted using contains().
+    resizes the string and truncate() truncates the string. A string
+    can be filled with a character using fill(). Strings can be left
+    or right padded with characters using leftJustify() and
+    rightJustify(). Characters, strings and regular expressions can be
+    searched for using find() and findRev(), and counted using
+    contains().
 
     Strings and characters can be inserted with insert() and appended
-    with append(). A string can be prepended with prepend(). Characters
-    can be removed from the string with remove() and replaced with
-    replace().
+    with append(). A string can be prepended with prepend().
+    Characters can be removed from the string with remove() and
+    replaced with replace().
 
     Portions of a string can be extracted using left(), right() and
     mid(). Whitespace can be removed using stripWhiteSpace() and
@@ -572,53 +574,60 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
     toShort(), toInt(), toLong(), toULong(), toFloat() and toDouble().
     Numbers can be converted to strings with setNum().
 
-    Many operators are overloaded to work with QCStrings. QCString also
-    supports some more obscure functions, e.g. sprintf(), setStr() and
-    setExpand().
+    Many operators are overloaded to work with QCStrings. QCString
+    also supports some more obscure functions, e.g. sprintf(),
+    setStr() and setExpand().
 
     \target asciinotion
     \sidebar Note on Character Comparisons
 
     In QCString the notion of uppercase and lowercase and of which
-    character is greater than or less than another character is
-    locale dependent. This affects functions which support a case
-    insensitive option or which compare or lowercase or uppercase
-    their arguments. Case insensitive operations and comparisons will
-    be accurate if both strings contain only ASCII characters. (If \c
-    $LC_CTYPE is set, most Unix systems do "the right thing".)
-    Functions that this affects include contains(), find(),
-    findRev(), \l operator<(), \l operator<=(), \l operator>(), \l
-    operator>=(), lower() and upper().
+    character is greater than or less than another character is locale
+    dependent. This affects functions which support a case insensitive
+    option or which compare or lowercase or uppercase their arguments.
+    Case insensitive operations and comparisons will be accurate if
+    both strings contain only ASCII characters. (If \c $LC_CTYPE is
+    set, most Unix systems do "the right thing".) Functions that this
+    affects include contains(), find(), findRev(), \l operator<(), \l
+    operator<=(), \l operator>(), \l operator>=(), lower() and
+    upper().
+
+    This issue does not apply to \l{QString}s since they represent
+    characters using Unicode.
     \endsidebar
 
-  Performance note: The QCString methods for QRegExp searching are
-  implemented by converting the QCString to a QString and performing the
-  search on that. This implies a deep copy of the QCString data. If you
-  are going to perform many QRegExp searches on a large QCString, you
-  will get better performance by converting the QCString to a QString
-  yourself, and then searching in the QString.
+    Performance note: The QCString methods for QRegExp searching are
+    implemented by converting the QCString to a QString and performing
+    the search on that. This implies a deep copy of the QCString data.
+    If you are going to perform many QRegExp searches on a large
+    QCString, you will get better performance by converting the
+    QCString to a QString yourself, and then searching in the QString.
 */
 
 /*!
-  \fn QCString::QCString()
-  Constructs a null string.
-  \sa isNull()
+    \fn QCString::QCString()
+
+    Constructs a null string.
+
+    \sa isNull()
 */
 
 /*!
-  \fn QCString::QCString( const QCString &s )
-  Constructs a shallow copy \a s.
-  \sa assign()
+    \fn QCString::QCString( const QCString &s )
+
+    Constructs a shallow copy \a s.
+
+    \sa assign()
 */
 
 /*!
-  Constructs a string with room for \a size characters, including the
-  '\0'-terminator.  Makes a null string if \a size == 0.
+    Constructs a string with room for \a size characters, including
+    the '\0'-terminator. Makes a null string if \a size == 0.
 
-  If \a size \> 0, then the first and last characters in the string are
-  initialized to '\0'.	All other characters are uninitialized.
+    If \a size \> 0, then the first and last characters in the string
+    are initialized to '\0'. All other characters are uninitialized.
 
-  \sa resize(), isNull()
+    \sa resize(), isNull()
 */
 
 QCString::QCString( int size )
@@ -631,11 +640,11 @@ QCString::QCString( int size )
 }
 
 /*!
-  Constructs a string that is a deep copy of \a str.
+    Constructs a string that is a deep copy of \a str.
 
-  If \a str is 0 a null string is created.
+    If \a str is 0 a null string is created.
 
-  \sa isNull()
+    \sa isNull()
 */
 
 QCString::QCString( const char *str )
@@ -645,19 +654,19 @@ QCString::QCString( const char *str )
 
 
 /*!
-  Constructs a string that is a deep copy of \a str, that is no more
-  than \a maxsize bytes long including the '\0'-terminator.
+    Constructs a string that is a deep copy of \a str. The copy will
+    be at most \a maxsize bytes long including the '\0'-terminator.
 
-  Example:
-  \code
+    Example:
+    \code
     QCString str( "helloworld", 6 ); // assigns "hello" to str
-  \endcode
+    \endcode
 
-  If \a str contains a 0 byte within the first \a maxsize bytes, the
-  resulting QCString will be terminated by this 0.  If \a str is 0 a
-  null string is created.
+    If \a str contains a 0 byte within the first \a maxsize bytes, the
+    resulting QCString will be terminated by this 0. If \a str is 0 a
+    null string is created.
 
-  \sa isNull()
+    \sa isNull()
 */
 
 QCString::QCString( const char *str, uint maxsize )
@@ -676,96 +685,102 @@ QCString::QCString( const char *str, uint maxsize )
 
 /*!
   \reimp
- */
+*/
 
 QCString::~QCString()
 {
 }
 
 /*!
-  \fn QCString &QCString::operator=( const QCString &s )
-  Assigns a shallow copy of \a s to this string and returns a reference to
-  this string.
+    \fn QCString &QCString::operator=( const QCString &s )
+
+    Assigns a shallow copy of \a s to this string and returns a
+    reference to this string.
 */
 
 /*!
-  \overload QCString &QCString::operator=( const char *str )
-  Assigns a deep copy of \a str to this string and returns a reference to
-  this string.
+    \overload QCString &QCString::operator=( const char *str )
 
-  If \a str is 0 a null string is created.
+    Assigns a deep copy of \a str to this string and returns a
+    reference to this string.
 
-  \sa isNull()
+    If \a str is 0 a null string is created.
+
+    \sa isNull()
 */
 
 /*!
-  \fn bool QCString::isNull() const
-  Returns TRUE if the string is null, i.e. if data() == 0.
-  A null string is also an empty string.
+    \fn bool QCString::isNull() const
 
-  Example:
-  \code
+    Returns TRUE if the string is null, i.e. if data() == 0; otherwise
+    returns FALSE. A null string is also an empty string.
+
+    Example:
+    \code
     QCString a;		// a.data() == 0,  a.size() == 0, a.length() == 0
     QCString b == "";	// b.data() == "", b.size() == 1, b.length() == 0
-    a.isNull();		// TRUE, because a.data() == 0
-    a.isEmpty();	// TRUE, because a.length() == 0
-    b.isNull();		// FALSE, because b.data() == ""
-    b.isEmpty();	// TRUE, because b.length() == 0
-  \endcode
+    a.isNull();		// TRUE  because a.data() == 0
+    a.isEmpty();	// TRUE  because a.length() == 0
+    b.isNull();		// FALSE because b.data() == ""
+    b.isEmpty();	// TRUE  because b.length() == 0
+    \endcode
 
-  \sa isEmpty(), length(), size()
+    \sa isEmpty(), length(), size()
 */
 
 /*!
-  \fn bool QCString::isEmpty() const
+    \fn bool QCString::isEmpty() const
 
-  Returns TRUE if the string is empty, i.e. if length() == 0.
-  An empty string is not always a null string.
+    Returns TRUE if the string is empty, i.e. if length() == 0;
+    otherwise returns FALSE. An empty string is not always a null
+    string.
 
-  See example in isNull().
+    See example in isNull().
 
-  \sa isNull(), length(), size()
+    \sa isNull(), length(), size()
 */
 
 /*!
-  \fn uint QCString::length() const
-  Returns the length of the string, excluding the '\0'-terminator.
-  Equivalent to calling \c strlen(data()).
+    \fn uint QCString::length() const
 
-  Null strings and empty strings have zero length.
+    Returns the length of the string, excluding the '\0'-terminator.
+    Equivalent to calling \c strlen(data()).
 
-  \sa size(), isNull(), isEmpty()
+    Null strings and empty strings have zero length.
+
+    \sa size(), isNull(), isEmpty()
 */
 
 /*!
-  \fn bool QCString::truncate( uint pos )
-  Truncates the string at position \a pos.
+    \fn bool QCString::truncate( uint pos )
 
-  Equivalent to calling \c resize(pos+1).
+    Truncates the string at position \a pos.
 
-  Example:
-  \code
+    Equivalent to calling \c resize(pos+1).
+
+    Example:
+    \code
     QCString s = "truncate this string";
-    s.truncate( 5 );				// s == "trunc"
-  \endcode
+    s.truncate( 5 );                      // s == "trunc"
+    \endcode
 
-  \sa resize()
+    \sa resize()
 */
 
 /*!
-  Extends or shrinks the string to \a len bytes, including the
-  '\0'-terminator.
+    Extends or shrinks the string to \a len bytes, including the
+    '\0'-terminator.
 
-  A '\0'-terminator is set at position <code>len - 1</code> unless
-  <code>len == 0</code>.
+    A '\0'-terminator is set at position \c{len - 1} unless
+    \c{len == 0}.
 
-  Example:
-  \code
+    Example:
+    \code
     QCString s = "resize this string";
-    s.resize( 7 );				// s == "resize"
-  \endcode
+    s.resize( 7 );                      // s == "resize"
+    \endcode
 
-  \sa truncate()
+    \sa truncate()
 */
 
 bool QCString::resize( uint len )
@@ -783,31 +798,31 @@ bool QCString::resize( uint len )
 
 
 /*!
-  Implemented as a call to the native vsprintf() (see the manual for
-  your C library).
+    Implemented as a call to the native vsprintf() (see the manual for
+    your C library).
 
-  If the string is shorter than 256 characters, this sprintf() calls
-  resize(256) to decrease the chance of memory corruption.  The string is
-  resized back to its actual length before sprintf() returns.
+    If the string is shorter than 256 characters, this sprintf() calls
+    resize(256) to decrease the chance of memory corruption. The
+    string is resized back to its actual length before sprintf()
+    returns.
 
-  Example:
-  \code
+    Example:
+    \code
     QCString s;
     s.sprintf( "%d - %s", 1, "first" );		// result < 256 chars
 
     QCString big( 25000 );			// very long string
     big.sprintf( "%d - %s", 2, longString );	// result < 25000 chars
-  \endcode
+    \endcode
 
-  \warning All vsprintf() implementations will write past the end of
-  the target string (*this) if the \a format specification and arguments
-  happen to be longer than the target string, and some will also fail
-  if the target string is longer than some arbitrary implementation
-  limit.
+    \warning All vsprintf() implementations will write past the end of
+    the target string (*this) if the \a format specification and
+    arguments happen to be longer than the target string, and some
+    will also fail if the target string is longer than some arbitrary
+    implementation limit.
 
-  Giving user-supplied arguments to sprintf() is asking for trouble.
-  Sooner or later someone \c will paste a 3000-character line into
-  your application.
+    Giving user-supplied arguments to sprintf() is risky: Sooner or
+    later someone will paste a huge line into your application.
 */
 
 QCString &QCString::sprintf( const char *format, ... )
@@ -825,13 +840,13 @@ QCString &QCString::sprintf( const char *format, ... )
 
 
 /*!
-  Fills the string with \a len bytes of character \a c, followed by a
-  '\0'-terminator.
+    Fills the string with \a len bytes of character \a c, followed by
+    a '\0'-terminator.
 
-  If \a len is negative, then the current string length is used.
+    If \a len is negative, then the current string length is used.
 
-  Returns FALSE is \a len is nonnegative and there is not enough memory
-  to resize the string, otherwise TRUE is returned.
+    Returns FALSE is \a len is nonnegative and there is not enough
+    memory to resize the string; otherwise returns TRUE.
 */
 
 bool QCString::fill( char c, int len )
@@ -847,9 +862,11 @@ bool QCString::fill( char c, int len )
 
 
 /*!
-  \fn QCString QCString::copy() const
-  Returns a deep copy of this string.
-  \sa detach()
+    \fn QCString QCString::copy() const
+
+    Returns a deep copy of this string.
+
+    \sa detach()
 */
 
 
@@ -1128,7 +1145,7 @@ QCString QCString::right( uint len ) const
   string, starting at position \a index.
 
   Returns a null string if the string is empty or if \a index is out
-  of range.  Returns the whole string from \a index if \a index+len exceeds
+  of range. Returns the whole string from \a index if \a index+len exceeds
   the length of the string.
 
   Example:
@@ -1443,7 +1460,7 @@ QCString &QCString::insert( uint index, char c )	// insert char
   Removes \a len characters starting at position \a index from the
   string and returns a reference to the string.
 
-  If \a index is out of range, nothing happens.  If \a index is valid, but
+  If \a index is out of range, nothing happens. If \a index is valid, but
   \a index + \a len is larger than the length of the string, the string
   is truncated at position \a index.
 
@@ -1477,7 +1494,7 @@ QCString &QCString::remove( uint index, uint len )
   string with \a str, and returns a reference to the string.
 
   If \a index is out of range, nothing is removed and \a str is appended
-  at the end of the string.  If \a index is valid, but \a index + \a len
+  at the end of the string. If \a index is valid, but \a index + \a len
   is larger than the length of the string, \a str replaces the rest of
   the string from position \a index.
 

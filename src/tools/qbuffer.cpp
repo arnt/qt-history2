@@ -38,46 +38,47 @@
 #include "qbuffer.h"
 #include <stdlib.h>
 
-// REVISED: paul
 /*!
-  \class QBuffer qbuffer.h
-  \ingroup io
-  \ingroup collection
-  \brief The QBuffer class is an I/O device that operates on a QByteArray.
+    \class QBuffer qbuffer.h
+    \brief The QBuffer class is an I/O device that operates on a QByteArray.
 
-  QBuffer is used to read and write to a memory buffer. It is normally
-  used with a QTextStream or a QDataStream.  QBuffer has an
-  associated QByteArray which holds the buffer data. The size() of the
-  buffer is automatically adjusted as data is written.
+    \ingroup io
+    \ingroup collection
 
-  The constructor \c QBuffer(QByteArray) creates a QBuffer with an
-  existing byte array.  The byte array can also be set with setBuffer().
-  Writing to the QBuffer will modify the original byte array because
-  QByteArray is \link shclass.html explicitly shared.\endlink
+    QBuffer is used to read and write to a memory buffer. It is
+    normally used with a QTextStream or a QDataStream. QBuffer has an
+    associated QByteArray which holds the buffer data. The size() of
+    the buffer is automatically adjusted as data is written.
 
-  Use open() to open the buffer before use and to set the mode
-  (read-only, write-only, etc.).  close() closes the buffer. The buffer
-  must be closed before reopening or calling setBuffer().
+    The constructor \c QBuffer(QByteArray) creates a QBuffer using an
+    existing byte array. The byte array can also be set with
+    setBuffer(). Writing to the QBuffer will modify the original byte
+    array because QByteArray is \link shclass.html explicitly
+    shared.\endlink
 
-  A common way to use QBuffer is through \l QDataStream or \l QTextStream,
-  which have constructors that take a QBuffer parameter. For
-  convenience, there are also QDataStream and QTextStream constructors
-  that take a QByteArray parameter.  These constructors create and open
-  an internal QBuffer.
+    Use open() to open the buffer before use and to set the mode
+    (read-only, write-only, etc.). close() closes the buffer. The
+    buffer must be closed before reopening or calling setBuffer().
 
-  Note that QTextStream can also operate on a QString (a Unicode
-  string); a QBuffer cannot.
+    A common way to use QBuffer is through \l QDataStream or \l
+    QTextStream, which have constructors that take a QBuffer
+    parameter. For convenience, there are also QDataStream and
+    QTextStream constructors that take a QByteArray parameter. These
+    constructors create and open an internal QBuffer.
 
-  You can also use QBuffer directly through the standard QIODevice
-  functions readBlock(), writeBlock() readLine(), at(), getch(), putch() and
-  ungetch().
+    Note that QTextStream can also operate on a QString (a Unicode
+    string); a QBuffer cannot.
 
-  \sa QFile, QDataStream, QTextStream, QByteArray, \link shclass.html Shared Classes\endlink
+    You can also use QBuffer directly through the standard QIODevice
+    functions readBlock(), writeBlock() readLine(), at(), getch(),
+    putch() and ungetch().
+
+    \sa QFile, QDataStream, QTextStream, QByteArray, \link shclass.html Shared Classes\endlink
 */
 
 
 /*!
-  Constructs an empty buffer.
+    Constructs an empty buffer.
 */
 
 QBuffer::QBuffer()
@@ -90,14 +91,14 @@ QBuffer::QBuffer()
 
 
 /*!
-  Constructs a buffer that operates on \a buf.
-  If you open the buffer in write mode (\c IO_WriteOnly or
-  \c IO_ReadWrite) and write something into the buffer, \a buf
-  will be modified.
+    Constructs a buffer that operates on \a buf.
 
+    If you open the buffer in write mode (\c IO_WriteOnly or
+    \c IO_ReadWrite) and write something into the buffer, \a buf
+    will be modified.
 
-  Example:
-  \code
+    Example:
+    \code
     QCString str = "abc";
     QBuffer b( str );
     b.open( IO_WriteOnly );
@@ -105,10 +106,9 @@ QBuffer::QBuffer()
     b.writeBlock( "def", 4 ); // write "def" including the terminating \0
     b.close();
     // Now, str == "abcdef" with a terminating \0
-  \endcode
+    \endcode
 
-
-  \sa setBuffer()
+    \sa setBuffer()
 */
 
 QBuffer::QBuffer( QByteArray buf ) : a(buf)
@@ -122,7 +122,7 @@ QBuffer::QBuffer( QByteArray buf ) : a(buf)
 }
 
 /*!
-  Destroys the buffer.
+    Destroys the buffer.
 */
 
 QBuffer::~QBuffer()
@@ -131,15 +131,15 @@ QBuffer::~QBuffer()
 
 
 /*!
-  Replaces the buffer's contents with \a buf.
+    Replaces the buffer's contents with \a buf and returns TRUE.
 
-  This may not be done when isOpen() is TRUE.
+    Does nothing (and returns FALSE) if isOpen() is TRUE.
 
-  Note that if you open the buffer in write mode (\c IO_WriteOnly or
-  IO_ReadWrite) and write something into the buffer, \a buf is also
-  modified because QByteArray is an explicitly shared class.
+    Note that if you open the buffer in write mode (\c IO_WriteOnly or
+    IO_ReadWrite) and write something into the buffer, \a buf is also
+    modified because QByteArray is an explicitly shared class.
 
-  \sa buffer(), open(), close()
+    \sa buffer(), open(), close()
 */
 
 bool QBuffer::setBuffer( QByteArray buf )
@@ -160,28 +160,29 @@ bool QBuffer::setBuffer( QByteArray buf )
 }
 
 /*!
-  \fn QByteArray QBuffer::buffer() const
+    \fn QByteArray QBuffer::buffer() const
 
-  Returns this buffer's byte array.
+    Returns this buffer's byte array.
 
-  \sa setBuffer()
+    \sa setBuffer()
 */
 
 /*!
-  \reimp
-  Opens the buffer in mode \a m.  Returns TRUE if successful;
-  otherwise returns FALSE. The buffer must be opened before use.
+    \reimp
 
-  The mode parameter \a m must be a combination of the following flags.
-  <ul>
-  <li>\c IO_ReadOnly opens the buffer in read-only mode.
-  <li>\c IO_WriteOnly opens the buffer in write-only mode.
-  <li>\c IO_ReadWrite opens the buffer in read/write mode.
-  <li>\c IO_Append sets the buffer index to the end of the buffer.
-  <li>\c IO_Truncate truncates the buffer.
-  </ul>
+    Opens the buffer in mode \a m. Returns TRUE if successful;
+    otherwise returns FALSE. The buffer must be opened before use.
 
-  \sa close(), isOpen()
+    The mode parameter \a m must be a combination of the following flags.
+    \list
+    \i \c IO_ReadOnly opens the buffer in read-only mode.
+    \i \c IO_WriteOnly opens the buffer in write-only mode.
+    \i \c IO_ReadWrite opens the buffer in read/write mode.
+    \i \c IO_Append sets the buffer index to the end of the buffer.
+    \i \c IO_Truncate truncates the buffer.
+    \endlist
+
+    \sa close(), isOpen()
 */
 
 bool QBuffer::open( int m  )
@@ -209,9 +210,11 @@ bool QBuffer::open( int m  )
 }
 
 /*!
-  \reimp
-  Closes an open buffer.
-  \sa open()
+    \reimp
+
+    Closes an open buffer.
+
+    \sa open()
 */
 
 void QBuffer::close()
@@ -224,8 +227,9 @@ void QBuffer::close()
 }
 
 /*!
-  \reimp
-  The flush function does nothing for a QBuffer.
+    \reimp
+
+    The flush function does nothing for a QBuffer.
 */
 
 void QBuffer::flush()
@@ -235,13 +239,15 @@ void QBuffer::flush()
 
 
 /*!
-  \fn QIODevice::Offset QBuffer::at() const
-  \reimp
+    \fn QIODevice::Offset QBuffer::at() const
+
+    \reimp
 */
 
 /*!
-  \fn QIODevice::Offset QBuffer::size() const
-  \reimp
+    \fn QIODevice::Offset QBuffer::size() const
+
+    \reimp
 */
 
 /*!
@@ -303,20 +309,18 @@ Q_LONG QBuffer::readBlock( char *p, Q_ULONG len )
 /*!
     \overload Q_LONG QBuffer::writeBlock( const QByteArray& data )
 
-  This convenience function takes \a data and is the same as calling
-  \c{writeBlock( data.data(), data.size() )}.
-
+    This convenience function is the same as calling
+    \c{writeBlock( data.data(), data.size() )} with \a data.
 */
 
 /*!
+    Writes \a len bytes from \a p into the buffer at the current
+    index position, overwriting any characters there and extending the
+    buffer if necessary. Returns the number of bytes actually written.
 
-  Writes \a len bytes from \a p into the buffer at the current index,
-  overwriting any characters there and extending the buffer if necessary.
-  Returns the number of bytes actually written.
+    Returns -1 if an error occurred.
 
-  Returns -1 if an error occurred.
-
-  \sa readBlock()
+    \sa readBlock()
 */
 
 Q_LONG QBuffer::writeBlock( const char *p, Q_ULONG len )
@@ -419,14 +423,15 @@ int QBuffer::getch()
 }
 
 /*!
-  \reimp
-  Writes the character \a ch into the buffer, overwriting
-  the character at the current index, extending the buffer
-  if necessary.
+    \reimp
 
-  Returns \a ch, or -1 if some error occurred.
+    Writes the character \a ch into the buffer at the current index
+    position, overwriting any existing character and extending the
+    buffer if necessary.
 
-  \sa getch(), ungetch()
+    Returns \a ch, or -1 if an error occurred.
+
+    \sa getch(), ungetch()
 */
 
 int QBuffer::putch( int ch )
