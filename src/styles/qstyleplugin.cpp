@@ -38,6 +38,8 @@ QRESULT QStylePluginPrivate::queryInterface( const QUuid &iid, QUnknownInterface
 	*iface = (QFeatureListInterface*)this;
     else if ( iid == IID_QStyleFactory )
 	*iface = (QStyleFactoryInterface*)this;
+    else if ( iid == IID_QLibrary )
+	*iface = (QLibraryInterface*) this;
     else
 	return QE_NOINTERFACE;
 
