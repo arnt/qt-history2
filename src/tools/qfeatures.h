@@ -296,7 +296,7 @@
 #endif
 
 // Shadow frame buffer
-#if !defined(QT_NO_QWS_VNC)
+#if !defined(QT_NO_QWS_SHADOWFB)
 #define QT_NO_QWS_SHADOWFB
 #endif
 
