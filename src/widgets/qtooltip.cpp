@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#81 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#82 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -301,7 +301,8 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 {
     // avoid dumping core in case of application madness, and return
     // quickly for some common but irrelevant events
-    if ( !obj || !obj->isWidgetType() || // isWidgetType() catches most stuff
+    if ( !qApp || !qApp->focusWidget() ||
+	 !obj || !obj->isWidgetType() || // isWidgetType() catches most stuff
 	 !e ||
 	 e->type() == QEvent::Paint ||
 	 e->type() == QEvent::Timer ||
@@ -974,7 +975,7 @@ void QToolTipGroup::setDelay( bool enable )
 ** QTipLabel meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Sun Aug 23 21:50:26 1998
-**      by: The Qt Meta Object Compiler ($Revision: 2.76 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.77 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
