@@ -525,7 +525,8 @@ inline bool QWidgetMapper::remove( WId id )
 
 This enum type is used to specify various window-system properties
 of the widget.  They are fairly unusual but necessary in a
-few cases.
+few cases.  Some of these flags depend on whether the underlying window 
+manager supports them.
 
 The main types are
 
