@@ -4,7 +4,7 @@
 **
 ** This header file efficiently includes all Qt GUI Toolkit functionality.
 **
-** Generated : Thu Dec 14 16:36:50 CET 2000
+** Generated : Tue Jan  9 18:41:42 CET 2001
 
 **
 ** Copyright (C) 1995-2000 Trolltech AS.  All rights reserved.
@@ -15,7 +15,7 @@
 
 #ifndef QT_H
 #define QT_H
-#include <qglobal.h>
+#include "qglobal.h"
 #include <limits.h>
 #include <qfeatures.h>
 #include <memory.h>
@@ -48,7 +48,7 @@
 #include "qfontmetrics.h"
 #include "qbrush.h"
 #include "qobject.h"
-#include <qguiddefs.h>
+#include <quuiddefs.h>
 #include "qconnection.h"
 #include "qdict.h"
 #include "qstyle.h"
@@ -93,14 +93,13 @@
 #include "qgrid.h"
 #include "qbuttongroup.h"
 #include "qcleanuphandler.h"
-#include "qcomponentinterface.h"
 #include "qgvector.h"
 #include "qhbox.h"
 #include "qhbuttongroup.h"
 #include "qdockwindow.h"
 #include "qhgroupbox.h"
 #include "qsocketnotifier.h"
-#include "qsocketdevice.h"
+#include "qnetworkprotocol.h"
 #include "qpixmap.h"
 #include "qscrollbar.h"
 #include "qimage.h"
@@ -121,7 +120,7 @@
 #include "qpen.h"
 #include <qscrollview.h>
 #include "qlistview.h"
-#include "qnetworkprotocol.h"
+#include "qlocalfs.h"
 #include "qtoolbar.h"
 #include "qvariant.h"
 #include "qiconset.h"
@@ -171,7 +170,7 @@
 #include "qlistbox.h"
 #include <qdragobject.h>
 #include "qprogressdialog.h"
-#include "qserversocket.h"
+#include "qsocketdevice.h"
 #include "qsessionmanager.h"
 #include "qsettings.h"
 #include "qsgistyle.h"
@@ -186,7 +185,7 @@
 #include "qsjiscodec.h"
 #include "qslider.h"
 #include "qsocket.h"
-#include "qhttp.h"
+#include "qserversocket.h"
 #include "qdns.h"
 #include "qsortedlist.h"
 #include "qsound.h"
@@ -196,7 +195,7 @@
 #include "qsqlerror.h"
 #include "qsqlrecord.h"
 #include "qsqlquery.h"
-#include "qsqldriverinterface.h"
+#include "qcomponentinterface.h"
 #include "qeditorfactory.h"
 #include "qsqlindex.h"
 #include "qsqldriver.h"
@@ -239,9 +238,10 @@
 #include "qapplication.h"
 #include "qtsciicodec.h"
 #include "qurloperator.h"
-#include "qlocalfs.h"
+#include "qhttp.h"
 #include "qfiledialog.h"
 #include "qutfcodec.h"
+#include "qsqldriverinterface.h"
 #include "qdatetimeedit.h"
 #include "qfontdatabase.h"
 #include "../kernel/qrichtext_p.h"
@@ -271,7 +271,7 @@
 #include "qfontfactorybdf_qws.h"
 #include "qgfxvoodoodefs_qws.h"
 #include "qgfxmatroxdefs_qws.h"
-//#include "qfontfactoryttf_qws.h"
+#include "qfontfactoryttf_qws.h"
 #include "qlock_qws.h"
 #include "qmemorymanager_qws.h"
 #include "qsoundqss_qws.h"

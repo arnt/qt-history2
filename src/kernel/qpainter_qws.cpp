@@ -1695,3 +1695,9 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len, QP
 	*/
     //}
 }
+
+QPoint QPainter::pos() const
+{
+    // ##### implement me
+    return QPoint(0,0);
+}
