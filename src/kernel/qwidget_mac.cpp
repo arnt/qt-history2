@@ -757,7 +757,6 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	}
 #endif
 
-#if 0 //This is causing the popups to go behind their parent because of the window level
 	/* Just to be extra careful we will change to the kUtilityWindowClass if the
 	   requested attributes cannot be used */
 	if((GetAvailableWindowAttributes(wclass) & wattr) != wattr) {
@@ -765,7 +764,6 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 		grp = GetWindowGroupOfClass(wclass);
 	    wclass = kUtilityWindowClass;
 	}
-#endif
 
 #ifdef QMAC_USE_WDEF
 	if((wclass == kPlainWindowClass && wattr == kWindowNoAttributes) || testWFlags(WStyle_Tool)) {
