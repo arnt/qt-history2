@@ -52,7 +52,7 @@
   \ingroup advanced
 
   A progress bar is used to give the user an indication of progress
-  of an operation and to reassure user that the application has not crashed.
+  of an operation and to reassure user that the application is running.
 
   QProgressBar only implements the basic progress display, whereas
   QProgressDialog provides a fuller encapsulation.
@@ -242,8 +242,8 @@ void QProgressBar::setIndicatorFollowsStyle( bool on )
 }
 
 /*!
-  \property QProgressBar::percentageVisible
   \brief whether the current progress value is displayed or not.
+  \property QProgressBar::percentageVisible
 */
 void QProgressBar::setPercentageVisible( bool on )
 {
