@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#106 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#107 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -27,11 +27,11 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#106 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#107 $");
 
 
 /*****************************************************************************
-  MIT Shared Memory Extension support: makes xForm noticeably faster.
+  MIT Shared Memory Extension support: makes xForm noticeably (~20%) faster.
  *****************************************************************************/
 
 #if defined(MITSHM)
@@ -57,14 +57,14 @@ static void qt_cleanup_mitshm()
     shmctl( xshminfo.shmid, IPC_RMID, 0 );
 }
 
-bool qt_create_mitshm_buffer( int w, int h )
+bool qt_create_mitshm_buffer( QPaintDevice* dev, int w, int h )
 {
     static int major, minor;
     static Bool pixmaps_ok;
-    Display *dpy = QPaintDevice::x11Display();
-    int scr	 = QPaintDevice::x11Screen();
-    int dd	 = QPaintDevice::x11Depth();
-    Visual *vis	 = QPaintDevice::x11Visual();
+    Display *dpy = dev->x11Display();
+    int scr	 = dev->x11Screen();
+    int dd	 = dev->x11Depth();
+    Visual *vis	 = (Visual*)dev->x11Visual();
 
     if ( xshminit ) {
 	qt_cleanup_mitshm();
@@ -108,7 +108,7 @@ bool qt_create_mitshm_buffer( int w, int h )
 
 #else
 
-bool qt_create_mitshm_buffer( int, int )
+bool qt_create_mitshm_buffer( QPaintDevice*, int, int )
 {
     return FALSE;
 }
@@ -1307,6 +1307,13 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     }
 
 #if defined(MITSHM)
+    static bool try_once = TRUE;
+    if (try_once) {
+	try_once = FALSE;
+	if ( !xshminit )
+	    qt_create_mitshm_buffer( this, 800, 600 );
+    }
+
     bool use_mitshm = xshmimg && !depth1 &&
 		      xshmimg->width >= w && xshmimg->height >= h;
 #endif
