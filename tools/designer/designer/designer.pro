@@ -4,6 +4,10 @@ HEADERS	+= command.h defs.h formwindow.h layout.h mainwindow.h metadatabase.h pi
 
 OBJECTS_DIR	= .
 
+table{
+	win32-msvc:DEFINES+=Q_TEMPLATE_EXTERN=extern
+}
+
 DEFINES += QT_INTERNAL_XML
 DEFINES += QT_INTERNAL_WORKSPACE
 DEFINES += QT_INTERNAL_ICONVIEW
@@ -36,7 +40,6 @@ table {
 FORMS	+= listboxeditor.ui editfunctions.ui newform.ui listvieweditor.ui customwidgeteditor.ui paletteeditor.ui iconvieweditor.ui preferences.ui multilineeditor.ui formsettings.ui about.ui pixmapfunction.ui createtemplate.ui actioneditor.ui projectsettings.ui finddialog.ui replacedialog.ui gotolinedialog.ui pixmapcollectioneditor.ui previewwidget.ui paletteeditoradvanced.ui wizardeditor.ui listeditor.ui startdialog.ui richtextfontdialog.ui connectiondialog.ui variabledialog.ui configtoolboxdialog.ui
 CONFIG	+= qt warn_on release
 DEFINES	+= DESIGNER
-win32-msvc:DEFINES+=Q_TEMPLATE_EXTERN=extern
 INCLUDEPATH	+= ../shared ../uilib
 win32:LIBS	+= $$QT_BUILD_TREE/lib/qui.lib $$QT_BUILD_TREE/lib/qassistantclient.lib
 unix {
