@@ -1724,7 +1724,7 @@ void QTextView::setFormat( QTextFormat *f, int flags )
     }
 }
 
-/* \reimp */
+/*! \reimp */
 
 void QTextView::setPalette( const QPalette &p )
 {
