@@ -30,13 +30,13 @@ void MyWidget::paintEvent( QPaintEvent * )
 
     QPainter p( this );
     QFont f("Times New Roman");
-    f.setPointSize( 48 );
+    f.setPointSize( 36 );
 //     p.setFont( f );
 //     p.drawText( 10, 60, string );
 //     f.setFamily("Times New Roman");
 //     p.setFont( f );
 //     p.drawText( 10, 120, string );
-    f.setFamily("Tahoma");
+    f.setFamily("Traditional Arabic");
     p.setFont( f );
     p.drawText( 10, 100, string );
 //     f.setFamily("Urdu Nastaliq Unicode");
@@ -52,7 +52,7 @@ void MyWidget::paintEvent( QPaintEvent * )
 
 
 //const char *s = "أوروبا, برمجيات الحاسوب + انترنيت: some english אירופה, תוכנה והאינטרנט";
-const char *s = "لاَْلحاسًوب";
+const char *s = "لاَْلحاسًوب برمجيات الحاسوب";
 
 
 // Thai

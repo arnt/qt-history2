@@ -20,14 +20,12 @@ static inline void positionCluster( ShapedItem *shaped, int gfrom,  int glast )
 //     qDebug( "baseInfo: %d/%d (%d/%d) off=%d/%d", baseInfo.x, baseInfo.y, baseInfo.width, baseInfo.height, baseInfo.xoff, baseInfo.yoff );
 
     int size = f->ascent()/10;
-    int offsetBase = (size - 5) / 4 + QMIN( size, 5 ) + 1;
+    int offsetBase = (size - 4) / 4 + QMIN( size, 4 ) + 1;
 //     qDebug("offset = %d", offsetBase );
 
     int i;
     unsigned char lastCmb = 0;
     QRect attachmentRect;
-
-    bool reverse = (shaped->d->analysis.bidiLevel % 2);
 
     for( i = 1; i <= nmarks; i++ ) {
 	GlyphIndex mark = shaped->d->glyphs[gfrom+i];
@@ -162,7 +160,7 @@ void ScriptEngine::heuristicSetGlyphAttributes( ShapedItem *shaped )
     if ( d->length != d->num_glyphs )
 	qWarning("ScriptEngine::heuristicSetGlyphAttributes: char length and num glyphs disagree" );
 
-    qDebug("ScriptEngine::heuristicSetGlyphAttributes, num_glyphs=%d", d->num_glyphs);
+//     qDebug("ScriptEngine::heuristicSetGlyphAttributes, num_glyphs=%d", d->num_glyphs);
 
     d->glyphAttributes = (GlyphAttributes *)realloc( d->glyphAttributes, d->num_glyphs * sizeof( GlyphAttributes ) );
 

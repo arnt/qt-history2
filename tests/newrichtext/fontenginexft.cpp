@@ -269,7 +269,7 @@ bool FontEngineXft::canRender( const QChar *string,  int len )
 
 OpenTypeIface *FontEngineXft::openTypeIface() const
 {
-    qDebug("openTypeIface requested!");
+//     qDebug("openTypeIface requested!");
     if ( _openType )
 	return _openType;
     XftFontStruct *xftfs = getFontStruct( _font );

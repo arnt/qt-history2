@@ -3105,7 +3105,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	levels[i] = items[i].analysis.bidiLevel;
     TextLayout::instance()->bidiReorder( items.size(), (unsigned char *)levels, (int *)visualOrder );
 
-     qDebug("QPainter::drawText: num items=%d",  items.size() );
+//      qDebug("QPainter::drawText: num items=%d",  items.size() );
     for ( int i = 0; i < items.size(); i++ ) {
 	int current = visualOrder[i];
 	const ScriptItem &it = items[ current ];
@@ -3116,21 +3116,22 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	QFont::Script script = (QFont::Script)it.analysis.script;
 	cfont.d->load( script );
 	FontEngineIface *fe = cfont.engineForScript( script );
- 	qDebug("drawing item %d, script=%d, fe=%p", current, script, fe );
+//  	qDebug("drawing item %d, script=%d, fe=%p", current, script, fe );
 	if ( fe && fe != (FontEngineIface *)-1 ) {
 	    fe->draw( this, x,  y, shaped.glyphs(), shaped.advances(), shaped.offsets(), shaped.count(),
 		      (shaped.d->analysis.bidiLevel%2) );
-	    Offset advance;
+	    int xoff = 0;
+	    int yoff = 0;
 	    const Offset *advances = shaped.advances();
 	    int i = shaped.count();
 	    while ( i-- ) {
-		advance.x += advances->x;
-		advance.y += advances->y;
+		xoff += advances->x;
+		yoff += advances->y;
 		++advances;
 	    }
-// 	    qDebug("width = %d",  advance.x );
-	    x += advance.x;
-	    y += advance.y;
+// 	    qDebug("width = %d", xoff );
+	    x += xoff;
+	    y += yoff;
 // 	    drawLine( x, y-20, x, y+20 );
 	}
     }

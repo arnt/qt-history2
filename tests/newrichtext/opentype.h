@@ -18,8 +18,8 @@ public:
 
     bool supportsScript( unsigned int script );
 
-    void applyGlyphSubstitutions( unsigned int script, ShapedItem *shaped, unsigned short *featuresToApply );
-    void applyGlyphPositioning( unsigned int script, ShapedItem *shaped );
+    bool applyGlyphSubstitutions( unsigned int script, ShapedItem *shaped, unsigned short *featuresToApply );
+    bool applyGlyphPositioning( unsigned int script, ShapedItem *shaped );
 
 private:
     bool loadArabicTables( FT_ULong script);

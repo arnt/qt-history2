@@ -62,13 +62,13 @@ bool OpenTypeIface::loadArabicTables( FT_ULong script)
 	return FALSE;
     }
 
-    qDebug("arabic is script %d", script_index );
+//     qDebug("arabic is script %d", script_index );
 
     TTO_FeatureList featurelist = gsub->FeatureList;
 
     int numfeatures = featurelist.FeatureCount;
 
-    qDebug("table has %d features", numfeatures );
+//     qDebug("table has %d features", numfeatures );
 
 
     found_bits = 0;
@@ -89,14 +89,14 @@ bool OpenTypeIface::loadArabicTables( FT_ULong script)
 
 	char featureString[5];
 	tag_to_string( featureString, r->FeatureTag );
-	qDebug("found feature '%s' in GSUB table", featureString );
-	qDebug("setting bit %x for feature, feature_index = %d", f->bit, feature_index );
+// 	qDebug("found feature '%s' in GSUB table", featureString );
+// 	qDebug("setting bit %x for feature, feature_index = %d", f->bit, feature_index );
     }
     if ( hasGPos ) {
 	FT_UShort script_index;
 	error = TT_GPOS_Select_Script( gpos, script, &script_index );
 	if ( error ) {
-	    qDebug("could not select arabic script in gpos table: %d", error );
+// 	    qDebug("could not select arabic script in gpos table: %d", error );
 	    return TRUE;
 	}
 
@@ -104,7 +104,7 @@ bool OpenTypeIface::loadArabicTables( FT_ULong script)
 
 	int numfeatures = featurelist.FeatureCount;
 
-	qDebug("table has %d features", numfeatures );
+// 	qDebug("table has %d features", numfeatures );
 
 	for( int i = 0; i < numfeatures; i++ ) {
 	    TTO_FeatureRecord *r = featurelist.FeatureRecord + i;
@@ -123,7 +123,7 @@ bool OpenTypeIface::loadArabicTables( FT_ULong script)
 
 	    char featureString[5];
 	    tag_to_string( featureString, r->FeatureTag );
-	    qDebug("found feature '%s' in GPOS table", featureString );
+// 	    qDebug("found feature '%s' in GPOS table", featureString );
 	}
 
 
@@ -133,7 +133,7 @@ bool OpenTypeIface::loadArabicTables( FT_ULong script)
 	TT_GSUB_Clear_Features( gsub );
 	return FALSE;
     }
-    qDebug("found_bits = %x",  (uint)found_bits );
+//     qDebug("found_bits = %x",  (uint)found_bits );
 
     return TRUE;
 }
@@ -154,7 +154,7 @@ bool OpenTypeIface::supportsScript( unsigned int script )
     FT_Error error;
     if ( !gdef ) {
 	if ( (error = TT_Load_GDEF_Table( face, &gdef )) ) {
-	    qDebug("error loading gdef table: %d", error );
+// 	    qDebug("error loading gdef table: %d", error );
 	    hasGDef = FALSE;
 	    return FALSE;
 	}
@@ -163,10 +163,10 @@ bool OpenTypeIface::supportsScript( unsigned int script )
     if ( !gsub ) {
 	if ( (error = TT_Load_GSUB_Table( face, &gsub, gdef )) ) {
 	    if ( error != FT_Err_Table_Missing ) {
-		qDebug("error loading gsub table: %d", error );
+// 		qDebug("error loading gsub table: %d", error );
 		return FALSE;
 	    } else {
-		qDebug("face doesn't have a gsub table" );
+// 		qDebug("face doesn't have a gsub table" );
 		hasGSub = FALSE;
 	    }
 	}
@@ -175,10 +175,10 @@ bool OpenTypeIface::supportsScript( unsigned int script )
     if ( !gpos ) {
 	if ( (error = TT_Load_GPOS_Table( face, &gpos, gdef )) ) {
 	    if ( error != FT_Err_Table_Missing ) {
-		qDebug("error loading gpos table: %d", error );
+// 		qDebug("error loading gpos table: %d", error );
 		return FALSE;
 	    } else {
-		qDebug("face doesn't have a gpos table" );
+// 		qDebug("face doesn't have a gpos table" );
 		hasGPos = FALSE;
 	    }
 	}
@@ -194,7 +194,7 @@ bool OpenTypeIface::supportsScript( unsigned int script )
     return FALSE;
 }
 
-void OpenTypeIface::applyGlyphSubstitutions( unsigned int script, ShapedItem *shaped, unsigned short *featuresToApply )
+bool OpenTypeIface::applyGlyphSubstitutions( unsigned int script, ShapedItem *shaped, unsigned short *featuresToApply )
 {
     if ( script != current_script ) {
 	TT_GSUB_Clear_Features( gsub );
@@ -215,32 +215,37 @@ void OpenTypeIface::applyGlyphSubstitutions( unsigned int script, ShapedItem *sh
     TT_GSUB_String_New( face->memory, &in );
     TT_GSUB_String_Set_Length( in, shaped->d->num_glyphs );
     TT_GSUB_String_New( face->memory, &out);
+    TT_GSUB_String_Set_Length( out, shaped->d->num_glyphs );
+    out->length = 0;
 
-    qDebug("in: num_glyphs = %d", shaped->d->num_glyphs );
+//     qDebug("in: num_glyphs = %d", shaped->d->num_glyphs );
     for ( int i = 0; i < shaped->d->num_glyphs; i++) {
       in->string[i] = shaped->d->glyphs[i];
-      in->logClusters[i] = i;//shaped->d->logClusters[i];
+      in->logClusters[i] = i;
       in->properties[i] = ~featuresToApply[i];
-      qDebug("    glyph[%d] = %x apply=%x, logcluster=%d", i, shaped->d->glyphs[i], featuresToApply[i], shaped->d->logClusters[i] );
+//       qDebug("    glyph[%d] = %x apply=%x, logcluster=%d", i, shaped->d->glyphs[i], featuresToApply[i], i );
     }
     in->max_ligID = 0;
 
     TT_GSUB_Apply_String (gsub, in, out);
 
     if ( shaped->d->num_glyphs < (int)out->length ) {
-	shaped->d->glyphs = ( GlyphIndex *) realloc( shaped->d->glyphs, out->length );
-	shaped->d->glyphAttributes = ( GlyphAttributes *) realloc( shaped->d->glyphAttributes, out->length );
+	shaped->d->glyphs = ( GlyphIndex *) realloc( shaped->d->glyphs, out->length*sizeof(GlyphIndex) );
     }
     shaped->d->num_glyphs = out->length;
 
 //     qDebug("out: num_glyphs = %d", shaped->d->num_glyphs );
+    GlyphAttributes *oldAttrs = shaped->d->glyphAttributes;
+    shaped->d->glyphAttributes = ( GlyphAttributes *) malloc( out->length*sizeof(GlyphAttributes) );
 
-    for ( int i = shaped->d->num_glyphs; i > 0; i--) {
+    for ( int i = 0; i < shaped->d->num_glyphs; i++ ) {
 	shaped->d->glyphs[i] = out->string[i];
-	shaped->d->glyphAttributes[i] = shaped->d->glyphAttributes[out->logClusters[i]];
-// 	qDebug("    glyph[%d] = %x logcluster=%d", i, shaped->d->glyphs[i], shaped->d->logClusters[i] );
+	shaped->d->glyphAttributes[i] = oldAttrs[out->logClusters[i]];
+//  	qDebug("    glyph[%d] = %x logcluster=%d mark=%d", i, shaped->d->glyphs[i], out->logClusters[i], shaped->d->glyphAttributes[i].mark );
 	// ### need to fix logclusters aswell!!!!
     }
+
+    free( oldAttrs );
 
     TT_GSUB_String_Done( in );
 
@@ -249,57 +254,66 @@ void OpenTypeIface::applyGlyphSubstitutions( unsigned int script, ShapedItem *sh
 	shaped->d->enginePrivate = (void *)out;
     else
 	TT_GSUB_String_Done( out );
+    return TRUE;
 }
 
 
-void OpenTypeIface::applyGlyphPositioning( unsigned int script, ShapedItem *shaped )
+bool OpenTypeIface::applyGlyphPositioning( unsigned int script, ShapedItem *shaped )
 {
-    if ( !hasGPos )
-	return;
-
-    if ( script != current_script ) {
-	TT_GSUB_Clear_Features( gsub );
-
-	if ( script == Arabic && loadArabicTables( script ) )
-	    current_script = script;
-    }
-
     TTO_GSUB_String *in = (TTO_GSUB_String *)shaped->d->enginePrivate;
     TTO_GPOS_Data *out = 0;
 
-    bool reverse = (shaped->d->analysis.bidiLevel % 2);
-    // ### is FT_LOAD_DEFAULT the right thing to do?
-    TT_GPOS_Apply_String( face, gpos, FT_LOAD_DEFAULT, in, &out, FALSE, reverse );
+    bool retval = FALSE;
+    if ( hasGPos ) {
+	retval = TRUE;
 
-    Offset *advances = shaped->d->advances;
-    Offset *offsets = shaped->d->offsets;
+	if ( script != current_script ) {
+	    TT_GSUB_Clear_Features( gsub );
 
-//     qDebug("positioned glyphs:" );
-    for ( int i = 0; i < shaped->d->num_glyphs; i++) {
-// 	qDebug("    %d:\tadv=(%d/%d)\tpos=(%d/%d)\tback=%d\tnew_advance=%d", i,
-// 	       (int)(out[i].x_advance >> 6), (int)(out[i].y_advance >> 6 ),
-// 	       (int)(out[i].x_pos >> 6 ), (int)(out[i].y_pos >> 6),
-// 	       out[i].back, out[i].new_advance );
-	if ( out[i].new_advance ) {
-	    advances[i].x = out[i].x_advance >> 6;
-	    advances[i].y = -out[i].y_advance >> 6;
-	} else {
-	    advances[i].x += out[i].x_advance >> 6;
-	    advances[i].y -= out[i].y_advance >> 6;
+	    if ( script == Arabic && loadArabicTables( script ) )
+		current_script = script;
+	    else
+		return FALSE;
 	}
-	offsets[i].x = out[i].x_pos >> 6;
-	offsets[i].y = -(out[i].y_pos >> 6);
-	int back = out[i].back;
-	while ( back ) {
-	    offsets[i].x -= advances[i-back].x;
-	    offsets[i].y -= advances[i-back].y;
-	    back--;
+
+
+	bool reverse = (shaped->d->analysis.bidiLevel % 2);
+	// ### is FT_LOAD_DEFAULT the right thing to do?
+	TT_GPOS_Apply_String( face, gpos, FT_LOAD_DEFAULT, in, &out, FALSE, reverse );
+
+	Offset *advances = shaped->d->advances;
+	Offset *offsets = shaped->d->offsets;
+
+	//     qDebug("positioned glyphs:" );
+	for ( int i = 0; i < shaped->d->num_glyphs; i++) {
+	    // 	qDebug("    %d:\tadv=(%d/%d)\tpos=(%d/%d)\tback=%d\tnew_advance=%d", i,
+	    // 	       (int)(out[i].x_advance >> 6), (int)(out[i].y_advance >> 6 ),
+	    // 	       (int)(out[i].x_pos >> 6 ), (int)(out[i].y_pos >> 6),
+	    // 	       out[i].back, out[i].new_advance );
+	    if ( out[i].new_advance ) {
+		advances[i].x = out[i].x_advance >> 6;
+		advances[i].y = -out[i].y_advance >> 6;
+	    } else {
+		advances[i].x += out[i].x_advance >> 6;
+		advances[i].y -= out[i].y_advance >> 6;
+	    }
+	    offsets[i].x = out[i].x_pos >> 6;
+	    offsets[i].y = -(out[i].y_pos >> 6);
+	    int back = out[i].back;
+	    while ( back ) {
+		offsets[i].x -= advances[i-back].x;
+		offsets[i].y -= advances[i-back].y;
+		back--;
+	    }
+	    // 	qDebug("   ->\tadv=(%d/%d)\tpos=(%d/%d)",
+	    // 	       advances[i].x, advances[i].y, offsets[i].x, offsets[i].y );
 	}
-// 	qDebug("   ->\tadv=(%d/%d)\tpos=(%d/%d)",
-// 	       advances[i].x, advances[i].y, offsets[i].x, offsets[i].y );
     }
 
-    TT_GSUB_String_Done( in );
+    if ( in )
+	TT_GSUB_String_Done( in );
     shaped->d->enginePrivate = 0;
     free( out );
+
+    return retval;
 }

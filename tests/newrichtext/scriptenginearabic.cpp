@@ -475,7 +475,7 @@ static void shapedString(const QString& uc, int from, int len, QChar *shapeBuffe
 	    uchar c = ch->cell();
 	    int pos = i + from;
 	    int shape = glyphVariantLogical( uc, pos );
-	    qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, getShape(c, shape));
+// 	    qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, getShape(c, shape));
 	    // take care of lam-alef ligatures (lam right of alef)
 	    ushort map;
 	    switch ( c ) {
@@ -487,7 +487,7 @@ static void shapedString(const QString& uc, int from, int len, QChar *shapeBuffe
 			    case 0x23:
 			    case 0x25:
 			    case 0x27:
-				qDebug(" lam of lam-alef ligature");
+// 				qDebug(" lam of lam-alef ligature");
 				map = arabicUnicodeLamAlefMapping[pch->cell() - 0x22][shape];
 				goto next;
 			    default:
@@ -580,12 +580,10 @@ void ScriptEngineArabic::position( ShapedItem *result )
 {
     OpenTypeIface *openType = result->d->fontEngine->openTypeIface();
 
-    if ( 0 && openType && openType->supportsScript( OpenTypeIface::Arabic ) ) {
+    if ( openType && openType->supportsScript( OpenTypeIface::Arabic ) ) {
 	openTypePosition( openType, result );
 	return;
     }
-    free( result->d->enginePrivate );
-    result->d->enginePrivate = 0;
 
     ScriptEngineBasic::position( result );
 
@@ -656,5 +654,17 @@ void ScriptEngineArabic::openTypePosition( const OpenTypeIface *openType, Shaped
 	d->advances[i].y = gi.yoff;
     }
 
-    ((OpenTypeIface *) openType)->applyGlyphPositioning( OpenTypeIface::Arabic, result );
+    bool positioned = ((OpenTypeIface *) openType)->applyGlyphPositioning( OpenTypeIface::Arabic, result );
+#if 0
+    qDebug("after positoning: glyph attributes:" );
+    for ( int i = 0; i < result->d->num_glyphs; i++) {
+	qDebug("   ->\tmark=%d",
+	       result->d->glyphAttributes[i].mark );
+    }
+#endif
+    if ( !positioned ) {
+// 	qDebug("no open type positioning, using heuristics");
+	heuristicPositionMarks( result );
+    }
+
 }
