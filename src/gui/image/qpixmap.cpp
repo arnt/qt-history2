@@ -311,12 +311,6 @@ QPixmap::QPixmap(const char * const xpm[])
 {
     init(0, 0, 0, false, defOptim);
 
-    if (!QImageIO::inputFormats().contains("xpm")) {
-        // We use a qFatal rather than disabling the whole function,
-        // as this constructor may be ambiguous.
-        qFatal("QPixmap::QPixmap(), XPM not supported");
-    }
-
     QImage image(xpm);
     if (!image.isNull())
         fromImage(image);

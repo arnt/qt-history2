@@ -80,25 +80,35 @@ static bool read_xpm_string(QByteArray &buf, QIODevice *d, const char * const *s
 // One of the two HAS to be 0, the other one is used.
 //
 
-void qt_read_xpm_image_or_array(QIODevice *device, const char * const * source, QImage & image)
+bool qt_read_xpm_image_or_array(QIODevice *device, const char * const * source, QImage &image)
 {
     QByteArray buf(200, 0);
 
     int i, cpp, ncols, w, h, index = 0;
 
-    device->readLine(buf.data(), buf.size());        // "/* XPM */"
-    if (buf.indexOf("/* XPM") != 0) {
-        return;
-    }// bad magic
+    if (device) {
+        // "/* XPM */"
+        int readBytes;
+        if ((readBytes = device->readLine(buf.data(), buf.size())) < 0)
+            return false;
+
+        if (buf.indexOf("/* XPM") != 0) {
+            while (readBytes > 0) {
+                device->ungetChar(buf.at(readBytes - 1));
+                --readBytes;
+            }
+            return false;
+        }// bad magic
+    }
 
     if (!read_xpm_string(buf, device, source, index))
-        return;
+        return false;
 
     if (sscanf(buf, "%d %d %d %d", &w, &h, &ncols, &cpp) < 4)
-        return;                                        // < 4 numbers parsed
+        return false;                                        // < 4 numbers parsed
 
     if (cpp > 15)
-        return;
+        return false;
 
     if (ncols > 256) {
         image.create(w, h, 32);
@@ -107,7 +117,7 @@ void qt_read_xpm_image_or_array(QIODevice *device, const char * const * source, 
     }
 
     if (image.isNull())
-        return;
+        return false;
 
     QMap<QString, int> colorMap;
     int currentColor;
@@ -115,7 +125,7 @@ void qt_read_xpm_image_or_array(QIODevice *device, const char * const * source, 
     for(currentColor=0; currentColor < ncols; ++currentColor) {
         if (!read_xpm_string(buf, device, source, index)) {
             qWarning("QImage: XPM color specification missing");
-            return;
+            return false;
         }
         QString index;
         index = buf.left(cpp);
@@ -130,7 +140,7 @@ void qt_read_xpm_image_or_array(QIODevice *device, const char * const * source, 
             i = buf.indexOf(" m ");
         if (i < 0) {
             qWarning("QImage: XPM color specification is missing: %s", buf.constData());
-            return;        // no c/g/g4/m specification at all
+            return false;        // no c/g/g4/m specification at all
         }
         buf = buf.mid(i+3);
         // Strip any other colorspec
@@ -172,7 +182,7 @@ void qt_read_xpm_image_or_array(QIODevice *device, const char * const * source, 
     for(int y=0; y<h; y++) {
         if (!read_xpm_string(buf, device, source, index)) {
             qWarning("QImage: XPM pixels missing on image line %d", y);
-            return;
+            return false;
         }
         if (image.depth() == 8) {
             uchar *p = image.scanLine(y);
@@ -209,6 +219,7 @@ void qt_read_xpm_image_or_array(QIODevice *device, const char * const * source, 
             }
         }
     }
+    return true;
 }
 
 static const char* xpm_color_name(int cpp, int index)
@@ -364,13 +375,7 @@ bool QXpmHandler::canLoadImage(QIODevice *device)
 
 bool QXpmHandler::load(QImage *image)
 {
-    QImage img;
-    qt_read_xpm_image_or_array(device(), 0, img);
-    if (img.isNull())
-        return false;
-
-    *image = img;
-    return true;
+    return qt_read_xpm_image_or_array(device(), 0, *image);
 }
 
 bool QXpmHandler::save(const QImage &image)

@@ -397,6 +397,8 @@ QImage::QImage(const QString &fileName, const char* format)
     load(fileName, format);
 }
 
+extern bool qt_read_xpm_image_or_array(QIODevice *device, const char * const *source, QImage &image);
+
 /*!
     Constructs an image from \a xpm, which must be a valid XPM image.
 
@@ -422,22 +424,14 @@ QImage::QImage(const char * const xpm[])
     data = new QImageData;
     ++data->ref;
 
-    if (!QImageIO::inputFormats().contains("xpm")) {
+    QImage image;
+    if (!qt_read_xpm_image_or_array(0, xpm, image)) {
         // We use a qFatal rather than disabling the whole function,
         // as this constructor may be ambiguous.
         qFatal("QImage::QImage(), XPM is not supported");
     }
 
-    QBuffer buffer;
-    buffer.setData((const char *)xpm);
-    buffer.open(QBuffer::ReadOnly);
-    QImageIO io(&buffer, "xpm");
-    if (!io.load()) {
-        qWarning("QImage::QImage(), failed to load XPM: %s",
-                 io.errorString().toLatin1().constData());
-    }
-
-    operator=(io.image());
+    operator=(image);
 }
 
 /*!
