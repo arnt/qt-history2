@@ -5,6 +5,12 @@ Bug-fixes, optimizations and much improved documentation, of course.
 There are few changes in the API (Qt header files).
 
 
+QPixmap:
+--------
+  Can draw transparent pixmaps. Call QPixmap::setMask(QBitmap) to
+  set a mask.
+
+
 QPainter:
 ---------
   Unified transformation. setWindow() and setViewport() now use
