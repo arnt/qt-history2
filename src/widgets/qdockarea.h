@@ -150,7 +150,8 @@ private:
     DockWindowData *dockWindowData( QDockWindow *w );
     void dockWindow( QDockWindow *dockWindow, DockWindowData *data );
     void updateLayout();
-
+    void invalidateFixedSizes();
+    
 private:
     Orientation orient;
     QList<QDockWindow> *dockWindows;

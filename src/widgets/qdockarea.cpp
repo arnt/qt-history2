@@ -452,6 +452,7 @@ QDockArea::~QDockArea()
 
 void QDockArea::moveDockWindow( QDockWindow *w, int index )
 {
+    invalidateFixedSizes();
     QDockWindow *dockWindow = 0;
     int dockWindowIndex = findDockWindow( w );
     if ( dockWindowIndex == -1 ) {
@@ -509,6 +510,7 @@ int QDockArea::lineOf( int index )
 
 void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r, bool swap )
 {
+    invalidateFixedSizes();
     QDockWindow *dockWindow = 0;
     int dockWindowIndex = findDockWindow( w );
     QList<QDockWindow> lineStarts = layout->lineStarts();
@@ -704,6 +706,10 @@ void QDockArea::removeDockWindow( QDockWindow *w, bool makeFloating, bool swap, 
     QList<QDockWindow> lineStarts = layout->lineStarts();
     if ( fixNewLines && lineStarts.findRef( dockWindow ) != -1 && i < (int)dockWindows->count() )
 	dockWindows->at( i )->setNewLine( TRUE );
+    if ( makeFloating ) {
+	w->setFixedExtentWidth( -1 );
+	w->setFixedExtentHeight( -1 );
+    }
     if ( makeFloating )
 	dockWindow->reparent( topLevelWidget(), WStyle_Customize | WStyle_NoBorderEx | WType_TopLevel | WStyle_Dialog,
 			      QPoint( 0, 0 ), FALSE );
@@ -906,4 +912,14 @@ void QDockArea::setAcceptDockWindow( QDockWindow *dw, bool accept )
 	forbiddenWidgets.removeRef( dw );
     else if ( forbiddenWidgets.findRef( dw ) == -1 )
 	forbiddenWidgets.append( dw );
+}
+
+void QDockArea::invalidateFixedSizes()
+{
+    for ( QDockWindow *dw = dockWindows->first(); dw; dw = dockWindows->next() ) {
+	if ( orientation() == Qt::Horizontal )
+	    dw->setFixedExtentWidth( -1 );
+	else
+	    dw->setFixedExtentHeight( -1 );
+    }
 }

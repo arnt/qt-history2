@@ -157,7 +157,7 @@ void QDockWindowResizeHandle::mouseReleaseEvent( QMouseEvent *e )
 	}
 	if ( orientation() == Horizontal ) {
 	    int dy;
-	    if ( dockWindow->area()->gravity() == QDockArea::Normal )
+	    if ( dockWindow->area()->gravity() == QDockArea::Normal || orientation() != dockWindow->area()->orientation() )
 		dy = e->globalPos().y() - firstPos.y();
 	    else
 		dy =  firstPos.y() - e->globalPos().y();
@@ -167,7 +167,7 @@ void QDockWindowResizeHandle::mouseReleaseEvent( QMouseEvent *e )
 	    dockWindow->setFixedExtentHeight( d );
 	} else {
 	    int dx;
-	    if ( dockWindow->area()->gravity() == QDockArea::Normal )
+	    if ( dockWindow->area()->gravity() == QDockArea::Normal || orientation() != dockWindow->area()->orientation() )
 		dx = e->globalPos().x() - firstPos.x();
 	    else
 		dx = firstPos.x() - e->globalPos().x();
