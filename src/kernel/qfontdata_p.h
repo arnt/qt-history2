@@ -425,7 +425,7 @@ public:
 #if defined( Q_WS_MAC )
     ~QFontPrivate() { if( fin ) fin->deref(); }
     void macSetFont(QPaintDevice *);
-    void drawText( QString s, int len );
+    void drawText( int x, int y, QString s, int len );
     void load();
     QFontStruct *fin;
 #endif

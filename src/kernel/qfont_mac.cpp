@@ -189,6 +189,9 @@ static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, tex
 	}
 	read_so_far += read;
 
+	if(task == GIMME_DRAW) 
+	    TextFace(fi.style() & ~(underline));
+
 	for(ItemCount i = 0; i < run_len; i++) {
 	    //set the font
 	    short fn = runs[i].script == sc ? fi.font() : GetScriptVariable(runs[i].script, smScriptSysFond);
@@ -208,12 +211,10 @@ static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, tex
 	    int rlen = ((i == run_len - 1) ? converted : runs[i+1].offset) - off;
 
 	    //do the requested task
-	    if(task == GIMME_WIDTH) 
+	    if(task == GIMME_WIDTH || task == GIMME_DRAW) 
 		ret += TextWidth(buf, off, rlen);
-	    else if(task == GIMME_DRAW)
+	    if(task == GIMME_DRAW)
 		DrawText(buf, off, rlen);
-	    else 
-		qDebug("that can't be!");
 
 	    //restore the scale
 	    if(msz != sz)
@@ -347,9 +348,25 @@ void QFontPrivate::macSetFont(QPaintDevice *v)
     QMacSetFontInfo::setMacFont(this);
 }
 
-void QFontPrivate::drawText( QString s, int len )
+void QFontPrivate::drawText( int x, int y, QString s, int len )
 {
-    do_text_task(this, s, 0, len < 1 ? s.length() : len, GIMME_DRAW);
+    MoveTo(x, y);
+    if(len < 1)
+	len = s.length();
+    int w = do_text_task(this, s, 0, len, GIMME_DRAW);
+    if(request.underline || request.strikeOut) {
+	if(request.underline) {
+	    MoveTo(x, y + 2);
+	    LineTo(x + w, y + 2);
+	}
+	if(request.strikeOut) {
+	    int spos = fin->ascent() / 3;
+	    if(!spos)
+		spos = 1;
+	    MoveTo(x, y - spos);
+	    LineTo(x + w, y - spos);
+	}
+    } 
 }
 
 void QFontPrivate::load()

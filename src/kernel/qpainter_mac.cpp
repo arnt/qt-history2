@@ -1736,9 +1736,8 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
     }
 
     initPaintDevice();
-    MoveTo(x+offx,y+offy);
     updatePen();
-    cfont.d->drawText(str,len);
+    cfont.d->drawText(x + offx, y + offy, str, len);
 }
 
 QPoint QPainter::pos() const

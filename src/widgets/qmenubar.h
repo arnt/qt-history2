@@ -151,7 +151,7 @@ private:
     friend class QApplication;
     uint mac_dirty_menubar : 1;
     uint mac_eaten_menubar : 1;
-    static bool activate(MenuRef, short);
+    static bool activate(MenuRef, short, bool highlight=FALSE);
     static void macUpdateMenuBar();
     static void macUpdatePopup(MenuRef);
 #endif

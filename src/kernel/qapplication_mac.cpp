@@ -238,6 +238,7 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
 	    { kEventClassApplication, kEventAppDeactivated },
 
 	    { kEventClassMenu, kEventMenuOpening },
+	    { kEventClassMenu, kEventMenuTargetItem },
 
 	    { kEventClassCommand, kEventCommandProcess }
 	};
@@ -1593,7 +1594,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    app->setActiveWindow(NULL);
 	}
 	break;
+
     case kEventClassMenu:
+#ifdef QMAC_QMENUBAR_NATIVE
 	if(ekind == kEventMenuOpening) {
 	    Boolean first;
 	    GetEventParameter(event, kEventParamMenuFirstOpen, typeBoolean, NULL, sizeof(first), NULL, &first);
@@ -1602,7 +1605,14 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		GetEventParameter(event, kEventParamDirectObject, typeMenuRef, NULL, sizeof(mr), NULL, &mr);
 		QMenuBar::macUpdatePopup(mr);
 	    }
+	} else if(ekind == kEventMenuTargetItem) {
+	    MenuRef mr;
+	    GetEventParameter(event, kEventParamDirectObject, typeMenuRef, NULL, sizeof(mr), NULL, &mr);
+	    MenuItemIndex idx;
+	    GetEventParameter(event, kEventParamMenuItemIndex, typeMenuItemIndex, NULL, sizeof(idx), NULL, &idx);
+	    QMenuBar::activate(mr, idx, TRUE);
 	}
+#endif
 	break;
     case kEventClassCommand:
 	if(ekind == kEventCommandProcess) {

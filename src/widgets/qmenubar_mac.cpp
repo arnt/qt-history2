@@ -177,7 +177,7 @@ static bool updateMenuBar(QMenuBar *mbar)
 /*!
   Internal function..
 */
-bool QMenuBar::activate(MenuRef menu, short idx)
+bool QMenuBar::activate(MenuRef menu, short idx, bool highlight)
 {
     if(!pdict) {
 	HiliteMenu(0);
@@ -187,8 +187,12 @@ bool QMenuBar::activate(MenuRef menu, short idx)
     if(MacPopupBinding *mpb = pdict->find((int)((short)menu))) {
 	MenuCommand cmd;
 	GetMenuItemCommandID(mpb->macpopup, idx, &cmd);
-	mpb->qpopup->activateItemAt(mpb->qpopup->indexOf(cmd));
-	HiliteMenu(0);
+	if(highlight) {
+	    mpb->qpopup->hilitSig(cmd);
+	} else {
+	    mpb->qpopup->activateItemAt(mpb->qpopup->indexOf(cmd));
+	    HiliteMenu(0);
+	}
 	return TRUE;
     }
     HiliteMenu(0);

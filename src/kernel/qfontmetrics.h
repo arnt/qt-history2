@@ -103,6 +103,9 @@ private:
 
     friend class QWidget;
     friend class QPainter;
+#if defined( Q_WS_MAC )
+    friend class QFontPrivate;
+#endif
 
     QFontPrivate  *d;
     QPainter      *painter;
