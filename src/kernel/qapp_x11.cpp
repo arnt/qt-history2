@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#305 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#306 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -86,7 +86,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#305 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#306 $");
 
 
 /*****************************************************************************
@@ -394,7 +394,7 @@ static void set_local_font()
 	    *p++ = 0;
 	    int i=0;
 	    while( encoding_names[i].name &&
-		   strcasecmp( p, encoding_names[i].name ) )
+		   qstricmp( p, encoding_names[i].name ) )
 		i++;
 	    if ( encoding_names[i].name ) {
 		QFont::setDefaultFont( QFont( "Helvetica", 12, QFont::Normal,
