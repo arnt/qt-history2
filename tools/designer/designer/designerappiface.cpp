@@ -7,43 +7,31 @@
 #include <qstatusbar.h>
 
 DesignerApplicationInterface::DesignerApplicationInterface()
-    : QApplicationInterface(), mwIface( 0 ), flIface( 0 )
-{
-}
-
-QUnknownInterface *DesignerApplicationInterface::queryInterface( const QString &request )
+    : QApplicationInterface()
 {
     MainWindow* mw = (MainWindow*)qApp->mainWidget();
     FormList* fl = mw ? mw->formlist() : 0;
+    if ( !fl )
+	return;
 
-    if ( request == "DesignerMainWindowInterface" && mw )
-	return mwIface ? mwIface : ( mwIface = new DesignerMainWindowInterface( mw ) );
-    else if ( request == "DesignerFormListInterface" && fl )
-	return flIface ? flIface : ( flIface = new DesignerFormListInterfaceImpl( fl ) );
-    return 0;
+    new DesignerMainWindowInterfaceImpl( mw, this );
+    new DesignerFormListInterfaceImpl( fl, this );
 }
 
 /*
  * DesignerMainWindowInterface
 */
-DesignerMainWindowInterfaceImpl::DesignerMainWindowInterfaceImpl( MainWindow *mw )
-    : DesignerMainWindowInterface( mw ), mainWindow( mw )
+DesignerMainWindowInterfaceImpl::DesignerMainWindowInterfaceImpl( MainWindow *mw, QUnknownInterface* parent )
+    : DesignerMainWindowInterface( mw, parent )
 {
-}
-
-QUnknownInterface *DesignerMainWindowInterfaceImpl::queryInterface( const QString &request )
-{
-    QStatusBar* sb = mainWindow->statusBar();
-    if ( request == "DesignerStatusBarInterface" && sb )
-	return sbIface ? sbIface : ( sbIface = new DesignerStatusBarInterface( sb ) );
-    return DesignerMainWindowInterface::queryInterface( request );
+    new DesignerStatusBarInterfaceImpl( ((QMainWindow*)component())->statusBar(), this );
 }
 
 /*
  * DesignerStatusBarInterface
 */
-DesignerStatusBarInterfaceImpl::DesignerStatusBarInterfaceImpl( QStatusBar *sb )
-    : DesignerStatusBarInterface( sb )
+DesignerStatusBarInterfaceImpl::DesignerStatusBarInterfaceImpl( QStatusBar *sb, QUnknownInterface* parent )
+    : DesignerStatusBarInterface( sb, parent )
 {
 }
 
@@ -64,16 +52,10 @@ bool DesignerStatusBarInterfaceImpl::requestSetProperty( const QCString &p, cons
 /*
  * DesignerFormListInterface
 */
-DesignerFormListInterfaceImpl::DesignerFormListInterfaceImpl( FormList *fl )
-    : DesignerFormListInterface( (QObject*)fl )
+DesignerFormListInterfaceImpl::DesignerFormListInterfaceImpl( FormList *fl, QUnknownInterface* parent )
+    : DesignerFormListInterface( fl, parent )
 {
-}
-
-QUnknownInterface *DesignerFormListInterfaceImpl::queryInterface( const QString &request )
-{
-    if ( request == "DesignerActiveFormWindowInterface" )
-	return fwIface ? fwIface : ( fwIface = new DesignerActiveFormWindowInterfaceImpl( (FormList*)component() ) );
-    return QApplicationComponentInterface::queryInterface( request );
+    new DesignerActiveFormWindowInterfaceImpl( fl, this );
 }
 
 QList<DesignerFormWindowInterface>* DesignerFormListInterfaceImpl::queryFormInterfaceList()
@@ -152,10 +134,10 @@ void DesignerFormListInterfaceImpl::setPixmap( DesignerFormWindowInterface *form
 /*
  * DesignerActiveFormWindowInterface
 */
-DesignerActiveFormWindowInterfaceImpl::DesignerActiveFormWindowInterfaceImpl ( FormList* fl )
-    : DesignerActiveFormWindowInterface( fl ), formWindow( 0 )
+DesignerActiveFormWindowInterfaceImpl::DesignerActiveFormWindowInterfaceImpl ( FormList* fl, QUnknownInterface *parent )
+    : DesignerActiveFormWindowInterface( fl, parent ), formWindow( 0 )
 {
-    connect( (FormList*)component(), SIGNAL( selectionChanged() ),
+    connect( component(), SIGNAL( selectionChanged() ),
 	     this, SLOT( reconnect() ) );
 }
 

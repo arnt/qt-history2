@@ -13,7 +13,9 @@ class QStatusBar;
 class DesignerStatusBarInterfaceImpl : public QApplicationComponentInterface
 {
 public:
-    DesignerStatusBarInterfaceImpl( QStatusBar *sb );
+    DesignerStatusBarInterfaceImpl( QStatusBar *sb, QUnknownInterface* parent );
+
+    QString interfaceID() const { return "DesignerStatusBarInterface"; }
 
     bool requestSetProperty( const QCString &p, const QVariant &v );
 };
@@ -21,14 +23,9 @@ public:
 class DesignerMainWindowInterfaceImpl : public QApplicationComponentInterface
 {
 public:
-    DesignerMainWindowInterfaceImpl( MainWindow *mw );
+    DesignerMainWindowInterfaceImpl( MainWindow *mw, QUnknownInterface* parent  );
 
-    QUnknownInterface *queryInterface( const QString &request );
-
-private:
-    DesignerStatusBarInterface* sbIface;
-    MainWindow *mainWindow;
-
+    QString interfaceID() const { return "DesignerMainWindowInterface"; }
 };
 
 class DesignerActiveFormWindowInterfaceImpl : public QObject, public QApplicationComponentInterface
@@ -36,7 +33,9 @@ class DesignerActiveFormWindowInterfaceImpl : public QObject, public QApplicatio
     Q_OBJECT
     
 public:
-    DesignerActiveFormWindowInterfaceImpl ( FormList* );
+    DesignerActiveFormWindowInterfaceImpl ( FormList*, QUnknownInterface * );
+
+    QString interfaceID() const { return "DesignerActiveFormWindowInterface"; }
 
     QVariant requestProperty( const QCString& p );
     bool requestSetProperty( const QCString& p, const QVariant& v );
@@ -76,9 +75,7 @@ private:
 class DesignerFormListInterfaceImpl : public DesignerFormListInterface
 {
 public:
-    DesignerFormListInterfaceImpl( FormList *fl );
-
-    QUnknownInterface *queryInterface( const QString &request );
+    DesignerFormListInterfaceImpl( FormList *fl, QUnknownInterface* parent  );
 
     const QPixmap* pixmap( DesignerFormWindowInterface*, int col ) const;
     void setPixmap( DesignerFormWindowInterface*, int col, const QPixmap& );
@@ -96,11 +93,7 @@ class DesignerApplicationInterface : public QApplicationInterface
 public:
     DesignerApplicationInterface();
 
-    QUnknownInterface *queryInterface( const QString &request );
-
-private:
-    DesignerMainWindowInterface* mwIface;
-    DesignerFormListInterface* flIface;
+    QString interfaceID() const { return "DesignerApplicationInterface"; }
 };
 
 #endif
