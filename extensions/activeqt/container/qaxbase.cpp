@@ -1711,6 +1711,8 @@ MetaObjectGenerator::~MetaObjectGenerator()
     if (typelib) typelib->Release();
 }
 
+bool axc_dispatchEqualsIDispatch = false;
+
 QByteArray MetaObjectGenerator::usertypeToString(const TYPEDESC &tdesc, ITypeInfo *info, const QByteArray &function)
 {
     HREFTYPE usertype = tdesc.hreftype;
@@ -1746,7 +1748,7 @@ QByteArray MetaObjectGenerator::usertypeToString(const TYPEDESC &tdesc, ITypeInf
                 if (typeattr) {
                     if (typeattr->typekind == TKIND_ALIAS)
                         userTypeName = guessTypes(typeattr->tdescAlias, usertypeinfo, function);
-                    else if (typeattr->typekind == TKIND_DISPATCH || typeattr->typekind == TKIND_COCLASS)
+                    else if (axc_dispatchEqualsIDispatch && (typeattr->typekind == TKIND_DISPATCH || typeattr->typekind == TKIND_COCLASS))
                         userTypeName = "IDispatch";
                 }
 
