@@ -8,6 +8,7 @@
 **
 *****************************************************************************/
 #include <qapplication.h>
+#include <qstringlist.h>
 #include <qdir.h>
 #include "kioskwidget.h"
 #include "../themes/wood.h"

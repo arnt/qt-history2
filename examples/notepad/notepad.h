@@ -9,6 +9,7 @@
 *****************************************************************************/
 
 #include <qmainwindow.h>
+#include <qstringlist.h>
 
 class QComboBox;
 class QMultiLineEdit;

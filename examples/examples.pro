@@ -69,6 +69,7 @@ opengl:SUBDIRS +=   box \
 		    overlay \
 		    sharedbox \
 		    texture
+nas:SUBDIRS += 	    sound
 iconview:SUBDIRS += fileiconview \
 		    iconview
 network:SUBDIRS +=  ftpclient \

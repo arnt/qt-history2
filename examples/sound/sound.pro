@@ -1,3 +1,4 @@
+REQUIRES        = nas
 TEMPLATE	= app
 CONFIG		+= qt warn_on release
 HEADERS		= sound.h

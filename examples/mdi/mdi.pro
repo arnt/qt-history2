@@ -1,3 +1,4 @@
+REQUIRES        = workspace
 TEMPLATE	= app
 CONFIG		+= qt warn_on release
 HEADERS		= application.h 

@@ -1,3 +1,4 @@
+REQUIRES         = opengl
 TEMPLATE	= app
 CONFIG		+= qt opengl warn_on release
 HEADERS		= glbox.h \
