@@ -65,8 +65,8 @@ struct QAxMetaObject : public QMetaObject
     // Prototype -> member info
     QHash<QByteArray, Member> memberInfo;
     
-    int numParameter(const char *prototype);
-    QByteArray paramType(const char *signature, int index, bool *out = 0);
+    int numParameter(const QByteArray &prototype);
+    QByteArray paramType(const QByteArray &signature, int index, bool *out = 0);
     
     QMap<QByteArray, QByteArray> realPrototype;
 };
@@ -441,14 +441,13 @@ public:
 
 #ifndef QAXPRIVATE_DECL
 
-int QAxMetaObject::numParameter(const char *proto)
+int QAxMetaObject::numParameter(const QByteArray &prototype)
 {
-    if (memberInfo.contains(proto)) {
-        Member member = memberInfo.value(proto);
+    if (memberInfo.contains(prototype)) {
+        Member member = memberInfo.value(prototype);
         return member.numParameter;
     }
     
-    QByteArray prototype(proto);
     QByteArray parameters = prototype.mid(prototype.indexOf('(') + 1);
     parameters.truncate(parameters.length() - 1);
     int numParameters = 0;
@@ -460,13 +459,11 @@ int QAxMetaObject::numParameter(const char *proto)
     return numParameters;
 }
 
-QByteArray QAxMetaObject::paramType(const char *proto, int index, bool *out)
+QByteArray QAxMetaObject::paramType(const QByteArray &prototype, int index, bool *out)
 {
     if (out)
         *out = false;
-
-    QByteArray prototype(proto);
-    
+   
     QByteArray realProto = realPrototype.value(prototype, prototype);
     QByteArray parameters = realProto.mid(realProto.indexOf('(') + 1);
     parameters.truncate(parameters.length() - 1);
@@ -1789,7 +1786,7 @@ QByteArray MetaObjectGenerator::createPrototype(FUNCDESC *funcdesc, ITypeInfo *t
             type = ptype;
         } else {
             prototype += ptype;
-            if (pdesc.wParamFlags & PARAMFLAG_FOUT && !ptype.endsWith("&"))
+            if (pdesc.wParamFlags & PARAMFLAG_FOUT && !ptype.endsWith("&") && !ptype.endsWith("**"))
                 prototype += "&";
             if (optional)
                 paramName += "=0";
