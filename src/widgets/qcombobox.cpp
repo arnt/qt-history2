@@ -1382,6 +1382,29 @@ void QComboBox::focusInEvent( QFocusEvent * e )
     d->completeAt = 0;
 }
 
+/*!\reimp
+*/
+
+void QComboBox::wheelEvent( QWheelEvent *e )
+{
+    if ( d->poppedUp ) {
+	if ( d->usingListBox() ) {
+	    QApplication::sendEvent( d->listBox(), e );
+	}
+    } else {
+	if ( e->delta() > 0 ) {
+	    int c = currentItem();
+	    if ( c > 0 )
+		setCurrentItem( c-1 );
+	} else {
+	    int c = currentItem();
+	    if ( ++c < count() )
+		setCurrentItem( c );
+	}
+	e->accept();
+    }
+}
+
 /*!
   \internal
    Calculates the listbox height needed to contain all items, or as
@@ -1683,6 +1706,10 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	    default:
 		break;
 	    }
+	    break;
+	case QEvent::Hide:
+	    popDownListBox();
+	    break;
 	default:
 	    break;
 	}
@@ -1710,6 +1737,9 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		// it may be called more often than necessary
 		internalHighlight( d->current );
 	    }
+	    break;
+	case QEvent::Hide:
+	    d->poppedUp = FALSE;
 	    break;
 	default:
 	    break;
