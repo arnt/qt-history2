@@ -1151,9 +1151,9 @@ The value of this variable is typically handled by \e qmake or
 
 \section3 QMAKE_LFLAGS_SONAME
 
-This variable specifies the name of shared objects, such as .so or .dll.
-The value of this variable is typically handled by \e qmake or
- \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+This variable specifies the link flags to set the name of shared objects,
+such as .so or .dll.  The value of this variable is typically handled by \e
+qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
 
 
