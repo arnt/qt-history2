@@ -97,7 +97,7 @@ QPolygon::QPolygon(const QRectF &r)
     append(QPointF(r.x(), r.y()));
     append(QPointF(r.x() + r.width(), r.y()));
     append(QPointF(r.x() + r.width(), r.y() + r.height()));
-    append(QPointF(r.x(), r.y() + r.width()));
+    append(QPointF(r.x(), r.y() + r.height()));
     append(QPointF(r.x(), r.y()));
 }
 
