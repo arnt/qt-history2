@@ -380,9 +380,6 @@ void QUrlInfo::setLastModified(const QDateTime &dt)
 
 /*!
     Destroys the URL info object.
-
-    The QUrlOperator object to which this URL referred (if any) is not
-    affected.
 */
 
 QUrlInfo::~QUrlInfo()
@@ -661,10 +658,7 @@ bool QUrlInfo::operator==(const QUrlInfo &i) const
 
 /*!
     Returns true if the URL info is valid; otherwise returns false.
-    Valid means that the QUrlInfo contains real information. For
-    example, a call to QUrlOperator::info() might return a an invalid
-    QUrlInfo, if no information about the requested entry is
-    available.
+    Valid means that the QUrlInfo contains real information.
 
     You should always check if the URL info is valid before relying on
     the values.
