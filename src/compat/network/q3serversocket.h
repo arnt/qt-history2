@@ -47,7 +47,7 @@
 
 class Q3ServerSocketPrivate;
 
-class Q_CORE_EXPORT Q3ServerSocket : public QObject
+class Q_COMPAT_EXPORT Q3ServerSocket : public QObject
 {
     Q_OBJECT
 public:

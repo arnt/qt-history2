@@ -24,7 +24,7 @@ class QPushButton;
 class QTimer;
 class Q3ProgressBar;
 
-class Q_GUI_EXPORT Q3ProgressDialog : public QDialog
+class Q_COMPAT_EXPORT Q3ProgressDialog : public QDialog
 {
     Q_OBJECT
     Q_PROPERTY(bool wasCanceled READ wasCanceled)
@@ -37,7 +37,7 @@ class Q_GUI_EXPORT Q3ProgressDialog : public QDialog
 
 public:
 #ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR Q3ProgressDialog(QWidget* parent=0, const char* name=0, bool modal=false,
+    QT_COMPAT_CONSTRUCTOR Q3ProgressDialog(QWidget* parent, const char* name, bool modal=false,
                                            Qt::WFlags f=0);
     QT_COMPAT_CONSTRUCTOR Q3ProgressDialog(const QString& labelText,
                                            const QString &cancelButtonText, int totalSteps,

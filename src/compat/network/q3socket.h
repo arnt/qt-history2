@@ -48,7 +48,7 @@ class Q3SocketPrivate;
 class Q3SocketDevice;
 
 
-class Q_CORE_EXPORT Q3Socket : public QIODevice
+class Q_COMPAT_EXPORT Q3Socket : public QIODevice
 {
     Q_OBJECT
 public:
