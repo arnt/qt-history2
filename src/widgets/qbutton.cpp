@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#57 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#58 $
 **
 ** Implementation of QButton widget class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qtimer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#57 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#58 $");
 
 
 /*!
@@ -80,6 +80,7 @@ QButton::QButton( QWidget *parent, const char *name )
     } else {
 	group = 0;
     }
+    setFocusPolicy( TabFocus );
 }
 
 /*!

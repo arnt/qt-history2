@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#82 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#83 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#82 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#83 $");
 
 
 /*!
@@ -103,7 +103,6 @@ void QPushButton::init()
 {
     initMetaObject();
     autoDefButton = defButton = lastDown = lastDef = lastEnabled = FALSE;
-    setFocusPolicy( TabFocus );
 }
 
 
