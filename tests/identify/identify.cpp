@@ -1,4 +1,4 @@
-#include <qglobal.h>
+#include <qapplication.h>
 #include <stdio.h>
 
 int main( int argc, char **argv )
@@ -9,8 +9,14 @@ int main( int argc, char **argv )
 #if defined(_OS_BSDI_)
     printf("Operating system: _OS_BSDI_\n");
 #endif
+#if defined(_OS_DGUX_)
+    printf("Operating system: _OS_DGUX_\n");
+#endif
 #if defined(_OS_FREEBSD_)
     printf("Operating system: _OS_FREEBSD_\n");
+#endif
+#if defined(_OS_GNU_)
+    printf("Operating system: _OS_GNU_\n");
 #endif
 #if defined(_OS_HPUX_)
     printf("Operating system: _OS_HPUX_\n");
@@ -45,6 +51,9 @@ int main( int argc, char **argv )
 #if defined(_OS_OSF_)
     printf("Operating system: _OS_OSF_\n");
 #endif
+#if defined(_OS_QNX_)
+    printf("Operating system: _OS_QNX_\n");
+#endif
 #if defined(_OS_SCO_)
     printf("Operating system: _OS_SCO_\n");
 #endif
@@ -56,6 +65,9 @@ int main( int argc, char **argv )
 #endif
 #if defined(_OS_ULTRIX_)
     printf("Operating system: _OS_ULTRIX_\n");
+#endif
+#if defined(_OS_UNIXWARE7_)
+    printf("Operating system: _OS_UNIXWARE7_\n");
 #endif
 #if defined(_OS_UNIXWARE_)
     printf("Operating system: _OS_UNIXWARE_\n");
@@ -119,6 +131,26 @@ int main( int argc, char **argv )
 #endif
 #if defined(_CC_x_)
     printf("Compiler: _CC_x_\n");
+#endif
+#if defined(_WS_WIN_)
+    printf("Windows version: ");
+    switch ( QApplication::winVersion() ) {
+        case WV_NT:
+            printf("Windows NT");
+            break;
+        case WV_95:
+            printf("Windows 95");
+            break;
+        case WV_98:
+            printf("Windows 98");
+            break;
+        case WV_32s:
+            printf("Windows 32s");
+            break;
+        default:
+            printf("Unknown");
+            break;
+    }
 #endif
     return 0;
 }
