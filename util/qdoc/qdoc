@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#49 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#50 $
 #
 # this is a massive hack, written very quickly
 #
@@ -594,7 +594,7 @@ sub readc {
     $c = getfile($filename);
     print "code file: ", $filename, "\n" if ($debug);
 
-    $ch =~ s-(?:(?:(/\*.*?\*/))|(?://[^\n]*))-$1-gs;
+    $c =~ s-(?:(?:(/\*.*?\*/))|(?://[^\n]*))-$1-gs;
 
     while ($c =~ m@
 	   (?:/\*\![-\s]*
@@ -1361,7 +1361,8 @@ problem, and we'll fix it before 1.0.
 	    $member =~ s/.*:://;
 	    print O "<li>enum <a href=", $anchor{$_}, ">", $member, "</a>\n";
 	} else {
-	    print "skipped ", $_, " -> ", $anchor{$_}, "\n";
+	    print "skipped ", $_, " -> ", $anchor{$_}, "\n"
+		unless (/-h.html$/);
 	}
     }
     close O;
@@ -1415,7 +1416,7 @@ if ($#ARGV > -1) {
 
 &printout();
 
-if ($#ARGV > 4) {
+if ($#ARGV > 4 || $#ARGV < 0) {
     &inheritanceindex();
     &classindex();
     &enumindex();
