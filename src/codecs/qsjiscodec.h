@@ -74,7 +74,13 @@
 
 #ifndef QT_NO_BIG_CODECS
 
-class Q_EXPORT QSjisCodec : public QTextCodec {
+#if defined(QT_PLUGIN_CODECS_JP)
+#define Q_EXPORT_CODECS_JP
+#else
+#define Q_EXPORT_CODECS_JP Q_EXPORT
+#endif
+
+class Q_EXPORT_CODECS_JP QSjisCodec : public QTextCodec {
 public:
     virtual int mibEnum() const;
     const char* name() const;

@@ -808,7 +808,7 @@ uint QJpUnicodeConv_Microsoft::unicodeToJisx0212(uint h, uint l) const
 
 
 /*! \internal */
-const QJpUnicodeConv *QJpUnicodeConv::newConverter(int rule)
+QJpUnicodeConv *QJpUnicodeConv::newConverter(int rule)
 {
     const char * e = 0;
     if ( rule == Default && (e=getenv("UNICODEMAP_JP")) != 0 ) {

@@ -73,7 +73,13 @@
 
 #ifndef QT_NO_BIG_CODECS
 
-class Q_EXPORT QJpUnicodeConv {
+#if defined(QT_PLUGIN_CODECS_JP)
+#define Q_EXPORT_CODECS_JP
+#else
+#define Q_EXPORT_CODECS_JP Q_EXPORT
+#endif
+
+class Q_EXPORT_CODECS_JP QJpUnicodeConv {
 public:
     enum Rules {
 	// "ASCII" is ANSI X.3.4-1986, a.k.a. US-ASCII here.
@@ -91,7 +97,7 @@ public:
 	UDC	       		= 0x0200,		// User Defined Char
 	IBM_VDC		= 0x0400		// IBM Vender Defined Char
     };
-    static const QJpUnicodeConv *newConverter(int rule);
+    static QJpUnicodeConv *newConverter(int rule);
 
     virtual uint asciiToUnicode(uint h, uint l) const;
     /*virtual*/ uint jisx0201ToUnicode(uint h, uint l) const;

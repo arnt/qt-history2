@@ -89,7 +89,7 @@ public:
 
 
 private:
-    const QJpUnicodeConv *convJP;
+    QJpUnicodeConv *convJP;
 };
 
 

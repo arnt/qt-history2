@@ -2,21 +2,22 @@ TEMPLATE	= lib
 CONFIG		+= qt warn_on plugin
 REQUIRES	= !bigcodecs
 
-HEADERS		= $(QTDIR)/src/codecs/qeucjpcodec.h \
-		  $(QTDIR)/src/codecs/qjiscodec.h \
-		  $(QTDIR)/src/codecs/qsjiscodec.h \
-		  $(QTDIR)/src/codecs/qjpunicode.h \
-		  $(QTDIR)/src/codecs/qfontcodecs_p.h
+HEADERS		= ../../qeucjpcodec.h \
+		  ../../qjiscodec.h \
+		  ../../qsjiscodec.h \
+		  ../../qjpunicode.h \
+		  ../../qfontcodecs_p.h
 
-SOURCES		= $(QTDIR)/src/codecs/qeucjpcodec.cpp \
-		  $(QTDIR)/src/codecs/qjiscodec.cpp \
-		  $(QTDIR)/src/codecs/qsjiscodec.cpp \
-		  $(QTDIR)/src/codecs/qjpunicode.cpp \
-		  $(QTDIR)/src/codecs/qfontjpcodec.cpp \
+SOURCES		= ../../qeucjpcodec.cpp \
+		  ../../qjiscodec.cpp \
+		  ../../qsjiscodec.cpp \
+		  ../../qjpunicode.cpp \
+		  ../../qfontjpcodec.cpp \
 		  main.cpp
 
 TARGET		= qjpcodecs
 DESTDIR		= ../../../../plugins/codecs
+DEFINES		+= QT_PLUGIN_CODECS_JP
 
 target.path=$$plugins.path/codecs
 isEmpty(target.path):target.path=$$QT_PREFIX/plugins/codecs
