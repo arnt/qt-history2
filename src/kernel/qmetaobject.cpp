@@ -39,6 +39,7 @@
 #include "qobject.h"
 #include <qapplication.h>
 #include <qvariant.h>
+#include <ctype.h>
 
 /*!
     \class QMetaObject qmetaobject.h

@@ -416,7 +416,7 @@ QObject::~QObject()
 	    if (c.receiver)
 		c.receiver->d->removeSender(this);
 	}
-	::free(d->connections);
+	qFree(d->connections);
 	d->connections = 0;
     }
 
@@ -1378,7 +1378,7 @@ void QObjectPrivate::refSender(QObject *sender)
 {
     int i = 0;
     if (!senders) {
-	senders = (Senders*)::malloc(sizeof(Senders));
+	senders = (Senders*)qMalloc(sizeof(Senders));
 	senders->senders = senders->stack;
 	senders->ref = 1;
 	senders->count = 1;
@@ -1398,15 +1398,15 @@ void QObjectPrivate::refSender(QObject *sender)
 	    if (senders->senders != senders->stack) {
 		senders->senders =
 		    (Senders::Sender*)
-		    ::realloc(senders->senders, (i+1)*sizeof(Senders::Sender));
+		    qRealloc(senders->senders, (i+1)*sizeof(Senders::Sender));
 	    } else if (senders->ref > 1) { // we cannot realloc
 		senders->senders =
 		    (Senders::Sender*)
-		    ::malloc((i+1)*sizeof(Senders::Sender));
+		    qMalloc((i+1)*sizeof(Senders::Sender));
 		::memcpy(senders->senders, senders->stack,
 			 i*sizeof(Senders::Sender));
 	    } else {
-		senders = (Senders*)::realloc(senders, sizeof(Senders)
+		senders = (Senders*)qRealloc(senders, sizeof(Senders)
 					      + i * sizeof(Senders::Sender));
 		senders->senders = senders->stack;
 	    }
@@ -1457,8 +1457,8 @@ void QObjectPrivate::derefSenders(Senders *senders)
 {
     if (senders && !--senders->ref) {
 	if (senders->senders != senders->stack)
-	    ::free(senders->senders);
-	::free(senders);
+	    qFree(senders->senders);
+	qFree(senders);
     }
 }
 
@@ -1562,7 +1562,7 @@ void QObjectPrivate::addConnection(int signal, QObject *receiver, int member)
 {
     int i = 0;
     if ( !connections) {
-	connections = (Connections*)::malloc(sizeof(Connections));
+	connections = (Connections*)qMalloc(sizeof(Connections));
 	connections->count = 1;
     } else {
 	while (i < connections->count && connections->connections[i].receiver)
@@ -1570,7 +1570,7 @@ void QObjectPrivate::addConnection(int signal, QObject *receiver, int member)
 	if (i == connections->count) {
 	    ++connections->count;
 	    connections = (Connections*)
-			  ::realloc(connections, sizeof(Connections)
+			  qRealloc(connections, sizeof(Connections)
 				    + i * sizeof(Connections::Connection));
 	}
     }
