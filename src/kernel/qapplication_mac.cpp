@@ -1200,7 +1200,7 @@ void qt_leave_modal( QWidget *widget )
 }
 
 
-static bool qt_try_modal( QWidget *widget, EventRecord *event )
+static bool qt_try_modal( QWidget *widget, EventRef event )
 {
     if ( qApp->activePopupWidget() )
 	return TRUE;
@@ -1242,15 +1242,16 @@ static bool qt_try_modal( QWidget *widget, EventRecord *event )
     bool block_event  = FALSE;
     bool paint_event = FALSE;
 
-    switch ( event->what ) {
-    case keyDown:
-    case keyUp:
-    case mouseDown:
-    case mouseUp:
-	block_event	 = TRUE;
+    UInt32 ekind = GetEventKind(event), eclass=GetEventClass(event);
+    switch(eclass) {
+    case kEventClassMouse:
+	block_event = ekind != kEventMouseMoved;
 	break;
-    case updateEvt:
-	paint_event = TRUE;
+    case kEventClassKeyboard:
+	block_event = TRUE;
+	break;
+    case kEventClassWindow:
+	paint_event = ekind == kEventWindowUpdate;
 	break;
     }
 
@@ -1370,9 +1371,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	if(qt_button_down || mac_mouse_grabber || handle_it) {
 
 	    //figure out which widget to send it to
-	    if( active_window && ekind == kEventMouseWheelMoved && active_window->focusWidget())
-		widget = active_window->focusWidget();
-	    else if( ekind != kEventMouseDown && qt_button_down )
+	    if( ekind != kEventMouseDown && qt_button_down )
 		widget = qt_button_down;
 	    else if( mac_mouse_grabber )
 		widget = mac_mouse_grabber;
@@ -1411,10 +1410,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 
 	    //finally send the event to the widget if its not the popup
 	    if ( widget && widget != popupwidget ) {
-#if 0
-		if ( app_do_modal && !qt_try_modal(widget, er) )
+		if ( app_do_modal && !qt_try_modal(widget, event) )
 		    return 1;
-#endif
 
 		if(ekind == kEventMouseDown) {
 		    QWidget* w = widget;
@@ -1466,10 +1463,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    widget = focus_widget;
 
 	if(widget) {
-#if 0
-	    if ( app_do_modal && !qt_try_modal(widget, er) )
+	    if ( app_do_modal && !qt_try_modal(widget, event) )
 		return 1;
-#endif
 
 	    UInt32 modif;
 	    GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, NULL, 
