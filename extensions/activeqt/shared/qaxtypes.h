@@ -33,18 +33,6 @@ struct IAxServerBase : public IUnknown
 #define MAP_LOGHIM_TO_PIX(x,ppli)   (((ppli)*(x) + HIMETRIC_PER_INCH/2) / HIMETRIC_PER_INCH)
 #define QAX_NUM_PARAMS 8
 
-//Helper functions 
-static inline QString BSTRToQString(BSTR bstr)
-{
-    QString str;
-    if (!bstr)
-        return str;
-    
-    int len = wcslen(bstr);
-    str.setUnicode((QChar*)bstr, len);
-    return str;
-}
-
 static inline BSTR QStringToBSTR(const QString &str)
 {
     return SysAllocStringLen((OLECHAR*)str.unicode(), str.length());

@@ -581,9 +581,8 @@ QByteArray QAxEventSink::findProperty(DISPID dispID)
     UINT cNames;
     typeinfo->GetNames(dispID, &names, 1, &cNames);
     if (cNames) {
-        QString name = BSTRToQString(names);
+        propname = QString::fromUtf16(names).toLatin1();
         SysFreeString(names);
-        propname = name.toLatin1();
     }
     typeinfo->Release();
 
@@ -1633,10 +1632,11 @@ QMetaObject *qax_readInterfaceInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const
 
     QString className;
     BSTR bstr;
-    if (S_OK == typeInfo->GetDocumentation(-1, &bstr, 0, 0, 0))
-        className = BSTRToQString(bstr);
-    else
+    if (S_OK != typeInfo->GetDocumentation(-1, &bstr, 0, 0, 0))
         return 0;
+
+    className = QString::fromUtf16(bstr);
+    SysFreeString(bstr);
 
     generator.readEnumInfo();
     generator.readFuncsInfo(typeInfo, 0);
@@ -1654,7 +1654,7 @@ QMetaObject *qax_readClassInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const QMe
     if (S_OK != typeInfo->GetDocumentation(-1, &bstr, 0, 0, 0))
         return 0;
 
-    className = BSTRToQString(bstr);
+    className = QString::fromUtf16(bstr);
     SysFreeString(bstr);
 
     generator.readEnumInfo();
@@ -1681,7 +1681,7 @@ QMetaObject *qax_readClassInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const QMe
                 continue;
 
             interfaceInfo->GetDocumentation(-1, &bstr, 0, 0, 0);
-            QString interfaceName = BSTRToQString(bstr);
+            QString interfaceName = QString::fromUtf16(bstr);
             SysFreeString(bstr);
             QByteArray key;
 
@@ -1728,7 +1728,7 @@ MetaObjectGenerator::MetaObjectGenerator(ITypeLib *tlib, ITypeInfo *tinfo)
         typelib->AddRef();
         BSTR bstr;
         typelib->GetDocumentation(-1, &bstr, 0, 0, 0);
-        current_typelib = BSTRToQString(bstr).toLatin1();
+        current_typelib = QString::fromUtf16(bstr).toLatin1();
         SysFreeString(bstr);
     }
     readClassInfo();
@@ -1775,13 +1775,13 @@ QByteArray MetaObjectGenerator::usertypeToString(const TYPEDESC &tdesc, ITypeInf
             // get type library name
             BSTR typelibname = 0;
             usertypelib->GetDocumentation(-1, &typelibname, 0, 0, 0);
-            QByteArray typeLibName = BSTRToQString(typelibname).toLatin1();
+            QByteArray typeLibName = QString::fromUtf16(typelibname).toLatin1();
             SysFreeString(typelibname);
 
             // get type name
             BSTR usertypename = 0;
             usertypelib->GetDocumentation(index, &usertypename, 0, 0, 0);
-            QByteArray userTypeName = BSTRToQString(usertypename).toLatin1();
+            QByteArray userTypeName = QString::fromUtf16(usertypename).toLatin1();
             SysFreeString(usertypename);
 
             if (hasEnum(userTypeName)) // known enum?
@@ -2084,7 +2084,7 @@ void MetaObjectGenerator::readEnumInfo()
             BSTR enumname;
             QByteArray enumName;
             if (typelib->GetDocumentation(i, &enumname, 0, 0, 0) == S_OK) {
-                enumName = BSTRToQString(enumname).toLatin1();
+                enumName = QString::fromUtf16(enumname).toLatin1();
                 SysFreeString(enumname);
             } else {
                 enumName = "enum" + QByteArray::number(++enum_serial);
@@ -2107,7 +2107,7 @@ void MetaObjectGenerator::readEnumInfo()
                         UINT maxNamesOut;
                         enuminfo->GetNames(memid, &valuename, 1, &maxNamesOut);
                         if (maxNamesOut) {
-                            valueName = BSTRToQString(valuename).toLatin1();
+                            valueName = QString::fromUtf16(valuename).toLatin1();
                             SysFreeString(valuename);
                         } else {
                             valueName = "value" + QByteArray::number(vd);
@@ -2261,7 +2261,7 @@ void MetaObjectGenerator::readFuncsInfo(ITypeInfo *typeinfo, ushort nFuncs)
         QList<QByteArray> names;
         int p;
         for (p = 0; p < (int)maxNamesOut; ++p) {
-            names << BSTRToQString(bstrNames[p]).toLatin1();
+            names << QString::fromUtf16(bstrNames[p]).toLatin1();
             SysFreeString(bstrNames[p]);
         }
 
@@ -2385,11 +2385,11 @@ void MetaObjectGenerator::readFuncsInfo(ITypeInfo *typeinfo, ushort nFuncs)
         // get function documentation
         BSTR bstrDocu;
         info->GetDocumentation(funcdesc->memid, 0, &bstrDocu, 0, 0);
-        QString strDocu = BSTRToQString(bstrDocu);
+        QString strDocu = QString::fromUtf16(bstrDocu);
+        SysFreeString(bstrDocu);
         if (!!strDocu)
             desc += "[" + strDocu + "]";
         desc += "\n";
-        SysFreeString(bstrDocu);
 #endif
         typeinfo->ReleaseFuncDesc(funcdesc);
     }
@@ -2433,7 +2433,7 @@ void MetaObjectGenerator::readVarsInfo(ITypeInfo *typeinfo, ushort nVars)
         QByteArray variableName;
         int flags = 0;
 
-        variableName = BSTRToQString(bstrName).toLatin1();
+        variableName = QString::fromUtf16(bstrName).toLatin1();
         SysFreeString(bstrName);
 
         // get variable type
@@ -2469,11 +2469,11 @@ void MetaObjectGenerator::readVarsInfo(ITypeInfo *typeinfo, ushort nVars)
         // get function documentation
         BSTR bstrDocu;
         info->GetDocumentation(vardesc->memid, 0, &bstrDocu, 0, 0);
-        QString strDocu = BSTRToQString(bstrDocu);
+        QString strDocu = QString::fromUtf16(bstrDocu);
+        SysFreeString(bstrDocu);
         if (!!strDocu)
             desc += "[" + strDocu + "]";
         desc += "\n";
-        SysFreeString(bstrDocu);
 #endif
         typeinfo->ReleaseVarDesc(vardesc);
     }
@@ -2587,7 +2587,7 @@ void MetaObjectGenerator::readEventInterface(ITypeInfo *eventinfo, IConnectionPo
         QList<QByteArray> names;
         int p;
         for (p = 0; p < (int)maxNamesOut; ++p) {
-            names << BSTRToQString(bstrNames[p]).toLatin1();
+            names << QString::fromUtf16(bstrNames[p]).toLatin1();
             SysFreeString(bstrNames[p]);
         }
 
@@ -2611,11 +2611,11 @@ void MetaObjectGenerator::readEventInterface(ITypeInfo *eventinfo, IConnectionPo
         // get function documentation
         BSTR bstrDocu;
         eventinfo->GetDocumentation(funcdesc->memid, 0, &bstrDocu, 0, 0);
-        QString strDocu = BSTRToQString(bstrDocu);
+        QString strDocu = QString::fromUtf16(bstrDocu);
+        SysFreeString(bstrDocu);
         if (!!strDocu)
             desc += "[" + strDocu + "]";
         desc += "\n";
-        SysFreeString(bstrDocu);
 #endif
         eventinfo->ReleaseFuncDesc(funcdesc);
     }
@@ -2728,7 +2728,7 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject, co
         if (typelib) {
             BSTR bstr;
             typelib->GetDocumentation(-1, &bstr, 0, 0, 0);
-            current_typelib = BSTRToQString(bstr).toLatin1();
+            current_typelib = QString::fromUtf16(bstr).toLatin1();
             SysFreeString(bstr);
         }
         if (d->tryCache && tryCache())
@@ -3112,9 +3112,9 @@ static bool checkHRESULT(HRESULT hres, EXCEPINFO *exc, QAxBase *that, const QStr
                     exc->pfnDeferredFillIn(exc);
 
                 unsigned short code = exc->wCode ? exc->wCode : exc->scode;
-                QString source = BSTRToQString(exc->bstrSource);
-                QString desc = BSTRToQString(exc->bstrDescription);
-                QString help = BSTRToQString(exc->bstrHelpFile);
+                QString source = QString::fromUtf16(exc->bstrSource);
+                QString desc = QString::fromUtf16(exc->bstrDescription);
+                QString help = QString::fromUtf16(exc->bstrHelpFile);
                 uint helpContext = exc->dwHelpContext;
 
                 if (helpContext && !help.isEmpty())
@@ -3955,7 +3955,7 @@ public:
         if (!var)
             return E_POINTER;
 
-        QString property = BSTRToQString((TCHAR*)name).toLocal8Bit();
+        QString property = QString::fromUtf16((TCHAR*)name).toLocal8Bit();
         QVariant qvar = map.value(property);
         QVariantToVARIANT(qvar, *var);
         return S_OK;
@@ -3964,7 +3964,7 @@ public:
     {
         if (!var)
             return E_POINTER;
-        QString property = BSTRToQString((TCHAR*)name).toLocal8Bit();
+        QString property = QString::fromUtf16((TCHAR*)name).toLocal8Bit();
         QVariant qvar = VARIANTToQVariant(*var, 0);
         map[property] = qvar;
 

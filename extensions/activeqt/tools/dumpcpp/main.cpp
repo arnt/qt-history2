@@ -16,13 +16,14 @@
 #include <qmetaobject.h>
 #include <qtextstream.h>
 #include <qsettings.h>
+#include <qstringlist.h>
 #include <quuid.h>
 
 #include <qt_windows.h>
 #include <ocidl.h>
 #include <ctype.h>
 
-#include "../../shared/types.h"
+//#include "../../shared/qaxtypes.h"
 
 enum ObjectCategory
 {
@@ -747,7 +748,7 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
     QString libName;
     BSTR nameString;
     HRESULT hasDocu = typelib->GetDocumentation(-1, &nameString, 0, 0, 0);
-    libName = BSTRToQString(nameString);
+    libName = QString::fromUtf16(nameString);
     SysFreeString(nameString);
 
     QString libVersion("1.0");

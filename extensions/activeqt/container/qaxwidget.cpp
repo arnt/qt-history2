@@ -585,7 +585,7 @@ bool QAxClientSite::activateObject(bool initialized)
         
         BSTR userType;
         m_spOleObject->GetUserType(USERCLASSTYPE_SHORT, &userType);
-        widget->setWindowTitle(BSTRToQString(userType));
+        widget->setWindowTitle(QString::fromUtf16(userType));
         CoTaskMemFree(userType);
     } else {
         IObjectWithSite *spSite = 0;
@@ -1232,7 +1232,7 @@ HRESULT WINAPI QAxClientSite::RemoveMenus(HMENU /*hmenuShared*/)
 
 HRESULT WINAPI QAxClientSite::SetStatusText(LPCOLESTR pszStatusText)
 {
-    QStatusTipEvent tip(BSTRToQString((BSTR)pszStatusText));
+    QStatusTipEvent tip(QString::fromUtf16((BSTR)pszStatusText));
     QApplication::sendEvent(widget, &tip);
     return S_OK;
 }
@@ -1327,7 +1327,7 @@ HRESULT WINAPI QAxClientSite::SetActiveObject(IOleInPlaceActiveObject *pActiveOb
     AX_DEBUG(QAxClientSite::SetActiveObject);
 
     if (pszObjName)
-        widget->setWindowTitle(BSTRToQString((BSTR)pszObjName));
+        widget->setWindowTitle(QString::fromUtf16((BSTR)pszObjName));
     
     if (m_spInPlaceActiveObject)
         m_spInPlaceActiveObject->Release();

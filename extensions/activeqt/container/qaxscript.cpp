@@ -202,9 +202,9 @@ HRESULT WINAPI QAxScriptSite::OnScriptTerminate(const VARIANT *result, const EXC
         emit script->finished(VARIANTToQVariant(*result, 0));
     if (exception)
         emit script->finished(exception->wCode, 
-        BSTRToQString(exception->bstrSource),
-        BSTRToQString(exception->bstrDescription),
-        BSTRToQString(exception->bstrHelpFile)
+        QString::fromUtf16(exception->bstrSource),
+        QString::fromUtf16(exception->bstrDescription),
+        QString::fromUtf16(exception->bstrHelpFile)
 			    );
     return S_OK;
 }
@@ -253,10 +253,9 @@ HRESULT WINAPI QAxScriptSite::OnScriptError(IActiveScriptError *error)
     error->GetSourcePosition(&context, &lineNumber, &charPos);
     HRESULT hres = error->GetSourceLineText(&bstrLineText);
     if (hres == S_OK)
-        lineText = BSTRToQString(bstrLineText);
+        lineText = QString::fromUtf16(bstrLineText);
     
-    emit script->error(exception.wCode, BSTRToQString(exception.bstrDescription),
-				    lineNumber, lineText);
+    emit script->error(exception.wCode, QString::fromUtf16(exception.bstrDescription), lineNumber, lineText);
     
     return S_OK;
 }
