@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#21 $
 **
 ** Implementation of Windows-like style class
 **
@@ -1130,14 +1130,13 @@ int QWindowsStyle::popupMenuItemHeight( bool /*checkable*/, QMenuItem* mi, const
 	h = mi->pixmap()->height() + 2*motifItemFrame;
     else					// text height
 	h = fm.height() + 2*motifItemVMargin + 2*motifItemFrame;
+    
     if ( !mi->isSeparator() && mi->iconSet() != 0 ) {
 	h = QMAX( h, mi->iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).height() + 2*motifItemFrame );
-	int h2 = fm.height() + 2*motifItemVMargin + 2*motifItemFrame;
-	if ( h2 > h )
-	    h = h2;
     }
+    if ( mi->custom() ) 
+	h = QMAX( h, mi->custom()->sizeHint().height() + 2*motifItemVMargin + 2*motifItemFrame );
     return h;
-
 }
 
 /*! \reimp
@@ -1224,6 +1223,19 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, 
 
     int xm = motifItemFrame + checkcol + motifItemHMargin;
 
+    if ( mi->custom() ) {
+	int m = motifItemVMargin;
+	p->save();
+	if ( dis && !act ) {
+	    p->setPen( g.light() );
+	    mi->custom()->paint( p, itemg, act, enabled,
+				 x+xm+1, y+m+1, w-xm-tab+1, h-2*m );
+	    p->setPen( discol );
+	}
+	mi->custom()->paint( p, itemg, act, enabled,
+			     x+xm, y+m, w-xm-tab+1, h-2*m );
+	p->restore();
+    }
     QString s = mi->text();
     if ( !s.isNull() ) {			// draw text
 	int t = s.find( '\t' );

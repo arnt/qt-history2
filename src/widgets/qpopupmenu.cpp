@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#270 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#271 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -96,10 +96,46 @@ static void popupSubMenuLater( int msec, QPopupMenu * receiver ) {
   \brief The QPopupMenu class provides a popup menu widget.
 
   \ingroup realwidgets
-
+  
+  A popup menu ( or pulldown menu) consists of a list of menu items.
+  You add items with insertItem().  An item is either a string, a
+  pixmap or a custom item that provides its own drawing function (see
+  QCustomMenuItem). In addition, items can have an optional icon drawn
+  on the very left side and an accelerator key, like "Ctrl-X".
+  
+  There are three kind of menu items: seperators, those that perform
+  an action and those that show a submenu.  Separators are inserted
+  with insertSeparator(). For submenus, you pass a pointer to a
+  QPopupMenu in your call to insertItem().  All other items are
+  considered action items. 
+  
+  When inserting actions items, you usually specify a receiver and a
+  slot. The receiver will be notifed whenever the item was
+  selected. In addition, QPopupMenu provides two signals activated()
+  and highlighted() that signal the identifier of the respective menu
+  item.
+  
+  You clear a popup menu with clear() and remove single items with 
+  removeItem() or removeItemAt().
+  
+  A popup menu can display check marks for certain items when enabled
+  with setCheckable(TRUE). You check or uncheck items with
+  setItemChecked().
+  
+  Items are either enabled or disabled. You toggle their state with
+  setItemEnabled().  Just before a popup menu becomes visible, it
+  emits the aboutToShow() signal. You can use this signal to set the
+  correct enabled/disabled states of all menu items before the user
+  sees it.
+  
+  For ultimate flexibility, you can also add entire widgets as items
+  into a popup menu, for example a color selector.
+  
   menu/menu.cpp is a typical example of QMenuBar and QPopupMenu use.
 
-  \important insertItem clear text pixmap
+  \important insertItem removeItem removeItemAt clear text pixmap iconSet  insertSeparator 
+  changeItem whatsThis setWhatsThis accel setAccel setItemEnabled isItemEnabled 
+  setItemChecked isItemChecked connectItem disconnectItem setItemParameter itemParameter
 
   <img src=qpopmenu-m.png> <img src=qpopmenu-w.png>
 
@@ -210,7 +246,6 @@ bool QPopupMenu::isCheckable() const
 void QPopupMenu::menuContentsChanged()
 {
     badSize = TRUE;				// might change the size
-    updateAccel( 0 );
     if ( isVisible() ) {
 	updateSize();
 	update();
@@ -552,6 +587,7 @@ QRect QPopupMenu::itemGeometry( int index )
 void QPopupMenu::updateSize()
 {
     polish();
+    updateAccel( 0 );
     int height = 0;
     int max_width = 0;
     QFontMetrics fm = fontMetrics();
@@ -568,6 +604,8 @@ void QPopupMenu::updateSize()
 	if ( mi->widget() && mi->widget()->parentWidget() != this ) {
 	    mi->widget()->reparent( this, QPoint(0,0), TRUE );
 	}
+	if ( mi->custom() )
+	    mi->custom()->setFont( font() );
 	if ( mi->iconSet() != 0)
 	    maxPMWidth = QMAX( maxPMWidth,
 			       mi->iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4 );
@@ -589,20 +627,27 @@ void QPopupMenu::updateSize()
 	    if ( s.width()  > maxWidgetWidth )
 		maxWidgetWidth = s.width();
 	    itemHeight = s.height();
-	} else if ( !mi->text().isNull() && !mi->isSeparator() ) {
-	    QString s = mi->text();
-	    int t;
-	    if ( (t=s.find('\t')) >= 0 ) {	// string contains tab
-		w = fm.width( s, t );
-		w -= s.contains('&')*fm.width('&');
-		w += s.contains("&&")*fm.width('&');
-		int tw = fm.width( s.mid(t+1) );
-		if ( tw > tab)
-		    tab = tw;
-	    } else {
-		w += fm.width( s );
-		w -= s.contains('&')*fm.width('&');
-		w += s.contains("&&")*fm.width('&');
+	} else {
+	    if ( mi->custom() ) {
+		QSize s ( mi->custom()->sizeHint() );
+		w += s.width();
+	    }
+	    
+	    if ( !mi->text().isNull() && !mi->isSeparator() ) {
+		QString s = mi->text();
+		int t;
+		if ( (t=s.find('\t')) >= 0 ) {	// string contains tab
+		    w += fm.width( s, t );
+		    w -= s.contains('&')*fm.width('&');
+		    w += s.contains("&&")*fm.width('&');
+		    int tw = fm.width( s.mid(t+1) );
+		    if ( tw > tab)
+			tab = tw;
+		} else {
+		    w += fm.width( s );
+		    w -= s.contains('&')*fm.width('&');
+		    w += s.contains("&&")*fm.width('&');
+		}
 	    }
 	}
 
@@ -615,7 +660,7 @@ void QPopupMenu::updateSize()
 	
 
 #if defined(CHECK_NULL)
-	if ( mi->text().isNull() && !mi->pixmap() && !mi->isSeparator() && !mi->widget() )
+	if ( mi->text().isNull() && !mi->pixmap() && !mi->isSeparator() && !mi->widget() && !mi->custom() )
 	    qWarning( "QPopupMenu: (%s) Popup has invalid menu item",
 		     name( "unnamed" ) );
 #endif
@@ -720,7 +765,7 @@ void QPopupMenu::updateAccel( QWidget *parent )
 	    int k = mi->key();
 	    int id = autoaccel->insertItem( k, mi->id() );
 	    autoaccel->setWhatsThis( id, mi->whatsThis() );
-	    if ( !mi->text().isNull() ) {
+	    if ( !mi->text().isNull() || mi->custom() ) {
 		QString s = mi->text();
 		int i = s.find('\t');
 		QString t = QAccel::keyToString( k );
@@ -850,8 +895,6 @@ int QPopupMenu::itemHeight( QMenuItem *mi ) const
 void QPopupMenu::drawItem( QPainter* p, int tab_, QMenuItem* mi,
 			   bool act, int x, int y, int w, int h)
 {
-    if ( mi->widget() )
-	return;
     bool dis = (selfItem && !selfItem->isEnabled()) || !mi->isEnabled();
     style().drawPopupMenuItem(p, checkable, maxPMWidth, tab_, mi, palette(),
 			      act, !dis, x, y, w, h);
@@ -881,7 +924,7 @@ void QPopupMenu::drawContents( QPainter* p )
 	y += itemh;
 	++row;
     }
-    if ( y < contentsRect().bottom() ) 
+    if ( y < contentsRect().bottom() )
 	style().drawPopupMenuItem(p, checkable, maxPMWidth, tab, 0, palette(),
 				  FALSE, TRUE, x, y, itemw, contentsRect().bottom()-y);
 }

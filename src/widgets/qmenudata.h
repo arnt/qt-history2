@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#77 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#78 $
 **
 ** Definition of QMenuData class
 **
@@ -43,7 +43,9 @@ class QDomElement;
 
 #include "qstring.h"
 #include "qsignal.h"
+#include "qfont.h"
 
+class QCustomMenuItem;
 class QMenuItemData;
 
 class Q_EXPORT QMenuItem			// internal menu item class
@@ -60,6 +62,7 @@ public:
     QPixmap    *pixmap()	const	{ return pixmap_data; }
     QPopupMenu *popup()		const	{ return popup_menu; }
     QWidget *widget()		const	{ return widget_item; }
+    QCustomMenuItem *custom()		const	{ return custom_item; }
     int		key()		const	{ return accel_key; }
     QSignal    *signal()	const	{ return signal_data; }
     bool	isSeparator()	const	{ return is_separator; }
@@ -86,6 +89,7 @@ private:
     uint	is_checked   : 1;		// checked flag
     uint	is_dirty     : 1;		// dirty (update) flag
     QMenuItemData* d;
+    QCustomMenuItem    *custom_item;	// custom menu item
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
@@ -105,6 +109,19 @@ class QMenuItemList;
 class QPixmap;
 
 #endif // INCLUDE_MENUITEM_TEXT
+
+
+
+class Q_EXPORT QCustomMenuItem : public Qt
+{
+public:
+    QCustomMenuItem();
+    virtual ~QCustomMenuItem();
+    virtual void setFont( const QFont& font );
+    virtual void paint( QPainter* p, const QColorGroup& cg, bool act, 
+			bool enabled, int x, int y, int w, int h ) = 0;
+    virtual QSize sizeHint() = 0;
+};
 
 
 class Q_EXPORT QMenuData			// menu data class
@@ -157,6 +174,9 @@ public:
 			    int id=-1, int index=-1 );
 
     int		insertItem( QWidget* widget, int id=-1, int index=-1 );
+    
+    int		insertItem( const QIconSet& icon, QCustomMenuItem* custom, int id=-1, int index=-1 );
+    int		insertItem( QCustomMenuItem* custom, int id=-1, int index=-1 );
 
 
 #ifdef QT_BUILDER
@@ -235,7 +255,7 @@ protected:
 
 private:
     int		insertAny( const QString *, const QPixmap *, QPopupMenu *,
-			   const QIconSet*, int, int, QWidget* = 0);
+			   const QIconSet*, int, int, QWidget* = 0, QCustomMenuItem* = 0);
     void	removePopup( QPopupMenu * );
     virtual void	setAllDirty( bool );
     void	changeItemIconSet( int id, const QIconSet &icon );

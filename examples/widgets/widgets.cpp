@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/widgets/widgets.cpp#14 $
+** $Id: //depot/qt/main/examples/widgets/widgets.cpp#15 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -89,6 +89,28 @@ private:
 };
 
 
+class MyMenuItem : public QCustomMenuItem
+{
+public:
+    MyMenuItem( const QString& s, const QFont& f )
+	: string( s ), font( f ){};
+    ~MyMenuItem(){}
+    
+    void paint( QPainter* p, const QColorGroup& /*cg*/, bool /*act*/, bool /*enabled*/, int x, int y, int w, int h )
+    {
+	p->setFont ( font );
+	p->drawText( x, y, w, h, AlignLeft | AlignVCenter | ShowPrefix | DontClip, string );
+    }
+    
+    QSize sizeHint()
+    {
+	return QFontMetrics( font ).size( AlignLeft | AlignVCenter | ShowPrefix | DontClip,  string );
+    }
+private:
+    QString string;
+    QFont font;
+};
+
 //
 // Construct the WidgetView with children
 //
@@ -109,7 +131,8 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 
     // put something in it
 
-    QToolButton * toolb = new QToolButton( QPixmap(fileopen), "toolbutton 1",
+    QPixmap openIcon( fileopen );
+    QToolButton * toolb = new QToolButton( openIcon, "toolbutton 1",
 					   QString::null, this, SLOT(open()),
 					   tools, "open file" );
     QWhatsThis::add( toolb, "This is a <b>QToolButton</b>. It lives in a QToolBar. "
@@ -160,26 +183,46 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 
 
     QPopupMenu* popup;
-    popup = new QPopupMenu;
+    popup = new QPopupMenu( this );
     menuBar()->insertItem( "&File", popup );
     int id;
     id = popup->insertItem( "&New" );
     popup->setItemEnabled( id, FALSE );
-    id = popup->insertItem( "&Open", this, SLOT( open() ) );
+    id = popup->insertItem( openIcon, "&Open", this, SLOT( open() ) );
 
-    movie = QMovie( MOVIEFILENAME );
+    popup->insertSeparator();
+    popup->insertItem( "&Quit", qApp, SLOT(quit()), CTRL+Key_Q );
 
-    //experimental
-    QLabel* l = new QLabel(0,0);
-    l->setFixedSize( 128, 64 );
-    l->setBackgroundMode( NoBackground );
-    l->setMovie( movie );
-    id = popup->insertItem( l, -1, 0 );
-    popup->setItemEnabled( id, FALSE );
+
+    popup = new QPopupMenu( this );
+    menuBar()->insertItem( "&Edit", popup );
+    
+    id = popup->insertItem( "&Plain" );
+    popup->setAccel( CTRL+Key_T, id );
+
+    popup->insertSeparator();
+    QFont fnt = font();
+    fnt.setBold( TRUE );
+    id = popup->insertItem( new MyMenuItem( "&Bold", fnt ) );
+    popup->setAccel( CTRL+Key_B, id );
+    fnt = font();
+    fnt.setItalic( TRUE );
+    id = popup->insertItem( new MyMenuItem( "&Italic", fnt ) );
+    popup->setItemChecked( id, TRUE );
+    popup->setAccel( CTRL+Key_I, id );
+    fnt = font();
+    fnt.setUnderline( TRUE );
+    id = popup->insertItem( new MyMenuItem( "&Underline", fnt ) );
+    popup->setAccel( CTRL+Key_U, id );
+    fnt = font();
+    fnt.setStrikeOut( TRUE );
+    id = popup->insertItem( new MyMenuItem( "&Strike", fnt ) );
+    popup->insertSeparator();
+			    
     well = new QWellArray(0,0, TRUE );
     connect( well, SIGNAL( selected(int,int) ), this, SLOT( wellArraySelected(int,int)) );
     popup->insertItem( well );
-    well->setDimension( 3, 10 );
+    well->setDimension( 3, 3 );
     well->setCellBrush( 0, 0, red );
     well->setCellBrush( 1, 0, green );
     well->setCellBrush( 2, 0, blue );
@@ -187,12 +230,8 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     well->setCellBrush( 1, 1, cyan );
     well->setCellBrush( 2, 1, white );
     well->setCellBrush( 0, 2, black );
-    well->setCellBrush( 1, 2, magenta );
-    well->setCellBrush( 2, 2, darkBlue );
-    well->setCellBrush( 0, 3, qApp->palette().normal().background() );
-    popup->insertSeparator();
-    popup->insertItem( "&Quit", qApp, SLOT(quit()), CTRL+Key_Q );
-
+    well->setCellBrush( 1, 2, darkBlue );
+    well->setCellBrush( 2, 2, qApp->palette().normal().background() );
 
     // Create an analog and a digital clock
 
@@ -238,6 +277,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 
     // Create a label containing a QMovie
 
+    movie = QMovie( MOVIEFILENAME );
     movielabel = new QLabel( central, "label0" );
     movie.connectStatus(this, SLOT(movieStatus(int)));
     movie.connectUpdate(this, SLOT(movieUpdate(const QRect&)));

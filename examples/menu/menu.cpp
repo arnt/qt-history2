@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/menu/menu.cpp#3 $
+** $Id: //depot/qt/main/examples/menu/menu.cpp#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -14,6 +14,7 @@
 #include <qapplication.h>
 #include <qmessagebox.h>
 #include <qpixmap.h>
+#include <qpainter.h>
 
 /* XPM */
 static const char * p1_xpm[] = {
@@ -85,6 +86,33 @@ static const char * p3_xpm[] = {
 "                "};
 
 
+/*
+  Auxiliary class to provide fancy menu items with different
+  fonts. Used for the "bold" and "underline" menu items in the options
+  menu.
+ */
+class MyMenuItem : public QCustomMenuItem
+{
+public:
+    MyMenuItem( const QString& s, const QFont& f )
+	: string( s ), font( f ){};
+    ~MyMenuItem(){}
+    
+    void paint( QPainter* p, const QColorGroup& /*cg*/, bool /*act*/, bool /*enabled*/, int x, int y, int w, int h )
+    {
+	p->setFont ( font );
+	p->drawText( x, y, w, h, AlignLeft | AlignVCenter | ShowPrefix | DontClip, string );
+    }
+    
+    QSize sizeHint()
+    {
+	return QFontMetrics( font ).size( AlignLeft | AlignVCenter | ShowPrefix | DontClip,  string );
+    }
+private:
+    QString string;
+    QFont font;
+};
+
 
 MenuExample::MenuExample( QWidget *parent, const char *name )
     : QWidget( parent, name )
@@ -123,8 +151,18 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
     CHECK_PTR( options );
     options->insertItem( "&Normal Font", this, SLOT(normal()) );
     options->insertSeparator();
-    boldID = options->insertItem( "&Bold", this, SLOT(bold()) );
-    underlineID = options->insertItem( "&Underline", this, SLOT(underline()) );
+    
+    QFont fnt = font();
+    fnt.setBold( TRUE );
+    boldID = options->insertItem( new MyMenuItem( "&Bold", fnt ) );
+    options->setAccel( CTRL+Key_B, boldID );
+    options->connectItem( boldID, this, SLOT(bold()) );
+    fnt = font();
+    fnt.setUnderline( TRUE );
+    underlineID = options->insertItem( new MyMenuItem( "&Underline", fnt ) );
+    options->setAccel( CTRL+Key_U, underlineID );
+    options->connectItem( underlineID, this, SLOT(underline()) );
+    
     isBold = FALSE;
     isUnderline = FALSE;
     options->setCheckable( TRUE );

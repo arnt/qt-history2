@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/widgets/widgets.h#2 $
+** $Id: //depot/qt/main/examples/widgets/widgets.h#3 $
 **
 ** Definition of something or other
 **
@@ -22,6 +22,7 @@ class QTabWidget;
 class QGroupBox;
 class QMultiLineEdit;
 class QWellArray;
+
 
 class MyListView : public QListView
 {
@@ -89,7 +90,7 @@ private slots:
 
     void	open();
     void	dummy();
-    
+
     void     wellArraySelected(int,int);
 
 private:

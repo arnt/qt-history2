@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#26 $
 **
 ** Implementation of Motif-like style class
 **
@@ -913,10 +913,9 @@ int QMotifStyle::popupMenuItemHeight( bool /* checkable*/, QMenuItem* mi, const 
     if ( !mi->isSeparator() && mi->iconSet() != 0 ) {
 	h = QMAX( h, mi->iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).height() + 2*motifItemFrame );
 	h += 2;				// Room for check rectangle
-	int h2 = fm.height() + 2*motifItemVMargin + 2*motifItemFrame;
-	if ( h2 > h )
-	    h = h2;
     }
+    if ( mi->custom() )
+	h = QMAX( h, mi->custom()->sizeHint().height() + 2*motifItemVMargin + 2*motifItemFrame );
     return h;
 }
 
@@ -1001,6 +1000,13 @@ void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, in
 
     int xm = motifItemFrame + checkcol + motifItemHMargin;
 
+    if ( mi->custom() ) {
+	int m = motifItemVMargin;
+	p->save();
+	mi->custom()->paint( p, itemg, act, enabled,
+			     x+xm, y+m, w-xm-tab+1, h-2*m );
+	p->restore();
+    }
     QString s = mi->text();
     if ( !s.isNull() ) {			// draw text
 	int t = s.find( '\t' );

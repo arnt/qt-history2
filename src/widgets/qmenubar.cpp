@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#175 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#176 $
 **
 ** Implementation of QMenuBar class
 **
@@ -51,9 +51,23 @@ public:
   \ingroup realwidgets
   \ingroup application
 
-  It automatically sets its own geometry to the top of the parent
-  widget and changes appropriately it when the parent widget is
-  resized.
+  A menu bar consists of a list of submenu items, so-called pulldown
+  menus.  You add submenu items with insertItem(). Assuming that \c
+  menubar is a pointer to a QMenuBar and \c filemenu a pointer to a
+  QPopupMenu, \code
+  menubar->insertItem( "&File", filemenu );
+  \endcode
+  inserts the menu into the menu bar. The ampercent in the item text declares
+  Alt-f as shortcut for this menu. 
+  
+  Items are either enabled or disabled. You toggle their state with
+  setItemEnabled().
+
+  Note that there is no need to layout a menu bar. It automatically
+  sets its own geometry to the top of the parent widget and changes it
+  appropriately whenever the parent is resized.
+  
+  \important insertItem removeItem clear insertSeparator() setItemEnabled isItemEnabled
 
   menu/menu.cpp is a typical example of QMenuBar and QPopupMenu use.
 
@@ -1161,7 +1175,7 @@ void QMenuBar::configureEvent( QConfigureEvent* ev )
 	ev->ignore();
 	return;
     }
-    
+
     // Dont call QWidget configure since we do not accept layouts or
     // or direct child widget except for bars and the central widget
     QObject::configureEvent( ev );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#102 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#103 $
 **
 ** Implementation of QMenuData class
 **
@@ -79,6 +79,7 @@ QMenuItem::QMenuItem()
     pixmap_data	 = 0;
     popup_menu	 = 0;
     widget_item	 = 0;
+    custom_item	 = 0;
     accel_key	 = 0;
     signal_data	 = 0;
     d = 0; // FOR EXTENSION (eg. non-ascii accels)
@@ -90,6 +91,7 @@ QMenuItem::~QMenuItem()
     delete pixmap_data;
     delete signal_data;
     delete d;
+    delete custom_item;
 }
 
 
@@ -203,7 +205,8 @@ uint QMenuData::count() const
 */
 
 int QMenuData::insertAny( const QString *text, const QPixmap *pixmap,
-			  QPopupMenu *popup, const QIconSet* iconset, int id, int index, QWidget* widget )
+			  QPopupMenu *popup, const QIconSet* iconset, int id, int index, 
+			  QWidget* widget, QCustomMenuItem* custom )
 {
     if ( index > (int)mitems->count() ) {
 #if defined(CHECK_RANGE)
@@ -222,6 +225,8 @@ int QMenuData::insertAny( const QString *text, const QPixmap *pixmap,
     if ( widget != 0 ) {
 	mi->widget_item = widget;
 	mi->is_separator = !widget->isFocusEnabled();
+    } else if ( custom != 0 ) {
+	mi->custom_item = custom;
     } else if ( text == 0 && pixmap == 0 && popup == 0 ) {
 	mi->is_separator = TRUE;		// separator
 	mi->ident	 = -1;
@@ -270,16 +275,11 @@ void QMenuData::removePopup( QPopupMenu *popup )
 
 
 /*!
-  Sets the dirty flag of all menu items to \a dirty.
+  does nothing, but that virtual ### remove 3.0
 */
 
-void QMenuData::setAllDirty( bool dirty )
+void QMenuData::setAllDirty( bool  )
 {
-    register QMenuItem *mi = mitems->first();
-    while ( mi ) {
-	mi->is_dirty = dirty;
-	mi = mitems->next();
-    }
 }
 
 
@@ -390,6 +390,9 @@ int QMenuData::insertItem( const QIconSet& icon,
 /*!
   Inserts a menu item with a pixmap, an accelerator key, an id and an
   optional index and connects it to an object/slot.
+  
+  To look best when being highlighted as menu item, the pixmap should
+  provide a mask, see QPixmap::mask().
 
   The menu item is assigned the identifier \a id or an automatically
   generated identifier if \a id is < 0. The generated identifiers
@@ -434,6 +437,9 @@ int QMenuData::insertItem( const QPixmap &pixmap,
   and an optional index and connects it to an object/slot. The icon
   will be displayed to the left of the pixmap in the item.
 
+  To look best when being highlighted as menu item, the pixmap should
+  provide a mask, see QPixmap::mask().
+  
   The menu item is assigned the identifier \a id or an automatically
   generated identifier if \a id is < 0. The generated identifiers
   (negative integers) are guaranteed to be unique within the entire
@@ -585,6 +591,9 @@ int QMenuData::insertItem( const QIconSet& icon,
 /*!
   Inserts a menu item with a pixmap.  Returns the menu item identifier.
 
+  To look best when being highlighted as menu item, the pixmap should
+  provide a mask, see QPixmap::mask().
+  x
   The menu item is assigned the identifier \a id or an automatically
   generated identifier if \a id is < 0. The generated identifiers
   (negative integers) are guaranteed to be unique within the entire
@@ -698,6 +707,8 @@ int QMenuData::insertItem( const QIconSet& icon,
 
 /*!
   Inserts a menu item that consists of the widget \a widget.
+  
+  This only works with popup menus. It is not supported for menu bars.
   Ownership of \a widget is transferred to the popup menu.
 
   The menu item is assigned the identifier \a id or an automatically
@@ -711,13 +722,21 @@ int QMenuData::insertItem( const QIconSet& icon,
   Theoretically, any widget can be inserted into a popup menu. In
   practise, this only makes sense with certain widgets.
 
-  TODO### describe them (focus policy, size hint, keyboard handling
-  with close on enter/exit etc.)
-
   If a widget is not focus enabled ( see QWidget::isFocusEnabled() ),
   the menu treats it as a separator. This means, the item is not
   selectable and will never get focus. This way you can for example
   simply insert a QLabel if you need a popup menu with a title.
+  
+  If the widget is focus enabled, it will get focus when the user
+  traverses the popup menu with the arrow keys. It's up to the widget
+  to provide the possibility to put the focus back on the menu again
+  by calling focusNextPrevChild() respectively. Futhermore should the
+  embedded widget close the menu when the user made a selection.
+  This can be done safely by calling
+  \code
+  if ( isVisible() && parentWidget() && parentWidget()->inherits("QPopupMenu") )
+	parentWidget()->close();
+  \endcode
 
   \sa removeItem()
 */
@@ -725,6 +744,55 @@ int QMenuData::insertItem( QWidget* widget, int id, int index )
 {
     return insertAny( 0, 0, 0, 0, id, index, widget );
 }
+
+
+/*!
+  Inserts a custom menu item \a custom.
+  
+  This only works with popup menus. It is not supported for menu bars.
+  Ownership of \a custom is transferred to the popup menu.
+  
+  If you want to connect a custom item to a certain slot, use connectItem().
+
+  The menu item is assigned the identifier \a id or an automatically
+  generated identifier if \a id is < 0. The generated identifiers
+  (negative integers) are guaranteed to be unique within the entire
+  application.
+
+  The \a index specifies the position in the menu.  The menu item is
+  appended at the end of the list if \a index is negative.
+
+  \sa connectItem(), removeItem()
+*/
+int QMenuData::insertItem( QCustomMenuItem* custom, int id, int index )
+{
+    return insertAny( 0, 0, 0, 0, id, index, 0, custom );
+}
+
+/*!
+  Inserts a custom menu item \a custom with an \a icon.
+  
+  This only works with popup menus. It is not supported for menu bars.
+  Ownership of \a custom is transferred to the popup menu.
+
+  If you want to connect a custom item to a certain slot, use connectItem().
+  
+  The menu item is assigned the identifier \a id or an automatically
+  generated identifier if \a id is < 0. The generated identifiers
+  (negative integers) are guaranteed to be unique within the entire
+  application.
+
+  The \a index specifies the position in the menu.  The menu item is
+  appended at the end of the list if \a index is negative.
+
+  \sa connectItem(), removeItem()
+*/
+int QMenuData::insertItem( const QIconSet& icon, QCustomMenuItem* custom, int id, int index )
+{
+    return insertAny( 0, 0, 0, &icon, id, index, 0, custom );
+}
+
+
 
 #ifdef QT_BUILDER
 int QMenuData::insertSeparator( int index )
@@ -1304,6 +1372,93 @@ QString QMenuData::whatsThis( int id ) const
     QMenuItem *mi = findItem( id );
     return mi? mi->whatsThis() : QString::null;
 }
+
+
+
+// NOT REVISED
+/*!
+  \class QCustomMenuItem qmenudata.h
+  \brief The QCustomMenuItem class is an abstract base class for custom menu items in 
+  popup menus.
+
+  \ingroup misc
+  
+  A custom menu item is a menu item that is defined by two purely
+  virtual functions, paint() and sizeHint(). The size hint tells the
+  menu how much space it needs to reserve for this item, wheras paint
+  is called whenever the item needs painting.
+  
+  This simply mechanism gives applications the possibility to create
+  all kinds of application specific menu items. Examples are items
+  showing different fonts in a wordprocessor, or menus that allow the
+  selection of drawing utilities in a vector drawing program.
+  
+  A custom item is inserted into a popup menu with
+  QPopupMenu::insertItem(). 
+  
+  Note that you can also insert pixmaps or bitmaps as items into a
+  popup menu. A custom menu item, however, offers even more
+  flexibility and - which is especially implortant under windows style
+  - the possibility to draw the item with a different color when it is
+  highlighted.
+
+  menu/menu.cpp shows a simply example how custom menu items can be
+used.
+
+  <img src=qpopmenu-fancy.png>
+
+  
+  \sa QMenuData, QPopupMenu
+*/
+
+
+
+/*!
+  Constructs a QCustomMenuItem
+ */
+QCustomMenuItem::QCustomMenuItem()
+{
+}
+
+/*!
+  Destructs a QCustomMenuItem
+ */
+QCustomMenuItem::~QCustomMenuItem()
+{
+}
+
+
+/*!
+  Sets the font of the custom menu item.
+  
+  This function is called whenever the font in the popup menu
+  changes. For menu items that show their own individual font entry,
+  you want to ignore this.
+ */
+void QCustomMenuItem::setFont( const QFont&  )
+{
+}
+
+
+/*! \fn virtual void paint( QPainter* p, const QColorGroup& cg, bool act,  bool enabled, int x, int y, int w, int h ) = 0;
+  
+  Paints this item. When this function is invoked, the painter \a p is
+  set to the right font and the right foreground color suitable for a
+  menu item text. The item is active according to \a act and
+  enabled/disabled according to \a enabled. The geometry values \a x,
+  \a y, \a w and h specify where to draw the item.
+  
+  Do not draw any background, this has already been done by the popup
+  menu according to the current gui style.
+  
+ */
+  
+
+/*! \fn virtual QSize sizeHint() = 0;
+  
+  Returns the size hint of this item. 
+ */
+
 
 #ifdef QT_BUILDER
 bool QMenuData::configure( QWidget* _this, const QDomElement& element )
