@@ -4,6 +4,7 @@
 #ifndef QT_H
 #include "qvariant.h"
 #include "qobject.h"
+#include "qguardedptr.h"
 #endif // QT_H
 
 #ifndef QT_NO_PLUGIN
@@ -13,53 +14,59 @@ class QApplicationInterface;
 class Q_EXPORT QUnknownInterface
 {
 public:
-    QUnknownInterface() {}
-    virtual ~QUnknownInterface() {}
+    QUnknownInterface( QUnknownInterface *parent = 0 );
+    virtual ~QUnknownInterface();
 
-    virtual QString interfaceID() { return "QUnknownInterface"; }
+    virtual QString interfaceID() const;
 
-    virtual bool connectNotify( QApplicationInterface* ) { return TRUE; }
-    virtual bool disconnectNotify() { return TRUE; }
+    virtual bool connectNotify( QApplicationInterface* );
+    virtual bool disconnectNotify();
 
-    virtual QUnknownInterface* queryInterface( const QString& ) { return 0; }
-    virtual QStringList interfaceList() { return QStringList(); }
+    virtual QUnknownInterface* queryInterface( const QString& );
+    virtual QStringList interfaceList() const;
 };
 
 class Q_EXPORT QPlugInInterface : public QUnknownInterface
 {
 public:
-    QPlugInInterface() {}
+    QPlugInInterface();
 
-    QString interfaceID() { return "QPlugInInterface"; }
+    QString interfaceID() const;
 
-    virtual QString name() { return QString::null; }
-    virtual QString description() { return QString::null; }
-    virtual QString author() { return QString::null; }
+    virtual QString name() const;
+    virtual QString description() const;
+    virtual QString author() const;
 
     virtual QUnknownInterface* queryInterface( const QString& ) = 0;
-    virtual QStringList interfaceList() = 0;
+    virtual QStringList interfaceList() const = 0;
 };
 
-class Q_EXPORT QApplicationInterface : public QObject, public QUnknownInterface
+class Q_EXPORT QApplicationInterface : public QUnknownInterface
 {
-    Q_OBJECT
-
 public:
     QApplicationInterface();
-    ~QApplicationInterface() {}
+    QString interfaceID() const;
 
-    QString interfaceID() { return "QApplicationInterface"; }
+    virtual QString name() const;
+    virtual QString description() const;
+    virtual QString author() const;
+    virtual QString workDirectory() const;
+    virtual QString version() const;
+    virtual QString command() const;
 };
 
-class Q_EXPORT QApplicationComponentInterface : public QObject, public QUnknownInterface
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+template class Q_EXPORT QGuardedPtr<QObject>;
+// MOC_SKIP_END
+#endif
+
+class Q_EXPORT QApplicationComponentInterface : public QUnknownInterface
 {
-    Q_OBJECT
-
 public:
-    QApplicationComponentInterface( QObject* o );
-    ~QApplicationComponentInterface() {}
+    QApplicationComponentInterface( QObject* c );
 
-    QString interfaceID() { return "QApplicationComponentInterface"; }
+    QString interfaceID() const;
 
 #ifndef QT_NO_PROPERTIES
     virtual QVariant requestProperty( const QCString& p );
@@ -70,10 +77,10 @@ public:
     virtual bool requestEvents( QObject* o );
 
 protected:
-    QObject* object() { return QObject::parent(); }
+    QObject* component() const { return comp; }
 
 private:
-    QObject* parent() { return QObject::parent(); }
+    QGuardedPtr<QObject> comp;
 };
 
 #ifndef Q_EXPORT_INTERFACE

@@ -1,7 +1,74 @@
 #include "qcomponentinterface.h"
 #include "qapplication.h"
+#include "qdir.h"
 
 #ifndef QT_NO_PLUGIN
+
+/*!
+  \class QUnknownInterface qcomponentinterface.h
+*/
+
+QUnknownInterface::QUnknownInterface( QUnknownInterface* parent )
+{
+}
+
+QUnknownInterface::~QUnknownInterface()
+{
+}
+
+QString QUnknownInterface::interfaceID() const
+{ 
+    return "QUnknownInterface"; 
+}
+
+bool QUnknownInterface::connectNotify( QApplicationInterface* )
+{ 
+    return TRUE; 
+}
+
+bool QUnknownInterface::disconnectNotify()
+{ 
+    return TRUE; 
+}
+
+QUnknownInterface* QUnknownInterface::queryInterface( const QString& )
+{ 
+    return 0; 
+}
+
+QStringList QUnknownInterface::interfaceList() const 
+{ 
+    return QStringList(); 
+}
+
+/*!
+  \class QPlugInInterface qcomponentinterface.h
+*/
+
+QPlugInInterface::QPlugInInterface()
+: QUnknownInterface()
+{
+}
+
+QString QPlugInInterface::interfaceID() const 
+{ 
+    return "QPlugInInterface"; 
+}
+
+QString QPlugInInterface::name() const 
+{ 
+    return QString::null; 
+}
+
+QString QPlugInInterface::description() const 
+{ 
+    return QString::null; 
+}
+
+QString QPlugInInterface::author() const 
+{ 
+    return QString::null; 
+}
 
 /*!
   \class QApplicationInterface qapplicationinterface.h
@@ -18,8 +85,43 @@
   It's not valid to pass null for the same reason.
 */
 QApplicationInterface::QApplicationInterface()
-    : QObject( qApp )
+: QUnknownInterface()
 {
+}
+
+QString QApplicationInterface::interfaceID() const
+{ 
+    return "QApplicationInterface"; 
+}
+
+QString QApplicationInterface::name() const
+{
+    return QString::null;
+}
+
+QString QApplicationInterface::description() const
+{
+    return QString::null;
+}
+
+QString QApplicationInterface::author() const
+{
+    return QString::null;
+}
+
+QString QApplicationInterface::workDirectory() const
+{
+    return QDir::currentDirPath();
+}
+
+QString QApplicationInterface::version() const
+{
+    return QString::null;
+}
+
+QString QApplicationInterface::command() const
+{
+    return qApp->argv()[0];
 }
 
 /*!
@@ -49,13 +151,18 @@ QApplicationInterface::QApplicationInterface()
   destroyed. It's not valid to pass null for the same reason.
 */
 QApplicationComponentInterface::QApplicationComponentInterface( QObject* o )
+: QUnknownInterface()
 {
 #ifdef CHECK_RANGE
     if ( !o )
 	qWarning( "Can't create interface with null-object!" );
 #endif CHECK_RANGE
-    if ( o )
-	o->insertChild( this );
+    comp = o;
+}
+
+QString QApplicationComponentInterface::interfaceID() const
+{
+    return "QApplicationComponentInterface"; 
 }
 
 /*!
@@ -75,7 +182,7 @@ QApplicationComponentInterface::QApplicationComponentInterface( QObject* o )
 */
 QVariant QApplicationComponentInterface::requestProperty( const QCString& p )
 {
-    return object()->property( p );
+    return component()->property( p );
 }
 /*!
   This function is supposed to change the value of the property \a p of the object to \a value and
@@ -86,7 +193,7 @@ QVariant QApplicationComponentInterface::requestProperty( const QCString& p )
 */
 bool QApplicationComponentInterface::requestSetProperty( const QCString& p, const QVariant& v )
 {
-    return object()->setProperty( p, v );
+    return component()->setProperty( p, v );
 }
 
 #endif
@@ -101,7 +208,7 @@ bool QApplicationComponentInterface::requestSetProperty( const QCString& p, cons
 */
 bool QApplicationComponentInterface::requestConnect( const char* signal, QObject* target, const char* slot )
 {
-    return connect( object(), signal, target, slot );
+    return QObject::connect( component(), signal, target, slot );
 }
 
 /*!  This function can be used to connect the \a signal of the \a
@@ -112,7 +219,7 @@ bool QApplicationComponentInterface::requestConnect( const char* signal, QObject
 
 bool QApplicationComponentInterface::requestConnect( QObject *sender, const char* signal, const char* slot )
 {
-    return connect( sender, signal, object(), slot );
+    return QObject::connect( sender, signal, component(), slot );
 }
 
 /*!
@@ -124,7 +231,7 @@ bool QApplicationComponentInterface::requestConnect( QObject *sender, const char
 */
 bool QApplicationComponentInterface::requestEvents( QObject* f )
 {
-    object()->installEventFilter( f );
+    component()->installEventFilter( f );
 
     return TRUE;
 }
