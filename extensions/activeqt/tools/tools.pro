@@ -7,6 +7,5 @@ CONFIG	+= ordered
 } else {
 
 	SUBDIRS	= idc \
-		  testcon \
 		  dumpdoc
 }
