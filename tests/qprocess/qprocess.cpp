@@ -49,7 +49,8 @@ QProcess::QProcess( const QString& com, const QStringList& args, QObject *parent
 }
 
 /*!
-  Destructor; if the process is running it is NOT terminated!
+  Destructor; if the process is running it is NOT terminated! Stdin, stdout and
+  stderr of the process are closed.
 */
 QProcess::~QProcess()
 {
@@ -66,7 +67,7 @@ void QProcess::setCommand( const QString& com )
 }
 
 /*!
-  Set the arguments for the command. Previous set arguments will get deleted
+  Set the arguments for the command. Previous set arguments will be deleted
   first.
 */
 void QProcess::setArguments( const QStringList& args )
@@ -131,7 +132,7 @@ bool QProcess::normalExit()
 
 /*!
   Return the exit status of the process. This value is only valid if
-  normalExit() is TRUE.
+  \l normalExit() is TRUE.
 */
 int QProcess::exitStatus()
 {
@@ -141,19 +142,33 @@ int QProcess::exitStatus()
 
 /*!
   \fn void QProcess::dataStdout( const QByteArray& buf )
+
+  This signal is emitted if the process wrote data to stdout.
+*/
+/*!
+  \fn void QProcess::dataStdout( const QString& buf )
+
   This signal is emitted if the process wrote data to stdout.
 */
 /*!
   \fn void QProcess::dataStderr( const QByteArray& buf )
+
+  This signal is emitted if the process wrote data to stderr.
+*/
+/*!
+  \fn void QProcess::dataStderr( const QString& buf )
+
   This signal is emitted if the process wrote data to stderr.
 */
 /*!
   \fn void QProcess::processExited()
+
   This signal is emitted if the process has exited.
 */
 /*!
   \fn void QProcess::wroteStdin()
-  This signal is emitted if the data send to stdin (via dataStdin()) was
+
+  This signal is emitted if the data send to stdin (via \l dataStdin()) was
   actually read by the process.
 */
 
@@ -161,12 +176,12 @@ int QProcess::exitStatus()
 /*!
   \fn void QProcess::dataStdin( const QByteArray& buf )
   Write data to the stdin of the process. The process may or may not read this
-  data. If the data gets read, the signal wroteStdin() is emitted.
+  data. If the data gets read, the signal \l wroteStdin() is emitted.
 */
 /*!
   Write data to the stdin of the process. The string is handled as a text. So
-  what is written to the stdin is the QString::latin1(). The process may or may
-  not read this data. If the data gets read, the signal wroteStdin() is
+  what is written to the stdin is the \l QString::latin1(). The process may or
+  may not read this data. If the data gets read, the signal \l wroteStdin() is
   emitted.
 */
 void QProcess::dataStdin( const QString& buf )
@@ -178,16 +193,19 @@ void QProcess::dataStdin( const QString& buf )
 
 /*!
   \fn void QProcess::closeStdin( )
+
   Close stdin.
 */
 
 
 /*!
   \fn void QProcess::socketRead( int fd )
+
   The process has output data to either stdout or sderr.
 */
 
 /*!
   \fn void QProcess::socketWrite( int fd )
+
   The process tries to read data from stdin.
 */
