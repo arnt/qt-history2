@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#20 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#21 $
 **
 ** Implementation of date and time classes
 **
@@ -24,7 +24,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#20 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#21 $";
 #endif
 
 
@@ -510,6 +510,10 @@ long QTime::msecsTo( const QTime &t ) const	// milliseconds difference
 }
 
 
+#if defined(_OS_SUN_)
+extern "C" int gettimeofday( struct timeval * );
+#endif
+
 /*!
 Returns the current time.
 */
@@ -538,7 +542,11 @@ QTime QTime::currentTime()			// get current time
 
     QTime ct;
     struct timeval tv;
+#if defined(_OS_SUN_)
+    gettimeofday( &tv );
+#else
     gettimeofday( &tv, 0 );
+#endif
     time_t ltime = tv.tv_sec; 
     tm *t = localtime( &ltime );
     ct.ds = MSECS_PER_HOUR*t->tm_hour + MSECS_PER_MIN*t->tm_min +

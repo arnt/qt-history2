@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#16 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#17 $
 **
 ** Implementation of QRegExp class
 **
 ** Author  : Haavard Nord
 ** Created : 950126
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -19,17 +19,15 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#17 $";
 #endif
 
 
 /*!
 \class QRegExp qregexp.h
-
+\ingroup tools
 \brief The QRegExp class provides pattern matching using regular
 expressions and wildcards.
-
-  \ingroup tools
 
 QRegExp knows these regexp primitives:
 <ul plain>
@@ -41,7 +39,7 @@ QRegExp knows these regexp primitives:
 <li><dfn>a*</dfn> matches a sequence of zero or more a's
 <li><dfn>a+</dfn> matches a sequence of one or more a's
 <li><dfn>a?</dfn> matches an optional a
-<li><dfn>\c</dfn>  escape code for matching special characters like \, [, *, +, . etc.
+<li><dfn>\c</dfn> escape code for matching special characters like \, [, *, +, . etc.
 <li><dfn>\b</dfn> matches the BELL character (7)
 <li><dfn>\t</dfn> matches the TAB character (9)
 <li><dfn>\n</dfn> matches newline (10)
@@ -69,7 +67,7 @@ and dot.
 //
 
 const ushort CHR	= 0x4000;		// character
-const ushort BOL	= 0x8001;		// beginning of line 	^
+const ushort BOL	= 0x8001;		// beginning of line	^
 const ushort EOL	= 0x8002;		// end of line		$
 const ushort BOW	= 0x8003;		// beginning of word	\<
 const ushort EOW	= 0x8004;		// end of word		\>
@@ -261,7 +259,7 @@ If \e len is not a null pointer, the length of the match is stored in
 
 \code
 QRegExp r("[0-9]*\.[0-9]+");		\/ matches floating point
-int     len;
+int	len;
 r.match("pi = 3.1416", 0, &len);	\/ returns 5, len == 6
 \endcode
 */
@@ -296,7 +294,7 @@ int QRegExp::match( const char *str, int index, int *len ) const
     if ( ep ) {					// match
 	if ( len )
 	    *len = ep - p;
-	return (int)(p - str);			// return index
+	return (int)((long)p - (long)str);	// return index
     }
     else {					// no match
 	if ( len )
@@ -438,7 +436,7 @@ char *QRegExp::matchstr( ushort *rxd, char *str, char *bol ) const
 
 //
 // Translate wildcard pattern to standard regexp pattern.
-// Ex:   *.cpp	==> ^.*\.cpp$
+// Ex:	 *.cpp	==> ^.*\.cpp$
 //
 
 static QString wc2rx( const char *pattern )
@@ -509,7 +507,7 @@ static int char_val( char **str )		// get char value
 		    v += a ? 10 + c - 'a' : c - '0';
 		    len++;
 		}
-	        }
+		}
 		break;
 
 	    default: {
@@ -543,19 +541,19 @@ ushort *dump( ushort *p )			// DEBUG !!!
 	    p++;
 	} else switch ( *p++ ) {
 	    case BOL:
-	        debug( "\tBOL" );
+		debug( "\tBOL" );
 		break;
 	    case EOL:
-	        debug( "\tEOL" );
+		debug( "\tEOL" );
 		break;
 	    case BOW:
-	        debug( "\tBOW" );
+		debug( "\tBOW" );
 		break;
 	    case EOW:
-	        debug( "\tEOW" );
+		debug( "\tEOW" );
 		break;
 	    case ANY:
-	        debug( "\tANY" );
+		debug( "\tANY" );
 		break;
 	    case CCL: {
 		QString s = "";
@@ -570,9 +568,9 @@ ushort *dump( ushort *p )			// DEBUG !!!
 			}
 		    }
 		}
-	        debug( "\tCCL\t%s", (char *)s );
+		debug( "\tCCL\t%s", (char *)s );
 		p += 16;
-	        }
+		}
 		break;
 	    case CLO:
 		debug( "\tCLO" );
@@ -749,12 +747,12 @@ void QRegExp::compile()
 			d += 16;
 			p++;
 			p++;
-                        break;
+			break;
 		    }
 		    else if ( *(p+1) == '<' || *(p+1) == '>' ) {
 			GEN( *++p == '<' ? BOW : EOW );
 			p++;
-                        break;
+			break;
 		    }
 		}
 		int c = char_val(&p);
