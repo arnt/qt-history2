@@ -136,6 +136,10 @@ struct QTableHeaderPrivate
 {
 };
 
+static bool isRowSelection( QTable::SelectionMode selMode )
+{
+    return selMode == QTable::SingleRow || selMode == QTable::MultiRow;
+}
 
 /*! \class QTableSelection qtable.h
     \ingroup advanced
@@ -1497,9 +1501,16 @@ int QCheckTableItem::rtti() const
 
 /*! \enum QTable::SelectionMode
 
-  \value NoSelection  No cell can be selected by the user.
-  \value Single  The user may only select a single range of cells.
-  \value Multi  The user may select multiple ranges of cells.
+  \value NoSelection No cell can be selected by the user.
+
+  \value Single The user may only select a single range of cells.
+
+  \value Multi The user may select multiple ranges of cells.
+
+  \value SingleRow The user may select one row at once (there is
+  always the row of the current item selected)
+
+  \value Multiple The user may select multiple rows
 */
 
 /*! \fn void QTable::clicked( int row, int col, int button, const QPoint &mousePos )
@@ -1775,7 +1786,17 @@ bool QTable::isColumnReadOnly( int col ) const
 
 void QTable::setSelectionMode( SelectionMode mode )
 {
+    if ( mode == selMode )
+	return;
     selMode = mode;
+    clearSelection();
+    if ( isRowSelection( selMode ) ) {
+	currentSel = new QTableSelection();
+	selections.append( currentSel );
+	currentSel->init( curRow, 0 );
+	currentSel->expandTo( curRow, numCols() - 1 );
+	repaintSelections( 0, currentSel );
+    }
 }
 
 /*! Returns the current selection mode.
@@ -2521,6 +2542,13 @@ QPixmap QTable::pixmap( int row, int col ) const
 
 void QTable::setCurrentCell( int row, int col )
 {
+    setCurrentCell( row, col, TRUE );
+}
+
+/*! \internal */
+
+void QTable::setCurrentCell( int row, int col, bool updateSelections )
+{
     QTableItem *itm = item( row, col );
     QTableItem *oldIitem = item( curRow, curCol );
     if ( itm && itm->rowSpan() > 1 && oldIitem == itm && itm->row() != row ) {
@@ -2547,10 +2575,14 @@ void QTable::setCurrentCell( int row, int col )
 	repaintCell( curRow, curCol );
 	ensureCellVisible( curRow, curCol );
 	emit currentChanged( row, col );
-	if ( !isColumnSelected( oldCol ) && !isRowSelected( oldRow ) ) {
+	if ( !isColumnSelected( oldCol ) )
 	    topHeader->setSectionState( oldCol, QTableHeader::Normal );
+	else if ( isRowSelection( selectionMode() ) )
+	    topHeader->setSectionState( oldCol, QTableHeader::Selected );
+	if ( !isRowSelected( oldRow ) )
 	    leftHeader->setSectionState( oldRow, QTableHeader::Normal );
-	}
+	else if ( isRowSelection( selectionMode() ) )
+	    topHeader->setSectionState( oldRow, QTableHeader::Selected );
 	topHeader->setSectionState( curCol, isColumnSelected( curCol, TRUE ) ? QTableHeader::Selected : QTableHeader::Bold );
 	leftHeader->setSectionState( curRow, isRowSelected( curRow, TRUE ) ? QTableHeader::Selected : QTableHeader::Bold );
 	itm = item( curRow, curCol );
@@ -2568,6 +2600,17 @@ void QTable::setCurrentCell( int row, int col )
 	} else if ( itm && itm->editType() == QTableItem::Always ) {
 	    if ( cellWidget( itm->row(), itm->col() ) )
 		cellWidget( itm->row(), itm->col() )->setFocus();
+	}
+	
+	if ( updateSelections && isRowSelection( selectionMode() ) ) {
+	    if ( !isSelected( curRow, curCol, FALSE ) ) {
+		clearSelection();
+		currentSel = new QTableSelection();
+		selections.append( currentSel );
+		currentSel->init( curRow, 0 );
+		currentSel->expandTo( curRow, numCols() - 1 );
+		repaintSelections( 0, currentSel );
+	    }
 	}
     }
 }
@@ -2592,6 +2635,13 @@ void QTable::ensureCellVisible( int row, int col )
 
 bool QTable::isSelected( int row, int col ) const
 {
+    return isSelected( row, col, TRUE );
+}
+
+/*! \internal */
+
+bool QTable::isSelected( int row, int col, bool includeCurrent ) const
+{
     QPtrListIterator<QTableSelection> it( selections );
     QTableSelection *s;
     while ( ( s = it.current() ) != 0 ) {
@@ -2602,7 +2652,7 @@ bool QTable::isSelected( int row, int col ) const
 	     col >= s->leftCol() &&
 	     col <= s->rightCol() )
 	    return TRUE;
-	if ( row == currentRow() && col == currentColumn() )
+	if ( includeCurrent && row == currentRow() && col == currentColumn() )
 	    return TRUE;
     }
     return FALSE;
@@ -2813,30 +2863,51 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
     }
 
     if ( ( e->state() & ShiftButton ) == ShiftButton ) {
-	if ( selMode != NoSelection ) {
+	if ( selMode != NoSelection && selMode != SingleRow ) {
 	    if ( !currentSel ) {
 		currentSel = new QTableSelection();
 		selections.append( currentSel );
-		currentSel->init( curRow, curCol );
+		if ( !isRowSelection( selectionMode() ) )
+		    currentSel->init( curRow, curCol );
+		else
+		    currentSel->init( curRow, 0 );
 	    }
 	    QTableSelection oldSelection = *currentSel;
-	    currentSel->expandTo( tmpRow, tmpCol );
+	    if ( !isRowSelection( selectionMode() ) )
+		currentSel->expandTo( tmpRow, tmpCol );
+	    else
+		currentSel->expandTo( tmpRow, numCols() - 1 );
 	    repaintSelections( &oldSelection, currentSel );
 	    emit selectionChanged();
+	} else if ( selMode == SingleRow ) {
+	    bool currentInSelection = tmpRow == curRow && isSelected( tmpRow, tmpCol );
+	    if ( !currentInSelection ) {
+		clearSelection();
+		currentSel = new QTableSelection();
+		selections.append( currentSel );
+		currentSel->init( tmpRow, 0 );
+		currentSel->expandTo( tmpRow, numCols() - 1 );
+		repaintSelections( 0, currentSel );
+	    }
 	}
-	setCurrentCell( tmpRow, tmpCol );
+	setCurrentCell( tmpRow, tmpCol, FALSE );
     } else if ( ( e->state() & ControlButton ) == ControlButton ) {
 	if ( selMode != NoSelection ) {
 	    if ( selMode == Single )
 		clearSelection();
 	    currentSel = new QTableSelection();
 	    selections.append( currentSel );
-	    currentSel->init( tmpRow, tmpCol );
+	    if ( !isRowSelection( selectionMode() ) ) {
+		currentSel->init( tmpRow, tmpCol );
+	    } else {
+		currentSel->init( tmpRow, 0 );
+		shouldClearSelection = TRUE;
+	    }
 	    emit selectionChanged();
 	}
-	setCurrentCell( tmpRow, tmpCol );
+	setCurrentCell( tmpRow, tmpCol, FALSE );
     } else {
-	setCurrentCell( tmpRow, tmpCol );
+	setCurrentCell( tmpRow, tmpCol, FALSE );
 	if ( isSelected( tmpRow, tmpCol ) ) {
 	    shouldClearSelection = TRUE;
 	} else {
@@ -2844,7 +2915,10 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
 	    if ( selMode != NoSelection ) {
 		currentSel = new QTableSelection();
 		selections.append( currentSel );
-		currentSel->init( tmpRow, tmpCol );
+		if ( !isRowSelection( selectionMode() ) )
+		    currentSel->init( tmpRow, tmpCol );
+		else
+		    currentSel->init( tmpRow, 0 );
 		emit selectionChanged();
 	    }
 	}
@@ -2862,6 +2936,7 @@ void QTable::contentsMouseDoubleClickEvent( QMouseEvent *e )
 {
     if ( e->button() != LeftButton )
 	return;
+    clearSelection();
     int tmpRow = rowAt( e->pos().y() );
     int tmpCol = columnAt( e->pos().x() );
     QTableItem *itm = item( tmpRow, tmpCol );
@@ -2910,13 +2985,18 @@ void QTable::contentsMouseMoveEvent( QMouseEvent *e )
 	return;
     }
 #endif
+    if ( selectionMode() == MultiRow && ( e->state() & ControlButton ) == ControlButton )
+	shouldClearSelection = FALSE;
 
     if ( shouldClearSelection ) {
 	clearSelection();
 	if ( selMode != NoSelection ) {
 	    currentSel = new QTableSelection();
 	    selections.append( currentSel );
-	    currentSel->init( tmpRow, tmpCol );
+	    if ( !isRowSelection( selectionMode() ) )
+		currentSel->init( tmpRow, tmpCol );
+	    else
+		currentSel->init( tmpRow, 0 );
 	    emit selectionChanged();
 	}
 	shouldClearSelection = FALSE;
@@ -2980,12 +3060,32 @@ void QTable::doAutoScroll()
 
     if ( currentSel && selMode != NoSelection ) {
 	QTableSelection oldSelection = *currentSel;
-	currentSel->expandTo( tmpRow, tmpCol );
-	setCurrentCell( tmpRow, tmpCol );
-	repaintSelections( &oldSelection, currentSel );
+	bool useOld = TRUE;
+	if ( selMode != SingleRow ) {
+	    if ( !isRowSelection( selectionMode() ) ) {
+		currentSel->expandTo( tmpRow, tmpCol );
+	    } else {
+		currentSel->expandTo( tmpRow, numCols() - 1 );
+	    }
+	} else {
+	    bool currentInSelection = tmpRow == curRow && isSelected( tmpRow, tmpCol );
+	    if ( !currentInSelection ) {
+		useOld = FALSE;
+		clearSelection();
+		currentSel = new QTableSelection();
+		selections.append( currentSel );
+		currentSel->init( tmpRow, 0 );
+		currentSel->expandTo( tmpRow, numCols() - 1 );
+		repaintSelections( 0, currentSel );
+	    } else {
+		currentSel->expandTo( tmpRow, numCols() - 1 );
+	    }
+	}
+	setCurrentCell( tmpRow, tmpCol, FALSE );
+	repaintSelections( useOld ? &oldSelection : 0, currentSel );
 	emit selectionChanged();
     } else {
-	setCurrentCell( tmpRow, tmpCol );
+	setCurrentCell( tmpRow, tmpCol, FALSE );
     }
 
     if ( pos.x() < 0 || pos.x() > visibleWidth() || pos.y() < 0 || pos.y() > visibleHeight() )
@@ -3008,7 +3108,13 @@ void QTable::contentsMouseReleaseEvent( QMouseEvent *e )
 	if ( selMode != NoSelection ) {
 	    currentSel = new QTableSelection();
 	    selections.append( currentSel );
-	    currentSel->init( tmpRow, tmpCol );
+	    if ( !isRowSelection( selectionMode() ) ) {
+		currentSel->init( tmpRow, tmpCol );
+	    } else {
+		currentSel->init( tmpRow, 0 );
+		currentSel->expandTo( tmpRow, numCols() - 1 );
+		repaintSelections( 0, currentSel );
+	    }
 	    emit selectionChanged();
 	}
 	shouldClearSelection = FALSE;
@@ -3248,25 +3354,43 @@ void QTable::keyPressEvent( QKeyEvent* e )
 
     if ( navigationKey ) {
 	if ( ( e->state() & ShiftButton ) == ShiftButton &&
-	     selMode != NoSelection ) {
-	    setCurrentCell( tmpRow, tmpCol );
+	     selMode != NoSelection && selMode != SingleRow ) {
 	    bool justCreated = FALSE;
+	    setCurrentCell( tmpRow, tmpCol, FALSE );
 	    if ( !currentSel ) {
 		justCreated = TRUE;
 		currentSel = new QTableSelection();
 		selections.append( currentSel );
-		currentSel->init( oldRow, oldCol );
+		if ( !isRowSelected( selectionMode() ) )
+		    currentSel->init( oldRow, oldCol );
+		else
+		    currentSel->init( oldRow, 0 );
 	    }
 	    QTableSelection oldSelection = *currentSel;
-	    currentSel->expandTo( tmpRow, tmpCol );
+	    if ( !isRowSelection( selectionMode() ) )
+		currentSel->expandTo( tmpRow, tmpCol );
+	    else
+		currentSel->expandTo( tmpRow, numCols() - 1 );
 	    repaintSelections( justCreated ? 0 : &oldSelection, currentSel );
 	    emit selectionChanged();
 	} else {
-	    clearSelection();
-	    setCurrentCell( tmpRow, tmpCol );
+	    if ( !isRowSelection( selectionMode() ) ) {
+		clearSelection();
+	    } else {
+		bool currentInSelection = tmpRow == curRow && isSelected( tmpRow, tmpCol );
+		if ( !currentInSelection ) {
+		    clearSelection();
+		    currentSel = new QTableSelection();
+		    selections.append( currentSel );
+		    currentSel->init( tmpRow, 0 );
+		    currentSel->expandTo( tmpRow, numCols() - 1 );
+		    repaintSelections( 0, currentSel );
+		}
+	    }
+	    setCurrentCell( tmpRow, tmpCol, FALSE );
 	}
     } else {
-	setCurrentCell( tmpRow, tmpCol );
+	setCurrentCell( tmpRow, tmpCol, FALSE );
     }
 }
 
@@ -4832,7 +4956,7 @@ void QTable::contentsDragEnterEvent( QDragEnterEvent *e )
     int tmpCol = columnAt( e->pos().x() );
     fixRow( tmpRow, e->pos().y() );
     fixCol( tmpCol, e->pos().x() );
-    setCurrentCell( tmpRow, tmpCol );
+    setCurrentCell( tmpRow, tmpCol, FALSE );
     e->accept();
 }
 
@@ -4848,7 +4972,7 @@ void QTable::contentsDragMoveEvent( QDragMoveEvent *e )
     int tmpCol = columnAt( e->pos().x() );
     fixRow( tmpRow, e->pos().y() );
     fixCol( tmpCol, e->pos().x() );
-    setCurrentCell( tmpRow, tmpCol );
+    setCurrentCell( tmpRow, tmpCol, FALSE );
     e->accept();
 }
 
@@ -4858,7 +4982,7 @@ void QTable::contentsDragMoveEvent( QDragMoveEvent *e )
 
 void QTable::contentsDragLeaveEvent( QDragLeaveEvent * )
 {
-    setCurrentCell( oldCurrentRow, oldCurrentCol );
+    setCurrentCell( oldCurrentRow, oldCurrentCol, FALSE );
 }
 
 /*! This event handler is called when the user ends a drag and drop
@@ -4868,7 +4992,7 @@ void QTable::contentsDragLeaveEvent( QDragLeaveEvent * )
 
 void QTable::contentsDropEvent( QDropEvent *e )
 {
-    setCurrentCell( oldCurrentRow, oldCurrentCol );
+    setCurrentCell( oldCurrentRow, oldCurrentCol, FALSE );
     emit dropped( e );
 }
 
@@ -5029,6 +5153,9 @@ void QTableHeader::setSectionState( int s, SectionState astate )
 	return;
     if ( states.data()[ s ] == astate )
 	return;
+    if ( isRowSelection( table->selectionMode() ) &&
+	 orientation() == Horizontal  && astate != Bold )
+	return;
 
     states.data()[ s ] = astate;
     if ( isUpdatesEnabled() ) {
@@ -5041,6 +5168,10 @@ void QTableHeader::setSectionState( int s, SectionState astate )
 
 void QTableHeader::setSectionStateToAll( SectionState state )
 {
+    if ( isRowSelection( table->selectionMode() ) &&
+	 orientation() == Horizontal  && state != Bold )
+	return;
+
     register int *d = (int *) states.data();
     int n = count();
 
@@ -5178,12 +5309,15 @@ void QTableHeader::mouseMoveEvent( QMouseEvent *e )
 
 bool QTableHeader::doSelection( QMouseEvent *e )
 {
+    if ( isRowSelection( table->selectionMode() ) )
+	return TRUE;
     int p = real_pos( e->pos(), orientation() ) + offset();
     if ( startPos == -1 ) {
 	startPos = p;
 	int secAt = sectionAt( p );
-	if ( ( e->state() & ControlButton ) != ControlButton
-	     || table->selectionMode() == QTable::Single ) {
+	if ( ( e->state() & ControlButton ) != ControlButton ||
+	     table->selectionMode() == QTable::Single ||
+	     table->selectionMode() == QTable::SingleRow ) {
 	    table->clearSelection();
 	}
 	saveStates();
@@ -5343,7 +5477,8 @@ void QTableHeader::updateWidgetStretches()
 
 void QTableHeader::updateSelections()
 {
-    if ( table->selectionMode() == QTable::NoSelection )
+    if ( table->selectionMode() == QTable::NoSelection ||
+	 isRowSelection( table->selectionMode() ) )
 	return;
     int a = sectionAt( startPos );
     int b = sectionAt( endPos );

@@ -217,6 +217,7 @@ template class Q_EXPORT QIntDict<int>;
 class Q_EXPORT QTable : public QScrollView
 {
     Q_OBJECT
+    Q_ENUMS( SelectionMode )
     Q_PROPERTY( int numRows READ numRows WRITE setNumRows )
     Q_PROPERTY( int numCols READ numCols WRITE setNumCols )
     Q_PROPERTY( bool showGrid READ showGrid WRITE setShowGrid )
@@ -224,6 +225,7 @@ class Q_EXPORT QTable : public QScrollView
     Q_PROPERTY( bool columnMovingEnabled READ columnMovingEnabled WRITE setColumnMovingEnabled )
     Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
     Q_PROPERTY( bool sorting READ sorting WRITE setSorting )
+    Q_PROPERTY( SelectionMode selectionMode READ selectionMode WRITE setSelectionMode )
 
     friend class QTableHeader;
     friend class QComboTableItem;
@@ -238,7 +240,7 @@ public:
     QHeader *horizontalHeader() const;
     QHeader *verticalHeader() const;
 
-    enum SelectionMode { Single, Multi, NoSelection  };
+    enum SelectionMode { Single, Multi, SingleRow, MultiRow, NoSelection };
     virtual void setSelectionMode( SelectionMode mode );
     SelectionMode selectionMode() const;
 
@@ -438,6 +440,8 @@ private:
 
     void updateRowWidgets( int row );
     void updateColWidgets( int col );
+    bool isSelected( int row, int col, bool includeCurrent ) const;
+    void setCurrentCell( int row, int col, bool updateSelections );
 
 private:
     QPtrVector<QTableItem> contents;
