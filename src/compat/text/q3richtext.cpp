@@ -2871,9 +2871,12 @@ QString Q3TextDocument::selectedText(int id, bool asRichText) const
     // widely understood \n. Makes copy and pasting code snipplets
     // from within Assistent possible
     QChar* uc = (QChar*) s.unicode();
-    for (int ii = 0; ii < s.length(); ii++)
+    for (int ii = 0; ii < s.length(); ii++) {
         if (uc[(int)ii] == QChar::LineSeparator)
             uc[(int)ii] = QChar('\n');
+        else if ( uc[(int)ii] == QChar::Nbsp )
+            uc[(int)ii] = QChar(' ');
+    }
     return s;
 }
 
