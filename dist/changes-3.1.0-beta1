@@ -475,14 +475,17 @@ QTextStream
 New functions:
 	QTextCodec *codec()
 
-QDateTimeEdit:
+QTimeEdit:
 ------------------
+New properties:
+	Display display
+
 New functions:
-	int display() const
-	void setDisplay( int )
+	uint display() const
+	void setDisplay( uint )
 
 New enum:
-	Display { Hours = 0x01, Minutes = 0x02, Seconds = 0x04, Reserved = 0x08, AMPM = 0x10 }
+	Display { Hours = 0x01, Minutes = 0x02, Seconds = 0x04, AMPM = 0x10 }
 
 QFrame:
 ------------------
