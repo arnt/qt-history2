@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#24 $
 **
 ** Definition of QIconView widget class
 **
@@ -127,7 +127,7 @@ struct QIconViewPrivate
     QIconView::SelectionMode selectionMode;
     QIconViewItem *currentItem, *tmpCurrentItem;
     QRect *rubber;
-    QTimer *scrollTimer;
+    QTimer *scrollTimer, *adjustTimer;
     int rastX, rastY, spacing;
     bool cleared, dropped;
     int dragItems;
@@ -135,7 +135,7 @@ struct QIconViewPrivate
     QPoint oldDragPos;
     QIconView::AlignMode alignMode;
     QIconView::ResizeMode resizeMode;
-    int mostOuter;
+    QSize oldSize;
 };
 
 /*****************************************************************************
@@ -1084,9 +1084,12 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->numSelectedItems = 0;
     d->alignMode = East;
     d->resizeMode = Fixed;
-    d->mostOuter = 0;
     d->dropped = FALSE;
-
+    d->adjustTimer = new QTimer( this );
+    
+    connect ( d->adjustTimer, SIGNAL( timeout() ),
+	      this, SLOT( adjustItems() ) );
+    
     setAcceptDrops( TRUE );
     viewport()->setAcceptDrops( TRUE );
 
@@ -1111,6 +1114,7 @@ QIconView::~QIconView()
 	item = tmp;
     }
 
+    delete d->adjustTimer;
     delete d;
 }
 
@@ -1874,10 +1878,6 @@ void QIconView::contentsDropEvent( QDropEvent *e )
 		if ( item->isSelected() && item != d->currentItem ) {
 		    QRect pr = item->rect();
 		    item->moveBy( dx, dy );
-		    if ( d->alignMode == East )
-			d->mostOuter = QMAX( d->mostOuter, dx + item->width() );
-		    else
-			d->mostOuter = QMAX( d->mostOuter, dy + item->height() );
 		    repaintItem( item );
 		    repaintContents( pr.x(), pr.y(), pr.width(), pr.height() );
 		    w = QMAX( w, item->x() + item->width() + 1 );
@@ -1911,19 +1911,24 @@ void QIconView::contentsDropEvent( QDropEvent *e )
 
 void QIconView::resizeEvent( QResizeEvent* e )
 {
+    if ( d->resizeMode == Adjust )
+	d->oldSize = viewport()->size();
     QScrollView::resizeEvent( e );
     if ( d->resizeMode == Adjust ) {
-	if ( d->alignMode == East && d->mostOuter > e->size().width() ||
-	     d->alignMode == South && d->mostOuter > e->size().height() ) {
-	    d->mostOuter = 0;
-	    orderItemsInGrid();
-	    viewport()->repaint( FALSE );
-	} else if ( e->size().width() > e->oldSize().width() && d->mostOuter + 50 < e->size().width() ) {
-	    d->mostOuter = 0;
-	    orderItemsInGrid();
-	    viewport()->repaint( FALSE );
-	}
+	if ( d->adjustTimer->isActive() ) 
+	    d->adjustTimer->stop();
+	d->adjustTimer->start( 400, TRUE );
     }
+}
+
+void QIconView::adjustItems()
+{
+    d->adjustTimer->stop();
+    if ( d->resizeMode == Adjust ) {
+	if ( size() != d->oldSize ) 
+	    orderItemsInGrid();
+	    viewport()->repaint( FALSE );
+    } 
 }
 
 /*!
@@ -2367,7 +2372,6 @@ void QIconView::insertInGrid( QIconViewItem *item )
 		ypos = ( fact + 1 ) * d->rastY;
 	    ypos += ( d->rastY - item->height() ) / 2;
 	}
-	d->mostOuter = QMAX( d->mostOuter, xpos + item->width() );
     } else {
 	int px = d->spacing;
 	int py = 0;
@@ -2427,7 +2431,6 @@ void QIconView::insertInGrid( QIconViewItem *item )
 		xpos = ( fact + 1 ) * d->rastX;
 	    xpos += ( d->rastX - item->width() ) / 2;
 	}
-	d->mostOuter = QMAX( d->mostOuter, ypos + item->height() );
     }
 
     item->move( xpos, ypos );
