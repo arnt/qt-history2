@@ -3,7 +3,7 @@ CONFIG		+= qt staticlib warn_on release
 win32:SOURCES	= kernel/qtmain_win.cpp
 DEFINES		+= QT_DLL
 TARGET		= qtmain
-VERSION		= 3.0
+VERSION		= 3.0.0
 DESTDIR		= ../lib
 
 win32:TMAKE_CFLAGS     += -DUNICODE
