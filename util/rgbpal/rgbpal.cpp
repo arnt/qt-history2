@@ -8,7 +8,7 @@
 **
 ** Created : 920604
 **
-** Copyright (C) 1997 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1997 by Trolltech AS.	 All rights reserved.
 **
 *****************************************************************************/
 

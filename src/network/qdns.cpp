@@ -5,25 +5,35 @@
 **
 ** Created : 991122
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the network
-** module and therefore may only be used if the network module is specified
-** as Licensed on the Licensee's License Certificate.
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition licenses may use this
+** file in accordance with the Qt Commercial License Agreement provided
+** with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qdns.h"
 
@@ -1730,14 +1740,14 @@ bool QDns::isWorking() const
     if ( t == None )
 	return FALSE;
 
-    QList<QDnsRR> * l = QDnsDomain::cached( this );
+    QList<QDnsRR> * ll = QDnsDomain::cached( this );
     int queries = n.count();
-    while( l->current() != 0 ) {
-	if ( l->current()->nxdomain )
+    while( ll->current() != 0 ) {
+	if ( ll->current()->nxdomain )
 	    queries--;
 	else
 	    return FALSE;
-	l->next();
+	ll->next();
     }
 
     if ( queries <= 0 )
@@ -1867,8 +1877,8 @@ QStringList QDns::hostNames() const
     QDnsRR * rr;
     while( (rr=cached->current()) != 0 ) {
 	if ( rr->current && !rr->nxdomain ) {
-	    QString t( rr->target );
-	    result.append( t );
+	    QString str( rr->target );
+	    result.append( str );
 	}
 	cached->next();
     }
@@ -1894,8 +1904,8 @@ QStringList QDns::texts() const
     QDnsRR * rr;
     while( (rr=cached->current()) != 0 ) {
 	if ( rr->current && !rr->nxdomain ) {
-	    QString t( rr->text );
-	    result.append( t );
+	    QString str( rr->text );
+	    result.append( str );
 	}
 	cached->next();
     }
@@ -2119,7 +2129,7 @@ static void doResInit()
     if ( QApplication::winVersion() == Qt::WV_98 ||
 	 QApplication::winVersion() == Qt::WV_2000 ) {
 	// for 98 and 2000 try the API call GetNetworkParams()
-	HINSTANCE hinstLib = LoadLibrary( LPCTSTR("iphlpapi") );
+	HINSTANCE hinstLib = LoadLibraryA( "iphlpapi" );
 	if ( hinstLib != 0 ) {
 	    GNP getNetworkParams = (GNP) GetProcAddress( hinstLib, "GetNetworkParams" );
 	    if ( getNetworkParams != 0 ) {

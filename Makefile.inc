@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/Makefile.inc#19 $
+# $Id: //depot/qt/main/Makefile.inc#20 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -46,7 +46,7 @@ $(PROJECT).pro:
 dsp: $(PROJECT).dsp
 
 $(PROJECT).dsp: FORCE
-	tmake $(PROJECT).pro "CONFIG+=debug" -t $(VCTEMPLATE) -o $(PROJECT).dsp
+	tmake "CONFIG+=internal" $(PROJECT).pro "CONFIG+=debug" -t $(VCTEMPLATE) -o $(PROJECT).dsp
 
 
 debug: $(MFILE).debug $(MORETARGETS) $(MORETARGETS_DEBUG)
@@ -68,11 +68,11 @@ $(MFILE).debug: $(PROJECT).pro Makefile
 	syncqt
 !ENDIF
 !IF "$(PROJECT)" == "qt"
-	tmake "TMAKEPATH=$(TPATH)" $(PROJECT).pro -o $(MFILE).debug \
+	tmake "CONFIG+=internal" "TMAKEPATH=$(TPATH)" $(PROJECT).pro -o $(MFILE).debug \
 		"CONFIG+=debug" "DEFINES+=QT_MAKEDLL" \
 		"OBJECTS_DIR=$(ODIR)\debug"
 !ELSE
-	tmake "TMAKEPATH=$(TPATH)" $(PROJECT).pro -o $(MFILE).debug \
+	tmake "CONFIG+=internal" "TMAKEPATH=$(TPATH)" $(PROJECT).pro -o $(MFILE).debug \
 		"CONFIG+=debug qt_dll $(CONSOLE)" \
 		"OBJECTS_DIR=$(ODIR)\debug"
 !ENDIF
@@ -83,12 +83,12 @@ $(MFILE).release: $(PROJECT).pro Makefile
 	syncqt
 !ENDIF
 !IF "$(PROJECT)" == "qt"
-	tmake "TMAKEPATH=$(TPATH)" $(PROJECT).pro -o $(MFILE).release \
+	tmake "CONFIG+=internal" "TMAKEPATH=$(TPATH)" $(PROJECT).pro -o $(MFILE).release \
 		"CONFIG+=release" "DEFINES+=QT_MAKEDLL" \
 		"OBJECTS_DIR=$(ODIR)\release" \
 		"TMAKE_LFLAGS_RELEASE=/INCREMENTAL:YES"
 !ELSE
-	tmake "TMAKEPATH=$(TPATH)" $(PROJECT).pro -o $(MFILE).release \
+	tmake "CONFIG+=internal" "TMAKEPATH=$(TPATH)" $(PROJECT).pro -o $(MFILE).release \
 		"CONFIG+=qt_dll release" \
 		"OBJECTS_DIR=$(ODIR)\release" \
 		"TMAKE_LFLAGS_RELEASE=/INCREMENTAL:YES"
@@ -100,7 +100,7 @@ $(MFILE).static-debug: $(PROJECT).pro Makefile
 !IF $(LIBTARGET) == 1
 	syncqt
 !ENDIF
-	tmake "TMAKEPATH=$(TPATH)" $(PROJECT).pro -o $(MFILE).static-debug \
+	tmake "CONFIG+=internal" "TMAKEPATH=$(TPATH)" $(PROJECT).pro -o $(MFILE).static-debug \
 		"CONFIG+=qt_dll debug console" "DEFINES+=QT_NODLL" \
 		"OBJECTS_DIR=$(ODIR)\static_debug"
 
@@ -109,7 +109,7 @@ $(MFILE).static-release: $(PROJECT).pro Makefile
 !IF $(LIBTARGET) == 1
 	syncqt
 !ENDIF
-	tmake "TMAKEPATH=$(TPATH)" $(PROJECT).pro -o $(MFILE).static-release \
+	tmake "CONFIG+=internal" "TMAKEPATH=$(TPATH)" $(PROJECT).pro -o $(MFILE).static-release \
 		"CONFIG+=qt_dll release" "DEFINES+=QT_NODLL" \
 		"OBJECTS_DIR=$(ODIR)\static_release"
 
@@ -127,7 +127,7 @@ x11-release: NMakefile.x11-release $(MORETARGETS) $(MORETARGETS_RELEASE)
 !IF "$(PROJECT)" == "qt"
 NMakefile.x11-debug: qtx11.pro $(PROJECT).pro Makefile
 	syncqt
-	tmake qtx11.pro -o NMakefile.x11-debug \
+	tmake "CONFIG+=internal" qtx11.pro -o NMakefile.x11-debug \
 	    "CONFIG=qt debug console" \
 	    "DEFINES+=QT_NODLL WIN32 _WIN32_X11_" \
 	    "OBJECTS_DIR=obj\x11-debug" \
@@ -135,7 +135,7 @@ NMakefile.x11-debug: qtx11.pro $(PROJECT).pro Makefile
 
 !ELSE
 NMakefile.x11-debug: $(PROJECT).pro Makefile
-	tmake $(PROJECT).pro -o NMakefile.x11-debug \
+	tmake "CONFIG+=internal" $(PROJECT).pro -o NMakefile.x11-debug \
 	    "CONFIG=qt debug console" \
 	    "DEFINES+=QT_NODLL WIN32 _WIN32_X11_" \
 	    "OBJECTS_DIR=obj\x11-debug" \
@@ -147,7 +147,7 @@ NMakefile.x11-debug: $(PROJECT).pro Makefile
 !IF "$(PROJECT)" == "qt"
 NMakefile.x11-release: qtx11.pro $(PROJECT).pro Makefile
 	syncqt
-	tmake qtx11.pro -o NMakefile.x11-release \
+	tmake "CONFIG+=internal" qtx11.pro -o NMakefile.x11-release \
 	    "CONFIG=qt release" \
 	    "DEFINES+=QT_NODLL WIN32 _WIN32_X11_" \
 	    "OBJECTS_DIR=obj\x11-release" \
@@ -155,7 +155,7 @@ NMakefile.x11-release: qtx11.pro $(PROJECT).pro Makefile
 
 !ELSE
 NMakefile.x11-release: $(PROJECT).pro Makefile
-	tmake $(PROJECT).pro -o NMakefile.x11-release \
+	tmake "CONFIG+=internal" $(PROJECT).pro -o NMakefile.x11-release \
 	    "CONFIG=qt release" \
 	    "DEFINES+=QT_NODLL WIN32 _WIN32_X11_" \
 	    "OBJECTS_DIR=obj\x11-release" \
@@ -170,21 +170,21 @@ qtx11.pro: qt.pro qtinternal.pro
 	@echo # Generated project file for building Qt/X11 on Windows > qtx11.pro
 	@echo TEMPLATE = lib >> qtx11.pro
 	@echo MOC_DIR = tmp >> qtx11.pro
-	@tmake -unix qt.pro qtinternal.pro -e "print 'HEADERS = '; Expand('HEADERS')" >> qtx11.pro
-	@tmake -unix qt.pro qtinternal.pro -e "print 'SOURCES = '; Expand('SOURCES')" >> qtx11.pro
+	@tmake "CONFIG+=internal" -unix qt.pro qtinternal.pro -e "print 'HEADERS = '; Expand('HEADERS')" >> qtx11.pro
+	@tmake "CONFIG+=internal" -unix qt.pro qtinternal.pro -e "print 'SOURCES = '; Expand('SOURCES')" >> qtx11.pro
 	@echo TARGET = qtx11 >> qtx11.pro
 	@echo DESTDIR = ../lib >> qtx11.pro
 	@echo DLLDESTDIR = ../bin >> qtx11.pro
 
 
 showfiles:
-	@tmake $(PROJECT).pro -e 'Expand("HEADERS","SOURCES")'
+	@tmake "CONFIG+=internal" $(PROJECT).pro -e 'Expand("HEADERS","SOURCES")'
 
 showheaders:
-	@tmake $(PROJECT).pro -e 'Expand("HEADERS")'
+	@tmake "CONFIG+=internal" $(PROJECT).pro -e 'Expand("HEADERS")'
 
 showsources:
-	@tmake $(PROJECT).pro -e 'Expand("SOURCES")'
+	@tmake "CONFIG+=internal" $(PROJECT).pro -e 'Expand("SOURCES")'
 
 
 include:

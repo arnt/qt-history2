@@ -19,20 +19,7 @@
 #include <qfontdialog.h>
 #include <qstylesheet.h>
 #include <qdragobject.h>
-
-QPixmap *QTextEdit::bufferPixmap( const QSize &s )
-{
-    if ( !buf_pixmap ) {
-	buf_pixmap = new QPixmap( s );
-    } else {
-	if ( buf_pixmap->width() < s.width() ||
-	     buf_pixmap->height() < s.height() ) {
-	    buf_pixmap->resize( QMAX( s.width(), buf_pixmap->width() ),
-				QMAX( s.height(), buf_pixmap->height() ) );
-	}
-    }
-    return buf_pixmap;
-}
+#include <qurl.h>
 
 QTextEdit::QTextEdit( QWidget *parent, const char *name )
     : QScrollView( parent, name, WNorthWestGravity | WRepaintNoErase ),
@@ -52,12 +39,12 @@ void QTextEdit::init()
 {
     firstResize = TRUE;
     buf_pixmap = 0;
-    doubleBuffer = 0;
     drawAll = TRUE;
     mousePressed = FALSE;
     inDoubleClick = FALSE;
     readOnly = FALSE;
     modified = FALSE;
+    onLink = QString::null;
 
     doc->setFormatter( new QTextFormatterBreakWords( doc ) );
     currentFormat = doc->formatCollection()->defaultFormat();
@@ -122,100 +109,39 @@ void QTextEdit::init()
 
     connect( this, SIGNAL( textChanged() ),
 	     this, SLOT( setModified() ) );
+
+#if 0 // ### background paper test code
+    QBrush *b = new QBrush( red, QPixmap( "/home/reggie/kde2/share/wallpapers/All-Good-People-1.jpg" ) );
+    doc->setPaper( b );
+    QPalette pal( palette() );
+    pal.setBrush( QColorGroup::Base, *b );
+    setPalette( pal );
+#endif
 }
 
 void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 {
     bool drawCur = hasFocus() || viewport()->hasFocus();
-    if ( !doc->firstParag() )
-	return;
-
-    QTextParag *parag = doc->firstParag();
-    QSize s( doc->firstParag()->rect().size() );
+    if ( isReadOnly() || !cursorVisible )
+	drawCur = FALSE;
+    QColorGroup g = colorGroup();
+    if ( doc->paper() )
+	g.setBrush( QColorGroup::Base, *doc->paper() );
 
     if ( contentsY() == 0 ) {
 	p->fillRect( contentsX(), contentsY(), visibleWidth(), doc->y(),
-		     colorGroup().color( QColorGroup::Base ) );
+		     g.brush( QColorGroup::Base ) );
     }
 
-    if ( !doubleBuffer ) {
-	doubleBuffer = bufferPixmap( s );
-	if ( painter.isActive() )
-	    painter.end();
-	painter.begin( doubleBuffer );
-    }
+    p->setBrushOrigin( -contentsX(), -contentsY() );
 
-    if ( !painter.isActive() )
-	painter.begin( doubleBuffer );
+    lastFormatted = doc->draw( p, cx, cy, cw, ch, g, !drawAll, drawCur, cursor );
 
-    while ( parag ) {
-	lastFormatted = parag;
-	if ( !parag->isValid() )
-	    parag->format();
-	
-	if ( !parag->rect().intersects( QRect( cx, cy, cw, ch ) ) ) {
-	    if ( parag->rect().y() > cy + ch ) {
-		cursorVisible = TRUE;
-		return;
-	    }
-	    parag = parag->next();
-	    continue;
-	}
-	
-	if ( !parag->hasChanged() && !drawAll ) {
-	    parag = parag->next();
-	    continue;
-	}
-	
-	parag->setChanged( FALSE );
-	QRect ir( parag->rect() );
-	ir = ir.intersect( QRect( cx, cy, cw, ch ) );
-	if ( ir.width() > doubleBuffer->width() ||
-	     ir.height() > doubleBuffer->height() ) {
-	    if ( painter.isActive() )
-		painter.end();
-	    doubleBuffer = bufferPixmap( ir.size() );
-	    painter.begin( doubleBuffer );
-	}
-	painter.fillRect( QRect( 0, 0, ir.width(), ir.height() ),
-			  colorGroup().color( QColorGroup::Base ) );
-	
-	painter.translate( -( ir.x() - parag->rect().x() ),
-			   -( ir.y() - parag->rect().y() ) );
-	parag->paint( painter, colorGroup(), drawCur ? cursor : 0, TRUE, cx, cy, cw, ch );
-	if ( !doc->flow()->isEmpty() ) {
-	    painter.saveWorldMatrix();
-	    painter.translate( 0, -parag->rect().y() );
-	    QRect cr( cx, cy, cw, ch );
-	    cr = cr.intersect( QRect( 0, parag->rect().y(), parag->rect().width(), parag->rect().height() ) );
-	    doc->flow()->drawFloatingItems( &painter, cr.x(), cr.y(), cr.width(), cr.height(), colorGroup() );
-	    painter.restoreWorldMatrix();
-	}
-	
-	p->drawPixmap( ir.topLeft(), *doubleBuffer, QRect( QPoint( 0, 0 ), ir.size() ) );
-	if ( parag->rect().x() + parag->rect().width() < contentsX() + contentsWidth() )
-	    p->fillRect( parag->rect().x() + parag->rect().width(), parag->rect().y(),
-			 ( contentsX() + contentsWidth() ) - ( parag->rect().x() + parag->rect().width() ),
-			 parag->rect().height(), colorGroup().brush( QColorGroup::Base ) );
-	painter.translate( ( ir.x() - parag->rect().x() ),
-			   ( ir.y() - parag->rect().y() ) );
-	parag = parag->next();
-    }
+    if ( lastFormatted == doc->lastParag() )
+	resizeContents( contentsWidth(), doc->height() );
 
-    parag = doc->lastParag();
-    if ( parag->rect().y() + parag->rect().height() - contentsY() < visibleHeight() ) {
-	p->fillRect( 0, parag->rect().y() + parag->rect().height(), contentsWidth(),
-		     visibleHeight() - ( parag->rect().y() + parag->rect().height() ),
-		     colorGroup().brush( QColorGroup::Base ) );
-	if ( !doc->flow()->isEmpty() ) {
-	    QRect cr( cx, cy, cw, ch );
-	    cr = cr.intersect( QRect( 0, parag->rect().y() + parag->rect().height(), contentsWidth(),
-				      visibleHeight() - ( parag->rect().y() + parag->rect().height() ) ) );
-	    doc->flow()->drawFloatingItems( p, cr.x(), cr.y(), cr.width(), cr.height(), colorGroup() );
-	}
-    }
-
-    cursorVisible = TRUE;
+    if ( contentsHeight() < visibleHeight() )
+	p->fillRect( 0, contentsHeight(), visibleWidth(), visibleHeight() - contentsHeight(), g.brush( QColorGroup::Base ) );
 }
 
 void QTextEdit::keyPressEvent( QKeyEvent *e )
@@ -474,6 +400,7 @@ void QTextEdit::moveCursor( int direction, bool shift, bool control )
 	}
     }
 
+    drawCursor( TRUE );
     updateCurrentFormat();
 }
 
@@ -563,89 +490,25 @@ void QTextEdit::ensureCursorVisible()
 void QTextEdit::drawCursor( bool visible )
 {
     if ( !cursor->parag()->isValid() ||
-	 ( !hasFocus() && !viewport()->hasFocus() ) )
+	 ( !hasFocus() && !viewport()->hasFocus() ) ||
+	 isReadOnly() )
 	return;
 
+    QPainter p( viewport() );
+    QRect r( cursor->topParag()->rect() );
+    cursor->parag()->setChanged( TRUE );
+    p.translate( -contentsX() + cursor->totalOffsetX(), -contentsY() + cursor->totalOffsetY() );
+    QPixmap *pix = 0;
+    QColorGroup cg( colorGroup() );
+    if ( cursor->parag()->background() )
+	cg.setBrush( QColorGroup::Base, *cursor->parag()->background() );
+    else if ( doc->paper() )
+	cg.setBrush( QColorGroup::Base, *doc->paper() );
+    p.setBrushOrigin( -contentsX(), -contentsY() );
+    doc->drawParag( &p, cursor->parag(), r.x() - cursor->totalOffsetX(),
+		    r.y() - cursor->totalOffsetX(), r.width(), r.height(),
+		    pix, cg, visible, cursor );
     cursorVisible = visible;
-
-    QPainter p;
-    p.begin( viewport() );
-    p.translate( -contentsX(), -contentsY() );
-    p.translate( cursor->offsetX(), cursor->offsetY() );
-
-    cursor->parag()->format();
-    QSize s( cursor->parag()->rect().size() );
-
-    if ( !doubleBuffer ) {
-	doubleBuffer = bufferPixmap( s );
-	if ( painter.isActive() )
-	    painter.end();
-	painter.begin( doubleBuffer );
-    }
-
-    if ( !painter.isActive() )
-	painter.begin( doubleBuffer );
-
-    QTextString::Char *chr = cursor->parag()->at( cursor->index() );
-
-    painter.setPen( QPen( chr->format()->color() ) );
-    painter.setFont( chr->format()->font() );
-    int h = 0; int y = 0;
-    int bl = 0;
-    int cw = chr->width();
-    h = cursor->parag()->lineHeightOfChar( cursor->index(), &bl, &y );
-
-    bool fill = TRUE;
-    for ( int i = 0; i < doc->numSelections; ++i ) {
-	if ( cursor->parag()->hasSelection( i ) ) {
-	    int start = cursor->parag()->selectionStart( i );
-	    int end = cursor->parag()->selectionEnd( i );
-	    if ( end == cursor->parag()->length() - 1 && cursor->parag()->next() &&
-		 cursor->parag()->next()->hasSelection( i ) )
-		end++;
-	    if ( start <= cursor->index() && end > cursor->index() ) {
-		if ( doc->invertSelectionText( i ) )
-		    painter.setPen( QPen( colorGroup().color( QColorGroup::HighlightedText ) ) );
-		painter.fillRect( chr->x, y, cw, h, doc->selectionColor( i ) );
-		fill = FALSE;
-	    }
-	}
-    }
-	
-    if ( fill ) {
-	if ( cursor->parag()->tableCell() && cursor->parag()->tableCell()->backGround() )
-	    painter.fillRect( chr->x, y, cw, h,
-			      *cursor->parag()->tableCell()->backGround() );
-	else
-	    painter.fillRect( chr->x, y, cw, h,
-			      colorGroup().color( QColorGroup::Base ) );
-    }
-
-    if ( chr->c != '\t' ) {
-	QRegion reg;
-	if ( !chr->isCustom ) {
-	    painter.drawText( chr->x, y + bl, chr->c );
-	    if ( chr->format()->isMisspelled() ) {
-		painter.save();
-		painter.setPen( QPen( Qt::red, 1, Qt::DotLine ) );
-		painter.drawLine( chr->x, y + bl + 1, chr->x + chr->format()->width( chr->c ), y + bl + 1 );
-		painter.restore();
-	    }
-	} else {
-	    if ( chr->customItem()->placement() == QTextCustomItem::PlaceInline )
-		chr->customItem()->draw( &painter, chr->x, y, -1, -1, -1, -1, colorGroup() );
-	}
-    }
-
-    if ( visible ) {
-	int x = chr->x;
-	int w = 1;
-	painter.fillRect( QRect( x, y, w, h ), black );
-    }
-	
-    p.drawPixmap( cursor->parag()->rect().topLeft() + QPoint( chr->x, y ), *doubleBuffer,
-		  QRect( chr->x, y, cw, h ) );
-    p.end();
 }
 
 void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
@@ -713,6 +576,19 @@ void QTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
 	doAutoScroll();
 	oldMousePos = mousePos;
     }
+
+    if ( isReadOnly() ) {
+	QTextCursor c = *cursor;
+	placeCursor( e->pos(), &c );
+	if ( c.parag() && c.parag()->at( c.index() ) &&
+	     c.parag()->at( c.index() )->format()->isAnchor() ) {
+	    viewport()->setCursor( pointingHandCursor );
+	    onLink = c.parag()->at( c.index() )->format()->anchorHref();
+	} else {
+	    viewport()->setCursor( arrowCursor );
+	    onLink = QString::null;
+	}
+    }
 }
 
 void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * )
@@ -735,6 +611,12 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * )
     }
     updateCurrentFormat();
     inDoubleClick = FALSE;
+
+    if ( onLink ) {
+	QUrl u( doc->context(), onLink, TRUE );
+	emit highlighted( u.toString() );
+    }
+    drawCursor( TRUE );
 }
 
 void QTextEdit::contentsMouseDoubleClickEvent( QMouseEvent * )
@@ -900,7 +782,7 @@ void QTextEdit::placeCursor( const QPoint &pos, QTextCursor *c )
 	    break;
     }
 
-    cursor->setIndex( last );
+    c->setIndex( last );
 }
 
 void QTextEdit::formatMore()
@@ -1357,9 +1239,9 @@ QString QTextEdit::text( int parag, bool formatted ) const
     return doc->text( parag, formatted );
 }
 
-void QTextEdit::setText( const QString &txt, bool tabify )
+void QTextEdit::setText( const QString &txt, const QString &context, bool tabify )
 {
-    doc->setText( txt, tabify );
+    doc->setText( txt, context, tabify );
     cursor->setParag( doc->firstParag() );
     cursor->setIndex( 0 );
     viewport()->repaint( FALSE );
@@ -1391,7 +1273,7 @@ bool QTextEdit::find( const QString &expr, bool cs, bool wo, bool forward,
 		      int *parag, int *index )
 {
     drawCursor( FALSE );
-    doc->removeSelection( QTextDocument::Search );
+    doc->removeSelection( QTextDocument::Standard );
     bool found = doc->find( expr, cs, wo, forward, parag, index, cursor );
     ensureCursorVisible();
     drawCursor( TRUE );
@@ -1529,6 +1411,10 @@ void QTextEdit::setReadOnly( bool ro )
     if ( ro == readOnly )
 	return;
     readOnly = ro;
+    if ( readOnly )
+	viewport()->setCursor( arrowCursor );
+    else
+	viewport()->setCursor( ibeamCursor );
 }
 
 void QTextEdit::setModified( bool m )
@@ -1647,3 +1533,7 @@ void QTextEdit::resetFormat()
     setFormat( doc->formatCollection()->defaultFormat(), QTextFormat::Format );
 }
 
+bool QTextEdit::isReadOnly() const
+{
+    return readOnly;
+}

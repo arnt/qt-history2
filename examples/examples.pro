@@ -11,6 +11,7 @@ internal:MODULES	+= $$MODULES_ENT
 
 TEMPLATE    =	subdirs
 SUBDIRS     =	aclock \
+		action \
 		addressbook \
 		application \
 		buttongroups \
@@ -84,3 +85,8 @@ embedded:SUBDIRS += compact \
 		notepad \
 		kiosk \
 		launcher
+
+embedded:SUBDIRS -= showimg
+
+X11DIRS	    =   biff \
+		desktop

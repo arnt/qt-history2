@@ -5,25 +5,35 @@
 **
 ** Created : 941011
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the widgets
-** module and therefore may only be used if the widgets module is specified
-** as Licensed on the Licensee's License Certificate.
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qlineedit.h"
 #ifndef QT_NO_COMPLEXWIDGETS
@@ -789,7 +799,7 @@ void QLineEdit::resizeEvent( QResizeEvent * )
 */
 bool QLineEdit::event( QEvent * e )
 {
-    if ( e->type() == QEvent::AccelAvailable && !d->readonly ) {
+    if ( e->type() == QEvent::AccelOverride && !d->readonly ) {
 	QKeyEvent* ke = (QKeyEvent*) e;
 	if ( ke->state() & ControlButton ) {
 	    switch ( ke->key() ) {
@@ -801,6 +811,8 @@ bool QLineEdit::event( QEvent * e )
 	    case Key_X:
 	    case Key_V:
 	    case Key_C:
+	    case Key_Left:
+	    case Key_Right:
 	    ke->accept();
 	    default:
 		break;
@@ -1582,7 +1594,7 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 
     // okay, it succeeded
     if ( newMarkDrag != markDrag ||
-	 newMarkAnchor |! markAnchor ||
+	 newMarkAnchor != markAnchor ||
 	 newPos != cursorPos ||
 	 tc ) {
 	int minP = QMIN( cursorPos, minMark() );

@@ -42,21 +42,6 @@ class QStyleSheetItem;
 class QTextCustomItem;
 class QTextFlow;
 
-class QTextOptions
-{
-public:
-    QTextOptions( const QBrush* p = 0, QColor lc = Qt::blue, bool lu = TRUE )
-	:paper( p ), linkColor( lc ), linkUnderline( lu ), offsetx( 0 ), offsety( 0 )
-    {
-    };
-    const QBrush* paper;
-    QColor linkColor;
-    bool linkUnderline;
-    int offsetx;
-    int offsety;
-    void erase( QPainter* p, const QRect& r ) const;
-};
-
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 class QTextCursor
@@ -98,6 +83,10 @@ public:
 
     int offsetX() const { return ox; }
     int offsetY() const { return oy; }
+
+    QTextParag *topParag() const { return parags.isEmpty() ? string : parags.first(); }
+    int totalOffsetX() const;
+    int totalOffsetY() const;
 
 private:
     enum Operation { EnterBegin, EnterEnd, Next, Prev, Up, Down };
@@ -234,7 +223,7 @@ public:
 
     QTextDocument *parent() const { return par; }
 
-    void setText( const QString &text, bool tabify = FALSE );
+    void setText( const QString &text, const QString &context, bool tabify = FALSE );
     void load( const QString &fn, bool tabify = FALSE );
 
     void save( const QString &fn = QString::null, bool untabify = FALSE );
@@ -310,12 +299,30 @@ public:
 
     bool inSelection( int selId, const QPoint &pos ) const;
 
-    const QStyleSheet *sheet() const { return sheet_; }
+    const QStyleSheet *styleSheet() const { return sheet_; }
+    const QMimeSourceFactory *mimeSourceFactory() const { return factory_; }
+    QString context() const { return contxt; }
+
+    void setStyleSheet( const QStyleSheet *s ) { if ( s ) sheet_ = s; }
+    void setMimeSoureFactory( const QMimeSourceFactory *f ) { if ( f ) factory_ = f; }
+    void setContext( const QString &c ) { if ( !c.isEmpty() ) contxt = c; }
+
+    void setLinkColor( const QColor &c ) { linkC = c; }
+    QColor linkColor() const { return linkC; }
+
+    void setUnderlineLinks( bool b ) { underlLinks = b; }
+    bool underlineLinks() const { return underlLinks; }
+
+    void setPaper( const QBrush *brush ) { backBrush = brush; }
+    const QBrush *paper() { return backBrush; }
 
     void doLayout( QPainter *p, int w );
-    void draw( QPainter *p, const QRegion &reg, const QColorGroup &cg );
-
-    QTextOptions textOptions() const { return to; }
+    void draw( QPainter *p, const QRegion &reg, const QColorGroup &cg, const QBrush *paper = 0 );
+    void drawParag( QPainter *p, QTextParag *parag, int cx, int cy, int cw, int ch,
+		    QPixmap *&doubleBuffer, const QColorGroup &cg,
+		    bool drawCursor, QTextCursor *cursor );
+    QTextParag *draw( QPainter *p, int cx, int cy, int cw, int ch, const QColorGroup &cg,
+		      bool onlyChanged = FALSE, bool drawCursor = FALSE, QTextCursor *cursor = 0 );
     void setDefaultFont( const QFont &f );
 
     void registerCustomItem( QTextCustomItem *i, QTextParag *p );
@@ -331,11 +338,12 @@ public:
     QTextTableCell *tableCell() const { return tc; }
     void setTableCell( QTextTableCell *c ) { tc = c; }
 
-private:
     void setPlainText( const QString &text, bool tabify = FALSE );
-    void setRichText( const QString &text );
+    void setRichText( const QString &text, const QString &context );
     QString richText( QTextParag *p = 0, bool formatted = FALSE ) const;
     QString plainText( QTextParag *p = 0, bool formatted = FALSE, bool untabify = FALSE ) const;
+
+private:
     void clear();
 
 private:
@@ -359,12 +367,16 @@ private:
     Qt::TextFormat txtFormat;
     bool preferRichText;
     QTextFlow *flow_;
-    QTextOptions to;
     QList<QTextCustomItem> customItems;
     bool pages;
     QTextDocument *par;
     bool useFC;
     QTextTableCell *tc;
+    bool withoutDoubleBuffer;
+    QTextCursor *tmpCursor;
+    bool underlLinks;
+    QColor linkC;
+    const QBrush *backBrush;
 
     // HTML parser
     bool hasPrefix(const QString& doc, int pos, QChar c);
@@ -571,6 +583,12 @@ public:
     QTextTableCell *tableCell() const { return tc; }
     void setTableCell( QTextTableCell *c ) { tc = c; }
 
+    void addCustomItem();
+    void removeCustomItem();
+    int customItems() const;
+
+    QBrush *background() const;
+
 private:
     void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
     void drawParagBuffer( QPainter &painter, const QString &buffer, int startX,
@@ -605,6 +623,7 @@ private:
     QList<QTextCustomItem> floatingItems;
     bool fullWidth;
     QTextTableCell *tc;
+    int numCustomItems;
 
 };
 
@@ -717,12 +736,12 @@ public:
     void setFont( const QFont &f );
     void setColor( const QColor &c );
     void setMisspelled( bool b );
-    
+
     bool operator==( const QTextFormat &f ) const;
     QTextFormatCollection *parent() const;
     QString key() const;
 
-    static QString getKey( const QFont &f, const QColor &c, bool misspelled );
+    static QString getKey( const QFont &f, const QColor &c, bool misspelled, const QString &lhref, const QString &lnm );
 
     void addRef();
     void removeRef();
@@ -878,6 +897,8 @@ public:
 		    const QStyleSheetItem* style,
 		    const QTextFormat& fmt, const QString& context,
 		    const QMimeSourceFactory &factory, const QStyleSheet *sheet, const QString& doc );
+    QTextTableCell( QTextTable* table, int row, int column );
+
     ~QTextTableCell();
     QSize sizeHint() const ;
     QSize minimumSize() const ;
@@ -1067,7 +1088,7 @@ inline int QTextDocument::width() const
 inline int QTextDocument::height() const
 {
     if ( lParag )
-	return lParag->rect().top() + lParag->rect().height() + 1;
+	return QMAX( flow_->height, lParag->rect().top() + lParag->rect().height() + 1 );
     return 0;
 }
 
@@ -1250,6 +1271,8 @@ inline QTextFormat::QTextFormat( const QTextFormat &f )
     logicalFontSize = f.logicalFontSize;
     missp = f.missp;
     k = f.k;
+    anchor_name = f.anchor_name;
+    anchor_href = f.anchor_href;
     addRef();
 }
 
@@ -1269,6 +1292,8 @@ inline QTextFormat& QTextFormat::operator=( const QTextFormat &f )
     logicalFontSize = f.logicalFontSize;
     missp = f.missp;
     k = f.k;
+    anchor_name = f.anchor_name;
+    anchor_href = f.anchor_href;
     addRef();
     return *this;
 }
@@ -1401,10 +1426,12 @@ inline void QTextFormat::generateKey()
        << (int)fn.italic()
        << col.pixel()
        << fn.family()
-       << (int)isMisspelled();
+       << (int)isMisspelled()
+       << anchor_href
+       << anchor_name;
 }
 
-inline QString QTextFormat::getKey( const QFont &fn, const QColor &col, bool misspelled )
+inline QString QTextFormat::getKey( const QFont &fn, const QColor &col, bool misspelled, const QString &lhref, const QString &lnm )
 {
     QString k;
     QTextOStream ts( &k );
@@ -1414,7 +1441,9 @@ inline QString QTextFormat::getKey( const QFont &fn, const QColor &col, bool mis
        << (int)fn.italic()
        << col.pixel()
        << fn.family()
-       << (int)misspelled;
+       << (int)misspelled
+       << lhref
+       << lnm;
     return k;
 }
 
@@ -1430,7 +1459,7 @@ inline QString QTextFormat::anchorName() const
 
 inline bool QTextFormat::isAnchor() const
 {
-    return !anchor_href.isEmpty()  || !anchor_href.isEmpty();
+    return !anchor_href.isEmpty()  || !anchor_name.isEmpty();
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1878,6 +1907,27 @@ inline void QTextParag::unregisterFloatingItem( QTextCustomItem *i )
     floatingItems.removeRef( i );
 }
 
+inline void QTextParag::addCustomItem()
+{
+    numCustomItems++;
+}
+
+inline void QTextParag::removeCustomItem()
+{
+    numCustomItems--;
+}
+
+inline int QTextParag::customItems() const
+{
+    return numCustomItems;
+}
+
+inline QBrush *QTextParag::background() const
+{
+    return tc ? tc->backGround() : 0;
+};
+
+
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 inline void QTextFormatCollection::setDefaultFormat( QTextFormat *f )
@@ -1889,8 +1939,6 @@ inline QTextFormat *QTextFormatCollection::defaultFormat() const
 {
     return defFormat;
 }
-
-#endif
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -1958,3 +2006,5 @@ inline int QTextString::Char::descent() const
 {
     return !isCustom ? format()->descent() : 0;
 }
+
+#endif

@@ -13,17 +13,27 @@
 ** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the tools
-** module and therefore may only be used if the tools module is specified
-** as Licensed on the Licensee's License Certificate.
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qglobal.h"
 #include "qasciidict.h"
@@ -158,7 +168,7 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
   Under X11, the text is printed to stderr.  Under Windows, the text is
   sent to the debugger.
 
-  \warning The internal buffer is limited to 512 bytes (including the
+  \warning The internal buffer is limited to 8196 bytes (including the
   0-terminator).
 
   \sa qWarning(), qFatal(), qInstallMsgHandler(),
@@ -187,7 +197,7 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
   Under X11, the text is printed to stderr.  Under Windows, the text is
   sent to the debugger.
 
-  \warning The internal buffer is limited to 512 bytes (including the
+  \warning The internal buffer is limited to 8196 bytes (including the
   0-terminator).
 
   \sa qDebug(), qFatal(), qInstallMsgHandler(),
@@ -217,7 +227,7 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
   Under X11, the text is printed to stderr.  Under Windows, the text is
   sent to the debugger.
 
-  \warning The internal buffer is limited to 512 bytes (including the
+  \warning The internal buffer is limited to 8196 bytes (including the
   0-terminator).
 
   \sa qDebug(), qWarning(), qInstallMsgHandler(),
@@ -236,7 +246,7 @@ void qDebug( const char *msg, ... )
 {
     mac_debug=fopen( "debug.txt", "a+" );
     if(mac_debug) {
-	char buf[512];
+	char buf[8196];
 	va_list ap;
 	va_start( ap, msg );			// use variable arg list
 	if ( handler ) {
@@ -260,7 +270,7 @@ void debug( const char *msg, ... )
 {
     mac_debug=fopen( "debug.txt", "a+" );
     if(mac_debug) {
-	char buf[512];
+	char buf[8196];
 	va_list ap;
 	va_start( ap, msg );			// use variable arg list
 	if ( handler ) {
@@ -281,7 +291,7 @@ void qWarning( const char *msg, ... )
 {
     mac_debug=fopen( "debug.txt", "a+" );
     if(mac_debug) {
-	char buf[512];
+	char buf[8196];
 	va_list ap;
 	va_start( ap, msg );			// use variable arg list
 	if ( handler ) {
@@ -303,7 +313,7 @@ void warning( const char *msg, ... )
 {
     mac_debug=fopen( "debug.txt", "a+" );
     if(mac_debug) {
-	char buf[512];
+	char buf[8196];
 	va_list ap;
 	va_start( ap, msg );			// use variable arg list
 	if ( handler ) {
@@ -324,7 +334,7 @@ void qFatal( const char *msg, ... )
 {
     mac_debug=fopen( "debug.txt", "a+");
     if(mac_debug) {
-	char buf[512];
+	char buf[8196];
 	va_list ap;
 	va_start( ap, msg );			// use variable arg list
 	if ( handler ) {
@@ -347,7 +357,7 @@ void fatal( const char *msg, ... )
 {
     mac_debug=fopen( "debug.txt", "a+" );
     if(mac_debug) {
-	char buf[512];
+	char buf[8196];
 	va_list ap;
 	va_start( ap, msg );			// use variable arg list
 	if ( handler ) {
@@ -369,11 +379,11 @@ void fatal( const char *msg, ... )
 
 void qDebug( const char *msg, ... )
 {
-    char buf[512];
+    char buf[8196];
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
-	vsnprintf( buf, 512, msg, ap );
+	vsprintf( buf, msg, ap );		// ### vsnprintf would be great here
 	va_end( ap );
 	(*handler)( QtDebugMsg, buf );
     } else {
@@ -386,7 +396,7 @@ void qDebug( const char *msg, ... )
 // copied... this looks really bad.
 void debug( const char *msg, ... )
 {
-    char buf[512];
+    char buf[8196];
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
@@ -402,7 +412,7 @@ void debug( const char *msg, ... )
 
 void qWarning( const char *msg, ... )
 {
-    char buf[512];
+    char buf[8196];
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
@@ -420,7 +430,7 @@ void qWarning( const char *msg, ... )
 // again, copied
 void warning( const char *msg, ... )
 {
-    char buf[512];
+    char buf[8196];
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
@@ -436,7 +446,7 @@ void warning( const char *msg, ... )
 
 void qFatal( const char *msg, ... )
 {
-    char buf[512];
+    char buf[8196];
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
@@ -458,7 +468,7 @@ void qFatal( const char *msg, ... )
 // yet again, copied
 void fatal( const char *msg, ... )
 {
-    char buf[512];
+    char buf[8196];
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {

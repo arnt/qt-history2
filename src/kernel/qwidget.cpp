@@ -5,25 +5,35 @@
 **
 ** Created : 931031
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the kernel
-** module and therefore may only be used if the kernel module is specified
-** as Licensed on the Licensee's License Certificate.
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 
 #include "qobjectlist.h"
@@ -635,6 +645,10 @@ paint events only for the newly visible part of itself.
 <li> \c WRepaintNoErase - indicates that the widget paints all its
 pixels.  Updating, scrolling and focus changes should therefore not
 erase the widget.  This allows smart-repainting to avoid flicker.
+
+<li> \c WGroupLeader - makes this widget or window a group
+leader. Modality of secondary windows only affects windows within the
+same group.
 
 </ul>
 
@@ -4975,16 +4989,19 @@ void QWidget::showFullScreen()
 }
 
 /*!
+  \fn bool QWidget::isMaximized() const
+
   Returns TRUE if this widget is a top-level widget that is maximized,
   or else FALSE.
 
+  Note that due to limitations in some window-systems,
+  this does not always report expected results (eg. if the user on X11
+  maximizes the window via the window manager, Qt has no way of telling
+  this from any other resize). This will improve as window manager
+  protocols advance.
+
   \sa showMaximized()
  */
-bool QWidget::isMaximized() const
-{
-    return testWState(WState_Maximized);
-}
-
 
 
 /*!

@@ -4,7 +4,7 @@
 ** This is a utility program for translating Qt applications
 **
 **
-** Copyright (C) 1999 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1999 by Trolltech AS.  All rights reserved.
 **
 *****************************************************************************/
 

@@ -5,24 +5,27 @@
 **
 ** Created : 991025
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
-** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
-** LICENSE.QPL included in the packaging of this file.
-**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the kernel
-** module and therefore may only be used if the kernel module is specified
-** as Licensed on the Licensee's License Certificate.
+** licenses for Qt/Embedded may use this file in accordance with the
+** Qt Embedded Commercial License Agreement provided with the Software.
+**
+** This file is not available for use under any other license without
+** express written permission from the copyright holder.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing.
+**   information about Qt Commercial License Agreements.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qwindowsystem_qws.h"
 #include "qwsevent_qws.h"
@@ -1155,60 +1158,40 @@ void QWSServer::invokeSetAltitude( const QWSChangeAltitudeCommand *cmd,
 #ifndef QT_NO_QWS_PROPERTIES
 void QWSServer::invokeAddProperty( QWSAddPropertyCommand *cmd )
 {
-    qDebug( "QWSServer::invokeAddProperty %d %d", cmd->simpleData.windowid,
-	    cmd->simpleData.property );
-    if ( manager()->addProperty( cmd->simpleData.windowid, cmd->simpleData.property ) )
- 	qDebug( "add property successful" );
-    else
- 	qDebug( "adding property failed" );
+    manager()->addProperty( cmd->simpleData.windowid, cmd->simpleData.property );
 }
 
 void QWSServer::invokeSetProperty( QWSSetPropertyCommand *cmd )
 {
-    qDebug( "QWSServer::invokeSetProperty %d %d %d %s",
-	    cmd->simpleData.windowid, cmd->simpleData.property,
-	    cmd->simpleData.mode, cmd->data );
     if ( manager()->setProperty( cmd->simpleData.windowid,
 				    cmd->simpleData.property,
 				    cmd->simpleData.mode,
 				    cmd->data,
 				    cmd->rawLen ) ) {
-	qDebug( "setting property successful" );
 	sendPropertyNotifyEvent( cmd->simpleData.property,
 				 QWSPropertyNotifyEvent::PropertyNewValue );
-   } else
- 	qDebug( "setting property failed" );
+   } 
 }
 
 void QWSServer::invokeRemoveProperty( QWSRemovePropertyCommand *cmd )
 {
-    qDebug( "QWSServer::invokeRemoveProperty %d %d", cmd->simpleData.windowid,
-	    cmd->simpleData.property );
     if ( manager()->removeProperty( cmd->simpleData.windowid,
 				       cmd->simpleData.property ) ) {
- 	qDebug( "remove property successful" );
 	sendPropertyNotifyEvent( cmd->simpleData.property,
 				 QWSPropertyNotifyEvent::PropertyDeleted );
-    } else
- 	qDebug( "removing property failed" );
+    } 
 }
 
 void QWSServer::invokeGetProperty( QWSGetPropertyCommand *cmd, QWSClient *client )
 {
-    qDebug( "QWSServer::invokeGetProperty %d %d", cmd->simpleData.windowid,
-	    cmd->simpleData.property );
     char *data;
     int len;
     if ( manager()->getProperty( cmd->simpleData.windowid,
 				    cmd->simpleData.property,
 				    data, len ) ) {
- 	qDebug( "get property successful" );
 	client->sendPropertyReplyEvent( cmd->simpleData.property, len, data );
-	delete [] data;
     } else {
- 	qDebug( "get property failed" );
 	client->sendPropertyReplyEvent( cmd->simpleData.property, -1, 0 );
-	delete [] data;
     }
 }
 #endif //QT_NO_QWS_PROPERTIES

@@ -5,24 +5,27 @@
 **
 ** Created : 940721
 **
-** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
-** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
-** LICENSE.QPL included in the packaging of this file.
-**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the kernel
-** module and therefore may only be used if the kernel module is specified
-** as Licensed on the Licensee's License Certificate.
+** licenses for Qt/Embedded may use this file in accordance with the
+** Qt Embedded Commercial License Agreement provided with the Software.
+**
+** This file is not available for use under any other license without
+** express written permission from the copyright holder.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing.
+**   information about Qt Commercial License Agreements.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #ifndef QGFXRASTER_H
 #define QGFXRASTER_H
@@ -79,7 +82,6 @@ public:
     virtual void setBackgroundColor(QColor c) { backcolor=c; }
 
     virtual void setSourceOffset(int,int);
-    virtual void setMasking(bool on,int color=0);
 
     virtual void setAlphaType(AlphaType);
     virtual void setAlphaSource(unsigned char *,int);
@@ -99,8 +101,6 @@ public:
     void restore();
 
     virtual void setRop(RasterOp r) { myrop=r; }
-
-    virtual void paintCursor(const QImage& image, int hotx, int hoty, QPoint cursorPos);
 
     void setClut(QRgb * cols,int numcols) { clut=cols; clutcols=numcols;  }
 
@@ -201,9 +201,9 @@ protected:
     unsigned int * alphabuf;
     int alphalinestep;
     bool ismasking;
-    unsigned int maskcol;
     int amonobitcount;
     unsigned char amonobitval;
+    bool amonolittletest;
     int calpha;       		 // Constant alpha value
     int calpha2,calpha3,calpha4; // Used for groovy accelerated effect
     unsigned char * maskp;

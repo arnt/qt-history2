@@ -1,10 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/box/globjwin.cpp#6 $
+** $Id: //depot/qt/main/examples/box/globjwin.cpp#4 $
 **
-** Implementation of GLObjectWindow widget class
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
-****************************************************************************/
-
+** This file is part of an example program for Qt.  This example
+** program may be used, distributed and modified without limitation.
+**
+*****************************************************************************/
 
 #include <qpushbutton.h>
 #include <qslider.h>

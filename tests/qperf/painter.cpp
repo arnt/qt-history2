@@ -58,7 +58,7 @@ static int painter_drawtext()
 {
     int i;
     QPainter *p = qperf_painter();
-    QString s = "Troll Tech";
+    QString s = "Trolltech";
     for ( i=0; i<10000; i++ ) {
 	p->drawText(qrnd(640),qrnd(480),s);
     }
@@ -70,7 +70,7 @@ static int painter_drawtext_left()
     int i;
     QPainter *p = qperf_painter();
     int x, y;
-    QString s = "Troll Tech";
+    QString s = "Trolltech";
     for ( i=0; i<10000; i++ ) {
 	x = qrnd(600);
 	y = qrnd(480);
@@ -84,7 +84,7 @@ static int painter_drawtext_right()
     int i;
     QPainter *p = qperf_painter();
     int x, y;
-    QString s = "Troll Tech";
+    QString s = "Trolltech";
     for ( i=0; i<10000; i++ ) {
 	x = qrnd(600);
 	y = qrnd(480);
@@ -98,7 +98,7 @@ static int painter_drawtext_center()
     int i;
     QPainter *p = qperf_painter();
     int x, y;
-    QString s = "Troll Tech";
+    QString s = "Trolltech";
     for ( i=0; i<10000; i++ ) {
 	x = qrnd(600);
 	y = qrnd(480);

@@ -59,13 +59,13 @@
 			<div class="FIGURE">
 				<a name="QT-DESIGNER-ICON-CONNECTIONS"></a>
 				<p><b>Figure 3-2. The connections icon</b></p>
-				<p><img src="figures/connecttool.gif"></p>
+				<p><img src="figures/connecttool.png"></p>
 			</div>
 			<p>Once you have released the mouse button, the <span class="GUILABEL">Connections</span> dialog opens (see  <a href="#QT-DESIGNER-FIG-CONNECTIONS">Figure 3-3</a>). In this dialog, select <tt class="LITERAL">clicked()</tt> in the <span class="GUILABEL">Cancel</span> button's signals list to the left and <tt class="LITERAL">reject()</tt> in the dialog's slot list to the right. The connection will appear in the list in the lower half of the dialog.</p>
 			<div class="FIGURE">
 				<a name="QT-DESIGNER-FIG-CONNECTIONS"></a>
 				<p><b>Figure 3-3. The Connections dialog</b></p>
-				<p><img src="figures/connections.gif"></p>
+				<p><img src="figures/connections.png"></p>
 			</div>
 			<p>Close the dialog. Your first signal-slot connection is in place, and you did not even have to write a single line of code yet.</p>
 			<p>Now for the <span class="GUILABEL">OK</span> button. We want this button to close the dialog with a positive return code&#151;i.e., call the dialog's <tt class="LITERAL">accept()</tt> slot&#151;but we also want to show the aforementioned message box. In order to do the latter, we need to create our own slot.</p>
@@ -73,7 +73,7 @@
 			<div class="FIGURE">
 				<a name="QT-DESIGNER-FIG-SLOTS"></a>
 				<p><b>Figure 3-4. The Slots dialog</b></p>
-				<p><img src="figures/slots.gif"></p>
+				<p><img src="figures/slots.png"></p>
 			</div>
 			<p>Now start the connection tool again, but this time connect the <span class="GUILABEL">OK</span> button to the dialog. When the <span class="GUILABEL">Connections</span> dialog opens again, you can see not only the predefined slots, but also your newly created slot <tt class="LITERAL">sendOrder()</tt>. Click on the <tt class="LITERAL">clicked()</tt> signal first and then on the <tt class="LITERAL">sendOrder()</tt> slot so that the connection appears in the lower half. Close the <span class="GUILABEL">Connections</span> dialog.</p>
 			<p>When the user now clicks the <span class="GUILABEL">OK</span> button, both the <tt class="LITERAL">accept()</tt> slot, to close the dialog, and the <tt class="LITERAL">sendOrder()</tt> slot are invoked. But this time we do not get away as easily as with the <span class="GUILABEL">Cancel</span> button: We still have to implement the <tt class="LITERAL">sendOrder()</tt> slot.</p>

@@ -47,7 +47,7 @@ static int dict_lookup_ascii()
 {
     int i;
     for ( i=0; i<1000; i++ ) {
-	wordDictAscii.find("Troll Tech");	 // no match
+	wordDictAscii.find("Trolltech");	 // no match
 	wordDictAscii.find("sequences");	 // match
 	wordDictAscii.find("FSF");		 // match
 	wordDictAscii.find("POSIXLYCORRECT"); // match
@@ -57,7 +57,7 @@ static int dict_lookup_ascii()
 
 static int dict_lookup_string()
 {
-    QString s1("Troll Tech");
+    QString s1("Trolltech");
     QString s2("sequences");
     QString s3("FSF");
     QString s4("POSIXLYCORRECT");
@@ -73,7 +73,7 @@ static int dict_lookup_string()
 
 static int dict_lookup_ascii_string()
 {
-    QString s1("Troll Tech");
+    QString s1("Trolltech");
     QString s2("sequences");
     QString s3("FSF");
     QString s4("POSIXLYCORRECT");
@@ -91,7 +91,7 @@ static int dict_lookup_string_ascii()
 {
     int i;
     for ( i=0; i<1000; i++ ) {
-	wordDict.find("Troll Tech");	 // no match
+	wordDict.find("Trolltech");	 // no match
 	wordDict.find("sequences");	 // match
 	wordDict.find("FSF");		 // match
 	wordDict.find("POSIXLYCORRECT"); // match
@@ -101,7 +101,7 @@ static int dict_lookup_string_ascii()
 
 static int dict_lookup_map()
 {
-    QString s1("Troll Tech");
+    QString s1("Trolltech");
     QString s2("sequences");
     QString s3("FSF");
     QString s4("POSIXLYCORRECT");
@@ -117,7 +117,7 @@ static int dict_lookup_map()
 
 static int dict_insdel_ascii()
 {
-    const char *s1 = "Troll Tech";
+    const char *s1 = "Trolltech";
     int i;
     for ( i=0; i<1000; i++ ) {
 	wordDictAscii.insert(s1,(int*)123);
@@ -128,7 +128,7 @@ static int dict_insdel_ascii()
 
 static int dict_insdel_string()
 {
-    QString s1 = "Troll Tech";
+    QString s1 = "Trolltech";
     int i;
     for ( i=0; i<1000; i++ ) {
 	wordDict.insert(s1,(int*)123);
@@ -139,7 +139,7 @@ static int dict_insdel_string()
 
 static int dict_insdel_map()
 {
-    QString s1 = "Troll Tech";
+    QString s1 = "Trolltech";
     int i;
     for ( i=0; i<1000; i++ ) {
 	wordMap.insert(s1,(int*)123);

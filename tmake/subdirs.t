@@ -13,8 +13,16 @@
 
 SUBDIRS =	#$ ExpandList("SUBDIRS");
 
-all:
-	$(MAKE) $(SUBDIRS)
+#${
+    if ( Config("ordered") ) {
+	$text = "all:\n";
+	for $i ( split / /, Project("SUBDIRS") ) {
+	    $text .= "\t\$(MAKE) $i\n";
+	}
+    } else {
+	$text = "all:\n\t\$(MAKE) \$(SUBDIRS)\n";
+    }
+#$}
 
 $(SUBDIRS): FORCE
 	if [ -d $@ ]; then cd $@ ; $(MAKE); fi

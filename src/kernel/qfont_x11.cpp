@@ -5,25 +5,35 @@
 **
 ** Created : 940515
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the kernel
-** module and therefore may only be used if the kernel module is specified
-** as Licensed on the Licensee's License Certificate.
+** licenses for Unix/X11 may use this file in accordance with the Qt Commercial
+** License Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 // REVISED: arnt
 
@@ -38,6 +48,7 @@
 #include "qapplication.h"
 #include "qfile.h"
 #include "qtextstream.h"
+#include "qdir.h" // Font Guessing
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -50,6 +61,17 @@
 /* UNICODE:
      XLFD names are defined to be Latin1.
 */
+
+// Font Guessing
+struct FontGuessingPair {
+  QStringList charset;
+  QStringList family;
+};
+
+#define FONT_GUESSING_FILE "/etc/qt.fontguess"
+
+QList<FontGuessingPair> *fontGuessingList=0;
+//
 
 static const int fontFields = 14;
 
@@ -103,6 +125,11 @@ public:
     int	    fontMatchScore( char *fontName, QCString &buffer,
 			    float *pointSizeDiff, int *weightDiff,
 			    bool *scalable, bool *smoothScalable );
+	// Font Guessing
+    bool fontmapping(const QString& filename);
+    QCString bestMatchFontSetMember( const QString& family,
+		const char *wt, const char *slant, int size, int xdpi, int ydpi );
+    //
     QCString bestMatch( const char *pattern, int *score );
     QCString bestFamilyMember( const QString& foundry,
 			       const QString& family, int *score );
@@ -493,7 +520,7 @@ static bool fillFontDef( const QCString &xlfd, QFontDef *fd,
 	fd->charSet = QFont::KSC_5601;
     } else if( qstrncmp( tokens[CharsetRegistry], "gb2312.", 7 ) == 0 ) {
 	fd->charSet = QFont::GB_2312;
-    } else if( qstrcmp( tokens[CharsetRegistry], "big5" ) == 0 ) {
+    } else if( qstrncmp( tokens[CharsetRegistry], "big5", 4 ) == 0 ) {
 	fd->charSet = QFont::Big5;
     } else {
 	fd->charSet = QFont::AnyCharSet;
@@ -839,7 +866,7 @@ QCString QFontKsc5601Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 	}
 	ch = QChar( qt_UnicodeToKsc5601(ch.unicode()) );
 
-	if ( ch.row() > 0xa0 && ch.cell() > 0x80  ) {
+	if ( ch.row() > 0 && ch.cell() > 0  ) {
 	    result += ch.row() & 0x7f ;
 	    result += ch.cell() & 0x7f;
 	} else {
@@ -942,6 +969,83 @@ QCString QFontGB2312Codec::fromUnicode(const QString& uc, int& lenInOut ) const
     return result;
 }
 
+
+
+extern unsigned int qt_UnicodeToBig5(unsigned int unicode);
+
+class QFontBig5Codec : public QTextCodec
+{
+public:
+    QFontBig5Codec();
+
+    const char* name() const ;
+    //       Return the official name for the encoding.
+    int mibEnum() const ;
+    // Return the MIB enum for the encoding if it is listed in the
+    // IANA character-sets encoding file.
+
+    QString toUnicode(const char* chars, int len) const ;
+    // Converts len characters from chars to Unicode.
+    QCString fromUnicode(const QString& uc, int& lenInOut ) const;
+    // Converts lenInOut characters (of type QChar) from the start of
+    // the string uc, returning a QCString result, and also returning
+    // the length of the result in lenInOut.
+
+    int heuristicContentMatch(const char *, int) const;
+};
+
+
+int QFontBig5Codec::heuristicContentMatch(const char *, int) const
+{
+    return 0;
+}
+
+QFontBig5Codec::QFontBig5Codec()
+{
+}
+
+const char* QFontBig5Codec::name() const
+{
+    return "Big5";
+}
+
+int QFontBig5Codec::mibEnum() const
+{
+    return -1;
+}
+
+QString QFontBig5Codec::toUnicode(const char* /*chars*/, int /*len*/) const
+{
+    return QString(); //###
+}
+
+QCString QFontBig5Codec::fromUnicode(const QString& uc, int& lenInOut ) const
+{
+    QCString result;
+    for ( int i = 0; i < lenInOut; i++ ) {
+	QChar ch = uc[i];
+	if ( ch.row() == 0) {
+	    if ( ch.cell() == ' ' )
+		ch = QChar( 0x3000 );
+	    else if ( ch.cell() > ' ' && ch.cell() < 127 )
+		ch = QChar( ch.cell()-' ', 255 );
+	}
+	ch = QChar( qt_UnicodeToBig5(ch.unicode()) );
+
+	if ( ch.row() > 0xa0 && ch.cell() >= 0x40  ) {
+	    result += ch.row();
+	    result += ch.cell();
+	} else {
+	    //black square
+	    result += 0xa1;
+	    result += 0xbd;
+	}
+    }
+    lenInOut *=2;
+    return result;
+}
+
+
 #endif //QT_NO_CODECS
 
 
@@ -960,26 +1064,22 @@ void QFont::initFontInfo() const
     f->s.rbearing = SHRT_MIN;
     f->computeLineWidth();
 
-    QCString encoding;
 
     if (  d->exactMatch ) {
 	if ( PRIV->needsSet() ) {
 	    f->cmapper = QTextCodec::codecForLocale();
 #ifndef QT_NO_CODECS
 	} else if ( charSet() == JIS_X_0208 ) {
-	    ///TESTING
-	    encoding = encodingName( charSet() );
 	    f->cmapper = new QFontJis0208Codec;
 	} else if ( charSet() == KSC_5601 ) {
-	    ///TESTING
-	    encoding = encodingName( charSet() );
 	    f->cmapper = new QFontKsc5601Codec;
 	} else if ( charSet() == GB_2312 ) {
-	    ///TESTING
-	    encoding = encodingName( charSet() );
 	    f->cmapper = new QFontGB2312Codec;
+	} else if ( charSet() == Big5 ) {
+	    f->cmapper = new QFontBig5Codec;
 #endif //QT_NO_CODECS
 	} else {
+	    QCString encoding;
 	    encoding = encodingName( charSet() );
 	    f->cmapper = QTextCodec::codecForName( encoding );
 	}
@@ -989,8 +1089,20 @@ void QFont::initFontInfo() const
     }
 
     ASSERT(!PRIV->needsSet()); // They are always exact
+    QCString encoding;
 
     if ( fillFontDef( f->name(), &f->s, &encoding ) ) { // valid XLFD?
+#ifndef QT_NO_CODECS
+	if ( encoding.left(9) == "jisx0208." ) {
+	    f->cmapper = new QFontJis0208Codec;
+	} else if ( encoding.left(8) == "ksc5601." ) {
+	    f->cmapper = new QFontKsc5601Codec;
+	} else if ( encoding.left(7) == "gb2312." ) {
+	    f->cmapper = new QFontGB2312Codec;
+	} else if ( encoding.left(5) == "big5." ) {
+	    f->cmapper = new QFontBig5Codec;
+	} else
+#endif //QT_NO_CODECS
 	f->cmapper = QTextCodec::codecForName( encoding );
     } else {
 	f->cmapper = 0;
@@ -1063,6 +1175,7 @@ void QFont::load() const
 	if ( !s ) {
 	    char** missing=0;
 	    int nmissing;
+		//debug("fontSet : %s\n",n.data());
 	    s = XCreateFontSet( QPaintDevice::x11AppDisplay(), n,
 				&missing, &nmissing, 0 );
 	    if ( missing ) {
@@ -1079,6 +1192,7 @@ void QFont::load() const
     } else {
 	XFontStruct *f = d->fin->f;
 	if ( !f ) {					// font not loaded
+		//debug("font : %s\n",n.data());
 	    f = XLoadQueryFont( QPaintDevice::x11AppDisplay(), n );
 	    if ( !f ) {
 		f = XLoadQueryFont( QPaintDevice::x11AppDisplay(),
@@ -1208,7 +1322,7 @@ int QFont_Private::fontMatchScore( char	 *fontName,	 QCString &buffer,
 	else
 	    exactMatch = FALSE;
     } else if ( charSet() == QFont::Big5 ) {
-	if( qstrcmp( tokens[CharsetRegistry], "big5" ) == 0 )
+	if( qstrncmp( tokens[CharsetRegistry], "big5", 4 ) == 0 )
 	    score |= CharSetScore;
 	else
 	    exactMatch = FALSE;
@@ -1448,6 +1562,100 @@ QCString QFont_Private::bestFamilyMember( const QString& foundry,
     return result;
 }
 
+// Font Guessing
+bool QFont_Private::fontmapping(const QString& filename)
+{
+
+	QStringList chsetlst;
+
+	QFile f( filename );
+	if( f.open( IO_ReadOnly ) ){
+		QTextStream t( &f );
+		QString s;
+		while( !t.eof() ){
+  			s = t.readLine();
+
+	  		if (s != NULL && s[0] == '#') continue;
+
+	  		if( s.contains( '[' ) ) {
+				QRegExp sep("[][]");
+				chsetlst = QStringList::split(sep, s);
+	  		}
+	  		else {	  
+				QStringList familylst;
+				QRegExp sep("[ =\t]");
+				familylst = QStringList::split(sep, s);
+				
+	    		if( !chsetlst.isEmpty() && !familylst.isEmpty()){
+					
+					if(!fontGuessingList)
+						fontGuessingList =  new QList<FontGuessingPair>;
+
+					FontGuessingPair *fontGuessingPair;
+
+					fontGuessingPair = new FontGuessingPair;	
+					
+	      			fontGuessingPair->charset = chsetlst;
+	      			fontGuessingPair->family = familylst;
+
+					fontGuessingList->append(fontGuessingPair);
+#if DBG // to debug
+	      	printf("charset = [%s], from = [%s], to = [%s]\n", 
+		  		fontGuessingPair->charset[0].ascii(),
+		  		fontGuessingPair->family[1].ascii());
+#endif
+	    		}
+	  		}
+		} /* while */
+		f.close();
+		return TRUE;		
+	} 
+      	else return FALSE;
+}
+
+QCString QFont_Private::bestMatchFontSetMember( const QString& family,
+		const char *wt, const char *slant, int size, int xdpi, int ydpi )
+{
+    /* for Font Guessing */
+    static int read = 0;
+
+    if ( !read ) {
+        QString filename;
+        read = 1;
+        QString home = QDir::homeDirPath();
+        filename = qstrdup(home + "/.fontguess");
+        fontmapping(filename);
+        filename = qstrdup(FONT_GUESSING_FILE);
+        fontmapping(filename);
+    }
+
+	QCString bestName;
+
+	if(fontGuessingList) {
+		FontGuessingPair *fontGuessingPair = fontGuessingList->first();
+		while(fontGuessingPair) {
+			if( qstricmp(family, fontGuessingPair->family[0]) == 0 ) {
+				for(int i = 0; i < fontGuessingPair->family.count() - 1; i++) {
+					char s[1024];
+					sprintf(s, "-*-%s-%s-%s-*-*-*-%d-%d-%d-*-*-%s,",
+					fontGuessingPair->family[i+1].latin1(),		
+					wt, slant, size, xdpi, ydpi, fontGuessingPair->charset[i].latin1());
+					bestName.append(s);	
+				}
+				return bestName;
+			}
+			fontGuessingPair =  fontGuessingList->next();
+		}
+	}
+
+    // default font
+	bestName.sprintf("-*-helvetica-%s-%s-*-*-*-%d-%d-%d-*-*-*-*,",
+				wt, slant, size, xdpi, ydpi);
+	return bestName;
+}
+
+// Font Guessing end
+
 
 QCString QFont_Private::findFont( bool *exact )
 {
@@ -1484,13 +1692,15 @@ QCString QFont_Private::findFont( bool *exact )
 	    s.sprintf( "-*-%s-%s-%s-normal-*-*-%d-%d-%d-*-*-*-*,"
 		       "-*-%s-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
 		       "-*-%s-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
-		       "-*-helvetica-%s-%s-*-*-*-%d-%d-%d-*-*-*-*,"
+				// Font Guessing
+		       "%s"
 		       "-*-*-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
 		       "-*-*-*-*-*-*-*-%d-%d-%d-*-*-*-*",
 		       familyName.ascii(), wt, slant, size, xdpi, ydpi,
 		       familyName.ascii(), slant, size, xdpi, ydpi,
 		       familyName.ascii(), slant2, size, xdpi, ydpi,
-		       wt, slant, size, xdpi, ydpi,
+				// Font Guessing
+		       bestMatchFontSetMember(familyName, wt, slant, size, xdpi, ydpi).data(),
 		       slant, size, xdpi, ydpi,
 		       size, xdpi, ydpi );
 	} else {
@@ -1500,7 +1710,8 @@ QCString QFont_Private::findFont( bool *exact )
 		       "-*-%s-%s-%s-normal-*-*-%d-%d-%d-*-*-*-*,"
 		       "-*-%s-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
 		       "-*-%s-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
-		       "-*-helvetica-%s-%s-*-*-*-%d-%d-%d-*-*-*-*,"
+				// Font Guessing
+		       "%s"
 		       "-*-*-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
 		       "-*-*-*-*-*-*-*-%d-%d-%d-*-*-*-*",
 		       foundry.ascii(), familyName.ascii(), wt, slant, size,
@@ -1512,7 +1723,8 @@ QCString QFont_Private::findFont( bool *exact )
 		       familyName.ascii(), wt, slant, size, xdpi, ydpi,
 		       familyName.ascii(), slant, size, xdpi, ydpi,
 		       familyName.ascii(), slant2, size, xdpi, ydpi,
-		       wt, slant, size, xdpi, ydpi,
+				// Font Guessing
+		       bestMatchFontSetMember(familyName, wt, slant, size, xdpi, ydpi).data(),
 		       slant, size, xdpi, ydpi,
 		       size, xdpi, ydpi );
 	}

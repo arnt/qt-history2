@@ -13,17 +13,27 @@
 ** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the kernel
-** module and therefore may only be used if the kernel module is specified
-** as Licensed on the Licensee's License Certificate.
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qobjectlist.h"
 #include "qobjectdict.h"
@@ -46,9 +56,6 @@
 #include "qtextcodec.h"
 #include "qpngio.h"
 #include "qsessionmanager.h"
-#ifdef _WS_QWS_
-#include "qnetwork.h"
-#endif
 
 #if defined(QT_THREAD_SUPPORT)
 #include "qthread.h"
@@ -562,9 +569,14 @@ QApplication::QApplication( int &argc, char **argv )
 
 QApplication::QApplication( int &argc, char **argv, bool GUIenabled  )
 {
-    construct( argc, argv, GUIenabled ? GuiClient : GuiServer );
+    construct( argc, argv, GUIenabled ? GuiClient : Tty );
 }
 
+/*!
+  For Qt/Embedded, passing \a QApplication::GuiServer for \a type
+  make this application the server (equivalent to running with the
+  -qws option).
+*/
 QApplication::QApplication( int &argc, char **argv, Type type )
 {
     construct( argc, argv, type );
@@ -577,7 +589,7 @@ void QApplication::construct( int &argc, char **argv, Type type )
     qt_mutex = new QMutex(TRUE);
 #endif
 
-    qt_is_gui_used = type != Tty;
+    qt_is_gui_used = (type != Tty);
     init_precmdline();
     static char *empty = (char*)"";
     if ( argc == 0 || argv == 0 ) {
@@ -605,6 +617,15 @@ QApplication::QApplication( Display* dpy )
     qt_init( dpy );
     initialize( 0, 0 );
 }
+
+QApplication::QApplication(Display *dpy, int argc, char **argv)
+{
+    qt_is_gui_used = TRUE;
+    init_precmdline();
+    qt_init(dpy);
+    initialize(argc, argv);
+}
+
 
 #endif // _WS_X11_
 
@@ -642,7 +663,8 @@ void QApplication::initialize( int argc, char **argv )
 
 #ifndef QT_NO_STYLE
 #if defined(_WS_X11_)
-    x11_initialize_style(); // run-time search for default style
+    if ( qt_is_gui_used )
+	x11_initialize_style(); // run-time search for default style
 #endif
     if (!app_style) {
 	// Compile-time search for default style
@@ -672,11 +694,6 @@ void QApplication::initialize( int argc, char **argv )
 
 #ifndef QT_NO_IMAGEIO_PNG
     qInitPngIO();
-#endif
-#ifdef _WS_QWS_
-#ifndef QT_NO_NETWORKPROTOCOL
-    qInitNetworkProtocols();
-#endif
 #endif
 
 #ifndef QT_NO_COMPLEXWIDGETS
@@ -1984,7 +2001,7 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 		    delete event;
 		    return;
 		}
-	    } 
+	    }
 	    break;
 	};
     }
@@ -2351,9 +2368,16 @@ void QApplication::setActiveWindow( QWidget* act )
 }
 
 
-static bool qt_sane_enterleave = FALSE; //######### TRUE in 3.0
-void qt_set_sane_enterleave( bool b ) {
-    qt_sane_enterleave = b;
+/*
+  Enter/Leave workarounds and 2.x compatibility
+ */
+static bool qt_sane_enterleave_b = FALSE; // ### TRUE in 3.0
+void Q_EXPORT qt_set_sane_enterleave( bool b ) {
+    qt_sane_enterleave_b = b;
+}
+bool Q_EXPORT qt_sane_enterleave()
+{
+    return qt_sane_enterleave_b;
 }
 
 /*!\internal
@@ -2362,7 +2386,7 @@ void qt_set_sane_enterleave( bool b ) {
   and widget \a leave is left.
  */
 void Q_EXPORT qt_dispatchEnterLeave( QWidget* enter, QWidget* leave ) {
-    if ( !qt_sane_enterleave ) {
+    if ( !qt_sane_enterleave() ) {
 	if ( leave ) {
 	    QEvent e( QEvent::Leave );
 	    QApplication::sendEvent( leave, & e );
@@ -2563,8 +2587,9 @@ int QApplication::loopLevel() const
 */
 
 
-/*! \fn void QApplication::unlock()
-  Unlock the Qt library mutex.
+/*! \fn void QApplication::unlock(bool wakeUpGui)
+  Unlock the Qt library mutex.  if \a wakeUpGui is TRUE (default argument),
+  then the GUI thread will be woken with QApplication::wakeUpGuiThread().
 
   \sa lock(), locked()
 */
@@ -2576,6 +2601,14 @@ int QApplication::loopLevel() const
 
   \sa lock(), unlock()
 */
+
+
+/*! \fn void QApplication::wakeUpGuiThread()
+  Wakes up the GUI thread.
+
+  \sa guiThreadAwake()
+*/
+
 
 #if defined(QT_THREAD_SUPPORT)
 

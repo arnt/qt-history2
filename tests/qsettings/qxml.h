@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt GUI Designer.
 **

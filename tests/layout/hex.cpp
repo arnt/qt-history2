@@ -4,7 +4,7 @@
 ** Geometry management example: Putting a QBoxLayout inside a
 ** QGridLayout
 **
-** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1996 by Trolltech AS.  All rights reserved.
 **
 *****************************************************************************/
 #include <qapplication.h>

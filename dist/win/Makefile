@@ -2,9 +2,6 @@ all:
 	cd src
 	$(MAKE)
 	@cd ..
-	cd tools
-	$(MAKE)
-	@cd ..
 	cd examples
 	$(MAKE)
 	@cd ..

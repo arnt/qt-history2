@@ -5,25 +5,27 @@
 **
 ** Created : 20000616
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
-** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
-** LICENSE.QPL included in the packaging of this file.
-**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the kernel
-** module and therefore may only be used if the kernel module is specified
-** as Licensed on the Licensee's License Certificate.
+** licenses for Qt/Embedded may use this file in accordance with the
+** Qt Embedded Commercial License Agreement provided with the Software.
+**
+** This file is not available for use under any other license without
+** express written permission from the copyright holder.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #ifndef QWSDISPLAY_H
 #define QWSDISPLAY_H
@@ -52,6 +54,30 @@ public:
 #define QT_QWS_PROPERTY_CONVERTSELECTION 999
 #define QT_QWS_PROPERTY_WINDOWNAME 998
 
+#ifndef QT_NO_PCOP
+
+class PCOPChannelPrivate;
+
+class PCOPChannel
+{
+public:
+    PCOPChannel( const QCString& channel );
+    virtual ~PCOPChannel();
+
+    QCString channel() const;
+
+    static bool isRegistered( const QCString& channel );
+    static bool send(const QCString &channel, const QCString &msg );
+    static bool send(const QCString &channel, const QCString &msg, const QByteArray &data );
+
+    virtual void receive( const QCString &msg, const QByteArray &data ) = 0;
+
+private:
+    PCOPChannelPrivate* d;
+};
+
+#endif
+
 class QWSDisplay
 {
 public:
@@ -73,6 +99,7 @@ public:
 
     void addProperty( int winId, int property );
     void setProperty( int winId, int property, int mode, const QByteArray &data );
+    void setProperty( int winId, int property, int mode, const char * data );
     void removeProperty( int winId, int property );
     bool getProperty( int winId, int property, char *&data, int &len );
 

@@ -75,50 +75,51 @@
 				<div class="FIGURE">
 					<a name="QT-DESIGNER-FIG-LAYOUTTUTSTEP1"></a>
 					<p><b>Figure 4-1. The check boxes are not laid out yet</b></p>
-					<p><img src="figures/layouttutstep1.gif"></p>
+					<p><img src="figures/layouttutstep1.png"></p>
 				</div>
-				<p>Now we want to lay out this button group with its four check boxes. This requires some thinking. Automatic laying out in Qt is always done with respect to a container; you could say that it is the container that is laid out. In practice, the container is just any widget that happens to have widget children, so there is nothing special about containers. <a href="#FTN.AEN720" name="AEN720">[1]</a> Just remember that when you want to arrange a few widgets&#151;like the four check boxes in our case&#151;the layout process applies not to the widgets but to their container (parent)&#151;in our case the button group.</p>
+				<p>Now we want to lay out this button group with its four check boxes. This requires some thinking. Automatic laying out in Qt is always done with respect to a container; you could say that it is the container that is laid out.
+				In practice, there is nothing special about containers: any widget that happens to have child widgets is a container.  Just remember that when you want to arrange a few widgets&#151;like the four check boxes in our case&#151;the layout process applies not to the widgets but to their container (parent)&#151;in our case the button group.</p>
 				<p>The next thing to think about is which kind of layout you want. Qt currently provides three different kinds of layout managers: one that arranges the widgets horizontally (in a row), one that arranges the widgets vertically (in a column), and one that arranges the widgets both horizontally and vertically (in a grid). You can also combine different layout managers to achieve the desired result; for example, you might often find the grid layout manager's layout policy a bit too restrictive and resort to putting together some rows and columns, which gives you much more flexibility for the price of a bit more work.</p>
 				<p>For our button group with the four check boxes, it is obvious that we want a vertical layout; i.e., that we want to arrange the check boxes in a column. And we also know now that we need to apply the layout to the button group, not to the check boxes themselves. So, to put all this together, click on the background of the button group widget and select <span class="GUIMENU">Lay Out/Lay Out Vertically</span>, click on the vertical layout button on the toolbar (see <a href="#QT-DESIGNER-ICON-VLAYOUT">Figure 4-2</a>), or select <span class="GUIMENU">Lay Out Vertically</span> from the button group's context menu. Magically, all the buttons are aligned, and the button group has exactly the size it needs to accommodate the buttons (see <a href="#QT-DESIGNER-FIG-LAYOUTTUTSTEP2">Figure 4-3</a>).</p>
 				<div class="FIGURE">
 					<a name="QT-DESIGNER-ICON-VLAYOUT"></a>
 					<p><b>Figure 4-2. The vertical layout icon</b></p>
-					<p><img src="figures/vlayout.gif"></p>
+					<p><img src="figures/vlayout.png"></p>
 				</div>
 				<div class="FIGURE">
 					<a name="QT-DESIGNER-FIG-LAYOUTTUTSTEP2"></a>
 					<p><b>Figure 4-3. The check boxes are now laid out in the button group</b></p>
-					<p><img src="figures/layouttutstep2.gif"></p>
+					<p><img src="figures/layouttutstep2.png"></p>
 				</div>
 				<p>Assigning a layout has some other consequences: If you now click on one of the check boxes, you will see that the handles are no longer black but gray. If you try, you will also notice that you can no longer move or resize the check boxes. This is because the column layout manager that you have assigned to the button group has taken over the responsibility for assigning sizes and positions to the laid out widgets. If you look very closely at the property editor, you will also notice that the property <tt class="LITERAL">geometry</tt> has disappeared from it&#151;again, because you cannot change it any longer.</p>
 				<p>If you want to change the sizes or positions of the laid out widgets again, you have to remove the layout manager. This is called <i class="EMPHASIS">breaking the layout</i>. You do this by selecting <span class="GUIMENU">Lay Out/Break Layout</span> from the menu bar, by selecting <span class="GUIMENU">Break Layout</span> from the context menu of the button group, or by clicking on the toolbar button for breaking the layout (see <a href="#QT-DESIGNER-ICON-BREAKLAYOUT">Figure 4-4</a>).</p>
 				<div class="FIGURE">
 					<a name="QT-DESIGNER-ICON-BREAKLAYOUT"></a>
 					<p><b>Figure 4-4. The break layout icon</b></p>
-					<p><img src="figures/breaklayout.gif"></p>
+					<p><img src="figures/breaklayout.png"></p>
 				</div>
 				<p>You might want to try the other layout managers as well. Break the column layout and assign a row layout instead (see <a href="#QT-DESIGNER-FIG-LAYOUTTUTSTEP3">Figure 4-5</a>). You can also try a grid layout, but you will not see much good in this situation; we will explain why later. However, when you do these experiments, it is good to know that you can always go back with the undo button (see <a href="#QT-DESIGNER-ICON-UNDO">Figure 4-6</a>) or by selecting <span class="GUIMENU">Edit/Undo</span> from the menu bar. With the undo and redo functionality, you can explore various options for your forms without committing to anything that you cannot take back later.</p>
 				<div class="FIGURE">
 					<a name="QT-DESIGNER-FIG-LAYOUTTUTSTEP3"></a>
 					<p><b>Figure 4-5. Arranging the check boxes in a row</b></p>
-					<p><img src="figures/layouttutstep3.gif"></p>
+					<p><img src="figures/layouttutstep3.png"></p>
 				</div>
 				<div class="FIGURE">
 					<a name="QT-DESIGNER-ICON-UNDO"></a>
 					<p><b>Figure 4-6. The undo icon</b></p>
-					<p><img src="figures/undo.gif"></p>
+					<p><img src="figures/undo.png"></p>
 				</div>
 				<p>When you are done trying various things with the toppings button group, restore the state of <a href="#QT-DESIGNER-FIG-LAYOUTTUTSTEP2">Figure 4-3</a> and start working on the button group for the pizza size. You should put it somewhere to the right of the toppings button group, but again, you do not have to worry about alignment yet; this will automatically be taken care of later. When you are done, assign a vertical layout to the size button group as well. Your form should now look roughly like the one in <a href="#QT-DESIGNER-FIG-LAYOUTTUTSTEP4">Figure 4-7</a>.</p>
 				<div class="FIGURE">
 					<a name="QT-DESIGNER-FIG-LAYOUTTUTSTEP4"></a>
 					<p><b>Figure 4-7. Two laid out button groups</b></p>
-					<p><img src="figures/layouttutstep4.gif"></p>
+					<p><img src="figures/layouttutstep4.png"></p>
 				</div>
 				<p>Now finish putting elements onto the form by inserting the <span class="GUILABEL">Extra Cheese</span> check box and the <span class="GUILABEL">OK</span> and <span class="GUILABEL">Cancel</span> push buttons. Put them roughly where they were in the previous form. Your form should now look like the one in <a href="#QT-DESIGNER-LAYOUTTUTSTEP5">Figure 4-8</a>.</p>
 				<div class="FIGURE">
 					<a name="QT-DESIGNER-LAYOUTTUTSTEP5"></a>
 					<p><b>Figure 4-8. More widgets to be laid out</b></p>
-					<p><img src="figures/layouttutstep5.gif"></p>
+					<p><img src="figures/layouttutstep5.png"></p>
 				</div>
 				<p>At this point, you could say that we have five different elements on the form: the two button groups, the <span class="GUILABEL">Extra Cheese</span> check box, and the two push buttons. At this stage, we do not care about the fact that the button groups actually are compound elements as well. They are laid out and done. We just consider them elementary widgets for the time being. But now we want to lay out these five elements. This is a typical situation when designing a form with Qt Designer: The idea is to do the design in two different stages. First you put all the widgets onto the form and assign them the desired properties, then you lay them out by assigning layout managers. Of course, in evolutionary development, you will go back to stage one now and then (this often means breaking layouts); add, remove, or change some widgets; and then go back to laying out. The distinction between the two stages is more a conceptual one than one that is enforced by the program.</p>
 				<p>We might be able to arrange the five elements into a grid, but this would probably look unnatural. Instead, we will try to find a good combination of rows and columns. There are not so many rules for doing this. You basically learn this by doing, experimenting, and looking at other people's well-designed dialogs (or learning from the mistakes being made in the not-so-well-designed dialogs). But one common theme in dialog design is that the main orientation is vertical; i.e., that the dialog consists of a number of rows that are laid out on top of each other. Sometimes, the rows have some internal vertical structure as well, and sometimes these internal vertical structures have a horizontal structure, but this is rather rare.</p>
@@ -128,27 +129,18 @@
 				<div class="FIGURE">
 					<a name="QT-DESIGNER-FIG-LAYOUTTUTSTEP6"></a>
 					<p><b>Figure 4-9. A new layout manager was created for the button groups</b></p>
-					<p><img src="figures/layouttutstep6.gif"></p>
+					<p><img src="figures/layouttutstep6.png"></p>
 				</div>
 				<p>Now do the same with the two push buttons. With these steps, the elements to be laid out have been reduced to three: the two laid out rows and the single check box in between. It is not necessary at this point to put the check box in a row all by itself.</p>
 				<p>Next, select the form by clicking on the background, and assign a vertical layout. This will arrange the remaining three pieces: the row with the two button groups, the <span class="GUILABEL">Extra Cheese</span> check box, and the row with the push buttons on top of each other. Now all the widgets are nicely grouped together, as you can see in <a href="#QT-DESIGNER-FIG-LAYOUTTUTSTEP7">Figure 4-10</a>. Some things might not be perfect (for example, the <span class="GUILABEL">Extra Cheese</span> check box should be centered below the button groups), but we'll fix that later.</p>
 				<div class="FIGURE">
 					<a name="QT-DESIGNER-FIG-LAYOUTTUTSTEP7"></a>
 					<p><b>Figure 4-10. All widgets are arranged</b></p>
-					<p><img src="figures/layouttutstep7.gif"></p>
+					<p><img src="figures/layouttutstep7.png"></p>
 				</div>
 				<p>To test the correct behavior of the dialog while resizing, go into test mode as described previously and try resizing the dialog. See how the space is distributed among the widgets. Also notice that you cannot make the dialog smaller than the minimum size needed to accommodate all the widgets.</p>
 			</div>
 		</div>
-		<h3 class="FOOTNOTES">Notes</h3>
-		<p>
-		<table border="0" class="FOOTNOTES" width="100%">
-			<tr>
-				<td align="left" valign="top" width="5%"> <a href="#AEN720" name="FTN.AEN720">[1]</a></td>
-				<td align="left" valign="top" width="95%">Unlike in the Java AWT, for example, where a distinction is made between containers and components, and only containers can contain other containers and components and be laid out.</td>
-			</tr>
-		</table>
-		</p>
 		<div class="NAVFOOTER">
 			<br>
 			<br>

@@ -1,6 +1,6 @@
 /*
 
-  Copyright (c) 2000 Troll Tech AS
+  Copyright (c) 2000 Trolltech AS
 
   Permission is hereby granted, free of charge, to any person obtaining a
   copy of this software and associated documentation files (the "Software"),

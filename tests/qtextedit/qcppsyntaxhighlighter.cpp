@@ -112,6 +112,7 @@ QCppSyntaxHighlighter::QCppSyntaxHighlighter( QTextDocument *d )
 	QMap<QString, int> &map = wordMap->operator[]( len );
 	map[ keywords[ i ] ] = Keyword;
     }
+    d->setUseFormatCollection( FALSE );
 }
 
 void QCppSyntaxHighlighter::createFormats()
@@ -136,7 +137,7 @@ void QCppSyntaxHighlighter::createFormats()
 	       new QTextFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkBlue ) );
 }
 
-void QCppSyntaxHighlighter::highlighte( QTextParag *string, int start, bool invalidate )
+void QCppSyntaxHighlighter::highlighte( QTextParag *string, int, bool invalidate )
 {
 
     QTextFormat *formatStandard = format( Standard );
@@ -223,7 +224,7 @@ void QCppSyntaxHighlighter::highlighte( QTextParag *string, int start, bool inva
 	state = string->prev()->endState();
     }
     int input;
-    int i = start;
+    int i = 0;
     bool lastWasBackSlash = FALSE;
     bool makeLastStandard = FALSE;
 

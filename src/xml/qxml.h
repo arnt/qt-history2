@@ -10,23 +10,41 @@
 ** This file is part of the XML module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the XML
-** module and therefore may only be used if the XML module is specified
-** as Licensed on the Licensee's License Certificate.
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition licenses may use this
+** file in accordance with the Qt Commercial License Agreement provided
+** with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #ifndef QXML_H
 #define QXML_H
+
+#include <qmodules.h>
+
+#if !defined(QT_MODULE_XML)
+#define QM_EXPORT
+#else
+#define QM_EXPORT Q_EXPORT
+#endif
 
 #ifndef QT_H
 #include <qtextstream.h>
@@ -71,13 +89,13 @@ class QXmlDefaultHandlerPrivate;
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-template class Q_EXPORT QMap<QString, QString>;
-template class Q_EXPORT QValueStack<QMap<QString, QString> >;
-template class Q_EXPORT QValueStack<QString>;
+template class QM_EXPORT QMap<QString, QString>;
+template class QM_EXPORT QValueStack<QMap<QString, QString> >;
+template class QM_EXPORT QValueStack<QString>;
 // MOC_SKIP_END
 #endif
 
-class Q_EXPORT QXmlNamespaceSupport
+class QM_EXPORT QXmlNamespaceSupport
 {
 public:
     QXmlNamespaceSupport();
@@ -107,7 +125,7 @@ private:
 // SAX Attributes
 //
 
-class Q_EXPORT QXmlAttributes
+class QM_EXPORT QXmlAttributes
 {
 public:
     QXmlAttributes() {}
@@ -141,7 +159,7 @@ private:
 // SAX Input Source
 //
 
-class Q_EXPORT QXmlInputSource
+class QM_EXPORT QXmlInputSource
 {
 public:
     QXmlInputSource();
@@ -153,6 +171,8 @@ public:
     virtual void setData( const QString& d );
 
 private:
+    void readInput( QByteArray& rawData );
+
     QString input;
 
     QXmlInputSourcePrivate *d;
@@ -162,7 +182,7 @@ private:
 // SAX Exception Classes
 //
 
-class Q_EXPORT QXmlParseException
+class QM_EXPORT QXmlParseException
 {
 public:
     QXmlParseException( const QString& name="", int c=-1, int l=-1, const QString& p="", const QString& s="" )
@@ -190,7 +210,7 @@ private:
 // XML Reader
 //
 
-class Q_EXPORT QXmlReader
+class QM_EXPORT QXmlReader
 {
 public:
     virtual bool feature( const QString& name, bool *ok = 0 ) const = 0;
@@ -214,7 +234,7 @@ public:
     virtual bool parse( const QXmlInputSource& input ) = 0;
 };
 
-class Q_EXPORT QXmlSimpleReader : public QXmlReader
+class QM_EXPORT QXmlSimpleReader : public QXmlReader
 {
 public:
     QXmlSimpleReader();
@@ -349,7 +369,7 @@ private:
 // SAX Locator
 //
 
-class Q_EXPORT QXmlLocator
+class QM_EXPORT QXmlLocator
 {
 public:
     QXmlLocator( QXmlSimpleReader* parent )
@@ -372,7 +392,7 @@ private:
 // SAX handler classes
 //
 
-class Q_EXPORT QXmlContentHandler
+class QM_EXPORT QXmlContentHandler
 {
 public:
     virtual void setDocumentLocator( QXmlLocator* locator ) = 0;
@@ -389,7 +409,7 @@ public:
     virtual QString errorString() = 0;
 };
 
-class Q_EXPORT QXmlErrorHandler
+class QM_EXPORT QXmlErrorHandler
 {
 public:
     virtual bool warning( const QXmlParseException& exception ) = 0;
@@ -398,7 +418,7 @@ public:
     virtual QString errorString() = 0;
 };
 
-class Q_EXPORT QXmlDTDHandler
+class QM_EXPORT QXmlDTDHandler
 {
 public:
     virtual bool notationDecl( const QString& name, const QString& publicId, const QString& systemId ) = 0;
@@ -406,14 +426,14 @@ public:
     virtual QString errorString() = 0;
 };
 
-class Q_EXPORT QXmlEntityResolver
+class QM_EXPORT QXmlEntityResolver
 {
 public:
     virtual bool resolveEntity( const QString& publicId, const QString& systemId, QXmlInputSource* ret ) = 0;
     virtual QString errorString() = 0;
 };
 
-class Q_EXPORT QXmlLexicalHandler
+class QM_EXPORT QXmlLexicalHandler
 {
 public:
     virtual bool startDTD( const QString& name, const QString& publicId, const QString& systemId ) = 0;
@@ -426,7 +446,7 @@ public:
     virtual QString errorString() = 0;
 };
 
-class Q_EXPORT QXmlDeclHandler
+class QM_EXPORT QXmlDeclHandler
 {
 public:
     virtual bool attributeDecl( const QString& eName, const QString& aName, const QString& type, const QString& valueDefault, const QString& value ) = 0;
@@ -436,7 +456,7 @@ public:
 };
 
 
-class Q_EXPORT QXmlDefaultHandler : public QXmlContentHandler, public QXmlErrorHandler, public QXmlDTDHandler, public QXmlEntityResolver, public QXmlLexicalHandler, public QXmlDeclHandler
+class QM_EXPORT QXmlDefaultHandler : public QXmlContentHandler, public QXmlErrorHandler, public QXmlDTDHandler, public QXmlEntityResolver, public QXmlLexicalHandler, public QXmlDeclHandler
 {
 public:
     QXmlDefaultHandler() { }

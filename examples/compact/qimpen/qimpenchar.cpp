@@ -5,16 +5,10 @@
 **
 ** Created : 20000414
 **
-** Copyright (C) 2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit Professional Edition.
-**
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
-**
-** See http://www.troll.no/pricing.html or email sales@troll.no for
-** information about the Professional Edition licensing.
+** This file is part of an example program for Qt.  This example
+** program may be used, distributed and modified without limitation.
 **
 *****************************************************************************/
 

@@ -5,25 +5,35 @@
 **
 ** Created : 941209
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the widgets
-** module and therefore may only be used if the widgets module is specified
-** as Licensed on the Licensee's License Certificate.
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 // qmainwindow.h before qmenubar.h because of GCC-2.7.* compatibility
 // ### could be reorganised by discarding INCLUDE_MENUITEM_DEF and put
@@ -63,7 +73,7 @@ public:
   menubar->insertItem( "&File", filemenu );
   \endcode
   inserts the menu into the menu bar. The ampersand in the item text declares
-  Alt-f as shortcut for this menu.
+  Alt-f as shortcut for this menu. Use "&&" to get a real ampsend in the menubar.
 
   Items are either enabled or disabled. You toggle their state with
   setItemEnabled().
@@ -281,7 +291,7 @@ void QMenuBar::menuContentsChanged()
 	    ( (QMainWindow*)parent() )->update();
 	}
 	if ( parentWidget() && parentWidget()->layout() )
-	    parentWidget()->layout()->invalidate();
+	    parentWidget()->layout()->activate();
     }
 }
 
@@ -295,6 +305,7 @@ void QMenuBar::menuContentsChanged()
 
 void QMenuBar::menuStateChanged()
 {
+    setupAccelerators(); // ### when we have a good solution for the accel vs. focus widget problem, remove that. That is only a workaround
     update();
 }
 
@@ -879,6 +890,8 @@ void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 {
     if ( e->button() != LeftButton )
 	return;
+    if ( !mouseBtDn )
+	return;
     mouseBtDn = FALSE;				// mouse button up
     int item = itemAtPos( e->pos() );
     if ( item >= 0 && !mitems->at(item)->isEnabled() ||
@@ -1090,6 +1103,7 @@ void QMenuBar::setActiveItem( int i, bool show, bool activate_first_item )
 	if ( activate_first_item )
 	    popup->setFirstItemActive();
     } else {				// not a popup
+	goodbye( FALSE );
 	if ( mi->signal() )			// activate signal
 	    mi->signal()->activate();
 	emit activated( mi->id() );
@@ -1139,6 +1153,8 @@ void QMenuBar::setupAccelerators()
     register QMenuItem *mi;
     while ( (mi=it.current()) ) {
 	++it;
+	if ( !mi->isEnabled() ) // ### when we have a good solution for the accel vs. focus widget problem, remove that. That is only a workaround
+	    continue;
 	QString s = mi->text();
 	if ( !s.isEmpty() ) {
 	    int i = QAccel::shortcutKey( s );

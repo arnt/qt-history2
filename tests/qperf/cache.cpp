@@ -35,7 +35,7 @@ static int cache_lookup_ascii()
 {
     int i;
     for ( i=0; i<1000; i++ ) {
-	wordCacheAscii.find("Troll Tech");	 // no match
+	wordCacheAscii.find("Trolltech");	 // no match
 	wordCacheAscii.find("sequences");	 // match
 	wordCacheAscii.find("FSF");		 // match
 	wordCacheAscii.find("POSIXLYCORRECT"); // match
@@ -45,7 +45,7 @@ static int cache_lookup_ascii()
 
 static int cache_lookup_string()
 {
-    QString s1("Troll Tech");
+    QString s1("Trolltech");
     QString s2("sequences");
     QString s3("FSF");
     QString s4("POSIXLYCORRECT");
@@ -61,7 +61,7 @@ static int cache_lookup_string()
 
 static int cache_lookup_ascii_string()
 {
-    QString s1("Troll Tech");
+    QString s1("Trolltech");
     QString s2("sequences");
     QString s3("FSF");
     QString s4("POSIXLYCORRECT");
@@ -79,7 +79,7 @@ static int cache_lookup_string_ascii()
 {
     int i;
     for ( i=0; i<1000; i++ ) {
-	wordCache.find("Troll Tech");	 // no match
+	wordCache.find("Trolltech");	 // no match
 	wordCache.find("sequences");	 // match
 	wordCache.find("FSF");		 // match
 	wordCache.find("POSIXLYCORRECT"); // match
@@ -89,7 +89,7 @@ static int cache_lookup_string_ascii()
 
 static int cache_insdel_ascii()
 {
-    const char *s1 = "Troll Tech";
+    const char *s1 = "Trolltech";
     int i;
     for ( i=0; i<1000; i++ ) {
 	wordCacheAscii.insert(s1,(int*)123);
@@ -100,7 +100,7 @@ static int cache_insdel_ascii()
 
 static int cache_insdel_string()
 {
-    QString s1 = "Troll Tech";
+    QString s1 = "Trolltech";
     int i;
     for ( i=0; i<1000; i++ ) {
 	wordCache.insert(s1,(int*)123);

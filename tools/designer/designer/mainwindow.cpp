@@ -1171,34 +1171,36 @@ void MainWindow::openFile( const QString &filename, bool validFileName )
     }
 }
 
-void MainWindow::fileSave()
+bool MainWindow::fileSave()
 {
     if ( !formWindow() )
-	return;
+	return FALSE;
     if ( formWindow()->fileName().isEmpty() ) {
-	fileSaveAs();
+	return fileSaveAs();
     } else {
 	QApplication::setOverrideCursor( WaitCursor );
 	formWindow()->save( formWindow()->fileName() );
 	QApplication::restoreOverrideCursor();
     }
+    return TRUE;
 }
 
-void MainWindow::fileSaveAs()
+bool MainWindow::fileSaveAs()
 {
     statusBar()->message( tr( "Enter a filename..." ) );
     if ( !formWindow() )
-	return;
+	return FALSE;
     FormWindow *fw = formWindow();
     QString filename = QFileDialog::getSaveFileName( QString::null, tr( "Qt User-Interface Files (*.ui);;All Files (*)" ),
 						     this );
     if ( filename.isEmpty() )
-	return;
+	return FALSE;
     QFileInfo fi( filename );
     if ( fi.extension() != "ui" )
 	filename += ".ui";
     fw->setFileName( filename );
     fileSave();
+    return TRUE;
 }
 
 void MainWindow::fileSaveAll()
@@ -2928,7 +2930,8 @@ bool MainWindow::closeForm( FormWindow *fw )
 	case 0: // save
 	    fw->setFocus();
 	    qApp->processEvents();
-	    fileSave();
+	    if ( !fileSave() )
+		return FALSE;
 	    break;
 	case 1: // don't save
 	    break;
@@ -3225,6 +3228,8 @@ void MainWindow::checkTempFiles()
 void MainWindow::openHelpForDialog( const QString &dia )
 {
     QString manualdir = QString( getenv( "QTDIR" ) ) + "/tools/designer/manual/book1.html";
+    if ( !QFile::exists( manualdir ) )
+	manualdir = QString( getenv( "QTDIR" ) ) + "/doc/html/designer/book1.html";
     QFile file( manualdir );
     if ( !file.open( IO_ReadOnly ) )
 	return;

@@ -11,10 +11,11 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
 				  const QString& context, const QStyleSheet* sheet )
 {
     d = new QSimpleRichTextData;
-    d->doc = new QTextDocument;
+    d->doc = new QTextDocument( 0 );
     d->doc->setFormatter( new QTextFormatterBreakWords( d->doc ) );
     d->doc->setDefaultFont( fnt );
-    d->doc->setText( text );
+    d->doc->setStyleSheet( sheet );
+    d->doc->setText( text, context );
 }
 
 QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
@@ -23,12 +24,16 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
 				  const QColor& linkColor, bool linkUnderline )
 {
     d = new QSimpleRichTextData;
-    d->doc = new QTextDocument;
+    d->doc = new QTextDocument( 0 );
     d->doc->setFormatter( new QTextFormatterBreakWords( d->doc ) );
     d->doc->setDefaultFont( fnt );
     d->doc->flow()->pagesize = verticalBreak;
     d->doc->setVerticalBreak( TRUE );
-    d->doc->setText( text );
+    d->doc->setStyleSheet( sheet );
+    d->doc->setMimeSoureFactory( factory );
+    d->doc->setLinkColor( linkColor );
+    d->doc->setUnderlineLinks( linkUnderline );
+    d->doc->setText( text, context );
 }
 
 QSimpleRichText::~QSimpleRichText()
@@ -70,13 +75,26 @@ void QSimpleRichText::draw( QPainter *p,  int x, int y, const QRegion& clipRegio
 			    const QPalette& pal, const QBrush* paper ) const
 {
     ASSERT( 0 );
+
+    Q_UNUSED( p ); // #### use them
+    Q_UNUSED( x );
+    Q_UNUSED( y );
+    Q_CONST_UNUSED( clipRegion );
+    Q_CONST_UNUSED( pal );
+    Q_UNUSED( paper );
 }
 
 void QSimpleRichText::draw( QPainter *p,  int x, int y, const QRegion& clipRegion,
 			    const QColorGroup& cg, const QBrush* paper ) const
 {
+    if ( paper )
+	d->doc->setPaper( paper );
+    QColorGroup g = cg;
+    if ( d->doc->paper() )
+	g.setBrush( QColorGroup::Base, *d->doc->paper() );
+
     p->translate( x, y );
-    d->doc->draw( p, clipRegion, cg );
+    d->doc->draw( p, clipRegion, g, paper );
     p->translate( -x, -y );
 }
 
@@ -89,17 +107,27 @@ QString QSimpleRichText::context() const
 QString QSimpleRichText::anchorAt( const QPoint& pos ) const
 {
     ASSERT( 0 );
+
+    Q_CONST_UNUSED( pos ); // ### use iz
+
     return QString::null;
 }
 
 QString QSimpleRichText::anchor( QPainter* p, const QPoint& pos )
 {
     ASSERT( 0 );
+
+    Q_UNUSED( p ); // ### use them
+    Q_CONST_UNUSED( pos );
+
     return QString::null;
 }
 
 bool QSimpleRichText::inText( const QPoint& pos ) const
 {
     ASSERT( 0 );
+
+    Q_CONST_UNUSED( pos ); // #### use it
+
     return FALSE;
 }

@@ -1,7 +1,7 @@
 TEMPLATE	= lib
 CONFIG		+= qt staticlib warn_on release
 win32:SOURCES	= kernel/qtmain_win.cpp
-DEFINES		= QT_DLL
+DEFINES		+= QT_DLL
 TARGET		= qtmain
 VERSION		= 2.20
 DESTDIR		= ../lib

@@ -5,25 +5,35 @@
 **
 ** Created : 931107
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the kernel
-** module and therefore may only be used if the kernel module is specified
-** as Licensed on the Licensee's License Certificate.
+** licenses for Unix/X11 or for Qt/Embedded may use this file in accordance
+** with the Qt Commercial License Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #define _GNU_SOURCE
 #define __USE_UNIX98
@@ -87,6 +97,17 @@
 #  undef  Q_USE_PTHREAD_MUTEX_SETKIND
 #  define Q_NORMAL_MUTEX_TYPE PTHREAD_MUTEX_ERRORCHECK
 #  define Q_RECURSIVE_MUTEX_TYPE PTHREAD_MUTEX_RECURSIVE
+#elif defined(_OS_SOLARIS_)
+// Solaris 2.7 and later
+#  define Q_HAS_RECURSIVE_MUTEX
+#  undef  Q_USE_PTHREAD_MUTEX_SETKIND
+#  define Q_NORMAL_MUTEX_TYPE PTHREAD_MUTEX_ERRORCHECK
+#  define Q_RECURSIVE_MUTEX_TYPE PTHREAD_MUTEX_RECURSIVE
+#elif defined(_OS_IRIX_)
+#  define Q_HAS_RECURSIVE_MUTEX
+#  undef  Q_USE_PTHREAD_MUTEX_SETKIND
+#  define Q_NORMAL_MUTEX_TYPE PTHREAD_MUTEX_ERRORCHECK
+#  define Q_RECURSIVE_MUTEX_TYPE PTHREAD_MUTEX_RECURSIVE
 #else
 // Fall through for systems we don't know about
 #  warning "Assuming non-POSIX 1003.1c thread implementation. Talk to qt-bugs@trolltech.com."
@@ -112,7 +133,7 @@
   (In Java terms, this is similar to the synchronized keyword).
   For example, say there is a method which prints a message to the
   user on two lines:
-  
+
   \code
   void someMethod()
   {
@@ -120,7 +141,7 @@
      qDebug("World");
   }
   \endcode
-  
+
   If this method is called simultaneously from two threads then
   the following sequence could result:
 
@@ -144,9 +165,9 @@
      mutex.unlock();
   }
   \endcode
-  
+
   In Java terms this would be:
-  
+
   \code
   void someMethod()
   {
@@ -213,7 +234,7 @@ QMutexPrivate::QMutexPrivate(bool recursive)
     int ret =
 #endif
 	pthread_mutex_init( &mutex, &attr );
-    
+
     pthread_mutexattr_destroy(&attr);
 
 #ifdef CHECK_RANGE
@@ -465,7 +486,7 @@ bool QMutex::locked()
 
 
 /**************************************************************************
- ** QThreadQtEvent, QConditionsPrivate
+ ** QThreadQtEvent
  *************************************************************************/
 
 // this is for the magic QThread::postEvent()
@@ -589,7 +610,7 @@ public:
 
     pthread_t thread_id;
 
-    QCondition thread_done;      // Used for QThread::wait()
+    QWaitCondition thread_done;      // Used for QThread::wait()
 
     bool finished, running;
 
@@ -611,7 +632,11 @@ extern "C" {
 
 
 static QMutex *dictMutex = 0;
+#ifdef QWS
+static QPtrDict<QThread> *thrDict = 0;
+#else
 static QIntDict<QThread> *thrDict = 0;
+#endif
 
 QThreadPrivate::QThreadPrivate()
     : thread_id(0), finished(FALSE), running(FALSE)
@@ -619,7 +644,11 @@ QThreadPrivate::QThreadPrivate()
     if (! dictMutex)
 	dictMutex = new QMutex;
     if (! thrDict)
+#ifdef QWS
+	thrDict = new QPtrDict<QThread>;
+#else
 	thrDict = new QIntDict<QThread>;
+#endif
 }
 
 
@@ -698,7 +727,7 @@ HANDLE QThread::currentThread()
   It is important to note that the event handler for the event, when called,
   will be called from the event thread and not from the thread calling
   QThread::postEvent().
-  
+
   Same as with \l QApplication::postEvent(), \a event must be allocated on the
   heap, as it is deleted when the event has been posted.
 */
@@ -801,7 +830,7 @@ void QThread::exit()
 */
 bool QThread::wait(unsigned long time)
 {
-    if (d->finished)
+    if (d->finished || ! d->running)
 	return TRUE;
 
     return d->thread_done.wait(time);
@@ -822,8 +851,6 @@ void QThread::start()
 #endif
 
 	wait();
-
-	return;
     }
 
     d->init(this);
@@ -857,40 +884,40 @@ bool QThread::running() const
 
 
 /**************************************************************************
- ** QCondition
+ ** QWaitCondition
  *************************************************************************/
 
 /*!
-  \class QCondition qthread.h
-  \brief The QCondition class provides signalling of the occurrence of
-         events between threads
+  \class QWaitCondition qthread.h
+  \brief The QWaitCondition class allows waiting/waking for conditions
+         between threads
 
   \ingroup environment
 
-  QConditions allow a thread to tell other threads that some sort of
-  event has happened; one or many threads can block waiting for a
-  QCondition to signal an event, and a thread can call wakeOne() to
-  wake one randomly-selected event or wakeAll() to wake them all. For
-  example, say we have three tasks that should be performed every time
-  the user presses a key; each task could be split into a thread, each
+  QWaitConditions allow a thread to tell other threads that some sort of
+  condition has been met; one or many threads can block waiting for a
+  QWaitCondition to set a condition with wakeOne() or wakeAll.  Use
+  wakeOne() to wake one randomly-selected event or wakeAll() to wake them
+  all. For example, say we have three tasks that should be performed every
+  time the user presses a key; each task could be split into a thread, each
   of which would have a run() body like so:
 
   \code
-  QCondition key_pressed;
-  
+  QWaitCondition key_pressed;
+
   while(1) {
-     key_pressed.wait();    // This is a QCondition global variable
+     key_pressed.wait();    // This is a QWaitCondition global variable
      // Key was pressed, do something interesting
      do_something();
   }
   \endcode
-  
+
   A fourth thread would read key presses and wake the other three threads
   up every time it receives one, like so:
 
   \code
-  QCondition key_pressed;
-  
+  QWaitCondition key_pressed;
+
   while(1) {
      getchar();
      // Causes any thread in key_pressed.wait() to return from
@@ -898,7 +925,7 @@ bool QThread::running() const
      key_pressed.wakeAll();
   }
   \endcode
-  
+
   Note that the order the three threads are woken up in is undefined,
   and that if some or all of the threads are still in do_something()
   when the key is pressed, they won't be woken up (since they're not
@@ -908,12 +935,12 @@ bool QThread::running() const
 
   \code
   QMutex mymutex;
-  QCondition key_pressed;
+  QWaitCondition key_pressed;
   int mycount=0;
 
   // Worker thread code
   while(1) {
-     key_pressed.wait();    // This is a QCondition global variable
+     key_pressed.wait();    // This is a QWaitCondition global variable
      mymutex.lock();
      mycount++;
      mymutex.unlock();
@@ -937,7 +964,7 @@ bool QThread::running() const
      key_pressed.wakeAll();
   }
   \endcode
-  
+
   The mutexes are necessary because the results if two threads
   attempt to change the value of the same variable simultaneously
   are unpredictable.
@@ -946,20 +973,20 @@ bool QThread::running() const
 
 
 /**************************************************************************
- ** QConditionPrivate
+ ** QWaitConditionPrivate
  *************************************************************************/
 
-class QConditionPrivate {
+class QWaitConditionPrivate {
 public:
     pthread_cond_t cond;
     QMutex mutex;
 
-    QConditionPrivate();
-    ~QConditionPrivate();
+    QWaitConditionPrivate();
+    ~QWaitConditionPrivate();
 };
 
 
-QConditionPrivate::QConditionPrivate()
+QWaitConditionPrivate::QWaitConditionPrivate()
 {
     pthread_condattr_t cattr;
     pthread_condattr_init(&cattr);
@@ -973,16 +1000,16 @@ QConditionPrivate::QConditionPrivate()
 
 #ifdef CHECK_RANGE
     if( ret )
-	qWarning( "QCondition::QCondition: event init failure %s", strerror( ret ) );
+	qWarning( "QWaitCondition::QWaitCondition: event init failure %s", strerror( ret ) );
 #endif
 }
 
-QConditionPrivate::~QConditionPrivate()
+QWaitConditionPrivate::~QWaitConditionPrivate()
 {
     int ret = pthread_cond_destroy(&cond);
     if( ret ) {
 #ifdef CHECK_RANGE
-	qWarning( "QCondition::~QCondition: event destroy failure %s", strerror( ret ) );
+	qWarning( "QWaitCondition::~QWaitCondition: event destroy failure %s", strerror( ret ) );
 #endif
 
 	// seems we have threads waiting on us, lets wake them up
@@ -994,16 +1021,16 @@ QConditionPrivate::~QConditionPrivate()
 /*!
   Constructs a new event signalling object.
 */
-QCondition::QCondition()
+QWaitCondition::QWaitCondition()
 {
-    d = new QConditionPrivate;
+    d = new QWaitConditionPrivate;
 }
 
 
 /*!
   Deletes the event signalling object.
 */
-QCondition::~QCondition()
+QWaitCondition::~QWaitCondition()
 {
     delete d;
 }
@@ -1023,7 +1050,7 @@ QCondition::~QCondition()
 
   \sa wakeOne(), wakeAll()
 */
-bool QCondition::wait(unsigned long time)
+bool QWaitCondition::wait(unsigned long time)
 {
     d->mutex.lock();
 
@@ -1041,7 +1068,7 @@ bool QCondition::wait(unsigned long time)
     d->mutex.unlock();
 
 #ifdef CHECK_RANGE
-    if( ret ) qWarning("QCondition::wait: wait error:%s",strerror(ret));
+    if( ret ) qWarning("QWaitCondition::wait: wait error:%s",strerror(ret));
 #endif
 
     return (ret == 0);
@@ -1069,13 +1096,13 @@ bool QCondition::wait(unsigned long time)
 
   \sa wakeOne(), wakeAll()
 */
-bool QCondition::wait(QMutex *mutex, unsigned long time)
+bool QWaitCondition::wait(QMutex *mutex, unsigned long time)
 {
     if (! mutex) return FALSE;
 
 #ifdef CHECK_RANGE
     if (mutex->d->type() == Q_MUTEX_RECURSIVE)
-	qWarning("QCondition::unlockAndWait: warning - using recursive mutexes with\n"
+	qWarning("QWaitCondition::unlockAndWait: warning - using recursive mutexes with\n"
 		 "                             conditions undefined!");
 #endif
 
@@ -1089,7 +1116,7 @@ bool QCondition::wait(QMutex *mutex, unsigned long time)
 
 	if (! rmp->count) {
 #  ifdef CHECK_RANGE
-	    qWarning("QCondition::unlockAndWait: recursive mutex not locked!");
+	    qWarning("QWaitCondition::unlockAndWait: recursive mutex not locked!");
 #  endif
 
 	    return FALSE;
@@ -1127,7 +1154,7 @@ bool QCondition::wait(QMutex *mutex, unsigned long time)
 #endif
 
 #ifdef CHECK_RANGE
-    if ( ret ) qWarning("QCondition::wait: wait error:%s",strerror(ret));
+    if ( ret ) qWarning("QWaitCondition::wait: wait error:%s",strerror(ret));
 #endif
 
     return (ret == 0);
@@ -1135,13 +1162,13 @@ bool QCondition::wait(QMutex *mutex, unsigned long time)
 
 
 /*!
-  This wakes one thread waiting on the QCondition.  The thread that
+  This wakes one thread waiting on the QWaitCondition.  The thread that
   woken up depends on the operating system's scheduling policies, and
   cannot be controlled or predicted.
-  
+
   \sa wakeAll()
 */
-void QCondition::wakeOne()
+void QWaitCondition::wakeOne()
 {
     d->mutex.lock();
 
@@ -1151,7 +1178,7 @@ void QCondition::wakeOne()
 	pthread_cond_signal( &(d->cond) );
 
 #ifdef CHECK_RANGE
-    if ( ret ) qWarning("QCondition::wakeOne: wake error: %s",strerror(ret));
+    if ( ret ) qWarning("QWaitCondition::wakeOne: wake error: %s",strerror(ret));
 #endif
 
     d->mutex.unlock();
@@ -1159,13 +1186,13 @@ void QCondition::wakeOne()
 
 
 /*!
-  This wakes all threads waiting on the QCondition.  The order in
+  This wakes all threads waiting on the QWaitCondition.  The order in
   which the threads are woken up depends on the operating system's
   scheduling policies, and cannot be controlled or predicted.
-  
+
   \sa wakeOne()
 */
-void QCondition::wakeAll()
+void QWaitCondition::wakeAll()
 {
     d->mutex.lock();
 
@@ -1175,7 +1202,7 @@ void QCondition::wakeAll()
 	pthread_cond_broadcast(& (d->cond) );
 
 #ifdef CHECK_RANGE
-    if( ret ) qWarning("QCondition::wakeAll: wake error: %s",strerror(ret));
+    if( ret ) qWarning("QWaitCondition::wakeAll: wake error: %s",strerror(ret));
 #endif
 
     d->mutex.unlock();
@@ -1194,14 +1221,14 @@ void QCondition::wakeAll()
   QSemaphore can be used to serialize thread execution, similar to a
   QMutex.  A semaphore differs from a mutex, in that a semaphore can be
   accessed by more than one thread at a time.
-  
+
   An example would be an application that stores data in a large tree
   structure.  The application creates 10 threads (commonly called a
   thread pool) to do searches on the tree.  When the application searches
   the tree for some piece of data, it uses one thread per base node to
   do the searching.  A semaphore could be used to make sure that 2 threads
   don't try to search the same branch of the tree.
-  
+
   A real world example of a semaphore would be dining at a restuarant.
   A semaphore initialized to have a maximum count equal to the number
   of chairs in the restuarant.  As people arrive, they want a seat.  As

@@ -103,7 +103,7 @@ public slots:
     void showProperties( QWidget *w );
     void updateProperties( QWidget *w );
     void showDialogHelp();
-    
+
 signals:
     void currentToolChanged();
     void hasActiveForm( bool );
@@ -116,8 +116,8 @@ protected:
 private slots:
     void fileNew();
     void fileOpen();
-    void fileSave();
-    void fileSaveAs();
+    bool fileSave();
+    bool fileSaveAs();
     void fileSaveAll();
     void fileCreateTemplate();
 
@@ -219,7 +219,7 @@ private:
     void checkTempFiles();
 
     void openHelpForDialog( const QString &dia );
-    
+
 private:
     PropertyEditor *propertyEditor;
     HierarchyView *hierarchyView;

@@ -5,24 +5,27 @@
 **
 ** Created : 990721
 **
-** Copyright (C) 1999-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1999-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
-** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
-** LICENSE.QPL included in the packaging of this file.
-**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the kernel
-** module and therefore may only be used if the kernel module is specified
-** as Licensed on the Licensee's License Certificate.
+** licenses for Qt/Embedded may use this file in accordance with the
+** Qt Embedded Commercial License Agreement provided with the Software.
+**
+** This file is not available for use under any other license without
+** express written permission from the copyright holder.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing.
+**   information about Qt Commercial License Agreements.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 #include "qgfx_qws.h"
 
 #include <stdio.h>
@@ -152,21 +155,26 @@ QScreen * qt_probe_bus( int display_id, const QString &spec )
 
 #else
 
-char * qt_qws_hardcoded_slot="/proc/bus/pci/00/0c.0";
+char * qt_qws_hardcoded_slot="/proc/bus/pci/01/00.0";
 
 QScreen * qt_probe_bus( int display_id, const char *spec )
 {
-    if ( qt_qws_hardcoded_slot ) {
+    char * slot;
+    slot=getenv("QWS_CARD_SLOT");
+    if(!slot) {
+	slot=qt_qws_hardcoded_slot;
+    }
+    if ( slot ) {
 	unsigned char config[256];
-	FILE * f=fopen(qt_qws_hardcoded_slot,"r");
+	FILE * f=fopen(slot,"r");
 	if(!f) {
-	    qt_qws_hardcoded_slot=0;
+	    slot=0;
 	} else {
 	    int r=fread(config,256,1,f);
 	    if(r<1)
-		qt_qws_hardcoded_slot=0;
+		slot=0;
 	    else
-		return qt_get_screen( display_id, spec, qt_qws_hardcoded_slot,
+		return qt_get_screen( display_id, spec, slot,
 				      config );
 
 	    fclose(f);

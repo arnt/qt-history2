@@ -1,27 +1,39 @@
 /****************************************************************************
- ** $Id: //depot/qt/main/src/widgets/qmotifplusstyle.cpp#17 $
- **
- ** Implementation of QMotifPlusStyle class
- **
- ** Created : 2000.07.27
- **
- ** Copyright (C) 2000 Troll Tech AS.  All rights reserved.
- **
- ** This file is part of the Qt GUI Toolkit.
- **
- ** This file may be distributed under the terms of the Q Public License
- ** as defined by Troll Tech AS of Norway and appearing in the file
- ** LICENSE.QPL included in the packaging of this file.
- **
- ** Licensees holding valid Qt Professional Edition licenses may use this
- ** file in accordance with the Qt Professional Edition License Agreement
- ** provided with the Qt Professional Edition.
- **
- ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
- ** information about the Professional Edition licensing, or see
- ** http://www.trolltech.com/qpl/ for QPL licensing information.
- **
- *****************************************************************************/
+** $Id: //depot/qt/main/src/widgets/qmotifplusstyle.cpp#17 $
+**
+** Implementation of QMotifPlusStyle class
+**
+** Created : 2000.07.27
+**
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+**
+** This file is part of the widgets module of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Trolltech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qmotifplusstyle.h"
 
@@ -47,9 +59,11 @@ typedef void (QStyle::*QDrawMenuBarItemImpl) (QPainter *, int, int, int, int, QM
 QDrawMenuBarItemImpl qt_set_draw_menu_bar_impl(QDrawMenuBarItemImpl impl);
 
 
-struct QMotifPlusStylePrivate {
+struct QMotifPlusStylePrivate
+{
     QMotifPlusStylePrivate()
-	: hoverWidget(0), hovering(FALSE), sliderActive(FALSE), scrollbarElement(0), ref(1)
+	: hoverWidget(0), hovering(FALSE), sliderActive(FALSE),
+	  scrollbarElement(0), ref(1), hoverPalette(0)
     { ; }
 
     QGuardedPtr<QWidget> hoverWidget;
@@ -57,6 +71,7 @@ struct QMotifPlusStylePrivate {
     bool hovering, sliderActive;
     int scrollbarElement, ref;
     QPoint mousePos;
+    QPalette *hoverPalette;
 };
 
 static QMotifPlusStylePrivate *d = 0;
@@ -75,7 +90,7 @@ static QMotifPlusStylePrivate *d = 0;
 /*!
   Constructs a QMotifPlusStyle
 
-  If hoveringHighlight is FALSE (default value), then the style will not
+  If \a hoveringHighlight is FALSE (default value), then the style will not
   highlight push buttons, checkboxes, radiobuttons, comboboxes, scrollbars
   and sliders.
  */
@@ -107,20 +122,134 @@ QMotifPlusStyle::~QMotifPlusStyle()
 }
 
 
-/*! \fn void QMotifPlusStyle::polish(QPalette &)
+/*!
   \reimp
 */
 
+void QMotifPlusStyle::polish(QPalette &pal)
+{
+    d->oldpalette = pal;
 
-/*! \fn void QMotifPlusStyle::polishPopupMenu(QPopupMenu *)
-  \reimp
-*/
+    QColor bg = pal.color(QPalette::Active, QColorGroup::Background);
+
+    if (bg.red()   == 0xc0 &&
+	bg.green() == 0xc0 &&
+	bg.blue()  == 0xc0) {
+	// assume default palette... no -bg arg or color read from RESOURCE_MANAGER
+
+	QColor gtkdf(0x75, 0x75, 0x75);
+	QColor gtksf(0xff, 0xff, 0xff);
+	QColor gtkbg(0xd6, 0xd6, 0xd6);
+	QColor gtksl(0x00, 0x00, 0x9c);
+
+	pal.setColor(QPalette::Active, QColorGroup::Background, gtkbg);
+	pal.setColor(QPalette::Inactive, QColorGroup::Background, gtkbg);
+	pal.setColor(QPalette::Disabled, QColorGroup::Background, gtkbg);
+
+	pal.setColor(QPalette::Active, QColorGroup::Button, gtkbg);
+	pal.setColor(QPalette::Inactive, QColorGroup::Button, gtkbg);
+	pal.setColor(QPalette::Disabled, QColorGroup::Button, gtkbg);
+
+	pal.setColor(QPalette::Active, QColorGroup::Highlight, gtksl);
+	pal.setColor(QPalette::Inactive, QColorGroup::Highlight, gtksl);
+	pal.setColor(QPalette::Disabled, QColorGroup::Highlight, gtksl);
+
+	pal.setColor(QPalette::Active, QColorGroup::HighlightedText, gtksf);
+	pal.setColor(QPalette::Inactive, QColorGroup::HighlightedText, gtksf);
+	pal.setColor(QPalette::Disabled, QColorGroup::HighlightedText, gtkdf);
+    }
+
+    {
+	QColorGroup active(pal.color(QPalette::Active,
+				     QColorGroup::Foreground),           // foreground
+			   pal.color(QPalette::Active,
+				     QColorGroup::Button),               // button
+			   pal.color(QPalette::Active,
+				     QColorGroup::Background).light(),   // light
+			   pal.color(QPalette::Active,
+				     QColorGroup::Background).dark(142), // dark
+			   pal.color(QPalette::Active,
+				     QColorGroup::Background).dark(110), // mid
+			   pal.color(QPalette::Active,
+				     QColorGroup::Text),                 // text
+			   pal.color(QPalette::Active,
+				     QColorGroup::BrightText),           // bright text
+			   pal.color(QPalette::Active,
+				     QColorGroup::Base),                 // base
+			   pal.color(QPalette::Active,
+				     QColorGroup::Background)),          // background
+
+
+	    disabled(pal.color(QPalette::Disabled,
+			       QColorGroup::Foreground),                 // foreground
+		     pal.color(QPalette::Disabled,
+			       QColorGroup::Button),                     // button
+		     pal.color(QPalette::Disabled,
+			       QColorGroup::Background).light(),         // light
+		     pal.color(QPalette::Disabled,
+			       QColorGroup::Background).dark(156),       // dark
+		     pal.color(QPalette::Disabled,
+			       QColorGroup::Background).dark(110),       // mid
+		     pal.color(QPalette::Disabled,
+			       QColorGroup::Text),                       // text
+		     pal.color(QPalette::Disabled,
+			       QColorGroup::BrightText),                 // bright text
+		     pal.color(QPalette::Disabled,
+			       QColorGroup::Base),                       // base
+		     pal.color(QPalette::Disabled,
+			       QColorGroup::Background));                // background
+
+	active.setColor(QColorGroup::Highlight,
+			pal.color(QPalette::Active, QColorGroup::Highlight));
+	disabled.setColor(QColorGroup::Highlight,
+			  pal.color(QPalette::Disabled, QColorGroup::Highlight));
+
+	active.setColor(QColorGroup::HighlightedText,
+			pal.color(QPalette::Active, QColorGroup::HighlightedText));
+	disabled.setColor(QColorGroup::HighlightedText,
+			  pal.color(QPalette::Disabled, QColorGroup::HighlightedText));
+
+	pal.setActive(active);
+	pal.setInactive(active);
+	pal.setDisabled(disabled);
+    }
+
+    {
+	QColor prelight;
+
+	if ( (bg.red() + bg.green() + bg.blue()) / 3 > 128)
+	    prelight = pal.color(QPalette::Active,
+				 QColorGroup::Background).light(110);
+	else
+	    prelight = pal.color(QPalette::Active,
+				 QColorGroup::Background).light(120);
+
+	QColorGroup active2(pal.color(QPalette::Active,
+				      QColorGroup::Foreground), // foreground
+			    prelight,                           // button
+			    prelight.light(),                   // light
+			    prelight.dark(156),                 // dark
+			    prelight.dark(110),                 // mid
+			    pal.color(QPalette::Active,
+				      QColorGroup::Text),       // text
+			    pal.color(QPalette::Active,
+				      QColorGroup::BrightText), // bright text
+			    pal.color(QPalette::Active,
+				      QColorGroup::Base),       // base
+			    prelight);                          // background
+
+	d->prelight_palette = pal;
+	d->prelight_palette.setActive(active2);
+	d->prelight_palette.setInactive(active2);
+    }
+}
 
 
 /*!
   \reimp
 */
-void QMotifPlusStyle::polish(QWidget *widget) {
+void QMotifPlusStyle::polish(QWidget *widget)
+{
     if (widget->inherits("QFrame") &&
 	((QFrame *) widget)->frameStyle() == QFrame::Panel)
 	((QFrame *) widget)->setFrameStyle(QFrame::WinPanel);
@@ -150,7 +279,8 @@ void QMotifPlusStyle::polish(QWidget *widget) {
 /*!
   \reimp
 */
-void QMotifPlusStyle::unPolish(QWidget *widget) {
+void QMotifPlusStyle::unPolish(QWidget *widget)
+{
     widget->removeEventFilter(this);
     QMotifStyle::unPolish(widget);
 }
@@ -159,80 +289,8 @@ void QMotifPlusStyle::unPolish(QWidget *widget) {
 /*!
   \reimp
 */
-void QMotifPlusStyle::polish(QApplication *app) {
-    d->oldpalette = app->palette();
-
-    QColor gtkfg(0x00, 0x00, 0x00);
-    QColor gtkdf(0x75, 0x75, 0x75);
-    QColor gtksf(0xff, 0xff, 0xff);
-    QColor gtkbs(0xff, 0xff, 0xff);
-    QColor gtkbg(0xd6, 0xd6, 0xd6);
-    QColor gtksl(0x00, 0x00, 0x9c);
-    QColor gtkpl(0xea, 0xea, 0xea);
-
-    {
-	QColorGroup active(gtkfg,            // foreground
-			   gtkbg,            // button
-			   gtkbg.light(),    // light
-			   gtkbg.dark(142),  // dark
-			   gtkbg.dark(110),  // mid
-			   gtkfg,            // text
-			   gtkfg,            // bright text
-			   gtkbs,            // base
-			   gtkbg),           // background
-	    disabled(gtkdf,            // foreground
-		     gtkbg,            // button
-		     gtkbg.light(), // light
-		     gtkbg.dark(156),  // dark
-		     gtkbg.dark(110),  // mid
-		     gtkdf,            // text
-		     gtkdf,            // bright text
-		     gtkbs,            // base
-		     gtkbg);           // background
-
-	QPalette pal(active, disabled, active);
-
-	pal.setColor(QPalette::Active, QColorGroup::Highlight,
-		     gtksl);
-	pal.setColor(QPalette::Active, QColorGroup::HighlightedText,
-		     gtksf);
-	pal.setColor(QPalette::Inactive, QColorGroup::Highlight,
-		     gtksl);
-	pal.setColor(QPalette::Inactive, QColorGroup::HighlightedText,
-		     gtksf);
-	pal.setColor(QPalette::Disabled, QColorGroup::Highlight,
-		     gtksl);
-	pal.setColor(QPalette::Disabled, QColorGroup::HighlightedText,
-		     gtkdf);
-
-	app->setPalette(pal, TRUE);
-    }
-
-    {
-	QColorGroup active2(gtkfg,            // foreground
-			    gtkpl,            // button
-			    gtkpl.light(),    // light
-			    gtkpl.dark(156),  // dark
-			    gtkpl.dark(110),  // mid
-			    gtkfg,            // text
-			    gtkfg,            // bright text
-			    gtkbs,            // base
-			    gtkpl),           // background
-	    disabled2(gtkdf,            // foreground
-		      gtkbg,            // button
-		      gtkbg.light(), // light
-		      gtkbg.dark(156),  // dark
-		      gtkbg.dark(110),  // mid
-		      gtkdf,            // text
-		      gtkdf,            // bright text
-		      gtkbs,            // base
-		      gtkbg);           // background
-
-	d->prelight_palette.setActive(active2);
-	d->prelight_palette.setInactive(active2);
-	d->prelight_palette.setDisabled(disabled2);
-    }
-
+void QMotifPlusStyle::polish(QApplication *)
+{
     qt_set_draw_menu_bar_impl((QDrawMenuBarItemImpl) &QMotifPlusStyle::drawMenuBarItem);
 }
 
@@ -240,14 +298,19 @@ void QMotifPlusStyle::polish(QApplication *app) {
 /*!
   \reimp
 */
-void QMotifPlusStyle::unPolish(QApplication *app) {
+void QMotifPlusStyle::unPolish(QApplication *app)
+{
     app->setPalette(d->oldpalette);
 
     qt_set_draw_menu_bar_impl(0);
 }
 
 
-void QMotifPlusStyle::polishPopupMenu(QPopupMenu *menu) {
+/*!
+  \reimp
+*/
+void QMotifPlusStyle::polishPopupMenu(QPopupMenu *menu)
+{
     menu->setMouseTracking(TRUE);
 }
 
@@ -255,14 +318,14 @@ void QMotifPlusStyle::polishPopupMenu(QPopupMenu *menu) {
 /*!
   \reimp
 */
-void QMotifPlusStyle::drawPushButton(QPushButton *button, QPainter *p) {
+void QMotifPlusStyle::drawPushButton(QPushButton *button, QPainter *p)
+{
     int x1, y1, x2, y2;
     button->rect().coords(&x1, &y1, &x2, &y2);
 
     if (button->isDefault())
 	drawButton(p, x1, y1, x2 - x1 + 1, y2 - y1 + 1,
 		   qApp->palette().active(), TRUE);
-    // button->colorGroup(), TRUE);
 
     if (button->isDefault() || button->autoDefault()) {
 	x1 += buttonDefaultIndicatorWidth();
@@ -285,8 +348,8 @@ void QMotifPlusStyle::drawPushButton(QPushButton *button, QPainter *p) {
 /*!
   \reimp
 */
-void QMotifPlusStyle::drawButton(QPainter *p, int x, int y, int w, int h, const QColorGroup &g,
-			    bool sunken, const QBrush *fill)
+void QMotifPlusStyle::drawButton(QPainter *p, int x, int y, int w, int h,
+				 const QColorGroup &g, bool sunken, const QBrush *fill)
 {
     QPen oldpen = p->pen();
     QPointArray a(4);
@@ -343,8 +406,8 @@ void QMotifPlusStyle::drawButton(QPainter *p, int x, int y, int w, int h, const 
 /*!
   \reimp
 */
-void QMotifPlusStyle::drawBevelButton(QPainter *p, int x, int y, int w, int h, const QColorGroup &g,
-				 bool sunken, const QBrush *fill)
+void QMotifPlusStyle::drawBevelButton(QPainter *p, int x, int y, int w, int h,
+				      const QColorGroup &g, bool sunken, const QBrush *fill)
 {
     drawButton(p, x, y, w, h, g, sunken, fill);
 }
@@ -1189,6 +1252,10 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
 			d->hoverWidget->repaint(FALSE);
 		    } else if (object->inherits("QPushButton")) {
 			QPalette pal = d->hoverWidget->palette();
+			
+			if (d->hoverWidget->ownPalette())
+			    d->hoverPalette = new QPalette(pal);
+			
 			pal.setColor(QPalette::Active, QColorGroup::Button,
 				     d->prelight_palette.color(QPalette::Active,
 							       QColorGroup::Button));
@@ -1205,7 +1272,14 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
     case QEvent::Leave:
 	{
 	    if (object == d->hoverWidget) {
-		d->hoverWidget->unsetPalette();
+		if (d->hoverPalette) {
+		    d->hoverWidget->setPalette(*(d->hoverPalette));
+		    delete d->hoverPalette;
+		    d->hoverPalette = 0;
+		} else {
+		    d->hoverWidget->unsetPalette();
+		}	
+		
 		d->hoverWidget = 0;
 	    }
 

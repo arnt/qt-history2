@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#400 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#401 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -9,20 +9,23 @@
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
-** This file may be distributed under the terms of the Q Public License
-** as defined by Trolltech AS of Norway and appearing in the file
-** LICENSE.QPL included in the packaging of this file.
-**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the kernel
-** module and therefore may only be used if the kernel module is specified
-** as Licensed on the Licensee's License Certificate.
+** licenses for Windows may use this file in accordance with the Qt Commercial
+** License Agreement provided with the Software.
+**
+** This file is not available for use under any other license without
+** express written permission from the copyright holder.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing.
+**   information about Qt Commercial License Agreements.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qapplication.h"
 #include "qwidget.h"
@@ -135,6 +138,10 @@ extern QWidgetList *qt_modal_stack;
 static QWidget *popupButtonFocus   = 0;
 static bool	popupCloseDownMode = FALSE;
 static bool	qt_try_modal( QWidget *, MSG *, int& ret );
+
+#if defined (QT_THREAD_SUPPORT)
+static unsigned long qt_gui_thread = 0;
+#endif
 
 QWidget	       *qt_button_down = 0;		// widget got last button-down
 
@@ -964,9 +971,9 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 	if ( cwin && cwin != win )
 	    return QWidget::find( cwin );
     }
+
     return w;
 }
-
 
 void QApplication::beep()
 {
@@ -1249,6 +1256,7 @@ int QApplication::exec()
     quit_now = FALSE;
     quit_code = 0;
 #if defined(QT_THREAD_SUPPORT)
+    qt_gui_thread = GetCurrentThreadId();
     qApp->unlock();
 #endif
     enter_loop();
@@ -1371,13 +1379,14 @@ void QApplication::processEvents( int maxtime )
     }
 }
 
-#if defined(QT_THREAD_SUPPORT)
-
 void QApplication::wakeUpGuiThread()
 {
-}
-
+#if defined(QT_THREAD_SUPPORT)
+    PostThreadMessage( qt_gui_thread, WM_USER+666, 0, 0 );
+#else
+    PostMessage( mainWidget()->winId(), WM_USER+666, 0, 0 );
 #endif
+}
 
 bool QApplication::winEventFilter( MSG * )	// Windows event filter
 {
@@ -1503,6 +1512,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    if ( qApp->activePopupWidget() != 0) { // in popup mode
 		POINT curPos;
 		GetCursorPos( &curPos );
+
 		QWidget* w = QApplication::widgetAt(curPos.x, curPos.y);
 		if (w && w->testWFlags(Qt::WType_Popup))
 		    widget = (QETWidget*)w;
@@ -1786,31 +1796,34 @@ static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
     QWidget *modal=0, *top=QApplication::activeModalWidget();
     int	 type  = msg->message;
 
+    QWidget* groupLeader = widget;
     widget = widget->topLevelWidget();
+    
     if ( widget->testWFlags(Qt::WType_Modal) )	// widget is modal
 	modal = widget;
 
     if ( !top || modal == top )			// don't block event
 	return TRUE;
 
-#ifdef ALLOW_NON_APPLICATION_MODAL
-    if ( top && top->parentWidget() ) {
-	// Not application-modal
-	// Does widget have a child in qt_modal_stack?
+    while ( groupLeader && !groupLeader->testWFlags( Qt::WGroupLeader ) )
+	groupLeader = groupLeader->parentWidget();
+    
+    if ( groupLeader ) {
+	// Does groupLeader have a child in qt_modal_stack?
 	bool unrelated = TRUE;
 	modal = qt_modal_stack->first();
 	while (modal && unrelated) {
 	    QWidget* p = modal->parentWidget();
-	    while ( p && p != widget ) {
+	    while ( p && p != groupLeader && !p->testWFlags( Qt::WGroupLeader) ) {
 		p = p->parentWidget();
 	    }
 	    modal = qt_modal_stack->next();
-	    if ( p ) unrelated = FALSE;
+	    if ( p == groupLeader ) unrelated = FALSE;
 	}
-	if ( unrelated ) return TRUE;		// don't block event
+	
+	if ( unrelated ) 
+	    return TRUE;		// don't block event
     }
-#endif
-
 
     bool block_event = FALSE;
     if ( type == WM_NCHITTEST ) {
@@ -2272,7 +2285,10 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	}
 
 	POINT curPos;
+	// ### here we want to use the point that has been delivered by the
+	// ### message, but this doesn't seem to work as expected
 	GetCursorPos( &curPos );		// compress mouse move
+
 	if ( curPos.x == gpos.x && curPos.y == gpos.y )
 	    return TRUE;			// same global position
 	gpos = curPos;
@@ -2286,11 +2302,8 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	pos.rx() = (short)curPos.x;
 	pos.ry() = (short)curPos.y;
     } else {
-	// ignore LOWORD(msg.lParam) and pos.ry() = HIWORD(msg.lParam)
-	// since they might be for the wrong widget. Use the global cursor pos
-	// instead.
 	GetCursorPos( &gpos );
-	pos = mapFromGlobal( QPoint(gpos.x, gpos.y) );
+	pos = mapFromGlobal( QPoint(gpos.x, gpos.y) );	
 
 	if ( type == QEvent::MouseButtonPress ) {	// mouse button pressed
 	    // Magic for masked widgets
@@ -2649,7 +2662,8 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	    case Key_9:
 		state |= Keypad;
 	    default:
-		if ( msg.lParam == 0x004c0001 || msg.lParam == 0xc04c0001 )
+		if ( (uint)msg.lParam == 0x004c0001 ||
+		     (uint)msg.lParam == 0xc04c0001 )
 		    state |= Keypad;
 		break;
 	    }
@@ -2957,8 +2971,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	int b = (int) (short) HIWORD(msg.lParam);
 	QPoint oldPos = pos();
 	// Ignore silly Windows move event to wild pos after iconify.
-	// (### check if this has been corrected with the other fixes in 2.0)
-	if ( a <= QCOORD_MAX && b <= QCOORD_MAX ) { //###not 32-bit safe
+	if ( !isMinimized() ) {
 	    QPoint newCPos( a, b );
 	    cr.moveTopLeft( newCPos );
 	    setCRect( cr );
@@ -3044,32 +3057,6 @@ int QApplication::wheelScrollLines()
 
 void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 {
-    if ( desktopSettingsAware() && ( qt_winver == WV_98 || qt_winver == WV_2000 ) ) {
-	// we know that they can be used when we are here
-	int api;
-	switch (effect) {
-	case UI_AnimateMenu:
-	    api = SPI_SETMENUANIMATION;
-	    break;
-	case UI_FadeMenu:
-	    api = SPI_SETMENUFADE;
-	    break;
-	case UI_AnimateCombo:
-	    api = SPI_SETCOMBOBOXANIMATION;
-	    break;
-	case UI_AnimateTooltip:
-	    api = SPI_SETTOOLTIPANIMATION;
-	    break;
-	case UI_FadeTooltip:
-	    api = SPI_SETTOOLTIPFADE;
-	    break;
-	default:
-	   api = SPI_SETUIEFFECTS;
-	break;
-	}
-	SystemParametersInfo( api, 0, &effect, 0 );
-    }
-
     switch (effect) {
     case UI_AnimateMenu:
 	animate_menu = enable;
@@ -3090,6 +3077,37 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 	animate_ui = enable;
 	break;
     }
+
+    if ( desktopSettingsAware() && ( qt_winver == WV_98 || qt_winver == WV_2000 ) ) {
+	// we know that they can be used when we are here
+	UINT api;
+	switch (effect) {
+	case UI_AnimateMenu:
+	    api = SPI_SETMENUANIMATION;
+	    break;
+	case UI_FadeMenu:
+	    if ( qt_winver != WV_2000 )
+		return;
+	    api = SPI_SETMENUFADE;
+	    break;
+	case UI_AnimateCombo:
+	    api = SPI_SETCOMBOBOXANIMATION;
+	    break;
+	case UI_AnimateTooltip:
+	    api = SPI_SETTOOLTIPANIMATION;
+	    break;
+	case UI_FadeTooltip:
+	    if ( qt_winver != WV_2000 )
+		return;
+	    api = SPI_SETTOOLTIPFADE;
+	    break;
+	default:
+	   api = SPI_SETUIEFFECTS;
+	break;
+	}
+	BOOL onoff = enable;
+	SystemParametersInfo( api, 0, &onoff, 0 );
+    }
 }
 
 bool QApplication::isEffectEnabled( Qt::UIEffect effect )
@@ -3097,12 +3115,14 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
     if ( desktopSettingsAware() && ( qt_winver == WV_98 || qt_winver == WV_2000 ) ) {
     // we know that they can be used when we are here
 	BOOL enabled;
-	int api;
+	UINT api;
 	switch (effect) {
 	case UI_AnimateMenu:
 	    api = SPI_GETMENUANIMATION;
 	    break;
 	case UI_FadeMenu:
+	    if ( qt_winver != WV_2000 )
+		return FALSE;
 	    api = SPI_GETMENUFADE;
 	    break;
 	case UI_AnimateCombo:
@@ -3112,6 +3132,8 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 	    api = SPI_GETTOOLTIPANIMATION;
 	    break;
 	case UI_FadeTooltip:
+	    if ( qt_winver != WV_2000 )
+		return FALSE;
 	    api = SPI_GETTOOLTIPFADE;
 	    break;
 	default:

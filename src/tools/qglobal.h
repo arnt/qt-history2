@@ -13,24 +13,34 @@
 ** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the tools
-** module and therefore may only be used if the tools module is specified
-** as Licensed on the Licensee's License Certificate.
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #ifndef QGLOBAL_H
 #define QGLOBAL_H
 
 
 #define QT_VERSION	220
-#define QT_VERSION_STR	"2.2.0-beta2"
+#define QT_VERSION_STR	"2.2.0"
 
 
 //
@@ -131,7 +141,7 @@
 #define _OS_UNIX_
 // QT_CLEAN_NAMESPACE is not defined by default; it would break too
 // much code.
-#if !defined(QT_CLEAN_NAMESPACE)
+#if !defined(QT_CLEAN_NAMESPACE) && !defined(UNIX)
 // ### remove 3.0
 #define UNIX
 #endif
@@ -177,6 +187,7 @@
 #define _CC_BOR_
 #elif defined(__WATCOMC__)
 #define _CC_WAT_
+#define Q_HAS_BOOL_TYPE
 #elif defined(__GNUC__)
 #define _CC_GNU_
 #if __GNUC__ == 2 && __GNUC_MINOR__ <= 7
@@ -187,6 +198,7 @@
 #endif
 #if __GNUC__ == 2 && __GNUC_MINOR__ >= 96
 #define Q_DELETING_VOID_UNDEFINED
+#define Q_FP_CCAST_BROKEN
 #endif
 #if (defined(__arm__) || defined(__ARMEL__)) && !defined(QT_MOC_CPP)
 #define Q_PACKED __attribute__ ((packed))

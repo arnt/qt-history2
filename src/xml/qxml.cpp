@@ -10,22 +10,34 @@
 ** This file is part of the XML module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the XML
-** module and therefore may only be used if the XML module is specified
-** as Licensed on the Licensee's License Certificate.
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition licenses may use this
+** file in accordance with the Qt Commercial License Agreement provided
+** with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qxml.h"
+#include "qtextcodec.h"
+#include "qbuffer.h"
 
 #ifndef QT_NO_XML
 // NOT REVISED
@@ -293,7 +305,7 @@ int QXmlLocator::lineNumber()
   use is for subclasses of QXmlReader which want to provide namespace
   support.
 
-  See also the <a href="XML-SAX.html#namespaces">namespace description</a>.
+  See also the <a href="xml-sax.html#namespaces">namespace description</a>.
 */
 
 /*!
@@ -539,7 +551,7 @@ void QXmlNamespaceSupport::reset()
   Returns the index of the attribute (starting with 0) or -1 if it wasn't
   found.
 
-  See also the <a href="XML-SAX.html#namespaces">namespace description</a>.
+  See also the <a href="xml-sax.html#namespaces">namespace description</a>.
 */
 int QXmlAttributes::index( const QString& qName ) const
 {
@@ -555,7 +567,7 @@ int QXmlAttributes::index( const QString& qName ) const
   Returns the index of the attribute (starting with 0) or -1 if it wasn't
   found.
 
-  See also the <a href="XML-SAX.html#namespaces">namespace description</a>.
+  See also the <a href="xml-sax.html#namespaces">namespace description</a>.
 */
 int QXmlAttributes::index( const QString& uri, const QString& localPart ) const
 {
@@ -578,7 +590,7 @@ int QXmlAttributes::length() const
 /*!
   Looks up an attribute's local name by index (starting with 0).
 
-  See also the <a href="XML-SAX.html#namespaces">namespace description</a>.
+  See also the <a href="xml-sax.html#namespaces">namespace description</a>.
 */
 QString QXmlAttributes::localName( int index ) const
 {
@@ -588,7 +600,7 @@ QString QXmlAttributes::localName( int index ) const
 /*!
   Looks up an attribute's XML 1.0 qualified name by index (starting with 0).
 
-  See also the <a href="XML-SAX.html#namespaces">namespace description</a>.
+  See also the <a href="xml-sax.html#namespaces">namespace description</a>.
 */
 QString QXmlAttributes::qName( int index ) const
 {
@@ -598,7 +610,7 @@ QString QXmlAttributes::qName( int index ) const
 /*!
   Looks up an attribute's namespace URI by index (starting with 0).
 
-  See also the <a href="XML-SAX.html#namespaces">namespace description</a>.
+  See also the <a href="xml-sax.html#namespaces">namespace description</a>.
 */
 QString QXmlAttributes::uri( int index ) const
 {
@@ -650,7 +662,7 @@ QString QXmlAttributes::value( int index ) const
 /*!
   Looks up an attribute's value by XML 1.0 qualified name.
 
-  See also the <a href="XML-SAX.html#namespaces">namespace description</a>.
+  See also the <a href="xml-sax.html#namespaces">namespace description</a>.
 */
 QString QXmlAttributes::value( const QString& qName ) const
 {
@@ -666,7 +678,7 @@ QString QXmlAttributes::value( const QString& qName ) const
   \a uri specifies the namespace URI, or the empty string if the name has no
   namespace URI. \a localName specifies the attribute's local name.
 
-  See also the <a href="XML-SAX.html#namespaces">namespace description</a>.
+  See also the <a href="xml-sax.html#namespaces">namespace description</a>.
 */
 QString QXmlAttributes::value( const QString& uri, const QString& localName ) const
 {
@@ -713,8 +725,8 @@ QXmlInputSource::QXmlInputSource( )
 */
 QXmlInputSource::QXmlInputSource( QTextStream& stream )
 {
-    stream.setEncoding( QTextStream::UnicodeUTF8 );
-    input = stream.read();
+    QByteArray rawData = stream.device()->readAll();
+    readInput( rawData );
 }
 
 /*!
@@ -727,9 +739,8 @@ QXmlInputSource::QXmlInputSource( QFile& file )
 	input = "";
 	return;
     }
-    QTextStream ts( &file );
-    ts.setEncoding( QTextStream::UnicodeUTF8 );
-    input = ts.read();
+    QByteArray rawData = file.readAll();
+    readInput( rawData );
     file.close();
 }
 
@@ -746,6 +757,60 @@ QXmlInputSource::~QXmlInputSource()
 void QXmlInputSource::setData( const QString& dat )
 {
     input = dat;
+}
+
+/*!
+  Read the XML file from the byte array; try to recoginize the encoding.
+*/
+// ### The input source should not do the encoding detection!
+void QXmlInputSource::readInput( QByteArray& rawData )
+{
+    QBuffer buf( rawData );
+    buf.open( IO_ReadOnly );
+    QTextStream *stream = new QTextStream( &buf );
+    QChar tmp;
+    // assume UTF8 or UTF16 at first
+    stream->setEncoding( QTextStream::UnicodeUTF8 );
+    input = "";
+    // read the first 5 characters
+    for ( int i=0; i<5; i++ ) {
+	*stream >> tmp;
+	input += tmp;
+    }
+    // starts the document with an XML declaration?
+    if ( input == "<?xml" ) {
+	// read the whole XML declaration
+	do {
+	    *stream >> tmp;
+	    input += tmp;
+	} while( tmp != '>' );
+	// and try to find out if there is an encoding
+	int pos = input.find( "encoding" );
+	if ( pos != -1 ) {
+	    QString encoding;
+	    do {
+		pos++;
+		if ( pos > (int)input.length() )
+		    goto finished;
+	    } while( input[pos] != '"' && input[pos] != '\'' );
+	    pos++;
+	    while( input[pos] != '"' && input[pos] != '\'' ) {
+		encoding += input[pos];
+		pos++;
+		if ( pos > (int)input.length() )
+		    goto finished;
+	    }
+	    delete stream;
+	    stream = new QTextStream( &buf );
+	    stream->setCodec( QTextCodec::codecForName( encoding ) );
+	    buf.reset();
+	    input = "";
+	}
+    }
+finished:
+    input += stream->read();
+    delete stream;
+    buf.close();
 }
 
 
@@ -777,7 +842,7 @@ void QXmlInputSource::setData( const QString& dat )
   interface; subclassing from this class is very convenient if you want only be
   informed of some parsing events.
 
-  See also the "<a href="XML.html#introSAX2">Introduction to SAX2</a>".
+  See also the "<a href="xml.html#introSAX2">Introduction to SAX2</a>".
 
   \sa QXmlDTDHandler QXmlDeclHandler QXmlEntityResolver QXmlErrorHandler
   QXmlLexicalHandler
@@ -841,7 +906,7 @@ void QXmlInputSource::setData( const QString& dat )
   an error. The reader will use the function errorString() to get the error
   message that will be used for reporting the error.
 
-  See also the <a href="XML-SAX.html#namespaces">namespace description</a>.
+  See also the <a href="xml-sax.html#namespaces">namespace description</a>.
 
   \sa endPrefixMapping()
 */
@@ -854,7 +919,7 @@ void QXmlInputSource::setData( const QString& dat )
   an error. The reader will use the function errorString() to get the error
   message that will be used for reporting the error.
 
-  See also the <a href="XML-SAX.html#namespaces">namespace description</a>.
+  See also the <a href="xml-sax.html#namespaces">namespace description</a>.
 
   \sa startPrefixMapping()
 */
@@ -885,7 +950,7 @@ void QXmlInputSource::setData( const QString& dat )
   an error. The reader will use the function errorString() to get the error
   message that will be used for reporting the error.
 
-  See also the <a href="XML-SAX.html#namespaces">namespace description</a>.
+  See also the <a href="xml-sax.html#namespaces">namespace description</a>.
 
   \sa endElement()
 */
@@ -898,7 +963,7 @@ void QXmlInputSource::setData( const QString& dat )
   an error. The reader will use the function errorString() to get the error
   message that will be used for reporting the error.
 
-  See also the <a href="XML-SAX.html#namespaces">namespace description</a>.
+  See also the <a href="xml-sax.html#namespaces">namespace description</a>.
 
   \sa startElement()
 */
@@ -977,7 +1042,7 @@ void QXmlInputSource::setData( const QString& dat )
 
   You can set the error handler with QXmlReader::setErrorHandler().
 
-  See also the "<a href="XML.html#introSAX2">Introduction to SAX2</a>".
+  See also the "<a href="xml.html#introSAX2">Introduction to SAX2</a>".
 
   \sa QXmlDTDHandler QXmlDeclHandler QXmlContentHandler QXmlEntityResolver
   QXmlLexicalHandler
@@ -1037,7 +1102,7 @@ void QXmlInputSource::setData( const QString& dat )
   recommendation requires processors to report: notation and unparsed entity
   declarations.
 
-  See also the "<a href="XML.html#introSAX2">Introduction to SAX2</a>".
+  See also the "<a href="xml.html#introSAX2">Introduction to SAX2</a>".
 
   \sa QXmlDeclHandler QXmlContentHandler QXmlEntityResolver QXmlErrorHandler
   QXmlLexicalHandler
@@ -1087,7 +1152,7 @@ void QXmlInputSource::setData( const QString& dat )
   entities, it must implement this interface and register it with
   QXmlReader::setEntityResolver().
 
-  See also the "<a href="XML.html#introSAX2">Introduction to SAX2</a>".
+  See also the "<a href="xml.html#introSAX2">Introduction to SAX2</a>".
 
   \sa QXmlDTDHandler QXmlDeclHandler QXmlContentHandler QXmlErrorHandler
   QXmlLexicalHandler
@@ -1137,7 +1202,7 @@ void QXmlInputSource::setData( const QString& dat )
   This interface is designed after the SAX2 extension LexicalHandler. The
   functions startEntity() and endEntity() are not included though.
 
-  See also the "<a href="XML.html#introSAX2">Introduction to SAX2</a>".
+  See also the "<a href="xml.html#introSAX2">Introduction to SAX2</a>".
 
   \sa QXmlDTDHandler QXmlDeclHandler QXmlContentHandler QXmlEntityResolver
   QXmlErrorHandler
@@ -1223,7 +1288,7 @@ void QXmlInputSource::setData( const QString& dat )
 
   This interface is designed after the SAX2 extension DeclHandler.
 
-  See also the "<a href="XML.html#introSAX2">Introduction to SAX2</a>".
+  See also the "<a href="xml.html#introSAX2">Introduction to SAX2</a>".
 
   \sa QXmlDTDHandler QXmlContentHandler QXmlEntityResolver QXmlErrorHandler
   QXmlLexicalHandler
@@ -1279,7 +1344,7 @@ void QXmlInputSource::setData( const QString& dat )
   the handler classes (most of the time: do nothing). Normally this is the
   class you subclass for implementing your customized handler.
 
-  See also the "<a href="XML.html#introSAX2">Introduction to SAX2</a>".
+  See also the "<a href="xml.html#introSAX2">Introduction to SAX2</a>".
 
   \sa QXmlDTDHandler QXmlDeclHandler QXmlContentHandler QXmlEntityResolver
   QXmlErrorHandler QXmlLexicalHandler
@@ -1635,7 +1700,7 @@ private:
   (do nothing) for all functions.
 
   For getting started see also the
-  "<a href="XML-SAX.html#quickStart">Quick start</a>".
+  "<a href="xml-sax.html#quickStart">Quick start</a>".
 
   \sa QXmlSimpleReader
 */
@@ -1809,7 +1874,7 @@ private:
   </ul>
 
   For getting started see also the
-  "<a href="XML-SAX.html#quickStart">Quick start</a>".
+  "<a href="xml-sax.html#quickStart">Quick start</a>".
 */
 
 //guaranteed not to be a characater
@@ -2148,12 +2213,6 @@ bool QXmlSimpleReader::parseProlog()
 		} else {
 		    doctype_read = FALSE;
 		}
-		if ( lexicalHnd ) {
-		    if ( !lexicalHnd->startDTD( d->doctype, d->publicId, d->systemId ) ) {
-			d->error = lexicalHnd->errorString();
-			goto parseError;
-		    }
-		}
 		break;
 	    case Comment:
 		if ( !parseOk ) {
@@ -2343,6 +2402,7 @@ bool QXmlSimpleReader::parseElement()
 			goto parseError;
 		    }
 		    // ... followed by endElement
+		    // ### missing namespace support!
 		    if ( !contentHnd->endElement( "","",tags.pop() ) ) {
 			d->error = contentHnd->errorString();
 			goto parseError;
@@ -2417,6 +2477,7 @@ bool QXmlSimpleReader::parseElement()
 		    goto parseError;
 		}
 		// call the handler
+		// ### missing namespace support!
 		if ( contentHnd ) {
 		    if ( !contentHnd->endElement("","",name()) ) {
 			d->error = contentHnd->errorString();
@@ -3226,6 +3287,12 @@ bool QXmlSimpleReader::parseDoctype()
 		parseOk = parseExternalID();
 		break;
 	    case MP:
+		if ( lexicalHnd ) {
+		    if ( !lexicalHnd->startDTD( d->doctype, d->publicId, d->systemId ) ) {
+			d->error = lexicalHnd->errorString();
+			goto parseError;
+		    }
+		}
 		next_eat_ws();
 		break;
 	    case PER:

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/examples/tictac/tictac.cpp#2 $
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -69,14 +69,14 @@ TicTacGameBoard::TicTacGameBoard( int n, QWidget *parent, const char *name )
     buttons = new TicTacButtons(n);		// create real buttons
     btArray = new TicTacArray(n);		// create button model
     QGridLayout * grid = new QGridLayout( this, 3, 3, 4 );
-    QPalette blue( Qt::blue );
+    QPalette p( blue );
     for ( int i=0; i<n; i++ ) {			// create and connect buttons
-	TicTacButton *p = new TicTacButton( this );
-	p->setPalette( blue );
-	p->setEnabled( FALSE );
-	connect( p, SIGNAL(clicked()), SLOT(buttonClicked()) );
-	grid->addWidget( p, i%3, i/3 );
-	buttons->insert( i, p );
+	TicTacButton *ttb = new TicTacButton( this );
+	ttb->setPalette( p );
+	ttb->setEnabled( FALSE );
+	connect( ttb, SIGNAL(clicked()), SLOT(buttonClicked()) );
+	grid->addWidget( ttb, i%3, i/3 );
+	buttons->insert( i, ttb );
 	btArray->at(i) = TicTacButton::Blank;	// initial button type
     }
     QTime t = QTime::currentTime();		// set random seed

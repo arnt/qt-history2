@@ -1,7 +1,15 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/overlay/glteapots.h#1 $
+** $Id: //depot/qt/main/examples/overlay/glteapots.h#4 $
 **
-** Definition of GLTeapots
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+**
+** This file is part of an example program for Qt.  This example
+** program may be used, distributed and modified without limitation.
+**
+*****************************************************************************/
+
+/****************************************************************************
+**
 ** This is a QGLWidget displaying a group of teapots and a rubber-band
 ** in an overlay plane
 **

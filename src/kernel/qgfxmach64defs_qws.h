@@ -1,28 +1,31 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#73 $
+** $Id: //depot/qt/main/src/kernel/qgfxmach64defs_qws.h#73 $
 **
-** Implementation of QGfxMach64 (graphics context) class for Mach64 cards
+** Mach64 defines
 **
 ** Created : 940721
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
-** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
-** LICENSE.QPL included in the packaging of this file.
-**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the kernel
-** module and therefore may only be used if the kernel module is specified
-** as Licensed on the Licensee's License Certificate.
+** licenses for Qt/Embedded may use this file in accordance with the
+** Qt Embedded Commercial License Agreement provided with the Software.
+**
+** This file is not available for use under any other license without
+** express written permission from the copyright holder.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing.
+**   information about Qt Commercial License Agreements.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #ifndef QT_H
 #endif // QT_H
@@ -69,15 +72,19 @@
 #define DP_PIX_WIDTH 0x02d0
 #define HOST_32BPP 0x60000
 #define HOST_16BPP 0x40000
+#define HOST_8BPP 0x20000
 #define HOST_1BPP 0x00000
 #define SCALE_32BPP 0x60000000
 #define SCALE_16BPP 0x40000000
+#define SCALE_8BPP 0x20000000
 #define SCALE_1BPP 0x00000000
 #define SRC_32BPP 0x600
 #define SRC_16BPP 0x400
+#define SRC_8BPP 0x200
 #define SRC_1BPP 0x000
 #define DST_32BPP 0x6
 #define DST_16BPP 0x4
+#define DST_8BPP 0x2
 #define DST_1BPP 0x0
 #define BYTE_ORDER_LSB_TO_MSB 0x1000000
 #define BYTE_ORDER_MSB_TO_LSB 0x0000000

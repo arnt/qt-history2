@@ -4,25 +4,35 @@
 **
 ** Created : 000607
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the table module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the table
-** module and therefore may only be used if the table module is specified
-** as Licensed on the Licensee's License Certificate.
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition licenses may use this
+** file in accordance with the Qt Commercial License Agreement provided
+** with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #ifndef QTABLE_H
 #define QTABLE_H
@@ -39,7 +49,7 @@
 #endif // QT_H
 
 
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_TABLE
 
 class QTableHeader;
 class QValidator;
@@ -72,6 +82,7 @@ public:
 
 private:
     uint active : 1;
+    uint inited : 1;
     int tRow, lCol, bRow, rCol;
     int aRow, aCol;
 };
@@ -82,8 +93,8 @@ class Q_EXPORT QTableItem : public Qt
 public:
     enum EditType { Never, OnTyping, WhenCurrent, Always };
 
-    QTableItem( QTable *table, EditType et, const QString &t );
-    QTableItem( QTable *table, EditType et, const QString &t, 
+    QTableItem( QTable *table, EditType et, const QString &text );
+    QTableItem( QTable *table, EditType et, const QString &text,
 		const QPixmap &p );
     virtual ~QTableItem();
 
@@ -155,7 +166,7 @@ class Q_EXPORT QTable : public QScrollView
 
 public:
     QTable( QWidget *parent = 0, const char *name = 0 );
-    QTable( int numRows, int numCols, 
+    QTable( int numRows, int numCols,
 	    QWidget *parent = 0, const char *name = 0 );
     ~QTable();
 
@@ -182,8 +193,6 @@ public:
     virtual int columnAt( int pos ) const;
     virtual int rowAt( int pos ) const;
 
-    virtual void setNumRows( int r );
-    virtual void setNumCols( int r );
     int numRows() const;
     int numCols() const;
 
@@ -191,7 +200,6 @@ public:
 
     bool eventFilter( QObject * o, QEvent * );
 
-    virtual void setCurrentCell( int row, int col );
     int currentRow() const { return curRow; }
     int currentColumn() const { return curCol; }
     void ensureCellVisible( int row, int col );
@@ -199,7 +207,6 @@ public:
     bool isSelected( int row, int col ) const;
     bool isRowSelected( int row, bool full = FALSE ) const;
     bool isColumnSelected( int col, bool full = FALSE ) const;
-    void clearSelection();
     int numSelections() const;
     QTableSelection selection( int num ) const;
     virtual int addSelection( const QTableSelection &s );
@@ -207,19 +214,30 @@ public:
     virtual void removeSelection( int num );
     virtual int currentSelection() const;
 
-    virtual void setShowGrid( bool b );
     bool showGrid() const;
 
-    virtual void setColumnMovingEnabled( bool b );
     bool columnMovingEnabled() const;
-    virtual void setRowMovingEnabled( bool b );
     bool rowMovingEnabled() const;
 
     virtual void sortColumn( int col, bool ascending = TRUE,
 			     bool wholeRows = FALSE );
-    virtual void setSorting( bool b );
     bool sorting() const;
 
+    virtual void takeItem( QTableItem *i );
+
+    virtual void setCellWidget( int row, int col, QWidget *e );
+    virtual QWidget *cellWidget( int row, int col ) const;
+    virtual void clearCellWidget( int row, int col );
+
+    virtual void paintCell( QPainter *p, int row, int col,
+			    const QRect &cr, bool selected );
+    virtual void paintFocus( QPainter *p, const QRect &r );
+    QSize sizeHint() const;
+
+public slots:
+    virtual void setNumRows( int r );
+    virtual void setNumCols( int r );
+    virtual void setShowGrid( bool b );
     virtual void hideRow( int row );
     virtual void hideColumn( int col );
     virtual void showRow( int row );
@@ -235,23 +253,17 @@ public:
     virtual void setRowStretchable( int row, bool stretch );
     bool isColumnStretchable( int col ) const;
     bool isRowStretchable( int row ) const;
-
-    virtual void takeItem( QTableItem *i );
-
-    virtual void setCellWidget( int row, int col, QWidget *e );
-    virtual QWidget *cellWidget( int row, int col ) const;
-    virtual void clearCellWidget( int row, int col );
-
+    virtual void setSorting( bool b );
     virtual void swapRows( int row1, int row2 );
     virtual void swapColumns( int col1, int col2 );
     virtual void swapCells( int row1, int col1, int row2, int col2 );
 
     virtual void setLeftMargin( int m );
     virtual void setTopMargin( int m );
-
-    virtual void paintCell( QPainter *p, int row, int col,
-			    const QRect &cr, bool selected );
-    QSize sizeHint() const;
+    virtual void setCurrentCell( int row, int col );
+    void clearSelection( bool repaint = TRUE );
+    virtual void setColumnMovingEnabled( bool b );
+    virtual void setRowMovingEnabled( bool b );
 
 protected:
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
@@ -417,5 +429,5 @@ private:
 
 };
 
-#endif // QT_NO_COMPLEXWIDGETS
+#endif // QT_NO_TABLE
 #endif // TABLE_H

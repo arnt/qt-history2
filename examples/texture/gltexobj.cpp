@@ -1,7 +1,15 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/texture/gltexobj.cpp#3 $
+** $Id: //depot/qt/main/examples/texture/gltexobj.cpp#4 $
 **
-** Implementation of GLTexobj
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+**
+** This file is part of an example program for Qt.  This example
+** program may be used, distributed and modified without limitation.
+**
+*****************************************************************************/
+
+/****************************************************************************
+**
 ** This is a simple QGLWidget demonstrating the use of QImages for textures.
 **
 ** Much of the GL code is inspired by the 'spectex' and 'texcyl' 
@@ -99,29 +107,23 @@ void GLTexobj::initializeGL()
 
     // Set up the textures
 
-    QImage img1( "qtlogo.bmp" );	// Load first image from file
-    if ( img1.isNull() ) {		// File not found handling
-	qWarning( "Could not read image file, using single-color instead." );
-	QImage dummy( 128, 128, 32 );
-	dummy.fill( Qt::red.rgb() );
-	img1 = dummy;
-    }
-    else {
-	img1 = img1.convertDepth( 32 );	// Make sure it has the right depth
-	img1 = img1.mirror();		// OpenGL wants it upside down
-	img1 = img1.swapRGB();		// OpenGL wants BGR
-    }
+    QImage tex1, tex2, buf;
 
-    QImage img2( "gllogo.bmp" );	// Load second image from file
-    if ( img2.isNull() ) {		// File not found handling
+    if ( !buf.load( "gllogo.bmp" ) ) {	// Load first image from file
 	qWarning( "Could not read image file, using single-color instead." );
 	QImage dummy( 128, 128, 32 );
 	dummy.fill( Qt::green.rgb() );
-	img2 = dummy;
+	buf = dummy;
     }
-    else {
-	img2 = img2.convertDepth( 32 ).mirror().swapRGB();	// as above
+    tex1 = QGLWidget::convertToGLFormat( buf );  // flipped 32bit RGBA
+
+    if ( !buf.load( "qtlogo.bmp" ) ) {	// Load first image from file
+	qWarning( "Could not read image file, using single-color instead." );
+	QImage dummy( 128, 128, 32 );
+	dummy.fill( Qt::red.rgb() );
+	buf = dummy;
     }
+    tex2 = QGLWidget::convertToGLFormat( buf );  // flipped 32bit RGBA
 
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
@@ -135,7 +137,7 @@ void GLTexobj::initializeGL()
 
     // Make the object display list
 
-    object = makeObject( img2, img1 );	// Generate an OpenGL display list
+    object = makeObject( tex1, tex2 );	// Generate an OpenGL display list
 }
 
 

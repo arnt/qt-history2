@@ -1,5 +1,5 @@
 TEMPLATE	= app
-CONFIG		+= qt warn_on debug thread
+CONFIG		+= qt warn_on release thread
 HEADERS		= 
 SOURCES		= main.cpp
 INTERFACES	= 

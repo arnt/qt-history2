@@ -1,4 +1,5 @@
 #ifndef QWINDOWDEFS_WIN_H
+#define QWINDOWDEFS_WIN_H
 
 #if defined(_CC_BOR_) || defined(_CC_WAT_)
 #define NEEDS_QMAIN

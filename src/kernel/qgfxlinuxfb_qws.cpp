@@ -5,24 +5,27 @@
 ** Embedded Qt
 ** Created : 940721
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
-** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
-** LICENSE.QPL included in the packaging of this file.
-**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the kernel
-** module and therefore may only be used if the kernel module is specified
-** as Licensed on the Licensee's License Certificate.
+** licenses for Qt/Embedded may use this file in accordance with the
+** Qt Embedded Commercial License Agreement provided with the Software.
+**
+** This file is not available for use under any other license without
+** express written permission from the copyright holder.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing.
+**   information about Qt Commercial License Agreements.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qgfxraster_qws.h"
 #include "qmemorymanager_qws.h"
@@ -56,20 +59,30 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
 {
     QString dev( "/dev/fb0" );
 
+    qDebug("Display spec %s",displaySpec.ascii());
+
+    // This doesn't seem to work?
+
+    /*
     // Check for explicitly specified device
-    QRegExp r( "/dev/.*:" );
+    QRegExp r( "\/dev\/fb*:" );
     int len;
     int m = r.match( displaySpec, 0, &len );
     if ( m >= 0 ) {
+	qDebug("Have match");
 	dev = displaySpec.mid( m, len-1 );
     }
+    */
 
-    //qDebug( "QLinuxFbScreen: using device %s", dev.latin1() );
+    if(getenv("QWS_FB")) {
+	dev=getenv("QWS_FB");
+    }
+
+    qDebug( "QLinuxFbScreen: using device %s", dev.latin1() );
 
     fd=open( dev.latin1(), O_RDWR );
     if(fd<0) {
-	perror("opening framebuffer device /dev/fb0");
-	qFatal("Can't open framebuffer device");
+	qFatal("Can't open framebuffer device %s",dev.latin1());
     }
 
     fb_fix_screeninfo finfo;
@@ -101,6 +114,9 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
     /* Figure out the size of the screen in bytes */
     size = h * lstep;
 
+    qDebug("Framebuffer base at %lx",finfo.smem_start);
+    qDebug("Registers base %lx",finfo.mmio_start);
+
     mapsize=finfo.smem_len;
 
     data = (unsigned char *)mmap(0, mapsize, PROT_READ | PROT_WRITE,
@@ -110,7 +126,9 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
 	qFatal("Error: failed to map framebuffer device to memory.");
     }
 
-    if(mapsize-size<8192) {
+    canaccel=useOffscreen();
+
+    if(mapsize-size<16384) {
 	canaccel=false;
     }
 
@@ -124,9 +142,15 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
 	pos+=8;
 	pos&=~0x7;
 	entryp=((int *)pos);
-	lowest=((int *)(pos+sizeof(int)));
-	pos+=(sizeof(int))*2;
+	lowest=((int *)pos)+1;
+	optype=((int *)pos)+2;
+	lastop=((int *)pos)+3;
+	pos+=(sizeof(int))*4;
 	entries=(QPoolEntry *)pos;
+    } else {
+	int * tmp=(int *)(data+(width() * height() * depth())/8);
+	optype=tmp;
+	lastop=tmp+1;
     }
 
     // Now read in palette
@@ -172,6 +196,8 @@ void QLinuxFbScreen::disconnect()
     fflush( stdout );
 }
 
+//#define DEBUG_VINFO
+
 bool QLinuxFbScreen::initCard()
 {
     // Grab current mode so we can reset it
@@ -182,6 +208,19 @@ bool QLinuxFbScreen::initCard()
 	qFatal("Error reading variable information in card init");
 	return false;
     }
+
+#ifdef DEBUG_VINFO
+    qDebug("Greyscale %d",vinfo.grayscale);
+    qDebug("Nonstd %d",vinfo.nonstd);
+    qDebug("Red %d %d %d",vinfo.red.offset,vinfo.red.length,
+	   vinfo.red.msb_right);
+    qDebug("Green %d %d %d",vinfo.green.offset,vinfo.green.length,
+	   vinfo.green.msb_right);
+    qDebug("Blue %d %d %d",vinfo.blue.offset,vinfo.blue.length,
+	   vinfo.blue.msb_right);
+    qDebug("Transparent %d %d %d",vinfo.transp.offset,vinfo.transp.length,
+	   vinfo.transp.msb_right);
+#endif
 
     startupw=vinfo.xres;
     startuph=vinfo.yres;
@@ -279,11 +318,18 @@ bool QLinuxFbScreen::initCard()
 	fb_cmap cmap;
 	cmap.start=0;
 	int rbits,gbits,bbits;
+	qDebug("Directcolor visual");
 	switch (vinfo.bits_per_pixel) {
 	  case 8:
-		rbits=3;
-		gbits=3;
-		bbits=2;
+		rbits=vinfo.red.length;
+		gbits=vinfo.green.length;
+		bbits=vinfo.blue.length;
+		if(rbits==0 && gbits==0 && bbits==0) {
+		    // cyber2000 driver bug hack
+		    rbits=3;
+		    gbits=3;
+		    bbits=2;
+		}
 		break;
 	  case 15:
 		rbits=5;
@@ -321,27 +367,39 @@ bool QLinuxFbScreen::initCard()
 	free(cmap.transp);
     }
 
-    if(mapsize-size<8192) {
+    canaccel=useOffscreen();
+
+    if(mapsize-size<16384) {
 	canaccel=false;
     }
 
     if(canaccel) {
 	// Figure out position of offscreen memory
-	// Fetch size of pool entries table from memory
 	// Set up pool entries pointer table and 64-bit align it
 	unsigned int pos=(unsigned int)data;
-	pos+=size;
-	pos+=4096;
-	pos+=8;
-	pos&=~0x7;
+	int psize;
+	psize=size;
+	psize+=4096;
+	psize+=8;
+	psize&=~0x7;
+	pos+=psize;
 	entryp=((int *)pos);
-	lowest=((int *)(pos+sizeof(int)));
-	pos+=(sizeof(int))*2;
+	lowest=((int *)pos)+1;
+	// These keep track of accelerator state
+	optype=((int *)pos)+2;
+	lastop=((int *)pos)+3;
+	pos+=(sizeof(int))*4;
 	entries=(QPoolEntry *)pos;
 	*entryp=0;
-	*lowest=mapsize-8192;
-	qDebug("Initialised entries table");
+	*lowest=mapsize;
+    } else {
+	int * tmp=(int *)(data+(width() * height() * depth())/8);
+	optype=tmp;
+	lastop=tmp+1;
     }
+
+    *optype=0;
+    *lastop=0;
 
     initted=true;
 
@@ -363,7 +421,9 @@ void QLinuxFbScreen::delete_entry(int pos)
     if(pos==*entryp) {
 	return;
     }
-    memcpy(&entries[pos],&entries[pos+1],(*entryp)-pos);
+    int size=(*entryp)-pos;
+    size++;
+    memmove(&entries[pos],&entries[pos+1],size*sizeof(QPoolEntry));
 }
 
 void QLinuxFbScreen::insert_entry(int pos,int start,int end)
@@ -372,25 +432,34 @@ void QLinuxFbScreen::insert_entry(int pos,int start,int end)
 	qDebug("Attempt to insert odd pos! %d %d",pos,*entryp);
 	return;
     }
+
     if(pos==*entryp) {
 	entries[pos].start=start;
 	entries[pos].end=end;
 	(*entryp)++;
 	return;
     }
-    memcpy(&entries[pos+1],&entries[pos],(*entryp)-pos);
+
+    (*entryp)++;
+    int size=(*entryp)-pos;
+    size++;
+    memmove(&entries[pos+1],&entries[pos],size*sizeof(QPoolEntry));
     entries[pos].start=start;
     entries[pos].end=end;
 }
 
-uchar * QLinuxFbScreen::cache(int amount,int align)
+uchar * QLinuxFbScreen::cache(int amount)
 {
-    if(!canaccel || entryp==0)
+    if(!canaccel || entryp==0) {
 	return 0;
+    }
 
     qt_fbdpy->grab();
-    align=64;
+
+    int align=pixmapOffsetAlignment();
+
     int hold=(*entryp-1);
+
     for(int loopc=0;loopc<hold;loopc++) {
 	int freestart=entries[loopc+1].end;
 	int freeend=entries[loopc].start;
@@ -398,10 +467,11 @@ uchar * QLinuxFbScreen::cache(int amount,int align)
 	    while(freestart % align) {
 		freestart++;
 	    }
-	    if((freeend-freestart)>amount) {
-		insert_entry(hold,freestart,freestart+amount);
+	    int len=freeend-freestart;
+	    if(len>amount) {
+		insert_entry(loopc+1,freestart,freestart+amount);
 		if(freestart % align) {
-		    qDebug("Wah, freed-block return unaligned %lx",freestart);
+		    qDebug("Wah, freed-block return unaligned %x",freestart);
 		}
 		qt_fbdpy->ungrab();
 		return data+freestart;
@@ -415,21 +485,22 @@ uchar * QLinuxFbScreen::cache(int amount,int align)
     int startp=size+(sizeof(int)*2)+stackend;
     int newlowest=(*lowest)-amount;
     if(newlowest % align) {
-	newlowest-=align;
+       	newlowest-=align;
 	while(newlowest % align) {
 	    newlowest++;
 	}
     }
-    if(startp>newlowest) {
+    if(startp>=newlowest) {
 	qDebug("No more memory, %d %d %d %d",startp,stackend,
 	       *lowest,amount);
+	//canaccel=false;
 	qt_fbdpy->ungrab();
 	return 0;
     }
     insert_entry(*entryp,newlowest,*lowest);
     *lowest=newlowest;
     if(newlowest % align) {
-	qDebug("Wah, new return is unaligned %lx",newlowest);
+	qDebug("Wah, new return is unaligned %x",newlowest);
     }
     qt_fbdpy->ungrab();
     return data+newlowest;
@@ -441,7 +512,7 @@ void QLinuxFbScreen::uncache(uchar * c)
     unsigned long pos=(unsigned long)c;
     pos-=((unsigned long)data);
     unsigned int hold=(*entryp);
-    for(int loopc=0;loopc<hold;loopc++) {
+    for(unsigned int loopc=0;loopc<hold;loopc++) {
 	if(entries[loopc].start==pos) {
 	    delete_entry(loopc);
 	    qt_fbdpy->ungrab();
@@ -449,15 +520,14 @@ void QLinuxFbScreen::uncache(uchar * c)
 	}
     }
     qt_fbdpy->ungrab();
-    qDebug("Attempt to delete unknown offset %d",pos);
+    qDebug("Attempt to delete unknown offset %ld",pos);
 }
 
 void QLinuxFbScreen::shutdownCard()
 {
     // Set back the original mode
 #ifndef QT_NO_QWS_CURSOR
-    if ( qt_sw_cursor )
-	qt_screencursor->hide();
+    qt_screencursor->hide();
 #endif
 
     // Causing crashes. Not needed.

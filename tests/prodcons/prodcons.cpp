@@ -39,7 +39,7 @@ private:
 class ProdThread : public QThread
 {
 public:
-    ProdThread(QObject *r, QMutex *m, QCondition *c);
+    ProdThread(QObject *r, QMutex *m, QWaitCondition *c);
 
     void stop();
     void run();
@@ -48,13 +48,13 @@ public:
 private:
     QObject *receiver;
     QMutex *mutex;
-    QCondition *condition;
+    QWaitCondition *condition;
 
     bool done;
 };
 
 
-ProdThread::ProdThread(QObject *r, QMutex *m, QCondition *c)
+ProdThread::ProdThread(QObject *r, QMutex *m, QWaitCondition *c)
     : receiver(r), mutex(m), condition(c), done(FALSE)
 {
 }
@@ -134,7 +134,7 @@ private:
 class ConsThread : public QThread
 {
 public:
-    ConsThread(QObject *r, QMutex *m, QCondition *c);
+    ConsThread(QObject *r, QMutex *m, QWaitCondition *c);
 
     void stop();
     void run();
@@ -143,13 +143,13 @@ public:
 private:
     QObject *receiver;
     QMutex *mutex;
-    QCondition *condition;
+    QWaitCondition *condition;
 
     bool done;
 };
 
 
-ConsThread::ConsThread(QObject *r, QMutex *m, QCondition *c)
+ConsThread::ConsThread(QObject *r, QMutex *m, QWaitCondition *c)
     : receiver(r), mutex(m), condition(c), done(FALSE)
 {
 }
@@ -218,7 +218,7 @@ public slots:
 
 private:
     QMutex mutex;
-    QCondition condition;
+    QWaitCondition condition;
 
     ProdThread *prod;
     ConsThread *cons;

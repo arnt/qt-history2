@@ -5,25 +5,35 @@
 **
 ** Created : 970617
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the kernel
-** module and therefore may only be used if the kernel module is specified
-** as Licensed on the Licensee's License Certificate.
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 // #define QT_SAVE_MOVIE_HACK
 
@@ -75,11 +85,10 @@
   factories which have been installed, and the format of the input is
   determined as the input is decoded.
 
-  The decoder factory interface is not yet available for adding support for
-  new formats. Only GIF support is installed.  The GIF decoder supports
-  interlaced images, transparency, looping, image-restore disposal, local
-  color maps, and background colors.  The Netscape looping extension is
-  obeyed.
+  The supported formats are MNG (if Qt is built with MNG support enabled)
+  and GIF (if Qt is built with GIF support enabled).  For MNG support, you
+  need to have installed libmng from
+  \link http://www.libmng.com http://www.libmng.com\endlink.
 
   Archives of animated GIFs and tools for building them can be found
   at <a href="http://dir.yahoo.com/Arts/Visual_Arts/Animation/Computer_Animation/Animated_GIFs/">Yahoo</a>.
@@ -95,7 +104,7 @@
   USA, France, Germany, Italy and the UK.
 
   GIF support may be removed completely in a future version of Qt.  We
-  recommend using the PNG format.
+  recommend using the MNG or PNG format.
 
   <img src="qmovie.png">
 
@@ -123,6 +132,7 @@ public: // for QMovie
     void init(bool fully);
     void flushBuffer();
     void updatePixmapFromImage();
+    void updatePixmapFromImage(const QPoint& off, const QRect& area);
     void showChanges();
 
     // This as QImageConsumer
@@ -300,10 +310,15 @@ void QMovieFilePrivate::flushBuffer()
 void QMovieFilePrivate::updatePixmapFromImage()
 {
     if (changed_area.isEmpty()) return;
+    updatePixmapFromImage(QPoint(0,0),changed_area);
+}
 
+void QMovieFilePrivate::updatePixmapFromImage(const QPoint& off,
+						const QRect& area)
+{
     // Create temporary QImage to hold the part we want
     const QImage& gimg = decoder->image();
-    QImage img = gimg.copy(changed_area);
+    QImage img = gimg.copy(area);
 
 #ifdef QT_SAVE_MOVIE_HACK
     if ( save_image ) {
@@ -320,7 +335,7 @@ void QMovieFilePrivate::updatePixmapFromImage()
     if (bg.isValid()) {
 	QPainter p;
 	p.begin(&mypixmap);
-	p.fillRect(changed_area, bg);
+	p.fillRect(area, bg);
 	p.end();
     } else {
 	if (gimg.hasAlphaBuffer()) {
@@ -336,14 +351,14 @@ void QMovieFilePrivate::updatePixmapFromImage()
     // Convert to pixmap and paste that onto myself
     QPixmap lines;
     lines.convertFromImage(img);
-    bitBlt(&mypixmap, changed_area.left(), changed_area.top(),
-	   &lines, 0, 0, changed_area.width(), changed_area.height(),
+    bitBlt(&mypixmap, area.left(), area.top(),
+	   &lines, off.x(), off.x(), area.width(), area.height(),
 	   CopyROP, !bg.isValid());
 
     if (!bg.isValid() && gimg.hasAlphaBuffer()) {
-	bitBlt(&mymask, changed_area.left(), changed_area.top(),
-	       lines.mask(), 0, 0, changed_area.width(),
-	       changed_area.height(),
+	bitBlt(&mymask, area.left(), area.top(),
+	       lines.mask(), 0, 0, area.width(),
+	       area.height(),
 	       CopyROP, TRUE);
 	mypixmap.setMask(mymask);
     }
@@ -358,8 +373,8 @@ void QMovieFilePrivate::updatePixmapFromImage()
 	    xscale=xscale/((double)mypixmap.width());
 	    yscale=yscale/((double)mypixmap.height());
 	    double xh,yh;
-	    xh=xscale*((double)changed_area.left());
-	    yh=yscale*((double)changed_area.top());
+	    xh=xscale*((double)area.left());
+	    yh=yscale*((double)area.top());
 	    mygfx->setSource(&mypixmap);
 	    mygfx->setSourceOffset(0,0);
 	    mygfx->setAlphaType(QGfx::IgnoreAlpha);
@@ -422,13 +437,9 @@ void QMovieFilePrivate::frameDone(const QPoint& p,
 {
     preFrameDone();
     const QImage& gimg = decoder->image();
-    if (framenumber==0) {
-	mypixmap.resize(gimg.width(), gimg.height());
+    if (framenumber==0)
 	emit sizeChanged(gimg.size());
-    }
-    bitBlt(&mypixmap, p.x(), p.y(), &gimg, rect.x(), rect.y(),
-		    rect.width(), rect.height());
-    // TODO: transparency
+    updatePixmapFromImage(p,rect);
     emit areaChanged(QRect(p,rect.size()));
     emit dataStatus(QMovie::EndOfFrame);
     framenumber++;

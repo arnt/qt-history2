@@ -56,6 +56,13 @@ for $f ( sort keys %encodings ) {
     }
     ($family,$slant,$weight,$pt) = split "-",$f;
     $flags = "u";
-    print lc($family)," ",join("|",@files)," BDF ",($slant eq "r" ? "n" : "y"),
+    if ( $#files ) {
+	# Not implemented in kernel yet
+	#$files = join("|",@files);
+	undef $files;
+    } else {
+	$files = $files[0];
+    }
+    print lc($family)," $files BDF ",($slant eq "r" ? "n" : "y"),
 	" ",$weight{$weight}," $pt $flags\n";
 }

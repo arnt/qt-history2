@@ -9,20 +9,23 @@
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
-** This file may be distributed under the terms of the Q Public License
-** as defined by Trolltech AS of Norway and appearing in the file
-** LICENSE.QPL included in the packaging of this file.
-**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the kernel
-** module and therefore may only be used if the kernel module is specified
-** as Licensed on the Licensee's License Certificate.
+** licenses for Qt/Embedded may use this file in accordance with the
+** Qt Embedded Commercial License Agreement provided with the Software.
+**
+** This file is not available for use under any other license without
+** express written permission from the copyright holder.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing.
+**   information about Qt Commercial License Agreements.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 // Started with from qapplication_x11.cpp,v 2.399 1999/10/22 14:39:33
 
@@ -63,6 +66,7 @@
 #include "qwsregionmanager_qws.h"
 #include "qwindowsystem_qws.h"
 #include "qwsdisplay_qws.h"
+#include "qnetwork.h"
 
 #include <stdio.h>
 #include <limits.h>
@@ -107,7 +111,7 @@
 #include "qthread.h"
 #endif
 
-#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
+#if defined(_OS_UNIX_)
 #include <sys/ioctl.h>
 static int qt_thread_pipe[2];
 #endif
@@ -183,7 +187,8 @@ static int	mouseButtonState     = 0;	// mouse button state
 static int	mouseButtonPressTime = 0;	// when was a button pressed
 static short	mouseXPos, mouseYPos;		// mouse position in act window
 
-static QWidgetList *modal_stack  = 0;		// stack of modal widgets
+extern QWidgetList *qt_modal_stack;		// stack of modal widgets
+
 static QWidget     *popupButtonFocus = 0;
 static QWidget     *popupOfPopupButtonFocus = 0;
 static bool	    popupCloseDownMode = FALSE;
@@ -230,10 +235,13 @@ public:
     bool translateWheelEvent( int global_x, int global_y, int delta, int state );
     void repaintHierarchy(QRegion r);
     void repaintDecoration(QRegion r);
-    void restrictRegion( QRegion r );
 };
 
 
+#ifndef QT_NO_PCOP
+// PCOP stuff. This should maybe move into qwindowsystem_qws.cpp
+static QList<PCOPChannel> channels;
+#endif
 
 // Single-process stuff. This should maybe move into qwindowsystem_qws.cpp
 
@@ -626,6 +634,17 @@ void QWSDisplay::setProperty( int winId, int property, int mode, const QByteArra
     d->sendCommand( cmd );
 }
 
+void QWSDisplay::setProperty( int winId, int property, int mode,
+			      const char * data )
+{
+    QWSSetPropertyCommand cmd;
+    cmd.simpleData.windowid = winId;
+    cmd.simpleData.property = property;
+    cmd.simpleData.mode = mode;
+    cmd.setData( data, strlen(data) );
+    d->sendCommand( cmd );
+}
+
 void QWSDisplay::removeProperty( int winId, int property )
 {
     QWSRemovePropertyCommand cmd;
@@ -649,7 +668,7 @@ bool QWSDisplay::getProperty( int winId, int property, char *&data, int &len )
     getPropertyData = 0;
 
     while ( getPropertyLen == -2 )
-	qApp->processEvents();
+	qApp->processEvents(); //########## USE an ACK event instead. That's dangerous!
 
     len = getPropertyLen;
     data = getPropertyData;
@@ -690,7 +709,6 @@ void QWSDisplay::requestRegion(int winId, QRegion r)
     } else {
 	//by sending the event, I promise not to paint outside the region
 	QETWidget *widget = (QETWidget*)QWidget::find( (WId)winId );
-	widget->restrictRegion( r ); //### probably not needed anymore.
 
 	QArray<QRect> ra = r.rects();
 
@@ -1092,16 +1110,15 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
     if( qt_is_gui_used )
 	init_display();
 
-#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
+#ifndef QT_NO_NETWORKPROTOCOL
+    qInitNetworkProtocols();
+#endif
+
+#if defined(_OS_UNIX_)
     pipe( qt_thread_pipe );
 #endif
 
 }
-
-#if defined(QT_THREAD_SUPPORT)
-void qt_wait_for_exec();
-void qt_ack_pipe();
-#endif
 
 /*****************************************************************************
   qt_cleanup() - cleans up when the application is finished
@@ -1715,6 +1732,12 @@ bool QApplication::processNextEvent( bool canWait )
 {
     int	   nevents = 0;
 
+#if defined(QT_THREAD_SUPPORT)
+    qApp->lock();
+#endif
+
+    emit guiThreadAwake();
+
     if (qt_is_gui_used ) {
 	sendPostedEvents();
 
@@ -1726,12 +1749,21 @@ bool QApplication::processNextEvent( bool canWait )
 
 	    bool ret = qwsProcessEvent( event ) == 1;
 	    delete event;
-	    if ( ret )
+	    if ( ret ) {
+#if defined(QT_THREAD_SUPPORT)
+		    qApp->unlock(FALSE);
+#endif
 		return TRUE;
+	    }
 	}
     }
-    if ( app_exit_loop )			// break immediately
+    if ( app_exit_loop ) {			// break immediately
+#if defined(QT_THREAD_SUPPORT)
+	qApp->unlock(FALSE);
+#endif
+
 	return FALSE;
+    }
 
     sendPostedEvents();
 
@@ -1765,7 +1797,7 @@ bool QApplication::processNextEvent( bool canWait )
 
     int highest=sn_highest;
 
-#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
+#if defined(_OS_UNIX_)
     FD_SET( qt_thread_pipe[0], &app_readfds );
     highest = QMAX( highest, qt_thread_pipe[0] );
 #endif
@@ -1777,7 +1809,7 @@ bool QApplication::processNextEvent( bool canWait )
 #endif
 
 #if defined(QT_THREAD_SUPPORT)
-    qApp->unlock();
+    qApp->unlock(FALSE);
 #endif
 
     nsel = select( highest+1,
@@ -1787,24 +1819,25 @@ bool QApplication::processNextEvent( bool canWait )
 		   tm );
 #undef FDCAST
 
-#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
+#if defined(QT_THREAD_SUPPORT)
+    qApp->lock();
+#endif
+
+#if defined(_OS_UNIX_)
     if ( FD_ISSET( qt_thread_pipe[0], &app_readfds ) ) {
 	char c;
 	::read(qt_thread_pipe[0],&c,1);
-	if(c==1) {
-	    qt_ack_pipe();
-	    qt_wait_for_exec();
-	    qApp->lock();
-	    app_exit_loop=FALSE;
-	    return FALSE;
-	}
     }
-    qApp->lock();
 #endif
 
     if ( nsel == -1 ) {
 	if ( errno == EINTR || errno == EAGAIN ) {
 	    errno = 0;
+
+#if defined(QT_THREAD_SUPPORT)
+	    qApp->unlock(FALSE);
+#endif
+
 	    return (nevents > 0);
 	} else {
 	    // select error
@@ -1814,6 +1847,10 @@ bool QApplication::processNextEvent( bool canWait )
     }
 
     nevents += qt_activate_timers();		// activate timers
+
+#if defined(QT_THREAD_SUPPORT)
+    qApp->unlock(FALSE);
+#endif
 
     return (nevents > 0);
 }
@@ -1828,9 +1865,14 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
     } else if ( event->type == QWSEvent::PropertyReply ) {
 	QWSPropertyReplyEvent *e = (QWSPropertyReplyEvent*)event;
 	int len = e->simpleData.len;
+	char *data;
+	if ( len <= 0 ) {
+	    data = 0;
+	} else {
+	    data = new char[len];
+	    memcpy( data, e->data, len ) ;
+	}
 	QPaintDevice::qwsDisplay()->getPropertyLen = len;
-	char *data = new char[len];
-	memcpy( data, e->data, len ) ;
 	QPaintDevice::qwsDisplay()->getPropertyData = data;
     }
 #endif //QT_NO_QWS_PROPERTIES
@@ -2076,24 +2118,24 @@ bool qt_modal_state()
 
 void qt_enter_modal( QWidget *widget )
 {
-    if ( !modal_stack ) {			// create modal stack
-	modal_stack = new QWidgetList;
-	CHECK_PTR( modal_stack );
+    if ( !qt_modal_stack ) {			// create modal stack
+	qt_modal_stack = new QWidgetList;
+	CHECK_PTR( qt_modal_stack );
     }
-    modal_stack->insert( 0, widget );
+    qt_modal_stack->insert( 0, widget );
     app_do_modal = TRUE;
 }
 
 
 void qt_leave_modal( QWidget *widget )
 {
-    if ( modal_stack && modal_stack->removeRef(widget) ) {
-	if ( modal_stack->isEmpty() ) {
-	    delete modal_stack;
-	    modal_stack = 0;
+    if ( qt_modal_stack && qt_modal_stack->removeRef(widget) ) {
+	if ( qt_modal_stack->isEmpty() ) {
+	    delete qt_modal_stack;
+	    qt_modal_stack = 0;
 	}
     }
-    app_do_modal = modal_stack != 0;
+    app_do_modal = qt_modal_stack != 0;
 }
 
 
@@ -2101,37 +2143,40 @@ static bool qt_try_modal( QWidget *widget, QWSEvent *event )
 {
     if ( qApp->activePopupWidget() )
 	return TRUE;
-
-    widget = widget->topLevelWidget();
     // a bit of a hack: use WStyle_Tool as a general ignore-modality
     // flag, also for complex widgets with children.
     if ( widget->testWFlags(Qt::WStyle_Tool) )	// allow tool windows
 	return TRUE;
 
-    QWidget *modal=0, *top=modal_stack->getFirst();
+    QWidget *modal=0, *top=QApplication::activeModalWidget();
+
+    QWidget* groupLeader = widget;
+    widget = widget->topLevelWidget();
 
     if ( widget->testWFlags(Qt::WType_Modal) )	// widget is modal
 	modal = widget;
     if ( !top || modal == top )			// don't block event
 	return TRUE;
 
-#ifdef ALLOW_NON_APPLICATION_MODAL
-    if ( top && top->parentWidget() ) {
-	// Not application-modal
-	// Does widget have a child in modal_stack?
+    while ( groupLeader && !groupLeader->testWFlags( Qt::WGroupLeader ) )
+	groupLeader = groupLeader->parentWidget();
+
+    if ( groupLeader ) {
+	// Does groupLeader have a child in qt_modal_stack?
 	bool unrelated = TRUE;
-	modal = modal_stack->first();
+	modal = qt_modal_stack->first();
 	while (modal && unrelated) {
 	    QWidget* p = modal->parentWidget();
-	    while ( p && p != widget ) {
+	    while ( p && p != groupLeader && !p->testWFlags( Qt::WGroupLeader) ) {
 		p = p->parentWidget();
 	    }
-	    modal = modal_stack->next();
-	    if ( p ) unrelated = FALSE;
+	    modal = qt_modal_stack->next();
+	    if ( p == groupLeader ) unrelated = FALSE;
 	}
-	if ( unrelated ) return TRUE;		// don't block event
+
+	if ( unrelated )
+	    return TRUE;		// don't block event
     }
-#endif
 
     bool block_event  = FALSE;
     bool paint_event = FALSE;
@@ -2821,8 +2866,7 @@ void QETWidget::repaintHierarchy(QRegion r)
 	return;
     r.translate(-x(),-y());
 
-    if ( !testWFlags( WRepaintNoErase ) )
-	erase(r);
+    erase(r);
 
     QPaintEvent e( r );
     setWState( WState_InPaintEvent );
@@ -2861,23 +2905,6 @@ void QETWidget::repaintDecoration(QRegion r)
 }
 
 
-void QETWidget::restrictRegion( QRegion r )
-{
-    QRegion totalr = alloc_region;
-#ifndef QT_NO_QWS_MANAGER
-    if ( testWFlags(WType_TopLevel) && topData()->qwsManager ) {
-	totalr += topData()->decor_allocated_region;
-	totalr &= r;
-	topData()->decor_allocated_region = totalr & topData()->qwsManager->region();
-    } else
-#endif
-	{
-	totalr &= r;
-    }
-
-    alloc_region = totalr & req_region;
-}
-
 bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *event )
 {
     QWSRegionManager *rgnMan = qt_fbdpy->regionManager();
@@ -2889,7 +2916,9 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
 	    qFatal( "Cannot find region for window %d", winId() );
 	}
     }
-
+#ifndef QT_NO_QWS_MANAGER
+    QRegion extraExposed;
+#endif
     QWSDisplay::grab();
     int revision = *rgnMan->revision( alloc_region_index );
     if ( revision != alloc_region_revision ) {
@@ -2898,6 +2927,7 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
 	QWSDisplay::ungrab();
 #ifndef QT_NO_QWS_MANAGER
 	if ( testWFlags(WType_TopLevel) && topData()->qwsManager ) {
+	    extraExposed = topData()->decor_allocated_region;
 	    QRegion mr(topData()->qwsManager->region());
 	    topData()->decor_allocated_region = newRegion & mr;
 	    newRegion -= mr;
@@ -2924,16 +2954,19 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
     {
 	QRegion exposed;
 	exposed.setRects( event->rectangles, event->simpleData.nrectangles );
-/*
+#ifndef QT_NO_QWS_MANAGER
+	exposed |= extraExposed;
+#endif
+	/*
 	for ( int i = 0; i < event->simpleData.nrectangles; i++ )
 	    qDebug( "exposed: %d, %d %dx%d",
 		event->rectangles[i].x(),
 		event->rectangles[i].y(),
 		event->rectangles[i].width(),
 		event->rectangles[i].height() );
-*/
-	repaintDecoration( exposed );
+	*/
 	repaintHierarchy( exposed );
+	repaintDecoration( exposed );
     }
 
     return TRUE;
@@ -3132,3 +3165,53 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 	return animate_ui;
     }
 }
+
+#ifndef QT_NO_PCOP
+
+class PCOPChannelPrivate
+{
+public:
+    QCString channel;
+};
+
+
+
+PCOPChannel::PCOPChannel( const QCString& channel )
+{
+    d = new PCOPChannelPrivate;
+    d->channel = channel;
+    channels.append( this );
+    // TODO inform server about this channel
+}
+
+PCOPChannel::~PCOPChannel()
+{
+    // TODO inform server about the death of  this channel
+    channels.removeRef( this );
+    delete d;
+}
+
+QCString PCOPChannel::channel() const
+{
+    return d->channel;
+}
+
+bool PCOPChannel::isRegistered( const QCString& channel )
+{
+    // TODO ask server
+}
+
+bool PCOPChannel::send(const QCString &channel, const QCString &msg )
+{
+    QByteArray data;
+    return send( channel, msg, data );
+}
+
+
+bool PCOPChannel::send(const QCString &channel, const QCString &msg, const QByteArray &data )
+{
+    // TODO send message
+}
+
+
+#endif

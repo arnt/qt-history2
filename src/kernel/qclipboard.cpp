@@ -13,17 +13,27 @@
 ** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the kernel
-** module and therefore may only be used if the kernel module is specified
-** as Licensed on the Licensee's License Certificate.
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qclipboard.h"
 
@@ -138,6 +148,8 @@ QClipboard *QApplication::clipboard()
     return (QClipboard *)qt_clipboard;
 }
 
+#ifndef QT_NO_MIMECLIPBOARD
+// text handling is done directly in qclipboard_qws, for now
 
 /*!
   Returns the clipboard text in subtype \a subtype,
@@ -169,6 +181,7 @@ QString QClipboard::text() const
     QCString subtype = "plain";
     return text(subtype);
 }
+
 
 /*!
   Copies \a text into the clipboard.
@@ -242,5 +255,5 @@ void QClipboard::setPixmap( const QPixmap &pixmap )
     // *could* just use the handle, but that is X hackery, MIME is better.
     setData( new QImageDrag( pixmap.convertToImage() ) );
 }
-
+#endif // QT_NO_MIMECLIPBOARD
 #endif // QT_NO_CLIPBOARD

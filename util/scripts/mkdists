@@ -222,6 +222,10 @@ close I;
 foreach $fullname ( @includefiles ) {
     $_ = $fullname;
     s-.*/--;
+    if ( $fullname =~ m{src/([^/]*)/([^/]*\.h)$} ) {
+	$module_h{$1}.=" " if defined $module_h{$1};
+	$module_h{$1}.=$2;
+    }
     symlink( "../$fullname", "$qtdir/include/$_" );
 }
 
@@ -231,8 +235,8 @@ mkdir( "$distdir/qt/doc", 0777 );
 mkdir( "$distdir/qt/doc/html", 0777 );
 mkdir( "$distdir/qt/doc/man", 0777 );
 mkdir( "$distdir/qt/doc/html/designer", 0777 );
-mkdir( "$distdir/qt/doc/html/designer/stylesheet-images", 0777 );
 mkdir( "$distdir/qt/doc/html/designer/figures", 0777 );
+mkdir( "$distdir/qt/doc/html/designer/arrows", 0777 );
 mkdir( "$distdir/qt/doc/man/man1", 0777 );
 mkdir( "$distdir/qt/doc/man/man3", 0777 );
 # and do the moc.1 hack here
@@ -241,8 +245,9 @@ rename( "$distdir/qt/src/moc/moc.1", "$distdir/qt/doc/man/man1" );
 if ( $doc ) {
     system( "cp $qtdir/tools/designer/manual/*.html $distdir/qt/doc/html/designer" );
     system( "cp $qtdir/tools/designer/manual/figures/*.png $distdir/qt/doc/html/designer/figures" );
-    system( "cp $qtdir/tools/designer/manual/stylesheet-images/*.gif $distdir/qt/doc/html/designer/stylesheet-images" );
+    system( "cp $qtdir/tools/designer/manual/arrows/*.png $distdir/qt/doc/html/designer/arrows" );
     system( "rm -rf $qtdir/tools/designer/manual" );
+    system( "rm -rf $qtdir/tools/designer/doc" );
     print "Running qdoc\n";
     open( I, "$distdir/qt/util/qdoc/qdoc $distdir/qt |" )
       || die "could not run qdoc, stopped";
@@ -430,12 +435,14 @@ sub clean_platform
 	&rmrf("$qtdir/examples/compact");
 	&rmrf("$qtdir/examples/notepad");
 	&rmrf("$qtdir/examples/launcher");
-	&rmrf("$qtdir/extensions/nsplugin");
 	&rmrf("$qtdir/extensions/imageio");
 	&rmrf("$qtdir/src/3rdparty/freetype2");
 	unlink "$qtdir/src/widgets/qcompactstyle.h";
 	unlink "$qtdir/src/widgets/qcompactstyle.cpp";
     }
+#    if ( $platform eq "qws" ) {
+#      &rmrf("$qtdir/extensions/nsplugin");
+#    }
 }
 
 # X11 and QWS stuff.
@@ -502,7 +509,7 @@ for $platform ( "x11", "qws" ) {
     rename( "$qtdir/src/doc/man", "$qtdir/doc/man" );
     rename( "$qtdir/src/doc/html/designer", "$qtdir/doc/html/designer" );
     rename( "$qtdir/src/doc/html/designer/figures", "$qtdir/doc/html/designer/figures" );
-    rename( "$qtdir/src/doc/html/designer/stylesheet-images", "$qtdir/doc/html/designer/stylesheet-images" );
+    rename( "$qtdir/src/doc/html/designer/arrows", "$qtdir/doc/html/designer/arrows" );
 
     # Generate makefiles
 
@@ -531,35 +538,35 @@ for $platform ( "x11", "qws" ) {
     &prune( "qtdir" );
 
     # Move Makefile.in / Makefile-pro.in to free/commercial
-    find(
-	sub {
-	    my $d = "$File::Find::dir";
-	    $d = substr $d, length "$distdir/$platform";
-	    if ( $_ eq "Makefile.in" || ( !/-pro\.pro$/ && /\.pro$/ ) )
-	    {
-		system("mkdir -p $distdir/$platform-free/$d");
-		system("mkdir -p $distdir/$platform-commercial/$d");
-		copy("$File::Find::dir/$_", "$distdir/$platform-free/$d/$_");
-		copy("$File::Find::dir/$_", "$distdir/$platform-commercial/$d/$_");
-		unlink $_;
-	    }
-	}, "$distdir/$platform"
-    );
-    find(
-	sub {
-	    my $d = "$File::Find::dir";
-	    $d = substr $d, length "$distdir/$platform";
-	    if ( $_ eq "Makefile-pro.in" ) {
-		system("mkdir -p $distdir/$platform-commercial/$d");
-		copy("$File::Find::dir/$_", "$distdir/$platform-commercial/$d/Makefile.in");
-		unlink $_;
-	    } elsif ( $_ =~ /(.*)-pro\.pro$/ ) {
-		system("mkdir -p $distdir/$platform-commercial/$d");
-		copy("$File::Find::dir/$_", "$distdir/$platform-commercial/$d/$1.pro");
-		unlink $_;
-	    }
-	}, "$distdir/$platform"
-    );
+#    find(
+#	sub {
+#	    my $d = "$File::Find::dir";
+#	    $d = substr $d, length "$distdir/$platform";
+#	    if ( $_ eq "Makefile.in" || ( !/-pro\.pro$/ && /\.pro$/ ) )
+#	    {
+#		system("mkdir -p $distdir/$platform-free/$d");
+#		system("mkdir -p $distdir/$platform-commercial/$d");
+#		copy("$File::Find::dir/$_", "$distdir/$platform-free/$d/$_");
+#		copy("$File::Find::dir/$_", "$distdir/$platform-commercial/$d/$_");
+#		unlink $_;
+#	    }
+#	}, "$distdir/$platform"
+#    );
+#    find(
+#	sub {
+#	    my $d = "$File::Find::dir";
+#	    $d = substr $d, length "$distdir/$platform";
+#	    if ( $_ eq "Makefile-pro.in" ) {
+#		system("mkdir -p $distdir/$platform-commercial/$d");
+#		copy("$File::Find::dir/$_", "$distdir/$platform-commercial/$d/Makefile.in");
+#		unlink $_;
+#	    } elsif ( $_ =~ /(.*)-pro\.pro$/ ) {
+#		system("mkdir -p $distdir/$platform-commercial/$d");
+#		copy("$File::Find::dir/$_", "$distdir/$platform-commercial/$d/$1.pro");
+#		unlink $_;
+#	    }
+#	}, "$distdir/$platform"
+#    );
 
     # tar up the two supplementals
 
@@ -610,9 +617,10 @@ if (!$notplatform{win}) {
     $ENV{ "TMAKEPATH" } = $ENV{"TMAKEDIR" } . "/lib/linux-g++";
 
     mkdir "$qtdir/lib", 0777 unless( -d "$qtdir/lib" );
+    $fixed_util = 0;
     foreach $enterprise ( 0, 1 ) {
 	@builds = qw {
-	    borland
+	    borland  borland-mt
 	    msvc     msvc-dll     msvc-mt     msvc-dll-mt
 	};
 	foreach $build ( @builds ) {
@@ -630,13 +638,28 @@ if (!$notplatform{win}) {
 	    }
 	    if ( $build =~ /(.*)-mt(.*)/ ) {
 	        $buildtype .= " -mt";
+		open QC, ">>$qtdir/include/qconfig.h";
+		# Silly external build system adds this via cmdline options.
+		# print QC "#define QT_THREAD_SUPPORT\n";
+		close QC;
 	    }
 	    $zipdir = "mkfiles";
 	    if ( $enterprise ) {
 	        $buildtype .= " -enterprise";
 	        $zipdir .= "-ent";
+	       if ( $fixed_util ne 2 ) {
+		 system( "rm -f y$qtdir/tools/designer/util/util.pro" );
+		 system( "cp -f $qtdir/tools/designer/util/util-ent.pro $qtdir/tools/designer/util/util.pro" );
+		 $fixed_util = 2;
+	       }
 	    } else {
-	        $zipdir .= "-pro";
+	       $zipdir .= "-pro";
+	       if ( $fixed_util ne 1 ) {
+		 system( "cp -f $qtdir/tools/designer/util/util.pro $qtdir/tools/designer/util/util-ent.pro" );
+		 system( "rm -f y$qtdir/tools/designer/util/util.pro" );
+		 system( "cp -f $qtdir/tools/designer/util/util-pro.pro $qtdir/tools/designer/util/util.pro" );
+		 $fixed_util = 1;
+	       }
 	    }
 	    mkdir "$qtdir/$zipdir", 0777;
 	    print "  ", ($enterprise ? "Enterprise" : "Professional"),
@@ -718,6 +741,8 @@ if (!$notplatform{win}) {
 	    $zipdir .= "-ent";
 	} else {
 	    $zipdir .= "-pro";
+	    system( "rm -f $qtdir/include/qmodules.h" );
+	    system( "touch $qtdir/include/qmodules.h" );
 	}
 	rename "$qtdir/$zipdir", "$qtdir/mkfiles";
 
@@ -774,6 +799,11 @@ if (!$notplatform{win}) {
 	    for $m ( @modules_ent ) {
 		next if $m eq "xml"; # Needed by designer
 		print O "qt/src/$m/*\n";
+		if ( defined $module_h{$m} ) {
+		    for $h ( split " ", $module_h{$m} ) {
+			print O "qt/include/$h\n";
+		    }
+		}
 	    }
 	    print O "qt/mkfiles-ent/*\n";
 	}
@@ -877,6 +907,8 @@ sub public {
 	     || $file =~ /^tools\/.*\/COPYING/
 	     || $file =~ /^tools\/.*\/HTML.manifest$/
 	     || $file =~ /^tools\/.*\/mkimages$/
+	     || $file =~ /^tools\/designer\/designer\/.*\.((rc)|(ico))$/
+	     || $file =~ /^tools\/.*\/mksplash$/
 
 	     # the tutorials
 	     || $file =~ /^tutorial\/t[0-9]*\/$/

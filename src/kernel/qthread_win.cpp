@@ -5,25 +5,27 @@
 **
 ** Created : 931107
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
-** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
-** LICENSE.QPL included in the packaging of this file.
-**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the kernel
-** module and therefore may only be used if the kernel module is specified
-** as Licensed on the Licensee's License Certificate.
+** licenses for Windows may use this file in accordance with the Qt Commercial
+** License Agreement provided with the Software.
+**
+** This file is not available for use under any other license without
+** express written permission from the copyright holder.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qthread.h"
 
@@ -65,19 +67,28 @@ class QCriticalSection
 {
 public:
     QCriticalSection()
-        {InitializeCriticalSection(&section);}
+    {
+	InitializeCriticalSection(&section);
+    }
     ~QCriticalSection()
-        {DeleteCriticalSection(&section);}
+    {
+	DeleteCriticalSection(&section);
+    }
     void enter()
-        {EnterCriticalSection(&section);}
+    {
+	EnterCriticalSection(&section);
+    }
     void leave()
-        {LeaveCriticalSection(&section);}
+    {
+	LeaveCriticalSection(&section);
+    }
+
 private:
     CRITICAL_SECTION section;
 };
 
 /*
-  QMutexPrivate - implements a normal mutex
+  QMutexPrivate - implements a recursive mutex
 */
 
 class QMutexPrivate
@@ -91,7 +102,7 @@ public:
     virtual void unlock();
     virtual bool locked();
 #ifdef CHECK_RANGE
-    virtual int type() { return QMUTEX_TYPE_NORMAL; }
+    virtual int type() const { return QMUTEX_TYPE_RECURSIVE; }
 #endif
 };
 
@@ -166,41 +177,66 @@ bool QMutexPrivate::locked()
 }
 
 /*
-  QMutexPrivate - implements a recursive mutex
- */
+  QNonRecursiveMutexPrivate - implements a non-recursive mutex
+*/
 
-class QRecursiveMutexPrivate : public QMutexPrivate
+class QNonRecursiveMutexPrivate : public QMutexPrivate
 {
 public:
-    QRecursiveMutexPrivate();
-    virtual void lock();
+    QNonRecursiveMutexPrivate();
+    void lock();
+    void unlock();
 #ifdef CHECK_RANGE
-    virtual int type() { return QMUTEX_TYPE_RECURSIVE; };
+    virtual int type() const { return QMUTEX_TYPE_NORMAL; };
 #endif
+
+    unsigned int threadID;
+    QCriticalSection protect;
 };
 
-QRecursiveMutexPrivate::QRecursiveMutexPrivate()
+QNonRecursiveMutexPrivate::QNonRecursiveMutexPrivate()
     : QMutexPrivate()
 {
+    threadID = 0;
 }
 
-void QRecursiveMutexPrivate::lock()
+void QNonRecursiveMutexPrivate::lock()
 {
-    switch ( WaitForSingleObject( handle, INFINITE ) ) {
-    case WAIT_TIMEOUT:
-    case WAIT_FAILED:
+    protect.enter();
+
+    if ( threadID == GetCurrentThreadId() ) {
 #ifdef CHECK_RANGE
-	qSystemWarning( "Couldn't lock mutex" );
+	qWarning( "Non-recoursive mutex already locked by this thread" );
 #endif
-	break;
-    case WAIT_ABANDONED:
-#ifdef CHECK_RANGE
-	qWarning( "Thread terminated while locking mutex!" );
-#endif
-	// Fall through
-    default:
-	break;
+    } else {
+	protect.leave();
+	switch ( WaitForSingleObject( handle, INFINITE ) ) {
+	case WAIT_TIMEOUT:
+	case WAIT_FAILED:
+    #ifdef CHECK_RANGE
+	    qSystemWarning( "Couldn't lock mutex" );
+    #endif
+	    break;
+	case WAIT_ABANDONED:
+    #ifdef CHECK_RANGE
+	    qWarning( "Thread terminated while locking mutex!" );
+    #endif
+	    // Fall through
+	default:
+	    protect.enter();
+	    threadID = GetCurrentThreadId();
+	    protect.leave();
+	    break;
+	}
     }
+}
+
+void QNonRecursiveMutexPrivate::unlock()
+{
+    protect.enter();
+    QMutexPrivate::unlock();
+    threadID = 0;
+    protect.leave();
 }
 
 /*
@@ -210,9 +246,9 @@ void QRecursiveMutexPrivate::lock()
 QMutex::QMutex(bool recursive)
 {
     if ( recursive )
-        d = new QRecursiveMutexPrivate();
+	d = new QMutexPrivate();
     else
-       d = new QMutexPrivate();
+	d = new QNonRecursiveMutexPrivate();
 }
 
 QMutex::~QMutex()
@@ -259,7 +295,7 @@ class QThreadEventsPrivate : public QObject
 public:
     QThreadEventsPrivate();
     QList<QThreadQtEvent> events;
-    QMutex eventMutex;
+    QCriticalSection protect;
     void add(QThreadQtEvent *);
 public slots:
     void sendEvents();
@@ -276,12 +312,12 @@ QThreadEventsPrivate::QThreadEventsPrivate()
 
 void QThreadEventsPrivate::sendEvents()
 {
-    eventMutex.lock();
+    protect.enter();
     QThreadQtEvent * qte;
     for( qte = events.first(); qte != 0; qte = events.next() )
         qApp->postEvent( qte->object, qte->event );
     events.clear();
-    eventMutex.unlock();
+    protect.leave();
 }
 
 void QThreadEventsPrivate::add(QThreadQtEvent * e)
@@ -290,14 +326,14 @@ void QThreadEventsPrivate::add(QThreadQtEvent * e)
 }
 
 /*
-  QConditionPrivate
+  QWaitConditionPrivate
 */
 
-class QConditionPrivate
+class QWaitConditionPrivate
 {
 public:
-    QConditionPrivate();
-    ~QConditionPrivate();
+    QWaitConditionPrivate();
+    ~QWaitConditionPrivate();
 
     int wait( unsigned long time = ULONG_MAX , bool countWaiter = TRUE);
     HANDLE handle;
@@ -306,7 +342,7 @@ public:
     int waitersCount;
 };
 
-QConditionPrivate::QConditionPrivate()
+QWaitConditionPrivate::QWaitConditionPrivate()
 : waitersCount(0)
 {
     handle = CreateEvent( NULL, TRUE, FALSE, NULL );
@@ -317,7 +353,7 @@ QConditionPrivate::QConditionPrivate()
 #endif
 }
 
-QConditionPrivate::~QConditionPrivate()
+QWaitConditionPrivate::~QWaitConditionPrivate()
 {
     if ( !CloseHandle( handle ) || !CloseHandle( single ) ) {
 #ifdef CHECK_RANGE
@@ -326,7 +362,7 @@ QConditionPrivate::~QConditionPrivate()
     }
 }
 
-int QConditionPrivate::wait( unsigned long time , bool countWaiter )
+int QWaitConditionPrivate::wait( unsigned long time , bool countWaiter )
 {
     s.enter();
     if ( countWaiter )
@@ -341,20 +377,20 @@ int QConditionPrivate::wait( unsigned long time , bool countWaiter )
 }
 
 /*
-  QCondition implementation
+  QWaitCondition implementation
 */
 
-QCondition::QCondition()
+QWaitCondition::QWaitCondition()
 {
-    d = new QConditionPrivate();
+    d = new QWaitConditionPrivate();
 }
 
-QCondition::~QCondition()
+QWaitCondition::~QWaitCondition()
 {
     delete d;
 }
 
-bool QCondition::wait( unsigned long time )
+bool QWaitCondition::wait( unsigned long time )
 {
     switch ( d->wait(time) ) {
     case WAIT_TIMEOUT:
@@ -372,14 +408,15 @@ bool QCondition::wait( unsigned long time )
     return TRUE;
 }
 
-bool QCondition::wait( QMutex *mutex, unsigned long time)
+bool QWaitCondition::wait( QMutex *mutex, unsigned long time)
 {
     if ( !mutex )
        return FALSE;
+
     d->s.enter();
 #ifdef CHECK_RANGE
     if ( mutex->d->type() == QMUTEX_TYPE_RECURSIVE )
-        qWarning("Unlocking recursive mutex before wait");
+	qWarning("Unlocking recursive mutex before wait");
 #endif
     d->waitersCount++;
     d->s.leave();
@@ -399,21 +436,21 @@ bool QCondition::wait( QMutex *mutex, unsigned long time)
     return TRUE;
 }
 
-void QCondition::wakeOne()
+void QWaitCondition::wakeOne()
 {
     d->s.enter();
     bool haveWaiters = (d->waitersCount > 0);
     if ( haveWaiters ) {
         if ( !SetEvent( d->single ) ) {
     #ifdef CHECK_RANGE
-        qSystemWarning( "Condition could not be set" );
+	    qSystemWarning( "Condition could not be set" );
     #endif
         }
     }
     d->s.leave();
 }
 
-void QCondition::wakeAll()
+void QWaitCondition::wakeAll()
 {
     d->s.enter();
     bool haveWaiters = (d->waitersCount > 0);
@@ -439,13 +476,10 @@ public:
     QThreadPrivate();
     ~QThreadPrivate();
 
-    void init( QThread* );
-
     HANDLE handle;
     unsigned int id;
     bool finished  : 1;
     bool running   : 1;
-    bool runonce   : 1;
 };
 
 #if !defined(_CC_BOR_)
@@ -469,7 +503,6 @@ void QThreadPrivate::internalRun( QThread* that )
 
 QThreadPrivate::QThreadPrivate()
 {
-    runonce = FALSE;
 }
 
 QThreadPrivate::~QThreadPrivate()
@@ -485,19 +518,6 @@ QThreadPrivate::~QThreadPrivate()
     }
 }
 
-void QThreadPrivate::init( QThread* that )
-{
-    handle = (HANDLE)_beginthreadex( NULL, NULL, start_thread,
-	that,
-	CREATE_SUSPENDED,
-	&(id) );
-
-#ifdef CHECK_RANGE
-    if ( !handle )
-	qSystemWarning( "Couldn't create thread" );
-#endif
-}
-
 /*
   QThread static functions
 */
@@ -511,9 +531,9 @@ void QThread::postEvent( QObject *o,QEvent *e )
 {
     if( !qthreadEventsPrivate )
         qthreadEventsPrivate = new QThreadEventsPrivate();
-    qthreadEventsPrivate->eventMutex.lock();
+    qthreadEventsPrivate->protect.enter();
     qthreadEventsPrivate->add( new QThreadQtEvent(o,e)  );
-    qthreadEventsPrivate->eventMutex.unlock();
+    qthreadEventsPrivate->protect.leave();
     qApp->wakeUpGuiThread();
 }
 
@@ -544,7 +564,6 @@ void QThread::usleep( unsigned long mys )
 QThread::QThread()
 {
     d = new QThreadPrivate;
-    d->init( this );
 }
 
 QThread::~QThread()
@@ -558,16 +577,20 @@ QThread::~QThread()
 
 void QThread::start()
 {
-    if ( d->runonce )
-	d->init( this );
-
-    d->runonce = TRUE;
-
-    if ( ResumeThread( d->handle ) == -1 ) {
+    if ( d->running && !d->finished ) {
 #ifdef CHECK_RANGE
-	qSystemWarning( "Couldn't start thread" );
+	qWarning( "Thread is already running" );
 #endif
+	wait();
     }
+
+    d->handle = (HANDLE)_beginthreadex( NULL, NULL, start_thread,
+	this, 0, &(d->id) );
+
+#ifdef CHECK_RANGE
+    if ( !d->handle )
+	qSystemWarning( "Couldn't create thread" );
+#endif
 }
 
 bool QThread::wait( unsigned long time )
@@ -615,8 +638,8 @@ public:
     HANDLE handle;
     int count;
     int maxCount;
-    QMutex countMutex;
-    QCondition dontBlock;
+    QCriticalSection protect;
+    QWaitCondition dontBlock;
 };
 
 QSemaphore::QSemaphore( int maxcount )
@@ -653,10 +676,12 @@ int QSemaphore::total() const
 
 int QSemaphore::operator--(int)
 {
-    if ( d->count == d->maxCount )
+    d->protect.enter();
+    if ( d->count == d->maxCount ) {
+	d->protect.leave();
 	return d->count;
+    }
 
-    d->countMutex.lock();
     int c = d->count;
     if ( !ReleaseSemaphore( d->handle, 1, NULL ) ) {
 #ifdef CHECK_RANGE
@@ -666,14 +691,14 @@ int QSemaphore::operator--(int)
 	c = ++d->count;
 	d->dontBlock.wakeAll();
     }
-    d->countMutex.unlock();
+    d->protect.leave();
 
     return c;
 }
 
 int QSemaphore::operator -=(int s)
 {
-    d->countMutex.lock();
+    d->protect.enter();
     int c = d->count;
     if ( !ReleaseSemaphore( d->handle, s, NULL ) ) {
 #ifdef CHECK_RANGE
@@ -686,7 +711,7 @@ int QSemaphore::operator -=(int s)
 	    d->count = d->maxCount;
 	c = d->count;
     }
-    d->countMutex.unlock();
+    d->protect.leave();
 
     return c;
 }
@@ -703,9 +728,9 @@ int QSemaphore::operator++(int)
     default:
 	break;
     }
-    d->countMutex.lock();
+    d->protect.enter();
     int c = --d->count;
-    d->countMutex.unlock();
+    d->protect.leave();
 
     return c;
 }
@@ -715,7 +740,7 @@ int QSemaphore::operator +=(int s)
     while ( d->count < s )
 	d->dontBlock.wait();
 
-    d->countMutex.lock();
+    d->protect.enter();
     for ( int i = 0; i < s; i++ ) {
 	switch ( WaitForSingleObject( d->handle, INFINITE ) ) {
 	case WAIT_TIMEOUT:
@@ -730,7 +755,7 @@ int QSemaphore::operator +=(int s)
 	d->count--;
     }
     int c = d->count;
-    d->countMutex.unlock();
+    d->protect.leave();
 
     return c;
 }

@@ -5,24 +5,27 @@
 **
 ** Created : 940721
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
-** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
-** LICENSE.QPL included in the packaging of this file.
-**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the kernel
-** module and therefore may only be used if the kernel module is specified
-** as Licensed on the Licensee's License Certificate.
+** licenses for Qt/Embedded may use this file in accordance with the
+** Qt Embedded Commercial License Agreement provided with the Software.
+**
+** This file is not available for use under any other license without
+** express written permission from the copyright holder.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing.
+**   information about Qt Commercial License Agreements.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #ifndef QGFX_H
 #define QGFX_H
@@ -119,6 +122,9 @@ public:
     virtual void save();
     virtual void restore();
 
+    virtual int pixmapOffsetAlignment() { return 64; }
+    virtual int pixmapLinestepAlignment() { return 64; }
+
     virtual bool onCard(unsigned char *) const;
     virtual bool onCard(unsigned char *, ulong& out_offset) const;
 
@@ -133,7 +139,7 @@ public:
     int linestep() const { return lstep; }
     uchar * base() const { return data; }
     // Ask for memory from card cache with alignment
-    virtual uchar * cache(int,int) { return 0; }
+    virtual uchar * cache(int) { return 0; }
     virtual void uncache(uchar *) {}
 
     int screenSize() const { return size; }
@@ -160,7 +166,7 @@ protected:
 
     QPoolEntry * entries;
     int * entryp;
-    int * lowest;
+    unsigned int * lowest;
 
     int w;
     int lstep;
@@ -239,7 +245,6 @@ public:
     // This one is pen
     virtual void setSourcePen()=0;
     virtual void setSourceOffset(int,int)=0;
-    virtual void setMasking(bool on,int color=0)=0;
 
     virtual void drawAlpha(int,int,int,int,int,int,int,int) {}
 
@@ -274,8 +279,6 @@ public:
     virtual void restore()=0;
 
     virtual void setRop(RasterOp)=0;
-
-    virtual void paintCursor(const QImage& image, int hotx, int hoty, QPoint cursorPos)=0;
 
 protected:
     bool is_screen_gfx;

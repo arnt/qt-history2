@@ -6,7 +6,7 @@
 ** Author  : Haavard Nord
 ** Created : 940112
 **
-** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Trolltech AS.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** This utility generates source code to lookup X11 RGB colors from X11

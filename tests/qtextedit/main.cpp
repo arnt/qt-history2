@@ -14,8 +14,9 @@
 #include <qpaintdevicemetrics.h>
 
 //#define CPP_EDITOR
+//#define SPELL_CHECKER
 
-#if defined(CPP_EDITOR)
+#if defined(CPP_EDITOR) || defined(SPELL_CHECKER)
 #define QTEXTEDIT_OPEN_API
 #endif
 
@@ -23,7 +24,12 @@
 #include "qsimplerichtext.h"
 
 #if defined(QTEXTEDIT_OPEN_API)
+#if defined(CPP_EDITOR)
 #include "qcppsyntaxhighlighter.h"
+#endif
+#if defined(SPELL_CHECKER)
+#include "qspellchecker.h"
+#endif
 #endif
 
 class SimpleText : public QWidget
@@ -33,7 +39,7 @@ public:
 	QFile f( "/home/reggie/troll/qt/doc/html/qcheckbox.html" );
 	f.open( IO_ReadOnly );
 	QTextStream ts( &f );
-	s = new QSimpleRichText( ts.read(), QApplication::font() ); }
+	s = new QSimpleRichText( ts.read(), QApplication::font(), "/home/reggie/troll/qt/doc/html/qcheckbox.html" ); }
 protected:
     void paintEvent( QPaintEvent *e ) {
 	QPainter p( this );
@@ -58,7 +64,7 @@ protected:
 	    f.open( IO_ReadOnly );
 	    QTextStream ts( &f );
 	    QSimpleRichText richText( ts.read(), QFont( "times", 10 ),
-				      "", QStyleSheet::defaultSheet(),
+				      "/home/reggie/troll/qt/doc/html/qcheckbox.html", QStyleSheet::defaultSheet(),
 				      QMimeSourceFactory::defaultFactory(), body.height() );
 	    richText.setWidth( &p, body.width() );
 	    QRect view( body );
@@ -350,6 +356,9 @@ int main( int argc, char ** argv )
     ed.load( fn );
     mw.setCentralWidget( &ed );
     mw.setEdit( &ed );
+#if defined(SPELL_CHECKER)
+    ed.document()->setSyntaxHighlighter( new QSpellChecker( ed.document() ) );
+#endif
 #else
     QTextEdit ed( &mw );
     ed.load( fn, TRUE );
@@ -361,6 +370,7 @@ int main( int argc, char ** argv )
     ed.document()->setFormatter( new QTextFormatterBreakInWords( ed.document() ) );
     mw.setEdit( &ed );
 #endif
+
     ed.viewport()->setFocus();
 
     a.setMainWidget( &mw );

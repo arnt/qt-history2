@@ -5,25 +5,35 @@
 **
 ** Created : 2000.06.21
 **
-** Copyright (C) 2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the widgets
-** module and therefore may only be used if the widgets module is specified
-** as Licensed on the Licensee's License Certificate.
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qeffects_p.h"
 
@@ -65,11 +75,13 @@ public:
 
 protected:
     void paintEvent( QPaintEvent* e );
-    bool eventFilter( QObject* o, QEvent* e );
+    void closeEvent( QCloseEvent* );
+    bool eventFilter( QObject* o, QEvent* e );    
     void alphaBlend();
 
 protected slots:
     void render();
+    void goodBye();
 
 private:
     QPixmap pm;
@@ -91,7 +103,7 @@ static QAlphaWidget* blend = 0;
 */
 QAlphaWidget::QAlphaWidget( QWidget* w, QWidget* parent, const char* name, WFlags f )
     : QWidget( parent, name,
-	       f | WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WStyle_StaysOnTop | WResizeNoErase | WRepaintNoErase )
+	       f | WStyle_Customize | WType_Popup | WResizeNoErase | WRepaintNoErase )
 {
     setBackgroundMode( NoBackground );
     widget = (QAccessWidget*)w;
@@ -177,6 +189,18 @@ bool QAlphaWidget::eventFilter( QObject* o, QEvent* e )
 }
 
 /*
+  \reimp
+*/
+void QAlphaWidget::closeEvent( QCloseEvent* )
+{
+    if ( !blend )
+	return;
+
+    showWidget = FALSE;
+    render();
+}
+
+/*
   Render alphablending for the time elapsed.
 
   Show the blended widget and free all allocated source
@@ -202,13 +226,21 @@ void QAlphaWidget::render()
 	    widget->setBackgroundMode( bgm );
 	    widget->setWState( WState_Visible );
 	}
-	delete this;
 	blend = 0;
+	QTimer::singleShot( 0, this, SLOT(goodBye()) );
     } else {
 	alphaBlend();
 	pm = mixed;
 	repaint( FALSE );
     }
+}
+
+/*
+  Delete this after timout
+*/
+void QAlphaWidget::goodBye()
+{
+    delete this;
 }
 
 /*
@@ -255,9 +287,11 @@ public:
 protected:
     void paintEvent( QPaintEvent* );
     bool eventFilter( QObject*, QEvent* );
+    void closeEvent( QCloseEvent* );
 
 private slots:
     void scroll();
+    void goodBye();
 
 private:
     QAccessWidget* widget;
@@ -285,7 +319,7 @@ static QRollEffect* roll = 0;
 */
 QRollEffect::QRollEffect( QWidget* w, DirFlags orient )
     : QWidget(0, 0,
-	      WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WStyle_StaysOnTop | WResizeNoErase | WRepaintNoErase )
+    WStyle_Customize | WType_Popup | WResizeNoErase | WRepaintNoErase )
 , orientation(orient)
 {
     widget = (QAccessWidget*) w;
@@ -345,6 +379,19 @@ bool QRollEffect::eventFilter( QObject* o, QEvent* e )
 	    break;
 	}
     return QWidget::eventFilter( o, e );
+}
+
+/*
+  \reimp
+*/
+void QRollEffect::closeEvent( QCloseEvent* )
+{
+    if ( done )
+	return;
+
+    showWidget = FALSE;
+    done = TRUE;
+    scroll();
 }
 
 /*
@@ -439,9 +486,17 @@ void QRollEffect::scroll()
 	    if ( widget->inherits( "QLabel" ) && widget->testWFlags( WStyle_Tool ) )
 		widget->update();
 	}
-	delete this;
 	roll = 0;
+	QTimer::singleShot( 0, this, SLOT(goodBye()) );
     }
+}
+
+/*
+  Delete this after timeout
+*/
+void QRollEffect::goodBye()
+{
+    delete this;
 }
 
 #include "qeffects.moc"

@@ -5,25 +5,35 @@
 **
 ** Created : 950429
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the kernel
-** module and therefore may only be used if the kernel module is specified
-** as Licensed on the Licensee's License Certificate.
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qurl.h"
 
@@ -542,10 +552,13 @@ bool QUrl::parse( const QString& url )
 
     // if :/ is at pos 1, we have only one letter
     // before that separator => that's a drive letter!
-    if ( url_.find( ":/" ) == 1 )
+    int cs = url_.find( ":/" );
+    if ( cs == 1 )
 	relPath = forceRel = TRUE;
 
-    int cs = url_.find( ":/" );
+    int hasNoHost = -1;
+    if ( cs != -1 ) // if a protocol is there, find out if there is a host or directly the path after it
+	hasNoHost = url_.find( "///", cs );
     table[ 4 ][ 1 ] = User;
     table[ 4 ][ 2 ] = User;
     if ( cs == -1 || forceRel ) { // we have a relative file
@@ -573,11 +586,12 @@ bool QUrl::parse( const QString& url )
 	    int at = tmp.find( "@" );
 	    if ( at != -1 )
 		at += cs;
-	    // we have no @, which means
-	    // host[:port], so directly after the protocol the host starts,
-	    // or if the protocol is file, it´s the path
+	    // we have no @, which means host[:port], so directly
+	    // after the protocol the host starts, or if the protocol
+	    // is file or there were more than 2 slashes, it´s the
+	    // path
 	    if ( at == -1 ) {
-		if ( url_.left( 4 ) == "file" )
+		if ( url_.left( 4 ) == "file" || hasNoHost != -1 )
 		    table[ 4 ][ 1 ] = Path;
 		else
 		    table[ 4 ][ 1 ] = Host;

@@ -42,38 +42,40 @@ public:
 	    fd.readLine(line,9999);
 	    if ( line[0] != '#' ) {
 		QStringList attr = QStringList::split(" ",line);
-		QString family = attr[0];
-		int weight = QString(attr[4]).toInt();
-		bool italic = QString(attr[3]) == 'y';
-		QStringList sizes = attr[5];
-		if ( sizes[0] == "0" )
-		    sizes = QStringList::split(',',attr[7]);
-		for (QStringList::Iterator it = sizes.begin(); it != sizes.end(); ++it) {
-		    int pointSize = (*it).toInt()/10;
-		    if ( pointSize ) {
-			QFont f(family,pointSize,weight,italic);
+		if ( attr.count() >= 7 ) {
+		    QString family = attr[0];
+		    int weight = QString(attr[4]).toInt();
+		    bool italic = QString(attr[3]) == 'y';
+		    QStringList sizes = attr[5];
+		    if ( sizes[0] == "0" )
+			sizes = QStringList::split(',',attr[7]);
+		    for (QStringList::Iterator it = sizes.begin(); it != sizes.end(); ++it) {
+			int pointSize = (*it).toInt()/10;
+			if ( pointSize ) {
+			    QFont f(family,pointSize,weight,italic);
 #ifdef _WS_QWS_
-			memorymanager->savePrerenderedFont((QMemoryManager::FontID)f.handle());
+			    memorymanager->savePrerenderedFont((QMemoryManager::FontID)f.handle());
 #endif
-			QString fontdesc;
-			fontdesc = QString::number(pointSize);
-			fontdesc += "pt ";
-			fontdesc += family;
-			if ( weight < QFont::Normal ) {
-			    fontdesc += " Light";
-			} else if ( weight >= QFont::Black ) {
-			    fontdesc += " Black";
-			} else if ( weight >= QFont::Bold ) {
-			    fontdesc += " Bold";
-			} else if ( weight >= QFont::DemiBold ) {
-			    fontdesc += " DemiBold";
+			    QString fontdesc;
+			    fontdesc = QString::number(pointSize);
+			    fontdesc += "pt ";
+			    fontdesc += family;
+			    if ( weight < QFont::Normal ) {
+				fontdesc += " Light";
+			    } else if ( weight >= QFont::Black ) {
+				fontdesc += " Black";
+			    } else if ( weight >= QFont::Bold ) {
+				fontdesc += " Bold";
+			    } else if ( weight >= QFont::DemiBold ) {
+				fontdesc += " DemiBold";
+			    }
+			    if ( italic )
+				fontdesc += " Italic";
+			    QLabel * l = new QLabel(fontdesc,vbox);
+			    l->setFont(f);
+			    l->show();
+			    qApp->processEvents();
 			}
-			if ( italic )
-			    fontdesc += " Italic";
-			QLabel * l = new QLabel(fontdesc,vbox);
-			l->setFont(f);
-			l->show();
-			//vbox->adjustSize();
 		    }
 		}
 	    }
@@ -81,7 +83,7 @@ public:
     }
 };
 
-int main(int argc, char** argv)
+int main()
 {
     int argc2 = 2;
     char* argv2[] = { "makeqpf", "-qws", "-nokeyboard", "-savefonts", 0 };

@@ -1,12 +1,17 @@
 TEMPLATE	= app
 CONFIG		+= qt warn_on release
-HEADERS		= qcppsyntaxhighlighter.h \
+# CONFIG	+= pim
+HEADERS	= qcppsyntaxhighlighter.h \
 		  qtextedit.h \
-		  qtexteditintern_p.h \
-		  qrichtext_p.h
-SOURCES		= main.cpp \
+		  qrichtext_p.h \
+		  qsimplerichtext.h \
+		  
+pim:HEADERS	+= ../../../qpim/words/qdawg.h qspellchecker.h
+SOURCES	= main.cpp \
 		  qcppsyntaxhighlighter.cpp \
 		  qtextedit.cpp \
-		  qtexteditintern.cpp \
-		  qrichtext.cpp
+		  qrichtext.cpp \
+		  qsimplerichtext.cpp \
+		  
+pim:SOURCES	+= ../../../qpim/words/qdawg.cpp qspellchecker.cpp
 TARGET		= qtextedit

@@ -43,13 +43,13 @@
 		</div>
 		<div class="SECT1">
 			<h1 class="SECT1"><a name="AEN1173"></a>Custom Widgets</h1>
-			<p>So far, we have only used widgets that are part of Qt&#151;radio buttons, check boxes, push buttons, etc. But in many projects, you will be using widgets that you have defined yourself&#151;so-called custom widgets, which should not be a surprise, since Qt makes defining custom widgets very easy.</p>
+			<p>So far, we have only used widgets that are part of Qt&#151;radio buttons, check boxes, push buttons, etc. But in many projects, you will be using widgets that you have defined yourself; so-called custom widgets, which should not be a surprise, since Qt makes defining custom widgets very easy.</p>
 			<p>To make these custom widgets accessible for Qt Designer, you need to write <i class="FIRSTTERM">descriptions</i> for them. Writing these descriptions is rather easy, and Qt Designer facilitates it by providing a special dialog.</p>
 			<p>You reach this dialog by selecting <span class="GUIMENU">Tools/Custom/Edit Custom Widgets</span> from the menu bar. The dialog shown in <a href="#QT-DESIGNER-FIG-EDITCUSTOMWIDGETS">Figure 5-4</a> opens. It consists of three parts. On the left is a list of all custom widgets that are currently known to Qt Designer. When you open this dialog for the first time, this list will of course be empty. To the right of this list are four action buttons for creating a new custom widget description, deleting an existing description, loading a description file, and saving the current descriptions to a file.</p>
 			<div class="FIGURE">
 				<a name="QT-DESIGNER-FIG-EDITCUSTOMWIDGETS"></a>
 				<p><b>Figure 5-4. The dialog for describing custom widgets</b></p>
-				<p><img src="figures/editcustomwidgets.gif"></p>
+				<p><img src="figures/editcustomwidgets.png"></p>
 			</div>
 			<p>Probably the most interesting part is in the right half of this dialog, where all the properties of a custom widget can be defined on four tab pages: <span class="GUILABEL">Definition</span>, <span class="GUILABEL">Signals</span>, <span class="GUILABEL">Slots</span>, and <span class="GUILABEL">Properties</span>.</p>
 			<p>In most cases, your widget will already be finished when you write a Qt Designer description for it. Thus all you need to do is mechanically go through all the fields, look for the information in (mostly) the header file of the widget, and fill it in.</p>

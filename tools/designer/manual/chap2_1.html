@@ -62,20 +62,20 @@
 				<div class="FIGURE">
 					<a name="QT-DESIGNER-FIG-STARTUP"></a>
 					<p><b>Figure 2-1. The startup screen of Qt Designer</b></p>
-					<p><img src="figures/startup.gif"></p>
+					<p><img src="figures/startup.png"></p>
 				</div>
 				<p>Now we can start creating the first dialog. Choose <span class="GUIMENU">File/New</span> from the menu or press <b class="KEYCAP">Ctrl-N</b>. You will then see the dialog in <a href="#QT-DESIGNER-FIG-NEWFORM">Figure 2-2</a>. Here you can choose from several types of forms, the most common ones probably being a new dialog and a new widget. If you have developed software with Qt before, you probably know the difference: A dialog is always a window of its own, while widgets usually are integrated into some other widget or a dialog. Among the other options that you have at this point are creating a wizard and creating a dialog with some predefined buttons.</p>
 				<p>The term <i class="EMPHASIS">form</i> might need some explanation. Everything that you design in Qt Designer is a form. This could be a widget, a dialog, or a wizard, and maybe in the future even other things. We'll use the term form here when it does not matter whether we are working with a dialog or a widget or something else and just want to refer to <i class="EMPHASIS">whatever you are currently designing in the right half of the Qt Designer window</i>.</p>
 				<div class="FIGURE">
 					<a name="QT-DESIGNER-FIG-NEWFORM"></a>
 					<p><b>Figure 2-2. Selecting the type of form to create</b></p>
-					<p><img src="figures/newformdialog.gif"></p>
+					<p><img src="figures/newformdialog.png"></p>
 				</div>
 				<p>Since we want a dialog in which we can specify our pizza preferences, click on <span class="GUILABEL">Empty Dialog</span> here. Now the Qt Designer screen changes fundamentally and becomes a lot less boring, as you can see in <a href="#QT-DESIGNER-FIG-EMPTYDIALOG">Figure 2-3</a>.</p>
 				<div class="FIGURE">
 					<a name="QT-DESIGNER-FIG-EMPTYDIALOG"></a>
 					<p><b>Figure 2-3. An empty dialog form</b></p>
-					<p><img src="figures/emptydialog.gif"></p>
+					<p><img src="figures/emptydialog.png"></p>
 				</div>
 				<div class="SECT2">
 					<h2 class="SECT2"><a name="AEN98"></a>A First Look At The Property Editor</h2>
@@ -106,7 +106,7 @@
 					<div class="FIGURE">
 						<a name="QT-DESIGNER-ICON-CHECKBOX"></a>
 						<p><b>Figure 2-4. The check box tool icon</b></p>
-						<p><img src="figures/checkbox.gif"></p>
+						<p><img src="figures/checkbox.png"></p>
 					</div>
 					<p>To bring your first check box onto the form, simply &ldquo;draw&rdquo; it: Press the left mouse button where you want the upper-left corner to be, hold it down, and move the mouse to the point where you want the lower-right corner to be. Then release the mouse button. Immediately, you will see your check box in the form. You should put it somewhere near the upper-left corner of the form but not too close so that we still have space for the group box we want to draw later (see figure <a href="#QT-DESIGNER-FIG-ONECHECKBOX">Figure 2-5</a>). To do this, you first need to switch from the check box tool to the ordinary selection tool by clicking on the pointer icon; otherwise, each click on the form would insert another check box.</p>
 					<p>If you do not like the position you chose, you can always move the check box by simply &ldquo;grabbing&rdquo; it with the mouse and dragging it to where you want it to be.</p>
@@ -114,7 +114,7 @@
 					<div class="FIGURE">
 						<a name="QT-DESIGNER-FIG-ONECHECKBOX"></a>
 						<p><b>Figure 2-5. The first check box on the form</b></p>
-						<p><img src="figures/onecheckbox.gif"></p>
+						<p><img src="figures/onecheckbox.png"></p>
 					</div>
 					<p>You may have noticed that the property editor changed when you inserted the check box. The check box is now the currently selected element, and the property editor always displays the properties of the currently selected element. To try this, just click with the mouse elsewhere on the form. The property editor will then display the properties of the whole form again.</p>
 					<p>Click again on the check box. Qt Designer has by default given it the text label <span class="GUILABEL">CheckBox1</span>, but of course, that's not what we want; we want <span class="GUILABEL">Mushrooms</span>. So, click on the text field in the value column next to the <tt class="LITERAL">text</tt> property, delete the old text, and enter <i class="EMPHASIS">Mushrooms</i>. Watch how the label of the check box in the form changes immediately while you type. Talk about instant feedback!</p>
@@ -123,14 +123,14 @@
 					<div class="FIGURE">
 						<a name="QT-DESIGNER-FIG-FOURCHECKBOXES"></a>
 						<p><b>Figure 2-6. Four check boxes</b></p>
-						<p><img src="figures/fourcheckboxes.gif"></p>
+						<p><img src="figures/fourcheckboxes.png"></p>
 					</div>
 					<p>When changing the text labels of the check boxes, you do not necessarily need to use the property editor. Changing the label of a check box is such a common operation that there is a shortcut for it: Right-click on an already inserted check box while the selection tool is active, and a context menu will pop up. Here, you can select <span class="GUIMENU">Edit Text...</span>, which will open a small dialog box where you can enter the new label. This has the same effect as changing the <tt class="LITERAL">text</tt> property in the property editor. Qt Designer also has the nice feature of letting you change the most important property by simply double-clicking on the widget on the form whose property you want to change. Which property is considered the most important depends on the widget; it is always the one that is shown at the top of the context menu you get when you right-click on the widget.</p>
 					<p>Now we are done with the check boxes and want to put a group box around them so that they are visually grouped together. To do this, choose the button group tool (see <a href="#QT-DESIGNER-FIG-ICON-BUTTONGROUP">Figure 2-7</a>). Button groups are like group boxes but provide some extra functionality to the included buttons that we do not need to go into now.</p>
 					<div class="FIGURE">
 						<a name="QT-DESIGNER-FIG-ICON-BUTTONGROUP"></a>
 						<p><b>Figure 2-7. The button group icon</b></p>
-						<p><img src="figures/buttongroup.gif"></p>
+						<p><img src="figures/buttongroup.png"></p>
 					</div>
 					<p>&ldquo;Draw&rdquo; the button group so that it surrounds your check boxes. Oops! When you release the mouse button, the group box is smart enough to know that you do not want to put it over the check boxes (if you wanted that, why would you have inserted the check boxes in the first place) but that you want the group box to be a <i class="FIRSTTERM">parent</i> of the check boxes, meaning that it is responsible for where the check boxes are and that the check boxes lie on top of the group box. If you already know programming with Qt (or with most other toolkits, for that matter), you know what all this is for. If you are interested in more details about parent-child relationships and how Qt Designer handles them, please see the sidebar &ldquo;<a href="#QT-DESIGNER-NOTE-PARENTCHILD">Parent-Child Relationships In Qt Designer</a>.&rdquo;</p>
 					<div class="NOTE">
@@ -142,7 +142,7 @@
 							<div class="FIGURE">
 								<a name="QT-DESIGNER-FIG-OBJECTHIERARCHY"></a>
 								<p><b>Figure 2-8. The object hierarchy view</b></p>
-								<p><img src="figures/objecthierarchy.gif"></p>
+								<p><img src="figures/objecthierarchy.png"></p>
 							</blockquote>
 						</div>
 					</div>

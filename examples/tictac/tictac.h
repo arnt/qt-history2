@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/examples/tictac/tictac.h#2 $
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -34,6 +34,7 @@ public:
     QSizePolicy sizePolicy() const
     { return QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ); }
     QSize sizeHint() const { return QSize( 32, 32 ); }
+    QSize minimumSizeHint() const { return QSize( 10, 10 ); }
 protected:
     void	drawButtonLabel( QPainter * );
 private:

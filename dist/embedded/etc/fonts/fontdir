@@ -201,7 +201,8 @@ japanese 12x13ja.bdf BDF n 50 120
 japanese 18x18ja.bdf BDF n 50 180
 unifont unifont.bdf BDF n 50 160 u
 babelfish babelfish.ttf TTF n 50 0 s
-smoothtimes times.ttf TTF n 50 0 su 160,170,220
+verdana verdana.ttf TTF n 50 0 su 90
+smoothtimes times.ttf TTF n 50 0 su 100,160,170,220
 smoothtimes timesbd.ttf TTF n 75 0 sa 170,250,440
 smoothtimes timesi.ttf TTF y 50 0 sa
 smoothtimes timesbi.ttf TTF y 75 0 sa

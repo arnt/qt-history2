@@ -3,25 +3,35 @@
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the widgets
-** module and therefore may only be used if the widgets module is specified
-** as Licensed on the Licensee's License Certificate.
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qtooltip.h"
 #ifndef QT_NO_COMPLEXWIDGETS
@@ -96,6 +106,8 @@ public:
     void    remove( QWidget * );
 
     void    removeFromGroup( QToolTipGroup * );
+
+    void    hideTipAndSleep();
 
 public slots:
     void    hideTip();
@@ -354,9 +366,8 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
     QWidget *w = (QWidget *)obj;
 
     if ( e->type() == QEvent::FocusOut || e->type() == QEvent::FocusIn ) {
-	// user moved focus somewhere - hide the tip
-	hideTip();
-	fallAsleep.stop();
+	// user moved focus somewhere - hide the tip and sleep
+	hideTipAndSleep();
 	return FALSE;
     }
 
@@ -367,14 +378,10 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 	    w = w->isTopLevel() ? 0 : w->parentWidget();
     }
 
-    if (  t && t == currentTip )
-	return FALSE;
-
     if ( !t ) {
 	if ( ( e->type() >= QEvent::MouseButtonPress &&
-	     e->type() <= QEvent::FocusOut) || e->type() == QEvent::Leave ) {
+	       e->type() <= QEvent::FocusOut) || e->type() == QEvent::Leave )
 	    hideTip();
-	}
 	return FALSE;
     }
 
@@ -387,8 +394,7 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
     case QEvent::KeyPress:
     case QEvent::KeyRelease:
 	// input - turn off tool tip mode
-	hideTip();
-	fallAsleep.stop();
+	hideTipAndSleep();
 	break;
     case QEvent::MouseMove:
 	{ // a whole scope just for one variable
@@ -453,6 +459,9 @@ void QTipManager::showTip()
     if ( t == 0 )
 	return;
 
+    if (  t == currentTip )
+	return; // nothing to do
+
     if ( t->tip ) {
 	t->tip->maybeTip( pos );
 	return;
@@ -493,10 +502,12 @@ void QTipManager::showTip()
 	if ( QApplication::isEffectEnabled( UI_AnimateTooltip ) == FALSE ||
 	     previousTip || preventAnimation )
 	    label->show();
+#ifndef QT_NO_EFFECTS
 	else if ( QApplication::isEffectEnabled( UI_FadeTooltip ) )
 	    qFadeEffect( label );
 	else
 	    qScrollEffect( label );
+#endif
 
 	label->raise();
 	fallAsleep.start( 10000, TRUE );
@@ -536,6 +547,13 @@ void QTipManager::hideTip()
 	remove( widget, previousTip->rect );
     widget = 0;
 }
+
+void  QTipManager::hideTipAndSleep()
+{
+    hideTip();
+    fallAsleep.stop();
+}
+
 
 void QTipManager::allowAnimation()
 {
@@ -818,7 +836,7 @@ void QToolTip::remove( QWidget * widget, const QRect & rect )
 void QToolTip::hide()
 {
     if ( tipManager )
-	tipManager->hideTip();
+	tipManager->hideTipAndSleep();
 }
 
 /*!

@@ -5,57 +5,66 @@
 **
 ** Created : 940721
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
-** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
-** LICENSE.QPL included in the packaging of this file.
-**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the kernel
-** module and therefore may only be used if the kernel module is specified
-** as Licensed on the Licensee's License Certificate.
+** licenses for Qt/Embedded may use this file in accordance with the
+** Qt Embedded Commercial License Agreement provided with the Software.
+**
+** This file is not available for use under any other license without
+** express written permission from the copyright holder.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing.
+**   information about Qt Commercial License Agreements.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #ifndef QT_H
 #include <qglobal.h>
 #endif // QT_H
 
-#define STATUS 0x000
-#define INTCTRL 0x004
-#define CLIP0MIN 0x008
-#define CLIP0MAX 0x00c
-#define DSTBASEADDR 0x010
-#define DSTFORMAT 0x014
-#define SRCCOLORKEYMIN 0x018
-#define SRCCOLORKEYMAX 0x01c
-#define DSTCOLORKEYMIN 0x020
-#define DSTCOLORKEYMAX 0x024
-#define BRESERROR0 0x028
-#define BRESERROR1 0x02c
-#define ROP 0x030
-#define SRCBASEADDR 0x034
-#define COMMANDEXTRA 0x038
-#define LINESTIPPLE 0x03c
-#define LINESTYLE 0x040
-#define PATTERN0ALIAS 0x044
-#define PATTERN1ALIAS 0x048
-#define CLIP1MIN 0x04c
-#define CLIP1MAX 0x050
-#define SRCFORMAT 0x054
-#define SRCSIZE 0x058
-#define SRCXY 0x05c
-#define COLORBACK 0x060
-#define COLORFORE 0x064
-#define DSTSIZE 0x068
-#define DSTXY 0x06c
-#define COMMAND 0x070
-#define LAUNCHAREA 0x080
-#define COLORPATTERN 0x100
+#define VOODOOSTATUS (0x000)
+#define INTCTRL (0x004+0x0100000)
+#define CLIP0MIN (0x008+0x0100000)
+#define CLIP0MAX (0x00c+0x0100000)
+#define DSTBASEADDR (0x010+0x0100000)
+#define DSTFORMAT (0x014+0x0100000)
+#define SRCCOLORKEYMIN (0x018+0x0100000)
+#define SRCCOLORKEYMAX (0x01c+0x0100000)
+#define DSTCOLORKEYMIN (0x020+0x0100000)
+#define DSTCOLORKEYMAX (0x024+0x0100000)
+#define BRESERROR0 (0x028+0x0100000)
+#define BRESERROR1 (0x02c+0x0100000)
+#define ROP (0x030+0x0100000)
+#define SRCBASEADDR (0x034+0x0100000)
+#define COMMANDEXTRA (0x038+0x0100000)
+#define LINESTIPPLE (0x03c+0x0100000)
+#define LINESTYLE (0x040+0x0100000)
+#define PATTERN0ALIAS (0x044+0x0100000)
+#define PATTERN1ALIAS (0x048+0x0100000)
+#define CLIP1MIN (0x04c+0x0100000)
+#define CLIP1MAX (0x050+0x0100000)
+#define SRCFORMAT (0x054+0x0100000)
+#define SRCSIZE (0x058+0x0100000)
+#define SRCXY (0x05c+0x0100000)
+#define COLORBACK (0x060+0x0100000)
+#define COLORFORE (0x064+0x0100000)
+#define DSTSIZE (0x068+0x0100000)
+#define DSTXY (0x06c+0x0100000)
+#define COMMAND (0x070+0x0100000)
+#define LAUNCHAREA (0x080+0x0100000)
+#define COLORPATTERN (0x100+0x0100000)
+
+#define VIDPROCCFG 0x5c
+#define HWCURC0 0x68
+#define HWCURC1 0x6c
+#define HWCURPATADDR 0x60
+#define HWCURLOC 0x64

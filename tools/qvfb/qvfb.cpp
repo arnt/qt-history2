@@ -4,7 +4,7 @@
 **
 ** Created : 20000605
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -128,7 +128,8 @@ void QVFb::enableCursor( bool e )
 void QVFb::createMenu()
 {
     QPopupMenu *file = new QPopupMenu( this );
-    file->insertItem( "&Save image...", this, SLOT(saveImage()) );
+    file->insertItem( "&Save image...", this, SLOT(saveImage()), ALT+CTRL+Key_S );
+    file->insertItem( "&Animation...", this, SLOT(toggleAnimation()), ALT+CTRL+Key_A );
     file->insertSeparator();
     file->insertItem( "&Quit", qApp, SLOT(quit()) );
 
@@ -187,9 +188,23 @@ void QVFb::setZoom4()
 
 void QVFb::saveImage()
 {
-    QString filename = QFileDialog::getOpenFileName("snapshot.png", "*.png", this, "", "Save snapshot...");
+    QString filename = QFileDialog::getSaveFileName("snapshot.png", "*.png", this, "", "Save snapshot...");
     if ( !!filename ) {
 	view->saveAs(filename);
+    }
+}
+
+void QVFb::toggleAnimation()
+{
+    if ( view->animating() ) {
+	view->stopAnimation();
+    } else {
+	QString filename = QFileDialog::getSaveFileName("animation.mng", "*.mng", this, "", "Save animation...");
+	if ( !filename ) {
+	    view->stopAnimation();
+	} else {
+	    view->startAnimation(filename);
+	}
     }
 }
 

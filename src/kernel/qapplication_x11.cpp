@@ -13,17 +13,27 @@
 ** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the kernel
-** module and therefore may only be used if the kernel module is specified
-** as Licensed on the Licensee's License Certificate.
+** licenses for Unix/X11 may use this file in accordance with the Qt Commercial
+** License Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 // NOT REVISED
 
@@ -68,7 +78,6 @@
 #define	 GC GC_QQQ
 
 #if defined(QT_THREAD_SUPPORT)
-#include "qvaluestack.h"
 #include "qthread.h"
 #endif
 
@@ -81,7 +90,7 @@
 #undef gettimeofday
 #endif
 
-#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
+#if defined(_OS_UNIX_)
 
 #if defined(_OS_SOLARIS_)
 #  define BSD_COMP // needed for FIONREAD
@@ -314,22 +323,35 @@ static bool qt_x11EventFilter( XEvent* ev )
     return qApp->x11EventFilter( ev );
 }
 
-VFPTR qt_set_preselect_handler (VFPTR);
-static VFPTR qt_preselect_handler = 0;
-VFPTR qt_set_postselect_handler (VFPTR);
-static VFPTR qt_postselect_handler = 0;
-VFPTR qt_set_preselect_handler (VFPTR handler)
+void qt_install_preselect_handler (VFPTR);
+void qt_remove_preselect_handler (VFPTR);
+static QVFuncList *qt_preselect_handler = 0;
+void qt_install_postselect_handler (VFPTR);
+void qt_remove_postselect_handler (VFPTR);
+static QVFuncList *qt_postselect_handler = 0;
+void qt_install_preselect_handler (VFPTR handler)
 {
-    VFPTR old_handler = qt_preselect_handler;
-    qt_preselect_handler = handler;
-    return old_handler;
+    if ( !qt_preselect_handler )
+	qt_preselect_handler = new QVFuncList;
+    qt_preselect_handler->append( (void*) handler );
 }
-VFPTR qt_set_postselect_handler (VFPTR handler)
+void qt_remove_preselect_handler (VFPTR handler)
 {
-    VFPTR old_handler = qt_postselect_handler;
-    qt_postselect_handler = handler;
-    return old_handler;
+    if ( qt_preselect_handler )
+	qt_preselect_handler->removeRef( (void*)handler );
 }
+void qt_install_postselect_handler (VFPTR handler)
+{
+    if ( !qt_postselect_handler )
+	qt_postselect_handler = new QVFuncList;
+    qt_postselect_handler->prepend( (void*)handler );
+}
+void qt_remove_postselect_handler (VFPTR handler)
+{
+    if ( qt_postselect_handler )
+	qt_postselect_handler->removeRef( (void*)handler );
+}
+
 
 
 static void	initTimers();
@@ -704,7 +726,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 				&type, &format, &nitems, &after,
 				(unsigned char**) &data );
 	    res += data;
-	    offset += 8192;
+	    offset += 2048; // offset is in 32bit quantities... 8192/4 == 2048
 	    if ( data )
 		XFree(data);
 	}
@@ -1275,7 +1297,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	qt_set_x11_resources( appFont, appFGCol, appBGCol, appBTNCol);
     }
 
-#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
+#if defined(_OS_UNIX_)
     pipe( qt_thread_pipe );
 #endif
 
@@ -1444,7 +1466,8 @@ bool qt_wstate_iconified( WId winid )
 				 &length, &after, &data );
     bool iconic = FALSE;
     if ( r == Success && data && format == 32 ) {
-	Q_UINT32 *wstate = (Q_UINT32*)data;
+	// Q_UINT32 *wstate = (Q_UINT32*)data;
+	unsigned long *wstate = (unsigned long *) data;
 	iconic = (*wstate == IconicState );
 	XFree( (char *)data );
     }
@@ -2426,13 +2449,15 @@ bool QApplication::processNextEvent( bool canWait )
     }
     int nsel;
 
-#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
+#if defined(_OS_UNIX_)
     FD_SET( qt_thread_pipe[0], &app_readfds );
     highest = QMAX( highest, qt_thread_pipe[0] );
 #endif
 
-    if ( qt_preselect_handler )
-	qt_preselect_handler();
+    if ( qt_preselect_handler ) {
+	for ( VFPTR handler = (VFPTR) qt_preselect_handler->first(); handler; handler = (VFPTR) qt_preselect_handler->next() )
+	    handler();
+    }
 
 #if defined(_OS_WIN32_)
 #define FDCAST (fd_set*)
@@ -2454,17 +2479,19 @@ bool QApplication::processNextEvent( bool canWait )
 
 #if defined(QT_THREAD_SUPPORT)
     qApp->lock();
+#endif
 
-#  if defined(_OS_UNIX_)
+#if defined(_OS_UNIX_)
     if ( nsel > 0 && FD_ISSET( qt_thread_pipe[0], &app_readfds ) ) {
 	char c;
 	::read(qt_thread_pipe[0], &c, 1);
     }
-#  endif
 #endif
 
-    if ( qt_postselect_handler )
-	qt_postselect_handler();
+    if ( qt_postselect_handler ) {
+	for ( VFPTR handler = (VFPTR) qt_postselect_handler->first(); handler; handler = (VFPTR) qt_postselect_handler->next() )
+	    handler();
+    }
 
     if ( nsel == -1 ) {
 	if ( errno == EINTR || errno == EAGAIN ) {
@@ -2493,15 +2520,6 @@ bool QApplication::processNextEvent( bool canWait )
 }
 
 
-
-/*! \fn QApplication::wakeUpGuiThread()
-  Wakes up the GUI thread.  This function only exists if Qt was build with
-  thread support.
-
-  \sa guiThreadAwake()
-*/
-
-#if defined(QT_THREAD_SUPPORT)
 void QApplication::wakeUpGuiThread()
 {
 #  if defined(_OS_UNIX_)
@@ -2512,7 +2530,6 @@ void QApplication::wakeUpGuiThread()
     }
 #  endif
 }
-#endif
 
 int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 {
@@ -2529,9 +2546,14 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 		if ( (ulong) event->xclient.data.l[1] > qt_x_time )
 		    qt_x_time = event->xclient.data.l[1];
 		if ( amw && amw != widget ) {
-		    amw->raise(); //  help broken window managers
-		    XSetInputFocus( appDpy, amw->winId(),
-				    RevertToParent, qt_x_time );
+		    QWidget* groupLeader = widget;
+		    while ( groupLeader && !groupLeader->testWFlags( Qt::WGroupLeader ) )
+			groupLeader = groupLeader->parentWidget();
+		    if ( !groupLeader ) {
+			amw->raise(); //  help broken window managers
+			XSetInputFocus( appDpy, amw->winId(),
+					RevertToParent, qt_x_time );
+		    }
 		}
 	    } else if ( a == qt_net_wm_context_help ) {
 		QWhatsThis::enterWhatsThisMode();
@@ -3038,29 +3060,33 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
 
     QWidget *modal=0, *top=QApplication::activeModalWidget();
 
+    QWidget* groupLeader = widget;
     widget = widget->topLevelWidget();
+
     if ( widget->testWFlags(Qt::WType_Modal) )	// widget is modal
 	modal = widget;
     if ( !top || modal == top )			// don't block event
 	return TRUE;
-
-#ifdef ALLOW_NON_APPLICATION_MODAL
-    if ( top && top->parentWidget() ) {
-	// Not application-modal
-	// Does widget have a child in qt_modal_stack?
+    
+    while ( groupLeader && !groupLeader->testWFlags( Qt::WGroupLeader ) )
+	groupLeader = groupLeader->parentWidget();
+    
+    if ( groupLeader ) {
+	// Does groupLeader have a child in qt_modal_stack?
 	bool unrelated = TRUE;
 	modal = qt_modal_stack->first();
 	while (modal && unrelated) {
 	    QWidget* p = modal->parentWidget();
-	    while ( p && p != widget ) {
+	    while ( p && p != groupLeader && !p->testWFlags( Qt::WGroupLeader) ) {
 		p = p->parentWidget();
 	    }
 	    modal = qt_modal_stack->next();
-	    if ( p ) unrelated = FALSE;
+	    if ( p == groupLeader ) unrelated = FALSE;
 	}
-	if ( unrelated ) return TRUE;		// don't block event
+	
+	if ( unrelated ) 
+	    return TRUE;		// don't block event
     }
-#endif
 
     bool block_event  = FALSE;
     bool expose_event = FALSE;
@@ -4257,8 +4283,8 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 		 QMAX(count, int(text.length())) );
     if ( type == QEvent::KeyPress && !grab ) {
 	// send accel events if the keyboard is not grabbed
-	QKeyEvent aa( QEvent::AccelAvailable, code, ascii, state, text, autor,
-		     QMAX(count, int(text.length())) );
+	QKeyEvent aa( QEvent::AccelOverride, code, ascii, state, text, autor,
+		      QMAX(count, int(text.length())) );
 	aa.ignore();
 	QApplication::sendEvent( this, &aa );
 	if ( !aa.isAccepted() ) {

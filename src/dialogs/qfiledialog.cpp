@@ -5,25 +5,35 @@
 **
 ** Created : 950429
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the dialogs module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the dialogs
-** module and therefore may only be used if the dialogs module is specified
-** as Licensed on the Licensee's License Certificate.
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qfiledialog.h"
 
@@ -2580,10 +2590,14 @@ QStringList QFileDialog::selectedFiles() const
 	while( i ) {
 	    if ( i->isSelected() ) {
 		QUrl u = QUrl( d->url, ((QFileDialogPrivate::File*)i)->info.name() );
-		if ( u.isLocalFile() )
-		    lst << u.path();
-		else
+		if ( u.isLocalFile() ) {
+		    QString s = u.toString();
+		    if ( s.left( 5 ) == "file:" )
+			s.remove( 0, 5 );
+		    lst << s;
+		} else {
 		    lst << u.toString();
+		}
 	    }
 	    i = i->nextSibling();
 	}
@@ -3910,10 +3924,12 @@ void QFileDialog::done( int i )
 	    QString file = selection[f];
 	    if ( file.isNull() )
 		continue;
+#if 0 // #### we can't do that - people use getOpenFileName() instead of getSaveFileName() often, so this stuff below makes lots of apps useless
 	    if ( d->url.isLocalFile() && !QFile::exists( file ) ) {
 		QMessageBox::information( this, tr("Error"), tr("%1\nFile not found.\nCheck path and filename.").arg( file ) );
 		return;
 	    }
+#endif
 	}
     }
     QDialog::done( i );
@@ -4726,20 +4742,27 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 	dlg->setCaption( QFileDialog::tr("Open") );
     dlg->setMode( QFileDialog::ExistingFiles );
     QString result;
-    QStringList s;
+    QStringList lst;
     if ( dlg->exec() == QDialog::Accepted ) {
 	QListViewItem * i = dlg->files->firstChild();
 	while( i ) {
 	    if ( i->isSelected() ) {
-		QString u = QUrlOperator( dlg->d->url, ((QFileDialogPrivate::File*)i)->info.name() );
-		s.append( u );
+		QUrl u = QUrl( dlg->d->url, ((QFileDialogPrivate::File*)i)->info.name() );
+		if ( u.isLocalFile() ) {
+		    QString s = u.toString();
+		    if ( s.left( 5 ) == "file:" )
+			s.remove( 0, 5 );
+		    lst << s;
+		} else {
+		    lst << u.toString();
+		}
 	    }
 	    i = i->nextSibling();
 	}
 	*workingDirectory = dlg->d->url;
     }
     delete dlg;
-    return s;
+    return lst;
 }
 
 
@@ -4804,15 +4827,14 @@ void QFileDialog::urlStart( QNetworkOperation *op )
     if ( !op )
 	return;
 
-    // ### this causes some problems with ftp; take a close look!
-//    files->setEnabled( FALSE );
     if ( op->operation() == QNetworkProtocol::OpListChildren ) {
 	if ( isRoot( d->url ) )
 	    d->cdToParent->setEnabled( FALSE );
 	else
 	    d->cdToParent->setEnabled( TRUE );
 	d->mimeTypeTimer->stop();
-	qApp->processEvents();
+	if ( !d->url.isLocalFile() )
+	    qApp->processEvents();
 	d->sortedList.clear();
 	d->pendingItems.clear();
 	d->moreFiles->clearSelection();
@@ -4900,8 +4922,6 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 	delete d->progressDia;
 	d->progressDia = 0;
     }
-    // ### this causes some problems with ftp; take a close look!
-//    files->setEnabled( TRUE );
 }
 
 void QFileDialog::dataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation *op )

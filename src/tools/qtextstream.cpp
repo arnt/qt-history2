@@ -13,17 +13,27 @@
 ** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the tools
-** module and therefore may only be used if the tools module is specified
-** as Licensed on the Licensee's License Certificate.
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qtextstream.h"
 
@@ -183,12 +193,14 @@ const int QTextStream::floatfield  = ( QTextStream::scientific |
 
 class QTextStreamPrivate {
 public:
-    QTextStreamPrivate(): decoder( 0 ) {}
+    QTextStreamPrivate(): decoder( 0 ), sourceType( NotSet ) {}
     ~QTextStreamPrivate() { delete decoder; }
 
     QTextDecoder *decoder;		//???
     QString ungetcBuf;
 
+    enum SourceType { NotSet, IODevice, String, ByteArray, File };
+    SourceType sourceType;
 };
 
 
@@ -221,6 +233,7 @@ QTextStream::QTextStream()
     init();
     setEncoding( Locale ); //###
     reset();
+    d->sourceType = QTextStreamPrivate::NotSet;
 }
 
 /*!
@@ -233,6 +246,7 @@ QTextStream::QTextStream( QIODevice *iod )
     setEncoding( Locale ); //###
     dev = iod;					// set device
     reset();
+    d->sourceType = QTextStreamPrivate::IODevice;
 }
 
 // TODO: use special-case handling of this case in QTextStream, and
@@ -450,6 +464,9 @@ int QStringBuffer::ungetch( int ch )
   Constructs a text stream that operates on a Unicode QString through an
   internal device.
 
+  If you set an encoding or codec with setEncoding() or setCodec(), this
+  setting is ignored for text streams that operate on QString.
+
   Example:
   \code
     QString str;
@@ -480,6 +497,7 @@ QTextStream::QTextStream( QString* str, int filemode )
     owndev = TRUE;
     setEncoding(RawUnicode);
     reset();
+    d->sourceType = QTextStreamPrivate::String;
 }
 
 /*! \obsolete
@@ -496,6 +514,7 @@ QTextStream::QTextStream( QString& str, int filemode )
     owndev = TRUE;
     setEncoding(RawUnicode);
     reset();
+    d->sourceType = QTextStreamPrivate::String;
 }
 
 /*!
@@ -532,6 +551,7 @@ QTextStream::QTextStream( QByteArray a, int mode )
     owndev = TRUE;
     setEncoding( Latin1 ); //### Locale???
     reset();
+    d->sourceType = QTextStreamPrivate::ByteArray;
 }
 
 /*!
@@ -554,6 +574,7 @@ QTextStream::QTextStream( FILE *fh, int mode )
     ((QFile *)dev)->open( mode, fh );
     fstrm = owndev = TRUE;
     reset();
+    d->sourceType = QTextStreamPrivate::File;
 }
 
 /*!
@@ -909,6 +930,7 @@ void QTextStream::setDevice( QIODevice *iod )
 	owndev = FALSE;
     }
     dev = iod;
+    d->sourceType = QTextStreamPrivate::IODevice;
 }
 
 /*!
@@ -919,6 +941,7 @@ void QTextStream::setDevice( QIODevice *iod )
 void QTextStream::unsetDevice()
 {
     setDevice( 0 );
+    d->sourceType = QTextStreamPrivate::NotSet;
 }
 
 /*!
@@ -2051,6 +2074,8 @@ QTextStream &reset( QTextStream &s )
 
 void QTextStream::setEncoding( Encoding e )
 {
+    if ( d->sourceType == QTextStreamPrivate::String )
+	return; // QString does not need any encoding
     switch ( e ) {
     case Unicode:
 	mapper = 0;
@@ -2111,6 +2136,8 @@ void QTextStream::setEncoding( Encoding e )
 
 void QTextStream::setCodec( QTextCodec *codec )
 {
+    if ( d->sourceType == QTextStreamPrivate::String )
+	return; // QString does not need any codec
     mapper = codec;
     doUnicodeHeader = FALSE;
 }

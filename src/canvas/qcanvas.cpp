@@ -5,25 +5,35 @@
 **
 ** Created : 991211
 **
-** Copyright (C) 1999-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1999-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the canvas module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the canvas
-** module and therefore may only be used if the canvas module is specified
-** as Licensed on the Licensee's License Certificate.
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition licenses may use this
+** file in accordance with the Qt Commercial License Agreement provided
+** with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 
 #include "qcanvas.h"
@@ -130,12 +140,13 @@ void QCanvasClusterizer::add(const QRect& rect)
 
     int lowestcost=9999999;
     int cheapest=-1;
-    for (cursor=0; cursor<count; cursor++) {
+    cursor = 0;
+    while( cursor<count ) {
         if (cluster[cursor].intersects(biggerrect)) {
             QRect larger=cluster[cursor];
             include(larger,rect);
-            int cost=larger.width()*larger.height()
-                    - cluster[cursor].width()*cluster[cursor].height();
+            int cost = larger.width()*larger.height() -
+		       cluster[cursor].width()*cluster[cursor].height();
 
             if (cost < lowestcost) {
                 bool bad=FALSE;
@@ -148,7 +159,9 @@ void QCanvasClusterizer::add(const QRect& rect)
                 }
             }
         }
+	cursor++;
     }
+
     if (cheapest>=0) {
         include(cluster[cheapest],rect);
         return;
@@ -165,7 +178,8 @@ void QCanvasClusterizer::add(const QRect& rect)
 
     lowestcost=9999999;
     cheapest=-1;
-    for (cursor=0; cursor<count; cursor++) {
+    cursor=0;
+    while( cursor<count ) {
         QRect larger=cluster[cursor];
         include(larger,rect);
         int cost=larger.width()*larger.height()
@@ -180,17 +194,21 @@ void QCanvasClusterizer::add(const QRect& rect)
                 lowestcost=cost;
             }
         }
+	cursor++;
     }
 
-    // XXX could make an heuristic guess as to whether we
-    // XXX need to bother looking for a cheap merge.
+    // ###
+    // could make an heuristic guess as to whether we need to bother
+    // looking for a cheap merge.
 
-    int cheapestmerge1=-1;
-    int cheapestmerge2=-1;
+    int cheapestmerge1 = -1;
+    int cheapestmerge2 = -1;
 
-    for (int merge1=0; merge1<count; merge1++) {
-        for (int merge2=0; merge2<count; merge2++) {
-            if (merge1!=merge2) {
+    int merge1 = 0;
+    while( merge1 < count ) {
+	int merge2=0;
+        while( merge2 < count ) {
+            if( merge1!=merge2) {
                 QRect larger=cluster[merge1];
                 include(larger,cluster[merge2]);
                 int cost=larger.width()*larger.height()
@@ -208,7 +226,9 @@ void QCanvasClusterizer::add(const QRect& rect)
                     }
                 }
             }
+	    merge2++;
         }
+	merge1++;
     }
 
     if (cheapestmerge1>=0) {
@@ -223,6 +243,11 @@ void QCanvasClusterizer::add(const QRect& rect)
     //     overwrite).  This is a result of the above algorithm,
     //     given the assumption that (x,y) are ordered topleft
     //     to bottomright.
+
+    // ###
+    //
+    // add explicit x/y ordering to that comment, move it to the top
+    // and rephrase it as pre-/post-conditions.
 }
 
 const QRect& QCanvasClusterizer::operator[](int i)
@@ -340,13 +365,14 @@ private:
 
 static int gcd(int a, int b)
 {
-    // XXX Should use good method, but not speed critical.
+    // ### Should use good method, but not speed critical.
 
     int r = QMIN(a,b);
     while ( a%r || b%r )
 	r--;
     return r;
 }
+
 static int scm(int a, int b)
 {
     int g = gcd(a,b);
@@ -398,9 +424,13 @@ Above everything in the canvas is the foreground, as defined by the
 drawForeground() function. By default this function draws nothing.
 
 Changes to the items on the canvas are refreshed to the views whenever
-update() is called, including creation of new items (which
-are created visible, unlike widgets), movement of item, change of shape,
+update() is called, including creation of new items,
+movement of item, change of shape,
 change of visibility, and destruction.
+
+Note that like QWidgets, QCanvasItems are always hidden when they are created,
+so you must show() them some time after creating them if you wish them to
+be visible.
 
 <h3>Animation</h3>
 
@@ -573,31 +603,32 @@ void QCanvas::resize(int w, int h)
   connects to this signal to keep the scrollview size correct.
 */
 
-/*!
-Change the efficiency tuning parameters.  This is a slow operation.
+/*!  Change the efficiency tuning parameters to \a mxclusers clusters,
+each of size \a chunksize (square).  This is a slow operation.
 
-Internally, a canvas uses a low-resolution "chunk matrix" to keep track of
-all the items in the canvas. By default, a 1024x1024 pixel canvas will have
-a 64x64 chunk matrix, each chunk collecting items in a 16x16 pixel square.
-This default is also affected by setTiles().
-You can tune this default by using retune(), for example if you have a very
-large canvas and want to trade off speed for memory then you might set the
-chunk size to 32 or 64.
+Internally, a canvas uses a low-resolution "chunk matrix" to keep
+track of all the items in the canvas. In Qt 2.2, the default for a
+1024x1024 pixel canvas is to have a 64x64 chunk matrix, where each of
+those chunks collects items in a 16x16 pixel square.
 
-\a chunksze is the size of square chunk used to break up the
- QCanvas into area to be considered for redrawing.  It
- should be about the average size of items in the QCanvas.
- Chunks too small increase the amount of calculation required
- when drawing.  Chunks too large increase the amount of drawing
- that is needed.
+This default is also affected by setTiles(). You can tune this default
+by using retune(), for example if you have a very large canvas and
+want to trade off speed for memory then you might set the chunk size
+to 32 or 64.
 
-\a mxclusters is the number of rectangular groups of chunks that
- will be separately drawn.  If the QCanvas has a large number
- of small, dispersed items, this should be about that number.
- The more clusters the slower the redraw, but also the bigger
- clusters are the slower the redraw, so a balance is needed.
- Testing reveals that a large number of clusters is almost
- always best.
+\a chunksze is the size of square chunk used to break up the QCanvas
+into area to be considered for redrawing.  It should be about the
+average size of items in the QCanvas.  Chunks too small increase the
+amount of calculation required when drawing.  Chunks too large
+increase the amount of drawing that is needed.
+
+\a mxclusters is the number of rectangular groups of chunks that will
+be separately drawn.  If the QCanvas has a large number of small,
+dispersed items, this should be about that number.  The more clusters
+the slower the redraw, but also the bigger clusters are the slower the
+redraw, so a balance is needed.  Testing indicates that a large number
+of clusters is almost always best.
+
 */
 void QCanvas::retune(int chunksze, int mxclusters)
 {
@@ -630,7 +661,7 @@ void QCanvas::retune(int chunksze, int mxclusters)
 	    item->show();
 	}
 
-	oneone = tilew == tileh && tilew == chunksize;
+	//oneone = tilew == tileh && tilew == chunksize;
     }
 }
 
@@ -777,45 +808,47 @@ void QCanvas::setUpdatePeriod(int ms)
     }
 }
 
-/*!
-  Advances the animation of items on the canvas and
-  refreshes all changes to all views of the canvas.
+/*!  Advances the animation of items on the canvas and refreshes all
+  changes to all views of the canvas.
 
-  The advance is done in two phases.
-  In phase 0, the QCanvasItem:advance() function of each animated item
-  is called with parameter 0. Then all items are called again, with
-  parameter 1. In phase 0, the items should not change position, merely
-  examine other items on the canvas for which special processing is
-  required, such as collisions between items. In phase 1, all items
-  should change positions, ignoring any other items on the canvas.
-  This two-phase approach allows for considerations of "fairness",
-  though no QCanvasItem subclasses supplied with Qt do anything
-  interesting in phase 0.
+  The advance is done in two phases.  In phase 0, the
+  QCanvasItem:advance() function of each animated item is called with
+  paramater 0. Then all items are called again, with parameter 1. In
+  phase 0, the items should not change position, merely examine other
+  items on the canvas for which special processing is required, such
+  as collisions between items. In phase 1, all items should change
+  positions, ignoring any other items on the canvas.  This two-phase
+  approach allows for considerations of "fairness", though no
+  QCanvasItem subclasses supplied with Qt do anything interesting in
+  phase 0.
 
-  The canvas can be configured to call this function periodically
-  with setAdvancePeriod().
+  The canvas can be configured to call this function periodically with
+  setAdvancePeriod().
 
   \sa update()
 */
 void QCanvas::advance()
 {
-    for (QPtrDictIterator<void> it=d->animDict; it.current(); ) {
+    QPtrDictIterator<void> it=d->animDict;
+    while ( it.current() ) {
 	QCanvasItem* i = (QCanvasItem*)it.currentKey();
 	++it;
 	if ( i )
 	    i->advance(0);
     }
-    for (QPtrDictIterator<void> it2=d->animDict; it2.current(); ) {
-	QCanvasItem* i = (QCanvasItem*)it2.currentKey();
-	++it2;
+    // we expect the dict contains the exact same items as in the
+    // first pass.
+    it.toFirst();
+    while ( it.current() ) {
+ 	QCanvasItem* i = (QCanvasItem*)it.currentKey();
+ 	++it;
 	if ( i )
 	    i->advance(1);
     }
     update();
 }
 
-/*!
-  Refreshes all changes to all views of the canvas.
+/*!  Refreshes all changes to all views of the canvas.
 
   \sa advance()
 */
@@ -823,18 +856,22 @@ void QCanvas::update()
 {
     QCanvasClusterizer clusterizer(d->viewList.count());
 
-    for (QCanvasView* view=d->viewList.first(); view != 0; view=d->viewList.next()) {
+    QCanvasView* view=d->viewList.first();
+    while (view != 0 ) {
 	QRect area(view->contentsX(),view->contentsY(),
-		view->visibleWidth(),view->visibleHeight());
-	if (area.width()>0 && area.height()>0) {
+		   view->visibleWidth(),view->visibleHeight());
+	if (area.width()>0 && area.height()>0)
 	    clusterizer.add(area);
-	}
+	view=d->viewList.next();
     }
 
-    for (int i=0; i<clusterizer.clusters(); i++) {
+    for (int i=0; i<clusterizer.clusters(); i++)
 	drawChanges(clusterizer[i]);
-    }
 }
+
+
+// ### warwick - setAllChanged() is not a set function. please rename
+// it. ditto setChanged(). markChanged(), perhaps?
 
 /*!
   Sets all views of the canvas to be entirely redrawn when
@@ -851,17 +888,23 @@ void QCanvas::setAllChanged()
 */
 void QCanvas::setChanged(const QRect& area)
 {
-    QRect thearea=area.intersect(QRect(0,0,width(),height()));
+    QRect thearea = area.intersect(QRect(0,0,width(),height()));
 
-    int mx=(thearea.x()+thearea.width()+chunksize)/chunksize;
-    int my=(thearea.y()+thearea.height()+chunksize)/chunksize;
-    if (mx>chwidth) mx=chwidth;
-    if (my>chheight) my=chheight;
+    int mx = (thearea.x()+thearea.width()+chunksize)/chunksize;
+    int my = (thearea.y()+thearea.height()+chunksize)/chunksize;
+    if (mx>chwidth)
+	mx=chwidth;
+    if (my>chheight)
+	my=chheight;
 
-    for (int x=thearea.x()/chunksize; x<mx; x++) {
-	for (int y=thearea.y()/chunksize; y<my; y++) {
+    int x=thearea.x()/chunksize;
+    while( x<mx) {
+	int y = thearea.y()/chunksize;
+	while( y<my ) {
 	    chunk(x,y).change();
+	    y++;
 	}
+	x++;
     }
 }
 
@@ -869,6 +912,7 @@ void QCanvas::setChanged(const QRect& area)
 \internal
 Redraw a given area of the QCanvas.
 
+### warwick, what do you mean:
 If only_changes then only changes to the area are redrawn.
 */
 void QCanvas::drawChanges(const QRect& inarea)
@@ -877,18 +921,23 @@ void QCanvas::drawChanges(const QRect& inarea)
 
     QCanvasClusterizer clusters(maxclusters);
 
-    int mx=(area.x()+area.width()+chunksize)/chunksize;
-    int my=(area.y()+area.height()+chunksize)/chunksize;
-    if (mx>chwidth) mx=chwidth;
-    if (my>chheight) my=chheight;
+    int mx = (area.x()+area.width()+chunksize)/chunksize;
+    int my = (area.y()+area.height()+chunksize)/chunksize;
+    if (mx > chwidth)
+	mx=chwidth;
+    if (my > chheight)
+	my=chheight;
 
-    for (int x=area.x()/chunksize; x<mx; x++) {
-	for (int y=area.y()/chunksize; y<my; y++) {
+    int x=area.x()/chunksize;
+    while( x<mx ) {
+	int y=area.y()/chunksize;
+	while( y<my ) {
 	    QCanvasChunk& ch=chunk(x,y);
-	    if (ch.hasChanged()) {
+	    if ( ch.hasChanged() )
 		clusters.add(x,y);
-	    }
+	    y++;
 	}
+	x++;
     }
 
     for (int i=0; i<clusters.clusters(); i++) {
@@ -907,6 +956,7 @@ void QCanvas::drawChanges(const QRect& inarea)
 \internal
 Redraw a given area of the QCanvas.
 
+### warwick, what do you mean:
 If only_changes then only changes to the area are redrawn.
 
 If one_view then only one view is updated, otherwise all are.
@@ -924,8 +974,10 @@ void QCanvas::drawArea(const QRect& inarea, QPainter* p, bool double_buffer)
     int ly=area.y()/chunksize;
     int mx=area.right()/chunksize;
     int my=area.bottom()/chunksize;
-    if (mx>=chwidth) mx=chwidth-1;
-    if (my>=chheight) my=chheight-1;
+    if (mx>=chwidth)
+	mx=chwidth-1;
+    if (my>=chheight)
+	my=chheight-1;
 
     QCanvasItemList allvisible;
 
@@ -942,7 +994,7 @@ void QCanvas::drawArea(const QRect& inarea, QPainter* p, bool double_buffer)
 	    //
 	    if (!p) {
 		if ( chunk(x,y).takeChange() ) {
-		    // XXX should at least make bands
+		    // ### should at least make bands
 		    rgn |= QRegion(x*chunksize-area.x(),y*chunksize-area.y(),
 				    chunksize,chunksize);
 		    allvisible += *chunk(x,y).listPtr();
@@ -959,9 +1011,11 @@ void QCanvas::drawArea(const QRect& inarea, QPainter* p, bool double_buffer)
 	int osw = area.width();
 	int osh = area.height();
 	if ( osw > offscr.width() || osh > offscr.height() )
-	    offscr.resize(QMAX(osw,offscr.width()),QMAX(osh,offscr.height()));
+	    offscr.resize(QMAX(osw,offscr.width()),
+			  QMAX(osh,offscr.height()));
 	else if ( offscr.width() == 0 || offscr.height() == 0 )
-	    offscr.resize( QMAX( offscr.width(), 1), QMAX( offscr.height(), 1 ) );
+	    offscr.resize( QMAX( offscr.width(), 1),
+			   QMAX( offscr.height(), 1 ) );
 	painter.begin(&offscr);
 	painter.translate(-area.x(),-area.y());
 	if ( p ) {
@@ -1018,9 +1072,8 @@ This method to informs the QCanvas that a given chunk is
 
 (x,y) is a chunk location.
 
-The sprite classes call this.  Any new derived class
-of QCanvasItem must do so too.  SetChangedChunkContaining can be used
-instead.
+The sprite classes call this.  Any new derived class of QCanvasItem
+must do so too.  SetChangedChunkContaining can be used instead.
 */
 void QCanvas::setChangedChunk(int x, int y)
 {
@@ -1032,13 +1085,13 @@ void QCanvas::setChangedChunk(int x, int y)
 
 /*!
 \internal
-This method to informs the QCanvas that the chunk containing
-a given pixel is `dirty' and needs to be redrawn in the next Update.
+This method to informs the QCanvas that the chunk containing a given
+pixel is `dirty' and needs to be redrawn in the next Update.
 
 (x,y) is a pixel location.
 
-The item classes call this.  Any new derived class
-of QCanvasItem must do so too. SetChangedChunk can be used instead.
+The item classes call this.  Any new derived class of QCanvasItem must
+do so too. SetChangedChunk can be used instead.
 */
 void QCanvas::setChangedChunkContaining(int x, int y)
 {
@@ -1050,9 +1103,9 @@ void QCanvas::setChangedChunkContaining(int x, int y)
 
 /*!
 \internal
-This method adds a QCanvasItem to the list of those which need to
-be drawn if the given chunk is redrawn.  Like SetChangedChunk
-and SetChangedChunkContaining, this method marks the chunk as `dirty'.
+This method adds a QCanvasItem to the list of those which need to be
+drawn if the given chunk is redrawn.  Like SetChangedChunk and
+SetChangedChunkContaining, this method marks the chunk as `dirty'.
 */
 void QCanvas::addItemToChunk(QCanvasItem* g, int x, int y)
 {
@@ -1064,8 +1117,8 @@ void QCanvas::addItemToChunk(QCanvasItem* g, int x, int y)
 /*!
 \internal
 This method removes a QCanvasItem from the list of those which need to
-be drawn if the given chunk is redrawn.  Like SetChangedChunk
-and SetChangedChunkContaining, this method marks the chunk as `dirty'.
+be drawn if the given chunk is redrawn.  Like SetChangedChunk and
+SetChangedChunkContaining, this method marks the chunk as `dirty'.
 */
 void QCanvas::removeItemFromChunk(QCanvasItem* g, int x, int y)
 {
@@ -1077,10 +1130,10 @@ void QCanvas::removeItemFromChunk(QCanvasItem* g, int x, int y)
 
 /*!
 \internal
-This method adds a QCanvasItem to the list of those which need to
-be drawn if the chunk containing the given pixel is redrawn.
-Like SetChangedChunk and SetChangedChunkContaining, this method
-marks the chunk as `dirty'.
+This method adds a QCanvasItem to the list of those which need to be
+drawn if the chunk containing the given pixel is redrawn.  Like
+SetChangedChunk and SetChangedChunkContaining, this method marks the
+chunk as `dirty'.
 */
 void QCanvas::addItemToChunkContaining(QCanvasItem* g, int x, int y)
 {
@@ -1103,9 +1156,14 @@ void QCanvas::removeItemFromChunkContaining(QCanvasItem* g, int x, int y)
     }
 }
 
-/*!
-  Returns the color set by setBackgroundColor().
+// ### warwick - either make it into a reimp, or complete the
+// unfinished setence.
+
+/*! Returns the color set by setBackgroundColor().
   By default, this is white.
+
+  Note that this function is not the same as
+  QWidget::backgroundColor().  The difference between them is
 
   \sa setBackgroundColor(), backgroundPixmap()
 */
@@ -1124,10 +1182,8 @@ void QCanvas::setBackgroundColor( const QColor& c )
     setAllChanged();
 }
 
-/*!
-  Returns the pixmap set by setBackgroundPixmap().
-  By default, this is a \link QPixmap::isNull() null\endlink
-  pixmap.
+/*!  Returns the pixmap set by setBackgroundPixmap().  By default,
+  this is a null pixmap.
 
   \sa setBackgroundPixmap(), backgroundColor()
 */
@@ -1136,9 +1192,8 @@ QPixmap QCanvas::backgroundPixmap() const
     return pm;
 }
 
-/*!
-  Sets the solid background to be \a p, repeated as necessary to cover
-  the entire canvas.
+/*!  Sets the solid background to be \a p, repeated as necessary to
+  cover the entire canvas.
 
   \sa backgroundPixmap(), setBackgroundColor(), setTiles()
 */
@@ -1147,16 +1202,14 @@ void QCanvas::setBackgroundPixmap( const QPixmap& p )
     setTiles(p, 1, 1, p.width(), p.height());
 }
 
-/*!
-  This method is called for all updates of the QCanvas.  It renders
-  any background graphics.  If the canvas has a background pixmap or a tiled
-  background, that graphics is used,
-  otherwise it is cleared in the
-  background color to the default background color (white).
+/*!  This virtual function is called for all updates of the QCanvas.
+  It renders any background graphics.  If the canvas has a background
+  pixmap or a tiled background, that graphic is used, otherwise the
+  canvas is cleared in the background color.
 
-  If the graphics for an area change, you must explicitly
-  call setChanged(const QRect&) for the result to be visible
-  when update() is next called.
+  If the graphics for an area change, you must explicitly call
+  setChanged(const QRect&) for the result to be visible when update()
+  is next called.
 
   \sa setBackgroundColor(), setBackgroundPixmap(), setTiles()
 */
@@ -1195,12 +1248,11 @@ void QCanvas::drawBackground(QPainter& painter, const QRect& clip)
     }
 }
 
-/*!
-  This method is called for all updates of the QCanvas.  It renders
-  any foreground graphics.
+/*! This virtual function is called for all updates of the QCanvas.
+  It renders any foreground graphics.
 
-  The same warnings regarding change apply to this method
-  as for drawBackground().
+  The same warnings regarding change apply to this method as for
+  drawBackground().
 
   The default is to draw nothing.
 */
@@ -1213,13 +1265,12 @@ void QCanvas::drawForeground(QPainter& painter, const QRect& clip)
     }
 }
 
-/*!
-  Turns double-buffering on or off. The default is \e on.
-  Calling setDoubleBuffering(TRUE) will cause the
-  redrawn areas to flicker. This can be useful in
-  understanding the optimizations made by QCanvas, but unless the small
-  performance increases warrants the drastically reduced quality for the
-  user, double buffering should be left on.
+/*! Turns double-buffering on if \a y is TRUE, or off if it is
+  FALSE. The default is to use double-buffering.
+
+  Turning off double-buffering casuses the redrawn areas to flicker a
+  bit.  This can help understand the the optimizations made by QCanvas
+  and also gives a (usually small) performance improvement.
 */
 void QCanvas::setDoubleBuffering(bool y)
 {
@@ -1227,27 +1278,29 @@ void QCanvas::setDoubleBuffering(bool y)
 }
 
 
-/*!
-  Sets the QCanvas to be composed of
-  \a h tiles horizontally and \a v tiles vertically.  Each tile
-  will be an image \a tilewidth by \a tileheight pixels from
-  pixmap \a p.
+// ### warwick is the fourth paragraph correct?
 
-  The pixmap \a p is a list of tiles, arranged left to right,
-  top to bottom, with tile 0 in the top-left corner, tile 1 next
-  to the right, and so on.
+/*!  Sets the QCanvas to be composed of \a h tiles horizontally and \a
+  v tiles vertically.  Each tile will be an image \a tilewidth by \a
+  tileheight pixels from pixmap \a p.
 
-  If the QCanvas is
-  larger than the matrix of tiles,
-  the entire matrix will be repeated as much as necessary to
-  cover the area.  If it is smaller, tiles to
-  the right and bottom will not be visible.
+  The pixmap \a p contains the tiles arranged left to right, top to
+  bottom, with tile 0 in the top-left corner, tile 1 to the right of
+  tile 0, and so on.
 
-  There are optimizations built-in for the case where the tiles
-  are square and the canvas is not returned.
+  If the QCanvas is larger than the matrix of tiles, the entire matrix
+  is repeated as necessary to cover the area.  If it is smaller, tiles
+  to the right and bottom are not visible.
+
+  QCanvas has special optimizations for the case where the tiles are
+  square and the canvas is not larger than (h*tilewidth, v*tileheight).
+
+  The width and height of \a p must be multipless of \a tilewidth and
+  \a tileheight. If they are not, the action of this function is
+  unspecified.
 */
-void QCanvas::setTiles(QPixmap p,
-        int h, int v, int tilewidth, int tileheight)
+void QCanvas::setTiles( QPixmap p,
+			int h, int v, int tilewidth, int tileheight )
 {
     htiles = h;
     vtiles = v;
@@ -1265,17 +1318,16 @@ void QCanvas::setTiles(QPixmap p,
 	int s = scm(tilewidth,tileheight);
 	retune( s < 128 ? s : QMAX(tilewidth,tileheight) );
     }
-    oneone = tilew == tileh && tilew == chunksize;
+    //oneone = tilew == tileh && tilew == chunksize;
     setAllChanged();
 }
 
 /*!
   \fn int QCanvas::tile( int x, int y ) const
 
-  Returns the tile set at (\a x,\a y). Initially,
-  all tiles are 0.
+  Returns the tile at (\a x,\a y). Initially, all tiles are 0.
 
-  \warning the parameters must be within range.
+  \warning The parameters must be within range.
 
   \sa setTile()
 */
@@ -1300,28 +1352,25 @@ void QCanvas::setTiles(QPixmap p,
 */
 
 
-/*!
-  Sets the tile at (\a x, \a y) to use tile number \a tilenum,
-  which is an index into the tile pixmaps.  The canvas will
-  update appropriately when update() is next called.
+/*!  Sets the tile at (\a x, \a y) to use tile number \a tilenum,
+  which is an index into the tile pixmaps.  The canvas will update
+  appropriately when update() is next called.
 
-  The images are taken from the pixmap set by setTiles() and
-  are arranged in the pixmap left to right, top to bottom, with tile 0
-  in the top-left corner, tile 1 next to the right, and so on.
+  The images are taken from the pixmap set by setTiles() and are
+  arranged in the pixmap left to right, top to bottom, with tile 0 in
+  the top-left corner, tile 1 next to the right, and so on.
 
-  \sa tile()
+  \sa tile() setTiles()
 */
 void QCanvas::setTile( int x, int y, int tilenum )
 {
     ushort& t = grid[x+y*htiles];
     if ( t != tilenum ) {
 	t = tilenum;
-	if ( oneone ) {
-	    // common case
-	    setChangedChunk( x, y );
-	} else {
+	if ( tilew == tileh && tilew == chunksize )
+	    setChangedChunk( x, y ); 	    // common case
+	else
 	    setChanged( QRect(x*tilew,y*tileh,tilew,tileh) );
-	}
     }
 }
 
@@ -1336,16 +1385,26 @@ class QCanvasItemExtra {
 
 /*!
 \class QCanvasItem qcanvas.h
-\brief An abstract graphic object on a QCanvas.
+\brief The QCanvasItem is an abstract graphic object on a QCanvas.
 \module canvas
 
-QCanvasItems can be moved, hidden, and tested for collision with
-other items. They have selected, enabled, and active state flags
-which subclasses may use to adjust appearance or behavior.
+A QCanvasItem object can be moved in the x(), y() and z() dimensions
+using functions such as move(), moveBy(), setY() and many others. It
+has a size given by boundingRect().  The item can move or change
+appearance automatically, using setAnimated() and setVelocity(), and
+you can get information about whether it collides using collidesWith()
+and collisions().
 
-For details of collision detection, see collisions(). Other functions
-related to collision detection are collidesWith(), and the
-QCanvas::collisions() functions.
+Finally, the rtti() function is used for identifying subclasses of
+QCanvasItem, and the canvas() returns a pointer to the canvas on which
+the item lives.
+
+An item, by default, has no speed, no size, is not animated and has no
+velocity.
+
+Note that you cannot easily subclass QCanvasItem yourself - the API is
+too low-level.  Instead, you should subclass QCanvasPolygonalItem, or
+perhaps QCanvasRectangle or QCanvasSprite.
 */
 
 /*!
@@ -1358,7 +1417,7 @@ QCanvasItem::QCanvasItem(QCanvas* canvas) :
     myx(0),myy(0),myz(0)
 {
     ani=0;
-    vis=1;
+    vis=0;
     sel=0;
     ena=0;
     act=0;
@@ -1386,53 +1445,45 @@ QCanvasItemExtra& QCanvasItem::extra()
     return *ext;
 }
 
-/*!
-\fn double QCanvasItem::x() const
-Returns the horizontal position of the item.
-Note that subclasses often have
-an origin other than the top-left corner.
+/*! \fn double QCanvasItem::x() const
+
+  Returns the horizontal position of the item.  Note that subclasses
+  often have an origin other than the top-left corner.
 */
 
-/*!
-\fn double QCanvasItem::y() const
-Returns the vertical position of the item.
-Note that subclasses often have
-an origin other than the top-left corner.
+/*! \fn double QCanvasItem::y() const
+
+  Returns the vertical position of the item.  Note that subclasses
+  often have an origin other than the top-left corner.
 */
 
-/*!
-\fn double QCanvasItem::z() const
+/*! \fn double QCanvasItem::z() const
 
-Returns the z height of the item,
-which is used for visual order:  higher-z items obscure
-lower-z ones.
+  Returns the z height of the item, which is used for visual order:
+  higher-z items obscure lower-z ones.
 */
 
-/*!
-  \fn void QCanvasItem::setX(double x)
+/*! \fn void QCanvasItem::setX(double x)
 
-  Moves the item so that its X-position is \a x;
+  Moves the item so that its X-position is \a x.
   \sa x(), move()
 */
 
-/*!
-  \fn void QCanvasItem::setY(double y)
+/*! \fn void QCanvasItem::setY(double y)
 
-  Moves the item so that its Y-position is \a y;
+  Moves the item so that its Y-position is \a y.
   \sa y(), move()
 */
 
-/*!
-  \fn void QCanvasItem::setZ(double z)
+/*! \fn void QCanvasItem::setZ(double z)
 
-  Sets the height of the item to \a z.
-  Higher-z items obscure lower-z ones.
+  Sets the height of the item to \a z.  Higher-z items obscure lower-z
+  ones.
 
   \sa z(), move()
 */
 
-/*!
-Moves the item from its current position by the given amounts.
+/*! Moves the item from its current position by the given amounts.
 */
 void QCanvasItem::moveBy(double dx, double dy)
 {
@@ -1442,8 +1493,8 @@ void QCanvasItem::moveBy(double dx, double dy)
     addToChunks();
 }
 
-/*!
-  Returns TRUE is the item is animated.
+/*! Returns TRUE is the item is animated.
+
   \sa setVelocity(), setAnimated()
 */
 bool QCanvasItem::animated() const
@@ -1451,8 +1502,8 @@ bool QCanvasItem::animated() const
     return (bool)ani;
 }
 
-/*!
-  Sets the item to be animated (or not if \a y is FALSE).
+/*!  Sets the item to be animated if \a y is TRUE, or not if \a y is
+  FALSE.
 
   \sa advance(), QCanvas::advance()
 */
@@ -1468,22 +1519,18 @@ void QCanvasItem::setAnimated(bool y)
     }
 }
 
-/*!
-  \fn void QCanvasItem::setXVelocity( double vx )
+/*! \fn void QCanvasItem::setXVelocity( double vx )
 
   Sets the horizontal component of the item's velocity to \a vx.
 */
 
-/*!
-  \fn void QCanvasItem::setYVelocity( double vy )
+/*! \fn void QCanvasItem::setYVelocity( double vy )
 
   Sets the vertical component of the item's velocity to \a vy.
 */
 
-/*!
-  Sets the item to be animated and moving by
-  \a dx and \a dy pixels in the horizontal and
-  vertical directions respectively.
+/*! Sets the item to be animated and moving by \a dx and \a dy pixels
+  in the horizontal and vertical directions respectively.
 
   \sa advance().
 */
@@ -1513,26 +1560,28 @@ double QCanvasItem::yVelocity() const
     return ext ? ext->vy : 0;
 }
 
-/*!
-  Advances the animation of the item.  The default is
-  to move the item by the preset velocity (see setVelocity())
-  if \a stage is 1.
+/*!  Advances the animation of the item.  The default implementation
+  moves the item by the preset velocity if \a stage is 1, and does
+  nothing if \a stage is 0.
+
+  Note that if you reimplement this funciton, you may not change the
+  canvas in any way, add other items, or remove items.
 
   \sa QCanvas::advance()
 */
 void QCanvasItem::advance(int phase)
 {
-    if ( ext && phase==1 ) moveBy(ext->vx,ext->vy);
+    if ( ext && phase==1 )
+	moveBy(ext->vx,ext->vy);
 }
 
 /*!
 \fn void QCanvasItem::draw(QPainter& painter)
 
-This abstract method should draw the item using \a painter.
+This abstract virtual function draws the item using \a painter.
 */
 
-/*!
-Sets the QCanvas upon which the QCanvasItem is to be drawn to \a c.
+/*! Sets the QCanvas upon which the QCanvasItem is to be drawn to \a c.
 
 \sa canvas()
 */
@@ -1558,25 +1607,21 @@ void QCanvasItem::setCanvas(QCanvas* c)
   Returns the canvas containing the item.
 */
 
-/*!
-Shorthand for setVisible(TRUE).
-*/
+/*! Shorthand for setVisible(TRUE). */
 void QCanvasItem::show()
 {
     setVisible(TRUE);
 }
 
-/*!
-Shorthand for setVisible(FALSE).
-*/
+/*! Shorthand for setVisible(FALSE). */
 void QCanvasItem::hide()
 {
     setVisible(FALSE);
 }
 
-/*!
-  Makes the items visible (or invisible if \a yes is FALSE)
-  when QCanvas::update() is next called.
+/*!  Makes the items visible if \a yes is TRUE, or invisible if \a yes
+  is FALSE.  The change takes effect when QCanvas::update() is next
+  called.
 */
 void QCanvasItem::setVisible(bool yes)
 {
@@ -1590,32 +1635,29 @@ void QCanvasItem::setVisible(bool yes)
 	}
     }
 }
-/*!
-  \fn bool QCanvasItem::visible() const
-  Returns TRUE if the QCanvasItem is visible.  This does <em>not</em>
-  mean the QCanvasItem is currently in a view, merely that if a view
-  was showing the area where the QCanvasItem is, and the item
-  was not obscured by items at a higher z, it would be visible.
+/*! \fn bool QCanvasItem::visible() const
+
+  Returns TRUE if the QCanvasItem is visible.  This does \e not mean
+  the QCanvasItem is currently in a view, merely that if a view is
+  showing the area where the QCanvasItem is, and the item is not
+  obscured by items at a higher z, and the view is not obscured by
+  overlying windows, it would be visible.
 
   \sa setVisible(), z()
 */
 
-/*!
-  \fn bool QCanvasItem::selected() const
+/*! \fn bool QCanvasItem::selected() const
+
   Returns TRUE if the QCanvasItem is selected.
 */
 
-/*!
-  Sets the selected flag of the item to \a yes and
-  causes it to be redrawn.
+/*! Sets the selected flag of the item to \a yes and causes it to be
+  redrawn when QCanvas::update() is next called.
 
-  The behavior of items is not influenced by this value -
-  it is for users of the QCanvas/QCanvasItem/QCanvasView classes
-  to use it if needed.
-
-  Note that subclasses may not look any different
-  if their draw() functions ignore the value
-  of selected().
+  The behavior of QCanvas, QCanvasItem or the built-in QCanvasItem
+  subclasses is not affected by this value.  setSelected() is supplied
+  because many applications need it, but it is up to the application
+  to define its exact meaning.
 */
 void QCanvasItem::setSelected(bool yes)
 {
@@ -1630,18 +1672,13 @@ void QCanvasItem::setSelected(bool yes)
   Returns TRUE if the QCanvasItem is enabled.
 */
 
-/*!
-  Sets the enabled flag of the item to \a yes and
-  causes it to be redrawn when QCanvas::update() is
-  next called.
+/*!  Sets the enabled flag of the item to \a yes and causes it to be
+  redrawn when QCanvas::update() is next called.
 
-  The behavior of items is not influenced by this value -
-  it is for users of the QCanvas/QCanvasItem/QCanvasView classes
-  to use it if needed.
-
-  Note that subclasses may not look any different
-  if there draw() functions ignore the value
-  of enabled().
+  The behavior of QCanvas, QCanvasItem or the built-in QCanvasItem
+  subclasses is not affected by this value.  setEnabled() is supplied
+  because many applications need it, but it is up to the application
+  to define its exact meaning.
 */
 void QCanvasItem::setEnabled(bool yes)
 {
@@ -1656,18 +1693,13 @@ void QCanvasItem::setEnabled(bool yes)
   Returns TRUE if the QCanvasItem is active.
 */
 
-/*!
-  Sets the active flag of the item to \a yes and
-  causes it to be redrawn when QCanvas::update() is
-  next called.
+/*!  Sets the active flag of the item to \a yes and causes it to be
+  redrawn when QCanvas::update() is next called.
 
-  The behavior of items is not influenced by this value -
-  it is for users of the QCanvas/QCanvasItem/QCanvasView classes
-  to use it if needed.
-
-  Note that subclasses may not look any different
-  if there draw() functions ignore the value
-  of active().
+  The behavior of QCanvas, QCanvasItem or the built-in QCanvasItem
+  subclasses is not affected by this value.  setActive() is supplied
+  because many applications need it, but it is up to the application
+  to define its exact meaning.
 */
 void QCanvasItem::setActive(bool yes)
 {
@@ -1714,15 +1746,14 @@ bool qt_testCollision(const QCanvasSprite* s1, const QCanvasSprite* s2)
 
     // s2image != 0
 
-    // XXX
-    // XXX A non-linear search would typically be more
-    // XXX efficient.  Optimal would be spiralling out
-    // XXX from the center, but a simple vertical expansion
-    // XXX from the centreline would suffice.
-    // XXX
-    // XXX My sister just had a baby 40 minutes ago, so
-    // XXX I'm too brain-spun to implement it correctly!
-    // XXX
+    // ###
+    //
+    // A non-linear search would typically be more efficient.
+    // Optimal would be spiralling out from the center, but a simple
+    // vertical expansion from the centreline would suffice.
+    //
+    // My sister just had a baby 40 minutes ago, so I'm too
+    // brain-spun to implement it correctly!
     //
 
     // Let's make an assumption.  That sprite masks don't have
@@ -1783,28 +1814,27 @@ bool qt_testCollision(const QCanvasSprite* s1, const QCanvasSprite* s2)
     return FALSE;
 }
 
-static bool collision_double_dispatch(
-			      	const QCanvasSprite* s1,
-				const QCanvasPolygonalItem* p1,
-				const QCanvasRectangle* r1,
-				const QCanvasEllipse* e1,
-				const QCanvasText* t1,
-				const QCanvasSprite* s2,
-				const QCanvasPolygonalItem* p2,
-				const QCanvasRectangle* r2,
-				const QCanvasEllipse* e2,
-				const QCanvasText* t2 )
+static bool collision_double_dispatch( const QCanvasSprite* s1,
+				       const QCanvasPolygonalItem* p1,
+				       const QCanvasRectangle* r1,
+				       const QCanvasEllipse* e1,
+				       const QCanvasText* t1,
+				       const QCanvasSprite* s2,
+				       const QCanvasPolygonalItem* p2,
+				       const QCanvasRectangle* r2,
+				       const QCanvasEllipse* e2,
+				       const QCanvasText* t2 )
 {
     const QCanvasItem* i1 = s1 ?
-		(const QCanvasItem*)s1 : p1 ?
-		(const QCanvasItem*)p1 : r1 ?
-		(const QCanvasItem*)r1 : e1 ?
-		(const QCanvasItem*)e1 : (const QCanvasItem*)t1;
+			    (const QCanvasItem*)s1 : p1 ?
+			    (const QCanvasItem*)p1 : r1 ?
+			    (const QCanvasItem*)r1 : e1 ?
+			    (const QCanvasItem*)e1 : (const QCanvasItem*)t1;
     const QCanvasItem* i2 = s2 ?
-		(const QCanvasItem*)s2 : p2 ?
-		(const QCanvasItem*)p2 : r2 ?
-		(const QCanvasItem*)r2 : e2 ?
-		(const QCanvasItem*)e2 : (const QCanvasItem*)t2;
+			    (const QCanvasItem*)s2 : p2 ?
+			    (const QCanvasItem*)p2 : r2 ?
+			    (const QCanvasItem*)r2 : e2 ?
+			    (const QCanvasItem*)e2 : (const QCanvasItem*)t2;
 
     if ( s1 && s2 ) {
 	// a
@@ -1815,10 +1845,9 @@ static bool collision_double_dispatch(
 	QRect rc2 = i2->boundingRectAdvanced();
 	return rc1.intersects(rc2);
     } else if ( e1 && e2
-	    && e1->angleLength()>=360*16 && e2->angleLength()>=360*16
-	    && e1->width()==e1->height()
-	    && e2->width()==e2->height() )
-    {
+		&& e1->angleLength()>=360*16 && e2->angleLength()>=360*16
+		&& e1->width()==e1->height()
+		&& e2->width()==e2->height() ) {
 	// c
 	double xd = (e1->x()+e1->xVelocity())-(e2->x()+e1->xVelocity());
 	double yd = (e1->y()+e1->yVelocity())-(e2->y()+e1->yVelocity());
@@ -1828,7 +1857,7 @@ static bool collision_double_dispatch(
 	// d
 	QPointArray pa1 = p1->areaPointsAdvanced();
 	QPointArray pa2 = p2 ? p2->areaPointsAdvanced()
-		       : QPointArray(i2->boundingRectAdvanced());
+			  : QPointArray(i2->boundingRectAdvanced());
 	bool col= !(QRegion(pa1) & QRegion(pa2,TRUE)).isEmpty();
 
 	return col;
@@ -1850,10 +1879,16 @@ static bool collision_double_dispatch(
 
 /*!
   \class QCanvasSprite qcanvas.h
-  \brief A masked image on a canvas.
+  \brief The QCanvasSprite class provides an animated moving pixmap on a QCanvas.
   \module canvas
 
-  ...
+  A "sprite" is an image object that moves around independently of
+  foreground and background.  On a QCanvas, everything moves around
+  independently of the foreground and background, so a QCanvasSprite
+  is just a image whose API makes it simpler to use animation and a
+  hot spot.
+  
+  QCanvasSprite draws very fast, at the cost of some memory.
 */
 
 
@@ -1872,8 +1907,9 @@ bool QCanvasSprite::collidesWith( const QCanvasItem* i ) const
 				 const QCanvasEllipse* e,
 				 const QCanvasText* t ) const
 
-  Returns TRUE if the item collides with any of the given items. The parameters
-  are all the same object, this is just a type resolution trick.
+  Returns TRUE if the item collides with any of the given items. The
+  parameters are all the same object, this is just a type resolution
+  trick.
 */
 
 
@@ -2004,6 +2040,7 @@ QCanvasItemList QCanvas::collisions(const QPoint& p) const
 QCanvasItemList QCanvas::collisions(const QRect& r) const
 {
     QCanvasRectangle i(r,(QCanvas*)this);
+    i.show(); // doesn't actually show, since we destroy it
     QCanvasItemList l = i.collisions(TRUE);
     l.sort();
     return l;
@@ -2570,27 +2607,26 @@ void QCanvasSprite::draw(QPainter& painter)
   \brief A QWidget which views a QCanvas.
   \module canvas
 
-  Displays a view of a QCanvas, with scrollbars available as
-  for all QScrollView subclasses. There can be more than one
-  view of a canvas.
+  Displays a view of a QCanvas, with scrollbars available if
+  desired. There can be more than one view of a canvas.
 
   The view of a canvas is the object which the user can see and
-  interact with, hence any interactivity will be based on events
-  from a view. For example, by subclassing QCanvasView and overriding
-  QScrollView::contentsMousePressEvent(), an application can allow the
-  user to interact with items on the canvas.
+  interact with, hence any interactivity will be based on events from
+  a view. For example, by subclassing QCanvasView and overriding
+  QScrollView::contentsMousePressEvent(), an application can provide a
+  canvas where the user can interact with items on the canvas.
 
   \code
-void MyCanvasView::contentsMousePressEvent(QMouseEvent* e)
-{
-    QCanvasItemList list = canvas()->collisions(e->pos());
-    if ( !list.isEmpty() ) {
-	QCanvasItem* item = list.first();
+  void MyCanvasView::contentsMousePressEvent(QMouseEvent* e)
+  {
+      QCanvasItemList list = canvas()->collisions(e->pos());
+      if ( !list.isEmpty() ) {
+	  QCanvasItem* item = list.first();
 
-	// Process the top item
-	...
-    }
-}
+	  // Process the top item
+	  ...
+      }
+  }
   \endcode
 
   Most of the functionality of QCanvasView is the functionality
@@ -2716,10 +2752,8 @@ QSize QCanvasView::sizeHint() const
   be difficult, but a small amount of over-estimation is better than
   any under-estimation, which will give drawing errors.
 
-  All subclasses must call addToChunks()
-  in their constructor once numAreaPoints() and getAreaPoints() are valid,
-  and must call hide() in their
-  destructor while those functions are still valid.
+  All subclasses must call hide() in their destructor while the
+  functions numAreaPoints() and getAreaPoints() are valid.
 */
 
 /*!
@@ -2926,6 +2960,12 @@ QPointArray QCanvasPolygonalItem::chunks() const
     return processor.result;
 }
 
+QPointArray QCanvasRectangle::chunks() const
+{
+    // No need to do a polygon scan!
+    return QCanvasItem::chunks();
+}
+
 /*!
   Returns the bounding rectangle of the polygonal item,
   based on areaPoints().
@@ -2991,7 +3031,7 @@ void QCanvasPolygonalItem::setPen(QPen p)
 */
 void QCanvasPolygonalItem::setBrush(QBrush b)
 {
-    // XXX if transparent, needn't add to inner chunks
+    // ### if transparent, needn't add to inner chunks
     br = b;
     changeChunks();
 }
@@ -3013,7 +3053,6 @@ void QCanvasPolygonalItem::setBrush(QBrush b)
 QCanvasPolygon::QCanvasPolygon(QCanvas* canvas) :
     QCanvasPolygonalItem(canvas)
 {
-    addToChunks();
 }
 
 /*!
@@ -3112,7 +3151,6 @@ QCanvasLine::QCanvasLine(QCanvas* canvas) :
     QCanvasPolygonalItem(canvas)
 {
     x1 = y1 = x2 = y2 = 0;
-    addToChunks();
 }
 
 /*!
@@ -3150,15 +3188,15 @@ void QCanvasLine::setPen(QPen p)
 */
 
 /*!
-  Sets the ends of the line to (\a x1,\a y1) and (\a x2,\a y2).
+  Sets the ends of the line to (\a xa,\a ya) and (\a xb,\a yb).
 */
-void QCanvasLine::setPoints(int x1, int y1, int x2, int y2)
+void QCanvasLine::setPoints(int xa, int ya, int xb, int yb)
 {
     removeFromChunks();
-    this->x1 = x1;
-    this->y1 = y1;
-    this->x2 = x2;
-    this->y2 = y2;
+    x1 = xa;
+    y1 = ya;
+    x2 = xb;
+    y2 = yb;
     addToChunks();
 }
 
@@ -3246,7 +3284,6 @@ QCanvasRectangle::QCanvasRectangle(QCanvas* canvas) :
     QCanvasPolygonalItem(canvas),
     w(32), h(32)
 {
-    addToChunks();
 }
 
 /*!
@@ -3257,7 +3294,6 @@ QCanvasRectangle::QCanvasRectangle(const QRect& r, QCanvas* canvas) :
     w(r.width()), h(r.height())
 {
     move(r.x(),r.y());
-    addToChunks();
 }
 
 /*!
@@ -3270,7 +3306,6 @@ QCanvasRectangle::QCanvasRectangle(int x, int y, int width, int height,
     w(width), h(height)
 {
     move(x,y);
-    addToChunks();
 }
 
 /*!
@@ -3363,7 +3398,6 @@ QCanvasEllipse::QCanvasEllipse(QCanvas* canvas) :
     w(32), h(32),
     a1(0), a2(360*16)
 {
-    addToChunks();
 }
 
 /*!
@@ -3375,7 +3409,6 @@ QCanvasEllipse::QCanvasEllipse(int width, int height, QCanvas* canvas) :
     w(width),h(height),
     a1(0),a2(360*16)
 {
-    addToChunks();
 }
 
 /*!
@@ -3389,7 +3422,6 @@ QCanvasEllipse::QCanvasEllipse(int width, int height,
     w(width),h(height),
     a1(startangle),a2(angle)
 {
-    addToChunks();
 }
 
 /*!
@@ -3504,7 +3536,6 @@ QCanvasText::QCanvasText(QCanvas* canvas) :
     txt("<text>"), flags(0)
 {
     setRect();
-    addToChunks();
 }
 
 /*!
@@ -3517,7 +3548,6 @@ QCanvasText::QCanvasText(const QString& t, QCanvas* canvas) :
     txt(t), flags(0)
 {
     setRect();
-    addToChunks();
 }
 
 /*!
@@ -3531,7 +3561,6 @@ QCanvasText::QCanvasText(const QString& t, QFont f, QCanvas* canvas) :
     fnt(f)
 {
     setRect();
-    addToChunks();
 }
 
 /*!
@@ -3800,10 +3829,6 @@ QCanvasSprite::QCanvasSprite(QCanvasPixmapArray* a, QCanvas* canvas) :
     frm(0),
     images(a)
 {
-    if ( images ) {
-	show();
-	addToChunks();
-    }
 }
 
 

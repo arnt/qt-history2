@@ -3,7 +3,7 @@
 **
 ** C++ file
 **
-** Copyright (C) 1999 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1999 by Trolltech AS.  All rights reserved.
 **
 *****************************************************************************/
 

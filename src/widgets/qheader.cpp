@@ -5,25 +5,35 @@
 **
 ** Created : 961105
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the widgets
-** module and therefore may only be used if the widgets module is specified
-** as Licensed on the Licensee's License Certificate.
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qheader.h"
 #ifndef QT_NO_HEADER
@@ -66,6 +76,7 @@ struct QHeaderData
 	}
 	clicks_default = TRUE;
 	resize_default = TRUE;
+	was_reordered = FALSE;
 	clicks.fill( clicks_default );
 	resize.fill( resize_default );
 	move = TRUE;
@@ -88,11 +99,12 @@ struct QHeaderData
     uint move : 1;
     uint clicks_default : 1; // default value for new clicks bits
     uint resize_default : 1; // default value for new resize bits
+    uint was_reordered : 1;
     bool sortDirection;
     int sortColumn;
     int count;
     bool positionsDirty;
-
+    
     void calculatePositions(){
 	// positions is sorted by index, not by section
 	positionsDirty = FALSE;
@@ -802,6 +814,7 @@ void QHeader::removeLabel( int section )
 	d->labels.insert( i, d->labels.take( i + 1 ) );
 	d->iconsets.insert( i, d->iconsets.take( i + 1 ) );
     }
+
     d->sizes.resize( n );
     d->positions.resize( n );
     d->heights.resize( n );
@@ -811,18 +824,25 @@ void QHeader::removeLabel( int section )
     for ( i = section; i < n; ++i )
 	d->s2i[i] = d->s2i[i+1];
     d->s2i.resize( n  );
-    for ( i = 0; i < n; ++i )
-	if ( d->s2i[i] > index )
-	    --d->s2i[i];
 
+    if ( d->was_reordered ) {
+	for ( i = 0; i < n; ++i )
+	    if ( d->s2i[i] > index )
+		--d->s2i[i];
+    }
+    
     for ( i = index; i < n; ++i )
 	d->i2s[i] = d->i2s[i+1];
     d->i2s.resize( n );
-    for ( i = 0; i < n ; ++i )
-	if ( d->i2s[i] > section )
-	    --d->i2s[i];
 
-    d->calculatePositions();
+    if ( d->was_reordered ) {
+	for ( i = 0; i < n ; ++i )
+	    if ( d->i2s[i] > section )
+		--d->i2s[i];
+    }
+    
+    if ( isUpdatesEnabled() )
+	d->calculatePositions();
     update();
 }
 
@@ -1370,6 +1390,7 @@ int QHeader::mapToIndex( int section ) const
 
 void QHeader::moveSection( int section, int toIndex )
 {
+    d->was_reordered = TRUE;
     int fromIndex = mapToIndex( section );
     if ( fromIndex == toIndex ||
 	 fromIndex < 0 || fromIndex > count() ||
@@ -1449,6 +1470,15 @@ bool QHeader::isResizeEnabled( int section ) const
 bool QHeader::isMovingEnabled() const
 {
     return d->move;
+}
+
+/*! reimp */
+
+void QHeader::setUpdatesEnabled( bool enable )
+{
+    if ( enable )
+	d->calculatePositions();
+    QWidget::setUpdatesEnabled( enable );
 }
 
 //#### what about lastSectionCoversAll?

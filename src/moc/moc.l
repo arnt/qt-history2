@@ -64,7 +64,7 @@ extern void addExpressionString( const char * );
 extern void moc_warn( const char *msg );
 %}
 
-%start OUTSIDE QT_DEF IN_CLASS IN_NAMESPACE IN_ENUM IN_EXPR IN_FCT IN_TEMPL_ARGS GIMME_SEMICOLON SKIP IN_PROPERTY IN_PROPDEF
+%start OUTSIDE QT_DEF IN_CLASS IN_NAMESPACE IN_ENUM IN_EXPR IN_FCT IN_TEMPL_ARGS GIMME_SEMICOLON SKIP IN_PROPERTY IN_PROPDEF IN_CLASSINFO
 
 %%
 <OUTSIDE>"class"		{ X;
@@ -225,6 +225,20 @@ extern void moc_warn( const char *msg );
 			  return IDENTIFIER;
 			}
 
+<IN_CLASSINFO>"(" { X; return '('; }
+<IN_CLASSINFO>")" { X; return ')'; }
+<IN_CLASSINFO>"," { X; return ','; }
+
+<IN_CLASSINFO>\"[^"]*      { if (yytext[yyleng - 1] == '\\') {
+			      yymore();
+			  }
+			  else {
+			      X;
+			      yylval.string = qstrdup(yytext+1);
+			      input();		/* discard the '"' */
+			      return STRING;
+			 }
+			}
 
 <OUTSIDE>[_a-zA-Z][_a-zA-Z0-9]*  ;
 <IN_CLASS>[_a-zA-Z][_a-zA-Z0-9]* ;

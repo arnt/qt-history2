@@ -31,6 +31,7 @@ public:
 
 #if defined(QTEXTEDIT_OPEN_API)
     QTextDocument *document() const;
+    QTextCursor *textCursor() const;
 #endif
 
     QString text() const;
@@ -86,8 +87,8 @@ public slots:
     virtual void setParagType( QStyleSheetItem::DisplayMode, int listStyle );
 
     virtual void setTextFormat( Qt::TextFormat f );
-    virtual void setText( const QString &txt ) { setText( txt, FALSE ); }
-    virtual void setText( const QString &txt, bool tabify );
+    virtual void setText( const QString &txt, const QString &context = QString::null ) { setText( txt, context, FALSE ); }
+    virtual void setText( const QString &txt, const QString &context, bool tabify );
 
     virtual void load( const QString &fn ) { load( fn, FALSE ); }
     virtual void load( const QString &fn, bool tabify );
@@ -110,6 +111,7 @@ signals:
     void currentColorChanged( const QColor &c );
     void currentAlignmentChanged( int );
     void textChanged();
+    void highlighted( const QString& );
 
 protected:
     void setFormat( QTextFormat *f, int flags );
@@ -170,9 +172,9 @@ private:
 private:
 #if !defined(QTEXTEDIT_OPEN_API)
     QTextDocument *document() const;
+    QTextCursor *textCursor() const;
 #endif
 
-    QPixmap *bufferPixmap( const QSize &s );
     void init();
     void ensureCursorVisible();
     void drawCursor( bool visible );
@@ -200,7 +202,6 @@ private:
     UndoRedoInfo undoRedoInfo;
     QTextFormat *currentFormat;
     QPainter painter;
-    QPixmap *doubleBuffer;
     int currentAlignment;
     bool inDoubleClick;
     QPoint oldMousePos, mousePos;
@@ -210,12 +211,18 @@ private:
     QPoint dragStartPos;
     int mLines;
     bool firstResize;
-    
+    QString onLink;
+
 };
 
 inline QTextDocument *QTextEdit::document() const
 {
     return doc;
+}
+
+inline QTextCursor *QTextEdit::textCursor() const
+{
+    return cursor;
 }
 
 #endif

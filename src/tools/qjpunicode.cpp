@@ -13,17 +13,27 @@
 ** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the tools
-** module and therefore may only be used if the tools module is specified
-** as Licensed on the Licensee's License Certificate.
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 /*! \class QJpUnicodeConv qjpunicode.h
 
@@ -70,12 +80,13 @@
   JIS 0x2140 is mapped to UFF3C. Either ASCII or JISX0201 can be used
   for 0x00-0x7f.
 
-  </ul> In addition, QJpUnicodeConv supports some  extensions:  "nec-vdc", "ibm-vdc" or "udc".
+  </ul> In addition, QJpUnicodeConv supports some extensions:
+  "nec-vdc", "ibm-vdc" or "udc".
 
   For example, if you want to use Unicode style conversion, but with
   NEC's extension, set \c UNICODEMAP_JP to
-  <code>unicode-0.9, nec-vdc</code>. (You will probably need to quote
-  that in the shell command.)
+  <nobr><code>unicode-0.9, nec-vdc</code>.</nobr> (You will probably
+  need to quote that in the shell command.)
 
   Most of the code here was originally written by Serika Kurusugawa
   a.k.a. Junji Takagi, and is includes in Qt with the author's

@@ -18,7 +18,7 @@
 
   This codec uses the mapping table found at
   <a href="http://www.geocities.com/Athens/5180/tsciiset.html">
-  http://www.geocities.com/Athens/5180/tsciiset.html.</a> Unfortantly Tamil
+  http://www.geocities.com/Athens/5180/tsciiset.html.</a> Unfortunately Tamil
   uses composed Unicode. This might cause some trouble if you are using
   Unicode fonts instead of TSCII fonts.
 

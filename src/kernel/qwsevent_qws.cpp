@@ -43,9 +43,14 @@ QWSEvent *QWSEvent::factory( int type )
     case QWSEvent::SelectionNotify:
 	event = new QWSSelectionNotifyEvent;
 	break;
+#ifndef QT_NO_PCOP
+    case QWSEvent::PCOPMessage:
+	event = new QWSPCOPMessageEvent;
+	break;
+#endif
     default:
 	qDebug( "QWSDisplayData::readMore() : Protocol error - got %08x!", type );
-    }    
+    }
     return event;
 }
 

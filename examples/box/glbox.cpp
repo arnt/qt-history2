@@ -1,7 +1,15 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/box/glbox.cpp#6 $
+** $Id: //depot/qt/main/examples/box/glbox.cpp#4 $
 **
-** Implementation of GLBox
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+**
+** This file is part of an example program for Qt.  This example
+** program may be used, distributed and modified without limitation.
+**
+*****************************************************************************/
+
+/****************************************************************************
+**
 ** This is a simple QGLWidget displaying an openGL wireframe box
 **
 ** The OpenGL code is mostly borrowed from Brian Pauls "spin" example

@@ -12,12 +12,12 @@
 
     Project('TMAKE_LIBS += $$LIBS'); # Misc. project-specific extras
 
-    if ( Config("qt") || Config("opengl") ) {
+    if ( Config("qgl") ) {
+	#! qgl apps need X11 includes and libraries
 	Project('CONFIG *= x11lib');
-	if ( Config("opengl") ) {
-	    Project('CONFIG *= x11inc');
-	}
+	Project('CONFIG *= x11inc');
     }
+
     if ( Config("x11") ) {
 	Project('CONFIG *= x11lib');
 	Project('CONFIG *= x11inc');
@@ -64,7 +64,7 @@
     Project('TMAKE_FILETAGS = HEADERS SOURCES TARGET DESTDIR $$FILETAGS');
     Project('DESTDIR = ./') unless Project('DESTDIR');
 
-    if ( Config("embedded") ) {
+    if ( Config("embedded") && Project("PRECOMPH") ) {
         Project('SOURCES += allmoc.cpp');
         $project{'HEADERS_ORIG'} = Project('HEADERS');
         $project{'HEADERS'} = "";
@@ -124,7 +124,14 @@ CC	=	$(SYSCONF_CC) $(QT_C_MT)
 CFLAGS	=	#$ Expand("TMAKE_CFLAGS"); ExpandGlue("DEFINES","-D"," -D",""); (Project("TARGET") eq "qt") && ($text = $text . ' $(QT_CFLAGS_OPT)');
 INCPATH =	#$ ExpandGlue("INCPATH","-I"," -I","");
 LFLAGS	=	#$ Expand("TMAKE_LFLAGS"); $text .= ' $(QT_LFLAGS_MT)'
-LIBS	=	$(SUBLIBS) #$ (Project("TARGET") eq "qt") && ($text = $text . ' $(QT_LIBS_OPT)'); Expand("TMAKE_LIBS"); $text .= ' $(QT_LIBS_MT) $(QT_LIBS_OPT)';
+LIBS	=	$(SUBLIBS) #${
+    if (Project("TARGET") eq "qt") {
+	$text .= ' $(SYSCONF_LIBS_QTLIB)';
+    } else {
+	$text .= ' $(SYSCONF_LIBS_QTAPP)';
+    }
+    Expand("TMAKE_LIBS");
+#$}
 MOC	=	$(SYSCONF_MOC)
 UIC	=	$(SYSCONF_UIC)
 
@@ -259,6 +266,13 @@ listpromodules:
 listallmodules:
 	@echo #$ ExpandList("MODULES");
 
+listaddonpromodules:
+	@echo #$ ExpandList("MODULES_PRO");
+
+listaddonentmodules:
+	@echo #$ ExpandList("MODULES_PRO"); ExpandList("MODULES_ENT");
+
+
 REQUIRES=#$ $text .= Project("REQUIRES");
 
 ####### Sub-libraries
@@ -281,7 +295,7 @@ REQUIRES=#$ $text .= Project("REQUIRES");
 ###### Combined headers
 
 #${
-	if ( Config("embedded") ) {
+	if ( Config("embedded") && Project("PRECOMPH") ) {
 	    $t = "allmoc.cpp: ".Project("PRECOMPH")." ".$original_HEADERS;
 	    ExpandList("HEADERS_ORIG");
 	    $t.= $text;
@@ -299,7 +313,7 @@ REQUIRES=#$ $text .= Project("REQUIRES");
 ####### Compile
 
 #$ BuildObj(Project("OBJECTS"),Project("SOURCES"));
-#$ BuildUicSrc(Project("INTERFACES")); 
+#$ BuildUicSrc(Project("INTERFACES"));
 #$ BuildObj(Project("UICOBJECTS"),Project("UICIMPLS"));
 #$ BuildMocObj(Project("OBJMOC"),Project("SRCMOC"));
 #$ BuildMocSrc(Project("HEADERS"));

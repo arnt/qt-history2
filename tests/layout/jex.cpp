@@ -3,7 +3,7 @@
 **
 ** Implementing your own layout: flow example
 **
-** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1996 by Trolltech AS.  All rights reserved.
 **
 *****************************************************************************/
 #include <qapplication.h>

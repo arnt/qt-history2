@@ -1,7 +1,15 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/sharedbox/glbox.cpp#4 $
+** $Id: //depot/qt/main/examples/sharedbox/glbox.cpp#4 $
 **
-** Implementation of GLBox
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+**
+** This file is part of an example program for Qt.  This example
+** program may be used, distributed and modified without limitation.
+**
+*****************************************************************************/
+
+/****************************************************************************
+**
 ** This is a simple QGLWidget displaying a box
 **
 ** The OpenGL code is mostly borrowed from Brian Pauls "spin" example

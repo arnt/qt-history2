@@ -46,6 +46,7 @@ protected:
     void drawShape( QPainter & );
 private:
     QImage image;
+    QPixmap pixmap;
 };
 
 
@@ -53,12 +54,22 @@ ImageItem::ImageItem( QImage img, QCanvas *canvas )
     : QCanvasRectangle( canvas ), image(img)
 {
     setSize( image.width(), image.height() );
+    
+#ifndef _WS_QWS_
+    pixmap.convertFromImage(image, OrderedAlphaDither);
+#endif
 }
 
 
 void ImageItem::drawShape( QPainter &p )
 {
+// On Qt/Embedded, we can paint a QImage as fast as a QPixmap,
+// but on other platforms, we need to use a QPixmap.
+#ifdef _WS_QWS_
     p.drawImage( int(x()), int(y()), image, 0, 0, -1, -1, OrderedAlphaDither );
+#else
+    p.drawPixmap( int(x()), int(y()), pixmap );
+#endif
 }
 
 bool ImageItem::hit( const QPoint &p ) const 
@@ -220,11 +231,11 @@ BouncyLogo::BouncyLogo(QCanvas* canvas) :
 }
 
 
-const int spaceship_rtti = 1234;
+const int logo_rtti = 1234;
 
 int BouncyLogo::rtti() const
 {
-    return spaceship_rtti;
+    return logo_rtti;
 }
 
 void BouncyLogo::initPos()
@@ -240,7 +251,7 @@ void BouncyLogo::initPos()
 void BouncyLogo::initSpeed()
 {
     const double speed = 4.0;
-    double d = rand();
+    double d = (double)(rand()%1024) / 1024.0;
     setVelocity( d*speed*2-speed, (1-d)*speed*2-speed );
 }
 
@@ -270,7 +281,7 @@ void BouncyLogo::advance(int stage)
 	    QCanvasItemList l=collisions(FALSE);
 	    for (QCanvasItemList::Iterator it=l.begin(); it!=l.end(); ++it) {
 		QCanvasItem *hit = *it;
-		if ( hit->rtti()==spaceship_rtti && hit->collidesWith(this) ) {
+		if ( hit->rtti()==logo_rtti && hit->collidesWith(this) ) {
 		    switch ( bounce ) {
 		      case 0:
 			vx = -vx;
@@ -411,6 +422,7 @@ void Main::addSprite()
 {
     QCanvasItem* i = new BouncyLogo(&canvas);
     i->setZ(rand()%256);
+    i->show();
 }
 
 QString butterfly_fn;
@@ -436,6 +448,7 @@ void Main::addButterfly()
     i->move(rand()%(canvas.width()-img->width()),
 	    rand()%(canvas.height()-img->height()));
     i->setZ(rand()%256+250);
+    i->show();
 }
 
 void Main::addLogo()
@@ -457,6 +470,7 @@ void Main::addLogo()
     i->move(rand()%(canvas.width()-img->width()),
 	    rand()%(canvas.height()-img->width()));
     i->setZ(rand()%256+256);
+    i->show();
 }
 
 
@@ -467,6 +481,7 @@ void Main::addCircle()
     i->setBrush( QColor(rand()%32*8,rand()%32*8,rand()%32*8) );
     i->move(rand()%canvas.width(),rand()%canvas.height());
     i->setZ(rand()%256);
+    i->show();
 }
 
 void Main::addHexagon()
@@ -484,6 +499,7 @@ void Main::addHexagon()
     i->setBrush( QColor(rand()%32*8,rand()%32*8,rand()%32*8) );
     i->move(rand()%canvas.width(),rand()%canvas.height());
     i->setZ(rand()%256);
+    i->show();
 }
 
 void Main::addPolygon()
@@ -501,6 +517,7 @@ void Main::addPolygon()
     i->setBrush( QColor(rand()%32*8,rand()%32*8,rand()%32*8) );
     i->move(rand()%canvas.width(),rand()%canvas.height());
     i->setZ(rand()%256);
+    i->show();
 }
 
 void Main::addLine()
@@ -510,6 +527,7 @@ void Main::addLine()
                   rand()%canvas.width(), rand()%canvas.height() );
     i->setPen( QPen(QColor(rand()%32*8,rand()%32*8,rand()%32*8), 6) );
     i->setZ(rand()%256);
+    i->show();
 }
 
 void Main::addMesh()
@@ -549,16 +567,18 @@ void Main::addMesh()
 
 	    if ( j > 0 ) {
 		if ( i < cols-1 )
-		    new EdgeItem( lastRow[i], el, &canvas );
+		    (new EdgeItem( lastRow[i], el, &canvas ))->show();
 		if ( j%2 )
-		    new EdgeItem( lastRow[i+1], el, &canvas );
+		    (new EdgeItem( lastRow[i+1], el, &canvas ))->show();
 		else if ( i > 0 )
-		   new EdgeItem( lastRow[i-1], el, &canvas );
+		    (new EdgeItem( lastRow[i-1], el, &canvas ))->show();
 	    }
-	    if ( prev )
-		new EdgeItem( prev, el, &canvas );
+	    if ( prev ) {
+		(new EdgeItem( prev, el, &canvas ))->show();
+	    }
 	    if ( i > 0 ) lastRow[i-1] = prev;
 	    prev = el;
+	    el->show();
 	}
 	lastRow[n-1]=prev;
 #ifndef QT_NO_PROGRESSDIALOG
@@ -570,7 +590,7 @@ void Main::addMesh()
 #ifndef QT_NO_PROGRESSDIALOG
     progress.setProgress( rows );
 #endif
-    qDebug( "%d nodes, %d edges", nodecount, EdgeItem::count() );
+    // qDebug( "%d nodes, %d edges", nodecount, EdgeItem::count() );
 }
 
 void Main::addRectangle()
@@ -581,5 +601,6 @@ void Main::addRectangle()
     i->setBrush( QColor(z,z,z) );
     i->setPen( QPen(QColor(rand()%32*8,rand()%32*8,rand()%32*8), 6) );
     i->setZ(z);
+    i->show();
 }
 

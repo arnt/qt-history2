@@ -345,7 +345,7 @@ void Main::showInfo(QListViewItem* i)
 }
 
 
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
     QApplication app(argc,argv);
     Main m;

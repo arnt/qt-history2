@@ -11,9 +11,9 @@
 #include "qpainter.h"
 #include "qregion.h"
 #include "qevent.h"
-#include "qtimer.h"
 #include "qgfx_qws.h"
 #include "qwsdisplay_qws.h"
+#include "qwsregionmanager_qws.h"
 
 #define CORNER_GRAB	16
 #define BORDER_WIDTH	4
@@ -305,20 +305,15 @@ QWidget *QWSManager::active = 0;
 QPoint QWSManager::mousePos;
 
 QWSManager::QWSManager(QWidget *w)
-    : QObject(), activeRegion(QWSDecoration::None), managed(w), popup(0),
-      timer(0)
+    : QObject(), activeRegion(QWSDecoration::None), managed(w), popup(0)
 {
     dx = 0;
     dy = 0;
-    skipCount = 0;
 
     menuBtn = new QWSButton(this, QWSDecoration::Menu);
     closeBtn = new QWSButton(this, QWSDecoration::Close);
     minimizeBtn = new QWSButton(this, QWSDecoration::Minimize);
     maximizeBtn = new QWSButton(this, QWSDecoration::Maximize, TRUE);
-
-    timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), SLOT(handleMove()));
 }
 
 QWSManager::~QWSManager()
@@ -481,12 +476,7 @@ void QWSManager::mouseMoveEvent(QMouseEvent *e)
     dx = e->globalX() - mousePos.x();
     dy = e->globalY() - mousePos.y();
 
-    if ( ( activeRegion == QWSDecoration::Title && skipCount > 5 ) || skipCount > 10 )
-	handleMove();
-    else {
-	timer->start(10);
-	skipCount++;
-    }
+    handleMove();
 
     // button regions
     QWSDecoration::Region r = pointInRegion(e->globalPos());
@@ -498,9 +488,6 @@ void QWSManager::mouseMoveEvent(QMouseEvent *e)
 
 void QWSManager::handleMove()
 {
-    skipCount = 0;
-    timer->stop();
-
     if (!dx && !dy)
 	return;
 
@@ -561,6 +548,7 @@ void QWSManager::handleMove()
     }
 
     if (geom != managed->geometry()) {
+	QApplication::sendPostedEvents();
 	managed->setGeometry(geom);
     }
 
@@ -572,6 +560,22 @@ void QWSManager::paintEvent(QPaintEvent *)
 {
     QWSDecoration &dec = QApplication::qwsDecoration();
     QPainter painter(managed);
+
+    // Adjust our widget region to contain the window
+    // manager decoration instead of the widget itself.
+    QRegion r = managed->topData()->decor_allocated_region;
+    int rgnIdx = managed->alloc_region_index;
+    if ( rgnIdx >= 0 ) {
+	QWSDisplay::grab();
+	int *rgnRev = qt_fbdpy->regionManager()->revision( rgnIdx );
+	if ( managed->alloc_region_revision != *rgnRev ) {
+	    r &= qt_fbdpy->regionManager()->region( rgnIdx );
+	}
+	painter.internalGfx()->setGlobalRegionIndex( rgnIdx );
+	QWSDisplay::ungrab();
+    }
+    painter.internalGfx()->setWidgetRegion( r );
+
     painter.setClipRegion(dec.region(managed, managed->rect()));
     dec.paint(&painter, managed);
     painter.setClipRegion(dec.region(managed, managed->rect()));
@@ -917,26 +921,36 @@ void QWSDefaultDecoration::paint(QPainter *painter, const QWidget *widget)
 #ifndef QT_NO_COMPLEXWIDGETS // implies style    
     QStyle &style = QApplication::style();
 #endif
-    
-    QRect r(widget->rect().left() - BORDER_WIDTH,
+
+    int titleWidth = widget->width()-4*TITLE_HEIGHT-4;
+
+    // Border rect
+    QRect br(widget->rect().left() - BORDER_WIDTH,
 	    widget->rect().top() - BORDER_WIDTH - TITLE_HEIGHT,
 	    widget->rect().width() + 2*BORDER_WIDTH,
 	    widget->rect().height() + 2*BORDER_WIDTH + TITLE_HEIGHT);
+
+    // title bar rect
+    QRect tr( TITLE_HEIGHT, -TITLE_HEIGHT,  titleWidth, TITLE_HEIGHT - 1);
+
+    QRegion oldClip = painter->clipRegion();
+    painter->setClipRegion( oldClip - QRegion( tr ) );	// reduce flicker
 
 #ifndef QT_NO_PALETTE
     const QColorGroup &cg = widget->palette().active();
 
 #if !defined(QT_NO_COMPLEXWIDGETS)
-    style.drawPanel(painter, r.x(), r.y(), r.width(),
-		    r.height(), cg, FALSE, 2,
+    style.drawPanel(painter, br.x(), br.y(), br.width(),
+		    br.height(), cg, FALSE, 2,
 		    &cg.brush(QColorGroup::Background));
 #elif !defined(QT_NO_DRAWUTIL)
-    qDrawWinPanel(painter, r.x(), r.y(), r.width(),
-		  r.height(), cg, FALSE,
+    qDrawWinPanel(painter, br.x(), br.y(), br.width(),
+		  br.height(), cg, FALSE,
 		  &cg.brush(QColorGroup::Background));
 #endif
+
+    painter->setClipRegion( oldClip );
     
-    int titleWidth = widget->width()-4*TITLE_HEIGHT-4;
     if (titleWidth > 0) {
 	QBrush titleBrush;
 	QPen   titlePen;
@@ -950,12 +964,10 @@ void QWSDefaultDecoration::paint(QPainter *painter, const QWidget *widget)
 	}
 
 #if !defined(QT_NO_COMPLEXWIDGETS)
-	style.drawPanel(painter, TITLE_HEIGHT, -TITLE_HEIGHT,
-			titleWidth, TITLE_HEIGHT - 1,
+	style.drawPanel(painter, tr.x(), tr.y(), tr.width(), tr.height(),
 			cg, TRUE, 1, &titleBrush);
 #elif !defined(QT_NO_DRAWUTIL)
-	qDrawWinPanel(painter, TITLE_HEIGHT, -TITLE_HEIGHT,
-			titleWidth, TITLE_HEIGHT - 1,
+	qDrawWinPanel(painter, tr.x(), tr.y(), tr.width(), tr.height(),
 			cg, TRUE, &titleBrush);
 #endif		
 	painter->setPen(titlePen);

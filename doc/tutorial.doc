@@ -3,27 +3,48 @@
 **
 ** Tutorial
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 /*! \page tutorial.html
 
-\title Tutorial: The 14 Steps
+
+<title>
+Qt Tutorial - The 14 Steps
+</title></head><body bgcolor="#ffffff">
+
+\postheader
+
+<h1 align=center>Tutorial: The 14 Steps</h1><br clear="all">
+
+
 
 This tutorial gives an introduction to GUI programming using the Qt
 toolkit \version .  It doesn't cover everything: The emphasis is on
@@ -68,7 +89,16 @@ on-line help, printing, a couple of dialogs) in detail.
 
 /*! \page t1.html
 
-\title Chapter 1: Hello, World!
+
+<title>
+Qt Tutorial - Chapter 1: Hello, World!
+</title></head><body bgcolor="#ffffff">
+
+\postheader
+
+<h1 align=center>Chapter 1: Hello, World!</h1><br clear="all">
+
+
 
 <center><img src="t1.png" alt="Screenshot of tutorial one"></center>
 
@@ -189,7 +219,16 @@ You may now go on to \link t2.html chapter two.  \endlink
 
 /*! \page t2.html
 
-\title Chapter 2: Calling it Quits
+
+<title>
+Qt Tutorial - Chapter 2: Calling it Quits
+</title></head><body bgcolor="#ffffff">
+
+\postheader
+
+<h1 align=center>Chapter 2: Calling it Quits</h1><br clear="all">
+
+
 
 <center><img src="t2.png" alt="Screenshot of tutorial two"></center>
 
@@ -276,7 +315,16 @@ You may now go on to \link t3.html chapter three.  \endlink
 
 /*! \page t3.html
 
-\title Chapter 3: Family Values
+
+<title>
+Qt Tutorial - Chapter 3: Family Values
+</title></head><body bgcolor="#ffffff">
+
+\postheader
+
+<h1 align=center>Chapter 3: Family Values</h1><br clear="all">
+
+
 
 <center><img src="t3.png" alt="Screenshot of tutorial three"></center>
 
@@ -350,7 +398,16 @@ You may now go on to \link t4.html chapter four.  \endlink
 
 /*! \page t4.html
 
-\title Chapter 4: Let There Be Widgets
+
+<title>
+Qt Tutorial - Chapter 4: Let There Be Widgets
+</title></head><body bgcolor="#ffffff">
+
+\postheader
+
+<h1 align=center>Chapter 4: Let There Be Widgets</h1><br clear="all">
+
+
 
 <center><img src="t4.png" alt="Screenshot of tutorial four"></center>
 
@@ -459,7 +516,16 @@ You may now go on to \link t5.html chapter five.  \endlink
 
 /*! \page t5.html
 
-\title Chapter 5: Building Blocks
+
+<title>
+Qt Tutorial - Chapter 5: Building Blocks
+</title></head><body bgcolor="#ffffff">
+
+\postheader
+
+<h1 align=center>Chapter 5: Building Blocks</h1><br clear="all">
+
+
 
 <center><img src="t5.png" alt="Screenshot of tutorial five"></center>
 
@@ -552,7 +618,16 @@ You may now go on to \link t6.html chapter six.  \endlink
 
 /*! \page t6.html
 
-\title Chapter 6: Building Blocks Galore!
+
+<title>
+Qt Tutorial - Chapter 6: Building Blocks Galore!
+</title></head><body bgcolor="#ffffff">
+
+\postheader
+
+<h1 align=center>Chapter 6: Building Blocks Galore!</h1><br clear="all">
+
+
 
 <center><img src="t6.png" alt="Screenshot of tutorial six"></center>
 
@@ -650,7 +725,7 @@ Qt Tutorial - t7/lcdrange.h
 */
 
 /*! \page t7-lcdrange-cpp.html
-<title>Qt tutorial - t7/lcdrange.cpp</title>
+<title>Qt Tutorial - t7/lcdrange.cpp</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -660,7 +735,7 @@ Qt Tutorial - t7/lcdrange.h
 */
 
 /*! \page t7-main-cpp.html
-<title>Qt tutorial - t7/main.cpp</title>
+<title>Qt Tutorial - t7/main.cpp</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -670,7 +745,7 @@ Qt Tutorial - t7/lcdrange.h
 */
 
 /*! \page t7-makefile.html
-<title>Qt tutorial - t7/makefile</title>
+<title>Qt Tutorial - t7/makefile</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -683,7 +758,16 @@ Qt Tutorial - t7/lcdrange.h
 
 /*! \page t7.html
 
-\title Chapter 7: One Thing Leads to Another
+
+<title>
+Qt Tutorial - Chapter 7: One Thing Leads to Another
+</title></head><body bgcolor="#ffffff">
+
+\postheader
+
+<h1 align=center>Chapter 7: One Thing Leads to Another</h1><br clear="all">
+
+
 
 <center><img src="t7.png" alt="Screenshot of tutorial seven"></center>
 
@@ -864,7 +948,7 @@ You may now go on to \link t8.html chapter eight.  \endlink
 
 
 /*! \page t8-lcdrange-h.html
-<title>Qt tutorial - t8/lcdrange.h</title>
+<title>Qt Tutorial - t8/lcdrange.h</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -874,7 +958,7 @@ You may now go on to \link t8.html chapter eight.  \endlink
 */
 
 /*! \page t8-lcdrange-cpp.html
-<title>Qt tutorial - t8/lcdrange.cpp</title>
+<title>Qt Tutorial - t8/lcdrange.cpp</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -884,7 +968,7 @@ You may now go on to \link t8.html chapter eight.  \endlink
 */
 
 /*! \page t8-cannon-h.html
-<title>Qt tutorial - t8/cannon.h</title>
+<title>Qt Tutorial - t8/cannon.h</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -894,7 +978,7 @@ You may now go on to \link t8.html chapter eight.  \endlink
 */
 
 /*! \page t8-cannon-cpp.html
-<title>Qt tutorial - t8/cannon.cpp</title>
+<title>Qt Tutorial - t8/cannon.cpp</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -904,7 +988,7 @@ You may now go on to \link t8.html chapter eight.  \endlink
 */
 
 /*! \page t8-main-cpp.html
-<title>Qt tutorial - t8/main.cpp</title>
+<title>Qt Tutorial - t8/main.cpp</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -914,7 +998,7 @@ You may now go on to \link t8.html chapter eight.  \endlink
 */
 
 /*! \page t8-makefile.html
-<title>Qt tutorial - t8/makefile</title>
+<title>Qt Tutorial - t8/makefile</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -927,7 +1011,16 @@ You may now go on to \link t8.html chapter eight.  \endlink
 
 /*! \page t8.html
 
-\title Chapter 8: Preparing for Battle
+
+<title>
+Qt Tutorial - Chapter 8: Preparing for Battle
+</title></head><body bgcolor="#ffffff">
+
+\postheader
+
+<h1 align=center>Chapter 8: Preparing for Battle</h1><br clear="all">
+
+
 
 <center><img src="t8.png" alt="Screenshot of tutorial eight"></center>
 
@@ -1213,7 +1306,7 @@ You may now go on to \link t9.html chapter nine.  \endlink
 
 
 /*! \page t9-lcdrange-h.html
-<title>Qt tutorial - t9/lcdrange.h</title>
+<title>Qt Tutorial - t9/lcdrange.h</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -1223,7 +1316,7 @@ You may now go on to \link t9.html chapter nine.  \endlink
 */
 
 /*! \page t9-lcdrange-cpp.html
-<title>Qt tutorial - t9/lcdrange.cpp</title>
+<title>Qt Tutorial - t9/lcdrange.cpp</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -1233,7 +1326,7 @@ You may now go on to \link t9.html chapter nine.  \endlink
 */
 
 /*! \page t9-cannon-h.html
-<title>Qt tutorial - t9/cannon.h</title>
+<title>Qt Tutorial - t9/cannon.h</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -1243,7 +1336,7 @@ You may now go on to \link t9.html chapter nine.  \endlink
 */
 
 /*! \page t9-cannon-cpp.html
-<title>Qt tutorial - t9/cannon.cpp</title>
+<title>Qt Tutorial - t9/cannon.cpp</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -1253,7 +1346,7 @@ You may now go on to \link t9.html chapter nine.  \endlink
 */
 
 /*! \page t9-main-cpp.html
-<title>Qt tutorial - t9/main.cpp</title>
+<title>Qt Tutorial - t9/main.cpp</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -1263,7 +1356,7 @@ You may now go on to \link t9.html chapter nine.  \endlink
 */
 
 /*! \page t9-makefile.html
-<title>Qt tutorial - t9/makefile</title>
+<title>Qt Tutorial - t9/makefile</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -1276,7 +1369,16 @@ You may now go on to \link t9.html chapter nine.  \endlink
 
 /*! \page t9.html
 
-\title Chapter 9: With Cannon You Can
+
+<title>
+Qt Tutorial - Chapter 9: With Cannon You Can
+</title></head><body bgcolor="#ffffff">
+
+\postheader
+
+<h1 align=center>Chapter 9: With Cannon You Can</h1><br clear="all">
+
+
 
 <center><img src="t9.png" alt="Screenshot of tutorial nine"></center>
 
@@ -1425,7 +1527,7 @@ You may now go on to \link t10.html chapter ten.  \endlink
 
 
 /*! \page t10-lcdrange-h.html
-<title>Qt tutorial - t10/lcdrange.h</title>
+<title>Qt Tutorial - t10/lcdrange.h</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -1435,7 +1537,7 @@ You may now go on to \link t10.html chapter ten.  \endlink
 */
 
 /*! \page t10-lcdrange-cpp.html
-<title>Qt tutorial - t10/lcdrange.cpp</title>
+<title>Qt Tutorial - t10/lcdrange.cpp</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -1445,7 +1547,7 @@ You may now go on to \link t10.html chapter ten.  \endlink
 */
 
 /*! \page t10-cannon-h.html
-<title>Qt tutorial - t10/cannon.h</title>
+<title>Qt Tutorial - t10/cannon.h</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -1455,7 +1557,7 @@ You may now go on to \link t10.html chapter ten.  \endlink
 */
 
 /*! \page t10-cannon-cpp.html
-<title>Qt tutorial - t10/cannon.cpp</title>
+<title>Qt Tutorial - t10/cannon.cpp</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -1465,7 +1567,7 @@ You may now go on to \link t10.html chapter ten.  \endlink
 */
 
 /*! \page t10-main-cpp.html
-<title>Qt tutorial - t10/main.cpp</title>
+<title>Qt Tutorial - t10/main.cpp</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -1475,7 +1577,7 @@ You may now go on to \link t10.html chapter ten.  \endlink
 */
 
 /*! \page t10-makefile.html
-<title>Qt tutorial - t10/makefile</title>
+<title>Qt Tutorial - t10/makefile</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -1488,7 +1590,16 @@ You may now go on to \link t10.html chapter ten.  \endlink
 
 /*! \page t10.html
 
-\title Chapter 10: Smooth as Silk
+
+<title>
+Qt Tutorial - Chapter 10: Smooth as Silk
+</title></head><body bgcolor="#ffffff">
+
+\postheader
+
+<h1 align=center>Chapter 10: Smooth as Silk</h1><br clear="all">
+
+
 
 <center><img src="t10.png" alt="Screenshot of tutorial ten"></center>
 
@@ -1687,7 +1798,7 @@ You may now go on to \link t11.html chapter eleven.  \endlink
 
 
 /*! \page t11-lcdrange-h.html
-<title>Qt tutorial - t11/lcdrange.h</title>
+<title>Qt Tutorial - t11/lcdrange.h</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -1697,7 +1808,7 @@ You may now go on to \link t11.html chapter eleven.  \endlink
 */
 
 /*! \page t11-lcdrange-cpp.html
-<title>Qt tutorial - t11/lcdrange.cpp</title>
+<title>Qt Tutorial - t11/lcdrange.cpp</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -1707,7 +1818,7 @@ You may now go on to \link t11.html chapter eleven.  \endlink
 */
 
 /*! \page t11-cannon-h.html
-<title>Qt tutorial - t11/cannon.h</title>
+<title>Qt Tutorial - t11/cannon.h</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -1717,7 +1828,7 @@ You may now go on to \link t11.html chapter eleven.  \endlink
 */
 
 /*! \page t11-cannon-cpp.html
-<title>Qt tutorial - t11/cannon.cpp</title>
+<title>Qt Tutorial - t11/cannon.cpp</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -1727,7 +1838,7 @@ You may now go on to \link t11.html chapter eleven.  \endlink
 */
 
 /*! \page t11-main-cpp.html
-<title>Qt tutorial - t11/main.cpp</title>
+<title>Qt Tutorial - t11/main.cpp</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -1737,7 +1848,7 @@ You may now go on to \link t11.html chapter eleven.  \endlink
 */
 
 /*! \page t11-makefile.html
-<title>Qt tutorial - t11/makefile</title>
+<title>Qt Tutorial - t11/makefile</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -1750,7 +1861,16 @@ You may now go on to \link t11.html chapter eleven.  \endlink
 
 /*! \page t11.html
 
-\title Chapter 11: Giving It a Shot
+
+<title>
+Qt Tutorial - Chapter 11: Giving It a Shot
+</title></head><body bgcolor="#ffffff">
+
+\postheader
+
+<h1 align=center>Chapter 11: Giving It a Shot</h1><br clear="all">
+
+
 
 <center><img src="t11.png" alt="Screenshot of tutorial eleven"></center>
 
@@ -1953,7 +2073,7 @@ You may now go on to \link t12.html chapter twelve.  \endlink
 
 
 /*! \page t12-lcdrange-h.html
-<title>Qt tutorial - t12/lcdrange.h</title>
+<title>Qt Tutorial - t12/lcdrange.h</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -1963,7 +2083,7 @@ You may now go on to \link t12.html chapter twelve.  \endlink
 */
 
 /*! \page t12-lcdrange-cpp.html
-<title>Qt tutorial - t12/lcdrange.cpp</title>
+<title>Qt Tutorial - t12/lcdrange.cpp</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -1973,7 +2093,7 @@ You may now go on to \link t12.html chapter twelve.  \endlink
 */
 
 /*! \page t12-cannon-h.html
-<title>Qt tutorial - t12/cannon.h</title>
+<title>Qt Tutorial - t12/cannon.h</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -1983,7 +2103,7 @@ You may now go on to \link t12.html chapter twelve.  \endlink
 */
 
 /*! \page t12-cannon-cpp.html
-<title>Qt tutorial - t12/cannon.cpp</title>
+<title>Qt Tutorial - t12/cannon.cpp</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -1993,7 +2113,7 @@ You may now go on to \link t12.html chapter twelve.  \endlink
 */
 
 /*! \page t12-main-cpp.html
-<title>Qt tutorial - t12/main.cpp</title>
+<title>Qt Tutorial - t12/main.cpp</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -2003,7 +2123,7 @@ You may now go on to \link t12.html chapter twelve.  \endlink
 */
 
 /*! \page t12-makefile.html
-<title>Qt tutorial - t12/makefile</title>
+<title>Qt Tutorial - t12/makefile</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -2016,7 +2136,16 @@ You may now go on to \link t12.html chapter twelve.  \endlink
 
 /*! \page t12.html
 
-\title Chapter 12: Hanging in the Air the Way Bricks Don't
+
+<title>
+Qt Tutorial - Chapter 12: Hanging in the Air the Way Bricks Don't
+</title></head><body bgcolor="#ffffff">
+
+\postheader
+
+<h1 align=center>Chapter 12: Hanging in the Air the Way Bricks Don't</h1><br clear="all">
+
+
 
 <center><img src="t12.png" alt="Screenshot of tutorial twelve"></center>
 
@@ -2335,7 +2464,7 @@ You may now go on to \link t13.html chapter thirteen.  \endlink
 
 
 /*! \page t13-lcdrange-h.html
-<title>Qt tutorial - t13/lcdrange.h</title>
+<title>Qt Tutorial - t13/lcdrange.h</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -2345,7 +2474,7 @@ You may now go on to \link t13.html chapter thirteen.  \endlink
 */
 
 /*! \page t13-lcdrange-cpp.html
-<title>Qt tutorial - t13/lcdrange.cpp</title>
+<title>Qt Tutorial - t13/lcdrange.cpp</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -2355,7 +2484,7 @@ You may now go on to \link t13.html chapter thirteen.  \endlink
 */
 
 /*! \page t13-cannon-h.html
-<title>Qt tutorial - t13/cannon.h</title>
+<title>Qt Tutorial - t13/cannon.h</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -2365,7 +2494,7 @@ You may now go on to \link t13.html chapter thirteen.  \endlink
 */
 
 /*! \page t13-cannon-cpp.html
-<title>Qt tutorial - t13/cannon.cpp</title>
+<title>Qt Tutorial - t13/cannon.cpp</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -2375,7 +2504,7 @@ You may now go on to \link t13.html chapter thirteen.  \endlink
 */
 
 /*! \page t13-gamebrd-h.html
-<title>Qt tutorial - t13/gamebrd.h</title>
+<title>Qt Tutorial - t13/gamebrd.h</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -2385,7 +2514,7 @@ You may now go on to \link t13.html chapter thirteen.  \endlink
 */
 
 /*! \page t13-gamebrd-cpp.html
-<title>Qt tutorial - t13/gamebrd.cpp</title>
+<title>Qt Tutorial - t13/gamebrd.cpp</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -2395,7 +2524,7 @@ You may now go on to \link t13.html chapter thirteen.  \endlink
 */
 
 /*! \page t13-main-cpp.html
-<title>Qt tutorial - t13/main.cpp</title>
+<title>Qt Tutorial - t13/main.cpp</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -2405,7 +2534,7 @@ You may now go on to \link t13.html chapter thirteen.  \endlink
 */
 
 /*! \page t13-makefile.html
-<title>Qt tutorial - t13/makefile</title>
+<title>Qt Tutorial - t13/makefile</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -2418,7 +2547,16 @@ You may now go on to \link t13.html chapter thirteen.  \endlink
 
 /*! \page t13.html
 
-\title Chapter 13: Game Over
+
+<title>
+Qt Tutorial - Chapter 13: Game Over
+</title></head><body bgcolor="#ffffff">
+
+\postheader
+
+<h1 align=center>Chapter 13: Game Over</h1><br clear="all">
+
+
 
 <center><img src="t13.png" alt="Screenshot of tutorial thirteen"></center>
 
@@ -2760,7 +2898,7 @@ You may now go on to \link t14.html chapter fourteen.  \endlink
 
 
 /*! \page t14-lcdrange-h.html
-<title>Qt tutorial - t14/lcdrange.h</title>
+<title>Qt Tutorial - t14/lcdrange.h</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -2770,7 +2908,7 @@ You may now go on to \link t14.html chapter fourteen.  \endlink
 */
 
 /*! \page t14-lcdrange-cpp.html
-<title>Qt tutorial - t14/lcdrange.cpp</title>
+<title>Qt Tutorial - t14/lcdrange.cpp</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -2780,7 +2918,7 @@ You may now go on to \link t14.html chapter fourteen.  \endlink
 */
 
 /*! \page t14-cannon-h.html
-<title>Qt tutorial - t14/cannon.h</title>
+<title>Qt Tutorial - t14/cannon.h</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -2790,7 +2928,7 @@ You may now go on to \link t14.html chapter fourteen.  \endlink
 */
 
 /*! \page t14-cannon-cpp.html
-<title>Qt tutorial - t14/cannon.cpp</title>
+<title>Qt Tutorial - t14/cannon.cpp</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -2800,7 +2938,7 @@ You may now go on to \link t14.html chapter fourteen.  \endlink
 */
 
 /*! \page t14-gamebrd-h.html
-<title>Qt tutorial - t14/gamebrd.h</title>
+<title>Qt Tutorial - t14/gamebrd.h</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -2810,7 +2948,7 @@ You may now go on to \link t14.html chapter fourteen.  \endlink
 */
 
 /*! \page t14-gamebrd-cpp.html
-<title>Qt tutorial - t14/gamebrd.cpp</title>
+<title>Qt Tutorial - t14/gamebrd.cpp</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -2820,7 +2958,7 @@ You may now go on to \link t14.html chapter fourteen.  \endlink
 */
 
 /*! \page t14-main-cpp.html
-<title>Qt tutorial - t14/main.cpp</title>
+<title>Qt Tutorial - t14/main.cpp</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -2830,7 +2968,7 @@ You may now go on to \link t14.html chapter fourteen.  \endlink
 */
 
 /*! \page t14-makefile.html
-<title>Qt tutorial - t14/makefile</title>
+<title>Qt Tutorial - t14/makefile</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
@@ -2843,7 +2981,16 @@ You may now go on to \link t14.html chapter fourteen.  \endlink
 
 /*! \page t14.html
 
-\title Chapter 14: Facing the Wall
+
+<title>
+Qt Tutorial - Chapter 14: Facing the Wall
+</title></head><body bgcolor="#ffffff">
+
+\postheader
+
+<h1 align=center>Chapter 14: Facing the Wall</h1><br clear="all">
+
+
 
 <center><img src="t14.png" alt="Screenshot of tutorial fourteen"></center>
 

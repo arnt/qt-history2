@@ -13,17 +13,27 @@
 ** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the tools
-** module and therefore may only be used if the tools module is specified
-** as Licensed on the Licensee's License Certificate.
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #ifndef QFEATURES_H
 #define QFEATURES_H
@@ -199,16 +209,6 @@
     */
 # define QT_NO_RICHTEXT
 #endif
-#if defined(QT_NO_MIME)
-    /*!
-	Drag and drop
-    */
-# define QT_NO_DRAGANDDROP
-    /*!
-	Cut and paste
-    */
-# define QT_NO_CLIPBOARD
-#endif
 
 //XML
 
@@ -252,6 +252,10 @@
     Voodoo3 acceleration
 */
 #define QT_NO_QWS_VOODOO3
+/*!
+    Matrox MGA acceleration (Millennium/Millennium II/Mystique/G200/G400)
+*/
+#define QT_NO_QWS_MATROX
 /*!
     Virtual frame buffer
 */
@@ -298,7 +302,7 @@
 /*!
     Saving of fonts
 */
-//#define QT_NO_QWS_SAVEFONTS
+#define QT_NO_QWS_SAVEFONTS
 
 /*!
     Favour code size over graphics speed
@@ -311,6 +315,27 @@
     Qt/Embedded window system properties.
 */
 //#define QT_NO_QWS_PROPERTIES
+
+#if defined(QT_NO_QWS_PROPERTIES) || defined(QT_NO_MIME) && !defined(_WS_QWS_)
+/*! Cut and paste */
+# define QT_NO_CLIPBOARD
+#endif
+
+#if defined(QT_NO_MIME) || defined(QT_NO_QWS_PROPERTIES)
+    /*!
+	Drag and drop
+    */
+# define QT_NO_DRAGANDDROP
+#endif
+
+#if defined(QT_NO_CLIPBOARD) || defined(QT_NO_MIME) || defined(_WS_QWS_)
+    /*!
+	Cut and paste of complex data types (non-text)
+	Not yet implemented for QWS. 
+    */
+# define QT_NO_MIMECLIPBOARD
+#endif
+
 
 /*!
     Drawing utility functions
@@ -527,6 +552,10 @@
 	QAction
     */
 # define QT_NO_ACTION
+    /*!
+	QTable
+    */
+# define QT_NO_TABLE
 #endif
 #if defined(QT_NO_LISTBOX) || defined(QT_NO_COMPLEXWIDGETS)
     /*!

@@ -50,6 +50,9 @@ environment variables to contain the paths of the compiler's header files
 and library files. For Microsoft Visual C++ users, the vcvars32.bat file
 takes care of this.
 
+Check that the distribution is not installed in a directory containing
+spaces as the installer does not support this (Qt itself does of course).
+
 Also, make sure you check the relevant Platform Notes for your OS and
 compiler at http://www.trolltech.com/platforms/
 

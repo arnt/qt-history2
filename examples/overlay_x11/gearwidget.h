@@ -3,9 +3,12 @@
 **
 ** Definition of a simple Qt OpenGL widget
 **
-** Copyright (C) 1999 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1999 by Trolltech AS.  All rights reserved.
 **
-****************************************************************************/
+** This file is part of an example program for Qt.  This example
+** program may be used, distributed and modified without limitation.
+**
+*****************************************************************************/
 
 #ifndef GEAR_H
 #define GEAR_H

@@ -5,30 +5,40 @@
 **
 ** Created : 970112
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the opengl module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the opengl
-** module and therefore may only be used if the opengl module is specified
-** as Licensed on the Licensee's License Certificate.
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition licenses may use this
+** file in accordance with the Qt Commercial License Agreement provided
+** with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qgl.h"
 #include <qpixmap.h>
 #include <qpaintdevicemetrics.h>
-
+#include <qimage.h>
 
 static QGLFormat* qgl_default_format = 0;
 static QGLFormat* qgl_default_overlay_format = 0;
@@ -1467,7 +1477,7 @@ void QGLWidget::initializeOverlayGL()
   context. That is, paintOverlayGL() is called whenever the widget's
   overlay needs to be painted.  Reimplement it in a subclass.
 
-  There is no need to call makeOverlayCurrentCurrent() because this
+  There is no need to call makeOverlayCurrent() because this
   has already been done when this function is called.
 */
 
@@ -1482,7 +1492,7 @@ void QGLWidget::paintOverlayGL()
   context. That is, resizeOverlayGL() is called whenever the widget
   has been resized. Reimplement it in a subclass.
 
-  There is no need to call makeOverlayCurrentCurrent() because
+  There is no need to call makeOverlayCurrent() because
   this has already been done when this function is called.
 */
 
@@ -1649,6 +1659,37 @@ void QGLWidget::qglClearColor( const QColor& c ) const
 }
 
 
+/*!  
+
+  Convenience function for converting a QImage into the format expected by
+  OpenGL's texture functions.
+
+*/
+
+
+QImage QGLWidget::convertToGLFormat( const QImage& img )
+{
+    QImage res = img.convertDepth( 32 );
+    res = res.mirror();
+
+    if ( QImage::systemByteOrder() == QImage::BigEndian ) {
+	// Qt has ARGB; OpenGL wants RGBA
+	for ( int i=0; i < res.height(); i++ ) {
+	    uint *p = (uint*)res.scanLine( i );
+	    uint *end = p + res.width();
+	    while ( p < end ) {
+		*p <<= 8;
+		p++;
+	    }
+	}
+    }
+    else {
+	// Qt has ARGB; OpenGL wants ABGR (i.e. RGBA backwards)
+	res = res.swapRGB();
+    }
+    return res;
+}
+
 
 /*****************************************************************************
   QGL classes overview documentation.
@@ -1656,12 +1697,7 @@ void QGLWidget::qglClearColor( const QColor& c ) const
 
 /*! \page opengl.html
 
-<title>Qt OpenGL 3D Graphics</title>
-</head><body bgcolor="#ffffff">
-
-<h1 align=center>Qt OpenGL 3D Graphics</h1>
-<hr>
-
+\title Qt OpenGL 3D Graphics
 
 <h2>Introduction</h2>
 
@@ -1670,12 +1706,50 @@ OpenGL is a standard API for rendering 3D graphics.
 OpenGL only deals with 3D rendering and provides little or no support
 for GUI programming issues. The user interface for an OpenGL
 application must be created with another toolkit, such as Motif on the
-X platform, Microsoft Foundation Classes (MFC) under Windows -- or Qt
-on both platforms.
+X platform, Microsoft Foundation Classes (MFC) under Windows - or Qt
+on <i>both</i> platforms.
 
-The Qt OpenGL module provides integration of OpenGL with Qt, making
-it very easy to use OpenGL rendering in a Qt application.
+The Qt OpenGL Extension makes it easy to use OpenGL in Qt
+applications.  It provides an OpenGL widget class that can be used
+just like any other Qt widget, only that it opens an OpenGL display
+buffer where you can use the OpenGL API to render the contents.
+ 
+The Qt OpenGL Extension is implemented as a platform-independent
+Qt/C++ wrapper around the platform-dependent GLX and WGL C APIs. The
+provided functionality is very similar to Mark Kilgard's GLUT library,
+but with much more non-OpenGL-specific GUI functionality: the whole Qt
+API.
 
+<h2>Installation</h2>
+
+When you install Qt for X11, you must pass the <tt>-opengl</tt> option
+to the <tt>configure</tt> script, and you must have OpenGL installed
+on your system.
+
+When you install Qt for Windows, Qt OpenGL support is included.
+
+The Qt OpenGL modules is not licensed for use with the
+Qt Professional Edition. Consider upgrading to the Qt Enterprise Edition
+if you require OpenGL support.
+
+Note about using Mesa on X11: Mesa versions earlier than 3.1 would use the
+name "MesaGL" and "MesaGLU" for the libraries, instead of "GL" and
+"GLU". If you want to use a pre-3.1 version of Mesa, you must change
+the Makefiles to use these library names instead. The easiest way to
+do this edit the SYSCONF_LIBS_OPENGL line in the config file you are
+using (qt/configs/*), changing "-lGL -lGLU" to "-lMesaGL -lMesaGLU";
+then run "configure" again.
+
+<h2>Building programs</h2>
+
+Building your own programs that use the Qt OpenGL Extension is done
+just like building other Qt programs, the only extra step needed is:
+<ul>
+  <li> If you use tmake: Just add the 'qgl' keyword to the 'CONFIG' line.
+  <li> Otherwise: Link with the libqgl.a (Unix) or qgl.lib (Windows) library,
+	and add the location of the GL headers to the include path.
+</ul>
+See the example programs for details.
 
 <h2>The QGL Classes</h2>
 

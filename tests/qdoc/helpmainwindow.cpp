@@ -430,7 +430,7 @@ void HelpMainWindow::slotHelpAbout()
 {
     QMessageBox::about( this, "About Qt Online Documentation",
                         "<p>Interactive documentation browser for the Qt Toolkit. </p>"
-                        "<p>Copyright (C) 2000 Troll Tech AS</p>"
+                        "<p>Copyright (C) 2000 Trolltech AS</p>"
         );
 }
 

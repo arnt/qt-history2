@@ -4,9 +4,12 @@
 ** Example application showing how to use Qt and Qt OpenGL Extension on an 
 ** X11 overlay visual 
 **
-** Copyright (C) 1999 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1999 by Trolltech AS.  All rights reserved.
 **
-****************************************************************************/
+** This file is part of an example program for Qt.  This example
+** program may be used, distributed and modified without limitation.
+**
+*****************************************************************************/
 
 #include <qapplication.h>
 #include "gearwidget.h"

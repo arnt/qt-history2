@@ -4,29 +4,39 @@
 **
 ** Created : 000607
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the table module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the table
-** module and therefore may only be used if the table module is specified
-** as Licensed on the Licensee's License Certificate.
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition licenses may use this
+** file in accordance with the Qt Commercial License Agreement provided
+** with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qtable.h"
 
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_TABLE
 
 #include <qpainter.h>
 #include <qkeycode.h>
@@ -65,8 +75,7 @@ struct QTableHeaderPrivate
   four are in the selection.
 
   A newly created QTableSelection is inactive -- isActive() returns
-  FALSE.  You must use init() and optionally expandTo() to activate
-  it.
+  FALSE.  You must use init() and expandTo() to activate it.
 
   \sa QTable QTable::addSelection() QTable::selection().
 */
@@ -76,7 +85,7 @@ struct QTableHeaderPrivate
 */
 
 QTableSelection::QTableSelection()
-    : active( FALSE ), tRow( -1 ), lCol( -1 ),
+    : active( FALSE ), inited( FALSE ), tRow( -1 ), lCol( -1 ),
       bRow( -1 ), rCol( -1 ), aRow( -1 ), aCol( -1 )
 {
 }
@@ -91,22 +100,25 @@ void QTableSelection::init( int row, int col )
 {
     aCol = lCol = rCol = col;
     aRow = tRow = bRow = row;
-    active = TRUE;
+    active = FALSE;
+    inited = TRUE;
 }
 
 /*!  Expands the selection to \a row, \a col. The new selection
   rectangle is the bounding rectangle of \a row, \a col and the old
-  selection rectangle.
+  selection rectangle. After calling that function, the selections is
+  active.
 
-  If the selection is not active, this function does nothing.
+  If you didn't call init() yet, this function does nothing.
 
   \sa init() isActive()
 */
 
 void QTableSelection::expandTo( int row, int col )
 {
-    if ( !active )
+    if ( !inited )
 	return;
+    active = TRUE;
 
     if ( row < aRow ) {
 	tRow = row;
@@ -161,11 +173,8 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
 */
 
 /*! \fn bool QTableSelection::isActive() const
-  Returns whether the selection is active or not.
-*/
-
-/*! \fn bool QTableSelection::isValid() const
-  Returns whether the selection is valid or not.
+  Returns whether the selection is active or not. A selection is
+  active after init() and expandTo() has beem called.
 */
 
 // ### this class doc needs total rewrite. it looks okay, but the
@@ -218,22 +227,23 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
   </ul>
 */
 
-/*!  Creates a table item for the table \a table that contains the text \a t.
+/*!  Creates a table item for the table \a table that contains the text
+     \a text.
 */
 
-QTableItem::QTableItem( QTable *table, EditType et, const QString &t )
-    : txt( t ), pix(), t( table ), edType( et ), wordwrap( FALSE ),
+QTableItem::QTableItem( QTable *table, EditType et, const QString &text )
+    : txt( text ), pix(), t( table ), edType( et ), wordwrap( FALSE ),
       tcha( TRUE ), rw( -1 ), cl( -1 ), rowspan( 1 ), colspan( 1 )
 {
 }
 
-/*!  Creates an item for the table \a table with the text \a t and the
+/*!  Creates an item for the table \a table with the text \a text and the
   pixmap \a p.
 */
 
 QTableItem::QTableItem( QTable *table, EditType et,
-			const QString &t, const QPixmap &p )
-    : txt( t ), pix( p ), t( table ), edType( et ), wordwrap( FALSE ),
+			const QString &text, const QPixmap &p )
+    : txt( text ), pix( p ), t( table ), edType( et ), wordwrap( FALSE ),
       tcha( TRUE ), rw( -1 ), cl( -1 ), rowspan( 1 ), colspan( 1 )
 {
 }
@@ -557,6 +567,7 @@ int QTableItem::col() const
 
 /*!
   \class QTable qtable.h
+  \module table
 
   \brief A flexible and editable table widget.
 
@@ -673,19 +684,22 @@ int QTableItem::col() const
   </ul>
 */
 
-/*! \fn void QTable::clicked( int row, int col, int button )
+/*! \fn void QTable::clicked( int row, int col, int button, const QPoint &mousePos )
   This signal is emitted as soon as a user clicks on \a
   row and \a col using mousebutton \a button.
+  The actual mouse position is passed as \a mousePos.
 */
 
-/*! \fn void QTable::doubleClicked( int row, int col, int button )
+/*! \fn void QTable::doubleClicked( int row, int col, int button, const QPoint &mousePos )
   A double-click with \a button emits this signal, where \a
   row and \a col denote the position of the cell.
+  The actual mouse position is passed as \a mousePos.
 */
 
-/*! \fn void QTable::pressed( int row, int col, int button )
+/*! \fn void QTable::pressed( int row, int col, int button, const QPoint &mousePos )
   This signal is emitted whenever the mousebutton \a button is pressed above
   the cell located in  \a row and \a col.
+  The actual mouse position is passed as \a mousePos.
 */
 
 /*! \fn void QTable::selectionChanged()
@@ -1176,35 +1190,19 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
     }
 
     // draw indication of current cell
+    p->saveWorldMatrix();
     QRect focusRect = cellGeometry( curRow, curCol );
-    p->setPen( QPen( black, 1 ) );
-    p->setBrush( NoBrush );
-    bool focusEdited = FALSE;
-    if ( edMode != NotEditing &&
-	 curRow == editRow && curCol == editCol )
-	focusEdited = TRUE;
-    if ( !focusEdited ) {
-	QTableItem *i = item( curRow, curCol );
-	focusEdited = ( i &&
-			( i->editType() == QTableItem::Always ||
-			  ( i->editType() == QTableItem::WhenCurrent &&
-			    curRow == i->row() && curCol == i->col() ) ) );
-    }
-    p->drawRect( focusRect.x(), focusRect.y(), focusRect.width() - 1, focusRect.height() - 1 );
-    if ( !focusEdited ) {
-	p->drawRect( focusRect.x() - 1, focusRect.y() - 1, focusRect.width() + 1, focusRect.height() + 1 );
-    } else {
-	p->drawRect( focusRect.x() - 1, focusRect.y() - 1, focusRect.width() + 1, focusRect.height() + 1 );
-    }
-
+    p->translate( focusRect.x(), focusRect.y() );
+    paintFocus( p, focusRect );
+    p->restoreWorldMatrix();
+    
     // Paint empty rects
     paintEmptyArea( p, cx, cy, cw, ch );
 }
 
 /*!  Paints the cell at the position \a row, \a col on the painter \a
-  p. As the latter has already been translated, \a cr describes the
-  cell coordinates in a content coordinate system with the cell origin
-  at (0/0).
+  p. The painter has already been translated to the cell's origin. \a
+  cr describes the cell coordinates in the content coordinate system..
 
   If you want to draw custom cell content you have to reimplement
   paintCell() to do the custom drawing, or else subclass QTableItem
@@ -1246,6 +1244,36 @@ void QTable::paintCell( QPainter* p, int row, int col,
 	p->drawLine( x2, 0, x2, y2 );
 	p->drawLine( 0, y2, x2, y2 );
 	p->setPen( pen );
+    }
+}
+
+/*! Draws the focus rectangle of the current cell (see currentRow(),
+  currentColumn()). The painter \a p is already translated to the
+  cell's origin, while \a cr specifies the cell's geometry in contents
+  coordinates.
+*/  
+
+void QTable::paintFocus( QPainter *p, const QRect &cr )
+{
+    QRect focusRect( 0, 0, cr.width(), cr.height() );
+    p->setPen( QPen( black, 1 ) );
+    p->setBrush( NoBrush );
+    bool focusEdited = FALSE;
+    if ( edMode != NotEditing &&
+	 curRow == editRow && curCol == editCol )
+	focusEdited = TRUE;
+    if ( !focusEdited ) {
+	QTableItem *i = item( curRow, curCol );
+	focusEdited = ( i &&
+			( i->editType() == QTableItem::Always ||
+			  ( i->editType() == QTableItem::WhenCurrent &&
+			    curRow == i->row() && curCol == i->col() ) ) );
+    }
+    p->drawRect( focusRect.x(), focusRect.y(), focusRect.width() - 1, focusRect.height() - 1 );
+    if ( !focusEdited ) {
+	p->drawRect( focusRect.x() - 1, focusRect.y() - 1, focusRect.width() + 1, focusRect.height() + 1 );
+    } else {
+	p->drawRect( focusRect.x() - 1, focusRect.y() - 1, focusRect.width() + 1, focusRect.height() + 1 );
     }
 }
 
@@ -1826,7 +1854,7 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
     case QEvent::FocusOut:
 	if ( o == this || o == viewport() )
 	    return TRUE;
-	if ( isEditing() && editorWidget && o == editorWidget ) {
+	if ( isEditing() && editorWidget && o == editorWidget && ( (QFocusEvent*)e )->reason() != QFocusEvent::Popup ) {
 	    QTableItem *itm = item( editRow, editCol );
  	    if ( !itm || itm->editType() == QTableItem::OnTyping ) {
  		endEdit( editRow, editCol, TRUE, edMode != Editing );
@@ -2342,26 +2370,43 @@ void QTable::setNumRows( int r )
     leftHeader->setUpdatesEnabled( FALSE );
     bool updateBefore = r < numRows();
     if ( r > numRows() ) {
-	clearSelection();
+	clearSelection( FALSE );
 	while ( numRows() < r ) {
 	    leftHeader->addLabel( QString::number( numRows() + 1 ), 20 );
 	}
     } else {
-	clearSelection();
+	clearSelection( FALSE );
 	while ( numRows() > r )
 	    leftHeader->removeLabel( numRows() - 1 );
     }
+
+    QVector<QTableItem> tmp;
+    tmp.resize( contents.size() );
+    int i;
+    for ( i = 0; i < (int)tmp.size(); ++i )
+	tmp.insert( i, contents[ i ] );
+    contents.setAutoDelete( FALSE );
+    contents.clear();
+    contents.setAutoDelete( TRUE );
     resizeData( numRows() * numCols() );
+
+    for ( i = 0; i < (int)tmp.size(); ++i ) {
+	QTableItem *it = tmp [ i ];
+	if ( it )
+	    contents.insert( indexOf( it->row(), it->col() ), it );
+    }
+
     QRect r2( cellGeometry( numRows() - 1, numCols() - 1 ) );
     resizeContents( r2.right() + 1, r2.bottom() + 1 );
     updateGeometries();
     leftHeader->setUpdatesEnabled( TRUE );
     if ( updateBefore )
-	viewport()->repaint( TRUE );
+	repaintContents( contentsX(), contentsY(),
+			 visibleWidth(), visibleHeight(), TRUE );
     else
 	repaintContents( contentsX(), contentsY(),
 			 visibleWidth(), visibleHeight(), FALSE );
-    leftHeader->repaint( FALSE );
+    leftHeader->update();
 }
 
 /*!  Sets the number of columns to \a c.
@@ -2374,26 +2419,43 @@ void QTable::setNumCols( int c )
     topHeader->setUpdatesEnabled( FALSE );
     bool updateBefore = c < numCols();
     if ( c > numCols() ) {
-	clearSelection();
+	clearSelection( FALSE );
 	while ( numCols() < c ) {
 	    topHeader->addLabel( QString::number( numCols() + 1 ), 100 );
 	}
     } else {
-	clearSelection();
+	clearSelection( FALSE );
 	while ( numCols() > c )
 	    topHeader->removeLabel( numCols() - 1 );
     }
+
+    QVector<QTableItem> tmp;
+    tmp.resize( contents.size() );
+    int i;
+    for ( i = 0; i < (int)tmp.size(); ++i )
+	tmp.insert( i, contents[ i ] );
+    contents.setAutoDelete( FALSE );
+    contents.clear();
+    contents.setAutoDelete( TRUE );
     resizeData( numRows() * numCols() );
+
+    for ( i = 0; i < (int)tmp.size(); ++i ) {
+	QTableItem *it = tmp[ i ];
+	if ( it )
+	    contents.insert( indexOf( it->row(), it->col() ), it );
+    }
+
     QRect r( cellGeometry( numRows() - 1, numCols() - 1 ) );
     resizeContents( r.right() + 1, r.bottom() + 1 );
     updateGeometries();
     topHeader->setUpdatesEnabled( TRUE );
     if ( updateBefore )
-	viewport()->repaint( TRUE );
+	repaintContents( contentsX(), contentsY(),
+			 visibleWidth(), visibleHeight(), TRUE );
     else
 	repaintContents( contentsX(), contentsY(),
 			 visibleWidth(), visibleHeight(), FALSE );
-    topHeader->repaint( FALSE );
+    topHeader->update();
 }
 
 /*!  This function returns a widget which should be used as editor for
@@ -2598,6 +2660,9 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
 {
     if ( oldSelection && *oldSelection == *newSelection )
 	return;
+    if ( oldSelection && !oldSelection->isActive() )
+	oldSelection = 0;
+
     bool optimize1, optimize2;
     QRect old;
     if ( oldSelection )
@@ -2673,7 +2738,7 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
 /*!  Clears all selections.
 */
 
-void QTable::clearSelection()
+void QTable::clearSelection( bool repaint )
 {
     bool needRepaint = !selections.isEmpty();
 
@@ -2688,10 +2753,11 @@ void QTable::clearSelection()
 
     currentSel = 0;
     selections.clear();
-    if ( needRepaint )
+    if ( needRepaint && repaint )
 	repaintContents( r, FALSE );
 
     int i;
+    bool b = topHeader->isUpdatesEnabled();
     topHeader->setUpdatesEnabled( FALSE );
     for ( i = 0; i <= numCols(); ++i ) {
 	if ( !isColumnSelected( i ) && i != curCol )
@@ -2701,9 +2767,10 @@ void QTable::clearSelection()
 	else
 	    topHeader->setSectionState( i, QTableHeader::Bold );
     }
-    topHeader->setUpdatesEnabled( TRUE );
+    topHeader->setUpdatesEnabled( b );
     topHeader->repaint( FALSE );
 
+    b = leftHeader->isUpdatesEnabled();
     leftHeader->setUpdatesEnabled( FALSE );
     for ( i = 0; i <= numRows(); ++i ) {
 	if ( !isRowSelected( i ) && i != curRow )
@@ -2713,7 +2780,7 @@ void QTable::clearSelection()
 	else
 	    leftHeader->setSectionState( i, QTableHeader::Bold );
     }
-    leftHeader->setUpdatesEnabled( TRUE );
+    leftHeader->setUpdatesEnabled( b );
     leftHeader->repaint( FALSE );
     emit selectionChanged();
 }
@@ -3311,10 +3378,8 @@ bool QTableHeader::doSelection( QMouseEvent *e )
 	    table->currentSel = new QTableSelection();
 	    table->selections.append( table->currentSel );
 	    if ( orientation() == Vertical ) {
-		table->setCurrentCell( secAt, 0 );
 		table->currentSel->init( secAt, 0 );
 	    } else {
-		table->setCurrentCell( 0, secAt );
 		table->currentSel->init( 0, secAt );
 	    }
 	}
@@ -3638,4 +3703,4 @@ void QTableHeader::indexChanged( int sec, int oldIdx, int newIdx )
     table->repaintContents( table->contentsX(), table->contentsY(),
 			    table->visibleWidth(), table->visibleHeight() );
 }
-#endif // QT_NO_COMPLEXWIDGETS
+#endif // QT_NO_TABLE

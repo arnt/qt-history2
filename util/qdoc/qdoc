@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#238 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#239 $
 #
 # this is a massive hack, written very quickly
 #
@@ -606,7 +606,7 @@ sub processdocs {
 		if (!defined($word{$1})) {
 		    if ($1 eq "magicwordthatyoushouldavoid") {
 			undef %word;
-			sprintf("See also: ");
+			sprintf("See also ");
 		    } else {
 			my ($tmp);
 			$tmp = &findlink($1, $class, $url, $2);
@@ -1662,14 +1662,12 @@ sub printclass {
     $tail = $footer;
     $tail .= $address;
 
-    print O $doctype, "<html><head>\n<title>", $module_long, " - ",
-    $class,
-    " Class</title>", $style, "
-</head><body bgcolor=\"#ffffff\">\n", $postheader, "\n",
-    "<h1 align=center>", $name{$url}, " Class Reference",
-( $module{$url} ? "<br><small>[ <a href=$module{$url}.html>".$module{$url}." module</a> ]</small>" : "" ),
-	"</h1>",
-    "<br clear=\"all\">\n";
+    print O $doctype, "<html><head>\n<title>", $module_long, " - ", $class,
+      " Class</title>", $style, "\n</head><body bgcolor=\"#ffffff\">\n",
+      $postheader, "\n", "<h1 align=center>", $name{$url}, " Class Reference";
+    print O "<br><small>[ <a href=\"", lc $module{$url}, ".html\">" 
+      . $module{$url}, " module</a> ]</small>" if ( defined( $module{$url} ) );
+    print O "</h1><br clear=\"all\">\n";
 
     my ($i, $family);
     if (defined($brief{$url})) {
@@ -2227,25 +2225,6 @@ sub headerfilelist {
 }
 
 
-sub headerindex {
-    local($filename);
-    open(O, "> $outputdir/headers.html")
-	|| die "can't open $outputdir/headers.html for writing";
-    print O $doctype, "<html><head><title>", $module_long, " - header file index</title>", $style, "
-</head><body bgcolor=\"#ffffff\">\n", $postheader, "\n<h1 align=center>", $module, " header file index</h1><br clear=\"all\">\n<p>Here are the header files that make up the ", $module, " API:\n<ul compact>";
-    foreach $filename ( sort keys %headerfiles ) {
-	$_ = $filename;
-	s/\./-/;
-	s/$/.html/;
-	print O "<li><a href=\"", $_, "\">", $filename, "</a>\n";
-    }
-    print O "</ul>\n", $address;
-
-    close(O);
-}
-
-
-
 sub exampleindex {
     local($filename);
     open(O, "> $outputdir/examples.html")
@@ -2493,7 +2472,7 @@ sub quotelist {
 	foreach $b ( sort keys %{$mustquote{$a}} ) {
 	    my $link = $name{$b};
 	    if ( !($link =~ /\S/) &&
-		 $pages{$b} =~ /<title>(?:\s*qt\s+toolkit\s+(?:-\s+)?)?([^<]*)/si ) {
+		 $pages{$b} =~ /\\title ([^\n]*)/si ) {
 		$link = $1;
 	    }
 	    $link = "(Unknown title)" unless ($link =~ /\S/);

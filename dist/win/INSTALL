@@ -13,7 +13,7 @@
 
 
 2.  Set some environment variables in AUTOEXEC.BAT or via "System"
-    in "Control Panel" (Windows NT):
+    in "Control Panel" (Windows NT and Windows 2000):
 
     The QTDIR variable says where Qt is installed, for example:
 
@@ -43,11 +43,30 @@
 	cd qt
 	unzip mkfiles\borland.zip
 
+    If you want a multithreaded library for Borland C++, you have to do:
+
+	cd qt
+	unzip mkfiles\borland-mt.zip
+
+    A shared Qt library (DLL) for Borland C++ is not supported at the
+    moment.
+
     If you use Microsoft Visual C++ and want to create a shared Qt
     library (DLL), you have to do:
 
 	cd qt
 	unzip mkfiles\msvc-dll.zip
+
+    If you want to build a Qt library with multithreading support for
+    Microsoft Visual C++, you have to do (for a static Qt library):
+
+	cd qt
+	unzip mkfiles\msvc-mt.zip
+
+    or (for a shared Qt library):
+
+	cd qt
+	unzip mkfiles\msvc-dll-mt.zip
 
 
 4.  You are now ready to compile the Qt library:
@@ -55,9 +74,17 @@
 	cd qt
 	nmake		(or "make" for Borland C++ users)
 
-    The qt.lib and qtmain.lib files are created in the qt\lib directory,
+    The qt.lib and qtmain.lib or qt.dll files (depending on the
+    configuration you have chosen) are created in the qt\lib
+    directory.
     moc.exe, designer.exe, uic.exe and some other programs are
-    created in the qt\bin directory.
+    now in the qt\bin directory. 
+
+    The designer and uic are not compiled by default, as pre-compiled
+    static linked versions of these two programs are included in the
+    package already. If you want to build these two programs (e.g. so
+    that they use the qt.dll), go into qt/tools/designer and type
+    nmake (or make for Borland C++users).
 
 
 We recommend that you use tmake from Trolltech to create makefiles. This
@@ -65,4 +92,4 @@ is a free tool which eliminates the hassle of writing and maintaining
 makefiles across different platforms and compilers.  See README.tmake for
 more information.
 
-That is all.  Qt is now installed.
+That is all.  Qt and the Qt Designer is now installed.

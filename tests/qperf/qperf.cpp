@@ -28,7 +28,7 @@ static bool        dblbuf = FALSE;
 static QWidget    *widget;
 static QPixmap    *pixmap;
 static QPainter   *painter = 0;
-static int	   max_colors = 1;
+static int	   max_colors = 16;
 static QColor	  *colors = 0;
 static const char *image_format = "BMP";
 

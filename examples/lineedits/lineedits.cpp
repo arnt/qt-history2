@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/examples/lineedits/lineedits.cpp#4 $
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -29,15 +29,14 @@ LineEdits::LineEdits( QWidget *parent, const char *name )
 {
     setMargin( 10 );
 
-    QVBoxLayout* vbox = new QVBoxLayout( layout() );
+    QVBoxLayout* box = new QVBoxLayout( layout() );
     
-    QHBoxLayout *row1 = new QHBoxLayout( vbox );
+    QHBoxLayout *row1 = new QHBoxLayout( box );
     row1->setMargin( 5 );
 
     // Create a Label
     QLabel* label = new QLabel( "Echo Mode: ", this);
     row1->addWidget( label );
-    
 
     // Create a Combobox with three items...
     combo1 = new QComboBox( FALSE, this );
@@ -51,10 +50,10 @@ LineEdits::LineEdits( QWidget *parent, const char *name )
 
     // insert the first LineEdit
     lined1 = new QLineEdit( this );
-    vbox->addWidget( lined1 );
+    box->addWidget( lined1 );
 
     // another widget which is used for layouting
-    QHBoxLayout *row2 = new QHBoxLayout( vbox );
+    QHBoxLayout *row2 = new QHBoxLayout( box );
     row2->setMargin( 5 );
 
     // and the second label
@@ -72,10 +71,10 @@ LineEdits::LineEdits( QWidget *parent, const char *name )
 
     // and the second LineEdit
     lined2 = new QLineEdit( this );
-    vbox->addWidget( lined2 );
+    box->addWidget( lined2 );
 
     // yet another widget which is used for layouting
-    QHBoxLayout *row3 = new QHBoxLayout( vbox );
+    QHBoxLayout *row3 = new QHBoxLayout( box );
     row3->setMargin( 5 );
 
     // we need a label for this too
@@ -93,11 +92,11 @@ LineEdits::LineEdits( QWidget *parent, const char *name )
 
     // and the third lineedit
     lined3 = new QLineEdit( this );
-    vbox->addWidget( lined3 );
+    box->addWidget( lined3 );
 
     // last widget used for layouting
     QHBox *row4 = new QHBox( this );
-    vbox->addWidget( row4 );
+    box->addWidget( row4 );
     row4->setMargin( 5 );
 
     // last label
@@ -112,7 +111,7 @@ LineEdits::LineEdits( QWidget *parent, const char *name )
 
     // and the last lineedit
     lined4 = new QLineEdit( this );
-    vbox->addWidget( lined4 );
+    box->addWidget( lined4 );
 
     // give the first LineEdit the focus at the beginning
     lined1->setFocus();

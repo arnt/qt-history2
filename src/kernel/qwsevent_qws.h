@@ -1,4 +1,4 @@
-// Copyright 1999-2000 Troll Tech AS
+// Copyright 1999-2000 Trolltech AS
 
 #ifndef QWSEVENT_H
 #define QWSEVENT_H
@@ -13,7 +13,7 @@ struct QWSMouseEvent;
 struct QWSEvent : QWSProtocolItem {
 
     QWSEvent( int t, int len, char *ptr ) : QWSProtocolItem(t,len,ptr) {}
-    
+
     enum Type {
 	NoEvent,
 	Connected,
@@ -26,10 +26,11 @@ struct QWSEvent : QWSProtocolItem {
 	SelectionRequest,
 	SelectionNotify,
 	DesktopRect,
+	PCOPMessage,
 	NEvent
     };
 
-    QWSMouseEvent *asMouse() 
+    QWSMouseEvent *asMouse()
 	{ return type == Mouse ? (QWSMouseEvent*)this : 0; }
     int window() { return *((int*)simpleDataPtr); }
     static QWSEvent *factory( int type );
@@ -66,7 +67,7 @@ struct QWSDesktopRectEvent : QWSEvent {
 };
 
 struct QWSMouseEvent : QWSEvent {
-    QWSMouseEvent() 
+    QWSMouseEvent()
 	: QWSEvent( QWSEvent::Mouse, sizeof( simpleData ),
 		(char*)&simpleData ) {}
     struct SimpleData {
@@ -77,7 +78,7 @@ struct QWSMouseEvent : QWSEvent {
 };
 
 struct QWSFocusEvent : QWSEvent {
-    QWSFocusEvent() 
+    QWSFocusEvent()
 	: QWSEvent( QWSEvent::Focus, sizeof( simpleData ),
 	      (char*)&simpleData ) {}
     struct SimpleData {
@@ -87,7 +88,7 @@ struct QWSFocusEvent : QWSEvent {
 };
 
 struct QWSKeyEvent: QWSEvent {
-    QWSKeyEvent() 
+    QWSKeyEvent()
 	: QWSEvent( QWSEvent::Key, sizeof( simpleData ),
 	      (char*)&simpleData ) {}
     struct SimpleData {
@@ -102,7 +103,7 @@ struct QWSKeyEvent: QWSEvent {
 
 
 struct QWSCreationEvent : QWSEvent {
-    QWSCreationEvent() 
+    QWSCreationEvent()
 	: QWSEvent( QWSEvent::Creation, sizeof( simpleData ),
 	      (char*)&simpleData ) {}
     struct SimpleData {
@@ -112,7 +113,7 @@ struct QWSCreationEvent : QWSEvent {
 
 #ifndef QT_NO_QWS_PROPERTIES
 struct QWSPropertyNotifyEvent : QWSEvent {
-    QWSPropertyNotifyEvent() 
+    QWSPropertyNotifyEvent()
 	: QWSEvent( QWSEvent::PropertyNotify, sizeof( simpleData ),
 	      (char*)&simpleData ) {}
     enum State {
@@ -128,7 +129,7 @@ struct QWSPropertyNotifyEvent : QWSEvent {
 #endif
 
 struct QWSSelectionClearEvent : QWSEvent {
-    QWSSelectionClearEvent() 
+    QWSSelectionClearEvent()
 	: QWSEvent( QWSEvent::SelectionClear, sizeof( simpleData ),
 	      (char*)&simpleData ) {}
     struct SimpleData {
@@ -137,7 +138,7 @@ struct QWSSelectionClearEvent : QWSEvent {
 };
 
 struct QWSSelectionRequestEvent : QWSEvent {
-    QWSSelectionRequestEvent() 
+    QWSSelectionRequestEvent()
 	: QWSEvent( QWSEvent::SelectionRequest, sizeof( simpleData ),
 	      (char*)&simpleData ) {}
     struct SimpleData {
@@ -150,7 +151,7 @@ struct QWSSelectionRequestEvent : QWSEvent {
 };
 
 struct QWSSelectionNotifyEvent : QWSEvent {
-    QWSSelectionNotifyEvent() 
+    QWSSelectionNotifyEvent()
 	: QWSEvent( QWSEvent::SelectionNotify, sizeof( simpleData ),
 	      (char*)&simpleData ) {}
     struct SimpleData {
@@ -164,7 +165,7 @@ struct QWSSelectionNotifyEvent : QWSEvent {
 //complex events:
 
 struct QWSRegionModifiedEvent : QWSEvent {
-    QWSRegionModifiedEvent() 
+    QWSRegionModifiedEvent()
 	: QWSEvent( QWSEvent::RegionModified, sizeof( simpleData ),
 		(char*)&simpleData ) {}
 
@@ -183,7 +184,7 @@ struct QWSRegionModifiedEvent : QWSEvent {
 };
 #ifndef QT_NO_QWS_PROPERTIES
 struct QWSPropertyReplyEvent : QWSEvent {
-    QWSPropertyReplyEvent() 
+    QWSPropertyReplyEvent()
 	: QWSEvent( QWSEvent::PropertyReply, sizeof( simpleData ),
 		(char*)&simpleData ) {}
 
@@ -200,4 +201,34 @@ struct QWSPropertyReplyEvent : QWSEvent {
     char *data;
 };
 #endif //QT_NO_QWS_PROPERTIES
+
+#ifndef QT_NO_PCOP
+struct QWSPCOPMessageEvent : QWSEvent {
+    QWSPCOPMessageEvent()
+	: QWSEvent( QWSEvent::PCOPMessage, sizeof( simpleData ),
+		(char*)&simpleData ) {}
+
+    void setData( char *d, int len, bool allocateMem = TRUE ) {
+	QWSEvent::setData( d, len, allocateMem );
+	char* p = (char*) rawDataPtr;
+	channel = QCString( p, simpleData.lchannel );
+	p += simpleData.lchannel;
+	message = QCString( p, simpleData.lmessage );
+	p += simpleData.lmessage;
+	data.assign( p, simpleData.ldata );
+    }
+
+    struct SimpleData {
+	int lchannel;
+	int lmessage;
+	int ldata;
+    } simpleData;
+
+    QCString channel;
+    QCString message;
+    QByteArray data;
+};
+
+#endif
+
 #endif

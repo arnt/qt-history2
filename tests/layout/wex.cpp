@@ -3,7 +3,7 @@
 **
 **	Testing heightForWidth functionality
 **
-** Copyright (C) 1999 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1999 by Trolltech AS.  All rights reserved.
 **
 *****************************************************************************/
 #include <qapplication.h>

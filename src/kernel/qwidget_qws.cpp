@@ -5,24 +5,27 @@
 **
 ** Created : 991026
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
-** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
-** LICENSE.QPL included in the packaging of this file.
-**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the kernel
-** module and therefore may only be used if the kernel module is specified
-** as Licensed on the Licensee's License Certificate.
+** licenses for Qt/Embedded may use this file in accordance with the
+** Qt Embedded Commercial License Agreement provided with the Software.
+**
+** This file is not available for use under any other license without
+** express written permission from the copyright holder.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing.
+**   information about Qt Commercial License Agreements.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qapplication.h"
 #include "qpaintdevicemetrics.h"
@@ -68,10 +71,9 @@ static int takeLocalId()
     return --n;
 }
 
-// This repaints a rectangular area of a widget and all its children
-// within the widget.
+// This repaints all children within a widget.
 
-static void paint_children(QWidget * p,const QRect& r)
+static void paint_children(QWidget * p,const QRegion& r)
 {
     if(!p)
 	return;
@@ -82,11 +84,12 @@ static void paint_children(QWidget * p,const QRect& r)
 	    if( o->isWidgetType() ) {
 		QWidget *w = (QWidget *)o;
 		if ( w->testWState(Qt::WState_Visible) ) {
-		    QRect wr = w->geometry() & r;
+		    QRegion wr = QRegion(w->geometry()) & r;
 		    if ( !wr.isEmpty() ) {
-			wr.moveBy(-w->x(),-w->y());
+			wr.translate(-w->x(),-w->y());
+			QApplication::postEvent(w,new QPaintEvent(wr, 
+				   !w->testWFlags(QWidget::WRepaintNoErase) ) );
 			paint_children(w,wr);
-			w->update(wr);
 		    }
 		}
 	    }
@@ -142,6 +145,7 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
 
     alloc_region_index = -1;
     alloc_region_revision = -1;
+    isSettingGeometry = FALSE;
 
     static int sw = -1, sh = -1;		// screen size
 
@@ -278,21 +282,10 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
 	}
 #endif
 	// declare the widget's object name as window role
-	
+
 	qt_fbdpy->addProperty(id,QT_QWS_PROPERTY_WINDOWNAME);
+	qt_fbdpy->setProperty(id,QT_QWS_PROPERTY_WINDOWNAME,0,name());
 
-	char * hold=name();
-	
-	if(hold) {
-	    QByteArray tmp(strlen(hold));
-	
-	    for(int loopc=0;loopc<strlen(hold);loopc++) {
-		tmp[loopc]=hold[loopc];
-	    }
-
-	    qt_fbdpy->setProperty(id,QT_QWS_PROPERTY_WINDOWNAME,0,tmp);
-	}
-	
 	// If we are session managed, inform the window manager about it
 	if ( extra && !extra->mask.isNull() ) {
 	    req_region = extra->mask;
@@ -854,12 +847,12 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     if ( r.size() == olds && oldp == r.topLeft() )
 	return;
 
-    setAllocatedRegionDirty();
-
     setCRect( r );
 
     if ( testWFlags(WType_Desktop) )
 	return;
+
+    setAllocatedRegionDirty();
 
     if ( isTopLevel() ) {
 
@@ -944,6 +937,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     */
 
     if ( isVisible() ) {
+	isSettingGeometry = TRUE;
 	if ( isMove ) {
 	    QMoveEvent e( r.topLeft(), oldp );
 	    QApplication::sendEvent( this, &e );
@@ -961,30 +955,53 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		QApplication::sendEvent(topData()->qwsManager, &e);
 	    }
 #endif
+/*
 	    if ( !testWFlags( WNorthWestGravity ) ) {
 		QApplication::postEvent(this,new QPaintEvent(visibleRect(),
 					!testWFlags(WResizeNoErase) ) );
 	    }
+*/
 	}
 	if ( !isTopLevel() || isResize ) {
-	    QRect tmp(oldp,olds);
-	    QRect tmp2=tmp.unite(r);
 	    QWidget *p = parentWidget();
 	    if (p) {
-		p->update(tmp);
-		paint_children( p, tmp2 );
+		QRegion oldr( QRect(oldp, olds) );
+		if ( p->isSettingGeometry ) {
+		    dirtyChildren.translate( x, y );
+		    if ( oldp != r.topLeft() ) {
+			dirtyChildren |= QRegion(r) | oldr;
+			QApplication::postEvent( this, new QPaintEvent(rect(),
+			    !testWFlags(QWidget::WRepaintNoErase)) );
+		    } else {
+			dirtyChildren |= QRegion(r) - oldr;
+			QApplication::postEvent( this, new QPaintEvent(rect(),
+			    !testWFlags(QWidget::WResizeNoErase)) );
+		    }
+		    p->addDirtyChildRegion( dirtyChildren );
+		} else {
+		    QRegion upd = QRegion(r) | oldr;
+		    dirtyChildren.translate( x, y );
+		    dirtyChildren |= upd;
+		    paint_children( p, dirtyChildren );
+		    QApplication::postEvent( p, new QPaintEvent(upd,
+			!p->testWFlags(QWidget::WRepaintNoErase)) );
+		}
 	    } else {
-		tmp2.moveBy(-x, -y);
-		paint_children( this, tmp2 );
+		QApplication::postEvent( this, new QPaintEvent(rect(),
+		    !testWFlags(QWidget::WRepaintNoErase)) );
+		if ( oldp != r.topLeft() )
+		    dirtyChildren |= rect();
+		paint_children( this, dirtyChildren );
 	    }
 	}
 #ifndef QT_NO_QWS_MANAGER
 	if (isResize && extra && extra->topextra && extra->topextra->qwsManager) {
 	    QApplication::postEvent(topData()->qwsManager,
-				    new QPaintEvent(visibleRect(),
-				    !testWFlags(WResizeNoErase) ) );
+				    new QPaintEvent(visibleRect(), TRUE ) );
 	}
 #endif
+	isSettingGeometry = FALSE;
+	dirtyChildren = QRegion();
     } else {
 	if ( isMove )
 	    QApplication::postEvent( this,
@@ -993,6 +1010,11 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    QApplication::postEvent( this,
 				     new QResizeEvent( r.size(), olds ) );
     }
+}
+
+void QWidget::addDirtyChildRegion( const QRegion &r )
+{
+    dirtyChildren |= r;
 }
 
 
@@ -1486,4 +1508,9 @@ unsigned char * QWidget::scanLine(int i) const
 int QWidget::bytesPerLine() const
 {
     return qt_screen->linestep();
+}
+
+bool QWidget::isMaximized() const
+{
+    return testWState(WState_Maximized);
 }

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/examples/progressbar/progressbar.cpp#1 $
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -26,7 +26,7 @@ ProgressBar::ProgressBar( QWidget *parent, const char *name )
 {
     setMargin( 10 );
 
-    QGridLayout* grid = new QGridLayout( layout(), 2, 2, 5);
+    QGridLayout* toplayout = new QGridLayout( layout(), 2, 2, 5);
  
     setRadioButtonExclusive( TRUE );
 
@@ -37,22 +37,22 @@ ProgressBar::ProgressBar( QWidget *parent, const char *name )
     normal = new QRadioButton( "&Normal", this );
     fast = new QRadioButton( "&Fast", this );
     QVBoxLayout* vb1 = new QVBoxLayout;
-    grid->addLayout( vb1, 0, 0 );
+    toplayout->addLayout( vb1, 0, 0 );
     vb1->addWidget( slow );
     vb1->addWidget( normal );
     vb1->addWidget( fast );
 
     // two push buttons, one for start, for for reset.
-    start = new QPushButton( "S&tart", this );
+    start = new QPushButton( "&Start", this );
     reset = new QPushButton( "&Reset", this );
     QVBoxLayout* vb2 = new QVBoxLayout;
-    grid->addLayout( vb2, 0, 1 );
+    toplayout->addLayout( vb2, 0, 1 );
     vb2->addWidget( start );
     vb2->addWidget( reset );
     
     // Create the progressbar
     progress = new QProgressBar( 100, this );
-    grid->addMultiCellWidget( progress, 1, 1, 0, 1 );
+    toplayout->addMultiCellWidget( progress, 1, 1, 0, 1 );
 
     // connect the clicked() SIGNALs of the pushbuttons to SLOTs
     connect( start, SIGNAL( clicked() ), this, SLOT( slotStart() ) );

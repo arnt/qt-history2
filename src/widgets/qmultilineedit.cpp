@@ -5,25 +5,35 @@
 **
 ** Created : 961005
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the widgets
-** module and therefore may only be used if the widgets module is specified
-** as Licensed on the Licensee's License Certificate.
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qmultilineedit.h"
 #ifndef QT_NO_COMPLEXWIDGETS
@@ -582,11 +592,6 @@ void QMultiLineEdit::setReadOnly( bool on )
 #ifndef QT_NO_CURSOR
 	setCursor( on ? arrowCursor : ibeamCursor );
 #endif
-	if ( style() == WindowsStyle )
-	    if ( on )
-		setBackgroundMode( PaletteBackground );
-	    else
-		setBackgroundMode( PaletteBase );
     }
 }
 
@@ -644,8 +649,7 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
     QRect updateR = cellUpdateRect();
     QPixmap *buffer = getCacheBuffer( updateR.size() );
     ASSERT(buffer);
-    buffer->fill ( style() == WindowsStyle && readOnly ? g.background()
-	: g.base() );
+    buffer->fill ( g.base() );
 
     QPainter p( buffer );
     p.setFont( painter->font() );
@@ -1503,11 +1507,8 @@ void QMultiLineEdit::insertLine( const QString &txt, int line )
     if ( line < 0 || line >= int( contents->count() ) ) {
 	if ( !dummy )
 	    contents->append( new QMultiLineEditRow(QString::fromLatin1(""), 0) );
-	if ( WORD_WRAP && s.length() > 0 && s.find( " " ) < 0 )
-	    s.append( "\n" );
 	insertAt( s, numLines()-1, 0 );
-    }
-    else {
+    } else {
 	s.append('\n');
 	insertAt( s, line, 0 );
     }
@@ -2011,7 +2012,9 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *e )
 	id[ IdCut ] = popup->insertItem( tr( "Cut" ) );
 	id[ IdCopy ] = popup->insertItem( tr( "Copy" ) );
 	id[ IdPaste ] = popup->insertItem( tr( "Paste" ) );
+#ifndef QT_NO_MIMECLIPBOARD
 	id[ IdPasteSpecial ] = popup->insertItem( tr( "Paste special..." ) );
+#endif
 #endif
 	id[ IdClear ] = popup->insertItem( tr( "Clear" ) );
 	popup->insertSeparator();
@@ -2026,6 +2029,7 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *e )
 	popup->setItemEnabled( id[ IdCopy ], hasMarkedText() );
 	popup->setItemEnabled( id[ IdPaste ],
 	    !isReadOnly() && (bool)QApplication::clipboard()->text().length() );
+#ifndef QT_NO_MIMECLIPBOARD
 	// Any non-plain types?
 	QMimeSource* ms = QApplication::clipboard()->data();
 	bool ps = FALSE;
@@ -2039,6 +2043,7 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *e )
 	    }
 	}
 	popup->setItemEnabled( id[ IdPasteSpecial ], ps );
+#endif
 #endif
 	popup->setItemEnabled( id[ IdClear ],
 				  !isReadOnly() && (bool)text().length() );
@@ -2061,7 +2066,7 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *e )
 	    copy();
 	else if ( r == id[ IdPaste ] )
 	    paste();
-# ifndef QT_NO_MIME
+# ifndef QT_NO_MIMECLIPBOARD
 	else if ( r == id[ IdPasteSpecial ] )
 	    pasteSpecial(QCursor::pos());
 # endif
@@ -2559,7 +2564,7 @@ void QMultiLineEdit::paste()
     pasteSubType("plain");
 }
 
-#ifndef QT_NO_MIME
+#ifndef QT_NO_MIMECLIPBOARD
 /*!
   Prompts the user for a type from a list of text types available,
   Then copies text from the clipboard onto the current cursor position.
@@ -2571,7 +2576,8 @@ void QMultiLineEdit::pasteSpecial(const QPoint& pt)
     if ( !st.isEmpty() )
 	pasteSubType(st);
 }
-
+#endif
+#ifndef QT_NO_MIME
 QCString QMultiLineEdit::pickSpecial(QMimeSource* ms, bool always_ask, const QPoint& pt)
 {
     if ( ms )  {
@@ -4116,4 +4122,46 @@ int QMultiLineEdit::setNumRowsAndTruncate()
     return r;
 }
 
+/*! \reimp
+*/
+bool QMultiLineEdit::event( QEvent * e )
+{
+    if ( e->type() == QEvent::AccelOverride && !isReadOnly() ) {
+	QKeyEvent* ke = (QKeyEvent*) e;
+	if ( ke->state() & ControlButton ) {
+	    switch ( ke->key() ) {
+	    case Key_A:
+	    case Key_E:
+#if defined (_WS_WIN_)
+	    case Key_Insert:
 #endif
+	    case Key_X:
+	    case Key_V:
+	    case Key_C:
+	    case Key_Left:
+	    case Key_Right:
+	    case Key_Up:
+	    case Key_Down:
+	    case Key_Home:
+	    case Key_End:
+		ke->accept();
+	    default:
+		break;
+	    }
+	} else {
+	    switch ( ke->key() ) {
+	    case Key_Delete:
+	    case Key_Home:
+	    case Key_End:
+	    case Key_Backspace:
+		ke->accept();
+	    default:
+		break;
+	    }
+	}
+    }
+    return QWidget::event( e );
+}
+
+#endif
+

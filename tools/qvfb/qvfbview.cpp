@@ -4,7 +4,7 @@
 **
 ** Created : 20000605
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -17,6 +17,16 @@
 **
 *****************************************************************************/
 
+#include "qvfbview.h"
+#include <qvfbhdr_qws.h>
+#include <qwscommand_qws.h>	    // for QTE_PIPE
+
+#include <qimage.h>
+#include <qbitmap.h>
+#include <qtimer.h>
+#include <qwmatrix.h>
+#include "qanimationwriter.h"
+
 #include <unistd.h>
 #include <sys/ipc.h>
 #include <sys/types.h>
@@ -26,15 +36,6 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include <qimage.h>
-#include <qbitmap.h>
-#include <qtimer.h>
-#include <qwmatrix.h>
-
-#include "qvfbview.h"
-#include <qvfbhdr_qws.h>
-#include <qwscommand_qws.h>	    // for QTE_PIPE
-
 QVFbView::QVFbView( int display_id, int w, int h, int d, QWidget *parent,
 		    const char *name, uint flags )
     : QScrollView( parent, name, flags ), lockId(-1)
@@ -43,6 +44,7 @@ QVFbView::QVFbView( int display_id, int w, int h, int d, QWidget *parent,
     viewport()->setMouseTracking( TRUE );
     viewport()->setFocusPolicy( StrongFocus );
     zoom = 1;
+    animation = 0;
 
     switch ( d ) {
 	case 1:
@@ -112,6 +114,7 @@ QVFbView::QVFbView( int display_id, int w, int h, int d, QWidget *parent,
 
 QVFbView::~QVFbView()
 {
+    stopAnimation();
     struct shmid_ds shm;
     shmdt( (char*)data );
     shmctl( shmId, IPC_RMID, &shm );
@@ -128,7 +131,7 @@ void QVFbView::setZoom( double z )
     if ( zoom != z ) {
 	zoom = z;
 	setDirty(QRect(0,0,hdr->width,hdr->height));
-	resizeContents( hdr->width*z, hdr->height*z );
+	resizeContents( int(hdr->width*z), int(hdr->height*z) );
 	drawScreen();
     }
 }
@@ -202,9 +205,25 @@ void QVFbView::sendKeyboardData( int unicode, int keycode, int modifiers,
 
 void QVFbView::timeout()
 {
+    lock();
+    if ( animation ) {
+	    // ### Could use img from drawScreen, with offset, but we do it
+	    // ### this way for now to exercise QAnimationWriter.
+	    QRect r( hdr->update );
+	    r = r.intersect( QRect(0, 0, hdr->width, hdr->height ) );
+	    if ( r.isEmpty() ) {
+		animation->appendBlankFrame();
+	    } else {
+		QImage img( data + hdr->dataoffset + r.y() * hdr->linestep,
+			hdr->width, r.height(), hdr->depth, hdr->clut,
+			hdr->depth == 1 ? 0 : 256, QImage::LittleEndian );
+		animation->appendFrame(img,QPoint(0,r.y()));
+	    }
+    }
     if ( hdr->dirty ) {
 	drawScreen();
     }
+    unlock();
 }
 
 void QVFbView::drawScreen()
@@ -247,8 +266,9 @@ void QVFbView::drawScreen()
 	p.setBrush( white );
 	p.drawPixmap( int(r.x()*zoom), int(r.y()*zoom), pm,
 			int(r.x()*zoom), 0, pm.width(), pm.height() );
-    } else
+    } else {
 	unlock();
+    }
 }
 
 bool QVFbView::eventFilter( QObject *obj, QEvent *e )
@@ -322,3 +342,20 @@ void QVFbView::saveAs( const QString& filename )
 		256, QImage::LittleEndian );
     img.save(filename,"PNG");
 }
+
+void QVFbView::startAnimation( const QString& filename )
+{
+    delete animation;
+    animation = new QAnimationWriter(filename,"MNG");
+    animation->setFrameRate(refreshRate);
+    animation->appendFrame(QImage(data + hdr->dataoffset,
+                hdr->width, hdr->height, hdr->depth, hdr->clut,
+                256, QImage::LittleEndian));
+}
+
+void QVFbView::stopAnimation()
+{
+    delete animation;
+    animation = 0;
+}
+

@@ -1,3 +1,37 @@
+/****************************************************************************
+** $Id: indices.doc,v 2.35 1999/06/15 12:58:13 weis Exp $
+**
+** Qt/Embedded (Qt on QWS) documentation
+**
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Trolltech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 /*! \page install-qws.html
 
 \title Installing Qt/Embedded
@@ -348,23 +382,69 @@ and add the $QTDIR/lib directory to $LD_LIBRARY_PATH, e.g.:
 export QTDIR=$HOME/qt-<i>version</i>
 export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
 </pre>
+<p>
 Run the application with the <i>-qws</i> option:
+<p>
 <pre>
 cd $QTDIR/examples/widgets
 ./widgets -qws
 </pre>
+<p>
 You should see the widgets example appear.  If your mouse doesn't work
 correctly you need to specify the type of mouse to use.
 You can exit the master application at any time using ctrl+alt+backspace.
 <p>
-At the time of writing Qt/Embedded supports MouseMan (default), Microsoft and
-IntelliMouse.  To specify the mouse to use set the $QWS_MOUSE_PROTO environment
-variable, e.g.:
+If you wish to run additional applications you should run them as clients
+i.e. without the <i>-qws</i> option.
+
+<h2>Displays</h2>
+Qt/Embedded allows multiple displays to be used simultaneously by running
+multiple Qt/Embedded master processes.  This is achieved using the -display
+command line parameter or the $QWS_DISPLAY environment variable.
+<p>
+The -display parameter's syntax is:
+<p>
+<tt>[gfx driver][:driver specific options][:display number]</tt>
+<p>
+for example if you want to use the mach64 driver on fb1 as display 2:
+<p>
+<tt>$ ./launcher -display Mach64:/dev/fb1:2</tt>
+<p>
+To try this functionality you can do the following:
+<ol>
+<li>Change to VC 1 and run the launcher:<br>
+<tt>$ cd examples/launcher</tt><br>
+<tt>$ ./launcher</tt>
+
+<li>Switch to VC 2 and run another one:<br>
+<tt>$ cd examples/launcher</tt><br>
+<tt>$ ./launcher -display :1</tt><p>
+Another launcher will be started.  Start an application in this launcher.
+
+<li>Press ctrl+alt+F1 - back to display 0.  You can also start additional
+applications on a particular display by specifying the display id. Change
+to VC 3:<br>
+<tt>$ cd examples/widgets</tt><br>
+<tt>$ ./widgets -display :1</tt><br>
+will display the widgets example on dislpay :1 (VC 2).
+</ol>
+<p>
+Only the master process needs to specify the driver/device part explicitly.
+The clients get the information they need from the master when they connect.
+So once you have a master server running using a particular driver, you can
+just use "client -display :n" to use display n.
+
+<h2>Mouse Input</h2>
+At the time of writing Qt/Embedded supports MouseMan (default), Microsoft,
+IntelliMouse and some other devices specific to certain hardware (e.g. Vr
+touch panel).  To specify the mouse to use set the $QWS_MOUSE_PROTO environment
+variable, e.g.:<p>
 <pre>
 export QWS_MOUSE_PROTO=IntelliMouse
 </pre>
-If you wish to run additional applications you should run them as clients
-i.e. without the <i>-qws</i> option.
+<p>
+See <a href="pointer-qws.html">Qt/Embedded Pointer Handling</a> for more
+information.
 
 */
 
@@ -435,7 +515,7 @@ in <tt>kernel/qwsmouse_qws.cpp</tt>.
 
 <h2>Vr Touch Panel</h2>
 
-Qt/Embedded ships with rudimentary support for the NEC Vr41XX touchpanel.
+Qt/Embedded ships with support for the NEC Vr41XX touchpanel.
 Like an additional mouse protocol, this is implemented by subclassing
 QMouseHandler in <tt>kernel/qwsmouse_qws.cpp</tt>.
 

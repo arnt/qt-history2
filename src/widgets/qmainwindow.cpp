@@ -5,25 +5,35 @@
 **
 ** Created : 980312
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the widgets
-** module and therefore may only be used if the widgets module is specified
-** as Licensed on the Licensee's License Certificate.
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qmainwindow.h"
 #ifndef QT_NO_COMPLEXWIDGETS
@@ -67,8 +77,9 @@ static Qt::Orientation swap_orientation( Qt::Orientation o )
 	return Qt::Horizontal;
 }
 
-static int tb_pos( QToolBar *t, Qt::Orientation o, bool swap = FALSE )
+static int tb_pos( QToolBar *t, Qt::Orientation orient, bool swap = FALSE )
 {
+    Qt::Orientation o = orient;
     if ( swap )
 	o = swap_orientation( o );
     if ( o == Qt::Horizontal )
@@ -77,8 +88,9 @@ static int tb_pos( QToolBar *t, Qt::Orientation o, bool swap = FALSE )
 	return t->y();
 }
 
-static int tb_extend( QToolBar *t, Qt::Orientation o, bool swap = FALSE )
+static int tb_extend( QToolBar *t, Qt::Orientation orient, bool swap = FALSE )
 {
+    Qt::Orientation o = orient;
     if ( swap )
 	o = swap_orientation( o );
     if ( o == Qt::Horizontal )
@@ -87,8 +99,9 @@ static int tb_extend( QToolBar *t, Qt::Orientation o, bool swap = FALSE )
 	return t->height();
 }
 
-static int rect_pos( const QRect &r, Qt::Orientation o, bool swap = FALSE )
+static int rect_pos( const QRect &r, Qt::Orientation orient, bool swap = FALSE )
 {
+    Qt::Orientation o = orient;
     if ( swap )
 	o = swap_orientation( o );
     if ( o == Qt::Horizontal )
@@ -97,8 +110,9 @@ static int rect_pos( const QRect &r, Qt::Orientation o, bool swap = FALSE )
 	return r.y();
 }
 
-static int rect_extend( const QRect &r, Qt::Orientation o, bool swap = FALSE )
+static int rect_extend( const QRect &r, Qt::Orientation orient, bool swap = FALSE )
 {
+    Qt::Orientation o = orient;
     if ( swap )
 	o = swap_orientation( o );
     if ( o == Qt::Horizontal )
@@ -107,8 +121,9 @@ static int rect_extend( const QRect &r, Qt::Orientation o, bool swap = FALSE )
 	return r.height();
 }
 
-static int size_extend( const QSize &s, Qt::Orientation o, bool swap = FALSE )
+static int size_extend( const QSize &s, Qt::Orientation orient, bool swap = FALSE )
 {
+    Qt::Orientation o = orient;
     if ( swap )
 	o = swap_orientation( o );
     if ( o == Qt::Horizontal )
@@ -2285,7 +2300,6 @@ bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 */
 void QMainWindow::resizeEvent( QResizeEvent* )
 {
-    //    setUpLayout(); // #####
 }
 
 /*!
@@ -2314,10 +2328,12 @@ void QMainWindow::childEvent( QChildEvent* e)
     } else if ( e->type() == QEvent::ChildInserted ) {
 	if ( e->child()->inherits( "QStatusBar" ) ) {
 	    d->sb = (QStatusBar*)e->child();
-	    if ( d->tll )
-		d->tll->addWidget( (QStatusBar*)e->child() );
-	    else
+	    if ( d->tll ) {
+		if ( !d->tll->findWidget( d->sb ) )
+		    d->tll->addWidget( (QStatusBar*)e->child() );
+	    } else {
 		triggerLayout();
+	    }
 	}
     }
 }
@@ -2944,7 +2960,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	if ( !d->oldPosRectValid || d->oldPosRect != r )
 	    d->rectPainter->drawRect( r );
     } else if ( d->opaque ) {
-	if ( dock == Unmanaged ) {
+	if ( dock == Unmanaged || !isDockEnabled( dock ) || !isDockEnabled( t, dock ) ) {
 	    dock = d->origDock;
 	} else {
 	    int ipos;

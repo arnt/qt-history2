@@ -56,20 +56,24 @@ MODULES=`$MAKE -f src/Makefile.in listallmodules`
 
 
 # Free edition - may only be used under the terms of the QPL.
-if [ -f LICENSE.QPL ]
+if [ -f LICENSE.QPL -a -f LICENSE.GPL ]
 then
+    Edition=free
     Licensee=you
     while true
     do
 	echo
-	echo "This is the Qt Free Edition.  You are licensed to use this"
-	echo "software under the terms of the Q Public License."
+	echo "This is the Qt Free Edition."
 	echo
-	echo "Type '?' to view the Q Public License."
+	echo "You are licensed to use this software under the terms of either"
+	echo "the Q Public License (QPL) or the GNU General Public License (GPL)."
+	echo
+	echo "Type 'Q' to view the Q Public License."
+	echo "Type 'G' to view the GNU General Public License."
 	echo "Type 'yes' to accept this license offer."
 	echo "Type 'no' to decline this license offer."
 	echo
-	echo "Do you accept the terms of the Q Public License?"
+	echo "Do you accept the terms of either license?"
 	read acceptance
 	if [ "$acceptance" = yes ]
 	then
@@ -81,8 +85,13 @@ then
 		echo "You are not licensed to use this software."
 		echo
 		exit 0
+	    elif [ "$acceptance" = G -o "$acceptance" = g ]
+	    then
+		more LICENSE.GPL
+	    elif [ "$acceptance" = Q -o "$acceptance" = q ]
+	    then
+		more LICENSE.QPL
 	    fi
-	    more LICENSE.QPL
 	fi
     done
 else
@@ -96,6 +105,7 @@ else
 	    EMB=""
 	fi
 	E="Qt$EMB Professional Edition"
+	Edition=pro
 
 	if [ -f $HOME/.qt-license ]
 	then
@@ -103,6 +113,7 @@ else
 	    if echo $Products | grep >/dev/null 'qt-enterprise'
 	    then
 		E="Qt$EMB Enterprise Edition"
+		Edition=ent
 	    else
 		MODULES="$Products "`$MAKE -f src/Makefile.in listpromodules`
 	    fi
@@ -165,9 +176,11 @@ else
 	    fi
 	done
     else
-	echo "Neither LICENSE nor LICENSE.QPL exists"
+	echo "The LICENSE, LICENSE.QPL, or LICENSE.GPL file shipped with"
+	echo "this software has disappeared."
 	echo
-	echo "You are not licensed to use this software."
+	echo "Sorry, you are not licensed to use this software."
+	echo "Try re-installing."
 	echo
 	exit 0
     fi
@@ -190,9 +203,11 @@ SM=auto
 ZLIB=yes
 LIBPNG=yes
 JPEG=no
+MNG=no
 NAS_SOUND=no
 I_FLAGS=
 L_FLAGS=
+R_FLAGS=
 l_FLAGS=
 XPLATFORM=
 FROMMAKE=
@@ -254,6 +269,12 @@ while [ -n "$1" ]; do
    -system-libpng)
        LIBPNG=no
 	;;
+   -no-mng)
+       MNG=no
+	;;
+   -system-libmng)
+       MNG=yes
+	;;
    -no-jpeg)
        JPEG=no
 	;;
@@ -273,13 +294,13 @@ while [ -n "$1" ]; do
        MODULE=`echo $1 | sed -e "s/-no-//"`;
        if [ -d "src/$MODULE" ]
        then
-	   MODULES=`echo $MODULES | sed -e s/\<$MODULE\>//`
+	   MODULES=`echo $MODULES | sed -e "s/$MODULE//"`
        else
 	   FEATURE=`echo $1 | sed -e "s/-/_/g" | tr '[a-z]' '[A-Z]'`;
 	   QT_CXX="$QT_CXX -DQT"`echo $1 | sed -e "s/-/_/g" | tr '[a-z]' '[A-Z]'`
        fi
 	
-    buildpath=`dirname $a | sed -e "s;$sepath;.;g"`
+    #buildpath=`dirname $a | sed -e "s;$sepath;.;g"`
 	;;
    -h | -help | --help)
        HELP=yes
@@ -293,6 +314,9 @@ while [ -n "$1" ]; do
    -L?*)
 	L_FLAGS="$L_FLAGS $1"
 	;;
+   -R?*)
+	R_FLAGS="$R_FLAGS $1"
+	;;
    -l?*)
 	l_FLAGS="$l_FLAGS $1"
 	;;
@@ -303,6 +327,10 @@ while [ -n "$1" ]; do
    -L)
 	shift
 	L_FLAGS="$L_FLAGS -L$1"
+	;;
+   -R)
+	shift
+	R_FLAGS="$R_FLAGS -R$1"
 	;;
    *)
        echo $1: unknown argument
@@ -422,10 +450,12 @@ then
 	;;
      UNIX_SV:4.2*)
 	PLATFORM=unixware-g++
-	#PLATFORM=unixware7-cc
+	;;
+     UnixWare:5*)
+	PLATFORM=unixware7-cc
 	#PLATFORM=unixware7-g++
 	PLATFORM_NOTES="
-	    - Also available for UNIX_SV:4.2: unixware7-cc unixware7-g++
+	    - Also available for UnixWare:5: unixware7-g++
 	"
 	;;
      *:3.2)
@@ -616,11 +646,25 @@ if [ "$HELP" = "yes" ]; then
 	SMY="*"
 	SMN=" "
     fi
-   cat <<EOF
+
+
+    MODULES_HELP=`$MAKE -f src/Makefile.in listaddonentmodules`
+    if [ -f $HOME/.qt-license ]
+    then
+    . $HOME/.qt-license
+	    if echo $Products | grep >/dev/null 'qt-enterprise'
+	    then
+		MODULES_HELP="opengl table network canvas"
+	    else
+		MODULES_HELP=""
+	    fi
+    fi
+
+    cat <<EOF
 Usage: $0 [-debug] [-release] [-gif] [-no-gif] [-sm] [-no-sm] \\
         [-qt-zlib] [-system-zlib] [-qt-libpng] [-system-libpng] \\
         [-no-jpeg] [-system-jpeg] [-no-thread] [-thread] [-kde] \\
-        [-Istring] [-lstring] [-Lstring] \\
+        [-Istring] [-lstring] [-Lstring] [-Rstring] [-no-<module>] \\
 
 The defaults (*) are usually acceptable.  Here is a short explanation of
 each option:
@@ -642,20 +686,29 @@ each option:
 
  *  -qt-zlib ........... Use the zlib bundled with Qt.
     -system-zlib ....... Use a zlib from the operating system
+                         http://www.info-zip.org/pub/infozip/zlib
 
  *  -qt-libpng ......... Use the libpng bundled with Qt.
     -system-libpng ..... Use a libpng from the operating system.
+                         See http://www.libpng.org/pub/png
+
+ *  -no-mng ............ Do not compile in MNG I/O support.
+    -system-libmng ..... Use libmng from the operating system.
+                         See http://www.libmng.com
 
  *  -no-jpeg ........... Do not compile in JPEG I/O support.
-    -system-jpeg ....... Use libjpeg from the operating system.
+    -system-jpeg ....... Use jpeglib from the operating system.
+                         See http://www.ijg.org
 
  *  -no-nas-sound ...... Do not compile in NAS sound support.
     -system-nas-sound .. Use NAS libaudio from the operating system.
+                         See http://radscan.com/nas.html
 
- *  -kde ............... Builds the Qt Designer with KDE2 support, so that 
-			 KDE2 widgets can be used directly in 
-			 the Qt Designer. \$KDEDIR has to be 
+    -kde ............... Builds the Qt Designer with KDE2 support, so that
+			 KDE2 widgets can be used directly in
+			 the Qt Designer. \$KDEDIR must be
 			 set to point to a KDE2 installation.
+                         See http://www.kde.org
 
     -platform target ... The platform you are building on ($PLATFORM)
     -xplatform target .. The platform when cross-compiling.
@@ -666,9 +719,13 @@ each option:
 
     -Istring ........... Add an explicit include path.
     -Lstring ........... Add an explicit library path.
+    -Rstring ........... Add an explicit dynamic library runtime search path.
     -lstring ........... Add an explicit library.
 
+    -no-<module> ....... Disables a module, where module can
+                         can be one of: $MODULES_HELP
 EOF
+
    [ "x$ERROR" = "xyes" ] && exit 1
    exit 0;
 fi
@@ -683,6 +740,7 @@ QT_MODOBJ=""
 [ "x$GIF" = "xyes" ] && QT_CXX="${QT_CXX} -DQT_BUILTIN_GIF_READER=1"
 [ "x$GIF" = "xno" ] && QT_CXX="${QT_CXX} -DQT_BUILTIN_GIF_READER=0"
 [ "x$JPEG" = "xno" ] && QT_CXX="${QT_CXX} -DQT_NO_IMAGEIO_JPEG"
+[ "x$MNG" = "xno" ] && QT_CXX="${QT_CXX} -DQT_NO_IMAGEIO_MNG"
 [ "x$NAS_SOUND" = "xyes" ] && QT_CXX="${QT_CXX} -DQT_NAS_SUPPORT"
 [ "x$SM" = "xno" ] && QT_CXX="${QT_CXX} -DQT_NO_SM_SUPPORT"
 if [ "x$THREAD" = "xyes" ]
@@ -693,7 +751,17 @@ SHELL=/bin/sh
 src-mt:
 	cd src; \$(MAKE) \
 	    'QT_THREAD_SUFFIX=-mt' \
-	    'QT_LIBS_MT=\$\$(SYSCONF_LFLAGS_THREAD) \$\$(SYSCONF_LIBS_THREAD)' \
+	    'QT_LFLAGS_MT=\$\$(SYSCONF_LFLAGS_THREAD) \$\$(SYSCONF_LIBS_THREAD)' \
+	    'QT_CXX_MT=\$\$(SYSCONF_CXXFLAGS_THREAD) -DQT_THREAD_SUPPORT' \
+	    'QT_C_MT=\$\$(SYSCONF_CFLAGS_THREAD) -DQT_THREAD_SUPPORT'
+	cd examples/guithreads; \$(MAKE) \
+	    'QT_THREAD_SUFFIX=-mt' \
+	    'QT_LFLAGS_MT=\$\$(SYSCONF_LFLAGS_THREAD) \$\$(SYSCONF_LIBS_THREAD)' \
+	    'QT_CXX_MT=\$\$(SYSCONF_CXXFLAGS_THREAD) -DQT_THREAD_SUPPORT' \
+	    'QT_C_MT=\$\$(SYSCONF_CFLAGS_THREAD) -DQT_THREAD_SUPPORT'
+	cd examples/semaphores; \$(MAKE) \
+	    'QT_THREAD_SUFFIX=-mt' \
+	    'QT_LFLAGS_MT=\$\$(SYSCONF_LFLAGS_THREAD) \$\$(SYSCONF_LIBS_THREAD)' \
 	    'QT_CXX_MT=\$\$(SYSCONF_CXXFLAGS_THREAD) -DQT_THREAD_SUPPORT' \
 	    'QT_C_MT=\$\$(SYSCONF_CFLAGS_THREAD) -DQT_THREAD_SUPPORT'
 	cd src; \$(MAKE) clean
@@ -747,8 +815,9 @@ chmod -w src/tools/qmodules.h
 [ "x$LIBPNG" = "xno" ] && QT_LIBS="${QT_LIBS} -lpng"
 [ "x$ZLIB" = "xno" ] && QT_LIBS="${QT_LIBS} -lz"
 [ "x$JPEG" = "xyes" ] && QT_LIBS="${QT_LIBS} -ljpeg"
+[ "x$MNG" = "xyes" ] && QT_LIBS="${QT_LIBS} -lmng -ljpeg" # assume JNG support
 [ "x$NAS_SOUND" = "xyes" ] && QT_LIBS="${QT_LIBS} -laudio -lXt" # Xt junk in audio library
-QT_LIBS="$L_FLAGS $QT_LIBS $l_FLAGS"
+QT_LIBS="$L_FLAGS $R_FLAGS $QT_LIBS $l_FLAGS"
 
 
 # Create the .buildopts file
@@ -792,6 +861,7 @@ fi
 
 echo "Thread support....... $THREAD"
 echo "GIF support.......... $GIF"
+echo "MNG support.......... $MNG"
 echo "JPEG support......... $JPEG"
 echo "NAS sound support.... $NAS_SOUND"
 echo "Session management... $SM"
@@ -821,6 +891,10 @@ for a in `find $relpath/. -name Makefile.in -print | sort` ; do
     test -d $buildpath || mkdir $buildpath
     N=$buildpath/Makefile
     M=$a
+    if [ -f $dir/Makefile-$Edition.in ]
+    then
+	M=$dir/Makefile-$Edition.in
+    fi
     if [ $KDE = yes ]
     then
 	if [ -f $dir/Makefile-kde.in ]

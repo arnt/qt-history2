@@ -5,6 +5,4 @@
 // supported on Qt/Embedded where reducing the library size is important
 // and where the application-suite is often a fixed set.
 
-#define QT_NO_IMAGEIO_MNG // not defined by default.
-
 #define QT_DLL // Internal

@@ -4,7 +4,7 @@
 ** QBoxLayout example: boxes that go "backwards" (i.e. RightToLeft or
 ** BottomToTop)
 **
-** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1996 by Trolltech AS.  All rights reserved.
 **
 *****************************************************************************/
 #include <qapplication.h>

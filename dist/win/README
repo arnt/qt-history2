@@ -32,6 +32,21 @@ using the make program that comes with your compiler, or import the
 Makefile into your favorite IDE.
 
 
+Run the Qt Designer
+-----------------------------------------
+
+A static-linked pre-compiled version of Qt's WYSIWYG User Interface
+Bulder "Qt Designer" and the Qt User Interface Compiler (uic) are
+included in the Qt package. You find them in qt/bin or can just start
+Qt Designer from Qt folder in the Windows Start menu.
+
+If you want to build the Qt Designer yourself, look at the INSTALL
+files for further instructions.
+
+For documentation on the Qt Designer choose Help->Manual after you
+started it or just press F1.
+
+
 Troubleshooting
 ---------------
 
@@ -52,6 +67,9 @@ header files (e.g. stdio.h or windows.h), you must set the INCLUDE and LIB
 environment variables to contain the paths of the compiler's header files
 and library files. For Microsoft Visual C++ users, the vcvars32.bat file
 takes care of this.
+
+Check that the distribution is not installed in a directory containing
+spaces as the build system does not support this (Qt itself does of course).
 
 Also, make sure you check the relevant Platform Notes for your OS and
 compiler at http://www.trolltech.com/platforms/

@@ -1,7 +1,15 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/texture/gltexobj.h#1 $
+** $Id: //depot/qt/main/examples/texture/gltexobj.h#4 $
 **
-** Definition of GLBox
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+**
+** This file is part of an example program for Qt.  This example
+** program may be used, distributed and modified without limitation.
+**
+*****************************************************************************/
+
+/****************************************************************************
+**
 ** This is a simple QGLWidget displaying an openGL wireframe box
 **
 ****************************************************************************/

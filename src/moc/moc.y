@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#187 $
+** $Id: //depot/qt/main/src/moc/moc.y#188 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -836,7 +836,7 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 						BEGIN tmpYYStart;
 				   	   }
 			  opt_property_candidates
-			| Q_CLASSINFO { tmpYYStart = YY_START; BEGIN IN_PROPERTY; }
+			| Q_CLASSINFO { tmpYYStart = YY_START; BEGIN IN_CLASSINFO; }
 			  '(' STRING ',' STRING ')'
 				  {
 				      infos.append( new ClassInfo( $4, $6 ) );
@@ -2453,7 +2453,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#187 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#188 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2750,15 +2750,23 @@ void generateClass()		      // generate C++ source code for a class
 	    fprintf( out, "\tswitch ( c->numArgs() ) {\n" );
 	    for ( i=0; i<=nargs; i++ ) {
 		fprintf( out, "\t    case %d:\n", i );
+		fprintf( out, "#ifdef Q_FP_CCAST_BROKEN\n" );
+		fprintf( out, "\t\tr%d = reinterpret_cast<RT%d>(*(c->member()));\n", i, i );
+		fprintf( out, "#else\n" );
 		fprintf( out, "\t\tr%d = (RT%d)*(c->member());\n", i, i );
+		fprintf( out, "#endif\n" );
 		fprintf( out, "\t\t(object->*r%d)(%s);\n",
 			 i, (const char*)valvec[i] );
 		fprintf( out, "\t\tbreak;\n" );
 	    }
 	    fprintf( out, "\t}\n" );
 	} else {
+	    fprintf( out, "#ifdef Q_FP_CCAST_BROKEN\n" );
+	    fprintf( out, "\tr = reinterpret_cast<RT>(*(c->member()));\n" );
+	    fprintf( out, "#else\n" );
 	    fprintf( out, "\tr = (RT)*(c->member());\n" );
 	    fprintf( out, "\t(object->*r)(%s);\n", (const char*)valstr );
+	    fprintf( out, "#endif\n" );
 	}
 	fprintf( out, "    }\n}\n" );
 	f = signals.next();

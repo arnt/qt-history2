@@ -5,25 +5,35 @@
 **
 ** Created : 980906
 **
-** Copyright (C) 1998-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1998-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the kernel
-** module and therefore may only be used if the kernel module is specified
-** as Licensed on the Licensee's License Certificate.
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 
 #include "qtranslator.h"
@@ -983,7 +993,7 @@ QValueList<QTranslatorMessage> QTranslator::messages() const
 }
 
 
-/* NOT DOCUMENTED \class QTranslatorMessage qtranslator.h
+/*! \class QTranslatorMessage qtranslator.h
 
   \brief The QTranslatorMessage class contains a translator message and its
   properties.
@@ -991,17 +1001,19 @@ QValueList<QTranslatorMessage> QTranslator::messages() const
   \ingroup environment
 
   This class is of no interest to most applications, just for
-  translation tools.
+  translation tools, e.g.
+  <a href="http://www.trolltech.com/linguist/">Qt Linguist.</a> It is
+  provided simply to make the API complete and regular.
 
-  For a QTranslator object, a lookup \e key is a triple ( \e context,
-  \e source \e text, \e comment ) that uniquely identifies a message.  An
-  \e extended \e key is a quadruple ( \e hash, \e context, \e source \e text,
-  \e comment ), where \a hash is computed from the source text and the comment.
-  Unless you plan to read and write messages yourself, you need not worry about
-  the hash value.
-
-  An object of this class also contains the translation, in Unicode, of the
-  source text, with a type.
+  For a QTranslator object, a lookup key is a triple ( \e context, \e
+  source \e text, \e comment ) that uniquely identifies a message.  An
+  extended key is a quadruple ( \e hash, \e context, \e source \e
+  text, \e comment ), where \a hash is computed from the source text
+  and the comment.  Unless you plan to read and write messages
+  yourself, you need not worry about the hash value.
+  
+  QTranslatorMessage stores theis triple or quadruple, the relevant
+  translation if there is any, and the status of the message.
 
   \sa QTranslator
 */

@@ -5,25 +5,35 @@
 **
 ** Created : 981231
 **
-** Copyright (C) 1998-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1998-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the widgets
-** module and therefore may only be used if the widgets module is specified
-** as Licensed on the Licensee's License Certificate.
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qsgistyle.h"
 #ifndef QT_NO_STYLE_SGI
@@ -59,6 +69,7 @@ static const int sgiCheckMarkSpace	= 20;
 static bool sliderMoving		= FALSE;
 static bool sliderHandleActive		= FALSE;
 static bool repaintByMouseMove		= FALSE;
+static QPalette* lastWidgetPalette	= 0;
 static int activeScrollBarElement	= 0;
 static QRect sliderStartOldPos(1,-1,1,-1);
 static void* deviceUnderMouse		= 0;
@@ -279,7 +290,7 @@ void
 QSGIStyle::drawPanel( QPainter*p, int x, int y, int w, int h, const QColorGroup &g,
 		      bool sunken, int lineWidth, const QBrush* fill )
 {
-    QMotifStyle::drawPanel( p, x, y, w, h, g, sunken, lineWidth, fill );
+    QMotifStyle::drawPanel( p, x, y, w, h, g, sunken, ( w > lineWidth && h > lineWidth ) ? lineWidth : 1, fill );
     if ( lineWidth <= 1 )
 	return;
     // draw extra shadinglines
@@ -1079,9 +1090,10 @@ QSGIStyle::drawPopupPanel( QPainter *p, int x, int y, int w, int h,
 			       const QColorGroup &g, int lineWidth,
 			       const QBrush *fill )
 {
-    if (lineWidth == 3)
+    if (lineWidth == 3 && w > 3 && h > 3 )
         drawBevelButton( p, x, y,  w, h, g, FALSE, fill );
-    else QMotifStyle::drawPopupPanel( p, x, y, w, h, g, lineWidth, fill );
+    else 
+	QMotifStyle::drawPopupPanel( p, x, y, w, h, g, lineWidth, fill );
 }
 
 
@@ -1135,7 +1147,7 @@ QSGIStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, 
     int pw = sgiItemFrame;
 
     if ( act && !dis ) {
-	if ( defaultFrameWidth() > 1)
+	if ( defaultFrameWidth() > 1 )
 	    drawPanel( p, x, y, w, h, g, FALSE, pw,
 			     &g.brush( QColorGroup::Light ) );
 	else
@@ -1308,6 +1320,8 @@ QSGIStyle::eventFilter( QObject* o, QEvent* e )
 		if (w->isEnabled()) {
 		    QPalette pal = w->palette();
 		    lastWidget = w;
+		    if ( lastWidget->ownPalette() )
+			lastWidgetPalette = new QPalette( lastWidget->palette() );
 		    pal.setColor( QPalette::Active, QColorGroup::Button, pal.active().midlight() );
 		    lastWidget->setPalette( pal );
 		}
@@ -1324,9 +1338,16 @@ QSGIStyle::eventFilter( QObject* o, QEvent* e )
 	        ((QWidget*) o)->repaint( FALSE );
 	    }
 
-	    if ( lastWidget && o == lastWidget && lastWidget->ownPalette() &&
-		 lastWidget->testWState( WState_Created ))
-                lastWidget->unsetPalette();
+	    if ( lastWidget && o == lastWidget &&
+		lastWidget->testWState( WState_Created )) {
+		if ( lastWidgetPalette ) {    
+		    lastWidget->setPalette( *lastWidgetPalette );
+		    delete lastWidgetPalette;
+		    lastWidgetPalette = 0;
+		} else {
+		    lastWidget->unsetPalette();
+		}
+	    }
 	}
 	break;
     default:

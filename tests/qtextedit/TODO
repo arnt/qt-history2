@@ -1,0 +1,9 @@
+- Draw Big custom widgets without double buffering
+- Implement proper cursor handling in tables (means: mouse cursor handling and selections)
+- Implement HTML export
+- Undo/Redo has to support formats (does only plain text at the moment)
+- Copy/Paste/DnD in richtext (HTML?) too
+- Cleanup formatcollection to make the memory handling of the formats (ownership, etc.) cleaner
+- Finish QSimpleRichText
+- Make QTextBrowser and QTextView using the new engine but keeping old API
+- Fix textflow/dpi stuff for printing (esp. on windows)

@@ -5,25 +5,35 @@
 **
 ** Created : 940112
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the kernel
-** module and therefore may only be used if the kernel module is specified
-** as Licensed on the Licensee's License Certificate.
+** licenses for Unix/X11 may use this file in accordance with the Qt Commercial
+** License Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qpainter.h"
 #include "qwidget.h"
@@ -1747,66 +1757,35 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 		return;
 	}
 	if ( txop == TxRotShear ) {		// rotate/shear polygon
-	    QPointArray a;
 	    if ( w <= 0 || h <= 0 )
 		fix_neg_rect( &x, &y, &w, &h );
 	    w--;
 	    h--;
 	    int rxx = w*xRnd/200;
 	    int ryy = h*yRnd/200;
+	    // were there overflows?
+	    if ( rxx < 0 )
+		rxx = w/200*xRnd;
+	    if ( ryy < 0 )
+		ryy = h/200*yRnd;
 	    int rxx2 = 2*rxx;
 	    int ryy2 = 2*ryy;
-	    int xx, yy;
-
-	    // ###### WWA: this should use the new makeArc (with xmat)
-
-	    // Make the ellipse as close to the origin as possible to
-	    // avoid overflow if the coordinates are at extreme positions.
-	    int xneg = ( x<0 ? 1 : 0 );
-	    int yneg = ( y<0 ? 1 : 0 );
-	    a.makeEllipse( x + xneg*(w-rxx2), y + yneg*(h-ryy2), rxx2, ryy2 );
-	    int s = a.size()/4;
-	    int i = 0;
-	    int dw = ( xneg ? rxx2-w : w-rxx2 );
-	    int dh = ( yneg ? ryy2-h : h-ryy2 );
-	    int start[3];
-	    if ( xneg && yneg ) {
-		start[0] = 2 * s;
-		start[1] = 0 * s;
-		start[2] = 1 * s;
-	    } else if ( !xneg &&  yneg ) {
-		start[0] = 3 * s;
-		start[1] = 1 * s;
-		start[2] = 0 * s;
-	    } else if (  xneg && !yneg ) {
-		start[0] = 1 * s;
-		start[1] = 3 * s;
-		start[2] = 2 * s;
-	    } else if ( !xneg && !yneg ) {
-		start[0] = 0 * s;
-		start[1] = 2 * s;
-		start[2] = 3 * s;
+	    QPointArray a[4];
+	    a[0].makeArc( x, y, rxx2, ryy2, 1*16*90, 16*90, wxmat );
+	    a[1].makeArc( x, y+h-ryy2, rxx2, ryy2, 2*16*90, 16*90, wxmat );
+	    a[2].makeArc( x+w-rxx2, y+h-ryy2, rxx2, ryy2, 3*16*90, 16*90, wxmat );
+	    a[3].makeArc( x+w-rxx2, y, rxx2, ryy2, 0*16*90, 16*90, wxmat );
+	    // ### is there a better way to join QPointArrays?
+	    QPointArray aa;
+	    aa.resize( a[0].size() + a[1].size() + a[2].size() + a[3].size() );
+	    uint j = 0;
+	    for ( int k=0; k<4; k++ ) {
+		for ( uint i=0; i<a[k].size(); i++ ) {
+		    aa.setPoint( j, a[k].point(i) );
+		    j++;
+		}
 	    }
-	    i= start[0];
-	    while ( i < start[0]+s ) {
-		a.point( i, &xx, &yy );
-		xx += dw;
-		a.setPoint( i++, xx, yy );
-	    }
-	    i= start[1];
-	    while ( i < start[1]+s ) {
-		a.point( i, &xx, &yy );
-		yy += dh;
-		a.setPoint( i++, xx, yy );
-	    }
-	    i= start[2];
-	    while ( i < start[2]+s ) {
-		a.point( i, &xx, &yy );
-		xx += dw;
-		yy += dh;
-		a.setPoint( i++, xx, yy );
-	    }
-	    drawPolyInternal( xForm(a) );
+	    drawPolyInternal( aa );
 	    return;
 	}
 	map( x, y, w, h, &x, &y, &w, &h );

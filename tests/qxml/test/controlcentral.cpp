@@ -51,7 +51,13 @@ void ControlCentral::parse( const QString& filename )
     if ( !file.open(IO_ReadOnly) ) {
 	return;
     }
+#if 0
+    QTextStream ts2( &file );
+    QString inputString = ts2.read();
+    QTextStream ts( &inputString, IO_ReadOnly );
+#else
     QTextStream ts( &file );
+#endif
     QXmlSimpleReader parser;
     QXmlInputSource source( ts );
 
@@ -72,7 +78,8 @@ void ControlCentral::parse( const QString& filename )
     file.reset();
     QTextView* src = new QTextView();
     src->setTextFormat( PlainText );
-    src->setText( ts.read() );
+//    src->setText( ts.read() );
+    src->setText( source.data() );
     src->setCaption( "Source for " + filename );
 
     QListView* protocol = new QListView;
@@ -126,7 +133,7 @@ void ControlCentral::show( QStringList* files )
 	QStringList xmlFiles( QFileDialog::getOpenFileNames() );
 	for ( QStringList::Iterator it = xmlFiles.begin();
 		it != xmlFiles.end(); ++it ) {
-	    parse( (*it).mid( 5 ) ); // ### hack to get rid of "file:"
+	    parse( (*it) );
 	}
     } else {
 	for ( QStringList::Iterator it = files->begin();

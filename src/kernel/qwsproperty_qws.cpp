@@ -5,24 +5,27 @@
 **
 ** Created : 991025
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
-** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
-** LICENSE.QPL included in the packaging of this file.
-**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the kernel
-** module and therefore may only be used if the kernel module is specified
-** as Licensed on the Licensee's License Certificate.
+** licenses for Qt/Embedded may use this file in accordance with the
+** Qt Embedded Commercial License Agreement provided with the Software.
+**
+** This file is not available for use under any other license without
+** express written permission from the copyright holder.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing.
+**   information about Qt Commercial License Agreements.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qwsproperty_qws.h"
 
@@ -44,6 +47,12 @@ QWSPropertyManager::QWSPropertyManager()
     properties.setAutoDelete( TRUE );
 }
 
+
+//##### Memory leak? We do not delete prop->data
+
+//#define QWS_PROPERTY_DEBUG
+
+
 bool QWSPropertyManager::setProperty( int winId, int property, int mode, const char *data, int len )
 {
     if ( !hasProperty( winId, property ) )
@@ -52,15 +61,20 @@ bool QWSPropertyManager::setProperty( int winId, int property, int mode, const c
 
     switch ( mode ) {
     case PropReplace: {
+#ifdef QWS_PROPERTY_DEBUG
 	qDebug( "PropReplace" );
-	char *d = qstrdup( data );
+#endif
+	char *d = new char[len]; //###Must make sure this is deleted
+	memcpy(d, data, len );
 	Property *prop = new Property;
 	prop->len = len;
 	prop->data = d;
 	properties.replace( key, prop );
     } break;
     case PropAppend: {
+#ifdef QWS_PROPERTY_DEBUG
 	qDebug( "PropAppend" );
+#endif
 	Property *orig = properties[ key ];
 	int origLen = 0;
 	if ( orig )
@@ -75,7 +89,9 @@ bool QWSPropertyManager::setProperty( int winId, int property, int mode, const c
 	properties.replace( key, prop );
     } break;
     case PropPrepend: {
+#ifdef QWS_PROPERTY_DEBUG
 	qDebug( "PropPrepend" );
+#endif
 	Property *orig = properties[ key ];
 	int origLen = 0;
 	if ( orig )
@@ -90,10 +106,10 @@ bool QWSPropertyManager::setProperty( int winId, int property, int mode, const c
 	properties.replace( key, prop );
     } break;
     }
-
+#ifdef QWS_PROPERTY_DEBUG
     qDebug( "QWSPropertyManager::setProperty: %d %d (%s) to %s", winId, property, key,
 	    properties.find( key )->data );
-
+#endif
     delete [] key;
 
     return TRUE;
@@ -114,8 +130,9 @@ bool QWSPropertyManager::removeProperty( int winId, int property )
 	delete [] key;
 	return FALSE;
     }
-
+#ifdef QWS_PROPERTY_DEBUG
     qDebug( "QWSPropertyManager::removeProperty %d %d (%s)", winId, property, key );
+#endif    
     properties.remove( key );
     delete [] key;
     return TRUE;
@@ -131,7 +148,9 @@ bool QWSPropertyManager::addProperty( int winId, int property )
     prop->len = -1;
     prop->data = 0;
     properties.insert( key, prop );
+#ifdef QWS_PROPERTY_DEBUG
     qDebug( "QWSPropertyManager::addProperty: %d %d (%s)", winId, property, key );
+#endif
     return TRUE;
 }
 
@@ -148,8 +167,15 @@ bool QWSPropertyManager::getProperty( int winId, int property, char *&data, int 
     Property *prop = properties[ key ];
     len = prop->len;
     data = prop->data;
-    qDebug( "QWSPropertyManager::getProperty: %d %d (%s) is %s", winId, property, key,
-	    data );
+#ifdef QWS_PROPERTY_DEBUG
+    qDebug( "QWSPropertyManager::getProperty: %d %d (%s) %d", winId, property, 
+	    key, len );
+    if ( len > 0 ) {
+	for ( int i = 0; i < len; i++ )
+	    printf( "%c",data[i] );
+	printf( "\n" );
+    }
+#endif    
     delete [] key;
 
     return TRUE;
@@ -160,8 +186,9 @@ char *QWSPropertyManager::createKey( int winId, int property ) const
     char *key = new char[ 21 ];
     sprintf( key, "%010d%010d", winId, property );
     key[ 20 ] = '\0';
+#ifdef QWS_PROPERTY_DEBUG
     qDebug( "QWSPropertyManager::createKey: %s", key );
-
+#endif
     return key;
 }
 #endif //QT_NO_QWS_PROPERTIES

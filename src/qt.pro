@@ -1,6 +1,9 @@
 TEMPLATE	= lib
 CONFIG		+= qt warn_on release
 
+unix:CONFIG += x11
+embedded:CONFIG -= x11
+
 TARGET		= qt
 VERSION		= 2.2.0
 DESTDIR		= ../lib
@@ -31,7 +34,8 @@ embedded:CONFIG -= opengl
 #
 
 # CONFIG += opengl
-# internal:CONFIG += mng
+#internal:CONFIG += mng
+internal:DEFINES += QT_NO_IMAGEIO_MNG
 
 #unix:DEFINES    += QT_NAS_SUPPORT
 #unix:LIBS	+= -laudio -lXt
@@ -60,7 +64,8 @@ embedded:LIBS -= $$X11LIBS
 cups:DEFINES += QT_CUPS_SUPPORT
 cups:LIBS += -lcups
 
-mng:LIBS	+= -L$(QTDIR)/src/3rdparty/libmng -lmng -ljpeg
+mng:LIBS	+= -lmng -ljpeg
+#mng:LIBS	+= -L$(QTDIR)/src/3rdparty/libmng -lmng -ljpeg
 
 #DEFINES	+= QT_NO_ASCII_CAST
 #DEFINES	+= QT_NO_CAST_ASCII
@@ -76,7 +81,7 @@ win32:TMAKE_CXXFLAGS   += -DUNICODE
 MNG_INCLUDEPATH		= 3rdparty/libmng
 PNG_INCLUDEPATH		= 3rdparty/libpng
 ZLIB_INCLUDEPATH	= 3rdparty/zlib
-mng:INCLUDEPATH        += $$MNG_INCLUDEPATH
+#mng:INCLUDEPATH        += $$MNG_INCLUDEPATH
 png:INCLUDEPATH        += $$PNG_INCLUDEPATH
 zlib:INCLUDEPATH       += $$ZLIB_INCLUDEPATH
 win32:INCLUDEPATH      += tmp

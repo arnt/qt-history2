@@ -4,7 +4,7 @@
 **
 ** Created : 20000605
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -21,6 +21,7 @@
 
 class QImage;
 class QTimer;
+class QAnimationWriter;
 struct QVFbHeader;
 
 class QVFbView : public QScrollView
@@ -32,11 +33,14 @@ public:
     ~QVFbView();
 
     int rate() { return refreshRate; }
+    bool animating() const { return !!animation; }
 
 public slots:
     void setRate( int );
     void setZoom( double );
     void saveAs( const QString& );
+    void startAnimation( const QString& );
+    void stopAnimation();
 
 protected slots:
     void timeout();
@@ -70,6 +74,7 @@ private:
     int refreshRate;
     QString mousePipe;
     QString keyboardPipe;
+    QAnimationWriter *animation;
     int displayId;
     double zoom;
 };

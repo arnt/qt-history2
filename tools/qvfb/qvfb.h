@@ -4,7 +4,7 @@
 **
 ** Created : 20000605
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -35,6 +35,7 @@ public:
 
 protected slots:
     void saveImage();
+    void toggleAnimation();
     void toggleCursor();
     void changeRate();
     void about();

@@ -10,20 +10,30 @@
 ** This file is part of the XML module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the XML
-** module and therefore may only be used if the XML module is specified
-** as Licensed on the Licensee's License Certificate.
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition licenses may use this
+** file in accordance with the Qt Commercial License Agreement provided
+** with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #ifndef QDOM_H
 #define QDOM_H
@@ -39,6 +49,14 @@
 #include <qvariant.h>
 #include <qmime.h>
 #endif // QT_H
+
+#include <qmodules.h>
+
+#if !defined(QT_MODULE_XML)
+#define QM_EXPORT
+#else
+#define QM_EXPORT Q_EXPORT
+#endif
 
 #ifndef QT_NO_DOM
 class QWidget;
@@ -84,7 +102,7 @@ class QDomEntity;
 class QDomNotation;
 class QDomCharacterData;
 
-class Q_EXPORT QDomImplementation
+class QM_EXPORT QDomImplementation
 {
 public:
     QDomImplementation();
@@ -106,7 +124,7 @@ private:
     friend class QDomDocument;
 };
 
-class Q_EXPORT QDomNode // Ok
+class QM_EXPORT QDomNode // Ok
 {
 public:
     enum NodeType {
@@ -205,7 +223,7 @@ private:
     friend class QDomNamedNodeMap;
 };
 
-class Q_EXPORT QDomNodeList // Ok
+class QM_EXPORT QDomNodeList // Ok
 {
 public:
     QDomNodeList();
@@ -224,7 +242,7 @@ private:
     QDOM_NodeListPrivate* impl;
 };
 
-class Q_EXPORT QDomDocumentType : public QDomNode
+class QM_EXPORT QDomDocumentType : public QDomNode
 {
 public:
     QDomDocumentType();
@@ -247,7 +265,7 @@ private:
     friend class QDomNode;
 };
 
-class Q_EXPORT QDomDocument : public QDomNode
+class QM_EXPORT QDomDocument : public QDomNode
 {
 public:
     QDomDocument();
@@ -292,7 +310,7 @@ private:
     friend class QDomNode;
 };
 
-class Q_EXPORT QDomNamedNodeMap
+class QM_EXPORT QDomNamedNodeMap
 {
 public:
     QDomNamedNodeMap();
@@ -319,7 +337,7 @@ private:
     QDOM_NamedNodeMapPrivate* impl;
 };
 
-class Q_EXPORT QDomDocumentFragment : public QDomNode
+class QM_EXPORT QDomDocumentFragment : public QDomNode
 {
 public:
     QDomDocumentFragment();
@@ -338,7 +356,7 @@ private:
     friend class QDomNode;
 };
 
-class Q_EXPORT QDomCharacterData : public QDomNode
+class QM_EXPORT QDomCharacterData : public QDomNode
 {
 public:
     QDomCharacterData();
@@ -369,7 +387,7 @@ private:
     friend class QDomNode;
 };
 
-class Q_EXPORT QDomAttr : public QDomNode
+class QM_EXPORT QDomAttr : public QDomNode
 {
 public:
     QDomAttr();
@@ -394,7 +412,7 @@ private:
     friend class QDomNode;
 };
 
-class Q_EXPORT QDomElement : public QDomNode
+class QM_EXPORT QDomElement : public QDomNode
 {
 public:
     QDomElement();
@@ -431,7 +449,7 @@ private:
     friend class QDomNode;
 };
 
-class Q_EXPORT QDomText : public QDomCharacterData
+class QM_EXPORT QDomText : public QDomCharacterData
 {
 public:
     QDomText();
@@ -453,7 +471,7 @@ private:
     friend class QDomNode;
 };
 
-class Q_EXPORT QDomComment : public QDomCharacterData
+class QM_EXPORT QDomComment : public QDomCharacterData
 {
 public:
     QDomComment();
@@ -472,7 +490,7 @@ private:
     friend class QDomNode;
 };
 
-class Q_EXPORT QDomCDATASection : public QDomText
+class QM_EXPORT QDomCDATASection : public QDomText
 {
 public:
     QDomCDATASection();
@@ -491,7 +509,7 @@ private:
     friend class QDomNode;
 };
 
-class Q_EXPORT QDomNotation : public QDomNode
+class QM_EXPORT QDomNotation : public QDomNode
 {
 public:
     QDomNotation();
@@ -513,7 +531,7 @@ private:
     friend class QDomNode;
 };
 
-class Q_EXPORT QDomEntity : public QDomNode
+class QM_EXPORT QDomEntity : public QDomNode
 {
 public:
     QDomEntity();
@@ -535,7 +553,7 @@ private:
     friend class QDomNode;
 };
 
-class Q_EXPORT QDomEntityReference : public QDomNode
+class QM_EXPORT QDomEntityReference : public QDomNode
 {
 public:
     QDomEntityReference();
@@ -554,7 +572,7 @@ private:
     friend class QDomNode;
 };
 
-class Q_EXPORT QDomProcessingInstruction : public QDomNode
+class QM_EXPORT QDomProcessingInstruction : public QDomNode
 {
 public:
     QDomProcessingInstruction();

@@ -6,7 +6,7 @@
 ** Author  : Haavard Nord
 ** Created : 940802
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994 by Trolltech AS.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** This utility translates a portable Qt metafile into a standalone C++

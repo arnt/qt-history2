@@ -6,7 +6,7 @@
 ** Author  : Warwick Allison
 ** Created : 970519
 **
-** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1997 by Trolltech AS.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** This utility writes a list of colors to standard output.

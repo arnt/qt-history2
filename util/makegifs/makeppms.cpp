@@ -1102,6 +1102,7 @@ wd.depict( new eg(), ofile, wname );
 #define DEPICTFRAMED(eg, ofile, wname) \
 wd.depict( new eg(), ofile, wname, TRUE );
 
+/*
 	DEPICT( EgQButtonGroup, "qbttngrp", "QButtonGroup" );
 	DEPICT( EgQTabDialog, "qtabdlg", "QTabDialog" );
 	DEPICT( EgQTabWidget, "qtabwidget", "QTabWidget" );
@@ -1151,6 +1152,7 @@ wd.depict( new eg(), ofile, wname, TRUE );
 	DEPICT( EgComplexButtonGroup, "buttongroup", "QButtonGroup" );
 	DEPICT( EgQTabDialog, "qtabdlg", "QTabDialog" );
 	DEPICT( EgQIconView, "qiconview", "QIconView" );
+*/
 	DEPICT( EgQTextBrowser, "qtextbrowser", "QTextBrowser" );
 	DEPICT( EgQListView, "qlistview", "QListView" );
 	

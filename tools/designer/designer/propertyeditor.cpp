@@ -519,7 +519,12 @@ QLineEdit *PropertyTextItem::lined()
 	box->hide();
     }
 
-    lin = new QLineEdit( hasMultiLines ? box : listview->viewport() );
+    lin = 0;
+    if ( hasMultiLines )
+	lin = new QLineEdit( box );
+    else
+	lin = new QLineEdit( listview->viewport() );
+
     if ( asciiOnly )
 	lin->setValidator( new AsciiValidator( lin, "ascii_validator" ) );
     if ( !hasMultiLines ) {

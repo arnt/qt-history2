@@ -1,5 +1,5 @@
 TEMPLATE	= lib
-CONFIG		+= qt staticlib warn_on release
+CONFIG		+= qt staticlib warn_on release x11
 HEADERS		= qxt.h
 SOURCES		= qxt.cpp
 TARGET		= qxt

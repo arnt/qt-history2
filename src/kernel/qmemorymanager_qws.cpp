@@ -490,12 +490,17 @@ QMemoryManager::PixmapID QMemoryManager::newPixmap(int w, int h, int d)
 
     const int test_offset=0;
 
-    int siz=((w+test_offset)*d+7)/8*h;
+    int temp=(w*d+7)/8;
+    while(temp % qt_screen->pixmapLinestepAlignment()) {
+	temp++;
+    }
+
+    int siz=temp*h;
 
     // Aggressively find space in vram.
-    
-    data=qt_screen->cache(siz,0);
-    
+
+    data=qt_screen->cache(siz);
+
     if ( data ) {
 	xoffset = 0; // XXX
 
@@ -503,6 +508,10 @@ QMemoryManager::PixmapID QMemoryManager::newPixmap(int w, int h, int d)
 	id = ++next_pixmap_id;
 	next_pixmap_id++; // stay even
     } else {
+	// Don't need to align if it's in main ram
+
+	siz=((w*d+7)/8)*h;
+
 	// No vram left - use main memory
 	xoffset = test_offset; // for testing
 
@@ -543,7 +552,16 @@ void QMemoryManager::findPixmap(PixmapID id, int width, int depth, uchar** addre
     QMap<PixmapID,QMemoryManagerPixmap>::Iterator it = pixmap_map.find(id);
     *address = (*it).data;
     *xoffset = (*it).xoffset;
-    *linestep = (width*depth+7)/8;
+    int temp=(width*depth+7)/8;
+    if(id & 0x1) {
+	// Odd, so it's on the graphics card, so its linestep will be
+	// aligned
+	int t=qt_screen->pixmapLinestepAlignment();
+	while(temp % t) {
+	    temp++;
+	}
+    }
+    *linestep = temp;
 }
 
 // Fonts
@@ -563,7 +581,11 @@ static QString fontKey(const QFontDef& font)
 extern QString qws_topdir();
 static QString fontFilename(const QFontDef& font)
 {
-    return qws_topdir()+"/etc/fonts/"+fontKey(font)+".qpf"; // "Qt Prerendered Font"
+#ifdef LITTLE_ENDIAN
+    return qws_topdir()+"/etc/fonts/"+fontKey(font)+".qlf"; // "Qt Prerendered Font - Little Endian"
+#else
+    return qws_topdir()+"/etc/fonts/"+fontKey(font)+".qbf"; // "Qt Prerendered Font - Big Endian"
+#endif
 }
 
 QMemoryManager::FontID QMemoryManager::findFont(const QFontDef& font)
@@ -590,7 +612,11 @@ QMemoryManager::FontID QMemoryManager::findFont(const QFontDef& font)
 		    filename = fontFilename(d);
 		    if ( !QFile::exists(filename) ) {
 			qDebug("Doing fallback");
-			filename = qws_topdir()+"/etc/fonts/helvetica_120_50.qpf";
+#ifdef LITTLE_ENDIAN
+			filename = qws_topdir()+"/etc/fonts/helvetica_120_50.qlf";
+#else
+			filename = qws_topdir()+"/etc/fonts/helvetica_120_50.qbf";
+#endif
 		    }
 		}
 	    }

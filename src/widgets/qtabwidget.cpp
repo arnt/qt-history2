@@ -5,25 +5,35 @@
 **
 ** Created : 990318
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the widgets
-** module and therefore may only be used if the widgets module is specified
-** as Licensed on the Licensee's License Certificate.
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qtabwidget.h"
 #ifndef QT_NO_COMPLEXWIDGETS
@@ -95,6 +105,13 @@
   </ul>
 */
 
+/*! \enum QTabWidget::TabShape
+
+  This enum type defines the shape of the tabs: <ul>
+  <li> \c Rounded - rounded look (normal)
+  <li> \c Triangular - triangular look (very unusual, included for completeness)
+  </ul>
+*/
 
 /* undocumented now
   \obsolete
@@ -119,13 +136,14 @@ class QTabWidgetData
 {
 public:
     QTabWidgetData()
-	: tabs(0), stack(0), dirty( TRUE ), pos( QTabWidget::Top )
+	: tabs(0), stack(0), dirty( TRUE ), pos( QTabWidget::Top ), shape( QTabWidget::Rounded )
 	{};
     ~QTabWidgetData(){};
     QTabBar* tabs;
     QWidgetStack* stack;
     bool dirty;
     QTabWidget::TabPosition pos;
+    QTabWidget::TabShape shape;
 };
 
 
@@ -324,6 +342,14 @@ void QTabWidget::changeTab( QWidget *w, const QString &label)
 	return;
     t->label = label;
     d->tabs->layoutTabs();
+
+    int ct = d->tabs->currentTab();
+    d->tabs->blockSignals( TRUE );
+    d->tabs->setCurrentTab( 0 );
+    d->tabs->setCurrentTab( ct );
+    d->tabs->blockSignals( FALSE );
+
+    d->tabs->update();
     setUpLayout();
 }
 
@@ -344,6 +370,14 @@ void QTabWidget::changeTab( QWidget *w, const QIconSet& iconset, const QString &
     t->label = label;
     t->iconset = new QIconSet( iconset );
     d->tabs->layoutTabs();
+
+    int ct = d->tabs->currentTab();
+    d->tabs->blockSignals( TRUE );
+    d->tabs->setCurrentTab( 0 );
+    d->tabs->setCurrentTab( ct );
+    d->tabs->blockSignals( FALSE );
+
+    d->tabs->update();
     setUpLayout();
 }
 
@@ -419,7 +453,6 @@ void QTabWidget::removePage( QWidget * w )
 	setUpLayout();
 	if ( !currentPage() && d->stack->frameStyle() != QFrame::NoFrame )
 	    d->stack->setFrameStyle( QFrame::NoFrame );
-
     }
 }
 
@@ -556,7 +589,7 @@ QSize QTabWidget::sizeHint() const
 QSize QTabWidget::minimumSizeHint() const
 {
     QSize s( d->stack->minimumSizeHint() );
-    QSize t( d->tabs->sizeHint() );
+    QSize t( d->tabs->minimumSizeHint() );
     return QSize( QMAX( s.width(), t.width()),
 		  s.height() + t.height() );
 }
@@ -603,9 +636,44 @@ void QTabWidget::setTabPosition( TabPosition pos)
 	else
 	    d->tabs->setShape( QTabBar::RoundedAbove );
     }
+    d->tabs->layoutTabs();
     setUpLayout();
 }
 
+/*!
+  Returns the shape of the tabs.
+  
+  \sa setTabShape()
+*/
+
+QTabWidget::TabShape QTabWidget::tabShape() const
+{
+    return d->shape;
+}
+
+/*!
+  Sets the shape of the tabs to \a s.
+*/
+
+void QTabWidget::setTabShape( TabShape s )
+{
+    if ( d->shape == s )
+	return;
+    d->shape = s;
+    if ( d->pos == Top ) {
+	if ( s == Rounded )
+	    d->tabs->setShape( QTabBar::RoundedAbove );
+	else
+	    d->tabs->setShape( QTabBar::TriangularAbove );
+    } else {
+	if ( s == Rounded )
+	    d->tabs->setShape( QTabBar::RoundedBelow );
+	else
+	    d->tabs->setShape( QTabBar::TriangularBelow );
+    }
+    d->tabs->layoutTabs();
+    setUpLayout();
+}
 
 
 /*!

@@ -5,25 +5,35 @@
 **
 ** Created : 941003
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the kernel
-** module and therefore may only be used if the kernel module is specified
-** as Licensed on the Licensee's License Certificate.
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qpsprinter_p.h"
 
@@ -583,7 +593,7 @@ static const char * const ps_header[] = {
 "    PCol astore pop",
 "    /LWi ED",
 "    /PSt ED",
-"    LWi 0 eq { 0.3 /LWi ED } if",
+"    LWi 0 eq { 0.25 /LWi ED } if", // ### 3.0 remove this line
 "} D",
 "",
 "/P1 {",				// PdcSetPen [R G B]
@@ -799,7 +809,7 @@ static const struct {
     { 0x00B8, "cedilla" },  // CEDILLA
     { 0x00B9, "onesuperior" },  // SUPERSCRIPT ONE
     { 0x00BA, "ordmasculine" },  // MASCULINE ORDINAL INDICATOR
-    { 0x00BB, "guillemotright" },  // RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK
+    { 0x00BB, "guillemotright" }, // RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK
     { 0x00BC, "onequarter" },  // VULGAR FRACTION ONE QUARTER
     { 0x00BD, "onehalf" },  // VULGAR FRACTION ONE HALF
     { 0x00BE, "threequarters" },  // VULGAR FRACTION THREE QUARTERS
@@ -2511,8 +2521,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	pageCount           = 1;		// initialize state
 	dirtyMatrix         = TRUE;
 	d->dirtyClipping    = TRUE;
-	dirtyNewPage        = FALSE;		// setup done by QPainter
-	// for the first page.
+	dirtyNewPage        = TRUE;
 	d->firstClipOnPage  = TRUE;
 	d->boundingBox = QRect( 0, 0, -1, -1 );
 	fontsUsed = QString::fromLatin1("");
@@ -3066,14 +3075,18 @@ static QString stripHeader( const QString & header, const char * data,
     i = 0;
     while( i < len ) {
 	while( i < len && !isalpha( data[i] ) ) {
-	    if ( data[i] == '(' ) { // it's a string, skip it
+	    if ( data[i++] == '(' ) { // it's a string, skip it
+		int level = 1;
 		do {
-		    if ( data[i] == '\\' ) // we quote all () so this is okay
+		    if ( data[i] == '(' )
+			level++;
+		    else if ( data[i] == ')' )
+			level--;
+		    else if ( data[i] == '\\' )
 			i++;
 		    i++;
-		} while( i < len && data[i] != ')' );
+		} while( i < len && level > 0 );
 	    }
-	    i++;
 	}
 	if ( i < len && isalpha( data[i] ) ) {
 	    int j=0;

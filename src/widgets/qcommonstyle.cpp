@@ -5,25 +5,35 @@
 **
 ** Created : 981231
 **
-** Copyright (C) 1998-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1998-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.  This file is part of the widgets
-** module and therefore may only be used if the widgets module is specified
-** as Licensed on the Licensee's License Certificate.
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qcommonstyle.h"
 #if !defined(QT_NO_STYLE_WINDOWS) || !defined(QT_NO_STYLE_MOTIF)
@@ -349,6 +359,7 @@ void QStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation ori
     p->translate( r.x(), r.y() );
 
     if ( guiStyle() == Qt::MotifStyle ) {
+#ifndef QT_NO_STYLE_MOTIFPLUS
 	if (inherits("QMotifPlusStyle")) {
 	    QMotifPlusStyle *mp = (QMotifPlusStyle *) this;
 	    unsigned int i;
@@ -400,7 +411,9 @@ void QStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation ori
 		    p->drawPoints( a );
 		}
 	    }
-	} else {
+	} else
+#endif // QT_NO_STYLE_MOTIFPLUS
+	{
 	    QColor dark( cg.dark() );
 	    QColor light( cg.light() );
 	    unsigned int i;
@@ -527,15 +540,18 @@ void QStyle::drawToolButton( QToolButton* btn, QPainter *p)
 			    btn->x(), btn->y() );
     }
 #else
-    if ( btn->uses3D() || btn->isDown() || ( btn->isOn() && !btn->son ) )
+    if ( btn->uses3D() || btn->isDown() || ( btn->isOn() && !btn->son ) ) {
 	drawToolButton( p, x, y, w, h, g, sunken, &fill );
-    else if ( btn->parentWidget() && btn->parentWidget()->backgroundPixmap() &&
-	      !btn->parentWidget()->backgroundPixmap()->isNull() )
+    } else if ( btn->parentWidget() && btn->parentWidget()->backgroundPixmap() &&
+	      !btn->parentWidget()->backgroundPixmap()->isNull() ) {
  	p->drawTiledPixmap( 0, 0, btn->width(), btn->height(),
 			    *btn->parentWidget()->backgroundPixmap(),
 			    btn->x(), btn->y() );
-    else
-	drawToolButton( p, x - 2, y - 2, w + 4, h + 4, g, sunken, &fill );
+    } else {
+	if ( btn->parentWidget() )
+	    fill = QBrush( btn->parentWidget()->backgroundColor() );
+	drawToolButton( p, x - 10, y - 10, w + 20, h + 20, g, sunken, &fill );
+    }
 #endif
 #endif
 }
