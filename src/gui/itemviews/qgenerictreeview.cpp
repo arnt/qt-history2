@@ -196,6 +196,7 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
     while (y < h && i < c) {
         // prepare
         index = items[i].index;
+        options.open = d->items[i].open;
         options.itemRect.setRect(0, y, 0, delegate->sizeHint(fontMetrics, options, index).height());
         options.focus = (index == current);
         d->current = i;
@@ -581,6 +582,8 @@ void QGenericTreeView::updateGeometries()
     d->header->setGeometry(vg.left(), vg.top() - hint.height(), vg.width(), hint.height());
 
     // update sliders
+    if (model()->rowCount() <= 0)
+        return;
     QItemOptions options;
     getViewOptions(&options);
     QSize def = itemDelegate()->sizeHint(fontMetrics(), options, model()->index(0, 0, 0));
