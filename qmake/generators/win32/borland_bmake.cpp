@@ -495,6 +495,9 @@ BorlandMakefileGenerator::init()
 	if( s.startsWith( "-l" ) ) {
 	    stIt = libList.remove( stIt );
 	    stIt = libList.insert( stIt, s.mid( 2 ) + ".lib" );
+        } else if( s.startsWith( "-L" ) ) {
+	    stIt = libList.remove( stIt );
+	    project->variables()["QMAKE_LIBDIR"].append(QDir::convertSeparators(s.mid( 2 )));
 	} else {
 	    stIt++;
 	}
