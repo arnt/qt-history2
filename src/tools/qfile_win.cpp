@@ -348,6 +348,9 @@ bool QFile::at( Offset pos )
 
 Q_LONG QFile::readBlock( char *p, Q_ULONG len )
 {
+    if ( !len ) // nothing to do
+	return 0;
+
 #if defined(QT_CHECK_NULL)
     if ( !p )
 	qWarning( "QFile::readBlock: Null pointer error" );
@@ -398,6 +401,9 @@ Q_LONG QFile::readBlock( char *p, Q_ULONG len )
 
 Q_LONG QFile::writeBlock( const char *p, Q_ULONG len )
 {
+    if ( !len ) // nothing to do
+	return 0;
+
 #if defined(QT_CHECK_NULL)
     if ( p == 0 && len != 0 )
 	qWarning( "QFile::writeBlock: Null pointer error" );
