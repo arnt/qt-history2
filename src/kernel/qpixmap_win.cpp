@@ -623,7 +623,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     }
 
 #ifndef Q_OS_TEMP
-#if 0
+#if 1
     // ### use this if you encounter problems related alpha blending:
     data->hasRealAlpha = FALSE;
 #else
