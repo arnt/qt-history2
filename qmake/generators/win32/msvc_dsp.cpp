@@ -776,7 +776,7 @@ DspMakefileGenerator::init()
 			     idc + " %1 -idl tmp\\" + targetfilename + ".idl -version " + version +
 			     "\t" + idl + " tmp\\" + targetfilename + ".idl /nologo /o tmp\\" + targetfilename + ".midl /tlb tmp\\" + targetfilename + ".tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl"
 			     "\t" + idc + " %1 /tlb tmp\\" + targetfilename + ".tlb"
-			     "\tregsvr32 /s %1\n"
+			     "\t" + idc + " %1 /regserver\n"
 			     "# End Special Build Tool";
 
 	    QString executable = project->variables()["MSVCDSP_TARGETDIRREL"].first() + "\\" + project->variables()["TARGET"].first();
