@@ -301,14 +301,14 @@ bool QWSRegionManager::attach( const QString &filename )
 */
 void QWSRegionManager::detach()
 {
-#ifndef QT_NO_QWS_MULTIPROCESS    
+#ifndef QT_NO_QWS_MULTIPROCESS
     if ( data )
-	shmdt( data );
+	shmdt( (char*)data );
     if ( !client && shmId != -1 ) {
 	shmctl( shmId, IPC_RMID, 0 );
     }
 #else
     free( data );
-#endif    
+#endif
 }
 

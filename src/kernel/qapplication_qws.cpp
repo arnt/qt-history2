@@ -385,7 +385,7 @@ public:
 	qt_screen->disconnect();
 	delete qt_screen; qt_screen = 0;
 #ifndef QT_NO_QWS_MULTIPROCESS
-	shmdt(sharedRam);
+	shmdt((char*)sharedRam);
 	if ( !csocket && ramid != -1 ) {
 	    shmctl( ramid, IPC_RMID, 0 );
 	}
@@ -1397,18 +1397,28 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
 
     //We only support 10 displays, so the string should be ".*:[0-9]"
     //    QRegExp r( ":[0-9]" );  // only supports 10 displays
-    QString disp(qws_display_spec); 
+    QString disp(qws_display_spec);
     //    int m = r.match( QString(qws_display_spec) , 0, &len );
-    if ( disp[disp.length()-2] == ':' && 
+    if ( disp[disp.length()-2] == ':' &&
 	 disp[disp.length()-1].digitValue() >= 0) {
-	qws_display_id = disp[disp.length()-1].digitValue(); 
+	qws_display_id = disp[disp.length()-1].digitValue();
     }
 
     if ( type == QApplication::GuiServer ) {
 	qt_appType = type;
 	qws_single_process = TRUE;
 	QWSServer::startup(flags);
+#if !defined (Q_OS_SOLARIS)
 	setenv( "QWS_DISPLAY", qws_display_spec, 0 );
+#else
+	// Solaris uses putenv (of course)
+	QString strEnv( "QWS_DISPLAY=" );
+	strEnv += qws_display_spec;
+	char p[strEnv.length() + 1];
+	strncpy( p, strEnv.latin1(), strEnv.length() );
+	putenv( p );
+#endif
+	
     }
 
     if( qt_is_gui_used )

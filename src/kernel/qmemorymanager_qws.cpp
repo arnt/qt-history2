@@ -585,7 +585,7 @@ static const int memAlign = 64;
 static const int memAlign = 32;
 #endif
 
-inline static const int calcLineStep( int w, int d, bool vram ) 
+inline static const int calcLineStep( int w, int d, bool vram )
 {
     int align = vram ? qt_screen->pixmapLinestepAlignment() : memAlign;
     return ((w*d+align-1)/align)*align/8;
@@ -776,7 +776,11 @@ QMemoryManager::FontID QMemoryManager::refFont(const QFontDef& font)
 	    uchar* data = (uchar*)mmap( 0, // any address
 		    st.st_size, // whole file
                     PROT_READ, // read-only memory
+#if !defined(Q_OS_SOLARIS)
                     MAP_FILE | MAP_PRIVATE, // swap-backed map from file
+#else
+                    MAP_PRIVATE,
+#endif
                     f, 0 ); // from offset 0 of f
 	    if ( !data || data == (uchar*)MAP_FAILED )
 		qFatal("Failed to mmap %s",QFile::encodeName(filename).data());

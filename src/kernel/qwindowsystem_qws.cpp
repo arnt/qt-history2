@@ -837,16 +837,14 @@ QWSServer::QWSServer( int flags, QObject *parent, const char *name ) :
 #ifndef QT_NO_QWS_MULTIPROCESS
 
     if ( !geteuid() ) {
-#if !defined(Q_OS_FREEBSD)
-	if(mount(0,"/var/shm","shm",0,0)) {
-#else
+#if !defined(Q_OS_FREEBSD) || !defined(Q_OS_SOLARIS)
 	if( mount("shm", "/var/shm", 0, 0) ) {
-#endif
 	    /* This just confuses people with 2.2 kernels
 	    if ( errno != EBUSY )
 		qDebug("Failed mounting shm fs on /var/shm: %s",strerror(errno));
 	    */
 	}
+#endif
     }
 #endif
 

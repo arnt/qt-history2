@@ -281,7 +281,7 @@ bool QVFbScreen::connect( const QString & )
 
 void QVFbScreen::disconnect()
 {
-    shmdt( shmrgn );
+    shmdt( (char*)shmrgn );
 }
 
 bool QVFbScreen::initDevice()
