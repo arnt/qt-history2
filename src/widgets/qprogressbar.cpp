@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#16 $
 **
 ** Implementation of QProgressBar class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qprogressbar.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qprogressbar.cpp#16 $");
 
 
 /*!
@@ -37,7 +37,7 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qprogressbar.cpp#15 $");
 
   The total number of steps is set to 100 by default.
 
-  \arg \e parent, \e name and \e f are sent to the QFrame::QFrame()
+  \e parent, \e name and \e f are sent to the QFrame::QFrame()
   constructor.
 
   \sa setTotalSteps()
@@ -59,12 +59,13 @@ QProgressBar::QProgressBar( QWidget *parent, const char *name, WFlags f )
 /*!
   Constructs a progress bar.
 
-  \arg \e totalSteps is the total number of steps in the operation of which
-    this progress bar shows the progress.  For example, if the operation
-    is to examine 50 files, this value would be 50, then before examining
-    the first file, call setProgress(0), and after examining the last file
-    call setProgress(50).
-  \arg \e parent, \e name and \e f are sent to the QFrame::QFrame()
+  \a totalSteps is the total number of steps in the operation of which
+  this progress bar shows the progress.  For example, if the operation
+  is to examine 50 files, this value would be 50, then before
+  examining the first file, call setProgress(0), and after examining
+  the last file call setProgress(50).
+
+  \e parent, \e name and \e f are sent to the QFrame::QFrame()
   constructor.
 
   \sa setTotalSteps(), setProgress()
@@ -162,7 +163,7 @@ void QProgressBar::show()
 }
 
 
-/*! 
+/*!
   This method is called to generate the text displayed in the center of
   the progress bar.
 
@@ -170,12 +171,12 @@ void QProgressBar::show()
   before any progress is set.
 
   The default implementation it is the percentage of completion or blank in the
-  reset state. 
+  reset state.
 
   This method should return FALSE if the string is unchanged since the
   last call to the method, to allow efficient repainting of the
-  progress bar.  
-*/ 
+  progress bar.
+*/
 
 bool QProgressBar::setIndicator( QString& indicator, int progress,
 				 int totalSteps )
@@ -230,7 +231,7 @@ void QProgressBar::drawContents( QPainter *p )
 	    p->setPen(NoPen);
 	    for (int i=0; i<nu; i++) {
 		p->fillRect( x+2, bar.y()+vm,
-			     unit_width-2, bar.height()-vm-vm, 
+			     unit_width-2, bar.height()-vm-vm,
 			     QApplication::winStyleHighlightColor() );
 		x += unit_width;
 	    }
