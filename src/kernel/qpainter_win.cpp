@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#83 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#84 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#83 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#84 $");
 
 
 /*
@@ -1165,7 +1165,9 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	h++;
     }
     if ( nocolBrush ) {
-	if ( bg_mode == TransparentMode )
+	if ( pdev->devType() == PDT_PIXMAP
+	  && ((QPixmap*)pdev)->depth()==1
+	  && bg_mode == TransparentMode )
 	{
  	    if ( cbrush.color() == color0 )
 		// DPna  dest = dest AND NOT pattern
