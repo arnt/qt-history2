@@ -1412,6 +1412,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     if ( !qApp )				// unstable app state
 	goto do_default;
 
+    // make sure we show widgets (e.g. scrollbars) when the user resizes
     if ( inLoop && qApp->loopLevel() )
 	qApp->sendPostedEvents( 0, QEvent::ShowWindowRequest );
 
