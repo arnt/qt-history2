@@ -961,7 +961,7 @@ void QWidget::setIconText( const QString &iconText )
 void QWidget::setMouseTracking( bool enable )
 {
     bool gmt = QApplication::hasGlobalMouseTracking();
-    if ( enable == testWState(WState_MouseTracking) && !gmt )
+    if ( !enable == !testWState(WState_MouseTracking) && !gmt )
 	return;
     uint m = (enable || gmt) ? (uint)PointerMotionMask : 0;
     if ( enable )
