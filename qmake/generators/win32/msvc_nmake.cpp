@@ -368,6 +368,14 @@ NmakeMakefileGenerator::init()
     if(!project->isActiveConfig("incremental"))
 	project->variables()["QMAKE_LFLAGS"].append(QString("/incremental:no"));
 
+    if ( !project->variables()["VERSION"].isEmpty() ) {
+	QString version = project->variables()["VERSION"][0];
+	int firstDot = version.find( "." );
+	QString major = version.left( firstDot );
+	QString minor = version.right( version.length() - firstDot - 1 );
+	minor.replace( QRegExp( "\\." ), "" );
+	project->variables()["QMAKE_LFLAGS"].append( "/VERSION:" + major + "." + minor );
+    }
     if ( !project->variables()["RC_FILE"].isEmpty()) {
 	if ( !project->variables()["RES_FILE"].isEmpty()) {
 	    fprintf(stderr, "Both .rc and .res file specified.\n");

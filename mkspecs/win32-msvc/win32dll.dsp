@@ -52,7 +52,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib /nologo /dll /machine:I386 $$MSVCDSP_NODEFLIBS $$MSVCDSP_DELAYLOAD
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib $$MSVCDSP_LIBS /nologo $$MSVCDSP_DLLBASE /dll /machine:I386 $$MSVCDSP_NODEFLIBS $$MSVCDSP_TARGET $$MSVCDSP_DELAYLOAD
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib $$MSVCDSP_LIBS /nologo $$MSVCDSP_DLLBASE $$MSVCDSP_VERSION /dll /machine:I386 $$MSVCDSP_NODEFLIBS $$MSVCDSP_TARGET $$MSVCDSP_DELAYLOAD
 $$MSVCDSP_COPY_DLL
 
 !ELSEIF  "$(CFG)" == "$$MSVCDSP_PROJECT - Win32 Debug"
@@ -78,7 +78,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib /nologo /dll /debug /machine:I386 $$MSVCDSP_NODEFLIBS $$MSVCDSP_DELAYLOAD /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib $$MSVCDSP_LIBS /nologo $$MSVCDSP_DLLBASE /dll /debug /machine:I386 $$MSVCDSP_NODEFLIBS $$MSVCDSP_TARGET $$MSVCDSP_DELAYLOAD /pdbtype:sept
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib $$MSVCDSP_LIBS /nologo $$MSVCDSP_DLLBASE $$MSVCDSP_VERSION /dll /debug /machine:I386 $$MSVCDSP_NODEFLIBS $$MSVCDSP_TARGET $$MSVCDSP_DELAYLOAD /pdbtype:sept
 $$MSVCDSP_COPY_DLL
 
 !ENDIF 

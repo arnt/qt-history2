@@ -335,6 +335,14 @@ DspMakefileGenerator::init()
     if ( project->isActiveConfig("qt") || project->isActiveConfig("opengl") ) {
 	project->variables()["CONFIG"].append("windows");
     }
+    if ( !project->variables()["VERSION"].isEmpty() ) {
+	QString version = project->variables()["VERSION"][0];
+	int firstDot = version.find( "." );
+	QString major = version.left( firstDot );
+	QString minor = version.right( version.length() - firstDot - 1 );
+	minor.replace( QRegExp( "\\." ), "" );
+	project->variables()["MSVCDSP_VERSION"].append( "/VERSION:" + major + "." + minor );
+    }
 
     if ( project->isActiveConfig("qt") ) {
 	project->variables()["CONFIG"].append("moc");
