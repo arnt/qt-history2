@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: collect.doc,v 2.7 1998/10/31 03:19:40 agulbra Exp $
+** $Id: collect.doc,v 2.8 1998/11/12 09:48:28 warwick Exp $
 **
 ** Qt collection classes documentation
 **
@@ -25,8 +25,8 @@ Qt has many collection classes:
 <ul>
 <li> \link QCache QCache\endlink and \link QIntCache QIntCache\endlink;
 	LRU (least recently used) cache structures.
-<li> \link QDict QDict\endlink and \link QIntDict QIntDict\endlink;
-	dictionary structures.
+<li> \link QDict QDict\endlink, \link QIntDict QIntDict\endlink, and
+	    \link QPtrDict QPtrDict\endlink; dictionary structures.
 <li> \link QList QList\endlink; a doubly linked list structure.
 <li> \link QQueue QQueue\endlink; a FIFO (first in, first out) queue structure.
 <li> \link QStack QStack\endlink; a LIFO (last in, first out) stack structure.
@@ -38,8 +38,9 @@ is a class for safely traversing the items in a collection:
 <ul>
 <li> \link QCacheIterator QCacheIterator\endlink and
 	\link QIntCacheIterator QIntCacheIterator\endlink 
-<li> \link QDictIterator QDictIterator\endlink and
-	\link QIntDictIterator QIntDictIterator\endlink 
+<li> \link QDictIterator QDictIterator\endlink,
+	\link QIntDictIterator QIntDictIterator\endlink, and
+	\link QPtrDictIterator QPtrDictIterator\endlink 
 <li> \link QListIterator QListIterator\endlink 
 </ul>
 
@@ -50,17 +51,7 @@ constructor, a destructor or any virtual functions.
 
 <h2>Architecture</h2>
 
-Basically, there are two different implementation strategies for
-collection classes.
-<ol>
-<li>The collection can only contain objects that inherit a special
-    collectable class.  This is the Smalltalk way of doing it.
-<li>The collection is a template (generic) class.
-    Specific collections must be instantiated from the template.
-    This allows any object to be stored in a collection.
-</ol>
-
-In Qt, we have chosen the second approach.  There are three internal base
+There are three internal base
 classes; \link QGCache QGCache\endlink, \link QGDict QGDict\endlink and
 \link QGList QGList\endlink that operate on \c void* pointers.  A thin
 template layer implements the actual collections by casting item pointers
@@ -146,9 +137,9 @@ The default implementation in all collection classes is to delete the item
 if auto-deletion is enabled.
 
 
-<h2>Templates and Macros</h2>
+<h2>Usage</h2>
 
-A template-based collection, for instance QList\<type\>, defines a
+A collection class, for instance QList\<type\>, defines a
 collection of \e pointers to \e type objects.  The pointer (*) is
 implicit.
 
@@ -174,43 +165,6 @@ to the list definition.
   };
   QList<Employee> list;
 \endcode
-
-The list can also be instantiated through a macro expansion.
-This is necessary only for compilers that do not support templates.
-
-Macro instantiation:
-\code
-  Q_DECLARE(QListM,Employee);	// declare once (for instance in a .h file)
-    ...
-  QListM(Employee) list;	// wherever the list is used
-\endcode
-
-If you want to make your code work for compilers that do not have
-template support, but use templates if they are available, you
-can use \c typedef:
-
-\code
-    ...
-  #if defined(USE_TEMPLATECLASS)
-  typedef QListT<Employee>	   EmployeeList;
-  #else
-  typedef Q_DECLARE(QListM,Employee) EmployeeList;
-  #endif
-
-  void main()
-  {
-      EmployeeList list;	// list of pointers to Employee
-      ...
-\endcode
-
-\c USE_TEMPLATECLASS is defined in qglobal.h.
-
-QListT refers to the QList template and QListM refers to the QList macro.
-QList defaults to QListT if templates are supported, QListM otherwise.
-
-We recommend using templates, because macro collections are harder to
-debug.  C++ debuggers understand templates but not macros.
-
 
 <h2>Iterators</h2>
 
@@ -240,6 +194,9 @@ Qt has the following predefined collection classes:
 	\link QStrIVec QStrIVec\endlink (\link qstrvec.h qstrvec.h\endlink)
 </ul>
 
+Note that the "String" referred to above is just a regular C char*, not
+a QString or QCString.
+
 <h2>Comparison with the STL</h2>
 
 We often get questions about why Qt does not use the STL, and why Qt's
@@ -256,7 +213,7 @@ in code that doesn't need to be very fast.  (The speed-critical data
 structures in Qt are mostly caches - either QCache instantiations or
 custom-written, custom-optimized ones.)
 
-<li>Qt's containers are much more portable than the STL is.  When we
+<li>Qt's containers are much more portable than the STL.  When we
 started writing Qt, STL was far away in the future, and when we
 released Qt 1.0, no widely-used compilers could compile the STL.  For
 a library such as Qt, it is of course very important to compile on the
