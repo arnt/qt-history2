@@ -550,41 +550,56 @@ void QTextEngine::shapeText(int item) const
                 logClusters.resize(l);
                 glyphAttributes.resize(l);
             } else if (res != S_OK) {
-                Q_ASSERT(false);
+                goto fail;
             }
         } while(res != S_OK);
 
-        ABC abc;
-        QVarLengthArray<int> advances(si.num_glyphs);
-        QVarLengthArray<GOFFSET> offsets(si.num_glyphs);
-        res = ScriptPlace(hdc, &fontEngine->script_cache, glyphs.data(), si.num_glyphs,
-                           glyphAttributes.data(), &si.analysis, advances.data(), offsets.data(), &abc);
-        if (res == E_PENDING) {
-            Q_ASSERT(hdc == 0);
-            hdc = GetDC(0);
-            SelectObject(hdc, fontEngine->hfont);
-            ScriptPlace(hdc, &fontEngine->script_cache, glyphs.data(), si.num_glyphs,
-                         glyphAttributes.data(), &si.analysis, advances.data(), offsets.data(), &abc);
-        }
-
-        ensureSpace(si.num_glyphs);
-        si.glyph_data_offset = layoutData->used;
-        QGlyphLayout *g = this->glyphs(&si);
         for(int i = 0; i < si.num_glyphs; ++i) {
-            g[i].glyph = glyphs[i];
-            g[i].advance.rx() = advances[i];
-            g[i].advance.ry() = 0;
-            g[i].offset.rx() = offsets[i].du;
-            g[i].offset.ry() = offsets[i].dv;
-            g[i].attributes = glyphAttributes[i];
+            if(glyphs[i] == 0) {
+                glyphAttributes[i].clusterStart = true;
+                glyphAttributes[i].zeroWidth = false;
+            }
         }
-        unsigned short *lc = this->logClusters(&si);
-        for(int i = 0; i < len; ++i)
-            lc[i] = logClusters[i];
+        {
+            ABC abc;
+            QVarLengthArray<int> advances(si.num_glyphs);
+            QVarLengthArray<GOFFSET> offsets(si.num_glyphs);
+            res = ScriptPlace(hdc, &fontEngine->script_cache, glyphs.data(), si.num_glyphs,
+                               glyphAttributes.data(), &si.analysis, advances.data(), offsets.data(), &abc);
+            if (res == E_PENDING) {
+                Q_ASSERT(hdc == 0);
+                hdc = GetDC(0);
+                SelectObject(hdc, fontEngine->hfont);
+                ScriptPlace(hdc, &fontEngine->script_cache, glyphs.data(), si.num_glyphs,
+                             glyphAttributes.data(), &si.analysis, advances.data(), offsets.data(), &abc);
+            }
+            if (res != S_OK) 
+                goto fail;
 
+            ensureSpace(si.num_glyphs);
+            si.glyph_data_offset = layoutData->used;
+            QGlyphLayout *g = this->glyphs(&si);
+            for(int i = 0; i < si.num_glyphs; ++i) {
+                g[i].glyph = glyphs[i];
+                g[i].advance.rx() = advances[i];
+                g[i].advance.ry() = 0;
+                g[i].offset.rx() = offsets[i].du;
+                g[i].offset.ry() = offsets[i].dv;
+                g[i].attributes = glyphAttributes[i];
+            }
+            unsigned short *lc = this->logClusters(&si);
+            for(int i = 0; i < len; ++i)
+                lc[i] = logClusters[i];
+        }
+fail:
         if (hdc)
             ReleaseDC(0, hdc);
-    } else {
+        if(res == S_OK)
+            goto end;
+    }
+
+    {
+        // non uniscribe code path, also used if uniscribe fails for some reason
         Q_ASSERT(script < QUnicodeTables::ScriptCount);
 
         QShaperItem shaper_item;
@@ -607,9 +622,8 @@ void QTextEngine::shapeText(int item) const
                 break;
         }
         si.num_glyphs = shaper_item.num_glyphs;
-
     }
-
+end:
     si.analysis.script = script;
 
     QGlyphLayout *g = glyphs(&si);

@@ -35,7 +35,7 @@ static int requiredUnicodeBits[QFontDatabase::WritingSystemsCount][2] = {
         // Hebrew,
     { 11, 127 },
         // Arabic,
-    { 13, 67 },
+    { 13, 127 },
         // Syriac,
     { 71, 127 },
     //Thaana,

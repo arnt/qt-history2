@@ -843,7 +843,7 @@ QFontDatabase::findFont(int script, const QFontPrivate *fp,
              family_name.isEmpty() ? "-- first in script --" : family_name.toLatin1().constData(),
              foundry_name.isEmpty() ? "-- any --" : foundry_name.toLatin1().constData(),
              script, request.weight, request.style, request.stretch, request.pixelSize, pitch);
-#if defined(FONT_MATCH_DEBUG)
+#if defined(FONT_MATCH_DEBUG) && defined(Q_WS_X11)
     if (force_encoding_id >= 0) {
         FM_DEBUG("    required encoding: %d", force_encoding_id);
     }
