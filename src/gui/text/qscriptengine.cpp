@@ -599,10 +599,10 @@ static inline ArabicGroup arabicGroup(unsigned short uc)
 */
 
 enum Shape {
-    XFinal,
-    XMedial,
-    XInitial,
     XIsolated,
+    XFinal,
+    XInitial,
+    XMedial,
     // intermediate state
     XCausing
 };
@@ -651,10 +651,10 @@ struct JoiningPair {
 static const JoiningPair joining_table[5][4] =
 // None, Causing, Dual, Right
 {
-    { { XFinal, XIsolated }, { XFinal, XCausing }, { XFinal, XInitial }, { XFinal, XIsolated } }, // XFinal
-    { { XFinal, XIsolated }, { XMedial, XCausing }, { XMedial, XMedial }, { XMedial, XFinal } }, // XMedial
-    { { XIsolated, XIsolated }, { XInitial, XCausing }, { XInitial, XMedial }, { XInitial, XFinal } }, // XInitial
     { { XIsolated, XIsolated }, { XIsolated, XCausing }, { XIsolated, XInitial }, { XIsolated, XIsolated } }, // XIsolated
+    { { XFinal, XIsolated }, { XFinal, XCausing }, { XFinal, XInitial }, { XFinal, XIsolated } }, // XFinal
+    { { XIsolated, XIsolated }, { XInitial, XCausing }, { XInitial, XMedial }, { XInitial, XFinal } }, // XInitial
+    { { XFinal, XIsolated }, { XMedial, XCausing }, { XMedial, XMedial }, { XMedial, XFinal } }, // XMedial
     { { XIsolated, XIsolated }, { XIsolated, XCausing }, { XIsolated, XMedial }, { XIsolated, XFinal } }, // XCausing
 };
 
@@ -1202,7 +1202,7 @@ static void shapedString(const QString *uc, int from, int len, QChar *shapeBuffe
             uchar c = ch->cell();
             int pos = i + from;
             int shape = properties[i].shape;
-//              qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, getShape(c, shape));
+            qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, getShape(c, shape));
             // take care of lam-alef ligatures (lam right of alef)
             ushort map;
             switch (c) {
@@ -1251,6 +1251,7 @@ static void shapedString(const QString *uc, int from, int len, QChar *shapeBuffe
         glyphs[gpos].attributes.clusterStart = !glyphs[gpos].attributes.mark;
         glyphs[gpos].attributes.combiningClass = combiningClass(*ch);
         glyphs[gpos].attributes.justification = properties[i].justification;
+        qDebug("data[%d] = %x (from %x)", gpos, (uint)data->unicode(), ch->unicode());
         data++;
     skip:
         ch++;
@@ -1382,7 +1383,7 @@ static bool arabic_shape(QShaperItem *item)
 {
     Q_ASSERT(item->script == QUnicodeTables::Arabic);
 
-#ifdef QT_HAVE_FREETYPE
+#if 0 //def QT_HAVE_FREETYPE
     QOpenType *openType = item->font->openType();
 
     if (openType && openType->supportsScript(QUnicodeTables::Arabic))
