@@ -456,7 +456,6 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     }
 
     out << "protected:" << endl;
-    out << "    virtual void languageChange();" << endl;
     if (!protectedVars.isEmpty()) {
         for (it = protectedVars.begin(); it != protectedVars.end(); ++it)
             out << indent << *it << endl;
@@ -822,8 +821,6 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
         }
     }
 
-    out << indent << "languageChange();" << endl;
-
     for (n = e; !n.isNull(); n = n.nextSibling().toElement()) {
         if (n.tagName()  == "connections") {
             // setup signals and slots connections
@@ -906,16 +903,6 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
         if (needFontEventHandler && needSqlTableEventHandler && needSqlDataBrowserEventHandler)
             break;
     }
-
-    out << "/*" << endl;
-    out << " *  Sets the strings of the subwidgets using the current" << endl;
-    out << " *  language." << endl;
-    out << " */" << endl;
-    out << "void " << nameOfClass << "::languageChange()" << endl;
-    out << "{" << endl;
-    out << languageChangeBody;
-    out << "}" << endl;
-    out << endl;
 
     // create stubs for additional slots if necessary
     if (!extraFuncts.isEmpty() && writeFunctImpl) {
