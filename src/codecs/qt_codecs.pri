@@ -12,7 +12,9 @@ tools {
 		  $$CODECS_H/qsjiscodec.h \
 		  $$CODECS_H/qtextcodec.h \
 		  $$CODECS_H/qtsciicodec.h \
-		  $$CODECS_H/qutfcodec.h
+		  $$CODECS_H/qutfcodec.h \
+		   $$CODECS_H/qtextcodecinterface.h \
+		   $$CODECS_H/qtextcodecfactory.h
 
 	SOURCES += $$CODECS_CPP/qbig5codec.cpp \
 		  $$CODECS_CPP/qeucjpcodec.cpp \
@@ -24,5 +26,6 @@ tools {
 		  $$CODECS_CPP/qsjiscodec.cpp \
 		  $$CODECS_CPP/qtextcodec.cpp \
 		  $$CODECS_CPP/qtsciicodec.cpp \
-		  $$CODECS_CPP/qutfcodec.cpp
+		  $$CODECS_CPP/qutfcodec.cpp \
+		   $$CODECS_CPP/qtextcodecfactory.cpp
 }
