@@ -81,7 +81,8 @@ if [ "$OPENGL" = "yes" ]; then
 	for INCDIR in $INCDIRS; do
 	    if [ -f $INCDIR/$I ]; then
                 if [ $I = "GL/glu.h" ]; then
-                    GLU_VERSION_1_2=`grep "#[	 ]*define[	]*GLU_VERSION_1_2" $INCDIR/$I | head -n 1`
+                    GLU_VERSION_1_2=`grep "#[	 ]*define[	 ]*GLU_VERSION_1_2" $INCDIR/$I | head -n 1`
+		    echo "version='$GLU_VERSION_1_2'"
                     if [ -n "$GLU_VERSION_1_2" ]; then
 			F=yes
 		    else
