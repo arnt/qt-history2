@@ -311,6 +311,8 @@ protected:
     void paintEvent( QPaintEvent *e )
     {
 	QPainter painter( this );
+	painter.setFont( m_font );
+	painter.setPen( m_color );
 	QFontMetrics fm( font() );
 
 	QRect r( rect() );
@@ -355,11 +357,11 @@ protected:
 	painter.drawText( r, ExpandTabs, "currency\t:" + QVariant(m_currency).toString() );
 	if ( m_subType ) {
 	    r.addCoords( 0, fm.height(), 0, 0 );
-	    painter.drawText( r, ExpandTabs, "SubType\t" );
+	    painter.drawText( r, ExpandTabs, "SubType" );
 	    r.addCoords( 0, fm.height(), 0, 0 );
-	    painter.drawText( r, ExpandTabs, "\tunicode\t:" + m_subType->unicode() );
+	    painter.drawText( r, ExpandTabs, "\tunicode\t\t:" + m_subType->unicode() );
 	    r.addCoords( 0, fm.height(), 0, 0 );
-	    painter.drawText( r, ExpandTabs, "\tnumber\t\t:" + m_subType->number() );
+	    painter.drawText( r, ExpandTabs, "\tnumber\t\t:" + QString::number( m_subType->number() ) );
 	}
     }
 
