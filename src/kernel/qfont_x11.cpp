@@ -1117,12 +1117,12 @@ void QFontPrivate::drawText( Display *dpy, int screen, Qt::HANDLE hd, Qt::HANDLE
 	    }
 
 	    if (bgmode != Qt::TransparentMode) {
-		XRenderColor c;
-		c.red = bgcolor.red();
-		c.green = bgcolor.green();
-		c.blue = bgcolor.blue();
-		c.alpha = 0xffff;
-		XRenderFillRectangle(dpy, PictOpSrc, rendhd, &c,
+		XRenderColor col;
+		col.red = bgcolor.red();
+		col.green = bgcolor.green();
+		col.blue = bgcolor.blue();
+		col.alpha = 0xffff;
+		XRenderFillRectangle(dpy, PictOpSrc, rendhd, &col,
 				     x + cache->xoff,  y - xftfs->ascent,
 				     cache->x2off - cache->xoff,
 				     xftfs->ascent + xftfs->descent);
