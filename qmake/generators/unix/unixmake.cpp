@@ -292,14 +292,43 @@ UnixMakefileGenerator::processPrlVariable(const QString &var, const QStringList 
 	    if((*it).left(1) == "-") {
 		if((*it).left(2) == "-l" || (*it).left(2) == "-L") {
 		    append = out.findIndex((*it)) == -1;
-		} else if(project->isActiveConfig("macx") && (*it).left(2) == "-framework") {
-		    ++it;
-		    for(QStringList::ConstIterator outit = out.begin(); outit != out.end(); ++it) {
-			if((*outit) == "-framework") {
-			    ++outit;
-			    if((*outit) == (*it)) {
-				append = FALSE;
-				break;
+		} else if(project->isActiveConfig("macx") && (*it).left(10) == "-framework") {
+		    int as_one = TRUE;
+		    QString framework_in;
+		    if((*it).length() > 11) {
+			framework_in = (*it).mid(11);
+		    } else {
+			if(it != l.end()) {
+			    ++it;
+			    as_one = FALSE;
+			    framework_in = (*it);
+			}
+		    }
+		    if(!framework_in.isEmpty()) {
+			for(QStringList::ConstIterator outit = out.begin(); outit != out.end(); ++outit) {
+			    if((*outit).left(10) == "-framework") {
+				QString framework_out;
+				if((*outit).length() > 11) {
+				    framework_out = (*outit).mid(11);
+				} else {
+				    if(it != out.end()) {
+					++outit;
+					framework_out = (*outit);
+				    }
+				}
+				if(framework_out == framework_in) {
+				    append = FALSE;
+				    break;
+				}
+			    }
+			}
+			if(append) {
+			    append = FALSE;
+			    if(as_one) {
+				out.append("-framework " + framework_in);
+			    } else {
+				out.append("-framework");
+				out.append(framework_in);
 			    }
 			}
 		    }
@@ -350,14 +379,18 @@ UnixMakefileGenerator::processPrlFiles()
 				break;
 			    }
 			}
-		    } else if(project->isActiveConfig("macx") && opt == "-framework") {
-			l_out.append(opt);
-			++it;
-			opt = (*it);
+		    } else if(project->isActiveConfig("macx") && opt.left(10) == "-framework") {
+			if(opt.length() > 11) {
+			    opt = opt.mid(11);
+			} else {
+			    ++it;
+			    opt = (*it);
+			}
 			QString prl = "/System/Library/Frameworks/" + opt +
 				      ".framework/" + opt + Option::prl_ext;
 			if(processPrlFile(prl))
 			    ret = TRUE;
+			l_out.append("-framework");
 		    }
 		    if(!opt.isEmpty())
 			l_out.append(opt);
