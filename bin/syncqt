@@ -59,8 +59,7 @@ my @dirs = map { -d "$basedir/src/$_" ? "src/$_" : () } readdir(SRC);
 closedir SRC;
 @dirs = ( @dirs, "extensions/xt/src", "extensions/nsplugin/src", "tools/designer/uilib" );
 
-my $specdir = "mkspecs/" . defined $ENV{"MKSPEC"} ? $ENV{"MKSPEC"} : '';
-@dirs = ( @dirs, $specdir );
+push @dirs, "mkspecs/" . $ENV{"MKSPEC"} if defined $ENV{"MKSPEC"}; 
 
 my @files;
 my @pfiles;
