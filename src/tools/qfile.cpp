@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#89 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#90 $
 **
 ** Implementation of QFile class
 **
@@ -187,9 +187,9 @@ bool qt_file_access( const QString& fn, int t )
 {
     if ( fn.isEmpty() )
 	return FALSE;
-#if defined (UNIX) || defined(__CYGWIN32__)
+#if defined (UNIX)
     return ACCESS( QFile::encodeName(fn), t ) == 0;
-#else
+#elif defined(_OS_WIN32_)
     if ( qt_winunicode ) {
 	return _taccess((TCHAR*)qt_winTchar(fn,TRUE), t) == 0;
     } else {
@@ -246,7 +246,7 @@ bool QFile::remove( const QString &fileName )
     }
 #if defined(UNIX)
     return unlink( QFile::encodeName(fileName) ) == 0;	// unlink more common in UNIX
-#else
+#elif defined(_OS_WIN32_)
     // use standard ANSI remove
     if ( qt_winunicode ) {
 	return _tremove((const TCHAR*)qt_winTchar(fileName,TRUE)) == 0;
@@ -369,7 +369,7 @@ bool QFile::open( int m )
 #endif
 #if defined(UNIX)
 	fd = OPEN( QFile::encodeName(fn), oflags, 0666 );
-#else
+#elif defined(_OS_WIN32_)
 	if ( qt_winunicode ) {
 	    fd = _topen((const TCHAR*)qt_winTchar(fn,TRUE), oflags, 0666 );
 	} else {
@@ -416,7 +416,7 @@ bool QFile::open( int m )
 	while (1) { // At most twice
 #if defined(UNIX)
 	    fh = fopen( QFile::encodeName(fn), perm2 );
-#else
+#elif defined(_OS_WIN32_)
 	    if ( qt_winunicode ) {
 		TCHAR tperm2[4];
 		tperm2[0] = perm2[0];
@@ -617,7 +617,7 @@ uint QFile::size() const
     else {
 #if defined (UNIX)
 	STAT( QFile::encodeName(fn), &st );
-#else
+#elif defined(_OS_WIN32_)
 	if ( qt_winunicode ) {
 	    _tstat((const TCHAR*)qt_winTchar(fn,TRUE), &st);
 	} else {

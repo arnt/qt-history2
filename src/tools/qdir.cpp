@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#101 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#102 $
 **
 ** Implementation of QDir class
 **
@@ -335,7 +335,19 @@ QString QDir::canonicalPath() const
 {
     QString r;
 
-#ifdef _WS_WIN_
+#if defined(UNIX)
+
+    char cur[PATH_MAX];
+    char tmp[PATH_MAX];
+    GETCWD( cur, PATH_MAX );
+    if ( CHDIR(QFile::encodeName(dPath)) >= 0 ) {
+	GETCWD( tmp, PATH_MAX );
+	r = QFile::decodeName(tmp);
+    }
+    CHDIR( cur );
+
+#elif defined(_OS_WIN32_)
+
     char cur[PATH_MAX];
     GETCWD( cur, PATH_MAX );
     if ( qt_winunicode ) {
@@ -353,16 +365,6 @@ QString QDir::canonicalPath() const
     }
     CHDIR( cur );
     slashify( r );
-#else
-    char cur[PATH_MAX];
-    char tmp[PATH_MAX];
-
-    GETCWD( cur, PATH_MAX );
-    if ( CHDIR(QFile::encodeName(dPath)) >= 0 ) {
-	GETCWD( tmp, PATH_MAX );
-	r = QFile::decodeName(tmp);
-    }
-    CHDIR( cur );
 
 #endif
 
@@ -875,9 +877,9 @@ const QFileInfoList *QDir::entryInfoList( const QString &nameFilter,
 
 bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
 {
-#if defined (UNIX) || defined(__CYGWIN32__)
+#if defined (UNIX)
     return MKDIR( QFile::encodeName(filePath(dirName,acceptAbsPath)), 0777 ) == 0;
-#else
+#elif defined(_OS_WIN32_)
     if ( qt_winunicode ) {
 	return _tmkdir((const TCHAR*)qt_winTchar(filePath(dirName,acceptAbsPath),TRUE)) == 0;
     } else {
@@ -902,9 +904,9 @@ bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
 
 bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
 {
-#if defined (UNIX) || defined(__CYGWIN32__)
+#if defined (UNIX)
     return RMDIR( QFile::encodeName(filePath(dirName,acceptAbsPath)) ) == 0;
-#else
+#elif defined(_OS_WIN32_)
     if ( qt_winunicode ) {
 	return _trmdir((const TCHAR*)qt_winTchar(filePath(dirName,acceptAbsPath),TRUE)) == 0;
     } else {
@@ -924,9 +926,9 @@ bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
 
 bool QDir::isReadable() const
 {
-#if defined (UNIX) || defined(__CYGWIN32__)
+#if defined (UNIX)
     return ACCESS( QFile::encodeName(dPath), R_OK | X_OK ) == 0;
-#else
+#elif defined(_OS_WIN32_)
     if ( qt_winunicode ) {
 	return _taccess((const TCHAR*)qt_winTchar(dPath,TRUE), R_OK) == 0;
     } else {
@@ -1104,10 +1106,10 @@ bool QDir::rename( const QString &name, const QString &newName,
     }
     QString fn1 = filePath( name, acceptAbsPaths );
     QString fn2 = filePath( newName, acceptAbsPaths );
-#if defined (UNIX) || defined(__CYGWIN32__)
+#if defined (UNIX)
     return ::rename( QFile::encodeName(fn1),
 		     QFile::encodeName(fn2) ) == 0;
-#else
+#elif defined(_OS_WIN32_)
     if ( qt_winunicode ) {
 	TCHAR* t2 = (TCHAR*)qt_winTchar_new(fn1);
 	bool r = _trename((const TCHAR*)qt_winTchar(fn1,TRUE), t2) == 0;
@@ -1174,14 +1176,14 @@ bool QDir::setCurrent( const QString &path )
 {
     int r;
 
-#ifdef _WS_WIN_
+#if defined(UNIX)
+    r = CHDIR( QFile::encodeName(path) );
+#elif defined(_OS_WIN32_)
     if ( qt_winunicode ) {
 	r = _tchdir((const TCHAR*)qt_winTchar(path,TRUE));
     } else {
 	r = CHDIR(qt_win95Name(path));
     }
-#else
-    r = CHDIR( QFile::encodeName(path) );
 #endif
 
     return r >= 0;
@@ -1227,22 +1229,9 @@ QString QDir::currentDirPath()
 {
     QString result;
 
-#ifdef _WS_WIN_
-    if ( qt_winunicode ) {
-	TCHAR currentName[PATH_MAX];
-	if ( _tgetcwd(currentName,PATH_MAX) >= 0 ) {
-	    result = qt_winQString(currentName);
-	}
-    } else {
-	char currentName[PATH_MAX];
-	if ( GETCWD(currentName,PATH_MAX) >= 0 ) {
-	    result = QString::fromLatin1(currentName);
-	}
-    }
-    slashify( result );
-#else
-    STATBUF st;
+#if defined(UNIX)
 
+    STATBUF st;
     if ( STAT( ".", &st ) == 0 ) {
 	char currentName[PATH_MAX];
 	if ( GETCWD( currentName, PATH_MAX ) != 0 )
@@ -1256,7 +1245,24 @@ QString QDir::currentDirPath()
 	qWarning( "QDir::currentDirPath: stat(\".\") failed" );
 #endif
     }
+
+#elif defined(_OS_WIN32_)
+
+    if ( qt_winunicode ) {
+	TCHAR currentName[PATH_MAX];
+	if ( _tgetcwd(currentName,PATH_MAX) >= 0 ) {
+	    result = qt_winQString(currentName);
+	}
+    } else {
+	char currentName[PATH_MAX];
+	if ( GETCWD(currentName,PATH_MAX) >= 0 ) {
+	    result = QString::fromLatin1(currentName);
+	}
+    }
+    slashify( result );
+
 #endif
+
     return result;
 }
 
@@ -1345,8 +1351,6 @@ bool QDir::match( const QString &filter, const QString &fileName )
 {
     QStringList lst = makeFilterList( filter );
     return match( lst, fileName );
-//     QRegExp tmp( filter, TRUE, TRUE ); // case sensitive and wildcard mode on
-//     return tmp.match( fileName ) != -1;
 }
 
 
@@ -1653,7 +1657,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 #undef	IS_SYSTEM
 #undef	FF_ERROR
 
-#else // UNIX
+#elif defined(UNIX)
 
 #if defined(_OS_OS2EMX_)
     //QRegExp   wc( nameFilter, FALSE, TRUE );	// wild card, case insensitive
@@ -1730,7 +1734,8 @@ bool QDir::readDirEntries( const QString &nameFilter,
 }
 
 
-/*!  Returns a list if the root directories on this system.  On
+/*!
+  Returns a list if the root directories on this system.  On
   win32, this returns a number of QFileInfo objects containing "C:/",
   "D:/" etc.  On other operating systems, it returns a list containing
   just one root directory (e.g. "/").

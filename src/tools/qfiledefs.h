@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfiledefs.h#28 $
+** $Id: //depot/qt/main/src/tools/qfiledefs.h#29 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -46,6 +46,9 @@
 # if defined(__CYGWIN32__)
 #  include <dirent.h>
 #  include <unistd.h>
+#  if !defined(UNIX)
+#   define UNIX
+#  endif
 # else
 #  include <io.h>
 #  if !defined(_CC_MWERKS_)
