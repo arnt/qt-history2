@@ -29,7 +29,6 @@ class QString;
 class QStringList;
 class QTime;
 
-template <class Type> class QList;
 template <class Key, class Type> class QMap;
 
 class Q_CORE_EXPORT QCoreVariant
