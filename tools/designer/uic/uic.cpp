@@ -72,7 +72,7 @@ QString Uic::fixString( const QString &str )
 QString Uic::trcall( const QString& sourceText, const QString& comment )
 {
     if ( sourceText.isEmpty() && comment.isEmpty() )
-	return "\"\"";
+	return QString::null;
 
     QString t = trmacro;
     if ( t.isNull() ) {
@@ -100,7 +100,7 @@ QString Uic::mkStdSet( const QString& prop )
 
 
 
-bool Uic::isEmptyFunction( const QString& fname )
+bool Uic::isEmptyFunction( const QString& )
 {
     return TRUE;
 }
@@ -145,15 +145,15 @@ Uic::Uic( const QString &fn, QTextStream &outStream, QDomDocument doc,
 	} else if ( e.tagName() == "pixmapinproject" ) {
 	    externPixmaps = TRUE;
 	} else if ( e.tagName() == "layoutdefaults" ) {
-	    defSpacing = e.attribute( "spacing", defSpacing.toString() ); 
-	    defMargin = e.attribute( "margin", defMargin.toString() ); 
+	    defSpacing = e.attribute( "spacing", defSpacing.toString() );
+	    defMargin = e.attribute( "margin", defMargin.toString() );
 	} else if ( e.tagName() == "layoutfunctions" ) {
-	    defSpacing = e.attribute( "spacing", defSpacing.toString() );	    	    
+	    defSpacing = e.attribute( "spacing", defSpacing.toString() );	    	
 	    bool ok;
 	    defSpacing.toInt( &ok );
 	    if ( !ok ) {
 		QString buf = defSpacing.toString();
-		defSpacing = buf.append( "()" ); 
+		defSpacing = buf.append( "()" );
 	    }
 	    defMargin = e.attribute( "margin", defMargin.toString() );
 	    defMargin.toInt( &ok );
@@ -729,7 +729,7 @@ QString Uic::createLayoutImpl( const QDomElement &e, const QString& parentClass,
     bool isGrid = e.tagName() == "grid" ;
     objName = registerObject( getLayoutName( e ) );
     layoutObjects += objName;
-    
+
     QString margin = DomTool::readProperty( e, "margin", defMargin ).toString();
     QString spacing = DomTool::readProperty( e, "spacing", defSpacing ).toString();
 
