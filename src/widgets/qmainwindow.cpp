@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#55 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#56 $
 **
 ** Implementation of QMainWindow class
 **
@@ -183,6 +183,7 @@ public:
     QSize sizeHint() const { return minimumSize(); }
     QSize minimumSize() const;
     QLayoutIterator iterator();
+    QSizePolicy::ExpandData expanding() { return QSizePolicy::NoDirection; }
     void setDirection( QBoxLayout::Direction d ) { dir = d; }
     QBoxLayout::Direction direction() const { return dir; }
     void newLine();
@@ -245,7 +246,7 @@ int QToolLayout::layout( const QRect &r, bool testonly )
 
     int start = 0;
     int idx = 0;
-    
+
     QLayoutItem *next = list.first();
     QSize nsh = next->sizeHint();
     while ( idx < n ) {
@@ -267,8 +268,8 @@ int QToolLayout::layout( const QRect &r, bool testonly )
 		qGeomCalc( *array, start, idx-start, r.left(), right,
 			   spacing() );
 		for ( int i = start; i < idx; i++ ) {
-		    QRect g( (*array)[i].pos, 
-			     up ? r.y() + r.bottom() - y - lineh : y, 
+		    QRect g( (*array)[i].pos,
+			     up ? r.y() + r.bottom() - y - lineh : y,
 			     (*array)[i].size, lineh );
 		    list.at(i)->setGeometry( g );
 		}
@@ -280,7 +281,7 @@ int QToolLayout::layout( const QRect &r, bool testonly )
 	}
 		
     }
-    return y - r.y() - spacing();    
+    return y - r.y() - spacing();
 }
 
 

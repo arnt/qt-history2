@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#48 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -457,20 +457,33 @@ QSize QSpacerItem::sizeHint() const
 }
 
 /*!
+  Invalidates any cached information.
+ */
+void QWidgetItem::invalidate()
+{
+    cachedSizeHint = QSize();
+}
+
+/*!
   Returns the preferred size of this item.
 */
 QSize QWidgetItem::sizeHint() const
 {
+    if ( cachedSizeHint.isValid() )
+	return cachedSizeHint;
+    QSize s;
     if ( isEmpty() )
-	return QSize(0,0);
-    //########### Should minimumSize() override sizeHint ????????????
-    if ( wid->layout() )
-	return QSize( QMAX( wid->sizeHint().width(), wid->minimumWidth() ),
+	s =  QSize(0,0);
+    else if ( wid->layout() )
+	s =  QSize( QMAX( wid->sizeHint().width(), wid->minimumWidth() ),
 		      QMAX( wid->sizeHint().height(), wid->minimumHeight() ));
-    return QSize( wid->minimumWidth() == 0 ?
+    else s = QSize( wid->minimumWidth() == 0 ?
 		  wid->sizeHint().width() : wid->minimumWidth(),
 		  wid->minimumHeight() == 0 ?
 		  wid->sizeHint().height() : wid->minimumHeight() );
+    
+    ((QWidgetItem*)this)->cachedSizeHint = s; //mutable hack
+    return s;
 }
 
 /*!
@@ -509,7 +522,12 @@ bool QWidgetItem::isEmpty() const
 
   To make your own layout manager, make a subclass of QGLayoutIterator
   and implement the functions addItem(), sizeHint(), setGeometry() and
-  iterator().
+  iterator(). You should also implement minimumSize(), otherwise your
+  layout will be resized to zero size if there is little space. To
+  support children whose height depend on their widths, implement
+  hasHeightForWidth() and heightForWidth().
+  See the <a href="customlayout.html">custom layout page</a> for an in-depth
+  description.
 
   Geometry management stops when the layout manager is deleted.
 */
@@ -1032,12 +1050,12 @@ QSize QLayout::maximumSize() const
   to grow in only one dimension, while BothDirections means that it wants to
   grow in both dimensions.
 
-  The default implementation returns NoDirection.
+  The default implementation returns BothDirections.
 */
 
 QSizePolicy::ExpandData QLayout::expanding() const
 {
-    return QSizePolicy::NoDirection;
+    return QSizePolicy::BothDirections;
 }
 
 

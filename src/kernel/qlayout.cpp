@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#94 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#95 $
 **
 ** Implementation of layout classes
 **
@@ -102,7 +102,7 @@ public:
 
     void setReversed( bool r, bool c ) { hReversed = c; vReversed = r; }
     void setDirty() { needRecalc = TRUE; hfw_width = -1; }
-
+    bool isDirty() const { return needRecalc; }
     bool hasHeightForWidth();
     int heightForWidth( int, int defB );
 
@@ -1012,8 +1012,10 @@ bool QGridLayout::findWidget( QWidget* w, int *row, int *col )
  */
 void QGridLayout::setGeometry( const QRect &s )
 {
+    if ( array->isDirty() || s != geometry() ) {
     QLayout::setGeometry( s );
     array->distribute( s, spacing() );
+    }
 }
 
 /*!

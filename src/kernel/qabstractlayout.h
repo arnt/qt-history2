@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#20 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#21 $
 **
 ** Definition of the abstract layout base class
 **
@@ -124,12 +124,14 @@ public:
     bool isEmpty() const;
     void setGeometry( const QRect& ) ;
     QRect geometry() const;
+    void invalidate();
     virtual QWidget *widget();
 
     bool hasHeightForWidth() const;
     int heightForWidth( int ) const;
 
 private:
+    QSize cachedSizeHint;
     QWidget *wid;
 };
 
