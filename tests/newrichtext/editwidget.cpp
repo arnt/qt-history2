@@ -1,11 +1,11 @@
-#include "qfont.h"
-#include "qpainter.h"
 #include "editwidget.h"
+
+#include <qfont.h>
+#include <qpainter.h>
 #include <private/qfontdata_p.h>
+#include <private/qtextlayout_p.h>
 
-#include "qtextlayout.h"
 #include <qmemarray.h>
-
 #include <qdatetime.h>
 
 class EditWidgetPrivate
