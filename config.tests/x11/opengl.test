@@ -1,0 +1,13 @@
+#!/bin/sh
+
+LIBS=`sed -n -e '/^QMAKE_LIBS_OPENGL[	]*=/ { s/[^=]*=[	 ]*//; s/-l/ /g; p; }' $1/qmake.conf`
+for L in $LIBS
+do
+   F=
+   ### fix (search for OpenGL libraries in X11 directory as well)
+   for LIB in `sed -n -e '/^QMAKE_LFLAGS_OPENGL[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $1/qmake.conf` /usr/lib /lib /usr/X11R6/lib
+   do
+      [ "`echo $LIB/lib$L.*`" = "$LIB"/lib$L.\* ] && exit 0
+   done
+done
+exit 1

@@ -1,0 +1,7 @@
+#!/bin/sh
+
+for INC in `sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $1/qmake.conf`
+do
+   [ -f $INC/X11/SM/SM.h ] && exit 1
+done
+exit 0

@@ -294,6 +294,7 @@ JPEG=no
 MNG=no
 XRENDER=auto
 XFTFREETYPE=auto
+STL=auto
 FT=yes
 NAS_SOUND=no
 D_FLAGS=
@@ -444,6 +445,12 @@ while [ -n "$1" ]; do
    -xinerama)
 	XINERAMA=yes
 	;;
+   -stl)
+        STL=yes
+        ;;
+   -no-stl)
+        STL=no
+        ;;
    -freetype)
 	FT=yes
 	;;
@@ -774,145 +781,46 @@ then
     exit 2
 fi
 
-# Auto-detect opengl support
-if echo $MODULES | grep opengl >/dev/null
-then
-if basename $XQMAKEPATH | grep '^mac' >/dev/null
-then
-	echo "foo" > /dev/null
-else
-    LIBS=`sed -n -e '/^QMAKE_LIBS_OPENGL[	]*=/ { s/[^=]*=[	 ]*//; s/-l/ /g; p; }' $XQMAKEPATH/qmake.conf`
-    for L in $LIBS
-    do
-	F=
-	### fix (search for OpenGL libraries in X11 directory as well)
-	for LIB in `sed -n -e '/^QMAKE_LFLAGS_OPENGL[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XQMAKEPATH/qmake.conf` /usr/lib /lib /usr/X11R6/lib
-	do
-	    if [ "`echo $LIB/lib$L.*`" != "$LIB"/lib$L.\* ]
-	    then
-		F=yes
-		break
-	    fi
-	done
-	if [ -z "$F" ]
-	then
-	    MODULES=`echo $MODULES | sed -e 's/opengl//'`
-	    break
-	fi
-    done
-fi
-fi
+# Tests
 
-# Auto-detect XRender support
-if [ $XRENDER = auto ]
-then
-    XRENDER=yes
-    XDIRS=`sed -n -e '/^QMAKE_LIBDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XQMAKEPATH/qmake.conf`
-    LIBDIRS="$XDIRS /usr/lib /lib"
+#x11
+if [ ! -z "`grep QMAKE_INCDIR_X11 $XQMAKEPATH/qmake.conf | awk '{print $3;}'`" ]; then
+    x11tests=$relpath/config.tests/x11
 
-    FOUND_LIB=
-    F=
-    for LIBDIR in $LIBDIRS
-    do
-	FOUND_LIB=`ls $LIBDIR/libXrender.* 2>/dev/null`
-	if [ ! -z "$FOUND_LIB" ]
-	then
-	    F=yes
-	    break
-	fi
-    done
+   #opengl
+   if echo $MODULES | grep opengl >/dev/null; then
+       $x11tests/opengl.test $XQMAKEPATH && MODULES=`echo $MODULES | sed -e 's/opengl//'`
+   fi
+   # XRender support
+   if [ $XRENDER = auto ]; then
+       XRENDER=yes
+       $x11tests/xrender.test $XQMAKEPATH && XRENDER=no && XFTFREETYPE=no
+   fi
+   # Auto-detect XftFreeType support
+   if [ $XRENDER = yes ] && [ $XFTFREETYPE = auto ]; then
+       XFTFREETYPE=yes
+       $x11tests/xfreetype.test $XQMAKEPATH && XFTFREETYPE=no
+   fi
+   # Auto-detect session management support
+   if [ $SM = auto ]; then
+       SM=yes
+       $x11tests/sm.test $XQMAKEPATH && SM=no
+   fi
 
-    if [ -z "$F" ]
-    then
-	XRENDER=no
-    fi
-    
-    if [ "$XRENDER" = "yes" ]
-    then
-	INCS="X11/extensions/Xrender.h"
-	XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XQMAKEPATH/qmake.conf`
-	INCDIRS="$XDIRS /usr/include /include"
-
-	for I in $INCS
-	do
-	    F=
-	    for INCDIR in $INCDIRS
-	    do
-		if [ -f $INCDIR/$I ]
-		then
-		    F=yes
-		    break
-		fi
-	    done
-
-	    if [ -z "$F" ]
-	    then
-		XRENDER=no
-		break
-	    fi
-	done
-    fi
+   # Auto-detect Xinerama support
+   if [ $XINERAMA = auto ]; then
+       XINERAMA=yes
+       $x11tests/xinerama.test $XQMAKEPATH && XINERAMA=no
+   fi
 fi
 
-
-# Turn off XftFreeType support if we don't have XRender support
-if [ "x$XRENDER" = "xno" ]
-then
-    XFTFREETYPE=no
+#unix
+unixtests=$relpath/config.tests/unix
+#stl
+if [ $STL = auto ]; then
+    STL=yes
+    $unixtests/stl.test $XQMAKEPATH && STL=no
 fi
-
-
-# Auto-detect XftFreeType support
-if [ $XFTFREETYPE = auto ]
-then
-    XFTFREETYPE=yes
-    XDIRS=`sed -n -e '/^QMAKE_LIBDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XQMAKEPATH/qmake.conf`
-    LIBDIRS="$XDIRS /usr/lib /lib"
-
-    FOUND_LIB=
-    F=
-    for LIBDIR in $LIBDIRS
-    do
-	FOUND_LIB=`ls $LIBDIR/libXft.* 2>/dev/null`
-	if [ ! -z "$FOUND_LIB" ]
-	then
-	    F=yes
-	    break
-	fi
-    done
-
-    if [ -z "$F" ]
-    then
-	XFTFREETYPE=no
-    fi
-    
-    if [ "$XFTFREETYPE" = "yes" ]
-    then
-	INCS="X11/Xft/XftFreetype.h"
-	XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XQMAKEPATH/qmake.conf`
-	INCDIRS="$XDIRS /usr/include /include"
-
-	for I in $INCS
-	do
-	    F=
-	    for INCDIR in $INCDIRS
-	    do
-		if [ -f $INCDIR/$I ]
-		then
-		    F=yes
-		    break
-		fi
-	    done
-
-	    if [ -z "$F" ]
-	    then
-		XFTFREETYPE=no
-		break
-	    fi
-	done
-    fi
-fi
-
 # Find default thread option for target
 if grep >/dev/null '^QMAKE_LIBS_THREAD' $XQMAKEPATH/qmake.conf
 then
@@ -933,77 +841,7 @@ then
     fi
     AUTOTHREAD=no
 fi
-if [ $THREAD = auto ]
-then
-    THREAD=$AUTOTHREAD
-fi
-
-# Auto-detect session management support
-if [ $SM = auto ]
-then
-    SM=no
-    for INC in `sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XQMAKEPATH/qmake.conf`
-    do
-	if [ -f $INC/X11/SM/SM.h ]
-	then
-	    SM=yes
-	    break
-	fi
-    done
-fi
-
-# Auto-detect Xinerama support
-if [ $XINERAMA = auto ]
-then
-    XINERAMA=yes
-
-    XDIRS=`sed -n -e '/^QMAKE_LIBDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XQMAKEPATH/qmake.conf`
-    LIBDIRS="$XDIRS /usr/lib /lib"
-
-    FOUND_LIB=
-    F=
-    for LIBDIR in $LIBDIRS
-    do
-	FOUND_LIB=`ls $LIBDIR/libXinerama.* 2>/dev/null`
-	if [ ! -z "$FOUND_LIB" ]
-	then
-	    F=yes
-	    break
-	fi
-    done
-
-    if [ -z "$F" ]
-    then
-	XINERAMA=no
-    fi
-    
-    if [ "$XINERAMA" = "yes" ]
-    then
-	INCS="X11/extensions/Xinerama.h"
-	XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XQMAKEPATH/qmake.conf`
-	INCDIRS="$XDIRS /usr/include /include"
-
-	for I in $INCS
-	do
-	    F=
-	    for INCDIR in $INCDIRS
-	    do
-		if [ -f $INCDIR/$I ]
-		then
-		    F=yes
-		    break
-		fi
-	    done
-
-	    if [ -z "$F" ]
-	    then
-		XINERAMA=no
-		break
-	    fi
-	done
-    fi
-fi
-
+[ $THREAD = auto ] && THREAD=$AUTOTHREAD
 
 # Next, emit a usage message if something failed.
 if [ "$HELP" = "yes" ]; then
@@ -1015,40 +853,6 @@ if [ "$HELP" = "yes" ]; then
     else
 	THY=" "
 	THN="*"
-    fi
-    if [ "x$SM" = "xno" ]
-    then
-	SMY=" "
-	SMN="*"
-    else
-	SMY="*"
-	SMN=" "
-    fi
-    if [ "x$XINERAMA" = "xno" ]
-    then
-	XRY=" "
-	XRN="*"
-    else
-	XRY="*"
-	XRN=" "
-    fi
-
-    if [ "x$XFTFREETYPE" = "xno" ]
-    then
-	XFTY=" "
-	XFTN="*"
-    else
-	XFTY="*"
-	XFTN=" "
-    fi
-
-    if [ "x$XRENDER" = "xno" ]
-    then
-	XRY=" "
-	XRN="*"
-    else
-	XRY="*"
-	XRN=" "
     fi
 
     MODULES_HELP="iconview workspace network canvas table xml opengl"
@@ -1103,24 +907,6 @@ Installation options:
  *  -no-gif ............ Do not compile in GIF reading support.
     -qt-gif ............ Compile in GIF reading support.
                          See src/kernel/qgif.h
-
- $SMN  -no-sm ............. Do not support X Session Management.
- $SMY  -sm ................ Support X Session Management, links in -lSM -lICE.
-
- $THN  -no-thread ......... Do not compile with threading support.
- $THY  -thread ............ Compile with threading support.
-
- $XRN  -no-xinerama ....... Do not compile Xinerama (multihead) support.
- $XRY  -xinerama .......... Compile Xinerama support.
-			 Requires X11/extensions/Xinerama.h and libXinerama.
-
- $XRN  -no-xrender ........ Do not compile XRender support.
- $XRY  -xrender ........... Compile XRender support.
-                         Requires X11/extensions/Xrender.h and libXrender.
-
- $XFTN  -no-xft ............ Do not compile XftFreeType (anti-aliased font) support.
- $XFTY  -xft ............... Compile XftFreeType support.
-                         Requires X11/Xft/XftFreetype.h and libXft.
 
  *  -qt-zlib ........... Use the zlib bundled with Qt.
     -system-zlib ....... Use a zlib from the operating system
@@ -1183,7 +969,67 @@ Installation options:
 
 EOF
 
-cat << EOF
+    if [ "x$SM" = "xno" ]
+    then
+	SMY=" "
+	SMN="*"
+    else
+	SMY="*"
+	SMN=" "
+    fi
+    if [ "x$XINERAMA" = "xno" ]
+    then
+	XRY=" "
+	XRN="*"
+    else
+	XRY="*"
+	XRN=" "
+    fi
+
+    if [ "x$XFTFREETYPE" = "xno" ]
+    then
+	XFTY=" "
+	XFTN="*"
+    else
+	XFTY="*"
+	XFTN=" "
+    fi
+
+    if [ "x$XRENDER" = "xno" ]
+    then
+	XRY=" "
+	XRN="*"
+    else
+	XRY="*"
+	XRN=" "
+    fi
+
+    cat << EOF
+
+Qt/X11 only:
+
+ $SMN  -no-sm ............. Do not support X Session Management.
+ $SMY  -sm ................ Support X Session Management, links in -lSM -lICE.
+
+ $THN  -no-thread ......... Do not compile with threading support.
+ $THY  -thread ............ Compile with threading support.
+
+ $XRN  -no-xinerama ....... Do not compile Xinerama (multihead) support.
+ $XRY  -xinerama .......... Compile Xinerama support.
+			 Requires X11/extensions/Xinerama.h and libXinerama.
+
+ $XRN  -no-xrender ........ Do not compile XRender support.
+ $XRY  -xrender ........... Compile XRender support.
+                         Requires X11/extensions/Xrender.h and libXrender.
+
+ $XFTN  -no-xft ............ Do not compile XftFreeType (anti-aliased font) support.
+ $XFTY  -xft ............... Compile XftFreeType support.
+                         Requires X11/Xft/XftFreetype.h and libXft.
+
+EOF
+
+    cat << EOF
+
 Qt/Embedded only:
 
     -embedded arch...... This will enable the embedded build, you must have a
@@ -1446,6 +1292,11 @@ do
 	QMAKE_CONFIG="$QMAKE_CONFIG $MODULE"
     fi
 done
+cat >$relpath/src/tools/qmodules.h.new << EOF
+
+// Compile time features
+EOF
+[ "$STL" = "yes" ] && echo "#define QT_NO_STL" >>$relpath/src/tools/qmodules.h.new
 #because things depend on qmodules.h, I conditionally copy
 #so I don't rebuild them when I configure but change nothing..
 QMOD_CHANGES=`diff $relpath/src/tools/qmodules.h $relpath/src/tools/qmodules.h.new 2>&1 | wc -l | sed "s, ,,g"`
