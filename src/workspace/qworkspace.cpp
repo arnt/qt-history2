@@ -35,6 +35,7 @@
 #include "qimage.h"
 #include "qscrollbar.h"
 #include "qstyle.h"
+#include "qbitmap.h"
 
 
 #define BUTTON_WIDTH	16
@@ -473,7 +474,8 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
 	    } else
 	    {
 		QPixmap pm(14,14);
-		pm.fill( white );
+		pm.fill( color1 );
+		pm.setMask(pm.createHeuristicMask());
 		d->maxtools->setPixmap( pm );
 	    }
 	}
@@ -1141,7 +1143,8 @@ void QWorkspace::showMaximizeControls()
 	} else
 	{
 	    QPixmap pm(14,14);
-	    pm.fill( white );
+	    pm.fill( color1 );
+	    pm.setMask(pm.createHeuristicMask());
 	    d->maxtools->setPixmap( pm );
 	}
 	d->menuId = b->insertItem( d->maxtools, -1, 0 );
@@ -1868,8 +1871,10 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	    } else
 	    {
 		pm.resize( iconSize, iconSize );
-		pm.fill( white );
+		pm.fill( color1 );
+		pm.setMask(pm.createHeuristicMask());
 	    }
+
 	    titlebar->setWindowIcon( pm );
 	    if ( iconw )
 		iconw->setWindowIcon( pm );
