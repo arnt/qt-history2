@@ -24,7 +24,7 @@
 #include <qdir.h>
 #include <qfile.h>
 #include <qprocess.h>
-#include <qpopupmenu.h>
+#include <qmenu.h>
 #include <qaction.h>
 #include <qfileinfo.h>
 #include <qevent.h>
@@ -180,9 +180,9 @@ void HelpWindow::openLinkInNewPage(const QString &link)
     openLinkInNewPage();
 }
 
-QPopupMenu *HelpWindow::createPopupMenu(const QPoint& pos)
+QMenu *HelpWindow::createPopupMenu(const QPoint& pos)
 {
-    QPopupMenu *m = new QPopupMenu(0);
+    QMenu *m = new QMenu(0);
     lastAnchor = document()->documentLayout()->anchorAt(pos);
     if (!lastAnchor.isEmpty()) {
         if (lastAnchor.at(0) == QLatin1Char('#')) {

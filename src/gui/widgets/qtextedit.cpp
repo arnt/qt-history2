@@ -1672,7 +1672,7 @@ bool QTextEdit::focusNextPrevChild(bool next)
 */
 void QTextEdit::contextMenuEvent(QContextMenuEvent *ev)
 {
-    QMenu *popup = createContextMenu(ev->pos());
+    QMenu *popup = createPopupMenu(ev->pos());
     if (!popup)
 	return;
     popup->exec(ev->globalPos());
@@ -1812,7 +1812,7 @@ void QTextEdit::wheelEvent(QWheelEvent *ev)
     popup menu, reimplement this function and return the created popup
     menu. Ownership of the popup menu is transferred to the caller.
 */
-QMenu *QTextEdit::createContextMenu(const QPoint &pos)
+QMenu *QTextEdit::createPopupMenu(const QPoint &pos)
 {
     Q_UNUSED(pos);
 

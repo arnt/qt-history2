@@ -20,7 +20,7 @@ class MainWindow;
 class QKeyEvent;
 class QMime;
 class QMouseEvent;
-class QPopupMenu;
+class QMenu;
 
 class HelpWindow : public QTextBrowser
 {
@@ -28,7 +28,7 @@ class HelpWindow : public QTextBrowser
 public:
     HelpWindow( MainWindow *m, QWidget *parent = 0, const char *name = 0 );
     void setSource( const QString &name );
-    QPopupMenu *createPopupMenu( const QPoint& pos );
+    QMenu *createPopupMenu( const QPoint& pos );
     void blockScrolling( bool b );
     void openLinkInNewWindow( const QString &link );
     void openLinkInNewPage( const QString &link );

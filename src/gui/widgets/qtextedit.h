@@ -195,7 +195,7 @@ protected:
     virtual void changeEvent(QEvent *ev);
     virtual void wheelEvent(QWheelEvent *ev);
 
-    virtual QMenu *createContextMenu(const QPoint &pos);
+    virtual QMenu *createPopupMenu(const QPoint &pos);
 
     QTextEdit(QTextEditPrivate &dd, QWidget *parent);
 
