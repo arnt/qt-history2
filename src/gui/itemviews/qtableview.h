@@ -24,6 +24,9 @@ class Q_GUI_EXPORT QTableView : public QAbstractItemView
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTableView)
     Q_PROPERTY(bool showGrid READ showGrid WRITE setShowGrid)
+    Q_PROPERTY(bool alternatingRowColors READ alternatingRowColors WRITE setAlternatingRowColors)
+    Q_PROPERTY(QColor oddRowColor READ oddRowColor WRITE setOddRowColor)
+    Q_PROPERTY(QColor evenRowColor READ evenRowColor WRITE setEvenRowColor)
 
 public:
     QTableView(QWidget *parent = 0);
@@ -52,14 +55,23 @@ public:
     void setColumnHidden(int column, bool hide);
 
     bool showGrid() const;
+    void setShowGrid(bool show);
+    void setGridStyle(Qt::PenStyle style);
+
+    bool alternatingRowColors() const;
+    void setAlternatingRowColors(bool enable);
+
+    QColor oddRowColor() const;
+    void setOddRowColor(const QColor &odd);
+
+    QColor evenRowColor() const;
+    void setEvenRowColor(const QColor &even);
 
     QRect itemViewportRect(const QModelIndex &index) const;
     void ensureItemVisible(const QModelIndex &index);
     QModelIndex itemAt(int x, int y) const;
 
 public slots:
-    void setShowGrid(bool show);
-    void setGridStyle(Qt::PenStyle style);
     void selectRow(int row, Qt::ButtonState state = Qt::NoButton);
     void selectColumn(int column, Qt::ButtonState state = Qt::NoButton);
     void hideRow(int row);

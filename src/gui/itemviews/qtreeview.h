@@ -63,14 +63,14 @@ public:
     QModelIndex itemAbove(const QModelIndex &index) const;
     QModelIndex itemBelow(const QModelIndex &index) const;
 
-    void setAlternatingRowColors(bool enable);
     bool alternatingRowColors() const;
+    void setAlternatingRowColors(bool enable);
 
-    void setOddRowColor(const QColor &odd);
     QColor oddRowColor() const;
+    void setOddRowColor(const QColor &odd);
 
-    void setEvenRowColor(const QColor &even);
     QColor evenRowColor() const;
+    void setEvenRowColor(const QColor &even);
     
     void doItemsLayout();
     void reset();

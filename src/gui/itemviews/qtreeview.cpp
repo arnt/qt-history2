@@ -701,6 +701,11 @@ QModelIndex QTreeView::itemBelow(const QModelIndex &index) const
   alternating colors, otherwise the background will be drawn using the QPalette::Base color.
 */
 
+bool QTreeView::alternatingRowColors() const
+{
+    return d->alternatingColors;
+}
+
 void QTreeView::setAlternatingRowColors(bool enable)
 {
     d->alternatingColors = enable;
@@ -708,24 +713,19 @@ void QTreeView::setAlternatingRowColors(bool enable)
         d->viewport->update();
 }
 
-bool QTreeView::alternatingRowColors() const
-{
-    return d->alternatingColors;
-}
-
 /*!
   \property QTreeView::oddRowColor
   \brief the color used to draw the background for odd rows
 */
 
-void QTreeView::setOddRowColor(const QColor &odd)
-{
-    d->oddColor = odd;
-}
-
 QColor QTreeView::oddRowColor() const
 {
     return d->oddColor;
+}
+
+void QTreeView::setOddRowColor(const QColor &odd)
+{
+    d->oddColor = odd;
 }
 
 /*!
@@ -733,14 +733,14 @@ QColor QTreeView::oddRowColor() const
   \brief the color used to draw the background for even rows
 */
 
-void QTreeView::setEvenRowColor(const QColor &even)
-{
-    d->evenColor = even;
-}
-
 QColor QTreeView::evenRowColor() const
 {
     return d->evenColor;
+}
+
+void QTreeView::setEvenRowColor(const QColor &even)
+{
+    d->evenColor = even;
 }
 
 /*!

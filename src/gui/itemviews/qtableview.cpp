@@ -389,10 +389,15 @@ void QTableView::paintEvent(QPaintEvent *e)
     QModelIndex current = currentIndex();
     bool focus = hasFocus() && current.isValid();
     QStyle::SFlags state = option.state;
+    bool alternate = d->alternatingColors;
+    QColor oddColor = d->oddColor;
+    QColor evenColor = d->evenColor;
 
     for (int r = rowfirst; r <= rowlast; ++r) {
         if (verticalHeader->isSectionHidden(r))
             continue;
+        if (alternate)
+            option.palette.setColor(QPalette::Base, r & 1 ? oddColor : evenColor);
         int rowp = rowViewportPosition(r);
         int rowh = rowHeight(r) - gridSize;
         for (int c = colfirst; c <= collast; ++c) {
@@ -412,7 +417,7 @@ void QTableView::paintEvent(QPaintEvent *e)
                                  ? QStyle::Style_HasFocus : QStyle::Style_Default);
                 painter.fillRect(colp, rowp, colw, rowh,
                                  (option.state & QStyle::Style_Selected
-                                  ? option.palette.highlight() : base));
+                                  ? option.palette.highlight() : option.palette.base()));
                 itemDelegate()->paint(&painter, option, model(), index);
             }
             if (r == rowfirst && showGrid) {
@@ -792,14 +797,64 @@ void QTableView::setColumnHidden(int column, bool hide)
     property is false, no grid is drawn.
 */
 
+bool QTableView::showGrid() const
+{
+    return d->showGrid;
+}
+
 void QTableView::setShowGrid(bool show)
 {
     d->showGrid = show;
 }
 
-bool QTableView::showGrid() const
+/*!
+  \property QTableView::alternatingRowColors
+  \brief whether to draw the background using alternating colors
+  
+  If this property is true, the item background will be drawn using
+  alternating colors, otherwise the background will be drawn using the QPalette::Base color.
+*/
+
+bool QTableView::alternatingRowColors() const
 {
-    return d->showGrid;
+    return d->alternatingColors;
+}
+
+void QTableView::setAlternatingRowColors(bool enable)
+{
+    d->alternatingColors = enable;
+    if (isVisible())
+        d->viewport->update();
+}
+
+/*!
+  \property QTableView::oddRowColor
+  \brief the color used to draw the background for odd rows
+*/
+
+QColor QTableView::oddRowColor() const
+{
+    return d->oddColor;
+}
+
+void QTableView::setOddRowColor(const QColor &odd)
+{
+    d->oddColor = odd;
+}
+
+/*!
+  \property QTableView::evenRowColor
+  \brief the color used to draw the background for even rows
+*/
+
+QColor QTableView::evenRowColor() const
+{
+    return d->evenColor;
+}
+
+void QTableView::setEvenRowColor(const QColor &even)
+{
+    d->evenColor = even;
 }
 
 /*!

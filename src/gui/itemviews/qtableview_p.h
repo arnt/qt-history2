@@ -21,8 +21,11 @@ class QTableViewPrivate : public QAbstractItemViewPrivate
     Q_DECLARE_PUBLIC(QTableView)
 public:
     QTableViewPrivate()
-        : showGrid(true), gridStyle(Qt::SolidLine), rowSectionAnchor(0), columnSectionAnchor(0),
-          horizontalHeader(0), verticalHeader(0) {}
+        : showGrid(true), gridStyle(Qt::SolidLine),
+          rowSectionAnchor(0), columnSectionAnchor(0),
+          horizontalHeader(0), verticalHeader(0),
+          alternatingColors(false),  oddColor(Qt::lightGray),
+          evenColor(Qt::white) {}
     void init();
     void updateVerticalScrollbar(int itemHeight);
     void updateHorizontalScrollbar(int itemWidth);
@@ -33,6 +36,9 @@ public:
     int columnSectionAnchor;
     QHeaderView *horizontalHeader;
     QHeaderView *verticalHeader;
+    bool alternatingColors;
+    QColor oddColor;
+    QColor evenColor;
 };
 
 #endif
