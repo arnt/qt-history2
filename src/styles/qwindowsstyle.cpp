@@ -735,8 +735,8 @@ void QWindowsStyle::drawControl( ControlElement element,
 		const int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
 		if ( t >= 0 ) {                         // draw tab text
 		    int xp;
-		    xp = x + w - tab - windowsRightBorder - windowsItemHMargin -
-			 windowsItemFrame + 1;
+		    xp = x + w - tab - ((use2000style) ? 20 : windowsRightBorder) -
+			 windowsItemHMargin - windowsItemFrame + 1;
 		    if ( dis && !act ) {
 			p->setPen( cg.light() );
 			p->drawText( xp, y+m+1, tab, h-2*m, text_flags, s.mid( t+1 ));
@@ -981,7 +981,10 @@ QSize QWindowsStyle::sizeFromContents( ContentsType contents,
 		w += maxpmw + 6;
 	    if (checkable || maxpmw > 0)
 		w += windowsCheckMarkHMargin;
-	    w += windowsRightBorder;
+	    if (use2000style)
+		w += 20;
+	    else
+		w += windowsRightBorder;
 
 	    sz = QSize(w, h);
 #endif
@@ -1768,7 +1771,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 /*! \reimp */
 int QWindowsStyle::styleHint( StyleHint hint,
 			      const QWidget *widget,
-			      const QStyleOption &opt, 
+			      const QStyleOption &opt,
 			      QStyleHintReturn *returnData ) const
 {
     int ret;
