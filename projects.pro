@@ -18,8 +18,12 @@ unix {
 			&& (cd config.tests/unix/ipv6 && $(MAKE) distclean) \
 			&& (cd config.tests/unix/largefile && $(MAKE) distclean) \
 			&& (cd config.tests/unix/ptrsize && $(MAKE) distclean) \
-			&& (cd config.tests/x11/notype && $(MAKE) distclean)
+			&& (cd config.tests/x11/notype && $(MAKE) distclean) \
+			&& (cd qmake && $(MAKE) distclean)
   QMAKE_EXTRA_UNIX_TARGETS += confclean
+  qmakeclean.commands += (cd qmake $(MAKE) clean)
+  QMAKE_EXTRA_UNIX_TARGETS += qmakeclean
+  CLEAN_DEPS += qmakeclean
 }
 CONFIG -= qt
 

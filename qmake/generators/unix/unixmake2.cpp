@@ -716,6 +716,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
       << endl << endl;
 
     QString clean_targets = "compiler_clean";
+    clean_targets += " " + var("CLEAN_DEPS");
     t << "mocclean:" << "\n";
     if(mocAware()) {
         if(!objMoc.isEmpty() || !srcMoc.isEmpty() || moc_incremental) {

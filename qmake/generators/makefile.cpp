@@ -1969,6 +1969,8 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
         }
         if(suffix == "all")
             t << varGlue("ALL_DEPS"," "," ","");
+        if(suffix == "clean")
+            t << varGlue("CLEAN_DEPS"," "," ","");
         if(project->isEmpty("QMAKE_NOFORCE"))
             t <<  " FORCE";
         t << endl;
