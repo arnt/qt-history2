@@ -544,6 +544,7 @@ static MYSQL_TIME *toMySqlDate(QDate date, QTime time, QCoreVariant::Type type)
         myTime->hour = time.hour();
         myTime->minute = time.minute();
         myTime->second = time.second();
+        myTime->second_part = time.msec();
     }
     if (type == QCoreVariant::Date || type == QCoreVariant::DateTime) {
         myTime->year = date.year();
