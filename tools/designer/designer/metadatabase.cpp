@@ -18,6 +18,7 @@
 **
 **********************************************************************/
 
+#include "../shared/eventinterface.h"
 #include "metadatabase.h"
 #include "widgetfactory.h"
 #include "formwindow.h"
@@ -30,6 +31,8 @@
 #include <qmetaobject.h>
 #include <qwidgetlist.h>
 #include <qmainwindow.h>
+
+#include <stdlib.h>
 
 class MetaDataBaseRecord
 {
@@ -57,6 +60,7 @@ static QList<MetaDataBase::CustomWidget> *cWidgets = 0;
 static bool doUpdate = TRUE;
 static bool haveEvents = FALSE;
 static bool editorInstalled = FALSE;
+static QInterfaceManager<EventInterface> *eventInterfaceManager = 0;
 
 /*!
   \class MetaDataBase metadatabase.h
@@ -934,6 +938,18 @@ bool MetaDataBase::hasEvents()
     return haveEvents;
 }
 
+static QString get_function_name( const QString &s )
+{
+    return s.left( s.find( "(" ) );
+}
+
+static QStringList get_arguments( const QString &s )
+{
+    QString str = s.mid( s.find( "(" ) + 1, s.find( ")" ) - 1 - s.find( "(" ) );
+    str = str.simplifyWhiteSpace();
+    return QStringList::split( ',', str );
+}
+
 QValueList<MetaDataBase::EventDescription> MetaDataBase::events( QObject *o )
 {
     if ( !o )
@@ -946,26 +962,25 @@ QValueList<MetaDataBase::EventDescription> MetaDataBase::events( QObject *o )
 	return QValueList<MetaDataBase::EventDescription>();
     }
 
-    QValueList<MetaDataBase::EventDescription> lst;
-    if ( o->inherits( "QPushButton" ) ) {
-	EventDescription d;
-	d.name = "onClick";
-	d.args << "int button";
-	lst << d;
-	d = EventDescription();
-	d.name = "onMousePress";
-	d.args << "int x" << "int y" << "int button" << "int state";
-	lst << d;
-	d = EventDescription();
-	d.name = "onMouseRelelase";
-	d.args << "int x" << "int y" << "int button" << "int state";
-	lst << d;
-	d = EventDescription();
-	d.name = "onMouseMove";
-	d.args << "int x" << "int y" << "int button" << "int state";
-	lst << d;
+    if ( !eventInterfaceManager ) {
+	QString dir = getenv( "QTDIR" );
+	dir += "/lib";
+	eventInterfaceManager = new QInterfaceManager<EventInterface>( IID_EventInterface, dir, "*qscript*.dll; *qscript*.so" );
     }
-    return lst;
+
+    if ( !eventInterfaceManager )
+	return QValueList<MetaDataBase::EventDescription>();
+
+    QStringList lst = ( (EventInterface*)eventInterfaceManager->queryInterface( "Events" ) )->events( o );
+    QValueList<MetaDataBase::EventDescription> list;
+    for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
+	EventDescription d;
+	d.name = get_function_name( *it );
+	d.args = get_arguments( *it );
+	list << d;
+    }
+
+    return list;
 }
 
 class NormalizeObject : public QObject

@@ -25,6 +25,7 @@
 #include "actioninterface.h" // for GCC 2.7.* compatibility
 #include "../shared/editorinterface.h"
 #include "../shared/templatewizardiface.h"
+#include "../shared/eventinterface.h"
 #include "sourceeditor.h"
 
 #if defined(HAVE_KDE)
