@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarry.cpp#18 $
+** $Id: //depot/qt/main/src/tools/qbitarry.cpp#19 $
 **
 ** Implementation of QBitArray class
 **
@@ -14,7 +14,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarry.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarry.cpp#19 $";
 #endif
 
 
@@ -58,6 +58,8 @@ Example of use:
 /*!
 \class QBitVal qbitarry.h
 \brief The QBitVal class is an internal class, used with QBitArray.
+
+\internal
 
 The QBitVal is required by the indexing [] operator on bit arrays.
 */
