@@ -318,6 +318,7 @@ static void closelock( HANDLE fd )
 
 static HANDLE openlock( const QString &name, int type )
 {
+    return 0; // ###
     if ( !QFile::exists( name ) )
 	return 0;
 
