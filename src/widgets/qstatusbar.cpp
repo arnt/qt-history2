@@ -192,7 +192,7 @@ void QStatusBar::removeWidget( QWidget* widget )
 	}
 	item = d->items.next();
     }
-    
+
     if ( found )
 	reformat();
 #if defined(DEBUG)
@@ -216,7 +216,7 @@ void QStatusBar::reformat()
     l->addSpacing( 3 );
 
     int maxH = fontMetrics().height();
-    
+
     QStatusBarPrivate::SBItem* item = d->items.first();
     while ( item && !item->p ) {
 	l->addWidget( item->w, item->s );
@@ -226,7 +226,6 @@ void QStatusBar::reformat()
 	item = d->items.next();
     }
 
-    l->addStretch( 10 );
 
     while ( item ) {
 	l->addWidget( item->w, item->s );
@@ -235,6 +234,8 @@ void QStatusBar::reformat()
 	maxH = QMAX( maxH, itemH );
 	item = d->items.next();
     }
+
+    l->addStretch( 0 );
 
     maxH = QMAX( maxH, d->resizer->sizeHint().height() );
     l->addStrut( maxH );
@@ -259,7 +260,7 @@ void QStatusBar::message( const QString &message )
 {
     if ( d->tempItem == message )
 	return;
-    d->tempItem = message; 
+    d->tempItem = message;
     if ( d->timer ) {
 	delete d->timer;
 	d->timer = 0;
