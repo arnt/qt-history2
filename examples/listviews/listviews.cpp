@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/listviews/listviews.cpp#7 $
+** $Id: //depot/qt/main/examples/listviews/listviews.cpp#8 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -120,6 +120,7 @@ ListViews::ListViews( QWidget *parent, const char *name )
     messages->addColumn( "Date" );
     messages->setColumnAlignment( 1, Qt::AlignRight );
     messages->setAllColumnsShowFocus( TRUE );
+    messages->setShowSortIndicator( TRUE );
     vsplitter->setResizeMode( messages, QSplitter::KeepSize );
 
     message = new QLabel( vsplitter );
