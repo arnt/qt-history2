@@ -622,6 +622,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	sy = 0;
     }
 
+#ifndef Q_OS_TEMP
     data->hasRealAlpha = FALSE && // ### there are some problems with alpha, so don't do it at the moment
 	img.hasAlphaBuffer() &&
 	d==32 && // ### can we have alpha channel with depth<32bpp?
@@ -644,24 +645,16 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    b[i+2] = (b[i+2]*b[i+3]) / 255;
 	}
 	if ( hasRealAlpha ) {
-#ifndef Q_OS_TEMP
 	    SetDIBitsToDevice( dc, 0, sy, w, h, 0, 0, 0, h,
 		    b, bmi, DIB_RGB_COLORS );
-#else
-	    void *ppvBits;
-	    HDC hdcSrc = CreateCompatibleDC( dc );
-	    HBITMAP hBitmap = CreateDIBSection( dc, bmi, DIB_RGB_COLORS, &ppvBits, NULL, 0 );
-	    memcpy( ppvBits, b, l );
-	    SelectObject( hdcSrc, hBitmap );
-	    BitBlt( dc, 0, sy, w, h, hdcSrc, 0, 0, SRCCOPY );
-	    DeleteObject( hBitmap );
-	    DeleteDC( hdcSrc );
-#endif
 	} else {
 	    data->hasRealAlpha = FALSE;
 	}
 	delete [] b;
     }
+#else
+    data->hasRealAlpha = FALSE;
+#endif
     if ( !data->hasRealAlpha ) {
 	// "else case" of the above if (but the above can change
 	// data->hasAlpha(), so we need another if for it)
