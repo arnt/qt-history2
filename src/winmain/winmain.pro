@@ -5,6 +5,8 @@ DESTDIR	 = $$QMAKE_LIBDIR_QT
 
 CONFIG	+= staticlib warn_on release
 CONFIG	-= qt
+INCLUDEPATH += $$QT_SOURCE_TREE/include/QtCore \
+               $$QT_SOURCE_TREE/include/QtGui
 
 win32 {
 	SOURCES		= qtmain_win.cpp
