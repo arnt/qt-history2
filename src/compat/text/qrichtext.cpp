@@ -3832,6 +3832,7 @@ void Q3TextString::checkBidi() const
     // determines the properties we need for layouting
     QTextEngine textEngine;
     textEngine.setText(toString());
+    textEngine.direction = (QChar::Direction)dir;
     textEngine.itemize(QTextEngine::SingleLine);
     const QCharAttributes *ca = textEngine.attributes() + length-1;
     Q3TextStringChar *ch = (Q3TextStringChar *)end - 1;
@@ -3865,7 +3866,7 @@ void Q3TextString::checkBidi() const
     } else if (dir == QChar::DirL) {
         that->rightToLeft = false;
     } else {
-        that->rightToLeft = (textEngine.items[0].analysis.bidiLevel % 2);
+        that->rightToLeft = (textEngine.direction == QChar::DirR);
     }
 }
 
@@ -5357,7 +5358,7 @@ QTextLineStart *Q3TextFormatter::formatLine(Q3TextParagraph *parag, Q3TextString
 #endif
 
 // collects one line of the paragraph and transforms it to visual order
-QTextLineStart *Q3TextFormatter::bidiReorderLine(Q3TextParagraph * /*parag*/, Q3TextString *text, QTextLineStart *line,
+QTextLineStart *Q3TextFormatter::bidiReorderLine(Q3TextParagraph *parag, Q3TextString *text, QTextLineStart *line,
                                                         Q3TextStringChar *startChar, Q3TextStringChar *lastChar, int align, int space)
 {
     // ignore white space at the end of the line.
@@ -5451,6 +5452,7 @@ QTextLineStart *Q3TextFormatter::bidiReorderLine(Q3TextParagraph * /*parag*/, Q3
         }
 
         ch->x = x + toAdd;
+        ch->rightToLeft = ch->bidiLevel % 2;
         //qDebug("visual: %d (%p) placed at %d rightToLeft=%d", visual[i], ch, x +toAdd, ch->rightToLeft );
         int ww = 0;
         if (ch->c.unicode() >= 32 || ch->c == '\t' || ch->c == '\n' || ch->isCustom()) {
@@ -5466,12 +5468,14 @@ QTextLineStart *Q3TextFormatter::bidiReorderLine(Q3TextParagraph * /*parag*/, Q3
     while (endSpaces--) {
         ++lastChar;
         int sw = lastChar->format()->width(' ');
-        if (lastChar->rightToLeft) {
+        if (text->isRightToLeft()) {
             xorig -= sw;
             lastChar->x = xorig;
+            ch->rightToLeft = true;
         } else {
             lastChar->x = x;
             x += sw;
+            ch->rightToLeft = false;
         }
     }
 

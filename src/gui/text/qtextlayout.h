@@ -168,6 +168,7 @@ public:
     int minimumWidth() const;
     int maximumWidth() const;
 
+    void setDirection(QChar::Direction);
 private:
     QTextLayout(QTextEngine *e) : d(e) {}
     /* disable copy and assignment */

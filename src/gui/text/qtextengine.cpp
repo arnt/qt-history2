@@ -261,7 +261,7 @@ static void bidiItemize(QTextEngine *engine, bool rightToLeft, int mode)
     if (sdir != QChar::DirL && sdir != QChar::DirR && sdir != QChar::DirEN && sdir != QChar::DirAN)
         sdir = QChar::DirON;
     status.eor = sdir;
-    status.lastStrong = rightToLeft ? QChar::DirR : QChar::DirL;;
+    status.lastStrong = rightToLeft ? QChar::DirR : QChar::DirL;
     status.last = status.lastStrong;
     status.dir = sdir;
 
@@ -346,6 +346,8 @@ static void bidiItemize(QTextEngine *engine, bool rightToLeft, int mode)
                         appendItems(engine, sor, eor, control, dir);
                         dir = eor < length ? direction(unicode[eor]) : control.basicDirection();
                         status.eor = dir;
+                    } else {
+                        eor = current; status.eor = dir;
                     }
                     break;
                 case QChar::DirES:

@@ -754,6 +754,13 @@ int QTextLayout::maximumWidth() const
     return qRound(d->maxWidth);
 }
 
+
+void QTextLayout::setDirection(QChar::Direction dir)
+{
+    d->direction = dir;
+}
+
+
 static void drawSelection(QPainter *p, QPalette *pal, QTextLayout::SelectionType type,
                           const QRectF &rect, const QTextLine &line, const QPoint &pos, int selectionIdx)
 {

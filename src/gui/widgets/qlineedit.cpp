@@ -1572,6 +1572,7 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
     }
     if (e->key() == Qt::Key_Direction_L || e->key() == Qt::Key_Direction_R) {
         d->direction = (e->key() == Qt::Key_Direction_L) ? QChar::DirL : QChar::DirR;
+        d->updateTextLayout();
         update();
         unknown = false;
     }
@@ -2004,7 +2005,7 @@ void QLineEditPrivate::updateTextLayout()
             uc[i] = QChar(0x0020);
     }
     textLayout.setText(str, q->font());
-    // ### want to do textLayout.setRightToLeft(text.isRightToLeft());
+    textLayout.setDirection((QChar::Direction)direction);
     textLayout.beginLayout(QTextLayout::SingleLine);
     textLayout.clearLines();
     QTextLine l = textLayout.createLine();
