@@ -273,7 +273,9 @@ void QProcess::socketRead( int fd )
     // get the number of bytes that are waiting to be read
     unsigned long i, r;
     char dummy;
-    PeekNamedPipe( dev, &dummy, 1, &r, &i, 0 );
+    if ( !PeekNamedPipe( dev, &dummy, 1, &r, &i, 0 ) ) {
+	return; // ### is it worth to dig for the reason of the error?
+    }
     if ( i > 0 ) {
 	QByteArray buffer = readStddev( dev, i );
 	int sz = buffer.size();
@@ -327,11 +329,10 @@ void QProcess::timeout()
 	socketRead( 2 ); // try stderr
     }
 
-    if ( notifyOnExit ) {
-	// is process running?
-	if ( !isRunning() ) {
-	    // isRunning() gets the exit values
-	    d->lookup->stop();
+    // stop timer if process is not running?
+    if ( !isRunning() ) {
+	d->lookup->stop();
+	if ( notifyOnExit ) {
 	    emit processExited();
 	}
     }
@@ -372,8 +373,10 @@ void QProcess::setIoRedirection( bool value )
     ioRedirection = value;
     if ( !ioRedirection && !notifyOnExit )
 	d->lookup->stop();
-    if ( ioRedirection )
-	d->lookup->start( 100 );
+    if ( ioRedirection ) {
+	if ( isRunning() )
+	    d->lookup->start( 100 );
+    }
 }
 
 /*!
@@ -385,8 +388,10 @@ void QProcess::setNotifyOnExit( bool value )
     notifyOnExit = value;
     if ( !ioRedirection && !notifyOnExit )
 	d->lookup->stop();
-    if ( notifyOnExit )
-	d->lookup->start( 100 );
+    if ( notifyOnExit ) {
+	if ( isRunning() )
+	    d->lookup->start( 100 );
+    }
 }
 
 /*!
