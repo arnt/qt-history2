@@ -23,6 +23,3 @@
 
 Known bugs
 ----------
-
-"select a.*, b.* from foo a, bar b;" does not work
-
