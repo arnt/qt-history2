@@ -3133,8 +3133,9 @@ void QFileDialog::rereadDir()
 extern bool qt_resolve_symlinks; // defined in qapplication.cpp
 
 /*!
-  This is a convenience static function that will return an existing file
-  selected by the user.
+  This is a convenience static function that returns an existing file
+  selected by the user. If the user pressed cancel, it returns a null
+  string.
 
   \code
     QString s = QFileDialog::getOpenFileName( "/home",
