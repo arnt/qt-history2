@@ -200,7 +200,7 @@ static QVariant::Type qDecodePSQLType( int t )
     return type;
 }
 
-static QVariant::Type qFieldType( QPSQLPrivate* p, int i )
+QVariant::Type qFieldType( QPSQLPrivate* p, int i )
 {
     QVariant::Type type = qDecodePSQLType( PQftype( p->result, i ) );
     return type;
@@ -272,7 +272,7 @@ static QPoint pointFromString( const QString& s)
 	return QPoint();
 }
 
-static QDate qDateFromUInt( uint dt )
+QDate qDateFromUInt( uint dt )
 {
     int y,m,d;
     QDate::julianToGregorian( dt, y, m, d );
