@@ -7,7 +7,7 @@ CFLAGS =  -g -Wall -W -I$(QTDIR)/examples/life
 LIBCFLAGS = -fPIC
 YACCCFLAGS = -Wno-unused -Wno-parentheses
 LFLAGS = -L$(QTDIR)/lib -lqt
-CC = gcc
+CXX = g++
 MOC = moc
 SHELL =	/bin/sh
 
@@ -29,7 +29,7 @@ TARGET	=	makeppms
 .SUFFIXES: .cpp
 
 .cpp.o:
-	$(CC) -c $(CFLAGS) -I$(INCDIR) $<
+	$(CXX) -c $(CFLAGS) -I$(INCDIR) $<
 
 ####### Build rules
 
@@ -39,7 +39,7 @@ pngs: $(TARGET)
 	./$(TARGET)
 
 $(TARGET): $(SRCMETA) $(OBJECTS) $(OBJMETA)
-	$(CC) $(OBJECTS) $(OBJMETA) -o $(TARGET) $(LFLAGS)
+	$(CXX) $(OBJECTS) $(OBJMETA) -o $(TARGET) $(LFLAGS)
 
 depend:
 	@makedepend -I$(INCDIR) $(SOURCES) 2> /dev/null
@@ -51,9 +51,9 @@ clean:
 ####### Explicit dependencies
 
 life.o: $(QTDIR)/examples/life/life.cpp
-	$(CC) -o life.o -c $(CFLAGS) -I$(INCDIR) $(QTDIR)/examples/life/life.cpp
+	$(CXX) -o life.o -c $(CFLAGS) -I$(INCDIR) $(QTDIR)/examples/life/life.cpp
 dirview.o: $(QTDIR)/examples/dirview/dirview.cpp
-	$(CC) -o dirview.o -c $(CFLAGS) -I$(INCDIR) $(QTDIR)/examples/dirview/dirview.cpp
+	$(CXX) -o dirview.o -c $(CFLAGS) -I$(INCDIR) $(QTDIR)/examples/dirview/dirview.cpp
 
 ####### Meta objects
 
