@@ -157,7 +157,7 @@ int qMacVersion()
 {
     static int macver = Qt::MV_Unknown;
     static bool first = TRUE;
-    if(!first) {
+    if(first) {
 	first = FALSE;
 	long gestalt_version;
 	if(Gestalt(gestaltSystemVersion, &gestalt_version) == noErr) {
