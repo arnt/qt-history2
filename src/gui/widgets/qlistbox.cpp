@@ -4036,14 +4036,14 @@ void QListBox::clearInputString()
 /*!
     Finds the first list box item that has the text \a text and
     returns it, or returns 0 of no such item could be found. If \c
-    StringComparisonFlags are specified in \a compare then these flags
+    ComparisonFlags are specified in \a compare then these flags
     are used, otherwise the default is a case-insensitive, "begins
     with" search.
 
     \sa Qt::StringComparisonFlags
 */
 
-QListBoxItem *QListBox::findItem(const QString &text, StringComparison compare) const
+QListBoxItem *QListBox::findItem(const QString &text, ComparisonFlags compare) const
 {
     if (text.isEmpty())
         return 0;

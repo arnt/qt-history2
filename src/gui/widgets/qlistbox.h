@@ -116,7 +116,16 @@ public:
 
     QListBoxItem *item(int index) const;
     int index(const QListBoxItem *) const;
-    QListBoxItem *findItem(const QString &text, StringComparison compare = BeginsWith) const;
+
+    enum StringComparisonMode {
+        CaseSensitive   = 0x00001, // 0 0001
+        BeginsWith      = 0x00002, // 0 0010
+        EndsWith        = 0x00004, // 0 0100
+        Contains        = 0x00008, // 0 1000
+        ExactMatch      = 0x00010  // 1 0000
+    };
+    typedef uint ComparisonFlags;
+    QListBoxItem *findItem(const QString &text, ComparisonFlags compare = BeginsWith) const;
 
     void triggerUpdate(bool doLayout);
 

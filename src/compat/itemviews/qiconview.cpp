@@ -3651,7 +3651,7 @@ QIconViewItem *QIconView::findItem(const QPoint &pos) const
     {Qt::StringComparisonFlags}.)
 */
 
-QIconViewItem *QIconView::findItem(const QString &text, StringComparison compare) const
+QIconViewItem *QIconView::findItem(const QString &text, ComparisonFlags compare) const
 {
     if (!d->firstItem)
         return 0;

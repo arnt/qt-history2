@@ -324,8 +324,17 @@ public:
     virtual void setResizeMode(ResizeMode m);
     ResizeMode resizeMode() const;
 
+    // Documented in qstring.cpp
+    enum StringComparisonMode {
+        CaseSensitive   = 0x00001, // 0 0001
+        BeginsWith      = 0x00002, // 0 0010
+        EndsWith        = 0x00004, // 0 0100
+        Contains        = 0x00008, // 0 1000
+        ExactMatch      = 0x00010  // 1 0000
+    };
+    typedef uint ComparisonFlags;
     QListViewItem * findItem(const QString& text, int column,
-                              StringComparison = ExactMatch) const;
+                              ComparisonFlags = ExactMatch | CaseSensitive ) const;
 
     enum RenameAction { Accept, Reject };
     virtual void setDefaultRenameAction(RenameAction a);

@@ -7808,13 +7808,13 @@ bool QListView::selectRange(QListViewItem *newItem, QListViewItem *oldItem, QLis
 /*!
     Finds the first list view item in column \a column, that matches
     \a text and returns the item, or returns 0 of no such item could
-    be found. Pass OR-ed together \l Qt::StringComparisonFlags values
+    be found. Pass OR-ed together \l ComparisonFlags values
     in the \a compare flag, to control how the matching is performed.
     The default comparison mode is case-sensitive, exact match.
 */
 
 QListViewItem *QListView::findItem(const QString& text, int column,
-                                    StringComparison compare) const
+                                    ComparisonFlags compare) const
 {
     if (text.isEmpty() && !(compare & ExactMatch))
         return 0;
@@ -7824,7 +7824,7 @@ QListViewItem *QListView::findItem(const QString& text, int column,
 
     QString itmtxt;
     QString comtxt = text;
-    if (compare & CaseInsensitive)
+    if (!(compare & CaseSensitive))
         comtxt = comtxt.toLower();
 
     QListViewItemIterator it(d->focusItem ? d->focusItem : firstChild());
