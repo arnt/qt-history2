@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#235 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#236 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -183,6 +183,7 @@ void QLineEdit::init()
     setKeyCompression( TRUE );
     alignmentFlag = Qt::AlignLeft;
     setAcceptDrops( TRUE );
+    ed = FALSE;
 }
 
 
