@@ -104,7 +104,7 @@ public:
 
 #ifdef QT_COMPAT
     inline QT_COMPAT bool caching() const { return true; }
-    inline QT_COMPAT void setCaching(bool on) {}
+    inline QT_COMPAT void setCaching(bool /*on*/) {}
 #endif
 };
 
