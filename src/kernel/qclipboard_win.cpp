@@ -152,11 +152,11 @@ public:
 
     // Not efficient to iterate over this (so we provide provides() above).
 
-	// In order to be able to use UniCode characters, we have to give
-	// it a higher priority than single-byte characters.  To do this, we
-	// treat CF_TEXT as a special case and postpones its processing until
-	// we're sure we do not have CF_UNICODETEXT
-	const char* format( int n ) const
+    // In order to be able to use UniCode characters, we have to give
+    // it a higher priority than single-byte characters.  To do this, we
+    // treat CF_TEXT as a special case and postpone its processing until
+    // we're sure we do not have CF_UNICODETEXT
+    const char* format( int n ) const
     {
 	const char* mime = 0;
 	bool sawSBText( false );
@@ -166,26 +166,27 @@ public:
 		int cf = 0;
 		QPtrList<QWindowsMime> all = QWindowsMime::all();
 		while (cf = EnumClipboardFormats(cf)) {
-		    if ( qt_winver & Qt::WV_NT_based && cf == CF_TEXT )
-				sawSBText = true;
-			else {
-				mime = QWindowsMime::cfToMime(cf);
-				if ( mime ) {
-				if ( !n )
-					break; // COME FROM HERE
-				n--;
-				}
+                    if ( qt_winver & Qt::WV_NT_based && cf == CF_TEXT )
+			sawSBText = true;
+		    else {
+			mime = QWindowsMime::cfToMime(cf);
+			if ( mime ) {
+			if ( !n )
+				break; // COME FROM HERE
+			n--;
+			mime = 0;
 			}
+		    }
 		}
 		// COME FROM BREAK
 
 		// If we did not find a suitable mime type, yet skipped
 		// CF_TEXT due to the priorities above, give it a shot
-		if ( qt_winver & Qt::WV_NT_based && !mime && sawSBText ) {
-			mime = QWindowsMime::cfToMime( CF_TEXT );
-			if ( mime ) {
-				n--;
-			}
+                if ( qt_winver & Qt::WV_NT_based && !mime && sawSBText ) {
+		    mime = QWindowsMime::cfToMime( CF_TEXT );
+		    if ( mime ) {
+			n--;
+		    }
 		}
 		CloseClipboard();
 	    }
