@@ -32,7 +32,7 @@ QString QTextDocument::plainText() const
 
 bool QTextDocument::isEmpty() const
 {
-    return pieceTable->length();
+    return !pieceTable->length();
 }
 
 void QTextDocument::undoRedo(bool undo)
