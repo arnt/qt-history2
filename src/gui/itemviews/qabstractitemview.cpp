@@ -616,10 +616,10 @@ void QAbstractItemView::doItemsLayout()
     \property QAbstractItemView::beginEditActions
     \brief which actions will initiate item editing
 
-    This property is an OR'ed flag of
-    \l{QAbstractItemDelegate::BeginEditAction}s. The view will only
-    initiate the editing of an item if the action performed is set in
-    this property.
+    This property is a selection of flags defined by
+    \l{QAbstractItemDelegate::BeginEditAction}, combined using the OR
+    operator. The view will only initiate the editing of an item if the
+    action performed is set in this property.
 */
 void QAbstractItemView::setBeginEditActions(int actions)
 {
