@@ -124,7 +124,13 @@ void HelpWindow::setSource(const QUrl &name)
     }
     
     // check for local file
-    QFileInfo fi(name.toString());
+    QString fileName = name.toString();
+    int j = fileName.indexOf('#');
+    if (j > 0) {
+        fileName = fileName.left(j);
+        QMessageBox::information(mw, 0, fileName);
+    }
+    QFileInfo fi(fileName);
     if (!fi.exists()) {
         QMessageBox::information(mw, tr("Help"), tr("Can't load and display non-local file\n"
                     "%1").arg(name.toString()));
