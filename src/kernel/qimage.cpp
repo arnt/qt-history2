@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#17 $
 **
 ** Implementation of QImage class
 **
@@ -20,14 +20,13 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#17 $";
 #endif
 
 /*!
 \class QImage qimage.h
 
-\brief This class reads and writes, but doesn't draw, pixmap images
-(e.g. GIF and  PBM files).
+\brief This class reads and writes pixmap images (e.g. GIF and  PBM files).
 
 QImage is where we've collected graphics format knowledge.  This class
 can (ok, will be able to) recognize and read several graphics formats,
@@ -38,6 +37,8 @@ even understand why we've defined), Microsoft's BMP format, various
 PBM, PGM and PNM formats, and XBM.  XPM, JPEG and PNG are next in
 line.  We're not sure whether we want to support GIF, legal brouhaha
 isn't our style, <a href=mailto:all@troll.no>comments are welcome</a>.
+
+\todo document the qt proprietary image format here
 */
 
 static void read_qt_image( QImageIO * );	// standard image io handlers
@@ -163,7 +164,7 @@ Both read_image and write_image are of type image_io_handler, which is
 defined as
 \code
 typedef void (*image_io_handler)( QImageIO * );
-\\endcode
+\endcode
 That is, image_io_handler returns nothing and takes a <code>QImageIO
 *</code> as its only argument.
 
@@ -974,7 +975,7 @@ QImage &QImage::operator=( const QImage &image )
 
 /*!
 Returns FALSE.  Unless, of course, it is called for an object of class
-QBitMAP, which reimplements this class.
+QBitMAP, which reimplements this function.
 
 Of course it is very inefficient to have go through a jump table,
 stack frame creation, function prolog and epilog, all just to
@@ -1066,7 +1067,7 @@ int QImage::depth() const
 
 /*!
 Returns the number of colors the image may have.  If an image is
-created as 8-bit but only 147 colors are actually in use, numColoors()
+created as 8-bit but only 147 colors are actually in use, numColors()
 returns 256.
 */
 int QImage::numColors() const
