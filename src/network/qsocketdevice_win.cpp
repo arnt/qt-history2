@@ -18,14 +18,18 @@
 
 #include <string.h>
 
-
 #if defined (QT_NO_IPV6)
 #  include <windows.h>
 #  include <winsock.h>
 #else
-#  include <winsock2.h>
-// Compiling with old SDK, which does not contain these
-// structs and defines
+#  if defined (Q_CC_BOR) || defined (Q_CC_GNU)
+#    include <winsock2.h>
+#  elif defined (Q_CC_INTEL)
+#    include <winsock.h>
+#  else
+#    include <windows.h>
+#  endif
+// Use our own defines and structs which we know are correct
 #  define QT_SS_MAXSIZE 128
 #  define QT_SS_ALIGNSIZE (sizeof(__int64))
 #  define QT_SS_PAD1SIZE (QT_SS_ALIGNSIZE - sizeof (short))
@@ -52,6 +56,9 @@ typedef struct {
 } qt_sockaddr_in6;
 #endif
 
+#ifndef AF_INET6
+#define AF_INET6        23              /* Internetwork Version 6 */
+#endif
 
 #ifndef NO_ERRNO_H
 #include <errno.h>
@@ -82,19 +89,15 @@ static inline void qt_socket_getportaddr( struct sockaddr *sa,
 	for ( int i = 0; i < 16; ++i )
 	    tmp.c[i] = sa6->sin6_addr.qt_s6_addr[i];
 	QHostAddress a( tmp );
-	if ( !a.isNull() ) {
-	    *addr = a;
-	    *port = ntohs( sa6->sin6_port );
-	}
+        *addr = a;
+        *port = ntohs( sa6->sin6_port );
 	return;
     }
 #endif
     struct sockaddr_in *sa4 = (struct sockaddr_in *)sa;
     QHostAddress a( ntohl( sa4->sin_addr.s_addr ) );
-    if ( !a.isNull() ) {
-	*port = ntohs( sa4->sin_port );
-	*addr = a;
-    }
+    *port = ntohs( sa4->sin_port );
+    *addr = a;
 }
 
 void QSocketDevice::init()
@@ -683,14 +686,14 @@ Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 		break;
 	    case WSAETIMEDOUT:
 	    case WSAECONNRESET:
-		/* 
+		/*
 		From msdn doc:
 		On a UDP datagram socket this error would indicate that a previous
 		send operation resulted in an ICMP "Port Unreachable" message.
-		
+
 		So we should not close this socket just because one sendto failed.
 		*/
-		if ( t != Datagram ) 
+		if ( t != Datagram )
 		    close(); // connection closed
 		r = 0;
 		break;
