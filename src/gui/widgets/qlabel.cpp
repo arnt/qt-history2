@@ -708,7 +708,7 @@ void QLabel::paintEvent( QPaintEvent * )
 	// color group with the text color adjusted.
 	QPalette pal = palette();
 	if ( foregroundRole() != QPalette::Text && isEnabled() )
-	    pal.setColor( QPalette::Foreground, paletteForegroundColor() );
+	    pal.setColor(QPalette::Foreground, pal.color(foregroundRole()));
 	doc->draw(&paint, cr.x(), cr.y()+yo, cr, pal, 0);
     } else
 #endif
