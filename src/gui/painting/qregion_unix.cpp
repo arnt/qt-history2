@@ -2218,7 +2218,7 @@ QRegion::QRegion(const QRect &r, RegionType t)
 
 QRegion::QRegion(const QPointArray &a, bool winding)
 {
-    if (!a.isEmpty()) {
+    if (a.count() > 2) {
         d =  new QRegionData;
         d->ref = 1;
 #if defined(Q_WS_X11)
