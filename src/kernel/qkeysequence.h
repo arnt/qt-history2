@@ -87,8 +87,8 @@ private:
 
     QKeySequencePrivate* d;
 
-    friend QDataStream &operator<<( QDataStream &, const QKeySequence & );
-    friend QDataStream &operator>>( QDataStream &, QKeySequence & );
+    friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QKeySequence & );
+    friend Q_EXPORT QDataStream &operator>>( QDataStream &, QKeySequence & );
     friend class QAccelManager;
 };
 
