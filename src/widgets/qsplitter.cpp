@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#53 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#54 $
 **
 **  Splitter widget
 **
@@ -159,10 +159,9 @@ public:
 class QSplitterData
 {
 public:
-    QSplitterData() : num(0), opaque( FALSE ) {}
+    QSplitterData() : opaque( FALSE ) {}
 
     QList<QSplitterLayoutStruct> list;
-    int num;
     bool opaque;
 };
 
@@ -302,7 +301,7 @@ QSplitterLayoutStruct *QSplitter::addWidget( QWidget *w, bool first )
 {
     QSplitterLayoutStruct *s;
     QSplitterHandle *newHandle = 0;
-    if ( data->num++ ) {
+    if ( data->list.count() > 0 ) {
 	s = new QSplitterLayoutStruct;
 	s->mode = KeepSize;
 	newHandle = new QSplitterHandle( orientation(), this );
@@ -337,7 +336,7 @@ void QSplitter::childEvent( QChildEvent *c )
     if ( c->type() == QEvent::ChildInserted ) {
 	if ( !c->child()->isWidgetType() )
 	    return;
-	//debug( "%p QSplitter::child %s %p inserted", this, 
+	//debug( "%p QSplitter::child %s %p inserted", this,
 	//       c->child()->className(), c->child() );
 	QSplitterLayoutStruct *s = data->list.first();
 	while ( s ) {
@@ -361,7 +360,7 @@ void QSplitter::childEvent( QChildEvent *c )
 		if ( p && p->isSplitter ) {
 		    data->list.removeRef( p );
 		    delete p->wid; //will call childEvent
-		    delete p; 
+		    delete p;
 		}
 		recalcId();
 		doResize();
