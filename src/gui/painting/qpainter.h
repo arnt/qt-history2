@@ -73,6 +73,7 @@ public:
 
     // attributes/modes
     void setRasterOp(RasterOp op);
+    RasterOp rasterOp() const;
 
     void setBackgroundMode(BGMode mode);
     BGMode backgroundMode() const;

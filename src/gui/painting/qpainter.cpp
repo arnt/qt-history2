@@ -675,6 +675,11 @@ void QPainter::setRasterOp(RasterOp op)
 	d->engine->setDirty(QPaintEngine::DirtyRasterOp);
 }
 
+Qt::RasterOp QPainter::rasterOp() const
+{
+    return d->state->rasterOp;
+}
+
 void QPainter::setFont(const QFont &font)
 {
     d->state->font = font;
@@ -1824,4 +1829,3 @@ void qt_format_text( const QFont& font, const QRect &_r,
     if ( underlinePositions != underlinePositionStack )
 	delete [] underlinePositions;
 }
-
