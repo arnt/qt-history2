@@ -472,6 +472,9 @@ void QDockWindowHandle::mouseReleaseEvent( QMouseEvent *e )
 	return;
     dockWindow->endRectDraw( !opaque );
     mousePressed = FALSE;
+#ifdef Q_WS_MAC
+    releaseMouse();
+#endif
     if ( !hadDblClick && offset == e->pos() ) {
 	timer->start( QApplication::doubleClickInterval(), TRUE );
     } else if ( !hadDblClick ) {
@@ -1215,6 +1218,13 @@ void QDockWindow::updateGui()
 		verHandle->show();
 	    else
 		verHandle->hide();
+#ifdef Q_WS_MAC
+	    if(horHandle->mousePressed) {
+		horHandle->mousePressed = FALSE;
+		verHandle->mousePressed = TRUE;
+		verHandle->grabMouse();
+	    }
+#endif
 	    verHandle->updateGui();
 	} else {
 	    if ( moveEnabled )
@@ -1222,6 +1232,13 @@ void QDockWindow::updateGui()
 	    else
 		horHandle->hide();
 	    horHandle->updateGui();
+#ifdef Q_WS_MAC
+	    if(verHandle->mousePressed) {
+		verHandle->mousePressed = FALSE;
+		horHandle->mousePressed = TRUE;
+		horHandle->grabMouse();
+	    }
+#endif
 	    verHandle->hide();
 	}
 	if ( isResizeEnabled() ) {
