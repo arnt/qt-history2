@@ -1,32 +1,30 @@
 #include "regexp.h"
 
-const QString RESULT_TABLE =
-    QObject::tr("<table bgcolor=\"white\" border=\"1\" "
-                "cellspacing=\"1\" cellpadding=\"1\">"
-                "<tr><td>Regexp</td>"
-                "<td align=\"right\" colspan=\"2\"><b>%1</b></td></tr>"
-                "<tr><td>Offset</td>"
-                "<td align=\"right\" colspan=\"2\"><b>%2</b></td></tr>"
-                "<tr><td>Captures</td>"
-                "<td align=\"right\" colspan=\"2\"><b>%3</b></td></tr>");
+static const char *ResultTable =
+        "<table bgcolor=\"white\" border=\"1\" "
+        "cellspacing=\"1\" cellpadding=\"1\">"
+        "<tr><td>Regexp</td>"
+        "<td align=\"right\" colspan=\"2\"><b>%1</b></td></tr>"
+        "<tr><td>Offset</td>"
+        "<td align=\"right\" colspan=\"2\"><b>%2</b></td></tr>"
+        "<tr><td>Captures</td>"
+        "<td align=\"right\" colspan=\"2\"><b>%3</b></td></tr>";
 
-const QString SUBHEADING =
-    QObject::tr("<tr><td></td><td align=\"center\">Text</td>"
-                "<td align=\"center\">Characters</td></tr>");
+static const char *SubHeading =
+        "<tr><td></td><td align=\"center\">Text</td>"
+        "<td align=\"center\">Characters</td></tr>";
 
-const QString MATCH =
-    QObject::tr("<tr><td>Match</td><td><b>%1</b></td>"
-                "<td align=\"right\"><b>%2</b></td></tr>");
+static const char *Match =
+        "<tr><td>Match</td><td><b>%1</b></td>"
+        "<td align=\"right\"><b>%2</b></td></tr>";
 
-const QString CAPTURE_ROW =
-    QObject::tr("<tr><td>Capture #%1</td><td align=\"right\"><b>%2</b></td>"
-                "<td align=\"right\"><b>%3</b></td></tr>");
+static const char *CaptureRow =
+        "<tr><td>Capture #%1</td><td align=\"right\"><b>%2</b></td>"
+        "<td align=\"right\"><b>%3</b></td></tr>";
 
-const QString TABLE_END = QObject::tr("</table>");
+static const char *TableEnd = "</table>";
 
-
-
-Regexp::Regexp(QWidget* parent)
+Regexp::Regexp(QWidget *parent)
     : QDialog(parent)
 {
     regexLabel = new QLabel(this);
@@ -101,16 +99,25 @@ Regexp::Regexp(QWidget* parent)
 
     resize(QSize(500, 350).expandedTo(minimumSizeHint()));
 
-    languageChange();
-
     connect(copyPushButton, SIGNAL(clicked()), this, SLOT(copy()));
     connect(executePushButton, SIGNAL(clicked()), this, SLOT(execute()));
     connect(quitPushButton, SIGNAL(clicked()), this, SLOT(accept()));
 
+    setWindowTitle(tr("Regexp"));
+    regexLabel->setText(tr("&Regexp:"));
+    regexComboBox->insertItem(tr("[A-Z]+=(\\d+):(\\d*)"));
+    textLabel->setText(tr("&Text:"));
+    textComboBox->insertItem(tr("ABC=12:3456"));
+    caseSensitiveCheckBox->setText(tr("Case &Sensitive"));
+    minimalCheckBox->setText(tr("&Minimal"));
+    wildcardCheckBox->setText(tr("&Wildcard"));
+    copyPushButton->setText(tr("&Copy"));
+    executePushButton->setText(tr("&Execute"));
+    quitPushButton->setText(tr("&Quit"));
+
     execute();
     statusBar->message(tr("Hover the mouse over widgets for tool tips."));
 }
-
 
 void Regexp::execute()
 {
@@ -134,26 +141,26 @@ void Regexp::execute()
 	}
 	int offset = re.indexIn(text);
 	int captures = re.numCaptures();
-        QString result = RESULT_TABLE;
+        QString result = ResultTable;
 	QString escaped = regex.replace("\\", "\\\\");
         result = result.arg(escaped);
 	if (offset != -1) {
-            result = result.arg(offset) + SUBHEADING;
+            result = result.arg(offset) + SubHeading;
 	    if (syntax != QRegExp::RegExp)
                 captures = 0;
             result = result.arg(captures);
-            result += MATCH.arg(re.cap(0)).arg(re.matchedLength());
+            result += QString(Match).arg(re.cap(0)).arg(re.matchedLength());
 	    if (syntax == QRegExp::RegExp) {
 		for (int i = 1; i <= captures; ++i)
-                    result += CAPTURE_ROW
-                                .arg(i).arg(re.cap(i)).arg(re.cap(i).length());
+                    result += QString(CaptureRow).arg(i)
+                                                 .arg(re.cap(i))
+                                                 .arg(re.cap(i).size());
 	    }
-	}
-	else {
+	} else {
             result = result.arg(offset).arg(0);
             result += tr("<tr><td colspan=\"3\">No matches</td></tr>");
         }
-        result += TABLE_END;
+        result += TableEnd;
         resultLabel->setText(result);
 	statusBar->message(tr("Executed \"%1\" on \"%2\"")
 				.arg(escaped).arg(text));
@@ -161,7 +168,6 @@ void Regexp::execute()
     else
 	statusBar->message(tr("A regular expression and a text must be given"));
 }
-
 
 void Regexp::copy()
 {
@@ -176,20 +182,3 @@ void Regexp::copy()
 				.arg(escaped));
     }
 }
-
-
-void Regexp::languageChange()
-{
-    setWindowTitle(tr("Regexp"));
-    regexLabel->setText(tr("&Regexp:"));
-    regexComboBox->insertItem(tr("[A-Z]+=(\\d+):(\\d*)"));
-    textLabel->setText(tr("&Text:"));
-    textComboBox->insertItem(tr("ABC=12:3456"));
-    caseSensitiveCheckBox->setText(tr("Case &Sensitive"));
-    minimalCheckBox->setText(tr("&Minimal"));
-    wildcardCheckBox->setText(tr("&Wildcard"));
-    copyPushButton->setText(tr("&Copy"));
-    executePushButton->setText(tr("&Execute"));
-    quitPushButton->setText(tr("&Quit"));
-}
-
