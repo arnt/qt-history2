@@ -217,10 +217,6 @@ QMap<int, int> QTextDocumentFragmentPrivate::fillFormatCollection(QTextFormatCol
     document fragment. Document fragments can also be created by the
     static functions, fromPlainText() and fromHTML().
 
-    A document fragment is represented by a rich text format that can
-    be converted to and from XML by writing to or reading from a
-    QDataStream using operator<<() and operator>>().
-
     A document fragment's text can be obtained by calling
     toPlainText().
 */
@@ -251,19 +247,18 @@ QTextDocumentFragment::QTextDocumentFragment(QTextDocument *document)
 }
 
 /*!
-    Creates a QTextDocumentFragment from the cursor \a{range}'s
-    selection. If the cursor doesn't contain a selection, the created
-    fragment is empty.
+    Creates a QTextDocumentFragment from the \a{cursor}'s selection. 
+    If the cursor doesn't have a selection, the created fragment is empty.
 
     \sa isEmpty()
 */
-QTextDocumentFragment::QTextDocumentFragment(const QTextCursor &range)
+QTextDocumentFragment::QTextDocumentFragment(const QTextCursor &cursor)
     : d(0)
 {
-    if (!range.hasSelection())
+    if (!cursor.hasSelection())
         return;
 
-    d = new QTextDocumentFragmentPrivate(range);
+    d = new QTextDocumentFragmentPrivate(cursor);
 }
 
 /*!
@@ -330,45 +325,48 @@ QString QTextDocumentFragment::toPlainText() const
 /*!
     \relates QTextDocumentFragment
 
-    Saves the given \a fragment as rich text to the \a stream in an
-    XML format.
+    Writes the fragment \a frag to the stream \a s and returns a reference to the
+    stream.
 */
-QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragment &fragment)
+QDataStream &operator<<(QDataStream &s, const QTextDocumentFragment &frag)
 {
-    if (!fragment.d) {
+    if (!frag.d) {
         // null marker
-        return stream << Q_INT8(false);
+        return s << Q_INT8(false);
     }
 
-    return stream << Q_INT8(true) << *fragment.d;
+    return s << Q_INT8(true) << *frag.d;
 }
 
 /*!
     \relates QTextDocumentFragment
 
-    Reads a \a stream containing a document fragment in XML format,
-    and populates \a fragment with the rich text that has been read.
+    Reads the  fragment \a frag from the stream \a s and returns a reference
+    to the stream.
 */
-QDataStream &operator>>(QDataStream &stream, QTextDocumentFragment &fragment)
+QDataStream &operator>>(QDataStream &s, QTextDocumentFragment &frag)
 {
     Q_INT8 marker;
 
-    stream >> marker;
+    s >> marker;
 
     if (marker == false) {
-        delete fragment.d;
-        fragment.d = 0;
-        return stream;
+        delete frag.d;
+        frag.d = 0;
+        return s;
     }
 
-    if (!fragment.d)
-        fragment.d = new QTextDocumentFragmentPrivate;
+    if (!frag.d)
+        frag.d = new QTextDocumentFragmentPrivate;
 
-    return stream >> *fragment.d;
+    return s >> *frag.d;
 }
 
 /*!
     Returns a document fragment that contains the given \a plainText.
+
+    When inserting such a fragment into a QTextDocument the current char format of
+    the QTextCursor used for insertion is used as format for the text.
 */
 QTextDocumentFragment QTextDocumentFragment::fromPlainText(const QString &plainText)
 {
@@ -643,6 +641,9 @@ QTextDocumentFragment QTextDocumentFragment::fromHTML(const QString &html)
 
 /*!
     \overload
+
+    The text encoding of the string \a html is determined from encoding
+    attributes specified in the header.
 */
 QTextDocumentFragment QTextDocumentFragment::fromHTML(const QByteArray &html)
 {

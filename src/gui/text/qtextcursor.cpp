@@ -859,6 +859,8 @@ void QTextCursor::selectedTableCells(int *firstRow, int *numRows, int *firstColu
 /*!
     Clears the current selection.
 
+    Note that it does \bold{not} delete the text of the selection.
+
     \sa removeSelectedText() hasSelection()
 */
 void QTextCursor::clearSelection()
@@ -1003,7 +1005,7 @@ QTextBlockFormat QTextCursor::blockFormat() const
     Sets the block format of the current block (or all blocks that
     are contained in the selection) to \a format.
 
-    \sa setBlockFormat()
+    \sa blockFormat()
 */
 void QTextCursor::setBlockFormat(const QTextBlockFormat &format)
 {
