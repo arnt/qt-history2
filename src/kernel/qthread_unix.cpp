@@ -238,8 +238,11 @@ void QThread::postEvent( QObject * receiver, QEvent * event )
 // enough (in terms of behavior and availability)
 static void thread_sleep( struct timespec *ti )
 {
-    pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
-    pthread_cond_t cnd = PTHREAD_COND_INITIALIZER;
+    pthread_mutex_t mtx;
+    pthread_cond_t cnd;
+
+    pthread_mutex_init(&mtx, 0);
+    pthread_cond_init(&cnd, 0);
 
     pthread_mutex_lock( &mtx );
     (void) pthread_cond_timedwait( &cnd, &mtx, ti );
