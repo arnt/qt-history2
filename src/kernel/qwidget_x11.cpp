@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#68 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#69 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#68 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#69 $";
 #endif
 
 
@@ -644,7 +644,8 @@ void QWidget::update( int x, int y, int w, int h )
 /*! Repaints the widget directly.
 
   This function is virtual, and the other overloaded repaint()s call
-  it.
+  it, but reimplementing it is strongly discouraged.  FYI, \link
+  QTableWidget::repaint() QTableWidget \endlink reimplements it.
 
   Doing a repaint() is faster than doing an update(), but since
   repaint() does not make a server trip and there is some time skew
