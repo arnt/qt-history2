@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QTEXTEDIT_H
-#define QTEXTEDIT_H
+#ifndef Q3TEXTEDIT_H
+#define Q3TEXTEDIT_H
 
 #ifndef QT_H
 #include "qscrollview.h"
