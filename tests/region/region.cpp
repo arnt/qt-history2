@@ -1,5 +1,6 @@
 #include <qapplication.h>
 #include <qregion.h>
+#include <qpointarray.h>
 
 
 void outr( QRect r )
@@ -11,7 +12,7 @@ void print( QRegion region )
 {
     QRect r = region.boundingRect();
     qDebug( "Bounding rect %d,%d,%d,%d", r.x(), r.y(), r.width(), r.height() );
-    QArray<QRect> a = region.getRects();
+    QArray<QRect> a = region.rects();
     qDebug( "nrects = %d", a.size() );
     for ( int i=0; i<(int)a.size(); i++ )
 	outr( a[i] );
@@ -37,5 +38,11 @@ int main( int argc, char **argv )
     QRegion r4( QRect(100,100,15,15), QRegion::Ellipse );
     print( r4 );
 
+    qDebug("\nempty polygon");
+    QPointArray pa;
+    QRegion r5(pa);
+    print(r5);
+
+    app.unlock();
     return 0;
 }
