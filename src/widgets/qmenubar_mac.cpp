@@ -35,6 +35,7 @@
  *****************************************************************************/
 //#define DEBUG_MENUBAR_ACTIVATE
 
+IconRef qt_mac_create_iconref(const QPixmap &px); //qpixmap_mac.cpp
 extern QString cfstring2qstring(CFStringRef); //qglobal.cpp
 QByteArray p2qstring(const unsigned char *); //qglobal.cpp
 void qt_event_request_menubarupdate(); //qapplication_mac.cpp
@@ -426,13 +427,11 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 		ChangeMenuItemAttributes(ret, id, kMenuItemAttrSeparator, 0);
 	    } else {
 		if(item->pixmap()) { 		    //handle pixmaps..
-#if 0
-		    CIcon *ic = (CIcon *)malloc(sizeof(CIcon));
-		    PixMapHandle src = GetGWorldPixMap((GWorldPtr)item->pixmap()->handle());
-		    PixMap *dst = &ic->iconPMap;
-		    CopyPixMap(src, &dst);
-		    SetMenuItemIconHandle(ret, id, kMenuIconRefType, (Handle)ic);
-#endif
+		    IconRef ico = qt_mac_create_iconref(*item->pixmap());
+		    SetMenuItemIconHandle(ret, id, kMenuIconRefType, (Handle)ico);
+		} else if(item->iconSet()) {
+		    IconRef ico = qt_mac_create_iconref(item->iconSet()->pixmap(QIconSet::Small, QIconSet::Normal));
+		    SetMenuItemIconHandle(ret, id, kMenuIconRefType, (Handle)ico);
 		}
 		if(item->isEnabled())
 		    EnableMenuItem(ret, id);
