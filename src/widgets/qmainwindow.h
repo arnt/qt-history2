@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.h#10 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.h#11 $
 **
 ** Definition of QMainWindow class
 **
@@ -43,7 +43,7 @@ public:
     virtual void setToolTipGroup( QToolTipGroup * );
     QToolTipGroup * toolTipGroup() const;
 
-    enum ToolBarDock { Top, Bottom, Right, Left };
+    enum ToolBarDock { Unmanaged, TornOff, Top, Bottom, Right, Left };
 
     void setDockEnabled( ToolBarDock dock, bool enable );
     bool isDockEnabled( ToolBarDock dock ) const;
@@ -53,15 +53,18 @@ public:
     void removeToolBar( QToolBar * );
 
     void show();
+    
+    void setRightJustification( bool );
+    bool rightJustification() const;
 
     bool usesBigPixmaps() const;
-    
+
 public slots:
     void setUsesBigPixmaps( bool );
 
 signals:
     void pixmapSizeChanged( bool );
-    
+
 protected slots:
     void setUpLayout();
 

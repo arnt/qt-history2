@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#16 $
 **
 ** Implementation of QToolBar class
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#16 $");
 
 
 
@@ -38,8 +38,10 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#15 $");
 */
 
 
-/*!  Constructs an empty tool bar and
-
+/*!  Constructs an empty tool bar which is a chilf od \a parent and
+  managed by \a parent, initially in \a dock, labelled \a and starting
+  a new line in the dock if \a newLine is TRUE.  \a name is the object
+  name, as usual.
 */
 
 QToolBar::QToolBar( const char * label,
@@ -50,10 +52,35 @@ QToolBar::QToolBar( const char * label,
     d = 0;
     b = 0;
     mw = parent;
+    sw = 0;
     o = (dock == QMainWindow::Left || dock == QMainWindow::Right )
 	? Vertical : Horizontal;
     parent->addToolBar( this, label, dock, newLine );
 }
+
+
+/*!  Constructs an empty horizontal tool bar which is a parent of \a
+  parent and managed by \a mainWindow.  The \a label and \a newLine
+  are passed straight to QMainWindow::addToolBar().  \a name is the
+  object name and \a f is the widget flags.
+  
+  This is the constructor to use if you want to create torn-off
+  toolbars, or toolbars in the status bar.
+*/
+
+QToolBar::QToolBar( const char * label, QMainWindow * mainWindow,
+		    QWidget * parent, bool newLine, const char * name,
+		    WFlags f )
+    : QWidget( parent, name, f )
+{
+    d = 0;
+    b = 0;
+    mw = mainWindow;
+    sw = 0;
+    o = Horizontal;
+    mainWindow->addToolBar( this, label, QMainWindow::Unmanaged, newLine );
+}
+    
 
 /*!  Constructs an empty tool bar in the top dock of its parent,
   without any label and without requiring a newline.  This is mostly
@@ -65,14 +92,13 @@ QToolBar::QToolBar( QMainWindow * parent, const char * name )
     d = 0;
     b = 0;
     o = Horizontal;
+    sw = 0;
     mw = parent;
     parent->addToolBar( this, 0, QMainWindow::Top );
 }
 
 
-/*! Destroys the object and frees any allocated resources.
-
-*/
+/*! Destroys the object and frees any allocated resources. */
 
 QToolBar::~QToolBar()
 {
@@ -166,7 +192,7 @@ void QToolBar::setUpGM()
 		else if ( s.height() > 0 )
 		    w->setMinimumHeight( s.width() );
 	    }
-	    b->addWidget( w, 0 );
+	    b->addWidget( w, w == sw ? 42 : 0 );
 	}
     }
     b->activate();
@@ -202,11 +228,20 @@ void QToolBar::paintEvent( QPaintEvent * )
 
 
 
-/*!  Returns a pointer to the QMainWindow within which this tool bar
-  was constructed.
+/*!  Returns a pointer to the QMainWindow which controls this tool bar.
 */
 
-QMainWindow * QToolBar::parentWidget()
+QMainWindow * QToolBar::mainWindow()
 {
     return mw;
+}
+
+
+/*!  Sets \a w to be expanded if this toolbar is requested to stretch
+  (because QMainWindow right-justifies the dock it's in).
+*/
+
+void QToolBar::setStretchableWidget( QWidget * w )
+{
+    sw = w;
 }

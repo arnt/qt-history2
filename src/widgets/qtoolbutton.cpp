@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#21 $
 **
 ** Implementation of QToolButton class
 **
@@ -22,7 +22,7 @@
 #include "qiconset.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#20 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#21 $");
 
 
 static QToolButton * threeDeeButton = 0;
@@ -94,7 +94,7 @@ QToolButton::QToolButton( const QPixmap & pm, const char * textLabel,
     if ( parent->parentWidget() ) {
 	connect( parent->parentWidget(), SIGNAL(pixmapSizeChanged(bool)),
 		 this, SLOT(setUsesBigPixmap(bool)) );
-	setUsesBigPixmap( parent->parentWidget()->usesBigPixmaps() );
+	setUsesBigPixmap( parent->mainWindow()->usesBigPixmaps() );
     } else {
 	setUsesBigPixmap( FALSE );
     }
@@ -128,7 +128,7 @@ QToolButton::QToolButton( QIconSet s, const char * textLabel,
     if ( parent->parentWidget() ) {
 	connect( parent->parentWidget(), SIGNAL(pixmapSizeChanged(bool)),
 		 this, SLOT(setUsesBigPixmap(bool)) );
-	setUsesBigPixmap( parent->parentWidget()->usesBigPixmaps() );
+	setUsesBigPixmap( parent->mainWindow()->usesBigPixmaps() );
     } else {
 	setUsesBigPixmap( FALSE );
     }

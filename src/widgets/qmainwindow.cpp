@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#15 $
 **
 ** Implementation of QMainWindow class
 **
@@ -25,7 +25,7 @@
 
 #include "qtooltip.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#14 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#15 $");
 
 /*notready
   \class QMainWindow
@@ -50,8 +50,9 @@ public:
     typedef QList<ToolBar> ToolBarDock;
 
     QMainWindowPrivate()
-	: top(0), left(0), right(0), bottom(0),
-	  mb(0), sb(0), ttg(0), mc(0), timer(0), tll(0), ubp( FALSE )
+	: top(0), left(0), right(0), bottom(0), tornOff(0), unmanaged(0),
+	  mb(0), sb(0), ttg(0), mc(0), timer(0), tll(0), ubp( FALSE ),
+	  justify( FALSE )
     {
 	// nothing
     }
@@ -74,9 +75,17 @@ public:
 	    bottom->setAutoDelete( TRUE );
 	    delete bottom;
 	}
+	if ( tornOff ) {
+	    tornOff->setAutoDelete( TRUE );
+	    delete tornOff;
+	}
+	if ( unmanaged ) {
+	    unmanaged->setAutoDelete( TRUE );
+	    delete unmanaged;
+	}
     }
 
-    ToolBarDock * top, * left, * right, * bottom;
+    ToolBarDock * top, * left, * right, * bottom, * tornOff, * unmanaged;
 
     QMenuBar * mb;
     QStatusBar * sb;
@@ -89,6 +98,7 @@ public:
     QBoxLayout * tll;
 
     bool ubp;
+    bool justify;
 };
 
 
@@ -277,9 +287,17 @@ void QMainWindow::setDockEnabled( ToolBarDock dock, bool enable )
 	    if ( !d->bottom )
 		d->bottom = new QMainWindowPrivate::ToolBarDock();
 	    break;
+	case TornOff:
+	    if ( !d->tornOff )
+		d->tornOff = new QMainWindowPrivate::ToolBarDock();
+	    break;
+	case Unmanaged:
+	    if ( !d->unmanaged )
+		d->unmanaged = new QMainWindowPrivate::ToolBarDock();
+	    break;
 	}
     } else {
-	warning( "ooop! unimplemented, untested, and not quite thought out." );
+	warning( "oops! unimplemented, untested, and not quite thought out." );
     }
 }
 
@@ -299,6 +317,10 @@ bool QMainWindow::isDockEnabled( ToolBarDock dock ) const
 	return d->right != 0;
     case Bottom:
 	return d->bottom != 0;
+    case TornOff:
+	return d->tornOff != 0;
+    case Unmanaged:
+	return d->unmanaged != 0;
     }
     return FALSE; // for illegal values of dock
 }
@@ -329,6 +351,10 @@ void QMainWindow::addToolBar( QToolBar * toolBar, const char * label,
     } else if ( edge == Right ) {
 	dl = d->right;
 	toolBar->setOrientation( QToolBar::Vertical );
+    } else if ( edge == TornOff ) {
+	dl = d->tornOff;
+    } else if ( edge == Unmanaged ) {
+	dl = d->unmanaged;
     }
 
     if ( !dl )
@@ -357,7 +383,7 @@ static bool removeToolBarFromDock( QToolBar * t,
 }
 
 
-/*!
+/*!  Removes \a toolBar from this main window.  This 
 
 */
 
@@ -368,7 +394,9 @@ void QMainWindow::removeToolBar( QToolBar * toolBar )
     if ( !removeToolBarFromDock( toolBar, d->top ) &&
 	 !removeToolBarFromDock( toolBar, d->left ) &&
 	 !removeToolBarFromDock( toolBar, d->right ) &&
-	 !removeToolBarFromDock( toolBar, d->bottom ) ) {
+	 !removeToolBarFromDock( toolBar, d->bottom ) &&
+	 !removeToolBarFromDock( toolBar, d->tornOff ) &&
+	 !removeToolBarFromDock( toolBar, d->unmanaged ) ) {
 	debug( "QMainWindow::removeToolBar() (%s) not managing %p (%s/%s)",
 	       name( "unnamed" ), toolBar,
 	       toolBar->name( "unnamed" ), toolBar->className() );
@@ -383,6 +411,7 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
 				QBoxLayout::Direction direction,
 				QBoxLayout::Direction dockDirection,
 				bool mayNeedDockLayout,
+				bool justify,
 				GUIStyle style )
 {
     bool moreThanOneRow = FALSE;
@@ -409,7 +438,8 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
     do {
 	if ( !toolBarRowLayout || t->nl ) {
 	    if ( toolBarRowLayout ) {
-		toolBarRowLayout->addStretch( 1 );
+		if ( !justify )
+		    toolBarRowLayout->addStretch( 1 );
 		if ( style == MotifStyle )
 		    toolBarRowLayout->addSpacing( 2 );
 	    }
@@ -422,13 +452,17 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
 	    toolBarRowLayout->addSpacing( 2 );
 	toolBarRowLayout->addWidget( t->t, 0 );
     } while ( (t=dock->next()) != 0 );
+    
+    if ( !toolBarRowLayout )
+	return;
 
     if ( style == MotifStyle ) {
 	dockLayout->addSpacing( 2 );
 	toolBarRowLayout->addSpacing( 2 );
     }
 
-    toolBarRowLayout->addStretch( 1 );
+    if ( !justify )
+	toolBarRowLayout->addStretch( 1 );
 }
 
 
@@ -448,22 +482,22 @@ void QMainWindow::setUpLayout()
 	d->tll->addSpacing( 1 );
     addToolBarToLayout( d->top, d->tll,
 			QBoxLayout::LeftToRight, QBoxLayout::Down, FALSE,
-			style() );
+			d->justify, style() );
     QBoxLayout * mwl = new QBoxLayout( QBoxLayout::LeftToRight );
     d->tll->addLayout( mwl, 1 );
     addToolBarToLayout( d->left, mwl,
 			QBoxLayout::Down, QBoxLayout::LeftToRight, FALSE,
-			style() );
+			d->justify, style() );
     if ( centralWidget() )
 	mwl->addWidget( centralWidget(), 1 );
     else
 	mwl->addStretch( 1 );
     addToolBarToLayout( d->right, mwl,
 			QBoxLayout::Down, QBoxLayout::LeftToRight, TRUE,
-			style() );
+			d->justify, style() );
     addToolBarToLayout( d->bottom, d->tll,
 			QBoxLayout::LeftToRight, QBoxLayout::Up, TRUE,
-			style() );
+			d->justify, style() );
     if ( d->sb )
 	d->tll->addWidget( d->sb, 0 );
     d->tll->activate();
@@ -589,3 +623,37 @@ void QMainWindow::setUsesBigPixmaps( bool enable )
   with a value which is different from the current setting.  All
   relevant widgets must connect to this signal.
 */
+
+
+/*!  Sets this main window to expand its toolbars to fill all
+  available space if \a enable is TRUE, and to give the toolbars just
+  the space they need if \a enable is FALSE.
+  
+  The default is FALSE.
+  
+  \sa rightJustification();
+*/
+
+void QMainWindow::setRightJustification( bool enable )
+{
+    if ( enable == d->justify )
+	return;
+    d->justify = enable;
+    d->timer->start( 0, TRUE );
+}
+
+
+/*!  Returns TRUE if this main windows right-justifies its toolbars, and
+  FALSE if it uses a ragged right edge.
+  
+  The default is to use a ragged right edge.
+  
+  ("Right edge" sometimes means "bottom edge".)
+  
+  \sa setRightJustification()
+*/
+
+bool QMainWindow::rightJustification() const
+{
+    return d->justify;
+}
