@@ -243,19 +243,6 @@ static QString fmtDateTime( const QString& f, const QTime* dt = 0, const QDate* 
     \value UTC Coordinated Universal Time, replaces Greenwich Time
 */
 
-/*! \enum Qt::Day
-
-      This enum type defines the index of each day in the week.
-
-      \value Monday
-      \value Tuesday
-      \value Wednesday
-      \value Thursday
-      \value Friday
-      \value Saturday
-      \value Sunday
-*/
-
 /*!
     \fn QDate::QDate()
 
