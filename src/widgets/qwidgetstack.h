@@ -17,7 +17,6 @@
 
 #ifndef QT_H
 #include "qframe.h"
-#include "qintdict.h"
 #endif // QT_H
 
 #ifndef QT_NO_WIDGETSTACK
@@ -65,9 +64,6 @@ protected:
     bool event( QEvent * );
 
     QWidgetStackPrivate * d;
-    QIntDict<QWidget> * dict;
-    QWidget * topWidget;
-    QWidget * invisible;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
