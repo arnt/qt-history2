@@ -70,7 +70,8 @@ public:
     void setCursorPosition(const QPoint &pos);
     void setCursorPosition(int pos, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
 
-    void update(const QRect &contentsRect);
+    void repaintContents(const QRect &contentsRect);
+    void repaintCursor();
 
     inline QPoint mapToContents(const QPoint &point) const
     { return QPoint(point.x() + hbar->value(), point.y() + vbar->value()); }

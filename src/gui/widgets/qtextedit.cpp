@@ -344,7 +344,7 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
             doc = new QTextDocument(q);
         }
 
-        QObject::connect(doc->documentLayout(), SIGNAL(update(QRect)), q, SLOT(update(QRect)));
+        QObject::connect(doc->documentLayout(), SIGNAL(update(QRect)), q, SLOT(repaintContents(QRect)));
         QObject::connect(doc->documentLayout(), SIGNAL(usedSizeChanged()), q, SLOT(adjustScrollbars()));
         cursor = QTextCursor(doc);
 
@@ -436,7 +436,7 @@ void QTextEditPrivate::setCursorPosition(int pos, QTextCursor::MoveMode mode)
         selectedWordOnDoubleClick = QTextCursor();
 }
 
-void QTextEditPrivate::update(const QRect &contentsRect)
+void QTextEditPrivate::repaintContents(const QRect &contentsRect)
 {
     const int xOffset = hbar->value();
     const int yOffset = vbar->value();
@@ -448,6 +448,12 @@ void QTextEditPrivate::update(const QRect &contentsRect)
 
     r.translate(-xOffset, -yOffset);
     viewport->update(r);
+}
+
+void QTextEditPrivate::repaintCursor()
+{
+    Q_Q(const QTextEdit);
+    viewport->update(q->cursorRect());
 }
 
 void QTextEditPrivate::selectionChanged()
@@ -566,7 +572,7 @@ void QTextEditPrivate::setBlinkingCursorEnabled(bool enable)
         cursorBlinkTimer.start(QApplication::cursorFlashTime() / 2, q);
     else
         cursorBlinkTimer.stop();
-    update(q->cursorRect());
+    repaintCursor();
 }
 
 void QTextEditPrivate::extendWordwiseSelection(int suggestedNewPosition, qreal mouseXPosition)
@@ -1285,7 +1291,7 @@ void QTextEdit::timerEvent(QTimerEvent *e)
             d->cursorOn &= (style()->styleHint(QStyle::SH_BlinkCursorWhenTextSelected, 0, this)
                             != 0);
 
-        d->update(cursorRect());
+        d->repaintCursor();
     } else if (e->timerId() == d->dragStartTimer.timerId()) {
         d->dragStartTimer.stop();
         d->startDrag();
@@ -1379,7 +1385,7 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
     // want to make sure the old cursor disappears (not noticable when moving
     // only a few pixels but noticable when jumping between cells in tables for
     // example)
-    d->update(cursorRect());
+    d->repaintCursor();
 
     if (e->key() == Qt::Key_Direction_L || e->key() == Qt::Key_Direction_R) {
         QTextBlockFormat fmt;
