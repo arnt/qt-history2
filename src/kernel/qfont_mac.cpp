@@ -38,13 +38,16 @@ static bool qstring_to_pstring( QString s, int len, Str255 str, TextEncoding enc
 /* font information */
 class QMacSetFontInfo : public QMacSavedFontInfo 
 {
-    int fnum;
+    short setfnum, setface;
+    int setsize;
     TextEncoding enc;
 public:
     //create this for temporary font settting
     inline QMacSetFontInfo(const QFontPrivate *d) : QMacSavedFontInfo(), enc(0) { setMacFont(d, this); }
     inline TextEncoding encoding() const { return enc; }
-    inline short font() const { return fnum; }
+    inline short font() const { return setfnum; }
+    inline short style() const { return setface; }
+    inline int size() const { return setsize; }
 
     //you can use this to cause font setting, without restoring old
     static bool setMacFont(const QFontPrivate *d, QMacSetFontInfo *sfi=NULL);
@@ -63,7 +66,7 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
     if(!sfi || fnum != sfi->tfont)
 	TextFont(fnum);
     if(sfi) 
-	sfi->fnum = fnum;
+	sfi->setfnum = fnum;
 
     //style
     short face = normal;
@@ -76,11 +79,15 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
 	face |= bold;
     if(!sfi || face != sfi->tface)
 	TextFace(face);
+    if(sfi) 
+	sfi->setface = face;
 	
     //size
     int size = d->request.pointSize / 10;
     if(!sfi || size != sfi->tsize)
 	TextSize( size );
+    if(sfi) 
+	sfi->setsize = size;
 
     if(sfi) {
 	if (UpgradeScriptInfoToTextEncoding( FontToScript( fnum ), 
@@ -94,20 +101,22 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
     return TRUE;
 }
 
-enum text_task { GIMME_WIDTH, GIMME_DRAW };
+enum text_task { GIMME_MAX_HEIGHT, GIMME_WIDTH, GIMME_DRAW };
 static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, text_task task)
 {
     QMacSetFontInfo fi(d);
+    FontInfo setfi; GetFontInfo(&setfi);
     OSStatus err;
 
     const QChar *uc = s.unicode();
-    UniChar *unibuf = new UniChar[len];
-    for ( int i = pos; i < len; ++i ) //don't use pos there FIXME!!
+    int unilen = len;
+    UniChar *unibuf = new UniChar[unilen];
+    for ( int i = pos; i < unilen; ++i ) //don't use pos here! FIXME
         unibuf[i] = uc[i].row() << 8 | uc[i].cell();
 
     //create converter
     UnicodeToTextRunInfo runi;
-    ItemCount scpts = 1 << 31; //hight bit
+    ItemCount scpts = 1 << 31; //high bit
     short scpt[1]; 
     scpt[0] = FontToScript( fi.font() );
     err =  CreateUnicodeToTextRunInfoByScriptCode(scpts, scpt, &runi);
@@ -122,32 +131,54 @@ static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, tex
     ItemCount run_len = 20; //runs
     ScriptCodeRun runs[run_len];
     ByteCount read, converted; //returns
-    err = ConvertFromUnicodeToScriptCodeRun( runi, len * 2, unibuf, kUnicodeUseFallbacksMask,
+    const int flags = kUnicodeUseFallbacksMask | kUnicodeLooseMappingsMask | kUnicodeTextRunMask;
+    err = ConvertFromUnicodeToScriptCodeRun( runi, unilen * 2, unibuf, flags,
 					     0, NULL, NULL, NULL, buf_len, &read, 
 					     &converted, buf, run_len, &run_len, runs);
     if(err != noErr && err != kTECUsedFallbacksStatus) {
 	qDebug("unlikely error %d %s:%d", (int)err, __FILE__, __LINE__);
+	DisposeUnicodeToTextRunInfo(&runi);
 	delete unibuf;
 	free(buf);
 	return 0;
     }
 
-    //now do the task
-    int ret = 0;
-    if(run_len) {
-	for(ItemCount i = 0; i < run_len; i++) {
-	    if(runs[i].script)
-		TextFont(GetScriptVariable(runs[i].script, smScriptSysFond));
-	    else
-		TextFont(fi.font());
-	    ByteOffset off = runs[i].offset;
-	    int len = ((i == run_len - 1) ? converted : runs[i+1].offset) - off;
-	    if(task == GIMME_WIDTH) 
-		ret += TextWidth(buf, off, len);
-	    else if(task == GIMME_DRAW) 
-		DrawText(buf, off, len);
+    int ret = 0, sz = fi.size();
+    ScriptCode sc = FontToScript(fi.font());
+    for(ItemCount i = 0; i < run_len; i++) {
+	//set the font
+	short fn = runs[i].script == sc ? fi.font() : GetScriptVariable(runs[i].script, smScriptSysFond);
+	TextFont(fn);
+
+	//crap font scaling
+	FontInfo info;
+	GetFontInfo(&info);
+	int msz = sz;
+	while( (info.ascent + info.descent) > (setfi.ascent + setfi.descent)) {
+	    TextSize(msz--);
+	    GetFontInfo(&info);
 	}
+
+	//calculate string offsets
+	ByteOffset off = runs[i].offset;
+	int rlen = ((i == run_len - 1) ? converted : runs[i+1].offset) - off;
+
+	//do the requested task
+	if(task == GIMME_WIDTH) {
+	    ret += TextWidth(buf, off, rlen);
+	} else if(task == GIMME_DRAW) { 
+	    DrawText(buf, off, rlen);
+	} else if(task == GIMME_MAX_HEIGHT) {
+	    if(ret < info.ascent + info.descent)
+		ret = info.ascent + info.descent;
+	} else {
+	    qDebug("that can't be!");
+	}
+
+	if(msz != sz)
+	    TextSize(sz);
     }
+    DisposeUnicodeToTextRunInfo(&runi);
     delete unibuf;
     free(buf);
     return ret;
