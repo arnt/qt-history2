@@ -281,7 +281,7 @@ QMakeLocalFileName QMakeSourceFileInfo::findFileForDep(const QMakeLocalFileName 
     struct stat fst;
     for(QList<QMakeLocalFileName>::Iterator it = depdirs.begin(); it != depdirs.end(); ++it) {
         QMakeLocalFileName f((*it).real() + Option::dir_sep + file.real());
-        if(!stat(f.local(), &fst) && !S_ISDIR(fst.st_mode))
+        if(!stat(f.local(), &fst) && !S_ISDIR(fst.st_mode)) 
             return f;
     }
     return QMakeLocalFileName();
@@ -555,12 +555,6 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
 #define SYMBOL_CHAR(x) ((x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z') || \
                         (x <= '0' && x >= '9') || x == '_')
 
-//         if (file->file.local().contains("qobject")) {
-//             char str[20];
-//             memcpy(str, buffer+x, 19);
-//             str[19]=0;
-//             qDebug("checking line %d , x=%d, char='%s'", line_count, x, str);
-//         }
         bool interesting = *(buffer+x) == 'Q' && (!strncmp(buffer+x, "Q_OBJECT", OBJ_LEN) ||
                                                       !strncmp(buffer+x, "Q_DISPATCH", DIS_LEN));
         if(interesting) {

@@ -488,7 +488,7 @@ MakefileGenerator::init()
     if(mocAware()) {
         if(!project->isEmpty("MOC_DIR"))
             project->variables()["INCLUDEPATH"].append(project->first("MOC_DIR"));
-        if(Option::h_moc_ext == Option::cpp_ext.first())
+        if(Option::h_moc_ext == Option::cpp_ext.first()) 
             v["OBJMOC"] = createObjectList("_HDRMOC");
 
         QStringList &l = v["SRCMOC"];
@@ -950,9 +950,9 @@ MakefileGenerator::writeMocSrc(QTextStream &t, const QString &src)
             if(!project->isActiveConfig("no_mocdepend"))
                 deps += "$(MOC) ";
             deps += (*it);
-                t << m << ": " << deps << "\n\t"
-                  << "$(MOC)" << " $(DEFINES) $(INCPATH) " << varGlue("QMAKE_COMPILER_DEFINES","-D"," -D"," ")
-                  << (*it) << " -o " << m << endl << endl;
+            t << m << ": " << deps << "\n\t"
+              << "$(MOC)" << " $(DEFINES) $(INCPATH) " << varGlue("QMAKE_COMPILER_DEFINES","-D"," -D"," ")
+              << (*it) << " -o " << m << endl << endl;
         }
     }
 }
@@ -1318,7 +1318,7 @@ MakefileGenerator::createObjectList(const QString &var)
         } else {
             dir = objdir;
         }
-        ret.append(dir + fi.baseName(true) + Option::obj_ext);
+        ret.append(fileFixify(dir + fi.baseName(true) + Option::obj_ext, QDir::currentDirPath(), Option::output_dir));
     }
     return ret;
 }
@@ -1347,7 +1347,7 @@ MakefileGenerator::createMocFileName(const QString &file)
         ret += Option::h_moc_mod + file.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::h_moc_ext;
 
     if(!ret.isNull())
-        ret = Option::fixPathToTargetOS(ret);
+        ret = Option::fixPathToTargetOS(fileFixify(ret, QDir::currentDirPath(), Option::output_dir));
     return ret;
 }
 
@@ -1653,7 +1653,7 @@ MakefileGenerator::checkMultipleDefinition(const QString &f, const QString &w)
 QMakeLocalFileName 
 MakefileGenerator::fixPathForFile(const QMakeLocalFileName &file)
 {
-    return QMakeLocalFileName(fileFixify(file.local()));
+    return QMakeLocalFileName(fileFixify(file.real()));
 }
 
 QMakeLocalFileName

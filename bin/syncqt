@@ -127,9 +127,7 @@ if ( check_unix() ) {
 	if ( -l $h && ! -f $h ) {
 	    unlink $h;
 	}
-	if ( ! -l $h ) {
-	  symlink_files($basedir . "/" . $f, $h);
-	}
+	symlink_files($basedir . "/" . $f, $h) if ( ! -l $h );
     }
     chdir $privatedir;
     foreach $f ( @pfiles ) {
@@ -169,14 +167,14 @@ sub symlink_files
 {
   my ($file, $ifile) = @_;
   print "symlink created for $file ";
-  if ( $force_relative ) {
-    my $t = `pwd`; 
-    my $c = -1; 
-    my $p = "../";
-    $t =~ s-^$basedir/--;
-    $p .= "../" while( ($c = index( $t, "/", $c + 1)) != -1 );
-    $file =~ s-^$basedir/-$p-;
-    print " ($file)\n"
+  if ( $force_relative && ($ifile =~ /^$basedir/)) {
+      my $t = `pwd`; 
+      my $c = -1; 
+      my $p = "../";
+      $t =~ s-^$basedir/--;
+      $p .= "../" while( ($c = index( $t, "/", $c + 1)) != -1 );
+      $file =~ s-^$basedir/-$p-;
+      print " ($file)\n";
   }
   print "\n";
   symlink($file, $ifile);

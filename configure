@@ -3568,13 +3568,8 @@ for file in .projects .projects.3; do
     [ '!' -f "$file" ] && continue
     for a in `cat $file`; do
 	case $a in
-	*-kde.pro|*qtmain.pro) continue ;;
+	*-kde.pro|*winmain/winmain.pro) continue ;;
 	*/qmake/qmake.pro) continue ;;
-	*/src/*.pro)
-             [ `basename $a` = "qtlibs.pro" ] || continue
-             SPEC=$XQMAKESPEC
-             ;;
-	*projects.pro) continue ;;
 	*-pro.pro)
 	    [ "x$Edition" != "xpro" ] && continue
 	;;

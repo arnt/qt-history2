@@ -9,7 +9,8 @@
 # ****************************************************************
 #####################################################################
 
-CONFIG += ordered;
+CONFIG += ordered
+CONFIG -= qt
 TEMPLATE = subdirs
 isEmpty(QT_PROJECTS) {
    QT_PROJECTS = qmake qt tools examples tutorials
