@@ -42,7 +42,7 @@ struct Q_EXPORT QComponentInterface : public QUnknownInterface
 
 struct Q_EXPORT QComponentFactoryInterface : public QUnknownInterface
 {
-    virtual QUnknownInterface	*createInstance( const QUuid &cid, const QUuid &iid ) = 0;
+    virtual QUnknownInterface	*createInstance( const QUuid &cid, const QUuid &iid, QUnknownInterface *outer ) = 0;
 };
 
 // {D16111D4-E1E7-4C47-8599-24483DAE2E07} 
@@ -91,7 +91,7 @@ struct Q_EXPORT QInterfaceListInterface
 class Q_EXPORT QComponentFactory
 {
 public:
-    static QUnknownInterface *createInstance( const QUuid &cid, const QUuid &iid );
+    static QUnknownInterface *createInstance( const QUuid &cid, const QUuid &iid, QUnknownInterface *outer );
     static bool registerServer( const QString &filename );
     static bool unregisterServer( const QString &filename );
 };

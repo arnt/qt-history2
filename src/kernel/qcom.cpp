@@ -144,6 +144,19 @@
 */
 
 
+/*!
+  \class QComponentFactoryInterface qcom.h
+  \brief The QComponentFactoryInterface class is an interface for component creation.
+  \ingroup componentmodel
+*/
+
+/*!
+  \fn QUnknownInterface *QComponentFactoryInterface::createInstance( const QUuid &cid, const QUuid &iid, QUnknownInterface *outer )
+
+  Creates the component specified by \a cid and returns a pointer to the interface \a iid. The component can use the \a outer interface
+  for containment and aggregation.
+*/
+
 
 /*!
   \class QLibraryInterface qcom.h
@@ -237,15 +250,18 @@
   \brief The QComponentFactory class provides static functions to create components.
   \ingroup componentmodel
 
-  \sa QComponentServerInterface
+  \sa QComponentServerInterface, QComponentFactoryInterface
 */
 
 QCleanupHandler< QLibrary > qt_component_server_cleanup;
 
 /*!
   Looks up the component identifier \a cid in the system registry, loads the corresponding
-  component server and queries for the interface \a iid. Returns the retrieved interface pointer, 
-  or NULL if there was an error.
+  component server and queries for the interface \a iid. The parameter \a outer is a pointer
+  to the outer interface used for containment and aggregation and is propagated to the 
+  \link QComponentFactoryInterface::createInstance createInstance \endlink implementation of 
+  the QComponentFactoryInterface provided by the component server if provided.
+  Returns the retrieved interface pointer, or NULL if there was an error.
 
   Example:
   \code
@@ -257,7 +273,7 @@ QCleanupHandler< QLibrary > qt_component_server_cleanup;
   \endcode
 */
 
-QUnknownInterface *QComponentFactory::createInstance( const QUuid &cid, const QUuid &iid )
+QUnknownInterface *QComponentFactory::createInstance( const QUuid &cid, const QUuid &iid, QUnknownInterface *outer )
 {
     QUnknownInterface *iface = 0;
 
@@ -279,7 +295,7 @@ QUnknownInterface *QComponentFactory::createInstance( const QUuid &cid, const QU
 
     QComponentFactoryInterface *cfIface = (QComponentFactoryInterface *)library->queryInterface( IID_QComponentFactoryInterface );
     if ( cfIface ) {
-	iface = cfIface->createInstance( iid, cid );
+	iface = cfIface->createInstance( iid, cid, outer );
 	cfIface->release();
     } else {
 	iface = library->queryInterface( iid );
