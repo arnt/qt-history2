@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#106 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#107 $
 **
 ** Implementation of QLabel widget class
 **
@@ -854,7 +854,6 @@ int QLabel::heightForWidth(int w) const
 		add = m;
 	}
 	qmlDoc->setWidth(&p, w);
-	debug("height for %d is %d", w + 2*frameWidth(), qmlDoc->height()+2*frameWidth()+add);
 	return qmlDoc->height() + 2*frameWidth() + add;
     }
     return QWidget::heightForWidth(w);
