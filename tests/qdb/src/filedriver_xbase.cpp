@@ -884,12 +884,18 @@ bool FileDriver::saveResult( const localsql::List* cols, localsql::ResultSet* re
     if ( !cols || !result ) {
 	ERROR_RETURN( "Internal error: no cols or result" );
     }
-    /* build a localsql::Record from cols */
+    /* build a localsql::Record from cols, which may be a field desc
+       or a literal value
+     */
     localsql::Record rec;
     for ( uint i = 0; i < cols->count(); ++i ) {
 	QVariant v;
-	if ( !field( (*cols)[i].toString(), v ) ) {
-	    ERROR_RETURN( "Unknown column:"+ (*cols)[i].toString() );
+	if ( (*cols)[i].type() == QVariant::List ) { /* field desc */
+	    if ( !field( (*cols)[i].toList()[0].toString(), v ) ) {
+		ERROR_RETURN( "Unknown column:"+ (*cols)[i].toString() );
+	    }
+	} else { /* literal value */
+	    v = (*cols)[i];
 	}
 	rec.append( v );
     }

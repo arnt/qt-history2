@@ -775,7 +775,7 @@ public:
    (column list)
 
    Where 'column list' is a list of column names of the same form used
-   by SaveResult.  This list identifies the columns to be used.
+   by ??.  This list identifies the columns to be used.
 
    The 'resultid' parameter indicates the result to save the data to.
 */
