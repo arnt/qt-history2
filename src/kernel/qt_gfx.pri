@@ -3,6 +3,8 @@
 jpeg {
 	unix:LIBS += -ljpeg
 	win32:LIBS += $(QTDIR)/lib/libjpeg.lib
+	HEADERS += $$KERNEL_H/qjpegio.h 
+	SOURCES += $$KERNEL_CPP/qjpegio.cpp
 }
 !jpeg:DEFINES += QT_NO_IMAGEIO_JPEG
 
@@ -23,7 +25,9 @@ png {
 		  3rdparty/libpng/pngwio.c \
 		  3rdparty/libpng/pngwrite.c \
 		  3rdparty/libpng/pngwtran.c \
-		  3rdparty/libpng/pngwutil.c
+		  3rdparty/libpng/pngwutil.c \
+		  $$KERNEL_CPP/qpngio.cpp
+	HEADERS += $$KERNEL_H/qpngio.h
 }
 
 zlib {
@@ -49,6 +53,9 @@ mng {
 	unix:LIBS	+= -lmng -ljpeg
 	MNG_INCLUDEPATH		= 3rdparty/libmng
 #	INCLUDEPATH        += $$MNG_INCLUDEPATH
+	HEADERS += $$KERNEL_H/qmngio.h
+	SOURCES += $$KERNEL_CPP/qmngio.cpp
+
 }
 !mng:DEFINES += QT_NO_IMAGEIO_MNG
 

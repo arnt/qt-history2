@@ -32,13 +32,11 @@ kernel {
 		  $$KERNEL_H/qiconset.h \
 		  $$KERNEL_H/qimage.h \
 		  $$KERNEL_H/qkeycode.h \
-		  $$KERNEL_H/qjpegio.h \
 		  $$KERNEL_H/qlayout.h \
 		  $$KERNEL_P/qlayoutengine_p.h \
 		  $$KERNEL_H/qtranslator.h \
 		  $$KERNEL_H/qmetaobject.h \
 		  $$KERNEL_H/qmime.h \
-		  $$KERNEL_H/qmngio.h \
 		  $$KERNEL_H/qmovie.h \
 		  $$KERNEL_H/qnamespace.h \
 		  $$KERNEL_H/qnetworkprotocol.h \
@@ -58,7 +56,6 @@ kernel {
 		  $$KERNEL_H/qpixmapcache.h \
 		  $$KERNEL_H/qplugin.h \
 		  $$KERNEL_H/qinterfacemanager.h \
-		  $$KERNEL_H/qpngio.h \
 		  $$KERNEL_H/qpointarray.h \
 		  $$KERNEL_H/qpoint.h \
 		  $$KERNEL_H/qpolygonscanner.h \
@@ -155,13 +152,11 @@ kernel {
 		  $$KERNEL_CPP/qguardedptr.cpp \
 		  $$KERNEL_CPP/qiconset.cpp \
 		  $$KERNEL_CPP/qimage.cpp \
-		  $$KERNEL_CPP/qjpegio.cpp \
 		  $$KERNEL_CPP/qlayout.cpp \
 		  $$KERNEL_CPP/qlayoutengine.cpp \
 		  $$KERNEL_CPP/qtranslator.cpp \
 		  $$KERNEL_CPP/qmetaobject.cpp \
 		  $$KERNEL_CPP/qmime.cpp \
-		  $$KERNEL_CPP/qmngio.cpp \
 		  $$KERNEL_CPP/qmovie.cpp \
 		  $$KERNEL_CPP/qnetworkprotocol.cpp \
 		  $$KERNEL_CPP/qobject.cpp \
@@ -172,7 +167,6 @@ kernel {
 		  $$KERNEL_CPP/qpixmap.cpp \
 		  $$KERNEL_CPP/qpixmapcache.cpp \
 		  $$KERNEL_CPP/qplugin.cpp \
-		  $$KERNEL_CPP/qpngio.cpp \
 		  $$KERNEL_CPP/qpointarray.cpp \
 		  $$KERNEL_CPP/qpoint.cpp \
 		  $$KERNEL_CPP/qpolygonscanner.cpp \
