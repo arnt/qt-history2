@@ -88,7 +88,6 @@ QStringList AccessibleFactory::featureList() const
     list << "QTipLabel";
     list << "QFrame";
     list << "QWidgetStack";
-    list << "QWidget";
 
     return list;
 }
@@ -194,10 +193,9 @@ QRESULT AccessibleFactory::createAccessibleInterface( const QString &classname, 
 	*iface = new QAccessibleWidget( object, Border );
     } else if ( classname == "QWidgetStack" ) {
 	*iface = new QAccessibleWidgetStack( object );
-    } else if ( classname == "QWidget" ) {
-	*iface = new QAccessibleWidget( object );
-    } else
+    } else {
 	return QE_NOINTERFACE;
+    }
 
     (*iface)->addRef();
     return QS_OK;
