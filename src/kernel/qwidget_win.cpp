@@ -1144,9 +1144,9 @@ void QWidget::setGeometry_helper( int x, int y, int w, int h, bool isMove )
 	}
     } else {
 	if (isMove && pos() != oldPos)
-	    d->setAttribute(WA_PendingMoveEvent, true);
+	    setAttribute(WA_PendingMoveEvent, true);
 	if (isResize)
-	    d->setAttribute(WA_PendingResizeEvent, true);
+	    setAttribute(WA_PendingResizeEvent, true);
     }
 }
 
