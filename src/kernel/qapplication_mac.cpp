@@ -1693,15 +1693,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    }
 	}
 
-	if(ekind == kEventMouseDown && !app->do_mouse_down( &where ))
-	    return 0;
-
-	mouse_button_state = after_state;
-	if(special_close) {
-	    qt_replay_event = CopyEvent(event);
-	    return 0;
-	}
-
 	//figure out which widget to send it to
 	if( ekind != kEventMouseDown && qt_button_down )
 	    widget = qt_button_down;
@@ -1712,6 +1703,15 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 
 	if ( widget && app_do_modal && !qt_try_modal(widget, event) )
 	    return 1;
+
+	if(ekind == kEventMouseDown && !app->do_mouse_down( &where ))
+	    return 0;
+
+	mouse_button_state = after_state;
+	if(special_close) {
+	    qt_replay_event = CopyEvent(event);
+	    return 0;
+	}
 
 	switch(ekind) {
 	case kEventMouseDragged:
