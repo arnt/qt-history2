@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#54 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#55 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#54 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#55 $");
 
 
 const int Unsorted = 32767;
@@ -956,7 +956,6 @@ QListView::QListView( QWidget * parent, const char * name )
     d->r = 0;
     d->rootIsExpandable = 0;
     d->h = new QHeader( this, "list view header" );
-    d->h->installEventFilter( this );
     d->currentSelected = 0;
     d->focusItem = 0;
     d->drawables = 0;
@@ -1129,8 +1128,6 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	     tx + current->l * treeStepSize() > cx ) {
 	    // compute the clip rectangle the safe way
 
-	    debug( "%p %p %p", current->i, current->i->parentItem, d->r );
-
 	    int rtop = current->y + ih;
 	    int rbottom = current->y + ith;
 	    int rleft = tx + current->l*treeStepSize();
@@ -1178,7 +1175,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
 void QListView::paintEmptyArea( QPainter * p, const QRect & rect )
 {
-	p->fillRect( rect, colorGroup().base() );
+    p->fillRect( rect, colorGroup().base() );
 }
 
 
@@ -1448,31 +1445,7 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
     if ( !o || !e )
 	return FALSE;
 
-    if ( o == d->h &&
-	 e->type() >= Event_MouseButtonPress &&
-	 e->type() <= Event_MouseMove ) {
-	QMouseEvent * me = (QMouseEvent *)e;
-	QMouseEvent me2( me->type(),
-			 QPoint( me->pos().x(),
-				 me->pos().y() - d->h->height() ),
-			 me->button(), me->state() );
-	switch( me2.type() ) {
-	case Event_MouseButtonPress:
-	    mousePressEvent( &me2 );
-	    break;
-	case Event_MouseButtonDblClick:
-	    mouseDoubleClickEvent( &me2 );
-	    break;
-	case Event_MouseMove:
-	    mouseMoveEvent( &me2 );
-	    break;
-	case Event_MouseButtonRelease:
-	    mouseReleaseEvent( &me2 );
-	    break;
-	default:
-	    break;
-	}
-    } else if ( o == viewport() ) {
+    if ( o == viewport() ) {
 	QMouseEvent * me = (QMouseEvent *)e;
 	QFocusEvent * fe = (QFocusEvent *)e;
 
