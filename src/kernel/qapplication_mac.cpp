@@ -60,6 +60,10 @@
 #include "qeventloop.h"
 #include "qmessagebox.h"
 
+#ifndef QT_NO_MAINWINDOW
+# include "qmainwindow.h"
+#endif
+
 //#define QMAC_LAME_TIME_LIMITED
 #ifdef QMAC_LAME_TIME_LIMITED
 #  include "qtimer.h"
@@ -1128,30 +1132,19 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 	    for(QObjectListIt it(*chldrn); it.current(); ++it) {
 		if(it.current()->isWidgetType() && it.current()->inherits("QDockArea")) {
 		    QWidget *w = (QWidget *)it.current();
+#ifndef QT_NO_MAINWINDOW
+		    if(widget->inherits("QMainWindow") && ((QMainWindow*)widget)->topDock() != (QDockArea*)w)
+			continue; //bleh
+#endif
 		    if(w->width() < w->height()) //only do horizontal orientations
 			continue;
 		    int oh = w->sizeHint().height();
 		    if(oh < 0)
 			oh = 0;
-#if 1
 		    if(w->isVisible())
 			w->hide();
 		    else
 			w->show();
-#else
-		    if(QObjectList *l = w->queryList("QToolBar")) {
-			for(QObjectListIt it2(*l); it2.current(); ++it2) {
-			    QWidget *t = (QWidget *)(*it2);
-			    if(t->topLevelWidget() == widget) {
-				if(t->isVisible())
-				    t->hide();
-				else
-				    t->show();
-			    }
-			}
-			delete l;
-		    }
-#endif
 		    sendPostedEvents();
 		    int nh = w->sizeHint().height();
 		    if(nh < 0)
