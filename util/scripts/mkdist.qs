@@ -11,7 +11,7 @@ const outputDir = System.getenv("PWD");
 
 const validPlatforms = ["win", "x11", "mac", "embedded"];
 const validEditions = ["opensource", "commercial", "preview", "beta"];
-const validSwitches = ["gzip", "bzip", "zip", "binaries"]; // these are either true or false, set by -do-foo/-no-foo
+const validSwitches = ["gzip", "bzip", "zip", "binaries", "snapshots"]; // these are either true or false, set by -do-foo/-no-foo
 const validVars = ["branch", "version"];       // variables with arbitrary values, set by -foo value
 
 const binaryExtensions = ["msi", "dll", "gif", "png", "mng",
@@ -27,16 +27,17 @@ const binaryUser = "period";
 		     
 const user = System.getenv("USER");
 
-var options = [];	 // list of all package options
-var tmpDir;		 // directory for system temporary files
-var distDir;		 // parent directory for all temp packages and the checkout dir
-var checkoutDir;	 // directory for P4 checkout
-var licenseHeaders = []; // license text to put in .cpp and .h headers
-var moduleMap = [];      // maps between directories and module/class/application names
+var startDate = new Date(); // the start date of the script
+var options = [];	    // list of all package options
+var tmpDir;		    // directory for system temporary files
+var distDir;		    // parent directory for all temp packages and the checkout dir
+var checkoutDir;	    // directory for P4 checkout
+var licenseHeaders = [];    // license text to put in .cpp and .h headers
+var moduleMap = [];         // maps between directories and module/class/application names
 var p4Port;
 var p4Command;
-var p4BranchPath;          // typically //depot/qt/[thebranch]
-var p4Label;               // the P4 label
+var p4BranchPath;            // typically //depot/qt/[thebranch]
+var p4Label;                 // the P4 label or date
 
 var indentation = 0;
 const tabSize = 4;
@@ -271,7 +272,6 @@ for (var p in validPlatforms) {
 	    compress(platform, edition, platDir);
 
 	    // create binaries
-	    print("Compiling binaries...")
 	    compile(platform, edition, platName);
 	    
   	    indentation-=tabSize;
@@ -287,12 +287,14 @@ cleanup();
  */
 function parseArgc()
 {
-    validOptions =
-	validPlatforms.toString() +
-	validEditions.toString() +
-	validSwitches.toString() +
-	validVars.toString();
+    var validOptions = []
+	.concat(validPlatforms)
+	.concat(validEditions)
+	.concat(validSwitches)
+	.concat(validVars);
     for (var i=0; i<argc.length; ++i) {
+	var optionKey;
+	var optionValue;
 	if (argc[i].startsWith("-do")) {
 	    optionKey = argc[i].split("-")[2];
 	    optionValue = true;
@@ -306,11 +308,18 @@ function parseArgc()
 	    throw "Invalid option format: %1".arg(argc[i]);
 	}
 
-	// check that the optionKey is valid
-	if (validOptions.find(optionKey) == -1)
-	    throw "Unknown option: %1".arg(optionKey);
-	else
+	var optionOk = false;
+	for (var o in validOptions) {
+	    if (optionKey == validOptions[o]) {
+		optionOk = true;
+		break;
+	    }
+	}
+
+	if (optionOk)
 	    options[optionKey] = optionValue;
+	else
+	    throw "Unknown option: %1".arg(optionKey);
     }
 }
 
@@ -363,7 +372,7 @@ function initialize()
 	    throw "Unable to find tmp directory";
     }
     // creates distDir and sets checkoutDir
-    distDir = tmpDir + "/qt-" + options["branch"] + "-" + user + "-" + Date().getTime();
+    distDir = tmpDir + "/qt-" + options["branch"] + "-" + user + "-" + startDate.getTime();
     var dir = new Dir(distDir);
     if (dir.exists)
 	dir.rmdirs();
@@ -379,6 +388,13 @@ function initialize()
 	p4Command = "/usr/local/bin/p4";
     if (!File.exists(p4Command))
 	p4Command = "/usr/bin/p4";
+
+    // add "-snapshot-yyyymmdd" to version
+    if (options["snapshots"])
+	options["version"] = options["version"] + "-snapshot-%1%2%3"
+	    .arg(startDate.getYear())
+	    .arg(startDate.getMonth())
+	    .arg(startDate.getDate());
 
 //     for (var i in options)
 // 	print("options[%1] = %2".arg(i).arg(options[i]));
@@ -436,10 +452,14 @@ function checkout()
 	throw "Branch: " + p4BranchPath + " does not exist.";
     
     // check that the label exists
-    p4Label = "qt/" + options["version"];
-    execute([p4Command, "labels", p4BranchPath + "/configure"]);
-    if (Process.stdout.find("Label " + p4Label + " ") == -1)
-	throw "Label: " + p4Label + " does not exist, or not in this branch.";
+    if (options["snapshots"]) {
+	p4Label = startDate.toString().replace(/-/g, "/").replace(/T/g, ":");
+    } else {
+	p4Label = "qt/" + options["version"];
+	execute([p4Command, "labels", p4BranchPath + "/configure"]);
+	if (Process.stdout.find("Label " + p4Label + " ") == -1)
+	    throw "Label: " + p4Label + " does not exist, or not in this branch.";
+    }
 
     // generate clientSpec
     var tmpClient="qt-release-tmp-" + user;
@@ -581,6 +601,8 @@ function compile(platform, edition, platformName)
 {
     if (!options["binaries"] || !(platform in binaryHosts))
 	return;
+
+    print("Compiling binaries...")
 
     var login = binaryUser + "@" + binaryHosts[platform];
 
@@ -834,7 +856,7 @@ function copyDist(packageDir, platform, edition)
     var keyFiles = ["README",
 		    "INSTALL",
 		    "PLATFORMS"];
-    if (edition != "preview" || edition != "beta")
+    if (!options["snapshots"] && (edition != "preview" || edition != "beta"))
 	keyFiles.push("changes-" + options["version"]);
     if (edition == "opensource") {
 	keyFiles.push("LICENSE.GPL");
@@ -884,9 +906,12 @@ function qdoc(packageDir, edition)
 function replaceTags(packageDir, fileList, platform, edition, platName, additionalTags)
 {
     var replace = new Array();
-    replace[Date().getYear().toString()] = /\$THISYEAR\$/g;
+    replace[startDate.getYear().toString()] = /\$THISYEAR\$/g;
     replace[options["version"]] = /\%VERSION\%/g;
+    replace["#define QT_VERSION_STR   \"" + options["version"] + "\""] =
+	/#\s*define\s+QT_VERSION_STR\s+\"([^\"]+)\"*/g;
     replace[platName] = /\%DISTNAME\%/g;
+
     if (platform + "-" + edition in licenseHeaders)
 	replace[licenseHeaders[platform+"-"+edition]] = /\*\* \$LICENSE\$\n/;
     else
