@@ -3,7 +3,7 @@
 #once you are boot strapped though, the qmake.pro will offer better coverage of a
 #platform than either of the generic makefiles
 CONFIG += console
-CONFIG -= opengl qt
+CONFIG -= opengl qt shared
 DESTIR = ../bin/
 DEPENDPATH += generators generators/unix generators/win32 \
               generators/mac $(QTDIR)/include $(QTDIR)/qmake
