@@ -291,8 +291,7 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 {
     switch (op) {
     case PO_HeaderSection:
-	drawPrimitive(PO_ButtonBevel, p, r, cg,
-		      flags & CStyle_Selected ? PStyle_Sunken : PStyle_Default);
+	drawPrimitive(PO_ButtonBevel, p, r, cg, flags);
 	break;
 
     case PO_StatusBarSection:

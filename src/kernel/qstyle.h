@@ -397,9 +397,7 @@ public:
     enum StyleHint  {
 	SH_ScrollBar_BackgroundMode,
 	SH_ScrollBar_MiddleClickAbsolutePosition,
-	SH_ScrollBar_ScrollWhenPointerLeavesControl,
-
-	SH_Header_ExtraWidth
+	SH_ScrollBar_ScrollWhenPointerLeavesControl
 	/*
 	  FH_TabBarCentered
 	*/

@@ -1326,11 +1326,8 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
     else
 	s = tr("%1").arg(section);
 
-    int m = 0;
-    if ( index==handleIdx && ( state == Pressed || state == Moving ) )
-	m = style().styleHint(QStyle::SH_Header_ExtraWidth, this );
-
-    QRect r( fr.x() + QH_MARGIN+m, fr.y() + 2+m,
+    QRect r( fr.x() + QH_MARGIN+style().pixelMetric(QStyle::PM_ButtonShiftVertical, this), 
+	     fr.y() + 2+style().pixelMetric(QStyle::PM_ButtonShiftHorizontal, this),
 	     fr.width() - 6, fr.height() - 4 );
 
     int pw = 0;
