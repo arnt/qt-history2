@@ -46,7 +46,7 @@
 #endif // NO_ERROR_H
 
 #ifdef QT_THREAD_SUPPORT
-#  include "qmutexpool_p.h"
+#  include <private/qmutexpool_p.h>
 #endif // QT_THREAD_SUPPORT
 
 #ifndef QT_DEBUG_COMPONENT

@@ -50,7 +50,7 @@
 #include "qtl.h"
 
 #ifdef QT_THREAD_SUPPORT
-#include "qthreadstorage.h"
+#include <qthreadstorage.h>
 #endif // QT_THREAD_SUPPORT
 
 #undef QT_TRANSLATE_NOOP
@@ -3214,8 +3214,9 @@ static void regexpEngine( QRegExpEngine *&eng, const QString &pattern,
 {
 #  ifdef QT_THREAD_SUPPORT
     static QThreadStorage<QCache<QRegExpEngine> *> engineCaches;
+    engineCaches.ensure_constructed();
     QCache<QRegExpEngine> *&engineCache = engineCaches.localData();
-#endif // QT_THREAD_SUPPORT
+#  endif // QT_THREAD_SUPPORT
 
     if ( !deref ) {
 #ifndef QT_NO_REGEXP_OPTIM
