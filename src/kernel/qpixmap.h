@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#18 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#19 $
 **
 ** Definition of QPixmap class
 **
@@ -18,11 +18,13 @@
 #include "qshared.h"
 #include "qstring.h"
 
+
 struct QImageData;
 struct QImageIO;
 typedef void (*image_io_handler)( QImageIO * );	// image IO handler
 
 class QIODevice;
+
 
 class QPixmap : public QPaintDevice		// pixmap class
 {
@@ -60,34 +62,37 @@ public:
     bool    setImageData( const QImageData * );
     static  QPixmap grabWindow( WId, int x=0, int y=0, int w=-1, int h=-1 );
 
-    static  QPixmap *find( const char *key );	// pixmap dict functions
-    static  bool     insert( const char *key, QPixmap * );
-    static  void	    setCacheSize( long );
-    static  void	    cleanup();
+  // Pixmap cache functions
 
-    QPixmap *xForm( const Q2DMatrix & );	// transform bitmap
-    static  Q2DMatrix trueMatrix( const Q2DMatrix &, int w, int h );
+    static  QPixmap    *find( const char *key );
+    static  bool	insert( const char *key, QPixmap * );
+    static  void	setCacheSize( long );
+    static  void	cleanup();
 
-    bool    cacheImageData( bool onOff );
+  // Pixmap transformation
+
+    QPixmap 	       *xForm( const Q2DMatrix & );
+    static  Q2DMatrix	trueMatrix( const Q2DMatrix &, int w, int h );
+
+    bool		cacheImageData( bool onOff );
 
     static  void	defineIOHandler( const char *format,
-				 const char *header,
-				 const char *flags,
-				 image_io_handler read_image,
-				 image_io_handler write_image );
+					 const char *header,
+					 const char *flags,
+					 image_io_handler read_image,
+					 image_io_handler write_image );
 
     static  const char *imageType( const char *fileName );
     bool    load( const char *fileName, const char *format=0 );
     bool    save( const char *fileName, const char *format ) const;
 
-    virtual bool isBitMap() const;
-    
+    virtual bool isBitmap() const;
 
 protected:
-    long   metric( int ) const;			// get metric information
+    long    metric( int ) const;		// get metric information
 
 private:
-    void detach();
+    void    detach();
 
 #if defined(_WS_WIN_)
     HANDLE allocMemDC();
@@ -96,7 +101,7 @@ private:
 
     struct QPixmapData : QShared {
         QCOORD pw, ph;				// pixmap width,height
-        int	   pd;				// pixmap depth
+        short  pd;				// pixmap depth
         uint   dirty  : 1;
         uint   optim  : 1;
         uint   virgin : 1;
@@ -113,15 +118,16 @@ private:
     } *data;
 };
 
+
 // --------------------------------------------------------------------------
 // QPixmap inline functions
 //
-
 
 inline void QPixmap::resize( const QSize &s )
 {
     resize( s.width(), s.height() );
 }
+
 
 // --------------------------------------------------------------------------
 // QPixmap stream functions
@@ -130,12 +136,13 @@ inline void QPixmap::resize( const QSize &s )
 QDataStream &operator<<( QDataStream &, const QPixmap & );
 QDataStream &operator>>( QDataStream &, QPixmap & );
 
+
 // --------------------------------------------------------------------------
 // Abstract image description for image processing and storage.
 //
 
 struct QImageData {
-    enum	{ IgnoreEndian, BigEndian, LittleEndian };
+    enum { IgnoreEndian, BigEndian, LittleEndian };
 
     QImageData();
    ~QImageData();
@@ -180,5 +187,3 @@ struct QImageIO : public QImageData {
 
 
 #endif // QPIXMAP_H
-
-
