@@ -799,9 +799,14 @@ void QColorDialogPrivate::addCustom()
   \brief The QColorDialog provides a dialog widget for specifying colors.
   \ingroup dialogs
 
+  The color dialog's function is to allow users to choose colours -
+  for instance, you might use this in a drawing program to allow the
+  user to set the brush colour.
+
   This version of Qt only provides modal color dialogs. The static
-  getColor() function lets the user specify a color, while getRgba()
-  lets the user specify a color with an alpha channel value.
+  getColor() function shows the dialog and allows the user to specify a color,
+  while getRgba() does the same but allows the user to specify a color with an
+  alpha channel (transparency) value.
   
   The user can store customCount() different custom colors. The custom
   colors are shared by all color dialogs, and remembered during the
@@ -819,8 +824,7 @@ QColorDialog::QColorDialog(QWidget* parent, const char* name, bool modal) :
 
 /*!
   Pops up a modal color dialog letting the user choose a color and returns
-  that color. The color is initially set to \a initial. Returns an
-  \link QColor::isValid() invalid\endlink color if the user cancels
+  that color. The color is initially set to \a initial. Returns an  \link QColor::isValid() invalid\endlink color if the user cancels
   the dialog. All colors allocated by the dialog will be deallocated
   before this function returns.
 */
@@ -883,7 +887,7 @@ QRgb QColorDialog::getRgba( QRgb initial, bool *ok,
 
 
 /*!
-  Returns the currently selected color of the dialog.
+  Returns the color currently selected in the dialog.
 */
 
 QColor QColorDialog::selectedColor() const
@@ -892,7 +896,7 @@ QColor QColorDialog::selectedColor() const
 }
 
 
-/*! Destroys the dialog and frees allocated memory.
+/*! Destroys the dialog and frees any memory it allocated.
 
 */
 
@@ -915,7 +919,7 @@ void QColorDialog::setSelectedColor( QColor c )
 
 
 /*!
-  Sets the initial alpha channel to \a a, and show the alpha channel
+  Sets the initial alpha channel value to \a a, and show the alpha channel
   entry box.
 */
 
@@ -927,7 +931,7 @@ void QColorDialog::setSelectedAlpha( int a )
 
 
 /*!
-  Returns the value of the alpha channel.
+  Returns the value selected for the alpha channel.
 */
 
 int QColorDialog::selectedAlpha() const
