@@ -5469,6 +5469,13 @@ int QListView::sortColumn() const
     return d->sortcolumn;
 }
 
+/*!
+  Returns TRUE if the list view is sorted ascending, otherwise returns FALSE.
+*/
+bool QListView::isSortAscending() const
+{
+    return d->ascending;
+}
 
 /*!
     (Re)sorts the list view using the last sorting configuration (sort

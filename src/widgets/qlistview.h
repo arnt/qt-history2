@@ -328,6 +328,7 @@ public:
 
     virtual void setSorting( int column, bool ascending = TRUE );
     int sortColumn() const;
+    bool isSortAscending() const;
     virtual void sort();
 
     virtual void setFont( const QFont & );
