@@ -2124,6 +2124,9 @@ void qt_read_xpm_image_or_array(QImageIO * iio, const char * const * source, QIm
         image.create(w, h, 8, ncols);
     }
 
+    if (image.isNull())
+        return;
+
     QMap<QString, int> colorMap;
     int currentColor;
 
