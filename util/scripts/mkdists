@@ -629,13 +629,9 @@ for plat in mac win x11 qws; do
 	    for sql in src/sql examples/pingpong examples/sqltable examples/sql; do
 		[ -d "$PLATDIR/$sql" ] && rm -rf "$PLATDIR/$sql"
 	    done
-	    rm -rf $PLATDIR/doc/*sql*.doc
-	    rm -rf $PLATDIR/tools/designer/plugins/wizards/*sql*
-	    rm -rf $PLATDIR/tools/designer/designer/propertyeditorsql.h
-	    rm -rf $PLATDIR/include/qsql*.h
-	    rm -rf $PLATDIR/include/qdatetimeedit.h
-	    rm -rf $PLATDIR/include/qeditorfactory.h
-	    rm -rf $PLATDIR/include/qxt.h
+	    rm -rf $PLATDIR/doc/*sql*.doc $PLATDIR/include/qsql*.h
+	    rm -rf $PLATDIR/tools/designer/plugins/wizards/*sql* $PLATDIR/tools/designer/designer/propertyeditorsql.h
+	    rm -rf $PLATDIR/include/qdatetimeedit.h $PLATDIR/include/qeditorfactory.h
 	    ;;
 	professional)
 	    #remove sql & table from the main file
@@ -644,16 +640,12 @@ for plat in mac win x11 qws; do
 	    mv ${TMP_FILE} $PLATDIR/doc/indices.doc
 
 	    #Remove sql & table
-	    for f in src/sql examples/pingpong examples/sqltable examples/sql \
-		     src/table examples/table; do
+	    for f in src/sql examples/pingpong examples/sqltable examples/sql src/table examples/table; do
 		[ -d "$PLATDIR/$f" ] && rm -rf "$PLATDIR/$f"
 	    done
-	    rm -rf $PLATDIR/doc/*sql*.doc
+	    rm -rf $PLATDIR/doc/*sql*.doc $PLATDIR/include/qsql*.h
+	    rm -rf $PLATDIR/tools/designer/designer/propertyeditorsql.h $PLATDIR/tools/designer/plugins/wizards/*sql*
 	    rm -rf $PLATDIR/doc/table.doc
-	    rm -rf $PLATDIR/tools/designer/plugins/wizards/*sql*
-	    rm -rf $PLATDIR/tools/designer/designer/propertyeditorsql.h
-	    rm -rf $PLATDIR/include/qsql*.h
-	    rm -rf $PLATDIR/include/qxt.h
 	    #move xml stuff into designer directory TBD ###
 	    ;;
 	esac
@@ -666,12 +658,17 @@ for plat in mac win x11 qws; do
 	mkdir -p $PLATDIR/lib
 	echo "If this directory is empty, you forgot to build the Qt library" >$PLATDIR/lib/README
 	if [ "$plat" = "x11" ] || [ "$plat" = "qws" ]; then
+	    #configure.bat is for windows only
 	    rm -f "$PLATDIR/configure.bat"
+	    #fix makefile mess
+	    rm -f "$PLATDIR/Makefile $PLATDIR/qmake/Makefile"
+	    mv "$PLATDIR/GNUmakefile" "$PLATDIR/Makefile"
+
 	    if [ "$plat" = "x11" ]; then
 		rm -rf "$PLATDIR/examples/biff"
 		rm -rf "$PLATDIR/examples/desktop"
 		rm -rf "$PLATDIR/examples/overlay_x11"
-		rm -rf "$PLATDIR/extensions/xt"
+		rm -rf "$PLATDIR/extensions/xt" "$PLATDIR/include/qxt.h"
 	    elif [ "$plat" = "qws" ]; then
 		rm -rf "$PLATDIR/examples/winmanager"
 		rm -rf "$PLATDIR/examples/compact"
@@ -683,6 +680,10 @@ for plat in mac win x11 qws; do
 		rm -f "$PLATDIR/src/widgets/qcompactstyle.cpp"
 	    fi
 	elif [ "$plat" = "win" ]; then
+	    #configure is for unix only
+	    rm -f "$PLATDIR/configure"
+	    #GNUmakefile is for unix only
+	    rm -f "$PLATDIR/GNUmakefile" $PLATDIR/qmake/GNUmakefile*
 	    # delete the xt estension
 	    rm -rf "$PLATDIR/extensions/xt"
 	    rm -f "$PLATDIR/configure"
@@ -694,7 +695,7 @@ for plat in mac win x11 qws; do
 	    for a in $includefiles; do
 		FILE=$PLATDIR/include/`basename $a`
 		rm -f $FILE
-		mv $PLATDIR/$a $FILE >/dev/null 2>&1
+		[ -e $PLATDIR/$a ] && mv $PLATDIR/$a $FILE >/dev/null 2>&1
 	    done
 	    mv "$PLATDIR/xxx" "$PLATDIR/src/tools/qconfig-dist.h"
 	fi
