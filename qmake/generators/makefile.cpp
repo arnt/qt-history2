@@ -681,6 +681,8 @@ MakefileGenerator::writeProjectMakefile()
         }
     }
     t << "first: " << targets.first()->target << endl;
+    t << "install: " << targets.first()->target << "-install" << endl;
+    t << "uninstall: " << targets.first()->target << "-uinstall" << endl;
     writeSubTargets(t, targets, false);
     return true;
 }
@@ -1721,6 +1723,9 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
     t << endl << endl;
 
     for(QStringList::Iterator targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
+        if(!installs && (*targ_it).endsWith("install"))
+            continue;
+
         t << (*targ_it) << ":";
         QString targ = (*targ_it);
         for(QList<SubTarget*>::Iterator it = targets.begin(); it != targets.end(); ++it)
@@ -1754,8 +1759,8 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
     }
 
     if(installs) {
-        project->variables()["INSTALLDEPS"]   += "install_subdirs";
-        project->variables()["UNINSTALLDEPS"] += "uninstall_subdirs";
+        project->variables()["INSTALLDEPS"]   += "install_subtargets";
+        project->variables()["UNINSTALLDEPS"] += "uninstall_subtargets";
         writeInstalls(t, "INSTALLS");
     }
 
