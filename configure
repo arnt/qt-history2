@@ -254,7 +254,7 @@ else
 	Desc=""
 	if [ -f $HOME/.qt-license ]
 	then
-	    . $HOME/.qt-license
+	    . $HOME/.qt-license >/dev/null 2>&1
 	    if echo $Products | grep >/dev/null 'qt-enterprise'
 	    then
 		Desc=Enterprise
