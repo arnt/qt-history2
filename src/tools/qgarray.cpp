@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#27 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#28 $
 **
 ** Implementation of QGArray class
 **
@@ -24,10 +24,10 @@
 
 #define	 QGARRAY_CPP
 #include "qgarray.h"
-#include "qstring.h" // for memmove
+#include "qstring.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#27 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#28 $")
 
 
 #if !defined(CHECK_MEMORY)
