@@ -134,7 +134,7 @@ QRichTextDrag::QRichTextDrag( QWidget *dragSource, const char *name )
 
 QByteArray QRichTextDrag::encodedData( const char *mime ) const
 {
-    if ( qstrcmp( "text/html", mime ) == 0 )
+    if ( qstrcmp( "application/x-qrichtext", mime ) == 0 )
 	return QCString( richTxt.latin1() ); // #### how to correctly convert that?
     else
 	return QTextDrag::encodedData( mime );
@@ -142,7 +142,7 @@ QByteArray QRichTextDrag::encodedData( const char *mime ) const
 
 bool QRichTextDrag::canDecode( QMimeSource* e )
 {
-    if ( e->provides( "text/html" ) )
+    if ( e->provides( "application/x-qrichtext" ) )
 	return TRUE;
     return QTextDrag::canDecode( e );
 }
@@ -152,7 +152,7 @@ const char* QRichTextDrag::format( int i ) const
     if ( i < 4 ) // #### not nice
 	return QTextDrag::format( i );
     else if ( i == 4 )
-	return "text/html";
+	return "application/x-qrichtext";
     else
 	return 0;
 }
@@ -2864,8 +2864,8 @@ void QTextEdit::paste()
 	QMimeSource *m = QApplication::clipboard()->data( d->clipboard_mode );
 	if ( !m )
 	    return;
-	if ( m->provides( "text/html" ) )
-	    subType = "html";
+	if ( m->provides( "application/x-qrichtext" ) )
+	    subType = "x-qrichtext";
     }
 
     pasteSubType( subType.latin1() );
@@ -4413,7 +4413,10 @@ void QTextEdit::setDocument( QTextDocument *dc )
 void QTextEdit::pasteSubType( const QCString& subtype )
 {
     QString st = subtype;
-    st.prepend( "text/" );
+    if ( subtype != "x-qrichtext" )
+	st.prepend( "text/" );
+    else
+	st.prepend( "application/" );
     QMimeSource *m = QApplication::clipboard()->data( d->clipboard_mode );
     if ( !m )
 	return;
@@ -4424,7 +4427,7 @@ void QTextEdit::pasteSubType( const QCString& subtype )
     QString t = QString::fromLatin1( m->encodedData( st ) );
     if ( t.isEmpty() )
 	return;
-    if ( st == "text/html" ) {
+    if ( st == "application/x-qrichtext" ) {
 	if ( t.startsWith( "<selstart/>" ) ) {
 	    t.remove( 0, 11 );
 	    QTextCursor oldC = *cursor;
