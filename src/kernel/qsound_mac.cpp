@@ -64,7 +64,7 @@ QAuServerMac::QAuServerMac(QObject* parent) :
 {
     if(!servers++)
 	EnterMovies();
-    offscreen = new QPixmap( 1, 1 ); //what should the size be? FIXME
+    offscreen = new QPixmap(1, 1); //what should the size be? FIXME
 }
 
 QAuServerMac::~QAuServerMac()
@@ -75,9 +75,7 @@ QAuServerMac::~QAuServerMac()
 
 // The FSpLocationFromFullPath function is descended from Apple Source Code,
 // but changes have been made.
-QMAC_PASCAL OSErr FSpLocationFromFullPath( short fullPathLength,
-				      const void *fullPath,
-				      FSSpec *spec)
+QMAC_PASCAL OSErr FSpLocationFromFullPath(short fullPathLength, const void *fullPath, FSSpec *spec)
 {
     AliasHandle alias;
     OSErr result;
@@ -86,21 +84,16 @@ QMAC_PASCAL OSErr FSpLocationFromFullPath( short fullPathLength,
 	
     /* Create a minimal alias from the full pathname */
     nullString[0] = 0;	/* null string to indicate no zone or server name */
-    result = NewAliasMinimalFromFullPath( fullPathLength, fullPath, nullString,
-					  nullString, &alias );
-    if ( result == noErr ) {
-	/* Let the Alias Manager resolve the alias. */
-	result = ResolveAlias( NULL, alias, spec, &wasChanged );
-		
-	/* work around Alias Mgr sloppy volume matching bug */
-	if ( spec->vRefNum == 0 )
-	{
+    result = NewAliasMinimalFromFullPath(fullPathLength, fullPath, nullString, nullString, &alias);
+    if(result == noErr) {
+	result = ResolveAlias(NULL, alias, spec, &wasChanged); 	// Let the Alias Manager resolve the alias.
+	if(!spec->vRefNum) {	// work around Alias Mgr sloppy volume matching bug 
 	    /* invalidate wrong FSSpec */
 	    spec->parID = 0;
 	    spec->name[0] =  0;
 	    result = nsvErr;
 	}
-	DisposeHandle( (Handle)alias );	/* Free up memory used */
+	DisposeHandle((Handle)alias);	// Free up memory used
     }
     return result;
 }
@@ -120,13 +113,13 @@ static Movie get_movie(const QString &filename, QPixmap *offscreen)
 	return NULL;
     }
     err = FSGetCatalogInfo(&fref, kFSCatInfoNone, NULL, NULL, &fileSpec, NULL);
-    if ( err != noErr ) {
+    if(err != noErr) {
 	qDebug("Qt: internal: bogus %d", __LINE__);
 	return NULL;
     }
 
-    err = OpenMovieFile ( &fileSpec, &movieResFile, fsRdPerm );
-    if ( err != noErr )
+    err = OpenMovieFile (&fileSpec, &movieResFile, fsRdPerm);
+    if(err != noErr)
 	return NULL;
 
     short           movieResID = 0;         /* want first movie */
@@ -141,20 +134,20 @@ static Movie get_movie(const QString &filename, QPixmap *offscreen)
     // the current graphics port. So create an offscreen graphics port.
     SetMovieGWorld(aMovie, (GWorldPtr)offscreen->handle(), 0);
 
-    if ( err != noErr ) 
+    if(err != noErr) 
 	return NULL;
 
     CloseMovieFile (movieResFile);
     return aMovie;
 }
 
-void QAuServerMac::play( const QString& filename )
+void QAuServerMac::play(const QString& filename)
 {
     if(!(aMovie = get_movie(filename, offscreen)))
        return;
     SetMovieVolume(aMovie, kFullVolume);
     GoToBeginningOfMovie(aMovie);
-    StartMovie( aMovie );
+    StartMovie(aMovie);
 }
 
 /*
@@ -182,12 +175,12 @@ QAuServerMac::playLoop(const QString &filename)
 
 void QAuServerMac::play(QSound* s)
 {
-    play( s->fileName() );
+    play(s->fileName());
 }
 
 void QAuServerMac::stop(QSound*)
 {
-    // ####
+    StopMovie(aMovie);
 }
 
 bool QAuServerMac::okay()
@@ -197,7 +190,7 @@ bool QAuServerMac::okay()
 
 QAuServer* qt_new_audio_server()
 {
-    return new QAuServerMac( qApp );
+    return new QAuServerMac(qApp);
 }
 
 #include "qsound_mac.moc"
