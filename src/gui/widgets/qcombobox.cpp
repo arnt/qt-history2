@@ -41,7 +41,7 @@ ListViewContainer::ListViewContainer(QGenericListView *listView, QWidget *parent
     // setup the listview
     Q_ASSERT(list);
     list->setParent(this);
-    list->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Minimum);
+    list->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     list->viewport()->installEventFilter(this);
     setFocusProxy(list);
     list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -603,7 +603,6 @@ void QComboBoxPrivate::emitHighlighted(const QModelIndex &index)
 
 QComboBox::~QComboBox()
 {
-    // ### check delegateparent and delete delegate if us?
 }
 
 /*!
