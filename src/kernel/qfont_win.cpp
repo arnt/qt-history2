@@ -628,7 +628,7 @@ void QFontPrivate::drawText( HDC hdc, int x, int y, QFontPrivate::TextRun *cache
 	const TCHAR *tc = (const TCHAR*)qt_winTchar(QConstString( (QChar *)cache->string, cache->length).string(),FALSE);
 	if ( cache->script != QFont::Hebrew )
 	    TextOut( hdc, x + cache->xoff, y + cache->yoff, tc, cache->length );
-	else 
+        else 
 	{
 	    // we need to print every character by itself to keep the bidi
 	    // algorithm of uniscribe from reordering things once again.
@@ -947,9 +947,17 @@ int QFontMetrics::width( QChar ch ) const
 {
     if ( ch.combiningClass() > 0 )
 	return 0;
-    //qObsolete( "QFontMetrics", "width" );
-    QString s(ch);
-    return width(s,1);
+
+    SIZE s;
+#ifdef UNICODE
+    TCHAR tc = ch.unicode();
+#else
+    TCHAR tc = ch.latin1();
+#endif
+    GetTextExtentPoint32( hdc(), &tc, 1, &s );
+    if ( (qt_winver & Qt::WV_NT_based) == 0 )
+	s.cx -= TMX->tmOverhang;
+    return s.cx;
 }
 
 
