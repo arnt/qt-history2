@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.h#48 $
+** $Id: //depot/qt/main/src/tools/qdatetime.h#49 $
 **
 ** Definition of date and time classes
 **
@@ -43,6 +43,8 @@
 #include "qnamespace.h"
 #endif // QT_H
 
+class QStringList;
+
 
 /*****************************************************************************
   QDate class
@@ -65,10 +67,20 @@ public:
     int	   daysInMonth() const;			// 28..31
     int	   daysInYear()	 const;			// 365 or 366
 
-    virtual QString monthName( int month ) const;
-    virtual QString dayName( int weekday ) const;
-    virtual QString monthNameLong( int month ) const;
-    virtual QString dayNameLong( int weekday ) const;
+#ifndef QT_NO_COMPAT
+    static QString monthName( int month ) { return shortMonthName( month ); }
+    static QString dayName( int weekday ) { return shortDayName( weekday ); }
+#endif
+
+    static QString shortMonthName( int month );
+    static QString shortDayName( int weekday );
+    static QString longMonthName( int month );
+    static QString longDayName( int weekday );
+
+    static void setShortMonthNames( const QStringList& names );
+    static void setShortDayNames( const QStringList& names );
+    static void setLongMonthNames( const QStringList& names );
+    static void setLongDayNames( const QStringList& names );
 
 #ifndef QT_NO_SPRINTF
     QString toString( Qt::DateFormat f = Qt::TextDate )	 const;
@@ -224,3 +236,4 @@ Q_EXPORT QDataStream &operator>>( QDataStream &, QDateTime & );
 #endif // QT_NO_DATASTREAM
 
 #endif // QDATETIME_H
+

@@ -86,6 +86,7 @@ that is the Qt Developer Community!
  <li><b>\link #Namespace Namespace \endlink</b>
  <li><b>\link #Removed Removed functions \endlink</b>
  <li><b>\link #Collections Collection class renaming \endlink</b>
+ <li><b>\link #QDate QDate \endlink</b> 
  <li><b>\link #QFont QFont \endlink</b>
  <li><b>\link #QMultiLineEdit QMultiLineEdit \endlink</b>
  <li><b>\link #QPrinter QPrinter \endlink</b>
@@ -225,6 +226,37 @@ header files \c <qmemarray.h>, \c <qptrcollection.h>, \c <qptrlist.h>,
 \c <qptrqueue.h>, \c <qptrstack.h> and \c <qptrvector.h>. To
 ease porting, the old names and the old header-file names are still
 supported.
+
+<a name="QDate"></a>
+\section2 QDate
+
+Two member functions of QDate were virtual in Qt 2.0 and are not anymore
+in Qt 3.0. The information here is relevent only if you subclassed
+QDate and reimplemented these functions:
+
+<dl>
+<p><dt><b>QString QDate::monthName( int month ) const</b></dt>
+   <dd>To override the default English short month names
+       ("Jan", "Feb", ..., "Dec"), you can now
+       translate the English strings (in the
+       "QDate::shortMonth" context, see
+       \link i18n.html Internationalization with Qt\endlink
+       for details) or even call QDate::setShortMonthNames().
+   </dd>
+<p><dt><b>QString QDate::dayName( int weekday ) const</b></dt>
+   <dd>To override the default English short day names
+       ("Mon", "Tue", ..., "Sun"), you can now
+       translate the English strings (in the
+       "QDate::shortDay" context) or even call
+       QDate::setShortDayNames().
+   </dd>
+</dl>
+
+Apart from losing their virtualness, QDate::monthName() and
+QDate::dayName() have been renamed QDate::shortMonthName() and
+QDate::shortDayName() and have been made static (as they always
+should had been). The old names are still provided for source
+compatibility.
 
 <a name="QFont"></a>
 \section2 QFont
@@ -513,3 +545,4 @@ respectively. Neither the arguments nor the resulting curve have changed.
 // warwick can regenerate this with his qt-2-report
 
 */
+

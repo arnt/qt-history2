@@ -504,11 +504,20 @@ More sophisticated toString() function that takes a DateFormat, where
 DateFormat can be either TextDate (the default), ISODate (ISO 8601) or
 LocalDate (locale dependent).
 
+The
+
 All new functions:
 	QDate addMonths( int months ) const;
 	QDate addYears( int years ) const;
 	QDate fromString( const QString& s, Qt::DateFormat f = Qt::TextDate );
-
+	static QString shortMonthName( int month );
+	static QString longMonthName( int month );
+	static QString shortDayName( int weekday );
+	static QString longDayName( int weekday );
+	static void setShortMonthNames( const QStringList& names );
+	static void setLongMonthNames( const QStringList& names );
+	static void setShortDayNames( const QStringList& names );
+	static void setLongDayNames( const QStringList& names );
 
 QDialog
 -------
@@ -1214,3 +1223,4 @@ Removed preprocessor directives
 
 
 [Qt 3.0]
+

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#499 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#500 $
 **
 ** Implementation of QApplication class
 **
@@ -43,6 +43,7 @@
 #include "qptrdict.h"
 #include "qcleanuphandler.h"
 
+#include "qdatetime.h"
 #include "qtranslator.h"
 #include "qtextcodec.h"
 #include "qpngio.h"
@@ -2076,10 +2077,13 @@ void QApplication::syncX()	{}		// do nothing
 
 void QApplication::installTranslator( QTranslator * mf )
 {
+    if ( !mf )
+	return;
     if ( !translators )
 	translators = new QPtrList<QTranslator>;
-    if ( mf )
-	translators->insert( 0, mf );
+
+    translators->insert( 0, mf );
+    updateQtToolsTranslations( mf );
 
     // hook to set the layout direction of dialogs.
     if( tr( "QT_LAYOUT_DIRECTION",
@@ -2093,7 +2097,7 @@ void QApplication::installTranslator( QTranslator * mf )
 
 /*!
   Removes the message file \a mf from the list of message files used by
-  this application.  (Does not delete the message file from the file
+  this application.  (It does not delete the message file from the file
   system.)
 
   \sa installTranslator() translate(), QObject::tr()
@@ -2104,11 +2108,59 @@ void QApplication::removeTranslator( QTranslator * mf )
     if ( !translators || !mf )
 	return;
     translators->first();
-    while( translators->current() && translators->current() != mf )
+    while ( translators->current() && translators->current() != mf )
 	translators->next();
     translators->take();
+    updateQtToolsTranslations( mf );
 }
 
+/*
+  qt/tools must not have a dependency on qt/kernel. We have to
+  translate locale-dependent strings here. This solution is not
+  perfect, as updateQtToolsTranslations() is called only when
+  mf is installed or removed, not when it is modified. Fortunately,
+  most uses of QTranslator are load-and-install.
+*/
+
+void QApplication::updateQtToolsTranslations( QTranslator *mf )
+{
+    // defined in qdatetime.cpp
+    extern const char * const qt_shortMonthNames[];
+    extern const char * const qt_shortDayNames[];
+    extern const char * const qt_longMonthNames[];
+    extern const char * const qt_longDayNames[];
+
+    /*
+      It would be needlessly expensive to go through the whole list
+      of probably untranslated names. We only check one month and
+      one week day that translators are unlikely to have left
+      alone.
+    */
+    if ( mf->contains("QDate::shortMonth", "May") ) {
+	QStringList names;
+	for ( int i = 0; i < 12; i++ )
+	    names << translate( "QDate::shortMonth", qt_shortMonthNames[i] );
+	QDate::setShortMonthNames( names );
+    }
+    if ( mf->contains("QDate::shortDay", "Wed") ) {
+	QStringList names;
+	for ( int i = 0; i < 7; i++ )
+	    names << translate( "QDate::shortDay", qt_shortDayNames[i] );
+	QDate::setShortDayNames( names );
+    }
+    if ( mf->contains("QDate::longMonth", "May") ) {
+	QStringList names;
+	for ( int i = 0; i < 12; i++ )
+	    names << translate( "QDate::longMonth", qt_longMonthNames[i] );
+	QDate::setLongMonthNames( names );
+    }
+    if ( mf->contains("QDate::longDay", "Wednesday") ) {
+	QStringList names;
+	for ( int i = 0; i < 7; i++ )
+	    names << translate( "QDate::longDay", qt_longDayNames[i] );
+	QDate::setLongDayNames( names );
+    }
+}
 
 /*!
   If the literal quoted text in the program is not in the Latin1
@@ -3489,3 +3541,4 @@ void QSessionManager::requestPhase2()
 
 #endif // QT_NO_SM_SUPPORT
 #endif //QT_NO_SESSIONMANAGER
+
