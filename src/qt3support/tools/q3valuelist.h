@@ -28,11 +28,11 @@ template <typename T>
 class Q3ValueListIterator : public QLinkedList<T>::iterator
 {
 public:
-    inline Q3ValueListIterator<T>() :
+    inline Q3ValueListIterator() :
         QLinkedList<T>::iterator() {}
-    inline Q3ValueListIterator<T>(const Q3ValueListIterator &o) :
+    inline Q3ValueListIterator(const Q3ValueListIterator &o) :
         QLinkedList<T>::iterator(o) {}
-    inline Q3ValueListIterator<T>(const typename QLinkedList<T>::iterator &o) :
+    inline Q3ValueListIterator(const typename QLinkedList<T>::iterator &o) :
         QLinkedList<T>::iterator(o) {}
 };
 
@@ -40,12 +40,12 @@ template <typename T>
 class Q3ValueListConstIterator : public QLinkedList<T>::const_iterator
 {
 public:
-    inline Q3ValueListConstIterator<T>() {}
-    inline Q3ValueListConstIterator<T>(const Q3ValueListConstIterator &o) :
+    inline Q3ValueListConstIterator() {}
+    inline Q3ValueListConstIterator(const Q3ValueListConstIterator &o) :
         QLinkedList<T>::const_iterator(o) {}
-    inline Q3ValueListConstIterator<T>(const typename QLinkedList<T>::const_iterator &o) :
+    inline Q3ValueListConstIterator(const typename QLinkedList<T>::const_iterator &o) :
         QLinkedList<T>::const_iterator(o) {}
-    inline Q3ValueListConstIterator<T>(const typename QLinkedList<T>::iterator &o) :
+    inline Q3ValueListConstIterator(const typename QLinkedList<T>::iterator &o) :
         QLinkedList<T>::const_iterator(o) {}
 };
 
