@@ -339,15 +339,8 @@ mv "$DISTDIR/qt/tools/linguist/lupdate/lupdate.1" "$DISTDIR/qt/doc/man/man1"
 #uic
 mv "$DISTDIR/qt/tools/designer/uic/uic.1" "$DISTDIR/qt/doc/man/man1"
 #designer
-cp $DISTDIR/qt/tools/designer/manual/*.html $DISTDIR/qt/doc/html/designer
 cp -f $DISTDIR/qt/gif/* $DISTDIR/qt/doc/html/
-cp -f $DISTDIR/qt/tools/designer/manual/images/*.png $DISTDIR/qt/doc/html/designer/images
-cp -f $DISTDIR/qt/tools/designer/manual/images/*.gif $DISTDIR/qt/doc/html/designer/images 2>/dev/null
-rm -f $DISTDIR/qt/tools/designer/manual/* >/dev/null 2>&1
-rm -rf $DISTDIR/qt/tools/designer/manual/arrows >/dev/null 2>&1
-rm -rf $DISTDIR/qt/tools/designer/manual/figures >/dev/null 2>&1
-rm -rf $DISTDIR/qt/tools/designer/manual/images >/dev/null 2>&1
-rm -f $DISTDIR/qt/tools/designer/manual/sgml/* >/dev/null 2>&1
+rm -rf $DISTDIR/qt/tools/designer/manual
 rm -rf $DISTDIR/qt/tools/designer/doc
 # clean designer
 rm -rf $DISTDIR/qt/tools/designer/plugins/designer_interface_roadmap
