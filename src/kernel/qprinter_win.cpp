@@ -1306,15 +1306,14 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		QImage mask = image.createAlphaMask();
 		QBitmap bm;
 		bm = mask;
+		if( xs!=1 || ys!=1 )
+		    bm = bm.xForm( QWMatrix( xs, 0, 0, ys, 0, 0 ) );
 		QRegion r( bm );
 		r.translate( pos.x(), pos.y() );
-#ifdef QT_NO_TRANSFORMATIONS
-		r.translate( painter->xlatex, painter->xlatey );
-#endif
 		if ( paint->hasClipping() )
 		    r &= paint->clipRegion();
 		paint->save();
-		paint->setClipRegion( r );
+ 		paint->setClipRegion( r );
 	    }
 
 	    bits = new uchar[bmh->biSizeImage];
