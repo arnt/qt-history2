@@ -206,18 +206,23 @@ void qt_mac_update_metal_style(QWidget *w)
 }
 
 static OSStatus qt_mac_create_window(WindowClass wclass, WindowAttributes wattr,
-				     const Rect *geo, WindowPtr *w)
+				     Rect *geo, WindowPtr *w)
 {
     OSStatus ret;
-
-    if (wclass != kModalWindowClass) {
-	ret = CreateNewWindow(wclass, wattr, geo, w);
-    } else {
-	Rect null_rect;
-	SetRect(&null_rect, 0, 0, 0, 0);
+    if(geo->right == geo->left)
+	geo->right++;
+    if(geo->bottom == geo->top)
+	geo->bottom++;
+    if (qMacVersion() >= Qt::MV_PANTHER) {
+	Rect null_rect; SetRect(&null_rect, 0, 0, 0, 0);
 	ret = CreateNewWindow(wclass, wattr, &null_rect, w);
-	if (ret == noErr)
-	    SetWindowBounds(*w, kWindowContentRgn, geo);
+	if (ret == noErr) {
+	    ret = SetWindowBounds(*w, kWindowContentRgn, geo);
+	    if(ret != noErr)
+		qWarning("%s:%d This error shouldn't really ever happen!!!", __FILE__, __LINE__);
+	}
+    } else {
+	ret = CreateNewWindow(wclass, wattr, geo, w);
     }
     return ret;
 }
@@ -2112,14 +2117,14 @@ bool QWidget::acceptDrops() const
 void QWidget::updateFrameStrut() const
 {
     QWidget *that = (QWidget *) this; //mutable
-    if(isDesktop() || !fstrut_dirty) {
+    if(!fstrut_dirty) {
 	that->fstrut_dirty = isVisible();
 	return;
     }
     that->fstrut_dirty = false;
     QTLWExtra *top = that->d->topData();
     top->fleft = top->fright = top->ftop = top->fbottom = 0;
-    if(isTopLevel()) {
+    if(!isDesktop() && isTopLevel()) {
 	Rect window_r, content_r;
 	//get bounding rects
 	RgnHandle rgn = qt_mac_get_rgn();
