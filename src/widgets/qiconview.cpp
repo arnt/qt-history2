@@ -2539,13 +2539,14 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
     if ( !d->firstItem )
 	return;
 
+    r = QRect( cx, cy, cw, ch );
     QIconViewItem *item = d->firstItem;
     for ( ; item; item = item->next )
-	if ( item->rect().intersects( QRect( cx, cy, cw, ch ) ) && !item->dirty )
+	if ( item->rect().intersects( r ) && !item->dirty )
 	    item->paintItem( p );
 
     if ( ( hasFocus() || viewport()->hasFocus() ) && d->currentItem &&
-	 d->currentItem->rect().intersects( QRect( cx, cy, cw, ch ) ) )
+	 d->currentItem->rect().intersects( r ) )
 	d->currentItem->paintFocus( p );
 }
 
@@ -4036,7 +4037,10 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	    findItemByName( e->text() );
     }
 
-    ensureItemVisible( d->currentItem );
+    if ( e->key() != Key_Shift &&
+	 e->key() != Key_Control &&
+	 e->key() != Key_Alt )
+	ensureItemVisible( d->currentItem );
 }
 
 /*!
