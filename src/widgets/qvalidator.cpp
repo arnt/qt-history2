@@ -543,24 +543,24 @@ void QDoubleValidator::setDecimals( int decimals )
 
     rx.setPattern( "\\S+" );            // one or more non-whitespace characters
     v.setRegExp( rx );
-    v.validate( "myfile.txt", 0 );      // returns Acceptable
-    v.validate( "my file.txt", 0 );     // returns Invalid
+    s = "myfile.txt";  v.validate( s, 0 ); // Returns Acceptable
+    s = "my file.txt"; v.validate( s, 0 ); // Returns Invalid
 
     // A, B or C followed by exactly five digits followed by W, X, Y or Z
     rx.setPattern( "[A-C]\\d{5}[W-Z]" );
     v.setRegExp( rx );
-    v.validate( "a12345Z", 0 );         // returns Invalid
-    v.validate( "A12345Z", 0 );         // returns Acceptable
-    v.validate( "B12", 0 );             // returns Intermediate
+    s = "a12345Z"; v.validate( s, 0 );	// Returns Invalid
+    s = "A12345Z"; v.validate( s, 0 );	// Returns Acceptable
+    s = "B12";     v.validate( s, 0 );	// Returns Intermediate
 
     // match most 'readme' files
     rx.setPattern( "read\\S?me(\.(txt|asc|1st))?" );
     rx.setCaseSensitive( FALSE );
     v.setRegExp( rx );
-    v.validate( "readme", 0 );          // returns Acceptable
-    v.validate( "README.1ST", 0 );      // returns Acceptable
-    v.validate( "read me.txt", 0 );     // returns Invalid
-    v.validate( "readm", 0 );           // returns Intermediate
+    s = "readme";      v.validate( s, 0 ); // Returns Acceptable
+    s = "README.1ST";  v.validate( s, 0 ); // Returns Acceptable
+    s = "read me.txt"; v.validate( s, 0 ); // Returns Invalid
+    s = "readm";       v.validate( s, 0 ); // Returns Intermediate
   \endcode
 
   \sa QRegExp QIntValidator QDoubleValidator
