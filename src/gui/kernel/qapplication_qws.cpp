@@ -361,6 +361,15 @@ private:
 #endif
     QList<QWSEvent*> queue;
 
+#if 0
+    void debugQueue() {
+            for (int i = 0; i < queue.size(); ++i) {
+                QWSEvent *e = queue.at(i);
+                qDebug( "   ev %d type %d sl %d rl %d", i, e->type, e->simpleLen, e->rawLen);
+            }
+    }
+#endif
+
     QWSConnectedEvent* connected_event;
     QWSMouseEvent* mouse_event;
     QWSRegionModifiedEvent *region_event;
@@ -681,7 +690,7 @@ void QWSDisplay::Data::fillQueue()
 //                    qDebug("Rgn Adjust a %d, %d", region_offset.x(), region_offset.y());
                     translateExpose(re, region_offset);
                 }
-                if ((!region_event || re->window() == region_event->window())) {
+                if (!region_event || re->window() == region_event->window()) {
                     if (region_event) {
                         QRegion r1;
                         r1.setRects(re->rectangles, re->simpleData.nrectangles);
@@ -717,6 +726,7 @@ void QWSDisplay::Data::fillQueue()
         } else {
             queue.append(e);
         }
+        //debugQueue();
         e = readMore();
     }
 }
@@ -784,7 +794,7 @@ void QWSDisplay::Data::waitForRegionAck()
         if (csocket) {
             csocket->flush();
             csocket->waitForReadyRead(1000);
-            if (csocket->state() != Qt::ConnectedState)
+            if (csocket->socketState() != Qt::ConnectedState)
                 return;
         }
 #endif
