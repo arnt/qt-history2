@@ -135,6 +135,9 @@ public:
 QIconVariant *QIconPrivate::iconVariant(const QIcon *icon, Qt::IconSize size, QIcon::Mode mode,
                                         QIcon::State state)
 {
+    if (size == Qt::AutomaticIconSize)
+        size = Qt::SmallIconSize;
+    
     QIconVariant *variant = &iconVariants[(int)size - 1][(int)mode][(int)state];
 
     if (icon) {
