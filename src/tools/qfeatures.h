@@ -419,6 +419,10 @@
     */
     #define QT_NO_MENUBAR
     /*!
+	QComboBox
+    */
+    #define QT_NO_COMBOBOX
+    /*!
 	QCanvas
     */
     #define QT_NO_CANVAS
@@ -463,21 +467,21 @@
     #define QT_NO_STYLE_PLATINUM
 #endif
 
-#if defined(QT_NO_DIALOGS) || defined(QT_NO_LISTVIEW) || defined(QT_NO_NETWORKPROTOCOL)
+#if defined(QT_NO_DIALOGS) || defined(QT_NO_LISTVIEW) || defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_COMBOBOX)
     /*!
 	QFileDialog
     */
     #define QT_NO_FILEDIALOG
 #endif
 
-#if defined(QT_NO_DIALOGS) || defined(QT_NO_FONTDATABASE)
+#if defined(QT_NO_DIALOGS) || defined(QT_NO_FONTDATABASE) || defined(QT_NO_COMBOBOX)
     /*!
 	QFontDialog
     */
     #define QT_NO_FONTDIALOG
 #endif
 
-#if defined(QT_NO_DIALOGS) || defined(QT_NO_LISTVIEW) || defined(QT_NO_PRINTER)
+#if defined(QT_NO_DIALOGS) || defined(QT_NO_LISTVIEW) || defined(QT_NO_PRINTER) || defined(QT_NO_COMBOBOX)
     /*!
 	QPrintDialog
     */
@@ -490,16 +494,17 @@
     */
     #define QT_NO_PROGRESSDIALOG
 #endif
-
+#if defined(QT_NO_DIALOGS) || defined(QT_NO_COMBOBOX)
+    /*!
+	QInputDialog
+    */
+    #define QT_NO_INPUTDIALOG
+#endif
 #if defined(QT_NO_DIALOGS)
     /*!
 	QColorDialog
     */
     #define QT_NO_COLORDIALOG
-    /*!
-	QInputDialog
-    */
-    #define QT_NO_INPUTDIALOG
     /*!
 	QMessageBox
     */

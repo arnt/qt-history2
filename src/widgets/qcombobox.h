@@ -30,7 +30,7 @@
 #include "qwidget.h"
 #endif // QT_H
 
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_COMBOBOX
 
 
 struct QComboData;
@@ -179,6 +179,6 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-#endif // QT_NO_WIDGETS
+#endif // QT_NO_COMBOBOX
 
 #endif // QCOMBOBOX_H

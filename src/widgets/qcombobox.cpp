@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qcombobox.h"
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_COMBOBOX
 #include "qpopupmenu.h"
 #include "qlistbox.h"
 #include "qpainter.h"
@@ -2062,4 +2062,4 @@ void QComboBox::setUpLineEdit()
 }
 
 
-#endif
+#endif // QT_NO_COMBOBOX
