@@ -150,7 +150,7 @@ MainWindow::MainWindow( bool asClient )
     actionPluginManager = 0;
     actionEditor = 0;
     currentProject = 0;
-		   
+		
     statusBar()->clear();
     statusBar()->addWidget( new QLabel("Ready", statusBar()), 1 );
 
@@ -172,9 +172,9 @@ MainWindow::MainWindow( bool asClient )
     setupPreviewActions();
     setupWindowActions();
 
+    setupFormList();
     setupPropertyEditor();
     setupHierarchyView();
-    setupFormList();
     setupActionEditor();
 
     setupActionManager();
@@ -348,7 +348,7 @@ void MainWindow::setupEditActions()
     actionEditProjectSettings->setWhatsThis( tr("<b>Edit settings of the project</b>"
 					     "<p>####TODO</p>") );
     connect( actionEditProjectSettings, SIGNAL( activated() ), this, SLOT( editProjectSettings() ) );
-    
+
     actionEditPreferences = new QAction( tr( "Preferences" ), QPixmap(),
 					 tr( "P&references..." ), 0, this, 0 );
     actionEditPreferences->setStatusTip( tr("Opens a dialog to change preferences") );
@@ -1045,19 +1045,18 @@ void MainWindow::setupFormList()
     dw->setResizeEnabled( TRUE );
     dw->setCloseMode( QDockWindow::Always );
     formList = new FormList( dw, this );
-    addToolBar( dw, Qt::Bottom );
+    addToolBar( dw, Qt::Left );
     dw->setWidget( formList );
 
     dw->setCaption( tr( "Forms" ) );
-    flGeom = QRect( -1, -1, 600, 300 );
+    flGeom = QRect( -1, -1, 300, 600 );
     QWhatsThis::add( formList, tr("<b>The Form List</b>"
 				  "<p>The Form List displays the filenames of all open forms, and a flag indicates "
 				  "which forms have been changed.</p>"
 				  "<p>The columns can be resized by dragging the separator in the list header.</p>") );
     connect( formList, SIGNAL( hidden() ),
 	     this, SLOT( formListHidden() ) );
-    actionWindowFormList->setOn( FALSE );
-    dw->hide();
+    actionWindowFormList->setOn( TRUE );
 }
 
 void MainWindow::setupActionEditor()
