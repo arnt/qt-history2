@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#2 $
 **
 ** WM_FILES implementation for Qt.
 **
@@ -65,7 +65,7 @@ const QByteArray QDragMoveEvent::data( const char * format )
 }
 
 
-const QByteArray & QDropEvent::data( const char * format )
+const QByteArray QDropEvent::data( const char * format )
 {
     QByteArray tmp;
     return tmp;

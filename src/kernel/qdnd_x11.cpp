@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#2 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -23,7 +23,7 @@
 #include <X11/Xatom.h> // for XA_STRING and friends
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#1 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#2 $");
 
 // this stuff is copied from qapp_x11.cpp
 
@@ -595,7 +595,7 @@ const QByteArray QDragMoveEvent::data( const char * format )
   \sa QDragMoveEvent::data() QDragMoveEvent::format()
 */
 
-const QByteArray & QDropEvent::data( const char * format )
+const QByteArray QDropEvent::data( const char * format )
 {
     return qt_xdnd_obtain_data( format );
 }
