@@ -2817,6 +2817,11 @@ void QPSPrinter::emitHeader( bool finished )
     if ( !!title )
 	stream << "\n%%Title: " << title;
     stream << "\n%%CreationDate: " << QDateTime::currentDateTime().toString();
+    stream << "\n%%Orientation: ";
+    if ( printer->orientation() == QPrinter::Landscape )
+	stream << "Landscape";
+    else
+	stream << "Portrait";
     if ( finished )
 	stream << "\n%%Pages: " << pageCount << "\n%%DocumentFonts: "
 	       << fontsUsed.simplifyWhiteSpace();
@@ -2826,7 +2831,7 @@ void QPSPrinter::emitHeader( bool finished )
     stream << "\n%%EndComments\n\n";
 
     if ( printer->numCopies() > 1 )
-	stream << "/#copies " << printer->numCopies() << " d\n";
+	stream << "/#copies " << printer->numCopies() << " def\n";
 
     if ( !fixed_ps_header )
 	makeFixedStrings();
