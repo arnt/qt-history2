@@ -652,22 +652,22 @@ void QSqlForm::populate( QWidget * widget, QSqlCursor * view, uint columns )
 
     int col = 0, currentCol = 0;
 
-    for( uint i = 0; i < view->count(); i++ ){
+    for( uint j = 0; j < view->count(); j++ ){
 	if( col >= numPerColumn ){
 	    col = 0;
 	    currentCol += 2;
 	}
 
 	// Do not show primary index fields or foreign keys in the form
-	if( view->field( i )->name() == pi || !view->field( i )->isVisible() )
+	if( view->field( j )->name() == pi || !view->field( j )->isVisible() )
 	    continue;
 
-	label = new QLabel( view->field( i )->displayLabel(), widget );
+	label = new QLabel( view->field( j )->displayLabel(), widget );
 	g->addWidget( label, col, currentCol );
 
-	editor = f->createEditor( widget, view->value( i ) );
+	editor = f->createEditor( widget, view->value( j ) );
 	g->addWidget( editor, col, currentCol + 1 );
-	associate( editor, view->field( i ) );
+	associate( editor, view->field( j ) );
 	col++;
     }
 
