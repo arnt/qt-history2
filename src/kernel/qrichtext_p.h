@@ -1322,15 +1322,16 @@ public:
 
 protected:
     virtual void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
-    virtual void drawParagString( QPainter &painter, const QString &str, int start, int len, int startX,
-				  int lastY, int baseLine, int bw, int h, bool drawSelections,
-				  QTextStringChar *formatChar, int i, const QMemArray<int> &selectionStarts,
-				  const QMemArray<int> &selectionEnds, const QColorGroup &cg, bool rightToLeft  );
+    virtual void drawString( QPainter &painter, const QString &str, int start, int len, int xstart,
+			     int y, int baseLine, int w, int h, int selection,
+			     QTextStringChar *formatChar, const QColorGroup& cg,
+			     bool rightToLeft );
 
 private:
     QMap<int, QTextParagSelection> &selections() const;
     QPtrVector<QStyleSheetItem> &styleSheetItemsVec() const;
     QPtrList<QTextCustomItem> &floatingItems() const;
+    QBrush backgroundBrush( const QColorGroup&cg ) { if ( bgcol ) return *bgcol; return cg.brush( QColorGroup::Base ); }
     void invalidateStyleCache();
 
     QMap<int, QTextParagLineStart*> lineStarts;

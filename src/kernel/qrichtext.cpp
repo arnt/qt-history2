@@ -1789,7 +1789,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		if ( custom ) {
 		    int index = QMAX( curpar->length(),1) - 1;
 		    QTextFormat format = curtag.format.makeTextFormat( nstyle, attr, scaleFontsFactor );
-		    curpar->append( QChar('*') );
+		    curpar->append( QChar(' ') );
 		    curpar->setFormat( index, 1, &format );
 		    curpar->at( index )->setCustomItem( custom );
 		    if ( !curtag.anchorHref.isEmpty() )
@@ -3225,23 +3225,11 @@ void QTextDocument::drawParag( QPainter *p, QTextParag *parag, int cx, int cy, i
 
     painter->setBrushOrigin( -ir.x(), -ir.y() );
 
-    if ( useDoubleBuffer || is_printer( painter ) ) {
-	if ( !parag->backgroundColor() )
-	    painter->fillRect( QRect( 0, 0, ir.width(), ir.height() ),
-			       cg.brush( QColorGroup::Base ) );
-	else
-	    painter->fillRect( QRect( 0, 0, ir.width(), ir.height() ),
-			       *parag->backgroundColor() );
-    } else {
-	if ( cursor && cursor->parag() == parag ) {
-	    if ( !parag->backgroundColor() )
-		painter->fillRect( QRect( parag->at( cursor->index() )->x, 0, 2, ir.height() ),
-				   cg.brush( QColorGroup::Base ) );
-	    else
-		painter->fillRect( QRect( parag->at( cursor->index() )->x, 0, 2, ir.height() ),
-				   *parag->backgroundColor() );
-	}
-    }
+    if ( useDoubleBuffer || is_printer( painter ) )
+	painter->fillRect( QRect( 0, 0, ir.width(), ir.height() ), parag->backgroundBrush( cg ) );
+    else if ( cursor && cursor->parag() == parag )
+	painter->fillRect( QRect( parag->at( cursor->index() )->x, 0, 2, ir.height() ),
+			   parag->backgroundBrush( cg ) );
 
     painter->translate( -( ir.x() - parag->rect().x() ),
 			-( ir.y() - parag->rect().y() ) );
@@ -3281,8 +3269,6 @@ QTextParag *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, co
     if ( !firstParag() )
 	return 0;
 
-    if ( drawCursor && cursor )
-	tmpCursor = cursor;
     if ( cx < 0 && cy < 0 ) {
 	cx = 0;
 	cy = 0;
@@ -3296,28 +3282,18 @@ QTextParag *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, co
     QPixmap *doubleBuffer = 0;
     QPainter painter;
 
+    bool fullWidthSelection = QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection);
     while ( parag ) {
 	lastFormatted = parag;
 	if ( !parag->isValid() )
 	    parag->format();
 
-	if ( !parag->rect().intersects( QRect( cx, cy, cw, ch ) ) ) {
-	    QRect pr( parag->rect() );
+	QRect pr = parag->rect();
+	if ( fullWidthSelection )
 	    pr.setWidth( parag->document()->width() );
-	    if ( pr.intersects( QRect( cx, cy, cw, ch ) ) )
-		if ( !QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) )
-		    p->fillRect( pr.intersect( QRect( cx, cy, cw, ch ) ), cg.brush( QColorGroup::Base ) );
-		else
-		    drawParag( p, parag, cx, cy, cw, ch, doubleBuffer, cg, drawCursor, cursor, resetChanged );
-	    if ( parag->rect().y() > cy + ch ) {
-		tmpCursor = 0;
-		goto floating;
-	    }
-	    parag = parag->next();
-	    continue;
-	}
-
-	if ( !parag->hasChanged() && onlyChanged ) {
+	if ( pr.y() > cy + ch )
+	    goto floating;
+	if ( !pr.intersects( QRect( cx, cy, cw, ch ) ) || ( onlyChanged && !parag->hasChanged() ) ) {
 	    parag = parag->next();
 	    continue;
 	}
@@ -3330,15 +3306,13 @@ QTextParag *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, co
 
  floating:
     if ( parag->rect().y() + parag->rect().height() < parag->document()->height() ) {
-	if ( !parag->document()->parent() ) { // !useDoubleBuffer
+	if ( !parag->document()->parent() ) {
 	    p->fillRect( 0, parag->rect().y() + parag->rect().height(), parag->document()->width(),
 			 parag->document()->height() - ( parag->rect().y() + parag->rect().height() ),
 			 cg.brush( QColorGroup::Base ) );
 	}
  	if ( !flow()->isEmpty() ) {
  	    QRect cr( cx, cy, cw, ch );
-//   	    cr = cr.intersect( QRect( 0, parag->rect().y() + parag->rect().height(), parag->document()->width(),
-//   				      parag->document()->height() - ( parag->rect().y() + parag->rect().height() ) ) );
  	    flow()->drawFloatingItems( p, cr.x(), cr.y(), cr.width(), cr.height(), cg, FALSE );
  	}
     }
@@ -4560,220 +4534,148 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 {
     if ( !visible )
 	return;
-    QTextStringChar *chr = at( 0 );
-    int i = 0;
-    int h = 0;
-    int baseLine = 0, lastBaseLine = 0;
-    QTextStringChar *formatChar = 0;
-    int lastY = -1;
-    int cy = 0;
-    int curx = -1, cury = 0, curh = 0;
-    bool rightToLeft = chr->rightToLeft;
-    const int full_sel_width = (hasdoc ? document()->width() : r.width());
-#if 0 // seems we don't need that anymore
-    int tw = 0;
-#endif
+    QTextStringChar *chr = 0;
+    int i, y, h, baseLine;
+    i = y =h = baseLine = 0;
+    QRect cursorRect;
+    drawSelections &= mSelections != 0;
+    // macintosh full-width selection style
+    int fullSelectionWidth = 0;
+    if ( drawSelections && QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) )
+	fullSelectionWidth = (hasdoc ? document()->width() : r.width());
 
     QString qstr = str->toString();
     // ### workaround so that \n are not drawn, actually this should
     // be fixed in QFont somewhere (under Windows you get ugly boxes
     // otherwise)
     QChar* uc = (QChar*) qstr.unicode();
-    for ( i = 0; i < (int) qstr.length(); i++ ) {
-	if ( uc[i]== '\n' || uc[i] == QChar_linesep )
-	    uc[i] = 0x20;
-    }
-
-
-    const int nSels = hasdoc ? document()->numSelections() : 1;
-    QMemArray<int> selectionStarts( nSels );
-    QMemArray<int> selectionEnds( nSels );
-    if ( drawSelections ) {
-	bool hasASelection = FALSE;
-	for ( i = 0; i < nSels; ++i ) {
-	    if ( !hasSelection( i ) ) {
-		selectionStarts[ i ] = -1;
-		selectionEnds[ i ] = -1;
-	    } else {
-		hasASelection = TRUE;
-		selectionStarts[ i ] = selectionStart( i );
-		int end = selectionEnd( i );
-		if ( end == length() - 1 && n && n->hasSelection( i ) )
-		    end++;
-		selectionEnds[ i ] = end;
-	    }
-	}
-	if ( !hasASelection )
-	    drawSelections = FALSE;
-    }
+    for ( uint ii = 0; ii < qstr.length(); ii++ )
+	if ( uc[(int)ii]== '\n' || uc[(int)ii] == QChar_linesep )
+	    uc[(int)ii] = 0x20;
 
     int line = -1;
-    int cw;
-    bool didListLabel = FALSE;
     int paintStart = 0;
-    int paintEnd = -1;
-    int lasth = 0;
-    for ( i = 0; i <= length(); i++ ) {
+    for ( i = 0; i < length(); i++ ) {
+	chr = at( i );
 	
-	bool atEnd = i == length();
-	bool selectionChange = FALSE;
-	
-	if ( !atEnd ) {
-	    chr = at( i );
-	    cw = string()->width( i );
-	    if ( chr->c == '\t' && i < length() - 1 )
-		cw = at( i + 1 )->x - chr->x + 1;
-	    if ( chr->c.unicode() == 0xad && i < length() - 1 )
-		cw = 0;
-
-	    // init a new line
-	    if ( chr->lineStart ) {
-		++line;
-		lineInfo( line, cy, h, baseLine );
- 		if ( clipy != -1 && cliph != 0 && cy + r.y() - lasth > clipy + cliph ) { // outside clip area, leave
- 		    break;
-		}
-		lasth = h;
-		if ( lastBaseLine == 0 )
-		    lastBaseLine = baseLine;
-		if ( QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) )
-		    if (backgroundColor())
-			painter.fillRect( chr->x, cy, full_sel_width - chr->x, h, *backgroundColor() );
-		    else
-			painter.fillRect( chr->x, cy, full_sel_width - chr->x, h, cg.brush( QColorGroup::Base ) );
-	    }
-
-	    // draw bullet list items
-	    if ( !didListLabel && line == 0 && isListItem() ) {
-		didListLabel = TRUE;
-		drawLabel( &painter, chr->x, cy, 0, 0, baseLine, cg );
-	    }
-
-	    // check for cursor mark
-	    if ( cursor && this == cursor->parag() && i == cursor->index() ) {
-		curx = cursor->x();
-		QTextStringChar *c = chr;
-		if ( i > 0 )
-		    --c;
-		curh = c->format()->height();
-		cury = cy + baseLine - c->format()->ascent();
-	    }
-
-	    // first time - start again...
-	    if ( !formatChar || lastY == -1 ) {
-		formatChar = chr;
-		lastY = cy;
-		if ( !chr->isCustom() && chr->c != '\n' && chr->c != QChar_linesep)
-		    paintEnd = i;
-		if ( !chr->isCustom() )
-		    continue;
-	    }
-
-	    // check if selection state changed
+	// we flush at end of document
+	bool flush = i== length()-1;
+	if ( !flush ) {
+	    QTextStringChar *nextchr = at( i+1 );
+	    // we flush at end of line
+	    flush |= nextchr->lineStart;
+	    // we flush on format changes
+	    flush |= nextchr->format() != chr->format();
+	    // we flush on anchor changes
+	    flush |= nextchr->isAnchor() != chr->isAnchor();
+	    // we flush on start of run
+	    flush |= nextchr->startOfRun;
+	    // we flush on bidi changes
+	    flush |= nextchr->rightToLeft != chr->rightToLeft;
+	    // we flush on tab
+	    flush |= chr->c == '\t';
+	    // we flush on soft hypens
+	    flush |= chr->c.unicode() == 0xad;
+	    // we flush on custom items
+	    flush |= chr->isCustom();
+	    // we flush before custom items
+	    flush |= nextchr->isCustom();
+	    // when painting justified, we flush on spaces
+	    if ((alignment() & Qt::AlignJustify) == Qt::AlignJustify )
+		flush |= chr->c.isSpace();
+	    // we flush when the string is getting too long
+	    flush |= i - paintStart >= 256;
+	    // we flush when the selection state changes
 	    if ( drawSelections ) {
-		for ( int j = 0; j < nSels; ++j ) {
-		    selectionChange = selectionStarts[ j ] == i || selectionEnds[ j ] == i;
-		    if ( selectionChange )
-			break;
-		}
+		for ( QMap<int, QTextParagSelection>::ConstIterator it = mSelections->begin();
+		      it != mSelections->end(); ++it )
+		    flush |= ( (*it).start == i || (*it).start == i+1 || (*it).end == i+1 );
 	    }
 	}
-	
-	//if something (format, etc.) changed, draw what we have so far
-	if ( ( ( paintEnd != -1 && ( alignment() & Qt::AlignJustify ) == Qt::AlignJustify && at(paintEnd)->c.isSpace() ) ||
-	       rightToLeft != (bool)chr->rightToLeft ||
-	       chr->startOfRun ||
-	       lastY != cy || chr->format() != formatChar->format() || chr->isAnchor() != formatChar->isAnchor() ||
-	       ( paintEnd != -1 && at( paintEnd )->c =='\t' ) || chr->c == '\t' ||
-	       ( paintEnd != -1 && at( paintEnd )->c.unicode() == 0xad ) || chr->c.unicode() == 0xad ||
-	       selectionChange || chr->isCustom() ) || atEnd || paintEnd - paintStart >= 256 ) {
-	
-	    if ( paintStart <= paintEnd ) {
-		int xstart, xend;
-		if ( rightToLeft ) {
-		    xstart = at( paintEnd )->x;
-		    xend = at( paintStart )->x + str->width( paintStart );
-		} else {
-		    xstart = at( paintStart )->x;
-		    xend = at( paintEnd )->x + str->width( paintEnd );
-		}
-		
-		if ( (clipx == -1 || clipw == -1) || (xend >= clipx && xstart <= clipx + clipw) ) {
-		    drawParagString( painter, qstr, paintStart, paintEnd - paintStart + 1, xstart, lastY,
-				     lastBaseLine, xend-xstart, lasth, drawSelections,
-				     formatChar, i, selectionStarts, selectionEnds, cg, rightToLeft );
-		    if ( QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) ) {
-			if ( chr->lineStart && drawSelections ) {
-			    for ( int j = 0; j < nSels; ++j ) {
-				if ( selectionStarts[ j ] < i && selectionEnds[ j ] > i ) {
-				    if ( !hasdoc || document()->invertSelectionText( j ) )
-					painter.setPen( QPen( cg.color( QColorGroup::HighlightedText ) ) );
-				    if ( j == QTextDocument::Standard )
-					painter.fillRect( xend, lastY, full_sel_width - xend, h,
-							  cg.color( QColorGroup::Highlight ) );
-				    else
-					painter.fillRect( xend, lastY, full_sel_width - (xend), h,
-							  hasdoc ? document()->selectionColor( j ) :
-							  cg.color( QColorGroup::Highlight ) );
-				}
-			    }
-			}
-		    }
-		}
+
+	// init a new line
+	if ( chr->lineStart ) {
+	    ++line;
+	    paintStart = i;
+	    lineInfo( line, y, h, baseLine );
+	    if ( clipy != -1 && cliph != 0 && y + r.y() - h > clipy + cliph ) { // outside clip area, leave
+		break;
 	    }
-	    if ( !chr->isCustom() ) {
-		if ( chr->c != '\n' && chr->c != QChar_linesep ) {
-		    paintStart = i;
-		    paintEnd = i;
-		} else {
-		    paintStart = i+1;
-		    paintEnd = -1;
+	    if ( fullSelectionWidth )
+		painter.fillRect( chr->x, y, fullSelectionWidth - chr->x, h, backgroundBrush(cg ) );
+
+	    // if this is the first line and we are a list item, draw the the bullet label
+	    if ( line == 0 && isListItem() )
+		drawLabel( &painter, chr->x, y, 0, 0, baseLine, cg );
+	}
+
+	// check for cursor mark
+	if ( cursor && this == cursor->parag() && i == cursor->index() ) {
+	    QTextStringChar *c = i == 0 ? chr : chr - 1;
+	    cursorRect.setRect( cursor->x() , y + baseLine - c->format()->ascent(),
+				1, c->format()->height() - lineExtra() );
+	}
+
+	// check if we are in a selection and store which one it is
+	int selection = -1;
+	if ( drawSelections ) {
+	    for ( QMap<int, QTextParagSelection>::ConstIterator it = mSelections->begin();
+		  it != mSelections->end(); ++it )
+		if ( (*it).start <= i && i < (*it).end
+		     // exclude the standard selection from printing
+		     && (it.key() != QTextDocument::Standard || !is_printer( &painter) ) ) {
+		    selection = it.key();
+		    break;
 		}
-		formatChar = chr;
-		lastY = cy;
+	}
+
+	if ( flush ) {  // something changed, draw what we have so far
+	    int xstart, xend;
+	    if ( chr->rightToLeft ) {
+		xstart = chr->x;
+		xend = at( paintStart )->x + str->width( paintStart );
 	    } else {
-		if ( chr->customItem()->placement() == QTextCustomItem::PlaceInline ) {
-		    chr->customItem()->draw( &painter, chr->x, cy,
+		xstart = at( paintStart )->x;
+		xend = chr->x + str->width( i );
+	    }
+		
+	    if ( (clipx == -1 || clipw == -1) || (xend >= clipx && xstart <= clipx + clipw) ) {
+		if ( !chr->isCustom() )
+		    drawString( painter, qstr, paintStart, i - paintStart + 1, xstart, y,
+				baseLine, xend-xstart, h, selection,
+				chr, cg, chr->rightToLeft );
+		else if ( chr->customItem()->placement() == QTextCustomItem::PlaceInline )
+		    chr->customItem()->draw( &painter, chr->x, y,
 					     clipx == -1 ? clipx : (clipx - r.x()),
 					     clipy == -1 ? clipy : (clipy - r.y()),
-					     clipw, cliph, cg,
-					     nSels && selectionStarts[ 0 ] <= i && selectionEnds[ 0 ] > i );
-		    paintStart = i+1;
-		    paintEnd = -1;
-		    formatChar = chr;
-		    lastY = cy;
-		} else {
-		    chr->customItem()->resize( chr->customItem()->width );
-		    paintStart = i+1;
-		    paintEnd = -1;
-		    formatChar = chr;
-		    lastY = cy;
+					     clipw, cliph, cg, selection >= 0 );
+		if ( fullSelectionWidth && chr->lineStart && selection >= 0 ) {
+		    if ( !hasdoc || document()->invertSelectionText( selection ) )
+			painter.setPen( cg.color( QColorGroup::HighlightedText ) );
+		    painter.fillRect( xend, y, fullSelectionWidth - xend, h,
+				      (selection == QTextDocument::Standard || !hasdoc) ?
+				      cg.color( QColorGroup::Highlight ) : document()->selectionColor( selection ) );
 		}
 	    }
-	} else {
-	    if ( chr->c != '\n' && chr->c != QChar_linesep )
-		paintEnd = i;
+	    paintStart = i+1;
 	}
-	lastBaseLine = baseLine;
-	lasth = h;
-	rightToLeft = chr->rightToLeft;
     }
 
-    // if we should draw a cursor, draw it now
-    if ( curx != -1 && cursor &&
-	 ((clipx == -1 || clipw == -1) || (curx + 4 >= clipx && curx - 4 <= clipx + clipw)) ) {
-	painter.fillRect( QRect( curx, cury, 1, curh - lineExtra() ), cg.color( QColorGroup::Text ) );
+    // time to draw the cursor
+    const int cursor_extent = 4;
+    if ( !cursorRect.isNull() && cursor &&
+	 ((clipx == -1 || clipw == -1) || (cursorRect.right()+cursor_extent >= clipx && cursorRect.left()-cursor_extent <= clipx + clipw)) ) {
+	painter.fillRect( cursorRect, cg.color( QColorGroup::Text ) );
 	painter.save();
 	if ( string()->isBidi() ) {
-	    const int d = 4;
 	    if ( at( cursor->index() )->rightToLeft ) {
 		painter.setPen( Qt::black );
-		painter.drawLine( curx, cury, curx - d / 2, cury + d / 2 );
-		painter.drawLine( curx, cury + d, curx - d / 2, cury + d / 2 );
+		painter.drawLine( cursorRect.x(), cursorRect.y(), cursorRect.x() - cursor_extent / 2, cursorRect.y() + cursor_extent / 2 );
+		painter.drawLine( cursorRect.x(), cursorRect.y() + cursor_extent, cursorRect.x() - cursor_extent / 2, cursorRect.y() + cursor_extent / 2 );
 	    } else {
 		painter.setPen( Qt::black );
-		painter.drawLine( curx, cury, curx + d / 2, cury + d / 2 );
-		painter.drawLine( curx, cury + d, curx + d / 2, cury + d / 2 );
+		painter.drawLine( cursorRect.x(), cursorRect.y(), cursorRect.x() + cursor_extent / 2, cursorRect.y() + cursor_extent / 2 );
+		painter.drawLine( cursorRect.x(), cursorRect.y() + cursor_extent, cursorRect.x() + cursor_extent / 2, cursorRect.y() + cursor_extent / 2 );
 	    }
 	}
 	painter.restore();
@@ -4782,11 +4684,12 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 
 //#define BIDI_DEBUG
 
-void QTextParag::drawParagString( QPainter &painter, const QString &s, int start, int len, int startX,
-				      int lastY, int baseLine, int w, int h, bool drawSelections,
-				      QTextStringChar *formatChar, int i, const QMemArray<int> &selectionStarts,
-				      const QMemArray<int> &selectionEnds, const QColorGroup &cg, bool rightToLeft )
+void QTextParag::drawString( QPainter &painter, const QString &s, int start, int len, int xstart,
+			     int y, int baseLine, int w, int h, int selection,
+			     QTextStringChar *formatChar, const QColorGroup& cg,
+			     bool rightToLeft )
 {
+    int i = start + len - 1;
     bool plainText = hasdoc ? document()->textFormat() == Qt::PlainText : FALSE;
     QTextFormat* format = formatChar->format();
     QString str( s );
@@ -4812,19 +4715,12 @@ void QTextParag::drawParagString( QPainter &painter, const QString &s, int start
 	}
     }
 
-    if ( drawSelections ) {
-	const int nSels = hasdoc ? document()->numSelections() : 1;
-	const int startSel = is_printer( 0 ) ? 1 : 0;
-	for ( int j = startSel; j < nSels; ++j ) {
-	    if ( i > selectionStarts[ j ] && i <= selectionEnds[ j ] ) {
-		if ( !hasdoc || document()->invertSelectionText( j ) )
-		    painter.setPen( QPen( cg.color( QColorGroup::HighlightedText ) ) );
-		if ( j == QTextDocument::Standard )
-		    painter.fillRect( startX, lastY, w, h, cg.color( QColorGroup::Highlight ) );
-		else
-		    painter.fillRect( startX, lastY, w, h, hasdoc ? document()->selectionColor( j ) : cg.color( QColorGroup::Highlight ) );
-	    }
-	}
+    if ( selection >= 0 )  {
+	if ( !hasdoc || document()->invertSelectionText( selection ) )
+	    painter.setPen( cg.color( QColorGroup::HighlightedText ) );
+	painter.fillRect( xstart, y, w, h,
+			  (selection == QTextDocument::Standard || !hasdoc) ?
+			  cg.color( QColorGroup::Highlight ) : document()->selectionColor( selection ) );
     }
 
     QPainter::TextDirection dir = rightToLeft ? QPainter::RTL : QPainter::LTR;
@@ -4834,19 +4730,19 @@ void QTextParag::drawParagString( QPainter &painter, const QString &s, int start
 
     if ( str[ start ] != '\t' && str[ start ].unicode() != 0xad ) {
 	if ( format->vAlign() == QTextFormat::AlignNormal ) {
-	    painter.drawText( startX, lastY + baseLine, str, start, len, dir );
+	    painter.drawText( xstart, y + baseLine, str, start, len, dir );
 #ifdef BIDI_DEBUG
 	    painter.save();
 	    painter.setPen ( Qt::red );
-	    painter.drawLine( startX, lastY, startX, lastY + baseLine );
-	    painter.drawLine( startX, lastY + baseLine/2, startX + 10, lastY + baseLine/2 );
+	    painter.drawLine( xstart, y, xstart, y + baseLine );
+	    painter.drawLine( xstart, y + baseLine/2, xstart + 10, y + baseLine/2 );
 	    int w = 0;
 	    int i = 0;
 	    while( i < len )
 		w += painter.fontMetrics().charWidth( str, start + i++ );
 	    painter.setPen ( Qt::blue );
-	    painter.drawLine( startX + w - 1, lastY, startX + w - 1, lastY + baseLine );
-	    painter.drawLine( startX + w - 1, lastY + baseLine/2, startX + w - 1 - 10, lastY + baseLine/2 );
+	    painter.drawLine( xstart + w - 1, y, xstart + w - 1, y + baseLine );
+	    painter.drawLine( xstart + w - 1, y + baseLine/2, xstart + w - 1 - 10, y + baseLine/2 );
 	    painter.restore();
 #endif
 	} else if ( format->vAlign() == QTextFormat::AlignSuperScript ) {
@@ -4856,7 +4752,7 @@ void QTextParag::drawParagString( QPainter &painter, const QString &s, int start
 	    else
 		f.setPointSize( ( f.pointSize() * 2 ) / 3 );
 	    painter.setFont( f );
-	    painter.drawText( startX, lastY + baseLine - ( painter.fontMetrics().height() / 2 ),
+	    painter.drawText( xstart, y + baseLine - ( painter.fontMetrics().height() / 2 ),
 			      str, start, len, dir );
 	} else if ( format->vAlign() == QTextFormat::AlignSubScript ) {
 	    QFont f( painter.font() );
@@ -4865,16 +4761,16 @@ void QTextParag::drawParagString( QPainter &painter, const QString &s, int start
 	    else
 		f.setPointSize( ( f.pointSize() * 2 ) / 3 );
 	    painter.setFont( f );
-	    painter.drawText( startX, lastY + baseLine + painter.fontMetrics().height() / 6, str, start, len, dir );
+	    painter.drawText( xstart, y + baseLine + painter.fontMetrics().height() / 6, str, start, len, dir );
 	}
     }
     if ( i + 1 < length() && at( i + 1 )->lineStart && at( i )->c.unicode() == 0xad ) {
-	painter.drawText( startX + w, lastY + baseLine, "\xad" );
+	painter.drawText( xstart + w, y + baseLine, "\xad" );
     }
     if ( format->isMisspelled() ) {
 	painter.save();
 	painter.setPen( QPen( Qt::red, 1, Qt::DotLine ) );
-	painter.drawLine( startX, lastY + baseLine + 1, startX + w, lastY + baseLine + 1 );
+	painter.drawLine( xstart, y + baseLine + 1, xstart + w, y + baseLine + 1 );
 	painter.restore();
     }
 
@@ -4886,7 +4782,7 @@ void QTextParag::drawParagString( QPainter &painter, const QString &s, int start
 	   document()->focusIndicator.start + document()->focusIndicator.len <= i + len ||
 	   document()->focusIndicator.start <= i &&
 	   document()->focusIndicator.start + document()->focusIndicator.len >= i + len ) ) {
-	painter.drawWinFocusRect( QRect( startX, lastY, w, h ) );
+	painter.drawWinFocusRect( QRect( xstart, y, w, h ) );
     }
 
 }
