@@ -495,7 +495,7 @@ bool QAccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
 #ifndef QT_NO_STATUSBAR
 	if (mainStatusBar &&
 	     !lastitem->signal &&
-	     !(lastaccel->parent->receivers("activatedAmbiguously(int)")))
+	     !(lastaccel->parent->receivers(SIGNAL(activatedAmbiguously(int)))))
 	    mainStatusBar->message(message, 2000);
 #endif
 	lastaccel->activateAmbiguously(lastitem);
@@ -506,7 +506,7 @@ bool QAccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
 #ifndef QT_NO_STATUSBAR
 	if (mainStatusBar &&
 	     !firstitem->signal &&
-	     !(firstaccel->parent->receivers("activatedAmbiguously(int)")))
+	     !(firstaccel->parent->receivers(SIGNAL(activatedAmbiguously(int)))))
 	    mainStatusBar->message(message, 2000);
 #endif
 	firstaccel->activateAmbiguously(firstitem);
