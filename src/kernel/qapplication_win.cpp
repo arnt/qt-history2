@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#483 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#484 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -56,9 +56,9 @@
 #include <oleacc.h>
 #ifndef WM_GETOBJECT
 #define WM_GETOBJECT                    0x003D
+#endif
 
 extern IAccessible *qt_createWindowsAccessible( QAccessibleInterface *object );
-#endif
 #endif // QT_ACCESSIBILITY_SUPPORT
 
 static UINT WM95_MOUSEWHEEL = 0;
