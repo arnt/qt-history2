@@ -1197,7 +1197,7 @@ Q_EXPORT void *qMemCopy(void *dest, const void *src, size_t n);
 class QObject;
 template <typename T>
 inline T qt_cast(const QObject *object)
-{ T t = 0; return (T) t->staticMetaObject.cast(object); }
+{ return (T) ((T)0)->staticMetaObject.cast(object); }
 
 #define Q_DECLARE_INTERFACE(IFace) \
 template <> inline IFace *qt_cast<IFace *>(const QObject *object) \
