@@ -126,6 +126,8 @@
     example shows how to solve the producer-consumer problem using
     QWaitCondition instead of QSemaphore.
 
+    \keyword reentrant
+    \keyword thread-safe
     \section1 Reentrancy and Thread-Safety
 
     Throughout the Qt documentation, the terms \e reentrant and \e
