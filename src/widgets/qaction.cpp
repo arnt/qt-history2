@@ -1791,6 +1791,31 @@ void QActionGroup::setEnabled( bool enable )
 
 /*! \reimp
 */
+void QActionGroup::setToggleAction( bool toggle )
+{
+    for ( QPtrListIterator<QAction> it( d->actions); it.current(); ++it )
+	it.current()->setToggleAction( toggle );
+
+    QAction::setToggleAction( TRUE );
+    d->update( this );
+}
+
+/*! \reimp
+*/
+void QActionGroup::setOn( bool on )
+{
+    for ( QPtrListIterator<QAction> it( d->actions); it.current(); ++it ) {
+	QAction *act = it.current();
+	if ( act->isToggleAction() )
+	    act->setOn( on );
+    }
+
+    QAction::setOn( on );
+    d->update( this );
+}
+
+/*! \reimp
+*/
 void QActionGroup::setIconSet( const QIconSet& icon )
 {
     QAction::setIconSet( icon );

@@ -163,6 +163,8 @@ public:
     bool addTo( QWidget* );
     bool removeFrom( QWidget* );
     void setEnabled( bool );
+    void setToggleAction( bool toggle );
+    void setOn( bool on );
 
     void setUsesDropDown( bool enable );
     bool usesDropDown() const;
