@@ -22,7 +22,7 @@ void MainWindow::init()
     // #### hardcoded paths - probably should read the settings from somewhere
     browser->mimeSourceFactory()->addFilePath( QString( getenv( "QTDIR" ) ) + "/tools/linguist/doc/html" );
     browser->mimeSourceFactory()->addFilePath( QString( getenv( "QTDIR" ) ) + "/doc/html/" );
-    browser->mimeSourceFactory()->addFilePath( QString( getenv( "PALMTOPCENTERDIR" ) ) + "/doc/html/" );
+    browser->mimeSourceFactory()->addFilePath( QString( getenv( "PALMTOPCENTERDIR" ) ) + "/book/html/" );
 
     connect( actionGoPrev, SIGNAL( activated() ), browser, SLOT( backward() ) );
     connect( actionGoNext, SIGNAL( activated() ), browser, SLOT( forward() ) );
