@@ -38,7 +38,7 @@
 # define QMAC_DEFAULT_STYLE "QMacStyle" //DefaultStyle
 #endif
 
-#if !defined(Q_WS_MACX) || !defined(MACOSX_102)
+#if !defined(Q_WS_MACX) || QT_MACOSX_VERSION < 0x1020
 # define QMAC_NO_FAKECURSOR
 #endif
 
