@@ -5,6 +5,7 @@
 #include <qstyle.h>
 #include <qevent.h>
 #include <qscrollbar.h>
+#include <qapplication.h>
 #include <private/qabstractitemview_p.h>
 
 class QGenericHeaderPrivate: public QAbstractItemViewPrivate
@@ -52,13 +53,13 @@ public:
     QWidget *sectionIndicator;//, *sectionIndicator2;
 };
 
-#define d d_func()
-#define q q_func()
-
 static const int border = 4;
 static const int minimum = 15;
 static const int default_width = 100;
 static const int default_height = 30;
+
+#define d d_func()
+#define q q_func()
 
 /*!
   \class QGenericHeader qgenericheader.h
@@ -187,6 +188,7 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
     }
 
     int tmp = start;
+    
     start = qMin(start, end);
     end = qMax(tmp, end);
     start = start == -1 ? 0 : start;
@@ -195,24 +197,31 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
     QModelIndex item;
     if (d->sections.isEmpty())
         return;
-    QAbstractItemDelegate *delegate = itemDelegate();
     const QGenericHeaderPrivate::HeaderSection *sections = d->sections.constData();
-    for (int i = start; i <= end; ++i) {
-        if (sections[i].hidden)
-            continue;
-        if (orientation() == Horizontal) {
-            item = model()->index(0, sections[i].section, 0, QModelIndex::HorizontalHeader);
-            options.itemRect.setRect(sections[i].position - offset, 0, sectionSize(sections[i].section), height());
-        } else {
-            item = model()->index(sections[i].section, 0, 0, QModelIndex::VerticalHeader);
-            options.itemRect.setRect(0, sections[i].position - offset, width(), sectionSize(sections[i].section));
+
+    int section;
+    if (d->orientation == Horizontal) {
+        for (int i = start; i <= end; ++i) {
+            if (sections[i].hidden)
+                continue;
+            section = sections[i].section;
+            item = model()->index(0, section, 0, QModelIndex::HorizontalHeader);
+            options.itemRect.setRect(sectionPosition(section) - offset, 0, sectionSize(section), height());
+            paintSection(&painter, &options, item);
         }
-        paintSection(&painter, delegate, &options, item);
+    } else {
+        for (int i = start; i <= end; ++i) {
+            if (sections[i].hidden)
+                continue;
+            section = sections[i].section;
+            item = model()->index(section, 0, 0, QModelIndex::VerticalHeader);
+            options.itemRect.setRect(0, sectionPosition(section) - offset, width(), sectionSize(section));
+            paintSection(&painter, &options, item);
+        }
     }
 }
 
-void QGenericHeader::paintSection(QPainter *painter, QAbstractItemDelegate *delegate,
-                                  QItemOptions *options, const QModelIndex &item)
+void QGenericHeader::paintSection(QPainter *painter, QItemOptions *options, const QModelIndex &item)
 {
     QStyle::SFlags flags = QStyle::Style_Off | (orientation() == Horizontal ? QStyle::Style_Horizontal : 0);
     if (isEnabled())
@@ -226,7 +235,7 @@ void QGenericHeader::paintSection(QPainter *painter, QAbstractItemDelegate *dele
         flags |= QStyle::Style_Raised;
     style().drawPrimitive(QStyle::PE_HeaderSection, painter, options->itemRect, palette(), flags);
 
-    delegate->paint(painter, *options, item); // draw item
+    itemDelegate()->paint(painter, *options, item); // draw item
 
     int section = orientation() == Horizontal ? item.column() : item.row();
     if (sortIndicatorSection() == section) {
@@ -290,6 +299,8 @@ int QGenericHeader::sectionPosition(int section) const
 {
     if (section < 0 || section >= d->sections.count())
         return 0;
+//    if (QApplication::reverseLayout())
+//        return size() - d->sections.at(index(section)).position - sectionSize(section);
     return d->sections.at(index(section)).position;
 }
 

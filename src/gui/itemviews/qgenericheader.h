@@ -88,8 +88,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent *e);
     void mouseDoubleClickEvent(QMouseEvent *e);
 
-    virtual void paintSection(QPainter *painter, QAbstractItemDelegate *delegate, QItemOptions *options,
-                              const QModelIndex &item);
+    virtual void paintSection(QPainter *painter, QItemOptions *options, const QModelIndex &item);
 
     int indexAt(int position) const;
 
