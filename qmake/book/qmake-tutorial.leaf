@@ -16,12 +16,12 @@ your application, and you have created the following files:
 \i main.cpp
 \endlist
 
-You will find these files in \e {qt/qmake/example}.  The only other
-thing you know about the setup of the application is that it's written
-in Qt.  First, using your favorite plain text editor, create a file
-called \e hello.pro in \e {qt/qmake/tutorial}.  The first thing you
-need to do is add the lines that tell \e qmake about the source and
-header files that are part of your development project.  
+You will find these files in \e {qt/qmake/examples/tutorial}.  The
+only other thing you know about the setup of the application is that
+it's written in Qt.  First, using your favorite plain text editor,
+create a file called \e hello.pro in \e {qt/qmake/tutorial}.  The
+first thing you need to do is add the lines that tell \e qmake about
+the source and header files that are part of your development project.  
 
 We'll add the source files to the project file first.  To do this you
 need to use the SOURCES variable.  Just start a new line with \e
