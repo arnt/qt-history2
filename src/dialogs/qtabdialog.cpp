@@ -885,26 +885,31 @@ void QTabDialog::setUpLayout()
     if ( d->cb ) {
 	buttonRow->addWidget( d->cb, 0 );
 	buttonRow->addSpacing( betweenButtonsMargin );
+	d->cb->raise();
     }
 
     if ( d->ab ) {
 	buttonRow->addWidget( d->ab, 0 );
 	buttonRow->addSpacing( betweenButtonsMargin );
+	d->ab->raise();
     }
 
     if ( d->db ) {
 	buttonRow->addWidget( d->db, 0 );
 	buttonRow->addSpacing( betweenButtonsMargin );
+	d->db->raise();
     }
 
     if ( d->hb ) {
 	buttonRow->addWidget( d->hb, 0 );
 	buttonRow->addSpacing( betweenButtonsMargin );
+	d->hb->raise();
     }
 
     if ( d->ok ) {
 	buttonRow->addWidget( d->ok, 0 );
 	buttonRow->addSpacing( betweenButtonsMargin );
+	d->ok->raise();
     }
 
     // add one custom widget here
