@@ -1085,6 +1085,10 @@ QDir::entryInfoList(const QStringList &nameFilters, int filterSpec, int sortSpec
 /*!
     Creates a directory.
 
+    If \a recurse is Recursive then subdirectories along the path to
+    \a dirName will be created. If \a recurse is NonRecursive then is
+    assumed that all subdirectories of \a dirName exist already.
+
     If \a acceptAbsPath is true a path starting with a separator ('/')
     will create the absolute directory; if \a acceptAbsPath is false
     any number of separators at the beginning of \a dirName will be
@@ -1096,7 +1100,7 @@ QDir::entryInfoList(const QStringList &nameFilters, int filterSpec, int sortSpec
 */
 
 bool
-QDir::mkdir(const QString &dirName, bool acceptAbsPath) const
+QDir::mkdir(const QString &dirName, Recursivity recurse, bool acceptAbsPath) const
 {
     if (dirName.isEmpty()) {
         qWarning("QDir::rename: Empty or null file name(s)");
@@ -1106,11 +1110,15 @@ QDir::mkdir(const QString &dirName, bool acceptAbsPath) const
         return false;
 
     QString fn = filePath(dirName, acceptAbsPath);
-    return d->data->dirEngine->mkdir(fn);
+    return d->data->dirEngine->mkdir(fn, recurse);
 }
 
 /*!
     Removes a directory.
+
+    If \a recurse is Recursive then subdirectories along the path to
+    \a dirName will be created removed if left empty. If \a recurse is
+    NonRecursive then only the directory \a dirName will be removed.
 
     If \a acceptAbsPath is true a path starting with a separator ('/')
     will remove the absolute directory; if \a acceptAbsPath is false
@@ -1125,7 +1133,7 @@ QDir::mkdir(const QString &dirName, bool acceptAbsPath) const
 */
 
 bool
-QDir::rmdir(const QString &dirName, bool acceptAbsPath ) const
+QDir::rmdir(const QString &dirName, Recursivity recurse, bool acceptAbsPath) const
 {
     if (dirName.isEmpty()) {
         qWarning("QDir::rename: Empty or null file name(s)");
@@ -1134,8 +1142,8 @@ QDir::rmdir(const QString &dirName, bool acceptAbsPath ) const
     if(!d->data->dirEngine)
         return false;
 
-    QString tmp = filePath(dirName, acceptAbsPath);
-    return d->data->dirEngine->rmdir(tmp);
+    QString fn = filePath(dirName, acceptAbsPath);
+    return d->data->dirEngine->rmdir(fn, recurse);
 }
 
 /*!

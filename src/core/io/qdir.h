@@ -126,10 +126,15 @@ public:
     QFileInfoList entryInfoList(const QStringList &nameFilters, int filterSpec = DefaultFilter,
                                 int sortSpec = DefaultSort) const;
 
-    bool mkdir(const QString &dirName,
-               bool acceptAbsPath = true) const;
-    bool rmdir(const QString &dirName,
-               bool acceptAbsPath = true) const;
+    enum Recursivity { Recursive = 0, NonRecursive = 1 };
+    bool mkdir(const QString &dirName, Recursivity recurse=NonRecursive, bool acceptAbsPath=true) const;
+    bool rmdir(const QString &dirName, Recursivity recurse=NonRecursive, bool acceptAbsPath=true) const;
+#ifdef QT_COMPAT
+    inline QT_COMPAT bool mkdir(const QString &dirName, bool acceptAbsPath) const 
+        { return mkdir(dirName, NonRecursive, acceptAbsPath); }
+    inline QT_COMPAT bool rmdir(const QString &dirName, bool acceptAbsPath) const 
+        { return rmdir(dirName, NonRecursive, acceptAbsPath); }
+#endif
 
     bool isReadable() const;
     bool exists() const;

@@ -30,8 +30,8 @@ public:
 
     virtual void setPath(const QString &path) = 0;
 
-    virtual bool mkdir(const QString &dirName) const = 0;
-    virtual bool rmdir(const QString &dirName) const = 0;
+    virtual bool mkdir(const QString &dirName, QDir::Recursivity recurse) const = 0;
+    virtual bool rmdir(const QString &dirName, QDir::Recursivity recurse) const = 0;
     virtual bool rename(const QString &name, const QString &newName) const = 0;
     virtual QStringList entryList(int filterSpec, const QStringList &filters) const = 0;
     virtual bool caseSensitive() const = 0;
@@ -60,8 +60,8 @@ public:
 
     virtual void setPath(const QString &path);
 
-    virtual bool mkdir(const QString &dirName) const;
-    virtual bool rmdir(const QString &dirName) const;
+    virtual bool mkdir(const QString &dirName, QDir::Recursivity recurse) const;
+    virtual bool rmdir(const QString &dirName, QDir::Recursivity recurse) const;
     virtual bool rename(const QString &name, const QString &newName) const;
     virtual QStringList entryList(int filterSpec, const QStringList &filters) const;
     virtual bool caseSensitive() const;

@@ -41,7 +41,7 @@ extern QString qt_fixToQtSlashes(const QString &path);
 extern QByteArray qt_win95Name(const QString s);
 
 bool
-QFSDirEngine::mkdir(const QString &dirName) const
+QFSDirEngine::mkdir(const QString &dirName, QDir::Recursivity recurse) const
 {
     QT_WA({
         return ::_wmkdir((TCHAR*)dirName.utf16()) == 0;
@@ -51,7 +51,7 @@ QFSDirEngine::mkdir(const QString &dirName) const
 }
 
 bool
-QFSDirEngine::rmdir(const QString &dirName) const
+QFSDirEngine::rmdir(const QString &dirName, QDir::Recursivity recurse) const
 {
  QT_WA({
         return ::_wrmdir((TCHAR*)dirName.utf16()) == 0;
