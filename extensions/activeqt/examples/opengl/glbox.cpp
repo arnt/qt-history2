@@ -19,7 +19,6 @@
 
 #include "glbox.h"
 
-#include <qaxfactory.h>
 #include <objsafe.h>
 
 #if defined(Q_CC_MSVC)
@@ -195,6 +194,8 @@ public:
 
     HRESULT WINAPI GetInterfaceSafetyOptions( REFIID riid, DWORD *pdwSupportedOptions, DWORD *pdwEnabledOptions )
     {
+	*pdwSupportedOptions = INTERFACESAFE_FOR_UNTRUSTED_DATA | INTERFACESAFE_FOR_UNTRUSTED_CALLER;
+	*pdwEnabledOptions = INTERFACESAFE_FOR_UNTRUSTED_DATA | INTERFACESAFE_FOR_UNTRUSTED_CALLER;
 	return S_OK;
     }
     HRESULT WINAPI SetInterfaceSafetyOptions( REFIID riid, DWORD pdwSupportedOptions, DWORD pdwEnabledOptions )

@@ -36,11 +36,64 @@ Z:<input type="edit" name="ZEdit" value="0"><br>
 
   The ActiveX control in this example uses the QGlWidget class in
   Qt to render an OpenGL scene in an ActiveX. The control exposes a few
-  methods to change the scene. The example is based on the "box" example
-  from the standard Qt distribution.
+  methods to change the scene. The example is based on the 
+  \link opengl-box-example.html "box" example \endlink from the standard 
+  Qt distribution.
 
-  The example demonstrates the use of QAxFactory::isServer() and can be 
-  run both as an ActiveX server and as a stand alone application.
+  The example demonstrates the use of the default factory and 
+  QAxFactory::isServer(), and the implementation of an additional COM 
+  interface using QAxBindable and QAxAggregated. The server executable 
+  can run both as an ActiveX server and as a stand alone application.
+
+  \quotefile opengl/main.cpp
+  \skipto <qaxfactory.h>
+  The application uses the default factory as provided by the 
+  QAXFACTORY_DEFAULT macro to expose the \c GLBox widget as an ActiveX 
+  control.
+  \printto /*
+  The implementation of \c main initializes the QApplication object,
+  and uses \c QAxFactory::isServer() to determine whether or not it is
+  appropriate to create and show the application interface.
+  \printuntil return a.
+  \printuntil return a.
+  \printuntil }
+
+  \quotefile opengl/glbox.h
+  \skipuntil #include
+  The \c GLBox class inherits from both the \l QGLWidget class to be able
+  to render OpenGL, and from \l QAxBindable.
+  \printuntil Q_OBJECT
+  The class reimplements the \l createAggregate() function from QAxBindable
+  to return the pointer to a \l QAxAggregated object.
+  \printuntil setXRotation
+  The rest of the class declaration and the implementation of the OpenGL
+  rendering is identical to the original "box" example.
+  
+  \quotefile opengl/glbox.cpp
+  \skipto objsafe.h
+  The implementation file of the \c GLBox class includes the \c objsafe.h
+  system header, in which the \c IObjectSafety COM interface is declared.
+  \printuntil objsafe.h
+  \printto IObjectSafety
+  A class \c ObjectSafetyImpl is declared, which uses multiple inheritance
+  to subclass the QAxAggregated class and to implement the IObjectSafety
+  interface.
+  \printuntil public:
+  The class declares a default constructor, and implements the queryInterface
+  function to support the IObjectSafety interface.
+  \printto QAXAGG_IUNKNOWN
+  Since every COM interface inherits \c IUnknown the \c QAXAGG_IUNKNOWN macro
+  is used to provide the default implementation of the \c IUnknown interface.
+  The macro is defined to delegate all calls to \c QueryInterface, \c AddRef
+  and \c Release to the interface returned by the controllingUnknown() function.
+  \printto GetInterfaceSafetyOptions
+  The implementation of the \c IObjectSafety interface provides the caller
+  with information about supported and enabled safety options, and returns 
+  \c S_OK for all calls to indicate that the ActiveX control is safe.
+  \printuntil };
+  The implementation of the \c createAggregate() function just returns a new
+  \c ObjectSafetyImpl object.
+  printuntil }
 
   To build the example you must first build the \link qaxserver.html
   QAxServer \endlink library. Then run qmake and your make tool in 
@@ -50,7 +103,12 @@ Z:<input type="edit" name="ZEdit" value="0"><br>
 
   The \link qaxserver-demo-opengl.html demonstration \endlink requires your
   WebBrowser to support ActiveX controls, and scripting to be enabled.
-  
+
+  In contrast to the other QAxServer examples Internet Explorer will not
+  open a dialog box to ask the user whether or not the scripting of the GLBox
+  control should be allowed (whether or no it did this before might depend on
+  the security settings in the Internet Options dialog).
+
   \quotefile opengl/opengl.doc
   \skipuntil raw html
   \printto endraw
