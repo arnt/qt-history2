@@ -66,12 +66,12 @@ class QByteArray;
     static inline QString tr(const char *s, const char *c = 0) \
 	{ return staticMetaObject.tr(s, c); } \
     static inline QString trUtf8(const char *s, const char *c = 0) \
-	{ return staticMetaObject.trUtf8(s, c); } 
+	{ return staticMetaObject.trUtf8(s, c); }
 # else
 // no QTextCodec, no utf8
 #  define QT_TR_FUNCTIONS \
     static inline QString tr(const char *s, const char *c = 0) \
-	{ return staticMetaObject.tr(s, c); } 
+	{ return staticMetaObject.tr(s, c); }
 # endif
 #else
 // inherit the ones from QObject
@@ -177,7 +177,7 @@ struct QMetaObject
     QMetaClassInfo classInfo(int index) const;
 
     static bool checkConnectArgs(const char *signal, const char *member);
-    static QByteArray normalizeSignature(const char *member);
+    static QByteArray normalizedSignature(const char *member);
 
     // internal index-based connect
     static bool connect(const QObject *sender,

@@ -176,7 +176,7 @@ protected:
 				  const char *member)
 	{ return QMetaObject::checkConnectArgs(signal, member); }
     static inline QByteArray normalizeSignalSlot(const char *signalSlot)
-	{ return QMetaObject::normalizeSignature(signalSlot); }
+	{ return QMetaObject::normalizedSignature(signalSlot); }
 #endif
 
 private:

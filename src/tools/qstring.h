@@ -121,14 +121,14 @@ public:
     bool startsWith(const QString &s, CaseSensitivity cs = CaseSensitive) const;
     bool endsWith(const QString &s, CaseSensitivity cs = CaseSensitive) const;
 
-    QString leftJustify(int width, QChar fill=' ', bool trunc=false) const;
-    QString rightJustify(int width, QChar fill=' ', bool trunc=false) const;
+    QString leftJustified(int width, QChar fill=' ', bool trunc=false) const;
+    QString rightJustified(int width, QChar fill=' ', bool trunc=false) const;
 
-    QString lower() const;
-    QString upper() const;
+    QString toLower() const;
+    QString toUpper() const;
 
-    QString stripWhiteSpace() const;
-    QString simplifyWhiteSpace() const;
+    QString trimmed() const;
+    QString simplified() const;
 
     QString &insert(int i, QChar c);
     QString &insert(int i, const QString &s);
@@ -324,6 +324,14 @@ public:
     { *this = fromLatin1(str, len); return *this; }
     QChar constref(uint i) const
     { return at(i); }
+    inline QString leftJustify(int width, QChar fill=' ', bool trunc=false) const
+    { return leftJustified(width, fill, trunc); }
+    inline QString rightJustify(int width, QChar fill=' ', bool trunc=false) const
+    { return rightJustified(width, fill, trunc); }
+    inline QString lower() const { return toLower(); }
+    inline QString upper() const { return toUpper(); }
+    inline QString stripWhiteSpace() const { return trimmed(); }
+    inline QString simplifyWhiteSpace() const { return simplified(); }
 #endif
 
     inline bool ensure_constructed()

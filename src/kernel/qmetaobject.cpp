@@ -741,7 +741,7 @@ static QByteArray normalizeTypeInternal(const char *t, const char *e, bool adjus
 
     \sa checkConnectArgs()
  */
-QByteArray QMetaObject::normalizeSignature(const char *member)
+QByteArray QMetaObject::normalizedSignature(const char *member)
 {
     const char *s = member;
     if (!s)

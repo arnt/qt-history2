@@ -1024,13 +1024,13 @@ QByteArray QByteArray::mid(int i, int len) const
     Example:
     \code
     QCString s("Credit");
-    QCString t = s.lower();  // t == "credit"
+    QCString t = s.toLower();  // t == "credit"
     \endcode
 
-    \sa upper()
+    \sa toUpper()
       \link #asciinotion Note on character comparisons \endlink
 */
-QByteArray QByteArray::lower() const
+QByteArray QByteArray::toLower() const
 {
     QByteArray s(*this);
     register char *p = s.data();
@@ -1049,14 +1049,14 @@ QByteArray QByteArray::lower() const
     Example:
     \code
     QCString s( "Debit" );
-    QCString t = s.upper();  // t == "DEBIT"
+    QCString t = s.toUpper();  // t == "DEBIT"
     \endcode
 
-    \sa lower()
+    \sa toLower()
       \link #asciinotion Note on character comparisons \endlink
 */
 
-QByteArray QByteArray::upper() const
+QByteArray QByteArray::toUpper() const
 {
     QByteArray s(*this);
     register char *p = s.data();
@@ -1128,9 +1128,9 @@ QConstByteArray::QConstByteArray(const char *chars, int length)
     and the end, and which has each sequence of internal whitespace
     replaced with a single space.
 
-    \sa stripWhiteSpace()
+    \sa trimmed()
 */
-QByteArray QByteArray::simplifyWhiteSpace() const
+QByteArray QByteArray::simplified() const
 {
     if (d->size == 0)
 	return *this;
@@ -1160,9 +1160,9 @@ QByteArray QByteArray::simplifyWhiteSpace() const
     Returns a byte array that has whitespace removed from the start
     and the end.
 
-    \sa simplifyWhiteSpace()
+    \sa simplified()
 */
-QByteArray QByteArray::stripWhiteSpace() const
+QByteArray QByteArray::trimmed() const
 {
     if (d->size == 0)
 	return *this;

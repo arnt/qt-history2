@@ -110,11 +110,11 @@ public:
     QByteArray right(int len) const;
     QByteArray mid(int index, int len=-1) const;
 
-    QByteArray lower() const;
-    QByteArray upper() const;
+    QByteArray toLower() const;
+    QByteArray toUpper() const;
 
-    QByteArray stripWhiteSpace() const;
-    QByteArray simplifyWhiteSpace() const;
+    QByteArray trimmed() const;
+    QByteArray simplified() const;
 
     QByteArray &prepend(char c);
     QByteArray &prepend(const char *s);
@@ -170,6 +170,10 @@ public:
     { detach(); d->data = d->array; d->size = 0; }
     int length() const { return size(); }
     inline void truncate( int l ) { resize(l); }
+    inline QByteArray lower() const { return toLower(); }
+    inline QByteArray upper() const { return toUpper(); }
+    inline QByteArray stripWhiteSpace() const { return trimmed(); }
+    inline QByteArray simplifyWhiteSpace() const { return simplified(); }
 #endif
 
     inline bool ensure_constructed()

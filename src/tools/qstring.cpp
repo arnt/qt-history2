@@ -2634,13 +2634,13 @@ QString& QString::setUnicodeCodes(const ushort *unicode_as_ushorts, int size)
 
     \code
 	QString string = "  lots\t of\nwhite    space ";
-	QString t = string.simplifyWhiteSpace();
+	QString t = string.simplified();
 	// t == "lots of white space"
     \endcode
 
-    \sa stripWhiteSpace()
+    \sa trimmed()
 */
-QString QString::simplifyWhiteSpace() const
+QString QString::simplified() const
 {
     if (d->size == 0)
 	return *this;
@@ -2677,12 +2677,12 @@ QString QString::simplifyWhiteSpace() const
 
     \code
 	QString string = "   white space   ";
-	QString s = string.stripWhiteSpace();       // s == "white space"
+	QString s = string.trimmed();       // s == "white space"
     \endcode
 
-    \sa simplifyWhiteSpace()
+    \sa simplified()
 */
-QString QString::stripWhiteSpace() const
+QString QString::trimmed() const
 {
     if (d->size == 0)
 	return *this;
@@ -3190,13 +3190,13 @@ int QString::localeAwareCompare( const QString& s ) const
 
     \code
 	QString s("apple");
-	QString t = s.leftJustify(8, '.');        // t == "apple..."
+	QString t = s.leftJustified(8, '.');        // t == "apple..."
     \endcode
 
-    \sa rightJustify()
+    \sa rightJustified()
 */
 
-QString QString::leftJustify(int width, QChar fill, bool truncate) const
+QString QString::leftJustified(int width, QChar fill, bool truncate) const
 {
     QString result;
     int len = length();
@@ -3230,13 +3230,13 @@ QString QString::leftJustify(int width, QChar fill, bool truncate) const
 
     \code
 	QString string("apple");
-	QString t = string.rightJustify(8, '.');  // t == "...apple"
+	QString t = string.rightJustified(8, '.');  // t == "...apple"
     \endcode
 
-    \sa leftJustify()
+    \sa leftJustified()
 */
 
-QString QString::rightJustify(int width, QChar fill, bool truncate) const
+QString QString::rightJustified(int width, QChar fill, bool truncate) const
 {
     QString result;
     int len = length();
@@ -3262,13 +3262,13 @@ QString QString::rightJustify(int width, QChar fill, bool truncate) const
 
     \code
 	QString string("TROlltECH");
-	str = string.lower();   // str == "trolltech"
+	str = string.toLower();   // str == "trolltech"
     \endcode
 
     \sa upper()
 */
 
-QString QString::lower() const
+QString QString::toLower() const
 {
     int l = d->size;
     if (l) {
@@ -3298,13 +3298,13 @@ QString QString::lower() const
 
     \code
 	QString string("TeXt");
-	str = string.upper();     // t == "TEXT"
+	str = string.toUpper();     // t == "TEXT"
     \endcode
 
     \sa lower()
 */
 
-QString QString::upper() const
+QString QString::toUpper() const
 {
     int l = d->size;
     if (l) {

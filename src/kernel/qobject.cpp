@@ -1681,7 +1681,7 @@ int QObject::receivers(const char *signal) const
 {
     int receivers = 0;
     if ( d->connections && signal ) {
-	QByteArray signal_name = QMetaObject::normalizeSignature(signal);
+	QByteArray signal_name = QMetaObject::normalizedSignature(signal);
 	signal = signal_name;
 #if defined(QT_CHECK_RANGE)
 	if (!check_signal_macro(this, signal, "receivers", "bind"))
@@ -1785,7 +1785,7 @@ bool QObject::connect(const QObject *sender, const char *signal,
 	return false;
     }
 #endif
-    QByteArray signal_name = QMetaObject::normalizeSignature(signal);
+    QByteArray signal_name = QMetaObject::normalizedSignature(signal);
     signal = signal_name;
 
 #if defined(QT_CHECK_RANGE)
@@ -1804,7 +1804,7 @@ bool QObject::connect(const QObject *sender, const char *signal,
 	return false;
     }
 
-    QByteArray member_name = QMetaObject::normalizeSignature(member);
+    QByteArray member_name = QMetaObject::normalizedSignature(member);
     member = member_name;
     int membcode = member[0] - '0';
 
@@ -1929,7 +1929,7 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
     QByteArray signal_name;
     bool signal_found = false;
     if (signal) {
-	signal_name = QMetaObject::normalizeSignature(signal);
+	signal_name = QMetaObject::normalizedSignature(signal);
 	signal = signal_name;
 #if defined(QT_CHECK_RANGE)
 	if (!check_signal_macro(sender, signal, "disconnect", "unbind"))
@@ -1942,7 +1942,7 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
     int membcode = -1;
     bool member_found = false;
     if (member) {
-	member_name = QMetaObject::normalizeSignature(member);
+	member_name = QMetaObject::normalizedSignature(member);
 	member = member_name;
 	membcode = member[0] - '0';
 #if defined(QT_CHECK_RANGE)
