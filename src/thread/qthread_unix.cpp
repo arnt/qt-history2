@@ -31,6 +31,7 @@ static QThreadInstance main_instance = {
 };
 
 
+extern QMutexPool *static_qt_global_mutexpool;
 static QMutexPool *qt_thread_mutexpool = 0;
 
 
@@ -162,10 +163,11 @@ Qt::HANDLE QThread::currentThread()
 */
 void QThread::initialize()
 {
-    if (qt_global_mutexpool)
+    extern QMutexPool *static_qt_global_mutex_pool;
+    if (static_qt_global_mutexpool)
 	return;
 
-    qt_global_mutexpool = new QMutexPool(true);
+    static_qt_global_mutexpool = new QMutexPool(true);
     qt_thread_mutexpool = new QMutexPool(false);
 }
 
@@ -174,9 +176,9 @@ void QThread::initialize()
 */
 void QThread::cleanup()
 {
-    delete qt_global_mutexpool;
+    delete static_qt_global_mutexpool;
     delete qt_thread_mutexpool;
-    qt_global_mutexpool = 0;
+    static_qt_global_mutexpool = 0;
     qt_thread_mutexpool = 0;
 
     // cleanup the QThreadInstance for the main() thread
