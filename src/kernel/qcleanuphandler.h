@@ -49,15 +49,14 @@ public:
 	while ( it.current() ) {
 	    Type* object = it.current();
 	    ++it;
-	    qDebug("Cleaning up object %p", object );
 	    delete object;
 	}
     }
 
     void addCleanUp( Type* object ) 
     {
-	cleanUpObjects.insert( 0, object );
-	qDebug("Cleanup object %p added", object );
+	if ( object )
+	    cleanUpObjects.insert( 0, object );
     }
 
     bool clean() 
