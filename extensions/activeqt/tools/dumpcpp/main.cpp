@@ -983,7 +983,6 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
 int main(int argc, char **argv)
 {
     extern bool qax_dispatchEqualsIDispatch;
-    // qax_dispatchEqualsIDispatch = false;
 
     CoInitialize(0);
 
@@ -1024,6 +1023,9 @@ int main(int argc, char **argv)
                     category |= NoImplementation;
                 } else if (arg == "donothing") {
                     category = DoNothing;
+                    break;
+                } else if (arg == "no_compat") {
+                    qax_dispatchEqualsIDispatch = false;
                     break;
                 } else if (arg == "h") {
                     qWarning("dumpcpp Version1.0\n\n"
