@@ -34,7 +34,7 @@
 **********************************************************************/
 /*! \page customstyles.html
 
-\title How to create custom styles in Qt
+\title Style overview
 
 A style in Qt implements the look & feel found in GUIs on different
 platforms. For instance the Windows style used in Windows and the Motif
@@ -62,8 +62,20 @@ the QWindowsStyle derived classes or QMotifStyle derived
 classes. These are the two base look & feel classes in the Qt style
 engine. Inheriting directly from QCommonStyle is also an option if you
 want to start almost from scratch when implementing your style. In
-this example we will inherit from QWindowsStyle. We get the following
-class declaration:
+this example we will inherit from QWindowsStyle.
+
+2. Re-implement the necessary functions in your derived class.
+
+Depending on which parts of the base style you want to change, you
+have to re-implement the functions that are used to draw those parts
+of the interface. If you take a look at the QStyle documentation, you
+will find a list of the different primitives, controls and complex
+controls. You'll also find an illustration that shows where the
+different primitives, controls and complex controls are used. In this
+example we will first change the look of the standard arrows that are
+used in the QWindowsStyle. The arrows are PrimitiveElements that are
+drawn in the drawPrimitive() function, therefore we need to
+re-implement that function. We get the following class declaration:
 
 \code
 #include <qwindowsstyle.h>
@@ -93,20 +105,7 @@ style. QObject is the base class for all style classes in Qt, and a
 QObject inherently cannot be copied; there are some aspects of it that
 are not copyable.
 
-2. Re-implement the necessary functions in your derived class.
-
-Depending on which parts of the base style you want to change, you
-have to re-implement the functions that are used to draw those parts
-of the interface. If you take a look at the QStyle documentation, you
-will find a list of the different primitives, controls and complex
-controls. You'll also find an illustration of where the different
-primitives, controls and complex controls are used. In this example we
-will first change the look of the standard arrows that are used in the
-QWindowsStyle.
-
-The arrows are PrimitiveElements, which means that we have to
-re-implement drawPrimitive() to be able to change the way arrows are
-drawn. From the QStyle docs we see that PE_ArrowUp, PE_ArrowDown,
+From the QStyle docs we see that PE_ArrowUp, PE_ArrowDown,
 PE_ArrowLeft and PE_ArrowRight are the primitives we need to do
 something with. We get the following in our drawPrimitive() function:
 
