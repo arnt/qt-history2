@@ -2493,6 +2493,13 @@ void QTextDocument::selectAll( int id )
     sel.endCursor = c;
 
     selections.insert( id, sel );
+
+    QTextParagraph *p = fParag;
+    while ( p ) {
+	p->setSelection( id, 0, p->length() - 1 );
+	p = p->next();
+    }
+
     for ( QTextDocument *d = childList.first(); d; d = childList.next() )
 	d->selectAll( id );
 }
@@ -2824,7 +2831,7 @@ bool QTextDocument::find( QTextCursor& cursor, const QString &e, bool cs, bool w
 		    setSelectionEnd( Standard, cursor );
 		    return TRUE;
 		}
-		start = res +  forward ? 1 : -1;
+		start = res +  (forward ? 1 : -1);
 	    }
 	}
 	if ( forward ) {
