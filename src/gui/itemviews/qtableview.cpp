@@ -344,18 +344,23 @@ void QTableView::paintEvent(QPaintEvent *e)
     int colfirst = columnAt(area.left());
     int collast = columnAt(area.right());
 
-    if (colfirst == -1)
-        colfirst = 0;
-    if (collast == -1)
-        collast = d->model->columnCount(root()) - 1;
+//    qDebug() << "paintEvent" << colfirst << collast << area;
+
+    if (QApplication::reverseLayout()) {
+        colfirst = (colfirst == -1 ? model()->columnCount(root()) - 1 : colfirst);
+        collast = (collast == -1 ? 0 : collast);
+    } else {
+        colfirst = (colfirst == -1 ? 0 : colfirst);
+        collast = (collast == -1 ? model()->columnCount(root()) - 1 : collast);
+    }
+
+    int tmp = colfirst;
+    colfirst = qMin(colfirst, collast);
+    collast = qMax(tmp, collast);
+
     if (collast < 0) {
         painter.fillRect(area, base);
         return;
-    }
-    if (colfirst > collast) {
-        int tmp = colfirst;
-        colfirst = collast;
-        collast = tmp;
     }
 
     int rowfirst = rowAt(area.top());
@@ -434,17 +439,23 @@ void QTableView::paintEvent(QPaintEvent *e)
             painter.setPen(old);
         }
     }
-
+    
     int w = d->viewport->width();
     int h = d->viewport->height();
     int x = d->horizontalHeader->length();
     int y = d->verticalHeader->length();
     QRect bottom(0, y, w, h - y);
-    QRect left(x, 0, w - x, h);
     if (y < h && area.intersects(bottom))
         painter.fillRect(bottom, base);
-    if (x < w && area.intersects(left))
-        painter.fillRect(left, base);
+    if (QApplication::reverseLayout()) {
+        QRect right(0, 0, w - x, h);
+        if (x > 0 && area.intersects(right))
+            painter.fillRect(right, base);
+    } else {
+        QRect left(x, 0, w - x, h);
+        if (x < w && area.intersects(left))
+            painter.fillRect(left, base);
+    }
 }
 
 /*!

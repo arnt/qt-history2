@@ -1051,8 +1051,8 @@ void QHeaderView::paintEvent(QPaintEvent *e)
     }
 
     if (d->reverse()) {
-        start = start == -1 ? count() - 1 : start;
-        end = end == -1 ? 0 : end;
+        start = (start == -1 ? count() - 1 : start);
+        end = (end == -1 ? 0 : end);
     } else {
         start = (start == -1 ? 0 : start);
         end = (end == -1 ? count() - 1 : end);
