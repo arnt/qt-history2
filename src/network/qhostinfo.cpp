@@ -267,6 +267,8 @@ void QHostInfoAgent::run()
                 cond.wait(&mutex);
             if (quit)
                 break;
+	    if (queries.isEmpty())
+		continue;
             query = queries.takeFirst();
         }
 
