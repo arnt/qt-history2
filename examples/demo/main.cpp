@@ -127,7 +127,7 @@ int main( int argc, char **argv )
 
     Frame::updateTranslators();
 
-    // #### how about a splash screen?
+    // How about a splash screen?
     Frame frame;
 
     // example 1
