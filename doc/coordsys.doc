@@ -153,8 +153,8 @@ function is vital, since very few printers can print over the entire
 physical page.
 
 So each object to be drawn is transformed into model
-coordinates using \l QPainter::worldMatrix(), then clipped by \l
-QPainter::window(), and finally positioned on the drawing device using
+coordinates using \l QPainter::worldMatrix(), then positioned
+on the drawing device using \l QPainter::window() and
 \l QPainter::viewport().
 
 It is perfectly possible to do without one or two of the stages. If,
