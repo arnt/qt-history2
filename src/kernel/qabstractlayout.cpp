@@ -736,10 +736,11 @@ void QLayout::setMargin( int margin )
     }
 }
 
-//##### bool recursive = FALSE ????
 void QLayout::setSpacing( int spacing )
 {
     insideSpacing = spacing;
+    if ( spacing >= 0 )
+	propagateSpacing( this );
     invalidate();
     if ( mainWidget() ) {
 	QEvent *lh = new QEvent( QEvent::LayoutHint );
@@ -1034,7 +1035,7 @@ void QLayout::deleteAllItems()
 {
     QLayoutIterator it = iterator();
     QLayoutItem *l;
-    while ( (l=it.takeCurrent()) )
+    while ( (l = it.takeCurrent()) )
 	delete l;
 }
 
@@ -1046,13 +1047,15 @@ void QLayout::addChildLayout( QLayout *l )
 {
     if ( l->parent() ) {
 #if defined(QT_CHECK_NULL)
-	qWarning( "QLayout::addChildLayout(), layout already has a parent" );
+	qWarning( "QLayout::addChildLayout: layout already has a parent" );
 #endif
 	return;
     }
     insertChild( l );
-    if ( l->insideSpacing < 0 )
+    if ( l->insideSpacing < 0 ) {
 	l->insideSpacing = insideSpacing;
+	propagateSpacing( l );
+    }
 }
 
 /*! \fn int QLayout::defaultBorder() const
@@ -1169,7 +1172,7 @@ bool QLayout::activate()
 
     if ( mainWidget() == 0 ) {
 #if defined( QT_CHECK_NULL )
-	qWarning( "QLayout::activate(): %s \"%s\" does not have a main widget",
+	qWarning( "QLayout::activate: %s \"%s\" does not have a main widget",
 		  QObject::className(), QObject::name() );
 #endif
 	return FALSE;
@@ -1894,6 +1897,20 @@ void QLayout::setEnabled( bool enable )
 bool QLayout::isEnabled() const
 {
     return enabled;
+}
+
+void QLayout::propagateSpacing( QLayout *parent )
+{
+    QLayoutIterator it = parent->iterator();
+    QLayoutItem *child;
+    while ( (child = it.current()) ) {
+	QLayout *childLayout = child->layout();
+	if ( childLayout && childLayout->insideSpacing < 0 ) {
+	    childLayout->insideSpacing = parent->insideSpacing;
+	    propagateSpacing( childLayout );
+	}
+	++it;
+    }
 }
 
 #endif // QT_NO_LAYOUT
