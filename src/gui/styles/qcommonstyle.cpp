@@ -498,15 +498,9 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         }
         p->setPen(oldPen);
         break; }
-    case PE_PanelTabWidget: {
-        p->save();
-        if (opt->state & Style_Bottom) {
-            p->scale(1, -1);
-            p->translate(0, -opt->rect.height());
-        }
+    case PE_PanelTabWidget:
         qDrawShadePanel(p, opt->rect, opt->palette, opt->state & Style_Sunken, 2);
-        p->restore();
-        break; }
+        break;
     case PE_PanelLineEdit:
     case PE_WindowFrame:
         drawPrimitive(PE_Panel, opt, p, widget);
