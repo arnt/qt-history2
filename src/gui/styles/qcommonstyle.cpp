@@ -858,8 +858,8 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 tf |= Qt::AlignHCenter;
             }
             if (btn->state & (Style_On | Style_Down))
-                ir.moveBy(pixelMetric(PM_ButtonShiftHorizontal, opt, widget),
-                          pixelMetric(PM_ButtonShiftVertical, opt, widget));
+                ir.translate(pixelMetric(PM_ButtonShiftHorizontal, opt, widget),
+                             pixelMetric(PM_ButtonShiftVertical, opt, widget));
             drawItem(p, ir, tf, btn->palette, (btn->state & Style_Enabled), QPixmap(), btn->text, -1,
                      &(btn->palette.buttonText().color()));
         }
