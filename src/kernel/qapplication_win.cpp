@@ -732,6 +732,8 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
 #if defined(QT_WINTAB_SUPPORT)
 
 #define FIX_DOUBLE(x) ( double(INT(x)) + double(FRAC(x) / 0x10000 ) )
+    typedef UINT (API *PtrWTInfo)(UINT, UINT, LPVOID);
+    
     int max_pressure;
     struct tagAXIS tpOri[3];
     struct tagAXIS pressureAxis;
@@ -739,47 +741,66 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
  	   aziFactor = 1,
  	   altFactor = 1,
  	   altAdjust = 1;
-    // make sure we have WinTab
-    if (!WTInfo( 0, 0, NULL )) {
-	qWarning( "Wintab services not available" );
-	return;
+
+    static bool dllWintabChecked = FALSE;
+    static PtrWTInfo ptrWTInfo = 0;
+
+    if ( !dllWintabChecked ) {
+	dllWintabChecked = TRUE;
+	QLibrary library( "wintab32.dll", QLibrary::Manual );
+#if defined (UNICODE)
+	if ( qWinVersion() & Qt::WV_NT_based )
+	    ptrWTInfo = (PtrWTInfo)library.resolve( "WTInfoW" );
+	else
+#endif
+	    ptrWTInfo = (PtrWTInfo)library.resolve( "WTInfoA" );
+
     }
 
-    // some tablets don't support tilt, check if its possible,
-    tilt_support = WTInfo( WTI_DEVICES, DVC_ORIENTATION, &tpOri );
+    if ( ptrWTInfo ) {
+	// make sure we have WinTab
+	if ( !ptrWTInfo( 0, 0, NULL ) ) {
+	    qWarning( "Wintab services not available" );
+	    return;
+	}
 
-    if ( tilt_support ) {
-	// check for azimuth and altitude
-	if ( tpOri[0].axResolution && tpOri[1].axResolution ) {
-	    tpvar = FIX_DOUBLE( tpOri[0].axResolution );
-	    aziFactor = tpvar/(2 * PI);
-	    tpvar = FIX_DOUBLE( tpOri[1].axResolution);
-	    altFactor = tpvar / 1000;
-	    altAdjust = double(tpOri[1].axMax) / altFactor;
- 	} else {
-	    tilt_support = FALSE;
- 	}
-    }
-    max_pressure = WTInfo( WTI_DEVICES, DVC_NPRESSURE, &pressureAxis );
-    if ( max_pressure ) {
-	//get the maximum pressure then
-	max_pressure = pressureAxis.axMax;
-    } else {
-	max_pressure = 0;
-    }
-    // build our context from the default context
-    WTInfo( WTI_DEFSYSCTX, 0, &lcMine );
-    lcMine.lcOptions |= CXO_MESSAGES | CXO_CSRMESSAGES;
-    lcMine.lcPktData = PACKETDATA;
-    lcMine.lcPktMode = PACKETMODE;
-    lcMine.lcMoveMask = PACKETDATA;
+	// some tablets don't support tilt, check if its possible,
+	tilt_support = ptrWTInfo( WTI_DEVICES, DVC_ORIENTATION, &tpOri );
 
-    lcMine.lcOutOrgX = 0;
-    lcMine.lcOutExtX = GetSystemMetrics( SM_CXSCREEN );
-    lcMine.lcOutOrgY = 0;
+	if ( tilt_support ) {
+	    // check for azimuth and altitude
+	    if ( tpOri[0].axResolution && tpOri[1].axResolution ) {
+		tpvar = FIX_DOUBLE( tpOri[0].axResolution );
+		aziFactor = tpvar/(2 * PI);
+		tpvar = FIX_DOUBLE( tpOri[1].axResolution);
+		altFactor = tpvar / 1000;
+		altAdjust = double(tpOri[1].axMax) / altFactor;
+ 	    } else {
+		tilt_support = FALSE;
+ 	    }
+	}
+	max_pressure = ptrWTInfo( WTI_DEVICES, DVC_NPRESSURE, &pressureAxis );
+	if ( max_pressure ) {
+	    //get the maximum pressure then
+	    max_pressure = pressureAxis.axMax;
+	} else {
+	    max_pressure = 0;
+	}
+	// build our context from the default context
+	ptrWTInfo( WTI_DEFSYSCTX, 0, &lcMine );
+	lcMine.lcOptions |= CXO_MESSAGES | CXO_CSRMESSAGES;
+	lcMine.lcPktData = PACKETDATA;
+	lcMine.lcPktMode = PACKETMODE;
+	lcMine.lcMoveMask = PACKETDATA;
+
+	lcMine.lcOutOrgX = 0;
+	lcMine.lcOutExtX = GetSystemMetrics( SM_CXSCREEN );
+	lcMine.lcOutOrgY = 0;
 	// the tablet deals with coordinates as most humans do, make it follow
 	// the standard screen idea of coordinates...
-    lcMine.lcOutExtY = -GetSystemMetrics( SM_CYSCREEN );
+	lcMine.lcOutExtY = -GetSystemMetrics( SM_CYSCREEN );
+    }
+#undef FIX_DOUBLE
 #endif
 }
 
@@ -823,7 +844,18 @@ void qt_cleanup()
 #endif
 
 #if defined(QT_WINTAB_SUPPORT)
-    WTClose( hTab );
+    typedef BOOL ( API *PtrWTClose )(HCTX);
+
+    static bool dllWintabChecked = FALSE;
+    static PtrWTClose ptrWTClose = 0;
+
+    if ( !dllWintabChecked ) {
+	dllWintabChecked = TRUE;
+	QLibrary library( "wintab32.dll", QLibrary::Manual );
+	ptrWTClose = (PtrWTClose)library.resolve( "WTClose" );
+    }
+    if ( ptrWTClose )
+	ptrWTClose( hTab );
 #endif
     delete activeBeforePopup;
     activeBeforePopup = 0;
@@ -1050,9 +1082,24 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 {
     main_widget = mainWidget;			// set main widget
 #if defined (QT_WINTAB_SUPPORT)
-    hTab = WTOpen( main_widget->winId(), &lcMine, TRUE );
-    if ( hTab == NULL )
-	qWarning( "Failed to open the tablet" );
+    typedef HCTX ( API *PtrWTOpen )(HWND, LPLOGCONTEXTW, BOOL);
+    static bool dllWinTabChecked = FALSE;
+    static PtrWTOpen ptrWTOpen = 0;
+    if ( !dllWinTabChecked ) {
+	dllWinTabChecked = TRUE;
+	QLibrary library( "wintab32.dll", QLibrary::Manual );
+#if defined(UNICODE)
+	if ( qWinVersion() & WV_NT_based )
+	    ptrWTOpen = (PtrWTOpen)library.resolve( "WTOpenW" );
+	else
+#endif
+	    ptrWTOpen = (PtrWTOpen)library.resolve( "WTOpenA" );
+    }
+    if ( ptrWTOpen ) {
+	hTab = ptrWTOpen( main_widget->winId(), &lcMine, TRUE );
+	if ( hTab == NULL )
+	    qWarning( "Failed to open the tablet" );
+    }
 #endif
 }
 
@@ -2058,29 +2105,44 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		break;
 
 	    case WM_ACTIVATE:
+		{
 #if defined (QT_WINTAB_SUPPORT)
-		// cooperate with other tablet applications, but when
-		// we get focus, I want to use the tablet...
-		if (hTab && GET_WM_ACTIVATE_STATE(wParam, lParam)) {
-		    if ( WTEnable(hTab, TRUE) )
-			if ( !WTOverlap(hTab, TRUE) )
-			    qWarning( "Failed to re-enable tablet context" );
+		    typedef BOOL (API *PtrWTEnable)(HCTX, BOOL);
+		    typedef BOOL (API *PtrWTOverlap)(HCTX, BOOL);
+		    static bool dllWinTabChecked = FALSE;
+		    static PtrWTEnable ptrWTEnable = 0;
+		    static PtrWTOverlap ptrWTOverlap = 0;
 
-		}
+		    if ( !dllWinTabChecked ) {
+			dllWinTabChecked = TRUE;
+			QLibrary library( "wintab32.dll", QLibrary::Manual );
+			ptrWTEnable = (PtrWTEnable)library.resolve( "WTEnable" );
+			ptrWTOverlap = (PtrWTOverlap)library.resolve( "WTOverlap" );
+		    }
+		    if ( ptrWTOverlap && ptrWTEnable ) {
+			// cooperate with other tablet applications, but when
+			// we get focus, I want to use the tablet...
+			if (hTab && GET_WM_ACTIVATE_STATE(wParam, lParam)) {
+			    if ( ptrWTEnable(hTab, TRUE) )
+				if ( !ptrWTOverlap(hTab, TRUE) )
+				    qWarning( "Failed to re-enable tablet context" );
+			}
+		    }
 #endif
-		if ( QApplication::activePopupWidget() && LOWORD(wParam) == WA_INACTIVE &&
-		     QWidget::find((HWND)lParam) == 0 ) {
-		    // Another application was activated while our popups are open,
-		    // then close all popups.  In case some popup refuses to close,
-		    // we give up after 1024 attempts (to avoid an infinite loop).
-		    int maxiter = 1024;
-		    QWidget *popup;
-		    while ( (popup=QApplication::activePopupWidget()) &&
-			    maxiter-- )
-			popup->hide();
+		    if ( QApplication::activePopupWidget() && LOWORD(wParam) == WA_INACTIVE &&
+			 QWidget::find((HWND)lParam) == 0 ) {
+			// Another application was activated while our popups are open,
+			// then close all popups.  In case some popup refuses to close,
+			// we give up after 1024 attempts (to avoid an infinite loop).
+			int maxiter = 1024;
+			QWidget *popup;
+			while ( (popup=QApplication::activePopupWidget()) &&
+			        maxiter-- )
+			    popup->hide();
+		    }
+		    qApp->winFocus( widget, LOWORD(wParam) == WA_INACTIVE ? 0 : 1 );
+		    break;
 		}
-		qApp->winFocus( widget, LOWORD(wParam) == WA_INACTIVE ? 0 : 1 );
-		break;
 
 	    case WM_PALETTECHANGED:			// our window changed palette
 		if ( QColor::hPal() && (WId)wParam == widget->winId() )
@@ -2254,13 +2316,39 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 #endif
 #if defined (QT_WINTAB_SUPPORT)
 	case WT_PACKET:
-	    if ( (nPackets = WTPacketsGet( hTab, NPACKETQSIZE, &localPacketBuf)) ) {
-		result = widget->translateTabletEvent( msg, localPacketBuf, nPackets );
+	    {
+		// Get the packets and also don't link against the actual library...
+		typedef int (API *PtrWTPacketsGet)(HCTX, int, LPVOID);
+		static PtrWTPacketsGet ptrWTPacketsGet = 0;
+		static bool dllWinTabChecked = FALSE;
+		if ( !dllWinTabChecked ) {
+		    dllWinTabChecked = TRUE;
+		    QLibrary library( "wintab32.dll", QLibrary::Manual );
+		    ptrWTPacketsGet = (PtrWTPacketsGet)library.resolve( "WTPacketsGet" );
+		}
+		if ( ptrWTPacketsGet ) {
+		    if ( (nPackets = ptrWTPacketsGet( hTab, NPACKETQSIZE, &localPacketBuf)) ) {
+			result = widget->translateTabletEvent( msg, localPacketBuf, nPackets );
+		    }
+		}
+		break;
 	    }
-	    break;
-	case WT_PROXIMITY:
-	    WTPacketsGet( hTab, NPACKETQSIZE + 1, NULL);
-	    break;
+
+	case WT_PROXIMITY: 
+	    {
+		// flush the QUEUE
+		typedef int (API *PtrWTPacketsGet)(HCTX, int, LPVOID);
+		static PtrWTPacketsGet ptrWTPacketsGet = 0;
+		static bool dllWinTabChecked = FALSE;
+		if ( !dllWinTabChecked ) {
+		    dllWinTabChecked = TRUE;
+		    QLibrary library( "wintab32.dll", QLibrary::Manual );
+		    ptrWTPacketsGet = (PtrWTPacketsGet)library.resolve( "WTPacketsGet" );
+		}
+		if ( ptrWTPacketsGet )
+		    ptrWTPacketsGet( hTab, NPACKETQSIZE + 1, NULL);
+		break;
+	    }
 #endif
 
 	default:
@@ -3492,35 +3580,59 @@ static UINT prsYesBtnOrg, prsYesBtnExt, prsNoBtnOrg, prsNoBtnExt;
 void prsInit( HCTX hTab)
 {
     /* browse WinTab's many info items to discover pressure handling. */
-    AXIS np;
-    LOGCONTEXT lc;
-    BYTE logBtns[32];
-    UINT btnMarks[2];
-    UINT size;
 
-    /* discover the LOGICAL button generated by the pressure channel. */
-    /* get the PHYSICAL button from the cursor category and run it */
-    /* through that cursor's button map (usually the identity map). */
-    wPrsBtn = (BYTE)-1;
-    WTInfo(WTI_CURSORS + wActiveCsr, CSR_NPBUTTON, &wPrsBtn);
-    size = WTInfo(WTI_CURSORS + wActiveCsr, CSR_BUTTONMAP, &logBtns);
-    if ((UINT)wPrsBtn < size)
-	wPrsBtn = logBtns[wPrsBtn];
+    typedef UINT ( API *PtrWTInfo )(UINT, UINT, LPVOID);
+    typedef BOOL ( API *PtrWTGet )(HCTX, LPLOGCONTEXT);
+    static bool dllWinTabChecked = FALSE;
+    static PtrWTInfo ptrWTInfo = 0;
+    static PtrWTGet ptrWTGet = 0;
 
-    /* get the current context for its device variable. */
-    WTGet(hTab, &lc);
+    if ( !dllWinTabChecked ) {
+	dllWinTabChecked = TRUE;
+	QLibrary library( "wintab32.dll", QLibrary::Manual );
+#if defined(UNICODE)
+	if ( qWinVersion() & Qt::WV_NT_based ) {
+	    ptrWTInfo = (PtrWTInfo)library.resolve( "WTInfoW" );
+	    ptrWTGet = (PtrWTGet)library.resolve( "WTGetW" );
+	} else {
+#endif
+	    ptrWTInfo = (PtrWTInfo)library.resolve( "WTInfoA" );
+	    ptrWTGet = (PtrWTGet)library.resolve( "WTGetA" );
+#if defined(UNICODE)
+	}
+#endif	    
+    }
+    if ( ptrWTInfo && ptrWTGet ) {
+	AXIS np;
+	LOGCONTEXT lc;
+	BYTE logBtns[32];
+	UINT btnMarks[2];
+	UINT size;
 
-    /* get the size of the pressure axis. */
-    WTInfo(WTI_DEVICES + lc.lcDevice, DVC_NPRESSURE, &np);
-    prsNoBtnOrg = (UINT)np.axMin;
-    prsNoBtnExt = (UINT)np.axMax - (UINT)np.axMin;
+	/* discover the LOGICAL button generated by the pressure channel. */
+	/* get the PHYSICAL button from the cursor category and run it */
+	/* through that cursor's button map (usually the identity map). */
+	wPrsBtn = (BYTE)-1;
+	ptrWTInfo(WTI_CURSORS + wActiveCsr, CSR_NPBUTTON, &wPrsBtn);
+	size = ptrWTInfo(WTI_CURSORS + wActiveCsr, CSR_BUTTONMAP, &logBtns);
+	if ((UINT)wPrsBtn < size)
+	    wPrsBtn = logBtns[wPrsBtn];
 
-    /* get the button marks (up & down generation thresholds) */
-    /* and calculate what pressure range we get when pressure-button is down. */
-    btnMarks[1] = 0; /* default if info item not present. */
-    WTInfo(WTI_CURSORS + wActiveCsr, CSR_NPBTNMARKS, btnMarks);
-    prsYesBtnOrg = btnMarks[1];
-    prsYesBtnExt = (UINT)np.axMax - btnMarks[1];
+	/* get the current context for its device variable. */
+	ptrWTGet(hTab, &lc);
+
+	/* get the size of the pressure axis. */
+	ptrWTInfo(WTI_DEVICES + lc.lcDevice, DVC_NPRESSURE, &np);
+	prsNoBtnOrg = (UINT)np.axMin;
+	prsNoBtnExt = (UINT)np.axMax - (UINT)np.axMin;
+
+	/* get the button marks (up & down generation thresholds) */
+	/* and calculate what pressure range we get when pressure-button is down. */
+	btnMarks[1] = 0; /* default if info item not present. */
+	ptrWTInfo(WTI_CURSORS + wActiveCsr, CSR_NPBTNMARKS, btnMarks);
+	prsYesBtnOrg = btnMarks[1];
+	prsYesBtnExt = (UINT)np.axMax - btnMarks[1];
+    }
 }
 /* -------------------------------------------------------------------------- */
 UINT prsAdjust(PACKET p, HCTX hTab)
