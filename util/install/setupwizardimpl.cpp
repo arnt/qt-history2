@@ -289,7 +289,7 @@ void SetupWizardImpl::doFinalIntegration()
 
 void SetupWizardImpl::integratorDone()
 {
-    if( ( !integrator.normalExit() ) && ( triedToIntegrate ) )
+    if( ( !integrator.normalExit() || ( integrator.normalExit() && integrator.exitStatus() ) ) && ( triedToIntegrate ) )
 	logOutput( "The integration process failed.\n", true );
     else {
 	setNextEnabled( buildPage, true );
@@ -313,7 +313,7 @@ void SetupWizardImpl::makeDone()
     QStringList args;
     QStringList makeCmds = QStringList::split( ' ', "nmake make gmake" );
 
-    if( !make.normalExit() )
+    if( !make.normalExit() || ( make.normalExit() && make.exitStatus() ) )
 	logOutput( "The build process failed.\n" );
     else {
 	if( sysID != MSVC )
@@ -339,7 +339,7 @@ void SetupWizardImpl::configDone()
     QStringList makeCmds = QStringList::split( ' ', "nmake make gmake" );
     QStringList args;
 
-    if( !configure.normalExit() )
+    if( !configure.normalExit() || ( configure.normalExit() && configure.exitStatus() ) )
 	logOutput( "The configure process failed.\n" );
     else {
 	connect( &make, SIGNAL( processExited() ), this, SLOT( makeDone() ) );
