@@ -915,6 +915,9 @@ void QPainter::updateBrush()
     \warning A paint device can only be painted by one painter at a
     time.
 
+    \warning A on screen paint device (QWidget) can only be painted by
+    as a result of a paintEvent() (from repaint() or update()).
+
     \sa end(), flush()
 */
 
@@ -928,6 +931,12 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
     if ( pd == 0 ) {
         qWarning( "QPainter::begin: Paint device cannot be null" );
         return FALSE;
+    }
+    if(pd->devType() == QInternal::Widget && 
+       !static_cast<const QWidget*>(pd)->testWState(WState_InPaintEvent)) {
+	qWarning("QPainter::begin: Widget painting can only begin as a "
+		 "result of a paintEvent");
+	return false;
     }
 
     QPixmap::x11SetDefaultScreen( pd->x11Screen() );

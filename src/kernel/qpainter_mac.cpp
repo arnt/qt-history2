@@ -588,6 +588,12 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
 	qWarning("QPainter::begin: Paint device cannot be null");
 	return false;
     }
+    if(pd->devType() == QInternal::Widget && 
+       !static_cast<const QWidget*>(pd)->testWState(WState_InPaintEvent)) {
+	qWarning("QPainter::begin: Widget painting can only begin as a "
+		 "result of a paintEvent");
+	return false;
+    }
 
     //save the gworld now, we'll reset it in end()
     d->qd_info.saved = new QMacSavedPortInfo;

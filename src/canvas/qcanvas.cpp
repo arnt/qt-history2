@@ -1134,11 +1134,7 @@ void QCanvas::update()
 		// r = Visible area of the canvas where there are changes
 		QRect r = changeBounds(view->inverseWorldMatrix().map(area));
 		if ( !r.isEmpty() ) {
-		    QPainter p(view->viewport());
-		    // Translate to the coordinate system of drawViewArea().
-		    QPoint tl = view->contentsToViewport(QPoint(0,0));
-		    p.translate(tl.x(),tl.y());
-		    drawViewArea( view, &p, wm.map(r), dblbuf );
+		    view->repaint(r);
 		    doneareas.append(new QRect(r));
 		}
 	    } else
@@ -1150,7 +1146,7 @@ void QCanvas::update()
     }
 
     for (int i=0; i<clusterizer.clusters(); i++)
-	drawChanges(clusterizer[i]);
+	view->repaint(clusterizer[i]);
 
 #ifndef QT_NO_TRANSFORMATIONS
     for ( QRect* r=doneareas.first(); r != 0; r=doneareas.next() )
