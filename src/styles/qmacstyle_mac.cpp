@@ -360,12 +360,13 @@ void QMacStyle::polish(QApplication* app)
 /*! \reimp */
 void QMacStyle::polish(QWidget* w)
 {
+	w->setBackgroundOrigin(QWidget::AncestorOrigin);
     if(!w->isTopLevel() && !w->inherits("QSplitter") &&
        w->backgroundPixmap() &&
        qApp->palette().brush(QPalette::Active, QPalette::Background).pixmap() &&
 	w->backgroundPixmap()->serialNumber() ==
        qApp->palette().brush(QPalette::Active, QPalette::Background).pixmap()->serialNumber())
-	w->setBackgroundOrigin(QWidget::WindowOrigin);
+	w->setBackgroundOrigin(QWidget::AncestorOrigin);
     d->addWidget(w);
 
 #ifdef QMAC_DO_SECONDARY_GROUPBOXES

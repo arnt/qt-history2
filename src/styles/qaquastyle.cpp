@@ -238,7 +238,7 @@ void QAquaStyle::polish(QWidget * w)
        qApp->palette().brush(QPalette::Active, QPalette::Background).pixmap() &&
 	w->backgroundPixmap()->serialNumber() ==
        qApp->palette().brush(QPalette::Active, QPalette::Background).pixmap()->serialNumber())
-	w->setBackgroundOrigin(QWidget::WindowOrigin);
+	w->setBackgroundOrigin(QWidget::AncestorOrigin);
     d->addWidget(w);
 #ifdef Q_WS_MAC
     if(w->inherits("QPopupMenu"))
