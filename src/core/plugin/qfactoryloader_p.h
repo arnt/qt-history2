@@ -40,8 +40,7 @@ public:
     QFactoryLoader(const char *iid,
                    const QStringList &paths = QStringList(),
                    const QString &suffix = QString(),
-                   Qt::CaseSensitivity = Qt::CaseSensitive,
-                   QObject *parent = 0);
+                   Qt::CaseSensitivity = Qt::CaseSensitive);
     ~QFactoryLoader();
 
     QStringList keys() const;

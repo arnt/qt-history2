@@ -17,15 +17,18 @@
 #include <qdir.h>
 #include <qsettings.h>
 #include <qdebug.h>
+#include "qmutex.h"
 #include "qplugin.h"
 #include "qpluginloader.h"
 #include "private/qobject_p.h"
+#include "private/qcoreapplication_p.h"
 
 class QFactoryLoaderPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QFactoryLoader)
 public:
     QFactoryLoaderPrivate(){}
+    mutable QMutex mutex;
     QByteArray iid;
     QList<QLibraryPrivate*> libraryList;
     QMap<QString,QLibraryPrivate*> keyMap;
@@ -34,9 +37,10 @@ public:
 
 QFactoryLoader::QFactoryLoader(const char *iid,
                                const QStringList &paths, const QString &suffix,
-                               Qt::CaseSensitivity cs, QObject *parent)
-    :QObject(*new QFactoryLoaderPrivate, parent)
+                               Qt::CaseSensitivity cs)
+    : QObject(*new QFactoryLoaderPrivate)
 {
+    QCoreApplicationPrivate::moveToMainThread(this);
     Q_D(QFactoryLoader);
     d->iid = iid;
     QStringList filters;
@@ -125,6 +129,7 @@ QFactoryLoader::~QFactoryLoader()
 QStringList QFactoryLoader::keys() const
 {
     Q_D(const QFactoryLoader);
+    QMutexLocker locker(&d->mutex);
     QStringList keys = d->keyList;
     QObjectList instances = QPluginLoader::staticInstances();
     for (int i = 0; i < instances.count(); ++i)
@@ -137,6 +142,7 @@ QStringList QFactoryLoader::keys() const
 QObject *QFactoryLoader::instance(const QString &key) const
 {
     Q_D(const QFactoryLoader);
+    QMutexLocker locker(&d->mutex);
     QObjectList instances = QPluginLoader::staticInstances();
     for (int i = 0; i < instances.count(); ++i)
         if (QFactoryInterface *factory = qt_cast<QFactoryInterface*>(instances.at(i)))
@@ -147,7 +153,7 @@ QObject *QFactoryLoader::instance(const QString &key) const
         if (library->instance || library->loadPlugin()) {
             if (QObject *obj = library->instance()) {
                 if (obj && !obj->parent())
-                    obj->setParent(const_cast<QFactoryLoader*>(this));
+                    QCoreApplicationPrivate::moveToMainThread(obj);
                 return obj;
             }
         }
