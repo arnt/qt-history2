@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#132 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#133 $
 #
 # this is a massive hack, written very quickly
 #
@@ -726,7 +726,7 @@ sub manglefn {
 	    }
 	}
 # strip spaces around & and *
-	s/\s*([\*\&])\s*/$1/;
+	s/\s*([\*\&])\s*/$1/g;
 # kill default and change spaces into -
 	s/=.*//g;
 	s/\s+/-/g;
