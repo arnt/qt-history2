@@ -85,9 +85,10 @@ All QApplication statics should be virtual methods - use qApp->... to
  access them.  This allows for overriding, and paves the way for supporting
  multiple QApplication objects.
 Add the "auto completion" concept to the validator concept.
+PNG.  MNG MNG MNG.  !GIF.  Unisys die die die.
 
 
-GERMAN THINGS:
+ARNT'S THINGS:
 --------------
 > the signals applyButtonPressed(), cancelButtonPressed() and
 > defaultButtonPressed() in QTabDialog are somewhat misnamed, because
