@@ -471,7 +471,7 @@ QImage::QImage(uchar* yourdata, int w, int h, int depth,
         data->ctbl_mine = false;
     } else {
         // calloc since we realloc, etc. later (ick)
-        data->ctbl = (QRgb*)calloc(data->ncols*sizeof(QRgb), data->ncols);
+        data->ctbl = (QRgb*)calloc(data->ncols, sizeof(QRgb));
         data->ctbl_mine = true;
     }
     uchar** jt = (uchar**)malloc(h*sizeof(uchar*));
@@ -516,7 +516,7 @@ QImage::QImage(uchar* yourdata, int w, int h, int depth,
         data->ctbl_mine = false;
     } else {
         // calloc since we realloc, etc. later (ick)
-        data->ctbl = (QRgb*)calloc(numColors*sizeof(QRgb), numColors);
+        data->ctbl = (QRgb*)calloc(numColors, sizeof(QRgb));
         data->ctbl_mine = true;
     }
     uchar** jt = (uchar**)malloc(h*sizeof(uchar*));
@@ -1049,7 +1049,7 @@ void QImage::setNumColors(int numColors)
             memset((char *)&data->ctbl[data->ncols], 0,
                     (numColors-data->ncols)*sizeof(QRgb));
     } else {                                        // create new color table
-        data->ctbl = (QRgb*)calloc(numColors*sizeof(QRgb), 1);
+        data->ctbl = (QRgb*)calloc(numColors, sizeof(QRgb));
         data->ctbl_mine = true;
     }
     data->ncols = data->ctbl == 0 ? 0 : numColors;
