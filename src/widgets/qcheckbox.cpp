@@ -289,7 +289,7 @@ void QCheckBox::drawButtonLabel( QPainter *p )
 	br.setLeft( br.left()-3 );
 	br.setRight( br.right()+2 );
 	br.setTop( br.top()-2 );
-	br.setBottom( br.bottom()+2);
+	br.setBottom( br.bottom()+5);
 	br = br.intersect( QRect(0,0,width(),height()) );
 
 	if ( !text().isEmpty() )

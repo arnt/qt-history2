@@ -2258,7 +2258,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	if ( noaccel || showprefix )
 		parStr.replace( QRegExp( "&" ), "" );
 	if ( brect ) {
-	    QRect br( 0, 0, fm.width( parStr ), fm.height() );
+	    QRect br( r.x(), r.y(), fm.width( parStr ), fm.height() );
 	    *brect = br;
 	}
 	if ( painter ) {
@@ -2277,8 +2277,6 @@ void qt_format_text( const QFont& font, const QRect &r,
 		xoff += r.width() - w;
 	    else if ( tf & Qt::AlignHCenter )
 		xoff += ( r.width() - w ) / 2;
-	    if ( brect )
-		brect->moveBy( xoff, yoff );
 
 	    QRegion reg;
 	    if ( painter->hasClipping() ) {
