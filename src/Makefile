@@ -110,7 +110,7 @@ depend:
 	set -e ; for d in $(DIRS); do $(MAKE) -C $$d depend ; done
 
 include:
-	-rm $(INCDIR)/*.h
+	-rm -f $(INCDIR)/*.h
 	set -e ; for d in $(DIRS); do $(MAKE) -C $$d include ; done
 
 clean:
