@@ -3123,6 +3123,9 @@ void QTextDocument::draw( QPainter *p, const QRect &rect, const QColorGroup &cg,
 	p->fillRect( rect, *paper );
     }
 
+    QPainter * oldPainter = QTextFormat::painter();
+    QTextFormat::setPainter( p );
+
     if ( formatCollection()->defaultFormat()->color() != cg.text() )
 	setDefaultFormat( formatCollection()->defaultFormat()->font(), cg.text() );
 
@@ -3148,6 +3151,7 @@ void QTextDocument::draw( QPainter *p, const QRect &rect, const QColorGroup &cg,
 	if ( !flow()->isEmpty() )
 	    flow()->drawFloatingItems( p, rect.x(), rect.y(), rect.width(), rect.height(), cg, FALSE );
     }
+    QTextFormat::setPainter(oldPainter);
 }
 
 void QTextDocument::drawParagraph( QPainter *p, QTextParagraph *parag, int cx, int cy, int cw, int ch,
@@ -3219,6 +3223,8 @@ QTextParagraph *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch
     if ( !firstParagraph() )
 	return 0;
 
+    QPainter * oldPainter = QTextFormat::painter();
+    QTextFormat::setPainter( p );
     if ( formatCollection()->defaultFormat()->color() != cg.text() )
 	setDefaultFormat( formatCollection()->defaultFormat()->font(), cg.text() );
 
@@ -3276,6 +3282,8 @@ QTextParagraph *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch
     }
 
     return lastFormatted;
+
+    QTextFormat::setPainter(oldPainter);
 }
 
 /*
