@@ -13487,9 +13487,9 @@ QStyle::TitleControl QAquaStyle::titleBarPointOver( const QTitleBar*tb, const QP
 	if(QRect(7, 3, 15, 17).contains(pos))
 	    return TitleCloseButton;
 	if(QRect(31, 3, 15, 17).contains(pos))
-	    return TitleMaxButton;
-	if(QRect(51, 3, 15, 17).contains(pos))
 	    return TitleMinButton;
+	if(QRect(51, 3, 15, 17).contains(pos))
+	    return TitleMaxButton;
     }
     return TitleLabel;
 }
