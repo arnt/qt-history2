@@ -2924,7 +2924,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
         if ( testf(ExtDev) ) {
             QPDevCmdParam param[3];
             QFontPrivate::TextRun *cache = new QFontPrivate::TextRun();
-            cfont.d->textWidth( shaped, 0, len, cache ); // create cache
+            pfont->d->textWidth( shaped, 0, len, cache ); // create cache
             bool retval = FALSE;
 	    QFontPrivate::TextRun *runs = cache;
             while ( cache ) {
