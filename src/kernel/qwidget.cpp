@@ -3168,7 +3168,7 @@ void QWidget::reparentFocusWidgets( QWidget * oldtlw )
 		    // probably best to clear keyboard focus, or
 		    // the user might become rather confused
 		    w->clearFocus();
-		if ( !isTopLevel() && w->focusPolicy() != NoFocus )
+		if ( !isTopLevel() )
 		    to->focusWidgets.append( w );
 	    } else {
 		from->focusWidgets.next();
