@@ -101,8 +101,8 @@ QMutexPool::~QMutexPool()
 }
 
 /*!
-    Returns a QMutex from the pool. QMutexPool uses the value \a
-    address to determine which mutex is retured from the pool.
+    Returns a QMutex from the pool. QMutexPool uses the value \a address
+    to determine which mutex is returned from the pool.
 */
 QMutex *QMutexPool::get( void *address )
 {

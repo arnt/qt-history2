@@ -10,11 +10,9 @@
 **
 ****************************************************************************/
 
-#ifndef    QMUTEX_P_H
-#define    QMUTEX_P_H
+#ifndef QMUTEX_P_H
+#define QMUTEX_P_H
 
-#ifndef QT_H
-#endif // QT_H
 //
 //  W A R N I N G
 //  -------------
@@ -25,6 +23,9 @@
 //
 // We mean it.
 //
+
+#ifndef QT_H
+#endif // QT_H
 
 #ifdef Q_OS_UNIX
 struct QMutexPrivate
