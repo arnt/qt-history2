@@ -123,7 +123,7 @@ public:
 #endif
 #endif
 
-#define Q_REFCOUNT  ulong addRef() {return ++ref;}ulong release() {if(--ref){delete this;return 0;}return ref;}
+#define Q_REFCOUNT  ulong addRef() {return ref++;}ulong release() {if(!--ref){delete this;return 0;}return ref;}
 
 #ifndef Q_EXPORT_INTERFACE
     #ifdef Q_WS_WIN
