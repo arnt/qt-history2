@@ -14,10 +14,10 @@ int main( int argc, char **argv )
 
     QListView *lb = new QListView( 0, "Hepp" );
     //lb->setFont( QFont( "Times", 24, 75 ) );
-    lb->setColumn( "Name", 100 );
-    lb->setColumn( "Size", 50 );
-    lb->setColumn( "Type", 50 );
-    lb->setColumn( "Date", 100 );
+    lb->addColumn( "Name" );
+    lb->addColumn( "Size" );
+    lb->addColumn( "Type" );
+    lb->addColumn( "Date" );
     //    connect( files, SIGNAL(sizeChanged()), SLOT(updateGeometry()) );
 
 
