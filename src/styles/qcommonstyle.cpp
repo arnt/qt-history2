@@ -1741,8 +1741,6 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 	    h += dbw;
 	}
 
-	w += h;
-
 	sz = QSize(w, h);
 	break; }
 

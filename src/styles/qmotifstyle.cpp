@@ -1557,11 +1557,13 @@ QSize QMotifStyle::sizeFromContents( ContentsType contents,
     QSize sz(contentsSize);
 
     switch(contents) {
-    case CT_PushButton:
+    case CT_PushButton: {
+	QPushButton *button = (QPushButton *) widget;
 	sz = QCommonStyle::sizeFromContents(contents, widget, contentsSize, data);
-	if (sz.width() < 80)
+	if ((button->isDefault() || button->autoDefault()) &&
+	    sz.width() < 80 && ! button->pixmap())
 	    sz.setWidth(80);
-	break;
+	break; }
 
     case CT_PopupMenuItem: {
 	if (! widget || ! data)
