@@ -511,11 +511,10 @@ void WidgetDatabase::setupDataBase()
 	    continue;
 
 #ifndef UIC
-	QIconSet icon = iface->iconset( *it );
+	QIconSet icon = iface->iconSet( *it );
 	if ( !icon.pixmap().isNull() )
 	    r->icon = new QIconSet( icon );
 #endif
-	r->iconSet = iface->iconSet( *it );
 	QString grp = iface->group( *it );
 	if ( grp.isEmpty() )
 	    grp = "3rd party widgets";

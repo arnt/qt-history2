@@ -37,8 +37,7 @@ public:
     virtual QWidget* create( const QString&, QWidget* parent = 0, const char* name = 0 ) = 0;
 
     virtual QString group( const QString& ) const = 0;
-    virtual QString iconSet( const QString& ) const = 0;
-    virtual QIconSet iconset( const QString& ) const = 0;
+    virtual QIconSet iconSet( const QString& ) const = 0;
     virtual QString includeFile( const QString& ) const = 0;
     virtual QString toolTip( const QString& ) const = 0;
     virtual QString whatsThis( const QString& ) const = 0;
