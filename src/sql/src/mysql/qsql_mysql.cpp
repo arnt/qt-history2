@@ -30,10 +30,12 @@ QVariant::Type qDecodeMYSQLType( int mysqltype )
 {
     QVariant::Type type;
     switch ( mysqltype ) {
+    case FIELD_TYPE_TINY :
     case FIELD_TYPE_SHORT :
     case FIELD_TYPE_LONG :
     case FIELD_TYPE_INT24 :
     case FIELD_TYPE_LONGLONG :
+    case FIELD_TYPE_YEAR :	
 	type = QVariant::Int;
 	break;
     case FIELD_TYPE_DECIMAL :
@@ -42,7 +44,6 @@ QVariant::Type qDecodeMYSQLType( int mysqltype )
 	type = QVariant::Double;
 	break;
     case FIELD_TYPE_DATE :
-    case FIELD_TYPE_YEAR :
 	type = QVariant::Date;
 	break;
     case FIELD_TYPE_TIME :
@@ -52,15 +53,18 @@ QVariant::Type qDecodeMYSQLType( int mysqltype )
     case FIELD_TYPE_TIMESTAMP :
 	type = QVariant::DateTime;
 	break;
-//     case FIELD_TYPE_SET :
-//     case FIELD_TYPE_ENUM :
-//     case FIELD_TYPE_NULL :
     case FIELD_TYPE_BLOB :
+    case FIELD_TYPE_TINY_BLOB :
+    case FIELD_TYPE_MEDIUM_BLOB :	
+    case FIELD_TYPE_LONG_BLOB :	
  	type = QVariant::ByteArray;
  	break;
     default:
+    
+    case FIELD_TYPE_ENUM :	
+    case FIELD_TYPE_SET :		
     case FIELD_TYPE_STRING :
-    case FIELD_TYPE_CHAR :
+    case FIELD_TYPE_VAR_STRING :
 	type = QVariant::String;
 	break;
     }
