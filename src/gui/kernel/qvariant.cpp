@@ -658,7 +658,7 @@ const QVariant::Handler qt_gui_variant_handler = {
 
 /*!
     \class QVariant
-    \brief The QVariant class acts like a union for the most common Qt data types.
+    \brief The QVariant class is a safe generic container for the most common Qt data types.
 
     \ingroup objectmodel
     \ingroup misc
