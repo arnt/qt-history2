@@ -746,24 +746,42 @@ bool QProcess::start( QStringList *env )
 	    ::fcntl( fd[1], F_SETFD, FD_CLOEXEC ); // close on exec shows sucess
 
 	if ( env == 0 ) { // inherit environment and start process
+	    QString command = _arguments[0];
+#ifdef Q_OS_MACX //look in a bundle
+	    const QString mac_bundle_suffix = ".app/Contents/MacOS/";
+	    if(!QFile::exists(command) && QFile::exists(command + mac_bundle_suffix)) { 
+		QString exec = command;
+		int lslash = command.findRev('/');
+		if(lslash != -1) 
+		    exec = command.mid(lslash+1);
+		QFileInfo fileInfo( command + mac_bundle_suffix + exec );
+		if ( fileInfo.isExecutable() ) 
+		    command = fileInfo.filePath().local8Bit();
+	    }
+#endif
 #ifndef Q_OS_QNX4
-	    ::execvp( arglist[0], (char*const*)arglist ); // ### cast not nice
+	    ::execvp( command, (char*const*)arglist ); // ### cast not nice
 #else
-	    ::execvp( arglist[0], (char const*const*)arglist ); // ### cast not nice
+	    ::execvp( command, (char const*const*)arglist ); // ### cast not nice
 #endif
 	} else { // start process with environment settins as specified in env
 	    // construct the environment for exec
 	    int numEntries = env->count();
+#ifdef Q_OS_MACX
+	    QString ld_library_path("DYLD_LIBRARY_PATH");
+#else
+	    QString ld_library_path("LD_LIBRARY_PATH");
+#endif
 	    bool setLibraryPath =
-		env->grep( QRegExp( "^LD_LIBRARY_PATH=" ) ).empty() &&
-		getenv( "LD_LIBRARY_PATH" ) != 0;
+		env->grep( QRegExp( "^" + ld_library_path + "=" ) ).empty() &&
+		getenv( ld_library_path ) != 0;
 	    if ( setLibraryPath )
 		numEntries++;
 	    QCString *envlistQ = new QCString[ numEntries + 1 ];
 	    const char** envlist = new const char*[ numEntries + 1 ];
 	    int i = 0;
 	    if ( setLibraryPath ) {
-		envlistQ[i] = QString( "LD_LIBRARY_PATH=%1" ).arg( getenv( "LD_LIBRARY_PATH" ) ).local8Bit();
+		envlistQ[i] = QString( ld_library_path + "=%1" ).arg( getenv( ld_library_path ) ).local8Bit();
 		envlist[i] = envlistQ[i];
 		i++;
 	    }
@@ -775,14 +793,14 @@ bool QProcess::start( QStringList *env )
 	    envlist[i] = 0;
 
 	    // look for the executable in the search path
-	    if ( _arguments.count()>0 && getenv("PATH")!=0 ) {
+	    if ( _arguments.count()>0 ) {
 		QString command = _arguments[0];
-		if ( !command.contains( '/' ) ) {
+		if ( getenv("PATH")!=0 && !command.contains( '/' ) ) {
 		    QStringList pathList = QStringList::split( ':', getenv( "PATH" ) );
 		    for (QStringList::Iterator it = pathList.begin(); it != pathList.end(); ++it ) {
 			QString dir = *it;
-#ifdef Q_OS_MACX
-			if(QFile::exists(dir + "/" + command + ".app")) //look in a bundle
+#ifdef Q_OS_MACX //look in a bundle
+			if(!QFile::exists(dir + "/" + command) && QFile::exists(dir + "/" + command + ".app")) 
 			    dir += "/" + command + ".app/Contents/MacOS";
 #endif
 #ifndef QT_NO_DIR
@@ -796,12 +814,28 @@ bool QProcess::start( QStringList *env )
 			    break;
 			}
 		    }
+		} else {
+#ifdef Q_OS_MACX //look in a bundle
+		    QString command = arglist[0];
+		    const QString mac_bundle_suffix = ".app/Contents/MacOS/";
+		    if(!QFile::exists(command) && QFile::exists(command + mac_bundle_suffix)) {
+			QString exec = command;
+			int lslash = command.findRev('/');
+			if(lslash != -1) 
+			    exec = command.mid(lslash+1);
+			QFileInfo fileInfo( command + mac_bundle_suffix + exec );
+			if ( fileInfo.isExecutable() ) {
+			    arglistQ[0] = fileInfo.filePath().local8Bit();
+			    arglist[0] = arglistQ[0];
+			}
+		    }
+#endif
 		}
 	    }
 #ifndef Q_OS_QNX4
 	    ::execve( arglist[0], (char*const*)arglist, (char*const*)envlist ); // ### casts not nice
 #else
-	    ::execve( arglist[0], (char const*const*)arglist, (char const*const*)envlist ); // ### casts not nice
+	    ::execve( arglist[0], (char const*const*)arglist,(char const*const*)envlist ); // ### casts not nice
 #endif
 	}
 	if ( fd[1] ) {
