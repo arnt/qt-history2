@@ -38,11 +38,12 @@
 #include "qgfxraster_qws.h"
 #include "qimage.h"
 
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <fcntl.h>
-#include <unistd.h>
+#include <stdlib.h>
 
 // This is the least featureful of the accelerated drivers - use the
 // Voodoo3 or Mach64 drivers as better examples. The main interesting

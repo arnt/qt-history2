@@ -38,11 +38,12 @@
 #include "qgfxraster_qws.h"
 #include "qimage.h"
 
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <fcntl.h>
-#include <unistd.h>
+#include <stdlib.h>
 
 // This is intended as an example of an accelerated driver, as is
 // Mach64 driver. The Mach64 driver implements more functionality;
