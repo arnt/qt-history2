@@ -594,11 +594,13 @@ bool QGLFormat::testOption(QGL::FormatOptions opt) const
 }
 
 /*!
-    Set the preferred depth buffer size.
+    Set the preferred depth buffer size and turn on the depth format
+    option.
 */
 void QGLFormat::setDepthBufferSize(int size)
 {
     d->depthSize = size;
+    setDepth(true);
 }
 
 /*!
@@ -610,11 +612,13 @@ int QGLFormat::depthBufferSize() const
 }
 
 /*!
-    Set the preferred alpha buffer size.
+    Set the preferred alpha buffer size and turn on the alpha format
+    option.
 */
 void QGLFormat::setAlphaBufferSize(int size)
 {
     d->alphaSize = size;
+    setAlpha(true);
 }
 
 /*!
@@ -626,11 +630,14 @@ int QGLFormat::alphaBufferSize() const
 }
 
 /*!
-    Set the preferred accumulation buffer size.
+    Set the preferred accumulation buffer size, where \a size is the
+    bit depth for each RGBA component, and turn on the accumulation
+    format option.
 */
 void QGLFormat::setAccumBufferSize(int size)
 {
     d->accumSize = size;
+    setAccum(true);
 }
 
 /*!
@@ -642,11 +649,13 @@ int QGLFormat::accumBufferSize() const
 }
 
 /*!
-    Set the preferred stencil buffer size.
+    Set the preferred stencil buffer size and turn on the stencil
+    format option.
 */
 void QGLFormat::setStencilBufferSize(int size)
 {
     d->stencilSize = size;
+    setStencil(true);
 }
 
 /*!
