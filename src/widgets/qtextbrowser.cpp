@@ -194,7 +194,7 @@ void QTextBrowser::setSource(const QString& name)
  	    if ( tmp->attributes().contains(s_type)
 		 && tmp->attributes()[s_type] == s_detail )
 		doReturn = TRUE;
-	    QTextFormatCollection* formats = tmp->formats;
+	    QTextOldFormatCollection* formats = tmp->formats;
 	    delete tmp;
 	    delete formats; //#### fix inheritance structure in rich text
 	    if ( doReturn ) {

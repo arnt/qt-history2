@@ -68,12 +68,12 @@
 #include "qlayout.h"
 
 
-class QTextCustomItem;
-class QTextFormatCollection;
+class QTextOldCustomItem;
+class QTextOldFormatCollection;
 class QRichText;
 class QTextView;
-class QTextFlow;
-class QTextTable;
+class QTextOldFlow;
+class QTextOldTable;
 
 
 class QtTriple
@@ -89,7 +89,7 @@ bool operator>=( const QtTriple &t1, const QtTriple &t2 );
 
 class QTextCharFormat : public QShared
 {
-    friend class QTextFormatCollection;
+    friend class QTextOldFormatCollection;
 
 public:
     QTextCharFormat();
@@ -100,7 +100,7 @@ public:
     virtual ~QTextCharFormat();
 
     QTextCharFormat makeTextFormat( const QStyleSheetItem *style, const QMap<QString,QString>& attr,
-				     QTextCustomItem* item = 0) const;
+				     QTextOldCustomItem* item = 0) const;
 
     QColor color() const;
     QFont font() const;
@@ -111,7 +111,7 @@ public:
 
     QTextCharFormat formatWithoutCustom();
 
-    QTextCustomItem *customItem() const;
+    QTextOldCustomItem *customItem() const;
 
 private:
     QFont font_;
@@ -122,17 +122,17 @@ private:
     QString anchor_href;
     QString anchor_name;
     void createKey();
-    QTextFormatCollection* parent;
-    QTextCustomItem* custom;
+    QTextOldFormatCollection* parent;
+    QTextOldCustomItem* custom;
 };
 
 
-class QTextFormatCollection
+class QTextOldFormatCollection
 {
     friend class QTextCharFormat;
 
 public:
-    QTextFormatCollection();
+    QTextOldFormatCollection();
 
     QTextCharFormat*  registerFormat( const QTextCharFormat &format );
     void unregisterFormat( const QTextCharFormat &format  );
@@ -161,13 +161,13 @@ public:
 };
 
 
-class QTextCustomItem : public QShared
+class QTextOldCustomItem : public QShared
 {
 public:
-    QTextCustomItem()
+    QTextOldCustomItem()
 	: xpos(0), ypos(0), width(-1), height(0)
     {}
-    virtual ~QTextCustomItem() {}
+    virtual ~QTextOldCustomItem() {}
     virtual void draw(QPainter* p, int x, int y,
 		      int ox, int oy, int cx, int cy, int cw, int ch,
 		      QRegion& backgroundRegion, const QColorGroup& cg,
@@ -197,11 +197,11 @@ public:
 };
 
 
-class QTextHorizontalLine : public QTextCustomItem
+class QTextOldHorizontalLine : public QTextOldCustomItem
 {
 public:
-    QTextHorizontalLine();
-    ~QTextHorizontalLine();
+    QTextOldHorizontalLine();
+    ~QTextOldHorizontalLine();
     void realize( QPainter* );
     void draw(QPainter* p, int x, int y,
 	      int ox, int oy, int cx, int cy, int cw, int ch,
@@ -211,7 +211,7 @@ public:
 private:
 };
 
-class QTextLineBreak : public QTextCustomItem
+class QTextLineBreak : public QTextOldCustomItem
 {
 public:
     QTextLineBreak(const QMap<QString, QString> &attr );
@@ -249,7 +249,7 @@ class QTextRichString
     int len;
 
 public:
-    QTextRichString( QTextFormatCollection* fmt );
+    QTextRichString( QTextOldFormatCollection* fmt );
     QTextRichString( const QTextRichString &other );
     QTextRichString& operator=( const QTextRichString &other );
     ~QTextRichString();
@@ -267,9 +267,9 @@ public:
     bool haveSameFormat( int index1, int index2 ) const;
 
     bool isCustomItem( int index ) const;
-    QTextCustomItem* customItemAt( int index ) const;
+    QTextOldCustomItem* customItemAt( int index ) const;
 
-    QTextFormatCollection* formats; // make private
+    QTextOldFormatCollection* formats; // make private
  
 private:
     void setLength( int l );
@@ -279,16 +279,16 @@ private:
 class QTextParagraph
 {
 public:
-    QTextParagraph( QTextParagraph* p, QTextFormatCollection* formatCol, const QTextCharFormat& fmt,
+    QTextParagraph( QTextParagraph* p, QTextOldFormatCollection* formatCol, const QTextCharFormat& fmt,
 	   const QStyleSheetItem *stl, const QMap<QString, QString> &attr );
 
-    QTextParagraph( QTextParagraph* p, QTextFormatCollection* formatCol, const QTextCharFormat& fmt,
+    QTextParagraph( QTextParagraph* p, QTextOldFormatCollection* formatCol, const QTextCharFormat& fmt,
 	   const QStyleSheetItem *stl );
 
     ~QTextParagraph();
 
     QTextParagraph* parent;
-    QTextFormatCollection* formats;
+    QTextOldFormatCollection* formats;
     QTextCharFormat format;
     QTextRichString text;
     const QStyleSheetItem* style;
@@ -313,9 +313,9 @@ public:
     bool selected;
     int id;
     
-    QTextCustomItem::Clear clear;
+    QTextOldCustomItem::Clear clear;
 
-    QTextFlow* flow() const;
+    QTextOldFlow* flow() const;
 
     inline int margin(QStyleSheetItem::Margin m) const
     {
@@ -375,16 +375,16 @@ private:
     int align;
 
 protected:
-    QTextFlow* flow_;
+    QTextOldFlow* flow_;
 };
 
 
-class QTextImage : public QTextCustomItem
+class QTextOldImage : public QTextOldCustomItem
 {
 public:
-    QTextImage(const QMap<QString, QString> &attr, const QString& context,
+    QTextOldImage(const QMap<QString, QString> &attr, const QString& context,
 		       const QMimeSourceFactory &factory);
-    ~QTextImage();
+    ~QTextOldImage();
 
     Placement placement() const { return place; }
     void realize( QPainter* );
@@ -409,7 +409,7 @@ public:
 
 
     QTextParagraph* paragraph;
-    QTextFlow* flow;
+    QTextOldFlow* flow;
     void update( QPainter* p = 0);
 //     void updateParagraph( QPainter* );
     int first;
@@ -474,21 +474,21 @@ private:
     QTextCharFormat* formatinuse;
     int alignment;
     double xscale, yscale;
-    int adjustHorizontalMargins( QTextCustomItem::Clear );
+    int adjustHorizontalMargins( QTextOldCustomItem::Clear );
 };
 
 
 // moved from qrichtext.cpp for GCC 2.7.* compatibility
-class QTextTableCell : public QLayoutItem
+class QTextOldTableCell : public QLayoutItem
 {
 public:
-    QTextTableCell(QTextTable* table,
+    QTextOldTableCell(QTextOldTable* table,
       int row, int column,
       const QMap<QString, QString> &attr,
       const QStyleSheetItem* style,
       const QTextCharFormat& fmt, const QString& context,
       const QMimeSourceFactory &factory, const QStyleSheet *sheet, const QString& doc, int& pos );
-    ~QTextTableCell();
+    ~QTextOldTableCell();
     QSize sizeHint() const ;
     QSize minimumSize() const ;
     QSize maximumSize() const ;
@@ -509,7 +509,7 @@ public:
     int stretch() const { return stretch_; }
 
     QRichText* richText()  const { return richtext; }
-    QTextTable* table() const { return parent; }
+    QTextOldTable* table() const { return parent; }
 
     void draw( int x, int y,
 	       int ox, int oy, int cx, int cy, int cw, int ch,
@@ -518,7 +518,7 @@ public:
 private:
     QPainter* painter() const;
     QRect geom;
-    QTextTable* parent;
+    QTextOldTable* parent;
     QRichText* richtext;
     QBrush* background;
     int row_;
@@ -549,11 +549,11 @@ public:
 
 private:
     struct Item {
-	Item( const QRichTextFormatter& cur, QList<QTextTableCell> &cells )
+	Item( const QRichTextFormatter& cur, QList<QTextOldTableCell> &cells )
 	    : fc( cur ), it( cells )
     {}
 	QRichTextFormatter fc;
-	QListIterator<QTextTableCell> it;
+	QListIterator<QTextOldTableCell> it;
     };
     QRichText& doc;
     QRichTextFormatter fc;
@@ -565,18 +565,18 @@ private:
 
 bool operator>( const QRichTextIterator &i1, const QRichTextIterator &i2 );
 
-class QTextFlow
+class QTextOldFlow
 {
 public:
-    QTextFlow();
-    ~QTextFlow();
+    QTextOldFlow();
+    ~QTextOldFlow();
 
     void initialize( int w );
 
     int adjustLMargin( int yp, int margin, int space );
     int adjustRMargin( int yp, int margin, int space );
 
-    void registerFloatingItem( QTextCustomItem* item, bool right = FALSE );
+    void registerFloatingItem( QTextOldCustomItem* item, bool right = FALSE );
     void drawFloatingItems(QPainter* p,
 			   int ox, int oy, int cx, int cy, int cw, int ch,
 			   QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to );
@@ -589,8 +589,8 @@ public:
     int pagesize;
 
 private:
-    QList<QTextCustomItem> leftItems;
-    QList<QTextCustomItem> rightItems;
+    QList<QTextOldCustomItem> leftItems;
+    QList<QTextOldCustomItem> rightItems;
 
 };
 
@@ -650,7 +650,7 @@ private:
     static bool space_;
     const QStyleSheetItem* nullstyle;
 
-    QTextCustomItem* parseTable( const QMap<QString, QString> &attr, const QTextCharFormat &fmt, const QString &doc, int& pos );
+    QTextOldCustomItem* parseTable( const QMap<QString, QString> &attr, const QTextCharFormat &fmt, const QString &doc, int& pos );
 
     bool keep_going;
     QTextParagraph* b_cache;
@@ -677,7 +677,7 @@ inline QString QTextCharFormat::anchorName() const
     return anchor_name;
 }
 
-inline QTextCustomItem * QTextCharFormat::customItem() const
+inline QTextOldCustomItem * QTextCharFormat::customItem() const
 {
     return custom;
 }
@@ -712,7 +712,7 @@ inline QTextCharFormat *QTextRichString::formatAt( int index ) const
     return items[index].format;
 }
 
-inline QTextCustomItem* QTextRichString::customItemAt( int index ) const
+inline QTextOldCustomItem* QTextRichString::customItemAt( int index ) const
 {
     return items[index].format->customItem();
 }

@@ -3936,7 +3936,7 @@ static void qt_cleanup_html_map()
     html_map = 0;
 }
 
-QMap<QCString, QChar> *htmlMap()
+static QMap<QCString, QChar> *htmlMap()
 {
     if ( !html_map ){
 	html_map = new QMap<QCString, QChar>;

@@ -141,7 +141,7 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
 */
 QSimpleRichText::~QSimpleRichText()
 {
-    QTextFormatCollection* formats = d->doc?d->doc->formats:0;
+    QTextOldFormatCollection* formats = d->doc?d->doc->formats:0;
     delete d->doc;
     delete formats; //#### fix inheritance structure in rich text
     delete d;

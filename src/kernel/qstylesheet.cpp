@@ -1160,7 +1160,7 @@ const QStyleSheetItem* QStyleSheet::item( const QString& name) const
 
   This function should not (yet) be used in application code.
 */
-QTextCustomItem* QStyleSheet::tag( const QString& name,
+QTextOldCustomItem* QStyleSheet::tag( const QString& name,
 				   const QMap<QString, QString> &attr,
 				   const QString& context,
 				   const QMimeSourceFactory& factory,
@@ -1177,9 +1177,9 @@ QTextCustomItem* QStyleSheet::tag( const QString& name,
     if ( !style )
 	return 0;
     if ( style->name() == s_img )
-	return new QTextImage(attr, context, factory);
+	return new QTextOldImage(attr, context, factory);
     if ( style->name() == s_hr )
-	return new QTextHorizontalLine();
+	return new QTextOldHorizontalLine();
    return 0;
 }
 

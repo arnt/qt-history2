@@ -195,7 +195,7 @@ void QTextView::init()
 QTextView::~QTextView()
 {
     delete d->fcresize;
-    QTextFormatCollection* formats = d->doc_?d->doc_->formats:0;
+    QTextOldFormatCollection* formats = d->doc_?d->doc_->formats:0;
     delete d->doc_;
     delete formats; //#### fix inheritance structure in rich text
     delete d;
@@ -217,7 +217,7 @@ QTextView::~QTextView()
 */
 void QTextView::setText( const QString& text, const QString& context)
 {
-    QTextFormatCollection* formats = d->doc_?d->doc_->formats:0;
+    QTextOldFormatCollection* formats = d->doc_?d->doc_->formats:0;
     delete d->doc_;
     delete formats; //#### fix inheritance structure in rich text
     d->doc_ = 0;
@@ -340,7 +340,7 @@ void QTextView::createRichText()
 		: mimeSourceFactory()->data( imageName, context() );
 	if ( m ) {
 	    if ( !QImageDrag::decode( m, pm ) ) {
-		qWarning("QTextImage: cannot load %s", imageName.latin1() );
+		qWarning("QTextOldImage: cannot load %s", imageName.latin1() );
 	    }
 	}
 	if (!pm.isNull())
@@ -626,7 +626,7 @@ void QTextView::doResize()
 {
     if ( !d->fcresize->updateLayout( 0, d->fcresize->y() + d->fcresize->paragraph->height + 1000 ) )
 	d->resizeTimer->start( 0, TRUE );
-    QTextFlow* flow = richText().flow();
+    QTextOldFlow* flow = richText().flow();
     resizeContents( QMAX( flow->widthUsed-1, visibleWidth() ), flow->height );
 }
 
@@ -1004,7 +1004,7 @@ void QTextView::updateLayout()
     d->fcresize->initParagraph( 0, &richText() );
     d->fcresize->updateLayout( 0, ymax );
 
-    QTextFlow* flow = richText().flow();
+    QTextOldFlow* flow = richText().flow();
     QSize vs( viewportSize( flow->widthUsed, flow->height ) );
 
     if ( vs.width() != visibleWidth() ) {

@@ -54,13 +54,13 @@
 
 static int qt_text_paragraph_id = 0;
 
-class QTextTable: public QTextCustomItem
+class QTextOldTable: public QTextOldCustomItem
 {
 public:
-    QTextTable(const QMap<QString, QString> &attr);
-    ~QTextTable();
+    QTextOldTable(const QMap<QString, QString> &attr);
+    ~QTextOldTable();
     void realize( QPainter* );
-    void verticalBreak( int  y, QTextFlow* flow );
+    void verticalBreak( int  y, QTextOldFlow* flow );
     void draw(QPainter* p, int x, int y,
 	      int ox, int oy, int cx, int cy, int cw, int ch,
 	      QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to );
@@ -74,11 +74,11 @@ public:
 
 private:
     QGridLayout* layout;
-    QList<QTextTableCell> cells;
+    QList<QTextOldTableCell> cells;
 
-    friend class QTextTableCell;
+    friend class QTextOldTableCell;
     friend class QRichTextIterator;
-    void addCell( QTextTableCell* cell );
+    void addCell( QTextOldTableCell* cell );
     QPainter* painter;
     int cachewidth;
     int fixwidth;
@@ -118,7 +118,7 @@ bool QTextOptions::inSelection( const QtTriple& pos ) const
     return (pos >= t )  && (pos < selend);
 }
 
-QTextImage::QTextImage(const QMap<QString, QString> &attr, const QString& context,
+QTextOldImage::QTextOldImage(const QMap<QString, QString> &attr, const QString& context,
 		       const QMimeSourceFactory &factory)
 {
     width = height = 0;
@@ -138,11 +138,11 @@ QTextImage::QTextImage(const QMap<QString, QString> &attr, const QString& contex
 	const QMimeSource* m =
 			factory.data( imageName, context );
 	if ( !m ) {
-	    qWarning("QTextImage: no mimesource for %s", imageName.latin1() );
+	    qWarning("QTextOldImage: no mimesource for %s", imageName.latin1() );
 	}
 	else {
 	    if ( !QImageDrag::decode( m, img ) ) {
-		qWarning("QTextImage: cannot decode %s", imageName.latin1() );
+		qWarning("QTextOldImage: cannot decode %s", imageName.latin1() );
 	    }
 	}
     }
@@ -187,11 +187,11 @@ QTextImage::QTextImage(const QMap<QString, QString> &attr, const QString& contex
     width = -1; // force realize
 }
 
-QTextImage::~QTextImage()
+QTextOldImage::~QTextOldImage()
 {
 }
 
-void QTextImage::realize( QPainter* p )
+void QTextOldImage::realize( QPainter* p )
 {
     width = tmpwidth;
     if ( !p || p->device()->devType() != QInternal::Printer )
@@ -201,7 +201,7 @@ void QTextImage::realize( QPainter* p )
     height = int( height * scale_factor( metrics.logicalDpiY() ) );
 }
 
-void QTextImage::draw(QPainter* p, int x, int y,
+void QTextOldImage::draw(QPainter* p, int x, int y,
 		    int ox, int oy, int , int , int , int ,
 		       QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& /*to*/)
 {
@@ -236,7 +236,7 @@ void QTextImage::draw(QPainter* p, int x, int y,
     p->drawPixmap( x-ox , y-oy, pm );
 }
 
-void QTextHorizontalLine::realize( QPainter* p )
+void QTextOldHorizontalLine::realize( QPainter* p )
 {
     if ( !p || p->device()->devType() != QInternal::Printer )
 	return;
@@ -245,18 +245,18 @@ void QTextHorizontalLine::realize( QPainter* p )
 }
 
 
-QTextHorizontalLine::QTextHorizontalLine()
+QTextOldHorizontalLine::QTextOldHorizontalLine()
 {
     height = 8;
 }
 
 
-QTextHorizontalLine::~QTextHorizontalLine()
+QTextOldHorizontalLine::~QTextOldHorizontalLine()
 {
 }
 
 
-void QTextHorizontalLine::draw(QPainter* p, int x, int y,
+void QTextOldHorizontalLine::draw(QPainter* p, int x, int y,
 				//int ox, int oy, int cx, int cy, int cw, int ch,
 				int ox, int oy, int , int , int , int ,
 				QRegion&, const QColorGroup& cg, const QTextOptions& to )
@@ -275,15 +275,15 @@ void QTextHorizontalLine::draw(QPainter* p, int x, int y,
 
 QTextLineBreak::QTextLineBreak(const QMap<QString, QString> &attr )
 {
-    clr = QTextCustomItem::ClearNone;
+    clr = QTextOldCustomItem::ClearNone;
     if ( attr.contains("clear") ) {
  	QString s = attr["clear"].lower();
  	if ( s  == "left" )
- 	    clr = QTextCustomItem::ClearLeft;
+ 	    clr = QTextOldCustomItem::ClearLeft;
  	else if ( s == "right" )
- 	    clr = QTextCustomItem::ClearRight;
+ 	    clr = QTextOldCustomItem::ClearRight;
 	else if ( s == "both" || s == "all")
-	    clr = QTextCustomItem::ClearBoth;
+	    clr = QTextOldCustomItem::ClearBoth;
     }
 }
 
@@ -299,7 +299,7 @@ bool QRichText::space_ = FALSE;
 QRichText::QRichText( const QString &doc, const QFont& font,
 		      const QString& context,
 		      int margin,  const QMimeSourceFactory* factory, const QStyleSheet* sheet  )
-    :QTextParagraph( 0, new QTextFormatCollection(),
+    :QTextParagraph( 0, new QTextOldFormatCollection(),
 		     QTextCharFormat( font, QColor() ), (base = new QStyleSheetItem(0,"") ) )
 {
     contxt = context;
@@ -335,7 +335,7 @@ QRichText::QRichText( const QMap<QString, QString> &attr, const QString &doc, in
 			const QStyleSheetItem* basestyle, const QTextCharFormat& fmt,
 			const QString& context,
 			int margin,  const QMimeSourceFactory* factory, const QStyleSheet* sheet  )
-    :QTextParagraph( 0, new QTextFormatCollection(),
+    :QTextParagraph( 0, new QTextOldFormatCollection(),
 	    QTextCharFormat( fmt ), ( base = new QStyleSheetItem(*basestyle) ), attr )
 {
     contxt = context;
@@ -360,7 +360,7 @@ QRichText::QRichText( const QMap<QString, QString> &attr, const QString &doc, in
 void QRichText::init( const QString& doc, int& pos )
 {
     if ( !flow_ )
-	flow_ = new QTextFlow();
+	flow_ = new QTextOldFlow();
 
     nullstyle = sheet_->item("");
 
@@ -498,7 +498,7 @@ bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle,
 		nstyle = nullstyle;
 	    }
 
-	    QTextCustomItem* custom = sheet_->tag( tagname, attr, contxt, *factory_ , emptyTag );
+	    QTextOldCustomItem* custom = sheet_->tag( tagname, attr, contxt, *factory_ , emptyTag );
 	    if ( custom || tagname == "br") {
 		PROVIDE_DUMMY
 		if ( !custom && !attr.isEmpty() )
@@ -633,9 +633,9 @@ bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle,
     return TRUE;
 }
 
-static bool qt_is_cell_in_use( QList<QTextTableCell>& cells, int row, int col )
+static bool qt_is_cell_in_use( QList<QTextOldTableCell>& cells, int row, int col )
 {
-    for ( QTextTableCell* c = cells.first(); c; c = cells.next() ) {
+    for ( QTextOldTableCell* c = cells.first(); c; c = cells.next() ) {
 	if ( row >= c->row() && row < c->row() + c->rowspan()
 	     && col >= c->column() && col < c->column() + c->colspan() )
 	    return TRUE;
@@ -643,10 +643,10 @@ static bool qt_is_cell_in_use( QList<QTextTableCell>& cells, int row, int col )
     return FALSE;
 }
 
-QTextCustomItem* QRichText::parseTable( const QMap<QString, QString> &attr, const QTextCharFormat &fmt, const QString &doc, int& pos )
+QTextOldCustomItem* QRichText::parseTable( const QMap<QString, QString> &attr, const QTextCharFormat &fmt, const QString &doc, int& pos )
 {
 
-    QTextTable* table = new QTextTable( attr );
+    QTextOldTable* table = new QTextOldTable( attr );
     int row = -1;
     int col = -1;
 
@@ -654,7 +654,7 @@ QTextCustomItem* QRichText::parseTable( const QMap<QString, QString> &attr, cons
     QString rowalign;
     QString tablebgcolor = attr["bgcolor"];
 
-    QList<QTextTableCell> multicells;
+    QList<QTextOldTableCell> multicells;
 
     QString tagname;
     (void) eatSpace(doc, pos);
@@ -695,7 +695,7 @@ QTextCustomItem* QRichText::parseTable( const QMap<QString, QString> &attr, cons
 			    if (!rowalign.isEmpty() )
 				attr2["align"] = rowalign;
 			}
-			QTextTableCell* cell  = new QTextTableCell( table, row, col,
+			QTextOldTableCell* cell  = new QTextOldTableCell( table, row, col,
 			      attr2, s,
 			      fmt.makeTextFormat( s, attr2, 0 ),
 			      contxt, *factory_, sheet_, doc, pos );
@@ -1103,13 +1103,13 @@ bool QRichTextIterator::right( bool doFormat )
 	update();
     QRichTextFormatter* f = stack.getLast()?&stack.getLast()->fc: &fc;
 
-    QTextCustomItem* c = f->format()->customItem();
+    QTextOldCustomItem* c = f->format()->customItem();
     if ( c && c->isTable() && c->placeInline() ) {
-	QTextTable* table = (QTextTable*) c;
+	QTextOldTable* table = (QTextOldTable*) c;
 	if ( !table->cells.isEmpty() ) {
 	    Item* item = new Item( *f, table->cells );
 	    stack.append( item );
-	    QTextTableCell* cell = item->it.current();
+	    QTextOldTableCell* cell = item->it.current();
 	    item->fc = QRichTextFormatter( *cell->richText() );
 	    item->fc.gotoParagraph( 0, cell->richText() );
 	    return TRUE;
@@ -1120,7 +1120,7 @@ bool QRichTextIterator::right( bool doFormat )
 	Item* item = stack.getLast();
 	++item->it;
 	if ( item->it.current() ) {
-	    QTextTableCell* cell = item->it.current();
+	    QTextOldTableCell* cell = item->it.current();
 	    item->fc = QRichTextFormatter( *cell->richText() );
 	    item->fc.gotoParagraph( 0, cell->richText() );
 	    ok = TRUE;
@@ -1159,8 +1159,8 @@ QRect QRichTextIterator::lineGeometry() const
     while ( it.current() ) {
 	Item* item = it.current();
 	++it;
-	QTextTable* table = (QTextTable*)f->format()->customItem();
-	QTextTableCell* cell = item->it.current();
+	QTextOldTable* table = (QTextOldTable*)f->format()->customItem();
+	QTextOldTableCell* cell = item->it.current();
 	QRect r( item->fc.lineGeometry() );
 	geom.setRect( geom.x() + f->currentx + table->outerborder + r.x() + cell->geometry().x(),
 		      geom.y() + f->base - table->height + table->outerborder + r.y() + cell->geometry().y(),
@@ -1179,9 +1179,9 @@ bool QRichTextIterator::goTo( const QPoint& pos )
     int y = pos.y();
     bool within = fc.goTo( 0, x, y );
     QRichTextFormatter* f = &fc;
-    QTextCustomItem* c = f->format()->customItem();
+    QTextOldCustomItem* c = f->format()->customItem();
     while ( c && c->isTable() && c->placeInline() ) {
-	QTextTable* table = (QTextTable*) c;
+	QTextOldTable* table = (QTextOldTable*) c;
 	if ( table->cells.isEmpty() )
 	    return FALSE;
 	QRect geom( f->lineGeometry() );
@@ -1196,7 +1196,7 @@ bool QRichTextIterator::goTo( const QPoint& pos )
 		break;
 	    ++item->it;
 	}
-	QTextTableCell* cell = item->it.current();
+	QTextOldTableCell* cell = item->it.current();
 	item->fc = QRichTextFormatter( *cell->richText() );
 	x -= table->outerborder + cell->geometry().x();
 	y -= table->outerborder + cell->geometry().y();
@@ -1277,7 +1277,7 @@ int QTextParagraph::numberOfSubParagraph( QTextParagraph* subparagraph, bool onl
     return i;
 }
 
-QTextParagraph::QTextParagraph( QTextParagraph* p, QTextFormatCollection* formatCol, const QTextCharFormat& fmt,
+QTextParagraph::QTextParagraph( QTextParagraph* p, QTextOldFormatCollection* formatCol, const QTextCharFormat& fmt,
 	      const QStyleSheetItem *stl, const QMap<QString, QString> &attr )
     : parent( p ), formats( formatCol ), format( fmt ), text( formatCol ), style ( stl ), attributes_( attr )
 {
@@ -1285,7 +1285,7 @@ QTextParagraph::QTextParagraph( QTextParagraph* p, QTextFormatCollection* format
 };
 
 
-QTextParagraph::QTextParagraph( QTextParagraph* p, QTextFormatCollection* formatCol, const QTextCharFormat& fmt,
+QTextParagraph::QTextParagraph( QTextParagraph* p, QTextOldFormatCollection* formatCol, const QTextCharFormat& fmt,
 	      const QStyleSheetItem *stl )
     : parent( p ), formats( formatCol ), format( fmt ), text( formats ), style ( stl )
 {
@@ -1317,15 +1317,15 @@ void QTextParagraph::init()
 	    align = Qt::AlignLeft;
     }
 
-    clear = QTextCustomItem::ClearNone;
+    clear = QTextOldCustomItem::ClearNone;
     if ( attributes_.contains("clear") ) {
  	QString s = attributes_["clear"].lower();
  	if ( s  == "left" )
- 	    clear = QTextCustomItem::ClearLeft;
+ 	    clear = QTextOldCustomItem::ClearLeft;
  	else if ( s == "right" )
- 	    clear = QTextCustomItem::ClearRight;
+ 	    clear = QTextOldCustomItem::ClearRight;
 	else if ( s == "both" || s == "all")
-	    clear = QTextCustomItem::ClearBoth;
+	    clear = QTextOldCustomItem::ClearBoth;
     }
 }
 
@@ -1388,12 +1388,12 @@ QTextParagraph* QTextParagraph::lastChild() const
     return b->lastChild();
 }
 
-QTextFlow* QTextParagraph::flow() const
+QTextOldFlow* QTextParagraph::flow() const
 {
     return flow_;
 }
 
-QTextRichString::QTextRichString( QTextFormatCollection* fmt )
+QTextRichString::QTextRichString( QTextOldFormatCollection* fmt )
     : formats( fmt )
 {
     items = 0;
@@ -1610,12 +1610,12 @@ void QRichTextFormatter::gotoParagraph( QPainter* p, QTextParagraph* b )
 }
 
 
-int QRichTextFormatter::adjustHorizontalMargins( QTextCustomItem::Clear clear )
+int QRichTextFormatter::adjustHorizontalMargins( QTextOldCustomItem::Clear clear )
 {
     int m = 0;
     lmargin = flow->adjustLMargin( y_ + m, static_lmargin, int(4*xscale) );
-    if ( clear == QTextCustomItem::ClearLeft ||
-	 clear == QTextCustomItem::ClearBoth ) {
+    if ( clear == QTextOldCustomItem::ClearLeft ||
+	 clear == QTextOldCustomItem::ClearBoth ) {
 	while ( lmargin > static_lmargin ) {
 	    m += int( QMAX( xscale, 1 ) );
 	    lmargin = flow->adjustLMargin( y_ + m, static_lmargin, int(4*xscale) );
@@ -1623,8 +1623,8 @@ int QRichTextFormatter::adjustHorizontalMargins( QTextCustomItem::Clear clear )
     }
     lmargin += static_labelmargin;
     rmargin = flow->adjustRMargin( y_ + m, static_rmargin, int(4*xscale) );
-    if ( clear == QTextCustomItem::ClearRight ||
-	 clear == QTextCustomItem::ClearBoth ) {
+    if ( clear == QTextOldCustomItem::ClearRight ||
+	 clear == QTextOldCustomItem::ClearBoth ) {
 	while ( rmargin > static_rmargin ) {
 	    m += int( QMAX( xscale, 1 ) );
 	    rmargin = flow->adjustRMargin( y_ + m, static_rmargin, int(4*xscale) );
@@ -1702,7 +1702,7 @@ void QRichTextFormatter::updateCharFormat( QPainter* p )
     }
     currentasc = fm.ascent();
     currentdesc = fm.descent();
-    QTextCustomItem* custom = fmt->customItem();
+    QTextOldCustomItem* custom = fmt->customItem();
     if ( custom ) {
 	if ( custom->width < 0 ) {
 	    custom->realize( p );
@@ -1878,7 +1878,7 @@ void QRichTextFormatter::drawLine( QPainter* p, int ox, int oy,
 		p->setPen( cg.highlightedText() );
 	}
 
-	QTextCustomItem* custom = fmt->customItem();
+	QTextOldCustomItem* custom = fmt->customItem();
 	if ( custom ) {
 	    int h = custom->height;
 	    if ( custom->placeInline() ) {
@@ -2111,7 +2111,7 @@ void QRichTextFormatter::gotoNextItem( QPainter* p )
 	return;
     // tabulators belong here
     QTextRichString::Item* item = &paragraph->text.items[current];
-    QTextCustomItem* custom = item->format->customItem();
+    QTextOldCustomItem* custom = item->format->customItem();
     if ( format() != formatinuse ) // the document may have changed
 	updateCharFormat( p );
     if ( custom ) {
@@ -2165,10 +2165,10 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
 
     widthUsed = 0;
 
-    QList<QTextCustomItem> floatingItems;
+    QList<QTextOldCustomItem> floatingItems;
 
     bool isTableRow = FALSE;
-    QTextCustomItem::Clear clear = QTextCustomItem::ClearNone;
+    QTextOldCustomItem::Clear clear = QTextOldCustomItem::ClearNone;
     while ( !pastEnd() ) {
 
 	if ( !paragraph->text.haveSameFormat( fmt_current, current ) ) {
@@ -2184,14 +2184,14 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
 
 	QChar lastc;
 	QTextRichString::Item* item = &paragraph->text.items[current];
-	QTextCustomItem* custom = item->format->customItem();
+	QTextOldCustomItem* custom = item->format->customItem();
 
 	if ( custom ) {
 	    if (!custom->placeInline() )
 		floatingItems.append( custom );
 	    else if ( current == first && custom->isTable() ) {
 		isTableRow = TRUE;
-		( (QTextTable*)custom)->verticalBreak( y_, flow );
+		( (QTextOldTable*)custom)->verticalBreak( y_, flow );
 		currentasc = custom->height;
 	    }
 	} else if ( !item->c.isEmpty() ) {
@@ -2270,7 +2270,7 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
     if ( widthUsed > width )
 	fill = 0; // fall back to left alignment if there isn't sufficient space
 
-    if ( clear != QTextCustomItem::ClearNone ) {
+    if ( clear != QTextOldCustomItem::ClearNone ) {
 	int lm = lmargin;
 	int rm = rmargin;
 	height = QMAX( height, adjustHorizontalMargins( clear ) );
@@ -2282,20 +2282,20 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
 
     int fl = lmargin;
     int fr = width - rmargin;
-    for ( QTextCustomItem* item = floatingItems.first(); item; item = floatingItems.next() ) {
+    for ( QTextOldCustomItem* item = floatingItems.first(); item; item = floatingItems.next() ) {
 	item->ypos = y_ + height + 1;
 	if ( item->isTable() )
-	    ( (QTextTable*)item)->verticalBreak( item->ypos, flow );
+	    ( (QTextOldTable*)item)->verticalBreak( item->ypos, flow );
 	flow->adjustFlow( item->ypos, item->width, item->height,
 			  !item->isTable() );
-	if ( item->placement() == QTextCustomItem::PlaceRight ) {
+	if ( item->placement() == QTextOldCustomItem::PlaceRight ) {
 	    fr -= item->width;
 	    item->xpos = fr;
 	} else {
 	    item->xpos = fl;
 	    fl += item->width;
 	}
-	flow->registerFloatingItem( item, item->placement() == QTextCustomItem::PlaceRight );
+	flow->registerFloatingItem( item, item->placement() == QTextOldCustomItem::PlaceRight );
     }
 }
 
@@ -2335,16 +2335,16 @@ QtTriple QRichTextFormatter::position() const
     return QtTriple( paragraph->id, current, currentoffset );
 }
 
-QTextFlow::QTextFlow()
+QTextOldFlow::QTextOldFlow()
 {
     width = widthUsed = height = pagesize = 0;
 }
 
-QTextFlow::~QTextFlow()
+QTextOldFlow::~QTextOldFlow()
 {
 }
 
-void QTextFlow::initialize( int w)
+void QTextOldFlow::initialize( int w)
 {
     height = 0;
     width = w;
@@ -2354,25 +2354,25 @@ void QTextFlow::initialize( int w)
     rightItems.clear();
 }
 
-int QTextFlow::adjustLMargin( int yp, int margin, int space )
+int QTextOldFlow::adjustLMargin( int yp, int margin, int space )
 {
-    for ( QTextCustomItem* item = leftItems.first(); item; item = leftItems.next() ) {
+    for ( QTextOldCustomItem* item = leftItems.first(); item; item = leftItems.next() ) {
 	if ( yp >= item->ypos && yp < item->ypos + item->height )
 	    margin = QMAX( margin, item->xpos + item->width + space );
     }
     return margin;
 }
 
-int QTextFlow::adjustRMargin( int yp, int margin, int space )
+int QTextOldFlow::adjustRMargin( int yp, int margin, int space )
 {
-    for ( QTextCustomItem* item = rightItems.first(); item; item = rightItems.next() ) {
+    for ( QTextOldCustomItem* item = rightItems.first(); item; item = rightItems.next() ) {
 	if ( yp >= item->ypos && yp < item->ypos + item->height )
 	    margin = QMAX( margin, width - item->xpos - space );
     }
     return margin;
 }
 
-void QTextFlow::adjustFlow( int  &yp, int w, int h, bool pages )
+void QTextOldFlow::adjustFlow( int  &yp, int w, int h, bool pages )
 {
     if ( w > widthUsed )
 	widthUsed = w;
@@ -2393,7 +2393,7 @@ void QTextFlow::adjustFlow( int  &yp, int w, int h, bool pages )
 
 }
 
-void QTextFlow::registerFloatingItem( QTextCustomItem* item, bool right   )
+void QTextOldFlow::registerFloatingItem( QTextOldCustomItem* item, bool right   )
 {
     if ( right ) {
 	if ( !rightItems.contains( item ) )
@@ -2403,11 +2403,11 @@ void QTextFlow::registerFloatingItem( QTextCustomItem* item, bool right   )
 	leftItems.append( item );
 }
 
-void QTextFlow::drawFloatingItems(QPainter* p,
+void QTextOldFlow::drawFloatingItems(QPainter* p,
 				   int ox, int oy, int cx, int cy, int cw, int ch,
 				   QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to )
 {
-    QTextCustomItem *item;
+    QTextOldCustomItem *item;
     for ( item = leftItems.first(); item; item = leftItems.next() ) {
 	item->draw( p, item->xpos, item->ypos, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, to );
     }
@@ -2417,7 +2417,7 @@ void QTextFlow::drawFloatingItems(QPainter* p,
     }
 }
 
-QTextTable::QTextTable(const QMap<QString, QString> & attr  )
+QTextOldTable::QTextOldTable(const QMap<QString, QString> & attr  )
 {
     cellspacing = 2;
     if ( attr.contains("cellspacing") )
@@ -2463,12 +2463,12 @@ QTextTable::QTextTable(const QMap<QString, QString> & attr  )
     cachewidth = 0;
 }
 
-QTextTable::~QTextTable()
+QTextOldTable::~QTextOldTable()
 {
     delete layout;
 }
 
-void QTextTable::realize( QPainter* p)
+void QTextOldTable::realize( QPainter* p)
 {
     painter = p;
     if ( p && p->device()->devType() != QInternal::Printer ) {
@@ -2479,18 +2479,18 @@ void QTextTable::realize( QPainter* p)
 	innerborder = int(innerborder * xscale);
 	outerborder = int(outerborder * xscale);
     }
-    for (QTextTableCell* cell = cells.first(); cell; cell = cells.next() )
+    for (QTextOldTableCell* cell = cells.first(); cell; cell = cells.next() )
 	cell->realize();
 
     width = 0;
 }
 
-void QTextTable::verticalBreak( int  yt, QTextFlow* flow )
+void QTextOldTable::verticalBreak( int  yt, QTextOldFlow* flow )
 {
     if ( flow->pagesize <= 0 )
 	return;
     int shift = 0;
-    for (QTextTableCell* cell = cells.first(); cell; cell = cells.next() ) {
+    for (QTextOldTableCell* cell = cells.first(); cell; cell = cells.next() ) {
 	QRect r = cell->geometry();
  	r.moveBy(0, shift );
 	cell->setGeometry( r );
@@ -2507,12 +2507,12 @@ void QTextTable::verticalBreak( int  yt, QTextFlow* flow )
     height += shift;
 }
 
-void QTextTable::draw(QPainter* p, int x, int y,
+void QTextOldTable::draw(QPainter* p, int x, int y,
 		       int ox, int oy, int cx, int cy, int cw, int ch,
 		       QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to )
 {
     painter = p;
-    for (QTextTableCell* cell = cells.first(); cell; cell = cells.next() ) {
+    for (QTextOldTableCell* cell = cells.first(); cell; cell = cells.next() ) {
 	if ( y + outerborder + cell->geometry().top() - cellspacing < cy+ch
 	     && y + outerborder + 2*cellspacing + cell->geometry().bottom() >= cy ) {
 	    cell->draw( x+outerborder, y+outerborder, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, to );
@@ -2550,7 +2550,7 @@ void QTextTable::draw(QPainter* p, int x, int y,
     }
 }
 
-void QTextTable::resize( QPainter* p, int nwidth )
+void QTextOldTable::resize( QPainter* p, int nwidth )
 {
     if ( nwidth == cachewidth )
 	return;
@@ -2582,14 +2582,14 @@ void QTextTable::resize( QPainter* p, int nwidth )
     height = layout->geometry().height()+2*outerborder;
 };
 
-void QTextTable::addCell( QTextTableCell* cell )
+void QTextOldTable::addCell( QTextOldTableCell* cell )
 {
     cells.append( cell );
     layout->addMultiCell( cell, cell->row(), cell->row() + cell->rowspan()-1,
 			  cell->column(), cell->column() + cell->colspan()-1 );
 }
 
-QTextTableCell::QTextTableCell(QTextTable* table,
+QTextOldTableCell::QTextOldTableCell(QTextOldTable* table,
        int row, int column,
        const QMap<QString, QString> &attr,
        const QStyleSheetItem* style,
@@ -2636,71 +2636,71 @@ QTextTableCell::QTextTableCell(QTextTable* table,
     parent->addCell( this );
 }
 
-QTextTableCell::~QTextTableCell()
+QTextOldTableCell::~QTextOldTableCell()
 {
     delete background;
     background = 0;
-    QTextFormatCollection* formats = richtext?richtext->formats:0;
+    QTextOldFormatCollection* formats = richtext?richtext->formats:0;
     delete richtext;
     delete formats; //#### fix inheritance structure in rich text
 }
 
-QSize QTextTableCell::sizeHint() const
+QSize QTextOldTableCell::sizeHint() const
 {
     //### see QLabel::sizeHint()
     return QSize(maxw,0).expandedTo( minimumSize() );
 }
 
-QSize QTextTableCell::minimumSize() const
+QSize QTextOldTableCell::minimumSize() const
 {
     if ( stretch_ )
 	return QSize( QMAX( minw, parent->width * stretch_ / 100 - 2*parent->cellspacing), 0);
     return QSize(minw,0);
 }
 
-QSize QTextTableCell::maximumSize() const
+QSize QTextOldTableCell::maximumSize() const
 {
     return QSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
 }
 
-QSizePolicy::ExpandData QTextTableCell::expanding() const
+QSizePolicy::ExpandData QTextOldTableCell::expanding() const
 {
     return QSizePolicy::BothDirections;
 }
 
-bool QTextTableCell::isEmpty() const
+bool QTextOldTableCell::isEmpty() const
 {
     return FALSE;
 }
-void QTextTableCell::setGeometry( const QRect& r)
+void QTextOldTableCell::setGeometry( const QRect& r)
 {
     if ( r.width() != richtext->flow()->width ) {
 	richtext->doLayout( painter(), r.width() );
     }
     geom = r;
 }
-QRect QTextTableCell::geometry() const
+QRect QTextOldTableCell::geometry() const
 {
     return geom;
 }
 
-bool QTextTableCell::hasHeightForWidth() const
+bool QTextOldTableCell::hasHeightForWidth() const
 {
     return TRUE;
 }
 
-int QTextTableCell::heightForWidth( int w ) const
+int QTextOldTableCell::heightForWidth( int w ) const
 {
     w = QMAX( minw, w ); //####PAUL SHOULD DO THAT
 
     if ( richtext->flow()->width != w ) {
-	QTextTableCell* that = (QTextTableCell*) this;
+	QTextOldTableCell* that = (QTextOldTableCell*) this;
 	that->richtext->doLayout(painter(), w );
     }
     return richtext->flow()->height;
 }
 
-void QTextTableCell::realize()
+void QTextOldTableCell::realize()
 {
 
     if ( hasFixedWidth )
@@ -2712,12 +2712,12 @@ void QTextTableCell::realize()
     minw = richtext->flow()->widthUsed;
 }
 
-QPainter* QTextTableCell::painter() const
+QPainter* QTextOldTableCell::painter() const
 {
     return parent->painter;
 }
 
-void QTextTableCell::draw(int x, int y,
+void QTextOldTableCell::draw(int x, int y,
 			int ox, int oy, int cx, int cy, int cw, int ch,
 			QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to )
 {
@@ -2809,7 +2809,7 @@ bool QTextCharFormat::operator==( const QTextCharFormat &format )
 
 QTextCharFormat QTextCharFormat::makeTextFormat( const QStyleSheetItem *style,
 						   const QMap<QString,QString>& attr,
-						   QTextCustomItem*  item ) const
+						   QTextOldCustomItem*  item ) const
 {
     QTextCharFormat format(*this);
     format.custom = item;
@@ -2881,12 +2881,12 @@ QTextCharFormat QTextCharFormat::formatWithoutCustom()
     return fm;
 }
 
-QTextFormatCollection::QTextFormatCollection()
+QTextOldFormatCollection::QTextOldFormatCollection()
     : cKey(199),lastRegisterFormat( 0 )
 {
 }
 
-QTextCharFormat* QTextFormatCollection::registerFormat( const QTextCharFormat &format )
+QTextCharFormat* QTextOldFormatCollection::registerFormat( const QTextCharFormat &format )
 {
     if ( format.parent == this ) {
 	QTextCharFormat* f = ( QTextCharFormat*) &format;
@@ -2923,7 +2923,7 @@ QTextCharFormat* QTextFormatCollection::registerFormat( const QTextCharFormat &f
     }
 }
 
-void QTextFormatCollection::unregisterFormat( const QTextCharFormat &format )
+void QTextOldFormatCollection::unregisterFormat( const QTextCharFormat &format )
 {
     QTextCharFormat* f;
 

@@ -593,6 +593,7 @@ void QTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
     if ( isReadOnly() && linksEnabled() ) {
 	QTextCursor c = *cursor;
 	placeCursor( e->pos(), &c );
+#ifndef QT_NO_NETWORKPROTOCOL
 	if ( c.parag() && c.parag()->at( c.index() ) &&
 	     c.parag()->at( c.index() )->format()->isAnchor() ) {
 	    viewport()->setCursor( pointingHandCursor );
@@ -604,6 +605,7 @@ void QTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
 	    onLink = QString::null;
 	    emit highlighted( QString::null );
 	}
+#endif
     }
 }
 
@@ -630,10 +632,12 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * )
     updateCurrentFormat();
     inDoubleClick = FALSE;
 
+#ifndef QT_NO_NETWORKPROTOCOL
     if ( !onLink.isEmpty() && linksEnabled() ) {
 	QUrl u( doc->context(), onLink, TRUE );
 	emit linkClicked( u.toString( FALSE, FALSE ) );
     }
+#endif
     drawCursor( TRUE );
 }
 
@@ -1670,6 +1674,7 @@ void QTextEdit::handleReadOnlyKeyEvent( QKeyEvent *e )
     case Key_End:
 	setContentsPos( contentsX(), contentsHeight() - visibleHeight() );
 	break;
+#ifndef QT_NO_NETWORKPROTOCOL
     case Key_Return:
     case Key_Enter:
     case Key_Space: {
@@ -1678,6 +1683,7 @@ void QTextEdit::handleReadOnlyKeyEvent( QKeyEvent *e )
 	    emit linkClicked( u.toString( FALSE, FALSE ) );
 	}
     } break;
+#endif
     default:
 	break;
     }

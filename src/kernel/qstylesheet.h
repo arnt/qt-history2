@@ -158,7 +158,7 @@ template class Q_EXPORT QDict<QStyleSheetItem>;
 // MOC_SKIP_END
 #endif
 
-class QTextCustomItem;
+class QTextOldCustomItem;
 
 class Q_EXPORT QStyleSheet : public QObject
 {
@@ -176,7 +176,7 @@ public:
 
     void insert( QStyleSheetItem* item);
 
-    virtual QTextCustomItem* tag( const QString& name,
+    virtual QTextOldCustomItem* tag( const QString& name,
 			    const QMap<QString, QString> &attr,
 			    const QString& context,
 			    const QMimeSourceFactory& factory,
