@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#257 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#258 $
 **
 ** Implementation of QListView widget class
 **
@@ -1256,7 +1256,8 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
     // paint stuff in the magical area
     while ( child && y < h ) {
 	linebot = y + child->height()/2;
-	if ( child->expandable || child->childCount() ) {
+	if ( (child->expandable || child->childCount()) &&
+	     (child->ownHeight() > 0) ) {
 	    // needs a box
 	    p->setPen( cg.dark() );
 	    p->drawRect( bx-4, linebot-4, 9, 9 );
