@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#36 $
 **
 ** Implementation of QRadioButton class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobt.cpp#35 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobt.cpp#36 $")
 
 
 /*----------------------------------------------------------------------------
@@ -141,7 +141,7 @@ void QRadioButton::adjustSize()
   Reimplements QButton::hitButton().  This function is implemented to
   prevent a radio button that is \link isOn() on \endlink from being
   switched off.
-  ----------------------------------------------------------------------------*/
+ ----------------------------------------------------------------------------*/
 
 bool QRadioButton::hitButton( const QPoint &pos ) const
 {
@@ -150,9 +150,9 @@ bool QRadioButton::hitButton( const QPoint &pos ) const
 
 
 /*----------------------------------------------------------------------------
-  Draws the radio button, but not the button label. \sa
-  drawButtonLabel()
-  ----------------------------------------------------------------------------*/
+  Draws the radio button, but not the button label.
+  \sa drawButtonLabel()
+ ----------------------------------------------------------------------------*/
 
 void QRadioButton::drawButton( QPainter *paint )
 {
