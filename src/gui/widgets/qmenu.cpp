@@ -1221,7 +1221,7 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
     QPoint mouse = QCursor::pos();
     bool snapToMouse = (p == mouse);
     if(snapToMouse) {
-        if(qApp->reverseLayout())
+        if(qApp->layoutDirection() == Qt::RightToLeft)
             pos.setX(pos.x()-size.width());
         if(pos.x()+size.width() > screen.right())
             pos.setX(mouse.x()-size.width());
@@ -1239,9 +1239,9 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
     setGeometry(QRect(pos, size));
 
 #ifndef QT_NO_EFFECTS
-    int hGuess = qApp->reverseLayout() ? QEffects::LeftScroll : QEffects::RightScroll;
+    int hGuess = qApp->layoutDirection() == Qt::RightToLeft ? QEffects::LeftScroll : QEffects::RightScroll;
     int vGuess = QEffects::DownScroll;
-    if(qApp->reverseLayout()) {
+    if(qApp->layoutDirection() == Qt::RightToLeft) {
         if((snapToMouse && (pos.x() + size.width()/2 > mouse.x())) ||
            (qt_cast<QMenu*>(d->causedPopup) && pos.x() + size.width()/2 > d->causedPopup->x()))
             hGuess = QEffects::RightScroll;

@@ -256,7 +256,7 @@ bool QCheckBox::hitButton(const QPoint &pos) const
 {
     QStyleOptionButton opt = d->getStyleOption();
     QRect r = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_CheckBoxFocusRect, &opt, this));
-    if (qApp->reverseLayout()) {
+    if (qApp->layoutDirection() == Qt::RightToLeft) {
         r.setRight(width());
     } else {
         r.setLeft(0);
