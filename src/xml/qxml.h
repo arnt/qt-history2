@@ -120,6 +120,7 @@ public:
     int index( const QString& qName ) const;
     int index( const QString& uri, const QString& localPart ) const;
     int length() const;
+    int count() const;
     QString localName( int index ) const;
     QString qName( int index ) const;
     QString uri( int index ) const;
@@ -541,6 +542,8 @@ inline void QXmlSimpleReader::nameClear()
 inline void QXmlSimpleReader::refClear()
 { refValue = ""; refPos = 0; }
 
+inline int QXmlAttributes::count() const
+{ return length(); }
 
 #endif //QT_NO_XML
 

@@ -673,6 +673,12 @@ int QXmlAttributes::length() const
 }
 
 /*!
+  \fn int QXmlAttributes::count() const
+  Returns the number of attributes in the list. This function is equivalent to
+  length().
+*/
+
+/*!
   Looks up an attribute's local name for the index \a index (starting with 0).
   If no namespace processing is done, the local name is a null string.
 
