@@ -198,7 +198,7 @@ void QPainterPrivate::draw_helper_fill_pattern(const void *data, Qt::FillRule fi
     default: {
         QPixmap pattern;
         if (state->brush.style() == Qt::CustomPattern)
-            pattern = *state->brush.pixmap();
+            pattern = state->brush.texture();
         else
             pattern = qt_pixmapForBrush(state->brush.style(), true);
 
@@ -3475,10 +3475,10 @@ void QPainter::eraseRect(const QRectF &r)
     Q_D(QPainter);
     d->engine->updateState(d->state);
 
-    if (d->state->bgBrush.pixmap())
-        drawTiledPixmap(r, *d->state->bgBrush.pixmap(), -d->state->bgOrigin);
-    else
+    if (d->state->bgBrush.texture().isNull())
         fillRect(r, d->state->bgBrush);
+    else
+        drawTiledPixmap(r, d->state->bgBrush.texture(), -d->state->bgOrigin);
 }
 
 /*!

@@ -1088,7 +1088,7 @@ void QWidgetPrivate::updateInheritedBackground(bool force)
         return;
 #ifndef QT_NO_PALETTE
     if (!force)
-        force = (q->palette().brush(q->backgroundRole()).pixmap() || isTransparent());
+        force = (!q->palette().brush(q->backgroundRole()).texture().isNull() || isTransparent());
 #endif
     if (force) {
         q->repaint();

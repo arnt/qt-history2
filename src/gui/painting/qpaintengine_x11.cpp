@@ -454,15 +454,15 @@ void qt_erase_background(QPaintDevice *pd, int screen,
         XSetForeground(dpy, gc, pixel);
     }
 
-    if (brush.pixmap()) {
-        XSetTile(dpy, gc, brush.pixmap()->handle());
+    if (brush.texture().isNull()) {
+        XFillRectangle(dpy, hd, gc, x, y, w, h);
+    } else {
+        XSetTile(dpy, gc, brush.texture().handle());
         XSetFillStyle(dpy, gc, FillTiled);
         XSetTSOrigin(dpy, gc, x-xoff, y-yoff);
         XFillRectangle(dpy, hd, gc, x, y, w, h);
         XSetTSOrigin(dpy, gc, 0, 0);
         XSetFillStyle(dpy, gc, FillSolid);
-    } else {
-        XFillRectangle(dpy, hd, gc, x, y, w, h);
     }
 
     if (penref) {
@@ -1339,7 +1339,7 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
     if (bs == Qt::CustomPattern || bs >= Qt::Dense1Pattern && bs <= Qt::DiagCrossPattern) {
         QPixmap pm;
         if (bs == Qt::CustomPattern)
-            pm = *d->cbrush.pixmap();
+            pm = d->cbrush.texture();
         else
             pm = qt_pixmapForBrush(bs, true);
         pm.x11SetScreen(d->scrn);
