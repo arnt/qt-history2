@@ -176,7 +176,7 @@ static const QWSServer::KeyMap keyM[] = {
     {	Qt::Key_P,		'p'     , 'P'     , 'P'-64  },
     {	Qt::Key_BraceLeft,	'['     , '{'     , 0xffff  },
     {	Qt::Key_Escape,		']'     , '}'     , 0xffff  },
-    {	Qt::Key_Enter,		13      , 13      , 0xffff  },
+    {	Qt::Key_Return,		13      , 13      , 0xffff  },
     {	Qt::Key_Control,	0xffff  , 0xffff  , 0xffff  },
     {	Qt::Key_A,		'a'     , 'A'     , 'A'-64  },  // 30
     {	Qt::Key_S,		's'     , 'S'     , 'S'-64  },
@@ -433,10 +433,9 @@ void QWSTtyKeyboardHandler::readKeyboardData()
 	else if (keyCode == Qt::Key_Shift) {
 	    shift = release ? 0 : ShiftButton;
 	}
-	else if (keyCode != Qt::Key_unknown) {
+	if (keyCode != Qt::Key_unknown) {
 	    int unicode = 0;
-	    if (!extended)
-	    {
+	    if (!extended) {
 		if (shift)
 		    unicode =  QWSServer::keyMap()[ch].shift_unicode ?  QWSServer::keyMap()[ch].shift_unicode : 0xffff;
 		else if (ctrl)
