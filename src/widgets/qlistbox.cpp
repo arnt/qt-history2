@@ -2445,7 +2445,10 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 		if ( currentColumn() < numColumns()-1 ) {
 		    int row = currentRow();
 		    int i = currentItem();
-		    setCurrentItem( currentItem() + numRows() );
+		    QListBoxItem *it = item( i + numRows() );
+		    if ( !it )
+			it = item( count()-1 );
+		    setCurrentItem( it );
 
 		    if ( currentItem() == -1 ) {
 			if ( row < numRows() - 1 )
