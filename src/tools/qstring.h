@@ -208,7 +208,7 @@ public:
     friend inline int operator<=( QChar c1, QChar c2 );
 
 private:
-#if defined(Q_WS_X11) || defined(Q_OS_WIN32BYTESWAP_) || defined( Q_WS_QWS )
+#if defined(Q_WS_X11) || defined(Q_OS_WIN32BYTESWAP_) || defined( Q_WS_QWS ) || defined( Q_WS_MAC )
     // XChar2b on X11, ushort on Q_OS_WIN32BYTESWAP_
     //### QWS must be defined on a platform by platform basis
     uchar rw;
