@@ -34,44 +34,72 @@
 **
 **********************************************************************/
 
+#define Q_INITGUID
 #include "../../qsqldriverinterface.h"
+#undef Q_INITGUID
 #include "qsql_mysql.h"
-#include <qstringlist.h>
 
-class QMYSQLDriverInterface : public QSqlDriverInterface
+class QMYSQLDriverPlugin : public QSqlDriverInterface
 {
 public:
-    QMYSQLDriverInterface( QUnknownInterface * parent = 0 )
-	: QSqlDriverInterface( parent ){}
+    QMYSQLDriverPlugin();
+
+    QUnknownInterface *queryInterface( const QGuid& );
+    unsigned long addRef();
+    unsigned long release();
 
     QSqlDriver* create( const QString &name );
     QStringList featureList() const;
+
+private:
+    unsigned long ref;
 };
 
-QSqlDriver* QMYSQLDriverInterface::create( const QString &name )
+QMYSQLDriverPlugin::QMYSQLDriverPlugin()
+: ref( 0 )
+{
+}
+
+QUnknownInterface *QMYSQLDriverPlugin::queryInterface( const QGuid &guid )
+{
+    QUnknownInterface *iface = 0;
+    if ( guid == IID_QUnknownInterface )
+	iface = (QUnknownInterface*)this;
+    else if ( guid == IID_QSqlDriverInterface )
+	iface = (QSqlDriverInterface*)this;
+
+    if ( iface )
+	iface->addRef();
+    return iface;
+}
+
+unsigned long QMYSQLDriverPlugin::addRef()
+{
+    return ref++;
+}
+
+unsigned long QMYSQLDriverPlugin::release()
+{
+    if ( !--ref ) {
+	delete this;
+	return 0;
+    }
+
+    return ref;
+}
+
+QSqlDriver* QMYSQLDriverPlugin::create( const QString &name )
 {
     if ( name == "QMYSQL" )
 	return new QMYSQLDriver();
     return 0;
 }
 
-QStringList QMYSQLDriverInterface::featureList() const
+QStringList QMYSQLDriverPlugin::featureList() const
 {
     QStringList l;
     l.append("QMYSQL");
     return l;
 }
 
-class QMYSQLDriverPlugIn : public QUnknownInterface
-{
-public:
-    QMYSQLDriverPlugIn();
-};
-
-QMYSQLDriverPlugIn::QMYSQLDriverPlugIn()
-    : QUnknownInterface()
-{
-    new QMYSQLDriverInterface( this );
-}
-
-Q_EXPORT_INTERFACE(QMYSQLDriverPlugIn)
+Q_EXPORT_INTERFACE(QMYSQLDriverPlugin)

@@ -34,22 +34,61 @@
 **
 **********************************************************************/
 
+#define Q_INITGUID
 #include "../../qsqldriverinterface.h"
+#undef Q_INITGUID
 #include "qsql_odbc.h"
-#include <qstringlist.h>
-#include <qapplication.h>
 
-class QODBCDriverInterface : public QSqlDriverInterface
+class QODBCDriverPlugin : public QSqlDriverInterface
 {
 public:
-    QODBCDriverInterface( QUnknownInterface * parent = 0 )
-	: QSqlDriverInterface( parent ){}
+    QODBCDriverPlugin();
+
+    QUnknownInterface *queryInterface( const QGuid& );
+    unsigned long addRef();
+    unsigned long release();
 
     QSqlDriver* create( const QString &name );
     QStringList featureList() const;
+
+private:
+    unsigned long ref;
 };
 
-QSqlDriver* QODBCDriverInterface::create( const QString &name )
+QODBCDriverPlugin::QODBCDriverPlugin()
+: ref( 0 )
+{
+}
+
+QUnknownInterface *QODBCDriverPlugin::queryInterface( const QGuid &guid )
+{
+    QUnknownInterface *iface = 0;
+    if ( guid == IID_QUnknownInterface )
+	iface = (QUnknownInterface*)this;
+    else if ( guid == IID_QSqlDriverInterface )
+	iface = (QSqlDriverInterface*)this;
+
+    if ( iface )
+	iface->addRef();
+    return iface;
+}
+
+unsigned long QODBCDriverPlugin::addRef()
+{
+    return ref++;
+}
+
+unsigned long QODBCDriverPlugin::release()
+{
+    if ( !--ref ) {
+	delete this;
+	return 0;
+    }
+
+    return ref;
+}
+
+QSqlDriver* QODBCDriverPlugin::create( const QString &name )
 {
     if ( name == "QODBC" ) {
 	return new QODBCDriver();
@@ -57,23 +96,11 @@ QSqlDriver* QODBCDriverInterface::create( const QString &name )
     return 0;
 }
 
-QStringList QODBCDriverInterface::featureList() const
+QStringList QODBCDriverPlugin::featureList() const
 {
     QStringList l;
     l.append("QODBC");
     return l;
 }
 
-class QODBCDriverPlugIn : public QUnknownInterface
-{
-public:
-    QODBCDriverPlugIn();
-};
-
-QODBCDriverPlugIn::QODBCDriverPlugIn()
-    : QUnknownInterface()
-{
-    new QODBCDriverInterface( this );
-}
-
-Q_EXPORT_INTERFACE(QODBCDriverPlugIn)
+Q_EXPORT_INTERFACE(QODBCDriverPlugin)

@@ -34,21 +34,61 @@
 **
 **********************************************************************/
 
+#define Q_INITGUID
 #include "../../qsqldriverinterface.h"
+#undef Q_INITGUID
 #include "qsql_psql.h"
-#include <qstringlist.h>
 
-class QPSQLDriverInterface : public QSqlDriverInterface
+class QPSQLDriverPlugin : public QSqlDriverInterface
 {
 public:
-    QPSQLDriverInterface( QUnknownInterface * parent = 0 )
-	: QSqlDriverInterface( parent ){}
+    QPSQLDriverPlugin();
+
+    QUnknownInterface *queryInterface( const QGuid& );
+    unsigned long addRef();
+    unsigned long release();
 
     QSqlDriver* create( const QString &name );
     QStringList featureList() const;
+
+private:
+    unsigned long ref;
 };
 
-QSqlDriver* QPSQLDriverInterface::create( const QString &name )
+QPSQLDriverPlugin::QPSQLDriverPlugin()
+: ref( 0 )
+{
+}
+
+QUnknownInterface *QPSQLDriverPlugin::queryInterface( const QGuid &guid )
+{
+    QUnknownInterface *iface = 0;
+    if ( guid == IID_QUnknownInterface )
+	iface = (QUnknownInterface*)this;
+    else if ( guid == IID_QSqlDriverInterface )
+	iface = (QSqlDriverInterface*)this;
+
+    if ( iface )
+	iface->addRef();
+    return iface;
+}
+
+unsigned long QPSQLDriverPlugin::addRef()
+{
+    return ref++;
+}
+
+unsigned long QPSQLDriverPlugin::release()
+{
+    if ( !--ref ) {
+	delete this;
+	return 0;
+    }
+
+    return ref;
+}
+
+QSqlDriver* QPSQLDriverPlugin::create( const QString &name )
 {
     if ( name == "QPSQL6" )
 	return new QPSQLDriver( QPSQLDriver::Version6 );
@@ -57,7 +97,7 @@ QSqlDriver* QPSQLDriverInterface::create( const QString &name )
     return 0;
 }
 
-QStringList QPSQLDriverInterface::featureList() const
+QStringList QPSQLDriverPlugin::featureList() const
 {
     QStringList l;
     l.append("QPSQL6");
@@ -65,16 +105,4 @@ QStringList QPSQLDriverInterface::featureList() const
     return l;
 }
 
-class QPSQLDriverPlugIn : public QUnknownInterface
-{
-public:
-    QPSQLDriverPlugIn();
-};
-
-QPSQLDriverPlugIn::QPSQLDriverPlugIn()
-    : QUnknownInterface()
-{
-    new QPSQLDriverInterface( this );
-}
-
-Q_EXPORT_INTERFACE(QPSQLDriverPlugIn)
+Q_EXPORT_INTERFACE(QPSQLDriverPlugin)

@@ -34,21 +34,61 @@
 **
 **********************************************************************/
 
+#define Q_INITGUID
 #include "../../qsqldriverinterface.h"
+#undef Q_INITGUID
 #include "qsql_oci.h"
-#include <qstringlist.h>
 
-class QOCIDriverInterface : public QSqlDriverInterface
+class QOCIDriverPlugin : public QSqlDriverInterface
 {
 public:
-    QOCIDriverInterface( QUnknownInterface * parent = 0 )
-	: QSqlDriverInterface( parent ){}
+    QOCIDriverPlugin();
+
+    QUnknownInterface *queryInterface( const QGuid& );
+    unsigned long addRef();
+    unsigned long release();
 
     QSqlDriver* create( const QString &name );
     QStringList featureList() const;
+
+private:
+    unsigned long ref;
 };
 
-QSqlDriver* QOCIDriverInterface::create( const QString &name )
+QOCIDriverPlugin::QOCIDriverPlugin()
+: ref( 0 )
+{
+}
+
+QUnknownInterface *QOCIDriverPlugin::queryInterface( const QGuid &guid )
+{
+    QUnknownInterface *iface = 0;
+    if ( guid == IID_QUnknownInterface )
+	iface = (QUnknownInterface*)this;
+    else if ( guid == IID_QSqlDriverInterface )
+	iface = (QSqlDriverInterface*)this;
+
+    if ( iface )
+	iface->addRef();
+    return iface;
+}
+
+unsigned long QOCIDriverPlugin::addRef()
+{
+    return ref++;
+}
+
+unsigned long QOCIDriverPlugin::release()
+{
+    if ( !--ref ) {
+	delete this;
+	return 0;
+    }
+
+    return ref;
+}
+
+QSqlDriver* QOCIDriverPlugin::create( const QString &name )
 {
     if ( name == "QOCI" ) {
 	return new QOCIDriver();
@@ -56,25 +96,11 @@ QSqlDriver* QOCIDriverInterface::create( const QString &name )
     return 0;
 }
 
-QStringList QOCIDriverInterface::featureList() const
+QStringList QOCIDriverPlugin::featureList() const
 {
     QStringList l;
     l.append("QOCI");
     return l;
 }
 
-
-class QOCIDriverPlugIn : public QUnknownInterface
-{
-public:
-    QOCIDriverPlugIn();
-};
-
-QOCIDriverPlugIn::QOCIDriverPlugIn()
-    : QUnknownInterface()
-{
-    new QOCIDriverInterface( this );
-}
-
-
-Q_EXPORT_INTERFACE(QOCIDriverPlugIn)
+Q_EXPORT_INTERFACE(QOCIDriverPlugin)
