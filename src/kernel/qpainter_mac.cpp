@@ -44,7 +44,7 @@
 #include <private/qcomplextext_p.h>
 #include <private/qtextengine_p.h>
 #include <private/qfontengine_p.h>
-#include <qtextlayout_p.h>
+#include <private/qtextlayout_p.h>
 #ifndef QMAC_NO_QUARTZ
 # include <ApplicationServices/ApplicationServices.h>
 #endif
