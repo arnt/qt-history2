@@ -108,8 +108,7 @@
   The private object.
  *****************************************************************************/
 
-
-static QAsciiDict<QMetaObject> *qt_metaobjects = 0;
+static QAsciiDict<QtStaticMetaObjectFunction> *qt_metaobjects = 0;
 
 class QMetaObjectPrivate
 {
@@ -212,9 +211,6 @@ QMetaObject::QMetaObject( const char *const class_name, QMetaObject *super_class
 #ifndef QT_NO_PROPERTIES
     propertyoffset = superclass ? ( superclass->propertyOffset() + superclass->numProperties() ) : 0;
 #endif
-    if ( !qt_metaobjects )
-	qt_metaobjects = new QAsciiDict<QMetaObject>( 257 );
-    qt_metaobjects->replace( class_name, this );
 }
 
 #ifndef QT_NO_PROPERTIES
@@ -248,9 +244,6 @@ QMetaObject::QMetaObject( const char *const class_name, QMetaObject *super_class
     signaloffset = superclass ? ( superclass->signalOffset() + superclass->numSignals() ) : 0;
     slotoffset = superclass ? ( superclass->slotOffset() + superclass->numSlots() ) : 0;
     propertyoffset = superclass ? ( superclass->propertyOffset() + superclass->numProperties() ) : 0;
-    if ( !qt_metaobjects )
-	qt_metaobjects = new QAsciiDict<QMetaObject>( 257 );
-    qt_metaobjects->replace( class_name, this );
 }
 #endif
 
@@ -756,7 +749,17 @@ QMetaObject *QMetaObject::metaObject( const char *class_name )
 {
     if ( !qt_metaobjects )
 	return 0;
-    return qt_metaobjects->find( class_name );
+    QtStaticMetaObjectFunction *func = qt_metaobjects->find( class_name );
+    if ( func )
+	return (*func)();
+    return 0;
+}
+
+bool QMetaObject::hasMetaObject( const char *class_name )
+{
+    if ( !qt_metaobjects )
+	return FALSE;
+    return !!qt_metaobjects->find( class_name );
 }
 
 #ifndef QT_NO_PROPERTIES
@@ -1087,8 +1090,16 @@ bool QMetaProperty::reset( QObject* o ) const
  * files and deletes the QMetaObject provided with setMetaObject. It sets the
  * QObject reference to the metaObj to NULL when it is destroyed.
  */
+QMetaObjectCleanUp::QMetaObjectCleanUp( const char *mo_name, QtStaticMetaObjectFunction func )
+    : metaObject( 0 )
+{
+    if ( !qt_metaobjects )
+	qt_metaobjects = new QAsciiDict<QtStaticMetaObjectFunction>( 257 );
+    qt_metaobjects->insert( mo_name, &func );
+}
+
 QMetaObjectCleanUp::QMetaObjectCleanUp()
-: metaObject( 0 )
+    : metaObject( 0 )
 {
 }
 

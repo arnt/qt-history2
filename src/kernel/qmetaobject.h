@@ -118,7 +118,7 @@ public:
     int id() const; 			// internal
 
     QMetaObject** meta; 		// internal
-    
+
     const QMetaEnum* enumData;		// internal
     int _id; 				// internal
     void clear(); 			// internal
@@ -222,6 +222,7 @@ public:
 #endif
 
     static QMetaObject *metaObject( const char *class_name );
+    static bool hasMetaObject( const char *class_name );
 
 private:
     QMemberDict		*init( const QMetaData *, int );
@@ -261,9 +262,12 @@ inline int QMetaObject::propertyOffset() const
 { return propertyoffset; }
 #endif
 
+typedef QMetaObject *(*QtStaticMetaObjectFunction)();
+
 class Q_EXPORT QMetaObjectCleanUp
 {
 public:
+    QMetaObjectCleanUp( const char *mo_name, QtStaticMetaObjectFunction );
     QMetaObjectCleanUp();
     ~QMetaObjectCleanUp();
 

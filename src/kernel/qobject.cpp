@@ -1894,7 +1894,7 @@ void QObject::cleanupEventFilter(QObject* obj)
   \sa tr() QApplication::translate()
 */
 
-static QMetaObjectCleanUp cleanUp_Qt = QMetaObjectCleanUp();
+static QMetaObjectCleanUp cleanUp_Qt = QMetaObjectCleanUp( "QObject", &QObject::staticMetaObject );
 
 QMetaObject* QObject::staticQtMetaObject()
 {

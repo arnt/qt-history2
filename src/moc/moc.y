@@ -76,7 +76,7 @@ void yyerror( const char *msg );
 #  include <Carbon/Carbon.h>
 # endif
 # include "mwerks_mac.h"
-#endif 
+#endif
 
 #include <ctype.h>
 #include <limits.h>
@@ -2988,7 +2988,7 @@ void generateClass()		      // generate C++ source code for a class
 	    cleanup[cnpos] = '_';
     }
 
-    fprintf( out, "static QMetaObjectCleanUp cleanUp_%s;\n\n", (const char*) cleanup );
+    fprintf( out, "static QMetaObjectCleanUp cleanUp_%s( \"%s\", &%s::staticMetaObject );\n\n", (const char*)cleanup, (const char*)qualifiedClassName(), (const char*)qualifiedClassName() );
 
 //
 // Generate tr and trUtf8 member functions
