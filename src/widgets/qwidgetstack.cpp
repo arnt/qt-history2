@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#18 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -164,16 +164,18 @@ void QWidgetStack::raiseWidget( QWidget * w )
 	} else {
 	    bool done = FALSE;
 	    const QObjectList * c = w->children();
-	    QObjectListIt it( *c );
-	    QObject * wc;
-	    while( !done && (wc=it.current()) != 0 ) {
-		++it;
-		if ( wc->isWidgetType() ) {
-		    f = (QWidget *)wc;
-		    if ( f->focusPolicy() == QWidget::StrongFocus ||
-			 f->focusPolicy() == QWidget::TabFocus ) {
-			f->setFocus();
-			done = TRUE;
+	    if ( c ) {
+		QObjectListIt it( *c );
+		QObject * wc;
+		while( !done && (wc=it.current()) != 0 ) {
+		    ++it;
+		    if ( wc->isWidgetType() ) {
+			f = (QWidget *)wc;
+			if ( f->focusPolicy() == QWidget::StrongFocus ||
+			     f->focusPolicy() == QWidget::TabFocus ) {
+			    f->setFocus();
+			    done = TRUE;
+			}
 		    }
 		}
 	    }
