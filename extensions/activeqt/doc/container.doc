@@ -80,13 +80,13 @@
     \section1 Accessing the object API
 
     ActiveQt provides a Qt API to the COM object, and replaces COM
-    datatypes with Qt equivalents. Use the \c dumpdoc example program
-    to get the documentation of the Qt API for any COM object and it's
-    subobjects.
+    datatypes with Qt equivalents. Use the \c dumpdoc tool to get the 
+    documentation of the Qt API for any COM object and it's subobjects.
 
     See the QAxWidget and QAxObject API documentation about how to 
     use this class to use ActiveX controls and COM objects in Qt 
-    applications.
+    applications. To access the COM object with scripting languages use 
+    the QAxScript class.
 
     To call functions of the COM object that can not be accessed via
     ActiveQt it is possible to request the COM interface directly using
