@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#22 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#23 $
 **
 ** Definition of QColor class
 **
@@ -46,27 +46,27 @@ class QColor					// color class
 public:
     enum Spec { Rgb, Hsv };
 
-    QColor();					// default RGB=0,0,0
-    QColor( int r, int g, int b );		// specify RGB
-    QColor( int x, int y, int z, Spec );	// specify RGB or HSV
-    QColor( ulong rgb, ulong pixel=0xffffffff); // specify RGB and/or pixel
-    QColor( const char *name );			// load color from database
-    QColor( const QColor & );			// copy color
-    QColor &operator=( const QColor & );	// copy color
+    QColor();
+    QColor( int r, int g, int b );
+    QColor( int x, int y, int z, Spec );
+    QColor( ulong rgb, ulong pixel=0xffffffff);
+    QColor( const char *name );
+    QColor( const QColor & );
+    QColor &operator=( const QColor & );
 
-    bool   isValid()const { return (rgbVal & RGB_INVALID) == 0; }
-    bool   isDirty()const { return (rgbVal & RGB_DIRTY) == RGB_DIRTY; }
+    bool   isValid() const;
+    bool   isDirty() const;
 
     void   setNamedColor( const char *name );
 
     void   rgb( int *r, int *g, int *b ) const;
-    ulong  rgb() const { return rgbVal & RGB_MASK; }
+    ulong  rgb()    const;
     void   setRgb( int r, int g, int b );
     void   setRgb( ulong rgb );
 
-    int	   red()    const { return QRED(rgbVal); }
-    int	   green()  const { return QGREEN(rgbVal); }
-    int	   blue()   const { return QBLUE(rgbVal); }
+    int	   red()    const;
+    int	   green()  const;
+    int	   blue()   const;
 
     void   hsv( int *h, int *s, int *v ) const;
     void   setHsv( int h, int s, int v );
@@ -77,7 +77,7 @@ public:
     bool   operator==( const QColor &c ) const;
     bool   operator!=( const QColor &c ) const;
 
-    static bool lazyAlloc()	{ return lalloc; }
+    static bool lazyAlloc();
     static void setLazyAlloc( bool );
     ulong  alloc();
     ulong  pixel()  const;
@@ -101,20 +101,34 @@ private:
     static HANDLE hpal;
 #endif
     ulong  pix;
-    ulong  rgbVal;				// RGB value
+    ulong  rgbVal;
 };
 
 
+inline bool QColor::isValid() const
+{ return (rgbVal & RGB_INVALID) == 0; }
+
+inline bool QColor::isDirty() const
+{ return (rgbVal & RGB_DIRTY) == RGB_DIRTY; }
+
+inline ulong QColor::rgb() const
+{ return rgbVal & RGB_MASK; }
+
+inline int QColor::red() const
+{ return QRED(rgbVal); }
+
+inline int QColor::green() const
+{ return QGREEN(rgbVal); }
+
+inline int QColor::blue() const
+{ return QBLUE(rgbVal); }
+
 #if defined(_WS_WIN_) || defined(_WS_PM_)
 inline ulong QColor::pixel() const
-{
-    return pix;
-}
+{ return pix; }
 #else
 inline ulong QColor::pixel() const
-{
-    return isDirty() ? ((QColor*)this)->alloc() : pix;
-}
+{ return isDirty() ? ((QColor*)this)->alloc() : pix; }
 #endif
 
 
@@ -131,6 +145,9 @@ inline bool QColor::operator!=( const QColor &c ) const
 		rgbVal != c.rgbVal :
 		rgbVal != c.rgbVal || pix != c.pix;
 }
+
+inline bool QColor::lazyAlloc()
+{ return lalloc; }
 
 
 // --------------------------------------------------------------------------
