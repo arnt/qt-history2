@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#9 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -23,7 +23,7 @@
 #include <X11/Xatom.h> // for XA_STRING and friends
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#8 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#9 $");
 
 // this stuff is copied from qapp_x11.cpp
 
@@ -263,7 +263,7 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
     response.data.l[2] = 0; // x, y
     response.data.l[3] = 0; // w, h
     response.data.l[4] = 0; // just null
-    
+
     QDragMoveEvent me( p );
     QApplication::sendEvent( c, &me );
     if ( me.isAccepted() )
@@ -363,7 +363,7 @@ void qt_handle_xdnd_finished( QWidget *, const XEvent * xe )
 {
     const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
 
-    if ( l[0] )
+    if ( l[0] && qt_xdnd_stored_drag_objects )
 	qt_xdnd_stored_drag_objects->remove( l[0] );
 }
 
@@ -404,7 +404,11 @@ void QDragManager::move( const QPoint & globalPos )
 	// somehow got to a different screen?  ignore for now
 	return;
     }
-    target = qt_x11_findClientWindow( target, qt_wm_state, TRUE );
+    
+    if ( target == 0 )
+	target == qt_xrootwin();
+    else
+	target = qt_x11_findClientWindow( target, qt_wm_state, TRUE );
 
     QWidget * w = QWidget::find( (WId)target );
 
@@ -472,6 +476,15 @@ void QDragManager::drop()
     drop.data.l[2] = 0; // ###
     drop.data.l[3] = 0;
     drop.data.l[4] = 0;
+    
+    if ( object && object->autoDelete() ) {
+	if ( !qt_xdnd_stored_drag_objects ) {
+	    qt_xdnd_stored_drag_objects
+		= new QIntDict<QDragObject>( 17 );
+	    qt_xdnd_stored_drag_objects->setAutoDelete( TRUE );
+	}
+	qt_xdnd_stored_drag_objects->insert( qt_xdnd_current_target, object );
+    }
 
     QWidget * w = QWidget::find( qt_xdnd_current_target );
     if ( w )
