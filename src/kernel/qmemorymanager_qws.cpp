@@ -510,6 +510,20 @@ QMemoryManager::QMemoryManager(
     qt_unused_fontrom = fontrom;
 }
 
+
+//### must follow QWS_PACKING_4BYTE in qgfxraster_qws.cpp
+#ifdef __i386__
+static const int memAlign = 64;
+#else
+static const int memAlign = 32;
+#endif
+
+inline static const int calcLineStep( int w, int d, bool vram ) 
+{
+    int align = vram ? qt_screen->pixmapLinestepAlignment() : memAlign;
+    return ((w*d+align-1)/align)*align/8;
+}
+
 // Pixmaps
 QMemoryManager::PixmapID QMemoryManager::newPixmap(int w, int h, int d)
 {
@@ -520,12 +534,7 @@ QMemoryManager::PixmapID QMemoryManager::newPixmap(int w, int h, int d)
 
     const int test_offset=0;
 
-    int temp=(w*d+7)/8;
-    while(temp % qt_screen->pixmapLinestepAlignment()) {
-	temp++;
-    }
-
-    int siz=temp*h;
+    int siz = calcLineStep( w, d, TRUE ) * h;
 
     // Aggressively find space in vram.
 
@@ -537,12 +546,10 @@ QMemoryManager::PixmapID QMemoryManager::newPixmap(int w, int h, int d)
 	// use an ODD next_pixmap_id
 	id = ++next_pixmap_id;
 	next_pixmap_id++; // stay even
-    } else {
-	// Don't need to align if it's in main ram
+    } else { 	// No vram left - use main memory
+	// Possibly different alignment if it's in main ram
+	siz = calcLineStep( w, d, FALSE ) * h;
 
-	siz=((w*d+7)/8)*h;
-
-	// No vram left - use main memory
 	xoffset = test_offset; // for testing
 
 	data = new uchar[siz];
@@ -582,16 +589,8 @@ void QMemoryManager::findPixmap(PixmapID id, int width, int depth, uchar** addre
     QMap<PixmapID,QMemoryManagerPixmap>::Iterator it = pixmap_map.find(id);
     *address = (*it).data;
     *xoffset = (*it).xoffset;
-    int temp=(width*depth+7)/8;
-    if(id & 0x1) {
-	// Odd, so it's on the graphics card, so its linestep will be
-	// aligned
-	int t=qt_screen->pixmapLinestepAlignment();
-	while(temp % t) {
-	    temp++;
-	}
-    }
-    *linestep = temp;
+
+    *linestep = calcLineStep( width, depth, id&1 );
 }
 
 // Fonts

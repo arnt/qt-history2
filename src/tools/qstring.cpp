@@ -13358,19 +13358,19 @@ int QString::contains( const QRegExp &rx ) const
 
 
 /*!
-  Replaces every occurrence of \a rx in the string with \a str.
+  Replaces \e every occurrence of \a rx in the string with \a str.
   Returns a reference to the string.
 
   Examples:
   \code
     QString s = "banana";
-    s.replace( QRegExp("a.*a"), "" );		// becomes "b"
+    s.replace( QRegExp("a.*a"), "" );     // becomes "b"
 
     QString s = "banana";
-    s.replace( QRegExp("^[bn]a"), " " );	// becomes " nana"
+    s.replace( QRegExp("^[bn]a"), " " );  // becomes " nana"
 
     QString s = "banana";
-    s.replace( QRegExp("^[bn]a"), "" );		// NOTE! becomes ""
+    s.replace( QRegExp("^[bn]a"), "" );   // becomes "" (every occurrence)
   \endcode
 
   \sa find() findRev()

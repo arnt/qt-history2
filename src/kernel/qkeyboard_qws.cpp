@@ -9,18 +9,21 @@
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses for Qt/Embedded may use this file in accordance with the
 ** Qt Embedded Commercial License Agreement provided with the Software.
-**
-** This file is not available for use under any other license without
-** express written permission from the copyright holder.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 **   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
 ** Contact info@trolltech.com if any conditions of this licensing are
 ** not clear to you.
@@ -634,8 +637,8 @@ void QWSiPaqButtonsHandler::readKeyboardData()
 	bool press = !(buf[0]&0x80);
 	const uint nbut = 10;
 	int keycode[nbut] = {
-	    Qt::Key_Escape, // audio
 	    0, // power
+	    Qt::Key_Escape, // audio
 	    Qt::Key_F1,
 	    Qt::Key_F2,
 	    Qt::Key_F3,
@@ -767,7 +770,7 @@ void QWSVr41xxButtonsHandler::readKeyboardData()
  */
 
 #ifndef QT_NO_QWS_VFB
-#include "qvfbhdr_qws.h"
+#include "qvfbhdr.h"
 extern int qws_display_id;
 #endif
 
@@ -818,7 +821,7 @@ void QWSVFbKeyboardHandler::readKeyboardData()
     int idx = 0;
     while ( kbdIdx - idx >= (int)sizeof( QVFbKeyData ) ) {
 	QVFbKeyData *kd = (QVFbKeyData *)(kbdBuffer + idx);
-	if ( kd->unicode == 0 ) {
+	if ( kd->unicode == 0 && kd->modifiers == 0 && kd->press ) {
 	    // magic exit key
 	    qWarning( "Instructed to quit by Virtual Keyboard" );
 	    qApp->quit();

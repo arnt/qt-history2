@@ -751,9 +751,7 @@ NorwegianWoodStyle::NorwegianWoodStyle( int sbext ) : QWindowsStyle()
 
 /*!
   Reimplementation from QStyle
-
-  \sa QStyle
-  */
+ */
 void NorwegianWoodStyle::polish( QApplication *app)
 {
 
@@ -865,9 +863,7 @@ void NorwegianWoodStyle::unPolish( QApplication *app)
 
 /*!
   Reimplementation from QStyle
-
-  \sa QStyle
-  */
+ */
 void NorwegianWoodStyle::polish( QWidget* w)
 {
 
@@ -1114,9 +1110,7 @@ void NorwegianWoodStyle::drawScrollBarControls( QPainter* p, const QScrollBar* s
 
 /*!
   Reimplementation from QStyle
-
-  \sa QStyle
-  */
+ */
 void NorwegianWoodStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 			     const QColorGroup &g, bool sunken, const QBrush* fill)
 {
@@ -1183,9 +1177,7 @@ void NorwegianWoodStyle::drawBevelButton( QPainter *p, int x, int y, int w, int 
 
 /*!
   Reimplementation from QStyle
-
-  \sa QStyle
-  */
+ */
 void NorwegianWoodStyle::drawPushButton( QPushButton* btn, QPainter *p)
 {
     QColorGroup g = btn->colorGroup();
@@ -1237,9 +1229,7 @@ void NorwegianWoodStyle::drawPushButton( QPushButton* btn, QPainter *p)
 
 /*!
   Reimplementation from QStyle
-
-  \sa QStyle
-  */
+ */
 void NorwegianWoodStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 {
     QRect r = btn->rect();
@@ -1288,15 +1278,9 @@ QRect NorwegianWoodStyle::buttonRect( int x, int y, int w, int h) const
 
 /*!
   Reimplementation from QStyle
-
-  \sa QStyle
-  */
+ */
 void NorwegianWoodStyle::drawButtonMask( QPainter *p, int x, int y, int w, int h)
 {
     int d = QMIN(w,h)/2;
     drawroundrect( p, x, y, w, h, d );
 }
-
-
-
-

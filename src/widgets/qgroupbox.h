@@ -112,7 +112,9 @@ private:
     QString str;
     int align;
     int lenvisible;
+#ifndef QT_NO_ACCEL
     QAccel * accel;
+#endif
     QGroupBoxPrivate * d;
 
     QVBoxLayout *vbox;

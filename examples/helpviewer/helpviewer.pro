@@ -5,3 +5,4 @@ SOURCES		= helpwindow.cpp \
 		  main.cpp
 TARGET		= helpviewer
 DEPENDPATH=../../include
+REQUIRES=large-config

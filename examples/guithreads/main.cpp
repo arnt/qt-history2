@@ -58,7 +58,7 @@ private:
     QString text;
 };
 
-QMutex mutex;
+static QMutex* mutex;
 
 GUIThread::GUIThread( QLabel* l, const QString& t )
 : label( l ), text( t )
@@ -68,12 +68,12 @@ GUIThread::GUIThread( QLabel* l, const QString& t )
 void GUIThread::run()
 {
     for ( int i = 0; i < 5; i++ ) {
-	mutex.lock();
+	mutex->lock();
 	qApp->lock();
 	label->setText(text);
 	qApp->unlock();
 	sleep( 1 );
-	mutex.unlock();
+	mutex->unlock();
     }
 }
 
@@ -82,6 +82,7 @@ void GUIThread::run()
 int main( int argc, char** argv )
 {
     QApplication app( argc, argv );
+    mutex = new QMutex;
 
     QHBox box( 0, 0, TRUE );
     QLabel label( &box );
@@ -99,6 +100,9 @@ int main( int argc, char** argv )
     second.start();
     third.start();
 
-    return app.exec();
+    int r = app.exec();
+
+    delete mutex;
+    return r;
 }
 

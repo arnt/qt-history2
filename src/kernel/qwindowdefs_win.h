@@ -1,4 +1,6 @@
 #ifndef QWINDOWDEFS_WIN_H
+#ifndef QT_H
+#endif // QT_H
 #define QWINDOWDEFS_WIN_H
 
 #ifndef QT_H

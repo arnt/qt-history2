@@ -5,3 +5,4 @@ SOURCES		= main.cpp \
 		  mywidget.cpp
 TARGET		= i18n
 DEPENDPATH=../../include
+REQUIRES=full-config

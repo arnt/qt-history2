@@ -5,21 +5,22 @@ system and compiler you are using.
 
 Supported platforms and compilers:
 
-  aix-g++        hpux-cc        irix-n32       qnx-g++        unixware-g++
-  aix-xlc        hpux-g++       irix-o32       sco-g++        unixware7-cc
-  bsdi-g++       hpux-n64       linux-g++      solaris-64     unixware7-g++
+  aix-g++        hpux-cc        irix-o32       qnx-rtp-g++    unixware-g++
+  aix-xlc        hpux-g++       linux-g++      sco-g++        unixware7-cc
+  bsdi-g++       hpux-n64       linux-cxx      solaris-64     unixware7-g++
   dgux-g++       hpux-o64       netbsd-g++     solaris-cc
   freebsd-g++    irix-64        openbsd-g++    solaris-g++
-  gnu-g++        irix-dcc       osf1-cxx       sunos-g++
-  hpux-acc	 irix-g++       osf1-g++       ultrix-g++
+  gnu-g++        irix-g++       osf1-cxx       sunos-g++
+  hpux-acc	 irix-n32       osf1-g++       ultrix-g++
 
 Limitations:
 
-  aix-g++ and ultrix-g++ do not support shared libraries, use static.
+  ultrix-g++ does not support shared libraries, use static.
+  qnx-rtp-g++ is experimental only. Expect some problems.
 
 Compilation problems:
 
-  Qt 2.0 has problems compiling on some combinations of operating
+  Qt 2.x has problems compiling on some combinations of operating
   system versions and compiler versions.  Information about such
   problems will be posted on http://www.trolltech.com/platforms/ as we
   become aware of them.

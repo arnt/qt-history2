@@ -18,7 +18,8 @@ PLATFORM=$1
 
 if [ "$PLATFORM" = "qws" ]
 then
-    TMAKEARG="CONFIG+=embedded OBJECTS_DIR=tmp CONFIG+=png CONFIG+=zlib"
+    #TMAKEARG="CONFIG+=embedded OBJECTS_DIR=tmp CONFIG+=png CONFIG+=zlib"
+    TMAKEARG="CONFIG+=embedded CONFIG+=png CONFIG+=zlib"
 else
     TMAKEARG=""
 fi

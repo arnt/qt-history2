@@ -1723,6 +1723,9 @@ QString QTextStream::read()
 
 /*!
   Writes a \c char to the stream and returns a reference to the stream.
+
+  The character \a c is assumed to be Latin1 encoded independent of the Encoding set
+  for the QTextStream.
 */
 QTextStream &QTextStream::operator<<( QChar c )
 {
@@ -1962,6 +1965,9 @@ QTextStream &QTextStream::operator<<( double f )
 
 /*!
   Writes a string to the stream and returns a reference to the stream.
+
+  The string \a s is assumed to be Latin1 encoded independent of the Encoding set
+  for the QTextStream.
 */
 
 QTextStream &QTextStream::operator<<( const char* s )
@@ -1999,6 +2005,9 @@ QTextStream &QTextStream::operator<<( const char* s )
 
 /*!
   Writes \a s to the stream and returns a reference to the stream.
+
+  The string \a s is assumed to be Latin1 encoded independent of the Encoding set
+  for the QTextStream.
 */
 
 QTextStream &QTextStream::operator<<( const QCString & s )
@@ -2310,14 +2319,16 @@ void QTextStream::setEncoding( Encoding e )
 	internalOrder = TRUE;
 	break;
     case UnicodeUTF8:
-#ifndef QT_NO_TEXTCODEC
+#ifndef QT_NO_CODECS
 	mapper = QTextCodec::codecForMib( 106 );
-#else
-	mapper = 0;
-#endif
 	latin1 = FALSE;
 	doUnicodeHeader = TRUE;
 	internalOrder = TRUE;
+#else
+	mapper = 0;
+	latin1 = TRUE;
+	doUnicodeHeader = TRUE;
+#endif
 	break;
     case UnicodeNetworkOrder:
 	mapper = 0;

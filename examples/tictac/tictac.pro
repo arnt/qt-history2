@@ -5,3 +5,4 @@ SOURCES		= main.cpp \
 		  tictac.cpp
 TARGET		= tictac
 DEPENDPATH=../../include
+REQUIRES=medium-config

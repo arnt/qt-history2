@@ -5,3 +5,4 @@ DEPENDPATH	= ../../include
 HEADERS		= 
 SOURCES		= launcher.cpp
 TARGET		= launcher
+REQUIRES=large-config

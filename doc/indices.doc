@@ -125,7 +125,7 @@ Overviews
 <li> <a href="i18n.html">  Internationalization (i18n) </a>
 <li> <a href="debug.html">  Debugging Techniques</a>
 <li> <a href="pictures.html">  Widget Screenshots</a>
-<li> <a href="threads.html"> Thread support in Qt </a>
+<li> <a href="threads.html"> Thread Support in Qt </a>
 </ul>
 
 </td>
@@ -152,13 +152,15 @@ Appendix
 <td valign=top>
 <ul>
   <li> <a href="designer.html"> Qt Designer</a>
-  <li> <a href="qvfb-qws.html"> Virtual Framebuffer</a>
+  <li> <a href="qembed.html"> QEmbed - inline files/images</a>
+  <li> <a href="qvfb-qws.html"> QVFb - virtual framebuffer for Qt/Embedded</a>
 </ul>
 </td>
 <td valign=top>
 <ul>
 <li> <a href="accelerators.html">  Standard Accelerators</a>
-<li> <a href="license.html"> Qt Free Edition License</a>
+<li> <a href="license.html"> Q Public License</a>
+<li> <a href="gpl.html"> GNU General Public License</a>
 <li> <a href="licenses.html"> Other Licenses used in Qt </a>
 <li> <a href="credits.html"> Credits</a>
 </ul>

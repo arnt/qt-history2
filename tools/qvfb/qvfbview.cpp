@@ -18,8 +18,9 @@
 *****************************************************************************/
 
 #include "qvfbview.h"
-#include <qvfbhdr_qws.h>
-#include <qwscommand_qws.h>	    // for QTE_PIPE
+#include "qvfbhdr.h"
+
+#define QTE_PIPE "/tmp/.QtEmbedded-%1"
 
 #include <qimage.h>
 #include <qbitmap.h>

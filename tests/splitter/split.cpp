@@ -10,9 +10,7 @@ int main( int argc, char ** argv )
 {
     QApplication a( argc, argv );
 
-
     QSplitter top;
-
     QLabel l( "Label", &top );
     l.setBackgroundColor( Qt::blue.light() );
 
@@ -22,22 +20,23 @@ int main( int argc, char ** argv )
     (new QLabel( "Hei Hei", &top))->setBackgroundColor( Qt::white );
 
     a.setMainWidget( &top );
-
-    
     {
 	QFile f( "split.dat" );
 	if ( f.open( IO_ReadOnly ) ) {
 	    QDataStream s( &f );
+	    QSize size;
+	    s >> size;
 	    QValueList<int> sizes;
 	    s >> sizes;
+	    top.resize(size);
 	    top.setSizes( sizes );
 	}
     }
     
-    
     top.show();
     int r = a.exec();
     QValueList<int> sizes = top.sizes();
+    QSize size = top.size();
 
     QValueListIterator<int> it;
       int i=0;
@@ -48,12 +47,9 @@ int main( int argc, char ** argv )
 	QFile f( "split.dat" );
 	f.open( IO_WriteOnly );
 	QDataStream s( &f );
+	s << size;
 	s << sizes;
 
     }
-	sizes = top.sizes();
-      for ( it = sizes.begin(); it != sizes.end(); ++it )
-      debug( "size %d", *it );
-                                                                                
     return r;
 }

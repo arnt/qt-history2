@@ -279,6 +279,8 @@ const QPixmap *QListBoxItem::pixmap() const
 
 /*!
   Specifies if this item may be selected by the user or not.
+
+  \sa isSelectable()
 */
 
 void QListBoxItem::setSelectable( bool b )
@@ -647,7 +649,7 @@ int QListBoxPixmap::width( const QListBox* lb ) const
   define new classes which inherit QListBoxItem.
 
   \warning The list box assumes ownership of all list box items
-  and will delete them when is does  not need them any more.
+  and will delete them when it does not need them any more.
 
   <img src=qlistbox-m.png> <img src=qlistbox-w.png>
 

@@ -9,18 +9,21 @@
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses for Qt/Embedded may use this file in accordance with the
 ** Qt Embedded Commercial License Agreement provided with the Software.
-**
-** This file is not available for use under any other license without
-** express written permission from the copyright holder.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 **   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
 ** Contact info@trolltech.com if any conditions of this licensing are
 ** not clear to you.
@@ -83,7 +86,7 @@ static void paint_children(QWidget * p,const QRegion& r)
 	    if( o->isWidgetType() ) {
 		QWidget *w = (QWidget *)o;
 		if ( w->testWState(Qt::WState_Visible) ) {
-		    QRegion wr = QRegion(w->geometry()) & r;
+		    QRegion wr( QRegion(w->geometry()) & r );
 		    if ( !wr.isEmpty() ) {
 			wr.translate(-w->x(),-w->y());
 			QApplication::postEvent(w,new QPaintEvent(wr,
@@ -325,6 +328,9 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 		if ( isTopLevel() )
 		    qwsDisplay()->destroyRegion( winId() );
 	    }
+	    if ( parentWidget() && parentWidget()->testWState(WState_Created) ) {
+		hideWindow();
+	    }
 	}
 	setWinId( 0 );
     }
@@ -342,22 +348,34 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	unsetCursor();
     }
 #endif
+
     WId old_winid = winid;
     if ( testWFlags(WType_Desktop) )
 	old_winid = 0;
+
+    if ( isTopLevel() )
+	qwsDisplay()->destroyRegion( winId() );
+    if ( parentWidget() && parentWidget()->testWState(WState_Created) )
+	hideWindow();
+
     setWinId( 0 );
-    reparentFocusWidgets( parent );		// fix focus chains
 
     setAllocatedRegionDirty(); // affects my siblings
 
     if ( parentObj ) {				// remove from parent
 	parentObj->removeChild( this );
+	QWidget *p = parentWidget();
+	if ( p )
+	    p->paintable_region_dirty = TRUE;
 	if ( old_winid && testWFlags(WType_TopLevel) )
 	    qwsDisplay()->destroyRegion( old_winid );
     }
     if ( parent ) {				// insert into new parent
 	parentObj = parent;			// avoid insertChild warning
 	parent->insertChild( this );
+	QWidget *p = parentWidget();
+	if ( p )
+	    p->paintable_region_dirty = TRUE;
     }
     bool     enable = isEnabled();		// remember status
     FocusPolicy fp = focusPolicy();
@@ -366,7 +384,9 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     //QColor   bgc    = bg_col;			// save colors
     QString capt= caption();
     widget_flags = f;
-    clearWState( WState_Created | WState_Visible );
+    clearWState( WState_Created | WState_Visible | WState_ForceHide );
+    if ( isTopLevel() || (!parent || parent->isVisibleTo( 0 ) ) )
+	setWState( WState_ForceHide );	// new widgets do not show up in already visible parents
     create();
     const QObjectList *chlist = children();
     if ( chlist ) {				// reparent children
@@ -403,21 +423,9 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	setCursor(oldcurs);
     }
 #endif
-#ifndef QT_NO_ACCEL
-    QObjectList	*accelerators = queryList( "QAccel" );
-    QObjectListIt it( *accelerators );
-    QObject *obj;
-    while ( (obj=it.current()) != 0 ) {
-	++it;
-	((QAccel*)obj)->repairEventFilter();
-    }
-    delete accelerators;
-#endif // QT_NO_ACCEL
-    if ( !parent ) {
-	QFocusData *fd = focusData( TRUE );
-	if ( fd->focusWidgets.findRef(this) < 0 )
- 	    fd->focusWidgets.append( this );
-    }
+    reparentFocusWidgets( parent );		// fix focus chains
+    QCustomEvent e( QEvent::Reparent, 0 );
+    QApplication::sendEvent( this, &e );
 }
 
 
@@ -718,6 +726,8 @@ void QWidget::showWindow()
 	if ( testWFlags(WStyle_StaysOnTop) )
 	    qwsDisplay()->setAltitude( winId(), 0, TRUE );
     } else if ( !topLevelWidget()->in_show ) {
+	QWidget *p = parentWidget();
+	p->paintable_region_dirty = TRUE;
 	update();
     }
 }
@@ -732,10 +742,14 @@ void QWidget::hideWindow()
 	qwsDisplay()->requestRegion(winId(), QRegion());
 	qwsDisplay()->requestFocus(winId(),FALSE);
     } else {
+	QWidget *p = parentWidget();
+	p->paintable_region_dirty = TRUE;
 	bool v = testWState(WState_Visible);
 	clearWState(WState_Visible);
-	parentWidget()->repaint(geometry());
-	paint_children( parentWidget(),geometry() );
+	// Must post the event since the parent might well be destructing
+	QApplication::postEvent(p,new QPaintEvent(geometry(),
+		       !p->testWFlags(QWidget::WRepaintNoErase) ) );
+	paint_children( p,geometry() );
 	if ( v )
 	    setWState(WState_Visible);
     }
@@ -839,6 +853,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	h = 1;
     QPoint oldp = pos();
     QSize  olds = size();
+
     QRect  r( x, y, w, h );
 
     bool isResize = olds != r.size();
@@ -847,6 +862,11 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     // cause the window manager to change its state
     if ( r.size() == olds && oldp == r.topLeft() )
 	return;
+
+    QRegion oldAlloc;
+    if ( !isTopLevel() && isMove && ( w==olds.width() && h==olds.height() ) ) {
+	oldAlloc = allocatedRegion();
+    }
 
     setCRect( r );
 
@@ -908,19 +928,9 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	if ( !isTopLevel() || isResize ) {
 	    QWidget *p = parentWidget();
 	    if (p) {
+		p->paintable_region_dirty = TRUE;
 		QRegion oldr( QRect(oldp, olds) );
-		QRegion upd = QRegion(r) | oldr;
-//#define FAST_WIDGET_MOVE
-#ifdef FAST_WIDGET_MOVE
-		if ( isMove && ( w==olds.width() && h==olds.height() ) &&
-		    !isTopLevel() )
-		{
-		    QGfx * gfx = p->graphicsContext(FALSE);
-		    gfx->scroll(x,y,w,h,oldp.x(),oldp.y());
-		    upd -= QRegion(r);
-		    delete gfx;
-		}
-#endif
+		QRegion upd( ( QRegion(r) | oldr ) & p->rect() );
 		if ( p->isSettingGeometry ) {
 		    dirtyChildren.translate( x, y );
 		    if ( oldp != r.topLeft() ) {
@@ -932,12 +942,31 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 			QApplication::postEvent( this, new QPaintEvent(rect(),
 			    !testWFlags(QWidget::WResizeNoErase)) );
 		    }
-		    p->addDirtyChildRegion( dirtyChildren );
+		    p->dirtyChildren |= dirtyChildren;
 		} else {
-		    QApplication::postEvent( p, new QPaintEvent(upd, TRUE) );
+#define FAST_WIDGET_MOVE
+#ifdef FAST_WIDGET_MOVE
+		    if ( isMove && ( w==olds.width() && h==olds.height() ) ) {
+			QPoint gd = p->mapFromGlobal( QPoint(0,0) );
+			oldAlloc.translate( gd.x() + x - oldp.x(), gd.y() + y - oldp.y() );
+			QRegion alloc( allocatedRegion() );
+			alloc.translate( gd.x(), gd.y() );
+			QRegion scrollRegion( alloc & oldAlloc );
+			if ( !scrollRegion.isEmpty() ) {
+			    upd -= scrollRegion;
+
+			    QGfx * gfx = p->graphicsContext(FALSE);
+			    gfx->setClipRegion( scrollRegion );
+			    gfx->scroll(x,y,w,h,oldp.x(),oldp.y());
+			    delete gfx;
+			}
+		    }
+#endif
+		    if ( !upd.isEmpty() )
+			QApplication::postEvent( p, new QPaintEvent(upd, TRUE) );
 		    dirtyChildren.translate( x, y );
 		    dirtyChildren |= upd;
-		    paint_children( p, dirtyChildren );
+		    paint_children( p, dirtyChildren & p->rect() );
 		}
 	    } else {
 		QApplication::postEvent( this, new QPaintEvent(rect(),
@@ -963,11 +992,6 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    QApplication::postEvent( this,
 				     new QResizeEvent( r.size(), olds ) );
     }
-}
-
-void QWidget::addDirtyChildRegion( const QRegion &r )
-{
-    dirtyChildren |= r;
 }
 
 
@@ -1190,12 +1214,15 @@ void QWidget::drawText( int x, int y, const QString &str )
 int QWidget::metric( int m ) const
 {
     int val;
-    if ( m == QPaintDeviceMetrics::PdmWidth ||
-	 m == QPaintDeviceMetrics::PdmWidthMM ) {
+    if ( m == QPaintDeviceMetrics::PdmWidth ) {
 	val = crect.width();
-    } else if ( m == QPaintDeviceMetrics::PdmHeight ||
-		m == QPaintDeviceMetrics::PdmHeightMM ) {
-	val = crect.height();
+    } else if ( m == QPaintDeviceMetrics::PdmWidthMM ) {
+	// 75 dpi is 3dpmm
+	val = (crect.width()*100)/288;
+    } else if ( m == QPaintDeviceMetrics::PdmHeight ) {
+	val = (crect.height()*100)/288;
+    } else if ( m == QPaintDeviceMetrics::PdmHeightMM ) {
+	val = crect.height()/3;
     } else if ( m == QPaintDeviceMetrics::PdmDepth ) {
 	return qwsDisplay()->depth();
     } else if ( m == QPaintDeviceMetrics::PdmDpiX ) {
@@ -1257,7 +1284,7 @@ QRegion QWidget::requestedRegion() const
 	    }
 	    return r;
 	} else {
-	    return QRect();
+	    return QRegion();
 	}
     }
 }
@@ -1310,8 +1337,10 @@ QRegion QWidget::allocatedRegion() const
 			if ( ch->isWidgetType() ) {
 			    if ( ((QWidget*)ch) == this )
 				clip=TRUE;
-			    else if ( clip && !((QWidget*)ch)->isTopLevel())
-				r -= ((QWidget*)ch)->requestedRegion();
+			    else if ( clip && !((QWidget*)ch)->isTopLevel()) {
+				if ( ((QWidget*)ch)->geometry().intersects( geometry() ) )
+				    r -= ((QWidget*)ch)->requestedRegion();
+			    }
 			}
 		    }
 		}
@@ -1322,13 +1351,15 @@ QRegion QWidget::allocatedRegion() const
 		    QObject* ch;
 		    while ((ch=it.current())) {
 			++it;
-			if ( ch->isWidgetType() )
+			if ( ch->isWidgetType() && !((QWidget*)ch)->isTopLevel() ) {
 			    ((QWidget *)ch)->alloc_region_dirty = TRUE;
+			}
 		    }
 		}
 
 		alloc_region = r;
 		alloc_region_dirty = FALSE;
+		paintable_region_dirty = TRUE;
 	    }
 	    return alloc_region;
 	}
@@ -1339,32 +1370,41 @@ QRegion QWidget::allocatedRegion() const
 
 QRegion QWidget::paintableRegion() const
 {
-    QRegion r;
     if (isVisible()) {
-	r = allocatedRegion();
-#ifndef QT_NO_QWS_MANAGER
-	if (extra && extra->topextra)
-	    r += extra->topextra->decor_allocated_region;
-#endif
-	const QObjectList *c = children();
-	if ( c ) {
-	    QObjectListIt it(*c);
-	    QObject* ch;
-	    while ((ch=it.current())) {
-		++it;
-		if ( ch->isWidgetType() && !((QWidget*)ch)->isTopLevel()) {
-		    r -= ((QWidget*)ch)->requestedRegion();
+	if ( paintable_region_dirty || isAllocatedRegionDirty() ) {
+	    paintable_region = allocatedRegion();
+	    const QObjectList *c = children();
+	    if ( c ) {
+		QObjectListIt it(*c);
+		QObject* ch;
+		while ((ch=it.current())) {
+		    ++it;
+		    if ( ch->isWidgetType() && !((QWidget*)ch)->isTopLevel() ) {
+			paintable_region -= ((QWidget*)ch)->requestedRegion();
+		    }
 		}
 	    }
+	    paintable_region_dirty = FALSE;
+	}
+	if ( !isTopLevel() )
+	    return paintable_region;
+	else {
+	    QRegion r( paintable_region );
+#ifndef QT_NO_QWS_MANAGER
+	    if (extra && extra->topextra)
+		r += extra->topextra->decor_allocated_region;
+#endif
+	    return r;
 	}
     }
-    return r;
+
+    return QRegion();
 }
 
 
 void QWidget::setMask( const QRegion& region )
 {
-    alloc_region_dirty = true;
+    alloc_region_dirty = TRUE;
 
     createExtra();
 
@@ -1390,6 +1430,7 @@ void QWidget::setMask( const QRegion& region )
 #endif
 	    qwsDisplay()->requestRegion(winId(), rgn);
 	} else {
+	    parentWidget()->paintable_region_dirty = TRUE;
 	    parentWidget()->repaint(geometry());
 	    paint_children( parentWidget(),geometry() );
 	}
@@ -1421,9 +1462,9 @@ QGfx * QWidget::graphicsContext(bool clip_children) const
     QPoint offset=mapToGlobal(QPoint(0,0));
     QRegion r; // empty if not visible
     if ( isVisible() && topLevelWidget()->isVisible() ) {
-	r = clip_children ? paintableRegion() : allocatedRegion();
 	int rgnIdx = topLevelWidget()->alloc_region_index;
 	if ( rgnIdx >= 0 ) {
+	    r = clip_children ? paintableRegion() : allocatedRegion();
 	    QWSDisplay::grab();
 	    int *rgnRev = qwsDisplay()->regionManager()->revision( rgnIdx );
 	    if ( topLevelWidget()->alloc_region_revision != *rgnRev ) {
@@ -1438,8 +1479,6 @@ QGfx * QWidget::graphicsContext(bool clip_children) const
 	    }
 	    qgfx_qws->setGlobalRegionIndex( rgnIdx );
 	    QWSDisplay::ungrab();
-	} else {
-	    r = QRegion();
 	}
     }
     qgfx_qws->setWidgetRegion(r);

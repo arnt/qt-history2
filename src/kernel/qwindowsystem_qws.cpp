@@ -9,18 +9,21 @@
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses for Qt/Embedded may use this file in accordance with the
 ** Qt Embedded Commercial License Agreement provided with the Software.
-**
-** This file is not available for use under any other license without
-** express written permission from the copyright holder.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 **   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
 ** Contact info@trolltech.com if any conditions of this licensing are
 ** not clear to you.
@@ -67,8 +70,14 @@
 #include <fcntl.h>
 
 #ifndef QT_NO_SOUND
+#ifdef QT_USE_OLD_QWS_SOUND
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <sys/soundcard.h>
+#else
+#include "qsoundqss_qws.h"
+#endif
 #endif
 
 #include <qgfx_qws.h>
@@ -83,6 +92,8 @@ typedef void SetAltitudeF( const QWSChangeAltitudeCommand* );
 extern QQueue<QWSCommand> *qt_get_server_queue();
 
 static QRect maxwindow_rect;
+static const char *defaultMouse = "Auto";
+static const char *defaultKeyboard = "TTY";
 
 static int get_object_id()
 {
@@ -254,6 +265,7 @@ void QWSClient::sendSelectionRequestEvent( QWSConvertSelectionCommand *cmd, int 
 }
 
 #ifndef QT_NO_SOUND
+#ifdef QT_USE_OLD_QWS_SOUND
 
         /*
         ***
@@ -482,7 +494,12 @@ private:
     void openDevice()
     {
 	if ( !sn ) {
-	    int fd = ::open("/dev/dsp",O_WRONLY);
+	    int fd = ::open("/dev/dsp",O_RDWR);
+	    if ( fd < 0 ) {
+		// For debugging purposes - defined QT_NO_SOUND if you
+		// don't have sound hardware!
+		fd = ::open("/tmp/dsp",O_WRONLY);
+	    }
 
 	    // Setup soundcard at 16 bit mono
 	    int v;
@@ -535,6 +552,7 @@ void QWSSoundServer::feedDevice(int fd)
     d->feedDevice(fd);
 }
 
+#endif
 #endif
 
 /*********************************************************************
@@ -618,8 +636,8 @@ QWSServer::QWSServer( int displayId, int flags,
     // input devices
     if ( !(flags&DisableMouse) ) {
 	openMouse();
-	initializeCursor();
     }
+    initializeCursor();
 
 #ifndef QT_NO_QWS_KEYBOARD
     if ( !(flags&DisableKeyboard) ) {
@@ -719,6 +737,9 @@ void QWSServer::clientClosed()
 		if ( focusw == w )
 		    setFocus(focusw,0);
 		windows.removeRef(w);
+#ifndef QT_NO_QWS_PROPERTIES
+		manager()->removeProperties( w->winId() );
+#endif
 		delete w; //windows is not auto-delete
 	    }
 	}
@@ -883,6 +904,13 @@ void QWSServer::showCursor()
 #endif
 }
 
+void QWSServer::hideCursor()
+{
+#ifndef QT_NO_QWS_CURSOR
+    qt_screencursor->hide();
+#endif
+}
+
 // ### don't like this
 void QWSServer::enablePainting(bool e)
 {
@@ -890,11 +918,13 @@ void QWSServer::enablePainting(bool e)
     {
 	disablePainting = false;
 	setWindowRegion( 0, QRegion() );
+	showCursor();
 	syncRegions();
     }
     else
     {
 	disablePainting = true;
+	hideCursor();
 	setWindowRegion( 0, QRegion(0,0,swidth,sheight) );
 	syncRegions();
     }
@@ -934,9 +964,21 @@ void QWSServer::sendMaxWindowRectEvents()
 	(*it)->sendMaxWindowRectEvent();
 }
 
+void QWSServer::setDefaultMouse( const char *m )
+{
+    defaultMouse = m;
+}
+
+void QWSServer::setDefaultKeyboard( const char *k )
+{
+    defaultKeyboard = k;
+}
+
 void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 {
     qwsServer->showCursor();
+
+    mousePosition = pos;
 
     QWSMouseEvent event;
 
@@ -960,9 +1002,6 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
     if ( state && !qwsServer->mouseGrabbing ) {
 	qwsServer->mouseGrabber = win;
     }
-
-    QPoint cursPos = qt_screen->mapFromDevice( pos,
-			QSize(qwsServer->swidth, qwsServer->sheight) );
 
     event.simpleData.x_root=pos.x();
     event.simpleData.y_root=pos.y();
@@ -1172,6 +1211,11 @@ void QWSServer::invokeRegionDestroy( QWSRegionDestroyCommand *cmd, QWSClient *cl
     syncRegions();
     if ( focusw == changingw )
 	setFocus(changingw,FALSE);
+
+#ifndef QT_NO_QWS_PROPERTIES
+    manager()->removeProperties( changingw->winId() );
+#endif
+    delete changingw;
 }
 
 
@@ -1481,6 +1525,10 @@ void QWSWindow::focus(bool get)
     c->sendEvent( &event );
 }
 
+QWSWindow::~QWSWindow()
+{
+}
+
 QWSWindow* QWSServer::newWindow(int id, QWSClient* client)
 {
     // Make a new window, put it on top.
@@ -1556,12 +1604,10 @@ void QWSServer::raiseWindow( QWSWindow *changingw, int )
     }
 
     if ( windowPos != windows.at() ) {
+	// window changed position
 	setWindowRegion( changingw, changingw->requested_region );
-	syncRegions( changingw );
-    } else {
-	// window didn't change position
-	changingw->updateAllocation(); // still need ack
     }
+    syncRegions( changingw );
 }
 
 void QWSServer::lowerWindow( QWSWindow *changingw, int )
@@ -1773,7 +1819,7 @@ void QWSServer::openMouse()
 {
     QString mice = getenv("QWS_MOUSE_PROTO");
     if ( mice.isEmpty() ) {
-#if defined(__MIPSEL__)
+#if defined(QT_QWS_CASSIOPEIA)
 	mice = "TPanel:/dev/tpanel";
 #elif !defined(QT_NO_QWS_VFB)
 	extern bool qvfbEnabled;
@@ -1781,9 +1827,11 @@ void QWSServer::openMouse()
 	    mice = "QVFbMouse";
 #endif
 	if ( mice.isEmpty() )
-	    mice = "Auto";
+	    mice = defaultMouse;
     }
     closeMouse();
+    if ( mice == "None" )
+	return;
 #ifndef QT_NO_STRINGLIST
     QStringList mouse = QStringList::split(" ",mice);
     for (QStringList::Iterator m=mouse.begin(); m!=mouse.end(); ++m) {
@@ -1824,7 +1872,7 @@ void QWSServer::openKeyboard()
 {
     QString keyboards = getenv("QWS_KEYBOARD");
     if ( keyboards.isEmpty() ) {
-#if defined( __MIPSEL__ ) || defined( QT_QWS_IPAQ )
+#if defined( QT_QWS_CASSIOPEIA ) || defined( QT_QWS_IPAQ )
 	keyboards = "Buttons";
 #elif !defined(QT_NO_QWS_VFB)
 	extern bool qvfbEnabled;
@@ -1832,10 +1880,12 @@ void QWSServer::openKeyboard()
 	    keyboards = "QVFbKeyboard";
 #endif
 	if ( keyboards.isEmpty() ) {
-	    keyboards = "TTY";	// last resort
+	    keyboards = defaultKeyboard;	// last resort
 	}
     }
     closeKeyboard();
+    if ( keyboards == "None" )
+	return;
 #ifndef QT_NO_STRINGLIST
     QStringList keyboard = QStringList::split(" ",keyboards);
     for (QStringList::Iterator k=keyboard.begin(); k!=keyboard.end(); ++k) {
@@ -1851,6 +1901,7 @@ void QWSServer::openKeyboard()
 #endif //QT_NO_QWS_KEYBOARD
 
 QWSServer *QWSServer::qwsServer=0; //there can be only one
+QPoint QWSServer::mousePosition;
 
 void QWSServer::move_region( const QWSRegionMoveCommand *cmd )
 {
@@ -1891,7 +1942,7 @@ void QWSServer::openDisplay()
 
 void QWSServer::closeDisplay()
 {
-    qt_screen->shutdownCard();
+    qt_screen->shutdownDevice();
 }
 
 

@@ -207,6 +207,7 @@ protected:
 	int numcols;
 	int rw;
 	int rh;
+	bool hasAlpha;
 #endif
 	Optimization optim;
     } *data;

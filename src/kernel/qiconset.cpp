@@ -154,7 +154,7 @@ struct QIconSetPrivate: public QShared
   \sa QPixmap QLabel QToolButton QPopupMenu
 	QIconViewItem::setViewMode() QMainWindow::setUsesBigPixmaps()
   <a href="guibooks.html#fowler">GUI Design Handbook: Iconic Label</a>
-  <a href="http://www.microsoft.com/clipgallerylive/icons.asp">Microsoft
+  <a href="http://cgl.microsoft.com/clipgallerylive/cgl30/eula.asp?nInterface=0">Microsoft
   Icon Gallery.</a>
 */
 

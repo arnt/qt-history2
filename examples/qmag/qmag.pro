@@ -4,3 +4,4 @@ HEADERS		=
 SOURCES		= qmag.cpp
 TARGET		= qmag
 DEPENDPATH=../../include
+REQUIRES=full-config

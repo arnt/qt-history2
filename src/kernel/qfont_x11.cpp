@@ -191,7 +191,7 @@ private:
 };
 
 inline QFontInternal::QFontInternal( const QString &name )
-    : n(name.ascii()), f(0), set(0)
+    : n(name.ascii()), f(0), set(0), cmapper(0)
 {
     s.dirty = TRUE;
 }
@@ -254,8 +254,7 @@ inline QFontInternal::~QFontInternal()
 }
 
 
-static const int reserveCost   = 1024*100;
-static const int fontCacheSize = 1024*1024*4;
+static const int fontCacheSize = 1024;
 
 
 typedef QCacheIterator<QFontInternal> QFontCacheIt;
@@ -268,6 +267,7 @@ class QFontCache : public QCache<QFontInternal>
 public:
     QFontCache( int maxCost, int size=17 )
 	: QCache<QFontInternal>(maxCost,size) {}
+    ~QFontCache() { clear(); }
     void deleteItem( Item );
 };
 
@@ -552,7 +552,10 @@ static bool fillFontDef( const QCString &xlfd, QFontDef *fd,
 
 #if 1
     int r = atoi(tokens[ResolutionY]);
-    if ( r && QPaintDevice::x11AppDpiY() && r != QPaintDevice::x11AppDpiY() ) { // not "0" or "*", or required DPI
+    float resDiff = 0;
+    if ( r && QPaintDevice::x11AppDpiY() )
+	resDiff = QABS( ((float)(r - QPaintDevice::x11AppDpiY())) / ((float) r) );
+    if ( resDiff > 0.1 ) { // not "0" or "*", or required DPI
 	// calculate actual pointsize for display DPI
 	fd->pointSize = ( 2*fd->pointSize*atoi(tokens[ResolutionY])
 			  + QPaintDevice::x11AppDpiY()
@@ -1087,10 +1090,10 @@ void QFont::initFontInfo() const
 	if ( PRIV->needsSet() ) {
 	    QCString locale = setlocale(LC_CTYPE, 0);
 	    bool useLocale = FALSE;
-	
+
 	    switch (charSet()) {
 	    case Set_Ja:
-		// In case the user has set a locale, we want to use codecForLocale(), 
+		// In case the user has set a locale, we want to use codecForLocale(),
 		// and only use codecForName if the locale is something different (as eg "de").
 		if (locale.left(2) != "ja")
 		    f->cmapper = QTextCodec::codecForName("eucJP");
@@ -1111,8 +1114,8 @@ void QFont::initFontInfo() const
 	    default:
 		useLocale = TRUE;
 	    }
-	    
-	    if ( useLocale || !f->cmapper ) 
+
+	    if ( useLocale || !f->cmapper )
 		f->cmapper = QTextCodec::codecForLocale();
 #ifndef QT_NO_CODECS
 	} else if ( charSet() == JIS_X_0208 ) {
@@ -1354,15 +1357,7 @@ void QFont::load() const
 		// have more memory available to the server.
 		chars = 2000;
 	    }
-	    int size = (f->max_bounds.ascent + f->max_bounds.descent) *
-		       f->max_bounds.width * chars / 8;
-	    // If we get a cache overflow, we make room for this font only
-	    if ( size > fontCache->maxCost() + reserveCost )
-		fontCache->setMaxCost( size + reserveCost );
-#if defined(QT_CHECK_STATE)
-	    if ( !fontCache->insert(d->fin->name(), d->fin, size) )
-		qFatal( "QFont::load: Cache overflow error" );
-#endif
+	    fontCache->insert(d->fin->name(), d->fin, 1);
 	    d->fin->f = f;
 	    initFontInfo();
 	}
@@ -1503,33 +1498,42 @@ int QFont_Private::fontMatchScore( const char *fontName, QCString &buffer,
 	else
 	    exactMatch = FALSE;
     } else {
-	if ( pitch != 'p' )
+	if ( pitch == 'p' )
+	    score |= PitchScore;
+	else
 	    exactMatch = FALSE;
     }
 
     float diff;
     if ( *scalable ) {
-	diff = 9.0;	// choose scalable font over >= 0.9 point difference
+	diff = 0.9;	// choose scalable font over >= 0.9 point difference
 	score |= SizeScore;
 	exactMatch = FALSE;
     } else {
-	int pSize;
+	int pSize, pixSize;
 	float percentDiff;
-	pSize = ( 2*atoi( tokens[PointSize] )*atoi(tokens[ResolutionY]) +
-		  QPaintDevice::x11AppDpiY())
-		/ (QPaintDevice::x11AppDpiY() * 2); // adjust actual pointsize
 
-	if ( deciPointSize() != 0 ) {
-	    diff = (float)QABS(pSize - deciPointSize());
-	    percentDiff = diff/deciPointSize()*100.0F;
+	pSize = atoi(tokens[PixelSize]);
+	pixSize = pixelSize();
+
+	// this is a hack to make 93dpi displays use 100dpi fonts directly, etc...
+	float res = atoi(tokens[ResolutionY]);
+	if ( res ) {
+	    float diff = QABS((QPaintDevice::x11AppDpiY() - res)/res);
+	    if( diff < .1 ) 
+		pixSize = (int)( deciPointSize()*res + 360 ) / 720;
+	}
+	if ( pixSize != 0 ) {
+	    diff = (float)QABS(pSize - pixSize);
+	    percentDiff = (diff/pixSize)*100.0F;
 	} else {
-	    diff = (float)pSize;
+	    diff = (float)atoi(tokens[PointSize]);
 	    percentDiff = 100;
 	}
 
 	if ( percentDiff < 20 ) {
 	    score |= SizeScore;
-	    if ( pSize != deciPointSize() ) {
+	    if ( pSize != pixSize ) {
 		exactMatch = FALSE;
 	    }
 	} else {
@@ -1625,37 +1629,26 @@ QCString QFont_Private::bestMatch( const char *pattern, int *score )
     QCString bestName;
     char *tokens[fontFields];
 
+    //qDebug("best font: %d '%s'", best.score, best.name);
+    //qDebug("best scalable font: %d '%s'", bestScalable.score, bestScalable.name);
+    
     if ( bestScalable.score > best.score ||
 	 bestScalable.score == best.score &&
 	 bestScalable.pointDiff < best.pointDiff ||
 	 bestScalable.score == best.score &&
 	 bestScalable.pointDiff == best.pointDiff &&
 	 bestScalable.weightDiff < best.weightDiff ) {
+	//qDebug("using scalable font");
 	qstrcpy( matchBuffer.data(), bestScalable.name );
 	if ( qParseXFontName( matchBuffer, tokens ) ) {
-	    int resx;
-	    int resy;
-	    int pSize;
-	    if ( bestScalable.smooth ) {
-		// X will scale the font accordingly
-		resx  = QPaintDevice::x11AppDpiX();
-		resy  = QPaintDevice::x11AppDpiY();
-		pSize = deciPointSize();
-	    } else {
-		resx = atoi(tokens[ResolutionX]);
-		resy = atoi(tokens[ResolutionY]);
-		pSize = ( 2*deciPointSize()*QPaintDevice::x11AppDpiY() + resy )
-			/ (resy * 2);
-	    }
-	    bestName.sprintf( "-%s-%s-%s-%s-%s-%s-*-%i-%i-%i-%s-*-%s-%s",
+	    bestName.sprintf( "-%s-%s-%s-%s-%s-%s-%i-*-*-*-%s-*-%s-%s",
 			      tokens[Foundry],
 			      tokens[Family],
 			      tokens[Weight_],
 			      tokens[Slant],
 			      tokens[Width],
 			      tokens[AddStyle],
-			      pSize,
-			      resx, resy,
+			      pixelSize(),
 			      tokens[Spacing],
 			      tokens[CharsetRegistry],
 			      tokens[CharsetEncoding] );
@@ -1667,7 +1660,8 @@ QCString QFont_Private::bestMatch( const char *pattern, int *score )
     bestName = best.name;
 
     XFreeFontNames( xFontNames );
-
+    //qDebug("requesting font '%s' pixSize=%d pointSize=%d", pattern, pixelSize(), pointSize() );
+    //qDebug("best font found is '%s'", (const char *)bestName);
     return bestName;
 }
 
@@ -1782,9 +1776,9 @@ QCString QFont_Private::bestMatchFontSetMember( const QString& family,
 	    if ( qstricmp(family, fontGuessingPair->family[0]) == 0 ) {
 		for ( int i = 0; i < (int)(fontGuessingPair->family.count())-1; ++i ) {
 		    char s[1024];
-		    sprintf( s, "-*-%s-%s-%s-*-*-*-%d-%d-%d-*-*-%s,",
+		    sprintf( s, "-*-%s-%s-%s-*-*-%d-*-*-*-*-*-%s,",
 				fontGuessingPair->family[i+1].latin1(),
-				wt, slant, size, xdpi, ydpi,
+				wt, slant, size, 
 				fontGuessingPair->charset[i].latin1() );
 				bestName.append(s);
 		}
@@ -1795,8 +1789,8 @@ QCString QFont_Private::bestMatchFontSetMember( const QString& family,
     }
 
     // default font
-    bestName.sprintf("-*-helvetica-%s-%s-*-*-*-%d-%d-%d-*-*-*-*,",
-		wt, slant, size, xdpi, ydpi);
+    bestName.sprintf("-*-helvetica-%s-%s-*-*-%d-*-*-*-*-*-*-*,",
+		wt, slant, size);
     return bestName;
 }
 
@@ -1830,49 +1824,44 @@ QCString QFont_Private::findFont( bool *exact )
 		     ( weight() < 81 ? "bold" : "black" ) ) );
 	const char* slant = italic() ? "i" : "r";
 	const char* slant2 = italic() ? "o" : "r";
-	int size = pointSize()*10;
+	int size = pixelSize();
 	QCString s( 512 + 3*familyName.length() );
-	int xdpi = QPaintDevice::x11AppDpiX();
-	int ydpi = QPaintDevice::x11AppDpiY();
 	if ( foundry.isEmpty() ) {
-	    s.sprintf( "-*-%s-%s-%s-normal-*-*-%d-%d-%d-*-*-*-*,"
-		       "-*-%s-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
-		       "-*-%s-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
+	    s.sprintf( "-*-%s-%s-%s-normal-*-%d-*-*-*-*-*-*-*,"
+		       "-*-%s-*-%s-*-*-%d-*-*-*-*-*-*-*,"
+		       "-*-%s-*-%s-*-*-%d-*-*-*-*-*-*-*,"
 				// Font Guessing
 		       "%s"
-		       "-*-*-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
-		       "-*-*-*-*-*-*-*-%d-%d-%d-*-*-*-*",
-		       familyName.ascii(), wt, slant, size, xdpi, ydpi,
-		       familyName.ascii(), slant, size, xdpi, ydpi,
-		       familyName.ascii(), slant2, size, xdpi, ydpi,
+		       "-*-*-*-%s-*-*-%d-*-*-*-*-*-*-*,"
+		       "-*-*-*-*-*-*-%d-*-*-*-*-*-*-*",
+		       familyName.ascii(), wt, slant, size, 
+		       familyName.ascii(), slant, size, 
+		       familyName.ascii(), slant2, size, 
 				// Font Guessing
-		       bestMatchFontSetMember(familyName, wt, slant, size, xdpi, ydpi).data(),
-		       slant, size, xdpi, ydpi,
-		       size, xdpi, ydpi );
+		       bestMatchFontSetMember(familyName, wt, slant, size, 0, 0).data(),
+		       slant, size, 
+		       size );
 	} else {
-	    s.sprintf( "-%s-%s-%s-%s-normal-*-*-%d-%d-%d-*-*-*-*,"
-		       "-%s-%s-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
-		       "-%s-%s-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
-		       "-*-%s-%s-%s-normal-*-*-%d-%d-%d-*-*-*-*,"
-		       "-*-%s-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
-		       "-*-%s-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
+	    s.sprintf( "-%s-%s-%s-%s-normal-*-%d-*-*-*-*-*-*-*,"
+		       "-%s-%s-*-%s-*-*-%d-*-*-*-*-*-*-*,"
+		       "-%s-%s-*-%s-*-*-%d-*-*-*-*-*-*-*,"
+		       "-*-%s-%s-%s-normal-*-%d-*-*-*-*-*-*-*,"
+		       "-*-%s-*-%s-*-*-%d-*-*-*-*-*-*-*,"
+		       "-*-%s-*-%s-*-*-%d-*-*-*-*-*-*-*,"
 				// Font Guessing
 		       "%s"
-		       "-*-*-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
-		       "-*-*-*-*-*-*-*-%d-%d-%d-*-*-*-*",
+		       "-*-*-*-%s-*-*-%d-*-*-*-*-*-*-*,"
+		       "-*-*-*-*-*-*-%d-*-*-*-*-*-*-*",
 		       foundry.ascii(), familyName.ascii(), wt, slant, size,
-		       xdpi, ydpi,
-		       foundry.ascii(), familyName.ascii(), slant, size
-		       , xdpi, ydpi,
+		       foundry.ascii(), familyName.ascii(), slant, size,
 		       foundry.ascii(), familyName.ascii(), slant2, size,
-		       xdpi, ydpi,
-		       familyName.ascii(), wt, slant, size, xdpi, ydpi,
-		       familyName.ascii(), slant, size, xdpi, ydpi,
-		       familyName.ascii(), slant2, size, xdpi, ydpi,
+		       familyName.ascii(), wt, slant, size,
+		       familyName.ascii(), slant, size, 
+		       familyName.ascii(), slant2, size, 
 				// Font Guessing
-		       bestMatchFontSetMember(familyName, wt, slant, size, xdpi, ydpi).data(),
-		       slant, size, xdpi, ydpi,
-		       size, xdpi, ydpi );
+		       bestMatchFontSetMember(familyName, wt, slant, size, 0, 0).data(),
+		       slant, size, 
+		       size );
 	}
 	return s;
     } else {
@@ -2119,7 +2108,7 @@ static void getExt( QString str, int len, XRectangle& ink,
     // Callers to this / this needs to be optimized.
     // Trouble is, too much caching in multiple clients will make the
     //  overall performance suffer.
-
+    
     QCString x = m->fromUnicode(str,len);
     XmbTextExtents( set, x, len, &ink, &logical );
 }

@@ -5,3 +5,4 @@ SOURCES		= lineedits.cpp \
 		  main.cpp
 TARGET		= lineedits
 DEPENDPATH=../../include
+REQUIRES=medium-config

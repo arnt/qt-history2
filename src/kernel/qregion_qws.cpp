@@ -9,18 +9,21 @@
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses for Qt/Embedded may use this file in accordance with the
 ** Qt Embedded Commercial License Agreement provided with the Software.
-**
-** This file is not available for use under any other license without
-** express written permission from the copyright holder.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 **   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
 ** Contact info@trolltech.com if any conditions of this licensing are
 ** not clear to you.
@@ -139,6 +142,11 @@ typedef struct _XRegion {
     QRect extents;
 
     _XRegion() { numRects = 0; }
+    _XRegion( const QRect &r ) : rects(1) {
+	numRects = 1;
+	rects[0] = r;
+	extents = r;
+    }
 
     _XRegion( const _XRegion &r ) {
 	rects = r.rects;
@@ -364,9 +372,7 @@ SOFTWARE.
 typedef void (*voidProcp)(...);
 
 /*	Create a new empty region	*/
-static
-Region
-XCreateRegion()
+static inline Region XCreateRegion()
 {
     return (new REGION);
 }
@@ -863,7 +869,7 @@ miCoalesce (register Region pReg, int prevStart, int curStart)
 	 * this may be pointless -- see above).
 	 */
 	pRegEnd--;
-	while (pRegEnd[-1].top() == pRegEnd->top())
+	while ((pRegEnd-1)->top() == pRegEnd->top())
 	{
 	    pRegEnd--;
 	}
@@ -2719,13 +2725,7 @@ QRegion::QRegion( const QRect &r, RegionType t )
     Q_CHECK_PTR( data );
     data->is_null = FALSE;
     if ( t == Rectangle ) {			// rectangular region
-	Region rgn = XCreateRegion();
-	rgn->rects.resize(1);
-	rgn->numRects = 1;
-	rgn->rects[0] = rr;
-	rgn->extents = rr;
-	data->rgn = rgn;
-//	XUnionRectWithRegion( &rr, (Region)data->rgn, (Region)data->rgn );
+	data->rgn = new REGION( rr );
     } else if ( t == Ellipse ) {		// elliptic region
 	QPointArray a;
 	a.makeEllipse( rr.x(), rr.y(), rr.width(), rr.height() );

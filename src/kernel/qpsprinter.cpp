@@ -1729,27 +1729,23 @@ static const struct {
     QFont::CharSet cs;
     uint mib;
 } unicodevalues[] = {
-#ifndef QT_NO_TEXTCODEC
-    { QFont::KOI8R, 2084 },
-#endif
     { QFont::ISO_8859_1, 4 },
 #ifndef QT_NO_TEXTCODEC
     { QFont::ISO_8859_2, 5 },
     { QFont::ISO_8859_3, 6 },
     { QFont::ISO_8859_4, 7 },
     { QFont::ISO_8859_5, 8 },
+    { QFont::KOI8U, 2088 },
+    { QFont::KOI8R, 2084 },
     { QFont::ISO_8859_6, 82 },
     { QFont::ISO_8859_7, 10 },
     { QFont::ISO_8859_8, 85 },
     { QFont::ISO_8859_10, 13 },
     { QFont::ISO_8859_11, 2259 }, // aka tis620
-#if 0
-    // ### needs mibs for these.
-    { QFont::ISO_8859_12, 0 },
-    { QFont::ISO_8859_13, 0 },
-    { QFont::ISO_8859_14, 0 },
-    { QFont::ISO_8859_15, 0 },
-#endif
+    // ### don't have any MIB for -12: { QFont::ISO_8859_12, 0 },
+    { QFont::ISO_8859_13, 109 },
+    { QFont::ISO_8859_14, 110 },
+    { QFont::ISO_8859_15, 111 },
     // makeFixedStrings() below assumes that this is last
     { QFont::ISO_8859_9, 12 }
 #define unicodevalues_LAST QFont::ISO_8859_9

@@ -7,3 +7,4 @@ SOURCES		= centralwidget.cpp \
 		  mainwindow.cpp
 TARGET		= addressbook
 DEPENDPATH=../../include
+REQUIRES=full-config

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#9 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#10 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -58,6 +58,10 @@
 #include <netdb.h>
 #include <errno.h>
 
+#if defined(_OS_QNX_)
+#include <unix.h>
+#endif
+
 #ifndef UNIX_PATH_MAX
 #define UNIX_PATH_MAX    108
 #endif
@@ -76,7 +80,7 @@
 #include <sys/filio.h>
 #endif
 
-#if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7) || defined(Q_OS_OS2EMX)
+#if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7) || defined(Q_OS_OS2EMX) || defined(Q_OS_QNX)
 // and this then?  unixware?
 #if !defined(FNDELAY)
 #define FNDELAY O_NDELAY
@@ -119,6 +123,8 @@
 // aix 4.2 according to a bug report
 // aix 4.3 according to the online documentation
 #  define SOCKLEN_T size_t
+#elif defined(Q_OS_QNX)
+#define SOCKLEN_T size_t
 #else
 // most unixes, including irix, osf1/du/tru64, solaris, hp-ux and old linux
 #  define SOCKLEN_T int

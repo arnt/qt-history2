@@ -5,3 +5,4 @@ SOURCES		= main.cpp \
 		  qwerty.cpp
 TARGET		= qwerty
 DEPENDPATH=../../include
+REQUIRES=large-config

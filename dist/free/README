@@ -12,9 +12,9 @@ The Qt Free Edition may only be used on the X Window System.
 
 If you are using Qt for developing commercial, proprietary, or other
 software not covered by the terms listed in the LICENSE.QPL file, you
-must have have a license for the Qt Professional Edition. Please see
+must have have a license for commercial Qt editions. Please see
 http://www.trolltech.com/purchase.html for how to obtain this. Qt
-Professional Edition is also supported on Microsoft Windows.  
+commercial editions also support Microsoft Windows.  
 
 The INSTALL file explains how to install Qt.
 
@@ -52,5 +52,5 @@ you want to be added to our announcements mailing list (no spam), send
 a message to qt-announce-request@trolltech.com containing a single word
 "subscribe".
 
-If you are interested in the Qt Professional Edition, please write
+If you are interested in commercial Qt licensing, please write
 to sales@trolltech.com.  Other mail can be sent to info@trolltech.com.

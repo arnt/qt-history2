@@ -107,14 +107,12 @@ ExampleWidget::ExampleWidget( QWidget *parent, const char *name )
 	// The line edit goes in the second column
 	grid->addWidget( ed, row, linedCol );	
 
-	QLabel *label = new QLabel( this );
+	// Make a label that is a buddy of the line edit
 	QString s;
 	s.sprintf( "Line &%d", row+1 );
-	label->setText( s );
+	QLabel *label = new QLabel( ed, s, this );
 	// The label goes in the first column.
 	grid->addWidget( label, row, labelCol );
-	// show off the nice new keyboard interface in Qt 1.3
-	label->setBuddy( ed );
     }
 
     // The multiline edit will cover the entire vertical range of the

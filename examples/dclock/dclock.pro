@@ -5,3 +5,4 @@ SOURCES		= dclock.cpp \
 		  main.cpp
 TARGET		= dclock
 DEPENDPATH=../../include
+REQUIRES=large-config

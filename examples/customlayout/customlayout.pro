@@ -9,3 +9,4 @@ SOURCES		= border.cpp \
 		  main.cpp
 TARGET		= customlayout
 DEPENDPATH=../../include
+REQUIRES=medium-config

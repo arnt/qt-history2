@@ -1,10 +1,11 @@
 #!/bin/sh
 
+VERSION=`awk '/QT_VERSION_STR/ { gsub("\"",""); print $3 }' $QTDIR/src/tools/qglobal.h`
 
 cd $QTDIR
 PACKDIR=/tmp/qt-embedded-demo
 rm -rf $PACKDIR
-TOP=$PACKDIR/qt-embedded
+TOP=$PACKDIR/qt-embedded-$VERSION
 
 mkdir -p $TOP/etc/fonts
 mkdir -p $TOP/lib
@@ -18,9 +19,12 @@ mkdir -p $TOP/doc
 cp dist/embedded/etc/fonts/*.qpf $TOP/etc/fonts
 cp dist/embedded/etc/fonts/fontdir $TOP/etc/fonts
 cp dist/embedded/etc/fonts/babelfish.ttf $TOP/etc/fonts
+cp dist/embedded/etc/fonts/README $TOP/etc/fonts
 cp -r dist/embedded/etc/qimpen $TOP/etc
+cp -r dist/embedded/etc/sounds $TOP/etc
+cp -r dist/embedded/etc/dict $TOP/etc
 cp -r doc/html $TOP/doc
-cp -a lib/libqt.so* $TOP/lib
+cp -a lib-e-x86/libqt.so* $TOP/lib
 cp -a /lib/libm.so* $TOP/lib
 cp -a /lib/libc.so* $TOP/lib
 cp -a /lib/lib[cm]-2.* $TOP/lib
@@ -52,8 +56,8 @@ cp examples/launcher/start_demo $TOP
 cp dist/embedded/FAQ $TOP
 cp dist/embedded/HOWTO-* $TOP
 cp dist/embedded/INSTALL $TOP
-cp dist/embedded/README $TOP
+sed -e "s/%VERSION%/$VERSION/" <dist/embedded/README >$TOP/README
 cd $PACKDIR
 echo "Packing $TOP ..."
-tar cfz $PACKDIR.tar.gz *
-echo "Created $PACKDIR.tar.gz"
+tar cfz $PACKDIR-$VERSION.tar.gz *
+echo "Created $PACKDIR-$VERSION.tar.gz"

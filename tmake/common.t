@@ -1,6 +1,8 @@
 # Compiling
+INTERFACE_DECL_PATH 	= .
 SYSCONF_CXX		= #$ Expand('TMAKE_CXX');
 SYSCONF_CC		= #$ Expand('TMAKE_CC');
+DASHCROSS		= #$ Expand('TMAKE_DASHCROSS');
 
 # Compiling with support libraries
 SYSCONF_CXXFLAGS_X11	= #$ ExpandGlue('TMAKE_INCDIR_X11', '-I', ' -I', '');
@@ -57,7 +59,7 @@ SYSCONF_MOC		= $(QTDIR)/bin/moc
 SYSCONF_UIC		= $(QTDIR)/bin/uic
 
 # Linking shared libraries
-#   - Build the $(TARGET) library, eg. lib$(TARGET).so.2.0.1
+#   - Build the $(TARGET) library, eg. lib$(TARGET).so.2.2.2
 #   - Place target in $(DESTDIR) - which has a trailing /
 #   - Usually needs to incorporate $(VER_MAJ), $(VER_MIN) and $(VER_PATCH)
 #

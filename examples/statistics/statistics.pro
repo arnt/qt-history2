@@ -4,4 +4,4 @@ HEADERS	= statistics.h
 SOURCES	= statistics.cpp main.cpp
 TARGET		= statistics
 DEPENDPATH	= ../../include
-REQUIRES=table
+REQUIRES=table full-config

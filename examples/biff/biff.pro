@@ -5,3 +5,4 @@ SOURCES		= biff.cpp \
 		  main.cpp
 TARGET		= biff
 DEPENDPATH=../../include
+REQUIRES=full-config

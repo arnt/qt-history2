@@ -349,14 +349,14 @@ QUrlOperator	- provides an easy way to work with URLs.
 
 <li>QCheckBox: 	- "tristate" is now a property.
 
-<li>QClipboard: 	- text() supports subtypes.
+<li>QClipboard: - text() supports subtypes.
 
-<li>QComboBox: 	- "editable" is now a property that is changable at runtime
+<li>QComboBox: 	- "editable" is now a property that is changeable at runtime
 
 <li>QDialog: 	- support for extensible dialogs ("More...") with
 		  setExtension() and setOrientation(). Optional size grip.
 
-<li>QFont: 		- new functions styleStrategy() and  setStyleHint()
+<li>QFont: 	- new functions styleStrategy() and  setStyleHint()
 
 <li>QIconSet: 	- new constructor that takes both a small and a large pixmap
 
@@ -405,7 +405,7 @@ QUrlOperator	- provides an easy way to work with URLs.
 		  mapFrom(). On X11, support for a new background mode
 		  X11ParentRelative.
 
-<li>QWizard: 	- runtime changable titels with setTitle(), new signal
+<li>QWizard: 	- runtime changeable titles with setTitle(), new signal
 		  selected()
 
 <li>QWorkspace:	- support for more widget flags like WType_Tool. Titlebar

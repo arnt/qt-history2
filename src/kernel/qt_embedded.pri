@@ -33,6 +33,7 @@ embedded {
 		  $$KERNEL_H/qwscursor_qws.h \
 		  $$KERNEL_H/qwsmouse_qws.h \
 		  $$KERNEL_H/qlock_qws.h \
+		  $$KERNEL_H/qsoundqss_qws.h \
 		  $$KERNEL_H/qwsregionmanager_qws.h \
 		  $$KERNEL_H/qwsdisplay_qws.h \
 		  $$KERNEL_H/qwssocket_qws.h 
@@ -48,6 +49,7 @@ embedded {
 		  $$KERNEL_CPP/qpaintdevice_qws.cpp \
 		  $$KERNEL_CPP/qpainter_qws.cpp \
 		  $$KERNEL_CPP/qregion_qws.cpp \
+		  $$KERNEL_CPP/qsoundqss_qws.cpp \
 		  $$KERNEL_CPP/qsound_qws.cpp \
 		  $$KERNEL_CPP/qwidget_qws.cpp \
 		  $$KERNEL_CPP/qgfx_qws.cpp \

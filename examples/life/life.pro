@@ -7,3 +7,4 @@ SOURCES		= life.cpp \
 		  main.cpp
 TARGET		= life
 DEPENDPATH=../../include
+REQUIRES=medium-config

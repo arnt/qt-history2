@@ -246,12 +246,12 @@ As an example, a 10-point Times font containing the ASCII characters uses
 around 1300 bytes when stored in QPF format.
 
 <p>
-The QPF format is designed to allow memory-mapped usage of the font,
-therefore its RAM consumption can be reduced even further.
-In Qt/Embedded 2.2.0, this memory-mapping is not done.
+Taking advantage of the way the QPF format is structured, Qt/Embedded
+memory-maps the data rather than reading and parsing it.
+This reduces the RAM consumption even further.
 
 <p>
-The scalable fonts use a much larger amount of memory per-font, but
+The scalable fonts use a larger amount of memory per font, but
 these fonts can give a memory saving if many different sizes of each
 font are needed.
 
@@ -273,7 +273,7 @@ The difference between smooth and non-smooth fonts is illustrated below
 </center>
 
 <p>
-In Qt/Embedded 2.2.0, smooth fonts use 8 times as much memory as non-smooth
+In Qt/Embedded 2.2.1, smooth fonts use 8 times as much memory as non-smooth
 fonts. This multiplier will be reduced to a configurable
 2 or 4 (ie. 4-level and 16-level shading rather than the current excessive
 256-level shading).
@@ -348,7 +348,7 @@ See QMemoryManager::savePrerenderedFont() for this functionality.
 
 <p>
 The font definition file, naming conventions for font files, and the format
-of QPF files may change in versions of Qt/Embedded after 2.2.0.
+of QPF files may change in versions of Qt/Embedded after 2.2.1.
 
 <p>
 When enabled, Qt/Embedded uses the powerful FreeType2 library to implement
@@ -474,13 +474,25 @@ using #ifdef directives:
 /*! \page pointer-qws.html
 \title Qt/Embedded Pointer Handling
 
+<p>
 Pointer handling in Qt/Embedded works for any mouse-like device such as
 a touchpanel, a trackball, or real mouse.
 
+<p>
+In a real device, only a small number of pointer devices (usually one)
+would be supported, but for demonstration purposes, Qt/Embedded includes
+a large number of supported devices.
+
 <h2>Mouse Protocols</h2>
 
-Qt/Embedded uses the environment variable QWS_MOUSE_PROTO to determine
-which mouse to use. This environment variable should be set to:
+<p>
+Qt/Embedded normally auto-detects the mouse type and device if it is one of
+the supported types on <tt>/dev/psaux</tt> or one of the <tt>/dev/ttyS?</tt>
+serial lines. If multiple mice are detected, all may be used simultaneously.
+
+<p>
+Alternatively, you may set the environment variable QWS_MOUSE_PROTO to
+determine which mouse to use. This environment variable may be set to:
 <blockquote>
     <i>&lt;protocol&gt;</i><tt>:</tt><i>&lt;device&gt;</i>
 </blockquote>
@@ -492,32 +504,19 @@ where <i>&lt;protocol&gt;</i> is one of:
 </ul>
 and <i>&lt;device&gt;</i> is the mouse device, often <tt>/dev/mouse</tt>.
 If no such variable is specified, the built-in default
-is <tt>MouseMan:/dev/mouse</tt>.
-<p>
-If you require support for a mouse other than these, you can use GPM
-to translate the mouse protocol as an interim solution. To do this, run:
-<pre>
-    gpm -t help
-</pre>
-choose a protocol from the list and run:
-<pre>
-    gpm -R ps2 -t <i>&lt;protocol&gt;</i>
-</pre>
+is <tt>Auto</tt> which enables auto-detection of the mouse protocol
+and device.
 
 <p>
-In Qt/Embedded 2.2.0 no attempt is made to auto-detect the mouse type,
-on the assumption that an embedded device will support a single mouse
-protocol. Such auto-detection may be available in a future release.
+To add another protocol, new subclasses of QAutoMouseSubHandler or
+QMouseHandler can be written in <tt>kernel/qwsmouse_qws.cpp</tt>.
 
-<p>
-To add another protocol, new subclasses of QMouseHandler can be written
-in <tt>kernel/qwsmouse_qws.cpp</tt>.
+<h2>Touch Panels</h2>
 
-<h2>Vr Touch Panel</h2>
-
-Qt/Embedded ships with support for the NEC Vr41XX touchpanel.
-Like an additional mouse protocol, this is implemented by subclassing
-QMouseHandler in <tt>kernel/qwsmouse_qws.cpp</tt>.
+Qt/Embedded ships with support for the NEC Vr41XX touchpanel
+and the iPAQ touchpanel.
+These are subclasses of QCalibratedMouseHandler which is in turn
+a subclass of QMouseHandler in <tt>kernel/qwsmouse_qws.cpp</tt>.
 
 */
 

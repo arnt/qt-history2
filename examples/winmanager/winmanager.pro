@@ -7,3 +7,4 @@ SOURCES		= minimal.cpp \
 		  main.cpp
 TARGET		= winmanager
 DEPENDPATH=../../include
+REQUIRES=full-config

@@ -107,6 +107,34 @@ static int painter_drawtext_center()
     return i;
 }
 
+
+static int painter_save()
+{
+    int i;
+    QPainter *p = qperf_painter();
+    for ( i=0; i<10000; i++ ) {
+	p->save();
+	p->save();
+	p->restore();
+	p->restore();
+    }
+    return i;
+}
+
+
+static int painter_save_wx()
+{
+    int i;
+    QPainter *p = qperf_painter();
+    for ( i=0; i<10000; i++ ) {
+	p->saveWorldMatrix();
+	p->saveWorldMatrix();
+	p->restoreWorldMatrix();
+	p->restoreWorldMatrix();
+    }
+    return i;
+}
+
 QPERF_BEGIN(painter,"QPainter tests")
     QPERF(painter_drawline,"Draw line")
     QPERF(painter_drawrect,"Draw rectangle outline")
@@ -115,4 +143,6 @@ QPERF_BEGIN(painter,"QPainter tests")
     QPERF(painter_drawtext_left,"Draw text, left aligned")
     QPERF(painter_drawtext_right,"Draw text, right aligned")
     QPERF(painter_drawtext_center,"Draw text, centered")
+    QPERF(painter_save,"Save and restore")
+    QPERF(painter_save_wx,"Save and restore world matrix")
 QPERF_END(painter)

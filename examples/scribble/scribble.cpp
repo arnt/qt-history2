@@ -37,7 +37,9 @@ Canvas::Canvas( QWidget *parent, const char *name )
     if ((qApp->argc() > 0) && !buffer.load(qApp->argv()[1]))
     	buffer.fill( colorGroup().base() );
     setBackgroundMode( QWidget::PaletteBase );
+#ifndef QT_NO_CURSOR
     setCursor( Qt::crossCursor );
+#endif
 }
 
 void Canvas::save( const QString &filename, const QString &format )

@@ -1,4 +1,4 @@
-REQUIRES        = canvas
+REQUIRES	= canvas large-config
 TEMPLATE	= app
 CONFIG		+= qt warn_on release
 HEADERS		= canvas.h

@@ -57,11 +57,12 @@ void Forever::updateCaption()
 void Forever::paintEvent( QPaintEvent * )
 {
     QPainter paint( this );			// painter object
-    paint.setWindow( 0, 0, 1024, 1024 );	// define coordinate system
+    int w = width();
+    int h = height();
     paint.setPen( NoPen );			// do not draw outline
     paint.setBrush( colors[rand() % numColors]);// set random brush color
-    QPoint p1( rand()&1023, rand()&1023 );	// p1 = top left
-    QPoint p2( rand()&1023, rand()&1023 );	// p2 = bottom right
+    QPoint p1( rand()%w, rand()%h );	// p1 = top left
+    QPoint p2( rand()%w, rand()%h );	// p2 = bottom right
     QRect r( p1, p2 );
     paint.drawRect( r );			// draw filled rectangle
 }

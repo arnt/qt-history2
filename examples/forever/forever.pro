@@ -4,3 +4,4 @@ HEADERS		= forever.h
 SOURCES		= forever.cpp
 TARGET		= forever
 DEPENDPATH=../../include
+REQUIRES=

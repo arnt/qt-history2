@@ -4,3 +4,4 @@ HEADERS		= buttongroups.h
 SOURCES		= buttongroups.cpp \
 		  main.cpp
 TARGET		= buttongroups
+REQUIRES=small-config

@@ -25,7 +25,7 @@ helvetica helvR24.bdf BDF n 50 240
 # Unifont is available in source form from http://czyborra.com/unifont/
 unifont unifont.bdf BDF n 50 160 u
 babelfish babelfish.ttf TTF n 50 0 s
-verdana verdana.ttf TTF n 50 0 s 90
+smallsmooth verdana.ttf TTF n 50 0 s 90
 smoothtimes times.ttf TTF n 50 0 su 100,160,170,220
 smoothtimes timesbd.ttf TTF n 75 0 sa 170,250,440
 smoothtimes timesi.ttf TTF y 50 0 sa

@@ -545,10 +545,7 @@ NPP_Shutdown(void)
 #endif
 	piApp = 0;
 
-	// delete qApp; ### Crashes under X11.  Waste memory until we can fix this.
-#ifdef Q_WS_WIN
 	delete qApp;
-#endif
     }
 }
 
@@ -632,6 +629,11 @@ NPP_Destroy(NPP instance, NPSavedData** /*save*/)
 
 	if (This->widget) {
 	    This->widget->unsetWindow();
+#ifdef _WS_WIN_ // needed?
+	    if (This->window)
+		NPP_SetWindow( instance, 0 ); // unset
+#endif
+	    This->window = 0;
 	    delete This->widget;
 	}
 
@@ -671,8 +673,6 @@ NPP_SetWindow(NPP instance, NPWindow* window)
 	}
 #ifdef Q_WS_X11
     } else if (This->window != (Window) window->window) {
-	if (This->window)
-	    NPP_SetWindow( instance, 0 ); // unset
 	This->window = (Window) window->window;
 #endif
 #ifdef Q_WS_WIN
@@ -705,7 +705,12 @@ NPP_SetWindow(NPP instance, NPWindow* window)
 
 		// We are the first Qt-based plugin to arrive
 		new QApplication(This->display);
-		//XSynchronize(This->display,True);  // Helps debugging
+
+		// Helps debugging
+		//XSynchronize(This->display,True);
+		//XSetErrorHandler((int (*)(Display*dpy,XErrorEvent*))abort);
+
+		ASSERT(qt_np_count == 0);
 		Q_ASSERT(qt_np_count == 0);
 	    }
 	    installXtEventFilters(Safe);
@@ -1238,8 +1243,8 @@ public:
 	bool mt = hasMouseTracking();
 	bool hascurs = testWFlags( WState_OwnCursor );
 	QCursor curs = cursor();
-	clearWFlags( WState_Created );
-	clearWFlags( WState_Visible );
+	clearWState( WState_Created );
+	clearWState( WState_Visible );
 	create( 0, TRUE, FALSE );
 	setGeometry(g);
 	setBackgroundColor( bg );
@@ -1260,8 +1265,9 @@ void createNewWindowsForAllChildren(QWidget* parent, int indent=0)
 	QFixableWidget* c;
 	while ( (c = (QFixableWidget*)it.current()) ) {
 	    bool vis = c->isVisible();
-	    c->fix();
+	    // Fix children first, so propagation can work
 	    createNewWindowsForAllChildren(c,indent+1);
+	    c->fix();
 	    if ( vis ) c->show(); // Now that all children are valid.
 	    ++it;
 	}
@@ -1280,7 +1286,7 @@ void QNPWidget::setWindow(bool delold)
 
    if ( delold ) {
       // Make sure they get a show()
-      clearWFlags( WState_Visible );
+      clearWState( WState_Visible );
    }
 
 #ifdef Q_WS_X11

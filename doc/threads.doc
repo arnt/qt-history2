@@ -35,7 +35,7 @@
 
 /*! \page threads.html
 
-\title Thread support in Qt
+\title Thread Support in Qt
 
   In version 2.2, Qt introduced thread support to Qt in the shape of some basic
 platform-independent threading classes, a thread-safe way of posting

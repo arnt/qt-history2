@@ -422,7 +422,7 @@ void QWSCursor::set(const uchar *data, const uchar *mask,
 
     if ( qt_screencursor) {
 	if ( qt_screencursor->supportsAlphaCursor() ) {
-	    createDropShadow(8, 4);
+	    createDropShadow(5, 2);
 	}
     }
 #endif
@@ -435,37 +435,60 @@ void QWSCursor::createDropShadow(int dropx, int dropy)
     if (cursor.width() + dropx > 64 || cursor.height() + dropy > 64)
 	return;
 
-    cursor.setAlphaBuffer(true);
-//    QImage mask = cursor.createAlphaMask(Qt::ThresholdDither);
-    QImage mask = cursor.createHeuristicMask(false);
+    if ( !cursor.hasAlphaBuffer() ) {
+	cursor.setAlphaBuffer(true);
 
-    QImage drop(cursor.width()+dropx, cursor.height()+dropy, 8, 4);
-    drop.setColor(0, 0xff000000);
-    drop.setColor(1, 0xffffffff);
-    drop.setColor(2, 0x00000000);
-    drop.setColor(3, 0x3f000000);
-    drop.fill(2);
+	const int nblur=4;
+	const int darkness=140;
 
-    int cp;
-
-    // copy mask
-    for (int row = 0; row < cursor.height(); row++) {
-	for (int col = 0; col < cursor.width(); col++) {
-	    if (!mask.pixel(col, row))
-		drop.setPixel(col+dropx, row+dropy, 3);
+	QImage drop(cursor.width()+dropx+nblur, cursor.height()+dropy+nblur, 8, 18);
+	drop.setColor(0, 0xff000000); // bg (black)
+	drop.setColor(1, 0xffffffff); // fg (white)
+	for (int i=0; i<16; i++) {
+	    drop.setColor(2+i, (darkness*i/16)<<24);
 	}
-    }
+	drop.fill(2); // all trans
+	QImage drop2 = drop.copy();
 
-    // copy cursor
-    for (int row = 0; row < cursor.height(); row++) {
-	for (int col = 0; col < cursor.width(); col++) {
-	    cp = cursor.pixelIndex(col, row);
-	    if (cp != 2)
-		drop.setPixel(col, row, cp);
+	int cp;
+
+	// made solid shadow
+	for (int row = 0; row < cursor.height(); row++) {
+	    for (int col = 0; col < cursor.width(); col++) {
+		cp = cursor.pixelIndex(col, row);
+		if (cp != 2)
+		    drop.setPixel(col+dropx, row+dropy, 17);
+	    }
 	}
-    }
 
-    cursor = drop;
+	// blur shadow
+	for (int blur=0; blur<nblur; blur++) {
+	    QImage& to((blur&1)?drop:drop2);
+	    QImage& from((blur&1)?drop2:drop);
+	    for (int row = 1; row < drop.height()-1; row++) {
+		for (int col = 1; col < drop.width()-1; col++) {
+		    int t=0;
+		    for (int dx=-1; dx<=1; dx++) {
+			for (int dy=-1; dy<=1; dy++) {
+			    t += from.pixelIndex(col+dx,row+dy)-2;
+			}
+		    }
+		    to.setPixel(col,row,2+t/9);
+		}
+	    }
+	}
+
+	// copy cursor
+	for (int row = 0; row < cursor.height(); row++) {
+	    for (int col = 0; col < cursor.width(); col++) {
+		cp = cursor.pixelIndex(col, row);
+		if (cp != 2)
+		    drop.setPixel(col, row, cp);
+	    }
+	}
+
+	cursor = drop;
+    }
 #endif
 }
 

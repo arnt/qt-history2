@@ -565,8 +565,8 @@ void QPushButton::focusInEvent( QFocusEvent *e )
     else {
 	if ( topLevelWidget()->inherits("QDialog") )
 	    ((QDialog*)topLevelWidget())->hideDefault();
-#endif
     }
+#endif
     QButton::focusInEvent( e );
 }
 

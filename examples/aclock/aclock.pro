@@ -5,3 +5,4 @@ SOURCES		= aclock.cpp \
 		  main.cpp
 TARGET		= aclock
 DEPENDPATH=../../include
+REQUIRES=full-config

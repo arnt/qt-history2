@@ -4,3 +4,4 @@ HEADERS		=
 SOURCES		= connect.cpp
 TARGET		= drawlines
 DEPENDPATH=../../include
+REQUIRES=

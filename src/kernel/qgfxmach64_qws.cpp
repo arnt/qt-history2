@@ -9,18 +9,21 @@
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses for Qt/Embedded may use this file in accordance with the
 ** Qt Embedded Commercial License Agreement provided with the Software.
-**
-** This file is not available for use under any other license without
-** express written permission from the copyright holder.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 **   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
 ** Contact info@trolltech.com if any conditions of this licensing are
 ** not clear to you.
@@ -1220,9 +1223,9 @@ public:
     virtual ~QMachScreen();
     virtual bool connect( const QString &spec, char *,
 			    unsigned char * config );
-    virtual bool initCard();
+    virtual bool initDevice();
     virtual int initCursor(void*, bool);
-    virtual void shutdownCard();
+    virtual void shutdownDevice();
     virtual bool useOffscreen() { return true; }
     virtual QGfx * createGfx(unsigned char *,int,int,int,int);
 
@@ -1337,7 +1340,7 @@ QMachScreen::~QMachScreen()
 {
 }
 
-bool QMachScreen::initCard()
+bool QMachScreen::initDevice()
 {
     // Disable register reading in main aperture
     // Frees up 8k or so and is safer
@@ -1347,7 +1350,7 @@ bool QMachScreen::initCard()
 
     // However, that doesn't always work, so make sure it isn't mapped anyway
     mapsize-=(1024*8);
-    QLinuxFbScreen::initCard();
+    QLinuxFbScreen::initDevice();
 
     // Lots of boilerplate from ATI manual, with some extra
     // from XFree Mach64 driver for good measure at the end
@@ -1448,9 +1451,9 @@ int QMachScreen::initCursor(void* e, bool init)
     return 0;
 }
 
-void QMachScreen::shutdownCard()
+void QMachScreen::shutdownDevice()
 {
-    QLinuxFbScreen::shutdownCard();
+    QLinuxFbScreen::shutdownDevice();
 }
 
 int mach64_ngval(QRgb r)

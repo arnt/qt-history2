@@ -544,6 +544,9 @@ bool qt_badwindow()
     return x11_badwindow;
 }
 
+static int (*original_x_errhandler)(Display*dpy,XErrorEvent*);
+static int (*original_xio_errhandler)(Display*dpy);
+
 static int qt_x_errhandler( Display *dpy, XErrorEvent *err )
 {
     if ( err->error_code == BadWindow ) {
@@ -737,7 +740,13 @@ static void qt_set_input_encoding()
 	input_mapper = QTextCodec::codecForLocale();
 
     } else {
+#if defined(Q_OS_QNX)
+	QString str( data );
+	str = str.lower();
+	if ( !str.compare( "locale" ) )
+#else
 	if ( !strcasecmp( data, "locale" ) )
+#endif
 	    input_mapper = QTextCodec::codecForLocale();
 	else
 	    input_mapper = QTextCodec::codecForName( data );
@@ -1065,8 +1074,8 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 
 	// Install default error handlers
 
-	XSetErrorHandler( qt_x_errhandler );
-	XSetIOErrorHandler( qt_xio_errhandler );
+	original_x_errhandler = XSetErrorHandler( qt_x_errhandler );
+	original_xio_errhandler = XSetIOErrorHandler( qt_xio_errhandler );
     } else {
 	// Qt controls everything (default)
 
@@ -1076,8 +1085,8 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 
 	// Install default error handlers
 
-	XSetErrorHandler( qt_x_errhandler );
-	XSetIOErrorHandler( qt_xio_errhandler );
+	original_x_errhandler = XSetErrorHandler( qt_x_errhandler );
+	original_xio_errhandler = XSetIOErrorHandler( qt_xio_errhandler );
 
 	// Set application name
 
@@ -1471,6 +1480,10 @@ void qt_cleanup()
 
     delete sip_list;
     sip_list = 0;
+
+    // Reset the error handlers
+    XSetErrorHandler( original_x_errhandler );
+    XSetIOErrorHandler( original_xio_errhandler );
 
     if ( qt_is_gui_used && !appForeignDpy )
 	XCloseDisplay( appDpy );		// close X display

@@ -5,3 +5,4 @@ SOURCES		= main.cpp \
 		  rangecontrols.cpp
 TARGET		= rangecontrols
 DEPENDPATH=../../include
+REQUIRES=large-config

@@ -525,6 +525,15 @@ int main(int argc, char** argv)
 	SimpleIM* im = new SimpleIM( argv[2] );
 	QWSServer::setKeyboardFilter( im );
     }
+/*
+    // Custom 40 grey palette
+    QRgb cols[40];
+    for ( int i = 0; i < 40; i++ ) {
+	int c = i*256/40;
+	cols[i] = qRgb( c, c, c );
+    }
+    app.qwsSetCustomColors( cols, 0, 40 );
+*/
 #endif
 
     Launcher l;

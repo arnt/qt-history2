@@ -65,7 +65,7 @@ QWSRegionManager::QWSRegionManager( const QString &filename, bool c) :
 */
 QWSRegionManager::~QWSRegionManager()
 {
-    detach();
+    // detach(); ##### crashing, disable for 2.2.2 release
 
     if ( !client ) {
 	delete regHdr;

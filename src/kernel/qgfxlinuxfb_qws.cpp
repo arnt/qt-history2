@@ -9,18 +9,21 @@
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses for Qt/Embedded may use this file in accordance with the
 ** Qt Embedded Commercial License Agreement provided with the Software.
-**
-** This file is not available for use under any other license without
-** express written permission from the copyright holder.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 **   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
 ** Contact info@trolltech.com if any conditions of this licensing are
 ** not clear to you.
@@ -88,12 +91,14 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
     }
 
     d=vinfo.bits_per_pixel;
-    lstep=(vinfo.xres_virtual*d+7)/8;
+    lstep=finfo.line_length;
     int xoff = vinfo.xoffset;
     int yoff = vinfo.yoffset;
     const char* qwssize;
     if((qwssize=getenv("QWS_SIZE"))) {
 	sscanf(qwssize,"%dx%d",&w,&h);
+	if ( (uint)w > vinfo.xres ) w = vinfo.xres;
+	if ( (uint)h > vinfo.xres ) h = vinfo.yres;
 	dw=w;
 	dh=h;
 	xoff += (vinfo.xres - w)/2;
@@ -173,10 +178,6 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
 	screencols=0;
     }
 
-    // No blankin' screen, no blinkin' cursor!, no cursor!
-    const char termctl[] = "\033[9;0]\033[?33l\033[?25l";
-    write(1,termctl,sizeof(termctl));
-
     initted=true;
 
     return TRUE;
@@ -187,15 +188,31 @@ void QLinuxFbScreen::disconnect()
     data -= dataoffset;
     munmap((char*)data,mapsize);
     close(fd);
-    // Blankin' screen, blinkin' cursor!
-    const char termctl[] = "\033[9;15]\033[?33h\033[?25h\033[?0c";
-    write(1,termctl,sizeof(termctl));
 }
 
 //#define DEBUG_VINFO
 
-bool QLinuxFbScreen::initCard()
+static void writeTerm(const char* termctl, int sizeof_termctl)
 {
+    const char* tt[]={"/dev/console","/dev/tty","/dev/tty0",0};
+    const char** dev=tt;
+    while (*dev) {
+	int tty=::open(*dev,O_WRONLY);
+	if ( tty>=0 ) {
+	    ::write(tty,termctl,sizeof_termctl);
+	    ::close(tty);
+	}
+	dev++;
+    }
+}
+
+
+bool QLinuxFbScreen::initDevice()
+{
+    // No blankin' screen, no blinkin' cursor!, no cursor!
+    const char termctl[]="\033[9;0]\033[?33l\033[?25l";
+    writeTerm(termctl,sizeof(termctl));
+
     // Grab current mode so we can reset it
     fb_var_screeninfo vinfo;
     fb_fix_screeninfo finfo;
@@ -537,7 +554,7 @@ void QLinuxFbScreen::uncache(uchar * c)
     qDebug("Attempt to delete unknown offset %ld",pos);
 }
 
-void QLinuxFbScreen::shutdownCard()
+void QLinuxFbScreen::shutdownDevice()
 {
     // Set back the original mode
 #ifndef QT_NO_QWS_CURSOR
@@ -557,6 +574,10 @@ void QLinuxFbScreen::shutdownCard()
 	startcmap = 0;
     }
 */
+
+    // Blankin' screen, blinkin' cursor!
+    const char termctl[] = "\033[9;15]\033[?33h\033[?25h\033[?0c";
+    writeTerm(termctl,sizeof(termctl));
 }
 
 
@@ -588,7 +609,13 @@ void QLinuxFbScreen::set(unsigned int i,unsigned int r,unsigned int g,unsigned i
 
 void QLinuxFbScreen::setMode(int nw,int nh,int nd)
 {
+    fb_fix_screeninfo finfo;
     fb_var_screeninfo vinfo;
+
+    if (ioctl(fd, FBIOGET_FSCREENINFO, &finfo)) {
+	perror("reading /dev/fb0");
+	qFatal("Error reading fixed information");
+    }
 
     if (ioctl(fd, FBIOGET_VSCREENINFO, &vinfo)) {
 	qFatal("Error reading variable information in mode change");
@@ -609,7 +636,7 @@ void QLinuxFbScreen::setMode(int nw,int nh,int nd)
     w=vinfo.xres;
     h=vinfo.yres;
     d=vinfo.bits_per_pixel;
-    lstep=(vinfo.xres_virtual*d+7)/8;
+    lstep=finfo.line_length;
     size=w * h * d / 8;
 }
 

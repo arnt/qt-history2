@@ -55,6 +55,11 @@
 #include "qgfx_qws.h"
 #endif
 
+// 16bpp images on supported on Qt/Embedded
+#if !defined( Q_WS_QWS ) && !defined(QT_NO_IMAGE_16_BIT)
+#define QT_NO_IMAGE_16_BIT
+#endif
+
 
 // BEING REVISED: jo (QImageIO)
 /*!
@@ -445,7 +450,7 @@ QImage::QImage( uchar* yourdata, int w, int h, int depth,
     data->bits = jt;
     data->bitordr = bitOrder;
 }
-#endif //_WS_QWS_
+#endif // Q_WS_QWS
 
 /*!
   Destructs the image and cleans up.
@@ -1783,7 +1788,6 @@ static bool dither_to_1( const QImage *src, QImage *dst,
     return TRUE;
 }
 
-#if defined(_WS_QWS_)
 #ifndef QT_NO_IMAGE_16_BIT
 //###### Endianness issues!
 static inline bool is16BitGray( ushort c )
@@ -1828,7 +1832,6 @@ static bool convert_32_to_16( const QImage *src, QImage *dst )
 
 
 #endif
-#endif
 
 /*!
   Converts the depth (bpp) of the image to \e depth and returns the
@@ -1862,7 +1865,6 @@ QImage QImage::convertDepth( int depth, int conversion_flags ) const
     else if ( data->d == 1 && depth == 32 )	// 1 -> 32
 	convert_1_to_32( this, &image );
 #endif
-#ifdef _WS_QWS_
 #ifndef QT_NO_IMAGE_16_BIT
     else if ( data->d == 16 && depth != 16 ) {
 	QImage tmp;
@@ -1873,7 +1875,6 @@ QImage QImage::convertDepth( int depth, int conversion_flags ) const
 	convert_32_to_16( &tmp, &image );
     }
 #endif
-#endif //_WS_QWS_
     else if ( data->d == depth )
 	image = *this;				// no conversion
     else {
@@ -1973,12 +1974,10 @@ QRgb QImage::pixel( int x, int y ) const
 	    return color( (*(s + (x >> 3)) >> (7- (x & 7))) & 1 );
     case 8:
 	return color( (int)s[x] );
-#ifdef _WS_QWS_
 #ifndef QT_NO_IMAGE_16_BIT
     case 16:
 	return qt_conv16ToRgb(((ushort*)s)[x]);
 #endif
-#endif //_WS_QWS_
 #ifndef QT_NO_IMAGE_TRUECOLOR
     case 32:
 	return ((QRgb*)s)[x];
@@ -2035,12 +2034,10 @@ void QImage::setPixel( int x, int y, uint index_or_rgb )
 	}
 	uchar * s = scanLine( y );
 	s[x] = index_or_rgb;
-#ifdef _WS_QWS_
 #ifndef QT_NO_IMAGE_16_BIT
     } else if ( depth() == 16 ) {
 	ushort * s = (ushort*)scanLine( y );
 	s[x] = qt_convRgbTo16(index_or_rgb);
-#endif
 #endif
 #ifndef QT_NO_IMAGE_TRUECOLOR
     } else if ( depth() == 32 ) {
@@ -2106,7 +2103,6 @@ bool QImage::allGray() const
 	while (p--)
 	    if (!isGray(*b++))
 		return FALSE;
-#ifdef _WS_QWS_
 #ifndef QT_NO_IMAGE_16_BIT
     } else if (depth()==16) {
 	int p = width()*height();
@@ -2115,7 +2111,6 @@ bool QImage::allGray() const
 	    if (!is16BitGray(*b++))
 		return FALSE;
 #endif
-#endif //_WS_QWS_
     } else 
 #endif //QT_NO_IMAGE_TRUECOLOR	
 	{
@@ -3838,10 +3833,10 @@ bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
     int red_scale, green_scale, blue_scale;
 
     if ( !(nbits == 1 || nbits == 4 || nbits == 8 || nbits == 24 || nbits == 32) ||
-	 bi.biPlanes != 1 || comp > BMP_BITFIELDS )
+	bi.biPlanes != 1 || comp > BMP_BITFIELDS )
 	return FALSE;					// weird BMP image
     if ( !(comp == BMP_RGB || (nbits == 4 && comp == BMP_RLE4) ||
-	   (nbits == 8 && comp == BMP_RLE8) || ((nbits == 16 || nbits == 32) && comp == BMP_BITFIELDS)) )
+	(nbits == 8 && comp == BMP_RLE8) || ((nbits == 16 || nbits == 32) && comp == BMP_BITFIELDS)) )
 	 return FALSE;				// weird compression type
 
     int ncols;
@@ -4065,11 +4060,11 @@ bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
 		break;
 	    b = buf24;
 	    while ( p < end ) {
- 	    	c = (nbits == 16)?*(unsigned short*)b:*(int *)b;
- 		*p++ = qRgb(((c & red_mask) >> red_shift) * red_scale,
- 					((c & green_mask) >> green_shift) * green_scale,
- 					((c & blue_mask) >> blue_shift)) * blue_scale;
- 		b += nbits/8;
+  	    	c = (nbits == 16)?*(unsigned short*)b:*(int *)b;
+  		*p++ = qRgb(((c & red_mask) >> red_shift) * red_scale,
+					((c & green_mask) >> green_shift) * green_scale,
+  					((c & blue_mask) >> blue_shift)) * blue_scale;
+  		b += nbits/8;
 	    }
 	}
 	delete[] buf24;

@@ -9,18 +9,21 @@
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses for Qt/Embedded may use this file in accordance with the
 ** Qt Embedded Commercial License Agreement provided with the Software.
-**
-** This file is not available for use under any other license without
-** express written permission from the copyright holder.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 **   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
 ** Contact info@trolltech.com if any conditions of this licensing are
 ** not clear to you.
@@ -53,7 +56,7 @@
 
 #include <qgfx_qws.h>
 
-#ifdef __MIPSEL__
+#ifdef QT_QWS_CASSIOPEIA
 #include <linux/tpanel.h>
 #define QWS_TOUCHPANEL
 #endif
@@ -100,7 +103,7 @@ static void limitToScreen( QPoint &pt )
     pt.setY( QMIN( h-1, QMAX( 0, pt.y() )));
 }
 
-static QPoint mousePos;
+static QPoint &mousePos = QWSServer::mousePosition;
 
 /*
  * Automatic-detection mouse driver
@@ -433,12 +436,16 @@ public:
 private:
     enum { max_dev=32 };
     QAutoMouseSubHandler *sub[max_dev];
+    QList<QSocketNotifier> notifiers;
     int nsub;
+    int retries;
 
 private slots:
     void readMouseData(int);
 
 private:
+    void openDevices();
+    void closeDevices();
     void notify(int fd);
     bool sendEvent(QAutoMouseSubHandler& h)
     {
@@ -468,6 +475,18 @@ mousePos.x(),mousePos.y(),
 
 QAutoMouseHandler::QAutoMouseHandler()
 {
+    notifiers.setAutoDelete( TRUE );
+    retries = 0;
+    openDevices();
+}
+
+QAutoMouseHandler::~QAutoMouseHandler()
+{
+    closeDevices();
+}
+
+void QAutoMouseHandler::openDevices()
+{
     nsub=0;
     int fd;
 
@@ -492,13 +511,14 @@ QAutoMouseHandler::QAutoMouseHandler()
     // ...
 }
 
-QAutoMouseHandler::~QAutoMouseHandler()
+void QAutoMouseHandler::closeDevices()
 {
     int pfd=-1;
     for (int i=0; i<nsub; i++) {
 	sub[i]->closeIfNot(pfd);
 	delete sub[i];
     }
+    notifiers.clear();
 }
 
 void QAutoMouseHandler::notify(int fd)
@@ -506,6 +526,7 @@ void QAutoMouseHandler::notify(int fd)
     QSocketNotifier *mouseNotifier
 	= new QSocketNotifier( fd, QSocketNotifier::Read, this );
     connect(mouseNotifier, SIGNAL(activated(int)),this, SLOT(readMouseData(int)));
+    notifiers.append( mouseNotifier );
 }
 
 void QAutoMouseHandler::readMouseData(int fd)
@@ -543,6 +564,11 @@ void QAutoMouseHandler::readMouseData(int fd)
     }
     if ( any_reliable ) {
 	// ... get rid of all unreliable ones?  All bad ones?
+    } else if ( retries < 2 ) {
+	// Try again - maybe the mouse was being moved when we tried to init.
+	closeDevices();
+	openDevices();
+	retries++;
     }
 }
 
@@ -616,6 +642,7 @@ void QMouseHandlerPrivate::handleMouseData()
     int tdx = 0, tdy = 0;
 
     while ( mouseIdx-idx >= mouseData[mouseProtocol].bytesPerPacket ) {
+	qDebug( "Got mouse data" );
 	uchar *mb = mouseBuf+idx;
 	bstate = 0;
 	dx = 0;
@@ -720,9 +747,13 @@ QMouseHandlerPrivate::QMouseHandlerPrivate( MouseProtocol protocol,
 	mouseDev = "/dev/mouse";
 
     obstate = -1;
-    if ((mouseFD = open( mouseDev.local8Bit(), O_RDWR | O_NDELAY)) < 0) {
-	qDebug( "Cannot open %s (%s)", mouseDev.ascii(),
-		strerror(errno));
+    mouseFD = open( mouseDev.local8Bit(), O_RDWR | O_NDELAY);
+
+    if ( mouseFD < 0 ) {
+	mouseFD = open( mouseDev.local8Bit(), O_RDONLY | O_NDELAY);
+	if ( mouseFD < 0 )
+	    qDebug( "Cannot open %s (%s)", mouseDev.ascii(),
+		    strerror(errno));
     } else {
 	// Clear pending input
 
@@ -740,11 +771,12 @@ QMouseHandlerPrivate::QMouseHandlerPrivate( MouseProtocol protocol,
 		break;
 
 	    case IntelliMouse: {
-		    ps2 = true;
-		    const unsigned char init[] = { 243, 200, 243, 100, 243, 80 };
-		    write(mouseFD,"",1);
+//		    ps2 = true;
+		    const unsigned char init1[] = { 243, 200, 243, 100, 243, 80 };
+		    const unsigned char init2[] = { 246, 230, 244, 243, 100, 232, 3 };
+		    write(mouseFD,init1,sizeof(init1));
 		    usleep(50000);
-		    write(mouseFD,init,6);
+		    write(mouseFD,init2,sizeof(init2));
 		}
 		break;
 
@@ -1253,7 +1285,7 @@ void QCustomTPanelHandlerPrivate::readMouseData()
  */
 
 #ifndef QT_NO_QWS_VFB
-#include "qvfbhdr_qws.h"
+#include "qvfbhdr.h"
 extern int qws_display_id;
 #endif
 
@@ -1343,8 +1375,8 @@ QMouseHandler* QWSServer::newMouseHandler(const QString& spec)
     static int init=0;
     if ( !init && qt_screen ) {
 	init = 1;
-	mousePos = QPoint(qt_screen->width()/2,
-			  qt_screen->height()/2);
+//	mousePos = QPoint(qt_screen->width()/2,
+//			  qt_screen->height()/2);
     }
 
     int c = spec.find(':');

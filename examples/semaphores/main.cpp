@@ -20,8 +20,8 @@
 #  error Thread support not enabled.
 #endif   
 
-
-QSemaphore yellowSem(1), greenSem(1);
+// Use pointers to create semaphores after QApplication object!
+QSemaphore* yellowSem, *greenSem;
 
 
 class YellowThread : public QThread
@@ -42,23 +42,23 @@ private:
 void YellowThread::run()
 {
     for (int i = 0; i < 20; i++) {
-	yellowSem++;
+	(*yellowSem)++;
 
 	QCustomEvent *event = new QCustomEvent(12345);
      	event->setData(new QString("Yellow!"));
 	QThread::postEvent(receiver, event);
 	msleep(200);
 	
-	greenSem--;
+	(*greenSem)--;
     }
 
-    yellowSem++;
+    (*yellowSem)++;
     
     QCustomEvent *event = new QCustomEvent(12346);
     event->setData(new QString("Yellow!"));
     QThread::postEvent(receiver, event);
     
-    greenSem--;
+    (*greenSem)--;
 }
 
 
@@ -80,24 +80,24 @@ private:
 void GreenThread::run()
 {
     for (int i = 0; i < 20; i++) {
-	greenSem++;
+	(*greenSem)++;
 
 	QCustomEvent *event = new QCustomEvent(12345);
      	event->setData(new QString("Green!"));
 	QThread::postEvent(receiver, event);
 	msleep(200);
 	
-	yellowSem--;
+	(*yellowSem)--;
     }
 
-    greenSem++;
+    (*greenSem)++;
 
     QCustomEvent *event = new QCustomEvent(12346);
     event->setData(new QString("Green!"));
     QThread::postEvent(receiver, event);
     msleep(10);
     
-    yellowSem--;
+    (*yellowSem)--;
 }
 
 
@@ -156,8 +156,8 @@ void SemaphoreExample::startExample()
     
     mlineedit->clear();
 
-    while (yellowSem.available() < yellowSem.total()) yellowSem --;
-    yellowSem++;
+    while (yellowSem->available() < yellowSem->total()) (*yellowSem)--;
+    (*yellowSem)++;
 
     yellowThread.start();
     greenThread.start();
@@ -207,12 +207,19 @@ void SemaphoreExample::customEvent(QCustomEvent *event) {
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
+    yellowSem = new QSemaphore(1);
+    greenSem = new QSemaphore(1);
 
     SemaphoreExample se;
     app.setMainWidget(&se);
     se.show();
 
-    return app.exec();
+    int r = app.exec();
+
+    delete yellowSem;
+    delete greenSem;
+
+    return r;
 }
 
 

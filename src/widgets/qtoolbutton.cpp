@@ -217,6 +217,7 @@ QToolButton::QToolButton( const QIconSet& iconSet, const QString &textLabel,
     } else {
 	setUsesBigPixmap( FALSE );
     }
+#ifndef QT_NO_TOOLTIP
     if ( !textLabel.isEmpty() ) {
 	if ( !grouptext.isEmpty() )
 	    QToolTip::add( this, textLabel,
@@ -224,6 +225,7 @@ QToolButton::QToolButton( const QIconSet& iconSet, const QString &textLabel,
 	else
 	    QToolTip::add( this, textLabel );
     }
+#endif    
 }
 
 
@@ -280,10 +282,12 @@ QSize QToolButton::sizeHint() const
 	QPixmap pm = iconSet(TRUE).pixmap(QIconSet::Small, QIconSet::Normal);
 	w = pm.width();
 	h = pm.height();
+#ifndef Q_WS_QWS // shouldn't be on any platform...
 	if ( w < 16 )
 	    w = 16;
 	if ( h < 16 )
 	    h = 16;
+#endif
     }
 
     if ( usesTextLabel() ) {
@@ -640,9 +644,10 @@ void QToolButton::setTextLabel( const QString &newLabel )
 
 void QToolButton::setTextLabel( const QString &newLabel , bool tipToo )
 {
+#ifndef QT_NO_TOOLTIP
     if ( tipToo )
 	QToolTip::add( this, newLabel );
-
+#endif
     if ( tl == newLabel )
 	return;
 

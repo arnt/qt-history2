@@ -9,18 +9,21 @@
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses for Qt/Embedded may use this file in accordance with the
 ** Qt Embedded Commercial License Agreement provided with the Software.
-**
-** This file is not available for use under any other license without
-** express written permission from the copyright holder.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 **   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
 ** Contact info@trolltech.com if any conditions of this licensing are
 ** not clear to you.
@@ -125,63 +128,43 @@ inline unsigned int closestMatch(int r,int g,int b)
 
 uint QColor::alloc()
 {
-    QWSDisplay * qwsd=qApp->desktop()->qwsDisplay();
-    int depth=qwsd->depth();
-
-    int r = qRed(rgbVal);
-    int g = qGreen(rgbVal);
-    int b = qBlue(rgbVal);
     rgbVal &= RGB_MASK;
 
-    int red_shift,green_shift,blue_shift,red_mask,green_mask,blue_mask;
+// These macros mazimize optimizations even on dumb compilers.
 
-    if(depth==32) {
-	red_shift = 16;
-	green_shift = 8;
-        blue_shift = 0;
-	red_mask   = 0xff0000;
-	green_mask = 0x00ff00;
-	blue_mask  = 0x0000ff;
-    } else if(depth==16) {
-	const int gd = qwsd->greenDepth(); //5 for 5-5-5, 6 for 5-6-5
-	red_shift   =5+gd-(8-5);
-	green_shift =5-(8-gd);
-	blue_shift  =0-(8-5);
-	if(gd==6) {
-	    red_mask    =0xf800;
-	    green_mask  =0x07e0;
-	} else {
-	    red_mask=0x7c00;
-	    green_mask=0x03e0;
-	}
-	blue_mask   =0x001f;
-    } else if(depth==4) {
-	return pix = qt_screen->alloc(r,g,b);
-    } else if(depth==8) {
-	// #### just a hack
+#define GET \
+    const int r = qRed(rgbVal);\
+    const int g = qGreen(rgbVal);\
+    const int b = qBlue(rgbVal);
+
+    switch (qApp->desktop()->qwsDisplay()->depth()) {
+      case 1: {
+	GET
+	return pix = qGray(r,g,b) < 128 ? 1 : 0;
+#if !defined( QT_NO_IMAGE_16_BIT ) || !defined( QT_NO_QWS_DEPTH_16 )
+      } case 16: {
+	return pix = qt_convRgbTo16(rgbVal);
+#endif	
+      } case 32: {
+	GET
+	const int red_shift = 16;
+	const int green_shift = 8;
+	const int red_mask   = 0xff0000;
+	const int green_mask = 0x00ff00;
+	const int blue_mask  = 0x0000ff;
+	const int tr = r << red_shift;
+	const int tg = g << green_shift;
+	pix = (b & blue_mask) | (tg & green_mask) | (tr & red_mask);
+	return 0xff000000 | pix;
+     } default: {
+	GET
 #ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
 	return pix=qGray(r,g,b);
 #else
-       	return pix = (r + 25) / 51 * 36 + (g + 25) / 51 * 6 + (b + 25) / 51;
-//	return pix = closestMatch( r, g, b );
-	//pix=qt_screen->alloc(r,g,b);
-	return pix;
+	return pix=qt_screen->alloc(r,g,b);
 #endif
-    } else if(depth==1) {
-	// #### just a hack
-	return pix = qGray(r,g,b) < 128 ? 1 : 0;
-    } else {
-//	qFatal("QColor::alloc can't cope with depth %d",depth);
-	static int count;
-	if ( count++ < 10 )
-	    qWarning("QColor::alloc can't cope with depth %d",depth);
-	return 0;
+      }
     }
-    r = red_shift	> 0 ? r << red_shift   : r >> -red_shift;
-    g = green_shift > 0 ? g << green_shift : g >> -green_shift;
-    b = blue_shift	> 0 ? b << blue_shift  : b >> -blue_shift;
-    pix = (b & blue_mask) | (g & green_mask) | (r & red_mask);
-    return 0xff000000 | pix;
 }
 
 void QColor::setSystemNamedColor( const QString& name )

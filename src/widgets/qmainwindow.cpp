@@ -622,6 +622,7 @@ QMainWindow::QMainWindow( QWidget * parent, const char * name, WFlags f )
 
 QMainWindow::~QMainWindow()
 {
+    delete layout();
     delete d;
 }
 

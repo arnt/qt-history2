@@ -760,7 +760,7 @@ QWidget::~QWidget()
 	if (qApp)
 	    qApp->quit();
     }
-    
+
     if ( focusWidget() == this )
 	clearFocus();
     if ( QApplication::focus_widget == this )

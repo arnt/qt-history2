@@ -5,6 +5,8 @@
 # 3. Run this script from $QTDIR, it will report p4 edit operations as needed.
 # 4. p4 submit the results.
 
+$trace=0;
+
 %professional_module =
 (
     "tools" => 1,
@@ -64,9 +66,6 @@ sub relicense
 ** may use this file in accordance with the Qt Embedded Commercial License
 ** Agreement provided with the Software.
 **
-** This file is not available for use under any other license without
-** express written permission from the copyright holder.
-**
 ";
 
     $ent_license_x11=
@@ -97,9 +96,6 @@ sub relicense
 "** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses for Qt/Embedded may use this file in accordance with the
 ** Qt Embedded Commercial License Agreement provided with the Software.
-**
-** This file is not available for use under any other license without
-** express written permission from the copyright holder.
 **
 ";
 
@@ -148,66 +144,83 @@ sub relicense
 ** Contact info\@trolltech.com if any conditions of this licensing are
 ** not clear to you.
 **
-**********************************************************************/";
+*********************************************************************";
 
 
     if ($file =~ m{/src/([^/]*)/([^/]*)$} ) {
 	$module = $1;
 
 	if ( $file =~ m{_win.*\.(h|cpp)$} ) {
+print STDERR "Windows\n" if $trace;
 	    # Windows
 	    $com_license = $professional_module{$module}
 		? $pro_license_win : $ent_license_win;
 	    $content =~
 		s{module of the Qt.*?Qt Commercial License.*?\*/}
-		{module of the Qt GUI Toolkit.\n**\n$com_license$warranty$ref_com$footer}s;
+		{module of the Qt GUI Toolkit.\n**\n$com_license$warranty$ref_com$footer*/}s;
 	} elsif ( $file =~ m{_unix.*\.(h|cpp)$} ) {
+print STDERR "Unix\n" if $trace;
 	    # X11 or Qt/Embedded (Unix)
 	    $com_license = $professional_module{$module}
 		? $pro_license_unix : $ent_license_unix;
 	    $content =~
 		s{module of the Qt.*?Qt Commercial License.*?\*/}
-		{module of the Qt GUI Toolkit.\n**\n$qpl_license$gpl_license$com_license$warranty$ref_com$ref_qpl$ref_gpl$footer}s;
+		{module of the Qt GUI Toolkit.\n**\n$qpl_license$gpl_license$com_license$warranty$ref_com$ref_qpl$ref_gpl$footer*/}s;
 	} elsif ( $file =~ m{_x11.*\.(h|cpp)$} ) {
+print STDERR "X11\n" if $trace;
 	    # X11
 	    $com_license = $professional_module{$module}
 		? $pro_license_x11 : $ent_license_x11;
 	    $content =~
 		s{module of the Qt.*?Qt Commercial License.*?\*/}
-		{module of the Qt GUI Toolkit.\n**\n$qpl_license$gpl_license$com_license$warranty$ref_com$ref_qpl$ref_gpl$footer}s;
+		{module of the Qt GUI Toolkit.\n**\n$qpl_license$gpl_license$com_license$warranty$ref_com$ref_qpl$ref_gpl$footer*/}s;
 	} elsif ( $file =~ m{_qws.*\.(h|cpp)$} ) {
+print STDERR "QWS\n" if $trace;
 	    # Qt/Embedded
 	    $com_license = $professional_module{$module}
 		? $pro_license_emb : $ent_license_emb;
 	    $content =~
 		s{module of the Qt.*?Embedded.*?\*/}
-		{module of the Qt GUI Toolkit.\n**\n$com_license$warranty$ref_com$footer}s;
+		{module of the Qt GUI Toolkit.\n**\n$gpl_license$com_license$warranty$ref_com$ref_gpl$footer*/}s;
 	} elsif ( $professional_module{$module} ){
+print STDERR "General Professional\n" if $trace;
 	    # Qt Professional or Enterprise Edition
 	    $content =~
 		s{module of the Qt.*?LICENSE.QPL.*?\*/}
-		{module of the Qt GUI Toolkit.\n**\n$qpl_license$gpl_license$pro_license$warranty$ref_com$ref_qpl$ref_gpl$footer}s;
+		{module of the Qt GUI Toolkit.\n**\n$qpl_license$gpl_license$pro_license$warranty$ref_com$ref_qpl$ref_gpl$footer*/}s;
 	} else {
+print STDERR "General Enterprise\n" if $trace;
 	    # Qt Enterprise Edition
 	    $content =~
 		s{module of the Qt.*?LICENSE.QPL.*?\*/}
-		{module of the Qt GUI Toolkit.\n**\n$qpl_license$gpl_license$ent_license$warranty$ref_com$ref_qpl$ref_gpl$footer}s;
+		{module of the Qt GUI Toolkit.\n**\n$qpl_license$gpl_license$ent_license$warranty$ref_com$ref_qpl$ref_gpl$footer*/}s;
 	}
     } elsif ($file =~ m{/examples/} ) {
+print STDERR "Example\n" if $trace;
 	# Examples
 	$content =~
 	    s{(/\*.*?Copyright[^\n]*Trolltech.*?\n).*?\*/}
 	    {$1$examples_license}s;
     } elsif ($file =~ m{/doc/} || $file =~ m{/extensions/} ) {
+print STDERR "Documentation/Extension\n" if $trace;
 	# Documentation, extensions
 	$content =~
 	    s{This file is part of the Qt.*?LICENSE.QPL.*?\*/}
-	    {This file is part of the Qt GUI Toolkit.\n**\n$qpl_license$gpl_license$pro_license$warranty$ref_com$ref_qpl$ref_gpl$footer}s;
-    } elsif ($file =~ m{/tools/designer/} ) {
+	    {This file is part of the Qt GUI Toolkit.\n**\n$qpl_license$gpl_license$pro_license$warranty$ref_com$ref_qpl$ref_gpl$footer*/}s;
+    } elsif ($file =~ m{/tools/designer/.*\.(h|cpp)$} ) {
+print STDERR "GPL Application - cpp/h\n" if $trace;
 	# GPL application
 	$content =~
 	    s{(/\*.*?Copyright[^\n]*Trolltech.*?This file is part of.*?\n).*?\*/}
-	    {$1**\n$gpl_license$warranty$ref_gpl$footer}s;
+	    {$1**\n$gpl_license$warranty$ref_gpl$footer*/}s;
+    } elsif ($file =~ m{/tools/designer\.ui$/} ) {
+print STDERR "GPL Application - ui\n" if $trace;
+	# GPL application
+	$content =~
+	    s{(<\class><comment>.*?Copyright[^\n]*Trolltech.*?This file is part of.*?\n).*?</comment>}
+	    {$1**\n$gpl_license$warranty$ref_gpl$footer</comment>}s;
+    } else {
+print STDERR "Unlicensed\n" if $trace;
     }
 
     return $content;
@@ -216,20 +229,25 @@ sub relicense
 
 
 use File::Find;
+$pwd=`pwd`;
+chomp $pwd;
 
 sub change {
     if ( -f $_ && $_ =~ /\.(doc|cpp|h)$/ ) {
-print STDERR "$File::Find::dir/$_\n";
+	my $d=$File::Find::dir; $d =~ s/\Q$pwd\E\///g;
+	print STDERR "$d/$_  " if $trace;
 	my $c = `cat $_`;
 	my $cc = relicense("$File::Find::dir/$_", $c);
 	if ( $cc ne $c ) {
-	    system("p4 edit $_");
-	    open O,">$_";
-	    print O $cc;
-	    close O;
+	    system("p4 edit $File::Find::dir/$_");
+	    if ( open O,">$_" ) {
+		print O $cc;
+		close O;
+	    } else {
+		print STDERR "[CANNOT OPEN $File::Find::dir/$_ from ".`pwd`."]\n";
+	    }
 	}
     }
 }
 
-$d=`pwd`; chomp $d;
-find(\&change,$d);
+find(\&change,$pwd);

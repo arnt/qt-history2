@@ -37,9 +37,7 @@ MetalStyle::MetalStyle() : QWindowsStyle() { }
 
 /*!
   Reimplementation from QStyle
-
-  \sa QStyle
-  */
+ */
 void MetalStyle::polish( QApplication *app)
 {
     oldPalette = app->palette();
@@ -127,9 +125,7 @@ void MetalStyle::polish( QApplication *app)
 
 /*!
   Reimplementation from QStyle
-
-  \sa QStyle
-  */
+ */
 void MetalStyle::unPolish( QApplication *app)
 {
     app->setPalette(oldPalette, TRUE);
@@ -138,9 +134,7 @@ void MetalStyle::unPolish( QApplication *app)
 
 /*!
   Reimplementation from QStyle
-
-  \sa QStyle
-  */
+ */
 void MetalStyle::polish( QWidget* w)
 {
 
@@ -208,9 +202,7 @@ void MetalStyle::unPolish( QWidget* w)
 
 /*!
   Reimplementation from QStyle
-
-  \sa QStyle
-  */
+ */
 void MetalStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 			     const QColorGroup &, bool sunken, const QBrush*)
 {
@@ -251,9 +243,7 @@ void MetalStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 
 /*!
   Reimplementation from QStyle
-
-  \sa QStyle
-  */
+ */
 void MetalStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 				const QColorGroup &g, bool sunken, const QBrush* fill)
 {
@@ -262,9 +252,7 @@ void MetalStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 
 /*!
   Reimplementation from QStyle
-
-  \sa QStyle
-  */
+ */
 void MetalStyle::drawPushButton( QPushButton* btn, QPainter *p)
 {
     QColorGroup g = btn->colorGroup();
@@ -314,9 +302,7 @@ void MetalStyle::drawPushButton( QPushButton* btn, QPainter *p)
 
 /*!
   Reimplementation from QStyle
-
-  \sa QStyle
-  */
+ */
 void MetalStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 {
     QRect r = btn->rect();
@@ -347,10 +333,6 @@ void MetalStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
     if ( dx || dy )
 	p->translate( -dx, -dy );
 }
-
-
-
-
 
 
 void MetalStyle::drawPanel( QPainter *p, int x, int y, int w, int h,

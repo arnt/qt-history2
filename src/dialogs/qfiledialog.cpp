@@ -2667,6 +2667,10 @@ void QFileDialog::setFilter( const QString & newFilter )
     if ( index >= 0 )
 	f = f.mid( index + 1, r.matchedLength() - 2 );
     d->url.setNameFilter( f );
+	if ( d->types->count() == 1 ) {
+		d->types->clear();
+		d->types->insertItem( QFileDialog::tr( QString::fromLatin1( f ) ) );
+	}
     rereadDir();
 }
 

@@ -5,3 +5,4 @@ SOURCES		= main.cpp \
 		  scribble.cpp
 TARGET		= scribble
 DEPENDPATH=../../include
+REQUIRES=full-config

@@ -9,18 +9,21 @@
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses for Qt/Embedded may use this file in accordance with the
 ** Qt Embedded Commercial License Agreement provided with the Software.
-**
-** This file is not available for use under any other license without
-** express written permission from the copyright holder.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 **   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
 ** Contact info@trolltech.com if any conditions of this licensing are
 ** not clear to you.
@@ -69,17 +72,30 @@ typedef unsigned int __u32;
 # define GFX_INLINE
 #endif
 
-#if !defined(__i386__) || defined(QT_NO_QWS_GFX_SPEED)
-#define QWS_NO_WRITE_PACKING
-#endif
-
 // Experimental - need to try on slow machine
 //#define QWS_SLOW_GFX_MEMORY
 
+//#if !defined(__i386__) || defined(QT_NO_QWS_GFX_SPEED)
+#if defined(QT_NO_QWS_GFX_SPEED)
+#define QWS_NO_WRITE_PACKING
+#endif
+
+#if !defined(__i386__)
+#define QWS_PACKING_4BYTE
+#endif
+
 #if defined(__i386__) || !defined(__GNUC__)
-typedef double QuadByte;
+# ifdef QWS_PACKING_4BYTE
+typedef unsigned int PackType;
+# else
+typedef double PackType;
+# endif
 #else
-typedef long long QuadByte;
+# ifdef QWS_PACKING_4BYTE
+typedef unsigned int PackType;
+# else
+typedef long long PackType;
+# endif
 #endif
 
 #define QGfxRaster_Generic 0
@@ -125,20 +141,22 @@ struct SWCursorData {
 		    endDraw();
 #endif //QT_NO_QWS_CURSOR
 
+// The VGA16 driver requires the qt_screen->alloc() GFX_8BPP_PIXEL macro,
+// but this slows down alpha blending a little in 8-bit modes, so we need
+// a back-door to still use simple allocation to avoid very slow blitting.
+//
+#ifndef QT_NO_QWS_VGA_16
+# define QT_NEED_SIMPLE_ALLOC
+# define GFX_8BPP_PIXEL(r,g,b) qt_screen->alloc(r,g,b)
+#else
 #ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
 # define GFX_8BPP_PIXEL(r,g,b) qGray((r),(g),(b))
 #else
 # define GFX_8BPP_PIXEL(r,g,b) (((r) + 25) / 51 * 36 + ((g) + 25) / 51 * 6 + ((b) + 25) / 51)
 #endif
-
-
-// The GFX_8BPP_PIXEL macro screws up the VGA16 driver for alpha blended images
-// This might slow down alpha blending in 8-bit modes if VGA16 is compiled in
-#ifndef QT_NO_QWS_VGA_16
-#undef GFX_8BPP_PIXEL
-#define GFX_8BPP_PIXEL(r,g,b)	QColor(r,g,b).alloc()
 #endif
 
+static bool simple_8bpp_alloc=FALSE;
 
 static volatile int * optype=0;
 static volatile int * lastop=0;
@@ -194,6 +212,22 @@ bool QScreenCursor::supportsAlphaCursor()
 #else
     return FALSE;
 #endif
+}
+
+void QScreenCursor::hide()
+{
+    if ( data->enable ) {
+	restoreUnder(data->bound);
+	data->enable = FALSE;
+    }
+}
+
+void QScreenCursor::show()
+{
+    if ( !data->enable ) {
+	data->enable = TRUE;
+	saveUnder();
+    }
 }
 
 void QScreenCursor::set(const QImage &image, int hotx, int hoty)
@@ -410,19 +444,13 @@ void QScreenCursor::drawCursor()
 		    g = (srcval & 0xff00) >> 8;
 		    b = srcval & 0xff;
 		    unsigned int hold = *(dptr+col);
-		    int or=(hold & 0xff0000) >> 16;
-		    int og=(hold & 0xff00) >> 8;
-		    int ob=(hold & 0xff);
+		    int sr=(hold & 0xff0000) >> 16;
+		    int sg=(hold & 0xff00) >> 8;
+		    int sb=(hold & 0xff);
 
-		    r-=or;
-		    g-=og;
-		    b-=ob;
-		    r=(r * av) / 256;
-		    g=(g * av) / 256;
-		    b=(b * av) / 256;
-		    r+=or;
-		    g+=og;
-		    b+=ob;
+		    r = ((r-sr) * av) / 256 + sr;
+		    g = ((g-sg) * av) / 256 + sg;
+		    b = ((b-sb) * av) / 256 + sb;
 
 		    *(dptr+col) = (r << 16) | (g << 8) | b;
 		}
@@ -447,10 +475,7 @@ void QScreenCursor::drawCursor()
 		srcval = clut[*(srcptr+col)];
 		av = srcval >> 24;
 		if (av == 0xff) {
-		    r = (srcval & 0xff0000) >> 19;
-		    g = (srcval & 0xff00) >> 10;
-		    b = (srcval & 0xff) >> 3;
-		    *(dptr+col) = (r << 11) | (g << 5) | b;
+		    *(dptr+col) = qt_convRgbTo16(srcval);
 		}
 # ifndef QT_NO_QWS_ALPHA_CURSOR
 		else if (av != 0) {
@@ -459,28 +484,16 @@ void QScreenCursor::drawCursor()
 		    g = (srcval & 0xff00) >> 8;
 		    b = srcval & 0xff;
 
-		    unsigned short hold = *(dptr+col);
-		    int or=(hold & 0xf800) >> 11;
-		    int og=(hold & 0x07e0) >> 5;
-		    int ob=(hold & 0x001f);
-		    or=or << 3;
-		    og=og << 2;
-		    ob=ob << 3;
+		    int sr;
+		    int sg;
+		    int sb;
+		    qt_conv16ToRgb(*(dptr+col),sr,sg,sb);
 
-		    r-=or;
-		    g-=og;
-		    b-=ob;
-		    r=(r * av) / 256;
-		    g=(g * av) / 256;
-		    b=(b * av) / 256;
-		    r+=or;
-		    g+=og;
-		    b+=ob;
+		    r = ((r-sr) * av) / 256 + sr;
+		    g = ((g-sg) * av) / 256 + sg;
+		    b = ((b-sb) * av) / 256 + sb;
 
-		    r=r >> 3;
-		    g=g >> 2;
-		    b=b >> 3;
-		    *(dptr+col) = (r << 11) | (g << 5) | b;
+		    *(dptr+col) = qt_convRgbTo16(r,g,b);
 		}
 # endif
 	    }
@@ -496,6 +509,9 @@ void QScreenCursor::drawCursor()
         unsigned int srcval;
 	int av,r,g,b;
 	QRgb * screenclut=qt_screen->clut();
+#ifdef QT_NEED_SIMPLE_ALLOC
+	simple_8bpp_alloc=TRUE;
+#endif
 	for (int row = startRow; row < endRow; row++)
 	{
 	    for (int col = startCol; col < endCol; col++)
@@ -513,20 +529,14 @@ void QScreenCursor::drawCursor()
 		    b = srcval & 0xff;
 
 		    unsigned char hold = *(dptr+col);
-		    int or,og,ob;
-		    or=qRed(screenclut[hold]);
-		    og=qGreen(screenclut[hold]);
-		    ob=qBlue(screenclut[hold]);
+		    int sr,sg,sb;
+		    sr=qRed(screenclut[hold]);
+		    sg=qGreen(screenclut[hold]);
+		    sb=qBlue(screenclut[hold]);
 
-		    r-=or;
-		    g-=og;
-		    b-=ob;
-		    r=(r * av) / 256;
-		    g=(g * av) / 256;
-		    b=(b * av) / 256;
-		    r+=or;
-		    g+=og;
-		    b+=ob;
+		    r = ((r-sr) * av) / 256 + sr;
+		    g = ((g-sg) * av) / 256 + sg;
+		    b = ((b-sb) * av) / 256 + sb;
 
 		    *(dptr+col) = GFX_8BPP_PIXEL(r,g,b);
 		}
@@ -535,6 +545,9 @@ void QScreenCursor::drawCursor()
 	    srcptr += data->width;
 	    dptr += linestep;
 	}
+#ifdef QT_NEED_SIMPLE_ALLOC
+	simple_8bpp_alloc=FALSE;
+#endif
     }
 #endif
 #ifndef QT_NO_QWS_DEPTH_1
@@ -1133,25 +1146,11 @@ bool QGfxRasterBase::inClip(int x, int y, QRect* cr, bool known_to_be_outside)
 
 inline void QGfxRasterBase::useBrush()
 {
-#ifndef QT_NO_QWS_DEPTH_8
-    if ( qt_screen->depth() == 8 ) {
-	const QColor &c = cbrush.color();
-	pixel = qt_screen->alloc( c.red(), c.green(), c.blue() );
-	return;
-    }
-#endif
     pixel = cbrush.color().pixel();
 }
 
 inline void QGfxRasterBase::usePen()
 {
-#ifndef QT_NO_QWS_DEPTH_8
-    if ( qt_screen->depth() == 8 ) {
-	const QColor &c = cpen.color();
-	pixel = qt_screen->alloc( c.red(), c.green(), c.blue() );
-	return;
-    }
-#endif
     pixel = cpen.color().pixel();
 }
 
@@ -1163,13 +1162,6 @@ void QGfxRasterBase::setBrush( const QBrush & b )
     } else {
 	patternedbrush=FALSE;
     }
-#ifndef QT_NO_QWS_DEPTH_8
-    if ( qt_screen->depth() == 8 ) {
-	const QColor &c = b.color();
-	srccol = qt_screen->alloc( c.red(), c.green(), c.blue() );
-	return;
-    }
-#endif
     srccol=b.color().pixel();
 }
 
@@ -1199,32 +1191,10 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_32(
 	} else {
 	    (*srcdata)+=4;
 	}
+#if !defined( QT_NO_IMAGE_16_BIT ) || !defined( QT_NO_QWS_DEPTH_16 )
     } else if(sdepth==16) {
-	unsigned int r,g,b;
 	unsigned short int hold=*((unsigned short int *)(*srcdata));
-	r=(hold & 0xf800) >> 11;
-	g=(hold & 0x07e0) >> 5;
-	b=(hold & 0x001f);
-	r=r << 3;
-	g=g << 2;
-	b=b << 3;
-	ret = 0;
-	unsigned char * tmp=(unsigned char *)&ret;
-	*(tmp+2)=r;
-	*(tmp+1)=g;
-	*(tmp+0)=b;
-	(*srcdata)+=2;
-#ifndef QT_NO_QWS_DEPTH_15
-    } else if(sdepth==15) {
-	unsigned int r,g,b;
-	unsigned short int hold=*((unsigned short int *)(*srcdata));
-	r=(hold & 0x7c00) >> 11;
-	g=(hold & 0x03e0) >> 5;
-	b=(hold & 0x001f);
-	r=r << 3;
-	g=g << 3;
-	b=b << 3;
-	ret=(r << 16) | (g << 8) | b;
+	ret = qt_conv16ToRgb(hold);
 	(*srcdata)+=2;
 #endif
     } else if(sdepth==8) {
@@ -1269,6 +1239,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_32(
 GFX_INLINE unsigned int QGfxRasterBase::get_value_16(
 		       int sdepth, unsigned char **srcdata, bool reverse)
 {
+#if !defined( QT_NO_IMAGE_16_BIT ) || !defined( QT_NO_QWS_DEPTH_16 )    
     unsigned int ret = 0;
     if ( sdepth == 16 ) {
 	unsigned short int hold = *((unsigned short int *)(*srcdata));
@@ -1280,25 +1251,16 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_16(
 	ret=hold;
     } else if(sdepth==8) {
 	unsigned char val=*((*srcdata));
+	QRgb hold;
 #ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
 	if(src_normal_palette) {
-	    ret=((val >> 3) << 11) | ((val >> 2) << 5) | (val >> 3);
-	} else {
-#else
-	if(TRUE) {
+	    hold = val*0x010101;
+	} else
 #endif
-	    unsigned int r,g,b;
-	    unsigned int hold=srcclut[val];
-	    r=(hold & 0xff0000) >> 16;
-	    g=(hold & 0x00ff00) >> 8;
-	    b=(hold & 0x0000ff);
-	    r=r >> 3;
-	    g=g >> 2;
-	    b=b >> 3;
-	    r=r << 11;
-	    g=g << 5;
-	    ret=r | g | b;
+	{
+	    hold=srcclut[val];
 	}
+	ret=qt_convRgbTo16(hold);
 	(*srcdata)++;
     } else if(sdepth==1) {
 	if(monobitcount<8) {
@@ -1318,31 +1280,9 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_16(
 	}
 	ret=srcclut[ret];
     } else if ( sdepth == 32 ) {
-	unsigned int r,g,b;
 	unsigned int hold = *((unsigned int *)(*srcdata));
-	r=(hold & 0xff0000) >> 16;
-	g=(hold & 0x00ff00) >> 8;
-	b=(hold & 0x0000ff);
-	r=r >> 3;
-	g=g >> 2;
-	b=b >> 3;
-	r=r << 11;
-	g=g << 5;
-	ret=r | g | b;
+	ret=qt_convRgbTo16(hold);
 	(*srcdata)+=4;
-#ifndef QT_NO_QWS_DEPTH_15
-    } else if ( sdepth==15 ) {
-	unsigned int r,g,b;
-	unsigned short int hold=*((unsigned int *)(*srcdata));
-	r=(hold & 0x7c00) >> 10;
-	g=(hold & 0x03e0) >> 5;
-	b=(hold & 0x001f);
-	g=g >> 1;
-	r=r << 10;
-	g=g << 5;
-	ret=r | g | b;
-	(*srcdata)+=2;
-#endif
     } else {
 	qDebug("Odd source depth %d!",sdepth);
 	abort();
@@ -1350,73 +1290,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_16(
     }
 
     return ret;
-}
-
-// ### 15 bpp support incomplete
-// reverse can only be true if sdepth == depth
-GFX_INLINE unsigned int QGfxRasterBase::get_value_15(
-		       int sdepth, unsigned char **srcdata, bool reverse)
-{
-    unsigned int ret;
-
-    // Fix this to honour reverse
-    if(sdepth==32) {
-	unsigned int r,g,b;
-	unsigned int hold=*((unsigned int *)(*srcdata));
-	r=(hold & 0xff0000) >> 16;
-	g=(hold & 0x00ff00) >> 8;
-	b=(hold & 0x0000ff);
-	r=r >> 3;
-	g=g >> 2;
-	b=b >> 3;
-	r=r << 10;
-	g=g << 5;
-	ret=r | g | b;
-	(*srcdata)+=4;
-    } else if(sdepth==15) {
-	unsigned short int hold=*((unsigned short int *)(*srcdata));
-	if ( reverse )
-	    (*srcdata)-=2;
-	else
-	    (*srcdata)+=2;
-	ret=hold;
-    } else if(sdepth==16) {
-	unsigned int r,g,b;
-	unsigned short int hold=*((unsigned int *)(*srcdata));
-	r=(hold & 0xf800) >> 11;
-	g=(hold & 0x07e0) >> 5;
-	b=(hold & 0x001f);
-	g=g << 1;
-	r=r << 11;
-	g=g << 5;
-	ret=r | g | b;
-	(*srcdata)+=2;
-    } else if(sdepth==8) {
-	// FIXME: all of 15bpp support is pretty broken
-	unsigned char val=*((*srcdata)++);
-	return srcclut[val];
-    } else if(sdepth==1) {
-	if(monobitcount<8) {
-	    monobitcount++;
-	} else {
-	    monobitcount=1;
-	    (*srcdata)++;
-	    monobitval=*((*srcdata));
-	}
-	if(src_little_endian) {
-	    ret=monobitval & 0x1;
-	    monobitval=monobitval >> 1;
-	} else {
-	    ret=monobitval & 0x80;
-	    monobitval=monobitval << 1;
-	    monobitval=monobitval & 0xff;
-	}
-    } else {
-	qDebug("Odd source depth %d!",sdepth);
-	ret=0;
-    }
-
-    return ret;
+#endif
 }
 
 // reverse can only be true if sdepth == depth
@@ -1461,7 +1335,13 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_8(
 	r=(hold & 0xff0000) >> 16;
 	g=(hold & 0x00ff00) >> 8;
 	b=(hold & 0x0000ff);
-	ret = QColor( r, g, b ).alloc();
+#ifdef QT_NEED_SIMPLE_ALLOC
+	simple_8bpp_alloc=TRUE;
+#endif
+	ret = GFX_8BPP_PIXEL(r,g,b);
+#ifdef QT_NEED_SIMPLE_ALLOC
+	simple_8bpp_alloc=FALSE;
+#endif
 	(*srcdata)+=4;
     } else {
 	qDebug("Cannot do %d->8!",sdepth);
@@ -1518,7 +1398,13 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_1(
 	g=(hold & 0x00ff00) >> 8;
 	b=(hold & 0x0000ff);
 	(*srcdata)+=4;
-	ret= QColor(r,g,b).alloc();
+#ifdef QT_NEED_SIMPLE_ALLOC
+	simple_8bpp_alloc=TRUE;
+#endif
+	ret = GFX_8BPP_PIXEL(r,g,b);
+#ifdef QT_NEED_SIMPLE_ALLOC
+	simple_8bpp_alloc=FALSE;
+#endif
     } else {
 	qDebug("get_value_1(): Unsupported source depth %d!",sdepth);
 	ret=0;
@@ -1557,79 +1443,81 @@ GFX_INLINE void QGfxRaster<depth,type>::calcPacking(
 			  void * m,int x1,int x2,
 			  int & frontadd,int & backadd,int & count)
 {
-#ifdef QWS_NO_WRITE_PACKING
-	frontadd = x2-x1+1;
-	backadd = 0;
-	count = 0;
-	if(frontadd<0)
-	    frontadd=0;
-	return;
-#else
-    if(depth==32) {
-	frontadd = x2-x1+1;
-	backadd = 0;
-	count = 0;
-	if(frontadd<0)
-	    frontadd=0;
-	return;
+    int w = x2-x1+1;
 
-	// ### 32bpp packing doesn't work
-	unsigned int * myptr=(unsigned int *)m;
-	if( (x2-x1+1)<2 ) {
-	    frontadd=x2-x1+1;
-	    backadd=0;
-	    count=0;
-	    if(frontadd<0)
-		frontadd=0;
-	    return;
-	}
-	frontadd=(((unsigned long)myptr)+(x1*2)) & 0x7;
-	backadd=(((unsigned long)myptr)+((x2+1)*2)) & 0x7;
-	if(frontadd)
-	    frontadd=(8-frontadd);
-	frontadd=frontadd/4;
-	backadd=backadd/4;
-	count=( (x2-x1+1)-(frontadd+backadd) );
-	count=count >> 1;
-    } else if(depth==16 || depth==15) {
+#ifndef QWS_NO_WRITE_PACKING
+# if defined(QWS_PACKING_4BYTE)
+    if ( depth == 16 ) {
+	if ( w < 2 )
+	    goto unpacked;
+
 	unsigned short int * myptr=(unsigned short int *)m;
-	if( (x2-x1+1)<4 ) {
-	    frontadd=x2-x1+1;
-	    backadd=0;
-	    count=0;
-	    if(frontadd<0)
-		frontadd=0;
-	    return;
-	}
+	frontadd=(((unsigned long)myptr)+(x1*2)) & 0x3;
+	backadd=(((unsigned long)myptr)+((x2+1)*2)) & 0x3;
+	if ( frontadd )
+	    frontadd = 4 - frontadd;
+	frontadd >>= 1;
+	backadd >>= 1;
+	count=( w-(frontadd+backadd) );
+	count >>= 1;
+    } else if ( depth == 8 ) {
+	if ( w < 4 )
+	    goto unpacked;
 
+	unsigned char * myptr=(unsigned char *)m;
+	frontadd=(((unsigned long)myptr)+x1) & 0x3;
+	backadd=(((unsigned long)myptr)+x2+1) & 0x3;
+	if ( frontadd )
+	    frontadd = 4 - frontadd;
+	count = w-(frontadd+backadd);
+	count >>= 2;
+    } else {
+	goto unpacked;
+    }
+# else
+    if(depth==32) {
+	goto unpacked; // ### 32bpp packing doesn't work
+
+	if ( w < 2 )
+	    goto unpacked;
+
+	unsigned int * myptr=(unsigned int *)m;
+	frontadd=(((unsigned long)myptr)+(x1*4)) & 0x7;
+	backadd=(((unsigned long)myptr)+((x2+1)*4)) & 0x7;
+	if(frontadd)
+	    frontadd=(8-frontadd);
+	frontadd >>= 2;
+	backadd >>= 2;
+	count=( w-(frontadd+backadd) );
+	count >>= 1;
+    } else if ( depth == 16 ) {
+	if ( w < 4 )
+	    goto unpacked;
+
+	unsigned short int * myptr=(unsigned short int *)m;
 	frontadd=(((unsigned long)myptr)+(x1*2)) & 0x7;
 	backadd=(((unsigned long)myptr)+((x2+1)*2)) & 0x7;
 	if(frontadd)
 	    frontadd=(8-frontadd);
-	frontadd=frontadd/2;
-	backadd=backadd/2;
-	count=( (x2-x1+1)-(frontadd+backadd) );
-	count=count >> 2;
+	frontadd >>= 1;
+	backadd >>= 1;
+	count=( w-(frontadd+backadd) );
+	count >>= 2;
     } else if(depth==8) {
 	// ### 8bpp packing doesn't work
 	unsigned char * myptr=(unsigned char *)m;
-	if( (x2-x1+1)<8 ) {
-	    frontadd=x2-x1+1;
-	    backadd=0;
-	    count=0;
-	    if(frontadd<0)
-		frontadd=0;
-	    return;
-	}
+	if (  w < 8 )
+	    goto unpacked;
 
 	frontadd=(((unsigned long)myptr)+(x1)) & 0x7;
 	backadd=(((unsigned long)myptr)+((x2+1))) & 0x7;
 	if(frontadd)
 	    frontadd=(8-frontadd);
-	count=( (x2-x1+1)-(frontadd+backadd) );
-	count=count >> 3;
+	count=( w-(frontadd+backadd) );
+	count >>= 3;
     } else {
 	qDebug("Need packing for depth %d",depth);
+	goto unpacked;
     }
 
     if(count<0)
@@ -1638,7 +1526,16 @@ GFX_INLINE void QGfxRaster<depth,type>::calcPacking(
 	frontadd=0;
     if(backadd<0)
 	backadd=0;
+    return;
+# endif
 #endif
+
+unpacked:
+    frontadd = w;
+    backadd = 0;
+    count = 0;
+    if(frontadd<0)
+	frontadd=0;
 }
 
 // if the source is 1bpp, the pen and brush currently active will be used
@@ -1994,7 +1891,11 @@ void QGfxRaster<depth, type>::drawThickLine( int x1, int y1, int x2, int y2 )
     int w = cpen.width() - 1;
     double a = atan2( y2 - y1, x2 - x1 );
     double ix = cos(a) * w / 2;
+    if ( ix < 0.001 && ix > -0.001 )
+	ix = 0.0;
     double iy = sin(a) * w / 2;
+    if ( iy < 0.001 && iy > -0.001 )
+	iy = 0.0;
 
     // No cap.
     pa[0].setX( x1 + iy );
@@ -2031,6 +1932,94 @@ void QGfxRaster<depth, type>::drawThickLine( int x1, int y1, int x2, int y2 )
     cpen = QPen( cpen.color() );
     drawPolyline(pa, 0, 5);
     cpen = savePen;
+    GFX_END
+}
+
+template <const int depth, const int type>
+void QGfxRaster<depth,type>::drawThickPolyline( const QPointArray &points,int index, int npoints )
+{
+    if ( npoints < 2 )
+	return;
+    if ( npoints == 2 ) {
+	drawThickLine( points[index].x(), points[index].y(),
+		       points[index+1].x(), points[index+1].y() );
+	return;
+    }
+
+    bool close = FALSE;
+    QPointArray a(points);
+    if ( a[index] == a[index+npoints-1] ) {
+	a = QPointArray( npoints+1 );
+	for ( int i = 0; i < npoints; i++ )
+	    a.setPoint( i, points[index+i] );
+	a.setPoint( npoints, a[1] );
+	npoints++;
+	index = 0;
+	close = TRUE;
+    }
+
+    if((*optype)!=0) {
+	sync();
+    }
+    (*optype)=0;
+    GFX_START(clipbounds)
+
+    int w = cpen.width() - 1;
+    int i = 0;
+    for ( i = index; i < index + npoints - 2; i++ ) {
+	if ( a[i] == a[i+1] )
+	    continue;
+	drawThickLine( a[i].x(), a[i].y(), a[i+1].x(), a[i+1].y() );
+
+	double at = atan2( a[i+1].y() - a[i].y(),
+			  a[i+1].x() - a[i].x() );
+	double ix1 = cos(at) * w / 2;
+	if ( ix1 < 0.001 && ix1 > -0.001 )
+	    ix1 = 0.0;
+	double iy1 = sin(at) * w / 2;
+	if ( iy1 < 0.001 && iy1 > -0.001 )
+	    iy1 = 0.0;
+
+	at = atan2( a[i+2].y() - a[i+1].y(),
+		a[i+2].x() - a[i+1].x() );
+	double ix2 = cos(at) * w / 2;
+	if ( ix2 < 0.001 && ix2 > -0.001 )
+	    ix2 = 0.0;
+	double iy2 = sin(at) * w / 2;
+	if ( iy2 < 0.001 && iy2 > -0.001 )
+	    iy2 = 0.0;
+
+	if ( ix1 != ix2 || iy1 != iy2 ) {
+	    int l1x1 = (int)(a[i+1].x() + iy1);
+	    int l1y1 = (int)(a[i+1].y() - ix1);
+
+	    int l2x1 = (int)(a[i+1].x() - iy1);
+	    int l2y1 = (int)(a[i+1].y() + ix1);
+
+	    int l1x2 = (int)(a[i+1].x() + iy2);
+	    int l1y2 = (int)(a[i+1].y() - ix2);
+
+	    int l2x2 = (int)(a[i+1].x() - iy2);
+	    int l2y2 = (int)(a[i+1].y() + ix2);
+
+	    QPointArray pa(5);
+	    int idx = 0;
+	    pa.setPoint( idx++, l1x1, l1y1 );
+	    pa.setPoint( idx++, l1x2, l1y2 );
+	    pa.setPoint( idx++, l2x1, l2y1 );
+	    pa.setPoint( idx++, l2x2, l2y2 );
+	    pa[idx++] = pa[0];
+
+	    usePen();
+	    scan(pa,FALSE,0,idx);
+	    QPen savePen = cpen;
+	    cpen = QPen( cpen.color() );
+	    drawPolyline(pa, 0, idx);
+	    cpen = savePen;
+	}
+    }
+    if ( !close )
+	drawThickLine( a[i].x(), a[i].y(), a[i+1].x(), a[i+1].y() );
     GFX_END
 }
 
@@ -2080,19 +2069,26 @@ GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned c
 
 	    myptr+=x1;
 
-	    QuadByte put;
+	    PackType put;
+# ifdef QWS_PACKING_4BYTE
+	    put = pixel | ( pixel << 16 );
+# else
 	    unsigned short int * tmp=(unsigned short int *)&put;
 	    *tmp=pixel;
 	    *(tmp+1)=pixel;
 	    *(tmp+2)=pixel;
 	    *(tmp+3)=pixel;
+# endif
 
 	    while ( frontadd-- )
 		*(myptr++)=pixel;
-
 	    while ( count-- ) {
-		*((QuadByte *)myptr) = put;
+		*((PackType *)myptr) = put;
+# ifdef QWS_PACKING_4BYTE
+		myptr += 2;
+# else
 		myptr += 4;
+# endif
 	    }
 	    while ( backadd-- )
 		*(myptr++)=pixel;
@@ -2280,20 +2276,26 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 
 	    calcPacking(myptr-x1,x1,x2,frontadd,backadd,count);
 
-	    QuadByte dput;
+	    PackType dput;
 	    unsigned short int * fun;
 	    fun=(unsigned short int *)&dput;
 
 	    while ( frontadd-- )
 		*(myptr++)=get_value_16(srcdepth,&srcdata);
-
 	    while ( count-- ) {
+# ifdef QWS_PACKING_4BYTE
+		dput = get_value_16(srcdepth,&srcdata);
+		dput |= (get_value_16(srcdepth,&srcdata) << 16);
+		*((PackType*)myptr) = dput;
+		myptr += 2;
+# else
 		*fun = get_value_16(srcdepth,&srcdata);
 		*(fun+1) = get_value_16(srcdepth,&srcdata);
 		*(fun+2) = get_value_16(srcdepth,&srcdata);
 		*(fun+3) = get_value_16(srcdepth,&srcdata);
-		*((QuadByte*)myptr) = dput;
+		*((PackType*)myptr) = dput;
 		myptr += 4;
+# endif
 	    }
 	    while ( backadd-- )
 		*(myptr++)=get_value_16(srcdepth,&srcdata);
@@ -2333,13 +2335,21 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 
 	    calcPacking(myptr-x1,x1,x2,frontadd,backadd,count);
 
-	    QuadByte dput;
+	    PackType dput;
 	    unsigned char *fun = (unsigned char *)&dput;
 
 	    while ( frontadd-- )
 		*(myptr++)=get_value_8(srcdepth,&srcdata);
 
 	    while ( count-- ) {
+# ifdef QWS_PACKING_4BYTE
+		dput = get_value_8(srcdepth,&srcdata);
+		dput |= (get_value_8(srcdepth,&srcdata) << 8);
+		dput |= (get_value_8(srcdepth,&srcdata) << 16);
+		dput |= (get_value_8(srcdepth,&srcdata) << 24);
+		*((PackType*)myptr) = dput;
+		myptr += 4;
+# else
 		*(fun+0) = get_value_8(srcdepth,&srcdata);
 		*(fun+1) = get_value_8(srcdepth,&srcdata);
 		*(fun+2) = get_value_8(srcdepth,&srcdata);
@@ -2348,8 +2358,9 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		*(fun+5) = get_value_8(srcdepth,&srcdata);
 		*(fun+6) = get_value_8(srcdepth,&srcdata);
 		*(fun+7) = get_value_8(srcdepth,&srcdata);
-		*((QuadByte*)myptr) = dput;
+		*((PackType*)myptr) = dput;
 		myptr += 8;
+# endif
 	    }
 	    while ( backadd-- )
 		*(myptr++)=get_value_8(srcdepth,&srcdata);
@@ -2460,7 +2471,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	unsigned int * temppos=myptr;
 	int myp=0;
 
-	QuadByte temp2;
+	PackType temp2;
 
 	unsigned int * cp;
 
@@ -2470,7 +2481,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	}
 
 	for( loopc2=0;loopc2<count;loopc2++ ) {
-	    temp2=*((QuadByte *)temppos);
+	    temp2=*((PackType *)temppos);
 	    cp=(unsigned int *)&temp2;
 	    alphabuf[myp++]=*cp;
 	    alphabuf[myp++]=*(cp+1);
@@ -2492,13 +2503,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	    srcval=0; // Shut up compiler
 	} else {
 	    // SourcePen
-	    unsigned int r,g,b;
-	    r=(srccol & 0x00ff0000);
-	    g=(srccol & 0x0000ff00);
-	    b=(srccol & 0x000000ff);
-	    r=r >> 16;
-	    g=g >> 8;
-	    srcval=(r << 16) | (g << 8) | b;
+	    srcval=srccol;
 	}
 
 	alphaptr = (unsigned int *)alphabuf;
@@ -2507,7 +2512,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	    if(srctype==SourceImage)
 		srcval=get_value_32(srcdepth,&srcptr);
 
-	    unsigned int av;
+	    int av;
 	    if(alphatype==InlineAlpha) {
 		av = srcval >> 24;
 	    } else if(alphatype==SolidAlpha) {
@@ -2522,21 +2527,15 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 
 	    unsigned char * tmp=(unsigned char *)&alphabuf[loopc];
 	    if(av==255) {
-	      // Do nothing - we already have source values in r,g,b
+	        // Do nothing - we already have source values in r,g,b
 	    } else if(av==0) {
-	      r=*(tmp+2);
-	      g=*(tmp+1);
-	      b=*(tmp+0);
+	        r = *(tmp+2);
+	        g = *(tmp+1);
+	        b = *(tmp+0);
 	    } else {
-	        r-=*(tmp+2);
-	        g-=*(tmp+1);
-	        b-=*(tmp+0);
-	        r=(r * av) / 256;
-	        g=(g * av) / 256;
-	        b=(b * av) / 256;
-	        r+=*(tmp+2);
-	        g+=*(tmp+1);
-	        b+=*(tmp+0);
+		r = ((r-*(tmp+2)) * av) / 256 + *(tmp+2);
+		g = ((g-*(tmp+1)) * av) / 256 + *(tmp+1);
+		b = ((b-*(tmp+0)) * av) / 256 + *(tmp+0);
 	    }
 	    *(alphaptr++) = (r << 16) | (g << 8) | b;
 	}
@@ -2549,7 +2548,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	while ( w-- )
 	    *(myptr++)=*(alphaptr++);
 #else
-	QuadByte put;
+	PackType put;
 	unsigned int *fun = (unsigned int*)&put;
 
 	myptr=(unsigned int *)l;
@@ -2565,7 +2564,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	for ( loopc2=0;loopc2<count;loopc2++ ) {
 	    *(fun) = *(alphaptr++);
 	    *(fun+1) = *(alphaptr++);
-	    *((QuadByte*)myptr) = put;
+	    *((PackType*)myptr) = put;
 	    myptr += 2;
 	}
 
@@ -2573,6 +2572,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	    *(myptr++)=*(alphaptr++);
 	}
 #endif
+#if !defined( QT_NO_IMAGE_16_BIT ) || !defined( QT_NO_QWS_DEPTH_16 )
     } else if ( depth == 16 ) {
         // First read in the destination line
 	unsigned short int *myptr = (unsigned short int *)l;
@@ -2598,7 +2598,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	int myp=0;
 	unsigned short int * temppos=myptr;
 
-	QuadByte temp2;
+	PackType temp2;
 
 	unsigned char * cp;
 
@@ -2607,13 +2607,17 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	}
 
 	for( loopc2=0;loopc2<count;loopc2++ ) {
-	    temp2=*((QuadByte *)temppos);
+	    temp2=*((PackType *)temppos);
 	    cp=(unsigned char *)&temp2;
 	    alphabuf[myp++]=get_value_32(16,&cp);
 	    alphabuf[myp++]=get_value_32(16,&cp);
+# ifdef QWS_PACKING_4BYTE
+	    temppos+=2;
+# else
 	    alphabuf[myp++]=get_value_32(16,&cp);
 	    alphabuf[myp++]=get_value_32(16,&cp);
 	    temppos+=4;
+#endif
 	}
 
 	for( loopc2=0;loopc2<backadd;loopc2++ ) {
@@ -2630,16 +2634,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	    srcval=0; // Shut up compiler
 	} else {
 	    // SourcePen
-	    unsigned int r,g,b;
-	    r=(srccol & 0xf800);
-	    g=(srccol & 0x07e0);
-	    b=(srccol & 0x001f);
-	    r=r >> 11;
-	    g=g >> 5;
-	    r=r << 3;
-	    g=g << 2;
-	    b=b << 3;
-	    srcval=(r << 16) | (g << 8) | b;
+	    srcval=qt_conv16ToRgb(srccol);
 	}
 	alphaptr = (unsigned int *)alphabuf;
 	for(loopc=0;loopc<w;loopc++) {
@@ -2647,7 +2642,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	    if(srctype==SourceImage)
 		srcval=get_value_32(srcdepth,&srcptr);
 
-	    unsigned int av;
+	    int av;
 	    if(alphatype==InlineAlpha) {
 		av = srcval >> 24;
 	    } else if(alphatype==SolidAlpha) {
@@ -2662,26 +2657,17 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 
 	    unsigned char * tmp=(unsigned char *)&alphabuf[loopc];
 	    if(av==255) {
-	      // Do nothing - we already have source values in r,g,b
+	        // Do nothing - we already have source values in r,g,b
 	    } else if(av==0) {
-	      r=*(tmp+2);
-	      g=*(tmp+1);
-	      b=*(tmp+0);
+	        r=*(tmp+2);
+	        g=*(tmp+1);
+	        b=*(tmp+0);
 	    } else {
-	        r-=*(tmp+2);
-	        g-=*(tmp+1);
-	        b-=*(tmp+0);
-	        r=(r * av) / 256;
-	        g=(g * av) / 256;
-	        b=(b * av) / 256;
-	        r+=*(tmp+2);
-	        g+=*(tmp+1);
-	        b+=*(tmp+0);
+		r = ((r-*(tmp+2)) * av) / 256 + *(tmp+2);
+		g = ((g-*(tmp+1)) * av) / 256 + *(tmp+1);
+		b = ((b-*(tmp+0)) * av) / 256 + *(tmp+0);
 	    }
-	    r=r >> 3;
-	    g=g >> 2;
-	    b=b >> 3;
-	    *(alphaptr++) = (r << 11) | (g << 5) | b;
+	    *(alphaptr++) = qt_convRgbTo16(r,g,b);
 	}
 
 	// Now write it all out
@@ -2693,7 +2679,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	while ( w-- )
 	    *(myptr++) = *(alphaptr++);
 #else
-	QuadByte put;
+	PackType put;
 	unsigned short int *fun = (unsigned short int*)&put;
 
 	myptr=(unsigned short int *)l;
@@ -2707,17 +2693,25 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	}
 
 	for ( loopc2=0;loopc2<count;loopc2++ ) {
+# ifdef QWS_PACKING_4BYTE
+	    put = *(alphaptr++);
+	    put |= (*(alphaptr++) << 16);
+	    *((PackType*)myptr) = put;
+	    myptr += 2;
+# else
 	    *(fun) = *(alphaptr++);
 	    *(fun+1) = *(alphaptr++);
 	    *(fun+2) = *(alphaptr++);
 	    *(fun+3) =  *(alphaptr++);
-	    *((QuadByte*)myptr) = put;
+	    *((PackType*)myptr) = put;
 	    myptr += 4;
+# endif
 	}
 
 	for ( loopc2=0;loopc2<backadd;loopc2++ ) {
 	    *(myptr++)=*(alphaptr++);
 	}
+#endif
 #endif
     } else if ( depth == 8 ) {
         // First read in the destination line
@@ -2751,12 +2745,15 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	    QRgb mytmp=clut[srccol];
 	    srcval=qRed(mytmp) << 16 | qGreen(mytmp) << 8 | qBlue(mytmp);
 	}
+#ifdef QT_NEED_SIMPLE_ALLOC
+	simple_8bpp_alloc=TRUE;
+#endif
 	for(loopc=0;loopc<w;loopc++) {
 	    int r,g,b;
 	    if(srctype==SourceImage)
 		srcval=get_value_32(srcdepth,&srcptr);
 
-	    unsigned int av;
+	    int av;
 	    if(alphatype==InlineAlpha) {
 		av=srcval >> 24;
 	    } else if(alphatype==SolidAlpha) {
@@ -2774,22 +2771,16 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	    if(av==255) {
 		*myptr = GFX_8BPP_PIXEL(r,g,b);
 	    } else if ( av > 0 ) {
-	        r-=*(tmp+2);
-	        g-=*(tmp+1);
-	        b-=*(tmp+0);
-	        r=(r * av);
-	        g=(g * av);
-	        b=(b * av);
-		r=r/256;
-		g=g/256;
-		b=b/256;
-	        r+=*(tmp+2);
-	        g+=*(tmp+1);
-	        b+=*(tmp+0);
+		r = ((r-*(tmp+2)) * av) / 256 + *(tmp+2);
+		g = ((g-*(tmp+1)) * av) / 256 + *(tmp+1);
+		b = ((b-*(tmp+0)) * av) / 256 + *(tmp+0);
 		*myptr = GFX_8BPP_PIXEL(r,g,b);
 	    }
 	    myptr++;
 	}
+#ifdef QT_NEED_SIMPLE_ALLOC
+	simple_8bpp_alloc=FALSE;
+#endif
     } else if ( depth == 1 ) {
 	static int warn;
 	if ( warn++ < 5 )
@@ -2850,7 +2841,12 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 	    calcPacking(myptr,x1,x2,frontadd,backadd,count);
 
 	    int loopc,loopc2;
-	    QuadByte put;
+	    PackType put;
+# ifdef QWS_PACKING_4BYTE
+	    put = pixel | (pixel << 16);
+	    int add=linestep()/2;
+	    add-=(frontadd+(count * 2)+backadd);
+# else
 	    unsigned short int * sp=(unsigned short int *)&put;
 	    *sp=pixel;
 	    *(sp+1)=pixel;
@@ -2859,14 +2855,19 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 
 	    int add=linestep()/2;
 	    add-=(frontadd+(count * 4)+backadd);
+# endif
 
 	    myptr=((unsigned short int *)scanLine(y1))+x1;
 	    for(loopc=0;loopc<h;loopc++) {
 		for(loopc2=0;loopc2<frontadd;loopc2++)
 		    *(myptr++)=pixel;
 		for(loopc2=0;loopc2<count;loopc2++) {
-		    *((QuadByte *)myptr)=put;
+		    *((PackType *)myptr)=put;
+# ifdef QWS_PACKING_4BYTE
+		    myptr+=2;
+# else
 		    myptr+=4;
+# endif
 		}
 		for(loopc2=0;loopc2<backadd;loopc2++)
 		    *(myptr++)=pixel;
@@ -2906,7 +2907,7 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 	    calcPacking(myptr,x1,x2,frontadd,backadd,count);
 
 	    int loopc,loopc2;
-	    QuadByte put;
+	    PackType put;
 	    unsigned int * sp=(unsigned int *)&put;
 	    *sp=pixel;
 	    *(sp+1)=pixel;
@@ -2920,7 +2921,7 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 		for(loopc2=0;loopc2<frontadd;loopc2++)
 		    *(myptr++)=pixel;
 		for(loopc2=0;loopc2<count;loopc2++) {
-		    *((QuadByte *)myptr)=put;
+		    *((PackType *)myptr)=put;
 		    myptr+=2;
 		}
 		for(loopc2=0;loopc2<backadd;loopc2++)
@@ -2961,7 +2962,14 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 	    calcPacking(myptr,x1,x2,frontadd,backadd,count);
 
 	    int loopc,loopc2;
-	    QuadByte put;
+	    PackType put;
+# ifdef QWS_PACKING_4BYTE
+	    if ( count )
+		put = pixel | (pixel<<8) | (pixel<<16) | (pixel<<24);
+
+	    int add=linestep();
+	    add-=(frontadd+(count * 4)+backadd);
+# else
 	    if ( count ) {
 		unsigned char * sp=(unsigned char *)&put;
 		*sp=pixel;
@@ -2976,14 +2984,19 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 
 	    int add=linestep();
 	    add-=(frontadd+(count * 8)+backadd);
+# endif
 
 	    myptr=((unsigned char *)scanLine(y1))+x1;
 	    for(loopc=0;loopc<h;loopc++) {
 		for(loopc2=0;loopc2<frontadd;loopc2++)
 		    *(myptr++)=pixel;
 		for(loopc2=0;loopc2<count;loopc2++) {
-		    *((QuadByte *)myptr)=put;
+		    *((PackType *)myptr)=put;
+# ifdef QWS_PACKING_4BYTE
+		    myptr+=4;
+# else
 		    myptr+=8;
+# endif
 		}
 		for(loopc2=0;loopc2<backadd;loopc2++)
 		    *(myptr++)=pixel;
@@ -3052,11 +3065,22 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 template <const int depth, const int type>
 void QGfxRaster<depth,type>::drawPolyline( const QPointArray &a,int index, int npoints )
 {
+    if(cpen.style()==NoPen)
+	return;
+    if (cpen.width() > 1) {
+	drawThickPolyline( a, index, npoints );
+	return;
+    }
+
     if((*optype))
 	sync();
     (*optype)=0;
     //int m=QMIN( index+npoints-1, int(a.size())-1 );
+#ifndef QT_NO_QWS_CURSOR
+    GFX_START(a.boundingRect())
+#else
     GFX_START(clipbounds)
+#endif
     int loopc;
     int end;
     end=(index+npoints) > (int)a.size() ? a.size() : index+npoints;
@@ -3523,7 +3547,7 @@ QScreen::~QScreen()
 {
 }
 
-void QScreen::shutdownCard()
+void QScreen::shutdownDevice()
 {
     qDebug("shutdownCard");
 #ifndef QT_NO_QWS_CURSOR
@@ -3544,10 +3568,12 @@ QGfx * QScreen::screenGfx()
 
 int QScreen::alloc(unsigned int r,unsigned int g,unsigned int b)
 {
+    ASSERT(d==8);
+
     // First we look to see if we match a default color
     QRgb myrgb=qRgb(r,g,b);
     int pos= (r + 25) / 51 * 36 + (g + 25) / 51 * 6 + (b + 25) / 51;
-    if ( screenclut[pos] == myrgb || !initted ) {
+    if ( simple_8bpp_alloc || screenclut[pos] == myrgb || !initted ) {
 	return pos;
     }
 
@@ -3606,6 +3632,34 @@ void QScreen::set(unsigned int, unsigned int, unsigned int, unsigned int)
 {
 }
 
+bool QScreen::supportsDepth(int d) const
+{
+    if ( FALSE ) {
+	//Just to simplify the ifdeffery
+#ifndef QT_NO_QWS_DEPTH_1
+    } else if(d==1) {
+	return TRUE;
+#endif
+#ifndef QT_NO_QWS_DEPTH_16
+    } else if(d==16) {
+	return TRUE;
+#endif
+#ifndef QT_NO_QWS_DEPTH_8
+    } else if(d==8) {
+	return TRUE;
+#endif
+#ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
+    } else if(d==8) {
+	return TRUE;
+#endif
+#ifndef QT_NO_QWS_DEPTH_32
+    } else if(d==32) {
+	return TRUE;
+#endif
+    }
+    return FALSE;
+}
+
 QGfx * QScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
 {
     QGfx* ret;
@@ -3618,10 +3672,6 @@ QGfx * QScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
 #ifndef QT_NO_QWS_DEPTH_16
     } else if(d==16) {
 	ret = new QGfxRaster<16,0>(bytes,w,h);
-#endif
-#ifndef QT_NO_QWS_DEPTH_15
-    } else if(d==15) {
-	ret = new QGfxRaster<15,0>(bytes,w,h);
 #endif
 #ifndef QT_NO_QWS_DEPTH_8
     } else if(d==8) {
@@ -3705,7 +3755,7 @@ bool QScreen::onCard(unsigned char * p, ulong& offset) const
 # include "qgfxsvgalib_qws.cpp"
 #endif
 
-#if !defined(QT_NO_QWS_E_PROJ)
+#if defined(QT_QWS_EE)
 # include "qgfxee_qws.cpp"
 #endif
 
@@ -3736,7 +3786,7 @@ struct DriverTable
 #if !defined(QT_NO_QWS_SVGALIB)
     { "SVGALIB", qt_get_screen_svgalib },
 #endif
-#if !defined(QT_NO_QWS_E_PROJ)
+#if defined(QT_QWS_EE)
     { "EE", qt_get_screen_ee },
 #endif
 #if !defined(QT_NO_QWS_VGA_16)

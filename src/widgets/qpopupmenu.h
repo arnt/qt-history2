@@ -116,8 +116,10 @@ protected:
 private slots:
     void	subActivated( int itemId );
     void	subHighlighted( int itemId );
+#ifndef QT_NO_ACCEL
     void	accelActivated( int itemId );
     void	accelDestroyed();
+#endif
     void	modalActivation( int );
 
     void	subMenuTimer();
@@ -141,11 +143,14 @@ private:
 
     void	updateSize();
     void	updateRow( int row );
+#ifndef QT_NO_ACCEL
     void	updateAccel( QWidget * );
     void	enableAccel( bool );
-
+#endif
     QMenuItem  *selfItem;
+#ifndef QT_NO_ACCEL
     QAccel     *autoaccel;
+#endif
     int popupActive;
     int tab;
     uint accelDisabled : 1;

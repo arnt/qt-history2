@@ -253,7 +253,7 @@ TRANSLATIONS	= superapp_dk.ts \
 	\code
 	QString string = ...; // Some Unicode text.
 
-	QTextCodec* codec = QTextCodec::codecByName("ISO 8859-5");
+	QTextCodec* codec = QTextCodec::codecForName("ISO 8859-5");
 	QCString encoded_string = codec->fromUnicode(string);
 
 	...; // Use encoded_string in 8-bit operations
@@ -277,7 +277,7 @@ TRANSLATIONS	= superapp_dk.ts \
 	\code
 	QCString encoded_string = ...; // Some ISO 8859-5 encoded text.
 
-	QTextCodec* codec = QTextCodec::codecByName("ISO 8859-5");
+	QTextCodec* codec = QTextCodec::codecForName("ISO 8859-5");
 	QString string = codec->toUnicode(encoded_string);
 
 	...; // Use string in all of Qt's QString operations.

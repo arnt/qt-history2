@@ -6,3 +6,4 @@ SOURCES		= cannon.cpp \
 		  lcdrange.cpp \
 		  main.cpp
 TARGET		= t11
+REQUIRES=full-config

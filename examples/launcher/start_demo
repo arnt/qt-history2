@@ -26,6 +26,18 @@ then
     echo "Please run start_demo from the Linux Console."
     exit 1
 fi
+if [ ! -w /dev/psaux ]
+then
+    echo "Warning: /dev/psaux is not writable (any mouse there will be ignored)."
+fi
+if [ ! -r /dev/ttyS0 ]
+then
+    echo "Warning: /dev/ttyS0 is not readable (any mouse there will be ignored)."
+fi
+if [ ! -r /dev/ttyS1 ]
+then
+    echo "Warning: /dev/ttyS1 is not readable (any mouse there will be ignored)."
+fi
 if [ ! -w /dev/fb0 ]
 then
     echo "/dev/fb0 is not writable."
@@ -41,10 +53,10 @@ fi
 cat <<EOF
 ------------------------------------------------------------------------------
 
-                       Qt/Embedded Beta Release
-                      -----------------------------
+                           Qt/Embedded Demo
+                        ----------------------
 
-  This is a BETA release. Please report any bugs to Qt-bugs@trolltech.com
+            Please report any bugs to Qt-bugs@trolltech.com
 
 ------------------------------------------------------------------------------
 
@@ -53,56 +65,18 @@ EOF
 # Set the mouse protocol
 cat << EOF
 
-Which mouse protocol?
-
-  1. MouseMan:/dev/mouse
-  2. IntelliMouse:/dev/mouse
-  3. Microsoft:/dev/mouse
-
 (Note: ALT-CTRL-BACKSPACE will kill the demo at any time if the mouse fails)
 
 EOF
-read QWS_MOUSE_PROTO
-case $QWS_MOUSE_PROTO in
-   1) QWS_MOUSE_PROTO=MouseMan:/dev/mouse
-;; 2) QWS_MOUSE_PROTO=IntelliMouse:/dev/mouse
-;; 3) QWS_MOUSE_PROTO=Microsoft:/dev/mouse
-;; MouseMan:/*) true
-;; IntelliMouse:/*) true
-;; Microsoft:/*) true
-;; "") QWS_MOUSE_PROTO=IntelliMouse:/dev/mouse
-;; *) echo "Sorry, \"$QWS_MOUSE_PROTO\" is not supported"; exit 1
-esac
+unset QWS_MOUSE_PROTO
 
+export QWS_DISPLAY=LinuxFb:0
 
 # Which demo?
-cat << EOF
+DEMO=launcher
 
-The following demonstrations are available:
-
-    compact   - a PDA-sized example
-    large     - a large-screen example
-
-EOF
-echo "Run which demo? [large]"
-read DEMO
-if [ "$DEMO" = c ]
-then
-    DEMO=compact
-fi
-if [ "$DEMO" != compact -a "$DEMO" != launcher ]
-then
-    DEMO=launcher
-fi
-case "$DEMO" in
- compact)
-    # Set a smaller size to emulate a smaller device...
-    export QWS_SIZE=240x320
-    MODE=640x480-100
-;; *) 
-    unset QWS_SIZE
-    MODE=1024x768-75
-esac
+unset QWS_SIZE
+MODE=1024x768-75
 
 FB0=$(grep '^0 ' /proc/fb)
 
@@ -169,7 +143,7 @@ else
     QTDIR=`pwd`
 fi
 LD_LIBRARY_PATH=$QTDIR/lib-e-$QT_EMBEDDED:$QTDIR/lib:$LD_LIBRARY_PATH
-export QWS_MOUSE_PROTO QTDIR LD_LIBRARY_PATH
+export QTDIR LD_LIBRARY_PATH
 
 # Start the demo, throwing away debug messages
 cd examples/$DEMO || cd ../$DEMO

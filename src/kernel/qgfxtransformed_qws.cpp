@@ -9,18 +9,21 @@
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses for Qt/Embedded may use this file in accordance with the
 ** Qt Embedded Commercial License Agreement provided with the Software.
-**
-** This file is not available for use under any other license without
-** express written permission from the copyright holder.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 **   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
 ** Contact info@trolltech.com if any conditions of this licensing are
 ** not clear to you.
@@ -46,7 +49,12 @@
 #include "qgfxlinuxfb_qws.h"
 
 
-class QTransformedScreen : public QLinuxFbScreen
+#define QT_TRANS_SCREEN_BASE	QLinuxFbScreen
+#define QT_TRANS_CURSOR_BASE	QScreenCursor
+#define QT_TRANS_GFX_BASE	QGfxRaster
+
+
+class QTransformedScreen : public QT_TRANS_SCREEN_BASE
 {
 public:
     QTransformedScreen( int display_id );
@@ -82,7 +90,7 @@ static QTransformedScreen *qt_trans_screen;
 // drivers
 
 QTransformedScreen::QTransformedScreen( int display_id )
-    : QLinuxFbScreen( display_id )
+    : QT_TRANS_SCREEN_BASE( display_id )
 {
     qt_trans_screen = this;
     trans = Rot90;
@@ -99,7 +107,7 @@ bool QTransformedScreen::connect( const QString &displaySpec )
     else if ( displaySpec.find( ":Rot180" ) >= 0 )
 	trans = Rot180;
 
-    bool result = QLinuxFbScreen::connect( displaySpec );
+    bool result = QT_TRANS_SCREEN_BASE::connect( displaySpec );
     if ( result ) {
 	QSize s = mapFromDevice( QSize(w, h) );
 	w = s.width();
@@ -379,17 +387,17 @@ QRegion QTransformedScreen::mapFromDevice( const QRegion &rgn, const QSize &s ) 
 
 #ifndef QT_NO_QWS_CURSOR
 
-class QTransformedScreenCursor : public QScreenCursor
+class QTransformedScreenCursor : public QT_TRANS_CURSOR_BASE
 {
 public:
-    QTransformedScreenCursor() : QScreenCursor() {}
+    QTransformedScreenCursor() : QT_TRANS_CURSOR_BASE() {}
     virtual void init(SWCursorData *da, bool init = FALSE);
     virtual void set( const QImage &image, int hotx, int hoty );
 };
 
 void QTransformedScreenCursor::init( SWCursorData *da, bool init )
 {
-    QScreenCursor::init( da, init );
+    QT_TRANS_CURSOR_BASE::init( da, init );
     QSize s = qt_trans_screen->mapFromDevice( QSize(clipWidth, clipHeight) );
     clipWidth = s.width();
     clipHeight = s.height();
@@ -400,13 +408,13 @@ void QTransformedScreenCursor::set( const QImage &image, int hotx, int hoty )
 {
     QImage rimg = qt_trans_screen->mapToDevice( image );
     QPoint tp = qt_trans_screen->mapToDevice( QPoint( hotx, hoty ), image.size() );
-    QScreenCursor::set( rimg, tp.x(), tp.y() );
+    QT_TRANS_CURSOR_BASE::set( rimg, tp.x(), tp.y() );
 }
 
 #endif
 
 template <const int depth, const int type>
-class QGfxTransformedRaster : public QGfxRaster<depth,type>
+class QGfxTransformedRaster : public QT_TRANS_GFX_BASE<depth,type>
 {
 public:
     QGfxTransformedRaster(unsigned char *,int w,int h);
@@ -418,6 +426,7 @@ public:
     virtual void drawLine( int,int,int,int );
     virtual void fillRect( int,int,int,int );
     virtual void drawPolygon( const QPointArray &,bool,int,int );
+    virtual void drawPolyline( const QPointArray &,int,int );
     virtual void blt( int,int,int,int,int,int );
 #if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
     virtual void stretchBlt( int rx,int ry,int w,int h, int sw,int sh );
@@ -455,7 +464,7 @@ protected:
 
 template <const int depth, const int type>
 QGfxTransformedRaster<depth,type>::QGfxTransformedRaster(unsigned char *b,int w,int h)
-: QGfxRaster<depth,type>( b, w, h ), inDraw( FALSE )
+: QT_TRANS_GFX_BASE<depth,type>( b, w, h ), inDraw( FALSE )
 {
 }
 
@@ -488,7 +497,7 @@ void QGfxTransformedRaster<depth,type>::setSourceWidgetOffset(int x, int y)
 template <const int depth, const int type>
 void QGfxTransformedRaster<depth,type>::setSource(const QImage * i)
 {
-    QGfxRaster<depth,type>::setSource(i);
+    QT_TRANS_GFX_BASE<depth,type>::setSource(i);
     QSize s = qt_screen->mapToDevice( QSize(i->width(), i->height()) );
     srcwidth = s.width();
     srcheight = s.height();
@@ -497,7 +506,7 @@ void QGfxTransformedRaster<depth,type>::setSource(const QImage * i)
 template <const int depth, const int type>
 void QGfxTransformedRaster<depth,type>::drawPoint( int x, int y )
 {
-    QGfxRaster<depth,type>::drawPoint( tx(x,y), ty(x,y) );
+    QT_TRANS_GFX_BASE<depth,type>::drawPoint( tx(x,y), ty(x,y) );
 }
 
 template <const int depth, const int type>
@@ -511,17 +520,17 @@ void QGfxTransformedRaster<depth,type>::drawPoints( const QPointArray &a, int id
 	na.setPoint( i, tx(x,y), ty(x,y) );
     }
 
-    QGfxRaster<depth,type>::drawPoints( na, 0, num );
+    QT_TRANS_GFX_BASE<depth,type>::drawPoints( na, 0, num );
 }
 
 template <const int depth, const int type>
 void QGfxTransformedRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
 {
     if ( inDraw ) {
-	QGfxRaster<depth,type>::drawLine( x1, y1, x2, y2 );
+	QT_TRANS_GFX_BASE<depth,type>::drawLine( x1, y1, x2, y2 );
     } else {
 	inDraw = TRUE;
-	QGfxRaster<depth,type>::drawLine( tx(x1,y1), ty(x1,y1),
+	QT_TRANS_GFX_BASE<depth,type>::drawLine( tx(x1,y1), ty(x1,y1),
 					  tx(x2,y2), ty(x2,y2) );
 	inDraw = FALSE;
     }
@@ -537,14 +546,14 @@ void QGfxTransformedRaster<depth,type>::fillRect( int x, int y, int w, int h )
 	r.setCoords( tx(x,y), ty(x,y), tx(x+w-1,y+h-1), ty(x+w-1,y+h-1) );
 	r = r.normalize();
     }
-    QGfxRaster<depth,type>::fillRect( r.x(), r.y(), r.width(), r.height() );
+    QT_TRANS_GFX_BASE<depth,type>::fillRect( r.x(), r.y(), r.width(), r.height() );
 }
 
 template <const int depth, const int type>
 void QGfxTransformedRaster<depth,type>::drawPolygon( const QPointArray &a, bool w, int idx, int num )
 {
     if ( inDraw ) {
-	QGfxRaster<depth,type>::drawPolygon( a, w, idx, num );
+	QT_TRANS_GFX_BASE<depth,type>::drawPolygon( a, w, idx, num );
     } else {
 	inDraw = TRUE;
 	QPointArray na( num );
@@ -555,7 +564,27 @@ void QGfxTransformedRaster<depth,type>::drawPolygon( const QPointArray &a, bool 
 	    na.setPoint( i, tx(x,y), ty(x,y) );
 	}
 
-	QGfxRaster<depth,type>::drawPolygon( na, w, 0, num );
+	QT_TRANS_GFX_BASE<depth,type>::drawPolygon( na, w, 0, num );
+	inDraw = FALSE;
+    }
+}
+
+template <const int depth, const int type>
+void QGfxTransformedRaster<depth,type>::drawPolyline( const QPointArray &a, int idx, int num )
+{
+    if ( inDraw ) {
+	QT_TRANS_GFX_BASE<depth,type>::drawPolyline( a, idx, num );
+    } else {
+	inDraw = TRUE;
+	QPointArray na( num );
+
+	for ( int i = 0; i < num; i++ ) {
+	    int x, y;
+	    a.point( i+idx, &x, &y );
+	    na.setPoint( i, tx(x,y), ty(x,y) );
+	}
+
+	QT_TRANS_GFX_BASE<depth,type>::drawPolyline( na, 0, num );
 	inDraw = FALSE;
     }
 }
@@ -588,7 +617,7 @@ void QGfxTransformedRaster<depth,type>::blt( int x, int y, int w, int h, int sx,
 	    rsy = sy;
 	    break;
     }
-    QGfxRaster<depth,type>::blt( r.x(), r.y(), r.width(), r.height(), rsx, rsy );
+    QT_TRANS_GFX_BASE<depth,type>::blt( r.x(), r.y(), r.width(), r.height(), rsx, rsy );
 }
 
 #if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
@@ -602,7 +631,7 @@ void QGfxTransformedRaster<depth,type>::stretchBlt( int x, int y, int w, int h,
     r.setCoords( tx(x,y), ty(x,y), tx(x+w-1,y+h-1), ty(x+w-1,y+h-1) );
     r = r.normalize();
     QSize rs = qt_trans_screen->mapToDevice( QSize( sw, sh ) );
-    QGfxRaster<depth,type>::stretchBlt( r.x(), r.y(), r.width(), r.height(),
+    QT_TRANS_GFX_BASE<depth,type>::stretchBlt( r.x(), r.y(), r.width(), r.height(),
 					rs.width(), rs.height() );
 }
 #endif
@@ -631,10 +660,6 @@ QGfx *QTransformedScreen::createGfx(unsigned char * bytes,int w,int h,int d, int
     } else if(d==16) {
 	ret = new QGfxTransformedRaster<16,0>(bytes,w,h);
 #endif
-#ifndef QT_NO_QWS_DEPTH_15
-    } else if(d==15) {
-	ret = new QGfxTransformedRaster<15,0>(bytes,w,h);
-#endif
 #ifndef QT_NO_QWS_DEPTH_8
     } else if (d==8) {
 	ret = new QGfxTransformedRaster<8,0>(bytes,w,h);
@@ -659,7 +684,11 @@ extern "C" QScreen * qt_get_screen_transformed(int display_id, const char *spec,
 					   char * /*slot*/,unsigned char * /*config*/)
 {
     if ( !qt_screen ) {
-	qt_screen=new QTransformedScreen( display_id );
+	// Just use normal driver for Transformed:None
+	if ( QString( spec ).find( ":None" ) >= 0 )
+	    qt_screen = new QT_TRANS_SCREEN_BASE( display_id );
+	else
+	    qt_screen = new QTransformedScreen( display_id );
 	qt_screen->connect( spec );
     }
     return qt_screen;

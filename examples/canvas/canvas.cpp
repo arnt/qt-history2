@@ -54,7 +54,7 @@ ImageItem::ImageItem( QImage img, QCanvas *canvas )
     : QCanvasRectangle( canvas ), image(img)
 {
     setSize( image.width(), image.height() );
-    
+
 #ifndef Q_WS_QWS
     pixmap.convertFromImage(image, OrderedAlphaDither);
 #endif
@@ -72,8 +72,8 @@ void ImageItem::drawShape( QPainter &p )
 #endif
 }
 
-bool ImageItem::hit( const QPoint &p ) const 
-{ 
+bool ImageItem::hit( const QPoint &p ) const
+{
     int ix = p.x()-int(x());
     int iy = p.y()-int(y());
     if ( !image.valid( ix , iy ) )
@@ -86,12 +86,13 @@ class NodeItem: public QCanvasEllipse
 {
 public:
     NodeItem( QCanvas *canvas );
-
+    ~NodeItem() {}
+    
     void addInEdge( EdgeItem *edge ) { inList.append( edge ); }
     void addOutEdge( EdgeItem *edge ) { outList.append( edge ); }
 
     void moveBy(double dx, double dy);
-    
+
     //    QPoint center() { return boundingRect().center(); }
 private:
     QList<EdgeItem> inList;
@@ -127,14 +128,14 @@ void EdgeItem::setFromPoint( int x, int y )
 void EdgeItem::setToPoint( int x, int y )
 {
     setPoints( startPoint().x(), startPoint().y(), x, y );
-}    
+}
 
 
 
 void NodeItem::moveBy(double dx, double dy)
 {
     QCanvasEllipse::moveBy( dx, dy );
-    
+
     QListIterator<EdgeItem> it1( inList );
     EdgeItem *edge;
     while (( edge = it1.current() )) {
@@ -338,6 +339,7 @@ Main::Main(QCanvas& c, QWidget* parent, const char* name, WFlags f) :
     edit->insertItem("Add &Circle", this, SLOT(addCircle()), CTRL+Key_C);
     edit->insertItem("Add &Hexagon", this, SLOT(addHexagon()), CTRL+Key_H);
     edit->insertItem("Add &Polygon", this, SLOT(addPolygon()), CTRL+Key_P);
+    edit->insertItem("Add &Text", this, SLOT(addText()), CTRL+Key_T);
     edit->insertItem("Add &Line", this, SLOT(addLine()), CTRL+Key_L);
     edit->insertItem("Add &Rectangle", this, SLOT(addRectangle()), CTRL+Key_R);
     edit->insertItem("Add &Sprite", this, SLOT(addSprite()), CTRL+Key_S);
@@ -520,6 +522,15 @@ void Main::addPolygon()
     i->show();
 }
 
+void Main::addText()
+{
+    QCanvasText* i = new QCanvasText(&canvas);
+    i->setText("QCanvasText");
+    i->move(rand()%canvas.width(),rand()%canvas.height());
+    i->setZ(rand()%256);
+    i->show();
+}
+
 void Main::addLine()
 {
     QCanvasLine* i = new QCanvasLine(&canvas);
@@ -537,9 +548,9 @@ void Main::addMesh()
 
     if ( !tb ) tb = new QBrush( Qt::red );
     if ( !tp ) tp = new QPen( Qt::black );
-    
+
     int nodecount = 0;
-    
+
     int w = canvas.width();
     int h = canvas.height();
 
@@ -551,7 +562,7 @@ void Main::addMesh()
     QProgressDialog progress( "Creating mesh...", "Abort", rows,
 			      this, "progress", TRUE );
 #endif
-    
+
     QArray<NodeItem*> lastRow(cols);
     for ( int j = 0; j < rows; j++ ) {
 	int n = j%2 ? cols-1 : cols;
@@ -562,7 +573,7 @@ void Main::addMesh()
 	    int r = rand();
 	    int xrand = r %20;
 	    int yrand = (r/20) %20;
-	    el->move( xrand + x0 + i*dist + (j%2 ? dist/2 : 0 ), 
+	    el->move( xrand + x0 + i*dist + (j%2 ? dist/2 : 0 ),
 		      yrand + y0 + j*dist );
 
 	    if ( j > 0 ) {

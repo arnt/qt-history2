@@ -9,18 +9,21 @@
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses for Qt/Embedded may use this file in accordance with the
 ** Qt Embedded Commercial License Agreement provided with the Software.
-**
-** This file is not available for use under any other license without
-** express written permission from the copyright holder.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 **   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
 ** Contact info@trolltech.com if any conditions of this licensing are
 ** not clear to you.
@@ -72,6 +75,9 @@
 #include "qcursor.h"
 #include "qregexp.h"
 
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include <stdio.h>
 #include <limits.h>
 #include <sys/types.h>
@@ -91,10 +97,7 @@
 #include <errno.h>
 #define	 GC GC_QQQ
 
-#if defined(Q_OS_LINUX) && defined(QT_DEBUG)
 #include "qfile.h"
-#include <unistd.h>
-#endif
 
 #if defined(Q_OS_IRIX)
 #include <bstring.h>
@@ -290,9 +293,14 @@ public:
 
     ~QWSDisplayData()
     {
+	delete rgnMan;
+	delete memorymanager; memorymanager = 0;
 	qt_screen->disconnect();
-	delete qt_screen;
-	qt_screen = 0;
+	delete qt_screen; qt_screen = 0;
+#ifndef QT_NO_QWS_MULTIPROCESS
+	shmdt(sharedRam);
+	delete csocket;
+#endif
     }
 
     //####public data members
@@ -477,7 +485,7 @@ void QWSDisplayData::init()
 	memset(sharedRam,0,sharedRamSize);
 
 	QScreen *s = qt_probe_bus( qws_display_id, qws_display_spec );
-	s->initCard();
+	s->initDevice();
     }
     int mouseoffset = 0;
 
@@ -588,7 +596,7 @@ void QWSDisplayData::fillQueue()
 		    QRegion r2;
 		    r2.setRects( region_event->rectangles,
 				 region_event->simpleData.nrectangles );
-		    QRegion ur = r1 + r2;
+		    QRegion ur( r1 + r2 );
 		    region_event->setData( (char *)ur.rects().data(),
 					   ur.rects().count() * sizeof(QRect), TRUE );
 		    region_event->simpleData.nrectangles = ur.rects().count();
@@ -621,15 +629,20 @@ void QWSDisplayData::waitForConnection()
     if ( csocket )
 	csocket->flush();
 #endif
-    while ( 1 ) {
-	fillQueue();
-	if ( connected_event )
-	    break;
+    fillQueue();
+    if ( connected_event )
+	return;
 #ifndef QT_NO_QWS_MULTIPROCESS
-	if ( csocket )
-	    csocket->waitForMore(1000);
+    if ( csocket )
+	csocket->waitForMore(1000);
 #endif
-    }
+    fillQueue();
+    if ( connected_event )
+	return;
+    qWarning("No Qt/Embedded server appears to be running.");
+    qWarning("If you want to run this program as a server,");
+    qWarning("add the \"-qws\" command-line option.");
+    exit(1);
 }
 
 
@@ -733,9 +746,10 @@ uchar* QWSDisplay::frameBuffer() const { return qt_screen->base(); }
 int QWSDisplay::width() const { return qt_screen->width(); }
 int QWSDisplay::height() const { return qt_screen->height(); }
 int QWSDisplay::depth() const { return qt_screen->depth(); }
-int QWSDisplay::greenDepth() const { return qt_screen->depth()==16 ? 6 : 8; }
+bool QWSDisplay::supportsDepth(int d) const { return qt_screen->supportsDepth(d); }
 uchar *QWSDisplay::sharedRam() const { return d->sharedRam; }
 int QWSDisplay::sharedRamSize() const { return d->sharedRamSize; }
+
 
 void QWSDisplay::addProperty( int winId, int property )
 {
@@ -822,7 +836,6 @@ void QWSDisplay::requestFocus(int winId, bool get)
     d->sendCommand( cmd );
 }
 
-//### should change signature to requestRegion(QWidget*,QRegion)
 void QWSDisplay::requestRegion(int winId, QRegion r)
 {
     r = qt_screen->mapToDevice( r, QSize(qt_screen->width(), qt_screen->height()) );
@@ -953,7 +966,7 @@ void QWSDisplay::defineCursor(int id, const QBitmap &curs, const QBitmap &mask,
 void QWSDisplay::playSoundFile(const QString& f)
 {
     QWSPlaySoundCommand cmd;
-    cmd.setFilename(f);
+    cmd.setFileName(f);
     d->sendCommand( cmd );
 }
 #endif
@@ -1123,7 +1136,6 @@ void qt_init_display()
     init_display();
 }
 
-
 void qt_init( int *argcptr, char **argv, QApplication::Type type )
 {
     if ( type == QApplication::GuiServer )
@@ -1234,8 +1246,7 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
     if ( type == QApplication::GuiServer ) {
 	qws_single_process = TRUE;
 	QWSServer::startup(qws_display_id, flags);
-	QString env = QString("QWS_DISPLAY=") + qws_display_spec;
-	putenv( (char*)/*unwarn*/  env.latin1() );
+	setenv( "QWS_DISPLAY", qws_display_spec, 0 );
     }
 
     if( qt_is_gui_used )
@@ -1277,8 +1288,9 @@ void qt_cleanup()
     QColor::cleanup();
     QFontManager::cleanup();
 
-    if ( qws_single_process )
+    if ( qws_single_process ) {
 	QWSServer::closedown(qws_display_id);
+    }
     if ( qt_is_gui_used ) {
 	delete qt_fbdpy;
     }
@@ -3133,10 +3145,12 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
 	    QObject* ch;
 	    while ((ch=it.current())) {
 		++it;
-		if ( ch->isWidgetType() )
+		if ( ch->isWidgetType() ) {
 		    ((QWidget *)ch)->alloc_region_dirty = TRUE;
+		}
 	    }
 	}
+	paintable_region_dirty = TRUE;
     } else {
 	QWSDisplay::ungrab();
     }
@@ -3566,13 +3580,15 @@ void QCopChannel::answer( QWSClient *cl, const QCString &ch,
 	    QCString c;
 	    QDataStream s( data, IO_ReadOnly );
 	    s >> c;
-	    QCString ans = qcopServerMap->contains( c ) ? "known" : "unkown";
+	    bool known = qcopServerMap && qcopServerMap->contains( c );
+	    QCString ans = known ? "known" : "unkown";
 	    QWSServer::sendQCopEvent( cl, "", ans, data, TRUE );
 	    return;
 	} else if ( msg == "detach()" ) {
 	    QCString c;
 	    QDataStream s( data, IO_ReadOnly );
 	    s >> c;
+	    ASSERT( qcopServerMap );
 	    QCopServerMap::Iterator it = qcopServerMap->find( c );
 	    if ( it != qcopServerMap->end() ) {
 		Q_ASSERT( it.data().contains( cl ) );

@@ -16,7 +16,6 @@ Compile the Qt/Embedded library and examples:
 
 cd ~/qt-%VERSION%
 export QTDIR=~/qt-%VERSION%
-export DASHCROSS=-mips
 export LD_LIBRARY_PATH=~/qt-%VERSION%/lib:$LD_LIBRARY_PATH
 ./configure -xplatform linux-mips-g++
 make

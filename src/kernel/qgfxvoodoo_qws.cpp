@@ -9,18 +9,21 @@
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses for Qt/Embedded may use this file in accordance with the
 ** Qt Embedded Commercial License Agreement provided with the Software.
-**
-** This file is not available for use under any other license without
-** express written permission from the copyright holder.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 **   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
 ** Contact info@trolltech.com if any conditions of this licensing are
 ** not clear to you.
@@ -89,7 +92,9 @@ public:
 
     virtual void fillRect(int,int,int,int);
     virtual void blt(int,int,int,int,int,int);
+#if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
     virtual void stretchBlt(int,int,int,int,int,int);
+#endif
     virtual void drawLine(int,int,int,int);
     virtual void scroll(int,int,int,int,int,int);
     virtual void sync();
@@ -385,6 +390,7 @@ inline void QGfxVoodoo<depth,type>::blt(int rx,int ry,int w,int h, int sx, int s
     }
 }
 
+#if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
 template<const int depth,const int type>
 inline void QGfxVoodoo<depth,type>::stretchBlt(int rx,int ry,int w,int h,
 					       int sw,int sh)
@@ -449,6 +455,7 @@ inline void QGfxVoodoo<depth,type>::stretchBlt(int rx,int ry,int w,int h,
 	QGfxRaster<depth,type>::stretchBlt(rx,ry,w,h,sw,sh);
     }
 }
+#endif
 
 template<const int depth,const int type>
 void QGfxVoodoo<depth,type>::drawLine(int x1,int y1,int x2,int y2)
@@ -535,8 +542,8 @@ public:
     QVoodooScreen( int display_id );
     virtual ~QVoodooScreen();
     virtual bool connect( const QString &spec, char *,unsigned char *);
-    virtual bool initCard();
-    virtual void shutdownCard();
+    virtual bool initDevice();
+    virtual void shutdownDevice();
     virtual int initCursor(void *,bool);
     virtual bool useOffscreen() { return true; }
 
@@ -650,9 +657,9 @@ QVoodooScreen::~QVoodooScreen()
 {
 }
 
-bool QVoodooScreen::initCard()
+bool QVoodooScreen::initDevice()
 {
-    QLinuxFbScreen::initCard();
+    QLinuxFbScreen::initDevice();
 
     voodoo_wait_for_fifo(2);
     voodoo_regw(LINESTIPPLE,0xffffffff);
@@ -661,9 +668,9 @@ bool QVoodooScreen::initCard()
     return true;
 }
 
-void QVoodooScreen::shutdownCard()
+void QVoodooScreen::shutdownDevice()
 {
-    QLinuxFbScreen::shutdownCard();
+    QLinuxFbScreen::shutdownDevice();
 }
 
 int QVoodooScreen::initCursor(void* e, bool init)

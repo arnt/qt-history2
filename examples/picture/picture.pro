@@ -4,3 +4,4 @@ HEADERS		=
 SOURCES		= picture.cpp
 TARGET		= picture
 DEPENDPATH=../../include
+REQUIRES=full-config

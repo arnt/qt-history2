@@ -5,3 +5,4 @@ SOURCES		= dirview.cpp \
 		  main.cpp
 TARGET		= dirview
 DEPENDPATH=../../include
+REQUIRES=full-config

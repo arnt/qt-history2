@@ -1414,11 +1414,13 @@ void QWidget::hideWindow()
     deactivateWidgetCleanup();
     if ( isTopLevel() ) {
 	qt_deferred_map_take( this );
-	XWithdrawWindow( x11Display(), winId(), x11Screen() );
+	if ( winId() ) // in nsplugin, may be 0
+	    XWithdrawWindow( x11Display(), winId(), x11Screen() );
 	crect.moveTopLeft( fpos );
 	topData()->fsize = crect.size();
     } else {
-	XUnmapWindow( x11Display(), winId() );
+	if ( winId() ) // in nsplugin, may be 0
+	    XUnmapWindow( x11Display(), winId() );
     }
 }
 

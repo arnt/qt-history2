@@ -10,18 +10,21 @@
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses for Qt/Embedded may use this file in accordance with the
 ** Qt Embedded Commercial License Agreement provided with the Software.
-**
-** This file is not available for use under any other license without
-** express written permission from the copyright holder.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 **   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
 ** Contact info@trolltech.com if any conditions of this licensing are
 ** not clear to you.
@@ -46,7 +49,6 @@
 #define MAP_HEIGHT	    1024/MAP_TILE_SIZE
 #define UPDATE_FREQUENCY    40
 
-bool qvncEnabled = FALSE;
 
 struct QVNCHeader
 {
@@ -59,11 +61,11 @@ class QVNCScreen : public QLinuxFbScreen
 public:
     QVNCScreen( int display_id );
     virtual ~QVNCScreen();
-    virtual bool initCard();
+    virtual bool initDevice();
     virtual bool connect( const QString &displaySpec );
     virtual void disconnect();
     virtual int initCursor(void*, bool);
-    virtual void shutdownCard();
+    virtual void shutdownDevice();
     virtual QGfx * createGfx(unsigned char *,int,int,int,int);
     virtual void save();
     virtual void restore();
@@ -82,6 +84,7 @@ public:
     QVNCServer *vncServer;
     unsigned char *shmrgn;
     QVNCHeader *hdr;
+    bool virtualBuffer;
 };
 
 static QVNCScreen *qvnc_screen = 0;
@@ -463,8 +466,8 @@ void QVNCServer::readClient()
 			discardClient();
 			return;
 		}
-		sim.width = qvnc_screen->width();
-		sim.height = qvnc_screen->height();
+		sim.width = qvnc_screen->deviceWidth();
+		sim.height = qvnc_screen->deviceHeight();
 		sim.setName( "Qt/Embedded VNC Server" );
 		sim.write( client );
 		state = Connected;
@@ -708,8 +711,8 @@ void QVNCServer::sendHextile()
     QWSDisplay::grab( TRUE );
 
     Q_UINT16 count = 0;
-    int vtiles = (qvnc_screen->height()+MAP_TILE_SIZE-1)/MAP_TILE_SIZE;
-    int htiles = (qvnc_screen->width()+MAP_TILE_SIZE-1)/MAP_TILE_SIZE;
+    int vtiles = (qvnc_screen->deviceHeight()+MAP_TILE_SIZE-1)/MAP_TILE_SIZE;
+    int htiles = (qvnc_screen->deviceWidth()+MAP_TILE_SIZE-1)/MAP_TILE_SIZE;
     if ( qvnc_screen->hdr->dirty ) {
 	for ( int y = 0; y < vtiles; y++ )
 	    for ( int x = 0; x < htiles; x++ )
@@ -736,8 +739,8 @@ void QVNCServer::sendHextile()
 	    rect.w = MAP_TILE_SIZE;
 	    for ( int x = 0; x < htiles; x++ ) {
 		if ( qvnc_screen->hdr->map[y][x] ) {
-		    if ( rect.x + MAP_TILE_SIZE > qvnc_screen->width() )
-			rect.w = qvnc_screen->width() - rect.x;
+		    if ( rect.x + MAP_TILE_SIZE > qvnc_screen->deviceWidth() )
+			rect.w = qvnc_screen->deviceWidth() - rect.x;
 		    rect.write( client );
 
 		    Q_UINT32 encoding = htonl(5);	// hextile encoding
@@ -797,8 +800,8 @@ void QVNCServer::sendRaw()
 
     QRegion rgn;
 
-    int vtiles = (qvnc_screen->height()+MAP_TILE_SIZE-1)/MAP_TILE_SIZE;
-    int htiles = (qvnc_screen->width()+MAP_TILE_SIZE-1)/MAP_TILE_SIZE;
+    int vtiles = (qvnc_screen->deviceHeight()+MAP_TILE_SIZE-1)/MAP_TILE_SIZE;
+    int htiles = (qvnc_screen->deviceWidth()+MAP_TILE_SIZE-1)/MAP_TILE_SIZE;
     if ( qvnc_screen->hdr->dirty ) {
 	// make a region from the dirty rects and send the region's merged
 	// rects.
@@ -807,7 +810,8 @@ void QVNCServer::sendRaw()
 		if ( qvnc_screen->hdr->map[y][x] )
 		    rgn += QRect( x*MAP_TILE_SIZE, y*MAP_TILE_SIZE, MAP_TILE_SIZE, MAP_TILE_SIZE );
 
-	rgn &= QRect( 0, 0, qvnc_screen->width()-1, qvnc_screen->height()-1 );
+	rgn &= QRect( 0, 0, qvnc_screen->deviceWidth()-1,
+		    qvnc_screen->deviceHeight()-1 );
     }
 
     char tmp = 0;
@@ -1039,8 +1043,11 @@ void QGfxVNC<depth,type>::tiledBlt( int x,int y,int w,int h )
 /*
 */
 
+
 QVNCScreen::QVNCScreen( int display_id ) : QLinuxFbScreen( display_id )
 {
+    virtualBuffer = FALSE;
+    qvnc_screen = this;
 }
 
 QVNCScreen::~QVNCScreen()
@@ -1049,7 +1056,35 @@ QVNCScreen::~QVNCScreen()
 
 bool QVNCScreen::connect( const QString &displaySpec )
 {
-    QLinuxFbScreen::connect( displaySpec );
+    int vsize = 0;
+
+    if ( displaySpec.find( ":Virtual" ) >= 0 ) {
+	virtualBuffer = TRUE;
+	d = 16;
+	const char* qwssize;
+	if((qwssize=getenv("QWS_SIZE"))) {
+	    sscanf(qwssize,"%dx%d",&w,&h);
+	    dw=w;
+	    dh=h;
+	} else {
+	    dw=w=640;
+	    dh=h=480;
+	}
+	lstep = ( dw * d + 7 ) / 8;
+	dataoffset = 0;
+	size = h * lstep;
+	vsize = size;
+	mapsize = size;
+	canaccel = FALSE;
+	optype = &dummy_optype;
+	lastop = &dummy_lastop;
+	initted = TRUE;
+	// We handle mouse and keyboard here
+	QWSServer::setDefaultMouse( "None" );
+	QWSServer::setDefaultKeyboard( "None" );
+    } else {
+	QLinuxFbScreen::connect( displaySpec );
+    }
 
     key_t key = ftok( QString(QTE_PIPE).arg(displayId).latin1(), 'v' );
      
@@ -1059,7 +1094,7 @@ bool QVNCScreen::connect( const QString &displaySpec )
     else {
 	struct shmid_ds shm;
 	shmctl( shmId, IPC_RMID, &shm );
-	shmId = shmget( key, sizeof(QVNCHeader), IPC_CREAT|0666);
+	shmId = shmget( key, sizeof(QVNCHeader) + vsize + 8, IPC_CREAT|0666);
 	shmrgn = (unsigned char *)shmat( shmId, 0, 0 );
     }
 
@@ -1068,18 +1103,25 @@ bool QVNCScreen::connect( const QString &displaySpec )
 
     hdr = (QVNCHeader *) shmrgn;
 
+    if ( virtualBuffer )
+	data = shmrgn + ( sizeof(QVNCHeader) + 7 ) / 8 * 8;
+
     return TRUE;
 }
 
 void QVNCScreen::disconnect()
 {
-    QLinuxFbScreen::disconnect();
+    if ( !virtualBuffer )
+	QLinuxFbScreen::disconnect();
     shmdt( shmrgn );
 }
 
-bool QVNCScreen::initCard()
+bool QVNCScreen::initDevice()
 {
-    QLinuxFbScreen::initCard();
+    if ( virtualBuffer ) {
+    } else {
+	QLinuxFbScreen::initDevice();
+    }
 
     vncServer = new QVNCServer();
 
@@ -1089,10 +1131,11 @@ bool QVNCScreen::initCard()
     return true;
 }
 
-void QVNCScreen::shutdownCard()
+void QVNCScreen::shutdownDevice()
 {
     delete vncServer;
-    QLinuxFbScreen::shutdownCard();
+    if ( !virtualBuffer )
+	QLinuxFbScreen::shutdownDevice();
 }
 
 int QVNCScreen::initCursor(void* e, bool init)
@@ -1119,13 +1162,15 @@ void QVNCScreen::setMode(int ,int ,int)
 // between linux virtual consoles.
 void QVNCScreen::save()
 {
-    QLinuxFbScreen::save();
+    if ( !virtualBuffer )
+	QLinuxFbScreen::save();
 }
 
 // restore the state of the graphics card.
 void QVNCScreen::restore()
 {
-    QLinuxFbScreen::restore();
+    if ( !virtualBuffer )
+	QLinuxFbScreen::restore();
 }
 
 QGfx * QVNCScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
@@ -1139,10 +1184,6 @@ QGfx * QVNCScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linest
 	    ret = new QGfxVNC<16,0>(bytes,w,h);
 	else
 	    ret = new QGfxRaster<16,0>(bytes,w,h);
-#endif
-#ifndef QT_NO_QWS_DEPTH_15
-    } else if(d==15) {
-	ret = new QGfxRaster<15,0>(bytes,w,h);
 #endif
 #ifndef QT_NO_QWS_DEPTH_8
     } else if (d==8) {
@@ -1176,12 +1217,10 @@ extern "C" QScreen * qt_get_screen_vnc( int display_id, const char *spec,
 				    char *slot, unsigned char *config )
 {
     if ( !qt_screen ) {
-	qvnc_screen = new QVNCScreen( display_id );
-	if ( qvnc_screen->connect( spec ) ) {
-	    qt_screen = qvnc_screen;
-	    qvncEnabled = TRUE;
-	} else {
-	    delete qvnc_screen;
+	qt_screen = new QVNCScreen( display_id );
+	if ( !qt_screen->connect( spec ) ) {
+	    delete qt_screen;
+	    qt_screen = 0;
 	}
     }
 

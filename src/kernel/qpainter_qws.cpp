@@ -9,18 +9,21 @@
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses for Qt/Embedded may use this file in accordance with the
 ** Qt Embedded Commercial License Agreement provided with the Software.
-**
-** This file is not available for use under any other license without
-** express written permission from the copyright holder.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 **   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
 ** Contact info@trolltech.com if any conditions of this licensing are
 ** not clear to you.
@@ -891,14 +894,24 @@ void QPainter::drawRect( int x, int y, int w, int h )
     gfx->setBrushOffset( x-bro.x(), y-bro.y() );
 
     if ( cpen.style() != NoPen ) {
-	gfx->drawLine(x,y,x+(w-1),y);
-	gfx->drawLine(x+(w-1),y,x+(w-1),y+(h-1));
-	gfx->drawLine(x,y+(h-1),x+(w-1),y+(h-1));
-	gfx->drawLine(x,y,x,y+(h-1));
-	x++;
-	y++;
-	w -= 2;
-	h -= 2;
+	if ( cpen.width() > 1 ) {
+	    QPointArray a( QRect(x,y,w,h), TRUE );
+	    drawPolyInternal( a );
+	    return;
+	} else {
+	    int x1 = x;
+	    int y1 = y;
+	    int x2 = x + (w-1);
+	    int y2 = y + (h-1);
+	    gfx->drawLine(x1, y1, x2, y1);
+	    gfx->drawLine(x2, y1, x2, y2);
+	    gfx->drawLine(x1, y2, x2, y2);
+	    gfx->drawLine(x1, y1, x1, y2);
+	    x += 1;
+	    y += 1;
+	    w -= 2;
+	    h -= 2;
+	}
     }
 
     gfx->fillRect(x,y,w,h);
@@ -1230,11 +1243,14 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 	param[0].ptarr = (QPointArray*)&pa;
 	pdev->cmd(QPaintDevice::PdcDrawPolyline,this,param);
     } else {
+	gfx->drawPolyline(pa,index,npoints);
+    /*
 	int loopc;
 	moveTo(a[0]);
 	for(loopc=1;loopc<(int)a.count();loopc++) {
 	    lineTo(a[loopc]);
 	}
+    */
     }
 }
 
@@ -1397,7 +1413,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	int ls=mymask->bytesPerLine();
 	gfx->setAlphaType(QGfx::LittleEndianMask);
 	gfx->setAlphaSource(thebits,ls);
-    } else if ( (pixmap.depth() == 32) && (qt_screen->depth()!=32) ){
+    } else if ( pixmap.data->hasAlpha ){
 	gfx->setAlphaType(QGfx::InlineAlpha);
     } else {
 	gfx->setAlphaType(QGfx::IgnoreAlpha);
@@ -1424,7 +1440,7 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
     map( x, y, &x, &y );
 
     gfx->setSource(&pixmap);
-    if ( (pixmap.depth() == 32) && (qt_screen->depth()!=32) )
+    if ( pixmap.data->hasAlpha )
 	gfx->setAlphaType(QGfx::InlineAlpha);
     else
 	gfx->setAlphaType(QGfx::IgnoreAlpha);
@@ -1478,10 +1494,14 @@ static void ins_text_bitmap( const QString &key, QBitmap *bm )
 
 #endif // QT_NO_TRANSFORMATIONS
 
+void QPainter::drawText( int x, int y, const QString &s, int from, int len)
+{
+    drawText(x, y, s.mid(from, len) );
+}
+
 void QPainter::drawText( int x, int y, const QString &str, int len )
 {
     if(memorymanager->fontAscent(cfont.handle())==0) {
-	qDebug("No ascent");
 	return;
     }
 

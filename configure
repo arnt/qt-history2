@@ -205,6 +205,7 @@ fi # help
 
 # Defaults
 
+QCONFIG=full
 EMBEDDED=no
 KDE=no
 VERBOSE=
@@ -244,6 +245,10 @@ while [ -n "$1" ]; do
 	    EMBEDDED=$1
 	    #XPLATFORM=qws/linux-${EMBEDDED}-g++
 	fi
+	;;
+   -qconfig)
+	shift
+	QCONFIG=$1
 	;;
    -make)
        shift
@@ -645,7 +650,36 @@ then
     done
 fi
 
-
+case "$QCONFIG" in
+  local|qpe)
+    # Not known to be sufficient for anything.
+    continue
+    ;;
+  minimal|small|medium|large|full)
+    # These are a sequence of increasing functionality.
+    for c in minimal small medium large full
+    do
+	QMAKE_CONFIG="$QMAKE_CONFIG $c-config"
+	if [ "$QCONFIG" = $c ]; then
+	    break;
+	fi
+    done
+    ;;
+  *)
+    echo >&2 "No such configuration: $QCONFIG"
+    HELP=yes
+esac
+chmod +w src/tools/qconfig.h   # KLUDGE - shouldn't be in p4 depot
+case "$QCONFIG" in
+  full)
+    echo "// Everything" >src/tools/qconfig.h
+    ;;
+  *)
+    QCONFIGFILE=qconfig-$QCONFIG.h
+    echo "// Copied from $QCONFIGFILE" >src/tools/qconfig.h
+    cat src/tools/$QCONFIGFILE >>src/tools/qconfig.h
+    ;;
+esac
 
 # Next, emit a usage message if something failed.
 

@@ -3,29 +3,36 @@
 **
 ** Implementation of QGfxVga16 (graphics context) class for VGA cards
 **
-** Created : John Ryland
+** Created :
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses for Qt/Embedded may use this file in accordance with the
 ** Qt Embedded Commercial License Agreement provided with the Software.
-**
-** This file is not available for use under any other license without
-** express written permission from the copyright holder.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 **   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
 ** Contact info@trolltech.com if any conditions of this licensing are
 ** not clear to you.
 **
-***************************************************************************/
+**********************************************************************/
+
+#include "qapplication.h"
+#include "qgfxraster_qws.h"
+#include "qgfxlinuxfb_qws.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,11 +51,6 @@
 #include <sys/shm.h>
 #endif
 
-#include <qapplication.h>
-
-#include "qgfxraster_qws.h"
-#include "qgfxlinuxfb_qws.h"
-
 
 // Profiling stuff
 // Turn it off
@@ -57,12 +59,11 @@
 #define PROFILE_BLOCK(x)
 
 
-// #define Q_UNUSED(x)   ((x) = (x))
-
 unsigned char *screen_double_buffer;
 unsigned char *vga_register_values;
 unsigned char *fb_line_ptrs[480]; //### probably want these in shared memory
 unsigned char *db_line_ptrs[480];
+// ### Might want to put in shared memory
 unsigned char closestMatchLUT[16][16][16]; // this takes 4096 bytes
 
 bool closestMatchLUTinitialised = false;
@@ -86,15 +87,6 @@ private:
 };
 
 
-// ### Might want to put in shared memory
-#ifdef QT_NO_QWS_MULTIPROCESS
-# define SINGLE_STATIC_APP
-#endif
-
-/*
-
-// This is will be added later to clean up shared memory/ malloc stuff
-
 #define SCREEN_DOUBLE_BUFFER_SIZE   (640*480/2)
 #define VGA_REGISTER_VALUES_SIZE    (512)
 #define FB_LINE_PTS_SIZE	    (480*4)
@@ -105,6 +97,10 @@ private:
 				     FB_LINE_PTRS_SIZE + \
 				     DB_LINE_PTRS_SIZE + \
 				     CLOSEST_MATCH_LUT_SIZE)
+
+/*
+
+// This is will be added later to clean up shared memory/ malloc stuff
 
 class Vga16ScreenGlobals
 {
@@ -134,7 +130,6 @@ class Vga16ScreenGlobals
 CVga16ScreenGlobals  *gVga16ScreenGlobals;
 
 */
-
 
 
 static QVga16Cursor *qt_vga16cursor = NULL;
@@ -256,7 +251,7 @@ class VGA16_CriticalSection    // Mutex for serialising VGA16 access
 #define MAKE_VGA16_FUNC(funcname, reg, port) \
     inline void set_##funcname##_vga16(unsigned char value, bool force = true) \
     { \
-	if ((force) || (vga_register_values[((port - 0x3C0) * 16) + reg] != value)) { \
+	if ((1) || (force) || (vga_register_values[((port - 0x3C0) * 16) + reg] != value)) { \
 	outw((value << 8) | reg, port); \
 	vga_register_values[((port - 0x3C0) * 16) + reg] = value; \
     } \
@@ -366,7 +361,7 @@ void QGfxVga16::setPixel( int x, int y, unsigned char col)
 	*db_ptr = (*db_ptr & (0xF0 >> shift)) | (col << shift);
     }
 
-    VGA16_CriticalSection cs();
+    VGA16_CriticalSection cs;
     
     unsigned char *fb_ptr = fb_line_ptrs[y] + (x >> 3);
     set_enable_set_reset_vga16(0x0F, 0);
@@ -428,13 +423,11 @@ void vga16_exposeDoubleBufferedRegion(int x1, int y1, int x2, int y2)
 
     new_x1 = (new_x1 <   0) ?   0 : new_x1;
     new_x2 = (new_x2 > 639) ? 639 : new_x2;
-
-    VGA16_CriticalSection cs();
     
     if (new_x1 <= new_x2)
     {
-//	unsigned char MemCpyPixels[320];
-	
+	VGA16_CriticalSection cs;
+
 	set_enable_set_reset_vga16(0x00, 0); // disable it
 	set_rotate_vga16(0x00, 0);
 	set_mode_vga16(0x00, 0);
@@ -447,46 +440,19 @@ void vga16_exposeDoubleBufferedRegion(int x1, int y1, int x2, int y2)
 	    // Inlining this for each plane might help performance heaps
 	    for (int j = 0; j < h; j++) {
 
-#if 0
-
-//		unsigned char *dst_ptr = fb_line_ptrs[dst_y + j] + (new_x1 >> 3);
-		unsigned char *dst_ptr = MemCpyPixels;
-		unsigned int *src_row = (unsigned int *)(db_line_ptrs[dst_y + j] + (new_x1 >> 1));
-		unsigned int src_pixels;
-		unsigned int i = 0;
-
-		for (int x = new_x1; x <= new_x2; x += 8) {
-
-		    //### this may not be aligned which means that it could 
-		    // be optimised with pre and post setup code to make
-		    // this aligned to dword boundries
-		    unsigned int src_dword = *src_row++ >> plane;
-		    
-		    src_pixels  = (src_dword & 0x00000001) << 7;
-		    src_pixels |= (src_dword & 0x00000010) << 2;
-		    src_pixels |= (src_dword & 0x00000100) >> 3;
-		    src_pixels |= (src_dword & 0x00001000) >> 8;
-		    src_pixels |= (src_dword & 0x00010000) >> 13;
-		    src_pixels |= (src_dword & 0x00100000) >> 18;
-		    src_pixels |= (src_dword & 0x01000000) >> 23;
-		    src_pixels |= (src_dword & 0x10000000) >> 28;
-		    
-		    *dst_ptr++ = src_pixels;
-		    i++;
-		}
-		
-		memcpy(fb_line_ptrs[dst_y + j] + (new_x1 >> 3), MemCpyPixels, i);
-
-#else
-
 		unsigned char *dst_ptr1 = fb_line_ptrs[dst_y + j] + (new_x1 >> 3);
 		unsigned int *dst_ptr = (unsigned int *)dst_ptr1;
 		unsigned int *src_row = (unsigned int *)(db_line_ptrs[dst_y + j] + (new_x1 >> 1));
 		unsigned int src_pixels;
-//		unsigned int i = 0;
 		
 		for (int x = new_x1; x <= new_x2; x += 32) {
-// 71 operations to do 32 pixels
+		    
+		    // Optimised to 71 operations to do 32 pixels
+		    // This code doesn't look very readable though
+		    // It just moves bits around rearranging them
+		    // as required, going from pixels in 4 bit packed
+		    // mode to pixels in planar mode (4 1-bit planes).
+	    
 		    unsigned int src_dword4 = src_row[0] >> plane;
 		    unsigned int src_dword3 = src_row[1] >> plane;
 		    unsigned int src_dword2 = src_row[2] >> plane;
@@ -522,101 +488,14 @@ void vga16_exposeDoubleBufferedRegion(int x1, int y1, int x2, int y2)
 		    unsigned int tmp_dword12 = ((tmp_dword6 & 0x10101010))
 					     | ((tmp_dword8 & 0x10101010) >> 4);
 					     
-/*
-		    unsigned int tmp_dword9  = (((tmp_dword5 << 4) | tmp_dword7) & 0x11111111);
-//					     | ((tmp_dword7 & 0x01010101));
-		    unsigned int tmp_dword10 = ((tmp_dword5 | (tmp_dword7 >> 4)) & 0x11111111);
-//					     | ((tmp_dword7 & 0x10101010) >> 4);
-					    
-		    unsigned int tmp_dword11 = (((tmp_dword6 << 4) | tmp_dword8) & 0x11111111);
-//					     | ((tmp_dword8 & 0x01010101));
-		    unsigned int tmp_dword12 = ((tmp_dword6 | (tmp_dword8 >> 4)) & 0x11111111);
-//					     | ((tmp_dword8 & 0x10101010) >> 4);
-*/		    
-					    
 		    src_pixels  = (tmp_dword9  << 3)
 			       	| (tmp_dword10 << 2)
 			        | (tmp_dword11 << 1)
 				| (tmp_dword12 << 0);
 				
-
-/*
-		    src_pixels  = ((src_dword1 & 0x00000001) << (  7 + 24))
-			       	+ ((src_dword1 & 0x00000010) << (  2 + 24))
-			        + ((src_dword1 & 0x00000100) << ( -3 + 24))
-				+ ((src_dword1 & 0x00001000) << ( -8 + 24))
-			        + ((src_dword1 & 0x00010000) << (-13 + 24))
-				+ ((src_dword1 & 0x00100000) << (-18 + 24))
-				+ ((src_dword1 & 0x01000000) << (-23 + 24))
-				+ ((src_dword1 & 0x10000000) >> ( 28 - 24))
-				+ ((src_dword2 & 0x00000001) << (  7 + 16))
-				+ ((src_dword2 & 0x00000010) << (  2 + 16))
-				+ ((src_dword2 & 0x00000100) << ( -3 + 16))
-				+ ((src_dword2 & 0x00001000) << ( -8 + 16))
-				+ ((src_dword2 & 0x00010000) << (-13 + 16))
-				+ ((src_dword2 & 0x00100000) >> ( 18 - 16))
-				+ ((src_dword2 & 0x01000000) >> ( 23 - 16))
-				+ ((src_dword2 & 0x10000000) >> ( 28 - 16))
-				+ ((src_dword3 & 0x00000001) << (  7 +  8))
-				+ ((src_dword3 & 0x00000010) << (  2 +  8))
-				+ ((src_dword3 & 0x00000100) << ( -3 +  8))
-				+ ((src_dword3 & 0x00001000) >> (  8 -  8))
-				+ ((src_dword3 & 0x00010000) >> ( 13 -  8))
-				+ ((src_dword3 & 0x00100000) >> ( 18 -  8))
-				+ ((src_dword3 & 0x01000000) >> ( 23 -  8))
-				+ ((src_dword3 & 0x10000000) >> ( 28 -  8))
-				+ ((src_dword4 & 0x00000001) << (  7 +  0))
-				+ ((src_dword4 & 0x00000010) << (  2 +  0))
-				+ ((src_dword4 & 0x00000100) >> (  3 -  0))
-				+ ((src_dword4 & 0x00001000) >> (  8 -  0))
-				+ ((src_dword4 & 0x00010000) >> ( 13 -  0))
-				+ ((src_dword4 & 0x00100000) >> ( 18 -  0))
-				+ ((src_dword4 & 0x01000000) >> ( 23 -  0))
-			        + ((src_dword4 & 0x10000000) >> ( 28 -  0));
-*/
-
-/*
-		    src_pixels  = ((src_dword1 & 0x00000001) << ( 7 + 24))
-			       	+ ((src_dword1 & 0x00000010) << ( 2 + 24))
-			        + ((src_dword1 & 0x00000100) << -( 3 - 24))
-				+ ((src_dword1 & 0x00001000) << -( 8 - 24))
-			        + ((src_dword1 & 0x00010000) << -(13 - 24))
-				+ ((src_dword1 & 0x00100000) << -(18 - 24))
-				+ ((src_dword1 & 0x01000000) << -(23 - 24))
-				+ ((src_dword1 & 0x10000000) >> (28 - 24))
-				+ ((src_dword2 & 0x00000001) << ( 7 + 16))
-				+ ((src_dword2 & 0x00000010) << ( 2 + 16))
-				+ ((src_dword2 & 0x00000100) << -( 3 - 16))
-				+ ((src_dword2 & 0x00001000) << -( 8 - 16))
-				+ ((src_dword2 & 0x00010000) << -(13 - 16))
-				+ ((src_dword2 & 0x00100000) >> (18 - 16))
-				+ ((src_dword2 & 0x01000000) >> (23 - 16))
-				+ ((src_dword2 & 0x10000000) >> (28 - 16))
-				+ ((src_dword3 & 0x00000001) << ( 7 +  8))
-				+ ((src_dword3 & 0x00000010) << ( 2 +  8))
-				+ ((src_dword3 & 0x00000100) << -( 3 -  8))
-				+ ((src_dword3 & 0x00001000) >> ( 8 -  8))
-				+ ((src_dword3 & 0x00010000) >> (13 -  8))
-				+ ((src_dword3 & 0x00100000) >> (18 -  8))
-				+ ((src_dword3 & 0x01000000) >> (23 -  8))
-				+ ((src_dword3 & 0x10000000) >> (28 -  8))
-				+ ((src_dword4 & 0x00000001) << ( 7 +  0))
-				+ ((src_dword4 & 0x00000010) << ( 2 +  0))
-				+ ((src_dword4 & 0x00000100) >> ( 3 -  0))
-				+ ((src_dword4 & 0x00001000) >> ( 8 -  0))
-				+ ((src_dword4 & 0x00010000) >> (13 -  0))
-				+ ((src_dword4 & 0x00100000) >> (18 -  0))
-				+ ((src_dword4 & 0x01000000) >> (23 -  0))
-			        + ((src_dword4 & 0x10000000) >> (28 -  0));
-*/
 		    src_row += 4;
 		    *dst_ptr++ = src_pixels;
 		}
-
-#endif		
-
-
-
 	    }
 	}
     }
@@ -651,7 +530,6 @@ void vga16_bltScrToScr(int dst_x, int dst_y, int src_x, int src_y, int w, int h)
     else if ((src_y == dst_y) && (src_x < dst_x))
 	i_1st = w - 1, i_inc = -1;
 
-    // ### this needs optimisation
     // there are two cases to handle, the first is where the src and dst
     // both are aligned in the same nibbles so a memmove can be used,
     // the other case is where shifts will be needed, probably copying
@@ -660,8 +538,6 @@ void vga16_bltScrToScr(int dst_x, int dst_y, int src_x, int src_y, int w, int h)
     // the pixels to find the best approach
     unsigned char *src_line_ptr = db_line_ptrs[j_1st+src_y];
     unsigned char *dst_line_ptr = db_line_ptrs[j_1st+dst_y];
-
-#if 1
 
     if (i_inc == 1) {
 	
@@ -728,20 +604,6 @@ void vga16_bltScrToScr(int dst_x, int dst_y, int src_x, int src_y, int w, int h)
     		    *dst_ptr = (*dst_ptr & 0xF0) | last_src_pixel;
 		}
 
-/*
-		// original version
-		for (; i < w - 1;) {
-		    unsigned char src_pixel = *(src_line_ptr+((src_x+i)>>1));
-		    unsigned char dst_pixel1 = *(dst_line_ptr+((dst_x+i)>>1));
-		    *(dst_line_ptr+((dst_x+i)>>1)) = (src_pixel << 4) | (dst_pixel1 & 0x0F);
-		    i++;
-		    // unsigned char src_pixel2 = *(src_line_ptr+((src_x+i)>>1));
-		    unsigned char dst_pixel2 = *(dst_line_ptr+((dst_x+i)>>1));
-		    *(dst_line_ptr+((dst_x+i)>>1)) = (src_pixel >> 4) | (dst_pixel2 & 0xF0);
-		    i++;
-		}
-*/
-
 	    } else {
 
 		// Fast case where we quickly move the pixels around with a memcpy
@@ -791,9 +653,11 @@ void vga16_bltScrToScr(int dst_x, int dst_y, int src_x, int src_y, int w, int h)
 	
     }
 
-#else
+#if 0
 
-    // original unoptimized version that handles all cases
+    // Original unoptimized version that handles all cases
+    // This is a more readable form of approximately the above 100 lines
+    // of code. It may be helpful in understanding it.
     for (int jcx = 0; jcx < h; jcx++) {
 	unsigned char shift1 = ((src_x + i_1st) & 1) << 2;
 	unsigned char shift2 = ((dst_x + i_1st) & 1) << 2;
@@ -814,119 +678,6 @@ void vga16_bltScrToScr(int dst_x, int dst_y, int src_x, int src_y, int w, int h)
 #endif
 
     vga16_exposeDoubleBufferedRegion(dst_x, dst_y, dst_x + w, dst_y + h);
-
-#if 0
-
-    // this is old crap... first attempt at optimizing this
-
-    return;
-    
-    for (int jcx = 0; jcx < h; jcx++) {
-
-	if (i_inc == -1) {
-	
-	    int i = w - 1;
-	    unsigned int shift = ((dst_x + i) & 1) ? 0 : 4;
-	    
-	    if (((src_x+i) & 0x01) == 0) {
-		unsigned char src_pixel = *(src_line_ptr + ((src_x+i)>>1));
-		unsigned char dst_pixel = *(dst_line_ptr + ((dst_x+i)>>1));
-		*(dst_line_ptr+((dst_x+i)>>1)) =
-		    ((src_pixel & 0xF0) >> shift) | (dst_pixel & (0x0F << shift));		    
-		i--;
-		shift = 4 - shift;
-	    }
-	    
-	    for (; i > 0; i--) {
-		unsigned char src_pixel = *(src_line_ptr + ((src_x+i)>>1));
-		unsigned char dst_pixel = *(dst_line_ptr + ((dst_x+i)>>1));
-		*(dst_line_ptr+((dst_x+i)>>1)) = 
-		    ((src_pixel & 0xF0) >> shift) | (dst_pixel & (0x0F << shift));
-		i--;
-		*(dst_line_ptr+((dst_x+i)>>1)) =
-		    ((src_pixel & 0xF0) >> (4 - shift)) | (dst_pixel & (0xF0 >> shift));
-	    }
-	    
-	    if (i >= 0) {
-		unsigned char src_pixel = *(src_line_ptr + ((src_x+i)>>1));
-		unsigned char dst_pixel = *(dst_line_ptr + ((dst_x+i)>>1));
-		*(dst_line_ptr+((dst_x+i)>>1)) = 
-		    ((src_pixel & 0xF0) >> shift) | (dst_pixel & (0x0F << shift));
-	    }
-	    
-	}
-	else
-	{      
-	
-	    int i = 0;
-	    
-	    if ((src_x+i) & 0x01) {
-		unsigned char src_pixel = *(src_line_ptr + ((src_x+i)>>1));
-		unsigned char dst_pixel = *(dst_line_ptr + ((dst_x+i)>>1));
-
-		*(dst_line_ptr+((dst_x+i)>>1)) =
-		
-		    ((dst_x+i)&1)
-		    ?
-			((src_pixel & 0xF0) | (dst_pixel &= 0x0F))
-		    :
-			((dst_pixel & 0xF0) | (src_pixel >> 4));
-		    
-		i++;
-	    }
-	    
-	    for (; i < w - 1; i++) {
-		unsigned char src_pixel = *(src_line_ptr + ((src_x+i)>>1));
-		unsigned char dst_pixel = *(dst_line_ptr + ((dst_x+i)>>1));
-		unsigned char src_pixel1 = src_pixel;
-		unsigned char dst_pixel1 = dst_pixel;
-		src_pixel1 &= 0x0F;
-		if ((dst_x+i)&1)
-		    src_pixel1 <<= 4, dst_pixel1 &= 0x0F;
-		else
-		    dst_pixel1 &= 0xF0;
-		*(dst_line_ptr+((dst_x+i)>>1)) = src_pixel1 | dst_pixel1;
-		i++;
-		src_pixel = *(src_line_ptr + ((src_x+i)>>1));
-		dst_pixel = *(dst_line_ptr + ((dst_x+i)>>1));
-		src_pixel >>= 4;
-		if ((dst_x+i)&1) src_pixel <<= 4, dst_pixel &= 0x0F; else dst_pixel &= 0xF0;
-		*(dst_line_ptr+((dst_x+i)>>1)) = src_pixel | dst_pixel;		
-	    }
-	    
-	    if (i < w) {
-		unsigned char src_pixel = *(src_line_ptr + ((src_x+i)>>1));
-		unsigned char dst_pixel = *(dst_line_ptr + ((dst_x+i)>>1));
-		if ((src_x+i)&1) src_pixel >>= 4;                    else src_pixel &= 0x0F;
-		if ((dst_x+i)&1) src_pixel <<= 4, dst_pixel &= 0x0F; else dst_pixel &= 0xF0;
-		*(dst_line_ptr+((dst_x+i)>>1)) = src_pixel | dst_pixel;		
-	    }
-	    
-	}
-
-	
-	src_line_ptr += j_inc;
-	dst_line_ptr += j_inc;
-    }
-
-/*
-    if ((src_x & 0x01) == (dst_x & 0x01))
-    {
-	for (int jcx = 0, j = j_1st; jcx < h; jcx++, j += j_inc) {
-	    for (int icx = 0, i = i_1st; icx < w; icx++, i += i_inc) {
-		unsigned char src_pixel = *(db_line_ptrs[j+src_y]+((src_x+i)>>1));
-    		unsigned char dst_pixel = *(db_line_ptrs[j+dst_y]+((dst_x+i)>>1));
-    		if ((src_x+i)&1) src_pixel >>= 4;                    else src_pixel &= 0x0F;
-    		if ((dst_x+i)&1) src_pixel <<= 4, dst_pixel &= 0x0F; else dst_pixel &= 0xF0;
-    		*(db_line_ptrs[j+dst_y]+((dst_x+i)>>1)) = src_pixel | dst_pixel;
-    	    }	    
-	}
-    }
-*/
-
-    vga16_exposeDoubleBufferedRegion(dst_x, dst_y, dst_x + w, dst_y + h);
-
-#endif
 
 }
 
@@ -1015,7 +766,7 @@ void QGfxVga16::drawrect_4(unsigned int x1, unsigned int y1,
 	}
     }
 
-    VGA16_CriticalSection cs();
+    VGA16_CriticalSection cs;
     
     set_enable_set_reset_vga16(0x0F, 0);
     set_rotate_vga16(0x00, 0);
@@ -1063,7 +814,6 @@ void QGfxVga16::himageline_4(unsigned int y, unsigned int x1, unsigned int x2, u
     BEGIN_PROFILING
     
     unsigned char SavedRow[640];
-//    unsigned char MemCpyPixels[640];
     unsigned int x = (!reverse) ? x1 : x2;
     unsigned int inc = (!reverse) ? 1 : -1;
     unsigned char gv = srccol;
@@ -1079,7 +829,8 @@ void QGfxVga16::himageline_4(unsigned int y, unsigned int x1, unsigned int x2, u
     } else if ((srcdepth==16) && (!ismasking)) {
 	
 	exit(0); // see if this is really getting called!!!
-	
+
+	// If this hypothetically was needed it would like like this:
 	vga16_blt16BitBufToScr(x1,y,(unsigned short*)srcdata,w,1);
 	return;
 
@@ -1087,18 +838,15 @@ void QGfxVga16::himageline_4(unsigned int y, unsigned int x1, unsigned int x2, u
     
 	if ( !ismasking ) {
 
-//	    src_normal_palette = true;
-	    
 	    if (src_normal_palette) {
 		
 		// reverse is not expected
 		if (reverse) printf("reverse!\n"), exit(0);
-/*		
+		
 		if (reverse)
+		    // If this hypothetically was needed it would like like this:
 		    vga16_blt8BitBufToScr(x1,y,srcdata-w+1,w,1);
 		else
-*/
-
 		    vga16_blt8BitBufToScr(x1,y,srcdata,w,1);
 		return;
 		
@@ -1117,13 +865,11 @@ void QGfxVga16::himageline_4(unsigned int y, unsigned int x1, unsigned int x2, u
 		        gv = *srcdata;
 		    else
 		        gv = transclut[*srcdata];
-		    // gv = *srcdata;
 		    srcdata++;
 		}
 		bool masked = TRUE;
 		GET_MASKED(reverse);
 		SavedRow[x] = (!masked) ? gv : getPixel( x, y );
-		// SavedRow[x] = gv;
 		x += inc;
 	    }
 	}
@@ -1132,8 +878,6 @@ void QGfxVga16::himageline_4(unsigned int y, unsigned int x1, unsigned int x2, u
 	return;
 	
     } else {
-	
-//	exit(0); // see if this is really getting called!!!
 	
 	if ( !ismasking ) {
 	    while ( w-- ) {
@@ -1198,7 +942,7 @@ GFX_INLINE unsigned int QGfxVga16::get_value_32(
 	*(tmp+0)=b;
 	(*srcdata)+=2;
 
-// Still needed for alpha blending
+    // Still needed for alpha blending
     } else if(sdepth==8) {
 	unsigned char val=*((*srcdata));
 	if(src_normal_palette) {
@@ -1235,23 +979,6 @@ GFX_INLINE unsigned int QGfxVga16::get_value_32(
     return ret;
 }
 
-/*
-void QGfxVga16::paintCursor(const QImage& image, int hotx, int hoty, QPoint cursorPos)
-{
-    BEGIN_PROFILING
-    
-#ifndef QT_NO_QWS_CURSOR
-    if (QScreenCursor::enabled())
-    {
-	setSource(&image);
-	setAlphaType(QGfx::InlineAlpha);
-	blt(cursorPos.x()-hotx-1,
-		cursorPos.y()-hoty-1,
-		image.width(), image.height());
-    }
-#endif
-}
-*/
 
 GFX_INLINE void QGfxVga16::calcPacking(
 			  void * m,int x1,int x2,
@@ -1292,7 +1019,6 @@ void QGfxVga16::setSource(const QPaintDevice * p)
 	if ( srcdepth == 1 ) {
 	    buildSourceClut(0, 0);
 	} else if(srcdepth <= 8) {
-//	    if (p->numCols() <= 16)
 	    src_normal_palette=TRUE;
 	}
     } else if ( p->devType() == QInternal::Pixmap ) {
@@ -1304,15 +1030,7 @@ void QGfxVga16::setSource(const QPaintDevice * p)
 	if ( srcdepth == 1 ) {
 	    buildSourceClut(0, 0);
 	} else if(srcdepth <= 8) {
-//	    if (pix->numCols() <= 16)
     	    src_normal_palette=TRUE;
-//	    else
-//	    buildSourceClut(pix->clut(), pix->numCols(), 0);
-//	    buildSourceClut(pix->clut(), 256, 1);
-
-//	    printf("setting an 8bit pixmap (%i)  as source\n", pix->numCols());
-//	    QImage img = pix->convertToImage();
-//	    setSource(&img);
 	}
     } else {
 	// This is a bit ugly #### I'll say!
@@ -1372,24 +1090,8 @@ void QGfxVga16::buildSourceClut(QRgb * cols,int numcols)
 	int g = qGreen(srcclut[loopc]);
 	int b = qBlue(srcclut[loopc]);
 	transclut[loopc] = closestMatchUsingTable(r,g,b);
-	// QColor(r,g,b).alloc();
     }
 }
-
-/*
-GFX_INLINE void QGfxVga16::drawPointUnclipped( int x, unsigned char* l)
-{
-    BEGIN_PROFILING
-    
-    if (myrop==XorROP) {
-	    set_pixel_4(l, x, get_pixel_4(l, x) ^ pixel);
-    } else if (myrop==NotROP) {
-	    set_pixel_4(l, x, ~(get_pixel_4(l, x)));
-    } else {
-	    set_pixel_4(l, x, pixel & 0x0F);
-    }
-}
-*/
 
 void QGfxVga16::drawPoint( int x, int y )
 {
@@ -1401,10 +1103,9 @@ void QGfxVga16::drawPoint( int x, int y )
     y += yoffs;
     if (inClip(x,y)) {
 	usePen();
-    VGA16_GFX_START(QRect(x,y,2,2))
-//	drawPointUnclipped( x, scanLine(y) );
+        VGA16_GFX_START(QRect(x,y,2,2))
 	setPixel(x,y, pixel);
-    VGA16_GFX_END
+        VGA16_GFX_END
     }
 }
 
@@ -1427,7 +1128,6 @@ void QGfxVga16::drawPoints( const QPointArray & pa, int index, int npoints )
 	    in = inClip(x,y,&cr);
 	}
 	if ( in ) {
-//	    drawPointUnclipped( x, scanLine(y) );
 	    setPixel(x,y,pixel);
 	}
 	++index;
@@ -1480,8 +1180,6 @@ void QGfxVga16::drawLine( int x1, int y1, int x2, int y2 )
 	x1 = x1 > cliprect[0].left() ? x1 : cliprect[0].left();
 	x2 = x2 > cliprect[0].right() ? cliprect[0].right() : x2;
 	drawrect_4(x1, y1, x2, y1, pixel);
-//	unsigned char *l = scanLine(y1);
-//	hlineUnclipped(x1,x2,l);
 	VGA16_GFX_END
 	return;
     }
@@ -1500,17 +1198,14 @@ void QGfxVga16::drawLine( int x1, int y1, int x2, int y2 )
     QRect cr;
     bool inside = inClip(x,y,&cr);
     if(ax>ay && !dashedLines) {
-	// unsigned char* l = scanLine(y);
 	d=ay-(ax >> 1);
 	int px=x;
 	#define FLUSH_VGA16(nx) \
 		if ( inside ) \
 		    if ( sx < 1 ) \
 			drawrect_4(nx, y, px, y, pixel); \
-			/* hlineUnclipped(nx,px,l); */ \
 		    else \
 			drawrect_4(px, y, nx, y, pixel); \
-			/* hlineUnclipped(px,nx,l); */ \
 		px = nx+sx;
 	for(;;) {
 	    if(x==x2) {
@@ -1522,7 +1217,6 @@ void QGfxVga16::drawLine( int x1, int y1, int x2, int y2 )
 		FLUSH_VGA16(x);
 		y+=sy;
 		d-=ax;
-		// l = scanLine(y);
 		if ( !cr.contains(x+sx,y) )
 		    inside = inClip(x+sx,y, &cr);
 	    } else if ( !cr.contains(x+sx,y) ) {
@@ -1541,7 +1235,6 @@ void QGfxVga16::drawLine( int x1, int y1, int x2, int y2 )
 	    if ( !cr.contains(x,y))
 		inside = inClip(x,y, &cr);
 	    if ( inside && (di&0x01) == 0) {
-//		drawPointUnclipped( x, scanLine(y) );
 		setPixel(x,y,pixel);
 	    }
 	    if(x==x2) {
@@ -1569,7 +1262,6 @@ void QGfxVga16::drawLine( int x1, int y1, int x2, int y2 )
 	    if ( !cr.contains(x,y))
 		inside = inClip(x,y, &cr);
 	    if ( inside && (di&0x01) == 0)
-//		drawPointUnclipped( x, scanLine(y) );
 		setPixel(x,y,pixel);
 	    if(y==y2) {
 		VGA16_GFX_END
@@ -1630,7 +1322,6 @@ GFX_INLINE void QGfxVga16::hline( int x1,int x2,int y)
 {
     BEGIN_PROFILING
     
-    // unsigned char *l=scanLine(y);
     QRect cr;
     bool plot=inClip(x1,y,&cr);
     int x=x1;
@@ -1639,37 +1330,15 @@ GFX_INLINE void QGfxVga16::hline( int x1,int x2,int y)
 	if ( xr >= x2 ) {
 	    if (plot)
 		drawrect_4(x,y,x2,y,pixel);
-//		hlineUnclipped(x,x2,l);
 	    break;
 	} else {
 	    if (plot)
 		drawrect_4(x,y,xr,y,pixel);
-//		hlineUnclipped(x,xr,l);
 	    x=xr+1;
 	    plot=inClip(x,y,&cr,plot);
 	}
     }
 }
-
-
-/*
-
-GFX_INLINE void QGfxVga16::hlineUnclipped( int x1,int x2,unsigned char* l)
-{
-    BEGIN_PROFILING
-    
-    if( (myrop!=XorROP) && (myrop!=NotROP) ) {
-    	hline_4( l, x1, x2, pixel );
-    } else if(myrop==XorROP) {
-    	for (int x = x1; x <= x2; x++)
-    	    drawPointUnclipped( x, l );
-    } else if(myrop==NotROP) {
-    	for (int x = x1; x <= x2; x++)
-    	    drawPointUnclipped( x, l );
-    }
-}
-
-*/
 
 
 GFX_INLINE void QGfxVga16::hAlphaLineUnclipped( int x1,int x2,
@@ -1684,7 +1353,6 @@ GFX_INLINE void QGfxVga16::hAlphaLineUnclipped( int x1,int x2,
     unsigned char *srcptr = srcdata;
     unsigned char srcval4 = 0;
     unsigned int srcval32 = 0;
-//	int loopc, i;
     unsigned int av;
     unsigned char alphabuf4[640];
 
@@ -1730,16 +1398,6 @@ GFX_INLINE void QGfxVga16::hAlphaLineUnclipped( int x1,int x2,
 	srcval4 = srccol;
 	
     	for (int loopc = 0, i = x1; i <= x2; loopc++, i++) {
-/*
-	    if (srctype == SourceImage) {
-		srcval32 = get_value_32(srcdepth,&srcptr);
-		unsigned int r, g, b;
-		r = (srcval32 & 0x00FF0000) >> 16;
-		g = (srcval32 & 0x0000FF00) >>  8;
-		b = (srcval32 & 0x000000FF) >>  0;
-		srcval4 = closestMatchUsingTable(r,g,b);
-	    }
-*/
 
 	    if (alphatype == InlineAlpha)
 		av = srcval32 >> 24;
@@ -1749,24 +1407,8 @@ GFX_INLINE void QGfxVga16::hAlphaLineUnclipped( int x1,int x2,
 		av = *(avp++);
 
 	    if (av == 255) {
-/*
-		alphabuf[loopc] = srcval32;
-		unsigned int r, g, b;
-		r = (srcval32 & 0x00FF0000) >> 16;
-		g = (srcval32 & 0x0000FF00) >>  8;
-		b = (srcval32 & 0x000000FF) >>  0;
-		alphabuf4[loopc] = closestMatchUsingTable(r,g,b);
-*/
 		alphabuf4[loopc] = srcval4;
 	    } else if (av == 0) {
-/*
-		alphabuf[loopc] = get_pixel_4_32(i, y);
-		unsigned int r, g, b;
-		r = (srcval32 & 0x00FF0000) >> 16;
-		g = (srcval32 & 0x0000FF00) >>  8;
-		b = (srcval32 & 0x000000FF) >>  0;
-		alphabuf4[loopc] = closestMatchUsingTable(r,g,b);
-*/
 		alphabuf4[loopc] = getPixel(i, y);
 	    } else {
 		unsigned int screen_val = get_pixel_4_32(i, y);
@@ -1780,17 +1422,11 @@ GFX_INLINE void QGfxVga16::hAlphaLineUnclipped( int x1,int x2,
 		g = (((g - g2) * av) >> 8) + g2;
 		b = (((b - b2) * av) >> 8) + b2;
 		alphabuf4[loopc] = closestMatchUsingTable(r,g,b);
-//	    alphabuf[loopc] = (r << 16) | (g << 8) | b;
 	    }
 	}
     }
 
     int tmpdepth = srcdepth;
-    //srcdepth = 32;
-    //himageline_4(y,x1,x2,(unsigned char *)alphabuf,false);
-//	srcdepth = 8;
-//	himageline_4(y,x1,x2,(unsigned char *)alphabuf4,false);
-    
 
     unsigned char TmpRow[640];
 
@@ -1809,7 +1445,7 @@ GFX_INLINE void QGfxVga16::hAlphaLineUnclipped( int x1,int x2,
     srcdepth = tmpdepth;
 }
 
-// void QGfxVga16::drawRect( int rx,int ry,int w,int h )
+
 void QGfxVga16::fillRect( int rx,int ry,int w,int h )
 {
     BEGIN_PROFILING
@@ -1819,32 +1455,6 @@ void QGfxVga16::fillRect( int rx,int ry,int w,int h )
     if ( w <= 0 || h <= 0 ) return;
 
     VGA16_GFX_START(QRect(rx+xoffs, ry+yoffs, w+1, h+1))
-
-/*
-    useBrush();
-    rx += xoffs;
-    ry += yoffs;
-    if ((w < 0) || (h < 0)) return;
-    rx = (rx < 0) ? 0 : ((rx > 639) ? 639 : rx);
-    ry = (ry < 0) ? 0 : ((ry > 479) ? 479 : ry);
-    w = (rx+w > 639) ? 639-rx : w;
-    h = (ry+h > 479) ? 479-ry : h;
-    drawrect_4(rx,ry,rx+w,ry+h,pixel);
-    return;
-*/
-
-/*
-    if(cpen.style()!=NoPen) {
-	drawLine(rx,ry,rx+(w-1),ry);
-	drawLine(rx+(w-1),ry,rx+(w-1),ry+(h-1));
-	drawLine(rx,ry+(h-1),rx+(w-1),ry+(h-1));
-	drawLine(rx,ry,rx,ry+(h-1));
-	rx++;
-	ry++;
-	w-=2;
-	h-=2;
-    }
-*/
 
 #ifdef QWS_EXPERIMENTAL_FASTPATH
     // ### fix for 8bpp
@@ -1874,10 +1484,6 @@ void QGfxVga16::fillRect( int rx,int ry,int w,int h )
 	    }
 
 	    drawrect_4(x1,y1,x2,y2,pixel);
-/*
-	    for(int loopc=y1;loopc<=y2;loopc++)
-		hlineUnclipped(x1,x2,scanLine(loopc));
-*/
 	    VGA16_GFX_END
 	    return;
     }
@@ -1910,7 +1516,6 @@ void QGfxVga16::fillRect( int rx,int ry,int w,int h )
 	    setSource(cbrushpixmap);
 	    setAlphaType(IgnoreAlpha);
 	}
-//	setSourceOffset(0,0);
 	tiledBlt(rx,ry,w,h);
     } else if(cbrush.style()!=NoBrush) {
 	useBrush();
@@ -1930,7 +1535,6 @@ void QGfxVga16::fillRect( int rx,int ry,int w,int h )
 	if ( ry+h-1 > clipbounds.bottom() )
 	    h = clipbounds.bottom()-ry+1;
 	if ( w > 0 && h > 0 ) {
-//	    drawrect_4(rx,ry,rx+w-1,ry+h,pixel);
 	    for (int j=0; j<h; j++,ry++)
 		hline(rx,rx+w-1,ry);
 	}
@@ -1952,7 +1556,7 @@ void QGfxVga16::drawPolyline( const QPointArray &a,int index, int npoints )
 	    drawLine(a[loopc-1].x(),a[loopc-1].y(),
 		     a[loopc].x(),a[loopc].y());
     }
-    // XXX beware XOR mode vertices
+    // ### beware XOR mode vertices
     VGA16_GFX_END
 }
 
@@ -1982,9 +1586,8 @@ void QGfxVga16::processSpans( int n, QPoint* point, int* width )
 	int x=point->x()+xoffs;
 	if ( *width > 0 ) {
 	    if(patternedbrush) {
-		// XXX
+		// ###
 	    } else {
-//		drawrect_4(x,point->y()+yoffs,x+*width,point->y()+yoffs,pixel);
 		hline(x,x+*width-1,point->y()+yoffs);
 	    }
 	}
@@ -2016,7 +1619,6 @@ void QGfxVga16::scroll( int rx,int ry,int w,int h,int sx, int sy )
     setAlphaType(IgnoreAlpha);
     ismasking=FALSE;
     setSourceWidgetOffset( xoffs, yoffs );
-//    setSourceOffset(sx,sy);
     blt(rx,ry,w,h,sx,sy);
     src_normal_palette=FALSE;
 
@@ -2234,9 +1836,9 @@ public:
     virtual ~QVga16Screen();
     virtual bool connect( const QString &spec, char *,
 			    unsigned char * config );
-    virtual bool initCard();
+    virtual bool initDevice();
     virtual int initCursor(void*, bool);
-    virtual void shutdownCard();
+    virtual void shutdownDevice();
     virtual bool useOffscreen() { return true; }
     virtual QGfx * createGfx(unsigned char *,int,int,int,int);
     virtual int alloc(unsigned int, unsigned int, unsigned int);
@@ -2265,8 +1867,6 @@ bool QVga16Screen::connect( const QString &displaySpec, char *,
 			    unsigned char * config )
 {
     BEGIN_PROFILING
-    
-//    printf("QVGA16 connecting\n");
     
     bool ret = TRUE;
     
@@ -2300,8 +1900,6 @@ bool QVga16Screen::connect( const QString &displaySpec, char *,
     if (shared_memory == NULL)
 	perror("shared memory / malloc problem");
     
-//    printf("shared / alloced memory attached at: %x\n", (int)shared_memory);
-    
     vga_register_values = shared_memory;
     screen_double_buffer = shared_memory + 512;
 
@@ -2311,8 +1909,6 @@ bool QVga16Screen::connect( const QString &displaySpec, char *,
     if (screen_double_buffer == NULL)
 	printf("error getting screen_double_buffer memory\n"), exit(0);
 	
- //   printf("connected\n");
-
     unsigned char *db_line_ptr = screen_double_buffer;
 
     for (int i = 0; i < 480; i++)
@@ -2321,7 +1917,6 @@ bool QVga16Screen::connect( const QString &displaySpec, char *,
 	db_line_ptr += 640/2;
     }
     
-//    printf("QVga16Screen::connect - optype: %i, *optype: %i\n", optype, *optype);
     return ret;
 }
 
@@ -2348,18 +1943,17 @@ QVga16Screen::~QVga16Screen()
     BEGIN_PROFILING
 }
 
-bool QVga16Screen::initCard()
+bool QVga16Screen::initDevice()
 {
     BEGIN_PROFILING
 
-    QLinuxFbScreen::initCard();
+    QLinuxFbScreen::initDevice();
     optype = &VGA16DummyOpType;
     
     // turn off the blinking cursor
     write(1, "\033[?25l", 6);
     
     // set the registers with default values
-    // memset(vga_register_values, 0, 512);
     set_read_map_vga16(0x00,1);
     set_memory_mode_vga16(0x06,1);
     set_enable_set_reset_vga16(0x0F, 1);
@@ -2370,12 +1964,11 @@ bool QVga16Screen::initCard()
     set_bit_mask_vga16(0xFF, 1);
 
     // clear the screen
-    unsigned char *base_ptr = base();
+    unsigned char *base_ptr = base() - dataoffset;
     memset(base_ptr, *base_ptr, 640*480/8);
     // clear the shared memory
     memset(screen_double_buffer, 0, 640*480/2);
 		
-//    printf("QVga16Screen::initcard - optype: %i, *optype: %i\n", optype, *optype);
     return true;
 }
 
@@ -2391,13 +1984,12 @@ int QVga16Screen::initCursor(void* e, bool init)
     return 0;
 }
 
-void QVga16Screen::shutdownCard()
+void QVga16Screen::shutdownDevice()
 {
     BEGIN_PROFILING
-    
     // ProfiledApp.DumpRawProfileStats(stdout);
     
-    QLinuxFbScreen::shutdownCard();
+    QLinuxFbScreen::shutdownDevice();
 }
 
 int QVga16Screen::alloc(unsigned int r, unsigned int g, unsigned int b)
@@ -2411,11 +2003,6 @@ QGfx * QVga16Screen::createGfx(unsigned char * b,int w,int h,int d_arg,int lines
 {
     BEGIN_PROFILING
 
-/* 
-    printf("Buffer: %x width: %i, height: %i, depth: %i, linestep: %i\n",
-	b, w, h, d_arg, linestep);
-*/
-  
     if (d_arg == 4) {
 	d = d_arg;
     	QGfx *ret = new QGfxVga16(b,w,h);
@@ -2425,6 +2012,10 @@ QGfx * QVga16Screen::createGfx(unsigned char * b,int w,int h,int d_arg,int lines
 	int x_offset = (640 - w) / 2;
 	int y_offset = (480 - h) / 2;
 
+	// Remove the centering of the frame buffer apply from
+	// qgfxlinux_qws.cpp as it is wrong for VGA16.
+	fb_line_ptr -= dataoffset;
+	// apply correct centering (taking in to account it uses bit-planes)
 	fb_line_ptr += (x_offset/8) + (y_offset*640/8);
 
 	for (int i = 0; i < 480; i++)
@@ -2435,7 +2026,9 @@ QGfx * QVga16Screen::createGfx(unsigned char * b,int w,int h,int d_arg,int lines
 	
 	if (ret) {
     	    ret->setLineStep(linestep);
-    
+
+	    VGA16_CriticalSection cs;
+	    
 	    // set the registers with default values
 	    // memset(vga_register_values, 0, 512);
 	    set_read_map_vga16(0x00,1);
@@ -2446,14 +2039,10 @@ QGfx * QVga16Screen::createGfx(unsigned char * b,int w,int h,int d_arg,int lines
 	    set_write_planes_vga16(0x0F, 1);
 	    set_set_reset_vga16(0x00, 1);
 	    set_bit_mask_vga16(0xFF, 1);
-		
-//	    printf("returning VGA16 Gfx\n");
-	    
+
     	    return ret;
        	}
     }
-    
-//    printf("returning non-VGA16 Gfx\n");
     
     return QLinuxFbScreen::createGfx(b,w,h,d_arg,linestep);
 }
@@ -2464,20 +2053,13 @@ extern "C" QScreen * qt_get_screen_vga16( int display_id, const char *spec,
 {
     BEGIN_PROFILING
 
-//    printf("vga16 getscreen\n");
- 
-    // if (!qt_screen && slot!=0) {
     if (!qt_screen) {
-//	printf("creating vga16 screen\n");
 	QVga16Screen *ret = new QVga16Screen( display_id );
 	if(ret->connect( spec, slot, config )) {
-//	    printf("connecting vga16 screen\n");
 	    qt_screen=ret;
 	}
     }
-//    printf("finished creating vga16 screen\n");
     if( !qt_screen ) {
-//	printf("creating linux screen\n");
 	qt_screen=new QLinuxFbScreen( display_id );
 	qt_screen->connect( spec );
     }
@@ -2505,7 +2087,6 @@ void QVga16Cursor::set(const QImage& image, int hotx, int hoty)
 	    int g = qGreen( image.colorTable()[i] );
 	    int b = qBlue( image.colorTable()[i] );
 	    data->translut[i] = closestMatchUsingTable(r,g,b);
-//	    data->translut[i] = QColor(r, g, b).pixel();
 	}
     }
     for (int i = 0; i < image.numColors(); i++) {
@@ -2565,9 +2146,7 @@ void QVga16Cursor::drawCursor(QRect &r)
     if ( data->width && data->height ) {
 	qt_sw_cursor = FALSE;   // prevent recursive call from blt
 	gfx->setSource( cursor );
-//	gfx->setSourceOffset(0, 0);
 	gfx->setAlphaType(QGfx::InlineAlpha);
-	// gfx->setAlphaType(QGfx::IgnoreAlpha);
 
 	set_back_buffer = false;
 	force_set_pixel = true;

@@ -5,3 +5,4 @@ SOURCES		= main.cpp \
 		  progressbar.cpp
 TARGET		= progressbar
 DEPENDPATH=../../include
+REQUIRES=large-config

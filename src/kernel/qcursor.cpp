@@ -44,7 +44,7 @@
 #include "qdatastream.h"
 
 
-// BEING REVISED: reggie
+// NOT REVISED
 /*!
   \class QCursor qcursor.h
 
@@ -60,9 +60,9 @@
   Qt has a number of standard cursor shapes, but you can also make
   custom cursor shapes based on a QBitmap, a mask and a hotspot.
 
-  To associate a cursor with a widget, use QWidget::setCursor().
-  To associate a cursor with all widgets (maybe for a short period of time),
-  use QApplication::setOverrideCursor().
+  To associate a cursor with a widget, use QWidget::setCursor().  To
+  associate a cursor with all widgets (normally for a short period of
+  time), use QApplication::setOverrideCursor().
 
   To set a cursor shape use QCursor::setShape() or use the QCursor constructor
   which takes the shape as argument, or use one of the \e predefined cursors:
@@ -100,7 +100,10 @@
 /*****************************************************************************
   QCursor stream functions
  *****************************************************************************/
+
 #ifndef QT_NO_DATASTREAM
+
+
 /*!
   \relates QCursor
   Writes the cursor \a c to the stream \a s.
@@ -141,8 +144,8 @@ QDataStream &operator>>( QDataStream &s, QCursor &c )
 }
 #endif // QT_NO_DATASTREAM
 
-/*!
-  Constructs a custom pixmap cursor.
+
+/*! Constructs a custom pixmap cursor.
 
   \a pixmap is the image
 	    (usually it should have a mask (set using QPixmap::setMask())
@@ -226,3 +229,5 @@ QCursor::QCursor( const QBitmap &bitmap, const QBitmap &mask,
 }
 
 #endif // QT_NO_CURSOR
+
+

@@ -9,18 +9,21 @@
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses for Qt/Embedded may use this file in accordance with the
 ** Qt Embedded Commercial License Agreement provided with the Software.
-**
-** This file is not available for use under any other license without
-** express written permission from the copyright holder.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 **   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
 ** Contact info@trolltech.com if any conditions of this licensing are
 ** not clear to you.
@@ -36,6 +39,62 @@
 #include "qimage.h"
 #include "qfontmanager_qws.h"
 #endif // QT_H
+
+
+#if !defined( QT_NO_IMAGE_16_BIT ) || !defined( QT_NO_QWS_DEPTH_16 )
+# ifndef QT_QWS_DEPTH16_RGB
+#  define QT_QWS_DEPTH16_RGB 565
+# endif
+static const int qt_rbits = (QT_QWS_DEPTH16_RGB/100);
+static const int qt_gbits = (QT_QWS_DEPTH16_RGB/10%10);
+static const int qt_bbits = (QT_QWS_DEPTH16_RGB%10);
+static const int qt_red_shift = qt_bbits+qt_gbits-(8-qt_rbits);
+static const int qt_green_shift = qt_bbits-(8-qt_gbits);
+static const int qt_neg_blue_shift = 8-qt_bbits;
+static const int qt_blue_mask = (1<<qt_bbits)-1;
+static const int qt_green_mask = (1<<(qt_gbits+qt_bbits))-((1<<qt_bbits)-1);
+static const int qt_red_mask = (1<<(qt_rbits+qt_gbits+qt_bbits))-(1<<(qt_gbits+qt_bbits));
+
+inline ushort qt_convRgbTo16( const int r, const int g, const int b )
+{
+    const int tr = r << qt_red_shift;
+    const int tg = g << qt_green_shift;
+    const int tb = b >> qt_neg_blue_shift;
+
+    return (tb & qt_blue_mask) | (tg & qt_green_mask) | (tr & qt_red_mask);
+}
+
+inline ushort qt_convRgbTo16( QRgb c )
+{
+    const int tr = qRed(c) << qt_red_shift;
+    const int tg = qGreen(c) << qt_green_shift;
+    const int tb = qBlue(c) >> qt_neg_blue_shift;
+
+    return (tb & qt_blue_mask) | (tg & qt_green_mask) | (tr & qt_red_mask);
+}
+
+inline QRgb qt_conv16ToRgb( ushort c )
+{
+    const int r=(c & qt_red_mask);
+    const int g=(c & qt_green_mask);
+    const int b=(c & qt_blue_mask);
+    const int tr = r >> qt_red_shift;
+    const int tg = g >> qt_green_shift;
+    const int tb = b << qt_neg_blue_shift;
+
+    return qRgb(tr,tg,tb);
+}
+
+inline void qt_conv16ToRgb( ushort c, int& r, int& g, int& b )
+{
+    const int tr=(c & qt_red_mask);
+    const int tg=(c & qt_green_mask);
+    const int tb=(c & qt_blue_mask);
+    r = tr >> qt_red_shift;
+    g = tg >> qt_green_shift;
+    b = tb << qt_neg_blue_shift;
+}
+#endif
 
 
 const int SourceSolid=0;
@@ -61,12 +120,13 @@ public:
 
     virtual void set( const QImage &image, int hotx, int hoty );
     virtual void move( int x, int y );
-    virtual void show() {}
-    virtual void hide() {}
+    virtual void show();
+    virtual void hide();
 
     virtual bool restoreUnder( const QRect &r, QGfxRasterBase *g = 0 );
     virtual void saveUnder();
     virtual void drawCursor();
+    void draw();
     virtual bool supportsAlphaCursor();
 
     static bool enabled() { return qt_sw_cursor; }
@@ -112,12 +172,13 @@ public:
 
     QScreen( int display_id );
     virtual ~QScreen();
-    virtual bool initCard() = 0;
+    virtual bool initDevice() = 0;
     virtual bool connect( const QString &displaySpec ) = 0;
     virtual void disconnect() = 0;
     virtual int initCursor(void *, bool=FALSE);
-    virtual void shutdownCard();
+    virtual void shutdownDevice();
     virtual void setMode(int,int,int) = 0;
+    virtual bool supportsDepth(int) const;
     virtual QGfx * createGfx(unsigned char *,int,int,int,int);
     virtual QGfx * screenGfx();
     virtual void save();

@@ -15,6 +15,7 @@
 #	-nowin	Don't generate Windows
 #	-nox11	Don't generate X11
 #	-noqws	Don't generate Qt/Embedded
+#	-nofree Don't generate free editions 
 #	-nozip	Don't compress tar files
 #
 
@@ -29,6 +30,7 @@ $/ = undef;
 $doc = 1;
 $version = 0;
 $dozip = 1;
+$dofree = 1;
 
 for $a ( @ARGV ) {
     if ( $a eq "-local" ) {
@@ -40,6 +42,8 @@ for $a ( @ARGV ) {
     } elsif ( $a eq "-nodoc" ) {
 	$doc = undef;
 	print "Will not generate documentation.\n";
+    } elsif ( $a eq "-nofree" ) {
+	$dofree = 0;
     } elsif ( $a =~ /^-no((x11)|(qws)|(win))$/ ) {
 	$notplatform{$1}=1;
 	print "Will not generate \"$1\" platform.\n";
@@ -423,7 +427,6 @@ sub clean_platform
     &rmrf("$qtdir/examples/kiosk");
     &rmrf("$qtdir/src/3rdparty/libmng");
     unlink("$qtdir/etc/fonts/unifont.bdf");
-    unlink("$qtdir/etc/fonts/verdana.ttf");
     if ( $platform ne "x11" ) {
 	&rmrf("$qtdir/examples/biff");
 	&rmrf("$qtdir/examples/desktop");
@@ -473,25 +476,42 @@ for $platform ( "x11", "qws" ) {
 
     # copy the dist things into a supplemental directory
     for $freedom ( "free", "commercial" ) {
-	next if $freedom eq "free" && $platform ne "x11";
-
+	next if $freedom eq "free" and !$dofree;
 	mkdir "$distdir/$platform-$freedom/", 0777;
 	mkdir "$distdir/$platform-$freedom/qt-$version$type", 0777;
 
 	opendir( D, "$distdir/qt/dist/$freedom" );
 	foreach ( readdir( D ) ) {
+	    next if /^\./;
+	    $to=$_;
+	    if ( $platform eq "qws" ) {
+		next if $_ eq 'MANIFEST';
+		next if $_ eq 'ANNOUNCE';
+		next if $_ eq 'README.QT';
+		next if $_ eq 'README';
+		next if $_ eq 'LICENSE.QPL';
+		$to='README' if $_ eq "README.qws";
+	    } else {
+		next if $_ eq 'README.qws';
+	    }
 	    &copy_version( "$distdir/qt/dist/$freedom/$_",
-			   "$distdir/$platform-$freedom/qt-$version$type/$_" );
+			   "$distdir/$platform-$freedom/qt-$version$type/$to" );
 	}
 	closedir( D );
 
 	opendir( D, "$distdir/qt/dist/$platformname" );
-	for $file ( readdir( D ) ) {
-	    next if $file =~ /^\./;
-	    $d = "$distdir/qt/dist/$platformname/$file";
+	for ( readdir( D ) ) {
+	    next if /^\./;
+	    if ( $platform eq "qws" ) {
+		if ( $freedom eq "free" ) {
+		    next if $_ eq 'LICENSE'; # qws license
+		    next if $_ eq 'README'; # qws license
+		}
+	    }
+	    $d = "$distdir/qt/dist/$platformname/$_";
 	    if ( -f $d ) {
 		&copy_version( $d,
-			   "$distdir/$platform-$freedom/qt-$version$type/$file" );
+			   "$distdir/$platform-$freedom/qt-$version$type/$_" );
 	    } else {
 		# Copy it verbatim
 		system("cp -a $d $distdir/$platform-$freedom/qt-$version$type");
@@ -570,14 +590,14 @@ for $platform ( "x11", "qws" ) {
 
     # tar up the two supplementals
 
-    chdir( "$distdir/$platform-free" ) if $platform eq "x11";
-    system( "tar cf ../qt-$platformname-$version$type.tar qt-$version$type" ) if $platform eq "x11";
+    chdir( "$distdir/$platform-free" ) if $dofree;
+    system( "tar cf ../qt-$platformname-$version$type.tar qt-$version$type" ) if $dofree;
     chdir( "$distdir/$platform-commercial" );
     system( "tar cf ../qt-$platformname-$version$type-commercial.tar qt-$version$type" );
 
     # then run tar for real, on the unix tree.
     chdir( "$distdir/$platform" );
-    open( "TAR1$platformname", "tar rf ../qt-$platformname-$version$type.tar qt-$version$type |" ) if $platform eq "x11";
+    open( "TAR1$platformname", "tar rf ../qt-$platformname-$version$type.tar qt-$version$type |" ) if $dofree;
     open( "TAR2$platformname", "tar rf ../qt-$platformname-$version$type-commercial.tar qt-$version$type |" );
     # those will run in the background, accessing the same files at the
     # same time, mostly.  later, we'll compress.
@@ -599,11 +619,13 @@ if (!$notplatform{win}) {
     # move the files into include
 
     mkdir "$qtdir/include", 0777 unless ( -d "$qtdir/include" );
+    copy("$qtdir/src/tools/qconfig-dist.h", "$qtdir/xx");
     foreach $fullname ( @includefiles ) {
 	$_ = $fullname;
 	s-.*/--;
 	move( "$qtdir/$fullname", "$qtdir/include/$_" );
     }
+    move( "$qtdir/xx", "$qtdir/src/tools/qconfig-dist.h" );
 
     # delete the xt estension
 
@@ -630,6 +652,9 @@ if (!$notplatform{win}) {
 	    unlink "$qtdir/include/qconfig.h";
 	    copy("$qtdir/src/tools/qconfig-dist.h", "$qtdir/include/qconfig.h")
 		|| die "Cannot copy $qtdir/src/tools/qconfig-dist.h";
+	    open QC, ">>$qtdir/include/qconfig.h";
+	    print QC "#define QT_NO_IMAGEIO_MNG // not defined by default.\n";
+	    close QC;
 	    if ( $build =~ /(.*)-dll(.*)/ ) {
 	        $buildtype .= " -dll";
 		open QC, ">>$qtdir/include/qconfig.h";
@@ -745,7 +770,11 @@ if (!$notplatform{win}) {
 	    $zipdir .= "-pro";
 	    system( "rm -f $qtdir/include/qmodules.h" );
 	    system( "touch $qtdir/include/qmodules.h" );
-	}
+	    open QM, ">>$qtdir/include/qmodules.h";
+	    print QM "#define QT_MODULE_ICONVIEW\n";
+	    print QM "#define QT_MODULE_WORKSPACE\n";
+	    close QM;
+	  }
 	rename "$qtdir/$zipdir", "$qtdir/mkfiles";
 
 	open( I, "unzip -o -aq -d $qtdir $qtdir/mkfiles/msvc.zip |" )
@@ -825,15 +854,15 @@ for $platform ( "x11", "qws" ) {
 
     $platformname = $platform eq "qws" ? "embedded" : $platform;
 
-    close "TAR1$platformname" if $platform eq "x11";
+    close "TAR1$platformname" if $dofree;
     close "TAR2$platformname";
 
     if ( $dozip ) {
 	# Get both gzips going...
-	open ( GZIP1, "gzip -9 $distdir/qt-$platformname-$version$type.tar |" ) if $platform eq "x11";
+	open ( GZIP1, "gzip -9 $distdir/qt-$platformname-$version$type.tar |" ) if $dofree;
 	open ( GZIP2, "gzip -9 $distdir/qt-$platformname-$version$type-commercial.tar |" );
 	# And wait for them to complete...
-	close GZIP1 if $platform eq "x11";
+	close GZIP1 if $dofree;
 	close GZIP2;
     }
 }
@@ -909,6 +938,7 @@ sub public {
 	     || $file =~ /^tools\/.*\/COPYING/
 	     || $file =~ /^tools\/.*\/HTML.manifest$/
 	     || $file =~ /^tools\/.*\/mkimages$/
+	     || $file =~ /^tools\/.*\/makeall$/
 	     || $file =~ /^tools\/designer\/designer\/.*\.((rc)|(ico))$/
 	     || $file =~ /^tools\/.*\/mksplash$/
 
@@ -1082,11 +1112,11 @@ sub copy_source {
 		|| /^html$/
 		|| /^lex.yy.c$/
 		|| $d =~ /\/bin$/
-		    && !/^syncqt$/
+		    && (!defined($_) || !/^syncqt$/)
 		|| /^\.../
 		|| /^lib(-[^\/]*)$/
 		|| -s $_ > 300000 && !/\.cpp$/ && !/\.qpf$/ && !/\.h$/
-		|| $d =~ /examples/ && -f $_ && -x $_
+		|| $d =~ /examples/ && -f $_ && !/\.pro$/ && -x $_
 	    ) {
 		$File::Find::prune = 1 if -d $_;
 		return;

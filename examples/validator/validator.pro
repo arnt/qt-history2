@@ -7,3 +7,4 @@ SOURCES		= main.cpp \
 		  vw.cpp
 TARGET		= validator
 DEPENDPATH=../../include
+REQUIRES=medium-config

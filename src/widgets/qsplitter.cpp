@@ -1073,6 +1073,8 @@ bool QSplitter::isHidden( QWidget *w ) const
 
   Giving the values to setSizes() will give a splitter with the same
   layout as this one.
+
+  \sa setSizes()
 */
 
 QValueList<int> QSplitter::sizes() const
@@ -1102,6 +1104,8 @@ QValueList<int> QSplitter::sizes() const
 
   If \a list contains too few values, the result is undefined
   but the program will still be well-behaved.
+
+  \sa sizes()
 */
 
 void QSplitter::setSizes( QValueList<int> list )

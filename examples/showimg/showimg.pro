@@ -9,3 +9,4 @@ SOURCES		= main.cpp \
 		  imagefip.cpp
 TARGET		= showimg
 DEPENDPATH=../../include
+REQUIRES=full-config

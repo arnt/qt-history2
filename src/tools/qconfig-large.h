@@ -1,13 +1,11 @@
 #ifndef QT_H
 #endif // QT_H
-
-#define QT_NO_PROCESS
+#ifndef QT_NO_CODECS
 #define QT_NO_CODECS
+#endif
 #define QT_NO_UNICODETABLES
 #define QT_NO_IMAGEIO_BMP
 #define QT_NO_IMAGEIO_PPM
-#define QT_NO_IMAGEIO_JPEG
-#define QT_NO_IMAGEIO_MNG
 #define QT_NO_ASYNC_IO
 #define QT_NO_ASYNC_IMAGE_IO
 #define QT_NO_TRUETYPE
@@ -41,10 +39,3 @@
 //#define QT_NO_TABDIALOG
 #define QT_NO_WIZARD
 #define QT_NO_EFFECTS
-#define QT_NO_QWS_MACH64
-#define QT_NO_QWS_VOODOO3
-#define QT_NO_QWS_MATROX
- 
-#if !defined(__i386__)
-#define QT_NO_QWS_VGA_16
-#endif

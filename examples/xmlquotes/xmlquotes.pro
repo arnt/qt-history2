@@ -7,4 +7,4 @@ SOURCES		= main.cpp \
 		  richtext.cpp
 INTERFACES	=
 TARGET		= xmlquotes
-REQUIRES	= xml
+REQUIRES	= xml large-config

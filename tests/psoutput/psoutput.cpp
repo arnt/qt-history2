@@ -332,22 +332,59 @@ void drawPicture( QPainter & p, const QRect &r )
 }
 
 
+void lineCapJoinHack(  QPainter & p, int x, int y, int w, int h,
+		       Qt::PenCapStyle s, Qt::PenJoinStyle j )
+{
+    QPointArray a( 4 );
+    a[0] = QPoint( x + w/4, y + h/4 );
+    a[1] = QPoint( x + w/4, y + h - h/4 );
+    a[2] = QPoint( x + w/2, y + h - h/4 );
+    a[3] = QPoint( x + w - w/4, y + h/4 );
+    p.setPen( QPen( Qt::black, 3, Qt::SolidLine, s, j ) );
+    p.drawPolyline( a );
+    p.setPen( Qt::white );
+    p.drawPolyline( a );
+}
+
+void lineCapAndJoin( QPainter & p, const QRect &r )
+{
+    int w = r.width()/3;
+    int h = r.height()/3;
+    int x = r.left();
+    int y = r.top();
+
+    lineCapJoinHack( p, x,y, w,h, Qt::FlatCap, Qt::MiterJoin );
+    lineCapJoinHack( p, x+w,y, w,h, Qt::FlatCap, Qt::BevelJoin );
+    lineCapJoinHack( p, x+w+w,y, w,h, Qt::FlatCap, Qt::RoundJoin );
+
+    y += h;
+    lineCapJoinHack( p, x,y, w,h, Qt::SquareCap, Qt::MiterJoin );
+    lineCapJoinHack( p, x+w,y, w,h, Qt::SquareCap, Qt::BevelJoin );
+    lineCapJoinHack( p, x+w+w,y, w,h, Qt::SquareCap, Qt::RoundJoin );
+
+    y += h;
+    lineCapJoinHack( p, x,y, w,h, Qt::RoundCap, Qt::MiterJoin );
+    lineCapJoinHack( p, x+w,y, w,h, Qt::RoundCap, Qt::BevelJoin );
+    lineCapJoinHack( p, x+w+w,y, w,h, Qt::RoundCap, Qt::RoundJoin );
+}
+
+
 typedef void (*TestFunction)(QPainter &, const QRect &);
 
 
-TestFunction f[18] = {
+TestFunction f[19] = {
     drawPoint, drawPoints, drawLine, drawRect, drawWinFocusRect,
     drawEllipse, drawArc, drawChord, drawLineSegments, drawPolyline,
     drawPolygon, drawCubicBezier, drawPixmap, drawImage,
-    drawTiledPixmap, drawText, drawPicture, drawTextMetrics
+    drawTiledPixmap, drawText, drawPicture, drawTextMetrics, lineCapAndJoin
 };
 
 
-const char * n[18] = {
+const char * n[19] = {
     "drawPoint", "drawPoints", "drawLine", "drawRect", "drawWinFocusRect",
     "drawEllipse", "drawArc", "drawChord", "drawLineSegments", "drawPolyline",
     "drawPolygon", "drawCubicBezier", "drawPixmap", "drawImage",
-    "drawTiledPixmap", "drawText", "drawPicture", "fontMetrics"
+    "drawTiledPixmap", "drawText", "drawPicture", "fontMetrics", "lineCap/Join"
 };
 
 
@@ -380,12 +417,13 @@ void test( const char * output,
     int paperWidth = QPaintDeviceMetrics( &printer ).width();
     int paperHeight = QPaintDeviceMetrics( &printer ).height();
 
-    for( i=0; i<18; i++ ) {
-	p.setPen( Qt::lightGray );
+    p.setPen( Qt::lightGray );
+
+    for( i=0; i<19; i++ ) {
+	p.save();
 	p.drawRect( cr );
 	p.setPen( Qt::darkGray );
 	p.drawText( cr.left()+5, cr.top()+12, n[i] );
-	p.save();
 	p.setClipRect( cr );
 	p.translate( cr.left(), cr.top() );
 	f[i]( p, pr );

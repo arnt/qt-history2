@@ -502,6 +502,10 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 {
     int cursorPos = cursorPosition();
     if ( e->key() == Key_Enter || e->key() == Key_Return ) {
+#ifdef QT_NO_VALIDATOR
+	emit returnPressed();
+	e->ignore();
+#else
 	const QValidator * v = validator();
 	QString str = text();
 	if ( !v || v->validate( str, cursorPos ) == QValidator::Acceptable ) {
@@ -519,6 +523,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		emit returnPressed();
 	    e->ignore();
 	}
+#endif
 	return;
     }
     if ( !d->readonly ) {
@@ -808,6 +813,7 @@ enum {
 */
 void QLineEdit::mousePressEvent( QMouseEvent *e )
 {
+#ifndef QT_NO_POPUPMENU
     d->undoRedoInfo.clear();
     if ( e->button() == RightButton ) {
 	QGuardedPtr<QPopupMenu> popup = new QPopupMenu( this );
@@ -860,7 +866,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 #endif
 	return;
     }
-
+#endif //QT_NO_POPUPMENU
     d->inDoubleClick = FALSE;
     QPoint p( e->pos().x() + d->offset - 2 - style().defaultFrameWidth(), 0 );
     QTextParag *par;
@@ -1469,7 +1475,13 @@ void QLineEdit::dropEvent( QDropEvent *e )
 {
     QString str;
     QCString plain = "plain";
-    if ( !d->readonly && QTextDrag::decode( e, str, plain ) ) {
+    
+    // try text/plain
+    bool decoded = QTextDrag::decode(e, str, plain);
+    // otherwise we'll accept any kind of text (like text/uri-list)
+    if (! decoded) decoded = QTextDrag::decode(e, str);
+    
+    if ( !d->readonly && decoded) {
 	if ( e->source() == this && hasMarkedText() )
 	    deselect();
 	if ( !hasMarkedText() ) {
@@ -1525,6 +1537,7 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
     QString old = d->parag->string()->toString();
     old.remove( old.length() - 1, 1 );
 
+#ifndef QT_NO_VALIDATOR
     const QValidator * v = validator();
 
     int pos = d->cursor->index();
@@ -1532,6 +1545,7 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 	 v->validate( old, pos ) != QValidator::Invalid ) {
 	return FALSE;
     }
+#endif
 
     // okay, it succeeded
     if( t != old )

@@ -736,8 +736,8 @@ void QDial::setNotchesVisible( bool b )
 }
 
 /*!
-  Retuns TRUE if notches are shown, else FALSE.
-  
+  Returns TRUE if notches are shown, else FALSE.
+
   \sa setNotchesVisible()
 */
 

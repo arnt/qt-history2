@@ -212,8 +212,8 @@ class QWSSoundServerData : public QServerSocket {
     Q_OBJECT
 
 public:
-    QWSSoundServerData() :
-	QServerSocket(sound_port)
+    QWSSoundServerData(QObject* parent=0, const char* name=0) :
+	QServerSocket(sound_port, 0, parent, name)
     {
 	active.setAutoDelete(TRUE);
 	sn = 0;
@@ -338,12 +338,11 @@ private:
 QWSSoundServer::QWSSoundServer(QObject* parent) :
     QObject(parent)
 {
-    d = new QWSSoundServerData;
+    d = new QWSSoundServerData(this);
 }
 
 QWSSoundServer::~QWSSoundServer()
 {
-    delete d;
 }
 
 QWSSoundClient::QWSSoundClient( QObject* parent ) :

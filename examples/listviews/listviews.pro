@@ -5,3 +5,4 @@ SOURCES		= listviews.cpp \
 		  main.cpp
 TARGET		= listviews
 DEPENDPATH=../../include
+REQUIRES=large-config

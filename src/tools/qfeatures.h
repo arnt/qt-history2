@@ -52,13 +52,17 @@
 //
 #if defined(QCONFIG_LOCAL)
 #include <qconfig-local.h>
-#elif defined(QCONFIG_QPIM)
-#include <qconfig-qpim.h>
+#elif defined(QCONFIG_QPE)
+#include <qconfig-qpe.h>
 #elif defined(QCONFIG_MINIMAL)
 #include <qconfig-minimal.h>
-#elif defined(QCONFIG_EMBEDDED)
-#include <qconfig-embedded.h>
-#else
+#elif defined(QCONFIG_SMALL)
+#include <qconfig-small.h>
+#elif defined(QCONFIG_MEDIUM)
+#include <qconfig-medium.h>
+#elif defined(QCONFIG_LARGE)
+#include <qconfig-large.h>
+#else // everything...
 #include <qconfig.h>
 #endif
 
@@ -83,6 +87,11 @@
     */
 # define QT_NO_DIR
 #endif
+
+/*!
+  Palettes
+*/
+//#define QT_NO_PALETTE
 
 /*!
     QTextStream
@@ -243,7 +252,7 @@
 /*!
   XML
 */
-#if defined(QT_NO_STRINGLIST) || defined(QT_NO_TEXTSTREAM)
+#if defined(QT_NO_STRINGLIST) || defined(QT_NO_TEXTSTREAM) || defined(QT_NO_TEXTCODEC)
 # define QT_NO_XML
 #endif
 
@@ -394,11 +403,7 @@
 */
 //#define QT_NO_QWS_DEPTH_8
 /*!
-    15-bit color
-*/
-#define QT_NO_QWS_DEPTH_15
-/*!
-    16-bit color
+    15 or 16-bit color (define QT_QWS_DEPTH16_RGB as 555 for 15-bit)
 */
 //#define QT_NO_QWS_DEPTH_16
 /*!
@@ -519,7 +524,7 @@
 //#define QT_NO_LAYOUT
 
 // Widgets
-#if defined(QT_NO_DRAWUTIL)
+#if defined(QT_NO_DRAWUTIL) || defined(QT_NO_PALETTE)
 /*!
     QStyle
 */
@@ -548,7 +553,16 @@
 /*!
   QLabel
 */
-//#define QT_NO_LABEL
+#ifdef QT_NO_FRAME
+# define QT_NO_LABEL
+#endif
+
+/*!
+  Toolbars
+*/
+#ifdef QT_NO_LAYOUT
+# define QT_NO_TOOLBAR
+#endif
 
 /*!
   Dynamic module linking
@@ -558,20 +572,17 @@
 /*!
   Buttons
 */
-//#define QT_NO_BUTTON
-#if defined(QT_NO_BUTTON)
+#if defined(QT_NO_BUTTON) || defined(QT_NO_STYLE)
 /*!
   Check-boxes
 */
 # define QT_NO_CHECKBOX
 /*!
-  Push-buttons
-*/
-# define QT_NO_PUSHBUTTON
-/*!
   Radio-buttons
 */
 # define QT_NO_RADIOBUTTON
+#endif
+#if defined(QT_NO_BUTTON) || defined(QT_NO_TOOLBAR) || defined(QT_NO_ICONSET)
 /*!
   Tool-buttons
 */
@@ -580,11 +591,15 @@
 /*!
   Grid layout widgets
 */
-//#define QT_NO_GRID
+#ifdef QT_NO_FRAME
+# define QT_NO_GRID
+#endif
 /*!
   Group boxes
 */
-//#define QT_NO_GROUPBOX
+#ifdef QT_NO_FRAME
+# define QT_NO_GROUPBOX
+#endif
 #if defined(QT_NO_GROUPBOX)
 /*!
   Button groups
@@ -616,7 +631,9 @@
 /*!
   Horizonal box layout widgets
 */
-//#define QT_NO_HBOX
+#ifdef QT_NO_FRAME
+# define QT_NO_HBOX
+#endif
 #if defined(QT_NO_HBOX)
 /*!
   Vertical box layout widgets
@@ -626,11 +643,15 @@
 /*!
   Single-line edits
 */
-//#define QT_NO_LINEEDIT
+#if defined(QT_NO_PALETTE)
+# define QT_NO_LINEEDIT
+#endif
+#if defined(QT_NO_TOOLBAR)
 /*!
   Main-windows
 */
-//#define QT_NO_MAINWINDOW
+# define QT_NO_MAINWINDOW
+#endif
 #if defined(QT_NO_ICONSET)
 /*!
   Menu-like widgets
@@ -647,14 +668,18 @@
 */
 # define QT_NO_MENUBAR
 #endif
+#if defined(QT_NO_BUTTON) || defined(QT_NO_ICONSET) || defined(QT_NO_POPUPMENU)
 /*!
-  Multi-line edits
+  Push-buttons
 */
-//#define QT_NO_MULTILINEEDIT
+# define QT_NO_PUSHBUTTON
+#endif
 /*!
   Progress bars
 */
-//#define QT_NO_PROGRESSBAR
+#ifdef QT_NO_FRAME
+# define QT_NO_PROGRESSBAR
+#endif
 /*!
   Range-control widgets
 */
@@ -677,10 +702,14 @@
 */
 # define QT_NO_DIAL
 #endif
+
+
+#if defined(QT_NO_SCROLLBAR) || defined(QT_NO_FRAME)
 /*!
   Scrollable view widgets
 */
-//#define QT_NO_SCROLLVIEW
+# define QT_NO_SCROLLVIEW
+#endif
 #if defined(QT_NO_SCROLLVIEW)
 /*!
     QCanvas
@@ -691,34 +720,50 @@
 */
 # define QT_NO_ICONVIEW
 #endif
-/*!
-  Splitters
-*/
-//#define QT_NO_SPLITTER
-/*!
-  Status bars
-*/
-//#define QT_NO_STATUSBAR
-/*!
-  Tab-bars
-*/
-//#define QT_NO_TABBAR
+
+#if defined(QT_NO_SCROLLBAR)
 /*!
   Table-like widgets
 */
-//#define QT_NO_TABLEVIEW
+# define QT_NO_TABLEVIEW
+#endif
+#if defined(QT_NO_TABLEVIEW)
+/*!
+  Multi-line edits
+*/
+# define QT_NO_MULTILINEEDIT
+#endif
+
+/*!
+  Splitters
+*/
+#ifdef QT_NO_FRAME
+# define QT_NO_SPLITTER
+#endif
+/*!
+  Status bars
+*/
+#ifdef QT_NO_LAYOUT
+# define QT_NO_STATUSBAR
+#endif
+/*!
+  Tab-bars
+*/
+#if defined(QT_NO_ICONSET)
+# define QT_NO_TABBAR
+#endif
+#if defined(QT_NO_TABBAR)
 /*!
   Tab widgets
 */
-//#define QT_NO_TABWIDGET
-/*!
-  Toolbars
-*/
-//#define QT_NO_TOOLBAR
+# define QT_NO_TABWIDGET
+#endif
 /*!
   Tool tips
 */
-//#define QT_NO_TOOLTIP
+#if defined( QT_NO_LABEL ) || defined( QT_NO_PALETTE )
+# define QT_NO_TOOLTIP
+#endif
 /*!
   Input validators
 */
@@ -726,11 +771,15 @@
 /*!
   "What's this" help
 */
-//#define QT_NO_WHATSTHIS
+#if defined( QT_NO_TOOLTIP )
+# define QT_NO_WHATSTHIS
+#endif
 /*!
   Widget stacks
 */
-//#define QT_NO_WIDGETSTACK
+#ifdef QT_NO_FRAME
+# define QT_NO_WIDGETSTACK
+#endif
 
 #if defined(QT_NO_RICHTEXT) || defined(QT_NO_SCROLLVIEW)
     /*!
@@ -765,7 +814,7 @@
 #endif
 
 
-#if defined(QT_NO_STRINGLIST)
+#if defined(QT_NO_SCROLLVIEW) || defined(QT_NO_STRINGLIST)
     /*!
 	QListBox
     */
@@ -780,19 +829,27 @@
 /*!
     QSizeGrip
 */
-//#define QT_NO_SIZEGRIP
+#ifdef QT_NO_PALETTE
+# define QT_NO_SIZEGRIP
+#endif
 /*!
     QHeader
 */
-//#define QT_NO_HEADER
+#ifdef QT_NO_ICONSET
+# define QT_NO_HEADER
+#endif
 /*!
     QWorkSpace
 */
-//#define QT_NO_WORKSPACE
+#ifdef QT_NO_FRAME
+# define QT_NO_WORKSPACE
+#endif
 /*!
     QLCDNumber
 */
-//#define QT_NO_LCDNUMBER
+#ifdef QT_NO_FRAME
+# define QT_NO_LCDNUMBER
+#endif
 /*!
     QAction
 */
@@ -812,7 +869,7 @@
 # define QT_NO_COMBOBOX
 #endif    
 
-#if defined(QT_NO_HEADER)
+#if defined(QT_NO_HEADER) || defined(QT_NO_SCROLLVIEW)
     /*!
 	QListView
     */
@@ -846,37 +903,44 @@
 /*!
     QColorDialog
 */
-#if defined(QT_NO_LAYOUT) || defined(QT_NO_LABEL) || defined(QT_NO_PUSHBUTTON)
+#if defined(QT_NO_LAYOUT) || defined(QT_NO_LABEL) || defined(QT_NO_PUSHBUTTON) || defined(QT_NO_DIALOG)
 # define QT_NO_COLORDIALOG
 #endif
+#if defined(QT_NO_DIALOG)
 /*!
     QMessageBox
 */
-//#define QT_NO_MESSAGEBOX
+# define QT_NO_MESSAGEBOX
+#endif
+#if defined(QT_NO_DIALOG) || defined(QT_NO_TABBAR)
 /*!
     QTabDialog
 */
-//#define QT_NO_TABDIALOG
+#define QT_NO_TABDIALOG
+#endif
+
+#if defined(QT_NO_DIALOG)
 /*!
     QWizard
 */
-//#define QT_NO_WIZARD
+# define QT_NO_WIZARD
+#endif
 
-#if defined(QT_NO_LISTVIEW) || defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_COMBOBOX) || defined(QT_NO_DIR) || defined(QT_NO_MESSAGEBOX) || defined(QT_NO_SEMIMODAL)
+#if defined(QT_NO_DIALOG) || defined(QT_NO_LISTVIEW) || defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_COMBOBOX) || defined(QT_NO_DIR) || defined(QT_NO_MESSAGEBOX) || defined(QT_NO_SEMIMODAL)
     /*!
 	QFileDialog
     */
 # define QT_NO_FILEDIALOG
 #endif
 
-#if defined(QT_NO_FONTDATABASE) || defined(QT_NO_COMBOBOX)
+#if defined(QT_NO_DIALOG) || defined(QT_NO_FONTDATABASE) || defined(QT_NO_COMBOBOX)
     /*!
 	QFontDialog
     */
 # define QT_NO_FONTDIALOG
 #endif
 
-#if defined(QT_NO_LISTVIEW) || defined(QT_NO_PRINTER) || defined(QT_NO_COMBOBOX) || defined(QT_NO_DIR) || defined(QT_NO_LAYOUT) || defined(QT_NO_LABEL)
+#if defined(QT_NO_DIALOG) || defined(QT_NO_LISTVIEW) || defined(QT_NO_PRINTER) || defined(QT_NO_COMBOBOX) || defined(QT_NO_DIR) || defined(QT_NO_LAYOUT) || defined(QT_NO_LABEL)
     /*!
 	QPrintDialog
     */
@@ -889,7 +953,7 @@
     */
 # define QT_NO_PROGRESSDIALOG
 #endif
-#if defined(QT_NO_COMBOBOX)
+#if defined(QT_NO_DIALOG) || defined(QT_NO_COMBOBOX)
     /*!
 	QInputDialog
     */

@@ -9,18 +9,21 @@
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses for Qt/Embedded may use this file in accordance with the
 ** Qt Embedded Commercial License Agreement provided with the Software.
-**
-** This file is not available for use under any other license without
-** express written permission from the copyright holder.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 **   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
 ** Contact info@trolltech.com if any conditions of this licensing are
 ** not clear to you.
@@ -67,6 +70,7 @@ public:
 	: id(i), alloc_region_idx(-1), modified(FALSE), needAck(FALSE),
 	    onTop(FALSE), c(client), last_focus_time(0)
 	{ }
+    ~QWSWindow();
 
     int winId() const { return id; }
     bool forClient(const QWSClient* cl) const { return cl==c; }
@@ -80,7 +84,7 @@ public:
     void removeAllocation( QWSRegionManager *, QRegion );
 
     int  allocationIndex() const { return alloc_region_idx; }
-    void setAllocationIndex( int i ) { alloc_region_idx = i; }
+    void setAllocationIndex( int i ) { alloc_region_idx = i; modified = TRUE; }
     void updateAllocation();
 
     void setNeedAck( bool n ) { needAck = n; }
@@ -110,7 +114,8 @@ public:
 };
 #endif
 #ifndef QT_NO_SOUND
-class QWSSoundServerData;
+class QWSSoundServer;
+#ifdef QT_USE_OLD_QWS_SOUND
 
 class QWSSoundServer : public QObject {
     Q_OBJECT
@@ -123,6 +128,7 @@ private slots:
 private:
     QWSSoundServerData* d;
 };
+#endif
 #endif
 
 /*********************************************************************
@@ -140,6 +146,7 @@ class QWSServer : private QObject
 #endif
 {
     friend class QCopChannel;
+    friend class QMouseHandler;
     Q_OBJECT
 
 public:
@@ -179,6 +186,8 @@ public:
     
     static void setKeyboardFilter( KeyboardFilter *f );
 #endif    
+    static void setDefaultMouse( const char * );
+    static void setDefaultKeyboard( const char * );
     static void setMaxWindowRect(const QRect&);
     static void sendMaxWindowRectEvents();
     static void sendMouseEvent(const QPoint& pos, int state);
@@ -223,6 +232,7 @@ public:
 
     static void emergency_cleanup();
     
+    static QPoint mousePosition;
 
 private:
     static QWSServer *qwsServer; //there can be only one
@@ -268,6 +278,7 @@ private:
     void closeDisplay();
 
     void showCursor();
+    void hideCursor();
     void initializeCursor();
     void paintServerRegion();
     void paintBackground( QRegion );

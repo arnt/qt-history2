@@ -83,8 +83,17 @@ static inline void makeDrawingPixmap()
 
 struct QButtonData
 {
-    QButtonData() : group(0), a(0) {}
+    QButtonData() {
+#ifndef QT_NO_BUTTONGROUP
+	group = 0;
+#endif
+#ifndef QT_NO_ACCEL
+	a = 0; 	
+#endif
+    }
+#ifndef QT_NO_BUTTONGROUP
     QButtonGroup *group;
+#endif
     QTimer timer;
 #ifndef QT_NO_ACCEL
     QAccel *a;
@@ -112,14 +121,20 @@ void QButton::ensureData()
 
 QButtonGroup *QButton::group() const
 {
+#ifndef QT_NO_BUTTONGROUP
     return d ? d->group : 0;
+#else
+    return 0;
+#endif
 }
 
 
 void QButton::setGroup( QButtonGroup* g )
 {
+#ifndef QT_NO_BUTTONGROUP
     ensureData();
     d->group = g;
+#endif
 }
 
 
@@ -275,10 +290,12 @@ QButton::QButton( QWidget *parent, const char *name, WFlags f )
     animation  = FALSE;				// no pending animateClick
     repeat     = FALSE;				// not in autorepeat mode
     d	       = 0;
+#ifndef QT_NO_BUTTONGROUP
     if ( parent && parent->inherits("QButtonGroup") ) {
 	setGroup((QButtonGroup*)parent);
 	group()->insert( this );		// insert into button group
     }
+#endif
     setFocusPolicy( TabFocus );
 }
 
@@ -286,8 +303,10 @@ QButton::QButton( QWidget *parent, const char *name, WFlags f )
  */
 QButton::~QButton()
 {
+#ifndef QT_NO_BUTTONGROUP
     if ( group() )
 	group()->remove( this );
+#endif
     delete bpixmap;
     delete d;
 }
@@ -758,16 +777,20 @@ void QButton::keyPressEvent( QKeyEvent *e )
 	break;
     case Key_Up:
     case Key_Left:
+#ifndef QT_NO_BUTTONGROUP
 	if ( group() )
 	    group()->moveFocus( e->key() );
 	else
+#endif
 	    focusNextPrevChild( FALSE );
 	break;
     case Key_Right:
     case Key_Down:
+#ifndef QT_NO_BUTTONGROUP
 	if ( group() )
 	    group()->moveFocus( e->key() );
 	else
+#endif
 	    focusNextPrevChild( TRUE );
 	break;
     case Key_Escape:
@@ -1034,8 +1057,12 @@ void QButton::setToggleType( ToggleType type )
 
 bool QButton::isExclusiveToggle() const
 {
+#ifndef QT_NO_BUTTONGROUP
     return group() && ( group()->isExclusive() ||
 			group()->isRadioButtonExclusive() &&
 			inherits( "QRadioButton" ) );
+#else
+    return FALSE;
+#endif
 }
 #endif

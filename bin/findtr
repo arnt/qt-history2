@@ -18,8 +18,9 @@ $noop_scoped_mark = "QT_TRANSLATE_NOOP";
 
 $header=
 '# This is a Qt message file in .po format.  Each msgid starts with
-# a scope.  This scope should *NOT* be translated - eg. "Foo::Bar"
-# would be translated to "Pub", not "Foo::Pub".
+# a scope.  This scope should *NOT* be translated - eg. translating
+# from French to English, "Foo::Bar" would be translated to "Pub",
+# not "Foo::Pub".
 msgid ""
 msgstr ""
 "Project-Id-Version: '.$projectid.'\n"

@@ -187,12 +187,15 @@ static QString double2string( double num, int base, int ndigits, bool *oflow )
 	}
 	s = int2string( (int)num, base, ndigits, 0 );
     } else {					// decimal base
-	s.sprintf( "%*.*g", ndigits, ndigits, num );
-	int i = s.find('e');
-	if ( i > 0 && s[i+1]=='+' ) {
-	    s[i] = ' ';
-	    s[i+1] = 'e';
-	}
+	int nd = ndigits;
+	do {
+	    s.sprintf( "%*.*g", ndigits, nd, num );
+	    int i = s.find('e');
+	    if ( i > 0 && s[i+1]=='+' ) {
+		s[i] = ' ';
+		s[i+1] = 'e';
+	    }
+	} while (nd-- && (int)s.length() > ndigits);
     }
     if ( oflow )
 	*oflow = (int)s.length() > ndigits;

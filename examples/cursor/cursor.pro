@@ -4,3 +4,4 @@ HEADERS		=
 SOURCES		= cursor.cpp
 TARGET		= cursor
 DEPENDPATH=../../include
+REQUIRES=small-config

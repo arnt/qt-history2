@@ -5,3 +5,4 @@ SOURCES		= main.cpp \
 		  wizard.cpp
 TARGET		= wizard
 DEPENDPATH=../../include
+REQUIRES=full-config

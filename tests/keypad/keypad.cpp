@@ -18,11 +18,13 @@ Keypad::Keypad( QWidget *parent, const char *name ) : QLabel( parent, name )
 
 void Keypad::keyPressEvent( QKeyEvent *e )
 {
+
+    
     if ( e->state() & Qt::Keypad ) {
 	qDebug( "Keypad key pressed!" );
 	setText( "Keypad!" );
     } else {
-	setText( QString::null );
+	setText( QString::number( e->ascii() ) );
     }
 }
 

@@ -168,16 +168,16 @@ QLabel::QLabel( const QString &text, QWidget *parent, const char *name,
   \sa setText(), setBuddy(), setAlignment(), setFrameStyle(),
   setIndent()
 */
-#ifndef QT_NO_ACCEL
 QLabel::QLabel( QWidget *buddy,  const QString &text,
 		QWidget *parent, const char *name, WFlags f )
     : QFrame( parent, name, f | WMouseNoMask )
 {
     init();
+#ifndef QT_NO_ACCEL
     setBuddy( buddy );
+#endif
     setText( text );
 }
-#endif
 
 /*!
   Destructs the label.

@@ -107,9 +107,10 @@ protected:
 private slots:
     void	subActivated( int itemId );
     void	subHighlighted( int itemId );
+#ifndef QT_NO_ACCEL
     void	accelActivated( int itemId );
     void	accelDestroyed();
-
+#endif
 private:
     void	menuInsPopup( QPopupMenu * );
     void	menuDelPopup( QPopupMenu * );
@@ -126,8 +127,10 @@ private:
     int		calculateRects( int max_width = -1 );
     QRect	itemRect( int item );
 
+#ifndef QT_NO_ACCEL
     void	setupAccelerators();
     QAccel     *autoaccel;
+#endif
     QRect      *irects;
     int		rightSide;
 

@@ -1,4 +1,4 @@
-REQUIRES        = network
+REQUIRES        = network full-config
 TEMPLATE	= app
 CONFIG		+= qt warn_on release
 HEADERS		= composer.h \

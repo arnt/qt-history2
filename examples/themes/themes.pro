@@ -25,3 +25,4 @@ SOURCES		= themes.cpp \
 
 TARGET		= themes
 DEPENDPATH=../../include
+REQUIRES=full-config

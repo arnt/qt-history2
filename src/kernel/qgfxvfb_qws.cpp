@@ -9,18 +9,21 @@
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses for Qt/Embedded may use this file in accordance with the
 ** Qt Embedded Commercial License Agreement provided with the Software.
-**
-** This file is not available for use under any other license without
-** express written permission from the copyright holder.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 **   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
 ** Contact info@trolltech.com if any conditions of this licensing are
 ** not clear to you.
@@ -35,7 +38,7 @@
 #include <sys/types.h>
 #include <sys/shm.h>
 
-#include "qvfbhdr_qws.h"
+#include "qvfbhdr.h"
 
 bool qvfbEnabled = FALSE;
 
@@ -47,11 +50,11 @@ class QVFbScreen : public QScreen
 public:
     QVFbScreen( int display_id );
     virtual ~QVFbScreen();
-    virtual bool initCard();
+    virtual bool initDevice();
     virtual bool connect( const QString &displaySpec );
     virtual void disconnect();
     virtual int initCursor(void*, bool);
-    virtual void shutdownCard();
+    virtual void shutdownDevice();
     virtual QGfx * createGfx(unsigned char *,int,int,int,int);
     virtual void save();
     virtual void restore();
@@ -280,7 +283,7 @@ void QVFbScreen::disconnect()
     shmdt( shmrgn );
 }
 
-bool QVFbScreen::initCard()
+bool QVFbScreen::initDevice()
 {
     optype = &QVFb_dummy;
     if(d==8) {
@@ -316,7 +319,7 @@ bool QVFbScreen::initCard()
     return true;
 }
 
-void QVFbScreen::shutdownCard()
+void QVFbScreen::shutdownDevice()
 {
     // Set back the original mode
 #ifndef QT_NO_QWS_CURSOR
@@ -368,10 +371,6 @@ QGfx * QVFbScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linest
 #ifndef QT_NO_QWS_DEPTH_16
     } else if(d==16) {
       ret = new QGfxRaster<16,0>(bytes,w,h);
-#endif
-#ifndef QT_NO_QWS_DEPTH_15
-    } else if(d==15) {
-      ret = new QGfxRaster<15,0>(bytes,w,h);
 #endif
 #ifndef QT_NO_QWS_DEPTH_8
     } else if (d==8) {

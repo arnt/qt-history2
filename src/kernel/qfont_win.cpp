@@ -204,7 +204,7 @@ inline QFontInternal::~QFontInternal()
 }
 
 
-static const int fontCacheSize = 120;		// max number of loaded fonts
+static const int fontCacheSize = 1000;		// max number of loaded fonts
 
 typedef QCacheIterator<QFontInternal> QFontCacheIt;
 typedef QDict<QFontInternal>	      QFontDict;
@@ -215,7 +215,8 @@ class QFontCache : public QCache<QFontInternal>
 public:
     QFontCache( int maxCost, int size=17, bool cs=TRUE )
 	: QCache<QFontInternal>(maxCost,size,cs) {}
-
+    ~QFontCache() { clear(); }
+    
     // This pass-through function is needed to avoid MSVC++ 5.0 internal
     // compiler error. (occurs in QFont::load()).
     QFontInternal *find(const QString& k)

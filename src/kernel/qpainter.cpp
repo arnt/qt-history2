@@ -2270,6 +2270,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    int idx = -1;
 	    int start = 0;
 	    int len = str.length();
+#ifndef QT_NO_ACCEL
 	    QFont fnt( font );
 	    fnt.setUnderline( TRUE );
 	    QTextFormat *ul = parag->formatCollection()->format( fnt, painter ? painter->pen().color() : QColor() );
@@ -2290,6 +2291,18 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    parag->append( parStr.mid( start ) );
 	    parag->setFormat( start - num, parStr.length() - start, f );
 	    ul->removeRef();
+#else
+	    while ( (idx = parStr.find( '&', start ) ) != -1 ) {
+		parag->append( parStr.mid( start, idx - start ) );
+		if ( idx == len -1 || str[idx+1] == '&' ) {
+		    parag->append( QString( "&" ) );
+		} else {
+		    parag->append( parStr.mid(idx + 1, 1) );
+		}
+		start = idx + 2;
+	    }
+	    parag->append( parStr.mid( start ) );
+#endif
 	} else {
 	    parag->append( parStr );
 	    parag->setFormat( 0, parStr.length(), f );

@@ -4,3 +4,4 @@ HEADERS		=
 SOURCES		= scrollview.cpp
 TARGET		= scrollview
 DEPENDPATH=../../include
+REQUIRES=large-config

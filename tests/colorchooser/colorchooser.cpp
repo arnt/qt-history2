@@ -39,8 +39,15 @@ main(int argc, char** argv)
         }
         f.close();
     }
+
+    
+    QColor c = QColorDialog::getColor( QApplication::palette().color( QPalette::Normal, QColorGroup::Background ));
+    
+    
     
     ColorLabel l;
+    if ( c.isValid() )
+	l.setBackgroundColor( c );
     l.show();
 	
    QObject::connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));

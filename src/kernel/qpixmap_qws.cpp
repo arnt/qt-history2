@@ -9,18 +9,21 @@
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses for Qt/Embedded may use this file in accordance with the
 ** Qt Embedded Commercial License Agreement provided with the Software.
-**
-** This file is not available for use under any other license without
-** express written permission from the copyright holder.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 **   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
 ** Contact info@trolltech.com if any conditions of this licensing are
 ** not clear to you.
@@ -162,6 +165,10 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     data->optim	 = optim;
     data->clut=0;
     data->numcols = 0;
+    data->hasAlpha = FALSE;
+
+    if ( d > 0 && !qwsDisplay()->supportsDepth(d) )
+	d = dd; // caller asked for an unsupported depth
 
     bool make_null = w == 0 || h == 0;		// create null pixmap
     if ( d == 1 )				// monocrome pixmap
@@ -229,6 +236,7 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     data->d = 1;
     data->rw = qt_screen->mapToDevice( QSize(w,h) ).width();
     data->rh = qt_screen->mapToDevice( QSize(w,h) ).height();
+    data->hasAlpha = FALSE;
     uchar *flipped_bits;
     if ( isXbitmap ) {
 	flipped_bits = 0;
@@ -238,8 +246,7 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     }
 
     if ( qt_screen->isTransformed() ) {
-	QImage img( (uchar *)bits, w, h, 1, 0, 0, QImage::BigEndian );
-	img = qt_screen->mapToDevice( img );
+	QImage img( (uchar *)bits, w, h, 1, 0, 0, QImage::LittleEndian );
 	convertFromImage( img, MonoOnly );
 	if ( flipped_bits )
 	    delete [] flipped_bits;
@@ -301,12 +308,19 @@ void QPixmap::fill( const QColor &fillColor )
 int QPixmap::metric( int m ) const
 {
     int val;
-    if ( m == QPaintDeviceMetrics::PdmWidth ||
-	 m == QPaintDeviceMetrics::PdmWidthMM ) {
+    if ( m == QPaintDeviceMetrics::PdmWidth ) {
 	val = width();
-    } else if ( m == QPaintDeviceMetrics::PdmHeight ||
-		m == QPaintDeviceMetrics::PdmHeightMM ) {
+    } else if ( m == QPaintDeviceMetrics::PdmWidthMM ) {
+	// 75 dpi is 3dpmm
+	val = (width()*100)/288;
+    } else if ( m == QPaintDeviceMetrics::PdmHeight ) {
 	val = height();
+    } else if ( m == QPaintDeviceMetrics::PdmHeightMM ) {
+	val = (height()*100)/288;
+    } else if ( m == QPaintDeviceMetrics::PdmDpiX ) {
+	return 72;
+    } else if ( m == QPaintDeviceMetrics::PdmDpiY ) {
+	return 72;
     } else if( m ==  QPaintDeviceMetrics::PdmDepth ) {
 	val=depth();
     } else {
@@ -335,24 +349,34 @@ QImage QPixmap::convertToImage() const
     bool mono = d == 1;
 
 
-    if(d==15 || d==16)
-	d=32;
-
-    // We can only create little-endian pixmaps
-    image.create(w,h,d,0, mono ? QImage::LittleEndian : QImage::IgnoreEndian );//####### endianness
-
-    QGfx * mygfx=image.graphicsContext();
-    if(mygfx) {
-	mygfx->setSource(this);
-	mygfx->setAlphaType(QGfx::IgnoreAlpha);
-	mygfx->setLineStep(image.bytesPerLine());
-	mygfx->blt(0,0,width(),height(),0,0);
+    if( d == 15 || d == 16 ) {
+#ifndef QT_NO_QWS_DEPTH_16
+	d = 32;
+	// Convert here because we may not have a 32bpp gfx
+	image.create( w,h,d,0, QImage::IgnoreEndian );
+	for ( int y=0; y < h; y++ ) {     // for each scan line...
+	    register uint *p = (uint *)image.scanLine(y);
+	    ushort  *s = (ushort*)scanLine(y);
+	    uint *end = p + w;
+	    while ( p < end )
+		*p++ = qt_conv16ToRgb( *s++ );
+	}
+#endif
     } else {
-        qFatal("No image gfx for convertToImage!");
-    }
-    delete mygfx;
+	// We can only create little-endian pixmaps
+	image.create(w,h,d,0, mono ? QImage::LittleEndian : QImage::IgnoreEndian );//####### endianness
 
-    image = qt_screen->mapFromDevice( image );
+	QGfx * mygfx=image.graphicsContext();
+	if(mygfx) {
+	    mygfx->setSource(this);
+	    mygfx->setAlphaType(QGfx::IgnoreAlpha);
+	    mygfx->setLineStep(image.bytesPerLine());
+	    mygfx->blt(0,0,width(),height(),0,0);
+	} else {
+	    qFatal("No image gfx for convertToImage!");
+	}
+	delete mygfx;
+    }
 
     if ( mono ) {				// bitmap
 	image.setNumColors( 2 );
@@ -363,6 +387,8 @@ QImage QPixmap::convertToImage() const
 	for ( int i = 0; i < numCols(); i++ )
 	    image.setColor( i, clut()[i] );
     }
+
+    image = qt_screen->mapFromDevice( image );
 
     return image;
 }
@@ -430,7 +456,8 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 
     bool partialalpha=FALSE;
 
-    if(image.hasAlphaBuffer() && image.depth()==32 && dd>8 && manycolors) {
+    QWSDisplay *dpy = qwsDisplay();
+    if(image.hasAlphaBuffer() && dpy->supportsDepth(32) && image.depth()==32 && dd>8 && manycolors) {
 	int loopc,loopc2;
 	for(loopc=0;loopc<image.height();loopc++) {
 	    QRgb * tmp=(QRgb *)image.scanLine(loopc);
@@ -468,7 +495,8 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    QBitmap m;
 	    m = image.createAlphaMask( conversion_flags );
 	    setMask( m );
-        }
+        } else
+	    data->hasAlpha = TRUE;
     }
     data->uninit = FALSE;
 

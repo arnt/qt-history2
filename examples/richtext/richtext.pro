@@ -5,3 +5,4 @@ SOURCES		= main.cpp \
 		  richtext.cpp
 TARGET		= richtext
 DEPENDPATH=../../include
+REQUIRES=large-config

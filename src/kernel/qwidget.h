@@ -567,6 +567,8 @@ private:
     QWExtra	*extra;
 #if defined(Q_WS_QWS)
     QRegion	 req_region;			// Requested region
+    mutable QRegion	 paintable_region;	// Paintable region
+    mutable bool         paintable_region_dirty;// needs to be recalculated
     mutable QRegion      alloc_region;          // Allocated region
     mutable bool         alloc_region_dirty;    // needs to be recalculated
 
@@ -580,7 +582,6 @@ private:
     QRegion paintableRegion() const;
 
     // used to accumulate dirty region when children moved/resized.
-    void addDirtyChildRegion( const QRegion & );
     QRegion dirtyChildren;
     bool isSettingGeometry;
     friend class QWSManager;

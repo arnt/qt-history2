@@ -1,18 +1,23 @@
 #ifndef QT_H
 #endif // QT_H
+#if !defined(QT_NO_QWS_DEPTH_16) ||  !defined(QT_NO_QWS_DEPTH_8) || !defined(QT_NO_QWS_DEPTH_32) || !defined(QT_NO_QWS_VGA_16)  
+//We only need 1-bit support if we have a 1-bit screen
+#define QT_NO_QWS_DEPTH_1
+#endif
 
 #define QT_NO_CHECK
 #define QT_NO_PROCESS
 #define QT_NO_PALETTE
 #define QT_NO_ACTION
-#define QT_NO_CODECS
+#ifndef QT_NO_CODECS // moc?
+#define QT_NO_TEXTCODEC
+#endif
 #define QT_NO_UNICODETABLES
 #define QT_NO_IMAGEIO_BMP
 #define QT_NO_IMAGEIO_PPM
 #define QT_NO_IMAGEIO_XBM
 #define QT_NO_IMAGEIO_XPM
 #define QT_NO_IMAGEIO_PNG
-#define QT_NO_IMAGEIO_JPEG
 #define QT_NO_ASYNC_IO
 #define QT_NO_ASYNC_IMAGE_IO
 #define QT_NO_TRUETYPE
@@ -23,10 +28,6 @@
 #define QT_NO_SOUND
 #define QT_NO_PROPERTIES
 #define QT_NO_QWS_CURSOR
-#define QT_NO_QWS_VFB
-#define QT_NO_QWS_DEPTH_1
-#define QT_NO_QWS_DEPTH_16
-#define QT_NO_QWS_DEPTH_32
 #define QT_NO_QWS_GFX_SPEED
 #define QT_NO_NETWORK
 #define QT_NO_COLORNAMES
@@ -45,7 +46,6 @@
 #define QT_NO_QWS_SAVEFONTS
 #define QT_NO_STRINGLIST
 #define QT_NO_SESSIONMANAGER
-#define QT_NO_TEXTCODEC
 #define QT_NO_QWS_KEYBOARD
 
 #define QT_NO_DIALOG
@@ -53,11 +53,6 @@
 #define QT_NO_SEMIMODAL
 
 #define QT_NO_STYLE
-#define QT_NO_IMAGEIO_MNG
 #define QT_NO_EFFECTS
 #define QT_NO_COP
-#define QT_NO_QWS_MACH64
-#define QT_NO_QWS_VOODOO3
-#define QT_NO_QWS_MATROX
-#define QT_NO_QWS_VGA_16
 #define QT_NO_QWS_TRANSFORMED
