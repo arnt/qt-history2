@@ -328,11 +328,15 @@ void QItemDelegate::drawDecoration(QPainter *painter, const QStyleOptionViewItem
             bool enabled = option.state & QStyle::Style_Enabled;
             QColor col = option.palette.color(enabled ? QPalette::Normal : QPalette::Disabled,
                                               QPalette::Highlight);
-            col.setRgb(col.red(), col.green(), col.blue(), 127);
-            QPen pen = painter->pen();
-            painter->setPen(col);
-            painter->drawPixmap(rect.topLeft(), *pixmap.mask());
-            painter->setPen(pen);
+
+	    // ### some trickery to get alpha blended selections - revisit this when QPixmap has been fixed
+ 	    QPixmap fake(pixmap.width(), pixmap.height());
+ 	    fake.setMask(*pixmap.mask());
+ 	    QPainter p(&fake);
+ 	    p.drawPixmap(0, 0, pixmap);
+ 	    p.fillRect(fake.rect(), QBrush(QColor(col.red(), col.green(), col.blue(), 90)));
+ 	    p.end();
+	    painter->drawPixmap(rect.topLeft(), fake);
         }
     }
 }
