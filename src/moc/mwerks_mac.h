@@ -2,15 +2,17 @@
 #define QT_MOC9_H
 
 #include "qglobal.h"
-#ifdef Q_WS_MAC9
+#ifdef Q_OS_MAC
 
-//these don't belong here, need a way to access this outside .h files
-#define QT_NO_CODECS
-#define QT_LITE_UNICODE
-
+#ifdef Q_OS_MAC9
+ //these don't belong here, need a way to access this outside .h files
+# define QT_NO_CODECS
+# define QT_LITE_UNICODE
+# define MOC_MWERKS_PLUGIN
+#endif
+#define macintosh
 
 /*make moc a plugin*/
-#define MOC_MWERKS_PLUGIN 1 
 enum moc_status {
     moc_success = 1,
     moc_parse_error = 2,
@@ -21,7 +23,9 @@ enum moc_status {
 };
 
 //get the qt mac9 stuff
-#include "qt_mac9.h"
+#ifdef Q_OS_MAC9
+# include "qt_mac9.h"
+#endif
 
 #endif
 #endif

@@ -4,12 +4,18 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
-using namespace std;
 
+#include "mwerks_mac.h"
+#ifdef Q_OS_MAC9
+using namespace std;
 /* system headers */
 #include <Files.h>
 #include <Strings.h>
 #include <Errors.h>
+#else
+# include "qt_mac.h"
+#endif
+# include "mwerks_mac.h"
 
 /* compiler headers */
 #include "DropInCompilerLinker.h"
@@ -133,7 +139,7 @@ static CWResult	mocify(CWPluginContext context, const QCString &source)
 	       	long			whichFile;
 	        CWNewProjectEntryInfo ei;
 	        memset(&ei, '\0', sizeof(ei));
-	        ei.groupPath = "Mocified";
+	        ei.groupPath = "QtGenerated";
 		    err = CWAddProjectEntry(context, &destSpec, true, &ei, &whichFile);
 		    if (!CWSUCCESS(err))
 		    {

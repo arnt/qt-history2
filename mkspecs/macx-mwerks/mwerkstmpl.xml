@@ -162,7 +162,7 @@ $$CODEWARRIOR_FRAMEWORKPATH
                 </SETTING>
 
                 <!-- Settings for "Target Settings" panel -->
-                <SETTING><NAME>Linker</NAME><VALUE>Mach-O PPC Linker</VALUE></SETTING>
+                <SETTING><NAME>Linker</NAME><VALUE>$$CODEWARRIOR_LINKER</VALUE></SETTING>
                 <SETTING><NAME>PreLinker</NAME><VALUE></VALUE></SETTING>
                 <SETTING><NAME>PostLinker</NAME><VALUE></VALUE></SETTING>
                 <SETTING><NAME>Targetname</NAME><VALUE>$$TARGET_STEM</VALUE></SETTING>
@@ -411,6 +411,16 @@ $$CODEWARRIOR_OUTPUT_DIR
                        <SETTING><NAME>ResourceFile</NAME><VALUE>false</VALUE></SETTING>
                        <SETTING><NAME>IgnoredByMake</NAME><VALUE>false</VALUE></SETTING>
                    </SETTING>
+                   <SETTING>
+                       <SETTING><NAME>FileType</NAME><VALUE>shlb</VALUE></SETTING>
+                       <SETTING><NAME>FileExtension</NAME><VALUE></VALUE></SETTING>
+                       <SETTING><NAME>Compiler</NAME><VALUE>PEF Import PPC</VALUE></SETTING>
+                       <SETTING><NAME>EditLanguage</NAME><VALUE></VALUE></SETTING>
+                       <SETTING><NAME>Precompile</NAME><VALUE>false</VALUE></SETTING>
+                       <SETTING><NAME>Launchable</NAME><VALUE>false</VALUE></SETTING>
+                       <SETTING><NAME>ResourceFile</NAME><VALUE>false</VALUE></SETTING>
+                       <SETTING><NAME>IgnoredByMake</NAME><VALUE>false</VALUE></SETTING>
+                    </SETTING>
                     <SETTING>
                        <SETTING><NAME>FileExtension</NAME><VALUE>.dylib</VALUE></SETTING>
                        <SETTING><NAME>Compiler</NAME><VALUE>Lib Import Mach-O</VALUE></SETTING>

@@ -1,0 +1,1 @@
+#include <Win32Headers.mch>#ifndef WIN32#define WIN32 1#endif#define CW_USE_PRAGMA_EXPORT 0#ifdef __MWERKS__	#if !__option(bool)		#ifndef true			#define true 1		#endif		#ifndef false			#define false 0		#endif	#endif#endif

@@ -1,0 +1,1 @@
+/*	DropInPanelWin32.h		This is the old name for the file that is now called CWDropInPanel.h.	It is here for backward compatibility with older panels. New panels	should include CWDropInPanel.h instead.*/#ifndef __DROPINPANELWIN32_H__#define __DROPINPANELWIN32_H__#include "CWDropInPanel.h"#endif

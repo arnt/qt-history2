@@ -39,7 +39,9 @@
 #ifdef MOC_YACC_CODE
 
 #ifdef MOC_MWERKS_PLUGIN
-#define isascii(c)   ((int)( (unsigned int) (c) <= (unsigned char)0x7F ))
+#ifdef Q_OS_MAC9
+# define isascii(c)   ((int)( (unsigned int) (c) <= (unsigned char)0x7F ))
+#endif
 const char *buf_buffer = NULL;
 long buf_size_total = 0, buf_index = 0;
 #define YY_INPUT(buf, result, max_size) \

@@ -62,6 +62,21 @@ void yyerror( const char *msg );
 #include "qptrlist.h"
 #include "qregexp.h"
 #include "qstrlist.h"
+#ifdef MOC_MWERKS_PLUGIN
+# ifdef Q_OS_MACX
+#  undef OLD_DEBUG
+#  ifdef DEBUG
+#   define OLD_DEBUG DEBUG
+#   undef DEBUG
+#  endif
+#  define DEBUG 0
+#  ifndef __IMAGECAPTURE__
+#   define __IMAGECAPTURE__
+#  endif
+#  include <Carbon/Carbon.h>
+# endif
+# include "mwerks_mac.h"
+#endif 
 
 #include <ctype.h>
 #include <limits.h>
@@ -1702,13 +1717,15 @@ bool qt_is_gui_used = FALSE;
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
-#include <Files.h>
-#include <Strings.h>
-#include <Errors.h>
+#ifdef Q_OS_MAC9
+# include <Files.h>
+# include <Strings.h>
+# include <Errors.h>
+# include "Aliases.h"
+#endif
 #include "CWPluginErrors.h"
 #include <CWPlugins.h>
 #include "DropInCompilerLinker.h"
-#include "Aliases.h"
 #include <stat.h>
 
 const unsigned char *p_str(const char *, int =-1);

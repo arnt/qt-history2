@@ -116,7 +116,8 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     t << "IDC	=	" << (project->isEmpty("QMAKE_IDC") ? QString("idc") :
 			      Option::fixPathToTargetOS(var("QMAKE_IDC"), FALSE)) << endl;
     t << "ZIP	=	" << var("QMAKE_ZIP") << endl;
-    t << "COPY  =       " << var("QMAKE_COPY") << endl;
+    t << "COPY_FILE  =       " << var("QMAKE_COPY") << endl;
+    t << "COPY_DIR   =       " << var("QMAKE_COPY") << endl;
     t << "DEL_FILE   =       " << var("QMAKE_DEL_FILE") << endl;
     t << "DEL_DIR    =       " << var("QMAKE_DEL_DIR") << endl;
     t << "MOVE  =       " << var("QMAKE_MOVE") << endl;

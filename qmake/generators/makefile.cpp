@@ -1359,47 +1359,47 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
  	if(!tmp.isEmpty()) {
 	    if(!target.isEmpty())
  		target += "\n\t";
-		do_default = FALSE;
-		for(QStringList::Iterator wild_it = tmp.begin(); wild_it != tmp.end(); ++wild_it) {
-		    QString wild = Option::fixPathToLocalOS((*wild_it)), wild_var = wild;
-		    fileFixify(wild);
-		    fileFixify(wild_var);
-		    if(QFile::exists(wild)) { //real file
-			QString file = wild;
-			QFileInfo fi(file);
-			target += QString("-") + (fi.isDir() ? "$(COPY_DIR)" : "$(COPY_FILE)") +
-				  " \"" + fi.filePath() + "\" \"" + dst + "\"\n\t";
-			if(fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
-			    target += var("QMAKE_STRIP") + " \"" + dst + "\"\n\t";
-			uninst.append(QString("-$(DEL_FILE) -r") + " \"" + dst + "\"");
-			continue;
-		    }
-		    QString dirstr = QDir::currentDirPath(), f = wild; 		    //wild
-		    int slsh = f.findRev(Option::dir_sep);
-		    if(slsh != -1) {
-			dirstr = f.left(slsh+1);
-			f = f.right(f.length() - slsh - 1);
-		    }
-		    if(dirstr.right(Option::dir_sep.length()) != Option::dir_sep)
-			dirstr += Option::dir_sep;
-		    if(!uninst.isEmpty())
-			uninst.append("\n\t");
-		    uninst.append(QString("-$(DEL_FILE) -r") + " " + dst + f + "");
-
-		    QDir dir(dirstr, f);
-		    for(uint x = 0; x < dir.count(); x++) {
-			QString file = dir[x];
-			if(file == "." || file == "..") //blah
-			    continue;
-			file = dirstr + file;
-			fileFixify(file);
-			QFileInfo fi(file);
-			target += QString("-") + (fi.isDir() ? "$(COPY_DIR)" : "$(COPY_FILE)") +
-				  " \"" + fi.filePath() + "\" \"" + dst + "\"\n\t";
-			if(fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
-			    target += var("QMAKE_STRIP") + " \"" + dst + "\"\n\t";
-		    }
+	    do_default = FALSE;
+	    for(QStringList::Iterator wild_it = tmp.begin(); wild_it != tmp.end(); ++wild_it) {
+		QString wild = Option::fixPathToLocalOS((*wild_it)), wild_var = wild;
+		fileFixify(wild);
+		fileFixify(wild_var);
+		if(QFile::exists(wild)) { //real file
+		    QString file = wild;
+		    QFileInfo fi(file);
+		    target += QString("-") + (fi.isDir() ? "$(COPY_DIR)" : "$(COPY_FILE)") +
+			      " \"" + fi.filePath() + "\" \"" + dst + "\"\n\t";
+		    if(fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
+			target += var("QMAKE_STRIP") + " \"" + dst + "\"\n\t";
+		    uninst.append(QString("-$(DEL_FILE) -r") + " \"" + dst + "\"");
+		    continue;
 		}
+		QString dirstr = QDir::currentDirPath(), f = wild; 		    //wild
+		int slsh = f.findRev(Option::dir_sep);
+		if(slsh != -1) {
+		    dirstr = f.left(slsh+1);
+		    f = f.right(f.length() - slsh - 1);
+		}
+		if(dirstr.right(Option::dir_sep.length()) != Option::dir_sep)
+		    dirstr += Option::dir_sep;
+		if(!uninst.isEmpty())
+		    uninst.append("\n\t");
+		uninst.append(QString("-$(DEL_FILE) -r") + " " + dst + f + "");
+		
+		QDir dir(dirstr, f);
+		for(uint x = 0; x < dir.count(); x++) {
+		    QString file = dir[x];
+		    if(file == "." || file == "..") //blah
+			continue;
+		    file = dirstr + file;
+		    fileFixify(file);
+		    QFileInfo fi(file);
+		    target += QString("-") + (fi.isDir() ? "$(COPY_DIR)" : "$(COPY_FILE)") +
+			      " \"" + fi.filePath() + "\" \"" + dst + "\"\n\t";
+		    if(fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
+			target += var("QMAKE_STRIP") + " \"" + dst + "\"\n\t";
+		}
+	    }
  	}
  	//default?
 	if(do_default)

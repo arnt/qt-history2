@@ -92,6 +92,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 	val_it != extra_objs.end(); ++val_it) {
 	if((*val_it).left(2) == "-L") {
 	    QString dir((*val_it).right((*val_it).length() - 2));
+	    fixEnvVariables(dir);
 	    if(project->variables()["DEPENDPATH"].findIndex(dir) == -1 &&
 	       project->variables()["INCLUDEPATH"].findIndex(dir) == -1)
 		project->variables()["INCLUDEPATH"].append(dir);
@@ -114,6 +115,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 	    if(s != -1) {
 		QString dir = lib.left(s);
 		lib = lib.right(lib.length() - s - 1);
+		fixEnvVariables(dir);
 		if(project->variables()["DEPENDPATH"].findIndex(dir) == -1 &&
 		   project->variables()["INCLUDEPATH"].findIndex(dir) == -1)
 		    project->variables()["INCLUDEPATH"].append(dir);
@@ -696,24 +698,16 @@ MetrowerksMakefileGenerator::fixifyToMacPath(QString &p, QString &v, bool exists
 		return FALSE;
 	    volume = p.mid(1, eoc - 1);
 	    p = p.right(p.length() - eoc - 1);
-	} else if(project->isEmpty("QMAKE_MACPATH")) {
-	    p.prepend(QDir::current().currentDirPath() + '/');
 	} else {
-	    p.prepend(var("QMAKE_MACPATH") + '/');
-	}
-    } else {
-	if(!project->isEmpty("QMAKE_MACPATH"))
-	    qDebug("Can't fix ::%s::", p.latin1());
-    }
+	    QFileInfo fi(p);
+	    if(fi.convertToAbs()) //strange
+		return FALSE;
+	    p = fi.filePath();
+	} 
+    } 
     p = QDir::cleanDirPath(p);
-    if(0 && exists && !QFile::exists(p) && project->isEmpty("QMAKE_MACPATH")) 
-	return FALSE;
-    if(!volume.isEmpty()) {
-	if(!project->isActiveConfig("separate_volume")) 
-	   p.prepend("{" + volume + "}"); 
-	else 
-	    v = volume;
-    }
+    if(!volume.isEmpty()) 
+	v = volume;
     p.replace(QRegExp("/"), ":");
     if(p.right(1) != ":")
 	p += ':';
