@@ -386,7 +386,7 @@ BIG_CODECS=yes
 ZLIB=yes
 LIBPNG=yes
 JPEG=no
-MNG=yes
+MNG=no
 XRENDER=auto
 XFTFREETYPE=auto
 SQL_AUTODETECTED=""
@@ -1153,15 +1153,15 @@ Installation options:
     -system-libpng ..... Use libpng from the operating system.
 			 See http://www.libpng.org/pub/png
 
- *  -qt-libmng ......... Use the libmng bundled with Qt.
-    -no-mng ............ Do not compile in MNG I/O support.
-    -system-libmng ..... Use libmng from the operating system.
-			 See http://www.libmng.com
-
  *  -no-jpeg ........... Do not compile in JPEG I/O support.
     -qt-jpeg ........... Use the libjpeg bundled with Qt.
     -system-jpeg ....... Use jpeglib from the operating system.
 			 See http://www.ijg.org
+
+ *  -no-mng ............ Do not compile in MNG I/O support.
+    -qt-libmng ......... Use the libmng bundled with Qt.
+    -system-libmng ..... Use libmng from the operating system.
+			 See http://www.libmng.com
 
  *  -no-nas-sound ...... Do not compile in NAS sound support.
     -system-nas-sound .. Use NAS libaudio from the operating system.
