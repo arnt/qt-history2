@@ -534,29 +534,34 @@ void QHeaderView::initializeSections(int start, int end)
     int num = end - start + 1;
     int size = orientation() == Qt::Horizontal ? default_width : default_height;
 
+    // set resize mode
+    ResizeMode mode = d->globalResizeMode;
+    if (mode == Stretch)
+        d->stretchSections += num;
+
     // unroll loop - to initialize the arrays as fast as possible
     while (num >= 4) {
 
         sections[0].hidden = false;
-        sections[0].mode = Interactive;
+        sections[0].mode = mode;
         sections[0].section = s++;
         sections[0].position = pos;
         pos += size;
 
         sections[1].hidden = false;
-        sections[1].mode = Interactive;
+        sections[1].mode = mode;
         sections[1].section = s++;
         sections[1].position = pos;
         pos += size;
 
         sections[2].hidden = false;
-        sections[2].mode = Interactive;
+        sections[2].mode = mode;
         sections[2].section = s++;
         sections[2].position = pos;
         pos += size;
 
         sections[3].hidden = false;
-        sections[3].mode = Interactive;
+        sections[3].mode = mode;
         sections[3].section = s++;
         sections[3].position = pos;
         pos += size;
@@ -566,19 +571,19 @@ void QHeaderView::initializeSections(int start, int end)
     }
     if (num > 0) {
         sections[0].hidden = false;
-        sections[0].mode = Interactive;
+        sections[0].mode = mode;
         sections[0].section = s++;
         sections[0].position = pos;
         pos += size;
         if (num > 1) {
             sections[1].hidden = false;
-            sections[1].mode = Interactive;
+            sections[1].mode = mode;
             sections[1].section = s++;
             sections[1].position = pos;
             pos += size;
             if (num > 2) {
                 sections[2].hidden = false;
-                sections[2].mode = Interactive;
+                sections[2].mode = mode;
                 sections[2].section = s++;
                 sections[2].position = pos;
                 pos += size;
@@ -1243,6 +1248,7 @@ void QHeaderView::setResizeMode(ResizeMode mode)
     for (int i = 0; i < d->sections.count(); ++i)
         sections[i].mode = mode;
     d->stretchSections = (mode == Stretch ? count() : 0);
+    d->globalResizeMode = mode;
 }
 
 /*!
@@ -1264,7 +1270,7 @@ void QHeaderView::setResizeMode(ResizeMode mode, int section)
     ResizeMode old = d->sections[index(section)].mode;
     d->sections[index(section)].mode = mode;
     if (mode == Stretch && old != Stretch)
-        d->stretchSections++;
+        ++d->stretchSections;
 }
 
 /*!

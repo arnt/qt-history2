@@ -38,7 +38,8 @@ public:
           highlightCurrent(false),
           stretchSections(0),
           sectionIndicatorOffset(0),
-          sectionIndicator(0) {}
+          sectionIndicator(0),
+          globalResizeMode(QHeaderView::Interactive) {}
 
     int sectionHandleAt(int position);
     void setupSectionIndicator(int section, int position);
@@ -77,6 +78,7 @@ public:
     int sectionIndicatorOffset;
     QLabel *sectionIndicator;
     QStyleOptionHeader getStyleOption() const;
+    QHeaderView::ResizeMode globalResizeMode;
 };
 
 static const int default_width = 100;
