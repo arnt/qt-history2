@@ -147,6 +147,7 @@ public:
     virtual bool unify( QObject *w, QString &s, bool changeIt );
 
     virtual bool isCustomWidgetUsed( MetaDataBase::CustomWidget *w );
+    virtual bool isDatabaseAware() const;
 
     virtual QPoint mapToForm( const QWidget* w, const QPoint&  ) const;
 
@@ -169,7 +170,7 @@ public:
 
     void setProject( Project *pro );
     Project *project() const;
-    
+
 public slots:
     virtual void widgetChanged( QObject *w );
     virtual void currentToolChanged();
@@ -267,7 +268,7 @@ private:
     bool toolFixed;
     QList<QAction> actions;
     Project *proj;
-    
+
 };
 
 #endif

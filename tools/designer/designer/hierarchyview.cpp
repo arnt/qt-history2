@@ -35,14 +35,15 @@
 #include <qwizard.h>
 #include <qwidgetstack.h>
 #include <qtabbar.h>
+#include <qmodules.h>
 
-HierarchyItem::HierarchyItem( QListViewItem *parent, const QString &txt1, const QString &txt2 )
-    : QListViewItem( parent, txt1, txt2 )
+HierarchyItem::HierarchyItem( QListViewItem *parent, const QString &txt1, const QString &txt2, const QString &txt3 )
+    : QListViewItem( parent, txt1, txt2, txt3 )
 {
 }
 
-HierarchyItem::HierarchyItem( QListView *parent, const QString &txt1, const QString &txt2 )
-    : QListViewItem( parent, txt1, txt2 )
+HierarchyItem::HierarchyItem( QListView *parent, const QString &txt1, const QString &txt2, const QString &txt3 )
+    : QListViewItem( parent, txt1, txt2, txt3 )
 {
 }
 
@@ -200,7 +201,7 @@ void HierarchyList::objectClicked( QListViewItem *i )
 }
 
 QWidget *HierarchyList::findWidget( QListViewItem *i )
-{	
+{
     return ( (HierarchyItem*)i )->widget();
 }
 
@@ -230,21 +231,45 @@ void HierarchyList::changeNameOf( QWidget *w, const QString &name )
     item->setText( 0, name );
 }
 
+
+void HierarchyList::changeDatabaseOf( QWidget *w, const QString &info )
+{
+#if defined(QT_MODULE_SQL)        
+    if ( !hierarchyView->formWindow()->isDatabaseAware() )
+	return;
+    QListViewItem *item = findItem( w );
+    if ( !item )
+	return;
+    item->setText( 2, info );
+#endif    
+}
+
 void HierarchyList::resizeEvent( QResizeEvent *e )
 {
     QListView::resizeEvent( e );
+    int lastSection = 1; // normal view
     QSize vs = viewportSize( 0, contentsHeight() );
+
+#if defined(QT_MODULE_SQL)    
+    if ( hierarchyView->formWindow() && hierarchyView->formWindow()->isDatabaseAware() ) 
+	lastSection = 2; // database view
+    // make lastSection visible, if nec
+    if ( header()->sectionPos( lastSection ) > vs.width() ) {
+	// ### reggie: need better resizing/repainting strategy here
+	header()->resizeSection( lastSection-1, 80 );
+    }
+#endif    
 
     int os = header()->sectionSize( 1 );
     int ns = vs.width() - header()->sectionSize( 0 );
     if ( ns < 16 )
 	ns = 16;
-	
-    header()->resizeSection( 1, ns );
-    header()->repaint( header()->width() - header()->sectionSize( 1 ), 0, header()->sectionSize( 1 ), header()->height() );
+
+    header()->resizeSection( lastSection, ns );
+    header()->repaint( header()->width() - header()->sectionSize( lastSection ), 0, header()->sectionSize( lastSection ), header()->height() );
 
     int elipsis = fontMetrics().width("...") + 10;
-    viewport()->repaint( header()->sectionPos(1) + os - elipsis, 0, elipsis, viewport()->height(), FALSE );
+    viewport()->repaint( header()->sectionPos(lastSection) + os - elipsis, 0, elipsis, viewport()->height(), FALSE );
 }
 
 void HierarchyList::setup()
@@ -273,6 +298,20 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 {
     QListViewItem *item = 0;
     QString className = WidgetFactory::classNameOf( o );
+    QString dbInfo;
+#if defined(QT_MODULE_SQL)        
+    if ( hierarchyView->formWindow()->isDatabaseAware() ) {
+	if ( columns() == 2 )
+	    addColumn( tr( "Database" ) );
+	
+	dbInfo = MetaDataBase::fakeProperty( o, "database" ).toStringList().join(".");
+    } else {
+	if ( columns() == 3 )
+	    removeColumn( 2 );
+	dbInfo = QString::null;
+    }
+#endif    
+
     if ( o->inherits( "QLayoutWidget" ) ) {
 	switch ( WidgetFactory::layoutType( (QWidget*)o ) ) {
 	case WidgetFactory::HBox:
@@ -299,9 +338,9 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
     }
 
     if ( !parent )
-	item = new HierarchyItem( this, name, className );
+	item = new HierarchyItem( this, name, className, dbInfo );
     else
-	item = new HierarchyItem( parent, name, className );
+	item = new HierarchyItem( parent, name, className, dbInfo );
     if ( !parent )
  	item->setPixmap( 0, PixmapChooser::loadPixmap( "form.xpm", PixmapChooser::Mini ) );
     else if ( o->inherits( "QLayoutWidget") )
@@ -507,6 +546,16 @@ void HierarchyView::namePropertyChanged( QWidget *w, const QVariant & )
 {
     listview->changeNameOf( w, w->name() );
 }
+
+
+void HierarchyView::databasePropertyChanged( QWidget *w, const QStringList& info )
+{
+#if defined(QT_MODULE_SQL)        
+    QString i = info.join( "." );
+    listview->changeDatabaseOf( w, i );        
+#endif    
+}
+
 
 void HierarchyView::tabsChanged( QTabWidget * )
 {

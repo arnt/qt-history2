@@ -57,7 +57,7 @@ void CommandHistory::addCommand( Command *cmd, bool tryCompress )
 	    checkCompressedCommand();
 	    compressedCommand = 0;
 	}
-	
+
 	if ( compressedCommand ) {
 	    compressedCommand->merge( cmd );
 	    modified = TRUE;
@@ -72,7 +72,7 @@ void CommandHistory::addCommand( Command *cmd, bool tryCompress )
     if ( current < (int)history.count() - 1 ) {
 	if ( current < savedAt )
 	    savedAt = -2;
-	
+
 	QList<Command> commands;
 	commands.setAutoDelete( FALSE );
 
@@ -544,6 +544,10 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 	editor->refetchData();
 	editor->emitWidgetChanged();
 	( ( PropertyItem* )editor->propertyList()->currentItem() )->setChanged( MetaDataBase::isPropertyChanged( widget, propName ) );
+#if defined(QT_MODULE_SQL)	
+	if ( propName == "database" )
+	    formWindow()->mainWindow()->objectHierarchy()->databasePropertyChanged( (QWidget*)widget, MetaDataBase::fakeProperty( widget, "database" ).toStringList() );
+#endif	
 	return;
     }
 
@@ -916,7 +920,7 @@ void LowerCommand::execute()
 	w->lower();
 	formWindow()->raiseSelection( w );
     }
-	
+
 }
 
 void LowerCommand::unexecute()
@@ -940,7 +944,7 @@ void RaiseCommand::execute()
 	w->raise();
 	formWindow()->raiseSelection( w );
     }
-	
+
 }
 
 void RaiseCommand::unexecute()
@@ -1190,7 +1194,7 @@ void PopulateListViewCommand::transferItems( QListView *from, QListView *to )
 		    toParents.pop();
 		    toLasts.pop();
 		}
-		
+
 		QListViewItem *pi = toParents.top();
 		QListViewItem *ni = 0;
 		if ( pi )

@@ -39,8 +39,8 @@ class QWizard;
 class HierarchyItem : public QListViewItem
 {
 public:
-    HierarchyItem( QListViewItem *parent, const QString &txt1, const QString &txt2 );
-    HierarchyItem( QListView *parent, const QString &txt1, const QString &txt2 );
+    HierarchyItem( QListViewItem *parent, const QString &txt1, const QString &txt2, const QString &txt3 );
+    HierarchyItem( QListView *parent, const QString &txt1, const QString &txt2, const QString &txt3 );
 
     void paintCell( QPainter *p, const QColorGroup &cg, int column, int width, int align );
     void updateBackColor();
@@ -66,6 +66,7 @@ public:
     void setCurrent( QWidget *w );
     void setOpen( QListViewItem *i, bool b );
     void changeNameOf( QWidget *w, const QString &name );
+    void changeDatabaseOf( QWidget *w, const QString &info );    
 
 protected:
     void keyPressEvent( QKeyEvent *e );
@@ -111,6 +112,7 @@ public:
     void widgetsInserted( const QWidgetList &l );
     void widgetsRemoved( const QWidgetList &l );
     void namePropertyChanged( QWidget *w, const QVariant &old );
+    void databasePropertyChanged( QWidget *w, const QStringList& info );
     void tabsChanged( QTabWidget *w );
     void pagesChanged( QWizard *w );
     void rebuild();
