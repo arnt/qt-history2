@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#39 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -20,7 +20,7 @@
 #include "qstrlist.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#38 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#39 $")
 
 
 /*----------------------------------------------------------------------------
@@ -652,6 +652,7 @@ bool QFont::exactMatch() const
   Two QFonts are equal if their font attributes are equal.
   If \link setRawMode() raw mode\endlink is enabled for both fonts,
   then only the family fields are compared.
+
   \sa operator!=()
  ----------------------------------------------------------------------------*/
 
@@ -679,6 +680,7 @@ bool QFont::operator==( const QFont &f ) const
   Two QFonts are different if their font attributes are different.
   If \link setRawMode() raw mode\endlink is enabled for both fonts,
   then only the family fields are compared.
+
   \sa operator==()
  ----------------------------------------------------------------------------*/
 
@@ -768,6 +770,7 @@ static void initFontSubst()			// create substitution dict
     QFont::removeSubstitution( "newyork" );
     QFont::substitute( "NewYork" );	// returns "NewYork"
   \endcode
+
   \sa setFamily(), insertSubstitution(), removeSubstitution()
  ----------------------------------------------------------------------------*/
 
@@ -1014,6 +1017,7 @@ QFontMetrics::~QFontMetrics()
 
 /*----------------------------------------------------------------------------
   Returns the pixel width of a \e ch.
+  \sa boundingRect()
  ----------------------------------------------------------------------------*/
 
 int QFontMetrics::width( char ch ) const
@@ -1034,6 +1038,8 @@ int QFontMetrics::width( char ch ) const
 
   Note that the rectangle usually extends both above and below the
   base line.
+
+  \sa width()
   ---------------------------------------------------------------------------*/
 
 QRect QFontMetrics::boundingRect( char ch ) const
@@ -1217,7 +1223,7 @@ int QFontInfo::weight() const
 {
     QFont f = data.widget ? data.w->font() : data.p->font();
     f.updateFontInfo();
-    return (int) f.d->act.weight;
+    return (int)f.d->act.weight;
 }
 
 /*----------------------------------------------------------------------------
@@ -1232,7 +1238,7 @@ bool QFontInfo::underline() const
 {
     QFont f = data.widget ? data.w->font() : data.p->font();
     f.updateFontInfo();
-    return (int) f.d->act.underline;
+    return f.d->act.underline;
 }
 
 /*----------------------------------------------------------------------------
@@ -1247,7 +1253,7 @@ bool QFontInfo::strikeOut() const
 {
     QFont f = data.widget ? data.w->font() : data.p->font();
     f.updateFontInfo();
-    return (int) f.d->act.strikeOut;
+    return f.d->act.strikeOut;
 }
 
 /*----------------------------------------------------------------------------
@@ -1273,7 +1279,7 @@ QFont::StyleHint QFontInfo::styleHint() const
 {
     QFont f = data.widget ? data.w->font() : data.p->font();
     f.updateFontInfo();
-    return (QFont::StyleHint) f.d->act.styleHint;
+    return (QFont::StyleHint)f.d->act.styleHint;
 }
 
 /*----------------------------------------------------------------------------
@@ -1285,7 +1291,7 @@ QFont::CharSet QFontInfo::charSet() const
 {
     QFont f = data.widget ? data.w->font() : data.p->font();
     f.updateFontInfo();
-    return (QFont::CharSet) f.d->act.charSet;
+    return (QFont::CharSet)f.d->act.charSet;
 }
 
 /*----------------------------------------------------------------------------
