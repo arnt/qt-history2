@@ -68,6 +68,8 @@ public:
     QTextCodec *codec() const;
     void setAutoDetectUnicode(bool enabled);
     bool autoDetectUnicode() const;
+    void setGenerateByteOrderMark(bool generate);
+    bool generateByteOrderMark() const;
 #endif
 
     void setDevice(QIODevice *device);
@@ -265,6 +267,8 @@ Q_CORE_EXPORT QTextStream &center(QTextStream &s);
 Q_CORE_EXPORT QTextStream &endl(QTextStream &s);
 Q_CORE_EXPORT QTextStream &flush(QTextStream &s);
 Q_CORE_EXPORT QTextStream &reset(QTextStream &s);
+
+Q_CORE_EXPORT QTextStream &bom(QTextStream &s);
 
 #ifdef QT3_SUPPORT
 inline Q_CORE_EXPORT QT3_SUPPORT QTextStream &ws(QTextStream &s) { s.skipWhiteSpace(); return s; }

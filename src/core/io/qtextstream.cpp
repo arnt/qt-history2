@@ -52,8 +52,10 @@ static const int QTEXTSTREAM_BUFFERSIZE = 16384;
     calling setCodec(). Automatic Unicode detection is also
     supported. When this feature is enabled, (the default behavior,)
     QTextStream will detect the UTF-16 BOM (Byte Order Mark) and
-    switch to the appropriate UTF-16 codec when reading. When
-    QTextStream operates on a QString directly, the codec is disabled.
+    switch to the appropriate UTF-16 codec when reading. QTextStream
+    does not write a BOM by default, but you can enable this by calling
+    setGenerateByteOrderMark(true). When QTextStream operates on a QString
+    directly, the codec is disabled.
 
     There are three general ways to use QTextStream when reading text
     files:
@@ -128,6 +130,7 @@ static const int QTEXTSTREAM_BUFFERSIZE = 16384;
     \row    \o endl              \o Same as calling operator<<('\n') and flush().
     \row    \o flush             \o Same as calling flush().
     \row    \o reset             \o Same as calling reset().
+    \row    \o bom               \o Same as calling setGenerateByteOrderMark(true).
     \endtable
 
     \sa QDataStream, QFile, QBuffer, QTcpSocket
@@ -501,8 +504,8 @@ bool QTextStreamPrivate::flushWriteBuffer()
     if (!codec)
         codec = QTextCodec::codecForLocale();
 #if defined (QTEXTSTREAM_DEBUG)
-    qDebug("QTextStreamPrivate::flushWriteBuffer(), using %s codec",
-           codec->name().constData());
+    qDebug("QTextStreamPrivate::flushWriteBuffer(), using %s codec (%s generating BOM)",
+           codec->name().constData(), writeConverterState.flags & QTextCodec::IgnoreHeader ? "not" : "");
 #endif
 
     // convert from unicode to raw data
@@ -2333,6 +2336,19 @@ QTextStream &reset(QTextStream &stream)
     return stream;
 }
 
+/*!
+    \fn QTextStream &bom(QTextStream &stream)
+    \relates QTextStream
+
+    Toggles insertion of the UTF-16 BOM (Byte Order Mark) when QTextStream is
+    used with a UTF-16 codec.
+*/
+QTextStream &bom(QTextStream &stream)
+{
+    stream.setGenerateByteOrderMark(true);
+    return stream;
+}
+
 #ifndef QT_NO_TEXTCODEC
 /*!
     Sets the codec for this stream to \a codec. The codec is used for
@@ -2389,6 +2405,37 @@ bool QTextStream::autoDetectUnicode() const
 {
     Q_D(const QTextStream);
     return d->autoDetectUnicode;
+}
+
+/*!
+    If \a generate is true and a UTF-16 codec is used, QTextStream will insert
+    the BOM (Byte Order Mark) before any data has been written to the
+    device. If \a generate is false, no BOM will be inserted. This function
+    must be called before any data is written. Otherwise, it does nothing.
+
+    \sa generateByteOrderMark(), bom()
+*/
+void QTextStream::setGenerateByteOrderMark(bool generate)
+{
+    Q_D(QTextStream);
+    if (d->writeBuffer.isEmpty()) {
+        if (generate)
+            d->writeConverterState.flags &= ~QTextCodec::IgnoreHeader;
+        else
+            d->writeConverterState.flags |= QTextCodec::IgnoreHeader;
+    }
+}
+
+/*!
+    Returns true if QTextStream is set to generate the UTF-16 BOM (Byte Order
+    Mark) when using a UTF-16 codec; otherwise returns false.
+
+    \sa setGenerateByteOrderMark()
+*/
+bool QTextStream::generateByteOrderMark() const
+{
+    Q_D(const QTextStream);
+    return (d->writeConverterState.flags & QTextCodec::IgnoreHeader) == 0;
 }
 
 #endif
