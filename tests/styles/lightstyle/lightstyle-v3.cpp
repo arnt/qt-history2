@@ -388,6 +388,7 @@ void LightStyleV3::drawPrimitive(PrimitiveElement pe,
 	{
 	    QString title;
 	    bool drawTitle = FALSE;
+#if 0
 	    if (p && p->device()->devType() == QInternal::Widget) {
 		QWidget *w = (QWidget *) p->device();
 		QWidget *p = w->parentWidget();
@@ -397,6 +398,7 @@ void LightStyleV3::drawPrimitive(PrimitiveElement pe,
 		    title = p->windowTitle();
 		}
 	    }
+#endif
 
 	    flags |= Style_Raised;
 	    if (flags & Style_Horizontal) {

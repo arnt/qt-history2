@@ -280,6 +280,7 @@ void LightStyleV2::drawPrimitive(PrimitiveElement pe,
 	{
 	    QString title;
 	    bool drawTitle = FALSE;
+#if 0
 	    if (p && p->device()->devType() == QInternal::Widget) {
 		QWidget *w = (QWidget *) p->device();
 		QWidget *p = w->parentWidget();
@@ -289,6 +290,7 @@ void LightStyleV2::drawPrimitive(PrimitiveElement pe,
 		    title = p->windowTitle();
 		}
 	    }
+#endif
 
 	    flags |= Style_Raised;
 	    if (flags & Style_Horizontal) {
@@ -449,8 +451,8 @@ void LightStyleV2::drawPrimitive(PrimitiveElement pe,
 	    }
 
 	    p->fillRect(fr, pal.brush((flags & Style_Down) ?
-				     QPalette::Midlight :
-				     QPalette::Background));
+				      QPalette::Midlight :
+				      QPalette::Background));
 	    drawPrimitive(pe, p, ar, pal, flags);
 	    break;
 	}
@@ -474,8 +476,8 @@ void LightStyleV2::drawPrimitive(PrimitiveElement pe,
 	    }
 
 	    p->fillRect(fr, pal.brush((flags & Style_Down) ?
-				     QPalette::Midlight :
-				     QPalette::Background));
+				      QPalette::Midlight :
+				      QPalette::Background));
 	    drawPrimitive(pe, p, ar, pal, flags);
 	    break;
 	}
@@ -499,8 +501,8 @@ void LightStyleV2::drawPrimitive(PrimitiveElement pe,
 	    }
 
 	    p->fillRect(fr, pal.brush((flags & Style_Down) ?
-				     QPalette::Midlight :
-				     QPalette::Mid));
+				      QPalette::Midlight :
+				      QPalette::Mid));
 	    break;
 	}
 
