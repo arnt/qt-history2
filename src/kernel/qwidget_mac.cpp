@@ -476,12 +476,12 @@ void QWidget::setIconText( const QString & )
   \sa releaseMouse(), grabKeyboard(), releaseKeyboard()
 */
 
-QWidget *the_grabbed = 0;
+QWidget *mac_mouse_grabber = 0;
 
 void QWidget::grabMouse()
 {
     qDebug( "QWidget::grabMouse" );
-    the_grabbed=this;
+    mac_mouse_grabber=this;
 }
 
 /*!
@@ -499,7 +499,7 @@ void QWidget::grabMouse()
 void QWidget::grabMouse( const QCursor & )
 {
     qDebug( "QWidget::grabMouse" );
-    the_grabbed=0;
+    mac_mouse_grabber=0;
 }
 
 /*!
@@ -524,9 +524,12 @@ void QWidget::releaseMouse()
   \sa releaseKeyboard(), grabMouse(), releaseMouse()
 */
 
+QWidget *mac_keyboard_grabber = 0;
+
 void QWidget::grabKeyboard()
 {
     qDebug( "QWidget::grabKeyboard" );
+    mac_keyboard_grabber = this;
 }
 
 /*!
@@ -538,6 +541,7 @@ void QWidget::grabKeyboard()
 void QWidget::releaseKeyboard()
 {
     qDebug( "QWidget::releaseKeyboard" );
+    mac_keyboard_grabber = 0;
 }
 
 
