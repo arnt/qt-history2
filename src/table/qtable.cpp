@@ -630,16 +630,19 @@ void QTableComboBoxItem::setContentFromEditor( QWidget *w )
 /*! \reimp */
 
 void QTableComboBoxItem::paint( QPainter *p, const QColorGroup &cg,
-			   const QRect &cr, bool )
+			   const QRect &cr, bool selected )
 {
     int w = cr.width();
     int h = cr.height();
 
-    table()->style().drawComboButton( p, 0, 0, w, h, cg, FALSE, TRUE, TRUE );
+    table()->style().drawComboButton( p, 0, 0, w, h, cg, FALSE, TRUE, TRUE, selected ? &cg.brush( QColorGroup::Highlight ) : 0  );
     QRect tmpR = table()->style().comboButtonRect( 0, 0, w, h );
     QRect textR( tmpR.x() + 1, tmpR.y() + 1, tmpR.width() - 2, tmpR.height() - 2 );
 
-    p->setPen( cg.text() );
+    if ( selected )
+	p->setPen( cg.highlightedText() );
+    else
+	p->setPen( cg.text() );
     p->drawText( textR, wordWrap() ? ( alignment() | WordBreak ) : alignment(), currentText() );
 }
 
