@@ -1194,6 +1194,11 @@ void QMenuData::setItemVisible( int id, bool visible )
     Returns the menu item with identifier \a id, or 0 if there is no
     item with this identifier.
 
+    Note that QMenuItem is an internal class, and that you should not 
+    need to call this function. Use the higher level functions like
+    text(), pixmap() and changeItem() to get and modify menu item 
+    attributes instead.
+
     \sa indexOf()
 */
 
@@ -1209,6 +1214,11 @@ QMenuItem *QMenuData::findItem( int id ) const
     Returns the menu item with identifier \a id, or 0 if there is no
     item with this identifier. Changes \a *parent to point to the
     parent of the return value.
+
+    Note that QMenuItem is an internal class, and that you should not 
+    need to call this function. Use the higher level functions like
+    text(), pixmap() and changeItem() to get and modify menu item 
+    attributes instead.
 
     \sa indexOf()
 */
