@@ -112,7 +112,7 @@ inline unsigned int closestMatch(int r,int g,int b)
   QColor member functions
  *****************************************************************************/
 
-uint QColor::alloc()
+uint QColor::alloc(int /*screen*/)
 {
 // These macros mazimize optimizations even on dumb compilers.
 
