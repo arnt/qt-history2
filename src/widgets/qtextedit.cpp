@@ -362,25 +362,39 @@ static bool block_set_alignment = FALSE;
     open/close tags). Left-tags mark the starting point for
     formatting, while right-tags mark the ending point. A right-tag
     always start with a \c / before the tag keyword. For example \c
-    <red> and \c </red> are a tag pair. Tags can be nested, but they
+    <b> and \c </b> are a tag pair. Tags can be nested, but they
     have to be closed in the same order as they are opened. For
-    example, \c <red><blue></blue></red> is valid, while \c
-    <red><blue></red></blue> will output an error message.
+    example, \c <b><u></u></b> is valid, while \c
+    <b><u></b></u> will output an error message.
 
     By using tags it is possible to change the color, bold, italic and
     underline settings for a piece of text. A color can be specified
-    either as a color name (from the X11 color database), as a RGB hex
-    value (e.g \c {#00ff00}) or by using the HTML font tag \c {<font
-    color=colorname>} (the closing tag is \c {</font>}). Example of
-    valid color tags: \c {<red>}, \c {<blue>}, \c {<#223344>}, \c
-    {<font color=red>}. Bold, italic and underline settings can be
+    by using the HTML font tag \c {<font color=colorname>}. The color
+    name can be one of the color names from the X11 color database, or
+    a RGB hex value (e.g \c {#00ff00}). Example of valid color tags:
+    \c {<font color=red>}, \c {<font color="light blue">}, \c {<font
+    color="#223344">}. Bold, italic and underline settings can be
     specified by the tags \c {<b>}, \c <i> and \c {<u>}. Note that a
     tag does not necessarily have to be closed. A valid example:
-    \code
-    This is <red>red</red> while <b>this</b> is <blue>blue</blue>.
-    <green><font color=yellow>Yellow,</font> and <u>green</u>.
+    \code 
+    This is <font color=red>red</font> while <b>this</b> is <font color=blue>blue</font>.
+    <font color=green><font color=yellow>Yellow,</font> and <u>green</u>.
     \endcode
 
+    Stylesheets can also be used in LogText mode. To create and use a
+    custom tag, you could do the following:
+    \code
+    QTextEdit * log = new QTextEdit( this );
+    log->setTextFormat( Qt::LogText );
+    QStyleSheetItem * item = new QStyleSheetItem( log->styleSheet(), "mytag" );
+    item->setColor( "red" );
+    item->setFontWeight( QFont::Bold );
+    item->setFontUnderline( TRUE );
+    log->append( "This is a <mytag>custom tag</mytag>!" );
+    \endcode
+    Note that only the color, bold, underline and italic attributes of
+    a QStyleSheetItem is used in LogText mode.
+    
     There are a few things that you need to be aware of when the
     widget is in this mode:
     \list
@@ -3542,7 +3556,7 @@ void QTextEdit::getSelection( int *paraFrom, int *indexFrom,
 
 /*!
   \property QTextEdit::textFormat
-  \brief the text format: rich text, plain text, auto text or log text
+  \brief the text format: rich text, plain text, log text or auto text.
 
   The text format is one of the following:
   \list
@@ -3551,11 +3565,11 @@ void QTextEdit::getSelection( int *paraFrom, int *indexFrom,
   text edit inserts a hard line break and begins a new paragraph.
   \i RichText - rich text rendering. The available styles are
   defined in the default stylesheet QStyleSheet::defaultSheet().
+  \i LogText - special, limited text format which is used in an optimized
+  mode for very large texts.
   \i AutoText - this is the default. The text edit autodetects
   which rendering style is best, \c PlainText or \c RichText. This is
   done by using the QStyleSheet::mightBeRichText() function.
-  \i LogText - special, limited text format which is used in an optimized
-  mode for very large texts.
   \endlist
 */
 
@@ -5226,7 +5240,7 @@ bool QTextEdit::allowTabs() const
 }
 
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-/* Implementation of optimized ReadOnly, PlainText, NoWrap mode follows */
+/* Implementation of optimized LogText mode follows */
 
 /*! \internal */
 bool QTextEdit::checkOptimMode()
@@ -5253,7 +5267,6 @@ bool QTextEdit::checkOptimMode()
 			this, SLOT( formatMore() ) );
  	    optimSetText( doc->originalText() );
     	    doc->clear( TRUE );
-//   	    doc->setFormatter( new QTextFormatterBreakWords );
 	} else {
  	    disconnect( scrollTimer, SIGNAL( timeout() ),
  			this, SLOT( optimDoAutoScroll() ) );
@@ -5359,25 +5372,24 @@ QTextEditOptimPrivate::Tag * QTextEdit::optimAppendTag( int index,
   are escaped by using '&lt;', '&gt;' and '&amp;'. Left-tags marks
   the starting point for formatting, while right-tags mark the ending
   point. A right-tag is the same as a left-tag, but with a '/'
-  appearing before the tag keyword.  E.g a valid left-tag: <red>, and
-  a valid right-tag: </red>.  Tags can be nested, but they have to be
+  appearing before the tag keyword.  E.g a valid left-tag: <b>, and
+  a valid right-tag: </b>.  Tags can be nested, but they have to be
   closed in the same order as they are opened. E.g:
-  <red><blue>blue</blue>red</red> - is valid, while:
-  <red><blue>blue</red>red</blue> - is invalid since the red tag is
-  closed before the blue tag. Note that a tag does not have to be
-  closed: '<blue>Lots of text - and then some..'  is perfectly valid for
+  <font color=red><font color=blue>blue</font>red</font> - is valid, while:
+  <font color=red><b>bold red</font> just bold</b> - is invalid since the font tag is
+  closed before the bold tag. Note that a tag does not have to be
+  closed: '<font color=blue>Lots of text - and then some..'  is perfectly valid for
   setting all text appearing after the tag to blue.  A tag can be used
   to change the color of a piece of text, or set one of the following
   formatting attributes: bold, italic and underline.  These attributes
   are set using the <b>, <i> and <u> tags.  Example of valid tags:
-  <red>, <#ff0000>, </red>, <b>, <u>, <i>, </i>.
+  <font color=red>, </font>, <b>, <u>, <i>, </i>.
   Example of valid text:
-  This is some <red>red text</red>, while this is some <green>green
-  text</green>. <blue><yellow>This is yellow</yellow>, while this is
-  blue.</blue>
+  This is some <font color=red>red text</font>, while this is some <font color=green>green
+  text</font>. <font color=blue><font color=yellow>This is yellow</font>, while this is
+  blue.</font>
 
-  Colors can also be specified using the HTML tag <font color=<color>>
-  (the closing tag is </font>).
+  Note that only the color attribute of the HTML font tag is supported.
 
   Limitations:
   1. A tag cannot span several lines.
@@ -5446,6 +5458,8 @@ void QTextEdit::optimParseTags( QString * line )
 		else
 		    format = FALSE;
 		tag = optimAppendTag( startIndex, tagStr );
+		// everything that is not a b, u or i tag is considered
+		// to be a color tag. 
 		tag->type = format ? QTextEditOptimPrivate::Format
 			    : QTextEditOptimPrivate::Color;
 		if ( tagStr[0] == '/' ) {
@@ -5603,27 +5617,36 @@ void QTextEdit::optimSetTextFormat( QTextDocument * td, QTextCursor * cur,
     td->setSelectionStart( 0, cur );
     cur->setIndex( end );
     td->setSelectionEnd( 0, cur );
-    f->setBold( tag->bold );
-    f->setItalic( tag->italic );
-    f->setUnderline( tag->underline );
-    if ( tag->type == QTextEditOptimPrivate::Format ) {
-	// check to see if there are any open color tags prior to this
-	// format tag
-	tag = tag->prev;
-	while ( tag && (tag->type == QTextEditOptimPrivate::Format ||
-			tag->leftTag) ) {
-	    tag = tag->leftTag ? tag->parent : tag->prev;
+    QStyleSheetItem * ssItem = styleSheet()->item( tag->tag );
+    if ( !ssItem || tag->type == QTextEditOptimPrivate::Format ) {
+	f->setBold( tag->bold );
+	f->setItalic( tag->italic );
+	f->setUnderline( tag->underline );
+	if ( tag->type == QTextEditOptimPrivate::Format ) {
+	    // check to see if there are any open color tags prior to
+	    // this format tag
+	    tag = tag->prev;
+	    while ( tag && (tag->type == QTextEditOptimPrivate::Format ||
+			    tag->leftTag) ) {
+		tag = tag->leftTag ? tag->parent : tag->prev;
+	    }
 	}
-    }
-    if ( tag ) {
+	if ( tag ) {
+	    formatFlags |= QTextFormat::Color;
+	    QString col = tag->tag.simplifyWhiteSpace();
+	    if ( col.left(11) == "font color=" ) {
+		col = col.mid( 11 );
+		if ( col[0] == '\"' )
+		    col = col.mid(1, col.length() - 2);
+	    }
+	    f->setColor( QColor( col ) );
+	}
+    } else { // use the stylesheet tag definition
 	formatFlags |= QTextFormat::Color;
-	QString col = tag->tag.simplifyWhiteSpace();
-	if ( col.left(11) == "font color=" ) {
-	    col = col.mid( 11 );
-	    if ( col[0] == '\"' )
-		col = col.mid(1, col.length() - 2);
-	}
-	f->setColor( QColor( col ) );
+	f->setBold( ssItem->fontWeight() == QFont::Bold );
+	f->setItalic( ssItem->fontItalic() );
+	f->setUnderline( ssItem->fontUnderline() );
+	f->setColor( ssItem->color() );
     }
     td->setFormat( 0, f, formatFlags );
     td->removeSelection( 0 );
