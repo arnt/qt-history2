@@ -14,7 +14,7 @@ the directories where you choose to install Qt.
     This creates the directory /usr/local/qt-%VERSION% containing the
     files from the main archive.
 
-    Rename qt-%DISTNAME% to qt (or make a symlink):
+    Rename %DISTNAME% to qt (or make a symlink):
 
 	mv %DISTNAME% qt
 
@@ -103,7 +103,6 @@ the directories where you choose to install Qt.
 
     ln -s $QTDIR/lib/libqt.%VERSION_NUMBER%.dylib /usr/lib
     ln -s $QTDIR/lib/libqui.1.0.0.dylib /usr/lib
-    ln -s $QTDIR/lib/libeditor.1.0.0.dylib /usr/lib
 
     You may need to have 'administrator' access to do this, (in which
     case, precede each command with 'sudo', e.g. 'sudo ln -s ...'). If
