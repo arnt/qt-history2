@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#39 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -415,7 +415,7 @@ void QColorGroup::setBrush( ColorRole r, const QBrush &b )
 
 bool QColorGroup::operator==( const QColorGroup &g ) const
 {
-    for( int r = 0 ; r < (int)MaxColorRole + 1 ; r++ )
+    for( int r = 0 ; r < MaxColorRole + 1 ; r++ )
 	if ( br[r] != g.br[r] )
 	    return FALSE;
     return TRUE;
@@ -767,7 +767,7 @@ bool QPalette::operator==( const QPalette &p ) const
 
 QDataStream &operator<<( QDataStream &s, const QColorGroup &g )
 {
-    for( int r = 0 ; r < (int)QColorGroup::MaxColorRole + 1 ; r++ )
+    for( int r = 0 ; r < QColorGroup::MaxColorRole + 1 ; r++ )
 	s << g.brush( (QColorGroup::ColorRole)r);
     return s;
 }
@@ -780,7 +780,7 @@ QDataStream &operator<<( QDataStream &s, const QColorGroup &g )
 QDataStream &operator>>( QDataStream &s, QColorGroup &g )
 {
     QBrush tmp;
-    for( int r = 0 ; r < (int)QColorGroup::MaxColorRole + 1 ; r++ ) {
+    for( int r = 0 ; r < QColorGroup::MaxColorRole + 1 ; r++ ) {
 	s >> tmp;
 	g.setBrush( (QColorGroup::ColorRole)r, tmp);
     }
