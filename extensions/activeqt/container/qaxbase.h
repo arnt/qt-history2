@@ -115,6 +115,7 @@ protected:
     
 private:
     friend class QAxEventSink;
+    friend void *qax_createObjectWrapper(int, IUnknown*);
     bool initializeLicensedHelper(void *factory, const QString &key, IUnknown **ptr);
     QAxBasePrivate *d;
     QAxMetaObject *internalMetaObject() const;
