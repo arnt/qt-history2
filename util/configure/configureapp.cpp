@@ -767,7 +767,9 @@ WCE( {	cout << "                         pocketpc" << endl; } );
 
 	cout << "-redo                Run configure with the same parameters as last time." << endl;
 	cout << "-saveconfig <config> Run configure and save the parameters as <config>." << endl;
+	cout << "                     The file will be called configure_<config>.cache" << endl;
 	cout << "-loadconfig <config> Run configure with the parameters from <config>." << endl;
+	cout << "                     The file must be called configure_<config>.cache" << endl;
 #endif
 	return true;
     }
