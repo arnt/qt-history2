@@ -34,10 +34,8 @@
 **********************************************************************/
 
 #include "qsql_result.h"
-#include <qvaluevector.h>
+#include <qmap.h>
 #include <qdatetime.h>
-
-#define QSQL_RESULT_CHUNK_SIZE 25
 
 QSqlClientData::~QSqlClientData()
 {
@@ -106,9 +104,8 @@ QSqlClientNullData* QSqlClientNullData::clone()
 class QSqlClientResultBuffer::Private
 {
 public:
-    Private( int numFields )
+    Private( int ) // remove this constructor in 4.0
     {
-	buf.reserve( numFields );
 	frm = new QSqlClientData();
     }
     ~Private()
@@ -118,9 +115,9 @@ public:
     }
     void clear()
     {
-	for ( uint i=0; i < buf.size(); ++i ) {
-	    delete [] buf.at( i ).data;
-	    delete buf.at( i ).nullBinder;
+	for ( uint i=0; i < buf.count(); ++i ) {
+	    delete [] buf[i].data;
+	    delete buf[i].nullBinder;
 	}
 	buf.clear();
     }
@@ -128,9 +125,9 @@ public:
     {
 	if ( this == &other )
 		return;
-	for ( uint i=0; i < other.buf.size(); ++i ) {
-	    char* c = (char*)append( other.buf.at( i ).size, other.buf.at( i ).type, other.buf.at( i ).nullBinder->clone() );
-	    memcpy ( c, other.buf.at( i ).data, other.buf.at( i ).size );
+	for ( uint i=0; i < other.buf.count(); ++i ) {
+	    char* c = (char*)append( other.buf[i].size, other.buf[i].type, other.buf[i].nullBinder->clone() );
+	    memcpy ( c, other.buf[i].data, other.buf[i].size );
 	}
 	frm = other.format()->clone();
     }
@@ -146,13 +143,13 @@ public:
 	    b.nullBinder = nd->clone();
 	    delete nd;
 	}
-	buf.push_back( b );
+	buf[ buf.count() ] = b;
 	return (void*)b.data;
     }
 
     QSqlClientNullData* nullData( int fieldNumber ) const
     {
-	if ( fieldNumber < (int)buf.size() )
+	if ( fieldNumber < (int)buf.count() )
 	    return buf[ fieldNumber ].nullBinder;
 #ifdef QT_CHECK_RANGE
 	qWarning("QSqlClientResultBuffer::Private:no such field: " + QString::number( fieldNumber ) );
@@ -161,7 +158,7 @@ public:
     }
     void* data( int fieldNumber )
     {
-	if ( fieldNumber < (int)buf.size() )
+	if ( fieldNumber < (int)buf.count() )
 	    return (void*)buf[ fieldNumber ].data;
 #ifdef QT_CHECK_RANGE
 	qWarning("QSqlClientResultBuffer::Private:no such field: " + QString::number( fieldNumber ) );
@@ -170,7 +167,7 @@ public:
     }
     int size( int fieldNumber )
     {
-	if ( fieldNumber < (int)buf.size() )
+	if ( fieldNumber < (int)buf.count() )
 	    return buf[ fieldNumber ].size;
 #ifdef QT_CHECK_RANGE
 	qWarning("QSqlClientResultBuffer::Private:no such field: " + QString::number( fieldNumber ) );
@@ -179,7 +176,7 @@ public:
     }
     QVariant::Type type( int fieldNumber )
     {
-	if ( fieldNumber < (int)buf.size() )
+	if ( fieldNumber < (int)buf.count() )
 	    return buf[ fieldNumber ].type;
 #ifdef QT_CHECK_RANGE
 	qWarning("QSqlClientResultBuffer::Private:no such field: " + QString::number( fieldNumber ) );
@@ -189,7 +186,7 @@ public:
 
     bool isNull( int fieldNumber ) const
     {
-	if ( fieldNumber < (int)buf.size() )
+	if ( fieldNumber < (int)buf.count() )
 	    return buf[ fieldNumber ].nullBinder->isNull();
 #ifdef QT_CHECK_RANGE
 	qWarning("QSqlClientResultBuffer::Private:no such field: " + QString::number( fieldNumber ) );
@@ -209,7 +206,7 @@ public:
     }
     int count() const
     {
-	return buf.size();
+	return buf.count();
     }
 private:
     Private& operator=( const Private& other );
@@ -220,7 +217,7 @@ private:
 	QVariant::Type type;
 	QSqlClientNullData* nullBinder;
     };
-    QValueVector<Buf> buf;
+    QMap<int,Buf> buf;
     QSqlClientData* frm;
 };
 
@@ -313,16 +310,12 @@ int QSqlClientResultBuffer::count() const
 class QSqlClientResultSet::Private
 {
 public:
-    Private()
-	: atPos( -1 )
-    {
-	set.reserve( QSQL_RESULT_CHUNK_SIZE );
-    }
+    Private() : atPos( -1 ) {}
     ~Private() {}
 
     void append( const QSqlClientResultBuffer& buf )
     {
-	set.push_back( buf );
+	set[ set.size() ] = buf;
     }
     bool seek( int row )
     {
@@ -348,7 +341,7 @@ public:
 
 
 private:
-    QValueVector<QSqlClientResultBuffer> set;
+    QMap<int,QSqlClientResultBuffer> set;
     int atPos;
 };
 
