@@ -529,7 +529,6 @@ void QGenericTreeView::contentsChanged(const QModelIndex &topLeft, const QModelI
 
 void QGenericTreeView::contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
-    qDebug("contentsInserted");
     if (topLeft.isValid() && bottomRight.isValid())
         d->relayout(model()->parent(topLeft));
 }
