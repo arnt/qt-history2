@@ -43,7 +43,8 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /Yu"stdafx.h" /FD /GZ /c
-# ADD CPP /nologo /W3 /Gm /ZI /Od /I "$(QTDIR)\include" /D "_DEBUG" /D "_MBCS" /D "WIN32" /D "_WINDOWS" /D "QT_DLL" /D "UNICODE" /FR /YX"stdafx.h" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /ZI /Od /I "$(QTDIR)\include" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "QT_DLL" /D "UNICODE" /FR /FD /GZ /c
+# SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x814 /d "_DEBUG"
 # ADD RSC /l 0x814 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -51,7 +52,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 $(QTDIR)\lib\qt-mt302.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib delayimp.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
+# ADD LINK32 $(QTDIR)\lib\activeqt.lib $(QTDIR)\lib\qt-mt302.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib delayimp.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
 # SUBTRACT LINK32 /pdb:none
 # Begin Custom Build - Performing registration
 OutDir=.\Debug
@@ -81,8 +82,8 @@ SOURCE="$(InputPath)"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /ZI /Od /I "$(QTDIR)\include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "QT_DLL" /FR /YX"stdafx.h" /FD /GZ /c
-# ADD CPP /nologo /W3 /O1 /I "$(QTDIR)\include" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "QT_DLL" /D "UNICODE" /YX"stdafx.h" /FD /GZ /c
-# SUBTRACT CPP /Fr
+# ADD CPP /nologo /MD /W3 /O1 /I "$(QTDIR)\include" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "QT_DLL" /D "UNICODE" /FD /GZ /c
+# SUBTRACT CPP /Fr /YX
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203
 # ADD BASE RSC /l 0x814 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -92,7 +93,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 $(QTDIR)\lib\qt-mt301.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib delayimp.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept /libpath:"c:\depot\qt\main\lib"
 # SUBTRACT BASE LINK32 /pdb:none
-# ADD LINK32 $(QTDIR)\lib\qt-mt302.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib delayimp.lib /nologo /subsystem:windows /pdb:none /machine:I386
+# ADD LINK32 $(QTDIR)\lib\activeqt.lib $(QTDIR)\lib\qt-mt302.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib delayimp.lib /nologo /subsystem:windows /pdb:none /machine:I386
 # SUBTRACT LINK32 /debug
 # Begin Custom Build - Performing registration
 OutDir=.\Release
@@ -118,65 +119,66 @@ SOURCE="$(InputPath)"
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\ActiveQtEXE.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\ActiveQtEXE.idl
-# ADD MTL /tlb ".\ActiveQtEXE.tlb" /h "ActiveQtEXE.h" /iid "ActiveQtEXE_i.c" /Oicf
+# ADD MTL /tlb ".\ActiveQtEXE.tlb" /h "" /iid "ActiveQtEXE_i.c" /Oicf
 # End Source File
 # Begin Source File
 
-SOURCE=.\ActiveQtEXE.rc
+SOURCE=.\activeqtexe.rc
 # End Source File
 # Begin Source File
 
 SOURCE=.\main.cpp
 # End Source File
-# Begin Source File
-
-SOURCE=.\StdAfx.cpp
-# ADD CPP /Yc"stdafx.h"
-# End Source File
-# Begin Source File
-
-SOURCE=.\TestWidget.cpp
-# End Source File
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
-# Begin Source File
-
-SOURCE=.\QActiveX.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\Resource.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\StdAfx.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\TestWidget.h
-# End Source File
 # End Group
-# Begin Group "Resource Files"
+# Begin Group "Generated"
 
-# PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+# PROP Default_Filter "*.moc"
 # Begin Source File
 
-SOURCE=.\ActiveQtEXE.rgs
+SOURCE=.\ActiveQtEXE.tlb
 # End Source File
 # Begin Source File
 
-SOURCE=.\qexetest.bmp
+SOURCE=.\ActiveQtEXE_i.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\QExeTest.rgs
+SOURCE=.\main.moc
+
+!IF  "$(CFG)" == "ActiveQtEXE - Win32 Debug"
+
+# PROP Ignore_Default_Tool 1
+USERDEP__MAIN_="$(InputDir)\$(InputName).cpp"	
+# Begin Custom Build - MOCing main.cpp...
+InputDir=.
+InputPath=.\main.moc
+InputName=main
+
+"$(InputDir)\$(InputName).moc" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	%qtdir%\bin\moc.exe $(InputDir)\$(InputName).cpp -o $(InputDir)\$(InputName).moc
+
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "ActiveQtEXE - Win32 Release"
+
+# PROP Ignore_Default_Tool 1
+# Begin Custom Build - MOCing main.cpp...
+InputDir=.
+InputPath=.\main.moc
+InputName=main
+
+"$(InputDir)\$(InputName).moc" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	%qtdir%\bin\moc.exe $(InputDir)\$(InputName).cpp -o $(InputDir)\$(InputName).moc
+
+# End Custom Build
+
+!ENDIF 
+
 # End Source File
 # End Group
 # Begin Source File

@@ -1,18 +1,33 @@
-// QActiveX.h : Declaration of the CQActiveX
+#ifndef QACTIVEX_H
+#define QACTIVEX_H
 
-#ifndef __QACTIVEX_H_
-#define __QACTIVEX_H_
-
-#include "resource.h"       // main symbols
+#include <atlbase.h>
+class CExeModule : public CComModule
+{
+public:
+	LONG Unlock();
+	DWORD dwThreadID;
+	HANDLE hEventShutdown;
+	void MonitorShutdown();
+	bool StartMonitor();
+	bool bActivity;
+};
+extern CExeModule _Module;
+#include <atlcom.h>
 #include <atlctl.h>
+#include <atlhost.h>
+
 #include <qvbox.h>
+#include <private/qwidgetinterface_p.h>
+#include "activeiface.h"
 
 Q_EXPORT LRESULT QtWndProcGate( HWND, UINT, WPARAM, LPARAM );
 
-extern "C" QWidget *axmain( QWidget *parent );
+extern "C" QUnknownInterface *ucm_instantiate();
+extern QWidget *axmain( QWidget *parent );
 
 
-class ATL_NO_VTABLE QActiveXTypeInfo : public ITypeInfo
+class QActiveXTypeInfo : public ITypeInfo
 {
 public:
     QActiveXTypeInfo( const QObject *qo ) : object( qo ), ref( 0 )
@@ -56,9 +71,17 @@ private:
     unsigned long ref;
 };
 
+
+template <class T>
+class CProxy_IQActiveXEvents : public IConnectionPointImpl<T, &DIID__IQActiveXEvents, CComDynamicUnkArray>
+{
+	//Warning this class may be recreated by the wizard.
+public:
+};
+
 /////////////////////////////////////////////////////////////////////////////
 // QActiveX
-class ATL_NO_VTABLE QActiveX : 
+class QActiveX : 
     public CComObjectRootEx<CComSingleThreadModel>,
     public IDispatchImpl<IQActiveX, &IID_IQActiveX, &LIBID_ACTIVEQTEXELib >,
     public CComControl<QActiveX>,
@@ -73,36 +96,21 @@ class ATL_NO_VTABLE QActiveX :
     public IQuickActivateImpl<QActiveX>,
     public IDataObjectImpl<QActiveX>,
     public IProvideClassInfo2Impl<&CLSID_QActiveX, &DIID__IQActiveXEvents, &LIBID_ACTIVEQTEXELib>,
-    public CComCoClass<QActiveX, &CLSID_QActiveX>
+    public CComCoClass<QActiveX, &CLSID_QActiveX>,
+    public CProxy_IQActiveXEvents< QActiveX >,
+    public IConnectionPointContainerImpl<QActiveX>
 {
 public:
-    QActiveX()
-	: m_pTypeInfo( 0 )
-    {
-	m_pWidget = new QVBox( 0, 0, Qt::WStyle_Customize );
-	::SetWindowLong( m_pWidget->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
-	object = axmain( m_pWidget );
-    }
+    QActiveX();
 
-    ~QActiveX()
-    {
-	if ( m_pTypeInfo ) {
-	    m_pTypeInfo->setObject( 0 );
-	    m_pTypeInfo->Release();
-	    m_pTypeInfo = 0;
-	}
-	if ( object ) {
-	    delete object;
-	}
-	if ( m_pWidget ) {
-	    delete m_pWidget;
-	}
-    }
+    ~QActiveX();
 
-DECLARE_REGISTRY_RESOURCEID(IDR_QEXETEST)
+    static HRESULT WINAPI UpdateRegistry(BOOL bRegister);
 
 BEGIN_COM_MAP(QActiveX)
-    COM_INTERFACE_ENTRY(IQActiveX)
+    {&IID_IQActiveX,
+	offsetofclass(IQActiveX, _ComMapClass),
+	_ATL_SIMPLEMAPENTRY},
     COM_INTERFACE_ENTRY(IDispatch)
     COM_INTERFACE_ENTRY_IMPL(IViewObjectEx)
     COM_INTERFACE_ENTRY_IMPL_IID(IID_IViewObject2, IViewObjectEx)
@@ -118,9 +126,11 @@ BEGIN_COM_MAP(QActiveX)
     COM_INTERFACE_ENTRY_IMPL(IPersistStreamInit)
     COM_INTERFACE_ENTRY_IMPL(ISpecifyPropertyPages)
     COM_INTERFACE_ENTRY_IMPL(IDataObject)
+    COM_INTERFACE_ENTRY_IMPL(IConnectionPointContainer)
     COM_INTERFACE_ENTRY(IProvideClassInfo)
     COM_INTERFACE_ENTRY(IProvideClassInfo2)
 END_COM_MAP()
+
 
 BEGIN_PROP_MAP(QActiveX)
     PROP_DATA_ENTRY("_cx", m_sizeExtent.cx, VT_UI4)
@@ -146,6 +156,10 @@ BEGIN_MSG_MAP(QActiveX)
     MESSAGE_HANDLER(WM_ACTIVATE, ForwardMessage )
 END_MSG_MAP()
 
+BEGIN_CONNECTION_POINT_MAP(QActiveX)
+    CONNECTION_POINT_ENTRY(DIID__IQActiveXEvents)
+END_CONNECTION_POINT_MAP()
+
 // IViewObjectEx
     DECLARE_VIEW_STATUS(VIEWSTATUS_SOLIDBKGND | VIEWSTATUS_OPAQUE)
 /*
@@ -162,51 +176,20 @@ END_MSG_MAP()
 	*pptinfo = m_pTypeInfo;
     }
 */
+    STDMETHOD(Invoke)(DISPID dispidMember, REFIID riid,
+		LCID lcid, WORD wFlags, DISPPARAMS* pdispparams, VARIANT* pvarResult,
+		EXCEPINFO* pexcepinfo, UINT* puArgErr);
+
 private:
     QVBox* m_pWidget;
     QObject *object;
     QActiveXTypeInfo *m_pTypeInfo;
 
-    LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-    {
-	::SetParent( m_pWidget->winId(), m_hWnd );
-	m_pWidget->raise();
-	m_pWidget->move( 0, 0 );
-
-	return 0;
-    }
-    LRESULT OnShowWindow( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
-    {
-	if( m_pWidget ) {
-	    if( wParam )
-		m_pWidget->show();
-	    else
-		m_pWidget->hide();
-	}
-	return 0;
-    }
-    LRESULT OnPaint( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
-    {
-	if ( m_pWidget )
-	    m_pWidget->update();
-	return 0;
-    }
-    LRESULT ForwardMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
-    {
-	if( m_pWidget )
-	    return ::SendMessage( m_pWidget->winId(), uMsg, wParam, lParam );
-	return 0;
-    }
-
-    LRESULT ForwardFocusMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
-    {
-	if( m_pWidget ) {
-	    if ( uMsg == WM_SETFOCUS )
-		::SendMessage( m_pWidget->winId(), WM_ACTIVATE, MAKEWPARAM( WA_ACTIVE, 0 ), 0 );
-	    return ::SendMessage( m_pWidget->winId(), uMsg, wParam, lParam );
-	}
-	return 0;
-    }
+    LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+    LRESULT OnShowWindow( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+    LRESULT OnPaint( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+    LRESULT ForwardMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+    LRESULT ForwardFocusMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
 };
 
 #endif
