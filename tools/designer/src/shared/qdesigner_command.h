@@ -36,6 +36,8 @@ struct AbstractMetaDataBaseItem;
 class QToolBox;
 class QTabWidget;
 class QStackedWidget;
+class QDockWindow;
+class QMainWindow;
 
 class AbstractFormEditorCommand: public QtCommand
 {
@@ -434,6 +436,51 @@ public:
 
     virtual void redo();
     virtual void undo();
+};
+
+class DockWindowCommand: public AbstractFormWindowCommand
+{
+    Q_OBJECT
+public:
+    DockWindowCommand(const QString &description, AbstractFormWindow *formWindow);
+    virtual ~DockWindowCommand();
+
+    virtual void init(QDockWindow *dockWindow);
+
+protected:
+    QPointer<QDockWindow> m_dockWindow;
+};
+
+class SetDockWindowWidgetCommand: public DockWindowCommand
+{
+    Q_OBJECT
+public:
+    SetDockWindowWidgetCommand(AbstractFormWindow *formWindow);
+
+    virtual void init(QDockWindow *dockWindow, QWidget *widget);
+
+    virtual void undo();
+    virtual void redo();
+
+private:
+    QPointer<QWidget> m_widget;
+    QPointer<QWidget> m_oldWidget;
+};
+
+class AddDockWindowCommand: public AbstractFormWindowCommand
+{
+    Q_OBJECT
+public:
+    AddDockWindowCommand(AbstractFormWindow *formWindow);
+
+    virtual void init(QMainWindow *mainWindow, QDockWindow *dockWindow);
+
+    virtual void undo();
+    virtual void redo();
+
+private:
+    QPointer<QMainWindow> m_mainWindow;
+    QPointer<QDockWindow> m_dockWindow;
 };
 
 #endif // QDESIGNER_COMMAND_H

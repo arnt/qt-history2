@@ -12,53 +12,20 @@
 ****************************************************************************/
 
 #include "qdesigner_taskmenu.h"
+#include "qdesigner_command.h"
 #include "qtundo.h"
 
+#include <abstractformeditor.h>
 #include <abstractformwindow.h>
 #include <abstractformwindowcursor.h>
+#include <abstractwidgetfactory.h>
 
 #include <QtGui/QAction>
 #include <QtGui/QWidget>
 #include <QtGui/QInputDialog>
 #include <QtGui/QMainWindow>
+#include <QtGui/QDockWindow>
 #include <QtGui/QVariant>
-
-class CreatDockWindowCommand: public QtCommand
-{
-public:
-    CreatDockWindowCommand();
-
-    void init(QWidget *widget);
-
-    virtual void redo();
-    virtual void undo();
-
-private:
-    QPointer<QWidget> m_widget;
-    QPointer<QWidget> m_parentWidget;
-    QPointer<QDockWindow> m_dockWindow;
-};
-
-CreatDockWindowCommand::CreatDockWindowCommand()
-{
-}
-
-void CreatDockWindowCommand::init(QWidget *widget)
-{
-    Q_ASSERT(widget != 0);
-
-    m_widget = widget;
-    m_parentWidget = widget->parentWidget();
-}
-
-void CreatDockWindowCommand::redo()
-{
-}
-
-void CreatDockWindowCommand::undo()
-{
-}
-
 
 QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent)
     : QObject(parent),
@@ -82,11 +49,14 @@ QWidget *QDesignerTaskMenu::widget() const
 
 QList<QAction*> QDesignerTaskMenu::taskActions() const
 {
+    AbstractFormWindow *formWindow = AbstractFormWindow::findFormWindow(widget());
+    Q_ASSERT(formWindow);
+
     QList<QAction*> actions;
 
     actions.append(m_changeObjectNameAction);
 
-    if (qt_cast<QMainWindow*>(widget()->parentWidget()) != 0) {
+    if (qt_cast<QMainWindow*>(formWindow->mainContainer()) != 0) {
         actions.append(m_createDockWindowAction);
     }
 
@@ -108,6 +78,35 @@ void QDesignerTaskMenu::changeObjectName()
 
 void QDesignerTaskMenu::createDockWindow()
 {
+    AbstractFormWindow *formWindow = AbstractFormWindow::findFormWindow(widget());
+    Q_ASSERT(formWindow != 0);
+
+    QMainWindow *mainWindow = qt_cast<QMainWindow*>(formWindow->mainContainer());
+    Q_ASSERT(mainWindow != 0);
+
+    formWindow->beginCommand(tr("Create Dock Window"));
+
+    AbstractWidgetFactory *widgetFactory = formWindow->core()->widgetFactory();
+    QDockWindow *dockWindow = (QDockWindow *) widgetFactory->createWidget(QLatin1String("QDockWindow"), formWindow->mainContainer());
+    Q_ASSERT(dockWindow);
+
+    InsertWidgetCommand *cmd = new InsertWidgetCommand(formWindow);
+    cmd->init(dockWindow);
+    formWindow->commandHistory()->push(cmd);
+
+    ReparentWidgetCommand *reparentCmd = new ReparentWidgetCommand(formWindow);
+    reparentCmd->init(widget(), dockWindow);
+    formWindow->commandHistory()->push(reparentCmd);
+
+    SetDockWindowWidgetCommand *setDockWidgetCmd = new SetDockWindowWidgetCommand(formWindow);
+    setDockWidgetCmd->init(dockWindow, m_widget);
+    formWindow->commandHistory()->push(setDockWidgetCmd);
+
+    AddDockWindowCommand *addDockWindowCmd = new AddDockWindowCommand(formWindow);
+    addDockWindowCmd->init(mainWindow, dockWindow);
+    formWindow->commandHistory()->push(addDockWindowCmd);
+
+    formWindow->endCommand();
 }
 
 QDesignerTaskMenuFactory::QDesignerTaskMenuFactory(QExtensionManager *extensionManager)
