@@ -1,6 +1,6 @@
 #!/bin/sh
 
-WHICH=`which which 2>/dev/null`
+WHICH=`which which 2>/dev/null | tail -1`
 if [ -z "$WHICH" ]; then
     if which which >/dev/null 2>&1; then
 	WHICH=which
@@ -15,7 +15,7 @@ if [ -z "$WHICH" ]; then
 fi
 
 if [ ! -z "$WHICH" ]; then
-    a=`which "$1" 2>/dev/null`
+    a=`which "$1" 2>/dev/null | tail -1`
     if [ ! -z "$a" -a -x "$a" ]; then
 	echo "$a"
 	exit 0
