@@ -1,3 +1,17 @@
+/****************************************************************************
+**
+** Definition of QByteArray class.
+**
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+**
+** This file is part of the tools module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #ifndef QBYTEARRAY_H
 #define QBYTEARRAY_H
 
@@ -404,4 +418,4 @@ Q_EXPORT inline QByteArray qUncompress( const QByteArray& data )
 Q_DECLARE_TYPEINFO(QByteArray, Q_MOVABLE_TYPE);
 Q_DECLARE_SHARED(QByteArray);
 
-#endif // QBYTEARRAY_H
+#endif

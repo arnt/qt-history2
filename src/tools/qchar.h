@@ -1,5 +1,5 @@
-#ifndef QCHAR
-#define QCHAR
+#ifndef QCHAR_H
+#define QCHAR_H
 
 #ifndef QT_H
 #include "qglobal.h"
@@ -195,4 +195,4 @@ inline bool operator>(QChar c1, QChar c2) { return !(c2>=c1); }
 
 Q_DECLARE_TYPEINFO(QChar, Q_MOVABLE_TYPE);
 
-#endif // QCHAR
+#endif

@@ -1,7 +1,19 @@
+/****************************************************************************
+**
+** Implementation of QByteArray class.
+**
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+**
+** This file is part of the tools module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include "qbytearray.h"
 #include "qtools_p.h"
-#include <limits.h>
-#include <string.h>
 #ifndef QT_NO_DATASTREAM
 #include <qdatastream.h>
 #endif
@@ -14,6 +26,8 @@
 #include "../3rdparty/zlib/zlib.h"
 #endif
 #include <ctype.h>
+#include <limits.h>
+#include <string.h>
 
 /*****************************************************************************
   Safe and portable C string functions; extensions to standard string.h
