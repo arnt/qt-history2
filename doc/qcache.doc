@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qcache.doc,v 2.2 1997/08/06 15:03:13 hanord Exp $
+** $Id: qcache.doc,v 2.3 1998/03/16 19:29:15 warwick Exp $
 **
 ** QCache and QCacheIterator class documentation
 **
@@ -53,27 +53,8 @@
 
     void main()
     {
-	QCache<char> dict( 17, FALSE );	// case insensitive dict of char*
-
-	dict.insert( "France", "Paris" );
-	dict.insert( "Russia", "Moscow" );
-	dict.insert( "Norway", "Oslo" );
-
-	printf( "%s\n", dict["Norway"] );
-	printf( "%s\n", dict["FRANCE"] );
-	printf( "%s\n", dict["russia"] );
-
-	if ( !dict["Italy"] )
-	    printf( "Italy not defined\n" );
+	// Example removed (incorrect)
     }
-  \endcode
-
-  Program output:
-  \code
-	Oslo
-	Paris
-	Moscow
-	Italy not defined
   \endcode
 
   The dictionary in our example maps \c char* keys to \c char* items.
