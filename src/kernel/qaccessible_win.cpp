@@ -60,7 +60,7 @@ public:
 
     HRESULT STDMETHODCALLTYPE GetTypeInfoCount( unsigned int * );
     HRESULT STDMETHODCALLTYPE GetTypeInfo( unsigned int, unsigned long, ITypeInfo ** );
-    HRESULT STDMETHODCALLTYPE GetIDsOfNames( const _GUID &, unsigned short **, unsigned int, unsigned long, long * );
+    HRESULT STDMETHODCALLTYPE GetIDsOfNames( const _GUID &, wchar_t **, unsigned int, unsigned long, long * );
     HRESULT STDMETHODCALLTYPE Invoke( long, const _GUID &, unsigned long, unsigned short, tagDISPPARAMS *, tagVARIANT *, tagEXCEPINFO *, unsigned int * );
 
     HRESULT STDMETHODCALLTYPE accHitTest( long xLeft, long yTop, VARIANT *pvarID );
@@ -106,7 +106,7 @@ IAccessible *qt_createWindowsAccessible( QAccessibleInterface *access )
 /*
   IUnknown
 */
-HRESULT QWindowsAccessible::QueryInterface( REFIID id, LPVOID *iface )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::QueryInterface( REFIID id, LPVOID *iface )
 {
     *iface = 0;
     if ( id == IID_IUnknown )
@@ -124,12 +124,12 @@ HRESULT QWindowsAccessible::QueryInterface( REFIID id, LPVOID *iface )
     return E_NOINTERFACE;
 }
 
-ULONG QWindowsAccessible::AddRef()
+ULONG STDMETHODCALLTYPE QWindowsAccessible::AddRef()
 {
     return ++ref;
 }
 
-ULONG QWindowsAccessible::Release()
+ULONG STDMETHODCALLTYPE QWindowsAccessible::Release()
 {
     if ( !--ref ) {
 	delete this;
@@ -142,22 +142,22 @@ ULONG QWindowsAccessible::Release()
   IDispatch
 */
 
-HRESULT QWindowsAccessible::GetTypeInfoCount( unsigned int * )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetTypeInfoCount( unsigned int * )
 {
     return DISP_E_MEMBERNOTFOUND;
 }
 
-HRESULT QWindowsAccessible::GetTypeInfo( unsigned int, unsigned long, ITypeInfo ** )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetTypeInfo( unsigned int, unsigned long, ITypeInfo ** )
 {
     return DISP_E_MEMBERNOTFOUND;
 }
 
-HRESULT QWindowsAccessible::GetIDsOfNames( const _GUID &, unsigned short **, unsigned int, unsigned long, long * )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetIDsOfNames( const _GUID &, wchar_t **, unsigned int, unsigned long, long * )
 {
     return DISP_E_MEMBERNOTFOUND;
 }
 
-HRESULT QWindowsAccessible::Invoke( long, const _GUID &, unsigned long, unsigned short, tagDISPPARAMS *, tagVARIANT *, tagEXCEPINFO *, unsigned int * )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::Invoke( long, const _GUID &, unsigned long, unsigned short, tagDISPPARAMS *, tagVARIANT *, tagEXCEPINFO *, unsigned int * )
 { 
     return DISP_E_MEMBERNOTFOUND;
 }
@@ -165,7 +165,7 @@ HRESULT QWindowsAccessible::Invoke( long, const _GUID &, unsigned long, unsigned
 /* 
   IAccessible
 */
-HRESULT QWindowsAccessible::accHitTest( long xLeft, long yTop, VARIANT *pvarID )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::accHitTest( long xLeft, long yTop, VARIANT *pvarID )
 { 
     int who;
     QAccessibleInterface *acc = accessible->hitTest( xLeft, yTop, &who );
@@ -195,7 +195,7 @@ HRESULT QWindowsAccessible::accHitTest( long xLeft, long yTop, VARIANT *pvarID )
     return DISP_E_MEMBERNOTFOUND;
 }
 
-HRESULT QWindowsAccessible::accLocation( long *pxLeft, long *pyTop, long *pcxWidth, long *pcyHeight, VARIANT varID )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::accLocation( long *pxLeft, long *pyTop, long *pcxWidth, long *pcyHeight, VARIANT varID )
 { 
     QRect rect = accessible->location( varID.lVal );
     *pxLeft = rect.x();
@@ -205,7 +205,7 @@ HRESULT QWindowsAccessible::accLocation( long *pxLeft, long *pyTop, long *pcxWid
     return S_OK;
 }
 
-HRESULT QWindowsAccessible::accNavigate( long navDir, VARIANT varStart, VARIANT *pvarEnd )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::accNavigate( long navDir, VARIANT varStart, VARIANT *pvarEnd )
 {
     if ( varStart.lVal == CHILDID_SELF ) {
 	// ask parent widget for next child in focus chain
@@ -217,7 +217,7 @@ HRESULT QWindowsAccessible::accNavigate( long navDir, VARIANT varStart, VARIANT 
     return S_FALSE;
 }
 
-HRESULT QWindowsAccessible::get_accChild( VARIANT varChildID, IDispatch** ppdispChild )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accChild( VARIANT varChildID, IDispatch** ppdispChild )
 { 
 /*
     *ppdispChild = NULL;
@@ -250,7 +250,7 @@ HRESULT QWindowsAccessible::get_accChild( VARIANT varChildID, IDispatch** ppdisp
     return S_FALSE;
 }
 
-HRESULT QWindowsAccessible::get_accChildCount( long* pcountChildren )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accChildCount( long* pcountChildren )
 { 
 #if 0
     QObjectList *ol = widget->queryList( "QObject", 0, FALSE, FALSE );
@@ -265,7 +265,7 @@ HRESULT QWindowsAccessible::get_accChildCount( long* pcountChildren )
     return S_OK;
 }
 
-HRESULT QWindowsAccessible::get_accParent( IDispatch** ppdispParent )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accParent( IDispatch** ppdispParent )
 { 
     QAccessibleInterface *acc = accessible->parent();
     if ( acc ) {
@@ -283,7 +283,7 @@ HRESULT QWindowsAccessible::get_accParent( IDispatch** ppdispParent )
 /*!
   Properties and methods
 */
-HRESULT QWindowsAccessible::accDoDefaultAction( VARIANT varID )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::accDoDefaultAction( VARIANT varID )
 {
     if ( accessible->doDefaultAction( varID.lVal ) )
 	return S_OK;
@@ -291,7 +291,7 @@ HRESULT QWindowsAccessible::accDoDefaultAction( VARIANT varID )
     return DISP_E_MEMBERNOTFOUND;
 }
 
-HRESULT QWindowsAccessible::get_accDefaultAction( VARIANT varID, BSTR* pszDefaultAction )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accDefaultAction( VARIANT varID, BSTR* pszDefaultAction )
 { 
     QString def = accessible->defaultAction( varID.lVal );
     if ( !!def ) {
@@ -303,7 +303,7 @@ HRESULT QWindowsAccessible::get_accDefaultAction( VARIANT varID, BSTR* pszDefaul
     return S_FALSE;
 }
 
-HRESULT QWindowsAccessible::get_accDescription( VARIANT varID, BSTR* pszDescription )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accDescription( VARIANT varID, BSTR* pszDescription )
 { 
     QString descr = accessible->description( varID.lVal );
     if ( !!descr ) {
@@ -315,7 +315,7 @@ HRESULT QWindowsAccessible::get_accDescription( VARIANT varID, BSTR* pszDescript
     return S_FALSE;
 }
 
-HRESULT QWindowsAccessible::get_accHelp( VARIANT varID, BSTR *pszHelp )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accHelp( VARIANT varID, BSTR *pszHelp )
 {
     QString help = accessible->help( varID.lVal );
     if ( !!help ) {
@@ -327,12 +327,12 @@ HRESULT QWindowsAccessible::get_accHelp( VARIANT varID, BSTR *pszHelp )
     return S_FALSE;
 }
 
-HRESULT QWindowsAccessible::get_accHelpTopic( BSTR *pszHelpFile, VARIANT varChild, long *pidTopic )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accHelpTopic( BSTR *pszHelpFile, VARIANT varChild, long *pidTopic )
 { 
     return DISP_E_MEMBERNOTFOUND;
 }
 
-HRESULT QWindowsAccessible::get_accKeyboardShortcut( VARIANT varID, BSTR *pszKeyboardShortcut )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accKeyboardShortcut( VARIANT varID, BSTR *pszKeyboardShortcut )
 { 
     QString sc = accessible->accelerator( varID.lVal );
     if ( !!sc ) {
@@ -344,7 +344,7 @@ HRESULT QWindowsAccessible::get_accKeyboardShortcut( VARIANT varID, BSTR *pszKey
     return S_FALSE;
 }
 
-HRESULT QWindowsAccessible::get_accName( VARIANT varID, BSTR* pszName )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accName( VARIANT varID, BSTR* pszName )
 {
     QString n = accessible->name( varID.lVal );
     if ( !!n ) {
@@ -356,12 +356,12 @@ HRESULT QWindowsAccessible::get_accName( VARIANT varID, BSTR* pszName )
     return S_FALSE;
 }
 
-HRESULT QWindowsAccessible::put_accName( VARIANT varID, BSTR szName )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::put_accName( VARIANT varID, BSTR szName )
 { 
     return DISP_E_MEMBERNOTFOUND;
 }
 
-HRESULT QWindowsAccessible::get_accRole( VARIANT varID, VARIANT *pvarRole )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accRole( VARIANT varID, VARIANT *pvarRole )
 { 
     int role = accessible->role( varID.lVal );
     if ( role != QAccessible::NoRole ) {
@@ -373,14 +373,14 @@ HRESULT QWindowsAccessible::get_accRole( VARIANT varID, VARIANT *pvarRole )
     return S_OK;
 }
 
-HRESULT QWindowsAccessible::get_accState( VARIANT varID, VARIANT *pvarState )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accState( VARIANT varID, VARIANT *pvarState )
 {
     (*pvarState).vt = VT_I4;
     (*pvarState).lVal = accessible->state( varID.lVal );
     return S_OK;
 }
 
-HRESULT QWindowsAccessible::get_accValue( VARIANT varID, BSTR* pszValue )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accValue( VARIANT varID, BSTR* pszValue )
 { 
     QString value = accessible->value( varID.lVal );
     if ( !value.isNull() ) {
@@ -392,12 +392,12 @@ HRESULT QWindowsAccessible::get_accValue( VARIANT varID, BSTR* pszValue )
     return S_FALSE;
 }
 
-HRESULT QWindowsAccessible::put_accValue( VARIANT varChild, BSTR szValue )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::put_accValue( VARIANT varChild, BSTR szValue )
 { 
     return DISP_E_MEMBERNOTFOUND;
 }
 
-HRESULT QWindowsAccessible::accSelect( long flagsSelect, VARIANT varID )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::accSelect( long flagsSelect, VARIANT varID )
 { 
     if ( varID.lVal == CHILDID_SELF ) {
 	if ( flagsSelect & ( SELFLAG_TAKEFOCUS ) )
@@ -418,7 +418,7 @@ HRESULT QWindowsAccessible::accSelect( long flagsSelect, VARIANT varID )
     return S_FALSE;
 }
 
-HRESULT QWindowsAccessible::get_accFocus( VARIANT *pvarID )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accFocus( VARIANT *pvarID )
 { 
     int who;
     QAccessibleInterface *acc = accessible->hasFocus( &who );
@@ -448,7 +448,7 @@ HRESULT QWindowsAccessible::get_accFocus( VARIANT *pvarID )
     return DISP_E_MEMBERNOTFOUND;
 }
 
-HRESULT QWindowsAccessible::get_accSelection( VARIANT *pvarChildren )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accSelection( VARIANT *pvarChildren )
 { 
     return DISP_E_MEMBERNOTFOUND;
 }
