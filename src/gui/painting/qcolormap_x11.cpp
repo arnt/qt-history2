@@ -520,16 +520,17 @@ int QColormap::size() const
 
 uint QColormap::pixel(const QColor &color) const
 {
-    QRgb rgb = color.rgba();
+    QColor c = color.toRgb();
+    QRgb rgb = c.rgba();
     // Qt::color0 or Qt::color1 have fixed values for all screens
     if (rgb == 0x01ffffff)
         return 0;
     if (rgb == 0x01000000)
         return 1;
 
-    const uint r = (color.argb.red   * d->r_max) >> 16;
-    const uint g = (color.argb.green * d->g_max) >> 16;
-    const uint b = (color.argb.blue  * d->b_max) >> 16;
+    const uint r = (c.argb.red   * d->r_max) >> 16;
+    const uint g = (c.argb.green * d->g_max) >> 16;
+    const uint b = (c.argb.blue  * d->b_max) >> 16;
     if (d->mode != Direct) {
         if (d->mode == Gray)
             return d->pixels.at((r * 30 + g * 59 + b * 11) / 100);
