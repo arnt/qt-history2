@@ -3053,7 +3053,7 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
     case QEvent::Wheel:
 	if ( o == this || o == viewport() ) {
 	    QWheelEvent* we = (QWheelEvent*)e;
-	    scrollBy( 0, we->delta() );
+	    scrollBy( 0, -we->delta() );
 	    we->accept();
 	    return TRUE;
 	}
