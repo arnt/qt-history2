@@ -106,7 +106,7 @@ QPageSetupDialog::QPageSetupDialog(QPrinter *printer, QWidget *parent)
     layout->setSpacing(6);
 
     QFrame *frame = new QFrame(this);
-    frame->setFrameShape(QFrame::GroupBoxPanel);
+    frame->setFrameShape(QFrame::StyledPanel);
     frame->setFrameShadow(QFrame::Sunken);
     QGridLayout *frameLayout = new QGridLayout(frame);
     frameLayout->setMargin(11);

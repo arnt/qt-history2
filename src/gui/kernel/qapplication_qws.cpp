@@ -2023,7 +2023,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
         if (e->simpleData.property == 424242) {       // Clipboard
 #ifndef QT_NO_CLIPBOARD
             if (qt_clipboard) {
-                QCustomEvent e(QEvent::Clipboard, event);
+                QClipboardEvent e(event);
                 QApplication::sendEvent(qt_clipboard, &e);
             }
 #endif
@@ -2702,8 +2702,8 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int oldstate)
                         mouseButtonPressed == button &&
                         long(mouse.time) -long(mouseButtonPressTime)
                             < QApplication::doubleClickInterval() &&
-                        QABS(mouse.x_root - mouseXPos) < 5 &&
-                        QABS(mouse.y_root - mouseYPos) < 5) {
+                        qAbs(mouse.x_root - mouseXPos) < 5 &&
+                        qAbs(mouse.y_root - mouseYPos) < 5) {
                         type = QEvent::MouseButtonDblClick;
                         mouseButtonPressTime -= 2000;        // no double-click next time
                     } else {

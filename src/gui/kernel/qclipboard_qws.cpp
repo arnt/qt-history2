@@ -205,7 +205,7 @@ bool QClipboard::event(QEvent *e)
     if (e->type() != QEvent::Clipboard)
         return QObject::event(e);
 
-    QWSPropertyNotifyEvent *event = (QWSPropertyNotifyEvent *)(((QCustomEvent *)e)->data());
+    QWSPropertyNotifyEvent *event = (QWSPropertyNotifyEvent *)(((QClipboardEvent *)e)->data());
     if (event && event->simpleData.state == QWSPropertyNotifyEvent::PropertyNewValue) {
         emit dataChanged();
     }
