@@ -116,6 +116,7 @@ void QWSClient::errorHandler( int err )
     }
     qDebug( "Client %p error %d (%s)", this, err, s.ascii() );
     isClosed = TRUE;
+    flush(); //####We need to clean out the pipes, this in not the the way.
     emit connectionClosed();
 }
 
@@ -908,6 +909,7 @@ void QWSServer::setWindowRegion(QWSWindow* changingw, QRegion r )
     }
     QRegion allocation;
     int windex = -1;
+
 
     // First, take the region away from whichever windows currently have it...
 
