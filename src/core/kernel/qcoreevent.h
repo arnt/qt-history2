@@ -146,7 +146,10 @@ public:
         CaptionChange = WindowTitleChange,
         IconChange = WindowIconChange,
 #endif
-        ToolBarSwitch = 120,                    // Describes when the toolbar btn is toggled on Mac
+        ToolBarChange = 120,                    // toolbar visibility toggled
+
+        ApplicationActivated = 121,             // application has been changed to active
+        ApplicationDeactivated = 122,           // application has been changed to inactive
 
         User = 1000,                            // first user event id
         MaxUser = 65535                         // last user event id

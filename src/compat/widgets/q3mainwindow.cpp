@@ -1521,7 +1521,7 @@ bool Q3MainWindow::event(QEvent * e)
             return true;
         }
     }
-    if (e->type() == QEvent::ToolBarSwitch) {
+    if (e->type() == QEvent::ToolBarChange) {
         // Keep compatibility with the Qt 3 main window, use the real main window
         // or reimplement if you want proper handling.
         int deltaH = 0;

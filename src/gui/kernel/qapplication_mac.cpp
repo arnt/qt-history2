@@ -1261,7 +1261,7 @@ static int get_key(int modif, int key, int scan)
 /*!
     \internal
 */
-bool QApplicationPrivate::do_mouse_down(Point *pt, bool *mouse_down_unhandled, EventRef mouseEv)
+bool QApplicationPrivate::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 {
     //find the widget/part
     QWidget *widget = 0;
@@ -1338,17 +1338,12 @@ bool QApplicationPrivate::do_mouse_down(Point *pt, bool *mouse_down_unhandled, E
         widget->d->close_helper(QWidgetPrivate::CloseWithSpontaneousEvent);
         break;
     case inToolbarButton: {
-        if (mouseEv) {
-            UInt32 modifiers;
-            GetEventParameter(mouseEv, kEventParamKeyModifiers, typeUInt32, 0,
-                              sizeof(modifiers), 0, &modifiers);
-            QToolBarSwitchEvent tse(get_modifiers(modifiers, true));
-            q->sendSpontaneousEvent(widget, &tse);
-        }
+        QToolBarChangeEvent ev(!(GetCurrentKeyModifiers() & cmdKey));
+        QApplication::sendSpontaneousEvent(widget, &ev);
         break; }
     case inProxyIcon: {
         QIconDragEvent e;
-        q->sendSpontaneousEvent(widget, &e);
+        QApplication::sendSpontaneousEvent(widget, &e);
         if(e.isAccepted())
             break;
         //fall through if not accepted
@@ -1365,10 +1360,8 @@ bool QApplicationPrivate::do_mouse_down(Point *pt, bool *mouse_down_unhandled, E
             LocalToGlobal(&p);
             np = QPoint(p.h, p.v);
         }
-        if(np != op) {
+        if(np != op) 
             widget->data->crect = QRect(np, widget->data->crect.size());
-            QMoveEvent qme(np, op);
-        }
         break; }
     case inGrow: {
         Rect limits;
@@ -1397,7 +1390,7 @@ bool QApplicationPrivate::do_mouse_down(Point *pt, bool *mouse_down_unhandled, E
         widget->setWindowState(widget->windowState() | Qt::WindowMinimized);
         //we send a hide to be like X11/Windows
         QEvent e(QEvent::Hide);
-        q->sendSpontaneousEvent(widget, &e);
+        QApplication::sendSpontaneousEvent(widget, &e);
         break; }
     case inZoomIn:
         widget->setWindowState(widget->windowState() & ~Qt::WindowMaximized);
@@ -1843,7 +1836,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             mouse_button_state = after_state;
             if(ekind == kEventMouseDown && qt_mac_is_macsheet(QApplication::activeModalWidget())) {
                 QApplication::activeModalWidget()->parentWidget()->setActiveWindow(); //sheets have a parent
-                if(!app->d->do_mouse_down(&where, 0, event))
+                if(!app->d->do_mouse_down(&where, 0))
                     mouse_button_state = 0;
             }
 #ifdef DEBUG_MOUSE_MAPS
@@ -1886,7 +1879,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
 
         if(ekind == kEventMouseDown) {
             bool mouse_down_unhandled;
-            if(!app->d->do_mouse_down(&where, &mouse_down_unhandled, event)) {
+            if(!app->d->do_mouse_down(&where, &mouse_down_unhandled)) {
                 if(mouse_down_unhandled) {
                     handled_event = false;
                     break;
@@ -2417,6 +2410,10 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 QEvent ev(QEvent::Clipboard);
                 QApplication::sendSpontaneousEvent(qt_clipboard, &ev);
             }
+            if(app) {
+                QEvent ev(QEvent::ApplicationActivated);
+                QApplication::sendSpontaneousEvent(app, &ev);
+            }
             if(!app->activeWindow()) {
                 WindowPtr wp = ActiveNonFloatingWindow();
                 if(wp && !unhandled_dialogs.contains(wp)) {
@@ -2429,6 +2426,10 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             while(app->inPopupMode())
                 app->activePopupWidget()->close();
             app->clipboard()->saveScrap();
+            if(app) {
+                QEvent ev(QEvent::ApplicationDeactivated);
+                QApplication::sendSpontaneousEvent(app, &ev);
+            }
             app->setActiveWindow(0);
         } else {
             handled_event = false;

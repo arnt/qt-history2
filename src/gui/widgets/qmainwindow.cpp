@@ -274,7 +274,7 @@ void QMainWindow::childEvent(QChildEvent *event)
 /*! \reimp */
 bool QMainWindow::event(QEvent *event)
 {
-    if (event->type() == QEvent::ToolBarSwitch) {
+    if (event->type() == QEvent::ToolBarChange) {
         int deltaH = 0;
         int deltaW = 0;
         QList<QToolBar *> toolbars = qFindChildren<QToolBar *>(this);

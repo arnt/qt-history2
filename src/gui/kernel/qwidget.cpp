@@ -4668,6 +4668,7 @@ bool QWidget::event(QEvent *e)
             d->resolvePalette();
         break;
 #endif
+    case QEvent::ToolBarChange:
     case QEvent::ActivationChange:
     case QEvent::EnabledChange:
     case QEvent::FontChange:

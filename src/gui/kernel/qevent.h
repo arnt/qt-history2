@@ -489,13 +489,13 @@ private:
     QString f;
 };
 
-class Q_GUI_EXPORT QToolBarSwitchEvent : public QEvent
+class Q_GUI_EXPORT QToolBarChangeEvent : public QEvent
 {
 public:
-    QToolBarSwitchEvent(int state) : QEvent(ToolBarSwitch), mState(state) {}
-    Qt::ButtonState state()         const { return static_cast<Qt::ButtonState>(mState); }
+    QToolBarChangeEvent(bool t) : QEvent(ToolBarChange), tog(t) {}
+    bool toggle() const { return tog; }
 private:
-    int mState;
+    uint tog : 1;
 };
 
 class Q_GUI_EXPORT QShortcutEvent : public QEvent

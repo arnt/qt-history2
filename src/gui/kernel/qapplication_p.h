@@ -117,7 +117,7 @@ public:
 #endif
 
 #ifdef Q_WS_MAC
-    bool do_mouse_down(Point *, bool *, EventRef = 0);
+    bool do_mouse_down(Point *, bool *);
     static OSStatus globalEventProcessor(EventHandlerCallRef,  EventRef, void *);
     static OSStatus globalAppleEventProcessor(const AppleEvent *, AppleEvent *, long);
     static void qt_context_timer_callbk(EventLoopTimerRef, void *);
