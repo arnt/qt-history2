@@ -420,7 +420,7 @@ void MainWindow::setupActionEditor()
 
 void MainWindow::setupToolbox()
 {
-    QDockWindow *dw = new QDockWindow;
+    QDockWindow *dw = new QDockWindow( QDockWindow::InDock, this );
     dw->setResizeEnabled( TRUE );
     dw->setCloseMode( QDockWindow::Always );
     addToolBar( dw, Qt::DockLeft );
