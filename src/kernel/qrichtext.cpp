@@ -4524,7 +4524,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 		xend = at( paintStart )->x + str->width( paintStart );
 	    } else {
 		xstart = at( paintStart )->x;
-		if ( !selectionStateChanged && i < length() - 1 && !str->at( i + 1 ).lineStart )
+		if ( i < length() - 1 && !str->at( i + 1 ).lineStart )
 		    xend = str->at( i + 1 ).x;
 		else
 		    xend = chr->x + str->width( i );
@@ -5565,6 +5565,10 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
     for ( ; i < len; ++i, ++col ) {
 	if ( c )
 	    lastChr = c->c;
+	bool lastWasOwnLineCustomItem = lastBreak == -2;
+	bool hadBreakableChar = lastBreak != -1;
+	bool lastWasHardBreak = lastChr == QChar_linesep;
+
 	// ### next line should not be needed
 	if ( painter )
 	    c->format()->setPainter( painter );
@@ -5584,11 +5588,17 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 	if ( c->c.unicode() >= 32 || c->isCustom() ) {
 	    ww = string->width( i );
 	} else if ( c->c == '\t' ) {
-	    int nx = parag->nextTab( i, x - left ) + left;
-	    if ( nx < x )
-		ww = w - x;
-	    else
-		ww = nx - x;
+	    if ( align == Qt::AlignRight || align == Qt::AlignCenter ) {
+		// we can not  (yet) do tabs
+		ww = c->format()->width(' ' );
+	    } else {
+		int tabx = lastWasHardBreak ? 0 : x;
+		int nx = parag->nextTab( i, tabx - left ) + left;
+		if ( nx < tabx ) // strrrange...
+		    ww = 0;
+		else
+		    ww = nx - tabx;
+	    }
 	} else {
 	    ww = c->format()->width( ' ' );
 	}
@@ -5646,10 +5656,6 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 		minw = QMAX( minw, tw );
 	}
 #endif
-	bool lastWasOwnLineCustomItem = lastBreak == -2;
-	bool hadBreakableChar = lastBreak != -1;
-	bool lastWasHardBreak = lastChr == QChar_linesep;
-
 	// we break if
 	// 1. the last character was a hard break (QChar_linesep) or
 	// 2. the last charater was a own-line custom item (eg. table or ruler) or

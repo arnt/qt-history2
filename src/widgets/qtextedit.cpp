@@ -1240,6 +1240,9 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 	    if ( !cursor->paragraph() || cursor->paragraph()->direction() == QChar::DirL )
 		return;
 	    cursor->paragraph()->setDirection( QChar::DirL );
+	    if ( cursor->paragraph()->length() <= 1&&
+		 ( (cursor->paragraph()->alignment() & (Qt::AlignLeft | Qt::AlignRight) ) != 0 ) )
+		setAlignment( Qt::AlignLeft );
 	}
 	repaintChanged();
 	break;
@@ -1257,6 +1260,9 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 	    if ( !cursor->paragraph() || cursor->paragraph()->direction() == QChar::DirR )
 		return;
 	    cursor->paragraph()->setDirection( QChar::DirR );
+	    if ( cursor->paragraph()->length() <= 1&&
+		 ( (cursor->paragraph()->alignment() & (Qt::AlignLeft | Qt::AlignRight) ) != 0 ) )
+		setAlignment( Qt::AlignRight );
 	}
 	repaintChanged();
 	break;
