@@ -450,7 +450,6 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     QWMatrix mat( 1, 0, 0, 1, -xmin, -ymin );	// true matrix
     mat = matrix * mat;
 
-    //FIXME I don't think this case works!
     if ( matrix.m12() == 0.0F  && matrix.m21() == 0.0F &&
 	 matrix.m11() >= 0.0F  && matrix.m22() >= 0.0F ) {
 	if ( mat.m11() == 1.0F && mat.m22() == 1.0F )
@@ -465,7 +464,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	    return *this;
 
 	QPixmap pm( w, h, depth(), NormalOptim );
-	scaledBitBlt(&pm, 0, 0, w, h, this, ws, hs, width(), height(), Qt::CopyROP, TRUE);
+	scaledBitBlt(&pm, 0, 0, w, h, this, 0, 0, width(), height(), Qt::CopyROP, TRUE);
 	if ( 0 && data->mask ) {
 	    QBitmap bm = data->selfmask ? *((QBitmap*)(&pm)) : data->mask->xForm(matrix);
 	    pm.setMask( bm );
