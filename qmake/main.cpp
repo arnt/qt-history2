@@ -63,9 +63,25 @@ main(int argc, char **argv)
 	    continue;
 	}
 
-	/* now generate a makefile */
-	DspMakefileGenerator mkfile(&proj);
-	mkfile.write(NULL);
+	MakefileGenerator *mkfile = NULL;
+	QString gen = proj.variables()["MAKEFILE_GENERATOR"].first();
+	if(gen.isEmpty()) {
+	    fprintf(stderr, "No generator specified in config file.\n");
+	    return 666;
+	}
+	else if(gen == "UNIX")
+	    mkfile = new UnixMakefileGenerator(&proj);
+	else if(gen == "DSP")
+	    mkfile = new DspMakefileGenerator(&proj);
+	else if(gen == "BMAKE")
+	    mkfile = new BorlandMakefileGenerator(&proj);
+	else if(gen == "NMAKE")
+	    mkfile = new NmakeMakefileGenerator(&proj);
+	else {
+	    fprintf(stderr, "Unknown generator specified: %s\n", gen.latin1());
+	    return 666;
+	}
+	mkfile->write(NULL);
 
 #ifdef QMAKE_DEBUG
 	QMap<QString, QStringList> &vars = proj.variables();
