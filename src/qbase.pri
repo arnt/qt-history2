@@ -65,8 +65,10 @@ CONFIG          += qmake_cache target_qt
 mac {
    #QMAKE_LFLAGS += -undefined suppress -flat_namespace
    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.2 #enables weak linking for 10.2 (exported)
-   QMAKE_CFLAGS += -fconstant-cfstrings
-   QMAKE_CXXFLAGS += -fconstant-cfstrings
+   !mac-xlc: {
+       QMAKE_CFLAGS += -fconstant-cfstrings
+       QMAKE_CXXFLAGS += -fconstant-cfstrings
+   }
 }
 
 win32:!shared:CONFIG += staticlib
