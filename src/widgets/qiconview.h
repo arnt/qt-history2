@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#43 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#44 $
 **
 ** Definition of QIconView widget class
 **
@@ -289,12 +289,12 @@ public:
     virtual void setSelectionMode( SelectionMode m );
     SelectionMode selectionMode() const;
 
-    virtual void setSingleClickMode( QFont *normalText, QColor *normalTextCol,
-				     QFont *highlightedText, QColor *highlightedTextCol,
-				     QCursor *highlightedCursor, int setCurrentInterval );
-    void singleClickMode( QFont *normalText, QColor *normalTextCol,
-			  QFont *highlightedText, QColor *highlightedTextCol,
-			  QCursor *highlightedCursor, int &setCurrentInterval ) const;
+    virtual void setSingleClickConfiguration( QFont *normalText, QColor *normalTextCol,
+					      QFont *highlightedText, QColor *highlightedTextCol,
+					      QCursor *highlightedCursor, int setCurrentInterval );
+    void singleClickConfiguration( QFont *normalText, QColor *normalTextCol,
+				   QFont *highlightedText, QColor *highlightedTextCol,
+				   QCursor *highlightedCursor, int &setCurrentInterval ) const;
     virtual void setUseSingleClickMode( bool b );
     bool useSingleClickMode() const;
 
@@ -357,7 +357,7 @@ protected slots:
     virtual void adjustItems();
     virtual void slotUpdate();
     virtual void selectHighlightedItem();
-    
+
 private slots:
     void clearInputString();
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#97 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#98 $
 **
 ** Definition of QIconView widget class
 **
@@ -131,15 +131,15 @@ struct QIconViewPrivate
     bool reorderItemsWhenInsert;
     bool singleClickMode;
     QCursor oldCursor;
-    
+
     struct SingleClickConfig {
-	SingleClickConfig() 
+	SingleClickConfig()
 	    : normalText( 0 ), normalTextCol( 0 ),
 	      highlightedText( 0 ), highlightedTextCol( 0 ),
 	      highlightedCursor( 0 ), setCurrentInterval( -1 ) {
 	}
 	
-	QFont *normalText; 
+	QFont *normalText;
 	QColor *normalTextCol;
 	QFont *highlightedText;
 	QColor *highlightedTextCol;
@@ -1270,7 +1270,7 @@ void QIconViewItem::paintItem( QPainter *p )
 		p->setPen( *view->d->singleClickConfig.normalTextCol );
 	}
     }
-    
+
     QIconSet::Mode m = QIconSet::Normal;
     if ( isSelected() )
 	m = QIconSet::Active;
@@ -1577,7 +1577,7 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->singleClickConfig = QIconViewPrivate::SingleClickConfig();
     d->oldCursor = Qt::arrowCursor;
     d->singleClickSelectTimer = new QTimer( this );
-    
+
     connect( d->adjustTimer, SIGNAL( timeout() ),
 	     this, SLOT( adjustItems() ) );
     connect( d->updateTimer, SIGNAL( timeout() ),
@@ -2032,9 +2032,9 @@ QIconView::SelectionMode QIconView::selectionMode() const
     return d->selectionMode;
 }
 
-void QIconView::setSingleClickMode( QFont *normalText, QColor *normalTextCol,
-				    QFont *highlightedText, QColor *highlightedTextCol,
-				    QCursor *highlightedCursor, int setCurrentInterval )
+void QIconView::setSingleClickConfiguration( QFont *normalText, QColor *normalTextCol,
+					     QFont *highlightedText, QColor *highlightedTextCol,
+					     QCursor *highlightedCursor, int setCurrentInterval )
 {
     d->singleClickConfig.normalText = normalText;
     d->singleClickConfig.normalTextCol = normalTextCol;
@@ -2044,9 +2044,9 @@ void QIconView::setSingleClickMode( QFont *normalText, QColor *normalTextCol,
     d->singleClickConfig.setCurrentInterval = setCurrentInterval;
 }
 
-void QIconView::singleClickMode( QFont *normalText, QColor *normalTextCol,
-				 QFont *highlightedText, QColor *highlightedTextCol,
-				 QCursor *highlightedCursor, int &setCurrentInterval ) const
+void QIconView::singleClickConfiguration( QFont *normalText, QColor *normalTextCol,
+					  QFont *highlightedText, QColor *highlightedTextCol,
+					  QCursor *highlightedCursor, int &setCurrentInterval ) const
 {
     normalText = d->singleClickConfig.normalText;
     normalTextCol = d->singleClickConfig.normalTextCol;
@@ -2586,7 +2586,7 @@ void QIconView::contentsMouseMoveEvent( QMouseEvent *e )
 	    repaintItem( old );
 	}
     }
-    
+
     if ( d->mousePressed && d->currentItem && d->currentItem->dragEnabled() ) {
 	if ( !d->startDrag ) {
 	    d->currentItem->setSelected( TRUE, TRUE );

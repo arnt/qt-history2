@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#39 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#40 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -602,9 +602,9 @@ QtFileIconView::QtFileIconView( const QString &dir, bool isdesktop,
 
     QFont f( font() );
     f.setUnderline( TRUE );
-    setSingleClickMode( new QFont( f ), new QColor( Qt::red ),
-			new QFont( f ), new QColor( Qt::blue ),
-			new QCursor( PointingHandCursor ), 1000 );
+    setSingleClickConfiguration( new QFont( f ), new QColor( Qt::red ),
+				 new QFont( f ), new QColor( Qt::blue ),
+				 new QCursor( PointingHandCursor ), 1000 );
 }
 
 void QtFileIconView::setDirectory( const QString &dir )
