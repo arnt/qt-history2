@@ -780,7 +780,7 @@ void QWorkspace::showEvent(QShowEvent *e)
     // a windows bug as well though.
     for (int i = 0; i < d->windows.count(); ++i) {
 	QWorkspaceChild* c = d->windows.at(i);
-        QApplication::postEvent(c, new QPaintEvent(c->rect()));
+        c->update(c->rect());
     }
 
     d->updateWorkspace();
