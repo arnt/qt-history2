@@ -76,7 +76,8 @@ public:
         RadialGradientFill        = 0x020000,              // Can render radial gradients.
         ConicalGradientFill       = 0x040000,              // Can render conical gradients
         UsesFontEngine            = 0x10000000,           // Internal use, QWidget and QPixmap
-        PaintOutsidePaintEvent    = 0x20000000            // Engine is capable of painting outside paint events
+        PaintOutsidePaintEvent    = 0x20000000,            // Engine is capable of painting outside paint events
+        QwsPaintEngine    = 0x40000000            // QWS hack ##### remove before RC1
     };
     Q_DECLARE_FLAGS(PaintEngineFeatures, PaintEngineFeature)
 

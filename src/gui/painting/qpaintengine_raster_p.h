@@ -88,6 +88,10 @@ public:
     HDC getDC() const;
     void releaseDC(HDC hdc) const;
 #endif
+#ifdef Q_WS_QWS
+    //QWS hack
+    void alphaPenBlt(const void* src, int bpl, bool mono, int rx,int ry,int w,int h);
+#endif
 
     Type type() const { return Raster; }
 
@@ -185,6 +189,9 @@ public:
     void init();
 
     void prepare(QImage *image);
+#ifdef Q_WS_QWS
+    void prepare(QPixmap *pix);
+#endif
     void prepare(int w, int h);
     void prepareBuffer(int w, int h);
     void prepareClip(int w, int h);

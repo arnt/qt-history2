@@ -28,6 +28,7 @@
 
 #include "qmemorymanager_qws.h"
 #include <private/qpaintengine_qws_p.h>
+#include <private/qpaintengine_raster_p.h>
 
 
 //#### HACK:
@@ -345,9 +346,13 @@ void QPixmap::detach()
 
 int QPixmap::defaultDepth()
 {
+#ifdef QT_RASTER_PAINTENGINE
+    return 32;
+#else
     QWSDisplay *d = qwsDisplay();
     int dd = d ? d->pixmapDepth() : 16;
     return dd;
+#endif
 }
 
 
@@ -644,10 +649,11 @@ bool QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
     deref();
     init(w, h, dd, ibm, optim);
 
-    QWSPaintEngine *p = static_cast<QWSPaintEngine*>(paintEngine());
+    QWSPaintEngine *p = new QWSPaintEngine;
     p->begin(this);
     p->blt(rimg, 0,0,data->w,data->h,0,0);
     p->end();
+    delete p;
     if (image.hasAlphaBuffer()) {
 #ifndef QT_NO_IMAGE_DITHER_TO_1
         if (!partialalpha) {
@@ -685,12 +691,13 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
                 h = widget->height() - y;
         }
         pm.resize(w, h);
-        QWSPaintEngine *pe=static_cast<QWSPaintEngine*>(pm.paintEngine());
+        QWSPaintEngine *pe=new QWSPaintEngine;
         if (pe) {
             pe->begin(&pm);
             pe->blt(*widget,0,0,w,h,x,y);
             pe->end();
         }
+        delete pe;
     }
     return pm;
 }
@@ -736,12 +743,13 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
                  return *this;
 
              QPixmap pm(w, h, depth(), NormalOptim);
-             QWSPaintEngine *pe=static_cast<QWSPaintEngine*>(pm.paintEngine());
+             QWSPaintEngine *pe = new QWSPaintEngine;
              if (pe) {
                  pe->begin(&pm);
                  pe->stretchBlt(*this,0,0,w,h,ws,hs);
                  pe->end();
              }
+             delete pe;
              if (data->mask) {
                  QBitmap bm =
                      data->selfmask ? *((QBitmap*)(&pm)) :
@@ -890,7 +898,13 @@ bool QPixmap::hasAlphaChannel() const
 
 QPaintEngine *QPixmap::paintEngine() const
 {
-    if (!data->paintEngine)
-        data->paintEngine = new QWSPaintEngine();
+    if (!data->paintEngine) {
+#ifdef QT_RASTER_PAINTENGINE
+        if (depth()==32)
+            data->paintEngine = new QRasterPaintEngine();
+        else
+#endif
+            data->paintEngine = new QWSPaintEngine();
+    }
     return data->paintEngine;
 }

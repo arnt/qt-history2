@@ -433,6 +433,9 @@ QRasterPaintEngine::QRasterPaintEngine()
                    QPaintEngine::PaintEngineFeatures(
                                                      LineAntialiasing
                                                      | FillAntialiasing
+#ifdef Q_WS_QWS
+                                                     | UsesFontEngine // QWS hack
+#endif
                                                      | PainterPaths
                                                      | AlphaFill
                                                      | AlphaStroke
@@ -526,12 +529,25 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
         d->rasterBuffer->prepare(static_cast<QImage *>(device));
         if (static_cast<QImage *>(device)->hasAlphaBuffer())
             layout =  DrawHelper::Layout_ARGB;
+#ifdef Q_WS_QWS
+    } else if (device->devType() == QInternal::Pixmap) {
+        QPixmap *pix = static_cast<QPixmap *>(device);
+        if (pix->depth() != 32) {
+            qWarning("QRasterPaintEngine::begin(), only 32 bit pixmaps are supported at this time");
+            return false;
+        }
+        d->flushOnEnd = false; // Direct access so no flush.
+        d->rasterBuffer->prepare(pix);
+        if (pix->hasAlphaChannel())
+            layout =  DrawHelper::Layout_ARGB;
+#endif
     } else {
         d->rasterBuffer->prepare(d->deviceRect.width(), d->deviceRect.height());
     }
 
     d->rasterBuffer->resetClip();
 
+#ifndef Q_WS_QWS
     // Copy contents of pixmap over to ourselves...
     if (device->devType() == QInternal::Pixmap) {
 #ifdef Q_WS_WIN
@@ -545,6 +561,7 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
         if (static_cast<QPixmap *>(device)->hasAlphaChannel())
             layout =  DrawHelper::Layout_ARGB;
     }
+#endif
     d->drawHelper = qDrawHelper + layout;
 
     updateMatrix(QMatrix());
@@ -914,6 +931,89 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
     fillPath(path, &fillData);
 
 }
+
+
+#ifdef Q_WS_QWS
+//QWS hack
+static inline uchar monoVal(const uchar* s, int x)
+{
+    return  (s[x>>3] << (x&7)) & 0x80;
+}
+void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx,int ry,int w,int h)
+{
+    Q_D(QRasterPaintEngine);
+
+    // Decide on which span func to use
+    FillData fillData = { d->rasterBuffer, 0, 0 };
+    d->fillForBrush(d->pen.brush(), &fillData, 0);
+
+    qt_span_func func = fillData.callback;
+    void *data = fillData.data;
+
+    if (!func)
+        return;
+
+    FillData clipData = { d->rasterBuffer, fillData.callback, fillData.data };
+    if (d->clipEnabled) {
+        func = qt_span_fill_clipped;
+        data = &clipData;
+    }
+
+
+    int y0 = (ry < 0) ? -ry : 0;
+    int x0 = (rx < 0) ? -rx : 0;
+
+    static QDataBuffer<QT_FT_Span> spans;
+
+    for (int y=y0; y < h; ++y) {
+        const uchar *scanline = static_cast<const uchar *>(src) + y*bpl;
+        // Generate spans for this y coord
+        spans.reset();
+
+        if (mono) {
+            for (int x = x0; x < w; ) {
+
+                // Skip those with 0 coverage
+                while (x < w && monoVal(scanline,x) == 0)
+                    ++x;
+                if (x >= w) break;
+
+                int prev = monoVal(scanline,x);
+                QT_FT_Span span = { x + rx, 0, prev*255 };
+
+                // extend span until we find a different one.
+                while (x < w && monoVal(scanline,x) == prev)
+                    ++x;
+                span.len = x +rx - span.x;
+
+                spans.add(span);
+            }
+            // Call span func for current set of spans.
+            func(y + ry, spans.size(), spans.data(), data);
+
+        } else {
+            for (int x = x0; x < w; ) {
+                // Skip those with 0 coverage
+                while (x < w && scanline[x] == 0)
+                    ++x;
+                if (x >= w) break;
+
+                int prev = scanline[x];
+                QT_FT_Span span = { x + rx, 0, scanline[x] };
+
+                // extend span until we find a different one.
+                while (x < w && scanline[x] == prev)
+                    ++x;
+                span.len = x +rx - span.x;
+
+                spans.add(span);
+            }
+        }
+        // Call span func for current set of spans.
+        func(y + ry, spans.size(), spans.data(), data);
+    }
+}
+#endif
 
 
 void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
@@ -1585,6 +1685,18 @@ void QRasterBuffer::prepare(QImage *image)
     m_width = image->width();
     m_height = image->height();
 }
+
+#ifdef Q_WS_QWS
+void QRasterBuffer::prepare(QPixmap *pixmap)
+{
+    prepareClip(pixmap->width(), pixmap->height());
+
+    m_buffer = (ARGB *)pixmap->qwsScanLine(0);
+
+    m_width = pixmap->width();
+    m_height = pixmap->height();
+}
+#endif
 
 void QRasterBuffer::prepareClip(int /*width*/, int height)
 {

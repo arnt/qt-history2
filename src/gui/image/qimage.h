@@ -24,9 +24,6 @@ class QStringList;
 class QMatrix;
 class QVariant;
 template <class T> class QList;
-#ifdef Q_WS_QWS
-class QWSPaintEngine;
-#endif
 
 struct QImageData;
 class QImageDataMisc; // internal

@@ -57,6 +57,7 @@ static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features()
         | QPaintEngine::AlphaFill
         | QPaintEngine::AlphaStroke
 #endif
+        | QPaintEngine::QwsPaintEngine
         ;
     return commonFeatures;
 }
@@ -441,6 +442,8 @@ void QWSPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonD
 void QWSPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QRectF &sr,
                                 Qt::PixmapDrawingMode mode)
 {
+    if (pixmap.isNull())
+        return;
     int x = qRound(r.x());
     int y = qRound(r.y());
     int w = qRound(r.width());
