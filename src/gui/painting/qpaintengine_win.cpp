@@ -340,8 +340,8 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
     d->forceGdi = false;
 
     setActive(true);
-    d->pdev = pdev;
 
+    Q_ASSERT(pdev);
     d->hdc = pdev->getDC();
     if (pdev->devType() == QInternal::Widget) {
         QWidget *w = static_cast<QWidget *>(pdev);

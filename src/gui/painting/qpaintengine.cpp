@@ -844,3 +844,22 @@ void QPaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperation op
   This function is called when the clip region changes, specified by \a region or
   when clipping is enabled or disabled, specified by \a enabled.
 */
+
+
+/*!
+    \interal
+    Sets the paintdevice that this engine operates on to \a device
+*/
+void QPaintEngine::setPaintDevice(QPaintDevice *device)
+{
+    d->pdev = device;
+}
+
+/*!
+    Returns the engine that this engine is painting on if painting is
+    active; otherwise 0;
+*/
+QPaintDevice *QPaintEngine::paintDevice() const
+{
+    return d->pdev;
+}

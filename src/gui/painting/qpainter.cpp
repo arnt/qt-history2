@@ -1089,6 +1089,8 @@ bool QPainter::begin(QPaintDevice *pd)
     // Slip a painter state into the engine before we do any other operations
     d->engine->state = d->state;
 
+    d->engine->setPaintDevice(pd);
+
     if (!d->engine->begin(pd)) {
         qWarning("QPainter::begin(), QPaintEngine::begin() returned false\n");
         return false;
@@ -1135,6 +1137,7 @@ bool QPainter::end()
 
     bool ended = d->engine->end();
     d->engine->updateState(0);
+    d->engine->setPaintDevice(0);
 
     if (d->engine->autoDestruct()) {
         delete d->engine;

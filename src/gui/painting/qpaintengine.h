@@ -133,6 +133,9 @@ public:
     QPainter::RenderHints renderHints() const;
     void setRenderHint(QPainter::RenderHint hint, bool on);
 
+    void setPaintDevice(QPaintDevice *device);
+    QPaintDevice *paintDevice() const;
+
     enum Type {
         //X11
         X11,
