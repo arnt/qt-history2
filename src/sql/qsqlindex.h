@@ -2,9 +2,9 @@
 **
 ** Definition of QSqlIndex class
 **
-** Created : 001103
+** Created : 2000-11-03
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the sql module of the Qt GUI Toolkit.
 **
