@@ -35,10 +35,17 @@ public:
     void getUTC(QDate &outDate, QTime &outTime) const;
 };
 
-class FormatSection
+
+class QFormatSection;
+class QDateTimeParser
 {
 public:
-    enum SectionType {
+    enum QDateTimeParserSkipMode {
+        SkipNone,
+        SkipForward,
+        SkipBackward
+    };
+    enum Section {
         NoSection = 0x0000000,
 
         Day1 = 0x0000001,
@@ -86,41 +93,37 @@ public:
         LastSection = 0x0800000
     };
 
-    FormatSection(int ind, const QString &sep);
-    FormatSection(int ind = -1, SectionType typ = FormatSection::NoSection);
+    QDateTimeParser(const QString &f = QString(), QCoreVariant::Type t = QCoreVariant::DateTime);
+    bool isSpecial(const QChar &c) const;
+    QFormatSection findNextFormat(const QString &str, const int start);
+    void parseFormat(const QString &format, QCoreVariant::Type t);
+    bool fromString(const QString &string, QDate *dateIn, QTime *timeIn);
+    QFormatSection sectionAt(const QString &string, int pos, QDateTimeParserSkipMode skip = SkipNone) const;
+
+    static bool bounds(QDateTimeParser::Section t, int num);
+    static int getNumber(int index, const QString &str, int mindigits, int maxdigits, bool *ok, int *digits);
+
+    static QFormatSection firstSection;
+    static QFormatSection lastSection;
+
+    QCoreVariant::Type formatType;
+    QList<QFormatSection> sect;
+    QString format;
+    uint display;
+};
+
+class QFormatSection
+{
+public:
+    QFormatSection(int ind, const QString &sep);
+    QFormatSection(int ind = -1, QDateTimeParser::Section typ = QDateTimeParser::NoSection);
     int length() const;
-    static int length(FormatSection::SectionType t);
+    static int length(QDateTimeParser::Section t);
     bool variableLength() const;
 
     int index;
     QString chars;
-    SectionType type;
-};
-
-class QDateTimeParser
-{
-public:
-    enum QDateTimeParserSkipMode {
-        SkipNone,
-        SkipForward,
-        SkipBackward
-    };
-    QDateTimeParser(const QString &f = QString(), QCoreVariant::Type t = QCoreVariant::DateTime);
-    bool isSpecial(const QChar &c) const;
-    FormatSection findNextFormat(const QString &str, const int start);
-    void parseFormat(const QString &format);
-    bool fromString(const QString &string, QDate *dateIn, QTime *timeIn);
-    FormatSection sectionAt(const QString &string, int pos, QDateTimeParserSkipMode skip = SkipNone) const;
-
-    static bool bounds(FormatSection::SectionType t, int num);
-    static int getNumber(int index, const QString &str, int mindigits, int maxdigits, bool *ok, int *digits);
-
-    static FormatSection firstSection;
-    static FormatSection lastSection;
-
-    QCoreVariant::Type type;
-    QList<FormatSection> sect;
-    QString format;
+    QDateTimeParser::Section type;
 };
 
 #endif
