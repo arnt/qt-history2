@@ -60,7 +60,7 @@ class Q_EXPORT QComboBox : public QWidget
     Q_PROPERTY( int count READ count )
     Q_PROPERTY( QString currentText READ currentText )
     Q_PROPERTY( int currentItem READ currentItem WRITE setCurrentItem )
-    Q_PROPERTY( bool autoResize READ autoResize WRITE setAutoResize )
+    Q_PROPERTY( bool autoResize READ autoResize WRITE setAutoResize DESIGNABLE false )
     Q_PROPERTY( int sizeLimit READ sizeLimit WRITE setSizeLimit )
     Q_PROPERTY( int maxCount READ maxCount WRITE setMaxCount )
     Q_PROPERTY( Policy insertionPolicy READ insertionPolicy WRITE setInsertionPolicy )

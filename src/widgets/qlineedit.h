@@ -62,8 +62,8 @@ class Q_EXPORT QLineEdit : public QFrame
     Q_PROPERTY( int cursorPosition READ cursorPosition WRITE setCursorPosition )
     Q_PROPERTY( Alignment alignment READ alignment WRITE setAlignment )
     Q_PROPERTY( bool edited READ edited WRITE setEdited )
-    Q_PROPERTY( bool hasMarkedText READ hasMarkedText )
-    Q_PROPERTY( QString markedText READ markedText )
+    Q_PROPERTY( bool hasMarkedText READ hasMarkedText DESIGNABLE false )
+    Q_PROPERTY( QString markedText READ markedText DESIGNABLE false )
     Q_PROPERTY( bool dragEnabled READ dragEnabled WRITE setDragEnabled )
     Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
 

@@ -52,7 +52,7 @@ class Q_EXPORT QMenuBar : public QFrame, public QMenuData
 {
     Q_OBJECT
     Q_ENUMS( Separator )
-    Q_PROPERTY( Separator separator READ separator WRITE setSeparator )
+    Q_PROPERTY( Separator separator READ separator WRITE setSeparator DESIGNABLE false )
     Q_PROPERTY( bool defaultUp READ isDefaultUp WRITE setDefaultUp )
 	
 public:

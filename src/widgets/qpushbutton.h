@@ -53,7 +53,7 @@ class Q_EXPORT QPushButton : public QButton
 
     Q_PROPERTY( bool autoDefault READ autoDefault WRITE setAutoDefault )
     Q_PROPERTY( bool default READ isDefault WRITE setDefault )
-    Q_PROPERTY( bool menuButton READ isMenuButton )
+    Q_PROPERTY( bool menuButton READ isMenuButton DESIGNABLE false )
     Q_PROPERTY( QIconSet iconSet READ iconSet WRITE setIconSet )
     Q_OVERRIDE( bool toggleButton WRITE setToggleButton )
     Q_OVERRIDE( bool on WRITE setOn )
