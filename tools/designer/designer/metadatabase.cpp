@@ -1192,7 +1192,7 @@ void MetaDataBase::setFunctionBodies( QObject *o, const QMap<QString, QString> &
 	    if ( !foundSlot ) {
 		Slot sl;
 		sl.slot = make_pretty( it.key() ).latin1();
-		sl.access = "protected";
+		sl.access = "public";
 		sl.language = lang;
 		r->slotList.append( sl );
 	    }
