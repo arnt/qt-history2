@@ -125,6 +125,7 @@ void SourceTextEdit::copySelection()
 
     int pos = 0;
     tc.setPosition(pos);
+    
     while(!tc.atEnd())
     {
         // checking for blue is not the best approach,
@@ -142,6 +143,8 @@ void SourceTextEdit::copySelection()
 QMenu *SourceTextEdit::createPopupMenu(const QPoint &pos)
 {
     QMenu *pMenu = new QMenu(this);
+    actCopy->setEnabled(textCursor().hasSelection());
+    actSelect->setEnabled(!document()->isEmpty());
     pMenu->addAction(actCopy);
     pMenu->addAction(actSelect);
     return pMenu;
@@ -493,7 +496,7 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
     
     setWidget(sw);
     editorPage->transText->installEventFilter(this);
-
+    
     // Signals
     connect(editorPage->pageCurl, SIGNAL(nextPage()),
         SIGNAL(nextUnfinished()));
@@ -537,18 +540,22 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
 
 bool MessageEditor::eventFilter(QObject *o, QEvent *e)
 {
-    if (e->type() == QEvent::KeyPress &&
-        editorPage->srcText->underMouse())
+    // handle copying from the source
+    if ((e->type() == QEvent::KeyPress) || 
+        (e->type() == QEvent::ShortcutOverride))
     {
         QKeyEvent *ke = static_cast<QKeyEvent *>(e);
         if (ke->modifiers() & Qt::ControlModifier)
         {
-            if (ke->key() == Qt::Key_A)
+            if ((ke->key() == Qt::Key_A) &&
+                editorPage->srcText->underMouse())
             {
                 editorPage->srcText->selectAll();
-                return true; // don't handle it further
+                return true;
             }
-            if (ke->key() == Qt::Key_C)
+            if ((ke->key() == Qt::Key_C) &&
+                editorPage->srcText->textCursor().hasSelection() &&
+                editorPage->srcText->underMouse())
             {
                 editorPage->srcText->copySelection();
                 return true;

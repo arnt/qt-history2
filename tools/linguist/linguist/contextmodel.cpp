@@ -66,12 +66,14 @@ bool ContextItem::compare(const MessageItem *left, const MessageItem *right)
 {
     int res;
     if (sSortColumn == 1) {
-        res = QString::localeAwareCompare(left->sourceText(), right->sourceText());
+        res = QString::localeAwareCompare(left->sourceText().remove('&'),
+            right->sourceText().remove('&'));
         if ((sSortOrder == Qt::AscendingOrder) ? (res < 0) : !(res < 0))
             return true;
     }
     else if (sSortColumn == 2) {
-        res = QString::localeAwareCompare(left->translation(), right->translation());
+        res = QString::localeAwareCompare(left->translation().remove('&'), 
+            right->translation().remove('&'));
         if ((sSortOrder == Qt::AscendingOrder) ? (res < 0) : !(res < 0))
             return true;
     }
