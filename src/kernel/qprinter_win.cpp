@@ -56,16 +56,22 @@ class QPrinterWinPrivate : public QPrinterPrivate
 public:
     QPrinter::PrinterMode printerMode;
     short winPageSize;
+    uint needReinit:1;
 };
 
 #define D ((QPrinterWinPrivate*) d)
 
+#define WRITE_DM_VAR( variable, value )	\
+  { 						\
+      if ( variable != value ) { 		\
+          changeCount++; 			\
+          variable = value;		 	\
+      } 					\
+  }
 
-// QPrinter states
-
-#define PST_IDLE        0
-#define PST_ACTIVE      1
-#define PST_ABORTED     2
+static const enum PrinterState {
+    PST_IDLE, PST_ACTIVE, PST_ABORTED, PST_ACTIVEDOC
+};
 
 #ifdef IN
 #undef IN
@@ -74,14 +80,8 @@ public:
 #undef MM
 #endif
 
-// #define MM(n) int((n * 720 + 127) / 254)
-// #define IN(n) int(n * 72)
-
-#define MM(n) int( n*10 )
-#define IN(n) int( n*254 )
-
-// Used for mapping between mm and windows form resolution
-#define FORMFACTOR 100
+#define MM(n) int( (n)*10 )
+#define IN(n) int( (n)*254 )
 
 typedef struct {
     int winSizeName;
@@ -93,7 +93,7 @@ typedef struct {
     int h;
 } PaperSize;
 
-static PageSizeToDM dmMapping[] = {
+static const PageSizeToDM dmMapping[] = {
     { DMPAPER_LETTER,             QPrinter::Letter },
     { DMPAPER_LETTERSMALL,        QPrinter::Letter },
     { DMPAPER_TABLOID,            QPrinter::Tabloid },
@@ -132,7 +132,7 @@ static PageSizeToDM dmMapping[] = {
     { 0, QPrinter::Custom }
 };
 
-static PaperSize paperSizes[QPrinter::NPageSize] = {
+static const PaperSize paperSizes[QPrinter::NPageSize] = {
     {  MM(210), MM(297) },      // A4
     {  MM(176), MM(250) },      // B5
     {  IN(8.5), IN(11) },       // Letter
@@ -301,7 +301,6 @@ QPrinter::~QPrinter()
     delete d;
 }
 
-
 bool QPrinter::newPage()
 {
     bool success = FALSE;
@@ -311,10 +310,19 @@ bool QPrinter::newPage()
             painter->save();               // EndPage/StartPage ruins the DC
             restorePainter = TRUE;
         }
-        if ( EndPage(hdc) != SP_ERROR && StartPage(hdc) != SP_ERROR )
-            success = TRUE;
-        else
-            state = PST_ABORTED;
+        if ( EndPage(hdc) != SP_ERROR ) {
+	    // reinitialize the DC before StartPage if needed,
+	    // because ResetDC is disabled between calls to the StartPage and EndPage functions
+	    // (see StartPage documentation in the Platform SDK:Windows GDI)
+	    state = PST_ACTIVEDOC;
+	    reinit();
+	    state = PST_ACTIVE;
+	    // start the new page now
+	    success = ( StartPage( hdc ) != SP_ERROR );
+	}
+        if ( !success )
+	    state = PST_ABORTED;
+
         if ( qWinVersion() & Qt::WV_DOS_based )
 	    setPrinterMapping( hdc, res );
         if ( restorePainter ) {
@@ -876,50 +884,51 @@ void QPrinter::setPrinterName( const QString &name )
 void QPrinter::writeDevmode( HANDLE hdm )
 {
 #if defined(UNICODE)
+    int changeCount = 0;
     DEVMODE* dm = (DEVMODE*)hdm;
     if ( dm ) {
 	if ( orient == Portrait )
-	    dm->dmOrientation = DMORIENT_PORTRAIT;
+	    WRITE_DM_VAR( dm->dmOrientation, DMORIENT_PORTRAIT )
 	else
-	    dm->dmOrientation = DMORIENT_LANDSCAPE;
-	dm->dmCopies = ncopies;
+	    WRITE_DM_VAR( dm->dmOrientation, DMORIENT_LANDSCAPE )
 	if ( usercolcopies )
-	    dm->dmCollate = DMCOLLATE_TRUE;
+	    WRITE_DM_VAR( dm->dmCollate, DMCOLLATE_TRUE )
 	else
-	    dm->dmCollate = DMCOLLATE_FALSE;
-	dm->dmDefaultSource = mapPaperSourceDevmode( paper_source );
-        dm->dmPaperSize = D->winPageSize;
-
+	    WRITE_DM_VAR( dm->dmCollate, DMCOLLATE_FALSE )
 	if ( colorMode() == Color )
-	    dm->dmColor = DMCOLOR_COLOR;
+	    WRITE_DM_VAR( dm->dmColor, DMCOLOR_COLOR )
 	else
-	    dm->dmColor = DMCOLOR_MONOCHROME;
-	dm->dmFields |= DM_COPIES | DM_COLLATE;
+	    WRITE_DM_VAR( dm->dmColor, DMCOLOR_MONOCHROME )
+	WRITE_DM_VAR( dm->dmDefaultSource, mapPaperSourceDevmode( paper_source ) )
+	WRITE_DM_VAR( dm->dmPaperSize, D->winPageSize )
+	WRITE_DM_VAR( dm->dmCopies, ncopies )
     }
+    D->needReinit = changeCount>0;
 #endif
 }
 
 void QPrinter::writeDevmodeA( HANDLE hdm )
 {
+    int changeCount = 0;
     DEVMODEA* dm = (DEVMODEA*)hdm;
     if ( dm ) {
 	if ( orient == Portrait )
-	    dm->dmOrientation = DMORIENT_PORTRAIT;
+	    WRITE_DM_VAR( dm->dmOrientation, DMORIENT_PORTRAIT )
 	else
-	    dm->dmOrientation = DMORIENT_LANDSCAPE;
-	dm->dmCopies = ncopies;
+	    WRITE_DM_VAR( dm->dmOrientation, DMORIENT_LANDSCAPE )
 	if ( usercolcopies )
-	    dm->dmCollate = DMCOLLATE_TRUE;
+	    WRITE_DM_VAR( dm->dmCollate, DMCOLLATE_TRUE )
 	else
-	    dm->dmCollate = DMCOLLATE_FALSE;
-	dm->dmDefaultSource = mapPaperSourceDevmode( paper_source );
-	dm->dmPaperSize = D->winPageSize;
+	    WRITE_DM_VAR( dm->dmCollate, DMCOLLATE_FALSE )
 	if ( colorMode() == Color )
-	    dm->dmColor = DMCOLOR_COLOR;
+	    WRITE_DM_VAR( dm->dmColor, DMCOLOR_COLOR )
 	else
-	    dm->dmColor = DMCOLOR_MONOCHROME;
-	dm->dmFields |= DM_COPIES | DM_COLLATE;
+	    WRITE_DM_VAR( dm->dmColor, DMCOLOR_MONOCHROME )
+	WRITE_DM_VAR( dm->dmDefaultSource, mapPaperSourceDevmode( paper_source ) )
+	WRITE_DM_VAR( dm->dmPaperSize, D->winPageSize )
+	WRITE_DM_VAR( dm->dmCopies, ncopies )
     }
+    D->needReinit = changeCount>0;
 }
 
 bool QPrinter::setup( QWidget *parent )
@@ -1160,8 +1169,10 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
             if ( ok && StartDocA(hdc, &di) == SP_ERROR )
                 ok = FALSE;
         } );
-        if ( ok && StartPage(hdc) == SP_ERROR )
-            ok = FALSE;
+	if ( ok ) {
+	    reinit(); // initialize latest changes before StartPage
+	    ok = StartPage( hdc ) != SP_ERROR;
+	}
 	if ( qWinVersion() & Qt::WV_DOS_based )
 	    // StartPage resets DC on Win95/98
 	    setPrinterMapping( hdc, res );
@@ -1481,14 +1492,24 @@ void QPrinter::reinit()
 #endif
 	return;
     }
-    if ( hdevmode ) {
+    if ( hdevmode && state!=PST_ACTIVE && state!=PST_ABORTED ) {
 	HDC hdcTmp = 0;
 	QT_WA( {
 	    DEVMODE* dm = (DEVMODE*)GlobalLock( hdevmode );
 	    if ( dm ) {
 		writeDevmode( dm );
-		qt_winTchar( printer_name, true );
-		hdcTmp = CreateDC( L"WINSPOOL", (TCHAR*)printer_name.ucs2(), 0, dm );
+		if( hdc ) {
+		    if( D->needReinit )
+			if( !ResetDC( hdc, dm ) ) {
+			    qSystemWarning( "QPrinter::reinit(), failed to reset dc" );
+			} else {
+			    setPrinterMapping( hdc, res );
+			    D->needReinit = FALSE;
+			}
+		} else {
+		    qt_winTchar( printer_name, true );
+		    hdcTmp = CreateDC( L"WINSPOOL", (TCHAR*)printer_name.ucs2(), 0, dm );
+		}
 		GlobalUnlock( hdevmode );
 	    } else
 		qSystemWarning( "QPrinter::reinit: GlobalLock returns zero." );
@@ -1496,7 +1517,18 @@ void QPrinter::reinit()
 	    DEVMODEA* dm = (DEVMODEA*)GlobalLock( hdevmode );
 	    if ( dm ) {
 		writeDevmodeA( dm );
-		hdcTmp = CreateDCA( "WINSPOOL", printer_name.latin1(), 0, dm );
+		if( hdc ) {
+		    if( D->needReinit )
+			if( !ResetDCA( hdc, dm ) ) {
+			    qSystemWarning( "QPrinter::reinit(), failed to reset dc" );
+			} else {
+			    setPrinterMapping( hdc, res );
+			    D->needReinit = FALSE;
+			}
+		} else {
+		    qt_winTchar( printer_name, true );
+		    hdcTmp = CreateDCA( "WINSPOOL", printer_name.latin1(), 0, dm );
+		}
 		GlobalUnlock( hdevmode );
 	    } else
 		qSystemWarning( "QPrinter::reinit: GlobalLock returns zero." );
@@ -1509,4 +1541,4 @@ void QPrinter::reinit()
     }
 }
 
-#endif // QT_NO_PRINTE
+#endif // QT_NO_PRINTER

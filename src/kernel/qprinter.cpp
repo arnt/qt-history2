@@ -478,6 +478,9 @@ void QPrinter::setCreator( const QString &creator )
     specified orientation. On Windows this setting won't take effect
     until the printer dialog is shown (using QPrinter::setup()).
 
+    Windows only! This option can be changed while printing and will
+    take effect from the next call to newPage()
+
     \sa orientation()
 */
 
@@ -898,6 +901,9 @@ int QPrinter::resolution() const
 
 /*!
     Sets the paper source setting to \a source.
+
+    Windows only! This option can be changed while printing and will
+    take effect from the next call to newPage()
 
     \sa paperSource()
 */
