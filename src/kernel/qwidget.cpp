@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#299 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#300 $
 **
 ** Implementation of QWidget class
 **
@@ -640,7 +640,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
  	    fd->focusWidgets.append( this );
 	if ( isTopLevel() ) {
 	    // kludge details: set focus to this widget, whether it
-	    // acceps focus or not.  this makes buggy old qt programs
+	    // accepss focus or not.  this makes buggy old qt programs
 	    // which assume that the tlw has focus even though it
 	    // doesn't accept focus work.
 	    if ( fd->it.current() != this ) {
@@ -2974,11 +2974,11 @@ bool QWidget::event( QEvent *e )
 		break;
 	    QWidget *w = this;
 	    while ( w ) {
-		k->accept();
 		w->keyPressEvent( k );
 		if ( k->isAccepted() || w->isTopLevel() )
 		    break;
 		w = w->parentWidget();
+		k->accept();
 	    }
 	    }
 	    break;
@@ -2991,6 +2991,7 @@ bool QWidget::event( QEvent *e )
 		if ( k->isAccepted() || w->isTopLevel() )
 		    break;
 		w = w->parentWidget();
+		k->accept();
 	    }
 	    }
 	    break;
@@ -3197,8 +3198,7 @@ void QWidget::keyPressEvent( QKeyEvent *e )
     if ( isPopup() && e->key() == Key_Escape ) {
 	e->accept();
 	close();
-    }
-    else {
+    } else {
 	e->ignore();
     }
 }
