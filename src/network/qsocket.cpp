@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.cpp#31 $
+** $Id: //depot/qt/main/src/network/qsocket.cpp#32 $
 **
 ** Implementation of QSocket class.
 **
@@ -963,7 +963,7 @@ int QSocket::ungetch( int )
   work:
 
   \code
-    while( socket->!canReadLine() )
+    while( !socket->canReadLine() )
         ...
   \endcode
 
