@@ -340,9 +340,7 @@ QTextDocumentLayoutPrivate::hitTest(QTextBlock bl, const QPoint &point, int *pos
     int off = 0;
     for (int i = 0; i < tl->numLines(); ++i) {
         QTextLine line = tl->lineAt(i);
-        // don't use line.rect() as it uses line.width() and we want textWidth() for the actual used
-        // width
-        QRect lr(qRound(line.x()), qRound(line.y()), qRound(line.textWidth()), qRound(line.height()));
+        const QRect lr = line.textRect().toRect();
         if (lr.top() > pos.y()) {
             off = qMin(off, line.from());
         } else if (lr.bottom() <= pos.y()) {
