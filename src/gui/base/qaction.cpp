@@ -244,13 +244,13 @@ bool QAction::isCheckable() const
 
 void QAction::setChecked(bool b)
 {
-    d->checkable = b;
+    d->checked = b;
     d->sendDataChanged();
 }
 
 bool QAction::isChecked() const
 {
-    return d->checkable;
+    return d->checked;
 }
 
 void QAction::setEnabled(bool b)
