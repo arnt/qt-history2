@@ -13,13 +13,13 @@
 #ifndef LISTVIEWDND_H
 #define LISTVIEWDND_H
 
-#include <qptrlist.h>
 #include <qlistview.h>
+#include <qlist.h>
 #include "listdnd.h"
 
 class QWidget;
 class QListView;
-typedef QPtrList<QListViewItem> ListViewItemList;
+typedef QList<QListViewItem*> ListViewItemList;
 
 class ListViewDnd : public ListDnd
 {

@@ -15,7 +15,6 @@
 #include <qheader.h>
 #include <qpainter.h>
 #include <qdragobject.h>
-#include <qvaluelist.h>
 #include <qevent.h>
 
 // The Dragobject Declaration ---------------------------------------
@@ -101,8 +100,8 @@ bool ListViewDnd::mouseMoveEvent( QMouseEvent * event )
 		// Did the target accept the drop?
 		if ( dropConfirmed ) {
 		    // Shouldn't autoDelete handle this?
-		    for( list.first(); list.current(); list.next() )
-			delete list.current();
+		    for(ListViewItemList::Iterator it = list.begin(); it != list.end(); ++it)
+			delete (*it);
 		    dropConfirmed = FALSE;
 		} else {
 		    // Reenable disabled items since
@@ -166,10 +165,8 @@ void ListViewDnd::setVisibleItems( bool b )
     if ( disabledItems.isEmpty() )
 	return;
 
-    disabledItems.first();
-    do {
-        disabledItems.current()->setVisible( b );
-    } while ( disabledItems.next() );
+    for(ListViewItemList::Iterator it = disabledItems.begin(); it != disabledItems.end(); ++it)
+        (*it)->setVisible( b );
 }
 
 void ListViewDnd::updateLine( const QPoint & dragPos )
@@ -252,15 +249,9 @@ ListViewItemDrag::ListViewItemDrag( ListViewItemList & items, QWidget * parent, 
     // ### FIX!
     QByteArray data( sizeof( Q_INT32 ) + sizeof( QListViewItem ) * items.count() );
     QDataStream stream( data, IO_WriteOnly );
-
     stream << items.count();
-
-    QListViewItem *i = items.first();
-    while ( i ) {
-        stream << *i;
-	i = items.next();
-    }
-
+    for(ListViewItemList::Iterator it = items.begin(); it != items.end(); ++it)
+        stream << (*it);
     setEncodedData( data );
 }
 

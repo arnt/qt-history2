@@ -15,7 +15,6 @@
 
 #include <qmenubar.h>
 #include <qmap.h>
-#include <qptrlist.h>
 
 class PopupMenuEditor;
 class MenuBarEditor;
@@ -160,7 +159,7 @@ private:
     FormWindow * formWnd;
     QLineEdit * lineEdit;
     QWidget * dropLine;
-    QPtrList<MenuBarEditorItem> itemList;
+    QList<MenuBarEditorItem*> itemList;
     MenuBarEditorItem addItem;
     MenuBarEditorItem addSeparator;
     MenuBarEditorItem * draggedItem;

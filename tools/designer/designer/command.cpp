@@ -34,7 +34,7 @@
 #include <qlistbox.h>
 #include <qiconview.h>
 #include <qtextedit.h>
-#include <qptrstack.h>
+#include <qstack.h>
 #include <qheader.h>
 #include <qsplitter.h>
 #ifndef QT_NO_TABLE
@@ -1587,10 +1587,10 @@ void PopulateListViewCommand::transferItems( QListView *from, QListView *to )
     }
 
     QListViewItemIterator it( from );
-    QPtrStack<QListViewItem> fromParents, toParents;
+    QStack<QListViewItem*> fromParents, toParents;
     fromParents.push( 0 );
     toParents.push( 0 );
-    QPtrStack<QListViewItem> toLasts;
+    QStack<QListViewItem*> toLasts;
     QListViewItem *fromLast = 0;
     toLasts.push( 0 );
     int cols = from->columns();

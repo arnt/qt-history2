@@ -16,8 +16,6 @@
 class QWizard;
 class FormWindow;
 
-#include <qptrlist.h>
-
 #include "wizardeditor.h"
 #include "command.h"
 
@@ -53,7 +51,7 @@ private:
 private:
     FormWindow *formwindow;
     QWizard *wizard;
-    QPtrList<Command> commands;
+    QList<Command*> commands;
     int draggedItem;
 };
 

@@ -18,9 +18,9 @@
 #include <qmenubar.h>
 #include <qpixmap.h>
 #include <qpopupmenu.h>
-#include <qptrlist.h>
 #include <qtoolbar.h>
 #include <qguardedptr.h>
+#include <qlist.h>
 #include "../shared/widgetdatabase.h"
 
 //class QDesignerPopupMenu;
@@ -144,7 +144,7 @@ class QDesignerToolBar : public QToolBar
 public:
     QDesignerToolBar( QMainWindow *mw );
     QDesignerToolBar( QMainWindow *mw, Dock dock );
-    QPtrList<QAction> insertedActions() const { return actionList; }
+    QList<QAction*> insertedActions() const { return actionList; }
     void addAction( QAction *a );
 
     void clear();
@@ -186,7 +186,7 @@ private:
     QPoint lastIndicatorPos;
     QWidget *insertAnchor;
     bool afterAnchor;
-    QPtrList<QAction> actionList;
+    QList<QAction*> actionList;
     QMap<QWidget*, QAction*> actionMap;
     QPoint dragStartPos;
     QDesignerIndicatorWidget *indicator;

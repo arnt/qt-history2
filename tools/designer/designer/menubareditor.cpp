@@ -237,7 +237,7 @@ void MenuBarEditor::removeItem( MenuBarEditorItem * item )
 {
     if ( item &&
 	 item->isRemovable() &&
-	 itemList.removeRef( item ) ) {
+	 itemList.remove( item ) ) {
 
 	if ( item->isSeparator() )
 	    hasSeparator = FALSE;
@@ -258,19 +258,17 @@ void MenuBarEditor::removeItem( MenuBarEditorItem * item )
 
 int MenuBarEditor::findItem( MenuBarEditorItem * item )
 {
-    return itemList.findRef( item );
+    return itemList.findIndex( item );
 }
 
 int MenuBarEditor::findItem( PopupMenuEditor * menu )
 {
-    MenuBarEditorItem * i = itemList.first();
-
-    while ( i ) {
+    int index = 0;
+    for(QList<MenuBarEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it, index++) {
+	MenuBarEditorItem *i = (*it);
 	if ( i->menu() == menu )
-	    return itemList.at();
-	i = itemList.next();
+	    return index;
     }
-
     return -1;
 }
 
@@ -283,12 +281,10 @@ int MenuBarEditor::findItem( const QPoint &pos )
     QSize s;
     QRect r;
 
-    MenuBarEditorItem * i = itemList.first();
-
-    while ( i ) {
-
+    int index = 0;
+    for(QList<MenuBarEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it, ++index) {
+	MenuBarEditorItem *i = (*it);
 	if ( i->isVisible() ) {
-
 	    s = itemSize( i );
 	    dx = s.width();
 
@@ -300,12 +296,10 @@ int MenuBarEditor::findItem( const QPoint &pos )
 	    r = QRect( x, y, s.width(), s.height() );
 
 	    if ( r.contains( pos ) )
-		return itemList.at();
+		return index;
 
 	    addItemSizeToCoords( i, x, y, w );
 	}
-
-	i = itemList.next();
     }
 
     // check add item
@@ -411,7 +405,7 @@ void MenuBarEditor::showLineEdit( int index )
 
     MenuBarEditorItem * i = 0;
 
-    if ( (uint) index >= itemList.count() )
+    if ( index >= itemList.count() )
 	i = &addItem;
     else
 	i = itemList.at( index );
@@ -431,7 +425,7 @@ void MenuBarEditor::showItem( int index )
     if ( index == -1 )
 	index = currentIndex;
 
-    if ( (uint)index < itemList.count() ) {
+    if ( index < itemList.count() ) {
 	MenuBarEditorItem * i = itemList.at( index );
 	if ( i->isSeparator() || draggedItem )
 	    return;
@@ -449,7 +443,7 @@ void MenuBarEditor::hideItem( int index )
     if ( index == -1 )
 	index = currentIndex;
 
-    if ( (uint)index < itemList.count() ) {
+    if ( index < itemList.count() ) {
 	PopupMenuEditor * m = itemList.at( index )->menu();
 	m->hideSubMenu();
 	m->hide();
@@ -461,7 +455,7 @@ void MenuBarEditor::focusItem( int index )
     if ( index == -1 )
 	index = currentIndex;
 
-    if ( (uint)index < itemList.count() ) {
+    if ( index < itemList.count() ) {
 	PopupMenuEditor * m = itemList.at( index )->menu();
 	m->setFocus();
 	m->update();
@@ -474,7 +468,7 @@ void MenuBarEditor::deleteItem( int index )
     if ( index == -1 )
 	index = currentIndex;
 
-    if ( (uint)index < itemList.count() ) {
+    if ( index < itemList.count() ) {
 	RemoveMenuCommand * cmd = new RemoveMenuCommand( "Delete Menu",
 							 formWnd,
 							 this,
@@ -498,11 +492,10 @@ int MenuBarEditor::heightForWidth( int max_width ) const
     QPainter p( this );
     that->itemHeight = that->itemSize( &(that->addItem) ).height();
 
-    MenuBarEditorItem * i = that->itemList.first();
-    while ( i ) {
+    for(QList<MenuBarEditorItem*>::Iterator it = that->itemList.begin(); it != that->itemList.end(); ++it) {
+	MenuBarEditorItem *i = (*it);
 	if ( i->isVisible() )
 	    that->addItemSizeToCoords( i, x, y, max_width );
-	i = that->itemList.next();
     }
 
     that->addItemSizeToCoords( &(that->addItem), x, y, max_width );
@@ -523,12 +516,11 @@ void MenuBarEditor::show()
 void MenuBarEditor::checkAccels( QMap<QChar, QWidgetList > &accels )
 {
     QString t;
-    MenuBarEditorItem * i = itemList.first();
-    while ( i ) {
+    for(QList<MenuBarEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it) {
+	MenuBarEditorItem *i = (*it);
 	t = i->menuText();
 	find_accel( t, accels, this );
 	// do not check the accelerators in the popup menus
-	i = itemList.next();
     }
 }
 
@@ -620,8 +612,7 @@ void MenuBarEditor::mouseMoveEvent( QMouseEvent * e )
 	    // If the item is dropped in the same list,
 	    //  we will have two instances of the same pointer
 	    // in the list.
-	    itemList.find( draggedItem );
-	    QLNode * node = itemList.currentNode();
+	    int idx = itemList.findIndex( draggedItem );
 	    dropConfirmed = FALSE;
 	    d->dragCopy(); // dragevents and stuff happens
 	    if ( draggedItem ) { // item was not dropped
@@ -636,7 +627,7 @@ void MenuBarEditor::mouseMoveEvent( QMouseEvent * e )
 	    } else if ( dropConfirmed ) { // item was dropped
 		dropConfirmed = FALSE;
 		hideItem();
-		itemList.takeNode( node )->setVisible( TRUE );
+		itemList.takeAt( idx )->setVisible( TRUE );
 		showItem();
 	    }
 	    update();
@@ -807,11 +798,10 @@ void MenuBarEditor::drawItems( QPainter & p )
 
     p.setPen( palette().buttonText() );
 
-    MenuBarEditorItem * i = itemList.first();
-    while ( i ) {
+    for(QList<MenuBarEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it) {
+	MenuBarEditorItem *i = (*it);
 	if ( i->isVisible() )
 	    drawItem( p, i, c++, pos ); // updates x y
-	i = itemList.next();
     }
 
     p.setPen( darkBlue );
@@ -894,9 +884,8 @@ QPoint MenuBarEditor::itemPos( int index )
     int dx = 0;
     int c = 0;
 
-    MenuBarEditorItem * i = itemList.first();
-
-    while ( i ) {
+    for(QList<MenuBarEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it) {
+	MenuBarEditorItem *i = (*it);
 	if ( i->isVisible() ) {
 	    dx = itemSize( i ).width();
 	    if ( x + dx > w && x > borderSize ) {
@@ -908,7 +897,6 @@ QPoint MenuBarEditor::itemPos( int index )
 	    x += dx;
 	    c++;
 	}
-	i = itemList.next();
     }
     dx = itemSize( &addItem ).width();
     if ( x + dx > width() && x > borderSize ) {
@@ -925,11 +913,10 @@ QPoint MenuBarEditor::snapToItem( const QPoint &pos )
     int y = 0;
     int dx = 0;
 
-    MenuBarEditorItem * n = itemList.first();
-
-    while ( n ) {
-	if ( n->isVisible() ) {
-	    dx = itemSize( n ).width();
+    for(QList<MenuBarEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it) {
+	MenuBarEditorItem *i = (*it);
+	if ( i->isVisible() ) {
+	    dx = itemSize( i ).width();
 	    if ( x + dx > width() && x > borderSize ) {
 		y += itemHeight;
 		x = borderSize;
@@ -941,7 +928,6 @@ QPoint MenuBarEditor::snapToItem( const QPoint &pos )
 	    }
 	    x += dx;
 	}
-	n = itemList.next();
     }
 
     return QPoint( x, y );
@@ -954,11 +940,10 @@ void MenuBarEditor::dropInPlace( MenuBarEditorItem * i, const QPoint &pos )
     int dx = 0;
     int idx = 0;
 
-    MenuBarEditorItem * n = itemList.first();
-
-    while ( n ) {
-	if ( n->isVisible() ) {
-	    dx = itemSize( n ).width();
+    for(QList<MenuBarEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it) {
+	MenuBarEditorItem *i = (*it);
+	if ( i->isVisible() ) {
+	    dx = itemSize( i ).width();
 	    if ( x + dx > width() && x > borderSize ) {
 		y += itemHeight;
 		x = borderSize;
@@ -969,13 +954,12 @@ void MenuBarEditor::dropInPlace( MenuBarEditorItem * i, const QPoint &pos )
 		break;
 	    x += dx;
 	}
-	n = itemList.next();
 	idx++;
     }
 
     hideItem();
     Command * cmd = 0;
-    int iidx = itemList.findRef( i );
+    int iidx = itemList.findIndex( i );
     if ( iidx != -1 ) { // internal dnd
 	cmd = new MoveMenuCommand( "Item Dragged", formWnd, this, iidx, idx );
 	item( iidx )->setVisible( TRUE );
