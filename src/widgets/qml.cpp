@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#18 $
 **
 ** Implementation of QML classes
 **
@@ -53,6 +53,7 @@ public:
     int margin[4];
     QMLStyle::ListStyle list;
     QMLStyle::WhiteSpaceMode whitespacemode;
+    bool selfnesting;
 };
 
 /*!
@@ -115,6 +116,7 @@ void QMLStyle::init()
     d->margin[3] = Undefined;
     d->list = QMLStyle::ListDisc;
     d->whitespacemode = QMLStyle::WhiteSpaceNormal;
+    d->selfnesting = TRUE;
 }
 
 /*!
@@ -454,6 +456,23 @@ void QMLStyle::setListStyle( QMLStyle::ListStyle s)
     d->list=s;
 }
 
+
+
+/*!
+  Handle with care
+ */
+void QMLStyle::setSelfNesting(bool sn)
+{
+    d->selfnesting = sn;
+}
+
+/*!
+  Handle with care
+ */
+bool QMLStyle::selfNesting() const
+{
+    return d->selfnesting;
+}
 
 //************************************************************************
 
@@ -865,8 +884,14 @@ void QMLStyleSheet::init()
     style = new QMLStyle( this, "em" );
     style->setFontItalic( TRUE );
 
-    style = new QMLStyle( this, "large" );
+    style = new QMLStyle( this, "i" );
+    style->setFontItalic( TRUE );
+
+    style = new QMLStyle( this, "large" ); //todo make relative to current font
     style->setFontSize( 24 );
+
+    style = new QMLStyle( this, "small" );//todo make relative to current font
+    style->setFontSize( 8 );
 
     style = new QMLStyle( this, "b" );
     style->setFontWeight( QFont::Bold);
@@ -925,8 +950,6 @@ void QMLStyleSheet::init()
 
     style = new QMLStyle( this, "table" );
     style->setDisplayMode(QMLStyle::DisplayBlock);
-    style = new QMLStyle( this, "head" );
-    style->setDisplayMode(QMLStyle::DisplayNone);
     style = new QMLStyle( this, "pre" );
     style->setFontFamily( "courier" );
     style->setDisplayMode(QMLStyle::DisplayBlock);
@@ -993,8 +1016,10 @@ QMLNode* QMLStyleSheet::tag( const QString& name,
 			     const QMLProvider& provider ) const
 {
     QMLStyle* style = styles[name];
-    if ( !style )
+    if ( !style ) {
+	warning( "QML Warning: unknown tag '%s'", name.ascii() );
 	style = nullstyle;
+    }
 
     // first the empty tags
     if (style->name() == "img")
@@ -1112,9 +1137,9 @@ QMLImage::QMLImage(const QDict<QString> &attr, const QMLProvider &provider)
 	    QRegion all( 0, 0, pm.width(), pm.height() );
 	    reg = new QRegion( all.subtract( mask ) );
 	}
-	if (pm.isNull()) {
-	    width = height = 10;
-	}
+    }
+    if (pm.isNull()) {
+	width = height = 50;
     }
 }
 
@@ -1124,8 +1149,12 @@ QMLImage::~QMLImage()
 
 void QMLImage::draw(QPainter* p, int x, int y,
 		    int ox, int oy, int /*cx*/, int /*cy*/, int /*cw*/, int /*ch*/,
-		    QRegion& backgroundRegion, const QColorGroup& /* cg */, const QBrush* /*bg*/)
+		    QRegion& backgroundRegion, const QColorGroup& cg, const QBrush* /*bg*/)
 {
+    if ( pm.isNull() ) {
+	p->fillRect( x-ox , y-oy, 50, 50,  cg.dark() );
+	return;
+    }
     if ( reg ){
 	QRegion tmp( *reg );
 	tmp.translate( x-ox, y-oy );
@@ -2930,8 +2959,8 @@ bool QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 	    QString tagname = parseOpenTag(doc, pos, attr);
 	
 	    QString curname = current->style->name();
-	    if ( (tagname == "p" && curname == "p") || (tagname == "li" && curname == "p" )
-		 || (tagname == "li" && curname == "li" ) ) {
+
+	    if ( curname == tagname && !current->style->selfNesting() ) {
 		pos = beforePos;
 		return FALSE;
 	    }
@@ -2974,7 +3003,7 @@ bool QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 				 && hasPrefix(doc, pos+1, QChar('/'))
 				 && eatCloseTag(doc, pos, tagname) );
 			
-			// sloppy mode ###
+			// sloppy mode, warning was done in eatCloseTag
 			if (!valid) {
 			    pos = recoverPos;
 			    valid = TRUE;
@@ -3061,11 +3090,15 @@ QChar QMLDocument::parseHTMLSpecialChar(const QString& doc, int& pos)
     QString s;
     pos++;
     int recoverpos = pos;
-    while ( pos < int(doc.length()) && doc[pos] != ';' ) {
+    while ( pos < int(doc.length()) && doc[pos] != ';' && pos < recoverpos + 6) {
 	s += doc[pos];
 	pos++;
     }
-    eat( doc, pos, ';' );
+    if (doc[pos] != ';' ) {
+	pos = recoverpos;
+	return '&';
+    }
+    pos++;
     if ( s == "lt")
 	return '<';
     if ( s == "gt")
@@ -3214,8 +3247,15 @@ bool QMLDocument::eatCloseTag(const QString& doc, int& pos, const QString& open)
     QString tag = parseWord(doc, pos, TRUE, TRUE);
     eatSpace(doc, pos);
     eat(doc, pos, '>');
-    valid = TRUE;     // sloppy:
+    if (!valid) {
+	warning( "QML Warning: Document not valid ( '%s' not closing #%d)", open.ascii(), pos);
+	valid = TRUE;
+    }
     valid &= tag == open;
+    if (!valid) {
+	warning( "QML Warning: Document not valid ( '%s' not closed before '%s' #%d)", 
+		 open.ascii(), tag.ascii(), pos);
+    }
     return valid;
 }
 
