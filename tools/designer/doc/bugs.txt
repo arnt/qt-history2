@@ -1,35 +1,23 @@
-/*!
-\page designerbugs.html
+Critical
+--------
 
-<title>Qt Designer Bugs</title>
-</head><body>
 
-\postheader
-<H1 align=center>Qt Designer Bugs</H1>
+Severe
+------
 
-<H2>Critical</H2>
-<DL>
-</DL>
-
-<H2>Severe</H2>
-<DL>
-    <DT><B>Line in grid layout</B>(Reggie)</DT>
-    <DD>When putting a horizontal line in a grid layout, and
+Line in grid layout (Reggie)
+    When putting a horizontal line in a grid layout, and
     breaking that it is too small to fit into the layout again. When
     breaking a layout make sure all widgets are >= (16, 16)</DD>
 
-    <DT><B>corrupted designerrc</B>(Reggie)</DT>
-    <DD>When the .designerrc is empty or corrupted designer crashes on
-    startup</DD>
+Corrupted designerrc (Reggie)
+    When the .designerrc is empty or corrupted designer crashes on
+    startup
 
-</DL>
 
-<H2>Small</H2>
-<DL>
-</DL>
+Small
+-----
 
-<H2>Cosmetic</H2>
-<DL>
-</DL>
 
-*/
+Cosmetic
+--------

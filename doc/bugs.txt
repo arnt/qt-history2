@@ -1,50 +1,39 @@
-/*!
-\page qtbugs.html
+Critical
+--------
 
-<title>Qt Bugs</title>
-</head>
-<body>
 
-\postheader
-<H1 align=center>Qt Bugs</H1>
+Severe
+------
 
-<H2>Critical</H2>
-<DL>
-</DL>
+static usage of QFileDialog on Borland (Win32)
+    API-call doesn't seem to work, so use Qt dialog as workaround</DD>
 
-<H2>Severe</H2>
-<DL>
-    <DT><B>static usage of QFileDialog on Borland (Win32)</B>
-    <DD>API-call doesn't seem to work, so use Qt dialog as workaround</DD>
+QApplication::widgetAt (Win32)
+    This function does not work as expected (support/arc-07/14942 ff.)</DD>
 
-    <DT><B>QApplication::widgetAt (Win32)</B>
-    <DD>This function does not work as expected (support/arc-07/14942 ff.)</DD>
+drawText() on a printer (Win32)
+    Text produces garbage (Win98) and is not scaled correctly (support/arc-07/15339)</DD>
 
-    <DT><B>drawText() on a printer (Win32)</B>
-    <DD>Text produces garbage (Win98) and is not scaled correctly (support/arc-07/15339)</DD>
 
-</DL>
+Small
+-----
 
-<H2>Small</H2>
-<DL>
-    <DT><B>QPopupMenu</B>
-    <DD>Fix <CODE>updateItem()</CODE> (qt-bugs/arc-06/13748).
+QPopupMenu
+    Fix <CODE>updateItem()</CODE> (qt-bugs/arc-06/13748).
 
-    <DT><B>Dual Monitor support (Win32)</B>
-    <DD>TLW-Widgets with WType_Popup appear on main-screen</DD>
-</DL>
+Dual Monitor support (Win32)
+    TLW-Widgets with WType_Popup appear on main-screen</DD>
 
-<H2>Cosmetic</H2>
-<DL>
-    <DT><B>QProgressBar</B>
-    <DD>Avoid flickering. This means caching both the percentage value (which is
+
+Cosmetic
+--------
+
+QProgressBar
+    Avoid flickering. This means caching both the percentage value (which is
     already done) and the pixel position (which has not been done yet).
 
-    <DT><B>QPrintDialog</B>
-    <DD>Try making it fit in a 640x480 display.
+QPrintDialog
+    Try making it fit in a 640x480 display.
 
-    <DT><B>QFileDialog</B>
-    <DD>QFileDialog::getOpenFileName( "*" ) gets confused.
-</DL>
-
-*/
+QFileDialog
+    QFileDialog::getOpenFileName( "*" ) gets confused.
