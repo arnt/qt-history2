@@ -557,11 +557,12 @@ struct FixStringCacheKey
     }
     bool operator==(const FixStringCacheKey &f) const
     {
-        return (f.string == string &&
+        return (hashCode() == f.hashCode() &&
                 f.flags == flags &&
+                f.string == string &&
                 f.pwd == pwd);
     }
-    uint hashCode() const {
+    inline uint hashCode() const {
         if(!hash)
             hash = qHash(string) | qHash(flags) /*| qHash(pwd)*/;
         return hash;
