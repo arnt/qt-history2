@@ -122,7 +122,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     t << "DIST	=	" << varList("DISTFILES") << endl;
     t << "TARGET	=	";
     if( !project->variables()[ "DESTDIR" ].isEmpty() )
-	t << varGlue("TARGET",project->first("DESTDIR") + "\\","",project->first("TARGET_EXT"));
+	t << varGlue("TARGET",project->first("DESTDIR"),"",project->first("TARGET_EXT"));
     else
 	t << project->variables()[ "TARGET" ].first() << project->variables()[ "TARGET_EXT" ].first();
     t << endl;

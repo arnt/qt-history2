@@ -120,7 +120,7 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
     t << "OBJMOC	=	" << varList("OBJMOC") << endl;
     t << "DIST	=	" << varList("DISTFILES") << endl;
     t << "TARGET	=	"
-      << varGlue("TARGET",project->first("DESTDIR") + "\\","",project->first("TARGET_EXT"))
+      << varGlue("TARGET",project->first("DESTDIR"),"",project->first("TARGET_EXT"))
       << endl;
     t << endl;
 
