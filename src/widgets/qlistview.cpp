@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#121 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#122 $
 **
 ** Implementation of QListView widget class
 **
@@ -72,7 +72,7 @@ struct QListViewPrivate
     struct ItemColumnInfo {
 	ItemColumnInfo(): text( 0 ), pm( 0 ), next( 0 ) {}
 	~ItemColumnInfo() { if (text) delete[] text; delete pm; delete next; }
-	const char * text;
+	/*const*/ char * text;
 	QPixmap * pm;
 	ItemColumnInfo * next;
     };
@@ -774,7 +774,7 @@ void QListViewItem::setText( int column, const char * text )
 	column--;
     }
     if ( l->text )
-	delete[] text;
+	delete[] l->text;
     l->text = qstrdup( text );
     repaint();
 }
