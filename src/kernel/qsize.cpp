@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qsize.cpp#29 $
 **
 ** Implementation of QSize class
 **
@@ -170,7 +170,7 @@ void QSize::transpose()
 */
 
 /*!
-  \fn QSize &QSize::operator*=( float c )
+  \fn QSize &QSize::operator*=( double c )
 
   Multiplies both the width and height with \e c and returns a reference to
   the size.
@@ -216,13 +216,13 @@ void QSize::transpose()
 */
 
 /*!
-  \fn QSize operator*( const QSize &s, float c )
+  \fn QSize operator*( const QSize &s, double c )
   \relates QSize
   Multiplies \e s by \e c and returns the result.
 */
 
 /*!
-  \fn QSize operator*( float c, const QSize &s )
+  \fn QSize operator*( double c, const QSize &s )
   \relates QSize
   Multiplies \e s by \e c and returns the result.
 */
@@ -234,7 +234,7 @@ void QSize::transpose()
 */
 
 /*!
-  \fn QSize &QSize::operator/=( float c )
+  \fn QSize &QSize::operator/=( double c )
 
   Divides both the width and height by \e c and returns a reference to the
   size.
@@ -249,7 +249,7 @@ void QSize::transpose()
 */
 
 /*!
-  \fn QSize operator/( const QSize &s, float c )
+  \fn QSize operator/( const QSize &s, double c )
   \relates QSize
   Divides \e s by \e c and returns the result.
 

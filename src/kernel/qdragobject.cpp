@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#59 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -411,10 +411,10 @@ QWidget * QDragObject::source()
 
   To be able to receive media dropped on a widget, multiply-inherit
   the QDropSite class and override the
-  \link QDropSite::dragEnterEvent() dragEnterEvent()\endlink,
-  \link QDropSite::dragMoveEvent() dragMoveEvent()\endlink,
-  \link QDropSite::dragLeaveEvent() dragLeaveEvent()\endlink, and
-  \link QDropSite::dropEvent() dropEvent()\endlink event handler methods.
+  \link QWidget::dragEnterEvent() dragEnterEvent()\endlink,
+  \link QWidget::dragMoveEvent() dragMoveEvent()\endlink,
+  \link QWidget::dragLeaveEvent() dragLeaveEvent()\endlink, and
+  \link QWidget::dropEvent() dropEvent()\endlink event handler methods.
 
   Support for specific media types is provided by subclasses of
   QDragObject.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.h#23 $
+** $Id: //depot/qt/main/src/kernel/qpoint.h#24 $
 **
 ** Definition of QPoint class
 **
@@ -64,9 +64,9 @@ public:
     friend inline QPoint operator/( const QPoint &, int );
     friend inline QPoint operator/( const QPoint &, double );
 
+private:
     static void warningDivByZero();
 
-private:
 #if defined(_OS_MAC_)
     QCOORD yp;
     QCOORD xp;

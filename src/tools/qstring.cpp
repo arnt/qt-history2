@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#143 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#144 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** Q1String classes
@@ -463,6 +463,13 @@ bool QChar::isSpace() const
 {
     return ucisspace(*this);
 }
+
+/*!
+  \fn operator char() const { return row?0:cell; } 
+
+  Returns the Latin1 character equivalent to the QChar,
+  or 0.  This is mainly useful for non-internationalized software.
+*/
 
 /*!
   This utility function converts the 8-bit string

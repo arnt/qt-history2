@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.h#24 $
+** $Id: //depot/qt/main/src/kernel/qsize.h#25 $
 **
 ** Definition of QSize class
 **
@@ -69,9 +69,9 @@ public:
     friend inline QSize operator/( const QSize &, int );
     friend inline QSize operator/( const QSize &, double );
 
+private:
     static void warningDivByZero();
 
-private:
     QCOORD wd;
     QCOORD ht;
 };

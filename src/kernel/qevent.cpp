@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#77 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#78 $
 **
 ** Implementation of event classes
 **
@@ -482,6 +482,14 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
 /*!
   \fn int QKeyEvent::ascii() const
   Returns the ASCII code of the key that was pressed or released.
+  Internationalized software should use text() instead.
+
+  \sa text()
+*/
+
+/*!
+  \fn QString QKeyEvent::text() const
+  Returns the Unicode text which this key generated.
 */
 
 /*!
@@ -837,7 +845,7 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
   Returns a pointer to the event data (specified in the constructor).
 
   The event data can be anything and must be cast to something useful
-  based on the \link type() event type\endlink. Again, it is not
+  based on the \link QEvent::type() event type\endlink. Again, it is not
   recommended to use custom events unless you are implementing Qt kernel
   enhancements.
 */
@@ -959,6 +967,13 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
 */
 
 /*!
+  \fn QDragEnterEvent::QDragEnterEvent (const QPoint & pos) 
+  Constructs a QDragEnterEvent entering at the given point.
+  Note that QDragEnterEvent constructed outside of the Qt internals
+  will not work - they currently rely on internal state.
+*/
+
+/*!
   \class QDragLeaveEvent qevent.h
   \brief The event sent to widgets when a drag-and-drop leaves it.
 
@@ -966,6 +981,13 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
   of QDragMoveEvent.  It is not sent if a QDropEvent is sent instead.
 
   \sa QDragEnterEvent, QDragMoveEvent, QDropEvent
+*/
+
+/*!
+  \fn QDragLeaveEvent::QDragLeaveEvent()
+  Constructs a QDragLeaveEvent.
+  Note that QDragLeaveEvent constructed outside of the Qt internals
+  will not work - they currently rely on internal state.
 */
 
 /*!
@@ -979,6 +1001,21 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
 */
 
 /*!
+  \fn QHideEvent::QHideEvent(bool spontaneous)
+
+  Constructs a QHideEvent.  \a spontaneous is TRUE if the event
+  originated outside the application - ie. the user hid the window via the
+  window manager controls.
+*/
+
+/*!
+  \fn bool QHideEvent::spontaneous () const
+  Returns TRUE if the event
+  originated outside the application - ie. the user hid the window via the
+  window manager controls.
+*/
+
+/*!
   \class QShowEvent qevent.h
   \brief The event sent after a widget is shown.
 
@@ -987,3 +1024,19 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
 
   \sa QHideEvent
 */
+
+/*!
+  \fn QShowEvent::QShowEvent(bool spontaneous)
+
+  Constructs a QShowEvent.  \a spontaneous is TRUE if the event
+  originated outside the application - ie. the user revealed the window via the
+  window manager controls.
+*/
+
+/*!
+  \fn bool QShowEvent::spontaneous () const
+  Returns TRUE if the event
+  originated outside the application - ie. the user revealed the window via the
+  window manager controls.
+*/
+

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#301 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#302 $
 **
 ** Implementation of QWidget class
 **
@@ -1110,7 +1110,7 @@ void QWidget::enabledChange( bool )
 
 
 /*!
-  \fn const QRect &QWidget::frameGeometry() const
+  \fn QRect QWidget::frameGeometry() const
   Returns the geometry of the widget, relative to its parent and
   including the window frame.
   \sa geometry(), x(), y(), pos()
