@@ -8,7 +8,7 @@
   alt="Badegakk, the official qdoc duck">
   </center>
   This document gives an overview of qdoc syntax and usage. It
-  assumes that you understannd the basic idea (documentation in C++
+  assumes that you understand the basic idea (documentation in C++
   comments and a little more). It is not to be distributed outside
   Trolltech, as our good documentation is a big competitive advantage.
   A <a href="qtdoc.html">companion document</a> explains how to write
@@ -30,10 +30,14 @@
 
   <h2>Giving commands to qdoc</h2>
 
-  Here are all commands recognized by qdoc: <a href="#a">\\a</a>,
+  Here are all commands recognized by qdoc:
+  <a href="#_amp">\\\&</a>,
+  <a href="#_lt">\\\<</a>,
+  <a href="#_gt">\\\></a>,
+  <a href="#_backslash">\\\\</a>,
+  <a href="#a">\\a</a>,
   <a href="#annotatedclasslist">\\annotatedclasslist</a>,
   <a href="#arg">\\arg</a>,
-  <a href="#base256">\\base256</a>,
   <a href="#base64">\\base64</a>,
   <a href="#brief">\\brief</a>,
   <a href="#bug">\\bug</a>,
@@ -68,6 +72,7 @@
   <a href="#obsolete">\\obsolete</a>,
   <a href="#overload">\\overload</a>,
   <a href="#page">\\page</a>,
+  <a href="#plainpage">\\plainpage</a>,
   <a href="#printline">\\printline</a>,
   <a href="#printto">\\printto</a>,
   <a href="#printuntil">\\printuntil</a>,
@@ -107,8 +112,8 @@
     <pre>
     /*!
       This function sets the label to allow the \\c HLine
-      and \\c VLine shapes if \\a enable is TRUE, and to
-      disallow these shapes if \\a <u>enable</u> is FALSE.
+      and \\c VLine shapes if \\a <u>enable</u> is TRUE,
+      and to disallow these shapes if it's FALSE.
 
       In Qt 3.0 and later, this function does nothing: These
       shapes are always allowed. The function is kept for
@@ -209,14 +214,16 @@
    <p><li><a name="l"></a>
     <b>\\l</b> (ell) makes an explicit link to almost anything that
     has a name. Normally, qdoc tries to keep down the number of
-    automatic links. This tags ensures the next word will get a link.
-    Here's an example where \\l is needed:
+    automatic links. This command guarantees the next word will get a
+    link:
     <pre>
     /*!
-       Returns the rotation angle.
+      Returns the rotation angle.
 
-       See the documentation for <u>\\l</u> QPie::getAngle() for a
-       discussion about angle units.
+      ...
+
+      See the documentation for <u>\\l</u> QPie::getAngle() for a
+      discussion about angle units.
     *&#47;</pre>
 
     The command support many kinds of links:
@@ -225,11 +232,14 @@
      <li> \c {\l QMembuf::pullup()} - a member function
      <li> \c {\l qmembuf.h} - a header file
      <li> \c {\l nfs/main.cpp} - an example
-     <li> \c {\l memory-buffers.html} - a HTML page (typically a
-       <a href="#page">\\page</a>)
      <li> \c {\l {memory management}} - a
-       <a href="#keyword">\\keyword</a>.
+       <a href="#keyword">\\keyword</a>
+     <li> \c {\l memory-buffers.html} - a HTML page of the
+       documentation (typically a <a href="#page">\\page</a>)
+     <li> \c {\l http://www.trolltech.com/} - a URL.
     </ul>
+
+    Most of the time, the automatic links provided by qdoc are enough.
 
    <p><li><a name="sa"></a>
     <b>\\sa</b> starts the "see also" section. The rest of the doc
@@ -261,6 +271,29 @@
   <h3>Common commands</h3>
 
   <ul>
+   <p><li><a name="_amp"></a>
+    <b>\\\&</b> expands to an ampersand (\&). The ampersand alone
+    starts a HTML entity such as "\&nbsp;" and "\&#47".
+
+   <p><li><a name="_lt"></a>
+    <b>\\\<</b> expands to a "less than" (\<). A "less than" without
+    the backslash starts a HTML tag such as "\<b\>".
+
+   <p><li><a name="_gt"></a>
+    <b>\\\></b> expands to a "greater than" (\>). A "greater than"
+    without the backslash ends a HTML tag.
+
+   <p><li><a name="_backslash"></a>
+    <b>\\\\</b> (two backslashes) expands to a backslash (\\). A
+    backslash alone starts a qdoc command. Thus, "\\version" expands
+    to "2.2.3" (or whatever), while "\\\\version" expands to
+    "\\version".
+
+    However, qdoc will silently reproduce unknown commands into the
+    documentation. If you type C:\\windows\\desktop, you will get
+    C:\\windows\\desktop, since there are no such commands as
+    \\windows or \\desktop.
+
    <p><li><a name="class"></a>
     <b>\\class</b> starts a class documentation unit.
     <pre>
@@ -507,10 +540,10 @@
     If your PNG files don't start with "iVBOR", try another email
     client.
 
-   <p><li><a name="base256"></a>
-    <b>\\base256</b> embeds plain text files in C++ files.
+   <p><li><a name="plainpage"></a>
+    <b>\\plainpage</b> embeds plain text files in C++ files.
     <pre>
-    /*! <u>\base256</u> graph.g1n
+    /*! <u>\plainpage</u> graph.g1n
 
       num label
       10 A
@@ -521,7 +554,6 @@
       15 F
       19 G
     *&#47;</pre>
-    It might be renamed \\plainpage in a future version of qdoc.
 
    <p><li><a name="defgroup"></a>
     <b>\\defgroup</b> defines a group of related classes:
@@ -848,7 +880,7 @@
     /*! \fn void QButton::stateChanged( int state )
 
       This signal is emitted whenever a toggle button
-      changes status. \a state is 2 if the button is on,
+      changes status. The \a state is 2 if the button is on,
       1 if it's in the \\link <u>QCheckBox::setTriState()</u>
       <u>"no change" state</u> \\endlink or 0 if the button is
       off.
@@ -861,6 +893,14 @@
     readers have to click to see what setTriState() is called. In the
     manpage and paper versions, they cannot see it at all. Instead,
     it is best to fit setTriState() into the sentence.
+
+    In the old days, there was no <a href="#l">\\l (ell)</a> command.
+    Change horrors like
+    <pre>
+    /*!
+      ... \\link QPie::setAngle() QPie::setAngle()\\endlink
+    *&#47;</pre>
+    to use \\l as you see them.
 
    <p><li><a name="note"></a>
     <b>\\note</b> expands to "Note:". qdoc knows about it only because
@@ -1243,9 +1283,9 @@
     Try this option now. You should get the following message:
     <pre>
     qdoc version 1.94</pre>
-    If you get, say, "qdoc version 2.53", twist
-    <a href="mailto:jasmin@trolltech.com">somebody</a>'s arm and get
-    him to update this documentation.
+    If you get, say, version 2.53, get
+    <a href="mailto:jasmin@trolltech.com">somebody</a> to update this
+    document.
 
    <p><li><a name="--warning-level"></a>
     <b>--warning-level</b> sets the warning level (between 0 and 4).
