@@ -12,8 +12,6 @@
 #include <iterator>
 #endif
 
-#define QT_NO_QHASH_BACKWARD_ITERATORS
-
 class QByteArray;
 class QString;
 
@@ -49,10 +47,14 @@ Q_CORE_EXPORT uint qHash(const QString &key);
 template <class T> inline uint qHash(const T *key)
 {
     if (sizeof(const T *) > sizeof(uint))
-	return static_cast<uint>((reinterpret_cast<Q_ULLONG>(key) >> (8 * sizeof(uint) - 1))
-				 ^ reinterpret_cast<Q_ULLONG>(key));
+	return qHash(reinterpret_cast<Q_ULLONG>(key));
     else
 	return static_cast<uint>(reinterpret_cast<ulong>(key));
+}
+
+template <class T> inline uint qHash(T *key)
+{
+    return qHash(const_cast<const T *>(key));
 }
 
 struct Q_CORE_EXPORT QHashData
@@ -77,9 +79,7 @@ struct Q_CORE_EXPORT QHashData
     void free();
     Node *firstNode();
     static Node *nextNode(Node *node);
-#ifndef QT_NO_QHASH_BACKWARD_ITERATORS
     static Node *prevNode(Node *node);
-#endif
 
     static QHashData shared_null;
 };
@@ -131,14 +131,14 @@ struct QHashNode
 	T value; \
 	inline QHashNode(key_type /* key0 */, const T &value0) : value(value0) { } \
 	inline bool same_key(uint h0, key_type) { return h0 == h; } \
-    };
+    }
 
 #if defined(Q_BYTE_ORDER) && Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-Q_HASH_DECLARE_INT_NODE(short)
-Q_HASH_DECLARE_INT_NODE(ushort)
+Q_HASH_DECLARE_INT_NODE(short);
+Q_HASH_DECLARE_INT_NODE(ushort);
 #endif
-Q_HASH_DECLARE_INT_NODE(int)
-Q_HASH_DECLARE_INT_NODE(uint)
+Q_HASH_DECLARE_INT_NODE(int);
+Q_HASH_DECLARE_INT_NODE(uint);
 #undef Q_HASH_DECLARE_INT_NODE
 #endif // QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
 
@@ -213,9 +213,6 @@ public:
 
 	inline const Key &key() const { return concrete(i)->key; }
 	inline T &value() const { return concrete(i)->value; }
-#ifdef QT_COMPAT
-	inline QT_COMPAT T &data() const { return concrete(i)->value; }
-#endif
 	inline T &operator*() const { return concrete(i)->value; }
 	inline bool operator==(const Iterator &o) { return i == o.i; }
 	inline bool operator!=(const Iterator &o) { return i != o.i; }
@@ -229,7 +226,6 @@ public:
 	    i = QHashData::nextNode(i);
 	    return r;
 	}
-#ifndef QT_NO_QHASH_BACKWARD_ITERATORS
 	inline Iterator &operator--() {
 	    i = QHashData::prevNode(i);
 	    return *this;
@@ -239,7 +235,6 @@ public:
 	    i = QHashData::prevNode(i);
 	    return r;
 	}
-#endif
     };
     friend class Iterator;
 
@@ -262,9 +257,6 @@ public:
 
 	inline const Key &key() const { return concrete(i)->key; }
 	inline const T &value() const { return concrete(i)->value; }
-#ifdef QT_COMPAT
-	inline QT_COMPAT const T &data() const { return concrete(i)->value; }
-#endif
 	inline const T &operator*() const { return concrete(i)->value; }
 	inline bool operator==(const ConstIterator &o) { return i == o.i; }
 	inline bool operator!=(const ConstIterator &o) { return i != o.i; }
@@ -278,7 +270,6 @@ public:
 	    i = QHashData::nextNode(i);
 	    return r;
 	}
-#ifndef QT_NO_QHASH_BACKWARD_ITERATORS
 	inline ConstIterator &operator--() {
 	    i = QHashData::prevNode(i);
 	    return *this;
@@ -288,7 +279,6 @@ public:
 	    i = QHashData::prevNode(i);
 	    return r;
 	}
-#endif
     };
     friend class ConstIterator;
 
@@ -296,12 +286,7 @@ public:
     inline Iterator begin() { detach(); return Iterator(d->firstNode()); }
     inline ConstIterator begin() const { return ConstIterator(d->firstNode()); }
     inline ConstIterator constBegin() const { return ConstIterator(d->firstNode()); }
-    inline Iterator end() {
-#ifndef QT_NO_QHASH_BACKWARD_ITERATORS
-	detach();
-#endif
-        return Iterator(e);
-    }
+    inline Iterator end() { detach(); return Iterator(e); }
     inline ConstIterator end() const { return ConstIterator(e); }
     inline ConstIterator constEnd() const { return ConstIterator(e); }
     Iterator erase(Iterator it);
@@ -313,9 +298,6 @@ public:
     ConstIterator find(const Key &key) const;
     Iterator insert(const Key &key, const T &value);
     Iterator insertMulti(const Key &key, const T &value);
-#ifdef QT_COMPAT
-    inline QT_COMPAT Iterator replace(const Key &key, const T &value) { return insert(key, value); }
-#endif
     QHash<Key, T> &operator+=(const QHash<Key, T> &other);
     inline QHash<Key, T> operator+(const QHash<Key, T> &other) const
     { QHash<Key, T> result = *this; result += other; return result; }
@@ -358,10 +340,10 @@ QHash<Key, T>::createNode(uint h, const Key &key, const T &value, Node **nextNod
 template <class Key, class T>
 Q_INLINE_TEMPLATE QHash<Key, T> &QHash<Key, T>::operator+=(const QHash<Key, T> &other)
 {
-    typename QHash<Key, T>::ConstIterator it = other.begin();
-    while (it != other.end()) {
-	insert(it.key(), it.value());
-	++it;
+    typename QHash<Key, T>::ConstIterator it = other.end();
+    while (it != other.begin()) {
+	--it;
+	insertMulti(it.key(), it.value());
     }
     return *this;
 }

@@ -15,21 +15,15 @@
 
 #include <new>
 
-// #define QT_NO_QMAP_BACKWARD_ITERATORS
-
 struct Q_CORE_EXPORT QMapData
 {
     struct Node {
-#ifndef QT_NO_QMAP_BACKWARD_ITERATORS
 	Node *backward;
-#endif
 	Node *forward[1];
     };
     enum { LastLevel = 11, Sparseness = 3 };
 
-#ifndef QT_NO_QMAP_BACKWARD_ITERATORS
     Node *backward;
-#endif
     Node *forward[QMapData::LastLevel + 1];
     QAtomic ref;
     int topLevel;
@@ -62,9 +56,7 @@ class QMap
     struct Node {
 	Key key;
         T value;
-#ifndef QT_NO_QMAP_BACKWARD_ITERATORS
         QMapData::Node *backward;
-#endif
         QMapData::Node *forward[1];
     };
     struct Payload
@@ -154,7 +146,6 @@ public:
 	    i = i->forward[0];
 	    return r;
 	}
-#ifndef QT_NO_QMAP_BACKWARD_ITERATORS
         inline Iterator &operator--() {
             i = i->backward;
             return *this;
@@ -164,7 +155,6 @@ public:
             i = i->backward;
             return r;
         }
-#endif
     };
     friend class Iterator;
 
@@ -202,7 +192,6 @@ public:
 	    i = i->forward[0];
 	    return r;
 	}
-#ifndef QT_NO_QMAP_BACKWARD_ITERATORS
         inline ConstIterator &operator--() {
             i = i->backward;
             return *this;
@@ -212,7 +201,6 @@ public:
             i = i->backward;
             return r;
         }
-#endif
     };
     friend class ConstIterator;
 
@@ -221,9 +209,7 @@ public:
     inline ConstIterator begin() const { return ConstIterator(e->forward[0]); }
     inline ConstIterator constBegin() const { return ConstIterator(e->forward[0]); }
     inline Iterator end() {
-#ifndef QT_NO_QMAP_BACKWARD_ITERATORS
 	detach();
-#endif
         return Iterator(e);
     }
     inline ConstIterator end() const { return ConstIterator(e); }
@@ -444,10 +430,10 @@ Q_INLINE_TEMPLATE typename QMap<Key, T>::Iterator QMap<Key, T>::find(const Key &
 template <class Key, class T>
 Q_INLINE_TEMPLATE QMap<Key, T> &QMap<Key, T>::operator+=(const QMap<Key, T> &other)
 {
-    typename QMap<Key, T>::ConstIterator it = other.begin();
-    while (it != other.end()) {
-	insert(it.key(), it.value());
-	++it;
+    typename QMap<Key, T>::ConstIterator it = other.end();
+    while (it != other.begin()) {
+	--it;
+	insertMulti(it.key(), it.value());
     }
     return *this;
 }

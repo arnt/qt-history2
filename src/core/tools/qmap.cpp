@@ -1,9 +1,7 @@
 #include "qmap.h"
 
 QMapData QMapData::shared_null = {
-#ifndef QT_NO_QMAP_BACKWARD_ITERATORS
     reinterpret_cast<Node *>(&shared_null),
-#endif
     { reinterpret_cast<Node *>(&shared_null), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, Q_ATOMIC_INIT(1), 0,
     0, 0, false
 };
@@ -12,9 +10,7 @@ QMapData *QMapData::createData()
 {
     QMapData *d = new QMapData;
     Node *e = reinterpret_cast<Node *>(d);
-#ifndef QT_NO_QMAP_BACKWARD_ITERATORS
     d->backward = e;
-#endif
     d->forward[0] = e;
     d->ref = 1;
     d->topLevel = 0;
@@ -61,10 +57,8 @@ QMapData::Node *QMapData::node_create(Node *update[], int offset)
     void *concreteNode = qMalloc(offset + sizeof(Node) + level * sizeof(Node *));
     Node *abstractNode = reinterpret_cast<Node *>(reinterpret_cast<char *>(concreteNode) + offset);
 
-#ifndef QT_NO_QMAP_BACKWARD_ITERATORS
     abstractNode->backward = update[0];
     update[0]->forward[0]->backward = abstractNode;
-#endif
 
     for (int i = level; i >= 0; i--) {
 	abstractNode->forward[i] = update[i]->forward[i];
@@ -77,9 +71,7 @@ QMapData::Node *QMapData::node_create(Node *update[], int offset)
 
 void QMapData::node_delete(Node *update[], int offset, Node *node)
 {
-#ifndef QT_NO_QMAP_BACKWARD_ITERATORS
     node->forward[0]->backward = node->backward;
-#endif
 
     for (int i = 0; i <= topLevel; ++i) {
 	if (update[i]->forward[i] != node)
