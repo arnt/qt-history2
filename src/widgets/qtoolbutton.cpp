@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#48 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#49 $
 **
 ** Implementation of QToolButton class
 **
@@ -67,6 +67,7 @@ QToolButton::QToolButton( QWidget * parent, const char *name )
 {
     init();
     setUsesBigPixmap( FALSE );
+    setFocusPolicy( NoFocus );
 }
 
 
