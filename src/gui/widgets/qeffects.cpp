@@ -159,7 +159,7 @@ bool QAlphaWidget::eventFilter(QObject* o, QEvent* e)
         if (o != widget)
             break;
     case QEvent::MouseButtonPress:
-#ifndef QT_NO_SCROLLVIEW
+#if !defined(QT_NO_SCROLLVIEW) && defined(QT_COMPAT)
         if (o->inherits("QScrollView"))
             break;
 #endif
@@ -386,7 +386,7 @@ bool QRollEffect::eventFilter(QObject* o, QEvent* e)
         scroll();
         break;
     case QEvent::MouseButtonPress:
-#ifndef QT_NO_SCROLLVIEW
+#if !defined(QT_NO_SCROLLVIEW) && defined(QT_COMPAT)
         if (o->inherits("QScrollView"))
             break;
 #endif
