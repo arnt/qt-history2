@@ -32,8 +32,11 @@ public:
 
     bool canRender( const QChar *string,  int len );
 
+    void setScale( double scale );
+    Type type() const;
 
 private:
+    friend class QFontPrivate;
     XFontStruct *_fs;
     QCString _name;
     QTextCodec *_codec;

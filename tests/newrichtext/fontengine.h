@@ -48,6 +48,13 @@ public:
 	NoError,
 	OutOfMemory
     };
+
+    enum Type {
+	Box,
+	Xlfd,
+	Xft
+    };
+
     virtual ~FontEngineIface() = 0;
 
     /* returns 0 as glyph index for non existant glyphs */
@@ -70,6 +77,10 @@ public:
     virtual const char *name() const = 0;
 
     virtual bool canRender( const QChar *string,  int len ) = 0;
+
+    virtual void setScale( double ) {}
+
+    virtual Type type() const = 0;
 };
 
 

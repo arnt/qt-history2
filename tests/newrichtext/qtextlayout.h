@@ -207,17 +207,12 @@ public:
 
     virtual void position( ShapedItem &shaped ) const = 0;
 
-#if 0
-
-
     // ### we need something for justification
 
-    // ### cursor handling
-    int cursorToX() {}
-    int xToCursor() {}
+    virtual int cursorToX( ShapedItem &shaped, int cpos ) const = 0;
+    virtual int xToCursor( ShapedItem &shaped, int x ) const = 0;
 
 //    static ScriptProperties scriptProperties( int script );
-#endif
 
 };
 

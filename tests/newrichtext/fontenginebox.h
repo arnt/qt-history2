@@ -28,8 +28,11 @@ public:
 
     bool canRender( const QChar *string,  int len );
 
+    Type type() const;
+    inline int size() const { return _size; }
 
 private:
+    friend class QFontPrivate;
     int _size;
 };
 

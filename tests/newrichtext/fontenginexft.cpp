@@ -312,3 +312,9 @@ OpenTypeIface *FontEngineXft::openTypeIface() const
     that->_openType = new OpenTypeIface( xftfs->face );
     return _openType;
 }
+
+
+FontEngineIface::Type FontEngineXft::type() const
+{
+    return Xft;
+}

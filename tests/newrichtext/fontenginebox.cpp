@@ -148,3 +148,8 @@ bool FontEngineBox::canRender( const QChar *,  int )
 {
     return TRUE;
 }
+
+FontEngineIface::Type FontEngineBox::type() const
+{
+    return Box;
+}

@@ -1367,6 +1367,167 @@ void QFontPrivate::computeLineWidth()
 }
 
 
+
+// fill the actual fontdef with data from the loaded font
+void QFontPrivate::initFontInfo(QFont::Script script, double scale)
+{
+    FontEngineIface *fe = x11data.fontstruct[script];
+    FontEngineIface::Type type = fe->type();
+
+    // set the scale value for each font correctly...
+    if ( scale > 0 &&  type == FontEngineIface::Box )
+	((FontEngineBox *) fe)->_size = (int)(((FontEngineBox *) fe)->_size*scale);
+
+    if ((script != QFont::Unicode && script != defaultScript) || !actual.dirty ||
+	type == FontEngineIface::Box ) {
+	// make sure the pixel size is correct, so that we can draw the missing char
+	// boxes in the correct size...
+	if (request.pixelSize == -1) {
+	    actual.pointSize = request.pointSize;
+	    actual.pixelSize = (int)(pixelSize( actual, paintdevice, x11Screen ) +.5);
+	}
+	return;
+    }
+
+    if ( paintdevice &&
+	 (QPaintDeviceMetrics( paintdevice ).logicalDpiY() != QPaintDevice::x11AppDpiY( x11Screen )) ) {
+	// we have a printer font
+	actual = request;
+	float _pointSize = pointSize( actual, paintdevice, x11Screen );
+	float _pixelSize = pixelSize( actual, paintdevice, x11Screen );
+	if ( actual.pointSize == -1 )
+	    actual.pointSize = (int)(_pointSize + 0.5);
+	else
+	    actual.pixelSize = (int) (_pixelSize + 0.5);
+
+	if ( type == FontEngineIface::Xlfd ) {
+	    FontEngineXLFD *fexlfd = (FontEngineXLFD *)fe;
+	    QFontDef font;
+	    if ( fillFontDef(fexlfd->name(), &font, x11Screen ) ) {
+		if ( font.pixelSize != 0 )
+		    fexlfd->_scale *= _pixelSize/((float) font.pixelSize);
+		//qDebug("setting scale to %f requested pixel=%f got %d",
+		// fe->scale, _pixelSize, font.pixelSize);
+	    }
+	}
+	return;
+    }
+
+    actual.lbearing = SHRT_MIN;
+    actual.rbearing = SHRT_MIN;
+
+    if (exactMatch) {
+	actual = request;
+	actual.dirty = FALSE;
+
+	if ( actual.pointSize == -1 )
+	    actual.pointSize = (int)(pointSize( actual, paintdevice, x11Screen ) +.5);
+	else
+	    actual.pixelSize = (int)(pixelSize( actual, paintdevice, x11Screen ) +.5);
+
+#ifndef   QT_NO_XFTFREETYPE
+	if ( type == FontEngineIface::Xft ) {
+	    FontEngineXft *fexft = (FontEngineXft *)fe;
+	    // parse the pattern
+	    XftPattern *pattern =
+		(XftPattern *) fexft->_pattern;
+
+	    char *family_value;
+	    int slant_value;
+	    int weight_value;
+	    int spacing_value = XFT_PROPORTIONAL;
+	    XftPatternGetString (pattern, XFT_FAMILY, 0, &family_value);
+	    XftPatternGetInteger (pattern, XFT_SLANT, 0, &slant_value);
+	    XftPatternGetInteger (pattern, XFT_WEIGHT, 0, &weight_value);
+	    XftPatternGetInteger (pattern, XFT_SPACING, 0, &spacing_value);
+	    if (weight_value == XFT_WEIGHT_LIGHT)
+		weight_value = QFont::Light;
+	    else if (weight_value <= XFT_WEIGHT_MEDIUM)
+		weight_value = QFont::Normal;
+	    else if (weight_value <= XFT_WEIGHT_DEMIBOLD)
+		weight_value = QFont::DemiBold;
+	    else if (weight_value <= XFT_WEIGHT_BOLD)
+		weight_value = QFont::Bold;
+	    else if ( weight_value <= XFT_WEIGHT_BLACK)
+		weight_value = QFont::Black;
+	    else
+		weight_value = QFont::Normal;
+
+	    actual.family = family_value;
+	    actual.weight = weight_value;
+	    actual.italic = (slant_value != XFT_SLANT_ROMAN);
+	    actual.fixedPitch = (spacing_value >= XFT_MONO);
+	} else
+#endif // QT_NO_XFTFREETYPE
+	{
+	    FontEngineXLFD *fexlfd = (FontEngineXLFD *)fe;
+	    QFontDef def;
+
+	    if ( ! fillFontDef( fexlfd->_fs, &def, x11Screen ) &&
+		 ! fillFontDef( fexlfd->name(), &def, x11Screen ) ) {
+		// failed to parse the XLFD of the exact match font...
+		// this should never happen...
+		exactMatch = FALSE;
+	    } else {
+		QString dfoundry, dfamily, afoundry, afamily;
+		QFontDatabase::parseFontName( def.family, dfoundry, dfamily );
+		QFontDatabase::parseFontName( actual.family, afoundry, afamily );
+
+		if ( dfamily        != afamily            ||
+		     ( !dfoundry.isEmpty() &&
+		       !afoundry.isEmpty() &&
+		       dfoundry     != afoundry )         ||
+		     ( !def.addStyle.isEmpty() &&
+		       !actual.addStyle.isEmpty() &&
+		       def.addStyle   != actual.addStyle ) ) {
+		    // the foundry/family/addStyle do not match between
+		    // these 2 fontdefs... we have most likely made an
+		    // exact match with a font alias... fix it...
+		    actual.family = def.family;
+		    actual.addStyle = def.addStyle;
+		    exactMatch = FALSE;
+
+		}
+	    }
+	    // if we have a scaled font, we fake actual to show the correct size
+	    // value nevertheless....
+	    actual.pointSize = (int) (actual.pointSize*scale);
+	    actual.pixelSize = (int) (actual.pixelSize*scale);
+	}
+
+	return;
+    }
+
+    if ( type != FontEngineXLFD::Xlfd )
+	return;
+
+    FontEngineXLFD *fexlfd = (FontEngineXLFD *)fe;
+
+    if ( ! fillFontDef( fexlfd->_fs, &actual, x11Screen ) &&
+	 ! fillFontDef( fexlfd->name(), &actual, x11Screen ) ) {
+	// zero fontdef
+	actual = QFontDef();
+
+	actual.family = QString::fromLatin1(fe->name());
+	actual.rawMode = TRUE;
+	actual.pointSize = request.pointSize;
+	actual.pixelSize = request.pixelSize;
+	exactMatch = FALSE;
+
+	if ( actual.pointSize == -1 )
+	    actual.pointSize = (int)(pointSize( actual, paintdevice, x11Screen ) +.5);
+	else
+	    actual.pixelSize = (int)(pixelSize( actual, paintdevice, x11Screen ) +.5);
+    }
+
+    actual.pointSize = (int)(actual.pointSize*scale);
+    actual.pixelSize = (int)(actual.pixelSize*scale);
+    actual.underline = request.underline;
+    actual.strikeOut = request.strikeOut;
+    actual.dirty = FALSE;
+}
+
+
 // Loads the font for the specified script
 static inline int maxIndex(XFontStruct *f) {
     return (((f->max_byte1 - f->min_byte1) *
@@ -1621,8 +1782,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	    // the reason we do this here, is because Exceed substitutes the fixed
 	    // font for any name it can't find...
 	    x11data.fontstruct[script] = new FontEngineBox( pixelSize( request, paintdevice, x11Screen ) );
-	    // ####### add them all back in.
-// 	    initFontInfo(script, scale);
+	    initFontInfo(script, scale);
 	    fontCache->insert(k, x11data.fontstruct[script], 1);
 	    return;
 	}
@@ -1642,7 +1802,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	x11data.fontstruct[script] = qfs;
 
 	qfs->ref();
-// 	    initFontInfo(script, scale);
+	initFontInfo(script, scale);
 
 	request.dirty = FALSE;
 
@@ -1684,7 +1844,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 #endif
 
 	    x11data.fontstruct[script] = new FontEngineBox( pixelSize( request,  paintdevice, x11Screen ) );
-// 	    initFontInfo(script, scale);
+	    initFontInfo(script, scale);
 	    fontCache->insert(k, x11data.fontstruct[script], 1);
 	    return;
 	}
@@ -1716,7 +1876,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 #endif
 
 		x11data.fontstruct[script] = new FontEngineBox( pixelSize( request,  paintdevice, x11Screen ) );
-// 		initFontInfo(script, scale);
+		initFontInfo(script, scale);
 		fontCache->insert(k, x11data.fontstruct[script], 1);
 		return;
 	    }
@@ -1746,7 +1906,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	    } else {
 		// Didn't get unicode/script font, set to sentinel and return
 		x11data.fontstruct[script] = new FontEngineBox( pixelSize( request,  paintdevice, x11Screen ) );
-// 		initFontInfo(script, scale);
+		initFontInfo(script, scale);
 		fontCache->insert(k, x11data.fontstruct[script], 1);
 		return;
 	    }
@@ -1778,14 +1938,14 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
     else {
 	// couldn't load the font...
 	x11data.fontstruct[script] = new FontEngineBox( pixelSize( request,  paintdevice, x11Screen ) );
-// 	initFontInfo(script, scale);
+	initFontInfo(script, scale);
 	fontCache->insert(k, x11data.fontstruct[script], 1);
 	return;
     }
 
     x11data.fontstruct[script] = qfs;
 
-//     initFontInfo(script, scale);
+    initFontInfo(script, scale);
     request.dirty = FALSE;
 
     // Insert font into the font cache and font dict
@@ -2150,7 +2310,15 @@ int QFontMetrics::descent() const
 */
 bool QFontMetrics::inFont(QChar ch) const
 {
-    return TRUE; //####
+    QFont::Script script;
+    SCRIPT_FOR_CHAR( script, ch );
+    d->load( script );
+
+    FontEngineIface *fe = d->x11data.fontstruct[script];
+    if ( fe->type() == FontEngineIface::Box )
+	return FALSE;
+
+    return fe->canRender( &ch, 1 );
 }
 
 
@@ -2168,8 +2336,20 @@ bool QFontMetrics::inFont(QChar ch) const
 */
 int QFontMetrics::leftBearing(QChar ch) const
 {
-    // ####
-    return 0;
+    QFont::Script script;
+    SCRIPT_FOR_CHAR( script, ch );
+    d->load( script );
+
+    FontEngineIface *fe = d->x11data.fontstruct[script];
+    if ( fe->type() == FontEngineIface::Box )
+	return 0;
+
+    GlyphIndex glyphs[10];
+    int nglyphs = 9;
+    fe->stringToCMap( &ch, 1, glyphs, &nglyphs );
+    // ### can nglyphs != 1 happen at all? Not currently I think
+    QGlyphInfo gi = fe->boundingBox( glyphs[0] );
+    return gi.x;
 }
 
 
@@ -2187,8 +2367,20 @@ int QFontMetrics::leftBearing(QChar ch) const
 */
 int QFontMetrics::rightBearing(QChar ch) const
 {
-    // ####
-    return 0;
+    QFont::Script script;
+    SCRIPT_FOR_CHAR( script, ch );
+    d->load( script );
+
+    FontEngineIface *fe = d->x11data.fontstruct[script];
+    if ( fe->type() == FontEngineIface::Box )
+	return 0;
+
+    GlyphIndex glyphs[10];
+    int nglyphs = 9;
+    fe->stringToCMap( &ch, 1, glyphs, &nglyphs );
+    // ### can nglyphs != 1 happen at all? Not currently I think
+    QGlyphInfo gi = fe->boundingBox( glyphs[0] );
+    return gi.xoff - gi.x - gi.width;
 }
 
 
@@ -2322,8 +2514,20 @@ int QFontMetrics::lineSpacing() const
 */
 int QFontMetrics::width(QChar ch) const
 {
-    // ####
-    return 0;
+    QFont::Script script;
+    SCRIPT_FOR_CHAR( script, ch );
+    d->load( script );
+
+    FontEngineIface *fe = d->x11data.fontstruct[script];
+    if ( fe->type() == FontEngineIface::Box )
+	return ((FontEngineBox *)fe)->size();
+
+    GlyphIndex glyphs[10];
+    int nglyphs = 9;
+    fe->stringToCMap( &ch, 1, glyphs, &nglyphs );
+    // ### can nglyphs != 1 happen at all? Not currently I think
+    QGlyphInfo gi = fe->boundingBox( glyphs[0] );
+    return gi.xoff;
 }
 
 
@@ -2340,8 +2544,37 @@ int QFontMetrics::width(QChar ch) const
 */
 int QFontMetrics::charWidth( const QString &str, int pos ) const
 {
-    // ###
-    return 0;
+    if ( pos < 0 || pos > (int)str.length() )
+	return 0;
+
+    QFont::Script script;
+    SCRIPT_FOR_CHAR( script, str.unicode()[pos] );
+    d->load( script );
+
+    // ### need to optimise this and not hardcode arabic.
+    if ( script != QFont::Arabic ) {
+	FontEngineIface *fe = d->x11data.fontstruct[script];
+	if ( fe->type() == FontEngineIface::Box )
+	    return ((FontEngineBox *)fe)->size();
+
+	GlyphIndex glyphs[10];
+	int nglyphs = 9;
+	fe->stringToCMap( str.unicode()+pos, 1, glyphs, &nglyphs );
+	// ### can nglyphs != 1 happen at all? Not currently I think
+	QGlyphInfo gi = fe->boundingBox( glyphs[0] );
+	return gi.xoff;
+    }
+
+    const TextLayout *layout = TextLayout::instance();
+    ScriptItemArray items;
+    layout->itemize( items,  str );
+    int i = 0;
+    while ( pos > items[i].position )
+	i++;
+    ShapedItem shaped;
+    layout->shape( shaped, QFont( d ), str, items, i );
+
+    // ### need xToCursor here!!!!
 }
 
 
@@ -2363,12 +2596,6 @@ int QFontMetrics::width( const QString &str, int len ) const
 	len = str.length();
     if (len == 0)
 	return 0;
-
-    // this algorithm is similar to the one used for painting
-    bool simple = str.simpleText();
-    QString shaped = simple ? str : QComplexText::shapedString( str, 0, len, QPainter::Auto, this );
-    if ( !simple )
-	len = shaped.length();
 
     return 0; //####
 }

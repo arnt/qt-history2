@@ -57,8 +57,14 @@ const Offset *ShapedItem::offsets() const
     return d->offsets;
 }
 
-ScriptEngine **scriptEngines = 0;
 
+
+
+
+
+
+
+ScriptEngine **scriptEngines = 0;
 
 class TextLayoutQt : public TextLayout
 {
@@ -74,7 +80,36 @@ public:
 
     void position( ShapedItem &shaped ) const;
 
+    int cursorToX( ShapedItem &shaped, int cpos ) const;
+    int xToCursor( ShapedItem &shaped, int x ) const;
+
 };
+
+
+
+static TextLayout *_instance = 0;
+
+const TextLayout *TextLayout::instance()
+{
+    if ( !_instance ) {
+	_instance = new TextLayoutQt();
+
+        if ( !scriptEngines ) {
+	    scriptEngines = (ScriptEngine **) malloc( QFont::NScripts * sizeof( ScriptEngine * ) );
+	    scriptEngines[0] = new ScriptEngineBasic;
+	    for ( int i = 1; i < QFont::NScripts; i++ )
+		scriptEngines[i] = scriptEngines[0];
+	    scriptEngines[QFont::Arabic] = new ScriptEngineArabic;
+	}
+    }
+    return _instance;
+}
+
+
+void TextLayout::bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOrder ) const
+{
+    ::bidiReorder(numRuns, levels, visualOrder );
+}
 
 
 void TextLayoutQt::itemize( ScriptItemArray &items, const QString &string ) const
@@ -131,28 +166,11 @@ void TextLayoutQt::position( ShapedItem &shaped ) const
 	scriptEngines[script]->position( &shaped );
 }
 
-
-static TextLayout *_instance = 0;
-
-const TextLayout *TextLayout::instance()
+int TextLayoutQt::cursorToX( ShapedItem &shaped, int cpos ) const
 {
-    if ( !_instance ) {
-	_instance = new TextLayoutQt();
-
-        if ( !scriptEngines ) {
-	    scriptEngines = (ScriptEngine **) malloc( QFont::NScripts * sizeof( ScriptEngine * ) );
-	    scriptEngines[0] = new ScriptEngineBasic;
-	    for ( int i = 1; i < QFont::NScripts; i++ )
-		scriptEngines[i] = scriptEngines[0];
-	    scriptEngines[QFont::Arabic] = new ScriptEngineArabic;
-	}
-    }
-    return _instance;
 }
 
-
-void TextLayout::bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOrder ) const
+int TextLayoutQt::xToCursor( ShapedItem &shaped, int x ) const
 {
-    ::bidiReorder(numRuns, levels, visualOrder );
-}
 
+}

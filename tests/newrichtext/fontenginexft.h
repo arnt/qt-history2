@@ -34,8 +34,10 @@ public:
 
     bool canRender( const QChar *string,  int len );
 
+    Type type() const;
 
 private:
+    friend class QFontPrivate;
     XftFont *_font;
     XftPattern *_pattern;
     OpenTypeIface *_openType;

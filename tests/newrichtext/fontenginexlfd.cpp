@@ -265,6 +265,7 @@ QGlyphInfo FontEngineXLFD::boundingBox( const GlyphIndex *glyphs, const Offset *
 
 QGlyphInfo FontEngineXLFD::boundingBox( GlyphIndex glyph )
 {
+    // ### scale missing!
     XCharStruct *xcs = charStruct( _fs, glyph );
     if (xcs) {
 	return QGlyphInfo( xcs->lbearing, -xcs->ascent, xcs->rbearing- xcs->lbearing, xcs->ascent + xcs->descent, xcs->width, 0 );
@@ -327,4 +328,16 @@ bool FontEngineXLFD::canRender( const QChar *string,  int len )
     if ( nglyphs > 255 )
 	free( g );
 	return allExist;
+}
+
+
+void FontEngineXLFD::setScale( double scale )
+{
+    _scale = scale;
+}
+
+
+FontEngineIface::Type FontEngineXLFD::type() const
+{
+    return Xlfd;
 }
