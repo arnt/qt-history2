@@ -1,0 +1,11 @@
+<!DOCTYPE DCF>
+<DCF ref="index.html" icon="handbook.png" title="Help example">
+    <section ref="./setup.html" title="Setup Profile"/>
+    <section ref="./manual.html" title="How to use this Example">
+	<keyword ref="./manual.html#onlydoc">Example Profile</keyword>
+	<keyword ref="./manual.html#hide">Hide Sidebar</keyword>
+	<keyword ref="./manual.html#openqabutton">Open</keyword>
+	<keyword ref="./manual.html#closeqabutton">Close</keyword>
+	<keyword ref="./manual.html#display">Display</keyword>
+    </section>
+</DCF>
