@@ -3164,32 +3164,25 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	extern bool qt_compose_emptied; // qinputcontext_x11.cpp
 	if ( qic && qic->composing && qic->focusWidget && qt_compose_emptied ) {
 	    XEvent event2;
+	    bool found = FALSE;
 	    if ( XCheckTypedEvent( QPaintDevice::x11AppDisplay(),
 				   XKeyPress, &event2 ) ) {
 		if ( event2.xkey.keycode == 0 ) {
 		    // found a key event with the 'commit' string
-		    QCString data(513);
-		    KeySym sym;    // unused
-		    Status status; // unused
-		    QString text;
-		    int count = qic->lookupString( &(event2.xkey), data,
-						   &sym, &status );
-		    if ( count > 0 )
-			text = input_mapper->toUnicode( data, count );
-		    QIMEvent endevent( QEvent::IMEnd, text, -1 );
-		    QApplication::sendEvent( qic->focusWidget, &endevent );
-		} else {
-		    // found some other key event, leave it alone
+		    found = TRUE;
 		    XPutBackEvent( QPaintDevice::x11AppDisplay(), &event2 );
 		}
-	    } else {
+	    }
+
+	    if ( !found ) {
 		// no key event, so the user must have cancelled the composition
 		QIMEvent endevent( QEvent::IMEnd, QString::null, -1 );
 		QApplication::sendEvent( qic->focusWidget, &endevent );
+
+		qic->focusWidget = 0;
 	    }
 
 	    qt_compose_emptied = FALSE;
-	    qic->focusWidget = 0;
 	}
 #endif // QT_NO_XIM
 
@@ -3442,11 +3435,38 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	break;
 
     case XKeyPress:				// keyboard event
-    case XKeyRelease: {
-	if ( keywidget && keywidget->isEnabled() ) // should always exist
+    case XKeyRelease:
+	{
+	    if ( keywidget && keywidget->isEnabled() ) // should always exist
+
+		if ( event->xkey.keycode == 0 ) {
+		    // input method has sent us a commit string
+		    QInputContext *qic =
+			(QInputContext *) keywidget->topLevelWidget()->topData()->xic;
+		    if ( qic && qic->composing && qic->focusWidget ) {
+			QCString data(513);
+			KeySym sym;    // unused
+			Status status; // unused
+			QString text;
+			int count = qic->lookupString( &(event->xkey), data,
+						       &sym, &status );
+			if ( count > 0 )
+			    text = input_mapper->toUnicode( data, count );
+
+			QIMEvent endevent( QEvent::IMEnd, text, -1 );
+			QApplication::sendEvent( qic->focusWidget, &endevent );
+
+			qic->focusWidget = 0;
+			qic->text = QString::null;
+		    } else {
+			if ( qic ) qic->reset();
+		    }
+		    break;
+		}
+
 	    keywidget->translateKeyEvent( event, grabbed );
-    }
-	break;
+	    break;
+	}
 
     case GraphicsExpose:
     case Expose:				// paint event
