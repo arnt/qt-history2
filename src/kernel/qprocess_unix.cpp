@@ -758,6 +758,8 @@ bool QProcess::start( QStringList *env )
 		if ( fileInfo.isExecutable() ) 
 		    command = fileInfo.filePath().local8Bit();
 	    }
+	    if(QDir::isRelativePath(command))
+	       command.prepend(QDir::currentDirPath() + QDir::separator());
 #endif
 #ifndef Q_OS_QNX4
 	    ::execvp( command, (char*const*)arglist ); // ### cast not nice
@@ -793,9 +795,9 @@ bool QProcess::start( QStringList *env )
 	    envlist[i] = 0;
 
 	    // look for the executable in the search path
-	    if ( _arguments.count()>0 ) {
+	    if ( _arguments.count()>0 && getenv("PATH")!=0 ) {
 		QString command = _arguments[0];
-		if ( getenv("PATH")!=0 && !command.contains( '/' ) ) {
+		if ( !command.contains( '/' ) ) {
 		    QStringList pathList = QStringList::split( ':', getenv( "PATH" ) );
 		    for (QStringList::Iterator it = pathList.begin(); it != pathList.end(); ++it ) {
 			QString dir = *it;
@@ -814,24 +816,29 @@ bool QProcess::start( QStringList *env )
 			    break;
 			}
 		    }
-		} else {
-#ifdef Q_OS_MACX //look in a bundle
-		    QString command = arglist[0];
-		    const QString mac_bundle_suffix = ".app/Contents/MacOS/";
-		    if(!QFile::exists(command) && QFile::exists(command + mac_bundle_suffix)) {
-			QString exec = command;
-			int lslash = command.findRev('/');
-			if(lslash != -1) 
-			    exec = command.mid(lslash+1);
-			QFileInfo fileInfo( command + mac_bundle_suffix + exec );
-			if ( fileInfo.isExecutable() ) {
-			    arglistQ[0] = fileInfo.filePath().local8Bit();
-			    arglist[0] = arglistQ[0];
-			}
+		} 
+	    }
+#ifdef Q_OS_MACX
+	    if(!QFile::exists(arglist[0])) {
+		QString command = arglist[0];
+		const QString mac_bundle_suffix = ".app/Contents/MacOS/";
+		if(QFile::exists(command + mac_bundle_suffix)) {
+		    QString exec = command;
+		    int lslash = command.findRev('/');
+		    if(lslash != -1) 
+			exec = command.mid(lslash+1);
+		    QFileInfo fileInfo( command + mac_bundle_suffix + exec );
+		    if ( fileInfo.isExecutable() ) {
+			arglistQ[0] = fileInfo.filePath().local8Bit();
+			arglist[0] = arglistQ[0];
 		    }
-#endif
 		}
 	    }
+	    if(QDir::isRelativePath(arglistQ[0])) {
+		arglistQ[0].prepend(QDir::currentDirPath() + QDir::separator());
+		arglist[0] = arglistQ[0];
+	    }
+#endif
 #ifndef Q_OS_QNX4
 	    ::execve( arglist[0], (char*const*)arglist, (char*const*)envlist ); // ### casts not nice
 #else
