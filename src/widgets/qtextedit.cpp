@@ -5641,8 +5641,7 @@ void QTextEdit::optimDrawContents( QPainter * p, int clipx, int clipy,
 	str.append( d->od->lines[ i ] + "\n" );
 
     QTextDocument * td = new QTextDocument( 0 );
-    td->updateFontAttributes( QScrollView::font(), QApplication::font() );
-    td->updateFontSizes( QScrollView::font().pointSize(), FALSE );	
+    td->setDefaultFormat( QScrollView::font(), QColor() );
     td->setPlainText( str );
     td->setFormatter( new QTextFormatterBreakWords ); // deleted by QTextDoc
     td->formatter()->setWrapEnabled( FALSE );
