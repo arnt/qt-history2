@@ -805,13 +805,12 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
 QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     : QObject( parent, name ), QPaintDevice( QInternal::Widget )
 {
+#if defined(QT_CHECK_STATE) && !defined(Q_WS_WIN)
     if ( qApp->type() == QApplication::Tty ) {
-#if defined(QT_CHECK_STATE)
-	qFatal( "QWidget: Cannot create a QWidget when no GUI "
-		"is being used" );
-#endif
-	return;
+	qWarning( "QWidget: Cannot create a QWidget when no GUI "
+		  "is being used" );
     }
+#endif
 
     fstrut_dirty = 1;
 

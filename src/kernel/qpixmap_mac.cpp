@@ -668,13 +668,12 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
 
 void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
 {
-    if ( qApp->type() == QApplication::Tty ) {
 #if defined(QT_CHECK_STATE)
-	qFatal( "QPixmap: Cannot create a QPixmap when no GUI "
-		"is being used" );
-#endif
-	return;
+    if ( qApp->type() == QApplication::Tty ) {
+	qWarning( "QPixmap: Cannot create a QPixmap when no GUI "
+		  "is being used" );
     }
+#endif
 
     if(d != 32 && d != 1)
 	d = 32; //magic number.. we always use a 32 bit depth for non-bitmaps

@@ -282,13 +282,12 @@ extern "C" XftDraw *XftDrawCreateAlpha( Display *, Qt::HANDLE, int );
 
 void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 {
-    if ( qApp->type() == QApplication::Tty ) {
 #if defined(QT_CHECK_STATE)
-	qFatal( "QPixmap: Cannot create a QPixmap when no GUI "
-		"is being used" );
-#endif
-	return;
+    if ( qApp->type() == QApplication::Tty ) {
+	qWarning( "QPixmap: Cannot create a QPixmap when no GUI "
+		  "is being used" );
     }
+#endif
 
     static int serial = 0;
 
