@@ -345,6 +345,12 @@ public:
 	    checkFocussedWidget();
 	}
 
+#ifdef _WS_WIN_
+        // Without this then widgets will not show in Windows at all
+        if ( event->type() == QEvent::Show || event->type() == QEvent::Paint )
+            QApplication::sendPostedEvents();
+#endif
+
 	return QApplication::notify( obj, event );
     }
 #endif
