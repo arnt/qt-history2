@@ -1,4 +1,4 @@
-#include <qstyleinterface.h>
+#include <private/qstyleinterface_p.h>
 #include <qobjectcleanuphandler.h>
 
 #include "windowsxpstyle.h"
