@@ -223,6 +223,7 @@ public:
     QRgb groupBoxTextColor;
     QRgb groupBoxTextColorDisabled;
     QRgb tabPaneBorderColor;
+    QRgb sliderTickColor;
     static QColor dockColorActive;
     static QColor dockColorInactive;
     static QPixmap *dockCloseActive;
@@ -546,6 +547,9 @@ void QWindowsXPStyle::polish(QApplication *app)
     d->groupBoxTextColor = qRgb(GetRValue(cref), GetGValue(cref), GetBValue(cref));
     pGetThemeColor(theme.handle(), BP_GROUPBOX, GBS_DISABLED, TMT_TEXTCOLOR, &cref);
     d->groupBoxTextColorDisabled = qRgb(GetRValue(cref), GetGValue(cref), GetBValue(cref));
+    // Where does this color come from?
+    //pGetThemeColor(theme.handle(), TKP_TICS, TSS_NORMAL, TMT_COLOR, &cref);
+    d->sliderTickColor = qRgb(165, 162, 148);
 }
 
 /*! \reimp */
@@ -1688,89 +1692,56 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 theme.drawBackground(partId, stateId);
                 tickreg -= theme.rec;
             }
-            p->setClipRegion(tickreg);
             if (sub & SC_SliderTickmarks) {
-                // #######
-                // QWindowsStyle::drawComplexControl(control, p, widget, r, pal, flags, SC_SliderTickmarks, option->activeSubControls, option);
-                QWindowsStyle::drawComplexControl(cc, option, p, widget);
-
-                // Reenable XP style tickmarks when the
-                // styles actually have usable pixmaps!
-                /*
-                int tickOffset = pixelMetric(PM_SliderTickmarkOffset, sl);
-                int ticks = sl->tickmarks();
-                int thickness = pixelMetric(PM_SliderControlThickness, sl);
-                int len = pixelMetric(PM_SliderLength, sl);
-                int available = pixelMetric(PM_SliderSpaceAvailable, sl);
-                int interval = sl->tickInterval();
-
+                int tickOffset = pixelMetric(PM_SliderTickmarkOffset, slider, widget);
+                int ticks = slider->tickPosition;
+                int thickness = pixelMetric(PM_SliderControlThickness, slider, widget);
+                int len = pixelMetric(PM_SliderLength, slider, widget);
+                int available = pixelMetric(PM_SliderSpaceAvailable, slider, widget);
+                int interval = slider->tickInterval;
                 if (interval <= 0) {
-                    interval = sl->lineStep();
-                    if (qPositionFromValue(sl, interval, available) -
-                         qPositionFromValue(sl, 0, available) < 3)
-                        interval = sl->pageStep();
+                    interval = slider->singleStep;
+                    if (QStyle::sliderPositionFromValue(slider->minimum, slider->maximum, interval,
+                                                        available)
+                        - QStyle::sliderPositionFromValue(slider->minimum, slider->maximum,
+                                                          0, available) < 3)
+                        interval = slider->pageStep;
                 }
-
-                int fudge = len / 2;
-                int pos;
-
                 if (!interval)
                     interval = 1;
-                int v = sl->minValue();
+                int fudge = len / 2;
+                int pos;
+                int bothOffset = (ticks & QSlider::TicksAbove && ticks & QSlider::TicksBelow) ? 1 : 0;
+                p->setPen(d->sliderTickColor);
+                int v = slider->minimum;
+                while (v <= slider->maximum + 1) {
+                    int tickLength = (v == slider->minimum || v >= slider->maximum) ? 4 : 3;
+                    pos = QStyle::sliderPositionFromValue(slider->minimum, slider->maximum + 1,
+                                                          v, available) + fudge;
+                    if (slider->orientation == Qt::Horizontal) {
+                        if (ticks & QSlider::TicksAbove)
+                            p->drawLine(pos, tickOffset - 1 - bothOffset, 
+                                        pos, tickOffset - 1 - bothOffset - tickLength);
 
-                const int aboveend = tickOffset-2;
-                const int belowstart = tickOffset+thickness+1;
-                const int belowend = belowstart+available-2;
+                        if (ticks & QSlider::TicksBelow)
+                            p->drawLine(pos, tickOffset + thickness + bothOffset,
+                                        pos, tickOffset + thickness + bothOffset + tickLength);
+                    } else {
+                        if (ticks & QSlider::TicksAbove)
+                            p->drawLine(tickOffset - 1 - bothOffset, pos, 
+                                        tickOffset - 1 - bothOffset - tickLength, pos);
 
-                if (sl->orientation() == Qt::Horizontal) {
-                    if (ticks & QSlider::Above)
-                        p->fillRect(0, 0, sl->width(), aboveend, option->palette.background());
-                    if (ticks & QSlider::Below)
-                        p->fillRect(0, belowstart, sl->width(), belowend, option->palette.background());
-
-                    partId = TKP_TICS;
-                    stateId = TSS_NORMAL;
-                    while (v <= sl->maxValue() + 1) {
-                        pos = qPositionFromValue(sl, v, available) + fudge;
-                        if (ticks & QSlider::Above) {
-                            theme.rec.setCoords(pos, 0, pos, aboveend);
-                            theme.drawBackground(partId, stateId);
-                        }
-                        if (ticks & QSlider::Below) {
-                            theme.rec.setCoords(pos, belowstart, pos, belowend);
-                            theme.drawBackground(partId, stateId);
-                        }
-
-                        v += interval;
+                        if (ticks & QSlider::TicksBelow)
+                            p->drawLine(tickOffset + thickness + bothOffset, pos,
+                                        tickOffset + thickness + bothOffset + tickLength, pos);
                     }
-                } else {
-                    if (ticks & QSlider::Left)
-                        p->fillRect(0, 0, aboveend, sl->height(), option->palette.background());
-                    if (ticks & QSlider::Right)
-                        p->fillRect(belowstart, 0, belowend, sl->height(), option->palette.background());
-
-                    partId = TKP_TICSVERT;
-                    stateId = TSVS_NORMAL;
-                    while (v <= sl->maxValue() + 1) {
-                        pos = qPositionFromValue(sl, v, available) + fudge;
-                        if (ticks & QSlider::Left) {
-                            theme.rec.setCoords(0, pos, aboveend, pos);
-                            theme.drawBackground(partId, stateId);
-                        }
-                        if (ticks & QSlider::Right) {
-                            theme.rec.setCoords(belowstart, pos, belowend, pos);
-                            theme.drawBackground(partId, stateId);
-                        }
-                        v += interval;
-                    }
+                    v += interval;
                 }
-                */
             }
-            p->setClipping(false);
             if (sub & SC_SliderHandle) {
                 theme.rec = subControlRect(CC_Slider, option, SC_SliderHandle, widget);
                 p->fillRect(theme.rec, option->palette.background());
-                if (sl->orientation() == Qt::Horizontal) {
+                if (slider->orientation == Qt::Horizontal) {
                     if (slider->tickPosition == QSlider::TicksAbove)
                         partId = TKP_THUMBTOP;
                     else if (slider->tickPosition == QSlider::TicksBelow)
