@@ -1560,6 +1560,10 @@ void QComboBox::popup()
 	lb->blockSignals( TRUE );
 	QListBoxItem *currentLBItem = lb->item( d->current );
 	lb->setCurrentItem( currentLBItem );
+
+	lb->setContentsPos( lb->contentsX(),
+			    lb->viewportToContents( lb->itemRect( currentLBItem ).topLeft() ).y() );
+
 	// set the current item to also be the selected item if it isn't already
 	if ( currentLBItem && currentLBItem->isSelectable() && !currentLBItem->isSelected() )
 	    lb->setSelected( currentLBItem, TRUE );
