@@ -14,9 +14,9 @@
 relconf=`basename $0`
 # the directory of this script is the "source tree"
 relpath=`dirname $0`
-relpath=`(cd $relpath; pwd)`
+relpath=`(cd $relpath; /bin/pwd)`
 # the current directory is the "build tree" or "object tree"
-outpath=`pwd`
+outpath=`/bin/pwd`
 
 # later cache the command line in config.status
 OPT_CMDLINE=`echo $@ | sed "s,-v,,g"`
@@ -727,7 +727,7 @@ then
     echo
     echo '   The environment variable $QTDIR is not set correctly. It is currently'
     echo '   set to "'$QTDIR'", but it should be set to this directory,'
-    echo '   which is "'`pwd`'".'
+    echo '   which is "'`/bin/pwd`'".'
     echo
     echo '   Please read the INSTALL file for instructions on how to set $QTDIR'
     echo '   correctly. If you have set $QTDIR in your .profile or .login, you'
