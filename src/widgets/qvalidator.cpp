@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#18 $
 **
 ** Implementation of validator classes.
 **
@@ -13,8 +13,9 @@
 #include "qwidget.h"
 
 #include <limits.h> // *_MIN, *_MAX
+#include <ctype.h> // isdigit
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#17 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#18 $");
 
 
 /*!
@@ -268,8 +269,9 @@ QDoubleValidator::~QDoubleValidator()
 
 /*!
   Returns \a Acceptable if \a input contains a number in the legal
-  range and format, \a Valid if it contains another number or is
-  empty, and \a Invalid if \a input is not a number.
+  range and format, \a Valid if it contains another number, a number
+  with too many digits after the decimal point or is empty, and \a
+  Invalid if \a input is not a number.
 */
 
 QValidator::State QDoubleValidator::validate( QString & input, int & )
@@ -278,10 +280,21 @@ QValidator::State QDoubleValidator::validate( QString & input, int & )
 	return QValidator::Valid;
     bool ok = TRUE;
     double tmp = input.toDouble( &ok );
-    // check the number of decimals here!
     if ( !ok )
 	return QValidator::Invalid;
-    else if ( tmp < b || tmp > t )
+    
+    int i = input.find( '.' );
+    if ( i >= 0 ) {
+	// has decimal point, now count digits after that
+	i++;
+	int j = i;
+	while( isdigit( input[j] ) )
+	    j++;
+	if ( j - i > d )
+	    return QValidator::Valid;
+    }
+
+    if ( tmp < b || tmp > t )
 	return QValidator::Valid;
     else
 	return QValidator::Acceptable;
