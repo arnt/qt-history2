@@ -617,6 +617,7 @@ copy_platform_files() {
     edition=$2
     platform=$3
     o_dir=$4
+    platname=$5
     cp -arf "$DISTDIR/qt/dist/README" "$o_dir/README"
     [ ! -d $dir ] && return 1
     for a in `find $dir`; do
@@ -636,6 +637,8 @@ copy_platform_files() {
 	else
 	    echo $o_file | grep '.qws$' >/dev/null 2>&1 && continue
 	fi
+	[ "$platform" = "mac" ] && [ `basename $a` = "README.outside" ] && continue
+
 	case $edition in
 	commercial)
 	    if [ "$platform" = "win" ]; then
@@ -655,7 +658,7 @@ copy_platform_files() {
 	[ -f $o_dir/$o_file ] && rm -f $o_dir/$o_file
 	if [ -f "$dir/$a_file" ] && [ ! -e "$o_dir/$o_file" ] && [ ! -x "$dir/$a_file" ]; then
 	    sed -e "s/%YEAR%/$YEAR/g" -e "s/%VERSION%/${VERSION_STR}/g" \
-		-e "s,%DISTDIR%,$DISTDIR,g" -e "s/%VERSIONWIN%/${BRANCH_DIGITS}/g" $dir/$a_file >${TMP_FILE}
+		-e "s,%DISTNAME%,$platname,g" -e "s/%VERSIONWIN%/${BRANCH_DIGITS}/g" $dir/$a_file >${TMP_FILE}
 	    if [ "$TYPE" = "-snapshot" ]; then
 		sed -e "s/%SNAPSHOTONLY\([^%]*\)%/\1/g" -e "s/%STABLEONLY[^%]*%//g" ${TMP_FILE} >$o_dir/$o_file
 	    else
@@ -862,8 +865,8 @@ for plat in mac win x11 embedded; do
 	#find $PLATDIR/tools/designer/manual/sgml/eg/book -name editbook.cpp | xargs rm -f
 
 	#copy the platform dist stuff
-	copy_platform_files "$platformname" $edition $plat $PLATDIR #platform specific
-	copy_platform_files "$dist_for_edition" $edition $plat $PLATDIR #edition specific
+	copy_platform_files "$platformname" $edition $plat $PLATDIR $PLATNAME #platform specific
+	copy_platform_files "$dist_for_edition" $edition $plat $PLATDIR $PLATNAME #edition specific
 
 	#remove platform specific files that don't belong
 	status "Final cleanup.."
@@ -898,7 +901,20 @@ for plat in mac win x11 embedded; do
 	    [ "$DO_BZIP" = "yes" ] && status "Bzip2.." && bzip2 -z -c "$OUT_TREE/${PLATNAME}.tar" >"$OUT_TREE/${PLATNAME}.tar.bz2"
             if [ "$plat" = "mac" ] && [ "$DO_STUFF" = "yes" ]; then
                status "Stuffit.."
-               stuff -q "-n=${OUT_TREE}/${PLATNAME}.sit" "${PLATNAME}"
+	       mkdir "QtMac"
+	       sed -e "s/%YEAR%/$YEAR/g" -e "s/%VERSION%/${VERSION_STR}/g" \
+		   -e "s,%DISTNAME%,$PLATNAME,g" -e "s/%VERSIONWIN%/${BRANCH_DIGITS}/g" \
+		   "$DISTDIR/qt/dist/mac/README.outside" >${TMP_FILE}
+	       if [ "$TYPE" = "-snapshot" ]; then
+		  sed -e "s/%SNAPSHOTONLY\([^%]*\)%/\1/g" -e "s/%STABLEONLY[^%]*%//g" \
+		      ${TMP_FILE} >QtMac/README
+	       else
+		  sed -e "s/%SNAPSHOTONLY[^%]*%//g" -e "s/%STABLEONLY\([^%]\)*%/\1/g" \
+		      ${TMP_FILE} >QtMac/README
+	       fi
+	       cp "$OUT_TREE/${PLATNAME}.tar" "QtMac"
+               stuff -q "-n=${OUT_TREE}/${PLATNAME}.sit" "QtMac"
+	       rm -rf "QtMac"
             fi
 	elif [ "$plat" = "win" ]; then
 	    txtfiles=""

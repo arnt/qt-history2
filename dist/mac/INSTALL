@@ -14,9 +14,9 @@ where you choose to install Qt.
     This creates the directory /usr/local/qt-%VERSION% containing the
     files from the main archive.
 
-    Rename qt-%VERSION% to qt (or make a symlink):
+    Rename qt-%DISTNAME% to qt (or make a symlink):
 
-	mv %DISTDIR% qt
+	mv %DISTNAME% qt
 
     The rest of this file assumes that Qt is installed in /usr/local/qt.
 

@@ -1,0 +1,16 @@
+Qt/Mac %VERSION% Release
+--------------------
+
+Due to long filenames, the release requires you to 
+'untar' %DISTNAME%.tar. To do this you 
+should drop to a Terminal (in Applications) and run:
+
+cd Directory_You_Unpacked_To
+tar xvf %DISTNAME%.tar
+
+After this please see the INSTALL file for further 
+documentation on properly installing Qt/Mac.
+
+Please contect Trolltech support with any problems.
+
+support@trolltech.com
