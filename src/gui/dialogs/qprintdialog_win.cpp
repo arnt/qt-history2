@@ -33,19 +33,19 @@ public:
     {
     }
 
-    void browseClicked() {}
-    void okClicked() {}
-    void printerOrFileSelected(int) {}
-    void landscapeSelected(int) {}
-    void paperSizeSelected(int) {}
-    void orientSelected(int) {}
-    void pageOrderSelected(int) {}
-    void colorModeSelected(int) {}
-    void setNumCopies(int) {}
-    void printRangeSelected(int) {}
-    void setFirstPage(int) {}
-    void setLastPage(int) {}
-    void fileNameEditChanged(const QString &text) {}
+    inline void browseClicked() {}
+    inline void okClicked() {}
+    inline void printerOrFileSelected(int) {}
+    inline void landscapeSelected(int) {}
+    inline void paperSizeSelected(int) {}
+    inline void orientSelected(int) {}
+    inline void pageOrderSelected(int) {}
+    inline void colorModeSelected(int) {}
+    inline void setNumCopies(int) {}
+    inline void printRangeSelected(int) {}
+    inline void setFirstPage(int) {}
+    inline void setLastPage(int) {}
+    inline void fileNameEditChanged(const QString &text) {}
     
     QWin32PrintEnginePrivate *ep;
 };
