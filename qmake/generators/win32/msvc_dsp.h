@@ -34,45 +34,27 @@
 ** not clear to you.
 **
 **********************************************************************/
+#ifndef __DSPMAKE_H__
+#define __DSPMAKE_H__
 
-#include "project.h"
+#include <qtextstream.h>
+#include <qstring.h>
+#include "makefile.h"
 
-#include "unixmake.h"
-#include "borland_bmake.h"
-#include "msvc_nmake.h"
-#include "msvc_dsp.h"
-
-#include <stdio.h>
-#include <ctype.h>
-
-
-extern int line_count;
-extern "C" void yyerror(const char *foo)
-{ 
-    printf("%d: %s\n", line_count, foo);
-}
-
-int
-main(int argc, char **argv)
+class DspMakefileGenerator : public MakefileGenerator
 {
-    QMakeProject proj;
-    for(int x = 1; x < argc; x++) {
-	/* read in the project */
-	if(!proj.read(argv[x], NULL)) {
-	    printf("Error processing project file: %s\n", argv[x]);
-	    continue;
-	}
+    bool init_flag;
+    void writeHeader(QTextStream &);	
+    void writeDspParts(QTextStream &);
 
-	/* now generate a makefile */
-	DspMakefileGenerator mkfile(&proj);
-	mkfile.write(NULL);
+    bool writeMakefile(QTextStream &);
+    QString findTemplate(QString file);
+    void init(QTextStream &);
 
-#ifdef QMAKE_DEBUG
-	QMap<QString, QStringList> &vars = proj.variables();
-	for( QMap<QString, QStringList>::Iterator it = vars.begin(); it != vars.end(); ++it)
-	    printf("%s === %s\n", it.key().latin1(), it.data().join(" ").latin1());
-#endif
+public:
+    DspMakefileGenerator(QMakeProject *p);
 
-    }
-    return 0;
-}
+
+};
+
+#endif /* __DSPMAKE_H__ */

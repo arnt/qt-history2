@@ -1,4 +1,4 @@
-OBJS=y.tab.o scanner.o y.tab.o project.o main.o makefile.o unixmake.o
+OBJS=y.tab.o scanner.o y.tab.o project.o main.o makefile.o unixmake.o borland_bmake.o msvc_nmake.o msvc_dsp.o
 
 vpath %.cpp generators/:generators/win32:generators/unix
 

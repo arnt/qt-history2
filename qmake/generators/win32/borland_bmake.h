@@ -34,45 +34,24 @@
 ** not clear to you.
 **
 **********************************************************************/
+#ifndef __BORLANDMAKE_H__
+#define __BORLANDMAKE_H__
 
-#include "project.h"
+#include <qtextstream.h>
+#include <qstring.h>
+#include "makefile.h"
 
-#include "unixmake.h"
-#include "borland_bmake.h"
-#include "msvc_nmake.h"
-#include "msvc_dsp.h"
-
-#include <stdio.h>
-#include <ctype.h>
-
-
-extern int line_count;
-extern "C" void yyerror(const char *foo)
-{ 
-    printf("%d: %s\n", line_count, foo);
-}
-
-int
-main(int argc, char **argv)
+class BorlandMakefileGenerator : public MakefileGenerator
 {
-    QMakeProject proj;
-    for(int x = 1; x < argc; x++) {
-	/* read in the project */
-	if(!proj.read(argv[x], NULL)) {
-	    printf("Error processing project file: %s\n", argv[x]);
-	    continue;
-	}
+    bool init_flag;
+    void writeHeader(QTextStream &);	
+    void writeBorlandParts(QTextStream &);
 
-	/* now generate a makefile */
-	DspMakefileGenerator mkfile(&proj);
-	mkfile.write(NULL);
+    bool writeMakefile(QTextStream &);
+    void init(QTextStream &);
 
-#ifdef QMAKE_DEBUG
-	QMap<QString, QStringList> &vars = proj.variables();
-	for( QMap<QString, QStringList>::Iterator it = vars.begin(); it != vars.end(); ++it)
-	    printf("%s === %s\n", it.key().latin1(), it.data().join(" ").latin1());
-#endif
+public:
+    BorlandMakefileGenerator(QMakeProject *p);
+};
 
-    }
-    return 0;
-}
+#endif /* __BORLANDMAKE_H__ */
