@@ -261,6 +261,10 @@ public:
 
     void init();
     void prepareItemsLayout();
+    
+    QPoint initStaticLayout(const QRect &bounds, int spacing, int first);
+    QPoint initDynamicLayout(const QRect &bounds, int spacing, int first);
+    void initBinaryTree(const QSize &contents);
 
     bool doItemsLayout(int num);
     void doItemsLayout(const QRect &bounds, const QModelIndex &first, const QModelIndex &last);
@@ -285,10 +289,6 @@ public:
     int itemIndex(const QListViewItem &item) const;
     static void addLeaf(QVector<int> &leaf, const QRect &area,
                         uint visited, QBinTree<QListViewItem>::Data data);
-
-    QPoint initStaticLayout(const QRect &bounds, int spacing, int first);
-    QPoint initDynamicLayout(const QRect &bounds, int spacing, int first);
-    void initBinaryTree(const QSize &contents);
 
     void insertItem(int index, QListViewItem &item);
     void removeItem(int index);

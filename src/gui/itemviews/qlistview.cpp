@@ -1158,6 +1158,73 @@ void QListViewPrivate::prepareItemsLayout()
     }
 }
 
+QPoint QListViewPrivate::initStaticLayout(const QRect &bounds, int spacing, int first)
+{
+    int x, y;
+    if (first == 0) {
+        flowPositions.clear();
+        wrapPositions.clear();
+        wrapStartRows.clear();
+        x = bounds.left() + spacing;
+        y = bounds.top() + spacing;
+        wrapPositions.append(flow == QListView::LeftToRight ? y : x);
+        wrapStartRows.append(0);
+    } else if (wrap) {
+        if (flow == QListView::LeftToRight) {
+            x = position;
+            y = wrapPositions.last();
+        } else { // flow == QListView::TopToBottom
+            x = wrapPositions.last();
+            y = position;
+        }
+    } else { // not first and not wrap
+        if (flow == QListView::LeftToRight) {
+            x = position;
+            y = bounds.top() + spacing;
+        } else { // flow == QListView::TopToBottom
+            x = bounds.left() + spacing;
+            y = position;
+        }
+    }
+    return QPoint(x, y);
+}
+
+QPoint QListViewPrivate::initDynamicLayout(const QRect &bounds, int spacing, int first)
+{
+    int x, y;
+    if (first == 0) {
+        x = bounds.x() + spacing;
+        y = bounds.y() + spacing;
+        tree.reserve(model->rowCount(root) - hiddenRows.count());
+    } else {
+        const QListViewItem item = tree.item(first - 1);
+        x = item.x;
+        y = item.y;
+        if (flow == QListView::LeftToRight)
+            x += (gridSize.isValid() ? gridSize.width() : item.w) + spacing;
+        else
+            y += (gridSize.isValid() ? gridSize.height() : item.h) + spacing;
+    }
+    return QPoint(x, y);
+}
+
+void QListViewPrivate::initBinaryTree(const QSize &contents)
+{
+    // remove all items from the tree
+    int leafCount = tree.leafCount();
+    for (int l = 0; l < leafCount; ++l)
+        d->tree.clearLeaf(l);
+    // we have to get the bounding rect of the items before we can initialize the tree
+    QBinTree<QListViewItem>::Node::Type type = QBinTree<QListViewItem>::Node::Both; // 2D
+    // simple heuristics to get better bsp
+    if (contents.height() / contents.width() >= 3)
+        type = QBinTree<QListViewItem>::Node::HorizontalPlane;
+    else if (contents.width() / contents.height() >= 3)
+        type = QBinTree<QListViewItem>::Node::VerticalPlane;
+    // build tree for the bounding rect (not just the contents rect)
+    tree.init(QRect(0, 0, contents.width(), contents.height()), type);
+}
+
 /*!
   \internal
 */
@@ -1554,73 +1621,6 @@ void QListViewPrivate::addLeaf(QVector<int> &leaf, const QRect &area,
             vi->visited = visited;
         }
     }
-}
-
-QPoint QListViewPrivate::initStaticLayout(const QRect &bounds, int spacing, int first)
-{
-    int x, y;
-    if (first == 0) {
-        flowPositions.clear();
-        wrapPositions.clear();
-        wrapStartRows.clear();
-        x = bounds.left() + spacing;
-        y = bounds.top() + spacing;
-        wrapPositions.append(flow == QListView::LeftToRight ? y : x);
-        wrapStartRows.append(0);
-    } else if (wrap) {
-        if (flow == QListView::LeftToRight) {
-            x = position;
-            y = wrapPositions.last();
-        } else { // flow == QListView::TopToBottom
-            x = wrapPositions.last();
-            y = position;
-        }
-    } else { // not first and not wrap
-        if (flow == QListView::LeftToRight) {
-            x = position;
-            y = bounds.top() + spacing;
-        } else { // flow == QListView::TopToBottom
-            x = bounds.left() + spacing;
-            y = position;
-        }
-    }
-    return QPoint(x, y);
-}
-
-QPoint QListViewPrivate::initDynamicLayout(const QRect &bounds, int spacing, int first)
-{
-    int x, y;
-    if (first == 0) {
-        x = bounds.x() + spacing;
-        y = bounds.y() + spacing;
-        tree.reserve(model->rowCount(root) - hiddenRows.count());
-    } else {
-        const QListViewItem item = tree.item(first - 1);
-        x = item.x;
-        y = item.y;
-        if (flow == QListView::LeftToRight)
-            x += (gridSize.isValid() ? gridSize.width() : item.w) + spacing;
-        else
-            y += (gridSize.isValid() ? gridSize.height() : item.h) + spacing;
-    }
-    return QPoint(x, y);
-}
-
-void QListViewPrivate::initBinaryTree(const QSize &contents)
-{
-    // remove all items from the tree
-    int leafCount = tree.leafCount();
-    for (int l = 0; l < leafCount; ++l)
-        d->tree.clearLeaf(l);
-    // we have to get the bounding rect of the items before we can initialize the tree
-    QBinTree<QListViewItem>::Node::Type type = QBinTree<QListViewItem>::Node::Both; // 2D
-    // simple heuristics to get better bsp
-    if (contents.height() / contents.width() >= 3)
-        type = QBinTree<QListViewItem>::Node::HorizontalPlane;
-    else if (contents.width() / contents.height() >= 3)
-        type = QBinTree<QListViewItem>::Node::VerticalPlane;
-    // build tree for the bounding rect (not just the contents rect)
-    tree.init(QRect(0, 0, contents.width(), contents.height()), type);
 }
 
 void QListViewPrivate::insertItem(int index, QListViewItem &item)
