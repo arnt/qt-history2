@@ -1,5 +1,5 @@
 TEMPLATE = subdirs
 
-SUBDIRS = cn
-!contains(QT_CONFIG, bigcodecs):SUBDIRS	+= jp kr tw
+SUBDIRS = cn jp 
+!contains(QT_CONFIG, bigcodecs):SUBDIRS	+= kr tw
 

@@ -15,11 +15,12 @@
 #include <qtextcodec.h>
 #include <qstringlist.h>
 
-#include <private/qeucjpcodec_p.h>
-#include <private/qjiscodec_p.h>
-#include <private/qsjiscodec_p.h>
-#include <private/qfontcodecs_p.h>
-
+#include "qeucjpcodec.h"
+#include "qjiscodec.h"
+#include "qsjiscodec.h"
+#ifdef Q_WS_X11
+#include "qfontjpcodec.h"
+#endif
 
 class JPTextCodecs : public QTextCodecPlugin
 {
@@ -41,8 +42,12 @@ QTextCodec *JPTextCodecs::createForMib(int mib)
         return new QSjisCodec;
     case 18:
         return new QEucJpCodec;
+#ifdef Q_WS_X11
+    case 15:
+        return new QFontJis0201Codec;
     case 63:
         return new QFontJis0208Codec;
+#endif
     default:
         ;
     }
@@ -59,9 +64,12 @@ QTextCodec *JPTextCodecs::createForName(const QString &name)
         return new QSjisCodec;
     if (name == "eucJP")
         return new QEucJpCodec;
+#ifdef Q_WS_X11
     if (name == "jisx0208.1983-0")
         return new QFontJis0208Codec;
-
+    if (name == "jisx0201.1976-0")
+        return new QFontJis0201Codec;
+#endif
     return 0;
 }
 

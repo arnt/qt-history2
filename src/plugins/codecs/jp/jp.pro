@@ -4,21 +4,23 @@ include(../../qpluginbase.pri)
 CONFIG	+= warn_on
 DESTDIR	 = $$QT_BUILD_TREE/plugins/codecs
 
-QTDIR_build:REQUIRES	= "!contains(QT_CONFIG, bigcodecs)"
 REQUIRES   = shared
 
-HEADERS		= ../../../../include/QtCore/qjpunicode.h \
-                  ../../../../include/QtCore/private/qeucjpcodec_p.h \
-		  ../../../../include/QtCore/private/qjiscodec_p.h \
-		  ../../../../include/QtCore/private/qsjiscodec_p.h \
-		  ../../../../include/QtCore/private/qfontcodecs_p.h
+HEADERS		= qjpunicode.h \
+                  qeucjpcodec.h \
+		  qjiscodec.h \
+		  qsjiscodec.h 
 
-SOURCES		= ../../../core/codecs/qeucjpcodec.cpp \
-		  ../../../core/codecs/qjiscodec.cpp \
-		  ../../../core/codecs/qsjiscodec.cpp \
-		  ../../../core/codecs/qjpunicode.cpp \
-		  ../../../core/codecs/qfontjpcodec.cpp \
+SOURCES		= qeucjpcodec.cpp \
+		  qjiscodec.cpp \
+		  qsjiscodec.cpp \
+		  qjpunicode.cpp \
 		  main.cpp
+
+unix:X11 {
+	HEADERS += qfontjpcodec.h
+	SOURCES += qfontjpcodec.cpp
+}
 
 target.path += $$plugins.path/codecs
 INSTALLS += target
