@@ -33,9 +33,9 @@ inline void HtmlWriter::doputchar( int ch )
     }
 }
 
-HtmlWriter::HtmlWriter( const QString& fileName )
-    : fn( fileName ), headFlushed( FALSE ), footFlushed( FALSE ),
-      recordStart( 0 )
+HtmlWriter::HtmlWriter( const Location& loc, const QString& fileName )
+    : sourceLoc( loc ), fn( fileName ), headFlushed( FALSE ),
+      footFlushed( FALSE ), recordStart( 0 )
 {
     QString file = config->outputDir() + QChar( '/' ) + fileName;
     out = fopen( QFile::encodeName(file), "w+" );
@@ -145,6 +145,9 @@ void HtmlWriter::flushHead()
 
     putsMeta( "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0"
 	      " Transitional//EN\">\n" );
+    putsMeta( "<!-- " );
+    printfMeta( "%s:%d", sourceLoc.filePath().latin1(), sourceLoc.lineNum() );
+    putsMeta( " -->\n" );
     putsMeta( "<html>\n<head>\n" );
     putsMeta( "<meta http-equiv=\"Content-Type\" content=\"text/html;"
 	      " charset=ISO-8859-1\">\n" );

@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 
+#include "location.h"
 #include "stringset.h"
 
 #undef putchar
@@ -22,7 +23,7 @@ public:
     static void setAddress( const QString& html ) { addr = html; }
     static const QMap<QString, StringSet>& titleMap() { return tmap; }
 
-    HtmlWriter( const QString& fileName );
+    HtmlWriter( const Location& loc, const QString& fileName );
     ~HtmlWriter();
 
     void setTitle( const QString& title ) { t = title; }
@@ -50,6 +51,7 @@ private:
     void flushHead();
     inline void doputchar( int ch );
 
+    Location sourceLoc;
     FILE *out;
     QString fn;
     QString t;

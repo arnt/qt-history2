@@ -1238,7 +1238,7 @@ void ClassDecl::emitHtmlListOfAllMemberFunctions() const
     QMap<QString, Decl *> all = symTable[PlainSymTable];
     QMap<QString, Decl *>::ConstIterator f;
 
-    HtmlWriter out( config->classMembersHref(name()) );
+    HtmlWriter out( location(), config->classMembersHref(name()) );
     out.setTitle( name() + QString(" Member List") );
     out.setHeading( QString("Complete Member List for ") + name() );
 

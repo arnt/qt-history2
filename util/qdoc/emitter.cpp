@@ -95,7 +95,8 @@ static void emitHtmlHeaderFile( const QString& headerFilePath,
     QString fullText = t.read();
     f.close();
 
-    HtmlWriter out( htmlFileName );
+    Location loc( headerFilePath );
+    HtmlWriter out( loc, htmlFileName );
     QString headerFileName = QFileInfo( f ).fileName();
 
     out.setTitle( headerFileName + QString(" Include File") );
@@ -390,15 +391,15 @@ void DocEmitter::emitHtml() const
     }
 
     /*
-      Examples have to be done first, so that the documentation can link to
-      them.
+      Examples are generated first, so that the documentation can link
+      to them.
     */
     QValueList<ExampleDoc *>::ConstIterator ex = examples.begin();
     while ( ex != examples.end() ) {
 	htmlFileName = config->verbatimHref( (*ex)->fileName() );
 
 	if ( config->generateFile(htmlFileName) ) {
-	    HtmlWriter out( htmlFileName );
+	    HtmlWriter out( (*ex)->location(), htmlFileName );
 	    if ( (*ex)->title().isEmpty() )
 		out.setHeading( (*ex)->fileName() + QString(" Example File") );
 	    else
@@ -412,7 +413,7 @@ void DocEmitter::emitHtml() const
       Generate class documentation.
     */
     QValueList<Decl *>::ConstIterator child = root.children().begin();
-    while( child != root.children().end() ) {
+    while ( child != root.children().end() ) {
 	if ( (*child)->kind() == Decl::Class && (*child)->doc() != 0 ) {
 	    ClassDecl *classDecl = (ClassDecl *) *child;
 	    htmlFileName = config->classRefHref( classDecl->name() );
@@ -420,7 +421,7 @@ void DocEmitter::emitHtml() const
 	    if ( config->generateFile(htmlFileName) &&
 		 (config->isInternal() || !classDecl->internal()) ) {
 		res->setCurrentClass( classDecl );
-		HtmlWriter out( htmlFileName );
+		HtmlWriter out( (*child)->doc()->location(), htmlFileName );
 		classDecl->printHtmlLong( out );
 	    }
 	}
@@ -464,7 +465,7 @@ void DocEmitter::emitHtml() const
 		htmlFileName = config->defgroupHref( (*def)->name() );
 
 		if ( config->generateFile(htmlFileName) ) {
-		    HtmlWriter out( htmlFileName );
+		    HtmlWriter out( (*def)->location(), htmlFileName );
 		    out.setHeading( (*def)->title() );
 		    (*def)->printHtml( out );
 		    out.putsMeta( "<p><ul>\n" );
@@ -492,7 +493,7 @@ void DocEmitter::emitHtml() const
 	htmlFileName = (*pa)->fileName();
 
 	if ( config->generateFile(htmlFileName) ) {
-	    HtmlWriter out( htmlFileName );
+	    HtmlWriter out( (*pa)->location(), htmlFileName );
 	    out.setHeading( (*pa)->title() );
 	    (*pa)->printHtml( out );
 	}

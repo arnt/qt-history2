@@ -1004,7 +1004,7 @@ HtmlSynthetizer::HtmlSynthetizer( const QString& filePath,
     : Synthetizer( filePath, analyzer, resolver )
 {
     w.setAutoDelete( TRUE );
-    w.push( new HtmlWriter(outFileBase() + QString(".html")) );
+    w.push( new HtmlWriter(location(), outFileBase() + QString(".html")) );
     w.top()->setTitle( analyzer->title() );
     w.top()->setHeading( analyzer->title() );
     if ( config->friendly() )
@@ -1228,7 +1228,8 @@ void HtmlSynthetizer::processSectionHeadingEnd( int level, int topLevel )
 
     if ( level <= analyzer()->granularity() ) {
 	banners.push( makeBanner() );
-	w.push( new HtmlWriter(outFileBase() + sectionCounter.fileSuffix(n) +
+	w.push( new HtmlWriter(location(),
+			       outFileBase() + sectionCounter.fileSuffix(n) +
 			       QString(".html")) );
 	w.top()->setTitle( heading.latin1() );
 	w.top()->putsMeta( banners.top().latin1() );
