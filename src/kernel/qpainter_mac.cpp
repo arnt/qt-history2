@@ -81,10 +81,12 @@ QPainter *qt_mac_current_painter = 0;
 /*****************************************************************************
   QPainter member functions
  *****************************************************************************/
+QPoint posInWindow(QWidget *w); //qwidget_mac.cpp
 bool qt_recreate_root_win(); //qwidget_mac.cpp
-static void drawTile(QPainter *, int, int, int, int, const QPixmap &, int, int);
-QPoint posInWindow(QWidget *w);
-QRegion make_region(RgnHandle handle);
+#ifndef USE_CORE_GRAPHICS
+void drawTile(QPainter *, int, int, int, int, const QPixmap &, int, int);
+#endif
+QRegion make_region(RgnHandle handle); 
 void qt_mac_clip_cg_handle(CGContextRef, const QRegion &, const QRect &, bool); //qpaintdevice_mac.cpp
 void unclippedBitBlt(QPaintDevice *dst, int dx, int dy,
 		     const QPaintDevice *src, int sx, int sy, int sw, int sh,
@@ -133,9 +135,6 @@ void qt_clear_paintevent_clipping(QPaintDevice *dev)
     delete paintevents.pop();
 }
 
-
-
-
 static inline CGContextRef qt_mac_get_cg(QPaintDevice *pdev, QPainterPrivate *paint_d)
 {
     CGContextRef ret = 0;
@@ -145,9 +144,8 @@ static inline CGContextRef qt_mac_get_cg(QPaintDevice *pdev, QPainterPrivate *pa
 	ret = (CGContextRef)pdev->macCGHandle();
     //apply paint event region (in global coords)
     if(paintevent_item *pevent = paintevents.current()) {
-	if((*pevent) == pdev) {
+	if((*pevent) == pdev)
 	    qt_mac_clip_cg_handle(ret, pevent->region(), QRect(0, 0, 0, 0), true);
-	}
     }
     return ret;
 }
@@ -676,7 +674,7 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
     }
     d->unclipped = unclipped;
     hd = qt_mac_get_cg(pdev, d); // get handle to drawable
-    if(hd)
+    if(hd) 
 	CGContextRetain((CGContextRef)hd);
     initPaintDevice(true); //force setting paint device, this does unclipped fu
 
