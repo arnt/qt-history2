@@ -39,8 +39,7 @@ static QPixmap genIcon(const QSize &iconSize, const QString &string, const QColo
     p.drawText(0, 0, w, h, Qt::AlignCenter, string);
     p.end();
 
-    QImage image = pixmap.toImage().convertDepth(32);
-    image.setAlphaBuffer(true);
+    QImage image = pixmap.toImage().convertToFormat(QImage::Format_ARGB32);
     for (int y = 0; y < image.height(); ++y) {
         for (int x = 0; x < image.width(); ++x) {
             const QRgb rgba = image.pixel(x, y);
