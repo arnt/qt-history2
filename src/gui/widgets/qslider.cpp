@@ -22,6 +22,7 @@
 #include "qstyle.h"
 #include "qstyleoption.h"
 #include "private/qabstractslider_p.h"
+#include "qdebug.h"
 
 static const int thresholdTime = 300;
 static const int repeatTime = 100;
@@ -39,6 +40,11 @@ public:
     int pixelPosToRangeValue(int pos) const;
     inline int pick(const QPoint &pt) const;
     QStyleOptionSlider getStyleOption() const;
+
+    QStyle::SubControl newHoverControl(const QPoint &pos);
+    bool updateHoverControl(const QPoint &pos);
+    QStyle::SubControl hoverControl;
+    QRect hoverRect;
 };
 
 #define d d_func()
@@ -106,6 +112,44 @@ QStyleOptionSlider QSliderPrivate::getStyleOption() const
     if (orientation == Qt::Horizontal)
         opt.state |= QStyle::State_Horizontal;
     return opt;
+}
+
+bool QSliderPrivate::updateHoverControl(const QPoint &pos)
+{
+    QRect lastHoverRect = hoverRect;
+    QStyle::SubControl lastHoverControl = hoverControl;
+    bool doesHover = q->testAttribute(Qt::WA_Hover);
+    if (lastHoverControl != d->newHoverControl(pos) && doesHover) {
+        q->update(lastHoverRect);
+        q->update(d->hoverRect);
+        return true;
+    } 
+    return !doesHover;
+}
+
+QStyle::SubControl QSliderPrivate::newHoverControl(const QPoint &pos)
+{
+    QStyleOptionSlider opt = getStyleOption();
+    opt.subControls = QStyle::SC_All;
+    QRect handleRect = q->style()->subControlRect(QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, q);
+    QRect grooveRect = q->style()->subControlRect(QStyle::CC_Slider, &opt, QStyle::SC_SliderGroove, q);
+    QRect tickmarksRect = q->style()->subControlRect(QStyle::CC_Slider, &opt, QStyle::SC_SliderTickmarks, q);
+
+    if (handleRect.contains(pos)) {
+        hoverRect = handleRect;
+        hoverControl = QStyle::SC_SliderHandle;
+    } else if (grooveRect.contains(pos)) {
+        hoverRect = grooveRect;
+        hoverControl = QStyle::SC_SliderGroove;
+    } else if (tickmarksRect.contains(pos)) {
+        hoverRect = tickmarksRect;
+        hoverControl = QStyle::SC_SliderTickmarks;
+    } else {
+        hoverRect = QRect();
+        hoverControl = QStyle::SC_None;
+    }
+
+    return hoverControl;
 }
 
 /*!
@@ -282,9 +326,33 @@ void QSlider::paintEvent(QPaintEvent *)
     opt.subControls = QStyle::SC_SliderGroove | QStyle::SC_SliderHandle;
     if (d->tickPosition != NoTicks)
         opt.subControls |= QStyle::SC_SliderTickmarks;
-    opt.activeSubControls = d->pressedControl;
+    if (d->pressedControl) {
+        opt.activeSubControls = d->pressedControl;
+        opt.state |= QStyle::State_Down;
+    } else {
+        opt.activeSubControls = d->hoverControl;
+    }
 
     style()->drawComplexControl(QStyle::CC_Slider, &opt, &p, this);
+}
+
+/*!
+    \reimp
+*/
+
+bool QSlider::event(QEvent *event)
+{
+    switch(event->type()) {
+    case QEvent::HoverEnter:
+    case QEvent::HoverLeave:
+    case QEvent::HoverMove:
+    if (const QHoverEvent *he = static_cast<const QHoverEvent *>(event)) 
+        d->updateHoverControl(he->pos());
+        break;
+    default:
+        break;
+    }
+    return QWidget::event(event);
 }
 
 /*!

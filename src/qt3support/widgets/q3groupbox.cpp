@@ -316,8 +316,6 @@ void Q3GroupBox::paintEvent(QPaintEvent *event)
     opt.state = QStyle::State_None | QStyle::State_Sunken;
     if (hasFocus())
         opt.state |= QStyle::State_HasFocus;
-    if (testAttribute(Qt::WA_UnderMouse))
-        opt.state |= QStyle::State_MouseOver;
     if (lenvisible && !isCheckable()) {        // draw title
         QFontMetrics fm = paint.fontMetrics();
         int h = fm.height();

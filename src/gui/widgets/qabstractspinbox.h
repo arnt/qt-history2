@@ -73,6 +73,7 @@ public:
     QSize minimumSizeHint() const;
 
     void interpretText();
+    bool event(QEvent *event);
     bool eventFilter(QObject *object, QEvent *event);
 
     virtual QValidator::State validate(QString &input, int &pos) const;

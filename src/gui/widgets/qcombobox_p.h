@@ -187,6 +187,8 @@ public:
     void resetButton();
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void rowsChanged(const QModelIndex & parent, int start, int end);
+    bool updateHoverControl(const QPoint &pos);
+    QStyle::SubControl newHoverControl(const QPoint &pos);
 
     QAbstractItemModel *model;
     QLineEdit *lineEdit;
@@ -203,6 +205,8 @@ public:
     int maxCount;
     bool skipCompletion;
     mutable QSize sizeHint;
+    QStyle::SubControl hoverControl;
+    QRect hoverRect;
     QPersistentModelIndex currentIndex;
     QPersistentModelIndex root;
 };

@@ -28,7 +28,8 @@
 #include <qdebug.h>
 
 QStyleOptionMenuItem MenuDelegate::getStyleOption(const QStyleOptionViewItem &option,
-                                                      const QModelIndex &index) const {
+                                                  const QModelIndex &index) const
+{
     QStyleOptionMenuItem menuOption;
 
     menuOption.palette = QApplication::palette("QMenu");
@@ -53,6 +54,53 @@ QStyleOptionMenuItem MenuDelegate::getStyleOption(const QStyleOptionViewItem &op
     extern QHash<QByteArray, QFont> *qt_app_fonts_hash();
     menuOption.font = qt_app_fonts_hash()->value("QComboMenuItem", mCombo->font());
     return menuOption;
+}
+
+/*!
+    \internal
+*/
+bool QComboBoxPrivate::updateHoverControl(const QPoint &pos)
+{
+
+    Q_Q(QComboBox);
+    QRect lastHoverRect = hoverRect;
+    QStyle::SubControl lastHoverControl = hoverControl;
+    bool doesHover = q->testAttribute(Qt::WA_Hover);
+    if (lastHoverControl != newHoverControl(pos) && doesHover) {
+        q->update(lastHoverRect);
+        q->update(hoverRect);
+        return true;
+    } 
+    return !doesHover;
+}
+
+/*!
+    \internal
+*/
+QStyle::SubControl QComboBoxPrivate::newHoverControl(const QPoint &pos)
+{
+    Q_Q(QComboBox);
+    QStyleOptionComboBox opt = getStyleOption();
+    opt.subControls = QStyle::SC_All;
+    QRect arrowRect = q->style()->subControlRect(QStyle::CC_ComboBox, &opt, QStyle::SC_ComboBoxArrow, q);
+    QRect editRect = q->style()->subControlRect(QStyle::CC_ComboBox, &opt, QStyle::SC_ComboBoxEditField, q);
+    QRect listRect = q->style()->subControlRect(QStyle::CC_ComboBox, &opt, QStyle::SC_ComboBoxListBoxPopup, q);
+
+    if (arrowRect.contains(pos)) {
+        hoverRect = arrowRect;
+        hoverControl = QStyle::SC_ComboBoxArrow;
+    } else if (editRect.contains(pos)) {
+        hoverRect = editRect;
+        hoverControl = QStyle::SC_ComboBoxEditField;
+    } else if (listRect.contains(pos)) {
+        hoverRect = listRect;
+        hoverControl = QStyle::SC_ComboBoxListBoxPopup;
+    } else {
+        hoverRect = QRect();
+        hoverControl = QStyle::SC_None;
+    }
+
+    return hoverControl;
 }
 
 /*!
@@ -580,10 +628,12 @@ QStyleOptionComboBox QComboBoxPrivate::getStyleOption() const
     if (q->isEditable() && q->lineEdit()->hasFocus())
         opt.state |= QStyle::State_HasFocus;
     opt.subControls = QStyle::SC_All;
-    if (arrowDown)
+    if (arrowDown) {
         opt.activeSubControls = QStyle::SC_ComboBoxArrow;
-    else
-        opt.activeSubControls = QStyle::SC_None;
+        opt.state |= QStyle::State_Down;
+    } else {
+        opt.activeSubControls = hoverControl;
+    }
     opt.editable = q->isEditable();
     return opt;
 }
@@ -1610,6 +1660,26 @@ void QComboBox::showEvent(QShowEvent *e)
     }
     d->shownOnce = true;
     QWidget::showEvent(e);
+}
+
+
+/*!
+    \reimp
+*/
+bool QComboBox::event(QEvent *event)
+{
+    Q_D(QComboBox);
+    switch(event->type()) {
+    case QEvent::HoverEnter:
+    case QEvent::HoverLeave:
+    case QEvent::HoverMove:
+    if (const QHoverEvent *he = static_cast<const QHoverEvent *>(event)) 
+        d->updateHoverControl(he->pos());
+        break;
+    default:
+        break;
+    }
+    return QWidget::event(event);
 }
 
 /*!

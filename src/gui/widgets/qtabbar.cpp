@@ -74,6 +74,7 @@ public:
     QToolButton* rightB; // right or bottom
     QToolButton* leftB; // left or top
     void scrollTabs(); // private slot
+    QRect hoverRect;
 
     void refresh();
     void layoutTabs();
@@ -811,7 +812,24 @@ void QTabBar::showEvent(QShowEvent *)
  */
 bool QTabBar::event(QEvent *e)
 {
-    if (e->type() == QEvent::ToolTip) {
+
+    if (e->type() == QEvent::HoverMove
+        || e->type() == QEvent::HoverEnter) {
+        QHoverEvent *he = static_cast<QHoverEvent *>(e);
+        if (!d->hoverRect.contains(he->pos())) {
+            QRect oldHoverRect = d->hoverRect;
+            for (int i = 0; i < d->tabList.count(); ++i) {
+                QRect area = tabRect(i);
+                if (area.contains(he->pos())) {
+                    d->hoverRect = area;
+                    break;
+                }
+            }
+            if (he->oldPos() != QPoint(-1, -1))
+                update(oldHoverRect);
+            update(d->hoverRect);
+        }
+    } else if (e->type() == QEvent::ToolTip) {
         if (const QTabBarPrivate::Tab *tab = d->at(d->indexAtPos(static_cast<QHelpEvent*>(e)->pos()))) {
             if (!tab->toolTip.isEmpty()) {
                 QToolTip::showText(static_cast<QHelpEvent*>(e)->globalPos(), tab->toolTip, this);

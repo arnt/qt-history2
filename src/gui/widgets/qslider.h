@@ -61,6 +61,8 @@ public:
     void setTickInterval(int ti);
     int tickInterval() const;
 
+    bool event(QEvent *event);
+
 protected:
     void paintEvent(QPaintEvent *ev);
     void mousePressEvent(QMouseEvent *ev);

@@ -158,6 +158,7 @@ public:
     virtual void hidePopup();
 
     void hide();
+    bool event(QEvent *event);
 
 public slots:
     void clear();

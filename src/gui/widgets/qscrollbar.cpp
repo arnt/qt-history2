@@ -178,9 +178,72 @@ public:
     int pixelPosToRangeValue(int pos) const;
     QStyleOptionSlider getStyleOption() const;
     void init();
+    bool updateHoverControl(const QPoint &pos);
+    QStyle::SubControl newHoverControl(const QPoint &pos);
+
+    QStyle::SubControl hoverControl;
+    QRect hoverRect;
 };
 #define d d_func()
 #define q q_func()
+
+bool QScrollBarPrivate::updateHoverControl(const QPoint &pos)
+{
+    QRect lastHoverRect = hoverRect;
+    QStyle::SubControl lastHoverControl = hoverControl;
+    bool doesHover = q->testAttribute(Qt::WA_Hover);
+    if (lastHoverControl != newHoverControl(pos) && doesHover) {
+        q->update(lastHoverRect);
+        q->update(hoverRect);
+        return true;
+    } 
+    return !doesHover;
+}
+
+QStyle::SubControl QScrollBarPrivate::newHoverControl(const QPoint &pos)
+{
+    QStyleOptionSlider opt = getStyleOption();
+    opt.subControls = QStyle::SC_All;
+    QRect addLineRect = q->style()->subControlRect(QStyle::CC_ScrollBar, &opt, QStyle::SC_ScrollBarAddLine, q);
+    QRect subLineRect = q->style()->subControlRect(QStyle::CC_ScrollBar, &opt, QStyle::SC_ScrollBarSubLine, q);
+    QRect addPageRect = q->style()->subControlRect(QStyle::CC_ScrollBar, &opt, QStyle::SC_ScrollBarAddPage, q);
+    QRect subPageRect = q->style()->subControlRect(QStyle::CC_ScrollBar, &opt, QStyle::SC_ScrollBarSubPage, q);
+    QRect firstRect = q->style()->subControlRect(QStyle::CC_ScrollBar, &opt, QStyle::SC_ScrollBarFirst, q);
+    QRect lastRect = q->style()->subControlRect(QStyle::CC_ScrollBar, &opt, QStyle::SC_ScrollBarLast, q);
+    QRect sliderRect = q->style()->subControlRect(QStyle::CC_ScrollBar, &opt, QStyle::SC_ScrollBarSlider, q);
+    QRect grooveRect = q->style()->subControlRect(QStyle::CC_ScrollBar, &opt, QStyle::SC_ScrollBarGroove, q);
+
+    if (sliderRect.contains(pos)) {
+        hoverRect = sliderRect;
+        hoverControl = QStyle::SC_ScrollBarSlider;
+    } else if (grooveRect.contains(pos)) {
+        hoverRect = grooveRect;
+        hoverControl = QStyle::SC_ScrollBarGroove;
+    } else if (addLineRect.contains(pos)) {
+        hoverRect = addLineRect;
+        hoverControl = QStyle::SC_ScrollBarAddLine;
+    } else if (subLineRect.contains(pos)) {
+        hoverRect = subLineRect;
+        hoverControl = QStyle::SC_ScrollBarSubLine;
+    } else if (addPageRect.contains(pos)) {
+        hoverRect = addPageRect;
+        hoverControl = QStyle::SC_ScrollBarAddPage;
+    } else if (subPageRect.contains(pos)) {
+        hoverRect = subPageRect;
+        hoverControl = QStyle::SC_ScrollBarSubPage;
+    } else if (firstRect.contains(pos)) {
+        hoverRect = firstRect;
+        hoverControl = QStyle::SC_ScrollBarFirst;
+    } else if (lastRect.contains(pos)) {
+        hoverRect = lastRect;
+        hoverControl = QStyle::SC_ScrollBarLast;
+    } else {
+        hoverRect = QRect();
+        hoverControl = QStyle::SC_None;
+    }
+
+    return hoverControl;
+}
 
 void QScrollBarPrivate::activateControl(uint control)
 {
@@ -234,8 +297,8 @@ QStyleOptionSlider QScrollBarPrivate::getStyleOption() const
 }
 
 
-#define HORIZONTAL        (d->orientation == Qt::Horizontal)
-#define VERTICAL        !HORIZONTAL
+#define HORIZONTAL (d->orientation == Qt::Horizontal)
+#define VERTICAL !HORIZONTAL
 
 /*!
     Constructs a vertical scroll bar.
@@ -325,7 +388,7 @@ QScrollBar::~QScrollBar()
 void QScrollBarPrivate::init()
 {
     invertedControls = true;
-    pressedControl = QStyle::SC_None;
+    pressedControl = hoverControl = QStyle::SC_None;
     pointerLeftControl = false;
     q->setFocusPolicy(Qt::NoFocus);
     QSizePolicy sp(QSizePolicy::Minimum, QSizePolicy::Fixed);
@@ -369,13 +432,35 @@ void QScrollBar::sliderChange(SliderChange change)
 /*!
     \reimp
 */
+bool QScrollBar::event(QEvent *event)
+{
+    switch(event->type()) {
+    case QEvent::HoverEnter:
+    case QEvent::HoverLeave:
+    case QEvent::HoverMove:
+    if (const QHoverEvent *he = static_cast<const QHoverEvent *>(event)) 
+        d->updateHoverControl(he->pos());
+        break;
+    default:
+        break;
+    }
+    return QWidget::event(event);
+}
+
+/*!
+    \reimp
+*/
 void QScrollBar::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     QStyleOptionSlider opt = d->getStyleOption();
     opt.subControls = QStyle::SC_All;
-    if (!d->pointerLeftControl)
+    if (d->pressedControl) {
         opt.activeSubControls = (QStyle::SubControl)d->pressedControl;
+        opt.state |= QStyle::State_Down;
+    } else {
+        opt.activeSubControls = (QStyle::SubControl)d->hoverControl;
+    }
     style()->drawComplexControl(QStyle::CC_ScrollBar, &opt, &p, this);
 }
 
@@ -417,6 +502,8 @@ void QScrollBar::mousePressEvent(QMouseEvent *e)
         d->clickOffset = sliderLength / 2;
     }
     d->activateControl(d->pressedControl);
+    repaint(QStyle::visualRect(opt.direction, opt.rect,
+                               style()->subControlRect(QStyle::CC_ScrollBar, &opt, d->pressedControl, this)));
 }
 
 

@@ -93,7 +93,7 @@ public:
     void updateEdit() const;
     virtual void calculateSizeHints() const;
 
-    virtual QStyleOptionSpinBox styleOption() const;
+    virtual QStyleOptionSpinBox getStyleOption() const;
     virtual QVariant valueForPosition(int pos) const;
 
     virtual void emitSignals(EmitPolicy ep, const QVariant &old);
@@ -107,6 +107,8 @@ public:
     virtual void editorCursorPositionChanged(int oldpos, int newpos);
 
     bool eq(const QVariant &arg1, const QVariant &arg2) const;
+    QStyle::SubControl newHoverControl(const QPoint &pos);
+    bool updateHoverControl(const QPoint &pos);
 
     QLineEdit *edit;
     QString prefix, suffix, specialvaluetext;
@@ -131,6 +133,8 @@ public:
     uint slider : 1;
     uint sliderpressed : 1;
     uint frame : 1;
+    QStyle::SubControl hoverControl;
+    QRect hoverRect;
     QAbstractSpinBox::ButtonSymbols buttonsymbols;
 };
 

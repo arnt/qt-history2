@@ -517,7 +517,7 @@ void QAbstractSpinBox::setLineEdit(QLineEdit *e)
         connect(d->edit, SIGNAL(cursorPositionChanged(int,int)),
                 this, SLOT(editorCursorPositionChanged(int,int)));
     }
-    QStyleOptionSpinBox opt = d->styleOption();
+    QStyleOptionSpinBox opt = d->getStyleOption();
     opt.subControls = QStyle::SC_SpinBoxEditField;
     d->edit->setGeometry(QStyle::visualRect(opt.direction, opt.rect,
                                             style()->subControlRect(QStyle::CC_SpinBox, &opt,
@@ -540,6 +540,24 @@ void QAbstractSpinBox::setLineEdit(QLineEdit *e)
 void QAbstractSpinBox::interpretText()
 {
     d->refresh(EmitIfChanged);
+}
+
+/*!
+    \reimp
+*/
+
+bool QAbstractSpinBox::event(QEvent *event)
+{
+    switch (event->type()) {
+    case QEvent::HoverEnter:
+    case QEvent::HoverLeave:
+    case QEvent::HoverMove:
+        if (const QHoverEvent *he = static_cast<const QHoverEvent *>(event)) 
+            d->updateHoverControl(he->pos());
+        break;
+    default: break;
+    }
+    return QWidget::event(event);
 }
 
 /*!
@@ -627,7 +645,7 @@ void QAbstractSpinBox::changeEvent(QEvent *e)
 
 void QAbstractSpinBox::resizeEvent(QResizeEvent *e)
 {
-    QStyleOptionSpinBox opt = d->styleOption();
+    QStyleOptionSpinBox opt = d->getStyleOption();
     opt.subControls = QStyle::SC_SpinBoxEditField;
     d->edit->setGeometry(QStyle::visualRect(opt.direction, opt.rect,
                                             style()->subControlRect(QStyle::CC_SpinBox, &opt,
@@ -660,7 +678,7 @@ QSize QAbstractSpinBox::minimumSizeHint() const
 
 void QAbstractSpinBox::paintEvent(QPaintEvent *)
 {
-    QStyleOptionSpinBox opt = d->styleOption();
+    QStyleOptionSpinBox opt = d->getStyleOption();
     QPainter p(this);
     style()->drawComplexControl(QStyle::CC_SpinBox, &opt, &p, this);
 }
@@ -900,27 +918,21 @@ void QAbstractSpinBox::contextMenuEvent(QContextMenuEvent *e)
 
 void QAbstractSpinBox::mouseMoveEvent(QMouseEvent *e)
 {
-    const QPoint p(e->pos());
-    const StepEnabled se = stepEnabled();
-    QStyleOptionSpinBox opt = d->styleOption();
-    opt.subControls = QStyle::SC_All;
     if (e->buttons() & Qt::LeftButton) {
         d->dragging = true;
     }
+
+    d->updateHoverControl(e->pos());
+
+    // If we have a timer ID, update the state
+    const StepEnabled se = stepEnabled();
     if (d->spinclicktimerid != -1) {
-        if ((se & StepUpEnabled) && style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                            QStyle::SC_SpinBoxUp, this).contains(p)) {
+        if ((se & StepUpEnabled) && d->hoverControl == QStyle::SC_SpinBoxUp)
             d->updateState(true);
-        } else if ((se & StepDownEnabled) && style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                                     QStyle::SC_SpinBoxDown, this).contains(p)) {
+        else if ((se & StepDownEnabled) && d->hoverControl == QStyle::SC_SpinBoxDown)
             d->updateState(false);
-        } else {
+        else
             d->resetState();
-        }
-        e->accept();
-    }
-    if (d->sliderpressed && d->type != QVariant::Invalid) {
-        d->setValue(d->valueForPosition(e->pos().x()), EmitIfChanged);
         e->accept();
     }
 }
@@ -934,30 +946,14 @@ void QAbstractSpinBox::mousePressEvent(QMouseEvent *e)
     if (e->button() != Qt::LeftButton || d->buttonstate != None)
         return;
 
-    const QPoint p(e->pos());
+    d->updateHoverControl(e->pos());
+
     const StepEnabled se = stepEnabled();
-    QStyleOptionSpinBox opt = d->styleOption();
-    opt.subControls = QStyle::SC_All;
-    if ((se & StepUpEnabled)
-        && QStyle::visualRect(opt.direction, opt.rect,
-                              style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                        QStyle::SC_SpinBoxUp, this))
-                              .contains(p)) {
+    if ((se & StepUpEnabled) && d->hoverControl == QStyle::SC_SpinBoxUp) {
         d->updateState(true);
         e->accept();
-    } else if ((se & StepDownEnabled)
-               && QStyle::visualRect(opt.direction, opt.rect,
-                                     style()->subControlRect(QStyle::CC_SpinBox,
-                                                             &opt, QStyle::SC_SpinBoxDown, this)).
-                                     contains(p)) {
+    } else if ((se & StepDownEnabled) && d->hoverControl == QStyle::SC_SpinBoxDown) {
         d->updateState(false);
-        e->accept();
-    } else if (d->slider && QStyle::visualRect(opt.direction, opt.rect,
-                                               style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                                       QStyle::SC_SpinBoxSlider, this)).
-                                               contains(p)) {
-        d->sliderpressed = true;
-        d->setValue(d->valueForPosition(e->pos().x()), EmitIfChanged);
         e->accept();
     }
 }
@@ -988,6 +984,57 @@ QAbstractSpinBoxPrivate::QAbstractSpinBoxPrivate()
       sliderpressed(false), frame(true),
       buttonsymbols(QAbstractSpinBox::UpDownArrows)
 {
+}
+
+/*!
+    \internal
+    Updates the old and new hover control. Does nothing if the hover
+    control has not changed.
+*/
+bool QAbstractSpinBoxPrivate::updateHoverControl(const QPoint &pos)
+{
+    QRect lastHoverRect = hoverRect;
+    QStyle::SubControl lastHoverControl = hoverControl;
+    bool doesHover = q->testAttribute(Qt::WA_Hover);
+    if (lastHoverControl != newHoverControl(pos) && doesHover) {
+        q->update(lastHoverRect);
+        q->update(hoverRect);
+        return true;
+    } 
+    return !doesHover;
+}
+
+/*!
+    \internal
+    Returns the hover control at \a pos.
+    This will update the hoverRect and hoverControl.
+*/
+QStyle::SubControl QAbstractSpinBoxPrivate::newHoverControl(const QPoint &pos)
+{
+    if (hoverRect.contains(pos))
+        return hoverControl;
+
+    QStyleOptionSpinBox opt = d->getStyleOption();
+    opt.subControls = QStyle::SC_All;
+    QRect upButtonRect = q->style()->subControlRect(QStyle::CC_SpinBox, &opt, QStyle::SC_SpinBoxUp, q);
+    QRect downButtonRect = q->style()->subControlRect(QStyle::CC_SpinBox, &opt, QStyle::SC_SpinBoxDown, q);
+    QRect lineEditRect = q->style()->subControlRect(QStyle::CC_SpinBox, &opt, QStyle::SC_SpinBoxEditField, q);
+
+    if (upButtonRect.contains(pos)) {
+        hoverRect = upButtonRect;
+        hoverControl = QStyle::SC_SpinBoxUp;
+    } else if (downButtonRect.contains(pos)) {
+        hoverRect = downButtonRect;
+        hoverControl = QStyle::SC_SpinBoxDown;
+    } else if (lineEditRect.contains(pos)) {
+        hoverRect = lineEditRect;
+        hoverControl = QStyle::SC_SpinBoxEditField;
+    } else {
+        hoverRect = QRect();
+        hoverControl = QStyle::SC_None;
+    }
+
+    return hoverControl;
 }
 
 /*!
@@ -1147,7 +1194,7 @@ void QAbstractSpinBoxPrivate::init()
 void QAbstractSpinBoxPrivate::updateSpinBox()
 {
     if (q) {
-        QStyleOptionSpinBox opt = styleOption();
+        QStyleOptionSpinBox opt = getStyleOption();
         q->update(QStyle::visualRect(opt.direction, opt.rect,
                                      q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
                                                                 QStyle::SC_SpinBoxButtonField, q)));
@@ -1163,7 +1210,7 @@ void QAbstractSpinBoxPrivate::updateSpinBox()
 void QAbstractSpinBoxPrivate::updateSlider()
 {
     if (q) {
-        QStyleOptionSpinBox opt = styleOption();
+        QStyleOptionSpinBox opt = getStyleOption();
         q->update(QStyle::visualRect(opt.direction, opt.rect,
                                      q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
                                                                 QStyle::SC_SpinBoxSlider, q)));
@@ -1233,7 +1280,7 @@ void QAbstractSpinBoxPrivate::calculateSizeHints() const
         }
         w += 2; // cursor blinking space
 
-        QStyleOptionSpinBox opt = styleOption();
+        QStyleOptionSpinBox opt = getStyleOption();
         QSize hint(w, h);
         QSize extra(35,6);
         opt.rect.setSize(hint + extra);
@@ -1259,7 +1306,7 @@ void QAbstractSpinBoxPrivate::calculateSizeHints() const
     Creates a QStyleOptionSpinBox with the right flags set.
 */
 
-QStyleOptionSpinBox QAbstractSpinBoxPrivate::styleOption() const
+QStyleOptionSpinBox QAbstractSpinBoxPrivate::getStyleOption() const
 {
     QStyleOptionSpinBox opt;
     opt.init(q);
@@ -1276,6 +1323,10 @@ QStyleOptionSpinBox QAbstractSpinBoxPrivate::styleOption() const
         opt.activeSubControls = QStyle::SC_SpinBoxUp;
     else if (buttonstate & Down)
         opt.activeSubControls = QStyle::SC_SpinBoxDown;
+    else
+        opt.activeSubControls = hoverControl;
+    if (buttonstate)
+        opt.state |= QStyle::State_Down;
 
     if (type != QVariant::Invalid) {
         opt.percentage = (value - minimum) / (maximum - minimum);
@@ -1291,7 +1342,7 @@ QStyleOptionSpinBox QAbstractSpinBoxPrivate::styleOption() const
 
 QVariant QAbstractSpinBoxPrivate::valueForPosition(int pos) const
 {
-    QStyleOptionSpinBox opt = styleOption();
+    QStyleOptionSpinBox opt = getStyleOption();
     QRect r = QStyle::visualRect(opt.direction, opt.rect,
                                  q->style()->subControlRect(QStyle::CC_SpinBox,
                                                             &opt, QStyle::SC_SpinBoxSlider, q));
