@@ -39,7 +39,7 @@ mkspecs.files=$$QT_SOURCE_TREE/mkspecs/* $$QT_BUILD_TREE/mkspecs/.qt.config
 mkspecs.commands = $(SYMLINK) $$QMAKESPEC $$mkspecs.path/default
 INSTALLS += mkspecs
 
-macx { #mac install location
+false:macx { #mac install location
     macdocs.files = $$htmldocs.files
     macdocs.path = /Developer/Documentation/Qt
     INSTALLS += macdocs
