@@ -13,7 +13,7 @@
 
 #include "alphashade.h"
 
-#include <qpointarray.h>
+#include <qpolygon.h>
 #include <qpainter.h>
 
 static QPolygon polygon;
