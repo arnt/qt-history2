@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.h#8 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.h#9 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -35,6 +35,7 @@ private:
     int		pageCount;
     bool	dirtyMatrix;
     bool	dirtyNewPage;
+    bool	epsf;
     QString	fontsUsed;
     friend class QPrinter;
 

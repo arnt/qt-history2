@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#35 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -18,7 +18,7 @@
 #include "qfile.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#34 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#35 $");
 
 #if !defined(QT_HEADER_PS)
      // produced from qpshdr.txt
@@ -261,7 +261,13 @@ static void ps_dumpPixmapData( QTextStream &stream, QImage img,
 
 bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 {
-    if ( c == PDC_BEGIN ) {			// start painting
+    if ( c == PDC_SETDEV ) {			// preset io device
+	device = p->device;
+	epsf = TRUE;
+    } else if ( c == PDC_BEGIN ) {		// start painting
+	if (epsf) {
+	    // ... ##### handle things differently
+	}
 	pageCount    = 1;			// initialize state
 	dirtyMatrix  = TRUE;
 	dirtyNewPage = FALSE;			// setup done by QPainter
@@ -307,7 +313,8 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	stream << "%%Trailer\n";
 	stream << "%%Pages: " << pageCount << '\n';
 	stream << "%%DocumentFonts: " << fontsUsed << '\n';
-	device->close();
+	if (!epsf) // is it our device to close?
+	    device->close();
 	stream.unsetDevice();
     }
 

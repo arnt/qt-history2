@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdc.h#22 $
+** $Id: //depot/qt/main/src/kernel/qpaintdc.h#23 $
 **
 ** Definition of QPaintDevice constants and flags
 **
@@ -44,6 +44,7 @@
 #define PDC_END			31		//  <void>
 #define PDC_SAVE		32		//  <void>
 #define PDC_RESTORE		33		//  <void>
+#define PDC_SETDEV		34		// device - PRIVATE
 #define PDC_SETBKCOLOR		40		// color
 #define PDC_SETBKMODE		41		// ival
 #define PDC_SETROP		42		// ival
@@ -62,6 +63,8 @@
 #define PDC_SETCLIP		60		// ival
 #define PDC_SETCLIPRGN		61		// rgn
 
+class QIODevice;
+
 union QPDevCmdParam {
     int			 ival;
     int			*ivec;
@@ -76,6 +79,7 @@ union QPDevCmdParam {
     const QBrush	*brush;
     const QRegion	*rgn;
     const QWMatrix	*matrix;
+    QIODevice		*device;
 };
 
 // Painter device metric() identifiers (for all devices)

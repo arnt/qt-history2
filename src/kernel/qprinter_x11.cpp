@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#29 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -23,7 +23,7 @@
 #include <process.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#28 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#29 $");
 
 
 /*****************************************************************************
@@ -130,30 +130,38 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
     QPSPrinter *ps = (QPSPrinter*)pdrv;
     if ( c ==  PDC_BEGIN ) {			// begin; start printing
 	if ( ps && state == PST_IDLE ) {
-	    char *fname	 = output_file ? output_filename.data() : tmpnam(0);
-	    if ( !fname || *fname == '\0' ) {
+	    if ( !ps->epsf ) {
+		char *fname	 = output_file ? output_filename.data() : tmpnam(0);
+		if ( !fname || *fname == '\0' ) {
 #if defined(DEBUG)
-		warning( "QPrinter: File name cannot be null" );
+		    warning( "QPrinter: File name cannot be null" );
 #endif
-		state = PST_ERROR;
-		return TRUE;
-	    }
-	    QFile *output = new QFile( fname );
-	    if ( !output->open(IO_ReadWrite|IO_Truncate) ) {
+		    state = PST_ERROR;
+		    return TRUE;
+		}
+		QFile *output = new QFile( fname );
+		if ( !output->open(IO_ReadWrite|IO_Truncate) ) {
 #if defined(DEBUG)
-		warning( "QPrinter: Could not create output file" );
+		    warning( "QPrinter: Could not create output file" );
 #endif
-		delete output;			// could not create file
-		state = PST_ERROR;
-		return TRUE;
-	    }
-	    ps->device = output;
-	    if ( ps->cmd( c, paint, p ) ) {	// successful
-		state = PST_ACTIVE;
-	    } else {				// could not start printing
-		ps->device = 0;
-		delete output;
-		state = PST_ERROR;
+		    delete output;			// could not create file
+		    state = PST_ERROR;
+		    return TRUE;
+		}
+		ps->device = output;
+		if ( ps->cmd( c, paint, p ) ) {	// successful
+		    state = PST_ACTIVE;
+		} else {				// could not start printing
+		    ps->device = 0;
+		    delete output;
+		    state = PST_ERROR;
+		}
+	    } else {
+		if ( ps->cmd( c, paint, p ) ) {	// successful
+		    state = PST_ACTIVE;
+		} else {			// could not start printing
+		    state = PST_ERROR;
+		}
 	    }
 	    return TRUE;
 	}
@@ -196,7 +204,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	state = PST_IDLE;
 	return TRUE;
     } else {
-	if ( state == PST_ACTIVE ) {
+	if ( state == PST_ACTIVE || c == PDC_SETDEV ) {
 	    return ps->cmd( c, paint, p );
 	}
     }
