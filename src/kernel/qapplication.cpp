@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#224 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#225 $
 **
 ** Implementation of QApplication class
 **
@@ -809,14 +809,14 @@ QPalette *QApplication::palette(const QWidget* w)
 	    if ( w->isA(name) ) {
 		return it.current();
 	    }
-	    ++it;
+	    ++it; // ### ++it at end of loop, not beginning
 	}
 	(void) it.toFirst();
 	while ( (name=(const char*)(void*)it.currentKeyLong()) ) {
 	    if ( w->inherits( name ) ) {
 		return it.current();
 	    }
-	    ++it;
+	    ++it; // ### ++it at end of loop, not beginning
 	}
     }
     return app_pal;
