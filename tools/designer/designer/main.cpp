@@ -28,6 +28,7 @@
 #include <qlabel.h>
 #include <qtextstream.h>
 #include <qobjectlist.h>
+#include <qdesktopwidget.h>
 
 #include <stdlib.h>
 #include <signal.h>
@@ -213,8 +214,8 @@ int main( int argc, char *argv[] )
 	splash->setPixmap( splashScreen() );
 	splash->adjustSize();
 	splash->setCaption( "Qt Designer" );
-	QRect r = QApplication::desktop()->geometry();
-	splash->move( r.center() - splash->rect().center() );
+	QRect r = ((QDesktopWidget*)QApplication::desktop())->screen()->geometry();
+	splash->move( r.center() - QPoint( splash->width() / 2, splash->height() / 2 ) );
 	splash->show();
 	splash->repaint( FALSE );
 	QApplication::flushX();
