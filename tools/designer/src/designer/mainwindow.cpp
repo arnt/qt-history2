@@ -711,7 +711,12 @@ void MainWindow::changeEvent(QEvent *ev)
             core->objectInspector()->topLevelWidget()->raise();
         }
         break;
+    
+    default:
+        break;
     }
+    
+    return QMainWindow::changeEvent(ev);
 }
 
 void MainWindow::previewForm()
