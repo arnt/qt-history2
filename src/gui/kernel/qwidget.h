@@ -628,7 +628,6 @@ private:
     friend class QETWidget;
     friend class QLayout;
     friend class QWidgetItem;
-    friend class QGuiEventLoop;
     friend class QGLContext;
     friend class QFontEngineXft;
     friend class QX11PaintEngine;
