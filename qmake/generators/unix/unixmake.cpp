@@ -205,7 +205,7 @@ UnixMakefileGenerator::init()
 	include_deps = TRUE; //do not generate deps
 
     MakefileGenerator::init();
-    if ( project->isActiveConfig("resource_fork") ) {
+    if ( project->isActiveConfig("resource_fork") && !project->isActiveConfig("console")) {
 	if(!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
 	    if(project->isEmpty("DESTDIR"))
 		project->values("DESTDIR").append("");

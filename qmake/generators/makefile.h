@@ -76,6 +76,7 @@ protected:
 
     void setMocAware(bool o);
     bool mocAware() const;
+    void logicWarn(const QString &, const QString &);
 
     virtual bool doDepends() const { return Option::mkfile::do_deps; }
     bool writeHeader(QTextStream &);

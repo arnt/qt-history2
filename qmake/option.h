@@ -45,6 +45,13 @@
 
 void fixEnvVariables(QString &x);
 void debug_msg(int level, const char *fmt, ...);
+enum QMakeWarn {
+    WarnNone    = 0x00,
+    WarnParser  = 0x01,
+    WarnLogic   = 0x02,
+    WarnAll     = 0xFF
+};
+void warn_msg(QMakeWarn t, const char *fmt, ...);
 
 struct Option
 {
@@ -77,6 +84,7 @@ struct Option
     static QFile output;
     static QString output_dir;
     static int debug_level;
+    static char warn_level;
     static QStringList user_vars;
     enum TARG_MODE { TARG_UNIX_MODE, TARG_WIN_MODE, TARG_MACX_MODE, TARG_MAC9_MODE };
     static TARG_MODE target_mode;

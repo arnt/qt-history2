@@ -59,6 +59,7 @@ QString Option::lex_mod;
 Option::QMAKE_MODE Option::qmake_mode = Option::QMAKE_GENERATE_NOTHING;
 
 //all modes
+char Option::warn_level = WarnLogic;
 int Option::debug_level = 0;
 QFile Option::output;
 QString Option::output_dir;
@@ -107,6 +108,12 @@ bool usage(const char *a0)
 	    "\t               In this mode qmake interprets files project files to\n"
 	    "\t               be built, if skipped qmake will try to find a project\n"
 	    "\t               file in your current working directory\n"
+	    "\n"
+	    "Warnings Options:\n"
+	    "\t-Wnone         Turn off all warnings\n"
+	    "\t-Wall          Turn on all warnings\n"
+	    "\t-Wparser       Turn on parser warnings\n"
+	    "\t-Wlogic        Turn on logic warnings\n"
 	    "\n"
 	    "Options:\n"
 	    "\t-o file        Write output to file\n"
@@ -172,6 +179,14 @@ Option::parseCommandLine(int argc, char **argv)
 		Option::debug_level++;
 	    } else if(opt == "h" || opt == "help") {
 		return usage(argv[0]);
+	    } else if(opt == "Wall") {
+		Option::warn_level |= WarnAll;
+	    } else if(opt == "Wparser") {
+		Option::warn_level |= WarnParser;
+	    } else if(opt == "Wlogic") {
+		Option::warn_level |= WarnLogic;
+	    } else if(opt == "Wnone") {
+		Option::warn_level = WarnNone;
 	    } else {
 		if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE) {
 		    if(opt == "nodepend") {
@@ -351,6 +366,20 @@ void debug_msg(int level, const char *fmt, ...)
     if(Option::debug_level < level)
 	return;
     fprintf(stdout, "DEBUG %d: ", level);
+    {
+	va_list ap;
+	va_start(ap, fmt);
+	vfprintf(stdout, fmt, ap);
+	va_end(ap);
+    }
+    fprintf(stdout, "\n");
+}
+
+void warn_msg(QMakeWarn type, const char *fmt, ...)
+{
+    if(!(Option::warn_level & type))
+	return;
+    fprintf(stdout, "WARNING: ");
     {
 	va_list ap;
 	va_start(ap, fmt);

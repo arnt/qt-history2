@@ -53,7 +53,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-
 MakefileGenerator::MakefileGenerator(QMakeProject *p) : init_already(FALSE), moc_aware(FALSE), project(p)
 {
 }
@@ -162,6 +161,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 		} else if(fn_target.right(ext_len) == Option::h_ext &&
 			  project->variables()["HEADERS"].findIndex(fn_target) != -1) {
 		    mocFile += Option::moc_mod + fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::cpp_ext;
+		    logicWarn(mocFile, "SOURCES");
 		    project->variables()["_HDRMOC"].append(mocFile);
 		}
 
@@ -437,12 +437,9 @@ MakefileGenerator::init()
 		if(!(*val_it).isEmpty()) {
 		    if(doDepends())
 			generateDependancies(deplist, (*val_it));
-		    if(mocAware()) {
-			if(!generateMocList((*val_it))) {
-			    fprintf(stderr, "Failure to open: %s\n", (*val_it).latin1());
-			}
+		        if(mocAware() && !generateMocList((*val_it)))
+			    warn_msg(WarnLogic, "Failure to open: %s", (*val_it).latin1());
 		    }
-		}
 	    }
 	}
     }
@@ -477,12 +474,15 @@ MakefileGenerator::init()
 	    	impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::cpp_ext;
                 decl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::h_ext;
 	    }
+	    logicWarn(impl, "SOURCES");
+	    logicWarn(decl, "HEADERS");
 	    decls.append(decl);
 	    impls.append(impl);
 	    depends[impl].append(decl);
 
 	    QString mocable = (v["MOC_DIR"].isEmpty() ? (fi.dirPath() + Option::dir_sep): v["MOC_DIR"].first()) +
 			      Option::moc_mod + fi.baseName() + Option::cpp_ext;
+	    logicWarn(mocable, "SOURCES");
 	    mocablesToMOC[cleanFilePath(decl)] = mocable;
 	    mocablesFromMOC[cleanFilePath(mocable)] = decl;
 	    v["_UIMOC"].append(mocable);
@@ -497,6 +497,7 @@ MakefileGenerator::init()
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	    QFileInfo fi((*it));
 	    QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext;
+	    logicWarn(impl, "SOURCES");
 	    impls.append(impl);
 	    if( ! project->isActiveConfig("lex_included")) {
 		v["SOURCES"].append(impl);
@@ -520,7 +521,10 @@ MakefileGenerator::init()
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	    QFileInfo fi((*it));
 	    QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::cpp_ext;
+	    logicWarn(impl, "SOURCES");
 	    QString decl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::h_ext;
+	    logicWarn(decl, "HEADERS");
+
 	    decls.append(decl);
 	    impls.append(impl);
 	    v["SOURCES"].append(impl);
@@ -730,8 +734,8 @@ MakefileGenerator::writeYaccSrc(QTextStream &t, const QString &src)
 {
     QStringList &l = project->variables()[src];
     if(project->isActiveConfig("yacc_no_name_mangle") && l.count() > 1)
-	fprintf(stderr, "yacc_no_name_mangle specified, but multiple parsers expected.\n"
-		"This can lead to link problems.\n");
+	warn_msg(WarnLogic, "yacc_no_name_mangle specified, but multiple parsers expected."
+		 "This can lead to link problems.\n");
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QFileInfo fi((*it));
 	QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::cpp_ext;
@@ -754,8 +758,8 @@ MakefileGenerator::writeLexSrc(QTextStream &t, const QString &src)
 {
     QStringList &l = project->variables()[src];
     if(project->isActiveConfig("yacc_no_name_mangle") && l.count() > 1)
-	fprintf(stderr, "yacc_no_name_mangle specified, but multiple parsers expected.\n"
-		"This can lead to link problems.\n");
+	warn_msg(WarnLogic, "yacc_no_name_mangle specified, but multiple parsers expected.\n"
+		 "This can lead to link problems.\n");
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QFileInfo fi((*it));
 	QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext;
@@ -778,7 +782,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QString pvar = (*it) + ".path";
 	if(project->variables()[pvar].isEmpty()) {
-	    fprintf(stderr, "%s is not defined: install target not created\n", pvar.latin1());
+	    warn_msg(LogicWarn, "%s is not defined: install target not created\n", pvar.latin1());
 	    continue;
 	}
 
@@ -929,6 +933,13 @@ QString MakefileGenerator::build_args()
 	    ofile = ofile.right(ofile.length() - ofile.findRev(Option::dir_sep) -1);
 	if (!ofile.isEmpty() && ofile != project->first("QMAKE_MAKEFILE"))
 	    ret += " -o " + ofile;
+	//warnings
+	else if(Option::warn_level == WarnNone)
+	    ret += " -Wnone";
+	else if(Option::warn_level & WarnAll) 
+	    ret += " -Wall";
+	else if(Option::warn_level & WarnParser)
+		ret += " -Wparser";
 	//other options
 	if(!Option::mkfile::do_cache)
 	    ret += " -nocache";
@@ -1070,4 +1081,22 @@ MakefileGenerator::cleanFilePath(const QString &file) const
     QString ret = Option::fixPathToTargetOS(file);
     fileFixify(ret);
     return ret;
+}
+
+void MakefileGenerator::logicWarn(const QString &f, const QString &w)
+{
+    if(!(Option::warn_level & WarnLogic)) 
+	return;
+    QString file = f;
+    int slsh = f.findRev(Option::dir_sep);
+    if(slsh != -1) 
+	file = file.right(file.length() - slsh - 1);
+    QStringList &l = project->variables()[w];
+    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
+	if((*val_it).right(file.length()) == file) {
+	    warn_msg(WarnLogic, "Found potential symbol conflict of %s in %s",
+		     file.latin1(), w.latin1());
+	    break;
+	}
+    }
 }
