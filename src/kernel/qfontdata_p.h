@@ -266,12 +266,20 @@ public:
 	    string = 0;
 	    length = 0;
 	    next = 0;
+#ifdef Q_WS_WIN
+	    mapped = 0;
+#endif
 	}
 
 	~TextRun()
 	{
 	    if ( next )
 		delete next;
+#ifdef Q_WS_WIN
+#if !(defined(UNICODE) && !defined(Q_OS_WIN32BYTESWAP_))
+	    delete [] mapped;
+#endif
+#endif
 	}
 
 	void setParams( int x, int y, int x2, const QChar *s, int len,
@@ -292,6 +300,9 @@ public:
 	TextRun *next;
 #ifdef Q_WS_X11
 	QByteArray mapped;
+#endif
+#ifdef Q_WS_WIN
+	TCHAR *mapped;
 #endif
     };
 
@@ -418,7 +429,7 @@ public:
     QFontStruct *fin;
     HDC currHDC;
 
-    int textWidth( HDC hdc, const QString &str, int pos, int len, TextRun *cache );
+    void buildCache( HDC hdc, const QString &str, int pos, int len, TextRun *cache );
     void drawText( HDC hdc, int x, int y, TextRun *cache );
 #endif // Q_WS_WIN
 
