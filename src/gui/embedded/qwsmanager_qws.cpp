@@ -325,15 +325,23 @@ void QWSManager::handleMove(QPoint g)
 
         QSize newSize = QLayout::closestAcceptableSize(d->managed, geom.size());
 
-        if (keepTop)
-            geom.setHeight(newSize.height());
-        else
-            geom.setTop(geom.top() - (newSize.height() - geom.height()));
+        int dx = newSize.width() - geom.width();
+        int dy = newSize.height() - geom.height();
 
-        if (keepLeft)
-            geom.setWidth(newSize.width());
-        else
-            geom.setLeft(geom.left() - (newSize.width() - geom.width()));
+        if (keepTop) {
+            geom.setBottom(geom.bottom() + dy);
+            d->mousePos.ry() += dy;
+        } else {
+            geom.setTop(geom.top() - dy);
+            d->mousePos.ry() -= dy;
+        }
+        if (keepLeft) {
+            geom.setRight(geom.right() + dx);
+            d->mousePos.rx() += dx;
+        } else {
+            geom.setLeft(geom.left() - dx);
+            d->mousePos.rx() -= dx;
+        }
     }
     if (geom != d->managed->geometry()) {
         QApplication::sendPostedEvents();
