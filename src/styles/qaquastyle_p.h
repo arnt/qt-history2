@@ -12349,7 +12349,12 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
     }
 
     // Tabs - top position
-    if( s.contains("tab_t_") ){
+    if( s.contains("tab_t_top") ) {
+        QPixmapCache::insert( "$qt_aqua_tab_t_top_act",
+                              (const char **) aqua_tab_top_act_xpm );
+        QPixmapCache::insert( "$qt_aqua_tab_t_top_dis",
+                              (const char **) aqua_tab_top_dis_xpm );
+    } else if( s.contains("tab_t_") ){
 	size = qAquaGetNum( s );
         QString sizestr = QString::number( size );
 
@@ -12393,12 +12398,6 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 	im = QPixmap((const char **) aqua_tab_sel_dis_right_xpm);
 	px = im.smoothScale(im.width(), size );
         QPixmapCache::insert( "$qt_aqua_tab_t_sel_dis_right_" + sizestr, px );
-
-        QPixmapCache::insert( "$qt_aqua_tab_t_top_act",
-                              (const char **) aqua_tab_top_act_xpm );
-        QPixmapCache::insert( "$qt_aqua_tab_t_top_dis",
-                              (const char **) aqua_tab_top_dis_xpm );
-
     }
     // Tabs - bottom position (top pixmaps mirrored)
     if( s.contains("tab_b_") ){

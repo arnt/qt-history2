@@ -654,7 +654,7 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	QPixmap px;
 	bool down = flags & Style_Down;
 	bool on  = flags  & Style_On;
-	bool tri = FALSE; //FIXME?
+	bool tri = flags & Style_NoChange;
 	if( flags & Style_Enabled && qAquaActive( cg ) ){
 	    if( down && on )
 		qAquaPixmap("chk_psh_t", px);
