@@ -146,6 +146,10 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
 	while ( XPending( QPaintDevice::x11AppDisplay() ) ) {
 	    // also flushes output buffer
 	    while ( XPending( QPaintDevice::x11AppDisplay() ) ) {
+		if ( d->shortcut ) {
+		    return FALSE;
+		}
+
 		XNextEvent( QPaintDevice::x11AppDisplay(), &event );
 
 		if ( flags & ExcludeUserInput ) {
@@ -168,6 +172,10 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
 		    return TRUE;
 	    }
 	}
+    }
+
+    if ( d->shortcut ) {
+	return FALSE;
     }
 
     QApplication::sendPostedEvents();

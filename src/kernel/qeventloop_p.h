@@ -86,12 +86,14 @@ public:
 	quitcode = 0;
 	quitnow = FALSE;
 	exitloop = FALSE;
+	shortcut = FALSE;
     }
 
     int looplevel;
     int quitcode;
-    bool quitnow;
-    bool exitloop;
+    unsigned int quitnow  : 1;
+    unsigned int exitloop : 1;
+    unsigned int shortcut : 1;
 
 #if defined(Q_WS_MAC)
     EventLoopTimerRef select_timer;

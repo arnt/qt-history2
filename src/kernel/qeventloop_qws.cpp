@@ -131,6 +131,10 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
 	QApplication::sendPostedEvents();
 
 	while ( qt_fbdpy->eventPending() ) {	// also flushes output buffer
+	    if ( d->shortcut ) {
+		return FALSE;
+	    }
+
 	    QWSEvent *event = qt_fbdpy->getEvent();	// get next event
 	    nevents++;
 
@@ -140,6 +144,10 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
 		return TRUE;
 	    }
 	}
+    }
+
+    if ( d->shortcut ) {
+	return FALSE;
     }
 
     extern QPtrQueue<QWSCommand> *qt_get_server_queue();

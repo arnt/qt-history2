@@ -139,8 +139,9 @@ int QEventLoop::exec()
 
     // cleanup
     d->looplevel = 0;
-    d->quitnow = FALSE;
+    d->quitnow  = FALSE;
     d->exitloop = FALSE;
+    d->shortcut = FALSE;
     // don't reset quitcode!
 
     return d->quitcode;
@@ -167,8 +168,9 @@ void QEventLoop::exit( int retcode )
     if ( d->quitnow ) // preserve existing quitcode
 	return;
     d->quitcode = retcode;
-    d->quitnow = TRUE;
+    d->quitnow  = TRUE;
     d->exitloop = TRUE;
+    d->shortcut = TRUE;
 }
 
 
@@ -182,6 +184,7 @@ int QEventLoop::enterLoop()
     // save the current exitloop state
     bool old_exitloop = d->exitloop;
     d->exitloop = FALSE;
+    d->shortcut = FALSE;
 
     d->looplevel++;
     while ( ! d->exitloop )
@@ -191,10 +194,12 @@ int QEventLoop::enterLoop()
     // restore the exitloop state, but if quitnow is TRUE, we need to keep
     // exitloop set so that all other event loops drop out.
     d->exitloop = old_exitloop || d->quitnow;
+    d->shortcut = d->quitnow;
 
     if ( d->looplevel < 1 ) {
-	d->quitnow = FALSE;
+	d->quitnow  = FALSE;
 	d->exitloop = FALSE;
+	d->shortcut = FALSE;
 	emit qApp->aboutToQuit();
 
 	// send deferred deletes
@@ -212,6 +217,7 @@ int QEventLoop::enterLoop()
 void QEventLoop::exitLoop()
 {
     d->exitloop = TRUE;
+    d->shortcut = TRUE;
 }
 
 /*! \fn void QEventLoop::loopLevel() const

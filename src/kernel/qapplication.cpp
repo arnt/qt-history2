@@ -2877,14 +2877,6 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 		      || receiver == pe->receiver ) // we send to THAT receiver
 		 && ( event_type == 0 // we send all types
 		      || event_type == pe->event->type() ) ) { // we send THAT type
-		// do not process DeferredDelete events if we are in
-		// the middle of a loop level change (which means
-		// exit_loop() has been called, but we have not yet
-		// returned from enter_loop()).
-		if ( eventloop && eventloop->d->exitloop &&
-		     pe->event->type() == QEvent::DeferredDelete )
-		    continue;
-
 		// first, we diddle the event so that we can deliver
 		// it, and that noone will try to touch it later.
 		pe->event->posted = FALSE;
