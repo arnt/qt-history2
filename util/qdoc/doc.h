@@ -12,6 +12,7 @@
 #include "location.h"
 #include "parsehelpers.h"
 #include "stringset.h"
+#include "trool.h"
 #include "walkthrough.h"
 
 class BinaryWriter;
@@ -187,7 +188,7 @@ class FnDoc : public Doc
 public:
     FnDoc( const Location& loc, const QString& html, const QString& prototype,
 	   const QString& relates, const StringSet& documentedParams,
-	   bool overloads );
+	   bool overloads, Trool reentrant = Tdef );
 
     void setOverloads( bool overloads ) { over = overloads; }
 
@@ -195,12 +196,14 @@ public:
     const QString& relates() const { return rel; }
     const StringSet& documentedParameters() const { return params; }
     bool overloads() const { return over; }
+    Trool isReentrant() const { return reent; }
 
 private:
     QString proto;
     QString rel;
     StringSet params;
     bool over;
+    Trool reent;
 };
 
 class ClassDoc : public Doc
@@ -210,7 +213,7 @@ public:
 	      const QString& className, const QString& brief,
 	      const QString& module, const QString& extension,
 	      const StringSet& headers, const QStringList& important,
-	      bool mainClass );
+	      bool mainClass, bool reentrant );
 
     const QString& brief() const { return bf; }
     const QString& module() const { return mod; }
@@ -218,6 +221,7 @@ public:
     const StringSet& headers() const { return h; }
     const QStringList& important() const { return imp; }
     bool mainClass() const { return main; }
+    bool isReentrant() const { return reent; }
 
 private:
     QString bf;
@@ -226,6 +230,7 @@ private:
     StringSet h;
     QStringList imp;
     bool main;
+    bool reent;
 };
 
 class EnumDoc : public Doc

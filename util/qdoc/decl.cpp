@@ -125,6 +125,32 @@ static void printHtmlLongMembers( HtmlWriter& out,
 	out.putsMeta( "<h3 class=fn>" );
 	(*m)->printHtmlLong( out );
 	out.putsMeta( "</h3>" );
+
+	if ( (*m)->kind() == Decl::Function ) {
+	    FnDoc *fn = ((FunctionDecl *) (*m))->fnDoc();
+	    ClassDoc *cl = 0;
+	    if ( (*m)->context() != 0 &&
+		 (*m)->context()->kind() == Decl::Class )
+		cl = ((ClassDecl *) (*m)->context())->classDoc();
+
+	    if ( fn != 0 ) {
+		switch ( fn->isReentrant() ) {
+		case Tfalse:
+		    if ( cl != 0 && cl->isReentrant() )
+			out.printfMeta( "<p><b>Warning:</b> This function is"
+					" non-reentrant.</p>\n" );
+		    break;
+		case Ttrue:
+		    if ( cl == 0 || !cl->isReentrant() )
+			out.printfMeta( "<p><b>Note:</b> This function is"
+					" reentrant.</p>\n" );
+		    break;
+		case Tdef:
+		    ;
+		}
+	    }
+	}
+
 	(*m)->doc()->printHtml( out );
 
 	if ( (*m)->reimplements() != 0 && (*m)->reimplements()->doc() != 0 &&
@@ -715,14 +741,43 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
 	out.putsMeta( "<p>" );
 	out.putsMeta( classDoc()->brief() );
 	out.puts( "\n" );
+	out.putsMeta( "<a href=\"#details\">More...</a>\n" );
+
 	if ( !classDoc()->extension().isEmpty() )
 	    out.printfMeta( "<p>This class is part of the"
 			    " <b>%s %s Extension</b>.\n",
 			    config->product().latin1(),
 			    classDoc()->extension().latin1() );
-    }
 
-    out.putsMeta( "<a href=\"#details\">More...</a>\n" );
+	if ( classDoc()->isReentrant() ) {
+	    QValueList<Decl *> except;
+	    QValueList<Decl *>::ConstIterator c = children().begin();
+	    while ( c != children().end() ) {
+		if ( (*c)->kind() == Function ) {
+		    FnDoc *fn = ((FunctionDecl *) *c)->fnDoc();
+		    if ( fn != 0 && !fromTrool(fn->isReentrant(), TRUE) )
+			except.append( *c );
+		}
+		++c;
+	    }
+
+	    if ( except.isEmpty() ) {
+		out.printfMeta( "<p>All the functions in this class are"
+				" reentrant.\n" );
+	    } else {
+		out.printfMeta( "<p>All the functions in this class are"
+				" reentrant except " );
+		QValueStack<QString> seps = separators( except.count(),
+							QString(".\n") );
+		QValueList<Decl *>::ConstIterator e = except.begin();
+		while ( e != except.end() ) {
+		    printHtmlShortName( out, *e );
+		    out.puts( ("()" + seps.pop()).latin1() );
+		    ++e;
+		}
+	    }
+	}
+    }
 
     if ( !hfile.isEmpty() )
 	Doc::printHtmlIncludeHeader( out, hfile );
@@ -1587,14 +1642,4 @@ void PropertyDecl::printHtmlLong( HtmlWriter& out ) const
 {
     printHtmlDataType( out, dataType(), context() );
     out.printfMeta( " <a name=\"%s\"></a>%s", ref().latin1(), name().latin1() );
-}
-
-PropertyDecl::Trool PropertyDecl::toTrool( bool b )
-{
-    return b ? Ttrue : Tfalse;
-}
-
-bool PropertyDecl::fromTrool( Trool tr, bool def )
-{
-    return tr == Tdef ? def : tr == Ttrue;
 }

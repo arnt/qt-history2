@@ -23,6 +23,7 @@ HEADERS		= binarywriter.h \
 		  resolver.h \
 		  stringset.h \
 		  tokenizer.h \
+		  trool.h \
 		  walkthrough.h
 SOURCES		= binarywriter.cpp \
 		  bookparser.cpp \

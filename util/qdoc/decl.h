@@ -13,6 +13,7 @@
 #include "doc.h"
 #include "location.h"
 #include "stringset.h"
+#include "trool.h"
 
 class HtmlWriter;
 
@@ -357,15 +358,6 @@ public:
     virtual void printHtmlLong( HtmlWriter& out ) const;
 
 private:
-    /*
-      A Trool is a bit like a bool, except that it admits three truth
-      values (true, false and default).
-    */
-    enum Trool { Ttrue, Tfalse, Tdef };
-
-    static Trool toTrool( bool b );
-    static bool fromTrool( Trool tr, bool def );
-
     CodeChunk t;
     QString n;
     QString read;

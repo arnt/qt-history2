@@ -250,6 +250,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     bool obsolete = FALSE;
     bool preliminary = FALSE;
     bool mainClass = FALSE;
+    Trool reentrant = Tdef;
     int base;
     int briefBegin = -1;
     int briefEnd = 0;
@@ -733,6 +734,10 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		yyOut += QString( "Note:" );
 		warning( 2, location(), "No such command '\\%s'", "note" );
 		break;
+	    case HASH( 'n', 12 ):
+		CONSUME( "nonreentrant" );
+		reentrant = Tfalse;
+		break;
 	    case HASH( 'o', 4 ):
 		CONSUME( "omit" );
 		end = yyIn.find( QString("\\endomit"), yyPos );
@@ -938,6 +943,10 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		if ( relates.isEmpty() )
 		    warning( 2, location(),
 			     "Expected class name after '\\relates'" );
+		break;
+	    case HASH( 'r', 9 ):
+		CONSUME( "reentrant" );
+		reentrant = Ttrue;
 		break;
 	    case HASH( 's', 2 ):
 		CONSUME( "sa" );
@@ -1199,7 +1208,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	sanitize( prototype );
 	sanitize( relates );
 	doc = new FnDoc( loc, yyOut, prototype, relates, documentedParams,
-			 overloads );
+			 overloads, reentrant );
 	break;
     case Doc::Class:
 	if ( briefBegin == -1 ) {
@@ -1223,7 +1232,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    .arg(config->product()) );
 
 	doc = new ClassDoc( loc, yyOut, className, brief, moduleName, extName,
-			    headers, important, mainClass );
+			    headers, important, mainClass,
+			    fromTrool(reentrant, FALSE) );
 	break;
     case Doc::Enum:
 	sanitize( enumName );
@@ -2583,9 +2593,10 @@ QString Doc::finalHtml() const
 
 FnDoc::FnDoc( const Location& loc, const QString& html,
 	      const QString& prototype, const QString& relates,
-	      const StringSet& documentedParams, bool overloads )
+	      const StringSet& documentedParams, bool overloads,
+	      Trool reentrant )
     : Doc( Fn, loc, html ), proto( prototype ), rel( relates ),
-      params( documentedParams ), over( overloads )
+      params( documentedParams ), over( overloads ), reent( reentrant )
 {
 }
 
@@ -2593,9 +2604,9 @@ ClassDoc::ClassDoc( const Location& loc, const QString& html,
 		    const QString& className, const QString& brief,
 		    const QString& module, const QString& extension,
 		    const StringSet& headers, const QStringList& important,
-		    bool mainClass )
+		    bool mainClass, bool reentrant )
     : Doc( Class, loc, html, className ), bf( brief ), mod( module ),
-      ext( extension ), h( headers ), main( mainClass )
+      ext( extension ), h( headers ), main( mainClass ), reent( reentrant )
 {
     setFileName( config->classRefHref(className) );
 
