@@ -21,8 +21,8 @@ Dialog::Dialog(QWidget *parent)
     connect(&tcpServer, SIGNAL(newConnection()),
             this, SLOT(acceptConnection()));
     connect(&tcpClient, SIGNAL(connected()), this, SLOT(startTransfer()));
-    connect(&tcpClient, SIGNAL(bytesWritten(Q_LLONG)),
-            this, SLOT(updateClientProgress(Q_LLONG)));
+    connect(&tcpClient, SIGNAL(bytesWritten(Q_LONGLONG)),
+            this, SLOT(updateClientProgress(Q_LONGLONG)));
     connect(&tcpClient, SIGNAL(error(int)), this, SLOT(displayError(int)));
 
     QHBoxLayout *buttonLayout = new QHBoxLayout;
@@ -95,7 +95,7 @@ void Dialog::updateServerProgress()
     }
 }
 
-void Dialog::updateClientProgress(Q_LLONG numBytes)
+void Dialog::updateClientProgress(Q_LONGLONG numBytes)
 {
     bytesWritten += (int)numBytes;
     clientProgressBar->setProgress(bytesWritten, TotalBytes);

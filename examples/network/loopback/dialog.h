@@ -23,7 +23,7 @@ public slots:
     void acceptConnection();
     void startTransfer();
     void updateServerProgress();
-    void updateClientProgress(Q_LLONG numBytes);
+    void updateClientProgress(Q_LONGLONG numBytes);
     void displayError(int socketError);
 
 private:
