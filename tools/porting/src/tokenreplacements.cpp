@@ -217,7 +217,7 @@ bool ClassNameReplacement::doReplace(const TokenContainer &tokenContainer, int i
 
         TextReplacements textReplacements;
         QList<TokenReplacement*> tokenReplacements
-            = PortingRules::instance()->getNoPreprocessPortingTokenRules();
+            = PortingRules::instance()->getTokenReplacementRules();
         bool changed = false;
         foreach(TokenReplacement *tokenReplacement, tokenReplacements) {
             changed = tokenReplacement->doReplace(tokenContainer, nameTokenIndex, textReplacements);

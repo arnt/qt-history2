@@ -53,7 +53,7 @@ PortingRules::PortingRules(QString xmlFilePath)
     parseXml(xmlFilePath);
 }
 
-QList<TokenReplacement*> PortingRules::getNoPreprocessPortingTokenRules()
+QList<TokenReplacement*> PortingRules::getTokenReplacementRules()
 {
     if(tokenRules.isEmpty())
          addLogWarning("Warning: token rules list is empty");

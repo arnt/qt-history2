@@ -46,7 +46,7 @@ public:
 
     enum QtVersion{Qt3, Qt4};
     PortingRules(QString xmlFilePath);
-    QList<TokenReplacement*> getNoPreprocessPortingTokenRules();
+    QList<TokenReplacement*> getTokenReplacementRules();
     QStringList getHeaderList(QtVersion qtVersion);
     QStringList getNeededHeaderList();
     QStringList getInheritsQt();
