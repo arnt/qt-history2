@@ -220,9 +220,9 @@ bool
 QFSFileEngine::remove()
 {
     QT_WA({
-        return ::_wremove((TCHAR*)d->file.utf16()) == 0;
+        return ::DeleteFileW((TCHAR*)d->file.utf16()) != 0;
     } , {
-        return ::remove(QFSFileEnginePrivate::win95Name(d->file)) == 0;
+        return ::DeleteFileA(QFSFileEnginePrivate::win95Name(d->file)) != 0;
     });
 }
 
@@ -230,10 +230,10 @@ bool
 QFSFileEngine::rename(const QString &newName)
 {
     QT_WA({
-        return ::_wrename((TCHAR*)d->file.utf16(), (TCHAR*)newName.utf16()) == 0;
+        return ::MoveFileW((TCHAR*)d->file.utf16(), (TCHAR*)newName.utf16()) != 0;
     } , {
-        return ::rename(QFSFileEnginePrivate::win95Name(d->file),
-			QFSFileEnginePrivate::win95Name(newName)) == 0;
+        return ::MoveFileA(QFSFileEnginePrivate::win95Name(d->file),
+			QFSFileEnginePrivate::win95Name(newName)) != 0;
     });
 }
 
