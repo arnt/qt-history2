@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#93 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#94 $
 **
 ** Implementation of QFileDialog class
 **
@@ -955,17 +955,13 @@ void QFileDialog::setFilter( const char * newFilter )
 {
     if ( !newFilter )
 	return;
-    if ( QRegExp( "([a-zA-Z0-9\\.\\*\\?]*)$" ).match( newFilter ) >= 0 ) {
-	newFilter = strrchr( newFilter, '(' );
-	newFilter++;
-	newFilter = qstrdup( newFilter );
-	*strchr( newFilter, ')' ) = '\0';
-	cwd.setNameFilter( newFilter );
-	delete[] (char*)newFilter;
-    } else {
-	cwd.setNameFilter( newFilter );
-    }
-	
+    QString f = newFilter;
+    QRegExp r( "([a-zA-Z0-9\\.\\*\\?]*)$" );
+    int len;
+    int index = r.match( f, 0, &len );
+    if ( index >= 0 )
+	f = f.mid( index+1, len-2 );
+    cwd.setNameFilter( f );
     rereadDir();
 }
 
