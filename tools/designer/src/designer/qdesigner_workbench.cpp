@@ -338,9 +338,9 @@ void QDesignerWorkbench::switchToTopLevelMode()
         tw->setParent(magicalParent(), Qt::Window);
         if (m_geometries.isEmpty()) {
             settings.setGeometryFor(tw, tw->geometryHint());
-            QList<QHeaderView *> headers = qFindChildren<QHeaderView *>(tw);
-            Q_ASSERT(headers.size() == 1);
-            settings.setHeaderSizesFor(headers.at(0));
+            QHeaderView *header = qFindChild<QHeaderView*>(tw);
+            Q_ASSERT(header != 0);
+            settings.setHeaderSizesFor(header);
         } else {
             QRect g = m_geometries.value(tw, tw->geometryHint());
             tw->resize(g.size());
@@ -488,9 +488,10 @@ void QDesignerWorkbench::saveSettings() const
     QDesignerSettings settings;
     foreach (QDesignerToolWindow *tw, m_toolWindows) {
         settings.saveGeometryFor(tw);
-        QList<QHeaderView *> list = qFindChildren<QHeaderView *>(tw);
-        Q_ASSERT(list.size() == 1);
-        settings.saveHeaderSizesFor(list.at(0));
+        QHeaderView *header = qFindChild<QHeaderView*>(tw);
+        Q_ASSERT(header != 0);
+        settings.setHeaderSizesFor(header);
+        settings.saveHeaderSizesFor(header);
     }
 }
 
