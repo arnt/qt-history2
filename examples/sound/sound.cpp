@@ -56,7 +56,8 @@ SoundPlayer::SoundPlayer() :
 
 void SoundPlayer::doPlay1()
 {
-    QSound::play("sounds/1.wav");
+//    QSound::play("sounds/1.wav");
+    QSound::play("y:Developer/Documentation/QuickTime/QT4WebPage/Tunnels.mov");
 }
 
 void SoundPlayer::doPlay2()
