@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#40 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#41 $
 **
 ** Definition of layout classes
 **
@@ -78,9 +78,9 @@ public:
     enum Corner { TopLeft, TopRight, BottomLeft, BottomRight };
     void setOrigin( Corner );
     QLayoutIterator iterator();
+    void setGeometry( const QRect& );
 protected:
     bool findWidget( QWidget* w, int *r, int *c );
-    void setGeometry( const QRect& );
     void add( QLayoutItem*, int row, int col );
 private:
     void init( int rows, int cols );
@@ -96,7 +96,7 @@ private:	// Disabled copy constructor and operator=
 
 class QBoxLayoutData;
 
-class Q_EXPORT QBoxLayout : public QGridLayout //QLayout
+class Q_EXPORT QBoxLayout : public QLayout
 {
     Q_OBJECT
 public:
@@ -126,22 +126,19 @@ public:
 
     bool setStretchFactor( QWidget*, int stretch );
 
-//    QSize sizeHint() const;
-//    QSize minimumSize() const;
-//    QSize maximumSize() const;
-//    
-//    bool hasHeightForWidth() const;
-//    int heightForWidth( int ) const;
-//
-//    QSizePolicy::ExpandData expanding();
-//    void invalidate();
-//protected:
-//    void setGeometry( const QRect& );
-//    void add( QLayoutItem*, int row, int col );
+    QSize sizeHint() const;
+    QSize minimumSize() const;
+    QSize maximumSize() const;
 
-    
+    bool hasHeightForWidth() const;
+    int heightForWidth( int ) const;
+
+    QSizePolicy::ExpandData expanding();
+    void invalidate();
+    QLayoutIterator iterator();
+    void setGeometry( const QRect& );
 private:
-    //QBoxLayoutData *data;
+    QBoxLayoutData *data;
     Direction dir;
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
