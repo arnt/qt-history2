@@ -138,12 +138,25 @@ inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
 
 #else
 
+#ifndef Q_CC_BOR
+
 extern "C" {
     __declspec(dllimport) long __stdcall InterlockedCompareExchange(long *, long, long);
     __declspec(dllimport) long __stdcall InterlockedIncrement(long *);
     __declspec(dllimport) long __stdcall InterlockedDecrement(long *);
     __declspec(dllimport) long __stdcall InterlockedExchange(long *, long);
 }
+
+#else
+
+extern "C" {
+    __declspec(dllimport) long __stdcall InterlockedCompareExchange(long volatile*, long, long);
+    __declspec(dllimport) long __stdcall InterlockedIncrement(long volatile*);
+    __declspec(dllimport) long __stdcall InterlockedDecrement(long volatile*);
+    __declspec(dllimport) long __stdcall InterlockedExchange(long volatile*, long);
+}
+
+#endif
 
 inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
 { return InterlockedCompareExchange(reinterpret_cast<long *>(const_cast<int *>(ptr)), newval, expected) == expected; }
