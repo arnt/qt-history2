@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#31 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#32 $
 **
 ** Global functions
 **
@@ -17,7 +17,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#31 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#32 $")
 
 
 #define QT_VERSION "0.98"
@@ -68,10 +68,12 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
     }
     si_alreadyDone = TRUE;
 
-    si_wordSize = 1;
+    si_wordSize = 0;
     uint n = (uint)(~0);
-    while ( n >>= 1 )				// detect word size
+    while ( n ) {				// detect word size
 	si_wordSize++;
+	n /= 2;
+    }
     *wordSize = si_wordSize;
 
     if ( *wordSize != 64 && 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#54 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#55 $
 **
 ** Global type declarations and definitions
 **
@@ -53,6 +53,8 @@
 #define _OS_FREEBSD_
 #elif defined(sgi) || defined(__sgi)
 #define _OS_IRIX_
+#elif defined(__osf__)
+#define _OS_OSF_
 #else
 #error "Qt has not been ported to this OS - talk to qt-bugs@troll.no"
 #endif
