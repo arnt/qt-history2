@@ -1635,6 +1635,13 @@ int QNPStream::write( int len, void* buffer )
   QNPlugin::create(), which must be implemented in your plugin code to
   return some derived class of QNPlugin.  The one QNPlugin object creates
   all instances for a single running Netscape process.
+
+  Additionally, if Qt is linked to the plugin as
+  a dynamic library, only one instance of QApplication will exist
+  <em>across all plugins that have been made with Qt.</em>  So,
+  your plugin should tread lightly on global settings - do not for
+  example, use QApplication::setFont() - that will change the font in
+  every widget of every Qt-based plugin currently loaded!
 */
 
 /*!
