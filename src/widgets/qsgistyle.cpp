@@ -38,6 +38,23 @@
 #include "qpopupmenu.h"
 #include <limits.h>
 
+static const int sgiItemFrame		= 2;	// menu item frame width
+static const int sgiSepHeight		= 1;	// separator item height
+static const int sgiItemHMargin		= 3;	// menu item hor text margin
+static const int sgiItemVMargin 	= 2;	// menu item ver text margin
+static const int sgiArrowHMargin	= 6;	// arrow horizontal margin
+static const int sgiTabSpacing		= 12;	// space between text and tab
+static const int sgiCheckMarkHMargin	= 2;	// horiz. margins of check mark
+static const int sgiCheckMarkSpace	= 20;
+
+static bool sliderMoving		= FALSE;
+static bool sliderHandleActive		= FALSE;
+static bool repaintByMouseMove		= FALSE;
+static int activeScrollBarElement	= 0;
+static QRect sliderStartOldPos(1,-1,1,-1);
+static void* deviceUnderMouse		= 0;
+static QPoint mousePos(-1,-1);
+
 /*!
   \class QSGIStyle qsgistyle.h
   \brief SGI Look and Feel
@@ -69,20 +86,6 @@ QSGIStyle::QSGIStyle( bool useHighlightCols ) : QMotifStyle( useHighlightCols )
 QSGIStyle::~QSGIStyle()
 {
 }
-
-static const int sgiItemFrame		= 2;	// menu item frame width
-static const int sgiSepHeight		= 1;	// separator item height
-static const int sgiItemHMargin 	= 3;	// menu item hor text margin
-static const int sgiItemVMargin 	= 2;	// menu item ver text margin
-static const int sgiArrowHMargin	= 6;	// arrow horizontal margin
-static const int sgiTabSpacing 	        = 12;	// space between text and tab
-static const int sgiCheckMarkHMargin	= 2;	// horiz. margins of check mark
-static const int sgiCheckMarkSpace	= 20;
-
-static bool sliderActive                = FALSE;
-static QRect sliderStartOldPos(1,-1,1,-1);
-static void* deviceUnderMouse           = 0;
-static QPoint mousePos(-1,-1);
 
 /*! \reimp
 */
@@ -182,7 +185,7 @@ QSGIStyle::polish( QPalette& pal )
     // check this on SGI-Boxes
     pal.setColor( QColorGroup::Background, pal.active().midlight() );
     if (pal.active().button() == pal.active().background())
-	pal.setColor( QColorGroup::Button, pal.active().button().dark(120) );
+	pal.setColor( QColorGroup::Button, pal.active().button().dark(110) );
 }
 
 /*!
@@ -464,7 +467,7 @@ QSGIStyle::exclusiveIndicatorSize() const
 */
 void QSGIStyle::drawExclusiveIndicator( QPainter* p,
 					int x, int y, int w, int h, const QColorGroup &g,
-					bool on, bool down, bool /* enabled */ )
+					bool on, bool down, bool /* enabled */)
 {
     p->eraseRect( x, y, w, h );
 
@@ -712,100 +715,127 @@ QSGIStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
     }
     sliderM = sliderStart + sliderLength / 2;
 
-    QBrush fill( lazyButton );
-    if ( controls & AddLine ) {
-	drawButton( p, addB.x(), addB.y(),
-		    addB.width(), addB.height(), g, FALSE,
-		    (deviceUnderMouse == p->device() && addB.contains(mousePos)) ?
-		    &g.brush( QColorGroup::Midlight ) : &fill );
-	drawArrow( p, VERTICAL ? DownArrow : RightArrow,
-		   ADD_LINE_ACTIVE, addB.x()+2, addB.y()+2,
-		   addB.width()-4, addB.height()-4, g, TRUE );
-    }
-    if ( controls & SubLine ) {
-	drawButton( p, subB.x(), subB.y(),
-		    subB.width(), subB.height(), g, FALSE,
-		    (deviceUnderMouse == p->device() && subB.contains(mousePos)) ?
-		    &g.brush( QColorGroup::Midlight ) : &fill );
-	drawArrow( p, VERTICAL ? UpArrow : LeftArrow,
-		   SUB_LINE_ACTIVE, subB.x()+2, subB.y()+2,
-		   subB.width()-4, subB.height()-4, g, TRUE );
-    }
+    bool isScrollBarUpToDate = FALSE;
 
-    if (sb->backgroundPixmap() )
-	fill = QBrush( g.mid(), *sb->backgroundPixmap() );
-
-    if ( scrollerMoving )
-        p->setClipRegion( QRegion(subPageR) - QRegion(scrollerStartOldPos) - QRegion(sliderR) );
-
-    if ( controls & SubPage )
-	qDrawShadePanel( p, subPageR, g, FALSE, 1, &fill );
-
-    if ( scrollerMoving )
-        p->setClipRegion( QRegion(addPageR) - QRegion(scrollerStartOldPos) - QRegion(sliderR) );
-
-    if ( controls & AddPage )
-	qDrawShadePanel( p, addPageR, g, FALSE, 1, &fill );
-
-    if ( activeControl & Slider) {
-	if ( scrollerMoving) {
-	    p->setClipRegion( QRegion(scrollerStartOldPos) - QRegion(sliderR) );
-	    qDrawShadePanel( p, scrollerStartOldPos, g, TRUE, 2, &g.brush( QColorGroup::Dark) );
+    if ( repaintByMouseMove ) {
+	if ( addB.contains( mousePos ) ) {
+	    isScrollBarUpToDate = ( activeScrollBarElement == AddLine );
+	    activeScrollBarElement = AddLine;
+	} else if ( subB.contains( mousePos )) {
+	    isScrollBarUpToDate = ( activeScrollBarElement == SubLine );
+	    activeScrollBarElement = SubLine;
+	} else if ( sliderR.contains( mousePos )) {
+	    isScrollBarUpToDate = ( activeScrollBarElement == Slider );
+	    activeScrollBarElement = Slider;
 	} else {
-	    scrollerStartOldPos = sliderR;
-	    scrollerMoving = TRUE;
+	    activeScrollBarElement = 0;
 	}
+    } else
+    {
+	activeScrollBarElement = 0;
     }
 
-    if ( controls & Slider) {
-	if ( scrollerMoving && activeControl != Slider ) {
-	    p->setClipping( FALSE );
-	    scrollerMoving = FALSE;
-	    qDrawShadePanel( p, subPageR, g, FALSE, 1, &fill );
-	    qDrawShadePanel( p, addPageR, g, FALSE, 1, &fill );
+    if ( !isScrollBarUpToDate )
+    {
+	QBrush fill( lazyButton );
+	if ( controls & AddLine ) {
+	    drawButton( p, addB.x(), addB.y(),
+			addB.width(), addB.height(), g, FALSE,
+			(deviceUnderMouse == p->device() 
+			&& addB.contains(mousePos) 
+			&& !ADD_LINE_ACTIVE ) ?
+			    &g.brush( QColorGroup::Midlight ) : &fill );
+	    drawArrow( p, VERTICAL ? DownArrow : RightArrow,
+		       ADD_LINE_ACTIVE, addB.x()+2, addB.y()+2,
+		       addB.width()-4, addB.height()-4, g, TRUE );
+	}
+	if ( controls & SubLine ) {
+	    drawButton( p, subB.x(), subB.y(),
+			subB.width(), subB.height(), g, FALSE,
+			(deviceUnderMouse == p->device() 
+			&& subB.contains(mousePos)
+			&& !SUB_LINE_ACTIVE ) ?
+			    &g.brush( QColorGroup::Midlight ) : &fill );
+	    drawArrow( p, VERTICAL ? UpArrow : LeftArrow,
+		       SUB_LINE_ACTIVE, subB.x()+2, subB.y()+2,
+		       subB.width()-4, subB.height()-4, g, TRUE );
 	}
 
-	QRegion lineRegion( sliderR );
-	if ( sliderLength >= 20 ) {
-	    if ( HORIZONTAL ) {
-		lineRegion -= QRegion( sliderM-4, sliderR.y()+2, 0, sliderR.height()-5 );
-		lineRegion -= QRegion( sliderM, sliderR.y()+2, 0, sliderR.height()-5 );
-		lineRegion -= QRegion( sliderM+4, sliderR.y()+2, 0, sliderR.height()-5 );
+	if (sb->backgroundPixmap() )
+	    fill = QBrush( g.mid(), *sb->backgroundPixmap() );
+
+	if ( scrollerMoving )
+	    p->setClipRegion( QRegion(subPageR) - QRegion(scrollerStartOldPos) - QRegion(sliderR) );
+
+	if ( controls & SubPage )
+	    qDrawShadePanel( p, subPageR, g, FALSE, 1, &fill );
+
+	if ( scrollerMoving )
+	    p->setClipRegion( QRegion(addPageR) - QRegion(scrollerStartOldPos) - QRegion(sliderR) );
+
+	if ( controls & AddPage )
+	    qDrawShadePanel( p, addPageR, g, FALSE, 1, &fill );
+
+	if ( activeControl & Slider) {
+	    if ( scrollerMoving) {
+		p->setClipRegion( QRegion(scrollerStartOldPos) - QRegion(sliderR) );
+		qDrawShadePanel( p, scrollerStartOldPos, g, TRUE, 2, &g.brush( QColorGroup::Dark) );
 	    } else {
-		lineRegion -= QRegion( sliderR.x()+2, sliderM-4, sliderR.width()-5, 0 );
-		lineRegion -= QRegion( sliderR.x()+2, sliderM, sliderR.width()-5, 0 );
-		lineRegion -= QRegion( sliderR.x()+2, sliderM+4, sliderR.width()-5, 0 );
+		scrollerStartOldPos = sliderR;
+		scrollerMoving = TRUE;
 	    }
 	}
 
-	p->setClipRegion( lineRegion );
-
-	QPoint bo = p->brushOrigin();
-	p->setBrushOrigin(sliderR.topLeft());
-	if ( sliderR.isValid() ) {
-	    if ( deviceUnderMouse == p->device() && sliderR.contains(mousePos))
-	        drawBevelButton( p, sliderR.x(), sliderR.y(),
-			     sliderR.width(), sliderR.height(), g,
-			     FALSE, &g.brush( QColorGroup::Midlight ) );
-	    else
-	        drawBevelButton( p, sliderR.x(), sliderR.y(),
-			     sliderR.width(), sliderR.height(), g );
-			
-	    if (sliderLength >= 20 ) {
+	if ( controls & Slider) {
+	    if ( scrollerMoving && activeControl != Slider ) {
 		p->setClipping( FALSE );
+		scrollerMoving = FALSE;
+		qDrawShadePanel( p, subPageR, g, FALSE, 1, &fill );
+		qDrawShadePanel( p, addPageR, g, FALSE, 1, &fill );
+	    }
 
+	    QRegion lineRegion( sliderR );
+	    if ( sliderLength >= 20 ) {
 		if ( HORIZONTAL ) {
-		    drawSeparator( p, sliderM-5, sliderR.y()+2, sliderM-5, sliderR.y()+sliderR.height()-3, g );
-		    drawSeparator( p, sliderM-1, sliderR.y()+2, sliderM-1, sliderR.y()+sliderR.height()-3, g );
-		    drawSeparator( p, sliderM+3, sliderR.y()+2, sliderM+3, sliderR.y()+sliderR.height()-3, g );
+		    lineRegion -= QRegion( sliderM-4, sliderR.y()+2, 0, sliderR.height()-5 );
+		    lineRegion -= QRegion( sliderM, sliderR.y()+2, 0, sliderR.height()-5 );
+		    lineRegion -= QRegion( sliderM+4, sliderR.y()+2, 0, sliderR.height()-5 );
 		} else {
-		    drawSeparator( p, sliderR.x()+2, sliderM-5, sliderR.x()+sliderR.width()-3, sliderM-5, g );
-		    drawSeparator( p, sliderR.x()+2, sliderM-1, sliderR.x()+sliderR.width()-3, sliderM-1, g );
-		    drawSeparator( p, sliderR.x()+2, sliderM+3, sliderR.x()+sliderR.width()-3, sliderM+3, g );
+		    lineRegion -= QRegion( sliderR.x()+2, sliderM-4, sliderR.width()-5, 0 );
+		    lineRegion -= QRegion( sliderR.x()+2, sliderM, sliderR.width()-5, 0 );
+		    lineRegion -= QRegion( sliderR.x()+2, sliderM+4, sliderR.width()-5, 0 );
 		}
 	    }
+
+	    p->setClipRegion( lineRegion );
+
+	    QPoint bo = p->brushOrigin();
+	    p->setBrushOrigin(sliderR.topLeft());
+	    if ( sliderR.isValid() ) {
+		if ( deviceUnderMouse == p->device() && sliderR.contains(mousePos))
+		    drawBevelButton( p, sliderR.x(), sliderR.y(),
+				 sliderR.width(), sliderR.height(), g,
+				 FALSE, &g.brush( QColorGroup::Midlight ) );
+		else
+		    drawBevelButton( p, sliderR.x(), sliderR.y(),
+				 sliderR.width(), sliderR.height(), g );
+			    
+		if (sliderLength >= 20 ) {
+		    p->setClipping( FALSE );
+
+		    if ( HORIZONTAL ) {
+			drawSeparator( p, sliderM-5, sliderR.y()+2, sliderM-5, sliderR.y()+sliderR.height()-3, g );
+			drawSeparator( p, sliderM-1, sliderR.y()+2, sliderM-1, sliderR.y()+sliderR.height()-3, g );
+			drawSeparator( p, sliderM+3, sliderR.y()+2, sliderM+3, sliderR.y()+sliderR.height()-3, g );
+		    } else {
+			drawSeparator( p, sliderR.x()+2, sliderM-5, sliderR.x()+sliderR.width()-3, sliderM-5, g );
+			drawSeparator( p, sliderR.x()+2, sliderM-1, sliderR.x()+sliderR.width()-3, sliderM-1, g );
+			drawSeparator( p, sliderR.x()+2, sliderM+3, sliderR.x()+sliderR.width()-3, sliderM+3, g );
+		    }
+		}
+	    }
+	    p->setBrushOrigin(bo);
 	}
-	p->setBrushOrigin(bo);
     }
 
     p->setClipping( FALSE );
@@ -818,8 +848,9 @@ void
 QSGIStyle::drawSlider( QPainter* p, int x, int y, int w, int h, const QColorGroup& g,
                  Orientation orient, bool /*tickAbove*/, bool /*tickBelow*/ )
 {
+
     QRect sliderR( x, y, w-1, h-1 );
-    if ( sliderActive ) {
+    if ( sliderMoving ) {
         if (!sliderStartOldPos.isValid()) {
             sliderStartOldPos = sliderR;
         } else {
@@ -829,11 +860,20 @@ QSGIStyle::drawSlider( QPainter* p, int x, int y, int w, int h, const QColorGrou
     } else
         sliderStartOldPos = QRect( 1, -1, 1, -1 );
 
+    if ( repaintByMouseMove) {
+	bool aboutToBeActive = sliderR.contains( mousePos );
+	if ( sliderHandleActive == aboutToBeActive )
+	    return;
+
+        sliderHandleActive = aboutToBeActive;
+    }
+
     p->setClipping( FALSE );
     if ( deviceUnderMouse == p->device() && sliderR.contains( mousePos ) )
         drawBevelButton( p, x, y, w-1, h-1, g, FALSE, &g.brush( QColorGroup::Midlight ) );
     else
         drawBevelButton( p, x, y, w-1, h-1, g, FALSE );
+
     if ( orient == Horizontal ) {
 	QCOORD mid = x + w / 2 - 2;
 	drawSeparator( p, mid,  y+2 , mid,  y + h - 4, g );
@@ -860,8 +900,12 @@ void
 QSGIStyle::drawSliderGroove( QPainter* p, int x, int y, int w, int h,
                  const QColorGroup& g, QCOORD, Orientation )
 {
-    if ( sliderActive && sliderStartOldPos.isValid())
-        p->setClipRegion( QRegion(x,y,w,h) - QRegion(sliderStartOldPos) );
+    if ( repaintByMouseMove)
+	return;
+
+    if ( sliderMoving && sliderStartOldPos.isValid() )
+        p->setClipRegion( QRegion( x,y,w,h ) 
+	    - QRegion(sliderStartOldPos) );
 
     qDrawShadePanel( p, x, y, w, h, g, TRUE, 1 );
     drawButton( p, x+1, y+1, w-2, h-2, g );
@@ -1127,23 +1171,27 @@ QSGIStyle::eventFilter( QObject* o, QEvent* e )
     case QEvent::MouseButtonPress:
         {
             if ( o->inherits("QSlider") )
-                sliderActive = TRUE;
+                sliderMoving = TRUE;
         }
         break;
     case QEvent::MouseButtonRelease:
         {
             if ( o->inherits("QSlider") )
             {
-                sliderActive = FALSE;
+                sliderMoving = FALSE;
                 ((QWidget*) o)->repaint( FALSE );
             }
         }
         break;
     case QEvent::MouseMove:
         {
-	    mousePos = ((QMouseEvent*) e)->pos();
-            if ( o->inherits("QScrollBar") || o->inherits("QSlider") ) {
+	    QMouseEvent* me = (QMouseEvent*) e;
+	    mousePos = me->pos();
+	    bool isSlider = o->inherits("QSlider");
+            if ( o->inherits("QScrollBar") || isSlider ) {
+		repaintByMouseMove = me->button() == NoButton;
                 ((QWidget*) o)->repaint( FALSE );
+		repaintByMouseMove = FALSE;
             }
         }
         break;
@@ -1151,14 +1199,13 @@ QSGIStyle::eventFilter( QObject* o, QEvent* e )
 	{
 	    if (o->inherits("QButton")) {
 		QWidget* w = (QWidget*) o;
-		if (w->isEnabled())
-		{
+		if (w->isEnabled()) {
 		    QPalette pal = w->palette();
 		    lastWidget = w;
 		    pal.setColor( QPalette::Active, QColorGroup::Button, pal.active().midlight() );
 		    lastWidget->setPalette( pal );
 		}
-	    } else if ( o->isWidgetType() ) {
+	    } else if ( o->isWidgetType() ) {		    // must be either slider or scrollbar
 	        deviceUnderMouse = (QPaintDevice*)(QWidget*)o;
 	        ((QWidget*) o)->repaint( FALSE );
 	    }
@@ -1171,7 +1218,8 @@ QSGIStyle::eventFilter( QObject* o, QEvent* e )
 	        ((QWidget*) o)->repaint( FALSE );
 	    }
 
-	    if ( lastWidget && o == lastWidget && lastWidget->ownPalette() && lastWidget->testWState( WState_Created ))
+	    if ( lastWidget && o == lastWidget && lastWidget->ownPalette() && 
+		 lastWidget->testWState( WState_Created ))
                 lastWidget->unsetPalette();
 	}
 	break;
