@@ -23,6 +23,7 @@
 #include "languageinterfaceimpl.h"
 #include "preferenceinterfaceimpl.h"
 #include "projectsettingsinterfaceimpl.h"
+#include "sourcetemplateinterfaceimpl.h"
 
 class CommonInterface : public QComponentInterface
 {
@@ -44,7 +45,8 @@ private:
     LanguageInterfaceImpl *langIface;
     PreferenceInterfaceImpl *prefIface;
     ProjectSettingsInterfaceImpl *proIface;
-    
+    SourceTemplateInterfaceImpl *srcIface;
+
 };
 
 CommonInterface::CommonInterface()
@@ -56,6 +58,8 @@ CommonInterface::CommonInterface()
     prefIface->addRef();
     proIface = new ProjectSettingsInterfaceImpl;
     proIface->addRef();
+    srcIface = new SourceTemplateInterfaceImpl;
+    srcIface->addRef();
 }
 
 CommonInterface::~CommonInterface()
@@ -63,6 +67,7 @@ CommonInterface::~CommonInterface()
     langIface->release();
     prefIface->release();
     proIface->release();
+    srcIface->release();
 }
 
 QRESULT CommonInterface::queryInterface( const QUuid &uuid, QUnknownInterface** iface )
@@ -80,6 +85,8 @@ QRESULT CommonInterface::queryInterface( const QUuid &uuid, QUnknownInterface** 
 	*iface = prefIface;
     else if ( uuid == IID_ProjectSettings )
 	*iface = proIface;
+    else if ( uuid == IID_SourceTemplate )
+	*iface = srcIface;
     else
 	return QE_NOINTERFACE;
 
