@@ -85,8 +85,6 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
         w = new QDesignerLabel(parentWidget);
     } else if (widgetName == QLatin1String("QLayoutWidget")) {
         w = fw ? new QLayoutWidget(fw, parentWidget) : new QWidget(parentWidget);
-    } else if (widgetName == QLatin1String("QToolBar")) { // ### remove me
-        w = new QToolBar(qt_cast<QMainWindow*>(parentWidget));
     } else if (widgetName == QLatin1String("Spacer")) {
         w = new Spacer(parentWidget);
     } else if (widgetName == QLatin1String("QDialog")) {

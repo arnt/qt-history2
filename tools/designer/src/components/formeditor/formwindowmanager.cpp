@@ -868,6 +868,10 @@ bool FormWindowManager::isPassiveInteractor(QWidget *o) const
         return (lastWasAPassiveInteractor = true);
     else if (qt_cast<QMenuBar*>(o) && qt_cast<QMainWindow*>(o->parent()))
         return (lastWasAPassiveInteractor = true);
+    else if (qstrcmp(o->metaObject()->className(), "QDockSeparator") == 0)
+        return (lastWasAPassiveInteractor = true);
+    else if (qstrcmp(o->metaObject()->className(), "QDockWindowSeparator") == 0)
+        return (lastWasAPassiveInteractor = true);
     else if (o->objectName() == QLatin1String("designer_wizardstack_button"))
         return (lastWasAPassiveInteractor = true);
     else if (o->objectName().startsWith("__qt__passive_"))
