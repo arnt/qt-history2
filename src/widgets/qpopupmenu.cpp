@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#97 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#98 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#97 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#98 $");
 
 
 // Motif style parameters
@@ -95,7 +95,8 @@ static int getWidthOfCheckCol( int gs )
 
 // Checkmark drawing -- temporarily here...
 static void qDrawCheckMark( QPainter *p, int x, int y, int w, int h,
-			    const QColorGroup &g, GUIStyle gs, bool act )
+			    const QColorGroup &g, GUIStyle gs,
+			    bool act, bool dis )
 {
     int markW, markH;
     getSizeOfBitmap( gs, &markW, &markH );
@@ -119,7 +120,17 @@ static void qDrawCheckMark( QPainter *p, int x, int y, int w, int h,
 	    a.setPoint( 2*i+1, xx, yy+2 );
 	    xx++; yy--;
 	}
-	p->setPen( act ? white : black );
+	if ( dis && !act ) {
+	    uint pnt;
+	    p->setPen( white );
+	    QPoint offset(1,1);
+	    for ( pnt = 0; pnt < a.size(); pnt++ )
+		a[pnt] += offset;
+	    p->drawLineSegments( a );
+	    for ( pnt = 0; pnt < a.size(); pnt++ )
+		a[pnt] -= offset;
+	}
+	p->setPen( act && !dis ? white : g.text() );
 	p->drawLineSegments( a );
     }
     else {
@@ -851,6 +862,9 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
     GUIStyle gs	  = style();
     bool act	  = row == actItem;
     bool dis	  = (selfItem && !selfItem->isEnabled()) || !mi->isEnabled();
+    QColorGroup itemg = dis ? palette().disabled()
+			    : act ? palette().active()
+			          : palette().normal();
 
     if ( !mi->isDirty() )
 	return;
@@ -883,7 +897,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	    int mh = cellh - 2*motifItemFrame;
 	    if ( mi->isChecked() ) {
 		qDrawCheckMark( p, motifItemFrame + motifCheckMarkHMargin,
-				motifItemFrame, mw, mh, g, gs, act );
+				motifItemFrame, mw, mh, itemg, gs, act, dis );
 	    }
 	    return;
 	}
@@ -896,7 +910,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 
     QColor discol;
     if ( dis ) {
-	discol = palette().disabled().text();
+	discol = itemg.text();
 	p->setPen( discol );
     }
 
@@ -937,12 +951,16 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	if ( gs == WindowsStyle && row == actItem ) {
 	    if ( !dis )
 		discol = white;
-	    g = QColorGroup( discol, darkBlue, white, white, white,
+	    g = QColorGroup( discol, darkBlue, white, white,
+			     dis ? discol : white,
 			     discol, white );
 	}
-	qDrawArrow( p, RightArrow, gs, row == actItem,
+	qDrawArrow( p, RightArrow, gs,
+		    row == actItem && gs == MotifStyle && mi->isEnabled(),
 		    cellw - motifArrowHMargin - dim,  cellh/2-dim/2,
-		    dim, dim, g );
+		    dim, dim, g,
+		    gs == MotifStyle && mi->isEnabled()
+		    || gs == WindowsStyle && (mi->isEnabled() || row == actItem ) );
     }
     mi->setDirty( FALSE );
 }
@@ -1243,14 +1261,17 @@ void QPopupMenu::timerEvent( QTimerEvent *e )
     killTimer( e->timerId() );			// single-shot timer
     if ( actItem < 0 )
 	return;
-    QPopupMenu *popup = mitems->at(actItem)->popup();
-    if ( popup ) {				// it is a popup
-	QPoint pos( width() - motifArrowHMargin,
-		    frameWidth() + motifArrowVMargin );
-	for ( int i=0; i<actItem; i++ )
-	    pos.ry() += (QCOORD)cellHeight( i );
-	popupActive = actItem;
-	popup->popup( mapToGlobal(pos) );
+    QMenuItem *mi = mitems->at(actItem);
+    if ( mi->isEnabled() ) {
+	QPopupMenu *popup = mi->popup();
+	if ( popup ) {				// it is a popup
+	    QPoint pos( width() - motifArrowHMargin,
+			frameWidth() + motifArrowVMargin );
+	    for ( int i=0; i<actItem; i++ )
+		pos.ry() += (QCOORD)cellHeight( i );
+	    popupActive = actItem;
+	    popup->popup( mapToGlobal(pos) );
+	}
     }
 }
 
