@@ -348,6 +348,11 @@ void QAquaStyle::polish( QWidget * w )
 	}
 	w->installEventFilter( this );
     }
+
+    if( w->inherits("QTitleBar") ) {
+	w->font().setPixelSize(10);
+	((QTitleBar*)w)->setAutoRaise(TRUE);
+    }
 }
 
 /*! \reimp */
@@ -377,14 +382,14 @@ void QAquaStyle::unPolish( QWidget * w )
         btn->setAutoRaise( TRUE );
     }
 
+    if( w->inherits("QTitleBar") )
+	((QTitleBar*)w)->setAutoRaise(FALSE);
+
     if ( !w->isTopLevel() ) {
         if( !w->inherits("QSplitter") && w->backgroundPixmap() &&
             (w->backgroundMode() == QWidget::PaletteBackground) )
             w->setBackgroundOrigin( QWidget::WidgetOrigin );
     }
-
-    if( w->inherits("QTitleBar") )
-	w->font().setPixelSize(10);
 
     if(d->focusWidget && d->focusWidget->widget() == w)
 	d->focusWidget->setFocusWidget(NULL);

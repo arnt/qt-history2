@@ -133,7 +133,7 @@ class QTitleBarPrivate
 {
 public:
     QTitleBarPrivate()
-	: toolTip( 0 ), act( 0 ), window( 0 ), movable( 0 ), pressed( 0 )
+	: toolTip( 0 ), act( 0 ), window( 0 ), movable( 0 ), pressed( 0 ), autoraise(0)
     {
     }
 
@@ -144,6 +144,7 @@ public:
     QWidget* window;
     bool movable            :1;
     bool pressed            :1;
+    bool autoraise          :1;
     QString cuttext;
 };
 
@@ -313,7 +314,6 @@ void QTitleBar::mouseReleaseEvent( QMouseEvent * e)
 {
     if ( e->button() == LeftButton && d->pressed) {
 	QStyle::SCFlags ctrl = style().querySubControl(QStyle::CC_TitleBar, this, e->pos());
-	d->pressed = FALSE;
 
 	if (ctrl == d->buttonDown) {
 	    switch(ctrl) {
@@ -357,6 +357,7 @@ void QTitleBar::mouseReleaseEvent( QMouseEvent * e)
 	}
 	d->buttonDown = QStyle::SC_None;
 	repaint(FALSE);
+	d->pressed = FALSE;
     }
 }
 
@@ -364,7 +365,8 @@ void QTitleBar::mouseMoveEvent( QMouseEvent * e)
 {
     switch (d->buttonDown) {
     case QStyle::SC_None:
-	repaint();
+	if(autoRaise())
+	    repaint( FALSE );
 	break;
     case QStyle::SC_TitleBarSysMenu:
 	break;
@@ -452,7 +454,7 @@ void QTitleBar::paintEvent(QPaintEvent *)
     }
 
     QStyle::SCFlags under_mouse = QStyle::SC_None;
-    if( hasMouse() && !d->pressed ) {
+    if( autoRaise() && hasMouse() && !d->pressed ) {
 	QPoint p(mapFromGlobal(QCursor::pos()));
 	under_mouse = style().querySubControl(QStyle::CC_TitleBar, this, p);
 	ctrls ^= under_mouse;
@@ -560,14 +562,14 @@ void QTitleBar::setIcon( const QPixmap& icon )
 
 void QTitleBar::leaveEvent( QEvent * )
 {
-    if(!d->pressed)
-	repaint();
+    if(autoRaise() && !d->pressed)
+	repaint( FALSE );
 }
 
 void QTitleBar::enterEvent( QEvent * )
 {
-    if(!d->pressed)
-	repaint();
+    if(autoRaise() && !d->pressed)
+	repaint( FALSE );
     QEvent e( QEvent::Leave );
     QApplication::sendEvent( parentWidget(), &e );
 }
@@ -620,6 +622,16 @@ void QTitleBar::setMovable(bool b)
 bool QTitleBar::isMovable() const
 {
     return d->movable;
+}
+
+void QTitleBar::setAutoRaise(bool b)
+{
+    d->autoraise = b;
+}
+
+bool QTitleBar::autoRaise() const
+{
+    return d->autoraise;
 }
 
 QSize QTitleBar::sizeHint() const

@@ -77,6 +77,9 @@ public:
     bool isMovable() const;
     void setMovable(bool);
 
+    bool autoRaise() const;
+    void setAutoRaise(bool);
+
     QWidget *window() const;
 
     QSize sizeHint() const;
