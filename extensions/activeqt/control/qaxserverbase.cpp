@@ -930,14 +930,13 @@ bool QAxServerBase::internalCreate()
     if ( activeqt )
 	return TRUE;
 
-     QMetaObject::metaObject( class_name );
-
-    hasStockEvents = qAxFactory()->hasStockEvents( class_name );
-    stayTopLevel = qAxFactory()->stayTopLevel( class_name );
-
+    activeqt = qAxFactory()->create( class_name );
     Q_ASSERT(activeqt);
     if ( !activeqt )
 	return FALSE;
+
+    hasStockEvents = qAxFactory()->hasStockEvents( class_name );
+    stayTopLevel = qAxFactory()->stayTopLevel( class_name );
     const QMetaObject *mo = activeqt->metaObject();
     QAxBindable *axb = (QAxBindable*)activeqt->qt_cast( "QAxBindable" );
     if ( axb ) {
@@ -1646,7 +1645,7 @@ bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
 				    QUObject *obj = _o + p + 1;
 				    if ( obj->type )
 					obj->type->clear( obj );
-				    VARIANTToQUObject( dispParams.rgvarg[ signalcount - p - 1 ], obj );
+				    VARIANTToQUObject( dispParams.rgvarg[ signalcount - p - 1 ], obj, param );
 				}
 			    }
 			    disp->Release();
@@ -1657,10 +1656,8 @@ bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
 		}
 
 		// clean up
-		for ( p = 0; p < signalcount; ++p ) {
-		    if ( dispParams.rgvarg[p].vt == VT_BSTR )
-			SysFreeString( dispParams.rgvarg[p].bstrVal );
-		}
+		for ( p = 0; p < signalcount; ++p )
+		    VariantClear( dispParams.rgvarg+p );
 		delete [] dispParams.rgvarg;
 	    }
 	    clist->Release();
@@ -1866,7 +1863,7 @@ HRESULT QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 	    int pcount = slot->method->count;
 	    int retoff = 0;
 	    if ( pcount ) {
-		retoff = ( params[0].inOut & QUParameter::Out ) ? 1 : 0;
+		retoff = ( params[0].inOut == QUParameter::Out ) ? 1 : 0;
 		pcount -= retoff;
 	    }
 	    if ( retoff && !pvarResult )
@@ -1884,7 +1881,7 @@ HRESULT QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		for ( int p = 0; p < pcount; ++p ) {
 		    // map the VARIANT to the QUObject, and try to get the required type
 		    objects[p+1].type = params[p+retoff].type;  // first object is return value
-		    VARIANTToQUObject( pDispParams->rgvarg[ pcount-p-1 ], objects + p + 1 );
+		    VARIANTToQUObject( pDispParams->rgvarg[ pcount-p-1 ], objects + p + 1, params + p + retoff );
 		}
 	    } else if ( retoff ) {
 		objects = new QUObject[1];
@@ -1895,7 +1892,7 @@ HRESULT QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 
 	    // update reference parameters and value
 	    for ( int p = 0; p < pcount; ++p ) {
-		if ( params[p+1].inOut & QUParameter::Out )
+		if ( params[p+ retoff ? 1 : 0].inOut & QUParameter::Out )
 		    QUObjectToVARIANT( objects+p+1, pDispParams->rgvarg[ pcount-p-1 ], params+p+1 );
 		objects[p+1].type->clear( objects + p + 1 );
 	    }
