@@ -70,6 +70,7 @@ Configure::Configure( int& argc, char** argv )
     QString tmp = dictionary[ "QMAKESPEC" ];
     tmp = tmp.mid( tmp.findRev( "\\" ) + 1 );
     dictionary[ "QMAKESPEC" ] = tmp;
+    qmakeConfig += "nocrosscompiler";
 
     readLicense();
     
@@ -934,6 +935,7 @@ void Configure::generateMakefiles()
 	QString pwd = QDir::currentDirPath();
 	while( makeListIterator != makeList.end() ) {
 	    QString dirPath = *makeListIterator + "/";
+	    QString qmakeTemplate;
 	    dirPath = QDir::convertSeparators( dirPath );
 	    ++makeListIterator;
 	    QString projectName = dirPath + (*makeListIterator);
@@ -941,6 +943,15 @@ void Configure::generateMakefiles()
 	    QString makefileName = dirPath + (*makeListIterator);
 	    ++makeListIterator;
 	    QStringList args;
+	    switch( projectType( projectName ) ) {
+	    case ProjectType::Subdirs:
+		continue;
+	    case ProjectType::App:
+		qmakeTemplate = "vcapp";
+		break;
+	    case ProjectType::Lib:
+		qmakeTemplate = "vclib";
+	    }
 	    args << QDir::convertSeparators( qtDir + "/bin/qmake" );
 	    args << projectName;
 	    args << dictionary[ "QMAKE_ALL_ARGS" ];
@@ -951,13 +962,8 @@ void Configure::generateMakefiles()
 	    if( dictionary[ "DEPENDENCIES" ] == "no" )
 		args << "-nodepend";
 
-	    if( makefileName.right( 4 ) == ".dsp" ) {
-		args << "-t";
-		if( isProjectLibrary( projectName ) )
-		    args << "vclib";
-		else
-		    args << "vcapp";
-	    }
+	    if( makefileName.right( 4 ) == ".dsp" )
+		args << "-t" << qmakeTemplate;
 	    else
 		cout << "For " << projectName.latin1() << endl;
 
@@ -984,7 +990,7 @@ void Configure::showSummary()
     cout << "To reconfigure, run " << make.latin1() << " clean and configure." << endl << endl;
 }
 
-bool Configure::isProjectLibrary( const QString& proFileName )
+Configure::ProjectType Configure::projectType( const QString& proFileName )
 {
     QFile proFile( proFileName );
     QString buffer;
@@ -1000,14 +1006,15 @@ bool Configure::isProjectLibrary( const QString& proFileName )
 
 	    if( keyword == "TEMPLATE" ) {
 		if( value == "lib" )
-		    return true;
-		else
-		    return false;
+		    return ProjectType::Lib;
+		else if( value == "subdirs" )
+		    return ProjectType::Subdirs;
 	    }
 	}
 	proFile.close();
     }
-    return false;
+    // Default to app handling
+    return ProjectType::App;
 }
 
 void Configure::readLicense()

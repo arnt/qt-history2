@@ -22,7 +22,13 @@ public:
 
     void readLicense();
 
-    bool isProjectLibrary( const QString& proFileName );
+    enum ProjectType {
+	App,
+	Lib,
+	Subdirs
+    };
+
+    ProjectType projectType( const QString& proFileName );
     bool isDone();
 private:
     // Our variable dictionaries
@@ -56,4 +62,5 @@ private:
 
     void reloadCmdLine();
     void saveCmdLine();
+
 };
