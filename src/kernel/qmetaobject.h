@@ -45,11 +45,11 @@ typedef QObject* (*QObjectFactory)( QObject* );
 
 struct QMetaEnum
 {
-    char *name;
+    const char *name;
     uint count;
     struct Item
     {
-	char *name;
+	const char *name;
 	int value;
     };
     Item *items;
