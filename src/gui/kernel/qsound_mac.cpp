@@ -124,7 +124,7 @@ QTCallBackUPP QAuServerMacCleanupHandler::movieCallbackProc = 0;
 QList<QAuServerMacCleanupHandler*> QAuServerMacCleanupHandler::cleanups;
 
 static int servers = 0;
-QAuServerMac::QAuServerMac(QObject* parent) : QAuServer(parent,"Mac Audio Server")
+QAuServerMac::QAuServerMac(QObject* parent) : QAuServer(parent)
 {
     if(!servers++)
         EnterMovies();
