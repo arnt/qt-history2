@@ -73,6 +73,7 @@ private:
     void setFormWindowModified( bool m );
     void setCodeModified( bool m );
     QString codeExtension() const;
+    bool loadCode();
 
 private:
     QString filename;
@@ -82,6 +83,7 @@ private:
     SourceEditor *ed;
     QString cod;
     TimeStamp timeStamp;
+    bool hFormCode;
 
 };
 

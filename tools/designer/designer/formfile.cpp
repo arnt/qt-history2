@@ -28,9 +28,11 @@
 #include "../interfaces/languageinterface.h"
 
 FormFile::FormFile( const QString &fn, bool temp, Project *p )
-    : filename( fn ), fileNameTemp( temp ), pro( p ), fw( 0 ), ed( 0 ), timeStamp( 0, fn + codeExtension() )
+    : filename( fn ), fileNameTemp( temp ), pro( p ), fw( 0 ), ed( 0 ),
+      timeStamp( 0, fn + codeExtension() ), hFormCode( FALSE )
 {
     pro->addFormFile( this );
+    loadCode();
 }
 
 void FormFile::setFormWindow( FormWindow *f )
@@ -48,11 +50,15 @@ void FormFile::setEditor( SourceEditor *e )
 void FormFile::setFileName( const QString &fn )
 {
     filename = fn;
+    timeStamp.setFileName( filename + codeExtension() );
+    cod = "";
+    loadCode();
 }
 
 void FormFile::setCode( const QString &c )
 {
     cod = c;
+    hFormCode = TRUE;
 }
 
 FormWindow *FormFile::formWindow() const
@@ -179,4 +185,36 @@ QString FormFile::codeExtension() const
     if ( iface )
 	return iface->formCodeExtension();
     return "";
+}
+
+bool FormFile::hasFormCode() const
+{
+    return hFormCode;
+}
+
+void FormFile::createFormCode()
+{
+    hFormCode = TRUE;
+    cod =
+	"/****************************************************************************\n"
+	"** ui.h extension file, included from the uic-generated form implementation.\n"
+	"**\n"
+	"** If you wish to add, delete or rename slots use Qt Designer which will\n"
+	"** update this file, preserving your code. Create an init() slot in place of\n"
+	"** a constructor, and a destroy() slot in place of a destructor.\n"
+	"*****************************************************************************/\n";
+}
+
+bool FormFile::loadCode()
+{
+    QFile f( pro->makeAbsolute( codeFile() ) );
+    if ( !f.open( IO_ReadOnly ) ) {
+	hFormCode = FALSE;
+	return FALSE;
+    }
+    hFormCode = TRUE;
+    QTextStream ts( &f );
+    cod = ts.read();
+    timeStamp.update();
+    return TRUE;
 }
