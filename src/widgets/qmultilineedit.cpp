@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#99 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#100 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -3040,14 +3040,15 @@ int QMultiLineEdit::hMargin() const
 void QMultiLineEdit::setSelection( int row_from, int col_from,
 				   int row_to, int col_to )
 {
+    /*
     markAnchorY = row_from;
     markAnchorX = col_from;
     markDragY = row_to;
     markDragX = col_to;
 
     markIsOn = TRUE;
-    // TODO: update the cursor position and maybe call update.
-    //    qFatal("Not implemented: setSelection");
+    */
+    qFatal("Not implemented: setSelection");
 }
 
 
