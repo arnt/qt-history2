@@ -59,6 +59,20 @@ void ActionEditor::currentActionChanged( QListViewItem *i )
 
 void ActionEditor::deleteAction()
 {
+    if ( !currentAction )
+	return;
+    
+    QListViewItemIterator it( listActions );
+    while ( it.current() ) {
+	if ( ( (ActionItem*)it.current() )->action() == currentAction ) {
+	    delete it.current();
+	    break;
+	}
+	++it;
+    }
+    
+    delete currentAction;
+    currentAction = 0;
 }
 
 void ActionEditor::newAction()

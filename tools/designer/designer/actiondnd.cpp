@@ -51,6 +51,7 @@ void QDesignerToolBar::dropEvent( QDropEvent *e )
     QAction *a = (QAction*)s.toLong(); // #### huha, that is evil
     insertingAction = a;
     a->addTo( this );
+    connect( a, SIGNAL( destroyed() ), this, SLOT( actionRemoved() ) );
     if ( lastIndicatorPos != QPoint( -1, -1 ) )
 	drawIndicator( QPoint( -1, -1 ) );
 }
@@ -74,6 +75,11 @@ void QDesignerToolBar::reInsert()
     boxLayout()->invalidate();
     boxLayout()->activate();
     doReinsert = TRUE;
+}
+
+void QDesignerToolBar::actionRemoved()
+{
+    actionList.removeRef( (QAction*)sender() );
 }
 
 void QDesignerToolBar::childEvent( QChildEvent *e )

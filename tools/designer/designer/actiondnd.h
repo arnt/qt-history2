@@ -26,12 +26,15 @@ protected:
     void dropEvent( QDropEvent * );
 #endif
     void childEvent( QChildEvent * );
+
+private slots:
+    void actionRemoved();
     
 private:
     void drawIndicator( const QPoint &pos );
     QPoint calcIndicatorPos( const QPoint &pos );
     void reInsert();
-    
+
 private:
     QPoint lastIndicatorPos;
     QWidget *insertAnchor;
@@ -39,7 +42,7 @@ private:
     QList<QAction> actionList;
     QMap<QWidget*, QAction*> actionMap;
     QAction *insertingAction;
-    
+
 };
 
 class QDesignerMenuBar : public QMenuBar
