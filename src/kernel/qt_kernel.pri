@@ -22,6 +22,8 @@ kernel {
 		  $$KERNEL_H/qdrawutil.h \
 		  $$KERNEL_H/qdropsite.h \
 		  $$KERNEL_H/qevent.h \
+		  $$KERNEL_H/qeventloop.h\
+		  $$KERNEL_P/qeventloop_p.h \
 		  $$KERNEL_H/qfocusdata.h \
 		  $$KERNEL_H/qfont.h \
 		  $$KERNEL_P/qfontdata_p.h \
@@ -133,8 +135,6 @@ kernel {
 			  $$KERNEL_CPP/qsound_x11.cpp \
 			  $$KERNEL_CPP/qwidget_x11.cpp \
 			  $$KERNEL_CPP/qwidgetcreate_x11.cpp
-	      HEADERS += $$KERNEL_H/qeventloop.h \
-                         $$KERNEL_H/qeventloop_p.h
 	}
 
 	mac:SOURCES += $$KERNEL_CPP/qsound_mac.cpp 
