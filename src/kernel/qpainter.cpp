@@ -2270,11 +2270,12 @@ void qt_format_text( const QFont& font, const QRect &r,
 
 	    if ( painter->hasClipping() ) {
 		reg = painter->clipRegion();
+		reg.translate( - (int)painter->translationX(), - (int)painter->translationY() );
 		reg = reg.intersect( r );
 	    } else {
 		reg = r;
 	    }
-	
+
 	    reg.translate( (int)painter->translationX(), (int)painter->translationY() );
 	    painter->save();
 	    painter->setClipRegion( reg );
@@ -2396,6 +2397,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 
 	if ( painter->hasClipping() ) {
 	    reg = painter->clipRegion();
+	    reg.translate( - (int)painter->translationX(), - (int)painter->translationY() );
 	    reg = reg.intersect( rect );
 	} else {
 	    reg = rect;
