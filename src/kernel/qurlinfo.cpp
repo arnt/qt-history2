@@ -45,6 +45,17 @@
 class QUrlInfoPrivate
 {
 public:
+    QUrlInfoPrivate() :
+	permissions(0),
+	size(0),
+	isDir(FALSE),
+	isFile(TRUE),
+	isSymLink(FALSE),
+	isWritable(TRUE),
+	isReadable(TRUE),
+	isExecutable(FALSE)
+    {}
+
     QString name;
     int permissions;
     QString owner;
@@ -84,11 +95,6 @@ public:
 QUrlInfo::QUrlInfo()
 {
     d = new QUrlInfoPrivate;
-    d->isDir = FALSE;
-    d->isFile = TRUE;
-    d->isReadable = TRUE;
-    d->size = 0;
-    d->isWritable = TRUE;
 }
 
 /*!
