@@ -1528,7 +1528,7 @@ void QTreeViewPrivate::updateVerticalScrollbar()
         itemsInViewport = viewHeight / itemHeight;
     } else {
         int topItemInViewport = itemAt(verticalScrollBarValue);
-        //Q_ASSERT(topItemInViewport =! -1); FIXME: asserts when itemCount == 1
+        Q_ASSERT(topItemInViewport != -1);
         int h = height(topItemInViewport);
         int y = topItemDelta(verticalScrollBarValue, h);
         int i = topItemInViewport;
