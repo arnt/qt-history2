@@ -299,7 +299,6 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		t << "\n# End Group\n";
 	    }
 	    else if(variable == "MSVCDSP_FORMS") {
-		qDebug( "MSVCDSP_FORMS" );
 		if(project->variables()["FORMS"].isEmpty())
 		    continue;
 

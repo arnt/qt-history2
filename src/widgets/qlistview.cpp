@@ -4066,7 +4066,7 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
     d->pressedItem = i;
 
     int c = i ? d->h->mapToLogical( d->h->cellAt( vp.x() ) ) : -1;
-    if ( i && i->isEnabled() ) {
+    if ( !i || ( i && i->isEnabled() ) ) {
 	emit pressed( i );
 	emit pressed( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( c ) );
     }
@@ -4173,7 +4173,7 @@ void QListView::contentsMouseReleaseEventEx( QMouseEvent * e )
     d->pressedItem = 0;
 
     if ( emitClicked ) {
-	if ( i && i->isEnabled() ) {
+	if ( !i || ( i && i->isEnabled() ) ) {
 	    emit clicked( i );
 	    emit clicked( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( d->h->cellAt( vp.x() ) ) );
 	}

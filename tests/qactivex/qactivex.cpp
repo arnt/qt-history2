@@ -77,7 +77,8 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 		hwnd = ::GetParent( hwnd );
 		widget = QWidget::find( hwnd );
 	    }
-	    if ( widget && widget->inherits( "QActiveX" ) ) {
+	    QActiveX *ax = widget ? (QActiveX*)widget->qt_cast( "QActiveX" ) : 0;
+	    if ( ax ) {
 		//::SendMessage( widget->winId(), msg.message, msg.wParam, msg.lParam );
 		for ( i=0; (UINT)mouseTbl[i] != msg->message || !mouseTbl[i]; i += 3 )
 		    ;
@@ -92,7 +93,10 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 		pos = widget->mapFromGlobal( QPoint(gpos.x, gpos.y) );
 
 		QMouseEvent e( type, pos, QPoint(gpos.x,gpos.y), button, state );
-		QApplication::sendEvent( widget, &e );
+		QApplication::sendEvent( ax, &e );
+		if ( msg->message == WM_LBUTTONDOWN ) {
+		    //ax->setFocus();
+		}
 		// this would eat the event, but it doesn't work with designer...
 /*		if ( e.isAccepted() ) 
 		    msg->message = WM_NULL;*/
@@ -449,7 +453,10 @@ public:
     }
     HRESULT __stdcall OnFocus( BOOL fGotFocus )
     {
-	qDebug( "IOleControlSite::OnFocus" );
+	if ( fGotFocus )
+	    qDebug( "IOleControlSite::OnFocus(in)" );
+	else
+	    qDebug( "IOleControlSite::OnFocus(out)" );
 	return S_OK;
     }
     HRESULT __stdcall ShowPropertyFrame()
@@ -837,6 +844,8 @@ bool QActiveX::initialize( IUnknown **ptr )
 
     ++hhookref;
 
+    setFocusPolicy( StrongFocus );
+
     if ( parentWidget() )
 	QApplication::postEvent( parentWidget(), new QEvent( QEvent::LayoutHint ) );
 
@@ -870,6 +879,7 @@ void QActiveX::clear()
 	clearWState( WState_ForceHide );
 
     QComBase::clear();
+    setFocusPolicy( NoFocus );
 
     if ( clientsite ) {
 	clientsite->disconnect();
@@ -877,6 +887,11 @@ void QActiveX::clear()
 	clientsite = 0;
     }
 }
+
+/*!
+    \fn QObject *QActiveX::qObject()
+    \reimp
+*/
 
 /*!
     \reimp
@@ -1053,8 +1068,3 @@ void QActiveX::windowActivationChange( bool old )
     if ( inplace )
 	inplace->OnFrameWindowActivate( isActiveWindow() );
 }
-
-/*!
-    \fn QObject *QActiveX::qObject()
-    \reimp
-*/
