@@ -2839,7 +2839,7 @@ QByteArray QString::toAscii() const
 #ifndef QT_NO_TEXTCODEC
     if (codecForCStrings) {
         QByteArray *ba = (QByteArray*) &d->c;
-        if (!d->cache || d->encoding != Data::Latin1) {
+        if (!d->cache || d->encoding != Data::Ascii) {
             if (!d->c)
                 new (&d->c) QByteArray;
             d->cache = true;
