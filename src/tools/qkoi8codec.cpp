@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qkoi8codec.cpp#2 $
+** $Id: //depot/qt/main/src/tools/qkoi8codec.cpp#3 $
 **
 ** Implementation of QKoi8Codec class
 **
@@ -94,7 +94,7 @@ static const uchar unicode_to_koi8_25[161] = {
 	0x94,};
 
 static const int n_unicode_to_koi8_04 = 82;
-static const char unicode_to_koi8_04[82] = {
+static const uchar unicode_to_koi8_04[82] = {
 	0xa4,0xB3,0xa4,0xa4,0xa4,0xa4,0xa4,0xa4,
 	0xa4,0xa4,0xa4,0xa4,0xa4,0xa4,0xa4,0xa4,
 	0xE1,0xE2,0xF7,0xE7,0xE4,0xE5,0xF6,0xFA,
@@ -145,8 +145,8 @@ static const ushort koi8_to_unicode[256] = {
 char* QKoi8Codec::fromUnicode(const QString& uc, int& len_in_out) const
 {
     int l = QMIN((int)uc.length(),len_in_out);
-    char* result = new char[l+1];
-    char* cursor = result;
+    uchar* result = new uchar[l+1];
+    uchar* cursor = result;
     static const uchar undef = 0xa4; // splat. BLACK SQUARE (94) would be better
     for (int i=0; i<l; i++) {
 	const QChar ch = uc[i];
@@ -197,7 +197,7 @@ char* QKoi8Codec::fromUnicode(const QString& uc, int& len_in_out) const
     }
     *cursor++ = '\0';
     // len_in_out = cursor - result;
-    return result;
+    return (char*)result;
 }
 
 QString QKoi8Codec::toUnicode(const char* chars, int len) const
