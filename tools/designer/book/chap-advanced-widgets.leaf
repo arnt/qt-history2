@@ -1,4 +1,4 @@
-\chapter Using Qt Designer's Value Editors
+\chapter Reference: Value Editors
 
 \index Value Editors
 \QD provides value editors for some widgets which allow you to set
