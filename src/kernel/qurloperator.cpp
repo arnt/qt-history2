@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#18 $
 **
 ** Implementation of QUrlOperator class
 **
@@ -435,7 +435,7 @@ const QNetworkOperation *QUrlOperator::rename( const QString &oldname, const QSt
   operation was successful or not.
 */
 
-const QNetworkOperation *QUrlOperator::copy( const QString &from, const QString &to, bool move )
+const QNetworkOperation *QUrlOperator::copy( const QString &from, const QString &to, bool /*move*/ )
 {
     if ( !checkValid() )
 	return 0;
@@ -782,7 +782,7 @@ void QUrlOperator::getGotData( const QByteArray &data, QNetworkOperation *op )
     if ( put ) {
 	QByteArray s;
 	s.resize( put->rawArg2().size() + data.size() );
-	memcpy( s.data(), put->rawArg2().data(), put->rawArg2().size() ); 
+	memcpy( s.data(), put->rawArg2().data(), put->rawArg2().size() );
 	memcpy( s.data() + put->rawArg2().size(), data.data(), data.size() );
  	put->setRawArg2( s );
     }
@@ -798,7 +798,7 @@ void QUrlOperator::finishedGet( QNetworkOperation *op )
     QNetworkOperation *put = d->getOpPutOpMap[ op ];
     QNetworkProtocol *gProt = d->getOpGetProtMap[ op ];
     QNetworkProtocol *pProt = d->getOpPutProtMap[ op ];
-    QNetworkOperation *rm = d->getOpRemoveOpMap[ op ];
+    //QNetworkOperation *rm = d->getOpRemoveOpMap[ op ];
     d->getOpPutOpMap.remove( op );
     d->getOpGetProtMap.remove( op );
     d->getOpPutProtMap.remove( op );
