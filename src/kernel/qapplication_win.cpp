@@ -915,6 +915,10 @@ void qt_cleanup()
   Platform specific global and internal functions
  *****************************************************************************/
 
+#if defined(Q_CC_MSVC)
+#include <crtdbg.h>
+#endif
+
 static void msgHandler( QtMsgType t, const char* str )
 {
 #if defined(QT_THREAD_SUPPORT)
@@ -943,7 +947,11 @@ static void msgHandler( QtMsgType t, const char* str )
 #endif
     if ( t == QtFatalMsg )
 #ifndef Q_OS_TEMP
+#if defined(Q_CC_MSVC)
+	_CrtDbgReport( _CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, str );
+#else
 	ExitProcess( 1 );
+#endif
 #else
 	exit(1);
 #endif

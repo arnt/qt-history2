@@ -44,6 +44,10 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
+#if defined(Q_CC_MSVC)
+#include <crtdbg.h>
+#endif
+
 
 /*!
     \relates QApplication
@@ -537,6 +541,8 @@ void qFatal( const char *msg, ... )
 #endif
 #if defined(Q_OS_UNIX) && defined(QT_DEBUG)
 	abort();				// trap; generates core dump
+#elif defined(Q_OS_WIN) && defined(Q_CC_MSVC)
+	_CrtDbgReport( _CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf );
 #else
 	exit( 1 );				// goodbye cruel world
 #endif
@@ -569,6 +575,8 @@ void fatal( const char *msg, ... )
 #endif
 #if defined(Q_OS_UNIX) && defined(QT_DEBUG)
 	abort();				// trap; generates core dump
+#elif defined(Q_OS_WIN) && defined(Q_CC_MSVC)
+	_CrtDbgReport( _CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf );
 #else
 	exit( 1 );				// goodbye cruel world
 #endif
