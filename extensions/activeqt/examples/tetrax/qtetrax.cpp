@@ -84,6 +84,7 @@ void ShowNextPiece::drawNextSquare(int x, int y,QColor *color)
 QTetrax::QTetrax( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
+    setFocusPolicy( StrongFocus );
     QTime t = QTime::currentTime();
     TetrixPiece::setRandomSeed( (((double)t.hour())+t.minute()+t.second())/
                                  (24+60+60) );
