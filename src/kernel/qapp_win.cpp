@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#123 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#124 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -30,7 +30,7 @@
 #include <mywinsock.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#123 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#124 $");
 
 
 /*****************************************************************************
@@ -929,8 +929,10 @@ bool QApplication::winEventFilter( MSG * )	// Windows event filter
 void QApplication::winFocus( QWidget *w, bool gotFocus )
 {
     if ( gotFocus ) {
-	if ( w->focusWidget() ) //#######################
-    	    w = w->focusWidget();
+#if defined(CHECK_NULL)
+	ASSERT( w != 0 && w->focusWidget() != 0 );
+#endif
+	w = w->focusWidget();
 	if ( w != focus_widget && (w->isFocusEnabled() || w->isTopLevel()) ) {
 	    focus_widget = w;
 	    QFocusEvent in( Event_FocusIn );
