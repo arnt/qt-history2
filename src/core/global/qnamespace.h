@@ -306,7 +306,6 @@ public:
         WA_MacNoClickThrough, //mac only
         WA_PaintOutsidePaintEvent,
         WA_InputMethodEnabled,
-        WA_OwnInputContext,
 
         WA_ForceDisabled = 32,
         WA_KeyCompression,
