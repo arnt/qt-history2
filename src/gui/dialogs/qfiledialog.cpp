@@ -1052,6 +1052,8 @@ void QFileDialog::keyPressed(const QModelIndex &index, Qt::Key key, Qt::ButtonSt
     case Qt::Key_Enter:
         doubleClicked(index);
         return;
+    default:
+        return;
     }
 }
 
