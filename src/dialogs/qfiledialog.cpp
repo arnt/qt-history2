@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#158 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#159 $
 **
 ** Implementation of QFileDialog class
 **
@@ -527,7 +527,7 @@ void QFileDialog::init()
     files->addColumn( tr("Attributes"), 10 + fm.width( tr("Attributes") ) );
     files->setColumnWidthMode( 0, QListView::Maximum );
 
-    files->setMinimumSize( 50, 25 + 2*fontMetrics().lineSpacing() );
+    files->setMinimumSize( 50, 25 + 2*fm.lineSpacing() );
 
     connect( files, SIGNAL(selectionChanged(QListViewItem *)),
 	     this, SLOT(updateFileNameEdit(QListViewItem *)) );
