@@ -271,7 +271,9 @@ int QApplication::macProcessEvent(MSG * m)
     WindowPtr wp;
     EventRecord * er=(EventRecord *)m;
     QWidget * twidget=QWidget::find((WId)er->message);
-    QWidget * widget=QApplication::widgetAt(er->where.h,er->where.v,true);
+    Point p2=er->where;
+    GlobalToLocal(&p2);
+    QWidget * widget=QApplication::widgetAt(p2.h,p2.v,true);
     if(er->what==updateEvt) {
 	wp=(WindowPtr)er->message;
 	SetPort(wp);
@@ -474,20 +476,17 @@ static QWidget * recursive_match(QWidget * widg,int x,int y)
     QObjectListIt it(*foo);
     QObject * bar;
     QWidget * frobnitz;
-    int bigx=0;
-    int bigy=0;
     bar=it.toFirst();
     do {
 	if(bar->inherits("QWidget")) {
 	    frobnitz=(QWidget *)bar;
 	    int wx,wy,wx2,wy2;
-	    wx=frobnitz->x()+bigx;
-	    wy=frobnitz->y()+bigy;
+	    wx=frobnitz->x();
+	    wy=frobnitz->y();
 	    wx2=wx+frobnitz->width();
 	    wy2=wy+frobnitz->height();
 	    qDebug("recursive_match %d %d  %d %d  %d %d",frobnitz->x(),
 		    frobnitz->y(),wx,wy,wx2,wy2);
-	    qDebug("%d %d",bigx,bigy);
 	    bigx=wx;
 	    bigy=wy;
 	    if(x>=wx && y>=wy && x<=wx2 && y<=wy2) {
