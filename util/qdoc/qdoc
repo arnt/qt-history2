@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#152 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#153 $
 #
 # this is a massive hack, written very quickly
 #
@@ -317,8 +317,12 @@ sub handlecodeincludes {
     }
 
     if ( $cmd eq "include" || $cmd eq "dontinclude" ) {
-	$basefile = $ENV{"QTDIR"} . "/tutorial/" . $arg;
-	$basefile = $ENV{"QTDIR"} . "/examples/" . $arg unless ( -f $basefile );
+	undef $basefile;
+	foreach $edir ( @exampledirs ) {
+	    $basefile = $edir . "/" . $arg
+		if ( !defined($basefile) && -f ($edir . "/" . $arg) )
+	}
+	die "unable to fin $arg, stopped" if ( !defined( $basefile ) );
 	open(IF, "expand < $basefile |") ||
 	    die "cannot read $basefile";
 	$slash = $/;
@@ -926,14 +930,20 @@ remains with ", $company, "
      }
 
     foreach $filename ( keys %examples ) {
-	my (%a, $a, $doc);
+	my (%a, $a, $doc, $fqfilename);
 
 	$doc = &codeincludes($examples{$filename});
 	$doc =~ s/<linebreak>//gs;
 	
-	open(F, "expand < " . $ENV{"QTDIR"} . "/examples/$filename |")
-	    || open(F, "expand < " . $ENV{"QTDIR"} . "/tutorial/$filename |")
-		|| die "can't open $filename for reading";
+	undef $fqfilename;
+	foreach $edir ( @exampledirs ) {
+	    $fqfilename = $edir . "/" . $filename
+		if ( !defined($fqfilename) && -f ($edir . "/" . $filename) )
+	}
+
+	die "unable to fin $filename, stopped" if ( !defined( $fqfilename ) );
+	open(F, "expand < $fqfilename |")
+	    || die "can't open $filename for reading";
 	$htmlfilename = $filename;
 	$htmlfilename =~ s@/@-@;
 	$htmlfilename =~ s/\.cpp/-cpp.html/;
@@ -941,7 +951,7 @@ remains with ", $company, "
 	    || die "can't open $outputdir/$htmlfilename for writing";
 	$h = <F>;
 	close F;
-	$h = &processcode($h, "" . $ENV{"QTDIR"} . "/examples/$filename" );
+	$h = &processcode($h, $fqfilename );
 	$h =~ s/<linebreak>//gs;
 
 	while ( $h =~ m@<a href=\"?(.*?)\"?>(.*?)</a>@gs ) {
