@@ -1,5 +1,5 @@
 /****************************************************************************
-* $Id: //depot/qt/main/src/kernel/qt_xdnd.cpp#4 $
+* $Id: //depot/qt/main/src/kernel/qt_xdnd.cpp#5 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -22,7 +22,7 @@
 #include <X11/Xatom.h> // for XA_STRING and friends
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qt_xdnd.cpp#4 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qt_xdnd.cpp#5 $");
 
 // this stuff is copied from qapp_x11.cpp
 
@@ -41,7 +41,7 @@ void qt_handle_xdnd_drop( QWidget *, const XEvent * );
 // this one's copied into qwid_x11.cpp
 void qt_xdnd_add_type( const char * );
 
-// clean up the shit used.
+// clean up the stuff used.
 static void qt_xdnd_cleanup();
 
 // client messages

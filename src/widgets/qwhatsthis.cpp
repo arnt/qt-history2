@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#8 $
 **
 ** C++ file skeleton
 **
@@ -22,7 +22,7 @@
 #include "qbitmap.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#7 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#8 $");
 
 
 class QWhatsThisPrivate: public QObject
@@ -92,7 +92,7 @@ QWhatsThisPrivate::Item::~Item()
 }
 
 
-static const char * fucking_button_image_and_you_too[] = {
+static const char * button_image[] = {
 "16 16 3 1",
 " 	c None",
 "o	c #000000",
@@ -170,7 +170,7 @@ static unsigned char cursor_mask_bits[] = {
 QWhatsThisPrivate::Button::Button( QWidget * parent, const char * name )
     : QToolButton( parent, name )
 {
-    QPixmap p( fucking_button_image_and_you_too );
+    QPixmap p( button_image );
     setPixmap( p );
     setToggleButton( TRUE );
     wt->buttons->insert( (void *)this, this );

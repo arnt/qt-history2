@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#38 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -22,13 +22,13 @@
 #include "qfile.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#37 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#38 $");
 
 #if !defined(QT_HEADER_PS)
      // produced from qpshdr.txt
 static char *ps_header =
 "%\n"
-"% $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#37 $\n"
+"% $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#38 $\n"
 "%\n"
 "% Postscript routines for QPSPrinter class\n"
 "%\n"
@@ -598,7 +598,7 @@ static void ps_setFont( QTextStream *s, const QFont *f, QString *fonts )
 	ps = "/Courier ";
     }
 
-    // next, modify these shitty irregular names
+    // next, modify these sh***y irregular names
     if ( weight >= QFont::Bold && italic ) {
 	ps.replace( QRegExp( "/Times " ), "/Times-BoldItalic " );
 	ps.replace( QRegExp( "/Charter " ), "/CharterBT-BoldItalic " );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#13 $
 **
 ** Implementation of something useful.
 **
@@ -22,7 +22,7 @@
 #include "qiconset.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#12 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#13 $");
 
 
 static QToolButton * threeDeeButton = 0;
@@ -39,7 +39,7 @@ class QToolButtonPrivate
   has been tailored for use in a QToolBar.
 
   This means that it implements the ridiculous Microsoft auto-raise
-  shite.  And it isn't finished, either.
+  feature.  And it isn't finished, either.
 */
 
 
