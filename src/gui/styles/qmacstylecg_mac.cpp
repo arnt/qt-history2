@@ -1413,6 +1413,8 @@ void QMacStyleCG::drawComplexControl(ComplexControl cc, const QStyleOptionComple
             wdi.version = qt_mac_hitheme_version;
             wdi.state = tds;
             wdi.windowType = QtWinType;
+            wdi.titleHeight = titlebar->rect.height();
+            wdi.titleWidth = titlebar->rect.width();
             wdi.attributes = kThemeWindowHasTitleText;
             if (titlebar->titleBarState) {
                 if (titlebar->titleBarState & Qt::WindowMinimized)
@@ -1426,8 +1428,6 @@ void QMacStyleCG::drawComplexControl(ComplexControl cc, const QStyleOptionComple
             } else if (titlebar->titleBarFlags & Qt::WStyle_SysMenu) {
                 wdi.attributes |= kThemeWindowHasCloseBox;
             }
-            wdi.titleHeight = titlebar->rect.height();
-            wdi.titleWidth = titlebar->rect.width();
             QCFType<HIShapeRef> titleRegion;
             HIRect titleRect = qt_hirectForQRect(titlebar->rect, p);
             QRect newr = titlebar->rect;
@@ -1636,23 +1636,24 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl cc, const QStyleOptionC
             wdi.version = qt_mac_hitheme_version;
             wdi.state = kThemeStateActive;
             wdi.windowType = QtWinType;
+            wdi.titleHeight = titlebar->rect.height();
+            wdi.titleWidth = titlebar->rect.width();
+            wdi.attributes = kThemeWindowHasTitleText;
             if (titlebar->titleBarState)
                 wdi.attributes |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox
                                   | kThemeWindowHasCollapseBox;
             else if (titlebar->titleBarFlags & Qt::WStyle_SysMenu)
                 wdi.attributes |= kThemeWindowHasCloseBox;
-            wdi.titleHeight = titlebar->rect.height();
-            wdi.titleWidth = titlebar->rect.width();
             WindowRegionCode wrc = kWindowGlobalPortRgn;
-            if (sc & SC_TitleBarCloseButton)
+            if (sc == SC_TitleBarCloseButton)
                 wrc = kWindowCloseBoxRgn;
-            else if (sc & SC_TitleBarMinButton)
+            else if (sc == SC_TitleBarMinButton)
                 wrc = kWindowCollapseBoxRgn;
-            else if (sc & SC_TitleBarMaxButton)
+            else if (sc == SC_TitleBarMaxButton)
                 wrc = kWindowZoomBoxRgn;
-            else if (sc & SC_TitleBarLabel)
+            else if (sc == SC_TitleBarLabel)
                 wrc = kWindowTitleTextRgn;
-            else if (sc & SC_TitleBarSysMenu)
+            else if (sc == SC_TitleBarSysMenu)
                 ret.setRect(-1024, -1024, 10, pixelMetric(PM_TitleBarHeight, 0));
             if (wrc != kWindowGlobalPortRgn) {
                 QCFType<HIShapeRef> region;

@@ -1786,8 +1786,6 @@ void QMacStyleQD::drawComplexControl(ComplexControl cc, const QStyleOptionComple
         } else if (tbar->titleBarFlags & Qt::WStyle_SysMenu) {
             twa |= kThemeWindowHasCloseBox;
         }
-        QString dblbuf_key;
-
         //AppMan paints outside the given rectangle, so I have to adjust for the height properly!
         QRect newr = tbar->rect;
         {
@@ -2025,15 +2023,15 @@ QRect QMacStyleQD::querySubControlMetrics(ComplexControl cc, const QStyleOptionC
             else if (tbar->titleBarFlags & Qt::WStyle_SysMenu)
                 twa |= kThemeWindowHasCloseBox;
             WindowRegionCode wrc = kWindowGlobalPortRgn;
-            if (sc & SC_TitleBarCloseButton)
+            if (sc == SC_TitleBarCloseButton)
                 wrc = kWindowCloseBoxRgn;
-            else if (sc & SC_TitleBarMinButton)
+            else if (sc == SC_TitleBarMinButton)
                 wrc = kWindowCollapseBoxRgn;
-            else if (sc & SC_TitleBarMaxButton)
+            else if (sc == SC_TitleBarMaxButton)
                 wrc = kWindowZoomBoxRgn;
-            else if (sc & SC_TitleBarLabel)
+            else if (sc == SC_TitleBarLabel)
                 wrc = kWindowTitleTextRgn;
-            else if (sc & SC_TitleBarSysMenu) // We currently don't have this on Mac OS X.
+            else if (sc == SC_TitleBarSysMenu) // We currently don't have this on Mac OS X.
                 ret.setRect(-1024, -1024, 10, pixelMetric(PM_TitleBarHeight, 0));
             if (wrc != kWindowGlobalPortRgn) {
                 // AppMan paints outside the given rectangle,
