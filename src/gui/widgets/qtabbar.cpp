@@ -840,7 +840,8 @@ void QTabBar::paintEvent(QPaintEvent *)
             rect.setRect(width()-overlap, 0, overlap, height());
             break;
         }
-        theParent->repaint(rect);
+        QPaintEvent e(rect);
+        QApplication::sendEvent(theParent, &e);
         QPainter::restoreRedirected(theParent);
     }
     QStylePainter p(this);
