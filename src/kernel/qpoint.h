@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.h#7 $
+** $Id: //depot/qt/main/src/kernel/qpoint.h#8 $
 **
 ** Definition of QPoint class
 **
@@ -35,9 +35,9 @@ public:
     QPoint &operator+=( const QPoint &p );	// add point
     QPoint &operator-=( const QPoint &p );	// subtract point
     QPoint &operator*=( int c );		// multiply with scalar
-    QPoint &operator*=( float c );		// multiply with scalar float
+    QPoint &operator*=( double c );		// multiply with scalar double
     QPoint &operator/=( int c );		// divide by scalar
-    QPoint &operator/=( float c );		// divide by scalar float
+    QPoint &operator/=( double c );		// divide by scalar double
 
     friend bool	  operator==( const QPoint &, const QPoint & );
     friend bool	  operator!=( const QPoint &, const QPoint & );
@@ -45,10 +45,10 @@ public:
     friend QPoint operator-( const QPoint &, const QPoint & );
     friend QPoint operator*( const QPoint &, int );
     friend QPoint operator*( int, const QPoint & );
-    friend QPoint operator*( const QPoint &, float );
-    friend QPoint operator*( float, const QPoint & );
+    friend QPoint operator*( const QPoint &, double );
+    friend QPoint operator*( double, const QPoint & );
     friend QPoint operator/( const QPoint &, int );
-    friend QPoint operator/( const QPoint &, float );
+    friend QPoint operator/( const QPoint &, double );
     friend QPoint operator-( const QPoint & );
 
 private:
@@ -96,7 +96,7 @@ inline QPoint &QPoint::operator*=( int c )
     xp*=(QCOORD)c; yp*=(QCOORD)c; return *this;
 }
 
-inline QPoint &QPoint::operator*=( float c )
+inline QPoint &QPoint::operator*=( double c )
 {
     xp=(QCOORD)(xp*c); yp=(QCOORD)(yp*c); return *this;
 }
@@ -106,7 +106,7 @@ inline QPoint &QPoint::operator/=( int c )
     xp/=(QCOORD)c; yp/=(QCOORD)c; return *this;
 }
 
-inline QPoint &QPoint::operator/=( float c )
+inline QPoint &QPoint::operator/=( double c )
 {
     xp=(QCOORD)(xp/c); yp=(QCOORD)(yp/c); return *this;
 }
@@ -141,12 +141,12 @@ inline QPoint operator*( int c, const QPoint &p )
     return QPoint( p.xp*c, p.yp*c );
 }
 
-inline QPoint operator*( const QPoint &p, float c )
+inline QPoint operator*( const QPoint &p, double c )
 {
     return QPoint( (QCOORD)(p.xp*c), (QCOORD)(p.yp*c) );
 }
 
-inline QPoint operator*( float c, const QPoint &p )
+inline QPoint operator*( double c, const QPoint &p )
 {
     return QPoint( (QCOORD)(p.xp*c), (QCOORD)(p.yp*c) );
 }
@@ -156,7 +156,7 @@ inline QPoint operator/( const QPoint &p, int c )
     return QPoint( p.xp/c, p.yp/c );
 }
 
-inline QPoint operator/( const QPoint &p, float c )
+inline QPoint operator/( const QPoint &p, double c )
 {
     return QPoint( (QCOORD)(p.xp/c), (QCOORD)(p.yp/c) );
 }

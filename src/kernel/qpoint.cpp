@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qpoint.cpp#12 $
 **
 ** Implementation of QPoint class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpoint.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpoint.cpp#12 $";
 #endif
 
 
@@ -176,7 +176,7 @@ Multiplies both x and y with \e c, and return a reference to this point.
 Notice that the result is truncated.
 */
 
-QPoint &QPoint::operator*=( float c )
+QPoint &QPoint::operator*=( double c )
 {
     xp=(QCOORD)(c*xp); yp=(QCOORD)(c*yp); return *this;
 }
@@ -216,7 +216,7 @@ The division will not be performed if \e c is 0.
 Notice that the result is truncated.
 */
 
-QPoint &QPoint::operator/=( float c )
+QPoint &QPoint::operator/=( double c )
 {
     if ( c == 0.0 ) {
 #if defined(CHECK_MATH)
