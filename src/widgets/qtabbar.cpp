@@ -954,10 +954,7 @@ void QTabBar::makeVisible( QTab* tab  )
 
 void QTabBar::updateArrowButtons()
 {
-    bool b = lstatic->last() ?
-	lstatic->last()->r.right() > width() : FALSE;
-    if ( d->scrolls == b )
-	return;
+    bool b = lstatic->last() &&	( lstatic->last()->r.right() > width() );
     d->scrolls = b;
     if ( d->scrolls ) {
 	d->leftB->setEnabled( FALSE );
