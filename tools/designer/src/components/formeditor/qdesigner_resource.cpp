@@ -20,6 +20,7 @@
 #include "qdesigner_toolbox.h"
 #include "qdesigner_stackedbox.h"
 #include "qdesigner_customwidget.h"
+#include <qdesigner_promotedwidget.h>
 
 // shared
 #include <layoutinfo.h>
@@ -350,15 +351,19 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
         w = saveWidget(toolBox, ui_parentWidget);
     else if (IContainer *container = qt_extension<IContainer*>(m_core->extensionManager(), widget))
         w = saveWidget(widget, container, ui_parentWidget);
+    else if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(widget))
+        w = Resource::createDom(promoted->child(), ui_parentWidget, recursive);
     else
         w = Resource::createDom(widget, ui_parentWidget, recursive);
 
     Q_ASSERT( w != 0 );
 
     QString className = w->attributeClass();
-    if (QDesignerCustomWidget *customWidget = qt_cast<QDesignerCustomWidget*>(widget)) {
+    if (QDesignerCustomWidget *customWidget = qt_cast<QDesignerCustomWidget*>(widget))
         w->setAttributeClass(customWidget->widgetClassName());
-    } else if (m_internal_to_qt.contains(className))
+    else if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(widget))
+        w->setAttributeClass(promoted->item()->name());
+    else if (m_internal_to_qt.contains(className))
         w->setAttributeClass(m_internal_to_qt.value(className));
 
     w->setAttributeName(widget->objectName());
@@ -826,6 +831,7 @@ DomCustomWidgets *QDesignerResource::saveCustomWidgets()
         DomHeader *header = new DomHeader;
         header->setText(item->includeFile());
         custom_widget->setElementHeader(header);
+        custom_widget->setElementExtends(item->extends());
 
         custom_widget_list.append(custom_widget);
     }

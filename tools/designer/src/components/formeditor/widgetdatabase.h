@@ -62,9 +62,12 @@ struct WidgetDataBaseItem: public AbstractWidgetDataBaseItem
     QString pluginPath() const;
     void setPluginPath(const QString &path);
 
-    bool isPromoted() const { return false; }
-    void setPromoted(bool) {}
+    bool isPromoted() const;
+    void setPromoted(bool b);
     
+    QString extends() const;
+    void setExtends(const QString &s);
+
 private:
     QString m_name;
     QString m_group;
@@ -77,6 +80,8 @@ private:
     uint m_container: 1;
     uint m_form: 1;
     uint m_custom: 1;
+    uint m_promoted: 1;
+    QString m_extends;
 };
 
 class QT_FORMEDITOR_EXPORT WidgetDataBase: public AbstractWidgetDataBase

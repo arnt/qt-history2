@@ -2,11 +2,13 @@
 #define QDESIGNER_PROMOTED_WIDGET_H
 
 #include <QWidget>
+#include <QIcon>
 
 #include "shared_global.h"
 #include "propertysheet.h"
 #include <default_extensionfactory.h>
 #include <abstractformeditor.h>
+#include <abstractwidgetdatabase.h>
 
 class QDesignerPromotedWidget;
 class QExtensionManager;
@@ -57,25 +59,75 @@ protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
 };
 
+struct PromotedWidgetDataBaseItem : public AbstractWidgetDataBaseItem
+{
+    PromotedWidgetDataBaseItem(const QString &name = QString(), const QString &include = QString())
+        : m_name(name), m_include(include) {}
+
+    QString name() const { return m_name; }
+    void setName(const QString &name) { m_name = name; }
+
+    QString group() const { return QObject::tr("Promoted Widgets"); }
+    void setGroup(const QString &) {}
+
+    QString toolTip() const { return QString(); }
+    void setToolTip(const QString &) {}
+
+    QString whatsThis() const { return QString(); }
+    void setWhatsThis(const QString &) {}
+
+    QString includeFile() const { return m_include; }
+    void setIncludeFile(const QString &include) { m_include = include; }
+
+    QIcon icon() const { return QIcon(); }
+    void setIcon(const QIcon &) {}
+
+    bool isCompat() const{ return false; }
+    void setCompat(bool) {}
+    
+    bool isContainer() const { return false; }
+    void setContainer(bool) {}
+
+    bool isForm() const { return false; }
+    void setForm(bool) {}
+
+    bool isCustom() const { return true; }
+    void setCustom(bool) {}
+
+    QString pluginPath() const { return QString(); }
+    void setPluginPath(const QString &) {}
+
+    bool isPromoted() const { return true; }
+    void setPromoted(bool) {}
+
+    QString extends() const { return m_extends; }
+    void setExtends(const QString &s) { m_extends = s; }
+    
+private:
+    QString m_name;
+    QString m_include;
+    QString m_extends;
+};
+
 class QT_SHARED_EXPORT QDesignerPromotedWidget : public QWidget
 {
     Q_OBJECT
 public:
-    QDesignerPromotedWidget(const QString &class_name, const QString &include_file,
-                            QWidget *child, AbstractFormEditor *core, QWidget *parent = 0);
+    QDesignerPromotedWidget(AbstractWidgetDataBaseItem *item,
+                            QWidget *child, QWidget *parent = 0);
     ~QDesignerPromotedWidget();
 
     QWidget *child() const { return m_child; }
-    const char *customClassName() const { return m_custom_class_name.constData(); }
-    QString includeFile() const { return m_include_file; }
-    
+    AbstractWidgetDataBaseItem *item() const { return m_item; }
+    const char *customClassName() { return m_custom_class_name.constData(); }
+        
 protected:
     virtual void childEvent(QChildEvent *e);
     virtual void resizeEvent(QResizeEvent *e);
 
 private:
+    AbstractWidgetDataBaseItem *m_item;
     QByteArray m_custom_class_name;
-    QString m_include_file;
     QWidget *m_child;
     bool m_child_inserted;
 };

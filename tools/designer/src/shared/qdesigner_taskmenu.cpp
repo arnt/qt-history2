@@ -140,30 +140,45 @@ QObject *QDesignerTaskMenuFactory::createExtension(QObject *object, const QStrin
 
 void QDesignerTaskMenu::promoteToCustomWidget()
 {
+    AbstractFormWindow *fw = formWindow();
+    AbstractFormEditor *core = fw->core();
+    QWidget *wgt = widget();
+    QWidget *parent = wgt->parentWidget();
+    AbstractWidgetDataBase *db = fw->core()->widgetDataBase();
+
     QDialog *dialog = new QDialog(0);
     
     Ui::PromoteToCustomWidgetDialog ui;
     ui.setupUi(dialog);
 
+    QString base_class_name = QLatin1String(wgt->metaObject()->className());
+    
     connect(ui.m_ok_button, SIGNAL(clicked()), dialog, SLOT(accept()));
     connect(ui.m_cancel_button, SIGNAL(clicked()), dialog, SLOT(reject()));
-    ui.m_base_class_name_label->setText(QLatin1String(widget()->metaObject()->className()));
+    ui.m_base_class_name_label->setText(base_class_name);
     
     if (!dialog->exec()) {
         delete dialog;
         return;
     }
 
-    QWidget *wgt = widget();
-    QWidget *parent = wgt->parentWidget();
-    AbstractFormWindow *fw = formWindow();
-
+    QString custom_class_name = ui.m_class_name_input->text();
+    QString include_file = ui.m_header_file_input->text();
+        
+    AbstractWidgetDataBaseItem *item = 0;
+    int idx = db->indexOfClassName(custom_class_name);
+    if (idx == -1) {
+        item = new PromotedWidgetDataBaseItem(custom_class_name, include_file);
+        db->append(item);
+    } else {
+        item = db->item(idx);
+        item->setIncludeFile(include_file);
+    }
+    
     fw->beginCommand(tr("Promote to custom widget"));
 
     QDesignerPromotedWidget *promoted
-        = new QDesignerPromotedWidget(ui.m_class_name_input->text(),
-                                        ui.m_header_file_input->text(),
-                                        wgt, fw->core(), parent);
+        = new QDesignerPromotedWidget(item, wgt, parent);
     promoted->setGeometry(wgt->geometry());
     InsertWidgetCommand *insert_cmd = new InsertWidgetCommand(fw);
     insert_cmd->init(promoted);

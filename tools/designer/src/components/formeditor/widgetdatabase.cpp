@@ -28,7 +28,8 @@ WidgetDataBaseItem::WidgetDataBaseItem(const QString &name, const QString &group
       m_compat(0),
       m_container(0),
       m_form(0),
-      m_custom(0)
+      m_custom(0),
+      m_extends(0)
 {
 }
 
@@ -140,6 +141,26 @@ QString WidgetDataBaseItem::pluginPath() const
 void WidgetDataBaseItem::setPluginPath(const QString &path)
 {
     m_pluginPath = path;
+}
+
+bool WidgetDataBaseItem::isPromoted() const
+{
+    return m_promoted;
+}
+
+void WidgetDataBaseItem::setPromoted(bool b)
+{
+    m_promoted = b;
+}
+
+QString WidgetDataBaseItem::extends() const
+{
+    return m_extends;
+}
+
+void WidgetDataBaseItem::setExtends(const QString &s)
+{
+    m_extends = s;
 }
 
 // ----------------------------------------------------------

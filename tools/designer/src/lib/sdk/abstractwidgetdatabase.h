@@ -62,6 +62,9 @@ struct AbstractWidgetDataBaseItem
 
     virtual bool isPromoted() const = 0;
     virtual void setPromoted(bool b) = 0;
+
+    virtual QString extends() const = 0;
+    virtual void setExtends(const QString &s) = 0;
 };
 
 class QT_SDK_EXPORT AbstractWidgetDataBase: public QObject

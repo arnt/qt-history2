@@ -1,10 +1,8 @@
 #include "qdesigner_promotedwidget.h"
 
 #include <qextensionmanager.h>
-#include <abstractwidgetdatabase.h>
 
 #include <QEvent>
-#include <QIcon>
 
 #include <qdebug.h>
 
@@ -129,71 +127,15 @@ QObject *PromotedWidgetPropertySheetFactory::createExtension(QObject *object,
                                 parent);
 }
 
-struct PromotedWidgetDataBaseItem : public AbstractWidgetDataBaseItem
-{
-    PromotedWidgetDataBaseItem(const QString &name = QString(), const QString &include = QString())
-        : m_name(name), m_include(include) {}
-
-    QString name() const { return m_name; }
-    void setName(const QString &name) { m_name = name; }
-
-    QString group() const { return QObject::tr("Promoted Widgets"); }
-    void setGroup(const QString &) {}
-
-    QString toolTip() const { return QString(); }
-    void setToolTip(const QString &) {}
-
-    QString whatsThis() const { return QString(); }
-    void setWhatsThis(const QString &) {}
-
-    QString includeFile() const { return m_include; }
-    void setIncludeFile(const QString &include) { m_include = include; }
-
-    QIcon icon() const { return QIcon(); }
-    void setIcon(const QIcon &) {}
-
-    bool isCompat() const{ return false; }
-    void setCompat(bool) {}
-    
-    bool isContainer() const { return false; }
-    void setContainer(bool) {}
-
-    bool isForm() const { return false; }
-    void setForm(bool) {}
-
-    bool isCustom() const { return true; }
-    void setCustom(bool) {}
-
-    QString pluginPath() const { return QString(); }
-    void setPluginPath(const QString &) {}
-
-    bool isPromoted() const { return true; }
-    void setPromoted(bool) {}
-    
-private:
-    QString m_name;
-    QString m_include;
-};
-
-QDesignerPromotedWidget::QDesignerPromotedWidget(const QString &class_name, const QString &include_file,
-                                                    QWidget *child, AbstractFormEditor *core,
+QDesignerPromotedWidget::QDesignerPromotedWidget(AbstractWidgetDataBaseItem *item,
+                                                    QWidget *child,
                                                     QWidget *parent)
     : QWidget(parent)
 {
     m_child = child;
     m_child_inserted = false;
-    m_include_file = include_file;
-    m_custom_class_name = class_name.toLatin1();
-
-    AbstractWidgetDataBase *db = core->widgetDataBase();
-    int idx = core->widgetDataBase()->indexOfClassName(class_name);
-    if (idx == -1) {
-        PromotedWidgetDataBaseItem *item = new PromotedWidgetDataBaseItem(class_name, include_file);
-        db->append(item);
-    } else {
-        AbstractWidgetDataBaseItem *item = db->item(idx);
-        item->setIncludeFile(include_file);
-    }
+    m_item = item;
+    m_custom_class_name = item->name().toLatin1();
 }
 
 QDesignerPromotedWidget::~QDesignerPromotedWidget()
