@@ -1087,6 +1087,8 @@ void QScrollView::wheelEvent( QWheelEvent *e )
 	    QApplication::sendEvent( horizontalScrollBar(), e);
 	else  if (e->orientation() == Vertical && verticalScrollBar() )
 	    QApplication::sendEvent( verticalScrollBar(), e);
+    } else {
+	e->accept();
     }
 }
 #endif
