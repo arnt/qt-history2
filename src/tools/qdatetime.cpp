@@ -1976,7 +1976,7 @@ void QDateTime::setTime_t( uint secsSince1Jan1970UTC, Qt::TimeSpec dts )
 {
     time_t tmp = (time_t) secsSince1Jan1970UTC;
     tm *brokenDown = 0;
-    if ( Qt::LocalTime )
+    if ( dts == Qt::LocalTime )
 	brokenDown = localtime( &tmp );
     if ( !brokenDown ) {
 	brokenDown = gmtime( &tmp );
