@@ -511,6 +511,8 @@ bool QToolBar::event( QEvent * e )
 	QWidget::layout()->invalidate();
 	QWidget::layout()->activate();
 	d->firstShow = FALSE;
+    } else if ( e->type() == QEvent::LayoutHint && place() == OutsideDock ) {
+	adjustSize();
     }
     return r;
 }
