@@ -67,7 +67,7 @@ public:
     bool isInvertible() const { return (_m11*_m22 - _m12*_m21) != 0; }
     qreal det() const { return _m11*_m22 - _m12*_m21; }
 
-    QMatrix invert(bool * = 0) const;
+    QMatrix inverted(bool *invertible = 0) const;
 
     bool operator==(const QMatrix &) const;
     bool operator!=(const QMatrix &) const;
@@ -78,6 +78,7 @@ public:
     QMatrix &operator=(const QMatrix &);
 
 #ifdef QT_COMPAT
+    inline QT_COMPAT QMatrix invert(bool *invertible=0) const { return inverted(invertible); }
     inline QT_COMPAT QRect map(const QRect &r) const { return mapRect(r); }
     QT_COMPAT QRegion mapToRegion(const QRect &r) const;
 #endif

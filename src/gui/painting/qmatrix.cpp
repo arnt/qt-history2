@@ -71,7 +71,7 @@
     The point \e (x, y) is the original point, and \e (x', y') is the
     transformed point. \e (x', y') can be transformed back to \e (x,
     y) by performing the same operation on the \link
-    QMatrix::invert() inverted matrix\endlink.
+    QMatrix::inverted() inverted matrix\endlink.
 
     The elements \e dx and \e dy specify horizontal and vertical
     translation. The elements \e m11 and \e m22 specify horizontal and
@@ -802,7 +802,7 @@ QMatrix &QMatrix::rotate(qreal a)
 
     Returns true if the matrix is invertible; otherwise returns false.
 
-    \sa invert()
+    \sa inverted()
 */
 
 /*!
@@ -825,7 +825,7 @@ QMatrix &QMatrix::rotate(qreal a)
     \sa isInvertible()
 */
 
-QMatrix QMatrix::invert(bool *invertible) const
+QMatrix QMatrix::inverted(bool *invertible) const
 {
     qreal determinant = det();
     if (determinant == 0.0) {
