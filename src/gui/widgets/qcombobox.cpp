@@ -33,8 +33,8 @@
     \internal
 */
 
-ListViewContainer::ListViewContainer(QListView *listView, QComboBox *parent)
-    : QFrame(parent), combo(parent), list(0), top(0), bottom(0)
+ItemViewContainer::ItemViewContainer(QAbstractItemView *itemView, QComboBox *parent)
+    : QFrame(parent), combo(parent), view(0), top(0), bottom(0)
 {
     // we need the combobox
     Q_ASSERT(parent);
@@ -43,8 +43,8 @@ ListViewContainer::ListViewContainer(QListView *listView, QComboBox *parent)
     setFrameStyle(QFrame::Box|QFrame::Plain);
     setLineWidth(1);
 
-    // set listview
-    setListview(listView);
+    // set item view
+    setItemView(itemView);
 
     // add widgets to layout and create scrollers if needed
     QBoxLayout *layout =  new QBoxLayout(QBoxLayout::TopToBottom, this);
@@ -57,12 +57,12 @@ ListViewContainer::ListViewContainer(QListView *listView, QComboBox *parent)
     }
     if (top) {
         layout->addWidget(top);
-        connect(top, SIGNAL(doScroll(int)), this, SLOT(scrollListView(int)));
+        connect(top, SIGNAL(doScroll(int)), this, SLOT(scrollItemView(int)));
     }
-    layout->addWidget(list);
+    layout->addWidget(view);
     if (bottom) {
         layout->addWidget(bottom);
-        connect(bottom, SIGNAL(doScroll(int)), this, SLOT(scrollListView(int)));
+        connect(bottom, SIGNAL(doScroll(int)), this, SLOT(scrollItemView(int)));
     }
 }
 
@@ -70,9 +70,10 @@ ListViewContainer::ListViewContainer(QListView *listView, QComboBox *parent)
     \internal
 */
 
-void ListViewContainer::scrollListView(int action)
+void ItemViewContainer::scrollItemView(int action)
 {
-    list->verticalScrollBar()->triggerAction(static_cast<QAbstractSlider::SliderAction>(action));
+    if (view->verticalScrollBar())
+        view->verticalScrollBar()->triggerAction(static_cast<QAbstractSlider::SliderAction>(action));
 }
 
 /*
@@ -80,15 +81,16 @@ void ListViewContainer::scrollListView(int action)
 
   Hides or shows the scrollers when we emulate a popupmenu
 */
-void ListViewContainer::updateScrollers()
+void ItemViewContainer::updateScrollers()
 {
     if (!top || !bottom)
         return;
-    if (list->verticalScrollBar()->minimum() < list->verticalScrollBar()->maximum()) {
-        bool needTop = list->verticalScrollBar()->value() > list->verticalScrollBar()->minimum()
-                       + list->spacing();
-        bool needBottom = list->verticalScrollBar()->value() < (list->verticalScrollBar()->maximum()
-                                                                - list->spacing()*2);
+
+    if (view->verticalScrollBar()->minimum() < view->verticalScrollBar()->maximum()) {
+        bool needTop = view->verticalScrollBar()->value()
+                       > (view->verticalScrollBar()->minimum() + spacing());
+        bool needBottom = view->verticalScrollBar()->value()
+                          < (view->verticalScrollBar()->maximum() - spacing()*2);
         if(needTop)
             top->show();
         else
@@ -110,80 +112,92 @@ void ListViewContainer::updateScrollers()
   means that if mouseTracking(...) is on, we setCurrentIndex and select
   even when LeftButton is not pressed.
 */
-void ListViewContainer::setCurrentIndex(const QModelIndex &index, Qt::MouseButton button,
+void ItemViewContainer::setCurrentIndex(const QModelIndex &index, Qt::MouseButton button,
                                         Qt::KeyboardModifiers /*modifiers*/)
 {
     if (button & Qt::LeftButton)
         return;
 
-    list->selectionModel()->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect);
+    view->selectionModel()->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect);
 }
 
 /*
   \internal
 
-  Returns the listview used for the combobox popup.
+  Returns the item view used for the combobox popup.
 */
-QListView *ListViewContainer::listView() const
+QAbstractItemView *ItemViewContainer::itemView() const
 {
-    return list;
+    return view;
 }
-
 
 /*!
   \internal
 
-  Sets the listview to be used for the combobox popup
+  Sets the item view to be used for the combobox popup
 */
-void ListViewContainer::setListview(QListView *listView)
+void ItemViewContainer::setItemView(QAbstractItemView *itemView)
 {
-    Q_ASSERT(listView);
+    Q_ASSERT(itemView);
 
     // clean up old one
-    if (list) {
-        list->removeEventFilter(this);
-        list->viewport()->removeEventFilter(this);
-        disconnect(list->verticalScrollBar(), SIGNAL(valueChanged(int)),
+    if (view) {
+        view->removeEventFilter(this);
+        view->viewport()->removeEventFilter(this);
+        disconnect(view->verticalScrollBar(), SIGNAL(valueChanged(int)),
                    this, SLOT(updateScrollers()));
-        disconnect(list->verticalScrollBar(), SIGNAL(rangeChanged(int,int)),
+        disconnect(view->verticalScrollBar(), SIGNAL(rangeChanged(int,int)),
                    this, SLOT(updateScrollers()));
-        disconnect(list, SIGNAL(itemEntered(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
+        disconnect(view, SIGNAL(itemEntered(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
                    this, SLOT(setCurrentIndex(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)));
+        delete view;
+        view = 0;
     }
 
     // setup the listview
-    list = listView;
-    list->setParent(this);
-    list->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-    list->installEventFilter(this);
-    list->viewport()->installEventFilter(this);
+    view = itemView;
+    view->setParent(this);
+    view->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+    view->installEventFilter(this);
+    view->viewport()->installEventFilter(this);
     QStyleOptionComboBox opt = comboStyleOption();
-    list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo))
-        list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     if (style()->styleHint(QStyle::SH_ComboBox_ListMouseTracking, &opt, combo) ||
         style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo)) {
-        list->setMouseTracking(true);
+        view->setMouseTracking(true);
     }
-    list->setSelectionMode(QAbstractItemView::SingleSelection);
-    list->setFrameStyle(QFrame::NoFrame);
-    list->setLineWidth(0);
-    list->setSpacing(0);
-    list->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    connect(list->verticalScrollBar(), SIGNAL(valueChanged(int)),
+    view->setSelectionMode(QAbstractItemView::SingleSelection);
+    view->setFrameStyle(QFrame::NoFrame);
+    view->setLineWidth(0);
+    view->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    connect(view->verticalScrollBar(), SIGNAL(valueChanged(int)),
             this, SLOT(updateScrollers()));
-    connect(list->verticalScrollBar(), SIGNAL(rangeChanged(int,int)),
+    connect(view->verticalScrollBar(), SIGNAL(rangeChanged(int,int)),
             this, SLOT(updateScrollers()));
-    connect(list, SIGNAL(itemEntered(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
+    connect(view, SIGNAL(itemEntered(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
             this, SLOT(setCurrentIndex(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)));
 }
 
+/*!
+  \internal
+
+  returns the spacing between the items in the view
+*/
+int ItemViewContainer::spacing() const
+{
+    QListView *lview = qt_cast<QListView*>(view);
+    if (lview)
+        return lview->spacing();
+    return 0;
+}
 
 /*!
     \internal
 */
 
-bool ListViewContainer::eventFilter(QObject *o, QEvent *e)
+bool ItemViewContainer::eventFilter(QObject *o, QEvent *e)
 {
     switch (e->type()) {
     case QEvent::KeyPress:
@@ -192,7 +206,7 @@ bool ListViewContainer::eventFilter(QObject *o, QEvent *e)
         case Qt::Key_Return:
             if (combo->autoHide())
                 hide();
-            emit itemSelected(list->currentIndex());
+            emit itemSelected(view->currentIndex());
             return true;
         case Qt::Key_Down:
             if (!(static_cast<QKeyEvent*>(e)->modifiers() & Qt::AltModifier))
@@ -208,10 +222,10 @@ bool ListViewContainer::eventFilter(QObject *o, QEvent *e)
     break;
     case QEvent::MouseButtonRelease: {
         QMouseEvent *m = static_cast<QMouseEvent *>(e);
-        if (list->rect().contains(m->pos())) {
+        if (view->rect().contains(m->pos())) {
             if (combo->autoHide())
                 hide();
-            emit itemSelected(list->currentIndex());
+            emit itemSelected(view->currentIndex());
         }
         break;
     }
@@ -225,12 +239,12 @@ bool ListViewContainer::eventFilter(QObject *o, QEvent *e)
 /*!
     \internal
 */
-void ListViewContainer::hideEvent(QHideEvent *)
+void ItemViewContainer::hideEvent(QHideEvent *)
 {
     emit containerDisappearing();
 }
 
-void ListViewContainer::mousePressEvent(QMouseEvent *e)
+void ItemViewContainer::mousePressEvent(QMouseEvent *e)
 {
     QRect ignoreRect = combo->rect();
     if (combo->isEditable()) {
@@ -251,7 +265,7 @@ void ListViewContainer::mousePressEvent(QMouseEvent *e)
 /*!
   \internal
 */
-QStyleOptionComboBox ListViewContainer::comboStyleOption() const
+QStyleOptionComboBox ItemViewContainer::comboStyleOption() const
 {
     QStyleOptionComboBox opt;
     opt.state = QStyle::Style_None;
@@ -265,6 +279,8 @@ QStyleOptionComboBox ListViewContainer::comboStyleOption() const
     opt.editable = combo->isEditable();
     return opt;
 }
+
+
 
 /*!
     \enum QComboBox::InsertionPolicy
@@ -488,7 +504,7 @@ void QComboBoxPrivate::init()
 {
     QListView *l = new QListView(0);
     d->model = l->model();
-    container = new ListViewContainer(l, q);
+    container = new ItemViewContainer(l, q);
     container->setParent(q, Qt::WType_Popup);
     q->setFocusPolicy(Qt::StrongFocus);
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
@@ -498,7 +514,7 @@ void QComboBoxPrivate::init()
         l->setItemDelegate(new MenuDelegate(l, q));
     QObject::connect(container, SIGNAL(itemSelected(QModelIndex)),
                      q, SLOT(itemSelected(QModelIndex)));
-    QObject::connect(q->listView()->selectionModel(),
+    QObject::connect(q->itemView()->selectionModel(),
                      SIGNAL(currentChanged(QModelIndex,QModelIndex)),
                      q, SLOT(emitHighlighted(QModelIndex)));
     QObject::connect(container, SIGNAL(containerDisappearing()), q, SLOT(resetButton()));
@@ -891,7 +907,7 @@ const QValidator *QComboBox::validator() const
 */
 QAbstractItemDelegate *QComboBox::itemDelegate() const
 {
-    return listView()->itemDelegate();
+    return itemView()->itemDelegate();
 }
 
 /*!
@@ -902,7 +918,7 @@ QAbstractItemDelegate *QComboBox::itemDelegate() const
 void QComboBox::setItemDelegate(QAbstractItemDelegate *delegate)
 {
     Q_ASSERT(delegate);
-    listView()->setItemDelegate(delegate);
+    itemView()->setItemDelegate(delegate);
 }
 
 /*!
@@ -921,7 +937,7 @@ QAbstractItemModel *QComboBox::model() const
 void QComboBox::setModel(QAbstractItemModel *model)
 {
     d->model = model;
-    d->container->listView()->setModel(model);
+    d->container->itemView()->setModel(model);
 }
 
 /*!
@@ -946,7 +962,7 @@ void QComboBox::setRoot(const QModelIndex &index)
 {
     QModelIndex old = d->root;
     d->root = QPersistentModelIndex(index);
-    listView()->setRoot(index);
+    itemView()->setRoot(index);
     emit rootChanged(old, index);
     update();
 }
@@ -1182,18 +1198,20 @@ void QComboBox::setItem(const QIcon &icon, const QString &text, int row)
 
     Returns the list view used for the combobox popup.
 */
-QListView *QComboBox::listView() const
+QAbstractItemView *QComboBox::itemView() const
 {
-    return d->container->listView();
+    return d->container->itemView();
 }
 
 /*!
 
-  Sets the list view to be used in the combobox popup.
+  Sets the view to be used in the combobox popup.
 */
-void QComboBox::setListview(QListView *listView)
+void QComboBox::setItemView(QAbstractItemView *itemView)
 {
-    d->container->setListview(listView);
+    Q_ASSERT(itemView);
+    itemView->setModel(d->model);
+    d->container->setItemView(itemView);
 }
 
 /*!
@@ -1223,7 +1241,7 @@ QSize QComboBox::sizeHint() const
         txt = text(index.row());
         const QPixmap &pix = pixmap(index.row());
         // check listview item width
-        maxWidth = listView()->itemSizeHint(index).width();
+        maxWidth = itemView()->itemSizeHint(index).width();
         // check combo text+pixmap width
         maxWidth = qMax(maxWidth, fm.width(txt) + 2 + (pix.isNull() ? 0 : pix.width() + 4));
         if (maxWidth > d->sizeHint.width())
@@ -1247,15 +1265,15 @@ void QComboBox::popup()
         return;
 
     // set current item and select it
-    listView()->selectionModel()->setCurrentIndex(d->currentIndex,
+    itemView()->selectionModel()->setCurrentIndex(d->currentIndex,
                                                   QItemSelectionModel::ClearAndSelect);
 
     // use top item as height for complete listView
-    int itemHeight = listView()->itemSizeHint(model()->index(0, 0, root())).height()
-                     + listView()->spacing();
+    int itemHeight = itemView()->itemSizeHint(model()->index(0, 0, root())).height()
+                     + d->container->spacing();
     QRect listRect(rect());
     listRect.setHeight(itemHeight * qMin(d->sizeLimit, d->model->rowCount(root()))
-                       + 2*listView()->spacing() + 2);
+                       + 2*d->container->spacing() + 2);
 
     // make sure the widget fits on screen
     //### do horizontally as well
@@ -1277,10 +1295,10 @@ void QComboBox::popup()
     }
 
     d->container->setGeometry(listRect);
-    listView()->ensureItemVisible(listView()->currentIndex());
+    itemView()->ensureItemVisible(itemView()->currentIndex());
     d->container->raise();
     d->container->show();
-    listView()->setFocus();
+    itemView()->setFocus();
 }
 
 /*!
@@ -1547,11 +1565,11 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
     default:
         if (!d->lineEdit && !e->text().isEmpty()) {
             // use keyboardSearch from the listView so we do not duplicate code
-            listView()->setCurrentIndex(d->currentIndex);
-            listView()->keyboardSearch(e->text());
-            if (listView()->currentIndex().isValid()
-                && listView()->currentIndex() != d->currentIndex)
-                newRow = listView()->currentIndex().row();
+            itemView()->setCurrentIndex(d->currentIndex);
+            itemView()->keyboardSearch(e->text());
+            if (itemView()->currentIndex().isValid()
+                && itemView()->currentIndex() != d->currentIndex)
+                newRow = itemView()->currentIndex().row();
         }
     }
 

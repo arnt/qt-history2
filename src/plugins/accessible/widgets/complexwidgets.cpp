@@ -375,7 +375,7 @@ int QAccessibleComboBox::navigate(RelationFlag rel, int entry, QAccessibleInterf
         if (entry < PopupList)
             return entry;
         if (entry == PopupList) {
-            *target = QAccessible::queryAccessibleInterface(comboBox()->listView());
+            *target = QAccessible::queryAccessibleInterface(comboBox()->itemView());
             return *target ? 0 : -1;
         break; }
     case QAccessible::Left:
@@ -395,7 +395,7 @@ int QAccessibleComboBox::navigate(RelationFlag rel, int entry, QAccessibleInterf
 /*! \reimp */
 int QAccessibleComboBox::childCount() const
 {
-    return comboBox()->listView() ? PopupList : OpenList;
+    return comboBox()->itemView() ? PopupList : OpenList;
 }
 
 /*! \reimp */
@@ -416,7 +416,7 @@ int QAccessibleComboBox::childAt(int x, int y) const
 /*! \reimp */
 int QAccessibleComboBox::indexOfChild(const QAccessibleInterface *child) const
 {
-    if (child->object() == comboBox()->listView())
+    if (child->object() == comboBox()->itemView())
         return PopupList;
     return -1;
 }

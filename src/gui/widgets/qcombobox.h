@@ -18,7 +18,7 @@
 #include <qabstractitemmodel.h>
 #include <qabstractitemdelegate.h>
 
-class QListView;
+class QAbstractItemView;
 class QLineEdit;
 class QComboBoxPrivate;
 
@@ -112,8 +112,8 @@ public:
     void setItemData(int role, const QVariant &value, int row);
     void setItem(const QIcon &icon, const QString &text, int row);
 
-    QListView *listView() const;
-    void setListview(QListView *listview);
+    QAbstractItemView *itemView() const;
+    void setItemView(QAbstractItemView *itemView);
 
     QSize sizeHint() const;
 

@@ -80,17 +80,18 @@ private:
     QBasicTimer timer;
 };
 
-class ListViewContainer : public QFrame
+class ItemViewContainer : public QFrame
 {
     Q_OBJECT
 
 public:
-    ListViewContainer(QListView *listView, QComboBox *parent);
-    QListView *listView() const;
-    void setListview(QListView *listView);
+    ItemViewContainer(QAbstractItemView *itemView, QComboBox *parent);
+    QAbstractItemView *itemView() const;
+    void setItemView(QAbstractItemView *itemView);
+    int spacing() const;
 
 public slots:
-    void scrollListView(int action);
+    void scrollItemView(int action);
     void updateScrollers();
     void setCurrentIndex(const QModelIndex &index, Qt::MouseButton button,
                          Qt::KeyboardModifiers modifiers);
@@ -107,7 +108,7 @@ signals:
 
 private:
     QComboBox *combo;
-    QListView *list;
+    QAbstractItemView *view;
     Scroller *top;
     Scroller *bottom;
 };
@@ -193,7 +194,7 @@ public:
 
     QAbstractItemModel *model;
     QLineEdit *lineEdit;
-    ListViewContainer *container;
+    ItemViewContainer *container;
     QComboBox::InsertionPolicy insertionPolicy;
     bool autoCompletion;
     bool duplicatesEnabled;
