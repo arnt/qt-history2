@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpngio.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qpngio.cpp#4 $
 **
 ** Implementation of PNG QImage IOHandler
 **
@@ -24,10 +24,10 @@
 extern "C" {
 #include <png.h>
 }
-#include <qimage.h>
-#include <qasyncimageio.h>
-#include <qiodevice.h>
-#include <qpngio.h>
+#include "qimage.h"
+#include "qasyncimageio.h"
+#include "qiodevice.h"
+#include "qpngio.h"
 
 /*
   The following PNG Test Suite (October 1996) images do not load correctly,
