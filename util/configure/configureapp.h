@@ -22,7 +22,6 @@ public:
     void generateMakefiles();
     void showSummary();
     void findProjects( const QString& dirName );
-    void copyDefsFile();
 
     bool readLicense();
 
