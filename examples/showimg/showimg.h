@@ -64,6 +64,7 @@ private:
     int		clickx, clicky;
     bool	may_be_other;
     static ImageViewer* other;
+    void	setImage(const QImage& newimage);
 
 private slots:
     void	to1Bit();
@@ -73,6 +74,10 @@ private slots:
 
     void	copy();
     void	paste();
+
+    void	hFlip();
+    void	vFlip();
+    void	rot180();
 
     void	editText();
 

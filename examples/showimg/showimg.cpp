@@ -64,8 +64,12 @@ ImageViewer::ImageViewer( QWidget *parent, const char *name, int wFlags )
 
     edit =  new QPopupMenu();
     menubar->insertItem( "&Edit", edit );
-    edit->insertItem("&Copy", this, SLOT(copy()), ALT+Key_C);
-    edit->insertItem("&Paste", this, SLOT(paste()), ALT+Key_V);
+    edit->insertItem("&Copy", this, SLOT(copy()), CTRL+Key_C);
+    edit->insertItem("&Paste", this, SLOT(paste()), CTRL+Key_V);
+    edit->insertSeparator();
+    edit->insertItem("&Horizontal flip", this, SLOT(hFlip()), ALT+Key_H);
+    edit->insertItem("&Vertical flip", this, SLOT(vFlip()), ALT+Key_V);
+    edit->insertItem("&Rotate 180", this, SLOT(rot180()), ALT+Key_R);
     edit->insertSeparator();
     edit->insertItem("&Text...", this, SLOT(editText()));
     edit->insertSeparator();
@@ -582,6 +586,21 @@ void ImageViewer::copyFrom(ImageViewer* s)
 }
 ImageViewer* ImageViewer::other = 0;
 
+void ImageViewer::hFlip()
+{
+    setImage(image.mirror(TRUE,FALSE));
+}
+
+void ImageViewer::vFlip()
+{
+    setImage(image.mirror(FALSE,TRUE));
+}
+
+void ImageViewer::rot180()
+{
+    setImage(image.mirror(TRUE,TRUE));
+}
+
 void ImageViewer::copy()
 {
     //QApplication::clipboard()->setPixmap(pm);
@@ -590,36 +609,40 @@ void ImageViewer::copy()
 
 void ImageViewer::paste()
 {
-    image = QApplication::clipboard()->image();
+    QImage p = QApplication::clipboard()->image();
 
     if ( !image.isNull() ) {
 	filename = "pasted";
-
-	// From loadImage - could be factored out
-
-	pickx = -1;
-	clickx = -1;
-	setCaption( filename );			// set window caption
-	int w = image.width();
-	int h = image.height();
-
-	const int reasonable_width = 128;
-	if ( w < reasonable_width ) {
-	    // Integer scale up to something reasonable
-	    int multiply = ( reasonable_width + w - 1 ) / w;
-	    w *= multiply;
-	    h *= multiply;
-	}
-
-	h += menubar->heightForWidth(w) + status->height();
-	resize( w, h );				// we resize to fit image
-
-	reconvertImage();
-	repaint( image.hasAlphaBuffer() );
-
-	updateStatus();
-	setMenuItemFlags();
+	setImage(p);
     }
+}
+
+void ImageViewer::setImage(const QImage& newimage)
+{
+    image = newimage;
+
+    pickx = -1;
+    clickx = -1;
+    setCaption( filename );			// set window caption
+    int w = image.width();
+    int h = image.height();
+
+    const int reasonable_width = 128;
+    if ( w < reasonable_width ) {
+	// Integer scale up to something reasonable
+	int multiply = ( reasonable_width + w - 1 ) / w;
+	w *= multiply;
+	h *= multiply;
+    }
+
+    h += menubar->heightForWidth(w) + status->height();
+    resize( w, h );				// we resize to fit image
+
+    reconvertImage();
+    repaint( image.hasAlphaBuffer() );
+
+    updateStatus();
+    setMenuItemFlags();
 }
 
 void ImageViewer::editText()
