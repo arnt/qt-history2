@@ -2106,7 +2106,6 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &f
                     for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
                         QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString::null);
                         if(out.endsWith(file.real())) {
-                            qDebug("found %s via compilers %s", file.real().latin1(), out.latin1());
                             ret = QMakeLocalFileName(out);
                             goto found_dep_from_heuristic;
                         }
