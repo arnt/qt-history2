@@ -162,7 +162,7 @@
                                 </widget>
                             </vbox>
                         </widget>
-                        <widget class="QProgressBar">
+                        <widget class="Q3ProgressBar">
                             <property name="name">
                                 <cstring>ProgressBar1</cstring>
                             </property>
