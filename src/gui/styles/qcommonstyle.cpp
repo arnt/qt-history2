@@ -865,18 +865,20 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                      header->text, -1, &(header->palette.buttonText().color()));
         }
         break;
+
     case CE_ToolButtonLabel:
-        if (const QStyleOptionToolButton *tb = qt_cast<const QStyleOptionToolButton *>(opt)) {
-            QRect rect = tb->rect;
+        if (const QStyleOptionToolButton *toolbutton
+                = qt_cast<const QStyleOptionToolButton *>(opt)) {
+            QRect rect = toolbutton->rect;
             int shiftX = 0;
             int shiftY = 0;
-            if (tb->state & (Style_Down | Style_On)) {
-                shiftX = pixelMetric(PM_ButtonShiftHorizontal, tb, widget);
-                shiftY = pixelMetric(PM_ButtonShiftVertical, tb, widget);
+            if (toolbutton->state & (Style_Down | Style_On)) {
+                shiftX = pixelMetric(PM_ButtonShiftHorizontal, toolbutton, widget);
+                shiftY = pixelMetric(PM_ButtonShiftVertical, toolbutton, widget);
             }
-            if (tb->features & QStyleOptionToolButton::Arrow) {
+            if (toolbutton->features & QStyleOptionToolButton::Arrow) {
                 PrimitiveElement pe;
-                switch (tb->arrowType) {
+                switch (toolbutton->arrowType) {
                 case Qt::LeftArrow:
                     pe = PE_IndicatorArrowLeft;
                     break;
@@ -895,69 +897,69 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 rect.translate(shiftX, shiftY);
                 QStyleOption arrowOpt(0);
                 arrowOpt.rect = rect;
-                arrowOpt.palette = tb->palette;
-                arrowOpt.state = tb->state;
+                arrowOpt.palette = toolbutton->palette;
+                arrowOpt.state = toolbutton->state;
                 drawPrimitive(pe, &arrowOpt, p, widget);
             } else {
-                QColor btext = tb->palette.foreground().color();
+                QColor btext = toolbutton->palette.foreground().color();
 
-                if (tb->icon.isNull() && !tb->text.isEmpty()
-                    || tb->toolButtonStyle == Qt::ToolButtonTextOnly) {
+                if (toolbutton->icon.isNull() && !toolbutton->text.isEmpty()
+                    || toolbutton->toolButtonStyle == Qt::ToolButtonTextOnly) {
                     int alignment = Qt::AlignCenter | Qt::TextShowMnemonic;
                     if (!styleHint(SH_UnderlineShortcut, opt, widget))
                         alignment |= Qt::TextHideMnemonic;
                     rect.translate(shiftX, shiftY);
-                    drawItem(p, rect, alignment, tb->palette,
-                             opt->state & Style_Enabled, tb->text, -1, &btext);
+                    drawItem(p, rect, alignment, toolbutton->palette,
+                             opt->state & Style_Enabled, toolbutton->text, -1, &btext);
                 } else {
                     QPixmap pm;
-                    Qt::IconSize size = tb->iconSize;
-                    QIcon::State state = tb->state & Style_On ? QIcon::On : QIcon::Off;
+                    Qt::IconSize size = toolbutton->iconSize;
+                    QIcon::State state = toolbutton->state & Style_On ? QIcon::On : QIcon::Off;
                     QIcon::Mode mode;
-                    if (!(tb->state & Style_Enabled))
+                    if (!(toolbutton->state & Style_Enabled))
                         mode = QIcon::Disabled;
                     else if (opt->state & (Style_Down | Style_On) ||
                              ((opt->state & Style_Raised) && (opt->state & Style_AutoRaise)))
                         mode = QIcon::Active;
                     else
                         mode = QIcon::Normal;
-                    pm = tb->icon.pixmap(size, mode, state);
+                    pm = toolbutton->icon.pixmap(size, mode, state);
 
-                    if (tb->toolButtonStyle != Qt::ToolButtonIconOnly) {
-                        p->setFont(tb->font);
+                    if (toolbutton->toolButtonStyle != Qt::ToolButtonIconOnly) {
+                        p->setFont(toolbutton->font);
                         QRect pr = rect,
                         tr = rect;
                         int alignment = Qt::TextShowMnemonic;
                         if (!styleHint(SH_UnderlineShortcut, opt, widget))
                             alignment |= Qt::TextHideMnemonic;
 
-                        if (tb->toolButtonStyle == Qt::ToolButtonTextUnderIcon) {
+                        if (toolbutton->toolButtonStyle == Qt::ToolButtonTextUnderIcon) {
                             int fh = p->fontMetrics().height();
                             pr.addCoords(0, 3, 0, -fh - 3);
                             tr.addCoords(0, pr.bottom(), 0, -3);
                             pr.translate(shiftX, shiftY);
-                            drawItem(p, pr, Qt::AlignCenter, tb->palette,
+                            drawItem(p, pr, Qt::AlignCenter, toolbutton->palette,
                                      mode != QIcon::Disabled
-                                     || !tb->icon.isGenerated(size, mode, state), pm);
+                                     || !toolbutton->icon.isGenerated(size, mode, state), pm);
                             alignment |= Qt::AlignCenter;
                         } else {
                             pr.setWidth(pm.width() + 8);
                             tr.addCoords(pr.right(), 0, 0, 0);
                             pr.translate(shiftX, shiftY);
-                            drawItem(p, pr, Qt::AlignCenter, tb->palette,
+                            drawItem(p, pr, Qt::AlignCenter, toolbutton->palette,
                                       mode != QIcon::Disabled
-                                      || !tb->icon.isGenerated(size, mode, state), pm);
+                                      || !toolbutton->icon.isGenerated(size, mode, state), pm);
                             alignment |= Qt::AlignLeft | Qt::AlignVCenter;
                         }
                         tr.translate(shiftX, shiftY);
-                        drawItem(p, tr, alignment, tb->palette,
-                                  tb->state & Style_Enabled, QPixmap(), tb->text,
-                                  tb->text.length(), &btext);
+                        drawItem(p, tr, alignment, toolbutton->palette,
+                                  toolbutton->state & Style_Enabled, QPixmap(), toolbutton->text,
+                                  toolbutton->text.length(), &btext);
                     } else {
                         rect.translate(shiftX, shiftY);
-                        drawItem(p, rect, Qt::AlignCenter, tb->palette,
+                        drawItem(p, rect, Qt::AlignCenter, toolbutton->palette,
                                   mode != QIcon::Disabled
-                                  || !tb->icon.isGenerated(size, mode, state), pm);
+                                  || !toolbutton->icon.isGenerated(size, mode, state), pm);
                     }
                 }
             }
@@ -1642,6 +1644,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 fr.state = Style_None;
                 drawPrimitive(PE_FrameFocusRect, &fr, p, widget);
             }
+            drawControl(CE_ToolButtonLabel, toolbutton, p, widget);
         }
         break;
     case CC_TitleBar:

@@ -5004,6 +5004,7 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
             else
                 d->AppManDrawComplexControl(cc, opt, p, w);
         }
+        drawControl(CE_ToolButtonLabel, opt, p, w);
         break;
     }
 }

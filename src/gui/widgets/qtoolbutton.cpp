@@ -28,6 +28,7 @@
 #include <qmainwindow.h>
 #include <qtoolbar.h>
 #include <qvariant.h>
+#include <qstylepainter.h>
 #include <private/qabstractbutton_p.h>
 
 class QToolButtonPrivate : public QAbstractButtonPrivate
@@ -416,50 +417,15 @@ void QToolButton::setToolButtonStyle(Qt::ToolButtonStyle style)
     }
 }
 
-
-/*!
-    Draws the tool button bevel on painter \a p. Called from
-    paintEvent().
-
-    \sa drawLabel()
-*/
-void QToolButton::drawBevel(QPainter *p)
-{
-    QStyleOptionToolButton opt = d->getStyleOption();
-    style()->drawComplexControl(QStyle::CC_ToolButton, &opt, p, this);
-}
-
-
-/*!
-    Draws the tool button label on painter \a p. Called from paintEvent().
-
-    \sa drawBevel()
-*/
-void QToolButton::drawLabel(QPainter *p)
-{
-    QStyleOptionToolButton opt = d->getStyleOption();
-    opt.rect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_ToolButtonContents, &opt, this));
-    style()->drawControl(QStyle::CE_ToolButtonLabel, &opt, p, this);
-}
-
 /*!
     \fn void QToolButton::paintEvent(QPaintEvent *event)
 
-    Paints the button in response to the paint \a event, by first
-    calling drawBevel() and then drawLabel(). If you reimplement
-    paintEvent() just to draw a different label, you can call
-    drawBevel() from your own code. For example:
-    \code
-        QPainter p(this);
-        drawBevel(&p);
-        // ... your label drawing code
-    \endcode
+    Paints the button in response to the paint \a event.
 */
 void QToolButton::paintEvent(QPaintEvent *)
 {
-    QPainter p(this);
-    drawBevel(&p);
-    drawLabel(&p);
+    QStylePainter p(this);
+    p.drawComplexControl(QStyle::CC_ToolButton, d->getStyleOption());
 }
 
 /*!
