@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#81 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#82 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -441,25 +441,22 @@ void QHeader::mousePressEvent( QMouseEvent *m )
     int i = cellAt( c );
     int p = pPos( i );
 
-    if (  i != 0 && c < p + GRIPMARGIN || c > p + pSize( i ) - GRIPMARGIN ) {
+    if ( (i != 0 && c < p + GRIPMARGIN) ||
+	 (c > p + pSize( i ) - GRIPMARGIN) ) {
 	if ( c < p + GRIPMARGIN )
 	    handleIdx = i;
 	else
 	    handleIdx = i+1;
 	oldHIdxSize = cellSize( handleIdx - 1 );
-	if ( data->resize.testBit(mapToLogical(handleIdx - 1)) )
-	    state = Sliding;
-	else
-	    state = Blocked;
+	state = data->resize[ mapToLogical(handleIdx - 1) ] 
+		? Sliding : Blocked;
     } else if ( i >= 0 ) {
 	handleIdx = i;
 	moveToIdx = -1;
-	if ( data->clicks.testBit(mapToLogical(i)) )
-	    state = Pressed;
-	else
-	    state = Blocked;
+	state = data->clicks[ mapToLogical( i ) ] 
+		? Pressed : Blocked;
 	clickPos = c;
-	repaint(sRect( handleIdx ));
+	repaint( sRect( handleIdx ) );
     }
 }
 
@@ -504,11 +501,15 @@ void QHeader::mouseReleaseEvent( QMouseEvent *m )
 
 void QHeader::mouseMoveEvent( QMouseEvent *m )
 {
+    int i, p;
+    bool hit;
+
     int s = orient == Horizontal ? m->pos().x() : m->pos().y();
-    if ( state == Idle ) {
-	int i = cellAt( s );
-	int p = pPos( i );
-	bool hit = FALSE;
+    switch( state ) {
+    case Idle:
+	i = cellAt( s );
+	p = pPos( i );
+	hit = FALSE;
 
 	if (  s < p + GRIPMARGIN || s > p + pSize( i ) - GRIPMARGIN ) {
 	    if ( s < p + GRIPMARGIN )
@@ -523,42 +524,40 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
 	}
 	if ( !hit )
 	    setCursor( arrowCursor );
-    } else {
-	switch ( state ) {
-	case Pressed:
-	case Blocked:
-	    if ( QABS( s - clickPos ) > 4 && data->move ) {
-		state = Moving;
-		moveToIdx = -1;
-		if ( orient == Horizontal )
-		    setCursor( sizeHorCursor );
-		else
-		    setCursor( sizeVerCursor );
-	    }
-	    break;
-	case Sliding:
-	    handleColumnResize( handleIdx, s, FALSE );
-	    break;
-	case Moving: {
-	    int newPos = findLine( s );
-	    if ( newPos != moveToIdx ) {
-		if ( moveToIdx == handleIdx || moveToIdx == handleIdx + 1 )
-		    repaint( sRect(handleIdx) );
-		else
-		    unMarkLine( moveToIdx );
-		moveToIdx = newPos;
-		if ( moveToIdx == handleIdx || moveToIdx == handleIdx + 1 )
-		    paintRect( pPos( handleIdx ), pSize( handleIdx ) );
-		else
-		    markLine( moveToIdx );
-	    }
-	    break;
+	break;
+    case Blocked:
+	break;
+    case Pressed:
+	if ( QABS( s - clickPos ) > 4 && data->move ) {
+	    state = Moving;
+	    moveToIdx = -1;
+	    if ( orient == Horizontal )
+		setCursor( sizeHorCursor );
+	    else
+		setCursor( sizeVerCursor );
 	}
-	default:
-	    warning( "QHeader::mouseMoveEvent: (%s) unknown state",
-		     name( "unnamed" ) );
-	    break;
+	break;
+    case Sliding:
+	handleColumnResize( handleIdx, s, FALSE );
+	break;
+    case Moving: {
+	int newPos = findLine( s );
+	if ( newPos != moveToIdx ) {
+	    if ( moveToIdx == handleIdx || moveToIdx == handleIdx + 1 )
+		repaint( sRect(handleIdx) );
+	    else
+		unMarkLine( moveToIdx );
+	    moveToIdx = newPos;
+	    if ( moveToIdx == handleIdx || moveToIdx == handleIdx + 1 )
+		paintRect( pPos( handleIdx ), pSize( handleIdx ) );
+	    else
+		markLine( moveToIdx );
 	}
+	break;
+    }
+    default:
+	warning( "QHeader::mouseMoveEvent: (%s) unknown state", name() );
+	break;
     }
 }
 
@@ -806,8 +805,9 @@ void QHeader::setCellSize( int i, int s )
 
 
 /*!
-  Enable user resizing of logical column \a i if \a enable is TRUE, disable otherwise.
-  If \a i is negative, resizing is enabled/disabled for all columns.
+  Enable user resizing of logical column \a i if \a enable is TRUE,
+  disable otherwise.  If \a i is negative (as it is by default),
+  resizing is enabled/disabled for all columns.
 
   \sa setMovingEnabled(), setClickEnabled()
 */
@@ -822,8 +822,8 @@ void QHeader::setResizeEnabled( bool enable, int i )
 
 
 /*!
-    Enable the user to exchange  columns if \a enable is TRUE,
-    disable otherwise.
+  Enable the user to exchange  columns if \a enable is TRUE,
+  disable otherwise.
 
   \sa setClickEnabled(), setResizeEnabled()
 */
@@ -835,8 +835,9 @@ void QHeader::setMovingEnabled( bool enable )
 
 
 /*!
-  Enable clicking in logical column \a i if \a enable is TRUE, disable otherwise.
-  If \a i is negative, clicking is enabled/disabled for all columns.
+  Enable clicking in logical column \a i if \a enable is TRUE, disable
+  otherwise.  If \a i is negative (as it is by default), clicking is
+  enabled/disabled for all columns.
 
   If enabled, the sectionClicked() signal is emitted when the user clicks.
 
@@ -852,17 +853,16 @@ void QHeader::setClickEnabled( bool enable, int i )
 }
 
 
-
-
-/*!
-  paints section \a id of the header, inside rectangle \a fr in widget coordinates.
+/*! Paints section \a id of the header, inside rectangle \a fr in
+  widget coordinates.
 */
 
 void QHeader::paintSection( QPainter *p, int id, QRect fr )
 {
     bool down = (id==handleIdx) && ( state == Pressed || state == Moving );
     p->setBrushOrigin( fr.topLeft() );
-    style().drawBevelButton(p, fr.x(), fr.y(), fr.width(), fr.height(), colorGroup(), down);
+    style().drawBevelButton( p, fr.x(), fr.y(), fr.width(), fr.height(),
+			     colorGroup(), down );
 
     int logIdx = mapToLogical(id);
     if ( logIdx < 0 )
@@ -881,7 +881,8 @@ void QHeader::paintSection( QPainter *p, int id, QRect fr )
 	 id==handleIdx && ( state == Pressed || state == Moving ) )
 	d = 1;
 
-    QRect r( fr.x() + QH_MARGIN+d, fr.y() + 2+d, fr.width() - 6, fr.height() - 4 );
+    QRect r( fr.x() + QH_MARGIN+d, fr.y() + 2+d,
+	     fr.width() - 6, fr.height() - 4 );
 
     p->drawText ( r, AlignLeft| AlignVCenter|SingleLine, s );
 }
