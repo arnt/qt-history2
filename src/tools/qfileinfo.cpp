@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#28 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#29 $
 **
 ** Implementation of QFileInfo class
 **
@@ -8,6 +8,11 @@
 ** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
+
+#include "qglobal.h"
+#if defined(_OS_SUN_)
+#define readlink _qt_hide_readlink
+#endif
 
 #include "qfileinf.h"
 #include "qfiledef.h"
@@ -18,7 +23,12 @@
 #include <grp.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfileinfo.cpp#28 $");
+#if defined(_OS_SUN_)
+#undef readlink
+extern "C" int readlink( const char *, void *, uint );
+#endif
+
+RCSTAG("$Id: //depot/qt/main/src/tools/qfileinfo.cpp#29 $");
 
 
 #if defined(_OS_FATFS_)

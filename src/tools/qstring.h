@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#46 $
+** $Id: //depot/qt/main/src/tools/qstring.h#47 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -15,6 +15,10 @@
 
 #include "qarray.h"
 #include <string.h>
+
+#if defined(_OS_SUN_) && defined(_CC_GNU_)
+#include <strings.h>
+#endif
 
 
 /*****************************************************************************
