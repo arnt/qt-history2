@@ -440,7 +440,10 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     if(dropable)
 	setAcceptDrops(FALSE);
     create();
-    setGeometry( p.x(), p.y(), s.width(), s.height() );
+    if ( p.isNull() )
+	resize( s );
+    else
+	setGeometry( p.x(), p.y(), s.width(), s.height() );
     setEnabled( enable );
     setFocusPolicy( fp );
     setAcceptDrops(dropable);
@@ -450,7 +453,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     }
     if ( showIt )
 	show();
-    if ( setcurs ) 
+    if ( setcurs )
 	setCursor(oldcurs);
 
     QObjectList	*accelerators = queryList();
@@ -472,7 +475,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	QFocusData *fd = focusData( TRUE );
 	if ( fd->focusWidgets.findRef(this) < 0 )
  	    fd->focusWidgets.append( this );
-    } 
+    }
 
     QEvent e( QEvent::Reparent );
     QApplication::sendEvent( this, &e );
@@ -760,8 +763,8 @@ void QWidget::showWindow()
 	    GetWindowClass((WindowPtr)hd, &c);
 	    if(c == kMovableModalWindowClass) {
 		if( ( qApp->style().inherits("QAquaStyle") ) )
-		    TransitionWindowAndParent((WindowPtr)hd, (WindowPtr)parentWidget()->hd, 
-					      kWindowSheetTransitionEffect, 
+		    TransitionWindowAndParent((WindowPtr)hd, (WindowPtr)parentWidget()->hd,
+					      kWindowSheetTransitionEffect,
 					      kWindowShowTransitionAction, NULL);
 	    }
 	}
@@ -974,15 +977,15 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    }
 	    if(isResize) {
 		//erase the new area
-		QRegion newr = QRegion(QRect(QPoint(0, 0), olds)) ^ 
+		QRegion newr = QRegion(QRect(QPoint(0, 0), olds)) ^
 			       QRegion(QRect(QPoint(0, 0), size()));
-		if(!newr.isEmpty()) 
+		if(!newr.isEmpty())
 		    erase(newr);
 	    } else if( isMove && !isTopLevel() && !oldregion.isEmpty() ) {
 		//save the window state, and do the grunt work
 		int ow = olds.width(), oh = olds.height();
-		QMacSavedPortInfo saveportstate; 
-		SetPortWindowPort((WindowPtr)handle()); 
+		QMacSavedPortInfo saveportstate;
+		SetPortWindowPort((WindowPtr)handle());
 		::RGBColor f;
 		f.red = f.green = f.blue = 0;
 		RGBForeColor( &f );
@@ -1000,7 +1003,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		bltregion.translate(pos().x() - oldp.x(), pos().y() - oldp.y());
 		bltregion &= clippedRegion(FALSE);
 		SetClip((RgnHandle)bltregion.handle());
-		    
+		
 		//now do the blt
 		BitMap *scrn = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)handle()));
 		CopyBits(scrn, scrn, &oldr, &newr, srcCopy, 0);
@@ -1348,7 +1351,7 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 	    for(QObject *obj; (obj = it.current()); ++it ) {
 		if(obj->isWidgetType()) {
 		    QWidget *w = (QWidget *)(*it);
-		    if(w->topLevelWidget() == topLevelWidget() && 
+		    if(w->topLevelWidget() == topLevelWidget() &&
 		       !w->isTopLevel() && w->isVisible() && w->extra) {
 			dirtied++;
 			w->extra->clip_dirty = TRUE;
@@ -1384,7 +1387,7 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 				for(QObject *obj; (obj = it.current()); ++it ) {
 				    if(obj->isWidgetType()) {
 					QWidget *w = (QWidget *)(*it);
-					if(w->topLevelWidget() == topLevelWidget() && 
+					if(w->topLevelWidget() == topLevelWidget() &&
 					   !w->isTopLevel() && w->isVisible() && w->extra) {
 					    dirtied++;
 					    w->extra->clip_dirty = TRUE;
@@ -1393,7 +1396,7 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 				}
 				delete chldn;
 			    }
-			} 
+			}
 		    }
 		}
 	    }

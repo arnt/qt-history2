@@ -556,7 +556,10 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	XSetWindowBackgroundPixmap( dpy, winid, bgp->handle() );
     else
 	XSetWindowBackground( dpy, winid, bgc.pixel() );
-    setGeometry( p.x(), p.y(), s.width(), s.height() );
+    if ( p.isNull() )
+	resize( s );
+    else
+	setGeometry( p.x(), p.y(), s.width(), s.height() );
     setEnabled( enable );
     setFocusPolicy( fp );
     if ( !capt.isNull() ) {
@@ -1125,7 +1128,7 @@ void QWidget::releaseMouse()
   This widget reveives all keyboard events and other widgets none
   until releaseKeyboard() is called. Mouse events are not
   affected. Use grabMouse() if you want to grab that.
-  
+
   The focus widget is not affected, except that it doesn't receive any
   keyboard events. setFocus() moves the focus as usual, but the new
   focus widget receives keyboard events only after releaseKeyboard()
@@ -1133,7 +1136,7 @@ void QWidget::releaseMouse()
 
   If a different widget is currently grabbing keyboard input, that
   widget's grab is released first.
-  
+
   \sa releaseKeyboard() grabMouse() releaseMouse() focusWidget()
 */
 
