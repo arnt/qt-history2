@@ -169,9 +169,11 @@ protected:
 
 signals:
     void selected( QAction* );
+    void activated(QAction *);
 
 private slots:
     void childToggled( bool );
+    void childActivated();
     void childDestroyed();
     void internalComboBoxActivated( int );
     void internalComboBoxHighlighted( int );

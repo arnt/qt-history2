@@ -861,7 +861,7 @@ bool QAction::isToggleAction() const
 
 /*!
     Activates the action and executes all connected slots.
-    This only works for actions that are not toggle action.
+    This only works for actions that are not toggle actions.
 
     \sa toggle()
 */
@@ -1622,6 +1622,7 @@ void QActionGroup::add( QAction* action )
     connect( action, SIGNAL( destroyed() ), this, SLOT( childDestroyed() ) );
     connect( action, SIGNAL( activated() ), this, SIGNAL( activated() ) );
     connect( action, SIGNAL( toggled(bool) ), this, SLOT( childToggled(bool) ) );
+    connect( action, SIGNAL( activated() ), this, SLOT( childActivated() ) );
 
     for (QList<QComboBox*>::Iterator cb(d->comboboxes.begin()); cb != d->comboboxes.end(); ++cb)
 	action->addTo(*cb);
@@ -1854,7 +1855,9 @@ void QActionGroup::childToggled( bool b )
 {
     if ( !isExclusive() )
 	return;
-    QAction* s = (QAction*) sender();
+    QAction* s = qt_cast<QAction*>(sender());
+    if (!s)
+	return;
     if ( b ) {
 	if ( s != d->selected ) {
 	    d->selected = s;
@@ -1862,10 +1865,7 @@ void QActionGroup::childToggled( bool b )
 		if ( (*it)->isToggleAction() && (*it) != s )
 		    (*it)->setOn( FALSE );
 	    }
-	    emit activated();
 	    emit selected( s );
-	} else if ( !s->isToggleAction() ) {
-	    emit activated();
 	}
     } else {
 	if ( s == d->selected ) {
@@ -1874,6 +1874,18 @@ void QActionGroup::childToggled( bool b )
 	}
     }
 }
+
+/*! \internal
+*/
+void QActionGroup::childActivated()
+{
+    QAction* s = qt_cast<QAction*>(sender());
+    if (s) {
+	emit activated(s);
+	emit QAction::activated();
+    }
+}
+
 
 /*! \internal
 */
@@ -2030,6 +2042,18 @@ void QActionGroup::childEvent( QChildEvent *e )
     \sa setExclusive(), isOn() QAction::toggled()
 */
 
+/*!
+    \fn void QActionGroup::activated( QAction* )
+
+    This signal is emitted from groups when one of it's actions gets
+    activated.
+
+    The argument is the action which got activated.
+
+    \sa setExclusive(), isOn() QAction::toggled()
+*/
+
+
 /*! \internal
 */
 void QActionGroup::internalComboBoxActivated( int index )
@@ -2051,13 +2075,15 @@ void QActionGroup::internalComboBoxActivated( int index )
 	    if ( a->isToggleAction() )
 		a->setOn( TRUE );
 
-	    emit activated();
+	    emit activated(a);
+	    emit QAction::activated();
+	    emit a->activated();
 	    if ( a->isToggleAction() )
 		emit selected( d->selected );
-	    emit ((QActionGroup*)a)->activated();
 	} else if ( !a->isToggleAction() ) {
-	    emit activated();
-	    emit ((QActionGroup*)a)->activated();
+	    emit activated(a);
+	    emit QAction::activated();
+	    emit a->activated();
 	}
 	a->clearStatusText();
     }
