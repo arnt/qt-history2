@@ -735,7 +735,7 @@ void QWizard::layOutButtonRow(QHBoxLayout * layout)
 
     h->addSpacing(6);
 
-    if (d->current == d->pages.at( d->pages.count()-1 ))
+    if (d->pages.size() && d->current == d->pages.at( d->pages.count()-1 ))
         hasEarlyFinish = false;
 
     if (hasEarlyFinish) {
