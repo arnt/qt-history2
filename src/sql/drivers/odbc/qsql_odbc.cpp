@@ -1260,6 +1260,11 @@ void QODBCDriver::cleanup()
 // as two byte unicode characters
 void QODBCPrivate::checkUnicode()
 {
+    if ( !qt_win_unicode ) {
+	unicode = FALSE;
+	return;
+    }
+
     SQLRETURN   r;
     SQLUINTEGER fFunc;
 
@@ -1296,7 +1301,6 @@ void QODBCPrivate::checkUnicode()
     } else {
 	unicode = FALSE;
     }
-
 }
 
 bool QODBCPrivate::checkDriver() const
