@@ -5238,7 +5238,6 @@ void QTextEdit::setFont( const QFont &f )
 	return;
     }
 #endif
-    QFont old( QScrollView::font() );
     QScrollView::setFont( f );
     doc->setMinimumWidth( -1 );
     doc->setDefaultFormat( f, doc->formatCollection()->defaultFormat()->color() );
@@ -5283,7 +5282,7 @@ void QTextEdit::setFont( const QFont &f )
 void QTextEdit::zoomIn( int range )
 {
     QFont f( QScrollView::font() );
-    f.setPointSize( f.pointSize() + range );
+    f.setPointSize( QFontInfo(f).pointSize() + range );
     setFont( f );
 }
 
@@ -5298,7 +5297,7 @@ void QTextEdit::zoomIn( int range )
 void QTextEdit::zoomOut( int range )
 {
     QFont f( QScrollView::font() );
-    f.setPointSize( QMAX( 1, f.pointSize() - range ) );
+    f.setPointSize( QMAX( 1, QFontInfo(f).pointSize() - range ) );
     setFont( f );
 }
 
