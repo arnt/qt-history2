@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#2 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#3 $
 **
 ** Definition of QPainter class
 **
@@ -23,13 +23,6 @@
 
 enum BGMode					// background mode
     { TransparentMode, OpaqueMode };
-
-enum RasterOp					// raster op/transfer mode
-    { CopyROP, OrROP, XorROP, EraseROP,
-      NotCopyROP, NotOrROP, NotXorROP, NotEraseROP };
-
-enum TextAlignment				// text alignment
-    { AlignLeft=0x0, AlignRight, AlignTop, AlignBottom, AlignCenter };
 
 
 class QPainter					// painter class
@@ -110,7 +103,7 @@ public:
     void      drawLineSegments( const QPointArray & );
     void      drawPolyline( const QPointArray & );
     void      drawPolygon( const QPointArray &, bool winding=FALSE );
-    void      drawPixmap( int x, int y, const QPixMap & );
+    void      drawPixMap( int x, int y, const QPixMap & );
 
     void      fillRect( int x, int y, int w, int h, const QColor & );
     void      fillRect( const QRect &, const QColor & );
@@ -166,13 +159,13 @@ private:
     QBrush    cbrush;				// current brush
     QRegion   crgn;				// current region
 
-    int	      isActive	 : 1;			// active painting flag
-    int	      dirtyFont	 : 1;			// update font flag
-    int	      dirtyPen	 : 1;			// update pen flag
-    int	      dirtyBrush : 1;			// update brush flag
-    int	      doXForm	 : 1;			// xform flag
-    int	      doClip	 : 1;			// clipping flag
-    int	      extPDev	 : 1;			// external paint device
+    uint      isActive	 : 1;			// active painting flag
+    uint      dirtyFont	 : 1;			// update font flag
+    uint      dirtyPen	 : 1;			// update pen flag
+    uint      dirtyBrush : 1;			// update brush flag
+    uint      doXForm	 : 1;			// xform flag
+    uint      doClip	 : 1;			// clipping flag
+    uint      extPDev	 : 1;			// external paint device
     int	      sx, sy, sw, sh;			// source rect
     int	      tx, ty, tw, th;			// target rect
 #if defined(_WS_WIN_)
