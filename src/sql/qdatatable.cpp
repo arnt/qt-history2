@@ -1730,64 +1730,69 @@ void QDataTable::sortDescending( int col )
 
 /*! Refreshes the table.  If there is no currently defined cursor (see
   setCursor()), nothing happens.  If there is a currently defined
-  cursor, and \a refreshCursor is TRUE, the cursor() is refreshed.
-  Otherwise, only the table header and viewport are refreshed
-  according to the currently defined columns (see addColumn())
+  cursor, and \a refreshCursor is TRUE, the cursor() is refreshed.  If
+  there are currently defined columns, and \a refreshColumns is TRUE,
+  the table column header is refreshed.  Otherwise, only the table
+  data is refreshed according to the currently defined columns (see
+  addColumn())
 
   \sa setCursor() addColumn()
 */
 
-void QDataTable::refresh( bool refreshCursor )
+void QDataTable::refresh( bool refreshCursor, bool refreshColumns )
 {
     QSqlCursor* cur = sqlCursor();
     if ( !cur )
 	return;
     viewport()->setUpdatesEnabled( FALSE );
-    setNumCols( 0 );
     d->haveAllRows = FALSE;
-    d->colIndex.clear();
     if ( refreshCursor )
 	d->cur.refresh();
-    if ( d->fld.count() ) {
-	QSqlField* field = 0;
-	for ( uint i = 0; i < d->fld.count(); ++i ) {
-	    field = cur->field( d->fld[ i ] );
-	    if ( field && ( cur->isGenerated( field->name() ) ||
-			    cur->isCalculated( field->name() ) ) &&
-		 !cur->primaryIndex().contains( field->name() ) )
-	    {
-		setNumCols( numCols() + 1 );
-		d->colIndex.append( cur->position( field->name() ) );
-		setColumnReadOnly( numCols()-1, field->isReadOnly() );
-		QHeader* h = horizontalHeader();
-		QString label = d->fldLabel[ i ];
-		QIconSet icons = d->fldIcon[ i ];
-		h->setLabel( numCols()-1, icons, label );
+    if ( refreshColumns ) {
+	setNumCols( 0 );
+	d->colIndex.clear();
+	if ( d->fld.count() ) {
+	    QSqlField* field = 0;
+	    for ( uint i = 0; i < d->fld.count(); ++i ) {
+		field = cur->field( d->fld[ i ] );
+		if ( field && ( cur->isGenerated( field->name() ) ||
+				cur->isCalculated( field->name() ) ) &&
+		     !cur->primaryIndex().contains( field->name() ) )
+		    {
+			setNumCols( numCols() + 1 );
+			d->colIndex.append( cur->position( field->name() ) );
+			setColumnReadOnly( numCols()-1, field->isReadOnly() );
+			QHeader* h = horizontalHeader();
+			QString label = d->fldLabel[ i ];
+			QIconSet icons = d->fldIcon[ i ];
+			h->setLabel( numCols()-1, icons, label );
+		    }
 	    }
 	}
     }
     viewport()->setUpdatesEnabled( TRUE );
-	horizontalHeader()->repaint();
+    horizontalHeader()->repaint();
     setSize( cur );
     // keep others aware
     if ( d->lastAt != currentRow() ) {
 	setCurrentSelection( currentRow(), currentColumn() );
     } else {
-	if ( cur->seek( d->lastAt ) )
+	if ( cur->seek( d->lastAt ) ) {
 	    emit currentChanged( cur );
+	}
     }
 }
 
 /*! \overload
 
   Refreshes the table.  The cursor is refreshed using the current
-  filter and current sort and the table header is refreshed using the
-  currently defined columns.  Equivalent to calling refresh( TRUE ).
+  filter, the current sort, and the currently defined columns.
+  Equivalent to calling refresh( TRUE, FALSE ).
 */
 
 void QDataTable::refresh()
 {
-    refresh( TRUE );
+    refresh( TRUE, FALSE );
 }
 
 /*!  \reimp
