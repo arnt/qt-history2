@@ -147,28 +147,26 @@ static bool getImageSize( const char *fileName, int *width, int *height )
     if ( in == 0 )
 	return FALSE;
 
-    if ( fread(magic, 1, 8, in) != 8 ||
-	 memcmp(magic, "\211PNG\r\n\032\n", 8) != 0 )
-	return FALSE;
-
-    for ( ;; ) {
-	if ( fread(chunkHeader, 1, 8, in) != 8 )
-	    return FALSE;
-
-	if ( memcmp(chunkHeader + 4, "IHDR", 4) == 0 ) {
-	    if ( fread(ihdr, 1, 13, in) != 13 )
-		return FALSE;
-	    *width = getBigEndianInt( ihdr );
-	    *height = getBigEndianInt( ihdr + 4 );
-	    return TRUE;
-	} else {
-	    int len = getBigEndianInt( chunkHeader );
-	    if ( fseek(in, (long) (len + 4), SEEK_CUR) != 0 )
-		return FALSE;
+    bool result = FALSE;
+    if ( fread(magic, 1, 8, in) == 8 &&
+	 memcmp(magic, "\211PNG\r\n\032\n", 8) == 0 ) {
+	while ( fread(chunkHeader, 1, 8, in) == 8 ) {
+	    if ( memcmp(chunkHeader + 4, "IHDR", 4) == 0 ) {
+		if ( fread(ihdr, 1, 13, in) != 13 )
+		    break;
+		result = TRUE;
+		*width = getBigEndianInt( ihdr );
+		*height = getBigEndianInt( ihdr + 4 );
+		break;
+	    } else {
+		int len = getBigEndianInt( chunkHeader );
+		if ( fseek(in, (long) (len + 4), SEEK_CUR) != 0 )
+		    break;
+	    }
 	}
     }
     fclose( in );
-    return FALSE;
+    return result;
 }
 
 Config::Config( int argc, char **argv )
