@@ -182,7 +182,7 @@ struct QAquaAnimatePrivate
     //focus
     QWidget *focus;
     //buttons
-    QPushButton *defaultButton, *noPulse;
+    QGuardedPtr<QPushButton> defaultButton, noPulse;
     int buttonTimerId;
     //timers
     QPtrList<QProgressBar> progressBars;
@@ -210,7 +210,6 @@ bool QAquaAnimate::addWidget(QWidget *w)
         QPushButton * btn = (QPushButton *) w;
         if( btn->isDefault() || (btn->autoDefault() && btn->hasFocus()) ){
 	    d->defaultButton = btn;
-	    QObject::connect(btn, SIGNAL(destroyed(QObject*)), this, SLOT(objDestroyed(QObject*)));
             btn->installEventFilter( this );
             if( btn->isVisible() && d->buttonTimerId == -1 ) 
                 d->buttonTimerId = startTimer( 50 );
@@ -253,18 +252,14 @@ void QAquaAnimate::objDestroyed(QObject *o)
 {
     if(o == d->focus) 
 	setFocusWidget(NULL);
-    if(o == d->noPulse)
-	d->noPulse = NULL;
     while(d->progressBars.remove((QProgressBar*)o));
-    if(o == d->defaultButton)
-	d->defaultButton = NULL;
 }
 bool QAquaAnimate::animatable(QAquaAnimate::Animates as, QWidget *w)
 {
     if(as == AquaPushButton && w->inherits("QPushButton")) {
 	QPushButton *btn = (QPushButton *)w;
-	if((!d->noPulse || d->noPulse == btn || !d->noPulse->isDown()) &&
-	   btn->isEnabled() && (btn->isDefault() || (btn->autoDefault() && btn->hasFocus())) && (d->defaultButton == btn) &&
+	if((!d->noPulse || (QPushButton*)d->noPulse == btn || !d->noPulse->isDown()) &&
+	   btn->isEnabled() && (btn->isDefault() || (btn->autoDefault() && btn->hasFocus())) && ((QPushButton*)d->defaultButton == btn) &&
 	   w == d->defaultButton)
 	    return TRUE;
     } else if(as == AquaProgressBar && d->progressBars.find((QProgressBar*)w) != -1) {
