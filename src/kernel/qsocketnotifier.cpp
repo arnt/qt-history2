@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketnotifier.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qsocketnotifier.cpp#24 $
 **
 ** Implementation of QSocketNotifier class
 **
@@ -84,11 +84,6 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
   signal to more than one slot, because the data can be read from the
   socket only once.
 
-  Make sure to disable the socket notifier for write operations when
-  there is nothing to be written, otherwise the notifier fires on
-  every pass of the main event loop.  The socket notifier is enabled
-  when it is created.
-
   Also observe that if you do not read all the available data when the
   read notifier fires, it fires again and again.
 
@@ -96,6 +91,21 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
   it if you do not know what you are doing.  (The same applies to
   exception notifiers if you have to use that, for instance if you \e
   have to use TCP urgent data.)
+
+  For write notifiers, after the activated() signal has been received
+  and you have sent the data to be written on the socket, immediately
+  disable the notifier. When you have more data to be written, enable
+  it again to get a new activated() signal. The exception is if the
+  socket data writing operation (send() or equivalent) fails with a
+  "Would block" error, meaning that some buffer is full and you must
+  wait before sending more data. In this case, you do not need to
+  disable and re-enable the write notifier, it will fire again as soon
+  as the system allows more data may be sent.
+  
+  The behaviour of a write notifier that is left in enabled state
+  after having emitting the first activated() signal (and no "would
+  block" error has occured) is undefined. Depending on the operating
+  system, it may fire on every pass of the event loop, or not at all.  
 
   If you need a time-out for your sockets, you can use either
   \link QObject::startTimer() timer events\endlink or the QTimer class.
@@ -202,8 +212,9 @@ QSocketNotifier::~QSocketNotifier()
   it is disabled, it ignores socket events (the same effect as not creating
   the socket notifier).
 
-  Disable the socket notifier for writes if there is nothing to be
-  written, otherwise your program hogs the CPU.
+  Write notifiers should normally be disabled immediately after the
+  activated() signal has been emitted; see discussion of write
+  notifiers in the class description above.
 
   \sa isEnabled(), activated()
 */
