@@ -184,7 +184,8 @@
     The originator waits until it has received replies from all
     hosts, and can then choose the server with most free space to
     store data. To broadcast a datagram, simply send it to the
-    special address QHostAddress::Broadcast (127.0.0.1).
+    special address QHostAddress::Broadcast (255.255.255.255), or
+    to your local network's broadcast address.
 
     QUdpSocket::bind() prepares the socket for accepting incoming
     datagrams, much like QTcpServer::listen() for TCP servers.
