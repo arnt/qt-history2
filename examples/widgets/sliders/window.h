@@ -17,8 +17,8 @@ class SlidersGroup : public QGroupBox
     Q_OBJECT
 
 public:
-    SlidersGroup::SlidersGroup(Qt::Orientation orientation,
-                               const QString &title, QWidget *parent);
+    SlidersGroup(Qt::Orientation orientation, const QString &title,
+                 QWidget *parent);
 
 signals:
     void valueChanged(int);
