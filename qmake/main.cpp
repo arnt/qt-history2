@@ -195,7 +195,7 @@ int main(int argc, char **argv)
 	if(!(Option::output.state() & IO_Open)) {
 	    if(Option::output.name().isEmpty()) {
 		QString dir = QDir::currentDirPath();
-		int s = dir.findRev(QDir::separator());
+		int s = dir.findRev('/');
 		if(s != -1)
 		    dir = dir.right(dir.length() - (s + 1));
 		Option::output.setName(dir + ".pro");
