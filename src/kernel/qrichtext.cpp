@@ -2993,7 +2993,7 @@ bool QTextDocument::find( QTextCursor& cursor, const QString &e, bool cs, bool w
 	    for ( ;; ) {
 		int res = forward ? s.find( expr, start, cs ) : s.findRev( expr, start, cs );
 		int end = res + expr.length();
-		if ( res == -1 || ( !forward && start < end ) )
+		if ( res == -1 || ( !forward && start < res ) )
 		    break;
 		if ( !wo || ( ( res == 0 || s[ res - 1 ].isSpace() || s[ res - 1 ].isPunct() ) &&
 			      ( end == (int)s.length() || s[ end ].isSpace() || s[ end ].isPunct() ) ) ) {
@@ -3002,9 +3002,11 @@ bool QTextDocument::find( QTextCursor& cursor, const QString &e, bool cs, bool w
 		    setSelectionStart( Standard, cursor );
 		    cursor.setIndex( forward ? res : end );
 		    setSelectionEnd( Standard, cursor );
+		    if ( !forward )
+			cursor.setIndex( res );
 		    return TRUE;
 		}
-		start = res +  (forward ? 1 : -1);
+		start = res + (forward ? 1 : -1);
 	    }
 	}
 	if ( forward ) {
