@@ -674,11 +674,6 @@ void QFontPrivate::load()
 	if(fin) 
 	    fin->deref();
 	fin=qfs;
-	if(!fin->info) {
-	    fin->info = (FontInfo *)malloc(sizeof(FontInfo));
-	    QMacSetFontInfo fi(this);
-	    GetFontInfo(fin->info);
-	}
 	if(fin->fnum == -1) {
 	    Str255 str;
 	    // encoding == 1, yes it is strange the names of fonts are encoded in MacJapanese
@@ -687,6 +682,11 @@ void QFontPrivate::load()
 							kTextEncodingDefaultFormat );
 	    qstring_to_pstring(request.family, request.family.length(), str, encoding);
 	    GetFNum(str, &fin->fnum);
+	}
+	if(!fin->info) {
+	    fin->info = (FontInfo *)malloc(sizeof(FontInfo));
+	    QMacSetFontInfo fi(this);
+	    GetFontInfo(fin->info);
 	}
 	actual.dirty = TRUE;
     }
