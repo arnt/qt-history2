@@ -89,6 +89,7 @@ public:
     int count(const T &t) const;
 
     class iterator {
+        Node *i;
     public:
         typedef std::random_access_iterator_tag  iterator_category;
         typedef ptrdiff_t  difference_type;
@@ -96,7 +97,6 @@ public:
         typedef T *pointer;
         typedef T &reference;
 
-        Node *i;
         inline iterator() : i(0) {}
         inline iterator(Node *n) : i(n) {}
         inline iterator(const iterator &o): i(o.i){}
@@ -115,10 +115,12 @@ public:
         inline iterator operator-(int j) const { return iterator(i-j); }
         inline int operator-(iterator j) const { return i - j.i; }
         friend class QList;
+        friend class QList::const_iterator;
     };
     friend class iterator;
 
     class const_iterator {
+        Node *i;
     public:
         typedef std::random_access_iterator_tag  iterator_category;
         typedef ptrdiff_t difference_type;
@@ -126,11 +128,10 @@ public:
         typedef T *pointer;
         typedef T &reference;
 
-        Node *i;
         inline const_iterator() : i(0) {}
         inline const_iterator(Node *n) : i(n) {}
         inline const_iterator(const const_iterator &o): i(o.i) {}
-        inline const_iterator(const iterator &o) : i(((const_iterator &)o).i) {}
+        inline const_iterator(const iterator &o): i(o.i) {}
         inline const T &operator*() const { return i->t(); }
         inline const T *operator->() const { return &i->t(); }
         inline const T &operator[](int j) const { return i[j].t(); }
