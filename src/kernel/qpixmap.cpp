@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#35 $
 **
 ** Implementation of QPixmap class
 **
@@ -14,7 +14,7 @@
 #include "qimage.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#34 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#35 $")
 
 
 /*----------------------------------------------------------------------------
@@ -54,7 +54,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#34 $")
   and the bitBlt().
 
   You can \link load() load\endlink and \link save() save\endlink
-  pixmaps using several image formats.  You can display a QPixmap on
+  pixmaps using several image formats.	You can display a QPixmap on
   the screen easily using QLabel::setPixmap(), and all the \link
   QButton button classes \endlink support pixmap use.
 
@@ -122,7 +122,8 @@ QPixmap &QPixmap::operator=( const QImage &image )
   Resizing an existing pixmap to (0,0) makes a pixmap into a null
   pixmap.
 
-  \sa resize() */
+  \sa resize()
+ ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn int QPixmap::width() const
@@ -155,7 +156,7 @@ QPixmap &QPixmap::operator=( const QImage &image )
   Returns the depth of the image.
 
   The pixmap depth is also called bits per pixel (bpp) or bit planes
-  of a pixmap.  A null pixmap has depth 0.
+  of a pixmap.	A null pixmap has depth 0.
 
   \sa numColors() isNull() QImage::convertDepth() convertToImage()
  ----------------------------------------------------------------------------*/
@@ -183,8 +184,9 @@ QPixmap &QPixmap::operator=( const QImage &image )
 
 void QPixmap::resize( int w, int h )
 {
-    if ( w<1 || h<1 ){				// will become null?
+    if ( w<1 || h<1 ) {				// will become null?
 	QPixmap pm;
+	pm.data->optim	= data->optim;		// keep optimization flag
 	pm.data->bitmap = data->bitmap;		// keep is-a flag
 	*this = pm;
 	return;
@@ -312,7 +314,7 @@ QDataStream &operator<<( QDataStream &s, const QPixmap &pixmap )
 QDataStream &operator>>( QDataStream &s, QPixmap &pixmap )
 {
     QImageIO io( s.device(), "BMP" );
-    io.read();
-    pixmap.convertFromImage( io.image() );
+    if ( io.read() )
+	pixmap.convertFromImage( io.image() );
     return s;
 }
