@@ -618,13 +618,6 @@ void QTextHTMLImporter::import()
             if (node->imageHeight >= 0)
                 fmt.setHeight(node->imageHeight);
             QTextFrameFormat::Position f = QTextFrameFormat::Position(node->cssFloat);
-            // HTML4 compat
-            if (f == QTextFrameFormat::InFlow) {
-                if (node->alignment == Qt::AlignLeft)
-                    f = QTextFrameFormat::FloatLeft;
-                else if (node->alignment == Qt::AlignRight)
-                    f = QTextFrameFormat::FloatRight;
-            }
             QTextFrameFormat ffmt;
             ffmt.setPosition(f);
             int objIndex = d->formatCollection.createObjectIndex(ffmt);
