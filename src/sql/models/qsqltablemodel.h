@@ -35,7 +35,7 @@ public:
 
     virtual bool select();
 
-    void setTable(const QString &tableName);
+    virtual void setTable(const QString &tableName);
     QString tableName() const;
 
     Qt::ItemFlags flags(const QModelIndex &index) const;

@@ -52,6 +52,7 @@ public:
     void clear();
     bool select();
 
+    void setTable(const QString &tableName);
     virtual void setRelation(int column, const QSqlRelation &relation);
     QSqlRelation relation(int column) const;
     virtual QSqlTableModel *relationModel(int column) const;
@@ -61,6 +62,7 @@ public slots:
 
 protected:
     QString selectStatement() const;
+    bool updateRowInTable(int row, const QSqlRecord &values);
 
 private:
     Q_DECLARE_PRIVATE(QSqlRelationalTableModel)

@@ -17,6 +17,7 @@
 #include "qstringlist.h"
 #include "qsqldatabase.h"
 #include "qsqlerror.h"
+#include "qsqlfield.h"
 #include "qsqlindex.h"
 #include "qsqlquery.h"
 #include "qsqlrecord.h"
@@ -100,6 +101,7 @@ public:
     {}
 
     mutable QVector<Relation> relations;
+    QSqlRecord baseRec; // the record without relations
     void clearChanges();
 };
 
@@ -389,5 +391,39 @@ bool QSqlRelationalTableModel::select()
     Q_D(QSqlRelationalTableModel);
     d->clearChanges();
     return QSqlTableModel::select();
+}
+
+/*!
+    \reimp
+*/
+void QSqlRelationalTableModel::setTable(const QString &table)
+{
+    Q_D(QSqlRelationalTableModel);
+
+    // memorize the table before applying the relations
+    d->baseRec = d->db.record(table);
+
+    QSqlTableModel::setTable(table);
+}
+
+/*!
+    \reimp
+*/
+bool QSqlRelationalTableModel::updateRowInTable(int row, const QSqlRecord &values)
+{
+    Q_D(QSqlRelationalTableModel);
+
+    QSqlRecord rec = values;
+
+    // translate the field names
+    for (int i = 0; i < values.count(); ++i) {
+        int realCol = indexInQuery(createIndex(row, i)).column();
+        if (realCol != -1 && d->relations.value(realCol).rel.isValid()) {
+            QVariant v = values.value(i);
+            rec.replace(i, d->baseRec.field(realCol));
+            rec.setValue(i, v);
+        }
+    }
+    return QSqlTableModel::updateRowInTable(row, rec);
 }
 
