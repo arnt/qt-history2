@@ -678,7 +678,7 @@ QChar QChar::toUpper() const
 
     \sa latin1(), unicode(), QTextCodec::codecForCStrings()
 */
-char QChar::ascii() const
+const char QChar::ascii() const
 {
 #ifndef QT_NO_CODEC_FOR_C_STRINGS
     if (QTextCodec::codecForCStrings())
