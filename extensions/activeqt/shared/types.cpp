@@ -741,7 +741,7 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
         if (type == QVariant::Color || (!type && typeName == "QColor"))
             var = OLEColorToQColor(arg.lVal);
         else if (type == QVariant::Cursor || (!type && (typeName == "QCursor" || typeName == "QCursor*")))
-            var = QCursor(arg.lVal);
+            var = QCursor(static_cast<Qt::CursorShape>(arg.lVal));
         else
             var = (int)arg.lVal;
         break;
@@ -749,7 +749,7 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
         if (type == QVariant::Color || (!type && typeName == "QColor"))
             var = OLEColorToQColor((int)*arg.plVal);
         else if (type == QVariant::Cursor || (!type && (typeName == "QCursor" || typeName == "QCursor*")))
-            var = QCursor((int)*arg.plVal);
+            var = QCursor(static_cast<Qt::CursorShape>(*arg.plVal));
         else
             var = (int)*arg.plVal;
         break;
@@ -775,7 +775,7 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
         if (type == QVariant::Color || (!type && typeName == "QColor"))
             var = OLEColorToQColor(arg.ulVal);
         else if (type == QVariant::Cursor || (!type && (typeName == "QCursor" || typeName == "QCursor*")))
-            var = QCursor(arg.ulVal);
+            var = QCursor(static_cast<Qt::CursorShape>(arg.ulVal));
         else
             var = (int)arg.ulVal;
         break;
@@ -783,7 +783,7 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
         if (type == QVariant::Color || (!type && typeName == "QColor"))
             var = OLEColorToQColor((uint)*arg.pulVal);
         else if (type == QVariant::Cursor || (!type && (typeName == "QCursor" || typeName == "QCursor*")))
-            var = QCursor((int)*arg.pulVal);
+            var = QCursor(static_cast<Qt::CursorShape>(*arg.pulVal));
         else
             var = (int)*arg.pulVal;
         break;
@@ -955,7 +955,7 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
 		            VARIANT var;
 		            VariantInit(&var);
                             dimIndices[1] = y;
-		            HRESULT hres = SafeArrayGetElement(array, dimIndices, &var);
+		            SafeArrayGetElement(array, dimIndices, &var);
 
 		            QVariant qvar = VARIANTToQVariant(var, 0);
 		            clearVARIANT(&var);
