@@ -44,19 +44,11 @@
 #include "qdatastream.h"
 #endif // QT_H
 
-
-#if defined(Q_TEMPLATEDLL)
-template class Q_EXPORT QVector<char>
-#endif
-
-typedef QVector<char> QStrVecBase;
-
-
-class Q_EXPORT QStrVec : public QStrVecBase
+class Q_EXPORT QStrVec : public QVector<char>
 {
 public:
     QStrVec()  { dc = TRUE; }
-    QStrVec( uint size, bool deepc = TRUE ) : QStrVecBase(size) {dc=deepc;}
+    QStrVec( uint size, bool deepc = TRUE ) : QVector<char>(size) {dc=deepc;}
    ~QStrVec()  { clear(); }
 private:
     Item	 newItem( Item d )	{ return dc ? qstrdup( (const char*)d ) : d; }
