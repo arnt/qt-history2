@@ -5913,6 +5913,8 @@ void QTableHeader::mouseReleaseEvent( QMouseEvent *e )
 
 void QTableHeader::mouseDoubleClickEvent( QMouseEvent *e )
 {
+    if ( e->button() != LeftButton )
+	return;
     if ( isResizing ) {
 	int p = real_pos( e->pos(), orientation() ) + offset();
 	int section = sectionAt( p );
