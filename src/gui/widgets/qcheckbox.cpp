@@ -33,9 +33,6 @@ public:
     QStyleOptionButton getStyleOption() const;
 };
 
-#define d d_func()
-#define q q_func()
-
 /*!
     \class QCheckBox
     \brief The QCheckBox widget provides a checkbox with a text label.
@@ -109,11 +106,13 @@ public:
 
 void QCheckBoxPrivate::init()
 {
+    Q_Q(QCheckBox);
     q->setCheckable(true);
 }
 
 QStyleOptionButton QCheckBoxPrivate::getStyleOption() const
 {
+    Q_Q(const QCheckBox);
     QStyleOptionButton opt;
     opt.init(q);
     if (down)
@@ -136,6 +135,7 @@ QStyleOptionButton QCheckBoxPrivate::getStyleOption() const
 QCheckBox::QCheckBox(QWidget *parent)
     : QAbstractButton (*new QCheckBoxPrivate, parent)
 {
+    Q_D(QCheckBox);
     d->init();
 }
 
@@ -148,17 +148,20 @@ QCheckBox::QCheckBox(QWidget *parent)
 QCheckBox::QCheckBox(const QString &text, QWidget *parent)
     : QAbstractButton (*new QCheckBoxPrivate, parent)
 {
+    Q_D(QCheckBox);
     d->init();
     setText(text);
 }
 
 void QCheckBox::setTristate(bool y)
 {
+    Q_D(QCheckBox);
     d->tristate = y;
 }
 
 bool QCheckBox::isTristate() const
 {
+    Q_D(const QCheckBox);
     return d->tristate;
 }
 
@@ -170,6 +173,7 @@ bool QCheckBox::isTristate() const
 */
 Qt::CheckState QCheckBox::checkState() const
 {
+    Q_D(const QCheckBox);
     if (d->tristate &&  d->noChange)
         return Qt::PartiallyChecked;
     return d->checked ? Qt::Checked : Qt::Unchecked;
@@ -182,6 +186,7 @@ Qt::CheckState QCheckBox::checkState() const
 */
 void QCheckBox::setCheckState(Qt::CheckState state)
 {
+    Q_D(QCheckBox);
     if (state == Qt::PartiallyChecked) {
         d->tristate = true;
         d->noChange = true;
@@ -200,6 +205,7 @@ void QCheckBox::setCheckState(Qt::CheckState state)
 */
 QSize QCheckBox::sizeHint() const
 {
+    Q_D(const QCheckBox);
     ensurePolished();
     QFontMetrics fm = fontMetrics();
     QStyleOptionButton opt = d->getStyleOption();
@@ -213,6 +219,7 @@ QSize QCheckBox::sizeHint() const
 */
 void QCheckBox::paintEvent(QPaintEvent *)
 {
+    Q_D(QCheckBox);
     QStylePainter p(this);
     QStyleOptionButton opt = d->getStyleOption();
     p.drawControl(QStyle::CE_CheckBox, opt);
@@ -222,6 +229,7 @@ void QCheckBox::paintEvent(QPaintEvent *)
 /*!\reimp*/
 bool QCheckBox::hitButton(const QPoint &pos) const
 {
+    Q_D(const QCheckBox);
     QStyleOptionButton opt = d->getStyleOption();
     QRect r = QStyle::visualRect(opt.direction, opt.rect, style()->subElementRect(QStyle::SE_CheckBoxClickRect, &opt, this));
     if (qApp->layoutDirection() == Qt::RightToLeft) {
@@ -235,6 +243,7 @@ bool QCheckBox::hitButton(const QPoint &pos) const
 /*!\reimp*/
 void QCheckBox::checkStateSet()
 {
+    Q_D(QCheckBox);
     d->noChange = false;
     emit stateChanged(checkState());
 }
@@ -242,6 +251,7 @@ void QCheckBox::checkStateSet()
 /*!\reimp*/
 void QCheckBox::nextCheckState()
 {
+    Q_D(QCheckBox);
     if (d->tristate)
         setCheckState((Qt::CheckState)((checkState() + 1) % 3));
     else {
@@ -258,6 +268,7 @@ void QCheckBox::nextCheckState()
 QCheckBox::QCheckBox(QWidget *parent, const char* name)
     : QAbstractButton (*new QCheckBoxPrivate, parent)
 {
+    Q_D(QCheckBox);
     setObjectName(name);
     d->init();
 }
@@ -269,6 +280,7 @@ QCheckBox::QCheckBox(QWidget *parent, const char* name)
 QCheckBox::QCheckBox(const QString &text, QWidget *parent, const char* name)
     : QAbstractButton (*new QCheckBoxPrivate, parent)
 {
+    Q_D(QCheckBox);
     setObjectName(name);
     d->init();
     setText(text);

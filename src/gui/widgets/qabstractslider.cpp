@@ -19,8 +19,6 @@
 #include "qaccessible.h"
 #endif
 #include <limits.h>
-#define d d_func()
-#define q q_func()
 
 /*!
     \class QAbstractSlider
@@ -194,6 +192,7 @@ QAbstractSliderPrivate::~QAbstractSliderPrivate()
 */
 void QAbstractSlider::setRange(int min, int max)
 {
+    Q_D(QAbstractSlider);
     d->minimum = min;
     d->maximum = qMax(min, max);
     sliderChange(SliderRangeChange);
@@ -204,6 +203,7 @@ void QAbstractSlider::setRange(int min, int max)
 
 void QAbstractSliderPrivate::setSteps(int single, int page)
 {
+    Q_Q(QAbstractSlider);
     singleStep = single;
     pageStep = page;
     q->sliderChange(QAbstractSlider::SliderStepsChange);
@@ -248,6 +248,7 @@ QAbstractSlider::~QAbstractSlider()
 
 void QAbstractSlider::setOrientation(Qt::Orientation orientation)
 {
+    Q_D(QAbstractSlider);
     d->orientation = orientation;
     if (!testAttribute(Qt::WA_WState_OwnSizePolicy)) {
         QSizePolicy sp = sizePolicy();
@@ -261,6 +262,7 @@ void QAbstractSlider::setOrientation(Qt::Orientation orientation)
 
 Qt::Orientation QAbstractSlider::orientation() const
 {
+    Q_D(const QAbstractSlider);
     return d->orientation;
 }
 
@@ -277,11 +279,13 @@ Qt::Orientation QAbstractSlider::orientation() const
 
 void QAbstractSlider::setMinimum(int min)
 {
+    Q_D(QAbstractSlider);
     setRange(min, qMax(d->maximum, min));
 }
 
 int QAbstractSlider::minimum() const
 {
+    Q_D(const QAbstractSlider);
     return d->minimum;
 }
 
@@ -299,11 +303,13 @@ int QAbstractSlider::minimum() const
 
 void QAbstractSlider::setMaximum(int max)
 {
+    Q_D(QAbstractSlider);
     setRange(qMin(d->minimum, max), max);
 }
 
 int QAbstractSlider::maximum() const
 {
+    Q_D(const QAbstractSlider);
     return d->maximum;
 }
 
@@ -322,11 +328,13 @@ int QAbstractSlider::maximum() const
 
 void QAbstractSlider::setSingleStep(int step)
 {
+    Q_D(QAbstractSlider);
     d->setSteps(step, d->pageStep);
 }
 
 int QAbstractSlider::singleStep() const
 {
+    Q_D(const QAbstractSlider);
     return d->singleStep;
 }
 
@@ -343,11 +351,13 @@ int QAbstractSlider::singleStep() const
 
 void QAbstractSlider::setPageStep(int step)
 {
+    Q_D(QAbstractSlider);
     d->setSteps(d->singleStep, step);
 }
 
 int QAbstractSlider::pageStep() const
 {
+    Q_D(const QAbstractSlider);
     return d->pageStep;
 }
 
@@ -364,11 +374,13 @@ int QAbstractSlider::pageStep() const
 */
 void QAbstractSlider::setTracking(bool enable)
 {
+    Q_D(QAbstractSlider);
     d->tracking = enable;
 }
 
 bool QAbstractSlider::hasTracking() const
 {
+    Q_D(const QAbstractSlider);
     return d->tracking;
 }
 
@@ -386,6 +398,7 @@ bool QAbstractSlider::hasTracking() const
 */
 void QAbstractSlider::setSliderDown(bool down)
 {
+    Q_D(QAbstractSlider);
     d->pressed = down;
     if (!down && d->position != d->value)
         triggerAction(SliderMove);
@@ -393,6 +406,7 @@ void QAbstractSlider::setSliderDown(bool down)
 
 bool QAbstractSlider::isSliderDown() const
 {
+    Q_D(const QAbstractSlider);
     return d->pressed;
 }
 
@@ -404,6 +418,7 @@ bool QAbstractSlider::isSliderDown() const
 */
 void QAbstractSlider::setSliderPosition(int position)
 {
+    Q_D(QAbstractSlider);
     position = d->bound(position);
     if (position == d->position)
         return;
@@ -425,6 +440,7 @@ void QAbstractSlider::setSliderPosition(int position)
 */
 int QAbstractSlider::sliderPosition() const
 {
+    Q_D(const QAbstractSlider);
     return d->position;
 }
 
@@ -442,11 +458,13 @@ int QAbstractSlider::sliderPosition() const
 
 int QAbstractSlider::value() const
 {
+    Q_D(const QAbstractSlider);
     return d->value;
 }
 
 void QAbstractSlider::setValue(int value)
 {
+    Q_D(QAbstractSlider);
     value = d->bound(value);
     if (d->value == value)
         return;
@@ -471,11 +489,13 @@ void QAbstractSlider::setValue(int value)
 
 bool QAbstractSlider::invertedAppearance() const
 {
+    Q_D(const QAbstractSlider);
     return d->invertedAppearance;
 }
 
 void QAbstractSlider::setInvertedAppearance(bool invert)
 {
+    Q_D(QAbstractSlider);
     d->invertedAppearance = invert;
     update();
 }
@@ -493,11 +513,13 @@ void QAbstractSlider::setInvertedAppearance(bool invert)
 
 bool QAbstractSlider::invertedControls() const
 {
+    Q_D(const QAbstractSlider);
     return d->invertedControls;
 }
 
 void QAbstractSlider::setInvertedControls(bool invert)
 {
+    Q_D(QAbstractSlider);
     d->invertedControls = invert;
 }
 
@@ -510,6 +532,7 @@ void QAbstractSlider::setInvertedControls(bool invert)
  */
 void QAbstractSlider::triggerAction(SliderAction action)
 {
+    Q_D(QAbstractSlider);
     d->blocktracking = true;
     switch (action) {
     case SliderSingleStepAdd:
@@ -546,6 +569,7 @@ of \a repeatTime, after an initial delay of \a thresholdTime.
  */
 void QAbstractSlider::setRepeatAction(SliderAction action, int thresholdTime, int repeatTime)
 {
+    Q_D(QAbstractSlider);
     if ((d->repeatAction = action) == SliderNoAction) {
         d->repeatActionTimer.stop();
     } else {
@@ -560,6 +584,7 @@ void QAbstractSlider::setRepeatAction(SliderAction action, int thresholdTime, in
  */
 QAbstractSlider::SliderAction QAbstractSlider::repeatAction() const
 {
+    Q_D(const QAbstractSlider);
     return d->repeatAction;
 }
 
@@ -567,6 +592,7 @@ QAbstractSlider::SliderAction QAbstractSlider::repeatAction() const
  */
 void QAbstractSlider::timerEvent(QTimerEvent *e)
 {
+    Q_D(QAbstractSlider);
     if (e->timerId() == d->repeatActionTimer.timerId()) {
         if (d->repeatActionTime) { // was threshold time, use repeat time next time
             d->repeatActionTimer.start(d->repeatActionTime, this);
@@ -594,6 +620,7 @@ void QAbstractSlider::sliderChange(SliderChange)
 */
 void QAbstractSlider::wheelEvent(QWheelEvent * e)
 {
+    Q_D(QAbstractSlider);
     if (e->orientation() != d->orientation && !rect().contains(e->pos()))
         return;
 
@@ -623,6 +650,7 @@ void QAbstractSlider::wheelEvent(QWheelEvent * e)
 */
 void QAbstractSlider::keyPressEvent(QKeyEvent *ev)
 {
+    Q_D(QAbstractSlider);
     SliderAction action = SliderNoAction;
     switch (ev->key()) {
 
@@ -668,6 +696,7 @@ void QAbstractSlider::keyPressEvent(QKeyEvent *ev)
 */
 void QAbstractSlider::changeEvent(QEvent *ev)
 {
+    Q_D(QAbstractSlider);
     switch (ev->type()) {
     case QEvent::EnabledChange:
         if (!isEnabled()) {

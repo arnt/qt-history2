@@ -20,9 +20,6 @@
 #include "qstyleoption.h"
 
 #include "qframe_p.h"
-#define d d_func()
-#define q q_func()
-
 
 QFramePrivate::QFramePrivate()
     : frect(QRect(0, 0, 0, 0)),
@@ -192,6 +189,7 @@ QFrame::~QFrame()
 */
 int QFrame::frameStyle() const
 {
+    Q_D(const QFrame);
     return d->frameStyle;
 }
 
@@ -204,11 +202,13 @@ int QFrame::frameStyle() const
 
 QFrame::Shape QFrame::frameShape() const
 {
+    Q_D(const QFrame);
     return (Shape) (d->frameStyle & Shape_Mask);
 }
 
 void QFrame::setFrameShape(QFrame::Shape s)
 {
+    Q_D(QFrame);
     setFrameStyle((d->frameStyle & Shadow_Mask) | s);
 }
 
@@ -221,11 +221,13 @@ void QFrame::setFrameShape(QFrame::Shape s)
 */
 QFrame::Shadow QFrame::frameShadow() const
 {
+    Q_D(const QFrame);
     return (Shadow) (d->frameStyle & Shadow_Mask);
 }
 
 void QFrame::setFrameShadow(QFrame::Shadow s)
 {
+    Q_D(QFrame);
     setFrameStyle((d->frameStyle & Shape_Mask) | s);
 }
 
@@ -249,6 +251,7 @@ void QFrame::setFrameShadow(QFrame::Shadow s)
 
 void QFrame::setFrameStyle(int style)
 {
+    Q_D(QFrame);
     if (!testAttribute(Qt::WA_WState_OwnSizePolicy)) {
         switch (style & Shape_Mask) {
         case HLine:
@@ -282,12 +285,14 @@ void QFrame::setFrameStyle(int style)
 
 void QFrame::setLineWidth(int w)
 {
+    Q_D(QFrame);
     d->lineWidth = (short)w;
     d->updateFrameWidth();
 }
 
 int QFrame::lineWidth() const
 {
+    Q_D(const QFrame);
     return d->lineWidth;
 }
 
@@ -302,12 +307,14 @@ int QFrame::lineWidth() const
 
 void QFrame::setMidLineWidth(int w)
 {
+    Q_D(QFrame);
     d->midLineWidth = (short)w;
     d->updateFrameWidth();
 }
 
 int QFrame::midLineWidth() const
 {
+    Q_D(const QFrame);
     return d->midLineWidth;
 }
 
@@ -319,6 +326,7 @@ int QFrame::midLineWidth() const
 
 void QFramePrivate::updateFrameWidth()
 {
+    Q_Q(QFrame);
     QRect fr = q->frameRect();
 
     int frameShape  = frameStyle & QFrame::Shape_Mask;
@@ -387,6 +395,7 @@ void QFramePrivate::updateFrameWidth()
 */
 int QFrame::frameWidth() const
 {
+    Q_D(const QFrame);
     return d->frameWidth;
 }
 
@@ -407,6 +416,7 @@ int QFrame::frameWidth() const
 
 QRect QFrame::frameRect() const
 {
+    Q_D(const QFrame);
     QRect fr = contentsRect();
     fr.adjust(-d->frameWidth, -d->frameWidth, d->frameWidth, d->frameWidth);
     return fr;
@@ -414,6 +424,7 @@ QRect QFrame::frameRect() const
 
 void QFrame::setFrameRect(const QRect &r)
 {
+    Q_D(QFrame);
     QRect cr = r.isValid() ? r : rect();
     cr.adjust(d->frameWidth, d->frameWidth, -d->frameWidth, -d->frameWidth);
     setContentsMargins(cr.left(), cr.top(), rect().right() - cr.right(), rect().bottom() - cr.bottom());
@@ -423,6 +434,7 @@ void QFrame::setFrameRect(const QRect &r)
 */
 QSize QFrame::sizeHint() const
 {
+    Q_D(const QFrame);
     //   Returns a size hint for the frame - for HLine and VLine
     //   shapes, this is stretchable one way and 3 pixels wide the
     //   other.  For other shapes, QWidget::sizeHint() is used.
@@ -452,6 +464,7 @@ void QFrame::paintEvent(QPaintEvent *)
  */
 void QFrame::drawFrame(QPainter *p)
 {
+    Q_D(QFrame);
     QPoint      p1, p2;
     QStyleOptionFrame opt;
     opt.init(this);
@@ -537,6 +550,7 @@ void QFrame::drawFrame(QPainter *p)
  */
 void QFrame::changeEvent(QEvent *ev)
 {
+    Q_D(QFrame);
     if(ev->type() == QEvent::StyleChange)
         d->updateFrameWidth();
     QWidget::changeEvent(ev);
