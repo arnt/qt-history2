@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#276 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#277 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1727,9 +1727,6 @@ void QListBox::setSelected( QListBoxItem * item, bool select )
 
 bool QListBox::isSelected( int i ) const
 {
-    if ( i < 0 || i > (int)count() )
-	return FALSE;
-
     if ( selectionMode() == Single )
 	return i == currentItem();
 
