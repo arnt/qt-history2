@@ -70,13 +70,13 @@ public:
     ~CopperStylePlugin() { }
 
     QStringList keys() const {
-	return QStringList() << "CopperStyle"; 
+        return QStringList() << "CopperStyle"; 
     }
 
     QStyle *create( const QString& key ) { 
-	if ( key == "CopperStyle" ) 
-	    return new CopperStyle;
-	return 0;
+        if ( key == "CopperStyle" ) 
+            return new CopperStyle;
+        return 0;
     }
 };
 
@@ -96,7 +96,7 @@ precompiled dynamic libraries or as plugins.
   calendar @Index { Calendar }
 @Figure
     @Caption { One of Klar{@Char{adieresis}}lvdalens Datakonsult's
-	       many commercial components }
+               many commercial components }
 0.5 @Scale @IncludeGraphic { "images/klaralvdalen.eps" }
 @DP
 @OLREF @LP

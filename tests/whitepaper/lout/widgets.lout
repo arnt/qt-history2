@@ -94,7 +94,7 @@ int main( int argc, char **argv )
 {
     QApplication app( argc, argv );
     QLabel *hello = new QLabel( "<font color=blue>Hello <i>Qt!</i>"
-				"</font>", 0 );
+                                "</font>", 0 );
     app.setMainWidget( hello );
     hello->show();
     return app.exec();
@@ -124,6 +124,7 @@ using the Windows style.
   qcheckbox @Index { QCheckBox }
   qradiobutton @Index { QRadioButton }
   radiobutton @Index { Radio button }
+@PP
 @Figure
     @Caption { Two @Class{QRadioButton}s and two @Class{QCheckBox}es
 	       laid out with a @Class QButtonGroup }
@@ -140,6 +141,7 @@ using the Windows style.
   qtextedit @Index { QTextEdit }
   texteditor @Index { Text editor }
   time @Index { Time }
+@PP
 @Figure
     @Caption { A @Class QDateTimeEdit, a @Class QLineEdit, a @Class
 	       QTextEdit and a @Class QComboBox laid out with a
@@ -176,6 +178,7 @@ using the Windows style.
   spreadsheet @Index { Spreadsheet }
   table @Index { Table }
   treeview @Index { Tree view }
+@PP
 @Figure
     @Caption { A @Class QIconView, a @Class QListView, a @Class QListBox
 	       and a @Class QTable laid out with a @Class QGrid }
@@ -301,7 +304,7 @@ void Clock::showTime()
 {
     QString time = QTime::currentTime().toString().left( 5 );
     if ( !showingColon )
-	time[2] = ' ';
+        time[2] = ' ';
     display( time );
     showingColon = !showingColon;
 }

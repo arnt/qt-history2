@@ -30,31 +30,31 @@ applications.
     indent { ctr }
     font { Helvetica Base }
     aformat { @StartHSpan @Cell paint { darkgrey } white @Color A | 
-	      @HSpan | @HSpan | @HSpan }
+              @HSpan | @HSpan | @HSpan }
     bformat { @StartHSpan @Cell paint { grey } A | @HSpan | @HSpan | @HSpan }
     cformat { @Cell paint { lightgrey } A | @Cell paint { lightgrey } B | 
-	      @Cell paint { lightgrey } C | @Cell paint { lightgrey } D }
+              @Cell paint { lightgrey } C | @Cell paint { lightgrey } D }
     dformat { @Cell A | @Cell B | @Cell C | @StartVSpan @Cell D }
     eformat { @Cell A | @Cell B | @Cell C | @VSpan }
 {
     @Rowa
-	A { Qt Application Source Code }
+        A { Qt Application Source Code }
     @Rowb
-	A { Qt API }
+        A { Qt API }
     @Rowc
-	A { "Qt/Windows" }
-	B { "Qt/X11" }
-	C { "Qt/Macintosh" }
-	D { "Qt/Embedded" }
+        A { "Qt/Windows" }
+        B { "Qt/X11" }
+        C { "Qt/Macintosh" }
+        D { "Qt/Embedded" }
     @Rowd
-	A { GDI }
-	B { Xlib }
-	C { Carbon }
-	D { @LP Embedded Linux }
+        A { GDI }
+        B { Xlib }
+        C { Carbon }
+        D { @LP Embedded Linux }
     @Rowe
-	A { MS-Windows }
-	B { "Unix/Linux" }
-	C { Mac OS X }
+        A { MS-Windows }
+        B { "Unix/Linux" }
+        C { Mac OS X }
 }
 #@IncludeGraphic { "images/architecture-diag.eps" }
 @PP

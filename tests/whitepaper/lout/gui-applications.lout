@@ -38,6 +38,7 @@ all that is necessary to present a message box or a standard dialog.
 Qt can platform-independently store application settings, such as
 user preferences, most recently used files, window and toolbar
 positions and sizes, etc.
+@NP
 @BeginSubSections
 @SubSection
     @Title { Main Window Classes }
@@ -241,7 +242,7 @@ button and a `Save' accelerator, all with balloon help:
   toolbar @Index { Toolbar }
 @IndentedDisplay @CP @Begin
 QAction *saveAct = new QAction( "Save", saveIcon, "&Save",
-				CTRL+Key_S, this );
+                                CTRL+Key_S, this );
 connect( saveAct, SIGNAL(activated()), this, SLOT(save()) );
 saveAct->setWhatsThis( "Saves the current file." );
 saveAct->addTo( fileMenu );
@@ -469,7 +470,7 @@ stored in text files.
   usersettings @Index { User settings }
 @PP
 A particular setting is stored using a key. For example, the key
-@F{"/SoftwareInc/"}&-@F{"Zoomer/RecentFiles"} could contain a list of
+@F{"/SoftwareInc/"&-"Zoomer/RecentFiles"} could contain a list of
 recently used files. Booleans, numbers, Unicode strings and lists of
 Unicode strings can be stored.
   unicode @Index { Unicode }

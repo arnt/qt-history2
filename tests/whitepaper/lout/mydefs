@@ -5,10 +5,10 @@ import @BasicSetup
 def @Class right x { darkblue @Colour @B x }
 
 import @BasicSetup
-def @Cmd right x { { Courier Base } @Font x }
+def @Cmd right x { { Courier Base -1p } @Font x }
 
 import @BasicSetup
-def @File right x { { Courier Base } @Font x }
+def @File right x { { Courier Base -1p } @Font x }
 
 import @BasicSetup
 def @Func right x { darkblue @Colour x }

@@ -36,8 +36,8 @@ QFile file( "splash.dat" );
 if ( file.open(IO_WriteOnly) ) {
     QDataStream out( &file );
     out << QString( "SplashWidgetStyle" )
-	<< QFont( "Times", 18, QFont::Bold )
-	<< QColor( "skyblue" );
+        << QFont( "Times", 18, QFont::Bold )
+        << QColor( "skyblue" );
 }
 @End @CP
 The data can easily be retrieved and used, for example:
@@ -52,8 +52,8 @@ if ( file.open(IO_ReadOnly) ) {
     in >> str >> font >> color;
 
     if ( str == "SplashWidgetStyle" ) {
-	splashWidget->setFont( font );
-	splashWidget->setColor( color );
+        splashWidget->setFont( font );
+        splashWidget->setColor( color );
     }
 }
 @End @CP
@@ -94,7 +94,7 @@ QStringList names = dir.entryList();
 for ( int i = 0; i < names.count(); i++ ) {
     QFileInfo info( dir, names[i] );
     cout << names[i].latin1() << " "
-	    << info.size() << endl;
+         << info.size() << endl;
 }
 @End @CP
 Transparent access to remote files is provided by @Class
@@ -110,7 +110,7 @@ protocols. For example, files can be downloaded using FTP like this:
 @IndentedDisplay @CP @Begin
 QUrlOperator op;
 op.copy( QString("ftp://ftp.trolltech.com/qt/INSTALL"),
-	    QString("file:/tmp") );
+         QString("file:/tmp") );
 @End @CP
 URLs can easily be parsed and recomposed using @Class QUrl.
 @PP
@@ -192,7 +192,7 @@ lines related to networking are presented.
 @IndentedDisplay @CP @Begin
 socket = new QSocket( this );
 connect( socket, SIGNAL(readyRead()),
-	    this, SLOT(updateTargetAmount()) );
+         this, SLOT(updateTargetAmount()) );
 @End @CP
 The socket is created in the @Class Converter constructor. Socket
 communication is asynchronous, and the socket emits the @Func
@@ -201,8 +201,8 @@ readyRead() signal when there is data available to read.
 void Converter::convert()
 {
     QString command = "CONV " + sourceAmount->text() + " " +
-			sourceCurrency->currentText() + " " +
-			targetCurrency->currentText() + "\r\n";
+                      sourceCurrency->currentText() + " " +
+                      targetCurrency->currentText() + "\r\n";
     socket->connectToHost( "ccp.banca-monica.nu", 123 );
     socket->writeBlock( command.latin1(), command.length() );
 }
@@ -219,8 +219,8 @@ responsive.
 void Converter::updateTargetAmount()
 {
     if ( socket->canReadLine() ) {
-	targetAmount->setText( socket->readLine() );
-	socket->close();
+        targetAmount->setText( socket->readLine() );
+        socket->close();
     }
 }
 @End @CP

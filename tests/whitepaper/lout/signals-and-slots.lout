@@ -123,14 +123,14 @@ Here's the implementation of the slot @Func setBalance():
 void BankAccount::setBalance( int newBalance )
 {
     if ( newBalance != curBalance ) {
-	curBalance = newBalance;
-	emit balanceChanged( curBalance );
+        curBalance = newBalance;
+        emit balanceChanged( curBalance );
     }
 }
 @End @CP
 The statement
 @IndentedDisplay @CP @Begin
-	emit balanceChanged( curBalance );
+emit balanceChanged( curBalance );
 @End @CP
 causes the @Func balanceChanged() signal to be emitted with the new
 current balance as its argument. The keyword @F emit, like @F signals
@@ -141,7 +141,7 @@ Here's an example of how to connect two @Class{BankAccount}s:
 @IndentedDisplay @CP @Begin
 BankAccount x, y;
 connect( &x, SIGNAL(balanceChanged(int)),
-	    &y, SLOT(setBalance(int)) );
+         &y, SLOT(setBalance(int)) );
 x.setBalance( 2450 );
 @End @CP
 When the balance in @F x is set to 2450, the @Func balanceChanged()
@@ -153,6 +153,7 @@ many signals can be connected to one slot in a particular object.
 Connections are made between signals and slots whose parameters have
 the same types. A slot can have fewer parameters than the signal and
 ignore the extra parameters.
+@NP
 @End @SubSection
 @SubSection
     @Title { Meta Object Compiler }

@@ -71,9 +71,9 @@ navigated using @Func QSqlQuery::next():
 QSqlQuery query( "SELECT id, surname FROM staff" );
 while ( query.next() ) {
     cout << "id: "
-	    << query.value( 0 ).toInt()
-	    << " surname: "
-	    << query.value( 1 ).toString() << endl;
+         << query.value( 0 ).toInt()
+         << " surname: "
+         << query.value( 1 ).toString() << endl;
 }
 @End @CP
 Field values are indexed in the order they appear in the @F SELECT
@@ -84,11 +84,11 @@ prev(), @Func last() and @Func seek() navigation functions.
 UPDATE example:
 @IndentedDisplay @CP @Begin
 QSqlQuery query( "UPDATE staff SET salary = salary * 1.10"
-		    " WHERE id > 1155 AND id < 8155" );
+                 " WHERE id > 1155 AND id < 8155" );
 if ( query.isActive() ) {
     cout << "Pay rise given to "
-	    << query.numRowsAffected()
-	    << " staff" << endl;
+         << query.numRowsAffected()
+         << " staff" << endl;
 }
 @End @CP
 For programmers who are not comfortable writing raw SQL, the @Class
@@ -101,9 +101,9 @@ statements. For example:
 QSqlCursor cur( "staff" );
 while ( cur.next() ) {
     cout << "id: "
-	    << cur.value( "id" ).toInt()
-	    << " surname: "
-	    << cur.value( "surname" ).toString() << endl;
+         << cur.value( "id" ).toInt()
+         << " surname: "
+         << cur.value( "surname" ).toString() << endl;
 }
 @End @CP
 @Class QSqlCursor also supports the ordering and filtering that are

@@ -86,7 +86,7 @@ QPainter when implementing their own custom widgets.
 @PP
 @Class QPainter provides standard functions to draw points, lines,
 polygons, ellipses, arcs, Bezier curves, etc. The following command
-draws a 120 x 60 rectangle whose top-left point is at (25, 15), with
+draws a 120 x 60 rectangle whose top-left point is at (25,~15), with
 a 2-pixel wide dashed red outline:
   beziercurve @Index { Bezier curve }
 @IndentedDisplay @CP @Begin
@@ -139,12 +139,12 @@ void BarGraph::paintEvent( QPaintEvent * )
 }
 
 void BarGraph::draw_bar( QPainter *painter, int month, int barHeight,
-			    BrushStyle pattern )
+                         BrushStyle pattern )
 {
     painter->setPen( blue );
     painter->setBrush( QBrush(darkGreen, pattern) );
     painter->drawRect( 10 + 30 * month, height() - barHeight, 20,
-		       barHeight );
+                       barHeight );
 }
 @End @CP
 The widget is drawn correctly at different sizes because the code
@@ -433,7 +433,7 @@ created:
 void create_slider( QWidget *parent, Box3D *box3d, const char *slot )
 {
     QSlider *slider = new QSlider( 0, 360, 60, 0,
-	    QSlider::Horizontal, parent );
+                                   QSlider::Horizontal, parent );
     slider->setTickmarks( QSlider::Below );
     QObject::connect( slider, SIGNAL(valueChanged(int)), box3d, slot );
 }
@@ -443,7 +443,7 @@ int main( int argc, char **argv )
     QApplication::setColorSpec( QApplication::CustomColor );
     QApplication app( argc, argv );
     if ( !QGLFormat::hasOpenGL() )
-	qFatal( "This system has no OpenGL support" );
+        qFatal( "This system has no OpenGL support" );
 
     QVBox *parent = new QVBox;
     parent->setCaption( "OpenGL Box" );

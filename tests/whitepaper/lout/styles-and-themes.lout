@@ -102,18 +102,18 @@ functions from the appropriate base class.
 {
     @CurveBox QStyle 
     @FirstSub {
-	@CurveBox QCommonStyle
-	@LeftSub {
-	    @CurveBox QMotifStyle
-	    @FirstSub @CurveBox QCDEStyle
-	    @NextSub @CurveBox QMotifPlusStyle
-	    @NextSub @CurveBox QSGIStyle
-	}
-	@RightSub {
-	    @CurveBox QWindowsStyle
-	    @LeftSub @CurveBox QAquaStyle
-	    @RightSub @CurveBox QPlatinumStyle
-	}
+        @CurveBox QCommonStyle
+        @LeftSub {
+            @CurveBox QMotifStyle
+            @FirstSub @CurveBox QCDEStyle
+            @NextSub @CurveBox QMotifPlusStyle
+            @NextSub @CurveBox QSGIStyle
+        }
+        @RightSub {
+            @CurveBox QWindowsStyle
+            @LeftSub @CurveBox QAquaStyle
+            @RightSub @CurveBox QPlatinumStyle
+        }
     }
 }
 }

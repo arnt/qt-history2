@@ -217,16 +217,18 @@
   # @ExampleTitleFormat	{ (title)		} # only if title present
   # @ExampleFormat	{ {@B { word @NumSep number title: } &2s} @Insert body }
   # @ProofWord		{ proof			} # "Proof" word, etc.
-  @PageHeaders	{ Titles		} # None Simple Titles NoTitles
+  @PageHeaders	{ Simple		} # None Simple Titles NoTitles
   # @PageNumbers	{ Arabic		} # page numbers
   # @FirstPageNumber	{ 1			} # number of first page 
   # @IntroPageNumbers	{ Roman			} # intro page numbers
   # @IntroFirstPageNumber{ 1			} # number of first intro page 
   # @StructPageNums	{ No			} # make structured page numbers
 
-  # @OddTop		{ @Centre{- @PageNum -}	} # Simple page headers
-  # @OddFoot		{ @Null			}
+  @OddFoot		{ @Centre{@B @PageNum}	} # Simple page headers
+  @OddTop		{ @Null	} # Simple page headers
+  @EvenTop		{ @Null	} # Simple page headers
   # @EvenTop		{ @Centre{- @PageNum -}	}
+  @EvenFoot		{ @Centre{@B @PageNum}	} # Simple page headers
   # @EvenFoot		{ @Null			}
   # @StartOddTop	{ @Null			}
   # @StartOddFoot	{ @Null			}
@@ -245,7 +247,6 @@
   # @RunningOddTop  { @I {@MinorNum @DotSep @MinorTitle} @Right @B @PageNum }
   # @RunningOddFoot		{ @Null					}
   # @RunningEvenTop { @B @PageNum @Right @I {@MajorNum @DotSep @MajorTitle} }
-  @RunningEvenTop  { @I {@MinorNum @DotSep @MinorTitle} @Right @B @PageNum }
   # @RunningEvenFoot		{ @Null					}
   # @RunningStartOddTop 	{ @Null					}
   # @RunningStartOddFoot	{ @Centre { Bold 0.8f } @Font @PageNum	}

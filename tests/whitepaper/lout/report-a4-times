@@ -221,9 +221,13 @@
   # @IntroFirstPageNumber{ 1			} # number of first intro page 
   # @StructPageNums	{ No			} # make structured page numbers
 
+  @OddTop		{ @Null	} # Simple page headers
+  @EvenTop		{ @Null	} # Simple page headers
   # @OddTop		{ @Centre{- @PageNum -}	} # Simple page headers
   # @OddFoot		{ @Null			}
+  @OddFoot		{ @Centre{@B @PageNum}	} # Simple page headers
   # @EvenTop		{ @Centre{- @PageNum -}	}
+  @EvenFoot		{ @Centre{@B @PageNum}	} # Simple page headers
   # @EvenFoot		{ @Null			}
   # @StartOddTop	{ @Null			}
   # @StartOddFoot	{ @Null			}
