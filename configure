@@ -1534,7 +1534,17 @@ then
     (cd $outpath/qmake; /bin/sh -c "$MAKE" || (echo "QMake failed to build. Aborting." && exit 2)) || exit 2
 fi
 
-#stl must be way down here after qmake has been made, because the test itself uses qmake
+# Work around broken X11 headers when using GCC 2.95 or later
+# This test uses qmake, so it must be way down here after qmake has been made
+
+NOTYPE=no
+$x11tests/notype.test $XQMAKESPEC $VERBOSE $relpath $outpath && NOTYPE=yes
+if [ "x$NOTYPE" = "xyes" ]
+then
+    QMAKE_VARS="$QMAKE_VARS  \"QMAKE_CXXFLAGS+=-fpermissive\""
+fi
+
+# STL must be way down here after qmake has been made, because the test itself uses qmake
 
 if [ $PLATFORM = "hpux-acc" -a $STL != no ]
 then
@@ -2025,7 +2035,7 @@ fi
 echo
 
 QMAKE_ALL_ARGS="\"CONFIG+=$QMAKE_CONFIG\" $QMAKE_VARS $QMAKE_SWITCHES"
-echo "Creating makefiles .."
+echo "Creating makefiles ..."
 sepath=`echo $relpath | sed -e 's/\\./\\\\./g'`
 PROCS=1
 PIPE=""
