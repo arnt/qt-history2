@@ -4468,7 +4468,7 @@ double QString::toDouble( bool *ok ) const
     const char *a = latin1();
     double val = strtod( a ? a : "", &end );
     if ( ok )
-	*ok = ( a && *a && (end == 0 || (end - a) == (int)length()) );
+	*ok = ( a && *a && (end == 0 || (end - a) > 0 ) );
     return val;
 }
 
