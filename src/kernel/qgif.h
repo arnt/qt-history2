@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgif.h#3 $
+** $Id: //depot/qt/main/src/kernel/qgif.h#4 $
 **
 ** To enable built-in reading of GIF images in Qt, change the definition
 ** below to "#define QT_BUILTIN_GIF_READER 1".
@@ -30,6 +30,8 @@
 **
 *****************************************************************************/
 
-#define QT_BUILTIN_GIF_READER 0 // MUST BE ZERO FOR ALL RELEASES
+#ifndef QT_BUILTIN_GIF_READER
+#define QT_BUILTIN_GIF_READER 0
+#endif
 
 bool qt_builtin_gif_reader();
