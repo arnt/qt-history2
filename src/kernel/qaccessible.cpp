@@ -71,7 +71,16 @@
 */
 
 /*!
-  \fn QAccessibleInterface* QAccessibleInterface::navigate( NavDirection direction, int *target ) const
+  \fn QAccessibleInterface* QAccessibleInterface::navigate( NavDirection direction, int *startEnd ) const
+
+  This function traverses to another object. \a direction specifies in which direction 
+  to navigate, and the value of \a startEnd specifies the start point of the navigation, 
+  which is either 0 if the navigation starts at the object itself, or an ID of one of 
+  the object's subelements.
+
+  The function returns the QAccessibleInterface implementation of the object located at 
+  the direction specified, or this QAccessibleInterface if the target object is a subelement
+  of this object. \a startEnd is then set to the ID of this subelement.
 */
 
 /*!
@@ -293,6 +302,8 @@ QAccessibleWidget::QAccessibleWidget( QWidget *w, Role role, QString name,
       description_(description),value_(value),help_(help), 
       defAction_(defAction), accelerator_(accelerator)
 {
+     if ( widget_->inherits( "QPopupMenu" ) )
+	 role_ = MenuPopup;
 }
 
 /*!
@@ -310,7 +321,7 @@ QWidget *QAccessibleWidget::widget() const
 */
 QAccessibleInterface* QAccessibleWidget::hitTest( int x, int y, int *who ) const
 {
-    *who = -1;
+    *who = 0;
     QPoint gp = widget_->mapToGlobal( QPoint( 0, 0 ) );
     if ( !QRect( gp.x(), gp.y(), widget_->width(), widget_->height() ).contains( x, y ) )
 	return NULL;
@@ -331,6 +342,11 @@ QAccessibleInterface* QAccessibleWidget::hitTest( int x, int y, int *who ) const
 */
 QRect	QAccessibleWidget::location( int who ) const
 {
+    Q_UNUSED(who)
+#if defined(QT_DEBUG)
+    if ( who )
+	qWarning( "QAccessibleWidget::location: This implementation does not support subelements!" );
+#endif
     QPoint wpos = widget_->mapToGlobal( QPoint( 0, 0 ) );
 
     return QRect( wpos.x(), wpos.y(), widget_->width(), widget_->height() );
@@ -343,7 +359,6 @@ QRect	QAccessibleWidget::location( int who ) const
 */
 QAccessibleInterface *QAccessibleWidget::navigate( NavDirection dir, int *target ) const
 {
-    *target = -1;
     QObject *o = 0;
     switch ( dir ) {
     case NavFirstChild:
@@ -455,16 +470,26 @@ QAccessibleInterface *QAccessibleWidget::parent() const
 
   Does nothing and returns FALSE.
 */
-bool	QAccessibleWidget::doDefaultAction( int /*who*/ )
+bool	QAccessibleWidget::doDefaultAction( int who )
 {
+    Q_UNUSED(who)
+#if defined(QT_DEBUG)
+    if ( who )
+	qWarning( "QAccessibleWidget::doDefaultAction: This implementation does not support subelements!" );
+#endif
     return FALSE;
 }
 
 /*!
   \reimp
 */
-QString	QAccessibleWidget::defaultAction( int /*who*/ ) const
+QString	QAccessibleWidget::defaultAction( int who ) const
 {
+    Q_UNUSED(who)
+#if defined(QT_DEBUG)
+    if ( who )
+	qWarning( "QAccessibleWidget::defaultAction: This implementation does not support subelements!" );
+#endif
     return defAction_;
 }
 
@@ -476,9 +501,12 @@ QString	QAccessibleWidget::defaultAction( int /*who*/ ) const
 
   \sa QObject::className
 */
-QString	QAccessibleWidget::description( int /*who*/ ) const
+QString	QAccessibleWidget::description( int who ) const
 {
+    Q_UNUSED(who)
 #if defined(QT_DEBUG)
+    if ( who )
+	qWarning( "QAccessibleWidget::description: This implementation does not support subelements!" );
     return !!description_ ? description_ : widget_->className();
 #else
     return description_;
@@ -488,16 +516,26 @@ QString	QAccessibleWidget::description( int /*who*/ ) const
 /*!
   \reimp
 */
-QString	QAccessibleWidget::help( int /*who*/) const
+QString	QAccessibleWidget::help( int who ) const
 {
+    Q_UNUSED(who)
+#if defined(QT_DEBUG)
+    if ( who )
+	qWarning( "QAccessibleWidget::help: This implementation does not support subelements!" );
+#endif
     return help_;
 }
 
 /*!
   \reimp
 */
-QString	QAccessibleWidget::accelerator( int /*who*/ ) const
+QString	QAccessibleWidget::accelerator( int who ) const
 {
+    Q_UNUSED(who)
+#if defined(QT_DEBUG)
+    if ( who )
+	qWarning( "QAccessibleWidget::accelerator: This implementation does not support subelements!" );
+#endif
     return accelerator_;
 }
 
@@ -510,8 +548,13 @@ QString	QAccessibleWidget::accelerator( int /*who*/ ) const
 
   \a QWidget::caption, QObject::name
 */
-QString	QAccessibleWidget::name( int /*who*/ ) const
+QString	QAccessibleWidget::name( int who ) const
 {
+    Q_UNUSED(who)
+#if defined(QT_DEBUG)
+    if ( who )
+	qWarning( "QAccessibleWidget::name: This implementation does not support subelements!" );
+#endif
     if ( widget_->isTopLevel() )
 	return widget_->caption();
 #if defined(QT_DEBUG)
@@ -524,16 +567,26 @@ QString	QAccessibleWidget::name( int /*who*/ ) const
 /*!
   \reimp
 */
-QString	QAccessibleWidget::value( int /*who*/ ) const
+QString	QAccessibleWidget::value( int who ) const
 {
+    Q_UNUSED(who)
+#if defined(QT_DEBUG)
+    if ( who )
+	qWarning( "QAccessibleWidget::value: This implementation does not support subelements!" );
+#endif
     return value_;
 }
 
 /*!
   \reimp
 */
-QAccessible::Role	QAccessibleWidget::role( int /*who*/ ) const
+QAccessible::Role	QAccessibleWidget::role( int who ) const
 {
+    Q_UNUSED(who)
+#if defined(QT_DEBUG)
+    if ( who )
+	qWarning( "QAccessibleWidget::role: This implementation does not support subelements!" );
+#endif
     return role_;
 }
 
@@ -544,8 +597,14 @@ QAccessible::Role	QAccessibleWidget::role( int /*who*/ ) const
   appropriate. Reimplementations should call this implementation and
   use the returned value to add further flags.
 */
-QAccessible::State	QAccessibleWidget::state( int /*who*/ ) const
+QAccessible::State	QAccessibleWidget::state( int who ) const
 {
+    Q_UNUSED(who)
+#if defined(QT_DEBUG)
+    if ( who )
+	qWarning( "QAccessibleWidget::state: This implementation does not support subelements!" );
+#endif
+
     int state = QAccessible::Normal;
 
     if ( widget_->isHidden() )
