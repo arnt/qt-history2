@@ -50,7 +50,7 @@
   documents and response quickly to user input.
 
   QTextEdit extends QTextView with keyboard and mouse handling for
-  usier input and functions to set/get/modify formatting, text, etc.
+  user input and functions to set/get/modify formatting, text, etc.
 
   As it is derived from QTextView it supports the same functions to
   set and load plain and HTML text. Using the save() function, the
@@ -65,13 +65,13 @@
   position of the cursor use setCursorPosition() or
   getCursorPosition().
 
-  To change the formats of selections or the current cursor position
-  use setBold(), setItalic(), setUnderline(), setFamily(),
-  setPointSize(), setFont() or setColor(). Tho change paragraph
-  formatting use setAlignment() and setParagType(). When the cursor is
-  moved, the signals currentFontChanged(), currentColorChanged() and
-  currentAlignmentChanged() are emitted to inform about the format at
-  the cursor position.
+  To change the current format (at the cursor position) or the formats
+  of a selection, use setBold(), setItalic(), setUnderline(),
+  setFamily(), setPointSize(), setFont() or setColor(). To change
+  paragraph formatting use setAlignment() and setParagType(). When the
+  cursor is moved, the signals currentFontChanged(),
+  currentColorChanged() and currentAlignmentChanged() are emitted to
+  inform about the format at the cursor position.
 
   To insert text at the cursor position use insert(). Also cut(),
   copy() and paste() can be done through the API. If the text changes,
@@ -191,9 +191,8 @@
 
 /*! \fn bool QTextEdit::isModified() const
 
-  This function returns whether the document of the has been modified
-  or not after loading/setting the text, the last time
-  QTextView::save() or setModified( FALSE ) has been called.
+  This function returns whether the document has been modified by the
+  user.
  */
 
 /*! \fn bool QTextEdit::italic() const
@@ -265,7 +264,7 @@
 
 /*! \fn void QTextEdit::setOverwriteMode( bool b )
 
-  Sets overwrite mode if \a on is TRUE. Overwrite mode means that
+  Sets overwrite mode if \a a on is TRUE. Overwrite mode means that
   characters typed replace characters in the editor.
 
  */
@@ -413,7 +412,7 @@
 
 /*! \fn void QTextEdit::currentFontChanged( const QFont &f )
 
-  This signal is emitted of the font of the current format (the format
+  This signal is emitted if the font of the current format (the format
   at the position where the cursor is placed) has changed.
 
   \a f contains the new font.
@@ -421,7 +420,7 @@
 
 /*! \fn void QTextEdit::currentColorChanged( const QColor &c )
 
-  This signal is emitted of the color of the current format (the
+  This signal is emitted if the color of the current format (the
   format at the position where the cursor is placed) has changed.
 
   \a c contains the new color.
@@ -429,15 +428,15 @@
 
 /*! \fn void QTextEdit::currentAlignmentChanged( int a )
 
-  This signal is emitted of the alignment of the current paragraph
+  This signal is emitted if the alignment of the current paragraph
   (the paragraph at which the cursor is placed) has changed.
 
-  \a contains the new alignment.
+  \a a contains the new alignment.
 */
 
 /*! \fn void QTextEdit::cursorPositionChanged( QTextCursor *c )
 
-  This signal is emitted of the position of the cursor changed. \a c
+  This signal is emitted if the position of the cursor changed. \a c
   points to the text cursor object.
  */
 
@@ -461,7 +460,8 @@
 /*! \fn void QTextEdit::placeCursor( const QPoint &pos, QTextCursor *c )
 
   Places the cursor \a c at the character which is closest to \a pos
-  (in contents coordinates). If \a c is 0, the text cursor is used.
+  (in contents coordinates). If \a c is 0, the default text cursor is
+  used.
  */
 
 /*! \fn void QTextEdit::moveCursor( MoveDirection direction, bool shift, bool control )

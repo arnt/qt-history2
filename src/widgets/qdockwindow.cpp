@@ -552,7 +552,8 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
 
   QMainWindow contains four docking areas (one at each edge), which
   are used for docking windows into a mainwindow, like QToolBars or
-  other QDockWindows.
+  other QDockWindows. For usual applications you just use that
+  functionality of QMainWindow and do not use QDockArea directly.
 
   It is importent that you pass the QDockWindow on construction either
   a QDockArea or a QMainWindow as parent.
@@ -577,7 +578,10 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
   can keep track of the visibility of the QDockWindow.
 
   To programmatically dock or undock a QDockWindow, use the dock() and
-  undock() functions.
+  undock() functions, or call one of QDockArea::moveDockWindow(),
+  QDockArea::removeDockWindow(), QMainWindow::moveDockWindow(),
+  QMainWindow::removeDockWindow()
+
 */
 
 /*!
@@ -612,10 +616,13 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
   to \a o.
 */
 
-/*! \fn void QDockWindow::placeChanged( Place p )
+/*! \fn void QDockWindow::placeChanged( QDockWindow::Place p )
 
-  This signal is emitted when the place of the QDockWindow has been
-  changed to \a p
+  This signal is emitted when the place of the dockwindow changed,
+  i.e. it got docked into a dock area or undocked.
+
+  \sa QDockArea::moveDockWindow(), QDockArea::removeDockWindow(),
+  QMainWindow::moveDockWindow(), QMainWindow::removeDockWindow()
 */
 
 /*! \fn void QDockWindow::visibilityChanged( bool visible )
@@ -629,6 +636,15 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
 
   Returns the QDockArea, into which this QDockWindow is docked at the
   moment, or 0 if it is floating at the moment.
+*/
+
+/*! \fn QDockWindow::Place QDockWindow::place() const
+
+  Returns the current place of the dockwindow. This is either InDock
+  or OutsideDock.
+
+  \sa QDockArea::moveDockWindow(), QDockArea::removeDockWindow(),
+  QMainWindow::moveDockWindow(), QMainWindow::removeDockWindow()
 */
 
 
@@ -689,6 +705,10 @@ QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
     }
 }
 
+/*! Sets the orientation of the dockwindow to \a o. The orientation is
+  propagated to the layout boxLayout().
+*/
+
 void QDockWindow::setOrientation( Orientation o )
 {
     boxLayout()->setDirection( o == Horizontal ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom );
@@ -697,6 +717,7 @@ void QDockWindow::setOrientation( Orientation o )
     QApplication::postEvent( this, e );
 }
 
+/*! \reimp */
 
 QDockWindow::~QDockWindow()
 {
@@ -1255,8 +1276,20 @@ QSize QDockWindow::minimumSizeHint() const
     return msh;
 }
 
+/*! \fn void QDockWindow::undock()
+
+  Undocks the QDockWindow from its current QDockArea, if it is
+  docked in one.
+
+  \sa QDockArea::moveDockWindow(), QDockArea::removeDockWindow(),
+  QMainWindow::moveDockWindow(), QMainWindow::removeDockWindow()
+*/
+
 /*! Undocks the QDockWindow from its current QDockArea, if it is
   docked in one. The \a w paramenter is for internal use only.
+
+  \sa QDockArea::moveDockWindow(), QDockArea::removeDockWindow(),
+  QMainWindow::moveDockWindow(), QMainWindow::removeDockWindow()
 */
 
 void QDockWindow::undock( QWidget *w )
@@ -1357,6 +1390,8 @@ bool QDockWindow::opaqueMoving() const
 {
     return opaque;
 }
+
+/*! \reimp */
 
 void QDockWindow::setCaption( const QString &s )
 {
