@@ -41,35 +41,24 @@ Internally in the client/server protocol, each key press and key
 release is sent as a \c{QWSKeyEvent}. A QWSKeyEvent contains the
 following fields:
 
-\list
- \i \c{unicode}
- 
- Unicode value
+\table
+\row \i \c{unicode}
+     \i Unicode value
+\row \i \c{keycode}
+     \i Qt keycode value as defined in \c qnamespace.h
+\row \i \c{modifier}
+     \i A bitfield consisting of some of \c Qt::ShiftButton,
+	\c Qt::ControlButton, and \c Qt::AltButton.
+\row \i \c{is_press}
+     \i TRUE if this is a key press, FALSE if it is a key release.
+\row \i \c{is_auto_repeat}
+     \i TRUE if this event is caused by auto repeat.
+\endtable
 
- \i \c{keycode}
- 
- Qt keycode value as defined in qnamespace.h
-
- \i \c{modifier}
- 
- A bitfield consisting of some of Qt::ShiftButton, Qt::ControlButton,
- and Qt::AltButton.
-
- \i \c{is_press}
- 
- \c TRUE if this is a key press, \c FALSE if it is a key release.
-
- \i \c{is_auto_repeat}
- 
- TRUE if this event is caused by auto repeat.
-
-\endlist
-
-When the server receives a key event, it is sent to each client
-process, which is responsible for processing the key event and sending
-it to the right window, if any. Key events may come from several
-different sources.
-
+When the server receives a key event it is sent to each client process
+which is responsible for processing the key event and sending it to
+the right window, if any. Key events may come from several different
+sources.
 
 \section1 Keyboard drivers
 
@@ -99,7 +88,7 @@ At present, the console keyboard driver also handles console switching
 (<b>Ctrl+Alt-F1</b>...<b>Ctrl+Alt+F10</b>) and termination
 (<b>Ctrl+Alt+Backspace</b>).
 
-To add a keyboard driver for a new device, make a subclass of
+To add a keyboard driver for a new device, subclass
 \c{QWSKeyboardHandler} and instantiate it in
 \c{QWSServer::newKeyboardHandler()} (in qkeyboard_qws.cpp).
 

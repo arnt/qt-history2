@@ -114,9 +114,6 @@
     create a menu, add a top-level menu item, and add our
     fileSaveAction.
 
-    (See the \link simple-application-action.html Simple Application
-    Walkthrough featuring QAction \endlink for a detailed example.)
-
     We recommend that actions are created as children of the window
     that they are used in. In most cases actions will be children of
     the application's main window.
@@ -1742,19 +1739,6 @@ void QActionGroup::childEvent( QChildEvent *e )
     change state.
 
     The argument is the action whose state changed to "on".
-
-    \quotefile action/actiongroup/editor.cpp
-    \skipto QActionGroup
-    \printline QActionGroup
-    \skipto QObject::connect
-    \printuntil SLOT
-
-    In this example we connect the selected() signal to our own
-    setFontColor() slot, passing the QAction so that we know which
-    action was chosen by the user.
-
-    (See the \link actiongroup.html QActionGroup Walkthrough.
-    \endlink)
 
     \sa setExclusive(), isOn()
 */

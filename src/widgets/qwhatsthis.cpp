@@ -95,10 +95,6 @@
     \skipto fileOpenText
     \printuntil setWhatsThis
 
-    (For further explanation of the above code refer to the \link
-    simple-application-action.html Simple Application Walkthrough
-    featuring QAction\endlink.)
-
     An alternative way to enter "What's this?" mode is to use the
     ready-made tool bar tool button from
     QWhatsThis::whatsThisButton(). By invoking this context help

@@ -38,8 +38,8 @@
 
 \title Setting the Application Icon
 
-The application icon, typically displayed in the upper left corner of the
-application top-level windows, is set by calling the
+The application icon, typically displayed in the top-left corner of an
+application's top-level windows, is set by calling the
 QWidget::setIcon() method on top-level widgets.
 
 In order to change the icon of the executable application file
@@ -55,28 +55,28 @@ First, create an ICO format bitmap file that contains the icon image. This
 can be done with e.g. Microsoft Visual C++: Select "File|New...", then
 select the "File" tab in the dialog that appears, and choose "Icon". (Note
 that you do not need to load your application into Visual C++; here we are
-only using its icon editor).
+only using the icon editor).
 
-Store the ICO file in the source code directory of your application,
-for example, with the name, "myappico.ico". Then, create a text file
+Store the ICO file in your application's source code directory, for
+example, with the name, "myappico.ico". Then, create a text file
 called e.g. "myapp.rc" in which you put a single line of text:
 \code
 IDI_ICON1               ICON    DISCARDABLE     "myappico.ico"
 \endcode
 
-Lastly, assuming you are using qmake to generate your makefiles, add this
-line to your "myapp.pro" file:
+Finally, assuming you are using \link qmake-manual.book qmake\endlink
+to generate your makefiles, add this line to your "myapp.pro" file:
 
 \code
 RC_FILE = myapp.rc
 \endcode
 
 Regenerate your makefile and your application. The .exe file will now be
-represented with your icon in e.g. Explorer.
+represented with your icon e.g. in Explorer.
 
-If you do not use qmake, the necessary steps are: first, run the "rc"
-program on the .rc file, then link your application with the resulting
-.res file.
+If you do not use \link qmake-manual.book qmake\endlink, the necessary
+steps are: first, run the "rc" program on the .rc file, then link your
+application with the resulting .res file.
 
 \section1 Setting the Application Icon on Mac OS X
 
@@ -87,7 +87,7 @@ before the function call, in which case a default icon will appear
 during the bouncing animation. 
 
 To ensure that the correct icon appears, both when the application is
-being launched, and in the finder, it is necessary to employ a
+being launched, and in the Finder, it is necessary to employ a
 platform-dependent technique.
 
 Although many programs can create icon files (\c .icns), the recommended
@@ -106,7 +106,7 @@ to \c{myapp.pro}:
 RC_FILE = myapp.icns
 \endcode
 This will ensure that \link qmake-manual.book qmake\endlink puts your
-icons in the proper place and creates a \c{Info.plist} entry for the
+icons in the proper place and creates an \c{Info.plist} entry for the
 icon.
 
 If you do not use \link qmake-manual.book qmake\endlink, you must do

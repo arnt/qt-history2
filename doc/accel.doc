@@ -38,7 +38,7 @@
 \title Adding an accelerated graphics driver to Qt/Embedded
 
 Qt/Embedded has the capacity to make use of hardware accelerators.
-To use a hardware accelerator for a PCI or AGP driver, you need to
+To use a hardware accelerator for a PCI or AGP driver, you must
 perform the following steps:
 
 \list 1
@@ -72,7 +72,7 @@ operations should set it to 1. When a software graphics operation is
 requested and optype is 1, \c QGfxRaster::sync() is called; you should
 provide your own implementation of this that waits for the graphics
 engine to go idle. lastop is also available for optimisation and is
-stored in the shared space - this will not be set by the software-only
+stored in the shared space: this will not be set by the software-only
 \c QGfx and can be used to store the type of your last operation (e.g.
 drawing a rectangle) so that part of the setup for the next operation
 can be avoided when many of the same operations are performed in
@@ -94,7 +94,7 @@ alpha channel acceleration is supported for 32-bit pixmaps.
 If you wish, define an accelerated descendant of \c QScreenCursor. \c
 restoreUnder(), \c saveUnder(), \c drawCursor() and \c draw() should
 be defined as null operations. Implement \c set(), \c move(), \c
-show() and \c hide(). 4k is left for your cursor at the end of the
+show() and \c hide(). 4KB is left for your cursor at the end of the
 visible part of the framebuffer (i.e. at (width*height*depth)/8 )
 
 \i

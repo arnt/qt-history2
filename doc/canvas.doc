@@ -83,4 +83,7 @@ canvas item classes. It is easiest to inherit from one of
 QCanvasItem's derived classes (usually \l QCanvasPolygonalItem) rather
 than inherit QCanvasItem directly.
 
+See \c examples/canvas for an example that shows off some of QCanvas's
+capabilities.
+
 */

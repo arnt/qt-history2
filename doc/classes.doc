@@ -37,8 +37,8 @@
 
   \title Qt's Classes
 
-  For a more compact list, see \link mainclasses.html Qt's Main Classes
-  \endlink.
+  For a shorter list that only includes the most frequently used
+  classes, see \link mainclasses.html Qt's Main Classes \endlink.
 
   \classlist
 
