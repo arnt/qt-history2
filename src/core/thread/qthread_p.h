@@ -17,6 +17,7 @@
 #include <private/qobject_p.h>
 #include "qmutex.h"
 #include "qwaitcondition.h"
+#include "qthread.h"
 
 class QEventLoop;
 

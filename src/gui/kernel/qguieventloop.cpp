@@ -25,3 +25,13 @@ QGuiEventLoop::~QGuiEventLoop()
 {
     cleanup();
 }
+
+// ##### Huge Hack
+
+#include <private/qthread_p.h>
+extern QThreadData *qt_getMainData();
+
+QGuiEventLoopPrivate::QGuiEventLoopPrivate()
+{
+    QThreadData::setCurrent(qt_getMainData());
+}

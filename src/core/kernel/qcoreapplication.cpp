@@ -101,6 +101,7 @@ QCoreApplication *QCoreApplication::self = 0;
 // thread data for the main() thread
 Q_GLOBAL_STATIC(QThreadData, mainData)
 
+Q_CORE_EXPORT QThreadData *qt_getMainData() { return mainData(); }
 
 QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc,  char **aargv)
     : QObjectPrivate(), argc(aargc), argv(aargv), eventLoop(0)
