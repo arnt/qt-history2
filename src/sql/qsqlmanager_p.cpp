@@ -46,6 +46,7 @@
 #include "qmessagebox.h"
 #include "qbitarray.h"
 
+//#define QT_DEBUG_DATAMANAGER
 
 class QSqlCursorManager::QSqlCursorManagerPrivate
 {
@@ -241,16 +242,17 @@ void QSqlCursorManager::refresh()
 
 /* \internal
 
-   Returns TRUE if the \a buf field values that correspond to \idx
-   match the field values in \a idx.
+   Returns TRUE if the \a buf field values that correspond to \a idx
+   match the field values in \a cur that correspond to \a idx.
 */
 
-bool q_index_matches( const QSqlRecord* buf, const QSqlIndex& idx )
+bool q_index_matches( const QSqlCursor* cur,
+		      const QSqlRecord* buf, const QSqlIndex& idx )
 {
     bool indexEquals = FALSE;
     for ( uint i = 0; i < idx.count(); ++i ) {
 	const QString fn( idx.field(i)->name() );
-	if ( idx.field(i)->value() == buf->value( fn ) )
+	if ( cur->value( fn ) == buf->value( fn ) )
 	    indexEquals = TRUE;
 	else {
 	    indexEquals = FALSE;
@@ -310,6 +312,18 @@ int q_compare( const QSqlRecord* buf1, const QSqlRecord* buf2, const QSqlIndex& 
 
 }
 
+#ifdef QT_DEBUG_DATAMANAGER
+void qt_debug_datamanger_buffer( const QString& msg, QSqlRecord* cursor )
+{
+    qDebug("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+    qDebug(msg);
+    for ( uint j = 0; j < cursor->count(); ++j ) {
+	qDebug(cursor->field(j)->name() + " type:" + QString(cursor->field(j)->value().typeName()) + " value:" + cursor->field(j)->value().toString() );
+    }
+}
+#endif
+
+
 /*! \internal
 
   Relocates the default cursor to the record matching the cursor's
@@ -347,11 +361,10 @@ bool QSqlCursorManager::findBuffer( const QSqlIndex& idx, int atHint )
 	return FALSE;
 
     QSqlRecord* buf = cur->editBuffer();
-
     bool indexEquals = FALSE;
     /* check the hint */
     if ( cur->seek( atHint ) )
-	indexEquals = q_index_matches( cur, idx );
+	indexEquals = q_index_matches( cur, buf, idx );
 
     if ( !indexEquals ) {
 	/* check current page */
@@ -360,7 +373,7 @@ bool QSqlCursorManager::findBuffer( const QSqlIndex& idx, int atHint )
 	int endIdx = atHint + pageSize;
 	for ( int j = startIdx; j <= endIdx; ++j ) {
 	    if ( cur->seek( j ) ) {
-		indexEquals = q_index_matches( cur, idx );
+		indexEquals = q_index_matches( cur, buf, idx );
 		if ( indexEquals )
 		    break;
 	    }
@@ -378,7 +391,7 @@ bool QSqlCursorManager::findBuffer( const QSqlIndex& idx, int atHint )
 	    mid = lo + (hi - lo) / 2;
 	    if ( !cur->seek( mid ) )
 		break;
-	    if ( q_index_matches( cur, idx ) ) {
+	    if ( q_index_matches( cur, buf, idx ) ) {
 		indexEquals = TRUE;
 		break;
 	    }
@@ -392,7 +405,7 @@ bool QSqlCursorManager::findBuffer( const QSqlIndex& idx, int atHint )
 		    mid--;
 		    if ( !cur->seek( mid ) )
 			break;
-		    if ( q_index_matches( cur, idx ) ) {
+		    if ( q_index_matches( cur, buf, idx ) ) {
 			indexEquals = TRUE;
 			break;
 		    }
@@ -403,7 +416,7 @@ bool QSqlCursorManager::findBuffer( const QSqlIndex& idx, int atHint )
 			mid++;
 			if ( !cur->seek( mid ) )
 			    break;
-			if ( q_index_matches( cur, idx ) ) {
+			if ( q_index_matches( cur, buf, idx ) ) {
 			    indexEquals = TRUE;
 			    break;
 			}
@@ -425,7 +438,7 @@ bool QSqlCursorManager::findBuffer( const QSqlIndex& idx, int atHint )
 	}
 	for ( ;; ) {
 	    indexEquals = FALSE;
-	    indexEquals = q_index_matches( cur, idx );
+	    indexEquals = q_index_matches( cur, buf, idx );
 	    if ( indexEquals )
 		break;
 	    if ( !cur->next() )

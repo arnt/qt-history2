@@ -49,6 +49,8 @@
 #include "qmessagebox.h"
 #include "qsqlmanager_p.h"
 
+//#define QT_DEBUG_DATATABLE
+
 class QDataTablePrivate
 {
 public:
@@ -91,6 +93,18 @@ public:
     QSqlCursorManager cur;
     QDataManager dat;
 };
+
+#ifdef QT_DEBUG_DATATABLE
+void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
+{
+    qDebug("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+    qDebug(msg);
+    for ( uint j = 0; j < cursor->count(); ++j ) {
+	qDebug(cursor->field(j)->name() + " type:" + QString(cursor->field(j)->value().typeName()) + " value:" + cursor->field(j)->value().toString() );
+    }
+}
+#endif
+
 
 /*! \enum QDataTable::Confirm
 
@@ -1893,12 +1907,3 @@ bool QDataTable::findBuffer( const QSqlIndex& idx, int atHint )
 */
 
 #endif
-
-// void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
-// {
-//     qDebug("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-//     qDebug(msg);
-//     for ( uint j = 0; j < cursor->count(); ++j ) {
-//	qDebug(cursor->field(j)->name() + " type:" + QString(cursor->field(j)->value().typeName()) + " value:" + cursor->field(j)->value().toString() );
-//     }
-// }
