@@ -252,6 +252,7 @@ UnixMakefileGenerator::init()
 						    project->first("QMAKE_EXTENTION_SHLIB") +
 						    "." + project->first("VER_MAJ"));
 	    project->variables()["TARGET"] = project->variables()["TARGET_x.y.z"];
+	    project->variables()["DEFINES"].append("QT_PLUGIN");
 	} else if ( !project->variables()["QMAKE_HPUX_SHLIB"].isEmpty() ) {
 	    project->variables()["TARGET_"].append("lib" + project->first("TARGET") + ".sl");
 	    project->variables()["TARGET_x"].append("lib" + project->first("TARGET") + "." + project->first("VER_MAJ"));
