@@ -353,7 +353,7 @@ bool ResultSet::field( const QString& name, QVariant& v )
 bool ResultSet::field( uint i, QVariant& v )
 {
     if ( i > count() ) {
-	env->setLastError( "Unknown field number: " + QString::number(i) );
+	env->setLastError( "Unknown result field number: " + QString::number(i) );
 	return 0;
     }
     v = currentRecord()[i];
@@ -367,14 +367,14 @@ bool ResultSet::field( uint i, QVariant& v )
 bool ResultSet::setHeader( const List& list )
 {
     if ( !list.count() ) {
-	env->setLastError( "No fields defined" );
+	env->setLastError( "Unable to create result columns, no fields defined" );
 	return FALSE;
     }
     for ( int i = 0; i < (int)list.count(); ++i ) {
 	if ( list[i].type() == QVariant::List ) { /* field description */
 	    List fieldDescription = list[i].toList();
 	    if ( fieldDescription.count() != 4 ) {
-		env->setLastError( "Internal error: unable to create result, "
+		env->setLastError( "Internal error: Unable to create result, "
 				   "expected 4 field descriptors, got " +
 				   QString::number( fieldDescription.count() ) );
 		return FALSE;
@@ -396,22 +396,22 @@ bool ResultSet::setHeader( const List& list )
 bool ResultSet::append( const Record& buf )
 {
     if ( !env ) {
-	qWarning( "Fatal internal error: No environment" );
+	qWarning( "Fatal internal error: No result environment" );
 	return FALSE;
     }
     if ( !head->fields.count() ) {
-	env->setLastError( "Internal error: No header" );
+	env->setLastError( "Internal error: Unable to save result data, no header" );
 	return FALSE;
     }
     if ( head->fields.count() != buf.count() ) {
-	env->setLastError( "Internal error: Incorrect number of buffer fields" );
+	env->setLastError( "Internal error: Unable to save result data, incorrect number of buffer fields" );
 	return FALSE;
     }
     for ( uint j = 0; j < buf.count(); ++j ) {
 	if ( buf[j].type() != head->fields[j].type ) {
 	    QVariant v;
 	    v.cast( head->fields[j].type );
-	    env->setLastError( "Incorrect field type: " +
+	    env->setLastError( "Unable to save result data, incorrect field type: " +
 			       QString( buf[j].typeName() ) + " (expected " +
 			       QString( v.typeName() ) + ")" );
 	    return FALSE;
@@ -585,6 +585,16 @@ static void reverse( localsql::ColumnKey& colkey, uint elements )
     }
 }
 
+
+struct SortDescription
+{
+    SortDescription() : fieldnumber(-1), fieldtype(QVariant::Invalid), desc(FALSE) {}
+    int fieldnumber;
+    QVariant::Type fieldtype;
+    bool desc;
+};
+typedef QMap<int,SortDescription> SortDescriptionMap;
+
 /*!
 
 */
@@ -592,41 +602,35 @@ static void reverse( localsql::ColumnKey& colkey, uint elements )
 bool ResultSet::sort( const List& index )
 {
     if ( !env ) {
-	env->setLastError( "Internal error: No environment" );
+	env->setLastError( "Internal error: Unable to sort result, no result environment" );
 	return FALSE;
     }
     if ( !head->fields.count() ) {
-	env->setLastError( "Internal error: No header" );
+	env->setLastError( "Internal error: Unable to sort result, no header" );
 	return FALSE;
     }
     if ( !data.count() || data.count() == 1 ) { /* nothing to do */
 	return TRUE;
     }
     if ( !index.count() ) {
-	env->setLastError("No fields defined");
+	env->setLastError("Unable to sort result, no fields defined");
 	return 0;
     }
     uint i = 0;
-    QMap<int,bool> desc; /* indicates fields with a descending sort */
-    Header sortIndex;
+    SortDescriptionMap sortDesc;
     for ( uint i = 0; i < index.count(); ++i ) {
 	List indexData = index[i].toList();
 	uint fieldNumber = indexData[0].toUInt();
-	if ( fieldNumber == -1 ) {
-	    env->setLastError( "Field number not found: " + QString::number( fieldNumber ) );
-	    return FALSE;
-	}
-	//## fix this: cannot rely on name being unique, use field # instead
-	sortIndex.fields[i].name = head->fields[ fieldNumber ].name;
-	sortIndex.fields[i].type = head->fields[ fieldNumber ].type;
-	desc[i] = indexData[1].toBool();
+	sortDesc[i].fieldnumber = fieldNumber;
+	sortDesc[i].fieldtype = head->fields[ fieldNumber ].type;
+	sortDesc[i].desc = indexData[1].toBool();
     }
 
     sortKey.clear();
 
     /* init the sort key */
     for ( i = 0; i < data.count(); ++i ) {
-	int sortField = head->position( sortIndex.fields[sortIndex.fields.count()-1].name );
+	int sortField = sortDesc[sortDesc.count()-1].fieldnumber;
 	/* initialize - also handles the common case (sort by one field) */
 	QVariant& v = data[i][sortField];
 	if ( sortKey.find( v ) == sortKey.end() ) {
@@ -639,26 +643,26 @@ bool ResultSet::sort( const List& index )
 	    nl.append( i );
 	}
     }
-    if ( sortIndex.fields.count() > 1 ) {
-	/* reverse logic below */
-	if ( desc[ sortIndex.fields.count()-1 ] ) {
+    if ( sortDesc.count() > 1 ) {
+	/* NB: reverse logic below */
+	if ( sortDesc[ sortDesc.count()-1 ].desc ) {
 	    /* descending */
-	    if ( desc[ sortIndex.fields.count()-2 ] )
+	    if ( sortDesc[ sortDesc.count()-2 ].desc )
 		reverse( sortKey, data.count() );
 	} else {
 	    /* ascending? */
-	    if ( desc[ sortIndex.fields.count()-2 ] )
+	    if ( sortDesc[ sortDesc.count()-2 ].desc )
 		reverse( sortKey, data.count() );
 	}
     }
-    if ( sortIndex.fields.count() == 1 && desc[ 0 ] )
+    if ( sortDesc.count() == 1 && sortDesc[0].desc )
 	reverse( sortKey, data.count() );
 
     ColumnKey::Iterator it;
-    if ( sortIndex.fields.count() > 1 ) {
+    if ( sortDesc.count() > 1 ) {
 	/* sort rest of fields */
-	for ( int idx = sortIndex.fields.count()-2; idx >= 0; --idx ) {
-	    int sortField = head->position( sortIndex.fields[idx].name );
+	for ( int idx = sortDesc.count()-2; idx >= 0; --idx ) {
+	    int sortField = sortDesc[idx].fieldnumber;
 	    ColumnKey subSort;
 	    for ( it = sortKey.begin();
 		  it != sortKey.end();
@@ -681,17 +685,17 @@ bool ResultSet::sort( const List& index )
 	    sortKey = subSort; /* save and continue */
 	    if ( idx > 0 ) {
 		/* reverse logic below */
-		if ( desc[ idx ] ) {
+		if ( sortDesc[idx].desc ) {
 		    /* descending */
-		    if ( desc[ idx-1 ] )
+		    if ( sortDesc[idx-1].desc )
 			reverse( sortKey, data.count() );
 		} else {
 		    /* ascending? */
-		    if ( desc[ idx-1 ] )
+		    if ( sortDesc[idx-1].desc )
 			reverse( sortKey, data.count() );
 		}
 	    }
-	    if ( idx == 0 && desc[ idx ] )
+	    if ( idx == 0 && sortDesc[idx].desc )
 		reverse( sortKey, data.count() );
 	}
     }

@@ -802,7 +802,7 @@ bool FileDriver::update( const List& data )
     env->output() << "success" << endl;
 #endif
     return TRUE;
-y}
+}
 
 bool FileDriver::rangeAction( const List* data, const List* cols,
 			      LocalSQLResultSet* result )
