@@ -795,7 +795,7 @@ public:
 class QHideDock : public QWidget
 {
 public:
-    QHideDock( QMainWindow *parent, QMainWindowPrivate *p ) : QWidget( parent ) {
+    QHideDock( QMainWindow *parent, QMainWindowPrivate *p ) : QWidget( parent, "hide-dock" ) {
 	hide();
 	setFixedHeight( style().toolBarHandleExtend() );
 	d = p;
@@ -2206,7 +2206,7 @@ void QMainWindow::setCentralWidget( QWidget * w )
 	d->mc->removeEventFilter( this );
     d->mc = w;
     if ( d->mc ) {
-	d->mc->show();
+ 	d->mc->show();
 	d->mc->installEventFilter( this );
     }
     triggerLayout();
@@ -2261,9 +2261,13 @@ bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 	    moveToolBar( (QToolBar *)o, me );
 	    return TRUE;
 	}
-    } else if ( e->type() == QEvent::LayoutHint && o->inherits( "QToolBar" ) ) {
-	if ( isVisible() && ( (QToolBar*)o )->isVisible() )
-	    QTimer::singleShot( 0, (QToolBar*)o, SLOT( updateArrowStuff() ) );
+    } else if ( e->type() == QEvent::LayoutHint ) {
+	if ( o->inherits( "QToolBar" ) ) {
+	    if ( isVisible() && ( (QToolBar*)o )->isVisible() )
+		QTimer::singleShot( 0, (QToolBar*)o, SLOT( updateArrowStuff() ) );
+	} else if ( o == this && centralWidget() && !centralWidget()->isVisible() ) {
+	    centralWidget()->show();
+	}
     } else if ( e->type() == QEvent::Show && o == this ) {
 	if ( !d->tll )
 	    setUpLayout();
@@ -2534,7 +2538,7 @@ void QMainWindow::triggerLayout( bool deleteLayout )
 	if ( isVisibleTo(0) )
 	    setUpLayout();
     }
-    QApplication::postEvent( this, new QEvent( QEvent::LayoutHint) );
+    QApplication::postEvent( this, new QEvent( QEvent::LayoutHint ) );
 }
 
 /*!
