@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#360 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#361 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1476,7 +1476,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			  r.right-r.left, r.bottom-r.top,
 			  widget->backgroundColor(),
 			  widget->backgroundPixmap(), 0, 0 );
-		    return 0;
+		    return TRUE;
 		}
 		break;
 
