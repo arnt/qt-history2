@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#330 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#331 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -185,7 +185,7 @@ static void set_winapp_name()
 	if ( p )
 	    memmove( appName, p+1, strlen(p) );
 	int l = strlen( appName );
-	if ( (l > 4) && !strcmp( appName + l - 4, ".exe" ) )
+	if ( (l > 4) && !stricmp( appName + l - 4, ".exe" ) )
 	    appName[l-4] = '\0';		// drop .exe extension
     }
 }
@@ -441,6 +441,9 @@ static void qt_set_windows_resources()
 
 void qt_init( int *argcptr, char **argv )
 {
+    // Detect the Windows version
+    (void)QApplication::winVersion();
+
 #if defined(DEBUG)
     int argc = *argcptr;
     int i, j;
@@ -462,8 +465,8 @@ void qt_init( int *argcptr, char **argv )
     *argcptr = j;
 #endif // DEBUG
 
-  // Get the application name/instance if qWinMain() was not invoked
 
+    // Get the application name/instance if qWinMain() was not invoked
     set_winapp_name();
     if ( appInst == 0 ) {
 	if ( qt_winver == Qt::WV_NT )
@@ -472,25 +475,12 @@ void qt_init( int *argcptr, char **argv )
 	    appInst = GetModuleHandleA( 0 );
     }
 
-  // Detect the Windows version
-
-#ifndef VER_PLATFORM_WIN32s
-#define VER_PLATFORM_WIN32s	    0
-#endif
-#ifndef VER_PLATFORM_WIN32_WINDOWS
-#define VER_PLATFORM_WIN32_WINDOWS  1
-#endif
-#ifndef VER_PLATFORM_WIN32_NT
-#define VER_PLATFORM_WIN32_NT	    2
-#endif
-
-    (void)QApplication::winVersion();
     // Tell tools/ modules.
     qt_winunicode = qt_winver == Qt::WV_NT;
 
-  // Initialize OLE/COM
-  //   S_OK means success and S_FALSE means that it has already
-  //   been initialized
+    // Initialize OLE/COM
+    //   S_OK means success and S_FALSE means that it has already
+    //   been initialized
     HRESULT r;
     r = OleInitialize(0);
     if ( r != S_OK && r != S_FALSE ) {
@@ -499,7 +489,7 @@ void qt_init( int *argcptr, char **argv )
 #endif
     }
 
-  // Misc. initialization
+    // Misc. initialization
 
     QWindowsMime::initialize();
     QColor::initialize();
@@ -751,6 +741,17 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 
 Qt::WindowsVersion QApplication::winVersion()
 {
+
+#ifndef VER_PLATFORM_WIN32s
+#define VER_PLATFORM_WIN32s	    0
+#endif
+#ifndef VER_PLATFORM_WIN32_WINDOWS
+#define VER_PLATFORM_WIN32_WINDOWS  1
+#endif
+#ifndef VER_PLATFORM_WIN32_NT
+#define VER_PLATFORM_WIN32_NT	    2
+#endif
+
     static int t=0;
     if ( !t ) {
 	t=1;
