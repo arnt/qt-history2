@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#15 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#15 $";
 #endif
 
 
@@ -127,7 +127,7 @@ void QPaintDevice::bitBlt( int sx, int sy, int sw, int sh, QPaintDevice *dest,
 	XCopyPlane( dpy, hd, dest->hd, gc, sx, sy, sw, sh, dx, dy, 1 );
     else
 	XCopyArea( dpy, hd, dest->hd, gc, sx, sy, sw, sh, dx, dy );
-    if ( gcflags & GCFunction )			// reset gc function
+    if ( rop != CopyROP )			// reset gc function
 	XSetFunction( dpy, gc, GXcopy );
 }
 
