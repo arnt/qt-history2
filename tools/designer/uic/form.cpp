@@ -68,9 +68,9 @@ QByteArray combinePath( const char *infile, const char *outfile )
     int numCommonComponents = 0;
 
     QStringList inSplitted =
-	QStringList::split( '/', inFileInfo.dir().canonicalPath(), TRUE );
+	QStringList::split( '/', inFileInfo.dir().canonicalPath(), true );
     QStringList outSplitted =
-	QStringList::split( '/', outFileInfo.dir().canonicalPath(), TRUE );
+	QStringList::split( '/', outFileInfo.dir().canonicalPath(), true );
 
     while ( !inSplitted.isEmpty() && !outSplitted.isEmpty() &&
 	    inSplitted.first() == outSplitted.first() ) {
@@ -244,7 +244,7 @@ void Uic::createFormDecl( const QDomElement &e )
 	out << "class QPopupMenu;" << endl;
     }
 
-    bool dbForm = FALSE;
+    bool dbForm = false;
     registerDatabases( e );
     dbConnections = unique( dbConnections );
     if ( dbConnections.count() )
@@ -252,12 +252,12 @@ void Uic::createFormDecl( const QDomElement &e )
     if ( dbCursors.count() )
 	forwardDecl += "QSqlCursor";
     if ( dbForms[ "(default)" ].count() )
-	dbForm = TRUE;
-    bool subDbForms = FALSE;
+	dbForm = true;
+    bool subDbForms = false;
     for ( it = dbConnections.begin(); it != dbConnections.end(); ++it ) {
 	if ( !(*it).isEmpty() && (*it) != "(default)" ) {
 	    if ( dbForms[ (*it) ].count() ) {
-		subDbForms = TRUE;
+		subDbForms = true;
 		break;
 	    }
 	}
@@ -361,12 +361,12 @@ void Uic::createFormDecl( const QDomElement &e )
 
     // constructor
     if ( objClass == "QDialog" || objClass == "QWizard" ) {
-	out << "    " << bareNameOfClass << "( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );" << endl;
+	out << "    " << bareNameOfClass << "( QWidget* parent = 0, const char* name = 0, bool modal = false, WFlags fl = 0 );" << endl;
     } else if ( objClass == "QWidget" ) {
 	out << "    " << bareNameOfClass << "( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );" << endl;
     } else if ( objClass == "QMainWindow" ) {
 	out << "    " << bareNameOfClass << "( QWidget* parent = 0, const char* name = 0, WFlags fl = WType_TopLevel );" << endl;
-	isMainWindow = TRUE;
+	isMainWindow = true;
     } else {
 	out << "    " << bareNameOfClass << "( QWidget* parent = 0, const char* name = 0 );" << endl;
     }
@@ -376,7 +376,7 @@ void Uic::createFormDecl( const QDomElement &e )
     out << endl;
 
     // children
-    bool needPolish = FALSE;
+    bool needPolish = false;
     nl = e.parentNode().toElement().elementsByTagName( "widget" );
     for ( i = 1; i < (int) nl.length(); i++ ) { // start at 1, 0 is the toplevel widget
 	n = nl.item(i).toElement();
@@ -387,7 +387,7 @@ void Uic::createFormDecl( const QDomElement &e )
 	QString s = getClassName( n );
 	if ( s == "QDataTable" || s == "QDataBrowser" ) {
 	    if ( isFrameworkCodeGenerated( n ) )
-		 needPolish = TRUE;
+		 needPolish = true;
 	}
     }
 
@@ -409,13 +409,13 @@ void Uic::createFormDecl( const QDomElement &e )
 
     // database connections
     dbConnections = unique( dbConnections );
-    bool hadOutput = FALSE;
+    bool hadOutput = false;
     for ( it = dbConnections.begin(); it != dbConnections.end(); ++it ) {
 	if ( !(*it).isEmpty() ) {
 	    // only need pointers to non-default connections
 	    if ( (*it) != "(default)" && !(*it).isEmpty() ) {
 		out << indent << "QSqlDatabase* " << *it << "Connection;" << endl;
-		hadOutput = TRUE;
+		hadOutput = true;
 	    }
 	}
     }
@@ -730,14 +730,14 @@ void Uic::createFormImpl( const QDomElement &e )
 	globalIncludes += "qsqldatabase.h";
     if ( dbCursors.count() )
 	globalIncludes += "qsqlcursor.h";
-    bool dbForm = FALSE;
+    bool dbForm = false;
     if ( dbForms[ "(default)" ].count() )
-	dbForm = TRUE;
-    bool subDbForms = FALSE;
+	dbForm = true;
+    bool subDbForms = false;
     for ( it = dbConnections.begin(); it != dbConnections.end(); ++it ) {
 	if ( !(*it).isEmpty()  && (*it) != "(default)" ) {
 	    if ( dbForms[ (*it) ].count() ) {
-		subDbForms = TRUE;
+		subDbForms = true;
 		break;
 	    }
 	}
@@ -792,8 +792,6 @@ void Uic::createFormImpl( const QDomElement &e )
 	}
     }
 
-    out << "#include <qvariant.h>" << endl; // first for gcc 2.7.2
-
     globalIncludes = unique( globalIncludes );
     for ( it = globalIncludes.begin(); it != globalIncludes.end(); ++it ) {
 	if ( !(*it).isEmpty() )
@@ -809,6 +807,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	out << "#include <qpopupmenu.h>" << endl;
 	out << "#include <qtoolbar.h>" << endl;
     }
+    out << "#include <qvariant.h>" << endl;
 
     // find out what images are required
     QStringList requiredImages;
@@ -843,7 +842,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	if ( !outputFileName.isEmpty() )
 	    uiDotH = combinePath(uiDotH.latin1(), outputFileName);
 	out << "#include \"" << uiDotH << "\"" << endl;
-	writeFunctImpl = FALSE;
+	writeFunctImpl = false;
     }
 
     // register the object and unify its name
@@ -874,7 +873,7 @@ void Uic::createFormImpl( const QDomElement &e )
 			// resulting 'length' to catch corrupt UIC files?
 			int a = 0;
 			int column = 0;
-			bool inQuote = FALSE;
+			bool inQuote = false;
 			out << "static const char* const " << img << "_data[] = { " << endl;
 			while ( baunzip[a] != '\"' )
 			    a++;
@@ -922,7 +921,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	out << " *  name 'name' and widget flags set to 'f'." << endl;
 	out << " *" << endl;
 	out << " *  The " << objClass.mid(1).lower() << " will by default be modeless, unless you set 'modal' to" << endl;
-	out << " *  TRUE to construct a modal " << objClass.mid(1).lower() << "." << endl;
+	out << " *  true to construct a modal " << objClass.mid(1).lower() << "." << endl;
 	out << " */" << endl;
 	out << nameOfClass << "::" << bareNameOfClass << "( QWidget* parent, const char* name, bool modal, WFlags fl )" << endl;
 	out << "    : " << objClass << "( parent, name, modal, fl )";
@@ -941,7 +940,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	out << " */" << endl;
 	out << nameOfClass << "::" << bareNameOfClass << "( QWidget* parent, const char* name, WFlags fl )" << endl;
 	out << "    : " << objClass << "( parent, name, fl )";
-	isMainWindow = TRUE;
+	isMainWindow = true;
     } else {
 	out << "/*" << endl;
 	out << " *  Constructs a " << nameOfClass << " which is a child of 'parent', with the" << endl;
@@ -1076,35 +1075,35 @@ void Uic::createFormImpl( const QDomElement &e )
     }
 
     // actions, toolbars, menubar
-    bool needEndl = FALSE;
+    bool needEndl = false;
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName()  == "actions" ) {
 	    if ( !needEndl )
 		out << endl << indent << "// actions" << endl;
 	    createActionImpl( n.firstChild().toElement(), "this" );
-	    needEndl = TRUE;
+	    needEndl = true;
 	}
     }
     if ( needEndl )
 	out << endl;
-    needEndl = FALSE;
+    needEndl = false;
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName() == "toolbars" ) {
 	    if ( !needEndl )
 		out << endl << indent << "// toolbars" << endl;
 	    createToolbarImpl( n, objClass, objName );
-	    needEndl = TRUE;
+	    needEndl = true;
 	}
     }
     if ( needEndl )
 	out << endl;
-    needEndl = FALSE;
+    needEndl = false;
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName() == "menubar" ) {
 	    if ( !needEndl )
 		out << endl << indent << "// menubar" << endl;
 	    createMenuBarImpl( n, objClass, objName );
-	    needEndl = TRUE;
+	    needEndl = true;
 	}
     }
     if ( needEndl )
@@ -1178,14 +1177,14 @@ void Uic::createFormImpl( const QDomElement &e )
     }
 
     // buddies
-    bool firstBuddy = TRUE;
+    bool firstBuddy = true;
     for ( QList<Buddy>::Iterator buddy = buddies.begin(); buddy != buddies.end(); ++buddy ) {
 	if ( isObjectRegistered( (*buddy).buddy ) ) {
 	    if ( firstBuddy ) {
 		out << endl << indent << "// buddies" << endl;
 	    }
 	    out << indent << (*buddy).key << "->setBuddy( " << registeredName( (*buddy).buddy ) << " );" << endl;
-	    firstBuddy = FALSE;
+	    firstBuddy = false;
 	}
     }
 
@@ -1209,26 +1208,26 @@ void Uic::createFormImpl( const QDomElement &e )
     out << endl;
 
     // handle application events if required
-    bool needFontEventHandler = FALSE;
-    bool needSqlTableEventHandler = FALSE;
-    bool needSqlDataBrowserEventHandler = FALSE;
+    bool needFontEventHandler = false;
+    bool needSqlTableEventHandler = false;
+    bool needSqlDataBrowserEventHandler = false;
     nl = e.elementsByTagName( "widget" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	if ( !DomTool::propertiesOfType( nl.item(i).toElement() , "font" ).isEmpty() )
-	    needFontEventHandler = TRUE;
+	    needFontEventHandler = true;
 	QString s = getClassName( nl.item(i).toElement() );
 	if ( s == "QDataTable" || s == "QDataBrowser" ) {
 	    if ( !isFrameworkCodeGenerated( nl.item(i).toElement() ) )
 		 continue;
 	    if ( s == "QDataTable" )
-		needSqlTableEventHandler = TRUE;
+		needSqlTableEventHandler = true;
 	    if ( s == "QDataBrowser" )
-		needSqlDataBrowserEventHandler = TRUE;
+		needSqlDataBrowserEventHandler = true;
 	}
 	if ( needFontEventHandler && needSqlTableEventHandler && needSqlDataBrowserEventHandler )
 	    break;
     }
-    if ( needFontEventHandler && FALSE ) {
+    if ( needFontEventHandler && false ) {
 	//	indent = "\t"; // increase indentation for if-clause below
 	out << "/*" << endl;
 	out << " *  Main event handler. Reimplemented to handle" << endl;
@@ -1278,10 +1277,10 @@ void Uic::createFormImpl( const QDomElement &e )
 			if ( conn == "(default)" )
 			    out << indent << indent << indent << "cursor = new QSqlCursor( \"" << tab << "\" );" << endl;
 			else
-			    out << indent << indent << indent << "cursor = new QSqlCursor( \"" << tab << "\", TRUE, " << conn << "Connection );" << endl;
+			    out << indent << indent << indent << "cursor = new QSqlCursor( \"" << tab << "\", true, " << conn << "Connection );" << endl;
 			out << indent << indent << indent << "if ( " << c << "->isReadOnly() ) " << endl;
 			out << indent << indent << indent << indent << "cursor->setMode( QSqlCursor::ReadOnly );" << endl;
-			out << indent << indent << indent << c << "->setSqlCursor( cursor, FALSE, TRUE );" << endl;
+			out << indent << indent << indent << c << "->setSqlCursor( cursor, false, true );" << endl;
 			out << indent << indent << "}" << endl;
 			out << indent << indent << "if ( !cursor->isActive() )" << endl;
 			out << indent << indent << indent << c << "->refresh( QDataTable::RefreshAll );" << endl;
@@ -1306,8 +1305,8 @@ void Uic::createFormImpl( const QDomElement &e )
 			if ( conn == "(default)" )
 			    out << indent << indent << indent << "QSqlCursor* cursor = new QSqlCursor( \"" << tab << "\" );" << endl;
 			else
-			    out << indent << indent << indent << "QSqlCursor* cursor = new QSqlCursor( \"" << tab << "\", TRUE, " << conn << "Connection );" << endl;
-			out << indent << indent << indent << obj << "->setSqlCursor( cursor, TRUE );" << endl;
+			    out << indent << indent << indent << "QSqlCursor* cursor = new QSqlCursor( \"" << tab << "\", true, " << conn << "Connection );" << endl;
+			out << indent << indent << indent << obj << "->setSqlCursor( cursor, true );" << endl;
 			out << indent << indent << indent << obj << "->refresh();" << endl;
 			out << indent << indent << indent << obj << "->first();" << endl;
 			out << indent << indent << "}" << endl;
@@ -1357,7 +1356,7 @@ void Uic::createFormImpl( const QDomElement &e )
 
 		      1.  If the type is 'void', we return nothing.
 
-		      2.  If the type is 'bool', we return 'FALSE'.
+		      2.  If the type is 'bool', we return 'false'.
 
 		      3.  If the type is 'unsigned long' or
 			  'Q_UINT16' or 'double' or similar, we
@@ -1377,7 +1376,7 @@ void Uic::createFormImpl( const QDomElement &e )
 				( toks.grep(numeric).count() == toks.count() );
 
 			if ( type == "bool" ) {
-			    retVal = "FALSE";
+			    retVal = "false";
 			} else if ( isBasicNumericType || type.endsWith("*") ) {
 			    retVal = "0";
 			} else if ( type.endsWith("&") ) {

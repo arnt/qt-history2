@@ -390,7 +390,7 @@ void MarkerWidget::mousePressEvent( QMouseEvent *e )
 		if ( data->marker == ParagData::Breakpoint ) {
 		    data->marker = ParagData::NoMarker;
 		} else {
-		    bool ok = TRUE;
+		    bool ok = true;
 		    isBreakpointPossible( ok, ( (Editor*)viewManager->currentView() )->text(), p->paragId() );
 		    if ( ok )
 			data->marker = ParagData::Breakpoint;
@@ -446,13 +446,13 @@ void MarkerWidget::contextMenuEvent( QContextMenuEvent *e )
 	return;
 
     if ( res == collapseAll ) {
-	emit collapse( TRUE );
+	emit collapse( true );
     } else if ( res == collapseFunctions ) {
-	emit collapse( FALSE );
+	emit collapse( false );
     } else if ( res == expandAll ) {
-	emit expand( TRUE );
+	emit expand( true );
     } else if ( res == expandFunctions ) {
-	emit expand( FALSE );
+	emit expand( false );
     } else if ( res == toggleBreakPoint ) {
 	if ( ( (ParagData*)p->extraData() )->marker == ParagData::Breakpoint ) {
 	    ( (ParagData*)p->extraData() )->marker = ParagData::NoMarker;

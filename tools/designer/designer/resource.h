@@ -14,14 +14,13 @@
 #ifndef RESOURCE_H
 #define RESOURCE_H
 
+#include "actiondnd.h"
+#include "metadatabase.h"
 #include <qstring.h>
 #include <qtextstream.h>
 #include <qvariant.h>
 #include <qlist.h>
 #include <qimage.h>
-#include "actiondnd.h"
-
-#include "metadatabase.h"
 
 class QWidget;
 class QObject;
@@ -62,7 +61,7 @@ public:
     bool load( FormFile *ff, QIODevice*, Project *defProject = 0 );
     QString copy();
 
-    bool save( const QString& filename, bool formCodeOnly = FALSE);
+    bool save( const QString& filename, bool formCodeOnly = false);
     bool save( QIODevice* );
     void paste( const QString &cb, QWidget *parent );
 

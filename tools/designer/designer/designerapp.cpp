@@ -58,7 +58,7 @@ QSplashScreen *DesignerApplication::showSplash()
 
     QRect mainRect;
     QString keybase = settingsKey();
-    bool show = config.readBoolEntry( keybase + "SplashScreen", TRUE );
+    bool show = config.readBoolEntry( keybase + "SplashScreen", true );
     mainRect.setX( config.readNumEntry( keybase + "Geometries/MainwindowX", 0 ) );
     mainRect.setY( config.readNumEntry( keybase + "Geometries/MainwindowY", 0 ) );
     mainRect.setWidth( config.readNumEntry( keybase + "Geometries/MainwindowWidth", 500 ) );
@@ -138,7 +138,7 @@ bool DesignerApplication::winEventFilter( MSG *msg )
 
 		FormWindow* fw = 0;
 		FormWindow* totop = 0;
-		bool haveit = FALSE;
+		bool haveit = false;
 		for ( int i = 0; i < l.size(); ++i ) {
 		    fw = (FormWindow*)l.at(i);
 		    haveit = haveit || fw->fileName() == arg;
@@ -147,14 +147,14 @@ bool DesignerApplication::winEventFilter( MSG *msg )
 		}
 
 		if ( !haveit ) {
-		    FlashWindow( MainWindow::self->winId(), TRUE );
+		    FlashWindow( MainWindow::self->winId(), true );
 		    MainWindow::self->openFormWindow( arg );
 		} else if ( totop ) {
 		    totop->setFocus();
 		}
 	    }
 	}
-	return TRUE;
+	return true;
     }
     return QApplication::winEventFilter( msg );
 }

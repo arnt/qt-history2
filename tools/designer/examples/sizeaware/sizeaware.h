@@ -1,5 +1,6 @@
 #ifndef SIZEAWARE_H
 #define SIZEAWARE_H
+
 #include <qdialog.h>
 
 class SizeAware : public QDialog
@@ -8,7 +9,7 @@ class SizeAware : public QDialog
     Q_PROPERTY( QString company READ company WRITE setCompany )
     Q_PROPERTY( QString settingsFile READ settingsFile WRITE setSettingsFile )
 public:
-    SizeAware( QDialog *parent = 0, const char *name = 0, bool modal = FALSE );
+    SizeAware( QDialog *parent = 0, const char *name = 0, bool modal = false );
     ~SizeAware();
     void setCompany( const QString &company ) { m_company = company; }
     QString company() const { return m_company; } 
@@ -20,4 +21,5 @@ private:
     QString m_company;
     QString m_settingsFile;
 };
+
 #endif

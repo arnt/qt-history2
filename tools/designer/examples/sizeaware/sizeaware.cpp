@@ -18,7 +18,6 @@ SizeAware::SizeAware( QDialog *parent, const char *name, bool modal )
     resize( width, height );
 }
 
-
 SizeAware::~SizeAware()
 {
     // NOOP
@@ -31,8 +30,5 @@ void SizeAware::destroy()
     settings.insertSearchPath( QSettings::Unix, "/Opt/" + company() + "/share" );
     settings.writeEntry( "/" + settingsFile() + "/width",   width() );
     settings.writeEntry( "/" + settingsFile() + "/height",  height() );
-    close( TRUE );
+    close( true );
 }
-
-
-

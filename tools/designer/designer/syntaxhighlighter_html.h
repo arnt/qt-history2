@@ -29,7 +29,7 @@ public:
 
     SyntaxHighlighter_HTML();
     virtual ~SyntaxHighlighter_HTML();
-    void process( Q3TextDocument *doc, Q3TextParagraph *string, int start, bool invalidate = TRUE );
+    void process( Q3TextDocument *doc, Q3TextParagraph *string, int start, bool invalidate = true );
     Q3TextFormat *format( int id );
 
 private:

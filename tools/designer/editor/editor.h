@@ -53,8 +53,8 @@ public:
     void clearStepSelection();
     void clearSelections();
 
-    virtual bool supportsErrors() const { return TRUE; }
-    virtual bool supportsBreakPoints() const { return TRUE; }
+    virtual bool supportsErrors() const { return true; }
+    virtual bool supportsBreakPoints() const { return true; }
     virtual void makeFunctionVisible( Q3TextParagraph * ) {}
 
     void drawCursor( bool b ) { QTextEdit::drawCursor( b ); }

@@ -25,7 +25,7 @@ class SqlFormWizard : public SqlFormWizardBase
 
 public:
     SqlFormWizard( QUnknownInterface *aIface, QWidget *w, QWidget* parent = 0, DesignerFormWindow *fw = 0,
-		   const char* name = 0, bool modal = FALSE, WFlags fl = 0 );
+		   const char* name = 0, bool modal = false, WFlags fl = 0 );
     ~SqlFormWizard();
 
     void accept() const;
@@ -64,4 +64,4 @@ private:
 
 };
 
-#endif // SQLFORMWIZARDIMPL_H
+#endif

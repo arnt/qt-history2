@@ -14,15 +14,15 @@
 #ifndef STARTDIALOGIMPL_H
 #define STARTDIALOGIMPL_H
 
+#include "newformimpl.h"
+#include "startdialog.h"
+
 #include <qiconview.h>
 #include <qlistview.h>
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qfiledialog.h>
 #include <qmap.h>
-
-#include "newformimpl.h"
-#include "startdialog.h"
 
 class FileDialog : public QFileDialog
 {

@@ -241,13 +241,13 @@ void SyntaxHighlighter_CPP::process( Q3TextDocument *doc, Q3TextParagraph *strin
     int state = StateStandard;
     if ( string->prev() ) {
 	if ( string->prev()->endState() == -1 )
-	    process( doc, string->prev(), 0, FALSE );
+	    process( doc, string->prev(), 0, false );
 	state = string->prev()->endState();
     }
     int input;
     int i = 0;
-    bool lastWasBackSlash = FALSE;
-    bool makeLastStandard = FALSE;
+    bool lastWasBackSlash = false;
+    bool makeLastStandard = false;
 
     ParagData *paragData = (ParagData*)string->extraData();
     if ( paragData )
@@ -258,7 +258,7 @@ void SyntaxHighlighter_CPP::process( Q3TextDocument *doc, Q3TextParagraph *strin
     QString alphabeth = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     QString mathChars = "xXeE";
     QString numbers = "0123456789";
-    bool questionMark = FALSE;
+    bool questionMark = false;
     QChar lastChar;
     for (;;) {
 	QChar c = string->at( i )->c;
@@ -327,13 +327,13 @@ void SyntaxHighlighter_CPP::process( Q3TextDocument *doc, Q3TextParagraph *strin
 		if ( state == StateStandard && !questionMark && lastChar != ':' && nextChar != ':' ) {
 		    for ( int j = 0; j < i; ++j ) {
 			if ( string->at( j )->format() == formatStandard )
-			    string->setFormat( j, 1, formatLabel, FALSE );
+			    string->setFormat( j, 1, formatLabel, false );
 		    }
 		}
 	    } break;
 	    default: {
 		if ( !questionMark && c == '?' )
-		    questionMark = TRUE;
+		    questionMark = true;
 		if ( c.isLetter() || c == '_' )
 		    input = InputAlpha;
 		else
@@ -352,19 +352,19 @@ void SyntaxHighlighter_CPP::process( Q3TextDocument *doc, Q3TextParagraph *strin
 	switch ( state ) {
 	case StateStandard: {
 	    int len = buffer.length();
-	    string->setFormat( i, 1, formatStandard, FALSE );
+	    string->setFormat( i, 1, formatStandard, false );
 	    if ( makeLastStandard )
-		string->setFormat( i - 1, 1, formatStandard, FALSE );
-	    makeLastStandard = FALSE;
+		string->setFormat( i - 1, 1, formatStandard, false );
+	    makeLastStandard = false;
 	    if ( buffer.length() > 0 && input != InputAlpha ) {
 		if ( buffer[ 0 ] == 'Q' ) {
-		    string->setFormat( i - buffer.length(), buffer.length(), formatType, FALSE );
+		    string->setFormat( i - buffer.length(), buffer.length(), formatType, false );
 		} else {
 		    QMap<int, QMap<QString, int > >::Iterator it = wordMap->find( len );
 		    if ( it != wordMap->end() ) {
 			QMap<QString, int >::Iterator it2 = ( *it ).find( buffer );
 			if ( it2 != ( *it ).end() )
-			    string->setFormat( i - buffer.length(), buffer.length(), format( ( *it2 ) ), FALSE );
+			    string->setFormat( i - buffer.length(), buffer.length(), format( ( *it2 ) ), false );
 		    }
 		}
 		buffer = QString::null;
@@ -372,102 +372,102 @@ void SyntaxHighlighter_CPP::process( Q3TextDocument *doc, Q3TextParagraph *strin
 	} break;
 	case StateCommentStart1:
 	    if ( makeLastStandard )
-		string->setFormat( i - 1, 1, formatStandard, FALSE );
-	    makeLastStandard = TRUE;
+		string->setFormat( i - 1, 1, formatStandard, false );
+	    makeLastStandard = true;
 	    buffer = QString::null;
 	    break;
 	case StateCCommentStart2:
-	    string->setFormat( i - 1, 2, formatComment, FALSE );
-	    makeLastStandard = FALSE;
+	    string->setFormat( i - 1, 2, formatComment, false );
+	    makeLastStandard = false;
 	    buffer = QString::null;
 	    break;
 	case StateCppCommentStart2:
-	    string->setFormat( i - 1, 2, formatComment, FALSE );
-	    makeLastStandard = FALSE;
+	    string->setFormat( i - 1, 2, formatComment, false );
+	    makeLastStandard = false;
 	    buffer = QString::null;
 	    break;
 	case StateCComment:
 	    if ( makeLastStandard )
-		string->setFormat( i - 1, 1, formatStandard, FALSE );
-	    makeLastStandard = FALSE;
-	    string->setFormat( i, 1, formatComment, FALSE );
+		string->setFormat( i - 1, 1, formatStandard, false );
+	    makeLastStandard = false;
+	    string->setFormat( i, 1, formatComment, false );
 	    buffer = QString::null;
 	    break;
 	case StateCppComment:
 	    if ( makeLastStandard )
-		string->setFormat( i - 1, 1, formatStandard, FALSE );
-	    makeLastStandard = FALSE;
-	    string->setFormat( i, 1, formatComment, FALSE );
+		string->setFormat( i - 1, 1, formatStandard, false );
+	    makeLastStandard = false;
+	    string->setFormat( i, 1, formatComment, false );
 	    buffer = QString::null;
 	    break;
 	case StateCCommentEnd1:
 	    if ( makeLastStandard )
-		string->setFormat( i - 1, 1, formatStandard, FALSE );
-	    makeLastStandard = FALSE;
-	    string->setFormat( i, 1, formatComment, FALSE );
+		string->setFormat( i - 1, 1, formatStandard, false );
+	    makeLastStandard = false;
+	    string->setFormat( i, 1, formatComment, false );
 	    buffer = QString::null;
 	    break;
 	case StateCCommentEnd2:
 	    if ( makeLastStandard )
-		string->setFormat( i - 1, 1, formatStandard, FALSE );
-	    makeLastStandard = FALSE;
-	    string->setFormat( i, 1, formatComment, FALSE );
+		string->setFormat( i - 1, 1, formatStandard, false );
+	    makeLastStandard = false;
+	    string->setFormat( i, 1, formatComment, false );
 	    buffer = QString::null;
 	    break;
 	case StateStringStart:
 	    if ( makeLastStandard )
-		string->setFormat( i - 1, 1, formatStandard, FALSE );
-	    makeLastStandard = FALSE;
-	    string->setFormat( i, 1, formatStandard, FALSE );
+		string->setFormat( i - 1, 1, formatStandard, false );
+	    makeLastStandard = false;
+	    string->setFormat( i, 1, formatStandard, false );
 	    buffer = QString::null;
 	    break;
 	case StateString:
 	    if ( makeLastStandard )
-		string->setFormat( i - 1, 1, formatStandard, FALSE );
-	    makeLastStandard = FALSE;
-	    string->setFormat( i, 1, formatString, FALSE );
+		string->setFormat( i - 1, 1, formatStandard, false );
+	    makeLastStandard = false;
+	    string->setFormat( i, 1, formatString, false );
 	    buffer = QString::null;
 	    break;
 	case StateStringEnd:
 	    if ( makeLastStandard )
-		string->setFormat( i - 1, 1, formatStandard, FALSE );
-	    makeLastStandard = FALSE;
-	    string->setFormat( i, 1, formatStandard, FALSE );
+		string->setFormat( i - 1, 1, formatStandard, false );
+	    makeLastStandard = false;
+	    string->setFormat( i, 1, formatStandard, false );
 	    buffer = QString::null;
 	    break;
 	case StateString2Start:
 	    if ( makeLastStandard )
-		string->setFormat( i - 1, 1, formatStandard, FALSE );
-	    makeLastStandard = FALSE;
-	    string->setFormat( i, 1, formatStandard, FALSE );
+		string->setFormat( i - 1, 1, formatStandard, false );
+	    makeLastStandard = false;
+	    string->setFormat( i, 1, formatStandard, false );
 	    buffer = QString::null;
 	    break;
 	case StateString2:
 	    if ( makeLastStandard )
-		string->setFormat( i - 1, 1, formatStandard, FALSE );
-	    makeLastStandard = FALSE;
-	    string->setFormat( i, 1, formatString, FALSE );
+		string->setFormat( i - 1, 1, formatStandard, false );
+	    makeLastStandard = false;
+	    string->setFormat( i, 1, formatString, false );
 	    buffer = QString::null;
 	    break;
 	case StateString2End:
 	    if ( makeLastStandard )
-		string->setFormat( i - 1, 1, formatStandard, FALSE );
-	    makeLastStandard = FALSE;
-	    string->setFormat( i, 1, formatStandard, FALSE );
+		string->setFormat( i - 1, 1, formatStandard, false );
+	    makeLastStandard = false;
+	    string->setFormat( i, 1, formatStandard, false );
 	    buffer = QString::null;
 	    break;
 	case StateNumber:
 	    if ( makeLastStandard )
-		string->setFormat( i - 1, 1, formatStandard, FALSE );
-	    makeLastStandard = FALSE;
-	    string->setFormat( i, 1, formatNumber, FALSE );
+		string->setFormat( i - 1, 1, formatStandard, false );
+	    makeLastStandard = false;
+	    string->setFormat( i, 1, formatNumber, false );
 	    buffer = QString::null;
 	    break;
 	case StatePreProcessor:
 	    if ( makeLastStandard )
-		string->setFormat( i - 1, 1, formatStandard, FALSE );
-	    makeLastStandard = FALSE;
-	    string->setFormat( i, 1, formatPreProcessor, FALSE );
+		string->setFormat( i - 1, 1, formatStandard, false );
+	    makeLastStandard = false;
+	    string->setFormat( i, 1, formatPreProcessor, false );
 	    buffer = QString::null;
 	    break;
 	}
@@ -492,7 +492,7 @@ void SyntaxHighlighter_CPP::process( Q3TextDocument *doc, Q3TextParagraph *strin
 	string->setEndState( StateStandard );
     }
 
-    string->setFirstPreProcess( FALSE );
+    string->setFirstPreProcess( false );
 
     Q3TextParagraph *p = string->next();
     if ( (!!oldEndState || !!string->endState()) && oldEndState != string->endState() &&
@@ -526,4 +526,3 @@ void SyntaxHighlighter_CPP::removeFormat( int id )
 {
     formats.remove( id );
 }
-

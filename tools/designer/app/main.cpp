@@ -57,7 +57,7 @@ static void signalHandler( QT_SIGNAL_ARGS )
 	QString arg = (*it).stripWhiteSpace();
 	if ( arg[0] != '-' ) {
 	    QObjectList l = MainWindow::self->queryList( "FormWindow" );
-	    bool haveit = FALSE;
+	    bool haveit = false;
 	    for (int i = 0; i < l.size(); ++i) {
 		FormWindow* fw = (FormWindow*) l.at(i);
 		if (fw->fileName() == arg) {
@@ -102,7 +102,7 @@ int main( int argc, char *argv[] )
 
     DesignerApplication::setOverrideCursor( Qt::WaitCursor );
 
-    bool creatPid = FALSE;
+    bool creatPid = false;
     if ( a.argc() > 1 ) {
 	QString arg1 = a.argv()[ 1 ];
 	if ( arg1 == "-client" ) {
@@ -119,12 +119,12 @@ int main( int argc, char *argv[] )
 		f.close();
 #if defined(Q_OS_UNIX)
 		if ( kill( pidStr.toInt(), SIGUSR1 ) == -1 )
-		    creatPid = TRUE;
+		    creatPid = true;
 		else
 		    return 0;
 #elif defined(Q_OS_WIN32)
 		if ( !GetProcessVersion( pidStr.toUInt() ) ) {
-		    creatPid = TRUE;
+		    creatPid = true;
 		} else {
 		    if ( a.winVersion() & Qt::WV_NT_based )
 			    SendMessage( HWND_BROADCAST, RegisterWindowMessage((TCHAR*)"QT_DESIGNER_OPEN_FILE"), 0, 0 );
@@ -134,11 +134,11 @@ int main( int argc, char *argv[] )
 		}
 #endif
 	    } else {
-		creatPid = TRUE;
+		creatPid = true;
 	    }
 	} else if(arg1 == "-debug_stderr") {
 	    extern bool debugToStderr; //outputwindow.cpp
-	    debugToStderr = TRUE;
+	    debugToStderr = true;
 	}
     }
 
@@ -179,7 +179,7 @@ int main( int argc, char *argv[] )
 #else
     mw->setCaption( "Qt Designer by Trolltech" );
 #endif
-    if ( config.readBoolEntry( keybase + "Geometries/MainwindowMaximized", FALSE ) ) {
+    if ( config.readBoolEntry( keybase + "Geometries/MainwindowMaximized", false ) ) {
 	int x = config.readNumEntry( keybase + "Geometries/MainwindowX", 0 );
 	int y = config.readNumEntry( keybase + "Geometries/MainwindowY", 0 );
 	mw->move( x, y );

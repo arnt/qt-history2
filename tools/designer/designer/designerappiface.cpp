@@ -11,8 +11,6 @@
 **
 ****************************************************************************/
 
-#include <qmenubar.h>
-#include <qpopupmenu.h>
 #include "designerappiface.h"
 #include "mainwindow.h"
 #include "project.h"
@@ -22,16 +20,18 @@
 #include "command.h"
 #include "outputwindow.h"
 #include "../shared/widgetdatabase.h"
+#include "pixmapcollection.h"
+#include "hierarchyview.h"
+#include "popupmenueditor.h"
+#include "menubareditor.h"
+#include <qmenubar.h>
+#include <qpopupmenu.h>
 #include <qvariant.h>
 #include <qlistview.h>
 #include <qtextedit.h>
 #include <qstatusbar.h>
-#include "pixmapcollection.h"
-#include "hierarchyview.h"
-#include <stdlib.h>
 #include <qmetaobject.h>
-#include "popupmenueditor.h"
-#include "menubareditor.h"
+#include <stdlib.h>
 
 DesignerInterfaceImpl::DesignerInterfaceImpl( MainWindow *mw )
     : mainWindow( mw )
@@ -568,7 +568,7 @@ void DesignerFormWindowImpl::insertWidget( QWidget * )
 QWidget *DesignerFormWindowImpl::create( const char *className, QWidget *parent, const char *name )
 {
     QWidget *w = WidgetFactory::create( WidgetDatabase::idFromClassName( className ), parent, name );
-    formWindow->insertWidget( w, TRUE );
+    formWindow->insertWidget( w, true );
     formWindow->killAccels( formWindow->mainContainer() );
     return w;
 }
@@ -657,7 +657,7 @@ void DesignerFormWindowImpl::breakLayout()
 
 void DesignerFormWindowImpl::selectWidget( QWidget * w )
 {
-    formWindow->selectWidget( w, TRUE );
+    formWindow->selectWidget( w, true );
 }
 
 void DesignerFormWindowImpl::selectAll()
@@ -671,7 +671,7 @@ void DesignerFormWindowImpl::clearSelection()
 
 bool DesignerFormWindowImpl::isWidgetSelected( QWidget * ) const
 {
-    return FALSE;
+    return false;
 }
 
 QWidgetList DesignerFormWindowImpl::selectedWidgets() const
@@ -719,12 +719,12 @@ void DesignerFormWindowImpl::addAction( QAction *a )
 	return;
     formWindow->actionList().append( a );
     MetaDataBase::addEntry( a );
-    setPropertyChanged( a, "name", TRUE );
-    setPropertyChanged( a, "text", TRUE );
-    setPropertyChanged( a, "menuText", TRUE );
-    setPropertyChanged( a, "accel", TRUE );
+    setPropertyChanged( a, "name", true );
+    setPropertyChanged( a, "text", true );
+    setPropertyChanged( a, "menuText", true );
+    setPropertyChanged( a, "accel", true );
     if ( !a->iconSet().isNull() && !a->iconSet().pixmap().isNull() )
-	setPropertyChanged( a, "iconSet", TRUE );
+	setPropertyChanged( a, "iconSet", true );
 }
 
 void DesignerFormWindowImpl::removeAction( QAction *a )
@@ -946,7 +946,7 @@ void DesignerFormWindowImpl::addMenu( const QString &text, const QString &name )
     QMainWindow *mw = (QMainWindow*)formWindow->mainContainer();
     PopupMenuEditor *popup = new PopupMenuEditor( formWindow, mw );
     QString n = name;
-    formWindow->unify( popup, n, TRUE );
+    formWindow->unify( popup, n, true );
     popup->setName( n );
     MenuBarEditor *mb = (MenuBarEditor *)mw->child( 0, "MenuBarEditor" );
     if ( !mb ) {
@@ -992,7 +992,7 @@ void DesignerFormWindowImpl::addToolBar( const QString &text, const QString &nam
     QMainWindow *mw = (QMainWindow*)formWindow->mainContainer();
     QToolBar *tb = new QDesignerToolBar( mw );
     QString n = name;
-    formWindow->unify( tb, n, TRUE );
+    formWindow->unify( tb, n, true );
     tb->setName( n );
     mw->addToolBar( tb, text );
 }
@@ -1058,7 +1058,7 @@ void DesignerOutputDockImpl::appendError( const QString &s, int l )
     ls << s;
     QList<uint> ll;
     ll << l;
-    outWin->setErrorMessages( ls, ll, FALSE, QStringList(), QObjectList() );
+    outWin->setErrorMessages( ls, ll, false, QStringList(), QObjectList() );
 }
 
 void DesignerOutputDockImpl::clearError()

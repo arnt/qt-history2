@@ -14,8 +14,8 @@
 #ifndef SOURCEFILE_H
 #define SOURCEFILE_H
 
-#include <qobject.h>
 #include "timestamp.h"
+#include <qobject.h>
 
 struct DesignerSourceFile;
 class SourceEditor;
@@ -32,8 +32,8 @@ public:
     void setText( const QString &s );
     void setModified( bool m );
 
-    bool save( bool ignoreModified = FALSE );
-    bool saveAs( bool ignoreModified = FALSE );
+    bool save( bool ignoreModified = false );
+    bool saveAs( bool ignoreModified = false );
     bool load();
     bool close();
     bool closeEvent();

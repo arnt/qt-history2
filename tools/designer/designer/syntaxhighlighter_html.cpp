@@ -52,7 +52,7 @@ void SyntaxHighlighter_HTML::process( Q3TextDocument *doc, Q3TextParagraph *stri
 
     if ( string->prev() ) {
 	if ( string->prev()->endState() == -1 )
-	    process( doc, string->prev(), 0, FALSE );
+	    process( doc, string->prev(), 0, false );
 	state = string->prev()->endState();
     }
 
@@ -63,50 +63,50 @@ void SyntaxHighlighter_HTML::process( Q3TextDocument *doc, Q3TextParagraph *stri
 
 	if ( c == '<' ) {
 	    if ( state != StateStandard  )
-		string->setFormat( i - buffer.length(), buffer.length(), formatStandard, FALSE );
+		string->setFormat( i - buffer.length(), buffer.length(), formatStandard, false );
 	    buffer = c;
 	    state = StateTag;
-	    string->setFormat( i, 1, formatKeyword, FALSE );
+	    string->setFormat( i, 1, formatKeyword, false );
 	}
 	else if ( c == '>' && ( state != StateStandard ) ) {
-	    string->setFormat( i, 1, formatKeyword, FALSE );
+	    string->setFormat( i, 1, formatKeyword, false );
 	    buffer = "";
 	    state = StateStandard;
 	}
 	else if ( c == ' ' && state == StateTag ) {
 	    buffer += c;
-	    string->setFormat( i, 1, formatStandard, FALSE );
+	    string->setFormat( i, 1, formatStandard, false );
 	    state = StateAttribute;
 	}
 	else if ( c == '=' && state == StateAttribute ) {
 	    buffer += c;
-	    string->setFormat( i, 1, formatStandard, FALSE );
+	    string->setFormat( i, 1, formatStandard, false );
 	    state = StateAttribute;
 	}
 	else if ( c == '\"' && state == StateAttribute ) {
 	    buffer += c;
-	    string->setFormat( i, 1, formatStandard, FALSE );
+	    string->setFormat( i, 1, formatStandard, false );
 	    state = StateAttribVal;
 	}
 	else if ( c == '\"' && state == StateAttribVal ) {
 	    buffer += c;
-	    string->setFormat( i, 1, formatStandard, FALSE );
+	    string->setFormat( i, 1, formatStandard, false );
 	    state = StateAttribute;
 	}
 	else if ( state == StateAttribute ) {
 	    buffer += c;
-	    string->setFormat( i, 1, formatAttribute, FALSE );
+	    string->setFormat( i, 1, formatAttribute, false );
 	}
 	else if ( state == StateAttribVal ) {
 	    buffer += c;
-	    string->setFormat( i, 1, formatAttribValue, FALSE );
+	    string->setFormat( i, 1, formatAttribValue, false );
 	}
 	else if ( state == StateTag ) {
-	    string->setFormat( i, 1, formatKeyword, FALSE );
+	    string->setFormat( i, 1, formatKeyword, false );
 	    buffer += c;
 	}
 	else if ( state == StateStandard ) {
-	    string->setFormat( i, 1, formatStandard, FALSE );
+	    string->setFormat( i, 1, formatStandard, false );
 	}
 
 	i++;
@@ -115,7 +115,7 @@ void SyntaxHighlighter_HTML::process( Q3TextDocument *doc, Q3TextParagraph *stri
     }
 
     string->setEndState( state );
-    string->setFirstPreProcess( FALSE );
+    string->setFirstPreProcess( false );
 
     if ( invalidate && string->next() &&
 	 !string->next()->firstPreProcess() && string->next()->endState() != -1 ) {

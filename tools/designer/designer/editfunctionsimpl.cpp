@@ -31,7 +31,7 @@
 #include <qcheckbox.h>
 
 EditFunctions::EditFunctions( QWidget *parent, FormWindow *fw, bool justSlots )
-    : EditFunctionsBase( parent, 0, TRUE ), formWindow( fw )
+    : EditFunctionsBase( parent, 0, true ), formWindow( fw )
 {
     connect( helpButton, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
 
@@ -76,8 +76,8 @@ EditFunctions::EditFunctions( QWidget *parent, FormWindow *fw, bool justSlots )
 	}
     }
 
-    boxProperties->setEnabled( FALSE );
-    functionName->setValidator( new AsciiValidator( TRUE, functionName ) );
+    boxProperties->setEnabled( false );
+    functionName->setValidator( new AsciiValidator( true, functionName ) );
 
     if ( functionListView->firstChild() )
 	functionListView->setCurrentItem( functionListView->firstChild() );
@@ -88,7 +88,7 @@ EditFunctions::EditFunctions( QWidget *parent, FormWindow *fw, bool justSlots )
     // Enable rename for all QListViewItems
     QListViewItemIterator lvit = functionListView->firstChild();
     for ( ; *lvit; lvit++ )
-	(*lvit)->setRenameEnabled( 0, TRUE );
+	(*lvit)->setRenameEnabled( 0, true );
 
     // Connect listview signal to signal-relay
     QObject::connect( functionListView,
@@ -115,12 +115,12 @@ void EditFunctions::okClicked()
     QList<MetaDataBase::Function>::Iterator fit;
     if ( !functionList.isEmpty() ) {
 	for ( fit = functionList.begin(); fit != functionList.end(); ++fit ) {
-	    bool functionFound = FALSE;
+	    bool functionFound = false;
 	    QList<FunctItem>::Iterator it = functList.begin();
 	    for ( ; it != functList.end(); ++it ) {
 		if ( MetaDataBase::normalizeFunction( (*it).oldName ) ==
 		     MetaDataBase::normalizeFunction( (*fit).function ) ) {
-		    functionFound = TRUE;
+		    functionFound = true;
 		    break;
 		}
 	    }
@@ -134,7 +134,7 @@ void EditFunctions::okClicked()
 	}
     }
 
-    bool invalidFunctions = FALSE;
+    bool invalidFunctions = false;
     QList<FunctItem> invalidItems;
 
     if ( !functList.isEmpty() ) {
@@ -157,15 +157,15 @@ void EditFunctions::okClicked()
 	    bool illegalSpace = s.find( ' ' ) != -1 && s.find( ' ' ) < s.find( '(' );
 
 	    if ( startNum || noParens || illegalSpace || lst.findIndex( function.function ) != -1 ) {
-		invalidFunctions = TRUE;
+		invalidFunctions = true;
 		invalidItems.append( (*it) );
 		continue;
 	    }
-	    bool functionFound = FALSE;
+	    bool functionFound = false;
 	    for ( fit = functionList.begin(); fit != functionList.end(); ++fit ) {
 		if ( MetaDataBase::normalizeFunction( (*fit).function ) ==
 		     MetaDataBase::normalizeFunction( (*it).oldName ) ) {
-		    functionFound = TRUE;
+		    functionFound = true;
 		    break;
 		}
 	    }
@@ -196,12 +196,12 @@ void EditFunctions::okClicked()
 				       "Remove these functions?" ), tr( "&Yes" ), tr( "&No" ) ) == 0 ) {
 	    QList<FunctItem>::Iterator it = functList.begin();
 	    while ( it != functList.end() ) {
-		bool found = FALSE;
+		bool found = false;
 		QList<FunctItem>::Iterator vit = invalidItems.begin();
 		for ( ; vit != invalidItems.end(); ++vit ) {
 		    if ( (*vit).newName == (*it).newName ) {
 			invalidItems.remove( vit );
-			found = TRUE;
+			found = true;
 			break;
 		    }
 		}
@@ -215,7 +215,7 @@ void EditFunctions::okClicked()
 			    functionIds.remove( fit );
 			    delete litem;
 			    if ( functionListView->currentItem() )
-				functionListView->setSelected( functionListView->currentItem(), TRUE );
+				functionListView->setSelected( functionListView->currentItem(), true );
 			    currentItemChanged( functionListView->currentItem() );
 			    break;
 			}
@@ -227,7 +227,7 @@ void EditFunctions::okClicked()
 	    }
 	    if ( functionListView->firstChild() ) {
 		functionListView->setCurrentItem( functionListView->firstChild() );
-		functionListView->setSelected( functionListView->firstChild(), TRUE );
+		functionListView->setSelected( functionListView->firstChild(), true );
 	    }
 	}
 	formWindow->mainWindow()->objectHierarchy()->updateFormDefinitionView();
@@ -248,7 +248,7 @@ void EditFunctions::functionAdd( const QString &access, const QString &type )
 {
     QListViewItem *i = new QListViewItem( functionListView );
     i->setPixmap( 0, QPixmap::fromMimeSource( "designer_editslots.png" ) );
-    i->setRenameEnabled( 0, TRUE );
+    i->setRenameEnabled( 0, true );
     i->setText( 1, "void" );
     i->setText( 2, "virtual" );
 
@@ -279,7 +279,7 @@ void EditFunctions::functionAdd( const QString &access, const QString &type )
     }
 
     functionListView->setCurrentItem( i );
-    functionListView->setSelected( i, TRUE );
+    functionListView->setSelected( i, true );
     functionListView->ensureItemVisible( i );
     functionName->setFocus();
     functionName->selectAll();
@@ -307,7 +307,7 @@ void EditFunctions::functionRemove()
     if ( !functionListView->currentItem() )
 	return;
 
-    functionListView->blockSignals( TRUE );
+    functionListView->blockSignals( true );
     removedFunctions << MetaDataBase::normalizeFunction( functionListView->currentItem()->text( 0 ) );
     int delId = functionIds[ functionListView->currentItem() ];
     QList<FunctItem>::Iterator it = functList.begin();
@@ -321,24 +321,24 @@ void EditFunctions::functionRemove()
     functionIds.remove( functionListView->currentItem() );
     delete functionListView->currentItem();
     if ( functionListView->currentItem() )
-	functionListView->setSelected( functionListView->currentItem(), TRUE );
-    functionListView->blockSignals( FALSE );
+	functionListView->setSelected( functionListView->currentItem(), true );
+    functionListView->blockSignals( false );
     currentItemChanged( functionListView->currentItem() );
 }
 
 void EditFunctions::currentItemChanged( QListViewItem *i )
 {
-    functionName->blockSignals( TRUE );
+    functionName->blockSignals( true );
     functionName->setText( "" );
     functionAccess->setCurrentItem( 0 );
-    functionName->blockSignals( FALSE );
+    functionName->blockSignals( false );
 
     if ( !i ) {
-	boxProperties->setEnabled( FALSE );
+	boxProperties->setEnabled( false );
 	return;
     }
 
-    functionName->blockSignals( TRUE );
+    functionName->blockSignals( true );
     functionName->setText( i->text( 0 ) );
     editType->setText( i->text( 1 ) );
     QString specifier = i->text( 2 );
@@ -363,8 +363,8 @@ void EditFunctions::currentItemChanged( QListViewItem *i )
     else
 	functionType->setCurrentItem( 1 );
 
-    functionName->blockSignals( FALSE );
-    boxProperties->setEnabled( TRUE );
+    functionName->blockSignals( false );
+    boxProperties->setEnabled( true );
 }
 
 void EditFunctions::currentTextChanged( const QString &txt )
@@ -468,7 +468,7 @@ void EditFunctions::setCurrentFunction( const QString &function )
     while ( it.current() ) {
 	if ( MetaDataBase::normalizeFunction( it.current()->text( 0 ) ) == function ) {
 	    functionListView->setCurrentItem( it.current() );
-	    functionListView->setSelected( it.current(), TRUE );
+	    functionListView->setSelected( it.current(), true );
 	    currentItemChanged( it.current() );
 	    return;
 	}
@@ -503,7 +503,7 @@ void EditFunctions::displaySlots( bool justSlots )
     }
 
     if ( functionListView->firstChild() )
-	functionListView->setSelected( functionListView->firstChild(), TRUE );
+	functionListView->setSelected( functionListView->firstChild(), true );
 }
 
 void EditFunctions::emitItemRenamed( QListViewItem *, int, const QString & text )

@@ -33,7 +33,7 @@ public:
 
     SyntaxHighlighter_CPP();
     virtual ~SyntaxHighlighter_CPP();
-    void process( Q3TextDocument *doc, Q3TextParagraph *string, int start, bool invalidate = TRUE );
+    void process( Q3TextDocument *doc, Q3TextParagraph *string, int start, bool invalidate = true );
     void updateStyles( const QMap<QString, ConfigStyle> &styles );
 
     static const char * const keywords[];

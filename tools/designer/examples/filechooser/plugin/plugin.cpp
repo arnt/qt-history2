@@ -88,7 +88,7 @@ QString CustomWidgetPlugin::whatsThis( const QString& feature ) const
 
 bool CustomWidgetPlugin::isContainer( const QString& ) const
 {
-    return FALSE;
+    return false;
 }
 
 

@@ -35,7 +35,7 @@ ListViewDnd::ListViewDnd( QListView * eventSource, const char * name )
 
 void ListViewDnd::confirmDrop( QListViewItem * )
 {
-    dropConfirmed = TRUE;
+    dropConfirmed = true;
 }
 
 bool ListViewDnd::dropEvent( QDropEvent * event )
@@ -45,7 +45,7 @@ bool ListViewDnd::dropEvent( QDropEvent * event )
 	if ( dMode & NullDrop ) { // combined with Move, a NullDrop will delete an item
 	    event->accept();
 	    emit dropped( 0 ); // a NullDrop
-	    return TRUE;
+	    return true;
 	}
 
 	QPoint pos = event->pos();
@@ -72,9 +72,9 @@ bool ListViewDnd::dropEvent( QDropEvent * event )
     }
 
     line->hide();
-    dragInside = FALSE;
+    dragInside = false;
 
-    return TRUE;
+    return true;
 }
 
 bool ListViewDnd::mouseMoveEvent( QMouseEvent * event )
@@ -92,7 +92,7 @@ bool ListViewDnd::mouseMoveEvent( QMouseEvent * event )
 
 	    if ( dMode & Move ) {
 		disabledItems = list;
-		setVisibleItems( FALSE );
+		setVisibleItems( false );
 	    }
 
 	    dragobject->dragCopy();
@@ -103,29 +103,29 @@ bool ListViewDnd::mouseMoveEvent( QMouseEvent * event )
 		    // Shouldn't autoDelete handle this?
 		    for(ListViewItemList::Iterator it = list.begin(); it != list.end(); ++it)
 			delete (*it);
-		    dropConfirmed = FALSE;
+		    dropConfirmed = false;
 		} else {
 		    // Reenable disabled items since
 		    // drag'n'drop was aborted
-		    setVisibleItems( TRUE );
+		    setVisibleItems( true );
 		}
 		disabledItems.clear();
 	    }
 	}
     }
-    return FALSE;
+    return false;
 }
 
 int ListViewDnd::buildFlatList( ListViewItemList & list )
 {
-    bool addKids = FALSE;
+    bool addKids = false;
     QListViewItem *nextSibling = 0;
     QListViewItem *nextParent = 0;
     QListViewItemIterator it = ((QListView *)src)->firstChild();
     for ( ; *it; it++ ) {
 	// Hit the nextSibling, turn of child processing
 	if ( (*it) == nextSibling )
-	    addKids = FALSE;
+	    addKids = false;
 
 	if ( (*it)->isSelected() ) {
 	    if ( (*it)->childCount() == 0 ) {
@@ -135,7 +135,7 @@ int ListViewDnd::buildFlatList( ListViewItemList & list )
 		// Children processing not set, so set it
 		// Also find the item were we shall quit
 		// processing children...if any such item
-		addKids = TRUE;
+		addKids = true;
 		nextSibling = (*it)->nextSibling();
 		nextParent = (*it)->parent();
 		while ( nextParent && !nextSibling ) {
@@ -282,15 +282,15 @@ bool ListViewItemDrag::decode( QDropEvent * event, QListView * parent, QListView
 	for( int i = 0; i < count; i++ ) {
 	    if ( itemParent ) {
 		insertPoint = new QListViewItem( itemParent, insertPoint );
-		itemParent->setOpen( TRUE );
+		itemParent->setOpen( true );
 	    } else { // No parent for insertPoint, use QListView
 		insertPoint = new QListViewItem( parent, insertPoint );
 	    }
 	    stream >> *insertPoint;
 	}
-	return TRUE;
+	return true;
     }
-    return FALSE;
+    return false;
 }
 
 

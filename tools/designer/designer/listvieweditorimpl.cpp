@@ -32,13 +32,13 @@
 #include <qptrstack.h>
 
 ListViewEditor::ListViewEditor( QWidget *parent, QListView *lv, FormWindow *fw )
-    : ListViewEditorBase( parent, 0, TRUE ), listview( lv ), formwindow( fw )
+    : ListViewEditorBase( parent, 0, true ), listview( lv ), formwindow( fw )
 {
     connect( helpButton, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
-    itemText->setEnabled( FALSE );
-    itemChoosePixmap->setEnabled( FALSE );
-    itemDeletePixmap->setEnabled( FALSE );
-    itemColumn->setEnabled( FALSE );
+    itemText->setEnabled( false );
+    itemChoosePixmap->setEnabled( false );
+    itemDeletePixmap->setEnabled( false );
+    itemColumn->setEnabled( false );
 
     setupColumns();
     PopulateListViewCommand::transferItems( listview, itemsPreview );
@@ -50,7 +50,7 @@ ListViewEditor::ListViewEditor( QWidget *parent, QListView *lv, FormWindow *fw )
 
     if ( itemsPreview->firstChild() ) {
 	itemsPreview->setCurrentItem( itemsPreview->firstChild() );
-	itemsPreview->setSelected( itemsPreview->firstChild(), TRUE );
+	itemsPreview->setSelected( itemsPreview->firstChild(), true );
     }
 
     // Clamp on drag and drop to QListView
@@ -62,7 +62,7 @@ ListViewEditor::ListViewEditor( QWidget *parent, QListView *lv, FormWindow *fw )
     // Enable rename for all QListViewItems
     QListViewItemIterator it = ((QListView *)itemsPreview)->firstChild();
     for ( ; *it; it++ )
-	(*it)->setRenameEnabled( 0, TRUE );
+	(*it)->setRenameEnabled( 0, true );
 
     // Connect listview signal to signal-relay
     QObject::connect( itemsPreview,
@@ -141,7 +141,7 @@ void ListViewEditor::columnDownClicked()
     colPreview->insertItem( i, below );
 
     colPreview->setCurrentItem( i );
-    colPreview->setSelected( i, TRUE );
+    colPreview->setSelected( i, true );
 }
 
 void ListViewEditor::columnPixmapChosen()
@@ -160,15 +160,15 @@ void ListViewEditor::columnPixmapChosen()
 	return;
 
     c->pixmap = pix;
-    colPreview->blockSignals( TRUE );
+    colPreview->blockSignals( true );
     if ( !c->pixmap.isNull() )
 	colPreview->changeItem( c->pixmap, c->text, colPreview->index( c->item ) );
     else
 	colPreview->changeItem( c->text, colPreview->index( c->item ) );
     c->item = colPreview->item( colPreview->currentItem() );
     colPixmap->setPixmap( c->pixmap );
-    colPreview->blockSignals( FALSE );
-    colDeletePixmap->setEnabled( TRUE );
+    colPreview->blockSignals( false );
+    colDeletePixmap->setEnabled( true );
 }
 
 void ListViewEditor::columnPixmapDeleted()
@@ -178,15 +178,15 @@ void ListViewEditor::columnPixmapDeleted()
 	return;
 
     c->pixmap = QPixmap();
-    colPreview->blockSignals( TRUE );
+    colPreview->blockSignals( true );
     if ( !c->pixmap.isNull() )
 	colPreview->changeItem( c->pixmap, c->text, colPreview->index( c->item ) );
     else
 	colPreview->changeItem( c->text, colPreview->index( c->item ) );
     c->item = colPreview->item( colPreview->currentItem() );
     colPixmap->setText( "" );
-    colPreview->blockSignals( FALSE );
-    colDeletePixmap->setEnabled( FALSE );
+    colPreview->blockSignals( false );
+    colDeletePixmap->setEnabled( false );
 }
 
 void ListViewEditor::columnResizable( bool b )
@@ -204,13 +204,13 @@ void ListViewEditor::columnTextChanged( const QString &txt )
 	return;
 
     c->text = txt;
-    colPreview->blockSignals( TRUE );
+    colPreview->blockSignals( true );
     if ( !c->pixmap.isNull() )
 	colPreview->changeItem( c->pixmap, c->text, colPreview->index( c->item ) );
     else
 	colPreview->changeItem( c->text, colPreview->index( c->item ) );
     c->item = colPreview->item( colPreview->currentItem() );
-    colPreview->blockSignals( FALSE );
+    colPreview->blockSignals( false );
 }
 
 void ListViewEditor::columnUpClicked()
@@ -226,33 +226,33 @@ void ListViewEditor::columnUpClicked()
     colPreview->insertItem( above, i );
 
     colPreview->setCurrentItem( i );
-    colPreview->setSelected( i, TRUE );
+    colPreview->setSelected( i, true );
 }
 
 void ListViewEditor::currentColumnChanged( QListBoxItem *i )
 {
     Column *c = findColumn( i );
     if ( !i || !c ) {
-	colText->setEnabled( FALSE );
-	colPixmap->setEnabled( FALSE );
-	colDeletePixmap->setEnabled( FALSE );
-	colText->blockSignals( TRUE );
+	colText->setEnabled( false );
+	colPixmap->setEnabled( false );
+	colDeletePixmap->setEnabled( false );
+	colText->blockSignals( true );
 	colText->setText( "" );
-	colText->blockSignals( FALSE );
-	colClickable->setEnabled( FALSE );
-	colResizable->setEnabled( FALSE );
+	colText->blockSignals( false );
+	colClickable->setEnabled( false );
+	colResizable->setEnabled( false );
 	return;
     }
 
-    colText->setEnabled( TRUE );
-    colPixmap->setEnabled( TRUE );
+    colText->setEnabled( true );
+    colPixmap->setEnabled( true );
     colDeletePixmap->setEnabled( i->pixmap() && !i->pixmap()->isNull() );
-    colClickable->setEnabled( TRUE );
-    colResizable->setEnabled( TRUE );
+    colClickable->setEnabled( true );
+    colResizable->setEnabled( true );
 
-    colText->blockSignals( TRUE );
+    colText->blockSignals( true );
     colText->setText( c->text );
-    colText->blockSignals( FALSE );
+    colText->blockSignals( false );
     if ( !c->pixmap.isNull() )
 	colPixmap->setPixmap( c->pixmap );
     else
@@ -266,15 +266,15 @@ void ListViewEditor::newColumnClicked()
     Column col;
     col.text = tr( "New Column" );
     col.pixmap = QPixmap();
-    col.clickable = TRUE;
-    col.resizable = TRUE;
+    col.clickable = true;
+    col.resizable = true;
     if ( !col.pixmap.isNull() )
 	col.item = new QListBoxPixmap( colPreview, col.pixmap, col.text );
     else
 	col.item = new QListBoxText( colPreview, col.text );
     columns.append( col );
     colPreview->setCurrentItem( col.item );
-    colPreview->setSelected( col.item, TRUE );
+    colPreview->setSelected( col.item, true );
 }
 
 void ListViewEditor::deleteColumnClicked()
@@ -292,40 +292,40 @@ void ListViewEditor::deleteColumnClicked()
     }
 
     if ( colPreview->currentItem() != -1 )
-	colPreview->setSelected( colPreview->currentItem(), TRUE );
+	colPreview->setSelected( colPreview->currentItem(), true );
 }
 
 void ListViewEditor::currentItemChanged( QListViewItem *i )
 {
     if ( !i ) {
-	itemText->setEnabled( FALSE );
-	itemChoosePixmap->setEnabled( FALSE );
-	itemDeletePixmap->setEnabled( FALSE );
-	itemColumn->setEnabled( FALSE );
+	itemText->setEnabled( false );
+	itemChoosePixmap->setEnabled( false );
+	itemDeletePixmap->setEnabled( false );
+	itemColumn->setEnabled( false );
 	return;
     }
 
-    itemText->setEnabled( TRUE );
-    itemChoosePixmap->setEnabled( TRUE );
+    itemText->setEnabled( true );
+    itemChoosePixmap->setEnabled( true );
     itemDeletePixmap->setEnabled( i->pixmap( itemColumn->value() ) &&
 				  !i->pixmap( itemColumn->value() )->isNull() );
-    itemColumn->setEnabled( TRUE );
+    itemColumn->setEnabled( true );
 
     displayItem( i, itemColumn->value() );
 }
 
 void ListViewEditor::displayItem( QListViewItem *i, int col )
 {
-    itemText->blockSignals( TRUE );
+    itemText->blockSignals( true );
     itemText->setText( i->text( col ) );
-    itemText->blockSignals( FALSE );
+    itemText->blockSignals( false );
 
-    itemPixmap->blockSignals( TRUE );
+    itemPixmap->blockSignals( true );
     if ( i->pixmap( col ) )
 	itemPixmap->setPixmap( *i->pixmap( col ) );
     else
 	itemPixmap->setText( "" );
-    itemPixmap->blockSignals( FALSE );
+    itemPixmap->blockSignals( false );
 }
 
 void ListViewEditor::itemColChanged( int col )
@@ -347,7 +347,7 @@ void ListViewEditor::itemDeleteClicked()
     delete i;
     if ( itemsPreview->firstChild() ) {
 	itemsPreview->setCurrentItem( itemsPreview->firstChild() );
-	itemsPreview->setSelected( itemsPreview->firstChild(), TRUE );
+	itemsPreview->setSelected( itemsPreview->firstChild(), true );
     }
 }
 
@@ -377,9 +377,9 @@ void ListViewEditor::itemNewClicked()
 {
     QListViewItem *item = new QListViewItem( itemsPreview );
     item->setText( 0, "Item" );
-    item->setRenameEnabled( 0, TRUE );
+    item->setRenameEnabled( 0, true );
     itemsPreview->setCurrentItem( item );
-    itemsPreview->setSelected( item, TRUE );
+    itemsPreview->setSelected( item, true );
     itemText->setFocus();
     itemText->selectAll();
 }
@@ -390,14 +390,14 @@ void ListViewEditor::itemNewSubClicked()
     QListViewItem *item = 0;
     if ( parent ) {
 	item = new QListViewItem( parent );
-	parent->setOpen( TRUE );
+	parent->setOpen( true );
     } else {
 	item = new QListViewItem( itemsPreview );
     }
     item->setText( 0, "Subitem" );
-    item->setRenameEnabled( 0, TRUE );
+    item->setRenameEnabled( 0, true );
     itemsPreview->setCurrentItem( item );
-    itemsPreview->setSelected( item, TRUE );
+    itemsPreview->setSelected( item, true );
 }
 
 void ListViewEditor::itemPixmapChoosen()
@@ -417,7 +417,7 @@ void ListViewEditor::itemPixmapChoosen()
 
     i->setPixmap( itemColumn->value(), QPixmap( pix ) );
     itemPixmap->setPixmap( pix );
-    itemDeletePixmap->setEnabled( TRUE );
+    itemDeletePixmap->setEnabled( true );
 }
 
 void ListViewEditor::itemPixmapDeleted()
@@ -428,7 +428,7 @@ void ListViewEditor::itemPixmapDeleted()
 
     i->setPixmap( itemColumn->value(), QPixmap() );
     itemPixmap->setText( "" );
-    itemDeletePixmap->setEnabled( FALSE );
+    itemDeletePixmap->setEnabled( false );
 }
 
 void ListViewEditor::itemTextChanged( const QString &txt )
@@ -498,7 +498,7 @@ void ListViewEditor::itemRightClicked()
     }
 
     itemsPreview->setCurrentItem( other );
-    itemsPreview->setSelected( other, TRUE );
+    itemsPreview->setSelected( other, true );
 }
 
 void ListViewEditor::itemLeftClicked()
@@ -538,7 +538,7 @@ void ListViewEditor::itemLeftClicked()
     }
 
     itemsPreview->setCurrentItem( other );
-    itemsPreview->setSelected( other, TRUE );
+    itemsPreview->setSelected( other, true );
 }
 
 void ListViewEditor::setupColumns()
@@ -559,10 +559,10 @@ void ListViewEditor::setupColumns()
 	columns.append( col );
     }
 
-    colText->setEnabled( FALSE );
-    colPixmap->setEnabled( FALSE );
-    colClickable->setEnabled( FALSE );
-    colResizable->setEnabled( FALSE );
+    colText->setEnabled( false );
+    colPixmap->setEnabled( false );
+    colClickable->setEnabled( false );
+    colResizable->setEnabled( false );
 
     if ( colPreview->firstItem() )
 	colPreview->setCurrentItem( colPreview->firstItem() );
@@ -611,15 +611,15 @@ void ListViewEditor::initTabPage( const QString &page )
     if ( page == tr( "&Items" ) ) {
 	setupItems();
 	if ( numColumns == 0 ) {
-	    itemNew->setEnabled( FALSE );
-	    itemNewSub->setEnabled( FALSE );
-	    itemText->setEnabled( FALSE );
-	    itemChoosePixmap->setEnabled( FALSE );
-	    itemDeletePixmap->setEnabled( FALSE );
-	    itemColumn->setEnabled( FALSE );
+	    itemNew->setEnabled( false );
+	    itemNewSub->setEnabled( false );
+	    itemText->setEnabled( false );
+	    itemChoosePixmap->setEnabled( false );
+	    itemDeletePixmap->setEnabled( false );
+	    itemColumn->setEnabled( false );
 	} else {
-	    itemNew->setEnabled( TRUE );
-	    itemNewSub->setEnabled( TRUE );
+	    itemNew->setEnabled( true );
+	    itemNewSub->setEnabled( true );
 	}
     }
 }

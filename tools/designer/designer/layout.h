@@ -29,7 +29,7 @@ class Layout : public QObject
     Q_OBJECT
 
 public:
-    Layout( const QWidgetList &wl, QWidget *p, FormWindow *fw, QWidget *lb, bool doSetup = TRUE, bool splitter = FALSE );
+    Layout( const QWidgetList &wl, QWidget *p, FormWindow *fw, QWidget *lb, bool doSetup = true, bool splitter = false );
     virtual ~Layout();
 
     virtual void doLayout() = 0;
@@ -60,7 +60,7 @@ protected slots:
 class HorizontalLayout : public Layout
 {
 public:
-    HorizontalLayout( const QWidgetList &wl, QWidget *p, FormWindow *fw, QWidget *lb, bool doSetup = TRUE, bool splitter = FALSE );
+    HorizontalLayout( const QWidgetList &wl, QWidget *p, FormWindow *fw, QWidget *lb, bool doSetup = true, bool splitter = false );
 
     void doLayout();
 
@@ -72,7 +72,7 @@ protected:
 class VerticalLayout : public Layout
 {
 public:
-    VerticalLayout( const QWidgetList &wl, QWidget *p, FormWindow *fw, QWidget *lb, bool doSetup = TRUE, bool splitter = FALSE );
+    VerticalLayout( const QWidgetList &wl, QWidget *p, FormWindow *fw, QWidget *lb, bool doSetup = true, bool splitter = false );
 
     void doLayout();
 
@@ -86,7 +86,7 @@ class Grid;
 class GridLayout : public Layout
 {
 public:
-    GridLayout( const QWidgetList &wl, QWidget *p, FormWindow *fw, QWidget *lb, const QSize &res, bool doSetup = TRUE );
+    GridLayout( const QWidgetList &wl, QWidget *p, FormWindow *fw, QWidget *lb, const QSize &res, bool doSetup = true );
     ~GridLayout();
 
     void doLayout();

@@ -90,12 +90,12 @@ bool QDesignerAction::addTo( QWidget *w )
 	return QAction::addTo( w );
 
     if ( qt_cast<QPopupMenu*>(w) )
-	return FALSE;
+	return false;
 
-    widgetToInsert->reparent( w, QPoint( 0, 0 ), FALSE );
+    widgetToInsert->reparent( w, QPoint( 0, 0 ), false );
     widgetToInsert->show();
     addedTo( widgetToInsert, w );
-    return TRUE;
+    return true;
 }
 
 bool QDesignerAction::removeFrom( QWidget *w )
@@ -104,15 +104,15 @@ bool QDesignerAction::removeFrom( QWidget *w )
 	return QAction::removeFrom( w );
 
     remove();
-    return TRUE;
+    return true;
 }
 
 void QDesignerAction::remove()
 {
     if ( !widgetToInsert )
 	return;
-    MainWindow::self->formWindow()->selectWidget( widgetToInsert, FALSE );
-    widgetToInsert->reparent( 0, QPoint( 0, 0 ), FALSE );
+    MainWindow::self->formWindow()->selectWidget( widgetToInsert, false );
+    widgetToInsert->reparent( 0, QPoint( 0, 0 ), false );
 }
 
 class QDesignerIndicatorWidget : public QWidget
@@ -182,25 +182,25 @@ bool QSeparatorAction::addTo( QWidget *w )
     if ( qt_cast<QToolBar*>(w) ) {
 	QToolBar *tb = (QToolBar*)w;
 	wid = new QDesignerToolBarSeparator( tb->orientation(), tb );
-	return TRUE;
+	return true;
     } else if ( qt_cast<QPopupMenu*>(w) ) {
 	idx = ( (QPopupMenu*)w )->count();
 	( (QPopupMenu*)w )->insertSeparator( idx );
-	return TRUE;
+	return true;
     }
-    return FALSE;
+    return false;
 }
 
 bool QSeparatorAction::removeFrom( QWidget *w )
 {
     if ( qt_cast<QToolBar*>(w) ) {
 	delete wid;
-	return TRUE;
+	return true;
     } else if ( qt_cast<QPopupMenu*>(w) ) {
 	( (QPopupMenu*)w )->removeItemAt( idx );
-	return TRUE;
+	return true;
     }
-    return FALSE;
+    return false;
 }
 
 QWidget *QSeparatorAction::widget() const
@@ -214,31 +214,31 @@ QDesignerToolBar::QDesignerToolBar( QMainWindow *mw )
     : QToolBar( mw ), lastIndicatorPos( -1, -1 )
 {
     insertAnchor = 0;
-    afterAnchor = TRUE;
-    setAcceptDrops( TRUE );
+    afterAnchor = true;
+    setAcceptDrops( true );
     MetaDataBase::addEntry( this );
     lastIndicatorPos = QPoint( -1, -1 );
     indicator = new QDesignerIndicatorWidget( this );
     indicator->hide();
     installEventFilter( this );
-    widgetInserting = FALSE;
+    widgetInserting = false;
     findFormWindow();
-    mw->setDockEnabled( DockTornOff, FALSE );
+    mw->setDockEnabled( DockTornOff, false );
 }
 
 QDesignerToolBar::QDesignerToolBar( QMainWindow *mw, Dock dock )
     : QToolBar( QString::null, mw, dock), lastIndicatorPos( -1, -1 )
 {
     insertAnchor = 0;
-    afterAnchor = TRUE;
-    setAcceptDrops( TRUE );
+    afterAnchor = true;
+    setAcceptDrops( true );
     indicator = new QDesignerIndicatorWidget( this );
     indicator->hide();
     MetaDataBase::addEntry( this );
     installEventFilter( this );
-    widgetInserting = FALSE;
+    widgetInserting = false;
     findFormWindow();
-    mw->setDockEnabled( DockTornOff, FALSE );
+    mw->setDockEnabled( DockTornOff, false );
 }
 
 void QDesignerToolBar::findFormWindow()
@@ -282,7 +282,7 @@ bool QDesignerToolBar::eventFilter( QObject *o, QEvent *e )
     if ( o == this && e->type() == QEvent::MouseButtonPress &&
 	 ( ( QMouseEvent*)e )->button() == LeftButton ) {
 	mousePressEvent( (QMouseEvent*)e );
-	return TRUE;
+	return true;
     }
 
     if ( o == this )
@@ -292,30 +292,30 @@ bool QDesignerToolBar::eventFilter( QObject *o, QEvent *e )
 	QMouseEvent *ke = (QMouseEvent*)e;
 	fixObject( o );
 	if ( !o )
-	    return FALSE;
+	    return false;
 	buttonMousePressEvent( ke, o );
-	return TRUE;
+	return true;
     } else if(e->type() == QEvent::ContextMenu ) {
 	QContextMenuEvent *ce = (QContextMenuEvent*)e;
 	fixObject( o );
 	if( !o )
-	    return FALSE;
+	    return false;
 	buttonContextMenuEvent( ce, o );
-	return TRUE;
+	return true;
     } else if ( e->type() == QEvent::MouseMove ) {
 	QMouseEvent *ke = (QMouseEvent*)e;
 	fixObject( o );
 	if ( !o )
-	    return FALSE;
+	    return false;
 	buttonMouseMoveEvent( ke, o );
-	return TRUE;
+	return true;
     } else if ( e->type() == QEvent::MouseButtonRelease ) {
 	QMouseEvent *ke = (QMouseEvent*)e;
 	fixObject( o );
 	if ( !o )
-	    return FALSE;
+	    return false;
 	buttonMouseReleaseEvent( ke, o );
-	return TRUE;
+	return true;
     } else if ( e->type() == QEvent::DragEnter ) {
 	QDragEnterEvent *de = (QDragEnterEvent*)e;
 	if (ActionDrag::canDecode(de))
@@ -353,20 +353,20 @@ void QDesignerToolBar::contextMenuEvent( QContextMenuEvent *e )
 
 void QDesignerToolBar::mousePressEvent( QMouseEvent *e )
 {
-    widgetInserting = FALSE;
+    widgetInserting = false;
     if ( e->button() == LeftButton &&
 	 MainWindow::self->currentTool() != POINTER_TOOL &&
 	 MainWindow::self->currentTool() != ORDER_TOOL &&
 	 MainWindow::self->currentTool() != CONNECT_TOOL &&
 	 MainWindow::self->currentTool() != BUDDY_TOOL )
-	widgetInserting = TRUE;
+	widgetInserting = true;
 }
 
 void QDesignerToolBar::mouseReleaseEvent( QMouseEvent *e )
 {
     if ( widgetInserting )
 	doInsertWidget( mapFromGlobal( e->globalPos() ) );
-    widgetInserting = FALSE;
+    widgetInserting = false;
 }
 
 void QDesignerToolBar::buttonMouseReleaseEvent( QMouseEvent *e, QObject *w )
@@ -374,10 +374,10 @@ void QDesignerToolBar::buttonMouseReleaseEvent( QMouseEvent *e, QObject *w )
     if ( widgetInserting )
 	doInsertWidget( mapFromGlobal( e->globalPos() ) );
     else if ( w->isWidgetType() && formWindow->widgets()->value( (QWidget*)w ) ) {
-	formWindow->clearSelection( FALSE );
+	formWindow->clearSelection( false );
 	formWindow->selectWidget( w );
     }
-    widgetInserting = FALSE;
+    widgetInserting = false;
 }
 
 void QDesignerToolBar::buttonContextMenuEvent( QContextMenuEvent *e, QObject *o )
@@ -433,7 +433,7 @@ void QDesignerToolBar::buttonContextMenuEvent( QContextMenuEvent *e, QObject *o 
 
 void QDesignerToolBar::buttonMousePressEvent( QMouseEvent *e, QObject * )
 {
-    widgetInserting = FALSE;
+    widgetInserting = false;
 
     if ( e->button() == MidButton )
 	return;
@@ -443,7 +443,7 @@ void QDesignerToolBar::buttonMousePressEvent( QMouseEvent *e, QObject * )
 	 MainWindow::self->currentTool() != ORDER_TOOL &&
 	 MainWindow::self->currentTool() != CONNECT_TOOL &&
 	 MainWindow::self->currentTool() != BUDDY_TOOL ) {
-	    widgetInserting = TRUE;
+	    widgetInserting = true;
 	    return;
     }
 
@@ -495,7 +495,7 @@ void QDesignerToolBar::buttonMouseMoveEvent( QMouseEvent *e, QObject *o )
     drag->setPixmap( a->iconSet().pixmap() );
     if ( qt_cast<QDesignerAction*>(a) ) {
 	if ( formWindow->widgets()->find( ( (QDesignerAction*)a )->widget() ) )
-	    formWindow->selectWidget( ( (QDesignerAction*)a )->widget(), FALSE );
+	    formWindow->selectWidget( ( (QDesignerAction*)a )->widget(), false );
     }
     if ( !drag->drag() ) {
 	AddActionToToolBarCommand *cmd = new AddActionToToolBarCommand( tr( "Add Action '%1' to Toolbar '%2'" ).
@@ -512,7 +512,7 @@ void QDesignerToolBar::buttonMouseMoveEvent( QMouseEvent *e, QObject *o )
 
 void QDesignerToolBar::dragEnterEvent( QDragEnterEvent *e )
 {
-    widgetInserting = FALSE;
+    widgetInserting = false;
     lastIndicatorPos = QPoint( -1, -1 );
     if (ActionDrag::canDecode(e))
 	e->accept();
@@ -530,7 +530,7 @@ void QDesignerToolBar::dragLeaveEvent( QDragLeaveEvent * )
 {
     indicator->hide();
     insertAnchor = 0;
-    afterAnchor = TRUE;
+    afterAnchor = true;
 }
 
 void QDesignerToolBar::dropEvent( QDropEvent *e )
@@ -609,7 +609,7 @@ QPoint QDesignerToolBar::calcIndicatorPos( const QPoint &pos )
     if ( orientation() == Horizontal ) {
 	QPoint pnt( width() - 2, 0 );
 	insertAnchor = 0;
-	afterAnchor = TRUE;
+	afterAnchor = true;
 	QObjectList l = children();
 	if ( l.isEmpty() )
 	    return pnt;
@@ -622,7 +622,7 @@ QPoint QDesignerToolBar::calcIndicatorPos( const QPoint &pos )
 		if ( w->x() < pos.x() ) {
 		    pnt.setX( w->x() + w->width() + 1 );
 		    insertAnchor = w;
-		    afterAnchor = TRUE;
+		    afterAnchor = true;
 		}
 	    }
 	}
@@ -630,7 +630,7 @@ QPoint QDesignerToolBar::calcIndicatorPos( const QPoint &pos )
     } else {
 	QPoint pnt( 0, height() - 2 );
 	insertAnchor = 0;
-	afterAnchor = TRUE;
+	afterAnchor = true;
 	QObjectList l = children();
 	if ( l.isEmpty() )
 	    return pnt;
@@ -643,7 +643,7 @@ QPoint QDesignerToolBar::calcIndicatorPos( const QPoint &pos )
 		if ( w->y() < pos.y() ) {
 		    pnt.setY( w->y() + w->height() + 1 );
 		    insertAnchor = w;
-		    afterAnchor = TRUE;
+		    afterAnchor = true;
 		}
 	    }
 	}
@@ -680,9 +680,9 @@ void QDesignerToolBar::doInsertWidget( const QPoint &p )
     if ( formWindow != MainWindow::self->formWindow() )
 	return;
     calcIndicatorPos( p );
-    QWidget *w = WidgetFactory::create( MainWindow::self->currentTool(), this, 0, TRUE );
+    QWidget *w = WidgetFactory::create( MainWindow::self->currentTool(), this, 0, true );
     installEventFilters( w );
-    MainWindow::self->formWindow()->insertWidget( w, TRUE );
+    MainWindow::self->formWindow()->insertWidget( w, true );
     QDesignerAction *a = new QDesignerAction( w, parent() );
     int index = actionList.findIndex( *actionMap.find( insertAnchor ) );
     if ( index != -1 && afterAnchor )

@@ -70,13 +70,13 @@ bool QDesignerDataBrowser::event( QEvent* e )
 #endif
 	if ( e->type() == QEvent::Show ) {
 	    if ( con ) {
-		QSqlCursor* cursor = new QSqlCursor( tbl, TRUE, con );
-		setSqlCursor( cursor, TRUE );
+		QSqlCursor* cursor = new QSqlCursor( tbl, true, con );
+		setSqlCursor( cursor, true );
 		setForm( frm );
 		refresh();
 		first();
 	    }
-	    return TRUE;
+	    return true;
 	}
 #if defined(DESIGNER)
     }
@@ -98,7 +98,7 @@ bool QDesignerDataView::event( QEvent* e )
 	if ( e->type() == QEvent::Show ) {
 	    setForm( frm );
 	    readFields();
-	    return TRUE;
+	    return true;
 	}
 #if defined(DESIGNER)
     }

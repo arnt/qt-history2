@@ -12,9 +12,11 @@
 ****************************************************************************/
 
 #include "dbconnectionsimpl.h"
+#include "project.h"
+#include "mainwindow.h"
+#include "asciivalidator.h"
 #include <qgroupbox.h>
 #include <qlayout.h>
-#include "project.h"
 #include <qlistbox.h>
 #include <qcombobox.h>
 #include <qspinbox.h>
@@ -23,17 +25,15 @@
 #include <qsqldatabase.h>
 #include <qmessagebox.h>
 #include <qapplication.h>
-#include "mainwindow.h"
-#include "asciivalidator.h"
 
-static bool blockChanges = FALSE;
+static bool blockChanges = false;
 
 /*
  *  Constructs a DatabaseConnectionsEditor which is a child of 'parent', with the
  *  name 'name' and widget flags set to 'f'
  *
  *  The dialog will by default be modeless, unless you set 'modal' to
- *  TRUE to construct a modal dialog.
+ *  true to construct a modal dialog.
  */
 DatabaseConnectionsEditor::DatabaseConnectionsEditor( Project *pro, QWidget* parent,  const char* name, bool modal, WFlags fl )
     : DatabaseConnectionBase( parent, name, modal, fl ), project( pro )
@@ -48,7 +48,7 @@ DatabaseConnectionsEditor::DatabaseConnectionsEditor( Project *pro, QWidget* par
     connectionWidget->comboDriver->insertStringList( QSqlDatabase::drivers() );
 #endif
     connectionWidget->editName->setValidator( new AsciiValidator( connectionWidget->editName ) );
-    enableAll( FALSE );
+    enableAll( false );
 }
 
 DatabaseConnectionsEditor::~DatabaseConnectionsEditor()
@@ -65,15 +65,15 @@ void DatabaseConnectionsEditor::deleteConnection()
 	listConnections->setCurrentItem( 0 );
 	currentConnectionChanged( listConnections->currentText() );
     } else {
-	enableAll( FALSE );
+	enableAll( false );
     }
     project->saveConnections();
 }
 
 void DatabaseConnectionsEditor::newConnection()
 {
-    blockChanges = TRUE;
-    enableAll( TRUE );
+    blockChanges = true;
+    enableAll( true );
     QString n( "(default)" );
     if ( project->databaseConnection( n ) ) {
 	n = "connection";
@@ -84,9 +84,9 @@ void DatabaseConnectionsEditor::newConnection()
     }
     connectionWidget->editName->setText( n );
     listConnections->clearSelection();
-    buttonConnect->setDefault( TRUE );
+    buttonConnect->setDefault( true );
     connectionWidget->editName->setFocus();
-    blockChanges = FALSE;
+    blockChanges = false;
 }
 
 void DatabaseConnectionsEditor::doConnect()
@@ -135,15 +135,15 @@ void DatabaseConnectionsEditor::currentConnectionChanged( const QString &s )
 {
 #ifndef QT_NO_SQL
     DatabaseConnection *conn = project->databaseConnection( s );
-    blockChanges = TRUE;
+    blockChanges = true;
     enableAll( conn != 0 );
-    connectionWidget->editName->setEnabled( FALSE );
-    blockChanges = FALSE;
+    connectionWidget->editName->setEnabled( false );
+    blockChanges = false;
     if ( !conn )
 	return;
-    blockChanges = TRUE;
+    blockChanges = true;
     connectionWidget->editName->setText( conn->name() );
-    blockChanges = FALSE;
+    blockChanges = false;
     connectionWidget->comboDriver->lineEdit()->setText( conn->driver() );
     connectionWidget->editDatabase->setText( conn->database() );
     connectionWidget->editUsername->setText( conn->username() );

@@ -16,17 +16,16 @@
 
 #include <qfeatures.h>
 
+#include "../interfaces/projectsettingsiface.h"
+#include "sourcefile.h"
+#include "formfile.h"
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qlist.h>
 #include <qmap.h>
 #include <private/qpluginmanager_p.h>
-#include "../interfaces/projectsettingsiface.h"
-#include "sourcefile.h"
-#include "formfile.h"
 #include <qhash.h>
 #include <qlist.h>
-#include "formfile.h"
 
 struct DesignerProject;
 struct DesignerDatabase;
@@ -43,11 +42,11 @@ public:
 #ifndef QT_NO_SQL
 	conn( 0 ),
 #endif
-	project( p ), loaded( FALSE ), iface( 0 ) {}
+	project( p ), loaded( false ), iface( 0 ) {}
     ~DatabaseConnection();
 
     bool refreshCatalog();
-    bool open( bool suppressDialog = TRUE );
+    bool open( bool suppressDialog = true );
     void close();
     DesignerDatabase *iFace();
 
@@ -101,12 +100,12 @@ class Project : public QObject
 
 public:
     Project( const QString &fn, const QString &pName = QString::null,
-	     QPluginManager<ProjectSettingsInterface> *pm = 0, bool isDummy = FALSE,
+	     QPluginManager<ProjectSettingsInterface> *pm = 0, bool isDummy = false,
 	     const QString &l = "C++" );
     ~Project();
 
-    void setFileName( const QString &fn, bool doClear = TRUE );
-    QString fileName( bool singlePro = FALSE ) const;
+    void setFileName( const QString &fn, bool doClear = true );
+    QString fileName( bool singlePro = false ) const;
     QString projectName() const;
 
     void setDatabaseDescription( const QString &db );
@@ -121,13 +120,13 @@ public:
 
     bool isValid() const;
 
-    // returns TRUE if this project is the <No Project> project
+    // returns true if this project is the <No Project> project
     bool isDummy() const;
 
     QString makeAbsolute( const QString &f );
     QString makeRelative( const QString &f );
 
-    void save( bool onlyProjectFile = FALSE );
+    void save( bool onlyProjectFile = false );
 
 #ifndef QT_NO_SQL
     QList<DatabaseConnection*> databaseConnections() const;
@@ -142,10 +141,10 @@ public:
     void saveConnections();
     void loadConnections();
 
-    bool openDatabase( const QString &connection, bool suppressDialog = TRUE );
+    bool openDatabase( const QString &connection, bool suppressDialog = true );
     void closeDatabase( const QString &connection );
 
-    QObjectList *formList( bool resolveFakeObjects = FALSE ) const;
+    QObjectList *formList( bool resolveFakeObjects = false ) const;
 
     DesignerProject *iFace();
 

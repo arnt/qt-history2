@@ -19,9 +19,9 @@
 ActionListView::ActionListView( QWidget *parent, const char *name )
     : QListView( parent, name )
 {
-    setShowSortIndicator( TRUE );
+    setShowSortIndicator( true );
     setResizeMode( LastColumn );
-    setRootIsDecorated( TRUE );
+    setRootIsDecorated( true );
     connect( this, SIGNAL( contextMenuRequested( QListViewItem *, const QPoint &, int ) ),
 	     this, SLOT( rmbMenu( QListViewItem *, const QPoint & ) ) );
 }
@@ -32,7 +32,7 @@ ActionItem::ActionItem( QListView *lv, QAction *ac )
     g = qt_cast<QDesignerActionGroup*>(ac);
     if ( !g )
 	a = qt_cast<QDesignerAction*>(ac);
-    setDragEnabled( TRUE );
+    setDragEnabled( true );
 }
 
 ActionItem::ActionItem( QListViewItem *i, QAction *ac )
@@ -41,7 +41,7 @@ ActionItem::ActionItem( QListViewItem *i, QAction *ac )
     g = qt_cast<QDesignerActionGroup*>(ac);
     if ( !g )
 	a = qt_cast<QDesignerAction*>(ac);
-    setDragEnabled( TRUE );
+    setDragEnabled( true );
     moveToEnd();
 }
 

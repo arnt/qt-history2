@@ -138,7 +138,7 @@ static int getToken()
 	if ( yyCh == EOF ) {
 	    break;
 	} else if ( isspace(yyCh) ) {
-	    bool metNL = FALSE;
+	    bool metNL = false;
 	    do {
 		metNL = ( metNL || yyCh == '\n' );
 		readChar();
@@ -273,8 +273,8 @@ static int getToken()
 		*/
 		readChar();
 		if ( yyCh == '*' ) {
-		    bool metAster = FALSE;
-		    bool metAsterSlash = FALSE;
+		    bool metAster = false;
+		    bool metAsterSlash = false;
 
 		    readChar();
 
@@ -283,11 +283,11 @@ static int getToken()
 			    break;
 
 			if ( yyCh == '*' )
-			    metAster = TRUE;
+			    metAster = true;
 			else if ( metAster && yyCh == '/' )
-			    metAsterSlash = TRUE;
+			    metAsterSlash = true;
 			else
-			    metAster = FALSE;
+			    metAster = false;
 			readChar();
 		    }
 		    break;
@@ -385,8 +385,8 @@ QString CppFunction::prototype() const
 static int yyTok; // the current token
 
 /*
-  Returns TRUE if thingy is a constructor or a destructor; otherwise
-  returns FALSE.
+  Returns true if thingy is a constructor or a destructor; otherwise
+  returns false.
 */
 static bool isCtorOrDtor( const QString& thingy )
 {
@@ -491,7 +491,7 @@ static QString matchDataType()
       Alpha::Beta::Gamma::...::Omega.
     */
     for ( ;; ) {
-	bool modifierMet = FALSE;
+	bool modifierMet = false;
 
 	prependToType( &type, matchTemplateAngles() );
 
@@ -504,7 +504,7 @@ static QString matchDataType()
 		prependToType( &type, yyLex );
 		yyTok = getToken();
 		if ( yyTok != Tok_const )
-		    modifierMet = TRUE;
+		    modifierMet = true;
 	    }
 
 	    if ( yyTok == Tok_Tilde ) {
@@ -557,10 +557,10 @@ static CppFunction matchFunctionPrototype( bool stripParamNames )
     QString scopedName;
     QStringList params;
     QString qualifier;
-    bool cnst = FALSE;
+    bool cnst = false;
 
     if ( yyTok == Tok_const ) {
-	cnst = TRUE;
+	cnst = true;
 	yyTok = getToken();
     }
 
@@ -732,7 +732,7 @@ static void matchTranslationUnit( QList<CppFunction> *flist )
 	// found a left brace
 	yyTok = getToken();
 	startBody = yyPos;
-	CppFunction func = matchFunctionPrototype( FALSE );
+	CppFunction func = matchFunctionPrototype( false );
 	if ( !func.scopedName().isEmpty() ) {
 	    QString body = yyIn->mid( startBody, endBody - startBody );
 	    setBody( &func, body );
@@ -773,7 +773,7 @@ QString canonicalCppProto( const QString& proto )
 {
     startTokenizer( proto );
     yyTok = getToken();
-    CppFunction func = matchFunctionPrototype( TRUE );
+    CppFunction func = matchFunctionPrototype( true );
     stopTokenizer();
     return func.prototype();
 }

@@ -11,18 +11,18 @@
 **
 ****************************************************************************/
 
-#include <qlistview.h>
-#include <qgroupbox.h>
-#include <qlineedit.h>
-#include <qcombobox.h>
-#include <qmessagebox.h>
-
+#include "variabledialogimpl.h"
 #include "metadatabase.h"
 #include "formwindow.h"
 #include "mainwindow.h"
 #include "hierarchyview.h"
 #include "command.h"
-#include "variabledialogimpl.h"
+
+#include <qlistview.h>
+#include <qgroupbox.h>
+#include <qlineedit.h>
+#include <qcombobox.h>
+#include <qmessagebox.h>
 
 
 VariableDialog::VariableDialog( FormWindow *fw, QWidget *parent )
@@ -40,7 +40,7 @@ VariableDialog::VariableDialog( FormWindow *fw, QWidget *parent )
     if ( varView->firstChild() )
 	varView->setCurrentItem( varView->firstChild() );
     else
-	propBox->setEnabled( FALSE );
+	propBox->setEnabled( false );
 }
 
 VariableDialog::~VariableDialog()
@@ -116,7 +116,7 @@ void VariableDialog::addVariable()
     i->setText( 0, "int newVariable" );
     i->setText( 1, "protected" );
     varView->setCurrentItem( i );
-    varView->setSelected( i, TRUE );
+    varView->setSelected( i, true );
     varName->setFocus();
     varName->selectAll();
 }
@@ -129,7 +129,7 @@ void VariableDialog::deleteVariable()
     delete i;
     i = 0;
     if ( varView->firstChild() )
-	varView->setSelected( varView->firstChild(), TRUE );
+	varView->setSelected( varView->firstChild(), true );
 }
 
 void VariableDialog::currentItemChanged( QListViewItem *i )
@@ -137,7 +137,7 @@ void VariableDialog::currentItemChanged( QListViewItem *i )
     if ( !i ) {
 	varName->clear();
 	accessCombo->setCurrentItem( 1 );
-	propBox->setEnabled( FALSE );
+	propBox->setEnabled( false );
 	return;
     }
     varName->setText( i->text( 0 ) );
@@ -147,7 +147,7 @@ void VariableDialog::currentItemChanged( QListViewItem *i )
 	accessCombo->setCurrentItem( 1 );
     else
 	accessCombo->setCurrentItem( 2 );
-    propBox->setEnabled( TRUE );
+    propBox->setEnabled( true );
 }
 
 void VariableDialog::nameChanged()

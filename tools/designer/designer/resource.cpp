@@ -88,7 +88,7 @@ static QString makeIndent( int indent )
     return s;
 }
 
-static QString entitize( const QString &s, bool attribute = FALSE )
+static QString entitize( const QString &s, bool attribute = false )
 {
     QString s2 = s;
     s2 = s2.replace( "&", "&amp;" );
@@ -249,7 +249,7 @@ static QString platformNeutralKeySequence(const QKeySequence &ks)
 
 static QString mkBool( bool b )
 {
-    return b? "true" : "false";
+    return b ? "true" : "false";
 }
 
 /*!
@@ -267,11 +267,11 @@ Resource::Resource()
     mainwindow = 0;
     formwindow = 0;
     toplevel = 0;
-    copying = FALSE;
-    pasting = FALSE;
-    hadGeometry = FALSE;
+    copying = false;
+    pasting = false;
+    hadGeometry = false;
     langIface = 0;
-    hasFunctions = FALSE;
+    hasFunctions = false;
 }
 
 Resource::Resource( MainWindow* mw )
@@ -279,11 +279,11 @@ Resource::Resource( MainWindow* mw )
 {
     formwindow = 0;
     toplevel = 0;
-    copying = FALSE;
-    pasting = FALSE;
-    hadGeometry = FALSE;
+    copying = false;
+    pasting = false;
+    hadGeometry = false;
     langIface = 0;
-    hasFunctions = FALSE;
+    hasFunctions = false;
 }
 
 Resource::~Resource()
@@ -306,9 +306,9 @@ QWidget *Resource::widget() const
 bool Resource::load( FormFile *ff, Project *defProject )
 {
     if ( !ff || ff->absFileName().isEmpty() )
-	return FALSE;
+	return false;
     currFileName = ff->absFileName();
-    mainContainerSet = FALSE;
+    mainContainerSet = false;
 
     QFile f( ff->absFileName() );
     f.open( IO_ReadOnly | IO_Translate );
@@ -329,7 +329,7 @@ bool Resource::load( FormFile *ff, QIODevice* dev, Project *defProject )
     int errLine;
     if ( !doc.setContent( dev, &errMsg, &errLine ) ) {
 	qDebug( QString("Parse error: ") + errMsg + QString(" in line %d"), errLine );
-	return FALSE;
+	return false;
     }
 
     DomTool::fixDocument( doc );
@@ -444,14 +444,14 @@ bool Resource::load( FormFile *ff, QIODevice* dev, Project *defProject )
 	    metaInfo.className = e.firstChild().toText().data();
 	} else if ( e.tagName() == "pixmapfunction" ) {
 	    if ( formwindow ) {
-		formwindow->setSavePixmapInline( FALSE );
-		formwindow->setSavePixmapInProject( FALSE );
+		formwindow->setSavePixmapInline( false );
+		formwindow->setSavePixmapInProject( false );
 		formwindow->setPixmapLoaderFunction( e.firstChild().toText().data() );
 	    }
 	} else if ( e.tagName() == "pixmapinproject" ) {
 	    if ( formwindow ) {
-		formwindow->setSavePixmapInline( FALSE );
-		formwindow->setSavePixmapInProject( TRUE );
+		formwindow->setSavePixmapInline( false );
+		formwindow->setSavePixmapInProject( true );
 	    }
 	} else if ( e.tagName() == "exportmacro" ) {
 	    exportMacro = e.firstChild().toText().data();
@@ -462,7 +462,7 @@ bool Resource::load( FormFile *ff, QIODevice* dev, Project *defProject )
 	    formwindow->setSpacingFunction( e.attribute( "spacing" ) );
 	    formwindow->setMarginFunction( e.attribute( "margin" ) );
 	    if ( !formwindow->marginFunction().isEmpty() || !formwindow->spacingFunction().isEmpty() )
-		formwindow->hasLayoutFunctions( TRUE );
+		formwindow->hasLayoutFunctions( true );
 	}
 
 	e = e.nextSibling().toElement();
@@ -474,15 +474,15 @@ bool Resource::load( FormFile *ff, QIODevice* dev, Project *defProject )
 	loadCustomWidgets( customWidgets, this );
 
 #if defined (QT_NON_COMMERCIAL)
-    bool previewMode = MainWindow::self ? MainWindow::self->isPreviewing() : FALSE;
+    bool previewMode = MainWindow::self ? MainWindow::self->isPreviewing() : false;
     QWidget *w = (QWidget*)createObject( widget, !previewMode ? (QWidget*)formwindow : MainWindow::self );
     if ( !w )
-	return FALSE;
+	return false;
     if ( previewMode )
-	w->reparent( MainWindow::self, Qt::WType_TopLevel,  w->pos(), TRUE );
+	w->reparent( MainWindow::self, Qt::WType_TopLevel,  w->pos(), true );
 #else
     if ( !createObject( widget, formwindow) )
-	return FALSE;
+	return false;
 #endif
 
     if ( !forwards.isNull() ) {
@@ -547,7 +547,7 @@ bool Resource::load( FormFile *ff, QIODevice* dev, Project *defProject )
 		    function.returnType = "void";
 		function.type = "slot";
 		function.function = n.firstChild().toText().data();
-		if ( !MetaDataBase::hasFunction( formwindow, function.function, TRUE ) )
+		if ( !MetaDataBase::hasFunction( formwindow, function.function, true ) )
 		    MetaDataBase::addFunction( formwindow, function.function, function.specifier,
 					       function.access, "slot", function.language, function.returnType );
 		else
@@ -575,7 +575,7 @@ bool Resource::load( FormFile *ff, QIODevice* dev, Project *defProject )
 		if ( function.returnType.isEmpty() )
 		    function.returnType = "void";
 		function.function = n.firstChild().toText().data();
-		if ( !MetaDataBase::hasFunction( formwindow, function.function, TRUE ) )
+		if ( !MetaDataBase::hasFunction( formwindow, function.function, true ) )
 		    MetaDataBase::addFunction( formwindow, function.function, function.specifier,
 					       function.access, function.type, function.language,
 					       function.returnType );
@@ -626,7 +626,7 @@ bool Resource::load( FormFile *ff, QIODevice* dev, Project *defProject )
 	    formwindow->resize( formwindow->size().expandedTo( formwindow->sizeHint() ) );
     }
 
-    return TRUE;
+    return true;
 }
 
 static bool saveCode( const QString &filename, const QString &code )
@@ -635,15 +635,15 @@ static bool saveCode( const QString &filename, const QString &code )
     if ( f.open(IO_WriteOnly | IO_Translate) ) {
 	QTextStream ts( &f );
 	ts << code;
-	return TRUE;
+	return true;
     }
-    return FALSE;
+    return false;
 }
 
 bool Resource::save( const QString& filename, bool formCodeOnly )
 {
     if ( !formwindow || filename.isEmpty() )
-	return FALSE;
+	return false;
     if (!langIface) {
 	QString lang = "Qt Script";
 	if ( mainwindow )
@@ -654,8 +654,8 @@ bool Resource::save( const QString& filename, bool formCodeOnly )
     }
     if ( formCodeOnly && langIface ) {
 	if ( saveFormCode(formwindow->formFile(), langIface) )
-	    return TRUE;
-	bool breakout = FALSE;
+	    return true;
+	bool breakout = false;
 	FormFile *ff = formwindow->formFile();
 	QString codeFile = ff->project()->makeAbsolute( ff->codeFile() );
 	QString filter = langIface->fileFilterList().join(";;");
@@ -664,7 +664,7 @@ bool Resource::save( const QString& filename, bool formCodeOnly )
 	    breakout = fn.isEmpty();
 	    if ( !breakout ) {
 		if ( saveCode(fn, ff->code()) )
-		    return TRUE;
+		    return true;
 	    }
 	}
     }
@@ -672,7 +672,7 @@ bool Resource::save( const QString& filename, bool formCodeOnly )
 
     QFile f( filename );
     if ( !f.open( IO_WriteOnly | IO_Translate ) )
-	return FALSE;
+	return false;
     bool b = save( &f );
     f.close();
     return b;
@@ -681,7 +681,7 @@ bool Resource::save( const QString& filename, bool formCodeOnly )
 bool Resource::save( QIODevice* dev )
 {
     if ( !formwindow )
-	return FALSE;
+	return false;
 
     if ( !langIface ) {
 	QString lang = "C++";
@@ -726,7 +726,7 @@ QString Resource::copy()
     if ( !formwindow )
 	return QString::null;
 
-    copying = TRUE;
+    copying = true;
     QString s;
     QTextOStream ts( &s );
 
@@ -736,10 +736,10 @@ QString Resource::copy()
     for (int i = 0; i < widgets.size(); ++i) {
 	QWidget *w = widgets.at(i);
 	QWidget *p = w->parentWidget();
-	bool save = TRUE;
+	bool save = true;
 	while ( p ) {
 	    if ( tmp.indexOf( p ) != -1 ) {
-		save = FALSE;
+		save = false;
 		break;
 	    }
 	    p = p->parentWidget();
@@ -761,9 +761,9 @@ void Resource::paste( const QString &cb, QWidget *parent )
 {
     if ( !formwindow )
 	return;
-    mainContainerSet = TRUE;
+    mainContainerSet = true;
 
-    pasting = TRUE;
+    pasting = true;
     QDomDocument doc;
     QString errMsg;
     int errLine;
@@ -788,9 +788,9 @@ void Resource::paste( const QString &cb, QWidget *parent )
 	loadCustomWidgets( customWidgets, this );
 
     QWidgetList widgets;
-    formwindow->clearSelection( FALSE );
-    formwindow->setPropertyShowingBlocked( TRUE );
-    formwindow->clearSelection( FALSE );
+    formwindow->clearSelection( false );
+    formwindow->setPropertyShowingBlocked( true );
+    formwindow->clearSelection( false );
     while ( !firstWidget.isNull() ) {
 	if ( firstWidget.tagName() == "widget" ) {
 	    QWidget *w = (QWidget*)createObject( firstWidget, parent, 0 );
@@ -823,7 +823,7 @@ void Resource::paste( const QString &cb, QWidget *parent )
 	}
 	firstWidget = firstWidget.nextSibling().toElement();
     }
-    formwindow->setPropertyShowingBlocked( FALSE );
+    formwindow->setPropertyShowingBlocked( false );
     formwindow->emitShowProperties();
 
     PasteCommand *cmd = new PasteCommand( FormWindow::tr( "Paste" ), formwindow, widgets );
@@ -987,7 +987,7 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
     } else if ( ::qt_cast<QMainWindow*>(obj) ) {
 	saveChildrenOf( ( (QMainWindow*)obj )->centralWidget(), ts, indent );
     } else {
-	bool saved = FALSE;
+	bool saved = false;
 	if ( isPlugin ) {
 	    WidgetInterface *iface = 0;
 	    widgetManager()->queryInterface( className, &iface );
@@ -998,7 +998,7 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 		    if ( iface2->supportsPages( className ) )  {
 			QWidgetList containers = iface2->pages( className, (QWidget*)obj );
 			if ( !containers.isEmpty() ) {
-			    saved = TRUE;
+			    saved = true;
 			    int i = 0;
 			    for (int j = 0; j < containers.size(); ++j) {
 				QWidget *w = containers.at(j);
@@ -1027,7 +1027,7 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 			    }
 			}
 		    } else {
-			saved = TRUE;
+			saved = true;
 			QWidget *w = iface2->containerOfWidget( className, (QWidget*)obj );
 			if ( obj != w ) {
 			    ts << makeIndent( indent ) << "<widget class=\""
@@ -1762,7 +1762,7 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	qWarning( "####### loading custom container widgets without page support not implemented!" );
     // ### TODO loading for custom container widgets without pages
     if ( !className.isNull() ) {
-	obj = WidgetFactory::create( WidgetDatabase::idFromClassName( className ), parent, 0, FALSE );
+	obj = WidgetFactory::create( WidgetDatabase::idFromClassName( className ), parent, 0, false );
 	if ( !obj ) {
 	    QMessageBox::critical( MainWindow::self, MainWindow::tr( "Loading File" ),
 				   MainWindow::tr( "Error loading %1.\n"
@@ -1773,7 +1773,7 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	if ( !mainContainerSet ) {
 	    if ( formwindow )
 		formwindow->setMainContainer( (QWidget*)obj );
-	    mainContainerSet = TRUE;
+	    mainContainerSet = true;
 	}
 	w = (QWidget*)obj;
 	if ( ::qt_cast<QMainWindow*>(w) )
@@ -1908,9 +1908,9 @@ void Resource::createColumn( const QDomElement &e, QWidget *widget )
 	QListView *lv = (QListView*)widget;
 	QDomElement n = e.firstChild().toElement();
 	QPixmap pix;
-	bool hasPixmap = FALSE;
+	bool hasPixmap = false;
 	QString txt;
-	bool clickable = TRUE, resizable = TRUE;
+	bool clickable = true, resizable = true;
 	while ( !n.isNull() ) {
 	    if ( n.tagName() == "property" ) {
 		QString attrib = n.attribute( "name" );
@@ -1948,7 +1948,7 @@ void Resource::createColumn( const QDomElement &e, QWidget *widget )
 
 	QDomElement n = e.firstChild().toElement();
 	QPixmap pix;
-	bool hasPixmap = FALSE;
+	bool hasPixmap = false;
 	QString txt;
 	QString field;
 	QMap<QString, QString> fieldMap = MetaDataBase::columnFields( table );
@@ -1984,7 +1984,7 @@ void Resource::createColumn( const QDomElement &e, QWidget *widget )
 void Resource::loadItem( const QDomElement &e, QPixmap &pix, QString &txt, bool &hasPixmap )
 {
     QDomElement n = e;
-    hasPixmap = FALSE;
+    hasPixmap = false;
     while ( !n.isNull() ) {
 	if ( n.tagName() == "property" ) {
 	    QString attrib = n.attribute( "name" );
@@ -2008,7 +2008,7 @@ void Resource::createItem( const QDomElement &e, QWidget *widget, QListViewItem 
     if ( ::qt_cast<QListBox*>(widget) || ::qt_cast<QComboBox*>(widget) ) {
 	QDomElement n = e.firstChild().toElement();
 	QPixmap pix;
-	bool hasPixmap = FALSE;
+	bool hasPixmap = false;
 	QString txt;
 	loadItem( n, pix, txt, hasPixmap );
 	QListBox *lb = 0;
@@ -2024,7 +2024,7 @@ void Resource::createItem( const QDomElement &e, QWidget *widget, QListViewItem 
     } else if ( ::qt_cast<QIconView*>(widget) ) {
 	QDomElement n = e.firstChild().toElement();
 	QPixmap pix;
-	bool hasPixmap = FALSE;
+	bool hasPixmap = false;
 	QString txt;
 	loadItem( n, pix, txt, hasPixmap );
 	QIconView *iv = (QIconView*)widget;
@@ -2059,7 +2059,7 @@ void Resource::createItem( const QDomElement &e, QWidget *widget, QListViewItem 
 		    }
 		}
 	    } else if ( n.tagName() == "item" ) {
-		item->setOpen( TRUE );
+		item->setOpen( true );
 		createItem( n, widget, item );
 	    }
 
@@ -2087,15 +2087,15 @@ QWidget *Resource::createSpacer( const QDomElement &e, QWidget *parent, QLayout 
 	colspan = 1;
 
     Spacer *spacer = (Spacer*) WidgetFactory::create( WidgetDatabase::idFromClassName("Spacer"),
-						      parent, "spacer", FALSE);
+						      parent, "spacer", false);
     spacer->setOrientation( o );
-    spacer->setInteraciveMode( FALSE );
+    spacer->setInteraciveMode( false );
     while ( !n.isNull() ) {
 	if ( n.tagName() == "property" )
 	    setObjectProperty( spacer, n.attribute( "name" ), n.firstChild().toElement() );
 	n = n.nextSibling().toElement();
     }
-    spacer->setInteraciveMode( TRUE );
+    spacer->setInteraciveMode( true );
     if ( formwindow )
 	formwindow->insertWidget( spacer, pasting );
     if ( layout ) {
@@ -2121,7 +2121,7 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
 	    if ( cw && !cw->hasProperty( prop.latin1() ) && !p && prop != "toolTip" && prop != "whatsThis" )
 		return;
 	}
-	MetaDataBase::setPropertyChanged( obj, prop, TRUE );
+	MetaDataBase::setPropertyChanged( obj, prop, true );
     }
 
     QVariant defVarient;
@@ -2215,11 +2215,11 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
 
     if ( prop == "geometry" ) {
 	if ( obj == toplevel ) {
-	    hadGeometry = TRUE;
+	    hadGeometry = true;
 	    toplevel->resize( v.toRect().size() );
 	    return;
 	} else if ( obj == formwindow->mainContainer() ) {
-	    hadGeometry = TRUE;
+	    hadGeometry = true;
 	    formwindow->resize( v.toRect().size() );
 	    return;
 	}
@@ -2241,7 +2241,7 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
     if ( prop == "name" ) {
 	if ( pasting ) {
 	    QString s = v.toString();
-	    formwindow->unify( (QWidget*)obj, s, TRUE );
+	    formwindow->unify( (QWidget*)obj, s, true );
 	    obj->setName( s );
 	    return;
 	} else if ( formwindow && obj == formwindow->mainContainer() ) {
@@ -2288,12 +2288,12 @@ void Resource::saveImageData( const QImage &img, QTextStream &ts, int indent )
     QBuffer buf( ba );
     buf.open( IO_WriteOnly | IO_Translate );
     QString format;
-    bool compress = FALSE;
+    bool compress = false;
     if (img.hasAlphaBuffer()) {
 	format = "PNG";
     } else {
 	format = img.depth() > 1 ? "XPM" : "XBM";
-	compress = TRUE;
+	compress = true;
     }
     QImageIO iio( &buf, format );
     iio.setImage( img );
@@ -2471,7 +2471,7 @@ void Resource::loadConnections( const QDomElement &e )
 		    } else {
 			if ( name == "this" )
 			    name = toplevel->name();
-			QObjectList l = toplevel->queryList( 0, name, FALSE );
+			QObjectList l = toplevel->queryList( 0, name, false );
                         if ( l.size() )
                             conn.sender = l.first();
 			if ( !conn.sender )
@@ -2485,7 +2485,7 @@ void Resource::loadConnections( const QDomElement &e )
 		    if ( name == "this" || qstrcmp( toplevel->name(), name ) == 0 ) {
 			conn.receiver = toplevel;
 		    } else {
-			QObjectList l = toplevel->queryList( 0, name, FALSE );
+			QObjectList l = toplevel->queryList( 0, name, false );
                         if ( l.size() )
 			    conn.receiver = l.first();
 			if ( !conn.receiver )
@@ -2521,7 +2521,7 @@ void Resource::loadConnections( const QDomElement &e )
 	    if ( slot.returnType.isEmpty() )
 		slot.returnType = "void";
 	    slot.function = n.firstChild().toText().data();
-	    if ( !MetaDataBase::hasFunction( formwindow, slot.function, TRUE ) )
+	    if ( !MetaDataBase::hasFunction( formwindow, slot.function, true ) )
 		MetaDataBase::addFunction( formwindow, slot.function, slot.specifier,
 				       slot.access, "slot", slot.language, slot.returnType );
 	    else
@@ -2696,7 +2696,7 @@ void Resource::loadTabOrder( const QDomElement &e )
 	    QString name = n.firstChild().toText().data();
 	    if ( name.isEmpty() )
 		continue;
-	    QObjectList l = toplevel->queryList( 0, name, FALSE );
+	    QObjectList l = toplevel->queryList( 0, name, false );
             if ( l.size() ) {
 		QWidget *w = (QWidget*)l.first();
 		widgets.append( w );
@@ -2733,12 +2733,12 @@ void Resource::saveMetaInfoAfter( QTextStream &ts, int indent )
     if ( !langIface || formwindow->project()->isCpp() ) {
 	QList<MetaDataBase::Include> includes = MetaDataBase::includes( formwindow );
 	QString extensionInclude;
-	bool needExtensionInclude = FALSE;
+	bool needExtensionInclude = false;
 	if ( langIface &&
 	     formwindow->formFile()->hasFormCode() &&
 	     formwindow->formFile()->codeFileState() != FormFile::Deleted ) {
 	    extensionInclude = QFileInfo( currFileName ).fileName() + langIface->formCodeExtension();
-	    needExtensionInclude = TRUE;
+	    needExtensionInclude = true;
 	}
 	if ( !includes.isEmpty() || needExtensionInclude ) {
 	    ts << makeIndent( indent ) << "<includes>" << endl;
@@ -2816,7 +2816,7 @@ void Resource::saveMetaInfoAfter( QTextStream &ts, int indent )
 	    ts << makeIndent( indent ) << "</slots>" << endl;
 	}
 
-	QList<MetaDataBase::Function> functionList = MetaDataBase::functionList( formwindow, TRUE );
+	QList<MetaDataBase::Function> functionList = MetaDataBase::functionList( formwindow, true );
 	if ( !functionList.isEmpty() ) {
 	    ts << makeIndent( indent ) << "<functions>" << endl;
 	    indent++;
@@ -2963,13 +2963,13 @@ void Resource::loadChildAction( QObject *parent, const QDomElement &e )
 	a = new QDesignerAction( parent );
 	MetaDataBase::addEntry( a );
 	QDomElement n2 = n.firstChild().toElement();
-	bool hasMenuText = FALSE;
+	bool hasMenuText = false;
 	while ( !n2.isNull() ) {
 	    if ( n2.tagName() == "property" ) {
 		QDomElement n3(n2); // don't modify n2
 		QString prop = n3.attribute( "name" );
 		if (prop == "menuText")
-		    hasMenuText = TRUE;
+		    hasMenuText = true;
 		QDomElement value(n3.firstChild().toElement());
 		setObjectProperty( a, prop, value );
 		if (!hasMenuText && uiFileVersion < "3.3" && prop == "text")
@@ -2983,13 +2983,13 @@ void Resource::loadChildAction( QObject *parent, const QDomElement &e )
 	a = new QDesignerActionGroup( parent );
 	MetaDataBase::addEntry( a );
 	QDomElement n2 = n.firstChild().toElement();
-	bool hasMenuText = FALSE;
+	bool hasMenuText = false;
 	while ( !n2.isNull() ) {
 	    if ( n2.tagName() == "property" ) {
 		QDomElement n3(n2); // don't modify n2
 		QString prop = n3.attribute( "name" );
 		if (prop == "menuText")
-		    hasMenuText = TRUE;
+		    hasMenuText = true;
 		QDomElement value = n3.firstChild().toElement();
 		setObjectProperty( a, prop, value );
 		if (!hasMenuText && uiFileVersion < "3.3" && prop == "text")
@@ -3074,7 +3074,7 @@ void Resource::saveMenuBar( QMainWindow *mw, QTextStream &ts, int indent )
 	return;
     ts << makeIndent( indent ) << "<menubar>" << endl;
     indent++;
-    MetaDataBase::setPropertyChanged( mb, "name", TRUE ); // FIXME: remove
+    MetaDataBase::setPropertyChanged( mb, "name", true ); // FIXME: remove
     saveObjectProperties( mb, ts, indent );
 
     for ( int i = 0; i < (int)mb->count(); ++i ) {
@@ -3197,7 +3197,7 @@ void Resource::loadPopupMenu( PopupMenuEditor *p, const QDomElement &e )
 	    PopupMenuEditorItem *i = p->at( p->find( a ) );
 	    if ( i ) {
 		QString name = n.attribute( "name" );
-		formwindow->unify( i, name, TRUE );
+		formwindow->unify( i, name, true );
 		i->setName( name );
 		MetaDataBase::addEntry( i );
 		loadPopupMenu( i->subMenu(), n );
@@ -3217,7 +3217,7 @@ bool Resource::saveFormCode( FormFile *formfile, LanguageInterface * /*langIface
 	 formfile->code().isEmpty() ||
 	 !formfile->hasFormCode() ||
 	 !formfile->isModified(FormFile::WFormCode) )
-	return TRUE;  // There is no code to be saved.
+	return true;  // There is no code to be saved.
     return saveCode( formfile->project()->makeAbsolute(formfile->codeFile()),
 		     formfile->code() );
 }

@@ -156,26 +156,26 @@ void KDEVDLG2UI::writeColor( const QString& name, const QString& value )
 void KDEVDLG2UI::writeStyles( const QStringList styles, bool isFrame )
 {
     if ( isFrame ) {
-	bool defineFrame = FALSE;
+	bool defineFrame = false;
 	QString shadow = "NoFrame";
 	QString shape = "StyledPanel";
 	int width = 2;
 	if ( styles.contains( "WS_EX_STATICEDGE" ) ) {
 	    shadow = "Plain";
 	    width = 1;
-	    defineFrame = TRUE;
+	    defineFrame = true;
 	}
 	if ( styles.contains( "WS_EX_CLIENTEDGE" ) ) {
 	    shadow = "Sunken";
-	    defineFrame = TRUE;
+	    defineFrame = true;
 	}
 	if ( styles.contains( "WS_EX_DLGMODALFRAME" ) ) {
 	    shadow = "Raised";
-	    defineFrame = TRUE;
+	    defineFrame = true;
 	}
 	if ( !styles.contains( "WS_BORDER" ) ) {
 	    shape = "NoFrame";
-	    defineFrame = TRUE;
+	    defineFrame = true;
 	}
 
 	if ( defineFrame ) {
@@ -186,11 +186,11 @@ void KDEVDLG2UI::writeStyles( const QStringList styles, bool isFrame )
     }
 
     if ( styles.contains("WS_DISABLED") )
-	writeBool("enabled", FALSE );
+	writeBool("enabled", false );
     if ( styles.contains("WS_EX_ACCEPTFILES") )
-	writeBool("acceptDrops", TRUE );
+	writeBool("acceptDrops", true );
     if ( styles.contains("WS_EX_TRANSPARENT") )
-	writeBool("autoMask", TRUE );
+	writeBool("autoMask", true );
     if ( !styles.contains("WS_TABSTOP") )
 	writeEnum("focusPolicy", "NoFocus");
 }
@@ -202,7 +202,7 @@ void KDEVDLG2UI::writeStyles( const QStringList styles, bool isFrame )
 KDEVDLG2UI::KDEVDLG2UI( QTextStream* input, const QString& name )
 {
     className = name;
-    writeToFile = TRUE;
+    writeToFile = true;
     in = input;
     indentation = 0;
     out = 0;
@@ -242,7 +242,7 @@ bool KDEVDLG2UI::parse()
     delete out;
     out = 0;
 
-    return TRUE;
+    return true;
 }
 
 /*!
@@ -250,7 +250,7 @@ bool KDEVDLG2UI::parse()
 */
 bool KDEVDLG2UI::parse( QStringList& get )
 {
-    writeToFile = FALSE;
+    writeToFile = false;
     bool result = parse();
     get = target;
     return result;
@@ -301,7 +301,7 @@ bool KDEVDLG2UI::writeDialog( const QString& name )
 	    QString family = font.section("\"", 1, 1 );
 	    int pointSize = font.section("\"", 3, 3 ).toInt();
 	    //int weight = font.section("\"", 5, 5 ).toInt();
-	    //bool italic = ( font.section("\"", 7, 7 ) == "TRUE" );
+	    //bool italic = ( font.section("\"", 7, 7 ) == "true" );
 	    writeFont( family, pointSize ); // weight, italic ?
 	} else if ( line.left( 9 ) == "IsEnabled" ) {
 	    bool isEnabled =
@@ -498,6 +498,5 @@ bool KDEVDLG2UI::writeDialog( const QString& name )
 	//}
     }
     *out << "</UI>" << endl;
-    return TRUE;
+    return true;
 }
-

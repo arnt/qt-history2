@@ -57,7 +57,7 @@ void FormItem::insert( Project *pro )
 {
     QString n = "Form" + QString::number( ++forms );
     FormWindow *fw = 0;
-    FormFile *ff = new FormFile( FormFile::createUnnamedFileName(), TRUE, pro );
+    FormFile *ff = new FormFile( FormFile::createUnnamedFileName(), true, pro );
     fw = new FormWindow( ff, MainWindow::self, MainWindow::self->qWorkspace(), n );
     fw->setProject( pro );
     MetaDataBase::addEntry( fw );
@@ -97,11 +97,11 @@ void FormItem::insert( Project *pro )
     MainWindow::self->objectHierarchy()->formDefinitionView()->refresh();
     MainWindow::self->objectHierarchy()->rebuild();
     fw->killAccels( fw );
-    fw->project()->setModified( TRUE );
+    fw->project()->setModified( true );
     fw->setFocus();
     if ( !pro->isDummy() ) {
-	fw->setSavePixmapInProject( TRUE );
-	fw->setSavePixmapInline( FALSE );
+	fw->setSavePixmapInProject( true );
+	fw->setSavePixmapInline( false );
     }
 }
 
@@ -140,7 +140,7 @@ void CustomFormItem::insert( Project *pro )
     QString filename = templateFileName();
     if ( !filename.isEmpty() && QFile::exists( filename ) ) {
 	Resource resource( MainWindow::self );
-	FormFile *ff = new FormFile( filename, TRUE, pro );
+	FormFile *ff = new FormFile( filename, true, pro );
 	if ( !resource.load( ff ) ) {
 	    QMessageBox::information( MainWindow::self, MainWindow::tr("Load Template"),
 				      MainWindow::tr("Couldn't load form description from template '" +
@@ -153,8 +153,8 @@ void CustomFormItem::insert( Project *pro )
 	    MainWindow::self->formWindow()->setFileName( QString::null );
 	    unifyFormName( MainWindow::self->formWindow(), MainWindow::self->qWorkspace() );
 	    if ( !pro->isDummy() ) {
-		MainWindow::self->formWindow()->setSavePixmapInProject( TRUE );
-		MainWindow::self->formWindow()->setSavePixmapInline( FALSE );
+		MainWindow::self->formWindow()->setSavePixmapInProject( true );
+		MainWindow::self->formWindow()->setSavePixmapInline( false );
 	    }
 	}
     }
@@ -163,13 +163,13 @@ void CustomFormItem::insert( Project *pro )
 
 
 SourceFileItem::SourceFileItem( QIconView *view, const QString &text )
-    : NewItem( view, text ), visible( TRUE )
+    : NewItem( view, text ), visible( true )
 {
 }
 
 void SourceFileItem::insert( Project *pro )
 {
-    SourceFile *f = new SourceFile( SourceFile::createUnnamedFileName( ext ), TRUE, pro );
+    SourceFile *f = new SourceFile( SourceFile::createUnnamedFileName( ext ), true, pro );
     MainWindow::self->editSource( f );
 }
 
@@ -188,7 +188,7 @@ void SourceFileItem::setProject( Project *pro )
 
 
 SourceTemplateItem::SourceTemplateItem( QIconView *view, const QString &text )
-    : NewItem( view, text ), visible( TRUE )
+    : NewItem( view, text ), visible( true )
 {
 }
 
@@ -202,13 +202,13 @@ void SourceTemplateItem::insert( Project *pro )
     if ( src.type == SourceTemplateInterface::Source::Invalid )
 	return;
     if ( src.type == SourceTemplateInterface::Source::FileName )
-	f = new SourceFile( src.filename, FALSE, pro );
+	f = new SourceFile( src.filename, false, pro );
     else
-	f = new SourceFile( SourceFile::createUnnamedFileName( src.extension ), TRUE, pro );
+	f = new SourceFile( SourceFile::createUnnamedFileName( src.extension ), true, pro );
     if ( f->isAccepted()) {
 	f->setText( src.code );
 	MainWindow::self->editSource( f );
-	f->setModified( TRUE );
+	f->setModified( true );
     } else {
 	delete f;
     }
@@ -237,7 +237,7 @@ void NewForm::insertTemplates( QIconView *tView,
 	    allItems.append( pi );
 	    pi->setLanguage( *it );
 	    pi->setPixmap( QPixmap::fromMimeSource( "designer_project.png" ) );
-	    pi->setDragEnabled( FALSE );
+	    pi->setDragEnabled( false );
 	}
     }
     QIconViewItem *cur = 0;
@@ -245,24 +245,24 @@ void NewForm::insertTemplates( QIconView *tView,
     allItems.append( fi );
     fi->setFormType( FormItem::Dialog );
     fi->setPixmap( QPixmap::fromMimeSource( "designer_newform.png" ) );
-    fi->setDragEnabled( FALSE );
+    fi->setDragEnabled( false );
     cur = fi;
     if ( !MainWindow::self->singleProjectMode() ) {
 	fi = new FormItem( tView,tr( "Wizard" ) );
 	allItems.append( fi );
 	fi->setFormType( FormItem::Wizard );
 	fi->setPixmap( QPixmap::fromMimeSource( "designer_newform.png" ) );
-	fi->setDragEnabled( FALSE );
+	fi->setDragEnabled( false );
 	fi = new FormItem( tView, tr( "Widget" ) );
 	allItems.append( fi );
 	fi->setFormType( FormItem::Widget );
 	fi->setPixmap( QPixmap::fromMimeSource( "designer_newform.png" ) );
-	fi->setDragEnabled( FALSE );
+	fi->setDragEnabled( false );
 	fi = new FormItem( tView, tr( "Main Window" ) );
 	allItems.append( fi );
 	fi->setFormType( FormItem::MainWindow );
 	fi->setPixmap( QPixmap::fromMimeSource( "designer_newform.png" ) );
-	fi->setDragEnabled( FALSE );
+	fi->setDragEnabled( false );
 
 	QString templPath = templatePath;
 	QStringList templRoots;
@@ -290,7 +290,7 @@ void NewForm::insertTemplates( QIconView *tView,
 		name = name.replace( '_', ' ' );
 		CustomFormItem *ci = new CustomFormItem( tView, name );
 		allItems.append( ci );
-		ci->setDragEnabled( FALSE );
+		ci->setDragEnabled( false );
 		ci->setPixmap( QPixmap::fromMimeSource( "designer_newform.png" ) );
 		ci->setTemplateFile( fi.absFilePath() );
 	    }
@@ -309,7 +309,7 @@ void NewForm::insertTemplates( QIconView *tView,
 		si->setExtension( eit.key() );
 		si->setLanguage( *it );
 		si->setPixmap( QPixmap::fromMimeSource( "designer_filenew.png" ) );
-		si->setDragEnabled( FALSE );
+		si->setDragEnabled( false );
 	    }
 	    iface->release();
 	}
@@ -326,7 +326,7 @@ void NewForm::insertTemplates( QIconView *tView,
 	    si->setTemplate( *sit );
 	    si->setLanguage( siface->language( *sit ) );
 	    si->setPixmap( QPixmap::fromMimeSource( "designer_filenew.png" ) );
-	    si->setDragEnabled( FALSE );
+	    si->setDragEnabled( false );
 	    siface->release();
 	}
     }
@@ -346,7 +346,7 @@ NewForm::NewForm( QIconView *templateView, const QString &templatePath )
 
 NewForm::NewForm( QWidget *parent, const QStringList& projects,
 		  const QString& currentProject, const QString &templatePath )
-    : NewFormBase( parent, 0, TRUE )
+    : NewFormBase( parent, 0, true )
 {
     connect( helpButton, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
 
@@ -379,7 +379,7 @@ void NewForm::projectChanged( const QString &project )
     for (i = 0; i < allItems.count(); ++i)
 	( (NewItem*)allItems.at(i) )->setProject( pro );
     templateView->setCurrentItem( templateView->firstItem() );
-    templateView->arrangeItemsInGrid( TRUE );
+    templateView->arrangeItemsInGrid( true );
 }
 
 void NewForm::itemChanged( QIconViewItem *item )

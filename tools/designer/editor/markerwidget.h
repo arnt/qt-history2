@@ -38,7 +38,7 @@ signals:
     void showMessage( const QString &msg );
 
 public slots:
-    void doRepaint() { repaint( FALSE ); }
+    void doRepaint() { repaint( false ); }
 
 protected:
     void paintEvent( QPaintEvent *e );

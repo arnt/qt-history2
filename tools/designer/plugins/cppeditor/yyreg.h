@@ -20,7 +20,7 @@
 class CppFunction
 {
 public:
-    CppFunction() : cnst( FALSE ), lineno1( 0 ), lineno2( 0 ) { }
+    CppFunction() : cnst( false ), lineno1( 0 ), lineno2( 0 ) { }
 
     void setReturnType( const QString& r ) { ret = r; }
     void setScopedName( const QString& n ) { nam = n; }
@@ -46,7 +46,7 @@ public:
     int closingBraceLineNum() const { return lineno2; }
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-    bool operator==( const CppFunction& ) const { return FALSE; }
+    bool operator==( const CppFunction& ) const { return false; }
 #endif
 
 private:

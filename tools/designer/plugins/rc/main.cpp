@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
+#include "rc2ui.h"
+
 #include <filterinterface.h>
 
 #include <qapplication.h>
-
-#include "rc2ui.h"
 
 class RCFilter : public ImportFilterInterface, public QLibraryInterface
 {
@@ -78,7 +78,7 @@ QStringList RCFilter::import( const QString &, const QString& filename )
 
 bool RCFilter::init()
 {
-    return TRUE;
+    return true;
 }
 
 void RCFilter::cleanup()
@@ -87,7 +87,7 @@ void RCFilter::cleanup()
 
 bool RCFilter::canUnload() const
 {
-    return TRUE;
+    return true;
 }
 
 Q_EXPORT_COMPONENT()

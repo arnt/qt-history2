@@ -24,6 +24,16 @@
 **
 **********************************************************************/
 
+#include "actiondnd.h"
+#include "actioneditorimpl.h"
+#include "command.h"
+#include "formfile.h"
+#include "formwindow.h"
+#include "mainwindow.h"
+#include "metadatabase.h"
+#include "pixmapchooser.h"
+#include "popupmenueditor.h"
+#include "menubareditor.h"
 #include <qapplication.h>
 #include <qcstring.h>
 #include <qdatastream.h>
@@ -36,16 +46,6 @@
 #include <qsize.h>
 #include <qstyle.h>
 #include <qtimer.h>
-#include "actiondnd.h"
-#include "actioneditorimpl.h"
-#include "command.h"
-#include "formfile.h"
-#include "formwindow.h"
-#include "mainwindow.h"
-#include "metadatabase.h"
-#include "pixmapchooser.h"
-#include "popupmenueditor.h"
-#include "menubareditor.h"
 
 // Drag Object Declaration -------------------------------------------
 
@@ -82,13 +82,13 @@ bool PopupMenuEditorItemPtrDrag::decode( QDropEvent * e, PopupMenuEditorItem ** 
     QDataStream stream( data, IO_ReadOnly );
 
     if ( !data.size() )
-	return FALSE;
+	return false;
 
     Q_LONG p = 0;
     stream >> p;
     *i = ( PopupMenuEditorItem *) p;
 
-    return TRUE;
+    return true;
 }
 
 // PopupMenuEditorItem Implementation -----------------------------------
@@ -98,8 +98,8 @@ PopupMenuEditorItem::PopupMenuEditorItem( PopupMenuEditor * menu, QObject * pare
       a( 0 ),
       s( 0 ),
       m( menu ),
-      separator( FALSE ),
-      removable( FALSE )
+      separator( false ),
+      removable( false )
 {
     init();
     a = new QAction( this );
@@ -113,12 +113,12 @@ PopupMenuEditorItem::PopupMenuEditorItem( QAction * action, PopupMenuEditor * me
       a( action ),
       s( 0 ),
       m( menu ),
-      separator( FALSE ),
-      removable( TRUE )
+      separator( false ),
+      removable( true )
 {
     init();
     if ( /*a->name() == "qt_separator_action" ||*/ ::qt_cast<QSeparatorAction*>(a) )
-	separator = TRUE;
+	separator = true;
     if ( a && !!a->children() )
  	a->installEventFilter( this );
 }
@@ -149,7 +149,7 @@ void PopupMenuEditorItem::init()
 	if ( m && !isSeparator() ) {
 	    s = new PopupMenuEditor( m->formWindow(), m );
 	    QString n = "PopupMenuEditor";
-	    m->formWindow()->unify( s, n, TRUE );
+	    m->formWindow()->unify( s, n, true );
 	    s->setName( n );
 	    MetaDataBase::addEntry( s );
 	}
@@ -178,7 +178,7 @@ bool PopupMenuEditorItem::isVisible() const
 	return ( g->isVisible() && g->usesDropDown() );
     else if ( a )
 	return a->isVisible();
-    return FALSE;
+    return false;
 }
 
 void PopupMenuEditorItem::showMenu( int x, int y )
@@ -221,20 +221,20 @@ int PopupMenuEditorItem::count() const
 bool PopupMenuEditorItem::eventFilter( QObject * o, QEvent * event )
 {
     if ( ! ::qt_cast<QActionGroup*>( o ) )
-	return FALSE;
+	return false;
     if ( event->type() == QEvent::ChildInserted ) {
 	QChildEvent * ce = ( QChildEvent * ) event;
 	QObject * c = ce->child();
 	QAction * action = ::qt_cast<QAction*>( c );
 	if ( s->find( action ) != -1 ) // avoid duplicates
-	    return FALSE;
+	    return false;
 	QActionGroup * actionGroup = ::qt_cast<QActionGroup*>( c );
 	if ( actionGroup )
 	    s->insert( actionGroup );
  	else if ( action )
  	    s->insert( action );
     }
-    return FALSE;
+    return false;
 }
 
 void PopupMenuEditorItem::selfDestruct()
@@ -302,7 +302,7 @@ void PopupMenuEditor::init()
     addItem.action()->setMenuText( tr("new item") );
     addSeparator.action()->setMenuText( tr("new separator") );
 
-    setAcceptDrops( TRUE );
+    setAcceptDrops( true );
     setFocusPolicy( StrongFocus );
 
     lineEdit = new QLineEdit( this );
@@ -356,7 +356,7 @@ void PopupMenuEditor::insert( QActionGroup * actionGroup, int index )
 						      QString( actionGroup->name() ) + "Menu" );
     insert( i, index );
 
-    QObjectList l = actionGroup->queryList( "QAction", 0, FALSE, FALSE );
+    QObjectList l = actionGroup->queryList( "QAction", 0, false, false );
     for (int x = 0; x < l.size(); ++x) {
 	QAction *a = ::qt_cast<QAction *>(l.at(x));
 	QActionGroup *g = ::qt_cast<QActionGroup *>(a);
@@ -561,7 +561,7 @@ void PopupMenuEditor::setAccelerator( int key, Qt::ButtonState state, int index 
     if ( n < 4 )
 	keys[n] = key | shift | ctrl | alt | meta;
     a->setAccel( QKeySequence( keys[0], keys[1], keys[2], keys[3] ) );
-    MetaDataBase::setPropertyChanged( a, "accel", TRUE );
+    MetaDataBase::setPropertyChanged( a, "accel", true );
     resizeToContents();
 }
 
@@ -620,7 +620,7 @@ PopupMenuEditorItem * PopupMenuEditor::createItem( QAction * a )
 	a = ae->newActionEx();
     PopupMenuEditorItem * i = new PopupMenuEditorItem( a, this );
     QString n = QString( a->name() ) + "Item";
-    formWindow()->unify( i, n, FALSE );
+    formWindow()->unify( i, n, false );
     i->setName( n );
     AddActionToPopupCommand * cmd =
 	new AddActionToPopupCommand( "Add Item", formWnd, this, i );
@@ -741,7 +741,7 @@ void PopupMenuEditor::mouseDoubleClickEvent( QMouseEvent * )
     setFocusAt( mousePressPos );
     if ( currentItem() == &addSeparator ) {
 	PopupMenuEditorItem * i = createItem( new QSeparatorAction( 0 ) );
-	i->setSeparator( TRUE );
+	i->setSeparator( true );
 	return;
     }
     if ( currentField == 0 ) {
@@ -765,7 +765,7 @@ void PopupMenuEditor::mouseMoveEvent( QMouseEvent * e )
                 // FIXME: start rename after drop
 	    } else if ( draggedItem == &addSeparator ) {
 		draggedItem = createItem( new QSeparatorAction( 0 ) );
-		draggedItem->setSeparator( TRUE );
+		draggedItem->setSeparator( true );
 	    }
 
 	    PopupMenuEditorItemPtrDrag * d =
@@ -773,7 +773,7 @@ void PopupMenuEditor::mouseMoveEvent( QMouseEvent * e )
 
 	    hideSubMenu();
 
-	    draggedItem->setVisible( FALSE );
+	    draggedItem->setVisible( false );
 	    resizeToContents();
 
 	    // If the item is dropped in the same list,
@@ -784,7 +784,7 @@ void PopupMenuEditor::mouseMoveEvent( QMouseEvent * e )
 	    d->dragCopy(); // dragevents and stuff happens
 
 	    if ( draggedItem ) { // item was not dropped
-		draggedItem->setVisible( TRUE );
+		draggedItem->setVisible( true );
 		draggedItem = 0;
 		if ( hasFocus() ) {
 		    hideSubMenu();
@@ -792,7 +792,7 @@ void PopupMenuEditor::mouseMoveEvent( QMouseEvent * e )
 		    showSubMenu();
 		}
 	    } else { // item was dropped
-		itemList.takeAt( idx )->setVisible( TRUE );
+		itemList.takeAt( idx )->setVisible( true );
 		if ( currentIndex > 0 && currentIndex > idx )
 		    --currentIndex;
 		// the drop might happen in another menu, so we'll resize
@@ -853,9 +853,9 @@ void PopupMenuEditor::dropEvent( QDropEvent * e )
 	    if ( g->usesDropDown() ) {
 		i = new PopupMenuEditorItem( g, this );
 		QString n = QString( g->name() ) + "Item";
-		formWindow()->unify( i, n, FALSE );
+		formWindow()->unify( i, n, false );
 		i->setName( n );
-		QObjectList l = g->queryList( "QAction", 0, FALSE, FALSE );
+		QObjectList l = g->queryList( "QAction", 0, false, false );
 		for (int x = 0; x < l.size(); ++x) {
 		    QAction *a = ::qt_cast<QAction *>(l.at(x));
 		    g = ::qt_cast<QActionGroup*>(a);
@@ -1399,10 +1399,10 @@ void PopupMenuEditor::leaveEditMode( QKeyEvent * e )
 	a->setMenuText( menuText );
 	i = createItem( a );
 	QString n = constructName( i );
-	formWindow()->unify( a, n, TRUE );
+	formWindow()->unify( a, n, true );
 	a->setName( n );
 	MetaDataBase::addEntry( a );
-	MetaDataBase::setPropertyChanged( a, "menuText", TRUE );
+	MetaDataBase::setPropertyChanged( a, "menuText", true );
 	ActionEditor *ae = (ActionEditor*)formWindow()->mainWindow()->child( 0, "ActionEditor" );
 	if ( ae )
 	    ae->updateActionName( a );

@@ -32,12 +32,12 @@ extern QStringList *dbpaths;
 
 int main( int argc, char * argv[] )
 {
-    bool impl = FALSE;
-    bool subcl = FALSE;
-    bool imagecollection = FALSE;
-    bool imagecollection_tmpfile = FALSE;
+    bool impl = false;
+    bool subcl = false;
+    bool imagecollection = false;
+    bool imagecollection_tmpfile = false;
 #if defined(UIB)
-    bool binary = FALSE;
+    bool binary = false;
 #endif
     QStringList images;
     const char *error = 0;
@@ -48,10 +48,10 @@ int main( int argc, char * argv[] )
     QByteArray image_tmpfile;
     const char* projectName = 0;
     const char* trmacro = 0;
-    bool nofwd = FALSE;
-    bool fix = FALSE;
+    bool nofwd = false;
+    bool fix = false;
     QByteArray pchFile;
-    QApplication app(argc, argv, FALSE);
+    QApplication app(argc, argv, false);
 
     QString keybase( "/Qt Designer/" + 
 	QString::number( (QT_VERSION >> 16) & 0xff ) +"." + QString::number( (QT_VERSION >> 8) & 0xff ) + "/" );
@@ -75,7 +75,7 @@ int main( int argc, char * argv[] )
 		} else
 		    outputFile = opt.data() + 1;
 	    } else if ( opt[0] == 'i' || opt == "impl" ) {
-		impl = TRUE;
+		impl = true;
 		if ( opt == "impl" || opt[1] == '\0' ) {
 		    if ( !(n < argc-1) ) {
 			error = "Missing name of header file";
@@ -85,7 +85,7 @@ int main( int argc, char * argv[] )
 		} else
 		    headerFile = opt.data() + 1;
 	    } else if ( opt[0] == 'e' || opt == "embed" ) {
-		imagecollection = TRUE;
+		imagecollection = true;
 		if ( opt == "embed" || opt[1] == '\0' ) {
 		    if ( !(n < argc-1) ) {
 			error = "Missing name of project";
@@ -96,21 +96,21 @@ int main( int argc, char * argv[] )
 		    projectName = opt.data() + 1;
 		}
 		if ( argc > n+1 && qstrcmp( argv[n+1], "-f" ) == 0 ) {
-		    imagecollection_tmpfile = TRUE;
+		    imagecollection_tmpfile = true;
 		    image_tmpfile = argv[n+2];
 		    n += 2;
 		}
 #if defined(UIB)
 
 	    } else if ( opt == "binary" ) {
-		binary = TRUE;
+		binary = true;
 #endif
 	    } else if ( opt == "nofwd" ) {
-		nofwd = TRUE;
+		nofwd = true;
 	    } else if ( opt == "nounload" ) {
-		dbnounload = TRUE;
+		dbnounload = true;
 	    } else if ( opt == "subdecl" ) {
-		subcl = TRUE;
+		subcl = true;
 		if ( !(n < argc-2) ) {
 		    error = "Missing arguments";
 		    break;
@@ -118,8 +118,8 @@ int main( int argc, char * argv[] )
 		className = argv[++n];
 		headerFile = argv[++n];
 	    } else if ( opt == "subimpl" ) {
-		subcl = TRUE;
-		impl = TRUE;
+		subcl = true;
+		impl = true;
 		if ( !(n < argc-2) ) {
 		    error = "Missing arguments";
 		    break;
@@ -154,7 +154,7 @@ int main( int argc, char * argv[] )
 	    } else if ( opt == "help" ) {
 		break;
 	    } else if ( opt == "fix" ) {
-		fix = TRUE;
+		fix = true;
 	    } else if ( opt == "pch") {
 		if ( !(n < argc-1) ) {
 		    error = "Missing name of PCH file";

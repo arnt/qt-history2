@@ -25,7 +25,7 @@
 #include <qpainter.h>
 
 static QTextEdit *debugoutput = 0;
-bool debugToStderr = TRUE; // emabled for now!
+bool debugToStderr = true; // emabled for now!
 
 QtMsgHandler OutputWindow::oldMsgHandler = 0;
 
@@ -74,7 +74,7 @@ void OutputWindow::setupError()
     errorView->setColumnWidth( 1, errorView->fontMetrics().width( "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOP" ) );
     errorView->setColumnWidth( 2, errorView->fontMetrics().width( "9999999" ) );
     errorView->setColumnAlignment( 2, Qt::AlignRight );
-    errorView->setAllColumnsShowFocus( TRUE );
+    errorView->setAllColumnsShowFocus( true );
 }
 
 static void debugMessageOutput( QtMsgType type, const char *msg )
@@ -100,7 +100,7 @@ static void debugMessageOutput( QtMsgType type, const char *msg )
 void OutputWindow::setupDebug()
 {
     debugoutput = debugView = new QTextEdit( this, "OutputWindow::debugView" );
-    //debugView->setReadOnly( TRUE );
+    //debugView->setReadOnly( true );
     addTab( debugView, "Debug Output" );
 
     if ( !debugToStderr )
@@ -154,7 +154,7 @@ void OutputWindow::currentErrorChanged( QListViewItem *i )
     if ( !i )
 	return;
     ErrorItem *ei = (ErrorItem*)i;
-    ei->setRead( TRUE );
+    ei->setRead( true );
     MainWindow::self->showSourceLine( ei->location(), ei->line() - 1, MainWindow::Error );
 }
 
@@ -164,7 +164,7 @@ ErrorItem::ErrorItem( QListView *parent, QListViewItem *after, const QString &me
 		      const QString &locationString, QObject *locationObject )
     : QListViewItem( parent, after )
 {
-    setMultiLinesEnabled( TRUE );
+    setMultiLinesEnabled( true );
     QString m( message );
     type = m.startsWith( "Warning: " ) ? Warning : Error;
     m = m.mid( m.find( ':' ) + 1 );
@@ -175,7 +175,7 @@ ErrorItem::ErrorItem( QListView *parent, QListViewItem *after, const QString &me
     object = locationObject;
     read = !after;
     if ( !after ) {
-	parent->setSelected( this, TRUE );
+	parent->setSelected( this, true );
 	parent->setCurrentItem( this );
     }
 }
@@ -187,7 +187,7 @@ void ErrorItem::paintCell( QPainter *p, const QPalette &pal,
     pal2.setColor( QPalette::Text, type == Error ? Qt::red : Qt::darkYellow );
     if ( !read ) {
 	QFont f( p->font() );
-	f.setBold( TRUE );
+	f.setBold( true );
 	p->setFont( f );
     }
     QListViewItem::paintCell( p, pal2, column, width, alignment );

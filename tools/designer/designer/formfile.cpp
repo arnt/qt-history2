@@ -21,14 +21,14 @@
 #include "../interfaces/languageinterface.h"
 #include "resource.h"
 #include "workspace.h"
+#include "propertyeditor.h"
+#include "designerappiface.h"
 #include <qmessagebox.h>
 #include <qfile.h>
 #include <qstatusbar.h>
-#include "propertyeditor.h"
 #include <qworkspace.h>
-#include <stdlib.h>
-#include "designerappiface.h"
 #include <qapplication.h>
+#include <stdlib.h>
 
 static QString make_func_pretty( const QString &s )
 {
@@ -49,8 +49,8 @@ static QString make_func_pretty( const QString &s )
 
 FormFile::FormFile( const QString &fn, bool temp, Project *p, const char *name )
     : filename( fn ), fileNameTemp( temp ), pro( p ), fw( 0 ), ed( 0 ),
-      timeStamp( 0, fn + codeExtension() ), codeEdited( FALSE ), pkg( FALSE ),
-      cm( FALSE ), codeFileStat( None )
+      timeStamp( 0, fn + codeExtension() ), codeEdited( false ), pkg( false ),
+      cm( false ), codeFileStat( None )
 {
     MetaDataBase::addEntry( this );
     fake = qstrcmp( name, "qt_fakewindow" ) == 0;
@@ -58,7 +58,7 @@ FormFile::FormFile( const QString &fn, bool temp, Project *p, const char *name )
     pro->addFormFile( this );
     loadCode();
     if ( !temp )
-	checkFileName( FALSE );
+	checkFileName( false );
 }
 
 FormFile::~FormFile()
@@ -77,7 +77,7 @@ void FormFile::setFormWindow( FormWindow *f )
     fw = f;
     if ( fw )
 	fw->setFormFile( this );
-    parseCode( cod, FALSE );
+    parseCode( cod, false );
     QTimer::singleShot( 0, this, SLOT( notifyFormWindowChange() ) );
 }
 
@@ -91,12 +91,12 @@ void FormFile::setFileName( const QString &fn )
     if ( fn == filename )
 	return;
     if ( fn.isEmpty() ) {
-	fileNameTemp = TRUE;
+	fileNameTemp = true;
 	if ( filename.find( "unnamed" ) != 0 )
 	    filename = createUnnamedFileName();
 	return;
     } else {
-	fileNameTemp = FALSE;
+	fileNameTemp = false;
     }
     filename = fn;
     timeStamp.setFileName( filename + codeExtension() );
@@ -147,14 +147,14 @@ bool FormFile::save( bool withMsgBox, bool ignoreModified )
     if ( fileNameTemp )
 	return saveAs();
     if ( !ignoreModified && !isModified() )
-	return TRUE;
+	return true;
     if ( ed )
 	ed->save();
 
     if ( formWindow() && isModified( WFormWindow ) ) {
 	if ( withMsgBox ) {
 	    if ( !formWindow()->checkCustomWidgets() )
-		return FALSE;
+		return false;
 	}
 
 	if ( QFile::exists( pro->makeAbsolute( filename ) ) ) {
@@ -211,7 +211,7 @@ bool FormFile::save( bool withMsgBox, bool ignoreModified )
 		MainWindow::self->statusBar()->message( tr( "Failed to save file '%1'.").arg( formCodeOnly ? codeFile(): filename ),
 							5000 );
 	    if ( formCodeOnly )
-		return FALSE;
+		return false;
 	    return saveAs();
 	}
 	if ( MainWindow::self )
@@ -220,11 +220,11 @@ bool FormFile::save( bool withMsgBox, bool ignoreModified )
 						    3000 );
     } else {
 	if ( !Resource::saveFormCode(this, MetaDataBase::languageInterface(pro->language())) )
-	    return FALSE;
+	    return false;
     }
     timeStamp.update();
-    setModified( FALSE );
-    return TRUE;
+    setModified( false );
+    return true;
 }
 
 bool FormFile::saveAs( bool ignoreModified )
@@ -235,7 +235,7 @@ bool FormFile::saveAs( bool ignoreModified )
 	f.replace( "::", "_" );
 	f = pro->makeAbsolute( f + ".ui" );
     }
-    bool saved = FALSE;
+    bool saved = false;
     if ( ignoreModified ) {
 	QString dir = QStringList::split( ':', pro->iFace()->customSetting( "QTSCRIPT_PACKAGES" ) ).first();
 	f = QFileInfo( f ).fileName();
@@ -249,11 +249,11 @@ bool FormFile::saveAs( bool ignoreModified )
 					   tr( "Save Form '%1' As ...").arg( formName() ),
 					   MainWindow::self ? &MainWindow::self->lastSaveFilter : 0 );
 	if ( fn.isEmpty() )
-	    return FALSE;
+	    return false;
 	QFileInfo fi( fn );
 	if ( fi.extension() != "ui" )
 	    fn += ".ui";
-	fileNameTemp = FALSE;
+	fileNameTemp = false;
 	filename = pro->makeRelative( fn );
 	QFileInfo relfi( filename );
 	if ( relfi.exists() ) {
@@ -261,27 +261,27 @@ bool FormFile::saveAs( bool ignoreModified )
 		tr( "The file already exists. Do you wish to overwrite it?" ),
 		QMessageBox::Yes,
 		QMessageBox::No ) == QMessageBox::Yes ) {
-		saved = TRUE;
+		saved = true;
 	    } else {
 		filename = f;
 	    }
 
 	} else {
-	    saved = TRUE;
+	    saved = true;
 	}
     }
-    if ( !checkFileName( TRUE ) ) {
+    if ( !checkFileName( true ) ) {
 	filename = f;
-	return FALSE;
+	return false;
     }
-    pro->setModified( TRUE );
+    pro->setModified( true );
     timeStamp.setFileName( pro->makeAbsolute( codeFile() ) );
     if ( ed && formWindow() )
 	ed->setCaption( tr( "Edit %1" ).arg( formWindow()->name() ) );
-    setModified( TRUE );
+    setModified( true );
     if ( pro->isDummy() )
 	fw->mainWindow()->addRecentlyOpenedFile( fn );
-    return save( TRUE, ignoreModified );
+    return save( true, ignoreModified );
 }
 
 bool FormFile::close()
@@ -292,18 +292,18 @@ bool FormFile::close()
     }
     if ( formWindow() )
 	return formWindow()->close();
-    return TRUE;
+    return true;
 }
 
 bool FormFile::closeEvent()
 {
     if ( !isModified() && fileNameTemp ) {
 	pro->removeFormFile( this );
-	return TRUE;
+	return true;
     }
 
     if ( !isModified() )
-	return TRUE;
+	return true;
 
     if ( editor() )
 	editor()->save();
@@ -313,7 +313,7 @@ bool FormFile::closeEvent()
 				   tr( "&Yes" ), tr( "&No" ), tr( "&Cancel" ), 0, 2 ) ) {
     case 0: // save
 	if ( !save() )
-	    return FALSE;
+	    return false;
     case 1: // don't save
 	loadCode();
 	if ( ed )
@@ -324,16 +324,16 @@ bool FormFile::closeEvent()
 	    MainWindow::self->workspace()->update();
 	break;
     case 2: // cancel
-	return FALSE;
+	return false;
     default:
 	break;
     }
 
-    setModified( FALSE );
+    setModified( false );
     if ( MainWindow::self )
 	MainWindow::self->updateFunctionList();
-    setCodeEdited( FALSE );
-    return TRUE;
+    setCodeEdited( false );
+    return true;
 }
 
 void FormFile::setModified( bool m, int who )
@@ -356,7 +356,7 @@ bool FormFile::isModified( int who )
 bool FormFile::isFormWindowModified() const
 {
     if ( !formWindow()  || !formWindow()->commandHistory() )
-	return FALSE;
+	return false;
     return formWindow()->commandHistory()->isModified();
 }
 
@@ -405,7 +405,7 @@ void FormFile::showFormWindow()
 	formWindow()->setFocus();
 	return;
     }
-    MainWindow::self->openFormWindow( pro->makeAbsolute( filename ), TRUE, this );
+    MainWindow::self->openFormWindow( pro->makeAbsolute( filename ), true, this );
 }
 
 bool FormFile::setupUihFile( bool askForUih )
@@ -413,10 +413,10 @@ bool FormFile::setupUihFile( bool askForUih )
     if ( !pro->isCpp() || !askForUih ) {
 	if ( !hasFormCode() ) {
 	    createFormCode();
-	    setModified( TRUE );
+	    setModified( true );
 	}
 	codeFileStat = FormFile::Ok;
-	return TRUE;
+	return true;
     }
     if ( codeFileStat != FormFile::Ok && !ed ) {
 	if ( hasFormCode() ) {
@@ -426,20 +426,20 @@ bool FormFile::setupUihFile( bool askForUih )
 	                                      tr( "Use existing" ), tr( "Create new" ),
 					      tr( "Cancel" ), 2, 2 );
 	    if ( i == 2 )
-		return FALSE;
+		return false;
 	    if ( i == 1 )
 		createFormCode();
 	} else {
 	    if ( QMessageBox::Yes != QMessageBox::information( MainWindow::self, tr( "Creating ui.h file" ),
 						 tr( "Do you want to create an new \"ui.h\" file?" ),
 						 QMessageBox::Yes, QMessageBox::No ) )
-		return FALSE;
+		return false;
 	    createFormCode();
 	}
-	setModified( TRUE );
+	setModified( true );
     }
     codeFileStat = FormFile::Ok;
-    return TRUE;
+    return true;
 }
 
 SourceEditor *FormFile::showEditor( bool askForUih )
@@ -511,7 +511,7 @@ void FormFile::createFormCode()
 					   (*it).returnType, (*it).access ) +
 	       "\n" + iface->createEmptyFunction();
     }
-    parseCode( cod, FALSE );
+    parseCode( cod, false );
 }
 
 void FormFile::load()
@@ -526,15 +526,15 @@ bool FormFile::loadCode()
     if ( !f.open( IO_ReadOnly ) ) {
 	cod = "";
 	setCodeFileState( FormFile::None );
-	return FALSE;
+	return false;
     }
     QTextStream ts( &f );
     cod = ts.read();
-    parseCode( cod, FALSE );
+    parseCode( cod, false );
     if ( hasFormCode() && codeFileStat != FormFile::Ok )
 	setCodeFileState( FormFile::Deleted );
     timeStamp.update();
-    return TRUE;
+    return true;
 }
 
 bool FormFile::isCodeEdited() const
@@ -561,13 +561,13 @@ void FormFile::parseCode( const QString &txt, bool allowModify )
     QMap<QString, QString> funcs;
     for ( QList<LanguageInterface::Function>::Iterator it = functions.begin();
 	  it != functions.end(); ++it ) {
-	bool found = FALSE;
+	bool found = false;
 	for ( QList<MetaDataBase::Function>::Iterator fit = oldFunctions.begin();
 	      fit != oldFunctions.end(); ++fit ) {
 	    QString f( (*fit).function );
 	    if ( MetaDataBase::normalizeFunction( f ) ==
 		 MetaDataBase::normalizeFunction( (*it).name ) ) {
-		found = TRUE;
+		found = true;
 		MetaDataBase::Function function;
 		function.function = make_func_pretty( (*it).name );
 		function.specifier = (*fit).specifier;
@@ -603,12 +603,12 @@ void FormFile::parseCode( const QString &txt, bool allowModify )
 	    newFunctions << function;
 	    funcs.insert( (*it).name, (*it).body );
 	    if ( allowModify )
-		setFormWindowModified( TRUE );
+		setFormWindowModified( true );
 	}
     }
 
     if ( allowModify && oldFunctions.count() > 0 )
-	setFormWindowModified( TRUE );
+	setFormWindowModified( true );
 
     MetaDataBase::setFunctionList( formWindow(), newFunctions );
 }
@@ -617,7 +617,7 @@ void FormFile::syncCode()
 {
     if ( !editor() )
 	return;
-    parseCode( editor()->editorInterface()->text(), TRUE );
+    parseCode( editor()->editorInterface()->text(), true );
     cod = editor()->editorInterface()->text();
 }
 
@@ -648,14 +648,14 @@ void FormFile::checkTimeStamp()
 bool FormFile::isUihFileUpToDate()
 {
     if ( timeStamp.isUpToDate() )
-	return TRUE;
+	return true;
     if ( !editor() ) {
 	MainWindow::self->editSource();
 	qDebug( "parse Code" );
-	parseCode( editor()->editorInterface()->text(), TRUE );
+	parseCode( editor()->editorInterface()->text(), true );
     }
     checkTimeStamp();
-    return FALSE;
+    return false;
 }
 
 void FormFile::addFunctionCode( MetaDataBase::Function function )
@@ -668,11 +668,11 @@ void FormFile::addFunctionCode( MetaDataBase::Function function )
 
     QList<LanguageInterface::Function> funcs;
     iface->functions( cod, &funcs );
-    bool hasFunc = FALSE;
+    bool hasFunc = false;
     for ( QList<LanguageInterface::Function>::Iterator it = funcs.begin();
 	  it != funcs.end(); ++it ) {
 	if ( MetaDataBase::normalizeFunction( (*it).name ) == MetaDataBase::normalizeFunction( function.function ) ) {
-	    hasFunc = TRUE;
+	    hasFunc = true;
 	    break;
 	}
     }
@@ -694,7 +694,7 @@ void FormFile::addFunctionCode( MetaDataBase::Function function )
 		       "\n" + iface->createEmptyFunction();
 	cod += body;
 	if ( codeEdited ) {
-	    setModified( TRUE );
+	    setModified( true );
 	    emit somethingChanged( this );
 	}
     }
@@ -841,12 +841,12 @@ bool FormFile::checkFileName( bool allowBreak )
 					       arg( formWindow()->name() ),
 					       MainWindow::self ? &MainWindow::self->lastSaveFilter : 0 );
 	    if ( allowBreak && fn.isEmpty() )
-		return FALSE;
+		return false;
 	}
 	filename = pro->makeRelative( fn );
 	ff = pro->findFormFile( filename, this );
      }
-    return TRUE;
+    return true;
 }
 
 void FormFile::addConnection( const QString &sender, const QString &signal,

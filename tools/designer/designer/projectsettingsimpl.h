@@ -26,7 +26,7 @@ class ProjectSettings : public ProjectSettingsBase
     Q_OBJECT
 
 public:
-    ProjectSettings( Project *pro, QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );
+    ProjectSettings( Project *pro, QWidget* parent = 0, const char* name = 0, bool modal = false, WFlags fl = 0 );
     ~ProjectSettings();
 
 protected slots:

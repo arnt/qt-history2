@@ -12,13 +12,13 @@
 ****************************************************************************/
 
 #include <designerinterface.h>
-#include <qfeatures.h>
-#include <qwidget.h>
 #include <templatewizardiface.h>
 #ifndef QT_NO_SQL
 #include "sqlformwizardimpl.h"
 #endif
 #include "mainwindowwizard.h"
+#include <qfeatures.h>
+#include <qwidget.h>
 #include <qapplication.h>
 
 class StandardTemplateWizardInterface : public TemplateWizardInterface, public QLibraryInterface
@@ -43,7 +43,7 @@ private:
 };
 
 StandardTemplateWizardInterface::StandardTemplateWizardInterface()
-    : inUse( FALSE )
+    : inUse( false )
 {
 }
 
@@ -53,7 +53,7 @@ StandardTemplateWizardInterface::~StandardTemplateWizardInterface()
 
 bool StandardTemplateWizardInterface::init()
 {
-    return TRUE;
+    return true;
 }
 
 void StandardTemplateWizardInterface::cleanup()
@@ -79,23 +79,23 @@ QStringList StandardTemplateWizardInterface::featureList() const
 
 void StandardTemplateWizardInterface::setup( const QString &templ, QWidget *widget, DesignerFormWindow *fw, QUnknownInterface *aIface )
 {
-    inUse = TRUE;
+    inUse = true;
 #ifndef QT_NO_SQL
     if ( templ == "QDesignerDataView" ||
 	 templ == "QDesignerDataBrowser" ||
 	 templ == "QDataView" ||
 	 templ == "QDataBrowser" ||
 	 templ == "QDataTable" ) {
-	SqlFormWizard wizard( aIface, widget, qApp->mainWidget(), fw, 0, TRUE );
+	SqlFormWizard wizard( aIface, widget, qApp->mainWidget(), fw, 0, true );
 	wizard.exec();
     }
 #endif
     if ( templ == "QMainWindow" ) {
-	MainWindowWizardBase wizard( qApp->mainWidget(), 0, TRUE );
+	MainWindowWizardBase wizard( qApp->mainWidget(), 0, true );
 	wizard.setAppInterface( aIface, fw, widget );
 	wizard.exec();
     }
-    inUse = FALSE;
+    inUse = false;
 }
 
 QRESULT StandardTemplateWizardInterface::queryInterface( const QUuid& uuid, QUnknownInterface** iface )

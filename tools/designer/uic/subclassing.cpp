@@ -50,7 +50,7 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
 
     // constructor
     if ( objClass == "QDialog" || objClass == "QWizard" ) {
-	out << "    " << subClass << "( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );" << endl;
+	out << "    " << subClass << "( QWidget* parent = 0, const char* name = 0, bool modal = false, WFlags fl = 0 );" << endl;
     } else { // standard QWidget
 	out << "    " << subClass << "( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );" << endl;
     }
@@ -195,7 +195,7 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
 	out << " *  name 'name' and widget flags set to 'f' " << endl;
 	out << " *" << endl;
 	out << " *  The " << objClass.mid(1).lower() << " will by default be modeless, unless you set 'modal' to" << endl;
-	out << " *  TRUE to construct a modal " << objClass.mid(1).lower() << "." << endl;
+	out << " *  true to construct a modal " << objClass.mid(1).lower() << "." << endl;
 	out << " */" << endl;
 	out << subClass << "::" << subClass << "( QWidget* parent,  const char* name, bool modal, WFlags fl )" << endl;
 	out << "    : " << nameOfClass << "( parent, name, modal, fl )" << endl;

@@ -39,29 +39,29 @@
 #include <qcheckbox.h>
 
 CustomWidgetEditor::CustomWidgetEditor( QWidget *parent, MainWindow *mw )
-    : CustomWidgetEditorBase( parent, 0, TRUE ), mainWindow( mw )
+    : CustomWidgetEditorBase( parent, 0, true ), mainWindow( mw )
 {
     connect( helpButton, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
     checkTimer = new QTimer( this );
     connect( checkTimer, SIGNAL( timeout() ),
 	     this, SLOT( checkWidgetName() ) );
 
-    editClass->setEnabled( FALSE );
-    editHeader->setEnabled( FALSE );
-    buttonChooseHeader->setEnabled( FALSE );
-    buttonChoosePixmap->setEnabled( FALSE );
-    spinWidth->setEnabled( FALSE );
-    spinHeight->setEnabled( FALSE );
-    sizeHor->setEnabled( FALSE );
-    sizeVer->setEnabled( FALSE );
-    checkContainer->setEnabled( FALSE );
-    localGlobalCombo->setEnabled( FALSE );
+    editClass->setEnabled( false );
+    editHeader->setEnabled( false );
+    buttonChooseHeader->setEnabled( false );
+    buttonChoosePixmap->setEnabled( false );
+    spinWidth->setEnabled( false );
+    spinHeight->setEnabled( false );
+    sizeHor->setEnabled( false );
+    sizeVer->setEnabled( false );
+    checkContainer->setEnabled( false );
+    localGlobalCombo->setEnabled( false );
     editClass->setValidator( new AsciiValidator( QString(":"), editClass ) );
-    editSignal->setValidator( new AsciiValidator( TRUE, editSignal ) );
-    editSlot->setValidator( new AsciiValidator( TRUE, editSignal ) );
+    editSignal->setValidator( new AsciiValidator( true, editSignal ) );
+    editSlot->setValidator( new AsciiValidator( true, editSignal ) );
     editProperty->setValidator( new AsciiValidator( editSignal ) );
-    editSignal->setEnabled( FALSE );
-    buttonRemoveSignal->setEnabled( FALSE );
+    editSignal->setEnabled( false );
+    buttonRemoveSignal->setEnabled( false );
 
     setupDefinition();
     setupSignals();
@@ -84,15 +84,15 @@ void CustomWidgetEditor::setupDefinition()
 
     if ( boxWidgets->firstItem() ) {
 	boxWidgets->setCurrentItem( boxWidgets->firstItem() );
-	boxWidgets->setSelected( boxWidgets->firstItem(), TRUE );
+	boxWidgets->setSelected( boxWidgets->firstItem(), true );
     }
     oldItem = 0;
 }
 
 void CustomWidgetEditor::setupSignals()
 {
-    editSignal->setEnabled( FALSE );
-    buttonRemoveSignal->setEnabled( FALSE );
+    editSignal->setEnabled( false );
+    buttonRemoveSignal->setEnabled( false );
     MetaDataBase::CustomWidget *w = findWidget( boxWidgets->item( boxWidgets->currentItem() ) );
     if ( !w )
 	return;
@@ -101,15 +101,15 @@ void CustomWidgetEditor::setupSignals()
 	listSignals->insertItem( QString( *it ) );
     if ( listSignals->firstItem() ) {
 	listSignals->setCurrentItem( listSignals->firstItem() );
-	listSignals->setSelected( listSignals->firstItem(), TRUE );
+	listSignals->setSelected( listSignals->firstItem(), true );
     }
 }
 
 void CustomWidgetEditor::setupSlots()
 {
-    editSlot->setEnabled( FALSE );
-    comboAccess->setEnabled( FALSE );
-    buttonRemoveSlot->setEnabled( FALSE );
+    editSlot->setEnabled( false );
+    comboAccess->setEnabled( false );
+    buttonRemoveSlot->setEnabled( false );
 
     MetaDataBase::CustomWidget *w = findWidget( boxWidgets->item( boxWidgets->currentItem() ) );
     if ( !w )
@@ -120,15 +120,15 @@ void CustomWidgetEditor::setupSlots()
 
     if ( listSlots->firstChild() ) {
 	listSlots->setCurrentItem( listSlots->firstChild() );
-	listSlots->setSelected( listSlots->firstChild(), TRUE );
+	listSlots->setSelected( listSlots->firstChild(), true );
     }
 }
 
 void CustomWidgetEditor::setupProperties()
 {
-    editProperty->setEnabled( FALSE );
-    comboType->setEnabled( FALSE );
-    buttonRemoveProperty->setEnabled( FALSE );
+    editProperty->setEnabled( false );
+    comboType->setEnabled( false );
+    buttonRemoveProperty->setEnabled( false );
 
     MetaDataBase::CustomWidget *w = findWidget( boxWidgets->item( boxWidgets->currentItem() ) );
     if ( !w )
@@ -139,7 +139,7 @@ void CustomWidgetEditor::setupProperties()
 
     if ( listProperties->firstChild() ) {
 	listProperties->setCurrentItem( listProperties->firstChild() );
-	listProperties->setSelected( listProperties->firstChild(), TRUE );
+	listProperties->setSelected( listProperties->firstChild(), true );
     }
 }
 
@@ -150,33 +150,33 @@ void CustomWidgetEditor::currentWidgetChanged( QListBoxItem *i )
 
     MetaDataBase::CustomWidget *w = findWidget( i );
     if ( !i || !w ) {
-	buttonChooseHeader->setEnabled( FALSE );
-	editClass->setEnabled( FALSE );
-	editHeader->setEnabled( FALSE );
-	buttonChoosePixmap->setEnabled( FALSE );
-	spinWidth->setEnabled( FALSE );
-	spinHeight->setEnabled( FALSE );
-	localGlobalCombo->setEnabled( FALSE );
-	sizeHor->setEnabled( FALSE );
-	sizeVer->setEnabled( FALSE );
-	checkContainer->setEnabled( FALSE );
+	buttonChooseHeader->setEnabled( false );
+	editClass->setEnabled( false );
+	editHeader->setEnabled( false );
+	buttonChoosePixmap->setEnabled( false );
+	spinWidth->setEnabled( false );
+	spinHeight->setEnabled( false );
+	localGlobalCombo->setEnabled( false );
+	sizeHor->setEnabled( false );
+	sizeVer->setEnabled( false );
+	checkContainer->setEnabled( false );
 	return;
     }
 
-    buttonChooseHeader->setEnabled( TRUE );
-    editClass->setEnabled( TRUE );
-    editHeader->setEnabled( TRUE );
-    buttonChoosePixmap->setEnabled( TRUE );
-    spinWidth->setEnabled( TRUE );
-    spinHeight->setEnabled( TRUE );
-    localGlobalCombo->setEnabled( TRUE );
-    sizeHor->setEnabled( TRUE );
-    sizeVer->setEnabled( TRUE );
-    checkContainer->setEnabled( TRUE );
+    buttonChooseHeader->setEnabled( true );
+    editClass->setEnabled( true );
+    editHeader->setEnabled( true );
+    buttonChoosePixmap->setEnabled( true );
+    spinWidth->setEnabled( true );
+    spinHeight->setEnabled( true );
+    localGlobalCombo->setEnabled( true );
+    sizeHor->setEnabled( true );
+    sizeVer->setEnabled( true );
+    checkContainer->setEnabled( true );
 
-    editClass->blockSignals( TRUE );
+    editClass->blockSignals( true );
     editClass->setText( w->className );
-    editClass->blockSignals( FALSE );
+    editClass->blockSignals( false );
     editHeader->setText( w->includeFile );
     localGlobalCombo->setCurrentItem( (int)w->includePolicy );
     if ( w->pixmap )
@@ -214,7 +214,7 @@ void CustomWidgetEditor::addWidgetClicked()
     customWidgets.insert( i, w );
 
     boxWidgets->setCurrentItem( i );
-    boxWidgets->setSelected( i, TRUE );
+    boxWidgets->setSelected( i, true );
 }
 
 void CustomWidgetEditor::classNameChanged( const QString &s )
@@ -227,7 +227,7 @@ void CustomWidgetEditor::classNameChanged( const QString &s )
     WidgetDatabase::customWidgetClassNameChanged( w->className, s );
 
     checkTimer->stop();
-    boxWidgets->blockSignals( TRUE );
+    boxWidgets->blockSignals( true );
     oldName = w->className;
     w->className = s;
     QListBoxItem *old = i;
@@ -239,8 +239,8 @@ void CustomWidgetEditor::classNameChanged( const QString &s )
     oldItem = i;
     customWidgets.insert( i, w );
     customWidgets.remove( old );
-    boxWidgets->blockSignals( FALSE );
-    checkTimer->start( 1000, TRUE );
+    boxWidgets->blockSignals( false );
+    checkTimer->start( 1000, true );
 }
 
 void CustomWidgetEditor::deleteWidgetClicked()
@@ -273,7 +273,7 @@ void CustomWidgetEditor::deleteWidgetClicked()
     i = boxWidgets->item( boxWidgets->currentItem() );
     if ( i ) {
 	boxWidgets->setCurrentItem( i );
-	boxWidgets->setSelected( i, TRUE );
+	boxWidgets->setSelected( i, true );
     }
 }
 
@@ -321,13 +321,13 @@ void CustomWidgetEditor::pixmapChoosen()
     delete w->pixmap;
     w->pixmap = new QPixmap( pix );
 
-    boxWidgets->blockSignals( TRUE );
+    boxWidgets->blockSignals( true );
     QListBoxItem *old = i;
     boxWidgets->changeItem( *w->pixmap, w->className, boxWidgets->currentItem() );
     i = boxWidgets->item( boxWidgets->currentItem() );
     customWidgets.insert( i, w );
     customWidgets.remove( old );
-    boxWidgets->blockSignals( FALSE );
+    boxWidgets->blockSignals( false );
     previewPixmap->setPixmap( *w->pixmap );
 }
 
@@ -401,28 +401,28 @@ void CustomWidgetEditor::closeClicked()
 
 void CustomWidgetEditor::currentSignalChanged( QListBoxItem *i )
 {
-    editSignal->blockSignals( TRUE );
+    editSignal->blockSignals( true );
     editSignal->setText( "" );
-    editSignal->blockSignals( FALSE );
+    editSignal->blockSignals( false );
 
     if ( !i ) {
-	editSignal->setEnabled( FALSE );
-	buttonRemoveSignal->setEnabled( FALSE );
+	editSignal->setEnabled( false );
+	buttonRemoveSignal->setEnabled( false );
 	return;
     }
 
-    editSignal->blockSignals( TRUE );
-    editSignal->setEnabled( TRUE );
-    buttonRemoveSignal->setEnabled( TRUE );
+    editSignal->blockSignals( true );
+    editSignal->setEnabled( true );
+    buttonRemoveSignal->setEnabled( true );
     editSignal->setText( i->text() );
-    editSignal->blockSignals( FALSE );
+    editSignal->blockSignals( false );
 }
 
 void CustomWidgetEditor::addSignal()
 {
     QListBoxItem *i = new QListBoxText( listSignals, "signal()" );
     listSignals->setCurrentItem( i );
-    listSignals->setSelected( i, TRUE );
+    listSignals->setSelected( i, true );
     MetaDataBase::CustomWidget *w = findWidget( boxWidgets->item( boxWidgets->currentItem() ) );
     if ( w )
 	w->lstSignals.append( i->text().latin1() );
@@ -433,7 +433,7 @@ void CustomWidgetEditor::removeSignal()
     QString s = listSignals->currentText();
     delete listSignals->item( listSignals->currentItem() );
     if ( listSignals->currentItem() != -1 )
-	listSignals->setSelected( listSignals->currentItem(), TRUE );
+	listSignals->setSelected( listSignals->currentItem(), true );
     MetaDataBase::CustomWidget *w = findWidget( boxWidgets->item( boxWidgets->currentItem() ) );
     if ( w )
 	w->lstSignals.remove( s.latin1() );
@@ -448,9 +448,9 @@ void CustomWidgetEditor::signalNameChanged( const QString &s )
     QList<QCString>::Iterator it = w->lstSignals.find( listSignals->currentText().latin1() );
     if ( it != w->lstSignals.end() )
 	w->lstSignals.remove( it );
-    listSignals->blockSignals( TRUE );
+    listSignals->blockSignals( true );
     listSignals->changeItem( s, listSignals->currentItem() );
-    listSignals->blockSignals( FALSE );
+    listSignals->blockSignals( false );
     w->lstSignals.append( s.latin1() );
 }
 
@@ -494,7 +494,7 @@ void CustomWidgetEditor::addSlot()
 {
     QListViewItem *i = new QListViewItem( listSlots, "slot()", "public" );
     listSlots->setCurrentItem( i );
-    listSlots->setSelected( i, TRUE );
+    listSlots->setSelected( i, true );
     MetaDataBase::CustomWidget *w = findWidget( boxWidgets->item( boxWidgets->currentItem() ) );
     if ( w ) {
 	MetaDataBase::Function slot;
@@ -515,7 +515,7 @@ void CustomWidgetEditor::removeSlot()
     }
     delete listSlots->currentItem();
     if ( listSlots->currentItem() )
-	listSlots->setSelected( listSlots->currentItem(), TRUE );
+	listSlots->setSelected( listSlots->currentItem(), true );
     MetaDataBase::CustomWidget *w = findWidget( boxWidgets->item( boxWidgets->currentItem() ) );
     if ( w && slot.function != "1 2 3" )
 	w->lstSlots.remove( slot );
@@ -523,29 +523,29 @@ void CustomWidgetEditor::removeSlot()
 
 void CustomWidgetEditor::currentSlotChanged( QListViewItem *i )
 {
-    editSlot->blockSignals( TRUE );
+    editSlot->blockSignals( true );
     editSlot->setText( "" );
-    editSignal->blockSignals( FALSE );
+    editSignal->blockSignals( false );
 
     if ( !i ) {
-	editSlot->setEnabled( FALSE );
-	comboAccess->setEnabled( FALSE );
-	buttonRemoveSlot->setEnabled( FALSE );
+	editSlot->setEnabled( false );
+	comboAccess->setEnabled( false );
+	buttonRemoveSlot->setEnabled( false );
 	return;
     }
 
-    editSlot->setEnabled( TRUE );
-    comboAccess->setEnabled( TRUE );
-    buttonRemoveSlot->setEnabled( TRUE );
-    editSlot->blockSignals( TRUE );
-    comboAccess->blockSignals( TRUE );
+    editSlot->setEnabled( true );
+    comboAccess->setEnabled( true );
+    buttonRemoveSlot->setEnabled( true );
+    editSlot->blockSignals( true );
+    comboAccess->blockSignals( true );
     editSlot->setText( i->text( 0 ) );
     if ( i->text( 1 ) == tr( "protected" ) )
 	comboAccess->setCurrentItem( 1 );
     else
 	comboAccess->setCurrentItem( 0 );
-    editSlot->blockSignals( FALSE );
-    comboAccess->blockSignals( FALSE );
+    editSlot->blockSignals( false );
+    comboAccess->blockSignals( false );
 }
 
 void CustomWidgetEditor::propertyTypeChanged( const QString &s )
@@ -588,7 +588,7 @@ void CustomWidgetEditor::addProperty()
 {
     QListViewItem *i = new QListViewItem( listProperties, "property", "String" );
     listProperties->setCurrentItem( i );
-    listProperties->setSelected( i, TRUE );
+    listProperties->setSelected( i, true );
     MetaDataBase::CustomWidget *w = findWidget( boxWidgets->item( boxWidgets->currentItem() ) );
     if ( w ) {
 	MetaDataBase::Property prop;
@@ -608,7 +608,7 @@ void CustomWidgetEditor::removeProperty()
     }
     delete listProperties->currentItem();
     if ( listProperties->currentItem() )
-	listProperties->setSelected( listProperties->currentItem(), TRUE );
+	listProperties->setSelected( listProperties->currentItem(), true );
     MetaDataBase::CustomWidget *w = findWidget( boxWidgets->item( boxWidgets->currentItem() ) );
     if ( w && property.property != "1 2 3" )
 	w->lstProperties.remove( property );
@@ -616,22 +616,22 @@ void CustomWidgetEditor::removeProperty()
 
 void CustomWidgetEditor::currentPropertyChanged( QListViewItem *i )
 {
-    editProperty->blockSignals( TRUE );
+    editProperty->blockSignals( true );
     editProperty->setText( "" );
-    editSignal->blockSignals( FALSE );
+    editSignal->blockSignals( false );
 
     if ( !i ) {
-	editProperty->setEnabled( FALSE );
-	comboType->setEnabled( FALSE );
-	buttonRemoveProperty->setEnabled( FALSE );
+	editProperty->setEnabled( false );
+	comboType->setEnabled( false );
+	buttonRemoveProperty->setEnabled( false );
 	return;
     }
 
-    editProperty->setEnabled( TRUE );
-    comboType->setEnabled( TRUE );
-    buttonRemoveProperty->setEnabled( TRUE );
-    editProperty->blockSignals( TRUE );
-    comboType->blockSignals( TRUE );
+    editProperty->setEnabled( true );
+    comboType->setEnabled( true );
+    buttonRemoveProperty->setEnabled( true );
+    editProperty->blockSignals( true );
+    comboType->blockSignals( true );
     editProperty->setText( i->text( 0 ) );
 
     for ( int j = 0; j < comboType->count(); ++j ) {
@@ -640,8 +640,8 @@ void CustomWidgetEditor::currentPropertyChanged( QListViewItem *i )
 	    break;
 	}
     }
-    editProperty->blockSignals( FALSE );
-    comboType->blockSignals( FALSE );
+    editProperty->blockSignals( false );
+    comboType->blockSignals( false );
 }
 
 static QString makeIndent2( int indent )

@@ -103,8 +103,8 @@ static QStringList *availableWidgetList = 0;
 
 QMap<QWidget*, QString> *qwf_forms = 0;
 QString *qwf_language = 0;
-bool qwf_execute_code = TRUE;
-bool qwf_stays_on_top = FALSE;
+bool qwf_execute_code = true;
+bool qwf_stays_on_top = false;
 QString qwf_currFileName = "";
 QObject *qwf_form_object = 0;
 QString *qwf_plugin_dir = 0;
@@ -146,7 +146,7 @@ static void setupWidgetListAndMap()
 
     availableWidgetMap = new QMap<QString, bool>;
     for ( it = availableWidgetList->begin(); it != availableWidgetList->end(); ++it )
-	availableWidgetMap->insert( *it, TRUE );
+	availableWidgetMap->insert( *it, true );
 }
 
 static QImage loadImageData( const QString& format, ulong len, QByteArray data )
@@ -231,10 +231,10 @@ static QSizePolicy::SizeType stringToSizeType( const QString& str )
 
 QWidgetFactory::QWidgetFactory()
     : d( new QWidgetFactoryPrivate() ), dbControls( 0 ),
-      usePixmapCollection( FALSE ), defMargin( 11 ), defSpacing( 6 )
+      usePixmapCollection( false ), defMargin( 11 ), defSpacing( 6 )
 {
     // disable autodeletion for now
-    //    widgetFactories.setAutoDelete( TRUE );
+    //    widgetFactories.setAutoDelete( true );
 }
 
 /*! \fn QWidgetFactory::~QWidgetFactory()
@@ -274,9 +274,9 @@ QWidget *QWidgetFactory::create( const QString &uiFile, QObject *connector,
 {
     setupPluginDir();
     QFile f( uiFile );
-    bool failed = FALSE;
+    bool failed = false;
     if ( !f.open( IO_ReadOnly ) )
-	failed = TRUE;
+	failed = true;
     if ( failed && qApp->type() == QApplication::Tty ) {
 	// for QSA: If we have no GUI, we have no form definition
 	// files, but just the code. So try if only the code exists.
@@ -371,10 +371,10 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 		c = new QSqlCursor( (*it)[ 1 ] );
 	    } else {
 		db = QSqlDatabase::database( conn );
-		c = new QSqlCursor( (*it)[ 1 ], TRUE, db );
+		c = new QSqlCursor( (*it)[ 1 ], true, db );
 	    }
 	    if ( db ) {
-		table->setSqlCursor( c, fieldMap.isEmpty(), TRUE );
+		table->setSqlCursor( c, fieldMap.isEmpty(), true );
 		table->refresh( QDataTable::RefreshAll );
 	    }
 	}
@@ -447,7 +447,7 @@ QWidget *QWidgetFactory::createFromUiFile( QDomDocument doc, QObject *connector,
 	} else if ( e.tagName() == "widget" ) {
 	    widget = e;
 	} else if ( e.tagName() == "pixmapinproject" ) {
-	    usePixmapCollection = TRUE;
+	    usePixmapCollection = true;
 	} else if ( e.tagName() == "layoutdefaults" ) {
 	    defSpacing = e.attribute( "spacing", QString::number( defSpacing ) ).toInt();
 	    defMargin = e.attribute( "margin", QString::number( defMargin ) ).toInt();
@@ -650,7 +650,7 @@ void QWidgetFactory::inputSpacer( const UibStrTable& strings, QDataStream& in,
     QVariant value;
     QCString comment;
     QSizePolicy::SizeType sizeType = QSizePolicy::Preferred;
-    bool vertical = FALSE;
+    bool vertical = false;
     int w = 0;
     int h = 0;
     Q_UINT16 column = 0;
@@ -712,8 +712,8 @@ void QWidgetFactory::inputColumnOrRow( const UibStrTable& strings,
     QString text;
     QPixmap pixmap;
     QString field;
-    bool clickable = TRUE;
-    bool resizable = TRUE;
+    bool clickable = true;
+    bool resizable = true;
 
     QCString name;
     QVariant value;
@@ -795,7 +795,7 @@ void QWidgetFactory::inputItem( const UibStrTable& strings, QDataStream& in,
 	switch ( objectTag ) {
 	case Object_Item:
 	    if ( listView != 0 )
-		d->lastItem->setOpen( TRUE );
+		d->lastItem->setOpen( true );
 	    inputItem( strings, in, parent, item );
 	    break;
 	case Object_TextProperty:
@@ -986,7 +986,7 @@ QObject *QWidgetFactory::inputObject( QObject **objects, int& numObjects,
 	    metAttribute = 2;
 	    break;
 	case Object_Column:
-	    inputColumnOrRow( strings, in, obj, FALSE );
+	    inputColumnOrRow( strings, in, obj, false );
 	    break;
 	case Object_Event:
 	    unpackCString( strings, in, name );
@@ -1012,13 +1012,13 @@ QObject *QWidgetFactory::inputObject( QObject **objects, int& numObjects,
 		    font.setPointSize( pointSize );
 		}
 		if ( fontFlags & Font_Bold )
-		    font.setBold( TRUE );
+		    font.setBold( true );
 		if ( fontFlags & Font_Italic )
-		    font.setItalic( TRUE );
+		    font.setItalic( true );
 		if ( fontFlags & Font_Underline )
-		    font.setUnderline( TRUE );
+		    font.setUnderline( true );
 		if ( fontFlags & Font_StrikeOut )
-		    font.setStrikeOut( TRUE );
+		    font.setStrikeOut( true );
 
 		if ( obj != 0 )
 		    setProperty( obj, name, font );
@@ -1081,7 +1081,7 @@ QObject *QWidgetFactory::inputObject( QObject **objects, int& numObjects,
 	    }
 	    break;
 	case Object_Row:
-	    inputColumnOrRow( strings, in, obj, TRUE );
+	    inputColumnOrRow( strings, in, obj, true );
 	    break;
 	case Object_Spacer:
 	    inputSpacer( strings, in, layout );
@@ -1283,7 +1283,7 @@ QWidget *QWidgetFactory::createFromUibFile( QDataStream& in,
 		unpackCString( strings, in, d->translationContext );
 
 		if ( introFlags & Intro_Pixmapinproject )
-		    usePixmapCollection = TRUE;
+		    usePixmapCollection = true;
 		if ( defaultMargin != -32768 )
 		    defMargin = defaultMargin;
 		if ( defaultSpacing != -32768 )
@@ -1439,7 +1439,7 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
     } else if ( className == "QTabWidget" ) {
 	return new QTabWidget( parent, name );
     } else if ( className == "QComboBox" ) {
-	return new QComboBox( FALSE, parent, name );
+	return new QComboBox( false, parent, name );
     } else if ( className == "QWidget" ) {
 	if ( !qwf_stays_on_top )
 	    return new QWidget( parent, name );
@@ -1447,7 +1447,7 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
     } else if ( className == "QDialog" ) {
 	if ( !qwf_stays_on_top )
 	    return new QDialog( parent, name );
-	return new QDialog( parent, name, FALSE, Qt::WStyle_StaysOnTop );
+	return new QDialog( parent, name, false, Qt::WStyle_StaysOnTop );
     } else if ( className == "QWizard" ) {
 	return  new QWizard( parent, name );
     } else if ( className == "QLCDNumber" ) {
@@ -1578,12 +1578,12 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
     if ( colspan < 1 )
 	colspan = 1;
 
-    bool isQLayoutWidget = FALSE;
+    bool isQLayoutWidget = false;
 
     if ( !className.isEmpty() ) {
 	if ( !layout && className  == "QLayoutWidget" ) {
 	    className = "QWidget";
-	    isQLayoutWidget = TRUE;
+	    isQLayoutWidget = true;
 	}
 	if ( layout && className == "QLayoutWidget" ) {
 	    // hide layout widgets
@@ -1619,7 +1619,7 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
     }
 
     QString parentClassName = parent ? parent->className() : 0;
-    bool isPlugin = parent ? (d->customWidgets.contains( parent->className() ) && d->customWidgets.value( parent->className() )): FALSE;
+    bool isPlugin = parent ? (d->customWidgets.contains( parent->className() ) && d->customWidgets.value( parent->className() )): false;
     if ( isPlugin )
 	qWarning( "####### loading custom container widgets without page support not implemented!" );
     // ### TODO loading for custom container widgets without pages
@@ -2048,7 +2048,7 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 		    } else {
 			if ( name == "this" )
 			    name = toplevel->name();
-			QObjectList l = toplevel->queryList( 0, name, FALSE );
+			QObjectList l = toplevel->queryList( 0, name, false );
 			if ( !l.isEmpty() )
 			    conn.sender = l.at(0);
 		    }
@@ -2061,7 +2061,7 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 		    if ( name == "this" || qstrcmp( toplevel->name(), name ) == 0 ) {
 			conn.receiver = toplevel;
 		    } else {
-			QObjectList l = toplevel->queryList( 0, name, FALSE );
+			QObjectList l = toplevel->queryList( 0, name, false );
 			if ( !l.isEmpty() )
 			    conn.receiver = l.at(0);
 		    }
@@ -2083,7 +2083,7 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 	    if ( qstrcmp( conn.sender->name(), toplevel->name() ) == 0 ) {
 		sender = toplevel;
 	    } else {
-		QObjectList l = toplevel->queryList( 0, conn.sender->name(), FALSE );
+		QObjectList l = toplevel->queryList( 0, conn.sender->name(), false );
 		if ( l.isEmpty() ) {
 		    n = n.nextSibling().toElement();
 		    continue;
@@ -2096,7 +2096,7 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 	    if ( qstrcmp( conn.receiver->name(), toplevel->name() ) == 0 ) {
 		receiver = toplevel;
 	    } else {
-		QObjectList l = toplevel->queryList( 0, conn.receiver->name(), FALSE );
+		QObjectList l = toplevel->queryList( 0, conn.receiver->name(), false );
 		if ( l.isEmpty() ) {
 		    n = n.nextSibling().toElement();
 		    continue;
@@ -2135,7 +2135,7 @@ void QWidgetFactory::loadTabOrder( const QDomElement &e )
     while ( !n.isNull() ) {
 	if ( n.tagName() == "tabstop" ) {
 	    QString name = n.firstChild().toText().data();
-	    QObjectList l = toplevel->queryList( 0, name, FALSE );
+	    QObjectList l = toplevel->queryList( 0, name, false );
 	    if ( !l.isEmpty() ) {
 		QWidget *w = (QWidget*)l.at(0);
 		if ( last )
@@ -2221,7 +2221,7 @@ void QWidgetFactory::createColumn( const QDomElement &e, QWidget *widget )
 	QDomElement n = e.firstChild().toElement();
 	QPixmap pix;
 	QString txt;
-	bool clickable = TRUE, resizable = TRUE;
+	bool clickable = true, resizable = true;
 	while ( !n.isNull() ) {
 	    if ( n.tagName() == "property" ) {
 		QString attrib = n.attribute( "name" );
@@ -2270,7 +2270,7 @@ void QWidgetFactory::createColumn( const QDomElement &e, QWidget *widget )
 void QWidgetFactory::loadItem( const QDomElement &e, QPixmap &pix, QString &txt, bool &hasPixmap )
 {
     QDomElement n = e;
-    hasPixmap = FALSE;
+    hasPixmap = false;
     while ( !n.isNull() ) {
 	if ( n.tagName() == "property" ) {
 	    QString attrib = n.attribute( "name" );
@@ -2291,7 +2291,7 @@ void QWidgetFactory::createItem( const QDomElement &e, QWidget *widget, QListVie
     if ( widget->inherits( "QListBox" ) || widget->inherits( "QComboBox" ) ) {
 	QDomElement n = e.firstChild().toElement();
 	QPixmap pix;
-	bool hasPixmap = FALSE;
+	bool hasPixmap = false;
 	QString txt;
 	loadItem( n, pix, txt, hasPixmap );
 	QListBox *lb = 0;
@@ -2308,7 +2308,7 @@ void QWidgetFactory::createItem( const QDomElement &e, QWidget *widget, QListVie
     } else if ( widget->inherits( "QIconView" ) ) {
 	QDomElement n = e.firstChild().toElement();
 	QPixmap pix;
-	bool hasPixmap = FALSE;
+	bool hasPixmap = false;
 	QString txt;
 	loadItem( n, pix, txt, hasPixmap );
 
@@ -2342,7 +2342,7 @@ void QWidgetFactory::createItem( const QDomElement &e, QWidget *widget, QListVie
 		    }
 		}
 	    } else if ( n.tagName() == "item" ) {
-		item->setOpen( TRUE );
+		item->setOpen( true );
 		createItem( n, widget, item );
 	    }
 
@@ -2363,7 +2363,7 @@ void QWidgetFactory::loadChildAction( QObject *parent, const QDomElement &e )
 {
     QDomElement n = e;
     QAction *a = 0;
-    bool hasMenuText = FALSE;
+    bool hasMenuText = false;
     if ( n.tagName() == "action" ) {
 	a = new QAction( parent );
 	QDomElement n2 = n.firstChild().toElement();
@@ -2372,7 +2372,7 @@ void QWidgetFactory::loadChildAction( QObject *parent, const QDomElement &e )
 	    if ( n2.tagName() == "property" ) {
 		QString prop(n2.attribute("name"));
 		if (prop == "menuText")
-		    hasMenuText = TRUE;
+		    hasMenuText = true;
 		setProperty( a, prop, n2.firstChild().toElement() );
 	    }
 	    n2 = n2.nextSibling().toElement();
@@ -2386,7 +2386,7 @@ void QWidgetFactory::loadChildAction( QObject *parent, const QDomElement &e )
 	    if ( n2.tagName() == "property" ) {
 		QString prop(n2.attribute("name"));
 		if (prop == "menuText")
-		    hasMenuText = TRUE;
+		    hasMenuText = true;
 		setProperty( a, prop, n2.firstChild().toElement() );
 	    } else if ( n2.tagName() == "action" ||
 			n2.tagName() == "actiongroup" ) {

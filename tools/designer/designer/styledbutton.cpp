@@ -27,10 +27,10 @@
 #include <qevent.h>
 
 StyledButton::StyledButton(QWidget* parent, const char* name)
-    : QButton( parent, name ), pix( 0 ), spix( 0 ), s( 0 ), formWindow( 0 ), mousePressed( FALSE )
+    : QButton( parent, name ), pix( 0 ), spix( 0 ), s( 0 ), formWindow( 0 ), mousePressed( false )
 {
     setMinimumSize( minimumSizeHint() );
-    setAcceptDrops( TRUE );
+    setAcceptDrops( true );
 
     connect( this, SIGNAL(clicked()), SLOT(onEditor()));
 
@@ -197,7 +197,7 @@ void StyledButton::onEditor()
 void StyledButton::mousePressEvent(QMouseEvent* e)
 {
     QButton::mousePressEvent(e);
-    mousePressed = TRUE;
+    mousePressed = true;
     pressPos = e->pos();
 }
 
@@ -216,7 +216,7 @@ void StyledButton::mouseMoveEvent(QMouseEvent* e)
 	    p.drawRect( 0, 0, pix.width(), pix.height() );
 	    p.end();
 	    drg->setPixmap( pix );
-	    mousePressed = FALSE;
+	    mousePressed = false;
 	    drg->dragCopy();
 	}
 	else if ( edit == PixmapEditor && pix && !pix->isNull() ) {
@@ -224,7 +224,7 @@ void StyledButton::mouseMoveEvent(QMouseEvent* e)
 	    QImageDrag *drg = new QImageDrag( img, this );
 	    if(spix)
 		drg->setPixmap( *spix );
-	    mousePressed = FALSE;
+	    mousePressed = false;
 	    drg->dragCopy();
 	}
     }

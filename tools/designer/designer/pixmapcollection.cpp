@@ -41,14 +41,14 @@ bool PixmapCollection::addPixmap( const Pixmap &pix, bool force )
     if ( !force ) {
 	for ( QList<Pixmap>::Iterator it = pixList.begin(); it != pixList.end(); ++it ) {
 	    if ( (*it).name == pixmap.name )
-		return FALSE;
+		return false;
 	}
     }
 
     pixList.append( pixmap );
     mimeSourceFactory->setPixmap( pixmap.name, pixmap.pix );
-    project->setModified( TRUE );
-    return TRUE;
+    project->setModified( true );
+    return true;
 }
 
 void PixmapCollection::removePixmap( const QString &name )
@@ -59,7 +59,7 @@ void PixmapCollection::removePixmap( const QString &name )
 	    break;
 	}
     }
-    project->setModified( TRUE );
+    project->setModified( true );
 }
 
 QList<PixmapCollection::Pixmap> PixmapCollection::pixmaps() const
@@ -70,18 +70,18 @@ QList<PixmapCollection::Pixmap> PixmapCollection::pixmaps() const
 QString PixmapCollection::unifyName( const QString &n )
 {
     QString name = n;
-    bool restart = FALSE;
+    bool restart = false;
     int added = 1;
 
     for ( QList<Pixmap>::Iterator it = pixList.begin(); it != pixList.end(); ++it ) {
 	if ( restart )
 	    it = pixList.begin();
-	restart = FALSE;
+	restart = false;
 	if ( name == (*it).name ) {
 	    name = n;
 	    name += "_" + QString::number( added );
 	    ++added;
-	    restart = TRUE;
+	    restart = true;
 	}
     }
 
@@ -125,13 +125,13 @@ void PixmapCollection::savePixmap( Pixmap &pix )
 
 QString PixmapCollection::imageDir() const
 {
-    return QFileInfo( project->fileName() ).dirPath( TRUE ) + "/images";
+    return QFileInfo( project->fileName() ).dirPath( true ) + "/images";
 }
 
 void PixmapCollection::mkdir()
 {
     QString f = project->fileName();
-    QDir d( QFileInfo( f ).dirPath( TRUE ) );
+    QDir d( QFileInfo( f ).dirPath( true ) );
     d.mkdir( "images" );
 }
 
@@ -143,7 +143,7 @@ void PixmapCollection::load( const QString& filename )
     if ( filename[0] == '/' )
 	absfile = filename;
     else
-	absfile = QFileInfo( project->fileName() ).dirPath( TRUE ) + "/" + filename;
+	absfile = QFileInfo( project->fileName() ).dirPath( true ) + "/" + filename;
 
     QPixmap pm( absfile );
     if ( pm.isNull() )
@@ -153,7 +153,7 @@ void PixmapCollection::load( const QString& filename )
     pix.name = QFileInfo( absfile ).fileName();
     pix.absname = absfile;
     pix.pix = pm;
-    addPixmap( pix, TRUE );
+    addPixmap( pix, true );
 }
 
 DesignerPixmapCollection *PixmapCollection::iFace()

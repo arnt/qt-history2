@@ -15,7 +15,7 @@
 
 void AddressBook::fileNew()
 {
-    AddressDetails dia( this, 0, TRUE );
+    AddressDetails dia( this, 0, true );
     connect( &dia, SIGNAL( newAddress( const QString &,
 				       const QString &,
 				       const QString &,
@@ -117,7 +117,7 @@ void AddressBook::fileExit()
 
 void AddressBook::editFind()
 {
-    SearchDialog dia( this, 0, TRUE );
+    SearchDialog dia( this, 0, true );
     connect( &dia, SIGNAL( searchAddress( const QString & ) ),
 	     this, SLOT( searchAddress( const QString & ) ) );
     dia.exec();
@@ -130,7 +130,7 @@ void AddressBook::searchAddress( const QString &expr )
     while ( it.current() ) {
 	for ( int i = 0; i < 7; ++i ) {
 	    if ( it.current()->text( i ).find( expr ) != -1 )
-		addressView->setSelected( it.current(), TRUE );
+		addressView->setSelected( it.current(), true );
 	}
 	++it;
     }  

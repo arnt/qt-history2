@@ -10,8 +10,9 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#include <qsqldatabase.h>
+
 #include "connection.h"
+#include <qsqldatabase.h>
 
 bool createConnections()
 {
@@ -25,7 +26,7 @@ bool createConnections()
 	qWarning( "Failed to open books database: " + 
 		  defaultDB->lastError().driverText() );
 	qWarning( defaultDB->lastError().databaseText() );
-	return FALSE;
+	return false;
     }
 
     QSqlQuery q(QString::null, defaultDB);
@@ -50,7 +51,5 @@ bool createConnections()
     q.exec("INSERT INTO sequence VALUES ( 'author', 2 )");
     q.exec("INSERT INTO sequence VALUES ( 'book', 5 )");
 
-    return TRUE;
+    return true;
 }
-
-

@@ -1,4 +1,6 @@
 #include "p4.h"
+#include "diffdialog.h"
+#include "submitdialog.h"
 #include <qprocess.h>
 #include <qmessagebox.h>
 #include <qtextview.h>
@@ -7,8 +9,6 @@
 #include <qmultilineedit.h>
 #include <qapplication.h>
 #include <qregexp.h>
-#include "diffdialog.h"
-#include "submitdialog.h"
 
 QDict<P4Info> *P4Info::_files = 0;
 QString P4Info::userName = "";
@@ -18,7 +18,7 @@ QDict<P4Info> *P4Info::files()
 {
     if ( !P4Info::_files ) {
 	P4Info::_files = new QDict<P4Info>(53);
-//	_files->setAutoDelete( TRUE );
+//	_files->setAutoDelete( true );
     }
 
     return P4Info::_files;
@@ -94,9 +94,9 @@ void P4Init::processExited()
     emit showStatusBarMessage( data() );
 
     QStringList entries = QStringList::split( '\n', data() );
-    QStringList userEntry = entries.grep( "user name:", FALSE );
+    QStringList userEntry = entries.grep( "user name:", false );
     P4Info::userName = QString( QStringList::split( ' ', userEntry[0] )[2] );
-    QStringList clientEntry = entries.grep( "client name:", FALSE );
+    QStringList clientEntry = entries.grep( "client name:", false );
     P4Info::clientName = QString( QStringList::split( ' ', clientEntry[0] )[2] );
 
     delete this;
@@ -121,7 +121,7 @@ bool P4FStat::execute()
 
 void P4FStat::processExited()
 {
-    bool wasIgnore = FALSE;
+    bool wasIgnore = false;
     P4Info *old = P4Info::files()->find( fileName() );
     if ( old ) {
 	wasIgnore = old->ignoreEdit;
@@ -132,7 +132,7 @@ void P4FStat::processExited()
     P4Info* p4i = new P4Info;
     QStringList entries = QStringList::split( '\n', data() );
 
-    p4i->controlled = FALSE;
+    p4i->controlled = false;
     p4i->action = P4Info::None;
     p4i->ignoreEdit = wasIgnore;
 
@@ -144,14 +144,14 @@ void P4FStat::processExited()
 	    if ( headActionEntry.count() ) {
 		QString headAction = QStringList::split( ' ', headActionEntry[0] )[2];
 		if ( headAction.stripWhiteSpace() != "delete" ) {			    // Maybe it's already deleted
-		    p4i->controlled = TRUE;
+		    p4i->controlled = true;
 		    p4i->action = P4Info::None;
 		    p4i->depotFile = QStringList::split( ' ', dfEntry[0] )[2];
 		    p4i->depotFile = p4i->depotFile.stripWhiteSpace();
 		    QStringList actionEntry = entries.grep( "... action" );
 		    if ( actionEntry.count() ) {
 			QString act = QStringList::split( ' ', actionEntry[0] )[2];	    // Get current action
-			act.contains( "edit", FALSE );
+			act.contains( "edit", false );
 			if ( act.stripWhiteSpace() == "edit" )
 			    p4i->action = P4Info::Edit;
 			else if ( act.stripWhiteSpace() == "add" )
@@ -178,10 +178,10 @@ void P4FStat::processExited()
 		    QStringList actionEntry = entries.grep( "... action" );
 		    if ( actionEntry.count() ) {
 			QString act = QStringList::split( ' ', actionEntry[0] )[2];	    // Get current action
-			act.contains( "edit", FALSE );
+			act.contains( "edit", false );
 			if ( act.stripWhiteSpace() == "add" ) {
 			    p4i->action = P4Info::Add;
-			    p4i->controlled = TRUE;
+			    p4i->controlled = true;
 			    p4i->depotFile = QStringList::split( ' ', dfEntry[0] )[2];
 			    p4i->depotFile = p4i->depotFile.stripWhiteSpace();
 			}
@@ -235,7 +235,7 @@ bool P4Edit::execute()
     }  else {
 	fStatResults( fileName(), p4i );
     }
-    return TRUE;
+    return true;
 }
 
 void P4Edit::processExited()
@@ -280,7 +280,7 @@ void P4Edit::fSyncResults( const QString &filename, P4Info *p4i )
 							       "Do you want to open it for edit?" ).
 				       arg( fileName() ),
 				       tr( "&Yes" ), tr( "&No" ) ) == 1 ) {
-	    p4i->ignoreEdit = TRUE;
+	    p4i->ignoreEdit = true;
 	    return;
 	}
     }
@@ -300,7 +300,7 @@ P4Submit::P4Submit( const QString &filename )
 
 bool P4Submit::execute()
 {
-    SubmitDialog dialog( qApp->mainWidget(), 0, TRUE );
+    SubmitDialog dialog( qApp->mainWidget(), 0, true );
 
     QDictIterator<P4Info> it( *P4Info::files() );
     while ( it.current() ) {
@@ -339,7 +339,7 @@ bool P4Submit::execute()
     dialog.description->setText( "<enter description here>" );
 
     if ( dialog.exec() != QDialog::Accepted )
-	return FALSE;
+	return false;
 
     QString description = dialog.description->text().replace( "\n", "\n\t" );
 
@@ -351,7 +351,7 @@ bool P4Submit::execute()
     buffer += description + "\n\n";
     buffer += "Files:\n";
 
-    bool haveFile = FALSE;
+    bool haveFile = false;
     QListViewItemIterator lvit( dialog.fileList );
     P4Info *last = 0;
     while ( lvit.current() ) {
@@ -366,11 +366,11 @@ bool P4Submit::execute()
 	    buffer += "\t" + p4i->depotFile + "\n";
 	if ( p4i )
 	    last = p4i;
-	haveFile = TRUE;
+	haveFile = true;
     }
 
     if ( !haveFile )
-	return FALSE;
+	return false;
     QStringList list;
     list << "p4";
     list << "submit";
@@ -397,7 +397,7 @@ bool P4Revert::execute()
 						"<p>Proceed with revert?</p>" ).
 						arg( fileName() ),
 						tr( "&Yes" ), tr( "&No" ) ) == 1 )
-	    return FALSE;
+	    return false;
     }
 
     QStringList list;
@@ -450,7 +450,7 @@ bool P4Delete::execute()
 						"<p>Proceed with delete?</p>" ).
 						arg( fileName() ).arg( p4i->depotFile ),
 						tr( "&Yes" ), tr( "&No" ) ) == 1 )
-	return FALSE;
+	return false;
     }
 
     QStringList list;
@@ -511,7 +511,7 @@ void P4Diff::processExited()
 	    s += "<br>";
 	    diff += s;
 	}
-	DiffDialog* dialog = new DiffDialog( qApp->mainWidget(), 0, TRUE );
+	DiffDialog* dialog = new DiffDialog( qApp->mainWidget(), 0, true );
 	dialog->setCaption( caption );
 	dialog->view->setText( diff );
 	dialog->exec();

@@ -711,9 +711,9 @@ We have two recommendations that you should consider when creating a
 \printuntil }
 
 	    Copy this function changing the class name to suit your
-	    widget interface implementation. It should return \c {TRUE}
+	    widget interface implementation. It should return \c {true}
 	    if your custom widget can contain other widgets, e.g. like
-	    \l QFrame, or \c {FALSE} if it must not contain other
+	    \l QFrame, or \c {false} if it must not contain other
 	    widgets, e.g. like \l QPushButton.
 
 	\section3 The Project File

@@ -22,7 +22,7 @@
 class ListBoxItemDrag : public QStoredDrag
 {
 public:
-    ListBoxItemDrag( ListBoxItemList & items, bool sendPtr = FALSE, QListBox * parent = 0, const char * name = 0 );
+    ListBoxItemDrag( ListBoxItemList & items, bool sendPtr = false, QListBox * parent = 0, const char * name = 0 );
     ~ListBoxItemDrag() {};
     static bool canDecode( QDragMoveEvent * event );
     static bool decode( QDropEvent * event, QListBox * parent, QListBoxItem * insertPoint );
@@ -35,7 +35,7 @@ ListBoxDnd::ListBoxDnd( QListBox * eventSource, const char * name )
 
 void ListBoxDnd::confirmDrop( QListBoxItem * )
 {
-    dropConfirmed = TRUE;
+    dropConfirmed = true;
 }
 
 bool ListBoxDnd::dropEvent( QDropEvent * event )
@@ -45,7 +45,7 @@ bool ListBoxDnd::dropEvent( QDropEvent * event )
 	if ( dMode & NullDrop ) { // combined with Move, a NullDrop will delete an item
 	    event->accept();
 	    emit dropped( 0 ); // a NullDrop
-	    return TRUE;
+	    return true;
 	}
 
 	QPoint pos = event->pos();
@@ -61,9 +61,9 @@ bool ListBoxDnd::dropEvent( QDropEvent * event )
     }
 
     line->hide();
-    dragInside = FALSE;
+    dragInside = false;
 
-    return TRUE;
+    return true;
 }
 
 bool ListBoxDnd::mouseMoveEvent( QMouseEvent * event )
@@ -87,15 +87,15 @@ bool ListBoxDnd::mouseMoveEvent( QMouseEvent * event )
 	    if ( dMode & Move ) {
 		if ( dropConfirmed ) {
 		    // ###FIX: memleak ? in internal mode, only pointers are transfered...
-		    //list.setAutoDelete( TRUE );
+		    //list.setAutoDelete( true );
 		    list.clear();
-		    dropConfirmed = FALSE;
+		    dropConfirmed = false;
 		}
 		insertList( list ); // "show" items
 	    }
 	}
     }
-    return FALSE;
+    return false;
 }
 
 int ListBoxDnd::buildList( ListBoxItemList & list )
@@ -103,7 +103,7 @@ int ListBoxDnd::buildList( ListBoxItemList & list )
     QListBoxItem * i = ((QListBox *)src)->firstItem();
     while ( i ) {
 	if ( i->isSelected() ) {
-	    ((QListBox *)src)->setSelected( i, FALSE );
+	    ((QListBox *)src)->setSelected( i, false );
 	    list.append( i );
 	}
 	i = i->next();
@@ -265,7 +265,7 @@ bool ListBoxItemDrag::decode( QDropEvent * event, QListBox * parent, QListBoxIte
 
 	}
 
-	return TRUE;
+	return true;
     }
-    return FALSE;
+    return false;
 }

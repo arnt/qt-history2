@@ -22,15 +22,15 @@ class WidgetAction : public QAction
 
 public:
     WidgetAction( const QString &grp, QObject* parent,
-		  const char* name = 0, bool toggle = FALSE  )
+		  const char* name = 0, bool toggle = false  )
 	: QAction( parent, name, toggle ) { init( grp ); }
     WidgetAction( const QString &grp, const QString& text,
 		  const QIconSet& icon, const QString& menuText, QKeySequence accel,
-		  QObject* parent, const char* name = 0, bool toggle = FALSE )
+		  QObject* parent, const char* name = 0, bool toggle = false )
 	: QAction( text, icon, menuText, accel, parent, name, toggle ) { init( grp ); }
     WidgetAction( const QString &grp, const QString& text,
 		  const QString& menuText, QKeySequence accel, QObject* parent,
-		  const char* name = 0, bool toggle = FALSE )
+		  const char* name = 0, bool toggle = false )
 	: QAction( text, menuText, accel, parent, name, toggle ) { init( grp ); }
     ~WidgetAction();
 

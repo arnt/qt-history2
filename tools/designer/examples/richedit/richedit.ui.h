@@ -52,7 +52,7 @@ void EditorForm::fileSave()
 	if ( f.open( IO_WriteOnly ) ) {
 	    QTextStream ts( &f );
 	    ts << textEdit->text();
-	    textEdit->setModified( FALSE );
+	    textEdit->setModified( false );
 	}
     }
 }
@@ -117,4 +117,3 @@ int EditorForm::saveAndContinue(const QString & action)
     
     return continueAction;
 }
-

@@ -13,9 +13,9 @@
 
 #include "editor.h"
 #include "parenmatcher.h"
+#include "conf.h"
 #include <qfile.h>
 #include <qtextedit.h>
-#include "conf.h"
 #include <private/qrichtext_p.h>
 #include <qapplication.h>
 #include <qpopupmenu.h>
@@ -24,14 +24,14 @@
 #include <qevent.h>
 
 Editor::Editor( const QString &fn, QWidget *parent, const char *name )
-    : QTextEdit( parent, name ), hasError( FALSE )
+    : QTextEdit( parent, name ), hasError( false )
 {
     document()->setFormatter( new Q3TextFormatterBreakInWords );
     if ( !fn.isEmpty() )
 	load( fn );
     setHScrollBarMode( QScrollView::AlwaysOff );
     setVScrollBarMode( QScrollView::AlwaysOn );
-    document()->setUseFormatCollection( FALSE );
+    document()->setUseFormatCollection( false );
     parenMatcher = new ParenMatcher;
     connect( this, SIGNAL( cursorPositionChanged( Q3TextCursor * ) ),
 	     this, SLOT( cursorPosChanged( Q3TextCursor * ) ) );
@@ -40,14 +40,14 @@ Editor::Editor( const QString &fn, QWidget *parent, const char *name )
     document()->addSelection( Step );
     document()->setSelectionColor( Error, red );
     document()->setSelectionColor( Step, yellow );
-    document()->setInvertSelectionText( Error, FALSE );
-    document()->setInvertSelectionText( Step, FALSE );
+    document()->setInvertSelectionText( Error, false );
+    document()->setInvertSelectionText( Step, false );
     document()->addSelection( ParenMatcher::Match );
     document()->addSelection( ParenMatcher::Mismatch );
     document()->setSelectionColor( ParenMatcher::Match, QColor( 204, 232, 195 ) );
     document()->setSelectionColor( ParenMatcher::Mismatch, Qt::magenta );
-    document()->setInvertSelectionText( ParenMatcher::Match, FALSE );
-    document()->setInvertSelectionText( ParenMatcher::Mismatch, FALSE );
+    document()->setInvertSelectionText( ParenMatcher::Match, false );
+    document()->setInvertSelectionText( ParenMatcher::Mismatch, false );
 
     accelComment = new QAccel( this );
     accelComment->connectItem( accelComment->insertItem( ALT + Key_C ),
@@ -55,7 +55,7 @@ Editor::Editor( const QString &fn, QWidget *parent, const char *name )
     accelUncomment = new QAccel( this );
     accelUncomment->connectItem( accelUncomment->insertItem( ALT + Key_U ),
 				 this, SLOT( uncommentSelection() ) );
-    editable = TRUE;
+    editable = true;
 }
 
 Editor::~Editor()
@@ -70,7 +70,7 @@ void Editor::cursorPosChanged( Q3TextCursor *c )
 	repaintChanged();
     if ( hasError ) {
 	emit clearErrorMarker();
-	hasError = FALSE;
+	hasError = false;
     }
 }
 
@@ -96,7 +96,7 @@ void Editor::save( const QString &fn )
 void Editor::configChanged()
 {
     document()->invalidate();
-    viewport()->repaint( FALSE );
+    viewport()->repaint( false );
 }
 
 void Editor::setErrorSelection( int line )
@@ -111,8 +111,8 @@ void Editor::setErrorSelection( int line )
     document()->setSelectionStart( Error, c );
     c.gotoLineEnd();
     document()->setSelectionEnd( Error, c );
-    hasError = TRUE;
-    viewport()->repaint( FALSE );
+    hasError = true;
+    viewport()->repaint( false );
 }
 
 void Editor::setStepSelection( int line )
@@ -127,13 +127,13 @@ void Editor::setStepSelection( int line )
     document()->setSelectionStart( Step, c );
     c.gotoLineEnd();
     document()->setSelectionEnd( Step, c );
-    viewport()->repaint( FALSE );
+    viewport()->repaint( false );
 }
 
 void Editor::clearStepSelection()
 {
     document()->removeSelection( Step );
-    viewport()->repaint( FALSE );
+    viewport()->repaint( false );
 }
 
 void Editor::doChangeInterval()
@@ -158,7 +158,7 @@ void Editor::commentSelection()
     }
     document()->removeSelection( Q3TextDocument::Standard );
     repaintChanged();
-    setModified( TRUE );
+    setModified( true );
 }
 
 void Editor::uncommentSelection()
@@ -178,7 +178,7 @@ void Editor::uncommentSelection()
     }
     document()->removeSelection( Q3TextDocument::Standard );
     repaintChanged();
-    setModified( TRUE );
+    setModified( true );
 }
 
 QPopupMenu *Editor::createPopupMenu( const QPoint &p )

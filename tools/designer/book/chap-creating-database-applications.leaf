@@ -156,7 +156,7 @@ bool createConnections()
     QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QPSQL7" );
     if ( ! defaultDB ) {
         qWarning( "Failed to connect to driver" );
-        return FALSE;
+        return false;
     }
     defaultDB->setDatabaseName( "book" );
     defaultDB->setUserName( "bookuser" );
@@ -166,10 +166,10 @@ bool createConnections()
         qWarning( "Failed to open books database: " +
                   defaultDB->lastError().driverText() );
         qWarning( defaultDB->lastError().databaseText() );
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 \endcode
 
@@ -177,8 +177,8 @@ bool createConnections()
 	We call \Func addDatabase() passing it the name of the
 	driver we wish to use. We then set the connection information by
 	calling the \c {set}... functions. Finally we attempt to
-	open the connection. If we succeed we return TRUE, otherwise we
-	output some error information and return FALSE.
+	open the connection. If we succeed we return true, otherwise we
+	output some error information and return false.
 From \File {qt/tools/designer/examples/book/book1/main.cpp}
 
 \quotefile book/book1/main.cpp
@@ -534,11 +534,11 @@ The default user-interface behavior for \l {QDataTable}s is as follows:
 		key. The user moves between fields using \Key Tab and
 		\Key Shift+Tab. The \INS will take place if the user
 		presses \Key Enter or \Key {Tab}s
-		off the last field. If autoEdit is TRUE the
+		off the last field. If autoEdit is true the
 		insert will take place if the user navigates to another
 		record. \INS is cancelled by pressing \Key Esc (Escape). If
-		autoEdit is FALSE navigating to another record also
-		cancels the \INS. Setting confirmInsert to TRUE will
+		autoEdit is false navigating to another record also
+		cancels the \INS. Setting confirmInsert to true will
 		require the user to confirm each \INS.
 
 		\i
@@ -546,18 +546,18 @@ The default user-interface behavior for \l {QDataTable}s is as follows:
 		\UPD is initiated by right-clicking the record and clicking
 		Update or by pressing \Key F2. The update will take place if
 		the user presses Enter or Tabs off the last
-		field. If autoEdit is TRUE the update will take place if
+		field. If autoEdit is true the update will take place if
 		the user navigates to another record. \UPD is cancelled
-		by pressing \Key Esc. If autoEdit is FALSE
+		by pressing \Key Esc. If autoEdit is false
 		navigating to another record also cancels the \UPD.
-		Setting confirmUpdate to TRUE will require the user to
+		Setting confirmUpdate to true will require the user to
 		confirm each \UPD.
 
 		\i
 
 		\DEL is achieved by right-clicking the record and
 		clicking Delete or by pressing the \Key Del (Delete) key.
-		Setting confirmDelete to TRUE will require the user to
+		Setting confirmDelete to true will require the user to
 		confirm each \DEL.
 
 	    \endlist
@@ -938,7 +938,7 @@ We will now create a new form to allow users to edit book
 
 		For finer control over the form, we will be creating
 		our own database cursor.  Therefore, set the
-		BookDataBrowser's frameworkCode property to FALSE in
+		BookDataBrowser's frameworkCode property to false in
 		the Properties window to prevent \QD from generating
 		redundant code for the cursor.
 
@@ -1000,32 +1000,32 @@ We will now create a new form to allow users to edit book
 		place and the user will be taken to the record they have
 		just inserted. If the user presses the Insert button
 		(i.e. a second time) the \INS will take place and a new
-		insertion will be initiated. If autoEdit is TRUE the
+		insertion will be initiated. If autoEdit is true the
 		\INS will take place if the user navigates to another
 		record. \INS is cancelled by pressing the
 		\Key Esc
 		key or by pressing the \Key Del (Delete) key. If autoEdit is
-		FALSE then navigating to another record also cancels the
-		\INS. Setting confirmInsert to TRUE will require the
+		false then navigating to another record also cancels the
+		\INS. Setting confirmInsert to true will require the
 		user to confirm each \INS.
 
 		\i
 
 		\UPD is automatically initiated whenever the user
 		navigates to a record. An update will take place if the
-		user presses the Update button. If autoEdit is TRUE the
+		user presses the Update button. If autoEdit is true the
 		update will take place if the user navigates to another
 		record. \UPD is cancelled by pressing the
 		\Key Esc
 		key or by pressing the \Key Del button. If autoEdit is
-		FALSE then navigating to another record also cancels the
-		\UPD. Setting confirmUpdate to TRUE will require the
+		false then navigating to another record also cancels the
+		\UPD. Setting confirmUpdate to true will require the
 		user to confirm each \UPD.
 
 		\i
 
 		\DEL is achieved by pressing the \Key Del key.
-		Setting confirmDelete to TRUE will require the user to
+		Setting confirmDelete to true will require the user to
 		confirm each \DEL.
 
 	    \endlist
@@ -1335,7 +1335,7 @@ Qt's SQL module provides two approaches to dealing with foreign
 \skipto ::mapAuthor
 \printuntil }
 
-	    If the populate flag is TRUE, we store the author's name and
+	    If the populate flag is true, we store the author's name and
 	    id in the \l QMap, otherwise we look up the given
 	    author name and set id appropriately.
 

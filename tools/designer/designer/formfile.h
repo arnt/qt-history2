@@ -14,9 +14,9 @@
 #ifndef FORMFILE_H
 #define FORMFILE_H
 
-#include <qobject.h>
 #include "timestamp.h"
 #include "metadatabase.h"
+#include <qobject.h>
 
 class Project;
 class FormWindow;
@@ -59,8 +59,8 @@ public:
 
     bool loadCode();
     void load();
-    bool save( bool withMsgBox = TRUE, bool ignoreModified = FALSE );
-    bool saveAs( bool ignoreModified = FALSE );
+    bool save( bool withMsgBox = true, bool ignoreModified = false );
+    bool saveAs( bool ignoreModified = false );
     bool close();
     bool closeEvent();
     bool isModified( int who = WAnyOrAll );
@@ -75,7 +75,7 @@ public:
     void functionRetTypeChanged( const QString &fuName, const QString &oldType, const QString &newType );
 
     void showFormWindow();
-    SourceEditor *showEditor( bool askForUih = TRUE );
+    SourceEditor *showEditor( bool askForUih = true );
 
     static QString createUnnamedFileName();
     QString formName() const;
@@ -92,7 +92,7 @@ public:
     bool hasTempFileName() const { return fileNameTemp; }
     void setCodeFileState( UihState );
     int codeFileState() const;
-    bool setupUihFile( bool askForUih = TRUE );
+    bool setupUihFile( bool askForUih = true );
 
     Project *project() const { return pro; }
 

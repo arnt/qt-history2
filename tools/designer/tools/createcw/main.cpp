@@ -89,15 +89,15 @@ static void createDescription( const QValueList<Widget> &l, QTextStream &ts )
 	indent--;
 	ts << makeIndent( indent ) << "</sizepolicy>" << endl;
 	
-	QStrList sigs = w.w->metaObject()->signalNames( TRUE );
+	QStrList sigs = w.w->metaObject()->signalNames( true );
 	if ( !sigs.isEmpty() ) {
 	    for ( int i = 0; i < (int)sigs.count(); ++i )
 		ts << makeIndent( indent ) << "<signal>" << entitize( sigs.at( i ) ) << "</signal>" << endl;
 	}
-	QStrList slts = w.w->metaObject()->slotNames( TRUE );
+	QStrList slts = w.w->metaObject()->slotNames( true );
 	if ( !slts.isEmpty() ) {
 	    for ( int i = 0; i < (int)slts.count(); ++i ) {
-		QMetaData::Access data = w.w->metaObject()->slot( i, TRUE )->access;
+		QMetaData::Access data = w.w->metaObject()->slot( i, true )->access;
 		if ( data == QMetaData::Private )
 		    continue;
 		ts << makeIndent( indent ) << "<slot access=\""
@@ -105,12 +105,12 @@ static void createDescription( const QValueList<Widget> &l, QTextStream &ts )
 		   << "\">" << entitize( slts.at( i ) ) << "</slot>" << endl;
 	    }
 	}	
-	QStrList props = w.w->metaObject()->propertyNames( TRUE );
+	QStrList props = w.w->metaObject()->propertyNames( true );
 	if ( !props.isEmpty() ) {
 	    for ( int i = 0; i < (int)props.count(); ++i ) {
 		const QMetaProperty *p = w.w->metaObject()->
 					 property( w.w->metaObject()->
-						   findProperty( props.at( i ), TRUE ), TRUE );
+						   findProperty( props.at( i ), true ), true );
 		if ( !p )
 		    continue;
 		if ( !p->writable() || !p->designable( w.w ) )

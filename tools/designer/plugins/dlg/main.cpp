@@ -11,10 +11,10 @@
 **
 ****************************************************************************/
 
+#include "dlg2ui.h"
+
 #include <filterinterface.h>
 #include <qapplication.h>
-
-#include "dlg2ui.h"
 
 class DlgFilter : public ImportFilterInterface, public QLibraryInterface
 {
@@ -69,7 +69,7 @@ QStringList DlgFilter::import( const QString &, const QString& filename )
 
 bool DlgFilter::init()
 {
-    return TRUE;
+    return true;
 }
 
 void DlgFilter::cleanup()
@@ -78,7 +78,7 @@ void DlgFilter::cleanup()
 
 bool DlgFilter::canUnload() const
 {
-    return TRUE;
+    return true;
 }
 
 Q_EXPORT_COMPONENT()

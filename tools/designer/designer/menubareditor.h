@@ -75,7 +75,7 @@ public:
 
     FormWindow * formWindow();
 
-    MenuBarEditorItem * createItem( int index = -1, bool addToCmdStack = TRUE );
+    MenuBarEditorItem * createItem( int index = -1, bool addToCmdStack = true );
     void insertItem( MenuBarEditorItem * item, int index = -1 );
     void insertItem( const QString &text, PopupMenuEditor * menu, int index = -1 );
     void insertItem( const QString &text, QActionGroup * group, int index = -1 );

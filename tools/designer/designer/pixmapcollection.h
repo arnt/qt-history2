@@ -36,7 +36,7 @@ public:
     PixmapCollection( Project *pro );
     ~PixmapCollection();
 
-    bool addPixmap( const Pixmap &pix, bool force = TRUE );
+    bool addPixmap( const Pixmap &pix, bool force = true );
     void removePixmap( const QString &name );
     QPixmap pixmap( const QString &name );
 

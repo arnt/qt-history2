@@ -46,7 +46,7 @@ void PixmapView::setPixmap( const QPixmap &pix )
 {
     pixmap = pix;
     resizeContents( pixmap.size().width(), pixmap.size().height() );
-    viewport()->repaint( FALSE );
+    viewport()->repaint( false );
 }
 
 void PixmapView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
@@ -94,9 +94,9 @@ QStringList qChoosePixmaps( QWidget *parent )
     QString all;
     buildImageFormatList( filter, all );
 
-    QFileDialog fd( QString::null, filter, parent, 0, TRUE );
+    QFileDialog fd( QString::null, filter, parent, 0, true );
     fd.setMode( QFileDialog::ExistingFiles );
-    fd.setContentsPreviewEnabled( TRUE );
+    fd.setContentsPreviewEnabled( true );
     PixmapView *pw = new PixmapView( &fd );
     fd.setContentsPreview( pw, pw );
     fd.setViewMode( QFileDialog::List );
@@ -118,8 +118,8 @@ QPixmap qChoosePixmap( QWidget *parent, FormWindow *fw, const QPixmap &old, QStr
 	QString all;
 	buildImageFormatList( filter, all );
 
-	QFileDialog fd( QString::null, filter, parent, 0, TRUE );
-	fd.setContentsPreviewEnabled( TRUE );
+	QFileDialog fd( QString::null, filter, parent, 0, true );
+	fd.setContentsPreviewEnabled( true );
 	PixmapView *pw = new PixmapView( &fd );
 	fd.setContentsPreview( pw, pw );
 	fd.setViewMode( QFileDialog::List );
@@ -133,9 +133,9 @@ QPixmap qChoosePixmap( QWidget *parent, FormWindow *fw, const QPixmap &old, QStr
 	    return pix;
 	}
     } else if ( fw && fw->savePixmapInProject() ) {
-	PixmapCollectionEditor dia( parent, 0, TRUE );
+	PixmapCollectionEditor dia( parent, 0, true );
 	dia.setProject( fw->project() );
-	dia.setChooserMode( TRUE );
+	dia.setChooserMode( true );
 	dia.setCurrentItem( MetaDataBase::pixmapKey( fw, old.serialNumber() ) );
 	if ( dia.exec() == QDialog::Accepted ) {
 	    QPixmap pix( fw->project()->pixmapCollection()->pixmap( dia.viewPixmaps->currentItem()->text() ) );
@@ -143,7 +143,7 @@ QPixmap qChoosePixmap( QWidget *parent, FormWindow *fw, const QPixmap &old, QStr
 	    return pix;
 	}
     } else {
-	PixmapFunction dia( parent, 0, TRUE );
+	PixmapFunction dia( parent, 0, true );
 	QObject::connect( dia.helpButton, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
 	dia.labelFunction->setText( fw->pixmapLoaderFunction() + "(" );
 	dia.editArguments->setText( MetaDataBase::pixmapArgument( fw, old.serialNumber() ) );

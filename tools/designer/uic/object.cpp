@@ -68,7 +68,7 @@ void Uic::createObjectDecl( const QDomElement& e )
   \sa createObjectDecl()
  */
 
-static bool createdCentralWidget = FALSE;
+static bool createdCentralWidget = false;
 
 QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass, const QString& par, const QString& layout )
 {
@@ -76,7 +76,7 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
     if ( parent == "this" && isMainWindow ) {
 	if ( !createdCentralWidget )
 	    out << indent << "setCentralWidget( new QWidget( this, \"qt_central_widget\" ) );" << endl;
-	createdCentralWidget = TRUE;
+	createdCentralWidget = true;
 	parent = "centralWidget()";
     }
     QDomElement n;
@@ -144,7 +144,7 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 
     lastItem = "0";
     // set the properties and insert items
-    bool hadFrameShadow = FALSE;
+    bool hadFrameShadow = false;
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName() == "property" ) {
 	    bool stdset = stdsetdef;
@@ -159,7 +159,7 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 	    if ( prop == "name" )
 		continue;
 	    if ( isLine && prop == "frameShadow" )
-		hadFrameShadow = TRUE;
+		hadFrameShadow = true;
 	    if ( prop == "buddy" && value.startsWith("\"") && value.endsWith("\"") ) {
 		buddies << Buddy( objName, value.mid(1, value.length() - 2 ) );
 		continue;
@@ -605,12 +605,12 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 	    QString palette = "pal";
 	    if ( !pal_used ) {
 		out << indent << "QPalette " << palette << ";" << endl;
-		pal_used = TRUE;
+		pal_used = true;
 	    }
 	    QString cg = "cg";
 	    if ( !cg_used ) {
 		out << indent << "QColorGroup " << cg << ";" << endl;
-		cg_used = TRUE;
+		cg_used = true;
 	    }
 	    n = e.firstChild().toElement();
 	    while ( !n.isNull() && n.tagName() != "active" )

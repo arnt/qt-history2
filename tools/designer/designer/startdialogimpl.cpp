@@ -1,3 +1,20 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+#include "mainwindow.h"
+#include "startdialogimpl.h"
+#include "designerapp.h"
+
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qiconview.h>
@@ -14,10 +31,6 @@
 #include <qapplication.h>
 #include <qcheckbox.h>
 #include <qurl.h>
-
-#include "mainwindow.h"
-#include "startdialogimpl.h"
-#include "designerapp.h"
 
 FileDialog::FileDialog( const QString &dir, QWidget *parent )
     : QFileDialog( dir, QString::null, parent )
@@ -36,7 +49,7 @@ StartDialog::StartDialog( QWidget *parent, const QString &templatePath )
     newForm = new NewForm( templateView, templatePath );
     recentFiles.clear();
     initFileOpen();
-    showInFuture = TRUE;
+    showInFuture = true;
 
     connect( buttonHelp, SIGNAL( clicked() ),
 	     MainWindow::self, SLOT( showDialogHelp() ) );
@@ -113,12 +126,12 @@ void StartDialog::clearFileInfo()
 
 void StartDialog::setRecentlyFiles( QStringList &files )
 {
-    insertRecentItems( files, FALSE );
+    insertRecentItems( files, false );
 }
 
 void StartDialog::setRecentlyProjects( QStringList &projects )
 {
-    insertRecentItems( projects, TRUE );
+    insertRecentItems( projects, true );
 }
 
 void StartDialog::insertRecentItems( QStringList &files, bool isProject )
@@ -133,7 +146,7 @@ void StartDialog::insertRecentItems( QStringList &files, bool isProject )
 	item = new QIconViewItem( recentView, fi.fileName() );
 	recentFiles[recentView->index( item )] = *it;
 	item->setPixmap( QPixmap::fromMimeSource( iconName ) );
-	item->setDragEnabled( FALSE );
+	item->setDragEnabled( false );
     }
 }
 
@@ -149,7 +162,7 @@ void StartDialog::initFileOpen()
     for (int i = 0; i < l.size(); ++i)
 	static_cast<QPushButton *>(l.at(i))->hide();
 
-    fd->setSizeGripEnabled ( FALSE );
+    fd->setSizeGripEnabled ( false );
     tabLayout->addWidget( fd );
 
     QPluginManager<ImportFilterInterface> manager( IID_ImportFilter, QApplication::libraryPaths(),

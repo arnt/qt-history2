@@ -121,37 +121,37 @@ void MainWindow::setupEditActions()
     actionEditUndo->setStatusTip( tr( "Undoes the last action" ) );
     actionEditUndo->setWhatsThis( whatsThisFrom( "Edit|Undo" ) );
     connect( actionEditUndo, SIGNAL( activated() ), this, SLOT( editUndo() ) );
-    actionEditUndo->setEnabled( FALSE );
+    actionEditUndo->setEnabled( false );
 
     actionEditRedo = new QAction( tr( "Redo" ), createIconSet("designer_redo.png"), tr( "&Redo: Not Available" ), CTRL + Key_Y, this, 0 );
     actionEditRedo->setStatusTip( tr( "Redoes the last undone operation") );
     actionEditRedo->setWhatsThis( whatsThisFrom( "Edit|Redo" ) );
     connect( actionEditRedo, SIGNAL( activated() ), this, SLOT( editRedo() ) );
-    actionEditRedo->setEnabled( FALSE );
+    actionEditRedo->setEnabled( false );
 
     actionEditCut = new QAction( tr( "Cut" ), createIconSet("designer_editcut.png"), tr( "Cu&t" ), CTRL + Key_X, this, 0 );
     actionEditCut->setStatusTip( tr( "Cuts the selected widgets and puts them on the clipboard" ) );
     actionEditCut->setWhatsThis(  whatsThisFrom( "Edit|Cut" ) );
     connect( actionEditCut, SIGNAL( activated() ), this, SLOT( editCut() ) );
-    actionEditCut->setEnabled( FALSE );
+    actionEditCut->setEnabled( false );
 
     actionEditCopy = new QAction( tr( "Copy" ), createIconSet("designer_editcopy.png"), tr( "&Copy" ), CTRL + Key_C, this, 0 );
     actionEditCopy->setStatusTip( tr( "Copies the selected widgets to the clipboard" ) );
     actionEditCopy->setWhatsThis(  whatsThisFrom( "Edit|Copy" ) );
     connect( actionEditCopy, SIGNAL( activated() ), this, SLOT( editCopy() ) );
-    actionEditCopy->setEnabled( FALSE );
+    actionEditCopy->setEnabled( false );
 
     actionEditPaste = new QAction( tr( "Paste" ), createIconSet("designer_editpaste.png"), tr( "&Paste" ), CTRL + Key_V, this, 0 );
     actionEditPaste->setStatusTip( tr( "Pastes the clipboard's contents" ) );
     actionEditPaste->setWhatsThis( whatsThisFrom( "Edit|Paste" ) );
     connect( actionEditPaste, SIGNAL( activated() ), this, SLOT( editPaste() ) );
-    actionEditPaste->setEnabled( FALSE );
+    actionEditPaste->setEnabled( false );
 
     actionEditDelete = new QAction( tr( "Delete" ), QPixmap(), tr( "&Delete" ), Key_Delete, this, 0 );
     actionEditDelete->setStatusTip( tr( "Deletes the selected widgets" ) );
     actionEditDelete->setWhatsThis( whatsThisFrom( "Edit|Delete" ) );
     connect( actionEditDelete, SIGNAL( activated() ), this, SLOT( editDelete() ) );
-    actionEditDelete->setEnabled( FALSE );
+    actionEditDelete->setEnabled( false );
 #ifdef Q_WS_MAC
     QAction *macDelete = new QAction( tr( "Delete" ), QPixmap(), tr( "&Delete" ), Key_Backspace, this, 0 );
     connect( macDelete, SIGNAL( activated() ), this, SLOT( editDelete() ) );
@@ -161,19 +161,19 @@ void MainWindow::setupEditActions()
     actionEditSelectAll->setStatusTip( tr( "Selects all widgets" ) );
     actionEditSelectAll->setWhatsThis( whatsThisFrom( "Edit|Select All" ) );
     connect( actionEditSelectAll, SIGNAL( activated() ), this, SLOT( editSelectAll() ) );
-    actionEditSelectAll->setEnabled( TRUE );
+    actionEditSelectAll->setEnabled( true );
 
     actionEditRaise = new QAction( tr( "Bring to Front" ), createIconSet("designer_editraise.png"), tr( "Bring to &Front" ), 0, this, 0 );
     actionEditRaise->setStatusTip( tr( "Raises the selected widgets" ) );
     actionEditRaise->setWhatsThis( tr( "Raises the selected widgets" ) );
     connect( actionEditRaise, SIGNAL( activated() ), this, SLOT( editRaise() ) );
-    actionEditRaise->setEnabled( FALSE );
+    actionEditRaise->setEnabled( false );
 
     actionEditLower = new QAction( tr( "Send to Back" ), createIconSet("designer_editlower.png"), tr( "Send to &Back" ), 0, this, 0 );
     actionEditLower->setStatusTip( tr( "Lowers the selected widgets" ) );
     actionEditLower->setWhatsThis( tr( "Lowers the selected widgets" ) );
     connect( actionEditLower, SIGNAL( activated() ), this, SLOT( editLower() ) );
-    actionEditLower->setEnabled( FALSE );
+    actionEditLower->setEnabled( false );
 
     actionEditAccels = new QAction( tr( "Check Accelerators" ), QPixmap(),
 				    tr( "Chec&k Accelerators" ), ALT + Key_R, this, 0 );
@@ -264,25 +264,25 @@ void MainWindow::setupSearchActions()
     actionSearchFind = new QAction( tr( "Find" ), createIconSet( "designer_searchfind.png" ),
 				    tr( "&Find..." ), CTRL + Key_F, this, 0 );
     connect( actionSearchFind, SIGNAL( activated() ), this, SLOT( searchFind() ) );
-    actionSearchFind->setEnabled( FALSE );
+    actionSearchFind->setEnabled( false );
     actionSearchFind->setWhatsThis( whatsThisFrom( "Search|Find" ) );
 
     actionSearchIncremetal = new QAction( tr( "Find Incremental" ), QIconSet(),
 					  tr( "Find &Incremental" ), ALT + Key_I, this, 0 );
     connect( actionSearchIncremetal, SIGNAL( activated() ), this, SLOT( searchIncremetalFindMenu() ) );
-    actionSearchIncremetal->setEnabled( FALSE );
+    actionSearchIncremetal->setEnabled( false );
     actionSearchIncremetal->setWhatsThis( whatsThisFrom( "Search|Find Incremental" ) );
 
     actionSearchReplace = new QAction( tr( "Replace" ), QIconSet(),
 				    tr( "&Replace..." ), CTRL + Key_R, this, 0 );
     connect( actionSearchReplace, SIGNAL( activated() ), this, SLOT( searchReplace() ) );
-    actionSearchReplace->setEnabled( FALSE );
+    actionSearchReplace->setEnabled( false );
     actionSearchReplace->setWhatsThis( whatsThisFrom( "Search|Replace" ) );
 
     actionSearchGotoLine = new QAction( tr( "Goto Line" ), QIconSet(),
 				    tr( "&Goto Line..." ), ALT + Key_G, this, 0 );
     connect( actionSearchGotoLine, SIGNAL( activated() ), this, SLOT( searchGotoLine() ) );
-    actionSearchGotoLine->setEnabled( FALSE );
+    actionSearchGotoLine->setEnabled( false );
     actionSearchGotoLine->setWhatsThis( whatsThisFrom( "Search|Goto line" ) );
 
     QToolBar *tb = new QToolBar( this, "Search" );
@@ -296,7 +296,7 @@ void MainWindow::setupSearchActions()
 	     this, SLOT( searchIncremetalFind() ) );
     connect( incrementalSearch, SIGNAL( returnPressed() ),
 	     this, SLOT( searchIncremetalFindNext() ) );
-    incrementalSearch->setEnabled( FALSE );
+    incrementalSearch->setEnabled( false );
 
     QPopupMenu *menu = new QPopupMenu( this, "Search" );
     menubar->insertItem( tr( "&Search" ), menu );
@@ -311,7 +311,7 @@ void MainWindow::setupLayoutActions()
 {
     if ( !actionGroupTools ) {
 	actionGroupTools = new QActionGroup( this );
-	actionGroupTools->setExclusive( TRUE );
+	actionGroupTools->setExclusive( true );
 	connect( actionGroupTools, SIGNAL( selected(QAction*) ), this, SLOT( toolSelected(QAction*) ) );
     }
 
@@ -320,53 +320,53 @@ void MainWindow::setupLayoutActions()
     actionEditAdjustSize->setStatusTip(tr("Adjusts the size of the selected widget") );
     actionEditAdjustSize->setWhatsThis( whatsThisFrom( "Layout|Adjust Size" ) );
     connect( actionEditAdjustSize, SIGNAL( activated() ), this, SLOT( editAdjustSize() ) );
-    actionEditAdjustSize->setEnabled( FALSE );
+    actionEditAdjustSize->setEnabled( false );
 
     actionEditHLayout = new QAction( tr( "Lay Out Horizontally" ), createIconSet("designer_edithlayout.png"),
 				     tr( "Lay Out &Horizontally" ), CTRL + Key_H, this, 0 );
     actionEditHLayout->setStatusTip(tr("Lays out the selected widgets horizontally") );
     actionEditHLayout->setWhatsThis( whatsThisFrom( "Layout|Lay Out Horizontally" ) );
     connect( actionEditHLayout, SIGNAL( activated() ), this, SLOT( editLayoutHorizontal() ) );
-    actionEditHLayout->setEnabled( FALSE );
+    actionEditHLayout->setEnabled( false );
 
     actionEditVLayout = new QAction( tr( "Lay Out Vertically" ), createIconSet("designer_editvlayout.png"),
 				     tr( "Lay Out &Vertically" ), CTRL + Key_L, this, 0 );
     actionEditVLayout->setStatusTip(tr("Lays out the selected widgets vertically") );
     actionEditVLayout->setWhatsThis(  whatsThisFrom( "Layout|Lay Out Vertically" ) );
     connect( actionEditVLayout, SIGNAL( activated() ), this, SLOT( editLayoutVertical() ) );
-    actionEditVLayout->setEnabled( FALSE );
+    actionEditVLayout->setEnabled( false );
 
     actionEditGridLayout = new QAction( tr( "Lay Out in a Grid" ), createIconSet("designer_editgrid.png"),
 					tr( "Lay Out in a &Grid" ), CTRL + Key_G, this, 0 );
     actionEditGridLayout->setStatusTip(tr("Lays out the selected widgets in a grid") );
     actionEditGridLayout->setWhatsThis( whatsThisFrom( "Layout|Lay Out in a Grid" ) );
     connect( actionEditGridLayout, SIGNAL( activated() ), this, SLOT( editLayoutGrid() ) );
-    actionEditGridLayout->setEnabled( FALSE );
+    actionEditGridLayout->setEnabled( false );
 
     actionEditSplitHorizontal = new QAction( tr( "Lay Out Horizontally (in Splitter)" ), createIconSet("designer_editvlayoutsplit.png"),
 					     tr( "Lay Out Horizontally (in S&plitter)" ), 0, this, 0 );
     actionEditSplitHorizontal->setStatusTip(tr("Lays out the selected widgets horizontally in a splitter") );
     actionEditSplitHorizontal->setWhatsThis( whatsThisFrom( "Layout|Lay Out Horizontally (in Splitter)" ) );
     connect( actionEditSplitHorizontal, SIGNAL( activated() ), this, SLOT( editLayoutHorizontalSplit() ) );
-    actionEditSplitHorizontal->setEnabled( FALSE );
+    actionEditSplitHorizontal->setEnabled( false );
 
     actionEditSplitVertical = new QAction( tr( "Lay Out Vertically (in Splitter)" ), createIconSet("designer_edithlayoutsplit.png"),
 					     tr( "Lay Out Vertically (in Sp&litter)" ), 0, this, 0 );
     actionEditSplitVertical->setStatusTip(tr("Lays out the selected widgets vertically in a splitter") );
     actionEditSplitVertical->setWhatsThis( whatsThisFrom( "Layout|Lay Out Vertically (in Splitter)" ) );
     connect( actionEditSplitVertical, SIGNAL( activated() ), this, SLOT( editLayoutVerticalSplit() ) );
-    actionEditSplitVertical->setEnabled( FALSE );
+    actionEditSplitVertical->setEnabled( false );
 
     actionEditBreakLayout = new QAction( tr( "Break Layout" ), createIconSet("designer_editbreaklayout.png"),
 					 tr( "&Break Layout" ), CTRL + Key_B, this, 0 );
     actionEditBreakLayout->setStatusTip(tr("Breaks the selected layout") );
     actionEditBreakLayout->setWhatsThis( whatsThisFrom( "Layout|Break Layout" ) );
     connect( actionEditBreakLayout, SIGNAL( activated() ), this, SLOT( editBreakLayout() ) );
-    actionEditBreakLayout->setEnabled( FALSE );
+    actionEditBreakLayout->setEnabled( false );
 
     int id = WidgetDatabase::idFromClassName( "Spacer" );
     actionInsertSpacer = new WidgetAction( "Layout", actionGroupTools, QString::number( id ).latin1() );
-    actionInsertSpacer->setToggleAction( TRUE );
+    actionInsertSpacer->setToggleAction( true );
     actionInsertSpacer->setText( WidgetDatabase::className( id ) );
     actionInsertSpacer->setMenuText( tr( "Add ") + WidgetDatabase::className( id ) );
     actionInsertSpacer->setIconSet( WidgetDatabase::iconSet( id ) );
@@ -415,7 +415,7 @@ void MainWindow::setupToolActions()
 {
     if ( !actionGroupTools ) {
 	actionGroupTools = new QActionGroup( this );
-	actionGroupTools->setExclusive( TRUE );
+	actionGroupTools->setExclusive( true );
 	connect( actionGroupTools, SIGNAL( selected(QAction*) ),
 		 this, SLOT( toolSelected(QAction*) ) );
     }
@@ -423,7 +423,7 @@ void MainWindow::setupToolActions()
     actionPointerTool = new QAction( tr("Pointer"), createIconSet("designer_pointer.png"),
 				     tr("&Pointer"),  Key_F2,
 				     actionGroupTools,
-				     QString::number(POINTER_TOOL).latin1(), TRUE );
+				     QString::number(POINTER_TOOL).latin1(), true );
     actionPointerTool->setStatusTip( tr("Selects the pointer tool") );
     actionPointerTool->setWhatsThis( whatsThisFrom( "Tools|Pointer" ) );
 
@@ -432,21 +432,21 @@ void MainWindow::setupToolActions()
 				     tr("&Connect Signal/Slots"),
 				     singleProjectMode() ? 0 : Key_F3,
 				     actionGroupTools,
-				     QString::number(CONNECT_TOOL).latin1(), TRUE );
+				     QString::number(CONNECT_TOOL).latin1(), true );
     actionConnectTool->setStatusTip( tr("Selects the connection tool") );
     actionConnectTool->setWhatsThis( whatsThisFrom( "Tools|Connect Signals and Slots" ) );
 
     actionOrderTool = new QAction( tr("Tab Order"), createIconSet("designer_ordertool.png"),
 				   tr("Tab &Order"),  Key_F4,
 				   actionGroupTools,
-				   QString::number(ORDER_TOOL).latin1(), TRUE );
+				   QString::number(ORDER_TOOL).latin1(), true );
     actionOrderTool->setStatusTip( tr("Selects the tab order tool") );
     actionOrderTool->setWhatsThis( whatsThisFrom( "Tools|Tab Order" ) );
 
     actionBuddyTool = new QAction( tr( "Set Buddy" ), createIconSet( "designer_setbuddy.png" ),
 				   tr( "Set &Buddy" ), Key_F12,
 				   actionGroupTools, QString::number( BUDDY_TOOL ).latin1(),
-				   TRUE );
+				   true );
     actionBuddyTool->setStatusTip( tr( "Sets a buddy to a label" ) );
     actionBuddyTool->setWhatsThis( whatsThisFrom( "Tools|Set Buddy" ) );
 
@@ -455,7 +455,7 @@ void MainWindow::setupToolActions()
     toolsToolBar = tb;
     QWhatsThis::add( tb, tr( "<b>The Tools toolbar</b>%1" ).arg(tr(toolbarHelp).arg("")) );
 
-    addToolBar( tb, tr( "Tools" ), QMainWindow::DockTop, FALSE );
+    addToolBar( tb, tr( "Tools" ), QMainWindow::DockTop, false );
     actionPointerTool->addTo( tb );
     if ( !singleProjectMode() )
 	actionConnectTool->addTo( tb );
@@ -510,7 +510,7 @@ void MainWindow::setupToolActions()
 	QPopupMenu *menu = new QPopupMenu( this, grp.latin1() );
 	mmenu->insertItem( grp, menu );
 
-	QToolBar *tb2 = new QToolBar( grp, 0, toolBox, FALSE, grp.latin1() );
+	QToolBar *tb2 = new QToolBar( grp, 0, toolBox, false, grp.latin1() );
 	tb2->setFrameStyle( QFrame::NoFrame );
 	tb2->setOrientation( Qt::Vertical );
 	tb2->setBackgroundMode( PaletteBase );
@@ -530,7 +530,7 @@ void MainWindow::setupToolActions()
 		continue; // only widgets, i.e. not forms and temp stuff
 	    WidgetAction* a =
 		new WidgetAction( grp, actionGroupTools, QString::number( i ).latin1() );
-	    a->setToggleAction( TRUE );
+	    a->setToggleAction( true );
 	    QString atext = WidgetDatabase::className( i );
 	    if ( atext[0] == 'Q' )
 		atext = atext.mid(1);
@@ -586,7 +586,7 @@ void MainWindow::setupToolActions()
 	actionToolsCustomWidget->addTo( customWidgetMenu );
 	customWidgetMenu->insertSeparator();
 	QToolBar *tb2 = new QToolBar( "Custom Widgets", 0,
-				      toolBox, FALSE, "Custom Widgets" );
+				      toolBox, false, "Custom Widgets" );
 	tb2->setBackgroundMode(PaletteBase);
 	tb2->setOrientation( Qt::Vertical );
 	tb2->setFrameStyle( QFrame::NoFrame );
@@ -629,9 +629,9 @@ void MainWindow::setupFileActions()
 	a->addTo( tb );
 	a->addTo( fileMenu );
     } else {
-	actionGroupNew = new QActionGroup( this, 0, FALSE );
+	actionGroupNew = new QActionGroup( this, 0, false );
 	 a = actionGroupNew;
-	( (QActionGroup*)a )->setUsesDropDown( TRUE );
+	( (QActionGroup*)a )->setUsesDropDown( true );
 	a->setText( tr( "New" ) );
 	a->setMenuText( tr( "&New..." ) );
 	a->setIconSet( createIconSet("designer_form.png") );
@@ -779,14 +779,14 @@ void MainWindow::setupProjectActions()
     QActionGroup *ag = new QActionGroup( this, 0 );
     ag->setText( tr( "Active Project" ) );
     ag->setMenuText( tr( "Active Project" ) );
-    ag->setExclusive( TRUE );
-    ag->setUsesDropDown( TRUE );
+    ag->setExclusive( true );
+    ag->setUsesDropDown( true );
     connect( ag, SIGNAL( selected( QAction * ) ), this, SLOT( projectSelected( QAction * ) ) );
     connect( ag, SIGNAL( selected( QAction * ) ), this, SIGNAL( projectChanged() ) );
-    QAction *a = new QAction( tr( "<No Project>" ), tr( "<No Project>" ), 0, ag, 0, TRUE );
-    eProject = new Project( "", tr( "<No Project>" ), projectSettingsPluginManager, TRUE );
+    QAction *a = new QAction( tr( "<No Project>" ), tr( "<No Project>" ), 0, ag, 0, true );
+    eProject = new Project( "", tr( "<No Project>" ), projectSettingsPluginManager, true );
     projects.insert( a, eProject );
-    a->setOn( TRUE );
+    a->setOn( true );
     ag->addTo( projectMenu );
     ag->addTo( projectToolBar );
     actionGroupProjects = ag;
@@ -798,7 +798,7 @@ void MainWindow::setupProjectActions()
     a->setStatusTip( tr("Adds a file to the current project") );
     a->setWhatsThis( whatsThisFrom( "Project|Add File" ) );
     connect( a, SIGNAL( activated() ), this, SLOT( projectInsertFile() ) );
-    a->setEnabled( FALSE );
+    a->setEnabled( false );
     connect( this, SIGNAL( hasNonDummyProject(bool) ), a, SLOT( setEnabled(bool) ) );
     if ( !singleProject )
 	a->addTo( projectMenu );
@@ -808,7 +808,7 @@ void MainWindow::setupProjectActions()
     actionEditPixmapCollection->setStatusTip( tr("Opens a dialog for editing the current project's image collection") );
     actionEditPixmapCollection->setWhatsThis( whatsThisFrom( "Project|Image Collection" ) );
     connect( actionEditPixmapCollection, SIGNAL( activated() ), this, SLOT( editPixmapCollection() ) );
-    actionEditPixmapCollection->setEnabled( FALSE );
+    actionEditPixmapCollection->setEnabled( false );
     connect( this, SIGNAL( hasNonDummyProject(bool) ), actionEditPixmapCollection, SLOT( setEnabled(bool) ) );
     actionEditPixmapCollection->addTo( projectMenu );
 
@@ -818,7 +818,7 @@ void MainWindow::setupProjectActions()
     actionEditDatabaseConnections->setStatusTip( tr("Opens a dialog for editing the current project's database connections") );
     actionEditDatabaseConnections->setWhatsThis( whatsThisFrom( "Project|Database Connections" ) );
     connect( actionEditDatabaseConnections, SIGNAL( activated() ), this, SLOT( editDatabaseConnections() ) );
-    //actionEditDatabaseConnections->setEnabled( FALSE );
+    //actionEditDatabaseConnections->setEnabled( false );
     //connect( this, SIGNAL( hasNonDummyProject(bool) ), actionEditDatabaseConnections, SLOT( setEnabled(bool) ) );
     if ( !singleProject )
 	actionEditDatabaseConnections->addTo( projectMenu );
@@ -829,7 +829,7 @@ void MainWindow::setupProjectActions()
     actionEditProjectSettings->setStatusTip( tr("Opens a dialog to change the project's settings") );
     actionEditProjectSettings->setWhatsThis( whatsThisFrom( "Project|Project Settings" ) );
     connect( actionEditProjectSettings, SIGNAL( activated() ), this, SLOT( editProjectSettings() ) );
-    actionEditProjectSettings->setEnabled( FALSE );
+    actionEditProjectSettings->setEnabled( false );
     connect( this, SIGNAL( hasNonDummyProject(bool) ), actionEditProjectSettings, SLOT( setEnabled(bool) ) );
     actionEditProjectSettings->addTo( projectMenu );
 
@@ -885,9 +885,9 @@ void MainWindow::setupPreviewActions()
 
 void MainWindow::setupWindowActions()
 {
-    static bool windowActionsSetup = FALSE;
+    static bool windowActionsSetup = false;
     if ( !windowActionsSetup ) {
-	windowActionsSetup = TRUE;
+	windowActionsSetup = true;
 
 	actionWindowTile = new QAction( tr( "Tile" ), tr( "&Tile" ), 0, this );
 	actionWindowTile->setStatusTip( tr("Tiles the windows so that they are all visible") );
@@ -1039,10 +1039,10 @@ void MainWindow::fileNewDialog()
     while ( currentProject->findFormFile( n + ".ui" ) )
 	n = "Dialog" + QString::number( ++forms );
     FormWindow *fw = 0;
-    FormFile *ff = new FormFile( n + ".ui", FALSE, currentProject );
+    FormFile *ff = new FormFile( n + ".ui", false, currentProject );
     fw = new FormWindow( ff, MainWindow::self, MainWindow::self->qWorkspace(), n );
-    ff->setModified( TRUE );
-    currentProject->setModified( TRUE );
+    ff->setModified( true );
+    currentProject->setModified( true );
     workspace()->update();
     fw->setProject( currentProject );
     MetaDataBase::addEntry( fw );
@@ -1052,10 +1052,10 @@ void MainWindow::fileNewDialog()
     fw->resize( 600, 480 );
     insertFormWindow( fw );
     fw->killAccels( fw );
-    fw->project()->setModified( TRUE );
+    fw->project()->setModified( true );
     fw->setFocus();
-    fw->setSavePixmapInProject( TRUE );
-    fw->setSavePixmapInline( FALSE );
+    fw->setSavePixmapInProject( true );
+    fw->setSavePixmapInline( false );
 }
 
 void MainWindow::fileNewFile()
@@ -1065,10 +1065,10 @@ void MainWindow::fileNewFile()
 	return;
     if ( name.right( 3 ) != ".qs" )
 	name += ".qs";
-    SourceFile *f = new SourceFile( name, FALSE, currentProject );
+    SourceFile *f = new SourceFile( name, false, currentProject );
     MainWindow::self->editSource( f );
-    f->setModified( TRUE );
-    currentProject->setModified( TRUE );
+    f->setModified( true );
+    currentProject->setModified( true );
     workspace()->update();
 }
 
@@ -1128,7 +1128,7 @@ void MainWindow::fileCloseProject()
 	}
 
 	QWidgetList windows = qWorkspace()->windowList();
-	qWorkspace()->blockSignals( TRUE );
+	qWorkspace()->blockSignals( true );
 	for (int i = 0; i < windows.size(); ++i) {
 	    QWidget *w = windows.at(i);
 	    if ( ::qt_cast<FormWindow*>(w) ) {
@@ -1145,7 +1145,7 @@ void MainWindow::fileCloseProject()
 	}
 	hierarchyView->clear();
 	windows = qWorkspace()->windowList();
-	qWorkspace()->blockSignals( FALSE );
+	qWorkspace()->blockSignals( false );
 	a->setParent(0);
 	projects.remove( a );
 	delete a;
@@ -1164,16 +1164,16 @@ void MainWindow::fileCloseProject()
 		break;
 	    }
 	} else {
-	    emit hasActiveWindow( FALSE );
-	    emit hasActiveForm( FALSE );
-	    updateUndoRedo( FALSE, FALSE, QString::null, QString::null );
+	    emit hasActiveWindow( false );
+	    emit hasActiveForm( false );
+	    updateUndoRedo( false, false, QString::null, QString::null );
 	}
     }
 }
 
 void MainWindow::fileOpen() // as called by the menu
 {
-    fileOpen( "", "", "", FALSE );
+    fileOpen( "", "", "", false );
 }
 
 void MainWindow::projectInsertFile()
@@ -1233,24 +1233,24 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 	    if ( !filename.isEmpty() ) {
 		QFileInfo fi( filename );
 
-		if ( fi.extension( FALSE ) == "pro" && ( extension.isEmpty() || extension.find( ";pro" ) != -1 ) ) {
+		if ( fi.extension( false ) == "pro" && ( extension.isEmpty() || extension.find( ";pro" ) != -1 ) ) {
 		    addRecentlyOpened( filename, recentlyProjects );
 		    openProject( filename );
-		} else if ( fi.extension( FALSE ) == "ui" && ( extension.isEmpty() || extension.find( ";ui" ) != -1 ) ) {
+		} else if ( fi.extension( false ) == "ui" && ( extension.isEmpty() || extension.find( ";ui" ) != -1 ) ) {
 		    if ( !inProject )
 			setCurrentProject( eProject );
 		    openFormWindow( filename );
 		    addRecentlyOpened( filename, recentlyFiles );
-		} else if ( !extension.isEmpty() && extension.find( ";" + fi.extension( FALSE ) ) != -1 ||
-			    additionalSources.find( fi.extension( FALSE ) ) != additionalSources.end() ) {
+		} else if ( !extension.isEmpty() && extension.find( ";" + fi.extension( false ) ) != -1 ||
+			    additionalSources.find( fi.extension( false ) ) != additionalSources.end() ) {
 		    SourceFile *sf = project->findSourceFile( project->makeRelative( filename ) );
 		    if ( !sf )
-			sf = new SourceFile( project->makeRelative( filename ), FALSE, project );
+			sf = new SourceFile( project->makeRelative( filename ), false, project );
 		    editSource( sf );
 		} else if ( extension.isEmpty() ) {
 		    QString filter;
 		    for ( QStringList::Iterator it2 = filterlist.begin(); it2 != filterlist.end(); ++it2 ) {
-			if ( (*it2).contains( "." + fi.extension( FALSE ), FALSE ) ) {
+			if ( (*it2).contains( "." + fi.extension( false ), false ) ) {
 			    filter = *it2;
 			    break;
 			}
@@ -1274,7 +1274,7 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 			setCurrentProject( eProject );
 		    addRecentlyOpened( filename, recentlyFiles );
 		    for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it ) {
-			openFormWindow( *it, FALSE );
+			openFormWindow( *it, false );
 			QFile::remove( *it );
 		    }
 		    statusBar()->clear();
@@ -1289,10 +1289,10 @@ FormWindow *MainWindow::openFormWindow( const QString &filename, bool validFileN
     if ( filename.isEmpty() )
 	return 0;
 
-    bool makeNew = FALSE;
+    bool makeNew = false;
 
     if ( !QFile::exists( filename ) ) {
-	makeNew = TRUE;
+	makeNew = true;
     } else {
 	QFile f( filename );
 	f.open( IO_ReadOnly );
@@ -1318,7 +1318,7 @@ FormWindow *MainWindow::openFormWindow( const QString &filename, bool validFileN
     QApplication::setOverrideCursor( WaitCursor );
     Resource resource( this );
     if ( !ff )
-	ff = new FormFile( currentProject->makeRelative( filename ), FALSE, currentProject );
+	ff = new FormFile( currentProject->makeRelative( filename ), false, currentProject );
     bool b = resource.load( ff ) && (FormWindow*)resource.widget();
     if ( !validFileName && resource.widget() )
 	( (FormWindow*)resource.widget() )->setFileName( QString::null );
@@ -1361,7 +1361,7 @@ bool MainWindow::fileSaveForm()
 		fw = se->formWindow();
 	    else if ( se->sourceFile() ) {
 		se->sourceFile()->save();
-		return TRUE;
+		return true;
 	    }
 	}
     }
@@ -1369,16 +1369,16 @@ bool MainWindow::fileSaveForm()
     if ( !fw )
 	fw = formWindow();
     if ( !fw || !fw->formFile()->save() )
-	return FALSE;
+	return false;
     QApplication::restoreOverrideCursor();
-    return TRUE;
+    return true;
 }
 
 bool MainWindow::fileSaveProject()
 {
     currentProject->save();
     statusBar()->message( tr( "Project '%1' saved.").arg( currentProject->projectName() ), 3000 );
-    return TRUE;
+    return true;
 }
 
 bool MainWindow::fileSaveAs()
@@ -1387,12 +1387,12 @@ bool MainWindow::fileSaveAs()
 
     QWidget *w = qworkspace->activeWindow();
     if ( !w )
-	return TRUE;
+	return true;
     if ( ::qt_cast<FormWindow*>(w) )
 	return ( (FormWindow*)w )->formFile()->saveAs();
     else if ( ::qt_cast<SourceEditor*>(w) )
 	return ( (SourceEditor*)w )->saveAs();
-    return FALSE;
+    return false;
 }
 
 void MainWindow::fileSaveAll()
@@ -1403,7 +1403,7 @@ void MainWindow::fileSaveAll()
 
 void MainWindow::fileCreateTemplate()
 {
-    CreateTemplate dia( this, 0, TRUE );
+    CreateTemplate dia( this, 0, true );
 
     int i = 0;
     for ( i = 0; i < WidgetDatabase::count(); ++i ) {
@@ -1551,7 +1551,7 @@ void MainWindow::editPaste()
     if ( w && WidgetFactory::layoutType( w ) == WidgetFactory::NoLayout ) {
 	formWindow()->paste( qApp->clipboard()->text(), WidgetFactory::containerOfWidget( w ) );
 	hierarchyView->widgetInserted( 0 );
-	formWindow()->commandHistory()->setModified( TRUE );
+	formWindow()->commandHistory()->setModified( true );
     } else {
 	QMessageBox::information( this, tr( "Paste error" ),
 				  tr( "Can't paste widgets. Designer couldn't find a container\n"
@@ -1717,7 +1717,7 @@ void MainWindow::editFunctions()
 	return;
 
     statusBar()->message( tr( "Edit the current form's slots..." ) );
-    EditFunctions dlg( this, formWindow(), TRUE );
+    EditFunctions dlg( this, formWindow(), true );
     dlg.exec();
     statusBar()->clear();
 }
@@ -1810,7 +1810,7 @@ SourceEditor *MainWindow::createSourceEditor( QObject *object, Project *project,
     if ( editor->object() != object )
 	editor->setObject( object, project );
     else if ( rereadSource )
-	editor->refresh( FALSE );
+	editor->refresh( false );
     
     editor->show();
     editor->setFocus();
@@ -1840,7 +1840,7 @@ void MainWindow::editProjectSettings()
 
 void MainWindow::editPixmapCollection()
 {
-    PixmapCollectionEditor dia( this, 0, TRUE );
+    PixmapCollectionEditor dia( this, 0, true );
     dia.setProject( currentProject );
     dia.exec();
 }
@@ -1848,7 +1848,7 @@ void MainWindow::editPixmapCollection()
 void MainWindow::editDatabaseConnections()
 {
 #ifndef QT_NO_SQL
-    DatabaseConnectionsEditor dia( currentProject, this, 0, TRUE );
+    DatabaseConnectionsEditor dia( currentProject, this, 0, true );
     dia.exec();
 #endif
 }
@@ -1856,7 +1856,7 @@ void MainWindow::editDatabaseConnections()
 void MainWindow::editPreferences()
 {
     statusBar()->message( tr( "Edit preferences..." ) );
-    Preferences *dia = new Preferences( this, 0, TRUE );
+    Preferences *dia = new Preferences( this, 0, true );
     prefDia = dia;
     connect( dia->helpButton, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
     dia->buttonColor->setEditor( StyledButton::ColorEditor );
@@ -1873,9 +1873,9 @@ void MainWindow::editPreferences()
     if ( qworkspace->backgroundPixmap() )
 	dia->buttonPixmap->setPixmap( *qworkspace->backgroundPixmap() );
     if ( backPix )
-	dia->radioPixmap->setChecked( TRUE );
+	dia->radioPixmap->setChecked( true );
     else
-	dia->radioColor->setChecked( TRUE );
+	dia->radioColor->setChecked( true );
     dia->checkBoxSplash->setChecked( splashScreen );
     dia->checkAutoEdit->setChecked( !databaseAutoEdit );
     dia->checkBoxStartDialog->setChecked( shStartDialog );
@@ -1910,15 +1910,15 @@ void MainWindow::editPreferences()
 	if (dia->textEditPluginPaths->isModified()) {
 	    pluginPaths = dia->textEditPluginPaths->text();
 	    QApplication::setLibraryPaths(QStringList::split("\n", pluginPaths));
-	    savePluginPaths = TRUE;
+	    savePluginPaths = true;
 	}
 
 	if ( dia->radioPixmap->isChecked() && dia->buttonPixmap->pixmap() ) {
 	    qworkspace->setBackgroundPixmap( *dia->buttonPixmap->pixmap() );
-	    backPix = TRUE;
+	    backPix = true;
 	} else {
 	    qworkspace->setBackgroundColor( dia->buttonColor->color() );
-	    backPix = FALSE;
+	    backPix = false;
 	}
 	splashScreen = dia->checkBoxSplash->isChecked();
 	databaseAutoEdit = !dia->checkAutoEdit->isChecked();
@@ -1935,7 +1935,7 @@ void MainWindow::editPreferences()
     for ( it = preferenceTabs.begin(); it != preferenceTabs.end(); ++it ) {
 	Tab t = *it;
 	dia->tabWidget->removePage( t.w );
-	t.w->reparent( 0, QPoint(0,0), FALSE );
+	t.w->reparent( 0, QPoint(0,0), false );
     }
 
     for(QList<SourceEditor*>::Iterator it = sourceEditors.begin(); it != sourceEditors.end(); ++it) 
@@ -1953,7 +1953,7 @@ void MainWindow::searchFind()
 	 return;
 
     if ( !findDialog )
-	findDialog = new FindDialog( this, 0, FALSE );
+	findDialog = new FindDialog( this, 0, false );
     findDialog->show();
     findDialog->raise();
     findDialog->setEditor( ( (SourceEditor*)qWorkspace()->activeWindow() )->editorInterface(),
@@ -1975,7 +1975,7 @@ void MainWindow::searchIncremetalFind()
 	 return;
 
     ( (SourceEditor*)qWorkspace()->activeWindow() )->editorInterface()->find( incrementalSearch->text(),
-									     FALSE, FALSE, TRUE, FALSE );
+									     false, false, true, false );
 }
 
 void MainWindow::searchIncremetalFindNext()
@@ -1985,7 +1985,7 @@ void MainWindow::searchIncremetalFindNext()
 	 return;
 
     ( (SourceEditor*)qWorkspace()->activeWindow() )->editorInterface()->find( incrementalSearch->text(),
-									     FALSE, FALSE, TRUE, TRUE );
+									     false, false, true, true );
 }
 
 void MainWindow::searchReplace()
@@ -1995,7 +1995,7 @@ void MainWindow::searchReplace()
 	 return;
 
     if ( !replaceDialog )
-	replaceDialog = new ReplaceDialog( this, 0, FALSE );
+	replaceDialog = new ReplaceDialog( this, 0, false );
     replaceDialog->show();
     replaceDialog->raise();
     replaceDialog->setEditor( ( (SourceEditor*)qWorkspace()->activeWindow() )->editorInterface(),
@@ -2011,7 +2011,7 @@ void MainWindow::searchGotoLine()
 	 return;
 
     if ( !gotoLineDialog )
-	gotoLineDialog = new GotoLineDialog( this, 0, FALSE );
+	gotoLineDialog = new GotoLineDialog( this, 0, false );
     gotoLineDialog->show();
     gotoLineDialog->raise();
     gotoLineDialog->setEditor( ( (SourceEditor*)qWorkspace()->activeWindow() )->editorInterface() );

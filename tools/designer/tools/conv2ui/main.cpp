@@ -11,13 +11,13 @@
 **
 ****************************************************************************/
 
+#include "filterinterface.h"
 #include <qapplication.h>
 #include <private/qpluginmanager_p.h>
 #include <qstringlist.h>
 #include <qdir.h>
-#include <stdio.h>
-#include "filterinterface.h"
 #include <qfileinfo.h>
+#include <stdio.h>
 
 class Conv2ui {
 public:
@@ -57,12 +57,12 @@ bool Conv2ui::convert( const QString & filename, const QDir & dest )
 {
     if ( !importFiltersManager ) {
 	qWarning( "Conv2ui: no QPluginManager was found" );
-	return FALSE;
+	return false;
     }
 
     if ( !QFile::exists( absName( filename ) ) ) {
 	qWarning( "Conv2ui: can not find file %s", filename.latin1() );
-	return FALSE;
+	return false;
     }
 
     QString tag = getTag( filename );
@@ -75,7 +75,7 @@ bool Conv2ui::convert( const QString & filename, const QDir & dest )
 
 	if ( !interface ) continue;
 
-	if ( (*it).contains( tag, FALSE ) ) {
+	if ( (*it).contains( tag, false ) ) {
 	    // Make sure we output the files in the destination dir
 	    QString absfile = absName( filename );
 	    QString current = QDir::currentDirPath();
@@ -88,7 +88,7 @@ bool Conv2ui::convert( const QString & filename, const QDir & dest )
 
     }
 
-    return TRUE;
+    return true;
 }
 
 QStringList Conv2ui::featureList()
@@ -136,10 +136,10 @@ int main( int argc, char ** argv )
 {
     Conv2ui conv;
 
-    bool help = TRUE;
-    bool silent = FALSE;
-    bool version = FALSE;
-    bool unrecognized = FALSE;
+    bool help = true;
+    bool silent = false;
+    bool version = false;
+    bool unrecognized = false;
 
     // parse options
     int argi = 1;
@@ -148,17 +148,17 @@ int main( int argc, char ** argv )
 	while ( argv[argi][i] != '\0' ) {
 
 	    if ( argv[argi][i] == 's' ) {
-		silent = TRUE;
+		silent = true;
 		break;
 	    } else if ( argv[argi][i] == 'h' ) {
-		help = TRUE;
+		help = true;
 		break;
 	    } else if ( argv[argi][i] == 'v' ) {
-		version = TRUE;
-		silent = TRUE;
+		version = true;
+		silent = true;
 		break;
 	    } else {
-		unrecognized = TRUE;
+		unrecognized = true;
 	    }
 	    i++;
 	}
@@ -175,7 +175,7 @@ int main( int argc, char ** argv )
     QDir dst;
     if ( argv[argi] ) {
 	dst.setPath( argv[argi++] );
-	help = FALSE;
+	help = false;
     }
 
     if ( !silent ) {

@@ -140,26 +140,26 @@ void RC2UI::writeSet( const QString& name, const QString& value )
 void RC2UI::writeStyles( const QStringList styles, bool isFrame )
 {
     if ( isFrame ) {
-	bool defineFrame = FALSE;
+	bool defineFrame = false;
 	QString shadow = "NoFrame";
 	QString shape = "StyledPanel";
 	int width = 2;
 	if ( styles.contains( "WS_EX_STATICEDGE" ) ) {
 	    shadow = "Plain";
 	    width = 1;
-	    defineFrame = TRUE;
+	    defineFrame = true;
 	}
 	if ( styles.contains( "WS_EX_CLIENTEDGE" ) ) {
 	    shadow = "Sunken";
-	    defineFrame = TRUE;
+	    defineFrame = true;
 	}
 	if ( styles.contains( "WS_EX_DLGMODALFRAME" ) ) {
 	    shadow = "Raised";
-	    defineFrame = TRUE;
+	    defineFrame = true;
 	}
 	if ( !styles.contains( "WS_BORDER" ) ) {
 	    shape = "NoFrame";
-	    defineFrame = TRUE;
+	    defineFrame = true;
 	}
 
 	if ( defineFrame ) {
@@ -170,11 +170,11 @@ void RC2UI::writeStyles( const QStringList styles, bool isFrame )
     }
 
     if ( styles.contains("WS_DISABLED") )
-	writeBool("enabled", FALSE );
+	writeBool("enabled", false );
     if ( styles.contains("WS_EX_ACCEPTFILES") )
-	writeBool("acceptDrops", TRUE );
+	writeBool("acceptDrops", true );
     if ( styles.contains("WS_EX_TRANSPARENT") )
-	writeBool("autoMask", TRUE );
+	writeBool("autoMask", true );
     if ( !styles.contains("WS_TABSTOP") )
 	writeEnum("focusPolicy", "NoFocus");
 }
@@ -187,7 +187,7 @@ RC2UI::RC2UI( QTextStream* input )
 : blockStart1( "/////////////////////////////////////////////////////////////////////////////" ),
   blockStart2( "//" )
 {
-    writeToFile = TRUE;
+    writeToFile = true;
     in = input;
     indentation = 0;
     out = 0;
@@ -211,11 +211,11 @@ bool RC2UI::parse()
 	while ( line != blockStart1 && !in->eof() )
 	    line = in->readLine();
 	if ( in->eof() )
-	    return FALSE;
+	    return false;
  	while ( line != blockStart2 && !in->eof() )
 	    line = in->readLine();
 	if ( in->eof() )
-	    return FALSE;
+	    return false;
 
 	line = in->readLine();
 
@@ -224,37 +224,37 @@ bool RC2UI::parse()
 	    if ( in->readLine() == "//" && in->readLine().isEmpty() && !in->eof() ) {
 		if ( type == "Dialog" ) {
 		    if ( !makeDialog() )
-			return FALSE;
+			return false;
 		}
 /*
 		  else if ( type == "Bitmap" ) {
 		    if ( !makeBitmap() )
-			return FALSE;
+			return false;
 		} else if ( type == "String Table" ) {
 		    if ( !makeStringTable() )
-			return FALSE;
+			return false;
 		} else if ( type == "Accelerator" ) {
 		    if ( !makeAccelerator() )
-			return FALSE;
+			return false;
 		} else if ( type == "Cursor" ) {
 		    if ( !makeCursor() )
-			return FALSE;
+			return false;
 		} else if ( type == "HTML" ) {
 		    if ( !makeHTML() )
-			return FALSE;
+			return false;
 		} else if ( type == "Icon" ) {
 		    if ( !makeIcon() )
-			return FALSE;
+			return false;
 		} else if ( type == "Version" ) {
 		    if ( !makeVersion() )
-			return FALSE;
+			return false;
 		}
 */
 	    }
 	} else
-	    return FALSE;
+	    return false;
     }
-    return TRUE;
+    return true;
 }
 
 /*!
@@ -263,7 +263,7 @@ bool RC2UI::parse()
 
 bool RC2UI::parse( QStringList& get )
 {
-    writeToFile = FALSE;
+    writeToFile = false;
     bool result = parse();
     get = target;
     return result;
@@ -302,7 +302,7 @@ bool RC2UI::makeDialog()
 	QCString className;
 	uint x, y, w, h;
 	int endDesc;
-	bool space = FALSE;
+	bool space = false;
 	for ( endDesc = 0; endDesc < line.length() ; endDesc++ ) {
 	    char c = line.at(endDesc).latin1();
 	    if ( space && (c >= '0') && (c <= '9') )
@@ -318,7 +318,7 @@ bool RC2UI::makeDialog()
 	count = sscanf( line, "%u, %u, %u, %u", &x, &y, &w, &h );
 
 	if ( !count && count == EOF )
-	    return FALSE;
+	    return false;
 
 	char property[256];
 	QStringList styles;
@@ -334,7 +334,7 @@ bool RC2UI::makeDialog()
 	    line = "";
 	    do {
 		if ( in->eof() )
-		    return TRUE;
+		    return true;
 		line += in->readLine();
 	    } while ( line[(int)line.length()-1] == '|' ||
 		      line[(int)line.length()-1] == ',' );
@@ -378,7 +378,7 @@ bool RC2UI::makeDialog()
 
 	do {
 	    if ( in->eof() )
-		return TRUE;
+		return true;
 
 	    line = in->readLine().stripWhiteSpace();
 	    if ( line == "END" )
@@ -396,30 +396,30 @@ bool RC2UI::makeDialog()
 	    QString controlType;
 	    QString widgetID;
 	    QString widgetText;
-	    bool hasText = FALSE;
-	    bool isControl = FALSE;
-	    bool isFrame = FALSE;
+	    bool hasText = false;
+	    bool isControl = false;
+	    bool isFrame = false;
 
 	    if ( widgetType == "PUSHBUTTON" ) {
 		ID = IDPushButton;
-		hasText = TRUE;
+		hasText = true;
 	    } else if ( widgetType == "DEFPUSHBUTTON" ) {
 		ID = IDPushButton;
-		hasText = TRUE;
+		hasText = true;
 	    } else if ( widgetType == "LTEXT" ) {
 		ID = IDLabel;
-		hasText = TRUE;
+		hasText = true;
 	    } else if ( widgetType == "CTEXT" ) {
 		ID = IDLabel;
-		hasText = TRUE;
+		hasText = true;
 	    } else if ( widgetType == "RTEXT" ) {
 		ID = IDLabel;
-		hasText = TRUE;
+		hasText = true;
 	    } else if ( widgetType == "EDITTEXT" ) {
 		ID = IDLineEdit;
 	    } else if ( widgetType == "GROUPBOX" ) {
 		ID = IDGroupBox;
-		hasText = TRUE;
+		hasText = true;
 	    } else if ( widgetType == "COMBOBOX" ) {
 		ID = IDComboBox;
 	    } else if ( widgetType == "LISTBOX" ) {
@@ -428,12 +428,12 @@ bool RC2UI::makeDialog()
 		ID = IDScrollBar;
 	    } else if ( widgetType == "CHECKBOX" ) {
 		ID = IDCheckBox;
-		hasText = TRUE;
+		hasText = true;
 	    } else if ( widgetType == "RADIOBUTTON" ) {
 		ID = IDRadioButton;
-		hasText = TRUE;
+		hasText = true;
 	    } else if ( widgetType == "CONTROL" ) {
-		isControl = TRUE;
+		isControl = true;
 		widgetText = stripQM(parseNext( arguments ));
 		widgetID = parseNext( arguments );
 		controlType = stripQM(parseNext( arguments ));
@@ -506,12 +506,12 @@ bool RC2UI::makeDialog()
 		    writeRect( "geometry", x, y, w, h );
 		    writeString( "text", widgetText );
 		    if ( widgetType == "DEFPUSHBUTTON" )
-			writeBool( "default", TRUE );
+			writeBool( "default", true );
 		}
 		break;
 	    case IDLabel:
 		{
-		    isFrame = TRUE,
+		    isFrame = true,
 		    writeClass("QLabel");
 		    writeCString( "name", useName("Label_"+widgetID) );
 		    writeRect( "geometry", x,y,w,h );
@@ -538,7 +538,7 @@ bool RC2UI::makeDialog()
 		    writeRect("geometry", x,y,w,h);
 		    writeString("text", widgetText );
 		    if ( styles.contains( "BS_3STATE" ) )
-			writeBool( "tristate", TRUE );
+			writeBool( "tristate", true );
 		}
 		break;
 	    case IDRadioButton:
@@ -551,7 +551,7 @@ bool RC2UI::makeDialog()
 		break;
 	    case IDGroupBox:
 		{
-		    isFrame = TRUE;
+		    isFrame = true;
 		    writeClass("QGroupBox");
 		    writeCString( "name", useName("GroupBox_"+widgetID) );
 		    writeRect( "geometry", x,y,w,h );
@@ -589,31 +589,31 @@ bool RC2UI::makeDialog()
 		break;
 	    case IDIconView:
 		{
-		    isFrame = TRUE;
+		    isFrame = true;
 		    writeClass("QIconView");
 		    writeCString("name", useName("IconView_"+widgetID) );
 		    writeRect("geometry", x,y,w,h );
 		    if ( !styles.contains( "LVS_SINGLESEL" ) )
 			writeEnum( "selectionMode", "Extended" );
 		    if ( styles.contains( "LVS_NOLABELWRAP" ) )
-			writeBool("wordWrapIconText", FALSE );
+			writeBool("wordWrapIconText", false );
 		}
 		break;
 	    case IDListView:
 		{
-		    isFrame = TRUE;
+		    isFrame = true;
 		    writeClass("QListView");
 		    writeCString("name", useName("ListView_"+widgetID) );
 		    writeRect("geometry", x,y,w,h );
 		    if ( styles.contains( "TVS_LINESATROOT" ) )
-			writeBool( "rootIsDecorated", TRUE );
+			writeBool( "rootIsDecorated", true );
 		    if ( styles.contains( "TVS_FULLROWSELECT" ) )
-			writeBool( "allColumnsShowFocus", TRUE );
+			writeBool( "allColumnsShowFocus", true );
 		}
 		break;
 	    case IDProgressBar:
 		{
-		    isFrame = TRUE;
+		    isFrame = true;
 		    writeClass("QProgressBar");
 		    writeCString("name", useName("ProgressBar_"+widgetID) );
 		    writeRect("geometry", x,y,w,h );
@@ -639,7 +639,7 @@ bool RC2UI::makeDialog()
 		break;
 	    case IDSpinBox:
 		{
-		    isFrame = TRUE;
+		    isFrame = true;
 		    writeClass("QSpinBox");
 		    writeCString("name", useName("SpinBox_"+widgetID) );
 		    writeRect("geometry", x,y,w,h);
@@ -670,7 +670,7 @@ bool RC2UI::makeDialog()
 		break;
 	    case IDListBox:
 		{
-		    isFrame = TRUE;
+		    isFrame = true;
 		    writeClass("QListBox");
 		    writeCString("name", useName("ListBox_"+widgetID) );
 		    writeRect( "geometry", x,y,w,h );
@@ -749,7 +749,7 @@ bool RC2UI::makeDialog()
 
     } while ( line != blockStart1 );
 
-    return TRUE;
+    return true;
 }
 
 /*! Not yet implemented
@@ -757,7 +757,7 @@ bool RC2UI::makeDialog()
 
 bool RC2UI::makeBitmap()
 {
-    return TRUE;
+    return true;
 }
 
 /*! Not yet implemented
@@ -765,7 +765,7 @@ bool RC2UI::makeBitmap()
 
 bool RC2UI::makeAccelerator()
 {
-    return TRUE;
+    return true;
 }
 
 /*! Not yet implemented
@@ -773,7 +773,7 @@ bool RC2UI::makeAccelerator()
 
 bool RC2UI::makeCursor()
 {
-    return TRUE;
+    return true;
 }
 
 /*! Not yet implemented
@@ -781,7 +781,7 @@ bool RC2UI::makeCursor()
 
 bool RC2UI::makeHTML()
 {
-    return TRUE;
+    return true;
 }
 
 /*! Not yet implemented
@@ -789,7 +789,7 @@ bool RC2UI::makeHTML()
 
 bool RC2UI::makeIcon()
 {
-    return TRUE;
+    return true;
 }
 
 /*!
@@ -800,7 +800,7 @@ bool RC2UI::makeIcon()
 bool RC2UI::makeStringTable()
 {
     if ( !writeToFile )
-	return TRUE;
+	return true;
 
     QFile fileOut;
     line = in->readLine();
@@ -809,7 +809,7 @@ bool RC2UI::makeStringTable()
 	char discard[12];
 	sscanf( line, "%s %s", stringtable, discard );
 	if ( QString(stringtable) != "STRINGTABLE" )
-	    return TRUE;
+	    return true;
 	do {
 	    line = in->readLine();
 	} while ( line != "BEGIN" );
@@ -854,7 +854,7 @@ bool RC2UI::makeStringTable()
 	}
     } while ( line != blockStart1 );
 
-    return TRUE;
+    return true;
 }
 
 /*! Not yet implemented
@@ -862,5 +862,5 @@ bool RC2UI::makeStringTable()
 
 bool RC2UI::makeVersion()
 {
-    return TRUE;
+    return true;
 }

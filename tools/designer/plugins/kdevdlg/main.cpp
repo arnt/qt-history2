@@ -11,13 +11,13 @@
 **
 ****************************************************************************/
 
+#include "kdevdlg2ui.h"
+
 #include <filterinterface.h>
 
 #include <qapplication.h>
 #include <qstring.h>
 #include <qdir.h>
-
-#include "kdevdlg2ui.h"
 
 class KDevDlgFilter : public ImportFilterInterface, public QLibraryInterface
 {
@@ -81,7 +81,7 @@ QStringList KDevDlgFilter::import( const QString &, const QString& filename )
 
 bool KDevDlgFilter::init()
 {
-    return TRUE;
+    return true;
 }
 
 void KDevDlgFilter::cleanup()
@@ -90,7 +90,7 @@ void KDevDlgFilter::cleanup()
 
 bool KDevDlgFilter::canUnload() const
 {
-    return TRUE;
+    return true;
 }
 
 Q_EXPORT_COMPONENT()

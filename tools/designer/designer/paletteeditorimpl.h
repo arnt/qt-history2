@@ -23,7 +23,7 @@ class PaletteEditor : public PaletteEditorBase
     Q_OBJECT
 
 public:
-    PaletteEditor( FormWindow *fw, QWidget * parent=0, const char * name=0, bool modal=FALSE, WFlags f=0 );
+    PaletteEditor( FormWindow *fw, QWidget * parent=0, const char * name=0, bool modal=false, WFlags f=0 );
     ~PaletteEditor();
 
     static QPalette getPalette( bool *ok, const QPalette &pal, BackgroundMode mode = PaletteBackground,

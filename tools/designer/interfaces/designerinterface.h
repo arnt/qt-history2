@@ -146,7 +146,7 @@ struct DesignerDatabase
     virtual void setTables( const QStringList & ) = 0;
     virtual QMap<QString, QStringList> fields() const = 0;
     virtual void setFields( const QMap<QString, QStringList> & ) = 0;
-    virtual void open( bool suppressDialog = FALSE ) const = 0;
+    virtual void open( bool suppressDialog = false ) const = 0;
     virtual void close() const = 0;
     virtual QSqlDatabase* connection() = 0;
 
@@ -197,7 +197,7 @@ struct DesignerFormWindow
     virtual void setCurrentWidget( QWidget * ) = 0;
     virtual QList<QAction*> actionList() const = 0;
     virtual QAction *createAction( const QString& text, const QIconSet& icon, const QString& menuText, int accel,
-				   QObject* parent, const char* name = 0, bool toggle = FALSE ) = 0;
+				   QObject* parent, const char* name = 0, bool toggle = false ) = 0;
     virtual void addAction( QAction * ) = 0;
     virtual void removeAction( QAction * ) = 0;
     virtual void preview() const = 0;

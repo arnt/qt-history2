@@ -4,14 +4,14 @@ void EditBookForm::init()
     while ( query.next() ) {
 	ComboBoxAuthor->insertItem( query.value( 0 ).toString() ); 
 	int id = query.value( 1 ).toInt();
-	mapAuthor( query.value( 0 ).toString(), id, TRUE );
+	mapAuthor( query.value( 0 ).toString(), id, true );
     }
 }
 
 void EditBookForm::beforeUpdateBook( QSqlRecord * buffer )
 {
     int id;
-    mapAuthor( ComboBoxAuthor->currentText(), id, FALSE );
+    mapAuthor( ComboBoxAuthor->currentText(), id, false );
     buffer->setValue( "authorid", id );
 }
 
@@ -49,4 +49,3 @@ void EditBookForm::primeUpdateBook( QSqlRecord * buffer )
 	}
     }
 }
-

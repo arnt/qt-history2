@@ -11,10 +11,10 @@
 **
 ****************************************************************************/
 
+#include "glade2ui.h"
+
 #include <filterinterface.h>
 #include <qapplication.h>
-
-#include "glade2ui.h"
 
 class GladeFilter : public ImportFilterInterface, public QLibraryInterface
 {
@@ -70,7 +70,7 @@ QStringList GladeFilter::import( const QString &, const QString& filename )
 
 bool GladeFilter::init()
 {
-    return TRUE;
+    return true;
 }
 
 void GladeFilter::cleanup()
@@ -79,7 +79,7 @@ void GladeFilter::cleanup()
 
 bool GladeFilter::canUnload() const
 {
-    return TRUE;
+    return true;
 }
 
 Q_EXPORT_COMPONENT()

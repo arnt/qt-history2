@@ -22,14 +22,14 @@ void ListEditor::setList( const QStringList &l )
     for ( QStringList::ConstIterator it = l.begin(); it != l.end(); ++it ) {
 	i = new QListViewItem( listview, i );
 	i->setText( 0, *it );
-	i->setRenameEnabled( 0, TRUE );
+	i->setRenameEnabled( 0, true );
     }
 }
 
 void ListEditor::addItem()
 {
     QListViewItem *i = new QListViewItem( listview, listview->lastItem() );
-    i->setRenameEnabled( 0, TRUE );
+    i->setRenameEnabled( 0, true );
     qApp->processEvents();
     i->startRename( 0 );
 }

@@ -27,7 +27,7 @@ EditorBrowser::EditorBrowser( Editor *e )
 //     curEditor->installEventFilter( this );
 
     QFont fn( curEditor->font() );
-    fn.setUnderline( TRUE );
+    fn.setUnderline( true );
     highlightedFormat = new Q3TextFormat( fn, blue );
 }
 
@@ -58,14 +58,14 @@ bool EditorBrowser::eventFilter( QObject *o, QEvent *e )
 		    // avoid collision with other selections
 		    for ( int i = 0; i < curEditor->document()->numSelections(); ++i )
 			curEditor->document()->removeSelection( i );
-		    from.paragraph()->setFormat( from.index(), to.index() - from.index() + 1, highlightedFormat, FALSE );
+		    from.paragraph()->setFormat( from.index(), to.index() - from.index() + 1, highlightedFormat, false );
 		    lastWord = from.paragraph()->string()->toString().mid( from.index(), to.index() - from.index() + 1 );
 		    oldHighlightedParag = from.paragraph();
 		} else {
 		    lastWord = "";
 		}
 		curEditor->repaintChanged();
-		return TRUE;
+		return true;
 	    }
 	    break;
 	case QEvent::MouseButtonPress: {
@@ -81,7 +81,7 @@ bool EditorBrowser::eventFilter( QObject *o, QEvent *e )
 		oldHighlightedParag = 0;
 	    }
 	    if ( killEvent )
-		return TRUE;
+		return true;
 	} break;
 	case QEvent::KeyRelease:
 	    lastWord = "";
@@ -99,7 +99,7 @@ bool EditorBrowser::eventFilter( QObject *o, QEvent *e )
 	    break;
 	}
     }
-    return FALSE;
+    return false;
 }
 
 void EditorBrowser::setCurrentEdior( Editor *e )
@@ -126,5 +126,5 @@ bool EditorBrowser::findCursor( const Q3TextCursor &c, Q3TextCursor &from, Q3Tex
 	to.gotoRight();
     if ( to.paragraph()->at( to.index() )->c == ' ' || to.paragraph()->at( to.index() )->c == '\t' )
 	to.gotoLeft();
-    return TRUE;
+    return true;
 }

@@ -14,6 +14,9 @@
 #ifndef WIDGETFACTORY_H
 #define WIDGETFACTORY_H
 
+#include "qwidgetfactory.h"
+#include "metadatabase.h"
+
 #include <qvariant.h>
 #include <qhash.h>
 #include <qiconset.h>
@@ -33,9 +36,6 @@
 #include <qwidgetstack.h>
 #include <qguardedptr.h>
 #include <qtoolbox.h>
-
-#include "metadatabase.h"
-#include "qwidgetfactory.h"
 
 class QWidget;
 class QLayout;
@@ -61,7 +61,7 @@ public:
 	NoLayout
     };
 
-    static QWidget *create( int id, QWidget *parent, const char *name = 0, bool init = TRUE,
+    static QWidget *create( int id, QWidget *parent, const char *name = 0, bool init = true,
 			    const QRect *rect = 0, Qt::Orientation orient = Qt::Horizontal );
     static QLayout *createLayout( QWidget *widget, QLayout* layout, LayoutType type );
     static void deleteLayout( QWidget *widget );
@@ -186,7 +186,7 @@ class QDesignerWizard : public QWizard
 
 public:
     QDesignerWizard( QWidget *parent, const char *name ) 
-        : QWizard( parent, name ), modal(FALSE) {}
+        : QWizard( parent, name ), modal(false) {}
 
     int currentPageNum() const;
     void setCurrentPage( int i );
@@ -352,7 +352,7 @@ class QDesignerDialog : public QDialog
 
 public:
     QDesignerDialog( FormWindow *fw, QWidget *parent, const char *name )
-	: QDialog( parent, name, FALSE, WResizeNoErase ), formwindow( fw ), modal(FALSE) {}
+	: QDialog( parent, name, false, WResizeNoErase ), formwindow( fw ), modal(false) {}
 
     bool isModal() const { return modal; }
     void setModal(bool b) { modal = b; }

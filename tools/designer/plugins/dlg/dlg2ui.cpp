@@ -500,7 +500,7 @@ void Dlg2Ui::flushWidgets()
 	QString className = widgetClassName( *yyWidgetMap.begin() );
 	if ( !widgetForLayout.exactMatch(className) ) {
 	    emitOpeningWidget( className );
-	    emitWidgetBody( *yyWidgetMap.begin(), FALSE );
+	    emitWidgetBody( *yyWidgetMap.begin(), false );
 	    emitClosing( QString("widget") );
 	}
 	yyWidgetMap.remove( yyWidgetMap.begin() );
@@ -695,7 +695,7 @@ void Dlg2Ui::emitWidgetBody( const QDomElement& e, bool layouted )
 			if ( tagName == QString("Style") ) {
 			    if ( getTextValue(n) == QString("ReadWrite") )
 				emitProperty( QString("editable"),
-					      QVariant(TRUE) );
+					      QVariant(true) );
 			}
 		    } else if ( parentTagName == QString("DlgWidget") ) {
 			if ( tagName == QString("Name") ) {
@@ -804,18 +804,18 @@ void Dlg2Ui::emitWidgetBody( const QDomElement& e, bool layouted )
 		    if ( type == QString("qstring") )
 			type = QString( "string" );
 
-		    bool omit = FALSE;
+		    bool omit = false;
 		    if ( propertyName == QString("backgroundOrigin") &&
 			 val.toString() == QString("WidgetOrigin") )
-			omit = TRUE;
+			omit = true;
 		    if ( propertyName == QString("enabled") && val.toBool() )
-			omit = TRUE;
+			omit = true;
 		    if ( propertyName == QString("minimumSize") &&
 			 val.toSize() == QSize(-1, -1) )
-			omit = TRUE;
+			omit = true;
 		    if ( propertyName == QString("maximumSize") &&
 			 val.toSize() == QSize(32767, 32767) )
-			omit = TRUE;
+			omit = true;
 
 		    if ( !omit )
 			emitProperty( propertyName, val, type );
@@ -991,7 +991,7 @@ void Dlg2Ui::matchDialogCommon( const QDomElement& dialogCommon )
     QString dataSource;
     QString dataName;
     QString windowBaseClass( "QDialog" );
-    bool isCustom = FALSE;
+    bool isCustom = false;
     QString customBaseHeader;
     QString windowCaption;
 
@@ -1018,7 +1018,7 @@ void Dlg2Ui::matchDialogCommon( const QDomElement& dialogCommon )
 	    dataName = val;
 	} else if ( tagName == QString("WindowBaseClass") ) {
 	    if ( val == QString("Custom") )
-		isCustom = TRUE;
+		isCustom = true;
 	    else
 		windowBaseClass = val;
 	} else if ( tagName == QString("IsModal") ) {
@@ -1061,7 +1061,7 @@ void Dlg2Ui::matchBoxLayout( const QDomElement& boxLayout )
     int autoBorder = 5;
     QString name;
     bool needsWidget = needsQLayoutWidget( boxLayout );
-    bool opened = FALSE;
+    bool opened = false;
 
     QDomNode n = boxLayout.firstChild();
     while ( !n.isNull() ) {
@@ -1074,7 +1074,7 @@ void Dlg2Ui::matchBoxLayout( const QDomElement& boxLayout )
 		if ( !directionStr.isEmpty() )
 		    emitProperty( QString("direction"), directionStr,
 				  QString("enum") );
-		opened = TRUE;
+		opened = true;
 	    }
 	    matchLayout( n.toElement() );
 	} else {
@@ -1150,7 +1150,7 @@ void Dlg2Ui::matchGridLayout( const QDomElement& gridLayout )
     QString name;
     QString menu;
     bool needsWidget = needsQLayoutWidget( gridLayout );
-    bool opened = FALSE;
+    bool opened = false;
 
     QDomNode n = gridLayout.firstChild();
     while ( !n.isNull() ) {
@@ -1162,7 +1162,7 @@ void Dlg2Ui::matchGridLayout( const QDomElement& gridLayout )
 				   autoBorder );
 		yyGridRow = -1;
 		yyGridColumn = -1;
-		opened = TRUE;
+		opened = true;
 	    }
 	    matchLayout( n.toElement() );
 	} else {
@@ -1285,7 +1285,7 @@ void Dlg2Ui::matchLayoutWidget( const QDomElement& layoutWidget )
 		emitClosingLayout( needsWidget, QString("grid") );
 	    } else {
 		emitOpeningWidget( widgetClassName(*w) );
-		emitWidgetBody( *w, TRUE );
+		emitWidgetBody( *w, true );
 		if ( !children.isNull() )
 		    matchLayout( children );
 		emitClosing( QString("widget") );

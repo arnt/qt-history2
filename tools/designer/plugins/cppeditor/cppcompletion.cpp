@@ -24,7 +24,7 @@ CppEditorCompletion::CppEditorCompletion( Editor *e )
 bool CppEditorCompletion::doObjectCompletion( const QString &objName )
 {
     if ( !ths )
-	return FALSE;
+	return false;
     QString object( objName );
     int i = -1;
     if ( ( i = object.findRev( "->" ) ) != -1 )
@@ -40,7 +40,7 @@ bool CppEditorCompletion::doObjectCompletion( const QString &objName )
     }
 
     if ( !obj )
-	return FALSE;
+	return false;
 
     QList<CompletionEntry> lst;
 
@@ -89,10 +89,10 @@ bool CppEditorCompletion::doObjectCompletion( const QString &objName )
     }
 
     if ( lst.isEmpty() )
-	return FALSE;
+	return false;
 
     showCompletion( lst );
-    return TRUE;
+    return true;
 }
 
 QList<QStringList> CppEditorCompletion::functionParameters( const QString &expr, QChar &separator,

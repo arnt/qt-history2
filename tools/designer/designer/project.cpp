@@ -55,9 +55,9 @@ bool DatabaseConnection::refreshCatalog()
 {
 #ifndef QT_NO_SQL
     if ( loaded )
-	return TRUE;
+	return true;
     if ( !open() )
-	return FALSE;
+	return false;
     tbls = conn->tables( QSql::TableType( QSql::Tables | QSql::Views ) );
     flds.clear();
     for ( QStringList::Iterator it = tbls.begin(); it != tbls.end(); ++it ) {
@@ -67,11 +67,11 @@ bool DatabaseConnection::refreshCatalog()
 	    lst << fil.field( j )->name();
 	flds.insert( *it, lst );
     }
-    loaded = TRUE;
+    loaded = true;
     conn->close();
     return loaded;
 #else
-    return FALSE;
+    return false;
 #endif
 }
 
@@ -108,16 +108,16 @@ bool DatabaseConnection::open( bool suppressDialog )
     conn->setHostName( hname );
     conn->setPort( prt );
     bool success = conn->open();
-    for( ; suppressDialog == FALSE ; ) {
-	bool done = FALSE;
+    for( ; suppressDialog == false ; ) {
+	bool done = false;
 	if ( !success ) {
-	    DatabaseConnectionEditor dia( this, 0  , 0 , TRUE );
+	    DatabaseConnectionEditor dia( this, 0  , 0 , true );
 	    switch( dia.exec() ) {
 	    case QDialog::Accepted:
-		done = FALSE;
+		done = false;
 		break;
 	    case QDialog::Rejected:
-		done = TRUE;
+		done = true;
 		break;
 	    }
 	}
@@ -140,7 +140,7 @@ bool DatabaseConnection::open( bool suppressDialog )
 	    case 0: // OK or Enter
 		continue;
 	    case 1: // Cancel or Escape
-		done = TRUE;
+		done = true;
 		break;
 	    }
 	} else
@@ -154,7 +154,7 @@ bool DatabaseConnection::open( bool suppressDialog )
     }
     return success;
 #else
-    return FALSE;
+    return false;
 #endif
 }
 
@@ -190,7 +190,7 @@ Project::Project( const QString &fn, const QString &pName,
 		  const QString &l )
     : proName( pName ), projectSettingsPluginManager( pm ), isDummyProject( isDummy )
 {
-    modified = TRUE;
+    modified = true;
     pixCollection = new PixmapCollection( this );
     iface = 0;
     lang = l;
@@ -200,7 +200,7 @@ Project::Project( const QString &fn, const QString &pName,
     setFileName( fn );
     if ( !pName.isEmpty() )
 	proName = pName;
-    modified = FALSE;
+    modified = false;
 }
 
 Project::~Project()
@@ -297,13 +297,13 @@ QString Project::projectName() const
 static QString parse_part( const QString &part )
 {
     QString res;
-    bool inName = FALSE;
+    bool inName = false;
     QString currName;
     for ( int i = 0; i < (int)part.length(); ++i ) {
 	QChar c = part[ i ];
 	if ( !inName ) {
 	    if ( c != ' ' && c != '\t' && c != '\n' && c != '=' && c != '\\' && c != '+' )
-		inName = TRUE;
+		inName = true;
 	    else
 		continue;
 	}
@@ -355,15 +355,15 @@ QStringList parse_multiline_part( const QString &contents, const QString &key, i
 	    if ( start )
 		*start = i - lastWord.length() - extraWhiteSpaceCount + 1;
 	    QStringList lst;
-	    bool inName = FALSE;
+	    bool inName = false;
 	    QString currName;
-	    bool hadEqual = FALSE;
+	    bool hadEqual = false;
 	    for ( ; i < (int)contents.length(); ++i ) {
 		c = contents[ i ];
 		if ( !hadEqual && c != '=' )
 		    continue;
 		if ( !hadEqual ) {
-		    hadEqual = TRUE;
+		    hadEqual = true;
 		    continue;
 		}
 		if ( ( c.isLetter() || c.isDigit() || c == '.' || c == '/' || c == '_' || c == '\\' ||
@@ -374,11 +374,11 @@ QStringList parse_multiline_part( const QString &contents, const QString &key, i
 			currName = QString::null;
 		    if ( c != '\\' || contents[i+1] != '\n' ) {
 			currName += c;
-			inName = TRUE;
+			inName = true;
 		    }
 		} else {
 		    if ( inName ) {
-			inName = FALSE;
+			inName = false;
 			if ( currName.simplifyWhiteSpace() != "\\" )
 			    lst.append( currName );
 		    }
@@ -409,7 +409,7 @@ void Project::parse()
     int i = contents.find( "LANGUAGE" );
     if ( i != -1 ) {
 	lang = "";
-	is_cpp = FALSE;
+	is_cpp = false;
 	QString part = contents.mid( i + QString( "LANGUAGE" ).length() );
 	lang = parse_part( part );
 	is_cpp = lang == "C++";
@@ -427,7 +427,7 @@ void Project::parse()
     for ( it = uifiles.begin(); it != uifiles.end(); ++it ) {
 	if ( (*it).startsWith( "__APPOBJ" ) )
 	    continue;
-	(void) new FormFile( *it, FALSE, this );
+	(void) new FormFile( *it, false, this );
     }
 
 
@@ -452,7 +452,7 @@ void Project::parse()
 	for ( QStringList::Iterator it = sourceKeys.begin(); it != sourceKeys.end(); ++it ) {
 	    QStringList lst = parse_multiline_part( contents, *it );
 	    for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it )
-		(void) new SourceFile( *it, FALSE, this );
+		(void) new SourceFile( *it, false, this );
 	}
     }
 
@@ -473,11 +473,11 @@ void Project::parse()
     QStringList images = parse_multiline_part( contents, "IMAGES" );
 
     // ### remove that for the final - this is beta-compatibility
-    if ( images.isEmpty() && QDir( QFileInfo( filename ).dirPath( TRUE ) + "/images" ).exists() ) {
-	    images = QDir( QFileInfo( filename ).dirPath( TRUE ) + "/images" ).entryList();
+    if ( images.isEmpty() && QDir( QFileInfo( filename ).dirPath( true ) + "/images" ).exists() ) {
+	    images = QDir( QFileInfo( filename ).dirPath( true ) + "/images" ).entryList();
 	    for ( int i = 0; i < (int)images.count(); ++i )
 		images[ i ].prepend( "images/" );
-	    modified = TRUE;
+	    modified = true;
     }
 
     for ( QStringList::ConstIterator pit = images.begin(); pit != images.end(); ++pit )
@@ -494,14 +494,14 @@ void Project::clear()
 bool Project::removeSourceFile( SourceFile *sf )
 {
     if ( !sourcefiles.contains( sf ) )
-	return FALSE;
+	return false;
     if ( !sf->close() )
-	return FALSE;
+	return false;
     sourcefiles.remove( sf );
     delete sf;
-    modified = TRUE;
+    modified = true;
     emit sourceFileRemoved( sf );
-    return TRUE;
+    return true;
 }
 
 void Project::setDatabaseDescription( const QString &db )
@@ -524,16 +524,16 @@ bool Project::isValid() const
 {
      // #### do more checking here?
     if ( filename.isEmpty() || proName.isEmpty() )
-	return FALSE;
+	return false;
 
-    return TRUE;
+    return true;
 }
 
 QString Project::makeAbsolute( const QString &f )
 {
     if ( isDummy() )
 	return f;
-    QString encodedUrl = QFileInfo( filename ).dirPath( TRUE );
+    QString encodedUrl = QFileInfo( filename ).dirPath( true );
     QUrl::encode( encodedUrl );
     QUrl u( encodedUrl, f );
     return u.path();
@@ -543,7 +543,7 @@ QString Project::makeRelative( const QString &f )
 {
     if ( isDummy() )
 	return f;
-    QString p = QFileInfo( filename ).dirPath( TRUE );
+    QString p = QFileInfo( filename ).dirPath( true );
     QString f2 = f;
     if ( f2.left( p.length() ) == p )
 	f2.remove( 0, p.length() + 1 );
@@ -569,7 +569,7 @@ static void remove_multiline_contents( QString &contents, const QString &s, int 
     if ( strt )
 	*strt = i;
     int start = i;
-    bool lastWasBackspash = TRUE;
+    bool lastWasBackspash = true;
     if ( i != -1 && ( i == 0 || contents[ i - 1 ] != '{' || contents[ i - 1 ] != ':' ) ) {
 	for ( ; i < (int)contents.length(); ++i ) {
 	    if ( contents[ i ] == '\n' && !lastWasBackspash )
@@ -583,7 +583,7 @@ static void remove_multiline_contents( QString &contents, const QString &s, int 
 
 void Project::save( bool onlyProjectFile )
 {
-    bool anythingModified = FALSE;
+    bool anythingModified = false;
 
     //  save sources and forms
     if ( !onlyProjectFile ) {
@@ -620,12 +620,12 @@ void Project::save( bool onlyProjectFile )
     QString original = "";
 
     // read the existing file
-    bool hasPreviousContents = FALSE;
+    bool hasPreviousContents = false;
     if ( f.open( IO_ReadOnly ) ) {
 	QTextStream ts( &f );
 	original = ts.read();
 	f.close();
-	hasPreviousContents = TRUE;
+	hasPreviousContents = true;
 	remove_contents( original, "{SOURCES+=" ); // ### compatibility with early 3.0 betas
 	remove_contents( original, "DBFILE" );
 	remove_contents( original, "LANGUAGE" );
@@ -765,12 +765,12 @@ void Project::save( bool onlyProjectFile )
 
     f.close();
 
-    setModified( FALSE );
+    setModified( false );
 
     if ( singleProjectMode() ) {
 	LanguageInterface *iface = MetaDataBase::languageInterface( language() );
 	if ( iface && iface->supports( LanguageInterface::CompressProject ) )
-	    iface->compressProject( makeAbsolute( filename ), singleProFileName, TRUE );
+	    iface->compressProject( makeAbsolute( filename ), singleProFileName, true );
     }
 }
 
@@ -792,7 +792,7 @@ void Project::setDatabaseConnections( const QList<DatabaseConnection*> &lst )
 void Project::addDatabaseConnection( DatabaseConnection *conn )
 {
     dbConnections.append( conn );
-    modified = TRUE;
+    modified = true;
 }
 #endif
 
@@ -875,7 +875,7 @@ void Project::saveConnections()
 	if ( f.exists() )
 	    f.remove();
 	setDatabaseDescription( "" );
-	modified = TRUE;
+	modified = true;
 	return;
     }
 
@@ -1023,13 +1023,13 @@ bool Project::openDatabase( const QString &connection, bool suppressDialog )
     if ( connection.isEmpty() && !conn )
 	conn = databaseConnection( "(default)" );
     if ( !conn )
-	return FALSE;
+	return false;
     bool b = conn->open( suppressDialog );
     return b;
 #else
     Q_UNUSED( connection );
     Q_UNUSED( suppressDialog );
-    return FALSE;
+    return false;
 #endif
 }
 
@@ -1085,7 +1085,7 @@ void Project::setLanguage( const QString &l )
     lang = l;
     is_cpp = lang == "C++";
     updateCustomSettings();
-    modified = TRUE;
+    modified = true;
 }
 
 QString Project::language() const
@@ -1097,7 +1097,7 @@ void Project::setCustomSetting( const QString &key, const QString &value )
 {
     customSettings.remove( key );
     customSettings.insert( key, value );
-    modified = TRUE;
+    modified = true;
 }
 
 QString Project::customSetting( const QString &key ) const
@@ -1136,7 +1136,7 @@ void Project::setActive( bool b )
 void Project::addSourceFile( SourceFile *sf )
 {
     sourcefiles.append( sf );
-    modified = TRUE;
+    modified = true;
     emit sourceFileAdded( sf );
 }
 
@@ -1164,7 +1164,7 @@ void Project::setIncludePath( const QString &platform, const QString &path )
     if ( inclPath[platform] == path )
 	return;
     inclPath.replace( platform, path );
-    modified = TRUE;
+    modified = true;
 }
 
 void Project::setLibs( const QString &platform, const QString &path )
@@ -1267,27 +1267,27 @@ void Project::writePlatformSettings( QString &contents, const QString &setting,
 void Project::addFormFile( FormFile *ff )
 {
     formfiles.append( ff );
-    modified = TRUE;
+    modified = true;
     emit formFileAdded( ff );
 }
 
 bool Project::removeFormFile( FormFile *ff )
 {
     if ( !formfiles.contains( ff ) )
-	return FALSE;
+	return false;
     if ( !ff->close() )
-	return FALSE;
+	return false;
     formfiles.remove( ff );
-    modified = TRUE;
+    modified = true;
     emit formFileRemoved( ff );
-    return TRUE;
+    return true;
 }
 
 void Project::addObject( QObject *o )
 {
     bool wasModified = modified;
     objs.append( o );
-    FormFile *ff = new FormFile( "", FALSE, this, "qt_fakewindow" );
+    FormFile *ff = new FormFile( "", false, this, "qt_fakewindow" );
     ff->setFileName( "__APPOBJ" + QString( o->name() ) + ".ui" );
     fakeFormFiles.insert( o, ff );
     MetaDataBase::addEntry( o );
@@ -1297,7 +1297,7 @@ void Project::addObject( QObject *o )
 	fw->setProject( this );
 	if ( QFile::exists( ff->absFileName() ) )
 	    Resource::loadExtraSource( ff, ff->absFileName(),
-				       MetaDataBase::languageInterface( language() ), FALSE );
+				       MetaDataBase::languageInterface( language() ), false );
 	if ( MainWindow::self )
 	    fw->setMainWindow( MainWindow::self );
 	if ( MainWindow::self ) {
@@ -1315,7 +1315,7 @@ void Project::addObject( QObject *o )
     } else {
 	if ( QFile::exists( ff->absFileName() ) )
 	    Resource::loadExtraSource( ff, ff->absFileName(),
-				       MetaDataBase::languageInterface( language() ), FALSE );
+				       MetaDataBase::languageInterface( language() ), false );
     }
     emit objectAdded( o );
     modified = wasModified;
@@ -1407,11 +1407,11 @@ void Project::addAndEditFunction( const QString &function, const QString &functi
 	    if ( i != -1 )
 		func = func.left( i );
 
-	    bool found = FALSE;
+	    bool found = false;
 	    for ( QList<LanguageInterface::Function>::Iterator it = funcs.begin();
 		  it != funcs.end(); ++it ) {
 		if ( (*it).name.left( (*it).name.find( '(' ) ) == func ) {
-		    found = TRUE;
+		    found = true;
 		    break;
 		}
 	    }
@@ -1425,7 +1425,7 @@ void Project::addAndEditFunction( const QString &function, const QString &functi
 			    "()\n" + functionBody + "\n";
 		f->setText( code );
 		if ( f->editor() )
-		    f->editor()->refresh( FALSE );
+		    f->editor()->refresh( false );
 	    }
 
 	    if ( openDeveloper ) {
@@ -1445,9 +1445,9 @@ bool Project::hasParentObject( QObject *o )
 	QObject *p = objs.at(i);
 	QObject *c = p->child( o->name(), o->className() );
 	if ( c )
-	    return TRUE;
+	    return true;
     }
-    return FALSE;
+    return false;
 }
 
 QString Project::qualifiedName( QObject *o )
@@ -1484,7 +1484,7 @@ void Project::designerCreated()
 					      const QString & ) ),
 		 MainWindow::self, SLOT( updateUndoRedo( bool, bool,
 					 const QString &, const QString & ) ) );
-	fw->reparent( MainWindow::self->qWorkspace(), QPoint( 0, 0 ), FALSE );
+	fw->reparent( MainWindow::self->qWorkspace(), QPoint( 0, 0 ), false );
 	QApplication::sendPostedEvents( MainWindow::self->qWorkspace(),
 					QEvent::ChildInserted );
 	fw->parentWidget()->setFixedSize( 1, 1 );

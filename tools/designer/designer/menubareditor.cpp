@@ -11,6 +11,11 @@
 **
 ****************************************************************************/
 
+#include "menubareditor.h"
+#include "command.h"
+#include "formwindow.h"
+#include "popupmenueditor.h"
+
 #include <qaction.h>
 #include <qapplication.h>
 #include <qbitmap.h>
@@ -20,11 +25,6 @@
 #include <qpainter.h>
 #include <qstyle.h>
 #include <qevent.h>
-
-#include "command.h"
-#include "formwindow.h"
-#include "menubareditor.h"
-#include "popupmenueditor.h"
 
 extern void find_accel( const QString &txt, QMap<QChar, QWidgetList > &accels, QWidget *w );
 
@@ -65,13 +65,13 @@ bool MenuBarEditorItemPtrDrag::decode( QDropEvent * e, MenuBarEditorItem ** i )
     QDataStream stream( data, IO_ReadOnly );
 
     if ( !data.size() )
-	return FALSE;
+	return false;
 
     Q_LONG p = 0;
     stream >> p;
     *i = ( MenuBarEditorItem *) p;
 
-    return TRUE;
+    return true;
 }
 
 // MenuBarEditorItem ---------------------------------------------------
@@ -80,9 +80,9 @@ MenuBarEditorItem::MenuBarEditorItem( MenuBarEditor * bar, QObject * parent, con
     : QObject( parent, name ),
       menuBar( bar ),
       popupMenu( 0 ),
-      visible( TRUE ),
-      separator( FALSE ),
-      removable( FALSE )
+      visible( true ),
+      separator( false ),
+      removable( false )
 { }
 
 MenuBarEditorItem::MenuBarEditorItem( PopupMenuEditor * menu, MenuBarEditor * bar,
@@ -90,9 +90,9 @@ MenuBarEditorItem::MenuBarEditorItem( PopupMenuEditor * menu, MenuBarEditor * ba
     : QObject( parent, name ),
       menuBar( bar ),
       popupMenu( menu ),
-      visible( TRUE ),
-      separator( FALSE ),
-      removable( TRUE )
+      visible( true ),
+      separator( false ),
+      removable( true )
 {
     text = menu->name();
 }
@@ -102,9 +102,9 @@ MenuBarEditorItem::MenuBarEditorItem( QActionGroup * actionGroup, MenuBarEditor 
     : QObject( parent, name ),
       menuBar( bar ),
       popupMenu( 0 ),
-      visible( TRUE ),
-      separator( FALSE ),
-      removable( TRUE )
+      visible( true ),
+      separator( false ),
+      removable( true )
 {
     text = actionGroup->menuText();
     popupMenu = new PopupMenuEditor( menuBar->formWindow(), menuBar );
@@ -136,10 +136,10 @@ MenuBarEditor::MenuBarEditor( FormWindow * fw, QWidget * parent, const char * na
       itemHeight( 0 ),
       separatorWidth( 32 ),
       borderSize( 4 ),
-      hideWhenEmpty( TRUE ),
-      hasSeparator( FALSE )
+      hideWhenEmpty( true ),
+      hasSeparator( false )
 {
-    setAcceptDrops( TRUE );
+    setAcceptDrops( true );
     setFocusPolicy( StrongFocus );
 
     addItem.setMenuText( tr("new menu") );
@@ -147,7 +147,7 @@ MenuBarEditor::MenuBarEditor( FormWindow * fw, QWidget * parent, const char * na
 
     lineEdit = new QLineEdit( this, "menubar lineedit" );
     lineEdit->hide();
-    lineEdit->setFrame( FALSE );
+    lineEdit->setFrame( false );
     lineEdit->setEraseColor( eraseColor() );
     lineEdit->installEventFilter( this );
 
@@ -225,9 +225,9 @@ void MenuBarEditor::insertSeparator( int index )
 	return;
 
     MenuBarEditorItem * i = createItem( index );
-    i->setSeparator( TRUE );
+    i->setSeparator( true );
     i->setMenuText( "separator" );
-    hasSeparator = TRUE;
+    hasSeparator = true;
 }
 
 void MenuBarEditor::removeItemAt( int index )
@@ -242,7 +242,7 @@ void MenuBarEditor::removeItem( MenuBarEditorItem * item )
 	 itemList.remove( item ) ) {
 
 	if ( item->isSeparator() )
-	    hasSeparator = FALSE;
+	    hasSeparator = false;
 
 	if ( hideWhenEmpty && itemList.count() == 0 )
 	    hide();
@@ -591,49 +591,49 @@ void MenuBarEditor::mouseMoveEvent( QMouseEvent * e )
 {
     if ( e->state() & Qt::LeftButton ) {
 	if ( ( e->pos() - mousePressPos ).manhattanLength() > 3 ) {
-	    bool itemCreated = FALSE;
+	    bool itemCreated = false;
 	    draggedItem = item( findItem( mousePressPos ) );
 	    if ( draggedItem == &addItem ) {
 		draggedItem = createItem();
-		itemCreated = TRUE;
+		itemCreated = true;
 	    } else if ( draggedItem == &addSeparator ) {
                 if (hasSeparator) // we can only have one separator
                     return;
 		draggedItem = createItem();
-		draggedItem->setSeparator( TRUE );
+		draggedItem->setSeparator( true );
 		draggedItem->setMenuText( "separator" );
-		hasSeparator = TRUE;
-		itemCreated = TRUE;
+		hasSeparator = true;
+		itemCreated = true;
 	    }
 
 	    MenuBarEditorItemPtrDrag * d =
 		new MenuBarEditorItemPtrDrag( draggedItem, this );
 	    d->setPixmap( createTextPixmap( draggedItem->menuText() ) );
 	    hideItem();
-	    draggedItem->setVisible( FALSE );
+	    draggedItem->setVisible( false );
 	    update();
 
 	    // If the item is dropped in the same list,
 	    //  we will have two instances of the same pointer
 	    // in the list.
 	    int idx = itemList.findIndex( draggedItem );
-	    dropConfirmed = FALSE;
+	    dropConfirmed = false;
 	    d->dragCopy(); // dragevents and stuff happens
 	    if ( draggedItem ) { // item was not dropped
 		if ( itemCreated ) {
 		    removeItem( draggedItem );
 		} else {
 		    hideItem();
-		    draggedItem->setVisible( TRUE );
+		    draggedItem->setVisible( true );
 		    draggedItem = 0;
 		    showItem();
 		}
 	    } else if ( dropConfirmed ) { // item was dropped
-		dropConfirmed = FALSE;
+		dropConfirmed = false;
 		hideItem();
-		itemList.takeAt( idx )->setVisible( TRUE );
+		itemList.takeAt( idx )->setVisible( true );
 		hasSeparator = isSeparator || hasSeparator;
-		itemList.takeAt( idx )->setVisible( TRUE );
+		itemList.takeAt( idx )->setVisible( true );
 		showItem();
 	    } else {
 		hasSeparator = isSeparator || hasSeparator;
@@ -970,10 +970,10 @@ void MenuBarEditor::dropInPlace( MenuBarEditorItem * i, const QPoint &pos )
     int iidx = itemList.findIndex( i );
     if ( iidx != -1 ) { // internal dnd
 	cmd = new MoveMenuCommand( "Item Dragged", formWnd, this, iidx, idx );
-	item( iidx )->setVisible( TRUE );
+	item( iidx )->setVisible( true );
     } else {
 	cmd = new AddMenuCommand( "Add Menu", formWnd, this, i, idx );
-	dropConfirmed = TRUE; // let mouseMoveEvent set the item visible
+	dropConfirmed = true; // let mouseMoveEvent set the item visible
     }
     formWnd->commandHistory()->addCommand( cmd );
     cmd->execute();

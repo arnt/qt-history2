@@ -272,7 +272,7 @@ QString OpenGLWidgetInterface::whatsThis( const QString &description ) const
 
 bool OpenGLWidgetInterface::isContainer( const QString& ) const
 {
-    return FALSE;
+    return false;
 }
 
 QRESULT OpenGLWidgetInterface::queryInterface( const QUuid& uuid, QUnknownInterface **iface )

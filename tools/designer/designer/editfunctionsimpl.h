@@ -27,7 +27,7 @@ class EditFunctions : public EditFunctionsBase
     Q_OBJECT
 
 public:
-    EditFunctions( QWidget *parent, FormWindow *fw, bool showOnlySlots = FALSE );
+    EditFunctions( QWidget *parent, FormWindow *fw, bool showOnlySlots = false );
 
     void setCurrentFunction( const QString &function );
     void functionAdd( const QString &access = QString::null,

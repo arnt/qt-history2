@@ -12,9 +12,9 @@
 ****************************************************************************/
 
 #include "widgetaction.h"
+#include "mainwindow.h"
 #include <qwidget.h>
 #include <qtoolbutton.h>
-#include "mainwindow.h"
 #include <qstylefactory.h>
 #include <qstyle.h>
 
@@ -26,7 +26,7 @@ void WidgetAction::addedTo( QWidget *w, QWidget *container )
 	if ( !windowsStyle )
 	    windowsStyle = QStyleFactory::create( "windows" );
 	w->setStyle( windowsStyle );
-	( (QToolButton*)w )->setUsesTextLabel( TRUE );
+	( (QToolButton*)w )->setUsesTextLabel( true );
 	( (QToolButton*)w )->setTextPosition( QToolButton::Right );
 	w->setBackgroundMode( container->backgroundMode() );
     }

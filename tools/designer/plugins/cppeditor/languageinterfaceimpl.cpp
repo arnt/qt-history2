@@ -12,10 +12,10 @@
 ****************************************************************************/
 
 #include "languageinterfaceimpl.h"
-#include <qobject.h>
-#include <designerinterface.h>
-#include <qfile.h>
 #include "yyreg.h"
+#include <designerinterface.h>
+#include <qobject.h>
+#include <qfile.h>
 #include <qmetaobject.h>
 
 LanguageInterfaceImpl::LanguageInterfaceImpl( QUnknownInterface *outer )
@@ -149,10 +149,10 @@ QString LanguageInterfaceImpl::createEmptyFunction()
 bool LanguageInterfaceImpl::supports( Support s ) const
 {
     if ( s == ReturnType )
-	return TRUE;
+	return true;
     if ( s == ConnectionsToCustomSlots )
-	return TRUE;
-    return FALSE;
+	return true;
+    return false;
 }
 
 QStringList LanguageInterfaceImpl::fileFilterList() const

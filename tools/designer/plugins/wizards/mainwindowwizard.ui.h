@@ -16,10 +16,10 @@ void MainWindowWizardBase::init()
     dIface = 0;
     dfw = 0;
     widget = 0;
-    setHelpEnabled( menuToolbarPage, FALSE );
-    setHelpEnabled( toolbarsPage, FALSE );
-    setHelpEnabled( finishPage, FALSE );
-    setFinishEnabled( finishPage, TRUE );
+    setHelpEnabled( menuToolbarPage, false );
+    setHelpEnabled( toolbarsPage, false );
+    setHelpEnabled( finishPage, false );
+    setFinishEnabled( finishPage, true );
 }
 
 void MainWindowWizardBase::destroy()
@@ -93,7 +93,7 @@ void MainWindowWizardBase::accept()
 	return;
     }
 
-    setFinishEnabled( finishPage, FALSE );
+    setFinishEnabled( finishPage, false );
 
     QPixmap pix;
 
@@ -277,7 +277,7 @@ void MainWindowWizardBase::getPixmap( const QString & n, QPixmap & pix )
     DesignerProject *pro = dIface->currentProject();
     if ( !pro || pro->projectName() == "<No Project>" )
 	return;
-    pro->pixmapCollection()->addPixmap( pix, n, FALSE );
+    pro->pixmapCollection()->addPixmap( pix, n, false );
 }
 
 void MainWindowWizardBase::pageSelected( const QString & )
@@ -298,4 +298,3 @@ void MainWindowWizardBase::setAppInterface( QUnknownInterface * iface, DesignerF
     dfw = fw;
     widget = w;
 }
-

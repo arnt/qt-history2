@@ -163,7 +163,7 @@ private:
 void UibIndexMap::setName( int no, const QString& name )
 {
     if ( !name.isEmpty() ) {
-	if ( *nameMap.insert(name, no, FALSE) != no )
+	if ( *nameMap.insert(name, no, false) != no )
 	    conflicts.insert( name, 0 );
     }
 }

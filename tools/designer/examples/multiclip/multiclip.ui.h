@@ -45,9 +45,9 @@ void MulticlipForm::init()
 
 void MulticlipForm::selectionChanged()
 {
-    cb->setSelectionMode( TRUE );
+    cb->setSelectionMode( true );
     dataChanged();
-    cb->setSelectionMode( FALSE );
+    cb->setSelectionMode( false );
 }
 
 void MulticlipForm::copyPrevious()
@@ -55,9 +55,9 @@ void MulticlipForm::copyPrevious()
     if ( clippingsListBox->currentItem() != -1 ) {
 	cb->setText( clippingsListBox->currentText() );
 	if ( cb->supportsSelection() ) {
-	    cb->setSelectionMode( TRUE );
+	    cb->setSelectionMode( true );
 	    cb->setText( clippingsListBox->currentText() );
-	    cb->setSelectionMode( FALSE );
+	    cb->setSelectionMode( false );
 	}
     }
 }
@@ -67,4 +67,3 @@ void MulticlipForm::clippingChanged( const QString & clipping )
     currentLineEdit->setText( clipping );
     lengthLCDNumber->display( (int)clipping.length() );
 }
-

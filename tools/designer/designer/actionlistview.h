@@ -14,8 +14,8 @@
 #ifndef ACTIONLISTVIEW_H
 #define ACTIONLISTVIEW_H
 
-#include <qlistview.h>
 #include "actiondnd.h"
+#include <qlistview.h>
 
 class ActionItem : public QListViewItem
 {
@@ -23,13 +23,13 @@ public:
     ActionItem( QListView *lv, bool group )
 	: QListViewItem( lv ),
 	  a( group ? 0 : new QDesignerAction( 0 ) ),
-	  g( group ? new QDesignerActionGroup( 0 ) : 0 ) { setDragEnabled( TRUE ); }
+	  g( group ? new QDesignerActionGroup( 0 ) : 0 ) { setDragEnabled( true ); }
     ActionItem( QListView *lv, QAction *ac );
     ActionItem( QListViewItem *i, QAction *ac );
-    ActionItem( ActionItem *parent, bool group = FALSE )
+    ActionItem( ActionItem *parent, bool group = false )
 	: QListViewItem( parent ),
 	  a( group ? 0 : new QDesignerAction( parent->actionGroup() ) ),
-	  g( group ? new QDesignerActionGroup( parent->actionGroup() ) : 0 ) { setDragEnabled( TRUE ); moveToEnd(); }
+	  g( group ? new QDesignerActionGroup( parent->actionGroup() ) : 0 ) { setDragEnabled( true ); moveToEnd(); }
 
     QDesignerAction *action() const { return a; }
     QDesignerActionGroup *actionGroup() const { return g; }

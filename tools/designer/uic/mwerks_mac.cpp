@@ -97,7 +97,7 @@ bool internal_do_uic(CWPluginContext context, const QCString &source, bool impl)
     fi.dependencyType = cwNormalDependency;
     fi.isdependentoffile = kCurrentCompiledFile;
     if(CWFindAndLoadFile( ctx, source.data(), &fi) != cwNoErr) 
-	return FALSE;
+	return false;
 
     QCString path("");
     AliasHandle alias;
@@ -105,7 +105,7 @@ bool internal_do_uic(CWPluginContext context, const QCString &source, bool impl)
     AliasInfoType x = 1;
     char tmp[sizeof(Str63)+2];
     if(NewAlias( NULL, &fi.filespec, &alias) != noErr) 
-	return FALSE;
+	return false;
     for(;;) {
 	 GetAliasInfo(alias, x++, str);
 	 if(!str[0])
@@ -137,13 +137,13 @@ bool internal_do_uic(CWPluginContext context, const QCString &source, bool impl)
     QString inpath = path + source, outpath = path + dest;
     struct stat istat, ostat;
     if(stat(inpath, &istat) == -1) 
-	return FALSE;
-    bool ret = TRUE, did_uic = FALSE;
+	return false;
+    bool ret = true, did_uic = false;
     if(stat(outpath, &ostat) != 0 || istat.st_mtime > ostat.st_mtime) {
-	did_uic = TRUE;
+	did_uic = true;
 	QFile fileOut(outpath);
 	if (!fileOut.open( IO_WriteOnly ) ) 
-	    return FALSE;
+	    return false;
 	QTextStream out( &fileOut );
 	out.setEncoding( QTextStream::UnicodeUTF8 );
 
@@ -154,10 +154,10 @@ bool internal_do_uic(CWPluginContext context, const QCString &source, bool impl)
 	int errLine;
 	if (!doc.setContent(doc_data, &errMsg, &errLine)) {
 //	    qFatal( QString("uic: Failed to parse %s: ") + errMsg + QString (" in line %d\n"), fileName, errLine );
-	    return FALSE;
+	    return false;
 	}
 	DomTool::fixDocument(doc);
-	ret = do_uic( inpath, header, out, doc, !impl, FALSE, "", "", FALSE );
+	ret = do_uic( inpath, header, out, doc, !impl, false, "", "", false );
 	doc_data.resetRawData();
     }
 

@@ -15,7 +15,7 @@
 #define MAINWINDOW_H
 
 #include "metadatabase.h"
-#include "../interfaces/actioninterface.h" // for GCC 2.7.* compatibility
+#include "../interfaces/actioninterface.h"
 #include "../interfaces/editorinterface.h"
 #include "../interfaces/templatewizardiface.h"
 #include "../interfaces/languageinterface.h"
@@ -69,7 +69,7 @@ class MainWindow : public QMainWindow
 public:
     enum LineMode { Error, Step, StackFrame };
 
-    MainWindow( bool asClient, bool single = FALSE, const QString &plgDir = "/designer" );
+    MainWindow( bool asClient, bool single = false, const QString &plgDir = "/designer" );
     ~MainWindow();
 
     HierarchyView *objectHierarchy() const;
@@ -96,7 +96,7 @@ public:
     QPopupMenu *setupNormalHierarchyMenu( QWidget *parent );
     QPopupMenu *setupTabWidgetHierarchyMenu( QWidget *parent, const char *addSlot, const char *removeSlot );
 
-    FormWindow *openFormWindow( const QString &fn, bool validFileName = TRUE, FormFile *ff = 0 );
+    FormWindow *openFormWindow( const QString &fn, bool validFileName = true, FormFile *ff = 0 );
     bool isCustomWidgetUsed( MetaDataBase::CustomWidget *w );
 
     void setGrid( const QPoint &p );
@@ -112,7 +112,7 @@ public:
 
     QString templatePath() const { return templPath; }
 
-    void editFunction( const QString &func, bool rereadSource = FALSE );
+    void editFunction( const QString &func, bool rereadSource = false );
 
     bool isPreviewing() const { return previewing; }
 
@@ -209,7 +209,7 @@ public slots:
     void fileQuit();
     void fileCloseProject(); // not visible in menu, called from fileClose
     void fileOpen();
-    void fileOpen( const QString &filter, const QString &extension, const QString &filename = "" , bool inProject = TRUE );
+    void fileOpen( const QString &filter, const QString &extension, const QString &filename = "" , bool inProject = true );
     bool fileSave();
     bool fileSaveForm(); // not visible in menu, called from fileSave
     bool fileSaveProject(); // not visible in menu, called from fileSaveProject
@@ -246,7 +246,7 @@ public slots:
     SourceEditor *createSourceEditor( QObject *object, Project *project,
 				      const QString &lang = QString::null,
 				      const QString &func = QString::null,
-				      bool rereadSource = FALSE );
+				      bool rereadSource = false );
     void editFormSettings();
     void editProjectSettings();
     void editPixmapCollection();

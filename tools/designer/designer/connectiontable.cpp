@@ -16,26 +16,26 @@
 ConnectionTable::ConnectionTable( QWidget *parent, const char *name )
     : QTable( 0, 4, parent, name )
 {
-    setSorting( TRUE );
-    setShowGrid( FALSE );
+    setSorting( true );
+    setShowGrid( false );
     setFocusStyle( FollowStyle );
     setSelectionMode( SingleRow );
     horizontalHeader()->setLabel( 0, tr( "Sender" ) );
     horizontalHeader()->setLabel( 1, tr( "Signal" ) );
     horizontalHeader()->setLabel( 2, tr( "Receiver" ) );
     horizontalHeader()->setLabel( 3, tr( "Slot" ) );
-    setColumnStretchable( 0, TRUE );
-    setColumnStretchable( 1, TRUE );
-    setColumnStretchable( 2, TRUE );
-    setColumnStretchable( 3, TRUE );
+    setColumnStretchable( 0, true );
+    setColumnStretchable( 1, true );
+    setColumnStretchable( 2, true );
+    setColumnStretchable( 3, true );
 }
 
 void ConnectionTable::sortColumn( int col, bool ascending, bool )
 {
     horizontalHeader()->setSortIndicator( col, ascending );
     if ( isEditing() )
-	endEdit( currEditRow(), currEditCol(), FALSE, FALSE );
-    QTable::sortColumn( col, ascending, TRUE );
+	endEdit( currEditRow(), currEditCol(), false, false );
+    QTable::sortColumn( col, ascending, true );
     setCurrentCell( 0, 0 );
     emit resorted();
 }

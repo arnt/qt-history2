@@ -65,7 +65,7 @@ bool PropertyObject::setProperty( const char *name, const QVariant& value )
 	o->setProperty( name, value );
     }
 
-    return TRUE;
+    return true;
 }
 
 QVariant PropertyObject::property( const char *name ) const
@@ -86,9 +86,9 @@ bool PropertyObject::mdIsPropertyChanged( const QString &property )
     for (int i = 0; i < objects.size(); ++i) {
 	QObject *o = objects.at(i);
 	if ( MetaDataBase::isPropertyChanged( o, property ) )
-	    return TRUE;
+	    return true;
     }
-    return FALSE;
+    return false;
 }
 
 void PropertyObject::mdSetPropertyComment( const QString &property, const QString &comment )

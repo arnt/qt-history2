@@ -58,7 +58,7 @@ private:
     void loadConnections( const QDomElement &e, QObject *connector );
     void loadTabOrder( const QDomElement &e );
     QWidget *createWidgetInternal( const QDomElement &e, QWidget *parent, QLayout* layout, const QString &classNameArg );
-    QLayout *createLayout( QWidget *widget, QLayout*  layout, LayoutType type, bool isQLayoutWidget = FALSE );
+    QLayout *createLayout( QWidget *widget, QLayout*  layout, LayoutType type, bool isQLayoutWidget = false );
     LayoutType layoutType( QLayout *l ) const;
     void setProperty( QObject* widget, const QString &prop, QVariant value );
     void setProperty( QObject* widget, const QString &prop, const QDomElement &e );

@@ -17,7 +17,6 @@
 #include <qwidget.h>
 #include <qcheckbox.h>
 #include <qlineedit.h>
-
 #include <qlabel.h>
 #include <qgroupbox.h>
 #include <qlayout.h>
@@ -28,7 +27,6 @@
 #include <qfeatures.h>
 #include <qradiobutton.h>
 #include <qspinbox.h>
-#include <limits.h>
 
 #ifndef QT_NO_SQL
 #include <qdatatable.h>
@@ -39,6 +37,8 @@
 #include <qsqlcursor.h>
 #endif
 
+#include <limits.h>
+
 SqlFormWizard::SqlFormWizard( QUnknownInterface *aIface, QWidget *w,
 			      QWidget* parent, DesignerFormWindow *fw, const char* name, bool modal, WFlags fl )
     : SqlFormWizardBase( parent, name, modal, fl ), widget( w ), appIface( aIface ),
@@ -46,25 +46,25 @@ SqlFormWizard::SqlFormWizard( QUnknownInterface *aIface, QWidget *w,
 {
     appIface->addRef();
     formWindow = fw;
-    setFinishEnabled( finishPage, TRUE );
+    setFinishEnabled( finishPage, true );
 
     /* set mode of operation */
     if ( qt_cast<QDataTable*>(widget) ) {
 	setCaption( "Data Table Wizard" );
 	mode = Table;
-	setAppropriate( navigPage, FALSE );
-	setAppropriate( layoutPage, FALSE );
-	checkBoxAutoEdit->setChecked( FALSE );
+	setAppropriate( navigPage, false );
+	setAppropriate( layoutPage, false );
+	checkBoxAutoEdit->setChecked( false );
     } else if ( qt_cast<QDataBrowser*>(widget) ) {
 	setCaption( "Data Browser Wizard" );
-	setAppropriate( tablePropertiesPage, FALSE );
+	setAppropriate( tablePropertiesPage, false );
 	mode = Browser;
-	checkBoxAutoEdit->setChecked( TRUE );
+	checkBoxAutoEdit->setChecked( true );
     } else if ( qt_cast<QDataView*>(widget) ) {
 	setCaption( "Data View Wizard" );
-	setAppropriate( tablePropertiesPage, FALSE );
-	setAppropriate( navigPage, FALSE );
-	setAppropriate( sqlPage, FALSE);
+	setAppropriate( tablePropertiesPage, false );
+	setAppropriate( navigPage, false );
+	setAppropriate( sqlPage, false);
 	checkCreateFieldLayout->hide();
 	checkCreateButtonLayout->hide();
 	checkBoxAutoEdit->hide();
@@ -84,7 +84,7 @@ SqlFormWizard::~SqlFormWizard()
 void SqlFormWizard::nextPageClicked()
 {
     if ( currentPage() == populatePage ) {
-	autoPopulate( TRUE );
+	autoPopulate( true );
     }
 }
 
@@ -110,9 +110,9 @@ void SqlFormWizard::connectionSelected( const QString &c )
 void SqlFormWizard::tableSelected( const QString & )
 {
     if ( listBoxTable->currentItem() >= 0 ) {
-	setNextEnabled( databasePage, TRUE );
+	setNextEnabled( databasePage, true );
     } else {
-	setNextEnabled( databasePage, FALSE );
+	setNextEnabled( databasePage, false );
     }
 
 }
@@ -135,9 +135,9 @@ void SqlFormWizard::autoPopulate( bool populate )
 		QStringList lst = *d->fields().find( listBoxTable->currentText() );
 		// remove primary index fields, if any
 		listBoxSortField->insertStringList( lst );
-		d->open( FALSE );
+		d->open( false );
 #ifndef QT_NO_SQL
-		QSqlCursor tab( listBoxTable->currentText(), TRUE, d->connection() );
+		QSqlCursor tab( listBoxTable->currentText(), true, d->connection() );
 		QSqlIndex pIdx = tab.primaryIndex();
 		for ( int i = 0; i < pIdx.count(); i++ ) {
 		    listBoxField->insertItem( pIdx.field( i )->name() );
@@ -286,7 +286,7 @@ void SqlFormWizard::setupPage1()
     if ( lst.count() )
 	listBoxConnection->setCurrentItem( 0 );
 
-    setNextEnabled( databasePage, FALSE );
+    setNextEnabled( databasePage, false );
 }
 
 static QPushButton *create_widget( QWidget *parent, const char *name,
@@ -295,8 +295,8 @@ static QPushButton *create_widget( QWidget *parent, const char *name,
     QPushButton *pb = (QPushButton*)fw->create( "QPushButton", parent, name );
     pb->setText( txt );
     pb->setGeometry( r );
-    fw->setPropertyChanged( pb, "text", TRUE );
-    fw->setPropertyChanged( pb, "geometry", TRUE );
+    fw->setPropertyChanged( pb, "text", true );
+    fw->setPropertyChanged( pb, "geometry", true );
     return pb;
 }
 
@@ -319,12 +319,12 @@ void SqlFormWizard::accept()
 
     if ( !conn.isEmpty() && !table.isEmpty() ) {
 	formWindow->setProperty( widget, "database", lst );
-	formWindow->setPropertyChanged( widget, "database", TRUE );
+	formWindow->setPropertyChanged( widget, "database", true );
     }
 
     if ( !editFilter->text().isEmpty() ) {
 	widget->setProperty( "filter", editFilter->text() );
-	formWindow->setPropertyChanged( widget, "filter", TRUE );
+	formWindow->setPropertyChanged( widget, "filter", true );
     }
 
     if ( listBoxSortedField->count() ) {
@@ -332,7 +332,7 @@ void SqlFormWizard::accept()
 	for ( uint i = 0; i < listBoxSortedField->count(); ++i )
 	    lst << listBoxSortedField->text( i );
 	widget->setProperty( "sort", lst );
-	formWindow->setPropertyChanged( widget, "sort", TRUE );
+	formWindow->setPropertyChanged( widget, "sort", true );
     }
 
     QList<DesignerDatabase*> databases = proIface->databaseConnections();
@@ -341,7 +341,7 @@ void SqlFormWizard::accept()
 	DesignerDatabase *d = (*it);
 	if ( d->name() == listBoxConnection->currentText() || ( d->name() == "(default)" || d->name().isEmpty() ) && listBoxConnection->currentText() == "(default)" ) {
 	    database = d;
-	    d->open( FALSE );
+	    d->open( false );
 	    break;
 	}
     }
@@ -349,7 +349,7 @@ void SqlFormWizard::accept()
     if (!database) {
 	return;
     }
-    QSqlCursor tab( listBoxTable->currentText(), TRUE, database->connection() );
+    QSqlCursor tab( listBoxTable->currentText(), true, database->connection() );
     int columns = 2;
 
     QSqlEditorFactory * f = QSqlEditorFactory::defaultFactory();
@@ -375,8 +375,8 @@ void SqlFormWizard::accept()
     case Browser: {
 
 	if ( mode == Browser && !checkBoxAutoEdit->isChecked() ) {
-	    ((QDataBrowser*)widget)->setAutoEdit( FALSE );
-	    formWindow->setPropertyChanged( widget, "autoEdit", TRUE );
+	    ((QDataBrowser*)widget)->setAutoEdit( false );
+	    formWindow->setPropertyChanged( widget, "autoEdit", true );
 	}
 
 	formWindow->clearSelection();
@@ -406,8 +406,8 @@ void SqlFormWizard::accept()
 	    label->setGeometry( SPACING + currentCol*COL_SPACING, row+SPACING,
 				SPACING*3, SPACING );
 
-	    formWindow->setPropertyChanged( label, "geometry", TRUE );
-	    formWindow->setPropertyChanged( label, "text", TRUE );
+	    formWindow->setPropertyChanged( label, "geometry", true );
+	    formWindow->setPropertyChanged( label, "text", true );
 
 	    /* editor */
 	    editorDummy = f->createEditor( widget, field );
@@ -423,7 +423,7 @@ void SqlFormWizard::accept()
 		editor->setGeometry(SPACING * 5 + currentCol*COL_SPACING, row+SPACING,
 				    SPACING*3, SPACING );
 	    }
-	    formWindow->setPropertyChanged( editor, "geometry", TRUE );
+	    formWindow->setPropertyChanged( editor, "geometry", true );
 	    if ( QString(editor->className()) == "QLineEdit" &&
 		 (field->type() == QVariant::Double ||
 		  field->type() == QVariant::Int ||
@@ -431,16 +431,16 @@ void SqlFormWizard::accept()
 		/* default right-align numerics */
 		//##
 		((QLineEdit*)editor)->setAlignment( Qt::AlignRight );
-		formWindow->setPropertyChanged( editor, "alignment", TRUE );
+		formWindow->setPropertyChanged( editor, "alignment", true );
 	    }
 	    if ( qt_cast<QSpinBox*>(editor) ) {
 		( (QSpinBox*)editor )->setMaxValue( INT_MAX );
-		formWindow->setPropertyChanged( editor, "maxValue", TRUE );
+		formWindow->setPropertyChanged( editor, "maxValue", true );
 	    }
 	    QStringList lst;
 	    lst << conn << table << field->name();
 	    formWindow->setProperty( editor, "database", lst );
-	    formWindow->setPropertyChanged( editor, "database", TRUE );
+	    formWindow->setPropertyChanged( editor, "database", true );
 
 	    /* geometry */
 	    if ( createFieldLayout ) {
@@ -550,34 +550,34 @@ void SqlFormWizard::accept()
 	{
 	    QDataTable* sqlTable = ((QDataTable*)widget);
 	    if ( checkBoxAutoEdit->isChecked() ) {
-		sqlTable->setAutoEdit( TRUE );
-		formWindow->setPropertyChanged( sqlTable, "autoEdit", TRUE );
+		sqlTable->setAutoEdit( true );
+		formWindow->setPropertyChanged( sqlTable, "autoEdit", true );
 	    }
 
 	    if ( checkBoxReadOnly->isChecked() ) {
-		sqlTable->setReadOnly( TRUE );
-		formWindow->setPropertyChanged( sqlTable, "readOnly", TRUE );
+		sqlTable->setReadOnly( true );
+		formWindow->setPropertyChanged( sqlTable, "readOnly", true );
 	    } else {
 		if ( checkBoxConfirmInserts->isChecked() ) {
-		    sqlTable->setConfirmInsert( TRUE );
-		    formWindow->setPropertyChanged( sqlTable, "confirmInsert", TRUE );
+		    sqlTable->setConfirmInsert( true );
+		    formWindow->setPropertyChanged( sqlTable, "confirmInsert", true );
 		}
 		if ( checkBoxConfirmUpdates->isChecked() ) {
-		    sqlTable->setConfirmUpdate( TRUE );
-		    formWindow->setPropertyChanged( sqlTable, "confirmUpdate", TRUE );
+		    sqlTable->setConfirmUpdate( true );
+		    formWindow->setPropertyChanged( sqlTable, "confirmUpdate", true );
 		}
 		if ( checkBoxConfirmDeletes->isChecked() ) {
-		    sqlTable->setConfirmDelete( TRUE );
-		    formWindow->setPropertyChanged( sqlTable, "confirmDelete", TRUE );
+		    sqlTable->setConfirmDelete( true );
+		    formWindow->setPropertyChanged( sqlTable, "confirmDelete", true );
 		}
 		if ( checkBoxConfirmCancels->isChecked() ) {
-		    sqlTable->setConfirmCancels( TRUE );
-		    formWindow->setPropertyChanged( sqlTable, "confirmCancels", TRUE );
+		    sqlTable->setConfirmCancels( true );
+		    formWindow->setPropertyChanged( sqlTable, "confirmCancels", true );
 		}
 	    }
 	    if ( checkBoxSorting->isChecked() ) {
-		sqlTable->setSorting( TRUE );
-		formWindow->setPropertyChanged( sqlTable, "sorting", TRUE );
+		sqlTable->setSorting( true );
+		formWindow->setPropertyChanged( sqlTable, "sorting", true );
 	    }
 
 	    QMap<QString, QString> columnFields;

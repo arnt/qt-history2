@@ -35,8 +35,8 @@ ActionEditor::ActionEditor( QWidget* parent,  const char* name, WFlags fl )
     explicitlyClosed(false)
 {
     listActions->addColumn( tr( "Actions" ) );
-    setEnabled( FALSE );
-    buttonConnect->setEnabled( FALSE );
+    setEnabled( false );
+    buttonConnect->setEnabled( false );
 
     QPopupMenu *popup = new QPopupMenu( this );
     popup->insertItem( tr( "New &Action" ), this, SLOT( newAction() ) );
@@ -86,18 +86,18 @@ void ActionEditor::setCurrentAction( QAction *a )
 
 QAction *ActionEditor::newActionEx() // FIXME: rename. mmonsen 21112002.
 {
-    ActionItem *i = new ActionItem( listActions, (bool)FALSE );
+    ActionItem *i = new ActionItem( listActions, false );
     MetaDataBase::addEntry( i->action() );
     QString n = "Action";
-    formWindow->unify( i->action(), n, TRUE );
+    formWindow->unify( i->action(), n, true );
     i->setText( 0, n );
     i->action()->setName( n );
     i->action()->setText( i->action()->name() );
-    MetaDataBase::setPropertyChanged( i->action(), "text", TRUE );
-    MetaDataBase::setPropertyChanged( i->action(), "name", TRUE );
+    MetaDataBase::setPropertyChanged( i->action(), "text", true );
+    MetaDataBase::setPropertyChanged( i->action(), "name", true );
     formWindow->actionList().append( i->action() );
     if ( formWindow->formFile() )
-	formWindow->formFile()->setModified( TRUE );
+	formWindow->formFile()->setModified( true );
     return i->action();
 }
 
@@ -122,7 +122,7 @@ void ActionEditor::deleteAction()
     if ( formWindow ) {
 	formWindow->setActiveObject( formWindow->mainContainer() );
 	if ( formWindow->formFile() )
-	    formWindow->formFile()->setModified( TRUE );
+	    formWindow->formFile()->setModified( true );
     }
 }
 
@@ -138,25 +138,25 @@ void ActionEditor::newAction()
     if ( actionParent )
 	i = new ActionItem( actionParent );
     else
-	i = new ActionItem( listActions, (bool)FALSE );
+	i = new ActionItem( listActions, false );
     MetaDataBase::addEntry( i->action() );
     QString n = "Action";
-    formWindow->unify( i->action(), n, TRUE );
+    formWindow->unify( i->action(), n, true );
     i->setText( 0, n );
     i->action()->setName( n );
     i->action()->setText( i->action()->name() );
     if ( actionParent && actionParent->actionGroup() &&
 	 actionParent->actionGroup()->usesDropDown() ) {
-	i->action()->setToggleAction( TRUE );
-	MetaDataBase::setPropertyChanged( i->action(), "toggleAction", TRUE );
+	i->action()->setToggleAction( true );
+	MetaDataBase::setPropertyChanged( i->action(), "toggleAction", true );
     }
-    MetaDataBase::setPropertyChanged( i->action(), "text", TRUE );
-    MetaDataBase::setPropertyChanged( i->action(), "name", TRUE );
+    MetaDataBase::setPropertyChanged( i->action(), "text", true );
+    MetaDataBase::setPropertyChanged( i->action(), "name", true );
     listActions->setCurrentItem( i );
     if ( !actionParent )
 	formWindow->actionList().append( i->action() );
     if ( formWindow->formFile() )
-	formWindow->formFile()->setModified( TRUE );
+	formWindow->formFile()->setModified( true );
 }
 
 void ActionEditor::newActionGroup()
@@ -169,31 +169,31 @@ void ActionEditor::newActionGroup()
 
     ActionItem *i = 0;
     if ( actionParent )
-	i = new ActionItem( actionParent, TRUE );
+	i = new ActionItem( actionParent, true );
     else
-	i = new ActionItem( listActions, TRUE );
+	i = new ActionItem( listActions, true );
 
     MetaDataBase::addEntry( i->actionGroup() );
-    MetaDataBase::setPropertyChanged( i->actionGroup(), "usesDropDown", TRUE );
+    MetaDataBase::setPropertyChanged( i->actionGroup(), "usesDropDown", true );
     QString n = "ActionGroup";
-    formWindow->unify( i->action(), n, TRUE );
+    formWindow->unify( i->action(), n, true );
     i->setText( 0, n );
     i->actionGroup()->setName( n );
     i->actionGroup()->setText( i->actionGroup()->name() );
-    MetaDataBase::setPropertyChanged( i->actionGroup(), "text", TRUE );
-    MetaDataBase::setPropertyChanged( i->actionGroup(), "name", TRUE );
+    MetaDataBase::setPropertyChanged( i->actionGroup(), "text", true );
+    MetaDataBase::setPropertyChanged( i->actionGroup(), "name", true );
     listActions->setCurrentItem( i );
-    i->setOpen( TRUE );
+    i->setOpen( true );
     if ( !actionParent )
 	formWindow->actionList().append( i->actionGroup() );
     if ( formWindow->formFile() )
-	formWindow->formFile()->setModified( TRUE );
+	formWindow->formFile()->setModified( true );
 }
 
 void ActionEditor::newDropDownActionGroup()
 {
     newActionGroup();
-    ( (ActionItem*)listActions->currentItem() )->actionGroup()->setUsesDropDown( TRUE );
+    ( (ActionItem*)listActions->currentItem() )->actionGroup()->setUsesDropDown( true );
 }
 
 void ActionEditor::setFormWindow( FormWindow *fw )
@@ -202,9 +202,9 @@ void ActionEditor::setFormWindow( FormWindow *fw )
     formWindow = fw;
     if ( !formWindow ||
 	 !qt_cast<QMainWindow*>(formWindow->mainContainer()) ) {
-	setEnabled( FALSE );
+	setEnabled( false );
     } else {
-	setEnabled( TRUE );
+	setEnabled( true );
 	QList<QAction*> actions = formWindow->actionList();
 	for(QList<QAction*>::Iterator it = actions.begin(); it != actions.end(); ++it) {
 	    QAction *a = (*it);
@@ -220,7 +220,7 @@ void ActionEditor::setFormWindow( FormWindow *fw )
 	}
 	if ( listActions->firstChild() ) {
 	    listActions->setCurrentItem( listActions->firstChild() );
-	    listActions->setSelected( listActions->firstChild(), TRUE );
+	    listActions->setSelected( listActions->firstChild(), true );
 	}
     }
 }
@@ -236,7 +236,7 @@ void ActionEditor::insertChildActions( ActionItem *i )
 	    continue;
 	QAction *a = (QAction*)o;
 	ActionItem *i2 = new ActionItem( (QListViewItem*)i, a );
-	i->setOpen( TRUE );
+	i->setOpen( true );
 	i2->setText( 0, a->name() );
 	i2->setPixmap( 0, a->iconSet().pixmap() );
 	if ( qt_cast<QActionGroup*>(a) )

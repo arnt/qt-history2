@@ -14,10 +14,9 @@
 #ifndef CONNECTIONITEMS_H
 #define CONNECTIONITEMS_H
 
-class FormWindow;
-
 #include <qtable.h>
 
+class FormWindow;
 class SenderItem;
 class ReceiverItem;
 class SignalItem;
@@ -150,7 +149,7 @@ class ConnectionContainer : public QObject
 public:
     ConnectionContainer( QObject *parent, SenderItem *i1, SignalItem *i2,
 			 ReceiverItem *i3, SlotItem *i4, int r )
-	: QObject( parent ), mod( FALSE ), se( i1 ), si( i2 ),
+	: QObject( parent ), mod( false ), se( i1 ), si( i2 ),
 	  re( i3 ), sl( i4 ), rw ( r ) {
 	      i1->setConnection( this );
 	      i2->setConnection( this );
@@ -187,7 +186,7 @@ public:
     SlotItem *slotItem() const { return sl; }
 
 public slots:
-    void somethingChanged() { mod = TRUE; emit changed( this ); }
+    void somethingChanged() { mod = true; emit changed( this ); }
 
 signals:
     void changed( ConnectionContainer *c );

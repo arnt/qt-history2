@@ -21,7 +21,7 @@ extern void setIndentSize( int s );
 
 CIndent::CIndent()
     : Q3TextIndent(), tabSize( 8 ), indentSize( 4 ),
-      autoIndent( TRUE ), keepTabs( TRUE ), lastDoc( 0 )
+      autoIndent( true ), keepTabs( true ), lastDoc( 0 )
 {
 }
 

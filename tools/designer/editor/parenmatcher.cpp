@@ -20,18 +20,18 @@
 
 ParenMatcher::ParenMatcher()
 {
-    enabled = TRUE;
+    enabled = true;
 }
 
 bool ParenMatcher::match( Q3TextCursor *cursor )
 {
     if ( !enabled )
-	return FALSE;
-    bool ret = FALSE;
+	return false;
+    bool ret = false;
 
     QChar c( cursor->paragraph()->at( cursor->index() )->c );
-    bool ok1 = FALSE;
-    bool ok2 = FALSE;
+    bool ok1 = false;
+    bool ok2 = false;
     if ( c == '{' || c == '(' || c == '[' ) {
 	ok1 = checkOpenParen( cursor );
 	ret = ok1 || ret;
@@ -49,7 +49,7 @@ bool ParenMatcher::match( Q3TextCursor *cursor )
 bool ParenMatcher::checkOpenParen( Q3TextCursor *cursor )
 {
     if ( !cursor->paragraph()->extraData() )
-	return FALSE;
+	return false;
     ParenList parenList = ( (ParagData*)cursor->paragraph()->extraData() )->parenList;
 
     Paren openParen, closedParen;
@@ -57,7 +57,7 @@ bool ParenMatcher::checkOpenParen( Q3TextCursor *cursor )
 
     int i = 0;
     int ignore = 0;
-    bool foundOpen = FALSE;
+    bool foundOpen = false;
     QChar c = cursor->paragraph()->at( cursor->index() )->c;
     for (;;) {
 	if ( !foundOpen ) {
@@ -68,7 +68,7 @@ bool ParenMatcher::checkOpenParen( Q3TextCursor *cursor )
 		++i;
 		continue;
 	    } else {
-		foundOpen = TRUE;
+		foundOpen = true;
 		++i;
 	    }
 	}
@@ -112,18 +112,18 @@ bool ParenMatcher::checkOpenParen( Q3TextCursor *cursor )
 	    cursor->document()->setSelectionEnd( id, *cursor );
 	    cursor->setParagraph( tstring );
 	    cursor->setIndex( tidx );
-	    return TRUE;
+	    return true;
 	}
     }
 
  bye:
-    return FALSE;
+    return false;
 }
 
 bool ParenMatcher::checkClosedParen( Q3TextCursor *cursor )
 {
     if ( !cursor->paragraph()->extraData() )
-	return FALSE;
+	return false;
     ParenList parenList = ( (ParagData*)cursor->paragraph()->extraData() )->parenList;
 
     Paren openParen, closedParen;
@@ -131,7 +131,7 @@ bool ParenMatcher::checkClosedParen( Q3TextCursor *cursor )
 
     int i = parenList.count() - 1;
     int ignore = 0;
-    bool foundClosed = FALSE;
+    bool foundClosed = false;
     QChar c = cursor->paragraph()->at( cursor->index() - 1 )->c;
     for (;;) {
 	if ( !foundClosed ) {
@@ -142,7 +142,7 @@ bool ParenMatcher::checkClosedParen( Q3TextCursor *cursor )
 		--i;
 		continue;
 	    } else {
-		foundClosed = TRUE;
+		foundClosed = true;
 		--i;
 	    }
 	}
@@ -186,10 +186,10 @@ bool ParenMatcher::checkClosedParen( Q3TextCursor *cursor )
 	    cursor->document()->setSelectionEnd( id, *cursor );
 	    cursor->setParagraph( tstring );
 	    cursor->setIndex( tidx );
-	    return TRUE;
+	    return true;
 	}
     }
 
  bye:
-    return FALSE;
+    return false;
 }

@@ -459,7 +459,7 @@ the default color. (If the user cancels an invalid color is returned.)
 If the user chose a color we want to show their chosen color in our
 custom dialog, so we create a pixmap and fill it with their chosen
 color. We create an instance of our ColorNameForm as a modal dialog
-(third argument is TRUE). We then call its \Func{setColors()} function
+(third argument is true). We then call its \Func{setColors()} function
 to set the colors in the \c{m_colors} map (so that the
 \Func{validate()} function will work correctly). We set its
 colorLabel's pixmap to the pixmap we've just created, i.e. to a
@@ -720,7 +720,7 @@ we'll use further on.
 
 If the user is using the table view we start looking from the row
 following the row they're on. If we get a match we select the row
-containing the match, set \c found to TRUE and stop looking. If we
+containing the match, set \c found to true and stop looking. If we
 didn't find a match we set the current cell back to the cell we
 started from.
 
@@ -877,7 +877,7 @@ Now we're ready to code the slot.
 \printuntil }
 \printuntil }
 
-We create a new options form, passing it TRUE to make it modal. We set
+We create a new options form, passing it true to make it modal. We set
 the radio buttons depending on the current setting of the \c m_clip_as
 variable. We set the check box to correspond with the \c m_show_web
 variable. We execute the form, and if the user clicks \OK, we reflect

@@ -30,7 +30,7 @@ QMap<QString, ConfigStyle> Config::defaultStyles()
     s.color = Qt::black;
     styles.insert( "Standard", s );
 
-    s.font = QFont( commentFamily, normalSize, normalWeight, TRUE );
+    s.font = QFont( commentFamily, normalSize, normalWeight, true );
     s.color = Qt::red;
     styles.insert( "Comment", s );
 
@@ -68,7 +68,7 @@ QMap<QString, ConfigStyle> Config::readStyles( const QString &path )
 
     QString family;
     int size = 10;
-    bool bold = FALSE, italic = FALSE, underline = FALSE;
+    bool bold = false, italic = false, underline = false;
     int red = 0, green = 0, blue = 0;
 
     QString elements[] = {
@@ -85,7 +85,7 @@ QMap<QString, ConfigStyle> Config::readStyles( const QString &path )
 
     for ( int i = 0; elements[ i ] != QString::null; ++i ) {
 	QSettings settings;
-	bool ok = TRUE;
+	bool ok = true;
 	for (;;) {
 	    family = settings.readEntry( path + elements[ i ] + "/family", QString::null, &ok );
 	    if ( !ok )
@@ -93,13 +93,13 @@ QMap<QString, ConfigStyle> Config::readStyles( const QString &path )
 	    size = settings.readNumEntry( path + elements[ i ] + "/size", 10, &ok );
 	    if ( !ok )
 		break;
-	    bold = settings.readBoolEntry( path + elements[ i ] + "/bold", FALSE, &ok );
+	    bold = settings.readBoolEntry( path + elements[ i ] + "/bold", false, &ok );
 	    if ( !ok )
 		break;
-	    italic = settings.readBoolEntry( path + elements[ i ] + "/italic", FALSE, &ok );
+	    italic = settings.readBoolEntry( path + elements[ i ] + "/italic", false, &ok );
 	    if ( !ok )
 		break;
-	    underline = settings.readBoolEntry( path + elements[ i ] + "/underline", FALSE, &ok );
+	    underline = settings.readBoolEntry( path + elements[ i ] + "/underline", false, &ok );
 	    if ( !ok )
 		break;
 	    red = settings.readNumEntry( path + elements[ i ] + "/red", 0, &ok );
@@ -160,21 +160,21 @@ void Config::saveStyles( const QMap<QString, ConfigStyle> &styles, const QString
 bool Config::completion( const QString &path )
 {
     QSettings settings;
-    bool ret = settings.readBoolEntry( path + "/completion", TRUE );
+    bool ret = settings.readBoolEntry( path + "/completion", true );
     return ret;
 }
 
 bool Config::wordWrap( const QString &path )
 {
     QSettings settings;
-    bool ret = settings.readBoolEntry( path + "/wordWrap", TRUE );
+    bool ret = settings.readBoolEntry( path + "/wordWrap", true );
     return ret;
 }
 
 bool Config::parenMatching( const QString &path )
 {
     QSettings settings;
-    bool ret = settings.readBoolEntry( path + "/parenMatching", TRUE );
+    bool ret = settings.readBoolEntry( path + "/parenMatching", true );
     return ret;
 }
 
@@ -195,14 +195,14 @@ int Config::indentIndentSize( const QString &path )
 bool Config::indentKeepTabs( const QString &path )
 {
     QSettings settings;
-    bool ret = settings.readBoolEntry( path + "/indentKeepTabs", TRUE );
+    bool ret = settings.readBoolEntry( path + "/indentKeepTabs", true );
     return ret;
 }
 
 bool Config::indentAutoIndent( const QString &path )
 {
     QSettings settings;
-    bool ret = settings.readBoolEntry( path + "/indentAutoIndent", TRUE );
+    bool ret = settings.readBoolEntry( path + "/indentAutoIndent", true );
     return ret;
 }
 

@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
+#include "listboxrename.h"
 #include <qheader.h>
 #include <qlineedit.h>
 #include <qtimer.h>
 #include <qevent.h>
-#include "listboxrename.h"
 
 class EditableListBoxItem : public QListBoxItem
 {
@@ -28,13 +28,13 @@ public:
 
 ListBoxRename::ListBoxRename( QListBox * eventSource, const char * name )
     : QObject( eventSource, name ),
-      clickedItem( 0 ), activity( FALSE )
+      clickedItem( 0 ), activity( false )
 {
     src = eventSource;
     src->installEventFilter( this );
     ed = new QLineEdit( src->viewport() );
     ed->hide();
-    ed->setFrame( FALSE );
+    ed->setFrame( false );
 
     QObject::connect( ed, SIGNAL( returnPressed() ),
 		      this, SLOT( renameClickedItem() ) );
@@ -52,9 +52,9 @@ bool ListBoxRename::eventFilter( QObject *, QEvent * event )
 		 clickedItem->isSelected() &&
 		 (clickedItem == src->itemAt( pos )) ) {
 		QTimer::singleShot( 500, this, SLOT( showLineEdit() ) );
-		activity = FALSE; // no drags or clicks for 500 ms before we start the renaming
+		activity = false; // no drags or clicks for 500 ms before we start the renaming
 	    } else { // new item clicked
-		activity = TRUE;
+		activity = true;
 		clickedItem = src->itemAt( pos );
 		ed->hide();
 	    }
@@ -64,7 +64,7 @@ bool ListBoxRename::eventFilter( QObject *, QEvent * event )
     case QEvent::MouseMove:
 
 	if ( ((QMouseEvent *) event)->state() & Qt::LeftButton ) {
-	    activity = TRUE;  // drag
+	    activity = true;  // drag
 	}
 	break;
 
@@ -74,7 +74,7 @@ bool ListBoxRename::eventFilter( QObject *, QEvent * event )
 
 	case Qt::Key_F2:
 
-	    activity = FALSE;
+	    activity = false;
 	    clickedItem = src->item( src->currentItem() );
 	    showLineEdit();
 	    break;
@@ -82,7 +82,7 @@ bool ListBoxRename::eventFilter( QObject *, QEvent * event )
 	case Qt::Key_Escape:
 	    if ( !ed->isHidden() ) {
 		hideLineEdit(); // abort rename
-		return TRUE;
+		return true;
 	    }
 	    break;
 
@@ -92,7 +92,7 @@ bool ListBoxRename::eventFilter( QObject *, QEvent * event )
 	case Qt::Key_PageDown:
 
 	    if ( !ed->isHidden() )
-		return TRUE; // Filter out the keystrokes
+		return true; // Filter out the keystrokes
 	    break;
 
 	}
@@ -111,7 +111,7 @@ bool ListBoxRename::eventFilter( QObject *, QEvent * event )
 	break;
     }
 
-    return FALSE;
+    return false;
 }
 
 void ListBoxRename::showLineEdit()

@@ -70,9 +70,9 @@ static const char* const ignore_slots[] = {
 };
 
 ConnectionItem::ConnectionItem( QTable *table, FormWindow *fw )
-    : QComboTableItem( table, QStringList(), FALSE ), formWindow( fw ), conn( 0 )
+    : QComboTableItem( table, QStringList(), false ), formWindow( fw ), conn( 0 )
 {
-    setReplaceable( FALSE );
+    setReplaceable( false );
 }
 
 void ConnectionItem::senderChanged( QObject * )
@@ -152,7 +152,7 @@ void ConnectionItem::paint( QPainter *p, const QPalette &pal, const QRect &cr, b
     QFont f( p->font() );
     QFont oldf( p->font() );
     if ( conn && conn->isModified() ) {
-	f.setBold( TRUE );
+	f.setBold( true );
 	p->setFont( f );
     }
 
@@ -390,25 +390,25 @@ bool SlotItem::ignoreSlot( const char* slot ) const
 #ifndef QT_NO_SQL
     if ( qstrcmp( slot, "update()" ) == 0 &&
 	 qt_cast<QDataBrowser*>(lastReceiver) )
-	return FALSE;
+	return false;
 #endif
 
     for ( int i = 0; ignore_slots[i]; i++ ) {
 	if ( qstrcmp( slot, ignore_slots[i] ) == 0 )
-	    return TRUE;
+	    return true;
     }
 
     if ( !formWindow->isMainContainer( (QWidget*)lastReceiver ) ) {
 	if ( qstrcmp( slot, "close()" ) == 0  )
-	    return TRUE;
+	    return true;
     }
 
     if ( qstrcmp( slot, "setFocus()" ) == 0  )
 	if ( lastReceiver->isWidgetType() &&
 	     ( (QWidget*)lastReceiver )->focusPolicy() == QWidget::NoFocus )
-	    return TRUE;
+	    return true;
 
-    return FALSE;
+    return false;
 }
 
 void SlotItem::updateSlotList()

@@ -1,6 +1,6 @@
 void BookForm::editClicked()
 { 
-    EditBookForm *dialog = new EditBookForm( this, "Edit Book Form", TRUE ); 
+    EditBookForm *dialog = new EditBookForm( this, "Edit Book Form", true ); 
     dialog->exec(); 
     delete dialog; 
 }
@@ -20,4 +20,3 @@ void BookForm::primeInsertAuthor( QSqlRecord *buffer )
 	buffer->setValue( "id", query.value( 0 ) ); 
     } 
 }
-

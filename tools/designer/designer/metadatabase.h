@@ -122,7 +122,7 @@ public:
 
     struct MetaInfo
     {
-	MetaInfo() : classNameChanged( FALSE ) { }
+	MetaInfo() : classNameChanged( false ) { }
 	QString className;
 	bool classNameChanged;
 	QString comment;
@@ -153,7 +153,7 @@ public:
     static QString resizeMode( QObject *o );
 
     static void addConnection( QObject *o, QObject *sender, const QCString &signal,
-			       QObject *receiver, const QCString &slot, bool addCode = TRUE );
+			       QObject *receiver, const QCString &slot, bool addCode = true );
     static void removeConnection( QObject *o, QObject *sender, const QCString &signal,
 				  QObject *receiver, const QCString &slot );
     static bool hasConnection( QObject *o, QObject *sender, const QCString &signal,
@@ -171,11 +171,11 @@ public:
 				const QString &access, const QString &type, const QString &language,
 				const QString &returnType );
     static void removeFunction( QObject *o, const QString &function );
-    static QList<Function> functionList( QObject *o, bool onlyFunctions = FALSE );
+    static QList<Function> functionList( QObject *o, bool onlyFunctions = false );
     static QList<Function> slotList( QObject *o );
     static bool isSlotUsed( QObject *o, const QCString &slot );
-    static bool hasFunction( QObject *o, const QCString &function, bool onlyCustom = FALSE );
-    static bool hasSlot( QObject *o, const QCString &slot, bool onlyCustom = FALSE );
+    static bool hasFunction( QObject *o, const QCString &function, bool onlyCustom = false );
+    static bool hasSlot( QObject *o, const QCString &slot, bool onlyCustom = false );
     static void changeFunction( QObject *o, const QString &function, const QString &newName,
 				const QString &returnType );
     static void changeFunctionAttributes( QObject *o, const QString &oldName, const QString &newName,

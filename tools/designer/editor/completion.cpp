@@ -47,7 +47,7 @@ public:
     CompletionItem( QListBox *lb, const QString &txt, const QString &t, const QString &p,
 		    const QString &pre, const QString &p2 )
 	: QListBoxItem( lb ), type( t ), postfix( p ), prefix( pre ), postfix2( p2 ),
-	  parag( 0 ), lastState( FALSE ) { setText( txt ); }
+	  parag( 0 ), lastState( false ) { setText( txt ); }
     ~CompletionItem() { delete parag; }
     void paint( QPainter *painter ) {
 	if ( lastState != isSelected() ) {
@@ -84,7 +84,7 @@ void CompletionItem::setupParagraph() {
     if ( !parag ) {
 	Q3TextFormatter *formatter;
 	formatter = new Q3TextFormatterBreakWords;
-	formatter->setWrapEnabled( FALSE );
+	formatter->setWrapEnabled( false );
 	parag = new Q3TextParagraph( 0 );
 	parag->setTabStops( listBox()->fontMetrics().width( "propertyXXXX" ) );
 	parag->pseudoDocument()->pFormatter = formatter;
@@ -97,7 +97,7 @@ void CompletionItem::setupParagraph() {
 							     listBox()->colorGroup().highlightedText() :
 							     listBox()->colorGroup().text() );
 	QFont f( listBox()->font() );
-	f.setBold( TRUE );
+	f.setBold( true );
 	Q3TextFormat *f2 =
 	    parag->formatCollection()->format( f, isSelected() ? listBox()->colorGroup().highlightedText() :
 					       listBox()->colorGroup().text() );
@@ -118,7 +118,7 @@ void CompletionItem::setupParagraph() {
 
 EditorCompletion::EditorCompletion( Editor *e )
 {
-    enabled = TRUE;
+    enabled = true;
     lastDoc = 0;
     completionPopup = new QVBox( e->topLevelWidget(), 0, WType_Popup );
     completionPopup->setFrameStyle( QFrame::Box | QFrame::Plain );
@@ -198,9 +198,9 @@ QList<CompletionEntry> EditorCompletion::completionList( const QString &s, Q3Tex
 
 void EditorCompletion::updateCompletionMap( Q3TextDocument *doc )
 {
-    bool strict = TRUE;
+    bool strict = true;
     if ( doc != lastDoc )
-	strict = FALSE;
+	strict = false;
     lastDoc = doc;
     Q3TextParagraph *s = doc->firstParagraph();
     if ( !s->extraData() )
@@ -234,7 +234,7 @@ bool EditorCompletion::doCompletion()
 {
     searchString = "";
     if ( !curEditor )
-	return FALSE;
+	return false;
 
     Q3TextCursor *cursor = curEditor->textCursor();
     Q3TextDocument *doc = curEditor->document();
@@ -245,10 +245,10 @@ bool EditorCompletion::doCompletion()
 
     int idx = cursor->index();
     if ( idx == 0 )
-	return FALSE;
+	return false;
     QChar c = cursor->paragraph()->at( idx - 1 )->c;
     if ( !c.isLetter() && !c.isNumber() && c != '_' && c != '#' )
-	return FALSE;
+	return false;
 
     QString s;
     idx--;
@@ -299,16 +299,16 @@ bool EditorCompletion::doCompletion()
 				    QTextEdit::CheckNewLines |
 				    QTextEdit::RemoveSelected ) );
     } else {
-	return FALSE;
+	return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 bool EditorCompletion::eventFilter( QObject *o, QEvent *e )
 {
     if ( !enabled )
-	return FALSE;
+	return false;
     if ( e->type() == QEvent::KeyPress && qt_cast<Editor*>(o)) {
 	curEditor = (Editor*)o;
 	QKeyEvent *ke = (QKeyEvent*)e;
@@ -325,23 +325,23 @@ bool EditorCompletion::eventFilter( QObject *o, QEvent *e )
 			     curEditor->textCursor()->paragraph()->at( i )->c != '\t' )
 			    break;
 		    }
-		    curEditor->drawCursor( FALSE );
+		    curEditor->drawCursor( false );
 		    curEditor->textCursor()->setIndex( i );
-		    curEditor->drawCursor( TRUE );
+		    curEditor->drawCursor( true );
 		} else {
 		    curEditor->insert( "\t" );
 		}
-		return TRUE;
+		return true;
 	    }
 	}
 
 	if ( functionLabel->isVisible() ) {
 	    if ( ke->key() == Key_Up && ( ke->state() & ControlButton ) == ControlButton ) {
 		functionLabel->gotoPrev();
-		return TRUE;
+		return true;
 	    } else if ( ke->key() == Key_Down && ( ke->state() & ControlButton ) == ControlButton ) {
 		functionLabel->gotoNext();
-		return TRUE;
+		return true;
 	    }
 	}
 
@@ -351,9 +351,9 @@ bool EditorCompletion::eventFilter( QObject *o, QEvent *e )
 	    if ( ke->key() == Key_Tab ) {
 		if ( curEditor->textCursor()->index() == 0 &&
 		     curEditor->textCursor()->paragraph()->isListItem() )
-		    return FALSE;
+		    return false;
 		if ( doCompletion() )
-			return TRUE;
+			return true;
 	    } else if ( ke->key() == Key_Period &&
 			( curEditor->textCursor()->index() == 0 ||
 			  curEditor->textCursor()->paragraph()->at( curEditor->textCursor()->index() - 1 )->c != '.' )
@@ -375,15 +375,15 @@ bool EditorCompletion::eventFilter( QObject *o, QEvent *e )
 		if ( ke->key() == Key_Tab && completionListBox->count() > 1 &&
 		     completionListBox->currentItem() < (int)completionListBox->count() - 1 ) {
 		    completionListBox->setCurrentItem( completionListBox->currentItem() + 1 );
-		    return TRUE;
+		    return true;
 		}
 		completeCompletion();
-		return TRUE;
+		return true;
 	    } else if ( ke->key() == Key_Left || ke->key() == Key_Right ||
 			ke->key() == Key_Up || ke->key() == Key_Down ||
 			ke->key() == Key_Home || ke->key() == Key_End ||
 			ke->key() == Key_Prior || ke->key() == Key_Next ) {
-		return FALSE;
+		return false;
 	    } else if ( ke->key() != Key_Shift && ke->key() != Key_Control &&
 			ke->key() != Key_Alt ) {
 		int l = searchString.length();
@@ -398,11 +398,11 @@ bool EditorCompletion::eventFilter( QObject *o, QEvent *e )
 		    curEditor->setFocus();
 		}
 		QApplication::sendEvent( curEditor, e );
-		return TRUE;
+		return true;
 	    }
 	} else if ( e->type() == QEvent::MouseButtonDblClick ) {
 	    completeCompletion();
-	    return TRUE;
+	    return true;
 	}
     }
     if ( o == functionLabel || qt_cast<Editor*>(o) && functionLabel->isVisible() ) {
@@ -415,12 +415,12 @@ bool EditorCompletion::eventFilter( QObject *o, QEvent *e )
 		    functionLabel->hide();
 		if ( o == functionLabel ) {
 		    QApplication::sendEvent( curEditor, e );
-		    return TRUE;
+		    return true;
 		}
 	    }
 	}
     }
-    return FALSE;
+    return false;
 }
 
 void EditorCompletion::completeCompletion()
@@ -435,7 +435,7 @@ void EditorCompletion::completeCompletion()
     curEditor->setFocus();
     if ( i != -1 && i < (int)s.length() ) {
 	curEditor->setCursorPosition( curEditor->textCursor()->paragraph()->paragId(), idx + i + 1 );
-	doArgumentHint( FALSE );
+	doArgumentHint( false );
     }
 }
 
@@ -470,13 +470,13 @@ bool EditorCompletion::doObjectCompletion()
 	object.remove( object.length() - 1, 1 );
 
     if ( object.isEmpty() )
-	return FALSE;
+	return false;
     return doObjectCompletion( object );
 }
 
 bool EditorCompletion::doObjectCompletion( const QString & )
 {
-    return FALSE;
+    return false;
 }
 
 static void strip( QString &txt )
@@ -495,20 +495,20 @@ bool EditorCompletion::continueComplete()
 	    (void)new CompletionItem( completionListBox, (*it).text, (*it).type,
 				      (*it).postfix, (*it).prefix, (*it).postfix2 );
 	completionListBox->setCurrentItem( 0 );
-	completionListBox->setSelected( completionListBox->currentItem(), TRUE );
-	return TRUE;
+	completionListBox->setSelected( completionListBox->currentItem(), true );
+	return true;
     }
 
     QListBoxItem *i = completionListBox->findItem( searchString );
     if ( !i )
-	return FALSE;
+	return false;
 
     QString txt1 = i->text();
     QString txt2 = searchString;
     strip( txt1 );
     strip( txt2 );
     if ( txt1 == txt2 && !i->next() )
-	return FALSE;
+	return false;
 
     QList<CompletionEntry> res;
     for ( QList<CompletionEntry>::ConstIterator it = cList.begin(); it != cList.end(); ++it ) {
@@ -516,14 +516,14 @@ bool EditorCompletion::continueComplete()
 	    res << *it;
     }
     if ( res.isEmpty() )
-	return FALSE;
+	return false;
     completionListBox->clear();
     for ( QList<CompletionEntry>::ConstIterator it2 = res.begin(); it2 != res.end(); ++it2 )
 	(void)new CompletionItem( completionListBox, (*it2).text, (*it2).type,
 				  (*it2).postfix, (*it2).prefix, (*it2).postfix2 );
     completionListBox->setCurrentItem( 0 );
-    completionListBox->setSelected( completionListBox->currentItem(), TRUE );
-    return TRUE;
+    completionListBox->setSelected( completionListBox->currentItem(), true );
+    return true;
 }
 
 bool EditorCompletion::doArgumentHint( bool useIndex )
@@ -531,7 +531,7 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
     Q3TextCursor *cursor = curEditor->textCursor();
     int i = cursor->index() ;
     if ( !useIndex ) {
-	bool foundParen = FALSE;
+	bool foundParen = false;
 	int closeParens = 0;
 	while ( i >= 0 ) {
 	    if ( cursor->paragraph()->at( i )->c == ')' && i != cursor->index() )
@@ -539,7 +539,7 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
 	    if ( cursor->paragraph()->at( i )->c == '(' ) {
 		closeParens--;
 		if ( closeParens == -1 ) {
-		    foundParen = TRUE;
+		    foundParen = true;
 		    break;
 		}
 	    }
@@ -547,18 +547,18 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
 	}
 
 	if ( !foundParen )
-	    return FALSE;
+	    return false;
     }
     int j = i - 1;
-    bool foundSpace = FALSE;
-    bool foundNonSpace = FALSE;
+    bool foundSpace = false;
+    bool foundNonSpace = false;
     while ( j >= 0 ) {
 	if ( foundNonSpace && ( cursor->paragraph()->at( j )->c == ' ' || cursor->paragraph()->at( j )->c == ',' ) ) {
-	    foundSpace = TRUE;
+	    foundSpace = true;
 	    break;
 	}
 	if ( !foundNonSpace && ( cursor->paragraph()->at( j )->c != ' ' || cursor->paragraph()->at( j )->c != ',' ) )
-	    foundNonSpace = TRUE;
+	    foundNonSpace = true;
 	--j;
     }
     if ( foundSpace )
@@ -583,7 +583,7 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
     QString pre, post;
     QList<QStringList> argl = functionParameters( function, sep, pre, post );
     if ( argl.isEmpty() )
-	return FALSE;
+	return false;
 
     QString label;
     int w = 0;
@@ -634,7 +634,7 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
     }
     w += 16;
     if ( label.isEmpty() )
-	return FALSE;
+	return false;
     if ( functionLabel->isVisible() ) {
 	functionLabel->resize( w + 50, qMax( functionLabel->fontMetrics().height(), 16 ) );
     } else {
@@ -654,7 +654,7 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
     }
     QTimer::singleShot( 0, functionLabel, SLOT( relayout() ) );
 
-    return TRUE;
+    return true;
 }
 
 QList<QStringList> EditorCompletion::functionParameters( const QString &, QChar &, QString &, QString & )

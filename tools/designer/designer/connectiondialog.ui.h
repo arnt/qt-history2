@@ -73,7 +73,7 @@ void ConnectionDialog::init()
 	     this, SLOT( updateEditSlotsButton() ) );
     connect( connectionsTable, SIGNAL( resorted() ),
 	     this, SLOT( updateConnectionContainers() ) );
-    buttonEditSlots->setEnabled( FALSE );
+    buttonEditSlots->setEnabled( false );
 
     if ( !invalidConnection ) {
 	invalidConnection = new QPixmap( invalid_connection );
@@ -86,7 +86,7 @@ void ConnectionDialog::init()
 	  it != conns.end(); ++it ) {
 	ConnectionContainer *c = addConnection( (*it).sender, (*it).receiver,
 						(*it).signal, (*it).slot );
-	c->setModified( FALSE );
+	c->setModified( false );
 	updateConnectionState( c );
     }
 
@@ -169,7 +169,7 @@ ConnectionContainer *ConnectionDialog::addConnection( QObject *sender, QObject *
 	sl->setCurrentItem( slot );
     }
 
-    c->setModified( TRUE );
+    c->setModified( true );
     return c;
 }
 
@@ -262,7 +262,7 @@ void ConnectionDialog::deleteClicked()
 
 void ConnectionDialog::editSlots()
 {
-    EditFunctions dlg( this, MainWindow::self->formWindow(), TRUE );
+    EditFunctions dlg( this, MainWindow::self->formWindow(), true );
     dlg.exec();
     int currentCol = connectionsTable->currentColumn();
     connectionsTable->setCurrentCell( connectionsTable->currentRow(), 0 );

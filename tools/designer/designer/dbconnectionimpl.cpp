@@ -47,20 +47,20 @@ void DatabaseConnectionEditor::accept()
 
 void DatabaseConnectionEditor::init()
 {
-    connectionWidget->editName->setEnabled( FALSE );
+    connectionWidget->editName->setEnabled( false );
     connectionWidget->editName->setValidator( new AsciiValidator( connectionWidget->editName ) );
     connectionWidget->editName->setText( conn->name() );
-    connectionWidget->comboDriver->setEnabled( FALSE );
+    connectionWidget->comboDriver->setEnabled( false );
     connectionWidget->comboDriver->lineEdit()->setText( conn->driver() );
-    connectionWidget->editDatabase->setEnabled( FALSE );
+    connectionWidget->editDatabase->setEnabled( false );
     connectionWidget->editDatabase->setText( conn->database() );
-    connectionWidget->editUsername->setEnabled( TRUE );
+    connectionWidget->editUsername->setEnabled( true );
     connectionWidget->editUsername->setText( conn->username() );
-    connectionWidget->editPassword->setEnabled( TRUE );
+    connectionWidget->editPassword->setEnabled( true );
     connectionWidget->editPassword->setText( "" );
-    connectionWidget->editHostname->setEnabled( TRUE );
+    connectionWidget->editHostname->setEnabled( true );
     connectionWidget->editHostname->setText( conn->hostname() );
-    connectionWidget->editPort->setEnabled( TRUE );
+    connectionWidget->editPort->setEnabled( true );
     connectionWidget->editPort->setValue( conn->port() );
     connectionWidget->editUsername->setFocus();
     connectionWidget->editUsername->selectAll();

@@ -11,7 +11,6 @@
 **
 ****************************************************************************/
 
-
 void ReplaceDialog::init()
 {
     editor = 0;
@@ -32,10 +31,10 @@ void ReplaceDialog::doReplace()
 	return; 
      
     if ( !editor->replace( comboFind->currentText(), comboReplace->currentText(), checkCase->isChecked(), 
-	checkWords->isChecked(), radioForward->isChecked(), !checkBegin->isChecked(), FALSE ) ) 
-	checkBegin->setChecked( TRUE ); 
+	checkWords->isChecked(), radioForward->isChecked(), !checkBegin->isChecked(), false ) ) 
+	checkBegin->setChecked( true ); 
     else 
-	checkBegin->setChecked( FALSE ); 
+	checkBegin->setChecked( false ); 
 }
 
 void ReplaceDialog::doReplaceAll()
@@ -44,16 +43,16 @@ void ReplaceDialog::doReplaceAll()
 	return;  
       
     if ( !editor->replace( comboFind->currentText(), comboReplace->currentText(), checkCase->isChecked(),  
-	checkWords->isChecked(), radioForward->isChecked(), !checkBegin->isChecked(), TRUE ) )  
-	checkBegin->setChecked( TRUE );  
+	checkWords->isChecked(), radioForward->isChecked(), !checkBegin->isChecked(), true ) )  
+	checkBegin->setChecked( true );  
     else  
-	checkBegin->setChecked( FALSE );  
+	checkBegin->setChecked( false );  
 }
 
 void ReplaceDialog::setEditor( EditorInterface * e, QObject * fw )
 {
     if ( fw != formWindow )
-	checkBegin->setChecked( TRUE );
+	checkBegin->setChecked( true );
     formWindow = fw;
     if ( editor )
 	editor->release();

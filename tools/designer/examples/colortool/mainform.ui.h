@@ -20,15 +20,15 @@ void MainForm::init()
 {
     clipboard = QApplication::clipboard();
     if ( clipboard->supportsSelection() )
-	clipboard->setSelectionMode( TRUE );
+	clipboard->setSelectionMode( true );
 
     findForm = 0;
     loadSettings();
     m_filename = "";
-    m_changed = FALSE;
-    m_table_dirty = TRUE;
-    m_icons_dirty = TRUE;
-    clearData( TRUE );
+    m_changed = false;
+    m_table_dirty = true;
+    m_icons_dirty = true;
+    clearData( true );
 }
 
 void MainForm::clearData( bool fillWithDefaults )
@@ -98,7 +98,7 @@ void MainForm::populate()
 	}
 	else
 	    colorTable->hideColumn( COL_WEB );
-	m_table_dirty = FALSE;
+	m_table_dirty = false;
     }
 
     if ( m_icons_dirty ) {
@@ -108,7 +108,7 @@ void MainForm::populate()
 	for ( it = m_colors.constBegin(); it != m_colors.constEnd(); ++it )
 	    (void) new QIconViewItem( colorIconView, it.key(),
 				      colorSwatch( it.data() ) );
-	m_icons_dirty = FALSE;
+	m_icons_dirty = false;
     }
 }
 
@@ -129,10 +129,10 @@ void MainForm::fileNew()
 {
     if ( okToClear() ) {
 	m_filename = "";
-	m_changed = FALSE;
-	m_table_dirty = TRUE;
-	m_icons_dirty = TRUE;
-	clearData( FALSE );
+	m_changed = false;
+	m_table_dirty = true;
+	m_icons_dirty = true;
+	clearData( false );
     }
 }
 
@@ -176,7 +176,7 @@ void MainForm::fileSave()
 	statusBar()->message( QString( "Saved %1 colors to '%2'" ).
 				arg( m_colors.count() ).
 				arg( m_filename ), 3000 );
-	m_changed = FALSE;
+	m_changed = false;
     }
     else
 	statusBar()->message( QString( "Failed to save '%1'" ).
@@ -208,7 +208,7 @@ void MainForm::fileSaveAs()
 
 void MainForm::load( const QString& filename )
 {
-    clearData( FALSE );
+    clearData( false );
     m_filename = filename;
     QRegExp regex( "^\\s*(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\S+.*)$" );
     QFile file( filename );
@@ -236,7 +236,7 @@ void MainForm::load( const QString& filename )
 	m_icons_dirty = ! ( m_table_dirty = ( visible == tablePage ) );
 	populate();
 	m_icons_dirty = ! ( m_table_dirty = ( visible != tablePage ) );
-	m_changed = FALSE;
+	m_changed = false;
     }
     else
 	statusBar()->message( QString( "Failed to load '%1'" ).
@@ -261,10 +261,10 @@ bool MainForm::okToClear()
 	if ( ans == 0 )
 	    fileSave();
 	else if ( ans == 1 )
-	    return FALSE;
+	    return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 void MainForm::closeEvent( QCloseEvent * )
@@ -294,7 +294,7 @@ void MainForm::editCut()
 	    colorTable->setCurrentCell( row, 0 );
 	else if ( colorTable->numRows() )
 	    colorTable->setCurrentCell( colorTable->numRows() - 1, 0 );
-	m_icons_dirty = TRUE;
+	m_icons_dirty = true;
     }
     else if ( visible == iconsPage && colorIconView->currentItem() ) {
 	QIconViewItem *item = colorIconView->currentItem();
@@ -310,12 +310,12 @@ void MainForm::editCut()
 		colorIconView->setCurrentItem( current );
 	    colorIconView->arrangeItemsInGrid();
 	}
-	m_table_dirty = TRUE;
+	m_table_dirty = true;
     }
 
     if ( ! name.isNull() ) {
 	m_colors.remove( name );
-	m_changed = TRUE;
+	m_changed = true;
 	statusBar()->message( QString( "Deleted '%1'" ).arg( name ), 5000 );
     }
     else
@@ -368,7 +368,7 @@ void MainForm::lookfor( const QString& text )
 	return;
     QString ltext = text.lower();
     QWidget *visible = colorWidgetStack->visibleWidget();
-    bool found = FALSE;
+    bool found = false;
 
     if ( visible == tablePage && colorTable->numRows() ) {
 	int row = colorTable->currentRow();
@@ -377,7 +377,7 @@ void MainForm::lookfor( const QString& text )
 		colorTable->setCurrentCell( i, 0 );
 		colorTable->clearSelection();
 		colorTable->selectRow( i );
-		found = TRUE;
+		found = true;
 		break;
 	}
 	if ( ! found )
@@ -390,7 +390,7 @@ void MainForm::lookfor( const QString& text )
 	    if ( item->text().lower().contains( ltext ) ) {
 		colorIconView->setCurrentItem( item );
 		colorIconView->ensureItemVisible( item );
-		found = TRUE;
+		found = true;
 		break;
 	    }
 	if ( ! found && start )
@@ -487,7 +487,7 @@ void MainForm::editAdd()
     if ( color.isValid() ) {
 	QPixmap pixmap( 80, 10 );
 	pixmap.fill( color );
-	ColorNameForm *colorForm = new ColorNameForm( this, "color", TRUE );
+	ColorNameForm *colorForm = new ColorNameForm( this, "color", true );
 	colorForm->setColors( m_colors );
 	colorForm->colorLabel->setPixmap( pixmap );
 	if ( colorForm->exec() ) {
@@ -509,23 +509,23 @@ void MainForm::editAdd()
 
 	    (void) new QIconViewItem( colorIconView, name,
 				      colorSwatch( color ) );
-	    m_changed = TRUE;
+	    m_changed = true;
 	}
     }
 }
 
 void MainForm::editOptions()
 {
-    OptionsForm *options = new OptionsForm( this, "options", TRUE );
+    OptionsForm *options = new OptionsForm( this, "options", true );
     switch ( m_clip_as ) {
     case CLIP_AS_HEX:
-	options->hexRadioButton->setChecked( TRUE );
+	options->hexRadioButton->setChecked( true );
 	break;
     case CLIP_AS_NAME:
-	options->nameRadioButton->setChecked( TRUE );
+	options->nameRadioButton->setChecked( true );
 	break;
     case CLIP_AS_RGB:
-	options->rgbRadioButton->setChecked( TRUE );
+	options->rgbRadioButton->setChecked( true );
 	break;
     }
     options->webCheckBox->setChecked( m_show_web );
@@ -554,10 +554,10 @@ void MainForm::loadSettings()
     int windowX = settings.readNumEntry( APP_KEY + "WindowX", 0 );
     int windowY = settings.readNumEntry( APP_KEY + "WindowY", 0 );
     m_clip_as = settings.readNumEntry( APP_KEY + "ClipAs", CLIP_AS_HEX );
-    m_show_web = settings.readBoolEntry( APP_KEY + "ShowWeb", TRUE );
-    if ( ! settings.readBoolEntry( APP_KEY + "View", TRUE ) ) {
+    m_show_web = settings.readBoolEntry( APP_KEY + "ShowWeb", true );
+    if ( ! settings.readBoolEntry( APP_KEY + "View", true ) ) {
 	colorWidgetStack->raiseWidget( iconsPage );
-	viewIconsAction->setOn( TRUE );
+	viewIconsAction->setOn( true );
     }
 
     resize( windowWidth, windowHeight );

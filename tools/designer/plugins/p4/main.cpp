@@ -1,7 +1,7 @@
+#include "p4.h"
+
 #include <designerinterface.h>
 #include <actioninterface.h>
-
-#include "p4.h"
 
 #include <qobjectcleanuphandler.h>
 #include <qguardedptr.h>
@@ -334,7 +334,7 @@ private:
 P4Interface::P4Interface()
     : p4Actions( 0 ), outputPage( 0 ), outputView( 0 ), appInterface( 0 )
 {
-    aware = TRUE;
+    aware = true;
 }
 
 P4Interface::~P4Interface()
@@ -376,7 +376,7 @@ void P4Interface::connectTo( QUnknownInterface *ai )
 
 bool P4Interface::location( const QString &/*actionname*/, Location /*l*/ ) const
 {
-    return TRUE;
+    return true;
 }
 
 QAction* P4Interface::create( const QString& actionname, QObject* parent )
@@ -385,9 +385,9 @@ QAction* P4Interface::create( const QString& actionname, QObject* parent )
 	return 0;
 
     if ( !p4Actions ) {
-	p4Actions = new QActionGroup( parent, 0, FALSE );
+	p4Actions = new QActionGroup( parent, 0, false );
 
-	QAction *a = new QAction( "P4 Aware", QPixmap(report_xpm), "A&ware", 0, p4Actions, "P4 Aware", TRUE );
+	QAction *a = new QAction( "P4 Aware", QPixmap(report_xpm), "A&ware", 0, p4Actions, "P4 Aware", true );
 	a->setToolTip( tr("Toggle Edit Awareness") );
 	a->setStatusTip( tr("Toggles whether forms in source control should be checked out before edited") );
 	a->setWhatsThis( tr("") );
@@ -442,13 +442,13 @@ QAction* P4Interface::create( const QString& actionname, QObject* parent )
 
 	actions.add( p4Actions );
 
-	actionSync->setEnabled( FALSE );
-	actionEdit->setEnabled( FALSE );
-	actionSubmit->setEnabled( FALSE );
-	actionRevert->setEnabled( FALSE );
-	actionAdd->setEnabled( FALSE );
-	actionDelete->setEnabled( FALSE );
-	actionDiff->setEnabled( FALSE );
+	actionSync->setEnabled( false );
+	actionEdit->setEnabled( false );
+	actionSubmit->setEnabled( false );
+	actionRevert->setEnabled( false );
+	actionAdd->setEnabled( false );
+	actionDelete->setEnabled( false );
+	actionDiff->setEnabled( false );
     }
 
     return p4Actions;
@@ -501,7 +501,7 @@ void P4Interface::p4Edit()
     else
 	return;
 
-    P4Edit *edit = new P4Edit( fileName, TRUE );
+    P4Edit *edit = new P4Edit( fileName, true );
     connect( edit, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( edit, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
     connect( edit, SIGNAL( fileChanged( const QString & ) ), this, SLOT( reloadFile( const QString & ) ) );
@@ -659,7 +659,7 @@ void P4Interface::p4MightEdit( bool b )
     if ( fileName.isEmpty() )
 	return;
 
-    P4Edit *edit = new P4Edit( fileName, FALSE );
+    P4Edit *edit = new P4Edit( fileName, false );
     connect( edit, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( edit, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
     edit->execute();
@@ -682,13 +682,13 @@ void P4Interface::formChanged()
     }
 
     if ( filename.isEmpty() ) {
-	actionSync->setEnabled( FALSE );
-	actionEdit->setEnabled( FALSE );
-	actionSubmit->setEnabled( FALSE );
-	actionRevert->setEnabled( FALSE );
-	actionAdd->setEnabled( FALSE );
-	actionDelete->setEnabled( FALSE );
-	actionDiff->setEnabled( FALSE );
+	actionSync->setEnabled( false );
+	actionEdit->setEnabled( false );
+	actionSubmit->setEnabled( false );
+	actionRevert->setEnabled( false );
+	actionAdd->setEnabled( false );
+	actionDelete->setEnabled( false );
+	actionDiff->setEnabled( false );
 	return;
     }
 
@@ -743,8 +743,8 @@ void P4Interface::p4Info( const QString &filename, P4Info *p4i )
 // 	paint.setRasterOp( AndROP );
 // 	paint.fillRect( 0, 0, pix.width() - 1 , pix.height() - 1, p4i->uptodate ? gray : red );
 // 	paint.setRasterOp( CopyROP );
-	actionAdd->setEnabled( FALSE );
-	actionDelete->setEnabled( TRUE );
+	actionAdd->setEnabled( false );
+	actionDelete->setEnabled( true );
 	if ( p4i->action != P4Info::None ) {
 // 	    switch ( p4i->action ) {
 // 	    case P4Info::Edit:
@@ -769,25 +769,25 @@ void P4Interface::p4Info( const QString &filename, P4Info *p4i )
 // 		break;
 // 	    }
 
-	    actionSync->setEnabled( FALSE );
-	    actionEdit->setEnabled( FALSE );
-	    actionSubmit->setEnabled( TRUE );
-	    actionRevert->setEnabled( TRUE );
-	    actionDiff->setEnabled( TRUE );
+	    actionSync->setEnabled( false );
+	    actionEdit->setEnabled( false );
+	    actionSubmit->setEnabled( true );
+	    actionRevert->setEnabled( true );
+	    actionDiff->setEnabled( true );
 	} else {
 	    actionSync->setEnabled( !p4i->uptodate );
-	    actionEdit->setEnabled( TRUE );
-	    actionSubmit->setEnabled( FALSE );
-	    actionRevert->setEnabled( FALSE );
-	    actionDiff->setEnabled( FALSE );
+	    actionEdit->setEnabled( true );
+	    actionSubmit->setEnabled( false );
+	    actionRevert->setEnabled( false );
+	    actionDiff->setEnabled( false );
 	}
     } else {
-	actionAdd->setEnabled( TRUE );
-	actionDelete->setEnabled( FALSE );
-	actionSubmit->setEnabled( FALSE );
-	actionRevert->setEnabled( FALSE );
-	actionDiff->setEnabled( FALSE );
-	actionEdit->setEnabled( FALSE );
+	actionAdd->setEnabled( true );
+	actionDelete->setEnabled( false );
+	actionSubmit->setEnabled( false );
+	actionRevert->setEnabled( false );
+	actionDiff->setEnabled( false );
+	actionEdit->setEnabled( false );
     }
 
 //     if ( fwIface )
@@ -831,7 +831,7 @@ QRESULT P4Interface::queryInterface( const QUuid &uuid, QUnknownInterface **ifac
 
 bool P4Interface::init()
 {
-    return TRUE;
+    return true;
 }
 
 void P4Interface::cleanup()

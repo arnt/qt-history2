@@ -18,10 +18,10 @@
 #include "project.h"
 #include "mainwindow.h"
 #include "../interfaces/languageinterface.h"
-#include <qregexp.h>
 #include "project.h"
 #include "sourcefile.h"
 #include "hierarchyview.h"
+#include <qregexp.h>
 #include <qmessagebox.h>
 #include <qtextstream.h>
 #include <qevent.h>
@@ -44,7 +44,7 @@ SourceEditor::~SourceEditor()
     saveBreakPoints();
     editor = 0;
     if ( formWindow() ) {
-	formWindow()->formFile()->setCodeEdited( FALSE );
+	formWindow()->formFile()->setCodeEdited( false );
 	formWindow()->formFile()->setEditor( 0 );
     } else if ( sourceFile() ) {
 	sourceFile()->setEditor( 0 );
@@ -61,16 +61,16 @@ void SourceEditor::setObject( QObject *o, Project *p )
     if ( sourceFile() )
 	sourceFile()->setEditor( 0 );
     if ( formWindow() ) {
-	formWindow()->formFile()->setCodeEdited( FALSE );
+	formWindow()->formFile()->setCodeEdited( false );
 	formWindow()->formFile()->setEditor( 0 );
     }
     if ( qt_cast<FormWindow*>(o) )
-	( (FormWindow*)o )->formFile()->setCodeEdited( TRUE );
+	( (FormWindow*)o )->formFile()->setCodeEdited( true );
     save();
-    bool changed = FALSE;
+    bool changed = false;
     if ( &(*obj) != o ) {
 	saveBreakPoints();
-	changed = TRUE;
+	changed = true;
     }
     obj = o;
     pro = p;
@@ -231,7 +231,7 @@ void SourceEditor::resetContext()
 void SourceEditor::setFocus()
 {
     if ( formWindow() )
-	formWindow()->formFile()->setCodeEdited( TRUE );
+	formWindow()->formFile()->setCodeEdited( true );
     if ( editor )
 	editor->setFocus();
 }
@@ -289,7 +289,7 @@ bool SourceEditor::saveAs()
 	return formWindow()->formFile()->saveAs();
     else if ( sourceFile() )
 	return sourceFile()->saveAs();
-    return FALSE;
+    return false;
 }
 
 SourceFile *SourceEditor::sourceFile() const

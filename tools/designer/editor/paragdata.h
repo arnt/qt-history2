@@ -24,7 +24,7 @@ public:
     enum LineState { FunctionStart, InFunction, FunctionEnd, Invalid };
 
     ParagData() : lastLengthForCompletion( -1 ), marker( NoMarker ),
-	lineState( Invalid ), functionOpen( TRUE ), step( FALSE ), stackFrame( FALSE ) {}
+	lineState( Invalid ), functionOpen( true ), step( false ), stackFrame( false ) {}
     ~ParagData() {}
     void join( Q3TextParagraphData *data ) {
 	ParagData *d = (ParagData*)data;

@@ -27,7 +27,7 @@ class TableEditor : public TableEditorBase
 
 public:
     TableEditor( QWidget* parent = 0, QWidget *editWidget = 0, FormWindow *fw = 0,
-		 const char* name = 0, bool modal = FALSE, WFlags fl = 0 );
+		 const char* name = 0, bool modal = false, WFlags fl = 0 );
     ~TableEditor();
 
 protected slots:

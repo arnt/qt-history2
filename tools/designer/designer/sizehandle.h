@@ -62,7 +62,7 @@ class WidgetSelection
 public:
     WidgetSelection( FormWindow *parent, QHash<QWidget *, WidgetSelection *> *selDict );
 
-    void setWidget( QWidget *w, bool updateDict = TRUE );
+    void setWidget( QWidget *w, bool updateDict = true );
     bool isUsed() const;
 
     void updateGeometry();

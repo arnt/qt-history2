@@ -247,7 +247,7 @@ Glade2Ui::Glade2Ui()
 QString Glade2Ui::imageName( const QString& fileName )
 {
     return *yyImages.insert( fileName, QString("image%1").arg(yyImages.count()),
-			     FALSE );
+			     false );
 }
 
 QString Glade2Ui::opening( const QString& tag, const AttributeMap& attr )
@@ -453,8 +453,8 @@ QString Glade2Ui::gtk2qtClass( const QString& gtkClass,
     if ( gtkClass == QString("GtkScrolledWindow") ) {
 	if ( childWidgets.count() == 1 ) {
 	    QString g;
-	    bool editable = FALSE;
-	    bool showTitles = TRUE;
+	    bool editable = false;
+	    bool showTitles = true;
 
 	    QDomNode n = childWidgets.first().firstChild();
 	    while ( !n.isNull() ) {
@@ -816,7 +816,7 @@ void Glade2Ui::emitPushButton( const QString& text, const QString& name )
     emitProperty( QString("name"), name.latin1() );
     emitProperty( QString("text"), text );
     if ( name.contains(QString("ok")) ) {
-	emitProperty( QString("default"), QVariant(TRUE) );
+	emitProperty( QString("default"), QVariant(true) );
     } else if ( name.contains(QString("help")) ) {
 	emitProperty( QString("accel"), (int) Qt::Key_F1 );
     }
@@ -886,7 +886,7 @@ void Glade2Ui::emitGnomeAbout( QString copyright, QString authors,
       Emit the application name.
     */
     emitOpeningWidget( QString("QLabel") );
-    emitFontProperty( QString("font"), 24, TRUE );
+    emitFontProperty( QString("font"), 24, true );
     emitProperty( QString("text"), prog );
     emitProperty( QString("alignment"), QString("AlignAuto|AlignCenter"),
 		  QString("set") );
@@ -896,7 +896,7 @@ void Glade2Ui::emitGnomeAbout( QString copyright, QString authors,
       Emit the copyright notice.
     */
     emitOpeningWidget( QString("QLabel") );
-    emitFontProperty( QString("font"), 12, TRUE );
+    emitFontProperty( QString("font"), 12, true );
     emitProperty( QString("text"), copyright );
     emitClosing( QString("widget") );
 
@@ -907,14 +907,14 @@ void Glade2Ui::emitGnomeAbout( QString copyright, QString authors,
     emitOpening( QString("hbox") );
 
     emitOpeningWidget( QString("QLabel") );
-    emitFontProperty( QString("font"), 12, TRUE );
+    emitFontProperty( QString("font"), 12, true );
     emitProperty( QString("text"), QString("Authors:") );
     emitProperty( QString("alignment"), QString("AlignAuto|AlignTop"),
 		  QString("set") );
     emitClosing( QString("widget") );
 
     emitOpeningWidget( QString("QLabel") );
-    emitFontProperty( QString("font"), 12, FALSE );
+    emitFontProperty( QString("font"), 12, false );
     emitProperty( QString("text"), authors );
     emitProperty( QString("alignment"), QString("AlignAuto|AlignTop"),
 		  QString("set") );
@@ -929,7 +929,7 @@ void Glade2Ui::emitGnomeAbout( QString copyright, QString authors,
       Emit the comments.
     */
     emitOpeningWidget( QString("QLabel") );
-    emitFontProperty( QString("font"), 10, FALSE );
+    emitFontProperty( QString("font"), 10, false );
     emitProperty( QString("text"), comments );
     emitProperty( QString("alignment"), QString("AlignAuto|AlignTop"),
 		  QString("set") );
@@ -981,7 +981,7 @@ void Glade2Ui::emitGnomeAppChildWidgetsPass1(
 	}
 
 	if ( childName == QString("GnomeDock:contents") ) {
-	    emitWidget( *c, FALSE );
+	    emitWidget( *c, false );
 	} else {
 	    emitGnomeAppChildWidgetsPass1( grandchildWidgets );
 	}
@@ -1165,7 +1165,7 @@ void Glade2Ui::emitGtkNotebookChildWidgets(
 	    tabNames.remove( tabNames.begin() );
 	    emitAttribute( QString("title"), accelerate(tabLabels.first()) );
 	    tabLabels.remove( tabLabels.begin() );
-	    emitWidget( *c, FALSE );
+	    emitWidget( *c, false );
 	    emitClosing( QString("widget") );
 	}
 	++c;
@@ -1192,7 +1192,7 @@ void Glade2Ui::emitQListViewColumns( const QDomElement& qlistview )
 	} else if ( tagName == QString("class") ) {
 	    QString gtkClass = getTextValue( n );
 	    if ( gtkClass.endsWith(QString("Tree")) )
-		emitProperty( QString("rootIsDecorated"), QVariant(TRUE) );
+		emitProperty( QString("rootIsDecorated"), QVariant(true) );
 	} else if ( tagName == QString("selection_mode") ) {
 	    emitProperty( QString("selectionMode"),
 			  gtk2qtSelectionMode(getTextValue(n)) );
@@ -1336,7 +1336,7 @@ void Glade2Ui::emitGtkWindowChildWidgets(
 	const QValueList<QDomElement>& childWidgets, const QString& qtClass )
 {
     if ( childWidgets.count() == 1 && qtClass == QString("QWizard") ) {
-	emitFontProperty( QString("titleFont"), 18, FALSE );
+	emitFontProperty( QString("titleFont"), 18, false );
 
 	QDomNode n = childWidgets.first().firstChild();
 	while ( !n.isNull() ) {
@@ -1345,7 +1345,7 @@ void Glade2Ui::emitGtkWindowChildWidgets(
 	    n = n.nextSibling();
 	}
     } else {
-	emitChildWidgets( childWidgets, FALSE );
+	emitChildWidgets( childWidgets, false );
     }
 }
 
@@ -1365,7 +1365,7 @@ bool Glade2Ui::packEnd( const QDomElement& widget )
 	}
 	n = n.nextSibling();
     }
-    return FALSE;
+    return false;
 }
 
 void Glade2Ui::emitChildWidgets( const QValueList<QDomElement>& childWidgets,
@@ -1413,9 +1413,9 @@ void Glade2Ui::emitOpeningWidget( const QString& qtClass, int leftAttach,
 }
 
 /*
-  Returns TRUE if the vbox containing childWidgets should have a
+  Returns true if the vbox containing childWidgets should have a
   spacer at the end to prevent it from looking bad, otherwise returns
-  FALSE.
+  false.
 
   The algorithm is very experimental.
 */
@@ -1443,10 +1443,10 @@ bool Glade2Ui::shouldPullup( const QValueList<QDomElement>& childWidgets )
 
 	if ( !gtkSmallWidget.exactMatch(gtkClass) ||
 	     !shouldPullup(grandchildWidgets) )
-	    return FALSE;
+	    return false;
 	++c;
     }
-    return TRUE;
+    return true;
 }
 
 QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
@@ -1469,13 +1469,13 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
     int numRows = 0;
     int numColumns = 0;
 
-    bool active = FALSE;
+    bool active = false;
     QString authors;
     QString childName;
     QString comments;
     QString copyright;
     QString creationFunction;
-    bool editable = TRUE;
+    bool editable = true;
     QString filename;
     QString focusTarget;
     QString hscrollbarPolicy;
@@ -1490,21 +1490,21 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
     int pageSize = 10;
     QString selectionMode;
     QString shadowType( "GTK_SHADOW_NONE" );
-    bool showText = TRUE;
-    bool showTitles = TRUE;
+    bool showText = true;
+    bool showTitles = true;
     int step = 1;
     QString tabPos;
     QString text;
     int textMaxLength = 0;
-    bool textVisible = TRUE;
+    bool textVisible = true;
     QString tooltip;
     QString type;
     int upper = 123456789;
     int value = 123456789;
-    bool valueInList = TRUE;
+    bool valueInList = true;
     QString vscrollbarPolicy;
     QString watermarkImage;
-    bool wrap = FALSE;
+    bool wrap = false;
 
     bool topLevel = yyFormName.isEmpty();
     if ( topLevel )
@@ -1735,7 +1735,7 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
 	if ( gtkClass == QString("GtkHButtonBox") ||
 	     childName == QString("Dialog:action_area") )
 	    emitSpacer( orientation );
-	emitChildWidgets( childWidgets, TRUE );
+	emitChildWidgets( childWidgets, true );
 
 	if ( gtkClass == QString("GtkVButtonBox") ||
 	     childName == QString("Dialog:action_area") ||
@@ -1750,7 +1750,7 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
 	if ( layouted )
 	    emitClosing( QString("widget") );
     } else if ( gtkClass == QString("GtkFixed") && !layouted ) {
-	emitChildWidgets( childWidgets, FALSE );
+	emitChildWidgets( childWidgets, false );
     /*
       Placeholders in a grid are typically needless.
     */
@@ -1758,7 +1758,7 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
 	bool needFakeLayout = ( !layouted && !topLevel && x == 0 && y == 0 &&
 				width == 0 && height == 0 );
 	QString qtClass = gtk2qtClass( gtkClass, childWidgets );
-	bool unknown = FALSE;
+	bool unknown = false;
 
 	if ( qtClass == QString("QFrame") && !label.isEmpty() ) {
 	    qtClass = QString( "QButtonGroup" );
@@ -1770,7 +1770,7 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
 	    yyCustomWidgets.insert( qtClass, QString::null );
 	} else if ( qtClass == QString("Unknown") ) {
 	    qtClass = QString( "QLabel" );
-	    unknown = TRUE;
+	    unknown = true;
 	}
 
 	if ( qtClass.isEmpty() ) {
@@ -1792,16 +1792,16 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
 	    if ( !layouted && (x != 0 || y != 0 || width != 0 || height != 0) )
 		emitProperty( QString("geometry"), QRect(x, y, width, height) );
 	    if ( gtkClass == QString("GtkToggleButton") ) {
-		emitProperty( QString("toggleButton"), QVariant(TRUE) );
+		emitProperty( QString("toggleButton"), QVariant(true) );
 		if ( active )
-		    emitProperty( QString("on"), QVariant(TRUE) );
+		    emitProperty( QString("on"), QVariant(true) );
 	    } else {
 		if ( active )
-		    emitProperty( QString("checked"), QVariant(TRUE) );
+		    emitProperty( QString("checked"), QVariant(true) );
 	    }
 
 	    if ( !editable )
-		emitProperty( QString("readOnly"), QVariant(TRUE) );
+		emitProperty( QString("readOnly"), QVariant(true) );
 	    if ( !focusTarget.isEmpty() )
 		emitProperty( QString("buddy"),
 			      fixedName(focusTarget).latin1() );
@@ -1866,7 +1866,7 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
 	    }
 	    if ( !showText )
 		emitProperty( QString("percentageVisible"),
-			      QVariant(FALSE) );
+			      QVariant(false) );
 	    if ( step != 1 )
 		emitProperty( QString("lineStep"), step );
 	    if ( tabPos.endsWith(QString("_BOTTOM")) ||
@@ -1882,12 +1882,12 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
 	    if ( !tooltip.isEmpty() )
 		emitProperty( QString("toolTip"), tooltip );
 	    if ( !valueInList )
-		emitProperty( QString("editable"), QVariant(TRUE) );
+		emitProperty( QString("editable"), QVariant(true) );
 	    if ( wrap && gtkClass == QString("GtkSpinButton") )
-		emitProperty( QString("wrapping"), QVariant(TRUE) );
+		emitProperty( QString("wrapping"), QVariant(true) );
 
 	    if ( gtkClass.endsWith(QString("Tree")) ) {
-		emitProperty( QString("rootIsDecorated"), QVariant(TRUE) );
+		emitProperty( QString("rootIsDecorated"), QVariant(true) );
 	    } else if ( gtkOrientedWidget.exactMatch(gtkClass) ) {
 		QString s = ( gtkOrientedWidget.cap(1) == QString("H") ) ?
 			    QString( "Horizontal" ) : QString( "Vertical" );
@@ -1917,7 +1917,7 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
 		emitGnomeAppChildWidgetsPass1( childWidgets );
 	    } else if ( gtkClass == QString("GnomePropertyBox") ) {
 		emitOpening( QString("vbox") );
-		emitChildWidgets( childWidgets, TRUE );
+		emitChildWidgets( childWidgets, true );
 		emitOpeningWidget( QString("QLayoutWidget") );
 		emitOpening( QString("hbox") );
 		emitPushButton( QString("&Help"), QString("helpButton") );
@@ -1952,7 +1952,7 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
 			      QString("AlignAuto|AlignCenter"),
 			      QString("set") );
 	    } else if ( qtClass != QString("QListBox") ) {
-		emitChildWidgets( childWidgets, FALSE );
+		emitChildWidgets( childWidgets, false );
 	    }
 
 	    emitClosing( QString("widget") );
@@ -2001,7 +2001,7 @@ QStringList Glade2Ui::convertGladeFile( const QString& fileName )
 
     QProgressDialog fremskritt( QString("Converting Glade files..."),
 				QString("Abort Conversion"), numWidgets, 0,
-				"fremskritt", TRUE );
+				"fremskritt", true );
 
     n = root.firstChild();
     while ( !n.isNull() ) {
@@ -2035,7 +2035,7 @@ QStringList Glade2Ui::convertGladeFile( const QString& fileName )
 	    uniqueToolBar = 1;
 
 	    emitHeader();
-	    QString name = emitWidget( n.toElement(), FALSE );
+	    QString name = emitWidget( n.toElement(), false );
 
 	    if ( !yyCustomWidgets.isEmpty() ) {
 		emitOpening( QString("customwidgets") );

@@ -33,7 +33,7 @@ public:
     virtual EditorBrowser *browserManager() { return browser; }
     void configChanged();
 
-    bool supportsBreakPoints() const { return FALSE; }
+    bool supportsBreakPoints() const { return false; }
 #if defined(Q_USING)
     using QTextEdit::createPopupMenu;
 #endif

@@ -18,10 +18,10 @@
 
 ListDnd::ListDnd( QScrollView * eventSource, const char * name )
     : QObject( eventSource, name ),
-      dragInside( FALSE ), dragDelete( TRUE ), dropConfirmed( FALSE ), dMode( Both )
+      dragInside( false ), dragDelete( true ), dropConfirmed( false ), dMode( Both )
 {
     src = eventSource;
-    src->setAcceptDrops( TRUE );
+    src->setAcceptDrops( true );
     src->installEventFilter( this );
     src->viewport()->installEventFilter( this );
 
@@ -59,14 +59,14 @@ bool ListDnd::eventFilter( QObject *, QEvent * event )
     default:
 	break;
     }
-    return FALSE;
+    return false;
 }
 
 
 bool ListDnd::dragEnterEvent( QDragEnterEvent * event )
 {
     if ( dMode == None ) {
-	return TRUE;
+	return true;
     }
 
     bool ok = ( ( ( dMode & Both ) == Both ) ||
@@ -75,20 +75,20 @@ bool ListDnd::dragEnterEvent( QDragEnterEvent * event )
 
     if ( ok && canDecode( event ) ) {
 	event->accept();
-	dragInside = TRUE;
+	dragInside = true;
 	if ( !( dMode & NullDrop ) ) {
 	    updateLine( event->pos() );
 	    line->show();
 	}
     }
-    return TRUE;
+    return true;
 }
 
 bool ListDnd::dragLeaveEvent( QDragLeaveEvent * )
 {
-    dragInside = FALSE;
+    dragInside = false;
     line->hide();
-    return TRUE;
+    return true;
 }
 
 bool ListDnd::dragMoveEvent( QDragMoveEvent * event )
@@ -96,26 +96,26 @@ bool ListDnd::dragMoveEvent( QDragMoveEvent * event )
     if ( dragInside && dMode && !( dMode & NullDrop ) ) {
 	updateLine( event->pos() );
     }
-    return TRUE;
+    return true;
 }
 
 bool ListDnd::dropEvent( QDropEvent * )
 {
     // do nothing
-    return FALSE;
+    return false;
 }
 
 bool ListDnd::mousePressEvent( QMouseEvent * event )
 {
     if ( event->button() == LeftButton )
 	mousePressPos = event->pos();
-    return FALSE;
+    return false;
 }
 
 bool ListDnd::mouseMoveEvent( QMouseEvent * )
 {
     // do nothing
-    return FALSE;
+    return false;
 }
 
 void ListDnd::updateLine( const QPoint & )
@@ -126,5 +126,5 @@ void ListDnd::updateLine( const QPoint & )
 bool ListDnd::canDecode( QDragEnterEvent * )
 {
     // do nothing
-    return FALSE;
+    return false;
 }

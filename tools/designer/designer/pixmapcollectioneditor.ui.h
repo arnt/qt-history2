@@ -14,7 +14,7 @@
 void PixmapCollectionEditor::init()
 {
     project = 0;
-    setChooserMode( FALSE );
+    setChooserMode( false );
 }
 
 void PixmapCollectionEditor::destroy()
@@ -41,7 +41,7 @@ void PixmapCollectionEditor::addPixmap()
 	QFileInfo fi ( *it );
 	pixmap.name = fi.fileName();
 	pixmap.absname = fi.filePath();
-	if ( !project->pixmapCollection()->addPixmap( pixmap, FALSE ) )
+	if ( !project->pixmapCollection()->addPixmap( pixmap, false ) )
 	    continue;
 	lastName = pixmap.name;
     }
@@ -74,9 +74,9 @@ void PixmapCollectionEditor::updateView()
     for ( QList<PixmapCollection::Pixmap>::Iterator it = pixmaps.begin(); it != pixmaps.end(); ++it ) {
 	// #### might need to scale down the pixmap
 	QIconViewItem *item = new QIconViewItem( viewPixmaps, (*it).name, scaledPixmap( (*it).pix ) );
-	//item->setRenameEnabled( TRUE ); // this will be a bit harder to implement
-	item->setDragEnabled( FALSE );
-	item->setDropEnabled( FALSE );
+	//item->setRenameEnabled( true ); // this will be a bit harder to implement
+	item->setDragEnabled( false );
+	item->setDropEnabled( false );
     }
     viewPixmaps->setCurrentItem( viewPixmaps->firstItem() );
     currentChanged( viewPixmaps->firstItem() );
@@ -94,8 +94,8 @@ void PixmapCollectionEditor::setChooserMode( bool c )
 	buttonClose->hide();
 	buttonOk->show();
 	buttonCancel->show();
-	buttonOk->setEnabled( FALSE );
-	buttonOk->setDefault( TRUE );
+	buttonOk->setEnabled( false );
+	buttonOk->setDefault( true );
 	connect( viewPixmaps, SIGNAL( doubleClicked( QIconViewItem * ) ), buttonOk, SIGNAL( clicked() ) );
 	connect( viewPixmaps, SIGNAL( returnPressed( QIconViewItem * ) ), buttonOk, SIGNAL( clicked() ) );
 	setCaption( tr( "Choose an Image" ) );
@@ -103,7 +103,7 @@ void PixmapCollectionEditor::setChooserMode( bool c )
 	buttonClose->show();
 	buttonOk->hide();
 	buttonCancel->hide();
-	buttonClose->setDefault( TRUE );
+	buttonClose->setDefault( true );
     }
     updateView();
 }

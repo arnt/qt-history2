@@ -14,10 +14,10 @@
 #include "editorinterfaceimpl.h"
 #include <viewmanager.h>
 #include "cppeditor.h"
-#include <private/qrichtext_p.h>
-#include <qapplication.h>
 #include "completion.h"
 #include <designerinterface.h>
+#include <private/qrichtext_p.h>
+#include <qapplication.h>
 #include <qtimer.h>
 
 EditorInterfaceImpl::EditorInterfaceImpl()
@@ -55,7 +55,7 @@ QWidget *EditorInterfaceImpl::editor( bool readonly,
 {
     if ( !viewManager ) {
 	( (EditorInterfaceImpl*)this )->viewManager = new ViewManager( parent, 0 );
-	( (EditorInterfaceImpl*)this )->viewManager->showMarkerWidget( FALSE );
+	( (EditorInterfaceImpl*)this )->viewManager->showMarkerWidget( false );
 	if ( iface )
 	    iface->queryInterface( IID_Designer, (QUnknownInterface**) &dIface );
 	CppEditor *e = new CppEditor( QString::null, viewManager, "editor", dIface );
@@ -74,7 +74,7 @@ void EditorInterfaceImpl::setText( const QString &txt )
     CppEditor *e = (CppEditor*)viewManager->currentView();
     disconnect( e, SIGNAL( modificationChanged( bool ) ), this, SLOT( modificationChanged( bool ) ) );
     e->setText( txt );
-    e->setModified( FALSE );
+    e->setModified( false );
     connect( e, SIGNAL( modificationChanged( bool ) ), this, SLOT( modificationChanged( bool ) ) );
 }
 
@@ -91,14 +91,14 @@ QString EditorInterfaceImpl::text() const
 bool EditorInterfaceImpl::isUndoAvailable() const
 {
     if ( !viewManager || !viewManager->currentView() )
-	return FALSE;
+	return false;
     return ( (CppEditor*)viewManager->currentView() )->isUndoAvailable();
 }
 
 bool EditorInterfaceImpl::isRedoAvailable() const
 {
     if ( !viewManager || !viewManager->currentView() )
-	return FALSE;
+	return false;
     return ( (CppEditor*)viewManager->currentView() )->isRedoAvailable();
 }
 
@@ -147,7 +147,7 @@ void EditorInterfaceImpl::selectAll()
 bool EditorInterfaceImpl::find( const QString &expr, bool cs, bool wo, bool forward, bool startAtCursor )
 {
     if ( !viewManager || !viewManager->currentView() )
-	return FALSE;
+	return false;
     CppEditor *e = (CppEditor*)viewManager->currentView();
     if ( startAtCursor )
 	return e->find( expr, cs, wo, forward );
@@ -159,9 +159,9 @@ bool EditorInterfaceImpl::replace( const QString &find, const QString &replace, 
 				   bool forward, bool startAtCursor, bool replaceAll )
 {
     if ( !viewManager || !viewManager->currentView() )
-	return FALSE;
+	return false;
     CppEditor *e = (CppEditor*)viewManager->currentView();
-    bool ok = FALSE;
+    bool ok = false;
     if ( startAtCursor ) {
 	ok = e->find( find, cs, wo, forward );
     } else {
@@ -171,7 +171,7 @@ bool EditorInterfaceImpl::replace( const QString &find, const QString &replace, 
 
     if ( ok ) {
 	e->removeSelectedText();
-	e->insert( replace, FALSE, FALSE );
+	e->insert( replace, false, false );
     }
 
     if ( !replaceAll || !ok ) {
@@ -183,16 +183,16 @@ bool EditorInterfaceImpl::replace( const QString &find, const QString &replace, 
 	return ok;
     }
 
-    bool ok2 = TRUE;
+    bool ok2 = true;
     while ( ok2 ) {
 	ok2 = e->find( find, cs, wo, forward );
 	if ( ok2 ) {
 	    e->removeSelectedText();
-	    e->insert( replace, FALSE, FALSE );
+	    e->insert( replace, false, false );
 	}
     }
 
-    return TRUE;
+    return true;
 }
 
 void EditorInterfaceImpl::gotoLine( int line )
@@ -274,7 +274,7 @@ void EditorInterfaceImpl::setModified( bool m )
 bool EditorInterfaceImpl::isModified() const
 {
     if ( !viewManager )
-	return FALSE;
+	return false;
     return ( (CppEditor*)viewManager->currentView() )->isModified();
 }
 
@@ -299,7 +299,7 @@ void EditorInterfaceImpl::intervalChanged()
 {
     if ( !dIface )
 	return;
-    updateTimer->start( 2000, TRUE );
+    updateTimer->start( 2000, true );
 }
 
 void EditorInterfaceImpl::update()

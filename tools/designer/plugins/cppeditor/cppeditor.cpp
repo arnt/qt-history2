@@ -34,7 +34,7 @@ CppEditor::CppEditor( const QString &fn, QWidget *parent, const char *name, Desi
     browser = new CppEditorBrowser( this );
     int j = 0;
     while ( SyntaxHighlighter_CPP::keywords[ j ] != 0 )
-	    completion->addCompletionEntry( SyntaxHighlighter_CPP::keywords[ j++ ], 0, FALSE );
+	    completion->addCompletionEntry( SyntaxHighlighter_CPP::keywords[ j++ ], 0, false );
     configChanged();
 }
 
@@ -64,7 +64,7 @@ void CppEditor::configChanged()
     } else {
 	if ( hScrollBarMode() != AlwaysOn ) {
 	    Q3TextFormatterBreakWords *f = new Q3TextFormatterBreakWords;
-	    f->setWrapEnabled( FALSE );
+	    f->setWrapEnabled( false );
 	    document()->setFormatter( f );
 	    setHScrollBarMode( AlwaysOn );
 	}
@@ -94,9 +94,9 @@ QPopupMenu *CppEditor::createPopupMenu( const QPoint &p )
     int addimplid = m->insertItem( tr( "Add Include File (in Implementation)..." ), this, SLOT( addInclImpl() ) );
     int addforid = m->insertItem( tr( "Add Forward Declaration..." ), this, SLOT( addForward() ) );
     if ( !dIface->currentForm() ) {
-	m->setItemEnabled( adddeclid, FALSE );
-	m->setItemEnabled( addimplid, FALSE );
-	m->setItemEnabled( addforid, FALSE );
+	m->setItemEnabled( adddeclid, false );
+	m->setItemEnabled( addimplid, false );
+	m->setItemEnabled( addforid, false );
     }
     return m;
 }

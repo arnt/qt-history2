@@ -79,20 +79,20 @@ void WizardEditor::applyClicked()
 	QWidget * page = wizard->page( i );
 	if ( i == 0 ) { // first page
 
-	    wizard->setBackEnabled( page, FALSE );
-	    wizard->setNextEnabled( page, TRUE );
+	    wizard->setBackEnabled( page, false );
+	    wizard->setNextEnabled( page, true );
 	}
 	else if ( i == wizard->pageCount() - 1 ) { // last page
 
-	    wizard->setBackEnabled( page, TRUE );
-	    wizard->setNextEnabled( page, FALSE );
+	    wizard->setBackEnabled( page, true );
+	    wizard->setNextEnabled( page, false );
 	}
 	else {
 
-	    wizard->setBackEnabled( page, TRUE );
-	    wizard->setNextEnabled( page, TRUE );
+	    wizard->setBackEnabled( page, true );
+	    wizard->setNextEnabled( page, true );
 	}
-	wizard->setFinishEnabled( page, FALSE );
+	wizard->setFinishEnabled( page, false );
     }
 
     // update listbox
@@ -117,7 +117,7 @@ void WizardEditor::addClicked()
 
     // schedule add command
     AddWizardPageCommand *cmd = new AddWizardPageCommand( tr( "Add Page to %1" ).arg( wizard->name() ),
-							  formwindow, wizard, "Page", index, FALSE);
+							  formwindow, wizard, "Page", index, false);
     commands.append( cmd );
 
     // update buttons
@@ -136,7 +136,7 @@ void WizardEditor::removeClicked()
     // schedule remove command
     DeleteWizardPageCommand *cmd = new DeleteWizardPageCommand( tr( "Delete Page %1 of %2" )
 								.arg( listBox->text( index ) ).arg( wizard->name() ),
-								formwindow, wizard, index, FALSE );
+								formwindow, wizard, index, false );
     commands.append( cmd );
 
     // update buttons
@@ -217,7 +217,7 @@ void WizardEditor::updateButtons()
     buttonRemove->setEnabled( index >= 0 );
 
     if ( listBox->count() < 2 )
-	buttonRemove->setEnabled( FALSE );
+	buttonRemove->setEnabled( false );
 }
 
 void WizardEditor::itemDragged( QListBoxItem * i )

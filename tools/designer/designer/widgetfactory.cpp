@@ -116,9 +116,9 @@ void QLayoutWidget::paintEvent( QPaintEvent* )
 
 
 QDesignerTabWidget::QDesignerTabWidget( QWidget *parent, const char *name )
-    : QTabWidget( parent, name ), dropIndicator( 0 ), dragPage( 0 ), mousePressed( FALSE )
+    : QTabWidget( parent, name ), dropIndicator( 0 ), dragPage( 0 ), mousePressed( false )
 {
-    tabBar()->setAcceptDrops( TRUE );
+    tabBar()->setAcceptDrops( true );
     tabBar()->installEventFilter( this );
 }
 
@@ -162,11 +162,11 @@ int QDesignerTabWidget::count() const
 
 bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
 {
-    if ( o != tabBar() ) return FALSE;
+    if ( o != tabBar() ) return false;
 
     switch ( e->type() ) {
     case QEvent::MouseButtonPress: {
-	mousePressed = TRUE;
+	mousePressed = true;
 	QMouseEvent *me = (QMouseEvent*)e;
 	pressPoint = me->pos();
     }
@@ -175,7 +175,7 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
 	QMouseEvent *me = (QMouseEvent*)e;
 	if ( mousePressed && ( pressPoint - me->pos()).manhattanLength() > QApplication::startDragDistance() ) {
 	    QTextDrag *drg = new QTextDrag( QString::number( (long) this ) , this );
-	    mousePressed = FALSE;
+	    mousePressed = false;
 	    dragPage = QTabWidget::currentPage();
 	    dragLabel = QTabWidget::tabLabel( dragPage );
 
@@ -204,7 +204,7 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
 	    if ( text == QString::number( (long)this ) )
 		de->accept();
 	    else
-		return FALSE;
+		return false;
 	}
 
 	int index = 0;
@@ -278,7 +278,7 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
     default:
 	break;
     }
-    return FALSE;
+    return false;
 }
 
 
@@ -286,12 +286,12 @@ QDesignerWidgetStack::QDesignerWidgetStack( QWidget *parent, const char *name )
     : QWidgetStack( parent, name )
 {
     prev = new QToolButton( Qt::LeftArrow, this, "designer_wizardstack_button" );
-    prev->setAutoRaise( TRUE );
-    prev->setAutoRepeat( TRUE );
+    prev->setAutoRaise( true );
+    prev->setAutoRepeat( true );
     prev->setSizePolicy( QSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored ) );
     next = new QToolButton( Qt::RightArrow, this, "designer_wizardstack_button" );
-    next->setAutoRaise( TRUE );
-    next->setAutoRepeat( TRUE );
+    next->setAutoRaise( true );
+    next->setAutoRepeat( true );
     next->setSizePolicy( QSizePolicy( QSizePolicy::Ignored, QSizePolicy::Ignored ) );
     connect( prev, SIGNAL( clicked() ), this, SLOT( prevPage() ) );
     connect( next, SIGNAL( clicked() ), this, SLOT( nextPage() ) );
@@ -510,7 +510,7 @@ void WidgetFactory::saveChangedProperties( QObject *w, int id )
 }
 
 /*!  Creates a widget of the type which is registered as \a id as
-  child of \a parent. The \a name is optional. If \a init is TRUE, the
+  child of \a parent. The \a name is optional. If \a init is true, the
   widget is initialized with some defaults, else the plain widget is
   created.
 */
@@ -672,7 +672,7 @@ void WidgetFactory::deleteLayout( QWidget *widget )
 /*!  Factory functions for creating a widget of the type \a className
   as child of \a parent with the name \a name.
 
-  If \a init is TRUE, some initial default properties are set. This
+  If \a init is true, some initial default properties are set. This
   has to be in sync with the initChangedProperties() function!
 */
 
@@ -694,9 +694,9 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	if ( init ) {
 	    QDesignerToolButton *tb = new QDesignerToolButton( parent, name );
 	    if ( ::qt_cast<QToolBox*>(widgetOfContainer(parent))) {
-		tb->setUsesTextLabel(TRUE);
+		tb->setUsesTextLabel(true);
 		tb->setTextLabel("...");
-		tb->setAutoRaise(TRUE);
+		tb->setAutoRaise(true);
 		tb->setTextPosition(QToolButton::BesideIcon);
 	    } else {
 		tb->setText( "..." );
@@ -784,17 +784,17 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	if ( init ) {
 	    l->setText( QString::fromLatin1( name ) );
 	    MetaDataBase::addEntry( l );
-	    MetaDataBase::setPropertyChanged( l, "text", TRUE );
+	    MetaDataBase::setPropertyChanged( l, "text", true );
 	}
 	return l;
     } else if ( className == "PixmapLabel" ) {
 	QDesignerLabel *l = new QDesignerLabel( parent, name );
 	if ( init ) {
 	    l->setPixmap( QPixmap::fromMimeSource( "designer_qtlogo.png" ) );
-	    l->setScaledContents( TRUE );
+	    l->setScaledContents( true );
 	    MetaDataBase::addEntry( l );
-	    MetaDataBase::setPropertyChanged( l, "pixmap", TRUE );
-	    MetaDataBase::setPropertyChanged( l, "scaledContents", TRUE );
+	    MetaDataBase::setPropertyChanged( l, "pixmap", true );
+	    MetaDataBase::setPropertyChanged( l, "scaledContents", true );
 	}
 	return l;
     } else if ( className == "QLayoutWidget" )
@@ -823,7 +823,7 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	}
 	return ws;
     } else if ( className == "QComboBox" ) {
-	return new QComboBox( FALSE, parent, name );
+	return new QComboBox( false, parent, name );
     } else if ( className == "QWidget" ) {
 	if ( parent &&
 	     ( ::qt_cast<FormWindow*>(parent) ||
@@ -851,7 +851,7 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 #else
 	if ( parent )
 #endif
-	    dia->reparent( parent, QPoint( 0, 0 ), TRUE );
+	    dia->reparent( parent, QPoint( 0, 0 ), true );
 	return dia;
     } else if ( className == "QWizard" ) {
 	QWizard *wiz = new QDesignerWizard( parent, name );
@@ -860,7 +860,7 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 #else
 	if ( parent )
 #endif
-	    wiz->reparent( parent, QPoint( 0, 0 ), TRUE );
+	    wiz->reparent( parent, QPoint( 0, 0 ), true );
 	if ( init && ::qt_cast<FormWindow*>(parent) ) {
 	    QDesignerWidget *dw = new QDesignerWidget( (FormWindow*)parent, wiz, "WizardPage" );
 	    MetaDataBase::addEntry( dw );
@@ -871,8 +871,8 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
     } else if ( className == "Spacer" ) {
 	Spacer *s = new Spacer( parent, name );
 	MetaDataBase::addEntry( s );
-	MetaDataBase::setPropertyChanged( s, "orientation", TRUE );
-	MetaDataBase::setPropertyChanged( s, "sizeType", TRUE );
+	MetaDataBase::setPropertyChanged( s, "orientation", true );
+	MetaDataBase::setPropertyChanged( s, "sizeType", true );
 	if ( !r )
 	    return s;
 	if ( !r->isValid() || r->width() < 2 && r->height() < 2 )
@@ -901,7 +901,7 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	else if ( r->width() > r->height() )
 	    s->setOrientation( Qt::Horizontal );
 	MetaDataBase::addEntry( s );
-	MetaDataBase::setPropertyChanged( s, "orientation", TRUE );
+	MetaDataBase::setPropertyChanged( s, "orientation", true );
 	return s;
     } else if ( className == "QScrollBar" ) {
 	QScrollBar *s = new QScrollBar( parent, name );
@@ -912,7 +912,7 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	else if ( r->width() > r->height() )
 	    s->setOrientation( Qt::Horizontal );
 	MetaDataBase::addEntry( s );
-	MetaDataBase::setPropertyChanged( s, "orientation", TRUE );
+	MetaDataBase::setPropertyChanged( s, "orientation", true );
 	return s;
     } else if ( className == "QFrame" ) {
 	if ( !init )
@@ -923,9 +923,9 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
     } else if ( className == "Line" ) {
 	Line *l = new Line( parent, name );
 	MetaDataBase::addEntry( l );
-	MetaDataBase::setPropertyChanged( l, "orientation", TRUE );
-	MetaDataBase::setPropertyChanged( l, "frameShadow", TRUE );
-	MetaDataBase::setPropertyChanged( l, "frameShape", TRUE );
+	MetaDataBase::setPropertyChanged( l, "orientation", true );
+	MetaDataBase::setPropertyChanged( l, "frameShadow", true );
+	MetaDataBase::setPropertyChanged( l, "frameShape", true );
 	if ( !r )
 	    return l;
 	if ( !r->isValid() || r->width() < 2 && r->height() < 2 )
@@ -935,9 +935,9 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	return l;
     } else if ( className == "QMainWindow" ) {
 	QMainWindow *mw = new QMainWindow( parent, name, 0 );
-	mw->setDockEnabled( Qt::DockMinimized, FALSE );
+	mw->setDockEnabled( Qt::DockMinimized, false );
 	QDesignerWidget *dw = new QDesignerWidget( (FormWindow*)parent, mw, "central widget" );
-	mw->setDockMenuEnabled( FALSE );
+	mw->setDockMenuEnabled( false );
 	MetaDataBase::addEntry( dw );
 	mw->setCentralWidget( dw );
 	(void)mw->statusBar();
@@ -962,12 +962,12 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
     else if ( className == "QDataBrowser" ) {
 	QWidget *w = new QDesignerDataBrowser( parent, name );
 	if ( parent )
-	    w->reparent( parent, QPoint( 0, 0 ), TRUE );
+	    w->reparent( parent, QPoint( 0, 0 ), true );
 	return w;
     } else if ( className == "QDataView" ) {
 	QWidget *w = new QDesignerDataView( parent, name );
 	if ( parent )
-	    w->reparent( parent, QPoint( 0, 0 ), TRUE );
+	    w->reparent( parent, QPoint( 0, 0 ), true );
 	return w;
     }
 #endif
@@ -1141,40 +1141,40 @@ QWidget* WidgetFactory::widgetOfContainer( QWidget *w )
   Returns whether \a o is a passive interactor or not.
  */
 
-bool WidgetFactory::lastWasAPassiveInteractor = FALSE;
+bool WidgetFactory::lastWasAPassiveInteractor = false;
 QGuardedPtr<QObject> *WidgetFactory::lastPassiveInteractor = new QGuardedPtr<QObject>();
 
 bool WidgetFactory::isPassiveInteractor( QObject* o )
 {
     if ( lastPassiveInteractor && *lastPassiveInteractor && (QObject*)(*lastPassiveInteractor) == o )
 	return lastWasAPassiveInteractor;
-    lastWasAPassiveInteractor = FALSE;
+    lastWasAPassiveInteractor = false;
     (*lastPassiveInteractor) = o;
     if ( QApplication::activePopupWidget() ) // if a popup is open, we have to make sure that this one is closed, else X might do funny things
-	return ( lastWasAPassiveInteractor = TRUE );
+	return ( lastWasAPassiveInteractor = true );
 
     if ( ::qt_cast<QTabBar*>(o) )
-	return ( lastWasAPassiveInteractor = TRUE );
+	return ( lastWasAPassiveInteractor = true );
     else if ( ::qt_cast<QSizeGrip*>(o) )
-	return ( lastWasAPassiveInteractor = TRUE );
+	return ( lastWasAPassiveInteractor = true );
     else if ( ::qt_cast<QButton*>(o) &&
 	      ( ::qt_cast<QTabBar*>(o->parent()) || ::qt_cast<QToolBox*>(o->parent()) ) )
-	return ( lastWasAPassiveInteractor = TRUE );
+	return ( lastWasAPassiveInteractor = true );
     else if ( ::qt_cast<QPushButton*>(o) && ::qt_cast<QWizard*>(o->parent()) )
-	return ( lastWasAPassiveInteractor = TRUE );
+	return ( lastWasAPassiveInteractor = true );
     else if ( ::qt_cast<QMenuBar*>(o) && ::qt_cast<QMainWindow*>(o->parent()) )
-	return ( lastWasAPassiveInteractor = TRUE );
+	return ( lastWasAPassiveInteractor = true );
 //    else if ( ::qt_cast<QDockWindowHandle*>(o) )
     else if ( o->inherits( "QDockWindowHandle" ) )
-	return ( lastWasAPassiveInteractor = TRUE );
+	return ( lastWasAPassiveInteractor = true );
 //    else if ( ::qt_cast<QHideDock*>(o) )
     else if ( o->inherits( "QHideDock" ) )
-	return ( lastWasAPassiveInteractor = TRUE );
+	return ( lastWasAPassiveInteractor = true );
     else if ( qstrcmp( o->name(), "designer_wizardstack_button" ) == 0 )
-	return ( lastWasAPassiveInteractor = TRUE );
+	return ( lastWasAPassiveInteractor = true );
 
     if ( !o->isWidgetType() )
-	return ( lastWasAPassiveInteractor = FALSE );
+	return ( lastWasAPassiveInteractor = false );
     WidgetInterface *iface = 0;
     QWidget *w = (QWidget*)o;
     while ( !iface && w && !::qt_cast<FormWindow*>(w) ) {
@@ -1182,17 +1182,17 @@ bool WidgetFactory::isPassiveInteractor( QObject* o )
 	w = w->parentWidget();
     }
     if ( !iface )
-	return ( lastWasAPassiveInteractor = FALSE );
+	return ( lastWasAPassiveInteractor = false );
     QWidgetContainerInterfacePrivate *iface2 = 0;
     iface->queryInterface( IID_QWidgetContainer, (QUnknownInterface**)&iface2 );
     if ( !iface2 )
-	return ( lastWasAPassiveInteractor = FALSE );
+	return ( lastWasAPassiveInteractor = false );
     QWidget *fw = MainWindow::self->isAFormWindowChild( (QWidget*)o );
     if ( !fw )
-	return ( lastWasAPassiveInteractor = FALSE );
+	return ( lastWasAPassiveInteractor = false );
     QWidget *dw = ( (FormWindow*)fw )->designerWidget( (QWidget*)o );
     if ( !dw )
-	return ( lastWasAPassiveInteractor = FALSE );
+	return ( lastWasAPassiveInteractor = false );
     lastWasAPassiveInteractor = iface2->isPassiveInteractor( dw->className(), (QWidget*)o );
     iface2->release();
     iface->release();
@@ -1291,50 +1291,50 @@ void WidgetFactory::initChangedProperties( QObject *o )
     if ( MainWindow::self && MainWindow::self->currProject() &&
 	 MainWindow::self->currProject()->fakeFormFileFor( o ) )
 	return;
-    MetaDataBase::setPropertyChanged( o, "name", TRUE );
+    MetaDataBase::setPropertyChanged( o, "name", true );
     if ( !::qt_cast<QDesignerToolBar*>(o) && !::qt_cast<MenuBarEditor*>(o) )
-	MetaDataBase::setPropertyChanged( o, "geometry", TRUE );
+	MetaDataBase::setPropertyChanged( o, "geometry", true );
 
     if ( ::qt_cast<QPushButton*>(o) ||
 	 ::qt_cast<QRadioButton*>(o) ||
 	 ::qt_cast<QCheckBox*>(o) ||
 	 ::qt_cast<QToolButton*>(o) ) {
 	if (::qt_cast<QToolButton*>(o) && ::qt_cast<QToolBox*>(widgetOfContainer((QWidget*)o->parent()))) {
-	    MetaDataBase::setPropertyChanged( o, "usesTextLabel", TRUE );
-	    MetaDataBase::setPropertyChanged( o, "textLabel", TRUE );
-	    MetaDataBase::setPropertyChanged( o, "autoRaise", TRUE );
-	    MetaDataBase::setPropertyChanged( o, "textPosition", TRUE );
+	    MetaDataBase::setPropertyChanged( o, "usesTextLabel", true );
+	    MetaDataBase::setPropertyChanged( o, "textLabel", true );
+	    MetaDataBase::setPropertyChanged( o, "autoRaise", true );
+	    MetaDataBase::setPropertyChanged( o, "textPosition", true );
 	} else {
-	    MetaDataBase::setPropertyChanged( o, "text", TRUE );
+	    MetaDataBase::setPropertyChanged( o, "text", true );
 	}
     }
     else if ( ::qt_cast<QGroupBox*>(o) )
-	MetaDataBase::setPropertyChanged( o, "title", TRUE );
+	MetaDataBase::setPropertyChanged( o, "title", true );
     else if ( o->isA( "QFrame" ) ) {
-	MetaDataBase::setPropertyChanged( o, "frameShadow", TRUE );
-	MetaDataBase::setPropertyChanged( o, "frameShape", TRUE );
+	MetaDataBase::setPropertyChanged( o, "frameShadow", true );
+	MetaDataBase::setPropertyChanged( o, "frameShape", true );
     } else if ( ::qt_cast<QTabWidget*>(o) || ::qt_cast<QWizard*>(o) ) {
-	MetaDataBase::setPropertyChanged( o, "pageTitle", TRUE );
-	MetaDataBase::setPropertyChanged( o, "pageName", TRUE );
-	MetaDataBase::setPropertyChanged( o, "currentPage", TRUE );
+	MetaDataBase::setPropertyChanged( o, "pageTitle", true );
+	MetaDataBase::setPropertyChanged( o, "pageName", true );
+	MetaDataBase::setPropertyChanged( o, "currentPage", true );
     } else if ( ::qt_cast<QWidgetStack*>(o) ) {
-	MetaDataBase::setPropertyChanged( o, "currentPage", TRUE );
-	MetaDataBase::setPropertyChanged( o, "pageName", TRUE );
+	MetaDataBase::setPropertyChanged( o, "currentPage", true );
+	MetaDataBase::setPropertyChanged( o, "pageName", true );
     } else if ( ::qt_cast<QToolBox*>(o) ) {
-	MetaDataBase::setPropertyChanged( o, "currentIndex", TRUE );
-	MetaDataBase::setPropertyChanged( o, "itemName", TRUE );
-	MetaDataBase::setPropertyChanged( o, "itemLabel", TRUE );
-	MetaDataBase::setPropertyChanged( o, "itemIconSet", TRUE );
-	MetaDataBase::setPropertyChanged( o, "itemToolTip", TRUE );
-	MetaDataBase::setPropertyChanged( o, "itemBackgroundMode", TRUE );
+	MetaDataBase::setPropertyChanged( o, "currentIndex", true );
+	MetaDataBase::setPropertyChanged( o, "itemName", true );
+	MetaDataBase::setPropertyChanged( o, "itemLabel", true );
+	MetaDataBase::setPropertyChanged( o, "itemIconSet", true );
+	MetaDataBase::setPropertyChanged( o, "itemToolTip", true );
+	MetaDataBase::setPropertyChanged( o, "itemBackgroundMode", true );
 #ifndef QT_NO_TABLE
     } else if ( ::qt_cast<QTable*>(o) ) {
 #  ifndef QT_NO_SQL
         if (!::qt_cast<QDataTable*>(o) )
 #  endif
         {
-            MetaDataBase::setPropertyChanged( o, "numRows", TRUE );
-            MetaDataBase::setPropertyChanged( o, "numCols", TRUE );
+            MetaDataBase::setPropertyChanged( o, "numRows", true );
+            MetaDataBase::setPropertyChanged( o, "numCols", true );
             QTable *t = (QTable*)o;
             for ( int i = 0; i < 3; ++i ) {
                 t->horizontalHeader()->setLabel( i, QString::number( i + 1 ) );
@@ -1343,13 +1343,13 @@ void WidgetFactory::initChangedProperties( QObject *o )
         }
 #endif
     } else if ( ::qt_cast<QSplitter*>(o)  ) {
-	MetaDataBase::setPropertyChanged( o, "orientation", TRUE );
+	MetaDataBase::setPropertyChanged( o, "orientation", true );
     } else if ( ::qt_cast<QDesignerToolBar*>(o)  ) {
-	MetaDataBase::setPropertyChanged( o, "label", TRUE );
+	MetaDataBase::setPropertyChanged( o, "label", true );
     } else if ( ::qt_cast<MenuBarEditor*>(o)  ) {
-	MetaDataBase::setPropertyChanged( o, "itemName", TRUE );
-	MetaDataBase::setPropertyChanged( o, "itemNumber", TRUE );
-	MetaDataBase::setPropertyChanged( o, "itemText", TRUE );
+	MetaDataBase::setPropertyChanged( o, "itemName", true );
+	MetaDataBase::setPropertyChanged( o, "itemNumber", true );
+	MetaDataBase::setPropertyChanged( o, "itemText", true );
     }
 }
 
@@ -1358,19 +1358,19 @@ bool WidgetFactory::hasSpecialEditor( int id, QObject *editorWidget )
     QString className = WidgetDatabase::className( id );
 
     if ( className.contains( "ListBox" ) )
-	return TRUE;
+	return true;
     if ( className.contains( "ComboBox" ) )
-	return TRUE;
+	return true;
     if ( className.contains( "ListView" ) )
-	return TRUE;
+	return true;
     if ( className.contains( "IconView" ) )
-	return TRUE;
+	return true;
     if ( className == "QTextEdit" || className == "QMultiLineEdit" )
-	return TRUE;
+	return true;
     if ( ::qt_cast<QTable*>(editorWidget) != 0 )
-	return TRUE;
+	return true;
 
-    return FALSE;
+    return false;
 }
 
 bool WidgetFactory::hasItems( int id, QObject *editorWidget )
@@ -1380,9 +1380,9 @@ bool WidgetFactory::hasItems( int id, QObject *editorWidget )
     if ( className.contains( "ListBox" ) || className.contains( "ListView" ) ||
 	 className.contains( "IconView" )  || className.contains( "ComboBox" ) ||
 	 ::qt_cast<QTable*>(editorWidget) != 0 )
-	return TRUE;
+	return true;
 
-    return FALSE;
+    return false;
 }
 
 void WidgetFactory::editWidget( int id, QWidget *parent, QWidget *editWidget, FormWindow *fw )
@@ -1429,7 +1429,7 @@ void WidgetFactory::editWidget( int id, QWidget *parent, QWidget *editWidget, Fo
     }
 
     if ( className == "QMultiLineEdit" || className == "QTextEdit" ) {
-	MultiLineEditor *e = new MultiLineEditor( FALSE, TRUE, parent, editWidget, fw );
+	MultiLineEditor *e = new MultiLineEditor( false, true, parent, editWidget, fw );
 	e->exec();
 	delete e;
 	return;
@@ -1447,7 +1447,7 @@ void WidgetFactory::editWidget( int id, QWidget *parent, QWidget *editWidget, Fo
 bool WidgetFactory::canResetProperty( QObject *w, const QString &propName )
 {
     if ( propName == "name" || propName == "geometry" )
-	return FALSE;
+	return false;
     QStringList l = *changedProperties->find( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) ) );
     return l.findIndex( propName ) == -1;
 }
@@ -1456,7 +1456,7 @@ bool WidgetFactory::resetProperty( QObject *w, const QString &propName )
 {
     QMetaProperty p = w->metaObject()->property( w->metaObject()->indexOfProperty( propName ) );
     if (!p )
-	return FALSE;
+	return false;
     return p.reset( w );
 }
 
@@ -1470,7 +1470,7 @@ QVariant WidgetFactory::defaultValue( QObject *w, const QString &propName )
     } else if ( w->inherits( "CustomWidget" ) ) {
 	return QVariant();
     } else if ( propName == "frameworkCode" ) {
-	return QVariant( TRUE );
+	return QVariant( true );
     } else if ( propName == "layoutMargin" || propName == "layoutSpacing" ) {
 	return QVariant( -1 );
     }
@@ -1530,7 +1530,7 @@ void QDesignerLabel::updateBuddy()
     if ( myBuddy.isEmpty() )
 	return;
 
-    QObjectList l = topLevelWidget()->queryList( "QWidget", myBuddy, FALSE, TRUE );
+    QObjectList l = topLevelWidget()->queryList( "QWidget", myBuddy, false, true );
     if (l.size())
 	QLabel::setBuddy( (QWidget*)l.first() );
 }

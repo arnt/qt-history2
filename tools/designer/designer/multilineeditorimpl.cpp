@@ -66,7 +66,7 @@ Q3TextParagraph* TextEdit::paragraph()
 
 MultiLineEditor::MultiLineEditor( bool call_static, bool richtextMode, QWidget *parent, QWidget *editWidget,
 				  FormWindow *fw, const QString &text )
-    : MultiLineEditorBase( parent, 0, WType_Dialog | WShowModal ), formwindow( fw ), doWrap( FALSE )
+    : MultiLineEditorBase( parent, 0, WType_Dialog | WShowModal ), formwindow( fw ), doWrap( false )
 {
     callStatic = call_static;
 
@@ -194,7 +194,7 @@ MultiLineEditor::MultiLineEditor( bool call_static, bool richtextMode, QWidget *
 
 	optionsToolBar = new QToolBar( "Options", this, DockTop );
 	wrapAction = new QAction( this );
-	wrapAction->setToggleAction( TRUE );
+	wrapAction->setToggleAction( true );
 	wrapAction->setIconSet( QPixmap::fromMimeSource( "designer_wordwrap.png" ) );
 	wrapAction->setText( tr( "Word Wrapping" ) );
 	wrapAction->addTo( optionsToolBar );
@@ -206,12 +206,12 @@ MultiLineEditor::MultiLineEditor( bool call_static, bool richtextMode, QWidget *
 
 	connect( helpButton, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
 	textEdit->document()->setFormatter( new Q3TextFormatterBreakInWords );
-	textEdit->document()->setUseFormatCollection( FALSE );
+	textEdit->document()->setUseFormatCollection( false );
 	textEdit->document()->setPreProcessor( new SyntaxHighlighter_HTML );
 
 	if ( !callStatic && qt_cast<QTextEdit*>(editWidget) ) {
 	    mlined = (QTextEdit*)editWidget;
-	    mlined->setReadOnly( TRUE );
+	    mlined->setReadOnly( true );
 
 	    QMetaProperty wordWrap = mlined->metaObject()->property(
 		mlined->metaObject()->indexOfProperty( "wordWrap" ) );
@@ -221,7 +221,7 @@ MultiLineEditor::MultiLineEditor( bool call_static, bool richtextMode, QWidget *
 		oldWrapMode = mlined->property( "wordWrap" );
 		oldWrapString = QString( wordWrap.enumerator().valueToKey( oldWrapMode.toInt() ) );
 		if ( oldWrapString != "NoWrap" )
-		    doWrap = TRUE;
+		    doWrap = true;
 	    }
 	    textEdit->setAlignment( mlined->alignment() );
 	    textEdit->setWordWrap( mlined->wordWrap() );
@@ -278,7 +278,7 @@ void MultiLineEditor::applyClicked()
 					QVariant( 0 ), "NoWrap", oldWrapString );
 
 	    propcmd->execute();
-	    formwindow->commandHistory()->addCommand( propcmd, TRUE );
+	    formwindow->commandHistory()->addCommand( propcmd, true );
 	}
 	textEdit->setFocus();
     }
@@ -328,11 +328,11 @@ void MultiLineEditor::insertBR()
 
 void MultiLineEditor::showFontDialog()
 {
-    bool selText = FALSE;
+    bool selText = false;
     int pfrom, pto, ifrom, ito;
     if ( textEdit->hasSelectedText() ) {
 	textEdit->getSelection( &pfrom, &ifrom, &pto, &ito );
-	selText = TRUE;
+	selText = true;
     }
     RichTextFontDialog *fd = new RichTextFontDialog( this );
     if ( fd->exec() == QDialog::Accepted ) {
@@ -362,7 +362,7 @@ QString MultiLineEditor::getStaticText()
 
 QString MultiLineEditor::getText( QWidget *parent, const QString &text, bool richtextMode, bool *useWrap )
 {
-    MultiLineEditor medit( TRUE, richtextMode, parent, 0, 0, text );
+    MultiLineEditor medit( true, richtextMode, parent, 0, 0, text );
     if ( richtextMode )
 	medit.setUseWrapping( *useWrap );
     if ( medit.exec() == QDialog::Accepted ) {

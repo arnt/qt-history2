@@ -12,27 +12,27 @@
 ****************************************************************************/
 
 #include "sourcefile.h"
-#include <qfile.h>
-#include <qtextstream.h>
 #include "designerappiface.h"
 #include "sourceeditor.h"
 #include "metadatabase.h"
+#include "mainwindow.h"
+#include "workspace.h"
 #include "../interfaces/languageinterface.h"
 #include <qfiledialog.h>
 #include <qmessagebox.h>
-#include "mainwindow.h"
-#include "workspace.h"
+#include <qfile.h>
+#include <qtextstream.h>
 #include <stdlib.h>
 
 SourceFile::SourceFile( const QString &fn, bool temp, Project *p )
     : filename( fn ), ed( 0 ), fileNameTemp( temp ),
-      timeStamp( 0, p->makeAbsolute( fn ) ), pro( p ), pkg( FALSE )
-      , accepted( TRUE )
+      timeStamp( 0, p->makeAbsolute( fn ) ), pro( p ), pkg( false )
+      , accepted( true )
 {
     iface = 0;
     
     if ( !temp )
-	accepted = checkFileName( TRUE );
+	accepted = checkFileName( true );
     
     if (accepted) {
 	load();
@@ -63,7 +63,7 @@ bool SourceFile::save( bool ignoreModified )
     if ( fileNameTemp )
 	return saveAs();
     if ( !ignoreModified && !isModified() )
-	return TRUE;
+	return true;
     if ( ed )
 	ed->save();
 
@@ -92,8 +92,8 @@ bool SourceFile::save( bool ignoreModified )
     QTextStream ts( &f );
     ts << txt;
     timeStamp.update();
-    setModified( FALSE );
-    return TRUE;
+    setModified( false );
+    return true;
 }
 
 bool SourceFile::saveAs( bool ignoreModified )
@@ -112,18 +112,18 @@ bool SourceFile::saveAs( bool ignoreModified )
     }
     QString fn = QFileDialog::getSaveFileName( initFn, filter );
     if ( fn.isEmpty() )
-	return FALSE;
-    fileNameTemp = FALSE;
+	return false;
+    fileNameTemp = false;
     filename = pro->makeRelative( fn );
-    if ( !checkFileName( TRUE ) ) {
+    if ( !checkFileName( true ) ) {
 	filename = old;
-	return FALSE;
+	return false;
     }
-    pro->setModified( TRUE );
+    pro->setModified( true );
     timeStamp.setFileName( pro->makeAbsolute( filename ) );
     if ( ed )
 	ed->setCaption( tr( "Edit %1" ).arg( filename ) );
-    setModified( TRUE );
+    setModified( true );
     if ( pro->isDummy() ) {
 	QObject *o = ed->parent();
 	while ( o && !o->isA( "MainWindow" ) )
@@ -138,11 +138,11 @@ bool SourceFile::load()
 {
     QFile f( pro->makeAbsolute( filename ) );
     if ( !f.open( IO_ReadOnly ) )
-	return FALSE;
+	return false;
     QTextStream ts( &f );
     txt = ts.read();
     timeStamp.update();
-    return TRUE;
+    return true;
 }
 
 DesignerSourceFile *SourceFile::iFace()
@@ -160,7 +160,7 @@ void SourceFile::setEditor( SourceEditor *e )
 bool SourceFile::isModified() const
 {
     if ( !ed )
-	return FALSE;
+	return false;
     return ed->isModified();
 }
 
@@ -194,11 +194,11 @@ bool SourceFile::closeEvent()
 {
     if ( !isModified() && fileNameTemp ) {
 	pro->removeSourceFile( this );
-	return TRUE;
+	return true;
     }
 
     if ( !isModified() )
-	return TRUE;
+	return true;
 
     if ( ed )
 	ed->save();
@@ -208,7 +208,7 @@ bool SourceFile::closeEvent()
 				   tr( "&Yes" ), tr( "&No" ), tr( "&Cancel" ), 0, 2 ) ) {
     case 0: // save
 	if ( !save() )
-	    return FALSE;
+	    return false;
 	break;
     case 1: // don't save
 	load();
@@ -216,24 +216,24 @@ bool SourceFile::closeEvent()
 	    ed->editorInterface()->setText( txt );
 	if ( fileNameTemp ) {
 	    pro->removeSourceFile( this );
-	    return TRUE;
+	    return true;
 	}
 	if ( MainWindow::self )
 	    MainWindow::self->workspace()->update();
 	break;
     case 2: // cancel
-	return FALSE;
+	return false;
     default:
 	break;
     }
-    setModified( FALSE );
-    return TRUE;
+    setModified( false );
+    return true;
 }
 
 bool SourceFile::close()
 {
     if ( !ed )
-	return TRUE;
+	return true;
     return ed->close();
 }
 
@@ -273,10 +273,10 @@ bool SourceFile::checkFileName( bool allowBreak )
 	while ( fn.isEmpty() ) {
 	    fn = QFileDialog::getSaveFileName( pro->makeAbsolute( filename ), filter );
 	    if ( allowBreak && fn.isEmpty() )
-		return FALSE;
+		return false;
 	}
 	filename = pro->makeRelative( fn );
 	sf = pro->findSourceFile( filename, this );
     }
-    return TRUE;
+    return true;
 }

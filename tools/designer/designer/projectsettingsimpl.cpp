@@ -35,7 +35,7 @@
  *  name 'name' and widget flags set to 'f'
  *
  *  The dialog will by default be modeless, unless you set 'modal' to
- *  TRUE to construct a modal dialog.
+ *  true to construct a modal dialog.
  */
 ProjectSettings::ProjectSettings( Project *pro, QWidget* parent,  const char* name, bool modal, WFlags fl )
     : ProjectSettingsBase( parent, name, modal, fl ), project( pro )
@@ -45,7 +45,7 @@ ProjectSettings::ProjectSettings( Project *pro, QWidget* parent,  const char* na
     editProjectFile->setFocus();
 
     if ( project->isDummy() ) {
-	editProjectFile->setEnabled( FALSE );
+	editProjectFile->setEnabled( false );
 	editProjectFile->setText( project->projectName() );
     } else {
 	if ( project->fileName().isEmpty() || project->fileName() == ".pro" ) {
@@ -97,10 +97,10 @@ void ProjectSettings::helpClicked()
 void ProjectSettings::okClicked()
 {
     // ### check for validity
-    project->setFileName( editProjectFile->text(), FALSE );
+    project->setFileName( editProjectFile->text(), false );
     project->setDatabaseDescription( editDatabaseFile->text() );
     project->setLanguage( comboLanguage->text( comboLanguage->currentItem() ) );
-    project->setModified( TRUE );
+    project->setModified( true );
     accept();
 }
 

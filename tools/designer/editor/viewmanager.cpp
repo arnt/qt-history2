@@ -104,7 +104,7 @@ void ViewManager::setStep( int line )
     Q3TextParagraph *p = ( (Editor*)curView )->document()->firstParagraph();
     while ( p ) {
 	if ( p->extraData() )
-	    ( (ParagData*)p->extraData() )->step = FALSE;
+	    ( (ParagData*)p->extraData() )->step = false;
 	p = p->next();
     }
     p = ( (Editor*)curView )->document()->paragAt( line );
@@ -116,7 +116,7 @@ void ViewManager::setStep( int line )
 	ParagData *paragData = (ParagData*)p->extraData();
 	if ( !paragData )
 	    paragData = new ParagData;
- 	paragData->step = TRUE;
+ 	paragData->step = true;
 	p->setExtraData( paragData );
 	markerWidget->doRepaint();
     }
@@ -128,7 +128,7 @@ void ViewManager::clearStep()
     Q3TextParagraph *p = ( (Editor*)curView )->document()->firstParagraph();
     while ( p ) {
 	if ( p->extraData() )
-	    ( (ParagData*)p->extraData() )->step = FALSE;
+	    ( (ParagData*)p->extraData() )->step = false;
 	p = p->next();
     }
     markerWidget->doRepaint();
@@ -146,7 +146,7 @@ void ViewManager::setStackFrame( int line )
 	ParagData *paragData = (ParagData*)p->extraData();
 	if ( !paragData )
 	    paragData = new ParagData;
- 	paragData->stackFrame = TRUE;
+ 	paragData->stackFrame = true;
 	p->setExtraData( paragData );
 	markerWidget->doRepaint();
     }
@@ -157,7 +157,7 @@ void ViewManager::clearStackFrame()
     Q3TextParagraph *p = ( (Editor*)curView )->document()->firstParagraph();
     while ( p ) {
 	if ( p->extraData() ) {
-	    ( (ParagData*)p->extraData() )->stackFrame = FALSE;
+	    ( (ParagData*)p->extraData() )->stackFrame = false;
 	    if ( ( (ParagData*)p->extraData() )->marker == ParagData::Error )
 		( (ParagData*)p->extraData() )->marker = ParagData::NoMarker;
 	}
@@ -244,7 +244,7 @@ void ViewManager::showMessage( const QString &msg )
     int col;
     ( (QTextEdit*)currentView() )->getCursorPosition( &row, &col );
     posLabel->setText( msg );
-    messageTimer->start( 1000, TRUE );
+    messageTimer->start( 1000, true );
 }
 
 void ViewManager::clearStatusBar()

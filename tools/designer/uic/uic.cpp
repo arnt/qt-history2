@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-bool Uic::isMainWindow = FALSE;
+bool Uic::isMainWindow = false;
 
 QString Uic::getComment( const QDomNode& n )
 {
@@ -39,7 +39,7 @@ QString Uic::getComment( const QDomNode& n )
 
 QString Uic::mkBool( bool b )
 {
-    return b? "TRUE" : "FALSE";
+    return b? "true" : "false";
 }
 
 QString Uic::mkBool( const QString& s )
@@ -77,13 +77,13 @@ QString Uic::trcall( const QString& sourceText, const QString& comment )
 	return "QString()";
 
     QString t = trmacro;
-    bool encode = FALSE;
+    bool encode = false;
     if ( t.isNull() ) {
 	t = "tr";
 	for ( int i = 0; i < (int) sourceText.length(); i++ ) {
 	    if ( sourceText[i].unicode() >= 0x80 ) {
 		t = "trUtf8";
-		encode = TRUE;
+		encode = true;
 		break;
 	    }
 	}
@@ -117,10 +117,10 @@ Uic::Uic( const QString &fn, const char *outputFn, QTextStream &outStream,
       outputFileName( outputFn ), trmacro( trm ), nofwd( omitForwardDecls )
 {
     fileName = fn;
-    writeFunctImpl = TRUE;
+    writeFunctImpl = true;
     defMargin = BOXLAYOUT_DEFAULT_MARGIN;
     defSpacing = BOXLAYOUT_DEFAULT_SPACING;
-    externPixmaps = FALSE;
+    externPixmaps = false;
     indent = "    "; // default indent
 
     item_used = cg_used = pal_used = 0;
@@ -143,7 +143,7 @@ Uic::Uic( const QString &fn, const char *outputFn, QTextStream &outStream,
 	if ( e.tagName() == "widget" ) {
 	    widget = e;
 	} else if ( e.tagName() == "pixmapinproject" ) {
-	    externPixmaps = TRUE;
+	    externPixmaps = true;
 	} else if ( e.tagName() == "layoutdefaults" ) {
 	    defSpacing = e.attribute( "spacing", defSpacing.toString() );
 	    defMargin = e.attribute( "margin", defMargin.toString() );
@@ -229,7 +229,7 @@ QString Uic::getClassName( const QDomElement& e )
     return s;
 }
 
-/*! Returns TRUE if database framework code is generated, else FALSE.
+/*! Returns true if database framework code is generated, else false.
 */
 
 bool Uic::isFrameworkCodeGenerated( const QDomElement& e )
@@ -237,8 +237,8 @@ bool Uic::isFrameworkCodeGenerated( const QDomElement& e )
     QDomElement n = getObjectProperty( e, "frameworkCode" );
     if ( n.attribute("name") == "frameworkCode" &&
 	 !DomTool::elementToVariant( n.firstChild().toElement(), QVariant(true) ).toBool() )
-	return FALSE;
-    return TRUE;
+	return false;
+    return true;
 }
 
 /*! Extracts an object name from \a e. It's stored in the 'name'
@@ -380,8 +380,8 @@ void Uic::createActionImpl( const QDomElement &n, const QString &parent )
 	    out << indent << objName << " = new QActionGroup( " << parent << ", \"" << objName << "\" );" << endl;
 	else
 	    continue;
-	bool subActionsDone = FALSE;
-	bool hasMenuText = FALSE;
+	bool subActionsDone = false;
+	bool hasMenuText = false;
 	QString actionText;
 	for ( QDomElement n2 = ae.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
 	    if ( n2.tagName() == "property" ) {
@@ -403,7 +403,7 @@ void Uic::createActionImpl( const QDomElement &n, const QString &parent )
 		}
 
 		if (prop == "menuText")
-		    hasMenuText = TRUE;
+		    hasMenuText = true;
 		else if (prop == "text")
 		    actionText = value;
 
@@ -414,7 +414,7 @@ void Uic::createActionImpl( const QDomElement &n, const QString &parent )
 		}
 	    } else if ( !subActionsDone && ( n2.tagName() == "actiongroup" || n2.tagName() == "action" ) ) {
 		createActionImpl( n2, objName );
-		subActionsDone = TRUE;
+		subActionsDone = true;
 	    }
 	}
 	// workaround for loading pre-3.3 files expecting bogus QAction behavior
@@ -620,7 +620,7 @@ QString Uic::createListViewItemImpl( const QDomElement &e, const QString &parent
 	    s = indent + item + " = ";
 	else
 	    s = indent + "QListViewItem * " + item + " = ";
-	item_used = TRUE;
+	item_used = true;
     }
 
     if ( !parentItem.isEmpty() )
@@ -645,7 +645,7 @@ QString Uic::createListViewItemImpl( const QDomElement &e, const QString &parent
 		pixmaps << pix;
 	    }
 	} else if ( n.tagName() == "item" ) {
-	    s += indent + item + "->setOpen( TRUE );\n";
+	    s += indent + item + "->setOpen( true );\n";
 	    s += createListViewItemImpl( n, parent, item );
 	}
 	n = n.nextSibling().toElement();
@@ -673,7 +673,7 @@ QString Uic::createListViewColumnImpl( const QDomElement &e, const QString &pare
     QString txt;
     QString com;
     QString pix;
-    bool clickable = FALSE, resizable = FALSE;
+    bool clickable = false, resizable = false;
     while ( !n.isNull() ) {
 	if ( n.tagName() == "property" ) {
 	    QString attrib = n.attribute("name");
@@ -703,9 +703,9 @@ QString Uic::createListViewColumnImpl( const QDomElement &e, const QString &pare
     if ( !pix.isEmpty() )
 	s += indent + parent + "->header()->setLabel( " + parent + "->header()->count() - 1, " + pix + ", " + trcall( txt, com ) + " );\n";
     if ( !clickable )
-	s += indent + parent + "->header()->setClickEnabled( FALSE, " + parent + "->header()->count() - 1 );\n";
+	s += indent + parent + "->header()->setClickEnabled( false, " + parent + "->header()->count() - 1 );\n";
     if ( !resizable )
-	s += indent + parent + "->header()->setResizeEnabled( FALSE, " + parent + "->header()->count() - 1 );\n";
+	s += indent + parent + "->header()->setResizeEnabled( false, " + parent + "->header()->count() - 1 );\n";
     return s;
 }
 
@@ -966,7 +966,7 @@ QColorGroup Uic::loadColorGroup( const QDomElement &e )
     return cg;
 }
 
-/*!  Returns TRUE if the widget properties specify that it belongs to
+/*!  Returns true if the widget properties specify that it belongs to
   the database \a connection and \a table.
 */
 
@@ -975,8 +975,8 @@ bool Uic::isWidgetInTable( const QDomElement& e, const QString& connection, cons
     QString conn = getDatabaseInfo( e, "connection" );
     QString tab = getDatabaseInfo( e, "table" );
     if ( conn == connection && tab == table )
-	return TRUE;
-    return FALSE;
+	return true;
+    return false;
 }
 
 /*!
@@ -1088,7 +1088,7 @@ QString Uic::createObjectInstance( const QString& objClass, const QString& paren
 {
 
     if ( objClass.mid( 1 ) == "ComboBox" ) {
-	return objClass + "( FALSE, " + parent + ")";
+	return objClass + "( false, " + parent + ")";
     }
     return objClass + "(" + parent + ")";
 }

@@ -41,7 +41,7 @@ void ConfigToolboxDialog::init()
 	if ( !parent ) {
 	    parent = new QListViewItem( listViewTools );
 	    parent->setText( 0, grp );
-	    parent->setOpen( TRUE );
+	    parent->setOpen( true );
 	    groups.insert( grp, parent );
 	}
 	QListViewItem *i = new QListViewItem( parent );
@@ -63,14 +63,14 @@ void ConfigToolboxDialog::addTool()
 {
     QListView *src = listViewTools;
 
-    bool addKids = FALSE;
+    bool addKids = false;
     QListViewItem *nextSibling = 0;
     QListViewItem *nextParent = 0;
     QListViewItemIterator it = src->firstChild();
     for ( ; *it; it++ ) {
 	// Hit the nextSibling, turn of child processing
 	if ( (*it) == nextSibling )
-	    addKids = FALSE;
+	    addKids = false;
 
 	if ( (*it)->isSelected() ) {
 	    if ( (*it)->childCount() == 0 ) {
@@ -84,7 +84,7 @@ void ConfigToolboxDialog::addTool()
 		// Children processing not set, so set it
 		// Also find the item were we shall quit
 		// processing children...if any such item
-		addKids = TRUE;
+		addKids = true;
 		nextSibling = (*it)->nextSibling();
 		nextParent = (*it)->parent();
 		while ( nextParent && !nextSibling ) {
@@ -155,11 +155,11 @@ void ConfigToolboxDialog::moveToolDown()
 
 void ConfigToolboxDialog::currentToolChanged( QListViewItem *i )
 {
-    bool canAdd = FALSE;
+    bool canAdd = false;
     QListViewItemIterator it = listViewTools->firstChild();
     for ( ; *it; it++ ) {
 	if ( (*it)->isSelected() ) {
-	    canAdd = TRUE;
+	    canAdd = true;
 	    break;
 	}
     }
@@ -172,11 +172,11 @@ void ConfigToolboxDialog::currentCommonToolChanged( QListViewItem *i )
     buttonUp->setEnabled( (bool) (i && i->itemAbove()) );
     buttonDown->setEnabled( (bool) (i && i->itemBelow()) );
 
-    bool canRemove = FALSE;
+    bool canRemove = false;
     QListViewItemIterator it = listViewCommon->firstChild();
     for ( ; *it; it++ ) {
 	if ( (*it)->isSelected() ) {
-	    canRemove = TRUE;
+	    canRemove = true;
 	    break;
 	}
     }

@@ -14,6 +14,8 @@
 #ifndef PROPERTYEDITOR_H
 #define PROPERTYEDITOR_H
 
+#include "hierarchyview.h"
+#include "metadatabase.h"
 #include <qfeatures.h>
 #include <qlistview.h>
 #include <qlist.h>
@@ -24,8 +26,6 @@
 #include <qcheckbox.h>
 #include <qcombobox.h>
 #include <qvariant.h>
-#include "hierarchyview.h"
-#include "metadatabase.h"
 
 class PropertyList;
 class PropertyEditor;
@@ -70,7 +70,7 @@ public:
     QString name() const;
     virtual void notifyValueChange();
 
-    virtual void setChanged( bool b, bool updateDb = TRUE );
+    virtual void setChanged( bool b, bool updateDb = true );
     bool isChanged() const;
 
     virtual void placeEditor( QWidget *w );
@@ -127,7 +127,7 @@ class PropertyTextItem : public QObject,
 
 public:
     PropertyTextItem( PropertyList *l, PropertyItem *after, PropertyItem *prop,
-		      const QString &propName, bool comment, bool multiLine, bool ascii = FALSE, bool a = FALSE );
+		      const QString &propName, bool comment, bool multiLine, bool ascii = false, bool a = false );
     ~PropertyTextItem();
 
     virtual void createChildren();
@@ -140,7 +140,7 @@ public:
     virtual bool hasSubItems() const;
     virtual void childValueChanged( PropertyItem *child );
 
-    virtual void setChanged( bool b, bool updateDb = TRUE );
+    virtual void setChanged( bool b, bool updateDb = true );
 
 private slots:
     void setValue();
@@ -549,7 +549,7 @@ private:
 struct EnumItem {
     EnumItem( const QString &k, bool s )
 	: key( k ), selected( s ) {}
-    EnumItem() : key( QString::null ), selected( FALSE ) {}
+    EnumItem() : key( QString::null ), selected( false ) {}
     bool operator==( const EnumItem &item ) const {
 	return key == item.key;
     }
@@ -656,7 +656,7 @@ public:
     virtual void setPropertyValue( PropertyItem *i );
     virtual void setCurrentProperty( const QString &n );
 
-    void layoutInitValue( PropertyItem *i, bool changed = FALSE );
+    void layoutInitValue( PropertyItem *i, bool changed = false );
     PropertyEditor *propertyEditor() const;
     QString whatsThisAt( const QPoint &p );
     void showCurrentWhatsThis();

@@ -155,7 +155,7 @@ public:
     CommandHistory( int s );
     ~CommandHistory() { while (!history.isEmpty()) delete history.takeFirst(); }
 
-    void addCommand( Command *cmd, bool tryCompress = FALSE );
+    void addCommand( Command *cmd, bool tryCompress = false );
     void undo();
     void redo();
 
@@ -256,7 +256,7 @@ public:
 			const QString &pn, const QVariant &ov,
 			const QVariant &nv, const QString &ncut,
 			const QString &ocut,
-			bool reset = FALSE );
+			bool reset = false );
 
     void execute();
     void unexecute();
@@ -266,7 +266,7 @@ public:
     bool checkProperty();
 
 private:
-    void setProperty( const QVariant &v, const QString &currentItemText, bool select = TRUE );
+    void setProperty( const QVariant &v, const QString &currentItemText, bool select = true );
 
     QGuardedPtr<QObject> widget;
     PropertyEditor *editor;
@@ -484,7 +484,7 @@ class AddWizardPageCommand : public Command
 {
 public:
     AddWizardPageCommand( const QString &n, FormWindow *fw,
-			  QWizard *w, const QString &label, int index = -1, bool show = TRUE );
+			  QWizard *w, const QString &label, int index = -1, bool show = true );
 
     void execute();
     void unexecute();
@@ -503,7 +503,7 @@ class DeleteWizardPageCommand : public Command
 {
 public:
     DeleteWizardPageCommand( const QString &n, FormWindow *fw,
-			     QWizard *w, int index, bool show = TRUE );
+			     QWizard *w, int index, bool show = true );
 
     void execute();
     void unexecute();

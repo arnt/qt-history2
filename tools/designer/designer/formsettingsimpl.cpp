@@ -28,7 +28,7 @@
 #include <qcheckbox.h>
 
 FormSettings::FormSettings( QWidget *parent, FormWindow *fw )
-    : FormSettingsBase( parent, 0, TRUE ), formwindow( fw )
+    : FormSettingsBase( parent, 0, true ), formwindow( fw )
 {
     connect( buttonHelp, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
     MetaDataBase::MetaInfo info = MetaDataBase::metaInfo( fw );
@@ -43,11 +43,11 @@ FormSettings::FormSettings( QWidget *parent, FormWindow *fw )
     editPixmapFunction->setValidator( new AsciiValidator( QString( ":" ), editPixmapFunction ) );
 
     if ( formwindow->savePixmapInline() )
-	radioPixmapInline->setChecked( TRUE );
+	radioPixmapInline->setChecked( true );
     else if ( formwindow->savePixmapInProject() )
-	radioProjectImageFile->setChecked( TRUE );
+	radioProjectImageFile->setChecked( true );
     else
-	radioPixmapFunction->setChecked( TRUE );
+	radioPixmapFunction->setChecked( true );
     editPixmapFunction->setText( formwindow->pixmapLoaderFunction() );
     radioProjectImageFile->setEnabled( !fw->project()->isDummy() );
     spinSpacing->setValue( formwindow->layoutDefaultSpacing() );
@@ -68,7 +68,7 @@ void FormSettings::okClicked()
     info.author = editAuthor->text();
     MetaDataBase::setMetaInfo( formwindow, info );
 
-    formwindow->commandHistory()->setModified( TRUE );
+    formwindow->commandHistory()->setModified( true );
 
     if ( formwindow->savePixmapInline() ) {
 	MetaDataBase::clearPixmapArguments( formwindow );
@@ -80,20 +80,20 @@ void FormSettings::okClicked()
     }
 
     if ( radioPixmapInline->isChecked() ) {
-	formwindow->setSavePixmapInline( TRUE );
-	formwindow->setSavePixmapInProject( FALSE );
+	formwindow->setSavePixmapInline( true );
+	formwindow->setSavePixmapInProject( false );
     } else if ( radioProjectImageFile->isChecked() ){
-	formwindow->setSavePixmapInline( FALSE );
-	formwindow->setSavePixmapInProject( TRUE );
+	formwindow->setSavePixmapInline( false );
+	formwindow->setSavePixmapInProject( true );
     } else {
-	formwindow->setSavePixmapInline( FALSE );
-	formwindow->setSavePixmapInProject( FALSE );
+	formwindow->setSavePixmapInline( false );
+	formwindow->setSavePixmapInProject( false );
     }
     
     if ( checkLayoutFunctions->isChecked() )
-	formwindow->hasLayoutFunctions( TRUE );
+	formwindow->hasLayoutFunctions( true );
     else
-	formwindow->hasLayoutFunctions( FALSE );
+	formwindow->hasLayoutFunctions( false );
 
     formwindow->setPixmapLoaderFunction( editPixmapFunction->text() );
     formwindow->setLayoutDefaultSpacing( spinSpacing->value() );

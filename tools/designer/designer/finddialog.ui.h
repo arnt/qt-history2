@@ -30,16 +30,16 @@ void FindDialog::doFind()
     
     if ( !editor->find( comboFind->currentText(), checkCase->isChecked(),
 	checkWords->isChecked(), radioForward->isChecked(), !checkBegin->isChecked() ) )
-	checkBegin->setChecked( TRUE );
+	checkBegin->setChecked( true );
     else
-	checkBegin->setChecked( FALSE );
+	checkBegin->setChecked( false );
     
 }
 
 void FindDialog::setEditor( EditorInterface * e, QObject * fw )
 {
     if ( fw != formWindow )
-	checkBegin->setChecked( TRUE );
+	checkBegin->setChecked( true );
     formWindow = fw;
     if ( editor )
 	editor->release();

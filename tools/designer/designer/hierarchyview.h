@@ -14,12 +14,12 @@
 #ifndef HIRARCHYVIEW_H
 #define HIRARCHYVIEW_H
 
+#include "../interfaces/classbrowserinterface.h"
 #include <qvariant.h>
 #include <qlistview.h>
 #include <qtabwidget.h>
 #include <qguardedptr.h>
 #include <private/qcom_p.h>
-#include "../interfaces/classbrowserinterface.h"
 
 class FormWindow;
 class QCloseEvent;
@@ -87,7 +87,7 @@ class HierarchyList : public QListView
     Q_OBJECT
 
 public:
-    HierarchyList( QWidget *parent, FormWindow *fw, bool doConnects = TRUE );
+    HierarchyList( QWidget *parent, FormWindow *fw, bool doConnects = true );
 
     virtual void setup();
     virtual void setCurrent( QObject *o );
@@ -97,9 +97,9 @@ public:
     void setFormWindow( FormWindow *fw ) { formWindow = fw; }
     void drawContentsOffset( QPainter *p, int ox, int oy,
 			     int cx, int cy, int cw, int ch ) {
-	setUpdatesEnabled( FALSE );
+	setUpdatesEnabled( false );
 	triggerUpdate();
-	setUpdatesEnabled( TRUE );
+	setUpdatesEnabled( true );
 	QListView::drawContentsOffset( p, ox, oy, cx, cy, cw, ch );
     }
 

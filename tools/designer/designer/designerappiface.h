@@ -131,7 +131,7 @@ public:
     void setTables( const QStringList & );
     QMap<QString, QStringList> fields() const;
     void setFields( const QMap<QString, QStringList> & );
-    void open( bool suppressDialog = TRUE ) const;
+    void open( bool suppressDialog = true ) const;
     void close() const;
     QSqlDatabase* connection();
 private:
@@ -194,7 +194,7 @@ public:
     void setCurrentWidget( QWidget * );
     QList<QAction*> actionList() const;
     QAction *createAction( const QString& text, const QIconSet& icon, const QString& menuText, int accel,
-			   QObject* parent, const char* name = 0, bool toggle = FALSE );
+			   QObject* parent, const char* name = 0, bool toggle = false );
     void addAction( QAction * );
     void removeAction( QAction * );
     void preview() const;

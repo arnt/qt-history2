@@ -67,7 +67,7 @@ SourceTemplateInterface::Source SourceTemplateInterfaceImpl::create( const QStri
     SourceTemplateInterface::Source src;
     src.type = SourceTemplateInterface::Source::Invalid;
     if ( templ == "C++ Main-File (main.cpp)" ) {
-	CppMainFile dia( 0, 0, TRUE );
+	CppMainFile dia( 0, 0, true );
 	dia.setup( appIface );
 	if ( dia.exec() == QDialog::Accepted ) {
 	    DesignerInterface *dIface = 0;

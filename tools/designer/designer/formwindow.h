@@ -89,12 +89,12 @@ public:
 
     virtual void breakLayout( QWidget *w );
 
-    virtual void selectWidget( QObject *w, bool select = TRUE );
+    virtual void selectWidget( QObject *w, bool select = true );
     virtual void selectAll();
     virtual void updateSelection( QWidget *w );
     virtual void raiseSelection( QWidget *w );
     virtual void repaintSelection( QWidget *w );
-    virtual void clearSelection( bool changePropertyDisplay = TRUE );
+    virtual void clearSelection( bool changePropertyDisplay = true );
     virtual void selectWidgets();
     bool isWidgetSelected( QObject *w );
     virtual void updateChildSelections( QWidget *w );
@@ -128,7 +128,7 @@ public:
     virtual MainWindow *mainWindow() const { return mainwindow; }
 
     bool checkCustomWidgets();
-    virtual void insertWidget( QWidget *w, bool checkName = FALSE );
+    virtual void insertWidget( QWidget *w, bool checkName = false );
     virtual void removeWidget( QWidget *w );
     virtual void deleteWidgets();
     virtual void editAdjustSize();
@@ -163,7 +163,7 @@ public:
     bool savePixmapInProject() const;
     void setSavePixmapInProject( bool b );
 
-    void setToolFixed() { toolFixed = TRUE; }
+    void setToolFixed() { toolFixed = true; }
 
     void setActiveObject( QObject *o );
 
