@@ -222,6 +222,7 @@ bool QSizeGrip::eventFilter( QObject *o, QEvent *e )
     if ( o == tlw ) {
 	switch ( e->type() ) {
 	case QEvent::ShowMaximized:
+	case QEvent::ShowFullScreen:
 	    hide();
 	    break;
 	case QEvent::ShowNormal:

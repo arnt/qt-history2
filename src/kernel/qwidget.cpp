@@ -5296,6 +5296,8 @@ void QWidget::showFullScreen()
     resize( qApp->desktop()->size() );
     raise();
     show();
+    QEvent e( QEvent::ShowFullScreen );
+    QApplication::sendEvent( this, &e );
 #if defined(Q_WS_X11)
     extern void qt_wait_for_window_manager( QWidget* w ); // defined in qwidget_x11.cpp
     qt_wait_for_window_manager( this );

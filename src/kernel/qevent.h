@@ -87,6 +87,7 @@ public:
 	ShowToParent = 26,	       		// widget is shown to parent
 	HideToParent = 27,	       		// widget is hidden to parent
 	ShowMaximized = 28,		       	// widget is shown maximized
+	ShowFullScreen = 29,			// widget is shown full-screen
 	Accel = 30,				// accelerator event
 	Wheel = 31,				// wheel event
 	AccelAvailable = 32,			// accelerator available event
