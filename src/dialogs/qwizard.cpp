@@ -62,10 +62,10 @@
   \brief The QWizard class provides a framework for wizard dialogs.
 
   A wizard is a special type of input dialog that consists of a
-  sequence of dialog pages. A wizard's purpose is to assist a user by
-  automating a task by walking the user through the process step
-  by step. Wizards are useful for complex or infrequently occurring
-  tasks that people may find difficult to learn or do.
+  sequence of dialog pages. A wizard's purpose is to walk the user
+  through a process step by step. Wizards are useful for complex or
+  infrequently occurring tasks that people may find difficult to learn
+  or do.
 
   QWizard provides page titles and displays Next, Back, Finish,
   Cancel, and Help push buttons, as appropriate to the current
@@ -271,8 +271,8 @@ void QWizard::addPage( QWidget * page, const QString & title )
 }
 
 /*!
-    Inserts \a page at index \a index into the page sequence, with
-    title \a title. If index is -1, the page will be appended to
+    Inserts \a page at position \a index into the page sequence, with
+    title \a title. If \a index is -1, the page will be appended to
     the end of the wizard's page sequence.
 */
 
@@ -307,7 +307,7 @@ void QWizard::insertPage( QWidget * page, const QString & title, int index )
   \fn void QWizard::selected(const QString&)
 
   This signal is emitted when the current page changes. The parameter
-  contains the title of the page.
+  contains the title of the selected page.
 */
 
 
@@ -348,7 +348,7 @@ int QWizard::pageCount() const
 }
 
 /*!
-  Returns the sequence index of page \a page.
+  Returns the position of page \a page.
   If the page is not part of the wizard -1 is returned.
 */
 
@@ -464,8 +464,8 @@ void QWizard::setHelpEnabled( bool enable )
 */
 
 /*!
-    If \a enable is TRUE, page \a page has a Back button; otherwise \a
-    page has no Back button.
+  If \a enable is TRUE, page \a page has a Back button; otherwise \a
+  page has no Back button.
   By default all pages have this button.
 */
 void QWizard::setBackEnabled( QWidget * page, bool enable )
@@ -497,9 +497,9 @@ void QWizard::setNextEnabled( QWidget * page, bool enable )
 
 
 /*!
-    If \a enable is TRUE, page \a page has a Finish button; otherwise \a
-    page has no Finish button.
-  By default \e no pages have this button.
+  If \a enable is TRUE, page \a page has a Finish button; otherwise \a
+  page has no Finish button.
+  By default \e no page has this button.
 */
 void QWizard::setFinishEnabled( QWidget * page, bool enable )
 {
@@ -513,8 +513,8 @@ void QWizard::setFinishEnabled( QWidget * page, bool enable )
 
 
 /*!
-    If \a enable is TRUE, page \a page has a Help button; otherwise \a
-    page has no Help button.
+  If \a enable is TRUE, page \a page has a Help button; otherwise \a
+  page has no Help button.
   By default all pages have this button.
 */
 void QWizard::setHelpEnabled( QWidget * page, bool enable )
@@ -529,11 +529,11 @@ void QWizard::setHelpEnabled( QWidget * page, bool enable )
 
 
 /*!
-    Called when the Next button is clicked; this virtual function
-    returns TRUE if \a page is relevant for display in the current
-    context; otherwise it is ignored by QWizard and returns FALSE. The
-    default implementation returns the value set using
-    setAppropriate(). The ultimate default is TRUE.
+  Called when the Next button is clicked; this virtual function
+  returns TRUE if \a page is relevant for display in the current
+  context; otherwise it is ignored by QWizard and returns FALSE. The
+  default implementation returns the value set using
+  setAppropriate(). The ultimate default is TRUE.
 
   \warning The last page of the wizard will be displayed if no page is relevant
   in the current context.
@@ -547,9 +547,9 @@ bool QWizard::appropriate( QWidget * page ) const
 
 
 /*!
-    If \a appropriate is TRUE then page \a page is considered relevant
-    in the current context and should be displayed in the page sequence;
-    otherwise \a page should not be displayed in the page sequence.
+  If \a appropriate is TRUE then page \a page is considered relevant
+  in the current context and should be displayed in the page sequence;
+  otherwise \a page should not be displayed in the page sequence.
 
   \sa appropriate()
 */
@@ -639,7 +639,7 @@ void QWizard::setTitleFont( const QFont & font )
 
 
 /*!
-  Returns a pointer to the Back button of the dialog.
+  Returns a pointer to the dialog's Back button
 
   By default, this button is connected to the back() slot,
   which is virtual so you can reimplement it in a QWizard subclass.
@@ -651,7 +651,7 @@ QPushButton * QWizard::backButton() const
 
 
 /*!
-  Returns a pointer to the Next button of the dialog.
+  Returns a pointer to the dialog's Next button
 
   By default, this button is connected to the next() slot,
   which is virtual so you can reimplement it in a QWizard subclass.
@@ -663,7 +663,7 @@ QPushButton * QWizard::nextButton() const
 
 
 /*!
-  Returns a pointer to the Finish button of the dialog.
+  Returns a pointer to the dialog's Finish button
 
   By default, this button is connected to the QDialog::accept() slot,
   which is virtual so you can reimplement it in a QWizard subclass.
@@ -675,7 +675,7 @@ QPushButton * QWizard::finishButton() const
 
 
 /*!
-  Returns a pointer to the Cancel button of the dialog.
+  Returns a pointer to the dialog's Cancel button
 
   By default, this button is connected to the QDialog::reject() slot,
   which is virtual so you can reimplement it in a QWizard subclass.
@@ -687,7 +687,7 @@ QPushButton * QWizard::cancelButton() const
 
 
 /*!
-  Returns a pointer to the Help button of the dialog.
+  Returns a pointer to the dialog's Help button
 
   By default, this button is connected to the help() slot,
   which is virtual so you can reimplement it in a QWizard subclass.
@@ -699,7 +699,7 @@ QPushButton * QWizard::helpButton() const
 
 
 /*!  This virtual function is responsible for adding the bottom
-divider and buttons below it.
+divider and the buttons below it.
 
 \a layout is the vertical layout of the entire wizard.
 */
@@ -835,9 +835,10 @@ bool QWizard::eventFilter( QObject * o, QEvent * e )
 }
 
 
-/*!  Removes \a page from the page sequence but does not delete the page.
-  If \a page is currently being displayed, QWizard will display the page before
-  it in the wizard, or the first page if this was the first page.
+/*!
+  Removes \a page from the page sequence but does not delete the page.
+  If \a page is currently being displayed, QWizard will display the
+  page that precedes it, or the first page if this was the first page.
 */
 
 void QWizard::removePage( QWidget * page )

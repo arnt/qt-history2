@@ -142,6 +142,7 @@ public:
 
 
 /*!
+  \internal
   Constructs a standard font dialog.
 
   Use setFont() to set the initial font attributes.
@@ -319,7 +320,10 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->familyEdit->setFocus();
 }
 
-/*! Destroys the font dialog and frees up its storage. */
+/*!
+  \internal
+ Destroys the font dialog and frees up its storage.
+*/
 
 QFontDialog::~QFontDialog()
 {
@@ -425,6 +429,7 @@ QFont QFontDialog::getFont( bool *ok, const QFont *def,
 }
 
 /*!
+    \internal
     Returns a pointer to the "font family" list box. This is mainly
     useful if you reimplement updateFontFamilies();
 */
@@ -435,6 +440,7 @@ QListBox * QFontDialog::familyListBox() const
 }
 
 /*!
+    \internal
     Returns a pointer to the "font style" list box. This is mainly
     useful if you reimplement updateFontStyles();
 */
@@ -445,6 +451,7 @@ QListBox * QFontDialog::styleListBox() const
 }
 
 /*!
+    \internal
     Returns a pointer to the "scripts combo" list box. This is mainly
     useful if you reimplement updateScripts();
 */
@@ -455,6 +462,7 @@ QComboBox * QFontDialog::scriptCombo() const
 }
 
 /*!
+    \internal
     Returns a pointer to the "font size" list box. This is mainly
     useful if you reimplement updateFontSizes();
 */
@@ -465,6 +473,7 @@ QListBox * QFontDialog::sizeListBox() const
 }
 
 /*!
+    \internal
     This slot is called if the user changes the font size.
     The size is passed in the \a s argument as a \e string.
 */
@@ -483,6 +492,7 @@ void QFontDialog::sizeChanged( const QString &s )
 
 
 /*!
+    \internal
     An event filter to make the Up, Down, PageUp and PageDown keys work
     correctly in the line edits. The source of the event is the object
     \a o and the event is \a e.
@@ -587,7 +597,9 @@ void QListBoxFontText::paint( QPainter *painter )
 
 #endif
 
-/*!  Updates the contents of the "font family" list box. This
+/*!
+  \internal
+    Updates the contents of the "font family" list box. This
   function can be reimplemented if you have special requirements.
 */
 
@@ -621,7 +633,9 @@ void QFontDialog::updateFamilies()
 #endif
 }
 
-/*!  Updates the contents of the "font script" combo box. This
+/*!
+    \internal
+    Updates the contents of the "font script" combo box. This
   function can be reimplemented if you have special requirements.
 */
 
@@ -654,7 +668,9 @@ void QFontDialog::updateScripts()
 	d->scriptCombo->insertItem( *it );
 }
 
-/*!  Updates the contents of the "font style" list box. This
+/*!
+    \internal
+    Updates the contents of the "font style" list box. This
   function can be reimplemented if you have special requirements.
 */
 
@@ -675,7 +691,9 @@ void QFontDialog::updateStyles()
     d->styleList->insertStringList( styles );
 }
 
-/*!  Updates the contents of the "font size" list box. This
+/*!
+    \internal
+    Updates the contents of the "font size" list box. This
   function can be reimplemented if you have special requirements.
 */
 
@@ -705,7 +723,7 @@ void QFontDialog::updateSizes()
 }
 
 /*!
-
+    \internal
 */
 
 void QFontDialog::familyHighlighted( const QString &s )
@@ -727,7 +745,7 @@ void QFontDialog::familyHighlighted( int i )
 }
 
 /*!
-
+    \internal
 */
 
 void QFontDialog::scriptHighlighted( int index )
@@ -755,7 +773,7 @@ void QFontDialog::scriptHighlighted( const QString &s )
 }
 
 /*!
-
+    \internal
 */
 
 void QFontDialog::styleHighlighted( const QString &s )
@@ -787,7 +805,7 @@ void QFontDialog::styleHighlighted( const QString &s )
 
 
 /*!
-
+    \internal
 */
 
 void QFontDialog::sizeHighlighted( const QString &s )
@@ -804,6 +822,7 @@ void QFontDialog::sizeHighlighted( const QString &s )
 enum match_t { MATCH_NONE=0, MATCH_LAST_RESORT=1, MATCH_DEFAULT=2, MATCH_FAMILY=3 };
 
 /*!
+  \internal
   Sets the font highlighted in the QFontDialog to font \a f.
 
   \sa font()
@@ -901,6 +920,7 @@ void QFontDialog::setFont( const QFont &f )
 }
 
 /*!
+  \internal
   Returns the font which the user has chosen.
 
   \sa setFont()
@@ -931,6 +951,7 @@ void QFontDialog::emitSelectedFont()
 
 /*!
   \fn void QFontDialog::fontSelected( const QFont & font )
+  \internal
 
   This signal is emitted when the user has chosen a font and clicked OK.
   The font that was selected is passed in \a font.
@@ -938,6 +959,7 @@ void QFontDialog::emitSelectedFont()
 
 /*!
   \fn void QFontDialog::fontHighlighted( const QFont & font )
+  \internal
 
   This signal is emitted when the user changed a setting in the dialog.
   The font that is highlighted is passed in \a font.

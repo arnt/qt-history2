@@ -58,19 +58,15 @@
   \ingroup dialogs
   \mainclass
 
-  A tabbed dialog is one in which several "pages" are available.
-  The user selects which page to see and use by clicking on its tab
-  or by pressing the indicated Alt+\e{letter} key combination.
+  A tabbed dialog is one in which several "tab pages" are available.
+  By clicking on a tab page's tab or by pressing the indicated
+  Alt+\e{letter} key combination, the user can select which tab page
+  they want to use.
 
   QTabDialog provides a tab bar consisting of single row of tabs at
   the top; each tab has an associated widget which is that tab's
-  "page". In addition, QTabDialog provides an OK button and the
+  tab page. In addition, QTabDialog provides an OK button and the
   following optional buttons: Apply, Cancel, Defaults and Help.
-
-  QTabDialog doesn't provide for tabs on the sides or bottom, nor can
-  you set or retrieve the visible page. If you need more functionality
-  than QTabDialog provides, consider creating a QDialog and using a
-  QTabBar with QTabWidgets.
 
   The normal way to use QTabDialog is to do the following in the
   constructor:
@@ -87,14 +83,14 @@
   \endlist
 
   If you don't call addTab() the page you have created will not be
-  visible.  Don't confuse the object name you supply to the
+  visible. Don't confuse the object name you supply to the
   QWidget constructor and the tab label you supply to addTab();
-  addTab() takes a name that indicates an accelerator and is
-  meaningful and descriptive to the user, whereas the widget name is
-  used primarily for debugging.
+  addTab() takes user-visible name that appears on the widget's tab
+  and may identify an accelerator, whereas the widget name is used
+  primarily for debugging.
 
   Almost all applications have to connect the applyButtonPressed()
-  signal to something.  applyButtonPressed() is emitted when either OK
+  signal to something. applyButtonPressed() is emitted when either OK
   or Apply is clicked, and your slot must copy the dialog's state into
   the application.
 
@@ -109,12 +105,12 @@
   chance that the state of the application may change between the
   creation of the tab dialog and the time show() is called, you must
   connect this signal to a slot that resets the state of the dialog.
-  \i currentChanged() is emitted when the user selects some page.
+  \i currentChanged() is emitted when the user selects a page.
   \endlist
 
   Each tab is either enabled or disabled at any given time (see
-  setTabEnabled()).  If a tab is enabled the tab text is drawn in
-  black and the user can select that tab.  If it is disabled the tab
+  setTabEnabled()). If a tab is enabled the tab text is drawn in
+  black and the user can select that tab. If it is disabled the tab
   is drawn in a different way and the user cannot select that tab.
   Note that even if a tab is disabled, the page can still be visible;
   for example, if all of the tabs happen to be disabled.
@@ -122,6 +118,11 @@
   You can change a tab's label and iconset using changeTab(). A tab
   page can be removed with removePage() and shown with showPage(). The
   current page is given by currentPage().
+
+  QTabDialog does not support tabs on the sides or bottom, nor can
+  you set or retrieve the visible page. If you need more functionality
+  than QTabDialog provides, consider creating a QDialog and using a
+  QTabBar with QTabWidgets.
 
   Most of the functionality in QTabDialog is provided by a QTabWidget.
 
@@ -214,7 +215,7 @@ QTabDialog::~QTabDialog()
   Sets the font for the tabs to \a font.
 
   If the widget is visible, the display is updated with the new font
-  immediately.  There may be some geometry changes, depending on the
+  immediately. There may be some geometry changes, depending on the
   size of the old and new fonts.
 */
 
@@ -228,7 +229,7 @@ void QTabDialog::setFont( const QFont & font )
 /*!
   \fn void QTabDialog::applyButtonPressed();
 
-  This signal is emitted when the Apply or OK button is clicked.
+  This signal is emitted when either the Apply or OK button is clicked.
 
   It should be connected to a slot (or several slots) that change the
   application's state according to the state of the dialog.
@@ -268,7 +269,7 @@ bool QTabDialog::hasHelpButton() const
 /*!
   \fn void QTabDialog::cancelButtonPressed();
 
-  This signal is emitted when the Cancel button is clicked.  It is
+  This signal is emitted when the Cancel button is clicked. It is
   automatically connected to QDialog::reject(), which will hide the
   dialog.
 
@@ -296,7 +297,7 @@ bool QTabDialog::hasCancelButton() const
 /*!
   \fn void QTabDialog::defaultButtonPressed();
 
-  This signal is emitted when the Defaults button is pressed.  It
+  This signal is emitted when the Defaults button is pressed. It
   should reset the dialog (but not the application) to the "factory
   defaults".
 
@@ -310,7 +311,7 @@ bool QTabDialog::hasCancelButton() const
 /*!
   \fn void QTabDialog::helpButtonPressed();
 
-  This signal is emitted when the Help button is pressed.  It
+  This signal is emitted when the Help button is pressed. It
   could be used to present information about how to use the dialog.
 
   \sa applyButtonPressed() cancelButtonPressed() setHelpButton()
@@ -349,7 +350,7 @@ bool QTabDialog::hasOkButton() const
   \fn void QTabDialog::aboutToShow()
 
   This signal is emitted by show() when it is time to set the state of
-  the dialog's contents.  The dialog should reflect the current state
+  the dialog's contents. The dialog should reflect the current state
   of the application when it appears; if there is any possibility that
   the state of the application may change between the time you call
   QTabDialog::QTabDialog() and QTabDialog::show(), you should set the
@@ -391,17 +392,17 @@ void QTabDialog::showTab( int i )
 /*!
   Adds another tab and page to the tab view.
 
-    The new page is \a child; the tab's label is \a label.
+  The new page is \a child; the tab's label is \a label.
   Note the difference between the widget name (which you supply to
   widget constructors and to setTabEnabled(), for example) and the tab
   label. The name is internal to the program and invariant, whereas
   the label is shown on-screen and may vary according to language and
   other factors.
 
-    If the tab's \a label contains an ampersand, the letter following
-    the ampersand is used as an accelerator for the tab, e.g. if the
-    label is "Bro&wse" then Alt+W becomes an accelerator which will
-    move the focus to this tab.
+  If the tab's \a label contains an ampersand, the letter following
+  the ampersand is used as an accelerator for the tab, e.g. if the
+  label is "Bro&wse" then Alt+W becomes an accelerator which will
+  move the focus to this tab.
 
   If you call addTab() after show() the screen will flicker and the
   user may be confused.
@@ -430,8 +431,8 @@ void QTabDialog::addTab( QWidget *child, const QIconSet& iconset, const QString 
   \overload
 
   This is a lower-level method for adding tabs, similar to the other
-  addTab() method.  It is useful if you are using setTabBar() to set a
-  QTabBar subclass with an overridden QTabBar::paint() routine for a
+  addTab() method. It is useful if you are using setTabBar() to set a
+  QTabBar subclass with an overridden QTabBar::paint() function for a
   subclass of QTab.
 
   The \a child is the widget to be placed on the new tab page. The \a
@@ -447,17 +448,17 @@ void QTabDialog::addTab( QWidget * child, QTab* tab )
 /*!
   Inserts another tab and page to the tab view.
 
-    The new page is \a child; the tab's label is \a label.
+  The new page is \a child; the tab's label is \a label.
   Note the difference between the widget name (which you supply to
   widget constructors and to setTabEnabled(), for example) and the tab
   label. The name is internal to the program and invariant, whereas
   the label is shown on-screen and may vary according to language and
   other factors.
 
-    If the tab's \a label contains an ampersand, the letter following
-    the ampersand is used as an accelerator for the tab, e.g. if the
-    label is "Bro&wse" then Alt+W becomes an accelerator which will
-    move the focus to this tab.
+  If the tab's \a label contains an ampersand, the letter following
+  the ampersand is used as an accelerator for the tab, e.g. if the
+  label is "Bro&wse" then Alt+W becomes an accelerator which will
+  move the focus to this tab.
 
   If \a index is not specified, the tab is simply added. Otherwise
   it is inserted at the specified position.
@@ -488,8 +489,8 @@ void QTabDialog::insertTab( QWidget *child, const QIconSet& iconset, const QStri
     \overload
 
   This is a lower-level method for inserting tabs, similar to the other
-  insertTab() method.  It is useful if you are using setTabBar() to set a
-  QTabBar subclass with an overridden QTabBar::paint() routine for a
+  insertTab() method. It is useful if you are using setTabBar() to set a
+  QTabBar subclass with an overridden QTabBar::paint() function for a
   subclass of QTab.
 
   The \a child is the widget to be placed on the new tab page. The \a
@@ -524,7 +525,7 @@ QTabBar* QTabDialog::tabBar() const
     return d->tw->tabBar();
 }
 
-/*!  Ensures that widget \a w is shown.  This is useful mainly for accelerators.
+/*!  Ensures that widget \a w is shown. This is mainly useful for accelerators.
 
   \warning If used carelessly, this function can easily surprise or
   confuse the user.
@@ -581,7 +582,7 @@ bool QTabDialog::isTabEnabled( const char* name ) const
   QTabDialog uses QWidget::setEnabled() internally, rather than keeping a
   separate flag.
 
-  Note that even a disabled tab/page may be visible.  If the page is
+  Note that even a disabled tab/page may be visible. If the page is
   already visible QTabDialog will not hide it; if all the pages
   are disabled QTabDialog will show one of them.
 
@@ -611,7 +612,7 @@ void QTabDialog::setTabEnabled( const char* name, bool enable )
 
 
 /* ### SHOULD THIS BE HERE?
-  Adds an Apply button to the dialog.  The button's text is set to \e
+  Adds an Apply button to the dialog. The button's text is set to \e
   text (and defaults to "Apply").
 
   The Apply button should apply the current settings in the dialog box
@@ -639,15 +640,15 @@ bool QTabDialog::isTabEnabled( QWidget* w ) const
 }
 
 /*!
-    If \a enable is TRUE the page \a w is enabled; otherwise \a w is
-    disabled. The page's tab is redrawn appropriately.
+  If \a enable is TRUE the page \a w is enabled; otherwise \a w is
+  disabled. The page's tab is redrawn appropriately.
 
   QTabWidget uses QWidget::setEnabled() internally, rather than keeping a
   separate flag.
 
-  Note that even a disabled tab/page may be visible.  If the page is
-  already visible QTabWidget will not hide it; if all the pages
-  are disabled QTabWidget will show one of them.
+  Note that even a disabled tab and tab page may be visible. If the
+  page is already visible QTabWidget will not hide it; if all the
+  pages are disabled QTabWidget will show one of them.
 
   \sa isTabEnabled(), QWidget::setEnabled()
 */
@@ -659,7 +660,7 @@ void QTabDialog::setTabEnabled( QWidget* w, bool enable)
 
 
 /*!
-  Adds an Apply button to the dialog.  The button's text is set to \a
+  Adds an Apply button to the dialog. The button's text is set to \a
   text.
 
   The Apply button should apply the current settings in the dialog box
@@ -695,7 +696,7 @@ void QTabDialog::setApplyButton( const QString &text )
 /*!
     \overload
 
-  Adds an Apply button to the dialog.  The button's text is set to
+  Adds an Apply button to the dialog. The button's text is set to
   a localizable "Apply".
  */
 void QTabDialog::setApplyButton()
@@ -705,7 +706,7 @@ void QTabDialog::setApplyButton()
 
 
 /*!
-  Adds a Help button to the dialog.  The button's text is set to \a
+  Adds a Help button to the dialog. The button's text is set to \a
   text.
 
   When Help is clicked, the helpButtonPressed() signal is emitted.
@@ -740,7 +741,7 @@ void QTabDialog::setHelpButton( const QString &text )
 /*!
     \overload
 
-  Adds a Help button to the dialog.  The button's text is set to
+  Adds a Help button to the dialog. The button's text is set to
   a localizable "Help".
  */
 void QTabDialog::setHelpButton()
@@ -749,7 +750,7 @@ void QTabDialog::setHelpButton()
 }
 
 /*!
-  Adds a Defaults button to the dialog.  The button's text is set to \a
+  Adds a Defaults button to the dialog. The button's text is set to \a
   text.
 
   The Defaults button should set the dialog (but not the application)
@@ -787,7 +788,7 @@ void QTabDialog::setDefaultButton( const QString &text )
 /*!
     \overload
 
-  Adds a Defaults button to the dialog.  The button's text is set to
+  Adds a Defaults button to the dialog. The button's text is set to
   a localizable "Defaults".
  */
 void QTabDialog::setDefaultButton()
@@ -796,7 +797,7 @@ void QTabDialog::setDefaultButton()
 }
 
 /*!
-  Adds a Cancel button to the dialog.  The button's text is set to \a
+  Adds a Cancel button to the dialog. The button's text is set to \a
   text.
 
   The cancel button should always return the application to the state
@@ -838,7 +839,7 @@ void QTabDialog::setCancelButton( const QString &text )
 /*!
     \overload
 
-  Adds a Cancel button to the dialog.  The button's text is set to
+  Adds a Cancel button to the dialog. The button's text is set to
   a localizable "Cancel".
  */
 
@@ -1054,7 +1055,7 @@ void QTabDialog::setOkButton( const QString &text )
 /*!
   \overload
 
-  Adds an OK button to the dialog.  The button's text is set to
+  Adds an OK button to the dialog. The button's text is set to
   a localizable "OK".
  */
 
@@ -1097,7 +1098,7 @@ void QTabDialog::styleChange( QStyle& s )
 
 
 /*!  Returns a pointer to the page currently being displayed by the
-tab dialog.  The tab dialog does its best to make sure that this value
+tab dialog. The tab dialog does its best to make sure that this value
 is never 0 (but if you try hard enough, it can be).
 */
 
@@ -1124,7 +1125,7 @@ void QTabDialog::changeTab( QWidget *w, const QIconSet& iconset, const QString &
     d->tw->changeTab( w, iconset, label );
 }
 
-/*! Removes page \a w from this stack of widgets.  Does not
+/*! Removes page \a w from this stack of widgets. Does not
   delete \a w.
   \sa showPage(), QTabWidget::removePage(), QWidgetStack::removeWidget()
 */
