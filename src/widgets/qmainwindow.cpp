@@ -1185,7 +1185,7 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 			ipos = QMainWindowPrivate::Before;
 		    else {
 			tmp = dock->next();
-			if ( ( !tmp || tmp->nl || tmp->t->stretchMode() == QToolBar::FullWidth ) && 
+			if ( ( !tmp || tmp->nl || tmp->t->stretchMode() == QToolBar::FullWidth ) &&
 			     t->t->stretchMode() != QToolBar::FullWidth )
 			    ipos = QMainWindowPrivate::TotalAfter;
 			else
@@ -1208,7 +1208,7 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 	    t = maybe;
 	    dock->findRef( maybe );
 	    tmp = dock->next();
-	    if ( ( !tmp || tmp->nl || tmp->t->stretchMode() == QToolBar::FullWidth ) && 
+	    if ( ( !tmp || tmp->nl || tmp->t->stretchMode() == QToolBar::FullWidth ) &&
 		 t->t->stretchMode() != QToolBar::FullWidth )
 		ipos = QMainWindowPrivate::TotalAfter;
 	    else
@@ -1617,7 +1617,7 @@ void QMainWindow::triggerLayout( bool deleteLayout )
     d->timer->start( 0, TRUE );
 }
 
-static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow *mw, 
+static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow *mw,
 				    QMainWindow::ToolBarDock dock, const QPoint &pos,
 				    const QRect &areaRect, QToolBar *tb, int &ipos, QToolBar *&covering  )
 {
@@ -1974,7 +1974,8 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 		 isDockEnabled( t, dock ) )
 		moveToolBar( t, dock, covering, ipos != QMainWindowPrivate::Before );
 	} else { // ... or hide it if it was only a click
-	    moveToolBar( t, Hidden );
+	    if ( isDockEnabled( Hidden ) && isDockEnabled( t, Hidden ) )
+		moveToolBar( t, Hidden );
 	}
 	
 	emit endMovingToolbar( t );
