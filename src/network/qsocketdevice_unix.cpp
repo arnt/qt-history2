@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#33 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#34 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -181,7 +181,7 @@
 #include <unistd.h>
 #if defined(Q_OS_MACX)
 #  define SOCKLEN_T int
-#  define QT_SOCKSARG_INT
+#  define QT_SOCKARG_INT
 #elif defined(BSD4_4)
 // int       - FreeBSD 1.0 through 3.5.1
 //             OpenBSD 2.1 through 2.4
@@ -193,17 +193,17 @@
 // ### and BSDs which use socklen_t? Or maybe this is not an issue
 // ### because those that use int are way too old?
 #  define SOCKLEN_T socklen_t
-#  define QT_SOCKSARG_SOCKLEN_T
+#  define QT_SOCKARG_SOCKLEN_T
 #elif defined(_XOPEN_VERSION) && (_XOPEN_VERSION >= 500)
 // XPG5 interfaces
 #  define SOCKLEN_T socklen_t
-#  define QT_SOCKSARG_SOCKLEN_T
+#  define QT_SOCKARG_SOCKLEN_T
 #elif defined(__GLIBC__) && (__GLIBC__ >= 2)
 // We do not define XPG5 explicitly so the X/Open feature test macros
 // are not defined.  However the GNU C library does use XPG5 (not to
 // mention upcoming XPG6) interfaces.
 #  define SOCKLEN_T socklen_t
-#  define QT_SOCKSARG_SOCKLEN_T
+#  define QT_SOCKARG_SOCKLEN_T
 // XPG4v2 is complicated so we handle it on a platform by platform basis.
 // From Sun's "Notes on 64-bit Drivers and STREAMS - A White Paper":
 // 	Under UNIX95, the XNS4.2 definitions were only available under
@@ -224,28 +224,28 @@
 // AIX 4.3.1 is SUSv2/XPG5 compliant so it should be caught by the
 // _XOPEN_VERSION test above anyway.
 #    define SOCKLEN_T socklen_t
-#    define QT_SOCKSARG_SOCKLEN_T
+#    define QT_SOCKARG_SOCKLEN_T
 #  elif _AIX42
 // AIX 4.2 is XPG4v2 compliant.
 #    define SOCKLEN_T size_t
-#    define QT_SOCKSARG_SIZE_T
+#    define QT_SOCKARG_SIZE_T
 #  else
 // AIX 4.1 is XPG4 compliant so it should fall through anyway.
 #    define SOCKLEN_T int
-#    define QT_SOCKSARG_INT
+#    define QT_SOCKARG_INT
 #  endif
 #elif defined(Q_OS_UNIXWARE7)
 // UnixWare 7 supports infamous XPG4v2 sockets.
 #  define SOCKLEN_T size_t
-#  define QT_SOCKSARG_SIZE_T
+#  define QT_SOCKARG_SIZE_T
 #elif defined(Q_OS_QNX)
 // QNX supports infamous XPG4v2 sockets.
 #  define SOCKLEN_T size_t
-#  define QT_SOCKSARG_SIZE_T
+#  define QT_SOCKARG_SIZE_T
 #else
 // fall through for POSIX, XPG3, XPG4
 #  define SOCKLEN_T int
-#  define QT_SOCKSARG_INT
+#  define QT_SOCKARG_INT
 #endif
 
 // Now a few hacks that depend on SOCKLEN_T.
@@ -253,7 +253,7 @@
 #if defined(Q_OS_OSF)
 // Tru64 sometimes redefines accept().
 static inline
-#  if defined(QT_SOCKSARG_SOCKLEN_T)
+#  if defined(QT_SOCKARG_SOCKLEN_T)
 int qt_accept_hack(int s, struct sockaddr *addr, socklen_t *addrlen)
 #  else
 // All supported Tru64 platforms down to DIGITAL UNIX 4.0D use size_t.
