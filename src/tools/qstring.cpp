@@ -4216,7 +4216,7 @@ long QString::toLong( bool *ok, int base ) const
     const QChar *p = unicode();
     long val = 0;
     int l = length();
-    const long max_mult = INT_MAX / base;
+    const long max_mult = LONG_MAX / base;
     bool is_ok = FALSE;
     int neg = 0;
     if ( !p )
@@ -4249,7 +4249,7 @@ long QString::toLong( bool *ok, int base ) const
 		dv = *p - 'A' + 10;
 	}
 	if ( val > max_mult ||
-	    (val == max_mult && dv > (INT_MAX % base) + neg) )
+	    (val == max_mult && dv > (LONG_MAX % base) + neg) )
 	    goto bye;
 	val = base * val + dv;
 	p++;
@@ -4281,7 +4281,7 @@ ulong QString::toULong( bool *ok, int base ) const
     const QChar *p = unicode();
     ulong val = 0;
     int l = length();
-    const ulong max_mult = UINT_MAX / base;
+    const ulong max_mult = ULONG_MAX / base;
     bool is_ok = FALSE;
     if ( !p )
 	goto bye;
@@ -4306,7 +4306,7 @@ ulong QString::toULong( bool *ok, int base ) const
 	    else
 		dv = *p - 'A' + 10;
 	}
-	if ( val > max_mult || (val == max_mult && dv > UINT_MAX % base) )
+	if ( val > max_mult || (val == max_mult && dv > ULONG_MAX % base) )
 	    goto bye;
 	val = base * val + dv;
 	p++;
@@ -4333,7 +4333,7 @@ bye:
 short QString::toShort( bool *ok, int base ) const
 {
     long v = toLong( ok, base );
-    if ( ok && *ok && (v < -32768 || v > 32767) ) {
+    if ( ok && *ok && (v < SHRT_MIN || v > SHRT_MAX) ) {
 	*ok = FALSE;
 	v = 0;
     }
@@ -4352,7 +4352,7 @@ short QString::toShort( bool *ok, int base ) const
 ushort QString::toUShort( bool *ok, int base ) const
 {
     ulong v = toULong( ok, base );
-    if ( ok && *ok && (v > 65535) ) {
+    if ( ok && *ok && (v > USHRT_MAX) ) {
 	*ok = FALSE;
 	v = 0;
     }
@@ -4379,7 +4379,12 @@ ushort QString::toUShort( bool *ok, int base ) const
 
 int QString::toInt( bool *ok, int base ) const
 {
-    return (int)toLong( ok, base );
+    long v = toLong( ok, base );
+    if ( ok && *ok && (v < INT_MIN || v > INT_MAX) ) {
+	*ok = FALSE;
+	v = 0;
+    }
+    return (int)v;
 }
 
 /*!
@@ -4394,7 +4399,12 @@ int QString::toInt( bool *ok, int base ) const
 
 uint QString::toUInt( bool *ok, int base ) const
 {
-    return (uint)toULong( ok, base );
+    ulong v = toULong( ok, base );
+    if ( ok && *ok && (v > UINT_MAX) ) {
+	*ok = FALSE;
+	v = 0;
+    }
+    return (uint)v;
 }
 
 /*!
@@ -4464,7 +4474,7 @@ QString &QString::setNum( long n, int base )
     bool neg;
     if ( n < 0 ) {
 	neg = TRUE;
-	if ( n == INT_MIN ) {
+	if ( n == LONG_MIN ) {
 	    // Cannot always negate this special case
 	    QString s1, s2;
 	    s1.setNum(n/base, base );
