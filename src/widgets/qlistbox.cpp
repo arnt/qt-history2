@@ -3532,6 +3532,8 @@ void QListBox::resizeEvent( QResizeEvent *e )
 	ensureCurrentVisible();
 	if ( d->current )
 	    viewport()->repaint( itemRect( d->current ), FALSE );
+    } else if ( ( d->columnMode == FitToWidth || d->rowMode == FitToHeight ) && !(isVisible()) ) {
+	QScrollView::resizeEvent( e );
     } else if ( d->layoutDirty ) {
 	d->resizeTimer->start( 100, TRUE );
 	resizeContents( contentsWidth() - ( e->oldSize().width() - e->size().width() ),
