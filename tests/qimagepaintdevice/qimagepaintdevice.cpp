@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/qimagepaintdevice/qimagepaintdevice.cpp#3 $
+** $Id: //depot/qt/main/tests/qimagepaintdevice/qimagepaintdevice.cpp#4 $
 **
 ** Implementation of QImagePaintDevice32 class
 **
@@ -22,7 +22,7 @@
 ** http://www.troll.no/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
- 
+
 #include "qpaintdevicemetrics.h"
 #include "qimagepaintdevice.h"
 #include "qpainter.h"
@@ -511,9 +511,9 @@ void QImagePaintDevice32::drawPolyline(const QPointArray& pa)
 	drawLine(pa[i],pa[i+1]); // XXX beware XOR mode vertices
 }
 
-void QImagePaintDevice32::drawQuadBezier(const QPointArray&)
+void QImagePaintDevice32::drawQuadBezier(const QPointArray &pa )
 {
-    // XXX
+    drawPolyline( pa.quadBezier() );
 }
 
 // Based on Xserver code miFillGeneralPoly...
@@ -550,7 +550,7 @@ void QImagePaintDevice32::drawQuadBezier(const QPointArray&)
  *     the polygon by incrementing the y coordinate.  We
  *     keep a list of edges which the current scanline crosses,
  *     sorted by x.  This list is called the Active Edge Table (AET)
- *     As we change the y-coordinate, we update each entry in 
+ *     As we change the y-coordinate, we update each entry in
  *     in the active edge table to reflect the edges new xcoord.
  *     This list must be sorted at each scanline in case
  *     two edges intersect.
@@ -577,7 +577,7 @@ void QImagePaintDevice32::drawQuadBezier(const QPointArray&)
  * for the winding number rule
  */
 #define CLOCKWISE          1
-#define COUNTERCLOCKWISE  -1 
+#define COUNTERCLOCKWISE  -1
 
 /* $XConsortium: miscanfill.h,v 1.5 94/04/17 20:27:50 dpw Exp $ */
 /*
@@ -843,13 +843,13 @@ Copyright 1987 by Digital Equipment Corporation, Maynard, Massachusetts.
 
                         All Rights Reserved
 
-Permission to use, copy, modify, and distribute this software and its 
-documentation for any purpose and without fee is hereby granted, 
+Permission to use, copy, modify, and distribute this software and its
+documentation for any purpose and without fee is hereby granted,
 provided that the above copyright notice appear in all copies and that
-both that copyright notice and this permission notice appear in 
+both that copyright notice and this permission notice appear in
 supporting documentation, and that the name of Digital not be
 used in advertising or publicity pertaining to distribution of the
-software without specific, written prior permission.  
+software without specific, written prior permission.
 
 DIGITAL DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING
 ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL
@@ -895,7 +895,7 @@ miInsertEdgeInET(EdgeTable *ET, EdgeTableEntry *ETE,
      */
     pPrevSLL = &ET->scanlines;
     pSLL = pPrevSLL->next;
-    while (pSLL && (pSLL->scanline < scanline)) 
+    while (pSLL && (pSLL->scanline < scanline))
     {
         pPrevSLL = pSLL;
         pSLL = pSLL->next;
@@ -904,11 +904,11 @@ miInsertEdgeInET(EdgeTable *ET, EdgeTableEntry *ETE,
     /*
      * reassign pSLL (pointer to ScanLineList) if necessary
      */
-    if ((!pSLL) || (pSLL->scanline > scanline)) 
+    if ((!pSLL) || (pSLL->scanline > scanline))
     {
-        if (*iSLLBlock > SLLSPERBLOCK-1) 
+        if (*iSLLBlock > SLLSPERBLOCK-1)
         {
-            tmpSLLBlock = 
+            tmpSLLBlock =
 		  (ScanLineListBlock *)malloc(sizeof(ScanLineListBlock));
 	    if (!tmpSLLBlock)
 		return FALSE;
@@ -930,7 +930,7 @@ miInsertEdgeInET(EdgeTable *ET, EdgeTableEntry *ETE,
      */
     prev = (EdgeTableEntry *)NULL;
     start = pSLL->edgelist;
-    while (start && (start->bres.minor < ETE->bres.minor)) 
+    while (start && (start->bres.minor < ETE->bres.minor))
     {
         prev = start;
         start = start->next;
@@ -948,7 +948,7 @@ miInsertEdgeInET(EdgeTable *ET, EdgeTableEntry *ETE,
  *     CreateEdgeTable
  *
  *     This routine creates the edge table for
- *     scan converting polygons. 
+ *     scan converting polygons.
  *     The Edge Table (ET) looks like:
  *
  *    EdgeTable
@@ -981,7 +981,7 @@ miFreeStorage(ScanLineListBlock   *pSLLBlock)
 {
     register ScanLineListBlock   *tmpSLLBlock;
 
-    while (pSLLBlock) 
+    while (pSLLBlock)
     {
         tmpSLLBlock = pSLLBlock->next;
         free(pSLLBlock);
@@ -1024,19 +1024,19 @@ miCreateETandAET(int count, DDXPointPtr pts, EdgeTable *ET,
      *  In this loop we are dealing with two vertices at
      *  a time -- these make up one edge of the polygon.
      */
-    while (count--) 
+    while (count--)
     {
         CurrPt = pts++;
 
         /*
          *  find out which point is above and which is below.
          */
-        if (PrevPt->y > CurrPt->y) 
+        if (PrevPt->y > CurrPt->y)
         {
             bottom = PrevPt, top = CurrPt;
             pETEs->ClockWise = 0;
         }
-        else 
+        else
         {
             bottom = CurrPt, top = PrevPt;
             pETEs->ClockWise = 1;
@@ -1045,7 +1045,7 @@ miCreateETandAET(int count, DDXPointPtr pts, EdgeTable *ET,
         /*
          * don't add horizontal edges to the Edge table.
          */
-        if (bottom->y != top->y) 
+        if (bottom->y != top->y)
         {
             pETEs->ymax = bottom->y-1;  /* -1 so we don't get last scanline */
 
@@ -1088,9 +1088,9 @@ miloadAET(EdgeTableEntry *AET, EdgeTableEntry *ETEs)
 
     pPrevAET = AET;
     AET = AET->next;
-    while (ETEs) 
+    while (ETEs)
     {
-        while (AET && (AET->bres.minor < ETEs->bres.minor)) 
+        while (AET && (AET->bres.minor < ETEs->bres.minor))
         {
             pPrevAET = AET;
             AET = AET->next;
@@ -1112,13 +1112,13 @@ miloadAET(EdgeTableEntry *AET, EdgeTableEntry *ETEs)
  *
  *     This routine links the AET by the
  *     nextWETE (winding EdgeTableEntry) link for
- *     use by the winding number rule.  The final 
+ *     use by the winding number rule.  The final
  *     Active Edge Table (AET) might look something
  *     like:
  *
  *     AET
  *     ----------  ---------   ---------
- *     |ymax    |  |ymax    |  |ymax    | 
+ *     |ymax    |  |ymax    |  |ymax    |
  *     | ...    |  |...     |  |...     |
  *     |next    |->|next    |->|next    |->...
  *     |nextWETE|  |nextWETE|  |nextWETE|
@@ -1137,7 +1137,7 @@ micomputeWAET(EdgeTableEntry *AET)
     AET->nextWETE = (EdgeTableEntry *)NULL;
     pWETE = AET;
     AET = AET->next;
-    while (AET) 
+    while (AET)
     {
         if (AET->ClockWise)
             isInside++;
@@ -1145,7 +1145,7 @@ micomputeWAET(EdgeTableEntry *AET)
             isInside--;
 
         if ((!inside && !isInside) ||
-            ( inside &&  isInside)) 
+            ( inside &&  isInside))
         {
             pWETE->nextWETE = AET;
             pWETE = AET;
@@ -1174,7 +1174,7 @@ miInsertionSort(EdgeTableEntry *AET)
     register int changed = 0;
 
     AET = AET->next;
-    while (AET) 
+    while (AET)
     {
         pETEinsert = AET;
         pETEchase = AET;
@@ -1182,7 +1182,7 @@ miInsertionSort(EdgeTableEntry *AET)
             pETEchase = pETEchase->back;
 
         AET = AET->next;
-        if (pETEchase != pETEinsert) 
+        if (pETEchase != pETEinsert)
         {
             pETEchaseBackTMP = pETEchase->back;
             pETEinsert->back->next = AET;
@@ -1275,13 +1275,13 @@ void QImagePaintDevice32::drawPolygon(const QPointArray& pa, int winding)
         /*
          *  for each scanline
          */
-        for (y = ET.ymin; y < ET.ymax; y++) 
+        for (y = ET.ymin; y < ET.ymax; y++)
         {
             /*
              *  Add a new edge to the active edge table when we
              *  get to the next edge.
              */
-            if (pSLL && y == pSLL->scanline) 
+            if (pSLL && y == pSLL->scanline)
             {
                 miloadAET(&AET, pSLL->edgelist);
                 pSLL = pSLL->next;
@@ -1292,7 +1292,7 @@ void QImagePaintDevice32::drawPolygon(const QPointArray& pa, int winding)
             /*
              *  for each active edge
              */
-            while (pAET) 
+            while (pAET)
             {
                 ptsOut->x = pAET->bres.minor;
 		ptsOut++->y = y;
@@ -1302,7 +1302,7 @@ void QImagePaintDevice32::drawPolygon(const QPointArray& pa, int winding)
                 /*
                  *  send out the buffer when its full
                  */
-                if (nPts == NUMPTSTOBUFFER) 
+                if (nPts == NUMPTSTOBUFFER)
 		{
 		    fillSpans( nPts, (QPoint*)FirstPoint, FirstWidth );
                     ptsOut = FirstPoint;
@@ -1320,13 +1320,13 @@ void QImagePaintDevice32::drawPolygon(const QPointArray& pa, int winding)
         /*
          *  for each scanline
          */
-        for (y = ET.ymin; y < ET.ymax; y++) 
+        for (y = ET.ymin; y < ET.ymax; y++)
         {
             /*
              *  Add a new edge to the active edge table when we
              *  get to the next edge.
              */
-            if (pSLL && y == pSLL->scanline) 
+            if (pSLL && y == pSLL->scanline)
             {
                 miloadAET(&AET, pSLL->edgelist);
                 micomputeWAET(&AET);
@@ -1339,14 +1339,14 @@ void QImagePaintDevice32::drawPolygon(const QPointArray& pa, int winding)
             /*
              *  for each active edge
              */
-            while (pAET) 
+            while (pAET)
             {
                 /*
                  *  if the next edge in the active edge table is
                  *  also the next edge in the winding active edge
                  *  table.
                  */
-                if (pWETE == pAET) 
+                if (pWETE == pAET)
                 {
                     ptsOut->x = pAET->bres.minor;
 		    ptsOut++->y = y;
@@ -1356,7 +1356,7 @@ void QImagePaintDevice32::drawPolygon(const QPointArray& pa, int winding)
                     /*
                      *  send out the buffer
                      */
-                    if (nPts == NUMPTSTOBUFFER) 
+                    if (nPts == NUMPTSTOBUFFER)
                     {
 			fillSpans( nPts, (QPoint*)FirstPoint, FirstWidth );
                         ptsOut = FirstPoint;
@@ -1376,7 +1376,7 @@ void QImagePaintDevice32::drawPolygon(const QPointArray& pa, int winding)
              *  reevaluate the Winding active edge table if we
              *  just had to resort it or if we just exited an edge.
              */
-            if (miInsertionSort(&AET) || fixWAET) 
+            if (miInsertionSort(&AET) || fixWAET)
             {
                 micomputeWAET(&AET);
                 fixWAET = 0;
