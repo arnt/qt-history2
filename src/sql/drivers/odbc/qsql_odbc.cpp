@@ -710,6 +710,12 @@ QVariant QODBCResult::data( int field )
 	    break;
 	case QVariant::Double:
 	    // bind Double values as string to prevent loss of precision
+	    isNull = FALSE;
+	    // length + 1 for the comma
+	    fieldCache[ current ] = QVariant( qGetStringData( d->hStmt, current,
+					      info.length() + 1, isNull, FALSE ) );
+	    nullCache[ current ] = isNull;
+	    break;
 	case QVariant::CString:
 	default:
 	    isNull = FALSE;
