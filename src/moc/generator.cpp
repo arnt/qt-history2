@@ -613,12 +613,12 @@ void Generator::generateMetacall()
                 else if (p.gspec == PropertyDef::ReferenceSpec)
                     fprintf(out, "        case %d: _a[0] = (void*)&%s(); break;\n",
                             propindex, p.read.constData());
-                else if (isVariantType(p.type) || p.type.endsWith('*'))
-                    fprintf(out, "        case %d: *(%s*)_v = %s(); break;\n",
-                            propindex, p.type.constData(), p.read.constData());
-                else
+                else if (cdef->enumDeclarations.value(p.type, false))
                     fprintf(out, "        case %d: *(int*)_v = QFlag(%s()); break;\n",
                             propindex, p.read.constData());
+                else
+                    fprintf(out, "        case %d: *(%s*)_v = %s(); break;\n",
+                            propindex, p.type.constData(), p.read.constData());
             }
             fprintf(out, "        }\n");
         }

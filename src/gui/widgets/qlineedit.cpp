@@ -539,12 +539,12 @@ bool QLineEdit::validateAndSet(const QString &newText, int newPos,
     \sa Qt::Alignment
 */
 
-int QLineEdit::alignment() const
+Qt::Alignment QLineEdit::alignment() const
 {
-    return d->alignment;
+    return QFlag(d->alignment);
 }
 
-void QLineEdit::setAlignment(int flag)
+void QLineEdit::setAlignment(Qt::Alignment flag)
 {
     d->alignment = flag & 0x7;
     update();

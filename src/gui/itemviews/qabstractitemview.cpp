@@ -626,12 +626,12 @@ void QAbstractItemView::doItemsLayout()
     operator. The view will only initiate the editing of an item if the
     action performed is set in this property.
 */
-void QAbstractItemView::setBeginEditActions(int actions)
+void QAbstractItemView::setBeginEditActions(QAbstractItemDelegate::BeginEditActions actions)
 {
     d->beginEditActions = actions;
 }
 
-int QAbstractItemView::beginEditActions() const
+QAbstractItemDelegate::BeginEditActions QAbstractItemView::beginEditActions() const
 {
     return d->beginEditActions;
 }

@@ -51,7 +51,7 @@ public:
 
     QAbstractItemView::State state;
     QPoint cursorIndex;
-    int beginEditActions;
+    QAbstractItemDelegate::BeginEditActions beginEditActions;
 
     QPersistentModelIndex root;
     int horizontalFactor;

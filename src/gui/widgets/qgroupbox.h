@@ -41,7 +41,7 @@ public:
     QString title() const;
     void setTitle(const QString &);
 
-    int alignment() const;
+    Qt::Alignment alignment() const;
     void setAlignment(int);
 
     QSize sizeHint() const;

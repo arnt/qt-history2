@@ -60,18 +60,18 @@ public:
 
     void setItemDelegate(QAbstractItemDelegate *delegate);
     QAbstractItemDelegate *itemDelegate() const;
-    
+
     void setSelectionMode(int mode); // FIXME: make property
     int selectionMode() const;
 
     void setSelectionBehavior(int behavior); // FIXME: make property
     int selectionBehavior() const;
-    
+
     QModelIndex currentItem() const;
     QModelIndex root() const;
 
-    void setBeginEditActions(int actions);
-    int beginEditActions() const;
+    void setBeginEditActions(QAbstractItemDelegate::BeginEditActions actions);
+    QAbstractItemDelegate::BeginEditActions beginEditActions() const;
 
     void setAutoScroll(bool b);
     bool autoScroll() const;

@@ -82,8 +82,8 @@ public:
     void setCursorPosition(int);
     int cursorPositionAt(const QPoint &pos);
 
-    void setAlignment(int flag);
-    int alignment() const;
+    void setAlignment(Qt::Alignment flag);
+    Qt::Alignment alignment() const;
 
     void cursorForward(bool mark, int steps = 1);
     void cursorBackward(bool mark, int steps = 1);

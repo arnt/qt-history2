@@ -794,8 +794,15 @@ void Moc::parseProperty(ClassDef *def, bool override)
 void Moc::parseEnumOrFlag(ClassDef *def, bool isFlag)
 {
     next(LPAREN);
-    while (test(IDENTIFIER))
-        def->enumDeclarations[lexem()] = isFlag;
+    QByteArray identifier;
+    while (test(IDENTIFIER)) {
+        identifier = lexem();
+        while (test(SCOPE) && test(IDENTIFIER)) {
+            identifier += "::";
+            identifier += lexem();
+        }
+        def->enumDeclarations[identifier] = isFlag;
+    }
     next(RPAREN);
 }
 

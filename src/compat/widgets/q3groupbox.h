@@ -31,6 +31,7 @@ class Q_COMPAT_EXPORT Q3GroupBox : public Q3Frame
     Q_PROPERTY(bool flat READ isFlat WRITE setFlat)
     Q_PROPERTY(bool checkable READ isCheckable WRITE setCheckable)
     Q_PROPERTY(bool checked READ isChecked WRITE setChecked)
+    Q_FLAGS(Qt::Alignment)
 public:
     Q3GroupBox(QWidget* parent=0, const char* name=0);
     Q3GroupBox(const QString &title,

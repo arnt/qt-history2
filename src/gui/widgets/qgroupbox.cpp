@@ -190,9 +190,9 @@ QString QGroupBox::title() const
 
     \sa Qt::Alignment
 */
-int QGroupBox::alignment() const
+Qt::Alignment QGroupBox::alignment() const
 {
-    return d->align;
+    return QFlag(d->align);
 }
 
 void QGroupBox::setAlignment(int alignment)
