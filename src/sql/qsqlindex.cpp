@@ -251,7 +251,7 @@ QSqlIndex QSqlIndex::fromStringList( const QStringList& l, const QSqlCursor* cur
 	if ( field )
 	    newSort.append( *field, desc );
 	else
-	    qWarning( "QSqlIndex::fromStringList: unknown field:'" + f + "'" );
+	    qWarning( "QSqlIndex::fromStringList: unknown field: '" + f + "'" );
     }
     return newSort;
 }

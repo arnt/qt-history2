@@ -4,6 +4,7 @@
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
+
 ** This file is part of the sql module of the Qt GUI Toolkit.
 ** EDITIONS: FREE, ENTERPRISE
 **
@@ -185,7 +186,8 @@ QSqlDatabase* QSqlDatabaseManager::database( const QString& name, bool open )
     if ( db && !db->isOpen() && open ) {
 	db->open();
 	if ( !db->isOpen() )
-	    qWarning("Warning: QSqlDatabaseManager unable to open database: " + db->lastError().databaseText() + ": " + db->lastError().driverText() );
+	    qWarning("QSqlDatabaseManager::database: unable to open database: " + db->lastError().databaseText() + ": " + db->lastError().driverText() );
+
     }
     return db;
 }
@@ -628,7 +630,8 @@ void QSqlDatabase::init( const QString& type, const QString& )
 #endif
 
     if ( !d->driver ) {
-	qWarning( "QSqlDatabase warning: %s driver not loaded", type.latin1() );
+
+	qWarning( "QSqlDatabase: %s driver not loaded", type.latin1() );
 	qWarning( "QSqlDatabase: available drivers: " + drivers().join(" ") );
 	d->driver = new QNullDriver();
 	d->driver->setLastError( QSqlError( "Driver not loaded", "Driver not loaded" ) );
