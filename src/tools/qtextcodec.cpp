@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#22 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#23 $
 **
 ** Implementation of QTextCodec class
 **
@@ -825,6 +825,8 @@ public:
 		    *cursor++ = *s++;
 		    lout++;
 		}
+	    } else if ( ch.row * 256 + ch.cell == 0xfeff ) {
+		// nothing needs to be done
 	    } else {
 		*cursor++ = unkn;
 		lout++;
@@ -1202,13 +1204,21 @@ QCString QSimpleTextCodec::fromUnicode(const QString& uc, int& len ) const
 	}
 	reverseOwner = this;
     }
-    if ( len <0 || len > (int)uc.length() )
-	len = uc.length();
+    QString tmp( uc );
+    int i = 0;
+    while( i < (int)tmp.length() ) {
+	if ( tmp[i] == QChar( 0xfeff ) )
+	    tmp.remove( i, 1 );
+	else
+	    i++;
+    }
+    
+    if ( len <0 || len > (int)tmp.length() )
+	len = tmp.length();
     char * r = new char[len];
-    int i;
     int u;
     for( i=0; i<len; i++ ) {
-	u = uc[i].cell + 256* uc[i].row;
+	u = tmp[i].cell + 256* tmp[i].row;
 	r[i] = ( u < (int)reverseMap->size() ) ? (*reverseMap)[u] :  '?';
     }
     return r;

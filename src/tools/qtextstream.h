@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#48 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#49 $
 **
 ** Definition of QTextStream class
 **
@@ -35,7 +35,7 @@ class QTextDecoder;
 class Q_EXPORT QTextStream				// text stream class
 {
 public:
-    enum Encoding { Locale, Latin1, Unicode, UnicodeNetworkOrder, 
+    enum Encoding { Locale, Latin1, Unicode, UnicodeNetworkOrder,
 		    UnicodeReverse, RawUnicode };
 
     void	setEncoding( Encoding );
@@ -138,8 +138,8 @@ private:
     bool	 fstrm;
     bool	 owndev;
     QTextCodec 	*mapper;
-    QTextDecoder 	*decoder;		//???
-    QChar		ungetcBuf;
+    QTextDecoder *decoder;		//???
+    QChar ungetcBuf;
     bool	latin1;
     bool 	internalOrder;
     bool	doUnicodeHeader;
