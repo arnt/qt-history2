@@ -190,7 +190,7 @@ CustomFileDialog::CustomFileDialog()
     dirView = new DirectoryView( this, 0, TRUE );
     dirView->addColumn( "" );
     dirView->header()->hide();
-    class Directory *root = new class Directory( dirView, "/" );
+    class Directory *root = new class ::Directory( dirView, "/" );
     root->setOpen( TRUE );
     dirView->setFixedWidth( 150 );
 
