@@ -27,6 +27,10 @@
 #include "qregion.h"
 #endif // QT_H
 
+#ifndef QT_NO_COMPAT
+#include "qevent.h"
+#endif
+
 class QLayout;
 class QCursor;
 class QWSRegionManager;

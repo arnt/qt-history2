@@ -25,6 +25,10 @@
 #include "qsize.h"
 #endif // QT_H
 
+#ifndef QT_NO_COMPAT
+#include "qdesktopwidget.h"
+#endif
+
 class QSessionManager;
 class QDesktopWidget;
 class QStyle;

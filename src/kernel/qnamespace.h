@@ -545,7 +545,7 @@ public:
 	Key_odiaeresis = Key_Odiaeresis,
 #endif
 	Key_division = 0x0f7,
-#ifdef QT_NO_COMPAT
+#ifndef QT_NO_COMPAT
 	Key_oslash = Key_Ooblique,
 	Key_ugrave = Key_Ugrave,
 	Key_uacute = Key_Uacute,
