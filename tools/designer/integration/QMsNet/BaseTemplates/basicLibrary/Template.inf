@@ -1,0 +1,69 @@
+# QMsNet Template information file
+# --------------------------------
+# Comments are lines which starts with a #.
+# [Format]
+#    Indicates which integration the template is suited for.
+#    Default: 1.0
+#
+# [Name]
+#    Name of the template, which been shown in the wizard.
+#
+# [Description]
+#    A propper description of the template.
+#    Use \n for newline, and \n\r for new paragraph.
+#
+# [Version]
+#    The version number of the template.
+#    Default: 1.0
+#
+# [Language]
+#    The programming language of the template project.
+#    Default: C++
+#
+# [TemplateType]
+#    The type of project the template is creating.
+#    Only two options are available currently:
+#       app = The template will create an executable
+#       lib = The template will create a library (dynamic or static)
+#    Default: app
+#
+# [Configuration]
+#    Configuration options needed for the template.
+#    ** Note: The project will automatically inherit the configuration
+#             of Qt. You may use the next section to override these
+#             options.
+#    Default: qt warn_on
+#
+# [Ignore Configuration]
+#    Configuration options you want qmake to ignore when generating the
+#    templates VC project file.
+#    Default: -none-
+#
+# [Headers], [Sources],
+# [Forms],   [Translations],
+# [Images],  [Other],
+# [Extra]
+#    These sections contain the name of the files which the template
+#    consists of, and will be copied to the new project directory.
+#    The files under each section will also be added to the .pro file in
+#    their respective variables, before the final .vcpro project file is
+#    generated.
+#    The [Extra] section is special, in the respect that it will not add
+#    these files to the .pro file. It's main purpose is to simply
+#       copy the template file into the destination directory.
+#       ** NOTE: Use single filenames on single lines!!
+#
+[Name]
+Basic Library
+
+[Description]
+An empty project just containing a LibMain class.
+
+[TemplateType]
+lib
+
+[Headers]
+libmain.h
+
+[Sources]
+libmain.cpp

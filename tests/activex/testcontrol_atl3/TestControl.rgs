@@ -1,0 +1,34 @@
+HKCR
+{
+	AtlTest.TestControl.1 = s 'TestControl Class'
+	{
+		CLSID = s '{88DE4D6E-32D1-11D3-91D9-0080C7B25E70}'
+	}
+	AtlTest.TestControl = s 'TestControl Class'
+	{
+		CLSID = s '{88DE4D6E-32D1-11D3-91D9-0080C7B25E70}'
+		CurVer = s 'AtlTest.TestControl.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {88DE4D6E-32D1-11D3-91D9-0080C7B25E70} = s 'TestControl Class'
+		{
+			ProgID = s 'AtlTest.TestControl.1'
+			VersionIndependentProgID = s 'AtlTest.TestControl'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			ForceRemove 'Control'
+			ForceRemove 'Insertable'
+			ForceRemove 'ToolboxBitmap32' = s '%MODULE%, 101'
+			'MiscStatus' = s '0'
+			{
+			    '1' = s '131473'
+			}
+			'TypeLib' = s '{88DE4D61-32D1-11D3-91D9-0080C7B25E70}'
+			'Version' = s '1.0'
+		}
+	}
+}
