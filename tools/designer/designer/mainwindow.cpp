@@ -240,6 +240,16 @@ MainWindow::MainWindow( bool asClient )
 
 MainWindow::~MainWindow()
 {
+    QValueList<Tab>::Iterator tit;
+    for ( tit = preferenceTabs.begin(); tit != preferenceTabs.end(); ++tit ) {
+	Tab t = *tit;
+	delete t.w;
+    }
+    for ( tit = projectTabs.begin(); tit != projectTabs.end(); ++tit ) {
+	Tab t = *tit;
+	delete t.w;
+    }
+
     QMap< QAction*, Project* >::Iterator it = projects.begin();
     while ( it != projects.end() ) {
 	Project *p = *it;
