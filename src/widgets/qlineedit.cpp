@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#183 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#184 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -1466,6 +1466,7 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 
 	minP = QMIN( minP, QMIN( cursorPos, minMark() ) );
 	maxP = QMAX( maxP, QMAX( cursorPos, maxMark() ) );
+	
 	if ( (alignmentFlag & AlignLeft) && (tbuf == t || tbuf == t.right( tbuf.length() ) ) ) {
 	    int i = 0;
 	    while( i < minP && t[i] == tbuf[i] )
@@ -1481,6 +1482,8 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 	    maxP = i;
 	    repaintArea( minP, maxP );
 	} else {
+	    if ( offset > cursorPos )
+		offset = cursorPos;
 	    tbuf = t;
 	    d->pmDirty = TRUE;
 	    QFontMetrics fm = fontMetrics();
@@ -1527,10 +1530,15 @@ void QLineEdit::insert( const QString &newText )
 	cp = minMark();
     }
     test.insert( cp, t );
-    cp = QMIN( cp+t.length(), (uint)maxLength() );
+    int ncp = QMIN( cp+t.length(), (uint)maxLength() );
     cursorOn = FALSE;
     blinkSlot();
-    validateAndSet( test, cp, cp, cp );
+    if (validateAndSet( test, ncp, ncp, ncp )) {
+	if ( offset > cp ) {
+	    offset = cp;
+	    repaintArea( offset, ncp );
+	}
+    }
 }
 
 
@@ -1585,6 +1593,8 @@ void QLineEdit::repaintArea( int from, int to )
     x2 += margin + 2 + 3;
     if ( x2 > width() - margin + 2 )
 	x2 = width() - margin + 2;
+
+    d->pmDirty = TRUE;
     repaint( x1, margin, x2-x1, height() - 2*margin, FALSE );
 }
 
