@@ -134,15 +134,6 @@
     user to provide a name. If the user clicks \gui{Cancel}, the
     returned file name is empty, and we do nothing.
 
-    If the file already exists, we pop up a QMessageBox asking the
-    user whether the existing file should be overwritten or not. The
-    options are QMessageBox::Yes and QMessageBox::No. The
-    \gui{Yes} button is made the default button (the button that is
-    invoked when the user presses \key{Return}) using the
-    QMessageBox::Default flag; the \gui{No} button is made the escape
-    button (the button that is invoked when the user presses
-    \key{Esc}) using the QMessageBox::Escape flag.
-
     \printline ::about(
     \printuntil /^\}/
 
@@ -267,10 +258,18 @@
 
     The \c maybeSave() function is called to save pending changes. If
     there are pending changes, it pops up a QMessageBox giving the
-    user to save the document. The function returns \c true in all
-    cases, except when the user clicks \gui{Cancel}. The caller must
-    check the return value and stop whatever it was doing if the
-    return value is \c false.
+    user to save the document. The options are QMessageBox::Yes,
+    QMessageBox::No, and QMessageBox::Cancel. The \gui{Yes} button is
+    made the default button (the button that is invoked when the user
+    presses \key{Return}) using the QMessageBox::Default flag; the
+    \gui{Cancel} button is made the escape button (the button that is
+    invoked when the user presses \key{Esc}) using the
+    QMessageBox::Escape flag.
+
+    The \c maybeSave() function returns \c true in all cases, except
+    when the user clicks \gui{Cancel}. The caller must check the
+    return value and stop whatever it was doing if the return value
+    is \c false.
 
     \printline ::loadFile(
     \printuntil /^\}/

@@ -54,8 +54,7 @@ bool MainWindow::save()
     if (curFile.isEmpty()) {
         return saveAs();
     } else {
-        saveFile(curFile);
-        return true;
+        return saveFile(curFile);
     }
 }
 
@@ -65,18 +64,7 @@ bool MainWindow::saveAs()
     if (fileName.isEmpty())
         return false;
 
-    if (QFile::exists(fileName)) {
-        int ret = QMessageBox::warning(this, tr("SDI"),
-                     tr("File %1 already exists.\n"
-                        "Do you want to overwrite it?")
-                     .arg(QDir::convertSeparators(fileName)),
-                     QMessageBox::Yes | QMessageBox::Default,
-                     QMessageBox::No | QMessageBox::Escape);
-        if (ret == QMessageBox::No)
-            return true;
-    }
-    saveFile(fileName);
-    return true;
+    return saveFile(fileName);
 }
 
 void MainWindow::about()
@@ -244,7 +232,7 @@ void MainWindow::loadFile(const QString &fileName)
     statusBar()->showMessage(tr("File loaded"), 2000);
 }
 
-void MainWindow::saveFile(const QString &fileName)
+bool MainWindow::saveFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
@@ -252,7 +240,7 @@ void MainWindow::saveFile(const QString &fileName)
                              tr("Cannot write file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
-        return;
+        return false;
     }
 
     QTextStream out(&file);
@@ -262,6 +250,7 @@ void MainWindow::saveFile(const QString &fileName)
 
     setCurrentFile(fileName);
     statusBar()->showMessage(tr("File saved"), 2000);
+    return true;
 }
 
 void MainWindow::setCurrentFile(const QString &fileName)
