@@ -197,6 +197,9 @@
     </grid>
 </widget>
 <menubar>
+    <property name="name">
+        <cstring>menubar</cstring>
+    </property>
     <item text="&amp;File" name="PopupMenu_2">
         <action name="actionFileOpen"/>
         <action name="actionRefresh"/>
@@ -208,6 +211,9 @@
 </menubar>
 <toolbars>
     <toolbar dock="2" label="Toolbar" name="Toolbar">
+        <property name="name">
+            <cstring>toolbar</cstring>
+        </property>
         <action name="actionFileOpen"/>
         <action name="actionRefresh"/>
         <action name="fileLoadHeader"/>
