@@ -812,7 +812,7 @@ QSqlRecord QSqlDatabase::record( const QSqlQuery& query ) const
     return d->driver->record( query );
 }
 
-/*
+/*!
   Returns a QSqlRecordInfo populated with meta-data about the table (or view)
   \a tablename. If no such table (or view) exists, an empty record is returned.
 
@@ -823,7 +823,7 @@ QSqlRecordInfo QSqlDatabase::recordInfo( const QString& tablename ) const
     return d->driver->recordInfo( tablename );
 }
 
-/* \overload
+/*! \overload
 
     Returns a QSqlRecordInfo object with meta data for the QSqlQuery \a query.
     Note that this overloaded function may return not as much information as
