@@ -117,6 +117,10 @@ void QSqlCursor::setName( const QString& name, bool autopopulate )
     if ( autopopulate ) {
 	*this = driver()->record( name );
 	d->priIndx = driver()->primaryIndex( name );
+#ifdef QT_CHECK_RANGE
+	if ( !count() )
+	    qWarning("QSqlCursor::setName: unable to build record, does %s exist?", name.latin1() );
+#endif	
     }
 }
 
@@ -293,8 +297,8 @@ bool QSqlCursor::select( const QSqlIndex & filter, const QSqlIndex & sort )
 
 /*!
   Sets the cursor mode to \a mode.  This value can be an OR'ed
-  combination of QSqlCursor Modes.  
-  
+  combination of QSqlCursor Modes.
+
   For example,
 
   \code
@@ -304,7 +308,7 @@ bool QSqlCursor::select( const QSqlIndex & filter, const QSqlIndex & sort )
   cursor.setMode( QSqlCursor::Insert | QSqlCursor::Update ); // allow inserts and updates
   ...
   cursor.setMode( QSqlCursor::ReadOnly ); // no inserts/updates/deletes allowed
-  
+
   \endcode
 */
 
@@ -531,7 +535,7 @@ int QSqlCursor::apply( const QString& q, bool invalidate )
     int ar = 0;
     if ( invalidate ) {
 	d->lastAt = QSqlResult::BeforeFirst;
-	if ( exec( q ) )	
+	if ( exec( q ) )
 	    ar = numRowsAffected();
     } else {
 	QSqlQuery sql( driver()->createQuery() );
