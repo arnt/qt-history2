@@ -79,7 +79,7 @@ Ctrl+Z -- Undoes the last action.
 Del -- Deletes the selected GUI elements from the currently active form.
 \i
 
-F1 -- Opens the introductory page of the Qt Designer help in the help browser.
+F1 -- Opens the introductory page of the Qt Designer manual in Qt Assistant.
 \i
 
 Shift-F1 -- Turns on What's This mode, which lets you click on a GUI element in Qt Designer to get a small description window for this element.
