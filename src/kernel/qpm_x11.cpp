@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#41 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#40 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#41 $";
 #endif
 
 
@@ -529,7 +529,7 @@ QImage QPixmap::convertToImage() const
 	char *xidata = xi->data;		// copy each scanline
 	int bpl = image.bytesPerLine();
 	for ( int y=0; y<h; y++ ) {
-	    memcpy( image.scanline(y), xidata, bpl );
+	    memcpy( image.scanLine(y), xidata, bpl );
 	    xidata += xi->bytes_per_line;
 	}
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#39 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#38 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#39 $";
 #endif
 
 
@@ -52,9 +52,9 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#38 $";
     QImage image;
       // sets bit at (x,y) to 1
     if ( image.bitOrder() == QImage::LittleEndian )
-        *(image.scanline(y) + x >> 8) |= 1 << (x & 7);
+        *(image.scanLine(y) + x >> 8) |= 1 << (x & 7);
     else
-        *(image.scanline(y) + x >> 8) |= 1 << (7 -(x & 7));
+        *(image.scanLine(y) + x >> 8) |= 1 << (7 -(x & 7));
   \endcode
 
   If this looks complicated, it might be a good idea to convert the 1-bpp
@@ -68,7 +68,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#38 $";
       // set entry 19 in the color table to yellow
     image.setColor( 19, QRGB(255,255,0) );
       // set 8 bit pixel at (x,y) to value yellow (in color table)
-    *(image.scanline(y) + x) = 19;
+    *(image.scanLine(y) + x) = 19;
   \endcode
 
   24-bpp images do not have a color table, instead each pixel is encoded
@@ -77,7 +77,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#38 $";
   \code
     QImage image;
       // sets 24 bit pixel at (x,y) to yellow.
-    *(image.scanline(y) + 3*x) = QRGB(255, 255, 0);
+    *(image.scanLine(y) + 3*x) = QRGB(255, 255, 0);
   \endcode
 
   The QImage class uses explicit data sharing, similar to that of QArray
@@ -243,7 +243,7 @@ QImage QImage::copy() const
 	else {
 	    int bpl = bytesPerLine();
 	    for ( int y=0; y<height(); y++ )
-		memcpy( image.scanline(y), scanline(y), bpl );
+		memcpy( image.scanLine(y), scanLine(y), bpl );
 	}
 	memcpy( image.colorTable(), colorTable(), numColors()*sizeof(ulong) );
     }
@@ -370,23 +370,23 @@ void QImage::setColor( int i, ulong c )
   \sa bits()
 */
 
-uchar *QImage::scanline( int i ) const
+uchar *QImage::scanLine( int i ) const
 {
 #if defined(CHECK_RANGE)
     if ( i >= data->h )
-	warning( "QImage::scanline: Index %d out of range", i );
+	warning( "QImage::scanLine: Index %d out of range", i );
 #endif
     return data->bits ? data->bits[i] : 0;
 }
 
 /*!
   \fn uchar *QImage::bits() const
-  Returns a pointer to the first pixel data. Similar to scanline(0).
+  Returns a pointer to the first pixel data. Similar to scanLine(0).
 
-  If the image data is segmented (not contiguous), use the scanline() function
+  If the image data is segmented (not contiguous), use the scanLine() function
   to get a pointer to each scanline of image data.
 
-  \sa contiguousBits(), scanline()
+  \sa contiguousBits(), scanLine()
 */
 
 
@@ -701,8 +701,8 @@ static bool convert_8_to_24( const QImage *src, QImage *dst )
 	return FALSE;				// create failed
     int bpl = dst->bytesPerLine();
     for ( int y=0; y<dst->height(); y++ ) {	// for each scan line...
-	register uchar *p = dst->scanline(y);
-	uchar *b = src->scanline(y);
+	register uchar *p = dst->scanLine(y);
+	uchar *b = src->scanLine(y);
 	uchar *end = p + bpl;
 	while ( p < end ) {
 	    *p++ = QRED	 ( src->color(*b) );
@@ -720,8 +720,8 @@ static bool convert_1_to_24( const QImage *src, QImage *dst )
 	return FALSE;				// could not create
     bool big = src->bitOrder() == QImage::BigEndian;
     for ( int y=0; y<dst->height(); y++ ) {	// for each scan line...
-	register uchar *p = dst->scanline(y);
-	uchar *b = src->scanline(y);
+	register uchar *p = dst->scanLine(y);
+	uchar *b = src->scanLine(y);
 	int v;
 	for ( int x=0; x<dst->width(); x++ ) {
 	    v = (big ? *b >> (7 - (x & 7)) : *b >> (x & 7)) & 1;
@@ -744,8 +744,8 @@ static bool convert_1_to_8( const QImage *src, QImage *dst )
     dst->setColor( 1, src->color(1) );
     bool big = src->bitOrder() == QImage::BigEndian;
     for ( int y=0; y<dst->height(); y++ ) {	// for each scan line...
-	register uchar *p = dst->scanline(y);
-	uchar *b = src->scanline(y);
+	register uchar *p = dst->scanLine(y);
+	uchar *b = src->scanLine(y);
 	for ( int x=0; x<dst->width(); x++ ) {
 	    *p++ = (big ? *b >> (7 - (x & 7)) : *b >> (x & 7)) & 1;
 	    if ( (x & 7) == 7 )
@@ -805,7 +805,7 @@ static bool dither_image( const QImage *src, QImage *dst )
 	int *tmp = line1; line1 = line2; line2 = tmp;
 	bool not_last_line = y < h - 1;
 	if ( not_last_line ) {			// calc. grayvals for next line
-	    p = src->scanline(y+1);
+	    p = src->scanLine(y+1);
 	    b2 = line2;
 	    end = b2 + w;
 	    if ( use_gray ) {			// 8 bit image
@@ -844,7 +844,7 @@ static bool dither_image( const QImage *src, QImage *dst )
 	    b2++;
 	}
 	p = bmline;
-	uchar *b = dst->scanline(y);
+	uchar *b = dst->scanLine(y);
 	memset( b, 0, bmwidth );
 	for ( int x=0; x<w; x++ ) {
 	    if ( *p++ )
@@ -928,8 +928,8 @@ QImage QImage::convertBitOrder( QImage::Endian bitOrder ) const
     else {					// segmented data
 	int bpl = bytesPerLine();
 	for ( int y=0; y<height(); y++ ) {
-	    p = scanline(y);
-	    b = image.scanline(y);
+	    p = scanLine(y);
+	    b = image.scanLine(y);
 	    end = p + bpl;
 	    while ( p < end )
 		*b++ = bitflip[*p++];
@@ -1691,7 +1691,7 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
     if ( turn ) {
 	line = (uchar **)malloc( h*sizeof(uchar*) );
 	for ( int i=0; i<h; i++ )
-	    line[i] = image.scanline(h-i-1);
+	    line[i] = image.scanLine(h-i-1);
     }
     else
 	line = image.jumpTable();
@@ -1913,7 +1913,7 @@ static void write_bmp_image( QImageIO *iio )	// write BMP image data
     memset( buf, 0, bpl_bmp );
     for ( int y=image.height()-1; y>=0; y-- ) {// write the image bits
 	if ( depth4 ) {				// convert 8 -> 4 bits
-	    p = image.scanline(y);
+	    p = image.scanLine(y);
 	    b = buf;
 	    end = b + image.width()/2;
 	    while ( b < end ) {
@@ -1924,7 +1924,7 @@ static void write_bmp_image( QImageIO *iio )	// write BMP image data
 		*b = *p << 4;
 	}
 	else if ( flip ) {			// 24 bits: RGB -> BGR
-	    b = image.scanline(y);
+	    b = image.scanLine(y);
 	    p = buf;
 	    end = p + bpl;
 	    while ( p < end ) {
@@ -1935,7 +1935,7 @@ static void write_bmp_image( QImageIO *iio )	// write BMP image data
 	    }
 	}
 	else
-	    memcpy( buf, image.scanline(y), bpl );
+	    memcpy( buf, image.scanLine(y), bpl );
 	d->writeBlock( (char*)buf, bpl_bmp );
     }
     delete buf;
@@ -2032,7 +2032,7 @@ static void read_pbm_image( QImageIO *iio )	// read PBM image data
 	else {
 	    long bpl = image.bytesPerLine();
 	    for ( int i=0; i<h; i++ ) {		// read each scanline
-		if ( d->readBlock((char *)image.scanline(i),bpl) != bpl )
+		if ( d->readBlock((char *)image.scanLine(i),bpl) != bpl )
 		    break;
 	    }
 	}
@@ -2127,7 +2127,7 @@ static void read_xbm_image( QImageIO *iio )	// read X bitmap image data
     image.setColor( 1, QRGB(0,0,0) );		// black
 
     int	   x = 0, y = 0;
-    uchar *b = image.scanline(0);
+    uchar *b = image.scanLine(0);
     char  *p = strstr( buf, "0x" );
     w = (w+7)/8;				// byte width
 
@@ -2136,7 +2136,7 @@ static void read_xbm_image( QImageIO *iio )	// read X bitmap image data
 	    *b++ = hex2byte(p+2);
 	    p += 2;
 	    if ( ++x == w && ++y < h ) {
-		b = image.scanline(y);
+		b = image.scanLine(y);
 		x = 0;
 	    }
 	    p = strstr( p, "0x" );
@@ -2193,7 +2193,7 @@ static void write_xbm_image( QImageIO *iio )	// write X bitmap image data
     }
     int bcnt = 0;
     register char *p = buf;
-    uchar *b = image.scanline(0);
+    uchar *b = image.scanLine(0);
     int	 x=0, y=0;
     long nbytes = image.numBytes();
     w = (w+7)/8;
@@ -2202,7 +2202,7 @@ static void write_xbm_image( QImageIO *iio )	// write X bitmap image data
 	*p++ = hexrep[*b >> 4];
 	*p++ = hexrep[*b++ & 0xf];
 	if ( ++x == w && y < h-1 ) {
-	    b = image.scanline(++y);
+	    b = image.scanLine(++y);
 	    x = 0;
 	}
 	if ( nbytes > 0 ) {

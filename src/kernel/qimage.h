@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#17 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#18 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -48,7 +48,7 @@ public:
     void	setNumColors( int );
 
     uchar      *bits()		const;
-    uchar      *scanline( int ) const;
+    uchar      *scanLine( int ) const;
     uchar     **jumpTable()	const;
     bool	contiguousBits()const;
     ulong      *colorTable()	const;
@@ -188,7 +188,7 @@ inline void QImage::setColor( int i, ulong c )
 	data->ctbl[i] = c;
 }
 
-inline uchar *QImage::scanline( int i ) const
+inline uchar *QImage::scanLine( int i ) const
 {
     return data->bits ? data->bits[i] : 0;
 }
