@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfiledef.h#20 $
+** $Id: //depot/qt/main/src/tools/qfiledef.h#21 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -52,7 +52,6 @@
 #undef OPEN
 #undef CLOSE
 #undef LSEEK
-#undef TELL
 #undef READ
 #undef WRITE
 #undef ACCESS
@@ -84,7 +83,6 @@
 # define OPEN		::_open
 # define CLOSE		::_close
 # define LSEEK		::_lseek
-# define TELL		::_tell
 # define READ		::_read
 # define WRITE		::_write
 # define ACCESS		::_access
@@ -118,7 +116,6 @@
 # define OPEN		::open
 # define CLOSE		::close
 # define LSEEK		::lseek
-# define TELL		::tell
 # define READ		::read
 # define WRITE		::write
 # define ACCESS		::access

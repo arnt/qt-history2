@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#46 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#47 $
 **
 ** Implementation of QFile class
 **
@@ -12,7 +12,7 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#46 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#47 $");
 
 
 /*!
@@ -251,9 +251,11 @@ bool QFile::open( int m )
     }
     bool ok = TRUE;
     if ( isRaw() ) {				// raw file I/O
-	int oflags = 0;
-	if ( isReadable() )
-	    oflags |= OPEN_RDONLY;
+	int oflags = OPEN_RDONLY;
+	if ( isReadable() && isWritable() )
+	    oflags = OPEN_RDWR;
+	else if ( isWritable() )
+	    oflags = OPEN_WRONLY;
 	if ( flags() & IO_Append ) {		// append to end of file?
 	    if ( flags() & IO_Truncate )
 		oflags |= (OPEN_CREAT | OPEN_TRUNC);
@@ -266,8 +268,6 @@ bool QFile::open( int m )
 	    else
 		oflags |= OPEN_CREAT;
 	}
-	if ( isWritable() )
-	    oflags |= isReadable() ? OPEN_RDWR : OPEN_WRONLY;
 #if defined(HAS_TEXT_FILEMODE) && !defined(_OS_MAC_)
 	if ( isTranslated() )
 	    oflags |= OPEN_TEXT;
@@ -425,7 +425,7 @@ bool QFile::open( int m, int f )
 	STATBUF st;
 	FSTAT( fd, &st );
 	length = st.st_size;
-	index  = TELL(fd);
+	index  = LSEEK(fd, 0, SEEK_CUR);
     }
     return TRUE;
 }
