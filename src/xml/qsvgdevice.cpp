@@ -1333,7 +1333,8 @@ void QSvgDevice::applyStyle( QDomElement *e, int c ) const
 	     .arg( pcol.red() ).arg( pcol.green() ).arg( pcol.blue() );
 	s += QString( "stroke-width:0;" );
 	QFont f = pt->font();
-	s += QString( "font-size:%1;" ).arg( f.pointSize() );
+	QFontInfo fi( f );
+	s += QString( "font-size:%1;" ).arg( fi.pixelSize() );
 	s += QString( "font-style:%1;" )
 	     .arg( f.italic() ? "italic" : "normal" );
 	// not a very scientific distribution
