@@ -1200,7 +1200,9 @@ void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int textFlags)
     x += si->x;
     y += si->y;
 
-    fe->draw( this, x,  y, engine, si, textFlags );
+    QGlyphFragment gf = { si->analysis, si->hasPositioning, si->ascent, si->descent, si->width,
+			  si->num_glyphs, engine->glyphs( si ) };
+    fe->draw( this, x,  y, gf, textFlags );
 }
 
 QRect QPainter::boundingRect(int x, int y, int w, int h, int flags, const QString &str, int len,

@@ -66,12 +66,12 @@ QFontEngine::Error QFontEngine::stringToCMap( const QChar *str, int len, QGlyphL
     return NoError;
 }
 
-void QFontEngine::draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags )
+void QFontEngine::draw( QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags )
 {
 #ifndef QT_NO_TRANSFORMATIONS
     if ( p->d->txop > QPainter::TxScale ) {
-	int aw = si->width;
-	int ah = si->ascent + si->descent + 1;
+	int aw = si.width;
+	int ah = si.ascent + si.descent + 1;
 	int tx = 0;
 	int ty = 0;
 	if ( aw == 0 || ah == 0 )
@@ -90,7 +90,7 @@ void QFontEngine::draw( QPainter *p, int x, int y, const QTextEngine *engine, co
 	    QPainter paint(&pm);
 	    paint.fillRect(pm.rect(),Qt::black);
 	    paint.setPen(QPen(Qt::white));
-	    draw( &paint, 0, si->ascent, engine, si, textFlags );
+	    draw( &paint, 0, si.ascent, si, textFlags );
 	    paint.end();
 	    // Now we have an image with r,g,b gray scale set.
 	    // Put this in alpha channel and set pixmap to pen color.
@@ -124,7 +124,7 @@ void QFontEngine::draw( QPainter *p, int x, int y, const QTextEngine *engine, co
 		QPainter paint;
 		paint.begin( &bm );		// draw text in bitmap
 		paint.setPen( p->color1 );
-		draw( &paint, 0, si->ascent, engine, si, textFlags );
+		draw( &paint, 0, si.ascent, si, textFlags );
 		paint.end();
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
 		wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
@@ -137,7 +137,7 @@ void QFontEngine::draw( QPainter *p, int x, int y, const QTextEngine *engine, co
 		}
 	    }
 	}
-	double fx=x, fy=y - si->ascent, nfx, nfy;
+	double fx=x, fy=y - si.ascent, nfx, nfy;
 	mat1.map( fx,fy, &nfx,&nfy );
 	double tfx=tx, tfy=ty, dx, dy;
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
@@ -179,30 +179,30 @@ void QFontEngine::draw( QPainter *p, int x, int y, const QTextEngine *engine, co
 	int lw = lineThickness();
 	GFX(p)->setBrush( p->pen().color() );
 	if ( textFlags & Qt::Underline )
-	    GFX(p)->fillRect( x, y+underlinePosition(), si->width, lw );
+	    GFX(p)->fillRect( x, y+underlinePosition(), si.width, lw );
 	if ( textFlags & Qt::StrikeOut )
-	    GFX(p)->fillRect( x, y-ascent()/3, si->width, lw );
+	    GFX(p)->fillRect( x, y-ascent()/3, si.width, lw );
 	if ( textFlags & Qt::Overline )
-	    GFX(p)->fillRect( x, y-ascent()-1, si->width, lw );
+	    GFX(p)->fillRect( x, y-ascent()-1, si.width, lw );
 	GFX(p)->setBrush( p->brush() );
     }
 
-    if ( si->isSpace )
+    if ( si.isSpace )
 	return;
 
-    QGlyphLayout *glyphs = engine->glyphs( si );
+    QGlyphLayout *glyphs = si->glyphs;
 
     struct Pos {
 	int x;
 	int y;
     };
-    Pos _positions[64];
-    Pos *positions = _positions;
-    if ( si->num_glyphs > 64 )
-	positions = new Pos[si->num_glyphs];
+    QStackArray<Pos>(si.num_glyphs);
+    QStackArray<unsigned short> g(si.num_glyphs);
+    for (int i = 0; i < si.num_glyphs; ++i)
+	g[i] = glyphs[i].glyph;
 
-    if ( si->analysis.bidiLevel % 2 ) {
-	int i = si->num_glyphs;
+    if ( si.analysis.bidiLevel % 2 ) {
+	int i = si.num_glyphs;
 	while( i-- ) {
 	    x += glyphs[i].advance;
 	    glyph_metrics_t gi = boundingBox( glyphs[i].glyph );
@@ -211,20 +211,15 @@ void QFontEngine::draw( QPainter *p, int x, int y, const QTextEngine *engine, co
 	}
     } else {
 	int i = 0;
-	while( i < si->num_glyphs ) {
+	while( i < si.num_glyphs ) {
 	    positions[i].x = x+glyphs[i].offset.x;
 	    positions[i].y = y+glyphs[i].offset.y;
 	    x += glyphs[i].advance;
 	    i++;
 	}
     }
-    QStackArray<unsigned short> g(si->num_glyphs);
-    for (int i = 0; i < si->num_glyphs; ++i)
-	g[i] = glyphs[i].glyph;
-    QConstString cstr( (QChar *)g, si->num_glyphs );
-    GFX(p)->drawGlyphs(handle(), glyphs, (QPoint *)positions, si->num_glyphs);
-    if ( positions != _positions )
-	delete [] positions;
+    QConstString cstr( (QChar *)g, si.num_glyphs );
+    GFX(p)->drawGlyphs(handle(), glyphs, (QPoint *)positions.data(), si.num_glyphs);
 }
 
 glyph_metrics_t QFontEngine::boundingBox( const QGlyphLayout *glyphs, int numGlyphs )

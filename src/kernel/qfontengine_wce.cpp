@@ -156,7 +156,7 @@ QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, QGly
 #define COLOR_VALUE(c) ((p->flags & QPainter::RGBColor) ? RGB(c.red(),c.green(),c.blue()) : c.pixel())
 
 
-void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags )
+void QFontEngineWin::draw( QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags )
 {
     bool force_bitmap = p->rop != QPainter::CopyROP;
     force_bitmap |= p->txop >= QPainter::TxScale
@@ -174,7 +174,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 
 	if ( force_bitmap || p->m11() != p->m22() || p->m12() != -p->m21() ) {
 	    // shearing transformation, have to do the work by hand
-            QRect bbox( 0, 0, si->width, si->ascent + si->descent + 1 );
+            QRect bbox( 0, 0, si.width, si.ascent + si.descent + 1 );
             int w=bbox.width(), h=bbox.height();
             int aw = w, ah = h;
             int tx=-bbox.x(),  ty=-bbox.y();    // text position
@@ -191,14 +191,14 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	    HDC oldDC = hdc;
 	    hdc = paint.handle();
 	    SelectObject( hdc, hfont );
-	    draw( &paint, 0, si->ascent, engine, si, textFlags );
+	    draw( &paint, 0, si.ascent, si, textFlags );
 	    hdc = oldDC;
 	    paint.end();
 	    QBitmap wx_bm = bm.xForm(mat2); // transform bitmap
 	    if (wx_bm.isNull())
 		return;
 
-            double fx=x, fy = y - si->ascent, nfx, nfy;
+            double fx=x, fy = y - si.ascent, nfx, nfy;
             mat1.map( fx,fy, &nfx,&nfy );
             double tfx=tx, tfy=ty, dx, dy;
             mat2.map( tfx, tfy, &dx, &dy );     // compute position of bitmap
@@ -286,16 +286,16 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 
     unsigned int options =  0;
 
-    QGlyphLayout *glyphs = engine->glyphs( si );
+    QGlyphLayout *glyphs = si->glyphs;
 
     if(p->pdev->devType() == QInternal::Printer) {
 	// some buggy printer drivers can't handle glyph indices correctly for latin1
 	// If the string is pure latin1, we output the string directly, not the glyph indices.
 	// There must be a better way to get this working, but currently I can't think of one.
-	const QChar *uc = engine->string.unicode() + si->position;
+	const QChar *uc = engine->string.unicode() + si.position;
 	int l = engine->length(si - &engine->items[0]);
 	int i = 0;
-	bool latin = (l == si->num_glyphs);
+	bool latin = (l == si.num_glyphs);
 	while (latin && i < l) {
 	    if(uc[i].unicode() >= 0x100)
 		latin = FALSE;
@@ -310,11 +310,11 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
     int xo = x;
 
     y -= ascent();
-    if ( !(si->analysis.bidiLevel % 2) ) {
+    if ( !(si.analysis.bidiLevel % 2) ) {
 	// hack to get symbol fonts working on Win95. See also QFontEngine constructor
 	bool haveOffsets = FALSE;
 	int w = 0;
-	for( int i = 0; i < si->num_glyphs; i++ ) {
+	for( int i = 0; i < si.num_glyphs; i++ ) {
 	    if ( glyphs[i].offset.x || glyphs[i].offset.y ) {
 		haveOffsets = TRUE;
 		break;
@@ -323,7 +323,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	}
 
 	if ( haveOffsets || transform ) {
-	    for( int i = 0; i < si->num_glyphs; i++ ) {
+	    for( int i = 0; i < si.num_glyphs; i++ ) {
     		wchar_t chr = *glyphs;
 		int xp = x + glyphs->offset.x;
 		int yp = y + glyphs->offset.y;
@@ -333,16 +333,16 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 		x += glyphs->advance;
 	    }
 	} else {
-	    QStackArray<wchar_t> g(si->num_glyphs);
-	    for (int i = 0; i < si->num_glyphs; ++i)
+	    QStackArray<wchar_t> g(si.num_glyphs);
+	    for (int i = 0; i < si.num_glyphs; ++i)
 		g[i] = glyphs[i].glyph;
 	    // fast path
-	    ExtTextOutW( hdc, x + glyphs->offset.x, y + glyphs->offset.y, options, 0, g, si->num_glyphs, 0 );
+	    ExtTextOutW( hdc, x + glyphs->offset.x, y + glyphs->offset.y, options, 0, g, si.num_glyphs, 0 );
 	    x += w;
 	}
     } else {
-	glyphs += si->num_glyphs;
-	for( int i = 0; i < si->num_glyphs; i++ ) {
+	glyphs += si.num_glyphs;
+	for( int i = 0; i < si.num_glyphs; i++ ) {
 	    glyphs--;
     	    wchar_t chr = glyphs->glyph;
 	    int xp = x + glyphs->offset.x;
@@ -474,7 +474,7 @@ QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *,  int len, QGlyph
     return NoError;
 }
 
-void QFontEngineBox::draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags )
+void QFontEngineBox::draw( QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags )
 {
     Q_UNUSED( p );
     Q_UNUSED( x );

@@ -93,13 +93,13 @@ QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, in
 }
 
 void
-QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags)
+QFontEngineMac::draw(QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags)
 {
     int txop = p->d->txop;
     QWMatrix xmat = p->d->matrix;
 
     if(txop >= QPainter::TxScale) {
-	int aw = si->width, ah = si->ascent + si->descent + 1;
+	int aw = si.width, ah = si.ascent + si.descent + 1;
 	if(aw == 0 || ah == 0)
 	    return;
 	QWMatrix mat1 = xmat, mat2 = QPixmap::trueMatrix(mat1, aw, ah);
@@ -109,7 +109,7 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine, const
 	    QPainter paint;
 	    paint.begin(&bm);		// draw text in bitmap
 	    paint.setPen(Qt::color1);
-	    draw(&paint, 0, si->ascent, engine, si, textFlags);
+	    draw(&paint, 0, si.ascent, si, textFlags);
 	    paint.end();
 	    wx_bm = new QBitmap(bm.xForm(mat2)); // transform bitmap
 	    if(wx_bm->isNull()) {
@@ -131,7 +131,7 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine, const
 	    pm.setMask(bm);
 	}
 	double nfx, nfy;
-	mat1.map(x, y - si->ascent, &nfx, &nfy);
+	mat1.map(x, y - si.ascent, &nfx, &nfy);
 	double dx, dy;
 	mat2.map(0, 0, &dx, &dy);     // compute position of bitmap
 	unclippedBitBlt(p->device(), qRound(nfx-dx), qRound(nfy-dy), &pm, 0, 0, -1, -1, Qt::CopyROP, FALSE, FALSE );
@@ -148,9 +148,9 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine, const
 	mgc->setupQDFont();
     }
 
-    QGlyphLayout *glyphs = engine->glyphs(si);
+    QGlyphLayout *glyphs = si->glyphs;
     if(p->backgroundMode() == Qt::OpaqueMode) {
-	glyph_metrics_t br = boundingBox(glyphs, si->num_glyphs);
+	glyph_metrics_t br = boundingBox(glyphs, si.num_glyphs);
 	p->fillRect(x+br.x, y+br.y, br.width, br.height, p->backgroundColor());
     }
 
@@ -159,27 +159,27 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine, const
     uchar task = DRAW;
     if(textFlags != 0)
 	task |= WIDTH; //I need the width for these..
-    if(si->analysis.bidiLevel % 2 ) {
-	glyphs += si->num_glyphs;
-	for(int i = 0; i < si->num_glyphs; i++) {
+    if(si.analysis.bidiLevel % 2 ) {
+	glyphs += si.num_glyphs;
+	for(int i = 0; i < si.num_glyphs; i++) {
 	    glyphs--;
 	    w += doTextTask((QChar*)glyphs->glyph, 0, 1, 1, task, x, y, p);
 	    x += glyphs->advance;
 	}
     } else {
-	QStackArray<unsigned short>g(si->num_glyphs);
-	for (int i = 0; i < si->num_glyphs; ++i)
+	QStackArray<unsigned short>g(si.num_glyphs);
+	for (int i = 0; i < si.num_glyphs; ++i)
 	    g[i] = glyphs[i].glyph;
-	w = doTextTask((QChar*)g.data(), 0, si->num_glyphs, si->num_glyphs, task, x, y, p);
+	w = doTextTask((QChar*)g.data(), 0, si.num_glyphs, si.num_glyphs, task, x, y, p);
     }
     if(w && textFlags != 0) {
 	int lineWidth = p->fontMetrics().lineWidth();
 	if(textFlags & Qt::Underline)
-	    p->drawRect(x, (y + 2) - (lineWidth / 2), (si->analysis.bidiLevel % 2) ? -w : w, qMax((lineWidth / 2), 1));
+	    p->drawRect(x, (y + 2) - (lineWidth / 2), (si.analysis.bidiLevel % 2) ? -w : w, qMax((lineWidth / 2), 1));
 	if(textFlags & Qt::Overline)
-	    p->drawRect(x, (y - (ascent() + 1)) - (lineWidth / 2), (si->analysis.bidiLevel % 2) ? -w : w, qMax((lineWidth / 2), 1));
+	    p->drawRect(x, (y - (ascent() + 1)) - (lineWidth / 2), (si.analysis.bidiLevel % 2) ? -w : w, qMax((lineWidth / 2), 1));
 	if(textFlags & Qt::StrikeOut)
-	    p->drawRect(x, (y - qMax(1, (ascent() / 3))) - (lineWidth / 2), (si->analysis.bidiLevel % 2) ? -w : w, qMax((lineWidth / 2), 1));
+	    p->drawRect(x, (y - qMax(1, (ascent() / 3))) - (lineWidth / 2), (si.analysis.bidiLevel % 2) ? -w : w, qMax((lineWidth / 2), 1));
     }
 }
 

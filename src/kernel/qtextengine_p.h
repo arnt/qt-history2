@@ -64,8 +64,9 @@ struct glyph_metrics_t
 };
 Q_DECLARE_TYPEINFO(glyph_metrics_t, Q_PRIMITIVE_TYPE);
 
-#if defined( Q_WS_X11 ) || defined ( Q_WS_QWS )
 typedef unsigned short glyph_t;
+
+#if defined( Q_WS_X11 ) || defined ( Q_WS_QWS ) || defined (Q_WS_MAC)
 
 struct qoffset_t {
     short x;
@@ -78,37 +79,8 @@ typedef int advance_t;
 struct QScriptAnalysis
 {
     unsigned short script    : 7;
-    unsigned short bidiLevel : 6;  // Unicode Bidi algorithm embedding level (0-61)
     unsigned short override  : 1;  // Set when in LRO/RLO embedding
-    unsigned short reserved  : 2;
-    bool operator == ( const QScriptAnalysis &other ) {
-	return
-	    script == other.script &&
-	    bidiLevel == other.bidiLevel;
-	// ###
-// 	    && override == other.override;
-    }
-
-};
-Q_DECLARE_TYPEINFO(QScriptAnalysis, Q_PRIMITIVE_TYPE);
-
-#elif defined( Q_WS_MAC )
-
-typedef unsigned short glyph_t;
-
-struct qoffset_t {
-    short x;
-    short y;
-};
-Q_DECLARE_TYPEINFO(qoffset_t, Q_PRIMITIVE_TYPE);
-
-typedef int advance_t;
-
-struct QScriptAnalysis
-{
-    unsigned short script    : 7;
     unsigned short bidiLevel : 6;  // Unicode Bidi algorithm embedding level (0-61)
-    unsigned short override  : 1;  // Set when in LRO/RLO embedding
     unsigned short reserved  : 2;
     bool operator == ( const QScriptAnalysis &other ) {
 	return
@@ -125,8 +97,6 @@ Q_DECLARE_TYPEINFO(QScriptAnalysis, Q_PRIMITIVE_TYPE);
 
 // do not change the definitions below unless you know what you are doing!
 // it is designed to be compatible with the types found in uniscribe.
-
-typedef unsigned short glyph_t;
 
 struct qoffset_t {
     int x;
@@ -243,10 +213,25 @@ private:
     QFontEngine *fontEngine;
 };
 
+
 Q_DECLARE_TYPEINFO(QScriptItem, Q_MOVABLE_TYPE);
 
 typedef QVector<QScriptItem> QScriptItemArray;
 
+struct QScriptLine
+{
+    short descent;
+    short ascent;
+    short width;
+    short x;
+    int y;
+    int position;
+    int nGlyphs;
+    int glyphData;
+};
+Q_DECLARE_TYPEINFO(QScriptLine, Q_PRIMITIVE_TYPE);
+
+typedef QVector<QScriptLine> QScriptLineArray;
 
 struct QGlyphLayout
 {
@@ -255,6 +240,20 @@ struct QGlyphLayout
     qoffset_t offset;
     GlyphAttributes attributes;
 };
+Q_DECLARE_TYPEINFO(QGlyphLayout, Q_PRIMITIVE_TYPE);
+
+
+struct QGlyphFragment
+{
+    QScriptAnalysis analysis;
+    unsigned short hasPositioning : 1;
+    short descent;
+    int ascent;
+    int width;
+    int num_glyphs;
+    QGlyphLayout *glyphs;
+};
+Q_DECLARE_TYPEINFO(QGlyphFragment, Q_PRIMITIVE_TYPE);
 
 
 class QFontPrivate;
@@ -294,19 +293,6 @@ public:
 
     void enableKerning(bool enable) { kern = enable; }
 
-    mutable QScriptItemArray items;
-    QString string;
-    QFontPrivate *fnt;
-    int lineWidth;
-    int widthUsed;
-    int firstItemInLine;
-    int currentItem;
-    QChar::Direction direction : 5;
-    unsigned int haveCharAttributes : 1;
-    unsigned int widthOnly : 1;
-    unsigned int kern : 1;
-    unsigned int reserved : 24;
-
     int length( int item ) const {
 	const QScriptItem &si = items[item];
 	int from = si.position;
@@ -328,6 +314,22 @@ public:
 	if ( num_glyphs - used < nGlyphs )
 	    ((QTextEngine *)this)->reallocate( ( (used + nGlyphs + 16) >> 4 ) << 4 );
     }
+
+
+    mutable QScriptItemArray items;
+    mutable QScriptLineArray lines;
+
+    QString string;
+    QFontPrivate *fnt;
+    int lineWidth;
+    int widthUsed;
+    int firstItemInLine;
+    int currentItem;
+    QChar::Direction direction : 5;
+    unsigned int haveCharAttributes : 1;
+    unsigned int widthOnly : 1;
+    unsigned int kern : 1;
+    unsigned int reserved : 24;
 
     int allocated;
     void **memory;

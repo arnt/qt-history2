@@ -115,7 +115,7 @@ QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *, int len, QGlyphL
     return NoError;
 }
 
-void QFontEngineBox::draw( QPainter *p, int x, int y, const QTextEngine *, const QScriptItem *si, int textFlags )
+void QFontEngineBox::draw( QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags )
 {
     Display *dpy = QX11Info::appDisplay();
     Qt::HANDLE hd = p->device()->handle();
@@ -138,7 +138,7 @@ void QFontEngineBox::draw( QPainter *p, int x, int y, const QTextEngine *, const
 	int xp = x;
 	int yp = _size + 2;
 	int s = _size - 3;
-	for (int k = 0; k < si->num_glyphs; k++) {
+	for (int k = 0; k < si.num_glyphs; k++) {
 	    qt_draw_transformed_rect( p, xp, yp, s, s, FALSE );
 	    xp += _size;
 	}
@@ -147,21 +147,21 @@ void QFontEngineBox::draw( QPainter *p, int x, int y, const QTextEngine *, const
 	    p->map( x, y, &x, &y );
 	XRectangle _rects[32];
 	XRectangle *rects = _rects;
-	if ( si->num_glyphs > 32 )
-	    rects = new XRectangle[si->num_glyphs];
-	for (int k = 0; k < si->num_glyphs; k++) {
+	if ( si.num_glyphs > 32 )
+	    rects = new XRectangle[si.num_glyphs];
+	for (int k = 0; k < si.num_glyphs; k++) {
 	    rects[k].x = x + (k * _size);
 	    rects[k].y = y - _size + 2;
 	    rects[k].width = rects[k].height = _size - 3;
 	}
 
-	XDrawRectangles(dpy, hd, gc, rects, si->num_glyphs);
+	XDrawRectangles(dpy, hd, gc, rects, si.num_glyphs);
 	if ( rects != _rects )
 	    delete [] rects;
     }
 
     if ( textFlags != 0 )
-	drawLines( p, this, y, x, si->num_glyphs*_size, textFlags );
+	drawLines( p, this, y, x, si.num_glyphs*_size, textFlags );
 
 #ifdef FONTENGINE_DEBUG
     x = xp;
@@ -404,12 +404,12 @@ static int x_font_errorhandler(Display *, XErrorEvent *)
 #endif
 
 
-void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags )
+void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags )
 {
-    if ( !si->num_glyphs )
+    if ( !si.num_glyphs )
 	return;
 
-//     qDebug("QFontEngineXLFD::draw( %d, %d, numglyphs=%d", x, y, si->num_glyphs );
+//     qDebug("QFontEngineXLFD::draw( %d, %d, numglyphs=%d", x, y, si.num_glyphs );
 
     Display *dpy = QX11Info::appDisplay();
     Qt::HANDLE hd = p->device()->handle();
@@ -510,7 +510,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
 	}
 	if ( degenerate || xlfd_transformations == XlfdTrUnsupported ) {
 	    // XServer or font don't support server side transformations, need to do it by hand
-            QRect bbox( 0, 0, si->width, si->ascent + si->descent + 1 );
+            QRect bbox( 0, 0, si.width, si.ascent + si.descent + 1 );
             int w=bbox.width(), h=bbox.height();
             int aw = w, ah = h;
             int tx=-bbox.x(), ty=-bbox.y();    // text position
@@ -531,7 +531,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
                 QBitmap bm( aw, ah, TRUE );     // create bitmap
                 QPainter paint;
                 paint.begin( &bm );             // draw text in bitmap
-		draw( &paint, 0, si->ascent, engine, si, textFlags );
+		draw( &paint, 0, si.ascent, si, textFlags );
                 paint.end();
                 wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
                 if ( wx_bm->isNull() ) {
@@ -539,7 +539,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
                     return;
                 }
             }
-            double fx=x, fy=y - si->ascent, nfx, nfy;
+            double fx=x, fy=y - si.ascent, nfx, nfy;
             mat1.map( fx,fy, &nfx,&nfy );
             double tfx=tx, tfy=ty, dx, dy;
             mat2.map( tfx, tfy, &dx, &dy );     // compute position of bitmap
@@ -569,7 +569,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
 #ifdef FONTENGINE_DEBUG
     p->save();
     p->setBrush( Qt::white );
-    glyph_metrics_t ci = boundingBox( glyphs, si->num_glyphs );
+    glyph_metrics_t ci = boundingBox( glyphs, si.num_glyphs );
     p->drawRect( x + ci.x, y + ci.y, ci.width, ci.height );
     p->drawRect( x + ci.x, y + 100 + ci.y, ci.width, ci.height );
      qDebug("bounding rect=%d %d (%d/%d)", ci.x, ci.y, ci.width, ci.height );
@@ -578,19 +578,19 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
     int yp = y;
 #endif
 
-    QGlyphLayout *glyphs = engine->glyphs( si );
+    QGlyphLayout *glyphs = si.glyphs;
 
-    QStackArray<XChar2b> chars(si->num_glyphs);
+    QStackArray<XChar2b> chars(si.num_glyphs);
 
-    for (int i = 0; i < si->num_glyphs; i++) {
+    for (int i = 0; i < si.num_glyphs; i++) {
 	chars[i].byte1 = glyphs[i].glyph >> 8;
 	chars[i].byte2 = glyphs[i].glyph & 0xff;
     }
 
     int xpos = x;
 
-    if ( si->analysis.bidiLevel % 2 ) {
-	int i = si->num_glyphs;
+    if ( si.analysis.bidiLevel % 2 ) {
+	int i = si.num_glyphs;
 	while( i-- ) {
 	    advance_t adv = glyphs[i].advance;
 	    // 	    qDebug("advance = %d/%d", adv.x, adv.y );
@@ -603,9 +603,9 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
 	    XDrawString16(dpy, hd, gc, xp, yp, chars+i, 1 );
 	}
     } else {
-	if ( transform || si->hasPositioning ) {
+	if ( transform || si.hasPositioning ) {
 	    int i = 0;
-	    while( i < si->num_glyphs ) {
+	    while( i < si.num_glyphs ) {
 		int xp = x+glyphs[i].offset.x;
 		int yp = y+glyphs[i].offset.y;
 		if ( transform )
@@ -618,8 +618,8 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
 	    }
 	} else {
 	    // we can take a shortcut
-	    XDrawString16(dpy, hd, gc, x, y, chars, si->num_glyphs );
-	    x += si->width;
+	    XDrawString16(dpy, hd, gc, x, y, chars, si.num_glyphs );
+	    x += si.width;
 	}
     }
 
@@ -631,7 +631,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
     y = yp;
     p->save();
     p->setPen( Qt::red );
-    for ( int i = 0; i < si->num_glyphs; i++ ) {
+    for ( int i = 0; i < si.num_glyphs; i++ ) {
 	glyph_metrics_t ci = boundingBox( glyphs[i].glyph );
 	p->drawRect( x + ci.x + glyphs[i].offset.x, y + 100 + ci.y + glyphs[i].offset.y, ci.width, ci.height );
 	qDebug("bounding ci[%d]=%d %d (%d/%d) / %d %d   offs=(%d/%d) advance=(%d/%d)", i, ci.x, ci.y, ci.width, ci.height,
@@ -1024,17 +1024,16 @@ QFontEngineLatinXLFD::stringToCMap( const QChar *str, int len, QGlyphLayout *gly
     return NoError;
 }
 
-void QFontEngineLatinXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine,
-				 const QScriptItem *si, int textFlags )
+void QFontEngineLatinXLFD::draw( QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags )
 {
-    if ( !si->num_glyphs ) return;
+    if ( !si.num_glyphs ) return;
 
-    QGlyphLayout *glyphs = engine->glyphs( si );
+    QGlyphLayout *glyphs = si.glyphs;
     int which = glyphs[0].glyph >> 8;
 
     int start = 0;
     int end, i;
-    for ( end = 0; end < si->num_glyphs; ++end ) {
+    for ( end = 0; end < si.num_glyphs; ++end ) {
 	const int e = glyphs[end].glyph >> 8;
 	if ( e == which ) continue;
 
@@ -1043,10 +1042,10 @@ void QFontEngineLatinXLFD::draw( QPainter *p, int x, int y, const QTextEngine *e
 	    glyphs[i].glyph = glyphs[i].glyph & 0xff;
 
 	// draw the text
-	QScriptItem si2 = *si;
-	si2.glyph_data_offset = si->glyph_data_offset + start;
+	QGlyphFragment si2 = si;
+	si2.glyphs = si.glyphs + start;
 	si2.num_glyphs = end - start;
-	_engines[which]->draw( p, x, y, engine, &si2, textFlags );
+	_engines[which]->draw( p, x, y, si2, textFlags );
 
 	// reset the high byte for all glyphs and advance to the next sub-string
 	const int hi = which << 8;
@@ -1065,10 +1064,10 @@ void QFontEngineLatinXLFD::draw( QPainter *p, int x, int y, const QTextEngine *e
 	glyphs[i].glyph = glyphs[i].glyph & 0xff;
 
     // draw the text
-    QScriptItem si2 = *si;
-    si2.glyph_data_offset = si->glyph_data_offset + start;
+    QGlyphFragment si2 = si;
+    si2.glyphs = si.glyphs + start;
     si2.num_glyphs = end - start;
-    _engines[which]->draw( p, x, y, engine, &si2, textFlags );
+    _engines[which]->draw( p, x, y, si2, textFlags );
 
     // reset the high byte for all glyphs
     const int hi = which << 8;
@@ -1514,9 +1513,9 @@ void QFontEngineXft::recalcAdvances(int len, QGlyphLayout *glyphs)
 
 
 //#define FONTENGINE_DEBUG
-void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags )
+void QFontEngineXft::draw( QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags )
 {
-    if ( !si->num_glyphs )
+    if ( !si.num_glyphs )
 	return;
 
     Display *dpy = QX11Info::appDisplay();
@@ -1532,7 +1531,7 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	    GC gc = static_cast<QX11GC *>(p->device()->gc())->d->gc;
 
 	    // font doesn't support transformations, need to do it by hand
-            QRect bbox( 0, 0, si->width, si->ascent + si->descent + 1 );
+            QRect bbox( 0, 0, si.width, si.ascent + si.descent + 1 );
             int w=bbox.width(), h=bbox.height();
             int aw = w, ah = h;
             int tx=-bbox.x(), ty=-bbox.y();    // text position
@@ -1547,7 +1546,7 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
                 QBitmap bm( aw, ah, TRUE );     // create bitmap
                 QPainter paint;
                 paint.begin( &bm );             // draw text in bitmap
-                draw( &paint, 0, si->ascent, engine, si, textFlags );
+                draw( &paint, 0, si.ascent, si, textFlags );
                 paint.end();
                 wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
                 if ( wx_bm->isNull() ) {
@@ -1555,7 +1554,7 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
                     return;
                 }
             }
-            double fx=x, fy=y - si->ascent, nfx, nfy;
+            double fx=x, fy=y - si.ascent, nfx, nfy;
             mat1.map( fx,fy, &nfx,&nfy );
             double tfx=tx, tfy=ty, dx, dy;
             mat2.map( tfx, tfy, &dx, &dy );     // compute position of bitmap
@@ -1641,7 +1640,7 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	p->map( x, y, &x, &y );
     }
 
-    QGlyphLayout *glyphs = engine->glyphs( si );
+    QGlyphLayout *glyphs = si.glyphs;
 
     const QColor &pen = static_cast<QX11GC *>(p->device()->gc())->d->cpen.color();
 
@@ -1654,10 +1653,10 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
     col.color.alpha = 0xffff;
     col.pixel = pen.pixel();
 #ifdef FONTENGINE_DEBUG
-    qDebug("===== drawing %d glyphs reverse=%s ======", si->num_glyphs, si->analysis.bidiLevel % 2?"true":"false" );
+    qDebug("===== drawing %d glyphs reverse=%s ======", si.num_glyphs, si.analysis.bidiLevel % 2?"true":"false" );
     p->save();
     p->setBrush( Qt::white );
-    glyph_metrics_t ci = boundingBox( glyphs, si->num_glyphs );
+    glyph_metrics_t ci = boundingBox( glyphs, si.num_glyphs );
     p->drawRect( x + ci.x, y + ci.y, ci.width, ci.height );
     p->drawRect( x + ci.x, y + 100 + ci.y, ci.width, ci.height );
     qDebug("bounding rect=%d %d (%d/%d)", ci.x, ci.y, ci.width, ci.height );
@@ -1667,16 +1666,12 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 #endif
 
     if ( textFlags != 0 )
-	drawLines( p, this, yorig, xorig, si->width, textFlags );
-
-
-    if ( si->isSpace )
-	return;
+	drawLines( p, this, yorig, xorig, si.width, textFlags );
 
 #ifdef QT_XFT2
-    QStackArray<XftGlyphSpec,256> glyphSpec(si->num_glyphs);
-    if ( si->analysis.bidiLevel % 2 ) {
-	int i = si->num_glyphs;
+    QStackArray<XftGlyphSpec,256> glyphSpec(si.num_glyphs);
+    if ( si.analysis.bidiLevel % 2 ) {
+	int i = si.num_glyphs;
 	while( i-- ) {
 	    int xp = x + glyphs[i].offset.x;
 	    int yp = y + glyphs[i].offset.y;
@@ -1689,7 +1684,7 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	}
     } else {
 	int i = 0;
-	while ( i < si->num_glyphs ) {
+	while ( i < si.num_glyphs ) {
 	    int xp = x + glyphs[i].offset.x;
 	    int yp = y + glyphs[i].offset.y;
 	    if ( transform )
@@ -1702,11 +1697,11 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	}
     }
 
-    XftDrawGlyphSpec( draw, &col, fnt, glyphSpec, si->num_glyphs );
+    XftDrawGlyphSpec( draw, &col, fnt, glyphSpec, si.num_glyphs );
 #else
-    if ( transform || si->hasPositioning ) {
-	if ( si->analysis.bidiLevel % 2 ) {
-	    int i = si->num_glyphs;
+    if ( transform || si.hasPositioning ) {
+	if ( si.analysis.bidiLevel % 2 ) {
+	    int i = si.num_glyphs;
 	    while( i-- ) {
 		int xp = x + glyphs[i].offset.x;
 		int yp = y + glyphs[i].offset.y;
@@ -1726,7 +1721,7 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	    }
 	} else {
 	    int i = 0;
-	    while ( i < si->num_glyphs ) {
+	    while ( i < si.num_glyphs ) {
 		int xp = x + glyphs[i].offset.x;
 		int yp = y + glyphs[i].offset.y;
 		if ( transform )
@@ -1742,26 +1737,26 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	// Drawing them as one string increases performance significantly.
 	XftChar16 g[128];
 	XftChar16 *gl = (XftChar16 *)glyphs;
-	if ( si->analysis.bidiLevel % 2 ) {
+	if ( si.analysis.bidiLevel % 2 ) {
 	    gl = g;
-	    if ( si->num_glyphs > 128 )
-		gl = new XftChar16[si->num_glyphs];
-	    for ( int i = 0; i < si->num_glyphs; i++ )
-		gl[i] = glyphs[si->num_glyphs-1-i];
+	    if ( si.num_glyphs > 128 )
+		gl = new XftChar16[si.num_glyphs];
+	    for ( int i = 0; i < si.num_glyphs; i++ )
+		gl[i] = glyphs[si.num_glyphs-1-i];
 	}
-	XftDrawString16( draw, &col, fnt, x, y, gl, si->num_glyphs );
+	XftDrawString16( draw, &col, fnt, x, y, gl, si.num_glyphs );
 	if ( gl != (XftChar16 *)glyphs && gl != g )
 	    delete [] gl;
     }
 #endif
 
 #ifdef FONTENGINE_DEBUG
-    if ( !si->analysis.bidiLevel % 2 ) {
+    if ( !si.analysis.bidiLevel % 2 ) {
 	x = xp;
 	y = yp;
 	p->save();
 	p->setPen( Qt::red );
-	for ( int i = 0; i < si->num_glyphs; i++ ) {
+	for ( int i = 0; i < si.num_glyphs; i++ ) {
 	    glyph_metrics_t ci = boundingBox( glyphs[i] );
 	    p->drawRect( x + ci.x + glyphs[i].offset.x, y + 100 + ci.y + glyphs[i].offset.y, ci.width, ci.height );
 	    qDebug("bounding ci[%d]=%d %d (%d/%d) / %d %d   offs=(%d/%d) advance=%d", i, ci.x, ci.y, ci.width, ci.height,

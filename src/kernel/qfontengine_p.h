@@ -15,6 +15,8 @@
 
 #ifndef QT_H
 #include "qglobal.h"
+#include "qshared.h"
+#include "qfontdata_p.h"
 #endif // QT_H
 
 #ifdef Q_WS_WIN
@@ -28,10 +30,11 @@ class QPaintDevice;
 struct glyph_metrics_t;
 class QChar;
 typedef unsigned short glyph_t;
-struct qoffset_t;
-typedef int advance_t;
 class QOpenType;
 struct TransformedFont;
+
+class QTextEngine;
+struct QGlyphFragment;
 
 #if defined(Q_WS_X11) || defined(Q_WS_WIN) || defined(Q_WS_MAC)
 class QFontEngine : public QShared
@@ -76,7 +79,7 @@ public:
     virtual QOpenType *openType() const { return 0; }
 #endif
 
-    virtual void draw(QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags) = 0;
+    virtual void draw(QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags) = 0;
 
     virtual glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs) = 0;
     virtual glyph_metrics_t boundingBox(glyph_t glyph) = 0;
@@ -173,7 +176,7 @@ public:
     /* returns 0 as glyph index for non existant glyphs */
     Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const;
 
-    void draw(QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags);
+    void draw(QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags);
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
@@ -228,7 +231,7 @@ public:
 
     Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const;
 
-    void draw(QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags);
+    void draw(QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags);
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
@@ -298,7 +301,7 @@ public:
 
     Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const;
 
-    void draw(QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags);
+    void draw(QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags);
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
@@ -352,7 +355,7 @@ public:
 
     Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const;
 
-    void draw(QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags);
+    void draw(QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags);
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
@@ -402,8 +405,7 @@ public:
 
     Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const;
 
-    void draw(QPainter *p, int x, int y, const QTextEngine *engine,
-	       const QScriptItem *si, int textFlags);
+    void draw(QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags);
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
@@ -439,7 +441,6 @@ private:
 };
 
 class QScriptItem;
-class QTextEngine;
 
 #ifndef QT_NO_XFTFREETYPE
 class QOpenType
@@ -506,7 +507,7 @@ public:
 
     Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const;
 
-    void draw(QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags);
+    void draw(QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags);
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
@@ -538,7 +539,7 @@ public:
 
     Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const;
 
-    void draw(QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags);
+    void draw(QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags);
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
@@ -559,17 +560,6 @@ public:
     enum { widthCacheSize = 0x800, cmapCacheSize = 0x500 };
     unsigned char widthCache[widthCacheSize];
 };
-
-#if 0
-class QFontEngineUniscribe : public QFontEngineWin
-{
-public:
-    void draw(QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags);
-    bool canRender(const QChar *string,  int len);
-
-    Type type() const;
-};
-#endif
 
 #endif // Q_WS_WIN
 
