@@ -625,7 +625,7 @@ QMetaObject *QMetaObject::metaObject( const char *class_name )
   \ingroup mainclasses
 
   Property meta data includes type(), name(), and whether a property is
-  writeable(), designable() or stored().
+  writable(), designable() and stored().
 
   The functions isSetType(), isEnumType() and enumKeys() provide
   further information about a property's type. The conversion
@@ -766,12 +766,9 @@ QMetaProperty::~QMetaProperty()
   Returns the name of the property.
  */
 
-/* \obsolete bool QMetaProperty::writable() const
-*/
+/*! \fn bool QMetaProperty::writable() const
 
-/*! \fn bool QMetaProperty::writeable() const
-
-  Returns whether the property is writeable or not.
+  Returns whether the property is writable or not.
 
 */
 

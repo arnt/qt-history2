@@ -677,7 +677,7 @@ bool QSqlCursor::select( const QSqlIndex & filter, const QSqlIndex & sort )
 
   \code
   QSqlCursor cur( "Employee" );
-  cur.setMode( QSqlCursor::Writeable ); // allow insert/update/delete
+  cur.setMode( QSqlCursor::Writable ); // allow insert/update/delete
   ...
   cur.setMode( QSqlCursor::Insert | QSqlCursor::Update ); // allow inserts and updates only
   ...
