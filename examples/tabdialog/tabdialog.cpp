@@ -43,7 +43,8 @@ void TabDialog::setupTab1()
     path->setFrameStyle( QFrame::Panel | QFrame::Sunken );
 
     (void)new QLabel( "Size:", tab1 );
-    QLabel *size = new QLabel( QString( "%1 KB" ).arg( fileinfo.size() ), tab1 );
+    ulong kb = (ulong)(fileinfo.size()/1024);
+    QLabel *size = new QLabel( QString( "%1 KB" ).arg( kb ), tab1 );
     size->setFrameStyle( QFrame::Panel | QFrame::Sunken );
 
     (void)new QLabel( "Last Read:", tab1 );
