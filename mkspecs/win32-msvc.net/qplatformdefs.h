@@ -26,10 +26,17 @@
 #include <windows.h>
 
 #define Q_FS_FAT
+#ifdef QT_LARGE_FILE_SUPPORT
+#define QT_STATBUF		struct _stati64		// non-ANSI defs
+#define QT_STATBUF4TSTAT	struct _stati64		// non-ANSI defs
+#define QT_STAT			::_stati64
+#define QT_FSTAT		::_fstati64
+#else
 #define QT_STATBUF		struct _stat		// non-ANSI defs
 #define QT_STATBUF4TSTAT	struct _stat		// non-ANSI defs
 #define QT_STAT			::_stat
 #define QT_FSTAT		::_fstat
+#endif
 #define QT_STAT_REG		_S_IFREG
 #define QT_STAT_DIR		_S_IFDIR
 #define QT_STAT_MASK		_S_IFMT
@@ -39,7 +46,13 @@
 #define QT_FILENO		_fileno
 #define QT_OPEN			::_open
 #define QT_CLOSE		::_close
+#ifdef QT_LARGE_FILE_SUPPORT
+#define QT_LSEEK		::_lseeki64
+#define QT_TSTAT		::_tstati64
+#else
 #define QT_LSEEK		::_lseek
+#define QT_TSTAT		::_tstat
+#endif
 #define QT_READ			::_read
 #define QT_WRITE		::_write
 #define QT_ACCESS		::_access
