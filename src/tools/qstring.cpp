@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#205 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#206 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -12870,7 +12870,6 @@ void QString::compose()
     {
 	code = at(index);
 	
-/*
 	QLigature ligature(code);
 	ligature.first();
 	while(ligature.current())
@@ -12890,7 +12889,6 @@ void QString::compose()
 	    }
 	    ligature.next();
 	}
-*/
 	
 	index++;
     }
@@ -13805,7 +13803,7 @@ bool QString::findArg(int& pos, int& len) const
 {
     char lowest=0;
     for (uint i=0; i<length(); i++) {
-	if ( at(i) == '%' ) {
+	if ( at(i) == '%' && i+1<length() ) {
 	    char d = at(i+1);
 	    if ( d >= '0' && d <= '9' ) {
 		if ( !lowest || d < lowest ) {
