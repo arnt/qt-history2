@@ -9,7 +9,7 @@ main(int argc, char** argv)
     QApplication app(argc, argv);
     QApplication::setFont( QFont("Helvetica") );
 
-    	QColor c = QColorDialog::getColor();
+    QColor c = QColorDialog::getColor( Qt::green );
     if ( c.isValid() ) {
 
 	QLabel l( "\n\nHello, world\n\n\n\n", 0 ); 
