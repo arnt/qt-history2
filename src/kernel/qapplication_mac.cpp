@@ -228,7 +228,8 @@ enum {
     kEventQtRequestMenubarUpdate = 14,
 #endif
     kEventQtRequestTimer = 15,
-    kEventQtRequestWakeup = 16
+    kEventQtRequestWakeup = 16,
+    kEventQtRequestShowSheet = 17
 };
 static bool request_updates_pending = FALSE;
 void qt_event_request_updates()
@@ -256,6 +257,16 @@ void qt_event_request_select(QEventLoop *loop) {
     PostEventToQueue(GetMainEventQueue(), sel, kEventPriorityStandard);
     ReleaseEvent(sel);
 }
+void qt_event_request_showsheet(QWidget *w)
+{
+    EventRef ctx = NULL;
+    CreateEvent(NULL, kEventClassQt, kEventQtRequestShowSheet, GetCurrentEventTime(),
+		kEventAttributeUserEvent, &ctx );
+    SetEventParameter(ctx, kEventParamQWidget, typeQWidget, sizeof(w), &w);
+    PostEventToQueue(GetMainEventQueue(), ctx, kEventPriorityStandard);
+    ReleaseEvent(ctx);
+}
+    
 static QValueList<WId> request_updates_pending_list;
 void qt_event_request_updates(QWidget *w, const QRegion &r, bool subtract)
 {
@@ -335,6 +346,7 @@ static EventTypeSpec events[] = {
     { kEventClassQt, kEventQtRequestTimer },
     { kEventClassQt, kEventQtRequestWakeup },
     { kEventClassQt, kEventQtRequestSelect },
+    { kEventClassQt, kEventQtRequestShowSheet },
     { kEventClassQt, kEventQtRequestContext },
 #ifndef QMAC_QMENUBAR_NO_NATIVE
     { kEventClassQt, kEventQtRequestMenubarUpdate },
@@ -343,6 +355,7 @@ static EventTypeSpec events[] = {
     { kEventClassQt, kEventQtRequestPropagateWidgetUpdates },
 
     { kEventClassWindow, kEventWindowUpdate },
+    { kEventClassWindow, kEventWindowDrawContent },
     { kEventClassWindow, kEventWindowActivated },
     { kEventClassWindow, kEventWindowDeactivated },
     { kEventClassWindow, kEventWindowShown },
@@ -801,12 +814,12 @@ static int get_key(int modif, int key, int scan)
     return Qt::Key_unknown;
 }
 
-static bool mouse_down_unhandled = FALSE;
-bool QApplication::do_mouse_down(Point *pt)
+bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 {
     QWidget *widget;
     short windowPart = qt_mac_find_window(pt->h, pt->v, &widget);
-    mouse_down_unhandled = FALSE;
+    if(mouse_down_unhandled)
+	(*mouse_down_unhandled) = FALSE;
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
     if(windowPart == inMenuBar) {
 	QMacBlockingFunction block;
@@ -815,7 +828,8 @@ bool QApplication::do_mouse_down(Point *pt)
     } else
 #endif
     if(!widget) {
-	mouse_down_unhandled = TRUE;
+	if(mouse_down_unhandled)
+	    (*mouse_down_unhandled) = TRUE;
 	return FALSE;
     } else if(windowPart == inContent) {
 	return TRUE; //just return and let the event loop process
@@ -1128,6 +1142,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		}
 		delete list;
 	    }
+	} else if(ekind == kEventQtRequestShowSheet) {
+	    QWidget *widget = NULL;
+	    GetEventParameter(event, kEventParamQWidget, typeQWidget, NULL,
+			      sizeof(widget), NULL, &widget);
+	    if(widget) 
+		ShowSheetWindow((WindowPtr)widget->hd, (WindowPtr)widget->parentWidget()->hd);
 	} else if(ekind == kEventQtRequestWakeup) {
 	    request_wakeup_pending = FALSE; 	    //do nothing else, we just woke up!
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
@@ -1309,7 +1329,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    mouse_button_state = after_state;
 	    if(ekind == kEventMouseDown && qt_mac_is_macsheet(activeModalWidget())) {
 		activeModalWidget()->parentWidget()->setActiveWindow(); //sheets have a parent
-		if(!app->do_mouse_down(&where))
+		if(!app->do_mouse_down(&where, NULL))
 		    mouse_button_state = 0;
 	    }
 #ifdef DEBUG_MOUSE_MAPS
@@ -1371,7 +1391,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	}
 
 	if(ekind == kEventMouseDown) {
-	    if(!app->do_mouse_down(&where)) {
+	    bool mouse_down_unhandled;
+	    if(!app->do_mouse_down(&where, &mouse_down_unhandled)) {
 		if(mouse_down_unhandled) {
 		    handled_event = FALSE;
 		    break;
@@ -1751,9 +1772,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    break;
 	}
 
-	if(ekind == kEventWindowUpdate) {
+	if(ekind == kEventWindowUpdate || ekind == kEventWindowDrawContent) {
 	    remove_context_timer = FALSE;
-	    widget->propagateUpdates();
+	    widget->propagateUpdates(ekind == kEventWindowUpdate);
 	} else if(ekind == kEventWindowBoundsChanged) {
 	    handled_event = FALSE;
 	    UInt32 flags;

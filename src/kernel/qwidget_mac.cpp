@@ -68,7 +68,8 @@ int mac_window_count = 0;
 /*****************************************************************************
   Externals
  *****************************************************************************/
-void qt_event_request_updates();
+void qt_event_request_updates(); //qapplication_mac.cpp
+void qt_event_request_showsheet(QWidget *); //qapplication_mac.cpp
 bool qt_nograb();
 RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
 void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
@@ -362,22 +363,31 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
     return FALSE;
 }
 
-static QMAC_PASCAL OSStatus qt_window_event(EventHandlerCallRef er, EventRef event, void *)
+QMAC_PASCAL OSStatus qt_window_event(EventHandlerCallRef er, EventRef event, void *)
 {
     UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);
-    if(eclass == kEventClassWindow && ekind == kEventWindowGetRegion) {
+    if(eclass == kEventClassWindow) {
 	WindowRef wid;
 	GetEventParameter(event, kEventParamDirectObject, typeWindowRef, NULL,
 			  sizeof(WindowRef), NULL, &wid);
-	CallNextEventHandler(er, event);
-	WindowRegionCode wcode;
-	GetEventParameter(event, kEventParamWindowRegionCode, typeWindowRegionCode, NULL,
-			  sizeof(wcode), NULL, &wcode);
-	RgnHandle rgn;
-	GetEventParameter(event, kEventParamRgnHandle, typeQDRgnHandle, NULL,
-			  sizeof(rgn), NULL, &rgn);
-	qt_window_rgn((WId)wid, wcode, rgn, FALSE);
-	return noErr; //we eat the event
+	switch(ekind) {
+	case kEventWindowGetRegion: {
+	    CallNextEventHandler(er, event);
+	    WindowRegionCode wcode;
+	    GetEventParameter(event, kEventParamWindowRegionCode, typeWindowRegionCode, NULL,
+			      sizeof(wcode), NULL, &wcode);
+	    RgnHandle rgn;
+	    GetEventParameter(event, kEventParamRgnHandle, typeQDRgnHandle, NULL,
+			      sizeof(rgn), NULL, &rgn);
+	    qt_window_rgn((WId)wid, wcode, rgn, FALSE);
+	    return noErr; }
+	case kEventWindowDrawContent: {
+	    if(QWidget *widget = QWidget::find((WId)wid)) {
+		widget->propagateUpdates(FALSE); 
+		return noErr; 
+	    }
+	    break; }
+	}
     }
     return CallNextEventHandler(er, event); //let the event go through
 }
@@ -441,11 +451,6 @@ QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn
     if(!widget)
 	widget = QWidget::find( (WId)window );
     if ( widget ) {
-#if defined( Q_WS_MAC9 ) || 1
-	/* this is the right way to do this, and it works very well on mac
-	   9, however macosx is not calling this with the proper region, as
-	   some of the area (usually offscreen) isn't actually processed
-	   here even though it is dirty, so for now this is mac9 only */
 	QRegion reg;
 	CopyRgn(rgn, reg.handle(TRUE));
 	{ //lookup the x and y, don't use qwidget because this callback can be called before its updated
@@ -454,13 +459,6 @@ QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn
 	    LocalToGlobal(&px);
 	    reg.translate(-px.h, -px.v);
 	}
-#else
-	//this is the solution to weird things on demo example (white areas), need
-	//to examine why this happens FIXME!
-	Q_UNUSED(rgn);
-	QRegion reg(0, 0, widget->width(), widget->height());
-#endif
-#ifdef Q_WS_MACX
 	//Clear a nobackground widget to make it transparent
 	if(widget->backgroundMode() == Qt::NoBackground) {
 	    CGContextRef ctx;
@@ -470,13 +468,10 @@ QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn
 	    CGContextFlush(ctx);
 	    CGContextRelease(ctx);
 	}
-#endif
-	qt_paint_children(widget, reg, PC_Now | PC_ForceErase);
-#if defined(MACOSX_102)
-	CopyRgn(rgn, outRgn);	// 10.2 fix for making sure the Window manager updates the area.
-#endif
+	qt_paint_children(widget, reg, PC_NoPaint | PC_ForceErase);
+    } else {
+	CopyRgn(rgn, outRgn);  //We don't know the widget, so let the Mac do the erasing..
     }
-
     return 0;
 }
 
@@ -666,7 +661,11 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	    SetWindowGroup((WindowPtr)id, grp);
 	}
 #endif
+#if 0
+	//We cannot use a window content paint proc because it causes problems on 10.2 (it 
+	//is buggy). We have an outstanding issue with Apple right now.
 	InstallWindowContentPaintProc((WindowPtr)id, NewWindowPaintUPP(qt_erase), 0, this);
+#endif
 	if(testWFlags( WType_Popup ) || testWFlags( WStyle_Tool ) )
 	    SetWindowModality((WindowPtr)id, kWindowModalityNone, NULL);
 	fstrut_dirty = TRUE; // when we create a toplevel widget, the frame strut should be dirty
@@ -1155,9 +1154,9 @@ void QWidget::showWindow()
 
     fstrut_dirty = TRUE;
     dirtyClippedRegion(TRUE);
-    if ( isTopLevel() ) {
+    if(isTopLevel()) {
 	if(qt_mac_is_macsheet(this))
-	    ShowSheetWindow((WindowPtr)hd, (WindowPtr)parentWidget()->hd);
+	    qt_event_request_showsheet(this);
 	else
 	    ShowHide((WindowPtr)hd, 1); 	//now actually show it
 #if 0
@@ -1863,21 +1862,26 @@ void QWidget::setName( const char *name )
     QObject::setName( name );
 }
 
-void QWidget::propagateUpdates()
+void QWidget::propagateUpdates(bool update_rgn)
 {
-    QMacSavedPortInfo savedInfo(this);
     QRegion rgn;
-    GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, rgn.handle(TRUE));
-    if(!rgn.isEmpty()) {
+    if(update_rgn) {
+	QMacSavedPortInfo savedInfo(this);
+	GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, rgn.handle(TRUE));
+	if(rgn.isEmpty()) 
+	    return;
 	rgn.translate(-topLevelWidget()->geometry().x(),
-			    -topLevelWidget()->geometry().y());
+		      -topLevelWidget()->geometry().y());
 #ifdef DEBUG_WINDOW_RGNS
 	debug_wndw_rgn("*****propagatUpdates", topLevelWidget(), rgn, TRUE);
 #endif
 	BeginUpdate((WindowPtr)hd);
-	qt_paint_children( this, rgn );
-	EndUpdate((WindowPtr)hd);
+    } else {
+	rgn = QRegion(rect());
     }
+    qt_paint_children(this, rgn);
+    if(update_rgn)
+	EndUpdate((WindowPtr)hd);
 }
 
 /*!

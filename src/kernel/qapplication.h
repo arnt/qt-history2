@@ -301,7 +301,7 @@ private:
 #endif
 
 #if defined(Q_WS_MAC)
-    bool do_mouse_down(Point *);
+    bool do_mouse_down(Point *, bool *);
     static QMAC_PASCAL OSStatus globalEventProcessor(EventHandlerCallRef,  EventRef, void *);
     static QMAC_PASCAL void qt_context_timer_callbk(EventLoopTimerRef, void *);
     static QMAC_PASCAL void qt_select_timer_callbk(EventLoopTimerRef, void *);
