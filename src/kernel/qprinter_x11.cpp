@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#35 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -24,11 +24,14 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #endif
+#if defined(_WS_X11_)
+#include <X11/Xlib.h>
+#endif
 #if defined(_OS_OS2EMX_)
 #include <process.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#34 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#35 $");
 
 
 /*****************************************************************************
@@ -168,11 +171,16 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    return FALSE;
 		}
 		if ( fork() == 0 ) {	// child process
-		    int i = getdtablesize();
 		    dup2( fds[0], 0 );
-		    while( --i >= 0 )
-			(void)fcntl( i, F_SETFD, ( i > 2 ) ? 1 : 0 );
-		    
+#if defined(_WS_X11_)		    
+		    // it would be better to set CLOEXEC for all file
+		    // descriptors... but that would require
+		    // #ifdeffery, so we just CLOEXEC the X
+		    // connection.  that's the most important one.
+		    extern Display *qt_xdisplay();
+		    int i = XConnectionNumber( qt_xdisplay() );
+		    ::fcntl( i, F_SETFD, FD_CLOEXEC | ::fcntl( i, F_GETFD ) );
+#endif
 		    (void)execlp( print_prog.data(), print_prog.data(),
 				  pr.data(), 0 );
 		    exit( 0 );
