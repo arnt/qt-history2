@@ -55,7 +55,7 @@ Qt::HANDLE QMacInternalPixmapCache::getGWorld(const QPixmap *p)
     SetRect(&rect,0,0,w,h);
     int cost = CALC_COST(pm->data); //some cost
 
-    for(int tries = 1; tries < 10; tries++) { //I'm willing to try 10 times
+    for(int tries = 0; tries < 10; tries++) { //I'm willing to try 10 times
 	QDErr e = 0;
 	const int params = alignPix | stretchPix | newDepth;
 #if 0    
@@ -128,16 +128,23 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     if(!hd)
 	qDebug("Some weirdness! %s %d", __FILE__, __LINE__);
 
+    //setup
+    QMacSavedPortInfo si(this);
 #ifndef ONE_PIXEL_LOCK
     Q_ASSERT(LockPixels(GetGWorldPixMap(hd)));
 #endif
+    RGBColor tmpc;
+    tmpc.red = tmpc.green = tmpc.blue = 0;
+    RGBForeColor(&tmpc);
+    tmpc.red = tmpc.green = tmpc.blue = ~0;
+    RGBBackColor( &tmpc );
 
-    char mode = true32b;
-    SwapMMUMode(&mode);
-
+#ifdef Q_WS_MACX
     long *dptr = (long *)GetPixBaseAddr(GetGWorldPixMap(hd)), *drow, q;
     unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap(hd));
 
+    char mode = true32b;
+    SwapMMUMode(&mode);
     for(int yy=0;yy<h;yy++) {
 	drow = (long *)((char *)dptr + (yy * dbpr));
 	int sy = yy * ((w+7)/8);
@@ -153,8 +160,24 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
 	    *(drow + xx) = q;
 	}
     }
-
     SwapMMUMode(&mode);
+#else
+    // Slow and icky
+    RGBColor r;
+    for(int y=0;y<h;y++) {
+	int sy = y * ((w+7)/8);
+	for(int x=0;x<w;x++) {
+	    char one_bit = *(bits + (sy + (x / 8)));
+	    if(!isXbitmap)
+		one_bit = one_bit >> (7 - (x % 8));
+	    else
+		one_bit = one_bit >> (x % 8);
+	    r.green = r.blue = r.red = one_bit & 0x01? 0 : 255*256;
+	    SetCPixel(x,y,&r);
+	}
+    }
+#endif
+
 #ifndef ONE_PIXEL_LOCK
     UnlockPixels(GetGWorldPixMap(hd));    
 #endif
@@ -254,13 +277,18 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     if(!hd)
 	qDebug("Some weirdness! %s %d", __FILE__, __LINE__);
 
+    //setup
+    QMacSavedPortInfo si(this);
 #ifndef ONE_PIXEL_LOCK
     Q_ASSERT(LockPixels(GetGWorldPixMap(hd)));
 #endif
+    RGBColor tmpc;
+    tmpc.red = tmpc.green = tmpc.blue = 0;
+    RGBForeColor(&tmpc);
+    tmpc.red = tmpc.green = tmpc.blue = ~0;
+    RGBBackColor( &tmpc );
 
-    char mode = true32b;
-    SwapMMUMode(&mode);
-
+#ifdef Q_WS_MACX
     long *dptr = (long *)GetPixBaseAddr(GetGWorldPixMap(hd)), *drow;
     unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap(hd));
 
@@ -270,6 +298,8 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     uchar *sptr = image.bits(), *srow;
     QImage::Endian sord = image.bitOrder();
 
+    char mode = true32b;
+    SwapMMUMode(&mode);
     for(int yy=0;yy<h;yy++) {
  	drow = (long *)((char *)dptr + (yy * dbpr));
 	srow = sptr + (yy * sbpr);
@@ -304,6 +334,20 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	}
     }
     SwapMMUMode(&mode);
+#else
+    //OPTIMIZATION FIXME, we should not be iterating all the pixels, fix this on optimization pass
+    RGBColor r;
+    QRgb q;
+    for(int yy=0;yy<image.height();yy++) {
+	for(int xx=0;xx<image.width();xx++) {
+	    q=image.pixel(xx, yy);
+	    r.red=qRed(q)*256;
+	    r.green=qGreen(q)*256;
+	    r.blue=qBlue(q)*256;
+	    SetCPixel(xx,yy,&r);
+	}
+    }
+#endif
     data->uninit = FALSE;
 
     if ( img.hasAlphaBuffer() ) {
@@ -382,17 +426,25 @@ static QImage convertPixmapToImage(QPixmap::QPixmapData *data, GWorldPtr hd)
     if(!hd)
 	qDebug("Some weirdness! %s %d", __FILE__, __LINE__);
 
+    //setup
+    QMacSavedPortInfo si(NULL); //make sure we set it to null, so I can set the gworld myself
+    SetGWorld((GWorldPtr)hd,0);
 #ifndef ONE_PIXEL_LOCK
     Q_ASSERT(LockPixels(GetGWorldPixMap(hd)));
 #endif
+    RGBColor tmpc;
+    tmpc.red = tmpc.green = tmpc.blue = 0;
+    RGBForeColor(&tmpc);
+    tmpc.red = tmpc.green = tmpc.blue = ~0;
+    RGBBackColor( &tmpc );
 
-    char mode = true32b;
-    SwapMMUMode(&mode);
-    
+#ifdef Q_WS_MACX
     QRgb q;
     long *sptr = (long *)GetPixBaseAddr(GetGWorldPixMap(hd)), *srow, r;
     unsigned short sbpr = GetPixRowBytes(GetGWorldPixMap(hd));
 
+    char mode = true32b;
+    SwapMMUMode(&mode);
     for(int yy=0;yy<h;yy++) {
 	srow = (long *)((char *)sptr + (yy * sbpr));
 	for(int xx=0;xx<w;xx++) {
@@ -409,8 +461,24 @@ static QImage convertPixmapToImage(QPixmap::QPixmapData *data, GWorldPtr hd)
 	    }
 	}
     }
-
     SwapMMUMode(&mode);
+#else
+    RGBColor r;
+    int loopc,loopc2;
+    QRgb q;
+    for(loopc=0;loopc<w;loopc++) {
+	for(loopc2=0;loopc2<h;loopc2++) {
+	    GetCPixel(loopc,loopc2,&r);
+	    q=qRgba(r.red/256,r.green/256,r.blue/256, 0); //FIXME, should I be doing that to the alpha?
+	    if(ncols) {
+		image->setPixel(loopc,loopc2,get_index(image,q));
+	    } else {
+		image->setPixel(loopc,loopc2,q);
+	    }
+	}
+    }
+#endif
+
 #ifndef ONE_PIXEL_LOCK
     UnlockPixels(GetGWorldPixMap(hd));    
 #endif
