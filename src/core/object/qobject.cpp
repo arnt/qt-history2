@@ -1136,7 +1136,10 @@ QObjectList QObject::findChildren(const char *name) const
 #ifndef QT_NO_REGEXP
 QObjectList QObject::findChildren(const QRegExp &re) const
 {
-    return findChildren(re);
+    QList<QObject *> list;
+    findChildren_helper(0, &re, QObject::staticMetaObject,
+                        reinterpret_cast<QList<void *>*>(&list));
+    return list;
 }
 #endif
 
