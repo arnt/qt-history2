@@ -680,8 +680,13 @@ MakefileGenerator::init()
 			    QString("LEXSOURCES"), QString("QMAKE_INTERNAL_INCLUDED_FILES"), QString::null };
     for(int y = 0; paths[y] != QString::null; y++) {
 	QStringList &l = v[paths[y]];
-	if(!l.isEmpty())
-	    l = fileFixify(l);
+	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+	    if ((*it).isEmpty()) 
+		continue;
+	    QString fixed = fileFixify((*it));
+	    if (QFile::exists(fixed))
+		(*it) = fixed;
+	}
     }
 
     /* get deps and mocables */
