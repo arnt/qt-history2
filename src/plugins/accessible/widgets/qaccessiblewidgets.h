@@ -3,7 +3,6 @@
 
 #include <qaccessiblewidget.h>
 
-class QScrollView;
 class QListBox;
 
 class QAccessibleScrollView : public QAccessibleWidget
@@ -20,6 +19,7 @@ class QAccessibleViewport : public QAccessibleWidget
 {
 public:
     QAccessibleViewport(QWidget *o,QWidget *sv);
+    ~QAccessibleViewport();
 
     int                childAt(int x, int y) const;
     int                childCount() const;
@@ -35,8 +35,7 @@ public:
     QVector<int> selection() const;
 
 protected:
-    QAccessibleScrollView *scrollView() const;
-    QScrollView *scrollview;
+    QAccessibleScrollView *scrollview;
 };
 
 class QAccessibleListBox : public QAccessibleScrollView

@@ -15,15 +15,12 @@ QAccessibleViewport::QAccessibleViewport(QWidget *o, QWidget *sv)
     : QAccessibleWidget(o)
 {
     Q_ASSERT(sv->inherits("QScrollView"));
-    scrollview = (QScrollView*)sv;
+    scrollview = static_cast<QAccessibleScrollView *>(queryAccessibleInterface(sv));
 }
 
-QAccessibleScrollView *QAccessibleViewport::scrollView() const
+QAccessibleViewport::~QAccessibleViewport()
 {
-    QAccessibleInterface *iface = queryAccessibleInterface(scrollview);
-    Q_ASSERT(iface);
-    return (QAccessibleScrollView *)iface;
-    // ### M E M L E A K
+    delete scrollview;
 }
 
 int QAccessibleViewport::childAt(int x, int y) const
@@ -33,14 +30,14 @@ int QAccessibleViewport::childAt(int x, int y) const
         return child;
 
     QPoint p = widget()->mapFromGlobal(QPoint(x,y));
-    return scrollView()->itemAt(p.x(), p.y());
+    return scrollview->itemAt(p.x(), p.y());
 }
 
 QRect QAccessibleViewport::rect(int child) const
 {
     if (!child)
         return QAccessibleWidget::rect(child);
-    QRect rect = scrollView()->itemRect(child);
+    QRect rect = scrollview->itemRect(child);
     QPoint tl = widget()->mapToGlobal(QPoint(0,0));
     return QRect(tl.x() + rect.x(), tl.y() + rect.y(), rect.width(), rect.height());
 }
@@ -52,7 +49,7 @@ int QAccessibleViewport::navigate(NavDirection direction, int startControl) cons
         return QAccessibleWidget::navigate(direction, startControl);
 
     // ### call itemUp/Down etc. here
-    const int items = scrollView()->itemCount();
+    const int items = scrollview->itemCount();
     switch(direction) {
     case NavFirstChild:
         return 1;
@@ -75,43 +72,43 @@ int QAccessibleViewport::navigate(NavDirection direction, int startControl) cons
 int QAccessibleViewport::childCount() const
 {
     int widgets = QAccessibleWidget::childCount();
-    return widgets ? widgets : scrollView()->itemCount();
+    return widgets ? widgets : scrollview->itemCount();
 }
 
 QString QAccessibleViewport::text(Text t, int child) const
 {
-    return scrollView()->text(t, child);
+    return scrollview->text(t, child);
 }
 
 bool QAccessibleViewport::doAction(int action, int child, const QVariantList &params)
 {
-    return scrollView()->doAction(action, child, params);
+    return scrollview->doAction(action, child, params);
 }
 
 QAccessible::Role QAccessibleViewport::role(int child) const
 {
-    return scrollView()->role(child);
+    return scrollview->role(child);
 }
 
 int QAccessibleViewport::state(int child) const
 {
-    return scrollView()->state(child);
+    return scrollview->state(child);
 }
 
 bool QAccessibleViewport::setSelected(int child, bool on, bool extend)
 {
-//###    return scrollView()->setSelected(child, on, extend);
+//###    return scrollview->setSelected(child, on, extend);
     return 0;
 }
 
 void QAccessibleViewport::clearSelection()
 {
-//###    scrollView()->clearSelection();
+//###    scrollview->clearSelection();
 }
 
 QVector<int> QAccessibleViewport::selection() const
 {
-//###    return scrollView()->selection();
+//###    return scrollview->selection();
     return QVector<int>();
 }
 
