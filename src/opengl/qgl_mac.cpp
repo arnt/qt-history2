@@ -145,8 +145,8 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
 
 /*!
   <strong>Mac only</strong>: This virtual function tries to find a
-  visual that matches the format, reducing the demands if the original
-  request cannot be met.
+  visual that matches the format using the handle \a device, reducing
+  the demands if the original request cannot be met.
 
   The algorithm for reducing the demands of the format is quite
   simple-minded, so override this method in your subclass if your
