@@ -35,8 +35,9 @@ protected slots:
     void updateMatch();
     void insertMatch();
     void deleteMatch();
-    
+
     void editPlayer();
+    void editTeam();
 
 private:
     QSqlTable * matchTable;

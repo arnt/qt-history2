@@ -74,7 +74,8 @@ void PingPongApp::init()
     // Setup menus
     QPopupMenu * menu = new QPopupMenu( this );
     menu->insertSeparator();
-    menu->insertItem( "&Edit Players", this, SLOT( editPlayer() ), CTRL+Key_E );
+    menu->insertItem( "Edit &Players", this, SLOT( editPlayer() ), CTRL+Key_P );
+    menu->insertItem( "Edit &Teams", this, SLOT( editTeam() ), CTRL+Key_T );    
     menu->insertItem( "&Quit", qApp, SLOT( quit() ), CTRL+Key_Q );
     menuBar()->insertItem( "&File", menu );
 
@@ -174,12 +175,29 @@ void PingPongApp::deleteMatch()
 void PingPongApp::editPlayer()
 {
     QDialog* dlg = new QDialog( this, "playerdialog", TRUE );
+    dlg->setMinimumSize( 320, 240 );
+    dlg->setCaption( "Edit Players" );
     QGridLayout* gl = new QGridLayout( dlg );
     QSqlTable* t = new QSqlTable( dlg );
     gl->addWidget( t, 0, 0);
     QSqlCursor player( "player" );
     player.select( player.index( "name" ) );
     t->setCursor( &player );
+    dlg->exec();
+    delete dlg;
+}
+
+void PingPongApp::editTeam()
+{
+    QDialog* dlg = new QDialog( this, "teamdialog", TRUE );
+    dlg->setMinimumSize( 320, 240 );    
+    dlg->setCaption( "Edit Teams" );    
+    QGridLayout* gl = new QGridLayout( dlg );
+    QSqlTable* t = new QSqlTable( dlg );
+    gl->addWidget( t, 0, 0);
+    QSqlCursor team( "team" );
+    team.select( team.index( "name" ) );
+    t->setCursor( &team );
     dlg->exec();
     delete dlg;
 }
