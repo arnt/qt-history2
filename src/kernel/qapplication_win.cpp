@@ -241,7 +241,8 @@ QRgb qt_colorref2qrgb(COLORREF col)
   Internal variables and functions
  *****************************************************************************/
 
-static char	 appName[120];			// application name
+static char	 appName[256];			// application name
+static char	 appFileName[256];		// application file name
 static HINSTANCE appInst	= 0;		// handle to app instance
 static HINSTANCE appPrevInst	= 0;		// handle to prev app instance
 static int	 appCmdShow	= 0;		// main window show command
@@ -360,13 +361,13 @@ static void set_winapp_name()
     if ( !already_set ) {
 	already_set = TRUE;
 #ifndef Q_OS_TEMP
-	GetModuleFileNameA( 0, appName, sizeof(appName) );
+	GetModuleFileNameA( 0, appFileName, sizeof(appFileName) );
 #else
-	GetModuleFileName( 0, (unsigned short *)qt_winTchar(appName,TRUE), sizeof(appName) );
+	GetModuleFileName( 0, (unsigned short *)qt_winTchar(appFileName,TRUE), sizeof(appFileName) );
 #endif
-	const char *p = strrchr( appName, '\\' );	// skip path
+	const char *p = strrchr( appFileName, '\\' );	// skip path
 	if ( p )
-	    memmove( appName, p+1, qstrlen(p) );
+	    memcpy( appName, p+1, qstrlen(p) );
 	int l = qstrlen( appName );
 	if ( (l > 4) && !qstricmp( appName + l - 4, ".exe" ) )
 	    appName[l-4] = '\0';		// drop .exe extension
@@ -934,13 +935,17 @@ static void msgHandler( QtMsgType t, const char* str )
 #endif
 }
 
+Q_EXPORT const char *qAppFileName()		// get application file name
+{
+    return appFileName;
+}
 
 Q_EXPORT const char *qAppName()			// get application name
 {
     return appName;
 }
 
-Q_EXPORT HINSTANCE qWinAppInst()			// get Windows app handle
+Q_EXPORT HINSTANCE qWinAppInst()		// get Windows app handle
 {
     return appInst;
 }
