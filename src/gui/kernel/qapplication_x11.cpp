@@ -410,6 +410,7 @@ extern bool qt_xdnd_dragging;
 
 // gui or non-gui from qapplication.cpp
 extern bool qt_is_gui_used;
+extern bool qt_app_has_font;
 
 extern bool qt_resolve_symlinks; // from qapplication.cpp
 
@@ -748,9 +749,11 @@ bool QApplication::x11_apply_settings()
         *qt_std_pal = pal;
     }
 
-    QFont font = settings.value(QLatin1String("font"), QApplication::font()).toFont();
-    if (font != QApplication::font())
-        QApplication::setFont(font);
+    if (!qt_app_has_font) {
+        QFont font = settings.value(QLatin1String("font"), QApplication::font()).toFont();
+        if (font != QApplication::font())
+            QApplication::setFont(font);
+    }
 
     // read library (ie. plugin) path list
     QString libpathkey =
@@ -1018,7 +1021,7 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
         resFG = fg;
     if (resBG.isEmpty())
         resBG = bg;
-    if (!resFont.isEmpty()) {                                // set application font
+    if (!qt_app_has_font && !resFont.isEmpty()) { // set application font
         QFont fnt;
         fnt.setRawName(resFont);
 
@@ -1048,7 +1051,6 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
             QApplication::setFont(fnt);
         }
     }
-
 
     if (button || !resBG.isEmpty() || !resFG.isEmpty()) {// set app colors
         QColor btn;
@@ -1277,9 +1279,6 @@ static void qt_check_focus_model()
 /*****************************************************************************
   qt_init() - initializes Qt for X11
  *****************************************************************************/
-
-// need to get default font?
-extern bool qt_app_has_font;
 
 #define XK_MISCELLANY
 #define XK_LATIN1
@@ -1665,6 +1664,8 @@ void qt_init(QApplicationPrivate *priv, int,
     if (qt_is_gui_used) {
         qt_set_input_encoding();
 
+        qt_set_x11_resources(appFont, appFGCol, appBGCol, appBTNCol);
+
         // be smart about the size of the default font. most X servers have helvetica
         // 12 point available at 2 resolutions:
         //     75dpi (12 pixels) and 100dpi (17 pixels).
@@ -1679,8 +1680,6 @@ void qt_init(QApplicationPrivate *priv, int,
             QFont f(X11->has_xft ? "Sans Serif" : "Helvetica", ptsz);
             QApplication::setFont(f);
         }
-
-        qt_set_x11_resources(appFont, appFGCol, appBGCol, appBTNCol);
 
 #ifndef QT_NO_XIM
         if (! xim_preferred_style) // no configured input style, use the default
