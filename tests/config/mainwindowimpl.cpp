@@ -112,18 +112,18 @@ MainWindow::MainWindow()
     effectcheckbox->setChecked(QApplication::isEffectEnabled(UI_General));
     effectbase->setEnabled(effectcheckbox->isChecked());
 
-    if (QApplication::isEffectEnabled(UI_AnimateMenu))
-	menueffect->setCurrentItem(1);
-    else if (QApplication::isEffectEnabled(UI_FadeMenu))
+    if (QApplication::isEffectEnabled(UI_FadeMenu))
 	menueffect->setCurrentItem(2);
+    else if (QApplication::isEffectEnabled(UI_AnimateMenu))
+	menueffect->setCurrentItem(1);
 
     if (QApplication::isEffectEnabled(UI_AnimateCombo))
 	comboeffect->setCurrentItem(1);
 
-    if (QApplication::isEffectEnabled(UI_AnimateTooltip))
-	tooltipeffect->setCurrentItem(1);
-    else if (QApplication::isEffectEnabled(UI_FadeTooltip))
+    if (QApplication::isEffectEnabled(UI_FadeTooltip))
 	tooltipeffect->setCurrentItem(2);
+    else if (QApplication::isEffectEnabled(UI_AnimateTooltip))
+	tooltipeffect->setCurrentItem(1);
 
     strutwidth->setValue(QApplication::globalStrut().width());
     strutheight->setValue(QApplication::globalStrut().height());
