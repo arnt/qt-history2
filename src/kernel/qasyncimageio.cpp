@@ -45,6 +45,7 @@
 
 extern void qt_init_image_handlers();
 
+#define TRANSPARENT 0x00000000
 
 /*!
   \class QImageConsumer qasyncimageio.h
@@ -178,10 +179,12 @@ public:
 	    const uchar* buffer, int length);
 
 private:
-    void fillRect(QImage&, int x, int y, int w, int h, uchar col);
+    void fillRect(QImage&, int x, int y, int w, int h, QRgb col);
+    QRgb color( uchar index ) const;
 
     // GIF specific stuff
     QRgb* globalcmap;
+    QRgb* localcmap;
     QImage backingstore;
     unsigned char hold[16];
     bool gif89;
@@ -209,6 +212,7 @@ private:
 	Error
     } state;
     int gncols;
+    int lncols;
     int ncols;
     int lzwsize;
     bool lcmap;
@@ -217,9 +221,7 @@ private:
     enum Disposal { NoDisposal, DoNotChange, RestoreBackground, RestoreImage };
     Disposal disposal;
     bool disposed;
-    int trans;
     int trans_index;
-    bool preserve_trans;
     bool gcmap;
     int bgcol;
     int interlace;
@@ -598,6 +600,9 @@ bool qt_builtin_gif_reader()
 QGIFFormat::QGIFFormat()
 {
     globalcmap = 0;
+    localcmap = 0;
+    lncols = 0;
+    gncols = 0;
     disposal = NoDisposal;
     out_of_bounds = FALSE;
     disposed = TRUE;
@@ -613,6 +618,7 @@ QGIFFormat::QGIFFormat()
 QGIFFormat::~QGIFFormat()
 {
     if (globalcmap) delete[] globalcmap;
+    if ( localcmap ) delete[] localcmap;
 }
 
 
@@ -668,28 +674,26 @@ void QGIFFormat::disposePrevious( QImage& img, QImageConsumer* consumer )
       case DoNotChange:
 	break;
       case RestoreBackground:
-	preserve_trans = FALSE;
 	if (trans_index>=0) {
 	    // Easy:  we use the transparent color
-	    fillRect(img, l, t, r-l+1, b-t+1, trans_index);
+	    fillRect(img, l, t, r-l+1, b-t+1, TRANSPARENT);
 	} else if (bgcol>=0) {
 	    // Easy:  we use the bgcol given
-	    fillRect(img, l, t, r-l+1, b-t+1, bgcol);
+	    fillRect(img, l, t, r-l+1, b-t+1, color(bgcol));
 	} else {
 	    // Impossible:  We don't know of a bgcol - use pixel 0
-	    uchar** line = img.jumpTable();
+	    QRgb** line = (QRgb **)img.jumpTable();
 	    fillRect(img, l, t, r-l+1, b-t+1, line[0][0]);
 	}
 	if (consumer)
 	    consumer->changed(QRect(l, t, r-l+1, b-t+1));
 	break;
       case RestoreImage: {
-	uchar** line = img.jumpTable();
-	preserve_trans = FALSE;
+	QRgb** line = (QRgb **)img.jumpTable();
 	for (int ln=t; ln<=b; ln++) {
 	    memcpy(line[ln]+l,
 		backingstore.scanLine(ln-t),
-		r-l+1);
+		(r-l+1)*sizeof(QRgb) );
 	}
 	consumer->changed(QRect(l, t, r-l+1, b-t+1));
       }
@@ -715,7 +719,7 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 #define LM(l, m) (((m)<<8)|l)
     digress = FALSE;
     int initial = length;
-    uchar** line = img.jumpTable();
+    QRgb** line = (QRgb **)img.jumpTable();
     while (!digress && length) {
 	length--;
 	unsigned char ch=*buffer++;
@@ -742,16 +746,14 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 		bgcol=(gcmap) ? hold[5] : -1;
 		//aspect=hold[6] ? double(hold[6]+15)/64.0 : 1.0;
 
-		trans = -1;
 		trans_index = -1;
-		preserve_trans = FALSE;
 		count=0;
 		ncols=gncols;
 		if (gcmap) {
 		    ccount=0;
 		    state=GlobalColorMap;
 		    globalcmap = new QRgb[gncols+1]; // +1 for trans_index
-		    globalcmap[gncols] = 0x00000000;
+		    globalcmap[gncols] = TRANSPARENT;
 		} else {
 		    state=Introducer;
 		}
@@ -761,19 +763,13 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 	    hold[count++]=ch;
 	    if (count==3) {
 		QRgb rgb = qRgb(hold[0], hold[1], hold[2]);
-		if ( gncols >= 256 ) {
-		    if (ccount==trans)
-			rgb &= 0x00ffffff;
-		}
 		if ( state == LocalColorMap ) {
-		    if ( ccount < img.numColors() )
-			img.setColor(ccount, rgb);
+		    if ( ccount < lncols )
+			localcmap[ccount] =  rgb;
 		} else {
 		    globalcmap[ccount] = rgb;
 		}
 		if (++ccount >= ncols) {
-		    if ( ncols < img.numColors() && state == LocalColorMap )
-			img.setColor(ncols,0x00000000);
 		    if ( state == LocalColorMap )
 			state=TableImageLZWSize;
 		    else
@@ -819,12 +815,12 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 		    sheight = newtop + height;
 
 		if (img.isNull()) {
-		    img.create(swidth, sheight, 8,
-			(gcmap && gncols < 256) ? gncols+1 : 256);
+		    img.create(swidth, sheight, 32);
+		    memset( img.bits(), 0, img.numBytes() );
 		    if (consumer) consumer->setSize(swidth, sheight);
 		}
-		img.setAlphaBuffer(trans >= 0);
-		line = img.jumpTable();
+		img.setAlphaBuffer(trans_index >= 0);
+		line = (QRgb **)img.jumpTable();
 
 		disposePrevious( img, consumer );
 		disposed = FALSE;
@@ -853,9 +849,12 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 		lcmap=!!(hold[9]&0x80);
 		interlace=!!(hold[9]&0x40);
 		//bool lcmsortflag=!!(hold[9]&0x20);
-		int lncols=lcmap ? (2<<(hold[9]&0x7)) : 0;
+		lncols=lcmap ? (2<<(hold[9]&0x7)) : 0;
 		if (lncols) {
-		    if (lncols > ncols) img.setNumColors(lncols);
+		    if ( localcmap )
+			delete [] localcmap;
+		    localcmap = new QRgb[lncols+1];
+		    localcmap[lncols] = TRANSPARENT;
 		    ncols = lncols;
 		} else {
 		    ncols = gncols;
@@ -865,10 +864,10 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 		    if ( left || top || width!=swidth || height!=sheight ) {
 			// Not full-size image - erase with bg or transparent
 			if ( bgcol>=0 ) {
-			    fillRect(img, 0, 0, swidth, sheight, bgcol);
+			    fillRect(img, 0, 0, swidth, sheight, color(bgcol));
 			    if (consumer) consumer->changed(QRect(0,0,swidth,sheight));
 			} else if ( trans_index > 0 ) {
-			    fillRect(img, 0, 0, swidth, sheight, trans_index);
+			    fillRect(img, 0, 0, swidth, sheight, color(trans_index));
 			    if (consumer) consumer->changed(QRect(0,0,swidth,sheight));
 			}
 		    }
@@ -885,15 +884,14 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 		    if (backingstore.width() < w
 			|| backingstore.height() < h) {
 			// We just use the backing store as a byte array
-			backingstore.create( QMAX(backingstore.width(),
-						  w),
-					     QMAX(backingstore.height(),
-						  h),
-					     8,1);
+			backingstore.create( QMAX(backingstore.width(), w),
+					     QMAX(backingstore.height(), h),
+					     32);
+			memset( img.bits(), 0, img.numBytes() );
 		    }
 		    for (int ln=0; ln<h; ln++) {
 			memcpy(backingstore.scanLine(ln),
-			       line[t+ln]+l, w);
+			       line[t+ln]+l, w*sizeof(QRgb));
 		    }
 		}
 
@@ -902,13 +900,6 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 		    ccount=0;
 		    state=LocalColorMap;
 		} else {
-		    if (gcmap) {
-			int n=ncols; if (n<256) n++; // +1 for trans_index
-			if ( !img.colorTable() || img.numColors() < n )
-			    img.setNumColors( n );
-			memcpy(img.colorTable(), globalcmap,
-			    n * sizeof(QRgb));
-		    }
 		    state=TableImageLZWSize;
 		}
 		x = left;
@@ -986,11 +977,8 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 		    if (needfirst) {
 			firstcode=oldcode=code;
 			if (!out_of_bounds) {
-			    if (firstcode==trans) {
-				if ( !preserve_trans && line )
-				    line[y][x] = trans_index;
-			    } else if ( line ) {
-				line[y][x] = firstcode;
+			    if ( firstcode!=trans_index && line ) {
+				line[y][x] = color(firstcode);
 			    }
 			}
 			x++;
@@ -1037,11 +1025,8 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 			while (sp>stack) {
 			    --sp;
 			    if (!out_of_bounds) {
-				if (*sp==trans) {
-				    if ( !preserve_trans )
-					line[y][x] = trans_index;
-				} else {
-				    line[y][x] = *sp;
+				if ( *sp!=trans_index ) {
+				    line[y][x] = color(*sp);
 				}
 			    }
 			    x++;
@@ -1123,29 +1108,10 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 		disposal=Disposal((hold[1]>>2)&0x7);
 		//UNUSED: waitforuser=!!((hold[1]>>1)&0x1);
 		int delay=count>3 ? LM(hold[2], hold[3]) : 0;
+
 		bool havetrans=hold[1]&0x1;
-		int newtrans=havetrans ? hold[4] : -1;
-		if (newtrans > ncols) {
-		    // Ignore invalid transparency.
-		    newtrans=-1;
-		}
-		if (newtrans >= 0 && frame>=0)
-		    preserve_trans = TRUE;
-		if (newtrans != trans) {
-		    if (trans >= 0 && trans < gncols) {
-			if (globalcmap && trans_index >=0 && trans_index < gncols)
-			    globalcmap[trans_index]|=0xff000000;
-		    }
-		    trans = newtrans;
-		    if ( ncols < 256 )
-			trans_index = ncols;
-		    else
-			trans_index = newtrans;
-		    if (trans >= 0 && trans < gncols) {
-			if (globalcmap && trans_index >=0 && trans_index < gncols)
-			    globalcmap[trans_index]&=0x00ffffff;
-		    }
-		}
+ 		trans_index = havetrans ? hold[4] : -1;
+
 		if (consumer) consumer->setFramePeriod(delay*10);
 		count=0;
 		state=SkipBlockSize;
@@ -1175,12 +1141,14 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
     return initial-length;
 }
 
-void QGIFFormat::fillRect(QImage& img, int col, int row, int w, int h, uchar color)
+void QGIFFormat::fillRect(QImage& img, int col, int row, int w, int h, QRgb color)
 {
     if (w>0) {
-	uchar** line = img.jumpTable() + row;
+	QRgb** line = (QRgb **)img.jumpTable() + row;
 	for (int j=0; j<h; j++) {
-	    memset(line[j]+col, color, w);
+	    for ( int i=0; i<w; i++ ) {
+		*(line[j]+col+i) = color;
+	    }
 	}
     }
 }
@@ -1199,10 +1167,10 @@ void QGIFFormat::nextY(QImage& img, QImageConsumer* consumer)
 	{
 	    int i;
 	    my = QMIN(7, bottom-y);
-	    if ( trans<0 ) // Don't dup with transparency
+	    if ( trans_index < 0 ) // Don't dup with transparency
 		for (i=1; i<=my; i++)
 		    memcpy(img.scanLine(y+i)+left, img.scanLine(y)+left,
-			right-left+1);
+			(right-left+1)*sizeof(QRgb));
 	    if (consumer && !out_of_bounds)
 		consumer->changed(QRect(left, y, right-left+1, my+1));
 	    y+=8;
@@ -1222,10 +1190,10 @@ void QGIFFormat::nextY(QImage& img, QImageConsumer* consumer)
 	{
 	    int i;
 	    my = QMIN(3, bottom-y);
-	    if ( trans<0 ) // Don't dup with transparency
+	    if ( trans_index < 0 ) // Don't dup with transparency
 		for (i=1; i<=my; i++)
 		    memcpy(img.scanLine(y+i)+left, img.scanLine(y)+left,
-			right-left+1);
+			(right-left+1)*sizeof(QRgb));
 	    if (consumer && !out_of_bounds)
 		consumer->changed(QRect(left, y, right-left+1, my+1));
 	    y+=8;
@@ -1241,10 +1209,10 @@ void QGIFFormat::nextY(QImage& img, QImageConsumer* consumer)
 	{
 	    int i;
 	    my = QMIN(1, bottom-y);
-	    if ( trans<0 ) // Don't dup with transparency
+	    if ( trans_index < 0 ) // Don't dup with transparency
 		for (i=1; i<=my; i++)
 		    memcpy(img.scanLine(y+i)+left, img.scanLine(y)+left,
-			right-left+1);
+			(right-left+1)*sizeof(QRgb));
 	    if (consumer && !out_of_bounds)
 		consumer->changed(QRect(left, y, right-left+1, my+1));
 	    y+=4;
@@ -1259,6 +1227,20 @@ void QGIFFormat::nextY(QImage& img, QImageConsumer* consumer)
     // Consume bogus extra lines
     if (y >= sheight) out_of_bounds=TRUE; //y=bottom;
 }
+
+QRgb QGIFFormat::color( uchar index ) const
+{
+    QRgb *map;
+    if ( lcmap ) 
+	map = localcmap;
+    else
+	map =globalcmap;
+    if ( index > ncols )
+	return TRANSPARENT;
+    return map[index];
+}
+    
+    
 
 #endif // QT_BUILTIN_GIF_READER
 
