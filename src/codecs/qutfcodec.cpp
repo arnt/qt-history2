@@ -171,7 +171,7 @@ public:
 			    *qch++ = QChar(low);
 			    headerDone = TRUE;
 			} else {
-			    if (headerDone || QChar(uc) != QChar::byteOrderMark)
+			    if (headerDone || QChar(uc) != QChar(QChar::byteOrderMark))
 				*qch++ = uc;
 			    headerDone = TRUE;
 			}
@@ -288,9 +288,9 @@ public:
 		    ch.setCell( *chars++ );
 		}
 		if ( !headerdone ) {
-		    if ( ch == QChar::byteOrderSwapped ) {
+		    if (ch == QChar(QChar::byteOrderSwapped)) {
 			swap = !swap;
-		    } else if ( ch == QChar::byteOrderMark ) {
+		    } else if (ch == QChar(QChar::byteOrderMark)) {
 			// Ignore ZWNBSP
 		    } else {
 			*qch++ = ch;
