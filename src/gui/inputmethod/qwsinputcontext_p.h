@@ -36,7 +36,7 @@ public:
     void setFocusWidget( QWidget *w );
     void widgetDestroyed(QWidget *w);
 
-    bool isComposing() const { return false; } // ### should be removed
+    bool isComposing() const;
 
     static QWidget *activeWidget();
     static bool translateIMEvent(QWidget *w, const QWSIMEvent *e);

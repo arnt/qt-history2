@@ -85,6 +85,13 @@ QWidget *QWSInputContext::activeWidget()
     return ::activeWidget;
 }
 
+
+bool QWSInputContext::isComposing() const
+{
+    return activeWidget != 0;
+}
+
+
 bool QWSInputContext::translateIMEvent(QWidget *w, const QWSIMEvent *e)
 {
     QString txt(e->text, e->simpleData.textLen);
@@ -106,6 +113,9 @@ bool QWSInputContext::translateIMEvent(QWidget *w, const QWSIMEvent *e)
             attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat,
                                                   cpos + selLen, txt.length() - cpos - selLen,
                                                   qic->standardFormat(QInputContext::PreeditFormat));
+
+        attrs << QInputMethodEvent::Attribute(QInputMethodEvent::Cursor,
+                                              cpos, 0, QVariant());
 
         QInputMethodEvent ime(txt, attrs);
         qt_sendSpontaneousEvent(w, &ime);
