@@ -185,7 +185,7 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
 
     nl = e.parentNode().toElement().elementsByTagName("forward");
     for (i = 0; i < (int) nl.length(); i++)
-        forwardDecl2 << nl.item(i).toElement().firstChild().toText().data();
+        forwardDecl2 << fixDeclaration(nl.item(i).toElement().firstChild().toText().data());
 
     nl = e.parentNode().toElement().elementsByTagName("exportmacro");
     if (nl.length() == 1)
@@ -592,7 +592,7 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
     globalIncludes = unique(globalIncludes);
     for (it = globalIncludes.begin(); it != globalIncludes.end(); ++it) {
         if (!(*it).isEmpty())
-            out << "#include <" << *it << ">" << endl;
+            out << "#include <" << fixHeaderName(*it) << ">" << endl;
     }
 
     if (externPixmaps) {
@@ -606,7 +606,7 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
     localIncludes = unique(localIncludes);
     for (it = localIncludes.begin(); it != localIncludes.end(); ++it) {
         if (!(*it).isEmpty() && *it != QFileInfo(fileName + ".h").fileName())
-            out << "#include \"" << *it << "\"" << endl;
+            out << "#include \"" << fixHeaderName(*it) << "\"" << endl;
     }
 
     QString uiDotH = fileName + ".h";

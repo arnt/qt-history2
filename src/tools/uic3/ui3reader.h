@@ -88,6 +88,7 @@ private:
     void fixActionGroup(DomActionGroup *g);
     QString fixActionProperties(QList<DomProperty*> &properties, bool isActionGroup = false);
 
+    QString fixHeaderName(const QString &headerName) const;
     QString fixClassName(const QString &className) const;
     QString fixDeclaration(const QString &declaration) const;
 

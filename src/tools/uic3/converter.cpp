@@ -406,6 +406,38 @@ QString Ui3Reader::fixClassName(const QString &className) const
     return className;
 }
 
+QString Ui3Reader::fixHeaderName(const QString &headerName) const
+{
+    if (headerName == QLatin1String("qgroupbox.h"))
+        return QLatin1String("q3groupbox.h");
+    else if (headerName == QLatin1String("qdatetimeedit.h"))
+        return QLatin1String("q3datetimeedit.h");
+    else if (headerName == QLatin1String("qtextedit.h"))
+        return QLatin1String("q3textedit.h");
+    else if (headerName == QLatin1String("qurl.h"))
+        return QLatin1String("q3url.h");
+    else if (headerName == QLatin1String("qbuttongroup.h"))
+        return QLatin1String("q3buttongroup.h");
+    else if (headerName == QLatin1String("qcache.h"))
+        return QLatin1String("q3cache.h");
+    else if (headerName == QLatin1String("qtoolbar.h"))
+        return QLatin1String("q3toolbar.h");
+    else if (headerName == QLatin1String("qlistview.h"))
+        return QLatin1String("q3listview.h");
+    else if (headerName == QLatin1String("qheader.h"))
+        return QLatin1String("q3header.h");
+    else if (headerName == QLatin1String("qmainwindow.h"))
+        return QLatin1String("q3mainwindow.h");
+    else if (headerName == QLatin1String("qdockarea.h"))
+        return QLatin1String("q3dockarea.h");
+    else if (headerName == QLatin1String("qdockwindow.h"))
+        return QLatin1String("q3dockwindow.h");
+    else if (headerName == QLatin1String("qfiledialog.h"))
+        return QLatin1String("q3filedialog.h");
+        
+    return headerName;
+}
+
 DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetClass)
 {
     DomWidget *ui_widget = new DomWidget;
