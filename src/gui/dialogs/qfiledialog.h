@@ -30,6 +30,7 @@ class Q_GUI_EXPORT QFileDialog : public QDialog
 
     Q_PROPERTY(ViewMode viewMode READ viewMode WRITE setViewMode)
     Q_PROPERTY(FileMode fileMode READ fileMode WRITE setFileMode)
+    Q_ENUMS(ViewMode FileMode)
 
 public:
     QFileDialog(QWidget *parent);
@@ -57,7 +58,7 @@ public:
     FileMode fileMode() const;
 
     enum Option { DontResolveSymlinks = 0x01, ShowDirsOnly = 0x02 };
-    
+
     Q_DECLARE_FLAGS(Options, Option);
 
     static QString getOpenFileName(QWidget *parent = 0,
@@ -94,7 +95,7 @@ public:
                                                     const QString &caption = QString::null,
                                                     QString *selectedFilter = 0,
                                                     bool resolveSymlinks = true)
-        { Q_UNUSED(name); 
+        { Q_UNUSED(name);
           return getOpenFileName(parent, caption, dir, filter, selectedFilter,
                                  resolveSymlinks ? Option(0) : DontResolveSymlinks); }
 
@@ -104,17 +105,17 @@ public:
                                                     const QString &caption = QString::null,
                                                     QString *selectedFilter = 0,
                                                     bool resolveSymlinks = true)
-        { Q_UNUSED(name); 
+        { Q_UNUSED(name);
           return getSaveFileName(parent, caption, dir, filter, selectedFilter,
                                  resolveSymlinks ? Option(0) : DontResolveSymlinks); }
-    
+
     inline static QString QT_COMPAT getExistingDirectory(const QString &dir,
                                                          QWidget *parent = 0,
                                                          const char* name = 0,
                                                          const QString &caption = QString::null,
                                                          bool dirOnly = true,
                                                          bool resolveSymlinks = true)
-        { Q_UNUSED(name); 
+        { Q_UNUSED(name);
           return getExistingDirectory(parent, caption, dir,
                                       Options((resolveSymlinks ? Option(0) : DontResolveSymlinks)
                                       | (dirOnly ? ShowDirsOnly : Option(0)))); }
@@ -126,7 +127,7 @@ public:
                                                          const QString &caption = QString::null,
                                                          QString *selectedFilter = 0,
                                                          bool resolveSymlinks = true)
-        { Q_UNUSED(name); 
+        { Q_UNUSED(name);
           return getOpenFileNames(parent, caption, dir, filter, selectedFilter,
                                   resolveSymlinks ? Option(0) : DontResolveSymlinks); }
 
