@@ -928,21 +928,11 @@ QPrinter::PaperSource QPrinter::paperSource() const
 //}
 
 /*!
-    \fn void QPrinter::setPageRect(const QRect &pageRect)
-
-    Sets the page rectangle to \a pageRect. This should normally be
-    smaller than the paperRect() since most printers cannot print
-    right to the edge on every side.
-
-    \sa setPageSize() pageRect()
-*/
-
-/*!
     Returns the page's rectangle; this is usually smaller than the
     paperRect() since the page normally has margins between its
     borders and the paper.
 
-    \sa pageSize() setPageRect()
+    \sa pageSize()
 */
 QRect QPrinter::pageRect() const
 {
@@ -950,19 +940,10 @@ QRect QPrinter::pageRect() const
 }
 
 /*!
-    \fn void QPrinter::setPaperRect(const QRect &paperRect)
-
-    Sets the paper's rectangle to \a paperRect. It is usually best to
-    use setPageSize() to set a standard paper size.
-
-    \sa pageSize() paperRect()
-*/
-
-/*!
     Returns the paper's rectangle; this is usually larger than the
     pageRect().
 
-    \sa setPaperRect() setPageSize()
+   \sa pageRect()
 */
 QRect QPrinter::paperRect() const
 {

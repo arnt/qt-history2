@@ -123,10 +123,7 @@ public:
     short winPageSize() const;
 #endif
 
-    void setPaperRect(const QRect &paperRect);
     QRect paperRect() const;
-
-    void setPageRect(const QRect &pageRect);
     QRect pageRect() const;
 
     QString printerSelectionOption() const;
