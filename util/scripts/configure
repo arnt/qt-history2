@@ -230,7 +230,7 @@ then
     # This is a Qt/Embedded distribution
     PLATFORMS="linux-mips-g++ linux-x86-g++"
     case "$UNAME_MACHINE" in
-     *86) ARCH=x86
+     *86) ARCH=x86-
     ;; *) continue
     esac
 else
