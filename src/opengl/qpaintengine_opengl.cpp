@@ -33,6 +33,13 @@
 #define CALLBACK
 #endif
 
+#ifndef GL_MULTISAMPLE
+#define GL_MULTISAMPLE  0x809D
+#endif
+#ifndef GL_MULTISAMPLE_FILTER_HINT_NV
+#define GL_MULTISAMPLE_FILTER_HINT_NV   0x8534
+#endif
+
 // define QT_GL_NO_CONCAVE_POLYGONS to remove support for drawing
 // concave polygons (for speedup purposes)
 
@@ -480,13 +487,10 @@ void QOpenGLPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
     dgl->makeCurrent();
     if (hints & QPainter::Antialiasing) {
-  	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
- 	// glEnable(GL_POLYGON_SMOOTH); // not supported properly - too many artifacts
-	glEnable(GL_LINE_SMOOTH);
-	glEnable(GL_BLEND);
-    } else { // i.e. !Antialiasing
-	// glDisable(GL_POLYGON_SMOOTH);
-	glDisable(GL_LINE_SMOOTH);
+        glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_NICEST);
+        glEnable(GL_MULTISAMPLE);
+    } else {
+        glDisable(GL_MULTISAMPLE);
     }
 }
 
