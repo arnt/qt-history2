@@ -58,6 +58,7 @@ MyView::MyView()
     area->appendParagraph( string );
 
     aStr = QString::fromUtf8(testStr);
+    aStr.compose();
 
     f = new QRichTextFormat(*f);
     f->setFont(fnt);

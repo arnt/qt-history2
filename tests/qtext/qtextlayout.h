@@ -100,10 +100,10 @@ public:
     QTextRow(const QRichTextString &text, int from, int length, QTextRow *previous, int baseline, int width);
     virtual ~QTextRow();
 
-    QTextRow *previousLine() const { return prev; }
-    QTextRow *nextLine() const { return next; }
-    void setPreviousLine(QTextRow *l) { prev = l; }
-    void setNextLine(QTextRow *l) { next = l; }
+    QTextRow *prev() const { return p; }
+    QTextRow *next() const { return n; }
+    void setPrev(QTextRow *l) { p = l; }
+    void setNext(QTextRow *l) { n = l; }
 
     QBidiContext *startEmbedding() { return startEmbed; }
     QBidiContext *endEmbedding() { return endEmbed; }
@@ -119,14 +119,16 @@ public:
     int y() const { return bRect.y(); }
 
     int textWidth() const { return tw; }
-    
+
     void setBoundingRect(const QRect &r);
     QRect boundingRect();
 
+    bool hasComplexText() const { return complexText; }
+    
 private:
-    bool hasComplexText();
+    bool checkComplexText();
     void bidiReorderLine();
-    void drawBuffer( QPainter &painter, int x, int y, const QString &buffer, int startX, 
+    void drawBuffer( QPainter &painter, int x, int y, const QString &buffer, int startX,
 		     int bw, bool drawSelections,
 		     QRichTextFormat *lastFormat, int i, int *selectionStarts,
 		     int *selectionEnds, const QColorGroup &cg );
@@ -144,8 +146,7 @@ private:
     QRichTextString text;
     QRichTextString reorderedText;
 
-    QTextRow *prev;
-    QTextRow *next;
+    QTextRow *p, *n;
 };
 
 // =================================================================
@@ -161,10 +162,15 @@ public:
     void paint(QPainter &p, int x, int y);
     QRichTextString *string() { return &text; }
 
-    QTextRow *firstRow() const { return first; }
-    QTextRow *lastRow() const { return last; }
-    void setFirstRow(QTextRow *r) { first = r; }
-    void setLastRow(QTextRow *r) { last = r; }
+    QParagraph *prev() const { return p; }
+    QParagraph *next() const { return n; }
+    void setPrev( QParagraph *prev ) { p = prev; }
+    void setNext( QParagraph *next ) { n = next; }
+    
+    QTextRow *first() const { return firstRow; }
+    QTextRow *last() const { return lastRow; }
+    void setFirst(QTextRow *r) { firstRow = r; }
+    void setLast(QTextRow *r) { lastRow = r; }
     int x() const { return xPos; }
     int y() const { return yPos; }
 
@@ -176,9 +182,10 @@ protected:
 
 private:
     QTextArea *area;
-    QTextRow *first;
-    QTextRow *last;
-
+    QTextRow *firstRow;
+    QTextRow *lastRow;
+    QParagraph *p, *n;
+    
     QRichTextString text;
 
     int xPos;
@@ -202,13 +209,68 @@ public:
     void insertParagraph(const QRichTextString &, int pos);
     void removeParagraph(int pos);
 
+    QParagraph *firstParagraph() const;
+    QParagraph *lastParagraph() const;
+    
     virtual QParagraph *createParagraph(const QRichTextString &text, QParagraph *before);
 
     void paint(QPainter &p, int x, int y);
 
 private:
     int width;
-    QList<QParagraph> paragraphs;
+    QParagraph *first, *last;
+};
+
+// =================================================================
+
+class QTextAreaCursor
+{
+public:
+    QTextAreaCursor( QTextArea *);
+
+    QTextRow *row() const { return line; }
+    int index() const;
+
+    QParagraph *paragraph() const;
+    void setParagraph( QParagraph *s );
+
+    void gotoLeft();
+    void gotoRight();
+    void gotoUp();
+    void gotoDown();
+    void gotoLineEnd();
+    void gotoLineStart();
+    void gotoHome();
+    void gotoEnd();
+    void gotoPageUp();
+    void gotoPageDown();
+    void gotoWordLeft();
+    void gotoWordRight();
+
+    // ### do that in the cursor? why not move it to the paragraph/TextArea???
+    void insert( const QString &s, bool checkNewLine );
+    void splitAndInsertEmtyParag( bool ind = TRUE, bool updateIds = TRUE );
+    bool remove();
+    void indent();
+
+    bool atParagStart();
+    bool atParagEnd();
+
+    void setIndex( int i );
+
+    bool checkParens();
+    void checkIndex();
+
+private:
+    bool checkOpenParen();
+    bool checkClosedParen();
+
+    QTextRow *line;
+    QParagraph *parag;
+    QTextArea *area;
+    int idx, tmpIndex;
+    int logicalIdx;
+    bool leftToRight;
 };
 
 

@@ -133,16 +133,16 @@ void QRichTextString::setFormat( int index, QRichTextFormat *f, bool useCollecti
   Represents one line of text in a Rich Text drawing area
 */
 QTextRow::QTextRow(const QRichTextString &t, int from, int length, QTextRow *previous, int base, int w)
-    :  start(from), len(length), text(t), prev(previous), reorderedText()
+    :  start(from), len(length), text(t), reorderedText(), p(previous)
 {
     baseline = base;
     tw = w;
-    next = 0;
+    n = 0;
 
     endEmbed = 0;
-    if ( prev ) {
-	bidiStatus = prev->bidiStatus;
-	startEmbed = prev->startEmbedding();
+    if ( p ) {
+	bidiStatus = p->bidiStatus;
+	startEmbed = p->startEmbedding();
     } else {
 	if( basicDirection(text) == QChar::DirL )
 	    startEmbed = new QBidiContext( 0, QChar::DirL );
@@ -151,6 +151,7 @@ QTextRow::QTextRow(const QRichTextString &t, int from, int length, QTextRow *pre
     }
     startEmbed->ref();
     hasComplexText();
+    // ### only reorder when needed
     bidiReorderLine();
 }
 
@@ -179,7 +180,7 @@ void QTextRow::paint(QPainter &painter, int _x, int _y, HAlignment hAlign)
     case AlignRight:
 	_x += bRect.width() - tw;
     }
-        
+
     QRichTextFormat *lastFormat = reorderedText.at(0).format;
     int startX = reorderedText.at(0).x;
     QString buffer = reorderedText.at(0).c;
@@ -282,7 +283,7 @@ QRect QTextRow::boundingRect()
     return bRect;
 }
 
-bool QTextRow::hasComplexText()
+bool QTextRow::checkComplexText()
 {
     complexText = false;
     if(startEmbed->level) {
@@ -344,8 +345,8 @@ void QTextRow::bidiReorderLine()
     context->ref();
 
     QBidiStatus status;
-    if ( prev )
-	status = prev->bidiStatus;
+    if ( p )
+	status = p->bidiStatus;
     QChar::Direction dir = QChar::DirON;
 
     int sor = start;
@@ -863,17 +864,22 @@ QTextArea::QTextArea()
 {
     // ###
     width = 300;
-    paragraphs.setAutoDelete(true);
+    first = last = 0;
 }
 
 QTextArea::~QTextArea()
 {
+    QParagraph *p = first;
+    while( p ) {
+	QParagraph *n = p->next();
+	delete p;
+	p = n;
+    }
 }
 
 QTextArea::QTextArea(int w)
     : width(w)
 {
-    paragraphs.setAutoDelete(true);
 }
 
 /*!
@@ -881,7 +887,11 @@ QTextArea::QTextArea(int w)
 */
 void QTextArea::appendParagraph(const QRichTextString &str)
 {
-    paragraphs.append( createParagraph(str, paragraphs.last()) );
+    QParagraph *p = createParagraph( str, last );
+    if(!first)
+	first = last = p;	
+    if(last) last->setNext(p);
+    last = p;
 }
 
 /*!
@@ -889,9 +899,9 @@ void QTextArea::appendParagraph(const QRichTextString &str)
 */
 void QTextArea::insertParagraph(const QRichTextString &str, int pos)
 {
-    paragraphs.insert( pos, createParagraph( str, paragraphs.at(pos) ) );
-
+#if 0
     // ### relayout the following paragraphs
+#endif
 }
 
 /*!
@@ -915,28 +925,539 @@ QRect QTextArea::lineRect(int x, int y, int h) const
 void QTextArea::paint(QPainter &p, int x, int y)
 {
     //printf("QTextarea::paint\n");
-    QListIterator<QParagraph> it(paragraphs);
-    while(it.current()) {
-	(*it)->paint(p, x, y);
-	++it;
+    QParagraph *par = first;
+    while ( par ) {
+	par->paint(p, x, y);
+	par = par->next();
     }
 }
 
+QParagraph *QTextArea::firstParagraph() const
+{
+    return first;
+}
+
+QParagraph *QTextArea::lastParagraph() const
+{
+    return last;
+}
+    
+
+// ==============================================================
 
 
-// --------------------------------------------------------
 
+QTextAreaCursor::QTextAreaCursor( QTextArea *a )
+    : area( a )
+{
+    logicalIdx = 0;
+    leftToRight = true;
+    parag = area->firstParagraph();
+    line = parag->first();
+    if( line->hasComplexText() ) {
+	if( basicDirection( *parag->string() ) == QChar::DirR ) {
+	    idx = line->length();
+	    leftToRight = false;
+	} else
+	    idx = 0;
+    } else 
+	idx = 0;
+    tmpIndex = -1;
+}
+
+void QTextAreaCursor::insert( const QString &s, bool checkNewLine )
+{
+#if 0
+    tmpIndex = -1;
+    bool justInsert = TRUE;
+    if ( checkNewLine )
+	justInsert = ( s.find( '\n' ) == -1 );
+    if ( justInsert ) {
+	parag->insert( idx, s );
+	idx += s.length();
+    } else {
+	QStringList lst = QStringList::split( '\n', s, TRUE );
+	QStringList::Iterator it = lst.begin();
+	int y = parag->rect().y() + parag->rect().height();
+	for ( ; it != lst.end(); ++it ) {
+	    if ( it != lst.begin() ) {
+		splitAndInsertEmtyParag( FALSE, FALSE );
+		parag->setEndState( -1 );
+		parag->prev()->format( -1, FALSE );
+	    }
+	    QString s = *it;
+	    if ( s.isEmpty() )
+		continue;
+	    parag->insert( idx, s );
+	    idx += s.length();
+	}
+	parag->format( -1, FALSE );
+	int dy = parag->rect().y() + parag->rect().height() - y;
+	QTextEditParag *p = parag->next();
+	while ( p ) {
+	    p->setParagId( p->prev()->paragId() + 1 );
+	    p->move( dy );
+	    p->invalidate( 0 );
+	    p->setEndState( -1 );
+	    p = p->next();
+	}
+    }
+#endif
+}
+
+void QTextAreaCursor::gotoLeft()
+{
+    tmpIndex = -1;
+    if ( idx > 0 ) {
+	idx--;
+    } else if ( line->prev() ) {
+	line = line->prev();
+	// ### wrong in RTL
+	idx = line->length();
+    } else if ( parag->prev() ) {
+	parag = parag->prev();
+	line = parag->last();
+	idx = line->length() - 1;
+    }
+}
+
+void QTextAreaCursor::gotoRight()
+{
+    tmpIndex = -1;
+    if ( idx < line->length() - 1 ) {
+	idx++;
+    } else if ( line->next() ) {
+	line = line->next();
+	idx = 0;
+    } else if ( parag->next() ) {
+	parag = parag->next();
+	line = parag->first();
+	idx = 0;
+    }
+}
+
+void QTextAreaCursor::gotoUp()
+{
+    if ( tmpIndex == -1 ) 
+	tmpIndex = idx;
+    if ( line->prev() ) {
+	line = line->prev();
+    } else if ( parag->prev() ) {
+	parag = parag->prev();
+	line = parag->last();
+    } else
+	return;
+    idx = QMAX(line->length(), tmpIndex);
+}
+
+void QTextAreaCursor::gotoDown()
+{
+    if ( tmpIndex == -1 ) 
+	tmpIndex = idx;
+    if ( line->next() ) {
+	line = line->next();
+    } else if ( parag->next() ) {
+	parag = parag->next();
+	line = parag->first();
+    } else
+	return;
+    idx = QMAX(line->length(), tmpIndex);
+}
+
+void QTextAreaCursor::gotoLineEnd()
+{
+    idx = line->length() - 1;
+}
+
+void QTextAreaCursor::gotoLineStart()
+{
+    idx = 0;
+}
+
+void QTextAreaCursor::gotoHome()
+{
+    tmpIndex = -1;
+    parag = area->firstParagraph();
+    idx = 0;
+}
+
+void QTextAreaCursor::gotoEnd()
+{
+    tmpIndex = -1;
+    parag = area->lastParagraph();
+    line = parag->last();
+    idx = line->length() - 1;
+}
+
+void QTextAreaCursor::gotoPageUp()
+{
+#if 0
+    tmpIndex = -1;
+    QTextEditParag *s = parag;
+    int h = view->visibleHeight();
+    int y = s->rect().y();
+    while ( s ) {
+	if ( y - s->rect().y() >= h )
+	    break;
+	s = s->prev();
+    }
+
+    if ( !s )
+	s = doc->firstParag();
+
+    parag = s;
+    idx = 0;
+#endif
+}
+
+void QTextAreaCursor::gotoPageDown()
+{
+#if 0
+    tmpIndex = -1;
+    QTextEditParag *s = parag;
+    int h = view->visibleHeight();
+    int y = s->rect().y();
+    while ( s ) {
+	if ( s->rect().y() - y >= h )
+	    break;
+	s = s->next();
+    }
+
+    if ( !s )
+	s = doc->lastParag();
+
+    if ( !s->isValid() )
+	return;
+
+    parag = s;
+    idx = 0;
+#endif
+}
+
+void QTextAreaCursor::gotoWordLeft()
+{
+#if 0
+    gotoLeft();
+    tmpIndex = -1;
+    QTextEditString *s = parag->parag();
+    bool allowSame = FALSE;
+    for ( int i = idx - 1; i >= 0; --i ) {
+	if ( s->at( i ).c.isSpace() || s->at( i ).c == '\t' ) {
+	    if ( !allowSame && s->at( i ).c == s->at( idx ).c )
+		continue;
+	    idx = i + 1;
+	    return;
+	}
+	if ( !allowSame && s->at( i ).c != s->at( idx ).c )
+	    allowSame = TRUE;
+    }
+
+    if ( parag->prev() ) {
+	parag = parag->prev();
+	idx = parag->length() - 1;
+    } else {
+	gotoLineStart();
+    }
+#endif
+}
+
+void QTextAreaCursor::gotoWordRight()
+{
+#if 0
+    tmpIndex = -1;
+    QTextEditParag *s = parag->string();
+    bool allowSame = FALSE;
+    for ( int i = idx + 1; i < (int)s->length(); ++i ) {
+	if ( s->at( i ).c.isSpace() || s->at( i ).c == '\t' ) {
+	    if ( !allowSame &&  s->at( i ).c == s->at( idx ).c )
+		continue;
+	    idx = i;
+	    return;
+	}
+	if ( !allowSame && s->at( i ).c != s->at( idx ).c )
+	    allowSame = TRUE;
+    }
+
+    if ( parag->next() ) {
+	parag = parag->next();
+	idx = 0;
+    } else {
+	gotoLineEnd();
+    }
+#endif
+}
+
+bool QTextAreaCursor::atParagStart()
+{
+    return (line == parag->first() && idx == 0);
+}
+
+bool QTextAreaCursor::atParagEnd()
+{
+    return (line == parag->last() && idx == line->length() - 1);
+}
+
+void QTextAreaCursor::splitAndInsertEmtyParag( bool ind, bool updateIds )
+{
+#if 0
+    tmpIndex = -1;
+    QTextEditFormat *f = 0;
+    if ( !doc->syntaxHighlighter() )
+	f = parag->at( idx )->format;
+
+    if ( atParagStart() ) {
+	QTextEditParag *p = parag->prev();
+	QTextEditParag *s = new QTextEditParag( doc, p, parag, updateIds );
+	s->append( " " );
+	if ( f )
+	    s->setFormat( 0, 1, f, TRUE );
+	s->setType( parag->type() );
+	s->setListDepth( parag->listDepth() );
+	s->setAlignment( parag->alignment() );
+	if ( ind ) {
+	    s->indent();
+	    s->format();
+	    indent();
+	    parag->format();
+	}
+    } else if ( atParagEnd() ) {
+	QTextEditParag *n = parag->next();
+	QTextEditParag *s = new QTextEditParag( doc, parag, n, updateIds );
+	s->append( " " );
+	if ( f )
+	    s->setFormat( 0, 1, f, TRUE );
+	s->setType( parag->type() );
+	s->setListDepth( parag->listDepth() );
+	s->setAlignment( parag->alignment() );
+	if ( ind ) {
+	    int oi, ni;
+	    s->indent( &oi, &ni );
+	    parag = s;
+	    idx = ni;
+	} else {
+	    parag = s;
+	    idx = 0;
+	}
+    } else {
+	QString str = parag->string()->toString().mid( idx, 0xFFFFFF );
+	parag->truncate( idx );
+	QTextEditParag *n = parag->next();
+	QTextEditParag *s = new QTextEditParag( doc, parag, n, updateIds );
+	s->setType( parag->type() );
+	s->setListDepth( parag->listDepth() );
+	s->setAlignment( parag->alignment() );
+	s->append( str );
+	if ( f )
+	    s->setFormat( 0, str.length(), f, TRUE );
+	if ( ind ) {
+	    int oi, ni;
+	    s->indent( &oi, &ni );
+	    parag = s;
+	    idx = ni;
+	} else {
+	    parag = s;
+	    idx = 0;
+	}
+    }
+#endif
+}
+
+bool QTextAreaCursor::remove()
+{
+#if 0
+    tmpIndex = -1;
+    if ( !atParagEnd() ) {
+	parag->remove( idx, 1 );
+	return FALSE;
+    } else if ( parag->next() ) {
+	parag->join( parag->next() );
+	return TRUE;
+    }
+    return FALSE;
+#endif
+}
+
+void QTextAreaCursor::indent()
+{
+#if 0
+    int oi = 0, ni = 0;
+    parag->indent( &oi, &ni );
+    if ( oi == ni )
+	return;
+
+    if ( idx >= oi )
+	idx += ni - oi;
+    else
+	idx = ni;
+#endif
+}
+
+bool QTextAreaCursor::checkOpenParen()
+{
+#if 0
+    if ( !doc->isParenCheckingEnabled() )
+	return FALSE;
+
+    QTextEditParag::ParenList parenList = parag->parenList();
+
+    QTextEditParag::Paren openParen, closedParen;
+    QTextEditParag *closedParenParag = parag;
+
+    int i = 0;
+    int ignore = 0;
+    bool foundOpen = FALSE;
+    QChar c = parag->at( idx )->c;
+    while ( TRUE ) {
+	if ( !foundOpen ) {
+	    if ( i >= (int)parenList.count() )
+		goto aussi;
+	    openParen = parenList[ i ];
+	    if ( openParen.pos != idx ) {
+		++i;
+		continue;
+	    } else {
+		foundOpen = TRUE;
+		++i;
+	    }
+	}
+	
+	if ( i >= (int)parenList.count() ) {
+	    while ( TRUE ) {
+		closedParenParag = closedParenParag->next();
+		if ( !closedParenParag )
+		    goto aussi;
+		if ( closedParenParag->parenList().count() > 0 ) {
+		    parenList = closedParenParag->parenList();
+		    break;
+		}
+	    }
+	    i = 0;
+	}
+	
+	closedParen = parenList[ i ];
+	if ( closedParen.type == QTextEditParag::Paren::Open ) {
+	    ignore++;
+	    ++i;
+	    continue;
+	} else {
+	    if ( ignore > 0 ) {
+		ignore--;
+		++i;
+		continue;
+	    }
+	
+	    int id = QTextEditDocument::ParenMatch;
+	    if ( c == '{' && closedParen.chr != '}' ||
+		 c == '(' && closedParen.chr != ')' ||
+		 c == '[' && closedParen.chr != ']' )
+		id = QTextEditDocument::ParenMismatch;
+	    doc->setSelectionStart( id, this );
+	    int tidx = idx;
+	    QTextEditParag *tparag = parag;
+	    idx = closedParen.pos + 1;
+	    parag = closedParenParag;
+	    doc->setSelectionEnd( id, this );
+	    parag = tparag;
+	    idx = tidx;
+	    return TRUE;
+	}
+	
+	++i;
+    }
+
+#endif
+ aussi:
+    return FALSE;
+}
+
+bool QTextAreaCursor::checkClosedParen()
+{
+#if 0
+    if ( !doc->isParenCheckingEnabled() )
+	return FALSE;
+
+    QTextEditParag::ParenList parenList = parag->parenList();
+
+    QTextEditParag::Paren openParen, closedParen;
+    QTextEditParag *openParenParag = parag;
+
+    int i = parenList.count() - 1;
+    int ignore = 0;
+    bool foundClosed = FALSE;
+    QChar c = parag->at( idx - 1 )->c;
+    while ( TRUE ) {
+	if ( !foundClosed ) {
+	    if ( i < 0 )
+		goto aussi;
+	    closedParen = parenList[ i ];
+	    if ( closedParen.pos != idx - 1 ) {
+		--i;
+		continue;
+	    } else {
+		foundClosed = TRUE;
+		--i;
+	    }
+	}
+	
+	if ( i < 0 ) {
+	    while ( TRUE ) {
+		openParenParag = openParenParag->prev();
+		if ( !openParenParag )
+		    goto aussi;
+		if ( openParenParag->parenList().count() > 0 ) {
+		    parenList = openParenParag->parenList();
+		    break;
+		}
+	    }
+	    i = parenList.count() - 1;
+	}
+	
+	openParen = parenList[ i ];
+	if ( openParen.type == QTextEditParag::Paren::Closed ) {
+	    ignore++;
+	    --i;
+	    continue;
+	} else {
+	    if ( ignore > 0 ) {
+		ignore--;
+		--i;
+		continue;
+	    }
+	
+	    int id = QTextEditDocument::ParenMatch;
+	    if ( c == '}' && openParen.chr != '{' ||
+		 c == ')' && openParen.chr != '(' ||
+		 c == ']' && openParen.chr != '[' )
+		id = QTextEditDocument::ParenMismatch;
+	    doc->setSelectionStart( id, this );
+	    int tidx = idx;
+	    QTextEditParag *tparag = parag;
+	    idx = openParen.pos;
+	    parag = openParenParag;
+	    doc->setSelectionEnd( id, this );
+	    parag = tparag;
+	    idx = tidx;
+	    return TRUE;
+	}
+	
+	--i;
+    }
+#endif
+ aussi:
+    return FALSE;
+}
+
+// =======================================================================
 
 
 QParagraph::QParagraph(const QRichTextString &t, QTextArea *a, QParagraph *lastPar)
     : text(t)
 {
     area = a;
-    first = last = 0;
-
-    hAlign = AlignAuto;
+    firstRow = lastRow = 0;
+    p = n = 0;
     
-    //    text.compose();
+    hAlign = AlignAuto;
 
     // get last paragraph so we know where we want to place the next line
     if ( lastPar ) {
@@ -956,9 +1477,9 @@ QParagraph::~QParagraph()
 
 QPoint QParagraph::nextLine() const
 {
-    if( !last )
+    if( !lastRow )
 	return QPoint(0, 0);
-    return QPoint( last->x(), last->y() + last->height() );
+    return QPoint( lastRow->x(), lastRow->y() + lastRow->height() );
 }
 
 void QParagraph::layout()
@@ -980,13 +1501,13 @@ void QParagraph::paint(QPainter &p, int x, int y)
 	else
 	    align = AlignRight;
     }
-    
+
     x += xPos;
     y += yPos;
-    QTextRow *line = first;
+    QTextRow *line = first();
     while(line) {
 	line->paint(p, x, y, align);
-	line = line->nextLine();
+	line = line->next();
     }
 }
 
@@ -1296,13 +1817,13 @@ QRichTextFormatter::QRichTextFormatter( QTextArea *a )
 void QRichTextFormatter::addLine(QParagraph *p, int from, int to, int height, int baseline, int width)
 {
     printf("addline %d %d\n", from, to - from);
-    QTextRow *line = new QTextRow(*p->string(), from, to - from, p->lastRow(), baseline, width);
+    QTextRow *line = new QTextRow(*p->string(), from, to - from, p->last(), baseline, width);
 
     int x = p->x();
     int y = p->y();
-    if ( p->lastRow() ) {
-	x += p->lastRow()->x();
-	y += p->lastRow()->y() + p->lastRow()->height();
+    if ( p->last() ) {
+	x += p->last()->x();
+	y += p->last()->y() + p->last()->height();
     }
     QRect r = area->lineRect(x, y, height);
     // ####
@@ -1312,11 +1833,11 @@ void QRichTextFormatter::addLine(QParagraph *p, int from, int to, int height, in
 
     line->setBoundingRect(r);
 
-    if( !p->firstRow() )
-	p->setFirstRow(line);
-    if ( p->lastRow() )
-	p->lastRow()->setNextLine(line);
-    p->setLastRow( line );
+    if( !p->first() )
+	p->setFirst(line);
+    if ( p->last() )
+	p->last()->setNext(line);
+    p->setLast( line );
 
 }
 
@@ -1346,7 +1867,7 @@ int QRichTextFormatterBreakWords::format( QParagraph *parag, int start )
     int lastSpace = -1;
     int tmpBaseLine = 0, tmph = 0;
     int baseline = 0, width = 0;
-    
+
     QRect lineRect = area->lineRect(parag->x() ,parag->y());
     int w = lineRect.width();
     printf("new line at %d/%d width=%d\n", lineRect.x(), lineRect.y(), w);
@@ -1384,9 +1905,9 @@ int QRichTextFormatterBreakWords::format( QParagraph *parag, int start )
 	    start = i;
 	    int xPos = parag->x();
 	    int yPos = parag->y();
-	    if ( parag->lastRow() ) {
-		xPos += parag->lastRow()->x();
-		yPos += parag->lastRow()->y() + parag->lastRow()->height();	
+	    if ( parag->last() ) {
+		xPos += parag->last()->x();
+		yPos += parag->last()->y() + parag->last()->height();	
 	    }
 	    lineRect = area->lineRect(xPos, yPos);
 	    w = lineRect.width();
