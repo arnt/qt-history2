@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qdict.doc,v 2.1 1996/10/26 22:24:10 paul Exp $
+** $Id: qdict.doc,v 2.2 1997/04/21 09:26:44 hanord Exp $
 **
 ** QDict and QDictIterator class documentation
 **
@@ -12,7 +12,7 @@
   QDict documentation
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   \class QDict qdict.h
   \brief The QDict class is a template class that provides a dictionary based on \c char* keys.
 
@@ -36,7 +36,8 @@
 
     void main()
     {
-	QDict<char> dict( 17, FALSE );	// case insensitive dict of char*
+      // Creates a dictionary that maps char* ==> char* (case insensitive)
+	QDict<char> dict( 17, FALSE );
 
 	dict.insert( "France", "Paris" );
 	dict.insert( "Russia", "Moscow" );
@@ -98,7 +99,8 @@
 
     void main()
     {
-	QDict<char> dict;		// case sensitive dict of char*
+      // Creates a dictionary that maps char* ==> char* (case sensitive)
+	QDict<char> dict;
 
 	dict.insert( "Germany", "Berlin" );
 	dict.insert( "Germany", "Bonn" );
@@ -136,10 +138,10 @@
 
   \sa QDictIterator, QIntDict,
       \link collection.html Collection Classes\endlink
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QDict::QDict( int size, bool caseSensitive, bool copyKeys )
   Constructs a dictionary with the following properties:
   \arg \e size is the size of the internal hash array.
@@ -158,26 +160,26 @@
   Setting \e copyKeys to TRUE will make the dictionary copy the key
   when an item is inserted.  Setting it to FALSE will make the dictionary
   only use the pointer to the key.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QDict::QDict( const QDict<type> &dict )
-  Constructs copy of \e dict.
+  Constructs a copy of \e dict.
 
   Each item in \e dict are inserted into this dictionary.
   Only the pointers are copied (shallow copy).
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QDict::~QDict()
   Removes all items from the dictionary and destroys it.
 
   All iterators that access this dictionary will be reset.
 
   \sa setAutoDelete()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QDict<type> &QDict::operator=(const QDict<type> &dict)
   Assigns \e dict to this dictionary and returns a reference to this
   dictionary.
@@ -186,29 +188,29 @@
   into this dictionary.
   Only the pointers are copied (shallow copy), unless newItem() has been
   reimplemented().
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn uint QDict::count() const
   Returns the number of items in the dictionary.
   \sa isEmpty()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn uint QDict::size() const
   Returns the size of the internal hash array (as specified in the
   constructor).
   \sa count()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QDict::isEmpty() const
   Returns TRUE if the dictionary is empty, i.e. count() == 0. Returns FALSE
   otherwise.
   \sa count()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QDict::insert( const char *key, const type *item )
   Inserts the \e key with the \e item into the dictionary.
 
@@ -218,9 +220,9 @@
   Null items are not allowed.
 
   \sa replace()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QDict::replace( const char *key, const type *item )
   Replaces an item which has a key equal to \e key with \e item.
 
@@ -241,9 +243,9 @@
   of these will be replaced.
 
   \sa insert()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QDict::remove( const char *key )
   Removes the item associated with \e key from the dictionary.
   Returns TRUE if successful, or FALSE if the key does not exist in the
@@ -259,9 +261,9 @@
   point to the next item in the dictionary traversing order.
 
   \sa take(), clear(), setAutoDelete()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn type *QDict::take( const char *key )
   Takes the item associated with \e key out of the dictionary without
   deleting it (even if \link QCollection::setAutoDelete()
@@ -277,9 +279,9 @@
   point to the next item in the dictionary travering order.
 
   \sa remove(), clear(), setAutoDelete()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QDict::clear()
   Removes all items from the dictionary.
 
@@ -289,9 +291,9 @@
   All dictionary iterators that access this dictionary will be reset.
 
   \sa remove(), take(), setAutoDelete()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn type *QDict::find( const char *key ) const
   Returns the item associated with \e key, or null if the key does not
   exist in the dictionary.
@@ -304,9 +306,9 @@
   Equivalent to the [] operator.
 
   \sa operator[]
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn type *QDict::operator[]( const char *key ) const
   Returns the item associated with \e key, or null if the key does not
   exist in the dictionary.
@@ -319,20 +321,20 @@
   Equivalent to the find() function.
 
   \sa find()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QDict::statistics() const
   Debugging-only function that prints out the dictionary distribution
   using debug().
- ----------------------------------------------------------------------------*/
+*/
 
 
 /*****************************************************************************
   QDictIterator documentation
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   \class QDictIterator qdict.h
   \brief The QDictIterator class provides an iterator for QDict collections.
 
@@ -350,7 +352,8 @@
 
     void main()
     {
-	QDict<char> dict( 17, FALSE );	// case insensitive dict of char*
+      // Creates a dictionary that maps char* ==> char* (case insensitive)
+	QDict<char> dict( 17, FALSE );
 
 	dict.insert( "France", "Paris" );
 	dict.insert( "Russia", "Moscow" );
@@ -387,79 +390,79 @@
   traversing order.
 
   \sa QDict, \link collection.html Collection Classes\endlink
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QDictIterator::QDictIterator( const QDict<type> &dict )
   Constructs an iterator for \e dict.  The current iterator item is
   set to point on the first item in the \e dict.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QDictIterator::~QDictIterator()
   Destroys the iterator.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn uint QDictIterator::count() const
   Returns the number of items in the dictionary this iterator operates on.
   \sa isEmpty()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QDictIterator::isEmpty() const
   Returns TRUE if the dictionary is empty, i.e. count() == 0, otherwise FALSE.
   \sa count()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn type *QDictIterator::toFirst()
   Sets the current iterator item to point to the first item in the
   dictionary and returns a pointer to the item.
   If the dictionary is  empty it sets the current item to null and 
-  returns null. 
- ----------------------------------------------------------------------------*/
+  returns null.
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QDictIterator::operator type *() const
   Cast operator. Returns a pointer to the current iterator item.
   Same as current().
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn type *QDictIterator::current() const
   Returns a pointer to the current iterator item.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const char *QDictIterator::currentKey() const
   Returns a pointer to the key for the current iterator item.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn type *QDictIterator::operator()()
   Makes the succeeding item current and returns the original current item.
 
   If the current iterator item was the last item in the dictionary or if it
   was null, null is returned.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn type *QDictIterator::operator++()
   Prefix ++ makes the succeeding item current and returns the new current
   item.
 
   If the current iterator item was the last item in the dictionary or if it
   was null, null is returned.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn type *QDictIterator::operator+=( uint jump )
   Sets the current item to the item \e jump positions after the current item,
   and returns a pointer to that item.
 
   If that item is beyond the last item or if the dictionary is  empty,
-  it sets the current item to null and  returns null 
- ----------------------------------------------------------------------------*/
+  it sets the current item to null and  returns null.
+*/
 
 

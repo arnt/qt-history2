@@ -1,74 +1,79 @@
 /****************************************************************************
-** $Id: qintdict.doc,v 2.2 1997/04/21 09:26:44 hanord Exp $
+** $Id: qptrdict.doc,v 2.1 1997/04/21 09:26:44 hanord Exp $
 **
-** QIntDict and QIntDictIterator class documentation
+** QPtrDict and QPtrDictIterator class documentation
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 
 /*****************************************************************************
-  QIntDict documentation
+  QPtrDict documentation
  *****************************************************************************/
 
 /*!
-  \class QIntDict qintdict.h
-  \brief The QIntDict class is a template class that provides a dictionary based on \c long keys.
+  \class QPtrDict qptrdict.h
+  \brief The QPtrDict class is a template class that provides a dictionary based on \c void* keys.
 
   \ingroup collection
   \ingroup tools
 
-  QIntDict is implemented as both a template and a macro class. Define a
-  template instance QIntDict\<X\> to create a dictionary that operates on
+  QPtrDict is implemented as both a template and a macro class. Define a
+  template instance QPtrDict\<X\> to create a dictionary that operates on
   pointers to X, or X*.
 
   A dictionary is a collection that associates an item with a key.
-  The key is used for inserting and looking up an item.  QIntDict has
-  \c long keys.
+  The key is used for inserting and looking up an item.  QPtrDict has
+  \c void* keys.
 
   The dictionary has very fast insertion and lookup.
 
   Example:
   \code
-    #include <qintdict.h>
+    #include <qptrdict.h>
     #include <stdio.h>
 
     void main()
     {
-	QIntDict<char> dict;		// maps long ==> char*
+	int *a = new int[12];
+	int *b = new int[10];
+	int *c = new int[18];
+	int *d = new int[13];
 
-	dict.insert( 33, "France" );
-	dict.insert(  7, "Russia" );
-	dict.insert( 49, "Norway" );
+	QPtrDict<char> dict;		   // maps void* -> char*
 
-	printf( "%s\n", dict[49] );
-	printf( "%s\n", dict[33] );
-	printf( "%s\n", dict[7] );
+	dict.insert( a, "a is int[12]" );  // descripe pointers
+	dict.insert( b, "b is int[10]" );
+	dict.insert( c, "c is int[18]" );
 
-	if ( !dict[39] )
-	    printf( "39 not defined\n" );
+	printf( "%s\n", dict[a] );	   // print descriptions
+	printf( "%s\n", dict[b] );
+	printf( "%s\n", dict[c] );
+
+	if ( !dict[d] )
+	    printf( "d not in dictionary\n" );
     }
   \endcode
 
   Program output:
   \code
-	Norway
-	France
-	Russia
-	39 not defined
+	a is int[12]
+	b is int[10]
+	c is int[18]
+	d not in dictionary
   \endcode
 
-  The dictionary in our example maps \c long keys to \c char* items.
-  QIntDict implements the \link operator[] [] operator\endlink to lookup
+  The dictionary in our example maps \c int* keys to \c char* items.
+  QPtrDict implements the \link operator[] [] operator\endlink to lookup
   an item.
 
-  A QIntDict can also be instantiated through a macro expansion, but this
+  A QPtrDict can also be instantiated through a macro expansion, but this
   is necessary only for compilers that do not support templates. See the
   \link collection.html collection classes documentation\endlink
   for a general discussion on template-based versus macro-based collections.
 
-  QIntDict is implemented by QGDict as a hash array with a fixed number of
+  QPtrDict is implemented by QGDict as a hash array with a fixed number of
   entries. Each array entry points to a singly linked list of buckets, in
   which the dictionary items are stored.
 
@@ -77,7 +82,7 @@
   item is inserted before the first bucket in the list of buckets.
 
   Looking up an item is normally very fast. The key is again hashed to an
-  array index. Then QIntDict scans the list of buckets and returns the item
+  array index. Then QPtrDict scans the list of buckets and returns the item
   found or null if the item was not found.  You cannot insert null pointers
   into a dictionary.
 
@@ -92,29 +97,30 @@
 
   Example:
   \code
-    #include <qintdict.h>
+    #include <qptrdict.h>
     #include <stdio.h>
 
     void main()
     {
-	QIntDict<char> dict;		// maps long ==> char*
+	QPtrDict<char> dict;		// maps char* ==> char*
 
-	dict.insert( 7, "Russia" );
-	dict.insert( 7, "USSR" );
+	double *ptr = new double[28];
+	dict.insert( ptr, "first" );
+	dict.insert( ptr, "second" );
 
-	printf( "%s\n", dict[7] );
-	dict.remove( 7 );		// Gorbie was here
-	printf( "%s\n", dict[7] );
+	printf( "%s\n", dict[ptr] );
+	dict.remove( ptr );
+	printf( "%s\n", dict[ptr] );
     }
   \endcode
 
   Program output:
   \code
-	USSR
-	Russia
+	second
+	first
   \endcode
 
-  The QIntDictIterator class can traverse the dictionary contents, but only
+  The QPtrDictIterator class can traverse the dictionary contents, but only
   in an arbitrary order.  Multiple iterators may independently traverse the
   same dictionary.
 
@@ -130,16 +136,16 @@
   Inherit a dictionary and reimplement it if you want deep copies.
 
   When removing a dictionary item, the virtual function
-  QCollection::deleteItem() is called.  QIntDict's default implementation
+  QCollection::deleteItem() is called.  QPtrDict's default implementation
   is to delete the item if auto-deletion is enabled.
 
-  \sa QIntDictIterator, QDict,
+  \sa QPtrDictIterator, QDict,
       \link collection.html Collection Classes\endlink
 */
 
 
 /*!
-  \fn QIntDict::QIntDict( int size )
+  \fn QPtrDict::QPtrDict( int size )
   Constructs a dictionary using an internal hash array with the size
   \e size.
 
@@ -149,7 +155,7 @@
 */
 
 /*!
-  \fn QIntDict::QIntDict( const QIntDict<type> &dict )
+  \fn QPtrDict::QPtrDict( const QPtrDict<type> &dict )
   Constructs a copy of \e dict.
 
   Each item in \e dict are inserted into this dictionary.
@@ -157,7 +163,7 @@
 */
 
 /*!
-  \fn QIntDict::~QIntDict()
+  \fn QPtrDict::~QPtrDict()
   Removes all items from the dictionary and destroys it.
 
   All iterators that access this dictionary will be reset.
@@ -166,7 +172,7 @@
 */
 
 /*!
-  \fn QIntDict<type> &QIntDict::operator=(const QIntDict<type> &dict)
+  \fn QPtrDict<type> &QPtrDict::operator=(const QPtrDict<type> &dict)
   Assigns \e dict to this dictionary and returns a reference to this
   dictionary.
 
@@ -177,27 +183,27 @@
 */
 
 /*!
-  \fn uint QIntDict::count() const
+  \fn uint QPtrDict::count() const
   Returns the number of items in the dictionary.
   \sa isEmpty()
 */
 
 /*!
-  \fn uint QIntDict::size() const
+  \fn uint QPtrDict::size() const
   Returns the size of the internal hash array (as specified in the
   constructor).
   \sa count()
 */
 
 /*!
-  \fn bool QIntDict::isEmpty() const
+  \fn bool QPtrDict::isEmpty() const
   Returns TRUE if the dictionary is empty, i.e. count() == 0. Returns FALSE
   otherwise.
   \sa count()
 */
 
 /*!
-  \fn void QIntDict::insert( long key, const type *item )
+  \fn void QPtrDict::insert( void *key, const type *item )
   Inserts the \e key with the \e item into the dictionary.
 
   The key does not have to be a unique dictionary key.  If multiple items
@@ -209,7 +215,7 @@
 */
 
 /*!
-  \fn void QIntDict::replace( long key, const type *item )
+  \fn void QPtrDict::replace( void *key, const type *item )
   Replaces an item which has a key equal to \e key with \e item.
 
   If the item does not already exist, it will be inserted.
@@ -218,7 +224,7 @@
 
   Equivalent to:
   \code
-    QIntDict<char> dict;
+    QPtrDict<char> dict;
 	...
     if ( dict.find(key) )
 	dict.remove( key );
@@ -232,7 +238,7 @@
 */
 
 /*!
-  \fn bool QIntDict::remove( long key )
+  \fn bool QPtrDict::remove( void *key )
   Removes the item associated with \e key from the dictionary.
   Returns TRUE if successful, or FALSE if the key does not exist in the
   dictionary.
@@ -250,7 +256,7 @@
 */
 
 /*!
-  \fn type *QIntDict::take( long key )
+  \fn type *QPtrDict::take( void *key )
   Takes the item associated with \e key out of the dictionary without
   deleting it (even if \link QCollection::setAutoDelete()
   auto-deletion\endlink is enabled).
@@ -268,7 +274,7 @@
 */
 
 /*!
-  \fn void QIntDict::clear()
+  \fn void QPtrDict::clear()
   Removes all items from the dictionary.
 
   The removed items are deleted if \link QCollection::setAutoDelete()
@@ -280,7 +286,7 @@
 */
 
 /*!
-  \fn type *QIntDict::find( long key ) const
+  \fn type *QPtrDict::find( void *key ) const
   Returns the item associated with \e key, or null if the key does not
   exist in the dictionary.
 
@@ -295,7 +301,7 @@
 */
 
 /*!
-  \fn type *QIntDict::operator[]( long key ) const
+  \fn type *QPtrDict::operator[]( void *key ) const
   Returns the item associated with \e key, or null if the key does not
   exist in the dictionary.
 
@@ -310,44 +316,49 @@
 */
 
 /*!
-  \fn void QIntDict::statistics() const
+  \fn void QPtrDict::statistics() const
   Debugging-only function that prints out the dictionary distribution
   using debug().
 */
 
 
 /*****************************************************************************
-  QIntDictIterator documentation
+  QPtrDictIterator documentation
  *****************************************************************************/
 
 /*!
-  \class QIntDictIterator qintdict.h
-  \brief The QIntDictIterator class provides an iterator for QIntDict collections.
+  \class QPtrDictIterator qptrdict.h
+  \brief The QPtrDictIterator class provides an iterator for QPtrDict collections.
 
   \ingroup collection
   \ingroup tools
 
-  QIntDictIterator is implemented as both a template and a macro class.
-  Define a template instance QIntDictIterator\<X\> to create a
-  dictionary iterator that operates on QIntDict\<X\> (dictionary of X*).
+  QPtrDictIterator is implemented as both a template and a macro class.
+  Define a template instance QPtrDictIterator\<X\> to create a
+  dictionary iterator that operates on QPtrDict\<X\> (dictionary of X*).
 
   Example:
   \code
-    #include <qintdict.h>
+    #include <qptrdict.h>
     #include <stdio.h>
 
     void main()
     {
-	QIntDict<char> dict;		// maps long ==> char*
+	int *a = new int[12];
+	int *b = new int[10];
+	int *c = new int[18];
+	int *d = new int[13];
 
-	dict.insert( 33, "France" );
-	dict.insert(  7, "Russia" );
-	dict.insert( 49, "Norway" );
+	QPtrDict<char> dict;		   // maps void* -> char*
 
-	QIntDictIterator<char> it( dict ); // iterator for dict
+	dict.insert( a, "a is int[12]" );  // descripe pointers
+	dict.insert( b, "b is int[10]" );
+	dict.insert( c, "c is int[18]" );
+
+	QPtrDictIterator<char> it( dict ); // iterator for dict
 
         while ( it.current() ) {
-	    printf( "%d -> %s\n", it.currentKey(), it.current() );
+	    printf( "%x -> %s\n", it.currentKey(), it.current() );
 	    ++it;
 	}
     }
@@ -355,54 +366,54 @@
 
   Program output:
   \code
-	7 -> Russia
-	49 -> Norway
-	33 -> France
+	804a788 -> a is int[12]
+	804a7f0 -> c is int[18]
+	804a7c0 -> b is int[10]
   \endcode
 
   Note that the traversal order is arbitrary, you are not guaranteed the
   order above.
 
-  A QIntDictIterator can also be instantiated through a macro expansion,
+  A QPtrDictIterator can also be instantiated through a macro expansion,
   but this is necessary only for compilers that do not support templates.
   See the \link collection.html collection classes documentation\endlink
   for a general discussion on template-based versus macro-based collections.
 
   Multiple iterators may independently traverse the same dictionary.
-  A QIntDict knows about all iterators that are operating on the dictionary.
-  When an item is removed from the dictionary, QIntDict update all
+  A QPtrDict knows about all iterators that are operating on the dictionary.
+  When an item is removed from the dictionary, QPtrDict update all
   iterators that are referring the removed item to point to the next item
   in the traversing order.
 
-  \sa QIntDict, \link collection.html Collection Classes\endlink
+  \sa QPtrDict, \link collection.html Collection Classes\endlink
 */
 
 /*!
-  \fn QIntDictIterator::QIntDictIterator( const QIntDict<type> &dict )
+  \fn QPtrDictIterator::QPtrDictIterator( const QPtrDict<type> &dict )
   Constructs an iterator for \e dict.  The current iterator item is
   set to point on the first item in the \e dict.
 */
 
 /*!
-  \fn QIntDictIterator::~QIntDictIterator()
+  \fn QPtrDictIterator::~QPtrDictIterator()
   Destroys the iterator.
 */
 
 /*!
-  \fn uint QIntDictIterator::count() const
+  \fn uint QPtrDictIterator::count() const
   Returns the number of items in the dictionary this iterator operates on.
   \sa isEmpty()
 */
 
 /*!
-  \fn bool QIntDictIterator::isEmpty() const
+  \fn bool QPtrDictIterator::isEmpty() const
   Returns TRUE if the dictionary is empty, i.e. count() == 0. Returns FALSE
   otherwise.
   \sa count()
 */
 
 /*!
-  \fn type *QIntDictIterator::toFirst()
+  \fn type *QPtrDictIterator::toFirst()
   Sets the current iterator item to point to the first item in the
   dictionary and returns a pointer to the item.
   If the dictionary is  empty it sets the current item to null and 
@@ -410,23 +421,23 @@
 */
 
 /*!
-  \fn QIntDictIterator::operator type *() const
+  \fn QPtrDictIterator::operator type *() const
   Cast operator. Returns a pointer to the current iterator item.
   Same as current().
 */
 
 /*!
-  \fn type *QIntDictIterator::current() const
+  \fn type *QPtrDictIterator::current() const
   Returns a pointer to the current iterator item.
 */
 
 /*!
-  \fn long QIntDictIterator::currentKey() const
+  \fn void *QPtrDictIterator::currentKey() const
   Returns the key for the current iterator item.
 */
 
 /*!
-  \fn type *QIntDictIterator::operator()()
+  \fn type *QPtrDictIterator::operator()()
   Makes the succeeding item current and returns the original current item.
 
   If the current iterator item was the last item in the dictionary or if it
@@ -434,7 +445,7 @@
 */
 
 /*!
-  \fn type *QIntDictIterator::operator++()
+  \fn type *QPtrDictIterator::operator++()
   Prefix ++ makes the succeeding item current and returns the new current
   item.
 
@@ -443,7 +454,7 @@
 */
 
 /*!
-  \fn type *QIntDictIterator::operator+=( uint jump )
+  \fn type *QPtrDictIterator::operator+=( uint jump )
   Sets the current item to the item \e jump positions after the current item,
   and returns a pointer to that item.
 
