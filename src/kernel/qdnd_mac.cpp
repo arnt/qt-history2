@@ -239,7 +239,6 @@ QByteArray QDropEvent::encodedData(const char *fmt) const
 			}
 			return ret;
 		    } else if(info == typeFileURL) {
-			qDebug("Got here..");
 			UInt16 cnt_items;
 			CountDragItems(current_dropobj, &cnt_items);
 			QCString qstr;
