@@ -30,7 +30,6 @@
 #include <qregexp.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <zlib.h>
 
 /*!
   Creates a declaration ( headerfile ) for a subclass \a subClass
@@ -68,19 +67,19 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
     out << "    ~" << subClass << "();" << endl;
     out << endl;
 
-    // find additional functions 
+    // find additional functions
     QStringList publicSlots, protectedSlots, privateSlots;
     QStringList publicSlotTypes, protectedSlotTypes, privateSlotTypes;
     QStringList publicSlotSpecifier, protectedSlotSpecifier, privateSlotSpecifier;
     QStringList publicFuncts, protectedFuncts, privateFuncts;
     QStringList publicFunctRetTyp, protectedFunctRetTyp, privateFunctRetTyp;
-    QStringList publicFunctSpec, protectedFunctSpec, privateFunctSpec;    
-      
+    QStringList publicFunctSpec, protectedFunctSpec, privateFunctSpec;
+
     // for compatibility
     nl = e.parentNode().toElement().elementsByTagName( "slot" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	n = nl.item(i).toElement();
-	if ( n.parentNode().toElement().tagName() != "slots" 
+	if ( n.parentNode().toElement().tagName() != "slots"
 	     && n.parentNode().toElement().tagName() != "connections" )
 	    continue;
 	if ( n.attribute( "language", "C++" ) != "C++" )
@@ -104,8 +103,8 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
 	    publicSlotTypes += returnType;
 	    publicSlotSpecifier += specifier;
 	}
-    }   
-    
+    }
+
     nl = e.parentNode().toElement().elementsByTagName( "function" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	n = nl.item(i).toElement();
@@ -120,7 +119,7 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
 	    functionName = functionName.left( functionName.length() - 1 );
 	QString specifier = n.attribute( "specifier" );
 	QString access = n.attribute( "access" );
-	if ( type == "slot" ) { 
+	if ( type == "slot" ) {
 	    if ( access == "protected" ) {
 		protectedSlots += functionName;
 		protectedSlotTypes += returnType;
@@ -191,7 +190,7 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
 	    out << "    " << type << " " << (*it) << ";" << endl;
 	}
 	out << endl;
-    }    
+    }
 
     // create protected additional slots
     if ( !protectedSlots.isEmpty() ) {
@@ -207,7 +206,7 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
 	}
 	out << endl;
     }
-    
+
     if ( !privateFuncts.isEmpty() ) {
 	out << "private:" << endl;
 	for ( it = privateFuncts.begin(), it2 = privateFunctRetTyp.begin(), it3 = privateFunctSpec.begin();
@@ -220,8 +219,8 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
 	    out << "    " << type << " " << (*it) << ";" << endl;
 	}
 	out << endl;
-    }    
-    
+    }
+
     // create private additional slots
     if ( !privateSlots.isEmpty() ) {
 	out << "private slots:" << endl;
@@ -291,20 +290,20 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
     out << endl;
 
 
-    // find additional functions 
+    // find additional functions
     QStringList publicSlots, protectedSlots, privateSlots;
     QStringList publicSlotTypes, protectedSlotTypes, privateSlotTypes;
     QStringList publicSlotSpecifier, protectedSlotSpecifier, privateSlotSpecifier;
     QStringList publicFuncts, protectedFuncts, privateFuncts;
     QStringList publicFunctRetTyp, protectedFunctRetTyp, privateFunctRetTyp;
-    QStringList publicFunctSpec, protectedFunctSpec, privateFunctSpec;    
-    
-        
+    QStringList publicFunctSpec, protectedFunctSpec, privateFunctSpec;
+
+
     // for compatibility
     nl = e.parentNode().toElement().elementsByTagName( "slot" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	n = nl.item(i).toElement();
-	if ( n.parentNode().toElement().tagName() != "slots" 
+	if ( n.parentNode().toElement().tagName() != "slots"
 	     && n.parentNode().toElement().tagName() != "connections" )
 	    continue;
 	if ( n.attribute( "language", "C++" ) != "C++" )
@@ -329,7 +328,7 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
 	    publicSlotSpecifier += specifier;
 	}
     }
-    
+
     nl = e.parentNode().toElement().elementsByTagName( "function" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	n = nl.item(i).toElement();
@@ -344,7 +343,7 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
 	    functionName = functionName.left( functionName.length() - 1 );
 	QString specifier = n.attribute( "specifier" );
 	QString access = n.attribute( "access" );
-	if ( type == "slot" ) { 
+	if ( type == "slot" ) {
 	    if ( access == "protected" ) {
 		protectedSlots += functionName;
 		protectedSlotTypes += returnType;
@@ -392,8 +391,8 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
 	    out << "}" << endl << endl;
 	}
 	out << endl;
-    }    
-    
+    }
+
     // create stubs for public additional slots
     if ( !publicSlots.isEmpty() ) {
 	for ( it = publicSlots.begin(), it2 = publicSlotTypes.begin(), it3 = publicSlotSpecifier.begin();
@@ -433,7 +432,7 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
 	}
 	out << endl;
     }
-    
+
 
     // create stubs for protected additional slots
     if ( !protectedSlots.isEmpty() ) {
