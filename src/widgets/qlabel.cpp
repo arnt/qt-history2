@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#141 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#142 $
 **
 ** Implementation of QLabel widget class
 **
@@ -123,7 +123,7 @@ public:
 */
 
 QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
-    : QFrame( parent, name, f & WMouseNoMask )
+    : QFrame( parent, name, f | WMouseNoMask )
 {
     init();
 }
@@ -140,7 +140,7 @@ QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
 
 QLabel::QLabel( const QString &text, QWidget *parent, const char *name,
 		WFlags f )
-	: QFrame( parent, name, f & WMouseNoMask )
+	: QFrame( parent, name, f | WMouseNoMask )
 {
     init();
     setText( text );
@@ -161,7 +161,7 @@ QLabel::QLabel( const QString &text, QWidget *parent, const char *name,
 
 QLabel::QLabel( QWidget *buddy,  const QString &text,
 		QWidget *parent, const char *name, WFlags f )
-    : QFrame( parent, name, f & WMouseNoMask )
+    : QFrame( parent, name, f | WMouseNoMask )
 {
     init();
     setBuddy( buddy );
