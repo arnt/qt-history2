@@ -122,9 +122,9 @@ static inline void debug_wndw_rgn(const char *where, QWidget *w, const QRegion &
     for(int i = 0; i < (int)rs.size(); i++) {
 	QRect srect(rs[i].x()+offx, rs[i].y()+offy, rs[i].width(), rs[i].height());
 	// * == Completely inside the widget, - == intersects, ? == completely unrelated
-	qDebug("%c(%c) %d %d %d %d", 
+	qDebug("%c(%c) %d %d %d %d",
 	       !wrect.intersects(srect) ? '?' : (wrect.contains(srect) ? '*' : '-'),
-	       !w->clippedRegion().contains(srect) ? '?' : 
+	       !w->clippedRegion().contains(srect) ? '?' :
 	       (!QRegion(w->clippedRegion() ^ srect).isEmpty() ? '*' : '-'),
 	       srect.x(), srect.y(), srect.width(), srect.height());
     }
@@ -212,7 +212,7 @@ bool qt_paint_children(QWidget *p, QRegion &r, uchar ops = PC_None)
 		    r -= wr;
 		    wr.translate(-(point.x() + w->x()), -(point.y() + w->y()));
 		    qt_paint_children(w, wr, ops);
-		    if(r.isEmpty()) 
+		    if(r.isEmpty())
 			return TRUE;
 		}
 	    }
@@ -558,9 +558,9 @@ bool qt_mac_is_macsheet(QWidget *w, bool ignore_exclusion=FALSE)
 {
 #if defined(Q_WS_MACX) && 0
     if(w && w->isTopLevel() && w->testWFlags(Qt::WStyle_DialogBorder) &&
-       (ignore_exclusion || !w->testWFlags(Qt::WMacNotSheet)) && 
+       (ignore_exclusion || !w->testWFlags(Qt::WMacNotSheet)) &&
        w->parentWidget() && !w->parentWidget()->topLevelWidget()->isDesktop() &&
-       w->parentWidget()->topLevelWidget()->isVisible() && 
+       w->parentWidget()->topLevelWidget()->isVisible() &&
        (w->style().inherits("QAquaStyle") || w->style().inherits("QMacStyle")))
 	return TRUE;
 #else
@@ -656,15 +656,15 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	Rect r;
 	SetRect(&r, crect.left(), crect.top(), crect.left(), crect.top());
 	WindowClass wclass = kSheetWindowClass;
-	if(popup || testWFlags(WStyle_Tool)) 
+	if(popup || testWFlags(WStyle_Tool))
 	    wclass = kModalWindowClass;
-	else if(testWFlags(WShowModal)) 
+	else if(testWFlags(WShowModal))
 	    wclass = kMovableModalWindowClass;
-	else if(dialog && parentWidget() && !parentWidget()->topLevelWidget()->isDesktop()) 
+	else if(dialog && parentWidget() && !parentWidget()->topLevelWidget()->isDesktop())
 	    wclass = kFloatingWindowClass;
-	else if(dialog) 
+	else if(dialog)
 	    wclass = kToolbarWindowClass;
-	else 
+	else
 	    wclass = kDocumentWindowClass;
 
 	WindowGroupRef grp = NULL;
@@ -676,7 +676,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	    } else if(testWFlags(WStyle_NormalBorder) || testWFlags(WStyle_DialogBorder)) {
 		if(wclass == kToolbarWindowClass)
 		    wclass = kFloatingWindowClass;
-		if(wclass == kDocumentWindowClass || wclass == kFloatingWindowClass) 
+		if(wclass == kDocumentWindowClass || wclass == kFloatingWindowClass)
 		    wattr |= kWindowStandardDocumentAttributes;
 	    } else {
 		grp = GetWindowGroupOfClass(wclass);
@@ -697,7 +697,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 		    wattr |= kWindowCloseBoxAttribute;
 	    }
 	}
-	
+
 	wattr |= kWindowLiveResizeAttribute;
 #if 0 //we use share activation instead now..
 	if(popup || testWFlags(WStyle_Tool) ||
@@ -730,7 +730,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	    ADD_DEBUG_WINDOW_NAME(kModalWindowClass),
 	    { 0, NULL }
 	};
-#undef ADD_DEBUG_WINDOW_NAME	
+#undef ADD_DEBUG_WINDOW_NAME
 	qDebug("************* Creating new window (%s::%s)", className(), name());
 	bool found_class = FALSE;
 	for(int i = 0; known_classes[i].name; i++) {
@@ -743,12 +743,12 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	if(!found_class)
 	    qDebug("!! Class: Unknown! (%d)", (int)wclass);
 	if(wattr) {
-	    WindowAttributes tmp_wattr = wattr;		    
+	    WindowAttributes tmp_wattr = wattr;
 	    qDebug("** Attributes:");
 	    for(int i = 0; tmp_wattr && known_attribs[i].name; i++) {
 		if((tmp_wattr & known_attribs[i].tag) == known_attribs[i].tag) {
 		    tmp_wattr ^= known_attribs[i].tag;
-		    qDebug("* %s %s", known_attribs[i].name, 
+		    qDebug("* %s %s", known_attribs[i].name,
 			   (GetAvailableWindowAttributes(wclass) & known_attribs[i].tag) ? "" : "(*)");
 		}
 	    }
@@ -1101,7 +1101,7 @@ void QWidget::setCursor(const QCursor &cursor)
     extra->curs = new QCursor(cursor);
     setWState( WState_OwnCursor );
 
-    if(qApp && qApp->activeWindow() && 
+    if(qApp && qApp->activeWindow() &&
        QApplication::widgetAt(QCursor::pos()) == this) {
 	Point mouse_pos;
 	QPoint qmp(QCursor::pos());
@@ -1109,7 +1109,7 @@ void QWidget::setCursor(const QCursor &cursor)
 	mouse_pos.v = qmp.y();
 
 	const QCursor *n = &cursor;
-	if(QApplication::overrideCursor()) 
+	if(QApplication::overrideCursor())
 	    n = QApplication::overrideCursor();
 	qt_mac_set_cursor(n, &mouse_pos);
     }
@@ -1125,7 +1125,7 @@ void QWidget::unsetCursor()
 	clearWState(WState_OwnCursor);
     }
 
-    if(qApp && qApp->activeWindow() && 
+    if(qApp && qApp->activeWindow() &&
        QApplication::widgetAt(QCursor::pos()) == this) {
 	Point mouse_pos;
 	QPoint qmp(QCursor::pos());
@@ -1354,7 +1354,7 @@ void QWidget::showWindow()
 	if(testWFlags(WShowModal))
 	    BeginAppModalStateForWindow((WindowRef)hd);
 #else
-	if(testWFlags(WShowModal)) 
+	if(testWFlags(WShowModal))
 	    qt_mac_command_set_enabled(kHICommandQuit, FALSE);
 #endif
     } else if(!parentWidget(TRUE) || parentWidget(TRUE)->isVisible()) {
@@ -1428,7 +1428,6 @@ void QWidget::showMinimized()
 	} else {
 	    topData()->showMode = 1;
 	    show();
-	    hideChildren(FALSE);
 	}
     } else {
 	show();
@@ -1621,7 +1620,7 @@ void QWidget::internalSetGeometry(int x, int y, int w, int h, bool isMove)
 
     QPoint oldp = pos();
     QSize  olds = size();
-    if(!isTopLevel() && QSize(w, h) == olds && QPoint(x, y) == oldp) 
+    if(!isTopLevel() && QSize(w, h) == olds && QPoint(x, y) == oldp)
 	return;
     const bool visible = isVisible();
     QRegion oldregion, clpreg;
@@ -1872,7 +1871,7 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
 	    }
 	}
         //now send move events (do not do this in the above loop, breaks QAquaFocusWidget)
-	for(QWidget *w = moved.first(); w; w = moved.next()) { 
+	for(QWidget *w = moved.first(); w; w = moved.next()) {
 	    QMoveEvent e(w->pos(), w->pos() - pd);
 	    QApplication::sendEvent(w, &e);
 	}
@@ -1894,7 +1893,7 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
 
 void QWidget::drawText(int x, int y, const QString &str)
 {
-    if(!testWState(WState_Visible)) 
+    if(!testWState(WState_Visible))
 	return;
     QPainter paint(this);
     paint.drawText(x, y, str);
@@ -2104,8 +2103,8 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 	return;
     if(!isTopLevel()) { //short circuit, there is nothing to dirty here..
 	int ox = x(), oy = y(), ow = width(), oh = height();
-	for(QWidget *par=this; (par = par->parentWidget(TRUE)); ) { 
-	    if(ox + ow < 0 || oy + oh < 0 || ox > par->width() || oy > par->height()) 
+	for(QWidget *par=this; (par = par->parentWidget(TRUE)); ) {
+	    if(ox + ow < 0 || oy + oh < 0 || ox > par->width() || oy > par->height())
 		return;
 	    ox += par->x();
 	    oy += par->y();

@@ -1561,7 +1561,6 @@ void QWidget::showMinimized()
 	else {
 	    topData()->showMode = 1;
 	    show();
-	    hideChildren( FALSE );
 	}
     } else {
 	show();
