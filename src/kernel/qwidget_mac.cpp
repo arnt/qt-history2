@@ -2466,7 +2466,6 @@ QRegion QWidget::clippedRegion(bool do_children)
 	/*Remove window decorations from the top level window, specifically this
 	  means the GrowRgn*/
 	if(isTopLevel()) {
-#if 0
 	    QRegion contents;
 	    RgnHandle r = qt_mac_get_rgn();
 	    GetWindowRegion((WindowPtr)hd, kWindowContentRgn, r);
@@ -2476,7 +2475,6 @@ QRegion QWidget::clippedRegion(bool do_children)
 	    }
 	    qt_mac_dispose_rgn(r);
 	    extra->clip_sibs &= contents;
-#endif
 	} else if(parentWidget()) { //clip to parent
 	    extra->clip_sibs &= parentWidget()->clippedRegion(false);
 	}
