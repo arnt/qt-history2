@@ -66,6 +66,7 @@ HEADERS		= $$DIALOGS_H/qfiledlg.h \
 		  $$KERNEL_H/qregion.h \
 		  $$KERNEL_H/qsemimodal.h \
 		  $$KERNEL_H/qsignal.h \
+		  $$KERNEL_H/qsignalmapper.h \
 		  $$KERNEL_H/qsize.h \
 		  $$KERNEL_H/qsocknot.h \
 		  $$KERNEL_H/qtimer.h \
@@ -187,6 +188,7 @@ SOURCES		= dialogs/qfiledlg.cpp \
 		  kernel/qregion.cpp \
 		  kernel/qsemimodal.cpp \
 		  kernel/qsignal.cpp \
+		  kernel/qsignalmapper.cpp \
 		  kernel/qsize.cpp \
 		  kernel/qsocknot.cpp \
 		  kernel/qtimer.cpp \
