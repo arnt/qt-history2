@@ -3,6 +3,6 @@ CONFIG		+= qt warn_on release
 HEADERS		= application.h
 SOURCES		= application.cpp \
 		  main.cpp
-TARGET		= application
+TARGET		= action
 DEPENDPATH=../../include
 REQUIRES=full-config
