@@ -426,6 +426,10 @@ QString QDir::convertSeparators( const QString &pathName )
   acceptAbsPath is FALSE any number of separators at the beginning of \a
   dirName will be removed and the function will decend into \a dirName.
 
+  Returns TRUE if the new directory exists and is readable. Note that the
+  logical cd() operation is not performed if the new directory does not
+  exist.
+
   Calling cd( ".." ) is equivalent to calling cdUp().
 
   \sa cdUp(), isReadable(), exists(), path()
