@@ -66,6 +66,8 @@ struct QTextHtmlParserNode {
     int imageWidth;
     int imageHeight;
 
+    QTextCharFormat charFormat() const;
+
     QStyleSheetItem::WhiteSpaceMode wsm;
 private:
     int margin[5];

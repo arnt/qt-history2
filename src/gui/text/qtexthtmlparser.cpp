@@ -492,6 +492,31 @@ QTextHtmlParserNode::QTextHtmlParserNode()
     margin[0] = margin[1] = margin[2] = margin[3] = margin[4] = 0;
 }
 
+QTextCharFormat QTextHtmlParserNode::charFormat() const
+{
+    QTextCharFormat format;
+
+    format.setFontItalic(fontItalic);
+    format.setFontUnderline(fontUnderline);
+    format.setFontStrikeOut(fontStrikeOut);
+    format.setFontFixedPitch(fontFixedPitch);
+    if (fontFamily.size())
+        format.setFontFamily(fontFamily);
+    format.setFontPointSize(fontPointSize);
+    format.setFontWeight(fontWeight);
+    if (color.isValid())
+        format.setColor(color);
+    if (isAnchor) {
+        format.setAnchor(true);
+        format.setAnchorHref(anchorHref);
+        format.setAnchorName(anchorName);
+        format.setFontUnderline(true);
+        format.setColor(Qt::blue); // ### use css
+    }
+
+    return format;
+}
+
 void QTextHtmlParser::dumpHtml()
 {
     for (int i = 0; i < count(); ++i) {

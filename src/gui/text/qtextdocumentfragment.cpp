@@ -499,27 +499,7 @@ void QTextHTMLImporter::import()
             continue;
         hasBlock = false;
 
-        QTextCharFormat format;
-
-        format.setFontItalic(node->fontItalic);
-        format.setFontUnderline(node->fontUnderline);
-        format.setFontStrikeOut(node->fontStrikeOut);
-        format.setFontFixedPitch(node->fontFixedPitch);
-        if (node->fontFamily.size())
-            format.setFontFamily(node->fontFamily);
-        format.setFontPointSize(node->fontPointSize);
-        format.setFontWeight(node->fontWeight);
-        if (node->color.isValid())
-            format.setColor(node->color);
-        if (node->isAnchor) {
-            format.setAnchor(true);
-            format.setAnchorHref(node->anchorHref);
-            format.setAnchorName(node->anchorName);
-            format.setFontUnderline(true);
-            format.setColor(Qt::blue); // ### use css
-        }
-
-        appendText(node->text, format);
+        appendText(node->text, node->charFormat());
     }
 
     if (listReferences.size() || tables.size())
