@@ -1,19 +1,19 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qconnect.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qconnect.cpp#2 $
 **
 ** Implementation of QConnection class
 **
 ** Author  : Haavard Nord
 ** Created : 930417
 **
-** Copyright (C) 1993 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #include "qconnect.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qconnect.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qconnect.cpp#2 $";
 #endif
 
 
