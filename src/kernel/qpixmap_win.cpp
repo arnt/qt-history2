@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#40 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#39 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#40 $");
 
 
 extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
@@ -386,6 +386,11 @@ QImage QPixmap::convertToImage() const
 				r->rgbBlue) );
     }
 
+    if ( d == 1 ) {
+	uint c0 = image.color( 0 );
+	image.setColor( 0, image.color(1) );
+	image.setColor( 1, c0 );
+    }
     delete [] bmi_data;
     return image;
 }
@@ -423,8 +428,12 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	}
     }
 
-    if ( d == 1 )				// 1 bit pixmap (bitmap)
+    if ( d == 1 ) {				// 1 bit pixmap (bitmap)
 	image = image.convertBitOrder( QImage::BigEndian );
+	uint c0 = image.color( 0 );
+	image.setColor( 0, image.color(1) );
+	image.setColor( 1, c0 );
+    }
 
     int w = image.width();
     int h = image.height();
