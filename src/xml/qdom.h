@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.h#6 $
+** $Id: //depot/qt/main/src/xml/qdom.h#7 $
 **
 ** Definition of QDomDocument and related classes.
 **
@@ -113,9 +113,8 @@ public:
     bool isNull();
 
 private:
-    QDomImplementation( QDomImplementationPrivate* );
-
     QDomImplementationPrivate* impl;
+    QDomImplementation( QDomImplementationPrivate* );
 
     friend class QDomDocument;
 };
@@ -359,13 +358,12 @@ public:
     bool contains( const QString& name ) const;
 
 private:
+    QDomNamedNodeMapPrivate* impl;
+    QDomNamedNodeMap( QDomNamedNodeMapPrivate* );
+
     friend class QDomNode;
     friend class QDomDocumentType;
     friend class QDomElement;
-
-    QDomNamedNodeMap( QDomNamedNodeMapPrivate* );
-
-    QDomNamedNodeMapPrivate* impl;
 };
 
 class QM_EXPORT QDomDocumentFragment : public QDomNode
