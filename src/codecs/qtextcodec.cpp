@@ -579,6 +579,13 @@ QTextCodec* QTextCodec::codecForLocale()
 
     char * lang = qstrdup( getenv("LANG") );
 
+#ifdef Q_WS_X11_
+    // use LC_CTYPE if LANG is not available, as X11 uses it too, and we otherwise get inconsitencies between
+    // XmbLookupString and the Qt input mapper
+    if ( !lang || lang[0] == 0 ) 
+	lang = qstrdup( getenv("LC_CTYPE") );
+#endif
+ 
     char * p = lang ? strchr( lang, '.' ) : 0;
     if ( !p || *p != '.' ) {
         // Some versions of setlocale return encoding, others not.
