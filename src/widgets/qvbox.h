@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvbox.h#7 $
+** $Id: //depot/qt/main/src/widgets/qvbox.h#8 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -19,7 +19,7 @@ class QVBox : public QHBox
 {
     Q_OBJECT
 public:
-    QVBox( QWidget *parent=0, const char *name=0, WFlags f=0 );
+    QVBox( QWidget *parent=0, const char *name=0, WFlags f=0,  bool allowLines=TRUE );
 };
 
 #endif //QVBOX_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qhbox.h#9 $
+** $Id: //depot/qt/main/src/widgets/qhbox.h#10 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -15,18 +15,21 @@
 #include "qwidget.h"
 #endif // QT_H
 
+#include "qframe.h"
+
 class QBoxLayout;
 
-class QHBox : public QWidget
+class QHBox : public QFrame
 {
     Q_OBJECT
 public:
-    QHBox( QWidget *parent=0, const char *name=0, WFlags f=0 );
+    QHBox( QWidget *parent=0, const char *name=0, WFlags f=0,  bool allowLines=TRUE  );
 
 
 protected:
-    QHBox( bool horizontal, QWidget *parent=0, const char *name=0, WFlags f=0 );
-    virtual void childEvent( QChildEvent * );
+    QHBox( bool horizontal, QWidget *parent=0, const char *name=0, WFlags f=0,  bool allowLines=TRUE  );
+    void frameChanged();
+    void childEvent( QChildEvent * );
 
 private:
     QBoxLayout *lay;

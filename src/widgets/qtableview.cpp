@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#102 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#103 $
 **
 ** Implementation of QTableView class
 **
@@ -506,10 +506,11 @@ void QTableView::setOffset( int x, int y, bool updateScrBars )
 	}
     } else {
 	int xn=0, xcd=0, col = 0;
-	while ( col < nCols && x >= xn+(xcd=cellWidth(col)) ) {
+	while ( col < nCols-1 && x >= xn+(xcd=cellWidth(col)) ) {
 	    xn += xcd;
 	    col++;
 	}
+	x = QMAX( x, xn + xcd );
 	xCellOffs = col;
 	if ( testTableFlags(Tbl_snapToHGrid) ) {
 	    xCellDelta = 0;
@@ -531,10 +532,11 @@ void QTableView::setOffset( int x, int y, bool updateScrBars )
 	yCellDelta  = (short)(y % cellH);
     } else {
 	int yn=0, yrd=0, row=0;
-	while ( row < nRows && y >= yn+(yrd=cellHeight(row)) ) {
+	while ( row < nRows-1 && y >= yn+(yrd=cellHeight(row)) ) {
 	    yn += yrd;
 	    row++;
 	}
+	y = QMAX( y, yn + yrd );
 	yCellOffs = row;
 	if ( testTableFlags(Tbl_snapToVGrid) ) {
 	    yCellDelta = 0;
@@ -1376,16 +1378,16 @@ void QTableView::paintEvent( QPaintEvent *e )
     // are not covered by cells but are covered by the paint event
     // rectangle these must be erased. We know that xPos is the last
     // x pixel updated + 1 and that yPos is the last y pixel updated + 1.
-    
+
     // Note that this needs to be done regardless whether we do
     // eraseInPaint or not. Reason: a subclass (for example
     // QMultiLineEdit) may implement flicker-freeness and encourage
     // the use of repaint(FALSE). The subclass, however, cannot draw
     // all pixels, just the once in the cells. So QTableView is
     // reponsible for all pixels outside the cells.
-    
+
     QRect viewR = viewRect();
-    
+
     if ( xPos < maxX ) {
 	QRect r = viewR;
 	r.setLeft( xPos );
