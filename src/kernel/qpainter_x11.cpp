@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#293 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#294 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -2625,11 +2625,12 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	} else {
 	    // Unicode font
 
-	    // Don't disable these if it's slow - make them faster.
 	    QString v = str;
+#ifdef QT_BIDI
 	    v.compose();  // apply ligatures (for arabic, etc...)
 	    v = v.visual(); // visual ordering
 	    len = v.length();
+#endif
 
 	    if ( bg_mode == TransparentMode )
 		XDrawString16( dpy, hd, gc, x, y, (XChar2b*)v.unicode(), len );
