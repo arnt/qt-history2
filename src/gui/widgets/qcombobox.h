@@ -149,6 +149,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent *e);
     void keyPressEvent(QKeyEvent *e);
     void keyReleaseEvent(QKeyEvent *e);
+    void wheelEvent(QWheelEvent *e);
     void inputMethodEvent(QInputMethodEvent *);
     QVariant inputMethodQuery(Qt::InputMethodQuery) const;
 
