@@ -173,7 +173,8 @@ void Scribble::slotSave()
 void Scribble::slotColor()
 {
     QColor c = QColorDialog::getColor( canvas->penColor(), this );
-    canvas->setPenColor( c );
+    if ( c.isValid() )
+	canvas->setPenColor( c );
 }
 
 void Scribble::slotWidth( int w )
