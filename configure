@@ -1716,15 +1716,14 @@ if [ "$CFG_REDUCE_EXPORTS" = "auto" ]; then
 fi
 
 # auto-detect SQL-modules support
-if [ "$Products" != "qt-professional" ]; then
-    MYSQL_REQ="-lmysqlclient mysql.h"
-    OCI_REQ="-lclntsh -lwtc8 oci.h"
-    PSQL_REQ="-lpq postgres.h libpq/libpq-fs.h catalog/pg_type.h libpq-fe.h"
-    ODBC_REQ="-lodbc sql.h sqlext.h"
-    TDS_REQ="-lsybdb sybfront.h sybdb.h"
-    DB2_REQ="-ldb2 sqlcli.h sqlcli1.h"
-    IBASE_REQ="-lgds ibase.h"
-    for _SQLDR in $CFG_SQL_AVAILABLE; do
+MYSQL_REQ="-lmysqlclient mysql.h"
+OCI_REQ="-lclntsh -lwtc8 oci.h"
+PSQL_REQ="-lpq postgres.h libpq/libpq-fs.h catalog/pg_type.h libpq-fe.h"
+ODBC_REQ="-lodbc sql.h sqlext.h"
+TDS_REQ="-lsybdb sybfront.h sybdb.h"
+DB2_REQ="-ldb2 sqlcli.h sqlcli1.h"
+IBASE_REQ="-lgds ibase.h"
+for _SQLDR in $CFG_SQL_AVAILABLE; do
 	case $_SQLDR in
 	mysql)
 	    $unixtests/checkavail "MySQL" $OPT_VERBOSE $MYSQL_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED mysql"
@@ -1758,8 +1757,8 @@ if [ "$Products" != "qt-professional" ]; then
 	    fi
 	    ;;
 	esac
-    done
-fi
+done
+
 # auto-detect NIS support
 if [ "$CFG_NIS" != "no" ]; then
     if $unixtests/nis.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS; then
