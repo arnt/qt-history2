@@ -100,7 +100,7 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	sh=src->metric(QPaintDeviceMetrics::PdmHeight)-sy;
     }
 
-    if(!sw || !sh)
+    if(!sw || !sh) 
 	return;
 
     if(!dst || !src) {
@@ -108,47 +108,8 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	return;
     }
 
-    if ( dst->paintingActive() && dst->isExtDev() ) {
-	QPixmap *pm;				// output to picture/printer
-	bool	 tmp_pm = FALSE;;
-	if ( src->devType() == QInternal::Pixmap ) {
-	    pm = (QPixmap*)src;
-	    if ( sx != 0 || sy != 0 || sw != pm->width() || sh != pm->height() || imask ) {
-		tmp_pm = TRUE;
-		QPixmap *tmp = new QPixmap( sw, sh, pm->depth() );
-		bitBlt( tmp, 0, 0, pm, sx, sy, sw, sh, Qt::CopyROP, TRUE );
-		if ( pm->mask() && !imask ) {
-		    QBitmap mask( sw, sh );
-		    bitBlt( &mask, 0, 0, pm->mask(), sx, sy, sw, sh,
-			    Qt::CopyROP, TRUE );
-		    tmp->setMask( mask );
-		}
-		pm = tmp;
-	    } 
-	} else if ( src->devType() == QInternal::Widget ) {// bitBlt to temp pixmap
-	    tmp_pm = TRUE;
-	    pm = new QPixmap( sw, sh );
-	    Q_CHECK_PTR( pm );
-	    bitBlt( pm, 0, 0, src, sx, sy, sw, sh );
-	} else {
-#if defined(QT_CHECK_RANGE)
-	    qWarning( "bitBlt: Cannot bitBlt from device" );
-#endif
-	    return;
-	}
-	QPDevCmdParam param[3];
-	QPoint p(dx,dy);
-	param[0].point	= &p;
-	param[1].pixmap = pm;
-	dst->cmd( QPaintDevice::PdcDrawPixmap, 0, param );
-	if ( tmp_pm )
-	    delete pm;
-	return;
-    }
-
     switch ( src->devType() ) {
-    case QInternal::Printer: // OK, can blt from these
-    case QInternal::Widget:
+    case QInternal::Widget: // OK, can blt from these
     case QInternal::Pixmap:
 	break;
     default:
@@ -235,8 +196,49 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	dstbitmap = (BitMap *)*GetGWorldPixMap((GWorldPtr)dst->handle());
     }
 
-    if(!dstbitmap || !srcbitmap) 
+    if ( dst->paintingActive() && dst->isExtDev() ) {
+	QPixmap *pm;				// output to picture/printer
+	bool	 tmp_pm = FALSE;;
+	if ( src->devType() == QInternal::Pixmap ) {
+	    pm = (QPixmap*)src;
+	    if ( sx != 0 || sy != 0 || sw != pm->width() || sh != pm->height() || imask ) {
+		tmp_pm = TRUE;
+		QPixmap *tmp = new QPixmap( sw, sh, pm->depth() );
+		bitBlt( tmp, 0, 0, pm, sx, sy, sw, sh, Qt::CopyROP, TRUE );
+		if ( pm->mask() && !imask ) {
+		    QBitmap mask( sw, sh );
+		    bitBlt( &mask, 0, 0, pm->mask(), sx, sy, sw, sh,
+			    Qt::CopyROP, TRUE );
+		    tmp->setMask( mask );
+		}
+		pm = tmp;
+	    } 
+	} else if ( src->devType() == QInternal::Widget ) {// bitBlt to temp pixmap
+	    tmp_pm = TRUE;
+	    pm = new QPixmap( sw, sh );
+	    Q_CHECK_PTR( pm );
+	    bitBlt( pm, 0, 0, src, sx, sy, sw, sh );
+	} else {
+#if defined(QT_CHECK_RANGE)
+	    qWarning( "bitBlt: Cannot bitBlt from device" );
+#endif
+	    return;
+	}
+	QPDevCmdParam param[3];
+	QPoint p(dx,dy);
+	param[0].point	= &p;
+	param[1].pixmap = pm;
+	bool ret = dst->cmd( QPaintDevice::PdcDrawPixmap, 0, param );
+	if ( tmp_pm )
+	    delete pm;
+	if(!ret || !dstbitmap)
+	    return;
+    }
+
+    if(!dstbitmap || !srcbitmap) {
+	qDebug("bitBlt: Something is very wrong! %d", __LINE__);
 	return;
+    }
 
     ::RGBColor f;
     f.red = f.green = f.blue = 0;
