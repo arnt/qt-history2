@@ -298,14 +298,14 @@ void QEventLoop::processEvents( ProcessEventsFlags flags, int maxTime )
     timers or -1 if there are no timers running.
 
     QEventLoop subclasses that do their own timer handling need to use
-    this to make sure that Qt's timers continue to work. returns
+    this to make sure that Qt's timers continue to work.
 */
 
 /*! \fn void QEventLoop::wakeUp()
 
-    Wakes up the event loop.  This function is thread safe, and can be
-    called by any running thread.
-
+    Wakes up the event loop. This function is thread safe, and can be
+    called by any running thread. 
+    
     \sa awake()
 */
 
