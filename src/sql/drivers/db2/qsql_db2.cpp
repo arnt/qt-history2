@@ -180,18 +180,18 @@ QVariant::Type qDecodeDB2Type( SQLSMALLINT sqltype )
 {
     QVariant::Type type = QVariant::Invalid;
     switch ( sqltype ) {
-    case SQL_DECIMAL:
-    case SQL_NUMERIC:
     case SQL_REAL:
     case SQL_FLOAT:
     case SQL_DOUBLE:
-    case SQL_BIGINT: //use high precision binding
+    case SQL_DECIMAL:
+    case SQL_NUMERIC:
 	type = QVariant::Double;
 	break;
     case SQL_SMALLINT:
     case SQL_INTEGER:
     case SQL_BIT:
     case SQL_TINYINT:
+    case SQL_BIGINT:
 	type = QVariant::Int;
 	break;
     case SQL_BLOB:
