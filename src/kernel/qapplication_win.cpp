@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#182 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#183 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -511,18 +511,18 @@ bool qt_nograb()				// application no-grab option
 static bool widget_class_registered = FALSE;
 static bool popup_class_registered = FALSE;
 
-TCHAR* qt_reg_winclass( int type )		// register window class
+const char* qt_reg_winclass( int type )		// register window class
 {
-    TCHAR* className;
+    const char *className;
     uint style = 0;
     if ( type == 0 ) {
-	className = qt_winTchar("QWidget",TRUE);
+	className = "QWidget";
 	if ( !widget_class_registered ) {
 	    widget_class_registered = TRUE;
 	    style = CS_DBLCLKS;
 	}
     } else if ( type == 1 ) {
-	className = qt_winTchar("QPopup",TRUE);
+	className = "QPopup";
 	if ( !popup_class_registered ) {
 	    popup_class_registered = TRUE;
 	    style = CS_DBLCLKS | CS_SAVEBITS;
@@ -531,8 +531,9 @@ TCHAR* qt_reg_winclass( int type )		// register window class
 #if defined(DEBUG)
 	warning( "Qt internal error: Invalid window class type", type );
 #endif
-	className = 0;
+	className = "";
     }
+    TCHAR* tcn = className ? qt_winTchar(className,TRUE) : 0;
     if ( style != 0 ) {
 	WNDCLASS wc;
 	wc.style	 = style;
@@ -544,7 +545,7 @@ TCHAR* qt_reg_winclass( int type )		// register window class
 	wc.hCursor	 = 0;
 	wc.hbrBackground = 0;
 	wc.lpszMenuName	 = 0;
-	wc.lpszClassName = className;
+	wc.lpszClassName = tcn; //className; // tcn;
 	RegisterClass( &wc );
     }
     return className;

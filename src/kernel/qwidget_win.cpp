@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#139 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#140 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -45,7 +45,7 @@
 #define WS_EX_TOOLWINDOW 0x00000080
 #endif
 
-TCHAR*	    qt_reg_winclass( int type );	// defined in qapplication_win.cpp
+const char* qt_reg_winclass( int type );	// defined in qapplication_win.cpp
 void	    qt_enter_modal( QWidget * );
 void	    qt_leave_modal( QWidget * );
 bool	    qt_modal_state();
@@ -86,7 +86,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     bool   modal    = testWFlags(WType_Modal);
     bool   desktop  = testWFlags(WType_Desktop);
     HANDLE appinst  = qWinAppInst();
-    TCHAR* wcln = qt_reg_winclass( tool ? 1 : 0 );
+    const char* wcln = qt_reg_winclass( tool ? 1 : 0 );
     HANDLE parentw, destroyw = 0;
     WId	   id;
 
@@ -123,7 +123,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
     parentw = topLevel ? 0 : parentWidget()->winId();
 
-    TCHAR *title = 0;
+    const char* title = 0;
     int	 style = WS_CHILD;
     int	 exsty = 0;
 
@@ -168,7 +168,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	}
     }
     if ( testWFlags(WStyle_Title) )
-	title = qt_winTchar_new(qAppName());
+	title = qAppName();
 
 	// The WState_Creates flag is checked by translateConfigEvent()
         // in qapplication_win.cpp. We switch it off temporarily to avoid move
@@ -193,13 +193,14 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    setWinId( id );
 	}
     } else if ( topLevel ) {			// create top-level widget
+	// WWA: I cannot get the Unicode versions to work. 
 	if ( exsty )
-	    id = CreateWindowEx( exsty, wcln, title, style,
+	    id = CreateWindowExA( exsty, wcln, title, style,
 				 CW_USEDEFAULT, CW_USEDEFAULT,
 				 CW_USEDEFAULT, CW_USEDEFAULT,
 				 parentw, 0, appinst, 0 );
 	else
-	    id = CreateWindow(	 wcln, title, style,
+	    id = CreateWindowA(	 wcln, title, style,
 				 CW_USEDEFAULT, CW_USEDEFAULT,
 				 CW_USEDEFAULT, CW_USEDEFAULT,
 				 parentw, 0, appinst, 0 );
@@ -207,13 +208,12 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	if ( tool )
 	    SetWindowPos( id, HWND_TOPMOST, 0, 0, 100, 100, SWP_NOACTIVATE );
     } else {					// create child widget
-	id = CreateWindow( wcln, title, style, 0, 0, 100, 30,
+	// WWA: I cannot get the Unicode versions to work. 
+	id = CreateWindowA( wcln, title, style, 0, 0, 100, 30,
 			   parentw, NULL, appinst, NULL );
 	SetWindowPos( id, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
 	setWinId( id );
     }
-
-    delete [] title;
 
     if ( desktop ) {
 	setWFlags( WState_Visible );
