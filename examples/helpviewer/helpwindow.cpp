@@ -348,5 +348,5 @@ void HelpWindow::bookmChosen( int i )
 
 void HelpWindow::addBookmark()
 {
-    mBookmarks[ bookm->insertItem( caption() ) ] = caption();
+    mBookmarks[ bookm->insertItem( caption() ) ] = browser->context();
 }
