@@ -39,16 +39,16 @@
 
 #ifndef QT_NO_ERRORMESSAGE
 
-#include "qstringlist.h"
-#include "qpushbutton.h"
+#include "qapplication.h"
 #include "qcheckbox.h"
-#include "qlabel.h"
-#include "qtextview.h"
-
-#include "qmessagebox.h"
-#include "qstylesheet.h"
-#include "qlayout.h"
 #include "qdict.h"
+#include "qlabel.h"
+#include "qlayout.h"
+#include "qmessagebox.h"
+#include "qpushbutton.h"
+#include "qstringlist.h"
+#include "qstylesheet.h"
+#include "qtextview.h"
 
 #include <stdio.h>
 
@@ -102,7 +102,7 @@ after seeing each message.
 */
 
 static QErrorMessage * qtMessageHandler = 0;
-
+static bool metFatal = FALSE;
 
 void jump( QtMsgType t, const char * m )
 {
@@ -130,7 +130,10 @@ void jump( QtMsgType t, const char * m )
     if ( rich.endsWith("</p>") )
 	rich.truncate( rich.length() - 4 );
 
-    qtMessageHandler->message( rich );
+    if ( !metFatal ) {
+	qtMessageHandler->message( rich );
+	metFatal = ( t == QtFatalMsg );
+    }
 }
 
 
@@ -189,8 +192,11 @@ void QErrorMessage::done( int a )
 {
     if ( !again->isChecked() )
 	doNotShow->insert( errors->text(), (int*)0 );
-    if ( !nextPending() )
+    if ( !nextPending() ) {
 	QDialog::done( a );
+	if ( this == qtMessageHandler && metFatal )
+	    exit( 1 );
+    }
 }
 
 
@@ -203,6 +209,8 @@ QErrorMessage * QErrorMessage::qtHandler()
 {
     if ( !qtMessageHandler ) {
 	qtMessageHandler = new QErrorMessage( 0, "automatic message handler" );
+	if ( qApp->mainWidget() )
+	    qtMessageHandler->setCaption( qApp->mainWidget()->caption() );
 	qInstallMsgHandler( jump );
     }
     return qtMessageHandler;
