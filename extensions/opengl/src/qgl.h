@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.h#3 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.h#4 $
 **
 ** Definition of OpenGL classes for Qt
 **
@@ -106,7 +106,6 @@ protected:
     HANDLE	rc;
     HANDLE	dc;
     HANDLE	win;
-    bool	tmp_dc;
 #endif
 #if defined(Q_GLX)
     void       *vi;
@@ -133,6 +132,7 @@ class QGLWidget : public QWidget
 public:
     QGLWidget( QWidget *parent=0, const char *name=0 );
     QGLWidget( const QGLFormat &format, QWidget *parent=0, const char *name=0);
+   ~QGLWidget();
 
     void	makeCurrent();
     bool	doubleBuffer() const;
