@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/mainwindow.cpp#7 $
+** $Id: //depot/qt/main/examples/qfileiconview/mainwindow.cpp#8 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -66,14 +66,12 @@ static const char* newfolder_xpm[] = {
 FileMainWindow::FileMainWindow()
     : QMainWindow()
 {
-    resize( 640, 480 );
     setup();
 }
 
 void FileMainWindow::show()
 {
     QMainWindow::show();
-    fileview->setDirectory( "/" );
 }
 
 void FileMainWindow::setup()

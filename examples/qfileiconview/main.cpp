@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/main.cpp#2 $
+** $Id: //depot/qt/main/examples/qfileiconview/main.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -19,9 +19,9 @@ int main( int argc, char **argv )
 
     FileMainWindow mw;
     mw.resize( 680, 480 );
-    mw.fileView()->setDirectory( "/" );
     a.setMainWidget( &mw );
     mw.show();
+    mw.fileView()->setDirectory( "/" );
 
     return a.exec();
 }

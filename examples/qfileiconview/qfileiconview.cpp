@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#10 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#11 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -227,9 +227,12 @@ static const char * folder_locked_icon[]={
  *****************************************************************************/
 
 QtFileIconViewItem::QtFileIconViewItem( QtFileIconView *parent, QFileInfo *fi )
-    : QIconViewItem( parent, fi->fileName(), QIconSet( QPixmap( empty_icon ) ) ), itemFileName( fi->filePath() ),
+    // set parent 0 => don't align in grid yet, as aour metrics is not correct yet 
+    : QIconViewItem( 0, fi->fileName(), QIconSet( QPixmap( empty_icon ) ) ), itemFileName( fi->filePath() ),
       itemFileInfo( *fi ), checkSetText( FALSE ), timer( this )
 {
+    view = parent;
+
     if ( itemFileInfo.isDir() )
         itemType = Dir;
     else if ( itemFileInfo.isFile() )
@@ -265,6 +268,10 @@ QtFileIconViewItem::QtFileIconViewItem( QtFileIconView *parent, QFileInfo *fi )
 
     connect( &timer, SIGNAL( timeout() ),
              this, SLOT( openFolder() ) );
+
+    
+    // now do init stuff, to align in grid and so on
+    init();
 }
 
 QtFileIconViewItem::~QtFileIconViewItem()
@@ -357,8 +364,6 @@ QtFileIconView::QtFileIconView( const QString &dir, QWidget *parent, const char 
     setRastX( 100 );
     setRastY( 75 );
 
-    readDir( viewDir );
-
     connect( this, SIGNAL( doubleClicked( QIconViewItem * ) ), this, SLOT( itemDoubleClicked( QIconViewItem * ) ) );
     connect( this, SIGNAL( dropped( QDropEvent * ) ), this, SLOT( slotDropped( QDropEvent * ) ) );
     connect( this, SIGNAL( itemRightClicked( QIconViewItem * ) ), this, SLOT( slotItemRightClicked( QIconViewItem * ) ) );
@@ -433,8 +438,6 @@ void QtFileIconView::readDir( const QDir &dir )
         qApp->processEvents();
     }
     emit readDirDone();
-
-    viewport()->repaint( TRUE );
 }
 
 void QtFileIconView::itemDoubleClicked( QIconViewItem *i )
@@ -573,6 +576,6 @@ int QtFileIconView::dragItems( QDropEvent *e )
         QUriDrag::decodeLocalFiles( e, l );
         return l.count();
     }
-    else 
+    else
         return QIconView::dragItems( e );
 }
