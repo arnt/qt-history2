@@ -89,7 +89,8 @@ QMainWindow::QMainWindow(QWidget *parent, Qt::WFlags flags)
 }
 
 #ifdef QT_COMPAT
-/*! \obsolete
+/*! 
+    \obsolete
     Constructs a QMainWindow with the given \a parent, \a name, and
     with the specified widget \a flags.
  */
@@ -203,7 +204,7 @@ void QMainWindow::setCenterWidget(QWidget *widget)
 }
 
 /*!
-    Sets the dock window area \a area to occupy the specified \a
+    Sets the given dock window \a area to occupy the specified \a
     corner.
 
     \sa corner()

@@ -171,7 +171,7 @@ QToolBar::QToolBar(QMainWindow *parent)
 
 #ifdef QT_COMPAT
 /*! \obsolete
-    Constructs a QToolBar with parent \a parent, named \a name.
+    Constructs a QToolBar with the given \a parent and \a name.
 */
 QToolBar::QToolBar(QMainWindow *parent, const char *name)
     : QFrame(*new QToolBarPrivate, parent)

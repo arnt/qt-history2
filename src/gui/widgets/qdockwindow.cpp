@@ -581,12 +581,18 @@ void QDockWindowPrivate::place(Qt::DockWindowArea area, Qt::Orientation directio
 /*!
     \enum QDockWindow::DockWindowFeature
 
-    \value DockWindowClosable
-    \value DockWindowMovable
-    \value DockWindowFloatable
+    \value DockWindowClosable   The dock window can be closed.
+    \value DockWindowMovable    The dock window can be moved between docks
+                                by the user.
+    \value DockWindowFloatable  The dock window can be detached from the
+                                main window, and floated as an independent
+                                window.
 
-    \value AllDockWindowFeatures
-    \value NoDockWindowFeatures
+    \value AllDockWindowFeatures  The dock window can be closed, moved,
+                                  and floated.
+    \value NoDockWindowFeatures   The dock window cannot be closed, moved,
+                                  or floated.
+
     \omitvalue DockWindowFeatureMask
 */
 
@@ -727,8 +733,9 @@ void QDockWindow::setTopLevel(bool floated, const QPoint &pos)
         show();
 }
 
-/*! \property QDockWindow::allowedAreas
-    \brief areas where the dock window may be placed.
+/*! 
+    \property QDockWindow::allowedAreas
+    \brief areas where the dock window may be placed
 
     The default is \c Qt::AllDockWindowAreas.
 
@@ -741,10 +748,11 @@ void QDockWindow::setAllowedAreas(Qt::DockWindowAreas areas)
 Qt::DockWindowAreas QDockWindow::allowedAreas() const
 { return d->allowedAreas; }
 
-/*! \fn bool QDockWindow::isDockable(Qt::DockWindowArea area)
+/*! 
+    \fn bool QDockWindow::isDockable(Qt::DockWindowArea area)
 
-    Returns true if this dock window can be placed in area \a area;
-    otherwise it returns false.
+    Returns true if this dock window can be placed in the given \a area;
+    otherwise returns false.
 */
 
 /*! \property QDockWindow::area
