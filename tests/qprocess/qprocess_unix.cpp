@@ -5,6 +5,23 @@
 #include "qprocess.h"
 
 
+void QProcess::init()
+{
+    stdinBufRead = 0;
+
+    notifierStdin = 0;
+    notifierStdout = 0;
+    notifierStderr = 0;
+
+    socketStdin[0] = 0;
+    socketStdin[1] = 0;
+    socketStdout[0] = 0;
+    socketStdout[1] = 0;
+    socketStderr[0] = 0;
+    socketStderr[1] = 0;
+}
+
+
 bool QProcess::start()
 {
     // cleanup the notifiers

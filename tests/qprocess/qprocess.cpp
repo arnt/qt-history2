@@ -17,40 +17,6 @@
   output, etc.
 */
 
-#if 0
-void QProcess::init()
-{
-    stdinBufRead = 0;
-
-#if defined( _WS_WIN_ )
-    if ( QApplication::winVersion() & Qt::WV_NT_based ) {
-#endif
-	notifierStdin = 0;
-	notifierStdout = 0;
-	notifierStderr = 0;
-
-	socketStdin[0] = 0;
-	socketStdin[1] = 0;
-	socketStdout[0] = 0;
-	socketStdout[1] = 0;
-	socketStderr[0] = 0;
-	socketStderr[1] = 0;
-#if defined( _WS_WIN_ )
-	WORD wVersionRequested;WSADATA wsaData;
-	wVersionRequested = MAKEWORD( 2, 2 ); 
-	WSAStartup( wVersionRequested, &wsaData );
-    } else {
-	pipeStdin[0] = 0;
-	pipeStdin[1] = 0;
-	pipeStdout[0] = 0;
-	pipeStdout[1] = 0;
-	pipeStderr[0] = 0;
-	pipeStderr[1] = 0;
-    }
-#endif
-}
-#endif
-
 /*!
   Constructs a QProcess.
 */
