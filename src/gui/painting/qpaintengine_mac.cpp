@@ -1394,7 +1394,9 @@ QCoreGraphicsPaintEngine::drawWinFocusRect(const QRect &fr, bool xorPaint, const
     else
 	state->pen = QPen(black);
     state->pen.setStyle(DashLine);
+    state->brush.setStyle(NoBrush);
     updatePen(state);
+    updateBrush(state);
 
     //draw
     if(d->current.pen.style() != NoPen)
@@ -1403,6 +1405,7 @@ QCoreGraphicsPaintEngine::drawWinFocusRect(const QRect &fr, bool xorPaint, const
     //restore
     *state = old_state;
     updatePen(state);
+    updateBrush(state);
 }
 
 void
