@@ -1,23 +1,24 @@
 /*! \page qt4-intro.html
-    \title Welcome to the Second Qt 4 Technology Preview
+    \title Welcome to the Qt 4 Beta 1 Release
 
 Dear Qt user,
 
-We are pleased to present our second Technology Preview release for
-Qt 4. We are releasing this code snapshot to our users because we
-want to show you some of the new technologies that will go into the
-final Qt 4 release, and because we want you to have the opportunity
-to give us your feedback. The feedback we receive will help us to
-ensure that the final Qt 4 release provides as much value and
-productivity as possible.
+We are pleased to present our first beta release for Qt 4. We are
+releasing this code snapshot to our users because we want to show you
+some of the new technologies that will go into the final Qt 4
+release, and because we want you to have the opportunity to give us
+your feedback. The feedback we receive will help us to ensure that
+the final Qt 4 release provides as much value and productivity as
+possible.
 
-This technology preview is licensed under a non-commercial license.
-It is not meant to be used in production code or even for application
+This beta release is licensed under a non-commercial license. It is
+not meant to be used in production code or even for application
 development. Furthermore, please do not attempt to start porting your
 Qt 3 based projects over yet. Not all backward compatibility
 functionality is in place yet, and we have not yet finished the \link
-porting.html Porting Guide \endlink and the porting tools that will
-help you with the process once the Qt 4 final release is imminent.
+porting.html Porting Guide \endlink and the \l{qt3to4.htmk}{porting
+tool} that will help you with the process once the Qt 4 final release
+is imminent.
 
 What you \e{can} do is write new small programs to experience what
 the next generation of Qt programming will be like. In particular,
@@ -81,8 +82,8 @@ documentation itself is still far from complete.
 
 \section1 Supported Platforms
 
-The Technology Preview has not been tested on the entire range
-of platforms targeted by the final Qt 4.0 release. The following
+This beta release has not been tested on the entire range of
+platforms targeted by the final Qt 4.0 release. The following
 platforms are supported:
 
 \list
@@ -103,7 +104,7 @@ send a message containing just the word "subscribe" (without the
 quotes) to
 \l{mailto:qt4-preview-feedback-request@trolltech.com}{qt4-preview-feedback-request@trolltech.com}.
 We encourage you to use this mailing list instead of \c qt-interest for
-preview-specific issues. See \l http://lists.trolltech.com/ for more
+beta-specific issues. See \l http://lists.trolltech.com/ for more
 information on Trolltech's mailing lists, including archived
 discussions.
 
@@ -112,7 +113,7 @@ discussions.
 We plan to enter the beta phase in Q4, 2004 and release the final Qt
 4.0 in late Q1, 2005.
 
-Enjoy the Technology Preview: We hope you will have as much fun and
+Enjoy the beta release: We hope you will have as much fun and
 pleasure experimenting with Qt 4 as we had designing and building it.
 
 \e{--The Trolltech Qt 4 Team}

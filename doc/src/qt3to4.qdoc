@@ -1,0 +1,81 @@
+/*!
+    \page qt3to4.html
+    \title qt3to4 - The Qt 3 to 4 Porting Tool
+
+    The \c qt3to4 tool provides help when moving a project from Qt 3
+    to Qt 4. It is designed to automate the most tedious part of the
+    porting effort.
+
+    See the \l{porting.html}{Porting Guide} for more information
+    about porting from Qt 3 to Qt 4.
+
+    \section1 Usage
+
+    \c qt3to4 can be run either on individual C++ source or header
+    files, or on an entire project specified by a qmake \c .pro file:
+
+    \code
+        qt3to4 myfile.cpp
+        qt3to4 myapp.pro
+    \endcode
+
+    In project mode, \c qt3to4 reads the \c .pro file and converts
+    all files specified in it. The tool modifies the files in place.
+    You might want to make a copy of your project before you run the
+    tool.
+
+    \section1 Porting Rules
+
+    The Qt porting tool loads its porting rules from an XML file
+    called \c rules.xml located in Qt's \c tools/qt3to4 directory. By
+    editing this file, you can add your own rules or remove some
+    rules.
+
+    The standard \c rules.xml file specifies the following
+    conversions:
+
+    \list
+    \o  Rename classes that are now part of the Qt 3 compatibility
+        library (e.g., replace QFileDialog with Q3FileDialog).
+    \o  Modify include directives to use the new Qt style (e.g.,
+        \c{#include <QCheckBox>}).
+    \o  Prefix or rename enum values that have been moved or
+        renamed (e.g., replace QButton::On with QCheckBox::On) or
+        members of the Qt namespace (e.g., replace QWidget::red with
+        Qt::red).
+    \o  Perform miscellaneous trivial changes (e.g., replace \c TRUE
+        with \c true).
+    \endlist
+
+    \section1 Logging
+
+    The porting tool logs all changes to a file called \c
+    portinglog.txt in the current directory. This file lists all
+    changes made to the source files.
+
+    \section1 State of the Porting Tool
+
+    The current version of the \c qt3to4 tool is a beta version. It
+    is intended to demonstrate how the finished program will work.
+    You are encouraged to test it on your projects and
+    \l{mailto:qt-bugs@trolltech.com}{report issues to us}.
+
+    The following are known issues with this version that will be
+    addressed in the next release:
+
+    \list
+    \o  \e{Scoping of names isn't handled correctly.}
+        This version of the Qt porting tool might change names which
+        it shouldn't. For example, a user variable named \c lightGray
+        will be changed to \c Qt::lightGray, because the tool doesn't
+        parse user variable declarations yet.
+
+    \o  \e{The \c .pro file isn't updated to take into account the Qt library split.}
+        Since the Qt library has been split into several smaller
+        libraries, a \c{QT} entry needs to be added to the \c .pro
+        file depending on witch classes are used. Currently, only the
+        \c compat library is added if it's not already specified.
+
+    \o  \e{The \c rules.xml file isn't complete.}
+    \endlist
+*/

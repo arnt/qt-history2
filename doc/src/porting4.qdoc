@@ -71,6 +71,8 @@
     \o Be sure that your code compiles and runs well on all your target
        platforms with Qt 3, with QT_NO_COMPAT defined.
 
+    \o Run the \l{qt3to4.html}{qt3to4} tool.
+
     \o Recompile with Qt 4. For each error, search below for related
        identifiers (e.g. function names, class names). This document
        mentions all relevant identifiers to help you get the information
@@ -145,7 +147,8 @@
 
     Whenever you see an occurrence of the name on the left, you can
     safely replace it with the Qt 4 equivalent in your program. The
-    \l{porting tool} handles performs the conversion automatically.
+    \l{qt3to4.html}{qt3to4} tool handles performs the conversion
+    automatically.
 
     \table
     \header \o Qt 3 class name \o Qt 4 class name
@@ -158,7 +161,8 @@
 
     Whenever you see an occurrence of the name on the left, you can
     safely replace it with the Qt 4 equivalent in your program. The
-    \l{porting tool} handles performs the conversion automatically.
+    \l{qt3to4.html}{qt3to4} tool handles performs the conversion
+    automatically.
 
     \table
     \header \o Qt 3 type name \o Qt 4 type name
@@ -177,7 +181,8 @@
 
     Whenever you see an occurrence of the name on the left, you can
     safely replace it with the Qt 4 equivalent in your program. The
-    \l{porting tool} handles performs the conversion automatically.
+    \l{qt3to4.html}{qt3to4} tool handles performs the conversion
+    automatically.
 
     \table
     \header \o Qt 3 enum value name \o Qt 4 enum value name
