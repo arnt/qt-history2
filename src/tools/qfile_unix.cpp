@@ -127,7 +127,7 @@ bool QFile::remove( const QString &fileName )
     \warning If you have a buffered file opened for both reading and
     writing you must not perform an input operation immediately after
     an output operation or vice versa. You should always call flush()
-    or a file positioning operation, e.g. seek(), between input and
+    or a file positioning operation, e.g. at(), between input and
     output operations, otherwise the buffer may contain garbage.
 
   If the file does not exist and \c IO_WriteOnly or \c IO_ReadWrite is

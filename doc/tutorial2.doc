@@ -1,18 +1,18 @@
-/*! \file examples/chart/chart.pro */
-/*! \file examples/chart/element.h */
-/*! \file examples/chart/element.cpp */
-/*! \file examples/chart/main.cpp */
-/*! \file examples/chart/canvastext.h */
-/*! \file examples/chart/canvasview.h */
-/*! \file examples/chart/canvasview.cpp */
-/*! \file examples/chart/chartform.h */
-/*! \file examples/chart/chartform.cpp */
-/*! \file examples/chart/chartform_canvas.cpp */
-/*! \file examples/chart/chartform_files.cpp */
-/*! \file examples/chart/optionsform.h */
-/*! \file examples/chart/optionsform.cpp */
-/*! \file examples/chart/setdataform.h */
-/*! \file examples/chart/setdataform.cpp */
+/*! \file chart/chart.pro */
+/*! \file chart/element.h */
+/*! \file chart/element.cpp */
+/*! \file chart/main.cpp */
+/*! \file chart/canvastext.h */
+/*! \file chart/canvasview.h */
+/*! \file chart/canvasview.cpp */
+/*! \file chart/chartform.h */
+/*! \file chart/chartform.cpp */
+/*! \file chart/chartform_canvas.cpp */
+/*! \file chart/chartform_files.cpp */
+/*! \file chart/optionsform.h */
+/*! \file chart/optionsform.cpp */
+/*! \file chart/setdataform.h */
+/*! \file chart/setdataform.cpp */
 
 /*!
 

@@ -278,12 +278,8 @@ void QFile::flush()
 	fflush( fh );				//   file
 }
 
-/*!
+/*! \reimp
     \fn QIODevice::Offset QFile::at() const
-
-    Returns the position in the file.
-
-    \sa size()
 */
 
 /*!

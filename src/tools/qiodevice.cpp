@@ -544,9 +544,14 @@ QIODevice::Offset QIODevice::at() const
     return ioIndex;
 }
 
-/*!
-    \overload
 
+/*
+    The following is a "bad" overload, since it does "not behave essentially
+    the same" like the above. So don't use  \overload in the documentation of
+    this function and we have to live with the qdoc warning which is generated
+    for this.
+*/
+/*!
     Virtual function that sets the I/O device position to \a pos.
     Returns TRUE if the position was successfully set, i.e. \a pos is
     within range; otherwise returns FALSE.
