@@ -621,7 +621,8 @@ void QTreeView::mousePressEvent(QMouseEvent *e)
 
 QModelIndex QTreeView::itemAt(int x, int y) const
 {
-    QModelIndex mi = d->modelIndex(d->item(y));
+    int vi = d->item(y);
+    QModelIndex mi = d->modelIndex(vi);
     int c = d->columnAt(x);
     if (mi.isValid() && c >= 0)
         return model()->sibling(mi.row(), c, mi);
@@ -701,6 +702,8 @@ QModelIndex QTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction, 
     if (!current.isValid())
         return current;
     int vi = d->viewIndex(current);
+    if (vi < 0)
+        return current;
 
     switch (cursorAction) {
     case QAbstractItemView::MoveDown:
