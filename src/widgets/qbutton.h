@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#7 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#8 $
 **
 ** Definition of QButton class
 **
@@ -68,6 +68,8 @@ private:
     uint    buttonDown	: 1;
     uint    buttonOn	: 1;
     uint    mlbDown	: 1;
+
+    friend class QButtonGroup;
 };
 
 
