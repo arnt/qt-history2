@@ -8,6 +8,7 @@ INCLUDEPATH += . Exm Xmd
 LIBS += -lXm -lqmotif
 
 # Input
+FORMS    = pageeditdialog.ui
 HEADERS += page.h \
            Exm/CommandB.h \
            Exm/CommandBP.h \
