@@ -1472,6 +1472,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     # auto-detect XftFreeType support
     if [ "$CFG_XRENDER" = "yes" ] && [ "$CFG_FREETYPE" != "no" ]; then
 	CFG_FREETYPE=yes
+	mkdir -p $outpath/config.tests/x11
 	$x11tests/xfreetype.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath $L_FLAGS $I_FLAGS && CFG_FREETYPE=no
     fi
     # add freetype2 include path
