@@ -380,7 +380,7 @@ DspMakefileGenerator::init()
     for(it = l.begin(); it != l.end(); ++it) {
 	QStringList &gdmf = project->variables()[(*it)];
 	for(QStringList::Iterator inner = gdmf.begin(); inner != gdmf.end(); ++inner)
-	    (*inner) = Option::fixPathToTargetOS((*inner));
+	    (*inner) = Option::fixPathToTargetOS((*inner), FALSE);
     }
     MakefileGenerator::init();
 #if defined(_OS_WIN32_) && 0

@@ -101,7 +101,7 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
     else {
 	t << "LIB	=	" << var("QMAKE_LIB") << endl;
     }
-    t << "MOC	=	" << var("QMAKE_MOC") << endl;
+    t << "MOC	=	" << Option::fixPathToTargetOS(var("QMAKE_MOC"), FALSE) << endl;
     t << "UIC	=	" << var("QMAKE_UIC") << endl;
     t << "ZIP	=	" << var("QMAKE_ZIP") << endl;
     t << endl;
@@ -132,8 +132,8 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
     t << "all: " << varGlue("ALL_DEPS",""," "," ") << " $(TARGET)" << endl << endl;
     t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS");
     if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
-	t << "\n\t" << "$(LINK) @&&| $(LFLAGS) $(OBJECTS) $(OBJMOC), $(TARGET),,$(LIBS)" << "\n\t"
-	  << "-del $(TARGET)";
+	t << "\n\t" << "$(LINK) @&&|" << "\n\t"
+	  << "$(LFLAGS) $(OBJECTS) $(OBJMOC), $(TARGET),,$(LIBS)";
     } else {
 	t << "\n\t" << "$(LIB) $(TARGET) @&&|" << " \n+"
 	  << project->variables()["OBJECTS"].join(" \\\n+") << " \\\n+"
@@ -306,19 +306,19 @@ BorlandMakefileGenerator::init()
     if ( project->isActiveConfig("windows") ) {
 	if ( project->isActiveConfig("console") ) {
 	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_CONSOLE_ANY"];
-	    project->variables()["QMAKE_LIBS  "] += project->variables()["QMAKE_LIBS_CONSOLE"];
+	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_CONSOLE"];
 	} else {
 	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_WINDOWS_ANY"];
 	}
-	project->variables()["QMAKE_LIBS  "] += project->variables()["QMAKE_LIBS_WINDOWS"];
+	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_WINDOWS"];
     } else {
 	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_CONSOLE_ANY"];
-	project->variables()["QMAKE_LIBS  "] += project->variables()["QMAKE_LIBS_CONSOLE"];
+	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_CONSOLE"];
     }
     if ( project->isActiveConfig("thread") ) {
-        project->variables()["QMAKE_LIBS  "] += project->variables()["QMAKE_LIBS_RTMT"];
+        project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_RTMT"];
     } else {
-        project->variables()["QMAKE_LIBS  "] += project->variables()["QMAKE_LIBS_RT"];
+        project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_RT"];
     }
     if ( project->isActiveConfig("moc") ) {
 	setMocAware(TRUE);
@@ -330,7 +330,7 @@ BorlandMakefileGenerator::init()
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QStringList &gdmf = project->variables()[(*it)];
 	for(QStringList::Iterator inner = gdmf.begin(); inner != gdmf.end(); ++inner)
-	    (*inner) = Option::fixPathToTargetOS((*inner));
+	    (*inner) = Option::fixPathToTargetOS((*inner), FALSE);
     }
 
     if ( !project->variables()["DEF_FILE"].isEmpty() ) {

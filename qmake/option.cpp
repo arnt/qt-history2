@@ -161,9 +161,10 @@ void fixEnvVariables(QString &x)
 }
 
 QString
-Option::fixPathToTargetOS(QString in)
+Option::fixPathToTargetOS(QString in, bool fix_env)
 {
-    fixEnvVariables(in);
+    if(fix_env)
+	fixEnvVariables(in);
     return in.replace(QRegExp(Option::mode == UNIX_MODE ? "\\" : "/"), Option::dir_sep);
 }
 

@@ -101,7 +101,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     else {
 	t << "LIB	=	" << var("QMAKE_LIB") << endl;
     }
-    t << "MOC	=	" << var("QMAKE_MOC") << endl;
+    t << "MOC	=	" << Option::fixPathToTargetOS(var("QMAKE_MOC"), FALSE) << endl;
     t << "UIC	=	" << var("QMAKE_UIC") << endl;
     t << "ZIP	=	" << var("QMAKE_ZIP") << endl;
     t << endl;
@@ -319,7 +319,7 @@ NmakeMakefileGenerator::init()
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QStringList &gdmf = project->variables()[(*it)];
 	for(QStringList::Iterator inner = gdmf.begin(); inner != gdmf.end(); ++inner)
-	    (*inner) = Option::fixPathToTargetOS((*inner));
+	    (*inner) = Option::fixPathToTargetOS((*inner), FALSE);
     }
 
     if ( !project->variables()["DEF_FILE"].isEmpty() ) {

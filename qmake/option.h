@@ -41,6 +41,9 @@
 #include <qstringlist.h>
 #include <qfile.h>
 
+
+void fixEnvVariables(QString &x);
+
 struct Option
 {
     static QString ui_ext;
@@ -68,9 +71,8 @@ struct Option
 
     static bool parseCommandLine(int argc, char **argv);
     static QString fixPathToLocalOS(QString in);
-    static QString fixPathToTargetOS(QString in);
+    static QString fixPathToTargetOS(QString in, bool fix_env=TRUE);
 };
 
-void fixEnvVariables(QString &x);
 
 #endif /* __OPTION_H__ */
