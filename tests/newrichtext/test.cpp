@@ -11,11 +11,11 @@
 #include "editwidget.h"
 
 // const char *family = "Arial Unicode Ms"; // generic
-const char *family = "Mangal"; // Devanagari
-// const char *family = "Diwani Letter"; // arabic
-// const char *family = "Serto Jerusalem"; // syriac
-// const char *family = "Akaash"; // Bengali
-// const char *family = "Latha"; // Tamil
+const char *family = "Diwani Letter,Arial,Latha,Akaash,Serto Jerusalem,Mangal"; // Devanagari
+// const char *family = ""; // arabic
+// const char *family = ""; // syriac
+// const char *family = ""; // Bengali
+// const char *family = ""; // Tamil
 
 
 //const char *s = "some string";
@@ -39,18 +39,21 @@ const char *family = "Mangal"; // Devanagari
 // const char *s = "ܠܡܢܐܠܐܡܡܠܠܝܢܣܘܪܝܝܐ";
 
 // Devanagari
-const char *s = "रूस के राष्ट्रपति व्लादिमीर पुतिन ने बीजिंग पहुँचकर चीन के राष्ट्रपति जियांग ज़ेमिन से बातचीत की. बातचीत के बाद संयुक्त घोषणा में रूस और चीन ने उत्तर कोरिया, इराक़ और द्विपक्षीय मामलों पर अपना पक्ष रखा.";
+// const char *s = "रूस के राष्ट्रपति व्लादिमीर पुतिन ने बीजिंग पहुँचकर चीन के राष्ट्रपति जियांग ज़ेमिन से बातचीत की. बातचीत के बाद संयुक्त घोषणा में रूस और चीन ने उत्तर कोरिया, इराक़ और द्विपक्षीय मामलों पर अपना पक्ष रखा.";
 
 
 // Bengali
 // const char * s = "অাবার অাসিব ফিরে ধানসিড়িটির তীরে - এই বাংলায় হয়তো মানুষ নয় - হয়তো বা শঙ্খচিল শালিখের বেশে, হয়তো ভোরের কাক হয়ে এই কার্তিকের নবান্নের দেশে  কুয়াশার বুকে ভেসে একদিন অাসিব এই কাঁঠাল - ছায়ায়, হয়তো বা হাঁস হব - কিশোরীর - ঘুঙুর রহিবে লাল পায়ে, সারাদিন কেটে যাবে কলমীর গন্ধ ভরা জলে ভেসে ভেসে, অাবার অাসিব অামি বাংলার নদী মাঠ ক্ষেত ভালোবেসে জলঙ্গীর ঢেউয়ে ভেজা বাংলার এ সবুজ করুণ ডাঙায়";
 
 // mixed
-// const char *s = "Thai: ทำไมเขาถึงไม่พูด �าษาไทย "
-// "Syriac: ܠܡܢܐܠܐܡܡܠܠܝܢܣܘܪܝܝܐ "
-// "Arabic: أوروبا, برمجيات الحاسوب "
-// "Hebrew: תוכנה והאינטרנט ";
-
+const char *s =
+"Thai: ทำไมเขาถึงไม่พูด �าษาไทย "
+"Syriac: ܠܡܢܐܠܐܡܡܠܠܝܢܣܘܪܝܝܐ "
+"Arabic: أوروبا, برمجيات الحاسوب "
+"Hebrew: תוכנה והאינטרנט "
+"Devanagari: रूस के राष्ट्रपति "
+"Bengali: অাবার অাসিব ফিরে "
+;
 // const char *s = "";
 
 int main( int argc, char **argv )

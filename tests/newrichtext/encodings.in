@@ -30,13 +30,11 @@ iso8859-8 85 Ascii,Hebrew
 gb18030-0 -114 Ascii,Han,Bopomofo
 gb18030.2000-0 -113 Ascii,Han
 gbk-0 -113 Ascii,Han
-gb2312.1980-0 57 Ascii,Han
+gb2312.*-0 57 Ascii,Han
 #
 # Japan
 jisx0201*-0 15 Ascii
-jisx0208.1997-0 63 Ascii,Hiragana,Katakana,Han
-jisx0208.1990-0 63 Ascii,Hiragana,Katakana,Han
-jisx0208.1983-0 63 Ascii,Hiragana,Katakana,Han
+jisx0208*-0 63 Ascii,Hiragana,Katakana,Han
 #
 # Korea
 ksc5601.1987-0 36 Ascii,Hangul
@@ -47,7 +45,6 @@ hkscs-1 -2101 Ascii,Han
 #
 # Taiwan
 big5*-* -2026 Ascii,Han
-big5-0 -2026 Ascii,Han
 #
 # Tamil
 tscii-* 2028 Tamil
@@ -58,6 +55,9 @@ iso8859-11 2259 Ascii
 #
 # Lao
 mulelao-1 -4242
+#
+# Ethiopic
+ethiopic-unicode 0 Ethiopic
 #
 # Unicode
 iso10646-1 0 Unicode

@@ -49,50 +49,56 @@
 
 // ----- begin of generated code -----
 
+#define make_tag( c1, c2, c3, c4 ) \
+( (((unsigned int)c1)<<24) | (((unsigned int)c2)<<16) | \
+(((unsigned int)c3)<<8) | ((unsigned int)c4) )
+
 struct XlfdEncoding {
     const char *name;
     int id;
+    int mib;
+    unsigned int hash1;
+    unsigned int hash2;
 };
 
-static const int mib_for_xlfd_encoding[] = {
-   0,
-    5,
-    6,
-    7,
-    110,
-    111,
-    8,
-    2251,
-    2084,
-    2088,
-    2084,
-    10,
-    82,
-    85,
-    -114,
-    -113,
-    -113,
-    57,
-    15,
-    63,
-    63,
-    63,
-    36,
-    -2101,
-    -2101,
-    -2026,
-    -2026,
-    2028,
-    2259,
-    2259,
-    -4242,
-    0,
-    0,
-    0,
-    0
+static const XlfdEncoding xlfd_encoding[] = {
+    { "iso8859-1", 0, 0, make_tag('i','s','o','8'), make_tag('5','9','-','1') },
+    { "iso8859-2", 1, 5, make_tag('i','s','o','8'), make_tag('5','9','-','2') },
+    { "iso8859-3", 2, 6, make_tag('i','s','o','8'), make_tag('5','9','-','3') },
+    { "iso8859-4", 3, 7, make_tag('i','s','o','8'), make_tag('5','9','-','4') },
+    { "iso8859-14", 4, 110, make_tag('i','s','o','8'), make_tag('9','-','1','4') },
+    { "iso8859-15", 5, 111, make_tag('i','s','o','8'), make_tag('9','-','1','5') },
+    { "iso8859-5", 6, 8, make_tag('i','s','o','8'), make_tag('5','9','-','5') },
+    { "*-cp1251", 7, 2251, 0, make_tag('1','2','5','1') },
+    { "koi8-ru", 8, 2084, make_tag('k','o','i','8'), make_tag('8','-','r','u') },
+    { "koi8-u", 9, 2088, make_tag('k','o','i','8'), make_tag('i','8','-','u') },
+    { "koi8-r", 10, 2084, make_tag('k','o','i','8'), make_tag('i','8','-','r') },
+    { "iso8859-7", 11, 10, make_tag('i','s','o','8'), make_tag('5','9','-','7') },
+    { "iso8859-6", 12, 82, make_tag('i','s','o','8'), make_tag('5','9','-','6') },
+    { "iso8859-8", 13, 85, make_tag('i','s','o','8'), make_tag('5','9','-','8') },
+    { "gb18030-0", 14, -114, make_tag('g','b','1','8'), make_tag('3','0','-','0') },
+    { "gb18030.2000-0", 15, -113, make_tag('g','b','1','8'), make_tag('0','0','-','0') },
+    { "gbk-0", 16, -113, make_tag('g','b','k','-'), make_tag('b','k','-','0') },
+    { "gb2312.1980-0", 17, 57, make_tag('g','b','2','3'), make_tag('8','0','-','0') },
+    { "jisx0201*-0", 18, 15, make_tag('j','i','s','x'), 0 },
+    { "jisx0208*-0", 19, 63, make_tag('j','i','s','x'), 0 },
+    { "ksc5601.1987-0", 20, 36, make_tag('k','s','c','5'), make_tag('8','7','-','0') },
+    { "big5hkscs-0", 21, -2101, make_tag('b','i','g','5'), make_tag('c','s','-','0') },
+    { "hkscs-1", 22, -2101, make_tag('h','k','s','c'), make_tag('c','s','-','1') },
+    { "big5*-*", 23, -2026, make_tag('b','i','g','5'), 0 },
+    { "tscii-*", 24, 2028, make_tag('t','s','c','i'), 0 },
+    { "tis620*-0", 25, 2259, make_tag('t','i','s','6'), 0 },
+    { "iso8859-11", 26, 2259, make_tag('i','s','o','8'), make_tag('9','-','1','1') },
+    { "mulelao-1", 27, -4242, make_tag('m','u','l','e'), make_tag('a','o','-','1') },
+    { "ethiopic-unicode", 28, 0, make_tag('e','t','h','i'), make_tag('c','o','d','e') },
+    { "iso10646-1", 29, 0, make_tag('i','s','o','1'), make_tag('4','6','-','1') },
+    { "unicode-*", 30, 0, make_tag('u','n','i','c'), 0 },
+    { "*-symbol", 31, 0, 0, make_tag('m','b','o','l') },
+    { "*-fontspecific", 32, 0, 0, make_tag('i','f','i','c') },
+    { 0, 0, 0, 0, 0 }
 };
 
-static const char scripts_for_xlfd_encoding[35][50] = {
+static const char scripts_for_xlfd_encoding[33][50] = {
     { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -171,32 +177,22 @@ static const char scripts_for_xlfd_encoding[35][50] = {
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-      0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-      0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-      0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
-      1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
-      1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -224,11 +220,6 @@ static const char scripts_for_xlfd_encoding[35][50] = {
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -247,6 +238,11 @@ static const char scripts_for_xlfd_encoding[35][50] = {
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -270,173 +266,58 @@ static const char scripts_for_xlfd_encoding[35][50] = {
       0, 0, 0, 0, 0, 0, 0, 0, 1, 0 }
 
 };
-enum
-  {
-    TOTAL_KEYWORDS = 35,
-    MIN_WORD_LENGTH = 5,
-    MAX_WORD_LENGTH = 15,
-    MIN_HASH_VALUE = 5,
-    MAX_HASH_VALUE = 133
-  };
 
-/* maximum key range = 129, duplicates = 0 */
-
-static inline unsigned int
-hash (register const char *str, register unsigned int len)
-{
-  static const unsigned char asso_values[] =
-    {
-      134, 134, 134, 134, 134, 134, 134, 134, 134, 134,
-      134, 134, 134, 134, 134, 134, 134, 134, 134, 134,
-      134, 134, 134, 134, 134, 134, 134, 134, 134, 134,
-      134, 134, 134, 134, 134, 134, 134, 134, 134, 134,
-      134, 134,   0, 134, 134,   0,   0, 134,   0,   5,
-       40,  30,  35,  20,  10,  25,   0,   0, 134, 134,
-      134, 134, 134, 134, 134, 134, 134, 134, 134, 134,
-      134, 134, 134, 134, 134, 134, 134, 134, 134, 134,
-      134, 134, 134, 134, 134, 134, 134, 134, 134, 134,
-      134, 134, 134, 134, 134, 134, 134,   0,   0,   0,
-        0,   0,  35,   0,   0,   0,   0,   0,   0,   0,
-        0,   0,   0, 134,  10,   0,  15,   0, 134, 134,
-        0,   0, 134, 134, 134, 134, 134, 134, 134, 134,
-      134, 134, 134, 134, 134, 134, 134, 134, 134, 134,
-      134, 134, 134, 134, 134, 134, 134, 134, 134, 134,
-      134, 134, 134, 134, 134, 134, 134, 134, 134, 134,
-      134, 134, 134, 134, 134, 134, 134, 134, 134, 134,
-      134, 134, 134, 134, 134, 134, 134, 134, 134, 134,
-      134, 134, 134, 134, 134, 134, 134, 134, 134, 134,
-      134, 134, 134, 134, 134, 134, 134, 134, 134, 134,
-      134, 134, 134, 134, 134, 134, 134, 134, 134, 134,
-      134, 134, 134, 134, 134, 134, 134, 134, 134, 134,
-      134, 134, 134, 134, 134, 134, 134, 134, 134, 134,
-      134, 134, 134, 134, 134, 134, 134, 134, 134, 134,
-      134, 134, 134, 134, 134, 134, 134, 134, 134, 134,
-      134, 134, 134, 134, 134, 134
-    };
-  register int hval = len;
-
-  switch (hval)
-    {
-      default:
-      case 15:
-        hval += asso_values[(unsigned char)str[14]];
-      case 14:
-        hval += asso_values[(unsigned char)str[13]];
-      case 13:
-        hval += asso_values[(unsigned char)str[12]];
-      case 12:
-        hval += asso_values[(unsigned char)str[11]];
-      case 11:
-        hval += asso_values[(unsigned char)str[10]];
-      case 10:
-        hval += asso_values[(unsigned char)str[9]];
-      case 9:
-        hval += asso_values[(unsigned char)str[8]];
-      case 8:
-        hval += asso_values[(unsigned char)str[7]];
-      case 7:
-        hval += asso_values[(unsigned char)str[6]];
-      case 6:
-        hval += asso_values[(unsigned char)str[5]];
-      case 5:
-        hval += asso_values[(unsigned char)str[4]];
-      case 4:
-        hval += asso_values[(unsigned char)str[3]];
-      case 3:
-        hval += asso_values[(unsigned char)str[2]];
-      case 2:
-        hval += asso_values[(unsigned char)str[1]];
-      case 1:
-        hval += asso_values[(unsigned char)str[0]];
-        break;
-    }
-  return hval;
-}
-
-static const struct XlfdEncoding xlfd_encoding[] =
-  {
-    {"gbk-0", 16},
-    {"koi8-u", 9},
-    {"*-symbol", 33},
-    {"unicode-*", 32},
-    {"hkscs-1", 24},
-    {"mulelao-1", 30},
-    {"koi8-r", 10},
-    {"koi8-ru", 8},
-    {"tscii-*", 27},
-    {"big5-0", 26},
-    {"big5*-*", 25},
-    {"iso8859-8", 13},
-    {"big5hkscs-0", 23},
-    {"iso8859-1", 0},
-    {"iso8859-6", 12},
-    {"iso8859-11", 29},
-    {"gb18030-0", 14},
-    {"iso8859-5", 6},
-    {"iso8859-7", 11},
-    {"iso8859-15", 5},
-    {"jisx0201*-0", 18},
-    {"iso8859-3", 2},
-    {"jisx0208.1990-0", 20},
-    {"iso8859-4", 3},
-    {"iso8859-2", 1},
-    {"iso8859-14", 4},
-    {"tis620*-0", 28},
-    {"iso10646-1", 31},
-    {"*-cp1251", 7},
-    {"ksc5601.1987-0", 22},
-    {"jisx0208.1997-0", 19},
-    {"gb18030.2000-0", 15},
-    {"jisx0208.1983-0", 21},
-    {"*-fontspecific", 34},
-    {"gb2312.1980-0", 17}
-  };
-
-static const signed char lookup[] =
-  {
-    -1, -1, -1, -1, -1,  0,  1, -1,  2,  3, -1, -1,  4, -1,
-     5, -1,  6,  7, -1, -1, -1, -1,  8, -1, -1, -1,  9, 10,
-    -1, 11, -1, 12, -1, -1, 13, -1, -1, -1, -1, 14, 15, -1,
-    -1, -1, 16, -1, -1, -1, -1, 17, -1, -1, -1, -1, 18, 19,
-    20, -1, -1, 21, 22, -1, -1, -1, 23, -1, -1, -1, -1, 24,
-    25, -1, -1, -1, 26, 27, -1, -1, 28, 29, -1, -1, -1, -1,
-    -1, 30, -1, -1, -1, 31, 32, -1, -1, -1, -1, -1, -1, -1,
-    -1, 33, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, 34
-  };
-
-const struct XlfdEncoding *
-qt_xlfdEncoding_Id (register const char *str, register unsigned int len)
-{
-  if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
-    {
-      register int key = hash (str, len);
-
-      if (key <= MAX_HASH_VALUE && key >= 0)
-        {
-          register int index = lookup[key];
-
-          if (index >= 0)
-            {
-              register const char *s = xlfd_encoding[index].name;
-
-              if (*str == *s && !strncmp (str + 1, s + 1, len - 1) && s[len] == '\0')
-                return &xlfd_encoding[index];
-            }
-        }
-    }
-  return 0;
-}
 
 
 // ----- end of generated code -----
 
+int qt_xlfdEncoding_Id( const char *encoding )
+{
+//     qDebug("looking for encoding id for '%s'", encoding );
+    int len = strlen( encoding );
+    if ( len < 4 )
+	return -1;
+    unsigned int hash1 = make_tag( encoding[0], encoding[1], encoding[2], encoding[3] );
+    const char *ch = encoding + len - 4;
+    unsigned int hash2 = make_tag( ch[0], ch[1], ch[2], ch[3] );
+
+    const XlfdEncoding *enc = xlfd_encoding;
+    for ( ; enc->name; ++enc ) {
+	if ( (enc->hash1 && enc->hash1 != hash1) ||
+	     (enc->hash2 && enc->hash2 != hash2) )
+	    continue;
+	// hashes match, do a compare if strings match
+	// the enc->name can contain '*'s we have to interpret correctly
+	const char *n = enc->name;
+	const char *e = encoding;
+	while ( 1 ) {
+// 	    qDebug("bol: *e='%c', *n='%c'", *e,  *n );
+	    if ( *e == '\0' ) {
+		if ( *n )
+		    break;
+		return enc->id;
+	    }
+	    if ( *e == *n ) {
+		++e;
+		++n;
+		continue;
+	    }
+	    if ( *n != '*' )
+		break;
+	    ++n;
+// 	    qDebug("skip: *e='%c', *n='%c'", *e,  *n );
+	    while ( *e && *e != *n )
+		++e;
+	}
+    }
+    return -1;
+}
+
 int qt_mibForXlfd( const char * encoding )
 {
-    const XlfdEncoding *x = qt_xlfdEncoding_Id( encoding, strlen( encoding ) );
-    if ( x )
-	return mib_for_xlfd_encoding[x->id];
+    int id = qt_xlfdEncoding_Id( encoding );
+    if ( id != -1 )
+	return xlfd_encoding[id].mib;
     return 0;
 };
 
@@ -444,12 +325,9 @@ static const char * xlfd_for_id( int id )
 {
     // special case: -1 returns the "*-*" encoding, allowing us to do full
     // database population in a single X server round trip.
-    if ( id < 0 ) return "*-*";
+    if ( id < 0 || id > 31 ) return "*-*";
 
-    for ( int i = 0; i < TOTAL_KEYWORDS; i++ )
-	if ( xlfd_encoding[i].id == id )
-	    return xlfd_encoding[i].name;
-    return 0;
+    return xlfd_encoding[id].name;
 }
 
 static QtFontStyle::Key getStyle( char ** tokens )
@@ -557,11 +435,9 @@ static void loadXlfdEncoding( int encoding_id )
 	// here, since we can pass -1 to this function to do full
 	// database population
 	*(tokens[QFontPrivate::CharsetEncoding]-1) = '-';
-	const XlfdEncoding * const x =
-	    qt_xlfdEncoding_Id( tokens[QFontPrivate::CharsetRegistry],
-				strlen( tokens[QFontPrivate::CharsetRegistry] ) );
-	if ( !x ) continue;
-	encoding_id = x->id;
+	int encoding_id = qt_xlfdEncoding_Id( tokens[QFontPrivate::CharsetRegistry] );
+	if ( encoding_id == -1 )
+	    continue;
 
 	char *familyName = tokens[QFontPrivate::Family];
 	capitalize( familyName );

@@ -255,7 +255,7 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
 	    break;
 	}
     }
-    qDebug("length=%d",  len );
+//     qDebug("length=%d",  len );
 
     // nothing to do in this case!
     if ( len == 1 ) {
@@ -358,10 +358,10 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
 	{ (Form)0, None }
     };
 
-     qDebug("base=%d fixed=%d", base, fixed );
+//      qDebug("base=%d fixed=%d", base, fixed );
     int toMove = 0;
     while ( fixed < len ) {
- 	qDebug("fixed = %d", fixed );
+//  	qDebug("fixed = %d", fixed );
 	for ( int i = fixed; i < len; i++ ) {
 	    if ( form( uc[i] ) == finalOrder[toMove].form &&
 		 position( uc[i] ) == finalOrder[toMove].position ) {
@@ -369,7 +369,7 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
 		int to = fixed;
 		if ( finalOrder[toMove].position == Pre )
 		    to = 0;
- 		qDebug("moving from %d to %d", i,  to );
+//  		qDebug("moving from %d to %d", i,  to );
 		QChar ch = uc[i];
 		unsigned short feature = featuresToApply[i];
 		for ( int j = i; j > to; j-- ) {
