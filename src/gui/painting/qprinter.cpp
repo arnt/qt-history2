@@ -57,8 +57,8 @@
   printer to provide (in dots per inch -- dpi).
   \i setFullPage() tells QPrinter whether you want to deal with the
   full page or just with the part the printer can draw on. The
-  default is FALSE, so that by default you should be able to paint
-  on (0,0). If TRUE the origin of the coordinate system will be in
+  default is false, so that by default you should be able to paint
+  on (0,0). If true the origin of the coordinate system will be in
   the top left corner of the paper and most probably the printer
   will not be able to paint something there due to it's physical
   margins.
@@ -384,9 +384,9 @@ void QPrinter::setPrinterName(const QString &name)
 /*!
   \fn bool QPrinter::outputToFile() const
 
-  Returns TRUE if the output should be written to a file, or FALSE
+  Returns true if the output should be written to a file, or false
   if the output should be sent directly to the printer. The default
-  setting is FALSE.
+  setting is false.
 
   \warning This function is currently only supported under X11.
 
@@ -402,8 +402,8 @@ bool QPrinter::outputToFile() const
   Specifies whether the output should be written to a file or sent
   directly to the printer.
 
-  Will output to a file if \a enable is TRUE, or will output
-  directly to the printer if \a enable is FALSE.
+  Will output to a file if \a enable is true, or will output
+  directly to the printer if \a enable is false.
 
   \warning This function is currently only supported under X11.
 
@@ -737,8 +737,8 @@ int QPrinter::numCopies() const
 /*!
   \internal
 
-  Returns TRUE if collation is turned on when multiple copies is selected.
-  Returns FALSE if it is turned off when multiple copies is selected.
+  Returns true if collation is turned on when multiple copies is selected.
+  Returns false if it is turned off when multiple copies is selected.
 
   \sa collateCopiesEnabled() setCollateCopiesEnabled() setCollateCopies()
 */
@@ -752,8 +752,8 @@ bool QPrinter::collateCopies() const
   \internal
 
   Sets the default value for collation checkbox when the print dialog appears.
-  If \a on is TRUE, it will enable setCollateCopiesEnabled().
-  The default value is FALSE. This value will be changed by what the
+  If \a on is true, it will enable setCollateCopiesEnabled().
+  The default value is false. This value will be changed by what the
   user presses in the print dialog.
 
   \sa collateCopiesEnabled() setCollateCopiesEnabled() collateCopies()
@@ -821,15 +821,15 @@ void QPrinter::setNumCopies(int numCopies)
 /*!
   Sets QPrinter to have the origin of the coordinate system at the
   top-left corner of the paper if \a fp is TRUE, or where it thinks
-  the top-left corner of the printable area is if \a fp is FALSE.
+  the top-left corner of the printable area is if \a fp is false.
 
-  The default is FALSE. You can (probably) print on (0,0), and
+  The default is false. You can (probably) print on (0,0), and
   QPaintDeviceMetrics will report something smaller than the size
   indicated by PageSize. (Note that QPrinter may be wrong on Unix
   systems: it does not have perfect knowledge of the physical
   printer.)
 
-  If \a fp is TRUE, QPaintDeviceMetrics will report the exact same
+  If \a fp is true, QPaintDeviceMetrics will report the exact same
   size as indicated by \c PageSize. It probably isn't possible to
   print on the entire page because of the printer's physical
   margins, so the application must account for the margins itself.
@@ -844,8 +844,8 @@ void QPrinter::setFullPage(bool fp)
 
 
 /*!
-  Returns TRUE if the origin of the printer's coordinate system is
-  at the corner of the page and FALSE if it is at the edge of the
+  Returns true if the origin of the printer's coordinate system is
+  at the corner of the page and false if it is at the edge of the
   printable area.
 
   See setFullPage() for details and caveats.
@@ -1109,8 +1109,8 @@ void QPrinter::setMinMax(int minPage, int maxPage)
 
   \internal
 
-  Returns TRUE if the application should provide the user with the
-  option of choosing a collated printout; otherwise returns FALSE.
+  Returns true if the application should provide the user with the
+  option of choosing a collated printout; otherwise returns false.
 
   Collation means that each page is printed in order, i.e. print the
   first page, then the second page, then the third page and so on, and
@@ -1127,9 +1127,9 @@ void QPrinter::setMinMax(int minPage, int maxPage)
 
   \internal
 
-  If \a enable is TRUE (the default) the user is given the choice of
+  If \a enable is true (the default) the user is given the choice of
   whether to print out multiple copies collated in the print dialog.
-  If \a enable is FALSE, then collateCopies() will be ignored.
+  If \a enable is false, then collateCopies() will be ignored.
 
   Collation means that each page is printed in order, i.e. print the
   first page, then the second page, then the third page and so on, and

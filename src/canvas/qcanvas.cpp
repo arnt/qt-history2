@@ -3777,8 +3777,8 @@ void QCanvasPolygonalItem::invalidate()
 /*!
     \fn QCanvasPolygonalItem::isValid() const
 
-    Returns TRUE if the polygonal item's area information has not been
-    invalidated; otherwise returns FALSE.
+    Returns true if the polygonal item's area information has not been
+    invalidated; otherwise returns false.
 
     \sa invalidate()
 */
