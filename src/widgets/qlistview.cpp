@@ -6655,6 +6655,9 @@ QListViewItemIterator &QListViewItemIterator::operator-=( int j )
     return *this;
 }
 
+/*! Dereference operator. Returns a reference to the current item. The same as current().
+*/
+
 QListViewItem* QListViewItemIterator::operator*()
 {
     return curr;    
