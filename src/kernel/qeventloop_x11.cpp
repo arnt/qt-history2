@@ -1,7 +1,5 @@
 #include "qplatformdefs.h"
 
-#include <errno.h>
-
 #include "qeventloop.h"
 #include "qeventloop_p.h"
 
@@ -9,8 +7,10 @@
 #include "qbitarray.h"
 #include "qcolor_p.h"
 #include "qdatetime.h"
-
 #include "qt_x11.h"
+
+#include <stdlib.h>
+#include <errno.h>
 
 
 
