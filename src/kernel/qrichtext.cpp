@@ -5431,7 +5431,28 @@ void QTextImage::adjustToPainter( QPainter* p )
     height = int( height * scale_factor( metrics.logicalDpiY() ) );
 }
 
-void QTextImage::draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool )
+#if !defined(Q_WS_X11)
+static QPixmap *qrt_selection = 0;
+static QCleanupHandler<QPixmap> qrt_cleanup_pixmap;
+static void qrt_createSelectionPixmap( const QColorGroup &cg )
+{
+    qrt_selection = new QPixmap( 2, 2 );
+    qtr_cleanup_pixmap.add( qiv_selection );
+    qtr_selection->fill( Qt::color0 );
+    QBitmap m( 2, 2 );
+    m.fill( Qt::color1 );
+    QPainter p( &m );
+    p.setPen( Qt::color0 );
+    for ( int j = 0; j < 2; ++j ) {
+	p.drawPoint( j % 2, j );
+    }
+    p.end();
+    qtr_selection->setMask( m );
+    qtr_selection->fill( cg.highlight() );
+}
+#endif
+
+void QTextImage::draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool selected )
 {
     if ( placement() != PlaceInline ) {
 	x = xpos;
@@ -5460,10 +5481,22 @@ void QTextImage::draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch
 
     if ( placement() != PlaceInline && !QRect( xpos, ypos, width, height ).intersects( QRect( cx, cy, cw, ch ) ) )
 	return;
+
     if ( placement() == PlaceInline )
 	p->drawPixmap( x , y, pm );
     else
 	p->drawPixmap( cx , cy, pm, cx - x, cy - y, cw, ch );
+
+    if ( selected && placement() == PlaceInline ) {
+	p->save();
+#if defined(Q_WS_X11)
+	p->fillRect( QRect( QPoint( x, y ), pm.size() ), QBrush( cg.highlight(), QBrush::Dense4Pattern) );
+#else // in WIN32 Dense4Pattern doesn't work correctly (transparency problem), so work around it
+	if ( !qrt_selection )
+	    qrt_createSelectionPixmap( cg );
+	p->drawTiledPixmap( x, y, pm.width(), pm.height(), *qrt_selection );
+#endif
+    }
 }
 
 void QTextHorizontalLine::adjustToPainter( QPainter* p )
