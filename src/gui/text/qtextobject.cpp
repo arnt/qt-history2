@@ -996,8 +996,8 @@ const QTextDocument *QTextBlock::document() const
 }
 
 /*!
-    Returns a pointer to the corresponding QTextList if the block is
-    part of a list. Returns a null pointer otherwise.
+    If the block represents a list item, returns the list that the item belongs
+    to; otherwise returns 0.
 */
 QTextList *QTextBlock::textList() const
 {
