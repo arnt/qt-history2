@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#381 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#382 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -450,13 +450,9 @@ static void qt_set_windows_resources()
 	}
     }
 
-    QPalette pal( cg, dcg, cg );
+    QPalette pal( cg, dcg, icg );
     QApplication::setPalette( pal, TRUE );
     *qt_std_pal = pal;
-    pal = QPalette( cg, dcg, icg );
-    QApplication::setPalette( pal, TRUE, "QListView" );
-    QApplication::setPalette( pal, TRUE, "QIconView" );
-    QApplication::setPalette( pal, TRUE, "QListBox" );
 
     QColor menu(colorref2qrgb(GetSysColor(COLOR_MENU)));
     QColor menuText(colorref2qrgb(GetSysColor(COLOR_MENUTEXT)));
