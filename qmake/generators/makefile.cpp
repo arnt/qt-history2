@@ -288,8 +288,10 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
 		while(x < total_size_read && //Skip spaces after hash
 		      (*(big_buffer+x) == ' ' || *(big_buffer+x) == '\t'))
 		    x++;
-		if(total_size_read >= x + 8 && !strncmp(big_buffer + x, "include ", 8)) {
-		    for(x+=8; //skip spaces after keyword
+		if(total_size_read >= x + 8 && !strncmp(big_buffer + x, "include", 7) &&
+		   (*(big_buffer + x + 7) == ' ' || *(big_buffer + x + 7) == '\t' ||
+		    *(big_buffer + x + 7) == '<' || *(big_buffer + x + 7) == '"')) {
+		    for(x+=7; //skip spaces after keyword
 			x < total_size_read && (*(big_buffer+x) == ' ' || *(big_buffer+x) == '\t');
 			x++);
 		    char term = *(big_buffer + x);
