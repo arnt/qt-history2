@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#62 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#63 $
 **
 ** Implementation of QMenuData class
 **
@@ -329,7 +329,7 @@ int QMenuData::insertItem( const QPixmap &pixmap, const char *text,
     return id;
 }
 
-/*!  
+/*!
   Inserts a menu item with a text, an accelerator key, an id and an
   optional index and connects it to an object/slot.
 
@@ -840,10 +840,10 @@ bool QMenuData::isItemChecked( int id ) const
 }
 
 /*!
-  Checks a menu item if \a check is TRUE, or unchecks it if \a check is
-  FALSE.  Note that for popup menus (where checking is useful), you must
-  call QPopupMenu::setCheckable(TRUE) for check marks to be displayed.
-
+  Checks the menu item with id \a id if \a check is TRUE, or unchecks
+  it if \a check is FALSE, and calls setCheckable( TRUE ) if
+  necessary.
+  
   \sa isItemChecked()
 */
 
@@ -853,6 +853,8 @@ void QMenuData::setItemChecked( int id, bool check )
     QMenuItem *mi = findItem( id, &parent );
     if ( mi && (bool)mi->is_checked != check ) {
 	mi->is_checked = check;
+	if ( parent->isPopupMenu && !((QPopupMenu *)parent)->isCheckable() )
+	    ((QPopupMenu *)parent)->setCheckable( TRUE );
 	parent->menuStateChanged();
     }
 }
