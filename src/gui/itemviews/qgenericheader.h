@@ -15,7 +15,7 @@ public:
 
     enum ResizeMode
     {
-	NoResize, // don't change the size (let the user decide)
+	Interactive, // don't change the size (let the user decide)
 	Stretch, // fill available visible space
 	Content // set size to fit the content
     };

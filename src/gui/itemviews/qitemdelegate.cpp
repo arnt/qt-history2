@@ -149,6 +149,8 @@ QItemDelegate::EditType QItemDelegate::editType(const QModelIndex &) const
 QWidget *QItemDelegate::createEditor(StartEditAction action, QWidget *parent,
 				     const QItemOptions &options, const QModelIndex &item) const
 {
+    if (item.type() != QModelIndex::View)
+	return 0;
     if (action & (EditKeyPressed | AnyKeyPressed | DoubleClicked)) {
 	QLineEdit *lineEdit = new QLineEdit(parent, "QItemDelegate_lineedit");
 	lineEdit->setFrame(false);

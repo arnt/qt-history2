@@ -19,6 +19,7 @@ public:
 	  sortIndicatorSection(-1),
 	  movableSections(false),
 	  clickableSections(false),
+	  hasStretchSection(false),
  	  sectionIndicator(0) {}
 
     int sectionHandleAt(int pos);
@@ -48,6 +49,7 @@ public:
     int target;
     bool movableSections;
     bool clickableSections;
+    bool hasStretchSection;
     QWidget *sectionIndicator;//, *sectionIndicator2;
 };
 
@@ -302,25 +304,25 @@ void QGenericHeader::initializeSections(int start, int end)
     while (num >= 4) {
 
 	sections[0].hidden = false;
-	sections[0].mode = NoResize;
+	sections[0].mode = Interactive;
 	sections[0].section = s++;
 	sections[0].position = pos;
 	pos += size;
 
 	sections[1].hidden = false;
-	sections[1].mode = NoResize;
+	sections[1].mode = Interactive;
 	sections[1].section = s++;
 	sections[1].position = pos;
 	pos += size;
 
 	sections[2].hidden = false;
-	sections[2].mode = NoResize;
+	sections[2].mode = Interactive;
 	sections[2].section = s++;
 	sections[2].position = pos;
 	pos += size;
 
 	sections[3].hidden = false;
-	sections[3].mode = NoResize;
+	sections[3].mode = Interactive;
 	sections[3].section = s++;
 	sections[3].position = pos;
 	pos += size;
@@ -330,19 +332,19 @@ void QGenericHeader::initializeSections(int start, int end)
     }
     if (num > 0) {
 	sections[0].hidden = false;
-	sections[0].mode = NoResize;
+	sections[0].mode = Interactive;
 	sections[0].section = s++;
 	sections[0].position = pos;
 	pos += size;
 	if (num > 1) {
 	    sections[1].hidden = false;
-	    sections[1].mode = NoResize;
+	    sections[1].mode = Interactive;
 	    sections[1].section = s++;
 	    sections[1].position = pos;
 	    pos += size;
 	    if (num > 2) {
 		sections[2].hidden = false;
-		sections[2].mode = NoResize;
+		sections[2].mode = Interactive;
 		sections[2].section = s++;
 		sections[2].position = pos;
 		pos += size;
@@ -416,17 +418,38 @@ void QGenericHeader::contentsRemoved(const QModelIndex &parent,
 
 void QGenericHeader::resizeSections()
 {
-    int total = d->sections.at(count()).position;
-    QVector<int> stretch_sections;
-    const QGenericHeaderPrivate::HeaderSection *sections = d->sections.constData();
-    for (int i = 0; i < count(); ++i)
-	if (sections[i].mode == Stretch)
-	    stretch_sections.push_back(i);
-	else
-	    total -= sectionSize(section(i));
-    int size = total / stretch_sections.count();
-    for (int j = 0; j < stretch_sections.count(); ++j)
-	resizeSection(j, size);
+    ResizeMode mode;
+    int secSize;
+    int stretchSecs = 0;
+    int stretchSize = orientation() == Horizontal ? contentsWidth() : contentsHeight();
+    QVector<int> section_sizes;
+    int count = qMax(d->sections.count() - 1, 0);
+    QGenericHeaderPrivate::HeaderSection *secs = d->sections.data();
+    for (int i = 0; i < count; ++i) {
+	mode = secs[i].mode;
+	if (mode == Stretch) {
+	    ++stretchSecs;
+	    continue;
+	}
+	if (mode == Interactive)
+	    secSize = sectionSize(secs[i].section);
+	else //if (mode == QGenericHeader::Content)
+	    secSize = sectionSizeHint(secs[i].section); // warning: slow!
+	section_sizes.push_back(secSize);
+	stretchSize -= secSize;
+    }
+    int position = 0;
+    int stretchSectionSize = qMax(stretchSecs > 0 ? stretchSize / stretchSecs : 0, minimum);
+    for (int i; i < d->sections.count(); ++i) {
+	secs[i].position = position;
+	mode = secs[i].mode;
+	if (mode == Stretch) {
+	    position += stretchSectionSize;
+	} else {
+	    position += section_sizes.front();
+	    section_sizes.pop_front();
+	}
+    }
 }
 
 void QGenericHeader::viewportMousePressEvent(QMouseEvent *e)
@@ -451,10 +474,11 @@ void QGenericHeader::viewportMousePressEvent(QMouseEvent *e)
 	    updateSection(sec);
  	    emit sectionClicked(sec, e->state());
 	    return;
+	} else if (resizeMode(handle) == Interactive) {
+	    d->state = QGenericHeaderPrivate::ResizeSection;
+	    d->lastPos = (orientation() == Horizontal ? e->x() : e->y());
+	    d->section = handle;
 	}
-	d->state = QGenericHeaderPrivate::ResizeSection;
-	d->lastPos = (orientation() == Horizontal ? e->x() : e->y());
-	d->section = handle;
     }
 }
 
@@ -483,7 +507,7 @@ void QGenericHeader::viewportMouseMoveEvent(QMouseEvent *e)
 	} break;
 	case QGenericHeaderPrivate::NoState: {
 	    int handle = d->sectionHandleAt(pos + d->offset);
-	    if (handle != -1)
+	    if (handle != -1 && resizeMode(handle) == Interactive)
 		setCursor(orientation() == Horizontal ? SplitHCursor : SplitVCursor);
 	    else
 		setCursor(ArrowCursor);
@@ -626,8 +650,10 @@ bool QGenericHeader::isSectionHidden(int section) const
 
 void QGenericHeader::resizeEvent(QResizeEvent *e)
 {
+    qDebug("resizeEvent %d, %d", visibleWidth);
     QScrollView::resizeEvent(e);
     resizeContents(visibleWidth(), visibleHeight());
+    resizeSections();
 }
 
 QModelIndex QGenericHeader::itemAt(int x, int y) const
@@ -751,6 +777,7 @@ void QGenericHeader::setResizeMode(ResizeMode mode)
     QGenericHeaderPrivate::HeaderSection *sections = d->sections.data();
     for (int i = 0; i < d->sections.count(); ++i)
 	sections[i].mode = mode;
+    d->hasStretchSection = (mode == Stretch);
 }
 
 void QGenericHeader::setResizeMode(ResizeMode mode, int section)
@@ -758,12 +785,14 @@ void QGenericHeader::setResizeMode(ResizeMode mode, int section)
     if (section >= d->sections.count())
 	return;
     d->sections[index(section)].mode = mode;
+    d->hasStretchSection |= (mode == Stretch);
+    // FIXME: handle this
 }
 
 QGenericHeader::ResizeMode QGenericHeader::resizeMode(int section) const
 {
     if (section >= d->sections.count())
-	return NoResize;
+	return Interactive;
     return d->sections.at(index(section)).mode;
 }
 
