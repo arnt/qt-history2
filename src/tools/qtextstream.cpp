@@ -182,6 +182,7 @@
 
 
 static const QChar QEOF = QChar((ushort)0xffff); //guaranteed not to be a character.
+static const uint getline_buf_size = 256; // bufsize used by ts_getline()
 
 const int QTextStream::basefield   = I_BASE_MASK;
 const int QTextStream::adjustfield = ( QTextStream::left |
@@ -818,20 +819,18 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
   This function is NOP for UTF 16 (almost). Don't use it if doUnicodeHeader is
   TRUE!
 */
-uint QTextStream::ts_getline( QChar* buf, uint len )
+uint QTextStream::ts_getline( QChar* buf )
 {
-    if( len<1 )
-	return 0;
-
     uint rnum=0;   // the number of QChars really read
+    static char cbuf[ getline_buf_size+1 ];
 
     if ( d && d->ungetcBuf.length() ) {
-	while( rnum < len && rnum < d->ungetcBuf.length() ) {
+	while( rnum < getline_buf_size && rnum < d->ungetcBuf.length() ) {
 	    buf[rnum] = d->ungetcBuf.constref(rnum);
 	    rnum++;
 	}
 	d->ungetcBuf = d->ungetcBuf.mid( rnum );
-	if ( rnum >= len )
+	if ( rnum >= getline_buf_size )
 	    return rnum;
     }
 
@@ -843,13 +842,11 @@ uint QTextStream::ts_getline( QChar* buf, uint len )
 	while ( TRUE ) {
 	    // for efficiency: try to read a line
 	    if ( readBlock ) {
-		int rlen = len - rnum;
-		char *cbuf = new char[ rlen+1 ];
+		int rlen = getline_buf_size - rnum;
 		rlen = dev->readLine( cbuf, rlen+1 );
 		if ( rlen == -1 )
 		    rlen = 0;
 		s  += d->decoder->toUnicode( cbuf, rlen );
-		delete[] cbuf;
 		readBlock = FALSE;
 	    }
 	    if ( dev->atEnd()
@@ -872,16 +869,15 @@ uint QTextStream::ts_getline( QChar* buf, uint len )
 	    }
 	}
 	uint i = 0;
-	while( rnum < len && i < s.length() )
+	while( rnum < getline_buf_size && i < s.length() )
 	    buf[rnum++] = s.constref(i++);
 	if ( s.length() > i )
 	    // could be = but append is clearer
 	    d->ungetcBuf.append( s.mid( i ) );
-	if ( rnum < len && dev->atEnd() )
+	if ( rnum < getline_buf_size && dev->atEnd() )
 	    buf[rnum++] = QEOF;
     } else if ( latin1 ) {
-	int rlen = len - rnum;
-	char *cbuf = new char[ rlen+1 ];
+	int rlen = getline_buf_size - rnum;
 	rlen = dev->readLine( cbuf, rlen+1 );
 	if ( rlen == -1 )
 	    rlen = 0;
@@ -894,8 +890,7 @@ uint QTextStream::ts_getline( QChar* buf, uint len )
 	    buf++;
 	}
 	rnum += rlen;
-	delete[] cbuf;
-	if ( rnum < len && dev->atEnd() )
+	if ( rnum < getline_buf_size && dev->atEnd() )
 	    buf[1] = QEOF;
     }
     return rnum;
@@ -1588,13 +1583,12 @@ QString QTextStream::readLine()
        ) ) {
 	readCharByChar = FALSE;
 	// use optimized read line
-	const int buf_size = 256;
-	static QChar c[buf_size];
+	static QChar c[getline_buf_size];
 	int pos = 0;
 	bool eof = FALSE;
 
 	while ( TRUE ) {
-	    pos = ts_getline( c, buf_size );
+	    pos = ts_getline( c );
 	    if ( pos == 0 ) {
 		// something went wrong; try fallback
 		readCharByChar = TRUE;
