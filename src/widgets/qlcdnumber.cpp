@@ -438,9 +438,9 @@ bool QLCDNumber::checkOverflow( double num ) const
   \brief the current display mode (number base)
 
   Corresponds to the current display mode, which is one of \c BIN, \c
-  OCT, \c DEC and \c HEX. All four modes can display both integers,
-  floating-point numbers and strings (subject to character set
-  limitations).
+  OCT, \c DEC (the default) and \c HEX. All four modes can display
+  both integers, floating-point numbers and strings (subject to
+  character set limitations).
 
   \sa smallDecimalPoint(), setHexMode(), setDecMode(), setOctMode(), setBinMode()
 */
@@ -603,7 +603,7 @@ void QLCDNumber::setBinMode()
 
   If TRUE the decimal point is drawn between two
   digit positions. Otherwise it occupies a digit position of its own,
-  i.e. is drawn in a digit position.
+  i.e. is drawn in a digit position. The default is FALSE.
 
   The inter-digit space is made slightly wider when the decimal point
   is drawn between the digits.
@@ -1106,7 +1106,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 
   The style of the QLCDNumber is one of:
   \list
-  \i \c Outline gives raised segments filled with the background color.
+  \i \c Outline gives raised segments filled with the background color (this is the default).
   \i \c Filled gives raised segments filled with the foreground color.
   \i \c Flat gives flat segments filled with the foreground color.
   \endlist

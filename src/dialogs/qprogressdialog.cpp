@@ -712,6 +712,8 @@ void QProgressDialog::closeEvent( QCloseEvent *e )
   \property QProgressDialog::autoReset
   \brief whether the progress dialog calls reset() as soon as progress() equals totalSteps()
 
+  The default is TRUE.
+
   \sa setAutoClose()
 */
 
@@ -727,8 +729,9 @@ bool QProgressDialog::autoReset() const
 
 /*!
   \property QProgressDialog::autoClose
-
   \brief whether the dialog gets hidden by reset()
+
+  The default is TRUE.
 
   \sa setAutoReset()
 */

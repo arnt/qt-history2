@@ -851,7 +851,7 @@ QDateEdit::~QDateEdit()
 
   Setting the minimum date value is equivalent to calling
   QDateEdit::setRange( \e d, maxValue() ), where \e d is the
-  minimum date.
+  minimum date. The default minimum date is 1752-09-14.
 */
 
 QDate QDateEdit::minValue() const
@@ -865,7 +865,7 @@ QDate QDateEdit::minValue() const
 
   Setting the maximum date value for the editor is equivalent to
   calling QDateEdit::setRange( minValue(), \e d ), where \e d is the
-  maximum date.
+  maximum date. Teh default maximum date is 8000-12-31.
 */
 
 QDate QDateEdit::maxValue() const
@@ -1062,6 +1062,7 @@ int QDateEdit::sectionOffsetEnd( int sec ) const
 
   \brief the order in which the year, month and day appear
 
+    The default order is locale dependent.
 
   \sa Order
 */
@@ -1523,7 +1524,8 @@ void QDateEdit::removeLastNumber( int sec )
   \brief whether the editor automatically advances to the next section
 
   If autoAdvance is TRUE, the editor will automatically advance focus
-  to the next date section if a user has completed a section.
+  to the next date section if a user has completed a section. The
+  default is FALSE.
 
 */
 
@@ -1693,7 +1695,7 @@ QTimeEdit::~QTimeEdit()
 
   Setting the minimum time value is equivalent to calling
   QTimeEdit::setRange( \e t, maxValue() ), where \e t is the
-  minimum time.
+  minimum time. The default minimum time is 00:00:00.
 */
 
 QTime QTimeEdit::minValue() const
@@ -1707,7 +1709,7 @@ QTime QTimeEdit::minValue() const
 
   Setting the maximum time value is equivalent to calling
   QTimeEdit::setRange( minValue(), \e t ), where \e t is the
-  maximum time.
+  maximum time. The default maximum time is 23:59:59.
 */
 
 QTime QTimeEdit::maxValue() const
@@ -1771,7 +1773,8 @@ QTime QTimeEdit::time() const
   \brief whether the editor automatically advances to the next section
 
   If autoAdvance is TRUE, the editor will automatically advance focus
-  to the next time section if a user has completed a section.
+  to the next time section if a user has completed a section. The
+  default is FALSE.
 
 */
 

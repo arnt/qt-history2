@@ -2376,7 +2376,8 @@ void QListView::init()
   If this property is TRUE, an arrow is drawn in the header of the
   list view to indicate the sort order of the list view contents. The
   arrow will be drawn in the correct column and will point up or down,
-  depending on the current sort direction.
+  depending on the current sort direction. The default is FALSE (don't
+  show an indicator).
 
   \sa QHeader::setSortIndicator()
 */
@@ -2401,6 +2402,8 @@ bool QListView::showSortIndicator() const
 /*! \property QListView::showToolTips
     \brief whether this list view should show tooltips for truncated column
     texts
+
+    The default is TRUE.
 */
 
 void QListView::setShowToolTips( bool b )
@@ -2418,7 +2421,8 @@ bool QListView::showToolTips() const
 
   Specifies whether all, none or the last column should be resized to
   fit the full width of the listview. The values for this property can
-  be one of the following: \c NoColumn, \c AllColumns or \c LastColumn.
+  be one of the following: \c NoColumn (the default), \c AllColumns or
+  \c LastColumn.
 
   \sa QHeader, header()
 */
@@ -4675,6 +4679,8 @@ int QListView::itemPos( const QListViewItem * item )
   whether or not this mode should be extended. Extended means that the
   user can select multiple items only when pressing the Shift or
   Ctrl key at the same time.
+
+  The default selection mode is \c Single.
 
   \sa selectionMode()
 */

@@ -1268,6 +1268,9 @@ void QDockWindow::endRectDraw( bool drawRect )
 
   A dock window is both horizontally and vertically stretchable if you call
   or setResizeEnabled(TRUE).
+
+  This property is FALSE by default.
+
   \sa setVerticallyStretchable() setHorizontallyStretchable()
 */
 
@@ -1282,6 +1285,8 @@ void QDockWindow::setResizeEnabled( bool b )
   \brief whether the user can move the dock window within the
   dock area, move the dock window to another dock area, or float the
   dock window.
+
+  This property is TRUE by default.
 */
 
 void QDockWindow::setMovingEnabled( bool b )
@@ -1306,6 +1311,8 @@ bool QDockWindow::isMovingEnabled() const
   Defines when (if ever) the dock window has a close button. The
   choices are \c Never, \c Docked (i.e. only when docked), \c Undocked
   (only when undocked, i.e. floated) or \c Always.
+
+  The default is \c Never.
 */
 
 void QDockWindow::setCloseMode( int m )
@@ -1339,8 +1346,10 @@ int QDockWindow::closeMode() const
 
 /*! \property QDockWindow::horizontallyStretchable
   \brief whether the dock window is horizontally stretchable.
+
   A dock window is horizontally stretchable if you call
   setHorizontallyStretchable(TRUE) or setResizeEnabled(TRUE).
+
   \sa setResizeEnabled()
 */
 
@@ -1405,6 +1414,8 @@ int QDockWindow::offset() const
 
 /*! \property QDockWindow::offset
   \brief the dock window's preferred offset from the dock area's left edge (top edge for vertical dock areas)
+
+  The default is 0.
 */
 
 void QDockWindow::setOffset( int o )
@@ -1447,6 +1458,9 @@ void QDockWindow::setFixedExtentHeight( int h )
 
 /*! \property QDockWindow::newLine
   \brief whether the dock window prefers to start a new line in the dock area.
+
+  The default is FALSE, i.e. the dock window doesn't require a new
+  line in the dock area.
 */
 
 void QDockWindow::setNewLine( bool b )
@@ -1633,7 +1647,7 @@ void QDockWindow::showEvent( QShowEvent *e )
   \brief whether the dock window will be shown normally whilst it is
     being moved.
 
-    If this property is FALSE, (which is the default), the dock window
+    If this property is FALSE, (the default), the dock window
     will be represented by an outline rectangle whilst it is being moved.
 */
 

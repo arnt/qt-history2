@@ -482,6 +482,8 @@ int QDockAreaLayout::widthForHeight( int h ) const
 /*! \property QDockArea::handlePosition
     \brief where the dock window splitter handle is placed in the dock
     area
+
+    The default position is \c Normal.
 */
 
 /*! \property QDockArea::orientation

@@ -211,8 +211,8 @@ QDataBrowser::Boundary QDataBrowser::boundary()
 
     \brief whether boundary checking is active
 
-    When boundary checking is active, signals are emitted indicating
-    the current position of the default cursor.
+    When boundary checking is active (the default), signals are
+    emitted indicating the current position of the default cursor.
 
   \sa boundary()
 */
@@ -348,6 +348,7 @@ QSqlForm* QDataBrowser::form()
 
   \brief whether the browser is read-only
 
+    The default is FALSE, i.e. data can be edited.
   If the data browser is read-only, no database edits will be allowed.
 
 */
@@ -452,7 +453,7 @@ bool QDataBrowser::confirmDelete() const
   If this property is TRUE, all cancels must be
   confirmed by the user through a message box (this behavior can be
   changed by overriding the confirmCancel() function), otherwise all
-  cancels occur immediately.
+  cancels occur immediately. The default is FALSE.
 
   \sa confirmEdits() confirmCancel()
 */

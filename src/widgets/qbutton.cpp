@@ -122,7 +122,6 @@ QTimer *QButton::timer()
 }
 
 
-// NOT REVISED
 /*!
   \class QButton qbutton.h
 

@@ -736,7 +736,8 @@ void QDial::setNotchesVisible( bool b )
   \property QDial::notchesVisible
   \brief whether the notches are shown
 
-  If TRUE, the notches are shown; otherwise they are not shown.
+  If TRUE, the notches are shown. If FALSE (the default) notches are
+  not shown.
 */
 bool QDial::notchesVisible() const
 {

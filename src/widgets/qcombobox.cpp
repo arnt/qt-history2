@@ -219,7 +219,7 @@
     \brief whether auto-completion is enabled
 
   This property can only be set for editable comboboxes, for non-editable
-  comboboxes it has no effect.
+  comboboxes it has no effect. It is FALSE by default.
 */
 
 /*! \property QComboBox::autoMask
@@ -233,7 +233,7 @@
     \obsolete
 
   If this property is set to TRUE then the combobox will resize itself
-  whenever its contents change.
+  whenever its contents change. The default is FALSE.
 */
 
 /*! \property QComboBox::count
@@ -1131,7 +1131,7 @@ void QComboBox::paintEvent( QPaintEvent * )
     }
 
     bool reverse = QApplication::reverseLayout();
-    if ( !d->usingListBox() && 
+    if ( !d->usingListBox() &&
 	 style().styleHint(QStyle::SH_GUIStyle) == Qt::MotifStyle) {			// motif 1.x style
 	int dist, buttonH, buttonW;
 	dist     = 8;
@@ -1187,7 +1187,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 	    p.setFont(font());
 	    QFontMetrics fm(font());
 	    int x = re.x(), y = re.y() + fm.ascent();
-	    if( pix ) 
+	    if( pix )
 		x += pix->width() + 5;
 	    p.drawText( x, y, str );
 	    p.restore();
@@ -2058,7 +2058,7 @@ void QComboBox::setLineEdit( QLineEdit *edit )
     edit->installEventFilter( this );
     setFocusProxy( edit );
     setFocusPolicy( StrongFocus );
-	
+
     if ( !d->usingListBox() )
 	setUpListBox();
 

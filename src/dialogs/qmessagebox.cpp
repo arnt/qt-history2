@@ -823,7 +823,7 @@ QPixmap QMessageBox::standardIcon( Icon icon )
 
 /*!
   \property QMessageBox::iconPixmap
-  \brief the currently icon
+  \brief the current icon
 
   The icon currently used by the message box. Note that
   it's often hard to draw one pixmap that looks appropriate in both

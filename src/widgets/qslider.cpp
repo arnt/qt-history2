@@ -727,7 +727,8 @@ QSizePolicy QSlider::sizePolicy() const
   \property QSlider::tickmarks
   \brief the tickmark settings for this slider
 
-    The valid values are in \l{QSlider::TickSetting}.
+    The valid values are in \l{QSlider::TickSetting}. The default is
+    \c NoMarks.
 
   \sa tickInterval
 */

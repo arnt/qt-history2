@@ -441,8 +441,8 @@ static bool block_set_alignment = FALSE;
   \property QTextEdit::overwriteMode
   \brief the text edit's overwrite mode
 
-  If FALSE characters entered by the user are inserted with any
-  characters to the right being moved out of the way.
+  If FALSE (the default) characters entered by the user are inserted
+  with any characters to the right being moved out of the way.
   If TRUE, the editor is in overwrite mode, i.e. characters entered by
   the user overwrite any characters to the right of the cursor position.
 */
@@ -3303,8 +3303,8 @@ QBrush QTextEdit::paper() const
   \property QTextEdit::linkUnderline
   \brief whether hypertext links will be underlined
 
-  If TRUE hypertext links will be displayed underlined. If FALSE
-  links will not be displayed underlined.
+  If TRUE (the default) hypertext links will be displayed underlined.
+  If FALSE links will not be displayed underlined.
 */
 
 void QTextEdit::setLinkUnderline( bool b )
@@ -4273,6 +4273,8 @@ QColor QTextEdit::paragraphBackgroundColor( int para ) const
 
 /*! \property QTextEdit::undoRedoEnabled
   \brief whether undo/redo is enabled
+
+  The default is TRUE.
 */
 
 void QTextEdit::setUndoRedoEnabled( bool b )

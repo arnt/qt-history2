@@ -451,7 +451,7 @@ void QLabel::setAlignment( int alignment )
   alignment() is \c AlignBottom.
 
   If the indent is negative, or if no indent has been set, the label
-  computes the effective indent as follows: If frameWidth() is 0, the
+  computes the effective indent as follows: if frameWidth() is 0, the
   effective indent becomes 0. If frameWidth() is greater than 0, the
   effective indent becomes half the width of the "x" character of the
   widget's current font().
@@ -606,7 +606,7 @@ int QLabel::heightForWidth( int w ) const
 #ifndef QT_NO_RICHTEXT
 	doc ||
 #endif
-	(align & WordBreak) )	
+	(align & WordBreak) )
 	return sizeForWidth( w ).height();
     return QWidget::heightForWidth( w );
 }

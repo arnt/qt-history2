@@ -1199,6 +1199,8 @@ void QScrollView::setResizePolicy( ResizePolicy r )
   \property QScrollView::resizePolicy
   \brief the current resize policy
 
+  The default is \c Default.
+
   \sa ResizePolicy
 */
 QScrollView::ResizePolicy QScrollView::resizePolicy() const
@@ -2583,10 +2585,11 @@ void QScrollView::doDragAutoScroll()
   \property QScrollView::dragAutoScroll
   \brief whether autoscrolling in drag move events is enabled
 
-  If this property is set to TRUE, the QScrollView automatically scrolls
-  the contents in drag move events if the user moves the cursor close to a
-  border of the view. Of course this works only if the viewport accepts drops.
-  Specifying FALSE disables this autoscroll feature.
+  If this property is set to TRUE (the default), the QScrollView
+  automatically scrolls the contents in drag move events if the user
+  moves the cursor close to a border of the view. Of course this works
+  only if the viewport accepts drops. Specifying FALSE disables this
+  autoscroll feature.
 */
 
 void QScrollView::setDragAutoScroll( bool b )

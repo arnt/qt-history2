@@ -520,7 +520,7 @@ bool QDataTable::confirmDelete() const
   If the confirmCancel property is active, all cancels must be
   confirmed by the user through a message box (this behavior can be
   changed by overriding the confirmCancel() function), otherwise all
-  cancels occur immediately.
+  cancels occur immediately. The default is FALSE.
 
   \sa confirmEdits() confirmCancel()
 */
@@ -1302,10 +1302,10 @@ void QDataTable::setAutoDelete( bool enable )
   insert or update in the table there are two possible outcomes when they
   navigate to another record:
 
-  <ol>
-  <li> the insert or update is is performed -- this occurs if autoEdit is TRUE
-  <li> the insert or update is abandoned -- this occurs if autoEdit is FALSE
-  </ol>
+  \list 1
+  \i the insert or update is is performed -- this occurs if autoEdit is TRUE
+  \i the insert or update is abandoned -- this occurs if autoEdit is FALSE
+  \endlist
 
 */
 

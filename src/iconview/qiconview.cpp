@@ -3848,6 +3848,8 @@ int QIconView::gridY() const
 /*! \property QIconView::spacing
   \brief the space in pixels between icon view items
 
+    The default is 5 pixels.
+
   Negative values for spacing are illegal.
 */
 
@@ -3908,7 +3910,8 @@ QBrush QIconView::itemTextBackground() const
 /*! \property QIconView::arrangement
   \brief the arrangement mode of the icon view
 
-  This can be \c LeftToRight or \c TopToBottom.
+  This can be \c LeftToRight or \c TopToBottom. The default is \c
+  LeftToRight.
 */
 
 void QIconView::setArrangement( Arrangement am )
@@ -3932,7 +3935,7 @@ QIconView::Arrangement QIconView::arrangement() const
 /*! \property QIconView::resizeMode
   \brief the resize mode of the icon view
 
-  This can be \c Fixed or \c Adjust.
+  This can be \c Fixed or \c Adjust. The default is \c Fixed.
 */
 
 void QIconView::setResizeMode( ResizeMode rm )
@@ -3950,6 +3953,8 @@ QIconView::ResizeMode QIconView::resizeMode() const
 
 /*! \property QIconView::maxItemWidth
   \brief the maximum width that an item may have.
+
+  The default is 100 pixels.
 
   Note that if the gridX() value is set QIconView will ignore
   this property.
@@ -3986,6 +3991,8 @@ int QIconView::maxItemTextLength() const
 
 /*! \property QIconView::itemsMovable
   \brief whether the user is allowed to move items around in the icon view
+
+    The default is TRUE.
 */
 
 void QIconView::setItemsMovable( bool b )
@@ -4044,6 +4051,8 @@ void QIconView::setSorting( bool sort, bool ascending )
 /*! \property QIconView::sorting
   \brief whether the icon view sorts on insertion
 
+  The default is FALSE, i.e. no sorting on insertion.
+
   To set the soring, use setSorting().
 */
 
@@ -4055,8 +4064,8 @@ bool QIconView::sorting() const
 /*! \property QIconView::sortDirection
   \brief whether the sort direction for inserting new items is ascending;
 
-  This sort direction only has meaning if sorting() and autoArrange()
-  are both TRUE.
+  The default is TRUE (i.e. ascending). This sort direction only has
+  meaning if sorting() and autoArrange() are both TRUE.
 
   To set the sort direction, use setSorting()
 */
@@ -4069,9 +4078,11 @@ bool QIconView::sortDirection() const
 /*! \property QIconView::wordWrapIconText
   \brief whether the item text will be word-wrapped if it is too long
 
-  If this property is set to FALSE, too long icon textes will be
-  truncated and an ellipsis (...) at the end will indicate that to the
-  user.
+  The default is TRUE.
+
+  If this property is FALSE, icon text that is too long is truncated,
+  and an ellipsis (...) appended to indicate that truncation has
+  occurred.
 */
 
 void QIconView::setWordWrapIconText( bool b )

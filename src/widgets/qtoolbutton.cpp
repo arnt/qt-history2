@@ -351,6 +351,8 @@ void QToolButton::setUsesBigPixmap( bool enable )
   \property QToolButton::usesTextLabel
   \brief whether the toolbutton displays a text label below the button pixmap.
 
+    The default is FALSE.
+
   QToolButton automatically connects this slot to the relevant signal
   in the QMainWindow in which is resides.
 */
@@ -894,6 +896,8 @@ int QToolButton::popupDelay() const
 /*!
   \property QToolButton::autoRaise
   \brief whether auto-raising is enabled or not.
+
+  The default is disabled (i.e. FALSE).
  */
 void QToolButton::setAutoRaise( bool enable )
 {

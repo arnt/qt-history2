@@ -3072,6 +3072,8 @@ void QFileDialog::setUrl( const QUrlOperator &url )
   \property QFileDialog::showHiddenFiles
 
   \brief whether hidden files are shown in the file dialog
+
+  The default is FALSE, i.e. don't show hidden files.
 */
 
 void QFileDialog::setShowHiddenFiles( bool s )
@@ -4314,8 +4316,9 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 
 /*!
   \property QFileDialog::mode
-
   \brief the file dialog's mode
+
+  The default mode is \c ExistingFile.
 */
 
 void QFileDialog::setMode( Mode newMode )
@@ -4396,9 +4399,9 @@ void QFileDialog::done( int i )
 
   \brief the file dialog's view mode
 
-  If you set the view mode to be \e Detail, then you will see
-  the file's details, such as the size of the file and the date
-  the file was last modified alongside the file.
+  If you set the view mode to be \e Detail (the default), then you
+  will see the file's details, such as the size of the file and the
+  date the file was last modified alongside the file.
 
   If you set the view mode to be \e List, then you will just
   see a list of the files and folders.
@@ -5672,6 +5675,8 @@ void QFileDialog::itemChanged( QNetworkOperation *op )
 
   \brief whether the file dialog offers the possibility to preview information
   about the currently selected file
+
+  The default is FALSE.
 */
 bool QFileDialog::isInfoPreviewEnabled() const
 {
@@ -5693,6 +5698,8 @@ void QFileDialog::setInfoPreviewEnabled( bool info )
 
   \brief whether the file dialog offers the possibility of previewing the
   contents of the currently selected file
+
+  The default is FALSE.
 
   \sa setContentsPreview() setInfoPreviewEnabled()
 */

@@ -1918,6 +1918,8 @@ bool QTable::showGrid() const
 /*! \property QTable::columnMovingEnabled
  \brief whether columns can be moved by the user
 
+    The default is FALSE.
+
   \sa rowMovingEnabled
 */
 
@@ -1933,6 +1935,8 @@ bool QTable::columnMovingEnabled() const
 
 /*! \property QTable::rowMovingEnabled
  \brief whether rows can be moved by the user
+
+    The default is FALSE.
 
   \sa columnMovingEnabled
 */

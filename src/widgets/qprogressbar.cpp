@@ -221,7 +221,7 @@ QSize QProgressBar::minimumSizeHint() const
   \brief whether the indicator string should be centered
 
   Changing this property sets \l QProgressBar::indicatorFollowsStyle
-  to FALSE.
+  to FALSE. The default is TRUE.
 */
 
 void QProgressBar::setCenterIndicator( bool on )
@@ -237,6 +237,8 @@ void QProgressBar::setCenterIndicator( bool on )
   \property QProgressBar::indicatorFollowsStyle
   \brief whether the display of the indicator string should follow the GUI style
 
+    The default is TRUE.
+
   \sa centerIndicator
 */
 
@@ -251,6 +253,8 @@ void QProgressBar::setIndicatorFollowsStyle( bool on )
 /*!
   \property QProgressBar::percentageVisible
   \brief whether the current progress value is displayed
+
+  The default is TRUE.
 
   \se centerIndicator, indicatorFollowsStyle
 */

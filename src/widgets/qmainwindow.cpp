@@ -1582,8 +1582,8 @@ bool QMainWindow::event( QEvent * e )
 /*! \property QMainWindow::usesBigPixmaps
     \brief whether big pixmaps are enabled
 
-  If disabled, the tool buttons will use small
-  pixmaps. If enabled, big pixmaps will be used.
+  If FALSE (the default), the tool buttons will use small
+  pixmaps; otherwise big pixmaps will be used.
 
   Tool buttons and other widgets that wish to respond to this setting
   are responsible for reading the correct state on startup, and for
@@ -1887,15 +1887,15 @@ void QMainWindow::setDockWindowsMovable( bool enable )
 /*! \property QMainWindow::dockWindowsMovable
     \brief whether the dock windows are movable
 
-  If enabled, the user will be able to move Movable dock windows from
-  one QMainWindow dock area to another, including the \c TearOff
-  area (i.e. where the dock window floats freely as a window in its
-  own right), and the \c Minimized area (where only the dock window's
-  handle is shown below the menu bar). Moveable dock windows can also
-  be moved within QMainWindow dock areas, i.e. to rearrange them within
-  a dock area.
+  If TRUE (the default), the user will be able to move Movable dock
+  windows from one QMainWindow dock area to another, including the \c
+  TearOff area (i.e. where the dock window floats freely as a window
+  in its own right), and the \c Minimized area (where only the dock
+  window's handle is shown below the menu bar). Moveable dock windows
+  can also be moved within QMainWindow dock areas, i.e. to rearrange
+  them within a dock area.
 
-  If disabled the user will not be able to move any dock windows.
+  If FALSE the user will not be able to move any dock windows.
 
   By default dock windows are moved transparently (i.e. only an outline
   rectangle is shown during the drag), but this setting can be changed
@@ -1924,9 +1924,9 @@ void QMainWindow::setOpaqueMoving( bool b )
 /*! \property QMainWindow::opaqueMoving
     \brief whether dock windows are moved opaquely
 
-  If enabled the dock windows of the main window are shown
+  If TRUE the dock windows of the main window are shown
   opaquely (i.e. it shows the toolbar as it looks when docked) when
-  moved. If disabled they are shown transparently,
+  moved. If FALSE (the default) they are shown transparently,
   (i.e. as an outline rectangle).
 */
 
