@@ -1,5 +1,5 @@
-/*! \page containers.html
-
+/*!
+    \page containers.html
     \title Generic Containers
 
     \keyword container class
@@ -116,7 +116,7 @@
     otherwise the C++ compiler will misinterpret the two >'s as a
     right-shift operator (>>) and report a syntax error.
 
-    \keyword assignable data type
+    \keyword assignable data types
 
     The values stored in the various containers can be of any
     \e{assignable data type}. To qualify, a type must provide a
@@ -836,6 +836,12 @@
 
     In the documentation, we sometimes use the following terminology,
     based on the "big Oh" notation:
+
+    \keyword constant time
+    \keyword logarithmic time
+    \keyword linear time
+    \keyword linear-logarithmic time
+    \keyword quadratic time
 
     \list
     \o \e{constant time}: O(1). A function is said to run in constant

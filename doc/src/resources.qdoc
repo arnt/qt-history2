@@ -90,7 +90,7 @@
         </qresource>
     \endcode
 
-    If the user's locale is French (e.g. QLocale::system() returns
+    If the user's locale is French (i.e., QLocale::system().name() returns
     "fr_FR"), \c :/cut.jpg becomes a reference to the \c cut_fr.jpg
     image. For other locales, \c cut.jpg is used.
 

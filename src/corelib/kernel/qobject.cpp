@@ -1007,40 +1007,42 @@ QThread *QObject::thread() const
     used to find out which timer was activated.
 
     Example:
+
     \code
-    class MyObject : public QObject
-    {
-        Q_OBJECT
-    public:
-        MyObject(QObject *parent = 0, const char *name = 0);
+        class MyObject : public QObject
+        {
+            Q_OBJECT
 
-    protected:
-        void timerEvent(QTimerEvent *);
-    };
+        public:
+            MyObject(QObject *parent = 0);
 
-    MyObject::MyObject(QObject *parent, const char *name)
-        : QObject(parent, name)
-    {
-        startTimer(50);    // 50-millisecond timer
-        startTimer(1000);  // 1-second timer
-        startTimer(60000); // 1-minute timer
-    }
+        protected:
+            void timerEvent(QTimerEvent *event);
+        };
 
-    void MyObject::timerEvent(QTimerEvent *e)
-    {
-        qDebug("timer event, id %d", e->timerId());
-    }
+        MyObject::MyObject(QObject *parent)
+            : QObject(parent)
+        {
+            startTimer(50);     // 50-millisecond timer
+            startTimer(1000);   // 1-second timer
+            startTimer(60000);  // 1-minute timer
+        }
+
+        void MyObject::timerEvent(QTimerEvent *event)
+        {
+            qDebug() << "Timer ID:" << event->timerId();
+        }
     \endcode
 
     Note that QTimer's accuracy depends on the underlying operating
-    system and hardware. Most platforms support an accuracy of 20ms;
-    some provide more. If Qt is unable to deliver the requested
-    number of timer clicks, it will silently discard some.
+    system and hardware. Most platforms support an accuracy of 20
+    milliseconds; some provide more. If Qt is unable to deliver the
+    requested number of timer events, it will silently discard some.
 
     The QTimer class provides a high-level programming interface with
-    one-shot timers and timer signals instead of events.
+    single-shot timers and timer signals instead of events.
 
-    \sa timerEvent(), killTimer()
+    \sa timerEvent(), killTimer(), QTimer::singleShot()
 */
 
 int QObject::startTimer(int interval)

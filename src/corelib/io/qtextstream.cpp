@@ -51,7 +51,7 @@ static const int QTEXTSTREAM_BUFFERSIZE = 16384;
     different character sets. By default, QTextCodec::codecForLocale()
     is used for reading and writing, but you can also set the codec by
     calling setCodec(). Automatic Unicode detection is also
-    supported. When this feature is enabled, (the default behavior,)
+    supported. When this feature is enabled (the default behavior),
     QTextStream will detect the UTF-16 BOM (Byte Order Mark) and
     switch to the appropriate UTF-16 codec when reading. QTextStream
     does not write a BOM by default, but you can enable this by calling
