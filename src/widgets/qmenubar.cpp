@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#22 $
 **
 ** Implementation of QMenuBar class
 **
@@ -18,7 +18,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#21 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#22 $";
 #endif
 
 
@@ -119,6 +119,7 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
     if ( object == parent() && event->type() == Event_Resize ) {
 	QResizeEvent *e = (QResizeEvent *)event;
 	resize( e->size().width(), height() );
+	updateRects();
     }
     return FALSE;				// don't stop event
 }
