@@ -114,7 +114,7 @@ public:
 public slots:
 
     void sendEvents();
-    
+
 private:
 
 };
@@ -138,7 +138,7 @@ void QThreadPrivate::sendEvents()
     qApp->sendPostedEvents();
     myeventmutex.unlock();
 }
- 
+
 static QThreadPrivate * qthreadprivate = 0;
 
 void QThread::postEvent( QObject * o, QEvent * e )
@@ -155,9 +155,11 @@ void QThread::postEvent( QObject * o, QEvent * e )
     qApp->wakeUpGuiThread();
 }
 
-extern "C" static void * start_thread(QThread * t)
-{
-  t->run();
+extern "C" {
+    static void * start_thread(QThread * t) {
+	t->run();
+	return 0;
+    }
 }
 
 QThread::QThread()
