@@ -1372,17 +1372,26 @@ void QPopupMenu::mousePressEvent( QMouseEvent *e )
 
 void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 {
-    if ( !mouseBtDn && !parentMenu && actItem < 0 && motion < 6 )
+    // do not hide a standalone context menu on press-release, unless
+    // the user moved the mouse significantly
+    if ( !parentMenu && !mouseBtDn && actItem < 0 && motion < 6 )
 	return;
 
     mouseBtDn = FALSE;
 
-    int item = itemAtPos( e->pos() );
-    if ( item == -1 ) {
-	if ( !rect().contains( e->pos() ) && tryMenuBar(e) )
-	    return;
-    }
-    if ( actItem >= 0 ) {			// selected menu item!
+    // if the user released the mouse outside the menu, pass control
+    // to the menubar or our parent menu
+    if ( !rect().contains( e->pos() ) && tryMenuBar(e) )
+	return; 
+    
+    if ( actItem < 0 ) { // we do not have an active item
+	// if the release is inside without motion (happens with
+	// oversized popup menus on small screens), ignore it
+	if ( rect().contains( e->pos() ) && motion < 6 )
+	    return; 
+	else 
+	    byeMenuBar();
+    } else {	// selected menu item!
 	register QMenuItem *mi = mitems->at(actItem);
 	if ( mi ->widget() ) {
 	    QWidget* widgetAt = QApplication::widgetAt( e->globalPos(), TRUE );
@@ -1422,8 +1431,6 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 		active_popup_menu = 0;
 	    }
 	}
-    } else {
-	byeMenuBar();
     }
 }
 
