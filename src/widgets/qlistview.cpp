@@ -2030,6 +2030,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		if ( d->useDoubleBuffer ) {
 		    QSize ps( r.width(), current->i->height() );
 		    QPixmap *pm = getCacheBuffer( ps );
+		    pm->fill( colorGroup().color( QColorGroup::Base ) );
 		    QPainter dp( pm );
 		    current->i->paintCell( &dp, colorGroup(), ac, r.width(),
 					   columnAlignment( ac ) );
