@@ -15,7 +15,7 @@
 #include <qlistview.h>
 #include <qvbox.h>
 #include <qlabel.h>
-#include <qvaluelist.h>
+#include <qlist.h>
 #include <qstring.h>
 #include <qpushbutton.h>
 #include <qlayout.h>
@@ -46,7 +46,7 @@ CheckLists::CheckLists( QWidget *parent, const char *name )
     lv1->setRootIsDecorated( TRUE );
 
     // create a list with 4 ListViewItems which will be parent items of other ListViewItems
-    QValueList<QListViewItem *> parentList;
+    QList<QListViewItem *> parentList;
 
     parentList.append( new QCheckListItem( lv1, "Parent Item 1", QCheckListItem::CheckBoxController ) );
     parentList.append( new QCheckListItem( lv1, "Parent Item 2", QCheckListItem::CheckBoxController ) );
@@ -56,7 +56,7 @@ CheckLists::CheckLists( QWidget *parent, const char *name )
     QListViewItem *item = 0;
     unsigned int num = 1;
     // go through the list of parent items...
-    for ( QValueList<QListViewItem*>::Iterator it = parentList.begin(); it != parentList.end();
+    for ( QList<QListViewItem*>::Iterator it = parentList.begin(); it != parentList.end();
 	  ( *it )->setOpen( TRUE ), ++it, num++ ) {
 	item = *it;
 	// ...and create 5 checkable child ListViewItems for each parent item
