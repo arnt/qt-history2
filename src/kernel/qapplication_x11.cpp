@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#237 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#238 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#237 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#238 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -1547,8 +1547,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		     event->xbutton.button == Button1 &&
 		     (widget->focusPolicy() & QWidget::ClickFocus) )
 		    widget->setFocus();
-		widget->translateMouseEvent( event );
 	    }
+	    widget->translateMouseEvent( event );
 	    break;
 
 	case KeyPress:				// keyboard event
@@ -2404,6 +2404,9 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		break;				// nothing for mouse move
 	}
 
+	if ( !popup->isEnabled() )
+	    return FALSE;
+
 	if ( popupButtonFocus ) {
 	    QMouseEvent e( type, popupButtonFocus->
 			   mapFromGlobal(popup->mapToGlobal(pos)),
@@ -2439,12 +2442,17 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    pos = mapToGlobal( pos );
 	    pos = mg->mapFromGlobal( pos );
 	}
-	QMouseEvent e( type, pos, button, state );
+
 	if ( popupCloseDownMode ) {
 	    popupCloseDownMode = FALSE;
 	    if ( testWFlags(WType_Popup) )	// ignore replayed event
 		return TRUE;
 	}
+
+	if ( !widget->isEnabled() )
+	    return FALSE;
+
+	QMouseEvent e( type, pos, button, state );
 	QApplication::sendEvent( widget, &e );
     }
     return TRUE;
