@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QIconSet class
 **
 ** Created : 980318
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -155,7 +155,8 @@ public:
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
     bool operator==( const QIconSetPrivate& ) const { return FALSE; }
 #endif
-#if defined(Q_CC_HPACC) || defined(Q_CC_GNU) && defined(__arch64__)
+#if defined(Q_CC_HPACC) || \
+    defined(Q_CC_GNU) && __GNUC__ == 3 && __GNUC_MINOR__ <= 1 && defined(__arch64__)
     // * workaround for "implicit copy ctor for multi dimension array"
     //   bug (CR JAGad01979) in HP-UX aCC (up to A.03.30 at least)
     // * workaround for "sorry, not implemented: cannot initialize
