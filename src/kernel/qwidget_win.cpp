@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#197 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#198 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -1090,4 +1090,5 @@ void QWidget::clearMask()
 
 void QWidget::setName( const char *name )
 {
+    QObject::setName( name );
 }
