@@ -1,4 +1,4 @@
-#include "scriptenginedevanagari.h"
+#include "scriptenginebengali.h"
 #include "opentype.h"
 #include "qfont.h"
 #include "qtextdata.h"
@@ -32,36 +32,36 @@ enum Form {
     Other,
 };
 
-static int devanagariForms[0x80] = {
+static int bengaliForms[0x80] = {
     Invalid, VowelMark, VowelMark, VowelMark,
     Invalid, IndependentVowel, IndependentVowel, IndependentVowel,
     IndependentVowel, IndependentVowel, IndependentVowel, IndependentVowel,
-    IndependentVowel, IndependentVowel, IndependentVowel, IndependentVowel,
+    IndependentVowel, Invalid, Invalid, IndependentVowel,
 
-    IndependentVowel, IndependentVowel, IndependentVowel, IndependentVowel,
+    IndependentVowel, Invalid, Invalid, IndependentVowel,
     IndependentVowel, Consonant, Consonant, Consonant,
     Consonant, Consonant, Consonant, Consonant,
     Consonant, Consonant, Consonant, Consonant,
 
     Consonant, Consonant, Consonant, Consonant,
     Consonant, Consonant, Consonant, Consonant,
-    Consonant, Consonant, Consonant, Consonant,
+    Consonant, Invalid, Consonant, Consonant,
     Consonant, Consonant, Consonant, Consonant,
 
-    Consonant, Consonant, Consonant, Consonant,
-    Consonant, Consonant, Consonant, Consonant,
+    Consonant, Invalid, Consonant, Invalid,
+    Invalid, Invalid, Consonant, Consonant,
     Consonant, Consonant, Unknown, Unknown,
     Nukta, Other, Matra, Matra,
 
     Matra, Matra, Matra, Matra,
-    Matra, Matra, Matra, Matra,
-    Matra, Matra, Matra, Matra,
+    Matra, Invalid, Invalid, Matra,
+    Matra, Invalid, Invalid, Matra,
     Matra, Halant, Unknown, Unknown,
 
-    Other, StressMark, StressMark, StressMark,
-    StressMark, Unknown, Unknown, Unknown,
-    Consonant, Consonant, Consonant, Consonant,
-    Consonant, Consonant, Consonant, Consonant,
+    Invalid, Invalid, Invalid, Invalid,
+    Invalid, Invalid, Invalid, VowelMark,
+    Invalid, Invalid, Invalid, Invalid,
+    Consonant, Consonant, Invalid, Consonant,
 
     Other, Other, VowelMark, VowelMark,
     Other, Other, Other, Other,
@@ -76,16 +76,16 @@ static int devanagariForms[0x80] = {
 
 static Form form( const QChar &ch ) {
     ushort uc = ch.unicode();
-    if ( uc < 0x900 || uc > 0x97f ) {
+    if ( uc < 0x980 || uc > 0x9ff ) {
 	if ( uc == 0x25cc )
 	    return Consonant;
 	return Other;
     }
-    return (Form)devanagariForms[uc-0x900];
+    return (Form)bengaliForms[uc-0x980];
 }
 
 static bool isRa( const QChar &ch ) {
-    return (ch.unicode() == 0x930);
+    return (ch.unicode() == 0x9b0);
 }
 
 enum Position {
@@ -93,11 +93,12 @@ enum Position {
     Pre,
     Above,
     Below,
-    Post
+    Post,
+    Split
 };
 
-static int devanagariPosition[0x80] = {
-    None, Above, Above, Post,
+static int bengaliPosition[0x80] = {
+    None, Above, Post, Post,
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
@@ -115,15 +116,15 @@ static int devanagariPosition[0x80] = {
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
-    None, None, Post, Pre,
+    Below, None, Post, Pre,
 
     Post, Below, Below, Below,
-    Below, Above, Above, Above,
-    Above, Post, Post, Post,
-    Post, None, None, None,
+    Below, None, None, Pre,
+    Pre, None, None, Split,
+    Split, Below, None, None,
 
-    None, Above, Below, Above,
-    Above, None, None, None,
+    None, None, None, None,
+    None, None, None, Post,
     None, None, None, None,
     None, None, None, None,
 
@@ -142,7 +143,7 @@ static inline Position position( const QChar &ch ) {
     unsigned short uc = ch.unicode();
     if ( uc < 0x900 && uc > 0x97f )
 	return None;
-    return (Position) devanagariPosition[uc-0x900];
+    return (Position) bengaliPosition[uc-0x980];
 }
 
 /* syllables are of the form:
@@ -151,14 +152,12 @@ static inline Position position( const QChar &ch ) {
    (Consonant Nukta? Halant)* Consonant Halant
    IndependentVowel VowelMark? StressMark?
 
-   // ### check the above is correct
-
    We return syllable boundaries on invalid combinations aswell
 */
 static int nextSyllableBoundary( const QString &s, int start, int end, bool *invalid )
 {
     *invalid = FALSE;
-//     qDebug("nextSyllableBoundary: start=%d, end=%d", start, end );
+//      qDebug("nextSyllableBoundary: start=%d, end=%d", start, end );
     const QChar *uc = s.unicode()+start;
 
     int pos = 0;
@@ -174,7 +173,7 @@ static int nextSyllableBoundary( const QString &s, int start, int end, bool *inv
 
     while ( pos < end - start ) {
 	Form newState = form( uc[pos] );
-// 	qDebug("state[%d]=%d (uc=%4x)", pos, newState, uc[pos].unicode() );
+//  	qDebug("state[%d]=%d (uc=%4x)", pos, newState, uc[pos].unicode() );
 	switch( newState ) {
 	case Consonant:
 	    if ( state == Halant )
@@ -199,6 +198,9 @@ static int nextSyllableBoundary( const QString &s, int start, int end, bool *inv
 	case Matra:
 	    if ( state == Consonant || state == Nukta )
 		break;
+	    // the combination Independent_A + Vowel Sign AA is allowed.
+	    if ( uc[pos].unicode() == 0x9be && uc[pos-1].unicode() == 0x985 )
+		break;
 	    goto finish;
 
 	case LengthMark:
@@ -213,6 +215,10 @@ static int nextSyllableBoundary( const QString &s, int start, int end, bool *inv
  finish:
     return pos+start;
 }
+
+// vowel matras that have to be split into two parts.
+static const unsigned short split_o[2] = { 0x9c7, 0x9be };
+static const unsigned short split_au[2] = { 0x9c7, 0x9d7 };
 
 static QString reorderSyllable( const QString &string, int start, int end, unsigned short *featuresToApply,
 				GlyphAttributes *attributes, bool invalid )
@@ -232,6 +238,24 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
 
     for ( int i = 0; i < len; i++ )
 	featuresToApply[i] = 0;
+
+    // We can do this rule at the beginning, as it doesn't interact with later operations.
+    // Rule 4: split two part matras into parts
+    // This could be done better, but works for now.
+    for ( int i = 0; i < len; i++ ) {
+	const QChar *split = 0;
+	if ( uc[i].unicode() == 0x9cb )
+	    split = (const QChar *)split_o;
+	else if ( uc[i].unicode() == 0x9cc )
+	    split = (const QChar *)split_au;
+	if ( split ) {
+	    reordered.replace( i, 1, split, 2 );
+	    uc = (QChar *)reordered.unicode();
+	    len++;
+	    break;
+	}
+    }
+    qDebug("length=%d",  len );
 
     // nothing to do in this case!
     if ( len == 1 ) {
@@ -283,6 +307,9 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
 	    int toPos = base+1;
 	    if ( toPos < len && form( uc[toPos] ) == Nukta )
 		toPos++;
+	    // doing this twice takes care of split matras.
+	    if ( toPos < len && form( uc[toPos] ) == Matra )
+		toPos++;
 	    if ( toPos < len && form( uc[toPos] ) == Matra )
 		toPos++;
 // 	    qDebug("moving reph from %d to %d", 0, toPos );
@@ -297,9 +324,6 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
 	    base -= 2;
 	}
     }
-
-    // Rule 4: split two part matras into parts
-    // doesn't apply for devanagari
 
     // Rule 5: identify matra position. there are no post/below base consonats
     // in devanagari except for [Ra Halant]_Vattu, but these are already at the
@@ -334,10 +358,10 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
 	{ (Form)0, None }
     };
 
-//     qDebug("base=%d fixed=%d", base, fixed );
+     qDebug("base=%d fixed=%d", base, fixed );
     int toMove = 0;
     while ( fixed < len ) {
-// 	qDebug("fixed = %d", fixed );
+ 	qDebug("fixed = %d", fixed );
 	for ( int i = fixed; i < len; i++ ) {
 	    if ( form( uc[i] ) == finalOrder[toMove].form &&
 		 position( uc[i] ) == finalOrder[toMove].position ) {
@@ -345,7 +369,7 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
 		int to = fixed;
 		if ( finalOrder[toMove].position == Pre )
 		    to = 0;
-// 		qDebug("moving from %d to %d", i,  to );
+ 		qDebug("moving from %d to %d", i,  to );
 		QChar ch = uc[i];
 		unsigned short feature = featuresToApply[i];
 		for ( int j = i; j > to; j-- ) {
@@ -477,9 +501,9 @@ static QString analyzeSyllables( const ShapedItem *shaped, unsigned short *featu
 }
 
 
-void ScriptEngineDevanagari::shape( ShapedItem *result )
+void ScriptEngineBengali::shape( ShapedItem *result )
 {
-//     qDebug("ScriptEngineDevanagari::shape()");
+//     qDebug("ScriptEngineBengali::shape()");
 
     ShapedItemPrivate *d = result->d;
 
@@ -511,8 +535,8 @@ void ScriptEngineDevanagari::shape( ShapedItem *result )
 
     OpenTypeIface *openType = result->d->fontEngine->openTypeIface();
 
-    if ( openType && openType->supportsScript( QFont::Devanagari ) ) {
-	((OpenTypeIface *) openType)->apply( QFont::Devanagari, result, featuresToApply );
+    if ( openType && openType->supportsScript( QFont::Bengali ) ) {
+	((OpenTypeIface *) openType)->apply( QFont::Bengali, result, featuresToApply );
 	d->isPositioned = TRUE;
     } else {
 	heuristicSetGlyphAttributes( result );
@@ -523,7 +547,7 @@ void ScriptEngineDevanagari::shape( ShapedItem *result )
 }
 
 
-void ScriptEngineDevanagari::position( ShapedItem *result )
+void ScriptEngineBengali::position( ShapedItem *result )
 {
     if ( result->d->isPositioned )
 	return;
