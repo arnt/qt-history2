@@ -1,3 +1,4 @@
+
 /****************************************************************************
 **
 ** Implementation of QWidget and QWindow classes for mac.
@@ -360,7 +361,7 @@ bool qt_recreate_root_win() {
 bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = false)
 {
     QWidget *widget = QWidget::find((WId)id);
-    if(qMacVersion() == Qt::MV_JAGUAR) {
+    if(qMacVersion() == Qt::MV_10_DOT_1) {
 	switch(wcode) {
 	case kWindowOpaqueRgn:
 	case kWindowStructureRgn: {
@@ -425,63 +426,39 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = false)
 	}
     } else {
 	switch(wcode) {
-	case kWindowOpaqueRgn:
 	case kWindowStructureRgn: {
-	    QRegion cr;
+	    bool ret = FALSE;
 	    if(widget) {
-		QWExtra *extra = widget->d->extraData();
-		if(extra && !extra->mask.isEmpty()) {
-		    QRegion rin = qt_mac_convert_mac_region(rgn);
-		    QPoint g(widget->x(), widget->y());
-		    int offx = 0, offy = 0;
-		    QRegion rpm = extra->mask;
-		    if(widget->testWFlags(Qt::WStyle_Customize) &&
-		       widget->testWFlags(Qt::WStyle_NoBorder)) {
-			QPoint rpm_tl = rpm.boundingRect().topLeft();
-			offx = rpm_tl.x();
-			offy = rpm_tl.y();
-		    } else {
-			Rect title_r;
-			RgnHandle rgn = qt_mac_get_rgn();
-			GetWindowRegion((WindowPtr)widget->handle(), kWindowTitleBarRgn, rgn);
-			GetRegionBounds(rgn, &title_r);
-			qt_mac_dispose_rgn(rgn);
-			g.setY(g.y() + (title_r.bottom - title_r.top));
-		    }
-		    rin -= QRegion(g.x() + offx, g.y() + offy, widget->width(), widget->height());
-		    rpm.translate(g.x(), g.y());
-		    rin += rpm;
-		    CopyRgn(rin.handle(true), rgn);
-		} else if(force) {
-		    QRegion cr(widget->geometry());
-		    CopyRgn(cr.handle(true), rgn);
-		}
-	    }
-	    return true; }
-	case kWindowContentRgn: {
-	    if(widget) {
-		QWExtra *extra = widget->d->extraData();
-		if(extra && !extra->mask.isEmpty()) {
-		    QRegion cr = extra->mask;
-		    QPoint g(widget->x(), widget->y());
-		    if(!widget->testWFlags(Qt::WStyle_Customize) ||
-		       !widget->testWFlags(Qt::WStyle_NoBorder)) {
-			Rect title_r;
-			RgnHandle rgn = qt_mac_get_rgn();
-			GetWindowRegion((WindowPtr)widget->handle(), kWindowTitleBarRgn, rgn);
-			GetRegionBounds(rgn, &title_r);
-			qt_mac_dispose_rgn(rgn);
-			g.setY(g.y() + (title_r.bottom - title_r.top));
-		    }
-		    cr.translate(g.x(), g.y());
-		    CopyRgn(cr.handle(true), rgn);
+		if(widget->extra && !widget->extra->mask.isNull()) {
+		    QRegion rin;
+		    CopyRgn(rgn, rin.handle(TRUE));
+		    if(!rin.isEmpty()) {
+			QPoint rin_tl = rin.boundingRect().topLeft(); //in offset
+			rin.translate(-rin_tl.x(), -rin_tl.y()); //bring into same space as below
+			
+			QRegion mask = widget->extra->mask;
+//			mask.translate(1, 1);
+			if(!widget->testWFlags(Qt::WStyle_Customize) || !widget->testWFlags(Qt::WStyle_NoBorder)) {
+			    QRegion title;
+			    GetWindowRegion((WindowPtr)widget->handle(), kWindowTitleBarRgn, title.handle(TRUE));
+			    QRect br = title.boundingRect();
+			    mask.translate(0, br.height()); //put the mask 'under' the titlebar..
+			    title.translate(-br.x(), -br.y());
+			    mask += title;
+			}
 
+			QRegion cr = rin & mask;
+			cr.translate(rin_tl.x(), rin_tl.y()); //translate back to incoming space
+			CopyRgn(cr.handle(TRUE), rgn);
+		    }
+		    ret = TRUE;
 		} else if(force) {
 		    QRegion cr(widget->geometry());
-		    CopyRgn(cr.handle(true), rgn);
+		    CopyRgn(cr.handle(TRUE), rgn);
+		    ret = TRUE;
 		}
 	    }
-	    return true; }
+	    return ret; }
 	default: break;
 	}
     }
@@ -502,9 +479,10 @@ QMAC_PASCAL OSStatus qt_window_event(EventHandlerCallRef er, EventRef event, voi
 	    GetEventParameter(event, kEventParamWindowRegionCode, typeWindowRegionCode, 0,
 			      sizeof(wcode), 0, &wcode);
 	    RgnHandle rgn;
-	    GetEventParameter(event, kEventParamRgnHandle, typeQDRgnHandle, 0,
-			      sizeof(rgn), 0, &rgn);
-	    qt_window_rgn((WId)wid, wcode, rgn, false);
+	    GetEventParameter(event, kEventParamRgnHandle, typeQDRgnHandle, NULL,
+			      sizeof(rgn), NULL, &rgn);
+	    if(qt_window_rgn((WId)wid, wcode, rgn, false))
+		SetEventParameter(event, kEventParamRgnHandle, typeQDRgnHandle, sizeof(rgn), &rgn);
 	    return noErr; }
 	case kEventWindowDrawContent: {
 	    if(QWidget *widget = QWidget::find((WId)wid)) {
@@ -2128,25 +2106,14 @@ void QWidget::setMask(const QRegion &region)
     QRegion clp;
     if(isVisible())
 	clp = clippedRegion(false);
-    d->extraData()->mask = region;
+    extra->mask = region;
     if(isVisible()) {
 	dirtyClippedRegion(true);
 	clp ^= clippedRegion(false);
-	qt_dirty_wndw_rgn("setMask",this, clp);
+	qt_dirty_wndw_rgn("setMask", this, clp);
     }
-    if(isTopLevel()) {
-	if(qMacVersion() == Qt::MV_10_DOT_1 &&
-	   testWFlags(WStyle_Customize) && testWFlags(WStyle_NoBorder)) {
-	    /* We do this because the X/Y seems to move to the first paintable point
-	       (ie the bounding rect of the mask). We must offset everything or else
-	       we have big problems. */
-	    QRect r = region.boundingRect();
-	    QMacSavedPortInfo mp(this);
-	    SetOrigin(r.x(), r.y());
-	}
-	//now let the wdef take it
-	ReshapeCustomWindow((WindowPtr)hd);
-    }
+    if(isTopLevel()) 
+	ReshapeCustomWindow((WindowPtr)hd); //now let the wdef take it
 }
 
 void QWidget::setMask(const QBitmap &bitmap)
