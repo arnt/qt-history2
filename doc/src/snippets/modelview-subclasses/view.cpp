@@ -136,7 +136,8 @@ void LinearView::setSelection(const QRect &rect, QItemSelectionModel::SelectionF
     selectionModel()->select(selection, command);
 }
 
-QModelIndex LinearView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState)
+QModelIndex LinearView::moveCursor(QAbstractItemView::CursorAction cursorAction,
+                                   Qt::KeyboardModifiers)
 {
     QModelIndex current = currentIndex();
 

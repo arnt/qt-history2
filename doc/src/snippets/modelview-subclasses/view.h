@@ -47,7 +47,8 @@ protected:
     bool isIndexHidden(const QModelIndex &index) const;
     int horizontalOffset() const;
     int verticalOffset() const;
-    QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState state);
+    QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction,
+                           Qt::KeyboardModifiers modifiers);
 
     void paintEvent(QPaintEvent *event);
     void resizeEvent(QResizeEvent *event);
