@@ -474,16 +474,15 @@ void QWindowsStyle::drawControl( ControlElement element,
 		break;
 
 	    const QTabBar * tb = (const QTabBar *) widget;
-	    bool lastIsCurrent = FALSE;
 	    bool selected = flags & Style_Selected;
-
-	    if ( styleHint( SH_TabBar_Alignment, tb ) == AlignRight &&
-		 tb->currentTab() == tb->indexOf(tb->count()-1) )
-		lastIsCurrent = TRUE;
-
 	    QRect r2( r );
 	    if ( tb->shape()  == QTabBar::RoundedAbove ) {
+		bool lastIsCurrent = FALSE;
 		p->setPen( cg.midlight() );
+		if ( styleHint( SH_TabBar_Alignment, tb ) == AlignRight &&
+		     tb->currentTab() == tb->indexOf(tb->count()-1) )
+		    lastIsCurrent = TRUE;
+
 		p->drawLine( r2.left(), r2.bottom(), r2.right(), r2.bottom() );
 		p->setPen( cg.light() );
 		p->drawLine( r2.left(), r2.bottom()-1, r2.right(), r2.bottom()-1 );
@@ -533,6 +532,11 @@ void QWindowsStyle::drawControl( ControlElement element,
 		p->drawLine( x2, r2.top() + 2, x2, r2.bottom() -
 			     (selected ? (lastIsCurrent ? 0:1) :2));
 	    } else if ( tb->shape() == QTabBar::RoundedBelow ) {
+		bool firstIsCurrent = FALSE;
+		if ( styleHint( SH_TabBar_Alignment, tb ) == AlignLeft &&
+		     tb->indexOf( tb->currentTab() ) == 0 )
+		    firstIsCurrent = TRUE;
+		
 		if ( selected ) {
 		    p->fillRect( QRect( r2.left()+1, r2.top(), r2.width()-3, 1),
 				 tb->palette().active().brush( QColorGroup::Background ));
@@ -540,30 +544,37 @@ void QWindowsStyle::drawControl( ControlElement element,
 		    p->drawLine( r2.left()+1, r2.top(), r2.left()+1, r2.bottom()-2 );
 		    p->setPen( cg.dark() );
 		} else {
+ 		    p->setPen( cg.shadow() );
+		    p->drawLine( r2.left() + 1, r2.top() + 1, 
+				 r2.right() - (selected ? 1 :
+					       (firstIsCurrent ? 0 : 2) ),
+				 r2.top() + 1 );
 		    p->setPen( cg.dark() );
 		    p->drawLine( r2.left(), r2.top(), r2.right(), r2.top() );
 		    r2.setRect( r2.left() + 2, r2.top(),
-			       r2.width() - 4, r2.height() - 2 );
+				r2.width() - 4, r2.height() - 2 );
 		}
 
-		p->drawLine( r2.right() - 1, r2.top(),
+		p->drawLine( r2.right() - 1, r2.top() + (selected ? 0: 2),
 			     r2.right() - 1, r2.bottom() - 2 );
 		p->drawPoint( r2.right() - 2, r2.bottom() - 2 );
 		p->drawLine( r2.right() - 2, r2.bottom() - 1,
 			     r2.left() + 1, r2.bottom() - 1 );
-		p->drawPoint( r2.left() + 1, r2.bottom() - 2 );
+
+		p->setPen( cg.midlight() );
+ 		p->drawLine( r2.left() + 1, r2.bottom() - 2,
+ 			     r2.left() + 1, r2.top() + (selected ? 0 : 2) );
 
 		p->setPen( cg.shadow() );
-		p->drawLine( r2.right(), r2.top(),
+		p->drawLine( r2.right(), r2.top() + 1,
 			     r2.right(), r2.bottom() - 1 );
 		p->drawPoint( r2.right() - 1, r2.bottom() - 1 );
 		p->drawLine( r2.right() - 1, r2.bottom(),
 			     r2.left() + 2, r2.bottom() );
 
 		p->setPen( cg.light() );
-		p->drawLine( r2.left(), r2.top(),
+		p->drawLine( r2.left(), r2.top() + (selected ? 0 : 2),
 			     r2.left(), r2.bottom() - 2 );
-
 	    } else {
 		QCommonStyle::drawControl(element, p, widget, r, cg, flags, opt);
 	    }
