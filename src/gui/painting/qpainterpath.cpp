@@ -236,7 +236,7 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
 //                     } else {
                         double idelta = (p2.x()-p1.x()) / double(p2.y()-p1.y());
                         isects[++numISects] =
-                            (scanLineY - p1.y()) * idelta + p1.x();
+                            qRound((scanLineY - p1.y()) * idelta + p1.x());
                     }
                 }
             }
