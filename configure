@@ -302,6 +302,10 @@ while [ -n "$1" ]; do
 	VAR=`echo $1 | sed "s,^--\(.*\)=.*,\1,"`
 	VAL=`echo $1 | sed "s,^--.*=\(.*\),\1,"`
 	;;
+    --no-*)
+	VAR=`echo $1 | sed "s,^--no-\(.*\),\1,"`
+	VAL=no
+	;;
     --*)
 	VAR=`echo $1 | sed "s,^--\(.*\),\1,"`
 	VAL=yes
