@@ -645,6 +645,82 @@ void QWidget::update(int x, int y, int w, int h)
     }
 }
 
+struct QWSDoubleBuffer
+{
+    enum {
+        MaxWidth = SHRT_MAX,
+        MaxHeight = SHRT_MAX
+    };
+
+    QPixmap *hd;
+    int depth;
+};
+
+static QWSDoubleBuffer *qt_global_double_buffer = 0;
+static bool qt_global_double_buffer_active = false;
+
+static void qt_discard_double_buffer(QWSDoubleBuffer **db)
+{
+    if (!*db)
+        return;
+
+    delete (*db)->hd;
+    delete *db;
+    *db = 0;
+}
+
+void qt_discard_double_buffer()
+{
+    qt_discard_double_buffer(&qt_global_double_buffer);
+}
+
+static QWSDoubleBuffer *qt_qws_create_double_buffer(int width, int height, int depth)
+{
+    QWSDoubleBuffer *db = new QWSDoubleBuffer;
+    db->depth = depth;
+    db->hd = new QPixmap(width, height, db->depth);
+    Q_ASSERT(db->hd);
+    return db;
+}
+
+static void qt_qws_get_double_buffer(QWSDoubleBuffer **db, int width, int height, int depth)
+{
+    // the db should consist of 128x128 chunks
+    width  = qMin(((width / 128) + 1) * 128, int(QWSDoubleBuffer::MaxWidth));
+    height = qMin(((height / 128) + 1) * 128, int(QWSDoubleBuffer::MaxHeight));
+
+    if (qt_global_double_buffer_active) {
+        *db = qt_qws_create_double_buffer(width, height, depth);
+        return;
+    }
+
+    qt_global_double_buffer_active = true;
+
+    if (qt_global_double_buffer) {
+        if (qt_global_double_buffer->hd->width() >= width
+            && qt_global_double_buffer->hd->height() >= height) {
+            *db = qt_global_double_buffer;
+            return;
+        }
+
+        width  = qMax(qt_global_double_buffer->hd->width(), width);
+        height = qMax(qt_global_double_buffer->hd->height(), height);
+
+        qt_discard_double_buffer(&qt_global_double_buffer);
+    }
+
+    qt_global_double_buffer = qt_qws_create_double_buffer(width, height, depth);
+    *db = qt_global_double_buffer;
+};
+
+static void qt_qws_release_double_buffer(QWSDoubleBuffer **db)
+{
+    if (*db != qt_global_double_buffer)
+        qt_discard_double_buffer(db);
+    else
+        qt_global_double_buffer_active = false;
+}
+
 void QWidget::repaint(const QRegion& rgn)
 {
     if (testWState(Qt::WState_InPaintEvent))
@@ -658,7 +734,43 @@ void QWidget::repaint(const QRegion& rgn)
 
     setWState(Qt::WState_InPaintEvent);
 
+    QRect br = rgn.boundingRect();
+    bool do_clipping = (br != QRect(0, 0, data->crect.width(), data->crect.height()));
+    bool double_buffer = (!testAttribute(Qt::WA_PaintOnScreen)
+                          && !testAttribute(Qt::WA_NoSystemBackground)
+                          && br.width()  <= QWSDoubleBuffer::MaxWidth
+                          && br.height() <= QWSDoubleBuffer::MaxHeight
+                          && !QPainter::redirected(this));
+
+    QPoint redirectionOffset;
+    QWSDoubleBuffer *qDoubleBuffer = 0;
+    if (double_buffer) {
+        qt_qws_get_double_buffer(&qDoubleBuffer, br.width(), br.height(), qwsDisplay()->depth());
+        redirectionOffset = br.topLeft();
+        QPainter::setRedirected(this, qDoubleBuffer->hd, redirectionOffset);
+    }
+
+    QPainter p; // We'll use it several times
+
+    // Set clipping
+    if (do_clipping) {
+        if (redirectionOffset.isNull()) {
+            qt_set_paintevent_clipping(this, rgn);
+        } else {
+            QRegion redirectionRegion(rgn);
+            redirectionRegion.translate(-redirectionOffset);
+            qt_set_paintevent_clipping(this, redirectionRegion);
+        }
+    }
+
     if (!testAttribute(Qt::WA_NoBackground) && !testAttribute(Qt::WA_NoSystemBackground)) {
+#ifndef QT_NO_PALETTE
+        QBrush bg = palette().brush(d->bg_role);
+#else
+        QBrush bg(red); //##########
+#endif
+
+        // Contents propagation list
         QPoint offset;
         QStack<QWidget*> parents;
         QWidget *w = this;
@@ -668,26 +780,21 @@ void QWidget::repaint(const QRegion& rgn)
             parents += w;
         }
 
-#ifndef QT_NO_PALETTE
-        QBrush bg = palette().brush(w->d->bg_role);
-#else
-        QBrush bg(red); //##########
-#endif
-        QRect rr = rgn.boundingRect();
+        // Erase background
         bool was_unclipped = testAttribute(Qt::WA_PaintUnclipped);
         setAttribute(Qt::WA_PaintUnclipped, false);
-        QPainter p;
         p.begin(this);
         if(was_unclipped)
             setAttribute(Qt::WA_PaintUnclipped);
         p.setClipRegion(rgn);
         if(bg.pixmap())
-            p.drawTiledPixmap(rr,*bg.pixmap(), QPoint(rr.x()+(offset.x()%bg.pixmap()->width()),
-                                                      rr.y()+(offset.y()%bg.pixmap()->height())));
+            p.drawTiledPixmap(br,*bg.pixmap(), QPoint(br.x()+(offset.x()%bg.pixmap()->width()),
+                                                      br.y()+(offset.y()%bg.pixmap()->height())));
         else
-            p.fillRect(rr, bg.color());
+            p.fillRect(br, bg.color());
         p.end();
 
+        // Actual contents propagation (..parentparentparent->parentparent->parent)
         if (!parents.isEmpty()) {
             w = parents.pop();
             for (;;) {
@@ -713,11 +820,40 @@ void QWidget::repaint(const QRegion& rgn)
             }
         }
     }
+
+    // Send paint event to self
     QPaintEvent e(rgn);
-    qt_set_paintevent_clipping(this, rgn);
     QApplication::sendSpontaneousEvent(this, &e);
-    qt_clear_paintevent_clipping();
+
+    // Clear the clipping again
+    if (do_clipping)
+        qt_clear_paintevent_clipping();
+
+    // Flush double buffer, if used
+    if (double_buffer) {
+        QPainter::restoreRedirected(this);
+
+        p.begin(this);
+        QVector<QRect> rects = rgn.rects();
+        for (int i = 0; i < rects.size(); ++i) {
+            QRect rr = rects.at(i);
+            p.drawPixmap(rr.topLeft(), *(qDoubleBuffer->hd),
+                         QRect(rr.topLeft() - redirectionOffset, rr.size()));
+        }
+        p.end();
+
+        qt_qws_release_double_buffer(&qDoubleBuffer);
+
+        // Delete double buffer if not used within timeout
+        if (!qApp->active_window) {
+            extern int qt_double_buffer_timer;
+            if (qt_double_buffer_timer)
+                qApp->killTimer(qt_double_buffer_timer);
+            qt_double_buffer_timer = qApp->startTimer(500);
+        }
+    }
     clearWState(Qt::WState_InPaintEvent);
+
     if(paintingActive())
         qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
 

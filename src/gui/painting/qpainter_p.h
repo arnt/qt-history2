@@ -30,18 +30,9 @@ class QPainterState
 {
 public:
     QPainterState() {
-        bgBrush = Qt::white;
-        bgMode = Qt::TransparentMode;
-        clipEnabled = false;
-        WxF = false;
-        VxF = false;
-        wx = wy = ww = wh = 0;
-        vx = vy = vw = vh = 0;
-        pfont = 0;
-        painter = 0;
-        txop = 0;
-        changeFlags = 0;
+        init(0);
     }
+
     QPainterState(const QPainterState *s) {
         font = s->font;
         deviceFont = s->deviceFont;
@@ -80,7 +71,36 @@ public:
     }
 
     ~QPainterState() {
-            delete pfont;
+        delete pfont;
+    }
+
+    void init(QPainter *p) {
+        bgBrush = Qt::white;
+        bgMode = Qt::TransparentMode;
+        clipEnabled = false;
+        WxF = false;
+        VxF = false;
+        wx = wy = ww = wh = 0;
+        vx = vy = vw = vh = 0;
+        changeFlags = 0;
+        pfont = 0;
+        pfont = 0;
+        painter = p;
+        pen = QPen();
+        bgOrigin = QPoint(0, 0);
+        brush = bgBrush = QBrush();
+        font = deviceFont = QFont();
+        clipRegion = clipPathRegion = QRegion();
+        clipPath = QPainterPath();
+        clipRegionMatrix.reset();
+        clipPathMatrix.reset();
+#ifndef QT_NO_TRANSFORMATIONS
+        worldMatrix.reset();
+        matrix.reset();
+        txop = 0;
+#else
+        xlatex = xlatey = 0;
+#endif
     }
 
     QPoint bgOrigin;

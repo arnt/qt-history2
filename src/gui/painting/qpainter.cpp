@@ -552,13 +552,17 @@ bool QPainter::begin(QPaintDevice *pd)
         return false;
     }
 
+    // Ensure fresh painter state
+    d->state->init(d->state->painter);
+
     QPaintDevice *rpd = redirected(pd, &d->redirection_offset);
 
     if (rpd) {
         pd = rpd;
     }
 
-    d->state->bgOrigin -= d->redirection_offset;
+    d->state->bgOrigin -= d->redirection_offset; // This will accumulate!! ############
+
     d->device = pd;
     d->engine = pd->paintEngine();
 
@@ -574,7 +578,7 @@ bool QPainter::begin(QPaintDevice *pd)
             Q_ASSERT(widget);
 
             if(!d->engine->hasFeature(QPaintEngine::PaintOutsidePaintEvent)
-	       && !widget->testWState(Qt::WState_InPaintEvent)) {
+               && !widget->testWState(Qt::WState_InPaintEvent)) {
                 qWarning("QPainter::begin: Widget painting can only begin as a "
                          "result of a paintEvent");
                 return false;
@@ -592,10 +596,10 @@ bool QPainter::begin(QPaintDevice *pd)
             Q_ASSERT(pm);
             d->state->ww = d->state->vw = pm->width();
             d->state->wh = d->state->vh = pm->height();
-	    if (pm->depth() == 1) {
-		d->state->pen = QPen(Qt::color1);
-		d->state->brush = QBrush(Qt::color0);
-	    }
+            if (pm->depth() == 1) {
+                d->state->pen = QPen(Qt::color1);
+                d->state->brush = QBrush(Qt::color0);
+            }
             break;
         }
         case QInternal::ExternalDevice:
@@ -622,6 +626,7 @@ bool QPainter::begin(QPaintDevice *pd)
     d->engine->clearRenderHints(QPainter::LineAntialiasing);
     d->engine->setRenderHints(QPainter::TextAntialiasing);
     ++d->device->painters;
+
     return true;
 }
 
@@ -3275,6 +3280,8 @@ QPaintDevice *QPainter::redirected(const QPaintDevice *device, QPoint *offset)
                 *offset = redirections->at(i).offset;
             return redirections->at(i).replacement;
         }
+    if (offset)
+        *offset = QPoint(0, 0);
     return 0;
 }
 
