@@ -8,7 +8,9 @@
 #endif
 #define DEBUG 0
 
-
+#ifndef __IMAGECAPTURE__
+#define __IMAGECAPTURE__
+#endif
 #include "Carbon.h"
 #include "Movies.h"
 
