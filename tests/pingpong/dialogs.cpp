@@ -110,7 +110,8 @@ void GenericDialog::execute()
 
 UpdateMatchDialog::UpdateMatchDialog( QSqlRecord* buf, QWidget * parent,
 				      const char * name )
-    : QDialog( parent, name, TRUE )
+    : QDialog( parent, name, TRUE ),
+      matchRecord( buf )
 {
     QWidget *     w = new QWidget( this );
     QVBoxLayout * g = new QVBoxLayout( this );
@@ -123,23 +124,29 @@ UpdateMatchDialog::UpdateMatchDialog( QSqlRecord* buf, QWidget * parent,
     QWidget * editor;
     QLabel * flabel;
     QGridLayout * formLayout = new QGridLayout( w );
-    
+
     formLayout->setSpacing( 5 );
     formLayout->setMargin( 5 );
 
     form = new QSqlForm( this, "updatematchform" );
     
+    QSqlPropertyMap* pm = new QSqlPropertyMap();
+    pm->insert( "TeamPicker", "teamid" );
+    form->installPropertyMap( pm );
+
     flabel = new QLabel( buf->field("winner")->displayLabel(), w );
-    TeamPicker * wteam = new TeamPicker( w );
-    wteam->setTeamId( buf->value("winnerid").toInt() ); 
+    wteam = new TeamPicker( w );
+    wteam->setTeamId( buf->value("winnerid").toInt() );
     formLayout->addWidget( flabel, 0, 0 );
     formLayout->addWidget( wteam, 0, 1 );
-    
+    form->associate( wteam, buf->field("winnerid") );    
+
     flabel = new QLabel( buf->field("loser")->displayLabel(), w );
-    TeamPicker * lteam = new TeamPicker( w );
-    lteam->setTeamId( buf->value("loserid").toInt() ); 
+    lteam = new TeamPicker( w );
+    lteam->setTeamId( buf->value("loserid").toInt() );
     formLayout->addWidget( flabel, 0, 2 );
     formLayout->addWidget( lteam, 0, 3 );
+    form->associate( lteam, buf->field("loserid") );        
 
     flabel = new QLabel( buf->field("wins")->displayLabel(), w );
     editor = ef->createEditor( w, buf->value("wins") );
@@ -165,7 +172,7 @@ UpdateMatchDialog::UpdateMatchDialog( QSqlRecord* buf, QWidget * parent,
     formLayout->addWidget( editor, 2, 3 );
     form->associate( editor, buf->field("sets") );
     form->readRecord();
-    
+
     g->setMargin( 3 );
 
     QLabel * label = new QLabel( "Update match results", this );
@@ -198,5 +205,7 @@ void UpdateMatchDialog::close()
 void UpdateMatchDialog::execute()
 {
     form->writeRecord();
+//     matchRecord->setValue( "winnerid", wteam->teamId() );
+//     matchRecord->setValue( "loserid", lteam->teamId() );
     accept();
 }

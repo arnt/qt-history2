@@ -74,6 +74,7 @@ void PingPongApp::init()
     // Setup menus
     QPopupMenu * menu = new QPopupMenu( this );
     menu->insertSeparator();
+    menu->insertItem( "&Edit Players", this, SLOT( editPlayer() ), CTRL+Key_E );
     menu->insertItem( "&Quit", qApp, SLOT( quit() ), CTRL+Key_Q );
     menuBar()->insertItem( "&File", menu );
 
@@ -134,7 +135,7 @@ void PingPongApp::init()
     matchTable->setConfirmEdits( TRUE );
     matchTable->setConfirmCancels( TRUE );
     matchTable->setCursor( &matchCr );
-    matchTable->setReadOnly( TRUE );    
+    matchTable->setReadOnly( TRUE );
 }
 
 void PingPongApp::insertMatch()
@@ -168,4 +169,17 @@ void PingPongApp::deleteMatch()
  	cr->del();
  	matchTable->refresh();
      }
+}
+
+void PingPongApp::editPlayer()
+{
+    QDialog* dlg = new QDialog( this, "playerdialog", TRUE );
+    QGridLayout* gl = new QGridLayout( dlg );
+    QSqlTable* t = new QSqlTable( dlg );
+    gl->addWidget( t, 0, 0);
+    QSqlCursor player( "player" );
+    player.select( player.index( "name" ) );
+    t->setCursor( &player );
+    dlg->exec();
+    delete dlg;
 }

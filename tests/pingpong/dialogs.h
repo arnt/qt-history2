@@ -12,12 +12,12 @@ class TeamPicker : public QComboBox
 {
     Q_OBJECT
     Q_PROPERTY( int teamid READ teamId WRITE setTeamId )
-	
+
 public:
-    TeamPicker( QWidget * parent = 0, const char * name = 0 );    
+    TeamPicker( QWidget * parent = 0, const char * name = 0 );
     int teamId() const;
     void setTeamId( int id );
-    
+
 private:
     QMap< int, int > index2Id;
 };
@@ -53,6 +53,9 @@ public slots:
 
 private:
     QSqlForm * form;
+    QSqlRecord* matchRecord;
+    TeamPicker * wteam;
+    TeamPicker * lteam;
 };
 #endif // DIALOGS_H
 

@@ -11,7 +11,6 @@
 class QLabel;
 class QSqlForm;
 
-
 class MatchCursor : public QSqlCursor
 {
 public:
@@ -36,6 +35,8 @@ protected slots:
     void updateMatch();
     void insertMatch();
     void deleteMatch();
+    
+    void editPlayer();
 
 private:
     QSqlTable * matchTable;
