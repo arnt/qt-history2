@@ -876,21 +876,21 @@ void QWidget::showWindow()
 #endif
     int sm = SW_SHOW;
     if ( isTopLevel() ) {
-#ifdef Q_OS_TEMP
-//    sm = SW_SHOWMAXIMIZED;
-#else
 	switch ( topData()->showMode ) {
 	case 1:
+#ifdef Q_OS_TEMP
+	    sm = SW_HIDE;
+#else
 	    sm = SW_SHOWMINIMIZED;
 	    break;
 	case 2:
 	    sm = SW_SHOWMAXIMIZED;
+#endif 
 	    break;
 	default:
 	    sm = SW_SHOW;
 	    break;
 	}
-#endif
 	topData()->showMode = 0; // reset
     }
 
