@@ -559,7 +559,7 @@
                             </sizepolicy>
                         </property>
                         <property name="text">
-                            <string>Enter the supplied license information here, License ID, Products, Expiry date and Product key are mandatory, thre rest is optional.
+                            <string>Enter the supplied license information here, all fields except Licensee are mandatory.
 Alternatively, the installation wizard may read them from a license file.</string>
                         </property>
                         <property name="alignment">
