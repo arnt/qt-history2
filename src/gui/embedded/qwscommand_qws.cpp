@@ -13,15 +13,166 @@
 
 #include "qwscommand_qws.h"
 
-/*********************************************************************
- *
- * Functions to read/write commands on/from a socket
- *
- *********************************************************************/
+#define QWSCOMMAND_DEBUG // Uncomment to debug client/server communication
 
-//#define QWSCOMMAND_DEBUG // Uncomment to debug client/server communication
 #ifdef QWSCOMMAND_DEBUG
-#include <qhexdump.h>
+# include <qdebug.h>
+# include "qfile.h"
+# include <ctype.h>
+
+// QWSHexDump -[ start ]---------------------------------------------
+# define QWSHEXDUMP_MAX 32
+class QWSHexDump
+{
+public:
+
+    QWSHexDump(const void *adress, int len, int wrapAt = 16)
+        : wrap(wrapAt), dataSize(len)
+    {
+        init();
+        data = reinterpret_cast<const char*>(adress);
+        if (len < 0)
+            dataSize = 0;
+    }
+
+    QWSHexDump(const char *str, int len = -1, int wrapAt = 16)
+        : wrap(wrapAt), dataSize(len)
+    {
+        init();
+        data = str;
+        if (len == -1)
+            dataSize = str ? strlen(str) : 0;
+    }
+
+    QWSHexDump(const QByteArray &array, int wrapAt = 16)
+        : wrap(wrapAt)
+    {
+        init();
+        data = array.data();
+        dataSize = array.size();
+    }
+
+    // Sets a customized prefix for the hexdump
+    void setPrefix(const char *str) { prefix = str; }
+
+    // Sets number of bytes to cluster together
+    void setClusterSize(uint num) { clustering = num; }
+
+    // Output hexdump to a text stream
+    void intoTextStream(QTextStream &strm) {
+        outstrm = &strm;
+        hexDump();
+    }
+
+    // Output hexdump to a QString
+    QString toString();
+
+protected:
+    void init();
+    void hexDump();
+    void sideviewDump(int at);
+
+private:
+    uint wrap;
+    uint clustering;
+    uint dataSize;
+    int dataWidth;
+    const char *data;
+    const char *prefix;
+    bool dirty;
+
+    char sideviewLayout[QWSHEXDUMP_MAX + 1];
+    char sideview[15];
+
+    QTextStream *outstrm;
+};
+
+void QWSHexDump::init()
+{
+    prefix = "> ";             // Standard line prefix
+    clustering = 2;            // Word-size clustering by default
+    if (wrap > QWSHEXDUMP_MAX) // No wider than QWSHexDump_MAX bytes
+        wrap = QWSHEXDUMP_MAX;
+}
+
+void QWSHexDump::hexDump()
+{
+    *outstrm << "(" << dataSize << " bytes):\n" << prefix;
+    sprintf(sideviewLayout, " [%%-%us]", wrap);
+    dataWidth = (2 * wrap) + (wrap / clustering);
+
+    dirty = false;
+    uint wrapIndex = 0;
+    for (uint i = 0; i < dataSize; i++) {
+        uint c = static_cast<uchar>(data[i]);
+        sideview[wrapIndex = i%wrap] = isprint(c) ? c : '.';
+
+        if (wrapIndex && (wrapIndex % clustering == 0))
+            *outstrm << " ";
+
+        outstrm->width(2);
+        outstrm->fill('0');
+        outstrm->setf(0, QTextStream::showbase);
+        *outstrm << hex << c;
+        dirty = true;
+
+        if (wrapIndex == wrap-1) {
+            sideviewDump(wrapIndex);
+            wrapIndex = 0;
+            if (i+1 < dataSize)
+                *outstrm << endl << prefix;
+        }
+
+    }
+    sideviewDump(wrapIndex);
+}
+
+void QWSHexDump::sideviewDump(int at)
+{
+    if (dirty) {
+        dirty = false;
+        ++at;
+        sideview[at] = '\0';
+        int currentWidth = (2 * at) + (at / clustering) - (at%clustering?0:1);
+        int missing = qMax(dataWidth - currentWidth, 0);
+        while (missing--)
+            *outstrm << " ";
+
+        *outstrm << " [";
+        outstrm->fill(' ');
+        outstrm->width(wrap);
+        outstrm->setf(QTextStream::left, QTextStream::adjustfield);
+        *outstrm << sideview;
+        *outstrm << "]";
+    }
+}
+
+// Output hexdump to a QString
+QString QWSHexDump::toString() {
+    QString result;
+    QTextStream strm(&result, QFile::WriteOnly);
+    outstrm = &strm;
+    hexDump();
+    return result;
+}
+
+#ifndef QT_NO_DEBUG
+QDebug &operator<<(QDebug &dbg, QWSHexDump *hd) {
+    if (!hd)
+        return dbg << "QWSHexDump(0x0)";
+    QString result = hd->toString();
+    dbg.nospace() << result;
+    return dbg.space();
+}
+
+// GCC & Intel wont handle references here
+QDebug operator<<(QDebug dbg, QWSHexDump hd) {
+    return dbg << &hd;
+}
+#endif
+// QWSHexDump -[ end ]-----------------------------------------------
+
+
 QDebug &operator<<(QDebug &dbg, QWSCommand::Type tp)
 {
     const char *typeStr;
@@ -137,19 +288,24 @@ const char * eventNames[N_EVENTS] =  {
         "IMEvent",
     };
 
-
-
 class QWSServer;
 extern QWSServer *qwsServer;
 #endif
+
+
+/*********************************************************************
+ *
+ * Functions to read/write commands on/from a socket
+ *
+ *********************************************************************/
 
 #ifndef QT_NO_QWS_MULTIPROCESS
 void qws_write_command(QWSSocket *socket, int type, char *simpleData, int simpleLen,
                        char *rawData, int rawLen)
 {
 #ifdef QWSCOMMAND_DEBUG
-    if (simpleLen) qDebug() << "simpleData " << QHexDump(simpleData, simpleLen);
-    if (rawLen > 0) qDebug() << "rawData " << QHexDump(rawData, rawLen);
+    if (simpleLen) qDebug() << "simpleData " << QWSHexDump(simpleData, simpleLen);
+    if (rawLen > 0) qDebug() << "rawData " << QWSHexDump(rawData, rawLen);
 #endif
     qws_write_uint(socket, type);
     qws_write_uint(socket, rawLen == -1 ? 0 : rawLen);
@@ -183,7 +339,7 @@ bool qws_read_command(QWSSocket *socket, char *&simpleData, int &simpleLen,
             bytesRead = socket->read(simpleData, simpleLen);
 #ifdef QWSCOMMAND_DEBUG
          if (simpleLen)
-             qDebug() << "simpleData " << QHexDump(simpleData, bytesRead);
+             qDebug() << "simpleData " << QWSHexDump(simpleData, bytesRead);
 #endif
         } else {
             bytesRead = 1; // hack!
@@ -201,7 +357,7 @@ bool qws_read_command(QWSSocket *socket, char *&simpleData, int &simpleLen,
         rawData = new char[rawLen];
         bytesRead += socket->read(rawData, rawLen);
 #ifdef QWSCOMMAND_DEBUG
-        qDebug() << "rawData " << QHexDump(rawData, rawLen);
+        qDebug() << "rawData " << QWSHexDump(rawData, rawLen);
         //qDebug() << "==== bytesRead " << bytesRead;
 #endif
         return true;
