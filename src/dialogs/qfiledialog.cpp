@@ -1955,6 +1955,8 @@ static QStringList makeFiltersList( const QString &filter )
   <li> \c DirectoryOnly - Return the name of a directory and display no files in the file views of the filedialog.
   <li> \c ExistingFiles - Return the names of zero or more existing files.
   </ul>
+
+  Using setMode() you can set this mode to the file dialog.
 */
 
 /*!
