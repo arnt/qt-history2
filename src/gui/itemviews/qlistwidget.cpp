@@ -99,6 +99,8 @@ void QListModel::insert(int row, QListWidgetItem *item)
     Q_ASSERT(item);
     item->model = this;
     if (row >= 0 && row <= lst.count()) {
+        if (lst.contains(item))
+            qWarning("The item %p has already been inserted", item);
         lst.insert(row, item);
         emit rowsInserted(QModelIndex::Null, row, row);
     }
