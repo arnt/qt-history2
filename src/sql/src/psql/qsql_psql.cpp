@@ -6,6 +6,7 @@
 #include <qpointarray.h>
 #include <postgres.h>
 #include <libpq-fe.h>
+#include <libpq/libpq-fs.h>
 #include <catalog/pg_type.h>
 #include <utils/geo_decls.h>
 #include <utils/timestamp.h>
@@ -35,7 +36,6 @@ QVariant::Type qDecodePSQLType( int t )
     case INT2OID	:
     case INT2VECTOROID  :
     case INT4OID        :
-    case OIDOID         :
 	type = QVariant::Int;
 	break;
     case NUMERICOID     :
@@ -66,6 +66,7 @@ QVariant::Type qDecodePSQLType( int t )
 	break;
     case ZPBITOID	:
     case VARBITOID	:
+    case OIDOID         :	
 	type = QVariant::ByteArray;
 	break;
     case REGPROCOID     :
@@ -125,7 +126,7 @@ bool qIsPrimaryIndex( const QSqlDriver* driver, const QString& tablename, const 
 
 QSqlField qMakeField( const QSqlDriver* driver, const QString& tablename, const QString& fieldname )
 {
-    QString stmt ( "select a.atttypid "
+    QString stmt ( "select a.atttypid::int "
 		   "from pg_user u, pg_class c, pg_attribute a, pg_type t "
 		   "where c.relname = '%1' "
 		   "and a.attname = '%2' "
@@ -354,12 +355,47 @@ QVariant QPSQLResult::data( int i )
 		    }
 		    idx = end+2;
 		}
-		return parray;
+		return QVariant( parray );
 	    }
+	case QVariant::ByteArray: {
+	    QByteArray ba;
+	    ((QSqlDriver*)driver())->beginTransaction();
+	    Oid oid = val.toInt();
+	    qDebug("oid:" + QString::number(oid));
+	    int fd = lo_open( d->connection, oid, INV_READ );
+#ifdef QT_CHECK_RANGE	    
+	    if ( fd < 0) {
+		qWarning( "QPSQLResult::data: unable to open large object for read" );
+		((QSqlDriver*)driver())->commitTransaction();		
+		return QVariant( ba );
+	    }
+#endif	    
+	    int size = 0;
+	    int retval = lo_lseek( d->connection, fd, 0L, SEEK_END );
+	    if ( retval >= 0 ) {
+		size = lo_tell( d->connection, fd );
+		lo_lseek( d->connection, fd, 0L, SEEK_SET );
+	    }
+	    if ( size == 0 ) {
+		((QSqlDriver*)driver())->commitTransaction();				
+		return QVariant( ba );
+	    }
+	    char buf[ size ];
+	    retval = lo_read( d->connection, fd, buf, size );
+	    if (retval < 0) {
+		qWarning( "QPSQLResult::data: unable to read large object" );
+		((QSqlDriver*)driver())->commitTransaction();				
+		return QVariant( ba );
+	    }
+	    ba.duplicate( buf, size );
+	    ((QSqlDriver*)driver())->commitTransaction();			    
+	    qDebug("bytearray size:" + QString::number(ba.size()));
+	    return QVariant( ba );
+	}
 	default:
 	case QVariant::Invalid:
 #ifdef QT_CHECK_RANGE
-	    qWarning("QPSQLResult::data Warning: unknown data type");
+	    qWarning("QPSQLResult::data: unknown data type");
 #endif
 	    return QVariant();
 	}
