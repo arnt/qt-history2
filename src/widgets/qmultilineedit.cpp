@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#19 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -319,39 +319,24 @@ QMultiLineEdit::~QMultiLineEdit()
     delete mlData;
 }
 
-const int nBuffers = 3;
-static QPixmap *buffer[nBuffers] = { 0, 0, 0 };   // ### delete ved avslutning
-static int freeNext = 0;
+static QPixmap *buffer = 0;
 
-static void cleanupMLBuffers()
+static void cleanupMLBuffer()
 {
-    for( int i = 0 ; i < nBuffers ; i++ ) {
-	delete buffer[i];
-	buffer[i] = 0;
-    }
+    delete buffer;
+    buffer = 0;
 }
 
 static QPixmap *getCacheBuffer( QSize sz )
 {
-    static bool firstTime = TRUE;
-    if ( firstTime ) {
-	firstTime = FALSE;
-	qAddPostRoutine( cleanupMLBuffers );
+    if ( !buffer ) {
+	qAddPostRoutine( cleanupMLBuffer );
+	buffer = new QPixmap;
     }
 
-    for( int i = 0 ; i < nBuffers ; i++ ) {
-	if ( buffer[i] ) {
-	    if ( buffer[i]->size() == sz )
-		return buffer[i];
-	} else {
-	    return buffer[i] = new QPixmap( sz );
-	}
-    }
-    if ( ++freeNext == 3 )
-	freeNext = 0;
-    delete buffer[freeNext];
-    buffer[freeNext] = new QPixmap( sz );
-    return buffer[freeNext];
+    if ( buffer->width() < sz.width() || buffer->height() < sz.height() )
+	buffer->resize( sz );
+    return buffer;
 }
 
 /*!
@@ -367,7 +352,7 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 		 name( "unnamed" ), row );
 	return;
     }
-    QRect updateR   = cellUpdateRect();
+    QRect updateR = cellUpdateRect();
     QPixmap *buffer = getCacheBuffer( updateR.size() );
     ASSERT(buffer);
     buffer->fill ( g.base() );
@@ -448,7 +433,8 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 	}
     }
     p.end();
-    painter->drawPixmap( updateR.left(), updateR.top(), *buffer );
+    painter->drawPixmap( updateR.left(), updateR.top(), *buffer,
+			 0, 0, updateR.width(), updateR.height() );
 }
 
 
