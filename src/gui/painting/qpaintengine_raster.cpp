@@ -858,7 +858,7 @@ void QRasterPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, cons
     drawImage(r, *image, sr);
 }
 
-void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &image, const QRectF &sr,
+void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRectF &sr,
                                    Qt::ImageConversionFlags)
 {
 #ifdef QT_DEBUG_DRAW
@@ -1071,14 +1071,14 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         spans.reset();
         for (int x = xmin; x<xmax; ) {
             // Skip those with 0 coverage (black on white so inverted)
-            while (x < xmax && scanline[x].b == 255) ++x;
+            while (x < xmax && qGray(scanline[x].toRgba()) == 255) ++x;
             if (x >= xmax) break;
 
-            int prev = scanline[x].b;
-            QT_FT_Span span = { x, 0, 255 - scanline[x].b };
+            int prev = qGray(scanline[x].toRgba());
+	    QT_FT_Span span = { x, 0, 255 - prev };
 
             // extend span until we find a different one.
-            while (x < xmax && scanline[x].b == prev) ++x;
+            while (x < xmax && qGray(scanline[x].toRgba()) == prev) ++x;
             span.len = x - span.x;
 
             spans.add(span);
