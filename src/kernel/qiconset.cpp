@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#68 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#69 $
 **
 ** Implementation of QIconSet class
 **
@@ -300,7 +300,7 @@ QIconSet &QIconSet::operator=( const QIconSet &other )
 {
     if ( other.d ) {
 	other.d->ref();
-	if ( d->deref() )
+	if ( d && d->deref() )
 	    delete d;
 	d = other.d;
 	return *this;
