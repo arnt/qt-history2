@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#10 $
 **
-** Implementation of QButton class
+** Implementation of QPopupMenu class
 **
 ** Author  : Haavard Nord
 ** Created : 941128
@@ -20,7 +20,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#10 $";
 #endif
 
 
@@ -111,6 +111,12 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     setRightMargin( motifPopupFrame );
     popupActive = -1;
     tabMark = 0;
+}
+
+QPopupMenu::~QPopupMenu()
+{
+    if ( parentMenu )				// remove from parent menu
+	parentMenu->removePopup( this );
 }
 
 

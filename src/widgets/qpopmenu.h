@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.h#7 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.h#8 $
 **
 ** Definition of QPopupMenu class
 **
 ** Author  : Haavard Nord
 ** Created : 941128
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -23,6 +23,7 @@ friend class QMenuBar;
     Q_OBJECT
 public:
     QPopupMenu( QWidget *parent=0, const char *name=0 );
+   ~QPopupMenu();
 
     void	popup( const QPoint & pos );	// open popup
 
