@@ -333,3 +333,11 @@ The container can be read in again with:
 The same applies to QStringList, QValueStack and QMap.
 */
 
+/*!
+    \fn QPair qMakePair(T1 t1, T2 t2)
+
+    \relates QPair
+
+    This is a template convenience function. It is used to create a
+    QPair\<\> object that contains \a t1 and \a t2.
+*/

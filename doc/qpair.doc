@@ -62,9 +62,7 @@
     objects it contains. See the \link qtl.html QTL
     documentation\endlink for more information.
 
-    Functions that need to return two values can use a QPair. The
-    \link qtl.html#qMakePair qMakePair()\endlink convenience function
-    makes it easy to create QPair objects.
+    Functions that need to return two values can use a QPair.
 */
 
 /*! \enum QPair::first_type
