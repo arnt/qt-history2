@@ -1134,6 +1134,7 @@ void QWorkspace::operationMenuActivated( int a )
 	break;
     case 6:
 	d->active->showShaded();
+	break;
     case 7:
 	{
 	    QWorkspace* w = (QWorkspace*)d->active->windowWidget();
