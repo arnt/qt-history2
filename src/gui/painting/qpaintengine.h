@@ -67,7 +67,7 @@ public:
         UsesFontEngine            = 0x10000000,           // Internal use, QWidget and QPixmap
         PaintOutsidePaintEvent    = 0x20000000            // Engine is capable of painting outside paint events
     };
-    Q_DECLARE_FLAGS(PaintEngineFeatures, PaintEngineFeature);
+    Q_DECLARE_FLAGS(PaintEngineFeatures, PaintEngineFeature)
 
     enum DirtyFlags {
         DirtyPen                = 0x0001,

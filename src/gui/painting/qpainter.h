@@ -51,7 +51,7 @@ class Q_GUI_EXPORT QPainter
         TextAntialiasing = 0x02
     };
 
-    Q_DECLARE_FLAGS(RenderHints, RenderHint);
+    Q_DECLARE_FLAGS(RenderHints, RenderHint)
 
     QPainter();
     QPainter(QPaintDevice *);

@@ -47,7 +47,7 @@ public:
 	YearsSection = 0x0400
     };
 
-    Q_DECLARE_FLAGS(Sections, Section);
+    Q_DECLARE_FLAGS(Sections, Section)
 
     QDateTimeEdit(QWidget *parent = 0);
     QDateTimeEdit(const QDateTime &dt, QWidget *parent = 0);

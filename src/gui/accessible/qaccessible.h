@@ -111,7 +111,7 @@ public:
         HasPopup        = 0x40000000,
         Modal                = 0x80000000
     };
-    Q_DECLARE_FLAGS(State, StateFlag);
+    Q_DECLARE_FLAGS(State, StateFlag)
 
     enum Role {
         NoRole                = 0x00000000,
@@ -214,7 +214,7 @@ public:
         Controlled        = 0x00100000,
         LogicalMask        = 0x00ff0000
     };
-    Q_DECLARE_FLAGS(Relation, RelationFlag);
+    Q_DECLARE_FLAGS(Relation, RelationFlag)
 
     enum Action {
         DefaultAction   = 0,

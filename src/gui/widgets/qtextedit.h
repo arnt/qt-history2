@@ -59,7 +59,7 @@ public:
         AutoAll = 0xffffffff
     };
 
-    Q_DECLARE_FLAGS(AutoFormatting, AutoFormattingFlag);
+    Q_DECLARE_FLAGS(AutoFormatting, AutoFormattingFlag)
 
     enum CursorAction {
         MoveBackward,

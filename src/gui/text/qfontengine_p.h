@@ -66,7 +66,7 @@ public:
         Shear = 0x04,
         FullTransformations = 0x0f
     };
-    Q_DECLARE_FLAGS(FECaps, FECap);
+    Q_DECLARE_FLAGS(FECaps, FECap)
 
     inline QFontEngine() {
         ref = 0;

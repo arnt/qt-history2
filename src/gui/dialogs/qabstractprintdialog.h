@@ -38,7 +38,7 @@ public:
         PrintCollateCopies      = 0x0010
     };
 
-    Q_DECLARE_FLAGS(PrintDialogOptions, PrintDialogOption);
+    Q_DECLARE_FLAGS(PrintDialogOptions, PrintDialogOption)
 
     QAbstractPrintDialog(QPrinter *printer, QWidget *parent = 0);
 

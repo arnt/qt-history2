@@ -96,7 +96,7 @@ public:
         FindWholeWords = 0x00002
         // ### more
     };
-    Q_DECLARE_FLAGS(FindFlags, FindFlag);
+    Q_DECLARE_FLAGS(FindFlags, FindFlag)
 
     enum FindDirection
     {

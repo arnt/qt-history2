@@ -98,7 +98,7 @@ public:
         ClearAndSelect = Clear | Select
     };
 
-    Q_DECLARE_FLAGS(SelectionFlags, SelectionFlag);
+    Q_DECLARE_FLAGS(SelectionFlags, SelectionFlag)
 
     QItemSelectionModel(QAbstractItemModel *model, QObject *parent = 0);
     virtual ~QItemSelectionModel();

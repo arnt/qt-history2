@@ -38,7 +38,7 @@ public:
     enum AcceptMode { AcceptOpen, AcceptSave };
 
     enum Option { DontResolveSymlinks = 0x01, ShowDirsOnly = 0x02 };
-    Q_DECLARE_FLAGS(Options, Option);
+    Q_DECLARE_FLAGS(Options, Option)
 
     QFileDialog(QWidget *parent, Qt::WFlags f);
     QFileDialog(QWidget *parent = 0,

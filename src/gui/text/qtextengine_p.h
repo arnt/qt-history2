@@ -255,7 +255,7 @@ public:
         Mirrored = 0x0001,
         DesignMetrics = 0x0002
     };
-    Q_DECLARE_FLAGS(ShaperFlags, ShaperFlag);
+    Q_DECLARE_FLAGS(ShaperFlags, ShaperFlag)
 
     void itemize(int mode = Full);
 

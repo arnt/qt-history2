@@ -40,7 +40,7 @@ public:
     ~QAbstractSpinBox();
 
     enum StepEnabledFlag { StepNone = 0x00, StepUpEnabled = 0x01, StepDownEnabled = 0x02 };
-    Q_DECLARE_FLAGS(StepEnabled, StepEnabledFlag);
+    Q_DECLARE_FLAGS(StepEnabled, StepEnabledFlag)
 
     enum ButtonSymbols { UpDownArrows, PlusMinus };
 

@@ -124,8 +124,8 @@ public:
         MatchDefault = MatchFromStart | MatchWrap
     };
 
-    Q_DECLARE_FLAGS(MatchFlags, MatchFlag);
-    
+    Q_DECLARE_FLAGS(MatchFlags, MatchFlag)
+
     enum ItemFlag {
         ItemIsSelectable = 1,
         ItemIsEditable = 2,
@@ -135,7 +135,7 @@ public:
         ItemIsEnabled = 32
     };
 
-    Q_DECLARE_FLAGS(ItemFlags, ItemFlag);
+    Q_DECLARE_FLAGS(ItemFlags, ItemFlag)
 
     QAbstractItemModel(QObject *parent = 0);
     virtual ~QAbstractItemModel();

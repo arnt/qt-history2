@@ -125,7 +125,7 @@ public:
     enum { Version = 1 };
 
     enum ButtonFeature { None = 0x00, Flat = 0x01, HasMenu = 0x02, DefaultButton = 0x04, AutoDefaultButton = 0x08 };
-    Q_DECLARE_FLAGS(ButtonFeatures, ButtonFeature);
+    Q_DECLARE_FLAGS(ButtonFeatures, ButtonFeature)
 
     ButtonFeatures features;
     QString text;
@@ -177,7 +177,7 @@ public:
 
     enum ProgressBarFeature { None, CenterIndicator = 0x01, PercentageVisible = 0x02,
                               IndicatorFollowsStyle = 0x03 };
-    Q_DECLARE_FLAGS(ProgressBarFeatures, ProgressBarFeature);
+    Q_DECLARE_FLAGS(ProgressBarFeatures, ProgressBarFeature)
 
     ProgressBarFeatures features;
     QString progressString;
@@ -241,7 +241,7 @@ public:
 
     enum ListViewItemFeature { None = 0x00, Expandable = 0x01, MultiLine = 0x02, Visible = 0x04,
                                ParentControl = 0x08 };
-    Q_DECLARE_FLAGS(ListViewItemFeatures, ListViewItemFeature);
+    Q_DECLARE_FLAGS(ListViewItemFeatures, ListViewItemFeature)
 
     ListViewItemFeatures features;
     int height;
@@ -438,7 +438,7 @@ public:
 
     enum ToolButtonFeature { None = 0x00, Arrow = 0x01, TextLabel = 0x02, Menu = 0x04,
                              PopupDelay = 0x08, BigPixmap = 0x10 };
-    Q_DECLARE_FLAGS(ToolButtonFeatures, ToolButtonFeature);
+    Q_DECLARE_FLAGS(ToolButtonFeatures, ToolButtonFeature)
 
     ToolButtonFeatures features;
     QIcon icon;

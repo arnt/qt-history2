@@ -63,7 +63,7 @@ public:
         AlwaysEdit = 31
     };
 
-    Q_DECLARE_FLAGS(BeginEditActions, BeginEditAction);
+    Q_DECLARE_FLAGS(BeginEditActions, BeginEditAction)
 
     QAbstractItemView(QWidget *parent = 0);
     ~QAbstractItemView();
@@ -94,7 +94,7 @@ public:
 
     void setKeyTracking(bool enable);
     bool hasKeyTracking() const;
-    
+
     bool alternatingRowColors() const;
     void setAlternatingRowColors(bool enable);
 
