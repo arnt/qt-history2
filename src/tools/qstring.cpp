@@ -15880,11 +15880,8 @@ int QString::similarityWith( const QString& target ) const
 
   The lifetime of the return value is until the next call to this function.
 */
-const void* qt_winTchar(const QString& str_in, bool addnul)
+const void* qt_winTchar(const QString& str, bool addnul)
 {
-    // So that the return value lives long enough.
-    static QString str;
-    str = str_in;
 
 #ifdef UNICODE
     static uint buflen = 256;
@@ -15914,7 +15911,10 @@ const void* qt_winTchar(const QString& str_in, bool addnul)
 #undef EXTEND
 
 #else
-    return str.latin1();
+    // So that the return value lives long enough.
+    static QString str_cache;
+    str_cache = str;
+    return str_cache.latin1();
 #endif
 }
 
