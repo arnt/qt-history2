@@ -45,6 +45,7 @@
 #include "private/qtitlebar_p.h"
 #include <Appearance.h>
 #include <qbitmap.h>
+#include <qprogressbar.h>
 
 #include <qpainter.h>
 class QMacPainter : public QPainter
@@ -190,6 +191,24 @@ void QMacStyle::drawControl( ControlElement element,
 	tds = kThemeStatePressed;
     
     switch(element) {
+    case CE_ProgressBarContents: {
+	if(!widget)
+	    break;
+	QProgressBar *pbar = (QProgressBar *) widget;
+	ThemeTrackDrawInfo ttdi;
+	memset(&ttdi, '\0', sizeof(ttdi));
+	ttdi.kind = kThemeLargeProgressBar;
+	ttdi.bounds = *qt_glb_mac_rect(r, p->device());
+	ttdi.max = pbar->totalSteps();
+	ttdi.value = pbar->progress();
+	ttdi.attributes |= kThemeTrackHorizontal;
+	if(qAquaActive(cg))
+	    ttdi.enableState |= kThemeTrackActive;
+	if(!pbar->isEnabled())
+	    ttdi.enableState |= kThemeTrackDisabled;
+	((QMacPainter *)p)->noop();
+	DrawThemeTrack(&ttdi, NULL, NULL, 0);
+	break; }
     case CE_TabBarTab: {
 	if(!widget)
 	    break;
@@ -489,7 +508,19 @@ QRect QMacStyle::querySubControlMetrics( ComplexControl control,
 
 QRect QMacStyle::subRect( SubRect r, const QWidget *w ) const
 {
-    return QAquaStyle::subRect(r, w);
+    QRect ret;
+    switch(r) {
+    case SR_ProgressBarLabel:
+    case SR_ProgressBarGroove:
+	break;
+    case SR_ProgressBarContents:
+	ret = w->rect();
+	break;
+    default:
+	ret = QAquaStyle::subRect(r, w);
+	break;
+    }
+    return ret;
 }
 
 QStyle::SubControl QMacStyle::querySubControl(ComplexControl control,
