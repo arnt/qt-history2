@@ -240,7 +240,7 @@ void QSqlTable::addColumn( const QSqlField* field )
 {
     if ( cursor() && field &&
 	 cursor()->isVisible( field->name() ) &&
-	 !cursor()->primaryIndex().field( field->name() ) ) {
+	 !cursor()->primaryIndex().contains( field->name() ) ) {
 	setNumCols( numCols() + 1 );
 	d->colIndex.append( cursor()->position( field->name() ) );
 	if ( field->isReadOnly() )

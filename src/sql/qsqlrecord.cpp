@@ -375,6 +375,21 @@ bool QSqlRecord::isEmpty() const
     return sh->d->isEmpty();
 }
 
+
+/*!  Returns TRUE if there is a field in the record with the field
+  name \a name, otherwise FALSE is returned.
+
+*/
+
+bool QSqlRecord::contains( const QString& name ) const
+{
+    for ( uint i = 0; i < count(); ++i ) {
+	if ( fieldName(i).upper() == name.upper() )
+	    return TRUE;
+    }
+    return FALSE;
+}
+
 /*!  Clears the value of all fields in the record.  If \a nullify is
   TRUE, each field is set to null.
 

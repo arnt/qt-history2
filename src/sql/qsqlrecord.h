@@ -88,6 +88,7 @@ public:
     virtual void         remove( int pos );
 
     bool                 isEmpty() const;
+    bool                 contains( const QString& name ) const;
     virtual void         clear();
     virtual void         clearValues( bool nullify = FALSE );
     uint                 count() const;
