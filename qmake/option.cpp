@@ -250,7 +250,7 @@ Option::parseCommandLine(int argc, char **argv)
 		}
 	    }
 	} else {
-	    if(x == 1) 
+	    if(x == 1)
 		Option::qmake_mode = default_mode(argv[0]);
 
 	    QString arg = argv[x];
@@ -268,7 +268,7 @@ Option::parseCommandLine(int argc, char **argv)
 	    }
 	}
     }
-    if(Option::qmake_mode == Option::QMAKE_GENERATE_NOTHING) 
+    if(Option::qmake_mode == Option::QMAKE_GENERATE_NOTHING)
 	Option::qmake_mode = default_mode(argv[0]);
 
     //last chance for defaults
@@ -298,9 +298,9 @@ Option::parseCommandLine(int argc, char **argv)
 	if(Option::mkfile::project_files.isEmpty()) {
 	    QString proj = QDir::currentDirPath();
 	    proj = proj.right(proj.length() - (proj.findRev('/') + 1)) + ".pro";
-	    if(QFile::exists(proj)) 
+	    if(QFile::exists(proj))
 		Option::mkfile::project_files.append(proj);
-	    else 
+	    else
 		return usage(argv[0]);
 	}
     }
@@ -365,6 +365,7 @@ void fixEnvVariables(QString &x)
 {
     int rep;
     QRegExp reg_var("\\$\\(.*\\)");
+    reg_var.setMinimal( TRUE );
     while((rep = reg_var.search(x)) != -1)
 	x.replace(rep, reg_var.matchedLength(), QString(getenv(x.mid(rep + 2, reg_var.matchedLength() - 3).latin1())));
 }
