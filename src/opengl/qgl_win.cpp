@@ -475,7 +475,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         if (glFormat.plane())
             return false;                // Pixmaps can't have overlay
         win = 0;
-        myDc = d->paintDevice->handle();
+        myDc = (HDC)d->paintDevice->handle();
     }
     else {
         win = ((QWidget*)d->paintDevice)->winId();
@@ -789,7 +789,7 @@ void QGLContext::makeCurrent()
     if (win)
         dc = GetDC(win);
     else
-        dc = d->paintDevice->handle();
+        dc = (HDC)d->paintDevice->handle();
     if (QColor::hPal()) {
         SelectPalette(dc, QColor::hPal(), false);
         RealizePalette(dc);
@@ -870,7 +870,7 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
         return;
     if (deviceIsPixmap()) {
         winId = 0;
-        glHdc = d->paintDevice->handle();
+        glHdc = (HDC)d->paintDevice->handle();
     } else {
         winId = ((QWidget*)d->paintDevice)->winId();
         glHdc = GetDC(winId);
