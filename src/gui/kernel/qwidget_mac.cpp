@@ -1659,7 +1659,7 @@ void QWidgetPrivate::raise_sys()
         ProcessSerialNumber psn;
         GetCurrentProcess(&psn);
         SetFrontProcessWithOptions(&psn, kSetFrontProcessFrontWindowOnly);
-    } else if(QWidget *p = q->parentWidget()) {
+    } else if(q->parentWidget()) {
         HIViewSetZOrder((HIViewRef)q->winId(), kHIViewZOrderAbove, 0);
         qt_event_request_window_change();
     }
@@ -1671,7 +1671,7 @@ void QWidgetPrivate::lower_sys()
         return;
     if(q->isTopLevel()) {
         SendBehind(qt_mac_window_for(q), 0);
-    } else if(QWidget *p = q->parentWidget()) {
+    } else if(q->parentWidget()) {
         HIViewSetZOrder((HIViewRef)q->winId(), kHIViewZOrderBelow, 0);
         qt_event_request_window_change();
     }
