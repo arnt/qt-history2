@@ -73,19 +73,19 @@ void TextEdit::setupFileActions()
 
     QAction *a;
 
-    a = new QAction(QPixmap::fromMimeSource("filenew.xpm"), tr("&New..."), CTRL + Key_N, this);
+    a = new QAction(QPixmap(":/filenew.xpm"), tr("&New..."), Qt::CTRL + Qt::Key_N, this);
     connect(a, SIGNAL(triggered()), this, SLOT(fileNew()));
     tb->addAction(a);
     menu->addAction(a);
 
-    a = new QAction(QPixmap::fromMimeSource("fileopen.xpm"), tr("&Open..."), CTRL + Key_O, this);
+    a = new QAction(QPixmap(":/fileopen.xpm"), tr("&Open..."), Qt::CTRL + Qt::Key_O, this);
     connect(a, SIGNAL(triggered()), this, SLOT(fileOpen()));
     tb->addAction(a);
     menu->addAction(a);
 
     menu->addSeparator();
 
-    a = new QAction(QPixmap::fromMimeSource("filesave.xpm"), tr("&Save..."), CTRL + Key_S, this);
+    a = new QAction(QPixmap(":/filesave.xpm"), tr("&Save..."), Qt::CTRL + Qt::Key_S, this);
     connect(a, SIGNAL(triggered()), this, SLOT(fileSave()));
     tb->addAction(a);
     menu->addAction(a);
@@ -95,7 +95,7 @@ void TextEdit::setupFileActions()
     menu->addAction(a);
     menu->addSeparator();
 
-    a = new QAction(QPixmap::fromMimeSource("fileprint.xpm"), tr("&Print..."), CTRL + Key_P, this);
+    a = new QAction(QPixmap(":/fileprint.xpm"), tr("&Print..."), Qt::CTRL + Qt::Key_P, this);
     connect(a, SIGNAL(triggered()), this, SLOT(filePrint()));
     tb->addAction(a);
     menu->addAction(a);
@@ -104,7 +104,7 @@ void TextEdit::setupFileActions()
     connect(a, SIGNAL(triggered()), this, SLOT(fileClose()));
     menu->addAction(a);
 
-    a = new QAction(tr("E&xit"), CTRL + Key_Q, this);
+    a = new QAction(tr("E&xit"), Qt::CTRL + Qt::Key_Q, this);
     connect(a, SIGNAL(triggered()), this, SLOT(fileExit()));
     menu->addAction(a);
 }
@@ -117,20 +117,20 @@ void TextEdit::setupEditActions()
     menuBar()->addMenu(tr("&Edit"), menu);
 
     QAction *a;
-    a = actionUndo = new QAction(QPixmap::fromMimeSource("editundo.xpm"), tr("&Undo"), CTRL + Key_Z, this);
+    a = actionUndo = new QAction(QPixmap(":/editundo.xpm"), tr("&Undo"), Qt::CTRL + Qt::Key_Z, this);
     tb->addAction(a);
     menu->addAction(a);
-    a = actionRedo = new QAction(QPixmap::fromMimeSource("editredo.xpm"), tr("&Redo"), CTRL + Key_Y, this);
+    a = actionRedo = new QAction(QPixmap(":/editredo.xpm"), tr("&Redo"), Qt::CTRL + Qt::Key_Y, this);
     tb->addAction(a);
     menu->addAction(a);
     menu->addSeparator();
-    a = actionCut = new QAction(QPixmap::fromMimeSource("editcut.xpm"), tr("Cu&t"), CTRL + Key_X, this);
+    a = actionCut = new QAction(QPixmap(":/editcut.xpm"), tr("Cu&t"), Qt::CTRL + Qt::Key_X, this);
     tb->addAction(a);
     menu->addAction(a);
-    a = actionCopy = new QAction(QPixmap::fromMimeSource("editcopy.xpm"), tr("&Copy"), CTRL + Key_C, this);
+    a = actionCopy = new QAction(QPixmap(":/editcopy.xpm"), tr("&Copy"), Qt::CTRL + Qt::Key_C, this);
     tb->addAction(a);
     menu->addAction(a);
-    a = actionPaste = new QAction(QPixmap::fromMimeSource("editpaste.xpm"), tr("&Paste"), CTRL + Key_V, this);
+    a = actionPaste = new QAction(QPixmap(":/editpaste.xpm"), tr("&Paste"), Qt::CTRL + Qt::Key_V, this);
     tb->addAction(a);
     menu->addAction(a);
     actionPaste->setEnabled(!QApplication::clipboard()->text().isEmpty());
@@ -171,19 +171,19 @@ void TextEdit::setupTextActions()
             this, SLOT(textSize(const QString &)));
     comboSize->lineEdit()->setText(QString::number(QApplication::font().pointSize()));
 
-    actionTextBold = new QAction(QPixmap::fromMimeSource("textbold.xpm"), tr("&Bold"), CTRL + Key_B, this);
+    actionTextBold = new QAction(QPixmap(":/textbold.xpm"), tr("&Bold"), Qt::CTRL + Qt::Key_B, this);
     connect(actionTextBold, SIGNAL(triggered()), this, SLOT(textBold()));
     tb->addAction(actionTextBold);
     menu->addAction(actionTextBold);
     actionTextBold->setCheckable(true);
 
-    actionTextItalic = new QAction(QPixmap::fromMimeSource("textitalic.xpm"), tr("&Italic"), CTRL + Key_I, this);
+    actionTextItalic = new QAction(QPixmap(":/textitalic.xpm"), tr("&Italic"), Qt::CTRL + Qt::Key_I, this);
     connect(actionTextItalic, SIGNAL(triggered()), this, SLOT(textItalic()));
     tb->addAction(actionTextItalic);
     menu->addAction(actionTextItalic);
     actionTextItalic->setCheckable(true);
 
-    actionTextUnderline = new QAction(QPixmap::fromMimeSource("textunder.xpm"), tr("&Underline"), CTRL + Key_U, this);
+    actionTextUnderline = new QAction(QPixmap(":/textunder.xpm"), tr("&Underline"), Qt::CTRL + Qt::Key_U, this);
     connect(actionTextUnderline, SIGNAL(triggered()), this, SLOT(textUnderline()));
     tb->addAction(actionTextUnderline);
     menu->addAction(actionTextUnderline);
@@ -194,13 +194,13 @@ void TextEdit::setupTextActions()
     QActionGroup *grp = new QActionGroup(this);
     connect(grp, SIGNAL(triggered(QAction *)), this, SLOT(textAlign(QAction *)));
 
-    actionAlignLeft = new QAction(QPixmap::fromMimeSource("textleft.xpm"), tr("&Left"), CTRL + Key_L, grp);
+    actionAlignLeft = new QAction(QPixmap(":/textleft.xpm"), tr("&Left"), Qt::CTRL + Qt::Key_L, grp);
     actionAlignLeft->setCheckable(true);
-    actionAlignCenter = new QAction(QPixmap::fromMimeSource("textcenter.xpm"), tr("C&enter"), CTRL + Key_E, grp);
+    actionAlignCenter = new QAction(QPixmap(":/textcenter.xpm"), tr("C&enter"), Qt::CTRL + Qt::Key_E, grp);
     actionAlignCenter->setCheckable(true);
-    actionAlignRight = new QAction(QPixmap::fromMimeSource("textright.xpm"), tr("&Right"), CTRL + Key_R, grp);
+    actionAlignRight = new QAction(QPixmap(":/textright.xpm"), tr("&Right"), Qt::CTRL + Qt::Key_R, grp);
     actionAlignRight->setCheckable(true);
-    actionAlignJustify = new QAction(QPixmap::fromMimeSource("textjustify.xpm"), tr("&Justify"), CTRL + Key_J, grp);
+    actionAlignJustify = new QAction(QPixmap(":/textjustify.xpm"), tr("&Justify"), Qt::CTRL + Qt::Key_J, grp);
     actionAlignJustify->setCheckable(true);
 
     tb->addActions(grp->actions());
@@ -209,7 +209,7 @@ void TextEdit::setupTextActions()
     menu->addSeparator();
 
     QPixmap pix(16, 16);
-    pix.fill(black);
+    pix.fill(Qt::black);
     actionTextColor = new QAction(pix, tr("&Color..."), 0, this);
     connect(actionTextColor, SIGNAL(triggered()), this, SLOT(textColor()));
     tb->addAction(actionTextColor);
@@ -459,7 +459,7 @@ void TextEdit::textColor()
         return;
     currentEditor->setColor(col);
     QPixmap pix(16, 16);
-    pix.fill(black);
+    pix.fill(Qt::black);
     actionTextColor->setIcon(pix);
 }
 
@@ -468,13 +468,13 @@ void TextEdit::textAlign(QAction *a)
     if (!currentEditor)
         return;
     if (a == actionAlignLeft)
-        currentEditor->setAlignment(AlignLeft);
+        currentEditor->setAlignment(Qt::AlignLeft);
     else if (a == actionAlignCenter)
-        currentEditor->setAlignment(AlignHCenter);
+        currentEditor->setAlignment(Qt::AlignHCenter);
     else if (a == actionAlignRight)
-        currentEditor->setAlignment(AlignRight);
+        currentEditor->setAlignment(Qt::AlignRight);
     else if (a == actionAlignJustify)
-        currentEditor->setAlignment(AlignJustify);
+        currentEditor->setAlignment(Qt::AlignJustify);
 }
 
 void TextEdit::currentCharFormatChanged(const QTextCharFormat &format)
@@ -509,13 +509,13 @@ void TextEdit::colorChanged(const QColor &c)
 
 void TextEdit::alignmentChanged(Qt::Alignment a)
 {
-    if ((a == AlignAuto) || (a & AlignLeft))
+    if ((a == Qt::AlignAuto) || (a & Qt::AlignLeft))
         actionAlignLeft->setChecked(true);
-    else if ((a & AlignHCenter))
+    else if ((a & Qt::AlignHCenter))
         actionAlignCenter->setChecked(true);
-    else if ((a & AlignRight))
+    else if ((a & Qt::AlignRight))
         actionAlignRight->setChecked(true);
-    else if ((a & AlignJustify))
+    else if ((a & Qt::AlignJustify))
         actionAlignJustify->setChecked(true);
 }
 
