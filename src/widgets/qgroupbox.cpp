@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#54 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#55 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -30,7 +30,7 @@
 #include "qaccel.h"
 #include "qradiobutton.h"
 #include "qfocusdata.h"
-
+#include "qobjectlist.h"
 
 /*!
   \class QGroupBox qgroupbox.h
@@ -276,41 +276,47 @@ void QGroupBox::updateMask(){
 
 
 /*!
-  Ask warwick@troll.no
+  Changes the layout of the group box. This function is only useful in combination
+  with the default constructor that does not take any layout information.
+  This function will put all existing children in the new layout. Nevertheless is
+  is not good programming style to call this function after children have been inserted.
  */
 void QGroupBox::setColumnLayout(int columns, Orientation direction)
 {
-#if defined(CHECK_RANGE)
-    if ( children() ) {
-	fatal("QGroupBox::setColumnLayout() must only be called before adding children");
-    }
-#endif
+    if ( layout() )
+      delete layout();
+    vbox = 0;
+    grid = 0;
 
-    delete vbox;
-    delete grid;
-    if ( columns == 0 ) {
-	// No layout
-	grid = 0;
+    if ( columns == 0 )
+      return;
+
+    vbox = new QVBoxLayout( this, 8, 0 );
+
+    QFontMetrics fm = fontMetrics();
+    vbox->addSpacing( fm.lineSpacing() );
+
+    dir = direction;
+    if ( dir == Horizontal ) {
+      nCols = columns;
+      nRows = 1;
     } else {
-	vbox = new QVBoxLayout( this, 8, 0 );
+      nCols = 1;
+      nRows = columns;
+    }
+    grid = new QGridLayout( nRows, nCols, 5 );
+    row = col = 0;
 
-	if ( str ) {
-	    QFontMetrics fm = fontMetrics();
-	    vbox->addSpacing( fm.lineSpacing() );
-	}
+    vbox->addLayout( grid );
 
-	dir = direction;
-	if ( dir == Horizontal ) {
-	    nCols = columns;
-	    nRows = 1;
-	} else {
-	    nCols = 1;
-	    nRows = columns;
-	}
-	grid = new QGridLayout( nRows, nCols, 5 );
-	row = col = 0;
-
-	vbox->addLayout( grid );
+    // Add all children
+    const QObjectList *list = children();
+    if ( list )
+    {
+      QObjectListIt it( *list );
+      for( ; it.current(); ++it )
+	if ( it.current()->inherits( "QWidget" ) )
+	  insertChild( (QWidget*)it.current() );
     }
 }
 
@@ -320,9 +326,14 @@ void QGroupBox::childEvent( QChildEvent *c )
     if ( !grid || !c->inserted() || !c->child()->isWidgetType() )
         return;
     QWidget *w = (QWidget*)c->child();
+    insertChild( w );
+}
+
+void QGroupBox::insertChild( QWidget* _w )
+{
     if ( row >= nRows || col >= nCols )
         grid->expand( row+1, col+1 );
-    grid->addWidget( w, row, col );
+    grid->addWidget( _w, row, col );
     skip();
 }
 

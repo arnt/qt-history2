@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#81 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#82 $
 **
 ** Implementation of QFrame widget class
 **
@@ -129,15 +129,27 @@ QFrame::QFrame( QWidget *parent, const char *name, WFlags f,
 */
 
 /*!
-  \fn int QFrame::frameShape() const
+  \fn Shape QFrame::frameShape() const
   Returns the frame shape value from the frame style.
-  \sa frameStyle(), frameShadow()
+  \sa setFrameShape(), frameStyle(), frameShadow()
 */
 
 /*!
-  \fn int QFrame::frameShadow() const
+  \fn Shape QFrame::setFrameShape() const
+  Sets the frame shape value of the frame style.
+  \sa frameShape(), frameStyle(), setFrameShadow()
+*/
+
+/*!
+  \fn Shadow QFrame::frameShadow() const
   Returns the frame shadow value from the frame style.
-  \sa frameStyle(), frameShape()
+  \sa setFrameShadow(), frameStyle(), frameShape()
+*/
+
+/*!
+  \fn void QFrame::setFrameShadow( Shadow ) const
+  Sets the frame shadow value of the frame style.
+  \sa frameShadow(), frameStyle(), setFrameShape()
 */
 
 /*!

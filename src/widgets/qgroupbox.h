@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.h#25 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.h#26 $
 **
 ** Definition of QGroupBox widget class
 **
@@ -40,12 +40,16 @@ class QGridLayout;
 class Q_EXPORT QGroupBox : public QFrame
 {
     Q_OBJECT
+    Q_BUILDER( "Groupbox", "qgroupbox.xpm", DefaultInspector )
 public:
     QGroupBox( QWidget *parent=0, const char *name=0 );
     QGroupBox( const QString &title, QWidget *parent=0, const char* name=0 );
     QGroupBox( int columns, Orientation o, QWidget *parent=0, const char *name=0 );
     QGroupBox( int columns, Orientation o, const QString &title, QWidget *parent=0, const char* name=0 );
 
+    virtual void setColumnLayout(int columns, Orientation o);
+
+q_properties:
     QString title() const { return str; }
     virtual void setTitle( const QString &);
 
@@ -64,8 +68,8 @@ private slots:
 private:
     void skip();
     void init();
-    void setColumnLayout(int columns, Orientation o);
     void calculateFrame();
+    void insertChild( QWidget* _w );
 
     QString str;
     int align;
