@@ -268,14 +268,6 @@ namespace QMsNet
 		File.Copy( res + "\\libStatic\\libStatic.pro", path + "\\" + filename + ".pro", true );
 		File.Copy( res + "\\libStatic\\libmain.h", path + "\\libmain.h", true );
 		File.Copy( res + "\\libStatic\\libmain.cpp", path + "\\libmain.cpp", true );
-
-//		// manipulate mdiwindow.cpp
-//		StreamReader inF  = new StreamReader( res + "\\appSDI\\sdiwindow.cpp" );
-//		StreamWriter outF = new StreamWriter( path + "\\sdiwindow.cpp", false );
-//		string contents = inF.ReadToEnd();
-//		contents = contents.Replace( "QMSNETPROJECTNAME", filename );
-//		outF.Write( contents );
-//		outF.Close();
 	    }
 	    catch( System.Exception e ) {
 		Say( e, "Couldn't newQtAppProject() [Are templates available/accessible?]" );
