@@ -63,10 +63,8 @@ private:
 };
 
 class QPaintDevice;
-class QTextFormatCollection;
 class QTextFormat;
 class QTextLine;
-class QAbstractTextDocumentLayout;
 class QTextBlock;
 
 class Q_GUI_EXPORT QTextLayout
@@ -92,8 +90,6 @@ public:
     };
 
     void setTextFlags(int textFlags);
-    // #### remove me
-    void setFormat(int from, int length, int format);
 
     enum PaletteFlags {
         None,

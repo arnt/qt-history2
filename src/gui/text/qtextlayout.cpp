@@ -367,6 +367,8 @@ QTextLayout::QTextLayout(const QTextBlock &block)
     if (txt.isEmpty())
         return;
 
+    d->itemize(QTextEngine::Full);
+
     int lastTextPosition = 0;
     int textLength = 0;
 
@@ -380,7 +382,7 @@ QTextLayout::QTextLayout(const QTextBlock &block)
         const int formatIndex = frag->format;
         if (formatIndex != lastFormatIdx) {
             Q_ASSERT(lastFormatIdx != -1);
-            setFormat(lastTextPosition, textLength, lastFormatIdx);
+            d->setFormat(lastTextPosition, textLength, lastFormatIdx);
 
             lastFormatIdx = formatIndex;
             lastTextPosition += textLength;
@@ -391,7 +393,7 @@ QTextLayout::QTextLayout(const QTextBlock &block)
     }
 
     Q_ASSERT(lastFormatIdx != -1);
-    setFormat(lastTextPosition, textLength, lastFormatIdx);
+    d->setFormat(lastTextPosition, textLength, lastFormatIdx);
 }
 
 /*!
@@ -433,16 +435,6 @@ void QTextLayout::setText(const QString& string)
 QString QTextLayout::text() const
 {
     return d->string;
-}
-
-/*!
-  \internal
-*/
-void QTextLayout::setFormat(int from, int length, int format)
-{
-    if (d->items.size() == 0)
-        d->itemize(QTextEngine::Full);
-    d->setFormat(from, length, format);
 }
 
 /*!
