@@ -47,12 +47,14 @@ QString QDir::canonicalPath() const
 {
     QString r;
     char cur[PATH_MAX+1];
-    if (exists(dPath) && ::getcwd(cur, PATH_MAX)) {
+    if (::getcwd(cur, PATH_MAX)) {
         char tmp[PATH_MAX+1];
         // need the cast for old solaris versions of realpath that doesn't take
         // a const char*.
         if(::realpath(QFile::encodeName(dPath).data(), tmp))
             r = QFile::decodeName(QByteArray(tmp));
+        if (!exists(r))
+            r = QString();
         slashify(r);
 
         // always make sure we go back to the current dir
