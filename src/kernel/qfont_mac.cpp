@@ -226,13 +226,14 @@ class QMacSetFontInfo : public QMacSavedFontInfo, public QMacFontInfo
 {
 public:
     //create this for temporary font settting
-    inline QMacSetFontInfo(const QFontPrivate *d) : QMacSavedFontInfo(), QMacFontInfo() { setMacFont(d, this); }
+    inline QMacSetFontInfo(const QFontPrivate *d, QPaintDevice *pdev) : QMacSavedFontInfo(), 
+									QMacFontInfo() { setMacFont(d, this, pdev); }
 
     //you can use this to cause font setting, without restoring old
-    static bool setMacFont(const QFontPrivate *d, QMacSetFontInfo *sfi=NULL);
+    static bool setMacFont(const QFontPrivate *d, QMacSetFontInfo *sfi=NULL, QPaintDevice *pdev=NULL);
 };
 
-inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *sfi)
+inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *sfi, QPaintDevice *pdev)
 {
     ((QFontPrivate *)d)->load();
 
@@ -252,8 +253,17 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
 	fi->setStyle(face);
 	
 	//size
-	int pointSize = d->request.pointSize != -1 ? d->request.pointSize / 10 : 
-			      d->request.pixelSize *80 /72; 
+	int logicalDpi = 80; //FIXME
+	if(pdev) {
+	    QPaintDeviceMetrics pm(pdev);
+	    logicalDpi = pm.logicalDpiY();
+	} else {
+	    short vr, hr;
+	    ScreenRes(&hr, &vr);
+	    logicalDpi = vr;
+	}
+	int pointSize = ((d->request.pointSize != -1) ? (d->request.pointSize / 10) : 
+	                          (d->request.pixelSize * logicalDpi /72)); 
 	fi->setSize(pointSize);
 
 	//encoding
@@ -347,7 +357,7 @@ static int do_text_task(const QFontPrivate *d, const QChar *s, int pos,
     }
 
     int ret = 0;
-    QMacSetFontInfo fi(d);
+    QMacSetFontInfo fi(d, dev);
     QATSUStyle *st = fi.atsuStyle();
     if(!st) 
 	return 0;
@@ -844,7 +854,7 @@ void QFont::macSetFont(QPaintDevice *v)
 void QFontPrivate::macSetFont(QPaintDevice *v)
 {
     QMacSavedPortInfo::setPaintDevice(v);
-    QMacSetFontInfo::setMacFont(this);
+    QMacSetFontInfo::setMacFont(this, NULL, v);
 }
 
 // Computes the line width (underline,strikeout)
@@ -954,7 +964,7 @@ void QFontPrivate::load()
 	    free(p);
 #else
 	    fin->info = (FontInfo *)malloc(sizeof(FontInfo));
-	    QMacSetFontInfo fi(this);
+	    QMacSetFontInfo fi(this, paintdevice);
 	    GetFontInfo(fin->info);
 #endif
 	}
@@ -963,10 +973,19 @@ void QFontPrivate::load()
     if(actual.dirty) {
 	actual = request;
 	actual.dirty = FALSE;
+	int logicalDpi = 80; //FIXME
+	if(paintdevice) {
+	    QPaintDeviceMetrics pm(paintdevice);
+	    logicalDpi = pm.logicalDpiY();
+	} else {
+	    short vr, hr;
+	    ScreenRes(&hr, &vr);
+	    logicalDpi = vr;
+	}
 	if (actual.pointSize == -1)
-	    actual.pointSize = int((actual.pixelSize * 10 * 80) / 72. + 0.5);
+	    actual.pointSize = int((actual.pixelSize * 10 * logicalDpi) / 72. + 0.5);
 	else
-	    actual.pixelSize = (actual.pointSize * 72 / (10 * 80));
+	    actual.pixelSize = (actual.pointSize * 72 / (10 * logicalDpi));
 
 	Str255 font;
 	GetFontName(fin->fnum, font);

@@ -263,6 +263,8 @@ void QPainter::updateFont()
     clearf(DirtyFont);
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
+	delete pfont;
+	pfont = new QFont(cfont.d, pdev);
 	param[0].font = &cfont;
 	if ( !pdev->cmd(QPaintDevice::PdcSetFont,this,param) || !pdev->handle())
 	    return;
@@ -628,6 +630,11 @@ bool QPainter::end()				// end painting
     if(d->cg.context)
 	CGContextFlush(d->cg.context);
 #endif
+    if(pfont) {
+	delete pfont;
+	pfont = NULL;
+    }
+
     flags = 0;
     pdev->painters--;
     hd = NULL;
@@ -1892,7 +1899,10 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 	PaintRect( &r );
     }
     updatePen();
-    cfont.d->drawText(x, y, str, len, pdev, &d->cache.paintreg);
+    QFont *f = pfont;
+    if(!f)
+	f = &cfont;
+    f->d->drawText(x, y, str, len, pdev, &d->cache.paintreg);
 }
 
 QPoint QPainter::pos() const

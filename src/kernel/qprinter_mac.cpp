@@ -60,6 +60,25 @@
 QPrinter::QPrinter( PrinterMode m )
     : QPaintDevice( QInternal::Printer | QInternal::ExternalDevice )
 {
+    switch ( m ) {
+    case Compatible:
+	devFlags |= QInternal::CompatibilityMode;
+	// fall through
+    case PrinterResolution:
+    case HighResolution:
+#if 0
+	res = 600;
+	break;
+#else
+	//fall through for now, I will fix later..
+#endif
+    case ScreenResolution: {
+	short vr, hr;
+	ScreenRes(&hr, &vr);
+	res = vr;
+	break; }
+    }
+
     //mac specific
     psession = NULL;
     pformat = kPMNoPageFormat;
@@ -77,18 +96,6 @@ QPrinter::QPrinter( PrinterMode m )
     state = PST_IDLE;
     output_file = FALSE;
     to_edge     = FALSE;
-
-    switch ( m ) {
-        case ScreenResolution:
-            res = 80; // ### FIXME
-            break;
-        case Compatible:
-            devFlags |= QInternal::CompatibilityMode;
-            // fall through
-        case PrinterResolution:
-        case HighResolution:
-            res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
-    }
 }
 
 QPrinter::~QPrinter()
@@ -163,6 +170,7 @@ QPrinter::prepare(PMPageFormat *f)
             return FALSE;
         if(PMSessionDefaultPageFormat(psession, *f) != noErr)
             return FALSE;
+	PMSetScale(*f, ((double)7200.0) / res);
     } else {
         if(PMSessionValidatePageFormat(psession, *f,kPMDontWantBoolean) != noErr)
             return FALSE;
@@ -297,13 +305,21 @@ int QPrinter::metric( int m ) const
             val = (int)(r.bottom - r.top);;
         break;
     }
+    case QPaintDeviceMetrics::PdmPhysicalDpiX:
+    case QPaintDeviceMetrics::PdmPhysicalDpiY: {
+	PMPrinter printer;
+	if(PMSessionGetCurrentPrinter(psession, &printer) == noErr) {
+	    PMResolution resolution;
+	    PMPrinterGetPrinterResolution(printer, kPMCurrentValue, &resolution);
+	    val = (int)resolution.vRes;
+	    break;
+	}
+	//otherwise fall through
+    }
     case QPaintDeviceMetrics::PdmDpiY:
     case QPaintDeviceMetrics::PdmDpiX:
-    // ### FIXME: logical resolution scales with res!
-    case QPaintDeviceMetrics::PdmPhysicalDpiX:
-    case QPaintDeviceMetrics::PdmPhysicalDpiY:
-        val = 72;
-        break;
+	val = res;
+	break;
     case QPaintDeviceMetrics::PdmWidthMM:
         // double rounding error here.  hooray.
         val = metric( QPaintDeviceMetrics::PdmWidth );
@@ -314,7 +330,7 @@ int QPrinter::metric( int m ) const
         val = (val * 254 + 5*res) / (10*res);
         break;
     case QPaintDeviceMetrics::PdmNumColors:
-        val = 16777216;
+        val = (1 << metric(QPaintDeviceMetrics::PdmDepth));
         break;
     case QPaintDeviceMetrics::PdmDepth:
         val = 24;
