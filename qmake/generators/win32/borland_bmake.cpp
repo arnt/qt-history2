@@ -175,10 +175,17 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
 	if ( version.isEmpty() )
 	    version = "1.0";
 
-	t << "\n\t" << "-$(TARGET) -dumpidl tmp\\" + targetfilename + ".idl -version " + version;
-	t << "\n\t" << "-$(IDL) tmp\\" + targetfilename + ".idl /nologo /o tmp\\" + targetfilename + ".midl /tlb tmp\\" + targetfilename + ".tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl";
-	t << "\n\t" << "-$(IDC) $(TARGET) /tlb tmp\\" + targetfilename + ".tlb";
-	t << "\n\t" << "-$(TARGET) -regserver";
+	if ( project->isActiveConfig("dll")) {
+	    t << "\n\t" << "-$(IDC) $(TARGET) /idl tmp\\" + targetfilename + ".idl -version " + version;
+	    t << "\n\t" << "-$(IDL) tmp\\" + targetfilename + ".idl /nologo /o tmp\\" + targetfilename + ".midl /tlb tmp\\" + targetfilename + ".tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl";
+	    t << "\n\t" << "-$(IDC) $(TARGET) /tlb tmp\\" + targetfilename + ".tlb";
+	    t << "\n\t" << "regsvr32 /s " + targetfilename;
+	} else {
+	    t << "\n\t" << "-$(TARGET) -dumpidl tmp\\" + targetfilename + ".idl -version " + version;
+	    t << "\n\t" << "-$(IDL) tmp\\" + targetfilename + ".idl /nologo /o tmp\\" + targetfilename + ".midl /tlb tmp\\" + targetfilename + ".tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl";
+	    t << "\n\t" << "-$(IDC) $(TARGET) /tlb tmp\\" + targetfilename + ".tlb";
+	    t << "\n\t" << "-$(TARGET) -regserver";
+	}
     }
     t << endl << endl;
 
@@ -339,7 +346,10 @@ BorlandMakefileGenerator::init()
 		}
 	    }
 	    if ( project->isActiveConfig( "activeqt" ) ) {
+		project->variables().remove("QMAKE_LIBS_QT_ENTRY");
 		project->variables()["QMAKE_LIBS_QT_ENTRY"] = "$(QTDIR)\\lib\\qaxserver.lib";
+		if ( project->isActiveConfig( "dll" ) )
+		    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_ENTRY"];
 	    }
 	    if ( !project->isActiveConfig("dll") && !project->isActiveConfig("plugin") ) {
 		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_ENTRY"];

@@ -106,7 +106,8 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		mocpath = mocpath.replace( QRegExp( "\\..*$" ), "" ) + " ";
 		
 		QStringList &list = project->variables()["SOURCES"];
-		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
+		QStringList::Iterator it;
+		for( it = list.begin(); it != list.end(); ++it) {
 		    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl;
 		    if ( project->isActiveConfig("moc") &&
 			 (*it).right(qstrlen(Option::moc_ext)) == Option::moc_ext) {
@@ -126,6 +127,11 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\""
 			  << build << "!ENDIF " << endl << endl;
 		    }
+		    t << "# End Source File" << endl;
+		}
+		list = project->variables()["DEF_FILE"];
+		for( it = list.begin(); it != list.end(); ++it ) {
+		    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl;
 		    t << "# End Source File" << endl;
 		}
 	    }
@@ -563,7 +569,10 @@ DspMakefileGenerator::init()
 		}
 	    }
 	    if ( project->isActiveConfig( "activeqt" ) ) {
+		project->variables().remove("QMAKE_LIBS_QT_ENTRY");
 		project->variables()["QMAKE_LIBS_QT_ENTRY"] = "qaxserver.lib";
+		if ( project->isActiveConfig( "dll" ) )
+		    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_ENTRY"];
 	    }
 	    if ( !project->isActiveConfig("dll") && !project->isActiveConfig("plugin") ) {
 		project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_ENTRY"];
@@ -745,7 +754,8 @@ DspMakefileGenerator::init()
 	}
 
 	copydll += "\n# End Special Build Tool";
-	project->variables()["MSVCDSP_COPY_DLL"].append( copydll );
+	project->variables()["MSVCDSP_COPY_DLL_REL"].append( copydll );
+	project->variables()["MSVCDSP_COPY_DLL_DBG"].append( copydll );
     }
     if ( project->isActiveConfig("activeqt") ) {
 	QString idl = project->variables()["QMAKE_IDL"].first();
@@ -754,26 +764,45 @@ DspMakefileGenerator::init()
 	if ( version.isEmpty() )
 	    version = "1.0";
 
-	QString regcmd = "# Begin Special Build Tool\n"
-			"TargetPath=" + targetfilename + "\n"
-			"SOURCE=$(InputPath)\n"
-			"PostBuild_Desc=Finalizing ActiveQt server...\n"
-			"PostBuild_Cmds="
-			"%1 -dumpidl tmp\\" + targetfilename + ".idl -version " + version +
-			"\t" + idl + " tmp\\" + targetfilename + ".idl /nologo /o tmp\\" + targetfilename + ".midl /tlb tmp\\" + targetfilename + ".tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl"
-			"\t" + idc + " %1 /tlb tmp\\" + targetfilename + ".tlb"
-			"\t%1 -regserver\n"
-			"# End Special Build Tool";
-
-	QString executable = project->variables()["MSVCDSP_TARGETDIRREL"].first() + "\\" + project->variables()["TARGET"].first();
-	project->variables()["MSVCDSP_REGSVR_REL"].append( regcmd.arg(executable).arg(executable).arg(executable) );
-
-	executable = project->variables()["MSVCDSP_TARGETDIRDEB"].first() + "\\" + project->variables()["TARGET"].first();
-	project->variables()["MSVCDSP_REGSVR_DBG"].append( regcmd.arg(executable).arg(executable).arg(executable) );
-
 	project->variables()["MSVCDSP_IDLSOURCES"].append( "tmp\\" + targetfilename + ".idl" );
 	project->variables()["MSVCDSP_IDLSOURCES"].append( "tmp\\" + targetfilename + ".tlb" );
 	project->variables()["MSVCDSP_IDLSOURCES"].append( "tmp\\" + targetfilename + ".midl" );
+	if ( project->isActiveConfig( "dll" ) ) {
+	    QString regcmd = "# Begin Special Build Tool\n"
+			    "TargetPath=" + targetfilename + "\n"
+			    "SOURCE=$(InputPath)\n"
+			    "PostBuild_Desc=Finalizing ActiveQt server...\n"
+			    "PostBuild_Cmds=" +
+			    idc + " %1 -idl tmp\\" + targetfilename + ".idl -version " + version +
+			    "\t" + idl + " tmp\\" + targetfilename + ".idl /nologo /o tmp\\" + targetfilename + ".midl /tlb tmp\\" + targetfilename + ".tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl"
+			    "\t" + idc + " %1 /tlb tmp\\" + targetfilename + ".tlb"
+			    "\tregsvr32 /s %1\n"
+			    "# End Special Build Tool";
+
+	    QString executable = project->variables()["MSVCDSP_TARGETDIRREL"].first() + "\\" + project->variables()["TARGET"].first();
+	    project->variables()["MSVCDSP_COPY_DLL_REL"].append( regcmd.arg(executable).arg(executable).arg(executable) );
+	    
+	    executable = project->variables()["MSVCDSP_TARGETDIRDEB"].first() + "\\" + project->variables()["TARGET"].first();
+	    project->variables()["MSVCDSP_COPY_DLL_DBG"].append( regcmd.arg(executable).arg(executable).arg(executable) );
+	} else {
+	    QString regcmd = "# Begin Special Build Tool\n"
+			    "TargetPath=" + targetfilename + "\n"
+			    "SOURCE=$(InputPath)\n"
+			    "PostBuild_Desc=Finalizing ActiveQt server...\n"
+			    "PostBuild_Cmds="
+			    "%1 -dumpidl tmp\\" + targetfilename + ".idl -version " + version +
+			    "\t" + idl + " tmp\\" + targetfilename + ".idl /nologo /o tmp\\" + targetfilename + ".midl /tlb tmp\\" + targetfilename + ".tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl"
+			    "\t" + idc + " %1 /tlb tmp\\" + targetfilename + ".tlb"
+			    "\t%1 -regserver\n"
+			    "# End Special Build Tool";
+
+	    QString executable = project->variables()["MSVCDSP_TARGETDIRREL"].first() + "\\" + project->variables()["TARGET"].first();
+	    project->variables()["MSVCDSP_REGSVR_REL"].append( regcmd.arg(executable).arg(executable).arg(executable) );
+	    
+	    executable = project->variables()["MSVCDSP_TARGETDIRDEB"].first() + "\\" + project->variables()["TARGET"].first();
+	    project->variables()["MSVCDSP_REGSVR_DBG"].append( regcmd.arg(executable).arg(executable).arg(executable) );
+	}
+	
     }
     if ( !project->variables()["SOURCES"].isEmpty() || !project->variables()["RC_FILE"].isEmpty() ) {
 	project->variables()["SOURCES"] += project->variables()["RC_FILE"];

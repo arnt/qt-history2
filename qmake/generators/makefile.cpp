@@ -1407,7 +1407,8 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 	}
 
 	bool do_default = TRUE;
-	QString target, dst=QString("$(INSTALL_ROOT)") + project->variables()[pvar].first();
+	QString target, 
+	    dst="$(INSTALL_ROOT)" + Option::fixPathToTargetOS(project->variables()[pvar].first(), FALSE);
 	if(dst.right(1) != Option::dir_sep)
 	    dst += Option::dir_sep;
  	QStringList tmp, &uninst = project->variables()[(*it) + ".uninstall"];
@@ -1426,14 +1427,14 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
  		target += "\n\t";
 	    do_default = FALSE;
 	    for(QStringList::Iterator wild_it = tmp.begin(); wild_it != tmp.end(); ++wild_it) {
-		QString wild = Option::fixPathToLocalOS((*wild_it)), wild_var = wild;
+		QString wild = Option::fixPathToLocalOS((*wild_it), FALSE), wild_var = wild;
 		fileFixify(wild);
 		fileFixify(wild_var);
 		if(QFile::exists(wild)) { //real file
 		    QString file = wild;
 		    QFileInfo fi(file);
 		    target += QString("-") + (fi.isDir() ? "$(COPY_DIR)" : "$(COPY_FILE)") +
-			      " \"" + fi.filePath() + "\" \"" + dst + "\"\n\t";
+			      " \"" + Option::fixPathToTargetOS(fi.filePath(), FALSE) + "\" \"" + dst + "\"\n\t";
 		    if(fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
 			target += var("QMAKE_STRIP") + " \"" + dst + "\"\n\t";
 		    uninst.append(QString("-$(DEL_FILE) -r") + " \"" + dst + "\"");
@@ -1460,7 +1461,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 		    fileFixify(file);
 		    QFileInfo fi(file);
 		    target += QString("-") + (fi.isDir() ? "$(COPY_DIR)" : "$(COPY_FILE)") +
-			      " \"" + fi.filePath() + "\" \"" + dst + "\"\n\t";
+			      " \"" + Option::fixPathToTargetOS(fi.filePath(), FALSE) + "\" \"" + dst + "\"\n\t";
 		    if(fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
 			target += var("QMAKE_STRIP") + " \"" + dst + "\"\n\t";
 		}
