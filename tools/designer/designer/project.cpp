@@ -50,7 +50,9 @@
 #endif
 
 #include <stdlib.h>
-#include <unistd.h>
+#ifdef Q_OS_UNIX
+# include <unistd.h>
+#endif
 
 #include <private/qpluginmanager_p.h>
 #include "../interfaces/programinterface.h"
