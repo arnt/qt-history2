@@ -151,7 +151,7 @@ class QTextCustomItem : public Qt
 {
 public:
     QTextCustomItem()
-	: width(-1), height(0)
+	: x(0), y(0), width(-1), height(0)
     {}
     virtual ~QTextCustomItem() {}
     virtual void draw(QPainter* p, int x, int y,
@@ -173,13 +173,13 @@ public:
 
     virtual QString anchorAt( QPainter* /*p*/, int /*x*/, int /*y*/)  { return QString::null; }
     virtual bool ownSelection() const { return FALSE; }
-    virtual bool toggleSelection( QPainter* /*p*/, const QPoint& /*from*/, QPoint& /*to*/ ) { return FALSE;}
+    virtual bool toggleSelection( QPainter* /*p*/, const QPoint& /*from*/, const QPoint& /*to*/, QRect& /*reg*/ ) { return FALSE;}
     virtual void selectAll() {};
     virtual void clearSelection() {};
     
 
-    int y; // used for floating items
     int x; // used for floating items
+    int y; // used for floating items
     int width;
     int height;
 };
@@ -427,9 +427,9 @@ class QTextCursor {
     bool updateLayout( QPainter* p, int ymax = -1 );
 
 
-    void makeLineLayout( QPainter* p, const QFontMetrics& fm );
-    bool gotoNextLine( QPainter* p, const QFontMetrics& fm );
-    void gotoLineStart( QPainter* p, const QFontMetrics& fm );
+    void makeLineLayout( QPainter* p );
+    bool gotoNextLine( QPainter* p );
+    void gotoLineStart( QPainter* p );
     void drawLine( QPainter* p, int ox, int oy,
 		   int cx, int cy, int cw, int ch,
 		   QRegion& backgroundRegion,
@@ -437,9 +437,9 @@ class QTextCursor {
     void drawLabel( QPainter* p, QTextParagraph* par, int x, int y, int w, int h, int ox, int oy,
 		   QRegion& backgroundRegion,
 		   const QColorGroup& cg, const QTextOptions& to );
-    void gotoNextItem( QPainter* p, const QFontMetrics& fm );
+    void gotoNextItem( QPainter* p );
 
-    void updateCharFormat( QPainter* p, const QFontMetrics& fm );
+    void updateCharFormat( QPainter* p );
 
     int y() const { return y_; }
     int x() const { return currentx + currentoffsetx; }
@@ -551,7 +551,7 @@ public:
     bool clearSelection();
     QString selectedText();
     void selectAll();
-    bool toggleSelection( QPainter* p, const QPoint& from, QPoint& to );
+    bool toggleSelection( QPainter* p, const QPoint& from, const QPoint& to );
 
     void append( const QString& txt, const QMimeSourceFactory* factory = 0, const QStyleSheet* sheet = 0 );
     

@@ -69,6 +69,7 @@ protected:
     void viewportMouseReleaseEvent( QMouseEvent* );
     void viewportMouseMoveEvent( QMouseEvent* );
     void keyPressEvent( QKeyEvent * e);
+    void showEvent( QShowEvent* );
 
 private:
     void popupDetail( const QString& contents, const QPoint& pos );

@@ -1039,6 +1039,7 @@ void QStyleSheet::init()
      
      
      // tables
+     style = new QStyleSheetItem( this, QString::fromLatin1("tabel") );
      style = new QStyleSheetItem( this, QString::fromLatin1("tr") );
      style->setContexts(QString::fromLatin1("table"));
      style = new QStyleSheetItem( this, QString::fromLatin1("td") );
@@ -1225,22 +1226,28 @@ bool QStyleSheet::mightBeRichText( const QString& text)
 {
     if ( text.isEmpty() )
 	return FALSE;
+    if ( text.left(5) == "<!DOC" )
+	return TRUE;
     int open = 0;
-    while ( open < int(text.length()) && text[open] != '<' && text[open] != '\n' )
+    while ( open < int(text.length()) && text[open] != '<' 
+	    && text[open] != '\n' && text[open] != '&')
 	++open;
-    if ( text[open] == '<' ) {
+    if ( text[open] == '&' ) {
+	if ( text.mid(open+1,3) == "lt;" )
+	    return TRUE; // support desperate attempt of user to see <...>
+    } else if ( text[open] == '<' ) {
 	int close = text.find('>', open);
 	if ( close > -1 ) {
-	    bool hasTag = FALSE;
+	    QString tag;
 	    for (int i = open+1; i < close; ++i) {
 		if ( text[i].isDigit() || text[i].isLetter() )
-		    hasTag = TRUE;
-		else if ( hasTag && text[i].isSpace() )
-		    return TRUE;
-		else if ( !text[i].isSpace() && (hasTag || text[i] != '!' ) )
+		    tag += text[i];
+		else if ( !tag.isEmpty() && text[i].isSpace() )
+		    break;
+		else if ( !text[i].isSpace() && (!tag.isEmpty() || text[i] != '!' ) )
 		    return FALSE; // that's not a tag
 	    }
-	    return TRUE;
+	    return defaultSheet()->item( tag ) != 0;
 	}
     }
     return FALSE;

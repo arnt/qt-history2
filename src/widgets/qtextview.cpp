@@ -509,12 +509,12 @@ void QTextView::drawContentsOffset(QPainter* p, int ox, int oy,
 
 	if ( tc.y() + tc.paragraph->height > cy ) {
 	    do {
-		tc.makeLineLayout( p, fm );
+		tc.makeLineLayout( p );
 		QRect geom( tc.lineGeometry() );
 		if ( geom.bottom() > cy && geom.top() < cy+ch )
 		    tc.drawLine( p, ox, oy, cx, cy, cw, ch, r, paperColorGroup(), to );
 	    }
-	    while ( tc.gotoNextLine( p, fm ) );
+	    while ( tc.gotoNextLine( p ) );
 	}
 	b = b->nextInDocument();
     };
@@ -582,9 +582,7 @@ void QTextView::viewportMousePressEvent( QMouseEvent* e )
 	return;
     QPainter p( viewport() );
     d->cursor = e->pos() + QPoint( contentsX(), contentsY() );
-    QPoint to( d->cursor );
-    bool sel = richText().toggleSelection( &p, QPoint(to), to );
-    d->cursor = to;
+    bool sel = richText().toggleSelection( &p, d->cursor, d->cursor );
     p.end();
     if ( !sel ) {
 	clearSelection();
@@ -855,21 +853,18 @@ void QTextView::doSelection( const QPoint& pos )
     QPainter p(viewport());
 
     QPoint to( pos + QPoint( contentsX(), contentsY()  ) );
-    if ( to != d->cursor )
-	richText().toggleSelection( &p, d->cursor, to );
-    
     if ( to != d->cursor ) {
+	richText().toggleSelection( &p, d->cursor, to );
 	d->selection = TRUE;
 	d->cursor = to;
 	repaintContents( richText().flow()->updateRect(), FALSE );
 	richText().flow()->validateRect();
     }
     
-   if ( pos.y() < 0 || pos.y() > visibleHeight() )
-       d->scrollTimer->start( 100, FALSE );
-   else
-       d->scrollTimer->stop();
-    
+    if ( pos.y() < 0 || pos.y() > visibleHeight() )
+	d->scrollTimer->start( 100, FALSE );
+    else
+	d->scrollTimer->stop();
 }    
 
 void QTextView::clipboardChanged()

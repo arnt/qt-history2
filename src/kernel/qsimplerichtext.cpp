@@ -268,12 +268,15 @@ void QSimpleRichText::adjustSize( QPainter* p )
 {
     int w = QApplication::desktop()->width();
     d->doc->doLayout( p,w );
-    w = int_sqrt(5*d->doc->height/3*d->doc->flow()->widthUsed);
+    w = int_sqrt( (5*d->doc->height) / (3*d->doc->flow()->widthUsed ) );
     d->doc->doLayout( p,w );
-    if ( w*3 < 5*d->doc->flow()->height ) {
-	w = int_sqrt(6*d->doc->flow()->height/3*d->doc->flow()->widthUsed);
-	d->doc->doLayout( p,w );
-    }
+//     int i = 0;
+//     while ( d->doc->widthUsed < d->doc->flow()->height ) { 
+// 	if ( ++i == 5 )
+// 	    break;
+// 	w = int_sqrt( (6*d->doc->flow()->height) / (3*d->doc->flow()->widthUsed ) );
+// 	d->doc->doLayout( p,w );
+//     }
 }
 
 

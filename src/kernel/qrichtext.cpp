@@ -81,7 +81,7 @@ public:
 	       QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to );
 
     QString anchorAt( int x, int y ) const;
-    bool toggleSelection( const QPoint& from, QPoint& to );
+    bool toggleSelection( const QPoint& from, const QPoint& to, QRect& reg );
     
 private:
 
@@ -115,7 +115,7 @@ public:
     bool ownSelection() const { return TRUE; }
     void resize( QPainter*, int nwidth );
     QString anchorAt( QPainter* p, int x, int y );
-    bool toggleSelection( QPainter* p, const QPoint& from, QPoint& to );
+    bool toggleSelection( QPainter* p, const QPoint& from, const QPoint& to, QRect& reg );
 
     void selectAll();
     void clearSelection();
@@ -952,16 +952,15 @@ void QRichText::draw(QPainter* p, int x, int y,
 {
     QTextCursor tc( *this );
     QTextParagraph* b = this;
-    QFontMetrics fm( p->fontMetrics() );
     while ( b ) {
 	tc.gotoParagraph( p, b );
 	do {
-	    tc.makeLineLayout( p, fm );
+	    tc.makeLineLayout( p );
 	    QRect geom( tc.lineGeometry() );
 	    if ( geom.bottom()+y > cy && geom.top()+y < cy+ch )
 		tc.drawLine( p, ox-x, oy-y, cx-x, cy-y, cw, ch, backgroundRegion, cg, to );
 	}
-	while ( tc.gotoNextLine( p, fm ) );
+	while ( tc.gotoNextLine( p ) );
 	b = tc.paragraph->nextInDocument();
     }
     flow()->drawFloatingItems( p, ox-x, oy-y, cx-x, cy-y, cw, ch, backgroundRegion, cg, to );
@@ -980,7 +979,6 @@ void QRichText::doLayout( QPainter* p, int nwidth ) {
 // convenience function
 QString QRichText::anchorAt( QPainter* p, int x, int y) const
 {
-    QFontMetrics fm( p->fontMetrics() );
     QTextCursor tc( *((QRichText*)this) );
     tc.gotoParagraph( p, (QRichText*)this );
     QTextParagraph* b = tc.paragraph;
@@ -994,15 +992,17 @@ QString QRichText::anchorAt( QPainter* p, int x, int y) const
 
 	if ( tc.y() + tc.paragraph->height > y ) {
 	    do {
-		tc.makeLineLayout( p, fm );
+		tc.makeLineLayout( p );
 		QRect geom( tc.lineGeometry() );
 		if ( geom.contains( QPoint(x,y) ) ) {
-		    tc.gotoLineStart( p, fm );
+		    tc.gotoLineStart( p );
 		    while ( !tc.atEndOfLine() && geom.left() + tc.currentx + tc.currentoffsetx < x ) {
 			tc.right( p );
 		    }
 		    if ( geom.left() + tc.currentx + tc.currentoffsetx > x )
 			tc.left( p );
+		    else
+			return QString::null;
 		    QTextCharFormat format( *tc.currentFormat() );
 		    if ( format.customItem() ) {
 			// custom items may have anchors as well
@@ -1016,7 +1016,7 @@ QString QRichText::anchorAt( QPainter* p, int x, int y) const
 		    return format.anchorHref();
 		}
 	    }
-	    while ( tc.gotoNextLine( p, fm ) );
+	    while ( tc.gotoNextLine( p ) );
 	}
 	b = b->nextInDocument();
     }
@@ -1098,7 +1098,7 @@ QTextParagraph* QRichText::getParBefore( int y ) const
 }
 
 
-bool QRichText::toggleSelection( QPainter* p, const QPoint& from, QPoint& to )
+bool QRichText::toggleSelection( QPainter* p, const QPoint& from, const QPoint& to )
 {
     QTextCursor cursor( *this );
     cursor.gotoParagraph( p, b_cache );
@@ -1116,10 +1116,10 @@ bool QRichText::toggleSelection( QPainter* p, const QPoint& from, QPoint& to )
     if ( selection_owner ) {
 	QRect geom( cursor.lineGeometry() );
 	QPoint offset (geom.x() + cursor.currentx, geom.y() + cursor.base - selection_owner->height );
-	to -= offset;
-	bool sel = selection_owner->toggleSelection( p, from - offset, to );
-	to += offset;
-	flow()->invalidateRect( geom );
+	QRect r;
+	bool sel = selection_owner->toggleSelection( p, from - offset, to - offset, r );
+	r.moveBy( offset.x(), offset.y() );
+	flow()->invalidateRect( r );
 	return sel;
     }
     
@@ -1139,7 +1139,6 @@ bool QRichText::toggleSelection( QPainter* p, const QPoint& from, QPoint& to )
     int newx = cursor.x();
     int newh = cursor.height;
 
-    to = cursor.clickPos();
     bool sel = cursor.isSelected();
     if ( oldx == newx && oldy == newy && oldh == newh )
   	return sel;
@@ -1604,8 +1603,7 @@ void QTextCursor::gotoParagraph( QPainter* p, QTextParagraph* b )
     currentx = lmargin;
     currentoffset = 0;
     currentoffsetx = 0;
-    QFontMetrics fm( p->fontMetrics() );
-    updateCharFormat( p, fm );
+    updateCharFormat( p );
 
 }
 
@@ -1613,10 +1611,9 @@ void QTextCursor::update( QPainter* p )
 {
     int i = current;
     int io = currentoffset;
-    QFontMetrics fm( p->fontMetrics() );
     gotoParagraph( p, paragraph );
-    makeLineLayout( p, fm );
-    gotoLineStart( p, fm );
+    makeLineLayout( p );
+    gotoLineStart( p );
     while ( current < i  && rightOneItem( p ) )
 	;
     while ( currentoffset < io )
@@ -1624,7 +1621,7 @@ void QTextCursor::update( QPainter* p )
 }
 
 
-bool QTextCursor::gotoNextLine( QPainter* p, const QFontMetrics& fm )
+bool QTextCursor::gotoNextLine( QPainter* p )
 {
     current = last;
     if ( atEnd() ) {
@@ -1656,26 +1653,27 @@ bool QTextCursor::gotoNextLine( QPainter* p, const QFontMetrics& fm )
     rmargin = flow->adjustRMargin( y_, static_rmargin );
 
     height = 0;
-    updateCharFormat( p, fm );
+    updateCharFormat( p );
     return TRUE;
 }
 
-void QTextCursor::gotoLineStart( QPainter* p, const QFontMetrics& fm )
+void QTextCursor::gotoLineStart( QPainter* p )
 {
     current = first;
     currentoffset = currentoffsetx = 0;
     currentx = lmargin + fill;
-    updateCharFormat( p, fm );
+    updateCharFormat( p );
 }
 
 
-void QTextCursor::updateCharFormat( QPainter* p, const QFontMetrics& fm )
+void QTextCursor::updateCharFormat( QPainter* p )
 {
     if ( pastEnd() )
 	return;
     QTextCharFormat* fmt = currentFormat();
     p->setFont( fmt->font() );
     p->setPen( fmt->color() );
+    QFontMetrics fm( p->fontMetrics() );
     currentasc = fm.ascent();
     currentdesc = fm.descent();
     QTextCustomItem* custom = fmt->customItem();
@@ -1774,8 +1772,7 @@ void QTextCursor::drawLine( QPainter* p, int ox, int oy,
 			     const QColorGroup& cg, const QTextOptions& to )
 
 {
-    QFontMetrics fm( p->fontMetrics() );
-    gotoLineStart( p, fm );
+    gotoLineStart( p );
 
     if ( pastEndOfLine() ) {
 	qDebug("try to draw empty line!!");
@@ -1832,9 +1829,12 @@ void QTextCursor::drawLine( QPainter* p, int ox, int oy,
 	QTextCustomItem* custom = format->customItem();
 	if ( custom ) {
 	    int h = custom->height;
-	    if ( custom->placeInline() )
-		custom->draw(p, gx+currentx, gy+base-h, ox, oy,
+	    if ( custom->placeInline() ) {
+		custom->x = gx + currentx;
+		custom->y = gy + base - h;
+		custom->draw(p, custom->x, custom->y, ox, oy,
 			     cx, cy, cw, ch, backgroundRegion, cg, to );
+	    }
 	}
 	else {
 	    c = paragraph->text.charAt( current );
@@ -1845,7 +1845,7 @@ void QTextCursor::drawLine( QPainter* p, int ox, int oy,
 	}
 	if ( selected )
 	    p->setPen( format->color() );
-	gotoNextItem( p, fm );
+	gotoNextItem( p );
 	gy = y();
     }
 
@@ -1880,7 +1880,6 @@ bool QTextCursor::atEndOfLine() const
 
 bool QTextCursor::rightOneItem( QPainter* p )
 {
-    QFontMetrics fm( p->fontMetrics() );
     if ( atEnd() ) {
 	QTextParagraph* next = paragraph->nextInDocument();
 	if ( next ) {
@@ -1888,19 +1887,19 @@ bool QTextCursor::rightOneItem( QPainter* p )
 		updateLayout( p );
 	    }
 	    gotoParagraph( p, next );
-	    makeLineLayout( p, fm );
-	    gotoLineStart( p, fm );
+	    makeLineLayout( p );
+	    gotoLineStart( p );
 	} else {
 	    return FALSE;
 	}
     }
     else if ( current >= last ) {
-	(void) gotoNextLine( p, fm );
-	makeLineLayout( p, fm );
-	gotoLineStart( p, fm );
+	(void) gotoNextLine( p );
+	makeLineLayout( p );
+	gotoLineStart( p );
     }
     else {
-	gotoNextItem( p, fm );
+	gotoNextItem( p );
     }
     return TRUE;
 }
@@ -1934,8 +1933,8 @@ void QTextCursor::left( QPainter* p )
     else if ( current == 0 ) {
 	if ( paragraph->prevInDocument() ) {
 	    gotoParagraph( p, paragraph->prevInDocument() );
-	    makeLineLayout( p, fm );
-	    gotoLineStart( p, fm );
+	    makeLineLayout( p );
+	    gotoLineStart( p );
 	    while ( !atEnd() )
 		(void) rightOneItem( p );
 	}
@@ -1944,9 +1943,9 @@ void QTextCursor::left( QPainter* p )
 	int i = current;
 	if ( current == first ) {
 	    gotoParagraph( p, paragraph );
-	    makeLineLayout( p, fm );
+	    makeLineLayout( p );
 	}
-	gotoLineStart( p, fm );
+	gotoLineStart( p );
 	while ( current <  i - 1 )
 	    (void) rightOneItem( p );
 	QString c =  paragraph->text.charAt( current );
@@ -1965,11 +1964,9 @@ void QTextCursor::up( QPainter* p )
 {
     if ( xline_paragraph != paragraph || xline_current != current )
 	xline = x();
-    QFontMetrics fm( p->fontMetrics() );
-
-    gotoLineStart( p, fm );
+    gotoLineStart( p );
     left( p );
-    gotoLineStart( p, fm );
+    gotoLineStart( p );
     while ( !atEndOfLine() && x()  < xline ) {
 	right( p );
     }
@@ -1995,7 +1992,6 @@ void QTextCursor::down( QPainter* p )
 
 void QTextCursor::goTo( QPainter* p, int xpos, int ypos )
 {
-    QFontMetrics fm( p->fontMetrics() );
     while ( y() > ypos && paragraph->prevInDocument() ) 
 	gotoParagraph( p, paragraph->prevInDocument() );
 //     gotoParagraph( p, doc );
@@ -2007,10 +2003,10 @@ void QTextCursor::goTo( QPainter* p, int xpos, int ypos )
 	//??? update dirty stuff here?
 	if ( !b || y() + paragraph->height  > ypos ) {
 	    do {
-		makeLineLayout( p, fm );
+		makeLineLayout( p );
 		QRect geom( lineGeometry() );
 		if ( ypos <= geom.bottom()  ) {
-		    gotoLineStart( p, fm );
+		    gotoLineStart( p );
  		    while ( !atEndOfLine() && geom.left() + x() < xpos ) {
  			right( p );
  		    }
@@ -2019,7 +2015,7 @@ void QTextCursor::goTo( QPainter* p, int xpos, int ypos )
 		    return;
 		}
 	    }
-	    while ( gotoNextLine( p, fm ) );
+	    while ( gotoNextLine( p ) );
 	}
     }
 }
@@ -2097,13 +2093,12 @@ void QTextCursor::updateParagraph( QPainter* p )
      int prevliney = oldy;
 
      QTextCursor store ( *this );
-     QFontMetrics fm( p->fontMetrics() );
      gotoParagraph( p, paragraph );
      do {
-	 makeLineLayout( p, fm );
+	 makeLineLayout( p );
 	 if ( last < oldcurrent )
 	     prevliney = y_;
-     } while ( gotoNextLine( p, fm ) );
+     } while ( gotoNextLine( p ) );
      *this = store;
 
      update( p );
@@ -2125,7 +2120,7 @@ void QTextCursor::updateParagraph( QPainter* p )
 }
 
 
-void QTextCursor::gotoNextItem( QPainter* p, const QFontMetrics& fm )
+void QTextCursor::gotoNextItem( QPainter* p )
 {
     if ( pastEnd() )
 	return;
@@ -2133,7 +2128,7 @@ void QTextCursor::gotoNextItem( QPainter* p, const QFontMetrics& fm )
     QTextRichString::Item* item = &paragraph->text.items[current];
     QTextCustomItem* custom = item->format->customItem();
     if ( currentFormat() != formatinuse ){ // somebody may have changed the document
-	updateCharFormat( p, fm );
+	updateCharFormat( p );
     }
     if ( custom ) {
 	if ( custom->placeInline() )
@@ -2141,6 +2136,7 @@ void QTextCursor::gotoNextItem( QPainter* p, const QFontMetrics& fm )
     }
     else {
 	QString c = item->c;
+	QFontMetrics fm( p->fontMetrics() );
 	if ( item->width < 0 ) {
 	    item->width = fm.width( c );
 	}
@@ -2150,11 +2146,11 @@ void QTextCursor::gotoNextItem( QPainter* p, const QFontMetrics& fm )
     currentoffset = currentoffsetx = 0;
 
     if ( current < paragraph->text.length() && !paragraph->text.haveSameFormat( current-1, current ) ) {
- 	updateCharFormat( p, fm );
+ 	updateCharFormat( p );
     }
 }
 
-void QTextCursor::makeLineLayout( QPainter* p, const QFontMetrics& fm  )
+void QTextCursor::makeLineLayout( QPainter* p )
 {
     first = current;
 
@@ -2177,6 +2173,7 @@ void QTextCursor::makeLineLayout( QPainter* p, const QFontMetrics& fm  )
     QTextCharFormat* fmt = currentFormat();
     int fmt_current = current;
     p->setFont( fmt->font() );
+    QFontMetrics fm( p->fontMetrics() );
     int space_width = fm.width(' ');
     int fm_ascent = fm.ascent();
     int fm_height = fm.height();
@@ -2223,7 +2220,7 @@ void QTextCursor::makeLineLayout( QPainter* p, const QFontMetrics& fm  )
 	    if ( currentdesc > rdesc )
 		rdesc = currentdesc;
 
-	    gotoNextItem( p, fm );
+	    gotoNextItem( p );
 	    if ( custombreak ) {
 		// also break _behind_ a custom expander
 		++current;
@@ -2311,7 +2308,6 @@ void QTextCursor::makeLineLayout( QPainter* p, const QFontMetrics& fm  )
  */
 bool QTextCursor::updateLayout( QPainter* p, int ymax )
 {
-    QFontMetrics fm( p->fontMetrics() );
     QTextParagraph* b = paragraph;
     gotoParagraph( p, b );
     while ( b && ( ymax < 0 || y_ <= ymax ) ) {
@@ -2319,8 +2315,8 @@ bool QTextCursor::updateLayout( QPainter* p, int ymax )
 	if ( !b->dirty )
 	    y_ = b->y + b->height;
 	else do {
-		makeLineLayout( p, fm );
-	} while ( gotoNextLine( p, fm ) );
+		makeLineLayout( p );
+	} while ( gotoNextLine( p ) );
 
 	b = b->nextInDocument();
 	if ( b ) {
@@ -2592,7 +2588,7 @@ QString QTextTable::anchorAt( QPainter* p, int x, int y )
 }
 
 
-bool QTextTable::toggleSelection( QPainter* p, const QPoint& from, QPoint& to )
+bool QTextTable::toggleSelection( QPainter* p, const QPoint& from, const QPoint& to, QRect& reg )
 {
     painter = p;
     if ( from == to )
@@ -2607,9 +2603,10 @@ bool QTextTable::toggleSelection( QPainter* p, const QPoint& from, QPoint& to )
 	}
     }
     if ( selection_owner ) {
-	to -= QPoint( outerborder, outerborder );
-	bool sel = selection_owner->toggleSelection( from - QPoint(outerborder, outerborder), to );
-	to += QPoint( outerborder, outerborder );
+	QPoint offset( outerborder, outerborder );
+	reg.moveBy( -outerborder, -outerborder );
+	bool sel = selection_owner->toggleSelection( from - offset, to - offset, reg );
+	reg.moveBy( outerborder, outerborder );
 	return sel;
     }
     return FALSE;
@@ -2791,11 +2788,13 @@ QString QTextTableCell::anchorAt( int x, int y ) const
     return richtext->anchorAt( painter(), x - geometry().x(), y - geometry().y() );
 }
 
-bool QTextTableCell::toggleSelection( const QPoint& from, QPoint& to )
+bool QTextTableCell::toggleSelection( const QPoint& from, const QPoint& to, QRect& reg )
 {
-    to -= geometry().topLeft();
-    bool sel  = richtext->toggleSelection( painter(), from - geometry().topLeft(), to );
-    to += geometry().topLeft();
+    bool sel = richtext->toggleSelection( painter(), from - geometry().topLeft(), to - geometry().topLeft() );
+    QRect r = richtext->flow()->updateRect();
+    r.moveBy( geometry().x(), geometry().y() );
+    reg = reg.unite( r );
+    richtext->flow()->validateRect();
     return sel;
 }
 

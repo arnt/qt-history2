@@ -92,6 +92,7 @@ public:
     QValueStack<QString> forwardStack;
     QString home;
     QString curmain;
+    QString curmark;
 };
 
 
@@ -183,11 +184,12 @@ void QTextBrowser::setSource(const QString& name)
 	setText( txt, url );
     }
 
+    d->curmark = mark;
+
     if ( !mark.isEmpty() ) {
 	url += "#";
 	url += mark;
     }
-
     if ( !d->home )
 	d->home = url;
 
@@ -204,7 +206,7 @@ void QTextBrowser::setSource(const QString& name)
 	stackCount--;
     emit forwardAvailable( stackCount > 0 );
 
-    if ( !mark.isEmpty() )
+    if ( isVisible() && !mark.isEmpty() )
 	scrollToAnchor( mark );
     else
 	setContentsPos( contentsX(), 0 );
@@ -491,6 +493,8 @@ void QTextBrowser::scrollToAnchor(const QString& name)
 {
     if ( name.isEmpty() )
 	return;
+    
+    d->curmark = name;
 
     QTextParagraph* b = &richText();
     while ( b->child )
@@ -507,11 +511,12 @@ void QTextBrowser::scrollToAnchor(const QString& name)
 		    tc.updateLayout( &p );
 		}
 		tc.gotoParagraph( &p, b );
-		tc.makeLineLayout( &p, fm );
-		tc.gotoLineStart( &p, fm );
+		tc.makeLineLayout( &p );
+		tc.gotoLineStart( &p );
 		while ( i-- )
 		    tc.rightOneItem( &p );
-		resizeContents( viewport()->width(), richText().flow()->height );
+		resizeContents( QMAX( richText().flow()->widthUsed-1, visibleWidth() ), 
+				richText().flow()->height );
 		setContentsPos( contentsX(), tc.lineGeometry().top() );
 		return;
 	    }
@@ -520,3 +525,11 @@ void QTextBrowser::scrollToAnchor(const QString& name)
     }
 }
 
+
+/*!\reimp
+ */
+void QTextBrowser::showEvent( QShowEvent* e )
+{
+    QTextView::showEvent( e );
+    scrollToAnchor( d->curmark );
+}
