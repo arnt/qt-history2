@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#31 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#32 $
 **
 ** Definition of QWidget class
 **
@@ -136,7 +136,7 @@ public:
 
   // Widget events
 
-protected:    
+protected:
     bool	 event( QEvent * );
     virtual void timerEvent( QTimerEvent * );
     virtual void mousePressEvent( QMouseEvent * );
@@ -145,8 +145,7 @@ protected:
     virtual void mouseMoveEvent( QMouseEvent * );
     virtual void keyPressEvent( QKeyEvent * );
     virtual void keyReleaseEvent( QKeyEvent * );
-    virtual void focusInEvent( QFocusEvent * );
-    virtual void focusOutEvent( QFocusEvent * );
+    virtual void focusChangeEvent( QFocusEvent * );
     virtual void paintEvent( QPaintEvent * );
     virtual void moveEvent( QMoveEvent * );
     virtual void resizeEvent( QResizeEvent * );
@@ -163,6 +162,11 @@ protected:
 #elif defined(_WS_X11_)
     virtual bool x11Event( XEvent * );		// X11 event
 #endif
+
+  // Signals
+
+signals:
+    void    destroyed();
 
   // Misc. functions
 
