@@ -2581,15 +2581,24 @@ void QTable::paintFocus( QPainter *p, const QRect &cr )
 
 void QTable::paintEmptyArea( QPainter *p, int cx, int cy, int cw, int ch )
 {
-    // Region of the rect we should draw
-    contentsToViewport( cx, cy, cx, cy );
-    QRegion reg( QRect( cx, cy, cw, ch ) );
-    // Subtract the table from it
-    reg = reg.subtract( QRect( contentsToViewport( QPoint( 0, 0 ) ), tableSize() ) );
+    // Regions work with shorts, so avoid an overflow and adjust the
+    // table size to the visible size
+    QSize ts( tableSize() );
+    ts.setWidth( QMIN( ts.width(), visibleWidth() ) );
+    ts.setHeight( QMIN( ts.height(), visibleHeight() ) );
 
-    // And draw the rectangles (transformed as needed)
+    // Region of the rect we should draw, calculated in viewport
+    // coordinates, as a region can't handle bigger coordinates
+    contentsToViewport2( cx, cy, cx, cy );
+    QRegion reg( QRect( cx, cy, cw, ch ) );
+
+    // Subtract the table from it
+    QRect re( QPoint( 0, 0 ), ts );
+    reg = reg.subtract( QRect( QPoint( 0, 0 ), ts ) );
+
+    // And draw the rectangles (transformed inc contents coordinates as needed)
     QMemArray<QRect> r = reg.rects();
-    for ( int i = 0; i < (int)r.count(); ++i)
+    for ( int i = 0; i < (int)r.count(); ++i )
 	p->fillRect( QRect(viewportToContents2(r[i].topLeft()),r[i].size()), viewport()->backgroundBrush() );
 }
 
@@ -3478,6 +3487,7 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 	    repaintSelections();
  	    o->removeEventFilter( this );
 	}
+	break;
     default:
 	break;
     }
