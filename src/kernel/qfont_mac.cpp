@@ -470,30 +470,24 @@ void QFontPrivate::load(QFont::Script script)
 	QFontCache::Key key = QFontCache::Key(req, QFont::NoScript, screen);
 	    
 	if(!(engineData = QFontCache::instance->findEngineData(key))) {
-	    // create a new one
 	    engineData = new QFontEngineData;
-	    QFontCache::instance->insertEngineData(key, engineData);
+	    // QFontCache::instance->insertEngineData(key, engineData);
 	} else {
 	    engineData->ref();
 	}
 	if(QFontEngine *e = QFontCache::instance->findEngine(key)) {
 	    Q_ASSERT(e->type() == QFontEngine::Mac);
 	    engine = (QFontEngineMac*)e;
+	    if(engine->fontDef.underline && !request.underline)
+		qDebug("Beep! Beep! [%p]", engine);
 	    engine->ref();
 	} else {
 	    engine = new QFontEngineMac;
-	    QFontCache::instance->insertEngine(key, engine);
+	    //    QFontCache::instance->insertEngine(key, engine);
 	}
 	engineData->engine = engine;
 
 	if(engine->fnum == -1) {
-	    Str255 request_str, actual_str;
-	    // encoding == 1, yes it is strange the names of fonts are encoded in MacJapanese
-	    TextEncoding encoding = CreateTextEncoding(kTextEncodingMacJapanese,
-						       kTextEncodingDefaultVariant,
-						       kTextEncodingDefaultFormat);
-	    qstring_to_pstring(request.family, request.family.length(), request_str, encoding);
-
 	    //find the font
 	    QStringList family_list = QStringList::split( ',', request.family );
 	    // append the substitute list for each family in family_list
@@ -508,6 +502,13 @@ void QFontPrivate::load(QFont::Script script)
 	    // previous versions
 	    family_list << QApplication::font().defaultFamily();
 	    for(QStringList::ConstIterator it = family_list.begin(); it !=  family_list.end(); ++it) {
+		Str255 request_str, actual_str;
+		// encoding == 1, yes it is strange the names of fonts are encoded in MacJapanese
+		TextEncoding encoding = CreateTextEncoding(kTextEncodingMacJapanese,
+							   kTextEncodingDefaultVariant,
+							   kTextEncodingDefaultFormat);
+		qstring_to_pstring((*it), (*it).length(), request_str, encoding);
+
 #if 0
 		short fnum = FMGetFontFamilyFromName(request_str);
 #else
@@ -551,6 +552,8 @@ void QFontPrivate::load(QFont::Script script)
 #endif
 	}
     }
+    if(engineData->engine->fontDef.underline)
+	qDebug("%p is underlined", engineData->engine);
 }
 
 void QFont::initialize()
