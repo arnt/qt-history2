@@ -38,6 +38,18 @@
   createElement and friends create double reference counts.
 */
 
+/* ##### new TODOs:
+
+  Convert all code to atomic refcounting, get completely rid of QShared
+
+  Remove emtpy emthods in the *Private classes
+
+  Make a lot of the (mostly empty) methods in the public classes inline.
+  Specially constructors assignment operators and comparison operators are candidates.
+
+  The virtual isXxx functions in *Private can probably be replaced by inline methods checking the nodeType().
+*/
+
 /*
   Reference counting:
 
@@ -70,6 +82,7 @@ static void qt_split_namespace( QString& prefix, QString& name, const QString& q
     }
 }
 
+// ##### shouldn't this be a member of QDomDocumentPrivate?
 /*
   Counter for the QDomNodeListPrivate timestamps.
 */
@@ -84,11 +97,7 @@ static long qt_nodeListTime = 0;
 class QDomImplementationPrivate : public QShared
 {
 public:
-    QDomImplementationPrivate();
-    ~QDomImplementationPrivate();
-
     QDomImplementationPrivate* clone();
-
 };
 
 class QDomNodePrivate : public QShared
@@ -105,8 +114,6 @@ public:
     QDomDocumentPrivate* ownerDocument();
     void setOwnerDocument( QDomDocumentPrivate* doc );
 
-    virtual QDomNamedNodeMapPrivate* attributes();
-    virtual bool hasAttributes() { return FALSE; }
     virtual QDomNodePrivate* insertBefore( QDomNodePrivate* newChild, QDomNodePrivate* refChild );
     virtual QDomNodePrivate* insertAfter( QDomNodePrivate* newChild, QDomNodePrivate* refChild );
     virtual QDomNodePrivate* replaceChild( QDomNodePrivate* newChild, QDomNodePrivate* oldChild );
@@ -155,8 +162,8 @@ public:
     QString value;
     QString prefix; // set this only for ElementNode and AttributeNode
     QString namespaceURI; // set this only for ElementNode and AttributeNode
-    bool createdWithDom1Interface;
-    bool hasParent;
+    bool createdWithDom1Interface : 1;
+    bool hasParent                : 1;
 };
 
 class QDomNodeListPrivate : public QShared
@@ -165,14 +172,14 @@ public:
     QDomNodeListPrivate( QDomNodePrivate* );
     QDomNodeListPrivate( QDomNodePrivate*, const QString&  );
     QDomNodeListPrivate( QDomNodePrivate*, const QString&, const QString&  );
-    virtual ~QDomNodeListPrivate();
+    ~QDomNodeListPrivate();
 
-    virtual bool operator== ( const QDomNodeListPrivate& ) const;
-    virtual bool operator!= ( const QDomNodeListPrivate& ) const;
+    bool operator== ( const QDomNodeListPrivate& ) const;
+    bool operator!= ( const QDomNodeListPrivate& ) const;
 
     void createList();
-    virtual QDomNodePrivate* item( int index );
-    virtual uint length() const;
+    QDomNodePrivate* item( int index );
+    uint length() const;
 
     QDomNodePrivate* node_impl;
     QString tagname;
@@ -262,14 +269,11 @@ class QDomDocumentFragmentPrivate : public QDomNodePrivate
 public:
     QDomDocumentFragmentPrivate( QDomDocumentPrivate*, QDomNodePrivate* parent = 0 );
     QDomDocumentFragmentPrivate( QDomNodePrivate* n, bool deep );
-    ~QDomDocumentFragmentPrivate();
 
     // Reimplemented from QDomNodePrivate
     QDomNodePrivate* cloneNode( bool deep = TRUE );
     bool isDocumentFragment() { return TRUE; }
     QDomNode::NodeType nodeType() const { return QDomNode::DocumentFragmentNode; }
-
-    static QString* dfName;
 };
 
 class QDomCharacterDataPrivate : public QDomNodePrivate
@@ -277,7 +281,6 @@ class QDomCharacterDataPrivate : public QDomNodePrivate
 public:
     QDomCharacterDataPrivate( QDomDocumentPrivate*, QDomNodePrivate* parent, const QString& data );
     QDomCharacterDataPrivate( QDomCharacterDataPrivate* n, bool deep );
-    ~QDomCharacterDataPrivate();
 
     uint dataLength() const;
     QString substringData( unsigned long offset, unsigned long count ) const;
@@ -290,8 +293,6 @@ public:
     bool isCharacterData() { return TRUE; }
     QDomNode::NodeType nodeType() const { return QDomNode::CharacterDataNode; }
     QDomNodePrivate* cloneNode( bool deep = TRUE );
-
-    static QString* cdName;
 };
 
 class QDomTextPrivate : public QDomCharacterDataPrivate
@@ -299,7 +300,6 @@ class QDomTextPrivate : public QDomCharacterDataPrivate
 public:
     QDomTextPrivate( QDomDocumentPrivate*, QDomNodePrivate* parent, const QString& value );
     QDomTextPrivate( QDomTextPrivate* n, bool deep );
-    ~QDomTextPrivate();
 
     QDomTextPrivate* splitText( int offset );
 
@@ -308,8 +308,6 @@ public:
     bool isText() { return TRUE; }
     QDomNode::NodeType nodeType() const { return QDomNode::TextNode; }
     void save( QTextStream& s, int, int ) const;
-
-    static QString* textName;
 };
 
 class QDomAttrPrivate : public QDomNodePrivate
@@ -318,7 +316,6 @@ public:
     QDomAttrPrivate( QDomDocumentPrivate*, QDomNodePrivate*, const QString& name );
     QDomAttrPrivate( QDomDocumentPrivate*, QDomNodePrivate*, const QString& nsURI, const QString& qName );
     QDomAttrPrivate( QDomAttrPrivate* n, bool deep );
-    ~QDomAttrPrivate();
 
     bool specified() const;
 
@@ -374,15 +371,12 @@ class QDomCommentPrivate : public QDomCharacterDataPrivate
 public:
     QDomCommentPrivate( QDomDocumentPrivate*, QDomNodePrivate* parent, const QString& value );
     QDomCommentPrivate( QDomCommentPrivate* n, bool deep );
-    ~QDomCommentPrivate();
 
     // Reimplemented from QDomNodePrivate
     QDomNodePrivate* cloneNode( bool deep = TRUE );
     bool isComment() { return TRUE; }
     QDomNode::NodeType nodeType() const { return QDomNode::CommentNode; }
     void save( QTextStream& s, int, int ) const;
-
-    static QString* commentName;
 };
 
 class QDomCDATASectionPrivate : public QDomTextPrivate
@@ -390,15 +384,12 @@ class QDomCDATASectionPrivate : public QDomTextPrivate
 public:
     QDomCDATASectionPrivate( QDomDocumentPrivate*, QDomNodePrivate* parent, const QString& value );
     QDomCDATASectionPrivate( QDomCDATASectionPrivate* n, bool deep );
-    ~QDomCDATASectionPrivate();
 
     // Reimplemented from QDomNodePrivate
     QDomNodePrivate* cloneNode( bool deep = TRUE );
     bool isCDATASection() { return TRUE; }
     QDomNode::NodeType nodeType() const { return QDomNode::CDATASectionNode; }
     void save( QTextStream& s, int, int ) const;
-
-    static QString* cdataName;
 };
 
 class QDomNotationPrivate : public QDomNodePrivate
@@ -407,7 +398,6 @@ public:
     QDomNotationPrivate( QDomDocumentPrivate*, QDomNodePrivate* parent, const QString& name,
 			  const QString& pub, const QString& sys );
     QDomNotationPrivate( QDomNotationPrivate* n, bool deep );
-    ~QDomNotationPrivate();
 
     // Reimplemented from QDomNodePrivate
     QDomNodePrivate* cloneNode( bool deep = TRUE );
@@ -426,7 +416,6 @@ public:
     QDomEntityPrivate( QDomDocumentPrivate*, QDomNodePrivate* parent, const QString& name,
 			const QString& pub, const QString& sys, const QString& notation );
     QDomEntityPrivate( QDomEntityPrivate* n, bool deep );
-    ~QDomEntityPrivate();
 
     // Reimplemented from QDomNodePrivate
     QDomNodePrivate* cloneNode( bool deep = TRUE );
@@ -445,7 +434,6 @@ class QDomEntityReferencePrivate : public QDomNodePrivate
 public:
     QDomEntityReferencePrivate( QDomDocumentPrivate*, QDomNodePrivate* parent, const QString& name );
     QDomEntityReferencePrivate( QDomNodePrivate* n, bool deep );
-    ~QDomEntityReferencePrivate();
 
     // Reimplemented from QDomNodePrivate
     QDomNodePrivate* cloneNode( bool deep = TRUE );
@@ -460,7 +448,6 @@ public:
     QDomProcessingInstructionPrivate( QDomDocumentPrivate*, QDomNodePrivate* parent, const QString& target,
 				       const QString& data);
     QDomProcessingInstructionPrivate( QDomProcessingInstructionPrivate* n, bool deep );
-    ~QDomProcessingInstructionPrivate();
 
     // Reimplemented from QDomNodePrivate
     QDomNodePrivate* cloneNode( bool deep = TRUE );
@@ -510,8 +497,6 @@ public:
     // Variables
     QDomImplementationPrivate* impl;
     QDomDocumentTypePrivate* type;
-
-    static QString* docName;
 };
 
 /**************************************************************
@@ -569,14 +554,6 @@ private:
  * QDomImplementationPrivate
  *
  **************************************************************/
-
-QDomImplementationPrivate::QDomImplementationPrivate()
-{
-}
-
-QDomImplementationPrivate::~QDomImplementationPrivate()
-{
-}
 
 QDomImplementationPrivate* QDomImplementationPrivate::clone()
 {
@@ -1119,10 +1096,6 @@ QDomNodePrivate* QDomNodePrivate::namedItem( const QString& n )
     return 0;
 }
 
-QDomNamedNodeMapPrivate* QDomNodePrivate::attributes()
-{
-    return 0;
-}
 
 QDomNodePrivate* QDomNodePrivate::insertBefore( QDomNodePrivate* newChild, QDomNodePrivate* refChild )
 {
@@ -1882,6 +1855,8 @@ QDomNode QDomNode::nextSibling() const
     return QDomNode( IMPL->next );
 }
 
+
+// ###### don't think this is part of the DOM and
 /*!
     Returns a named node map of all attributes. Attributes are only
     provided for \l{QDomElement}s.
@@ -1891,10 +1866,10 @@ QDomNode QDomNode::nextSibling() const
 */
 QDomNamedNodeMap QDomNode::attributes() const
 {
-    if ( !impl )
+    if ( !impl || !impl->isElement())
 	return QDomNamedNodeMap();
 
-    return QDomNamedNodeMap( impl->attributes() );
+    return QDomNamedNodeMap( static_cast<QDomElementPrivate *>(impl)->attributes() );
 }
 
 /*!
@@ -2042,9 +2017,9 @@ QString QDomNode::localName() const
 */
 bool QDomNode::hasAttributes() const
 {
-    if ( !impl )
+    if ( !impl && !impl->isElement())
 	return FALSE;
-    return IMPL->hasAttributes();
+    return static_cast<QDomElementPrivate *>(impl)->hasAttributes();
 }
 
 /*!
@@ -3073,13 +3048,6 @@ QDomDocumentType& QDomDocumentType::operator= ( const QDomDocumentType& n )
 }
 
 /*!
-    Destroys the object and frees its resources.
-*/
-QDomDocumentType::~QDomDocumentType()
-{
-}
-
-/*!
     Returns the name of the document type as specified in the
     &lt;!DOCTYPE name&gt; tag.
 
@@ -3152,25 +3120,27 @@ QString QDomDocumentType::internalSubset() const
     return IMPL->internalSubset;
 }
 
+// ##### 2 issues:
+//  are these needed at all? The only difference when removing these two methods in all
+// subclasses is that we'd get a different type for null nodes.
+//
+// if we don't remove them, we can probably inline most of them in the header file.
+
 /*!
+  \fn QDomNode::NodeType QDomDocumentType::nodeType() const
+
     Returns \c DocumentTypeNode.
 
     \sa isDocumentType() QDomNode::toDocumentType()
 */
-QDomNode::NodeType QDomDocumentType::nodeType() const
-{
-    return DocumentTypeNode;
-}
 
 /*!
+  \fn bool QDomDocumentType::isDocumentType() const
+
     This function overloads QDomNode::isDocumentType().
 
     \sa nodeType() QDomNode::toDocumentType()
 */
-bool QDomDocumentType::isDocumentType() const
-{
-    return TRUE;
-}
 
 #undef IMPL
 
@@ -3180,22 +3150,14 @@ bool QDomDocumentType::isDocumentType() const
  *
  **************************************************************/
 
-QString* QDomDocumentFragmentPrivate::dfName = 0;
-
 QDomDocumentFragmentPrivate::QDomDocumentFragmentPrivate( QDomDocumentPrivate* doc, QDomNodePrivate* parent )
     : QDomNodePrivate( doc, parent )
 {
-    if ( !dfName )
-	dfName = new QString( "#document-fragment" );
-    name = *dfName;
+    name = QString( "#document-fragment" );
 }
 
 QDomDocumentFragmentPrivate::QDomDocumentFragmentPrivate( QDomNodePrivate* n, bool deep )
     : QDomNodePrivate( n, deep )
-{
-}
-
-QDomDocumentFragmentPrivate::~QDomDocumentFragmentPrivate()
 {
 }
 
@@ -3279,13 +3241,6 @@ QDomDocumentFragment& QDomDocumentFragment::operator= ( const QDomDocumentFragme
 }
 
 /*!
-    Destroys the object and frees its resources.
-*/
-QDomDocumentFragment::~QDomDocumentFragment()
-{
-}
-
-/*!
     Returns \c DocumentFragment.
 
     \sa isDocumentFragment() QDomNode::toDocumentFragment()
@@ -3313,25 +3268,16 @@ bool QDomDocumentFragment::isDocumentFragment() const
  *
  **************************************************************/
 
-QString* QDomCharacterDataPrivate::cdName = 0;
-
 QDomCharacterDataPrivate::QDomCharacterDataPrivate( QDomDocumentPrivate* d, QDomNodePrivate* p,
 						      const QString& data )
     : QDomNodePrivate( d, p )
 {
     value = data;
-
-    if ( !cdName )
-	cdName = new QString( "#character-data" );
-    name = *cdName;
+    name = QString( "#character-data" );
 }
 
 QDomCharacterDataPrivate::QDomCharacterDataPrivate( QDomCharacterDataPrivate* n, bool deep )
     : QDomNodePrivate( n, deep )
-{
-}
-
-QDomCharacterDataPrivate::~QDomCharacterDataPrivate()
 {
 }
 
@@ -3442,13 +3388,6 @@ QDomCharacterData::QDomCharacterData( QDomCharacterDataPrivate* n )
 QDomCharacterData& QDomCharacterData::operator= ( const QDomCharacterData& x )
 {
     return (QDomCharacterData&) QDomNode::operator=( x );
-}
-
-/*!
-    Destroys the object and frees its resources.
-*/
-QDomCharacterData::~QDomCharacterData()
-{
 }
 
 /*!
@@ -3579,10 +3518,6 @@ QDomAttrPrivate::QDomAttrPrivate( QDomAttrPrivate* n, bool deep )
     : QDomNodePrivate( n, deep )
 {
     m_specified = n->specified();
-}
-
-QDomAttrPrivate::~QDomAttrPrivate()
-{
 }
 
 void QDomAttrPrivate::setNodeValue( const QString& v )
@@ -3744,13 +3679,6 @@ QDomAttr::QDomAttr( QDomAttrPrivate* n )
 QDomAttr& QDomAttr::operator= ( const QDomAttr& x )
 {
     return (QDomAttr&) QDomNode::operator=( x );
-}
-
-/*!
-    Destroys the object and frees its resources.
-*/
-QDomAttr::~QDomAttr()
-{
 }
 
 /*!
@@ -4158,13 +4086,6 @@ QDomElement& QDomElement::operator= ( const QDomElement& x )
 }
 
 /*!
-    Destroys the object and frees its resources.
-*/
-QDomElement::~QDomElement()
-{
-}
-
-/*!
     Returns \c ElementNode.
 */
 QDomNode::NodeType QDomElement::nodeType() const
@@ -4357,29 +4278,6 @@ bool QDomElement::isElement() const
 }
 
 /*!
-    Returns a QDomNamedNodeMap containing all this element's attributes.
-
-    \sa attribute() setAttribute() attributeNode() setAttributeNode()
-*/
-QDomNamedNodeMap QDomElement::attributes() const
-{
-    if ( !impl )
-	return QDomNamedNodeMap();
-    return QDomNamedNodeMap( IMPL->attributes() );
-}
-
-/*!
-    Returns TRUE if this element has an attribute called \a name;
-    otherwise returns FALSE.
-*/
-bool QDomElement::hasAttribute( const QString& name ) const
-{
-    if ( !impl )
-	return FALSE;
-    return IMPL->hasAttribute( name );
-}
-
-/*!
     Returns the attribute with the local name \a localName and the
     namespace URI \a nsURI. If the attribute does not exist \a
     defValue is returned.
@@ -4568,22 +4466,14 @@ QString QDomElement::text() const
  *
  **************************************************************/
 
-QString* QDomTextPrivate::textName = 0;
-
 QDomTextPrivate::QDomTextPrivate( QDomDocumentPrivate* d, QDomNodePrivate* parent, const QString& value )
     : QDomCharacterDataPrivate( d, parent, value )
 {
-    if ( !textName )
-	textName = new QString( "#text" );
-    name = *textName;
+    name = QString( "#text" );
 }
 
 QDomTextPrivate::QDomTextPrivate( QDomTextPrivate* n, bool deep )
     : QDomCharacterDataPrivate( n, deep )
-{
-}
-
-QDomTextPrivate::~QDomTextPrivate()
 {
 }
 
@@ -4683,13 +4573,6 @@ QDomText& QDomText::operator= ( const QDomText& x )
 }
 
 /*!
-    Destroys the object and frees its resources.
-*/
-QDomText::~QDomText()
-{
-}
-
-/*!
     Returns \c TextNode.
 */
 QDomNode::NodeType QDomText::nodeType() const
@@ -4730,14 +4613,10 @@ bool QDomText::isText() const
  *
  **************************************************************/
 
-QString* QDomCommentPrivate::commentName = 0;
-
 QDomCommentPrivate::QDomCommentPrivate( QDomDocumentPrivate* d, QDomNodePrivate* parent, const QString& value )
     : QDomCharacterDataPrivate( d, parent, value )
 {
-    if ( !commentName )
-	commentName = new QString( "#comment" );
-    name = *commentName;
+    name = QString( "#comment" );
 }
 
 QDomCommentPrivate::QDomCommentPrivate( QDomCommentPrivate* n, bool deep )
@@ -4745,9 +4624,6 @@ QDomCommentPrivate::QDomCommentPrivate( QDomCommentPrivate* n, bool deep )
 {
 }
 
-QDomCommentPrivate::~QDomCommentPrivate()
-{
-}
 
 QDomNodePrivate* QDomCommentPrivate::cloneNode( bool deep)
 {
@@ -4832,26 +4708,11 @@ QDomComment& QDomComment::operator= ( const QDomComment& x )
 }
 
 /*!
-    Destroys the object and frees its resources.
-*/
-QDomComment::~QDomComment()
-{
-}
-
-/*!
     Returns \c CommentNode.
 */
 QDomNode::NodeType QDomComment::nodeType() const
 {
     return CommentNode;
-}
-
-/*!
-    Returns TRUE.
-*/
-bool QDomComment::isComment() const
-{
-    return TRUE;
 }
 
 #undef IMPL
@@ -4862,23 +4723,15 @@ bool QDomComment::isComment() const
  *
  **************************************************************/
 
-QString* QDomCDATASectionPrivate::cdataName = 0;
-
 QDomCDATASectionPrivate::QDomCDATASectionPrivate( QDomDocumentPrivate* d, QDomNodePrivate* parent,
 						    const QString& value )
     : QDomTextPrivate( d, parent, value )
 {
-    if ( !cdataName )
-	cdataName = new QString( "#cdata-section" );
-    name = *cdataName;
+    name = QString( "#cdata-section" );
 }
 
 QDomCDATASectionPrivate::QDomCDATASectionPrivate( QDomCDATASectionPrivate* n, bool deep )
     : QDomTextPrivate( n, deep )
-{
-}
-
-QDomCDATASectionPrivate::~QDomCDATASectionPrivate()
 {
 }
 
@@ -4971,13 +4824,6 @@ QDomCDATASection& QDomCDATASection::operator= ( const QDomCDATASection& x )
 }
 
 /*!
-    Destroys the object and frees its resources.
-*/
-QDomCDATASection::~QDomCDATASection()
-{
-}
-
-/*!
     Returns \c CDATASection.
 */
 QDomNode::NodeType QDomCDATASection::nodeType() const
@@ -5016,10 +4862,6 @@ QDomNotationPrivate::QDomNotationPrivate( QDomNotationPrivate* n, bool deep )
 {
     m_sys = n->m_sys;
     m_pub = n->m_pub;
-}
-
-QDomNotationPrivate::~QDomNotationPrivate()
-{
 }
 
 QDomNodePrivate* QDomNotationPrivate::cloneNode( bool deep)
@@ -5120,13 +4962,6 @@ QDomNotation& QDomNotation::operator= ( const QDomNotation& x )
 }
 
 /*!
-    Destroys the object and frees its resources.
-*/
-QDomNotation::~QDomNotation()
-{
-}
-
-/*!
     Returns \c NotationNode.
 */
 QDomNode::NodeType QDomNotation::nodeType() const
@@ -5187,10 +5022,6 @@ QDomEntityPrivate::QDomEntityPrivate( QDomEntityPrivate* n, bool deep )
     m_sys = n->m_sys;
     m_pub = n->m_pub;
     m_notationName = n->m_notationName;
-}
-
-QDomEntityPrivate::~QDomEntityPrivate()
-{
 }
 
 QDomNodePrivate* QDomEntityPrivate::cloneNode( bool deep)
@@ -5336,13 +5167,6 @@ QDomEntity& QDomEntity::operator= ( const QDomEntity& x )
 }
 
 /*!
-    Destroys the object and frees its resources.
-*/
-QDomEntity::~QDomEntity()
-{
-}
-
-/*!
     Returns \c EntityNode.
 */
 QDomNode::NodeType QDomEntity::nodeType() const
@@ -5408,10 +5232,6 @@ QDomEntityReferencePrivate::QDomEntityReferencePrivate( QDomDocumentPrivate* d, 
 
 QDomEntityReferencePrivate::QDomEntityReferencePrivate( QDomNodePrivate* n, bool deep )
     : QDomNodePrivate( n, deep )
-{
-}
-
-QDomEntityReferencePrivate::~QDomEntityReferencePrivate()
 {
 }
 
@@ -5513,13 +5333,6 @@ QDomEntityReference& QDomEntityReference::operator= ( const QDomEntityReference&
 }
 
 /*!
-    Destroys the object and frees its resources.
-*/
-QDomEntityReference::~QDomEntityReference()
-{
-}
-
-/*!
     Returns \c EntityReference.
 */
 QDomNode::NodeType QDomEntityReference::nodeType() const
@@ -5556,9 +5369,6 @@ QDomProcessingInstructionPrivate::QDomProcessingInstructionPrivate( QDomProcessi
 {
 }
 
-QDomProcessingInstructionPrivate::~QDomProcessingInstructionPrivate()
-{
-}
 
 QDomNodePrivate* QDomProcessingInstructionPrivate::cloneNode( bool deep)
 {
@@ -5646,13 +5456,6 @@ QDomProcessingInstruction& QDomProcessingInstruction::operator= ( const QDomProc
 }
 
 /*!
-    Destroys the object and frees its resources.
-*/
-QDomProcessingInstruction::~QDomProcessingInstruction()
-{
-}
-
-/*!
     Returns \c ProcessingInstructionNode.
 */
 QDomNode::NodeType QDomProcessingInstruction::nodeType() const
@@ -5712,17 +5515,13 @@ bool QDomProcessingInstruction::isProcessingInstruction() const
  *
  **************************************************************/
 
-QString* QDomDocumentPrivate::docName = 0;
-
 QDomDocumentPrivate::QDomDocumentPrivate()
     : QDomNodePrivate( 0 )
 {
     impl = new QDomImplementationPrivate();
     type = new QDomDocumentTypePrivate( this, this );
 
-    if ( !docName )
-	docName = new QString( "#document" );
-    name = *docName;
+    name = QString( "#document" );
 }
 
 QDomDocumentPrivate::QDomDocumentPrivate( const QString& aname )
@@ -5732,9 +5531,7 @@ QDomDocumentPrivate::QDomDocumentPrivate( const QString& aname )
     type = new QDomDocumentTypePrivate( this, this );
     type->name = aname;
 
-    if ( !docName )
-	docName = new QString( "#document" );
-    QDomDocumentPrivate::name = *docName;
+    name = QString( "#document" );
 }
 
 QDomDocumentPrivate::QDomDocumentPrivate( QDomDocumentTypePrivate* dt )
@@ -5748,9 +5545,7 @@ QDomDocumentPrivate::QDomDocumentPrivate( QDomDocumentTypePrivate* dt )
 	type = new QDomDocumentTypePrivate( this, this );
     }
 
-    if ( !docName )
-	docName = new QString( "#document" );
-    QDomDocumentPrivate::name = *docName;
+    name = QString( "#document" );
 }
 
 QDomDocumentPrivate::QDomDocumentPrivate( QDomDocumentPrivate* n, bool deep )
@@ -5783,13 +5578,8 @@ void QDomDocumentPrivate::clear()
 bool QDomDocumentPrivate::setContent( QXmlInputSource *source, bool namespaceProcessing, QString *errorMsg, int *errorLine, int *errorColumn )
 {
     QXmlSimpleReader reader;
-    if ( namespaceProcessing ) {
-	reader.setFeature( "http://xml.org/sax/features/namespaces", TRUE );
-	reader.setFeature( "http://xml.org/sax/features/namespace-prefixes", FALSE );
-    } else {
-	reader.setFeature( "http://xml.org/sax/features/namespaces", FALSE );
-	reader.setFeature( "http://xml.org/sax/features/namespace-prefixes", TRUE );
-    }
+    reader.setFeature( "http://xml.org/sax/features/namespaces", namespaceProcessing );
+    reader.setFeature( "http://xml.org/sax/features/namespace-prefixes", !namespaceProcessing );
     reader.setFeature( "http://trolltech.com/xml/features/report-whitespace-only-CharData", FALSE );
 
     return setContent( source, &reader, errorMsg, errorLine, errorColumn );
