@@ -35,6 +35,8 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
 
     createFakeProperty("focusPolicy");
     createFakeProperty("cursor");
+    createFakeProperty("toolTip");
+    createFakeProperty("whatsThis");
 }
 
 QDesignerPropertySheet::~QDesignerPropertySheet()
@@ -140,8 +142,12 @@ QVariant QDesignerPropertySheet::metaProperty(int index) const
         e.value = v;
         QMetaEnum me = p.enumerator();
         for (int i=0; i<me.keyCount(); ++i) {
-            const char *k = me.key(i);
-            e.items.insert(QString::fromLatin1(k), me.keyToValue(k));
+            QString key;
+            key += QLatin1String(me.scope());
+            key += QLatin1String("::");
+            key += QLatin1String(me.key(i));
+
+            e.items.insert(key, me.keyToValue(key));
         }
 
         qVariantSet(v, e, "FlagType");
@@ -150,8 +156,12 @@ QVariant QDesignerPropertySheet::metaProperty(int index) const
         e.value = v;
         QMetaEnum me = p.enumerator();
         for (int i=0; i<me.keyCount(); ++i) {
-            const char *k = me.key(i);
-            e.items.insert(QString::fromLatin1(k), me.keyToValue(k));
+            QString key;
+            key += QLatin1String(me.scope());
+            key += QLatin1String("::");
+            key += QLatin1String(me.key(i));
+
+            e.items.insert(key, me.keyToValue(key));
         }
 
         qVariantSet(v, e, "EnumType");
