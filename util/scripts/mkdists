@@ -304,7 +304,7 @@ mkdir -p "$DISTDIR/qt/doc/man/man3"
 mkdir -p "$DISTDIR/qt/doc/man/man1"
 mv "$DISTDIR/qt/src/moc/moc.1" "$DISTDIR/qt/doc/man/man1"
 mv "$DISTDIR/qt/tools/designer/uic/uic.1" "$DISTDIR/qt/doc/man/man1"
-cp $DISTDIR/qt/tools/designer/manual/sgml/manual/*.html $DISTDIR/qt/doc/html/designer
+cp $DISTDIR/qt/tools/designer/manual/*.html $DISTDIR/qt/doc/html/designer
 cp $DISTDIR/qt/tools/designer/manual/images/*.png $DISTDIR/qt/doc/html/designer/images
 rm -rf $DISTDIR/qt/tools/designer/manual
 rm -rf $DISTDIR/qt/tools/designer/doc
