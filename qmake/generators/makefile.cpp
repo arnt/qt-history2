@@ -960,12 +960,15 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
 	if(Option::mkfile::do_cache)
 	    t << Option::mkfile::cachefile << " ";
 	t << project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"].join(" \\\n\t\t") << "\n\t"
-	  << qmake_path << " " << args << " " << pfile <<  " -o " << ofile << endl;
+	  << qmake_path << " " << args << " " << pfile;
+	if (ofile != project->first("QMAKE_MAKEFILE"))
+	    t << " -o " << ofile;
+	t << endl;
     }
 
     t << "qmake: " << "\n\t"
       << "@" << qmake_path << " " << args << " " << pfile;
-    if (!ofile.isEmpty())
+    if (!ofile.isEmpty() && ofile != project->first("QMAKE_MAKEFILE"))
 	t << " -o " << ofile;
     t << endl << endl;
 

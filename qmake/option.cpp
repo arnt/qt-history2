@@ -119,6 +119,16 @@ bool usage(const char *a0)
 	    ,a0);
     return FALSE;
 }
+static Option::QMAKE_MODE default_mode(QString progname)
+{
+    int s = progname.findRev(Option::dir_sep);
+    if(s != -1)
+	progname = progname.right(progname.length() - (s + 1));
+    if(progname == "qmakegen")
+	return Option::QMAKE_GENERATE_PROJECT;
+    return Option::QMAKE_GENERATE_MAKEFILE;
+}
+	    
 
 bool
 Option::parseCommandLine(int argc, char **argv)
@@ -129,11 +139,16 @@ Option::parseCommandLine(int argc, char **argv)
 
 	    //first param is a mode, or we default
 	    if(x == 1) {
-		if(opt == "project")
+		bool specified = TRUE;
+		if(opt == "project") {
 		    Option::qmake_mode = Option::QMAKE_GENERATE_PROJECT;
-		else
+		} else if(opt == "makefile") {
 		    Option::qmake_mode = Option::QMAKE_GENERATE_MAKEFILE;		
-		if(opt == "project" || opt == "makefile")
+		} else {
+		    specified = FALSE;
+		    Option::qmake_mode = default_mode(argv[0]);
+		}
+		if(specified)
 		    continue;
 	    }
 	    //all modes
@@ -181,7 +196,7 @@ Option::parseCommandLine(int argc, char **argv)
 	}
 	else {
 	    if(x == 1)
-		Option::qmake_mode = Option::QMAKE_GENERATE_MAKEFILE;
+		Option::qmake_mode = default_mode(argv[0]);
 
 	    QString arg = argv[x];
 	    if(arg.find('=') != -1) {
@@ -196,7 +211,7 @@ Option::parseCommandLine(int argc, char **argv)
     }
     
     if(Option::qmake_mode == Option::QMAKE_GENERATE_NOTHING)
-	Option::qmake_mode = Option::QMAKE_GENERATE_MAKEFILE; 
+	Option::qmake_mode = default_mode(argv[0]);
 
     //last chance for defaults
     if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE) {
@@ -208,7 +223,7 @@ Option::parseCommandLine(int argc, char **argv)
 	    QString proj = QDir::currentDirPath();
 	    proj = proj.right(proj.length() - (proj.findRev(QDir::separator()) + 1)) + ".pro";
 	    if(QFile::exists(proj)) {
-		Option::qmake_mode = Option::QMAKE_GENERATE_MAKEFILE;		
+		Option::qmake_mode = default_mode(argv[0]);
 		Option::mkfile::project_files.append(proj);
 	    } else {
 		return usage(argv[0]);

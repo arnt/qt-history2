@@ -123,12 +123,15 @@ int main(int argc, char **argv)
 		bool using_stdout = FALSE;
 		if(!(Option::output.state() & IO_Open)) {
 		    if(Option::output.name().isEmpty()) {
-			if(!proj.variables()["QMAKE_MAKEFILE"].isEmpty()) 
+			if(!proj.variables()["QMAKE_MAKEFILE"].isEmpty()) {
 			    Option::output.setName(proj.first("QMAKE_MAKEFILE"));
-			else if(!def_mkfile.isEmpty()) 
-			    Option::output.setName(def_mkfile);
-			else
-			    Option::output.setName("Makefile");
+			} else {
+			    if(!def_mkfile.isEmpty()) 
+				Option::output.setName(def_mkfile);
+			    else
+				Option::output.setName("Makefile");
+			    proj.variables()["QMAKE_MAKEFILE"].append(Option::output.name());
+			}
 		    }
 		    if(Option::output.name().isEmpty() || Option::output.name() == "-") {
 			Option::output.setName("");
