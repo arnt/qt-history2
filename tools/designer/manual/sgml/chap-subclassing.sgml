@@ -633,7 +633,7 @@ INCLUDEPATH += $(QTDIR)/tools/designer/uilib
 We do <emphasis>not</emphasis> include the
 <filename>creditformbase.ui</> file since this file will be read
 at runtime, as we'll see shortly. We must include the
-<function>qresource</> library since the functionality we
+<function>qui</> library since the functionality we
 require is not part of the standard Qt library.
 </para>
 </sect2>

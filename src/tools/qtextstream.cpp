@@ -50,14 +50,14 @@
 #include <windows.h>
 #endif
 
-// NOT REVISED
 /*!
   \class QTextStream qtextstream.h
 
   \brief The QTextStream class provides basic functions for reading and
   writing text using a QIODevice.
 
-  \ingroup io text
+  \ingroup io
+  \ingroup text
 
   The text stream class has a functional interface that is very
   similar to that of the standard C++ iostream class.  The difference
@@ -86,17 +86,26 @@
   \warning By default QTextStream will automatically detect whether
   integers in the stream are in decimal, octal, hexadecimal or binary
   format when reading from the stream. In particular, a leading '0'
-  signifies octal, i.e., the sequence "0100" will be interpreted as
+  signifies octal, i.e. the sequence "0100" will be interpreted as
   64.
 
   The QTextStream class reads and writes text; it is not
   appropriate for dealing with binary data (but QDataStream is).
 
-  By default, output of Unicode text (i.e., QString) is done using the
+  By default, output of Unicode text (i.e. QString) is done using the
   local 8-bit encoding.  This can be changed using the setEncoding()
   method.  For input, the QTextStream will auto-detect standard
   Unicode "byte order marked" text files; otherwise the local
   8-bit encoding is used.
+
+  The QIODevice is set in the constructor, or later using setDevice().
+  If the end of the input is reached atEnd() returns TRUE. Data can be
+  read into variables of the appropriate type using the operator>>()
+  overloads, or read in its entirety into a single string using
+  read(), or read a line at a time using readLine(). Whitespace can be
+  skipped over using skipWhiteSpace(). You can set flags for the
+  stream using flags() or setf(). The stream also supports width(),
+  precision() and fill(); use reset() to reset the defaults.
 
   \sa QDataStream
 */
@@ -475,9 +484,9 @@ int QStringBuffer::ungetch( int ch )
 
 
 /*!
-  Constructs a text stream that operates on a Unicode QString, \a str,
+  Constructs a text stream that operates on the Unicode QString, \a str,
   through an internal device. The \a filemode argument is passed to
-  the device's open() function.
+  the device's open() function; see \l{QIODevice::mode()}.
 
   If you set an encoding or codec with setEncoding() or setCodec(), this
   setting is ignored for text streams that operate on QString.
@@ -486,7 +495,7 @@ int QStringBuffer::ungetch( int ch )
   \code
     QString str;
     QTextStream ts( &str, IO_WriteOnly );
-    ts << "pi = " << 3.14;			// str == "pi = 3.14"
+    ts << "pi = " << 3.14; // str == "pi = 3.14"
   \endcode
 
   Writing data to the text stream will modify the contents of the string.
@@ -495,7 +504,7 @@ int QStringBuffer::ungetch( int ch )
   \code
     QString str = "pi = 3.14";
     QTextStream ts( &str, IO_WriteOnly );
-    ts <<  "2+2 = " << 2+2; 		// str == "2+2 = 414"
+    ts <<  "2+2 = " << 2+2; // str == "2+2 = 414"
   \endcode
 
   Note that because QString is Unicode, you should not use readRawBytes()
@@ -533,15 +542,15 @@ QTextStream::QTextStream( QString& str, int filemode )
 }
 
 /*!
-  Constructs a text stream that operates on a byte array, \a a,
+  Constructs a text stream that operates on the byte array, \a a,
   through an internal QBuffer device. The \a mode argument is passed
-  to the device's open() function.
+  to the device's open() function; see \l{QIODevice::mode()}.
 
   Example:
   \code
     QByteArray array;
     QTextStream ts( array, IO_WriteOnly );
-    ts << "pi = " << 3.14 << '\0';		// array == "pi = 3.14"
+    ts << "pi = " << 3.14 << '\0'; // array == "pi = 3.14"
   \endcode
 
   Writing data to the text stream will modify the contents of the array.
@@ -554,7 +563,7 @@ QTextStream::QTextStream( QString& str, int filemode )
     QBuffer buf( array );
     buf.open( IO_WriteOnly );
     QTextStream ts( &buf );
-    ts << "pi = " << 3.14 << '\0';		// array == "pi = 3.14"
+    ts << "pi = " << 3.14 << '\0'; // array == "pi = 3.14"
     buf.close();
   \endcode
 */
@@ -572,7 +581,7 @@ QTextStream::QTextStream( QByteArray a, int mode )
 
 /*!  Constructs a text stream that operates on an existing file handle
   \a fh through an internal QFile device. The \a mode argument is
-  passed to the device's open() function.
+  passed to the device's open() function; see \l{QIODevice::mode()}.
 
   Note that if you create a QTextStream \c cout or another name that
   is also used for another variable of a different type, some linkers
@@ -613,9 +622,9 @@ void QTextStream::skipWhiteSpace()
 
 
 /*!
-  Tries to read len characters from the stream and stores them in \a buf.
+  Tries to read \a len characters from the stream and stores them in \a buf.
   Returns the number of characters really read.
-  Attention: There will no QEOF appended if the read reaches the end of
+  \warning There will no QEOF appended if the read reaches the end of
   the file. EOF is reached when the return value does not equal \a len.
 */
 uint QTextStream::ts_getbuf( QChar* buf, uint len )
@@ -921,7 +930,7 @@ uint QTextStream::ts_getline( QChar* buf )
 
 
 /*!
-  Puts one character to the stream.
+  Puts one character into the stream.
 */
 void QTextStream::ts_putc( QChar c )
 {
@@ -956,7 +965,7 @@ void QTextStream::ts_putc( QChar c )
 }
 
 /*!
-  Puts one character to the stream.
+  Puts one character into the stream.
 */
 void QTextStream::ts_putc( int ch )
 {
@@ -1116,10 +1125,8 @@ void QTextStream::unsetDevice()
 /*!
   \fn bool QTextStream::atEnd() const
   Returns TRUE if the IO device has reached the end position (end of
-  stream or file) or if there is no IO device set.
-
-  Returns FALSE if the current position of the read/write head of the IO
-  device is somewhere before the end position.
+  the stream or file) or if there is no IO device set; otherwise
+  returns FALSE.
 
   \sa QIODevice::atEnd()
 */
@@ -1393,7 +1400,7 @@ double QTextStream::input_double()
 /*!
     \overload
   Reads a signed \c short integer \a i from the stream and returns a
-  reference to the stream. See flags() for an explanation of expected
+  reference to the stream. See flags() for an explanation of the expected
   input format.
 */
 
@@ -1408,7 +1415,7 @@ QTextStream &QTextStream::operator>>( signed short &i )
 /*!
     \overload
   Reads an unsigned \c short integer \a i from the stream and returns
-  a reference to the stream. See flags() for an explanation of
+  a reference to the stream. See flags() for an explanation of the
   expected input format.
 */
 
@@ -1423,7 +1430,7 @@ QTextStream &QTextStream::operator>>( unsigned short &i )
 /*!
     \overload
   Reads a signed \c int \a i from the stream and returns a reference to the
-  stream. See flags() for an explanation of expected input format.
+  stream. See flags() for an explanation of the expected input format.
 */
 
 QTextStream &QTextStream::operator>>( signed int &i )
@@ -1437,7 +1444,7 @@ QTextStream &QTextStream::operator>>( signed int &i )
 /*!
     \overload
   Reads an unsigned \c int \a i from the stream and returns a reference to the
-  stream. See flags() for an explanation of expected input format.
+  stream. See flags() for an explanation of the expected input format.
 */
 
 QTextStream &QTextStream::operator>>( unsigned int &i )
@@ -1451,7 +1458,7 @@ QTextStream &QTextStream::operator>>( unsigned int &i )
 /*!
     \overload
   Reads a signed \c long int \a i from the stream and returns a
-  reference to the stream. See flags() for an explanation of expected
+  reference to the stream. See flags() for an explanation of the expected
   input format.
 */
 
@@ -1466,7 +1473,7 @@ QTextStream &QTextStream::operator>>( signed long &i )
 /*!
     \overload
   Reads an unsigned \c long int \a i from the stream and returns a
-  reference to the stream. See flags() for an explanation of expected
+  reference to the stream. See flags() for an explanation of the expected
   input format.
 */
 
@@ -1481,7 +1488,7 @@ QTextStream &QTextStream::operator>>( unsigned long &i )
 /*!
     \overload
   Reads a \c float \a f from the stream and returns a reference to the
-  stream. See flags() for an explanation of expected input format.
+  stream. See flags() for an explanation of the expected input format.
 */
 
 QTextStream &QTextStream::operator>>( float &f )
@@ -1495,7 +1502,7 @@ QTextStream &QTextStream::operator>>( float &f )
 /*!
     \overload
   Reads a \c double \a f from the stream and returns a reference to the stream.
-  See flags() for an explanation of expected input format.
+  See flags() for an explanation of the expected input format.
 */
 
 QTextStream &QTextStream::operator>>( double &f )
@@ -1508,8 +1515,10 @@ QTextStream &QTextStream::operator>>( double &f )
 
 /*!
     \overload
-  Reads a word from the stream into \a s and returns a reference to
+  Reads a "word" from the stream into \a s and returns a reference to
   the stream.
+
+  A word consists of characters for which isspace() returns FALSE.
 */
 
 QTextStream &QTextStream::operator>>( char *s )
@@ -1534,8 +1543,10 @@ QTextStream &QTextStream::operator>>( char *s )
 
 /*!
     \overload
-  Reads a word from the stream into \a str and returns a reference to
+  Reads a "word" from the stream into \a str and returns a reference to
   the stream.
+
+  A word consists of characters for which isspace() returns FALSE.
 */
 
 QTextStream &QTextStream::operator>>( QString &str )
@@ -1557,8 +1568,10 @@ QTextStream &QTextStream::operator>>( QString &str )
 
 /*!
     \overload
-  Reads a word from the stream into \a str and returns a reference to
+  Reads a "word" from the stream into \a str and returns a reference to
   the stream.
+
+  A word consists of characters for which isspace() returns FALSE.
 */
 
 QTextStream &QTextStream::operator>>( QCString &str )
@@ -1744,10 +1757,11 @@ QString QTextStream::read()
  *****************************************************************************/
 
 /*!
-  Writes a \c char to the stream and returns a reference to the stream.
+  Writes character \c char to the stream and returns a reference to
+  the stream.
 
-  The character \a c is assumed to be Latin1 encoded independent of the Encoding set
-  for the QTextStream.
+  The character \a c is assumed to be Latin1 encoded independent of
+  the Encoding set for the QTextStream.
 */
 QTextStream &QTextStream::operator<<( QChar c )
 {
@@ -1758,7 +1772,7 @@ QTextStream &QTextStream::operator<<( QChar c )
 
 /*!
     \overload
-  Writes a char \a c to the stream and returns a reference to the stream.
+  Writes character \a c to the stream and returns a reference to the stream.
 */
 QTextStream &QTextStream::operator<<( char c )
 {
@@ -1999,8 +2013,8 @@ QTextStream &QTextStream::operator<<( double f )
     \overload
   Writes a string to the stream and returns a reference to the stream.
 
-  The string \a s is assumed to be Latin1 encoded independent of the Encoding set
-  for the QTextStream.
+  The string \a s is assumed to be Latin1 encoded independent of the
+  Encoding set for the QTextStream.
 */
 
 QTextStream &QTextStream::operator<<( const char* s )
@@ -2040,8 +2054,8 @@ QTextStream &QTextStream::operator<<( const char* s )
     \overload
   Writes \a s to the stream and returns a reference to the stream.
 
-  The string \a s is assumed to be Latin1 encoded independent of the Encoding set
-  for the QTextStream.
+  The string \a s is assumed to be Latin1 encoded independent of the
+  Encoding set for the QTextStream.
 */
 
 QTextStream &QTextStream::operator<<( const QCString & s )
@@ -2133,7 +2147,7 @@ QTextStream &QTextStream::operator<<( void *ptr )
   Sets the stream flag bits \a bits.
   Returns the previous stream flags.
 
-  Equivalent to <code>flags( flags() | bits )</code>.
+  Equivalent to \c{flags( flags() | bits )}.
 
   \sa setf(), unsetf()
 */
@@ -2143,7 +2157,7 @@ QTextStream &QTextStream::operator<<( void *ptr )
   Sets the stream flag bits \a bits with a bit mask \a mask.
   Returns the previous stream flags.
 
-  Equivalent to <code>flags( (flags() & ~mask) | (bits & mask) )</code>.
+  Equivalent to \c{flags( (flags() & ~mask) | (bits & mask) )}.
 
   \sa setf(), unsetf()
 */
@@ -2153,7 +2167,7 @@ QTextStream &QTextStream::operator<<( void *ptr )
   Clears the stream flag bits \a bits.
   Returns the previous stream flags.
 
-  Equivalent to <code>flags( flags() & ~mask )</code>.
+  Equivalent to \c{flags( flags() & ~mask )}.
 
   \sa setf()
 */
@@ -2247,7 +2261,7 @@ QTextStream &reset( QTextStream &s )
   \ingroup io text
   \brief The QTextIStream class is a convenience class for input streams.
 
-  For simple tasks code should be simple.  Hence, this
+  For simple tasks code should be simple, so this
   class is a shorthand to avoid passing the \e mode argument
   to the normal QTextStream constructors.
 
@@ -2283,7 +2297,7 @@ QTextStream &reset( QTextStream &s )
   \ingroup io text
   \brief The QTextOStream class is a convenience class for output streams.
 
-  For simple tasks, code should be simple.  Hence this
+  For simple tasks, code should be simple,  so this
   class is a shorthand to avoid passing the \e mode argument
   to the normal QTextStream constructors.
 

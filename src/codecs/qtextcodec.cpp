@@ -168,101 +168,116 @@ QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
 
 /*!
   \class QTextCodec qtextcodec.h
-    \ingroup i18n
+  \ingroup i18n
   \brief The QTextCodec class provides conversion between text encodings.
-  
-  Throughout all of Qt Unicode is used to store, draw and manipulate
-  strings. A lot of data is however still stored in other
-  encodings. Most japanese documents are for example still stored in
-  Shift-JIS or ISO2022, while Russian users have their documents in
-  koi8-r or CP1251.
-  
-  The set of QTextCodec classes help converting these formats from and to Unicode.
+
+  Qt uses Unicode to store, draw and manipulate strings. In many
+  situations you may wish to deal with data that uses a different
+  encoding. For example, most japanese documents are still stored in
+  Shift-JIS or ISO2022, while Russian users often have their documents
+  in koi8-r or CP1251.
+
+  Qt provides a set of QTextCodec classes to help with converting
+  non-Unicode formats from and to Unicode. You can also create your
+  own codec classes (\link #subclassing see later\endlink).
 
   The supported encodings are:
-  <li> Big5 (Chinese encoding)
-  <li> eucJP (one of the many Japanese encodings)
-  <li> eucKR (Korean)
-  <li> GBK (Chinese encoding)
-  <li> JIS7 (Japanese)
-  <li> Shift-JIS (Japanese)
-  <li> TSCII (Tamil)
-  <li> utf8 (Unicode, 8bit)
-  <li> utf16 (Unicode)
-  <li> KOI8-R (Russian)
-  <li> KOI8-U (Ukrainian)
-  <li> ISO8859-1 (Western)
-  <li> ISO8859-2 (Central Europe)
-  <li> ISO8859-3 (Central Europe)
-  <li> ISO8859-4 (Baltic)
-  <li> ISO8859-5 (Cyrillic)
-  <li> ISO8859-6 (Arabic)
-  <li> ISO8859-7 (Greek)
-  <li> ISO8859-8 (Hebrew, visually ordered)
-  <li> ISO8859-8-i (Hebrew, logically ordered)
-  <li> ISO8859-9 (Turkish)
-  <li> ISO8859-10
-  <li> ISO8859-13
-  <li> ISO8859-14
-  <li> ISO8859-15 (Western)
-  <li> CP 874 
-  <li> CP 1250 (Central Europe)
-  <li> CP 1251 (Cyrillic)
-  <li> CP 1252 (Western)
-  <li> CP 1253 (Greek)
-  <li> CP 1254 (Turkish)
-  <li> CP 1255 (Hebrew)
-  <li> CP 1256 (Arabic)
-  <li> CP 1257 (Baltic)
-  <li> CP 1258
-  <li> Apple Roman
-  <li> TIS-620 (Thai)
+    \list
+  \i Big5 (Chinese encoding)
+  \i eucJP (one of the many Japanese encodings)
+  \i eucKR (Korean)
+  \i GBK (Chinese encoding)
+  \i JIS7 (Japanese)
+  \i Shift-JIS (Japanese)
+  \i TSCII (Tamil)
+  \i utf8 (Unicode, 8bit)
+  \i utf16 (Unicode)
+  \i KOI8-R (Russian)
+  \i KOI8-U (Ukrainian)
+  \i ISO8859-1 (Western)
+  \i ISO8859-2 (Central Europe)
+  \i ISO8859-3 (Central Europe)
+  \i ISO8859-4 (Baltic)
+  \i ISO8859-5 (Cyrillic)
+  \i ISO8859-6 (Arabic)
+  \i ISO8859-7 (Greek)
+  \i ISO8859-8 (Hebrew, visually ordered)
+  \i ISO8859-8-i (Hebrew, logically ordered)
+  \i ISO8859-9 (Turkish)
+  \i ISO8859-10
+  \i ISO8859-13
+  \i ISO8859-14
+  \i ISO8859-15 (Western)
+  \i CP 874
+  \i CP 1250 (Central Europe)
+  \i CP 1251 (Cyrillic)
+  \i CP 1252 (Western)
+  \i CP 1253 (Greek)
+  \i CP 1254 (Turkish)
+  \i CP 1255 (Hebrew)
+  \i CP 1256 (Arabic)
+  \i CP 1257 (Baltic)
+  \i CP 1258
+  \i Apple Roman
+  \i TIS-620 (Thai)
+  \endlist
 
   QTextCodecs can be used as follows to convert some locally encoded
   string to Unicode. Suppose you have some string encoded in russian
   KOI8-R encoding, and want to convert it to Unicode. The simple way
-  to do this is: 
-  
-  <pre>
+  to do this is:
+
+  \code
   QCString locallyEncoded = "..."; // text to convert
   QTextCodec *codec = QTextCodec::codecForName("KOI8-R"); // get the codec for KOI8-R
   QString unicodeString = codec->toUnicode( locallyEncoded );
-  </pre>
-  
-  After this, <code>unicodeString</code> holds the text converted to Unicode. Converting a string
-  from Unicode to the local encoding is as simple:
+  \endcode
 
-  <pre>
+  After this, \c{unicodeString} holds the text converted to Unicode.
+  Converting a string from Unicode to the local encoding is as simple:
+
+  \code
   QString unicodeString = ...;
   QTextCodec *codec = QTextCodec::codecForName("KOI8-R"); // get the codec for KOI8-R
   QCString locallyEncoded = codec->fromUnicode( unicodeString );
-  </pre>
-  
+  \endcode
+
   Some care has to be taken when trying to convert the data in chunks
-  (for example when receiving it over the network). In this case the
+  (for example when receiving it over a network). In this case the
   above approach is too simplistic, because some encodings use more
   than one byte per character. In this case a character could be split
   between two chunks of data that are to be converted to Unicode, and
-  the above approach would in the best case loose one char and in some
+  the above approach would, at best, lose one character and in some
   other cases fail completely.
-  
-  The approach to use here is to create a QTextDecoder object for the
-  codec and use this QTextDecoder for the whole decoding process, as
-  shown below: 
-  
-  <pre> 
+
+  The approach to use in these situations is to create a QTextDecoder
+  object for the codec and use this QTextDecoder for the whole
+  decoding process, as shown below:
+
+  \code
   QTextCodec *c = QTextCodec::codecForName( "Shift-JIS" );
   QTextDecoder *decoder = c->makeDecoder();
-  
+
   QString unicodeString;
   while( receiving_data ) {
       QByteArray chunk = new_data;
       unicodeString += decoder->toUnicode( chunk.data(), chunk.length() );
   }
-  </pre>
-  
+  \endcode
+
+  The QTextDecoder object maintains state between chunks and therefore
+  works correctly even if a multi-byte character is split between
+  chunks.
+
+    \target subclassing
+  \section1 Creating your own Codec class
+
   By making objects of subclasses of QTextCodec, support for
   new text encodings can be added to Qt.
+
+  You may find it more convenient to make your codec class available
+  as a plugin; see the \link component.html plugin
+  documentation\endlink for more details.
 
   The abstract virtual functions describe the encoder to the
   system and the coder is used as required in the different
@@ -273,28 +288,37 @@ QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
   over earlier ones.
 
   To add support for another 8-bit encoding to Qt, make a subclass
-  or QTextCodec and implement at least the following methods:
-  <dl>
-   <dt>\c const char* name() const
-    <dd>Return the official name for the encoding.
-   <dt>\c int mibEnum() const
-    <dd>Return the MIB enum for the encoding if it is listed in the
-      <a href=ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets>
-      IANA character-sets encoding file</a>.
-  </dl>
+  of QTextCodec and implement at least the following methods:
+
+   \code
+   const char* name() const
+   \endcode
+   Return the official name for the encoding.
+
+   \code
+   int mibEnum() const
+   \endcode
+   Return the MIB enum for the encoding if it is listed in the
+      \link ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets
+      IANA character-sets encoding file\endlink.
+
   If the encoding is multi-byte then it will have "state"; that is,
   the interpretation of some bytes will be dependent on some preceding
-  bytes.  For such an encoding, you will need to implement
-  <dl>
-   <dt> \c QTextDecoder* makeDecoder() const
-    <dd>Return a QTextDecoder that remembers incomplete multibyte
+  bytes.  For such an encoding, you will need to implement:
+
+   \code
+   QTextDecoder* makeDecoder() const
+   \endcode
+   Return a QTextDecoder that remembers incomplete multibyte
 	sequence prefixes or other required state.
-  </dl>
+
   If the encoding does \e not require state, you should implement:
-  <dl>
-   <dt> \c QString toUnicode(const char* chars, int len) const
-    <dd>Converts \e len characters from \e chars to Unicode.
-  </dl>
+
+   \code
+   QString toUnicode(const char* chars, int len) const
+   \endcode
+   Converts \e len characters from \e chars to Unicode.
+
   The base QTextCodec class has default implementations of the above
   two functions, <i>but they are mutually recursive</i>, so you must
   re-implement at least one of them, or both for improved efficiency.
@@ -302,44 +326,58 @@ QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
   For conversion from Unicode to 8-bit encodings, it is rarely necessary
   to maintain state.  However, two functions similar to the two above
   are used for encoding:
-  <dl>
-   <dt> \c QTextEncoder* makeEncoder() const
-    <dd>Return a QTextDecoder.
-   <dt> \c QCString fromUnicode(const QString& uc, int& lenInOut ) const;
-    <dd>Converts \e lenInOut characters (of type QChar) from the start
+
+   \code
+   QTextEncoder* makeEncoder() const
+   \endcode
+   Return a QTextDecoder.
+
+   \code
+   QCString fromUnicode(const QString& uc, int& lenInOut ) const
+   \endcode
+   Converts \e lenInOut characters (of type QChar) from the start
 	of the string \e uc, returning a QCString result, and also returning
 	the \link QCString::length() length\endlink
 	of the result in lenInOut.
-  </dl>
+
   Again, these are mutually recursive so only one needs to be implemented,
   or both if better efficiency is possible.
 
   Finally, you must implement:
-  <dl>
-   <dt> \c int heuristicContentMatch(const char* chars, int len) const
-    <dd>Gives a value indicating how likely it is that \e len characters
+
+   \code
+   int heuristicContentMatch(const char* chars, int len) const
+   \endcode
+   Gives a value indicating how likely it is that \e len characters
 	from \e chars are in the encoding.
-  </dl>
+
   A good model for this function is the
   QWindowsLocalCodec::heuristicContentMatch function found in the Qt sources.
 
   A QTextCodec subclass might have improved performance if you also
   re-implement:
-  <dl>
-   <dt> \c bool canEncode( QChar ) const
-    <dd>Test if a Unicode character can be encoded.
-   <dt> \c bool canEncode( const QString& ) const
-    <dd>Test if a string of Unicode characters can be encoded.
-   <dt> \c int heuristicNameMatch(const char* hint) const
-    <dd>Test if a possibly non-standard name is referring to the codec.
-  </dl>
+
+   \code
+   bool canEncode( QChar ) const
+   \endcode
+   Test if a Unicode character can be encoded.
+
+   \code
+   bool canEncode( const QString& ) const
+   \endcode
+   Test if a string of Unicode characters can be encoded.
+
+   \code
+   int heuristicNameMatch(const char* hint) const
+   \endcode
+   Test if a possibly non-standard name is referring to the codec.
 */
 
 
 /*!
-  Constructs a QTextCodec, making it of highest precedence.
+  Constructs a QTextCodec, and gives it the highest precedence.
   The QTextCodec should always be constructed on the heap
-  (with new), and once constructed it becomes the responsibility
+  (i.e. with new()), and once constructed it becomes the responsibility
   of Qt to delete it (which is done at QApplication destruction).
 */
 QTextCodec::QTextCodec()
@@ -351,8 +389,7 @@ QTextCodec::QTextCodec()
 
 /*!
   Destroys the QTextCodec.  Note that you should not delete
-  codecs yourself - once created they become the responsibility
-  of Qt to delete.
+  codecs yourself: once created they become Qt's responsibility.
 */
 QTextCodec::~QTextCodec()
 {
@@ -364,8 +401,8 @@ QTextCodec::~QTextCodec()
 
 
 /*!
-  Returns a value indicating how likely this decoder is
-  for decoding some format that has the given name. The name is
+  Returns a value indicating how likely it is that this decoder is
+  appropriate for decoding some format that has the given name. The name is
   compared with the \a hint.
 
   A good match returns a positive number around
@@ -409,7 +446,7 @@ static QString lettersAndNumbers( const char * input )
 }
 
 /*!
-  A simple utility function for heuristicNameMatch() - it
+  A simple utility function for heuristicNameMatch(): it
   does some very minor character-skipping
   so that almost-exact matches score high.
   \a name is the text we're matching and \a hint is used for the
@@ -438,8 +475,8 @@ int QTextCodec::simpleHeuristicNameMatch(const char* name, const char* hint)
 
 
 /*!
-  Returns the QTextCodec \a i places from the more recently
-  inserted, or NULL if there is no such QTextCodec.  Thus,
+  Returns the QTextCodec \a i positions from the most recently
+  inserted codec, or 0 if there is no such QTextCodec.  Thus,
   codecForIndex(0) returns the most recently created QTextCodec.
 */
 QTextCodec* QTextCodec::codecForIndex(int i)
@@ -804,8 +841,8 @@ QTextCodec* QTextCodec::codecForName( const char* name, int accuracy )
   encodings often use most of the available character sequences,
   and so only by linguistic analysis could a true match be made.
 
-  \a chars contains the characters to check, and \a len contans the
-  number of characters.
+  \a chars contains the string to check, and \a len contains the
+  number of characters in the string to use.
 
   \sa heuristicContentMatch()
 */
@@ -831,16 +868,16 @@ QTextCodec* QTextCodec::codecForContent(const char* chars, int len)
   Subclasses of QTextCodec must reimplement this function.  It returns
   the name of the encoding supported by the subclass.  When choosing
   a name for an encoding, consider these points:
-  <ul>
-    <li>On X11, heuristicNameMatch( const char * hint )
+  \list
+    \i On X11, heuristicNameMatch( const char * hint )
 	is used to test if a the QTextCodec
 	can convert between Unicode and the encoding of a font
 	with encoding \e hint, such as "iso8859-1" for Latin-1 fonts,
 	"koi8-r" for Russian KOI8 fonts.
 	The default algorithm of heuristicNameMatch() uses name().
-    <li>Some applications may use this function to present
+    \i Some applications may use this function to present
 	encodings to the end user.
-  </ul>
+  \endlist
 */
 
 /*!
@@ -848,8 +885,8 @@ QTextCodec* QTextCodec::codecForContent(const char* chars, int len)
 
   Subclasses of QTextCodec must reimplement this function.  It returns the
   MIBenum (see
-  <a href="ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets">
-  the IANA character-sets encoding file</a> for more information).
+  \link ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets
+  the IANA character-sets encoding file\endlink for more information).
   It is important that each QTextCodec subclass return the correct unique
   value for this function.
 */
@@ -862,7 +899,7 @@ QTextCodec* QTextCodec::codecForContent(const char* chars, int len)
   the first \a len bytes of \a chars and returns a value indicating how
   likely it is that the string is a prefix of text encoded in the
   encoding of the subclass.  Any negative return value indicates that the text
-  is detectably not in the encoding (eg. it contains undefined characters).
+  is detectably not in the encoding (e.g. it contains undefined characters).
   A return value of 0 indicates that the text should be decoded with this
   codec rather than as ASCII, but there
   is no particular evidence.  The value should range up to \a len.  Thus,
@@ -892,7 +929,7 @@ QTextDecoder* QTextCodec::makeDecoder() const
   Creates a QTextEncoder which stores enough state to encode chunks
   of Unicode data as char* data.  The default implementation
   creates a stateless encoder, which is sufficient for only the simplest
-  encodings where each Unicode character corresponds to exactly one char.
+  encodings where each Unicode character corresponds to exactly one character.
 
   The caller is responsible for deleting the returned object.
 */
@@ -928,7 +965,7 @@ QString QTextCodec::toUnicode(const char* chars, int len) const
   uc from Unicode to the encoding of the subclass.  If \a lenInOut
   is negative or too large, the length of \a uc is used instead.
 
-  The value returned is the property of the caller, which is
+  The value returned is owned by the caller, which is
   responsible for deleting it with "delete []".  The length of the
   resulting Unicode character sequence is returned in \a lenInOut.
 
@@ -1042,9 +1079,10 @@ unsigned short QTextCodec::characterFromUnicode(const QString &str, int pos) con
 
 /*!
   Returns TRUE if the unicode character \a ch can be fully encoded
-  with this codec.  The default implementation tests if the result of
-  toUnicode(fromUnicode(ch)) is the original \a ch. Subclasses may be
-  able to improve the efficiency.
+  with this codec; otherwise returns FALSE.  The default
+  implementation tests if the result of toUnicode(fromUnicode(ch)) is
+  the original \a ch. Subclasses may be able to improve the
+  efficiency.
 */
 bool QTextCodec::canEncode( QChar ch ) const
 {
@@ -1083,7 +1121,7 @@ QTextEncoder::~QTextEncoder()
   \fn QCString QTextEncoder::fromUnicode(const QString& uc, int& lenInOut)
 
   Converts \a lenInOut characters (not bytes) from \a uc, producing
-  a QCString.  \a lenInOut will also be set to the
+  a QCString.  \a lenInOut will be set to the
   \link QCString::length() length\endlink of the result (in bytes).
 
   The encoder is free to record state to use when subsequent calls are
@@ -1114,10 +1152,10 @@ QTextDecoder::~QTextDecoder()
 /*!
   \fn QString QTextDecoder::toUnicode(const char* chars, int len)
 
-  Converts the first \a len bytes at \a chars to Unicode, returning the
+  Converts the first \a len bytes in \a chars to Unicode, returning the
   result.
 
-  If not all characters are used (eg. only part of a multi-byte
+  If not all characters are used (e.g. if only part of a multi-byte
   encoding is at the end of the characters), the decoder remembers
   enough state to continue with the next call to this function.
 */
@@ -1464,21 +1502,22 @@ QString QTextCodecFromIODDecoder::toUnicode(const char* chars, int len)
 }
 
 #ifndef QT_NO_CODECS
-
+// Cannot use <pre> or \code
 /*!
   Reads a POSIX2 charmap definition from \a iod.
   The parser recognizes the following lines:
-<pre>
-   &lt;code_set_name&gt; <i>name</i>
-   &lt;escape_char&gt; <i>character</i>
-   % alias <i>alias</i>
-   CHARMAP
-   &lt;<i>token</i>&gt; /x<i>hexbyte</i> &lt;U<i>unicode</i>&gt; ...
-   &lt;<i>token</i>&gt; /d<i>decbyte</i> &lt;U<i>unicode</i>&gt; ...
-   &lt;<i>token</i>&gt; /<i>octbyte</i> &lt;U<i>unicode</i>&gt; ...
-   &lt;<i>token</i>&gt; /<i>any</i>/<i>any</i>... &lt;U<i>unicode</i>&gt; ...
-   END CHARMAP
-</pre>
+
+<font name="sans">
+&nbsp;&nbsp;&lt;code_set_name&gt; <i>name</i></br>
+&nbsp;&nbsp;&lt;escape_char&gt; <i>character</i></br>
+&nbsp;&nbsp;% alias <i>alias</i></br>
+&nbsp;&nbsp;CHARMAP</br>
+&nbsp;&nbsp;&lt;<i>token</i>&gt; /x<i>hexbyte</i> &lt;U<i>unicode</i>&gt; ...</br>
+&nbsp;&nbsp;&lt;<i>token</i>&gt; /d<i>decbyte</i> &lt;U<i>unicode</i>&gt; ...</br>
+&nbsp;&nbsp;&lt;<i>token</i>&gt; /<i>octbyte</i> &lt;U<i>unicode</i>&gt; ...</br>
+&nbsp;&nbsp;&lt;<i>token</i>&gt; /<i>any</i>/<i>any</i>... &lt;U<i>unicode</i>&gt; ...</br>
+&nbsp;&nbsp;END CHARMAP</br>
+</font>
 
   The resulting QTextCodec is returned (and also added to the
   global list of codecs).  The name() of the result is taken
