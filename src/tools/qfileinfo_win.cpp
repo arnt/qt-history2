@@ -428,13 +428,13 @@ bool QFileInfo::permission( int p ) const
     // just check if it's ReadOnly
 
     QT_WA( {
-	if ( p & ( WriteUser | WriteGroup | WriteOther ) ) {
+	if ( p & ( WriteOwner | WriteUser | WriteGroup | WriteOther ) ) {
 	    DWORD attr = GetFileAttributes( (TCHAR*)fn.ucs2() );
 	    if ( attr & FILE_ATTRIBUTE_READONLY )
 		return FALSE;
 	}
     } , {
-	if ( p & ( WriteUser | WriteGroup | WriteOther ) ) {
+	if ( p & ( WriteOwner | WriteUser | WriteGroup | WriteOther ) ) {
 	    DWORD attr = GetFileAttributesA( fn.local8Bit() );
 	    if ( attr & FILE_ATTRIBUTE_READONLY )
 		return FALSE;

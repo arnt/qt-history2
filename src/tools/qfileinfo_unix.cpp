@@ -228,6 +228,12 @@ bool QFileInfo::permission( int permissionSpec ) const
 	doStat();
     if ( fic ) {
 	uint mask = 0;
+	if ( permissionSpec & ReadOwner )
+	    mask |= S_IRUSR;
+	if ( permissionSpec & WriteOwner )
+	    mask |= S_IWUSR;
+	if ( permissionSpec & ExeOwner )
+	    mask |= S_IXUSR;
 	if ( permissionSpec & ReadUser )
 	    mask |= S_IRUSR;
 	if ( permissionSpec & WriteUser )

@@ -108,6 +108,9 @@ extern bool qt_file_access( const QString& fn, int t );
     permissions and ownership of a file. The values may be OR-ed
     together to test multiple permissions and ownership values.
 
+    \value ReadOwner The file is readable by the owner of the file.
+    \value WriteOwner The file is writable by the owner of the file.
+    \value ExeOwner The file is executable by the owner of the file.
     \value ReadUser The file is readable by the user.
     \value WriteUser The file is writable by the user.
     \value ExeUser The file is executable by the user.
@@ -120,8 +123,12 @@ extern bool qt_file_access( const QString& fn, int t );
 
     \warning The semantics of \c ReadUser, \c WriteUser and \c ExeUser are
     unfortunately not platform independent: on Unix, the rights of the owner of
-    the file are returned and on Windows the rights of the user running the
-    program are returned. This behavior might change in a future Qt version.
+    the file are returned and on Windows the rights of the current user are
+    returned. This behavior might change in a future Qt version. If you want to
+    find the rights of the owner of the file, you should use the flags \c
+    ReadOwner, \c WriteOwner and \c ExeOwner. If you want to find out the
+    rights of the current user, you should use isReadable(), isWritable() and
+    isExecutable().
 */
 
 

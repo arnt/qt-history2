@@ -53,9 +53,10 @@ class Q_EXPORT QFileInfo
 {
 public:
     enum PermissionSpec {
-	ReadUser  = 0400, WriteUser  = 0200, ExeUser  = 0100,
-	ReadGroup = 0040, WriteGroup = 0020, ExeGroup = 0010,
-	ReadOther = 0004, WriteOther = 0002, ExeOther = 0001 };
+	ReadOwner = 04000, WriteOwner = 02000, ExeOwner = 01000,
+	ReadUser  = 00400, WriteUser  = 00200, ExeUser  = 00100,
+	ReadGroup = 00040, WriteGroup = 00020, ExeGroup = 00010,
+	ReadOther = 00004, WriteOther = 00002, ExeOther = 00001 };
 
     QFileInfo();
     QFileInfo( const QString &file );
