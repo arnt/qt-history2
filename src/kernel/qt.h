@@ -110,6 +110,7 @@
 #include "qscrollview.h"
 #include <qlistview.h>
 #include "qnetworkprotocol.h"
+#include "qdockwidget.h"
 #include "qtoolbar.h"
 #include "qmap.h"
 #include "qmenudata.h"
