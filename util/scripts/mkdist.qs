@@ -10,12 +10,17 @@ const qdocCommand = qdocDir + "/qdoc";
 const qpkgDir = qtdir + "/util/install/package"
 const qpkgCommand = qtdir + "/bin/package"
 
+const outputDir = System.getenv("PWD");
+
 const validPlatforms = ["win", "x11", "mac", "embedded"];
 const validEditions = ["free", "commercial"];
 const validSwitches = ["branch", "version"];
 
-var options = []; // list of all package options
-var tmpDir;
+const user = System.getenv("USER");
+
+var options = [];	// list of all package options
+var tmpDir;		// directory for all intermediate files
+var distDir;		// directory for P4 checkout
 var p4Port;
 var p4Command;
 
@@ -30,9 +35,9 @@ System.println("Checking tools...");
 checkTools();
 System.println("Building qdoc...");
 buildQdoc();
-System.println("Building qpkg...");
-buildQpkg();
-
+// System.println("Building qpkg...");
+// buildQpkg();
+checkout();
 
 /************************************************************
  * Parses and checks the commandline options and puts them into options[key] = value
@@ -84,7 +89,7 @@ function initialize()
 	if (!(validEditions[i] in options))
 	    options[validEditions[i]] = true;
 
-    // finds a tmp dir
+    // finds a tmpDir
     if (tmpDir == undefined || !File.exists(tmpDir)) {
 	if (File.exists(System.getenv("HOME") + "/tmp"))
 	    tmpDir = System.getenv("HOME") + "/tmp";
@@ -93,6 +98,13 @@ function initialize()
 	else
 	    throw "Unable to find tmp directory";
     }
+    // creates distDir
+    distDir = tmpDir + "/qt-" + options["branch"] + "-" + user + "-";// + Date().getTime();
+    var dir = new Dir(distDir);
+    if (dir.exists)
+	dir.rmdirs();
+    dir.mkdir();
+
     // setting up p4
     if (p4Port == undefined)
 	p4Port = "p4.troll.no:866";
@@ -103,7 +115,6 @@ function initialize()
 
     for (var i in options)
 	System.println("options[%1] = %2".arg(i).arg(options[i]));
-
 }
 
 /************************************************************
@@ -112,11 +123,11 @@ function initialize()
 function checkTools()
 {
     try {
-	Process.execute( [qmakeCommand, "-help"] );
+	Process.execute([qmakeCommand, "-help"]);
 	Process.execute("zip -help");
 	Process.execute("tar --help");
 	Process.execute("gzip -h");
-	Process.execute( [p4Command] );
+	Process.execute(p4Command);
     } catch (e) {
 	throw "Tool failed: %1".arg(e);
     }
@@ -151,18 +162,20 @@ function buildQpkg()
 }
 
 /************************************************************
- * makes sure all elements in testList are contained in validList
+ * checkouts from P4 and puts everything in distDir
  */
-function validateList(validList, testList)
+function checkout()
 {
-    if (testList.length > validList.length)
-	throw "List: %1 not valid, length exceeds valid elements: %2"
-	    .arg(testList).arg(validElements);
+    //check that the branch exist
+    var branchPath = "//depot/qt/" + options["branch"];
+    Process.execute([p4Command, "fstat", branchPath + "/configure"]);
+    if (Process.stdout.find("depotFile") == -1)
+	throw "Branch: " + branchPath + " does not exist.";
     
-    var validString = validList.toString();
-    for (var i in testList)
-	if (validString.find(testList[i]) == -1)
-	    throw "List not valid, element %1 not in list of valid elements: %2"
-		.arg(testList[i]).arg(validList);
+    //check that the label exists
+    var label = "qt/" + options["version"];
+    Process.execute([p4Command, "labels", branchPath + "/configure"]);
+    if (Process.stdout.find("Label " + label + " ") == -1)
+	throw "Label: " + label + " does not exist, or not in this branch.";
 }
 
