@@ -43,7 +43,7 @@ public:
     inline QWidget *topLevel() const;
     inline AbstractWidgetBox *widgetBox() const;
     inline AbstractPropertyEditor *propertyEditor() const;
-    inline AbstractFormWindowManager *formManager() const;
+    inline AbstractFormWindowManager *formWindowManager() const;
     inline AbstractWidgetDataBase *widgetDataBase() const;
     inline AbstractMetaDataBase *metaDataBase() const;
     inline AbstractWidgetFactory *widgetFactory() const;
@@ -56,7 +56,7 @@ public:
     inline void setObjectInspector(ObjectInspector *objectInspector); // ### abstract
 
 protected:
-    inline void setFormManager(AbstractFormWindowManager *formManager);
+    inline void setFormManager(AbstractFormWindowManager *formWindowManager);
     inline void setMetaDataBase(AbstractMetaDataBase *metaDataBase);
     inline void setWidgetDataBase(AbstractWidgetDataBase *widgetDataBase);
     inline void setWidgetFactory(AbstractWidgetFactory *widgetFactory);
@@ -66,7 +66,7 @@ private:
     QWidget *m_topLevel;
     AbstractWidgetBox *m_widgetBox;
     AbstractPropertyEditor *m_propertyEditor;
-    AbstractFormWindowManager *m_formManager;
+    AbstractFormWindowManager *m_formWindowManager;
     QExtensionManager *m_extensionManager;
     AbstractMetaDataBase *m_metaDataBase;
     AbstractWidgetDataBase *m_widgetDataBase;
@@ -96,11 +96,11 @@ inline QWidget *AbstractFormEditor::topLevel() const
 inline void AbstractFormEditor::setTopLevel(QWidget *topLevel)
 { m_topLevel = topLevel; }
 
-inline AbstractFormWindowManager *AbstractFormEditor::formManager() const
-{ return m_formManager; }
+inline AbstractFormWindowManager *AbstractFormEditor::formWindowManager() const
+{ return m_formWindowManager; }
 
-inline void AbstractFormEditor::setFormManager(AbstractFormWindowManager *formManager)
-{ m_formManager = formManager; }
+inline void AbstractFormEditor::setFormManager(AbstractFormWindowManager *formWindowManager)
+{ m_formWindowManager = formWindowManager; }
 
 inline QExtensionManager *AbstractFormEditor::extensionManager() const
 { return m_extensionManager; }

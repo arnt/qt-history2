@@ -18,7 +18,7 @@ AbstractFormEditor::AbstractFormEditor(QObject *parent)
       m_topLevel(0),
       m_widgetBox(0),
       m_propertyEditor(0),
-      m_formManager(0),
+      m_formWindowManager(0),
       m_extensionManager(0),
       m_metaDataBase(0),
       m_widgetDataBase(0),

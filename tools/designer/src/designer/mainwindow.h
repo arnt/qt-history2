@@ -86,7 +86,7 @@ private:
 
 private:
     AbstractFormEditor *core;
-    AbstractFormWindowManager *m_formManager;
+    AbstractFormWindowManager *m_formWindowManager;
     QAction *m_actionPreviewForm;
     QAction *m_actionClose;
     QAction *m_actionSave;

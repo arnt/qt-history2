@@ -102,11 +102,11 @@ MainWindow::~MainWindow()
 void MainWindow::setupFormEditor()
 {
     core = new FormEditor(this);
-    m_formManager = core->formManager();
+    m_formWindowManager = core->formWindowManager();
     core->setTopLevel(this);
-    connect(m_formManager, SIGNAL(activeFormWindowChanged(AbstractFormWindow*)),
+    connect(m_formWindowManager, SIGNAL(activeFormWindowChanged(AbstractFormWindow*)),
         this, SLOT(windowChanged()));
-    connect(m_formManager, SIGNAL(formWindowClosing(AbstractFormWindow *, bool *)),
+    connect(m_formWindowManager, SIGNAL(formWindowClosing(AbstractFormWindow *, bool *)),
             this, SLOT(handleClose(AbstractFormWindow *, bool *)));
 
     new PropertyEditorView(core, invisibleParent);
@@ -142,7 +142,7 @@ void MainWindow::handleClose(AbstractFormWindow *fw, bool *accept)
         mCloseForm = *accept;
     }
 
-    //if (m_formManager->formWindowCount() == 1 && mCloseForm)
+    //if (m_formWindowManager->formWindowCount() == 1 && mCloseForm)
     //    QTimer::singleShot(200, this, SLOT(newForm()));  // Use timer in case we are quitting.
 }
 
@@ -169,7 +169,7 @@ void MainWindow::enableFormActions(bool enable)
 
 void MainWindow::windowChanged()
 {
-    if (AbstractFormWindow *fw = m_formManager->activeFormWindow()) {
+    if (AbstractFormWindow *fw = m_formWindowManager->activeFormWindow()) {
         fw->setActiveWindow();
         enableFormActions(true);
         m_showGrid->setChecked(fw->hasFeature(AbstractFormWindow::GridFeature));
@@ -191,7 +191,7 @@ void MainWindow::windowChanged()
 
 void MainWindow::showGrid(bool b)
 {
-    if (AbstractFormWindow *fw = m_formManager->activeFormWindow()) {
+    if (AbstractFormWindow *fw = m_formWindowManager->activeFormWindow()) {
         AbstractFormWindow::Feature f = fw->features();
         if (!b)
             f &= ~AbstractFormWindow::GridFeature;
@@ -203,7 +203,7 @@ void MainWindow::showGrid(bool b)
 
 void MainWindow::readOnly(bool b)
 {
-    if (AbstractFormWindow *fw = m_formManager->activeFormWindow()) {
+    if (AbstractFormWindow *fw = m_formWindowManager->activeFormWindow()) {
         AbstractFormWindow::Feature f = fw->features();
         if (b)
             f &= ~AbstractFormWindow::EditFeature;
@@ -215,7 +215,7 @@ void MainWindow::readOnly(bool b)
 
 void MainWindow::selectionChanged()
 {
-    if (AbstractFormWindow *fw = m_formManager->activeFormWindow()) {
+    if (AbstractFormWindow *fw = m_formWindowManager->activeFormWindow()) {
         QWidget *sel = fw->cursor()->selectedWidget(0);
 
         if (ObjectInspector *objectInspector = core->objectInspector())
@@ -239,7 +239,7 @@ void MainWindow::selectionChanged()
 
 void MainWindow::propertyChanged(const QString &name, const QVariant &value)
 {
-    if (AbstractFormWindow *fw = m_formManager->activeFormWindow()) {
+    if (AbstractFormWindow *fw = m_formWindowManager->activeFormWindow()) {
         if (name == QLatin1String("windowTitle")) {
             QString filename = fw->fileName().isEmpty() ? QLatin1String("Untitled")
                                                         : fw->fileName();
@@ -293,60 +293,60 @@ void MainWindow::setupMenuBar()
 #endif
 
     menu = mb->addMenu(tr("&Edit"));
-    act = m_formManager->actionUndo();
+    act = m_formWindowManager->actionUndo();
     act->setShortcut(Qt::CTRL + Qt::Key_Z);
     act->setShortcutContext(Qt::ShortcutOnApplication);
     menu->addAction(act);
-    act = m_formManager->actionRedo();
+    act = m_formWindowManager->actionRedo();
     act->setShortcut(Qt::CTRL | Qt::SHIFT + Qt::Key_Z);
     act->setShortcutContext(Qt::ShortcutOnApplication);
     menu->addAction(act);
     menu->addSeparator();
-    act = m_formManager->actionCut();
+    act = m_formWindowManager->actionCut();
     act->setShortcut(Qt::CTRL + Qt::Key_X);
     act->setShortcutContext(Qt::ShortcutOnApplication);
     menu->addAction(act);
-    act = m_formManager->actionCopy();
+    act = m_formWindowManager->actionCopy();
     act->setShortcut(Qt::CTRL + Qt::Key_C);
     act->setShortcutContext(Qt::ShortcutOnApplication);
     menu->addAction(act);
-    act = m_formManager->actionPaste();
+    act = m_formWindowManager->actionPaste();
     act->setShortcut(Qt::CTRL + Qt::Key_V);
     act->setShortcutContext(Qt::ShortcutOnApplication);
     menu->addAction(act);
-    act = m_formManager->actionDelete();
+    act = m_formWindowManager->actionDelete();
     act->setShortcut(Qt::Key_Delete);
     act->setShortcutContext(Qt::ShortcutOnApplication);
     menu->addAction(act);
-    menu->addAction(m_formManager->actionLower());
-    menu->addAction(m_formManager->actionRaise());
-    act = m_formManager->actionSelectAll();
+    menu->addAction(m_formWindowManager->actionLower());
+    menu->addAction(m_formWindowManager->actionRaise());
+    act = m_formWindowManager->actionSelectAll();
     act->setShortcut(Qt::CTRL + Qt::Key_A);
     act->setShortcutContext(Qt::ShortcutOnApplication);
     menu->addAction(act);
 
     menu = mb->addMenu(tr("F&orm"));
-    m_formManager->actionHorizontalLayout()
+    m_formWindowManager->actionHorizontalLayout()
         ->setShortcutContext(Qt::ShortcutOnApplication);
-    m_formManager->actionVerticalLayout()
+    m_formWindowManager->actionVerticalLayout()
         ->setShortcutContext(Qt::ShortcutOnApplication);
-    m_formManager->actionSplitHorizontal()
+    m_formWindowManager->actionSplitHorizontal()
         ->setShortcutContext(Qt::ShortcutOnApplication);
-    m_formManager->actionSplitVertical()
+    m_formWindowManager->actionSplitVertical()
         ->setShortcutContext(Qt::ShortcutOnApplication);
-    m_formManager->actionGridLayout()
+    m_formWindowManager->actionGridLayout()
         ->setShortcutContext(Qt::ShortcutOnApplication);
-    m_formManager->actionBreakLayout()
+    m_formWindowManager->actionBreakLayout()
         ->setShortcutContext(Qt::ShortcutOnApplication);
-    m_formManager->actionAdjustSize()
+    m_formWindowManager->actionAdjustSize()
         ->setShortcutContext(Qt::ShortcutOnApplication);
-    menu->addAction(m_formManager->actionHorizontalLayout());
-    menu->addAction(m_formManager->actionVerticalLayout());
-    menu->addAction(m_formManager->actionSplitHorizontal());
-    menu->addAction(m_formManager->actionSplitVertical());
-    menu->addAction(m_formManager->actionGridLayout());
-    menu->addAction(m_formManager->actionBreakLayout());
-    menu->addAction(m_formManager->actionAdjustSize());
+    menu->addAction(m_formWindowManager->actionHorizontalLayout());
+    menu->addAction(m_formWindowManager->actionVerticalLayout());
+    menu->addAction(m_formWindowManager->actionSplitHorizontal());
+    menu->addAction(m_formWindowManager->actionSplitVertical());
+    menu->addAction(m_formWindowManager->actionGridLayout());
+    menu->addAction(m_formWindowManager->actionBreakLayout());
+    menu->addAction(m_formWindowManager->actionAdjustSize());
     menu->addSeparator();
     m_actionPreviewForm = menu->addAction(tr("&Preview"), this, SLOT(previewForm()),
                                           Qt::CTRL + Qt::Key_R);
@@ -438,18 +438,18 @@ void MainWindow::setupToolBar()
     QToolBar *formToolbar = new QToolBar(this);
     addToolBar(formToolbar);
     formToolbar->setMovable(false);
-    formToolbar->addAction(m_formManager->actionHorizontalLayout());
-    formToolbar->addAction(m_formManager->actionVerticalLayout());
-    formToolbar->addAction(m_formManager->actionSplitHorizontal());
-    formToolbar->addAction(m_formManager->actionSplitVertical());
-    formToolbar->addAction(m_formManager->actionGridLayout());
-    formToolbar->addAction(m_formManager->actionBreakLayout());
-    formToolbar->addAction(m_formManager->actionAdjustSize());
+    formToolbar->addAction(m_formWindowManager->actionHorizontalLayout());
+    formToolbar->addAction(m_formWindowManager->actionVerticalLayout());
+    formToolbar->addAction(m_formWindowManager->actionSplitHorizontal());
+    formToolbar->addAction(m_formWindowManager->actionSplitVertical());
+    formToolbar->addAction(m_formWindowManager->actionGridLayout());
+    formToolbar->addAction(m_formWindowManager->actionBreakLayout());
+    formToolbar->addAction(m_formWindowManager->actionAdjustSize());
 }
 
 void MainWindow::editMode(QAction *action)
 {
-    if (AbstractFormWindow *fw = m_formManager->activeFormWindow()) {
+    if (AbstractFormWindow *fw = m_formWindowManager->activeFormWindow()) {
         if (action == m_widgetEditMode)
             fw->setEditMode(AbstractFormWindow::WidgetEditMode);
         else if (action == m_connectionEditMode)
@@ -478,11 +478,11 @@ void MainWindow::newForm()
 void MainWindow::newForm(const QString &widgetClass)
 {
     int maxUntitled = 0;
-    int totalWindows = m_formManager->formWindowCount();
+    int totalWindows = m_formWindowManager->formWindowCount();
     // This will cause some problems with i18n, but for now I need the string to be "static"
     QRegExp rx("Untitled( (\\d+))*");
     for (int i = 0; i < totalWindows; ++i) {
-        if (rx.exactMatch(m_formManager->formWindow(i)->windowTitle())) {
+        if (rx.exactMatch(m_formWindowManager->formWindow(i)->windowTitle())) {
             if (maxUntitled == 0)
                 ++maxUntitled;
             if (rx.numCaptures() > 1)
@@ -494,7 +494,7 @@ void MainWindow::newForm(const QString &widgetClass)
     if (maxUntitled)
         newTitle += " " + QString::number(maxUntitled + 1);
     AbstractWidgetFactory *f = core->widgetFactory();
-    AbstractFormWindow *fw = m_formManager->createFormWindow(invisibleParent, Qt::WType_TopLevel);
+    AbstractFormWindow *fw = m_formWindowManager->createFormWindow(invisibleParent, Qt::WType_TopLevel);
     setupFormWindow(fw);
 
     fw->setAttribute(Qt::WA_DeleteOnClose);
@@ -503,15 +503,15 @@ void MainWindow::newForm(const QString &widgetClass)
     w->setObjectName("Form");
     fw->setMainContainer(w);
     fw->show();
-    m_formManager->setActiveFormWindow(fw);
+    m_formWindowManager->setActiveFormWindow(fw);
     updateWindowMenu();
-    connect(m_formManager, SIGNAL(formWindowRemoved(AbstractFormWindow*)),
+    connect(m_formWindowManager, SIGNAL(formWindowRemoved(AbstractFormWindow*)),
                 this, SLOT(updateWindowMenu()));
 }
 
 void MainWindow::saveForm()
 {
-    if (AbstractFormWindow *fw = m_formManager->activeFormWindow()) {
+    if (AbstractFormWindow *fw = m_formWindowManager->activeFormWindow()) {
         if (saveForm(fw)) {
             fw->setDirty(false);
         }
@@ -528,7 +528,7 @@ bool MainWindow::saveForm(AbstractFormWindow *fw)
 
 void MainWindow::saveFormAs()
 {
-    if (AbstractFormWindow *fw = m_formManager->activeFormWindow())
+    if (AbstractFormWindow *fw = m_formWindowManager->activeFormWindow())
         saveFormAs(fw);
 }
 
@@ -556,12 +556,12 @@ void MainWindow::openForm()
 bool MainWindow::readInForm(const QString &fileName)
 {
     // First make sure that we don't have this one open already.
-    int totalWindows = m_formManager->formWindowCount();
+    int totalWindows = m_formWindowManager->formWindowCount();
     for (int i = 0; i < totalWindows; ++i) {
-        AbstractFormWindow *w = m_formManager->formWindow(i);
+        AbstractFormWindow *w = m_formWindowManager->formWindow(i);
         if (w->fileName() == fileName) {
             w->raise();
-            m_formManager->setActiveFormWindow(w);
+            m_formWindowManager->setActiveFormWindow(w);
             addRecentFile(fileName);
             return true;
         }
@@ -574,7 +574,7 @@ bool MainWindow::readInForm(const QString &fileName)
                             .arg(f.fileName()).arg(f.errorString()));
         return false;
     }
-    AbstractFormWindow *fw = m_formManager->createFormWindow(this, Qt::WType_TopLevel);
+    AbstractFormWindow *fw = m_formWindowManager->createFormWindow(this, Qt::WType_TopLevel);
     setupFormWindow(fw);
 
     fw->setAttribute(Qt::WA_DeleteOnClose);
@@ -584,7 +584,7 @@ bool MainWindow::readInForm(const QString &fileName)
     if (mNewFormDialog)
         mNewFormDialog->close();
     fw->show();
-    m_formManager->setActiveFormWindow(fw);
+    m_formWindowManager->setActiveFormWindow(fw);
     addRecentFile(fileName);
     return true;
 }
@@ -643,7 +643,7 @@ bool MainWindow::writeOutForm(AbstractFormWindow *fw, const QString &saveFile)
 
 void MainWindow::closeForm()
 {
-    if (AbstractFormWindow *fw = m_formManager->activeFormWindow()) {
+    if (AbstractFormWindow *fw = m_formWindowManager->activeFormWindow()) {
         fw->close();
     }
 }
@@ -651,9 +651,9 @@ void MainWindow::closeForm()
 void MainWindow::closeEvent(QCloseEvent *ev)
 {
     QList<AbstractFormWindow *> dirtyForms;
-    int totalWindows = m_formManager->formWindowCount();
+    int totalWindows = m_formWindowManager->formWindowCount();
     for (int i = 0; i < totalWindows; ++i) {
-        AbstractFormWindow *w = m_formManager->formWindow(i);
+        AbstractFormWindow *w = m_formWindowManager->formWindow(i);
         if (w->isDirty())
             dirtyForms << w;
     }
@@ -694,9 +694,9 @@ void MainWindow::closeEvent(QCloseEvent *ev)
         }
     }
 
-    totalWindows = m_formManager->formWindowCount();
+    totalWindows = m_formWindowManager->formWindowCount();
     for (int i = 0; i < totalWindows; ++i)
-        m_formManager->formWindow(i)->close();
+        m_formWindowManager->formWindow(i)->close();
 
     saveSettings();
     QApplication::instance()->quit();
@@ -721,7 +721,7 @@ void MainWindow::changeEvent(QEvent *ev)
 
 void MainWindow::previewForm()
 {
-    if (AbstractFormWindow *fw = m_formManager->activeFormWindow()) {
+    if (AbstractFormWindow *fw = m_formWindowManager->activeFormWindow()) {
         QByteArray contents = fw->contents().utf8();
         QBuffer stream(&contents);
 
@@ -801,12 +801,12 @@ void MainWindow::saveSettings()
 
 void MainWindow::setupFormWindow(AbstractFormWindow *fw)
 {
-    fw->addAction(m_formManager->actionUndo());
-    fw->addAction(m_formManager->actionRedo());
-    fw->addAction(m_formManager->actionCut());
-    fw->addAction(m_formManager->actionCopy());
-    fw->addAction(m_formManager->actionPaste());
-    fw->addAction(m_formManager->actionDelete());
+    fw->addAction(m_formWindowManager->actionUndo());
+    fw->addAction(m_formWindowManager->actionRedo());
+    fw->addAction(m_formWindowManager->actionCut());
+    fw->addAction(m_formWindowManager->actionCopy());
+    fw->addAction(m_formWindowManager->actionPaste());
+    fw->addAction(m_formWindowManager->actionDelete());
 
     fw->addAction(m_actionPreviewForm);
     // ### more
@@ -887,13 +887,13 @@ void MainWindow::showObjectInspector(bool checked)
 
 void MainWindow::minimizeForm()
 {
-    if (AbstractFormWindow *fw = m_formManager->activeFormWindow())
+    if (AbstractFormWindow *fw = m_formWindowManager->activeFormWindow())
         fw->showMinimized();
 }
 
 void MainWindow::maximizeForm()
 {
-    if (AbstractFormWindow *fw = m_formManager->activeFormWindow())
+    if (AbstractFormWindow *fw = m_formWindowManager->activeFormWindow())
         fw->showMaximized();
 }
 
@@ -910,7 +910,7 @@ void MainWindow::updateWindowMenu()
     qDeleteAll(m_showWindowActions.keys());
     m_showWindowActions.clear();
 
-    int totalWindows = m_formManager->formWindowCount();
+    int totalWindows = m_formWindowManager->formWindowCount();
     if (totalWindows && !m_actionWindowSeparator) {
         m_actionWindowSeparator = m_menuWindow->addSeparator();
     } else if (totalWindows == 0) {
@@ -919,10 +919,10 @@ void MainWindow::updateWindowMenu()
     }
 
     for (int i = 0; i < totalWindows; ++i) {
-        AbstractFormWindow *fw = m_formManager->formWindow(i);
+        AbstractFormWindow *fw = m_formWindowManager->formWindow(i);
         QAction *a = m_actionWindowList->addAction(fw->windowTitle());
         a->setCheckable(true);
-        a->setChecked(m_formManager->activeFormWindow() == m_formManager->formWindow(i));
+        a->setChecked(m_formWindowManager->activeFormWindow() == m_formWindowManager->formWindow(i));
         m_menuWindow->addAction(a);
         m_showWindowActions.insert(a, fw);
     }
@@ -933,7 +933,7 @@ void MainWindow::activateFormWindow(QAction *action)
     if (AbstractFormWindow *fw = m_showWindowActions.value(action)) {
         fw->setWindowState(fw->windowState() & ~Qt::WindowMinimized);
         fw->raise();
-        m_formManager->setActiveFormWindow(fw);
+        m_formWindowManager->setActiveFormWindow(fw);
     }
 }
 

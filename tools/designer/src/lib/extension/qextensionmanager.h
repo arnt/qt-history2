@@ -25,13 +25,14 @@ class QT_EXTENSION_EXPORT QExtensionManager: public QObject, public ExtensionMan
 public:
     QExtensionManager(QObject *parent = 0);
 
-    virtual void registerExtensions(ExtensionFactory *factory, const QString &iid);
-    virtual void unregisterExtensions(ExtensionFactory *factory, const QString &iid);
+    virtual void registerExtensions(ExtensionFactory *factory, const QString &iid = QString());
+    virtual void unregisterExtensions(ExtensionFactory *factory, const QString &iid = QString());
 
     virtual QObject *extension(QObject *object, const QString &iid) const;
 
 private:
-    QMultiHash<QString, ExtensionFactory*> m_extensions;
+    QHash<QString, QList<ExtensionFactory*> > m_extensions;
+    QList<ExtensionFactory*> m_globalExtension;
 };
 
 #endif // QEXTENSIONMANAGER_H

@@ -155,7 +155,7 @@ FormWindow::FormWindow(FormEditor *core, QWidget *parent, Qt::WFlags flags)
 
     m_cursor = new FormWindowCursor(this, this);
 
-    core->formManager()->addFormWindow(this);
+    core->formWindowManager()->addFormWindow(this);
 
     setDirty(false);
 }
@@ -164,7 +164,7 @@ FormWindow::~FormWindow()
 {
     hideOrderIndicators();
 
-    core()->formManager()->removeFormWindow(this);
+    core()->formWindowManager()->removeFormWindow(this);
     core()->metaDataBase()->remove(this);
     
     QList<QWidget*> l = widgets();
@@ -534,7 +534,7 @@ void FormWindow::handleMouseMoveEvent(QWidget *w, QMouseEvent *e)
             }            
             
             if (sel.count())
-                core()->formManager()->dragItems(item_list, this);
+                core()->formWindowManager()->dragItems(item_list, this);
         }
         break;
 
@@ -1693,7 +1693,7 @@ void FormWindow::layoutVerticalSplit()
 
 QMenu *FormWindow::createPopupMenu(QWidget *w)
 {
-    AbstractFormWindowManager *manager = core()->formManager();
+    AbstractFormWindowManager *manager = core()->formWindowManager();
     bool isFormWindow = qt_cast<FormWindow*>(w);
 
     QMenu *popup = new QMenu(this);

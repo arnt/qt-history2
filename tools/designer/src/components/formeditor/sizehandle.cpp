@@ -95,7 +95,7 @@ void SizeHandle::paintEvent(QPaintEvent *)
     if (fw->currentWidget() != widget)
         return;
 
-    AbstractFormWindowManager *m = fw->core()->formManager();
+    AbstractFormWindowManager *m = fw->core()->formWindowManager();
 
     QPainter p(this);
     p.setPen(m->activeFormWindow() == fw ? Qt::blue : Qt::red);

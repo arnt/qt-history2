@@ -20,22 +20,39 @@ QExtensionManager::QExtensionManager(QObject *parent)
 
 void QExtensionManager::registerExtensions(ExtensionFactory *factory, const QString &iid)
 {
-    m_extensions.insert(iid, factory);
+    if (iid.isEmpty()) {
+        m_globalExtension.append(factory);
+        return;
+    } 
+    
+    if (!m_extensions.contains(iid))
+        m_extensions.insert(iid, QList<ExtensionFactory*>());
+    
+    m_extensions[iid].append(factory);
 }
 
 void QExtensionManager::unregisterExtensions(ExtensionFactory *factory, const QString &iid)
 {
-    Q_UNUSED(factory);
-    m_extensions.remove(iid);
+    if (iid.isEmpty()) {
+        m_globalExtension.removeAll(factory);
+    } else if (m_extensions.contains(iid)) {
+        QList<ExtensionFactory*> &factories = m_extensions[iid];
+        factories.removeAll(factory);
+        
+        if (factories.isEmpty())
+            m_extensions.remove(iid);
+    }
 }
 
 QObject *QExtensionManager::extension(QObject *object, const QString &iid) const
 {
-    QList<ExtensionFactory*> l = m_extensions.values(iid);
+    QList<ExtensionFactory*> l = m_extensions.value(iid);
+    l += m_globalExtension;
+    
     foreach (ExtensionFactory *factory, l) {
         if (QObject *ext = factory->extension(object, iid))
             return ext;
     }
-
+    
     return 0;
 }

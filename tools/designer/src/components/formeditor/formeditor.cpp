@@ -39,8 +39,8 @@ FormEditor::FormEditor(QObject *parent)
     WidgetFactory *widgetFactory = new WidgetFactory(this);
     setWidgetFactory(widgetFactory);
     
-    FormWindowManager *formManager = new FormWindowManager(this, parent);
-    setFormManager(formManager);
+    FormWindowManager *formWindowManager = new FormWindowManager(this, parent);
+    setFormManager(formWindowManager);
     
     QExtensionManager *mgr = new QExtensionManager(this);
     mgr->registerExtensions(new QDesignerPropertySheetFactory(mgr),         Q_TYPEID(IPropertySheet));
@@ -62,5 +62,5 @@ FormEditor::FormEditor(QObject *parent)
 
 FormEditor::~FormEditor()
 {
-    delete formManager();
+    delete formWindowManager();
 }

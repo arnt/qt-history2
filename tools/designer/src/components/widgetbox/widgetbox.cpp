@@ -923,7 +923,7 @@ void WidgetBox::handleMousePress(const QDomElement &wgt_elt, const QRect &geomet
         dom_widget->read(wgt_elt);
         QList<AbstractDnDItem*> item_list;        
         item_list.append(new WidgetBoxDnDItem(core(), dom_widget, geometry));
-        m_core->formManager()->dragItems(item_list, 0);
+        m_core->formWindowManager()->dragItems(item_list, 0);
     }
 }
 
