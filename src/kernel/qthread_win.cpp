@@ -149,7 +149,7 @@ void QMutexPrivate::lock()
     case WAIT_TIMEOUT:
     case WAIT_FAILED:
 #ifdef QT_CHECK_RANGE
-	qSystemWarning( "Couldn't lock mutex" );
+	qSystemWarning( "Mutex lock failure" );
 #endif
 	break;
     case WAIT_ABANDONED:
@@ -224,7 +224,7 @@ void QNonRecursiveMutexPrivate::lock()
 
     if ( threadID == GetCurrentThreadId() ) {
 #ifdef QT_CHECK_RANGE
-	qWarning( "Non-recoursive mutex already locked by this thread" );
+	qWarning( "Non-recursive mutex already locked by this thread" );
 #endif
     } else {
 	protect.leave();
@@ -232,7 +232,7 @@ void QNonRecursiveMutexPrivate::lock()
 	case WAIT_TIMEOUT:
 	case WAIT_FAILED:
     #ifdef QT_CHECK_RANGE
-	    qSystemWarning( "Couldn't lock mutex" );
+	    qSystemWarning( "Mutex lock failure" );
     #endif
 	    break;
 	case WAIT_ABANDONED:
@@ -506,7 +506,7 @@ public:
     bool running   : 1;
 };
 
-#if !defined(Q_CC_BOR)
+#if defined(Q_C_CALLBACKS)
 extern "C"
 #endif
 static unsigned int __stdcall start_thread(void* that )
@@ -538,7 +538,7 @@ QThreadPrivate::~QThreadPrivate()
 	finished = TRUE;
     } else if ( handle && !CloseHandle( handle ) ) {
 #ifdef QT_CHECK_RANGE
-	    qSystemWarning( "Thread destroy failure");
+	qSystemWarning("Thread destroy failure");
 #endif
     }
 }
@@ -567,19 +567,19 @@ void QThread::exit()
     _endthreadex(0);
 }
 
-void QThread::sleep( unsigned long s )
+void QThread::sleep( unsigned long secs )
 {
-    ::Sleep( s * 1000 );
+    ::Sleep( secs * 1000 );
 }
 
-void QThread::msleep( unsigned long ms )
+void QThread::msleep( unsigned long msecs )
 {
-    ::Sleep( ms );
+    ::Sleep( msecs );
 }
 
-void QThread::usleep( unsigned long mys )
+void QThread::usleep( unsigned long usecs )
 {
-    ::Sleep( ( mys / 1000 ) + 1 );
+    ::Sleep( ( usecs / 1000 ) + 1 );
 }
 
 /*
@@ -645,14 +645,14 @@ bool QThread::wait( unsigned long time )
     return TRUE;
 }
 
-bool QThread::running() const
-{
-    return d->running;
-}
-
 bool QThread::finished() const
 {
     return d->finished;
+}
+
+bool QThread::running() const
+{
+    return d->running;
 }
 
 /*

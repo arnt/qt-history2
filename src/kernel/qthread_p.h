@@ -143,7 +143,7 @@ public:
 
 #ifdef QT_CHECK_RANGE
 	if( ret )
-	    qWarning( "QMutex::QMutex: init failure: %s", strerror( ret ) );
+	    qWarning( "Mutex init failure: %s", strerror( ret ) );
 #endif
     }
 
@@ -156,7 +156,7 @@ public:
 
 #ifdef QT_CHECK_RANGE
 	if ( ret )
-	    qWarning( "QMutex::~QMutex: destroy failure: %s", strerror( ret ) );
+	    qWarning( "Mutex destroy failure: %s", strerror( ret ) );
 #endif
     }
 
@@ -169,7 +169,7 @@ public:
 
 #ifdef QT_CHECK_RANGE
 	if (ret)
-	    qWarning("QMutex::lock: mutex lock failure: %s", strerror(ret));
+	    qWarning("Mutex lock failure: %s", strerror(ret));
 #endif
     }
 
@@ -182,7 +182,7 @@ public:
 
 #ifdef QT_CHECK_RANGE
 	if (ret)
-	    qWarning("QMutex::unlock: mutex unlock failure: %s", strerror(ret));
+	    qWarning("Mutex unlock failure: %s", strerror(ret));
 #endif
     }
 
@@ -194,7 +194,7 @@ public:
 	    return TRUE;
 	} else if (ret) {
 #ifdef QT_CHECK_RANGE
-	    qWarning("QMutex::locked: try lock failed: %s", strerror(ret));
+	    qWarning("Mutex locktest failure: %s", strerror(ret));
 #endif
 	} else {
 	    mutex_unlock(&mutex);
@@ -227,7 +227,7 @@ public:
 
 #ifdef QT_CHECK_RANGE
 	if( ret )
-	    qWarning( "QMutex::QMutex: init failure: %s", strerror( ret ) );
+	    qWarning( "Mutex init failure: %s", strerror( ret ) );
 #endif
 
 	count = 0;
@@ -242,7 +242,7 @@ public:
 
 #ifdef QT_CHECK_RANGE
 	if( ret )
-	    qWarning( "QMutex::QMutex: destroy failure: %s", strerror( ret ) );
+	    qWarning( "Mutex destroy failure: %s", strerror( ret ) );
 #endif
     }
 
@@ -270,8 +270,8 @@ public:
 
 	if (owner != QThread::currentThread()) {
 #ifdef QT_CHECK_RANGE
-	    qWarning("QMutex::unlock: unlock from different thread than locker");
-	    qWarning("                was locked by %d, unlock attempt from %d",
+	    qWarning("Mutex unlocked from different thread than locker");
+	    qWarning("               was locked by %d, unlock attempt from %d",
 		     owner, QThread::currentThread());
 	    mutex_unlock(&mutex2);
 #endif
@@ -308,7 +308,8 @@ class QThreadPrivate {
 public:
     thread_t thread_id;
     QWaitCondition thread_done;
-    bool finished, running;
+    bool finished;
+    bool running;
 
     QThreadPrivate()
 	: thread_id(0), finished(FALSE), running(FALSE)

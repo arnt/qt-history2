@@ -127,7 +127,7 @@
 */
 QMutex::QMutex(bool recursive)
 {
-    if (recursive)
+    if ( recursive )
 	d = new QRMutexPrivate();
     else
 	d = new QMutexPrivate();
@@ -194,8 +194,7 @@ class QThreadQtEvent
 public:
     QThreadQtEvent(QObject *r, QEvent *e)
 	: receiver(r), event(e)
-    { ; }
-
+    {}
     QObject *receiver;
     QEvent *event;
 };
@@ -347,7 +346,7 @@ void QThread::postEvent( QObject * receiver, QEvent * event )
 */
 void QThread::sleep( unsigned long secs )
 {
-    ::sleep(secs);
+    ::sleep( secs );
 }
 
 
@@ -357,7 +356,7 @@ void QThread::sleep( unsigned long secs )
 */
 void QThread::msleep( unsigned long msecs )
 {
-    ::usleep( msecs * 1000);
+    ::usleep( msecs * 1000 );
 }
 
 
@@ -387,7 +386,11 @@ QThread::QThread()
 */
 QThread::~QThread()
 {
-    delete d;
+    if( d->running && !d->finished ) {
+	qWarning("QThread object destroyed while thread is still running.");
+    } else {
+	delete d;
+    }
 }
 
 
@@ -418,6 +421,26 @@ void QThread::exit()
 
 
 /*!
+  This begins actual execution of the thread by calling run(),
+  which should be reimplemented in a QThread subclass to contain your code.
+  If you try to start a thread that is already running, this call will
+  wait until the thread has finished, and then restart the thread.
+*/
+void QThread::start()
+{
+    if (d->running) {
+#ifdef QT_CHECK_RANGE
+	qWarning("QThread::start: thread already running");
+#endif
+
+	wait();
+    }
+
+    d->init(this);
+}
+
+
+/*!
   This allows similar functionality to POSIX pthread_join.  A thread
   calling this will block until one of 2 conditions is met:
   <ul>
@@ -436,26 +459,6 @@ bool QThread::wait(unsigned long time)
 	return TRUE;
 
     return d->thread_done.wait(time);
-}
-
-
-/*!
-  This begins actual execution of the thread by calling run(),
-  which should be reimplemented in a QThread subclass to contain your code.
-  If you try to start a thread that is already running, this call will
-  wait until the thread has finished, and then restart the thread.
-*/
-void QThread::start()
-{
-    if (d->running) {
-#ifdef QT_CHECK_RANGE
-	qWarning("QThread::start: thread already running");
-#endif
-
-	wait();
-    }
-
-    d->init(this);
 }
 
 
@@ -699,7 +702,6 @@ void QWaitCondition::wakeAll()
 class QSemaphorePrivate {
 public:
     QSemaphorePrivate(int);
-    ~QSemaphorePrivate();
 
     QMutex mutex;
     QWaitCondition cond;
@@ -710,11 +712,6 @@ public:
 
 QSemaphorePrivate::QSemaphorePrivate(int m)
     : mutex(FALSE), value(0), max(m)
-{
-}
-
-
-QSemaphorePrivate::~QSemaphorePrivate()
 {
 }
 
@@ -877,4 +874,3 @@ int QSemaphore::total() const {
 #include "qthread_unix.moc"
 
 #endif
-
