@@ -99,7 +99,7 @@ void HelpDemo::closeAssistant()
 class ProcessListener : public QObject {
     Q_OBJECT
 public:
-    ProcessListener( QProcess *pr ) : p( pr ) { }
+    ProcessListener( QProcess *pr, QWidget *w ) : p( pr ), widget( w ) { }
     ~ProcessListener() {
 	delete p;
     }
@@ -107,12 +107,14 @@ public:
 public slots:
     void processExited() {
 	deleteLater();
-	QMessageBox::information( 0, "HelpDemo documentation installed",
+	QMessageBox::information( widget,
+				  "HelpDemo documentation installed",
 				  "The HelpDemo documentation was successfully installed" );
     }
 
 private:
     QProcess *p;
+    QWidget *widget;
 };
 
 
@@ -127,7 +129,7 @@ void HelpDemo::installExampleDocs()
 
     QProcess *proc = new QProcess( lst );
 
-    ProcessListener *l = new ProcessListener( proc );
+    ProcessListener *l = new ProcessListener( proc, this );
 
     QObject::connect( proc, SIGNAL( processExited() ), l, SLOT( processExited() ) );
 
