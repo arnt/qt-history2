@@ -11,6 +11,7 @@ SOURCES = \
 	demowidget.cpp \
 	introscreen.cpp \
 	main.cpp \
+	paths.cpp \
 	primitives.cpp \
 	rotatinggradient.cpp \
 	warpix.cpp
@@ -21,6 +22,7 @@ HEADERS = \
 	demoviewer.h \
 	demowidget.h \
 	introscreen.h \
+	paths.h \
 	primitives.h \
 	rotatinggradient.h \
 	warpix.h

@@ -81,6 +81,9 @@ void Primitives::paintEvent(QPaintEvent *)
     if (attributes->antialias)
         p.setRenderHints(QPainter::LineAntialiasing);
 
+    if (attributes->alpha)
+        p.setPen(QColor(0, 0, 0, 63));
+
     drawPrimitives(&p, Rect, 0);
     drawPrimitives(&p, Ellipse, 1000);
     drawPrimitives(&p, Polygon, 2000);

@@ -52,6 +52,7 @@ void ItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &options,
     }
 
     QRect r = options.rect;
+    painter->setPen(Qt::NoPen);
     painter->setBrush(QBrush(r.topLeft(), g1, r.bottomLeft(), g2));
     painter->drawRect(r.x() + 1, r.y() + 1, r.width() - 2, r.height() - 2);
     painter->setBrush(Qt::NoBrush);
@@ -74,6 +75,7 @@ DemoViewer::DemoViewer(QWidget *parent)
     : QWidget(parent),
       attributes(new Attributes)
 {
+    setWindowTitle(tr("Qt Paint Engine Demo"));
     QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, this);
 
     QSplitter *horSplit = new QSplitter(Qt::Horizontal, this);

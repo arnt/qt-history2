@@ -17,17 +17,17 @@ public:
 
     void setPixmap(const QPixmap &pix);
 
-    QString description() const;
-
+    void mouseMoveEvent(QMouseEvent *e);
     void mousePressEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
-
 
 private:
     QPixmap p1, p2, p3, p4;
     QPixmap buffer;
 
     double a, b, c, d;
+
+    QPoint clickPos;
 
     QSound *beat;
 };
