@@ -11,13 +11,15 @@ public:
     HKEY user;
     HKEY local;
 
-    static QString folder( const QString& );
-    static QString entry( const QString& );
+    QString folder( const QString& );
+    QString entry( const QString& );
+
+    QString validateKey( const QString &key );
 
     bool writeKey( const QString &key, const QByteArray &value, ulong type );
     QByteArray readKey( const QString &key, ulong type, bool *ok );
 
-    HKEY openFolder( const QString &folder, bool create );
+    HKEY openKey( const QString &key, bool create );
 
     QStringList paths;
 };
@@ -89,18 +91,38 @@ QSettingsPrivate::~QSettingsPrivate()
     }
 }
 
+inline QString QSettingsPrivate::validateKey( const QString &key )
+{
+    if ( key.isEmpty() )
+	return key;
+
+    QString newKey = key;
+    newKey = newKey.replace( QRegExp( "[/]+" ), "\\" );
+
+    if ( newKey[0] != '\\' )
+	newKey = "\\" + newKey;
+    if ( newKey[(int)newKey.length() - 1] == '\\' )
+	newKey = newKey.left( newKey.length() - 2 );
+
+    return newKey;
+}
+
 inline QString QSettingsPrivate::folder( const QString &key )
 {
-    return "Software\\" + key.mid( 1, key.findRev( "/" )-1 ).replace( QRegExp("/"), "\\" );
+    QString k = validateKey( key );
+    return "Software" + k.left( k.findRev( "\\" ) );
 }
 
 inline QString QSettingsPrivate::entry( const QString &key )
 {
-    return key.right( key.length() - key.findRev( "/" ) - 1 );
+    QString k = validateKey( key );
+    return k.right( k.length() - k.findRev( "\\" ) - 1 );
 }
 
-inline HKEY QSettingsPrivate::openFolder( const QString &f, bool create )
+inline HKEY QSettingsPrivate::openKey( const QString &key, bool create )
 {
+    QString f = folder( key );
+
     HKEY handle = 0;
     long res;
 
@@ -110,14 +132,14 @@ inline HKEY QSettingsPrivate::openFolder( const QString &f, bool create )
 	    if ( create )
 		res = RegCreateKeyExW( local, (TCHAR*)qt_winTchar( f, TRUE ), 0, (TCHAR*)qt_winTchar( "", TRUE ), REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
 	    else
-		res = RegOpenKeyExW( local, (TCHAR*)qt_winTchar( f, TRUE ), 0, KEY_WRITE, &handle );
+		res = RegOpenKeyExW( local, (TCHAR*)qt_winTchar( f, TRUE ), 0, KEY_ALL_ACCESS, &handle );
 	} else
 #endif
 	{
 	    if ( create )
 		res = RegCreateKeyExA( local, f.local8Bit(), 0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
 	    else
-		res = RegOpenKeyExA( local, f.local8Bit(), 0, KEY_WRITE, &handle );
+		res = RegOpenKeyExA( local, f.local8Bit(), 0, KEY_ALL_ACCESS, &handle );
 	}
 #if defined(QT_CHECK_STATE)
 	if ( res != ERROR_SUCCESS )
@@ -130,14 +152,14 @@ inline HKEY QSettingsPrivate::openFolder( const QString &f, bool create )
 	    if ( create )
 		res = RegCreateKeyExW( user, (TCHAR*)qt_winTchar( f, TRUE ), 0, (TCHAR*)qt_winTchar( "", TRUE ), REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
 	    else
-		res = RegOpenKeyExW( user, (TCHAR*)qt_winTchar( f, TRUE ), 0, KEY_WRITE, &handle );
+		res = RegOpenKeyExW( user, (TCHAR*)qt_winTchar( f, TRUE ), 0, KEY_ALL_ACCESS, &handle );
 	} else
 #endif
 	{
 	    if ( create )
 		res = RegCreateKeyExA( user, f.local8Bit(), 0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
 	    else
-		res = RegOpenKeyExA( user, f.local8Bit(), 0, KEY_WRITE, &handle );
+		res = RegOpenKeyExA( user, f.local8Bit(), 0, KEY_ALL_ACCESS, &handle );
 	}
 #if defined(QT_CHECK_STATE)
 	if ( res != ERROR_SUCCESS )
@@ -154,9 +176,9 @@ inline bool QSettingsPrivate::writeKey( const QString &key, const QByteArray &va
 
     HKEY handle = 0;
     for ( QStringList::Iterator it = paths.fromLast(); it != paths.end(); --it ) {
-	QString k = (*it).isEmpty() ? key : *it + "/" + key;
+	QString k = *it + "/" + key;
 	e = entry( k );
-	handle = openFolder( folder( k ), TRUE );
+	handle = openKey( k, TRUE );
 	if ( handle )
 	    break;
     }
@@ -192,14 +214,11 @@ inline QByteArray QSettingsPrivate::readKey( const QString &key, ulong t, bool *
     ulong type = 0;
     QString e;
     for ( QStringList::Iterator it = paths.fromLast(); it != paths.end(); --it ) {
-	QString k;
-	if ( (*it).isEmpty() )
-	    k = key;
-	else
-	    k = *it + "/" + key;
-
+	QString k = *it + "/" + key;
 	QString f = folder( k );
 	e = entry( k );
+	if ( e == "Default" )
+	    e = "";
 	if ( user ) {
 #if defined(UNICODE)
 	    if ( qWinVersion() & Qt::WV_NT_based )
@@ -226,14 +245,12 @@ inline QByteArray QSettingsPrivate::readKey( const QString &key, ulong t, bool *
 
     if ( !size && local ) {
 	for ( QStringList::Iterator it = paths.fromLast(); it != paths.end(); --it ) {
-	    QString k;
-	    if ( (*it).isEmpty() )
-		k = key;
-	    else
-		k = *it + "/" + key;
+	    QString k = *it + "/" + key;
 
 	    QString f = folder( k );
 	    e = entry( k );
+	    if ( e == "Default" )
+		e = "";
 
 #if defined(UNICODE)
 	    if ( qWinVersion() & Qt::WV_NT_based )
@@ -249,10 +266,9 @@ inline QByteArray QSettingsPrivate::readKey( const QString &key, ulong t, bool *
 		else
 #endif
 		    res = RegQueryValueExA( handle, e.local8Bit(), NULL, &type, NULL, &size );
-#if defined(QT_CHECK_STATE)
+
 		if ( res != ERROR_SUCCESS )
-		    qSystemWarning( "Couldn't read value " + key, res );
-#endif
+		    RegCloseKey( handle );
 	    }
 	    if ( size )
 		break;
@@ -477,48 +493,42 @@ bool QSettings::readBoolEntry( const QString &key, bool def, bool *ok )
 
 bool QSettings::removeEntry( const QString &key )
 {
-    QString e = d->entry( key );
+    QString e;
     long res;
 
     HKEY handle = 0;
     for ( QStringList::Iterator it = d->paths.fromLast(); it != d->paths.end(); --it ) {
 	QString k = (*it).isEmpty() ? key : *it + "/" + key;
+	handle = d->openKey( k, FALSE );
 	e = d->entry( k );
-	handle = d->openFolder( d->folder( k ), FALSE );
 	if ( handle )
 	    break;
     }
     if ( !handle )
 	return TRUE;
-
-    if ( e.isEmpty() || e == "Default" ) {
+    if ( e == "Default" )
+	e = "";
 #if defined(UNICODE)
-	if ( qWinVersion() & Qt::WV_NT_based )
-	    res = RegDeleteKeyW( handle, (const unsigned short*)"" );
-	else
+    if ( qWinVersion() & Qt::WV_NT_based )
+	res = RegDeleteValueW( handle, (TCHAR*)qt_winTchar( e, TRUE ) );
+    else
 #endif
-	    res = RegDeleteKeyA( handle, "" );
-	if ( res != ERROR_SUCCESS ) {
-#if defined(QT_CHECK_STATE)
-	    qSystemWarning( "Error deleting value " + key, res );
-#endif
-	    return FALSE;
-	}
-    } else {
-#if defined(UNICODE)
-	if ( qWinVersion() & Qt::WV_NT_based )
-	    res = RegDeleteValueW( handle, (TCHAR*)qt_winTchar( e, TRUE ) );
-	else
-#endif
-	    res = RegDeleteValueA( handle, e.local8Bit() );
+	res = RegDeleteValueA( handle, e.local8Bit() );
 
-	if ( res != ERROR_SUCCESS ) {
+    if ( res != ERROR_SUCCESS && res != ERROR_FILE_NOT_FOUND ) {
 #if defined(QT_CHECK_STATE)
-	    qSystemWarning( "Error deleting value " + key, res );
+	qSystemWarning( "Error deleting value " + key, res );
 #endif
-	    return FALSE;
-	}
+	return FALSE;
     }
+    char vname[1];
+    DWORD vnamesz = 1;
+    FILETIME lastWrite;
+    LONG res2 = RegEnumValueA( handle, 0, vname, &vnamesz, NULL, NULL, NULL, NULL );
+    LONG res3 = RegEnumKeyExA( handle, 0, vname, &vnamesz, NULL, NULL, NULL, &lastWrite ); 
+    if ( res2 == ERROR_NO_MORE_ITEMS && res3 == ERROR_NO_MORE_ITEMS )
+	RegDeleteKey( handle, NULL );
+
     return TRUE;
 }
 
@@ -529,15 +539,20 @@ QDateTime QSettings::lastModficationTime(const QString &)
 
 void QSettings::insertSearchPath( System s, const QString &p )
 {
-    if ( s != Windows )
+    if ( s != Windows || p.isEmpty() )
 	return;
-    d->paths.append( p );
+    QString path = p;
+    if ( path[0] != '/' )
+	path = "/" + path;
+    d->paths.append( path );
 }
 
 void QSettings::removeSearchPath( System s, const QString &p )
 {
-    if ( s != Windows )
+    if ( s != Windows || p.isEmpty() )
 	return;
-    if ( d->paths.count() > 1 )
-	d->paths.remove( p );
+    QString path = p;
+    if ( path[0] != '/' )
+	path = "/" + path;
+    d->paths.remove( path );
 }
