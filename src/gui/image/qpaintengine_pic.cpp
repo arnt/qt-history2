@@ -44,7 +44,7 @@ public:
 #define q q_func()
 
 QPicturePaintEngine::QPicturePaintEngine(QBuffer *buf)
-    : QPaintEngine(*(new QPicturePaintEnginePrivate))
+    : QPaintEngine(*(new QPicturePaintEnginePrivate), CanRenderText)
 {
     Q_ASSERT(buf);
     d->pictb = buf;
@@ -56,7 +56,7 @@ QPicturePaintEngine::QPicturePaintEngine(QBuffer *buf)
 }
 
 QPicturePaintEngine::QPicturePaintEngine(QPaintEnginePrivate &dptr, QBuffer *buf)
-    : QPaintEngine(dptr)
+    : QPaintEngine(dptr, CanRenderText)
 {
     Q_ASSERT(buf);
     d->pictb = buf;
@@ -121,18 +121,42 @@ bool QPicturePaintEngine::end()
 
 void QPicturePaintEngine::updatePen(QPainterState *ps)
 {
+    d->trecs++;
+    d->s << (Q_UINT8)PdcSetPen;
+    d->s << (Q_UINT8)0;
+    int pos = d->pictb->at();
+    d->s << ps->pen;
+    writeCmdLength(pos, QRect(), false);
 }
 
 void QPicturePaintEngine::updateBrush(QPainterState *ps)
 {
+    d->trecs++;
+    d->s << (Q_UINT8)PdcSetBrush;
+    d->s << (Q_UINT8)0;
+    int pos = d->pictb->at();
+    d->s << ps->brush;
+    writeCmdLength(pos, QRect(), false);
 }
 
 void QPicturePaintEngine::updateFont(QPainterState *ps)
 {
+//     d->trecs++;
+//     d->s << (Q_UINT8)PdcSetFont;
+//     d->s << (Q_UINT8)0;
+//     int pos = d->pictb->at();
+//     d->s << ps->font;
+//     writeCmdLength(pos, QRect(), false);
 }
 
 void QPicturePaintEngine::updateRasterOp(QPainterState *ps)
 {
+//     d->trecs++;
+//     d->s << (Q_UINT8)PdcSetROP;
+//     d->s << (Q_UINT8)0;
+//     int pos = d->pictb->at();
+//     d->s << ps->rasterOp;
+//     writeCmdLength(pos, QRect(), false);
 }
 
 void QPicturePaintEngine::updateBackground(QPainterState *ps)
@@ -330,4 +354,10 @@ void QPicturePaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap,
 
 void QPicturePaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
 {
+    d->trecs++;
+    d->s << (Q_UINT8)PdcDrawText2;
+    d->s << (Q_UINT8)0;
+    int pos = d->pictb->at();
+    d->s << p << QString(ti.chars, ti.num_chars);
+    writeCmdLength(pos, QRect(p, p), true);
 }
