@@ -48,13 +48,15 @@ QString Option::libtool_ext;
 QString Option::pkgcfg_ext;
 QString Option::ui_ext;
 QStringList Option::h_ext;
-QString Option::moc_ext;
+QString Option::cpp_moc_ext;
+QString Option::h_moc_ext;
 QStringList Option::cpp_ext;
 QString Option::obj_ext;
 QString Option::lex_ext;
 QString Option::yacc_ext;
 QString Option::dir_sep;
-QString Option::moc_mod;
+QString Option::h_moc_mod;
+QString Option::cpp_moc_mod;
 QString Option::yacc_mod;
 QString Option::lex_mod;
 
@@ -306,7 +308,8 @@ Option::internalParseCommandLine(int argc, char **argv, int skip)
 bool
 Option::parseCommandLine(int argc, char **argv)
 {
-    Option::moc_mod = "moc_";
+    Option::cpp_moc_mod = "";
+    Option::h_moc_mod = "moc_";
     Option::lex_mod = "_lex";
     Option::yacc_mod = "_yacc";
     Option::prl_ext = ".prl";
@@ -315,7 +318,8 @@ Option::parseCommandLine(int argc, char **argv)
     Option::prf_ext = ".prf";
     Option::ui_ext = ".ui";
     Option::h_ext << ".h" << ".hpp" << ".hh" << ".H" << ".hxx";
-    Option::moc_ext = ".moc";
+    Option::cpp_moc_ext = ".moc";
+    Option::h_moc_ext = ".cpp";
     Option::cpp_ext << ".cpp" << ".cc" << ".cxx" << ".C";
     Option::lex_ext = ".l";
     Option::yacc_ext = ".y";
@@ -422,16 +426,20 @@ bool Option::postProcessProject(QMakeProject *project)
 	Option::prf_ext = project->first("QMAKE_EXT_PRF");
     if(!project->isEmpty("QMAKE_EXT_UI"))
 	Option::ui_ext = project->first("QMAKE_EXT_UI");
-    if(!project->isEmpty("QMAKE_EXT_MOC"))
-	Option::moc_ext = project->first("QMAKE_EXT_MOC");
+    if(!project->isEmpty("QMAKE_EXT_CPP_MOC"))
+	Option::cpp_moc_ext = project->first("QMAKE_EXT_CPP_MOC");
+    if(!project->isEmpty("QMAKE_EXT_H_MOC"))
+	Option::h_moc_ext = project->first("QMAKE_EXT_H_MOC");
     if(!project->isEmpty("QMAKE_EXT_LEX"))
 	Option::lex_ext = project->first("QMAKE_EXT_LEX");
     if(!project->isEmpty("QMAKE_EXT_YACC"))
 	Option::yacc_ext = project->first("QMAKE_EXT_YACC");
     if(!project->isEmpty("QMAKE_EXT_OBJ"))
 	Option::obj_ext = project->first("QMAKE_EXT_OBJ");
-    if(!project->isEmpty("QMAKE_MOD_MOC"))
-	Option::moc_mod = project->first("QMAKE_MOD_MOC");
+    if(!project->isEmpty("QMAKE_H_MOD_MOC"))
+	Option::h_moc_mod = project->first("QMAKE_H_MOD_MOC");
+    if(!project->isEmpty("QMAKE_CPP_MOD_MOC"))
+	Option::cpp_moc_mod = project->first("QMAKE_CPP_MOD_MOC");
     if(!project->isEmpty("QMAKE_MOD_LEX"))
 	Option::lex_mod = project->first("QMAKE_MOD_LEX");
     if(!project->isEmpty("QMAKE_MOD_YACC"))

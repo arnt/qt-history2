@@ -324,7 +324,7 @@ ProjectGenerator::init()
 			break;
 		    }
 		}
-		if(!found && (*val_it).endsWith(Option::moc_ext))
+		if(!found && (*val_it).endsWith(Option::cpp_moc_ext))
 		    found = TRUE;
 		if(found)
 		    val_it = l.remove(val_it);
@@ -391,7 +391,7 @@ ProjectGenerator::addFile(QString file)
     int s = file.findRev(Option::dir_sep);
     if(s != -1)
 	dir = file.left(s+1);
-    if(file.mid(dir.length(), Option::moc_mod.length()) == Option::moc_mod)
+    if(file.mid(dir.length(), Option::h_moc_mod.length()) == Option::h_moc_mod)
 	return FALSE;
 
     QString where;

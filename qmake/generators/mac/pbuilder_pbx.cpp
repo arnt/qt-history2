@@ -133,7 +133,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	QStringList &src_list = project->variables()["QMAKE_PBX_" + srcs[i]];
 	for(QStringList::Iterator it = tmp.begin(); it != tmp.end(); ++it) {
 	    QString file = fileFixify((*it));
-	    if(file.endsWith(Option::moc_ext)) 
+	    if(file.endsWith(Option::cpp_moc_ext)) 
 		continue;
 	    bool in_root = TRUE;
 	    QString src_key = keyFor(file), name = file;

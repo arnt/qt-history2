@@ -79,6 +79,10 @@ static QString varMap(const QString &x)
 	ret = "POST_TARGETDEPS";
     else if(ret == "LIBPATH")
 	ret = "QMAKE_LIBDIR";
+    else if(ret == "QMAKE_EXT_MOC")
+	ret = "QMAKE_EXT_CPP_MOC";
+    else if(ret == "QMAKE_MOD_MOC")
+	ret = "QMAKE_H_MOD_MOC";
     return ret;
 }
 

@@ -67,11 +67,13 @@ struct Option
     static QString ui_ext;
     static QStringList h_ext;
     static QStringList cpp_ext;
-    static QString moc_ext;
+    static QString h_moc_ext;
+    static QString cpp_moc_ext;
     static QString obj_ext;
     static QString lex_ext;
     static QString yacc_ext;
-    static QString moc_mod;
+    static QString h_moc_mod;
+    static QString cpp_moc_mod;
     static QString lex_mod;
     static QString yacc_mod;
     static QString dir_sep;

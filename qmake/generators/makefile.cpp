@@ -206,14 +206,14 @@ MakefileGenerator::generateMocList(const QString &fn_target)
 			break;
 		}
 		if(cpp_ext) {
-		    mocFile += fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::moc_ext;
+		    mocFile += Option::cpp_moc_mod + fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::cpp_moc_ext;
 		    project->variables()["_SRCMOC"].append(mocFile);
 		} else if(project->variables()["HEADERS"].findIndex(fn_target) != -1) {
 		    for(QStringList::Iterator hit = Option::h_ext.begin();
 			hit != Option::h_ext.end(); ++hit) {
 			if((fn_target.right(ext_len) == (*hit))) {
-			    mocFile += Option::moc_mod + fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) +
-				       Option::cpp_ext.first();
+			    mocFile += Option::h_moc_mod + fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) +
+				       Option::h_moc_ext;
 			    logicWarn(mocFile, "SOURCES");
 			    project->variables()["_HDRMOC"].append(mocFile);
 			    break;
@@ -520,8 +520,9 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
 			    }
 			}
 		    }
-		    if(mocAware() &&		    //is it a moc file?
-		       (inc.endsWith(Option::cpp_ext.first()) || inc.endsWith(Option::moc_ext))) {
+		    if( mocAware() &&		    //is it a moc file?
+		       ( inc.endsWith(Option::cpp_ext.first()) || inc.endsWith(Option::cpp_moc_ext) )
+		       || ( (Option::cpp_ext.first() != Option::h_moc_ext) && inc.endsWith(Option::h_moc_ext) )) {
 			QString mocs[] = { QString("_HDRMOC"), QString("_SRCMOC"), QString::null };
 			for(int moc = 0; !mocs[moc].isNull(); moc++) {
 			    QStringList &l = project->variables()[mocs[moc]];
@@ -1113,7 +1114,7 @@ MakefileGenerator::init()
 	    impls.append(impl);
 	    findDependencies(impl).append(decl);
 
-	    QString mocable = Option::moc_mod + fi.baseName(TRUE) + Option::cpp_ext.first();
+	    QString mocable = Option::h_moc_mod + fi.baseName(TRUE) + Option::h_moc_ext;
 	    if(!v["MOC_DIR"].isEmpty())
 		mocable.prepend(v["MOC_DIR"].first());
 	    else if(fi.dirPath() != ".")
@@ -1160,7 +1161,8 @@ MakefileGenerator::init()
     if ( mocAware() ) {
 	if(!project->isEmpty("MOC_DIR"))
 	    project->variables()["INCLUDEPATH"].append(project->first("MOC_DIR"));
-	v["OBJMOC"] = createObjectList("_HDRMOC") + createObjectList("_UIMOC");
+	if ( Option::h_moc_ext == Option::cpp_ext.first() )
+	    v["OBJMOC"] = createObjectList("_HDRMOC") + createObjectList("_UIMOC");
 
 	QStringList &l = v["SRCMOC"];
 	l = v["_HDRMOC"] + v["_UIMOC"] + v["_SRCMOC"];
@@ -1399,7 +1401,7 @@ MakefileGenerator::writeObj(QTextStream &t, const QString &obj, const QString &s
 	    QString sdep, odep = (*sit) + " ";
 	    QStringList deps = findDependencies((*sit));
 	    for(QStringList::Iterator dit = deps.begin(); dit != deps.end(); dit++) {
-		if((*dit).endsWith(Option::moc_ext))
+		if((*dit).endsWith(Option::cpp_moc_ext))
 		    odep += (*dit) + " ";
 		else
 		    sdep += (*dit) + " ";

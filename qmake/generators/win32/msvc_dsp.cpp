@@ -115,7 +115,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		for( it = list.begin(); it != list.end(); ++it) {
 		    beginGroupForFile((*it), t);
 		    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl;
-		    if ( project->isActiveConfig("moc") && (*it).endsWith(Option::moc_ext)) {
+		    if ( project->isActiveConfig("moc") && (*it).endsWith(Option::cpp_moc_ext)) {
 			QString base = (*it);
 			base.replace(QRegExp("\\..*$"), "").upper();
 			base.replace(QRegExp("[^a-zA-Z]"), "_");
@@ -256,7 +256,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 //		    beginGroupForFile((*it), t);
 		    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl;
-		    if ( project->isActiveConfig("moc") && (*it).endsWith(Option::moc_ext)) {
+		    if ( project->isActiveConfig("moc") && (*it).endsWith(Option::cpp_moc_ext)) {
 			QString base = (*it);
 			base.replace(QRegExp("\\..*$"), "").upper();
 			base.replace(QRegExp("[^a-zA-Z]"), "_");
@@ -391,13 +391,13 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			"InputPath=.\\" + base + "\n\n" "BuildCmds= \\\n\t" + uicpath + base +
 				    " -o " + uiHeadersDir + fname + ".h \\\n" "\t" + uicpath  + base +
 				    " -i " + fname + ".h -o " + uiSourcesDir + fname + ".cpp \\\n"
-				    "\t" + mocpath + uiHeadersDir + fname + ".h -o " + mocFile + "moc_" + fname + ".cpp \\\n";
+				    "\t" + mocpath + uiHeadersDir + fname + ".h -o " + mocFile + Option::h_moc_mod + fname + Option::h_moc_ext + " \\\n";
 
 		    build.append("\n\"" + uiHeadersDir + fname + ".h\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\""  "\n"
 				 "\t$(BuildCmds)\n\n"
 				 "\"" + uiSourcesDir + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
 				 "\t$(BuildCmds)\n\n"
-				 "\"" + mocFile + "moc_" + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
+				 "\"" + mocFile + Option::h_moc_mod + fname + Option::h_moc_ext + "\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
 				 "\t$(BuildCmds)\n\n");
 
 		    build.append("# End Custom Build\n\n");

@@ -1906,11 +1906,11 @@ void VCFilter::generateUIC( QTextStream &strm, const QString& str ) const
     strm << _CommandLine6;
     strm << uicApp << " " << str << " -o " << uiHeaders << fname << ".h &amp;&amp; ";				// Create .h from .ui file
     strm << uicApp << " " << str << " -i " << fname << ".h -o " << uiSources << fname << ".cpp &amp;&amp; ";	// Create .cpp from .ui file
-    strm << mocApp << " " << uiHeaders << fname << ".h -o " << mocDir << "moc_" << fname << ".cpp\"";
+    strm << mocApp << " " << uiHeaders << fname << ".h -o " << mocDir << Option::h_moc_mod << fname << Option::h_moc_ext << "\"";
     strm << _AdditionalDependencies6;
     strm << mocApp << ";" << uicApp << "\"";
     strm << _Outputs6;
-    strm << uiHeaders << fname << ".h;" << uiSources << fname << ".cpp;" << mocDir << "moc_" << fname << ".cpp\"";
+    strm << uiHeaders << fname << ".h;" << uiSources << fname << ".cpp;" << mocDir << Option::h_moc_mod << fname << Option::h_moc_ext << "\"";
     strm << "/>";
     strm << _endFileConfiguration;
 }
