@@ -388,8 +388,7 @@ bool FormFile::hasFormCode() const
 {
     if ( seperateSource )
 	return !cod.isEmpty() && cod != QString( comment );
-    return QFile::exists( pro->makeAbsolute( codeFile() ) ) ||
-	formWindow() && !MetaDataBase::functionBodies( formWindow() ).isEmpty();
+    return TRUE;
 }
 
 void FormFile::createFormCode()
