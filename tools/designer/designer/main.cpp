@@ -203,7 +203,7 @@ int main( int argc, char *argv[] )
 
     QLabel *splash = 0;
     if ( showSplash ) {
-	splash = new QLabel( 0, "splash", Qt::WDestructiveClose | Qt::WStyle_Customize | Qt::WStyle_NoBorder );
+	splash = new QLabel( 0, "splash", Qt::WDestructiveClose | Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WX11BypassWM);
 	splash->setFrameStyle( QFrame::WinPanel | QFrame::Raised );
 	splash->setPixmap( splashScreen() );
 	splash->adjustSize();
