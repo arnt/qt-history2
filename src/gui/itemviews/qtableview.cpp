@@ -584,9 +584,11 @@ QRect QTableView::selectionViewportRect(const QItemSelection &selection) const
     int rightCol = d->horizontalHeader->logicalIndex(right);
     int bottomRow = d->verticalHeader->logicalIndex(bottom);
 
-    int leftPos = columnViewportPosition(leftCol);
+    int leftWidth = QApplication::reverseLayout() ? columnWidth(leftCol) : 0;
+    int leftPos = columnViewportPosition(leftCol) + leftWidth;
     int topPos = rowViewportPosition(topRow);
-    int rightPos = columnViewportPosition(rightCol) + columnWidth(rightCol);
+    int rightWidth = QApplication::reverseLayout() ? 0 : columnWidth(rightCol);
+    int rightPos = columnViewportPosition(rightCol) + rightWidth;
     int bottomPos = rowViewportPosition(bottomRow) + rowHeight(bottomRow);
 
     QRect rect(leftPos, topPos, rightPos - leftPos, bottomPos - topPos);
