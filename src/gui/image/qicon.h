@@ -39,6 +39,7 @@ public:
     QIcon(const QPixmap &smallPix, const QPixmap &largePix);
     QIcon(const QIcon &other);
     ~QIcon();
+    QIcon &operator=(const QIcon &other);
 
     void reset(const QPixmap &pixmap, Qt::IconSize size);
     void setPixmap(const QPixmap &pixmap, Qt::IconSize size, QIcon::Mode mode = QIcon::Normal, QIcon::State state = QIcon::Off);
@@ -53,8 +54,7 @@ public:
 
     bool isNull() const;
     void detach();
-
-    QIcon &operator=(const QIcon &other);
+    bool isDetached() const;
 
     static void setPixmapSize(Qt::IconSize which, const QSize &size);
     static QSize pixmapSize(Qt::IconSize which);
@@ -76,6 +76,8 @@ private:
     friend class QIconPrivate;
     static PixmapGeneratorFn defaultGeneratorFn;
 };
+Q_DECLARE_SHARED(QIcon);
+Q_DECLARE_TYPEINFO(QIcon, Q_MOVABLE_TYPE);
 
 #ifdef QT_COMPAT
 typedef QIcon QIconSet;

@@ -4266,3 +4266,9 @@ int QImage::serialNumber() const
 {
     return data->ser_no;
 }
+
+
+bool QImage::isDetached() const
+{
+    return data->ref == 1;
+}

@@ -44,6 +44,7 @@ public:
 #endif
 #endif
 };
+Q_DECLARE_SHARED(QBitmap);
 
 
 #endif // QBITMAP_H

@@ -68,6 +68,7 @@ public:
     bool operator==(const QImage &) const;
     bool operator!=(const QImage &) const;
     void detach();
+    bool isDetached() const;
     QImage copy() const;
     inline QImage copy(int x, int y, int w, int h, Qt::ImageConversionFlags flags = Qt::AutoColor) const;
     QImage copy(const QRect&, Qt::ImageConversionFlags flags = Qt::AutoColor) const;
@@ -197,6 +198,8 @@ private:
                                     int sw, int sh, Qt::ImageConversionFlags flags);
 };
 
+Q_DECLARE_SHARED(QImage);
+Q_DECLARE_TYPEINFO(QImage, Q_MOVABLE_TYPE);
 
 // QImage stream functions
 

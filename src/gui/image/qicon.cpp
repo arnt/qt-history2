@@ -545,6 +545,23 @@ QIcon::~QIcon()
 }
 
 /*!
+  Assigns \a other to this icon and returns a reference to this
+  icon.
+
+  \sa detach()
+*/
+QIcon &QIcon::operator=(const QIcon &other)
+{
+    QIconPrivate *x = other.d;
+    if (x)
+        ++x->ref;
+    x = qAtomicSetPtr(&d, x);
+    if (x && !--x->ref)
+        delete x;
+    return *this;
+}
+
+/*!
   Sets this icon to use the given \a pixmap for the \c Normal pixmap,
   assuming it to be of the \a size specified.
 
@@ -750,20 +767,11 @@ void QIcon::detach()
 }
 
 /*!
-  Assigns \a other to this icon and returns a reference to this
-  icon.
-
-  \sa detach()
+  \internal
 */
-QIcon &QIcon::operator=(const QIcon &other)
+bool QIcon::isDetached() const
 {
-    QIconPrivate *x = other.d;
-    if (x)
-        ++x->ref;
-    x = qAtomicSetPtr(&d, x);
-    if (x && !--x->ref)
-        delete x;
-    return *this;
+    return !d || d->ref == 1;
 }
 
 /*!
