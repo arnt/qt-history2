@@ -13,10 +13,10 @@
 ****************************************************************************/
 
 #include <private/qpainter_p.h>
-#include <qbrush.h>
-#include <qgl.h>
+#include "qbrush.h"
+#include "qgl.h"
 #include "qpaintengine_opengl.h"
-#include <qpen.h>
+#include "qpen.h"
 
 class QOpenGLPaintEnginePrivate {
 public:
@@ -320,9 +320,55 @@ void QOpenGLPaintEngine::drawCubicBezier(const QPointArray &pa, int index)
 
 }
 
-void QOpenGLPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
+// ### assumes an int is 32 bits
+// returns the number closest to v, that is a power of 2
+static int nearest_gl_size(int v)
 {
+    int n = 0, last = 0;
+    for (int s = 0; s < 32; ++s) {
+	if ((v>>s) & 1 == 1) {
+	    ++n;
+	    last = s;
+	}
+    }
+    if (n > 1)
+	return 1 << (last+1);
+    return 1 << last;
+}
 
+void QOpenGLPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &)
+{
+    QImage tx;
+
+    // Scale the pixmap if needed. GL textures needs to have the
+    // dimensions 2^n+2(border) x 2^m+2(border).
+    if (nearest_gl_size(pm.width()) != pm.width()
+	|| nearest_gl_size(pm.height()) !=  pm.height()) {
+	QImage im = pm;
+	tx = QGLWidget::convertToGLFormat(im.scale(nearest_gl_size(pm.width()),
+						   nearest_gl_size(pm.height())));
+    } else {
+	tx = QGLWidget::convertToGLFormat(pm);
+    }
+
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glEnable(GL_TEXTURE_2D);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, tx.width(), tx.height(), 0, GL_RGBA,
+		 GL_UNSIGNED_BYTE, tx.bits());
+    GLfloat col[4];
+    glGetFloatv(GL_CURRENT_COLOR, col);
+    glColor4f(1.0, 1.0, 1.0, 1.0);
+    glBegin( GL_QUADS );
+    {
+	glTexCoord2f(0.0, 1.0); glVertex2i(r.x(), r.y());
+	glTexCoord2f(1.0, 1.0); glVertex2i(r.x()+r.width(), r.y());
+	glTexCoord2f(1.0, 0.0); glVertex2i(r.x()+r.width(), r.y()+r.height());
+	glTexCoord2f(0.0, 0.0); glVertex2i(r.x(), r.y()+r.height());
+    }
+    glEnd();
+    glDisable(GL_TEXTURE_2D);
+    glColor4f(col[0], col[1], col[2], col[3]);
 }
 
 void QOpenGLPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
