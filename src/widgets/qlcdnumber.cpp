@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#34 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#35 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 #include <stdio.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#34 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#35 $")
 
 
 /*----------------------------------------------------------------------------
@@ -150,36 +150,36 @@ static QString double2string( double num, int base, int ndigits, bool *oflow )
 static char *getSegments( char ch )		// gets list of segments for ch
 {
     static char segments[30][8] =
-       { { 0, 1, 2, 4, 5, 6,-1, 0},		// 0	0 / O
-	 { 2, 5,-1, 0, 0, 0, 0, 0},		// 1	1
-	 { 0, 2, 3, 4, 6,-1, 0, 0},		// 2	2
-	 { 0, 2, 3, 5, 6,-1, 0, 0},		// 3	3
-	 { 1, 2, 3, 5,-1, 0, 0, 0},		// 4	4
-	 { 0, 1, 3, 5, 6,-1, 0, 0},		// 5	5 / S
-	 { 0, 1, 3, 4, 5, 6,-1, 0},		// 6	6
-	 { 0, 2, 5,-1, 0, 0, 0, 0},		// 7	7
-	 { 0, 1, 2, 3, 4, 5, 6,-1},		// 8	8
-	 { 0, 1, 2, 3, 5, 6,-1, 0},		// 9	9 / g
-	 { 3,-1, 0, 0, 0, 0, 0, 0},		// 10	-
-	 { 7,-1, 0, 0, 0, 0, 0, 0},		// 11	.
-	 { 0, 1, 2, 3, 4, 5,-1, 0},		// 12	A
-	 { 1, 3, 4, 5, 6,-1, 0, 0},		// 13	B
-	 { 0, 1, 4, 6,-1, 0, 0, 0},		// 14	C
-	 { 2, 3, 4, 5, 6,-1, 0, 0},		// 15	D
-	 { 0, 1, 3, 4, 6,-1, 0, 0},		// 16	E
-	 { 0, 1, 3, 4,-1, 0, 0, 0},		// 17	F
-	 { 1, 3, 4, 5,-1, 0, 0, 0},		// 18	h
-	 { 1, 2, 3, 4, 5,-1, 0, 0},		// 19	H
-	 { 1, 4, 6,-1, 0, 0, 0, 0},		// 20	L
-	 { 3, 4, 5, 6,-1, 0, 0, 0},		// 21	o
-	 { 0, 1, 2, 3, 4,-1, 0, 0},		// 22	P
-	 { 3, 4,-1, 0, 0, 0, 0, 0},		// 23	r
-	 { 4, 5, 6,-1, 0, 0, 0, 0},		// 24	u
-	 { 1, 2, 4, 5, 6,-1, 0, 0},		// 25	U
-	 { 1, 2, 3, 5, 6,-1, 0, 0},		// 26	Y
-	 { 8, 9,-1, 0, 0, 0, 0, 0},		// 27	:
-	 { 0, 1, 2, 3,-1, 0, 0, 0},		// 28	'
-	 {-1, 0, 0, 0, 0, 0, 0, 0} };		// 29	empty
+       { { 0, 1, 2, 4, 5, 6,99, 0},		// 0	0 / O
+	 { 2, 5,99, 0, 0, 0, 0, 0},		// 1	1
+	 { 0, 2, 3, 4, 6,99, 0, 0},		// 2	2
+	 { 0, 2, 3, 5, 6,99, 0, 0},		// 3	3
+	 { 1, 2, 3, 5,99, 0, 0, 0},		// 4	4
+	 { 0, 1, 3, 5, 6,99, 0, 0},		// 5	5 / S
+	 { 0, 1, 3, 4, 5, 6,99, 0},		// 6	6
+	 { 0, 2, 5,99, 0, 0, 0, 0},		// 7	7
+	 { 0, 1, 2, 3, 4, 5, 6,99},		// 8	8
+	 { 0, 1, 2, 3, 5, 6,99, 0},		// 9	9 / g
+	 { 3,99, 0, 0, 0, 0, 0, 0},		// 10	-
+	 { 7,99, 0, 0, 0, 0, 0, 0},		// 11	.
+	 { 0, 1, 2, 3, 4, 5,99, 0},		// 12	A
+	 { 1, 3, 4, 5, 6,99, 0, 0},		// 13	B
+	 { 0, 1, 4, 6,99, 0, 0, 0},		// 14	C
+	 { 2, 3, 4, 5, 6,99, 0, 0},		// 15	D
+	 { 0, 1, 3, 4, 6,99, 0, 0},		// 16	E
+	 { 0, 1, 3, 4,99, 0, 0, 0},		// 17	F
+	 { 1, 3, 4, 5,99, 0, 0, 0},		// 18	h
+	 { 1, 2, 3, 4, 5,99, 0, 0},		// 19	H
+	 { 1, 4, 6,99, 0, 0, 0, 0},		// 20	L
+	 { 3, 4, 5, 6,99, 0, 0, 0},		// 21	o
+	 { 0, 1, 2, 3, 4,99, 0, 0},		// 22	P
+	 { 3, 4,99, 0, 0, 0, 0, 0},		// 23	r
+	 { 4, 5, 6,99, 0, 0, 0, 0},		// 24	u
+	 { 1, 2, 4, 5, 6,99, 0, 0},		// 25	U
+	 { 1, 2, 3, 5, 6,99, 0, 0},		// 26	Y
+	 { 8, 9,99, 0, 0, 0, 0, 0},		// 27	:
+	 { 0, 1, 2, 3,99, 0, 0, 0},		// 28	'
+	 {99, 0, 0, 0, 0, 0, 0, 0} };		// 29	empty
 
     if (ch >= '0' && ch <= '9')
 	return segments[ch - '0'];
@@ -747,18 +747,18 @@ void QLCDNumber::drawDigit( const QPoint &pos, QPainter &p, int segLen,
     char *segs;
     int	 i,j;
 
-    const int erase	 = 0;
-    const int draw	 = 1;
-    const int leaveAlone = 2;
+    const char erase	  = 0;
+    const char draw	  = 1;
+    const char leaveAlone = 2;
 
     segs = getSegments(oldCh);
-    for ( nErases=0; segs[nErases] != -1; nErases++ ) {
+    for ( nErases=0; segs[nErases] != 99; nErases++ ) {
 	updates[nErases][0] = erase;		// get segments to erase to
 	updates[nErases][1] = segs[nErases];	// remove old char.
     }
     nUpdates = nErases;
     segs = getSegments(newCh);
-    for(i = 0 ; segs[i] != -1 ; i++) {
+    for(i = 0 ; segs[i] != 99 ; i++) {
 	for ( j=0;  j<nErases; j++ )
 	    if ( segs[i] == updates[j][1] ) {	// same segment ?
 		updates[j][0] = leaveAlone;	// yes, already on screen
