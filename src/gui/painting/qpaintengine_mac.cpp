@@ -149,9 +149,7 @@ QQuickDrawPaintEngine::begin(QPaintDevice *pdev)
     d->clip.dirty = false;
     d->offx = d->offy = 0;
     bool unclipped = false;
-    if(d->pdev->devType() == QInternal::Pixmap) {
-        static_cast<QPixmap*>(d->pdev)->detach();  //detach it
-    } else if(d->pdev->devType() == QInternal::Widget) {
+    if(d->pdev->devType() == QInternal::Widget) {
         QWidget *w = static_cast<QWidget*>(d->pdev);
         { //offset painting in widget relative the tld
             QPoint wp = posInWindow(w);

@@ -903,9 +903,6 @@ void QX11PaintEngine::cleanup()
 
 bool QX11PaintEngine::begin(QPaintDevice *pdev)
 {
-    if (pdev && pdev->devType() == QInternal::Pixmap)
-        static_cast<QPixmap *>(pdev)->detach(); // will modify it
-
     d->pdev = pdev;
     d->xinfo = qt_x11Info(pdev);
     d->hd = qt_x11Handle(pdev);

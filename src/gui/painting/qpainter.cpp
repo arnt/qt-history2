@@ -1085,6 +1085,7 @@ bool QPainter::begin(QPaintDevice *pd)
         {
             const QPixmap *pm = static_cast<const QPixmap *>(pd);
             Q_ASSERT(pm);
+            const_cast<QPixmap *>(pm)->detach();
             d->state->ww = d->state->vw = pm->width();
             d->state->wh = d->state->vh = pm->height();
             if (pm->depth() == 1) {
