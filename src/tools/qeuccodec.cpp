@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qeuccodec.cpp#10 $
+** $Id: //depot/qt/main/src/tools/qeuccodec.cpp#11 $
 **
 ** Implementation of QEucCodec class
 **
@@ -4647,13 +4647,7 @@ QCString QEucCodec::fromUnicode(const QString& uc, int& len_in_out) const
     for (int i=0; i<l; i++) {
 	QChar ch = uc[i];
 	if ( !ch.row && ch.cell < 128 ) {
-	    if ( ch.cell == 0x5C ) {
-		// Special case - backslash is Yen in eucJP, replace it.
-		*cursor++ = 0xa1;
-		*cursor++ = 0xc0;
-	    } else {
-		*cursor++ = ch.cell;
-	    }
+	    *cursor++ = ch.cell;
 	} else if ( ch.row == 0xff && ch.cell >= 0x61 && ch.cell <= 0x9F ) {
 	    // Could go in unicode_to_euc_FF00, but this is faster
 	    *cursor++ = 142;
@@ -4715,15 +4709,7 @@ QString QEucCodec::toUnicode(const char* chars, int len) const
 	uchar ch = chars[i];
 	if ( ch < 128 ) {
 	    // ASCII
-	    if ( ch == 0x5C ) {
-		// Yen symbol, not ASCII backslash
-		result += QChar((ushort)0x00A5);
-	    } else if ( ch == 0x7E ) {
-		// Overline, not ASCII tilde
-		result += QChar((ushort)0x203E);
-	    } else {
-		result += QChar(ch);
-	    }
+	    result += QChar(ch);
 	} else if ( ch < 142 || ch > 254 ) {
 	    // Invalid
 	    result += QChar::replacement;
@@ -4878,15 +4864,7 @@ public:
 	      case 0:
 		if ( ch < 128 ) {
 		    // ASCII
-		    if ( ch == 0x5C ) {
-			// Yen symbol, not ASCII backslash
-			result += QChar((ushort)0x00A5);
-		    } else if ( ch == 0x7E ) {
-			// Overline, not ASCII tilde
-			result += QChar((ushort)0x203E);
-		    } else {
-			result += QChar(ch);
-		    }
+		    result += QChar(ch);
 		} else if ( ch < 142 || ch > 254 ) {
 		    // Invalid
 		    result += QChar::replacement;
