@@ -431,7 +431,9 @@ public:
 
     //actions
     void addAction(QAction *action);
+    void addActions(QList<QAction*> actions);
     void insertAction(QAction *before, QAction *action);
+    void insertActions(QAction *before, QList<QAction*> actions);
     void removeAction(QAction *action);
     QList<QAction*> actions() const;
 

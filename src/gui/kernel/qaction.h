@@ -181,13 +181,9 @@ public:
 
 #ifdef QT_COMPAT
     inline QT_COMPAT void add(QAction* a) { addAction(a); }
-    inline QT_COMPAT void addSeparator() { QAction *act = new QAction(this); act->setSeparator(true); addAction(act); }
-    inline QT_COMPAT bool addTo(QWidget *w) {
-        QList<QAction*> acts = actions();
-        for(int i = 0; i < acts.size(); i++)
-            w->addAction(acts.at(i));
-        return true;
-    }
+    inline QT_COMPAT void addSeparator() 
+    { QAction *act = new QAction(this); act->setSeparator(true); addAction(act); }
+    inline QT_COMPAT bool addTo(QWidget *w) { w->addActions(actions()); return true; }
 #endif
 
 public slots:

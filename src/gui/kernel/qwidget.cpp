@@ -1665,6 +1665,18 @@ QWidget::addAction(QAction *action)
 }
 
 /*!
+    Appends the actions \a actions to this widget's list of actions.
+
+    \sa removeAction() QMenu addAction()
+*/
+void
+QWidget::addActions(QList<QAction*> actions)
+{
+    for(int i = 0; i < actions.count(); i++)
+        addAction(actions[i]);
+}
+
+/*!
     Inserts the action \a action to this widget's list of actions,
     before the action \a before.
 
@@ -1685,6 +1697,22 @@ QWidget::insertAction(QAction *before, QAction *action)
     QActionEvent e(QEvent::ActionAdded, action, before);
     QApplication::sendEvent(this, &e);
     action->addedTo(this);
+}
+
+/*!
+    Inserts the actions \a actions to this widget's list of actions,
+    before the action \a before.
+
+    \sa removeAction() QMenu insertAction()
+*/
+void
+QWidget::insertActions(QAction *before, QList<QAction*> actions)
+{
+    for(int i = actions.count()-1; i >= 0; i--) {
+        QAction *act = actions[i];
+        insertAction(before, actions[i]);
+        before = act;
+    }
 }
 
 /*!
