@@ -1446,6 +1446,7 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                 if(!tmp_dep_cmd.isEmpty() && doDepends()) {
                     char buff[256];
                     QString dep_cmd = replaceExtraCompilerVariables(tmp_dep_cmd, (*input), out);
+                    dep_cmd = Option::fixPathToLocalOS(dep_cmd);
                     if(FILE *proc = QT_POPEN(dep_cmd.latin1(), "r")) {
                         while(!feof(proc)) {
                             int read_in = fread(buff, 1, 255, proc);
