@@ -318,6 +318,7 @@ struct QX11Data
         KWM_RUNNING,
         GNOME_BACKGROUND_PROPERTIES,
         ENLIGHTENMENT_DESKTOP,
+        _SGI_DESKS_MANAGER,
 
         // EWMH (aka NETWM)
         _NET_SUPPORTED,

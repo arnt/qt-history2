@@ -177,6 +177,7 @@ static const char * x11_atomnames = {
     "KWM_RUNNING\0"
     "GNOME_BACKGROUND_PROPERTIES\0"
     "ENLIGHTENMENT_DESKTOP\0"
+    "_SGI_DESKS_MANAGER\0"
 
     // EWMH (aka NETWM)
     "_NET_SUPPORTED\0"
@@ -278,7 +279,11 @@ static GC*        app_gc_tmp        = 0;                // temporary GC
 static GC*        app_gc_ro_m        = 0;                // read-only GC (monochrome)
 static GC*        app_gc_tmp_m        = 0;                // temporary GC (monochrome)
 
+
+// detect broken window managers
 bool                qt_broken_wm                = false;
+static void qt_detect_broken_window_manager();
+
 
 // function to update the workarea of the screen - in qdesktopwidget_x11.cpp
 extern void qt_desktopwidget_update_workarea();
@@ -887,7 +892,7 @@ bool QApplication::x11_apply_settings()
     }
 
     qt_broken_wm =
-        settings.readBoolEntry("/qt/brokenWindowManager", false);
+        settings.readBoolEntry("/qt/brokenWindowManager", qt_broken_wm);
 
     qt_resolve_symlinks =
         settings.readBoolEntry("/qt/resolveSymlinks", true);
@@ -1153,6 +1158,27 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
         QApplication::setEffectEnabled(Qt::UI_AnimateTooltip, effects.contains("animatetooltip"));
         QApplication::setEffectEnabled(Qt::UI_FadeTooltip, effects.contains("fadetooltip"));
         QApplication::setEffectEnabled(Qt::UI_AnimateToolBox, effects.contains("animatetoolbox"));
+    }
+}
+
+
+static void qt_detect_broken_window_manager()
+{
+    Atom type;
+    int format;
+    ulong nitems, after;
+    uchar *data = 0;
+
+    // look for SGI's 4Dwm
+    int e = XGetWindowProperty(X11->display, QX11Info::appRootWindow(),
+                               ATOM(_SGI_DESKS_MANAGER), 0, 1, False, XA_WINDOW,
+                               &type, &format, &nitems, &after, &data);
+    if (data)
+        XFree(data);
+
+    if (e == Success && type == XA_WINDOW && format == 32 && nitems == 1 && after == 0) {
+        // detected SGI 4Dwm
+        qt_broken_wm = true;
     }
 }
 
@@ -1679,6 +1705,9 @@ void qt_init(QApplicationPrivate *priv, int,
 
         // Finally create all atoms
         qt_x11_create_intern_atoms();
+
+        // look for broken window managers
+        qt_detect_broken_window_manager();
 
         // initialize NET lists
         qt_get_net_supported();
