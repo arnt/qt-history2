@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.h#13 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.h#14 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -43,15 +43,16 @@ private:
     QTextStream stream;
     int		pageCount;
     bool	dirtyMatrix;
-    bool	dirtyClipping;
     bool	dirtyNewPage;
     bool	epsf;
     QString	fontsUsed;
 
     void matrixSetup( QPainter * );
     void clippingSetup( QPainter * );
+    void setClippingOff( QPainter * );
     void orientationSetup();
     void newPageSetup( QPainter * );
+    void resetDrawingTools( QPainter * );
     void emitHeader();
     void setFont( const QFont & );
     void drawImage( QPainter *, const QPoint &, const QImage & );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#242 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#243 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#242 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#243 $");
 
 
 /*****************************************************************************
@@ -1172,7 +1172,8 @@ void QPainter::setClipRegion( const QRegion &rgn )
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].rgn = &crgn;
-	if ( !pdev->cmd(PDC_SETCLIPRGN,this,param) || !hd )
+	if (( !pdev->cmd(PDC_SETCLIPRGN,this,param) || !hd ) &&
+	     (pdev->devType() != PDT_PRINTER ))
 	    return;
     }
     clearf( ClipOn );				// be sure to update clip rgn

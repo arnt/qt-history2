@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#47 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -26,7 +26,7 @@
 #include <unistd.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#46 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#47 $");
 
 
 // Note: this is comment-stripped and word-wrapped later.
@@ -148,7 +148,6 @@ static const char *ps_header[] = {
 "    showpage",
 "} D",
 "",
-"",
 "/P {",					// PDC_DRAWPOINT [x y]
 "    NP",
 "    MT",
@@ -194,6 +193,38 @@ static const char *ps_header[] = {
 "    QF",
 "    QS",
 "    end",
+"} D",
+"",
+"/ACRDict 4 dict def",
+"/ACR {",					// add clip rect
+"    ACRDict begin",
+"    /h ED /w ED /y ED /x ED",
+"    x y MT",
+"    0 h RL",
+"    w 0 RL",
+"    0 h neg RL",
+"    CP",
+"    end",
+"} D",
+"",
+"/CLSTART {",				// clipping start
+"    /clipTmp matrix CM def",		// save current matrix
+"    defM SM",				// Page default matrix
+"    NP",
+"} D",
+"",
+"/CLEND {",				// clipping end
+"    clip",
+"    NP",
+"    clipTmp SM",			// restore the current matrix
+"} D",
+"",
+"/CLO {",				// clipping off
+"    GR",				// restore top of page state
+"    GS",				// save it back again
+"    defM SM",				// set coordsys (defensive progr.)
+"    0 0 PageW PageH ACR",		// set clipping to whole page
+"    clip NP",
 "} D",
 "",
 "/RRDict 6 dict def",
@@ -1848,6 +1879,8 @@ struct QPSPrinterPrivate {
     int pageFontNumber;
     QBuffer * fontBuffer;
     QTextStream fontStream;
+    bool dirtyClipping;
+    bool firstClipOnPage;
 };
 
 
@@ -2178,15 +2211,18 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	d->fontBuffer->open( IO_WriteOnly );
 	d->fontStream.setDevice( d->fontBuffer );
 	d->headerFontNumber = 0;
-	pageCount = 1;			// initialize state
-	dirtyMatrix  = TRUE;
-	dirtyNewPage = FALSE;			// setup done by QPainter
+	pageCount           = 1;		// initialize state
+	dirtyMatrix         = TRUE;
+	d->dirtyClipping    = FALSE;		// No clipping is default.
+	dirtyNewPage        = FALSE;		// setup done by QPainter
 	                                        // for the first page.
+	d->firstClipOnPage  = TRUE;
 	fontsUsed = "";
 	
 	stream << "\n%%Page: " << pageCount << ' ' << pageCount << endl;
 	stream << "QI\n";
 	orientationSetup();
+	stream << "GS\n";
 	return TRUE;
     }
 
@@ -2195,6 +2231,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    // ### epsf here
 	    emitHeader();
 	}
+	stream << "GR\n";
 	stream << "QP\n";
 	stream << "%%Trailer\n";
 	stream << "%%Pages: " << pageCount << '\n';
@@ -2211,6 +2248,8 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    matrixSetup( paint );
 	if ( dirtyNewPage )
 	    newPageSetup( paint );
+	if ( d->dirtyClipping )	// Must be after matrixSetup and newPageSetup~
+	    clippingSetup( paint );
     }
 
     switch( c ) {
@@ -2340,15 +2379,6 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    drawImage( paint, pnt, img );
 	    break;
 	}
-	case PDC_SAVE:
-	    if ( dirtyMatrix )
-		matrixSetup( paint );
-	    stream << "SV\n";
-	    break;
-	case PDC_RESTORE:
-	    dirtyMatrix = FALSE;
-	    stream << "RS\n";
-	    break;
 	case PDC_SETBKCOLOR:
 	    stream << COLOR(*(p[0].color)) << "BC\n";
 	    break;
@@ -2398,22 +2428,22 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    dirtyMatrix = TRUE;
 	    break;
 	case PDC_SETCLIP:
-#if defined(DEBUG)
-	    debug( "QPrinter: Clipping not supported" );
-#endif
+	    d->dirtyClipping = TRUE;
 	    break;
 	case PDC_SETCLIPRGN:
-#if defined(DEBUG)
-	    debug( "QPrinter: Clipping not supported" );
-#endif
+	    d->dirtyClipping = TRUE;
 	    break;
 	case PDC_PRT_NEWPAGE:
+	    stream << "GR\n";
 	    stream << "QP\n";
 	    pageCount++;
 	    stream << "\n%%Page: " << pageCount << ' ' << pageCount << endl;
 	    stream << "QI\n";
-	    dirtyNewPage = TRUE;
+	    dirtyNewPage       = TRUE;
+	    d->dirtyClipping   = TRUE;
+	    d->firstClipOnPage = TRUE;
 	    orientationSetup();
+	    stream << "GS\n";
 	    break;
 	case PDC_PRT_ABORT:
 	    break;
@@ -2479,6 +2509,7 @@ void QPSPrinter::orientationSetup()
     if ( printer->orientation() == QPrinter::Landscape ) {
 	stream << "PageW 0 TR 90 rotate\n";
 	stream << "/defM matrix CM def\n";
+	stream << "PageW PageH /PageW def /PageH def\n";
     }
 
 }
@@ -2534,7 +2565,18 @@ void QPSPrinter::newPageSetup( QPainter *paint )
 	d->pageEncodings.clear();
 	d->pageFontNames.clear();
     }
+    resetDrawingTools( paint );
+    dirtyNewPage      = FALSE;
+    d->pageFontNumber = d->headerFontNumber;
+}
 
+
+/*
+  Called whenever a restore has been done. Currently done at the top of a
+  new page and whenever clipping is turned off.
+ */
+void QPSPrinter::resetDrawingTools( QPainter *paint )
+{
     QPDevCmdParam param[1];
     QPen   defaultPen;			// default drawing tools
     QBrush defaultBrush;
@@ -2560,7 +2602,41 @@ void QPSPrinter::newPageSetup( QPainter *paint )
 
     if ( paint->hasViewXForm() || paint->hasWorldXForm() )
 	matrixSetup( paint );
+}
 
-    dirtyNewPage = FALSE;
-    d->pageFontNumber = d->headerFontNumber;
+static void putRect( QTextStream &stream, const QRect &r )
+{
+    stream << r.x() << " "
+	   << r.y() << " "
+	   << r.width() << " "
+	   << r.height() << " ";
+}
+
+void QPSPrinter::setClippingOff( QPainter *paint )
+{
+	stream << "CLO\n";		// clipping off, includes a restore
+	resetDrawingTools( paint );     // so drawing tools must be reset
+}
+
+void QPSPrinter::clippingSetup( QPainter *paint )
+{
+    if ( paint->hasClipping() ) {
+	if ( !d->firstClipOnPage ) {
+	    setClippingOff( paint );
+	}
+	const QRegion rgn = paint->clipRegion();
+	QArray<QRect> rects = rgn.rects();
+	int i;
+	stream<< "CLSTART\n";		// start clipping
+	for( i = 0 ; i < (int)rects.size() ; i++ ) {
+	    putRect( stream, rects[i] );
+	    stream << "ACR\n";		// add clip rect
+	} 
+	stream << "CLEND\n";		// end clipping
+	d->firstClipOnPage = FALSE;
+    } else {
+	if ( !d->firstClipOnPage )	// no need to turn off if first on page
+	    setClippingOff( paint );
+    }
+    d->dirtyClipping = FALSE;
 }

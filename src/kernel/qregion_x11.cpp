@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#37 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -17,7 +17,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#36 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#37 $");
 
 
 static QRegion *empty_region = 0;
@@ -357,7 +357,7 @@ struct _XRegion {
   the union of all these rectangles.
 */
 
-QArray<QRect> QRegion::getRects() const
+QArray<QRect> QRegion::rects() const
 {
     QArray<QRect> a( (int)data->rgn->numRects );
     BOX *r = data->rgn->rects;
