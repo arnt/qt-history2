@@ -2380,7 +2380,7 @@ bool QAxBase::qt_invoke( int _id, QUObject* _o )
 
     // clean up
     for ( p = 0; p < slotcount; ++p )
-	VariantClear( params.rgvarg+p );
+	clearVARIANT( params.rgvarg+p );
     delete [] params.rgvarg;
 
     return checkHRESULT( hres, &excepinfo, this, slot->name );
@@ -2443,7 +2443,7 @@ bool QAxBase::qt_property( int _id, int _f, QVariant* _v )
 		UINT argerr = 0;
 		EXCEPINFO excepinfo;
 		HRESULT hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYPUT, &params, 0, &excepinfo, &argerr );
-		VariantClear( &arg );
+		clearVARIANT( &arg );
 
 		return checkHRESULT( hres, &excepinfo, this, prop->n );
 	    }
@@ -2464,7 +2464,7 @@ bool QAxBase::qt_property( int _id, int _f, QVariant* _v )
 
 		// map result VARIANTARG to QVariant
 		*_v = VARIANTToQVariant( arg, prop->type() );
-		VariantClear( &arg );
+		clearVARIANT( &arg );
 		return ( _v->isValid() );
 	    }
 	case 2: // Reset
@@ -2640,7 +2640,7 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
 
     // clean up
     for ( int i = 0; i < varc; ++i )
-	VariantClear( params.rgvarg+i );
+	clearVARIANT( params.rgvarg+i );
     delete[] arg;
 
     return checkHRESULT( hres, &excepinfo, this, function );
@@ -2719,7 +2719,7 @@ QVariant QAxBase::dynamicCall( const QCString &function, const QVariant &var1,
 	return QVariant();
 
     QVariant qvar = VARIANTToQVariant( res, rettype );
-    VariantClear( &res );
+    clearVARIANT( &res );
 
     return qvar;
 }
@@ -2757,7 +2757,7 @@ QVariant QAxBase::dynamicCall( const QCString &function, QValueList<QVariant> &v
     delete[] vararray;
 
     QVariant qvar = VARIANTToQVariant( res, rettype );
-    VariantClear( &res );
+    clearVARIANT( &res );
 
     return qvar;
 }
@@ -2852,7 +2852,7 @@ QAxObject *QAxBase::querySubObject( const QCString &name, const QVariant &var1,
 	break;
     }
 
-    VariantClear( &res );
+    clearVARIANT( &res );
     return object;
 }
 

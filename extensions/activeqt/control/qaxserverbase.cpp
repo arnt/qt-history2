@@ -1567,8 +1567,6 @@ bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
 		    VariantInit( arg );
 
 		    const QUParameter *param = signal ? signal->method->parameters + p : 0;
-		    if ( param && ( param->inOut & QUParameter::Out ) )
-			arg->vt |= VT_BYREF;
 		    QUObjectToVARIANT( obj, *arg, param );
 		}
 		// call listeners (through IDispatch)
@@ -1597,7 +1595,7 @@ bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
 
 		// clean up
 		for ( p = 0; p < signalcount; ++p )
-		    VariantClear( dispParams.rgvarg+p );
+		    clearVARIANT( dispParams.rgvarg+p );
 		delete [] dispParams.rgvarg;
 	    }
 	    clist->Release();

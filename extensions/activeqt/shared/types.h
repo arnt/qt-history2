@@ -56,14 +56,7 @@ static inline QString BSTRToQString( BSTR bstr )
 
 static inline BSTR QStringToBSTR( const QString &str )
 {
-    BSTR bstrVal;
-
-    int wlen = str.length();
-    bstrVal = SysAllocStringByteLen( 0, wlen*2 );
-    memcpy( bstrVal, str.unicode(), sizeof(QChar)*(wlen) );
-    bstrVal[wlen] = 0;
-
-    return bstrVal;
+    return SysAllocStringLen( (OLECHAR*)str.unicode(), str.length() );
 }
 
 extern QDateTime DATEToQDateTime( DATE ole );
@@ -95,5 +88,6 @@ extern bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParame
 extern bool QUObjectToVARIANT( QUObject *obj, VARIANT &var, const QUParameter *param );
 
 extern void clearQUObject( QUObject *obj, const QUParameter *param );
+extern void clearVARIANT( VARIANT *var );
 
 #endif //TYPES_H

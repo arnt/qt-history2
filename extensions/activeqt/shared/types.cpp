@@ -560,7 +560,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 		    SafeArrayGetElement( array, &i, &var );
 
 		    QVariant qvar = VARIANTToQVariant( var, 0 );
-		    VariantClear( &var );
+		    clearVARIANT( &var );
 		    list << qvar;
 		}
 	    }
@@ -748,7 +748,7 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 		SafeArrayGetElement( array, &i, &var );
 
 		QVariant qvar = VARIANTToQVariant( var, 0 );
-		VariantClear( &var );
+		clearVARIANT( &var );
 		list << qvar;
 	    }
 
@@ -911,31 +911,53 @@ static inline void makeReference( VARIANT &arg )
 bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 {
     bool byref = param && ( param->inOut & QUParameter::Out ) && ( param->inOut != QUParameter::Out );
-    if ( byref && arg.vt != VT_BYREF )
-	VariantClear( &arg );
-
     if ( param && !QUType::isEqual( param->type, obj->type ) && param->type->canConvertFrom( obj, obj->type ) )
 	param->type->convertFrom( obj, obj->type );
 
     // map the QUObject's type to the VARIANT
     if ( QUType::isEqual( obj->type, &static_QUType_int ) ) {
-	arg.vt = VT_I4;
-	arg.lVal = static_QUType_int.get( obj );
+	if ( byref && ( arg.vt == (VT_I4|VT_BYREF) ) ) {
+	    *arg.plVal = static_QUType_int.get( obj );
+	} else {
+	    arg.vt = VT_I4;
+	    arg.lVal = static_QUType_int.get( obj );
+	}
     } else if ( QUType::isEqual( obj->type, &static_QUType_uint ) ) {
-	arg.vt = VT_UINT;
-	arg.uintVal = static_QUType_uint.get( obj );
+	if ( byref && ( arg.vt == (VT_UINT|VT_BYREF) ) ) {
+	    *arg.puintVal = static_QUType_uint.get( obj );
+	} else {
+	    arg.vt = VT_UINT;
+	    arg.uintVal = static_QUType_uint.get( obj );
+	}
     } else if ( QUType::isEqual( obj->type, &static_QUType_QString ) ) {
-	arg.vt = VT_BSTR;
-	arg.bstrVal = QStringToBSTR( static_QUType_QString.get( obj ) );
+	if ( byref && ( arg.vt == (VT_BSTR|VT_BYREF) ) ) {
+	    SysFreeString( *arg.pbstrVal );
+	    *arg.pbstrVal = QStringToBSTR( static_QUType_QString.get( obj ) );
+	} else {
+	    arg.vt = VT_BSTR;
+	    arg.bstrVal = QStringToBSTR( static_QUType_QString.get( obj ) );
+	}
     } else if ( QUType::isEqual( obj->type, &static_QUType_bool ) ) {
-	arg.vt = VT_BOOL;
-	arg.boolVal = static_QUType_bool.get( obj );
+	if ( byref && ( arg.vt == (VT_BOOL|VT_BYREF) ) ) {
+	    *arg.pboolVal = static_QUType_bool.get( obj );
+	} else {
+	    arg.vt = VT_BOOL;
+	    arg.boolVal = static_QUType_bool.get( obj );
+	}
     } else if ( QUType::isEqual( obj->type, &static_QUType_double ) ) {
-	arg.vt = VT_R8;
-	arg.dblVal = static_QUType_double.get( obj );
+	if ( byref && ( arg.vt == (VT_R8|VT_BYREF) ) ) {
+	    *arg.pdblVal = static_QUType_double.get( obj );
+	} else {
+	    arg.vt = VT_R8;
+	    arg.dblVal = static_QUType_double.get( obj );
+	}
     } else if ( QUType::isEqual( obj->type, &static_QUType_enum ) ) {
-	arg.vt = VT_I4;
-	arg.lVal = static_QUType_enum.get( obj );
+	if ( byref && ( arg.vt == (VT_I4|VT_BYREF) ) ) {
+	    *arg.plVal = static_QUType_enum.get( obj );
+	} else {
+	    arg.vt = VT_I4;
+	    arg.lVal = static_QUType_enum.get( obj );
+	}
     } else if ( QUType::isEqual( obj->type, &static_QUType_QVariant ) && param ) {
 	QVariant value = static_QUType_QVariant.get( obj );
 	const char *vartype;
@@ -949,6 +971,9 @@ bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 	    vartype = (const char*)param->typeExtra;
 	else
 	    vartype = param->type->desc();
+
+	if ( byref && arg.vt != VT_EMPTY )
+	    clearVARIANT( &arg );
 
 	if ( !QVariantToVARIANT( value, arg, vartype ) )
 	    return FALSE;
@@ -999,6 +1024,9 @@ bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 	} else {
 	    vartype = param->type->desc();
 	}
+
+	if ( byref && arg.vt != VT_EMPTY )
+	    clearVARIANT( &arg );
 
 	if( !QVariantToVARIANT( value, arg, vartype ) )
 	    return FALSE;
@@ -1062,5 +1090,65 @@ void clearQUObject( QUObject *obj, const QUParameter *param )
 	    break;
 	}
 	obj->payload.ptr = 0;
+    }
+}
+
+void clearVARIANT( VARIANT *var )
+{
+    if ( var->vt & VT_BYREF ) {
+	const VARTYPE vt = var->vt & ~VT_BYREF;
+	switch( vt ) {
+	case VT_BSTR:
+	    SysFreeString( *var->pbstrVal );
+	    delete var->pbstrVal;
+	    break;
+	case VT_BOOL:
+	    delete var->pboolVal;
+	    break;
+	case VT_I1:
+	    delete var->pcVal;
+	    break;
+	case VT_I2:
+	    delete var->piVal;
+	    break;
+	case VT_I4:
+	    delete var->plVal;
+	    break;
+	case VT_INT:
+	    delete var->pintVal;
+	    break;
+	case VT_UI1:
+	    delete var->pbVal;
+	    break;
+	case VT_UI2:
+	    delete var->puiVal;
+	    break;
+	case VT_UI4:
+	    delete var->pulVal;
+	    break;
+	case VT_UINT:
+	    delete var->puintVal;
+	    break;
+	case VT_R8:
+	    delete var->pdblVal;
+	    break;
+	case VT_DATE:
+	    delete var->pdate;
+	    break;
+	case VT_DISPATCH:
+	    var->pdispVal->Release();
+	    break;
+	case VT_ARRAY|VT_VARIANT:
+	    SafeArrayDestroy( var->parray );
+	    break;
+	}
+	VariantInit( var );
+    } else {
+	switch ( var->vt ) {
+	case VT_BSTR:
+	    SysFreeString( var->bstrVal );
+	    break;
+	}
+	VariantClear( var );
     }
 }
