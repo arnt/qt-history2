@@ -2,6 +2,8 @@
 #
 # Creates a new Qt source distribution for X11
 #
+# Copyright 1996 Troll Tech AS.  All rights reserved.
+#
 
 freecomm=$1
 platform=$2
@@ -38,19 +40,23 @@ mkdir -p ${DISTDIR}
 cd ${DISTDIR}
 
 echo "Exporting the entire Qt archive" >&2
-cvs -Q checkout qt
+cvs -Q export -Dnow qt
 
-echo "Removing references to CVS and other local files.." >&2
-find qt -name CVS | xargs rm -rf
-rm -rf qt/util qt/doc qt/gif qt/qdoc
+echo "Removing some local files.." >&2
+find qt -name .cvsignore | xargs rm -f
+rm -rf qt/doc qt/gif qt/qdoc
 rm -f qt/TODO
 
 QTVER=`grep "#define.*QT_VERSION" qt/src/tools/qglobal.cpp | fmt -1 | grep '"' | sed -e 's/"//g'`
 QTVERMAJOR=`echo $QTVER | sed -e 's/\..*$//'`
 echo "Auto-detect the Qt version number -- " $QTVER >&2
 
+echo "Removing beta code.." >&2
+cd ${DISTDIR}/qt/src
+for d in `make showdirs`; do cd $d ; rm -f `make showbeta`; cd .. ; done
+
 echo "Removing kernel .cpp files for other platforms..." >&2
-cd qt/src/kernel
+cd ${DISTDIR}/qt/src/kernel
 find . -name '*_x11.cpp' -o -name '*_win.cpp' -o -name '*_os2.cpp' \
 	| grep -v "_${platform}" | xargs rm -f
 
@@ -98,20 +104,14 @@ fi
 if [ "${platform}" = "x11" ]; then
   cd ${DISTDIR}/qt/src/moc
   rm makefile.win
-  echo "Make include symlinks" >&2
-  cd ${DISTDIR}/qt/include
-  ln -s ../src/tools/q*.h ../src/kernel/q*.h ../src/widgets/q*.h ../src/dialogs/q*.h .
+  echo "Creating arch directory" >&2
+  cd ${DISTDIR}/qt/src
+  ${curdir}/makearch.sh
   cd ${DISTDIR}/qt/src
   rm -f Makefile* tools/Makefile kernel/Makefile widgets/Makefile dialogs/Makefile
   cd ${DISTDIR}/qt/lib
   ln -s libqt.so.${QTVER} libqt.so
   ln -s libqt.so.${QTVER} libqt.so.${QTVERMAJOR}
-fi
-
-if [ "${platform}" = "x11" ]; then
-  echo "Creating arch directory" >&2
-  cd ${DISTDIR}/qt/src
-  ${curdir}/makearch.sh
 fi
 
 echo "Copy the README, LICENSE etc. files" >&2
@@ -122,7 +122,7 @@ tar cf - * | (cd ${DISTDIR}/qt ; tar xf -)
 cd ${DISTDIR}/qt/dist/${platform}
 tar cf - * | (cd ${DISTDIR}/qt ; tar xf -)
 cd ${DISTDIR}
-rm -rf qt/dist
+rm -rf qt/dist qt/util
 
 echo "Finally packing the distribution, see ${DISTDIR}" >&2
 

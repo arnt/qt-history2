@@ -20,7 +20,7 @@ BASE=`pwd`
 
 # prepare the directories for content
 if [ -d include ]; then
-    rm -f include/*
+    rm -rf include/*
 else
     mkdir include
 fi
@@ -28,7 +28,7 @@ fi
 if [ -d arch ]; then
     rm -rf arch/*
 else
-    mkdir -p arch
+    mkdir arch
 fi
 mkdir arch/template
 mkdir arch/template/library
@@ -36,16 +36,22 @@ mkdir arch/template/examples
 mkdir arch/template/tutorial
 mkdir arch/template/moc
 
-cp ~/qt/util/propagate arch/template/propagate
+cp ${BASE}/util/scripts/propagate arch/template/propagate
 
 # fill them
 for a in tools kernel widgets dialogs ; do
     cd ${BASE}/src/${a}
-    ln -s `make -s showheaders | fmt -1 | sed 's-^-../src/'${a}'/-'` \
-	${BASE}/include
-    ln -s `make -s showheaders showsources | fmt -1 | \
-	sed 's-^-../../../src/'${a}'/-'` ${BASE}/arch/template/library
+    beta=`make -s showbeta`
+    if [ "$beta" = "" ]; then
+	beta="s/XYZ/XYZ/g";
+    else
+	beta=`echo $beta | sed -e 's/ /\\\|/g' -e 's/\./\\\./g'`
+	beta="s/$beta//g"
+    fi
+    ln -s `make -s showheaders | sed $beta | fmt -1 | sed 's-^-../src/'${a}'/-'` ${BASE}/include
+    ln -s `make -s showheaders showsources | sed $beta | fmt -1 | sed 's-^-../../../src/'${a}'/-'` ${BASE}/arch/template/library
 done
+
 cd ${BASE}/examples
 for a in `make -s showdirs` ; do
     cd ${BASE}/examples/${a}
