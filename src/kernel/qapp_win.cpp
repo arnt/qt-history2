@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#80 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#81 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#80 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#81 $");
 
 
 /*****************************************************************************
@@ -409,6 +409,7 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
     if ( replace )
 	cursorStack->removeLast();
     cursorStack->append( app_cursor );
+    SetCursor( app_cursor->handle() );
 }
 
 void QApplication::restoreOverrideCursor()
@@ -417,9 +418,14 @@ void QApplication::restoreOverrideCursor()
 	return;
     cursorStack->removeLast();
     app_cursor = cursorStack->last();
-    if ( !app_cursor ) {
+    if ( app_cursor ) {
+	SetCursor( app_cursor->handle() );
+    } else {
 	delete cursorStack;
 	cursorStack = 0;
+	QWidget *w = QWidget::find( curWin );
+	if ( w )
+	    SetCursor( w->cursor().handle() );
     }
 }
 
@@ -802,8 +808,6 @@ bool QApplication::processNextEvent( bool canWait )
 	if ( translateKeyCode(msg.wParam) == 0 ) {
 	    TranslateMessage( &msg );		// translate to WM_CHAR
 	    return TRUE;
-	} else {
-	    debug( "couldn't translate key code" );
 	}
     }
     DispatchMessage( &msg );			// send to WndProc
@@ -1480,6 +1484,14 @@ static int translateButtonState( int s )
 	bst |= AltButton;
     return bst;
 }
+
+
+void qt_set_cursor( QWidget *w, QCursor *c )
+{
+    if ( w->winId() == curWin )			// mouse in window
+	SetCursor( c->handle() );
+}
+
 
 extern QCursor *qt_grab_cursor();
 

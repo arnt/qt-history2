@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#57 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#56 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#57 $");
 
 extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
 
@@ -319,10 +319,13 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 }
 
 
+extern void qt_set_cursor( QWidget *, QCursor * ); // qapp_win.cpp
+
 void QWidget::setCursor( const QCursor &cursor )
 {
     ((QCursor*)&cursor)->handle();
     curs = cursor;
+    qt_set_cursor( this, &curs );
 }
 
 
