@@ -71,6 +71,7 @@ General
 <td valign="top">
 <ul>
 <li><a href="tech-preview.html"><b><font size=+1>Introduction to the Technology Preview</font></b></a>
+<li><a href="getting-started.html">Getting Started with Qt 4</a>
 <li><a href="how-to-learn-qt.html">How to Learn Qt</a>
 <!-- not for the preview
 <li><a href="tutorial.html">Tutorial #1</a>, 
@@ -151,8 +152,8 @@ Licenses &amp; Credits
 <li><a href="winsystem.html">Window system specific notes</a>
 <li><a href="activeqt.html">ActiveQt Framework</a>
 <li><a href="motif-extension.html">Motif Extension</a>
-<li><a href="mac-differences.html">Mac OS X development</a>
-<li><a href="porting.html">Porting from Qt 3.x to Qt 4.x</a>
+<!-- <li><a href="mac-differences.html">Mac OS X development</a> -->
+<!-- <li><a href="porting.html">Porting from Qt 3.x to Qt 4.x</a> -->
 </ul>
 </td>
 <td valign="top">
