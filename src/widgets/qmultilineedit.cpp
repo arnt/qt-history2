@@ -514,7 +514,7 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
 
   This signal is emitted when the availability of undo changes.
   If \a yes is TRUE, then undo() will work until
-  undoAvailable(FALSE) is next emitted.
+  undoAvailable( FALSE ) is next emitted.
 */
 
 /*!
@@ -522,9 +522,16 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
 
   This signal is emitted when the availability of redo changes.
   If \a yes is TRUE, then redo() will work until
-  redoAvailable(FALSE) is next emitted.
+  redoAvailable( FALSE ) is next emitted.
 */
 
+/*!
+  \fn void QMultiLineEdit::copyAvailable (bool yes)
+
+  This signal is emitted when the availability of cut/copy changes.
+  If \a yes is TRUE, then cut() and copy() will work until
+  copyAvailable( FALSE ) is next emitted.
+*/
 
 /*! \fn bool QMultiLineEdit::isReadOnly() const
 
