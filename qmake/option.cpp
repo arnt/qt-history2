@@ -47,7 +47,7 @@ int Option::warn_level = WarnLogic;
 int Option::debug_level = 0;
 QFile Option::output;
 QString Option::output_dir;
-bool Option::recursive = true;
+bool Option::recursive = false;
 QStringList Option::before_user_vars;
 QStringList Option::after_user_vars;
 QString Option::user_template;
@@ -133,6 +133,8 @@ bool usage(const char *a0)
             "\t-help          This help\n"
             "\t-v             Version information\n"
             "\t-after         All variable assignments after this will be\n"
+            "\t-norecursive   Don't do a recursive search\n"
+            "\t-recursive     Do a recursive search\n"
             "\t               parsed after [files]\n"
             "\t-cache file    Use file as cache           [makefile mode only]\n"
             "\t-spec spec     Use spec as QMAKESPEC       [makefile mode only]\n"
@@ -140,7 +142,6 @@ bool usage(const char *a0)
             "\t-nodepend      Don't generate dependencies [makefile mode only]\n"
             "\t-nomoc         Don't generate moc targets  [makefile mode only]\n"
             "\t-nopwd         Don't look for files in pwd [project mode only]\n"
-            "\t-norecursive   Don't do a recursive search [project mode only]\n"
             ,a0,
             default_mode(a0) == Option::QMAKE_GENERATE_PROJECT  ? " (default)" : "", project_builtin_regx().latin1(),
             default_mode(a0) == Option::QMAKE_GENERATE_MAKEFILE ? " (default)" : "");
@@ -164,6 +165,7 @@ Option::internalParseCommandLine(int argc, char **argv, int skip)
             if(x == 1) {
                 bool specified = true;
                 if(opt == "project") {
+                    Option::recursive = true;
                     Option::qmake_mode = Option::QMAKE_GENERATE_PROJECT;
                 } else if(opt == "prl") {
                     Option::mkfile::do_deps = false;
