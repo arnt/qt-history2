@@ -813,7 +813,7 @@ static GC cache_mask_gc( Display *dpy, Drawable hd, int mask_no, Pixmap mask )
     The most common values for \a rop are CopyROP and XorROP; the \l
     Qt::RasterOp documentation defines all the possible values.
 
-    If \a ignoreMask is TRUE (the default is FALSE) and \a src is a
+    If \a ignoreMask is FALSE (the default) and \a src is a
     masked QPixmap, the entire blit is masked by \a{src}->mask().
 
     If \a src, \a dst, \a sw or \a sh is 0, bitBlt() does nothing. If
