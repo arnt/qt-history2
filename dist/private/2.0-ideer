@@ -88,10 +88,13 @@ Q*Dict must use QString, so the QIntDict and QPtrDict hackery
 Add activate_signal(const char* signal, QString) for fast QString signals
 Split QCString, QByteArray, etc. out of qstring.h, making it cheaper to #include.
     * Difficult, since QByteArray is a typedef - ANSI C++ forbids
-Move QString(int) to private!!!
 DND QPictures - as WMF/etc.?
 QRegion transformations.  Windows can do some stuff.
 Redo QT_H stuff for all header files.
+Support multiple filters in QFileDialog/QDir/QRegExp
+
+MUST implement a "caret" concept sufficient to implement XIMP
+OverTheSpot and the Windows Logo requirements (ie. SetCaretPos).  
 
 
 ARNT'S THINGS:
