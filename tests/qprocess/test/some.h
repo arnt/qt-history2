@@ -39,6 +39,8 @@ private:
     int protocolReadStdout;
     int protocolReadStderr;
     QTextView protocol;
+    QLabel *out;
+    QLabel *err;
     QLabel *isRunningInfo;
     QLabel *normalExitInfo;
     QLabel *exitStatusInfo;

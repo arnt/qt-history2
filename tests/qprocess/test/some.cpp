@@ -14,9 +14,6 @@ QFile Some::logFile( "outputLog" );
 /*
  * Some
 */
-static QLabel *out;
-static QLabel *err;
-
 Some::Some( QObject *p, bool start, bool cStdout, bool cStderr, bool cExit, int com )
     : QObject( p ), stdoutConnected( FALSE ), stderrConnected( FALSE ), exitConnected( FALSE )
 {
@@ -210,6 +207,7 @@ void Some::connectStdout( bool enable )
 
 void Some::readyReadStdout()
 {
+qDebug( "Foo %p", this );
     QString s;
     proc->readStdout( s );
     out->setText( s.mid( 0, 1000 ) );
