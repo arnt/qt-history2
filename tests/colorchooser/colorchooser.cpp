@@ -5,111 +5,32 @@
 #include "qlabel.h"
 #include "qwellarray.h"
 #include "qpushbutton.h"
-
+#include "qlineedit.h"
 #include "qimage.h"
 #include "qpixmap.h"
-
 #include "qdrawutil.h"
 
 #include <qapplication.h>
 
+static bool initrgb = FALSE;
+static QRgb stdrgb[6*8];
+static QRgb cusrgb[2*8];
 
-class QColorLuminancePicker : public QWidget
+class QColorWell : public QWellArray
 {
-    Q_OBJECT
 public:
-    QColorLuminancePicker(QWidget* parent=0, const char* name=0);
-    ~QColorLuminancePicker();
-
-public slots:
-    void setCol( int h, int s, int v );
-    void setCol( int h, int s );
-
-signals:
-    void newVal( int v );
-    
+    QColorWell( QWidget *parent, int r, int c, QRgb *vals ) 
+	:QWellArray( parent ), values( vals ) { setDimension(r,c); }
 protected:
-//    QSize sizeHint() const;
-//    QSizePolicy sizePolicy() const;
-    void paintEvent( QPaintEvent*);
-    void mouseMoveEvent( QMouseEvent * );
-    void mousePressEvent( QMouseEvent * );
-
+    void drawContents( QPainter *, int row, int col, const QRect& );
 private:
-    int val;
-    int hue;
-    int sat;
-    
-    int valY() { return val ; }
-    void setVal( int v );
+    QRgb *values;
 };
 
-QColorLuminancePicker::QColorLuminancePicker(QWidget* parent,
-						  const char* name)
-    :QWidget( parent, name )
+void QColorWell::drawContents( QPainter *p, int row, int col, const QRect &r )
 {
-    
-}
-
-QColorLuminancePicker::~QColorLuminancePicker()
-{
-    
-}
-
-
-void QColorLuminancePicker::mouseMoveEvent( QMouseEvent *m )
-{
-    setVal( 255-m->y()+2 );
-}
-void QColorLuminancePicker::mousePressEvent( QMouseEvent *m )
-{
-    setVal( 255-m->y()+2 );
-}
-
-
-void QColorLuminancePicker::setVal( int v ) 
-{
-    if ( val == v )
-	return;
-    val = QMAX( 0, QMIN(v,255)); 
-    repaint( FALSE ); //#####
-    emit newVal( val );
-}
-
-void QColorLuminancePicker::paintEvent( QPaintEvent * )
-{
-    QPainter p(this);
-    int w = width() - 5;
-    
-    QRect r( 0, 0, w, height() );
-    for ( int v = 0; v < 256; v++ ) {
-	p.setPen( QColor( hue, sat, v, QColor::Hsv ) );
-	p.drawLine( r.left()+2, 255-v + 2, r.right()-2,  255-v + 2 );
-    }
-    QColorGroup g = colorGroup();
-    qDrawShadePanel( &p, r, g, TRUE );
-    p.setPen( g.foreground() );
-    p.setBrush( g.foreground() );
-    QPointArray a;
-    int y = 255-val + 2;
-    a.setPoints( 3, w, y, w+5, y+5, w+5, y-5 );
-    erase( w, 0, 5, height() );//###
-    p.drawPolygon( a );
-    
-    
-}
-
-void QColorLuminancePicker::setCol( int h, int s , int v )
-{
-    val = v; 
-    hue = h;
-    sat = s;
-    repaint( FALSE );//####
-}
-
-void QColorLuminancePicker::setCol( int h, int s )
-{
-    setCol( h, s, val );
+    int i = row + col*numRows();
+    p->fillRect( r, QColor( values[i] ) );
 }
 
 class QColorPicker : public QFrame
@@ -136,13 +57,143 @@ private:
     int hue;
     int sat;
 
-    QPoint colPt() { return QPoint( 360-hue, 255-sat ); }
-    int huePt( const QPoint &pt ) { return 360 - pt.x(); }
-    int satPt( const QPoint &pt ) { return 255 - pt.y(); }
-    void setCol( const QPoint &pt ) { setCol( huePt(pt), satPt(pt) ); }
+    QPoint colPt();
+    int huePt( const QPoint &pt );
+    int satPt( const QPoint &pt );
+    void setCol( const QPoint &pt );
     
     QPixmap *pix;
 };
+
+static const int pWidth = 200;
+static const int pHeight = 200;
+
+
+class QColorLuminancePicker : public QWidget
+{
+    Q_OBJECT
+public:
+    QColorLuminancePicker(QWidget* parent=0, const char* name=0);
+    ~QColorLuminancePicker();
+
+public slots:
+    void setCol( int h, int s, int v );
+    void setCol( int h, int s );
+
+signals:
+    void newHsv( int h, int s, int v );
+    
+protected:
+//    QSize sizeHint() const;
+//    QSizePolicy sizePolicy() const;
+    void paintEvent( QPaintEvent*);
+    void mouseMoveEvent( QMouseEvent * );
+    void mousePressEvent( QMouseEvent * );
+
+private:
+    int val;
+    int hue;
+    int sat;
+    
+    int y2val( int y );
+    int val2y( int val );
+    void setVal( int v );
+};
+
+int QColorLuminancePicker::y2val( int y )
+{
+    int h = height() - 4;
+    return 255 - (y - 2)*255/h;
+}
+
+int QColorLuminancePicker::val2y( int v )
+{
+    int h = height() - 4;
+    return 2 + (255-v)*h/255;
+}
+
+QColorLuminancePicker::QColorLuminancePicker(QWidget* parent,
+						  const char* name)
+    :QWidget( parent, name )
+{
+    hue = 100; val = 100; sat = 100;
+}
+
+QColorLuminancePicker::~QColorLuminancePicker()
+{
+    
+}
+
+void QColorLuminancePicker::mouseMoveEvent( QMouseEvent *m )
+{
+    setVal( y2val(m->y()) );
+}
+void QColorLuminancePicker::mousePressEvent( QMouseEvent *m )
+{
+    setVal( y2val(m->y()) );
+}
+
+
+void QColorLuminancePicker::setVal( int v ) 
+{
+    if ( val == v )
+	return;
+    val = QMAX( 0, QMIN(v,255)); 
+    repaint( FALSE ); //###
+    emit newHsv( hue, sat, val );
+}
+
+//receives from a hue,sat chooser and relays.
+void QColorLuminancePicker::setCol( int h, int s )
+{
+    setCol( h, s, val );
+    emit newHsv( h, s, val );
+}
+
+
+void QColorLuminancePicker::paintEvent( QPaintEvent * )
+{
+    QPainter p(this);
+    int w = width() - 5;
+    
+    QRect r( 0, 0, w, height() );
+    for ( int y = r.top() + 2; y < r.bottom() - 2; y++ ) {
+	p.setPen( QColor( hue, sat, y2val(y), QColor::Hsv ) );
+	p.drawLine( r.left()+2, y, r.right()-2,  y );
+    }
+    QColorGroup g = colorGroup();
+    qDrawShadePanel( &p, r, g, TRUE );
+    p.setPen( g.foreground() );
+    p.setBrush( g.foreground() );
+    QPointArray a;
+    int y = val2y(val);
+    a.setPoints( 3, w, y, w+5, y+5, w+5, y-5 );
+    erase( w, 0, 5, height() );//###
+    p.drawPolygon( a );    
+}
+
+void QColorLuminancePicker::setCol( int h, int s , int v )
+{
+    val = v; 
+    hue = h;
+    sat = s;
+    repaint( FALSE );//####
+}
+
+QPoint QColorPicker::colPt() 
+{ return QPoint( (360-hue)*pWidth/360, (255-sat)*pHeight/255 ); }
+int QColorPicker::huePt( const QPoint &pt )
+{ return 360 - pt.x()*360/pHeight; }
+int QColorPicker::satPt( const QPoint &pt )
+{ return 255 - pt.y()*255/pWidth ; }
+void QColorPicker::setCol( const QPoint &pt ) 
+{ setCol( huePt(pt), satPt(pt) ); }
+
+
+
+
+
+
 
 QColorPicker::QColorPicker(QWidget* parent=0, const char* name=0)
     : QFrame( parent, name )
@@ -150,21 +201,16 @@ QColorPicker::QColorPicker(QWidget* parent=0, const char* name=0)
 
     setCol( 150, 255 ); 
     
-    debug( "QColorPicker::QColorPicker" );
-    QImage img( 361, 256, 32 );
-    for ( int hue = 0; hue <= 360; hue++ )
-	    for ( int sat = 0; sat <= 255; sat++ )
-		img.setPixel( 360-hue, 255-sat, qHsv(hue, sat, 255) );
-    debug( "done creating QImage");
+    QImage img( pHeight, pWidth, 32 );
+    for ( int y = 0; y < pHeight; y++ ) 
+    for ( int x = 0; x < pWidth; x++ ) {
+	    QPoint p( x, y );
+		img.setPixel( x, y, QColor::hsv(huePt(p), satPt(p), 200) );
+	}
     pix = new QPixmap;
     pix->convertFromImage(img);
-    debug( "done creating pixmap");
-    
     setBackgroundMode( NoBackground );
 }
-
-
-
 
 QColorPicker::~QColorPicker()
 {
@@ -173,14 +219,13 @@ QColorPicker::~QColorPicker()
 
 QSize QColorPicker::sizeHint() const
 {
-    return QSize( 360 + 2*frameWidth(), 256 + 2*frameWidth() );
+    return QSize( pHeight + 2*frameWidth(), pWidth + 2*frameWidth() );
 }
 
 QSizePolicy QColorPicker::sizePolicy() const
 {
     return QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 }
-
 
 void QColorPicker::setCol( int h, int s )
 {
@@ -194,7 +239,6 @@ void QColorPicker::setCol( int h, int s )
     r.moveBy( contentsRect().x()-10, contentsRect().y()-10 );
     //    update( r );
     repaint( r, FALSE );
-    emit newCol( hue, sat );
 }
 
 
@@ -202,13 +246,14 @@ void QColorPicker::mouseMoveEvent( QMouseEvent *m )
 {
     QPoint p = m->pos() - contentsRect().topLeft();
     setCol( p );
-    
+    emit newCol( hue, sat );
 }
 
 void QColorPicker::mousePressEvent( QMouseEvent *m )
 {
     QPoint p = m->pos() - contentsRect().topLeft();
     setCol( p );    
+    emit newCol( hue, sat );
 }
 
 
@@ -226,7 +271,10 @@ void QColorPicker::drawContents(QPainter* p)
 }
 
 
-class QColorShower : public QLabel 
+class QColNumLineEdit;
+class QColorShowLabel;
+
+class QColorShower : public QWidget 
 {
     Q_OBJECT
 public:
@@ -234,22 +282,177 @@ public:
 
     QRgb currentColor() const { return curCol; }
     
-public slots:    
+public:
+    //things that don't emit signals
     void setHsv( int h, int s, int v );
-    void setHs( int h, int s );
-    void setV( int v );
+    void setRgb( QRgb rgb );
     //    void setRGB( );
 
+signals:
+    void newCol( QRgb rgb );
+private slots:    
+    void rgbEd();
+    void hsvEd();
 private:
+    void showCurrentColor();
     int hue, sat, val;
     QRgb curCol;
+    QColNumLineEdit *hEd;
+    QColNumLineEdit *sEd;
+    QColNumLineEdit *vEd;
+    QColNumLineEdit *rEd;
+    QColNumLineEdit *gEd;
+    QColNumLineEdit *bEd;
+    QColorShowLabel *lab;
     bool rgbOriginal;
 };
 
-QColorShower::QColorShower( QWidget *parent, const char *name = 0 )
-    :QLabel( parent, name) 
+class QColNumLineEdit : public QLineEdit
 {
-    setHsv( 100, 100, 100 ); //###
+public:
+    QColNumLineEdit( QWidget *parent, const char* name = 0 )
+	: QLineEdit( parent, name ) { setMaxLength( 3 );} //###validator 
+    QSize sizeHint() const { 
+	return QSize( 30, //##### 
+		     QLineEdit::sizeHint().height() ); }
+    void setNum( int i ) { 
+	QString s; 
+	s.setNum(i); 
+	blockSignals(TRUE);
+	setText( s );
+	blockSignals(FALSE);
+    }
+    int val() const { return text().toInt(); }
+};
+
+
+class QColorShowLabel : public QFrame
+{
+public:
+    QColorShowLabel( QWidget *parent ) :QFrame( parent ) {
+	setFrameStyle( QFrame::Panel|QFrame::Sunken );
+	setBackgroundMode( PaletteBackground );
+    }
+    void setColor( QColor c ) { col = c; }
+protected:    
+    void drawContents( QPainter *p );
+private:
+    QColor col;
+};
+
+void QColorShowLabel::drawContents( QPainter *p )
+{
+    p->fillRect( contentsRect(), col );
+}
+
+QColorShower::QColorShower( QWidget *parent, const char *name = 0 )
+    :QWidget( parent, name) 
+{
+    QGridLayout *gl = new QGridLayout( this, 1, 1, 6 );
+    lab = new QColorShowLabel( this );
+    lab->setMinimumWidth( 60 ); //###
+    gl->addMultiCellWidget(lab, 0,-1,0,0);
+
+    hEd = new QColNumLineEdit( this );
+    QLabel *l = new QLabel( hEd, tr("Hu&e:"), this );
+    l->setAlignment( AlignRight );
+    gl->addWidget( l, 0, 1 );
+    gl->addWidget( hEd, 0, 2 );
+
+    sEd = new QColNumLineEdit( this );
+    l = new QLabel( sEd, tr("&Sat:"), this );
+    l->setAlignment( AlignRight );
+    gl->addWidget( l, 1, 1 );
+    gl->addWidget( sEd, 1, 2 );
+
+    vEd = new QColNumLineEdit( this );
+    l = new QLabel( vEd, tr("&Val:"), this );
+    l->setAlignment( AlignRight );
+    gl->addWidget( l, 2, 1 );
+    gl->addWidget( vEd, 2, 2 );
+    
+    rEd = new QColNumLineEdit( this );
+    l = new QLabel( hEd, tr("&Red:"), this );
+    l->setAlignment( AlignRight );
+    gl->addWidget( l, 0, 3 );
+    gl->addWidget( rEd, 0, 4 );
+
+    gEd = new QColNumLineEdit( this );
+    l = new QLabel( sEd, tr("&Green:"), this );
+    l->setAlignment( AlignRight );
+    gl->addWidget( l, 1, 3 );
+    gl->addWidget( gEd, 1, 4 );
+
+    bEd = new QColNumLineEdit( this );
+    l = new QLabel( bEd, tr("Bl&ue:"), this );
+    l->setAlignment( AlignRight );
+    gl->addWidget( l, 2, 3 );
+    gl->addWidget( bEd, 2, 4 );
+
+    connect( hEd, SIGNAL(textChanged(const QString&)), this, SLOT(hsvEd()) );
+    connect( sEd, SIGNAL(textChanged(const QString&)), this, SLOT(hsvEd()) );
+    connect( vEd, SIGNAL(textChanged(const QString&)), this, SLOT(hsvEd()) );
+    
+    connect( rEd, SIGNAL(textChanged(const QString&)), this, SLOT(rgbEd()) );
+    connect( gEd, SIGNAL(textChanged(const QString&)), this, SLOT(rgbEd()) );
+    connect( bEd, SIGNAL(textChanged(const QString&)), this, SLOT(rgbEd()) );
+}
+
+void QColorShower::showCurrentColor()
+{
+    lab->setColor( currentColor() );
+    lab->repaint(FALSE); //###
+}
+
+void QColorShower::rgbEd()
+{
+    rgbOriginal = TRUE;
+    curCol = qRgb( rEd->val(), gEd->val(), bEd->val() );
+    QColor::getHsv( currentColor(), hue, sat, val );
+    
+    hEd->setNum( hue );
+    sEd->setNum( sat );
+    vEd->setNum( val );
+
+    showCurrentColor();
+    emit newCol( currentColor() );
+}
+
+void QColorShower::hsvEd()
+{
+    rgbOriginal = FALSE;
+    hue = hEd->val();
+    sat = sEd->val();
+    val = vEd->val();
+
+    curCol = QColor::hsv( hue, sat, val );
+
+    rEd->setNum( qRed(currentColor()) );
+    gEd->setNum( qGreen(currentColor()) );
+    bEd->setNum( qBlue(currentColor()) );
+    
+    showCurrentColor();
+    emit newCol( currentColor() );
+}
+
+void QColorShower::setRgb( QRgb rgb )
+{
+    rgbOriginal = TRUE;
+    if ( currentColor() == rgb )
+	return;
+    curCol = rgb;
+
+    QColor::getHsv( currentColor(), hue, sat, val );
+
+    hEd->setNum( hue );
+    sEd->setNum( sat );
+    vEd->setNum( val );
+
+    rEd->setNum( qRed(currentColor()) );
+    gEd->setNum( qGreen(currentColor()) );
+    bEd->setNum( qBlue(currentColor()) );
+    
+    showCurrentColor();
 }
 
 void QColorShower::setHsv(  int h, int s, int v )
@@ -258,77 +461,137 @@ void QColorShower::setHsv(  int h, int s, int v )
     if ( h == hue && v == val && s == sat )
 	return;
     hue = h; val = v; sat = s; //Range check###
-    curCol = qHsv( hue, sat, val );
-    QString str;
-    str.sprintf( "Hue %d, Sat %d, Val %d \n %x"
-		 , hue, sat, val, curCol );
+    curCol = QColor::hsv( hue, sat, val );
 
-    setBackgroundColor( QColor( curCol ) );
-    setText( str );
-    //emit
-}
+    hEd->setNum( hue );
+    sEd->setNum( sat );
+    vEd->setNum( val );
 
-void QColorShower::setHs(  int h, int s )
-{
-    setHsv( h, s, val );
-}
-
-
-void QColorShower::setV(  int v )
-{
-    setHsv( hue, sat, v );
+    rEd->setNum( qRed(currentColor()) );
+    gEd->setNum( qGreen(currentColor()) );
+    bEd->setNum( qBlue(currentColor()) );
+    
+    
+    showCurrentColor();
 }
 
 
 
 
-ColorChooser::ColorChooser(QWidget* parent, const char* name, bool modal) :
-    QDialog(parent, name, modal)
+
+class QColorDialogPrivate : public QObject
 {
-    QHBoxLayout *topLay = new QHBoxLayout( this, 12, 6 );
+Q_OBJECT
+public:
+    QColorDialogPrivate( ColorChooser *p );
+private slots:    
+    void addCustom();
+
+    void newHsv( int h, int s, int v );
+    void newColorTypedIn( QRgb rgb );
+    void newCustom( int, int );
+    void newStandard( int, int );
+private:
+    void newRgb( QRgb rgb );
+    QColorPicker *cp;
+    QColorLuminancePicker *lp;
+    QWellArray *custom;
+    QWellArray *standard;
+    QColorShower *cs;
+    int nCust;
+  
+};
+
+//sets all widgets to display h,s,v
+void QColorDialogPrivate::newHsv( int h, int s, int v )
+{
+    cs->setHsv( h, s, v );
+    cp->setCol( h, s );
+    lp->setCol( h, s, v );
+}
+
+//sets all widgets to display rgb
+void QColorDialogPrivate::newRgb( QRgb rgb )
+{
+    cs->setRgb( rgb );
+    newColorTypedIn( rgb );
+}
+
+//sets all widgets exept cs to display rgb
+void QColorDialogPrivate::newColorTypedIn( QRgb rgb )
+{
+    int h, s, v;
+    QColor::getHsv( rgb, h, s, v );
+    cp->setCol( h, s );
+    lp->setCol( h, s, v);
+}
+
+
+void QColorDialogPrivate::newCustom( int r, int c )
+{
+    newRgb( cusrgb[r+c*2] ); //###
+    standard->setSelected(-1,-1);
+}
+
+void QColorDialogPrivate::newStandard( int r, int c )
+{
+    newRgb( stdrgb[r+c*6] ); //###
+    custom->setSelected(-1,-1);
+}
+
+
+QColorDialogPrivate::QColorDialogPrivate( ColorChooser *dialog )
+{
+
+    QHBoxLayout *topLay = new QHBoxLayout( dialog, 12, 6 );
     QVBoxLayout *leftLay = new QVBoxLayout;
     topLay->addLayout( leftLay );
+
+    if ( !initrgb ) {
+	initrgb = TRUE;
+	int i = 0;
+	for ( int g = 0; g < 4; g++ )
+	    for ( int r = 0;  r < 4; r++ )
+		for ( int b = 0; b < 3; b++ )
+		    stdrgb[i++] = qRgb( r*255/3, g*255/3, b*255/2 );
+
+	for ( i = 0; i < 2*8; i++ )
+	    cusrgb[i] = qRgb(0xff,0xff,0xff);
+    }
+
     
-    QLabel * lab = new QLabel( tr( "&Basic colors") , this );
+    standard = new QColorWell( dialog, 6, 8, stdrgb );
+    standard->setCellSize( 28, 24 );
+    QLabel * lab = new QLabel( standard, tr( "&Basic colors") , dialog );
+    connect( standard, SIGNAL(selected(int,int)), SLOT(newStandard(int,int)));
     leftLay->addWidget( lab );
-    standard = new QWellArray( this );
-    standard->setDimension( 6, 8 );
     leftLay->addWidget( standard );
 
     
     leftLay->addStretch();
 
-    lab = new QLabel( tr( "&Custom colors") , this );
-    leftLay->addWidget( lab );
-    custom = new QWellArray( this );
-    custom->setDimension( 2, 8 );
+    custom = new QColorWell( dialog, 2, 8, cusrgb );
+    custom->setCellSize( 28, 24 );
     nCust = 0;
     
-    
-    int r, c;
-    for ( c = 0; c < 8; c++ )
-	for ( r = 0; r < 6; r++ )
-	    standard->setCellBrush( r, c, QColor( r*255/6, c*255/8, (r+c)*15 ) ); //####
-
-    for ( c = 0; c < 8; c++ )
-	for ( r = 0; r < 2; r++ )
-	    custom->setCellBrush( r, c, white );
-
-    
+    connect( custom, SIGNAL(selected(int,int)), SLOT(newCustom(int,int)));
+    lab = new QLabel( custom, tr( "&Custom colors") , dialog );
+    leftLay->addWidget( lab );
     leftLay->addWidget( custom );
     
-    QPushButton *custbut = new QPushButton( tr("&Define Custom Colors >>>"),
-					    this );
+    QPushButton *custbut = new QPushButton( tr("&Define Custom Colors >>"),
+					    dialog );
+    custbut->setEnabled( FALSE );
     leftLay->addWidget( custbut );
     
     QHBoxLayout *buttons = new QHBoxLayout;
     leftLay->addLayout( buttons );
 
     QPushButton *ok, *cancel;
-    ok = new QPushButton( "Ok", this );
-    connect( ok, SIGNAL(clicked()), SLOT(accept()) );
-    cancel = new QPushButton( "Cancel", this );
-    connect( cancel, SIGNAL(clicked()), SLOT(reject()) );
+    ok = new QPushButton( tr("Ok"), dialog );
+    connect( ok, SIGNAL(clicked()), dialog, SLOT(accept()) );
+    cancel = new QPushButton( tr("Cancel"), dialog );
+    connect( cancel, SIGNAL(clicked()), dialog, SLOT(reject()) );
     buttons->addWidget( ok );
     buttons->addWidget( cancel );
     buttons->addStretch();
@@ -339,40 +602,51 @@ ColorChooser::ColorChooser(QWidget* parent, const char* name, bool modal) :
     QHBoxLayout *pickLay = new QHBoxLayout;
     rightLay->addLayout( pickLay );
     
-    QColorPicker *cp = new QColorPicker( this );
+    cp = new QColorPicker( dialog );
     cp->setFrameStyle( QFrame::Panel + QFrame::Sunken );
     pickLay->addWidget( cp );
 
-    QColorLuminancePicker *lp = new QColorLuminancePicker( this );
-    lp->setFixedWidth( 20 ); //##########
+    lp = new QColorLuminancePicker( dialog );
+    lp->setFixedWidth( 20 ); //###
     pickLay->addWidget( lp );
 
     connect( cp, SIGNAL(newCol(int,int)), lp, SLOT(setCol(int,int)) );
+    connect( lp, SIGNAL(newHsv(int,int,int)), this, SLOT(newHsv(int,int,int)) );
+
     
     rightLay->addStretch();
 
-    QColorShower *cs = new QColorShower( this );
-    connect( cp, SIGNAL(newCol(int,int)), cs, SLOT(setHs(int,int)) );
-    connect( lp, SIGNAL(newVal(int)), cs, SLOT(setV(int)) );
+    cs = new QColorShower( dialog );
+    connect( cs, SIGNAL(newCol(QRgb)), this, SLOT(newColorTypedIn(QRgb)));
     rightLay->addWidget( cs );
 
     
     QPushButton *addCusBt = new QPushButton( tr("&Add To Custom Colors"),
-					     this );
+					     dialog );
     rightLay->addWidget( addCusBt );
     connect( addCusBt, SIGNAL(clicked()), this, SLOT(addCustom()) );
+
+    
 }
 
 
-void ColorChooser::addCustom()
+void QColorDialogPrivate::addCustom()
 {
-    if ( nCust < 15 ) {
-	custom->setCellBrush( nCust / 8, nCust % 8,  //###hardcode
-			      QColor( cs->currentColor() ));
-	nCust++;
-	custom->repaint( FALSE ); //#############################
+    if ( nCust < 16 ) {
+	cusrgb[nCust++] =  cs->currentColor();
+	custom->repaint( FALSE ); //###
     }
 }
+
+
+
+ColorChooser::ColorChooser(QWidget* parent, const char* name) :
+    QDialog(parent, name, TRUE ) //modal
+{
+    d = new QColorDialogPrivate( this );
+
+}
+
 
 main(int argc, char** argv)
 {
@@ -385,6 +659,6 @@ main(int argc, char** argv)
 
     QObject::connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));
 
-    return app.exec();
+    //    return app.exec();
 }
 #include "colorchooser.moc"
