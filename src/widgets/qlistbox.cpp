@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#292 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#293 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1186,7 +1186,7 @@ void QListBox::viewportMousePressEvent( QMouseEvent *e )
 void QListBox::mousePressEvent( QMouseEvent *e )
 {
     QListBoxItem * i = itemAt( e->pos() );
-    
+
     if ( numColumns() > 1 && !i ) {
 	if ( d->selectionMode == Single ) {
 	    if ( d->current ) {
@@ -1196,12 +1196,11 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 	} else
 	    clearSelection();
     }
-    
+
     switch( selectionMode() ) {
     default:
     case Single:
-	if ( i )
-	    setSelected( i, TRUE );
+	//nothing ;
 	break;
     case Extended:
 	if ( i ) {
@@ -1263,9 +1262,14 @@ void QListBox::viewportMouseDoubleClickEvent( QMouseEvent * e )
 
 /*! \reimp */
 
-void QListBox::mouseDoubleClickEvent( QMouseEvent * )
+void QListBox::mouseDoubleClickEvent( QMouseEvent *e )
 {
-    if ( d->current && d->current->s ) {
+    bool ok = TRUE;
+    QListBoxItem *i = itemAt( e->pos() );
+    if ( numColumns() > 1 && !i )
+	ok = FALSE;
+
+    if ( d->current && ok ) {
 	QListBoxItem * i = d->current;
 	QString tmp = d->current->text();
 	emit selected( currentItem() );
@@ -2790,13 +2794,13 @@ void QListBox::paintCell( QPainter * p, int row, int col )
 	if ( numColumns()  == 1 ) {
 	    p->fillRect( 0, 0, cw, ch, g.brush( QColorGroup::Highlight ) );
 	    p->setPen( g.highlightedText() );
-	    p->setBackgroundColor( g.highlight() ); 
+	    p->setBackgroundColor( g.highlight() );
 	} else {
 	    int iw = i->width( this );
 	    p->fillRect( 0, 0, iw, ch, g.brush( QColorGroup::Highlight ) );
 	    p->fillRect( iw, 0, cw - iw + 1, ch, g.base() );
 	    p->setPen( g.highlightedText() );
-	    p->setBackgroundColor( g.highlight() ); 
+	    p->setBackgroundColor( g.highlight() );
 	}
     } else {
 	p->fillRect( 0, 0, cw, ch, g.base() );
