@@ -34,7 +34,7 @@ ButtonsGroups::ButtonsGroups( QWidget *parent, const char *name )
     // ------- first group
 
     // Create an exclusive button group
-    QButtonGroup *bgrp1 = new QButtonGroup( 1, QGroupBox::Horizontal, "Button Group 1 (exclusive)", this);
+    QButtonGroup *bgrp1 = new QButtonGroup( 1, QGroupBox::Horizontal, "Button Group &1 (exclusive)", this);
     box1->addWidget( bgrp1 );
     bgrp1->setExclusive( TRUE );
 
@@ -47,7 +47,7 @@ ButtonsGroups::ButtonsGroups( QWidget *parent, const char *name )
     // ------- second group
 
     // Create a non-exclusive buttongroup
-    QButtonGroup *bgrp2 = new QButtonGroup( 1, QGroupBox::Horizontal, "Button Group 2 (non-exclusive)", this );
+    QButtonGroup *bgrp2 = new QButtonGroup( 1, QGroupBox::Horizontal, "Button Group &2 (non-exclusive)", this );
     box1->addWidget( bgrp2 );
     bgrp2->setExclusive( FALSE );
 
@@ -62,7 +62,7 @@ ButtonsGroups::ButtonsGroups( QWidget *parent, const char *name )
     // ------------ third group
 
     // create a buttongroup which is exclusive for radiobuttons and non-exclusive for all other buttons
-    QButtonGroup *bgrp3 = new QButtonGroup( 1, QGroupBox::Horizontal, "Button Group 3 (Radiobutton-exclusive)", this );
+    QButtonGroup *bgrp3 = new QButtonGroup( 1, QGroupBox::Horizontal, "Button Group &3 (Radiobutton-exclusive)", this );
     box2->addWidget( bgrp3 );
     bgrp3->setRadioButtonExclusive( TRUE );
 
@@ -81,7 +81,7 @@ ButtonsGroups::ButtonsGroups( QWidget *parent, const char *name )
     // ------------ fourth group
 
     // create a groupbox which layouts its childs in a columns
-    QGroupBox *bgrp4 = new QButtonGroup( 1, QGroupBox::Horizontal, "Groupbox with normal buttons", this );
+    QGroupBox *bgrp4 = new QButtonGroup( 1, QGroupBox::Horizontal, "Groupbox with &normal buttons", this );
     box2->addWidget( bgrp4 );
 
     // insert three pushbuttons...
