@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetprotocol.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qnetprotocol.cpp#6 $
 **
 ** Implementation of QFileDialog class
 **
@@ -209,12 +209,4 @@ QNetworkProtocol *QNetworkProtocol::copy() const
     return new QNetworkProtocol();
 }
 
-/*!
-  #### todo
-*/
-
-QString QNetworkProtocol::toString() const
-{
-    return QString::null;
-}
 

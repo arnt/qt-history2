@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetprotocol.h#4 $
+** $Id: //depot/qt/main/src/kernel/qnetprotocol.h#5 $
 **
 ** Implementation of QFileDialog class
 **
@@ -57,7 +57,7 @@ public:
 	Error
     };
 	
-    
+
     QNetworkProtocol();
     virtual ~QNetworkProtocol();
 
@@ -77,7 +77,6 @@ public:
     virtual void isFile();
 
     virtual QNetworkProtocol *copy() const;
-    virtual QString toString() const;
 
 signals:
     void entry( const QUrlInfo & );
@@ -94,7 +93,7 @@ signals:
     void copyProgress( const QString &, const QString &,
 		       int step, int total );
     void connectionStateChanged( int state, const QString &data );
-    
+
 protected:
     QUrl *url;
 

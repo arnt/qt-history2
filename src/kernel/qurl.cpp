@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#17 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1595,10 +1595,21 @@ QString QUrl::toString() const
 					    qNetworkProtocolRegister->count() == 0 ) )
 	    return QDir::cleanDirPath( d->path );
 	return d->protocol + ":" + QDir::cleanDirPath( d->path );
-    } else if ( d->networkProtocol )
-	return d->networkProtocol->toString();
-
-    return QString::null;
+    } else {
+	QString res = d->protocol + "://";
+	if ( !d->user.isEmpty() || !d->pass.isEmpty() ) {
+	    if ( !d->user.isEmpty() )
+		res += d->user;
+	    if ( !d->pass.isEmpty() )
+		res += ":" + d->pass;
+	    res += "@";
+	}
+	res += d->host + QDir::cleanDirPath( d->path );
+	
+	// #### todo better way to compose an URL
+	
+	return res;
+    }
 }
 
 /*!
