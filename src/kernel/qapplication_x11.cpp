@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#559 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#560 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3773,7 +3773,8 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	    }
 	    if (!XCheckTypedWindowEvent(dpy,event->xkey.window,XKeyPress,
 					&evPress))
-		break;
+		XPutBackEvent(dpy, &evRelease);
+	    break;
 	    if ( evPress.xkey.keycode != event->xkey.keycode ||
 		 evRelease.xkey.time != evPress.xkey.time){
 		XPutBackEvent(dpy, &evRelease);
