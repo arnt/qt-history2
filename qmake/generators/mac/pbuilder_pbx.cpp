@@ -811,7 +811,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
           << "\t\t\t" << "name = \"" << grp << "\";" << "\n"
           << "\t\t" << "};" << "\n";
     }
-    { //INSTALL BUILDPHASE (sh script)
+    { //INSTALL BUILDPHASE (copy)
         QString phase_key = keyFor("QMAKE_PBX_TARGET_COPY_PHASE");
         QString destDir = Option::output_dir;
         if (!project->isEmpty("QMAKE_ORIG_DESTDIR"))
@@ -819,6 +819,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         destDir = QFileInfo(destDir).absoluteFilePath();
         project->variables()["QMAKE_PBX_PRESCRIPT_BUILDPHASES"].append(phase_key);
         t << "\t\t" << phase_key << " = {\n"
+          << "\t\t\tname = \"Project Copy\";\n"
           << "\t\t\tbuildActionMask = 2147483647;\n"
           << "\t\t\tdstPath = " << destDir << ";\n"
           << "\t\t\tdstSubfolderSpec = 0;\n"
@@ -835,6 +836,60 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
           << "\t\t\t};\n"
           << "\t\t};\n";
     }
+    //BUNDLE_DATA BUILDPHASE (copy)
+    if(!project->isEmpty("QMAKE_BUNDLE_DATA")) { 
+        QStringList bundle_file_refs;
+        //all bundle data
+        const QStringList &bundle_data = project->variables()["QMAKE_BUNDLE_DATA"];
+        for(int i = 0; i < bundle_data.count(); i++) {
+            QStringList pbx_files;
+            //all files
+            const QStringList &files = project->variables()[bundle_data[i] + ".files"];
+            for(int file = 0; file < files.count(); file++) {
+                QString file_ref_key = keyFor("QMAKE_PBX_BUNDLE_COPY_FILE_REF." + bundle_data[i] + "-" + files[file]);
+                bundle_file_refs += file_ref_key;
+                t << "\t\t" << file_ref_key << " = {" << "\n"
+                  << "\t\t\t" << "isa = PBXFileReference;" << "\n"
+                  << "\t\t\t" << "path = \"" << files[file] << "\";" << "\n"
+                  << "\t\t\t" << "refType = " << reftypeForFile(files[file]) << ";" << "\n"
+                  << "\t\t" << "};" << "\n";
+                QString copy_file_key = keyFor("QMAKE_PBX_BUNDLE_COPY_FILE." + bundle_data[i] + "-" + files[file]);
+                pbx_files += copy_file_key;
+                t << "\t\t" <<  copy_file_key << " = {\n"
+                  << "\t\t\tfileRef =  " <<  file_ref_key << ";\n"
+                  << "\t\t\tisa = PBXBuildFile;\n"
+                  << "\t\t\tsettings = {\n"
+                  << "\t\t\t};\n"
+                  << "\t\t};\n";
+            }
+            //the phase
+            QString phase_key = keyFor("QMAKE_PBX_BUNDLE_COPY." + bundle_data[i]);
+            project->variables()["QMAKE_PBX_PRESCRIPT_BUILDPHASES"].append(phase_key);
+            t << "\t\t" << phase_key << " = {\n"
+              << "\t\t\tname = \"Bundle Copy [" << bundle_data[i] << "]\";\n"
+              << "\t\t\tbuildActionMask = 2147483647;\n"
+              << "\t\t\tdstPath = " << project->first(bundle_data[i] + ".path") << ";\n"
+              << "\t\t\tdstSubfolderSpec = 1;\n"
+              << "\t\t\tfiles = (\n"
+              << valGlue(pbx_files, "\t\t\t\t", ",\n\t\t\t\t", "\n")
+              << "\t\t\t);\n"
+              << "\t\t\tisa = PBXCopyFilesBuildPhase;\n"
+              << "\t\t\trunOnlyForDeploymentPostprocessing = 0;\n"
+              << "\t\t};\n";
+        }
+        QString bundle_copy_key = keyFor("QMAKE_PBX_BUNDLE_COPY");
+        project->variables()["QMAKE_PBX_GROUPS"].append(bundle_copy_key);
+        t << "\t\t" << bundle_copy_key << " = {" << "\n"
+          << "\t\t\t" << "children = (" << "\n"
+          << valGlue(bundle_file_refs, "\t\t\t\t", ",\n\t\t\t\t", "\n")
+          << "\t\t\t" << ");" << "\n"
+          << "\t\t\t" << "isa = PBXGroup;" << "\n"
+          << "\t\t\t" << "name = \"Source [bundle data]\"" << ";" << "\n"
+          << "\t\t\t" << "path = \"\";" << "\n"
+          << "\t\t\t" << "refType = 4;" << "\n"
+          << "\t\t" << "};" << "\n";
+    }
+
     if(/*ideType() == MAC_XCODE &&*/ !project->isEmpty("QMAKE_PBX_PRESCRIPT_BUILDPHASES") && 0) {
         // build reference
         t << "\t\t" << keyFor("QMAKE_PBX_PRESCRIPT_BUILDREFERENCE") << " = {" << "\n"
