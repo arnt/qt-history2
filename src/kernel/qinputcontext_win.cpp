@@ -6,21 +6,28 @@ extern Qt::WindowsVersion qt_winver;
 #include <objbase.h>
 #include <initguid.h>
 
+
 DEFINE_GUID(IID_IActiveIMMApp, 
 0x08c0e040, 0x62d1, 0x11d1, 0x93, 0x26, 0x0, 0x60, 0xb0, 0x67, 0xb8, 0x6e);
+
+
 
 DEFINE_GUID(CLSID_CActiveIMM,
 0x4955DD33, 0xB159, 0x11d0, 0x8F, 0xCF, 0x0, 0xAA, 0x00, 0x6B, 0xCC, 0x59);
 
+
+
 DEFINE_GUID(IID_IActiveIMMMessagePumpOwner,
 0xb5cf2cfa, 0x8aeb, 0x11d1, 0x93, 0x64, 0x0, 0x60, 0xb0, 0x67, 0xb8, 0x6e);
+
+
 
 interface IEnumRegisterWordW;
 interface IEnumInputContext;
 struct IMEMENUITEMINFOW;
 
 #define IFMETHOD HRESULT STDMETHODCALLTYPE
-    
+
 interface IActiveIMMApp : public IUnknown
 {
 public:
@@ -132,7 +139,6 @@ void QInputContext::init()
     }
 }
 
-
 void QInputContext::shutdown()
 {
     // release active input method if we have one
@@ -141,6 +147,8 @@ void QInputContext::shutdown()
 	aimmpump->Release();
 	aimm->Deactivate();
 	aimm->Release();
+	aimm = 0;
+	aimmpump = 0;
     }
 }
 
@@ -151,15 +159,14 @@ HIMC QInputContext::getContext( HWND wnd )
 	aimm->GetContext( wnd, &imc );
     else
 	imc = ImmGetContext( wnd );
-	
+
     return imc;
 }
-
 
 void QInputContext::TranslateMessage( const MSG *msg)
 {
     if ( !aimmpump || aimmpump->OnTranslateMessage( msg ) != S_OK )
-	TranslateMessage( msg );
+	::TranslateMessage( msg );
 }
 
 LRESULT QInputContext::DefWindowProc( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam )
@@ -171,15 +178,14 @@ LRESULT QInputContext::DefWindowProc( HWND hwnd, UINT msg, WPARAM wParam, LPARAM
     if ( !aimm || aimm->OnDefWindowProc( hwnd, msg, wParam, lParam, &retval ) != S_OK ) {
 #if defined(UNICODE)
 	if ( qt_winver & Qt::WV_NT_based )
-	    retval = DefWindowProc( hwnd, msg, wParam, lParam );
+	    retval = ::DefWindowProc( hwnd, msg, wParam, lParam );
 	else
 #endif
-    	    retval = DefWindowProcA( hwnd,msg, wParam, lParam );
+	    retval = ::DefWindowProcA( hwnd,msg, wParam, lParam );
 #endif
     }
     return retval;
 }
-
 
 void QInputContext::releaseContext( HWND wnd, HIMC imc )
 {
@@ -202,6 +208,7 @@ QString QInputContext::getCompositionString( HIMC imc, DWORD dwindex, int *pos )
     char buffer[256];
     LONG buflen = -1;
     bool unicode = TRUE;
+
 #ifdef Q_OS_TEMP
     buflen = ImmGetCompositionString( imc, dwindex, &buffer, 255 );
 #else
@@ -216,6 +223,7 @@ QString QInputContext::getCompositionString( HIMC imc, DWORD dwindex, int *pos )
 	unicode = FALSE;
     }
 #endif
+
     if ( pos )
 	*pos = (buflen & 0xffff);
 
@@ -233,5 +241,4 @@ QString QInputContext::getCompositionString( HIMC imc, DWORD dwindex, int *pos )
 	return res;
     }
 }
-
 
