@@ -359,7 +359,7 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
        !static_cast<const QWidget*>(pd)->testWState(WState_InPaintEvent)) {
 	qWarning("QPainter::begin: Widget painting can only begin as a "
 		 "result of a paintEvent");
-	return false;
+	//return false;
     }
 
     const QWidget *copyMe = 0;
