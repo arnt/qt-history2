@@ -885,7 +885,7 @@ void QWorkspace::showWindow( QWidget* w )
     else
 	w->parentWidget()->show();
     if ( d->maxWindow )
-	d->maxWindow->raise();
+	d->maxWindow->internalRaise();
     updateWorkspace();
 }
 
@@ -2348,7 +2348,7 @@ QRect QWorkspace::updateWorkspace()
 	d->vbar->raise();
 	d->hbar->raise();
 	if ( d->maxWindow )
-	    d->maxWindow->raise();
+	    d->maxWindow->internalRaise();
 
 	QRect r( 0, 0, 0, 0 );
 	QList<QWorkspaceChild *>::Iterator it(d->windows.begin());

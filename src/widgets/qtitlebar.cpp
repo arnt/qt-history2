@@ -409,7 +409,8 @@ void QTitleBar::mouseMoveEvent( QMouseEvent * e)
 		}
 #endif
 		QPoint pp = p - d->moveOffset;
-		parentWidget()->move( pp );
+		if (!parentWidget()->isMaximized())
+		    parentWidget()->move( pp );
 	    }
 	} else {
 	    QStyle::SCFlags last_ctrl = d->buttonDown;
