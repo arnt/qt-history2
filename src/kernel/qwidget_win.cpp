@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#155 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#156 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -130,6 +130,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	exsty = WS_EX_TOOLWINDOW;
     } else if ( modal ) {
 	style = WS_POPUP | WS_CAPTION;
+	exsty = WS_EX_TOOLWINDOW;
     } else if ( topLevel && !desktop ) {
 	if ( testWFlags(WStyle_Customize) ) {
 	    if ( testWFlags(WStyle_NormalBorder|WStyle_DialogBorder) == 0 ) {
