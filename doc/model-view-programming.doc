@@ -488,7 +488,7 @@ be performed within a single function:
 \skipto int main
 \printuntil QAbstractItemModel
 
-Note that the \l QStringListModel is declared as a \l QAbstractItemModel.
+Note that the \c StringListModel is declared as a \l QAbstractItemModel.
 This allows us to use the abstract interface to the model, and will
 ensure that the code will still work even if we replace the string list
 model with a different model in the future.
@@ -869,7 +869,7 @@ information:
 
 The selection is applied to the selection model using a command
 defined by a combination of
-\l{model-view-selection.html#selection-flags}{selection flags}.
+\l{QItemSelectionModel::SelectionFlag}{selection flags}.
 In this case, the flags used cause the items recorded in the
 selection object to be included in the selection model, regardless
 of their previous state. The resulting selection is shown by the view.
@@ -910,7 +910,8 @@ to newly selected items; the other contains indices that correspond
 to newly deselected items.
 
 In the following code, we provide a slot that receives the
-\c selectionChanged() signal, fills in the selected items with
+\l{QItemSelectionModel::selectionChanged()}{selectionChanged()}
+signal, fills in the selected items with
 a string, and clears the contents of the deselected items.
 
 \quotefile updating-selections/window.cpp
@@ -924,8 +925,9 @@ to a slot that is called with two model indices. These correspond to
 the previously focused item, and the currently focused item.
 
 In the following code, we provide a slot that receives the
-\c currentChanged() signal, and uses the information provided to
-update the status bar of a \l QMainWindow:
+\l{QItemSelectionModel::currentChanged()}{currentChanged()} signal,
+and uses the information provided to update the status bar of a
+\l QMainWindow:
 
 \skipto void MainWindow::changeCurrent
 \printuntil }
@@ -940,17 +942,21 @@ defined by \l{QItemSelectionModel::SelectionFlag}.
 Each selection flag tells the selection model how to update its
 internal record of selected items when either of the
 \l{QItemSelection::select()}{select()} functions are called.
-The most commonly used flag is the \c Select flag which instructs the
-selection model to record the specified items as being selected. The
-\c Toggle flag causes the selection model to invert the selection
-state of the specified items, selecting any deselected items given,
-and deselecting any currently selected ones. The \c Deselect flag
-deselects all the specified items.
+The most commonly used flag is the
+\l{QItemSelectionModel::SelectionFlag}{Select} flag
+which instructs the selection model to record the specified items as
+being selected. The
+\l{QItemSelectionModel::SelectionFlag}{Toggle} flag causes the
+selection model to invert the state of the specified items,
+selecting any deselected items given, and deselecting any currently
+selected items. The \l{QItemSelectionModel::SelectionFlag}{Deselect}
+flag deselects all the specified items.
 
 Individual items in the selection model are updated by creating a
 selection of items, and applying them to the selection model. In the
 following code, we apply a second selection of items to the table
-model shown above, using the \c Toggle command to invert the
+model shown above, using the
+\l{QItemSelectionModel::SelectionFlag}{Toggle} command to invert the
 selection state of the items given.
 
 \quotefile itemselection/main.cpp
@@ -967,18 +973,23 @@ items specified by the model indices. However, the flag used to
 describe the selection command can be combined with additional flags
 to change whole rows and columns. For example if you call
 \l{QItemSelectionModel::select()}{select()} with only one index, but
-with a command that is a combination of \c Select and \c Rows, the
+with a command that is a combination of
+\l{QItemSelectionModel::SelectionFlag}{Select} and
+\l{QItemSelectionModel::SelectionFlag}{Rows}, the
 whole row containing the item referred to will be selected.
-The following code demonstrates the use of the \c Rows and \c Columns
-flags:
+The following code demonstrates the use of the
+\l{QItemSelectionModel::SelectionFlag}{Rows} and 
+\l{QItemSelectionModel::SelectionFlag}{Columns} flags:
 
 \skipto QItemSelection columnSelection
 \printuntil QItemSelectionModel::Select | QItemSelectionModel::Rows
 
 Although only four indices are supplied to the selection model, the
-use of the \c Columns and \c Rows selection flags means that two
-columns and two rows are selected. The following image shows the
-result of these two selections:
+use of the 
+\l{QItemSelectionModel::SelectionFlag}{Columns} and
+\l{QItemSelectionModel::SelectionFlag}{Rows} selection flags means
+that two columns and two rows are selected. The following image shows
+the result of these two selections:
 
 \img selected-items3.png
 
@@ -988,11 +999,14 @@ to clear the selection, or to overwrite the current selection with
 a new one.
 
 To overwrite the current selection with a new selection, combine
-the other selection flags with the \c Current flag. A command using
+the other selection flags with the
+\l{QItemSelectionModel::SelectionFlag}{Current} flag. A command using
 this flag instructs the selection model replace its current collection
-of model indices with those specified in a call to \c select().
+of model indices with those specified in a call to
+\l{QItemSelectionModel::select()}{select()}.
 To clear all selections before you start adding new ones,
-combine the other selection flags with the \c Clear flag. This will
+combine the other selection flags with the
+\l{QItemSelectionModel::SelectionFlag}{Clear} flag. This will
 have the effect of resetting the selection model's collection of model
 indices.
 
