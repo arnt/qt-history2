@@ -163,9 +163,9 @@ static void query_colormap(QColormapPrivate *d, int screen)
 
         QRgb rgb;
         if (d->mode == QColormap::Indexed) {
-            const int r = (x & ((d->r_max - 1) * d->g_max * d->b_max)) / (d->g_max * d->b_max);
-            const int g = (x & ((d->g_max - 1) * d->b_max)) / d->b_max;
-            const int b = x & (d->b_max - 1);
+            const int r = (x / (d->g_max * d->b_max)) % d->r_max;
+            const int g = (x / d->b_max) % d->g_max;
+            const int b = x % d->b_max;
             rgb = qRgb((r * 0xff + (d->r_max - 1) / 2) / (d->r_max - 1),
                        (g * 0xff + (d->g_max - 1) / 2) / (d->g_max - 1),
                        (b * 0xff + (d->b_max - 1) / 2) / (d->b_max - 1));
