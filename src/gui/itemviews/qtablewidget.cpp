@@ -293,6 +293,7 @@ bool QTableModel::setData(const QModelIndex &index, int role, const QVariant &va
     QTableWidget *view = qt_cast<QTableWidget*>(QObject::parent());
     if (!view)
         return false;
+
     itm = view->createItem();
     itm->setData(role, value);
     view->setItem(index.row(), index.column(), itm);
@@ -664,7 +665,7 @@ void QTableWidgetItem::setData(int role, const QVariant &value)
     for (int i = 0; i < values.count(); ++i) {
         if (values.at(i).role == role) {
             values[i].value = value;
-            return;
+            break;
         }
     }
     values.append(Data(role, value));
@@ -1122,6 +1123,22 @@ void QTableWidget::setHorizontalHeaderLabels(const QStringList &labels)
         }
         item->setText(labels.at(i));
     }
+}
+
+/*!
+  Returns the row of the current item.
+*/
+int QTableWidget::currentRow() const
+{
+    return currentIndex().row();
+}
+
+/*!
+  Returns the column of the current item.
+*/
+int QTableWidget::currentColumn() const
+{
+    return currentIndex().column();
 }
 
 /*!

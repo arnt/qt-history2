@@ -138,6 +138,8 @@ public:
     void setVerticalHeaderLabels(const QStringList &labels);
     void setHorizontalHeaderLabels(const QStringList &labels);
 
+    int currentRow() const;
+    int currentColumn() const;
     QTableWidgetItem *currentItem() const;
     void setCurrentItem(QTableWidgetItem *item);
 

@@ -985,7 +985,7 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
     for (int i = 0; i < column_values.count(); ++i) {
         if (column_values.at(i).role == role) {
             values[column][i].value = value;
-            return;
+            break;
         }
     }
     values[column].append(Data(role, value));

@@ -249,7 +249,7 @@ void QHeaderWidgetItem::setData(int role, const QVariant &value)
     for (int i = 0; i < values.count(); ++i) {
         if (values.at(i).role == role) {
             values[i].value = value;
-            return;
+            break;
         }
     }
     values.append(Data(role, value));
