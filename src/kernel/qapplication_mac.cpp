@@ -91,6 +91,11 @@ QObject	       *qt_clipboard = 0;
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 
 
+static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popups
+static QWidget     *popupButtonFocus = 0;
+static QWidget     *popupOfPopupButtonFocus = 0;
+static bool	    popupCloseDownMode = FALSE;
+static bool	    popupGrabOk;
 
 typedef void (*VFPTR)();
 typedef QValueList<VFPTR> QVFuncList;
@@ -1398,20 +1403,17 @@ int QApplication::macProcessEvent(MSG * m)
 			SetCursor(currentCursor = n);
 
 		    //ship the event
-		    if(mouse_button_state != Qt::NoButton
-		       || widget->hasMouseTracking() || hasGlobalMouseTracking()) {
-			QPoint p( er->where.h, er->where.v );
-			QPoint plocal(widget->mapFromGlobal( p ));
-			QMouseEvent qme( QEvent::MouseMove, plocal, p, 
-					 QMouseEvent::NoButton, mouse_button_state);
-			QApplication::sendEvent( widget, &qme );
-		    }
-		    if(getenv("GIMME_MOVES"))  { //debugs
-			QPoint p( er->where.h, er->where.v );
-			QPoint plocal(widget->mapFromGlobal( p ));
+		    QPoint p( er->where.h, er->where.v );
+		    QPoint plocal(widget->mapFromGlobal( p ));
+		    QMouseEvent qme( QEvent::MouseMove, plocal, p, 
+				     QMouseEvent::NoButton, mouse_button_state);
+		    QApplication::sendEvent( widget, &qme );
+
+#if 0
+		    if(getenv("GIMME_MOVES"))  //debugs, this will go away
 			qDebug("Mouse has Moved %s %s %d %d (%d, %d)", widget->name(), widget->className(), 
 			       plocal.x(), plocal.y(), p.x(), p.y());
-		    }
+#endif
 		} 
 	    }
 	}
@@ -1495,12 +1497,70 @@ bool QApplication::macEventFilter( void ** )
 	    QWidget *widget	The popup widget to be removed
  *****************************************************************************/
 
-void QApplication::openPopup( QWidget * )
+void QApplication::openPopup( QWidget *popup )
 {
+    if ( !popupWidgets ) {			// create list
+	popupWidgets = new QWidgetList;
+	CHECK_PTR( popupWidgets );
+	if ( !activeBeforePopup )
+	    activeBeforePopup = new QGuardedPtr<QWidget>;
+	(*activeBeforePopup) = active_window;
+    }
+    popupWidgets->append( popup );		// add to end of list
+    if ( popupWidgets->count() == 1 ){ // grab mouse/keyboard
+	popup->topLevelWidget()->grabMouse();
+	popupGrabOk = TRUE;
+	// XXX grab keyboard
+    }
+
+    // popups are not focus-handled by the window system (the first
+    // popup grabbed the keyboard), so we have to do that manually: A
+    // new popup gets the focus
+    active_window = popup;
+    if (active_window->focusWidget())
+	active_window->focusWidget()->setFocus();
+    else
+	active_window->setFocus();
 }
 
-void QApplication::closePopup( QWidget * )
+void QApplication::closePopup( QWidget *popup )
 {
+    if ( !popupWidgets )
+	return;
+
+    popupWidgets->removeRef( popup );
+    if (popup == popupOfPopupButtonFocus) {
+	popupButtonFocus = 0;
+	popupOfPopupButtonFocus = 0;
+    }
+    if ( popupWidgets->count() == 0 ) {		// this was the last popup
+	popupCloseDownMode = TRUE;		// control mouse events
+	delete popupWidgets;
+	popupWidgets = 0;
+	if ( popupGrabOk ) {	// grabbing not disabled
+	    popup->topLevelWidget()->releaseMouse();
+	    // XXX ungrab keyboard
+	}
+	active_window = (*activeBeforePopup);
+	// restore the former active window immediately, although
+	// we'll get a focusIn later
+	if ( active_window )
+	    if (active_window->focusWidget())
+		active_window->focusWidget()->setFocus();
+	    else
+		active_window->setFocus();
+    }
+     else {
+	// popups are not focus-handled by the window system (the
+	// first popup grabbed the keyboard), so we have to do that
+	// manually: A popup was closed, so the previous popup gets
+	// the focus.
+	 active_window = popupWidgets->getLast();
+	 if (active_window->focusWidget())
+	     active_window->focusWidget()->setFocus();
+	 else
+	     active_window->setFocus();
+     }
 }
 
 /*****************************************************************************
