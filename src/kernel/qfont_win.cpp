@@ -333,7 +333,7 @@ void QFontPrivate::load()
     QFontStruct *qfs = 0;
     QString k = key();
     if ( paintdevice )
-	k += QString::number( (Q_LONG)paintdevice->handle() );
+	k += QString::number( (long)(Q_LONG)paintdevice->handle() );
     qfs = fontCache->find( k );
 
     if ( !qfs ) {			// font was never loaded
