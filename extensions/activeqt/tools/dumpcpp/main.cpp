@@ -32,7 +32,9 @@ enum ObjectCategory
     NoMetaObject    = 0x04,
     NoImplementation = 0x08,
     NoDeclaration   = 0x10,
-    DoNothing       = 0x11
+    NoInlines       = 0x20,
+    OnlyInlines     = 0x40,
+    DoNothing       = 0x80
 };
 
 // this comes from moc/qmetaobject.cpp
@@ -138,44 +140,50 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
 {
     QList<QByteArray> functions;
 
-    // constructor
-    out << "class " << nameSpace.toUpper() << "_EXPORT " << className << " : public ";
-    if (category & ActiveX)
-        out << "QAxWidget";
-    else
-        out << "QAxObject";
-    out << endl;
+    QByteArray indent;
+    if (!(category & OnlyInlines))
+        indent = "    ";
 
-    out << "{" << endl;
-    out << "public:" << endl;
-    out << "    " << className << "(";
-    if (category & ActiveX)
-        out << "QWidget *parent = 0, Qt::WFlags f";
-    else if (category & SubObject)
-        out << "IDispatch *subobject, QAxObject *parent";
-    else
-        out << "QObject *parent";
-    out << " = 0)" << endl;
-    out << "    : ";
-    if (category & ActiveX)
-        out << "QAxWidget(parent, f";
-    else if (category & SubObject)
-        out << "QAxObject((IUnknown*)subobject, parent";
-    else
-        out << "QAxObject(parent";
-    out << ")" << endl;
-    out << "    {" << endl;
-    if (category & SubObject)
-        out << "        internalRelease();" << endl;
-    else
-        out << "        setControl(\"" << controlID << "\");" << endl;
-    out << "    }" << endl;
-    out << endl;
+    if (!(category & OnlyInlines)) {
+        // constructor
+        out << "class " << nameSpace.toUpper() << "_EXPORT " << className << " : public ";
+        if (category & ActiveX)
+            out << "QAxWidget";
+        else
+            out << "QAxObject";
+        out << endl;
+
+        out << "{" << endl;
+        out << "public:" << endl;
+        out << "    " << className << "(";
+        if (category & ActiveX)
+            out << "QWidget *parent = 0, Qt::WFlags f";
+        else if (category & SubObject)
+            out << "IDispatch *subobject, QAxObject *parent";
+        else
+            out << "QObject *parent";
+        out << " = 0)" << endl;
+        out << "    : ";
+        if (category & ActiveX)
+            out << "QAxWidget(parent, f";
+        else if (category & SubObject)
+            out << "QAxObject((IUnknown*)subobject, parent";
+        else
+            out << "QAxObject(parent";
+        out << ")" << endl;
+        out << "    {" << endl;
+        if (category & SubObject)
+            out << "        internalRelease();" << endl;
+        else
+            out << "        setControl(\"" << controlID << "\");" << endl;
+        out << "    }" << endl;
+        out << endl;
+    }
 
     functions << className;
 
     // enums
-    if (nameSpace.isEmpty()) {
+    if (nameSpace.isEmpty() && !(category & OnlyInlines)) {
         for (int ienum = mo->enumeratorOffset(); ienum < mo->enumeratorCount(); ++ienum) {
             QMetaEnum metaEnum = mo->enumerator(ienum);
             out << "    enum " << metaEnum.name() << " {" << endl;
@@ -204,13 +212,22 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
         QByteArray propertyType(property.typeName());
         QByteArray castType(propertyType);
  
-        out << "    inline " << propertyType << " " << propertyName << "() const {" << endl;
-        out << "        QVariant qax_result = property(\"" << propertyName << "\");" << endl;
-        if (propertyType.at(propertyType.length()-1) == '*')
-            out << "        if (!qax_result.constData()) return 0;" << endl;
-        out << "        Q_ASSERT(qax_result.isValid());" << endl;
-        out << "        return *(" << propertyType << "*)qax_result.constData();" << endl;
-        out << "    }" << endl;
+        out << indent << "inline " << propertyType << " ";
+        if (category & OnlyInlines)
+            out << className << "::";
+        out << propertyName << "() const";
+
+        if (!(category & NoInlines)) {
+            out << endl << indent << "{" << endl;
+            out << indent << "    QVariant qax_result = property(\"" << propertyName << "\");" << endl;
+            if (propertyType.at(propertyType.length()-1) == '*')
+                out << indent << "    if (!qax_result.constData()) return 0;" << endl;
+            out << indent << "    Q_ASSERT(qax_result.isValid());" << endl;
+            out << indent << "    return *(" << propertyType << "*)qax_result.constData();" << endl;
+            out << indent << "}" << endl;
+        } else {
+            out << ";" << endl;
+        }
 
         functions << propertyName;
         
@@ -223,7 +240,16 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
                 setter[0] = toupper(setter[0]);
                 setter = "set" + setter;
             }
-            out << "    inline void " << setter << "(" << constRefify(propertyType) << " value) { setProperty(\"" << propertyName << "\", QVariant(value)); }" << endl;
+            out << indent << "inline " << "void ";
+            if (category & OnlyInlines)
+                out << className << "::";
+            out << setter << "(" << constRefify(propertyType) << " value)";
+            
+            if (!(category & NoInlines))
+                out << "{ setProperty(\"" << propertyName << "\", QVariant(value)); }" << endl;
+            else
+                out << ";" << endl;
+
             functions << setter;
         }
 
@@ -244,7 +270,7 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
             continue;
         }
 #endif
-        
+
         QByteArray slotSignature(slot.signature());
         if (functions.contains(slotSignature.left(slotSignature.indexOf('('))))
             continue;
@@ -284,46 +310,59 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
             slotNamedSignature += ')';
         }
 
-        out << "    inline ";
+        out << indent << "inline ";
+
         if (!slotTag.isEmpty())
             out << slotTag << " ";
         if (slotType.isEmpty())
             out << "void ";
         else
             out << slotType << " ";
-        out << slotNamedSignature << " {" << endl;
-        if (!slotParameters.isEmpty()) {
-            out << "        QVariantList qax_parameters;" << endl;
-            out << "        qax_parameters << " << slotParameters.replace(',', " << ") << ";" << endl;
-        }
-        out << "        ";
-        if (!slotType.isEmpty())
-            out << "QVariant qax_result = ";
+        if (category & OnlyInlines)
+            out << className << "::";
 
-        out << "dynamicCall(\"" << slotSignature << "\"";
-        if (!slotParameters.isEmpty())
-            out << ", qax_parameters";
-        out << ");" << endl;
-        if (!slotType.isEmpty()) {
-            if (slotType.at(slotType.length() - 1) == '*')
-                out << "        if (!qax_result.constData()) return 0;" << endl;
-            out << "        Q_ASSERT(qax_result.isValid());" << endl;
-            out << "        return *(" << slotType << "*)qax_result.constData();" << endl;
+        out << slotNamedSignature;
+
+        if (category & NoInlines) {
+            out << ";" << endl;
+        } else {
+            out << endl;
+            out << indent << "{" << endl;
+            if (!slotParameters.isEmpty()) {
+                out << indent << "    QVariantList qax_parameters;" << endl;
+                out << indent << "    qax_parameters << " << slotParameters.replace(',', " << ") << ";" << endl;
+            }
+            out << indent << "    ";
+            if (!slotType.isEmpty())
+                out << "QVariant qax_result = ";
+
+            out << "dynamicCall(\"" << slotSignature << "\"";
+            if (!slotParameters.isEmpty())
+                out << ", qax_parameters";
+            out << ");" << endl;
+            if (!slotType.isEmpty()) {
+                if (slotType.at(slotType.length() - 1) == '*')
+                    out << indent << "    if (!qax_result.constData()) return 0;" << endl;
+                out << indent << "    Q_ASSERT(qax_result.isValid());" << endl;
+                out << indent << "    return *(" << slotType << "*)qax_result.constData();" << endl;
+            }
+            out << indent << "}" << endl;
         }
-        out << "    }" << endl;
 
         out << endl;
         defaultArguments = 0;
     }
 
-    if (!(category & NoMetaObject)) {
-        out << "// meta object functions" << endl;
-        out << "    static const QMetaObject staticMetaObject;" << endl;
-        out << "    virtual const QMetaObject *metaObject() const { return &staticMetaObject; }" << endl;
-        out << "    virtual void *qt_metacast(const char *);" << endl;
-    }
+    if (!(category & OnlyInlines)) {
+        if (!(category & NoMetaObject)) {
+            out << "// meta object functions" << endl;
+            out << "    static const QMetaObject staticMetaObject;" << endl;
+            out << "    virtual const QMetaObject *metaObject() const { return &staticMetaObject; }" << endl;
+            out << "    virtual void *qt_metacast(const char *);" << endl;
+        }
 
-    out << "};" << endl;
+        out << "};" << endl;
+    }
 }
 
 #define addString(string) \
@@ -676,6 +715,9 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
 
     QFile declFile(cppFile + ".h");
     QTextStream declOut(&declFile);
+    QString inlines;
+    QTextStream inlinesOut(&inlines, QIODevice::WriteOnly);
+
     if(!(category & NoDeclaration)) {
         if (!declFile.open(QIODevice::WriteOnly | QIODevice::Translate)) {
             qWarning("dumpcpp: Could not open output file '%s'", declFile.fileName().latin1());
@@ -734,8 +776,10 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
             QByteArray className(metaObject->className());
             if (className.at(0) != '_') {
                 if (declFile.isOpen()) {
-                    generateClassDecl(declOut, guid.toString(), metaObject, className, libName.latin1(), (ObjectCategory)object_category);
+                    generateClassDecl(declOut, guid.toString(), metaObject, className, libName.latin1(), (ObjectCategory)(object_category|NoInlines));
                     declOut << endl;
+                    generateClassDecl(inlinesOut, guid.toString(), metaObject, className, libName.latin1(), (ObjectCategory)(object_category|OnlyInlines));
+                    inlinesOut << endl;
                 }
                 if (implFile.isOpen()) {
                     generateClassImpl(implOut, metaObject, className, libName.latin1(), (ObjectCategory)object_category);
@@ -753,6 +797,8 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
     delete namespaceObject;
 
     if (declFile.isOpen()) {
+        if (inlines.size())
+            declOut << "// member function implementation" << endl << inlines << endl;
         // close namespace
         declOut << "};" << endl;
         declOut << endl;
