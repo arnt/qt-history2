@@ -1212,8 +1212,7 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
 				QBoxLayout::Direction direction,
 				QBoxLayout::Direction dockDirection,
 				bool /*mayNeedDockLayout*/,
-				bool justify,
-				Qt::GUIStyle style )
+				bool justify )
 {
     if ( !dock || dock->isEmpty() )
 	return;
@@ -1251,9 +1250,6 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
 	    toolBarRowLayout->addWidget( t->t, 0 );
 	    anyToolBars = TRUE;//####
 	} while ( (t=dock->next()) != 0 );
-
-	if ( anyToolBars && style == Qt::MotifStyle )
-	    dockLayout->addSpacing( 2 );
 
 	if ( toolBarRowLayout && (!justify || !anyToolBars) )
 	    toolBarRowLayout->addStretch( 1 );
@@ -1309,12 +1305,12 @@ void QMainWindow::setUpLayout()
 
     addToolBarToLayout( d->top, d->tll,
 			QBoxLayout::LeftToRight, QBoxLayout::Down, FALSE,
-			d->justify, style() );
+			d->justify );
     QBoxLayout * mwl = new QBoxLayout( QBoxLayout::LeftToRight );
     d->tll->addLayout( mwl, 100 );
     addToolBarToLayout( d->left, mwl,
 			QBoxLayout::Down, QBoxLayout::LeftToRight, FALSE,
-			d->justify, style() );
+			d->justify );
     if ( centralWidget() &&
 	 !centralWidget()->testWState(Qt::WState_ForceHide) )
 	mwl->addWidget( centralWidget(), 100 );
@@ -1322,10 +1318,10 @@ void QMainWindow::setUpLayout()
 	mwl->addStretch( 100 );
     addToolBarToLayout( d->right, mwl,
 			QBoxLayout::Down, QBoxLayout::LeftToRight, FALSE,
-			d->justify, style() );
+			d->justify );
     addToolBarToLayout( d->bottom, d->tll,
 			QBoxLayout::LeftToRight, QBoxLayout::Up, TRUE,
-			d->justify, style() );
+			d->justify );
 
     if ( d->sb && !d->sb->testWState(Qt::WState_ForceHide) ) {
 	d->tll->addWidget( d->sb, 0 );
