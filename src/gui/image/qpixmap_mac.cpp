@@ -318,9 +318,7 @@ QImage QPixmap::convertToImage() const
     Q_ASSERT_X(data->hd, "QPixmap::convertToImage", "No handle");
 
     QRgb q;
-    long *sptr = reinterpret_cast<long *>(GetPixBaseAddr(GetGWorldPixMap(static_cast<GWorldPtr>(data->hd)))),
-         *srow,
-         r;
+    long *sptr = reinterpret_cast<long *>(GetPixBaseAddr(GetGWorldPixMap(static_cast<GWorldPtr>(data->hd)))), *srow, r;
     unsigned short sbpr = GetPixRowBytes(GetGWorldPixMap(static_cast<GWorldPtr>(data->hd)));
     long *aptr = 0, *arow = 0;
     unsigned short abpr = 0;
@@ -866,12 +864,12 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, bool imask)
     if(px.isNull())
         return 0;
 
-    const uint bpl = GetPixRowBytes(GetGWorldPixMap(static_cast<GWorldPtr>(px.handle())));
-    char *addr = GetPixBaseAddr(GetGWorldPixMap(static_cast<GWorldPtr>(px.handle())));
+    const uint bpl = GetPixRowBytes(GetGWorldPixMap(qt_macQDHandle(&px)));
+    char *addr = GetPixBaseAddr(GetGWorldPixMap(qt_macQDHandle(&px)));
     CGDataProviderRef provider = CGDataProviderCreateWithData(0, addr, bpl*px.height(), 0);
     CGImageRef image = 0;
-    if(px.isQBitmap()) {
-        image = CGImageMaskCreate(px.width(), px.height(), 1, 1, 1, provider, 0, false);
+    if(px.isQBitmap() || px.depth() == 1) {
+        image = CGImageMaskCreate(px.width(), px.height(), 8, 32, bpl, provider, 0, false);
     } else {
         if(!imask) {
             if(const QPixmap *alpha = px.data->alphapm) {
