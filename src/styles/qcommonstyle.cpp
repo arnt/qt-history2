@@ -799,8 +799,8 @@ void QCommonStyle::drawControl( ControlElement element,
 
 	    const QToolBox *tb = (const QToolBox*)widget;
 
-	    if ( flags & Style_Selected && tb->currentPage() )
-		p->setBrush( tb->currentPage()->paletteBackgroundColor() );
+	    if ( flags & Style_Selected && tb->currentItem() )
+		p->setBrush( tb->currentItem()->paletteBackgroundColor() );
 	    else
 		p->setBrush( cg.background() );
 
@@ -1359,7 +1359,7 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
     case SR_ToolButtonContents:
 	rect = querySubControlMetrics(CC_ToolButton, widget, SC_ToolButton);
 	break;
-	
+
     case SR_ToolBoxTabContents:
 	rect = wrect;
 	rect.addCoords( 0, 0, -30, 0 );

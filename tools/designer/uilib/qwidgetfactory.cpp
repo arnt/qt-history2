@@ -1675,7 +1675,7 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 			( (QWidgetStack*)parent )->addWidget( w, v.toInt() );
 		} else if ( parent->inherits( "QToolBox" ) ) {
 		    if ( attrib == "label" )
-			( (QToolBox*)parent )->addPage( w, v.toString() );
+			( (QToolBox*)parent )->addItem( w, v.toString() );
 		} else if ( parent->inherits( "QWizard" ) ) {
 		    if ( attrib == "title" )
 			( (QWizard*)parent )->addPage( w, translate( v.toString() ) );
@@ -1731,7 +1731,7 @@ QLayout *QWidgetFactory::createLayout( QWidget *widget, QLayout* layout,
 	widget = ((QWidgetStack*)widget)->visibleWidget();
 
     if ( !layout && widget && widget->inherits( "QToolBox" ) )
-	widget = ((QToolBox*)widget)->currentPage();
+	widget = ((QToolBox*)widget)->currentItem();
 
     QLayout *l = 0;
     int align = 0;

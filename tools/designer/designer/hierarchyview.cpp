@@ -416,9 +416,10 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	    name = ( (QWizard*)o->parent()->parent() )->title( (QWidget*)o );
     }
 
+    QToolBox *tb;
     if ( o->parent() && o->parent()->parent() &&
-	 qt_cast<QToolBox*>(o->parent()->parent()->parent()) )
-	name = ( (QToolBox*)o->parent()->parent()->parent() )->pageLabel( (QWidget*)o );
+	 (tb = qt_cast<QToolBox*>(o->parent()->parent()->parent())) )
+	name = tb->itemLabel( tb->indexOf((QWidget*)o) );
 
     if ( fakeMainWindow ) {
 	name = o->parent()->name();

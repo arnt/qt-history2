@@ -46,6 +46,7 @@ class Q_EXPORT QToolButton : public QButton
     Q_OVERRIDE( bool toggleButton WRITE setToggleButton )
     Q_OVERRIDE( bool on WRITE setOn )
     Q_OVERRIDE( QPixmap pixmap DESIGNABLE false STORED false )
+    Q_OVERRIDE( BackgroundMode backgroundMode DESIGNABLE true)
 
 public:
     enum TextPosition {

@@ -2337,17 +2337,15 @@ AddToolBoxPageCommand::AddToolBoxPageCommand( const QString &n, FormWindow *fw,
 
 void AddToolBoxPageCommand::execute()
 {
-    if ( index == -1 )
-	index = toolBox->count();
-    toolBox->insertPage( toolBoxPage, toolBoxLabel, index );
-    toolBox->setCurrentPage( toolBoxPage );
+    index = toolBox->insertItem( index, toolBoxPage, toolBoxLabel);
+    toolBox->setCurrentIndex( index );
     formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
     formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 
 void AddToolBoxPageCommand::unexecute()
 {
-    toolBox->removePage( toolBoxPage );
+    toolBox->removeItem( toolBoxPage );
     toolBoxPage->hide();
     formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
     formWindow()->mainWindow()->objectHierarchy()->rebuild();
@@ -2359,13 +2357,13 @@ DeleteToolBoxPageCommand::DeleteToolBoxPageCommand( const QString &n, FormWindow
 					    QToolBox *tw, QWidget *page )
     : Command( n, fw ), toolBox( tw ), toolBoxPage( page )
 {
-    toolBoxLabel = toolBox->pageLabel( toolBox->currentPage() );
+    toolBoxLabel = toolBox->itemLabel( toolBox->currentIndex() );
     index = toolBox->currentIndex();
 }
 
 void DeleteToolBoxPageCommand::execute()
 {
-    toolBox->removePage( toolBoxPage );
+    toolBox->removeItem( toolBoxPage );
     toolBoxPage->hide();
     formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
     formWindow()->mainWindow()->objectHierarchy()->rebuild();
@@ -2373,8 +2371,8 @@ void DeleteToolBoxPageCommand::execute()
 
 void DeleteToolBoxPageCommand::unexecute()
 {
-    toolBox->insertPage( toolBoxPage, toolBoxLabel, index );
-    toolBox->setCurrentPage( toolBoxPage );
+    index = toolBox->insertItem( index, toolBoxPage, toolBoxLabel );
+    toolBox->setCurrentIndex( index );
     formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
     formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }

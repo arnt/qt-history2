@@ -29,41 +29,37 @@ class Q_EXPORT QToolBox : public QFrame
     Q_OBJECT
     Q_PROPERTY( int currentIndex READ currentIndex WRITE setCurrentIndex )
     Q_PROPERTY( int count READ count )
-    Q_PROPERTY( BackgroundMode pageBackgroundMode READ pageBackgroundMode WRITE setPageBackgroundMode )
 
 public:
     QToolBox( QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
     ~QToolBox();
 
-    void addPage( QWidget *page, const QString &label );
-    void addPage( QWidget *page, const QIconSet &iconSet, const QString &label );
-    void insertPage( QWidget *page, const QString &label, int index = -1 );
-    void insertPage( QWidget *page, const QIconSet &iconSet, const QString &label, int index = -1 );
-    
-    void removePage( QWidget *page );
+    int addItem( QWidget *item, const QString &label );
+    int addItem( QWidget *item, const QIconSet &iconSet, const QString &label );
+    int insertItem( int index, QWidget *item, const QString &label );
+    int insertItem( int index, QWidget *item, const QIconSet &iconSet, const QString &label );
 
-    void setPageEnabled( QWidget *page, bool enabled );
-    bool isPageEnabled( QWidget *page ) const;
+    int removeItem( QWidget *item );
 
-    void setPageLabel( QWidget *page, const QString &label );
-    QString pageLabel( QWidget *page ) const;
+    void setItemEnabled( int index, bool enabled );
+    bool isItemEnabled( int index ) const;
 
-    void setPageIconSet( QWidget *page, const QIconSet &iconSet );
-    QIconSet pageIconSet( QWidget *page ) const;
+    void setItemLabel( int index, const QString &label );
+    QString itemLabel( int index ) const;
 
-    void setPageToolTip( QWidget *page, const QString &toolTip );
-    QString pageToolTip( QWidget *page ) const;
+    void setItemIconSet( int index, const QIconSet &iconSet );
+    QIconSet itemIconSet( int index ) const;
 
-    QWidget *currentPage() const;
-    void setCurrentPage( QWidget *page );
+    void setItemToolTip( int index, const QString &toolTip );
+    QString itemToolTip( int index ) const;
+
+    QWidget *currentItem() const;
+    void setCurrentItem( QWidget *item );
 
     int currentIndex() const;
-    QWidget *page( int index ) const;
-    int indexOf( QWidget *page ) const;
+    QWidget *item( int index ) const;
+    int indexOf( QWidget *item ) const;
     int count() const;
-
-    void setPageBackgroundMode( BackgroundMode bm );
-    BackgroundMode pageBackgroundMode() const;
 
 public slots:
     void setCurrentIndex( int index );
@@ -73,15 +69,16 @@ signals:
 
 private slots:
     void buttonClicked();
-    void pageDestroyed(QObject*);
+    void itemDestroyed(QObject*);
 
 protected:
+    virtual void itemInserted( int index );
+    virtual void itemRemoved( int index );
     void showEvent( QShowEvent *e );
     void frameChanged();
 
 private:
     void relayout();
-    void activateClosestPage( QWidget *page );
 
 private:
     QToolBoxPrivate *d;
@@ -89,13 +86,13 @@ private:
 };
 
 
-inline void QToolBox::addPage( QWidget *page, const QString &label )
-{ insertPage( page, QIconSet(), label ); }
-inline void QToolBox::addPage( QWidget *page, const QIconSet &iconSet,
-			       const QString &label )
-{ insertPage( page, iconSet, label ); }
-inline void QToolBox::insertPage( QWidget *page, const QString &label, int index )
-{ insertPage( page, QIconSet(), label, index ); }
+inline int QToolBox::addItem( QWidget *item, const QString &label )
+{ return insertItem( -1, item, QIconSet(), label ); }
+inline int QToolBox::addItem( QWidget *item, const QIconSet &iconSet,
+			      const QString &label )
+{ return insertItem( -1, item, iconSet, label ); }
+inline int QToolBox::insertItem( int index, QWidget *item, const QString &label )
+{ return insertItem( index, item, QIconSet(), label ); }
 
 #endif // QT_NO_TOOLBOX
 #endif

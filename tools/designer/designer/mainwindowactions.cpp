@@ -498,7 +498,8 @@ void MainWindow::setupToolActions()
 	QToolBar *tb2 = new QToolBar( grp, 0, toolBox, FALSE, grp.latin1() );
 	tb2->setFrameStyle( QFrame::NoFrame );
 	tb2->setOrientation( Qt::Vertical );
-	toolBox->addPage( tb2, grp );
+	tb2->setBackgroundMode( PaletteBase );
+	toolBox->addItem( tb2, grp );
 
 	if ( grp == "Custom" ) {
 	    if ( !customWidgetMenu )
@@ -571,9 +572,10 @@ void MainWindow::setupToolActions()
 	customWidgetMenu->insertSeparator();
 	QToolBar *tb2 = new QToolBar( "Custom Widgets", 0,
 				      toolBox, FALSE, "Custom Widgets" );
+	tb2->setBackgroundMode(PaletteBase);
 	tb2->setOrientation( Qt::Vertical );
 	tb2->setFrameStyle( QFrame::NoFrame );
-	toolBox->addPage( tb2, "Custom Widgets" );
+	toolBox->addItem( tb2, "Custom Widgets" );
 	customWidgetToolBar2 = tb2;
     }
 

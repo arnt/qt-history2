@@ -1,4 +1,4 @@
-/****************************************************************************
+Z/****************************************************************************
 ** $Id$
 **
 ** Implementation of QToolBox widget class
@@ -113,19 +113,18 @@ public:
     typedef QValueList<Page> PageList;
 
     inline QToolBoxPrivate()
-	: currentPage( 0 ), pageBackgroundMode( Qt::NoBackground )
+	: currentPage( 0 )
     {
     }
 
     Page *page( QWidget *widget );
+    Page *page( int index );
 
-    void updatePageBackgroundMode();
-    void updateTabs( QToolBox *tb );
+    void updateTabs();
 
     PageList pageList;
     QVBoxLayout *layout;
     Page *currentPage;
-    Qt::BackgroundMode pageBackgroundMode;
 };
 
 QToolBoxPrivate::Page *QToolBoxPrivate::page( QWidget *widget )
@@ -139,28 +138,23 @@ QToolBoxPrivate::Page *QToolBoxPrivate::page( QWidget *widget )
     return 0;
 }
 
-void QToolBoxPrivate::updatePageBackgroundMode()
+QToolBoxPrivate::Page *QToolBoxPrivate::page( int index )
 {
-    if ( pageBackgroundMode == Qt::NoBackground || !currentPage )
-	return;
-    QObjectList l = currentPage->sv->viewport()->queryList( "QWidget" );
-    for (int i = 0; i < l.size(); ++i) {
-	QWidget *w = (QWidget*)l.at(i);
-	if ( w->backgroundMode() == pageBackgroundMode )
-	    continue;
-	w->setBackgroundMode( pageBackgroundMode );
-	w->update();
-    }
+    if (index >= 0 && index < pageList.size() )
+	return &*pageList.at(index);
+    return 0;
 }
 
-void QToolBoxPrivate::updateTabs( QToolBox *tb )
+void QToolBoxPrivate::updateTabs()
 {
     QToolBoxButton *lastButton = currentPage ? currentPage->button : 0;
     bool after = FALSE;
     for ( PageList::ConstIterator i = pageList.constBegin(); i != pageList.constEnd(); ++i ) {
-	Qt::BackgroundMode bm = ( after ? tb->backgroundMode() : Qt::PaletteBackground  );
-	if ( (*i).button->backgroundMode() != bm ) {
-	    (*i).button->setBackgroundMode( bm );
+	if (after) {
+	    (*i).button->setEraseColor((*i).widget->eraseColor());
+	    (*i).button->update();
+	} else if ( (*i).button->backgroundMode() != Qt::PaletteBackground ) {
+	    (*i).button->setBackgroundMode( Qt::PaletteBackground );
 	    (*i).button->update();
 	}
 	after = (*i).button == lastButton;
@@ -254,30 +248,35 @@ void QToolBoxButton::drawButton( QPainter *p )
 
 /*!
     \class QToolBox
-    \brief The QToolBox class provides a column of tabbed widgets.
+
+    \brief The QToolBox class provides a column of tabbed widget
+    items.
+
     \mainclass
     \ingroup advanced
 
     A toolbox is a widget that displays a column of tabs one above the
-    other, with the current page displayed below the current tab.
+    other, with the current item displayed below the current tab.
     Every tab has an index position within the column of tabs. A tab's
-    page is a QWidget.
+    item is a QWidget.
 
-    Each tab has a pageLabel(), an optional icon, pageIconSet(), an
-    optional pageToolTip(), and a \link page() widget\endlink. The
-    tab's attributes can be changed with setPageLabel(),
-    setPageIconSet() and setPageToolTip().
+    Each item has an itemLabel(), an optional icon, itemIconSet(), an
+    optional itemToolTip(), and a \link item() widget\endlink. The
+    item's attributes can be changed with setItemLabel(),
+    setItemIconSet() and setItemToolTip().
 
-    Pages are added using addPage(), or inserted at particular
-    positions using insertPage(). Pages are deleted with removePage().
-    The total number of pages is given by count().
+    Items are added using addItem(), or inserted at particular
+    positions using insertItem(). The total number of items is given
+    by count(). Items can be deleted with delete, or removed from the
+    toolbox with removeItem(). Combining removeItem() and insertItem()
+    allows to move items to different positions.
 
-    The current page is returned by currentPage() and set with
-    setCurrentPage(). If you prefer you can work in terms of indexes
-    using currentIndex(), setCurrentIndex(), indexOf() and page().
+    The current item widget is returned by currentItem() and set with
+    setCurrentItem(). If you prefer you can work in terms of indexes
+    using currentIndex(), setCurrentIndex(), indexOf() and item().
 
-    The currentChanged() signal is emitted when the current page
-    is changed.
+    The currentChanged() signal is emitted when the current item is
+    changed.
 
     \sa QTabWidget
 */
@@ -285,8 +284,9 @@ void QToolBoxButton::drawButton( QPainter *p )
 /*!
     \fn void QToolBox::currentChanged( int index )
 
-    This signal is emitted when the current page is changed. The index
-    position of the new current page is passed in \a index.
+    This signal is emitted when the current item changed. The new
+    current item's index is passed in \a index, or -1 if there is no
+    current item.
 */
 
 /*!
@@ -309,63 +309,65 @@ QToolBox::~QToolBox()
 }
 
 /*!
-    \fn void QToolBox::addPage( QWidget *page, const QString &label )
+    \fn int QToolBox::addItem( QWidget *w, const QString &label )
     \overload
 
-    Adds the widget \a page in a new tab at bottom of the toolbox. The
-    new tab's label is set to \a label.
+    Adds the widget \a w in a new tab at bottom of the toolbox. The
+    new tab's label is set to \a label. Returns the new tab's index.
 */
 
 /*!
-    \fn void QToolBox::addPage( QWidget *page, const QIconSet &iconSet,const QString &label )
-    Adds the widget \a page in a new tab at bottom of the toolbox. The
+    \fn int QToolBox::addItem( QWidget *item, const QIconSet &iconSet,const QString &label )
+    Adds the widget \a item in a new tab at bottom of the toolbox. The
     new tab's label is set to \a label, and the \a iconSet is
-    displayed to the left of the \a label.
+    displayed to the left of the \a label.  Returns the new tab's index.
 */
 
 /*!
-    \fn void QToolBox::insertPage( QWidget *page, const QString &label, int index )
+    \fn int QToolBox::insertItem( int index, QWidget *item, const QString &label )
     \overload
 
-    Inserts the widget \a page in a new tab at position \a index. The
-    new tab's label is set to \a label.
+    Inserts the widget \a item at position \a index, or at the bottom
+    of the toolbox if \a index is out of range. The new item's label is
+    set to \a label. Returns the new item's index.
 */
 
 /*!
-    Inserts the widget \a page in a new tab at position \a index. The
-    new tab's label is set to \a label, and the \a iconSet is
-    displayed to the left of the \a label.
+    Inserts the widget \a item at position \a index, or at the bottom
+    of the toolbox if \a index is out of range. The new item's label
+    is set to \a label, and the \a iconSet is displayed to the left of
+    the \a label. Returns the new item's index.
 */
 
-void QToolBox::insertPage( QWidget *page, const QIconSet &iconSet,
-			   const QString &label, int index )
+int QToolBox::insertItem( int index, QWidget *item, const QIconSet &iconSet,
+			   const QString &label )
 {
-    if ( !page )
-	return;
+    if ( !item )
+	return -1;
 
-    connect(page, SIGNAL(destroyed(QObject*)), this, SLOT(pageDestroyed(QObject*)));
+    connect(item, SIGNAL(destroyed(QObject*)), this, SLOT(itemDestroyed(QObject*)));
 
-    page->setBackgroundMode( PaletteButton );
     QToolBoxPrivate::Page c;
-    c.widget = page;
+    c.widget = item;
     c.button = new QToolBoxButton( this, label.latin1() );
     connect( c.button, SIGNAL( clicked() ), this, SLOT( buttonClicked() ) );
 
     c.sv = new QScrollView( this );
     c.sv->hide();
     c.sv->setResizePolicy( QScrollView::AutoOneFit );
-    c.sv->addChild( page );
+    c.sv->addChild( item );
     c.sv->setFrameStyle( QFrame::NoFrame );
 
     c.setTextLabel( label );
     c.setIconSet( iconSet );
 
-    if ( index < 0 || index >= count() ) {
+    if ( index < 0 || index >= (int)d->pageList.count() ) {
+	index = d->pageList.count();
 	d->pageList.append( c );
 	d->layout->addWidget( c.button );
 	d->layout->addWidget( c.sv );
-	if ( count() == 1 )
-	    setCurrentPage( page );
+	if ( index == 0 )
+	    setCurrentIndex( index );
     } else {
 	d->pageList.insert( d->pageList.at(index), c );
 	relayout();
@@ -374,35 +376,34 @@ void QToolBox::insertPage( QWidget *page, const QIconSet &iconSet,
 	    int oldindex = indexOf(current);
 	    if ( index <= oldindex ) {
 		d->currentPage = 0; // trigger change
-		setCurrentPage(current);
+		setCurrentIndex(oldindex);
 	    }
 	}
     }
 
     c.button->show();
 
-    d->updateTabs( this );
+    d->updateTabs();
+    itemInserted(index);
+    return index;
 }
 
 void QToolBox::buttonClicked()
 {
     QToolBoxButton *tb = ::qt_cast<QToolBoxButton*>(sender());
-    QWidget *widget = 0;
+    QWidget* item = 0;
     for ( QToolBoxPrivate::PageList::ConstIterator i = d->pageList.constBegin(); i != d->pageList.constEnd(); ++i )
 	if ( (*i).button == tb ) {
-	    widget = (*i).widget;
+	    item = (*i).widget;
 	    break;
 	}
 
-    if ( widget == d->currentPage->widget )
-	return;
-
-    setCurrentPage( widget );
+    setCurrentItem( item );
 }
 
 /*!
     \property QToolBox::count
-    \brief The number of pages contained in the toolbox.
+    \brief The number of items contained in the toolbox.
 */
 
 int QToolBox::count() const
@@ -412,18 +413,16 @@ int QToolBox::count() const
 
 void QToolBox::setCurrentIndex( int index )
 {
-    if ( index < 0 || index >= count() )
-	return;
-    setCurrentPage( page( index ) );
+    setCurrentItem( item( index ) );
 }
 
 /*!
-    Sets the current page to be \a page.
+    Sets the current item to be \a item.
 */
 
-void QToolBox::setCurrentPage( QWidget *page )
+void QToolBox::setCurrentItem( QWidget *item )
 {
-    QToolBoxPrivate::Page *c = d->page( page );
+    QToolBoxPrivate::Page *c = d->page( item );
     if ( !c || d->currentPage == c )
 	return;
 
@@ -433,10 +432,9 @@ void QToolBox::setCurrentPage( QWidget *page )
 	d->currentPage->button->setSelected(FALSE);
     }
     d->currentPage = c;
-    d->updatePageBackgroundMode();
     d->currentPage->sv->show();
-    d->updateTabs( this );
-    emit currentChanged( indexOf(page) );
+    d->updateTabs();
+    emit currentChanged( indexOf(item) );
 }
 
 void QToolBox::relayout()
@@ -449,7 +447,7 @@ void QToolBox::relayout()
     }
 }
 
-void QToolBox::pageDestroyed(QObject *object)
+void QToolBox::itemDestroyed(QObject *object)
 {
     // no verification - vtbl corrupted already
     QWidget *page = (QWidget*)object;
@@ -476,37 +474,40 @@ void QToolBox::pageDestroyed(QObject *object)
 }
 
 /*!
-    Removes the widget \a page from the toolbox. Note that the \a page
-    is \e not deleted.
+    Removes the widget \a w from the toolbox. Note that the widget is
+    \e not deleted. Returns the removed widget's index, or -1 if the
+    widget was not in this tool box.
 */
 
-void QToolBox::removePage( QWidget *page )
+int QToolBox::removeItem( QWidget *item )
 {
-    QToolBoxPrivate::Page *c = d->page((QWidget*)page);
-    if ( !page || !c )
-	return;
-
-    disconnect(page, SIGNAL(destroyed(QObject*)), this, SLOT(pageDestroyed(QObject*)));
-    page->reparent( this, QPoint(0,0) );    
-
-    // destroy internal data
-    pageDestroyed( page );
+    int index = indexOf(item);
+    if (index >= 0) {
+	disconnect(item, SIGNAL(destroyed(QObject*)), this, SLOT(itemDestroyed(QObject*)));
+	item->reparent( this, QPoint(0,0) );
+	// destroy internal data
+	itemDestroyed(item);
+    }
+    itemRemoved(index);
+    return index;
 }
 
 
 /*!
-    Returns the toolbox's current page, or 0 if the toolbox is empty.
+    Returns the toolbox's current item, or 0 if the toolbox is empty.
 */
 
-QWidget *QToolBox::currentPage() const
+QWidget *QToolBox::currentItem() const
 {
     return d->currentPage ? d->currentPage->widget : 0;
 }
 
 /*!
     \property QToolBox::currentIndex
-    \brief the current page's index position
+    \brief the index of the current item, or -1 if the toolbox is empty.
+    \sa currentItem(), indexOf(), item()
 */
+
 
 int QToolBox::currentIndex() const
 {
@@ -514,10 +515,11 @@ int QToolBox::currentIndex() const
 }
 
 /*!
-    Returns the page at position \a index, or 0 if there is no such page.
+    Returns the item at position \a index, or 0 if there is no such
+    item.
 */
 
-QWidget *QToolBox::page( int index ) const
+QWidget *QToolBox::item( int index ) const
 {
     if ( index < 0 || index >= (int) d->pageList.size() )
 	return 0;
@@ -525,166 +527,131 @@ QWidget *QToolBox::page( int index ) const
 }
 
 /*!
-    Returns the index position of page \a page, or -1 if \a page is not
-    in this toolbox.
+    Returns the index of item \a item, or -1 if the item does not
+    exist.
 */
 
-int QToolBox::indexOf( QWidget *page ) const
+int QToolBox::indexOf( QWidget *item ) const
 {
-    QToolBoxPrivate::Page *c = d->page( page );
+    QToolBoxPrivate::Page *c = d->page(item);
     return c ? d->pageList.findIndex( *c ) : -1;
 }
 
 /*!
-    If \a enabled is TRUE then page \a page is enabled; otherwise page
-    \a page is disabled.
+    If \a enabled is TRUE then the item at position \a index is enabled; otherwise item
+    \a index is disabled.
 */
 
-void QToolBox::setPageEnabled( QWidget *page, bool enabled )
+void QToolBox::setItemEnabled( int index, bool enabled )
 {
-    QToolBoxPrivate::Page *c = d->page( page );
+    QToolBoxPrivate::Page *c = d->page( index );
     if ( !c )
 	return;
 
     c->button->setEnabled( enabled );
-    if ( !enabled )
-	activateClosestPage( page );
-}
-
-void QToolBox::activateClosestPage( QWidget *widget )
-{
-    QToolBoxPrivate::Page *c = d->page( widget );
-    if ( !c || c != d->currentPage )
-	return;
-
-    QWidget *p = 0;
-    int curIndexUp = d->pageList.findIndex( *c );
-    int curIndexDown = curIndexUp;
-    const int count = d->pageList.count();
-    while ( !p && ( curIndexUp > 0 || curIndexDown < count-1 ) ) {
-	if ( curIndexDown < count-1 ) {
-	    c = d->page(page(++curIndexDown));
-	    if ( c->button->isEnabled() ) {
-		p = c->widget;
-		break;
+    if ( !enabled && c == d->currentPage ) {
+	// formerly known as activateClosetPage()
+	int curIndexUp = index;
+	int curIndexDown = curIndexUp;
+	const int count = d->pageList.count();
+	while ( curIndexUp > 0 || curIndexDown < count-1 ) {
+	    if ( curIndexDown < count-1 ) {
+		if (d->page(++curIndexDown)->button->isEnabled()) {
+		    index = curIndexDown;
+		    break;
+		}
+	    }
+	    if ( curIndexUp > 0 ) {
+		if (d->page(--curIndexUp)->button->isEnabled()) {
+		    index = curIndexUp;
+		    break;
+		}
 	    }
 	}
-	if ( curIndexUp > 0 ) {
-	    c = d->page(page(--curIndexUp));
-	    if ( c->button->isEnabled() ) {
-		p = c->widget;
-		break;
-	    }
-	}
+	setCurrentIndex(index);
     }
-    if ( p )
-	setCurrentPage( p );
 }
+
 
 /*!
-    Sets the tab label of page \a page to \a label.
+    Sets the label of the item at position \a index to \a label.
 */
 
-void QToolBox::setPageLabel( QWidget *page, const QString &label )
+void QToolBox::setItemLabel( int index, const QString &label )
 {
-    QToolBoxPrivate::Page *c = d->page( page );
+    QToolBoxPrivate::Page *c = d->page( index );
     if ( c )
 	c->setTextLabel( label );
 }
 
 /*!
-    Sets the tab icon of page \a page to \a iconSet.
+    Sets the icon of the item at position \a index to \a iconSet.
 */
 
-void QToolBox::setPageIconSet( QWidget *page, const QIconSet &iconSet )
+void QToolBox::setItemIconSet( int index, const QIconSet &iconSet )
 {
-    QToolBoxPrivate::Page *c = d->page( page );
+    QToolBoxPrivate::Page *c = d->page( index );
     if ( c )
 	c->setIconSet( iconSet );
 }
 
 /*!
-    Sets the tab tooltip of page \a page to \a toolTip.
+    Sets the tooltip of the item at position \a index to \a toolTip.
 */
 
-void QToolBox::setPageToolTip( QWidget *page, const QString &toolTip )
+void QToolBox::setItemToolTip( int index, const QString &toolTip )
 {
-    QToolBoxPrivate::Page *c = d->page( page );
+    QToolBoxPrivate::Page *c = d->page( index );
     if ( c )
 	c->setToolTip( toolTip );
 }
 
 /*!
-    Returns TRUE if page \a page is enabled; otherwise returns FALSE.
+    Returns TRUE if the item at position \a index is enabled; otherwise returns FALSE.
 */
 
-bool QToolBox::isPageEnabled( QWidget *page ) const
+bool QToolBox::isItemEnabled( int index ) const
 {
-    QToolBoxPrivate::Page *c = d->page( page );
+    QToolBoxPrivate::Page *c = d->page( index );
     return c && c->button->isEnabled();
 }
 
 /*!
-    Returns page \a page's tab label, or the null string if
-    \a page is not in this toolbox.
+    Returns the label of the item at position \a index, or a null string if
+    \a index is out of range.
 */
 
-QString QToolBox::pageLabel( QWidget *page ) const
+QString QToolBox::itemLabel( int index ) const
 {
-    QToolBoxPrivate::Page *c = d->page( page );
+    QToolBoxPrivate::Page *c = d->page( index );
     return ( c ? c->button->textLabel() : QString::null );
 }
 
 /*!
-    Returns page \a page's tab icon, or the null icon if
-    \a page is not in this toolbox.
+    Returns the icon of the item at position \a index, or a null
+    icon if \a index is out of range.
 */
 
-QIconSet QToolBox::pageIconSet( QWidget *page ) const
+QIconSet QToolBox::itemIconSet( int index ) const
 {
-    QToolBoxPrivate::Page *c = d->page( page );
+    QToolBoxPrivate::Page *c = d->page( index );
     return ( c ? c->button->iconSet() : QIconSet() );
 }
 
 /*!
-    Returns page \a page's tooltip, or the null string if
-    \a page is not in this toolbox.
+    Returns the tooltip of the item at position \a index, or a null
+    string if \a index is out of range.
 */
 
-QString QToolBox::pageToolTip( QWidget *page ) const
+QString QToolBox::itemToolTip( int index ) const
 {
-    QToolBoxPrivate::Page *c = d->page( page );
+    QToolBoxPrivate::Page *c = d->page( index );
     return ( c ? c->toolTip : QString::null );
-}
-
-/*!
-  \property QToolBox::pageBackgroundMode
-  \brief The background mode in which the current page should be displayed.
-  If this pageBackgroundMode is set to something else than
-  NoBackground, the background mode is also set to all children of the
-  pages.
-*/
-
-void QToolBox::setPageBackgroundMode( BackgroundMode bm )
-{
-    if ( d->pageBackgroundMode == bm )
-	return;
-    d->pageBackgroundMode = (bm == NoBackground ? backgroundMode() : bm);
-    setBackgroundMode( d->pageBackgroundMode );
-    d->updatePageBackgroundMode();
-    d->updateTabs( this );
-    d->pageBackgroundMode = bm;
-}
-
-Qt::BackgroundMode QToolBox::pageBackgroundMode() const
-{
-    return d->pageBackgroundMode;
 }
 
 /*! \reimp */
 void QToolBox::showEvent( QShowEvent *e )
 {
-    d->updatePageBackgroundMode();
     QWidget::showEvent( e );
 }
 
@@ -693,6 +660,24 @@ void QToolBox::frameChanged()
 {
     d->layout->setMargin( frameWidth() );
     QFrame::frameChanged();
+}
+
+/*!
+  This virtual handler is called after a new item was added or
+  inserted at position \a index.
+ */
+void QToolBox::itemInserted( int index )
+{
+    Q_UNUSED(index)
+}
+
+/*!
+  This virtual handler is called after an item was removed from
+  position \a index.
+ */
+void QToolBox::itemRemoved( int index )
+{
+    Q_UNUSED(index)
 }
 
 #endif //QT_NO_TOOLBOX

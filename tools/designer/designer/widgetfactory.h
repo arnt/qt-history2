@@ -458,21 +458,22 @@ public:
 class QDesignerToolBox : public QToolBox
 {
     Q_OBJECT
-    Q_PROPERTY( QString pageLabel READ pageLabel WRITE setPageLabel STORED false DESIGNABLE true )
-    Q_PROPERTY( QCString pageName READ pageName WRITE setPageName STORED false DESIGNABLE true )
+    Q_PROPERTY( QString itemLabel READ itemLabel WRITE setItemLabel STORED false DESIGNABLE true )
+    Q_PROPERTY( QCString itemName READ itemName WRITE setItemName STORED false DESIGNABLE true )
+    Q_PROPERTY( BackgroundMode itemBackgroundMode READ itemBackgroundMode WRITE setItemBackgroundMode STORED false DESIGNABLE true )
 
 public:
     QDesignerToolBox( QWidget *parent, const char *name );
 
-    QString pageLabel() const;
-    void setPageLabel( const QString &l );
-    QCString pageName() const;
-    void setPageName( const QCString &n );
+    QString itemLabel() const;
+    void setItemLabel( const QString &l );
+    QCString itemName() const;
+    void setItemName( const QCString &n );
+    BackgroundMode itemBackgroundMode() const;
+    void setItemBackgroundMode( BackgroundMode );
 
-    void insertPage( QWidget *page, const QIconSet &iconSet,
-		     const QString &label, int index = -1 );
-    bool eventFilter( QObject *o, QEvent *e );
-
+protected:
+    void itemInserted( int index );
 };
 
 #endif

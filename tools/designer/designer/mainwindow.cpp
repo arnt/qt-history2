@@ -420,7 +420,6 @@ void MainWindow::setupToolbox()
     dw->setCloseMode( QDockWindow::Always );
     addToolBar( dw, Qt::DockLeft );
     toolBox = new QToolBox( dw );
-    toolBox->setPageBackgroundMode( PaletteBase );
     dw->setWidget( toolBox );
     dw->setFixedExtentWidth( 160 );
     dw->setCaption( tr( "Toolbox" ) );
@@ -430,7 +429,8 @@ void MainWindow::setupToolbox()
     commonWidgetsToolBar = new QToolBar( "Common Widgets", 0, toolBox, FALSE, "Common Widgets" );
     commonWidgetsToolBar->setFrameStyle( QFrame::NoFrame );
     commonWidgetsToolBar->setOrientation( Qt::Vertical );
-    toolBox->addPage( commonWidgetsToolBar, "Common Widgets" );
+    commonWidgetsToolBar->setBackgroundMode(PaletteBase);
+    toolBox->addItem( commonWidgetsToolBar, "Common Widgets" );
 }
 
 void MainWindow::setupRMBMenus()
@@ -1782,12 +1782,12 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
 	    formWindow()->commandHistory()->addCommand( cmd );
 	    cmd->execute();
 	} else if ( id == commands[ "remove" ] ) {
-	    if ( tb->currentPage() ) {
+	    if ( tb->currentItem() ) {
 		DeleteToolBoxPageCommand *cmd =
 		    new DeleteToolBoxPageCommand( tr( "Delete Page %1 of %2" ).
-					  arg( tb->pageLabel( tb->currentPage() ) ).
+					  arg( tb->itemLabel( tb->currentIndex() ) ).
 					  arg( tb->name() ),
-					  formWindow(), tb, tb->currentPage() );
+					  formWindow(), tb, tb->currentItem() );
 		formWindow()->commandHistory()->addCommand( cmd );
 		cmd->execute();
 	    }
@@ -2114,7 +2114,7 @@ void MainWindow::writeConfig()
     config.writeEntry( keybase + "Grid/x", grid().x() );
     config.writeEntry( keybase + "Grid/y", grid().y() );
     config.writeEntry( keybase + "LastToolPage",
-		       toolBox->pageLabel( toolBox->currentPage() ) );
+		       toolBox->itemLabel( toolBox->currentIndex() ) );
 
     config.writeEntry( keybase + "Background/UsePixmap", backPix );
     config.writeEntry( keybase + "Background/Color", (int)qworkspace->backgroundColor().rgb() );
@@ -2232,7 +2232,7 @@ void MainWindow::readConfig()
     if ( restoreConfig || readPreviousConfig ) {
 	QString s = config.readEntry( keybase + "LastToolPage" );
 	for ( int i = 0; i < toolBox->count(); ++i ) {
-	    if ( toolBox->pageLabel( toolBox->page( i ) ) == s ) {
+	    if ( toolBox->itemLabel(i) == s ) {
 		toolBox->setCurrentIndex( i );
 		break;
 	    }

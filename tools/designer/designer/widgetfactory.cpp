@@ -560,7 +560,7 @@ QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout *layout, LayoutTy
 	widget = ((QWidgetStack*)widget)->visibleWidget();
 
     if ( !layout && widget && widget->inherits( "QToolBox" ) )
-	widget = ((QToolBox*)widget)->currentPage();
+	widget = ((QToolBox*)widget)->currentItem();
 
     MetaDataBase::addEntry( widget );
 
@@ -649,7 +649,7 @@ void WidgetFactory::deleteLayout( QWidget *widget )
     if ( widget->inherits( "QWidgetStack" ) )
 	widget = ((QWidgetStack*)widget)->visibleWidget();
     if ( widget->inherits( "QToolBox" ) )
-	widget = ((QToolBox*)widget)->currentPage();
+	widget = ((QToolBox*)widget)->currentItem();
     delete widget->layout();
 }
 
@@ -934,10 +934,10 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	FormWindow *fw = find_formwindow( parent );
 	QWidget *w = fw ? new QDesignerWidget( fw, tb, "page1" ) :
 		     new QWidget( tb, "page1" );
-	tb->addPage( w, MainWindow::tr("Page 1") );
+	tb->addItem( w, MainWindow::tr("Page 1") );
 	MetaDataBase::addEntry( w );
 	w = fw ? new QDesignerWidget( fw, tb, "page2" ) : new QWidget( tb, "page2" );
-	tb->addPage( w, MainWindow::tr("Page 2") );
+	tb->addItem( w, MainWindow::tr("Page 2") );
 	MetaDataBase::addEntry( tb );
 	MetaDataBase::addEntry( w );
 	return tb;
@@ -994,7 +994,7 @@ WidgetFactory::LayoutType WidgetFactory::layoutType( QWidget *w, QLayout *&layou
     if ( w && w->inherits( "QWidgetStack" ) )
 	w = ((QWidgetStack*)w)->visibleWidget();
     if ( w && w->inherits( "QToolBox" ) )
-	w = ((QToolBox*)w)->currentPage();
+	w = ((QToolBox*)w)->currentItem();
 
     if ( w && w->inherits( "QSplitter" ) )
 	return ( (QSplitter*)w )->orientation() == Horizontal ? HBox : VBox;
@@ -1074,7 +1074,7 @@ QWidget* WidgetFactory::containerOfWidget( QWidget *w )
     if ( w->inherits( "QWidgetStack" ) )
 	return ((QWidgetStack*)w)->visibleWidget();
     if ( w->inherits( "QToolBox" ) )
-	return ((QToolBox*)w)->currentPage();
+	return ((QToolBox*)w)->currentItem();
     if ( w->inherits( "QMainWindow" ) )
 	return ((QMainWindow*)w)->centralWidget();
     if ( !WidgetDatabase::isCustomPluginWidget( WidgetDatabase::idFromClassName( classNameOf( w ) ) ) )
@@ -1301,11 +1301,12 @@ void WidgetFactory::initChangedProperties( QObject *o )
 	MetaDataBase::setPropertyChanged( o, "currentPage", TRUE );
 	MetaDataBase::setPropertyChanged( o, "pageName", TRUE );
     } else if ( o->inherits( "QToolBox" ) ) {
-	MetaDataBase::setPropertyChanged( o, "currentPage", TRUE );
-	MetaDataBase::setPropertyChanged( o, "pageName", TRUE );
-	MetaDataBase::setPropertyChanged( o, "pageLabel", TRUE );
-	MetaDataBase::setPropertyChanged( o, "pageIconSet", TRUE );
-	MetaDataBase::setPropertyChanged( o, "pageToolTip", TRUE );
+	MetaDataBase::setPropertyChanged( o, "currentIndex", TRUE );
+	MetaDataBase::setPropertyChanged( o, "itemName", TRUE );
+	MetaDataBase::setPropertyChanged( o, "itemLabel", TRUE );
+	MetaDataBase::setPropertyChanged( o, "itemIconSet", TRUE );
+	MetaDataBase::setPropertyChanged( o, "itemToolTip", TRUE );
+	MetaDataBase::setPropertyChanged( o, "itemBackgroundMode", TRUE );
 #ifndef QT_NO_TABLE
     } else if ( o->inherits( "QTable" ) && !o->inherits( "QDataTable" ) ) {
 	MetaDataBase::setPropertyChanged( o, "numRows", TRUE );
@@ -1700,50 +1701,50 @@ QWidget *CustomWidgetFactory::createWidget( const QString &className, QWidget *p
     return WidgetFactory::createCustomWidget( parent, name, w );
 }
 
+
 QDesignerToolBox::QDesignerToolBox( QWidget *parent, const char *name )
     : QToolBox( parent, name )
 {
 }
 
-QString QDesignerToolBox::pageLabel() const
+QString QDesignerToolBox::itemLabel() const
 {
-    return QToolBox::pageLabel( currentPage() );
+    return QToolBox::itemLabel( currentIndex() );
 }
 
-void QDesignerToolBox::setPageLabel( const QString &l )
+void QDesignerToolBox::setItemLabel( const QString &l )
 {
-    QToolBox::setPageLabel( currentPage(), l );
+    QToolBox::setItemLabel( currentIndex(), l );
 }
 
-QCString QDesignerToolBox::pageName() const
+QCString QDesignerToolBox::itemName() const
 {
-    return currentPage() ? currentPage()->name() : 0;
+    return currentItem() ? currentItem()->name() : 0;
 }
 
-void QDesignerToolBox::setPageName( const QCString &n )
+void QDesignerToolBox::setItemName( const QCString &n )
 {
-    currentPage()->setName( n );
+    if (currentItem())
+	currentItem()->setName( n );
 }
 
-void QDesignerToolBox::insertPage( QWidget *page, const QIconSet &iconSet,
-				   const QString &label, int index )
+
+Qt::BackgroundMode QDesignerToolBox::itemBackgroundMode() const
 {
-    QToolBox::insertPage( page, iconSet, label, index );
-    page->installEventFilter( this );
+    return (item(0) ? item(0)->backgroundMode() : PaletteBackground);
 }
 
-bool QDesignerToolBox::eventFilter( QObject *o, QEvent *e )
+void QDesignerToolBox::setItemBackgroundMode( BackgroundMode bmode )
 {
-    if ( e->type() != QEvent::ChildInserted )
-	return QToolBox::eventFilter( o, e );
-    QObject *c = ((QChildEvent*)e)->child();
-    if ( c->isWidgetType() ) {
-	if ( pageBackgroundMode() != NoBackground ) {
-	    QShowEvent se;
-	    showEvent( &se );
-	}
-	c->installEventFilter( this );
+    for (int i = 0; i < count(); ++i) {
+	QWidget *w = item(i);
+	w->setBackgroundMode( bmode );
+	w->update();
     }
-    return QToolBox::eventFilter( o, e );
 }
 
+void QDesignerToolBox::itemInserted( int index )
+{
+    if (count() > 1)
+	item(index)->setBackgroundMode(item(index>0?0:1)->backgroundMode());
+}

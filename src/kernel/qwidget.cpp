@@ -2279,6 +2279,9 @@ Qt::BackgroundMode QWidget::backgroundMode() const
 void QWidget::setBackgroundMode( BackgroundMode m )
 {
     setBackgroundMode( m, m );
+    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) ==
+	 WState_Visible )
+	update();
 }
 
 

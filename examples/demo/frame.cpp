@@ -94,13 +94,12 @@ void Frame::setCategories( const QPtrList<CategoryInterface> &l )
     dw->setCloseMode( QDockWindow::Always );
 
     toolBox = new QToolBox( dw );
-    toolBox->setPageBackgroundMode( PaletteBase );
     dw->setWidget( toolBox );
 
     dw->setCaption( tr( "Demo Categories" ) );
 
     for ( int i = 0; i < categories.count(); ++i )
-	toolBox->addPage( createCategoryPage( categories.at(i) ),
+	toolBox->addItem( createCategoryPage( categories.at(i) ),
 			  categories.at(i)->icon(),
 			  categories.at(i)->name() );
 
@@ -111,8 +110,11 @@ QWidget *Frame::createCategoryPage( CategoryInterface *c )
 {
     QButtonGroup *g = new QButtonGroup( 1, Horizontal, toolBox );
     g->setFrameStyle( QFrame::NoFrame );
+    g->setEraseColor(green);
+    g->setBackgroundMode(PaletteBase);
     for ( int i = 0; i < c->numCategories(); ++i ) {
 	QToolButton *b = new QToolButton( g );
+ 	b->setBackgroundMode(PaletteBase);
 	b->setTextLabel( c->categoryName( i ) );
 	b->setIconSet( c->categoryIcon( i ) );
 	b->setAutoRaise( TRUE );

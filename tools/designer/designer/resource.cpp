@@ -766,7 +766,7 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
     } else if ( obj->inherits( "QToolBox" ) ) {
 	QToolBox* tb = (QToolBox*)obj;
 	for ( int i = 0; i < tb->count(); ++i ) {
-	    QWidget *w = tb->page( i );
+	    QWidget *w = tb->item( i );
 	    if ( !w )
 		continue;
 	    if ( WidgetDatabase::idFromClassName(WidgetFactory::classNameOf(w)) == -1 )
@@ -778,9 +778,14 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	    ts << makeIndent( indent ) << "<cstring>" << entitize( w->name() ) << "</cstring>" << endl;
 	    indent--;
 	    ts << makeIndent( indent ) << "</property>" << endl;
+	    ts << makeIndent( indent ) << "<property name=\"backgroundMode\">" << endl;
+	    indent++;
+	    saveEnumProperty( w, "backgroundMode", QVariant::Invalid, ts, indent );
+	    indent--;
+	    ts << makeIndent( indent ) << "</property>" << endl;
 	    ts << makeIndent( indent ) << "<attribute name=\"label\">" << endl;
 	    indent++;
-	    ts << makeIndent( indent ) << "<string>" << entitize( tb->pageLabel( w ) ) << "</string>" << endl;
+	    ts << makeIndent( indent ) << "<string>" << entitize( tb->itemLabel( tb->indexOf(w) ) ) << "</string>" << endl;
 	    indent--;
 	    ts << makeIndent( indent ) << "</attribute>" << endl;
 	    saveChildrenOf( w, ts, indent );
@@ -1680,7 +1685,7 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 		    ( (QDesignerWidgetStack*)parent )->insertPage( w, v.toInt() );
 	    } else if ( parent->inherits( "QToolBox" ) ) {
 		if ( attrib == "label" )
-		    ( (QToolBox*)parent )->insertPage( w, v.toString() );
+		    ( (QToolBox*)parent )->addItem( w, v.toString() );
 	    } else if ( parent->inherits( "QWizard" ) ) {
 		if ( attrib == "title" )
 		    ( (QWizard*)parent )->addPage( w, v.toString() );
