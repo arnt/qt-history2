@@ -1507,93 +1507,87 @@ bool QApplication::do_mouse_down(Point *pt)
     if(!widget) {
 	mouse_down_unhandled = TRUE;
 	return FALSE;
+    } else if(windowPart == inContent) {
+	return TRUE; //just return and let the event loop process
     } else if(windowPart != inGoAway && windowPart != inCollapseBox) {
 	widget->raise();
 	if(widget->isTopLevel() && !widget->isDesktop() && !widget->isPopup() && 
 	   (widget->isModal() || !widget->inherits("QDockWindow")))
 	    widget->setActiveWindow();
     }
+    if(windowPart == inGoAway || windowPart == inToolbarButton || 
+       windowPart == inCollapseBox || windowPart == inZoomIn || windowPart == inZoomOut) {
+	QMacBlockingFunction block;
+	if(!TrackBox((WindowPtr)widget->handle(), *pt, windowPart))
+	    return FALSE;
+    }
 
-    bool in_widget = FALSE;
     switch(windowPart) {
     case inStructure:
     case inDesk:
 	break;
     case inGoAway:
-	if(TrackBox((WindowPtr)widget->handle(), *pt, windowPart)) 
-	    widget->close();
+	widget->close();
 	break;
     case inToolbarButton: { //hide toolbars thing
-	if(TrackBox((WindowPtr)widget->handle(), *pt, windowPart)) {
-	    if(const QObjectList *chldrn = widget->children()) {
-		int h = 0;
-		for(QObjectListIt it(*chldrn); it.current(); ++it) {
-		    if(it.current()->isWidgetType() && it.current()->inherits("QDockArea")) {
-			QWidget *w = (QWidget *)it.current();
-			if(w->width() < w->height()) //only do horizontal orientations
-			    continue;
-			int oh = w->sizeHint().height();
-			if(oh < 0)
-			    oh = 0;
-			if(QObjectList *l = w->queryList("QToolBar")) {
-			    for(QObjectListIt it2(*l); it2.current(); ++it2) {
-				QWidget *t = (QWidget *)(*it2);
-				if(t->topLevelWidget() == widget) {
-				    if(t->isVisible())
-					t->hide();
-				    else
-					t->show();
-				}
+	if(const QObjectList *chldrn = widget->children()) {
+	    int h = 0;
+	    for(QObjectListIt it(*chldrn); it.current(); ++it) {
+		if(it.current()->isWidgetType() && it.current()->inherits("QDockArea")) {
+		    QWidget *w = (QWidget *)it.current();
+		    if(w->width() < w->height()) //only do horizontal orientations
+			continue;
+		    int oh = w->sizeHint().height();
+		    if(oh < 0)
+			oh = 0;
+		    if(QObjectList *l = w->queryList("QToolBar")) {
+			for(QObjectListIt it2(*l); it2.current(); ++it2) {
+			    QWidget *t = (QWidget *)(*it2);
+			    if(t->topLevelWidget() == widget) {
+				if(t->isVisible())
+				    t->hide();
+				else
+				    t->show();
 			    }
-			    delete l;
 			}
-			sendPostedEvents();
-			int nh = w->sizeHint().height();
-			if(nh < 0)
-			    nh = 0;
-			if(oh != nh)
-			    h += (oh - nh);
+			delete l;
 		    }
+		    sendPostedEvents();
+		    int nh = w->sizeHint().height();
+		    if(nh < 0)
+			nh = 0;
+		    if(oh != nh)
+			h += (oh - nh);
 		}
-		if(h)
-		    widget->resize(widget->width(), widget->height() - h);
 	    }
+	    if(h)
+		widget->resize(widget->width(), widget->height() - h);
 	}
 	break; }
-    case inDrag:
-    {
-	if(widget) {
-	    {
-		QMacBlockingFunction block;
-		DragWindow((WindowPtr)widget->handle(), *pt, 0);
-	    }
-	    QPoint np, op(widget->crect.x(), widget->crect.y());
-	    {
-		QMacSavedPortInfo savedInfo(widget);
-		Point p = { 0, 0 };
-		LocalToGlobal(&p);
-		np = QPoint(p.h, p.v);
-	    }
-	    if(np != op) {
-		widget->crect = QRect(np, widget->crect.size());
-		QMoveEvent qme(np, op);
-	    }
-	} 
+    case inDrag: {
+	{
+	    QMacBlockingFunction block;
+	    DragWindow((WindowPtr)widget->handle(), *pt, 0);
+	}
+	QPoint np, op(widget->crect.x(), widget->crect.y());
+	{
+	    QMacSavedPortInfo savedInfo(widget);
+	    Point p = { 0, 0 };
+	    LocalToGlobal(&p);
+	    np = QPoint(p.h, p.v);
+	}
+	if(np != op) {
+	    widget->crect = QRect(np, widget->crect.size());
+	    QMoveEvent qme(np, op);
+	}
 	break; }
-    case inContent:
-	if(widget) 
-	    in_widget = TRUE;
-	break;
-    case inGrow:
-    {
+    case inGrow: {
 	Rect limits;
 	SetRect(&limits, -2, 0, 0, 0 );
-	if(widget) {
-	    if(QWExtra   *extra = widget->extraData()) 
-		SetRect(&limits, extra->minw, extra->minh,
-			 extra->maxw < QWIDGETSIZE_MAX ? extra->maxw : QWIDGETSIZE_MAX,
-			 extra->maxh < QWIDGETSIZE_MAX ? extra->maxh : QWIDGETSIZE_MAX);
-	}
+	if(QWExtra   *extra = widget->extraData()) 
+	    SetRect(&limits, extra->minw, extra->minh,
+		    extra->maxw < QWIDGETSIZE_MAX ? extra->maxw : QWIDGETSIZE_MAX,
+		    extra->maxh < QWIDGETSIZE_MAX ? extra->maxh : QWIDGETSIZE_MAX);
 	int growWindowSize;
 	{
 	    QMacBlockingFunction block;
@@ -1605,30 +1599,26 @@ bool QApplication::do_mouse_down(Point *pt)
 	    int nw = LoWord(growWindowSize);
 	    int nh = HiWord(growWindowSize);
 	    if(nw != widget->width() || nh != widget->height()) {
-		if(nw < desktop()->width() && nw > 0 && nh < desktop()->height() && 
-		   nh > 0 && widget)
+		if(nw < desktop()->width() && nw > 0 && nh < desktop()->height() && nh > 0)
 			widget->resize(nw, nh);
 	    }
 	}
 	break;
     }
     case inCollapseBox:
-	if(TrackBox((WindowPtr)widget->handle(), *pt, windowPart))
-		widget->showMinimized();
+	widget->showMinimized();
 	break;
     case inZoomIn:
-	if(TrackBox((WindowPtr)widget->handle(), *pt, windowPart)) 
-	    widget->showNormal();
+	widget->showNormal();
 	break;
     case inZoomOut:
-	if(TrackBox((WindowPtr)widget->handle(), *pt, windowPart)) 
-	    widget->showMaximized();
+	widget->showMaximized();
 	break;
     default:
 	qDebug("Unhandled case in mouse_down.. %d", windowPart);
 	break;
     }
-    return in_widget;
+    return FALSE;
 }
 
 static bool wakeup_pending = FALSE;
