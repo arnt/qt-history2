@@ -173,7 +173,10 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
     created that encapsulate the editing behavior of a database table
     for an entire application. For example, a cursor can be customized
     to always auto-number primary index fields, or provide fields with
-    suitable default values, when inserting new records.
+    suitable default values, when inserting new records. QSqlCursor
+    generates SQL statements which are sent to the database engine;
+    you can control which fields are included in these statements
+    using setGenerated().
 
     Note that QSqlCursor does not inherit from QObject. This means
     that you are responsible for destroying instances of this class
