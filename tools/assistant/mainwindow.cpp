@@ -6,6 +6,8 @@
 #include "settingsdialog.h"
 #include "config.h"
 
+#include <q4dockwindow.h>
+
 #include <qdir.h>
 #include <qtimer.h>
 #include <qstatusbar.h>
@@ -40,22 +42,31 @@ MainWindow::MainWindow()
 
     windows.append(this);
     tabs = new TabbedBrowser(this);
-    setCentralWidget(tabs);
+    setCenterWidget(tabs);
     settingsDia = 0;
 
     Config *config = Config::configuration();
 
     updateProfileSettings();
 
-    dw = new QDockWindow(QDockWindow::InDock, this);
+    dw = new Q4DockWindow(this);
     helpDock = new HelpDialog(dw, this);
+
+    dw->setAllowedAreas(AllDockWindowAreas);
+    dw->setClosable(true);
+    dw->setMovable(true);
+    dw->setFloatable(true);
+    dw->setCurrentArea(DockWindowAreaLeft);
+    dw->setWindowTitle(tr("Sidebar"));
+
+/*
     dw->setResizeEnabled(true);
     dw->setCloseMode(QDockWindow::Always);
     addDockWindow(dw, DockLeft);
     dw->setWidget(helpDock);
     dw->setWindowTitle("Sidebar");
     dw->setFixedExtentWidth(320);
-
+*/
     // read geometry configuration
     setupGoActions();
 
@@ -69,8 +80,10 @@ MainWindow::MainWindow()
 
     QString mainWindowLayout = config->mainWindowLayout();
 
+#if 0 // ### port me
     QTextStream ts(&mainWindowLayout, IO_ReadOnly);
     ts >> *this;
+#endif
 
     if (config->sideBarHidden())
         dw->hide();
@@ -142,7 +155,9 @@ void MainWindow::setup()
     Config *config = Config::configuration();
 
     setupBookmarkMenu();
+#if 0 /// ### port me
     ui.PopupMenu->addMenu(tr("Vie&ws"), createDockWindowMenu());
+#endif
     helpDock->tabWidget()->setCurrentPage(config->sideBarPage());
 
     qApp->restoreOverrideCursor();
@@ -203,7 +218,7 @@ bool MainWindow::insertActionSeparator()
 bool MainWindow::close()
 {
     saveSettings();
-    return QMainWindow::close();
+    return Q4MainWindow::close();
 }
 
 void MainWindow::about()
@@ -515,7 +530,7 @@ void MainWindow::showSettingsDialog(int page)
 void MainWindow::hide()
 {
     saveToolbarSettings();
-    QMainWindow::hide();
+    Q4MainWindow::hide();
 }
 
 MainWindow* MainWindow::newWindow()
@@ -555,10 +570,12 @@ void MainWindow::saveSettings()
 
 void MainWindow::saveToolbarSettings()
 {
+#if 0 /// ### port me
     QString mainWindowLayout;
     QTextStream ts(&mainWindowLayout, IO_WriteOnly);
     ts << *this;
     Config::configuration()->setMainWindowLayout(mainWindowLayout);
+#endif
 }
 
 TabbedBrowser* MainWindow::browsers() const
@@ -654,7 +671,7 @@ void MainWindow::updateProfileSettings()
         setWindowTitle(config->title());
 }
 
-void MainWindow::setupPopupMenu(QPopupMenu *m)
+void MainWindow::setupPopupMenu(QMenu *m)
 {
     m->addAction(ui.actionNewWindow);
     m->addAction(ui.actionOpenPage);

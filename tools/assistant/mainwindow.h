@@ -10,8 +10,10 @@ class HelpDialog;
 class FindDialog;
 class SettingsDialog;
 class HelpWindow;
+class QMenu;
+class Q4DockWindow;
 
-class MainWindow : public QMainWindow
+class MainWindow : public Q4MainWindow
 {
     Q_OBJECT
 public:
@@ -21,7 +23,7 @@ public:
     TabbedBrowser *browsers() const;
     HelpDialog *helpDialog() const;
 
-    void setupPopupMenu(QPopupMenu *menu);
+    void setupPopupMenu(QMenu *menu);
 
     virtual bool close();
 
@@ -77,7 +79,7 @@ private:
     SettingsDialog *settingsDia;
     QMap<QAction*, QString> bookmarks;
     HelpDialog *helpDock;
-    QDockWindow *dw;
+    Q4DockWindow *dw;
     QPointer<FindDialog> findDialog;
     static QList<MainWindow*> windows;
     QMap<QAction*,QString> *goActionDocFiles;
