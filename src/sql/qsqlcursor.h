@@ -76,7 +76,7 @@ public:
     virtual void        setPrimaryIndex( const QSqlIndex& idx );
 
 
-    virtual QSqlRecord* editBuffer();
+    virtual QSqlRecord* editBuffer( bool copy = FALSE );
     virtual QSqlRecord* primeInsert();
     virtual QSqlRecord* primeUpdate();
     virtual QSqlRecord* primeDelete();

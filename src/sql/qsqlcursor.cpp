@@ -769,14 +769,22 @@ int QSqlCursor::insert( bool invalidate )
     return apply( str, invalidate );
 }
 
-/*!  Returns a pointer to the current internal edit buffer.  The edit
-  buffer is valid as long as the cursor remains valid.
+/*!  Returns a pointer to the current internal edit buffer.  If \a
+  copy is TRUE (the default is FALSE), the current cursor field values
+  are first copied into the edit buffer.  The edit buffer is valid as
+  long as the cursor remains valid.
 
   \sa primeInsert(), primeUpdate() primeDelete()
 */
 
-QSqlRecord* QSqlCursor::editBuffer( )
+QSqlRecord* QSqlCursor::editBuffer( bool copy )
 {
+    if( d->editBuffer.count() == 0 ){
+	d->editBuffer = *((QSqlRecord*)this);
+    } else if ( copy ) {
+	for(uint i = 0; i < d->editBuffer.count(); i++)
+	    d->editBuffer.setValue( i, value( i ) );
+    }
     return &d->editBuffer;
 }
 
@@ -794,9 +802,8 @@ QSqlRecord* QSqlCursor::primeUpdate()
     if( d->editBuffer.count() == 0 ){
 	d->editBuffer = *((QSqlRecord*)this);
     } else {
-	for(uint i = 0; i < d->editBuffer.count(); i++){
+	for(uint i = 0; i < d->editBuffer.count(); i++)
 	    d->editBuffer.setValue( i, value( i ) );
-	}
     }
     return &d->editBuffer;
 }
@@ -935,7 +942,7 @@ int QSqlCursor::del( bool invalidate )
 {
     if ( primaryIndex().isEmpty() )
 	return 0;
-    return del( toString( primaryIndex(), &d->editBuffer, d->nm, 
+    return del( toString( primaryIndex(), &d->editBuffer, d->nm,
 			  "=", "and" ), invalidate );
 }
 
