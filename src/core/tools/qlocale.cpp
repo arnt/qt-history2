@@ -53,9 +53,7 @@ static const unsigned char be_inf_bytes[] = { 0x7f, 0xf0, 0, 0, 0, 0, 0, 0 };
 static const unsigned char le_inf_bytes[] = { 0, 0, 0, 0, 0, 0, 0xf0, 0x7f };
 static inline double inf()
 {
-    return (ByteOrder == BigEndian ?
-            *((const double *) be_inf_bytes) :
-            *((const double *) le_inf_bytes));
+    return *reinterpret_cast<const double *>(ByteOrder == BigEndian ? be_inf_bytes : le_inf_bytes);
 }
 #define Q_INFINITY (::inf())
 
@@ -64,9 +62,7 @@ static const unsigned char be_snan_bytes[] = { 0x7f, 0xf8, 0, 0, 0, 0, 0, 0 };
 static const unsigned char le_snan_bytes[] = { 0, 0, 0, 0, 0, 0, 0xf8, 0x7f };
 static inline double snan()
 {
-    return (ByteOrder == BigEndian ?
-            *((const double *) be_snan_bytes) :
-            *((const double *) le_snan_bytes));
+    return *reinterpret_cast<const double *>(ByteOrder == BigEndian ? be_snan_bytes : le_snan_bytes);
 }
 #define Q_SNAN (::snan())
 
@@ -75,15 +71,13 @@ static const unsigned char be_qnan_bytes[] = { 0xff, 0xf8, 0, 0, 0, 0, 0, 0 };
 static const unsigned char le_qnan_bytes[] = { 0, 0, 0, 0, 0, 0, 0xf8, 0xff };
 static inline double qnan()
 {
-    return (ByteOrder == BigEndian ?
-            *((const double *) be_qnan_bytes) :
-            *((const double *) le_qnan_bytes));
+    return *reinterpret_cast<const double *>(ByteOrder == BigEndian ? be_qnan_bytes : le_qnan_bytes);
 }
 #define Q_QNAN (::qnan())
 
 static inline bool compareBits(double d1, double d2)
 {
-    return memcmp((const char*)&d1, (const char*)&d2, sizeof(double)) == 0;
+    return memcmp(reinterpret_cast<const char*>(&d1), reinterpret_cast<const char*>(&d2), sizeof(double)) == 0;
 }
 
 static inline bool qIsInf(double d)
@@ -1164,7 +1158,7 @@ static const uint country_name_index[] = {
   2566  // Zimbabwe
 };
 
-static const char language_code_list[] =
+static const unsigned char language_code_list[] =
 "  " // Unused
 "  " // C
 "ab" // Abkhazian
@@ -1308,7 +1302,7 @@ static const char language_code_list[] =
 "zu" // Zulu
 ;
 
-static const char country_code_list[] =
+static const unsigned char country_code_list[] =
 "  " // AnyLanguage
 "AF" // Afghanistan
 "AL" // Albania
@@ -1560,10 +1554,10 @@ static QLocale::Language codeToLanguage(const QString &code)
     ushort uc1 = code.unicode()[0].unicode();
     ushort uc2 = code.unicode()[1].unicode();
 
-    const char *c = language_code_list;
+    const unsigned char *c = language_code_list;
     for (; *c != 0; c += 2) {
-        if (uc1 == (unsigned char)c[0] && uc2 == (unsigned char)c[1])
-            return (QLocale::Language) ((c - language_code_list)/2);
+        if (uc1 == c[0] && uc2 == c[1])
+            return QLocale::Language((c - language_code_list)/2);
     }
 
     return QLocale::C;
@@ -1577,10 +1571,10 @@ static QLocale::Country codeToCountry(const QString &code)
     ushort uc1 = code.unicode()[0].unicode();
     ushort uc2 = code.unicode()[1].unicode();
 
-    const char *c = country_code_list;
+    const unsigned char *c = country_code_list;
     for (; *c != 0; c += 2) {
-        if (uc1 == (unsigned char)c[0] && uc2 == (unsigned char)c[1])
-            return (QLocale::Country) ((c - country_code_list)/2);
+        if (uc1 == c[0] && uc2 == c[1])
+            return QLocale::Country((c - country_code_list)/2);
     }
 
     return QLocale::AnyCountry;
@@ -1593,9 +1587,9 @@ static QString languageToCode(QLocale::Language language)
 
     QString code;
     code.resize(2);
-    const char *c = language_code_list + 2*(uint)language;
-    code[0] = c[0];
-    code[1] = c[1];
+    const unsigned char *c = language_code_list + 2*(uint(language));
+    code[0] = ushort(c[0]);
+    code[1] = ushort(c[1]);
     return code;
 }
 
@@ -1606,9 +1600,9 @@ static QString countryToCode(QLocale::Country country)
 
     QString code;
     code.resize(2);
-    const char *c = country_code_list + 2*(uint)country;
-    code[0] = c[0];
-    code[1] = c[1];
+    const unsigned char *c = country_code_list + 2*(uint(country));
+    code[0] = ushort(c[0]);
+    code[1] = ushort(c[1]);
     return code;
 }
 
@@ -1836,8 +1830,8 @@ const char* QLocalePrivate::systemLocaleName()
 static const QLocalePrivate *findLocale(QLocale::Language language,
                                             QLocale::Country country)
 {
-    unsigned language_id = (unsigned)language;
-    unsigned country_id = (unsigned)country;
+    unsigned language_id = language;
+    unsigned country_id = country;
 
     uint idx = locale_index[language_id];
 
@@ -2534,7 +2528,7 @@ void QLocale::setDefault(const QLocale &locale)
 */
 QLocale::Language QLocale::language() const
 {
-    return (Language)d->languageId();
+    return Language(d->languageId());
 }
 
 /*!
@@ -2544,7 +2538,7 @@ QLocale::Language QLocale::language() const
 */
 QLocale::Country QLocale::country() const
 {
-    return (Country)d->countryId();
+    return Country(d->countryId());
 }
 
 /*!
@@ -2581,9 +2575,9 @@ QString QLocale::name() const
 
 QString QLocale::languageToString(Language language)
 {
-    if ((uint)language > (uint)QLocale::LastLanguage)
+    if (uint(language) > uint(QLocale::LastLanguage))
         return QLatin1String("Unknown");
-    return QLatin1String(language_name_list + language_name_index[(uint)language]);
+    return QLatin1String(language_name_list + language_name_index[language]);
 }
 
 /*!
@@ -2592,9 +2586,9 @@ QString QLocale::languageToString(Language language)
 
 QString QLocale::countryToString(Country country)
 {
-    if ((uint)country > (uint)QLocale::LastCountry)
+    if (uint(country) > uint(QLocale::LastCountry))
         return QLatin1String("Unknown");
-    return QLatin1String(country_name_list + country_name_index[(uint)country]);
+    return QLatin1String(country_name_list + country_name_index[country]);
 }
 
 /*!
@@ -2617,7 +2611,7 @@ short QLocale::toShort(const QString &s, bool *ok) const
             *ok = false;
         return 0;
     }
-    return (short) i;
+    return short(i);
 }
 
 /*!
@@ -2640,7 +2634,7 @@ ushort QLocale::toUShort(const QString &s, bool *ok) const
             *ok = false;
         return 0;
     }
-    return (ushort) i;
+    return ushort(i);
 }
 
 /*!
@@ -2663,7 +2657,7 @@ int QLocale::toInt(const QString &s, bool *ok) const
             *ok = false;
         return 0;
     }
-    return (int) i;
+    return int(i);
 }
 
 /*!
@@ -2686,7 +2680,7 @@ uint QLocale::toUInt(const QString &s, bool *ok) const
             *ok = false;
         return 0;
     }
-    return (uint) i;
+    return uint(i);
 }
 
 /*!
@@ -2709,7 +2703,7 @@ Q_LONG QLocale::toLong(const QString &s, bool *ok) const
             *ok = false;
         return 0;
     }
-    return (Q_LONG) i;
+    return Q_LONG(i);
 }
 
 /*!
@@ -2732,7 +2726,7 @@ Q_ULONG QLocale::toULong(const QString &s, bool *ok) const
             *ok = false;
         return 0;
     }
-    return (Q_ULONG) i;
+    return Q_ULONG(i);
 }
 
 /*!
@@ -2796,7 +2790,7 @@ float QLocale::toFloat(const QString &s, bool *ok) const
     }
     if (ok != 0)
         *ok = true;
-    return (float) d;
+    return float(d);
 }
 
 /*!
@@ -3067,7 +3061,7 @@ static QString &decimalForm(QString &digits, int decpt, uint precision,
         decpt = 0;
     }
     else if (decpt > digits.length()) {
-        for (uint i = digits.length(); i < (uint)decpt; ++i)
+        for (int i = digits.length(); i < decpt; ++i)
             digits.append(locale.zero());
     }
 
@@ -3205,7 +3199,7 @@ QString QLocalePrivate::doubleToString(double d,
         if (zero().unicode() != '0') {
             ushort z = zero().unicode() - '0';
             for (int i = 0; i < digits.length(); ++i)
-                ((ushort *) digits.data())[i] += z;
+                reinterpret_cast<ushort *>(digits.data())[i] += z;
         }
 
         bool always_show_decpt = flags & Alternate;
@@ -3225,7 +3219,7 @@ QString QLocalePrivate::doubleToString(double d,
                 PrecisionMode mode = (flags & Alternate) ?
                             PMSignificantDigits : PMChopTrailingZeros;
 
-                if (decpt != (int)digits.length() && (decpt <= -4 || decpt > (int)precision))
+                if (decpt != digits.length() && (decpt <= -4 || decpt > precision))
                     num_str = exponentForm(digits, decpt, precision, mode,
                                                     always_show_decpt, *this);
                 else
@@ -3244,7 +3238,7 @@ QString QLocalePrivate::doubleToString(double d,
     if (flags & QLocalePrivate::ZeroPadded
             && !(flags & QLocalePrivate::LeftAdjusted)
             && !special_number) {
-        int num_pad_chars = width - (int)num_str.length();
+        int num_pad_chars = width - num_str.length();
         // leave space for the sign
         if (negative
                 || flags & QLocalePrivate::AlwaysShowSign
@@ -3295,7 +3289,7 @@ QString QLocalePrivate::longLongToString(Q_LLONG l, int precision,
 
     uint cnt_thousand_sep = 0;
     if (flags & ThousandsGroup && base == 10) {
-        for (int i = (int)num_str.length() - 3; i > 0; i -= 3) {
+        for (int i = num_str.length() - 3; i > 0; i -= 3) {
             num_str.insert(i, group());
             ++cnt_thousand_sep;
         }
@@ -3316,7 +3310,7 @@ QString QLocalePrivate::longLongToString(Q_LLONG l, int precision,
                         && precision_not_specified;
 
     if (zero_padded) {
-        int num_pad_chars = width - (int)num_str.length();
+        int num_pad_chars = width - num_str.length();
 
         // leave space for the sign
         if (negative
@@ -3367,7 +3361,7 @@ QString QLocalePrivate::unsLongLongToString(Q_ULLONG l, int precision,
 
     uint cnt_thousand_sep = 0;
     if (flags & ThousandsGroup && base == 10) {
-        for (int i = (int)num_str.length() - 3; i > 0; i -=3) {
+        for (int i = num_str.length() - 3; i > 0; i -=3) {
             num_str.insert(i, group());
             ++cnt_thousand_sep;
         }
@@ -3388,7 +3382,7 @@ QString QLocalePrivate::unsLongLongToString(Q_ULLONG l, int precision,
                         && precision_not_specified;
 
     if (zero_padded) {
-        int num_pad_chars = width - (int)num_str.length();
+        int num_pad_chars = width - num_str.length();
 
         // leave space for optional '0x' in hex form
         if (base == 16
@@ -3742,9 +3736,9 @@ static Q_ULLONG qstrtoull(const char *nptr, const char **endptr, register int ba
     }
     if (base == 0)
         base = c == '0' ? 8 : 10;
-    qbase = (unsigned)base;
-    cutoff = (Q_ULLONG)ULLONG_MAX / qbase;
-    cutlim = (Q_ULLONG)ULLONG_MAX % qbase;
+    qbase = unsigned(base);
+    cutoff = Q_ULLONG(ULLONG_MAX) / qbase;
+    cutlim = Q_ULLONG(ULLONG_MAX) % qbase;
     for (acc = 0, any = 0;; c = *s++) {
         if (!isascii(c))
             break;
@@ -3772,7 +3766,7 @@ static Q_ULLONG qstrtoull(const char *nptr, const char **endptr, register int ba
     else if (neg)
         acc = (~acc) + 1;
     if (endptr != 0)
-        *endptr = (char *)(any ? s - 1 : nptr);
+        *endptr = (any ? s - 1 : nptr);
     return (acc);
 }
 
@@ -3841,9 +3835,8 @@ static Q_LLONG qstrtoll(const char *nptr, const char **endptr, register int base
      * Set any if any `digits' consumed; make it negative to indicate
      * overflow.
      */
-    qbase = (unsigned)base;
-    cutoff = neg ? (Q_ULLONG)(0-(LLONG_MIN + LLONG_MAX)) + LLONG_MAX
-        : LLONG_MAX;
+    qbase = unsigned(base);
+    cutoff = neg ? Q_ULLONG(0-(LLONG_MIN + LLONG_MAX)) + LLONG_MAX : LLONG_MAX;
     cutlim = cutoff % qbase;
     cutoff /= qbase;
     for (acc = 0, any = 0;; c = *s++) {
@@ -3873,7 +3866,7 @@ static Q_LLONG qstrtoll(const char *nptr, const char **endptr, register int base
         acc = (~acc) + 1;
     }
     if (endptr != 0)
-        *endptr = (char *)(any ? s - 1 : nptr);
+        *endptr = (any ? s - 1 : nptr);
     return (acc);
 }
 
@@ -4004,9 +3997,9 @@ __RCSID("$NetBSD: strtod.c,v 1.26 1998/02/03 18:44:21 perry Exp $");
 #error Exactly one of IEEE_BIG_OR_LITTLE_ENDIAN, VAX, or IBM should be defined.
 #endif
 
-inline ULong getWord0(double x)
+inline ULong getWord0(const double x)
 {
-    uchar *ptr = (uchar *)&x;
+    const uchar *ptr = reinterpret_cast<const uchar *>(&x);
     if (ByteOrder == BigEndian) {
         return (ptr[0]<<24) + (ptr[1]<<16) + (ptr[2]<<8) + ptr[3];
     } else {
@@ -4016,23 +4009,23 @@ inline ULong getWord0(double x)
 
 inline void setWord0(double *x, ULong l)
 {
-    uchar *ptr = (uchar *)x;
+    uchar *ptr = reinterpret_cast<uchar *>(x);
     if (ByteOrder == BigEndian) {
-        ptr[0] = (uchar)(l>>24);
-        ptr[1] = (uchar)(l>>16);
-        ptr[2] = (uchar)(l>>8);
-        ptr[3] = (uchar)l;
+        ptr[0] = uchar(l>>24);
+        ptr[1] = uchar(l>>16);
+        ptr[2] = uchar(l>>8);
+        ptr[3] = uchar(l);
     } else {
-        ptr[7] = (uchar)(l>>24);
-        ptr[6] = (uchar)(l>>16);
-        ptr[5] = (uchar)(l>>8);
-        ptr[4] = (uchar)l;
+        ptr[7] = uchar(l>>24);
+        ptr[6] = uchar(l>>16);
+        ptr[5] = uchar(l>>8);
+        ptr[4] = uchar(l);
     }
 }
 
-inline ULong getWord1(double x)
+inline ULong getWord1(const double x)
 {
-    uchar *ptr = (uchar *)&x;
+    const uchar *ptr = reinterpret_cast<const uchar *>(&x);
     if (ByteOrder == BigEndian) {
         return (ptr[4]<<24) + (ptr[5]<<16) + (ptr[6]<<8) + ptr[7];
     } else {
@@ -4041,24 +4034,24 @@ inline ULong getWord1(double x)
 }
 inline void setWord1(double *x, ULong l)
 {
-    uchar *ptr = (uchar *)x;
+    uchar *ptr = reinterpret_cast<uchar *>(x);
     if (ByteOrder == BigEndian) {
-        ptr[4] = (uchar)(l>>24);
-        ptr[5] = (uchar)(l>>16);
-        ptr[6] = (uchar)(l>>8);
-        ptr[7] = (uchar)l;
+        ptr[4] = uchar(l>>24);
+        ptr[5] = uchar(l>>16);
+        ptr[6] = uchar(l>>8);
+        ptr[7] = uchar(l);
     } else {
-        ptr[3] = (uchar)(l>>24);
-        ptr[2] = (uchar)(l>>16);
-        ptr[1] = (uchar)(l>>8);
-        ptr[0] = (uchar)l;
+        ptr[3] = uchar(l>>24);
+        ptr[2] = uchar(l>>16);
+        ptr[1] = uchar(l>>8);
+        ptr[0] = uchar(l);
     }
 }
 
 static inline void Storeinc(ULong *&a, const ULong &b, const ULong &c)
 {
 
-    *a = (((unsigned short)b) << 16) | ((unsigned short)c);
+    *a = (ushort(b) << 16) | ushort(c);
     ++a;
 }
 
@@ -4193,7 +4186,7 @@ static Bigint *Balloc(int k)
     Bigint *rv;
 
     x = 1 << k;
-    rv = (Bigint *)MALLOC(sizeof(Bigint) + (x-1)*sizeof(Long));
+    rv = static_cast<Bigint *>(MALLOC(sizeof(Bigint) + (x-1)*sizeof(Long)));
     rv->k = k;
     rv->maxwds = x;
     rv->sign = rv->wds = 0;
@@ -4205,7 +4198,7 @@ static void Bfree(Bigint *v)
     free(v);
 }
 
-#define Bcopy(x,y) memcpy((char *)&x->sign, (char *)&y->sign, \
+#define Bcopy(x,y) memcpy(reinterpret_cast<char *>(&x->sign), reinterpret_cast<char *>(&y->sign), \
 y->wds*sizeof(Long) + 2*sizeof(int))
 
 /* multiply by m and add a */
@@ -4226,11 +4219,11 @@ static Bigint *multadd(Bigint *b, int m, int a)
         xi = *x;
         y = (xi & 0xffff) * m + a;
         z = (xi >> 16) * m + (y >> 16);
-        a = (int)(z >> 16);
+        a = (z >> 16);
         *x++ = (z << 16) + (y & 0xffff);
 #else
         y = *x * m + a;
-        a = (int)(y >> 16);
+        a = (y >> 16);
         *x++ = y & 0xffff;
 #endif
     }
@@ -4739,7 +4732,7 @@ static Bigint *d2b(double d, int *e, int *bits)
     z |= Exp_msk11;
 #endif
 #else
-    if ((de = (int)(getWord0(d) >> Exp_shift)) != 0)
+    if ((de = int(getWord0(d) >> Exp_shift)) != 0)
         z |= Exp_msk1;
 #endif
 #ifdef Pack_32
@@ -4928,7 +4921,7 @@ static double qstrtod(CONST char *s00, CONST char **se, bool *ok)
     rv = 0.;
 
 
-    for(s = s00; isspace((unsigned char) *s); s++)
+    for(s = s00; isspace(uchar(*s)); s++)
         ;
 
     if (*s == '-') {
@@ -5017,7 +5010,7 @@ static double qstrtod(CONST char *s00, CONST char **se, bool *ok)
                      */
                     e = 19999; /* safe for 16 bit ints */
                 else
-                    e = (int)L;
+                    e = int(L);
                 if (esign)
                     e = -e;
             }
@@ -5410,7 +5403,7 @@ static double qstrtod(CONST char *s00, CONST char **se, bool *ok)
              * example: 1.2e-307 .
              */
             if (y <= (P-1)*Exp_msk1 && aadj >= 1.) {
-                aadj1 = (double)(int)(aadj + 0.5);
+                aadj1 = int(aadj + 0.5);
                 if (!dsign)
                     aadj1 = -aadj1;
             }
@@ -5421,7 +5414,7 @@ static double qstrtod(CONST char *s00, CONST char **se, bool *ok)
         z = getWord0(rv) & Exp_mask;
         if (y == z) {
             /* Can we stop now? */
-            L = (Long) aadj;
+            L = Long(aadj);
             aadj -= L;
             /* The tolerances below are conservative. */
             if (dsign || getWord1(rv) || getWord0(rv) & Bndry_mask) {
@@ -5445,7 +5438,7 @@ static double qstrtod(CONST char *s00, CONST char **se, bool *ok)
     Bfree(delta);
  ret:
     if (se)
-        *se = (char *)s;
+        *se = s;
     return sign ? -rv : rv;
 }
 
@@ -5658,9 +5651,9 @@ static char *qdtoa ( double d, int mode, int ndigits, int *decpt, int *sign, cha
                 *decpt = 9999;
                 s =
 #ifdef IEEE_Arith
-                    !getWord1(d) && !(getWord0(d) & 0xfffff) ? (char*)"Infinity" :
+                    !getWord1(d) && !(getWord0(d) & 0xfffff) ? const_cast<char*>("Infinity") :
 #endif
-                    (char*)"NaN";
+                    const_cast<char*>("NaN");
                 if (rve)
                     *rve =
 #ifdef IEEE_Arith
@@ -5676,7 +5669,7 @@ static char *qdtoa ( double d, int mode, int ndigits, int *decpt, int *sign, cha
     if (d == g_double_zero)
         {
             *decpt = 1;
-            s = (char*) "0";
+            s = const_cast<char*>("0");
             if (rve)
                 *rve = s + 1;
             return s;
@@ -5686,7 +5679,7 @@ static char *qdtoa ( double d, int mode, int ndigits, int *decpt, int *sign, cha
 #ifdef Sudden_Underflow
     i = (int)(getWord0(d) >> Exp_shift1 & (Exp_mask>>Exp_shift1));
 #else
-    if ((i = (int)(getWord0(d) >> Exp_shift1 & (Exp_mask>>Exp_shift1))) != 0) {
+    if ((i = int(getWord0(d) >> Exp_shift1 & (Exp_mask>>Exp_shift1))) != 0) {
 #endif
         d2 = d;
         setWord0(&d2, getWord0(d2) & Frac_mask1);
@@ -5739,7 +5732,7 @@ static char *qdtoa ( double d, int mode, int ndigits, int *decpt, int *sign, cha
     }
 #endif
     ds = (d2-1.5)*0.289529654602168 + 0.1760912590558 + i*0.301029995663981;
-    k = (int)ds;
+    k = int(ds);
     if (ds < 0. && ds != k)
         k--;        /* want k = floor(ds) */
     k_check = 1;
@@ -5800,7 +5793,7 @@ static char *qdtoa ( double d, int mode, int ndigits, int *decpt, int *sign, cha
         if (i <= 0)
             i = 1;
     }
-    *resultp = (char *) malloc(i + 1);
+    *resultp = static_cast<char *>(malloc(i + 1));
     s = s0 = *resultp;
 
     if (ilim >= 0 && ilim <= Quick_max && try_quick) {
@@ -5862,9 +5855,9 @@ static char *qdtoa ( double d, int mode, int ndigits, int *decpt, int *sign, cha
              */
             eps = 0.5/tens[ilim-1] - eps;
             for(i = 0;;) {
-                L = (Long)d;
+                L = Long(d);
                 d -= L;
-                *s++ = '0' + (int)L;
+                *s++ = '0' + int(L);
                 if (d < eps)
                     goto ret1;
                 if (1. - d < eps)
@@ -5880,9 +5873,9 @@ static char *qdtoa ( double d, int mode, int ndigits, int *decpt, int *sign, cha
             /* Generate ilim digits, then fix them up. */
             eps *= tens[ilim-1];
             for(i = 1;; i++, d *= 10.) {
-                L = (Long)d;
+                L = Long(d);
                 d -= L;
-                *s++ = '0' + (int)L;
+                *s++ = '0' + int(L);
                 if (i == ilim) {
                     if (d > 0.5 + eps)
                         goto bump_up;
@@ -5916,7 +5909,7 @@ static char *qdtoa ( double d, int mode, int ndigits, int *decpt, int *sign, cha
             goto one_digit;
         }
         for(i = 1;; i++) {
-            L = (Long)(d / ds);
+            L = Long(d / ds);
             d -= L*ds;
 #ifdef Check_FLT_ROUNDS
             /* If FLT_ROUNDS == 2, L will usually be high by 1 */
@@ -5925,7 +5918,7 @@ static char *qdtoa ( double d, int mode, int ndigits, int *decpt, int *sign, cha
                 d += ds;
             }
 #endif
-            *s++ = '0' + (int)L;
+            *s++ = '0' + int(L);
             if (i == ilim) {
                 d += d;
                 if (d > ds || (d == ds && L & 1)) {

@@ -565,7 +565,7 @@ QMembuf* QProcess::membufStdout()
           with the FreeBSD/Linux/Solaris ioctls.
         */
         size_t nbytes = 0;
-        if (::ioctl(d->proc->socketStdout, FIONREAD, (char*)&nbytes)==0 && nbytes>0)
+        if (::ioctl(d->proc->socketStdout, FIONREAD, reinterpret_cast<char*>(&nbytes)) == 0 && nbytes > 0)
             socketRead(d->proc->socketStdout);
     }
     return &d->bufStdout;
@@ -590,7 +590,7 @@ QMembuf* QProcess::membufStderr()
           with the FreeBSD/Linux/Solaris ioctls.
         */
         size_t nbytes = 0;
-        if (::ioctl(d->proc->socketStderr, FIONREAD, (char*)&nbytes)==0 && nbytes>0)
+        if (::ioctl(d->proc->socketStderr, FIONREAD, reinterpret_cast<char*>(&nbytes)) == 0 && nbytes > 0)
             socketRead(d->proc->socketStderr);
     }
     return &d->bufStderr;
@@ -786,9 +786,9 @@ bool QProcess::start(QStringList *env)
             }
 #endif
 #ifdef Q_OS_QNX4
-            ::execvp(command.toLocal8Bit(), (char const*const*)arglist); // ### cast not nice
+            ::execvp(command.toLocal8Bit(), const_cast<char const*const*>(arglist)); // ### cast not nice
 #else
-            ::execvp(command.toLocal8Bit(), (char*const*)arglist); // ### cast not nice
+            ::execvp(command.toLocal8Bit(), const_cast<char*const*>(arglist)); // ### cast not nice
 #endif
         } else { // start process with environment settins as specified in env
             // construct the environment for exec
@@ -866,7 +866,7 @@ bool QProcess::start(QStringList *env)
 #ifdef Q_OS_QNX4
             ::execve(arglist[0], (char const*const*)arglist,(char const*const*)envlist); // ### casts not nice
 #else
-            ::execve(arglist[0], (char*const*)arglist, (char*const*)envlist); // ### casts not nice
+            ::execve(arglist[0], const_cast<char*const*>(arglist), const_cast<char*const*>(envlist)); // ### casts not nice
 #endif
         }
         if (fd[1]) {
@@ -1039,10 +1039,9 @@ bool QProcess::isRunning() const
     int status;
     if (::waitpid(d->proc->pid, &status, WNOHANG) == d->proc->pid) {
         // compute the exit values
-        QProcess *that = (QProcess*)this; // mutable
-        that->exitNormal = WIFEXITED(status) != 0;
+        exitNormal = WIFEXITED(status) != 0;
         if (exitNormal) {
-            that->exitStat = (char)WEXITSTATUS(status);
+            exitStat = char(WEXITSTATUS(status));
         }
         d->exitValuesCalculated = true;
 
@@ -1081,7 +1080,7 @@ bool QProcess::canReadLineStdout() const
     if (!d->proc || !d->proc->socketStdout)
         return d->bufStdout.size() != 0;
 
-    QProcess *that = (QProcess*)this;
+    QProcess *that = const_cast<QProcess*>(this);
     return that->membufStdout()->scanNewline(0);
 }
 
@@ -1096,7 +1095,7 @@ bool QProcess::canReadLineStderr() const
     if (!d->proc || !d->proc->socketStderr)
         return d->bufStderr.size() != 0;
 
-    QProcess *that = (QProcess*)this;
+    QProcess *that = const_cast<QProcess*>(this);
     return that->membufStderr()->scanNewline(0);
 }
 
@@ -1289,7 +1288,7 @@ void QProcess::socketWrite(int fd)
         if (ret == -1)
             return;
         d->stdinBufRead += ret;
-        if (d->stdinBufRead == (ssize_t)d->stdinBuf.first()->size()) {
+        if (d->stdinBufRead == static_cast<ssize_t>(d->stdinBuf.first()->size())) {
             d->stdinBufRead = 0;
             delete d->stdinBuf.first();
             d->stdinBuf.removeFirst();

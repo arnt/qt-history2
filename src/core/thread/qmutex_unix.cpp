@@ -286,7 +286,7 @@ void QMutex::unlock()
     } else {
         qWarning("QMutex::unlock: unlock from different thread than locker");
         qWarning("                was locked by %lu, unlock attempt from %lu",
-                 (unsigned long) d->owner, (unsigned long) pthread_self());
+                 ulong(d->owner), ulong(pthread_self()));
     }
 
     pthread_mutex_unlock(&d->mutex2);

@@ -377,7 +377,7 @@ QChar::QChar(char ch)
         ucs =  QTextCodec::codecForCStrings()->toUnicode(&ch, 1).at(0).unicode();
     else
 #endif
-        ucs = (uchar)ch;
+        ucs = uchar(ch);
 }
 
 /*!
@@ -386,10 +386,11 @@ QChar::QChar(char ch)
 QChar::QChar(uchar ch)
 {
 #ifndef QT_NO_CODEC_FOR_C_STRINGS
-    if (QTextCodec::codecForCStrings())
+    if (QTextCodec::codecForCStrings()) {
         // #####
-        ucs =  QTextCodec::codecForCStrings()->toUnicode((char *)&ch, 1).at(0).unicode();
-    else
+        char c = char(ch);
+        ucs =  QTextCodec::codecForCStrings()->toUnicode(&c, 1).at(0).unicode();
+    } else
 #endif
         ucs = ch;
 }
@@ -693,7 +694,7 @@ const char QChar::ascii() const
         // #####
         return QTextCodec::codecForCStrings()->fromUnicode(QString(*this)).at(0);
 #endif
-    return ucs > 0xff ? 0 : (char) ucs;
+    return ucs > 0xff ? 0 : char(ucs);
 }
 
 /*!
@@ -721,7 +722,7 @@ QChar QChar::fromAscii(char c)
         // #####
         return QTextCodec::codecForCStrings()->toUnicode(&c, 1).at(0).unicode();
 #endif
-    return QChar((ushort) c);
+    return QChar(ushort(c));
 }
 
 /*! \fn ushort & QChar::unicode()

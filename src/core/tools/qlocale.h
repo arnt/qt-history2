@@ -436,23 +436,23 @@ public:
     double toDouble(const QString &s, bool *ok = 0) const;
 
     QString toString(short i) const
-    { return toString((Q_LLONG)i); }
+    { return toString(Q_LLONG(i)); }
     QString toString(ushort i) const
-    { return toString((Q_ULLONG)i); }
+    { return toString(Q_ULLONG(i)); }
     QString toString(int i) const
-    { return toString((Q_LLONG)i); }
+    { return toString(Q_LLONG(i)); }
     QString toString(uint i) const
-    { return toString((Q_ULLONG)i); }
+    { return toString(Q_ULLONG(i)); }
 #if !defined(Q_OS_WIN64)
     QString toString(Q_LONG i) const
-    { return toString((Q_LLONG)i); }
+    { return toString(Q_LLONG(i)); }
     QString toString(Q_ULONG i) const
-    { return toString((Q_ULLONG)i); }
+    { return toString(Q_ULLONG(i)); }
 #endif
     QString toString(Q_LLONG i) const;
     QString toString(Q_ULLONG i) const;
     QString toString(float i, char f = 'g', int prec = 6) const
-    { return toString((double) i, f, prec); }
+    { return toString(double(i), f, prec); }
     QString toString(double i, char f = 'g', int prec = 6) const;
 
     static QString languageToString(Language language);

@@ -162,8 +162,8 @@ char *qstrncpy(char *dst, const char *src, uint len)
 
 int qstricmp(const char *str1, const char *str2)
 {
-    register const uchar *s1 = (const uchar *)str1;
-    register const uchar *s2 = (const uchar *)str2;
+    register const uchar *s1 = reinterpret_cast<const uchar *>(str1);
+    register const uchar *s2 = reinterpret_cast<const uchar *>(str2);
     int res;
     uchar c;
     if (!s1 || !s2)
@@ -196,8 +196,8 @@ int qstricmp(const char *str1, const char *str2)
 
 int qstrnicmp(const char *str1, const char *str2, uint len)
 {
-    register const uchar *s1 = (const uchar *)str1;
-    register const uchar *s2 = (const uchar *)str2;
+    register const uchar *s1 = reinterpret_cast<const uchar *>(str1);
+    register const uchar *s2 = reinterpret_cast<const uchar *>(str2);
     int res;
     uchar c;
     if (!s1 || !s2)
@@ -267,7 +267,7 @@ Q_UINT16 qChecksum(const char *data, uint len)
 {
     register Q_UINT16 crc = 0xffff;
     uchar c;
-    uchar *p = (uchar *)data;
+    const uchar *p = reinterpret_cast<const uchar *>(data);
     while (len--) {
         c = *p++;
         crc = ((crc >> 4) & 0x0fff) ^ crc_tbl[((crc ^ c) & 15)];
@@ -1121,7 +1121,7 @@ QByteArray::QByteArray(const char *str)
         d = &shared_empty;
     } else {
         int len = strlen(str);
-        d = (Data *)qMalloc(sizeof(Data)+len);
+        d = static_cast<Data *>(qMalloc(sizeof(Data)+len));
         if (!d) {
             d = &shared_null;
         } else {
@@ -1152,7 +1152,7 @@ QByteArray::QByteArray(const char *data, int size)
     } else if (size <= 0) {
         d = &shared_empty;
     } else {
-        d = (Data *)qMalloc(sizeof(Data) + size);
+        d = static_cast<Data *>(qMalloc(sizeof(Data) + size));
         if (!d) {
             d = &shared_null;
         } else {
@@ -1178,7 +1178,7 @@ QByteArray::QByteArray(int size, char ch)
     if (size <= 0) {
         d = &shared_null;
     } else {
-        d = (Data *)qMalloc(sizeof(Data)+size);
+        d = static_cast<Data *>(qMalloc(sizeof(Data)+size));
         if (!d) {
             d = &shared_null;
         } else {
@@ -2315,10 +2315,10 @@ QByteArray QByteArray::mid(int pos, int len) const
 QByteArray QByteArray::toLower() const
 {
     QByteArray s(*this);
-    register char *p = s.data();
+    register uchar *p = reinterpret_cast<uchar *>(s.data());
     if (p) {
         while (*p) {
-            *p = tolower((uchar) *p);
+            *p = tolower(*p);
             p++;
         }
     }
@@ -2759,14 +2759,14 @@ QByteArray QByteArray::simplified() const
         return *this;
     QByteArray result;
     result.resize(d->size);
-    const char *from = (const char*) d->data;
-    const char *fromend = (const char*) from+d->size;
+    const char *from = d->data;
+    const char *fromend = from + d->size;
     int outc=0;
-    char *to   = (char*) result.d->data;
+    char *to = result.d->data;
     for (;;) {
-        while (from!=fromend && isspace((uchar)*from))
+        while (from!=fromend && isspace(uchar(*from)))
             from++;
-        while (from!=fromend && !isspace((uchar)*from))
+        while (from!=fromend && !isspace(uchar(*from)))
             to[outc++] = *from++;
         if (from!=fromend)
             to[outc++] = ' ';
@@ -2802,15 +2802,15 @@ QByteArray QByteArray::trimmed() const
 {
     if (d->size == 0)
         return *this;
-    const char *s = (const char*)d->data;
-    if (!isspace((uchar)*s) && !isspace((uchar)s[d->size-1]))
+    const char *s = d->data;
+    if (!isspace(uchar(*s)) && !isspace(uchar(s[d->size-1])))
         return *this;
     int start = 0;
     int end = d->size - 1;
-    while (start<=end && isspace((uchar)s[start]))  // skip white space from start
+    while (start<=end && isspace(uchar(s[start])))  // skip white space from start
         start++;
     if (start <= end) {                          // only white space
-        while (end && isspace((uchar)s[end]))           // skip white space from end
+        while (end && isspace(uchar(s[end])))           // skip white space from end
             end--;
     }
     int l = end - start + 1;
@@ -3051,7 +3051,7 @@ int QByteArray::toInt(bool *ok, int base) const
             *ok = false;
         v = 0;
     }
-    return (int)v;
+    return int(v);
 }
 
 /*!
@@ -3079,7 +3079,7 @@ uint QByteArray::toUInt(bool *ok, int base) const
             *ok = false;
         v = 0;
     }
-    return (uint)v;
+    return uint(v);
 }
 
 /*!
@@ -3107,7 +3107,7 @@ short QByteArray::toShort(bool *ok, int base) const
             *ok = false;
         v = 0;
     }
-    return (short)v;
+    return short(v);
 }
 
 /*!
@@ -3135,7 +3135,7 @@ ushort QByteArray::toUShort(bool *ok, int base) const
             *ok = false;
         v = 0;
     }
-    return (ushort)v;
+    return ushort(v);
 }
 
 
@@ -3173,7 +3173,7 @@ double QByteArray::toDouble(bool *ok) const
 
 float QByteArray::toFloat(bool *ok) const
 {
-    return (float)toDouble(ok);
+    return float(toDouble(ok));
 }
 
 /*!
@@ -3198,13 +3198,13 @@ QByteArray QByteArray::toBase64() const
     char *out = tmp.data();
     while (i < d->size) {
 	int chunk = 0;
-	chunk |= (int) d->data[i++] << 16;
+	chunk |= int(uchar(d->data[i++])) << 16;
 	if (i == d->size) {
 	    padlen = 2;
 	} else {
-	    chunk |= (int) d->data[i++] << 8;
+	    chunk |= int(uchar(d->data[i++])) << 8;
 	    if (i == d->size) padlen = 1;
-	    else chunk |= (int) d->data[i++];
+	    else chunk |= int(uchar(d->data[i++]));
 	}
 
 	int j = (chunk & 0x00fc0000) >> 18;
@@ -3558,7 +3558,7 @@ QByteArray QByteArray::fromBase64(const QByteArray &base64)
     tmp.resize((base64.size() * 4) / 5);
 
     int offset = 0;
-    for (int i = 0; i < (int) base64.size(); ++i) {
+    for (int i = 0; i < base64.size(); ++i) {
 	int ch = base64.at(i);
 	int d;
 

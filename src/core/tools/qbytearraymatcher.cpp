@@ -25,11 +25,11 @@ static inline void bm_init_skiptable(const uchar *cc, int l, uint *skiptable)
         skiptable[*cc++] = l;
 }
 
-static inline int bm_find(const uchar *cc, uint l, int index, const uchar *puc, uint pl,
+static inline int bm_find(const uchar *cc, int l, int index, const uchar *puc, uint pl,
                           const uint *skiptable)
 {
     if (pl == 0)
-        return index > (int)l ? -1 : index;
+        return index > l ? -1 : index;
     const uint pl_minus_one = pl - 1;
 
     register const uchar *current = cc + index + pl_minus_one;

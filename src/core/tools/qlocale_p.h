@@ -31,14 +31,14 @@
 struct QLocalePrivate
 {
 public:
-    const QChar &decimal() const { return (QChar&)m_decimal; }
-    const QChar &group() const { return (QChar&)m_group; }
-    const QChar &list() const { return (QChar&)m_list; }
-    const QChar &percent() const { return (QChar&)m_percent; }
-    const QChar &zero() const { return (QChar&)m_zero; }
+    const QChar &decimal() const { return reinterpret_cast<const QChar&>(m_decimal); }
+    const QChar &group() const { return reinterpret_cast<const QChar&>(m_group); }
+    const QChar &list() const { return reinterpret_cast<const QChar&>(m_list); }
+    const QChar &percent() const { return reinterpret_cast<const QChar&>(m_percent); }
+    const QChar &zero() const { return reinterpret_cast<const QChar&>(m_zero); }
     QChar plus() const { return QLatin1Char('+'); }
-    const QChar &minus() const { return (QChar&)m_minus; }
-    const QChar &exponential() const { return (QChar&)m_exponential; }
+    const QChar &minus() const { return reinterpret_cast<const QChar&>(m_minus); }
+    const QChar &exponential() const { return reinterpret_cast<const QChar&>(m_exponential); }
     QString infinity() const;
     QString nan() const;
 

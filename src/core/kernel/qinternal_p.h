@@ -71,7 +71,7 @@ inline QByteArray QMembuf::readAll()
 { QByteArray ba; ba.resize(_size); consumeBytes(_size,ba.data()); return ba; }
 
 inline bool QMembuf::canReadLine() const
-{ return ((QMembuf*)this)->scanNewline(0); }
+{ return const_cast<QMembuf*>(this)->scanNewline(0); }
 
 inline QIODevice::Offset QMembuf::size() const
 { return _size; }

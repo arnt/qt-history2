@@ -135,8 +135,8 @@ private:
 #endif
     QStringList _arguments;
 
-    int  exitStat; // exit status
-    bool exitNormal; // normal exit?
+    mutable int  exitStat; // exit status
+    mutable bool exitNormal; // normal exit?
     bool ioRedirection; // automatically set be (dis)connectNotify
     bool notifyOnExit; // automatically set be (dis)connectNotify
     bool wroteToStdinConnected; // automatically set be (dis)connectNotify

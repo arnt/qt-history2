@@ -29,7 +29,7 @@ public:
     {
         if (p.d) {
             for (int i = 0; i < p.size(); ++i) {
-                T** t = (T**) *p.at(i);
+                T** t = static_cast<T**>(*p.at(i));
                 delete *t;
                 *t = 0;
             }

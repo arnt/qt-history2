@@ -129,7 +129,7 @@ QBitArray::QBitArray(int size, bool value)
         return;
     }
     d.resize(1 + (size+7)/8);
-    uchar* c = (uchar*)d.data();
+    uchar* c = reinterpret_cast<uchar*>(d.data());
     memset(c, value ? 0xff : 0, d.size());
     *c = d.size()*8 - size;
     if (value && size && size % 8)
@@ -167,7 +167,7 @@ void QBitArray::resize(int size)
     } else {
         int s = d.size();
         d.resize(1 + (size+7)/8);
-        uchar* c = (uchar*)d.data();
+        uchar* c = reinterpret_cast<uchar*>(d.data());
         if (size > (s << 3))
             memset(c + s, 0, d.size() - s);
         *c = d.size()*8 - size;
@@ -238,7 +238,7 @@ void QBitArray::fill(bool value, int begin, int end)
     if (len <= 0)
         return;
     int s = len & ~0x7;
-    uchar *c = (uchar*)d.data();
+    uchar *c = reinterpret_cast<uchar*>(d.data());
     memset(c + (begin >> 3) + 1, value ? 0xff : 0, s >> 3);
     begin += s;
     while (begin < end)
@@ -431,8 +431,8 @@ void QBitArray::fill(bool value, int begin, int end)
 QBitArray &QBitArray::operator&=(const QBitArray &other)
 {
     resize(qMax(size(), other.size()));
-    uchar *a1 = (uchar *)d.data()+1;
-    const uchar *a2 = (const uchar *)other.d.constData() + 1;
+    uchar *a1 = reinterpret_cast<uchar*>(d.data()) + 1;
+    const uchar *a2 = reinterpret_cast<const uchar*>(other.d.constData()) + 1;
     int n = qMin(d.size(), other.d.size()) - 1;
     int p = qMax(d.size(), other.d.size()) - 1 - n; // ### - 1 is right?
     while (n-- > 0)
@@ -466,8 +466,8 @@ QBitArray &QBitArray::operator&=(const QBitArray &other)
 QBitArray &QBitArray::operator|=(const QBitArray &other)
 {
     resize(qMax(size(), other.size()));
-    uchar *a1 = (uchar *)d.data()+1;
-    const uchar *a2 = (const uchar *)other.d.constData()+1;
+    uchar *a1 = reinterpret_cast<uchar*>(d.data()) + 1;
+    const uchar *a2 = reinterpret_cast<const uchar *>(other.d.constData()) + 1;
     int n = qMin(d.size(), other.d.size()) - 1;
     while (n-- > 0)
         *a1++ |= *a2++;
@@ -498,8 +498,8 @@ QBitArray &QBitArray::operator|=(const QBitArray &other)
 QBitArray &QBitArray::operator^=(const QBitArray &other)
 {
     resize(qMax(size(), other.size()));
-    uchar *a1 = (uchar *)d.data();
-    const uchar *a2 = (const uchar *)other.d.constData();
+    uchar *a1 = reinterpret_cast<uchar*>(d.data());
+    const uchar *a2 = reinterpret_cast<const uchar *>(other.d.constData());
     int n = qMin(d.size(), other.d.size()) - 1;
     while (n-- > 0)
         *a1++ ^= *a2++;
@@ -525,8 +525,8 @@ QBitArray QBitArray::operator~() const
 {
     int sz = size();
     QBitArray a(sz);
-    const uchar *a1 = (const uchar *)d.constData() + 1;
-    uchar *a2 = (uchar *)a.d.data() + 1;
+    const uchar *a1 = reinterpret_cast<const uchar *>(d.constData()) + 1;
+    uchar *a2 = reinterpret_cast<uchar*>(a.d.data()) + 1;
     int n = d.size() - 1;
     while (n--)
         *a2++ = ~*a1++;
@@ -703,7 +703,7 @@ QDataStream &operator>>(QDataStream &in, QBitArray &ba)
         ba.clear();
     } else {
         ba.resize(len);
-        if (ba.size() != (int)len) {
+        if (ba.size() != int(len)) {
             qWarning("QDataStream: Not enough memory to read QBitArray");
         } else {
             in.readRawBytes(ba.d.data() + 1, ba.d.size() - 1);

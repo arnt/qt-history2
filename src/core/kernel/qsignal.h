@@ -43,7 +43,7 @@ class QSignal
 public:
     inline QSignal():d(0){}
     inline ~QSignal(){ delete d; }
-    inline void activate(const T& t) { if(d)d->activate((void*)&t); }
+    inline void activate(const T& t) { if(d) d->activate(const_cast<T *>(&t)); }
     bool connect(const QObject *receiver, const char *member,
                   Qt::ConnectionType type = Qt::AutoConnection) {
         if (!d) d = new QSignalEmitter(QTypeInfo<T>::name());
@@ -109,7 +109,7 @@ class QArgument: public QGenericArgument
 {
 public:
     inline QArgument(const char *aName, const T &aData) :
-                QGenericArgument(aName, (void*)&aData)
+                QGenericArgument(aName, const_cast<T *>(&aData))
     {}
 };
 
@@ -119,7 +119,7 @@ class QReturnArgument: public QGenericReturnArgument
 {
 public:
     inline QReturnArgument(const char *aName, T &aData) :
-                QGenericReturnArgument(aName, (void*)&aData)
+                QGenericReturnArgument(aName, const_cast<T *>(&aData))
     {}
 };
 
