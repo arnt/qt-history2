@@ -635,8 +635,9 @@ void QDialog::show()
 	return;
 
 #if defined(Q_WS_X11)
-    if ( !parentWidget() && testWFlags( WShowModal ) &&
-	 qApp->mainWidget() && qApp->mainWidget()->isVisible() ) {
+    if (!parentWidget() && testWFlags(WShowModal)
+	&& qApp->mainWidget() && qApp->mainWidget()->isVisible()
+	&& !qApp->mainWidget()->isMinimized()) {
 	// make sure the transient for hint is set properly for modal dialogs
         XSetTransientForHint( x11Display(), winId(), qApp->mainWidget()->winId() );
     }
