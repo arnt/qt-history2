@@ -642,6 +642,11 @@ void QDialog::adjustPositionInternal( QWidget*w, bool useRelPos)
     QApplication::sendPostedEvents(this, QEvent::LayoutHint);
     QApplication::sendPostedEvents(this, QEvent::Resize);
 
+    // processing the events might call polish(), which is a nice place
+    // to restore geometries, so return if the dialog has been positioned
+    if ( did_move || has_relpos )
+	return;
+
     QPoint p( 0, 0 );
     int extraw = 0, extrah = 0, scrn = 0;
     if ( w )
