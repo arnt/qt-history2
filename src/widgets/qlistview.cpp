@@ -1582,12 +1582,26 @@ void QListViewItem::setText( int column, const QString &text )
     if ( l->text == text )
 	return;
 
+    int oldLc = 0;
+    int newLc = 0;
+    if ( mlenabled ) {
+	if ( !l->text.isEmpty() )
+	    oldLc = l->text.contains( QChar( '\n' ) ) + 1;
+	if ( !text.isEmpty() )
+	    newLc = text.contains( QChar( '\n' ) ) + 1;
+    }
+
     l->dirty = TRUE;
     l->text = text;
     if ( column == (int)lsc )
 	lsc = Unsorted;
     QListView * lv = listView();
-    widthChanged( column );
+
+    if ( mlenabled && oldLc != newLc )
+	setup();
+    else
+	widthChanged( column );
+
     if ( lv ) {
 	lv->d->useDoubleBuffer = TRUE;
 	lv->triggerUpdate();
@@ -1716,6 +1730,9 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	return;
 
     QListView *lv = listView();
+    if ( !lv )
+	return;
+    QFontMetrics fm( p->fontMetrics() );
 
     // had, but we _need_ the column info for the ellipsis thingy!!!
     if ( !columns ) {
@@ -1725,6 +1742,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
     }
 
     QString t = text( column );
+    int lc = 1;
 
     if ( columns ) {
 	QListViewPrivate::ItemColumnInfo *ci = 0;
@@ -1743,13 +1761,11 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	// if the column width changed and this item was not painted since this change
 	if ( ci && ( ci->width != width || ci->text != t || ci->dirty ) ) {
 	    ci->dirty = FALSE;
-	    QFontMetrics fm( p->fontMetrics() );
 	    ci->width = width;
 	    ci->truncated = FALSE;
 	    // if we have to do the ellipsis thingy calc the truncated text
 	    int pw = pixmap( column ) ? pixmap( column )->width() + lv->itemMargin() : lv->itemMargin();
-	    if ( mlenabled && fm.size( align | AlignVCenter, t ).width() + pw > width ||
-		 !mlenabled && fm.width( t ) + pw > width ) {
+	    if ( !mlenabled && fm.width( t ) + pw > width ) {
 		// take care of arabic shaping in width calculation (lars)
 		ci->truncated = TRUE;
 		ci->tmpText = "...";
@@ -1760,6 +1776,27 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 		if ( ci->tmpText.isEmpty() )
 		    ci->tmpText = t.left( 1 );
 		ci->tmpText += "...";
+	    } else if ( mlenabled && fm.width( t ) + pw > width ) {
+		QStringList list = QStringList::split( QChar('\n'), t, TRUE );
+		lc = list.count();
+		for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it ) {
+		    QString z = (*it).latin1();
+		    if ( fm.width( z ) + pw > width ) {
+			ci->truncated = TRUE;
+			QString tempText = "...";
+			int i = 0;
+			while ( fm.width( tempText + z[ i ]) + pw < width )
+			    tempText += z[i++];
+			tempText.remove( 0, 3 );
+			if ( tempText.isEmpty() )
+			    tempText = z.left( 1 );
+			tempText += "...";
+			*it = tempText;
+		    }
+		}
+
+		if ( ci->truncated )
+		    ci->tmpText = list.join( QString("\n") );
 	    }
 	}
 
@@ -1768,7 +1805,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	    t = ci->tmpText;
     }
 
-    int marg = lv ? lv->itemMargin() : 1;
+    int marg = lv->itemMargin();
     int r = marg;
     const QPixmap * icon = pixmap( column );
 
@@ -1811,11 +1848,16 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
     }
 
     if ( !t.isEmpty() ) {
-	if ( ! (align & AlignTop | align & AlignBottom) )
-	    align |= AlignVCenter;
+	if ( !mlenabled ) {
+	    if ( !(align & AlignTop || align & AlignBottom) )
+		align |= AlignVCenter;
+	} else {
+	    if ( !(align & AlignVCenter || align & AlignBottom) )
+		align |= AlignTop;
+	}
 	if ( !reverse )
 	    r += iconWidth;
-	p->drawText( r, 0, width-marg-r, height(), align | AlignVCenter, t );
+	p->drawText( r, 0, width-marg-r, height(), align, t );
     }
 }
 
