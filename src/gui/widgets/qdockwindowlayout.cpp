@@ -192,7 +192,9 @@ bool QDockWindowLayout::restoreState(QDataStream &stream)
             }
 
         default:
-            Q_ASSERT(false);
+            // corrupt data
+            relayout_type = QInternal::RelayoutNormal;
+            return false;
         }
     }
 
@@ -1246,7 +1248,8 @@ void QDockWindowLayout::split(QDockWindow *existing, QDockWindow *with, Qt::Dock
         break;
 
     default:
-        Q_ASSERT(false);
+        Q_ASSERT_X(false, "QDockWindowLayout", "internal error");
+        break;
     }
 
     relayout_type = QInternal::RelayoutNormal;
