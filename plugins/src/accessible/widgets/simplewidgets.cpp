@@ -186,6 +186,8 @@ int QAccessibleToolButton::state(int child) const
     int st = QAccessibleButton::state(child);
     if (toolButton()->autoRaise())
 	st |= HotTracked;
+    if (toolButton()->popup() && child != 1)
+	st |= HasPopup;
     return st;
 }
 
