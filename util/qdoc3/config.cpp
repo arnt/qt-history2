@@ -5,6 +5,7 @@
 #include <qdir.h>
 #include <qfile.h>
 #include <qregexp.h>
+#include <qtemporaryfile.h>
 #include <stdlib.h>
 
 #include "archiveextractor.h"
@@ -327,7 +328,7 @@ QString Config::findFile( const Location& location, const QStringList& files,
 				fileInfo.filePath() );
 		QString uncompressed = uncompressedFiles[fileInfo.filePath()];
 		if ( uncompressed.isEmpty() ) {
-		    uncompressed = QFile::decodeName( tmpnam(0) );
+		    uncompressed = QTemporaryFile(fileInfo.filePath()).fileName();
 		    uncompressor->uncompressFile( location,
 						  fileInfo.filePath(),
 						  uncompressed );
@@ -351,7 +352,7 @@ QString Config::findFile( const Location& location, const QStringList& files,
 				.arg(userFriendlyFilePath) );
 	    QString extracted = extractedDirs[fileInfo.filePath()];
 	    if ( extracted.isEmpty() ) {
-		extracted = QFile::decodeName( tmpnam(0) );
+		extracted = QTemporaryFile(fileInfo.filePath()).fileName();
 		if ( !QDir().mkdir(extracted) )
 		    location.fatal( tr("Cannot create temporary directory '%1'")
 				    .arg(extracted) );
