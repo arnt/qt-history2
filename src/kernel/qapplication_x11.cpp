@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#294 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#295 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -85,7 +85,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#294 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#295 $");
 
 
 /*****************************************************************************
@@ -302,10 +302,13 @@ static void qt_x11_process_intern_atoms()
 	(void)free( resp );
 	(void)free( names );
 #else
-	QDictIterator<Atom>( atoms_to_be_created ) it;
-	while( it.current() ) {
-	    *it.current() XInternAtom(appDpy, it.currentKey(), FALSE );
+	QDictIterator<Atom> it( *atoms_to_be_created );
+	Atom * result;
+	const char * name;
+	while( (result = it.current()) != 0 ) {
+	    name = it.currentKey();
 	    ++it;
+	    *result = XInternAtom(appDpy, name, FALSE );
 	}
 #endif
 	delete atoms_to_be_created;
@@ -1026,7 +1029,7 @@ static QWidget *findChildWidget( const QWidget *p, const QPoint &pos )
     return 0;
 }
 
-static Window findClientWindow( Window win, Atom WM_STATE, bool leaf )
+Window qt_x11_findClientWindow( Window win, Atom WM_STATE, bool leaf )
 {
     Atom   type = None;
     int	   format, i;
@@ -1046,7 +1049,7 @@ static Window findClientWindow( Window win, Atom WM_STATE, bool leaf )
 	return 0;
     }
     for ( i=nchildren-1; !target && i >= 0; i-- )
-	target = findClientWindow( children[i], WM_STATE, leaf );
+	target = qt_x11_findClientWindow( children[i], WM_STATE, leaf );
     if ( children )
 	XFree( (char *)children );
     return target;
@@ -1082,10 +1085,9 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 	    return c;
     }
 
-    // ### is it okay to force the creation of WM_STATE?
     if ( !qt_wm_state )
 	return w;
-    target = findClientWindow( target, qt_wm_state, TRUE );
+    target = qt_x11_findClientWindow( target, qt_wm_state, TRUE );
     c = QWidget::find( target );
     if ( !c ) {
 	if ( !w ) {
@@ -1691,7 +1693,7 @@ bool QApplication::processNextEvent( bool canWait )
 	FD_ZERO( &app_readfds );
     }
     FD_SET( app_Xfd, &app_readfds );
-    
+
     int nsel;
     nsel = select( QMAX(app_Xfd,sn_highest)+1,
 		   (void *) (&app_readfds),
