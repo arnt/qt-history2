@@ -139,6 +139,10 @@ public:
     static void initialize();
     static void cleanup();
 
+    QPainter::RenderHints supportedRenderHints() const;
+    QPainter::RenderHints renderHints() const;
+    void setRenderHint(QPainter::RenderHint hint, bool enable);
+
 protected:
     void setupCGClip(const QRegion *);
     QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *);

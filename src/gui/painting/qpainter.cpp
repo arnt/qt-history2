@@ -3302,6 +3302,7 @@ void qt_fill_linear_gradient(const QRect &r, QPixmap *pixmap, const QBrush &brus
     int rh = r.height();
 
     QPainter p(pixmap);
+    p.setRenderHint(QPainter::LineAntialiasing, false);
 
     if (QABS(dx) > QABS(dy)) { // Fill horizontally
 	// Make sure we fill left to right.

@@ -1723,3 +1723,23 @@ QCoreGraphicsPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap,
     CGPatternRelease(pat);
 }
 
+QPainter::RenderHints QCoreGraphicsPaintEngine::supportedRenderHints() const
+{
+    return QPainter::LineAntialiasing;
+}
+
+QPainter::RenderHints QCoreGraphicsPaintEngine::renderHints() const
+{
+    QPainter::RenderHints hints = 0;
+    if (d->antiAliasingEnabled)
+        hints |= QPainter::LineAntialiasing;
+    return hints;
+}
+
+void QCoreGraphicsPaintEngine::setRenderHint(QPainter::RenderHint hint, bool enable)
+{
+    if (hint == QPainter::LineAntialiasing) {
+        CGContextSetShouldAntialias(d->hd, enable);
+        d->antiAliasingEnabled = enable;
+    }
+}

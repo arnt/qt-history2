@@ -80,6 +80,7 @@ public:
 	hd = 0;
 	unclipped = 0;
 	offx = offy = 0;
+        antiAliasingEnabled = true;
     }
 
     struct {
@@ -94,6 +95,7 @@ public:
 
     CGContextRef hd;
     uint unclipped : 1;
+    uint antiAliasingEnabled : 1;
 };
 
 #endif /* __QPAINTENGINE_MAC_P_H__ */
