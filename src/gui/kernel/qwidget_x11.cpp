@@ -584,13 +584,14 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         wm_hints.window_group = X11->wm_client_leader;
 
         XClassHint class_hint;
-        class_hint.res_name = (char *) qAppName(); // application name
-        class_hint.res_class = (char *) qAppClass();        // application class
+        QByteArray appName = qAppName().toLatin1();
+        class_hint.res_name = appName.data(); // application name
+        class_hint.res_class = const_cast<char *>(qAppClass());   // application class
 
         XSetWMProperties(dpy, id, 0, 0, 0, 0, &size_hints, &wm_hints, &class_hint);
 
         XResizeWindow(dpy, id, data->crect.width(), data->crect.height());
-        XStoreName(dpy, id, qAppName());
+        XStoreName(dpy, id, appName.data());
         Atom protocols[4];
         int n = 0;
         protocols[n++] = ATOM(WM_DELETE_WINDOW);        // support del window protocol
