@@ -2,10 +2,23 @@ Here is a list of user-visible changes in Qt from 1.2 to 1.3.  As
 usual, we fixed some bugs, made some more speedups, and improved the
 documentation.
 
-
 ****************************************************************************
 *               Changes that might affect runtime behavior                 *
 ****************************************************************************
+
+Tab/Shift-Tab handling has been improved a lot; this means that
+widgets which couldn't get keyboard focus before now can.
+
+Some widgets (buttons, tab bars, tab dialogs) semi-automatically set
+up keyboard accelerators.  In some very odd cases, this could cause
+changes of behaviour.
+
+The QColor::light() function now works, and anything which relied on
+its buggy behaviour will have to change.
+
+The colors used have been tuned a bit; pixmaps that "know" the RGB
+values of colorGroup().background() and the like will look just a tiny
+bit wrong.
 
 
 ****************************************************************************
@@ -25,13 +38,44 @@ none
 * 			Deprecated functions				   *
 ****************************************************************************
 
+QApplication::setColorMode()
+QRegion::xor()
+QMessageBox::message()
+QMultiLineEdit::getCursorPosition()
 
 ****************************************************************************
 * 			     New classes				   *
 ****************************************************************************
 
+QProgressBar
+QProgressDialog
+QMovie and friends.
+QHBoxLayout
+QVBoxLayout
 
 ****************************************************************************
-*		       Other changes from 1.1 to 1.2			   *
+*		       Other changes from 1.2 to 1.3			   *
 ****************************************************************************
+
+New command-line arguments: -style motif and -style windows are
+accepted, as well as -style=motif and -style=windows, -visual, -ncols,
+-cmap.
+
+QMultiLineEdit is usable for much bigger documents than in 1.2
+
+More sizeHint() functions added, some existing ones tweaked.
+
+Many widgets have improved look and feel, particularly in Windows GUI
+style.
+
+Improved Postscript output.
+
+Color handling has been improved; better 32-to-8 conversion; Qt
+prefers to use Macintosh/Netscape color cube in 8-bit mode; more and
+better dithering support.
+
+GIF and PPM support.
+
+QMessageBox has a number of new static functions to replace the
+venerable message(): information(), warning(), critical() and about().
 
