@@ -1397,27 +1397,30 @@ void QColorDialogPrivate::addCustom()
 
 
 /*!
-  \class QColorDialog qcolordialog.h
-  \ingroup dialogs
-  \ingroup graphics
-  \mainclass
-  \brief The QColorDialog class provides a dialog widget for specifying colors.
+    \class QColorDialog qcolordialog.h
+    \ingroup dialogs
+    \ingroup graphics
+    \mainclass
+    \brief The QColorDialog class provides a dialog widget for specifying colors.
 
-  The color dialog's function is to allow users to choose colors - for
-  instance, you might use this in a drawing program to allow the user
-  to set the brush color.
+    The color dialog's function is to allow users to choose colors -
+    for instance, you might use this in a drawing program to allow the
+    user to set the brush color.
 
-  This version of Qt only provides modal color dialogs. The static
-  getColor() function shows the dialog and allows the user to specify
-  a color. The getRgba() function does the same but also allows the
-  user to specify a color with an alpha channel (transparency) value.
+    The static functions provide modal color dialogs. If you require a
+    modeless dialog, use the QColorDialog constructor.
 
-  The user can store customCount() different custom colors. The custom
-  colors are shared by all color dialogs, and remembered during the
-  execution of the program. Use setCustomColor() to set the custom
-  colors, and use customColor() to get them.
+    The static getColor() function shows the dialog and allows the
+    user to specify a color. The getRgba() function does the same but
+    also allows the user to specify a color with an alpha channel
+    (transparency) value.
 
-  <img src=qcolordlg-w.png>
+    The user can store customCount() different custom colors. The
+    custom colors are shared by all color dialogs, and remembered
+    during the execution of the program. Use setCustomColor() to set
+    the custom colors, and use customColor() to get them.
+
+    <img src=qcolordlg-w.png>
 */
 
 /*!  Constructs a default color dialog with parent \a parent and called \a

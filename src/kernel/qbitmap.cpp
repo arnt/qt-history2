@@ -40,45 +40,47 @@
 
 
 /*!
-  \class QBitmap qbitmap.h
-  \brief The QBitmap class provides monochrome (1-bit depth) pixmaps.
+    \class QBitmap qbitmap.h
+    \brief The QBitmap class provides monochrome (1-bit depth) pixmaps.
 
-  \ingroup graphics
-  \ingroup images
-  \ingroup shared
+    \ingroup graphics
+    \ingroup images
+    \ingroup shared
 
-  The QBitmap class is a monochrome off-screen paint device used
-  mainly for creating custom QCursor and QBrush objects, in
-  QPixmap::setMask() and for QRegion.
+    The QBitmap class is a monochrome off-screen paint device used
+    mainly for creating custom QCursor and QBrush objects, in
+    QPixmap::setMask() and for QRegion.
 
-  A QBitmap is a QPixmap with a QPixmap::depth() of 1.
-  If a pixmap with a depth greater than 1 is assigned to a bitmap, the
-  bitmap will be dithered automatically.  A QBitmap is guaranteed to always
-  have the depth 1, unless it is QPixmap::isNull() which has depth 0.
+    A QBitmap is a QPixmap with a \link QPixmap::depth() depth\endlink
+    of 1. If a pixmap with a depth greater than 1 is assigned to a
+    bitmap, the bitmap will be dithered automatically. A QBitmap is
+    guaranteed to always have the depth 1, unless it is
+    QPixmap::isNull() which has depth 0.
 
-  When drawing in a QBitmap (or QPixmap with depth 1), we recommend using
-  the  QColor objects \c Qt::color0 and \c Qt::color1.  Painting with \c
-  color0 sets the bitmap bits to 0, and painting with \c color1 sets the
-  bits to 1.  For a bitmap, 0-bits indicate background (or transparent) and
-  1-bits indicate foreground (or opaque).  Using the \c black and \c white
-  QColor objects make no sense because the QColor::pixel() value is not
-  necessarily 0 for black and 1 for white.
+    When drawing in a QBitmap (or QPixmap with depth 1), we recommend
+    using the  QColor objects \c Qt::color0 and \c Qt::color1.
+    Painting with \c color0 sets the bitmap bits to 0, and painting
+    with \c color1 sets the bits to 1. For a bitmap, 0-bits indicate
+    background (or transparent) and 1-bits indicate foreground (or
+    opaque). Using the \c black and \c white QColor objects make no
+    sense because the QColor::pixel() value is not necessarily 0 for
+    black and 1 for white.
 
-  The QBitmap can be transformed (translated, scaled, sheared or rotated)
-  using xForm().
+    The QBitmap can be transformed (translated, scaled, sheared or
+    rotated) using xForm().
 
-  Just like the QPixmap class, QBitmap is optimized by the use of \link
-  shclass.html implicit sharing\endlink, so it is very efficient to pass
-  QBitmap objects as arguments.
+    Just like the QPixmap class, QBitmap is optimized by the use of
+    \link shclass.html implicit sharing\endlink, so it is very
+    efficient to pass QBitmap objects as arguments.
 
-  \sa QPixmap, QPainter::drawPixmap(), bitBlt(), \link shclass.html Shared
-  Classes\endlink
+    \sa QPixmap, QPainter::drawPixmap(), bitBlt(), \link shclass.html Shared Classes\endlink
 */
 
 
 /*!
-  Constructs a null bitmap.
-  \sa QPixmap::isNull()
+    Constructs a null bitmap.
+
+    \sa QPixmap::isNull()
 */
 
 QBitmap::QBitmap()
@@ -88,17 +90,18 @@ QBitmap::QBitmap()
 
 
 /*!
-  Constructs a bitmap with width \a w and height \a h.
+    Constructs a bitmap with width \a w and height \a h.
 
-  The contents of the bitmap is uninitialized if \a clear is FALSE; otherwise
-  it is filled with pixel value 0 (the QColor \c Qt::color0).
+    The contents of the bitmap is uninitialized if \a clear is FALSE;
+    otherwise it is filled with pixel value 0 (the QColor \c
+    Qt::color0).
 
-  The optional \a optimization argument specifies the optimization
-  setting for the bitmap.  The default optimization should be used
-  in most cases.  Games and other pixmap-intensive applications may
-  benefit from setting this argument.
+    The optional \a optimization argument specifies the optimization
+    setting for the bitmap. The default optimization should be used in
+    most cases. Games and other pixmap-intensive applications may
+    benefit from setting this argument; see \l{QPixmap::Optimization}.
 
-  \sa QPixmap::setOptimization(), QPixmap::setDefaultOptimization()
+    \sa QPixmap::setOptimization(), QPixmap::setDefaultOptimization()
 */
 
 QBitmap::QBitmap( int w, int h, bool clear,
@@ -112,18 +115,18 @@ QBitmap::QBitmap( int w, int h, bool clear,
 
 
 /*!
-  \overload
+    \overload
 
-  Constructs a bitmap with the size \a size.
+    Constructs a bitmap with the size \a size.
 
-  The contents of the bitmap is uninitialized if \a clear is FALSE; otherwise
-  it is filled with pixel value 0 (the QColor \c Qt::color0).
+    The contents of the bitmap is uninitialized if \a clear is FALSE;
+    otherwise it is filled with pixel value 0 (the QColor \c
+    Qt::color0).
 
-  The optional \a optimization argument specifies the optimization
-  setting for the bitmap.  The default optimization should be used
-  in most cases.  Games and other pixmap-intensive applications may
-  benefit from setting this argument.
-
+    The optional \a optimization argument specifies the optimization
+    setting for the bitmap. The default optimization should be used in
+    most cases. Games and other pixmap-intensive applications may
+    benefit from setting this argument; see \l{QPixmap::Optimization}.
 */
 
 QBitmap::QBitmap( const QSize &size, bool clear,
@@ -137,18 +140,18 @@ QBitmap::QBitmap( const QSize &size, bool clear,
 
 
 /*!
-  Constructs a bitmap with width \a w and height \a h and sets the contents
-  to \a bits.
+    Constructs a bitmap with width \a w and height \a h and sets the
+    contents to \a bits.
 
-  The \a isXbitmap should be TRUE if \a bits was generated by the
-  X11 bitmap program.  The X bitmap bit order is little endian.
-  The QImage documentation discusses bit order of monochrome images.
+    The \a isXbitmap flag should be TRUE if \a bits was generated by
+    the X11 bitmap program. The X bitmap bit order is little endian.
+    The QImage documentation discusses bit order of monochrome images.
 
-  Example (creates an arrow bitmap):
-  \code
-    uchar arrow_bits[] = { 0x3f, 0x1f, 0x0f, 0x1f, 0x3b, 0x71, 0xe0, 0xc0 };
-    QBitmap bm( 8, 8, arrow_bits, TRUE );
-  \endcode
+    Example (creates an arrow bitmap):
+    \code
+	uchar arrow_bits[] = { 0x3f, 0x1f, 0x0f, 0x1f, 0x3b, 0x71, 0xe0, 0xc0 };
+	QBitmap bm( 8, 8, arrow_bits, TRUE );
+    \endcode
 */
 
 QBitmap::QBitmap( int w, int h, const uchar *bits, bool isXbitmap )
@@ -159,15 +162,14 @@ QBitmap::QBitmap( int w, int h, const uchar *bits, bool isXbitmap )
 
 
 /*!
-  \overload
+    \overload
 
-  Constructs a bitmap with the size \a size and sets the contents
-  to \a bits.
+    Constructs a bitmap with the size \a size and sets the contents to
+    \a bits.
 
-  The \a isXbitmap should be TRUE if \a bits was generated by the
-  X11 bitmap program.  The X bitmap bit order is little endian.
-  The QImage documentation discusses bit order of monochrome images.
-
+    The \a isXbitmap flag should be TRUE if \a bits was generated by
+    the X11 bitmap program. The X bitmap bit order is little endian.
+    The QImage documentation discusses bit order of monochrome images.
 */
 
 QBitmap::QBitmap( const QSize &size, const uchar *bits, bool isXbitmap )
@@ -178,7 +180,7 @@ QBitmap::QBitmap( const QSize &size, const uchar *bits, bool isXbitmap )
 
 
 /*!
-  Constructs a bitmap that is a copy of \a bitmap.
+    Constructs a bitmap that is a copy of \a bitmap.
 */
 
 QBitmap::QBitmap( const QBitmap &bitmap )
@@ -188,15 +190,16 @@ QBitmap::QBitmap( const QBitmap &bitmap )
 
 #ifndef QT_NO_IMAGEIO
 /*!
-  Constructs a pixmap from the file \a fileName. If the file does not
-  exist or is of an unknown format, the pixmap becomes a null pixmap.
+    Constructs a pixmap from the file \a fileName. If the file does
+    not exist or is of an unknown format, the bitmap becomes a null
+    bitmap.
 
-  The parameters \a fileName and \a format are passed on to
-  QPixmap::load(). Dithering will be performed if the file format uses
-  more than 1 bit per pixel.
+    The parameters \a fileName and \a format are passed on to
+    QPixmap::load(). Dithering will be performed if the file format
+    uses more than 1 bit per pixel.
 
-  \sa QPixmap::isNull(), QPixmap::load(), QPixmap::loadFromData(),
-  QPixmap::save(), QPixmap::imageFormat()
+    \sa QPixmap::isNull(), QPixmap::load(), QPixmap::loadFromData(),
+    QPixmap::save(), QPixmap::imageFormat()
 */
 
 QBitmap::QBitmap( const QString& fileName, const char *format )
@@ -208,8 +211,8 @@ QBitmap::QBitmap( const QString& fileName, const char *format )
 #endif
 
 /*!
-  Assigns the bitmap \a bitmap to this bitmap and returns a reference to this
-  bitmap.
+    Assigns the bitmap \a bitmap to this bitmap and returns a
+    reference to this bitmap.
 */
 
 QBitmap &QBitmap::operator=( const QBitmap &bitmap )
@@ -223,13 +226,13 @@ QBitmap &QBitmap::operator=( const QBitmap &bitmap )
 
 
 /*!
-  \overload
+    \overload
 
-  Assigns the pixmap \a pixmap to this bitmap and returns a reference to this
-  bitmap.
+    Assigns the pixmap \a pixmap to this bitmap and returns a
+    reference to this bitmap.
 
-  Dithering will be performed if the pixmap has a
-  QPixmap::depth() greater than 1.
+    Dithering will be performed if the pixmap has a QPixmap::depth()
+    greater than 1.
 */
 
 QBitmap &QBitmap::operator=( const QPixmap &pixmap )
@@ -255,13 +258,13 @@ QBitmap &QBitmap::operator=( const QPixmap &pixmap )
 
 
 /*!
-  \overload
+    \overload
 
-  Converts the image \a image to a bitmap and assigns the result to
-  this bitmap.  Returns a reference to the bitmap.
+    Converts the image \a image to a bitmap and assigns the result to
+    this bitmap. Returns a reference to the bitmap.
 
-  Dithering will be performed if the image has a
-  QImage::depth()  greater than 1.
+    Dithering will be performed if the image has a QImage::depth()
+    greater than 1.
 */
 
 QBitmap &QBitmap::operator=( const QImage &image )
@@ -273,12 +276,12 @@ QBitmap &QBitmap::operator=( const QImage &image )
 
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
 /*!
-  Returns a transformed copy of this bitmap by using \a matrix.
+    Returns a transformed copy of this bitmap by using \a matrix.
 
-  This function does exactly the same as QPixmap::xForm(), except that
-  it returns a QBitmap instead of a QPixmap.
+    This function does exactly the same as QPixmap::xForm(), except
+    that it returns a QBitmap instead of a QPixmap.
 
-  \sa QPixmap::xForm()
+    \sa QPixmap::xForm()
 */
 
 QBitmap QBitmap::xForm( const QWMatrix &matrix ) const

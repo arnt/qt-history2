@@ -49,140 +49,136 @@ extern void qt_init_image_plugins();
 #define TRANSPARENT 0x00000000
 
 /*!
-  \class QImageConsumer qasyncimageio.h
-  \brief The QImageConsumer class is an abstraction used by QImageDecoder.
+    \class QImageConsumer qasyncimageio.h
+    \brief The QImageConsumer class is an abstraction used by QImageDecoder.
 
-  \ingroup images
-  \ingroup graphics
-  \ingroup multimedia
+    \ingroup images
+    \ingroup graphics
+    \ingroup multimedia
 
-  The QMovie class, or QLabel::setMovie(), are easy to use and
-  for most situations do what you want with regards animated
-  images.
+    The QMovie class, or QLabel::setMovie(), are easy to use and for
+    most situations do what you want with regards animated images.
 
-  A QImageConsumer consumes information about changes to the QImage
-  maintained by a QImageDecoder. Think of the QImage as the model or
-  source of the image data, with the QImageConsumer as a view of that
-  data and the QImageDecoder being the controller that orchestrates
-  the relationship between the model and the view.
+    A QImageConsumer consumes information about changes to the QImage
+    maintained by a QImageDecoder. Think of the QImage as the model or
+    source of the image data, with the QImageConsumer as a view of
+    that data and the QImageDecoder being the controller that
+    orchestrates the relationship between the model and the view.
 
     You'd use the QImageConsumer class, for example, if you were
     implementing a web browser with your own image loaders.
 
-  \sa QImageDecoder
+    \sa QImageDecoder
 */
 
 /*!
-  \fn void QImageConsumer::changed(const QRect&)
+    \fn void QImageConsumer::changed(const QRect&)
 
-  Called when the given area of the image has changed.
+    Called when the given area of the image has changed.
 */
 
 /*!
-  \fn void QImageConsumer::end()
+    \fn void QImageConsumer::end()
 
-  Called when all data of all frames has been decoded and revealed
-  as changed().
+    Called when all the data from all the frames has been decoded and
+    revealed as changed().
 */
 
 /*!
-  \fn void QImageConsumer::frameDone()
+    \fn void QImageConsumer::frameDone()
 
-  One of the two frameDone() functions will be called
-  when a frame of an animated image has ended and been revealed
-  as changed().
+    One of the two frameDone() functions will be called when a frame
+    of an animated image has ended and been revealed as changed().
 
-  When this function is called, the current image should be displayed.
+    When this function is called, the current image should be
+    displayed.
 
-  The decoder will not make
-  any further changes to the image until the next call to
-  QImageFormat::decode().
+    The decoder will not make any further changes to the image until
+    the next call to QImageFormat::decode().
 */
 
 /*!
-  \fn void QImageConsumer::frameDone( const QPoint& offset, const QRect& rect )
-  \overload
-  One of the two frameDone() functions will be called
-  when a frame of an animated image has ended and been revealed
-  as changed().
+    \overload void QImageConsumer::frameDone( const QPoint& offset, const QRect& rect )
 
-  When this function is called, the area \a rect in the current image
-  should be moved by \a offset and displayed.
+    One of the two frameDone() functions will be called when a frame
+    of an animated image has ended and been revealed as changed().
 
-  The decoder will not make
-  any further changes to the image until the next call to
-  QImageFormat::decode().
+    When this function is called, the area \a rect in the current
+    image should be moved by \a offset and displayed.
+
+    The decoder will not make any further changes to the image until
+    the next call to QImageFormat::decode().
 */
 
 /*!
-  \fn void QImageConsumer::setLooping(int n)
+    \fn void QImageConsumer::setLooping(int n)
 
-  Called to indicate that the sequence of frames in the image
-  should be repeated \a n times, including the sequence during
-  decoding.
+    Called to indicate that the sequence of frames in the image
+    should be repeated \a n times, including the sequence during
+    decoding.
 
-   \list
+    \list
     \i 0 = Forever
     \i 1 = Only display frames the first time through
     \i 2 = Repeat once after first pass through images
     \i etc.
-  \endlist
+    \endlist
 
-  To make the QImageDecoder
-  do this, just delete it and pass the information to it again
-  for decoding (setLooping() will be called again, of course, but
-  that can be ignored), or keep copies of the
-  changed areas at the ends of frames.
+    To make the QImageDecoder do this, just delete it and pass the
+    information to it again for decoding (setLooping() will be called
+    again, of course, but that can be ignored), or keep copies of the
+    changed areas at the ends of frames.
 */
 
 /*!
-  \fn void QImageConsumer::setFramePeriod(int milliseconds)
+    \fn void QImageConsumer::setFramePeriod(int milliseconds)
 
-  Notes that the frame about to be decoded should not be displayed until
-  the given number of \a milliseconds after the time that this function
-  is called.  Of course, the image may not have been decoded by then, in
-  which case the frame should not be displayed until it is complete.
-  A value of -1 (the assumed default) indicates that the image should
-  be displayed even while it is only partially loaded.
+    Notes that the frame about to be decoded should not be displayed
+    until the given number of \a milliseconds after the time that this
+    function is called. Of course, the image may not have been
+    decoded by then, in which case the frame should not be displayed
+    until it is complete. A value of -1 (the assumed default)
+    indicates that the image should be displayed even while it is only
+    partially loaded.
 */
 
 /*!
-  \fn void QImageConsumer::setSize(int, int)
+    \fn void QImageConsumer::setSize(int, int)
 
-  This function is called as soon as the size of the image has
-  been determined.
+    This function is called as soon as the size of the image has been
+    determined.
 */
 
 
 /*!
-  \class QImageDecoder qasyncimageio.h
-  \brief The QImageDecoder class is an incremental image decoder for all supported image formats.
+    \class QImageDecoder qasyncimageio.h
+    \brief The QImageDecoder class is an incremental image decoder for all supported image formats.
 
-  \ingroup images
-  \ingroup graphics
-  \ingroup multimedia
+    \ingroup images
+    \ingroup graphics
+    \ingroup multimedia
 
-  New formats are installed by creating objects of class
-  QImageFormatType; the QMovie class can be used for
-  all installed incremental image formats. QImageDecoder is
-  useful only for creating new ways of feeding data to an QImageConsumer.
+    New formats are installed by creating objects of class
+    QImageFormatType; the QMovie class can be used for all installed
+    incremental image formats. QImageDecoder is only useful for
+    creating new ways of feeding data to an QImageConsumer.
 
-  A QImageDecoder is a machine that decodes images. It takes encoded
-  image data via its decode() method and expresses its decoding by
-  supplying information to a QImageConsumer. It implements its
-  decoding by using a QImageFormat created by one of the
-  currently-existing QImageFormatType factory-objects.
+    A QImageDecoder is a machine that decodes images. It takes encoded
+    image data via its decode() method and expresses its decoding by
+    supplying information to a QImageConsumer. It implements its
+    decoding by using a QImageFormat created by one of the
+    currently-existing QImageFormatType factory objects.
 
     QImageFormatType and QImageFormat are the classes that you might
     need to implement support for additional image formats.
 
-  \legalese
+    \legalese
 
-  Qt supports GIF reading if it is configured that way during
-  installation (see qgif.h). If it is, we are required to state that
-  "The Graphics Interchange Format(c) is the Copyright property of
-  CompuServe Incorporated. GIF(sm) is a Service Mark property of
-  CompuServe Incorporated."
+    Qt supports GIF reading if it is configured that way during
+    installation (see qgif.h). If it is, we are required to state that
+    "The Graphics Interchange Format(c) is the Copyright property of
+    CompuServe Incorporated. GIF(sm) is a Service Mark property of
+    CompuServe Incorporated."
 */
 
 static const int max_header = 32;
@@ -330,8 +326,8 @@ void QImageDecoderPrivate::cleanup()
 
 
 /*!
-  Constructs a QImageDecoder that will send change information to
-  the QImageConsumer \a c.
+    Constructs a QImageDecoder that will send change information to
+    the QImageConsumer \a c.
 */
 QImageDecoder::QImageDecoder(QImageConsumer* c)
 {
@@ -343,9 +339,9 @@ QImageDecoder::QImageDecoder(QImageConsumer* c)
 }
 
 /*!
-  Destroys a QImageDecoder.  The image it built is destroyed.  The decoder
-  built by the factory for the file format is destroyed. The consumer
-  for which it decoded the image is \e not destroyed.
+    Destroys a QImageDecoder. The image it built is destroyed. The
+    decoder built by the factory for the file format is destroyed. The
+    consumer for which it decoded the image is \e not destroyed.
 */
 QImageDecoder::~QImageDecoder()
 {
@@ -354,22 +350,22 @@ QImageDecoder::~QImageDecoder()
 }
 
 /*!
-  \fn const QImage& QImageDecoder::image()
+    \fn const QImage& QImageDecoder::image()
 
-  Returns the image currently being decoded.
+    Returns the image currently being decoded.
 */
 
 static bool plugins_loaded = FALSE;
 
 /*!
-  Call this function to decode some data into image changes.  The data
-  in \a buffer will be decoded, sending change information to the
-  QImageConsumer of this QImageDecoder until one of the change
-  functions of the consumer returns FALSE. The length of the data is
-  given in \a length.
+    Call this function to decode some data into image changes. The
+    data in \a buffer will be decoded, sending change information to
+    the QImageConsumer of this QImageDecoder until one of the change
+    functions of the consumer returns FALSE. The length of the data is
+    given in \a length.
 
-  Returns the number of bytes consumed: 0 if consumption is complete,
-  and -1 if decoding fails due to invalid data.
+    Returns the number of bytes consumed: 0 if consumption is
+    complete, and -1 if decoding fails due to invalid data.
 */
 int QImageDecoder::decode(const uchar* buffer, int length)
 {
@@ -412,11 +408,13 @@ int QImageDecoder::decode(const uchar* buffer, int length)
     return actual_decoder->decode(img, consumer, buffer, length);
 }
 
-/*!  Returns a QImageFormatType by name. This might be used when the user
-  needs to force data to be interpreted as being in a certain format.  \a
-  name is one of the formats listed by QImageDecoder::inputFormats(). Note
-  that you will still need to supply decodable data to
-  result->decoderFor() before you can begin decoding the data.
+/*!
+    Returns a QImageFormatType by name. This might be used when the
+    user needs to force data to be interpreted as being in a certain
+    format. \a name is one of the formats listed by
+    QImageDecoder::inputFormats(). Note that you will still need to
+    supply decodable data to result->decoderFor() before you can begin
+    decoding the data.
 */
 QImageFormatType* QImageDecoder::format( const char* name )
 {
@@ -434,11 +432,11 @@ QImageFormatType* QImageDecoder::format( const char* name )
 }
 
 /*!
-  Call this function to find the name of the format of the given header.
-  The returned string is statically allocated. The function will look
-  at the first \a length characters in the \a buffer.
+    Call this function to find the name of the format of the given
+    header. The returned string is statically allocated. The function
+    will look at the first \a length characters in the \a buffer.
 
-  Returns 0 if the format is not recognized.
+    Returns 0 if the format is not recognized.
 */
 const char* QImageDecoder::formatName(const uchar* buffer, int length)
 {
@@ -474,7 +472,8 @@ const char* QImageDecoder::formatName(const uchar* buffer, int length)
 }
 
 /*!
-  Returns a sorted list of formats for which asynchronous loading is supported.
+    Returns a sorted list of formats for which asynchronous loading is
+    supported.
 */
 QStrList QImageDecoder::inputFormats()
 {
@@ -496,8 +495,8 @@ QStrList QImageDecoder::inputFormats()
 }
 
 /*!
-  Registers the new QImageFormatType \a f.  This is not needed in
-  application code because factories call this themselves.
+    Registers the new QImageFormatType \a f. This is not needed in
+    application code because factories call this themselves.
 */
 void QImageDecoder::registerDecoderFactory(QImageFormatType* f)
 {
@@ -507,8 +506,8 @@ void QImageDecoder::registerDecoderFactory(QImageFormatType* f)
 }
 
 /*!
-  Unregisters the QImageFormatType \a f.  This is not needed in
-  application code because factories call this themselves.
+    Unregisters the QImageFormatType \a f. This is not needed in
+    application code because factories call this themselves.
 */
 void QImageDecoder::unregisterDecoderFactory(QImageFormatType* f)
 {
@@ -519,23 +518,24 @@ void QImageDecoder::unregisterDecoderFactory(QImageFormatType* f)
 }
 
 /*!
-  \class QImageFormat qasyncimageio.h
-  \brief The QImageFormat class is an incremental image decoder for a specific image format.
+    \class QImageFormat qasyncimageio.h
+    \brief The QImageFormat class is an incremental image decoder for a specific image format.
 
-  \ingroup images
-  \ingroup graphics
-  \ingroup multimedia
+    \ingroup images
+    \ingroup graphics
+    \ingroup multimedia
 
-  By making a derived class of QImageFormatType, which in turn
-  creates objects that are a subclass of QImageFormat, you can add
-  support for more incremental image formats, allowing such formats to
-  be sources for a QMovie or for the first frame of the image stream
-  to be loaded as a QImage or QPixmap.
+    By making a derived class of QImageFormatType, which in turn
+    creates objects that are a subclass of QImageFormat, you can add
+    support for more incremental image formats, allowing such formats
+    to be sources for a QMovie or for the first frame of the image
+    stream to be loaded as a QImage or QPixmap.
 
-  Your new subclass must reimplement the decode() function in order to
-  process your new format.
+    Your new subclass must reimplement the decode() function in order
+    to process your new format.
 
-  New QImageFormat objects are generated by new QImageFormatType factories.
+    New QImageFormat objects are generated by new QImageFormatType
+    factories.
 */
 
 /*!
@@ -549,73 +549,74 @@ QImageFormat::~QImageFormat()
 }
 
 /*!
-  \fn int QImageFormat::decode(QImage& img, QImageConsumer* consumer,
-	    const uchar* buffer, int length)
+    \fn int QImageFormat::decode(QImage& img, QImageConsumer* consumer, const uchar* buffer, int length)
 
-  New subclasses must reimplement this method.
+    New subclasses must reimplement this method.
 
-  It should decode some or all of the bytes from \a buffer into
-  \a img, calling the methods of \a consumer as the decoding proceeds to
-  inform that consumer of changes to the image. The length of the data is
-  given in \a length.
-  The consumer may be 0, in which case the function should just process
-  the data into \a img without telling any consumer about the changes.
-  Note that the decoder must store enough state
-  to be able to continue in subsequent calls to this method - this is
-  the essence of the incremental image loading.
+    It should decode some or all of the bytes from \a buffer into \a
+    img, calling the methods of \a consumer as the decoding proceeds
+    to inform that consumer of changes to the image. The length of the
+    data is given in \a length. The consumer may be 0, in which case
+    the function should just process the data into \a img without
+    telling any consumer about the changes. Note that the decoder must
+    store enough state to be able to continue in subsequent calls to
+    this method - this is the essence of the incremental image
+    loading.
 
-  The function should return without processing all the data if it
-  reaches the end of a frame in the input.
+    The function should return without processing all the data if it
+    reaches the end of a frame in the input.
 
-  The function must return the number of bytes it has processed.
+    The function must return the number of bytes it has processed.
 */
 
 /*!
-  \class QImageFormatType qasyncimageio.h
-  \brief The QImageFormatType class is a factory that makes QImageFormat objects.
+    \class QImageFormatType qasyncimageio.h
+    \brief The QImageFormatType class is a factory that makes QImageFormat objects.
 
-  \ingroup images
-  \ingroup graphics
-  \ingroup multimedia
+    \ingroup images
+    \ingroup graphics
+    \ingroup multimedia
 
-  Whereas the QImageIO class allows for \e complete loading of images,
-  QImageFormatType allows for \e incremental loading of images.
+    Whereas the QImageIO class allows for \e complete loading of
+    images, QImageFormatType allows for \e incremental loading of
+    images.
 
-  New image file formats are installed by creating objects of derived
-  classes of QImageFormatType.  They must implement decoderFor()
-  and formatName().
+    New image file formats are installed by creating objects of
+    derived classes of QImageFormatType. They must implement
+    decoderFor() and formatName().
 
-  QImageFormatType is a very simple class.  Its only task is to
-  recognize image data in some format and make a new object, subclassed
-  from QImageFormat, which can decode that format.
+    QImageFormatType is a very simple class. Its only task is to
+    recognize image data in some format and make a new object,
+    subclassed from QImageFormat, which can decode that format.
 
-  The factories for formats built into Qt
-  are automatically defined before any other factory is initialized.
-  If two factories would recognize an image format, the factory created
-  last will override the earlier one; you can thus override current
-  and future built-in formats.
+    The factories for formats built into Qt are automatically defined
+    before any other factory is initialized. If two factories would
+    recognize an image format, the factory created last will override
+    the earlier one; you can thus override current and future built-in
+    formats.
 */
 
 /*!
-  \fn virtual QImageFormat* QImageFormatType::decoderFor(const
-	    uchar* buffer, int length)
+    \fn virtual QImageFormat* QImageFormatType::decoderFor(const uchar* buffer, int length)
 
-  Returns a decoder for decoding an image that starts with the bytes
-  in \a buffer. The length of the data is given in \a length. This
-  function should only return a decoder if it is certain that the
-  decoder applies to data with the given header.  Returns 0 if there
-  is insufficient data in the header to make a positive identification
-  or if the data is not recognized. */
-
-/*!
-  \fn virtual const char* QImageFormatType::formatName() const
-
-  Returns the name of the format supported by decoders from this factory.
-  The string is statically allocated.
+    Returns a decoder for decoding an image that starts with the bytes
+    in \a buffer. The length of the data is given in \a length. This
+    function should only return a decoder if it is certain that the
+    decoder applies to data with the given header. Returns 0 if there
+    is insufficient data in the header to make a positive
+    identification or if the data is not recognized.
 */
 
 /*!
-  Constructs a factory.  It automatically registers itself with QImageDecoder.
+    \fn virtual const char* QImageFormatType::formatName() const
+
+    Returns the name of the format supported by decoders from this
+    factory. The string is statically allocated.
+*/
+
+/*!
+    Constructs a factory. It automatically registers itself with
+    QImageDecoder.
 */
 QImageFormatType::QImageFormatType()
 {
@@ -623,7 +624,8 @@ QImageFormatType::QImageFormatType()
 }
 
 /*!
-  Destroys a factory.  It automatically unregisters itself from QImageDecoder.
+    Destroys a factory. It automatically unregisters itself from
+    QImageDecoder.
 */
 QImageFormatType::~QImageFormatType()
 {
@@ -632,8 +634,8 @@ QImageFormatType::~QImageFormatType()
 
 
 /*!
-  Returns TRUE if Qt was compiled with built-in GIF reading support,
-  otherwise FALSE.
+    Returns TRUE if Qt was compiled with built-in GIF reading support;
+    otherwise returns FALSE.
 */
 bool qt_builtin_gif_reader()
 {
@@ -655,11 +657,11 @@ bool qt_builtin_gif_reader()
   \ingroup graphics
 
   This subclass of QImageFormat decodes GIF format images,
-  including animated GIFs.  Internally in
+  including animated GIFs. Internally in
 */
 
 /*!
-  Constructs a QGIFFormat.
+    Constructs a QGIFFormat.
 */
 QGIFFormat::QGIFFormat()
 {
@@ -677,7 +679,7 @@ QGIFFormat::QGIFFormat()
 }
 
 /*!
-  Destroys a QGIFFormat.
+    Destroys a QGIFFormat.
 */
 QGIFFormat::~QGIFFormat()
 {
@@ -694,7 +696,7 @@ QGIFFormat::~QGIFFormat()
   \ingroup graphics
 
   This subclass of QImageFormatType recognizes GIF
-  format images, creating a QGIFFormat when required.  An instance
+  format images, creating a QGIFFormat when required. An instance
   of this class is created automatically before any other factories,
   so you should have no need for such objects.
 */
@@ -771,9 +773,9 @@ void QGIFFormat::disposePrevious( QImage& img, QImageConsumer* consumer )
 }
 
 /*!
-  This function decodes some data into image changes.
+    This function decodes some data into image changes.
 
-  Returns the number of bytes consumed.
+    Returns the number of bytes consumed.
 */
 int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 	const uchar* buffer, int length)

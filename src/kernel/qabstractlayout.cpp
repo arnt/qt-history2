@@ -1407,239 +1407,300 @@ bool QLayout::activate()
     \sa setVerData() horData() verStretch()
 */
 
-/*! \fn bool QSizePolicy::mayShrinkHorizontally() const
-Returns TRUE if the widget can sensibly be narrower than its
-sizeHint(); otherwise returns FALSE.
+/*!
+    \fn bool QSizePolicy::mayShrinkHorizontally() const
 
-  \sa mayShrinkVertically() mayGrowHorizontally()
-*/
+    Returns TRUE if the widget can sensibly be narrower than its
+    sizeHint(); otherwise returns FALSE.
 
-/*! \fn bool QSizePolicy::mayShrinkVertically() const
-Returns TRUE if the widget can sensibly be shorter than its sizeHint();
-otherwise returns FALSE.
-
-  \sa mayShrinkHorizontally() mayGrowVertically()
-*/
-
-/*! \fn bool QSizePolicy::mayGrowHorizontally() const
-Returns TRUE if the widget can sensibly be wider than its sizeHint();
-otherwise returns FALSE.
-
-  \sa mayGrowVertically() mayShrinkHorizontally()
-*/
-
-/*! \fn bool QSizePolicy::mayGrowVertically() const
-Returns TRUE if the widget can sensibly be taller than its sizeHint();
-otherwise returns FALSE.
-
-  \sa mayGrowHorizontally() mayShrinkVertically()
-*/
-
-/*! \fn QSizePolicy::ExpandData QSizePolicy::expanding() const
-Returns a value indicating whether the widget can make use of extra space
-(i.e. if it "wants" to grow) horizontally and/or vertically.
-
-  \sa mayShrinkHorizontally() mayGrowHorizontally()
-      mayShrinkVertically() mayGrowVertically()
-*/
-
-/*! \fn void QSizePolicy::setHorData( SizeType d )
-Sets the horizontal component of the size policy to size type \a d.
-
-  \sa horData() setVerData()
-*/
-
-/*! \fn void QSizePolicy::setVerData( SizeType d )
-Sets the vertical component of the size policy to size type \a d.
-
-  \sa verData() setHorData()
-*/
-
-/*! \fn bool QSizePolicy::hasHeightForWidth() const
-Returns TRUE if the widget's preferred height depends on its width;
-otherwise returns FALSE.
-
-  \sa setHeightForWidth()
-*/
-
-/*! \fn void QSizePolicy::setHeightForWidth( bool b )
-Sets the hasHeightForWidth() flag to \a b.
-
-  \sa hasHeightForWidth()
-*/
-
-/*! \fn uint QSizePolicy::horStretch() const
-Returns the horizontal stretch factor of the size policy.
-
-  \sa setHorStretch() verStretch()
-*/
-
-/*! \fn uint QSizePolicy::verStretch() const
-Returns the vertical stretch factor of the size policy.
-
-  \sa setVerStretch() horStretch()
-*/
-
-/*! \fn void QSizePolicy::setHorStretch( uchar sf )
-Sets the horizontal stretch factor of the size policy to \a sf.
-
-  \sa horStretch() setVerStretch()
-*/
-
-/*! \fn void QSizePolicy::setVerStretch( uchar sf )
-Sets the vertical stretch factor of the size policy to \a sf.
-
-  \sa verStretch() setHorStretch()
-*/
-
-
-/*! \fn bool QSizePolicy::operator==( const QSizePolicy &s ) const
-  Returns TRUE if this policy is equal to \a s; otherwise returns FALSE.
-
-  \sa operator!=()
-*/
-
-/*! \fn bool QSizePolicy::operator!=( const QSizePolicy &s ) const
-  Returns TRUE if this policy is different from \a s; otherwise returns FALSE.
-
-  \sa operator==()
+    \sa mayShrinkVertically() mayGrowHorizontally()
 */
 
 /*!
-  \class QGLayoutIterator
-  \ingroup appearance
-  \ingroup geomanagement
-  \brief The QGLayoutIterator class is an abstract base class of internal layout iterators.
+    \fn bool QSizePolicy::mayShrinkVertically() const
 
-  (This class is \e not OpenGL related, it just happens to start with
-  the letters QGL...)
+    Returns TRUE if the widget can sensibly be shorter than its
+    sizeHint(); otherwise returns FALSE.
 
-  Subclass this class to create a custom layout. The functions that
-  must be implemented are next(), current(), and takeCurrent().
-
-  The QGLayoutIterator implements the functionality of
-  QLayoutIterator. Each subclass of QLayout needs a
-  QGLayoutIterator subclass.
-*/
-
-/*! \fn QLayoutItem *QGLayoutIterator::next()
-  Implemented in subclasses to move the iterator to the next item and
-  return that item, or 0 if there is no next item.
-*/
-
-/*! \fn QLayoutItem *QGLayoutIterator::current()
-  Implemented in subclasses to return the current item, or 0 if there
-  is no current item.
-*/
-
-/*! \fn QLayoutItem *QGLayoutIterator::takeCurrent()
-  Implemented in subclasses to remove the current item from the layout
-  without deleting it, move the iterator to the next item and return
-  the removed item, or 0 if no item was removed.
+    \sa mayShrinkHorizontally() mayGrowVertically()
 */
 
 /*!
-  Destroys the iterator
+    \fn bool QSizePolicy::mayGrowHorizontally() const
+
+    Returns TRUE if the widget can sensibly be wider than its
+    sizeHint(); otherwise returns FALSE.
+
+    \sa mayGrowVertically() mayShrinkHorizontally()
+*/
+
+/*!
+    \fn bool QSizePolicy::mayGrowVertically() const
+
+    Returns TRUE if the widget can sensibly be taller than its
+    sizeHint(); otherwise returns FALSE.
+
+    \sa mayGrowHorizontally() mayShrinkVertically()
+*/
+
+/*!
+    \fn QSizePolicy::ExpandData QSizePolicy::expanding() const
+
+    Returns a value indicating whether the widget can make use of
+    extra space (i.e. if it "wants" to grow) horizontally and/or
+    vertically.
+
+    \sa mayShrinkHorizontally() mayGrowHorizontally()
+	mayShrinkVertically() mayGrowVertically()
+*/
+
+/*!
+    \fn void QSizePolicy::setHorData( SizeType d )
+
+    Sets the horizontal component of the size policy to size type \a
+    d.
+
+    \sa horData() setVerData()
+*/
+
+/*!
+    \fn void QSizePolicy::setVerData( SizeType d )
+
+    Sets the vertical component of the size policy to size type \a d.
+
+    \sa verData() setHorData()
+*/
+
+/*!
+    \fn bool QSizePolicy::hasHeightForWidth() const
+
+    Returns TRUE if the widget's preferred height depends on its
+    width; otherwise returns FALSE.
+
+    \sa setHeightForWidth()
+*/
+
+/*!
+    \fn void QSizePolicy::setHeightForWidth( bool b )
+
+    Sets the hasHeightForWidth() flag to \a b.
+
+    \sa hasHeightForWidth()
+*/
+
+/*!
+    \fn uint QSizePolicy::horStretch() const
+
+    Returns the horizontal stretch factor of the size policy.
+
+    \sa setHorStretch() verStretch()
+*/
+
+/*!
+    \fn uint QSizePolicy::verStretch() const
+
+    Returns the vertical stretch factor of the size policy.
+
+    \sa setVerStretch() horStretch()
+*/
+
+/*!
+    \fn void QSizePolicy::setHorStretch( uchar sf )
+
+    Sets the horizontal stretch factor of the size policy to \a sf.
+
+    \sa horStretch() setVerStretch()
+*/
+
+/*!
+    \fn void QSizePolicy::setVerStretch( uchar sf )
+
+    Sets the vertical stretch factor of the size policy to \a sf.
+
+    \sa verStretch() setHorStretch()
+*/
+
+
+/*!
+    \fn bool QSizePolicy::operator==( const QSizePolicy &s ) const
+
+    Returns TRUE if this policy is equal to \a s; otherwise returns
+    FALSE.
+
+    \sa operator!=()
+*/
+
+/*!
+    \fn bool QSizePolicy::operator!=( const QSizePolicy &s ) const
+
+    Returns TRUE if this policy is different from \a s; otherwise
+    returns FALSE.
+
+    \sa operator==()
+*/
+
+/*!
+    \class QGLayoutIterator
+    \brief The QGLayoutIterator class is an abstract base class of internal layout iterators.
+
+    \ingroup appearance
+    \ingroup geomanagement
+
+    (This class is \e not OpenGL related, it just happens to start with
+    the letters QGL...)
+
+    Subclass this class to create a custom layout. The functions that
+    must be implemented are next(), current(), and takeCurrent().
+
+    The QGLayoutIterator implements the functionality of
+    QLayoutIterator. Each subclass of QLayout needs a
+    QGLayoutIterator subclass.
+*/
+
+/*!
+    \fn QLayoutItem *QGLayoutIterator::next()
+
+    Implemented in subclasses to move the iterator to the next item
+    and return that item, or 0 if there is no next item.
+*/
+
+/*!
+    \fn QLayoutItem *QGLayoutIterator::current()
+
+    Implemented in subclasses to return the current item, or 0 if
+    there is no current item.
+*/
+
+/*!
+    \fn QLayoutItem *QGLayoutIterator::takeCurrent()
+
+    Implemented in subclasses. The function must remove the current
+    item from the layout without deleting it, move the iterator to the
+    next item and return the removed item, or 0 if no item was
+    removed.
+*/
+
+/*!
+    Destroys the iterator
 */
 QGLayoutIterator::~QGLayoutIterator()
 {
 }
 
 /*!
-  \class QLayoutIterator
-  \ingroup appearance
-  \ingroup geomanagement
-  \brief The QLayoutIterator class provides iterators over QLayoutItem.
+    \class QLayoutIterator
+    \brief The QLayoutIterator class provides iterators over QLayoutItem.
 
-  Use QLayoutItem::iterator() to create an iterator over a layout.
+    \ingroup appearance
+    \ingroup geomanagement
 
-  QLayoutIterator uses explicit sharing with a reference count. If
-  an iterator is copied and one of the copies is modified,
-  both iterators will be modified.
+    Use QLayoutItem::iterator() to create an iterator over a layout.
 
-  A QLayoutIterator is not protected against changes in its layout. If
-  the layout is modified or deleted the iterator will become invalid.
-  It is not possible to test for validity. It is safe to delete an
-  invalid layout; any other access may lead to an illegal memory
-  reference and the abnormal termination of the program.
+    QLayoutIterator uses \e explicit sharing with a reference count.
+    If an iterator is copied and one of the copies is modified, both
+    iterators will be modified.
 
-  Calling takeCurrent() or deleteCurrent() leaves the iterator in a
-  valid state, but may invalidate any other iterators that access the
-  same layout.
+    A QLayoutIterator is not protected against changes in its layout. If
+    the layout is modified or deleted the iterator will become invalid.
+    It is not possible to test for validity. It is safe to delete an
+    invalid layout; any other access may lead to an illegal memory
+    reference and the abnormal termination of the program.
 
-  The following code will draw a rectangle for each layout item
-  in the layout structure of the widget.
-  \code
-  static void paintLayout( QPainter *p, QLayoutItem *lay )
-  {
-      QLayoutIterator it = lay->iterator();
-      QLayoutItem *child;
-      while ( (child = it.current()) != 0 ) {
-	  paintLayout( p, child );
-	  it.next();
-      }
-      p->drawRect( lay->geometry() );
-  }
-  void ExampleWidget::paintEvent( QPaintEvent * )
-  {
-      QPainter p( this );
-      if ( layout() )
-	  paintLayout( &p, layout() );
-  }
-  \endcode
+    Calling takeCurrent() or deleteCurrent() leaves the iterator in a
+    valid state, but may invalidate any other iterators that access the
+    same layout.
 
-  All the functionality of QLayoutIterator is implemented by
-  subclasses of \l QGLayoutIterator. QLayoutIterator itself is not
-  designed to be subclassed.
-*/
+    The following code will draw a rectangle for each layout item in
+    the layout structure of the widget.
+    \code
+    static void paintLayout( QPainter *p, QLayoutItem *lay )
+    {
+	QLayoutIterator it = lay->iterator();
+	QLayoutItem *child;
+	while ( (child = it.current()) != 0 ) {
+	    paintLayout( p, child );
+	    it.next();
+	}
+	p->drawRect( lay->geometry() );
+    }
+    void ExampleWidget::paintEvent( QPaintEvent * )
+    {
+	QPainter p( this );
+	if ( layout() )
+	    paintLayout( &p, layout() );
+    }
+    \endcode
 
-/*! \fn QLayoutIterator::QLayoutIterator( QGLayoutIterator *gi )
-  Constructs an iterator based on \a gi. The constructed iterator takes
-  ownership of \a gi and will delete it.
-
-  This constructor is provided for layout implementors. Application
-  programmers should use QLayoutItem::iterator() to create an iterator
-  over a layout.
-*/
-
-/*! \fn QLayoutIterator::QLayoutIterator( const QLayoutIterator &i )
-  Creates a shallow copy of \a i, i.e. if the copy is modified, then the
-  original will also be modified.
-*/
-
-/*! \fn QLayoutIterator::~QLayoutIterator()
-  Destroys the iterator.
-*/
-
-/*! \fn QLayoutIterator &QLayoutIterator::operator=( const QLayoutIterator &i )
-  Assigns \a i to this iterator and returns a reference to this iterator.
-*/
-
-/*! \fn QLayoutItem *QLayoutIterator::operator++()
-  Moves the iterator to the next child item and returns that item, or 0
-  if there is no such item.
-*/
-
-/*! \fn QLayoutItem *QLayoutIterator::current()
-  Returns the current item, or 0 if there is no current item.
-*/
-
-/*! \fn QLayoutItem *QLayoutIterator::takeCurrent()
-  Removes the current child item from the layout without deleting it
-  and moves the iterator to the next item. Returns the removed item, or
-  0 if there was no item to be removed. This iterator will still be
-  valid, but any other iterator over the same layout may become
-  invalid.
-*/
-
-/*! \fn void QLayoutIterator::deleteCurrent()
-  Removes and deletes the current child item from the layout and moves the
-  iterator to the next item. This iterator will still be valid, but any
-  other iterator over the same layout may become invalid.
+    All the functionality of QLayoutIterator is implemented by
+    subclasses of \l QGLayoutIterator. QLayoutIterator itself is not
+    designed to be subclassed.
 */
 
 /*!
-  \enum QLayout::ResizeMode
+    \fn QLayoutIterator::QLayoutIterator( QGLayoutIterator *gi )
+
+    Constructs an iterator based on \a gi. The constructed iterator
+    takes ownership of \a gi and will delete it.
+
+    This constructor is provided for layout implementors. Application
+    programmers should use QLayoutItem::iterator() to create an
+    iterator over a layout.
+*/
+
+/*!
+    \fn QLayoutIterator::QLayoutIterator( const QLayoutIterator &i )
+
+    Creates a shallow copy of \a i, i.e. if the copy is modified, then
+    the original will also be modified.
+*/
+
+/*!
+    \fn QLayoutIterator::~QLayoutIterator()
+
+    Destroys the iterator.
+*/
+
+/*!
+    \fn QLayoutIterator &QLayoutIterator::operator=( const QLayoutIterator &i )
+
+    Assigns \a i to this iterator and returns a reference to this
+    iterator.
+*/
+
+/*!
+    \fn QLayoutItem *QLayoutIterator::operator++()
+
+    Moves the iterator to the next child item and returns that item,
+    or 0 if there is no such item.
+*/
+
+/*!
+    \fn QLayoutItem *QLayoutIterator::current()
+
+    Returns the current item, or 0 if there is no current item.
+*/
+
+/*!
+    \fn QLayoutItem *QLayoutIterator::takeCurrent()
+
+    Removes the current child item from the layout without deleting
+    it, and moves the iterator to the next item. Returns the removed
+    item, or 0 if there was no item to be removed. This iterator will
+    still be valid, but any other iterator over the same layout may
+    become invalid.
+*/
+
+/*!
+    \fn void QLayoutIterator::deleteCurrent()
+
+    Removes and deletes the current child item from the layout and
+    moves the iterator to the next item. This iterator will still be
+    valid, but any other iterator over the same layout may become
+    invalid.
+*/
+
+/*!
+    \enum QLayout::ResizeMode
 
     The possible values are:
 
@@ -1651,13 +1712,13 @@ QGLayoutIterator::~QGLayoutIterator()
 */
 
 /*!
-  \property QLayout::resizeMode
-  \brief the resize mode of the layout
+    \property QLayout::resizeMode
+    \brief the resize mode of the layout
 
-  The default mode is \c Minimum for top-level widgets and \c FreeResize
-  for all others.
+    The default mode is \c Minimum for top-level widgets and \c
+    FreeResize for all others.
 
-  \sa QLayout::ResizeMode
+    \sa QLayout::ResizeMode
 */
 
 void QLayout::setResizeMode( ResizeMode mode )
@@ -1685,25 +1746,28 @@ QLayout::ResizeMode QLayout::resizeMode() const
     return frozen ? Fixed : ( autoMinimum ? Minimum : FreeResize );
 }
 
-/*! \fn bool QLayout::autoAdd() const
-  Returns TRUE if this layout automatically grabs all new
-  mainWidget()'s new children and adds them as defined by
-  addItem(); otherwise returns FALSE. This has effect only for
-  top-level layouts, i.e. layouts that are direct children of their
-  mainWidget().
+/*!
+    \fn bool QLayout::autoAdd() const
 
-  autoAdd() is disabled by default.
+    Returns TRUE if this layout automatically grabs all new
+    mainWidget()'s new children and adds them as defined by addItem();
+    otherwise returns FALSE. This has effect only for top-level
+    layouts, i.e. layouts that are direct children of their
+    mainWidget().
 
-  Note that a top-level layout is not necessarily associated with the
-  top-level widget.
+    autoAdd() is disabled by default.
 
-  \sa setAutoAdd()
+    Note that a top-level layout is not necessarily associated with
+    the top-level widget.
+
+    \sa setAutoAdd()
 */
 
 /*!
-  If \a b is TRUE auto-add is enabled; otherwise auto-add is disabled.
+    If \a b is TRUE, auto-add is enabled; otherwise auto-add is
+    disabled.
 
-  \sa autoAdd()
+    \sa autoAdd()
 */
 void QLayout::setAutoAdd( bool b )
 {
@@ -1711,25 +1775,25 @@ void QLayout::setAutoAdd( bool b )
 }
 
 /*!
-  \fn  bool QLayout::supportsMargin() const
+    \fn  bool QLayout::supportsMargin() const
 
-  Returns TRUE if this layout supports \l QLayout::margin on non-top-level
-  layouts; otherwise returns FALSE.
+    Returns TRUE if this layout supports \l QLayout::margin on
+    non-top-level layouts; otherwise returns FALSE.
 
-  \sa margin
+    \sa margin
 */
 
 /*!
-  Sets the value returned by supportsMargin(). If \a b is TRUE,
-  margin() handling is implemented by the subclass. If \a b is
-  FALSE (the default), QLayout will add margin() around top-level
-  layouts.
+    Sets the value returned by supportsMargin(). If \a b is TRUE,
+    margin() handling is implemented by the subclass. If \a b is
+    FALSE (the default), QLayout will add margin() around top-level
+    layouts.
 
-  If \a b is TRUE, margin handling needs to be implemented in
-  setGeometry(), maximumSize(), minimumSize(), sizeHint() and
-  heightForWidth().
+    If \a b is TRUE, margin handling needs to be implemented in
+    setGeometry(), maximumSize(), minimumSize(), sizeHint() and
+    heightForWidth().
 
-  \sa supportsMargin()
+    \sa supportsMargin()
 */
 void QLayout::setSupportsMargin( bool b )
 {
@@ -1737,12 +1801,12 @@ void QLayout::setSupportsMargin( bool b )
 }
 
 /*!
-  Returns the rectangle that should be covered when the geometry of
-  this layout is set to \a r, provided that this layout supports
-  setAlignment().
+    Returns the rectangle that should be covered when the geometry of
+    this layout is set to \a r, provided that this layout supports
+    setAlignment().
 
-  The result is derived from sizeHint() and expanding(). It is
-  never larger than \a r.
+    The result is derived from sizeHint() and expanding(). It is never
+    larger than \a r.
 */
 QRect QLayout::alignmentRect( const QRect &r ) const
 {
@@ -1776,14 +1840,14 @@ QRect QLayout::alignmentRect( const QRect &r ) const
 }
 
 /*!
-  Enables this layout if \a enable is TRUE, otherwise disables it.
+    Enables this layout if \a enable is TRUE, otherwise disables it.
 
-  An enabled layout adjusts dynamically to changes; a disabled layout
-  acts as if it did not exist.
+    An enabled layout adjusts dynamically to changes; a disabled
+    layout acts as if it did not exist.
 
-  By default all layouts are enabled.
+    By default all layouts are enabled.
 
-  \sa isEnabled()
+    \sa isEnabled()
 */
 void QLayout::setEnabled( bool enable )
 {
@@ -1791,9 +1855,9 @@ void QLayout::setEnabled( bool enable )
 }
 
 /*!
-  Returns TRUE if the layout is enabled; otherwise returns FALSE.
+    Returns TRUE if the layout is enabled; otherwise returns FALSE.
 
-  \sa setEnabled()
+    \sa setEnabled()
 */
 bool QLayout::isEnabled() const
 {

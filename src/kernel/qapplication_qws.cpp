@@ -1587,7 +1587,7 @@ from the X Consortium.
  *   Example:  "=80x24+300-49"
  *   The equal sign is optional.
  *   It returns a bitmask that indicates which of the four values
- *   were actually found in the string.  For each value found,
+ *   were actually found in the string. For each value found,
  *   the corresponding argument is updated;  for each value
  *   not found, the corresponding argument is left unchanged.
  */
@@ -2495,15 +2495,15 @@ bool QApplication::hasPendingEvents()
 }
 
 /*!
-  This virtual function is only implemented under Qt/Embedded.
+    This virtual function is only implemented under Qt/Embedded.
 
-  If you create an application that inherits QApplication and
-  reimplement this function, you get direct access to all QWS
-  (Q Window System) events that the are received from the QWS
-  master process.
+    If you create an application that inherits QApplication and
+    reimplement this function, you get direct access to all QWS (Q
+    Window System) events that the are received from the QWS master
+    process.
 
-  Return TRUE if you want to stop the event from being processed, or
-  return FALSE for normal event dispatching.
+    Return TRUE if you want to stop the event from being processed.
+    Return FALSE for normal event dispatching.
 */
 bool QApplication::qwsEventFilter( QWSEvent * )
 {
@@ -2511,17 +2511,18 @@ bool QApplication::qwsEventFilter( QWSEvent * )
 }
 
 /*!
-  Set Qt/Embedded custom color table.
+    Set Qt/Embedded custom color table.
 
-  Qt/Embedded on 8-bpp displays allocates a standard 216 color cube.
-  The remaining 40 colors may be used by setting a custom color table in
-  the QWS master process before any clients connect.
+    Qt/Embedded on 8-bpp displays allocates a standard 216 color cube.
+    The remaining 40 colors may be used by setting a custom color
+    table in the QWS master process before any clients connect.
 
-  \a colorTable is an array of up to 40 custom colors.  \a start is the
-  starting index (0-39) and \a numColors is the number of colors to be
-  set (1-40).
+    \a colorTable is an array of up to 40 custom colors. \a start is
+    the starting index (0-39) and \a numColors is the number of colors
+    to be set (1-40).
 
-  This method is non-portable.  It is available \e only in Qt/Embedded.
+    This method is non-portable. It is available \e only in
+    Qt/Embedded.
 */
 void QApplication::qwsSetCustomColors( QRgb *colorTable, int start, int numColors )
 {
@@ -2542,11 +2543,11 @@ void QApplication::qwsSetCustomColors( QRgb *colorTable, int start, int numColor
 
 #ifndef QT_NO_QWS_MANAGER
 /*!
-  Return the QWSDecoration used for decorating windows.
+    Return the QWSDecoration used for decorating windows.
 
-  This method is non-portable.  It is available \e only in Qt/Embedded.
+    This method is non-portable. It is available \e only in Qt/Embedded.
 
-  \sa QWSDecoration
+    \sa QWSDecoration
 */
 QWSDecoration &QApplication::qwsDecoration()
 {
@@ -2554,12 +2555,13 @@ QWSDecoration &QApplication::qwsDecoration()
 }
 
 /*!
-  Set the QWSDecoration derived class to use for decorating the Qt/Embedded
-  windows to \a d.
+    Set the QWSDecoration derived class to use for decorating the
+    Qt/Embedded windows to \a d.
 
-  This method is non-portable.  It is available \e only in Qt/Embedded.
+    This method is non-portable. It is available \e only in
+    Qt/Embedded.
 
-  \sa QWSDecoration
+    \sa QWSDecoration
 */
 void QApplication::qwsSetDecoration( QWSDecoration *d )
 {

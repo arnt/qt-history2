@@ -73,8 +73,8 @@ click 'Includes (in Implementation)' and choose 'Edit' to invoke the
 \section1 Property Editor/Signal Handlers Window
 
 Click the Property Editor/Signal Handlers window to view and change
-the properties of forms and widgets. This window has a 'Properties'
-tab and a 'Signal Handlers' tab. 
+the properties of forms, widgets and menus. This window has a
+'Properties' tab and a 'Signal Handlers' tab. 
 
 \img qd-propedwinproptab.png
 \caption Properties Tab
@@ -82,12 +82,13 @@ tab and a 'Signal Handlers' tab.
 \section2 The Properties Tab
 
 Click the 'Properties' tab to change the appearance and behaviour of
-the selected widget. The Property Editor has two columns, the Property
-column which lists property names and the Value column which lists the
-values. Click the column headers to sort the properties or values.
-Some property names have a plus sign '+' in a square to their left;
-this signifies that the property name is the collective name for a set
-of related properties.
+the selected widget. (For menus, click the menu bar to show the menu
+item properties in the Property Editor.) The Property Editor has two
+columns, the Property column which lists property names and the Value
+column which lists the values. Click the column headers to sort the
+properties or values. Some property names have a plus sign '+' in a
+square to their left; this signifies that the property name is the
+collective name for a set of related properties.
 
 Some properties have simple values, for example, the name property has
 a text value, the width property (within minimumSize for example) has

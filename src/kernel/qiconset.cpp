@@ -246,6 +246,8 @@ typedef QIconSetPrivate::Icon Icon;
   the function, or when it is the currently selected item. If the widget
   can be toggled, the "On" mode might be used to draw a different icon.
 
+  \img iconset.png QIconSet
+
   \sa QIconFactory QPixmap QMainWindow::setUsesBigPixmaps()
       \link guibooks.html#fowler GUI Design Handbook: Iconic Label \endlink
 */
