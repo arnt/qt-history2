@@ -1497,6 +1497,27 @@ void Configure::findProjects( const QString& dirName )
     }
 }
 
+void Configure::appendMakeItem(int inList, const QString &item)
+{
+    QString dir;
+    if (item != "src")
+	dir = "/" + item;
+    makeList[inList].append(new MakeItem(dictionary[ "QT_SOURCE_TREE" ] + "/src" + dir,
+	item + ".pro", "Makefile", Lib ) );
+    if( dictionary[ "DSPFILES" ] == "yes" ) {
+	makeList[inList].append( new MakeItem(dictionary[ "QT_SOURCE_TREE" ] + "/src" + dir,
+	    item + ".pro", item + ".dsp", Lib ) );
+    }
+    if( dictionary[ "VCPFILES" ] == "yes" ) {
+	makeList[inList].append( new MakeItem(dictionary[ "QT_SOURCE_TREE" ] + "/src" + dir,
+	    item + ".pro", item + ".vcp", Lib ) );
+    }
+    if( dictionary[ "VCPROJFILES" ] == "yes" ) {
+	makeList[inList].append( new MakeItem(dictionary[ "QT_SOURCE_TREE" ] + "/src" + dir,
+	    item + ".pro", item + ".vcproj", Lib ) );
+    }
+}
+
 void Configure::generateMakefiles()
 {
     if( dictionary[ "NOPROCESS" ] == "no" ) {
@@ -1518,30 +1539,15 @@ void Configure::generateMakefiles()
 #if !defined(EVAL)
 	QStringList qtProjects;
 	qtProjects << "winmain" << "moc" << "core" << "gui" << "network"
-	    << "opengl" << "sql" << "xml" << "compat" << "src";
-	for (i=0;i<qtProjects.size();++i) {
-	    QString qtProject = qtProjects.at(i);
-	    QString dir;
-	    if (qtProject != "src")
-		dir = "/" + qtProject;
-	    makeList[0].append(new MakeItem(dictionary[ "QT_SOURCE_TREE" ] + "/src" + dir,
-		qtProject + ".pro", "Makefile", Lib ) );
-	    if( dictionary[ "DSPFILES" ] == "yes" ) {
-		makeList[0].append( new MakeItem(dictionary[ "QT_SOURCE_TREE" ] + "/src" + dir,
-		    qtProject + ".pro", qtProject + ".dsp", Lib ) );
-	    }
-	    if( dictionary[ "VCPFILES" ] == "yes" ) {
-		makeList[0].append( new MakeItem(dictionary[ "QT_SOURCE_TREE" ] + "/src" + dir,
-		    qtProject + ".pro", qtProject + ".vcp", Lib ) );
-	    }
-	    if( dictionary[ "VCPROJFILES" ] == "yes" ) {
-		makeList[0].append( new MakeItem(dictionary[ "QT_SOURCE_TREE" ] + "/src" + dir,
-		    qtProject + ".pro", qtProject + ".vcproj", Lib ) );
-	    }
-	}
-	// Ensure the plugins and tools are done after the main libraries
+	    << "opengl" << "sql" << "xml" << "compat";
+
+        for (i=0;i<qtProjects.size();++i)
+            appendMakeItem(0, qtProjects.at(i));
+
+        // Ensure the plugins and tools are done after the main libraries
 	findProjects(dictionary["QT_SOURCE_TREE"] + "/src/plugins");
 	findProjects(dictionary["QT_SOURCE_TREE"] + "/src/tools");
+        appendMakeItem(2, "src"); // Now do src itself
 #endif
 	if (dictionary["LEAN"] == "no")
 	    findProjects(dictionary["QT_SOURCE_TREE"]);

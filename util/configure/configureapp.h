@@ -24,6 +24,7 @@ public:
     void buildQmake();
 #endif
     void generateMakefiles();
+    void appendMakeItem(int inList, const QString &item);
 #if !defined(EVAL)
     void generateConfigfiles();
 #endif
