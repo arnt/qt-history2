@@ -1,0 +1,14 @@
+#!/bin/sh
+
+FILE="$1"
+RES="$FILE"
+
+if [ `echo $FILE | cut -b1` = "/" ]; then
+    true
+else
+    RES="$PWD/$FILE"
+    RES=`echo "$RES" | sed "s,/\./,/,g"`
+    RES=`echo "$RES" | sed "s,\(/[^/]*/\)\.\./,/,g"`
+fi
+echo $RES #return
+
