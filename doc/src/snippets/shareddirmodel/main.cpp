@@ -24,13 +24,15 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     QSplitter *splitter = new QSplitter;
 
-    QDirModel *model = new QDirModel(QDir(), splitter);
+    QDirModel *model = new QDirModel;
 
     QTreeView *tree = new QTreeView(splitter);
     QListView *list = new QListView(splitter);
 
     tree->setModel(model);
+    tree->setRootIndex(model->index(QDir::currentPath()));
     list->setModel(model);
+    list->setRootIndex(model->index(QDir::currentPath()));
 
     QItemSelectionModel *selection = new QItemSelectionModel(model);
 
