@@ -119,7 +119,6 @@ private:
     void registerDatabases( const QDomElement& e );
     bool isWidgetInTable( const QDomElement& e, const QString& connection, const QString& table );
     QString getDatabaseInfo( const QDomElement& e, const QString& tag );
-    void createDatabaseImpl( const QDomElement& e );
     void createFormImpl( const QDomElement& e, const QString& form, const QString& connection, const QString& table );
     QStringList                  dbConnections;
     QMap< QString, QStringList > dbCursors;
