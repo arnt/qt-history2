@@ -46,7 +46,7 @@
 public:							\
     QMetaObject *metaObject()const { return metaObj; }	\
     const char *className() const;			\
-    static void staticMetaObject();			\
+    static QMetaObject* staticMetaObject();		\
     static QString tr(const char*);			\
 protected:						\
     void initMetaObject();				\
