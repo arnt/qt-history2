@@ -5841,7 +5841,9 @@ void QFileDialog::insertEntry( const QValueList<QUrlInfo> &lst, QNetworkOperatio
 	    continue;
 
 #if defined(Q_WS_WIN)
-	if ( !bShowHiddenFiles ) {
+	// Workaround a Windows bug, '..' is apparantly hidden in directories
+	// that are one level away from root
+	if ( !bShowHiddenFiles && inf.name() != ".." ) { 
 	    if ( d->url.isLocalFile() ) {
 		QString file = d->url.path();
 		if ( !file.endsWith( "/" ) )
