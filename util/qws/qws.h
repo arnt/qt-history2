@@ -36,10 +36,11 @@ class QWSWindow
 {
     friend class QWSServer;
 public:
-    QWSWindow(int i, QWSClient* c) : id(i), client(c) { }
+    QWSWindow(int i, QWSClient* client) : id(i), c(client) { }
 
     int winId() const { return id; }
-    bool forClient(const QWSClient* c) const { return client==c; }
+    bool forClient(const QWSClient* cl) const { return cl==c; }
+    QWSClient* client() const { return c; }
     QRegion allocation() const { return allocated_region; }
 
     void addAllocation( QRegion );
@@ -47,7 +48,7 @@ public:
 
 private:
     int id;
-    QWSClient* client;
+    QWSClient* c;
 
     QRegion requested_region;
     QRegion allocated_region;
@@ -64,7 +65,7 @@ class QWSServer : public QServerSocket
     Q_OBJECT
 
 public:
-    QWSServer( bool fake=FALSE, QObject *parent=0, const char *name=0 );
+    QWSServer( int swidth=0, int sheight=0, QObject *parent=0, const char *name=0 );
     ~QWSServer();
     void newConnection( int socket );
 
@@ -75,6 +76,9 @@ public:
     QWSPropertyManager *properties() {
 	return &propertyManager;
     }
+
+    // For debugging only at this time
+    QList<QWSWindow> clientWindows() { return windows; }
 
 private:
     void invokeCreate( QWSCreateCommand *cmd, QWSClient *client );
@@ -109,6 +113,7 @@ private:
 	} time;
     } selectionOwner;
 
+    int swidth, sheight;
     int mouseFD;
     int mouseIdx;
     uchar *mouseBuf;
@@ -134,7 +139,7 @@ class QWSClient : public QSocket
 {
     friend class QWSServer;
 public:
-    QWSClient( int socket, int shmid );
+    QWSClient( int socket, int shmid, int w, int h );
 
     int socket() const;
 

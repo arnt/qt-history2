@@ -19,15 +19,12 @@
 *****************************************************************************/
 
 #include "qws.h"
+#include "qws_gui.h"
 #include "qwsevent.h"
 #include "qwscommand.h"
 #include "qwsutils.h"
 
 #include <qapplication.h>
-#include <qwidget.h>
-#include <qimage.h>
-#include <qsocket.h>
-#include <qdatetime.h>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -47,9 +44,6 @@ static const char *mouseDev = "/dev/mouse";
 static const int mouseBufSize = 100;
 #endif
 
-static int SWIDTH=640;
-static int SHEIGHT=480;
-
 static int get_object_id()
 {
     static int next=1000;
@@ -63,14 +57,14 @@ static int get_object_id()
  *
  *********************************************************************/
 //### shmid < 0 means use frame buffer
-QWSClient::QWSClient( int socket, int shmid ) :
+QWSClient::QWSClient( int socket, int shmid, int swidth, int sheight ) :
     QSocket(socket),
     s(socket),
     command(0)
 {
     QWSHeader header;
-    header.width = SWIDTH;
-    header.height = SHEIGHT;
+    header.width = swidth;
+    header.height = sheight;
     header.depth = 32;
     header.shmid = shmid;
     header.fbid = shmid < 0 ? 0 : -1; //### always use FB 0
@@ -176,12 +170,15 @@ void QWSClient::sendSelectionRequestEvent( QWSConvertSelectionCommand *cmd, int 
  *
  *********************************************************************/
 
-QWSServer::QWSServer( bool fake, QObject *parent=0, const char *name=0 ) :
+QWSServer::QWSServer( int sw, int sh, QObject *parent=0, const char *name=0 ) :
     QServerSocket(QTFB_PORT,parent,name),
     mouseBuf(0), pending_region_acks(0)
 {
-    if ( fake ) {
-	shmid = shmget(IPC_PRIVATE, SWIDTH*SHEIGHT*sizeof(QRgb),
+    swidth = sw;
+    sheight = sh;
+
+    if ( swidth && sheight ) {
+	shmid = shmget(IPC_PRIVATE, swidth*sheight*sizeof(QRgb),
 		       IPC_CREAT|IPC_EXCL|0666);
 	if ( shmid < 0 )
 	    perror("Cannot allocate shared memory.  Server already running?");
@@ -230,7 +227,7 @@ QWSServer::~QWSServer()
 void QWSServer::newConnection( int socket )
 {
     qDebug("New client...");
-    client[socket] = new QWSClient(socket,shmid);
+    client[socket] = new QWSClient(socket,shmid,swidth,sheight);
     connect( client[socket], SIGNAL(readyRead()),
 	     this, SLOT(doClient()) );
 }
@@ -437,7 +434,7 @@ void QWSServer::invokeSetSelectionOwner( QWSSetSelectionOwnerCommand *cmd )
     if ( selectionOwner.windowid != -1 ) {
 	QWSWindow *win = findWindow( selectionOwner.windowid, 0 );
 	if ( win )
-	    win->client->sendSelectionClearEvent( selectionOwner.windowid );
+	    win->client()->sendSelectionClearEvent( selectionOwner.windowid );
 	else
 	    qDebug( "couldn't find window %d", selectionOwner.windowid );
     }
@@ -452,7 +449,7 @@ void QWSServer::invokeConvertSelection( QWSConvertSelectionCommand *cmd )
     if ( selectionOwner.windowid != -1 ) {
 	QWSWindow *win = findWindow( selectionOwner.windowid, 0 );
 	if ( win )
-	    win->client->sendSelectionRequestEvent( cmd, selectionOwner.windowid );
+	    win->client()->sendSelectionRequestEvent( cmd, selectionOwner.windowid );
 	else
 	    qDebug( "couldn't find window %d", selectionOwner.windowid );
     }
@@ -460,14 +457,15 @@ void QWSServer::invokeConvertSelection( QWSConvertSelectionCommand *cmd )
     
 void QWSWindow::addAllocation(QRegion r)
 {
-    allocated_region |= r;
+    allocated_region |= r & requested_region;
 
     QWSRegionAddEvent event;
     event.type = QWSEvent::RegionAdd;
     event.window = id;
     event.nrectangles = r.rects().count(); // XXX MAJOR WASTAGE
-    client->writeBlock( (char*)&event, sizeof(event)-sizeof(event.rectangles) );
-    client->writeRegion( r );
+    c->writeBlock( (char*)&event, sizeof(event)-sizeof(event.rectangles) );
+    c->writeRegion( r );
+qDebug("Add to %p",c);
 }
 
 bool QWSWindow::removeAllocation(QRegion r)
@@ -483,9 +481,10 @@ bool QWSWindow::removeAllocation(QRegion r)
 	event.eventid = not_used_yet++;;
 	event.window = id;
 	event.nrectangles = r.rects().count(); // XXX MAJOR WASTAGE
-	client->writeBlock( (char*)&event, sizeof(event)-sizeof(event.rectangles) );
-	client->writeRegion( r );
+	c->writeBlock( (char*)&event, sizeof(event)-sizeof(event.rectangles) );
+	c->writeRegion( r );
 
+qDebug("Remove from %p",c);
 	return TRUE; // ack required
     }
     return FALSE;
@@ -520,6 +519,8 @@ QWSWindow* QWSServer::findWindow(int windowid, QWSClient* client)
 void QWSServer::setWindowRegion(QWSWindow* changingw, QRegion r)
 {
     qDebug("setWindowRegion");
+
+    changingw->requested_region = r;
 
     QRegion allocation;
     QRegion exposed = changingw->allocation() - r;
@@ -670,62 +671,6 @@ void QWSServer::handleMouseData()
 
 
 
-class Main : public QWidget {
-    QImage img;
-    QWSServer *server;
-
-public:
-    Main() :
-	server( 0 )
-    {
-	resize(SWIDTH,SHEIGHT);
-	setMouseTracking(TRUE);
-    }
-
-    void serve(int refresh_delay)
-    {
-	if ( !server ) {
-	    setFixedSize(size()); // Allow -geometry to set it, but then freeze.
-	    SWIDTH = width();
-	    SHEIGHT = width();
-	    server = new QWSServer( TRUE, this );
-	    img = QImage( server->frameBuffer(),
-			SWIDTH, SHEIGHT, 32, 0, 0, QImage::BigEndian );
-	    startTimer(refresh_delay);
-	}
-    }
-
-    void timerEvent(QTimerEvent*)
-    {
-	repaint(FALSE);
-    }
-
-    void mousePressEvent(QMouseEvent* e)
-    {
-	sendMouseEvent(e);
-    }
-    void mouseReleaseEvent(QMouseEvent* e)
-    {
-	sendMouseEvent(e);
-    }
-    void mouseMoveEvent(QMouseEvent* e)
-    {
-	sendMouseEvent(e);
-    }
-
-    void sendMouseEvent(QMouseEvent* e)
-    {
-	server->sendMouseEvent(e->pos(), e->stateAfter());
-    }
-
-    void paintEvent(QPaintEvent* e)
-    {
-	QRect r = e->rect();
-	bitBlt(this, r.x(), r.y(), &img, r.x(), r.y(), r.width(), r.height(),
-	    OrderedDither);
-    }
-};
-
 main(int argc, char** argv)
 {
     int refresh_delay=500;
@@ -734,17 +679,17 @@ main(int argc, char** argv)
 
     QApplication app(argc, argv, useGUI);
 
-    if ( argc > 1 ) {
-	refresh_delay = atoi(argv[1]);
-    }
-
     if ( useGUI ) {
-	Main *m = new Main;
-	app.setMainWidget(m);
-	m->serve(refresh_delay);
-	m->show();
+	if ( argc > 1 ) {
+	    refresh_delay = atoi(argv[1]);
+	}
+	DebuggingGUI m;
+	app.setMainWidget(&m);
+	m.show();
+	m.serve(refresh_delay);
+	return app.exec();
     } else {
 	(void)new QWSServer;
+	return app.exec();
     }
-    return app.exec();
 }
