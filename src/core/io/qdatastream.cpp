@@ -196,11 +196,12 @@
 #endif
 
 enum {
-    DefaultStreamVersion = 6
+    DefaultStreamVersion = 7
 };
 
 // ### 4.0: when streaming invalid QVariants, just the type should
 // be written, no "data" after it
+// 7 is default in Qt 4.0
 // 6 is default in Qt 3.3
 // 5 is default in Qt 3.1
 // 4 is default in Qt 3.0
