@@ -53,7 +53,7 @@ QAquaFocusWidget::QAquaFocusWidget(bool noerase, QWidget *w)
    (which looks quite bad). --Sam */
 #define FOCUS_WIDGET_PARENT(x) x->topLevelWidget()
 #else
-#define FOCUS_WIDGET_PARENT(x) x->parentWidget(true)
+#define FOCUS_WIDGET_PARENT(x) (x->isTopLevel() ? 0 : x->parentWidget())
 #endif
 void QAquaFocusWidget::setFocusWidget(QWidget * widget)
 {
@@ -66,7 +66,8 @@ void QAquaFocusWidget::setFocusWidget(QWidget * widget)
     d = 0;
     if(widget && widget->parentWidget()) {
 	d = widget;
-	reparent(FOCUS_WIDGET_PARENT(d), pos());
+	setParent(FOCUS_WIDGET_PARENT(d));
+	move(pos());
 	d->installEventFilter(this);
 	d->parentWidget()->installEventFilter(this); //we do this so we can trap the ChildAdded event
 	QPoint p(widget->mapTo(parentWidget(), QPoint(0, 0)));
@@ -112,7 +113,8 @@ bool QAquaFocusWidget::eventFilter(QObject * o, QEvent * e)
 	    QWidget *newp = FOCUS_WIDGET_PARENT(d);
 	    QPoint p(d->mapTo(newp, QPoint(0, 0)));
 	    newp->installEventFilter(this);
-	    reparent(newp, p);
+	    setParent(newp);
+	    move(p);
 	    raise();
 	    break; }
 	default:
@@ -269,7 +271,7 @@ void QAquaAnimate::timerEvent(QTimerEvent * te)
 	if(d->defaultButton && d->defaultButton->isEnabled() && d->defaultButton->isVisibleTo(0) &&
 	    (d->defaultButton->isDefault() || (d->defaultButton->autoDefault() && d->defaultButton->hasFocus()) )) {
 	    if(doAnimate(AquaPushButton))
-		d->defaultButton->repaint(false);
+		d->defaultButton->repaint();
 	}
     } else if(te->timerId() == d->lviTimerID && !d->lvis.isEmpty()) {
 	if(doAnimate(AquaListViewItemOpen)) {
@@ -280,7 +282,7 @@ void QAquaAnimate::timerEvent(QTimerEvent * te)
 	if (doAnimate(AquaProgressBar)) {
 	    for (int i = 0; i < d->progressBars.count(); ++i) {
 		if (d->progressBars.at(i)->progress() > 0)
-		    d->progressBars.at(i)->repaint(false);
+		    d->progressBars.at(i)->repaint();
 	    }
 	}
     }
@@ -344,7 +346,7 @@ bool QAquaAnimate::eventFilter(QObject * o, QEvent * e)
 		QPushButton * tmp = d->defaultButton;
 		d->defaultButton = 0;
 		if(tmp)
-		    tmp->repaint(false);
+		    tmp->repaint();
 		if(pb->topLevelWidget()->isActiveWindow())
 		    d->defaultButton = pb;
 		break;
@@ -372,11 +374,13 @@ void QAquaAnimate::setFocusWidget(QWidget *w)
 	    top = top->parentWidget();
 	if(top->inherits("QMainWindow")) {
 	    QWidget *central = ((QMainWindow*)top)->centralWidget();
-	    for(QWidget *par = w; par; par = par->parentWidget(true)) {
+	    for(QWidget *par = w; par; par = par->parentWidget()) {
 		if(par == central) {
 		    top = central;
 		    break;
 		}
+		if(par->isTopLevel())
+		    break;
 	    }
 	}
 	if(top && (w->width() < top->width() - 30 || w->height() < top->height() - 40)) {
@@ -408,7 +412,7 @@ bool QAquaAnimate::focusable(QWidget *w) const
 	    return true;
     }
 #endif
-    return (w && w->parentWidget(true) &&
+    return (w && !w->isTopLevel() && w->parentWidget() &&
 	    (w->inherits("QSpinWidget") || w->inherits("QDateTimeEditor") || w->inherits("QComboBox") ||
 	     (w->inherits("QLineEdit") && w->parentWidget()->inherits("QSpinWidget")) ||
 	     (w->inherits("QFrame") && w->inherits("QLineEdit") &&
@@ -475,7 +479,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
 	qDebug("Not sure how to return this..");
 	return ret;
     }
-    if(widg && widg->ownFont()) //if you're using a custom font, no constraints for you!
+    if(widg && widg->testAttribute(QWidget::WA_SetFont)) //if you're using a custom font, no constraints for you!
 	return ret;
 
     if(ct == QStyle::CT_CustomBase && widg) {
