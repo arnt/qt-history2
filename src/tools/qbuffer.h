@@ -52,7 +52,7 @@ public:
     QBuffer( const QByteArray &b );
    ~QBuffer();
 
-    QByteArray buffer() const;
+    QByteArray &buffer() const;
     bool  setBuffer( QByteArray &b );
 
     bool  open( int );
@@ -84,8 +84,8 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-inline QByteArray QBuffer::buffer() const
-{ return b; }
+inline QByteArray &QBuffer::buffer() const
+{ return const_cast<QByteArray &>(b); }
 
 inline QIODevice::Offset QBuffer::size() const
 { return (Offset)b.size(); }

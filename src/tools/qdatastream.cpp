@@ -286,7 +286,22 @@ QDataStream::QDataStream( QIODevice *d )
     The QByteArray::setRawData() function is not for the inexperienced.
 */
 
-QDataStream::QDataStream( QByteArray a, int mode )
+QDataStream::QDataStream( QByteArray &a, int mode )
+{
+    if ( systemWordSize == 0 )			// get system features
+	qSysInfo( &systemWordSize, &systemBigEndian );
+    dev	      = new QBuffer( a );		// create device
+    ((QBuffer *)dev)->open( mode );		// open device
+    owndev    = TRUE;
+    byteorder = BigEndian;			// default byte order
+    printable = FALSE;
+    ver	      = DefaultStreamVersion;
+    noswap    = systemBigEndian;
+}
+
+/*! \overload
+ */
+QDataStream::QDataStream( const QByteArray &a, int mode )
 {
     if ( systemWordSize == 0 )			// get system features
 	qSysInfo( &systemWordSize, &systemBigEndian );

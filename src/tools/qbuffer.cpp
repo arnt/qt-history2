@@ -134,8 +134,11 @@ QBuffer::QBuffer()
     \sa setBuffer()
 */
 
-QBuffer::QBuffer( QByteArray &buf ) : b(buf), p(&buf)
+QBuffer::QBuffer( QByteArray &buf )
 {
+    buf.detach();
+    b = buf;
+    p = &buf;
     setFlags( IO_Direct );
     ioIndex = 0;
 }
@@ -144,8 +147,10 @@ QBuffer::QBuffer( QByteArray &buf ) : b(buf), p(&buf)
     Constructs a buffer that operates on \a buf.
 */
 
-QBuffer::QBuffer( const QByteArray &buf ) : b(buf), p(&b)
+QBuffer::QBuffer( const QByteArray &buf )
 {
+    b = buf;
+    p = &b;
     setFlags( IO_Direct );
     ioIndex = 0;
 }
@@ -180,6 +185,7 @@ bool QBuffer::setBuffer( QByteArray &buf )
 #endif
         return FALSE;
     }
+    buf.detach();
     b = buf;
     p = &buf;
     ioIndex = 0;

@@ -49,7 +49,8 @@ class Q_EXPORT QDataStream				// data stream class
 public:
     QDataStream();
     QDataStream( QIODevice * );
-    QDataStream( QByteArray, int mode );
+    QDataStream( QByteArray &, int mode );
+    QDataStream( const QByteArray &, int mode );
     virtual ~QDataStream();
 
     QIODevice	*device() const;
