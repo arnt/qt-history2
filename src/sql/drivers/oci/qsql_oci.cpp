@@ -132,7 +132,6 @@ public:
 			break;
 		}
 		if ( r != OCI_SUCCESS ) {
-		    qWarning("r=%d",r);
 		    return r;
 		}
 	    }
