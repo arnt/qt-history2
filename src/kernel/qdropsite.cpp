@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdropsite.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qdropsite.cpp#2 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -44,9 +44,9 @@ bool QDropSitePrivate::eventFilter( QObject *, QEvent * e )
 }
 
 
-QDropSite::QDropSite( QWidget* parent ) :
-    d(new QDropSitePrivate(parent,this))
+QDropSite::QDropSite( QWidget* parent )
 {
+    d = new QDropSitePrivate(parent,this);
     parent->setAcceptDrops( TRUE );
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#16 $
 **
 ** WM_FILES implementation for Qt.
 **
@@ -41,6 +41,7 @@ public:
     virtual int cf(int index)=0;
     virtual bool canConvert( const char* mime, int cf )=0;
     virtual const char* mimeFor(int cf)=0;
+    virtual int cfFor(const char*)=0;
     virtual QByteArray convertToMime( QByteArray data, const char* mime, int cf )=0;
     virtual QByteArray convertFromMime( QByteArray data, const char* mime, int cf )=0;
 };
@@ -93,13 +94,13 @@ LPFORMATETC someFormats(const char* mime, int& n)
     n = 0;
     QWindowsMime* wm;
     for ( wm = mimes.first(); wm; wm = mimes.next() )
-	if (wm->canConvert(mime,wm->cf(0))) n += wm->countCf();
+	if (wm->cfFor(mime)) n += wm->countCf();
 
     LPFORMATETC fmtetc = new FORMATETC[n];
 
     int i = 0;
     for ( wm = mimes.first(); wm; wm = mimes.next() ) {
-	if (wm->canConvert(mime,wm->cf(0))) {
+	if (wm->cfFor(mime)) {
 	    int t = wm->countCf();
 	    for (int j=0; j<t; j++) {
 		fmtetc[i].cfFormat = wm->cf(j);
@@ -126,6 +127,22 @@ struct QWindowsRegisteredMimeType {
 
 static QList<QWindowsRegisteredMimeType> mimetypes;
 
+static
+CLIPFORMAT registerMimeType(const char* mime)
+{
+    CLIPFORMAT f = RegisterClipboardFormat(mime);
+    QWindowsRegisteredMimeType *mt = mimetypes.current();
+    if ( !mt || mt->cf != f ) {
+	for ( mt = mimetypes.first(); mt && mt->cf!=f; mt = mimetypes.next() )
+	    ;
+	if (!mt) {
+	    mimetypes.append(new QWindowsRegisteredMimeType(f,mime));
+	}
+    }
+    return f;
+}
+   
+
 class QWindowsMimeAnyMime : public QWindowsMime {
 public:
     int countCf()
@@ -141,6 +158,18 @@ public:
     int cf(int index)
     {
 	return mimetypes.at(index)->cf;
+    }
+
+    int cfFor(const char* mime)
+    {
+	QWindowsRegisteredMimeType *mt = mimetypes.current();
+	if ( mt ) // quick check with most-recent
+	    if ( 0==qstricmp(mt->mime, mime) )
+		return mt->cf;
+	for ( mt = mimetypes.first(); mt; mt = mimetypes.next() )
+	    if ( 0==qstricmp(mt->mime, mime) )
+		return mt->cf;
+	return 0;
     }
 
     const char* mimeFor(int cf)
@@ -159,12 +188,21 @@ public:
     {
 	QWindowsRegisteredMimeType *mt = mimetypes.current();
 	if ( mt ) // quick check with most-recent
-	    if ( mt->cf == cf && 0==stricmp(mt->mime,mime) )
+	    if ( mt->cf == cf && 0==stricmp(mt->mime,mime) ) {
 		return TRUE;
+	    }
 	for ( mt = mimetypes.first(); mt; mt = mimetypes.next() )
-	    if ( mt->cf == cf && 0==stricmp(mt->mime,mime) )
-		return TRUE;
-	return FALSE;
+	    if ( mt->cf == cf )
+		break;
+	if ( !mt ) {
+	    registerMimeType(mime);
+	    mt = mimetypes.current();
+	    if ( !mt || mt->cf != cf ) {
+		return FALSE;
+	    }
+	}
+
+	return 0==stricmp(mt->mime,mime);
     }
 
     QByteArray convertToMime( QByteArray data, const char*, int )
@@ -194,6 +232,14 @@ public:
     {
 	return CF_TEXT;
 	// return index ? CF_TEXT : CF_UNICODETEXT;  // Note UNICODE first.
+    }
+
+    int cfFor(const char* mime)
+    {
+	if ( qstricmp( mime, "text/plain" ) )
+	    return CF_TEXT;
+	else
+	    return 0;
     }
 
     const char* mimeFor(int cf)
@@ -235,6 +281,17 @@ public:
     int cf(int index)
     {
 	return CF_DIB;
+    }
+
+    int cfFor(const char* mime)
+    {
+	if ( qstrnicmp(mime,"image/",5)==0 ) {
+	    QStrList ofmts = QImage::outputFormats();
+	    for (const char* fmt=ofmts.first(); fmt; fmt=ofmts.next())
+		if ( qstricmp(fmt,mime+6)==0 )
+		    return CF_DIB;
+	}
+	return 0;
     }
 
     const char* mimeFor(int cf)
@@ -399,21 +456,6 @@ private:
     QDragObject* object;
 };
    
-static
-CLIPFORMAT registerMimeType(const char* mime)
-{
-    CLIPFORMAT f = RegisterClipboardFormat(mime);
-    QWindowsRegisteredMimeType *mt = mimetypes.current();
-    if ( !mt || mt->cf != f ) {
-	for ( mt = mimetypes.first(); mt && mt->cf!=f; mt = mimetypes.next() )
-	    ;
-	if (!mt) {
-	    mimetypes.append(new QWindowsRegisteredMimeType(f,mime));
-	}
-    }
-    return f;
-}
-   
 class QOleDropTarget : public IDropTarget
 {
     QWidget* widget;
@@ -533,7 +575,7 @@ QByteArray qt_olednd_obtain_data( const char *format )
     if (!current_dropobj) // Sanity
 	return result;
 
-#ifdef USE_FORMATENUM // doesnæt work yet
+#ifdef USE_FORMATENUM // doesn't work yet
     LPENUMFORMATETC FAR fmtenum;
     HRESULT hr=current_dropobj->EnumFormatEtc(DATADIR_GET, &fmtenum);
 
@@ -609,7 +651,6 @@ QByteArray QDropEvent::data( const char * format )
 void QDragManager::startDrag( QDragObject * o )
 {
     if ( object == o ) {
-	debug( "meaningless" );
 	return;
     }
 
@@ -622,11 +663,9 @@ void QDragManager::startDrag( QDragObject * o )
     object = o;
     dragSource = (QWidget *)(object->parent());
 
-    for (QDragObject* qobj = object; qobj; qobj = qobj->alternative()) {
-	const char* fmt;
-	for (int i=0; (fmt=qobj->format(i)); i++)
-	    registerMimeType(fmt);
-    }
+    const char* fmt;
+    for (int i=0; (fmt=object->format(i)); i++)
+	registerMimeType(fmt);
 
     DWORD dwEffect;
     QOleDropSource *src = new QOleDropSource(dragSource);
@@ -800,27 +839,25 @@ QOleDataObject::GetData(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium)
 
     QWindowsMime *wm;
 
-    for (QDragObject* obj = object; obj; obj = obj->alternative()) {
-	const char* fmt;
-	for (int i=0; (fmt=obj->format(i)); i++) {
-	    if ((wm=QWindowsMime::convertor(fmt,pformatetc->cfFormat))
-		&& pformatetc->dwAspect == DVASPECT_CONTENT &&
-		   pformatetc->tymed == TYMED_HGLOBAL)
-	    {
-		QByteArray data =
-		    wm->convertFromMime(obj->encodedData(fmt),
-				fmt, pformatetc->cfFormat);
-		if ( data.size() ) {
-		    HGLOBAL hData = GlobalAlloc(GMEM_SHARE, data.size());
-		    if (!hData)
-			return ResultFromScode(E_OUTOFMEMORY);
-		    void* out = GlobalLock(hData);
-		    memcpy(out,data.data(),data.size());
-		    GlobalUnlock(hData);
-		    pmedium->tymed = TYMED_HGLOBAL;
-		    pmedium->hGlobal = hData; 
-		    return ResultFromScode(S_OK);
-		}
+    const char* fmt;
+    for (int i=0; (fmt=object->format(i)); i++) {
+	if ((wm=QWindowsMime::convertor(fmt,pformatetc->cfFormat))
+	    && pformatetc->dwAspect == DVASPECT_CONTENT &&
+	       pformatetc->tymed == TYMED_HGLOBAL)
+	{
+	    QByteArray data =
+		wm->convertFromMime(object->encodedData(fmt),
+			    fmt, pformatetc->cfFormat);
+	    if ( data.size() ) {
+		HGLOBAL hData = GlobalAlloc(GMEM_SHARE, data.size());
+		if (!hData)
+		    return ResultFromScode(E_OUTOFMEMORY);
+		void* out = GlobalLock(hData);
+		memcpy(out,data.data(),data.size());
+		GlobalUnlock(hData);
+		pmedium->tymed = TYMED_HGLOBAL;
+		pmedium->hGlobal = hData; 
+		return ResultFromScode(S_OK);
 	    }
 	}
     }
@@ -839,15 +876,13 @@ QOleDataObject::QueryGetData(LPFORMATETC pformatetc)
     // This method is called by the drop target to check whether the source
     // provides data in a format that the target accepts.
 
-    for (QDragObject* obj = object; obj; obj = obj->alternative()) {
-	const char* fmt;
-	for (int i=0; (fmt=obj->format(i)); i++) {
-	    if (QWindowsMime::convertor(fmt,pformatetc->cfFormat) &&
-	       pformatetc->dwAspect == DVASPECT_CONTENT &&
-	       pformatetc->tymed == TYMED_HGLOBAL)
-	    {
-		return ResultFromScode(S_OK); 
-	    }
+    const char* fmt;
+    for (int i=0; (fmt=object->format(i)); i++) {
+	if (QWindowsMime::convertor(fmt,pformatetc->cfFormat) &&
+	   pformatetc->dwAspect == DVASPECT_CONTENT &&
+	   pformatetc->tymed == TYMED_HGLOBAL)
+	{
+	    return ResultFromScode(S_OK); 
 	}
     }
     return ResultFromScode(S_FALSE);
@@ -993,6 +1028,10 @@ STDMETHODIMP
 QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 {
     QDragMoveEvent de( QPoint(pt.x,pt.y) );
+    if ( acceptfmt )
+	de.accept();
+    else
+	de.ignore();
     QApplication::sendEvent( widget, &de );
     acceptfmt = de.isAccepted();
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#110 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#111 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -1018,7 +1018,6 @@ void QWidget::deleteSysExtra()
 
 bool QWidget::acceptDrops() const
 {
-    QWExtra *extra = extraData();
     return ( extra && extra->dropTarget );
 }
 
