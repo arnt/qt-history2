@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#162 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#163 $
 **
 ** Implementation of QListBox widget class
 **
@@ -747,7 +747,7 @@ void QListBox::clear()
     clearList();
     updateNumRows( TRUE );
     if ( autoUpdate() )
-	erase();
+	repaint();
 }
 
 
