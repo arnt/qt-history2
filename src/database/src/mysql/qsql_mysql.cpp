@@ -9,6 +9,9 @@
 #endif
 #include <mysql.h>
 
+#define QMYSQL_DRIVER_NAME "QMYSQL"
+
+
 class QMySQLPrivate
 {
 public:
@@ -19,7 +22,7 @@ public:
 
 QSqlError qMakeError( const QString& err, int type, const QMySQLPrivate* p )
 {
-    return QSqlError("QMySQL: " + err, QString(mysql_error( p->mysql )), type);
+    return QSqlError(QMYSQL_DRIVER_NAME ": " + err, QString(mysql_error( p->mysql )), type);
 }
 
 QVariant::Type qDecodeMYSQLType( int mysqltype )
@@ -205,8 +208,9 @@ QSqlFieldList QMySQLResult::fields()
 		    break;
 		count++;
 	    }
-	}
+	} 
     }
+    mysql_field_seek( d->result, 0 );
     return fil;
 }
 
@@ -223,7 +227,7 @@ int QMySQLResult::affectedRows()
 /////////////////////////////////////////////////////////
 
 QMySQLDriver::QMySQLDriver( QObject * parent, const char * name )
-: QSqlDriver(parent, name ? name : "QMySQL")
+: QSqlDriver(parent, name ? name : QMYSQL_DRIVER_NAME)
 {
     init();
 }
