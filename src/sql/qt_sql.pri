@@ -49,7 +49,7 @@ sql {
 		    $$SQL_CPP/qdatabrowser.cpp 
 
 	contains(sql-driver, all ) {
-		sql-driver += psql mysql odbc oci
+		sql-driver += psql mysql odbc oci tds
 	}			
 
 	contains(sql-driver, psql) {
@@ -97,6 +97,18 @@ sql {
 		}
 		win32 {
 			LIBS += oci.lib
+		}
+	}
+
+	contains(sql-driver, tds) {
+		HEADERS += $$SQL_H/drivers/tds/qsql_tds.h
+		SOURCES += $$SQL_CPP/drivers/tds/qsql_tds.cpp
+		DEFINES += QT_SQL_TDS
+		unix {
+			LIBS += -L$SYBASE/lib -lsybdb
+		}
+		win32 {
+			LIBS += NTWDBLIB.LIB
 		}
 	}
 
