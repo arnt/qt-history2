@@ -87,5 +87,6 @@ void MainWindow::insertCharacter(const QString &character)
 
 void MainWindow::updateClipboard()
 {
-    clipboard->setText(lineEdit->text());
+    clipboard->setText(lineEdit->text(), QClipboard::Clipboard);
+    clipboard->setText(lineEdit->text(), QClipboard::Selection);
 }
