@@ -180,7 +180,6 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 	setFixedHeight(22);
 	reparent( parent, WType_Dialog | WStyle_Customize | WStyle_NoBorder,
 		  QPoint(0, 0) );
-#define TOP_LEVEL_MENUBAR
     }
 #endif
 
@@ -232,7 +231,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     setFrameStyle( QFrame::MenuBarPanel );
     setBackgroundMode( PaletteButton );
 
-#ifdef TOP_LEVEL_MENUBAR
+#if defined(QMAC_QMENUBAR_TOPLEVEL)
     show();
 #endif
 }
