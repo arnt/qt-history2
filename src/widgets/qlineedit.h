@@ -139,7 +139,7 @@ public slots:
     void copy() const;
     void paste();
 #endif
-    
+
 signals:
     void textChanged( const QString &);
     void returnPressed();
@@ -170,7 +170,8 @@ private slots:
 #ifndef QT_NO_DRAGANDDROP
     void doDrag();
 #endif
-
+    void dragSlot();
+    
 private:
     void init();
     void blinkOn();

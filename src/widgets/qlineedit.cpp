@@ -55,8 +55,8 @@
 
 struct UndoRedoInfo {
     enum Type { Invalid, Insert, Delete, Backspace, RemoveSelected };
-    UndoRedoInfo( QTextParag *p ) : type( Invalid ), parag( p ) { 
-	text = QString::null; index = -1; 
+    UndoRedoInfo( QTextParag *p ) : type( Invalid ), parag( p ) {
+	text = QString::null; index = -1;
     }
     void clear() {
 	if ( valid() ) {
@@ -90,12 +90,8 @@ struct QLineEditPrivate {
 	blinkTimer( l, "QLineEdit blink timer" ),
 	dndTimer( l, "DnD Timer" ),
 	parag( new QTextParag( 0, 0, 0, FALSE ) ),
+	dragTimer( l, "QLineEdit drag timer" ),
 	undoRedoInfo( parag )
-#if 0
-    dragTimer( l, "QLineEdit drag timer" ),
-	inDoubleClick( FALSE ), offsetDirty( FALSE ),
-	undo(TRUE), needundo( FALSE ), ignoreUndoWithDel( FALSE ),
-#endif
     {
 	parag->formatter()->setWrapEnabled( FALSE );
 	cursor = new QTextCursor( 0 );
@@ -177,16 +173,10 @@ struct QLineEditPrivate {
     QTextParag *parag;
     QTextCursor *cursor;
     QPoint dnd_startpos;
-#if 0
     QTimer dragTimer;
-    QRect cursorRepaintRect;
-    bool offsetDirty;
-    bool undo;
-    bool needundo;
-    bool ignoreUndoWithDel;
-#endif
     UndoRedoInfo undoRedoInfo;
-
+    QPoint lastMovePos;
+    
 };
 
 
@@ -306,6 +296,8 @@ void QLineEdit::init()
     d = new QLineEditPrivate( this );
     connect( &d->blinkTimer, SIGNAL(timeout()),
 	     this, SLOT(blinkSlot()) );
+    connect( &d->dragTimer, SIGNAL(timeout()),
+	     this, SLOT(dragSlot()) );
 
 #ifndef QT_NO_DRAGANDDROP
     connect( &d->dndTimer, SIGNAL(timeout()),
@@ -545,7 +537,6 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 #endif
 	case Key_D:
 	    if ( !d->readonly ) {
-// 		d->ignoreUndoWithDel = ignoreUndoWithDel;
 		del();
 	    }
 	    break;
@@ -557,7 +548,6 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    break;
 	case Key_H:
 	    if ( !d->readonly ) {
-// 		d->ignoreUndoWithDel = ignoreUndoWithDel;
 		backspace();
 	    }
 	    break;
@@ -693,7 +683,7 @@ void QLineEdit::focusOutEvent( QFocusEvent * e )
     if ( e->reason() != QFocusEvent::ActiveWindow
 	 && e->reason() != QFocusEvent::Popup )
 	deselect();
-    //d->dragTimer.stop();
+    d->dragTimer.stop();
     if ( d->cursorOn )
 	blinkSlot();
     update();
@@ -826,7 +816,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
  	popup->setItemEnabled( id[ IdUndo ],
  				  !d->readonly && d->parag->commands()->isUndoAvailable() );
  	popup->setItemEnabled( id[ IdRedo ],
- 				  !d->readonly && d->parag->commands()->isUndoAvailable() );
+ 				  !d->readonly && d->parag->commands()->isRedoAvailable() );
 #ifndef QT_NO_CLIPBOARD
 	popup->setItemEnabled( id[ IdCut ],
 				  !d->readonly && hasMarkedText() );
@@ -937,7 +927,14 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
     if ( !(e->state() & LeftButton) )
 	return;
 
-    QPoint p( e->pos().x() + d->offset - 2 - style().defaultFrameWidth(), 0 );
+    d->dragTimer.stop();
+    d->lastMovePos = e->pos();
+    dragSlot();
+}
+
+void QLineEdit::dragSlot()
+{
+    QPoint p( d->lastMovePos.x() + d->offset - 2 - style().defaultFrameWidth(), 0 );
     QTextParag *par;
     QTextCursor *c;
     d->getTextObjects(&par, &c);
@@ -945,6 +942,8 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
     d->releaseTextObjects( &par, &c );
     updateSelection();
     update();
+    if ( d->lastMovePos.x() < 0 || d->lastMovePos.x() > width() )
+	d->dragTimer.start( 100, TRUE );
 }
 
 /*!\reimp
@@ -952,6 +951,7 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 {
     d->dnd_primed = FALSE;
+    d->dragTimer.stop();
     if ( d->dndTimer.isActive() ) {
 	d->dndTimer.stop();
 	QPoint p( e->pos().x() + d->offset - 2 - style().defaultFrameWidth(), 0 );
