@@ -1078,13 +1078,12 @@ bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
 	return def;
     }
 
-    QString theKey = groupKey( group(), key );
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     if ( d->sysd )
-	return d->sysReadBoolEntry( theKey, def, ok );
+	return d->sysReadBoolEntry( groupKey( group(), key ), def, ok );
 #endif
 
-    QString value = readEntry( theKey, ( def ? "true" : "false" ), ok );
+    QString value = readEntry( key, ( def ? "true" : "false" ), ok );
 
     if (value.lower() == "true")
 	return TRUE;
@@ -1130,13 +1129,12 @@ double QSettings::readDoubleEntry(const QString &key, double def, bool *ok )
 	return def;
     }
 
-    QString theKey = groupKey( group(), key );
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     if ( d->sysd )
-	return d->sysReadDoubleEntry( theKey, def, ok );
+	return d->sysReadDoubleEntry( groupKey( group(), key ), def, ok );
 #endif
 
-    QString value = readEntry( theKey, QString::number(def), ok );
+    QString value = readEntry( key, QString::number(def), ok );
     bool conv_ok;
     double retval = value.toDouble( &conv_ok );
     if ( conv_ok )
@@ -1175,14 +1173,12 @@ int QSettings::readNumEntry(const QString &key, int def, bool *ok )
 	return def;
     }
 
-    QString theKey = groupKey( group(), key );
-
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     if ( d->sysd )
-	return d->sysReadNumEntry( theKey, def, ok );
+	return d->sysReadNumEntry( groupKey( group(), key ), def, ok );
 #endif
 
-    QString value = readEntry( theKey, QString::number( def ), ok );
+    QString value = readEntry( key, QString::number( def ), ok );
     bool conv_ok;
     int retval = value.toInt( &conv_ok );
     if ( conv_ok )
@@ -1297,14 +1293,12 @@ bool QSettings::writeEntry(const QString &key, bool value)
 	return FALSE;
     }
 
-    QString theKey = groupKey( group(), key );
-
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     if ( d->sysd )
-	return d->sysWriteEntry( theKey, value );
+	return d->sysWriteEntry( groupKey( group(), key ), value );
 #endif
     QString s(value ? "true" : "false");
-    return writeEntry(theKey, s);
+    return writeEntry(key, s);
 }
 #endif
 
@@ -1329,14 +1323,12 @@ bool QSettings::writeEntry(const QString &key, double value)
 	return FALSE;
     }
 
-    QString theKey = groupKey( group(), key );
-
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     if ( d->sysd )
-	return d->sysWriteEntry( theKey, value );
+	return d->sysWriteEntry( groupKey( group(), key ), value );
 #endif
     QString s(QString::number(value));
-    return writeEntry(theKey, s);
+    return writeEntry(key, s);
 }
 
 
@@ -1360,14 +1352,12 @@ bool QSettings::writeEntry(const QString &key, int value)
 	return FALSE;
     }
 
-    QString theKey = groupKey( group(), key );
-
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     if ( d->sysd )
-	return d->sysWriteEntry( theKey, value );
+	return d->sysWriteEntry( groupKey( group(), key ), value );
 #endif
     QString s(QString::number(value));
-    return writeEntry(theKey, s);
+    return writeEntry(key, s);
 }
 
 
@@ -1396,9 +1386,7 @@ bool QSettings::writeEntry(const QString &key, const char *value)
 	return FALSE;
     }
 
-    QString theKey = groupKey( group(), key );
-
-    return writeEntry(theKey, QString(value));
+    return writeEntry(key, QString(value));
 }
 
 
