@@ -167,20 +167,32 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
     int highest = 0;
     if ( ! ( flags & ExcludeSocketNotifiers ) ) {
 	// return the highest fd we can wait for input on
-	if ( d->sn_highest >= 0 ) {			// has socket notifier(s)
+	if ( d->sn_highest >= 0 ) {                     // has socket notifier(s)
 	    if ( d->sn_vec[0].list && ! d->sn_vec[0].list->isEmpty() )
 		d->sn_vec[0].select_fds = d->sn_vec[0].enabled_fds;
 	    else
 		FD_ZERO( &d->sn_vec[0].select_fds );
+
 	    if ( d->sn_vec[1].list && ! d->sn_vec[1].list->isEmpty() )
 		d->sn_vec[1].select_fds = d->sn_vec[1].enabled_fds;
+	    else
+		FD_ZERO( &d->sn_vec[1].select_fds );
+
 	    if ( d->sn_vec[2].list && ! d->sn_vec[2].list->isEmpty() )
 		d->sn_vec[2].select_fds = d->sn_vec[2].enabled_fds;
+	    else
+		FD_ZERO( &d->sn_vec[2].select_fds );
 	} else {
 	    FD_ZERO( &d->sn_vec[0].select_fds );
+	    FD_ZERO( &d->sn_vec[1].select_fds );
+	    FD_ZERO( &d->sn_vec[2].select_fds );
 	}
 
 	highest = d->sn_highest;
+    } else {
+	FD_ZERO( &d->sn_vec[0].select_fds );
+	FD_ZERO( &d->sn_vec[1].select_fds );
+	FD_ZERO( &d->sn_vec[2].select_fds );
     }
 
     FD_SET( d->thread_pipe[0], &d->sn_vec[0].select_fds );
@@ -204,22 +216,9 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
     int nsel;
     nsel = select( highest + 1,
 		   &d->sn_vec[0].select_fds,
-		   d->sn_vec[1].list ? &d->sn_vec[1].select_fds : 0,
-		   d->sn_vec[2].list ? &d->sn_vec[2].select_fds : 0,
+		   &d->sn_vec[1].select_fds,
+		   &d->sn_vec[2].select_fds,
 		   tm );
-
-    if ( nsel == -1 ) {
-	if ( errno == EINTR || errno == EAGAIN ) {
-	    errno = 0;
-	    return (nevents > 0);
-	} else {
-	    qDebug( "QEventLoop::processNextEvent: select error" );
-	    perror( "select" );
-	    ; // select error
-	}
-    }
-
-#undef FDCAST
 
     // relock the GUI mutex before processing any pending events
 #if defined(QT_THREAD_SUPPORT)
@@ -229,6 +228,14 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
     // we are awake, broadcast it
     emit awake();
     emit qApp->guiThreadAwake();
+
+    if ( nsel == -1 ) {
+	if ( errno != EINTR && errno != EAGAIN )
+	    perror( "select" );
+	return (nevents > 0);
+    }
+
+#undef FDCAST
 
     // some other thread woke us up... consume the data on the thread pipe so that
     // select doesn't immediately return next time
