@@ -1655,7 +1655,7 @@ void TrWindow::printPhraseBook( int id )
 		statusBar()->message( tr("Printing... (page %1)")
 				      .arg(pageNum) );
 	    }
-	    pout.setRule( PrintOut::ThinRule );
+	    pout.setRule( PrintOut::NoRule );
 	    pout.flushLine( TRUE );
 	}
 	pout.flushLine( TRUE );

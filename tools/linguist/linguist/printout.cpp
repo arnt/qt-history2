@@ -23,9 +23,10 @@ PrintOut::PrintOut( QPrinter *printer )
     : pr( printer ), pdmetrics( printer ), nextRule( NoRule ), page( 0 )
 {
     p.begin( pr );
-    f8 = p.font();
+    QFont f( "Arial" );
+    f8 = f;
     f8.setPointSize( 8 );
-    f10 = p.font();
+    f10 = f;
     f10.setPointSize( 10 );
     p.setFont( f10 );
     fmetrics = new QFontMetrics( p.fontMetrics() );
