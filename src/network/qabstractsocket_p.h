@@ -34,7 +34,7 @@ public:
     QSocketNotifier *readSocketNotifier;
     QSocketNotifier *writeSocketNotifier;
 
-    void close();
+    void resetSocketLayer();
     void flush();
 
     bool initSocketLayer(Qt::SocketType socketType, Qt::NetworkLayerProtocol protocol);

@@ -52,7 +52,7 @@ class QM_EXPORT_NETWORK QAbstractSocket : public QObject, public QIODevice
 {
     Q_OBJECT
 public:
-    QAbstractSocket(QObject *parent);
+    QAbstractSocket(Qt::SocketType socketType, QObject *parent);
     virtual ~QAbstractSocket();
 
     virtual bool connectToHost(const QString &hostName, Q_UINT16 port);
@@ -65,7 +65,7 @@ public:
 
     virtual Q_LLONG bytesAvailable() const;
     virtual Q_LLONG bytesToWrite() const;
-    
+
     virtual bool canReadLine() const;
     virtual QByteArray readLine();
 
@@ -117,11 +117,13 @@ signals:
     void closing();
     void closed();
     void readyRead();
+    void stateChanged(int);
     void bytesWritten(Q_LLONG nbytes);
     void error(int);
 
 protected:
-    QAbstractSocket(QAbstractSocketPrivate &p, QObject *parent);
+    QAbstractSocket(Qt::SocketType socketType,
+                    QAbstractSocketPrivate &p, QObject *parent);
 
     QAbstractSocketPrivate *d_ptr;
 
