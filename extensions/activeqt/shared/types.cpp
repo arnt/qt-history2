@@ -434,9 +434,13 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &res, const QUParameter *pa
     }
 
     bool ok = QVariantToVARIANT( variant, res, vartypename );
-    // short* is common in OLE controls, and cannot be coerced from int*
-    if (variant.type() == QVariant::Int && param->typeExtra == (void*)2)
-	res.vt = VT_I2;
+    // short* and char* are common in OLE controls, and cannot be coerced from int*
+    if (variant.type() == QVariant::Int) {
+	if (param->typeExtra == (void*)2)
+	    res.vt = VT_I2;
+	else if (param->typeExtra == (void*)1)
+	    res.vt = VT_I1;
+    }
     bool byref = param && ( param->inOut & QUParameter::Out );
     if ( byref ) {
 	if ( !ok && !qstrcmp(vartypename, "QVariant" ) ) {
@@ -1301,10 +1305,13 @@ bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
     // map the QUObject's type to the VARIANT
     if ( QUType::isEqual( obj->type, &static_QUType_int ) ) {
 	if ( byref && ( arg.vt == (VT_I4|VT_BYREF) ) ) {
-	    // short* is common in OLE controls, and cannot be coerced from int*
+	    // short* and char* are common in OLE controls, and cannot be coerced from int*
 	    if (param->typeExtra == (void*)2) {
 		arg.vt = VT_I2|VT_BYREF;
-		*arg.piVal = static_QUType_int.get( obj );		
+		*arg.piVal = static_QUType_int.get( obj );
+	    } else if (param->typeExtra == (void*)1) {
+		arg.vt = VT_I1|VT_BYREF;
+		*arg.pbVal = static_QUType_int.get( obj );
 	    } else {
 		*arg.plVal = static_QUType_int.get( obj );
 	    }
