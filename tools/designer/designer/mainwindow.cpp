@@ -538,7 +538,8 @@ void MainWindow::setupToolActions()
 
     for ( int i = 0; i < WidgetDatabase::numWidgetGroups(); ++i ) {
 	QString grp = WidgetDatabase::widgetGroup( i );
-	if ( !WidgetDatabase::isGroupVisible( grp ) )
+	if ( !WidgetDatabase::isGroupVisible( grp ) ||
+	     WidgetDatabase::isGroupEmpty( grp ) )
 	    continue;
 #if defined(HAVE_KDE)
 	KToolBar *tb = new KToolBar( this, grp.latin1() );

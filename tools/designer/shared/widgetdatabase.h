@@ -66,6 +66,7 @@ public:
     static QString widgetGroup( int i );
     static int numWidgetGroups();
     static bool isGroupVisible( const QString &g );
+    static bool isGroupEmpty( const QString &grp );
 
     static int addCustomWidget( WidgetDatabaseRecord *r );
     static bool isCustomWidget( int id );
@@ -73,6 +74,8 @@ public:
     static bool isWhatsThisLoaded();
     static void loadWhatsThis( const QString &docPath );
 
+    static bool hasWidget( const QString &name );
+    
 };
 
 #endif

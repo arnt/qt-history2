@@ -403,6 +403,8 @@ void WidgetDatabase::setupDataBase()
 
     QStringList widgets = widgetManager()->featureList();
     for ( QStringList::Iterator it = widgets.begin(); it != widgets.end(); ++it ) {
+	if ( hasWidget( *it ) )
+	    continue;
 	r = new WidgetDatabaseRecord;
 	r->iconSet = widgetManager()->iconSet( *it );
 	r->group = widgetGroup( widgetManager()->group( *it ) );
@@ -565,6 +567,11 @@ int WidgetDatabase::idFromClassName( const QString &name )
     return -1;
 }
 
+bool WidgetDatabase::hasWidget( const QString &name )
+{
+    return className2Id->find( name ) != 0;
+}
+
 WidgetDatabaseRecord *WidgetDatabase::at( int index )
 {
     if ( index < 0 )
@@ -596,6 +603,18 @@ QString WidgetDatabase::widgetGroup( const QString &g )
     if ( wGroups->find( g ) == -1 )
 	wGroups->append( g );
     return g;
+}
+
+bool WidgetDatabase::isGroupEmpty( const QString &grp )
+{
+    WidgetDatabaseRecord *r = 0;
+    for ( int i = 0; i < dbcount; ++i ) {
+	if ( !( r = db[ i ] ) )
+	    continue;
+	if ( r->group == grp )
+	    return FALSE;
+    }
+    return TRUE;
 }
 
 QString WidgetDatabase::widgetGroup( int i )
