@@ -36,6 +36,7 @@
 #include "qtextobject.h"
 #include "qtextoption.h"
 #include "qtextdocument_p.h"
+#include "qset.h"
 
 #include <stdlib.h>
 #ifndef Q_OS_TEMP
@@ -355,6 +356,8 @@ public:
         QList<QTextLayout::FormatOverride> overrides;
     };
     SpecialData *specialData;
+
+    QSet<QChar> wordSeparators;
 private:
     void setBoundary(int strPos) const;
     void addRequiredBoundaries() const;

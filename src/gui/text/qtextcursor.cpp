@@ -281,11 +281,15 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
         break;
     }
     case QTextCursor::StartOfWord: {
-        const QCharAttributes *attributes = layout->engine()->attributes();
+        QTextEngine *engine = layout->engine();
+        const QCharAttributes *attributes = engine->attributes();
+        const QString string = engine->layoutData->string;
 
         if (relativePos == 0)
             return false;
-        while (relativePos > 0 && !attributes[relativePos].wordStop && !attributes[relativePos - 1].whiteSpace)
+        while (relativePos > 0 && !attributes[relativePos].wordStop 
+               && !attributes[relativePos - 1].whiteSpace
+               && !engine->wordSeparators.contains(string.at(relativePos - 1)))
             relativePos--;
 
         newPosition = blockIt.position() + relativePos;
@@ -359,13 +363,17 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
         break;
     }
     case QTextCursor::EndOfWord: {
-        const QCharAttributes *attributes = layout->engine()->attributes();
+        QTextEngine *engine = layout->engine();
+        const QCharAttributes *attributes = engine->attributes();
+        const QString string = engine->layoutData->string;
 
         const int len = layout->engine()->layoutData->string.length();
         if (relativePos >= len)
             return false;
         relativePos++;
-        while (relativePos < len && !attributes[relativePos].wordStop && !attributes[relativePos].whiteSpace)
+        while (relativePos < len && !attributes[relativePos].wordStop 
+               && !attributes[relativePos].whiteSpace
+               && !engine->wordSeparators.contains(string.at(relativePos)))
             relativePos++;
 
         newPosition = blockIt.position() + relativePos;
