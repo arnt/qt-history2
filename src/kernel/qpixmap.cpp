@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#76 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#77 $
 **
 ** Implementation of QPixmap class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#76 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#77 $");
 
 
 /*!
@@ -315,7 +315,7 @@ QPixmap &QPixmap::operator=( const QImage &image )
 */
 
 /*!
-  \overload void QPixmap::fill( const QWidget *widget, const QPoint &ofs )
+  \overload void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
 */
 
 void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
