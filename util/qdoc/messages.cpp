@@ -142,7 +142,6 @@ void warning( int level, const char *message, ... )
     vfprintf( stderr, message, ap );
     fprintf( stderr, "\n" );
     va_end( ap );
-*(char *) 0 = 0; // ###
 }
 
 void syswarning( const char *message, ... )
