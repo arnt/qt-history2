@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#48 $
 **
 ** Implementation of QWidget class
 **
@@ -22,7 +22,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#47 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#48 $";
 #endif
 
 /*!
@@ -268,8 +268,12 @@ Only \c MotifStyle is allowed in this version of Qt.
 
 void QWidget::setStyle( GUIStyle gs )		// set widget GUI style
 {
-    if ( gs != MotifStyle )
+#if defined(LINUX_RESTRICTED)
+    if ( s != MotifStyle ) {
+	warning( "QWidget::setStyle: Only Motif style is supported" );
 	return;
+    }
+#endif
     createExtra();
     extra->guistyle = gs;
 }
