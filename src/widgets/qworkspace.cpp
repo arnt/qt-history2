@@ -420,6 +420,7 @@ private:
     QToolButton* iconB;
     QToolButton* shadeB;
     QWorkspaceChildTitleLabel* titleL;
+    QTimer* dblCloseTimer;
     QLabel* iconL;
     int titleHeight;
     int border;
@@ -429,7 +430,12 @@ private:
     QWidget* window;
     bool imode;
     bool act;
+    bool maybeDoubleClick;
+
     QString text;
+
+private slots:
+    void stopDblCloseTimer();
 };
 
 
@@ -1011,6 +1017,8 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 		if ( c->isShaded() )
 		    c->showShaded();
 	    }
+	} else if ( o->inherits("QWorkspaceChild") ) {
+	    d->popup->hide();
 	}
 	break;
     default:
@@ -1390,6 +1398,7 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* win, Q
     workspace = w;
     window = win;
     buttonDown = FALSE;
+    maybeDoubleClick = FALSE;
     imode = iconMode;
     act = TRUE;
 
@@ -1521,6 +1530,9 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* win, Q
 #endif
     titleL->setFont( f );
     setActive( FALSE );
+
+    dblCloseTimer = new QTimer( this );
+    connect( dblCloseTimer, SIGNAL(timeout()), this, SLOT(stopDblCloseTimer()) );
 }
 
 QWorkspaceChildTitleBar::~QWorkspaceChildTitleBar()
@@ -1581,7 +1593,6 @@ void QWorkspaceChildTitleBar::setIcon( const QPixmap& icon )
     iconL->setPixmap( icon );
 }
 
-
 bool QWorkspaceChildTitleBar::eventFilter( QObject * o, QEvent * e)
 {
     if ( o == titleL ) {
@@ -1610,11 +1621,27 @@ bool QWorkspaceChildTitleBar::eventFilter( QObject * o, QEvent * e)
 	}
     } else if ( o == iconL ) {
 	if ( e->type() == QEvent::MouseButtonPress ) {
-	    emit doActivate();
-	    emit showOperationMenu();
+	    if ( maybeDoubleClick ) {
+		stopDblCloseTimer();
+		emit doClose();
+		return TRUE;
+	    } else {
+		emit doActivate();
+		emit showOperationMenu();
+		iconL->grabMouse();
+		maybeDoubleClick = TRUE;
+		dblCloseTimer->start( qApp->doubleClickInterval() );
+	    }
 	}
     }
     return FALSE;
+}
+
+void QWorkspaceChildTitleBar::stopDblCloseTimer()
+{
+    maybeDoubleClick = FALSE;
+    iconL->releaseMouse();
+    dblCloseTimer->stop();
 }
 
 
@@ -1813,7 +1840,6 @@ void QWorkspaceChild::resizeEvent( QResizeEvent * )
     windowSize = cr.size();
     childWidget->setGeometry( cr );
 }
-
 
 QSize QWorkspaceChild::minimumSizeHint() const
 {
