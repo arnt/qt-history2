@@ -1766,14 +1766,18 @@ void QWidget::setWindowOpacity(double level)
     if (!ptrSetLayeredWindowAttributes)
 	return;
 
-    int wl = GetWindowLongA(winId(), GWL_EXSTYLE);
-    if ((wl&Q_WS_EX_LAYERED) == 0)
-	SetWindowLongA(winId(), GWL_EXSTYLE, Q_WS_EX_LAYERED);
-
     level = qMin(qMax(level, 0), 1.0);
+    int wl = GetWindowLongA(winId(), GWL_EXSTYLE);
+
+    if (level != 1.0) {
+	if ((wl&Q_WS_EX_LAYERED) == 0)
+	    SetWindowLongA(winId(), GWL_EXSTYLE, wl|Q_WS_EX_LAYERED);
+    } else if (wl&Q_WS_EX_LAYERED) {
+	SetWindowLongA(winId(), GWL_EXSTYLE, wl & ~Q_WS_EX_LAYERED);
+    }
+
     (*ptrSetLayeredWindowAttributes)(winId(), 0, (int)(level * 255), Q_LWA_ALPHA);
     d->topData()->opacity = (uchar)(level * 255);
-
 }
 
 double QWidget::windowOpacity() const
