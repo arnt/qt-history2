@@ -1236,8 +1236,10 @@ QTextList *QTextCursor::createList(const QTextListFormat &format)
 /*!
     \overload
 
-    Creates and returns a new list with the given \a style and makes the
-    current paragraph the cursor is in the first list item.
+    Creates and returns a new list with the given \a style, making the
+    cursor's current paragraph the first list item.
+
+    The style to be used is defined by the \c QTextListFormat::Style enum.
 
     \sa insertList() currentList()
  */

@@ -992,7 +992,7 @@ QTextDocument *QTextEdit::document() const
 }
 
 /*!
-    Sets the visible cursor to \a cursor.
+    Sets the visible \a cursor.
 */
 void QTextEdit::setTextCursor(const QTextCursor &cursor)
 {
