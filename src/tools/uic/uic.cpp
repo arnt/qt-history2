@@ -11,10 +11,10 @@
 **
 ****************************************************************************/
 
+#include "uic.h"
+#include "ui4.h"
 #include "driver.h"
 #include "option.h"
-#include "ui4.h"
-#include "uic.h"
 
 // operations
 #include "treewalker.h"
@@ -72,10 +72,10 @@ bool Uic::write(QIODevice *in)
         delete ui;
 
         if (opt.inputFile.isEmpty()) {
-            fprintf(stderr, "impossible to convert a file from the stdin\n");
+            fprintf(stderr, "Impossible to convert a file from the stdin\n");
             return false;
         }
-        //qWarning("converting file '%s'", opt.inputFile.latin1());
+        //qWarning("Converting file '%s'", opt.inputFile.latin1());
         QProcess uic3;
         uic3.start(option().uic3, QStringList() << QLatin1String("-convert") << opt.inputFile);
         if (!uic3.waitForStarted()) {
@@ -109,8 +109,10 @@ bool Uic::write(DomUI *ui)
     if (opt.copyrightHeader)
         writeCopyrightHeader(ui);
 
-    if (opt.headerProtection)
+    if (opt.headerProtection) {
         writeHeaderProtectionStart();
+        out << "\n";
+    }
 
     pixFunction = ui->elementPixmapFunction();
     if (pixFunction == QLatin1String("QPixmap::fromMimeSource"))
@@ -143,13 +145,13 @@ void Uic::writeHeaderProtectionStart()
 {
     QString h = drv->headerFileName();
     out << "#ifndef " << h << "\n"
-        << "#define " << h << "\n\n";
+        << "#define " << h << "\n";
 }
 
 void Uic::writeHeaderProtectionEnd()
 {
     QString h = drv->headerFileName();
-    out << "#endif // " << h << "\n\n";
+    out << "#endif // " << h << "\n";
 }
 
 bool Uic::isMainWindow(const QString &className) const
