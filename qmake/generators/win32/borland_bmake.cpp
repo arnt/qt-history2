@@ -104,7 +104,10 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
 
     if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
 	t << "LINK	=	" << var("QMAKE_LINK") << endl;
-	t << "LFLAGS	=	" << var("QMAKE_LFLAGS") << endl;
+	t << "LFLAGS	=	";
+	if ( !project->variables()["QMAKE_LIBDIR"].isEmpty() )
+	    t << varGlue("QMAKE_LIBDIR","-L"," -L","") << " ";
+	t << var("QMAKE_LFLAGS") << endl;
 	t << "LIBS	=	" << var("QMAKE_LIBS") << endl;
     }
     else {

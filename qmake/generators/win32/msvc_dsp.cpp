@@ -694,6 +694,8 @@ DspMakefileGenerator::init()
     project->variables()["MSVCDSP_LIBS"] += project->variables()["QMAKE_LIBS"];
     project->variables()["MSVCDSP_LIBS"] += project->variables()["QMAKE_LIBS_WINDOWS"];
     project->variables()["MSVCDSP_LFLAGS" ] += project->variables()["QMAKE_LFLAGS"];
+    if ( !project->variables()["QMAKE_LIBDIR"].isEmpty() )
+	project->variables()["MSVCDSP_LFLAGS" ].append(varGlue("QMAKE_LIBDIR","/LIBPATH:\"","\" /LIBPATH:\"","\""));
     project->variables()["MSVCDSP_CXXFLAGS" ] += project->variables()["QMAKE_CXXFLAGS"];
     project->variables()["MSVCDSP_DEFINES"].append(varGlue("DEFINES","/D ","" " /D ",""));
     project->variables()["MSVCDSP_DEFINES"].append(varGlue("PRL_EXPORT_DEFINES","/D ","" " /D ",""));
