@@ -291,10 +291,8 @@
 /* Compilers with EDG front end are similar. To detect them we test:
    __EDG documented by SGI, observed on MIPSpro 7.3.1.1 and KAI C++ 4.0b
    __EDG__ documented in EDG online docs, observed on Compaq C++ V6.3-002 */
-#elif defined(__EDG) || defined(__EDG__) || defined(Q_CC_EDG)
-#  if !defined(Q_CC_EDG)
-#    define Q_CC_EDG
-#  endif
+#elif defined(__EDG) || defined(__EDG__)
+#  define Q_CC_EDG
 /* Compaq have disabled EDG's _BOOL macro - observed on Compaq C++ V6.3-002. */
 #  if defined(__DECCXX)
 #    define Q_CC_DEC
