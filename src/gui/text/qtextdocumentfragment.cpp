@@ -64,9 +64,7 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
     if (!cursor.hasSelection())
         return;
 
-    const QTextPieceTable *p = cursor.d->pieceTable;
-    pieceTable = const_cast<QTextPieceTable *>(p);
-    Q_ASSERT(pieceTable);
+    QTextPieceTablePointer pieceTable = cursor.d->pieceTable;
 
     const int startPos = cursor.selectionStart();
     const int endPos = cursor.selectionEnd();
@@ -79,10 +77,10 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
     QList<int> usedFormats;
 
     int pos = startPos;
-    QTextBlockIterator currentBlock = p->blocksFind(pos);
+    QTextBlockIterator currentBlock = pieceTable->blocksFind(pos);
     int charsLeftInCurrentBlock = qMin(currentBlock.length() - 1, endPos - pos);
 
-    QTextPieceTable::FragmentIterator fragIt = p->find(pos);
+    QTextPieceTable::FragmentIterator fragIt = pieceTable->find(pos);
 
     while (pos < endPos) {
         const QTextFragment *frag = fragIt.value();
@@ -175,8 +173,6 @@ QTextDocumentFragmentPrivate &QTextDocumentFragmentPrivate::operator=(const QTex
     x = qAtomicSetPtr(&localFormatCollection, x);
     if (x && !--x->ref)
         delete x;
-
-    pieceTable = rhs.pieceTable;
 
     return *this;
 }

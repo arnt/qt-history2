@@ -79,8 +79,6 @@ public:
 
     QString localBuffer;
     QTextFormatCollection *localFormatCollection;
-
-    QPointer<QTextPieceTable> pieceTable;
 };
 
 inline QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragmentPrivate::TextFragment &fragment)
