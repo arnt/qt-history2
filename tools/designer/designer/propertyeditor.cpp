@@ -2812,8 +2812,7 @@ void PropertyList::setupProperties()
 		continue;
 	}
 
-
-	if ( p->designable(w) ) {
+	if ( p->designable(w) || w->isA("PropertyObject") ) {
 	    if ( p->isSetType() ) {
 		if ( QString( p->name() ) == "alignment" ) {
 		    QStringList lst;
@@ -2874,6 +2873,7 @@ void PropertyList::setupProperties()
 		item->setChanged( TRUE, FALSE );
 	}
     }
+    
     if ( !w->inherits( "QSplitter" ) && !w->inherits( "QDesignerMenuBar" ) && !w->inherits( "QDesignerToolBar" ) &&
 	 w->isWidgetType() && WidgetFactory::layoutType( (QWidget*)w ) != WidgetFactory::NoLayout ) {
 	item = new PropertyLayoutItem( this, item, 0, "layoutSpacing" );
@@ -2891,7 +2891,6 @@ void PropertyList::setupProperties()
 	else
 	    layoutInitValue( item );
     }
-
 
     if ( !w->inherits( "Spacer" ) && !w->inherits( "QLayoutWidget" ) && !w->inherits( "QAction" ) &&
 	 !w->inherits( "QDesignerMenuBar" ) && !w->inherits( "QDesignerToolBar" ) ) {

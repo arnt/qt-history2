@@ -42,27 +42,27 @@ PropertyObject::PropertyObject( const QWidgetList &objs )
 	v.insert( v.count(), mol );
     }
 
-    int i = 0;
     int numObjects = objects.count();
-    while ( TRUE ) {
-	bool same = FALSE;
-	const QMetaObject *m = 0;
-	for ( int j = 0; j < numObjects; ++j ) {
-	    if ( i >= (int)v[j]->count() || j > 0 && v[j]->at( i ) != m ) {
-		same = FALSE;
-		break;
-	    } else {
-		m = v[j]->at( i );
-		same = TRUE;
-	    }
-	}
-	if ( same )
-	    mobj = m;
-	else
-	    break;
-	++i;
+    int minDepth = v[0]->count();
+    int depth = minDepth;
+
+    for ( int i = 0; i < numObjects; ++i ) {
+	depth = (int)v[i]->count();
+	if ( depth < minDepth )
+	    minDepth = depth;
     }
 
+    const QMetaObject *m = v[0]->at( --minDepth );
+    
+    for ( int j = 0; j < numObjects; ++j ) {
+	if ( v[j]->at( minDepth ) != m ) {
+	    m = v[0]->at( --minDepth );
+	    j = 0;
+	}
+    }
+
+    mobj = m;
+    
     Q_ASSERT( mobj );
 }
 
