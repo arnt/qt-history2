@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 1.5 1995/08/10 15:20:07 agulbra Exp $
+** $Id: misc.doc,v 1.6 1995/08/10 15:27:20 agulbra Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 1.5 1995/08/10 15:20:07 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 1.6 1995/08/10 15:27:20 agulbra Exp $";
 #endif
 
 /*! \page license.html
@@ -398,7 +398,6 @@ power, and I was ready to make the switch.
 Netscape from my hard drive and made me use Lynx.  Thanks to her,
 I'm here today and I'm ready to walk the long road back to
 content delivery."
-</blockquote>
+</blink></blockquote>
 Amen!
-</blink>
 */
