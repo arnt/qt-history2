@@ -1,6 +1,9 @@
 Qt/Embedded Virtual Framebuffer
 ===============================
 
+Please note that the qvfb program needs to be compiled with the X11 version
+of Qt.
+
 The virtual frame buffer allows a Qt/Embedded program to be developed on your
 desktop machine, without switching between consoles and X11.  The virtual
 framebuffer consists of a shared memory region (the virtual frame buffer)
