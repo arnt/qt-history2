@@ -654,6 +654,9 @@ void WidgetBoxTreeView::removeCurrentItem()
     } else {
         parent->takeChild(parent->indexOfChild(item));
         setItemExpanded(parent, true);
+        if (parent->data(0, Qt::UserRole).toInt() == SCRATCHPAD_ITEM
+                && parent->childCount() == 0)
+            delete takeTopLevelItem(indexOfTopLevelItem(parent));
     }
     delete item;
 
@@ -721,6 +724,8 @@ void WidgetBoxTreeView::contextMenuEvent(QContextMenuEvent *e)
 
 void WidgetBoxTreeView::dropWidgets(const QList<AbstractDnDItem*> &item_list)
 {
+    QTreeWidgetItem *last_item = 0;
+
     foreach (AbstractDnDItem *item, item_list) {
         QWidget *w = item->widget();
         if (w == 0)
@@ -739,11 +744,16 @@ void WidgetBoxTreeView::dropWidgets(const QList<AbstractDnDItem*> &item_list)
                                     .firstChildElement(QLatin1String("widget"))
                                     .firstChildElement(QLatin1String("widget")));
 
-        widgetToItem(Widget(w->objectName(), xml), scratch_item, true);
+        last_item = widgetToItem(Widget(w->objectName(), xml), scratch_item, true);
         setItemExpanded(scratch_item, true);
     }
 
-    save();
+    if (last_item != 0) {
+        save();
+        setCurrentItem(last_item);
+        ensureItemVisible(last_item);
+        editCurrentItem();
+    }
 }
 
 /*******************************************************************************
