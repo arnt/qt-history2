@@ -136,7 +136,7 @@ public:
     { return a->x() < b->x(); }
 };
 
-class QT_SHARED_EXPORT VerticalLayoutList: public QList<QWidget*>
+class VerticalLayoutList: public QList<QWidget*>
 {
 public:
     VerticalLayoutList(const QList<QWidget*> &l)
@@ -149,7 +149,7 @@ public:
     { qSort(this->begin(), this->end(), WidgetVerticalSorter()); }
 };
 
-class QT_SHARED_EXPORT HorizontalLayoutList : public QList<QWidget*>
+class HorizontalLayoutList : public QList<QWidget*>
 {
 public:
     HorizontalLayoutList(const QList<QWidget*> &l)
