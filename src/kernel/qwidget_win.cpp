@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#161 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#162 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -127,7 +127,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	topLevel = FALSE; // #### needed for some IE plugins??
     } else if ( popup ) {
 	style = WS_POPUP;
-    } 
+    }
     else if (topLevel && !desktop ) {
 	if ( testWFlags(WStyle_Customize) ) {
 	    if ( testWFlags(WStyle_NormalBorder|WStyle_DialogBorder) == 0 ) {
@@ -149,7 +149,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	if ( topLevel ) {
 	    if ( testWFlags(WStyle_NormalBorder) )
 		style |= WS_THICKFRAME;
-	    else if ( testWFlags(WStyle_DialogBorder) ) 
+	    else if ( testWFlags(WStyle_DialogBorder) )
 		style |= WS_THICKFRAME;
 	    if ( testWFlags(WStyle_Title) )
 		style |= WS_CAPTION;
@@ -441,13 +441,11 @@ extern void qt_set_cursor( QWidget *, const QCursor & ); // qapplication_win.cpp
 
 void QWidget::setCursor( const QCursor &cursor )
 {
-    if ( cursor.handle() == arrowCursor.handle()
-	 && (!extra || !extra->curs) ) {
-	setWFlags( WState_OwnCursor );
-	return;
+    if ( cursor.handle() != arrowCursor.handle()
+	 || (extra && extra->curs) ) {
+	createExtra();
+	extra->curs = new QCursor(cursor);
     }
-    createExtra();
-    extra->curs = new QCursor(cursor);
     setWFlags( WState_OwnCursor );
     qt_set_cursor( this, QWidget::cursor() );
 }

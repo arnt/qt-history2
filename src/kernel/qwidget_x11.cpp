@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#307 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#308 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -593,14 +593,12 @@ void QWidget::setBackgroundEmpty()
 
 void QWidget::setCursor( const QCursor &cursor )
 {
-    if ( cursor.handle() == arrowCursor.handle()
-	 && (!extra || !extra->curs) ) {
-	setWFlags( WState_OwnCursor );
-	return;
+    if ( cursor.handle() != arrowCursor.handle()
+	 || (extra && extra->curs) ) {
+	createExtra();
+	extra->curs = new QCursor(cursor);
     }
     setWFlags( WState_OwnCursor );
-    createExtra();
-    extra->curs = new QCursor(cursor);
     QCursor *oc = QApplication::overrideCursor();
     XDefineCursor( dpy, winid, oc ? oc->handle() : cursor.handle() );
     XFlush( dpy );
