@@ -30,12 +30,4 @@ compiler, or at least that this is the case for the parts which
 need migration.
 \endlist
 
-\section1 Known Bugs and Problems
-
-\list
-\i This documentation is incomplete and unfinished.
-\i QMotifDialog is not completely implemented.
-\i QMotifWidget is not tested with an Xt/Motif widget inside a QMainWindow.
-\endlist
-
 */
