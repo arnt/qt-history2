@@ -154,8 +154,8 @@ kernel {
              DEFINES += ONE_PIXEL_LOCK
         }
 
+	!mac:unix:SOURCES += $$KERNEL_CPP/qprinter_unix.cpp
 	unix:SOURCES += $$KERNEL_CPP/qpsprinter.cpp \
-		    $$KERNEL_CPP/qprinter_unix.cpp \
 		    $$KERNEL_CPP/qprocess_unix.cpp \
 		    $$KERNEL_CPP/qthread_unix.cpp
 

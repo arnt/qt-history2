@@ -108,7 +108,6 @@ QObject	       *qt_clipboard = 0;
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 QWidget        *qt_mouseover = 0;
 QPtrDict<void> unhandled_dialogs;             //all unhandled dialogs (ie mac file dialog)
-bool           app_request_propagate = FALSE;
 
 //special case popup handlers - look where these are used, they are very hacky,
 //and very special case, if you plan on using these variables be VERY careful!!
@@ -117,7 +116,7 @@ EventRef qt_replay_event = NULL;
 
 #define QMAC_CAN_WAIT_FOREVER // idle handling
 #ifdef QMAC_CAN_WAIT_FOREVER 
-static EventLoopTimerRef mac_idle_timer = NULL, update_idle_timer = NULL;
+static EventLoopTimerRef mac_idle_timer = NULL;
 #endif
 
 void qt_mac_destroy_widget(QWidget *w)
@@ -181,25 +180,31 @@ static void	initTimers();
 static void	cleanupTimers();
 static int      activateNullTimers();
 
-// one day in the future we will be able to have static objects in libraries....
-struct QScrollInProgress {
-    static long serial;
-    QScrollInProgress( QWidget* w, int x, int y ) :
-    id( serial++ ), scrolled_widget( w ), dx( x ), dy( y ) {}
-    long id;
-    QWidget* scrolled_widget;
-    int dx, dy;
-};
-long QScrollInProgress::serial=0;
+/* Event masks */
 
-class QETWidget : public QWidget		// event translator widget
-{
-public:
-    void setWState( WFlags f )		{ QWidget::setWState(f); }
-    void clearWState( WFlags f )	{ QWidget::clearWState(f); }
-    void setWFlags( WFlags f )		{ QWidget::setWFlags(f); }
-    void clearWFlags( WFlags f )	{ QWidget::clearWFlags(f); }
+// internal Qt types
+const UInt32 kEventClassQt = 'cute';
+enum {
+    kEventQtRequestPropagate = 1
 };
+enum {
+    // params
+    kEventParamQtAllWindows = 'awnd', /* typeBoolean */
+};
+static bool request_pending = FALSE;
+void requestUpdates() 
+{
+    if(request_pending)
+	return;
+    request_pending = TRUE;
+
+    EventRef upd;
+    CreateEvent(NULL, kEventClassQt, kEventQtRequestPropagate, GetCurrentEventTime(), 
+		kEventAttributeUserEvent, &upd);
+    const Boolean allwind = true;
+    SetEventParameter(upd, kEventParamQtAllWindows, typeBoolean, sizeof(Boolean), &allwind);
+    PostEventToQueue( GetCurrentEventQueue(), upd, kEventPriorityHigh );
+}
 
 static EventTypeSpec events[] = {
     { kEventClassWindow, kEventWindowUpdate },
@@ -208,6 +213,8 @@ static EventTypeSpec events[] = {
     { kEventClassWindow, kEventWindowShown },
     { kEventClassWindow, kEventWindowHidden },
     { kEventClassWindow, kEventWindowContextualMenuSelect },
+
+    { kEventClassQt, kEventQtRequestPropagate },
 
     { kEventClassMouse, kEventMouseWheelMoved },
     { kEventClassMouse, kEventMouseDown },
@@ -228,6 +235,7 @@ static EventTypeSpec events[] = {
     { kEventClassCommand, kEventCommandProcess }
 };
 
+/* platform specific implementations */
 void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
 {
     // Set application name
@@ -261,9 +269,6 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
 	InstallEventLoopTimer(GetMainEventLoop(), 0.005, 0.005, 
 			      NewEventLoopTimerUPP(QApplication::qt_idle_timer_callbk), 
 			      (void *)qApp, &mac_idle_timer);
-	InstallEventLoopTimer(GetMainEventLoop(), 0.5, 0.5, 
-			      NewEventLoopTimerUPP(QApplication::qt_request_update_timer_callbk), 
-			      (void *)qApp, &update_idle_timer);
 #endif
     }
 }
@@ -759,11 +764,8 @@ static int sn_activate()
 	    fd_set   *fds  = sn_vec[i].fdres;
 	    QSockNot *sn   = list->first();
 	    while ( sn ) {
-		if ( FD_ISSET( sn->fd, fds ) &&	// store away for activation
-		     !FD_ISSET( sn->fd, sn->queue ) ) {
-		    sn_act_list->insert( (rand() & 0xff) %
-					 (sn_act_list->count()+1),
-					 sn );
+		if ( FD_ISSET( sn->fd, fds ) &&	!FD_ISSET( sn->fd, sn->queue ) ) {
+		    sn_act_list->insert( (rand() & 0xff) % (sn_act_list->count()+1), sn );
 		    FD_SET( sn->fd, sn->queue );
 		}
 		sn = list->next();
@@ -793,20 +795,6 @@ bool qt_set_socket_handler( int, int, QObject *, bool )
 }
 //#warning "need to implement sockets on mac9"
 #endif
-
-QMAC_PASCAL void
-QApplication::qt_request_update_timer_callbk(EventLoopTimerRef, void *)
-{
-    if(!app_request_propagate)
-	return;
-    app_request_propagate = FALSE;
-    QWidgetList *list   = qApp->topLevelWidgets();
-    for ( QWidget     *widget = list->first(); widget; widget = list->next() ) {
-	if ( !widget->isHidden() && !widget->isDesktop())
-	    widget->propagateUpdates();
-    }
-    delete list;
-}
 
 QMAC_PASCAL void 
 QApplication::qt_idle_timer_callbk(EventLoopTimerRef, void *)
@@ -854,6 +842,7 @@ QApplication::qt_idle_timer_callbk(EventLoopTimerRef, void *)
 	    errno = 0;
 	} 
     } else if ( nsel > 0 && sn_highest >= 0 ) {
+	requestUpdates();
 	sn_activate();
     }
 #else
@@ -915,14 +904,6 @@ bool QApplication::processNextEvent( bool canWait )
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 		QMenuBar::macUpdateMenuBar();
 #endif
-		//take this moment to try to propagate..
-		app_request_propagate = FALSE;
-		QWidgetList *list   = qApp->topLevelWidgets();
-		for ( QWidget     *widget = list->first(); widget; widget = list->next() ) {
-		    if ( !widget->isHidden() && !widget->isDesktop())
-			widget->propagateUpdates();
-		}
-		delete list;
 #ifndef QT_NO_CLIPBOARD
 		if(qt_clipboard) { //manufacture an event so the clipboard can see if it has changed
 		    QEvent ev(QEvent::Clipboard);
@@ -1326,6 +1307,23 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
     UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);
     switch(eclass)
     {
+    case kEventClassQt:
+	request_pending = FALSE;
+	if(ekind == kEventQtRequestPropagate) {
+	    Boolean all_windows = false;
+	    GetEventParameter(event, kEventParamQtAllWindows, typeBoolean, NULL,
+			      sizeof(all_windows), NULL, &all_windows);
+	    if(all_windows) {
+		if(QWidgetList *list   = qApp->topLevelWidgets()) {
+		    for ( QWidget     *widget = list->first(); widget; widget = list->next() ) {
+			if ( !widget->isHidden() && !widget->isDesktop())
+			    widget->propagateUpdates();
+		    }
+		    delete list;
+		}
+	    } 
+	}
+	break;
     case kEventClassMouse:
     {
 	if( (ekind == kEventMouseDown && mouse_button_state ) ||

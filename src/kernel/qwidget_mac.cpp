@@ -70,7 +70,12 @@ static WId serial_id = 0;
 QWidget *mac_mouse_grabber = 0;
 QWidget *mac_keyboard_grabber = 0;
 int mac_window_count = 0;
-extern bool app_request_propagate;
+
+
+/*****************************************************************************
+  Externals
+ *****************************************************************************/
+void requestUpdates();
 
 
 /*****************************************************************************
@@ -1053,10 +1058,16 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
     bool isResize = (olds != size());
     if(isTopLevel() && winid && own_id) {
-	Rect r;
-	SetRect(&r, x, y, x + w, y + h);
-	SetWindowBounds((WindowPtr)hd, kWindowContentRgn, &r);
-	fstrut_dirty = TRUE;
+	if(isResize && isMove && isVisible()) {
+	    Rect r;
+	    SetRect(&r, x, y, x + w, y + h);
+	    SetWindowBounds((WindowPtr)hd, kWindowContentRgn, &r);
+	} else {
+	    if(isMove) 
+		MoveWindow((WindowPtr)hd, x, y, 1);
+	    if(isResize)
+		SizeWindow((WindowPtr)hd, w, h, 1);
+	}
     }
 
     if(isMove || isResize) {
@@ -1111,7 +1122,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		}
 	    }
 	    if(isResize)
-		app_request_propagate = TRUE;
+		requestUpdates();
 
 	    //finally issue "expose" event
 	    QRegion upd((oldregion + clpreg) - bltregion); 
