@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#162 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#163 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -278,7 +278,7 @@ static struct {
     { "ISO 8859-5", QFont::ISO_8859_5 },
     { "ISO 8859-6", QFont::ISO_8859_6 },
     { "ISO 8859-7", QFont::ISO_8859_7 },
-    { "ISO 8859-8", QFont::ISO_8859_8 },
+    { "ISO 8859-8-I", QFont::ISO_8859_8 },
     { "ISO 8859-9", QFont::ISO_8859_9 },
     { "ISO 8859-10", QFont::ISO_8859_10 },
     { "ISO 8859-11", QFont::ISO_8859_11 },

@@ -1138,40 +1138,40 @@ static QString getCharSetSample( QFont::CharSet cs )
 	sample += "Zz";
 	break;
     case QFont::ISO_8859_2:
-	sample += QChar(0x00A4);
 	sample += QChar(0x0104);
-	sample += QChar(0x02D8);
+	sample += QChar(0x0105);
 	sample += QChar(0x0141);
+	sample += QChar(0x0142);
 	break;
     case QFont::ISO_8859_3:
-	sample += QChar(0x00A4);
-	sample += QChar(0x0104);
-	sample += QChar(0x016C);
-	sample += QChar(0x0121);
+	sample += QChar(0x00C0);
+	sample += QChar(0x00E1);
+	sample += QChar(0x0126);
+	sample += QChar(0x0127);
 	break;
     case QFont::ISO_8859_4:
-	sample += QChar(0x00A4);
-	sample += QChar(0x0104);
-	sample += QChar(0x0169);
-	sample += QChar(0x013C);
+	sample += QChar(0x00C3);
+	sample += QChar(0x00E1);
+	sample += QChar(0x0100);
+	sample += QChar(0x0101);
 	break;
     case QFont::ISO_8859_5:
-	sample += QChar(0x0401);
+	sample += QChar(0x0414);
+	sample += QChar(0x0434);
+	sample += QChar(0x0436);
 	sample += QChar(0x0402);
-	sample += QChar(0x0403);
-	sample += QChar(0x0404);
 	break;
     case QFont::ISO_8859_6:
-	sample += QChar(0x0621);
-	sample += QChar(0x0622);
-	sample += QChar(0x0623);
-	sample += QChar(0x0624);
+	sample += QChar(0x0628);
+	sample += QChar(0x0629);
+	sample += QChar(0x062A);
+	sample += QChar(0x063A);
 	break;
     case QFont::ISO_8859_7:
-	sample += QChar(0x02BD);
-	sample += QChar(0x0384);
-	sample += QChar(0x0385);
-	sample += QChar(0x0386);
+	sample += QChar(0x0393);
+	sample += QChar(0x03B1);
+	sample += QChar(0x03A9);
+	sample += QChar(0x03C9);
 	break;
     case QFont::ISO_8859_8:
 	sample += QChar(0x05D0);
@@ -1180,8 +1180,8 @@ static QString getCharSetSample( QFont::CharSet cs )
 	sample += QChar(0x05D3);
 	break;
     case QFont::ISO_8859_9:
-	sample += QChar(0x00B0);
-	sample += QChar(0x00B1);
+	sample += QChar(0x00C0);
+	sample += QChar(0x00E0);
 	sample += QChar(0x011E);
 	sample += QChar(0x011F);
 	break;
