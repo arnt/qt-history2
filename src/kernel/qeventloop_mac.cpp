@@ -278,9 +278,9 @@ QMAC_PASCAL static void qt_activate_mac_timer(EventLoopTimerRef, void *data)
 }
 
 //central cleanup
-QMAC_PASCAL static Boolean find_timer_event(EventRef event, void *d)
+QMAC_PASCAL static Boolean find_timer_event(EventRef event, void *data)
 {
-    return (qt_event_get_timer(event) == ((TimerInfo *)d));
+    return (qt_event_get_timer(event) == ((TimerInfo *)data));
 }
 
 static bool killTimer(TimerInfo *t, bool remove=TRUE)
