@@ -17,11 +17,12 @@
 #include "ui4.h"
 #include "widgetinfo.h"
 #include "globaldefs.h"
-#include "utils.h"
 #include "qt3to4.h"
+#include "../uic/utils.h"
 
 #include <qdebug.h>
 #include <qfile.h>
+#include <qhash.h>
 #include <qstringlist.h>
 #include <qdatetime.h>
 #include <globaldefs.h>
