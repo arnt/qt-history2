@@ -108,11 +108,13 @@ QFSFileInfoEngine::fileName(FileName file) const
         return d->file.left(slash);
     } else if(file == AbsoluteName || file == AbsoluteDirPath) {
         QString ret;
-        if(!d->file.length() || d->file[0] != '/') {
+        if(!d->file.length() || d->file[0] != '/') 
             ret = QDir::currentDirPath();
-            ret += '/';
+        if(!d->file.isEmpty() && d->file != ".") {
+            if (ret.right(1) != QString::fromLatin1("/"))
+                ret += '/';
+            ret += d->file;
         }
-        ret = d->file;
         if(file == AbsoluteDirPath) {
             int slash = ret.lastIndexOf('/');
             if (slash == -1)

@@ -586,7 +586,7 @@ QDir::canonicalPath() const
 {
     if(d->data->fileInfoDirty)
         d->data->fi = QFileInfo(d->data->path);
-    return d->data->fi.canonicalPath();
+    return cleanDirPath(d->data->fi.canonicalPath());
 }
 
 /*!
@@ -663,9 +663,14 @@ QDir::absFilePath(const QString &fileName, bool acceptAbsPath) const
         return fileName;
 
     QString ret;
-    if (isRelativePath(d->data->path)) //get pwd
+    if (isRelativePath(d->data->path)) { //get pwd
         ret = QFSDirEngine::currentDirPath(fileName);
-    ret += d->data->path;
+    }
+    if(!d->data->path.isEmpty() && d->data->path != ".") {
+        if (ret.right(1) != QString::fromLatin1("/"))
+            ret += '/';
+        ret += d->data->path;
+    }
     if (!fileName.isEmpty()) {
         if (ret.right(1) != QString::fromLatin1("/"))
             ret += '/';
@@ -738,7 +743,6 @@ QDir::cd(const QString &dirName, bool acceptAbsPath )
             || d->data->path == QString::fromLatin1(".")
             || dirName == QString::fromLatin1("..")) {
             newPath = cleanDirPath(newPath);
-
             /*
               If newPath starts with .., we convert it to absolute to
               avoid infinite looping on
@@ -752,7 +756,7 @@ QDir::cd(const QString &dirName, bool acceptAbsPath )
                 convertToAbs();
         }
     }
-    
+
     if(!d->setPath(newPath, false))
         return false;
     refresh();
@@ -1606,6 +1610,8 @@ QDir::cleanDirPath(const QString &in)
 #else
                 eaten = true;
 #endif
+            } else if(i == len-1) {
+                eaten = true;
             } else {
                 levels++;
             }

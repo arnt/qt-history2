@@ -490,7 +490,7 @@ QFileInfo::convertToAbs()
     if(!d->data->fileInfoEngine)
         return false;
     QString absFileName = d->data->fileInfoEngine->fileName(QFileInfoEngine::AbsoluteName);
-    if(QDir::isRelativePath(d->data->fileName))
+    if(QDir::isRelativePath(absFileName))
         return false;
     d->detach();
     d->data->fileName = absFileName;
