@@ -50,7 +50,7 @@ QString mkdir_p_asstring(const QString &dir)
 
 static bool createDir(QString path)
 {
-    if(QFile::exists(path)) 
+    if(QFile::exists(path))
         return true;
 
     QDir d;
@@ -71,7 +71,7 @@ static bool createDir(QString path)
             driveExists = false;
         }
     }
-    if(driveExists) 
+    if(driveExists)
 #endif
     {
         QStringList subs = path.split(Option::dir_sep);
@@ -877,7 +877,7 @@ MakefileGenerator::writeMocSrc(QTextStream &t, const QString &src)
             QString deps;
             if(!project->isActiveConfig("no_mocdepend"))
                 deps += "$(MOC) ";
-            deps += (*it) + " " + findDependencies((*it)).join(" ");
+            deps += (*it) + " " + findDependencies((m)).join(" ");
             t << m << ": " << deps << "\n\t"
               << "$(MOC)" << " $(DEFINES) $(INCPATH) " << varGlue("QMAKE_COMPILER_DEFINES","-D"," -D"," ")
               << (*it) << " -o " << m << endl << endl;
@@ -1361,7 +1361,7 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
         for(QStringList::ConstIterator it2 = tmp_inputs.begin(); it2 != tmp_inputs.end(); ++it2) {
             const QStringList &tmp = project->variables()[(*it2)];
             for(QStringList::ConstIterator input = tmp.begin(); input != tmp.end(); ++input) {
-                QString in = Option::fixPathToTargetOS((*input), false), 
+                QString in = Option::fixPathToTargetOS((*input), false),
                       deps = " " + findDependencies((*input)).join(" ");
                 if(!tmp_dep.isEmpty())
                     deps = " " + tmp_dep;
