@@ -1392,7 +1392,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
         }
 
         if (!qt_tabletChokeMouse) {
-            widget->translateMouseEvent(msg);        // mouse event
+            result = widget->translateMouseEvent(msg);        // mouse event
         } else {
             // Sometimes we only get a WM_MOUSEMOVE message
             // and sometimes we get both a WM_MOUSEMOVE and
@@ -2512,6 +2512,8 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
         }
     }
 
+    bool res = false;
+
     if (qApp->inPopupMode()) {                        // in popup mode
         replayPopupMouseEvent = false;
         QWidget* activePopupWidget = qApp->activePopupWidget();
@@ -2548,7 +2550,8 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
                       Qt::MouseButton(button),
                       Qt::MouseButtons(state & Qt::MouseButtonMask),
                       Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask));
-	QApplication::sendSpontaneousEvent(popup, &e);
+	res = QApplication::sendSpontaneousEvent(popup, &e);
+        res = res && e.isAccepted();
 
         if (releaseAfter) {
             popupButtonFocus = 0;
@@ -2572,7 +2575,9 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
                    && qApp->activePopupWidget() == activePopupWidget) {
             // popup still alive and received right-button-release
 	    QContextMenuEvent e2(QContextMenuEvent::Mouse, pos, globalPos);
-	    QApplication::sendSpontaneousEvent( popup, &e2 );
+	    bool res2 = QApplication::sendSpontaneousEvent( popup, &e2 );
+            if (!res) // RMB not accepted
+                res = res2 && e2.isAccepted();
         }
     } else {                                        // not popup mode
         int bs = state & Qt::MouseButtonMask;
@@ -2603,16 +2608,19 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
                       Qt::MouseButton(button),
                       Qt::MouseButtons(state & Qt::MouseButtonMask),
                       Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask));
-        QApplication::sendSpontaneousEvent(widget, &e);
+        res = QApplication::sendSpontaneousEvent(widget, &e);
+        res = res && e.isAccepted();
         if (type == QEvent::MouseButtonRelease && button == Qt::RightButton) {
             QContextMenuEvent e2(QContextMenuEvent::Mouse, pos, QPoint(gpos.x,gpos.y));
-            QApplication::sendSpontaneousEvent(widget, &e2);
+            bool res2 = QApplication::sendSpontaneousEvent(widget, &e2);
+            if (!res)
+                res = res2 && e2.isAccepted();
         }
 
         if (type != QEvent::MouseMove)
             pos.rx() = pos.ry() = -9999;        // init for move compression
     }
-    return true;
+    return res;
 }
 
 
