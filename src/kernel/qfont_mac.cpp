@@ -162,6 +162,12 @@ static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, uch
 	    } 
 	}
 	if(is_latin) {
+	    if(task & GIMME_EXISTS) {
+		if(task != GIMME_EXISTS)
+		    qWarning("GIMME_EXISTS must appear by itself!");
+		return TRUE;
+	    }
+
 	    int ret = 0;
 	    const unsigned char *str = p_str(s.mid(pos, len));
 	    if(task & GIMME_DRAW) 
