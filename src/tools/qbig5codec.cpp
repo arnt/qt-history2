@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbig5codec.cpp#4 $
+** $Id: //depot/qt/main/src/tools/qbig5codec.cpp#5 $
 **
 ** Implementation of QBig5Codec class
 **
@@ -23,7 +23,7 @@
 **
 *****************************************************************************/
 
-// Most of the code here was originally written by Ming Che-Chuang and
+// Most of the code here was originally written by Ming-Che Chuang and
 // is include in Qt with the author's permission, and the grateful
 // thanks of the Troll Tech team.  
 
