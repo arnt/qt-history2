@@ -145,17 +145,17 @@ QTimer *QButton::timer()
   create the "disabled" appearance when the button is disabled.
 
   QButton provides most of the states used for buttons:
-  <ul>
-  <li>isDown() determines whether the button is \e pressed down.
-  <li>isOn() determines whether the button is \e on.
+  \list
+  \i isDown() determines whether the button is \e pressed down.
+  \i isOn() determines whether the button is \e on.
   Only toggle buttons can be switched on and off  (see below).
-  <li>isEnabled() determines whether the button can be pressed by the
+  \i isEnabled() determines whether the button can be pressed by the
   user.
-  <li>setAutoRepeat() determines whether the button will auto-repeat
+  \i setAutoRepeat() determines whether the button will auto-repeat
   if the user holds it down.
-  <li>setToggleButton() determines whether the button is a toggle
+  \i setToggleButton() determines whether the button is a toggle
   button or not.
-  </ul>
+  \endlist
 
   The difference between isDown() and isOn() is as follows:
   When the user clicks a toggle button to toggle it on, the button is
@@ -168,28 +168,28 @@ QTimer *QButton::timer()
   QPushButton::setDefault() and QPushButton::setAutoDefault().
 
   QButton provides four signals:
-  <ul>
-  <li>pressed() is emitted when the left mouse button is pressed while
+  \list
+  \i pressed() is emitted when the left mouse button is pressed while
   the mouse cursor is inside the button.
-  <li>released() is emitted when the left mouse button is released.
-  <li>clicked() is emitted when the button is first pressed and then
+  \i released() is emitted when the left mouse button is released.
+  \i clicked() is emitted when the button is first pressed and then
   released when the accelerator key is typed, or when animateClick()
   is called.
-  <li>toggled(bool) is emitted when the state of a toggle button changes.
-  <li>stateChanged(int) is emitted when the state of a tristate
+  \i toggled(bool) is emitted when the state of a toggle button changes.
+  \endlist stateChanged(int) is emitted when the state of a tristate
 			toggle button changes.
-  </ul>
+  \endlist
 
-  If the button is a text button with "&" in its text, QButton creates
+  If the button is a text button with "\&" in its text, QButton creates
   an automatic accelerator key.  This code creates a push button
-  labelled "Rock & Roll" (where the c is underscored).  The button
-  gets an automatic accelerator key, Alt-C:
+  labelled "Rock \& Roll" (where the c is underscored).  The button
+  gets an automatic accelerator key, Alt+C:
 
   \code
     QPushButton *p = new QPushButton( "Ro&ck && Roll", this );
   \endcode
 
-  In this example, when the user presses Alt-C the button will
+  In this example, when the user presses Alt+C the button will
   call animateClick().
 
   You can also set a custom accelerator using the setAccel() function.
