@@ -10,6 +10,17 @@ FtpWindow::FtpWindow(QWidget *parent)
     ftpServerLineEdit = new QLineEdit("ftp.trolltech.com", this);
     ftpServerLabel->setBuddy(ftpServerLineEdit);
 
+    ftpUserLabel = new QLabel(tr("&User:"), this);
+    ftpUserLineEdit = new QLineEdit(this);
+    ftpUserLineEdit->setText("anonymous");
+    ftpUserLabel->setBuddy(ftpUserLineEdit);
+
+    ftpPasswordLabel = new QLabel(tr("&Password:"), this);
+    ftpPasswordLineEdit = new QLineEdit(this);
+    ftpPasswordLineEdit->setText("anonymous@");
+    ftpPasswordLineEdit->setEchoMode(QLineEdit::Password);
+    ftpPasswordLabel->setBuddy(ftpPasswordLineEdit);
+
     statusLabel = new QLabel(tr("Please enter the name of an FTP server."),
                              this);
 
@@ -56,6 +67,10 @@ FtpWindow::FtpWindow(QWidget *parent)
     topLayout->addWidget(ftpServerLabel);
     topLayout->addWidget(ftpServerLineEdit);
     topLayout->addWidget(cdToParentButton);
+    topLayout->addWidget(ftpUserLabel);
+    topLayout->addWidget(ftpUserLineEdit);
+    topLayout->addWidget(ftpPasswordLabel);
+    topLayout->addWidget(ftpPasswordLineEdit);
 
     QHBoxLayout *buttonLayout = new QHBoxLayout;
     buttonLayout->addStretch(1);
@@ -76,7 +91,7 @@ void FtpWindow::connectToFtpServer()
 {
     QApplication::setOverrideCursor(Qt::WaitCursor);
     ftp->connectToHost(ftpServerLineEdit->text());
-    ftp->login();
+    ftp->login(ftpUserLineEdit->text(), ftpPasswordLineEdit->text());
     ftp->list();
     statusLabel->setText(tr("Connecting to FTP server %1...")
                          .arg(ftpServerLineEdit->text()));
@@ -115,7 +130,7 @@ void FtpWindow::cancelDownload()
     ftp->abort();
 }
 
-void FtpWindow::ftpCommandFinished(int /* commandId */, bool error)
+void FtpWindow::ftpCommandFinished(int, bool error)
 {
     if (ftp->currentCommand() == QFtp::ConnectToHost) {
         if (error) {
@@ -124,36 +139,38 @@ void FtpWindow::ftpCommandFinished(int /* commandId */, bool error)
                                         "at %1. Please check that the host "
                                         "name is correct.")
                                      .arg(ftpServerLineEdit->text()));
-            return;
         }
-
-        statusLabel->setText(tr("Connected to %1.")
-                             .arg(ftpServerLineEdit->text()));
-        fileList->setFocus();
-        connectButton->setEnabled(false);
-        downloadButton->setDefault(true);
-        return;
-    }
-
-    if (ftp->currentCommand() == QFtp::Get) {
+    } else if (ftp->currentCommand() == QFtp::Login) {
+        if (error) {
+            QMessageBox::information(this, tr("FTP"),
+                                     tr("Unable to login to the FTP server "
+                                        "at %1. Please check that the user "
+                                        "name and password are correct.")
+                                     .arg(ftpServerLineEdit->text()));
+            ftp->close();
+            QApplication::restoreOverrideCursor();
+        } else {
+            statusLabel->setText(tr("Logged onto %1.")
+                                 .arg(ftpServerLineEdit->text()));
+            fileList->setFocus();
+            connectButton->setEnabled(false);
+            downloadButton->setDefault(true);
+        }
+    } else if (ftp->currentCommand() == QFtp::Get) {
         QApplication::restoreOverrideCursor();
         if (error) {
             statusLabel->setText(tr("Canceled download of %1.")
                                  .arg(file->fileName()));
             file->close();
             file->remove();
-            delete file;
             enableDownloadButton();
-            return;
+        } else {
+            statusLabel->setText(tr("Downloaded %1 to current directory.")
+                                 .arg(file->fileName()));
+            file->close();
         }
-
-        statusLabel->setText(tr("Downloaded %1 to current directory.")
-                             .arg(file->fileName()));
-        file->close();
         delete file;
-    }
-
-    if (ftp->currentCommand() == QFtp::List) {
+    } else if (ftp->currentCommand() == QFtp::List) {
         QApplication::restoreOverrideCursor();
         if (isDirectory.isEmpty()) {
             fileList->appendItem(tr("<empty>"));

@@ -38,6 +38,10 @@ private slots:
 private:
     QLabel *ftpServerLabel;
     QLineEdit *ftpServerLineEdit;
+    QLabel *ftpUserLabel;
+    QLineEdit *ftpUserLineEdit;
+    QLabel *ftpPasswordLabel;
+    QLineEdit *ftpPasswordLineEdit;
     QLabel *statusLabel;
     QListWidget *fileList;
     QPushButton *quitButton;
