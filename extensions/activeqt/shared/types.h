@@ -70,11 +70,6 @@ extern QColor OLEColorToQColor( uint col );
 extern bool QVariantToVARIANT( const QVariant &var, VARIANT &arg, const QString &type, bool out = false );
 extern QVariant VARIANTToQVariant( const VARIANT &arg, const QString &type );
 extern bool QVariantToVoidStar(const QVariant &var, void *data);
-
-extern bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *param );
-extern bool QUObjectToVARIANT( QUObject *obj, VARIANT &var, const QUParameter *param );
-
-extern void clearQUObject( QUObject *obj, const QUParameter *param );
 extern void clearVARIANT( VARIANT *var );
 
 #endif //TYPES_H
