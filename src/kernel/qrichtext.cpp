@@ -6423,6 +6423,11 @@ void QTextFlow::updateHeight( QTextCustomItem *i )
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+void QTextCustomItem::verticalBreak( int y , QTextFlow* flow )
+{
+    flow->adjustFlow( y, width, height );
+}
+
 QTextTable::QTextTable( QTextDocument *p, const QMap<QString, QString> & attr  )
     : QTextCustomItem( p ), painter( 0 )
 {
@@ -6540,27 +6545,44 @@ void QTextTable::adjustToPainter( QPainter* p)
     width = 0;
 }
 
+void QTextTable::adjustCells( int y , int shift )
+{
+    QListIterator<QTextTableCell> it( cells );
+    QTextTableCell* cell;
+    bool enlarge = FALSE;
+    while ( ( cell = it.current() ) ) {
+	++it;
+	QRect r = cell->geometry();
+	if ( y <= r.top() ) {
+	    r.moveBy(0, shift );
+	    cell->setGeometry( r );
+	    enlarge = TRUE;
+	} else if ( y <= r.bottom() ) {
+	    r.rBottom() += shift;
+	    cell->setGeometry( r );
+	    enlarge = TRUE;
+	}
+    }
+    if ( enlarge )
+	height += shift;
+}
+
 void QTextTable::verticalBreak( int  yt, QTextFlow* flow )
 {
     if ( flow->pageSize() <= 0 )
-	return;
-    int shift = 0;
-    for (QTextTableCell* cell = cells.first(); cell; cell = cells.next() ) {
-	QRect r = cell->geometry();
-	r.moveBy(0, shift );
-	cell->setGeometry( r );
-	if ( cell->column() == 0 ) {
-	    int y = yt + outerborder + cell->geometry().y();
-	    int oldy = y;
-	    flow->adjustFlow( y, width, cell->geometry().height() + 2*cellspacing, 0 );
-	    shift += y - oldy;
-	    r = cell->geometry();
-	    r.moveBy(0, y - oldy );
-	    cell->setGeometry( r );
-	}
+        return;
+    QListIterator<QTextTableCell> it( cells );
+    QTextTableCell* cell;
+    while ( ( cell = it.current() ) ) {
+	++it;
+	int y = yt + outerborder + cell->geometry().y();
+	int oldy = y;
+	flow->adjustFlow( y, width, cell->richText()->flow()->size().height() + 2*cellspacing );
+	int shift = y - oldy;
+	adjustCells( oldy - outerborder - yt, shift ); 
     }
-    height += shift;
 }
+
 
 void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool selected )
 {
