@@ -55,12 +55,17 @@ you see a <a href="qstatusbar.html">QStatusBar</a> and at the
 right/bottom edge a <a href="qsizegrip.html">QSizeGrip</a>
 <p><img src=mainwindow-w.png >&nbsp;Windows<br>
 
-
-Here you see a <a href="qfiledialog.html">QFileDialog</a>.
+Here you see a <a href="qfiledialog.html">QFileDialog</a>. On 
+the Windows Platform you can either use the QFileDialog or the native
+Windows Filedialog. For more information on that see the 
+<a href="qfiledialog.html">QFileDialog</a> class documentation. 
 <p><img src=qfiledlg-w.png >&nbsp;Windows<br>
 
-This is a <a href="qprintdialog.html">QPrintDialog</a>.
-<p><img src=qprintdlg-w.png >&nbsp;Windows
+This is a <a href="qprintdialog.html">QPrintDialog</a>. On Windows
+this dialog is not supported, as the native Windows Print-Dialog is
+used there. Use QPrinter::setup() for portability instead of the
+QPrintDialog if you need to be platform independent.
+<p><img src=qprintdlg-m.png >&nbsp;Motif
 
 In this screenshot you see a <a href="qfontdialog.html">QFontDialog</a>.
 <p><img src=qfontdlg-w.png >&nbsp;Windows<br>
