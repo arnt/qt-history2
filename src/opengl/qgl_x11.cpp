@@ -21,6 +21,7 @@
 #include "qdesktopwidget.h"
 #include "qpixmap.h"
 #include "qhash.h"
+#include "qx11info_x11.h"
 
 #define INT8  dummy_INT8
 #define INT32 dummy_INT32
@@ -65,7 +66,7 @@ CMapEntry::CMapEntry()
 CMapEntry::~CMapEntry()
 {
     if ( alloc )
-	XFreeColormap( QPaintDevice::x11AppDisplay(), cmap );
+	XFreeColormap( QX11Info::appDisplay(), cmap );
 }
 
 static QHash<int, CMapEntry*> *cmap_dict = 0;
@@ -98,7 +99,7 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
 
     QHash<int, CMapEntry*>::Iterator it = cmap_dict->find( (long) vi->visualid + ( vi->screen * 256 ) );
     if (it != cmap_dict->end())
-	return it.data()->cmap; // found colormap for visual
+	return it.value()->cmap; // found colormap for visual
 
     CMapEntry *x = new CMapEntry();
 
@@ -108,9 +109,9 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
     // qDebug( "Choosing cmap for vID %0x", vi->visualid );
 
     if ( vi->visualid ==
-	 XVisualIDFromVisual( (Visual*)QPaintDevice::x11AppVisual( vi->screen ) ) ) {
+	 XVisualIDFromVisual( QX11Info::appVisual( vi->screen ) ) ) {
 	// qDebug( "Using x11AppColormap" );
-	return QPaintDevice::x11AppColormap( vi->screen );
+	return QX11Info::appColormap( vi->screen );
     }
 
     if ( mesa_gl ) {				// we're using MesaGL
@@ -186,7 +187,7 @@ static void find_trans_colors()
 
     trans_colors_init = TRUE;
 
-    Display* appDisplay = QPaintDevice::x11AppDisplay();
+    Display* appDisplay = QX11Info::appDisplay();
 
     int scr;
     int lastsize = 0;
@@ -249,28 +250,38 @@ bool QGLFormat::hasOpenGLOverlays()
     return trans_colors.size() > 0;
 }
 
-
-
 /*****************************************************************************
   QGLContext UNIX/GLX-specific code
  *****************************************************************************/
 
+static QX11Info *q_get_xinfo(QPaintDevice *pd)
+{
+    if (pd->devType() == QInternal::Widget)
+	return static_cast<QWidget *>(pd)->x11Info();
+    else if (pd->devType() == QInternal::Pixmap)
+	return static_cast<QPixmap *>(pd)->x11Info();
+    qFatal("Unable to obtain X11 info from anything but widgets or pixmaps.");
+    return 0;
+}
+
 bool QGLContext::chooseContext( const QGLContext* shareContext )
 {
-    Display* disp = d->paintDevice->x11Display();
+    QX11Info *xinfo = q_get_xinfo(d->paintDevice);
+
+    Display* disp = xinfo->display();
     vi = chooseVisual();
     if ( !vi )
 	return FALSE;
 
     if ( deviceIsPixmap() &&
-	 (((XVisualInfo*)vi)->depth != d->paintDevice->x11Depth() ||
-	  ((XVisualInfo*)vi)->screen != d->paintDevice->x11Screen()) )
+	 (((XVisualInfo*)vi)->depth != xinfo->depth() ||
+	  ((XVisualInfo*)vi)->screen != xinfo->screen()) )
     {
 	XFree( vi );
 	XVisualInfo appVisInfo;
 	memset( &appVisInfo, 0, sizeof(XVisualInfo) );
-	appVisInfo.visualid = XVisualIDFromVisual( (Visual*)d->paintDevice->x11Visual() );
-	appVisInfo.screen = d->paintDevice->x11Screen();
+	appVisInfo.visualid = XVisualIDFromVisual( xinfo->visual() );
+	appVisInfo.screen = xinfo->screen();
 	int nvis;
 	vi = XGetVisualInfo( disp, VisualIDMask | VisualScreenMask, &appVisInfo, &nvis );
 	if ( !vi )
@@ -428,18 +439,17 @@ void *QGLContext::tryVisual( const QGLFormat& f, int bufDepth )
     int i = 0;
     spec[i++] = GLX_LEVEL;
     spec[i++] = f.plane();
+    QX11Info *xinfo = q_get_xinfo(d->paintDevice);
 
 #if defined(GLX_VERSION_1_1) && defined(GLX_EXT_visual_info)
     static bool useTranspExt = FALSE;
     static bool useTranspExtChecked = FALSE;
     if ( f.plane() && !useTranspExtChecked && d->paintDevice ) {
-	QByteArray estr( glXQueryExtensionsString( d->paintDevice->x11Display(),
-						   d->paintDevice->x11Screen() ) );
+	QByteArray estr( glXQueryExtensionsString( xinfo->display(), xinfo->screen() ) );
 	useTranspExt = estr.contains( "GLX_EXT_visual_info" );
 	//# (A bit simplistic; that could theoretically be a substring)
 	if ( useTranspExt ) {
-	    QByteArray cstr( glXGetClientString( d->paintDevice->x11Display(),
-						 GLX_VENDOR ) );
+	    QByteArray cstr( glXGetClientString( xinfo->display(), GLX_VENDOR ) );
 	    useTranspExt = !cstr.contains( "Xi Graphics" ); // bug workaround
 	    if ( useTranspExt ) {
 		// bug workaround - some systems (eg. FireGL) refuses to return an overlay
@@ -448,8 +458,7 @@ void *QGLContext::tryVisual( const QGLFormat& f, int bufDepth )
 		int tmpSpec[] = { GLX_LEVEL, f.plane(), GLX_TRANSPARENT_TYPE_EXT,
 				  f.rgba() ? GLX_TRANSPARENT_RGB_EXT : GLX_TRANSPARENT_INDEX_EXT,
 				  None };
-		XVisualInfo * vinf = glXChooseVisual( d->paintDevice->x11Display(),
-						      d->paintDevice->x11Screen(), tmpSpec );
+		XVisualInfo * vinf = glXChooseVisual( xinfo->display(), xinfo->screen(), tmpSpec );
 		if ( !vinf ) {
 		    useTranspExt = FALSE;
 		}
@@ -509,8 +518,7 @@ void *QGLContext::tryVisual( const QGLFormat& f, int bufDepth )
     }
 
     spec[i] = None;
-    return glXChooseVisual( d->paintDevice->x11Display(),
-			    d->paintDevice->x11Screen(), spec );
+    return glXChooseVisual( xinfo->display(), xinfo->screen(), spec );
 }
 
 
@@ -518,11 +526,12 @@ void QGLContext::reset()
 {
     if ( !d->valid )
 	return;
+    QX11Info *xinfo = q_get_xinfo(d->paintDevice);
     doneCurrent();
     if ( gpm )
-	glXDestroyGLXPixmap( d->paintDevice->x11Display(), (GLXPixmap)gpm );
+	glXDestroyGLXPixmap( xinfo->display(), (GLXPixmap)gpm );
     gpm = 0;
-    glXDestroyContext( d->paintDevice->x11Display(), (GLXContext)cx );
+    glXDestroyContext( xinfo->display(), (GLXContext)cx );
     if ( vi )
 	XFree( vi );
     vi = 0;
@@ -541,15 +550,13 @@ void QGLContext::makeCurrent()
 	qWarning("QGLContext::makeCurrent(): Cannot make invalid context current.");
 	return;
     }
+    QX11Info *xinfo = q_get_xinfo(d->paintDevice);
     bool ok = TRUE;
     if ( deviceIsPixmap() )
-	ok = glXMakeCurrent( d->paintDevice->x11Display(),
-			     (GLXPixmap)gpm,
-			     (GLXContext)cx );
+	ok = glXMakeCurrent( xinfo->display(), (GLXPixmap)gpm, (GLXContext)cx );
 
     else
-	ok = glXMakeCurrent( d->paintDevice->x11Display(),
-			     ((QWidget *)d->paintDevice)->winId(),
+	ok = glXMakeCurrent( xinfo->display(), ((QWidget *)d->paintDevice)->winId(),
 			     (GLXContext)cx );
     if ( !ok )
 	qWarning("QGLContext::makeCurrent(): Failed.");
@@ -559,7 +566,7 @@ void QGLContext::makeCurrent()
 
 void QGLContext::doneCurrent()
 {
-    glXMakeCurrent( d->paintDevice->x11Display(), 0, 0 );
+    glXMakeCurrent( q_get_xinfo(d->paintDevice)->display(), 0, 0 );
     currentCtx = 0;
 }
 
@@ -569,7 +576,7 @@ void QGLContext::swapBuffers() const
     if ( !d->valid )
 	return;
     if ( !deviceIsPixmap() )
-	glXSwapBuffers( d->paintDevice->x11Display(),
+	glXSwapBuffers( q_get_xinfo(d->paintDevice)->display(),
 			((QWidget *)d->paintDevice)->winId() );
 }
 
@@ -589,7 +596,7 @@ QColor QGLContext::overlayTransparentColor() const
 		col.pixel = trans_colors[i].color;
 		col.red = col.green = col.blue = 0;
 		col.flags = 0;
-		Display *dpy = d->paintDevice->x11Display();
+		Display *dpy = q_get_xinfo(d->paintDevice)->display();
 		if (col.pixel > (uint) ((XVisualInfo *)vi)->colormap_size - 1)
 		    col.pixel = ((XVisualInfo *)vi)->colormap_size - 1;
 		XQueryColor(dpy, choose_cmap(dpy, (XVisualInfo *) vi), &col);
@@ -612,14 +619,14 @@ uint QGLContext::colorIndex( const QColor& c ) const
 	     && c.pixel( screen ) == overlayTransparentColor().pixel( screen ) )
 	    return c.pixel( screen );		// Special; don't look-up
 	if ( ((XVisualInfo*)vi)->visualid ==
-	     XVisualIDFromVisual( (Visual*)QPaintDevice::x11AppVisual( screen ) ) )
+	     XVisualIDFromVisual( QX11Info::appVisual( screen ) ) )
 	    return c.pixel( screen );		// We're using QColor's cmap
 
 	XVisualInfo *info = (XVisualInfo *) vi;
 	QHash<int, CMapEntry*>::Iterator it = cmap_dict->find( (long) info->visualid + ( info->screen * 256 ) );
 	CMapEntry *x = 0;
 	if (it != cmap_dict->end())
-	    x = it.data();
+	    x = it.value();
 	if ( x && !x->alloc) {		// It's a standard colormap
 	    int rf = (int)(((float)c.red() * (x->scmap.red_max+1))/256.0);
 	    int gf = (int)(((float)c.green() * (x->scmap.green_max+1))/256.0);
@@ -634,7 +641,7 @@ uint QGLContext::colorIndex( const QColor& c ) const
 		qglcmap_dict = new QHash< int, QMap<int, QRgb> *>;
 	    }
 	    QHash<int, QMap<int, QRgb> *>::Iterator hit = qglcmap_dict->find((long) info->visualid);
-	    QMap<int, QRgb> *cmap = (hit != qglcmap_dict->end()) ? hit.data() : 0;
+	    QMap<int, QRgb> *cmap = (hit != qglcmap_dict->end()) ? hit.value() : 0;
 	    if (!cmap) {
 		cmap = new QMap<int, QRgb>;
 		qglcmap_dict->insert((long) info->visualid, cmap);
@@ -651,7 +658,7 @@ uint QGLContext::colorIndex( const QColor& c ) const
 	    // need to alloc color
 	    unsigned long plane_mask[2];
 	    unsigned long color_map_entry;
-	    if (!XAllocColorCells (QPaintDevice::x11AppDisplay(), x->cmap, true, plane_mask, 0,
+	    if (!XAllocColorCells (QX11Info::appDisplay(), x->cmap, true, plane_mask, 0,
 				   &color_map_entry, 1))
 		return c.pixel(screen);
 
@@ -661,7 +668,7 @@ uint QGLContext::colorIndex( const QColor& c ) const
 	    col.red   = (ushort)((qRed(c.rgb()) / 255.0) * 65535.0 + 0.5);
 	    col.green = (ushort)((qGreen(c.rgb()) / 255.0) * 65535.0 + 0.5);
 	    col.blue  = (ushort)((qBlue(c.rgb()) / 255.0) * 65535.0 + 0.5);
-	    XStoreColor(QPaintDevice::x11AppDisplay(), x->cmap, &col);
+	    XStoreColor(QX11Info::appDisplay(), x->cmap, &col);
 
 	    cmap->insert(color_map_entry, target);
 	    return color_map_entry;
@@ -758,7 +765,7 @@ void QGLWidget::init( QGLContext *context, const QGLWidget *shareWidget )
     setAttribute(WA_NoSystemBackground, true);
 
     if ( isValid() && context->format().hasOverlay() ) {
-	QByteArray olwName( name() );
+	QByteArray olwName( objectName() );
 	olwName += "-QGL_internal_overlay_widget";
 	olw = new QGLOverlayWidget( QGLFormat::defaultOverlayFormat(),
 				    this, olwName, shareWidget );
@@ -866,21 +873,21 @@ void QGLWidget::setContext( QGLContext *context,
     XVisualInfo *vi = (XVisualInfo*)glcx->vi;
     XSetWindowAttributes a;
 
-    a.colormap = choose_cmap( x11Display(), vi );	// find best colormap
-    a.background_pixel = backgroundColor().pixel( vi->screen );
+    a.colormap = choose_cmap( x11Info()->display(), vi );	// find best colormap
+    a.background_pixel = palette().color(backgroundRole()).pixel( vi->screen );
     a.border_pixel = QColor(black).pixel( vi->screen );
-    Window p = RootWindow( x11Display(), vi->screen );
+    Window p = RootWindow( x11Info()->display(), vi->screen );
     if ( parentWidget() )
 	p = parentWidget()->winId();
 
-    Window w = XCreateWindow( x11Display(), p,  x(), y(), width(), height(),
+    Window w = XCreateWindow( x11Info()->display(), p,  x(), y(), width(), height(),
 			      0, vi->depth, InputOutput,  vi->visual,
 			      CWBackPixel|CWBorderPixel|CWColormap, &a );
 
     Window *cmw;
     Window *cmwret;
     int count;
-    if ( XGetWMColormapWindows( x11Display(), topLevelWidget()->winId(),
+    if ( XGetWMColormapWindows( x11Info()->display(), topLevelWidget()->winId(),
 				&cmwret, &count ) ) {
 	cmw = new Window[count+1];
 	memcpy( (char *)cmw, (char *)cmwret, sizeof(Window)*count );
@@ -902,7 +909,7 @@ void QGLWidget::setContext( QGLContext *context,
 
 #if defined(GLX_MESA_release_buffers) && defined(QGL_USE_MESA_EXT)
     if ( oldcx && oldcx->windowCreated() )
-	glXReleaseBuffersMESA( x11Display(), winId() );
+	glXReleaseBuffersMESA( x11Info()->display(), winId() );
 #endif
     if ( deleteOldContext )
 	delete oldcx;
@@ -910,13 +917,13 @@ void QGLWidget::setContext( QGLContext *context,
 
     create( w );
 
-    XSetWMColormapWindows( x11Display(), topLevelWidget()->winId(), cmw,
+    XSetWMColormapWindows( x11Info()->display(), topLevelWidget()->winId(), cmw,
 			   count );
     delete [] cmw;
 
     if ( visible )
 	show();
-    XFlush( x11Display() );
+    XFlush( x11Info()->display() );
     glcx->setWindowCreated( TRUE );
 }
 
@@ -928,19 +935,19 @@ bool QGLWidget::renderCxPm( QPixmap* pm )
 
     GLXPixmap glPm;
 #if defined(GLX_MESA_pixmap_colormap) && defined(QGL_USE_MESA_EXT)
-    glPm = glXCreateGLXPixmapMESA( x11Display(),
+    glPm = glXCreateGLXPixmapMESA( x11Info()->display(),
 				   (XVisualInfo*)glcx->vi,
 				   (Pixmap)pm->handle(),
-				   choose_cmap( pm->x11Display(),
+				   choose_cmap( pm->x11Info()->display(),
 						(XVisualInfo*)glcx->vi ) );
 #else
-    glPm = (Q_UINT32)glXCreateGLXPixmap( x11Display(),
+    glPm = (Q_UINT32)glXCreateGLXPixmap( x11Info()->display(),
 					 (XVisualInfo*)glcx->vi,
 					 (Pixmap)pm->handle() );
 #endif
 
-    if ( !glXMakeCurrent( x11Display(), glPm, (GLXContext)glcx->cx ) ) {
-	glXDestroyGLXPixmap( x11Display(), glPm );
+    if ( !glXMakeCurrent( x11Info()->display(), glPm, (GLXContext)glcx->cx ) ) {
+	glXDestroyGLXPixmap( x11Info()->display(), glPm );
 	return FALSE;
     }
 
@@ -951,7 +958,7 @@ bool QGLWidget::renderCxPm( QPixmap* pm )
     paintGL();
     glFlush();
     makeCurrent();
-    glXDestroyGLXPixmap( x11Display(), glPm );
+    glXDestroyGLXPixmap( x11Info()->display(), glPm );
     resizeGL( width(), height() );
     return TRUE;
 }
@@ -977,7 +984,7 @@ static void qStoreColors( QWidget * tlw, Colormap cmap,
 	c.green = (ushort)( (qGreen( color ) / 255.0) * 65535.0 + 0.5 );
 	c.blue  = (ushort)( (qBlue( color ) / 255.0) * 65535.0 + 0.5 );
 	c.flags = DoRed | DoGreen | DoBlue;
-	XStoreColor( tlw->x11Display(), cmap, &c );
+	XStoreColor( tlw->x11Info()->display(), cmap, &c );
     }
 }
 
@@ -991,12 +998,11 @@ static bool qCanAllocColors( QWidget * w )
     long mask;
     XVisualInfo templ;
     XVisualInfo * visuals;
-    VisualID id = XVisualIDFromVisual( (Visual *)
-				       w->topLevelWidget()->x11Visual() );
+    VisualID id = XVisualIDFromVisual(w->topLevelWidget()->x11Info()->visual());
 
     mask = VisualScreenMask;
-    templ.screen = w->x11Screen();
-    visuals = XGetVisualInfo( w->x11Display(), mask, &templ, &numVisuals );
+    templ.screen = w->x11Info()->screen();
+    visuals = XGetVisualInfo( w->x11Info()->display(), mask, &templ, &numVisuals );
 
     for ( int i = 0; i < numVisuals; i++ ) {
 	if ( visuals[i].visualid == id ) {
@@ -1039,27 +1045,25 @@ void QGLWidget::setColormap( const QGLColormap & c )
     // If the child GL widget is not of the same visual class as the
     // toplevel widget we will get in trouble..
     Window wid = tlw->winId();
-    Visual * vis = (Visual *) tlw->x11Visual();;
-    VisualID cvId = XVisualIDFromVisual( (Visual *) x11Visual() );
-    VisualID tvId = XVisualIDFromVisual( (Visual *) tlw->x11Visual() );
+    Visual * vis = tlw->x11Info()->visual();;
+    VisualID cvId = XVisualIDFromVisual(x11Info()->visual());
+    VisualID tvId = XVisualIDFromVisual(tlw->x11Info()->visual());
     if ( cvId != tvId ) {
 	wid = winId();
-	vis = (Visual *) x11Visual();
+	vis = x11Info()->visual();
     }
 
     if ( !cmap.d->cmapHandle ) // allocate a cmap if necessary
-	cmap.d->cmapHandle = XCreateColormap( x11Display(), wid, vis,
-					      AllocAll );
+	cmap.d->cmapHandle = XCreateColormap( x11Info()->display(), wid, vis, AllocAll );
 
     qStoreColors( this, (Colormap) cmap.d->cmapHandle, c );
-    XSetWindowColormap( x11Display(), wid, (Colormap) cmap.d->cmapHandle );
+    XSetWindowColormap( x11Info()->display(), wid, (Colormap) cmap.d->cmapHandle );
 
     // tell the wm that this window has a special colormap
     Window * cmw;
     Window * cmwret;
     int count;
-    if ( XGetWMColormapWindows( x11Display(), tlw->winId(), &cmwret,
-				&count ) )
+    if ( XGetWMColormapWindows( x11Info()->display(), tlw->winId(), &cmwret, &count ) )
     {
 	cmw = new Window[count+1];
 	memcpy( (char *) cmw, (char *) cmwret, sizeof(Window) * count );
@@ -1077,7 +1081,7 @@ void QGLWidget::setColormap( const QGLColormap & c )
 	cmw = new Window[count];
 	cmw[0] = winId();
     }
-    XSetWMColormapWindows( x11Display(), tlw->winId(), cmw, count );
+    XSetWMColormapWindows( x11Info()->display(), tlw->winId(), cmw, count );
     delete [] cmw;
 }
 
@@ -1091,8 +1095,7 @@ void QGLWidget::cleanupColormaps()
 	return;
 
     if ( cmap.d->cmapHandle ) {
-	XFreeColormap( topLevelWidget()->x11Display(),
-		       (Colormap) cmap.d->cmapHandle );
+	XFreeColormap( topLevelWidget()->x11Info()->display(), (Colormap) cmap.d->cmapHandle );
 	cmap.d->cmapHandle = 0;
     }
 }
