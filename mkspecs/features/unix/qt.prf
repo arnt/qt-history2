@@ -35,7 +35,12 @@ for(QTLIB, $$list($$lower($$unique(QT)))) {
              INCLUDEPATH = $$QMAKE_INCDIR_QT/$$qlib $$INCLUDEPATH
          }
 	 isEqual(QTLIB, opengl):CONFIG += opengl
-	 mac:!no_qt_framework:exists(/Library/Frameworks/$${qlib}.framework) {
+	 mac:!qt_no_framework:exists(/Library/Frameworks/$${qlib}.framework) {
+	    FRAMEWORK_INCLUDE = /Library/Frameworks/$${qlib}.framework/Headers
+	    qt_framework_direct_includes:exists($$FRAMEWORK_INCLUDE) {
+	       INCLUDEPATH -= $$FRAMEWORK_INCLUDE
+	       INCLUDEPATH = $$FRAMEWORK_INCLUDE $$INCLUDEPATH
+            }
 	    LIBS   += -framework $${qlib}
 	 } else:CONFIG(debug, debug|release) {
 	    LIBS   += -l$${qlib}_debug
