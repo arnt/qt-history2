@@ -1,5 +1,5 @@
-#ifndef QLISTVIEW_H
-#define QLISTVIEW_H
+#ifndef QLISTVIEW__H
+#define QLISTVIEW__H
 
 #ifndef QT_H
 #include <qgenericlistview.h>
