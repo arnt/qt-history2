@@ -11,5 +11,5 @@ int main(int argc, char *argv[])
     Server server;
     server.show();
     srand(time(0));
-    return srand.exec();
+    return server.exec();
 }
