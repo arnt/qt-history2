@@ -1500,10 +1500,21 @@ void MainWindow::fileCreateTemplate()
 {
     CreateTemplate dia( this, 0, TRUE );
 
-    for ( int i = 0; i < WidgetDatabase::numWidgetGroups(); ++i ) {
-	if ( WidgetDatabase::isContainer( i ) && WidgetDatabase::className( i ) != "QTabWidget" )
+    int i = 0;
+    for ( i = 0; i < WidgetDatabase::count(); ++i ) {
+	if ( WidgetDatabase::isForm( i ) && WidgetDatabase::widgetGroup( i ) != "Temp") {
+	    qDebug("form %s", WidgetDatabase::className( i ).latin1() );
 	    dia.listClass->insertItem( WidgetDatabase::className( i ) );
+	}
     }
+    for ( i = 0; i < WidgetDatabase::count(); ++i ) {
+	if ( WidgetDatabase::isContainer( i ) && !WidgetDatabase::isForm(i) && 
+	     WidgetDatabase::className( i ) != "QTabWidget" && WidgetDatabase::widgetGroup( i ) != "Temp" ) {
+	    qDebug("container %s", WidgetDatabase::className( i ).latin1() );
+	    dia.listClass->insertItem( WidgetDatabase::className( i ) );
+	}
+    }
+    
     QList<MetaDataBase::CustomWidget> *lst = MetaDataBase::customWidgets();
     for ( MetaDataBase::CustomWidget *w = lst->first(); w; w = lst->next() ) {
 	if ( w->isContainer )

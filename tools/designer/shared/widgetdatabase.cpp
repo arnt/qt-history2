@@ -53,6 +53,7 @@ QCleanupHandler<QInterfaceManager<WidgetInterface> > cleanup_manager;
 
 WidgetDatabaseRecord::WidgetDatabaseRecord()
 {
+    isForm = FALSE;
     isContainer = FALSE;
     icon = 0;
     nameCounter = 0;
@@ -394,7 +395,7 @@ void WidgetDatabase::setupDataBase()
 
     r = new WidgetDatabaseRecord;
     r->name = "QWidget";
-    r->isContainer = FALSE;
+    r->isForm = TRUE;
     r->group = widgetGroup( "Forms" );
 
     append( r );
@@ -402,7 +403,7 @@ void WidgetDatabase::setupDataBase()
     r = new WidgetDatabaseRecord;
     r->name = "QDialog";
     r->group = widgetGroup( "Forms" );
-    r->isContainer = FALSE;
+    r->isForm = TRUE;
 
     append( r );
 
@@ -623,6 +624,20 @@ QString WidgetDatabase::includeFile( int id )
     if ( r->includeFile.isNull() )
 	return r->name.lower() + ".h";
     return r->includeFile;
+}
+
+/*!  Returns wheather the widget registered as \a id is a form
+*/
+bool WidgetDatabase::isForm( int id )
+{
+    setupDataBase();
+    WidgetDatabaseRecord *r = at( id );
+    if ( !r )
+	return FALSE;
+    if ( r->isForm ) {
+	qDebug("%s is form", r->name.latin1() );
+    }
+    return r->isForm;
 }
 
 /*!  Returns wheather the widget registered as \a id is a container
