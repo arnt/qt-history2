@@ -1,3 +1,6 @@
 General SQL TODO stuff:
 ~~~~~~~~~~~~~~~~~~~~~~~
 
+QSqlTable:
+suggestion for renaming:
+currentFieldSelection => currentRecord
