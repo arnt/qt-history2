@@ -142,8 +142,10 @@ int QWidgetStack::addWidget( QWidget * w, int id )
     d->hash.insert( id, w );
 
     w->hide();
-    if ( w->parent() != this )
-	w->reparent( this, contentsRect().topLeft(), FALSE );
+    if ( w->parent() != this ) {
+	w->setParent(this); 
+	w->move(contentsRect().topLeft());
+    }
     w->setGeometry( contentsRect() );
     updateGeometry();
     return id;

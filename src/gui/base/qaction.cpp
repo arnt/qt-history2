@@ -248,7 +248,7 @@ void QActionPrivate::update( uint upd )
 	QString t = menuText();
 #ifndef QT_NO_ACCEL
 	if ( key )
-	    t += '\t' + QAccel::keyToString( key );
+	    t += '\t' + (QString)QKeySequence(key);
 #endif
 	if ( upd & State ) {
 	    mi->popup->setItemEnabled( mi->id, enabled );
@@ -337,7 +337,7 @@ QString QActionPrivate::toolTip() const
     if ( tooltip.isNull() ) {
 #ifndef QT_NO_ACCEL
 	if ( accel )
-	    return text + " (" + QAccel::keyToString( accel->key( accelid )) + ")";
+	    return text + " (" + (QString)QKeySequence(accel->key(accelid)) + ")";
 #endif
 	return text;
     }

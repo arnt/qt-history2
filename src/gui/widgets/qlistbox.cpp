@@ -3331,7 +3331,7 @@ void QListBox::doAutoScroll()
 {
     if ( d->scrollPos.x() < 0 ) {
 	// scroll left
-	int x = contentsX() - horizontalScrollBar()->lineStep();
+	int x = contentsX() - horizontalScrollBar()->singleStep();
 	if ( x < 0 )
 	    x = 0;
 	if ( x != contentsX() ) {
@@ -3342,7 +3342,7 @@ void QListBox::doAutoScroll()
 	}
     } else if ( d->scrollPos.x() > 0 ) {
 	// scroll right
-	int x = contentsX() + horizontalScrollBar()->lineStep();
+	int x = contentsX() + horizontalScrollBar()->singleStep();
 	if ( x + visibleWidth() > contentsWidth() )
 	    x = contentsWidth() - visibleWidth();
 	if ( x != contentsX() ) {
@@ -3355,21 +3355,21 @@ void QListBox::doAutoScroll()
 
     if ( d->scrollPos.y() < 0 ) {
 	// scroll up
-	int y = contentsY() - verticalScrollBar()->lineStep();
+	int y = contentsY() - verticalScrollBar()->singleStep();
 	if ( y < 0 )
 	    y = 0;
 	if ( y != contentsY() ) {
-	    y = contentsY() - verticalScrollBar()->lineStep();
+	    y = contentsY() - verticalScrollBar()->singleStep();
 	    d->mouseMoveRow = rowAt( y );
 	    updateSelection();
 	}
     } else if ( d->scrollPos.y() > 0 ) {
 	// scroll down
-	int y = contentsY() + verticalScrollBar()->lineStep();
+	int y = contentsY() + verticalScrollBar()->singleStep();
 	if ( y + visibleHeight() > contentsHeight() )
 	    y = contentsHeight() - visibleHeight();
 	if ( y != contentsY() ) {
-	    y = contentsY() + verticalScrollBar()->lineStep();
+	    y = contentsY() + verticalScrollBar()->singleStep();
 	    d->mouseMoveRow = rowAt(y + visibleHeight() - 1 );
 	    updateSelection();
 	}
@@ -3558,7 +3558,7 @@ void QListBox::viewportPaintEvent( QPaintEvent * e )
 
     const QPalette &pal = palette();
     p.setPen( pal.text() );
-    p.setBackgroundColor( backgroundBrush().color() );
+    p.setBackgroundColor( palette().brush(backgroundRole()).color() );
     while ( i && (int)col < numColumns() && d->columnPos[col] < x + w ) {
 	int cw = d->columnPos[col+1] - d->columnPos[col];
 	while ( i && (int)row < numRows() && d->rowPos[row] < y + h ) {
@@ -3592,7 +3592,7 @@ void QListBox::viewportPaintEvent( QPaintEvent * e )
     if ( r.isEmpty() )
 	return;
     p.setClipRegion( r );
-    p.fillRect( 0, 0, w, h, viewport()->backgroundBrush() );
+    p.fillRect( 0, 0, w, h, viewport()->palette().brush(viewport()->backgroundRole()) );
 }
 
 

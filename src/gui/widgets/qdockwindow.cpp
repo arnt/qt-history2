@@ -1129,7 +1129,7 @@ void QDockWindow::swapRect( QRect &r, Qt::Orientation o, const QPoint &offset, Q
 
 QWidget *QDockWindow::areaAt( const QPoint &gp )
 {
-    QWidget *w = qApp->widgetAt( gp, TRUE );
+    QWidget *w = qApp->widgetAt(gp);
 
     if ( w && ( w == this || w == titleBar ) && parentWidget() )
 	w = parentWidget()->childAt( parentWidget()->mapFromGlobal( gp ) );
@@ -1146,7 +1146,7 @@ QWidget *QDockWindow::areaAt( const QPoint &gp )
 	    if ( a && a->isDockWindowAccepted( this ) )
 		return a;
 	}
-	w = w->parentWidget( TRUE );
+	w = w->isTopLevel() ? 0 : (QWidget *)w->parent();
     }
     return 0;
 }
@@ -1847,7 +1847,7 @@ void QDockWindow::undock( QWidget *w )
 	    show();
 	}
     } else {
-	reparent( w, 0, QPoint( 0, 0 ), FALSE );
+	setParent(w, 0);
 	move( -width() - 5, -height() - 5 );
 	resize( 1, 1 );
 	show();

@@ -479,9 +479,12 @@ bool QDialog::eventFilter( QObject *o, QEvent *e )
 void QDialog::contextMenuEvent( QContextMenuEvent *e )
 {
 #if !defined(QT_NO_WHATSTHIS) && !defined(QT_NO_POPUPMENU)
-    QWidget* w = childAt( e->pos(), TRUE );
-    if ( !w )
-	return;
+    QWidget *w = childAt(e->pos());
+    if (!w) {
+	w = rect().contains(e->pos()) ? this : 0;
+	if (!w)
+	    return;
+    }
     while (w && !w->whatsThis() && !w->testAttribute(WA_CustomWhatsThis))
 	w = w->isTopLevel() ? 0 : w->parentWidget();
     if (w) {
@@ -834,7 +837,7 @@ void QDialog::setExtension( QWidget* extension )
 	return;
 
     if ( extension->parentWidget() != this )
-	extension->reparent( this, QPoint(0,0) );
+	extension->setParent(this);
     extension->hide();
 }
 

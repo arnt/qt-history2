@@ -499,7 +499,7 @@ void Q3TextCursor::insert( const QString &str, bool checkNewLine, QVector<Q3Text
 #if defined(Q_WS_WIN)
     if ( checkNewLine ) {
 	int i = 0;
-	while ( ( i = s.find( '\r', i ) ) != -1 )
+	while ( ( i = s.indexOf( '\r', i ) ) != -1 )
 	    s.remove( i ,1 );
     }
 #endif

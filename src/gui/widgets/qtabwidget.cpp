@@ -593,8 +593,10 @@ void QTabWidget::resizeEvent( QResizeEvent *e )
 */
 void QTabWidget::setTabBar( QTabBar* tb)
 {
-    if ( tb->parentWidget() != this )
-        tb->reparent( this, QPoint(0,0), TRUE );
+    if ( tb->parentWidget() != this ) {
+	tb->setParent(this);
+	tb->show();
+    }
     delete d->tabs;
     d->tabs = tb;
     setFocusProxy( d->tabs );

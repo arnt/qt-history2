@@ -1266,6 +1266,7 @@ void QComboBox::mouseDoubleClickEvent( QMouseEvent *e )
 void QComboBox::keyPressEvent( QKeyEvent *e )
 {
     int c = currentItem();
+    char ascii = e->text().length() ? e->text().unicode()->latin1() : 0;
     if ( ( e->key() == Key_F4 && e->state() == 0 ) ||
 	 ( e->key() == Key_Down && (e->state() & AltButton) ) ||
 	 ( !d->ed && e->key() == Key_Space ) ) {
@@ -1285,7 +1286,7 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
 	setCurrentItem( 0 );
     } else if ( d->usingListBox() && e->key() == Key_End && ( !d->ed || !d->ed->hasFocus() ) ) {
 	setCurrentItem( count()-1 );
-    } else if ( !d->ed && e->ascii() >= 32 && !e->text().isEmpty() ) {
+    } else if ( !d->ed && ascii >= 32 && !e->text().isEmpty() ) {
 	if ( !d->completionTimer->isActive() ) {
 	    d->completeAt = 0;
 	    c = d->completionIndex( e->text(), ++c );
@@ -1605,8 +1606,9 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		int i = d->completionIndex( ct, currentItem() );
 		if ( i > -1 ) {
 		    QString it = text( i );
-		    d->ed->validateAndSet( it, ct.length(),
-					   ct.length(), it.length() );
+		    d->ed->setText(it);
+		    d->ed->setCursorPosition(ct.length());
+		    d->ed->setSelection(ct.length(), it.length());
 		    d->current = i;
                     // ### sets current item without emitting signals. This is to
 		    // make sure the right item is current if you change current with

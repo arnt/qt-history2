@@ -127,8 +127,9 @@ void QScrollViewPrivate::init()
     corner = 0;
     defaultCorner = new QWidget( q, "qt_default_corner" );
     defaultCorner->hide();
-    vbar->setSteps( 20, 1/*set later*/ );
-    hbar->setSteps( 20, 1/*set later*/ );
+    vbar->setSingleStep(20); 
+    hbar->setSingleStep(20);
+    // vbar & hbar setPageStep set later
     policy = QScrollView::Default;
     signal_choke = FALSE;
     static_bg = FALSE;
@@ -899,16 +900,22 @@ void QScrollView::updateScrollBars()
 
     // Configure scrollbars that we will show
     if ( needv ) {
-	d->vbar->setRange( 0, contentsHeight()-porth );
-	d->vbar->setSteps( QScrollView::d->vbar->lineStep(), porth );
+	d->vbar->setMinimum(0);
+	d->vbar->setMaximum(contentsHeight()-porth);
+	d->vbar->setSingleStep(QScrollView::d->vbar->singleStep()); 
+	d->vbar->setPageStep(porth);
     } else {
-	d->vbar->setRange( 0, 0 );
+	d->vbar->setMinimum(0);
+	d->vbar->setMaximum(0);
     }
     if ( needh ) {
-	d->hbar->setRange( 0, qMax(0, d->contentsWidth()-portw) );
-	d->hbar->setSteps( QScrollView::d->hbar->lineStep(), portw );
+	d->hbar->setMinimum(0);
+	d->hbar->setMaximum(qMax(0, d->contentsWidth()-portw));
+	d->hbar->setSingleStep(QScrollView::d->hbar->singleStep()); 
+	d->hbar->setPageStep(portw);
     } else {
-	d->hbar->setRange( 0, 0 );
+	d->hbar->setMinimum(0);
+	d->hbar->setMaximum(0);
     }
 
     // Position the scrollbars, viewport and corner widget.
@@ -1260,8 +1267,7 @@ void QScrollView::setCornerWidget(QWidget* corner)
 
         if ( corner && corner->parentWidget() != this ) {
             // #### No clean way to get current WFlags
-            corner->reparent( this, (((QScrollView*)corner))->getWFlags(),
-                              QPoint(0,0), FALSE );
+	    corner->setParent(this, (((QScrollView*)corner))->getWFlags());
         }
 
         updateScrollBars();
@@ -1324,7 +1330,7 @@ void QScrollView::addChild(QWidget* child, int x, int y)
 	return;
     }
     child->ensurePolished();
-    child->setBackgroundOrigin(WidgetOrigin);
+    //child->setBackgroundOrigin(WidgetOrigin);
 
     if ( child->parentWidget() == viewport() ) {
         // May already be there
@@ -1348,7 +1354,7 @@ void QScrollView::addChild(QWidget* child, int x, int y)
         setResizePolicy( Manual );
     }
     if ( child->parentWidget() != viewport() ) {
-            child->reparent( viewport(), 0, QPoint(0,0), FALSE );
+	    child->setParent(viewport(), 0);
     }
     d->addChildRec(child,x,y)->hideOrShow(this, d->clipped_viewport);
 
@@ -2491,7 +2497,7 @@ void QScrollView::enableClipper(bool y)
 	d->clipped_viewport = new QClipperWidget(clipper(), "qt_clipped_viewport", d->flags);
 	d->clipped_viewport->setGeometry(-coord_limit/2,-coord_limit/2,
 					 coord_limit,coord_limit);
-	d->clipped_viewport->setBackgroundMode( d->viewport->backgroundMode() );
+	d->clipped_viewport->setBackgroundRole( d->viewport->backgroundRole() );
 	d->viewport->setAttribute(WA_NoSystemBackground, true); // no exposures for this
 	d->viewport->removeEventFilter( this );
 	d->clipped_viewport->installEventFilter( this );

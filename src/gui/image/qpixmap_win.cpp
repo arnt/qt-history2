@@ -711,8 +711,8 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 #ifndef Q_OS_TEMP
     bool hasRealAlpha = FALSE;
     if ( img.hasAlphaBuffer() &&
-	    ( QApplication::winVersion() != Qt::WV_95 &&
-	      QApplication::winVersion() != Qt::WV_NT ) ) {
+	    ( QSysInfo::WindowsVersion != Qt::WV_95 &&
+	      QSysInfo::WindowsVersion != Qt::WV_NT ) ) {
         if (image.depth() == 8) {
 	    const QRgb * const rgb = img.colorTable();
 	    for (int i = 0, count = img.numColors(); i < count; ++i) {

@@ -149,12 +149,16 @@ void QToolBoxPrivate::updateTabs()
     QToolBoxButton *lastButton = currentPage ? currentPage->button : 0;
     bool after = FALSE;
     for ( PageList::ConstIterator i = pageList.constBegin(); i != pageList.constEnd(); ++i ) {
+	QToolBoxButton *tB = (*i).button;
+	QWidget *tW = (*i).widget;
 	if (after) {
-	    (*i).button->setEraseColor((*i).widget->eraseColor());
-	    (*i).button->update();
-	} else if ( (*i).button->backgroundMode() != Qt::PaletteBackground ) {
-	    (*i).button->setBackgroundRole( QPalette::Background );
-	    (*i).button->update();
+	    QPalette p = tB->palette(); 
+	    p.setColor(tB->backgroundRole(), tW->palette().color(tW->backgroundRole())); 
+	    tB->setPalette(p);
+	    tB->update();
+	} else if ( tB->backgroundRole() != QPalette::Background ) {
+	    tB->setBackgroundRole( QPalette::Background );
+	    tB->update();
 	}
 	after = (*i).button == lastButton;
     }
@@ -400,7 +404,7 @@ void QToolBox::buttonClicked()
 	    break;
 	}
 
-    setCurrentItem( item );
+    setCurrentIndex(indexOf(item));
 }
 
 /*!
@@ -449,8 +453,8 @@ void QToolBox::itemDestroyed(QObject *object)
     if ( !page || !c )
 	return;
 
-    d->layout->remove( c->sv );
-    d->layout->remove( c->button );
+    d->layout->removeWidget( c->sv );
+    d->layout->removeWidget( c->button );
     c->sv->deleteLater(); // page might still be a child of sv
     delete c->button;
 
@@ -477,7 +481,7 @@ int QToolBox::removeItem( QWidget *item )
     int index = indexOf(item);
     if (index >= 0) {
 	disconnect(item, SIGNAL(destroyed(QObject*)), this, SLOT(itemDestroyed(QObject*)));
-	item->reparent( this, QPoint(0,0) );
+	item->setParent(this);
 	// destroy internal data
 	itemDestroyed(item);
     }

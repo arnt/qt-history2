@@ -281,7 +281,7 @@ QDialogButtons::handleClicked()
 	return;
 
     for(QMap<QDialogButtons::Button, QWidget *>::Iterator it = d->buttons.begin(); it != d->buttons.end(); ++it) {
-	if(it.data() == s) {
+	if(it.value() == s) {
 	    emit clicked((QDialogButtons::Button)it.key());
 	    switch(it.key()) {
 	    case Retry:

@@ -1234,17 +1234,17 @@ void QMessageBox::about( QWidget *parent, const QString &caption,
                                        parent, "qt_msgbox_simple_about_box", TRUE,
 				       WDestructiveClose);
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    const QPixmap *pm = parent ? parent->icon() : 0;
-    if ( pm && !pm->isNull() )
-	mb->setIconPixmap( *pm );
+    QPixmap pm = parent ? parent->windowIcon() : QPixmap();
+    if ( !pm.isNull() )
+	mb->setIconPixmap( pm );
     else {
-	pm = parent ? parent->topLevelWidget()->icon() : 0;
-	if ( pm && !pm->isNull() )
-	    mb->setIconPixmap( *pm );
+	pm = parent ? parent->topLevelWidget()->windowIcon() : QPixmap();
+	if ( !pm.isNull() )
+	    mb->setIconPixmap( pm );
 	else {
-	    pm = qApp && qApp->mainWidget() ? qApp->mainWidget()->icon() : 0;
-	    if ( pm && !pm->isNull() )
-		mb->setIconPixmap( *pm );
+	    pm = qApp && qApp->mainWidget() ? qApp->mainWidget()->windowIcon() : QPixmap();
+	    if ( !pm.isNull() )
+		mb->setIconPixmap( pm );
 	}
     }
 #endif

@@ -543,7 +543,8 @@ void QToolButton::moveEvent( QMoveEvent * )
 {
     //   Reimplemented to handle pseudo transparency in case the toolbars
     //   has a fancy pixmap background.
-    if ( parentWidget() && parentWidget()->backgroundPixmap() &&
+    QWidget *pW = static_cast<QWidget *>(parent());
+    if ( pW && pW->palette().brush(backgroundRole()).pixmap() &&
 	 autoRaise() && !uses3D() )
 	repaint();
 }
@@ -589,7 +590,7 @@ bool QToolButton::eventFilter( QObject *o, QEvent *e )
 	{
 	    QMouseEvent *me = (QMouseEvent*)e;
 	    QPoint p = me->globalPos();
-	    if ( QApplication::widgetAt( p, TRUE ) == this )
+	    if ( QApplication::widgetAt(p) == this )
 		d->discardNextMouseEvent = TRUE;
 	}
 	break;
@@ -615,7 +616,7 @@ bool QToolButton::eventFilter( QObject *o, QEvent *e )
 bool QToolButton::uses3D() const
 {
     return style().styleHint(QStyle::SH_ToolButton_Uses3D)
-	&& (!autoRaise() || ( hasMouse() && isEnabled() )
+	&& (!autoRaise() || ( underMouse() && isEnabled() )
 #ifndef QT_NO_POPUPMENU
 	    || ( d->popup && d->popup->isVisible() && d->delay <= 0 ) || d->instantPopup
 #endif

@@ -548,7 +548,7 @@ public:
 	// ...
 	// widget specific hints
 	// ...
-	SH_ScrollBar_BackgroundMode,
+	SH_ScrollBar_BackgroundMode, // deprecated
 	SH_ScrollBar_MiddleClickAbsolutePosition,
 	SH_ScrollBar_ScrollWhenPointerLeavesControl,
 
@@ -679,6 +679,8 @@ public:
 
 	// bool - QSpinBox - animate a click when up or down is pressed in a spin box
 	SH_SpinBoxAnimateButton,
+
+	SH_ScrollBar_BackgroundRole,
 
 	// do not add any values below/greater than this
 	SH_CustomBase =		0xf0000000

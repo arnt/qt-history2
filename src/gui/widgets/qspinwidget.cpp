@@ -93,7 +93,7 @@ QWidget * QSpinWidget::editWidget()
 void QSpinWidget::setEditWidget( QWidget * w )
 {
     if ( w ) {
-	w->reparent( this, QPoint( 0, 0 ) );
+	w->setParent(this);
 	setFocusProxy( w );
     }
     d->ed = w;

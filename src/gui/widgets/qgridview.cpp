@@ -213,7 +213,7 @@ void QGridView::paintEmptyArea( QPainter *p, int cx ,int cy, int cw, int ch)
 
     // And draw the rectangles (transformed as needed)
     QVector<QRect> r = reg.rects();
-    const QBrush &brush = backgroundBrush();
+    const QBrush &brush = palette().background();
     for ( int i = 0; i < (int)r.count(); ++i)
 	p->fillRect( r[ i ], brush );
 }

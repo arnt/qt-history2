@@ -333,7 +333,7 @@ void QGroupBox::paintEvent(QPaintEvent *event)
 	if (!style().styleHint(QStyle::SH_UnderlineAccelerator, this))
 	    va |= NoAccel;
 	style().drawItem(&paint, r, ShowPrefix | AlignHCenter | va, palette(),
-			  isEnabled(), 0, d->str, -1, ownPalette() ? 0 : &pen);
+			  isEnabled(), 0, d->str, -1, testAttribute(WA_SetPalette) ? 0 : &pen);
 	paint.setClipRegion(event->region().subtract(r)); // clip everything but title
     } else if (d->checkbox) {
 	QRect cbClip = d->checkbox->geometry();
@@ -569,7 +569,7 @@ bool QGroupBox::event(QEvent * e)
 /*!\reimp */
 void QGroupBox::childEvent(QChildEvent *c)
 {
-    if (!c->inserted() || !c->child()->isWidgetType())
+    if (c->type() != QEvent::ChildInserted || !c->child()->isWidgetType())
 	return;
     QWidget *w = (QWidget*)c->child();
     if (d->checkbox) {

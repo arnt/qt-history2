@@ -862,7 +862,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	    const QToolBox *tb = (const QToolBox*)widget;
 
 	    if ( flags & Style_Selected && tb->item(tb->currentIndex()) )
-		p->setBrush( tb->item(tb->currentIndex())->paletteBackgroundColor() );
+		p->setBrush( tb->item(tb->currentIndex())->palette().background() );
 	    else
 		p->setBrush( pal.background() );
 
@@ -1008,7 +1008,7 @@ void QCommonStyle::drawControl( ControlElement element,
 
 		drawPrimitive(pe, p, rect, pal, flags, opt);
 	    } else {
-		QColor btext = toolbutton->paletteForegroundColor();
+		QColor btext = toolbutton->palette().foreground();
 
 		if (toolbutton->iconSet().isNull() &&
 		    ! toolbutton->text().isNull() &&
@@ -1545,7 +1545,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    QPalette pal2 = pal;
 	    if ( toolbutton->backgroundRole() != QPalette::Button )
 		pal2.setBrush( QPalette::Button,
-			    toolbutton->paletteBackgroundColor() );
+			    toolbutton->palette().background() );
 	    QRect button, menuarea;
 	    button   = visualRect( querySubControlMetrics(control, widget, SC_ToolButton, opt), widget );
 	    menuarea = visualRect( querySubControlMetrics(control, widget, SC_ToolButtonMenu, opt), widget );
@@ -1559,13 +1559,14 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		mflags |= Style_Down;
 
 	    if (controls & SC_ToolButton) {
+		QWidget *tbPW = static_cast<QWidget *>(toolbutton->parent());
 		if (bflags & (Style_Down | Style_On | Style_Raised)) {
 		    drawPrimitive(PE_ButtonTool, p, button, pal2, bflags, opt);
-		} else if ( toolbutton->parentWidget() &&
-			  toolbutton->parentWidget()->backgroundPixmap() &&
-			  ! toolbutton->parentWidget()->backgroundPixmap()->isNull() ) {
+		} else if ( tbPW &&
+			    tbPW->palette().brush(tbPW->backgroundRole()).pixmap() &&
+			  ! tbPW->palette().brush(tbPW->backgroundRole()).pixmap()->isNull() ) {
 		    QPixmap pixmap =
-			*(toolbutton->parentWidget()->backgroundPixmap());
+			*(tbPW->palette().brush(tbPW->backgroundRole()).pixmap());
 
 		    p->drawTiledPixmap( r, pixmap, toolbutton->pos() );
 		}
@@ -1864,7 +1865,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
     case CC_ListView:
 	if ( controls & SC_ListView ) {
 	    QListView *listview = (QListView*)widget;
-	    p->fillRect( r, listview->viewport()->backgroundBrush() );
+	    p->fillRect( r, listview->viewport()->palette().background() );
 	}
 	break;
 #endif //QT_NO_LISTVIEW
@@ -2650,7 +2651,7 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget * w, const QStyleOption 
 	break;
 
     case SH_GroupBox_TextLabelColor:
-	ret = (int) ( w ? w->paletteForegroundColor().rgb() : 0 );
+	ret = (int) ( w ? w->palette().foreground().color().rgb() : 0 );
 	break;
 
     case SH_ListViewExpand_SelectMouseType:
@@ -2662,9 +2663,11 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget * w, const QStyleOption 
 	ret = WindowsStyle;
 	break;
 
-    case SH_ScrollBar_BackgroundMode:
-	ret = QWidget::PaletteBackground;
+#ifndef QT_NO_PALETTE
+    case SH_ScrollBar_BackgroundRole:
+	ret = QPalette::Background;
 	break;
+#endif
 
     case SH_TabBar_Alignment:
     case SH_Header_ArrowAlignment:

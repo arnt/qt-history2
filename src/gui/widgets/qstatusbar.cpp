@@ -172,8 +172,10 @@ void QStatusBar::addWidget( QWidget * widget, int stretch, bool permanent )
 	return;
     }
 
-    if ( widget->parentWidget() != this )
-	widget->reparent( this, QPoint(0, 0), TRUE );
+    if ( widget->parentWidget() != this ) {
+	widget->setParent(this);
+	widget->show();
+    }
 
     QStatusBarPrivate::SBItem* item
 	= new QStatusBarPrivate::SBItem( widget, stretch, permanent );

@@ -2290,9 +2290,11 @@ int QMotifStyle::styleHint(StyleHint hint,
 	ret = MotifStyle;
 	break;
 
-    // case SH_ScrollBar_BackgroundMode:
-    //     ret = QWidget::PaletteMid;
+    // #ifndef QT_NO_PALETTE
+    // case SH_ScrollBar_BackgroundRole:
+    //     ret = QPalette::Mid;
     //     break;
+    // #endif
 
     case SH_ScrollBar_MiddleClickAbsolutePosition:
     case SH_Slider_SloppyKeyEvents:

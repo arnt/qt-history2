@@ -4808,7 +4808,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	} else if ( !i->isOpen() && (i->isExpandable() || i->childCount()) ) {
 	    setOpen( i, TRUE );
 	} else if ( contentsX() + visibleWidth() < contentsWidth() ) {
-	    horizontalScrollBar()->addLine();
+	    horizontalScrollBar()->triggerAction(QScrollBar::SliderSingleStepAdd);
 	    return;
 	} else {
 	    return;
@@ -4828,7 +4828,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	} else if ( i->parentItem && i->parentItem != d->r ) {
 	    i = i->parentItem;
 	} else if ( contentsX() ) {
-	    horizontalScrollBar()->subtractLine();
+	    horizontalScrollBar()->triggerAction(QScrollBar::SliderSingleStepSub);
 	    return;
 	} else {
 	    return;

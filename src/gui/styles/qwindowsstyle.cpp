@@ -163,7 +163,7 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
 	    if (menuBar && te->timerId() == menuBarTimer) {
 		menuBar->killTimer(te->timerId());
 		menuBarTimer = 0;
-		menuBar->repaint(FALSE);
+		menuBar->repaint();
 		return TRUE;
 	    }
 	}

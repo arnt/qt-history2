@@ -151,7 +151,7 @@ void QSyntaxHighlighter::setFormat( int start, int count, const QFont &font )
     if ( !para || count <= 0 )
 	return;
     Q3TextFormat *f = 0;
-    QColor c = textEdit()->viewport()->paletteForegroundColor();
+    QColor c = textEdit()->viewport()->palette().foreground();
     f = para->document()->formatCollection()->format( font, c );
     para->setFormat( start, count, f );
     f->removeRef();

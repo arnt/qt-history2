@@ -6,7 +6,7 @@
 
 #include <private/qframe_p.h>
 
-class QSVChildRec;
+struct QSVChildRec;
 class QViewportWidget;
 class QClipperWidget;
 

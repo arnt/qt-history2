@@ -1049,7 +1049,7 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 #endif
     paintDocument( TRUE, p, cx, cy, cw, ch );
     int v;
-    p->setPen( foregroundColor() );
+    p->setPen(palette().foreground().color());
     if ( document()->isPageBreakEnabled() &&  ( v = document()->flow()->pageSize() ) > 0 ) {
 	int l = int(cy / v) * v;
 	while ( l < cy + ch ) {
@@ -1350,6 +1350,7 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 	repaintChanged();
 	break;
     default: {
+	    char ascii = e->text().length() ? e->text().unicode()->latin1() : 0;
 	    if ( e->text().length() &&
 		( !( e->state() & ControlButton ) &&
 #ifndef Q_OS_MAC
@@ -1357,7 +1358,7 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 #endif
 		  !( e->state() & MetaButton ) ||
 		 ( ( (e->state()&ControlButton) | AltButton ) == (ControlButton|AltButton) ) ) &&
-		 ( !e->ascii() || e->ascii() >= 32 || e->text() == "\t" ) ) {
+		 ( !ascii || ascii >= 32 || e->text() == "\t" ) ) {
 		clearUndoRedoInfo = FALSE;
 		if ( e->key() == Key_Tab ) {
 		    if ( d->tabChangesFocus ) {
@@ -1847,7 +1848,7 @@ void QTextEdit::removeSelectedText( int selNum )
 	// there seems to be a problem with repainting or erasing the area
 	// of the scrollview which is not the contents on windows
 	if ( contentsHeight() < visibleHeight() )
-	    viewport()->repaint( 0, contentsHeight(), visibleWidth(), visibleHeight() - contentsHeight(), TRUE );
+	    viewport()->repaint(0, contentsHeight(), visibleWidth(), visibleHeight() - contentsHeight());
 #endif
 #ifndef QT_NO_CURSOR
 	viewport()->setCursor( isReadOnly() ? ArrowCursor : IbeamCursor );
@@ -4464,8 +4465,12 @@ void QTextEdit::setStyleSheet( QStyleSheet* styleSheet )
 void QTextEdit::setPaper( const QBrush& pap )
 {
     doc->setPaper( new QBrush( pap ) );
-    setPaletteBackgroundColor( pap.color() );
-    viewport()->setPaletteBackgroundColor( pap.color() );
+    QPalette pal = palette();
+    pal.setColor(QPalette::Background, pap.color());
+    setPalette(pal);
+    pal = viewport()->palette();
+    pal.setColor(QPalette::Background, pap.color());
+    viewport()->setPalette(pal);
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     // force a repaint of the entire viewport - using updateContents()
     // would clip the coords to the content size

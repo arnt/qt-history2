@@ -260,7 +260,7 @@ QWorkspace::init()
     d->popup->insertItem(QIconSet(style().stylePixmap(QStyle::SP_TitleBarCloseButton)),
 				  tr("&Close")
 #ifndef QT_NO_ACCEL
-					+"\t"+QAccel::keyToString(CTRL+Key_F4)
+					+"\t"+(QString)QKeySequence(CTRL+Key_F4)
 #endif
 		    , this, SLOT( closeActiveWindow() ) );
 
@@ -276,7 +276,7 @@ QWorkspace::init()
     d->toolPopup->insertItem(QIconSet(style().stylePixmap(QStyle::SP_TitleBarCloseButton)),
 				      tr("&Close")
 #ifndef QT_NO_ACCEL
-					+"\t"+QAccel::keyToString( CTRL+Key_F4)
+					+"\t"+(QString)QKeySequence(CTRL+Key_F4)
 #endif
 		, this, SLOT( closeActiveWindow() ) );
 
@@ -334,20 +334,24 @@ QSize QWorkspace::sizeHint() const
 /*! \reimp */
 void QWorkspace::setPaletteBackgroundColor( const QColor & c )
 {
-    setEraseColor( c );
+    QPalette p = palette(); 
+    p.setColor(backgroundRole(), c); 
+    setPalette(p);
 }
 
 
 /*! \reimp */
 void QWorkspace::setPaletteBackgroundPixmap( const QPixmap & pm )
 {
-    setErasePixmap( pm );
+    QPalette p = palette(); 
+    p.setBrush(backgroundRole(), QBrush(pm)); 
+    setPalette(p);
 }
 
 /*! \reimp */
 void QWorkspace::childEvent( QChildEvent * e)
 {
-    if (e->inserted() && e->child()->isWidgetType()) {
+    if ((e->type() == QEvent::ChildInserted) && e->child()->isWidgetType()) {
 	QWidget* w = (QWidget*) e->child();
 	if ( !w || !w->testWFlags( WStyle_Title | WStyle_NormalBorder | WStyle_DialogBorder )
 	     || d->icons.contains( w ) || w == d->vbar || w == d->hbar || w == d->corner )
@@ -638,8 +642,10 @@ void QWorkspace::insertIcon( QWidget* w )
     if ( !w || d->icons.contains( w ) )
 	return;
     d->icons.append( w );
-    if (w->parentWidget() != this )
-	w->reparent( this, 0, QPoint(0,0), FALSE);
+    if (w->parentWidget() != this ) {
+	w->setParent(this, 0); 
+	w->move(0,0);
+    }
     QRect cr = updateWorkspace();
     int x = 0;
     int y = cr.height() - w->height();
@@ -963,7 +969,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e )
 #endif
     switch ( e->type() ) {
     case QEvent::HideToParent:
-	if ( !o->isA( "QWorkspaceChild" ) )
+	if ( qstrcmp("QWorkspaceChild", o->className()) )
 	    break;
 	if ( d->active == o ) {
 	    int a = d->focus.indexOf(d->active);
@@ -1009,7 +1015,8 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e )
 	updateWorkspace();
 	break;
     case QEvent::ShowToParent:
-	if ( o->isA("QWorkspaceChild") && !d->focus.contains((QWorkspaceChild*)o) )
+	if ( (qstrcmp("QWorkspaceChild", o->className()) == 0) 
+	     && !d->focus.contains((QWorkspaceChild*)o) )
 	    d->focus.append( (QWorkspaceChild*)o );
 	updateWorkspace();
 	break;
@@ -1698,7 +1705,8 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 		   cs.height() + 2*frameWidth() );
     }
 
-    childWidget->reparent( this, p);
+    childWidget->setParent(this);
+    childWidget->move(p);
     resize( s );
 
     childWidget->installEventFilter( this );
@@ -2359,8 +2367,10 @@ QRect QWorkspace::updateWorkspace()
 	    vsbExt = 0;
 
 	if ( showv ) {
-	    d->vbar->setSteps( qMax( height() / 12, 30 ), height()  - hsbExt );
-	    d->vbar->setRange( qMin( 0, d->yoffset + qMin( 0, r.top() ) ), qMax( 0, d->yoffset + qMax( 0, r.bottom() - height() + hsbExt + 1) ) );
+	    d->vbar->setSingleStep(qMax(height() / 12, 30)); 
+	    d->vbar->setPageStep(height() - hsbExt);
+	    d->vbar->setMinimum(qMin(0, d->yoffset + qMin(0, r.top()))); 
+	    d->vbar->setMaximum(qMax(0, d->yoffset + qMax(0, r.bottom() - height() + hsbExt + 1)));
 	    d->vbar->setGeometry( width() - vsbExt, 0, vsbExt, height() - hsbExt );
 	    d->vbar->setValue( d->yoffset );
 	    d->vbar->show();
@@ -2369,8 +2379,10 @@ QRect QWorkspace::updateWorkspace()
 	}
 
 	if ( showh ) {
-	    d->hbar->setSteps( qMax( width() / 12, 30 ), width() - vsbExt );
-	    d->hbar->setRange( qMin( 0, d->xoffset + qMin( 0, r.left() ) ), qMax( 0, d->xoffset + qMax( 0, r.right() - width() + vsbExt  + 1) ) );
+	    d->hbar->setSingleStep(qMax(width() / 12, 30));
+	    d->hbar->setPageStep(width() - vsbExt);
+	    d->hbar->setMinimum(qMin(0, d->xoffset + qMin(0, r.left())));
+	    d->hbar->setMaximum(qMax(0, d->xoffset + qMax(0, r.right() - width() + vsbExt  + 1)));
 	    d->hbar->setGeometry( 0, height() - hsbExt, width() - vsbExt, hsbExt );
 	    d->hbar->setValue( d->xoffset );
 	    d->hbar->show();

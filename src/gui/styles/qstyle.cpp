@@ -1607,7 +1607,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     \value SH_GUIStyle the GUI style to use.
 
-    \value SH_ScrollBar_BackgroundMode  the background mode for a
+    \value SH_ScrollBar_BackgroundRole  the background role for a
 	QScrollBar.
 
     \value SH_ScrollBar_MiddleClickAbsolutePosition  a boolean value.

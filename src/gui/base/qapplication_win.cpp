@@ -900,7 +900,7 @@ void qt_set_cursor( QWidget *w, const QCursor& /* c */)
 	return;
     QWidget* cW = QWidget::find( curWin );
     if ( !cW || cW->topLevelWidget() != w->topLevelWidget() ||
-	 !cW->isVisible() || !cW->hasMouse()
+	 !cW->isVisible() || !cW->underMouse()
 	 /* ##### || cursorStack */
 	  )
 	return;
@@ -1252,7 +1252,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	 && message != WM_MOUSEWHEEL ) {
 	if ( qApp->activePopupWidget() != 0) { // in popup mode
 	    POINT curPos = msg.pt;
-	    QWidget* w = QApplication::widgetAt(curPos.x, curPos.y, TRUE );
+	    QWidget* w = QApplication::widgetAt(curPos.x, curPos.y);
 	    if ( w )
 		widget = (QETWidget*)w;
 	}
@@ -1799,7 +1799,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    // We receive a mouse leave for curWin, meaning
 	    // the mouse was moved outside our widgets
 	    if ( widget->winId() == curWin ) {
-		bool dispatch = !widget->hasMouse();
+		bool dispatch = !widget->underMouse();
 		// hasMouse is updated when dispatching enter/leave,
 		// so test if it is actually up-to-date
 		if ( !dispatch ) {
@@ -1905,7 +1905,7 @@ void Q_GUI_EXPORT qt_leave_modal( QWidget *widget )
 	    qt_modal_stack = 0;
 	    QPoint p( QCursor::pos() );
 	    app_do_modal = FALSE; // necessary, we may get recursively into qt_try_modal below
-	    QWidget* w = QApplication::widgetAt( p.x(), p.y(), TRUE );
+	    QWidget* w = QApplication::widgetAt(p.x(), p.y());
 	    qt_dispatchEnterLeave( w, QWidget::find( curWin ) ); // send synthetic enter event
 	    curWin = w? w->winId() : 0;
 	}
@@ -2368,7 +2368,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	     && qApp->activePopupWidget() != activePopupWidget
 	     && replayPopupMouseEvent ) {
 	    // the popup dissappeared. Replay the event
-	    QWidget* w = QApplication::widgetAt( gpos.x, gpos.y, TRUE );
+	    QWidget* w = QApplication::widgetAt(gpos.x, gpos.y);
 	    if (w && !qt_blocked_modal( w ) ) {
 		if ( QWidget::mouseGrabber() == 0 )
 		    setAutoCapture( w->winId() );
@@ -2880,7 +2880,7 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
     // if there is a widget under the mouse and it is not shadowed
     // by modality, we send the event to it first
     int ret = 0;
-    QWidget* w = QApplication::widgetAt( globalPos, TRUE );
+    QWidget* w = QApplication::widgetAt(globalPos);
     if ( !w || !qt_try_modal( w, (MSG*)&msg, ret ) )
 	w = this;
 

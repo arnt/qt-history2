@@ -468,12 +468,18 @@ void QWidget::reparent_helper( QWidget *parent, WFlags f, const QPoint &p, bool 
 	QObject *obj = chlist.at(i);
 	if ( obj->isWidgetType() ) {
 	    QWidget *w = (QWidget *)obj;
-	    if ( w->isPopup() )
+	    if ( w->isPopup() ) {
 		;
-	    else if ( w->isTopLevel() )
-		w->reparent( this, w->getWFlags(), w->pos(), !w->isHidden() );
-	    else
+	    } else if ( w->isTopLevel() ) {
+		bool showIt = w->isShown();
+		QPoint old_pos = w->pos();
+		w->setParent(this, w->getWFlags());
+		w->move(old_pos);
+		if (showIt)
+		    w->show();
+	    } else {
 		SetParent( w->winId(), winId() );
+	    }
 	}
     }
 

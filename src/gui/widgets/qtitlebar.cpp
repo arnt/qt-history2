@@ -198,8 +198,8 @@ void QTitleBar::readColors()
 		pal.setColor( QPalette::Active, QPalette::Base, qt_colorref2qrgb(GetSysColor(COLOR_GRADIENTACTIVECAPTION)) );
 		pal.setColor( QPalette::Inactive, QPalette::Base, qt_colorref2qrgb(GetSysColor(COLOR_GRADIENTINACTIVECAPTION)) );
 	    } else {
-		pal.setColor( QPalette::Active, QPalette::Base, palette().active().highlight() );
-		pal.setColor( QPalette::Inactive, QPalette::Base, palette().inactive().highlight() );
+		pal.setColor( QPalette::Active, QPalette::Base, pal.color(QPalette::Active, QPalette::Highlight) );
+		pal.setColor( QPalette::Inactive, QPalette::Base, pal.color(QPalette::Inactive, QPalette::Highlight));
 	    }
 	}
     }
@@ -448,7 +448,7 @@ void QTitleBar::paintEvent(QPaintEvent *)
     }
 
     QStyle::SCFlags under_mouse = QStyle::SC_None;
-    if( autoRaise() && hasMouse() ) {
+    if( autoRaise() && underMouse() ) {
 	QPoint p(mapFromGlobal(QCursor::pos()));
 	under_mouse = style().querySubControl(QStyle::CC_TitleBar, this, p);
 	ctrls ^= under_mouse;

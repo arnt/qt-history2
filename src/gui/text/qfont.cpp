@@ -3038,7 +3038,7 @@ void QFontCache::cleanupPrinterFonts()
 		FC_DEBUG( "    %p", rem.value() );
 
 		delete rem.value();
-		engineDataCache.remove( rem );
+		engineDataCache.erase( rem );
 	    }
 	}
     }
@@ -3063,7 +3063,7 @@ void QFontCache::cleanupPrinterFonts()
 	    delete it.value().data;
 	}
 
-	engineCache.remove( it++ );
+	engineCache.erase( it++ );
     }
 }
 #endif
