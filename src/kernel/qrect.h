@@ -132,6 +132,9 @@ public:
     friend Q_EXPORT bool operator!=( const QRect &, const QRect & );
 
 private:
+#ifdef Q_WS_X11
+    friend void qt_setCoords( QRect *r, int xp1, int yp1, int xp2, int yp2 );
+#endif
 #if defined(Q_OS_MAC)
     QCOORD y1;
     QCOORD x1;

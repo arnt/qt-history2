@@ -45,12 +45,12 @@
 #include <stdlib.h>
 
 // inline QRect::setCoords
-inline void QRect::setCoords( int xp1, int yp1, int xp2, int yp2 )
+inline void qt_setCoords( QRect *r, int xp1, int yp1, int xp2, int yp2 )
 {
-    x1 = (QCOORD)xp1;
-    y1 = (QCOORD)yp1;
-    x2 = (QCOORD)xp2;
-    y2 = (QCOORD)yp2;
+    r->x1 = (QCOORD)xp1;
+    r->y1 = (QCOORD)yp1;
+    r->x2 = (QCOORD)xp2;
+    r->y2 = (QCOORD)yp2;
 }
 
 /*
@@ -336,7 +336,7 @@ miSetExtents (QRegionPrivate *pReg)
 
     if (pReg->numRects == 0)
     {
-	pReg->extents.setCoords(0, 0, 0, 0);
+	qt_setCoords(&pReg->extents, 0, 0, 0, 0);
 	return;
     }
 
@@ -442,7 +442,7 @@ miIntersectO (register QRegionPrivate *pReg, register QRect *r1, QRect *r1End,
 	    Q_ASSERT(y1<=y2);
 
 	    MEMCHECK(pReg, pNextRect, pReg->rects)
-	    pNextRect->setCoords( x1, y1, x2, y2 );
+	    qt_setCoords( pNextRect, x1, y1, x2, y2 );
 	    pReg->numRects++;
 	    pNextRect++;
 	}
@@ -961,7 +961,7 @@ miUnionNonO (register QRegionPrivate *pReg, register QRect * r,
     {
 	Q_ASSERT(r->left() <= r->right());
 	MEMCHECK(pReg, pNextRect, pReg->rects)
-	pNextRect->setCoords( r->left(), y1, r->right(), y2 );
+	qt_setCoords( pNextRect, r->left(), y1, r->right(), y2 );
 	pReg->numRects++;
 	pNextRect++;
 
@@ -1008,7 +1008,7 @@ miUnionO (register QRegionPrivate *pReg, register QRect *r1, QRect *r1End,
 	}  \
     } else { \
 	MEMCHECK(pReg, pNextRect, pReg->rects)  \
-	pNextRect->setCoords( r->left(), y1, r->right(), y2 ); \
+	qt_setCoords( pNextRect, r->left(), y1, r->right(), y2 ); \
 	pReg->numRects++;  \
         pNextRect++;  \
     }  \
@@ -1088,10 +1088,11 @@ static void UnionRegion(QRegionPrivate *reg1, QRegionPrivate *reg2, QRegionPriva
     miRegionOp (newReg, reg1, reg2, (voidProcp) miUnionO,
     		(voidProcp) miUnionNonO, (voidProcp) miUnionNonO);
 
-    newReg->extents.setCoords( QMIN(reg1->extents.left(), reg2->extents.left()),
-			       QMIN(reg1->extents.top(), reg2->extents.top()),
-			       QMAX(reg1->extents.right(), reg2->extents.right()),
-			       QMAX(reg1->extents.bottom(), reg2->extents.bottom()) );
+    qt_setCoords( &newReg->extents,
+		  QMIN(reg1->extents.left(), reg2->extents.left()),
+		  QMIN(reg1->extents.top(), reg2->extents.top()),
+		  QMAX(reg1->extents.right(), reg2->extents.right()),
+		  QMAX(reg1->extents.bottom(), reg2->extents.bottom()) );
 
     return;
 }
@@ -1130,7 +1131,7 @@ miSubtractNonO1 (register QRegionPrivate *pReg, register QRect *r,
     {
 	Q_ASSERT(r->left()<=r->right());
 	MEMCHECK(pReg, pNextRect, pReg->rects)
-	pNextRect->setCoords( r->left(), y1, r->right(), y2 );
+	qt_setCoords( pNextRect, r->left(), y1, r->right(), y2 );
 	pReg->numRects++;
 	pNextRect++;
 
@@ -1209,7 +1210,7 @@ miSubtractO (register QRegionPrivate *pReg, register QRect *r1, QRect *r1End,
 	     */
 	    Q_ASSERT(x1<r2->left());
 	    MEMCHECK(pReg, pNextRect, pReg->rects)
-	    pNextRect->setCoords( x1, y1, r2->left() - 1, y2 );
+	    qt_setCoords( pNextRect, x1, y1, r2->left() - 1, y2 );
 	    pReg->numRects++;
 	    pNextRect++;
 
@@ -1239,7 +1240,7 @@ miSubtractO (register QRegionPrivate *pReg, register QRect *r1, QRect *r1End,
 	    if (r1->right() >= x1)
 	    {
 		MEMCHECK(pReg, pNextRect, pReg->rects)
-		pNextRect->setCoords( x1, y1, r1->right(), y2 );
+		qt_setCoords( pNextRect, x1, y1, r1->right(), y2 );
 		pReg->numRects++;
 		pNextRect++;
 	    }
@@ -1256,7 +1257,7 @@ miSubtractO (register QRegionPrivate *pReg, register QRect *r1, QRect *r1End,
     {
 	Q_ASSERT(x1<=r1->right());
 	MEMCHECK(pReg, pNextRect, pReg->rects)
-	pNextRect->setCoords( x1, y1, r1->right(), y2 );
+	qt_setCoords( pNextRect, x1, y1, r1->right(), y2 );
 	pReg->numRects++;
 	pNextRect++;
 
@@ -2145,7 +2146,7 @@ static int PtsToRegion(register int numFullPtBlocks, register int iCurPtBlock,
 	    }
 	    numRects++;
 	    rects++;
-	    rects->setCoords( pts->x(), pts->y(), pts[1].x(), pts[1].y() );
+	    qt_setCoords( rects, pts->x(), pts->y(), pts[1].x(), pts[1].y() );
 	    if (rects->left() < extents->left())
 		extents->setLeft( rects->left() );
 	    if (rects->right() > extents->right())
@@ -2158,7 +2159,7 @@ static int PtsToRegion(register int numFullPtBlocks, register int iCurPtBlock,
 	extents->setTop( reg->rects[0].top() );
 	extents->setBottom( rects->bottom() );
     } else {
-	extents->setCoords(0, 0, 0, 0);
+	qt_setCoords(extents, 0, 0, 0, 0);
     }
     reg->numRects = numRects;
 
@@ -2346,7 +2347,7 @@ QRegionPrivate *qt_bitmapToRegion(const QBitmap& bitmap)
 
 #define AddSpan \
 	{ \
-	    xr.setCoords( prev1, y, x-1, y ); \
+	    qt_setCoords( &xr, prev1, y, x-1, y ); \
 	    UnionRectWithRegion( &xr, region, region ); \
 	}
 
