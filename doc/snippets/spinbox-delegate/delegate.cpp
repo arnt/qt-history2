@@ -58,15 +58,14 @@ QItemDelegate::EditorType SpinBoxDelegate::editorType(const QAbstractItemModel *
 */
 
 QWidget *SpinBoxDelegate::editor(BeginEditAction action, QWidget *parent,
-    const QStyleOptionViewItem &option, const QAbstractItemModel *model,
-    const QModelIndex &index)
+    const QStyleOptionViewItem & /* option */,
+    const QAbstractItemModel * /* model */,
+    const QModelIndex & /* index */)
 {
     if (action != QItemDelegate::NeverEdit) {
         spinBox = new QSpinBox(parent);
         spinBox->setMinimum(0);
         spinBox->setMaximum(100);
-        setEditorData(spinBox, model, index);
-        updateEditorGeometry(spinBox, option, model, index);
 
         return spinBox;
     }
@@ -110,7 +109,7 @@ void SpinBoxDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
 {
     int value = static_cast<QSpinBox *>(editor)->value();
 #if 1
-    // ### Remmove this following line before the second Technology Preview.
+    // ### Remove this following line before the second Technology Preview.
     value = static_cast<QSpinBox *>(editor)->cleanText().toInt();
 #endif
 
