@@ -203,11 +203,12 @@ if [ "${platform}" = "x11" ]; then
   if [ "$disttype" = "beta" ]; then
     mv qt qt-${VERSION}-beta
     tar cf qt-${VERSION}-betaX.tar qt-${VERSION}-beta
+    gzip -9 qt-${VERSION}-betaX.tar
   else
     mv qt qt-${VERSION}
     tar cf qt-${VERSION}.tar qt-${VERSION}
+    gzip -9 qt-${VERSION}.tar
   fi
-  gzip -9 qt-${VERSION}.tar
 fi
 
 echo "Done" >&2
