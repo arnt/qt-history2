@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#11 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#12 $
 **
 ** Implementation of QFileDialog class
 **
@@ -22,7 +22,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#11 $")
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#12 $")
 
 
 /*----------------------------------------------------------------------------
@@ -101,11 +101,6 @@ void QFileDialog::init()
     nameL  ->setAutoResize( TRUE );
     dirL   ->setAutoResize( TRUE );
     fileL  ->setAutoResize( TRUE );
-
-    dirs   ->setFrameStyle( QFrame::Sunken | QFrame::Panel );
-    dirs   ->setLineWidth( 1 );
-    files  ->setFrameStyle( QFrame::Sunken | QFrame::Panel );
-    files  ->setLineWidth( 1 );
 
     okB	   ->resize( 50, 25 );
     filterB->resize( 50, 25 );
