@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#176 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#177 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -77,6 +77,8 @@ static int motion;
 static QTimer * singleSingleShot = 0;
 
 static void popupSubMenuLater( int msec, QObject * receiver ) {
+    debug( "stuff %p %s/%s",
+	   receiver, receiver->name(), receiver->className() );
     if ( !singleSingleShot )
 	singleSingleShot = new QTimer( qApp, "popup submenu timer" );
     singleSingleShot->disconnect( SIGNAL(timeout()) );
@@ -170,7 +172,7 @@ static void qDrawCheckMark( QPainter *p, int x, int y, int w, int h,
 	}
 	if ( dis && !act ) {
 	    uint pnt;
-	    p->setPen( white );
+	    p->setPen( QColor::white );
 	    QPoint offset(1,1);
 	    for ( pnt = 0; pnt < a.size(); pnt++ )
 		a[pnt] += offset;
@@ -1114,7 +1116,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
     }
 
     if ( gs == WindowsStyle )
-	p->setPen( act ? white : g.text() );
+	p->setPen( act ? QColor::white : g.text() );
     else
 	p->setPen( g.text() );
 
@@ -1158,11 +1160,11 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	int dim = (cellh-2*motifItemFrame) / 2;
 	if ( gs == WindowsStyle && row == actItem ) {
 	    if ( !dis )
-		discol = white;
+		discol = QColor::white;
 	    g = QColorGroup( discol, QApplication::winStyleHighlightColor(),
-			     white, white,
-			     dis ? discol : white,
-			     discol, white );
+			     QColor::white, QColor::white,
+			     dis ? discol : QColor::white,
+			     discol, QColor::white );
 	}
 	qDrawArrow( p, RightArrow, gs,
 		    row == actItem && gs == MotifStyle && mi->isEnabled(),

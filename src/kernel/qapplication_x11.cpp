@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#351 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#352 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -535,22 +535,22 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
 	if ( !resBG.isEmpty() )
 	    bg = QColor(resBG);
 	else
-	    bg = lightGray;
+	    bg = QColor::lightGray;
 	if ( !resFG.isEmpty() )
 	    fg = QColor(resFG);
 	else
-	    fg = black;
+	    fg = QColor::black;
 	if (button)
 	    btn = QColor( button );
 	else
 	    btn = bg;
 	QColorGroup cg( fg, btn, btn.light(),
-			btn.dark(), btn.dark(150), fg, white, white, bg );
-	QColor disabled( (fg.red()+btn.red())/2,
-			 (fg.green()+btn.green())/2,
-			 (fg.blue()+btn.blue())/2);
+			btn.dark(), btn.dark(150), fg, QColor::white, QColor::white, bg );
+	QColor disabled( (fg.r()+btn.r())/2,
+			 (fg.g()+btn.g())/2,
+			 (fg.b()+btn.b())/2);
 	QColorGroup dcg( disabled, btn, btn.light( 125 ), btn.dark(), btn.dark(150),
-			 disabled, white, white, bg );
+			 disabled, QColor::white, QColor::white, bg );
 	QPalette pal( cg, dcg, cg );
 	QApplication::setPalette( pal, TRUE );
     }
@@ -917,8 +917,8 @@ static GC create_gc( bool monochrome )
 	} else {
 	    Window w;
 	    XSetWindowAttributes a;
-	    a.background_pixel = black.pixel();
-	    a.border_pixel = black.pixel();		
+	    a.background_pixel = QColor::black.pixel();
+	    a.border_pixel = QColor::black.pixel();		
 	    a.colormap = QPaintDevice::x11Colormap();
 	    w = XCreateWindow( appDpy, appRootWin, 0, 0, 100, 100,
 			       0, QPaintDevice::x11Depth(), InputOutput,

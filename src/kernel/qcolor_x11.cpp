@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#79 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#80 $
 **
 ** Implementation of QColor class for X11
 **
@@ -285,14 +285,14 @@ void QColor::initialize()
 
   // Initialize global color objects
 
-    ((QColor*)(&black))->rgbVal = qRgb( 0, 0, 0 );
-    ((QColor*)(&white))->rgbVal = qRgb( 255, 255, 255 );
+    ((QColor*)(&QColor::black))->rgbVal = qRgb( 0, 0, 0 );
+    ((QColor*)(&QColor::white))->rgbVal = qRgb( 255, 255, 255 );
     if ( defVis && defCmap ) {
-	((QColor*)(&black))->pix = (uint)BlackPixel( dpy, scr );
-	((QColor*)(&white))->pix = (uint)WhitePixel( dpy, scr );
+	((QColor*)(&QColor::black))->pix = (uint)BlackPixel( dpy, scr );
+	((QColor*)(&QColor::white))->pix = (uint)WhitePixel( dpy, scr );
     } else {
-	((QColor*)(&black))->alloc();
-	((QColor*)(&white))->alloc();
+	((QColor*)(&QColor::black))->alloc();
+	((QColor*)(&QColor::white))->alloc();
     }
 
     if ( spec == (int)QApplication::ManyColor ) {

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#157 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#158 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -584,7 +584,7 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 			    style() == WindowsStyle
 			    ? QApplication::winStyleHighlightColor()
 			    : g.text() );
-		p.setPen(  style() == WindowsStyle ? white : g.base() );
+		p.setPen(  style() == WindowsStyle ? QColor::white : g.base() );
 		p.drawText( xpos1, ypos, marked );
 	    }
 	    p.setPen( g.text() );

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#161 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#162 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1239,7 +1239,7 @@ void QListBox::paintCell( QPainter *p, int row, int col )
 	else
 	    fc = g.text();
 	p->fillRect( 0, 0, cellWidth(col), cellHeight(row), fc );
-	p->setPen( style() == WindowsStyle ? white : g.base() );
+	p->setPen( style() == WindowsStyle ? QColor::white : g.base() );
 	p->setBackgroundColor( fc );
     } else {
 	p->setBackgroundColor( g.base() );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#46 $
 **
 ** Implementation of layout classes
 **
@@ -26,6 +26,8 @@
 #include "qapplication.h"
 #include "qlist.h"
 
+#include "qdatetime.h" // ### fun hack can be removed"
+
 class QLayoutBox
 {
 public:
@@ -49,7 +51,7 @@ private:
     Type myType;
 
     int align;
-    
+
     int row, col;
     int width, height;
     bool hFix;
@@ -114,7 +116,7 @@ void QLayoutBox::setGeometry( const QRect &r )
     case Layout:
 	lay->setGeometry( r );
 	break;
-    case Widget: 
+    case Widget:
 	if ( align ) {
 	    //### layoutHint...
 	    QSize s = r.size().boundedTo( wid->maximumSize() );
@@ -244,7 +246,7 @@ static void geomCalc( QArray<LayoutStruct> &chain, int count, int pos,
     int sumStretch = 0;
     int spacerCount = 0;
 
-    int i; //some hateful compilers still cannot handle for loops correctly
+    int i; //some hateful compilers do not handle for loops correctly
     for ( i = 0; i < count; i++ ) {
 	chain[i].done = FALSE;
 	sumMin += chain[i].minSize;
@@ -255,7 +257,9 @@ static void geomCalc( QArray<LayoutStruct> &chain, int count, int pos,
     if ( spacerCount )
 	spacerCount -= 1; //only spacers between things
     if ( space < sumMin + spacerCount*spacer ) {
-	debug( "QBasicManager: not enough space to go around" );
+	debug( QTime::currentTime().second() < 50 // ######################
+	       ? "QBasicManager: not enough space to go around" 
+	       : "QBasicManager: not enough fun left in that joke" );
 	for ( int i = 0; i < count; i++ )
 	    chain[i].size = chain[i].minSize;
     } else {
@@ -376,7 +380,7 @@ bool QLayoutArray::removeWidget( QWidget *w )
 	if ( box->type() == QLayoutBox::Widget && box->wid == w ) {
 	    things.removeRef( box );
 	    return TRUE;
-	} else if ( box->type() == QLayoutBox::Layout && 
+	} else if ( box->type() == QLayoutBox::Layout &&
 		    box->lay->removeWidget(w) ) {
 	    return TRUE;
 	}
@@ -390,7 +394,7 @@ bool QLayoutArray::removeWidget( QWidget *w )
 	    if ( box->type() == QLayoutBox::Widget && box->wid == w ) {
 		multi->removeRef( mbox );
 		return TRUE;
-	    } else if ( box->type() == QLayoutBox::Layout && 
+	    } else if ( box->type() == QLayoutBox::Layout &&
 			box->lay->removeWidget(w) ) {
 		return TRUE;
 	    }
@@ -666,7 +670,7 @@ QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name 
     if ( parent ) {
 	if ( parent->layout() ) {
 	    warning( "QLayout \"%s\" added to %s \"%s\","
-		     " which already had a layout.", QObject::name(), 
+		     " which already had a layout.", QObject::name(),
 		     parent->className(), parent->name() );
 	} else {
 	topLevel = TRUE;
@@ -752,7 +756,7 @@ void QLayout::paintEvent( QPaintEvent * )
 
   Remove \a w from geometry management. This function is called
   automatically whenever a child widget is deleted.
-  
+
   This function is implemented in subclasses. It is the
   responsibility of the reimplementor to propagate the call to
   sub-layouts.  This function returns TRUE if the widget was found.
@@ -845,7 +849,7 @@ QLayout::~QLayout()
 {
     //note that this function may be called during the QObject destructor,
     //when the parent no longer is a QWidget.
-    if ( isTopLevel() && parent()->isWidgetType() && 
+    if ( isTopLevel() && parent()->isWidgetType() &&
 	 ((QWidget*)parent())->layout() == this )
 	((QWidget*)parent())->qInternalSetLayout( 0 );
 }

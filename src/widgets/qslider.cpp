@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#64 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#65 $
 **
 ** Implementation of QSlider class
 **
@@ -520,13 +520,13 @@ void QSlider::paintEvent( QPaintEvent *e )
 void QSlider::updateMask()
 {
     QBitmap bm( size() );
-    bm.fill( color0 );
+    bm.fill( QColor::color0 );
 
     {
 	QPainter p( &bm, this );
 	QRect sliderR = sliderRect();
-	QColorGroup g(color1, color1, color1, color1, color1, color1, color1, color1, color0);
-	QBrush fill (color1);
+	QColorGroup g(QColor::color1, QColor::color1, QColor::color1, QColor::color1, QColor::color1, QColor::color1, QColor::color1, QColor::color1, QColor::color0);
+	QBrush fill (QColor::color1);
 	switch ( style() ) {
 	case WindowsStyle:
 	    if ( hasFocus() ) {
@@ -565,7 +565,7 @@ void QSlider::updateMask()
 	    }
 
 	    if ( hasFocus() ) {
-		p.setPen( color1 );
+		p.setPen( QColor::color1 );
 		if ( orient == Horizontal )
 		    p.drawRect(  1, tickOffset + 1, width() - 2, thickness() - 2 );
 		else

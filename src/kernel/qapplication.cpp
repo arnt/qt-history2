@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#154 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#155 $
 **
 ** Implementation of QApplication class
 **
@@ -122,15 +122,15 @@ static void create_palettes()			// creates default palettes
     QColor standardLightGray( 192, 192, 192 );
     QColor light( 255, 255, 255 );
     QColor dark( standardLightGray.dark( 150 ) );
-    QColorGroup std_nor( black, standardLightGray,
-			 light, dark, gray,
-			 black, white );
-    QColorGroup std_dis( darkGray, standardLightGray,
-			 light, dark, gray,
-			 darkGray, std_nor.background() );
-    QColorGroup std_act( black, standardLightGray,
-			 light, dark, gray,
-			 black, white );
+    QColorGroup std_nor( QColor::black, standardLightGray,
+			 light, dark, QColor::gray,
+			 QColor::black, QColor::white );
+    QColorGroup std_dis( QColor::darkGray, standardLightGray,
+			 light, dark, QColor::gray,
+			 QColor::darkGray, std_nor.background() );
+    QColorGroup std_act( QColor::black, standardLightGray,
+			 light, dark, QColor::gray,
+			 QColor::black, QColor::white );
     stdPalette = new QPalette( std_nor, std_dis, std_act );
 }
 
@@ -951,7 +951,7 @@ void QApplication::syncX()	{}		// do nothing
 void QApplication::setWinStyleHighlightColor( const QColor &c )
 {
     if ( !winHighlightColor )
-	winHighlightColor = new QColor( darkBlue );
+	winHighlightColor = new QColor( QColor::darkBlue );
 
     if ( *winHighlightColor == c )
 	return;
@@ -978,7 +978,7 @@ void QApplication::setWinStyleHighlightColor( const QColor &c )
 const QColor& QApplication::winStyleHighlightColor()
 {
     if ( !winHighlightColor )
-	winHighlightColor = new QColor( darkBlue );
+	winHighlightColor = new QColor( QColor::darkBlue );
 
     return *winHighlightColor;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#21 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -483,7 +483,7 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text )
     p.drawText( leftMargin, normalMargin, r.width(), r.height(),
 		AlignLeft + AlignTop + WordBreak + ExpandTabs,
 		text );
-    p.setPen( black );
+    p.setPen( QColor::black );
     p.drawPoint( w + 5, 6 );
     p.drawLine( w + 3, 6,
 		w + 5, 8 );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#83 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#84 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -508,8 +508,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    gcvals.background = 0;
 	    gcvals.foreground = 1;
 	} else {
-	    gcvals.background = white.pixel();
-	    gcvals.foreground = black.pixel();
+	    gcvals.background = QColor::white.pixel();
+	    gcvals.foreground = QColor::black.pixel();
 	}
 
 	gcvals.fill_style  = FillOpaqueStippled;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#129 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#130 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** Q1String classes
@@ -629,14 +629,12 @@ QString::QString( const char *str )
 
 
 /*!
-  \obsolete because Q1String no longer considers NUL termination.
-
-  Constructs a string that is a deep copy of \e str, that is less than
+  Constructs a string that is a deep copy of \e str, that is at most
   \a maxlen characters long.
 
   Example:
   \code
-    QString str("helloworld",6); // Assigns "hello" to str.
+    QString str("helloworld",6); // Assigns "hellow" to str.
   \endcode
 
   If \a str contains a 0 byte within the first \a maxlen bytes, the
@@ -653,7 +651,7 @@ QString::QString( const char *str, uint maxlen )
     QChar *uc = asciiToUnicode(str,l);
     d = new Data(uc,l,l);
     if ( l >= maxlen )
-	truncate( maxlen-1 );
+	truncate( maxlen );
 }
 
 /*!
@@ -954,7 +952,7 @@ int QString::find( const QString& str, int index, bool cs ) const
 
 /*!
   \fn int QString::findRev( const char* str, int index ) const
- 
+
   Equivalent to findRev(QString(str), index).
 */
 
@@ -1885,11 +1883,10 @@ void QString::setExpand( uint index, QChar c )
 
   Obsolete.  This method is provided to aide porting to Qt 2.0.
 
-  In Qt 1.x, this returned a char* allowing direct
-  manipulation of the string as a sequence of bytes.  Now that
-  QString is a Unicode string, char* conversion constructs
-  a temporary string, and hence direct character operations
-  are meaningless.
+  In Qt 1.x, this returned a char* allowing direct manipulation of the
+  string as a sequence of bytes.  Now that QString is a Unicode
+  string, char* conversion constructs a temporary string, and hence
+  direct character operations are meaningless.
 */
 
 /*!
@@ -2067,7 +2064,7 @@ QDataStream &operator>>( QDataStream &s, QString &str )
 }
 
 /*!
-  \fn int QString::compare (const QString & s1, const QString & s2) 
+  \fn int QString::compare (const QString & s1, const QString & s2)
 
   Compare \a s1 to \a s2 returning an integer less than, equal to, or
   greater than zero if s1 is, respectively, lexically less than, equal to,
@@ -3376,7 +3373,7 @@ Q1String &Q1String::setStr( const char *str )
 /*!
   Sets the string to the printed value of \e n and returns a
   reference to the string.
-  
+
   \bug setNum(-2147483648) does not work on 32-bit systems.
 */
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#68 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#69 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -2241,9 +2241,9 @@ static void ps_dumpPixmapData( QTextStream &stream, QImage img,
 			WIDTH (p[index].rect->width())	<< ' ' <<	\
 			HEIGHT(p[index].rect->height()) << ' '
 #define INT_ARG(index)	p[index].ival << ' '
-#define COLOR(x)	(x).red()   << ' ' <<	\
-			(x).green() << ' ' <<	\
-			(x).blue()  << ' '
+#define COLOR(x)	(x).r()   << ' ' <<	\
+			(x).g() << ' ' <<	\
+			(x).b()  << ' '
 
 
 bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
@@ -2654,7 +2654,7 @@ void QPSPrinter::resetDrawingTools( QPainter *paint )
     QBrush defaultBrush;
 
     param[0].color = &paint->backgroundColor();
-    if ( *param[0].color != white )
+    if ( *param[0].color != QColor::white )
 	cmd( PDC_SETBKCOLOR, paint, param );
 
     param[0].ival = paint->backgroundMode();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#125 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#126 $
 **
 ** Implementation of QFileDialog class
 **
@@ -164,7 +164,7 @@ static void makeVariables() {
 				      cdtoparent_gif_len );
 	fifteenTransparentPixels = new QPixmap( closedFolderIcon->width(), 1 );
 	QBitmap m( fifteenTransparentPixels->width(), 1 );
-	m.fill( color0 );
+	m.fill( QColor::color0 );
 	fifteenTransparentPixels->setMask( m );
     }
 }

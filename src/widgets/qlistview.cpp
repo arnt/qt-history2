@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#151 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#152 $
 **
 ** Implementation of QListView widget class
 **
@@ -1018,7 +1018,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	if ( listView()->style() == WindowsStyle ) {
 	    p->fillRect( r - marg, 0, width - r + marg, height(),
 			 QApplication::winStyleHighlightColor() );
-	    p->setPen( white ); // ###
+	    p->setPen( QColor::white ); // ###
 	} else {
 	    p->fillRect( r - marg, 0, width - r + marg,
 			 height(), cg.text() );
@@ -1082,7 +1082,7 @@ void QListViewItem::paintFocus( QPainter *p, const QColorGroup &,
     if ( listView()->style() == WindowsStyle ) {
 	p->drawWinFocusRect( r );
     } else {
-	p->setPen( black );
+	p->setPen( QColor::black );
 	p->drawRect( r );
     }
 }
@@ -1189,7 +1189,7 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 	    int i;
 	    for( i=0; i<64; i++ )
 		a.setPoint( i, 0, i*2 );
-	    p.setPen( color1 );
+	    p.setPen( QColor::color1 );
 	    p.drawPoints( a );
 	    p.end();
 	    QApplication::flushX();
@@ -1197,7 +1197,7 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 	    p.begin( horizontalLine );
 	    for( i=0; i<64; i++ )
 		a.setPoint( i, i*2, 0 );
-	    p.setPen( color1 );
+	    p.setPen( QColor::color1 );
 	    p.drawPoints( a );
 	    p.end();
 	    QApplication::flushX();
@@ -3402,7 +3402,7 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 		    a.setPoint( 2*i+1, xx, yy+2 );
 		    xx++; yy--;
 		}
-		p->setPen( black );
+		p->setPen( QColor::black );
 		p->drawLineSegments( a );
 	    }
 	    ////////////////////////

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#47 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#48 $
 **
 ** Definition of QColor class
 **
@@ -59,6 +59,26 @@ class Q_EXPORT QColor
 public:
     enum Spec { Rgb, Hsv };
 
+    static const QColor color0;
+    static const QColor color1;
+    static const QColor black;
+    static const QColor white;
+    static const QColor darkGray;
+    static const QColor gray;
+    static const QColor lightGray;
+    static const QColor red;
+    static const QColor green;
+    static const QColor blue;
+    static const QColor cyan;
+    static const QColor magenta;
+    static const QColor yellow;
+    static const QColor darkRed;
+    static const QColor darkGreen;
+    static const QColor darkBlue;
+    static const QColor darkCyan;
+    static const QColor darkMagenta;
+    static const QColor darkYellow;
+
     QColor();
     QColor( int r, int g, int b );
     QColor( int x, int y, int z, Spec );
@@ -77,9 +97,9 @@ public:
     void   setRgb( int r, int g, int b );
     void   setRgb( QRgb rgb );
 
-    int	   red()    const;
-    int	   green()  const;
-    int	   blue()   const;
+    int	   r()    const;
+    int	   g()  const;
+    int	   b()   const;
 
     void   hsv( int *h, int *s, int *v ) const;
     void   setHsv( int h, int s, int v );
@@ -140,13 +160,13 @@ inline bool QColor::isDirty() const
 inline QRgb QColor::rgb() const
 { return rgbVal & RGB_MASK; }
 
-inline int QColor::red() const
+inline int QColor::r() const
 { return qRed(rgbVal); }
 
-inline int QColor::green() const
+inline int QColor::g() const
 { return qGreen(rgbVal); }
 
-inline int QColor::blue() const
+inline int QColor::b() const
 { return qBlue(rgbVal); }
 
 inline uint QColor::pixel() const
@@ -168,31 +188,6 @@ inline bool QColor::operator!=( const QColor &c ) const
 {
     return !operator==(c);
 }
-
-
-/*****************************************************************************
-  Global colors
- *****************************************************************************/
-
-extern Q_EXPORT const QColor color0;
-extern Q_EXPORT const QColor color1;
-extern Q_EXPORT const QColor black;
-extern Q_EXPORT const QColor white;
-extern Q_EXPORT const QColor darkGray;
-extern Q_EXPORT const QColor gray;
-extern Q_EXPORT const QColor lightGray;
-extern Q_EXPORT const QColor red;
-extern Q_EXPORT const QColor green;
-extern Q_EXPORT const QColor blue;
-extern Q_EXPORT const QColor cyan;
-extern Q_EXPORT const QColor magenta;
-extern Q_EXPORT const QColor yellow;
-extern Q_EXPORT const QColor darkRed;
-extern Q_EXPORT const QColor darkGreen;
-extern Q_EXPORT const QColor darkBlue;
-extern Q_EXPORT const QColor darkCyan;
-extern Q_EXPORT const QColor darkMagenta;
-extern Q_EXPORT const QColor darkYellow;
 
 
 /*****************************************************************************

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#71 $
+** $Id: //depot/qt/main/src/tools/qstring.h#72 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and Q1String classes
@@ -211,7 +211,11 @@ public:
 
     QString	copy()	const;
 
-    QString    &sprintf( const char* format, ... );
+    QString    &sprintf( const char* format, ... )
+#if defined(_CC_GNU_)
+	__attribute__ ((format (printf, 2, 3)))
+#endif
+	;
 
     int		find( QChar c, int index=0, bool cs=TRUE ) const;
     int		find( char c, int index=0, bool cs=TRUE ) const

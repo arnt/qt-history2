@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#15 $
 **
 ** Implementation of QIconSet class
 **
@@ -181,7 +181,7 @@ void QIconSet::reset( const QPixmap & pm, Size s )
 
 /*!  Sets this icon set to display \a pn in size \a s/mode \a m, and
   perhaps to use \a pm for deriving some other varieties.
-  
+
   \a s must be Large or Small; it cannot be Automatic.
 */
 
@@ -315,7 +315,7 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 		    if ( !tmp.mask() )
 			tmp.setMask( tmp );
 		    QBitmap mask( d->largeDisabled.pm->size() );
-		    mask.fill( color0 );
+		    mask.fill( QColor::color0 );
 		    QPainter painter( &mask );
 		    painter.drawPixmap( 0, 0, tmp );
 		    painter.drawPixmap( 1, 1, tmp );
@@ -387,7 +387,7 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 		    if ( !tmp.mask() )
 			tmp.setMask( tmp );
 		    QBitmap mask( d->smallDisabled.pm->size() );
-		    mask.fill( color0 );
+		    mask.fill( QColor::color0 );
 		    QPainter painter( &mask );
 		    painter.drawPixmap( 0, 0, tmp );
 		    painter.drawPixmap( 1, 1, tmp );
@@ -414,18 +414,18 @@ bool QIconSet::isGenerated( Size s, Mode m ) const
 {
     if ( s == Large ) {
 	if ( m == Disabled )
-	    return d->largeDisabled.generated;
+	    return d->largeDisabled.generated || !d->largeDisabled.pm;
 	else if ( m == Active )
-	    return d->largeActive.generated;
+	    return d->largeActive.generated || !d->largeActive.pm;
 	else
-	    return d->large.generated;
+	    return d->large.generated || !d->large.pm;
     } else if ( s == Small ) {
 	if ( m == Disabled )
-	    return d->smallDisabled.generated;
+	    return d->smallDisabled.generated || !d->smallDisabled.pm;
 	else if ( m == Active )
-	    return d->smallActive.generated;
+	    return d->smallActive.generated || !d->smallActive.pm;
 	else
-	    return d->small.generated;
+	    return d->small.generated || !d->small.pm;
     }
     return FALSE;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#59 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#60 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -256,7 +256,7 @@ void QHeader::setOrientation( Orientation orientation )
 void QHeader::paintRect( int p, int s )
 {
     QPainter paint( this );
-    paint.setPen( QPen( black, 1, DotLine ) );
+    paint.setPen( QPen( QColor::black, 1, DotLine ) );
     if ( orient == Horizontal )
 	paint.drawRect( p, 3, s, height() - 5 );
     else	
@@ -269,7 +269,7 @@ void QHeader::paintRect( int p, int s )
 void QHeader::markLine( int idx )
 {
     QPainter paint( this );
-    paint.setPen( QPen( black, 1, DotLine ) );
+    paint.setPen( QPen( QColor::black, 1, DotLine ) );
     int p = pPos( idx );
 #if 0
     paint.drawLine(  p, 0, p, height() );

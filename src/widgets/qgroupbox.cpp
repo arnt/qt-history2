@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#40 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#41 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -200,7 +200,7 @@ void QGroupBox::updateMask(){
     QRect t;
     int		len = str.length();
      QBitmap bm( size() );
-     bm.fill( color0 );
+     bm.fill( QColor::color0 );
      {
  	QPainter p( &bm, this );
 	QFontMetrics fm = p.fontMetrics();
@@ -222,9 +222,9 @@ void QGroupBox::updateMask(){
 		x = 8;
  	    t.setRect( x, 0, tw, h );
 	}
- 	p.fillRect( r, color1 );
+ 	p.fillRect( r, QColor::color1 );
 	if ( tw ) {					// draw the title
-	    p.setPen( color1 );
+	    p.setPen( QColor::color1 );
 	    p.drawText( t, AlignCenter, str, len );
 	}
      }

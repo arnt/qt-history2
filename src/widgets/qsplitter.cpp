@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#32 $
 **
 **  Splitter widget
 **
@@ -432,8 +432,8 @@ int QSplitter::adjustPos( int p )
 void QSplitter::setRubberband( int p )
 {
     QPainter paint( this );
-    paint.setPen( gray );
-    paint.setBrush( gray );
+    paint.setPen( QColor::gray );
+    paint.setBrush( QColor::gray );
     paint.setRasterOp( XorROP );
     QRect r = contentsRect();
     const int rBord = 3; //###

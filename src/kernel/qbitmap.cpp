@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#35 $
 **
 ** Implementation of QBitmap class
 **
@@ -79,7 +79,7 @@ QBitmap::QBitmap( int w, int h, bool clear )
 {
     data->bitmap = TRUE;
     if ( clear )
-	fill( color0 );
+	fill( QColor::color0 );
 }
 
 /*!
@@ -91,7 +91,7 @@ QBitmap::QBitmap( const QSize &size, bool clear )
 {
     data->bitmap = TRUE;
     if ( clear )
-	fill( color0 );
+	fill( QColor::color0 );
 }
 
 /*!

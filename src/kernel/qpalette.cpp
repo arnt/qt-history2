@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#25 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -316,19 +316,19 @@ QPalette::QPalette( const QColor &button )
     int h, s, v;
     bg.hsv( &h, &s, &v );
     if ( v > 128 ) {				// light background
-	fg   = black;
-	base = white;
-	disfg = darkGray;
+	fg   = QColor::black;
+	base = QColor::white;
+	disfg = QColor::darkGray;
     } else {					// dark background
-	fg   = white;
-	base = black;
-	disfg = darkGray;
+	fg   = QColor::white;
+	base = QColor::black;
+	disfg = QColor::darkGray;
     }
     data->normal   = QColorGroup( fg, btn, btn.light(150), btn.dark(),
-				  btn.dark(150), fg, white, base, bg );
+				  btn.dark(150), fg, QColor::white, base, bg );
     data->active   = data->normal;
     data->disabled = QColorGroup( disfg, btn, btn.light(150), btn.dark(),
-				  btn.dark(150), disfg, white, base, bg );
+				  btn.dark(150), disfg, QColor::white, base, bg );
 }
 
 /*!
@@ -345,19 +345,19 @@ QPalette::QPalette( const QColor &button, const QColor &background )
     int h, s, v;
     bg.hsv( &h, &s, &v );
     if ( v > 128 ) {				// light background
-	fg   = black;
-	base = white;
-	disfg = darkGray;
+	fg   = QColor::black;
+	base = QColor::white;
+	disfg = QColor::darkGray;
     } else {					// dark background
-	fg   = white;
-	base = black;
-	disfg = darkGray;
+	fg   = QColor::white;
+	base = QColor::black;
+	disfg = QColor::darkGray;
     }
     data->normal   = QColorGroup( fg, btn, btn.light(150), btn.dark(),
-				  btn.dark(150), fg, white, base, bg );
+				  btn.dark(150), fg, QColor::white, base, bg );
     data->active   = data->normal;
     data->disabled = QColorGroup( disfg, btn, btn.light(150), btn.dark(),
-				  btn.dark(150), disfg, white, base, bg );
+				  btn.dark(150), disfg, QColor::white, base, bg );
 }
 
 /*!

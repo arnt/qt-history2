@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#104 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#105 $
 **
 ** Implementation of QScrollBar class
 **
@@ -481,7 +481,7 @@ void QScrollBar::paintEvent( QPaintEvent *event )
     qDrawShadePanel( &p, rect(), colorGroup(), TRUE );
     if ( hasFocus() ) {
 	if ( style() != WindowsStyle ) {
-	    p.setPen( black );
+	    p.setPen( QColor::black );
 	    p.drawRect(  1, 1, width() - 2, height() - 2 );
 	}
     }
@@ -872,7 +872,7 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 			WindowsStyle, SUB_LINE_ACTIVE, subB.x()+2, subB.y()+2,
 			subB.width()-4, subB.height()-4, g, !maxedOut );
 	}
-	p->setBrush( g.fillLight().pixmap()?g.fillLight():QBrush(white,Dense4Pattern) );
+	p->setBrush( g.fillLight().pixmap()?g.fillLight():QBrush(QColor::white,Dense4Pattern) );
 	p->setPen( NoPen );
 	p->setBackgroundMode( OpaqueMode );
 	if ( maxedOut ) {

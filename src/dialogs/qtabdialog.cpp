@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#64 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#65 $
 **
 ** Implementation of QTabDialog class
 **
@@ -813,7 +813,7 @@ void QTabDialog::paintEvent( QPaintEvent * )
     // note - this line overlaps the bottom line drawn by QTabBar
     p.drawLine( l, t, r - 1, t );
     p.drawLine( l, t + 1, l, b );
-    p.setPen( black );
+    p.setPen( QColor::black );
     p.drawLine( r, b, l,b );
     p.drawLine( r, b-1, r, t );
     p.setPen( colorGroup().dark() );

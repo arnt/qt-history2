@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#74 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#75 $
 **
 ** Implementation of QColor class
 **
@@ -22,6 +22,7 @@
 *****************************************************************************/
 
 #include "qcolor.h"
+#include "qpaintdevice.h"
 #include "qdatastream.h"
 #include <stdlib.h>
 #include <ctype.h>
@@ -43,18 +44,18 @@
   value is used by the underlying window system to refer to a color.  It
   can be thought of as an index into the display hardware's color table.
 
-  There are 19 predefined global QColor objects:
-  \c black, \c white, \c darkGray, \c gray, \c lightGray, \c red, \c green,
-  \c blue, \c cyan, \c magenta, \c yellow, \c darkRed, \c darkGreen,
-  \c darkBlue, \c darkCyan, \c darkMagenta, \c darkYellow, \c color0 and
-  \c color1.
+  There are 19 predefined QColor objects: \c black, \c white, \c
+  darkGray, \c gray, \c lightGray, \c red, \c green, \c blue, \c cyan,
+  \c magenta, \c yellow, \c darkRed, \c darkGreen, \c darkBlue, \c
+  darkCyan, \c darkMagenta, \c darkYellow, \c color0 and \c color1.
 
-  The colors \c color0 (zero pixel value) and \c color1 (non-zero pixel value)
-  are special colors for drawing in \link QBitmap bitmaps\endlink.
+  The colors \c color0 (zero pixel value) and \c color1 (non-zero
+  pixel value) are special colors for drawing in \link QBitmap
+  bitmaps\endlink.
 
-  The QColor class has an efficient, dynamic color allocation strategy.
-  A color is normally allocated the first time it is used (lazy allocation),
-  that is, whenever the pixel() function is called:
+  The QColor class has an efficient, dynamic color allocation
+  strategy.  A color is normally allocated the first time it is used
+  (lazy allocation), that is, whenever the pixel() function is called:
 
   <ol>
   <li>Is the pixel value valid? If it is, just return it, otherwise,
@@ -84,25 +85,25 @@
 #define COLOR1_PIX 1
 #endif
 
-const QColor color0	( 0x00ffffff, COLOR0_PIX );
-const QColor color1	( 0x00000000, COLOR1_PIX );
-const QColor black	(   0,	 0,   0 );
-const QColor white	( 255, 255, 255 );
-const QColor darkGray	( 128, 128, 128 );
-const QColor gray	( 160, 160, 164 );
-const QColor lightGray	( 192, 192, 192 );
-const QColor red	( 255,	 0,   0 );
-const QColor green	(   0, 255,   0 );
-const QColor blue	(   0,	 0, 255 );
-const QColor cyan	(   0, 255, 255 );
-const QColor magenta	( 255,	 0, 255 );
-const QColor yellow	( 255, 255,   0 );
-const QColor darkRed	( 128,	 0,   0 );
-const QColor darkGreen	(   0, 128,   0 );
-const QColor darkBlue	(   0,	 0, 128 );
-const QColor darkCyan	(   0, 128, 128 );
-const QColor darkMagenta( 128,	 0, 128 );
-const QColor darkYellow ( 128, 128,   0 );
+const QColor QColor::color0	( 0x00ffffff, COLOR0_PIX );
+const QColor QColor::color1	( 0x00000000, COLOR1_PIX );
+const QColor QColor::black	(   0,	 0,   0 );
+const QColor QColor::white	( 255, 255, 255 );
+const QColor QColor::darkGray	( 128, 128, 128 );
+const QColor QColor::gray		( 160, 160, 164 );
+const QColor QColor::lightGray	( 192, 192, 192 );
+const QColor QColor::red		( 255,	 0,   0 );
+const QColor QColor::green	(   0, 255,   0 );
+const QColor QColor::blue		(   0,	 0, 255 );
+const QColor QColor::cyan		(   0, 255, 255 );
+const QColor QColor::magenta	( 255,	 0, 255 );
+const QColor QColor::yellow	( 255, 255,   0 );
+const QColor QColor::darkRed	( 128,	 0,   0 );
+const QColor QColor::darkGreen	(   0, 128,   0 );
+const QColor QColor::darkBlue	(   0,	 0, 128 );
+const QColor QColor::darkCyan	(   0, 128, 128 );
+const QColor QColor::darkMagenta	( 128,	 0, 128 );
+const QColor QColor::darkYellow	( 128, 128,   0 );
 
 
 /*****************************************************************************
@@ -132,27 +133,27 @@ bool QColor::lazy_alloc = TRUE;			// lazy color allocation
 void QColor::initGlobalColors()
 {
     globals_init = TRUE;
-    ((QColor*)(&::color0))->pix = COLOR0_PIX;
-    ((QColor*)(&::color1))->pix = COLOR1_PIX;
-    ((QColor*)(&::color0))->rgbVal = 0x00ffffff;
-    ((QColor*)(&::color1))->rgbVal = 0;
-    ((QColor*)(&::black))	->setRgb(   0,	 0,   0 );
-    ((QColor*)(&::white))	->setRgb( 255, 255, 255 );
-    ((QColor*)(&::darkGray))	->setRgb( 128, 128, 128 );
-    ((QColor*)(&::gray))	->setRgb( 160, 160, 164 );
-    ((QColor*)(&::lightGray))	->setRgb( 192, 192, 192 );
-    ((QColor*)(&::red))		->setRgb( 255,	 0,   0 );
-    ((QColor*)(&::green))	->setRgb(   0, 255,   0 );
-    ((QColor*)(&::blue))	->setRgb(   0,	0,  255 );
-    ((QColor*)(&::cyan))	->setRgb(   0, 255, 255 );
-    ((QColor*)(&::magenta))	->setRgb( 255,	0,  255 );
-    ((QColor*)(&::yellow))	->setRgb( 255, 255,   0 );
-    ((QColor*)(&::darkRed))	->setRgb( 128,	0,    0 );
-    ((QColor*)(&::darkGreen))	->setRgb(   0, 128,   0 );
-    ((QColor*)(&::darkBlue))	->setRgb(   0,	0,  128 );
-    ((QColor*)(&::darkCyan))	->setRgb(   0, 128, 128 );
-    ((QColor*)(&::darkMagenta)) ->setRgb( 128,	0,  128 );
-    ((QColor*)(&::darkYellow))	->setRgb( 128, 128,   0 );
+    ((QColor*)(&QColor::color0))->pix = COLOR0_PIX;
+    ((QColor*)(&QColor::color1))->pix = COLOR1_PIX;
+    ((QColor*)(&QColor::color0))->rgbVal = 0x00ffffff;
+    ((QColor*)(&QColor::color1))->rgbVal = 0;
+    ((QColor*)(&QColor::black))->setRgb(   0,	 0,   0 );
+    ((QColor*)(&QColor::white))->setRgb( 255, 255, 255 );
+    ((QColor*)(&QColor::darkGray))->setRgb( 128, 128, 128 );
+    ((QColor*)(&QColor::gray))->setRgb( 160, 160, 164 );
+    ((QColor*)(&QColor::lightGray))->setRgb( 192, 192, 192 );
+    ((QColor*)(&QColor::red))->setRgb( 255,	 0,   0 );
+    ((QColor*)(&QColor::green))->setRgb(   0, 255,   0 );
+    ((QColor*)(&QColor::blue))->setRgb(   0,	0,  255 );
+    ((QColor*)(&QColor::cyan))->setRgb(   0, 255, 255 );
+    ((QColor*)(&QColor::magenta))->setRgb( 255,	0,  255 );
+    ((QColor*)(&QColor::yellow))->setRgb( 255, 255,   0 );
+    ((QColor*)(&QColor::darkRed))->setRgb( 128,	0,    0 );
+    ((QColor*)(&QColor::darkGreen))->setRgb(   0, 128,   0 );
+    ((QColor*)(&QColor::darkBlue))->setRgb(   0,	0,  128 );
+    ((QColor*)(&QColor::darkCyan))->setRgb(   0, 128, 128 );
+    ((QColor*)(&QColor::darkMagenta))->setRgb( 128,	0,  128 );
+    ((QColor*)(&QColor::darkYellow))->setRgb( 128, 128,   0 );
 }
 
 
@@ -507,17 +508,23 @@ void QColor::setRgb( QRgb rgb )
 
 
 /*!
-  \fn int QColor::red() const
-  Returns the red component of the RGB value.
+  \fn int QColor::r() const
+  Returns the R (red) component of the RGB value.
+  
+  This function has been renamed since Qt 1.41, since the formerly
+  global object red has been moved into the QColor class and seemed to
+  have greater claim on the name QColor::red.
 */
 
+#warning "docs into r and b too --Arnt"
+
 /*!
-  \fn int QColor::green() const
+  \fn int QColor::g() const
   Returns the green component of the RGB value.
 */
 
 /*!
-  \fn int QColor::blue() const
+  \fn int QColor::b() const
   Returns the blue component of the RGB value.
 */
 
