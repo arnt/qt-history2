@@ -4,7 +4,7 @@ QT = core
 
 DEFINES += QT_BUILD_XML_LIB
 
-PRECOMPILED_HEADER = ../gui/kernel/qt_gui_pch.h
+PRECOMPILED_HEADER = ../core/global/qt_pch.h
 
 include(../qbase.pri)
 
