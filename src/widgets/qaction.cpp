@@ -989,8 +989,6 @@ void QActionGroup::insert( QAction* action )
     connect( action, SIGNAL( activated() ), this, SIGNAL( activated() ) );
     connect( action, SIGNAL( toggled( bool ) ), this, SLOT( childToggled( bool ) ) );
 
-    qDebug( "asfafasfas: %s", action->text().latin1() );
-    
     for ( QListIterator<QComboBox> cb( d->comboboxes ); cb.current(); ++cb ) {
 	cb.current()->insertItem( action->iconSet().pixmap(), action->text() );
     }
