@@ -1615,9 +1615,9 @@ void qt_init_internal( int *argcptr, char **argv,
 	Visual *vis;
 	if (! visual) {
 	    // use the default visual
-	    vis = DefaultVisual(appDpy,appScreen);	
+	    vis = DefaultVisual(appDpy,appScreen);
 	    QPaintDevice::x_appdefvisual = TRUE;
-	
+
 	    if ( qt_visual_option == TrueColor ||
 		 QApplication::colorSpec() == QApplication::ManyColor ) {
 		// find custom visual
@@ -2491,7 +2491,7 @@ static QCursorList *cursorStack = 0;
 
   Example:
   \code
-    QApplication::setOverrideCursor( Qt::waitCursor );
+    QApplication::setOverrideCursor( Qt::WaitCursor );
     calculateHugeMandelbrot();			// lunch time...
     QApplication::restoreOverrideCursor();
   \endcode
