@@ -37,7 +37,6 @@ public:
     QSqlRecord primaryValues(int index);
     void clearEditBuffer();
     QSqlRecord record(const QVector<QVariant> &values) const;
-    bool removeRow(int row);
 
     bool exec(const QString &stmt, bool prepStatement,
               const QSqlRecord &rec, const QSqlRecord &whereValues = QSqlRecord());
@@ -154,51 +153,6 @@ QSqlRecord QSqlTableModelPrivate::primaryValues(int row)
             record.setValue(i, query.value(rec.indexOf(record.fieldName(i))));
     }
     return record;
-}
-
-bool QSqlTableModelPrivate::removeRow(int row)
-{
-    if (row < 0 || row >= q->rowCount())
-        return false;
-
-    emit q->beforeDelete(row);
-
-    const QSqlRecord values(primaryValues(row));
-    bool prepStatement = db.driver()->hasFeature(QSqlDriver::PreparedQueries);
-    QString stmt = db.driver()->sqlStatement(QSqlDriver::DeleteStatement, tableName,
-                                             QSqlRecord(), prepStatement);
-    QString where = db.driver()->sqlStatement(QSqlDriver::WhereStatement, tableName,
-                                              values, prepStatement);
-
-    if (stmt.isEmpty() || where.isEmpty()) {
-        error = QSqlError(QLatin1String("Unable to delete row"), QString(),
-                          QSqlError::StatementError);
-        return false;
-    }
-    stmt.append(QLatin1Char(' ')).append(where);
-
-    if (prepStatement) {
-        if (editQuery.lastQuery() != stmt) {
-            if (!editQuery.prepare(stmt)) {
-                error = editQuery.lastError();
-                return false;
-            }
-        }
-        for (int i = 0; i < values.count(); ++i)
-            editQuery.addBindValue(values.value(i));
-
-        if (!editQuery.exec()) {
-            error = editQuery.lastError();
-            return false;
-        }
-    } else {
-        if (!editQuery.exec(stmt)) {
-            error = d->editQuery.lastError();
-            return false;
-        }
-    }
-
-    return true;
 }
 
 /*!
@@ -535,8 +489,17 @@ bool QSqlTableModel::deleteRow(int row)
 
     QSqlRecord rec = d->primaryValues(row);
     bool prepStatement = d->db.driver()->hasFeature(QSqlDriver::PreparedQueries);
-    QString stmt = d->db.driver()->sqlStatement(QSqlDriver::DeleteStatement, d->tableName, rec,
-                                                prepStatement);
+    QString stmt = d->db.driver()->sqlStatement(QSqlDriver::DeleteStatement, d->tableName,
+                                                QSqlRecord(), prepStatement);
+    QString where = d->db.driver()->sqlStatement(QSqlDriver::WhereStatement, d->tableName,
+                                                rec, prepStatement);
+
+    if (stmt.isEmpty() || where.isEmpty()) {
+        d->error = QSqlError(QLatin1String("Unable to delete row"), QString(),
+                             QSqlError::StatementError);
+        return false;
+    }
+    stmt.append(QLatin1Char(' ')).append(where);
 
     return d->exec(stmt, prepStatement, rec);
 }
@@ -775,7 +738,7 @@ QString QSqlTableModel::selectStatement() const
 /*!
     Removes the given \a column from the \a parent model.
 
-    \sa removeRow()
+    \sa removeRows() TODO
 */
 bool QSqlTableModel::removeColumn(int column, const QModelIndex &parent)
 {
@@ -809,7 +772,7 @@ bool QSqlTableModel::removeRows(int row, const QModelIndex &parent, int count)
     case OnFieldChange:
     case OnRowChange:
         for (i = 0; i < count; ++i) {
-            if (!d->removeRow(row + i))
+            if (!deleteRow(row + i))
                 return false;
             // ### REFRESH?
         }
@@ -865,21 +828,6 @@ bool QSqlTableModel::insertRows(int row, const QModelIndex &parent, int count)
             }
         }
 
-
-        /*
-        QMapMutableIterator<int, QSqlTableModelPrivate::ModifiedRow> it(d->cache);
-        it.toBack();
-
-        // shift the indexes in the cache
-        while (it.hasPrevious() && it.peekPrevious().key() >= row) {
-            it.previous();
-            int oldKey = it.key();
-            qDebug("oldKey: %d, newKey: %d", oldKey, oldKey + count);
-            const QSqlTableModelPrivate::ModifiedRow oldValue = it.value();
-            it.remove();
-            d->cache.insert(oldKey + count, oldValue);
-        }
-        */
         for (int i = 0; i < count; ++i) {
             d->cache[row + i] = QSqlTableModelPrivate::ModifiedRow(QSql::Insert, d->rec);
             emit primeInsert(row + i, d->cache[row + i].rec);
