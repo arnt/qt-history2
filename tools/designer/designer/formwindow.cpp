@@ -60,7 +60,6 @@
 #include <qaccel.h>
 #include <qpixmapcache.h>
 #include <qbitmap.h>
-#include <qregexp.h>
 
 static void setCursorToAll( const QCursor &c, QWidget *start )
 {
@@ -1683,15 +1682,21 @@ void FormWindow::save( const QString &filename, bool withMsgBox )
     fname = filename;
 
     if ( QFile::exists( filename ) ) {
-#if defined(Q_OS_WIN32)
 	QString fn( filename );
-	fn.replace( QRegExp( "/" ), "\\" );
-	QString cmd = "copy " + fn + " " + fn + ".bak";
-	system( cmd.latin1() );
+#if defined(Q_OS_WIN32)
+	fn += ".bak";
 #else
-	QString cmd = "cp " + filename + " " + filename + "~";
-	system( cmd.latin1() );
+	fn += "~";
 #endif
+	QFile f( filename );
+	if ( f.open( IO_ReadOnly ) ) {
+	    QFile f2( fn );
+	    if ( f2.open( IO_WriteOnly ) ) {
+		QCString data( f.size() );
+		f.readBlock( data.data(), f.size() );
+		f2.writeBlock( data );
+	    }
+	}
     }
 
     Resource resource( mainWindow() );
