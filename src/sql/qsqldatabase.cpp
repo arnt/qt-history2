@@ -683,7 +683,7 @@ QSqlQuery QSqlDatabase::exec( const QString & query ) const
     Opens the database connection using the current connection values.
     Returns TRUE on success; otherwise returns FALSE. Error
     information can be retrieved using the lastError() function.
-
+    
     \sa lastError()
 */
 
@@ -700,14 +700,18 @@ bool QSqlDatabase::open()
     Returns TRUE on success; otherwise returns FALSE. Error
     information can be retrieved using the lastError() function.
 
+    Note: For security reasons this function will not store the
+    password internally in any Qt classes. The password is passed
+    directly to the driver for opening a connection and then
+    discarded.
+
     \sa lastError()
 */
 
 bool QSqlDatabase::open( const QString& user, const QString& password )
 {
     setUserName( user );
-    setPassword( password );
-    return open();
+    return d->driver->open( d->dbname, user, password, d->port, d->connOptions );
 }
 
 /*!
@@ -835,6 +839,12 @@ void QSqlDatabase::setUserName( const QString& name )
     \brief the password used to connect to the database
 
     There is no default value.
+    
+    \warning This function will store the password in a non-encrypted
+    form internally in Qt. Use the open() call that takes a password
+    as parameter to avoid this behaviour.
+    
+    \sa open()
 */
 
 void QSqlDatabase::setPassword( const QString& password )
