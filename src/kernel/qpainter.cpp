@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#57 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -21,7 +21,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#56 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#57 $")
 
 
 /*!
@@ -696,7 +696,7 @@ void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
   Overloaded fillRect; takes a QRect instead of \e (x,y,w,h).
 */
 
-void QPainter::fillRect( const QRect &r, const Brush &brush )
+void QPainter::fillRect( const QRect &r, const QBrush &brush )
 {
     fillRect( r.x(), r.y(), r.width(), r.height(), brush );
 }
