@@ -329,7 +329,7 @@ void MainWindow::runMacro()
 
     bool ok = FALSE;
     QStringList macroList = script->functions();
-    QString macro = QInputDialog::getItem("Select Macro", "Macro:", macroList, 0, FALSE, &ok, this);
+    QString macro = QInputDialog::getItem("Select Macro", "Macro:", macroList, 0, TRUE, &ok, this);
 
     if (!ok)
 	return;
