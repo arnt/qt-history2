@@ -215,8 +215,12 @@ inline void QDirPrivate::sortFileList(int sortSpec, QStringList &l,
     if(!l.isEmpty()) {
         QDirSortItem *si= new QDirSortItem[l.count()];
         int i;
-        for (i = 0; i < l.size(); ++i) 
-            si[i].item = QFileInfo(data->path + QDir::separator() + l.at(i));
+        for (i = 0; i < l.size(); ++i) {
+	    QString path = data->path;
+	    if (!path.isEmpty() && path.right(1) != QString::fromLatin1("/"))
+		path += '/';
+            si[i].item = QFileInfo(path + l.at(i));
+	}
         qt_cmp_si_sortSpec = sortSpec;
         qsort(si, i, sizeof(si[0]), qt_cmp_si);
         // put them back in the list(s)
@@ -633,7 +637,7 @@ QDir::filePath(const QString &fileName, bool acceptAbsPath) const
 
     QString ret = d->data->path;
     if(!fileName.isEmpty()) {
-        if (ret.isEmpty() || (ret[(int)ret.length()-1] != '/' && fileName[0] != '/'))
+        if (!ret.isEmpty() && ret[(int)ret.length()-1] != '/' && fileName[0] != '/')
             ret += '/';
         ret += fileName;
     }
@@ -663,16 +667,15 @@ QDir::absFilePath(const QString &fileName, bool acceptAbsPath) const
         return fileName;
 
     QString ret;
-    if (isRelativePath(d->data->path)) { //get pwd
+    if (isRelativePath(d->data->path)) //get pwd
         ret = QFSDirEngine::currentDirPath(fileName);
-    }
     if(!d->data->path.isEmpty() && d->data->path != ".") {
         if (!ret.isEmpty() && ret.right(1) != QString::fromLatin1("/"))
             ret += '/';
         ret += d->data->path;
     }
     if (!fileName.isEmpty()) {
-        if (ret.right(1) != QString::fromLatin1("/"))
+        if (!ret.isEmpty() && ret.right(1) != QString::fromLatin1("/"))
             ret += '/';
         ret += fileName;
     }
