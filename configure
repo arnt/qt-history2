@@ -2180,7 +2180,7 @@ EOF
 	rm -f .projects.1.tmp .projects.2.tmp .projects.3.tmp
 	rm -f $p
     done
-    rm -f .projects.all.* projects.awk
+    rm -f .projects.all* projects.awk
 
     [ -f .projects.1 ] && cat .projects.1 >>.projects
     [ -f .projects.2 ] && cat .projects.2 >>.projects
