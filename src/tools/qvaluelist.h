@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qvaluelist.h#10 $
+** $Id: //depot/qt/main/src/tools/qvaluelist.h#11 $
 **
 ** Definition of QValueList class
 **
@@ -42,13 +42,13 @@ struct QValueListNode
   T data;
 };
 
-template<class T, class Ref, class Ptr>
+template<class T>
 struct QValueListIterator
 {
   /**
    * Typedefs
    */
-  typedef QValueListIterator<T, Ref, Ptr> Type;
+  typedef QValueListIterator<T> Type;
   typedef QValueListNode<T>* NodePtr;
 
   /**
@@ -65,8 +65,58 @@ struct QValueListIterator
 
   bool operator==( const Type& x ) const { return node == x.node; }
   bool operator!=( const Type& x ) const { return node != x.node; }
-  Ref operator*() const { return node->data; }
-  Ptr operator->() const { return &(node->data); }
+  T& operator*() const { return node->data; }
+  T* operator->() const { return &(node->data); }
+
+  Type& operator++() {
+    node = node->next;
+    return *this;
+  }
+
+  Type operator++(int) {
+    Type tmp = *this;
+    node = node->next;
+    return tmp;
+  }
+
+  Type& operator--() {
+    node = node->prev;
+    return *this;
+  }
+
+  Type operator--(int) {
+    Type tmp = *this;
+    node = node->prev;
+    return tmp;
+  }
+};
+
+template<class T>
+struct QValueListConstIterator
+{
+  /**
+   * Typedefs
+   */
+  typedef QValueListConstIterator<T> Type;
+  typedef QValueListNode<T>* NodePtr;
+
+  /**
+   * Variables
+   */
+  NodePtr node;
+
+  /**
+   * Functions
+   */
+  QValueListConstIterator() : node( 0 ) {}
+  QValueListConstIterator( NodePtr p ) : node( p ) {}
+  QValueListConstIterator( const Type& i ) : node( i.node ) {}
+  QValueListConstIterator( const QValueListIterator<T>& i ) : node( i.node ) {}
+
+  bool operator==( const Type& x ) const { return node == x.node; }
+  bool operator!=( const Type& x ) const { return node != x.node; }
+  const T& operator*() const { return node->data; }
+  const T* operator->() const { return &(node->data); }
 
   Type& operator++() {
     node = node->next;
@@ -98,8 +148,8 @@ public:
   /**
    * Typedefs
    */
-  typedef QValueListIterator< T, T&, T* > Iterator;
-  typedef QValueListIterator< T, const T&, const T* > ConstIterator;
+  typedef QValueListIterator<T> Iterator;
+  typedef QValueListConstIterator<T> ConstIterator;
   typedef QValueListNode<T> Node;
   typedef QValueListNode<T>* NodePtr;
 
@@ -201,8 +251,8 @@ public:
   /**
    * Typedefs
    */
-  typedef QValueListIterator< T, T&, T* > Iterator;
-  typedef QValueListIterator< T, const T&, const T* > ConstIterator;
+  typedef QValueListIterator<T> Iterator;
+  typedef QValueListConstIterator<T> ConstIterator;
   typedef T ValueType;
 
   /**
@@ -278,7 +328,7 @@ public:
   Iterator find ( const T& x ) { detach(); return Iterator( sh->find( sh->node->next, x) ); }
   ConstIterator find ( const T& x ) const { return ConstIterator( sh->find( sh->node->next, x) ); }
   Iterator find ( Iterator it, const T& x ) { detach(); return Iterator( sh->find( it.node, x ) ); }
-  ConstIterator find ( Iterator it, const T& x ) const { return ConstIterator( sh->find( it.node, x ) ); }
+  ConstIterator find ( ConstIterator it, const T& x ) const { return ConstIterator( sh->find( it.node, x ) ); }
   uint contains( const T& x ) const { return sh->contains( x ); }
 
   uint count() const { return sh->nodes; }

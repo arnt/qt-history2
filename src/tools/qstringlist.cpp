@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.cpp#4 $
+** $Id: //depot/qt/main/src/tools/qstringlist.cpp#5 $
 **
 ** Implementation of QStringList
 **
@@ -58,7 +58,37 @@ QDataStream &operator<<( QDataStream& s, const QStringList& l )
 }
 */
 
+/*!
+  \class QStringList qstringlist.h
+  \brief A list of strings
+
+  This class is a list of QString objects. Like QValueList it is
+  value based unlike QList. In contrast to QStrList it deals with
+  real QString objects instead of character pointers. That makes
+  QStringList the class of joice if you have to deal with unicode
+  strings.
+*/
+
+/*! \fn QStringList::QStringList()
+  Creates an empty list
+*/
+
+/*! \fn QStringList::QStringList( const QStringList& l )
+  Creates a copy of the list. This function is very fast since
+  QStringList is implicit shared. However, for the programmer this
+  is the same as a deep copy. If this list or the original one or some
+  other list referencing the same shared data is modified, then the
+  modifying list makes a copy first.
+*/
+
+/*!
+  Sorts the list of strings in ascending order.
+  The sorting algorithm used is HeapSort which operates
+  in O(n*logn).
+*/
 void QStringList::sort()
 {
     qHeapSort(*this);
 }
+
+
