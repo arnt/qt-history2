@@ -18,13 +18,12 @@ CC		= gcc
 
 HEADERS		= qarray.h	qbitarry.h	qbuffer.h	qcollect.h    \
 		  qdatetm.h	qdict.h		qdstream.h	qfile.h	      \
-		  qgarray.h	qgdict.h	qgeneric.h	qghoststr.h   \
-		  qglist.h	qglobal.h	qgvector.h	qintdict.h    \
-		  qiodev.h	qipcomm.h	qlist.h		qmemchk.h     \
-		  qnpipe.h	qqueue.h	qres.h		qshared.h     \
-		  qstack.h	qstring.h	qstrlist.h	qstrvec.h     \
-		  qtcomm.h	qtcpcomm.h	qtstream.h	qudpcomm.h    \
-		  qvector.h
+		  qgarray.h	qgdict.h	qgeneric.h	qglist.h      \
+		  qglobal.h	qgvector.h	qintdict.h	qiodev.h      \
+		  qipcomm.h	qlist.h		qmemchk.h	qnpipe.h      \
+		  qqueue.h	qres.h		qshared.h	qstack.h      \
+		  qstring.h	qstrlist.h	qstrvec.h	qtcomm.h      \
+		  qtcpcomm.h	qtstream.h	qudpcomm.h	qvector.h
 SOURCES		= qbitarry.cpp	qbuffer.cpp	qcollect.cpp	qdatetm.cpp   \
 		  qdstream.cpp	qfile.cpp	qgarray.cpp	qgdict.cpp    \
 		  qglist.cpp	qglobal.cpp	qgvector.cpp	qiodev.cpp    \
