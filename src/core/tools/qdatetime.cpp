@@ -168,7 +168,7 @@ static QString fmtDateTime(const QString& f, const QTime* dt = 0, const QDate* d
     QChar status = QLatin1Char('0');
 
     for (int i = 0; i < (int)f.length(); ++i) {
-        if (f.at(i) == quote){
+        if (f.at(i) == quote) {
             if (status == quote) {
                 if (!buf.isEmpty() && f.at(i - 1) == QLatin1Char('\\')) {
                     buf[buf.length() - 1] = quote;
@@ -176,6 +176,10 @@ static QString fmtDateTime(const QString& f, const QTime* dt = 0, const QDate* d
                     status = QLatin1Char('0');
                 }
             } else {
+                if (!frm.isEmpty()) {
+                    buf += getFmtString(frm, dt, dd, ap);
+                    frm.clear();
+                }
                 status = quote;
             }
         } else if (status == quote) {
