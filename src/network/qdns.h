@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.h#6 $
+** $Id: //depot/qt/main/src/network/qdns.h#7 $
 **
 ** Definition of QDns class.
 **
@@ -80,7 +80,7 @@ public:
     // to query for replies
     QValueList<QHostAddress> addresses() const;
 
-    class MailServer {
+    class Q_EXPORT MailServer {
     public:
 	MailServer( const QString & n=QString::null, Q_UINT16 p=0 )
 	    :name(n), priority(p) {}
@@ -92,7 +92,7 @@ public:
     };
     QValueList<MailServer> mailServers() const;
 
-    class Server {
+    class Q_EXPORT Server {
     public:
 	Server(const QString & n=QString::null, Q_UINT16 p=0, Q_UINT16 w=0, Q_UINT16 po=0 )
 	    : name(n), priority(p), weight(w), port(po) {}

@@ -46,7 +46,7 @@
 
 class QImageDataMisc; // internal
 #ifndef QT_NO_IMAGE_TEXT
-class QImageTextKeyLang {
+class Q_EXPORT QImageTextKeyLang {
 public:
     QImageTextKeyLang(const char* k, const char* l) : key(k), lang(l) { }
     QImageTextKeyLang() { }
