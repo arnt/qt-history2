@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#11 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#12 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -17,7 +17,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgdict.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgdict.cpp#12 $";
 #endif
 
 
@@ -249,12 +249,14 @@ bool QGDict::remove( const char *key )		// remove item from dictionary
 GCI QGDict::take( const char *key )		// take out item
 {
     register Qbucket *n = unlink( key );
+    GCI tmp = 0;
     if ( n ) {
+	tmp = n->getData();
 	if ( copyk )
 	    delete n->getKey();
 	delete n;
     }
-    return n;
+    return tmp;
 }
 
 
