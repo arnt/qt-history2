@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#303 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#304 $
 **
 ** Implementation of QListBox widget class
 **
@@ -2442,6 +2442,12 @@ QListBoxItem * QListBox::itemAt( QPoint p ) const
     while ( row < numRows() &&
 	   y > d->rowPos[row] )
 	row++;
+    
+    int nr = numRows();
+    if ( nr > 0 && 
+	 y > d->rowPos[ nr - 1 ] + d->rowPos[ nr ] - d->rowPos[ nr - 1 ] )
+	return 0;
+    
     if ( row && y < d->rowPos[row] )
 	row--;
 
