@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#104 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#105 $
 **
 ** Implementation of layout classes
 **
@@ -612,11 +612,11 @@ void QLayoutArray::setupHfwLayoutData()
             int r1 = box->row;
             //int c1 = box->col;
             int r2 = mbox->torow;
-            int c2 = mbox->tocol;
+            //int c2 = mbox->tocol;  NOT USED
             if ( r2 < 0 )
                 r2 = rr-1;
-            if ( c2 < 0 )
-                c2 = cc-1;
+            //if ( c2 < 0 )
+                //c2 = cc-1;
 	    QSize hint = box->sizeHint(); //#### must hfw-ify!
 	    //(however, distributeMultiBox ignores sizeHint now...)
 	    QSize min = box->minimumSize();

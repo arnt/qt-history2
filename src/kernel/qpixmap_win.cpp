@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#87 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#88 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -609,9 +609,12 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	SetStretchBltMode( pm.handle(), COLORONCOLOR );
 	StretchBlt( pm.handle(), 0, 0, w, h,	// scale the pixmap
 		    dc, 0, sy, ws, hs, SRCCOPY );
-	if ( data->mask )
-	    pm.setMask( data->selfmask ? *((QBitmap*)(&pm)) :
-				         data->mask->xForm(matrix) );
+	if ( data->mask ) {
+	    QBitmap bm =
+		data->selfmask ? *((QBitmap*)(&pm)) :
+				         data->mask->xForm(matrix);
+	    pm.setMask( bm );
+	}
 	return pm;
     } else {					// rotation or shearing
 	QPointArray a( QRect(0,0,ws,hs) );
@@ -802,9 +805,11 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 		       dptr, bmi, DIB_RGB_COLORS );
     delete [] bmi_data;
     delete [] dptr;
-    if ( data->mask )
-	pm.setMask( data->selfmask ? *((QBitmap*)(&pm)) :
-				     data->mask->xForm(matrix) );
+    if ( data->mask ) {
+	QBitmap bm = data->selfmask ? *((QBitmap*)(&pm)) :
+				     data->mask->xForm(matrix);
+	pm.setMask( bm );
+    }
     return pm;
 }
 

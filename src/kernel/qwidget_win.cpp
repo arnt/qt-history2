@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#212 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#213 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -78,7 +78,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
     bool topLevel = testWFlags(WType_TopLevel);
     bool popup = testWFlags(WType_Popup);
-    bool tool = testWFlags(WType_Popup|WStyle_Tool);
+    //bool tool = testWFlags(WType_Popup|WStyle_Tool); NOT USED
     bool modal = testWFlags(WType_Modal);
     bool desktop  = testWFlags(WType_Desktop);
     HINSTANCE appinst  = qWinAppInst();
@@ -118,7 +118,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     }
 
     if ( desktop ) {				// desktop widget
-	modal = popup = FALSE;			// force this flags off
+	//modal = FALSE; NOT USED		// force this flags off
+	popup = FALSE;				// force this flags off
 	fpos = QPoint(0, 0);
 	crect = QRect( fpos, QSize(sw, sh) );
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog_win.cpp#3 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog_win.cpp#4 $
 **
 ** Implementation of QFileDialog Windows-specific functionality
 **
@@ -225,7 +225,7 @@ void cleanUpOFN( OPENFILENAME** ofn )
 QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
 					 const QString &filter,
 					 QString* initialDirectory,
-					 QWidget *parent, const char* name )
+					 QWidget *parent, const char* /*name*/ )
 {
     QString result;
 
@@ -262,7 +262,7 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
 QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
 					 const QString &filter,
 					 QString* initialDirectory,
-					 QWidget *parent, const char* name )
+					 QWidget *parent, const char* /*name*/ )
 {
     QString result;
 
@@ -300,7 +300,7 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
 QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
 					      QString* initialDirectory,
 					      QWidget *parent,
-					      const char* name )
+					      const char* /*name*/ )
 {
     QStringList result;
     QFileInfo fi;

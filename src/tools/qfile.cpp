@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#88 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#89 $
 **
 ** Implementation of QFile class
 **
@@ -23,8 +23,7 @@
 **
 *****************************************************************************/
 
-#include "qfile.h"
-
+#include "qglobal.h"
 #if defined(_OS_WIN32_)
 #ifdef UNICODE
 #ifndef _UNICODE
@@ -33,9 +32,12 @@
 #endif
 #endif
 
+#include "qfile.h"
 #include "qfiledefs.h"
 
 #if defined(_OS_WIN32_)
+#include <qt_windows.h>
+#include <direct.h>
 #include <tchar.h>
 
 QCString qt_win95Name(const QString s)
@@ -189,9 +191,9 @@ bool qt_file_access( const QString& fn, int t )
     return ACCESS( QFile::encodeName(fn), t ) == 0;
 #else
     if ( qt_winunicode ) {
-	return _taccess((const TCHAR*)qt_winTchar(fn,TRUE), t) == 0;
+	return _taccess((TCHAR*)qt_winTchar(fn,TRUE), t) == 0;
     } else {
-	return _access(qt_win95Name(fn), t) == 0;
+	return ACCESS(qt_win95Name(fn), t) == 0;
     }
 #endif
 }
@@ -371,7 +373,7 @@ bool QFile::open( int m )
 	if ( qt_winunicode ) {
 	    fd = _topen((const TCHAR*)qt_winTchar(fn,TRUE), oflags, 0666 );
 	} else {
-	    fd = _open(qt_win95Name(fn), oflags, 0666 );
+	    fd = OPEN(qt_win95Name(fn), oflags, 0666 );
 	}
 #endif
 

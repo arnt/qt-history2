@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime_win.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qmime_win.cpp#7 $
 **
 ** Implementation of Win32 MIME <-> clipboard converters
 **
@@ -253,7 +253,7 @@ bool QWindowsMimeText::canConvert( const char* mime, int cf )
     return cfFor(mime) == cf;
 }
 
-QByteArray QWindowsMimeText::convertToMime( QByteArray data, const char* mime, int cf )
+QByteArray QWindowsMimeText::convertToMime( QByteArray data, const char* /*mime*/, int cf )
 {
     if ( cf == CF_TEXT )
 	return data;
@@ -272,7 +272,7 @@ QByteArray QWindowsMimeText::convertToMime( QByteArray data, const char* mime, i
     return r;
 }
 
-QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* mime, int cf )
+QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* /*mime*/, int cf )
 {
     if ( cf == CF_TEXT ) {
 	// Ad NUL (### only really necessary if no NUL already)
@@ -347,7 +347,7 @@ const char* QWindowsMimeImage::convertorName()
 
 int QWindowsMimeImage::cf(int index)
 {
-    return CF_DIB;
+    return index == 0 ? CF_DIB : 0;
 }
 
 int QWindowsMimeImage::cfFor(const char* mime)
@@ -431,9 +431,6 @@ QByteArray QWindowsMimeImage::convertFromMime( QByteArray data, const char* mime
 
 
 
-static const char* protocol = "file:/";
-static int protocol_len = 6;
-
 static
 int dtoh(int d) // NOT SAFE, only use internally
 {
@@ -472,7 +469,7 @@ const char* QWindowsMimeUri::convertorName()
 
 int QWindowsMimeUri::cf(int index)
 {
-    return CF_HDROP;
+    return index == 0 ? CF_HDROP : 0;
 }
 
 int QWindowsMimeUri::cfFor(const char* mime)
@@ -562,7 +559,7 @@ QByteArray QWindowsMimeUri::convertFromMime( QByteArray data, const char* mime, 
 	    f += l;
 	    *f++ = 0;
 	}
-	*f++ = 0;
+	*f = 0;
     } else {
 	d->fWide = FALSE;
 	char* f = files;
@@ -577,7 +574,7 @@ QByteArray QWindowsMimeUri::convertFromMime( QByteArray data, const char* mime, 
 	    f += l;
 	    *f++ = 0;
 	}
-	*f++ = 0;
+	*f = 0;
     }
     return result;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#64 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#65 $
 **
 ** Implementation of QMainWindow class
 **
@@ -181,7 +181,7 @@ public:
     QSize sizeHint() const { return minimumSize(); }
     QSize minimumSize() const;
     QLayoutIterator iterator();
-    QSizePolicy::ExpandData expanding() { return QSizePolicy::NoDirection; }
+    QSizePolicy::ExpandData expanding() const { return QSizePolicy::NoDirection; }
     void setDirection( QBoxLayout::Direction d ) { dir = d; }
     QBoxLayout::Direction direction() const { return dir; }
     void newLine();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#99 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#100 $
 **
 ** Implementation of QCheckBox class
 **
@@ -137,7 +137,7 @@ QSize QCheckBox::sizeHint() const
     } else {
 	sz = fontMetrics().size( ShowPrefix, text() );
     }
-    GUIStyle gs = style();
+    GUIStyle gs = style().guiStyle();
     QSize bmsz = style().indicatorSize();
     if ( sz.height() < bmsz.height() )
 	sz.setHeight( bmsz.height() );
@@ -156,7 +156,7 @@ QSize QCheckBox::sizeHint() const
 void QCheckBox::drawButton( QPainter *paint )
 {
     QPainter	*p = paint;
-    GUIStyle	 gs = style();
+    GUIStyle	 gs = style().guiStyle();
     const QColorGroup & g = colorGroup();
     int		 x, y;
 
@@ -221,7 +221,7 @@ void QCheckBox::drawButton( QPainter *paint )
 void QCheckBox::drawButtonLabel( QPainter *p )
 {
     int x, y, w, h;
-    GUIStyle gs = style();
+    GUIStyle gs = style().guiStyle();
     QSize sz = style().indicatorSize();
     y = 0;
     x = sz.width() + extraWidth( gs );
@@ -251,7 +251,7 @@ void QCheckBox::drawButtonLabel( QPainter *p )
 void QCheckBox::resizeEvent( QResizeEvent* )
 {
     int x, w, h;
-    GUIStyle gs = style();
+    GUIStyle gs = style().guiStyle();
     QSize sz = style().indicatorSize();
     x = sz.width() + extraWidth( gs );
     w = width() - x;
@@ -273,7 +273,7 @@ void QCheckBox::updateMask()
     QBitmap bm(width(),height());
     {
 	int x, y, w, h;
-	GUIStyle gs = style();
+	GUIStyle gs = style().guiStyle();
 	bm.fill(color0);
 	QPainter p( &bm, this );
 

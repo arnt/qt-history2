@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#114 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#115 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -239,7 +239,7 @@ void QFont::cacheStatistics()
     qDebug( "{" );
     while ( (fin = it.current()) ) {
 	++it;
-	qDebug( "   [%s]", fin->key() );
+	qDebug( "   [%s]", fin->key().data() );
     }
     qDebug( "}" );
 #endif
@@ -578,7 +578,7 @@ bool QFontMetrics::inFont(QChar ch) const
 #ifdef UNICODE
     if ( qt_winver == Qt::WV_NT ) {
 	TEXTMETRICW *f = TMW;
-	uint ch16 = ch.unicode();
+	WCHAR ch16 = ch.unicode();
 	return ch16 >= f->tmFirstChar
 	    && ch16 <= f->tmLastChar;
     } else
@@ -587,8 +587,8 @@ bool QFontMetrics::inFont(QChar ch) const
 	TEXTMETRICA *f = TMA;
 	if ( ch.row() )
 	    return FALSE;
-	return ch.cell() >= (uint)f->tmFirstChar
-	    && ch.cell() <= (uint)f->tmLastChar;
+	return (WCHAR)ch.cell() >= f->tmFirstChar
+	    && (WCHAR)ch.cell() <= f->tmLastChar;
     }
 }
 

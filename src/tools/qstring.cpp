@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#236 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#237 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -9858,7 +9858,7 @@ int QLigature::match(QString & str, unsigned int index)
     if(!current()) return 0;
 	
     Q_UINT16 lig = current() + 2;
-    Q_UINT16 ch = 0;
+    Q_UINT16 ch;
 
     while ((i < str.length()) && (ch = decomposition_map[lig])) {
 	if (str[(int)i] != QChar(ch))
@@ -10010,14 +10010,11 @@ QChar::Direction QString::basicDirection()
 // called from QString::visual()
 //
 static unsigned int reverse(QString &chars, unsigned char *level,
-		     unsigned int a, unsigned int b) {
-
-    unsigned char lev = level[a];
-	
+		     unsigned int a, unsigned int b)
+{
     unsigned int c = a;
-	
-    lev = level[c];
-	
+    unsigned char lev = level[c];
+
     while ((c < b) && (level[c] >= lev)) {
 	if (level[c] > lev)
 	    c = reverse(chars, level, c, b);
@@ -10109,7 +10106,7 @@ QString QString::visual(int index, int len)
     dir   = new QChar::Direction[l];
 
     // explicit override pass
-    unsigned int code_count = 0;
+    //unsigned int code_count = 0;
 	
     QStack<QBidiState> stack;
     stack.setAutoDelete(TRUE);
@@ -10120,35 +10117,35 @@ QString QString::visual(int index, int len)
     for (pos = 0; pos < l; pos++) {
 		
 	if (at(pos) == RLE) {
-	    code_count++;
+	    //code_count++;
 	    stack.push(new QBidiState(clevel, override));
 	    if (clevel < 254)
 		clevel += 1 + clevel % 2;
 	    override = -1;
 	}
 	else if (at(pos) == LRE) {
-	    code_count++;
+	    //code_count++;
 	    stack.push(new QBidiState(clevel, override));
 	    if (clevel < 254)
 		clevel += 2 - clevel % 2;
 	    override = -1;
 	}
 	else if (at(pos) == RLO) {
-	    code_count++;
+	    //code_count++;
 	    stack.push(new QBidiState(clevel, override));
 	    if (clevel < 254)
 		clevel += 1 + clevel % 2;
 	    override = QChar::DirR;
 	}
 	else if (at(pos) == LRO) {
-	    code_count++;
+	    //code_count++;
 	    stack.push(new QBidiState(clevel, override));
 	    if (clevel < 254)
 		clevel += 2 - clevel % 2;
 	    override = QChar::DirL;
 	}
 	else if (at(pos) == PDF) {
-	    code_count++;
+	    //code_count++;
 	    if (!stack.isEmpty()) {
 		override = stack.top()->override;
 		clevel   = stack.top()->level;
@@ -10362,7 +10359,7 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
     char *result = a;
     while (l--)
 	*a++ = *uc++;
-    *a++ = '\0';
+    *a = '\0';
     return result;
 }
 
@@ -10532,10 +10529,11 @@ QString::QString( const QChar* unicode, uint length )
 
   If \a str is 0 a null string is created.
 
-  This is a cast constructor.  You can disable this constructor by
-  defining QT_NO_CAST_ASCII when you compile your applications.  This
-  will allow you to be more vigilant about when you convert from 8-bit
-  data.  You can still make QString objects by using fromLatin1(), or
+  This is a cast constructor, but it is perfectly safe: converting a Latin1
+  const char* to QString preserves all the information.
+  You can disable this constructor by
+  defining QT_NO_CAST_ASCII when you compile your applications.
+  You can also make QString objects by using fromLatin1(), or
   fromLocal8Bit(), fromUtf8(), or whatever encoding is appropriate for
   the 8-bit data you have.
 
@@ -10936,7 +10934,7 @@ QString &QString::sprintf( const char* cformat, ... )
     uint last=0;
 
     int len=0;
-    int pos=-1;
+    int pos;
     while ( 1 ) {
 	pos=escape.match( format, last, &len );
 	// Non-escaped text
@@ -13091,13 +13089,13 @@ QCString qt_winQString2MB( const QString& s, int uclen )
     BOOL used_def;
     QCString mb(4096);
     int len;
-    while ( !(len=WideCharToMultiByte(CP_ACP, 0, (const ushort*)s.unicode(), uclen,
+    while ( !(len=WideCharToMultiByte(CP_ACP, 0, (const WCHAR*)s.unicode(), uclen,
 		mb.data(), mb.size()-1, 0, &used_def)) )
     {
 	int r = GetLastError();
 	if ( r == ERROR_INSUFFICIENT_BUFFER ) {
 	    mb.resize(1+WideCharToMultiByte( CP_ACP, 0,
-				(const ushort*)s.unicode(), uclen,
+				(const WCHAR*)s.unicode(), uclen,
 				0, 0, 0, &used_def));
 		// and try again...
 	} else {
@@ -13120,13 +13118,12 @@ QString qt_winMB2QString( const char* mb, int mblen )
     QChar *wc = wc_auto;
     int len;
     while ( !(len=MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED,
-		mb, mblen, (ushort*)wc, wclen )) )
+		mb, mblen, (WCHAR*)wc, wclen )) )
     {
 	int r = GetLastError();
 	if ( r == ERROR_INSUFFICIENT_BUFFER ) {
 	    if ( wc != wc_auto ) {
 		qWarning("Size changed in MultiByteToWideChar");
-		wclen = 0;
 		break;
 	    } else {
 		wclen = MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED,
@@ -13137,7 +13134,6 @@ QString qt_winMB2QString( const char* mb, int mblen )
 	} else {
 	    // Fail.
 	    qWarning("MultiByteToWideChar cannot convert multibyte text");
-	    wclen = 0;
 	    break;
 	}
     }

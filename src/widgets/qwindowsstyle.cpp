@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#7 $
 **
 ** Implementation of Windows-like style class
 **
@@ -679,9 +679,11 @@ void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, in
 		   SUB_LINE_ACTIVE, subB.x()+2, subB.y()+2,
 		   subB.width()-4, subB.height()-4, g, !maxedOut );
     }
-    p->setBrush( g.brush( QColorGroup::Light ).pixmap() ?
+    QBrush br =
+	g.brush( QColorGroup::Light ).pixmap() ?
                  g.brush( QColorGroup::Light )     :
-                 QBrush(g.light(), Dense4Pattern) );
+                 QBrush(g.light(), Dense4Pattern);
+    p->setBrush( br );
     p->setPen( NoPen );
     p->setBackgroundMode( OpaqueMode );
     if ( maxedOut ) {

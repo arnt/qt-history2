@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#68 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#69 $
 **
 ** Implementation of QRegExp class
 **
@@ -655,7 +655,7 @@ static uint char_val( const QChar **str, uint *strlength )   // get char value
 	    return '\\';
 	}
 	len++;					// length at least 2
-	int i = 0;
+	int i;
 	char c;
 	char ch = tolower((char)*p);
 	switch ( ch ) {
@@ -875,8 +875,8 @@ void QRegExp::compile()
 		while ( pl ) {
 		    if ((pl>2) && ((char)*p == '-') && ((char)*(p+1) != ']')) {
 			// Found a range
-			uint cch2 = char_val( &p, &pl ); // Read the '-'
-			cch2 = char_val( &p, &pl ); // Read the range end
+		       	char_val( &p, &pl ); // Read the '-'
+			uint cch2 = char_val( &p, &pl ); // Read the range end
 			if ( cch > cch2 ) { 		// swap start and stop
 			    int tmp = cch;
 			    cch = cch2;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpngio.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qpngio.cpp#19 $
 **
 ** Implementation of PNG QImage IOHandler
 **
@@ -571,7 +571,7 @@ bool QPNGImagePacker::packImage(const QImage& img)
 	    QRgb* ld = (QRgb*)diff.scanLine(y);
 	    if ( alignx ) {
 		for (x = 0; x < dw; x+=alignx) {
-		    int i=0;
+		    int i;
 		    for (i=0; i<alignx; i++) {
 			if ( li[x+i] != lp[x+i] )
 			    break;

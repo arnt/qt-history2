@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#26 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#27 $
 **
 ** Implementation of something useful.
 **
@@ -121,8 +121,8 @@ QWizard::QWizard( QWidget *parent, const char *name, bool modal,
     d->hbar2 = 0;
 
     d->cancelButton->setText( tr( "Cancel" ) );
-    d->backButton->setText( tr( "<<Back" ) );
-    d->nextButton->setText( tr( "Next>>" ) );
+    d->backButton->setText( tr( "< Back" ) );
+    d->nextButton->setText( tr( "Next >" ) );
     d->finishButton->setText( tr( "Finish" ) );
     d->helpButton->setText( tr( "Help" ) );
 

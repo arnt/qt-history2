@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsizepolicy.h#15 $
+** $Id: //depot/qt/main/src/kernel/qsizepolicy.h#16 $
 **
 ** Definition of the QSizePolicy class
 **
@@ -66,7 +66,7 @@ public:
 
     void setHorData( SizeType d ) { data = (data & ~HMask) | d; }
     void setVerData( SizeType d ) { data = (data & ~(HMask<<HSize)) |
-					   d<<HSize; }
+					   (d<<HSize); }
 		
     void setHeightForWidth( bool b ) { data = b ? data & ~( 1 << 2*HSize )
 					      :  data | ( 1 << 2*HSize ); }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#226 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#227 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -1427,7 +1427,7 @@ static bool dither_to_1( const QImage *src, QImage *dst,
 		int bit = 7;
 		int j = 0;
 		while ( p < end ) {
-		    if ( gray[*p++] < bm[j++&15][i&15] )
+		    if ( (uint)gray[*p++] < bm[j++&15][i&15] )
 			*m |= 1 << bit;
 		    if ( bit == 0 ) {
 			m++;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#68 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#69 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -977,13 +977,16 @@ QGroupBox * QPrintDialog::setupPaper()
     tll->addWidget( rb );
 
     rb = new QRadioButton( g, "Letter" );
+
+    // This is really just exercising QFontMetrics::inFont()...
     QString letter_name = "Letter (8";
     if ( rb->fontMetrics().inFont(QChar('½')) )
 	letter_name += "½";
     else
 	letter_name += ".5";
-    letter_name += " x 11in)";
+    letter_name += " x 11 in.)";
     rb->setText(letter_name);
+
     rb->setMinimumSize( rb->sizeHint() );
     d->paperSize->insert( rb, 2 );
     tll->addWidget( rb );

@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/src/Makefile#84 $
+# $Id: //depot/qt/main/src/Makefile#85 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -21,19 +21,19 @@ qtmain: qtmain-release
 !ENDIF
 
 qtmain-debug: NMakefile.qtmain-debug
-	$(MAKE) /$(MAKEFLAGS) -f NMakefile.qtmain-debug
+	$(MAKE) -f NMakefile.qtmain-debug
 
 qtmain-release: NMakefile.qtmain-release
-	$(MAKE) /$(MAKEFLAGS) -f NMakefile.qtmain-release
+	$(MAKE) -f NMakefile.qtmain-release
 
 NMakefile.qtmain-debug: qtmain.pro
-	-@mkdir .obj
-	-@mkdir .obj\debug	
+	-@mkdir obj
+	-@mkdir obj\debug	
 	tmake qtmain.pro -o NMakefile.qtmain-debug \
-		"CONFIG+=debug" "OBJECTS_DIR=.obj/debug"
+		"CONFIG+=debug" "OBJECTS_DIR=obj/debug"
 
 NMakefile.qtmain-release: qtmain.pro
-	-@mkdir .obj
-	-@mkdir .obj\release
+	-@mkdir obj
+	-@mkdir obj\release
 	tmake qtmain.pro -o NMakefile.qtmain-release \
-		"CONFIG+=release" "OBJECTS_DIR=.obj/release"
+		"CONFIG+=release" "OBJECTS_DIR=obj/release"

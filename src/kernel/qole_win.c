@@ -56,10 +56,10 @@ STDAPI_(LPENUMFORMATETC)
 //----------------------------------------------------------------------------
 {
   LPMALLOC lpMalloc=NULL;
-  LPOLESTDENUMFMTETC lpEF=NULL;
   DWORD dwSize;
-  WORD i;
+  ULONG i;
   HRESULT hRes;
+  LPOLESTDENUMFMTETC lpEF;
 
   hRes = CoGetMalloc(MEMCTX_TASK, &lpMalloc);
   if (hRes != NOERROR) {
@@ -112,7 +112,7 @@ VOID
 //----------------------------------------------------------------------------
 {
     LPMALLOC lpMalloc=NULL;
-    WORD i;
+    ULONG i;
 
     if (lpEF != NULL) {
 
@@ -324,15 +324,15 @@ STDMETHODIMP
  */
 STDAPI_(DVTARGETDEVICE FAR*) OleStdCopyTargetDevice(DVTARGETDEVICE FAR* ptdSrc)
 {
-  DVTARGETDEVICE FAR* ptdDest = NULL;
+  DVTARGETDEVICE FAR* ptdDest;
 
   if (ptdSrc == NULL) {
     return NULL;
   }
 
-  if ((ptdDest = (DVTARGETDEVICE FAR*)OleStdMalloc(ptdSrc->tdSize)) != NULL) {
+  ptdDest = (DVTARGETDEVICE FAR*)OleStdMalloc(ptdSrc->tdSize);
+  if (ptdDest != NULL)
     memcpy(ptdDest, ptdSrc, (size_t)ptdSrc->tdSize);
-  }
 
   return ptdDest;
 }
@@ -395,7 +395,7 @@ STDAPI_(void) OleStdFree(LPVOID pmem)
     pmalloc->lpVtbl->Free(pmalloc, pmem);
 
     if (pmalloc != NULL) {
-        ULONG refs = pmalloc->lpVtbl->Release(pmalloc);
+        pmalloc->lpVtbl->Release(pmalloc);
     }
 }
 
@@ -415,7 +415,7 @@ STDAPI_(LPVOID) OleStdMalloc(ULONG ulSize)
     pout = (LPVOID)pmalloc->lpVtbl->Alloc(pmalloc, ulSize);
 
     if (pmalloc != NULL) {
-        ULONG refs = pmalloc->lpVtbl->Release(pmalloc);
+        pmalloc->lpVtbl->Release(pmalloc);
     }
 
     return pout;

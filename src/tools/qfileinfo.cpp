@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#55 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#56 $
 **
 ** Implementation of QFileInfo class
 **
@@ -46,6 +46,8 @@
 #endif
 
 #if defined(_OS_WIN32_)
+#include <qt_windows.h>
+#include <direct.h>
 #include <tchar.h>
 #endif
 

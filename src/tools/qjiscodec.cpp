@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qjiscodec.cpp#8 $
+** $Id: //depot/qt/main/src/tools/qjiscodec.cpp#9 $
 **
 ** Implementation of QJisCodec class
 **
@@ -291,7 +291,7 @@ int QJisCodec::heuristicNameMatch(const char* hint) const
 	score += 2; 
 	ja = TRUE;
     }
-    const char *p = 0;
+    const char *p;
     if (ja) {
 	p = strchr(hint, '.');
 	if (p == 0) {

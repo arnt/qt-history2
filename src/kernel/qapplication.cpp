@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#247 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#248 $
 **
 ** Implementation of QApplication class
 **
@@ -1728,7 +1728,7 @@ void QApplication::removePostedEvent( QEvent *  event )
 	    postedEvents->take( postedEvents->findRef( pe ) );
 	    event->posted = FALSE;
 #if defined(DEBUG)
-	    const char *n = 0;
+	    const char *n;
 	    switch ( event->type() ) {
 	    case QEvent::Timer:
 		n = "Timer";

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#9 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -823,7 +823,8 @@ void QStyleSheet::init()
     style = new QStyleSheetItem( this, QString::fromLatin1("twocolumn") );
     style->setNumberOfColumns( 2 );
 
-    style = new QStyleSheetItem( this, QString::fromLatin1("multicol") );
+    /*style =*/ new QStyleSheetItem( this, QString::fromLatin1("multicol") );
+    // ##### NOT USED?
 
     style = new QStyleSheetItem( this, QString::fromLatin1("ul") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);

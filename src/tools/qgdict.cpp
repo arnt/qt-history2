@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#79 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#80 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -304,7 +304,7 @@ QGDict &QGDict::operator=( const QGDict &dict )
 
 QCollection::Item QGDict::look_string( const QString &key, Item d, int op )
 {
-    QStringBucket *n = 0;
+    QStringBucket *n;
     int	index = hashKeyString(key) % vlen;
     if ( op == op_find ) {			// find
 	if ( cases ) {
@@ -546,11 +546,10 @@ QStringBucket *QGDict::unlink_string( const QString &key, Item d )
     QStringBucket *n;
     QStringBucket *prev = 0;
     int index = hashKeyString(key) % vlen;
-    bool found = FALSE;
     if ( cases ) {
 	for ( n=(QStringBucket*)vec[index]; n;
 	      n=(QStringBucket*)n->getNext() ) {
-	    found = (key == n->getKey());
+	    bool found = (key == n->getKey());
 	    if ( found && d )
 		found = (n->getData() == d);
 	    if ( found ) {
@@ -563,7 +562,7 @@ QStringBucket *QGDict::unlink_string( const QString &key, Item d )
 	QString k = key.lower();
 	for ( n=(QStringBucket*)vec[index]; n;
 	      n=(QStringBucket*)n->getNext() ) {
-	    found = (k == n->getKey().lower());
+	    bool found = (k == n->getKey().lower());
 	    if ( found && d )
 		found = (n->getData() == d);
 	    if ( found ) {
@@ -583,9 +582,8 @@ QAsciiBucket *QGDict::unlink_ascii( const char *key, Item d )
     QAsciiBucket *n;
     QAsciiBucket *prev = 0;
     int index = hashKeyAscii(key) % vlen;	
-    bool found = FALSE;
     for ( n=(QAsciiBucket *)vec[index]; n; n=(QAsciiBucket *)n->getNext() ) {
-	found = (cases ? strcmp(n->getKey(),key)
+	bool found = (cases ? strcmp(n->getKey(),key)
 		       : stricmp(n->getKey(),key)) == 0;
 	if ( found && d )
 	    found = (n->getData() == d);
@@ -605,9 +603,8 @@ QIntBucket *QGDict::unlink_int( long key, Item d )
     QIntBucket *n;
     QIntBucket *prev = 0;
     int index = (int)((ulong)key % vlen);
-    bool found = FALSE;
     for ( n=(QIntBucket *)vec[index]; n; n=(QIntBucket *)n->getNext() ) {
-	found = (n->getKey() == key);
+	bool found = (n->getKey() == key);
 	if ( found && d )
 	    found = (n->getData() == d);
 	if ( found ) {
@@ -626,9 +623,8 @@ QPtrBucket *QGDict::unlink_ptr( void *key, Item d )
     QPtrBucket *n;
     QPtrBucket *prev = 0;
     int index = (int)((ulong)key % vlen);
-    bool found = FALSE;
     for ( n=(QPtrBucket *)vec[index]; n; n=(QPtrBucket *)n->getNext() ) {
-	found = (n->getKey() == key);
+	bool found = (n->getKey() == key);
 	if ( found && d )
 	    found = (n->getData() == d);
 	if ( found ) {

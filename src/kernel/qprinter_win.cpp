@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#54 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -319,7 +319,7 @@ bool QPrinter::setup( QWidget *parent )
 static BITMAPINFO *getWindowsBITMAPINFO( const QPixmap &pixmap,
 					 const QImage &image )
 {
-    int w=0, h=0, d=0, ncols=2;
+    int w, h, d, ncols=2;
     if ( !pixmap.isNull() ) {
 	w = pixmap.width();
 	h = pixmap.height();
@@ -433,18 +433,18 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 
 	    int w;
 	    int h;
-	    int d;
+	    //int d; // NOT USED
 
 	    if ( c == PdcDrawPixmap ) {
 		pixmap = *p[1].pixmap;
 		w = pixmap.width();
 		h = pixmap.height();
-		d = pixmap.depth();
+		//d = pixmap.depth();
 	    } else {
 		image = *p[1].image;
 		w = image.width();
 		h = image.height();
-		d = image.depth();
+		//d = image.depth();
 	    }
 
 	    double xs = 1.0;			// x stretch
@@ -514,7 +514,7 @@ int QPrinter::metric( int m ) const
 {
     if ( hdc == 0 )			// not ready
 	return 0;
-    int val = 0;
+    int val;
     switch ( m ) {
     case QPaintDeviceMetrics::PdmWidth:
 	val = GetDeviceCaps( hdc, printToEdge() ? PHYSICALWIDTH : HORZRES );

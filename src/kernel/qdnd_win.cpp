@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#60 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -267,15 +267,15 @@ void QDragManager::cancel()
 }
 
 
-void QDragManager::move( const QPoint & globalPos )
+void QDragManager::move( const QPoint & )
 {
-    // tbi
+    // not used in windows implementation
 }
 
 
 void QDragManager::drop()
 {
-    // tbi
+    // not used in windows implementation
 }
 
 
@@ -671,7 +671,7 @@ QOleDataObject::GetData(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium)
 }
 
 STDMETHODIMP
-QOleDataObject::GetDataHere(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium)
+QOleDataObject::GetDataHere(LPFORMATETC, LPSTGMEDIUM)
 {
     return ResultFromScode(DATA_E_FORMATETC);
 }
@@ -695,14 +695,14 @@ QOleDataObject::QueryGetData(LPFORMATETC pformatetc)
 }
 
 STDMETHODIMP
-QOleDataObject::GetCanonicalFormatEtc(LPFORMATETC pformatetc, LPFORMATETC pformatetcOut)
+QOleDataObject::GetCanonicalFormatEtc(LPFORMATETC, LPFORMATETC pformatetcOut)
 {
     pformatetcOut->ptd = NULL;
     return ResultFromScode(E_NOTIMPL);
 }
 
 STDMETHODIMP
-QOleDataObject::SetData(LPFORMATETC pformatetc, STGMEDIUM *pmedium, BOOL fRelease)
+QOleDataObject::SetData(LPFORMATETC, STGMEDIUM *, BOOL)
 {
     // A data transfer object that is used to transfer data
     //    (either via the clipboard or drag/drop does NOT
@@ -745,21 +745,21 @@ error:
 }
 
 STDMETHODIMP
-QOleDataObject::DAdvise(FORMATETC FAR* pFormatetc, DWORD advf,
-                       LPADVISESINK pAdvSink, DWORD FAR* pdwConnection)
+QOleDataObject::DAdvise(FORMATETC FAR*, DWORD,
+                       LPADVISESINK, DWORD FAR* )
 {
     return ResultFromScode(OLE_E_ADVISENOTSUPPORTED);
 }
 
 
 STDMETHODIMP
-QOleDataObject::DUnadvise(DWORD dwConnection)
+QOleDataObject::DUnadvise(DWORD)
 {
     return ResultFromScode(OLE_E_ADVISENOTSUPPORTED);
 }
 
 STDMETHODIMP
-QOleDataObject::EnumDAdvise(LPENUMSTATDATA FAR* ppenumAdvise)
+QOleDataObject::EnumDAdvise(LPENUMSTATDATA FAR*)
 {
     return ResultFromScode(OLE_E_ADVISENOTSUPPORTED);
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qmap.cpp#4 $
+** $Id: //depot/qt/main/src/tools/qmap.cpp#5 $
 **
 ** Implementation of QMap
 **
@@ -112,8 +112,8 @@ NodePtr QMapPrivateBase::removeAndRebalance( NodePtr z, NodePtr& root,
 					     NodePtr& rightmost )
 {
     NodePtr y = z;
-    NodePtr x = 0;
-    NodePtr x_parent = 0;
+    NodePtr x;
+    NodePtr x_parent;
     if (y->left == 0) {
 	x = y->right;
     } else {

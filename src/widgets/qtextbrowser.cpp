@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#10 $
 **
 ** Implementation of the QTextView class
 **
@@ -152,8 +152,8 @@ void QTextBrowser::setSource(const QString& name)
     QString url = mimeSourceFactory()->makeAbsolute( source, context() );
 
     if ( !source.isEmpty() && url != d->curmain ) {
-	const QMimeSource* m = 0;
-	m = mimeSourceFactory()->data( source, context() );
+	const QMimeSource* m =
+		    mimeSourceFactory()->data( source, context() );
 	QString txt;
 	if ( !m ){
 	    qWarning("QTextBrowser: no mimesource for %s", source.latin1() );

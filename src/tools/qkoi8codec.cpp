@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qkoi8codec.cpp#11 $
+** $Id: //depot/qt/main/src/tools/qkoi8codec.cpp#12 $
 **
 ** Implementation of QKoi8Codec class
 **
@@ -206,7 +206,7 @@ QCString QKoi8Codec::fromUnicode(const QString& uc, int& len_in_out) const
 	    }
 	}
     }
-    *cursor++ = '\0';
+    *cursor = '\0';
     // len_in_out = cursor - result;
     return rstr;
 }

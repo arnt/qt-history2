@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#38 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#39 $
 **
 ** Implementation of QFontDialog
 **
@@ -277,9 +277,8 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     mainGrid->addMultiCell( buttonBox, 9, 9, 0, 4 );
 
     buttonBox->addStretch( 1 );
-    d->ok = new QPushButton(
-		    modal ? tr("OK") : tr("Apply"),
-		    this, "accept font selection" );
+    QString okt = modal ? tr("OK") : tr("Apply");
+    d->ok = new QPushButton( okt, this, "accept font selection" );
     buttonBox->addWidget( d->ok );
     if ( modal )
 	connect( d->ok, SIGNAL(clicked()), SLOT(accept()) );
@@ -289,9 +288,8 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
 
     buttonBox->addSpacing( 12 );
 
-    d->cancel = new QPushButton(
-		    modal ? tr("Cancel") : tr("Close"),
-		    this, "cancel/close" );
+    QString cancelt = modal ? tr("Cancel") : tr("Close");
+    d->cancel = new QPushButton( cancelt, this, "cancel/close" );
     buttonBox->addWidget( d->cancel );
     connect( d->cancel, SIGNAL(clicked()), SLOT(reject()) );
     d->cancel->setFixedWidth( 80 );
@@ -730,9 +728,10 @@ void QFontDialog::setFont( const QFont &f )
     }
 
 
+    (void)f.pointSize(); // #### Was this needed Eiriken?
+#if 0
     int a = f.pointSize();
     a = a;
-#if 0
     // ### Quick hack
     QFontCharSet charSet = d->family.charSet( f.charSet() );
     if ( charSet.isNull() )

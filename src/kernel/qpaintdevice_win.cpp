@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#72 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -240,7 +240,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     bool src_tmp = FALSE, dst_tmp = FALSE;
     int  src_offset = 0;
 
-    QPixmap *src_pm, *dst_pm;
+    QPixmap *src_pm;
     QBitmap *mask;
     if ( ts == QInternal::Pixmap ) {
 	src_pm = (QPixmap *)src;
@@ -259,13 +259,12 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	}
     }
     if ( td == QInternal::Pixmap ) {
-	dst_pm = (QPixmap *)dst;
+	QPixmap *dst_pm = (QPixmap *)dst;
 	if ( dst_pm->isMultiCellPixmap() ) {
 	    dst_dc = dst_pm->multiCellHandle();
 	    dy += dst_pm->multiCellOffset();
 	}
     } else {
-	dst_pm = 0;
 	if ( !dst_dc && td == QInternal::Widget ) {
 	    if ( ((QWidget*)dst)->testWFlags(Qt::WPaintUnclipped) )
 		dst_dc = GetWindowDC( ((QWidget*)dst)->winId() );

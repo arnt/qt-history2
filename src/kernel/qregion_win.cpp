@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#50 $
 **
 ** Implementation of QRegion class for Win32
 **
@@ -111,7 +111,6 @@ HRGN qt_win_bitmapToRegion(const QBitmap& bitmap)
 		    region = r; \
 		} \
 		data.header.rcBound.top = y; \
-		n=0; \
 	}
 
 #define AddSpan \
@@ -123,6 +122,7 @@ HRGN qt_win_bitmapToRegion(const QBitmap& bitmap)
 	    n++; \
 	    if ( n == maxrect ) { \
 		FlushSpans \
+		n=0; \
 	    } \
 	}
 
@@ -295,15 +295,14 @@ QRegion QRegion::winCombine( const QRegion &r, int op ) const
 
     QRegion result( FALSE );
     result.data->rgn = CreateRectRgn( 0, 0, 0, 0 );
-    int res = NULLREGION;
     if ( data->rgn && r.data->rgn )
-	res = CombineRgn( result.data->rgn, data->rgn, r.data->rgn, both );
+	CombineRgn( result.data->rgn, data->rgn, r.data->rgn, both );
     else if ( data->rgn && left != RGN_NOP )
-	res = CombineRgn( result.data->rgn, data->rgn, data->rgn, left ); // 3rd param not used, but must be non-0
+	CombineRgn( result.data->rgn, data->rgn, data->rgn, left ); // 3rd param not used, but must be non-0
     else if ( r.data->rgn && right != RGN_NOP )
-	res = CombineRgn( result.data->rgn, r.data->rgn, r.data->rgn, right ); // 3rd param not used, but must be non-0
+	CombineRgn( result.data->rgn, r.data->rgn, r.data->rgn, right ); // 3rd param not used, but must be non-0
     //##### do not delete this. A null pointer is different from an empty region in SelectClipRgn in qpainter_win! (M)
-//     if ( res == NULLREGION ) {
+//     if ( allCombineRgnResults == NULLREGION ) {
 // 	if ( result.data->rgn )
 // 	    DeleteObject( result.data->rgn );
 // 	result.data->rgn = 0;			// empty region

@@ -69,10 +69,10 @@ static QString getCharSetName( QFont::CharSet cs );
 #ifdef _WS_WIN_
 #include "qt_windows.h"
 
-extern int qFontGetWeight( const QCString &weightString,
-			   bool adjustscore = FALSE )
+extern int qFontGetWeight( const QCString &/*weightString*/,
+			   bool /*adjustscore*/ = FALSE )
 {
-    //cowabunga
+    // #####eiriken? Not used currently
     return 0;
 }
 
@@ -503,7 +503,7 @@ void QtFontCharSet::refresh() const
                  // Anything bolder than Normal qualifies as bold:
     int  bestBoldDiff             = QFont::Bold - QFont::Normal;
     int  bestItalicBoldDiff       = QFont::Bold - QFont::Normal;
-    int  bestLesserItalicBoldDiff = QFont::Bold - QFont::Normal;
+    //int  bestLesserItalicBoldDiff = QFont::Bold - QFont::Normal; NOT USED
     int  bestNormal               = 0;
     int  bestItalicNormal         = 0;
     int  bestLesserItalicNormal   = 0;
@@ -540,7 +540,7 @@ void QtFontCharSet::refresh() const
 		boldDiff = abs( tmp->weight() - QFont::Bold );
 		if ( boldDiff < bestItalicBoldDiff ) {
 		    lesserItalicBoldStyle    = tmp;
-		    bestLesserItalicBoldDiff = boldDiff;
+		    //bestLesserItalicBoldDiff = boldDiff; NOT USED
 		}
 		
 	    }
@@ -946,7 +946,7 @@ extern Qt::WindowsVersion qt_winver;		// defined in qapplication_win.cpp
 
 static
 int CALLBACK
-storeFont( ENUMLOGFONTEX* f, TEXTMETRIC*, int type, LPARAM p )
+storeFont( ENUMLOGFONTEX* f, TEXTMETRIC*, int /*type*/, LPARAM /*p*/ )
 {
     //QFontDatabasePrivate* d = (QFontDatabasePrivate*)p;
 
@@ -955,8 +955,9 @@ storeFont( ENUMLOGFONTEX* f, TEXTMETRIC*, int type, LPARAM p )
 }
 
 static
-QString winGetCharSetName( BYTE chset )
+QString winGetCharSetName( BYTE /*chset*/ )
 {
+    // ##### Could give hints to the user
     return "Unicode";
 }
 
@@ -1162,7 +1163,7 @@ static QString getCharSetName( const char * registry, const char *encoding )
 
 static QString getCharSetName( QFont::CharSet cs )
 {
-    const char* name=0;
+    const char* name;
     switch( cs ) {
     case QFont::ISO_8859_1:
 	name = "Western (ISO 8859-1)";

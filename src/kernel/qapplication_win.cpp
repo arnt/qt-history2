@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#301 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#302 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -287,11 +287,11 @@ static void qt_show_system_menu( QWidget* tlw)
 
 static QFont LOGFONT_AorW_to_QFont(LOGFONT& lf)
 {
-    QFont qf(
+    QString family =
 	qt_winver == Qt::WV_NT
 	    ? qt_winQString(lf.lfFaceName)
-	    : QString::fromLatin1((char*)lf.lfFaceName)
-    );
+	    : QString::fromLatin1((char*)lf.lfFaceName);
+    QFont qf(family);
     if (lf.lfItalic)
 	qf.setItalic( TRUE );
     if (lf.lfWeight != FW_DONTCARE)
@@ -1259,7 +1259,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 {
     bool result = TRUE;
     QEvent::Type evt_type = QEvent::None;
-    QETWidget *widget = 0;
+    QETWidget *widget;
 
     if ( !qApp )				// unstable app state
 	goto do_default;
@@ -1435,7 +1435,7 @@ return 0;
 		sm_blockUserInput = TRUE; // prevent user-interaction outside interaction windows
 		sm_cancel = FALSE;
 		qApp->commitData( *win_session_manager );
-		if ( lParam == ENDSESSION_LOGOFF ) {
+		if ( lParam == (LPARAM)ENDSESSION_LOGOFF ) {
 		    //#### sync filesystems according to Arnt, how?
 		}
 		return !sm_cancel;
@@ -2313,7 +2313,7 @@ QChar wmchar_to_unicode(DWORD c)
 	char mb[2];
 	mb[0] = c&0xff;
 	mb[1] = 0;
-	ushort wc[1];
+	WCHAR wc[1];
 	MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED,
 	    mb, -1, wc, 1);
 	return QChar(wc[0]);
@@ -2333,7 +2333,7 @@ QChar imechar_to_unicode(DWORD c)
 	mb[0] = (c>>8)&0xff;
 	mb[1] = c&0xff;
 	mb[2] = 0;
-	ushort wc[1];
+	WCHAR wc[1];
 	MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED,
 	    mb, -1, wc, 1);
 	return QChar(wc[0]);
@@ -2704,7 +2704,7 @@ public:
     QSessionManager::RestartHint restartHint;
 };
 
-QSessionManager::QSessionManager( QApplication *app, QString &session )
+QSessionManager::QSessionManager( QApplication *, QString &session )
 {
     d = new QSessionManagerData;
     d->sessionId = session;

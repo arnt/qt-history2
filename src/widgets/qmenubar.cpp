@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#145 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#146 $
 **
 ** Implementation of QMenuBar class
 **
@@ -722,7 +722,7 @@ QMenuBar::Separator QMenuBar::separator() const
 void QMenuBar::drawContents( QPainter *p )
 {
     QColorGroup g;
-    GUIStyle gs = style();
+    GUIStyle gs = style().guiStyle();
     bool e;
 
     for ( int i=0; i<(int)mitems->count(); i++ ) {

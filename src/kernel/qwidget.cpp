@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#421 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#422 $
 **
 ** Implementation of QWidget class
 **
@@ -466,6 +466,13 @@ inline bool QWidgetMapper::remove( WId id )
   QWidget member functions
  *****************************************************************************/
 
+// helper function - borland needs it.
+static
+QPalette default_palette( QWidget *parent )
+{
+    return parent ? parent->palette()           // use parent's palette
+           : QApplication::palette();
+}
 
 /*!
   Constructs a widget which is a child of \e parent, with the name \e name and
@@ -535,8 +542,7 @@ inline bool QWidgetMapper::remove( WId id )
 
 QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     : QObject( parent, name ), QPaintDevice( QInternal::Widget ),
-      pal( parent ? parent->palette()		// use parent's palette
-           : QApplication::palette() )		// use application palette
+      pal( default_palette(parent) )
 {
     isWidget = TRUE;				// is a widget
     winid = 0;					// default attributes
@@ -2323,14 +2329,18 @@ bool QWidget::focusNextPrevChild( bool next )
     QWidget *startingPoint = f->it.current();
     QWidget *candidate = 0;
     QWidget *w = next ? f->focusWidgets.last() : f->focusWidgets.first();
+#if defined(_WS_X11_)
     bool wrapped = FALSE;
+#endif
     do {
 	if ( w && w != startingPoint &&
 	     (w->focusPolicy() == TabFocus || w->focusPolicy() == StrongFocus)
 	     && !w->focusProxy() && w->isVisibleToTLW() && w->isEnabledToTLW())
 	    candidate = w;
+#if defined(_WS_X11_)
 	if  (w == startingPoint )
 	    wrapped = TRUE;
+#endif
 	w = next ? f->focusWidgets.prev() : f->focusWidgets.next();
     } while( w && !(candidate && w==startingPoint) );
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qplatinumstyle.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qplatinumstyle.cpp#3 $
 **
 ** Implementation of Platinum-like style class
 **
@@ -629,7 +629,6 @@ QStyle::ScrollControl QPlatinumStyle::scrollBarPointOver( const QScrollBar* sb, 
 	return NONE;
     int sliderMin, sliderMax, sliderLength, buttonDim, pos;
     scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
-    pos = (sb->orientation() == QScrollBar::Horizontal)? p.x() : p.y();
 
     if (sb->orientation() == QScrollBar::Horizontal)
 	pos = p.x();

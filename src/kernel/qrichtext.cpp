@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#18 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -138,8 +138,8 @@ QTextImage::QTextImage(const QMap<QString, QString> &attr, const QString& contex
 	imageName = attr["src"];
 
     if ( !imageName.isEmpty() ) {
-	const QMimeSource* m = 0;
-	m = factory.data( imageName, context );
+	const QMimeSource* m =
+			factory.data( imageName, context );
 	if ( !m ) {
 	    qWarning("QTextImage: no mimesource for %s", imageName.latin1() );
 	}
@@ -470,7 +470,6 @@ void QTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int 
 	    fm = p->fontMetrics();
 	}
 	int tw = 0;
-	QTextNode* tmp = 0;
 	bool select = it->isSelected;
 	bool selectionDirty = it->isSelectionDirty;
 	it->isSelectionDirty = 0;
@@ -479,6 +478,7 @@ void QTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int 
 		s += it->c;
 		tw += fm.width( it->c );
 	    }
+	    QTextNode* tmp;
 	    // special optimized code for simple nodes (characters)
 	    while ( *it != last && (tmp = it->nextSibling() ) && tmp->isSimpleNode
 		    && ((bool)tmp->isSelected) == select
@@ -701,8 +701,10 @@ QTextContainer::~QTextContainer()
 {
     delete fnt;
     delete attributes_;
-    QTextNode* nx = 0;
-    for (QTextNode* n = child; n; n = nx) {
+    QTextNode* n = child;
+    while ( n ) {
+	QTextNode* nx;
+
 	if (n->isLastSibling)
 	    nx = 0;
 	else
@@ -716,6 +718,8 @@ QTextContainer::~QTextContainer()
 	    delete n;
 	else
 	    delete (QTextCustomNode*)n;
+
+	n = nx;
     }
 }
 
@@ -1086,7 +1090,7 @@ void QTextBox::setWidth( QPainter* p, int newWidth, bool forceResize )
     if (colwidth < 10)
 	colwidth = 10;
 
-    QTextRow* row = 0;
+    QTextRow* row;
 
     int margintop = margin( QStyleSheetItem::MarginTop );
     int marginbottom = margin( QStyleSheetItem::MarginBottom );
@@ -2063,7 +2067,7 @@ bool QRichText::parse (QTextContainer* current, QTextNode* lastChild, const QStr
 		n->next = current;
 		n->isLastSibling = 1;
 		lastChild = n;
-		l = n;
+		//l = n; NOT USED
  		if (!pre && doc[pos] == '<')
  		    (void) eatSpace(doc, pos);
 	    }
