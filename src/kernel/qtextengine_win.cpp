@@ -455,6 +455,12 @@ void QScriptItemArray::resize( int s )
     d->alloc = alloc;
 }
 
+
+static inline bool isAsian( unsigned short ch )
+{
+    return (ch > 0x2dff && ch < 0xfb00) || (ch & 0xff00 == 0x1100);
+}
+
 void QTextEngine::itemize( int mode )
 {
     if ( !(mode & NoBidi) ) {
@@ -547,7 +553,12 @@ void QTextEngine::itemize( int mode )
 	for ( i = 0; i < numItems; i++ ) {
 	    int from = usp_items[i].iCharPos;
 	    int len = usp_items[i+1].iCharPos - from;
-	    ScriptBreak( (const WCHAR *)string.unicode() + from, len, &(usp_items[i].a), charAttributes+from);
+	    // Something I consider a Uniscribe bug: They don't set the softBreak property for asian text (it's just set after
+	    // spaces in asian text runs. We work around it by calling our implementation for asian text
+	    if (isAsian(string.unicode()[from].unicode()))
+		scriptEngines[QFont::Han].charAttributes(QFont::Han, string, from, len, charAttributes);
+	    else
+		ScriptBreak( (const WCHAR *)string.unicode() + from, len, &(usp_items[i].a), charAttributes+from);
 	}
 
 	if ( usp_items != s_items )
