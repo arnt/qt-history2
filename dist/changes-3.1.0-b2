@@ -1,0 +1,153 @@
+continue with #73529
+
+Qt 3.1 introduces many significant new features and many improvements
+over the 3.0.x series. For an overview of the main changes between
+3.0.x and 3.1, look at the changes-3.1.0-b1 file. This file describes
+the changes between Qt 3.1 beta1 and Qt 3.1 beta2.
+
+
+****************************************************************************
+*			    General					   *
+****************************************************************************
+
+The binary incompatibilities which have been introduced in Qt 3.1
+beta1 have been fixed.
+
+****************************************************************************
+*			   Library					   *
+****************************************************************************
+
+- QActionGroup
+	Syncronize comboboxes correctly for groups with
+	seperators. Set the initial currentItem of comboboxes to the
+	action that is on when adding the group. Emit activated signal
+	for non-toggle actions selected from a combobox. Apply the
+	state of the action group for new widgets.
+
+- QApplication
+	Windows only: reserve more space for very long application
+	filenames.
+
+- QCheckTableItem
+	Use the colorgroup passed in for the background color and not
+	the viewport's.
+
+- QColor
+	Windows only: Fix palette allocation and ManyColor mode on
+	Windows.
+
+- QComboBox
+	Emit activated() signals from the wheel event handler.
+
+- QDateTimeEdit/QTimeEdit
+	Supports now wraparound for time editing.
+	
+- QDockWindow
+	Windows only: Don't pass window activation around
+	unnecessarily when the activation is ignored anyway. Also
+	fixes repaint errors while dragging dock windows.
+
+- QFileDialog
+	Windows only: Disable NTFS permission lookup during filedialog
+	population. This can take very long, and the information is
+	not really required.
+
+- QGLContext
+	 Added a workaround to get overlays to work on ATi FireGL
+	 cards.
+
+- qHeapSort()
+	Fixed to only require operator<, instead of a weird mix of
+	operator<, <=, and >.
+
+- QLibrary
+	Windows only: only append ".dll" extension if no extension had
+	been provided.
+
+- QListView:
+	Don't draw the cell if the cell wouldn't be visible due to
+	having a width or height of 0. Don't call cancelRename() when
+	the rename was OK'd.
+
+- QMacStyle
+	Many improvements to follow the native style even closer.
+
+- QMainWindow
+	Close all floating dockwindows of the mainwindow in the close
+	event.
+
+- QMenuData:
+	Make removeItem(int id) work on trees like the other functions
+	which take ids as arguments.
+
+- QObject
+	Make sender() a safer function to use:
+	- it cannot be dangling anymore (points to 0 in case the
+	sender was deleted or disconnected)
+	- it maintains its value also after other signals have been
+	emitted
+	Fixed compatibility problem in connect(). Remove quadratic
+	behaviour in insertChild()
+
+- QPicture
+	Proper streaming for null pictures.
+
+- QPixmap:
+	X11 only: allow grabWindow() to work on a screen other than
+	the default screen.
+
+- QPopupMenu:
+	Draw submenu items disabled if the submenu is disabled. Fix
+	null-pointer dereferencing for dynamically changing menus.
+
+- QSocket
+	Don't crash if the readBlock() returned 0.
+
+- QSplitter:
+	addWidget() now reparents the widget if necessary.
+
+- QWidget
+	Clear WDestructiveClose before calling deleteLater() on
+	widgets. Event processing during destruction might otherwise
+	have another close-event come along which would issue another
+	deleteLater() call. Added a new function toggleShowHide( bool show ).
+
+- qUncompress()
+	Don't hang forever if the expected size passed in is 0. Return
+	an empty bytearray if something went wrong instead of garbage
+	data.
+
+
+
+
+****************************************************************************
+*			   Qt Designer			   *
+****************************************************************************
+
+- Improved the look of the Toolbox
+
+- Many small usibility improvements in the special editors for widgets
+(drag'n'drop, in-place renaming, etc.
+
+- New icon look
+
+- Accept class names with "::" and generate correct namespace code in
+uic.
+
+- Reduced startup time.
+
+- Fixed a crash when loading .ui files using QWidgetFactory
+
+****************************************************************************
+*			   Qt Assistant			   *
+****************************************************************************
+
+- Added commandline option -removeContentFile
+
+- New icon look
+
+****************************************************************************
+*			   Qt Linguist			   *
+****************************************************************************
+
+- New icon look
