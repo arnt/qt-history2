@@ -3658,7 +3658,6 @@ void QTextParag::setList( bool b, int listStyle )
     if ( !style() ) {
 	styleSheetItemsVec.resize( 2 );
 	styleSheetItemsVec.insert( 0, doc->styleSheet()->item( "html" ) );
-	styleSheetItemsVec.insert( 0, doc->styleSheet()->item( "html" ) );
 	styleSheetItemsVec.insert( 1, doc->styleSheet()->item( "p" ) );
     }
 
