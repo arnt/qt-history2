@@ -283,7 +283,7 @@ int main( int argc, char * argv[] )
 	out << "** Form "<< (impl? "implementation" : "interface") << " generated from reading ui file '" << fileName << "'" << endl;
 	out << "**" << endl;
 	out << "** Created: " << QDateTime::currentDateTime().toString() << endl;
-	out << "**      by:  The User Interface Compiler (uic)" << endl;
+	out << "**      by: The User Interface Compiler ($Id: $)" << endl;
 	out << "**" << endl;
 	out << "** WARNING! All changes made in this file will be lost!" << endl;
 	out << "****************************************************************************/" << endl << endl;

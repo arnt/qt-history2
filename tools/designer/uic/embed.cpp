@@ -125,7 +125,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	out << "**      " << *it << endl;
     out << "**" << endl;
     out << "** Created: " << QDateTime::currentDateTime().toString() << endl;
-    out << "**      by:  The User Interface Compiler (uic)" << endl;
+    out << "**      by: The User Interface Compiler ($Id: $)" << endl;
     out << "**" << endl;
     out << "** WARNING! All changes made in this file will be lost!" << endl;
     out << "****************************************************************************/" << endl << endl;
@@ -139,7 +139,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
     int image_count = 0;
     for ( it = images.begin(); it != images.end(); ++it ) {
 	QImage img;
-	if ( !img.load( *it  ) ) {
+	if ( !img.load( *it ) ) {
 	    fprintf( stderr, "uic: cannot load image file %s\n", (*it).latin1() );
 	    continue;
 	}
