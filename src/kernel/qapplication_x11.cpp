@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#25 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#24 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#25 $";
 #endif
 
 
@@ -1025,15 +1025,15 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
     if ( popupWidgets ) {			// oops, in popup mode
 	QWidget *popup = popupWidgets->last();
 	if ( popup != this ) {
-	    if ( !testFlag(WType_Popup) ) {
+	    if ( testFlag(WType_Popup) && clientRect().contains(pos) )
+		popup = this;
+	    else {				// send to last popup
 		Window child;
 		int x, y;
 		XTranslateCoordinates( display(), id(), popup->id(),
 				       pos.x(), pos.y(), &x, &y, &child );
 		pos = QPoint( x, y );
 	    }
-	    else
-		popup = this;
 	}
 	QMouseEvent e( type, pos, button, state );
 	QApplication::sendEvent( popup, &e );
