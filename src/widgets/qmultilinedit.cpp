@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#59 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#60 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1033,10 +1033,6 @@ void QMultiLineEdit::insertAt( const char *txt, int line, int col )
 	w = QMAX( textWidth( oldLine ), w );
 	line++;
 	cursorY++;
-	if ( line >= numLines() ) {
-	    insertLine( "", numLines() );
-	}
-
 	while (( p = getOneLine( p, &textLine ) )) {
 	    ASSERT ( textLine );
 	    contents->insert( line++, textLine );
