@@ -178,6 +178,9 @@ $mname = ("January", "Febrary", "March", "April", "May", "June", "July",
 
 undef $/;
 chdir $ENV{"QTDIR"} . "/doc/html" || die;
+mkdir "../../man", 0777 unless ( -d "../../man" );
+mkdir "../../man/man3", 0777 unless ( -d "../../man/man3" );
+mkdir "../../man/man1", 0777 unless ( -d "../../man/man1" );
 
 open( A, "< annotated.html" ) || die;
 $_ = <A>;
