@@ -40,6 +40,7 @@
 #include <qdir.h>
 #include <qglobal.h>
 #include <qregexp.h>
+#include <stdarg.h>
 
 QString Option::ui_ext;
 QString Option::h_ext;
