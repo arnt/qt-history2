@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#79 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#80 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#79 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#80 $")
 
 
 /*----------------------------------------------------------------------------
@@ -224,6 +224,41 @@ static void removeObjFromList( QObjectList *objList, const QObject *obj,
 	    return;
 	index = objList->findNextRef( obj );
     }
+}
+
+
+/*----------------------------------------------------------------------------
+  Finds a child of a QObject.
+
+  Use the CHILD macro instead.
+
+  Example:
+  \code
+    CHILD(myWidget,QListBox,listboxname)->insertItem( "another string" );
+  \endcode
+ ----------------------------------------------------------------------------*/
+
+void *qt_find_obj_child( QObject *parent, const char *type, const char *name )
+{
+    const QObjectList *list = parent->children();
+    if ( list ) {
+	QObjectListIt it( *list );
+	QObject *obj;
+	while ( (obj=it.current()) ) {
+	    if ( strcmp(name,obj->name()) == 0 ) {
+#if defined(CHECK_RANGE)
+		if ( !obj->inherits(type) )
+		    warning( "CHILD: Object %s does not inherit", name, type );
+#endif
+		return obj;
+	    }
+	    ++it;
+	}
+    }
+#if defined(CHECK_NULL)
+    warning( "CHILD: No such child object %s", name );
+#endif
+    return 0;
 }
 
 
