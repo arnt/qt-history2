@@ -772,7 +772,7 @@ int QSqlCursor::insert( bool invalidate )
 /*!  Returns a pointer to the current internal edit buffer.  The edit
   buffer is valid as long as the cursor remains valid.
 
-  \sa primeInsert(), primeUpdate()
+  \sa primeInsert(), primeUpdate() primeDelete()
 */
 
 QSqlRecord* QSqlCursor::editBuffer( )
@@ -790,6 +790,27 @@ QSqlRecord* QSqlCursor::editBuffer( )
 */
 
 QSqlRecord* QSqlCursor::primeUpdate()
+{
+    if( d->editBuffer.count() == 0 ){
+	d->editBuffer = *((QSqlRecord*)this);
+    } else {
+	for(uint i = 0; i < d->editBuffer.count(); i++){
+	    d->editBuffer.setValue( i, value( i ) );
+	}
+    }
+    return &d->editBuffer;
+}
+
+/*!  'Primes' the field values of the edit buffer for delete and
+  returns a pointer to the edit buffer.  The default implementation
+  copies the field values from the current cursor record into the edit
+  buffer.
+
+  \sa editBuffer() del()
+
+*/
+
+QSqlRecord* QSqlCursor::primeDelete()
 {
     if( d->editBuffer.count() == 0 ){
 	d->editBuffer = *((QSqlRecord*)this);

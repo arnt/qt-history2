@@ -79,6 +79,7 @@ public:
     virtual QSqlRecord* editBuffer();
     virtual QSqlRecord* primeInsert();
     virtual QSqlRecord* primeUpdate();
+    virtual QSqlRecord* primeDelete();
     virtual int         insert( bool invalidate = TRUE );
     virtual int         update( bool invalidate = TRUE );
     virtual int         del( bool invalidate = TRUE );
