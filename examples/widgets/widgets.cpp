@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/widgets/widgets.cpp#5 $
+** $Id: //depot/qt/main/examples/widgets/widgets.cpp#6 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -209,7 +209,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 
     QPushButton *pb;
     pb = new QPushButton( central, "button1" );	// create button 1
-    pb->setText( "Push button 1" );
+    pb->setText( "&Push button 1" );
     ///    pb->setFixedHeight( pb->sizeHint().height() );
     grid->addWidget( pb, 0, 0, AlignVCenter );
     connect( pb, SIGNAL(clicked()), SLOT(button1Clicked()) );
@@ -254,15 +254,15 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     vbox->addSpacing( bg->fontMetrics().height() );
 
     cb[0] = new QCheckBox( bg );
-    cb[0]->setText( "Read" );
+    cb[0]->setText( "&Read" );
     vbox->addWidget( cb[0] );
     ///    cb[0]->setMinimumSize( cb[0]->sizeHint() );
     cb[1] = new QCheckBox( bg );
-    cb[1]->setText( "Write" );
+    cb[1]->setText( "&Write" );
     vbox->addWidget( cb[1] );
     ///    cb[1]->setMinimumSize( cb[1]->sizeHint() );
     cb[2] = new QCheckBox( bg );
-    cb[2]->setText( "Execute" );
+    cb[2]->setText( "&Execute" );
     ///    cb[2]->setMinimumSize( cb[2]->sizeHint() );
     vbox->addWidget( cb[2] );
     ///    bg->setMinimumSize( bg->childrenRect().size() );
@@ -293,7 +293,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     ///    rb->setMinimumSize( rb->sizeHint() );
     QToolTip::add( rb, "radio button 1" );
     rb = new QRadioButton( bg );
-    rb->setText( "&FM" );
+    rb->setText( "F&M" );
     vbox->addWidget(rb);
     ///    rb->setMinimumSize( rb->sizeHint() );
     QToolTip::add( rb, "radio button 2" );
@@ -401,14 +401,14 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 		 "input fields.");
     QToolTip::add( mle, "multi line editor" );
 
-    tabs->addTab( mle, QPixmap(fileopen), "First");
+    tabs->addTab( mle, QPixmap(fileopen), "F&irst");
 
     mle = new QMultiLineEdit( tabs, "multiLineEdit" );
     mle->setText("This is another QMultiLineEdit widget,\n"
 	         "we will put in some fancy characters here"
 		 );
     QToolTip::add( mle, "second multi line editor" );
-    tabs->addTab( mle, QPixmap(fileopen), "Second");
+    tabs->addTab( mle, QPixmap(fileopen), "Se&cond");
 
 
     // Create a single line edit
