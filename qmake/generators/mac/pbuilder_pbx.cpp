@@ -819,7 +819,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	//dependency
 	t << "\t\t" << keyFor("QMAKE_PBX_PRESCRIPTS_DEPENDENCY") << " = {" << "\n"
 	  << "\t\t\t" << "isa = PBXTargetDependency;" << "\n"
-	  << "\t\t\t" << "target = QMAKE_PBX_PRESCRIPTS_BUILDPHASE;" << "\n"
+	  << "\t\t\t" << "target = " << keyFor("QMAKE_PBX_PRESCRIPTS_BUILDPHASE") << ";" << "\n"
 	  << "\t\t" << "};" << "\n";
 	project->variables()["QMAKE_PBX_TARGET_DEPENDS"].append(keyFor("QMAKE_PBX_PRESCRIPTS_DEPENDENCY"));
 	project->variables()["QMAKE_PBX_PRESCRIPT_BUILDPHASES"].clear(); //these are already consumed above
