@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#52 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#53 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#52 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#53 $");
 
 
 /*!
@@ -277,6 +277,7 @@ GCI QGDict::look( const char *key, GCI d, int op )
 }
 
 /*!
+  \internal
   Changes the size of the hashtable.
   The contents of the dictionary are preserved,
   but all iterators on the dictionary become invalid.

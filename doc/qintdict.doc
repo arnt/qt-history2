@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qintdict.doc,v 2.3 1997/08/06 15:03:13 hanord Exp $
+** $Id: qintdict.doc,v 2.4 1998/03/17 14:41:34 warwick Exp $
 **
 ** QIntDict and QIntDictIterator class documentation
 **
@@ -187,6 +187,13 @@
   Returns the size of the internal hash array (as specified in the
   constructor).
   \sa count()
+*/
+
+/*!
+  \fn void QIntDict::resize( uint newsize )
+  Changes the size of the hashtable the \a newsize.
+  The contents of the dictionary are preserved,
+  but all iterators on the dictionary become invalid.
 */
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qptrdict.doc,v 2.1 1997/04/21 09:26:44 hanord Exp $
+** $Id: qptrdict.doc,v 2.2 1998/03/17 14:41:34 warwick Exp $
 **
 ** QPtrDict and QPtrDictIterator class documentation
 **
@@ -193,6 +193,13 @@
   Returns the size of the internal hash array (as specified in the
   constructor).
   \sa count()
+*/
+
+/*!
+  \fn void QPtrDict::resize( uint newsize )
+  Changes the size of the hashtable the \a newsize.
+  The contents of the dictionary are preserved,
+  but all iterators on the dictionary become invalid.
 */
 
 /*!

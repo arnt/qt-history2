@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qintdict.h#14 $
+** $Id: //depot/qt/main/src/tools/qintdict.h#15 $
 **
 ** Definition of QIntDict template/macro class
 **
@@ -51,6 +51,7 @@ public:									      \
     bool  remove( long k )	{ return QGDict::remove((const char*)k); }    \
     type *take( long k )	{ return (type*)QGDict::take((const char*)k);}\
     void  clear()		{ QGDict::clear(); }			      \
+    void  resize( uint n )	{ QGDict::resize(n); }			      \
     type *find( long k )	const					      \
 	{ return (type *)((QGDict*)this)->QGDict::look((const char*)k,0,0);}  \
     type *operator[]( long k ) const					      \
@@ -113,6 +114,7 @@ public:
     bool  remove( long k )	{ return QGDict::remove((const char*)k); }
     type *take( long k )	{ return (type*)QGDict::take((const char*)k); }
     void  clear()		{ QGDict::clear(); }
+    void  resize( uint n )	{ QGDict::resize(n); }
     type *find( long k )	const
 	{ return (type *)((QGDict*)this)->QGDict::look((const char*)k,0,0); }
     type *operator[]( long k ) const

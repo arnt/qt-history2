@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdict.h#19 $
+** $Id: //depot/qt/main/src/tools/qdict.h#20 $
 **
 ** Definition of QDict template/macro class
 **
@@ -51,6 +51,7 @@ public:									      \
     bool  remove( const char *k )	{ return QGDict::remove(k); }	      \
     type *take( const char *k )		{ return (type *)QGDict::take(k); }   \
     void  clear()			{ QGDict::clear(); }		      \
+    void  resize( uint n )		{ QGDict::resize(n); }		      \
     type *find( const char *k ) const					      \
 		    { return (type *)((QGDict*)this)->QGDict::look(k,0,0);}   \
     type *operator[]( const char *k ) const				      \
@@ -113,6 +114,7 @@ public:
     bool  remove( const char *k )	{ return QGDict::remove(k); }
     type *take( const char *k )		{ return (type *)QGDict::take(k); }
     void  clear()			{ QGDict::clear(); }
+    void  resize( uint n )		{ QGDict::resize(n); }
     type *find( const char *k ) const
 		    { return (type *)((QGDict*)this)->QGDict::look(k,0,0); }
     type *operator[]( const char *k ) const
