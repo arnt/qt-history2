@@ -117,6 +117,11 @@ static void popupSubMenuLater( int msec, QPopupMenu * receiver ) {
 
 static bool preventAnimation = FALSE;
 
+#ifndef QT_NO_WHATSTHIS
+extern void qWhatsThisBDH();
+static QMenuItem* whatsThisItem = 0;
+#endif
+
 /*!
   \class QPopupMenu qpopupmenu.h
   \brief The QPopupMenu class provides a popup menu widget.
@@ -239,7 +244,8 @@ public:
 
 static QPopupMenu* active_popup_menu = 0;
 /*!
-  Constructs a popup menu with a the \a parent called \a name.
+  Constructs a popup menu with \a parent as a parent and \a name as
+  object name.
 
   Although a popup menu is always a top-level widget, if a parent is
   passed the popup menu will be deleted when that parent is destroyed
@@ -701,6 +707,14 @@ void QPopupMenu::hideAllPopups()
 	    && ((QPopupMenu*)top->parentMenu)->isPopup() )
 	top = top->parentMenu;
     ((QPopupMenu*)top)->hide();			// cascade from top level
+
+#ifndef QT_NO_WHATSTHIS
+    if (whatsThisItem) {
+	qWhatsThisBDH();
+	whatsThisItem = 0;
+    }
+#endif
+
 }
 
 /*!
@@ -2066,6 +2080,12 @@ void QPopupMenu::setActiveItem( int i )
     }
     if ( mi->id() != -1 )
 	hilitSig( mi->id() );
+#ifndef QT_NO_QWHATSTHIS
+    if (whatsThisItem && whatsThisItem != mi) {
+	qWhatsThisBDH();
+    }
+    whatsThisItem = mi;
+#endif
 }
 
 

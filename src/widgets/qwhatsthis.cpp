@@ -231,6 +231,14 @@ int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
 const int vMargin = 8;
 const int hMargin = 12;
 
+// Lets QPopupMenu destroy the QWhatsThat.
+void qWhatsThisBDH()
+{
+    if ( wt && wt->whatsThat )
+	wt->whatsThat->hide();
+}
+
+
 QWhatsThat::QWhatsThat( QWidget* w, const QString& txt, QWidget* parent, const char* name )
     : QWidget( parent, name, WType_Popup ), text( txt ), pressed( FALSE ), widget( w )
 {
