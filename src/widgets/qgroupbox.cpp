@@ -91,8 +91,9 @@
 */
 
 
-struct QGroupBoxPrivate
+class QGroupBoxPrivate
 {
+public:
     QGroupBoxPrivate():
 	spacer( 0 ),
 	checkbox( 0 ) {}

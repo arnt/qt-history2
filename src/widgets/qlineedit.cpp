@@ -89,10 +89,11 @@ struct UndoRedoInfo {
     QTextParagraph *parag;
 };
 
-struct MaskInputData {
+class MaskInputData {
+public:
     enum Casemode { NoCaseMode, Upper, Lower };
     MaskInputData() {};
-    MaskInputData ( QChar c, bool s, MaskInputData::Casemode cm )
+    MaskInputData ( QChar c, bool s, Casemode cm )
 	: maskChar( c ), separator( s ),  caseMode( cm ) {
     };
 
@@ -1602,9 +1603,9 @@ void QLineEdit::cursorForward( bool mark, int steps )
 	    // the cursor is inside the selection, this makes sure it does.
 	    if ( getSelection( &start, &end, FALSE ) && ( QABS( start-end ) == 1 ) )
 		if  ( ( end == d->cursor->index() ) && forward )
-		    return cursorForward( mark, 1 );
+		    cursorForward( mark, 1 );
 		else if ( ( start == d->cursor->index() ) && !forward )
-		    return cursorBackward( mark, 1 );
+		    cursorBackward( mark, 1 );
 	}
 	updateSelection();
     } else {
@@ -2599,10 +2600,10 @@ bool QLineEdit::isValidInput() const
 
     for ( uint i=0; i < d->maskList->count(); i++) {
 	if ( (*d->maskList)[i].separator ) {
-	    if ( str[i] != (*d->maskList)[i].maskChar )
+	    if ( str[(int)i] != (*d->maskList)[i].maskChar )
 		return FALSE;
 	} else {
-	    if ( !isValidInput( str[i], (*d->maskList)[i].maskChar ) )
+	    if ( !isValidInput( str[(int)i], (*d->maskList)[i].maskChar ) )
 		return FALSE;
 	}
     }
@@ -2728,7 +2729,7 @@ void QLineEdit::parseMaskFields( const QString &maskFields )
 
     d->mask =  maskFields.section( ';', 0, 0 );
     d->blank = maskFields.section( ';', 1, 1 ).at(0);
-    if ( d->blank == 0 )
+    if ( d->blank.isNull() )
 	d->blank = ' ';
 
     MaskInputData::Casemode m = MaskInputData::NoCaseMode;
@@ -2925,21 +2926,21 @@ QString QLineEdit::maskString( uint pos, const QString &str, bool clear) const
 	if ( strIndex < str.length() ) {
 	    if ( (*d->maskList)[i].separator ) {
 		s += (*d->maskList)[i].maskChar;
-		if ( str[strIndex] == (*d->maskList)[i].maskChar ) strIndex++;
+		if ( str[(int)strIndex] == (*d->maskList)[i].maskChar ) strIndex++;
 	    } else {
-		if ( isValidInput( str[strIndex], (*d->maskList)[i].maskChar ) ) {
+		if ( isValidInput( str[(int)strIndex], (*d->maskList)[i].maskChar ) ) {
 		    switch ( (*d->maskList)[i].caseMode ) {
 		    case MaskInputData::Upper:
-			s += str[strIndex].upper();
+			s += str[(int)strIndex].upper();
 			break;
 		    case MaskInputData::Lower:
-			s += str[strIndex].lower();
+			s += str[(int)strIndex].lower();
 			break;
 		    default:
-			s += str[strIndex];
+			s += str[(int)strIndex];
 		    }
 		} else {
-		    int n = nextSeparator( i, str[strIndex] );
+		    int n = nextSeparator( i, str[(int)strIndex] );
 		    if (n != -1 ) {
 			s += t1.mid( i, n-i+1 );
 			i = n; // updates new pos since we might have advanced more then one char
@@ -2991,8 +2992,8 @@ QString QLineEdit::stripString( const QString &str ) const
 	if ( (*d->maskList)[i].separator )
 	    s += (*d->maskList)[i].maskChar;
 	else
-	    if ( str[i] != d->blank )
-		s += str[i];
+	    if ( str[(int)i] != d->blank )
+		s += str[(int)i];
 
     return s;
 }
