@@ -1075,7 +1075,7 @@ QTextDocument::~QTextDocument()
     if ( !par )
 	delete pFormatter;
     delete fCollection;
-    delete syntaxHighlighte;    
+    delete syntaxHighlighte;
     delete buf_pixmap;
     delete indenter;
 }
@@ -3890,7 +3890,7 @@ QTextFormatterBreakInWords::QTextFormatterBreakInWords()
 {
 }
 
-int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag, 
+int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 					int start, const QMap<int, QTextParag::LineStart*> & )
 {
     QTextString::Char *c = 0;
@@ -3984,7 +3984,7 @@ QTextFormatterBreakWords::QTextFormatterBreakWords()
 {
 }
 
-int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag, 
+int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 				      int start, const QMap<int, QTextParag::LineStart*> & )
 {
     QTextString::Char *c = 0;
@@ -5545,6 +5545,7 @@ QTextTableCell::QTextTableCell( QTextTable* table,
 	    richtext->setAlignment( Qt::AlignRight );
     }
     richtext->setFormatter( table->parent->formatter() );
+    richtext->setUseFormatCollection( table->parent->useFormatCollection() );
     richtext->setMimeSourceFactory( &factory );
     richtext->setStyleSheet( sheet );
     richtext->setRichText( doc, context );
@@ -5596,6 +5597,7 @@ QTextTableCell::QTextTableCell( QTextTable* table, int row, int column )
     richtext = new QTextDocument( table->parent );
     richtext->setTableCell( this );
     richtext->setFormatter( table->parent->formatter() );
+    richtext->setUseFormatCollection( table->parent->useFormatCollection() );
     richtext->setRichText( "<html></html>", QString::null );
     rowspan_ = 1;
     colspan_ = 1;
