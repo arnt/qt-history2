@@ -74,7 +74,6 @@ public:
 	QTextCodec::deleteAllCodecs();
     }
 };
-static QTextCodecCleanup qtextcodec_cleanup;
 
 /*!
     Deletes all the created codecs.
