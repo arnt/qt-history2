@@ -47,6 +47,7 @@
 #include "qcstring.h"
 #include "qbuffer.h"
 #include "qurloperator.h"
+#include "qtimer.h"
 
 //#define QHTTP_DEBUG
 
@@ -56,18 +57,25 @@ public:
     QHttpPrivate() :
 	bytesDone( 0 ),
 	state( QHttp::Unconnected ),
+	error( QHttp::NoError ),
 	hostname( QString::null ),
 	port( 0 ),
 	idleTimer( 0 ),
 	toDevice( 0 ),
 	postDevice( 0 )
-    { }
+    { pending.setAutoDelete( TRUE ); }
+
+    QPtrList<QHttpRequest> pending;
 
     QSocket* socket;
     QByteArray buffer;
     uint bytesDone;
     QHttpRequestHeader header;
+
     QHttp::State state;
+    QHttp::Error error;
+    QString errorString;
+
     bool readHeader;
     QHttpResponseHeader response;
 
@@ -82,6 +90,142 @@ public:
     QIODevice* postDevice;
 };
 
+class QHttpRequest
+{
+public:
+    QHttpRequest()
+    {
+	id = ++idCounter;
+    }
+    virtual ~QHttpRequest()
+    { }
+
+    virtual void start( QHttp * ) = 0;
+
+    int id;
+
+private:
+    static int idCounter;
+};
+
+int QHttpRequest::idCounter = 0;
+
+/****************************************************
+ *
+ * QHttpNormalRequest
+ *
+ ****************************************************/
+
+class QHttpNormalRequest : public QHttpRequest
+{
+public:
+    QHttpNormalRequest( const QHttpRequestHeader &h, QIODevice *d, QIODevice *t ) :
+	header(h), to(t)
+    {
+	data_ba = FALSE;
+	data.dev = d;
+    }
+
+    QHttpNormalRequest( const QHttpRequestHeader &h, QByteArray *d, QIODevice *t ) :
+	header(h), to(t)
+    {
+	data_ba = TRUE;
+	data.ba = d;
+    }
+
+    ~QHttpNormalRequest()
+    {
+	if ( data_ba )
+	    delete data.ba;
+    }
+
+    void start( QHttp * );
+
+private:
+    QHttpRequestHeader header;
+    union {
+	QByteArray *ba;
+	QIODevice *dev;
+    } data;
+    bool data_ba;
+    QIODevice *to;
+};
+
+void QHttpNormalRequest::start( QHttp *http )
+{
+    http->d->header = header;
+
+    if ( data_ba ) {
+	http->d->buffer = *data.ba;
+	if ( http->d->buffer.size() > 0 )
+	    http->d->header.setContentLength( http->d->buffer.size() );
+
+	http->d->postDevice = 0;
+    } else {
+	http->d->buffer = QByteArray();
+
+	if ( data.dev && ( data.dev->isOpen() || data.dev->open(IO_ReadOnly) ) ) {
+	    http->d->postDevice = data.dev;
+	    if ( http->d->postDevice->size() > 0 )
+		http->d->header.setContentLength( http->d->postDevice->size() );
+	} else {
+	    http->d->postDevice = 0;
+	}
+    }
+
+    if ( to && ( to->isOpen() || to->open(IO_WriteOnly) ) )
+	http->d->toDevice = to;
+    else
+	http->d->toDevice = 0;
+
+    http->sendRequest();
+}
+
+/****************************************************
+ *
+ * QHttpSetHostRequest
+ *
+ ****************************************************/
+
+class QHttpSetHostRequest : public QHttpRequest
+{
+public:
+    QHttpSetHostRequest( const QString &h, Q_UINT16 p ) :
+	hostname(h), port(p)
+    { }
+
+    void start( QHttp * );
+
+private:
+    QString hostname;
+    Q_UINT16 port;
+};
+
+void QHttpSetHostRequest::start( QHttp *http )
+{
+    http->d->hostname = hostname;
+    http->d->port = port;
+    http->finishedWithSuccess();
+}
+
+/****************************************************
+ *
+ * QHttpCloseRequest
+ *
+ ****************************************************/
+
+class QHttpCloseRequest : public QHttpRequest
+{
+public:
+    QHttpCloseRequest()
+    { }
+    void start( QHttp * );
+};
+
+void QHttpCloseRequest::start( QHttp *http )
+{
+    http->close();
+}
 
 /****************************************************
  *
@@ -774,7 +918,7 @@ QString QHttpRequestHeader::toString() const
 
     This only makes the request. If a part of the response arrived, the
     signal readyRead() is emitted. After the last chunk is reported,
-    the finishedSuccess() signal is emitted. This allows you to process the
+    the requestFinished() signal is emitted. This allows you to process the
     document as chunks are received, without having to wait for the
     complete transmission to be finished.
 
@@ -796,14 +940,13 @@ void QHttp::init()
 {
     bytesRead = 0;
     d = new QHttpPrivate;
+    d->errorString = tr( "Unknown error" );
 
     // ################## signal/slot connections used in the QUrlOperator mode
     connect( this, SIGNAL(readyRead(const QHttpResponseHeader&)),
 	     SLOT(clientReply(const QHttpResponseHeader&)) );
-    connect( this, SIGNAL(finishedSuccess()),
-	     SLOT(clientFinishedSuccess()) );
-    connect( this, SIGNAL(finishedError( const QString&, int )),
-	     SLOT(clientFinishedError( const QString&, int )) );
+    connect( this, SIGNAL(done(bool)),
+	     SLOT(clientDone(bool)) );
     connect( this, SIGNAL(stateChanged(int)),
 	     SLOT(clientStateChanged(int)) );
 
@@ -850,7 +993,7 @@ void QHttp::close()
 
 	// Did close succeed immediately ?
 	if ( d->socket->state() == QSocket::Idle ) {
-	    // Prepare to emit the finishedSuccess() signal.
+	    // Prepare to emit the requestFinished() signal.
 	    d->idleTimer = startTimer( 0 );
 	}
     }
@@ -935,39 +1078,38 @@ void QHttp::clientReply( const QHttpResponseHeader &rep )
     }
 }
 
-void QHttp::clientFinishedSuccess()
+void QHttp::clientDone( bool err )
 {
-    QNetworkOperation *op = operationInProgress();
-    if ( op ) {
-	if ( op->state() != StFailed ) {
-	    op->setState( QNetworkProtocol::StDone );
-	    op->setErrorCode( QNetworkProtocol::NoError );
+    if ( err ) {
+	QNetworkOperation *op = operationInProgress();
+	if ( op ) {
+	    op->setState( QNetworkProtocol::StFailed );
+	    op->setProtocolDetail( errorString() );
+	    switch ( error() ) {
+		case ConnectionRefused:
+		    op->setErrorCode( ErrHostNotFound );
+		    break;
+		case HostNotFound:
+		    op->setErrorCode( ErrHostNotFound );
+		    break;
+		default:
+		    if ( op->operation() == OpGet )
+			op->setErrorCode( ErrGet );
+		    else
+			op->setErrorCode( ErrPut );
+		    break;
+	    }
+	    emit finished( op );
 	}
-	emit finished( op );
-    }
-}
-
-void QHttp::clientFinishedError( const QString &detail, int err )
-{
-    QNetworkOperation *op = operationInProgress();
-    if ( op ) {
-	op->setState( QNetworkProtocol::StFailed );
-	op->setProtocolDetail( detail );
-	switch ( err ) {
-	    case ConnectionRefused:
-		op->setErrorCode( ErrHostNotFound );
-		break;
-	    case HostNotFound:
-		op->setErrorCode( ErrHostNotFound );
-		break;
-	    default:
-		if ( op->operation() == OpGet )
-		    op->setErrorCode( ErrGet );
-		else
-		    op->setErrorCode( ErrPut );
-		break;
+    } else {
+	QNetworkOperation *op = operationInProgress();
+	if ( op ) {
+	    if ( op->state() != StFailed ) {
+		op->setState( QNetworkProtocol::StDone );
+		op->setErrorCode( QNetworkProtocol::NoError );
+	    }
+	    emit finished( op );
 	}
-	emit finished( op );
     }
 }
 
@@ -1010,8 +1152,18 @@ void QHttp::clientStateChanged( int state )
  *
  ****************************************************/
 
-/*!
-  \fn void QHttp::readyRead( const QHttpResponseHeader& resp )
+/*!  \fn void QHttp::stateChanged( int state )
+
+  This signal is emitted ###
+*/
+/*!  \fn void QHttp::responseHeaderReceived( const QHttpResponseHeader& resp )
+
+  This signal is emitted if the HTTP header of the response is available. The
+  header is passed in \a resp.
+
+  \sa readyRead()
+*/
+/*!  \fn void QHttp::readyRead( const QHttpResponseHeader& resp )
 
   This signal is emitted if the client has received a piece of the response data.
   This is useful for slow connections: you don't have to wait until all data is
@@ -1020,37 +1172,31 @@ void QHttp::clientStateChanged( int state )
   The header is passed in \a resp. You can read the data with the readAll() or
   readBlock() functions
 
-  After everything is read and reported, the finishedSuccess() signal is emitted.
+  After everything is read and reported, the requestFinished() signal is emitted.
 
-  \sa bytesAvailable() readAll() readBlock() finishedSuccess()
+  \sa bytesAvailable() readAll() readBlock() requestFinished()
 */
 /*!  \fn void QHttp::dataReadProgress( int bytesDone, int bytesTotal )
+
   This signal is emitted ###
 */
-/*!
-  \fn void QHttp::responseHeaderReceived( const QHttpResponseHeader& resp )
+/*!  \fn void QHttp::requestStarted( int id )
 
-  This signal is emitted if the HTTP header of the response is available. The
-  header is passed in \a resp.
+  This signal is emitted ###
 
-  \sa readyRead()
+  \sa requestFinished() request() setHost() closeConnection()
 */
-/*!
-  \fn void QHttp::finishedError( const QString& detail, int error )
+/*!  \fn void QHttp::requestFinished( int id, bool error )
 
-  This signal is emitted if a request failed. \a detail is a text that
-  describes the reason for the error. \a error is a Error enum that
-  contains the reason for the failure.
+  This signal is emitted ###
 
-  \sa request()
+  \sa requestStarted() done() request() setHost() closeConnection()
 */
-/*!
-  \fn void QHttp::finishedSuccess()
+/*!  \fn void QHttp::done( bool error )
 
-  This signal is emitted when the QHttp is able to start a new request.
-  The QHttp is either in the state Unconnected or Connected now.
+  This signal is emitted ###
 
-  \sa readyRead()
+  \sa requestFinished() request() setHost() closeConnection()
 */
 
 /*!
@@ -1172,12 +1318,17 @@ QByteArray QHttp::readAll()
     Sets the HTTP server that is used for requests to \a hostname on port \a
     port.
 
-    \sa request()
+    This function returns immediately and does not wait for the request to
+    finish; it is rather append to the queue of pending requests. It returns a
+    unique identifier. When the request is really started to be executed, the
+    requestStarted() signal is emitted and when it is finished, the
+    requestFinished() signal is emitted.
+
+    \sa request() requestStarted() requestFinished() done()
 */
-void QHttp::setHost(const QString &hostname, Q_UINT16 port )
+int QHttp::setHost(const QString &hostname, Q_UINT16 port )
 {
-    d->hostname = hostname;
-    d->port = port;
+    return addRequest( new QHttpSetHostRequest( hostname, port ) );
 }
 
 /*!
@@ -1192,65 +1343,82 @@ void QHttp::setHost(const QString &hostname, Q_UINT16 port )
     written to it. Otherwise the readyRead() signal is emitted every time new
     content data is available to read.
 
-    \sa setHost()
+    This function returns immediately and does not wait for the request to
+    finish; it is rather append to the queue of pending requests. It returns a
+    unique identifier. When the request is really started to be executed, the
+    requestStarted() signal is emitted and when it is finished, the
+    requestFinished() signal is emitted.
+
+    \sa setHost() requestStarted() requestFinished() done()
 */
-bool QHttp::request( const QHttpRequestHeader &header, QIODevice *data, QIODevice *to )
+int QHttp::request( const QHttpRequestHeader &header, QIODevice *data, QIODevice *to )
 {
-    if ( d->state != Unconnected && d->state != Connected ) {
-	qWarning("The client is currently busy with a pending request. You can not invoke a request now.");
-	return FALSE;
-    }
-    if ( d->hostname.isNull() ) {
-	qWarning( "QHttp::request() - no server to set to connect to" );
-	return FALSE;
-    }
-
-    killIdleTimer();
-    setState( Connecting );
-
-    // Do we need to setup a new connection or can we reuse an
-    // existing one ?
-    if ( d->socket->peerName() != d->hostname || d->socket->state() != QSocket::Connection ) {
-	d->socket->connectToHost( d->hostname, d->port );
-    }
-
-    d->header = header;
-    d->buffer = QByteArray();
-
-    if ( to && ( to->isOpen() || to->open(IO_WriteOnly) ) )
-	d->toDevice = to;
-    else
-	d->toDevice = 0;
-
-    if ( data && ( data->isOpen() || data->open(IO_ReadOnly) ) ) {
-	d->postDevice = data;
-	if ( d->postDevice->size() > 0 )
-	    d->header.setContentLength( d->postDevice->size() );
-    } else {
-	d->postDevice = 0;
-    }
-
-    return TRUE;
+    return addRequest( new QHttpNormalRequest( header, data, to ) );
 }
 
 /*!  \overload
     \a data is used as the content data of the HTTP request.
-
-    \sa setHost()
 */
-bool QHttp::request( const QHttpRequestHeader &header, const QByteArray &data, QIODevice *to  )
+int QHttp::request( const QHttpRequestHeader &header, const QByteArray &data, QIODevice *to  )
 {
-    if ( d->state != Unconnected && d->state != Connected ) {
-	qWarning("The client is currently busy with a pending request. You can not invoke a request now.");
-	return FALSE;
-    }
+    return addRequest( new QHttpNormalRequest( header, new QByteArray(data), to ) );
+}
+
+/*!
+    Tries to close the connection; this is useful if you have a keep-alive
+    connection and want to close it.
+
+    This function returns immediately and does not wait for the request to
+    finish; it is rather append to the queue of pending requests. It returns a
+    unique identifier. When the request is really started to be executed, the
+    requestStarted() signal is emitted and when it is finished, the
+    requestFinished() signal is emitted.
+
+    If you want to close the connection immediately, you have to use abort()
+    instead.
+
+    \sa abort() requestStarted() requestFinished() done()
+*/
+int QHttp::closeConnection()
+{
+    return addRequest( new QHttpCloseRequest() );
+}
+
+int QHttp::addRequest( QHttpRequest *req )
+{
+    d->pending.append( req );
+
+    if ( d->pending.count() == 1 )
+	// don't emit the requestStarted() signal before the id is returned
+	QTimer::singleShot( 0, this, SLOT(startNextRequest()) );
+
+    return req->id;
+}
+
+void QHttp::startNextRequest()
+{
+    QHttpRequest *r = d->pending.getFirst();
+    if ( r == 0 )
+	return;
+
+    d->error = NoError;
+    d->errorString = tr( "Unknown error" );
+
+    if ( bytesAvailable() )
+	readAll(); // clear the data
+    emit requestStarted( r->id );
+    r->start( this );
+}
+
+void QHttp::sendRequest()
+{
     if ( d->hostname.isNull() ) {
-	qWarning( "QHttp::request() - no server to set to connect to" );
-	return FALSE;
+	finishedWithError( tr("No server set to connect to"), UnknownError );
+	return;
     }
 
     killIdleTimer();
-    setState( Connecting );
+    setState( QHttp::Connecting );
 
     // Do we need to setup a new connection or can we reuse an
     // existing one ?
@@ -1258,19 +1426,39 @@ bool QHttp::request( const QHttpRequestHeader &header, const QByteArray &data, Q
 	d->socket->connectToHost( d->hostname, d->port );
     }
 
-    d->header = header;
-    d->buffer = data;
-    d->postDevice = 0;
+}
 
-    if ( to && ( to->isOpen() || to->open(IO_WriteOnly) ) )
-	d->toDevice = to;
-    else
-	d->toDevice = 0;
+void QHttp::finishedWithSuccess()
+{
+    QHttpRequest *r = d->pending.getFirst();
+    if ( r == 0 )
+	return;
 
-    if ( d->buffer.size() > 0 )
-	d->header.setContentLength( d->buffer.size() );
+    emit requestFinished( r->id, FALSE );
+    d->pending.removeFirst();
+    if ( d->pending.isEmpty() ) {
+	emit done( FALSE );
+	if ( bytesAvailable() )
+	    readAll(); // clear the data
+    } else {
+	startNextRequest();
+    }
+}
 
-    return TRUE;
+void QHttp::finishedWithError( const QString& detail, int errorCode )
+{
+    QHttpRequest *r = d->pending.getFirst();
+    if ( r == 0 )
+	return;
+
+    d->error = (Error)errorCode;
+    d->errorString = detail;
+    emit requestFinished( r->id, TRUE );
+
+    d->pending.clear();
+    emit done( TRUE );
+    if ( bytesAvailable() )
+	readAll(); // clear the data
 }
 
 /*!
@@ -1285,11 +1473,11 @@ void QHttp::slotClosed()
 	if ( d->response.value("connection")!="close" || d->response.hasKey( "content-length" ) ) {
 	    // We got Content-Length, so did we get all bytes ?
 	    if ( d->bytesDone+bytesAvailable() != d->response.contentLength() ) {
-		emit finishedError( tr("Wrong content length"), WrongContentLength );
+		finishedWithError( tr("Wrong content length"), WrongContentLength );
 	    }
 	}
     } else if ( d->state == Connecting || d->state == Sending ) {
-	emit finishedError( tr("Server closed connection unexpectedly"), UnexpectedClose );
+	finishedWithError( tr("Server closed connection unexpectedly"), UnexpectedClose );
     }
 
     d->postDevice = 0;
@@ -1318,13 +1506,13 @@ void QHttp::slotError( int err )
     if ( d->state == Connecting || d->state == Reading || d->state == Sending ) {
 	switch ( err ) {
 	    case QSocket::ErrConnectionRefused:
-		emit finishedError( tr("Connection refused"), ConnectionRefused );
+		finishedWithError( tr("Connection refused"), ConnectionRefused );
 		break;
 	    case QSocket::ErrHostNotFound:
-		emit finishedError( tr("Host %1 not found").arg(d->socket->peerName()), HostNotFound );
+		finishedWithError( tr("Host %1 not found").arg(d->socket->peerName()), HostNotFound );
 		break;
 	    default:
-		emit finishedError( tr("HTTP request failed"), UnknownError );
+		finishedWithError( tr("HTTP request failed"), UnknownError );
 		break;
 	}
     }
@@ -1385,7 +1573,7 @@ void QHttp::slotReadyRead()
 	    d->headerStr = "";
 	    // Check header
 	    if ( !d->response.isValid() ) {
-		emit finishedError( tr("Invalid HTTP response header"), InvalidResponseHeader );
+		finishedWithError( tr("Invalid HTTP response header"), InvalidResponseHeader );
 		close();
 		return;
 	    }
@@ -1456,6 +1644,28 @@ QHttp::State QHttp::state() const
     return d->state;
 }
 
+/*!
+    Returns the last error that occurred. This is useful to find out details
+    about the failure when receiving a requestFinished() or a done() signal
+    with the \c error argument \c FALSE.
+
+    If you start a new command, the error status is reset to \c NoError.
+*/
+QHttp::Error QHttp::error() const
+{
+    return d->error;
+}
+
+/*!
+    Returns a human-readable description of the last error that occurred. This
+    is useful to present a error message to the user when receiving a
+    requestFinished() or a done() signal with the \c error argument \c FALSE.
+*/
+QString QHttp::errorString() const
+{
+    return d->errorString;
+}
+
 /*! \reimp
 */
 void QHttp::timerEvent( QTimerEvent *e )
@@ -1465,10 +1675,10 @@ void QHttp::timerEvent( QTimerEvent *e )
 	d->idleTimer = 0;
 
 	if ( d->state == Connected ) {
-	    emit finishedSuccess();
+	    finishedWithSuccess();
 	} else if ( d->state != Unconnected ) {
 	    setState( Unconnected );
-	    emit finishedSuccess();
+	    finishedWithSuccess();
 	}
     } else {
 	QObject::timerEvent( e );

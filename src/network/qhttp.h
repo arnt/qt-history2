@@ -57,6 +57,7 @@ class QTextStream;
 class QIODevice;
 
 class QHttpPrivate;
+class QHttpRequest;
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
@@ -170,7 +171,7 @@ class QM_EXPORT_HTTP QHttp : public QNetworkProtocol
 
 public:
     QHttp();
-    QHttp( QObject* parent, const char* name = 0 ); // ### Qt 4.0: join the two constructors
+    QHttp( QObject* parent, const char* name = 0 ); // ### Qt 4.0: make parent=0 and get rid of the QHttp() constructor
     QHttp( const QString &hostname, Q_UINT16 port=80, QObject* parent=0, const char* name = 0 );
     virtual ~QHttp();
 
@@ -182,8 +183,7 @@ protected:
 
 private slots:
     void clientReply( const QHttpResponseHeader &rep );
-    void clientFinishedSuccess();
-    void clientFinishedError( const QString &detail, int );
+    void clientDone( bool );
     void clientStateChanged( int );
 
 private:
@@ -204,16 +204,37 @@ public:
 	WrongContentLength
     };
 
-    void setHost(const QString &hostname, Q_UINT16 port=80 );
+    int setHost(const QString &hostname, Q_UINT16 port=80 );
 
-    bool request( const QHttpRequestHeader &header, QIODevice *device=0, QIODevice *to=0 );
-    bool request( const QHttpRequestHeader &header, const QByteArray &data, QIODevice *to=0 );
+#if 0
+    int get( const QString& path, QIODevice* to=0 );
+
+    int post( const QString& path, const QByteArray& data, QIODevice* to=0 );
+    int post( const QString& path, QIODevice* data, QIODevice* to=0  );
+
+    int head( const QString& path );
+#endif
+
+    int request( const QHttpRequestHeader &header, QIODevice *device=0, QIODevice *to=0 );
+    int request( const QHttpRequestHeader &header, const QByteArray &data, QIODevice *to=0 );
+
+    int closeConnection();
 
     Q_ULONG bytesAvailable() const;
     Q_LONG readBlock( char *data, Q_ULONG maxlen );
     QByteArray readAll();
 
+#if 0
+    int currentId() const;
+    Command currentCommand() const;
+    bool hasPendingCommands() const;
+    void clearPendingCommands();
+#endif
+
     State state() const;
+
+    Error error() const;
+    QString errorString() const;
 
 public slots:
     void abort();
@@ -221,17 +242,21 @@ public slots:
 signals:
     void stateChanged( int );
     void responseHeaderReceived( const QHttpResponseHeader& resp );
-
     void readyRead( const QHttpResponseHeader& resp );
+#if 0
+//    void dataSendProgress( int, int );
+#endif
     void dataReadProgress( int, int );
 
-    void finishedError( const QString& detail, int error );
-    void finishedSuccess();
+    void requestStarted( int );
+    void requestFinished( int, bool );
+    void done( bool );
 
 protected:
     void timerEvent( QTimerEvent * );
 
 private slots:
+    void startNextRequest();
     void slotReadyRead();
     void slotConnected();
     void slotError( int );
@@ -239,11 +264,20 @@ private slots:
     void slotBytesWritten( int );
 
 private:
+    int addRequest( QHttpRequest * );
+    void sendRequest();
+    void finishedWithSuccess();
+    void finishedWithError( const QString& detail, int errorCode );
+
     void killIdleTimer();
 
     void init();
     void setState( int );
     void close();
+
+    friend class QHttpNormalRequest;
+    friend class QHttpSetHostRequest;
+    friend class QHttpCloseRequest;
 };
 
 #endif

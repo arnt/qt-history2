@@ -1768,7 +1768,6 @@ void QFtp::piError( int errorCode, const QString &text )
     emit done( TRUE );
     if ( bytesAvailable() )
 	readAll(); // clear the data
-
 }
 
 void QFtp::piConnectState( int state )
