@@ -1153,14 +1153,14 @@ void UnixMakefileGenerator::init2()
 	} else if( project->isActiveConfig("plugin") ) {
 	    project->variables()["TARGET_x.y.z"].append("lib" +
 							project->first("TARGET") + "." + 
-							project->first("QMAKE_EXTENSION_SHLIB"));
+							project->first("QMAKE_EXTENSION_PLUGIN"));
 	    if(project->isActiveConfig("lib_version_first"))
 		project->variables()["TARGET_x"].append("lib" + project->first("TARGET") + "." +
 							project->first("VER_MAJ") + "." +
-							project->first("QMAKE_EXTENSION_SHLIB"));
+							project->first("QMAKE_EXTENSION_PLUGIN"));
 	    else
 		project->variables()["TARGET_x"].append("lib" + project->first("TARGET") + "." +
-							project->first("QMAKE_EXTENSION_SHLIB") +
+							project->first("QMAKE_EXTENSION_PLUGIN") +
 							"." + project->first("VER_MAJ"));
 
 	    project->variables()["TARGET"] = project->variables()["TARGET_x.y.z"];

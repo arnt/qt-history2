@@ -55,6 +55,8 @@ UnixMakefileGenerator::init()
 	    project->variables()["QMAKE_EXTENSION_SHLIB"].append( "dll" );
 	}
     }
+    if( project->isEmpty("QMAKE_EXTENSION_PLUGIN") )
+	project->variables()["QMAKE_EXTENSION_PLUGIN"].append(project->first("QMAKE_EXTENSION_SHLIB"));
     if( project->isEmpty("QMAKE_COPY_FILE") )
 	project->variables()["QMAKE_COPY_FILE"].append( "$(COPY)" );
     if( project->isEmpty("QMAKE_COPY_DIR") )
