@@ -251,6 +251,17 @@ QAxAggregated::~QAxAggregated()
     class declaration of your subclass.
 */
 
+/*! 
+    \fn QObject *QAxAggregated::object() const
+
+    Returns a pointer to the QObject subclass implementing the COM object.
+    This function might return zero.
+
+    \warning
+    You must not store the returned pointer, as the QObject can be destroyed by 
+    ActiveQt at any time.
+*/
+
 /*!
     \fn QWidget *QAxAggregated::widget() const
 

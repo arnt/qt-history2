@@ -895,7 +895,7 @@ bool QAxServerBase::internalCreate()
 	aggregatedObject = axb->createAggregate();
 	if ( aggregatedObject ) {
 	    aggregatedObject->controlling_unknown = (IUnknown*)(IDispatch*)this;
-	    aggregatedObject->the_widget = qt.object;
+	    aggregatedObject->the_object = qt.object;
 	}
     }
     if ( isWidget ) {
@@ -979,7 +979,7 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
     case WM_DESTROY:
 	if ( that->qt.widget ) {
 	    if ( that->aggregatedObject )
-		that->aggregatedObject->the_widget = 0;
+		that->aggregatedObject->the_object = 0;
 	    delete that->qt.widget;
 	    that->qt.widget = 0;
 	}
