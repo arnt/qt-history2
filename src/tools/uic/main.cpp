@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 
     const char *fileName = 0;
 
-    driver.option().uic3 = QString::fromUtf8(qInstallPathBins());
+    driver.option().uic3 = QString::fromUtf8(qInstallPathBins()) + QLatin1String("/uic3");
 
     int arg = 1;
     while (arg < argc) {
