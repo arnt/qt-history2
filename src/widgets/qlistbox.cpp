@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#56 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#57 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#56 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#57 $")
 
 
 declare(QListM, QLBItem);
@@ -156,7 +156,7 @@ QListBox::~QListBox()
 
 void QListBox::setFont( const QFont &font )
 {
-    QWidget::setFont( font );    
+    QWidget::setFont( font );
     if ( stringsOnly )
 	setCellHeight( fontMetrics().lineSpacing() + 1 );
 }
@@ -938,32 +938,38 @@ int QListBox::itemHeight( int index ) const
 
 
 /*----------------------------------------------------------------------------
+  \fn int QListBox::itemHeight( QLBItem *item )
+
   This virtual function returns 0 in QListBox and must
   be reimplemented by subclasses that use other types.
 
   It must return the height of \e item in pixels.
  ----------------------------------------------------------------------------*/
 
-int QListBox::itemHeight( QLBItem * item )
+int QListBox::itemHeight( QLBItem * )
 {
-    NOT_USED(item);
+#if defined(DEBUG)
     warning( "QListBox::itemHeight: You must reimplement itemHeight() when you"
 	     " use item types different from LBI_Text and LBI_Pixmap" );
+#endif
     return 0;
 }
 
 /*----------------------------------------------------------------------------
+  \fn int QListBox::itemWidth( QLBItem *item )
+
   This virtual function returns 0 in QListBox and must
   be reimplemented by subclasses that use other types.
 
   It must return the width of \e item in pixels.
  ----------------------------------------------------------------------------*/
 
-int QListBox::itemWidth( QLBItem * item )
+int QListBox::itemWidth( QLBItem * )
 {
-    NOT_USED(item);
+#if defined(DEBUG)
     warning( "QListBox::itemWidth: You must reimplement itemWidth() when you"
 	     " use item types different from LBI_Text and LBI_Pixmap" );
+#endif
     return 0;
 }
 
@@ -1146,7 +1152,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 
 
 /*----------------------------------------------------------------------------
-  Handles focus events.  Repaints, and sets the current item to
+  Handles focus events.	 Repaints, and sets the current item to
   first one if there is no current item.
   \sa keyPressEvent(), focusOutEvent()
  ----------------------------------------------------------------------------*/

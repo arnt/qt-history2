@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#24 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#23 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#24 $")
 
 
 const int sbDim = 16;
@@ -90,12 +90,12 @@ void CornerSquare::paintEvent( QPaintEvent * )
   row 0 and column 0, and uses absolute x and y coordinates.  This is used
   by functions such as setXOffset() or maxYOffset().
 
-  <li> The widget coordinates.  (0,0) is the top left corner of the
+  <li> The widget coordinates.	(0,0) is the top left corner of the
   widget, \e including the frame.  This is used by functions such as
   repaint().
 
   <li> The view coordinates.  (0,0) is the top left corner of the
-  view, \e excluding the frame.  This is the least-used coordinate
+  view, \e excluding the frame.	 This is the least-used coordinate
   system, used by functions such as viewWidth().
   </ol>
 
@@ -220,7 +220,7 @@ void QTableView::show()
   event.
 
   At present, QTableView is the only widget that reimplements \link
-  QWidget::repaint() repaint()\endlink.  It does this because by
+  QWidget::repaint() repaint()\endlink.	 It does this because by
   clearing and then repainting one cell at at time, it can make the
   screen flicker less than it would otherwise.
  ----------------------------------------------------------------------------*/
@@ -1733,14 +1733,11 @@ void QTableView::scroll( int xPixels, int yPixels )
 	    int maxX = maxViewX();
 	    int oldLastMaxX, oldLastMinX;
 	    int newLastMaxX, newLastMinX;
-	    int oldCol, newCol;
-	    oldCol = findRawCol( maxX - xPixels,
-				 &oldLastMaxX, &oldLastMinX, TRUE );
-	    newCol = findRawCol( maxX,&newLastMaxX, &newLastMinX, TRUE );
-	// hanord??? newCol and oldCol never used
+	    findRawCol( maxX - xPixels,
+			&oldLastMaxX, &oldLastMinX, TRUE );
+	    findRawCol( maxX,&newLastMaxX, &newLastMinX, TRUE );
 	    oldLastMaxX += xPixels;
 	    oldLastMinX += xPixels;
-
 	    oldLim = oldLastMaxX <= maxX ? oldLastMaxX : oldLastMinX - 1;
 	    newLim = newLastMaxX <= maxX ? newLastMaxX : newLastMinX - 1;
 	    if ( xPixels < 0 )		// move to the right ?
@@ -1778,14 +1775,11 @@ void QTableView::scroll( int xPixels, int yPixels )
 	    int maxY = maxViewY();
 	    int oldLastMaxY, oldLastMinY;
 	    int newLastMaxY, newLastMinY;
-	    int oldRow, newRow;
-	    oldRow = findRawRow( maxY - yPixels,
-				 &oldLastMaxY, &oldLastMinY, TRUE );
-	    newRow = findRawRow( maxY,&newLastMaxY, &newLastMinY, TRUE );
-	// hanord??? newRow,oldRow never used
+	    findRawRow( maxY - yPixels,
+			&oldLastMaxY, &oldLastMinY, TRUE );
+	    findRawRow( maxY,&newLastMaxY, &newLastMinY, TRUE );
 	    oldLastMaxY += yPixels;
 	    oldLastMinY += yPixels;
-
 	    oldLim = oldLastMaxY <= maxY ? oldLastMaxY : oldLastMinY - 1;
 	    newLim = newLastMaxY <= maxY ? newLastMaxY : newLastMinY - 1;
 	    if ( yPixels < 0 )		 // move down ?
@@ -1809,7 +1803,7 @@ void QTableView::scroll( int xPixels, int yPixels )
 
 /*----------------------------------------------------------------------------
   Returns the rightmost pixel of the table view in screen
-  coordinates.  This excludes the frame and any scroll bar, but
+  coordinates.	This excludes the frame and any scroll bar, but
   includes blank pixels to the right of the visible table data.
 
   \sa maxViewY(), viewWidth(), contentsRect()
@@ -1824,7 +1818,7 @@ int QTableView::maxViewX() const
 
 /*----------------------------------------------------------------------------
   Returns the bottom pixel of the table view in screen
-  coordinates.  This excludes the frame and any scroll bar, but
+  coordinates.	This excludes the frame and any scroll bar, but
   includes blank pixels below the visible table data.
 
   \sa maxViewX(), viewHeight(), contentsRect()
@@ -1838,9 +1832,9 @@ int QTableView::maxViewY() const
 
 
 /*----------------------------------------------------------------------------
-  Returns the width of the table view, as such.  This does not
+  Returns the width of the table view, as such.	 This does not
   include any scroll bar or frame, but does include background pixels
-  to the right of the table data. 
+  to the right of the table data.
 
   \sa maxViewX(), viewHeight(), contentsRect()
  ----------------------------------------------------------------------------*/
