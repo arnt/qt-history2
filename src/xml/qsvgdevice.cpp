@@ -1109,9 +1109,9 @@ void QSvgDevice::setTransform( const QString &tr )
 
 void QSvgDevice::drawPath( const QString &data )
 {
-    int x0 = 0, y0 = 0;			// starting point
-    int x = 0, y = 0;			// current point
-    int controlX = 0, controlY = 0;	// last control point for curves
+    double x0 = 0, y0 = 0;		// starting point
+    double x = 0, y = 0;		// current point
+    double controlX = 0, controlY = 0;	// last control point for curves
     QPointArray path( 500 );		// resulting path
     QValueList<int> subIndex;		// start indices for subpaths
     QPointArray quad( 4 ), bezier;	// for curve calculations
@@ -1160,42 +1160,42 @@ void QSvgDevice::drawPath( const QString &data )
 	};
 
 	// process command
-	int offsetX = relative ? x : 0;		// correction offsets
-	int offsetY = relative ? y : 0;		// for relative commands
+	double offsetX = relative ? x : 0;	// correction offsets
+	double offsetY = relative ? y : 0;	// for relative commands
 	switch ( mode ) {
 	case 0:					// 'M' move to
 	    if ( x != x0 || y != y0 )
-		path.setPoint( pcount++, x0, y0 );
-	    x = x0 = int(arg[ 0 ]) + offsetX;
-	    y = y0 = int(arg[ 1 ]) + offsetY;
+		path.setPoint( pcount++, int(x0), int(y0) );
+	    x = x0 = arg[ 0 ] + offsetX;
+	    y = y0 = arg[ 1 ] + offsetY;
 	    subIndex.append( pcount );
-	    path.setPoint( pcount++, x0, y0 );
+	    path.setPoint( pcount++, int(x0), int(y0) );
 	    mode = 2;				// -> 'L'
 	    break;
 	case 1:					// 'Z' close path
-	    path.setPoint( pcount++, x0, y0 );
+	    path.setPoint( pcount++, int(x0), int(y0) );
 	    x = x0;
 	    y = y0;
 	    mode = 0;
 	    break;
 	case 2:					// 'L' line to
-	    x = int(arg[ 0 ]) + offsetX;
-	    y = int(arg[ 1 ]) + offsetY;
-	    path.setPoint( pcount++, x, y );
+	    x = arg[ 0 ] + offsetX;
+	    y = arg[ 1 ] + offsetY;
+	    path.setPoint( pcount++, int(x), int(y) );
 	    break;
 	case 3:					// 'H' horizontal line
-	    x = int(arg[ 0 ]) + offsetX;
-	    path.setPoint( pcount++, x, y );
+	    x = arg[ 0 ] + offsetX;
+	    path.setPoint( pcount++, int(x), int(y) );
 	    break;
 	case 4:					// 'V' vertical line
-	    y = int(arg[ 0 ]) + offsetY;
-	    path.setPoint( pcount++, x, y );
+	    y = arg[ 0 ] + offsetY;
+	    path.setPoint( pcount++, int(x), int(y) );
 	    break;
 	case 5:					// 'C' cubic bezier curveto
 	case 6:					// 'S' smooth shorthand
 	case 7:					// 'Q' quadratic bezier curves
 	case 8: {				// 'T' smooth shorthand
-	    quad.setPoint( 0, x, y );
+	    quad.setPoint( 0, int(x), int(y) );
 	    // if possible, reflect last control point if smooth shorthand
 	    if ( mode == 'S' || mode == 'T' ) {
 		bool cont = mode == lastMode ||
@@ -1203,13 +1203,13 @@ void QSvgDevice::drawPath( const QString &data )
 		     mode == 'T' && lastMode == 'Q';
 		x = cont ? 2*x-controlX : x;
 		y = cont ? 2*y-controlY : y;
-		quad.setPoint( 1, x, y );
-		quad.setPoint( 2, x, y );
+		quad.setPoint( 1, int(x), int(y) );
+		quad.setPoint( 2, int(x), int(y) );
 	    }
 	    for ( int j = 0; j < numArgs/2; j++ ) {
-		x = int(arg[ 2*j   ]) + offsetX;
-		y = int(arg[ 2*j+1 ]) + offsetY;
-		quad.setPoint( j+4-numArgs/2, x, y );
+		x = arg[ 2*j   ] + offsetX;
+		y = arg[ 2*j+1 ] + offsetY;
+		quad.setPoint( j+4-numArgs/2, int(x), int(y) );
 	    }
 	    // remember last control point for next shorthand
 	    controlX = quad[ 2 ].x();
@@ -1231,9 +1231,9 @@ void QSvgDevice::drawPath( const QString &data )
 	}
 	case 9:					// 'A' elliptical arc curve
 	    // ### just a straight line
-	    x = int(arg[ 5 ]) + offsetX;
-	    y = int(arg[ 6 ]) + offsetY;
-	    path.setPoint( pcount++, x, y );
+	    x = arg[ 5 ] + offsetX;
+	    y = arg[ 6 ] + offsetY;
+	    path.setPoint( pcount++, int(x), int(y) );
 	    break;
 	};
 	lastMode = mode;
@@ -1243,7 +1243,7 @@ void QSvgDevice::drawPath( const QString &data )
     if ( pt->brush().style() != Qt::NoBrush ) {
 	// fill the area without stroke first
 	if ( x != x0 || y != y0 )
-	    path.setPoint( pcount++, x0, y0 );
+	    path.setPoint( pcount++, int(x0), int(y0) );
 	QPen pen = pt->pen();
 	pt->setPen( Qt::NoPen );
 	pt->drawPolygon( path, FALSE, 0, pcount );
