@@ -17,9 +17,6 @@ include(text/text.pri)
 include(canvas/canvas.pri)
 include(network/network.pri)
 
-HEADERS += ../core/kernel/qinternal_p.h
-SOURCES += ../core/kernel/qinternal.cpp
-
 mac:LIBS += -framework Carbon
 
 QMAKE_LIBS += $$QMAKE_LIBS_COMPAT $$QMAKE_LIBS_NETWORK
