@@ -2084,7 +2084,6 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		res = internalNotify( w, e );
 		if ( res || key->isAccepted() )
 		    break;
-		key->spont = FALSE;
 		w = w->parentWidget( TRUE );
 	    }
 	}
