@@ -18,6 +18,39 @@
 #include <oaidl.h>
 #include "../../shared/types.h"
 
+extern bool qAxWrapObject(QObject *o, IDispatch **disp);
+QAxObject *ax_mainWindow = 0;
+
+static QTextEdit *debuglog = 0;
+
+static void redirectDebugOutput( QtMsgType type, const char*msg )
+{
+    debuglog->append( msg );
+}
+
+void MainWindow::init()
+{
+    QAxScript::registerEngine("PerlScript", ".pl");
+    QAxScript::registerEngine("Python", ".py");
+
+    dlgInvoke = 0;
+    dlgProperties = 0;
+    dlgAmbient = 0;
+    script = 0;
+    debuglog = logDebug;
+    oldDebugHandler = qInstallMsgHandler( redirectDebugOutput );
+    QHBoxLayout *layout = new QHBoxLayout( Workbase );
+    workspace = new QWorkspace( Workbase );
+    layout->addWidget( workspace );
+    connect( workspace, SIGNAL(windowActivated(QWidget*)), this, SLOT(windowActivated(QWidget*)) );
+}
+
+void MainWindow::destroy()
+{
+    qInstallMsgHandler( oldDebugHandler );
+    debuglog = 0;
+}
+
 void MainWindow::changeProperties()
 {
     QAxWidget *container = 0;
@@ -125,36 +158,6 @@ void MainWindow::setControl()
 	container->setControl( select.selectedControl() );
     }
     updateGUI();
-}
-
-static QTextEdit *debuglog = 0;
-
-static void redirectDebugOutput( QtMsgType type, const char*msg )
-{
-    debuglog->append( msg );
-}
-
-void MainWindow::init()
-{
-    QAxScript::registerEngine("PerlScript", ".pl");
-    QAxScript::registerEngine("Python", ".py");
-
-    dlgInvoke = 0;
-    dlgProperties = 0;
-    dlgAmbient = 0;
-    script = 0;
-    debuglog = logDebug;
-    oldDebugHandler = qInstallMsgHandler( redirectDebugOutput );
-    QHBoxLayout *layout = new QHBoxLayout( Workbase );
-    workspace = new QWorkspace( Workbase );
-    layout->addWidget( workspace );
-    connect( workspace, SIGNAL(windowActivated(QWidget*)), this, SLOT(windowActivated(QWidget*)) );
-}
-
-void MainWindow::destroy()
-{
-    qInstallMsgHandler( oldDebugHandler );
-    debuglog = 0;    
 }
 
 void MainWindow::controlInfo()
@@ -336,7 +339,7 @@ void MainWindow::runMacro()
 
     QVariant result = script->call(macro);
     if (result.isValid())
-	logMacro->append(QString("Return value of %1: %2").arg(macro).arg(result.asString()));
+	logMacros->append(QString("Return value of %1: %2").arg(macro).arg(result.asString()));
 }
 
 void MainWindow::loadScript()
@@ -350,7 +353,14 @@ void MainWindow::loadScript()
     if (!script) {
 	script = new QAxScript(this);
 	connect(script, SIGNAL(error(int, const QString&, int, const QString&)),
-		this,   SLOT(macroError(int,  const QString&, int, const QString&)));
+		this,   SLOT(logMacro(int,  const QString&, int, const QString&)));
+
+	IDispatch *mainWindowDispatch = 0;
+	qAxWrapObject(this, &mainWindowDispatch);
+	if (mainWindowDispatch) {
+	    ax_mainWindow = new QAxObject(mainWindowDispatch, this, "MainWindow");
+	    mainWindowDispatch->Release();
+	}
     }
 
     QWidgetList widgets = workspace->windowList();
@@ -362,14 +372,15 @@ void MainWindow::loadScript()
 	    continue;
 	script->addObject(ax);
     }
+    script->addObject(ax_mainWindow);
 
-    QAxObject *scriptlet = script->load(file, file);
+    QAxScriptEngine *scriptlet = script->load(file, file);
     if (scriptlet) {
 	actionScriptingRun->setEnabled(TRUE);
     }
 }
 
-void MainWindow::macroError( int code, const QString &description, int sourcePosition, const QString &sourceText )
+void MainWindow::logMacro( int code, const QString &description, int sourcePosition, const QString &sourceText )
 {
-    logMacro->append(QString("Error: %1 '%2' at line %3 '%4'").arg(code).arg(description).arg(sourcePosition).arg(sourceText));
+    logMacros->append(QString("Script: %1 '%2' at line %3 '%4'").arg(code).arg(description).arg(sourcePosition).arg(sourceText));
 }
