@@ -31,12 +31,12 @@
 #include "qasciidict.h"
 #include "qpalette.h"
 #include "qtranslator.h"
-#include "qlist.h"
 #endif // QT_H
 
 class QSessionManager;
 class QStyle;
 class QTranslator;
+template <class type> class QList;
 
 class QApplication;
 extern Q_EXPORT QApplication *qApp;		// global application object

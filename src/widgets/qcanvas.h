@@ -23,8 +23,8 @@
 **
 *****************************************************************************/
 
-#ifndef QCanvas_H
-#define QCanvas_H
+#ifndef QCANVAS_H
+#define QCANVAS_H
 
 #include <qbitmap.h>
 #include <qwidget.h>
@@ -597,4 +597,4 @@ private:
 };
 
 
-#endif
+#endif // QCANVAS_H
