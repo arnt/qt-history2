@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#405 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#406 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3112,6 +3112,8 @@ static KeySym KeyTbl[] = {			// keyboard mapping table
     XK_Super_L,		Qt::Key_Super_L,
     XK_Super_R,		Qt::Key_Super_R,
     XK_Menu,		Qt::Key_Menu,
+    XK_Hyper_L,		Qt::Key_Hyper_L,
+    XK_Hyper_R,		Qt::Key_Hyper_R,
     0,			0
 };
 
