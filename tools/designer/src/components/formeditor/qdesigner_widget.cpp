@@ -706,6 +706,7 @@ int QLayoutSupport::findItemAt(const QPoint &pos) const
         int spacing = layout()->spacing();
         int margin = layout()->margin();
         // ### use the margin
+        Q_UNUSED(margin);
 
         g.setBottomRight(g.bottomRight() + QPoint(spacing, spacing));
 
