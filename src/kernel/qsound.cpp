@@ -51,6 +51,13 @@ QAuServer::~QAuServer()
     }
 }
 
+void QAuServer::play(const QString& filename)
+{
+    QAuBucket* b = newBucket(filename);
+    play(b);
+    deleteBucket(b);
+}
+
 extern QAuServer* qt_new_audio_server();
 
 class QSoundData {

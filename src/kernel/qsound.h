@@ -67,7 +67,7 @@ public:
     QAuServer(QObject* parent, const char* name);
     ~QAuServer();
 
-    virtual void play(const QString& filename)=0;
+    virtual void play(const QString& filename);
     virtual void play(QAuBucket* id)=0;
     virtual QAuBucket* newBucket(const QString& filename)=0;
     virtual void deleteBucket(QAuBucket* id)=0;
