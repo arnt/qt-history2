@@ -71,6 +71,7 @@
 //   DYNIX	- DYNIX/ptx
 //   RELIANT	- Reliant UNIX
 //   QNX	- QNX
+//   LYNXOS	- LynxOS
 //   BSD4	- Any BSD 4.4 system
 //   UNIX	- Any UNIX BSD/SYSV system
 //
@@ -297,13 +298,24 @@
 // Note that defining _POSIX_C_SOURCE to 199506L is mandatory to specify
 // POSIX thread semantics as opposed to _REENTRANT which specifies Solaris
 // thread semantics.
+// Finally BSD_COMP must be defined for <sys/ioctl.h> to include <sys/filio.h>
+// which in turn will define FIONREAD.
 // See standards(5) and <sys/feature_tests.h> for more details.
+// See also the note in <sys/ioctl.h> for more details on BSD_COMP.
 #  elif defined(Q_OS_SOLARIS)
 #    if !defined(__EXTENSIONS__)
 #      define __EXTENSIONS__
 #    endif
+#    if !defined(BSD_COMP)
+#      define BSD_COMP
+#    endif
 #    if defined(QT_THREAD_SUPPORT)
 #      define _POSIX_C_SOURCE 199506L  // IEEE Std 1003.1c (1995) / POSIX.1c
+#    endif
+// BSD_COMP must be defined for <sys/ioctl.h> to define FIONREAD.
+#  elif defined(Q_OS_UNIXWARE7)
+#    if !defined(BSD_COMP)
+#      define BSD_COMP
 #    endif
 // Don't know about other SYSV systems...
 // Please send info on relevant macros to qt-bugs@trolltech.com.
