@@ -656,8 +656,8 @@ Q_OUTOFLINE_TEMPLATE bool QHash<Key, T>::operator==(const QHash<Key, T> &other) 
     if (d == other.d)
         return true;
 
-    iterator it1 = begin();
-    iterator it2 = other.begin();
+    const_iterator it1 = begin();
+    const_iterator it2 = other.begin();
 
     while (it1 != end()) {
         if (!(it1.key() == it2.key()) || !(it1.value() == it2.value()))
