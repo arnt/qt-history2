@@ -5716,12 +5716,7 @@ void QWidget::ensurePolished() const
     While being a technically appealing concept, masks have a big
     drawback: when using complex masks that cannot be expressed easily
     with relatively simple regions, they can be very slow on some
-    window systems. The classic example is a transparent label. The
-    complex shape of its contents makes it necessary to represent its
-    mask by a bitmap, which consumes both memory and time. If all you
-    want is to blend the background of several neighboring widgets
-    together seamlessly, you will probably want to use
-    setBackgroundOrigin() rather than a mask.
+    window systems.
 
     \sa autoMask() updateMask() setMask() clearMask()
 */
