@@ -509,7 +509,7 @@ void QPointArray::makeArc( int x, int y, int w, int h, int a1, int a2 )
 //   VanAken / Simar, "A Parametric Elliptical Arc Algorithm"
 //
 static void
-elips(QPointArray& a, double dxP, double dyP, double dxQ, double dyQ, double dxK, double dyK, int m)
+qtr_elips(QPointArray& a, int off, double dxP, double dyP, double dxQ, double dyQ, double dxK, double dyK, int m)
 {
 #define PIV2  102944     /* fixed point PI/2 */
 #define TWOPI 411775     /* fixed point 2*PI */
@@ -540,13 +540,9 @@ elips(QPointArray& a, double dxP, double dyP, double dxQ, double dyQ, double dxK
     uy -= r >> (2*m + 3);         /* cancel 6th-order error */
     uy += vy >> (m + 1);          /* cancel 1st-order error */
 
-    const int qn = (PIV2 >> (16 - m));
-    a.resize(qn*4);
+    const int qn = a.size()/4;
     for (i = 0; i < qn; i++) {
-        a[i] = QPoint((xJ + vx) >> 16, (yJ + vy) >> 16);
-        a[qn+i] = QPoint((xJ + vy) >> 16, (yJ - vx) >> 16);
-        a[qn*2+i] = QPoint((xJ - vx) >> 16, (yJ - vy) >> 16);
-        a[qn*3+i] = QPoint((xJ - vy) >> 16, (yJ + vx) >> 16);
+        a[off+i] = QPoint((xJ + vx) >> 16, (yJ + vy) >> 16);
 	ux -= vx >> m;
 	vx += ux >> m;
 	uy -= vy >> m;
@@ -613,7 +609,22 @@ void QPointArray::makeArc( int x, int y, int w, int h,
 
     double inc = 1.0/(1<<m);
 
-    elips(*this, xP, yP, xQ, yQ, xK, yK, m);
+    const int qn = (PIV2 >> (16 - m));
+    resize(qn*4);
+
+    qtr_elips(*this, 0, xP, yP, xQ, yQ, xK, yK, m);
+    xP = xQ; yP = yQ;
+    xf.map(x, y+h/2.0, &xQ, &yQ);
+    xf.map(x, y, &xK, &yK);
+    qtr_elips(*this, qn, xP, yP, xQ, yQ, xK, yK, m);
+    xP = xQ; yP = yQ;
+    xf.map(x+w/2.0, y+h, &xQ, &yQ);
+    xf.map(x, y+h, &xK, &yK);
+    qtr_elips(*this, qn*2, xP, yP, xQ, yQ, xK, yK, m);
+    xP = xQ; yP = yQ;
+    xf.map(x+w, y+h/2.0, &xQ, &yQ);
+    xf.map(x+w, y+h, &xK, &yK);
+    qtr_elips(*this, qn*3, xP, yP, xQ, yQ, xK, yK, m);
 
     int n = size();
 
@@ -635,9 +646,6 @@ void QPointArray::makeArc( int x, int y, int w, int h,
 	    }
 	}
 	*this = r;
-    } else {
-	resize(n+1);
-	setPoint(n,point(0));
     }
 #undef PIV2
 }
