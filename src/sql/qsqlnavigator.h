@@ -61,7 +61,7 @@ public:
     QStringList  sort() const;
     void setFilter( const QString& filter );
     QString filter() const;
-    virtual void setCursor( QSqlCursor* cursor );
+    virtual void setCursor( QSqlCursor* cursor, bool autoDelete = FALSE );
     QSqlCursor* cursor() const;
 
     virtual void refresh();

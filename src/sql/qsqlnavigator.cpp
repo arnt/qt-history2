@@ -49,10 +49,11 @@
 class QSqlCursorNavigator::QSqlCursorNavigatorPrivate
 {
 public:
-    QSqlCursorNavigatorPrivate() : cur(0) {}
+    QSqlCursorNavigatorPrivate() : cur(0), autoDelete(FALSE) {}
     QString ftr;
     QStringList srt;
     QSqlCursor* cur;
+    bool autoDelete;
 };
 
 /*!
@@ -84,6 +85,8 @@ QSqlCursorNavigator::QSqlCursorNavigator()
 
 QSqlCursorNavigator::~QSqlCursorNavigator()
 {
+    if ( d->autoDelete )
+	delete d->cur;
     delete d;
 }
 
@@ -135,16 +138,22 @@ QString QSqlCursorNavigator::filter() const
     return d->ftr;
 }
 
-/*! Sets the default cursor used by the navigator to \a cursor.  To
+/*! Sets the default cursor used by the navigator to \a cursor.  If \a
+  autoDelete is TRUE (the default is FALSE), the navigator takes
+  ownership of the \a cursor pointer, which will be deleted when the
+  navigator is destroyed, or when setCursor() is called again. To
   activate the \a cursor use refresh().
 
   \sa cursor()
 
 */
 
-void QSqlCursorNavigator::setCursor( QSqlCursor* cursor )
+void QSqlCursorNavigator::setCursor( QSqlCursor* cursor, bool autoDelete )
 {
+    if ( d->autoDelete )
+	delete d->cur;
     d->cur = cursor;
+    d->autoDelete = autoDelete;
 }
 
 /*! Returns a pointer to the default cursor used for navigation, or 0
