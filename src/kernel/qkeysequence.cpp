@@ -476,6 +476,8 @@ QString QKeySequence::encodeString(int key)
 	s += shift;
     }
     if ( (key & CTRL) == CTRL ) {
+	if ( plus_next && !s.isEmpty() )
+	    s += QAccel::tr( "+" );
 	plus_next = TRUE;
 	QString ctrl = QAccel::tr( "Ctrl" );
 #ifdef QMAC_CTRL
