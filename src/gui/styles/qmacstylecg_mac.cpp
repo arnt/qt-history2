@@ -1261,7 +1261,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
         HIThemeDrawPaneSplitter(&hirect, &sdi, static_cast<CGContextRef>(p->handle()),
                                 kHIThemeOrientationNormal);
         break; }
-    case PE_TreeBranch:
+    case PE_TreeBranch: {
         if (!(opt->state & Style_Children))
             break;
         HIThemeButtonDrawInfo bi;
@@ -1275,7 +1275,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
         HIRect hirect = qt_hirectForQRect(opt->rect, p);
         HIThemeDrawButton(&hirect, &bi, static_cast<CGContextRef>(p->handle()),
                           kHIThemeOrientationNormal, 0);
-        break;
+        break; }
     case PE_RubberBandMask:
         p->fillRect(opt->rect, color1);
         break;
