@@ -8,7 +8,7 @@ CFLAGS	    =	/c /Fo$@ \
 		/I. /Igenerators /Igenerators\unix /Igenerators\win32 /Igenerators\mac /I..\src\core\arch\generic /I..\include /I..\src\tools \
 		/I..\mkspecs\win32-msvc \
 		/DQT_NO_TEXTCODEC /DQT_NO_UNICODETABLES /DQT_LITE_COMPONENT /DQT_NODLL /DQT_NO_STL \
-		/DQT_NO_COMPRESS /DUNICODE /DHAVE_QCONFIG_CPP /DQT_BUILD_QMAKE
+		/DQT_NO_COMPRESS /DUNICODE /DHAVE_QCONFIG_CPP /DQT_BUILD_QMAKE /DQT_NO_THREAD
 CXXFLAGS    =   $(CFLAGS)
 LFLAGS	    =	
 LIBS	    =	ole32.lib advapi32.lib
