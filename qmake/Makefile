@@ -1,6 +1,6 @@
 #qmake code
 OBJS=project.obj main.obj makefile.obj unixmake.obj borland_bmake.obj msvc_nmake.obj msvc_dsp.obj option.obj \
-	winmakefile.obj projectgenerator.obj
+	winmakefile.obj projectgenerator.obj metrowerks_xml.obj
 
 #qt code
 QTOBJS=qstring.obj qtextstream.obj qiodevice.obj qglobal.obj qgdict.obj qcstring.obj qdatastream.obj qgarray.obj qbuffer.obj \
@@ -27,6 +27,7 @@ clean::
 	-del option.obj
 	-del winmakefile.obj
 	-del projectgenerator.obj
+	-del metrowerks_xml.obj
 	-del qstring.obj
 	-del qtextstream.obj
 	-del qiodevice.obj
@@ -170,3 +171,6 @@ option.obj: option.cpp option.h
 
 projectgenerator.obj: generators/projectgenerator.cpp
 	$(CXX) /c /Fo$@ $(CFLAGS) generators/projectgenerator.cpp
+
+metrowerks_xml.obj: generators/mac/metrowerks_xml.cpp
+	$(CXX) /c /Fo$@ $(CFLAGS) generators/mac/metrowerks_xml.cpp
