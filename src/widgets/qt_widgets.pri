@@ -115,6 +115,6 @@ widgets {
  win32:SOURCES += $$WIDGETS_CPP/qtrayicon_win.cpp
 embedded:SOURCES+=$$WIDGETS_CPP/qtrayicon_qws.cpp
    mac:SOURCES += $$WIDGETS_CPP/qmenubar_mac.cpp \
-		  $$WIDGETS_CPP/qtryicon_mac.cpp
+		  $$WIDGETS_CPP/qtrayicon_mac.cpp
 		
 }
