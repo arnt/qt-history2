@@ -356,8 +356,7 @@ QSize QDockWindowLayout::minimumSize() const
 
     VDEBUG("END: size %4d perp %4d", size, perp);
 
-    return ((orientation == Horizontal ? QSize(size, perp) : QSize(perp, size)) +
-	    layout_info.count() * QSize(spacing(), spacing()));
+    return (orientation == Horizontal) ? QSize(size, perp) : QSize(perp, size);
 }
 
 /*! reimp */
@@ -387,8 +386,7 @@ QSize QDockWindowLayout::sizeHint() const
 
     VDEBUG("END: size %4d perp %4d", size, perp);
 
-    return ((orientation == Horizontal ? QSize(size, perp) : QSize(perp, size)) +
-	    layout_info.count() * QSize(spacing(), spacing()));
+    return (orientation == Horizontal) ? QSize(size, perp) : QSize(perp, size);
 }
 
 void QDockWindowLayout::invalidate()
