@@ -97,7 +97,7 @@ private:
     QMimeSourceFactoryData* d;
 };
 
-#ifdef Q_WS_WIN
+#if defined(Q_WS_WIN)
 
 #ifndef QT_H
 #include "qptrlist.h" // down here for GCC 2.7.* compatibility
@@ -132,7 +132,8 @@ public:
     virtual QByteArray convertFromMime( QByteArray data, const char* mime, int cf )=0;
 };
 
-#elif defined(Q_WS_MAC)
+#endif
+#if defined(Q_WS_MAC)
 
 #ifndef QT_H
 #include "qptrlist.h" // down here for GCC 2.7.* compatibility

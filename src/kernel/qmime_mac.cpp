@@ -67,9 +67,13 @@ OSErr FSpLocationFromFullPath(short, const void *, FSSpec *); //qsound_mac.cpp
   can perform conversions with convertToMime() and convertFromMime().
 */
 
+/*! \enum QMacMime::QMacMimeType
+    \internal
+*/
+
 /*!
-  Constructs a new conversion object, adding it to the globally accessed
-  list of available convertors.
+  Constructs a new conversion object of type \a t, adding it to the
+  globally accessed list of available convertors.
 */
 QMacMime::QMacMime(char t) : type(t)
 {
@@ -615,7 +619,7 @@ void QMacMime::initialize()
 }
 
 /*!
-  Returns the most-recently created QMacMime that can convert
+  Returns the most-recently created QMacMime of type \a t that can convert
   between the \a mime and \a flav formats.  Returns 0 if no such convertor
   exists.
 */
@@ -636,7 +640,7 @@ QMacMime::convertor(QMacMimeType t, const char *mime, int flav)
 }
 
 /*!
-  Returns a MIME type for \a flav, or 0 if none exists.
+  Returns a MIME type of type \a t for \a flav, or 0 if none exists.
 */
 const char* QMacMime::flavorToMime(QMacMimeType t, int flav)
 {
