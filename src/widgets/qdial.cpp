@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qdial.cpp#15 $
 **
 ** Implementation of something useful.
 **
@@ -93,7 +93,7 @@ public:
   setValue(), addLine(), substractLine(), addPage() and subtractPage()
   available as slots.
 
-  The dial's keyboard interface is fairly simply: The left and right
+  The dial's keyboard interface is fairly simple: The left/up and right/down
   arrow keys move by lineStep(), page up and page down by pageStep()
   and Home and End to minValue() and maxValue().
 
@@ -112,6 +112,7 @@ QDial::QDial( QWidget *parent, const char *name )
     : QWidget( parent, name ), QRangeControl()
 {
     d = new QDialPrivate;
+    setFocusPolicy( QWidget::TabFocus );
 }
 
 
@@ -131,6 +132,7 @@ QDial::QDial( int minValue, int maxValue, int pageStep, int value,
       QRangeControl( minValue, maxValue, 1, pageStep, value )
 {
     d = new QDialPrivate;
+    setFocusPolicy( QWidget::TabFocus );
 }
 
 /*!
@@ -298,27 +300,27 @@ void QDial::paintEvent( QPaintEvent * e )
 void QDial::keyPressEvent( QKeyEvent * e )
 {
     switch ( e->key() ) {
-    case Key_Left:
-	subtractLine();
-	break;
-    case Key_Right:
-	addLine();
-	break;
+    case Key_Left: case Key_Down:
+        subtractLine();
+        break;
+    case Key_Right: case Key_Up:
+        addLine();
+        break;
     case Key_Prior:
-	subtractPage();
-	break;
+        subtractPage();
+        break;
     case Key_Next:
-	addPage();
-	break;
+        addPage();
+        break;
     case Key_Home:
-	setValue( minValue() );
-	break;
+        setValue( minValue() );
+        break;
     case Key_End:
-	setValue( maxValue() );
-	break;
+        setValue( maxValue() );
+        break;
     default:
-	e->ignore();
-	break;
+        e->ignore();
+        break;
     }
 }
 
@@ -406,23 +408,23 @@ int QDial::valueFromPoint( const QPoint & p ) const
 
     int dist = 0;
     int minv = minValue(), maxv = maxValue();
-    
+
     if ( minValue() < 0 ) {
         dist = -minValue();
         minv = 0;
         maxv = maxValue() + dist;
     }
-    
+
     int r = maxv - minv;
     int v;
     if ( d->wrapping )
         v =  (int)(0.5 + minv + r*(m_pi*3/2-a)/(2*m_pi));
     else
-        v =  (int)(0.5 + minv + r*(m_pi*4/3-a)/(m_pi*10/6)); 
+        v =  (int)(0.5 + minv + r*(m_pi*4/3-a)/(m_pi*10/6));
 
     if ( dist > 0 )
         v -= dist;
-    
+
     return bound( v );
 }
 
