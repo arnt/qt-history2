@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbttngrp.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qbttngrp.cpp#19 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -15,7 +15,7 @@
 #include "qbutton.h"
 #include "qlist.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbttngrp.cpp#18 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbttngrp.cpp#19 $")
 
 
 /*----------------------------------------------------------------------------
@@ -114,7 +114,7 @@ QButtonGroup::~QButtonGroup()
   identifier is assigned.  If \e id == -1 (default), the identifier is
   equal to the number of buttons in the group.  If \e id is any other
   negative integer, for instance -2, a unique identifier (negative
-  integer \< -1) is generated.
+  integer \<= -2) is generated.
 
   Inserting several buttons with \e id = -1 assigns the identifers 0,
   1, 2, etc.
