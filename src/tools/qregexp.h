@@ -87,7 +87,7 @@ public:
     QString errorString();
 #endif
 
-    static QString literal( const QString& str );
+    static QString escape( const QString& str );
 
 private:
     void compile( bool caseSensitive );

@@ -3793,18 +3793,18 @@ QString QRegExp::errorString()
 
   Example:
   \code
-     s1 = QRegExp::literal( "bingo" );  // s1 == "bingo"
-     s2 = QRegExp::literal( "f(x)" );   // s2 == "f\\(x\\)"
+     s1 = QRegExp::escape( "bingo" );   // s1 == "bingo"
+     s2 = QRegExp::escape( "f(x)" );    // s2 == "f\\(x\\)"
   \endcode
 
   This function is useful to construct regexp patterns dynamically:
 
   \code
-    QRegExp rx( "(" + QRegExp::literal(username) +
-		"|" + QRegExp::literal(password) + ")" );
+    QRegExp rx( "(" + QRegExp::escape(name) +
+		"|" + QRegExp::escape(alias) + ")" );
   \endcode
 */
-QString QRegExp::literal( const QString& str )
+QString QRegExp::escape( const QString& str )
 {
     static const char meta[] = "$()*+.?[\\]^{|}";
     QString quoted = str;
