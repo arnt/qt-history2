@@ -1719,6 +1719,32 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    break;
 	}
 	}
+	//figure out which widget to send it to
+	if( ekind != kEventMouseDown && qt_button_down )
+	    widget = qt_button_down;
+	else if( mac_mouse_grabber )
+	    widget = mac_mouse_grabber;
+	else
+	    widget = QApplication::widgetAt( where.h, where.v, true );
+
+	//set the cursor up
+	const QCursor *n = NULL;
+	if(!widget) //not over the app, don't set a cursor..
+	    ;
+	else if(cursorStack)
+	    n = app_cursor;
+	else if(widget->extra && widget->extra->curs)
+	    n = widget->extra->curs;
+	if(!n)
+	    n = &arrowCursor; //I give up..
+	qt_mac_set_cursor(n, &where);
+
+	//This mouse button state stuff looks like this on purpose
+	//although it looks hacky it is VERY intentional..
+	if ( widget && app_do_modal && !qt_try_modal(widget, event) ) {
+	    mouse_button_state = after_state;
+	    return 1;
+	}
 
 	//handle popup's first
 	QWidget *popupwidget = NULL;
@@ -1759,36 +1785,10 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    special_close = TRUE;
 	    }
 	    if(special_close) { 	    //We will resend this event later, so just return
-		qt_replay_event = CopyEvent(event);
-		return noErr;
+		if(widget != popupwidget)  // We've already sent the event to the correct widget
+		    qt_replay_event = CopyEvent(event);
+		break;
 	    }
-	}
-
-	//figure out which widget to send it to
-	if( ekind != kEventMouseDown && qt_button_down )
-	    widget = qt_button_down;
-	else if( mac_mouse_grabber )
-	    widget = mac_mouse_grabber;
-	else
-	    widget = QApplication::widgetAt( where.h, where.v, true );
-
-	//set the cursor up
-	const QCursor *n = NULL;
-	if(!widget) //not over the app, don't set a cursor..
-	    ;
-	else if(cursorStack)
-	    n = app_cursor;
-	else if(widget->extra && widget->extra->curs)
-	    n = widget->extra->curs;
-	if(!n)
-	    n = &arrowCursor; //I give up..
-	qt_mac_set_cursor(n, &where);
-
-	//This mouse button state stuff looks like this on purpose
-	//although it looks hacky it is VERY intentional..
-	if ( widget && app_do_modal && !qt_try_modal(widget, event) ) {
-	    mouse_button_state = after_state;
-	    return 1;
 	}
 
 	if(ekind == kEventMouseDown) {
