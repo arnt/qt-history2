@@ -8,9 +8,13 @@ QCONFIG = core
 !nis:DEFINES += QT_NO_NIS
 DEFINES += QT_BUILD_GUI_LIB
 
+# Only used on platforms with CONFIG += precompile_header
+PRECOMPILED_HEADER = $$WIDGETS_CPP/qt_gui_pch.h
+
 #platforms
 x11:include($$KERNEL_CPP/qt_x11.pri)
 mac:include($$KERNEL_CPP/qt_mac.pri)
+win32:include($$KERNEL_CPP/qt_win.pri)
 embedded:include($$KERNEL_CPP/qt_qws.pri)
 
 #modules
