@@ -556,7 +556,7 @@ QPrinter::PageOrder QPrinter::pageOrder() const
 
 /*!
     Sets the printer's color mode to \a newColorMode, which can be
-    either \c Color (the default) or \c GrayScale.
+    either \c Color or \c GrayScale (the default).
 
     \sa colorMode()
 */

@@ -947,6 +947,12 @@ void QImage::reset()
     alpha buffer, only the 24 RGB bits are set and the upper 8 bits
     (alpha value) are left unchanged.
 
+    Note: QImage::pixel() returns the color of the pixel at the given
+    coordinates; QColor::pixel() returns the pixel value of the
+    underlying window system (essentially an index value), so normally
+    you will want to use QImage::pixel() to use a color from an
+    existing image or QColor::rgb() to use a specific color.
+
     \sa invertPixels() depth() hasAlphaBuffer() create()
 */
 
