@@ -71,26 +71,26 @@ public:
 
     //animation things
     enum Animates { AquaPushButton, AquaProgressBar, AquaListViewItemOpen };
-    bool animatable(Animates, QWidget *);
-    bool animatable(Animates, QListViewItem *);
-    void stopAnimate(Animates, QWidget *);
-    void stopAnimate(Animates, QListViewItem *);
+    bool animatable(Animates, const QWidget *);
+    bool animatable(Animates, const QListViewItem *);
+    void stopAnimate(Animates, const QWidget *);
+    void stopAnimate(Animates, const QListViewItem *);
 
     //focus things
-    bool focusable(QWidget *) const;
-    QWidget *focusWidget() const;
+    bool focusable(const QWidget *) const;
+    const QWidget *focusWidget() const;
 
 protected:
     //finally do the animate..
     virtual bool doAnimate(Animates) = 0;
+    virtual int animateSpeed(Animates) { return 50; }
     //finally set the focus
-    virtual bool overrideFocusable(const QWidget *) const { return false; }
-    void setFocusWidget(QWidget *);
+    void setFocusWidget(const QWidget *);
     virtual void doFocus(QWidget *w) = 0;
 
 protected:
     bool eventFilter(QObject *, QEvent *);
-    void timerEvent( QTimerEvent * );
+    void timerEvent(QTimerEvent *);
 
 private slots:
     void objDestroyed(QObject *o);

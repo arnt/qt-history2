@@ -47,6 +47,18 @@ static inline const HIRect *qt_glb_mac_rect(const QRect &qr, const QPainter *p,
     return qt_glb_mac_rect(r, p->device(), off, rect);
 }
 
+inline static bool qt_mac_is_metal(QWidget *w)
+{
+    return (bool)w->testAttribute(QWidget::WA_MacMetalStyle);
+}
+
+inline static bool qt_mac_is_metal(QPainter *p)
+{
+    if(p && p->device()->devType() == QInternal::Widget)
+	return qt_mac_is_metal((QWidget*)p->device());
+    return false;
+}
+
 // Utility to get the track info for scroll bars and sliders. It is used a few times and
 // its worth not having to initalize all those items everytime. I have no idea why we
 // can't do this by value, but it makes the darkening of the slider's thumb thing not work
@@ -102,63 +114,23 @@ static QAquaWidgetSize qt_mac_get_size_for_painter(QPainter *p)
     return qt_aqua_size_constrain(0);
 }
 
-class QMacStyleCGPrivate : public QObject 
+class QMacStyleCGPrivate : public QAquaAnimate
 {
 public:
-    static const int RefreshRate = 33;  // Gives us about 30 frames a second.
-    QPointer<QPushButton> defaultButton;
-    QList<QPointer<QProgressBar> > progressbars;
-    CFAbsoluteTime defaultButtonStart;
-    int timerID;
     UInt8 progressFrame;
-    
-    QMacStyleCGPrivate() : timerID(-1), progressFrame(0) {}
-    inline void animateButton(QPushButton *btn) {
-        defaultButton = btn;
-        defaultButtonStart = CFAbsoluteTimeGetCurrent();
-        if (timerID <= 0)
-            timerID = startTimer(RefreshRate);
-    }
-    inline void stopButtonAnimation() {
-        if (!defaultButton)
-            return;
-        QPushButton *tmp = defaultButton;
-        defaultButton = 0; // Lazily let the other stuff be reset in timerEvent.
-        if (tmp->isVisible())
-            tmp->update();
-    }
-    inline void animateProgressBar() {
-        if (timerID <= 0)
-            timerID = startTimer(RefreshRate);
-    }
+    CFAbsoluteTime defaultButtonStart;
+    QMacStyleCGPrivate() : progressFrame(0) { defaultButtonStart = CFAbsoluteTimeGetCurrent(); }
+
 protected:
-    inline void timerEvent(QTimerEvent *)
-    {
-        if (!defaultButton.isNull() || !progressbars.isEmpty()) {
-            if (!defaultButton.isNull())
-                defaultButton->update();
-            else
-                defaultButtonStart = 0;
-            if (!progressbars.isEmpty()) {
-                ++progressFrame;
-                int i = 0;
-                while (i < progressbars.size()) {
-                    QProgressBar *pb = progressbars.at(i);
-                    if (!pb) {
-                        progressbars.removeAt(i);
-                    } else {
-                        if (pb->totalSteps() == 0 || pb->progress() > 0
-                            && pb->progress() < pb->totalSteps())
-                            pb->update();
-                        ++i;
-                    }
-                }
-            }
-        } else {
-            killTimer(timerID);
-            timerID = -1;
-            defaultButtonStart = 0;
-        }
+    friend class QMacStyleCG;
+    virtual int animateSpeed(Animates) { return 33; }   // Gives us about 30 frames a second.
+    virtual bool doAnimate(Animates anim) {
+	if(anim == AquaProgressBar)
+	    progressFrame++;
+	return true;
+    }
+    virtual void doFocus(QWidget *) {
+	//not implemented yet
     }
 };
 
@@ -178,21 +150,9 @@ QMacStyleCG::~QMacStyleCG()
 
 void QMacStyleCG::polish(QWidget *w)
 {
-    QPushButton *btn = ::qt_cast<QPushButton *>(w);
-    if (btn) {
-        btn->installEventFilter(this);
-        if (btn->isDefault() || (btn->autoDefault() && btn->hasFocus())) {
-            d->animateButton(btn);
-        }
-    }
-    QProgressBar *progressbar = ::qt_cast<QProgressBar *>(w);
-    if (progressbar) {
-        d->progressbars.append(progressbar);
-        d->animateProgressBar();
-    }
-
+    d->addWidget(w);
     QPixmap px(0, 0, 32);
-    if (w->testAttribute(QWidget::WA_MacMetalStyle)) {
+    if (qt_mac_is_metal(w)) {
         px.resize(200, 200);
         QPainter p(&px);
         HIThemeBackgroundDrawInfo bginfo;
@@ -230,15 +190,8 @@ void QMacStyleCG::polish(QWidget *w)
 
 void QMacStyleCG::unPolish(QWidget *w)
 {
-    QPushButton *btn = ::qt_cast<QPushButton *>(w);
-    if (btn && btn == d->defaultButton)
-        d->defaultButton = 0;
-    
-    QProgressBar *pbar = ::qt_cast<QProgressBar *>(w);
-    if (pbar)
-        d->progressbars.remove(pbar);
-    
-    if (::qt_cast<QPopupMenu *>(w) || w->testAttribute(QWidget::WA_MacMetalStyle)) {
+    d->removeWidget(w);
+    if (::qt_cast<QPopupMenu *>(w) || qt_mac_is_metal(w)) {
         QPalette pal = w->palette();
         QPixmap tmp;
         QBrush background(tmp);
@@ -347,8 +300,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r
         HIThemeSplitterDrawInfo sdi;
         sdi.version = qt_mac_hitheme_version;
         sdi.state = tds;
-        // ### If they have brushed metal, we need to change adornment. I need the widget flags
-        sdi.adornment = kHIThemeSplitterAdornmentNone;
+        sdi.adornment = qt_mac_is_metal(p) ? kHIThemeSplitterAdornmentMetal : kHIThemeSplitterAdornmentNone;
         HIThemeDrawPaneSplitter(qt_glb_mac_rect(r, p), &sdi, static_cast<CGContextRef>(p->handle()),
                                 kHIThemeOrientationNormal);
         break; }
@@ -432,6 +384,7 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
         if (!widget)
             break;
 	const QPushButton *btn = static_cast<const QPushButton *>(widget);
+	d->addWidget(const_cast<QPushButton*>(btn));
         if (btn->isFlat() && !(how & Style_Down))
 	    return;
         HIThemeButtonDrawInfo info;
@@ -447,7 +400,7 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
         else
             info.kind = kThemePushButton;
         
-        if (how & Style_ButtonDefault && btn == d->defaultButton) {
+        if (how & Style_ButtonDefault && d->animatable(QAquaAnimate::AquaPushButton, btn)) {
             info.adornment = kThemeAdornmentDefault;
             info.animation.time.start = d->defaultButtonStart;
             info.animation.time.current = CFAbsoluteTimeGetCurrent();
@@ -983,66 +936,6 @@ QPixmap QMacStyleCG::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
 				 const QPalette &pal, const QStyleOption &opt) const
 {
     return QCommonStyle::stylePixmap(pixmaptype, pixmap, pal, opt);
-}
-
-bool QMacStyleCG::eventFilter(QObject *o, QEvent *e)
-{
-    QPushButton *btn = ::qt_cast<QPushButton *>(o);
-    QProgressBar *pb = ::qt_cast<QProgressBar *>(o);
-    if (btn) {
-        switch (e->type()) {
-        default:
-            break;
-        case QEvent::FocusIn:
-            if (btn->autoDefault())
-                d->animateButton(btn);
-            break;
-        case QEvent::Hide:
-            if (btn == d->defaultButton)
-                d->stopButtonAnimation();
-            break;
-        case QEvent::MouseButtonPress:
-            // From looking at Panther it seems that pulsing stops whenever the mouse
-            // is pressed, most people will probably be happy enough if we do it
-            // just for buttons.           
-            d->stopButtonAnimation();
-            break;
-        case QEvent::MouseButtonRelease:
-        case QEvent::FocusOut:
-        case QEvent::Show: {
-            // Find the correct button and animate it.
-            QObjectList list = btn->topLevelWidget()->queryList("QPushButton");
-            for (int i = 0; i < list.size(); ++i) {
-                QPushButton *pBtn = static_cast<QPushButton *>(list.at(i));
-                if ((e->type() == QEvent::FocusOut 
-                     && (pBtn->isDefault() || (pBtn->autoDefault() && pBtn->hasFocus()))
-                     && pBtn != btn)
-                    || ((e->type() == QEvent::Show || e->type() == QEvent::MouseButtonRelease)
-                        && pBtn->isDefault())) {
-                    if (pBtn->topLevelWidget()->isActiveWindow())
-                        d->animateButton(pBtn);
-                    break;
-                }
-            }
-            break; }
-        }
-    } else if (pb) {
-        switch (e->type()) {
-        default:
-            break;
-        case QEvent::Show:
-            if (!d->progressbars.contains(pb)) {
-                d->progressbars.append(pb);
-                if (d->timerID <= 0)
-                    d->timerID = startTimer(QMacStyleCGPrivate::RefreshRate);
-            }
-            break;
-        case QEvent::Hide:
-            d->progressbars.remove(pb);
-            break;
-        }
-    }
-    return QWindowsStyle::eventFilter(o, e);
 }
 
 #endif

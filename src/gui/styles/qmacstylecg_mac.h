@@ -66,7 +66,6 @@ private:        // Disabled copy constructor and operator=
 #endif
 
 protected:
-    bool eventFilter(QObject *o, QEvent *e);
     QMacStyleCGPrivate *d;
 };
 
