@@ -2534,6 +2534,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 #endif
 	HDC oldDC = fe->hdc;
 	fe->hdc = hdc;
+	SelectObject( hdc, fe->hfont );
 	fe->draw( this, xpos,  ypos, shaped->glyphs, shaped->advances,
 		  shaped->offsets, shaped->num_glyphs, rightToLeft );
 	fe->hdc = oldDC;
@@ -2582,6 +2583,7 @@ void QPainter::drawTextItem( int x,  int y, const QTextItem &ti )
 
     HDC oldDC = fe->hdc;
     fe->hdc = hdc;
+    SelectObject( hdc, fe->hfont );
     fe->draw( this, x,  y, shaped->glyphs, shaped->advances,
 		  shaped->offsets, shaped->num_glyphs, rightToLeft );
     fe->hdc = oldDC;
