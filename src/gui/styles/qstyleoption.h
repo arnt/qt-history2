@@ -205,6 +205,7 @@ public:
 
     MenuItemType menuItemType;
     CheckState checkState;
+    bool exclusive;
     QRect menuRect;
     QString text;
     QIconSet icon;
@@ -216,6 +217,7 @@ public:
 
     QDOC_PROPERTY(MenuItemType menuItemType);
     QDOC_PROPERTY(CheckState checkState);
+    QDOC_PROPERTY(bool exclusive);
     QDOC_PROPERTY(QRect menuRect);
     QDOC_PROPERTY(QString text);
     QDOC_PROPERTY(QIconSet icon);

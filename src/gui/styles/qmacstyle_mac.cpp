@@ -1761,7 +1761,11 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 tti.options = kHIThemeTextBoxOptionNone;
                 tti.truncationPosition = kHIThemeTextTruncationNone;
                 tti.truncationMaxLines = 1;
-                QCFString checkmark = QString(QChar(kCheckUnicode));
+                QCFString checkmark;
+                if(mi->exclusive)
+                    checkmark = QString(QChar(kDiamondUnicode));
+                else
+                    checkmark = QString(QChar(kCheckUnicode));
                 int mw = checkcol + macItemFrame;
                 int mh = contentRect.height() - 2 * macItemFrame;
                 int xp = contentRect.x();

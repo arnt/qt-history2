@@ -577,11 +577,12 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
         opt.state |= QStyle::Style_Active;
     if (mouseDown)
         opt.state |= QStyle::Style_Down;
-    if (!checkable)
+    if (!checkable) 
         opt.checkState = QStyleOptionMenuItem::NotCheckable;
     else
         opt.checkState = action->isChecked() ? QStyleOptionMenuItem::Checked
                                              : QStyleOptionMenuItem::Unchecked;
+    opt.exclusive = (action->actionGroup() && action->actionGroup()->isExclusive());
     if (action->menu())
         opt.menuItemType = QStyleOptionMenuItem::SubMenu;
     else if (action->isSeparator())
