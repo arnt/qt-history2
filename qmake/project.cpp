@@ -183,10 +183,10 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 	}
     }
     if(vals.find('"') != -1) { //strip out quoted entities
-	QRegExp quoted("(\"[^\"]*\")");
+	QRegExp quoted("( |^)(\"[^\"]*\")( |$)");
 	for(int x = 0; (x = quoted.match(vals, 0)) != -1; ) {
-	    vallist.append(quoted.cap(1));
-	    vals.remove(x, quoted.matchedLength());
+	    vallist.append(quoted.cap(2));
+	    vals.remove(x, quoted.matchedLength() -1);
 	}
     }
 
