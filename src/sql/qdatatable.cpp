@@ -365,30 +365,28 @@ void QDataTable::setColumnWidth( int col, int w )
 
 /*!
     Resizes column \a col so that the column width is wide enough to
-    display the widest item the column contains. Note that unlike
-    QTable the QDataTable is not immediately redrawn, you must call
-    refresh() yourself. If the table's QSqlCursor is not currently
-    active, the cursor will be refreshed before the column width is
-    calculated. Be aware that this function may be slow on tables that
-    contain large result sets.
-
-    \sa refresh()
+    display the widest item the column contains (including the column
+    label). If the table's QSqlCursor is not currently active, the
+    cursor will be refreshed before the column width is calculated. Be
+    aware that this function may be slow on tables that contain large
+    result sets.
 */
 void QDataTable::adjustColumn( int col )
 {
     QSqlCursor * cur = sqlCursor();
-    if ( !cur || cur->count() < (uint)col )
+    if ( !cur || cur->count() <= (uint)col )
 	return;
     if ( !cur->isActive() ) {
 	d->cur.refresh();
     }
-    int oldRow = currentRow(), w = 0;
+    int oldRow = currentRow(), w = fontMetrics().width( horizontalHeader()->label( col ) + "W" );
     cur->first();
     while ( cur->next() ) {
-	w = QMAX( w, fontMetrics().width( cur->value( col ).toString() ) + 10 );
+	w = QMAX( w, fontMetrics().width( cur->value( indexOf( col ) ).toString() ) + 10 );
     }
     setColumnWidth( col, w );
     cur->seek( oldRow );
+    refresh( RefreshColumns );
 }
 
 /*! \reimp
