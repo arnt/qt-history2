@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.h#15 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.h#16 $
 **
 ** Definition of QWidgetStack class
 **
@@ -67,7 +67,8 @@ public slots:
 protected:
     void frameChanged();
     void resizeEvent( QResizeEvent * );
-
+    QSize	sizeHint() const;
+    
     virtual void setChildGeometries();
 
 private:

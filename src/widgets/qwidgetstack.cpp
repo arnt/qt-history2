@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#34 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -30,6 +30,8 @@
 #include "qlayout.h"
 #include "qbutton.h"
 #include "qbuttongroup.h"
+
+#include "qapplication.h"
 
 class QWidgetStackPrivate {
 public:
@@ -320,6 +322,7 @@ void QWidgetStack::setChildGeometries()
     l->setColStretch( 1, 1 );
     l->addWidget( invisible, 1, 1 );
     l->activate();
+    QApplication::postEvent( parent(), new QEvent( QEvent::LayoutHint ) );
     if ( topWidget && invisible )
 	topWidget->setGeometry( invisible->geometry() );
 }
@@ -415,4 +418,34 @@ void QWidgetStack::resizeEvent( QResizeEvent * e )
     QFrame::resizeEvent( e );
     if ( topWidget && invisible )
 	topWidget->setGeometry( invisible->geometry() );
+}
+
+
+/*!
+  \reimp
+*/
+
+QSize QWidgetStack::sizeHint() const
+{
+    if ( l )
+	return QFrame::sizeHint();
+
+    //We need a sensible sizeHint before the layout is constructed.
+
+    QSize size(0,0); 
+    if ( children() ) {
+	const QObjectList * c = children();
+	QObjectListIt it( *c );
+	QObject * o;
+
+	while( (o=it.current()) != 0 ) {
+	    ++it;
+	    if ( o->isWidgetType() )
+		if ( o != topWidget )
+		    size = size.expandedTo( ((QWidget *)o)->sizeHint() );
+	}
+    }
+    if ( size.isNull() )
+	return QSize(50,50);//###
+    return size;
 }
