@@ -1105,13 +1105,17 @@ int QSplitter::indexOfHandle(QSplitterHandle *handle) const
 }
 
 /*!
-    Returns the handle for the item in the splitter's layout at the
+    Returns the handle to the right (or below) for the item in the splitter's layout at the
     given \a index.
 
+    For Arabic, Hebrew and other right-to-left languages the layout is
+    reversed. The handle will be to the left of the widget at \a index.
     \sa widget()
 */
 QSplitterHandle *QSplitter::handle(int index) const
 {
+    if (index < 0 || index >= d->list.size())
+        return 0;
     return d->list.at(index)->handle;
 }
 
@@ -1122,6 +1126,8 @@ QSplitterHandle *QSplitter::handle(int index) const
 */
 QWidget *QSplitter::widget(int index) const
 {
+    if (index < 0 || index >= d->list.size())
+        return 0;
     return d->list.at(index)->widget;
 }
 
