@@ -1242,7 +1242,11 @@ void QFontDatabase::createDatabase()
 
 #endif
 
-
+#ifdef _WS_MAC_
+void QFontDatabase::createDatabase()
+{
+}
+#endif
 
 
 #if 0
