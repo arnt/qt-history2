@@ -1012,11 +1012,57 @@ QTextTable *QTextCursor::currentTable() const
     return d->tableAt(d->position);
 }
 
+/*!
+  Inserts a frame at the current cursor position and places the cursor inside the frame.
 
+  If the cursor holds a selection the whole selection is moved inside the frame.
+*/
 QTextFrame *QTextCursor::insertFrame(const QTextFrameFormat &format)
 {
-    // #############3
-    return 0;
+    if (!d)
+        return 0;
+
+    d->pieceTable->beginEditBlock();
+    QTextFormatCollection *c = d->pieceTable->formatCollection();
+    QTextFrame *frame = qt_cast<QTextFrame *>(c->createGroup(format));
+    Q_ASSERT(frame);
+
+    // #### using the default block format below might be wrong
+
+    // beginning of frame before pos1 and end after pos2.
+    int pos1 = selectionStart();
+    QTextPieceTable::FragmentIterator f = d->pieceTable->find(pos1);
+    if (pos1 == 0 || pos1 != f.position()
+        || d->pieceTable->buffer().at(f->stringPosition) != QTextParagraphSeparator) {
+        d->insertBlock(d->blockFormat());
+    }
+
+    int cp = d->position;
+    int ca = d->anchor;
+
+    int pos2 = selectionEnd();
+    f = d->pieceTable->find(pos2+1);
+    if (pos2+1 == d->pieceTable->length() || pos2+1 != f.position()
+        || d->pieceTable->buffer().at(f->stringPosition) != QTextParagraphSeparator) {
+        d->insertBlock(d->blockFormat());
+    }
+
+    d->position = cp;
+    d->anchor = ca;
+
+    QTextCharFormat cfmt;
+    cfmt.setGroup(frame);
+
+    d->pieceTable->setCharFormat(pos1, 1, cfmt, QTextPieceTable::MergeFormat);
+    d->pieceTable->setCharFormat(pos2, 1, cfmt, QTextPieceTable::MergeFormat);
+
+    frame->d_func()->fragment_start = d->pieceTable->find(pos1).n;
+    frame->d_func()->fragment_end = d->pieceTable->find(pos2+1).n;
+
+    d->adjustCursor(NoMove);
+    d->pieceTable->endEditBlock();
+
+    return frame;
 }
 
 

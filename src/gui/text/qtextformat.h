@@ -22,6 +22,7 @@ class QTextImageFormat;
 class QTextFormat;
 class QTextBlockIterator;
 class QTextGroup;
+class QTextCursor;
 
 class Q_GUI_EXPORT QTextFormat
 {
@@ -452,6 +453,8 @@ class QTextFrame : public QTextGroup
 {
     Q_DECLARE_PRIVATE(QTextFrame);
     Q_OBJECT
+    friend class QTextCursor;
+
 protected:
     QTextFrame(QObject *parent);
     ~QTextFrame();

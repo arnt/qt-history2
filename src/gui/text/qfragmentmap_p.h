@@ -173,6 +173,8 @@ public:
 
         T *operator*() { Q_ASSERT(!atEnd()); return pt->fragment(n); }
         const T *operator*() const { Q_ASSERT(!atEnd()); return pt->fragment(n); }
+        T *operator->() { Q_ASSERT(!atEnd()); return pt->fragment(n); }
+        const T *operator->() const { Q_ASSERT(!atEnd()); return pt->fragment(n); }
 
         int position() const { Q_ASSERT(!atEnd()); return pt->data.position(n); }
         const T *value() const { Q_ASSERT(!atEnd()); return pt->fragment(n); }
@@ -211,6 +213,7 @@ public:
         bool operator<(const ConstIterator &it) const { return position() < it.position(); }
 
         const T *operator*()  const { Q_ASSERT(!atEnd()); return pt->fragment(n); }
+        const T *operator->()  const { Q_ASSERT(!atEnd()); return pt->fragment(n); }
 
         int position() const { Q_ASSERT(!atEnd()); return pt->data.position(n); }
         int size() const { Q_ASSERT(!atEnd()); return pt->data.size(n); }
