@@ -64,7 +64,6 @@
 #include <limits.h>
 
 static bool qt_update_cell_widget = TRUE;
-bool qt_table_return_null_strings = FALSE;
 
 class Q_EXPORT QTableHeader : public QHeader
 {
@@ -6391,8 +6390,9 @@ bool QTableHeader::isSectionStretchable( int s ) const
 
 void QTableHeader::swapSections( int oldIdx, int newIdx )
 {
-    qt_table_return_null_strings = TRUE;
-     QIconSet is;
+    extern bool qt_qheader_label_return_null_strings; // qheader.cpp
+    qt_qheader_label_return_null_strings = TRUE;
+    QIconSet is;
     bool his = FALSE;
     if ( iconSet( oldIdx ) ) {
 	his = TRUE;
@@ -6408,7 +6408,7 @@ void QTableHeader::swapSections( int oldIdx, int newIdx )
 	setLabel( newIdx, is, l );
     else if ( !l.isNull() )
 	setLabel( newIdx, l );
-    qt_table_return_null_strings = FALSE;
+    qt_qheader_label_return_null_strings = FALSE;
 
      int w1 = sectionSize( oldIdx );
      int w2 = sectionSize( newIdx );
