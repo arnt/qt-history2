@@ -74,6 +74,7 @@ public:
     void checkTimeStamp();
     void addFunctionCode( MetaDataBase::Function function );
     void functionNameChanged( const QString &oldName, const QString &newName );
+    void functionRetTypeChanged( const QString &fuName, const QString &oldType, const QString &newType );
 
     void showFormWindow();
     SourceEditor *showEditor();

@@ -640,6 +640,20 @@ void FormFile::functionNameChanged( const QString &oldName, const QString &newNa
     }
 }
 
+void FormFile::functionRetTypeChanged( const QString &fuName, const QString &oldType, const QString &newType )
+{
+    if ( !cod.isEmpty() ) {
+	QString oldFunct = oldType + " " + QString( formWindow()->name() ) + "::" + fuName;
+	QString newFunct = newType + " " + QString( formWindow()->name() ) + "::" + fuName;
+
+	int i = cod.find( oldFunct );
+	if ( i != -1 ) {
+	    cod.remove( i, oldFunct.length() );
+	    cod.insert( i, newFunct );
+	}
+    }
+}
+
 QString FormFile::formName() const
 {
     FormFile* that = (FormFile*) this;

@@ -552,47 +552,6 @@ private:
 
 };
 
-// --- obsolete...
-/*
-class AddSlotCommand : public Command
-{
-public:
-    AddSlotCommand( const QString &name, FormWindow *fw, const QCString &s, const QString& spec,
-		    const QString &a, const QString &l, const QString &rt );
-
-    void execute();
-    void unexecute();
-    Type type() const { return AddSlot; }
-
-private:
-    QCString slot;
-    QString specifier;
-    QString access;
-    QString language;
-    QString returnType;
-
-};
-
-class RemoveSlotCommand : public Command
-{
-public:
-    RemoveSlotCommand( const QString &name, FormWindow *fw, const QCString &s, const QString& spec,
-		       const QString &a, const QString &l, const QString &rt );
-
-    void execute();
-    void unexecute();
-    Type type() const { return RemoveSlot; }
-
-private:
-    QCString slot;
-    QString specifier;
-    QString access;
-    QString language;
-    QString returnType;
-
-};
-
-// ----------------------*/
 
 class AddFunctionCommand : public Command
 {

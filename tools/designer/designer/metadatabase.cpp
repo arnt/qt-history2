@@ -1606,19 +1606,3 @@ bool MetaDataBase::hasObject( QObject *o )
 {
     return !!db->find( o );
 }
-
-void MetaDataBase::functionNameChanged( QObject *o, const QString &oldName, const QString &newName )
-{
-    if ( !o )
-	return;
-    setupDataBase();
-    MetaDataBaseRecord *r = db->find( (void*)o );
-    if ( !r ) {
-	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
-		  o, o->name(), o->className() );
-	return;
-    }
-
-    ( (FormWindow*)o )->formFile()->functionNameChanged( oldName, newName );
-}
-
