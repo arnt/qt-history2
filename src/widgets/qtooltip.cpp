@@ -41,7 +41,6 @@
 #include "qguardedptr.h"
 #include "qtimer.h"
 #include "qeffects_p.h"
-#include "qcleanuphandler.h"
 
 static bool globally_enabled = TRUE;
 
@@ -137,9 +136,6 @@ private:
 // We have a global, internal QTipManager object
 
 static QTipManager *tipManager	  = 0;
-static bool	    initializedTM = FALSE;
-
-QGuardedCleanupHandler<QTipManager> qtip_cleanup_manager;
 
 static void initTipManager()
 {
@@ -147,15 +143,11 @@ static void initTipManager()
 	tipManager = new QTipManager;
 	Q_CHECK_PTR( tipManager );
     }
-    if ( !initializedTM ) {
-	initializedTM = TRUE;
-	qtip_cleanup_manager.add( tipManager );
-    }
 }
 
 
 QTipManager::QTipManager()
-    : QObject( 0, "toolTipManager" )
+    : QObject( qApp, "toolTipManager" )
 {
     tips = new QPtrDict<QTipManager::Tip>( 313 );
     currentTip = 0;
@@ -194,6 +186,8 @@ QTipManager::~QTipManager()
     }
 
     delete label;
+
+    tipManager = 0;
 }
 
 void QTipManager::add( const QRect &gm, QWidget *w,

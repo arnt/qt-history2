@@ -450,7 +450,6 @@ static bool sortAscending = TRUE;
 static bool detailViewMode = FALSE;
 
 static QCleanupHandler<QPixmap> qfd_cleanup_pixmap;
-static QGuardedCleanupHandler<QFileIconProvider> qfd_cleanup_fip;
 static QCleanupHandler<QSize> qfd_cleanup_size;
 static QCleanupHandler<QString> qfd_cleanup_string;
 
@@ -464,7 +463,7 @@ static bool isDirectoryMode( int m )
 class QWindowsIconProvider : public QFileIconProvider
 {
 public:
-    QWindowsIconProvider( QWidget *parent=0, const char *name=0 );
+    QWindowsIconProvider( QObject *parent=0, const char *name=0 );
     ~QWindowsIconProvider();
 
     const QPixmap * pixmap( const QFileInfo &fi );
@@ -524,8 +523,7 @@ static void makeVariables() {
 	sortFilesBy = (int)QDir::Name;
 	detailViewMode = FALSE;
 #if defined(Q_WS_WIN)
-	fileIconProvider = new QWindowsIconProvider();
-	qfd_cleanup_fip.add( fileIconProvider );
+	fileIconProvider = new QWindowsIconProvider( qApp );
 #endif
     }
 }
@@ -4257,7 +4255,7 @@ static void initPixmap( QPixmap &pm )
     pm.fill( Qt::white );
 }
 
-QWindowsIconProvider::QWindowsIconProvider( QWidget *parent, const char *name )
+QWindowsIconProvider::QWindowsIconProvider( QObject *parent, const char *name )
     : QFileIconProvider( parent, name )
 {
     pixw = GetSystemMetrics( SM_CXSMICON );
@@ -4335,6 +4333,8 @@ QWindowsIconProvider::QWindowsIconProvider( QWidget *parent, const char *name )
 
 QWindowsIconProvider::~QWindowsIconProvider()
 {
+    if ( this == fileIconProvider )
+	fileIconProvider = 0;
 }
 
 const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )

@@ -48,7 +48,6 @@
 #include "qtooltip.h"
 #include "qsimplerichtext.h"
 #include "qstylesheet.h"
-#include "qcleanuphandler.h"
 
 // REVISED: warwick
 /*!
@@ -184,8 +183,6 @@ private slots:
 // static, but static the less-typing way
 static QWhatsThisPrivate * wt = 0;
 
-static QGuardedCleanupHandler<QWhatsThisPrivate> qwt_cleanup_private;
-
 // the item
 QWhatsThisPrivate::WhatsThisItem::~WhatsThisItem()
 {
@@ -289,7 +286,7 @@ void QWhatsThisButton::mouseReleased()
 
 // the what's this manager class
 QWhatsThisPrivate::QWhatsThisPrivate()
-    : QObject( 0, "global what's this object" )
+    : QObject( qApp, "global what's this object" )
 {
     whatsThat = 0;
     dict = new QPtrDict<QWhatsThisPrivate::WhatsThisItem>;
@@ -431,7 +428,6 @@ void QWhatsThisPrivate::setUpWhatsThis()
 {
     if ( !wt ) {
 	wt = new QWhatsThisPrivate();
-	qwt_cleanup_private.add( wt );
     }
 }
 
