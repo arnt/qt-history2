@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatastream.h#16 $
+** $Id: //depot/qt/main/src/tools/qdatastream.h#17 $
 **
 ** Definition of QDataStream class
 **
@@ -23,7 +23,6 @@ public:
     QDataStream();
     QDataStream( QIODevice * );
     QDataStream( QByteArray, int mode );
-    QDataStream( QByteArray );
     virtual ~QDataStream();
 
     QIODevice	*device() const;
