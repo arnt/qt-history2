@@ -63,7 +63,7 @@ public:
         typedef T &reference;
 
         inline const_iterator() {}
-        inline const_iterator(typename Hash::const_iterator i);
+        inline const_iterator(typename Hash::const_iterator o) : i(o) {}
         inline const_iterator(const const_iterator &o) : i(o.i) {}
         inline const_iterator &operator=(const const_iterator &o) { i = o.i; return *this; }
         inline const T &operator*() const { return i.key(); }
@@ -122,10 +122,6 @@ public:
 private:
     Hash q_hash;
 };
-
-template <class T>
-Q_INLINE_TEMPLATE QSet<T>::const_iterator::const_iterator(typename Hash::const_iterator ai)
-    : i(ai) {}
 
 template <class T>
 Q_INLINE_TEMPLATE void QSet<T>::reserve(int asize) { q_hash.reserve(asize); }
