@@ -665,8 +665,9 @@ void QTextView::doKeyboardAction( KeyboardActionPrivate action )
 
     if ( hasFocus() || viewport()->hasFocus() ) {
 	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
-	setMicroFocusHint( cursor->x() - contentsX(),
-			   cursor->y() + cursor->parag()->rect().y() - contentsY(), 0, h, TRUE );
+	QFont f = cursor->parag()->at( cursor->index() )->format()->font();
+	setMicroFocusHint( cursor->x() - contentsX() + frameWidth(),
+			   cursor->y() + cursor->parag()->rect().y() - contentsY() + frameWidth(), 0, h, TRUE, &f );
     }
 
     updateCurrentFormat();
@@ -774,8 +775,9 @@ void QTextView::removeSelectedText()
 #endif
     if ( hasFocus() || viewport()->hasFocus() ) {
 	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
-	setMicroFocusHint( cursor->x() - contentsX(),
-			   cursor->y() + cursor->parag()->rect().y() - contentsY(), 0, h, TRUE );
+	QFont f = cursor->parag()->at( cursor->index() )->format()->font();
+	setMicroFocusHint( cursor->x() - contentsX() + frameWidth(),
+			   cursor->y() + cursor->parag()->rect().y() - contentsY() + frameWidth(), 0, h, TRUE, &f );
     }
 }
 
@@ -820,8 +822,9 @@ void QTextView::moveCursor( MoveDirectionPrivate direction, bool shift, bool con
     updateCurrentFormat();
     if ( hasFocus() || viewport()->hasFocus() ) {
 	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
-	setMicroFocusHint( cursor->x() - contentsX(),
-			   cursor->y() + cursor->parag()->rect().y() - contentsY(), 0, h, TRUE );
+	QFont f = cursor->parag()->at( cursor->index() )->format()->font();
+	setMicroFocusHint( cursor->x() - contentsX() + frameWidth(),
+			   cursor->y() + cursor->parag()->rect().y() - contentsY() + frameWidth(), 0, h, TRUE, &f );
     }
 }
 
@@ -874,8 +877,9 @@ void QTextView::moveCursor( MoveDirectionPrivate direction, bool control )
 
     if ( hasFocus() || viewport()->hasFocus() ) {
 	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
-	setMicroFocusHint( cursor->x() - contentsX(),
-			   cursor->y() + cursor->parag()->rect().y() - contentsY(), 0, h, TRUE );
+	QFont f = cursor->parag()->at( cursor->index() )->format()->font();
+	setMicroFocusHint( cursor->x() - contentsX() + frameWidth(),
+			   cursor->y() + cursor->parag()->rect().y() - contentsY() + frameWidth(), 0, h, TRUE, &f );
     }
     updateCurrentFormat();
 }
@@ -1305,8 +1309,9 @@ void QTextView::placeCursor( const QPoint &pos, QTextCursor *c )
     c->place( pos,  s );
     if ( hasFocus() || viewport()->hasFocus() ) {
 	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
-	setMicroFocusHint( cursor->x() - contentsX(),
-			   cursor->y() + cursor->parag()->rect().y() - contentsY(), 0, h, TRUE );
+	QFont f = cursor->parag()->at( cursor->index() )->format()->font();
+	setMicroFocusHint( cursor->x() - contentsX() + frameWidth(),
+			   cursor->y() + cursor->parag()->rect().y() - contentsY() + frameWidth(), 0, h, TRUE, &f );
     }
 }
 
@@ -1448,8 +1453,9 @@ void QTextView::insert( const QString &text, bool indent, bool checkNewLine, boo
     }
     if ( hasFocus() || viewport()->hasFocus() ) {
 	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
-	setMicroFocusHint( cursor->x() - contentsX(),
-			   cursor->y() + cursor->parag()->rect().y() - contentsY(), 0, h, TRUE );
+	QFont f = cursor->parag()->at( cursor->index() )->format()->font();
+	setMicroFocusHint( cursor->x() - contentsX() + frameWidth(),
+			   cursor->y() + cursor->parag()->rect().y() - contentsY() + frameWidth(), 0, h, TRUE, &f );
     }
 }
 
@@ -1479,8 +1485,9 @@ void QTextView::undo()
     emit textChanged();
     if ( hasFocus() || viewport()->hasFocus() ) {
 	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
-	setMicroFocusHint( cursor->x() - contentsX(),
-			   cursor->y() + cursor->parag()->rect().y() - contentsY(), 0, h, TRUE );
+	QFont f = cursor->parag()->at( cursor->index() )->format()->font();
+	setMicroFocusHint( cursor->x() - contentsX() + frameWidth(),
+			   cursor->y() + cursor->parag()->rect().y() - contentsY() + frameWidth(), 0, h, TRUE, &f );
     }
 }
 
@@ -1511,8 +1518,9 @@ void QTextView::redo()
     emit textChanged();
     if ( hasFocus() || viewport()->hasFocus() ) {
 	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
-	setMicroFocusHint( cursor->x() - contentsX(),
-			   cursor->y() + cursor->parag()->rect().y() - contentsY(), 0, h, TRUE );
+	QFont f = cursor->parag()->at( cursor->index() )->format()->font();
+	setMicroFocusHint( cursor->x() - contentsX() + frameWidth(),
+			   cursor->y() + cursor->parag()->rect().y() - contentsY() + frameWidth(), 0, h, TRUE, &f );
     }
 }
 
@@ -1524,8 +1532,9 @@ void QTextView::paste()
     pasteSubType( "plain" );
     if ( hasFocus() || viewport()->hasFocus() ) {
 	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
-	setMicroFocusHint( cursor->x() - contentsX(),
-			   cursor->y() + cursor->parag()->rect().y() - contentsY(), 0, h, TRUE );
+	QFont f = cursor->parag()->at( cursor->index() )->format()->font();
+	setMicroFocusHint( cursor->x() - contentsX() + frameWidth(),
+			   cursor->y() + cursor->parag()->rect().y() - contentsY() + frameWidth(), 0, h, TRUE, &f );
     }
 #endif
 }
@@ -1560,8 +1569,9 @@ void QTextView::cut()
     }
     if ( hasFocus() || viewport()->hasFocus() ) {
 	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
-	setMicroFocusHint( cursor->x() - contentsX(),
-			   cursor->y() + cursor->parag()->rect().y() - contentsY(), 0, h, TRUE );
+	QFont f = cursor->parag()->at( cursor->index() )->format()->font();
+	setMicroFocusHint( cursor->x() - contentsX() + frameWidth(),
+			   cursor->y() + cursor->parag()->rect().y() - contentsY() + frameWidth(), 0, h, TRUE, &f );
     }
 }
 
