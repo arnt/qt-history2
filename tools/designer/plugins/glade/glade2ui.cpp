@@ -2,7 +2,7 @@
 **
 ** Converts a Glade .glade file into a .ui file.
 **
-** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -92,7 +92,7 @@ static const struct {
     const char *name;
     const char *menuText;
 } stockMenuItems[] = {
-    { "ABOUT", "&About..." },
+    { "ABOUT", "&About" },
     { "CLEAR", "C&lear" },
     { "CLOSE", "&Close" },
     { "CLOSE_WINDOW", "&Close This Window" },

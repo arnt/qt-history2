@@ -201,7 +201,7 @@
             <string>About</string>
         </property>
         <property name="menuText">
-            <string>About...</string>
+            <string>About</string>
         </property>
     </action>
     <action>
@@ -212,7 +212,7 @@
             <string>About Qt</string>
         </property>
         <property name="menuText">
-            <string>About Qt...</string>
+            <string>About Qt</string>
         </property>
     </action>
     <action>

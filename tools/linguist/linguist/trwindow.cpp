@@ -2452,8 +2452,8 @@ void TrWindow::setupMenuBar()
     manualAct = new Action( helpp, tr("&Manual..."), this, SLOT(manual()),
 			    Key_F1 );
     helpp->insertSeparator();
-    aboutAct = new Action( helpp, tr("&About..."), this, SLOT(about()) );
-    aboutQtAct = new Action( helpp, tr("About &Qt..."), this, SLOT(aboutQt()) );
+    aboutAct = new Action( helpp, tr("&About"), this, SLOT(about()) );
+    aboutQtAct = new Action( helpp, tr("About &Qt"), this, SLOT(aboutQt()) );
     helpp->insertSeparator();
     whatsThisAct = new Action( helpp, tr("&What's This?"),
 			       this, SLOT(whatsThis()), SHIFT + Key_F1 );

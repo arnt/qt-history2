@@ -968,12 +968,12 @@ void MainWindow::setupHelpActions()
     actionHelpManual->setWhatsThis( whatsThisFrom( "Help|Manual" ) );
     connect( actionHelpManual, SIGNAL( activated() ), this, SLOT( helpManual() ) );
 
-    actionHelpAbout = new QAction( tr("About"), QPixmap(), tr("&About..."), 0, this, 0 );
+    actionHelpAbout = new QAction( tr("About"), QPixmap(), tr("&About"), 0, this, 0 );
     actionHelpAbout->setStatusTip( tr("Displays information about Qt Designer") );
     actionHelpAbout->setWhatsThis( whatsThisFrom( "Help|About" ) );
     connect( actionHelpAbout, SIGNAL( activated() ), this, SLOT( helpAbout() ) );
 
-    actionHelpAboutQt = new QAction( tr("About Qt"), QPixmap(), tr("About &Qt..."), 0, this, 0 );
+    actionHelpAboutQt = new QAction( tr("About Qt"), QPixmap(), tr("About &Qt"), 0, this, 0 );
     actionHelpAboutQt->setStatusTip( tr("Displays information about the Qt Toolkit") );
     actionHelpAboutQt->setWhatsThis( whatsThisFrom( "Help|About Qt" ) );
     connect( actionHelpAboutQt, SIGNAL( activated() ), this, SLOT( helpAboutQt() ) );

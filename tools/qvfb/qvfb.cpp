@@ -207,7 +207,7 @@ void QVFb::createMenu(QMenuData *menu)
     menu->insertItem( "&View", viewMenu );
 
     QPopupMenu *help = new QPopupMenu( this );
-    help->insertItem("About...", this, SLOT(about()));
+    help->insertItem("&About", this, SLOT(about()));
     menu->insertSeparator();
     menu->insertItem( "&Help", help );
 }

@@ -25,8 +25,8 @@ MainWindow::MainWindow( QWidget *parent, const char *name )
     file->insertItem( tr("E&xit"), qApp, SLOT(quit()),
 		      tr("Ctrl+Q", "Quit") );
     QPopupMenu *help = new QPopupMenu( this );
-    help->insertItem( tr("&About..."), this, SLOT(about()), Key_F1 );
-    help->insertItem( tr("About &Qt..."), this, SLOT(aboutQt()) );
+    help->insertItem( tr("&About"), this, SLOT(about()), Key_F1 );
+    help->insertItem( tr("About &Qt"), this, SLOT(aboutQt()) );
 
     menuBar()->insertItem( tr("&File"), file );
     menuBar()->insertSeparator();
