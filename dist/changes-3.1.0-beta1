@@ -91,7 +91,10 @@ a QMutexLocker class to simplify locking and unlocking of mutextes.
 japanese compositions correctly. Added support for AIMM based input
 methods (those working on non asian versions of Win95/98/ME).
 
-##### SQL!!
+- SQL module - added support for prepared query execution and value
+binding. Among other things, this makes it possible to write large
+BLOBs (> 2 KB) to Oracle databases, and write Unicode strings to SQL
+Server databases.
 
 
 ****************************************************************************
@@ -272,6 +275,7 @@ New functions:
 	QVariant( const QPen& )
 	const QPen toPen() const
 	QPen& asPen()
+	bool isNull() const
 
 New enum values:
 	KeySequence, KeySequence, Pen
