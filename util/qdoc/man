@@ -245,7 +245,7 @@ sub parseclassfile {
 
 my ($day, $mon, $year) = (localtime(time))[3..5];
 
-my $mname = ("January", "Febrary", "March", "April", "May", "June", "July",
+my $mname = ("January", "February", "March", "April", "May", "June", "July",
 	    "August", "September", "October", "November", "December")[$mon];
 
 undef $/;

@@ -104,7 +104,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 
 		QStringList &list = project->variables()["SOURCES"];
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-		    t << "# Begin Source File\n\nSOURCE=.\\" << (*it) << endl;
+		    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl;
 		    if ( project->isActiveConfig("moc") &&
 			 (*it).right(qstrlen(Option::moc_ext)) == Option::moc_ext) {
 			QString base = (*it);
@@ -133,7 +133,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		if(project->variables()["IMAGES"].isEmpty())
 		    continue;
 
-		t << "# Begin Source File\n\nSOURCE=.\\" << project->first("QMAKE_IMAGE_COLLECTION") << endl;
+		t << "# Begin Source File\n\nSOURCE=" << project->first("QMAKE_IMAGE_COLLECTION") << endl;
 		t << "# End Source File" << endl;
 	    }
 	    else if(variable == "MSVCDSP_HEADERS") {
@@ -142,7 +142,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 
 		QStringList &list = project->variables()["HEADERS"];
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-		    t << "# Begin Source File\n\nSOURCE=.\\" << (*it) << endl << endl;
+		    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl << endl;
 		    if ( project->isActiveConfig("moc") && !findMocDestination((*it)).isEmpty()) {
 			QString base = (*it);
 			base.replace(QRegExp("\\..*$"), "").upper();
@@ -173,7 +173,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 		    QString base = (*it);
 		    base.replace(QRegExp("\\..*$"), ext);
-		    t << "# Begin Source File\n\nSOURCE=.\\" << base << "\n# End Source File" << endl;
+		    t << "# Begin Source File\n\nSOURCE=" << base << "\n# End Source File" << endl;
 		}
 	    }
 	    else if(variable == "MSVCDSP_TRANSLATIONS" ) {
@@ -208,7 +208,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 				    "\tcopy " + sify +" tmp\\" + sify + "\n"
 				    "# End Custom Build\n\n";
 
-		    t << "# Begin Source File\n\nSOURCE=.\\" << *it << endl;
+		    t << "# Begin Source File\n\nSOURCE=" << *it << endl;
 		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"\n" << build
 		      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\"\n" << build 
 		      << "!ENDIF " << endl << endl;
@@ -252,7 +252,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 
 		QStringList &list = project->variables()["SRCMOC"];
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-		    t << "# Begin Source File\n\nSOURCE=.\\" << (*it) << endl;
+		    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl;
 		    if ( project->isActiveConfig("moc") &&
 			 (*it).right(qstrlen(Option::moc_ext)) == Option::moc_ext) {
 			QString base = (*it);
@@ -292,7 +292,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 
 		QStringList &list = project->variables()["FORMS"];
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-		    t <<  "# Begin Source File\n\nSOURCE=.\\" << (*it) << endl;
+		    t <<  "# Begin Source File\n\nSOURCE=" << (*it) << endl;
 
 		    QString fname = (*it);
 		    fname.replace(QRegExp("\\.ui"), "");
@@ -360,7 +360,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 
 		QStringList &l = project->variables()["LEXSOURCES"];
 		for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-		    t <<  "# Begin Source File\n\nSOURCE=.\\" << (*it) << endl;
+		    t <<  "# Begin Source File\n\nSOURCE=" << (*it) << endl;
 
 		    QString fname = (*it);
 		    fname.replace(QRegExp("\\.l"), Option::lex_mod + Option::cpp_ext.first());
@@ -394,7 +394,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 
 		QStringList &l = project->variables()["YACCSOURCES"];
 		for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-		    t <<  "# Begin Source File\n\nSOURCE=.\\" << (*it) << endl;
+		    t <<  "# Begin Source File\n\nSOURCE=" << (*it) << endl;
 
 		    QString fname = (*it);
 		    fname.replace(QRegExp("\\.y"), Option::yacc_mod);
