@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "proparser.h"
+#include <iostream>
 
 #include <qdir.h>
 #include <qfile.h>
@@ -19,6 +20,8 @@
 #include <qregexp.h>
 #include <qstringlist.h>
 #include <qtextstream.h>
+
+using namespace std;
 
 #ifdef Q_OS_UNIX
 #include <unistd.h>
@@ -76,7 +79,7 @@ QMap<QString, QString> proFileTagMap( const QString& text, QString currentPath )
         QStringList lines = t.split(';');
         QStringList::Iterator line;
         for ( line = lines.begin(); line != lines.end(); ++line ) {
-            QStringList toks = (*line).split(' ');
+            QStringList toks = (*line).split(' ', QString::SkipEmptyParts);
 
             if ( toks.count() >= 3 &&
                 (toks[1] == QString("=") || toks[1] == QString("+=") ||
