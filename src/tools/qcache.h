@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcache.h#1 $
+** $Id: //depot/qt/main/src/tools/qcache.h#2 $
 **
 ** Definition of QCache template/macro class
 **
@@ -35,23 +35,62 @@
 class QCacheM(type) : public QGCache					      \
 {									      \
 public:									      \
+    QCacheM(type)(const QCacheM(type) &c) : QGCache(c) {}                     \
     QCacheM(type)(long maxCost, int size=17,bool cs=TRUE,bool ck=TRUE)        \
-        :QGCache(maxCost,size,cs,ck,0){}                                      \
+        :QGCache(maxCost,size,cs,ck,0) {}                                     \
    ~QCacheM(type)()		      { clear(); }			      \
+    QCacheM(type) &operator=(const QCacheM(type) &c)                          \
+		     { return (QCacheM(type)&) QGCache::operator=(c); }       \
     uint  count()   const	      { return QGCache::count(); }	      \
     uint  size()    const	      { return QGCache::size(); }	      \
     bool  isEmpty() const	      { return QGCache::count() == 0; }       \
-    void  insert( const char *k, const type *d , long c=1, int p=0 )          \
-			              { QGCache::insert(k,(GCI)d,c,p);}       \
+    bool  insert( const char *k, const type *d , long c=1, int p=0 )          \
+			              { return QGCache::insert(k,(GCI)d,c,p);}\
     bool  remove( const char *k )     { return QGCache::remove(k); }	      \
     type *take( const char *k )	      { return (type *)QGCache::take(k); }    \
     void  clear()		      { QGCache::clear(); }		      \
-    type *find( const char *k ) const { return (type *)QGCache::find(k);}     \
+    type *find( const char *k ) const { return (type *)QGCache::find(k); }    \
+    void  reference( const type *d ) const { QGCache::reference(d); }         \
     type *operator[]( const char *k ) const				      \
-                                      { return (type *)QGCache::find(k);}     \
+                                      { return (type *)QGCache::find(k); }    \
     void  statistics() const	      { QGCache::statistics(); }	      \
 private:								      \
     void  deleteItem( GCI d )         { if ( del_item ) delete (type *)d; }   \
+}
+
+
+#if defined(DEFAULT_MACROCLASS)
+#define QCacheIteratordeclare QCacheIteratorMdeclare
+#define QCacheIterator QCacheIteratorM
+#endif
+#define QCacheIteratorM(type) name2(QCacheIteratorM_,type)
+
+#define QCacheIteratorMdeclare(type)					      \
+class QCacheIteratorM(type) : public QGCacheIterator			      \
+{									      \
+public:									      \
+    QCacheIteratorM(type)(const QCacheM(type) &c)                             \
+                              : QGCacheIterator((QGCache &)c){}               \
+    QCacheIteratorM(type)(const QCacheIteratorM(type) &ci)                    \
+                              : QGCacheIterator((QGCacheIterator &)ci){}      \
+   ~QCacheIteratorM(type)()  {}					              \
+    QCacheIteratorM(type) &operator=(const QCacheIteratorM(type)&ci)          \
+        { return ( QCacheIteratorM(type)&)QGCacheIterator::operator=( ci ); } \
+    uint  count()   const    { return QGCacheIterator::count(); }	      \
+    bool  isEmpty() const    { return QGCacheIterator::count() == 0; }	      \
+    bool  atFirst() const    { return QGCacheIterator::atFirst(); }	      \
+    bool  atLast()  const    { return QGCacheIterator::atLast(); }	      \
+    type *toFirst()	     { return (type *)QGCacheIterator::toFirst(); }   \
+    type *toLast()	     { return (type *)QGCacheIterator::toLast(); }    \
+    operator type *() const  { return (type *)QGCacheIterator::get(); }       \
+    type *current()   const  { return (type *)QGCacheIterator::get(); }       \
+    const char *currentKey() const					      \
+    			     { return QGCacheIterator::getKey();}             \
+    type *operator()()	     { return (type *)QGCacheIterator::operator()();} \
+    type *operator++()	     { return (type *)QGCacheIterator::operator++();} \
+    type *operator+=(uint j) { return (type *)QGCacheIterator::operator+=(j);}\
+    type *operator--()	     { return (type *)QGCacheIterator::operator--();} \
+    type *operator-=(uint j) { return (type *)QGCacheIterator::operator-=(j);}\
 }
 
 #endif // USE_MACROCLASS
@@ -67,22 +106,56 @@ private:								      \
 template<class type> class QCacheT : public QGCache
 {
 public:
+    QCacheT<type>(const QCacheM(type) &c) : QGCache(c) {}
     QCacheT(int size=17,bool cs=TRUE,bool ck=TRUE) : QGCache(size,cs,ck,0) {}
    ~QCacheT()			      { clear(); }
+    QCacheT<type> &operator=(const QCacheT<type> &c)
+		     { return (QCacheM<type>&) QGCache::operator=(c); }
     uint  count()   const	      { return QGCache::count(); }
     uint  size()    const	      { return QGCache::size(); }
     bool  isEmpty() const	      { return QGCache::count() == 0; }
-    void  insert( const char *k, const type *d , long c, short p )
-			              { QGCache::insert(k,(GCI)d,c,p);}
+    bool  insert( const char *k, const type *d , long c, short p )
+			              { return QGCache::insert(k,(GCI)d,c,p);}
     bool  remove( const char *k )     { return QGCache::remove(k); }
     type *take( const char *k )	      { return (type *)QGCache::take(k); }
     void  clear()		      { QGCache::clear(); }
     type *find( const char *k ) const { return (type *)QGCache::find(k);}
+    void  reference( const type *d ) const { QGCache::reference((GCI)d); }
     type *operator[]( const char *k ) const
                                       { return (type *)QGCache::find(k);}
     void  statistics() const	      { QGCache::statistics(); }
 private:
     void  deleteItem( GCI d )         { if ( del_item ) delete (type *)d; }
+};
+
+
+#if defined(DEFAULT_TEMPLATECLASS)
+#undef	QCacheIterator
+#define QCacheIterator QCacheIteratorT
+#endif
+
+template<class type> class QCacheIteratorT : public QGCacheIterator
+{
+public:
+    QCacheIteratorT(const QCacheT<type> &l) :QGCacheIterator((QGCache &)l) {}
+    QCacheIteratorM(type)(const QCacheIteratorT<type> &ci)
+                              : QGCacheIterator((QGCacheIterator &)ci){}
+   ~QCacheIteratorT()	      {}
+    QCacheIteratorM(type) &operator=(const QCacheIteratorT<type>&ci)
+        { return ( QCacheIteratorM<type>&)QGCacheIterator::operator=( ci ); }
+    uint  count()   const     { return QGCacheIterator::count(); }
+    bool  isEmpty() const     { return QGCacheIterator::count() == 0; }
+    bool  atFirst() const     { return QGCacheIterator::atFirst(); }
+    bool  atLast()  const     { return QGCacheIterator::atLast(); }
+    type *toFirst()	      { return (type *)QGCacheIterator::toFirst(); }
+    type *toLast()	      { return (type *)QGCacheIterator::toLast(); }
+    operator type *() const   { return (type *)QGCacheIterator::get(); }
+    type *current()   const   { return (type *)QGCacheIterator::get(); }
+    type *operator()()	      { return (type *)QGCacheIterator::operator()();}
+    type *operator++()	      { return (type *)QGCacheIterator::operator++(); }
+    type *operator+=(uint j)  { return (type *)QGCacheIterator::operator+=(j);}
+    type *operator--()	      { return (type *)QGCacheIterator::operator--(); }
+    type *operator-=(uint j)  { return (type *)QGCacheIterator::operator-=(j);}
 };
 
 #endif // USE_TEMPLATECLASS

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#1 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#2 $
 **
 ** Implementation of QGCache class
 **
@@ -16,7 +16,7 @@
 #include "qstring.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgcache.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgcache.cpp#2 $";
 #endif
 
 
@@ -65,8 +65,7 @@ public:
     bool  insert( const char *key, const CacheItem *ci )
 		  { return QGDict::look(key,(GCI)ci,1)!=0;}
     bool  remove( const char *key )    { QGDict::remove(key); }
-    void  clear()                      { QGDict::clear();     }
-    void  statistics() const	       { QGDict::statistics(); }	      \
+    void statistics()                  { QGDict::statistics(); }
 };
 
 
@@ -80,7 +79,7 @@ QGCache::QGCache( long maxCost, uint size,
     lruList = new QCList;
     CHECK_PTR( lruList );
     lruList->setAutoDelete( TRUE );
-    copyK   = copyKeys ? TRUE : FALSE;   // copyK is a bitfield, play safe
+    copyK   = copyKeys != 0;           // copyK is a bitfield, play safe
     dict    = new QCDict( size, caseS, FALSE, trivial );
     CHECK_PTR( dict );
     mCost   = maxCost;
@@ -96,6 +95,11 @@ QGCache::QGCache( long maxCost, uint size,
 #endif
 }
 
+QGCache::QGCache( const QGCache & )
+{
+    fatal("QGCache::QGCache( QGCache & ): You can't copy a cache.");
+}
+
 QGCache::~QGCache()
 {
     clear();		      // delete everything
@@ -103,10 +107,15 @@ QGCache::~QGCache()
     delete lruList;           // to be called for all cached items!!!
 }
 
+QGCache &QGCache::operator=( const QGCache & )
+{
+    fatal("QGCache::operator= : You can't copy a cache.");
+    return *this;             // satisfy the compiler
+}
 
 uint QGCache::count() const
 {
-    return dict->count();
+    return lruList->count();
 }
 
 uint QGCache::size() const
@@ -124,7 +133,7 @@ long QGCache::totalCost() const
     return tCost;
 }
 
-long QGCache::setMaxCost( long maxC )
+void QGCache::setMaxCost( long maxC )
 {
     if ( maxC < totalCost() )
         makeRoomFor( totalCost() - maxC );  // remove excess cost
@@ -147,16 +156,17 @@ GCI QGCache::find( const char *key ) const
     return tmp ? tmp->data : 0;
 }
 
-void QGCache::insert( const char *key, GCI data, long cost, int priority )
+bool QGCache::insert( const char *key, GCI data, long cost, int priority )
 {
-    if ( tCost + cost > mCost )
+    if ( tCost + cost > mCost ) {
         if ( !makeRoomFor( tCost + cost - mCost, priority ) ) {
 #if defined(DEBUG)
             lruList->insertMisses++;
 #endif
-            return;
+            return FALSE;
 	}
 #if defined(DEBUG)
+    }
     lruList->inserts++;
     lruList->insertCosts += cost;
 #endif
@@ -166,18 +176,26 @@ void QGCache::insert( const char *key, GCI data, long cost, int priority )
     lruList->append( ci );
     dict->insert( key, ci );
     tCost += cost;
+    return TRUE;
+}
+
+void QGCache::reference( GCI data ) const
+{
+    CacheItem *tmp = lruList->first();
+    while( tmp ) {
+        if ( tmp->data == data ) {
+            lruList->reference( tmp );
+            return;
+        }
+        tmp = lruList->next();
+    }
 }
 
 bool QGCache::remove( const char *key )
 {
-    CacheItem *tmp = dict->take( key );  // remove from dict
-    if ( tmp ) {
-        tCost -= tmp->cost;
-        deleteItem( tmp->data ); 
-        if ( copyK )
-            delete[] (char*) tmp->key;
-        lruList->remove( tmp );         // remove from list and delete
-    }
+    GCI tmp = take( key );
+    if ( tmp )
+        deleteItem( tmp ); 
     return tmp != 0;
 }
 
@@ -270,7 +288,7 @@ void QGCache::statistics() const
 
 void QCList::reference( CacheItem *ci )
 {
-    if ( findRef( ci ) ) {
+    if ( findRef( ci ) >= 0 ) {
         take();
         ci->skipPriority = ci->priority;
         append( ci );
@@ -289,3 +307,103 @@ void QCList::append( CacheItem *ci )
     else
         insert( ci );
 }
+
+// --------------------------------------------------------------------------
+// QGListIterator member functions
+//
+
+declare(QListIteratorM,CacheItem);
+
+
+QGCacheIterator::QGCacheIterator( const QGCache &c )
+{
+    it = new QListIteratorM(CacheItem)(*c.lruList);
+    CHECK_PTR( it );
+}
+
+QGCacheIterator::QGCacheIterator( const QGCacheIterator &ci )
+{
+    it = new QListIteratorM(CacheItem)(*ci.it);
+    CHECK_PTR( it );
+}
+
+QGCacheIterator::~QGCacheIterator()
+{
+    delete it;
+}
+
+QGCacheIterator &QGCacheIterator::operator=( const QGCacheIterator &ci )
+{
+    *it = *ci.it;
+    return *this;
+}
+
+uint QGCacheIterator::count() const
+{
+    return it->count();
+}
+
+bool  QGCacheIterator::atFirst() const
+{
+    return it->atFirst();
+}
+
+bool QGCacheIterator::atLast() const
+{
+    return it->atLast();
+}
+
+GCI QGCacheIterator::toFirst()
+{
+    register CacheItem *tmp = it->toFirst();
+    return tmp ? tmp->data : 0;
+}
+
+GCI QGCacheIterator::toLast()
+{
+    register CacheItem *tmp = it->toLast();
+    return tmp ? tmp->data : 0;
+}
+
+GCI QGCacheIterator::get() const
+{
+    register CacheItem *tmp = it->current();
+    return tmp ? tmp->data : 0;
+}
+
+const char *QGCacheIterator::getKey() const
+{
+    register CacheItem *tmp = it->current();
+    return tmp ? tmp->key : 0;
+}
+
+GCI QGCacheIterator::operator()()
+{
+    register CacheItem *tmp = it->operator()();
+    return tmp ? tmp->data : 0;
+}
+	
+GCI QGCacheIterator::operator++()
+{
+    register CacheItem *tmp = it->operator++();
+    return tmp ? tmp->data : 0;
+}
+
+GCI QGCacheIterator::operator+=(uint i)
+{
+    register CacheItem *tmp = it->operator+=(i);
+    return tmp ? tmp->data : 0;
+}
+
+GCI QGCacheIterator::operator--()
+{
+    register CacheItem *tmp = it->operator--();
+    return tmp ? tmp->data : 0;
+}
+
+GCI QGCacheIterator::operator-=(uint i)
+{
+    register CacheItem *tmp = it->operator-=(i);
+    return tmp ? tmp->data : 0;
+}
+
