@@ -8,6 +8,7 @@
 #include <qbuttongroup.h>
 #include <qpushbutton.h>
 #include <qtabwidget.h>
+#include <qmessagebox.h>
 
 ResultWindow::ResultWindow ( QWidget * parent, const char * name, WFlags f )
     : SqlBrowseWindowBase(parent, name, f)
@@ -32,7 +33,7 @@ ResultWindow::~ResultWindow()
 void ResultWindow::slotExec()
 {
     sql.setName( tableList->currentText() );
-    sql.select( sql.primaryIndex() );
+    sql.setSort( sql.primaryIndex() );
     dataGrid->setCursor( &sql, TRUE );
     dataGrid->refresh();
 }
