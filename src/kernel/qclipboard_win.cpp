@@ -454,7 +454,7 @@ QMimeSource* QClipboard::data( Mode mode ) const
     return d->provider();
 }
 
-void QClipboard::setData( QMimeSource* src, Mode, mode )
+void QClipboard::setData( QMimeSource* src, Mode mode )
 {
     if ( mode != Clipboard ) return;
 
