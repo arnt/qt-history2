@@ -2106,7 +2106,8 @@ uint QVariant::toUInt( bool * ok ) const
     Returns the variant as a bool if the variant has type() Bool.
 
     Returns TRUE if the variant has type Int, UInt or Double and its
-    value is non-zero; otherwise returns FALSE.
+    value is non-zero, or if the variant has type String and its lower-case
+    content is not empty, "0" or "false"; otherwise returns FALSE.
 
     \sa asBool()
 */
@@ -2121,6 +2122,11 @@ bool QVariant::toBool() const
 	return d->value.i != 0;
     case UInt:
 	return d->value.u != 0;
+    case String: 
+	{
+	    QString str = toString().lower();
+	    return !(str == "0" || str == "false" || str.isEmpty() );
+	}
     default:
 	return FALSE;
     }
@@ -2677,7 +2683,7 @@ bool QVariant::canCast( Type t ) const
 
     switch ( t ) {
     case Bool:
-	return d->typ == Double || d->typ == Int || d->typ == UInt;
+	return d->typ == Double || d->typ == Int || d->typ == UInt || d->typ == String;
     case Int:
 	return d->typ == String || d->typ == Double || d->typ == Bool || d->typ == UInt  || d->typ == KeySequence;
     case UInt:
