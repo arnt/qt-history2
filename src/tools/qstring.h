@@ -223,12 +223,12 @@ public:
     inline QString &append(char c)
     { return append(QChar(c)); }
     inline QString &append(const QByteArray &a)
-    { return append(a); }
+    { return append(a.constData()); }
     QString &prepend(const char *s);
     inline QString &prepend(char c)
     { return prepend(QChar(c)); }
     inline QString &prepend(const QByteArray &a)
-    { return append(a); }
+    { return prepend(a.constData()); }
     inline QString &operator+=(const char *s)
     { return append(s); }
     inline QString &operator+=(char c)
