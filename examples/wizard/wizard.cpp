@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/wizard/wizard.cpp#1 $
+** $Id: //depot/qt/main/examples/wizard/wizard.cpp#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -32,19 +32,18 @@ Wizard::Wizard( QWidget *parent, const char *name )
 void Wizard::setupPage1()
 {
     page1 = new QHBox( this );
+    page1->setSpacing(8);
 
     QLabel *info = new QLabel( page1 );
-    info->setBackgroundColor( QColor( 57, 63, 180 ) );
+    info->setPalette( yellow );
     info->setText( "Enter your personal\n"
                    "key here.\n\n"
                    "Your personal key\n"
                    "consists of 4 digits" );
-    info->setAlignment( Qt::AlignTop );
     info->setMargin( 8 );
+    info->setAlignment( AlignTop|AlignLeft );
 
-    QHBox *page = new QHBox( page1 );
-
-    QLabel* l = new QLabel( "Key:", page1 );
+    (void)new QLabel( "Key:", page1 );
 
     key = new QLineEdit( page1 );
     key->setMaxLength( 4 );
@@ -60,16 +59,17 @@ void Wizard::setupPage1()
 void Wizard::setupPage2()
 {
     page2 = new QHBox( this );
+    page2->setSpacing(8);
 
     QLabel *info = new QLabel( page2 );
-    info->setBackgroundColor( QColor( 57, 63, 180 ) );
+    info->setPalette( yellow );
     info->setText( "\n"
                    "  Enter your personal  \n"
                    "  data here.  \n\n"
                    "  The required fields are  \n"
                    "  First Name, Last Name \n"
                    "  and E-Mail.  \n" );
-    info->setAlignment( Qt::AlignTop );
+    info->setMargin(8);
     info->setMaximumWidth( info->sizeHint().width() );
 
     QVBox *page = new QVBox( page2 );
@@ -113,9 +113,10 @@ void Wizard::setupPage2()
 void Wizard::setupPage3()
 {
     page3 = new QHBox( this );
+    page3->setSpacing(8);
 
     QLabel *info = new QLabel( page3 );
-    info->setBackgroundColor( QColor( 57, 63, 180 ) );
+    info->setPalette( yellow );
     info->setText( "\n"
                    "  Look here to see of  \n"
                    "  the data you entered  \n"
@@ -123,7 +124,8 @@ void Wizard::setupPage3()
                    "  press the [Finish] button  \n"
                    "  else go back to correct  \n"
                    "  mistakes." );
-    info->setAlignment( Qt::AlignTop );
+    info->setMargin(8);
+    info->setAlignment( AlignTop|AlignLeft );
     info->setMaximumWidth( info->sizeHint().width() );
 
     QVBox *page = new QVBox( page3 );
