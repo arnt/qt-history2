@@ -5,6 +5,7 @@
 #include <qapplication.h>
 #include <qdesktopwidget.h>
 #include <qgenericlistview.h>
+#include <qitemdelegate.h>
 #include <private/qgenericcombobox_p.h>
 
 #define d d_func()
@@ -18,6 +19,7 @@ ComboListView::ComboListView(QAbstractItemModel *model, QWidget *parent) :
     setFrameStyle(QFrame::Box|QFrame::Plain);
     setLineWidth(1);
     setStartEditActions(QAbstractItemDelegate::NeverEdit);
+    setFocusPolicy(Qt::StrongFocus);
 }
 
 /*! internal
@@ -105,15 +107,25 @@ void QGenericComboBoxPrivate::init()
     q->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     q->setSelectionMode(QAbstractItemView::SingleSelection);
     q->setCurrentItem(q->model()->index(0, 0, q->root()));
+    delegate = new QItemDelegate(q->model(), q);
 }
 
-void QGenericComboBoxPrivate::handleReturnPressed()
+void QGenericComboBoxPrivate::updateLineEditGeometry()
 {
-    QLineEdit *lineEdit = qt_cast<QLineEdit *>(editor);
+    if (!lineEdit || !q->isVisible())
+        return;
+
+    QRect editorRect = q->style().querySubControlMetrics(QStyle::CC_ComboBox, q,
+                                                         QStyle::SC_ComboBoxEditField);
+    lineEdit->setGeometry(editorRect);
+}
+
+void QGenericComboBoxPrivate::returnPressed()
+{
     if (lineEdit && !lineEdit->text().isEmpty()) {
         QString text = lineEdit->text();
         // check for duplicates (if not enabled) and quit
-        if (!d->duplicatesEnabled && d->contains(text, QAbstractItemModel::Display))
+        if (!d->duplicatesEnabled && d->contains(text, QAbstractItemModel::Edit))
             return;
         QModelIndex newItem;
         switch (insertionPolicy) {
@@ -144,25 +156,29 @@ void QGenericComboBoxPrivate::handleReturnPressed()
     }
 }
 
-void QGenericComboBoxPrivate::handleTextChanged()
+/*
+  \internal
+
+  handles auto completion
+*/
+void QGenericComboBoxPrivate::complete()
 {
-    if (!autoCompletion)
+    if (d->skipCompletion || !lineEdit || !autoCompletion) {
+        skipCompletion = false;
         return;
-    QLineEdit *lineEdit = qt_cast<QLineEdit *>(editor);
+    }
     QString text = lineEdit->text();
-    if (lineEdit && !text.isEmpty()) {
-        if (lastKey != Qt::Key_Delete && lastKey != Qt::Key_Backspace) {
-            QModelIndexList list
-                = d->model->match(q->currentItem(), QAbstractItemModel::Display, text);
-            if (!list.count())
-                return;
-            QString completed = d->model->data(list.first(),
-                                               QAbstractItemModel::Display).toString();
-            int start = completed.length();
-            int length = text.length() - start; // negative length
-            lineEdit->setText(completed);
-            lineEdit->setSelection(start, length);
-        }
+    if (!text.isEmpty()) {
+        QModelIndexList list
+            = d->model->match(q->currentItem(), QAbstractItemModel::Edit, text);
+        if (!list.count())
+            return;
+        QString completed = d->model->data(list.first(),
+                                           QAbstractItemModel::Edit).toString();
+        int start = completed.length();
+        int length = text.length() - start; // negative length
+        lineEdit->setText(completed);
+        lineEdit->setSelection(start, length);
     }
 }
 
@@ -171,10 +187,11 @@ void QGenericComboBoxPrivate::itemSelected(const QModelIndex &item)
     if (item != q->currentItem()) {
         q->setCurrentItem(item);
     } else if (q->isEditable()) {
-        QLineEdit *lineEdit = qt_cast<QLineEdit *>(editor);
-        if (lineEdit)
+        if (lineEdit) {
             lineEdit->selectAll();
-        q->itemDelegate()->setEditorData(editor, q->currentItem());
+            lineEdit->setText(q->model()->data(q->currentItem(), QAbstractItemModel::Edit)
+                              .toString());
+        }
         q->emit activated(q->currentItem());
     }
 }
@@ -206,6 +223,11 @@ void QGenericComboBox::setSizeLimit(int limit)
 {
     if (limit > 0)
         d->sizeLimit = limit;
+}
+
+int QGenericComboBox::count() const
+{
+    return model()->rowCount(root());
 }
 
 bool QGenericComboBox::autoCompletion() const
@@ -240,7 +262,7 @@ void QGenericComboBox::setInsertionPolicy(InsertionPolicy policy)
 
 bool QGenericComboBox::isEditable() const
 {
-    return d->editor != 0;
+    return d->lineEdit != 0;
 }
 
 void QGenericComboBox::setEditable(bool editable)
@@ -249,31 +271,44 @@ void QGenericComboBox::setEditable(bool editable)
         return;
 
     if (editable) {
-        QItemOptions options = viewOptions();
-        options.itemRect = style().querySubControlMetrics(QStyle::CC_ComboBox, this,
-                                                          QStyle::SC_ComboBoxEditField);
-        options.focus = hasFocus();
-        d->editor = itemDelegate()->editor(QAbstractItemDelegate::AlwaysEdit,
-                                           this, options, currentItem());
-        QLineEdit *lineEdit = qt_cast<QLineEdit *>(d->editor);
-        if (lineEdit) {
-            connect(lineEdit, SIGNAL(textChanged(const QString&)),
-                    this, SLOT(handleTextChanged()));
-            connect(lineEdit, SIGNAL(textChanged(const QString&)),
-                    this, SIGNAL(textChanged(const QString&)));
-            connect(lineEdit, SIGNAL(returnPressed()), this, SLOT(handleReturnPressed()));
-            lineEdit->installEventFilter(this);
-        }
-        itemDelegate()->setEditorData(d->editor, currentItem());
-        if (lineEdit)
-            lineEdit->selectAll();
-        setFocusProxy(d->editor);
-        updateCurrentEditor();
+        setLineEdit(new QLineEdit(this));
     } else {
-        itemDelegate()->releaseEditor(QAbstractItemDelegate::Cancelled, d->editor, currentItem());
-        d->editor = 0;
-        setFocusProxy(0);
+        delete d->lineEdit;
+        d->lineEdit = 0;
     }
+}
+
+void QGenericComboBox::setLineEdit(QLineEdit *edit)
+{
+    if ( !edit ) {
+	Q_ASSERT(edit != 0);
+	return;
+    }
+
+    edit->setText(currentText());
+    delete d->lineEdit;
+
+    d->lineEdit = edit;
+    if (d->lineEdit->parent() != this)
+	d->lineEdit->setParent(this);
+    connect(d->lineEdit, SIGNAL(returnPressed()), this, SLOT(returnPressed()));
+    connect(d->lineEdit, SIGNAL(textChanged(const QString&)), this, SLOT(complete()));
+    d->lineEdit->setFrame(false);
+    d->lineEdit->setAttribute(Qt::WA_CompositeChild);
+    setAttribute(Qt::WA_CompositeParent);
+    setFocusProxy(d->lineEdit);
+    setInputMethodEnabled(true);
+    d->updateLineEditGeometry();
+
+    if (isVisible())
+	d->lineEdit->show();
+
+    update();
+}
+
+QLineEdit *QGenericComboBox::lineEdit() const
+{
+    return d->lineEdit;
 }
 
 QModelIndex QGenericComboBox::insertItem(const QString &text, int row)
@@ -281,7 +316,7 @@ QModelIndex QGenericComboBox::insertItem(const QString &text, int row)
     QModelIndex item;
     if (model()->insertRows(row, root())) {
         item = model()->index(row, 0, root());
-        model()->setData(item, QAbstractItemModel::Display, text);
+        model()->setData(item, QAbstractItemModel::Edit, text);
     }
     return item;
 }
@@ -302,7 +337,7 @@ QModelIndex QGenericComboBox::insertItem(const QString &text, const QIconSet &ic
     if (model()->insertRows(row, root())) {
         item = model()->index(row, 0, root());
         QMap<int, QVariant> values;
-        values.insert(QAbstractItemModel::Display, text);
+        values.insert(QAbstractItemModel::Edit, text);
         values.insert(QAbstractItemModel::Decoration, icon);
         model()->setItemData(item, values);
     }
@@ -313,7 +348,7 @@ QModelIndex QGenericComboBox::changeItem(const QString &text, int row)
 {
     QModelIndex item = model()->index(row, 0, root());
     if (item.isValid()) {
-        model()->setData(item, QAbstractItemModel::Display, text);
+        model()->setData(item, QAbstractItemModel::Edit, text);
     }
     return item;
 }
@@ -332,11 +367,30 @@ QModelIndex QGenericComboBox::changeItem(const QString &text, const QIconSet &ic
     QModelIndex item = model()->index(row, 0, root());
     if (item.isValid()) {
         QMap<int, QVariant> map;
-        map.insert(QAbstractItemModel::Display, text);
+        map.insert(QAbstractItemModel::Edit, text);
         map.insert(QAbstractItemModel::Decoration, icon);
         model()->setItemData(item, map);
     }
     return item;
+}
+
+QString QGenericComboBox::currentText() const
+{
+    if (d->lineEdit)
+        return d->lineEdit->text();
+    else if (currentItem().isValid())
+	return model()->data(currentItem(), QAbstractItemModel::Edit).toString();
+    else
+	return QString::null;
+}
+
+void QGenericComboBox::setCurrentText(const QString& text)
+{
+    if (currentItem().isValid()) {
+        model()->setData(currentItem(), QAbstractItemModel::Edit, text);
+        if (d->lineEdit)
+            d->lineEdit->setText(text);
+    }
 }
 
 QGenericListView *QGenericComboBox::listView() const
@@ -384,36 +438,26 @@ QSize QGenericComboBox::sizeHint() const
     if (isVisible() && d->sizeHint.isValid())
 	return d->sizeHint;
 
-    QFontMetrics fm = fontMetrics();
+    const QFontMetrics &fm = fontMetrics();
     d->sizeHint.setWidth(fm.width("XXX"));
     d->sizeHint.setHeight(fontMetrics().lineSpacing());
 
+    QItemOptions options;
+    options.editing = isEditable();
+    options.selected = true;
+    options.focus = q->hasFocus();
+
     QSize itemSize;
     for (int i = 0; i < model()->rowCount(root()); i++) {
-        itemSize = itemSizeHint(model()->index(i, 0, root()));
+        itemSize = d->delegate->sizeHint(fontMetrics(), options, model()->index(i, 0, root()));
         if (itemSize.width() > d->sizeHint.width())
             d->sizeHint.setWidth(itemSize.width());
         if (itemSize.height() > d->sizeHint.height())
             d->sizeHint.setHeight(itemSize.height());
     }
-    // padding for selectionrect to cover all
-    d->sizeHint.setHeight(d->sizeHint.height() + 2);
-
-    d->sizeHint = (style().sizeFromContents(QStyle::CT_ComboBox, this,
-                                            d->sizeHint).
-                   expandedTo(QApplication::globalStrut()));
-
+    d->sizeHint = (style().sizeFromContents(QStyle::CT_ComboBox, this, d->sizeHint)
+                   .expandedTo(QApplication::globalStrut()));
     return d->sizeHint;
-}
-
-void QGenericComboBox::updateCurrentEditor()
-{
-    if (!isEditable())
-        return;
-    QItemOptions options = viewOptions();
-    options.itemRect = style().querySubControlMetrics(QStyle::CC_ComboBox, this,
-                                                      QStyle::SC_ComboBoxEditField);
-    itemDelegate()->updateEditorGeometry(d->editor, options, currentItem());
 }
 
 void QGenericComboBox::currentChanged(const QModelIndex &old, const QModelIndex &current)
@@ -423,12 +467,9 @@ void QGenericComboBox::currentChanged(const QModelIndex &old, const QModelIndex 
            .arg(old.row()).arg(old.column())
            .arg(current.row()).arg(current.column())
            .arg(model()->parent(old).isValid() ? " parent" : " no parent").latin1());
-    if (isEditable()) {
-        itemDelegate()->setEditorData(d->editor, currentItem());
-        QLineEdit *lineEdit = qt_cast<QLineEdit *>(d->editor);
-        if (lineEdit)
-            lineEdit->selectAll();
-    }
+    if (d->lineEdit)
+        d->lineEdit->setText(q->model()->data(q->currentItem(), QAbstractItemModel::Edit)
+                             .toString());
     emit activated(currentItem());
 }
 
@@ -471,6 +512,11 @@ QRect QGenericComboBox::selectionViewportRect(const QItemSelection &selection) c
     return QRect();
 }
 
+void QGenericComboBox::resizeEvent(QResizeEvent *)
+{
+    d->updateLineEditGeometry();
+}
+
 void QGenericComboBox::paintEvent(QPaintEvent *)
 {
     QPainter painter(d->viewport);
@@ -487,14 +533,16 @@ void QGenericComboBox::paintEvent(QPaintEvent *)
     QRect delegateRect = style().querySubControlMetrics(QStyle::CC_ComboBox, this,
                                                       QStyle::SC_ComboBoxEditField);
     // delegate paints content
-    QItemOptions options = viewOptions();
+    QItemOptions options;
 
     QModelIndex current = currentItem();
     if (current.isValid()) {
+        options.palette = palette();
+        options.editing = isEditable();
         options.itemRect = delegateRect;
-        options.selected = selectionModel()->isSelected(current);
+        options.selected = true;
         options.focus = q->hasFocus();
-        itemDelegate()->paint(&painter, options, current);
+        d->delegate->paint(&painter, options, current);
     }
 }
 
@@ -510,23 +558,19 @@ void QGenericComboBox::mousePressEvent(QMouseEvent *e)
         popupListView();
 }
 
-bool QGenericComboBox::eventFilter (QObject *watched, QEvent *e)
+void QGenericComboBox::keyPressEvent(QKeyEvent *e)
 {
-    if (watched == d->editor && e->type() == QEvent::KeyPress)
-        d->lastKey = static_cast<QKeyEvent*>(e)->key();
-    return false;
+    // skip autoCompletion if Delete or Backspace has been pressed
+    d->skipCompletion = (e->key() == Qt::Key_Delete || e->key() == Qt::Key_Backspace);
+    e->ignore();
 }
 
+// ### remove
 bool QGenericComboBox::startEdit(const QModelIndex &,
                                  QAbstractItemDelegate::StartEditAction,
                                  QEvent *)
 {
     return false;
-}
-
-void QGenericComboBox::updateGeometries()
-{
-    updateCurrentEditor();
 }
 
 void QGenericComboBox::popupListView()
@@ -536,6 +580,7 @@ void QGenericComboBox::popupListView()
     if (!d->listView) {
         d->listView = new ComboListView(model(), this);
         d->listView->setParent(this, Qt::WType_Popup);
+        d->listView->setItemDelegate(d->delegate);
         connect(d->listView, SIGNAL(itemSelected(const QModelIndex &)),
                 this, SLOT(itemSelected(const QModelIndex &)));
     }

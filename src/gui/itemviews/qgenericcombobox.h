@@ -6,6 +6,7 @@
 #endif
 
 class QGenericListView;
+class QLineEdit;
 class QGenericComboBoxPrivate;
 
 class Q_GUI_EXPORT QGenericComboBox : public QAbstractItemView
@@ -33,6 +34,7 @@ public:
 
     int sizeLimit() const;
     void setSizeLimit(int limit);
+    int count() const;
 
     bool autoCompletion() const;
     void setAutoCompletion(bool enable);
@@ -45,6 +47,8 @@ public:
 
     bool isEditable() const;
     void setEditable(bool editable);
+    void setLineEdit(QLineEdit *edit);
+    QLineEdit *lineEdit() const;
 
     QModelIndex insertItem(const QString &text, int row = -1);
     QModelIndex insertItem(const QIconSet &icon, int row = -1);
@@ -53,6 +57,9 @@ public:
     QModelIndex changeItem(const QString &text, int row);
     QModelIndex changeItem(const QIconSet &icon, int row);
     QModelIndex changeItem(const QString &text, const QIconSet &icon, int row);
+
+    QString currentText() const;
+    void setCurrentText(const QString&);
 
     QGenericListView *listView() const;
 
@@ -67,7 +74,6 @@ signals:
     void activated(const QModelIndex &);
 
 protected slots:
-    void updateCurrentEditor();
     void currentChanged(const QModelIndex &old, const QModelIndex &current);
 
 protected:
@@ -81,22 +87,20 @@ protected:
     void setSelection(const QRect&, QItemSelectionModel::SelectionFlags command);
     QRect selectionViewportRect(const QItemSelection &selection) const;
 
+    void resizeEvent(QResizeEvent *e);
     void paintEvent(QPaintEvent *e);
     void mousePressEvent(QMouseEvent *e);
-    bool eventFilter (QObject *watched, QEvent *e);
+    void keyPressEvent(QKeyEvent *e);
 
     bool startEdit(const QModelIndex &item,
                    QAbstractItemDelegate::StartEditAction action,
                    QEvent *event);
 
-    void updateGeometries();
-
-
 private:
     void popupListView();
-    Q_PRIVATE_SLOT(void handleReturnPressed())
-    Q_PRIVATE_SLOT(void handleTextChanged())
     Q_PRIVATE_SLOT(void itemSelected(const QModelIndex &item))
+    Q_PRIVATE_SLOT(void returnPressed())
+    Q_PRIVATE_SLOT(void complete())
 };
 
 #endif /* QGENERICCOMBOBOX_H */

@@ -3,6 +3,7 @@
 
 #ifndef QT_H
 #include <qgenericlistview.h>
+#include <qlineedit.h>
 #include <qgenericcombobox.h>
 #include <private/qabstractitemview_p.h>
 #endif // QT_H
@@ -34,30 +35,33 @@ class QGenericComboBoxPrivate: public QAbstractItemViewPrivate
 public:
     QGenericComboBoxPrivate()
         : QAbstractItemViewPrivate(),
-          editor(0),
+          lineEdit(0),
           listView(0),
+          delegate(0),
           insertionPolicy(QGenericComboBox::AtBottom),
           autoCompletion(true),
           duplicatesEnabled(false),
           sizeLimit(10),
           ignoreMousePressEvent(false),
-          lastKey(0) {}
+          skipCompletion(false) {}
     ~QGenericComboBoxPrivate() {}
     void init();
-    void handleReturnPressed();
-    void handleTextChanged();
+    void updateLineEditGeometry();
+    void returnPressed();
+    void complete();
     void itemSelected(const QModelIndex &item);
     bool contains(const QString &text, int role);
 
-    QWidget *editor;
+    QLineEdit *lineEdit;
     ComboListView *listView;
+    QAbstractItemDelegate *delegate;
     QGenericComboBox::InsertionPolicy insertionPolicy;
     bool autoCompletion;
     bool duplicatesEnabled;
     int sizeLimit;
     bool ignoreMousePressEvent;
+    bool skipCompletion;
     mutable QSize sizeHint;
-    int lastKey;
 };
 
 #endif //QGENERICCOMBOBOX_P_H
