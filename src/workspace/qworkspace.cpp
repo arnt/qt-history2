@@ -1328,11 +1328,16 @@ void QWorkspace::cascade()
 	QWorkspaceChild *child = it.current();
 	++it;
 	child->setUpdatesEnabled( FALSE );
-	QSize prefSize = child->windowWidget()->sizeHint() + QSize( 0, child->baseSize().height() );
-	if ( !child->windowWidget()->sizeHint().isValid() )
-	    prefSize = QSize( width() - children * xoffset, height() - children * yoffset );
+	bool hasSizeHint = FALSE;
+	QSize prefSize = child->windowWidget()->sizeHint();
 
-	prefSize = prefSize.boundedTo( QSize( size().width() - xoffset * children, size().height() - yoffset * children ) );
+	if ( !prefSize.isValid() )
+	    prefSize = QSize( width() - children * xoffset, height() - children * yoffset );
+	else
+	    hasSizeHint = TRUE;
+	prefSize = prefSize.expandedTo( child->windowWidget()->minimumSize() ).boundedTo( child->windowWidget()->maximumSize() );
+	if ( hasSizeHint )
+	    prefSize += QSize( child->baseSize().width(), child->baseSize().height() );
 
 	int w = prefSize.width();
 	int h = prefSize.height();
