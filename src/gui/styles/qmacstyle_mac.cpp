@@ -875,6 +875,8 @@ static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *s
             tdi->trackInfo.slider.thumbDir = kThemeThumbUpward;
         else
             tdi->trackInfo.slider.thumbDir = kThemeThumbDownward;
+    } else {
+        tdi->trackInfo.scrollbar.viewsize = slider->pageStep;
     }
 }
 
@@ -936,6 +938,8 @@ static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *s
             tdi->trackInfo.slider.thumbDir = kThemeThumbUpward;
         else
             tdi->trackInfo.slider.thumbDir = kThemeThumbDownward;
+    } else {
+        tdi->trackInfo.scrollbar.viewsize = slider->pageStep;
     }
 }
 
@@ -2054,7 +2058,6 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                 else if (slider->activeParts == QStyle::SC_SliderGroove)
                     tdi.trackInfo.slider.pressState = kThemeLeftTrackPressed;
             } else {
-                tdi.trackInfo.scrollbar.viewsize = slider->pageStep;
                 if (slider->activeParts == QStyle::SC_ScrollBarSubLine)
                     tdi.trackInfo.scrollbar.pressState = kThemeRightInsideArrowPressed
                                                          | kThemeLeftOutsideArrowPressed;
