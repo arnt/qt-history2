@@ -368,6 +368,9 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
                 const QStringList &inputs = project->values((*it)+".input");
                 for(QStringList::ConstIterator input = inputs.begin(); input != inputs.end(); ++input)
                     list += project->values((*input));
+                const QStringList &outputs = project->values((*it)+".output");
+                for(QStringList::ConstIterator output = outputs.begin(); output != outputs.end(); ++output)
+                    list += project->values((*output));
             }
         }
 
@@ -384,7 +387,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
         endGroups(t);
     }
 
-    writeFileGroup(t, project->variables()["GENERATED_SOURCES"]
+    writeFileGroup(t, project->variables()["GENERATED_SOURCES"] + project->variables()["UIC3_HEADERS"]
                       + swappedBuildSteps.keys(), "Generated", "");
 
     t << "# End Target" << endl;
