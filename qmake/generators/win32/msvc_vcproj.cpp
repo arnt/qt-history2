@@ -462,6 +462,7 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
                                     opt != "imm32.lib" &&
                                     opt != "winmm.lib" &&
                                     opt != "wsock32.lib" &&
+                                    opt != "ws2_32.lib" &&
                                     opt != "winspool.lib" &&
                                     opt != "delayimp.lib")
                                 {
