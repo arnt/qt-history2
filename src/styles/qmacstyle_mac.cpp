@@ -694,6 +694,9 @@ void QMacStyle::drawControl(ControlElement element,
     }
 
     switch(element) {
+    case CE_ToolBoxTab: 
+	QCommonStyle::drawControl(element, p, widget, r, cg, how, opt);
+	break;
     case CE_PopupMenuScroller: {
 	Rect mrect = *qt_glb_mac_rect(widget->rect(), p),
 	     irect = *qt_glb_mac_rect(r, p, FALSE);
