@@ -54,7 +54,8 @@ href="http://www.troll.no/dl/qtfree-dl.html">download</a>.
 <h1 align=center>Common Problems</h1>
 <ol>
 
-<li><strong>Link error, complaining about a lack of  about a lack of <code>vtbl</code>,
+<p>
+<li><strong>Link error, complaining about a lack of <code>vtbl</code>,
 <code>_vtbl</code>, <code>__vtbl</code> or similar </strong>
 <p>
 This indicates that you include the Q_OBJECT macro in a class
@@ -63,8 +64,12 @@ moc-generated object code into your executable. Read <a
 href="moc.html"> Using the Meta Object Compiler</a> for details on
 how to use moc.
 
+<p>
 <li><strong>Using different versions of Qt on the same machine</strong>
 <p>
+Generalities... headers (compile-time) - libs (link-time) - shared libs (run-time)<BR>
+Unix... sources - packages<BR>
+Windows... same as Unix, but lib names do not have a version number?<BR>
 TODO
 
 </ol>
