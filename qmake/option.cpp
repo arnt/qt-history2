@@ -175,7 +175,7 @@ QString
 Option::fixPathToLocalOS(QString in)
 {
     fixEnvVariables(in);
-#ifdef WIN32
+#if defined(Q_OS_WIN32)
     return in.replace(QRegExp("/"), "\\");
 #else
     return in.replace(QRegExp("\\"), "/");
