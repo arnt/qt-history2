@@ -889,7 +889,7 @@ inline void QWidget::setPaletteForegroundColor(const QColor &c)
 { QPalette pal = palette(); pal.setColor(foregroundRole(), c); setPalette(pal); }
 inline const QBrush& QWidget::backgroundBrush() const { return palette().brush(backgroundRole()); }
 inline void QWidget::setBackgroundPixmap(const QPixmap &p)
-{ QPalette pal = palette(); pal.setBrush(backgroundRole(), p); setPalette(pal); }
+{ QPalette pal = palette(); pal.setBrush(backgroundRole(), QBrush(p)); setPalette(pal); }
 inline const QPixmap *QWidget::backgroundPixmap() const { return backgroundBrush().pixmap(); }
 inline void QWidget::setBackgroundColor(const QColor &c)
 { QPalette pal = palette(); pal.setColor(backgroundRole(), c); setPalette(pal); }
