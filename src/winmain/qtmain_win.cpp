@@ -55,13 +55,13 @@ extern "C" int main(int, char **);
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPWSTR /*wCmdParam*/, int cmdShow)
 #else
 extern "C"
-int APIENTRY WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParamarg, int cmdShow)
+int APIENTRY WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR /*cmdParamarg*/, int cmdShow)
 #endif
 {
     QByteArray cmdParam;
     QT_WA({
         LPTSTR cmdline = GetCommandLineW();
-        cmdParam = QString::fromUtf16(cmdline).toLocal8Bit();
+        cmdParam = QString::fromUtf16((const unsigned short *)cmdline).toLocal8Bit();
     }, {
         cmdParam = GetCommandLineA();
     });
