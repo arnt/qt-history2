@@ -96,6 +96,8 @@ public:
     QWidget*     cornerWidget() const;
     virtual void setCornerWidget(QWidget*);
 
+    // ### 4.0: Consider providing a factory function for scrollbars
+    //          (e.g. make the two following functions virtual)
     QScrollBar*  horizontalScrollBar() const;
     QScrollBar*  verticalScrollBar() const;
     QWidget*	 viewport() const;
