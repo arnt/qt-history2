@@ -33,25 +33,25 @@ public:
     QSqlRecord( const QSqlRecord& other );
     QSqlRecord& operator=( const QSqlRecord& other );
     virtual ~QSqlRecord();
-    virtual QVariant     value( int i ) const;
-    virtual QVariant     value( const QString& name ) const;
-    virtual void         setValue( int i, const QVariant& val );
-    virtual void         setValue( const QString& name, const QVariant& val );
-    bool                 isGenerated( int i ) const;
-    bool                 isGenerated( const QString& name ) const;
-    virtual void         setGenerated( const QString& name, bool generated );
-    virtual void         setGenerated( int i, bool generated );
-    virtual void         setNull( int i );
-    virtual void         setNull( const QString& name );
-    bool                 isNull( int i ) const;
-    bool                 isNull( const QString& name ) const;
+    virtual QVariant value( int i ) const;
+    QVariant value( const QString& name ) const;
+    virtual void setValue( int i, const QVariant& val );
+    void setValue( const QString& name, const QVariant& val );
+    bool isGenerated( int i ) const;
+    bool isGenerated( const QString& name ) const;
+    void setGenerated( const QString& name, bool generated );
+    virtual void setGenerated( int i, bool generated );
+    virtual void setNull( int i );
+    void setNull( const QString& name );
+    bool isNull( int i ) const;
+    bool isNull( const QString& name ) const;
 
-    int                  position( const QString& name ) const;
-    QString              fieldName( int i ) const;
-    QSqlField*           field( int i );
-    QSqlField*           field( const QString& name );
-    const QSqlField*     field( int i ) const;
-    const QSqlField*     field( const QString& name ) const;
+    int position( const QString& name ) const;
+    QString fieldName( int i ) const;
+    QSqlField* field( int i );
+    QSqlField* field( const QString& name );
+    const QSqlField* field( int i ) const;
+    const QSqlField* field( const QString& name ) const;
 
     virtual void append(const QSqlField& field);
     virtual void replace(int pos, const QSqlField& field);
@@ -61,15 +61,14 @@ public:
     inline void insert(int pos, const QSqlField& field) { replace(pos, field); }
 #endif
 
-
-    bool                 isEmpty() const;
-    bool                 contains( const QString& name ) const;
-    virtual void         clear();
-    virtual void         clearValues();
-    int                 count() const;
-    virtual QString      toString( const QString& prefix = QString(),
+    bool isEmpty() const;
+    bool contains( const QString& name ) const;
+    virtual void clear();
+    virtual void clearValues();
+    int count() const;
+    virtual QString toString( const QString& prefix = QString(),
 				   const QString& sep = "," ) const;
-    virtual QStringList  toStringList( const QString& prefix = QString() ) const;
+    virtual QStringList toStringList( const QString& prefix = QString() ) const;
 
 private:
     void detach();
