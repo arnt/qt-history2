@@ -881,11 +881,17 @@ void QWidget::hideWindow()
     dirtyClippedRegion(TRUE);
     if ( isTopLevel() ) {
 	ShowHide((WindowPtr)hd, 0);
-	if(parentWidget() && parentWidget()->isVisible()) {
-	    parentWidget()->setActiveWindow();
-	} else {
-	    QWidget *w = QWidget::find( (WId)FrontWindow() );
-	    if(w)
+
+	if(isActiveWindow()) { //we should try to activate somebody..
+	    QWidget *w = NULL;
+	    if(parentWidget()) {
+		w = parentWidget()->topLevelWidget();
+		if(w && !w->isVisible())
+		    w = NULL;
+	    }
+	    if(!w)
+		w = QWidget::find( (WId)FrontWindow() );
+	    if(w) 
 		w->setActiveWindow();
 	}
     } else if(isVisible()) {
