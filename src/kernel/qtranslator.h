@@ -90,7 +90,7 @@ public:
     }
 #endif
     virtual QTranslatorMessage findMessage( const char *, const char *,
-				    const char * ) const;
+					    const char * = 0 ) const;
 
     bool load( const QString & filename,
 	       const QString & directory = QString::null,
