@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#12 $
 **
 ** Implementation of QScrollView class
 **
@@ -644,15 +644,42 @@ void QScrollView::viewResize( int w, int h )
 }
 
 /*!
-  \fn void QScrollView::drawContentsOffset(QPainter*, int offsetx, int offsety, int clipx, int clipy, int clipw, int cliph)
+  \fn void QScrollView::drawContentsOffset(QPainter* p, int offsetx, int offsety,
+	int clipx, int clipy, int clipw, int cliph)
 
   Override this method if you are viewing a drawing area rather than a widget.
 
-  Draw the contents of the viewed area, offset by the given
-  amount, clipped to the given area. Note that the final coordinates
+  Draws a clipped area of the viewed area, offset by the given
+  amount. Note that the final coordinates
   you give to QPainter methods must be within the range supported
-  by the underlying window system - about +/- 32000.  See
-  scrollview/scrollview.cpp for an example.
+  by the underlying window system - about +/- 32000.
+
+  For example:
+\code
+  {
+    // Fill a 40000 by 50000 rectangle at (100000,150000)
+
+    // Calculate the coordinates... (don't use QPoint, QRect, etc!)
+    int x1 = 100000, y1 = 150000;
+    int x2 = x1+40000-1, y2 = y1+50000-1;
+
+    // Clip the coordinates...
+    if (x1 < clipx) x1=clipx;
+    if (y1 < clipy) y1=clipy;
+    if (x2 > clipx+clipw-1) x2=clipx+clipw-1;
+    if (y2 > clipy+cliph-1) y2=clipy+cliph-1;
+
+    // Offset the coordinates...
+    x1 += ox;
+    x2 += ox;
+    y1 += oy;
+    y2 += oy;
+
+    // Paint using the coordinates...
+    if ( x2 >= x1 && y2 >= y1 )
+	p->fillRect(x1, y1, x2-x1+1, y2-y1+1, red);
+  }
+\endcode
 
   The clip rectangle of the painter is already set appropriately.
 
