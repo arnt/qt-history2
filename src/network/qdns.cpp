@@ -2114,7 +2114,7 @@ QString QDns::canonicalName() const
 }
 
 #if defined(Q_DNS_SYNCHRONOUS)
-/*! \reimpl
+/*! \reimp
 */
 void QDns::connectNotify( const char *signal )
 {
