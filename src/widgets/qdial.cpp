@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qdial.cpp#9 $
 **
 ** Implementation of something useful.
 **
@@ -37,6 +37,12 @@ double M_PI = 3.14159265358979323846;
 #ifdef _OS_UNIXWARE_
 #include <values.h>
 #endif
+#ifdef _OS_OS2EMX_
+#include <float.h> //M_PI is defined here
+#endif
+// WWA: Don't add another one.  pi is not a platform-specific value.
+//      When the universe changes, we can port Qt to the new value of pi.
+
 
 class QDialPrivate
 {

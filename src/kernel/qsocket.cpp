@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocket.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qsocket.cpp#18 $
 **
 ** Implementation of QSocket class
 **
@@ -29,8 +29,8 @@
 
 #if defined(UNIX)
 // gethostbyname
-#include <netdb.h>
 #include <sys/types.h>
+#include <netdb.h>
 #include <netinet/in.h>
 #endif
 
