@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketnotifier.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qsocketnotifier.cpp#13 $
 **
 ** Implementation of QSocketNotifier class
 **
@@ -80,9 +80,14 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
   If you need a time-out for your sockets, you can use either
   \link QObject::startTimer() timer events\endlink or the QTimer class.
 
-  Socket action is detected in the \link QApplication::exec() main event
-  loop\endlink of Qt.  Under X11, Qt has has a single UNIX select()
-  call which incorporates all socket notifiers and the X socket.
+  Socket action is detected in the \link QApplication::exec() main
+  event loop\endlink of Qt.  Under X11 and XFree86/OS/2, Qt has has a
+  single UNIX select() call which incorporates all socket notifiers
+  and the X socket.
+
+  Note that on XFree86/OS/2, select() only works in the thread in
+  which main() is running, so it's best to use that thread for GUI
+  operations.
 */
 
 
