@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#12 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -12,7 +12,7 @@
 #include "qpalette.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#11 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#12 $");
 
 
 /*****************************************************************************
@@ -47,7 +47,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#11 $");
   We have not seen any good, well-made and usable widgets that use more
   than these eight color roles.
 
-  A QPalette contains 3 color groups.
+  A QPalette contains three color groups.
 
   The current widget color group is returned by QWidget::colorGroup().
 
@@ -212,20 +212,23 @@ QPalette::QPalette( const QColor &background )
     data = new QPalData;
     CHECK_PTR( data );
     data->ser_no = palette_count++;
-    QColor bg = background, fg, base;
+    QColor bg = background, fg, base, disfg;
     int h, s, v;
     bg.hsv( &h, &s, &v );
     if ( v > 128 ) {				// light background
 	fg   = black;
 	base = white;
+	disfg = darkGray;
     } else {					// dark background
 	fg   = white;
 	base = black;
+	disfg = darkGray;
     }
     data->normal   = QColorGroup( fg, bg, bg.light(150), bg.dark(),
 				  bg.dark(150), fg, base );
     data->active   = data->normal;
-    data->disabled = data->normal;
+    data->disabled = QColorGroup( disfg, bg, bg.light(150), bg.dark(),
+				  bg.dark(150), disfg, base );
 }
 
 /*!
