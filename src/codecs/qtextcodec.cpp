@@ -2313,7 +2313,7 @@ int QSimpleTextCodec::mibEnum() const
 
 int QSimpleTextCodec::heuristicNameMatch(const char* hint) const
 {
-    if ( stricmp( hint, mimeName() ) == 0 )
+    if ( qstricmp( hint, mimeName() ) == 0 )
 	return 10000; // return a large value
     if ( hint[0]=='k' ) {
 	// Help people with messy fonts
