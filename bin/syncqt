@@ -13,6 +13,8 @@
 die "syncqt: QTDIR not defined" if ! $ENV{"QTDIR"};
 $fast=0;
 $force_win=0;
+$force_relative=0;
+$force_relative=1 if ( -d "/System/Library/Frameworks" );
 
 $basedir = $ENV{"QTDIR"};
 $includedir = $basedir . "/include";
@@ -39,6 +41,8 @@ while ( $#ARGV >= 0 ) {
 	$showonlypriv++;
     } elsif ( $ARGV[0] eq "-windows" ) {
 	$force_win=1;
+    } elsif ( $ARGV[0] eq "-relative" ) {
+        $force_relative=1;
     }
     shift;
 }
@@ -91,10 +95,9 @@ if ( check_unix() ) {
 	}
 	if ( ! -l $h ) {
 	    if (  $h eq "qconfig.h" || $h eq "qmodules.h" ) {
-	        print "skipping $f\n";
+	      ;
 	    } else {
-	        symlink($basedir . "/" . $f, $h);
-	        print "symlink created for $f\n";
+	        symlink_files($basedir . "/" . $f, $h);
             }
 	}
     }
@@ -105,10 +108,7 @@ if ( check_unix() ) {
 	if ( -l $h && ! -f $h ) {
 	    unlink $h;
 	}
-	if ( ! -l $h ) {
-	    symlink($basedir . "/" . $f, $h);
-	    print "symlink created for $f\n";
-	}
+	symlink_files($basedir . "/" . $f, $h) if ( ! -l $h );
     }
 } else {
     foreach $f ( @files ) {
@@ -128,6 +128,24 @@ if ( check_unix() ) {
 
 exit 0;
 
+
+#
+# symlink_files(file,ifile)
+#
+# file is symlinked to ifile
+#
+
+sub symlink_files()
+{
+  my ($file, $ifile) = @_;
+  print "symlink created for $file";
+  if ( $force_relative ) {
+    $file =~ s-^$basedir-..-;
+    print " ($file)\n"
+  }
+  print "\n";
+  symlink($file, $ifile);
+}
 
 #
 # sync_files(file,ifile)
