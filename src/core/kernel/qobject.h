@@ -27,9 +27,6 @@
 #include "qcoreevent.h"
 #endif
 
-#define QT_TR_NOOP(x) (x)
-#define QT_TRANSLATE_NOOP(scope,x) (x)
-
 class QEvent;
 class QTimerEvent;
 class QChildEvent;

@@ -12,11 +12,17 @@
 **
 ****************************************************************************/
 
+#include "qplatformdefs.h"
+
 #include "qiodevice.h"
 #include "qbytearray.h"
 
+#ifndef NO_ERRNO_H
+#include <errno.h>
+#endif
+
 /*!
-    \class QIODevice qiodevice.h
+    \class QIODevice
     \reentrant
 
     \brief The QIODevice class is the base class of I/O devices.
@@ -232,9 +238,9 @@
 
 QIODevice::QIODevice()
 {
-    ioMode = 0;                                        // initial mode
-    ioSt = IO_Ok;
     ioIndex = 0;
+    ioMode = 0;
+    ioSt = IO_Ok;
 }
 
 /*!
@@ -441,13 +447,15 @@ QIODevice::~QIODevice()
 */
 
 /*!
-    \fn void QIODevice::resetStatus()
-
     Sets the I/O device status to \c IO_Ok.
 
     \sa status()
 */
-
+void QIODevice::resetStatus()
+{
+    ioSt = Ok;
+    errStr.clear();
+}
 
 /*!
   \fn void QIODevice::setFlags(int f)
@@ -495,15 +503,73 @@ void QIODevice::setState(int s)
 }
 
 /*!
-  \internal
-  Used by subclasses to set the device status (not state) to \a s.
+    \internal
+
+    Used by subclasses to set the device status (not state) to \a status.
 */
 
-void QIODevice::setStatus(int s)
+void QIODevice::setStatus(int status)
 {
-    ioSt = s;
+    ioSt = status;
+    errStr.clear();
 }
 
+/*!
+    \internal
+*/
+void QIODevice::setStatus(int status, const QString &errorString)
+{
+    ioSt = status;
+    errStr = errorString;
+}
+
+/*!
+    \internal
+*/
+void QIODevice::setStatus(int status, int errNum)
+{
+    ioSt = status;
+
+    const char *stockStr = 0;
+
+    switch (errNum) {
+    case 0:
+        errStr.clear();
+        break;
+    case EACCES:
+        stockStr = QT_TR_NOOP("Permission denied");
+        break;
+    case EMFILE:
+        stockStr = QT_TR_NOOP("Too many open files");
+        break;
+    case ENOENT:
+        stockStr = QT_TR_NOOP("No such file or directory");
+        break;
+    case ENOSPC:
+        stockStr = QT_TR_NOOP("No space left on device");
+        break;
+    default:
+#ifndef Q_OS_TEMP
+        errStr = QString::fromLocal8Bit(strerror(errNum));
+#else
+        {
+            unsigned short *string;
+            FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
+                          NULL,
+                          errNum,
+                          MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                          (LPTSTR)&string,
+                          0,
+                          NULL);
+            errStr = QString::fromUcs2(string);
+            LocalFree((HLOCAL)string);
+        }
+#endif
+    }
+
+    if (stockStr)
+        errStr = QT_TRANSLATE_NOOP("QIODevice", stockStr);
+}
 
 /*!
     \fn bool QIODevice::open(int mode)
@@ -574,7 +640,6 @@ QIODevice::Offset QIODevice::at() const
 {
     return ioIndex;
 }
-
 
 /*
     The following is a "bad" overload, since it does "not behave essentially
@@ -651,7 +716,7 @@ QByteArray QIODevice::readAll()
 {
     if (isDirectAccess()) {
         // we know the size
-        int n = size()-at(); // ### fix for 64-bit or large files?
+        int n = size() - at(); // ### fix for 64-bit or large files?
         int totalRead = 0;
         QByteArray ba;
         ba.resize(n);
@@ -779,3 +844,65 @@ Q_LONG QIODevice::readLine(char *data, Q_ULONG maxlen)
 
     \sa getch(), putch()
 */
+
+/*!
+    Returns a human-readable description of the reason of an error that occurred
+    on the device. The error described by the string corresponds to changes of
+    QIODevice::status(). If the status is reset, the error string is also reset.
+
+    \code
+        QFile f("address.dat");
+        if (!f.open(IO_ReadOnly) {
+            QMessageBox::critical(this, tr("Error"),
+                    tr("Could not open file for reading: %1")
+                    .arg(f.errorString()));
+            return;
+        }
+    \endcode
+
+    \sa setStatus(), resetStatus()
+*/
+
+QString QIODevice::errorString() const
+{
+    // if this assert fails, uncomment the code below
+    Q_ASSERT(OpenError == ConnectError);
+
+    if (errStr.isEmpty()) {
+        const char *str;
+
+        switch (ioSt) {
+        case Ok:
+        case UnspecifiedError:
+            str = QT_TR_NOOP("Unknown error");
+            break;
+        case ReadError:
+            str = QT_TR_NOOP("Could not read from the device");
+            break;
+        case WriteError:
+            str = QT_TR_NOOP("Could not write to the device");
+            break;
+        case FatalError:
+            str = QT_TR_NOOP("Fatal error");
+            break;
+        case ResourceError:
+            str = QT_TR_NOOP("Resource error");
+            break;
+        case OpenError:
+            str = QT_TR_NOOP("Could not open the device");
+            break;
+/*
+        case ConnectError:
+            str = QT_TR_NOOP("Could not connect to host");
+            break;
+*/
+        case AbortError:
+            str = QT_TR_NOOP("Aborted");
+            break;
+        case TimeOutError:
+            str = QT_TR_NOOP("Connection timed out");
+        }
+        return QT_TRANSLATE_NOOP("QIODevice", str);
+    }
+    return errStr;
+}

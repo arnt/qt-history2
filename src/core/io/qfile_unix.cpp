@@ -37,7 +37,7 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 
 extern const char* qt_fileerr_read;
 
-bool QFileInfoPrivate::access(const QString& fn, int t)
+bool QFileInfoPrivate::access(const QString &fn, int t)
 {
     if (fn.isEmpty())
         return false;
@@ -147,7 +147,7 @@ bool QFile::open(int m)
         qWarning("QFile::open: File already open");
         return false;
     }
-    if (fn.isEmpty()) {                        // no file name defined
+    if (d->fn.isEmpty()) {                        // no file name defined
         qWarning("QFile::open: No file name specified");
         return false;
     }
@@ -187,10 +187,10 @@ bool QFile::open(int m)
         if (isAsynchronous())
             oflags |= OPEN_ASYNC;
 #endif
-        fd = qt_open(QFile::encodeName(fn), oflags, 0666);
+        d->fd = qt_open(QFile::encodeName(d->fn), oflags, 0666);
 
-        if (fd != -1) {                        // open successful
-            ::fstat(fd, &st);                        // get the stat for later usage
+        if (d->fd != -1) {                        // open successful
+            ::fstat(d->fd, &st);                  // get the stat for later usage
         } else {
             ok = false;
         }
@@ -223,18 +223,17 @@ bool QFile::open(int m)
             strcat(perm2, "b");
 #endif
         for (;;) { // At most twice
+            d->fh = fopen(QFile::encodeName(d->fn), perm2);
 
-            fh = fopen(QFile::encodeName(fn), perm2);
-
-            if (!fh && try_create) {
+            if (!d->fh && try_create) {
                 perm2[0] = 'w';                        // try "w+" instead of "r+"
                 try_create = false;
             } else {
                 break;
             }
         }
-        if (fh) {
-            ::fstat(fileno(fh), &st);                // get the stat for later usage
+        if (d->fh) {
+            ::fstat(fileno(d->fh), &st);                // get the stat for later usage
         } else {
             ok = false;
         }
@@ -246,19 +245,19 @@ bool QFile::open(int m)
         if ((st.st_mode & S_IFMT) != S_IFREG) {
             // non-seekable
             setType(IO_Sequential);
-            length = LLONG_MAX;
+            d->length = LLONG_MAX;
             ioIndex = 0;
         } else {
-            length = st.st_size;
-            ioIndex = (flags() & IO_Append) == 0 ? Offset(0) : length;
-            if (!(flags()&IO_Truncate) && length == 0 && isReadable()) {
+            d->length = st.st_size;
+            ioIndex = (flags() & IO_Append) == 0 ? Offset(0) : d->length;
+            if (!(flags()&IO_Truncate) && d->length == 0 && isReadable()) {
                 // try if you can read from it (if you can, it's a sequential
                 // device; e.g. a file in the /proc filesystem)
                 int c = getch();
                 if (c != -1) {
                     ungetch(c);
                     setType(IO_Sequential);
-                    length = LLONG_MAX;
+                    d->length = LLONG_MAX;
                     ioIndex = 0;
                 }
                 resetStatus();
@@ -266,11 +265,7 @@ bool QFile::open(int m)
         }
     } else {
         init();
-        if (errno == EMFILE)                        // no more file handles/descrs
-            setStatus(IO_ResourceError);
-        else
-            setStatus(IO_OpenError);
-        setErrorStringErrno(errno);
+        setStatus(errno == EMFILE ? IO_ResourceError : IO_OpenError, errno);
     }
     return ok;
 }
@@ -312,30 +307,30 @@ bool QFile::open(int m, FILE *f)
     init();
     setMode(m &~IO_Raw);
     setState(IO_Open);
-    fh = f;
-    ext_f = true;
+    d->fh = f;
+    d->ext_f = true;
     struct stat st;
-    ::fstat(fileno(fh), &st);
+    ::fstat(fileno(d->fh), &st);
 #if defined(QT_LARGEFILE_SUPPORT)
-    ioIndex = ftello(fh);
+    ioIndex = ftello(d->fh);
 #else
-    ioIndex = ftell(fh);
+    ioIndex = ftell(d->fh);
 #endif
     if ((st.st_mode & S_IFMT) != S_IFREG || f == stdin) { //stdin is non seekable
         // non-seekable
         setType(IO_Sequential);
-        length = LLONG_MAX;
+        d->length = LLONG_MAX;
         ioIndex = 0;
     } else {
-        length = st.st_size;
-        if (!(flags()&IO_Truncate) && length == 0 && isReadable()) {
+        d->length = st.st_size;
+        if (!(flags()&IO_Truncate) && d->length == 0 && isReadable()) {
             // try if you can read from it (if you can, it's a sequential
             // device; e.g. a file in the /proc filesystem)
             int c = getch();
             if (c != -1) {
                 ungetch(c);
                 setType(IO_Sequential);
-                length = LLONG_MAX;
+                d->length = LLONG_MAX;
                 ioIndex = 0;
             }
             resetStatus();
@@ -373,26 +368,26 @@ bool QFile::open(int m, int f)
     init();
     setMode(m |IO_Raw);
     setState(IO_Open);
-    fd = f;
-    ext_f = true;
+    d->fd = f;
+    d->ext_f = true;
     struct stat st;
-    ::fstat(fd, &st);
-    ioIndex = ::lseek(fd, 0, SEEK_CUR);
+    ::fstat(d->fd, &st);
+    ioIndex = ::lseek(d->fd, 0, SEEK_CUR);
     if ((st.st_mode & S_IFMT) != S_IFREG || f == 0) { // stdin is not seekable...
         // non-seekable
         setType(IO_Sequential);
-        length = LLONG_MAX;
+        d->length = LLONG_MAX;
         ioIndex = 0;
     } else {
-        length = st.st_size;
-        if (length == 0 && isReadable()) {
+        d->length = st.st_size;
+        if (d->length == 0 && isReadable()) {
             // try if you can read from it (if you can, it's a sequential
             // device; e.g. a file in the /proc filesystem)
             int c = getch();
             if (c != -1) {
                 ungetch(c);
                 setType(IO_Sequential);
-                length = LLONG_MAX;
+                d->length = LLONG_MAX;
                 ioIndex = 0;
             }
             resetStatus();
@@ -411,9 +406,9 @@ QIODevice::Offset QFile::size() const
     struct stat st;
     int ret = 0;
     if (isOpen()) {
-        ret = ::fstat(fh ? fileno(fh) : fd, &st);
+        ret = ::fstat(d->fh ? fileno(d->fh) : d->fd, &st);
     } else {
-        ret = ::stat(QFile::encodeName(fn), &st);
+        ret = ::stat(QFile::encodeName(d->fn), &st);
     }
     if (ret == -1)
         return 0;
@@ -455,14 +450,14 @@ bool QFile::at(Offset pos)
         return false;
     bool ok;
     if (isRaw()) {
-        off_t l = ::lseek(fd, pos, SEEK_SET);
+        off_t l = ::lseek(d->fd, pos, SEEK_SET);
         ok = (l != -1);
         pos = l;
     } else {                                        // buffered file
 #if defined(QT_LARGEFILE_SUPPORT)
-        ok = (::fseeko(fh, pos, SEEK_SET) == 0);
+        ok = (::fseeko(d->fh, pos, SEEK_SET) == 0);
 #else
-        ok = (::fseek(fh, pos, SEEK_SET) == 0);
+        ok = (::fseek(d->fh, pos, SEEK_SET) == 0);
 #endif
     }
     if (ok)
@@ -498,32 +493,29 @@ Q_LONG QFile::readBlock(char *p, Q_ULONG len)
         return -1;
     }
     Q_ULONG nread = 0;                                        // number of bytes read
-    if (!ungetchBuffer.isEmpty()) {
+    if (!d->ungetchBuffer.isEmpty()) {
         // need to add these to the returned string.
-        uint l = ungetchBuffer.length();
+        uint l = d->ungetchBuffer.size();
         while(nread < l) {
-            *p = ungetchBuffer.at(l - nread - 1);
+            *p = d->ungetchBuffer.at(l - nread - 1);
             p++;
             nread++;
         }
-        ungetchBuffer.resize(l - nread);
+        d->ungetchBuffer.resize(l - nread);
     }
 
     if (nread < len) {
-        if (isRaw()) {                                // raw file
-            nread += ::read(fd, p, len-nread);
+        if (isRaw()) {                                  // raw file
+            nread += ::read(d->fd, p, len-nread);
             if (len && nread <= 0) {
                 nread = 0;
-                setStatus(IO_ReadError);
-                setErrorStringErrno(errno);
+                setStatus(IO_ReadError, errno);
             }
         } else {                                        // buffered file
-            nread += fread(p, 1, len-nread, fh);
+            nread += fread(p, 1, len - nread, d->fh);
             if ((uint)nread != len) {
-                if (ferror(fh) || nread==0) {
-                    setStatus(IO_ReadError);
-                    setErrorString(qt_fileerr_read);
-                }
+                if (ferror(d->fh) || nread == 0)
+                    setStatus(IO_ReadError, QFILEERR_READ);
             }
         }
     }
@@ -564,23 +556,19 @@ Q_LONG QFile::writeBlock(const char *p, Q_ULONG len)
     }
     Q_ULONG nwritten;                                // number of bytes written
     if (isRaw())                                // raw file
-        nwritten = ::write(fd, (void *)p, len);
+        nwritten = ::write(d->fd, (void *)p, len);
     else                                        // buffered file
-        nwritten = fwrite(p, 1, len, fh);
+        nwritten = fwrite(p, 1, len, d->fh);
     if (nwritten != len) {                // write error
-        if (errno == ENOSPC)                        // disk is full
-            setStatus(IO_ResourceError);
-        else
-            setStatus(IO_WriteError);
-        setErrorStringErrno(errno);
+        setStatus(errno == ENOSPC ? IO_ResourceError : IO_WriteError, errno);
         if (!isSequentialAccess()) {
             if (isRaw())                        // recalc file position
-                ioIndex = ::lseek(fd, 0, SEEK_CUR);
+                ioIndex = ::lseek(d->fd, 0, SEEK_CUR);
             else {
 #if defined(QT_LARGEFILE_SUPPORT)
-                ioIndex = ::fseeko(fh, 0, SEEK_CUR);
+                ioIndex = ::fseeko(d->fh, 0, SEEK_CUR);
 #else
-                ioIndex = ::fseek(fh, 0, SEEK_CUR);
+                ioIndex = ::fseek(d->fh, 0, SEEK_CUR);
 #endif
             }
         }
@@ -588,8 +576,8 @@ Q_LONG QFile::writeBlock(const char *p, Q_ULONG len)
         if (!isSequentialAccess())
             ioIndex += nwritten;
     }
-    if (ioIndex > length)                        // update file length
-        length = ioIndex;
+    if (ioIndex > d->length)                        // update file length
+        d->length = ioIndex;
     return nwritten;
 }
 
@@ -610,10 +598,10 @@ int QFile::handle() const
 {
     if (!isOpen())
         return -1;
-    else if (fh)
-        return fileno(fh);
+    else if (d->fh)
+        return fileno(d->fh);
     else
-        return fd;
+        return d->fd;
 }
 
 /*!
@@ -632,26 +620,23 @@ int QFile::handle() const
   \sa open(), flush()
 */
 
-
 void QFile::close()
 {
     bool ok = false;
     if (isOpen()) {                                // file is not open
-        if (fh) {                                // buffered file
-            if (ext_f)
-                ok = fflush(fh) != -1;        // flush instead of closing
+        if (d->fh) {                               // buffered file
+            if (d->ext_f)
+                ok = fflush(d->fh) != -1;          // flush instead of closing
             else
-                ok = fclose(fh) != -1;
-        } else {                                // raw file
-            if (ext_f)
-                ok = true;                        // cannot close
+                ok = fclose(d->fh) != -1;
+        } else {                                   // raw file
+            if (d->ext_f)
+                ok = true;                         // cannot close
             else
-                ok = ::close(fd) != -1;
+                ok = ::close(d->fd) != -1;
         }
-        init();                                        // restore internal state
+        init();                                    // restore internal state
     }
-    if (!ok) {
-        setStatus(IO_UnspecifiedError);
-        setErrorStringErrno(errno);
-    }
+    if (!ok)
+        setStatus(IO_UnspecifiedError, errno);
 }

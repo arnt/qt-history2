@@ -27,33 +27,10 @@
 #include "qfile.h"
 #include "qfiledefs_p.h"
 #include "qdatastream.h"
-#ifndef NO_ERRNO_H
-#include <errno.h>
-#endif
 #include <limits.h>
 
-
-// Duplicated from qobject.h, but we cannot include qobject.h here since
-// it causes qmake to not build on irix g++
-#define QT_TRANSLATE_NOOP(scope,x) (x)
-
-const char* qt_fileerr_unknown        = QT_TRANSLATE_NOOP("QFile", "Unknown error");
-const char* qt_fileerr_read        = QT_TRANSLATE_NOOP("QFile", "Could not read from the file");
-const char* qt_fileerr_write        = QT_TRANSLATE_NOOP("QFile", "Could not write to the file");
-
-#define QFILEERR_EACCES                QT_TRANSLATE_NOOP("QFile", "Permission denied")
-#define QFILEERR_EMFILE                QT_TRANSLATE_NOOP("QFile", "Too many open files")
-#define QFILEERR_ENOENT                QT_TRANSLATE_NOOP("QFile", "No such file or directory")
-#define QFILEERR_ENOSPC                QT_TRANSLATE_NOOP("QFile", "No space left on device")
-
-class QFilePrivate
-{
-public:
-    QString errorString;
-};
-
 /*!
-    \class QFile qfile.h
+    \class QFile
     \reentrant
     \brief The QFile class is an I/O device that operates on files.
 
@@ -148,9 +125,10 @@ QFile::QFile()
 */
 
 QFile::QFile(const QString &name)
-    : fn(name), d(0)
+    : d(0)
 {
     init();
+    d->fn = name;
 }
 
 
@@ -176,22 +154,23 @@ void QFile::init()
     d = new QFilePrivate;
     setFlags(IO_Direct);
     setStatus(IO_Ok);
-    setErrorString(qt_fileerr_unknown);
-    fh           = 0;
-    fd           = 0;
-    length = 0;
+    d->fh = 0;
+    d->fd = 0;
+    d->length = 0;
     ioIndex = 0;
-    ext_f  = false;                                // not an external file handle
+    d->ext_f = false; // not an external file handle
 }
 
 
 /*!
-    \fn QString QFile::name() const
-
     Returns the name set by setName().
 
     \sa setName(), QFileInfo::fileName()
 */
+QString QFile::name() const
+{
+    return d->fn;
+}
 
 /*!
     Sets the name of the file to \a name. The name can have no path, a
@@ -224,7 +203,7 @@ void QFile::setName(const QString &name)
         qWarning("QFile::setName: File is open");
         close();
     }
-    fn = name;
+    d->fn = name;
 }
 
 /*!
@@ -237,7 +216,7 @@ void QFile::setName(const QString &name)
 
 bool QFile::exists() const
 {
-    return QFileInfoPrivate::access(fn, F_OK);
+    return QFileInfoPrivate::access(d->fn, F_OK);
 }
 
 /*!
@@ -261,7 +240,7 @@ bool QFile::exists(const QString &fileName)
 bool QFile::remove()
 {
     close();
-    return remove(fn);
+    return remove(d->fn);
 }
 
 #if defined(Q_OS_MAC) || defined(Q_OS_MSDOS) || defined(Q_OS_WIN32) || defined(Q_OS_OS2)
@@ -283,8 +262,8 @@ bool QFile::remove()
 
 void QFile::flush()
 {
-    if (isOpen() && fh)                        // can only flush open/buffered
-        fflush(fh);                                //   file
+    if (isOpen() && d->fh)  // can only flush open/buffered files
+        fflush(d->fh);
 }
 
 /*! \reimp
@@ -305,7 +284,7 @@ bool QFile::atEnd() const
         return false;
     }
     if (isDirectAccess() && !isTranslated()) {
-        if (at() < length)
+        if (at() < d->length)
             return false;
     }
     return QIODevice::atEnd();
@@ -343,15 +322,14 @@ Q_LONG QFile::readLine(char *p, Q_ULONG maxlen)
     if (isRaw()) {                                // raw file
         nread = QIODevice::readLine(p, maxlen);
     } else {                                        // buffered file
-        p = fgets(p, maxlen, fh);
+        p = fgets(p, maxlen, d->fh);
         if (p) {
             nread = qstrlen(p);
             if (!isSequentialAccess())
                 ioIndex += nread;
         } else {
             nread = -1;
-            setStatus(IO_ReadError);
-            setErrorString(qt_fileerr_read);
+            setStatus(IO_ReadError, QFILEERR_READ);
         }
     }
     return nread;
@@ -410,10 +388,10 @@ int QFile::getch()
 
     int ch;
 
-    if (!ungetchBuffer.isEmpty()) {
-        int len = ungetchBuffer.length();
-        ch = ungetchBuffer[len-1];
-        ungetchBuffer.truncate(len - 1);
+    if (!d->ungetchBuffer.isEmpty()) {
+        int len = d->ungetchBuffer.size();
+        ch = d->ungetchBuffer[len - 1];
+        d->ungetchBuffer.truncate(len - 1);
         return ch;
     }
 
@@ -421,12 +399,11 @@ int QFile::getch()
         char buf[1];
         ch = readBlock(buf, 1) == 1 ? buf[0] : EOF;
     } else {                                        // buffered file
-        if ((ch = getc(fh)) != EOF) {
+        if ((ch = getc(d->fh)) != EOF) {
             if (!isSequentialAccess())
                 ioIndex++;
         } else {
-            setStatus(IO_ReadError);
-            setErrorString(qt_fileerr_read);
+            setStatus(IO_ReadError, QFILEERR_READ);
         }
     }
     return ch;
@@ -455,14 +432,13 @@ int QFile::putch(int ch)
         buf[0] = ch;
         ch = writeBlock(buf, 1) == 1 ? ch : EOF;
     } else {                                        // buffered file
-        if ((ch = putc(ch, fh)) != EOF) {
+        if ((ch = putc(ch, d->fh)) != EOF) {
             if (!isSequentialAccess())
                 ioIndex++;
-            if (ioIndex > length)                // update file length
-                length = ioIndex;
+            if (ioIndex > d->length)                // update file length
+                d->length = ioIndex;
         } else {
-            setStatus(IO_WriteError);
-            setErrorString(qt_fileerr_write);
+            setStatus(IO_WriteError, QFILEERR_WRITE);
         }
     }
     return ch;
@@ -492,9 +468,9 @@ int QFile::ungetch(int ch)
     if (ch == EOF)                                // cannot unget EOF
         return ch;
 
-    if (isSequentialAccess() && !fh) {
-        // pipe or similar => we cannot ungetch, so do it manually
-        ungetchBuffer += ch;
+    if (isSequentialAccess() && !d->fh) {
+        // pipe or similar: we cannot ungetch, so do it manually
+        d->ungetchBuffer += ch;
         return ch;
     }
 
@@ -503,16 +479,15 @@ int QFile::ungetch(int ch)
         at(ioIndex-1);
         buf[0] = ch;
         if (writeBlock(buf, 1) == 1)
-            at (ioIndex-1);
+            at(ioIndex - 1);
         else
             ch = EOF;
     } else {                                        // buffered file
-        if ((ch = ungetc(ch, fh)) != EOF) {
+        if ((ch = ungetc(ch, d->fh)) != EOF) {
             if (!isSequentialAccess())
                 ioIndex--;
         } else {
-            setStatus(IO_ReadError);
-            setErrorString(qt_fileerr_read);
+            setStatus(IO_ReadError, QFILEERR_READ);
         }
     }
     return ch;
@@ -617,85 +592,4 @@ QString QFile::decodeName(const char *localFileName)
 void QFile::setDecodingFunction(DecoderFn f)
 {
     decoder = f;
-}
-
-/*!
-    Returns a human-readable description of the reason of an error that occurred
-    on the device. The error described by the string corresponds to changes of
-    QIODevice::status(). If the status is reset, the error string is also reset.
-
-    The returned strings are not translated with the QObject::tr() or
-    QApplication::translate() functions. They are marked as translatable
-    strings in the "QFile" context. Before you show the string to the user you
-    should translate it first, for example:
-
-    \code
-        QFile f("address.dat");
-        if (!f.open(IO_ReadOnly) {
-            QMessageBox::critical(
-                this,
-                tr("Open failed"),
-                tr("Could not open file for reading: %1").arg(qApp->translate("QFile",f.errorString()))
-               );
-            return;
-        }
-    \endcode
-
-    \sa QIODevice::status(), QIODevice::resetStatus(), setErrorString()
-*/
-
-QString        QFile::errorString() const
-{
-    if (status() == IO_Ok)
-        return qt_fileerr_unknown;
-    return d->errorString;
-}
-
-/*!
-    \nonreentrant
-
-    Sets the error string returned by the errorString() function to \a str.
-
-    \sa errorString(), QIODevice::status()
-*/
-
-void QFile::setErrorString(const QString& str)
-{
-    d->errorString = str;
-}
-
-void QFile::setErrorStringErrno(int errnum)
-{
-    switch (errnum) {
-        case EACCES:
-            d->errorString = QFILEERR_EACCES;
-            break;
-        case EMFILE:
-            d->errorString = QFILEERR_EMFILE;
-            break;
-        case ENOENT:
-            d->errorString = QFILEERR_ENOENT;
-            break;
-        case ENOSPC:
-            d->errorString = QFILEERR_ENOSPC;
-            break;
-        default:
-#ifndef Q_OS_TEMP
-            d->errorString = QString::fromLocal8Bit(strerror(errnum));
-#else
-            {
-                unsigned short *string;
-                FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
-                               NULL,
-                               errnum,
-                               MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                               (LPTSTR)&string,
-                               0,
-                               NULL);
-                d->errorString = QString::fromUcs2(string);
-                LocalFree((HLOCAL)string);
-            }
-#endif
-            break;
-    }
 }

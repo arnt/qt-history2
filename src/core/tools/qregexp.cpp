@@ -25,9 +25,6 @@
 #include "qthreadstorage.h"
 #include "qthread.h"
 
-#undef QT_TRANSLATE_NOOP
-#define QT_TRANSLATE_NOOP(context, sourceText) sourceText
-
 #include <limits.h>
 
 // error strings for the regexp parser

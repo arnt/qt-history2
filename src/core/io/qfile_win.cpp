@@ -45,7 +45,7 @@ QByteArray qt_win95Name(const QString s)
     return ss.toLocal8Bit();
 }
 
-bool QFileInfoPrivate::access(const QString& fn, int t)
+bool QFileInfoPrivate::access(const QString &fn, int t)
 {
     if (fn.isEmpty())
         return false;
@@ -90,7 +90,7 @@ bool QFile::open(int m)
         qWarning("QFile::open: File already open");
         return false;
     }
-    if (fn.isEmpty()) {                        // no file name defined
+    if (d->fn.isEmpty()) {                        // no file name defined
         qWarning("QFile::open: No file name specified");
         return false;
     }
@@ -100,7 +100,7 @@ bool QFile::open(int m)
         qWarning("QFile::open: File access not specified");
         return false;
     }
-    if (!isValidFile(fn)) {
+    if (!isValidFile(d->fn)) {
         qWarning("QFile::open: Invalid filename specified");
         return false;
     }
@@ -135,19 +135,19 @@ bool QFile::open(int m)
             oflags |= QT_OPEN_ASYNC;
 #endif
         QT_WA({
-            fd = ::_wopen((TCHAR*)fn.utf16(), oflags, 0666);
+            d->fd = ::_wopen((TCHAR*)d->fn.utf16(), oflags, 0666);
         } , {
-            fd = QT_OPEN(qt_win95Name(fn), oflags, 0666);
+            d->fd = QT_OPEN(qt_win95Name(d->fn), oflags, 0666);
         });
 
-        if (fd != -1) {                        // open successful
+        if (d->fd != -1) {                        // open successful
             QT_STATBUF st;
-            QT_FSTAT(fd, &st);
+            QT_FSTAT(d->fd, &st);
             if ((st.st_mode& QT_STAT_MASK) == QT_STAT_DIR) {
                 ok = false;
             } else {
-                length = (int)st.st_size;
-                ioIndex  = (flags() & IO_Append) == 0 ? 0 : length;
+                d->length = (int)st.st_size;
+                ioIndex = (flags() & IO_Append) == 0 ? 0 : d->length;
             }
         } else {
             ok = false;
@@ -187,28 +187,27 @@ bool QFile::open(int m)
                 tperm2[1] = perm2[1];
                 tperm2[2] = perm2[2];
                 tperm2[3] = perm2[3];
-                fh = ::_wfopen((TCHAR*)fn.utf16(), tperm2);
+                d->fh = ::_wfopen((TCHAR*)d->fn.utf16(), tperm2);
             } , {
-                fh = fopen(qt_win95Name(fn),
-                            perm2);
+                d->fh = fopen(qt_win95Name(d->fn), perm2);
             });
             if (errno == EACCES)
                 break;
-            if (!fh && try_create) {
+            if (!d->fh && try_create) {
                 perm2[0] = 'w';                        // try "w+" instead of "r+"
                 try_create = false;
             } else {
                 break;
             }
         }
-        if (fh) {
+        if (d->fh) {
             QT_STATBUF st;
-            QT_FSTAT(QT_FILENO(fh), &st);
+            QT_FSTAT(QT_FILENO(d->fh), &st);
             if ((st.st_mode& QT_STAT_MASK) == QT_STAT_DIR) {
                 ok = false;
             } else {
-                length = (int)st.st_size;
-                ioIndex  = (flags() & IO_Append) == 0 ? 0 : length;
+                d->length = (int)st.st_size;
+                ioIndex  = (flags() & IO_Append) == 0 ? 0 : d->length;
             }
         } else {
             ok = false;
@@ -218,11 +217,7 @@ bool QFile::open(int m)
         setState(IO_Open);
     } else {
         init();
-        if (errno == EMFILE)                        // no more file handles/descrs
-            setStatus(IO_ResourceError);
-        else
-            setStatus(IO_OpenError);
-        setErrorStringErrno(errno);
+        setStatus(errno == EMFILE ? IO_ResourceError : IO_OpenError, errno);
     }
     return ok;
 }
@@ -238,17 +233,17 @@ bool QFile::open(int m, FILE *f)
     init();
     setMode(m &~IO_Raw);
     setState(IO_Open);
-    fh = f;
-    ext_f = true;
+    d->fh = f;
+    d->ext_f = true;
     QT_STATBUF st;
-    QT_FSTAT(QT_FILENO(fh), &st);
-    ioIndex = (int)ftell(fh);
+    QT_FSTAT(QT_FILENO(d->fh), &st);
+    ioIndex = (int)ftell(d->fh);
     if ((st.st_mode & QT_STAT_MASK) != QT_STAT_REG) {
         // non-seekable
         setType(IO_Sequential);
-        length = LLONG_MAX;
+        d->length = LLONG_MAX;
     } else {
-        length = (int)st.st_size;
+        d->length = (int)st.st_size;
     }
     return true;
 }
@@ -263,17 +258,17 @@ bool QFile::open(int m, int f)
     init();
     setMode(m |IO_Raw);
     setState(IO_Open);
-    fd = f;
-    ext_f = true;
+    d->fd = f;
+    d->ext_f = true;
     QT_STATBUF st;
-    QT_FSTAT(fd, &st);
-    ioIndex  = (int)QT_LSEEK(fd, 0, SEEK_CUR);
+    QT_FSTAT(d->fd, &st);
+    ioIndex  = (int)QT_LSEEK(d->fd, 0, SEEK_CUR);
     if ((st.st_mode & QT_STAT_MASK) != QT_STAT_REG) {
         // non-seekable
         setType(IO_Sequential);
-        length = LLONG_MAX;
+        d->length = LLONG_MAX;
     } else {
-        length = (int)st.st_size;
+        d->length = (int)st.st_size;
     }
     return true;
 }
@@ -283,12 +278,12 @@ QIODevice::Offset QFile::size() const
     QT_STATBUF st;
     int ret = 0;
     if (isOpen()) {
-        ret = QT_FSTAT(fh ? QT_FILENO(fh) : fd, &st);
+        ret = QT_FSTAT(d->fh ? QT_FILENO(d->fh) : d->fd, &st);
     } else {
         QT_WA({
-            ret = QT_TSTAT((TCHAR*)fn.utf16(), (QT_STATBUF4TSTAT*)&st);
+            ret = QT_TSTAT((TCHAR*)d->fn.utf16(), (QT_STATBUF4TSTAT*)&st);
         } , {
-            ret = QT_STAT(qt_win95Name(fn), &st);
+            ret = QT_STAT(qt_win95Name(d->fn), &st);
         });
     }
     if (ret == -1)
@@ -304,10 +299,10 @@ bool QFile::at(Offset pos)
     }
     bool okay;
     if (isRaw()) {                                // raw file
-        pos = (int)QT_LSEEK(fd, pos, SEEK_SET);
+        pos = (int)QT_LSEEK(d->fd, pos, SEEK_SET);
         okay = pos != (Q_ULONG)-1;
     } else {                                        // buffered file
-        okay = fseek(fh, pos, SEEK_SET) == 0;
+        okay = fseek(d->fh, pos, SEEK_SET) == 0;
     }
     if (okay)
         ioIndex = pos;
@@ -332,32 +327,29 @@ Q_LONG QFile::readBlock(char *p, Q_ULONG len)
         return -1;
     }
     Q_ULONG nread = 0;                                        // number of bytes read
-    if (!ungetchBuffer.isEmpty()) {
+    if (!d->ungetchBuffer.isEmpty()) {
         // need to add these to the returned string.
-        Q_ULONG l = ungetchBuffer.length();
-        while(nread < l) {
-            *p = ungetchBuffer[int(l - nread - 1)];
+        Q_ULONG l = d->ungetchBuffer.size();
+        while (nread < l) {
+            *p = d->ungetchBuffer[int(l - nread - 1)];
             p++;
             nread++;
         }
-        ungetchBuffer.truncate(l - nread);
+        d->ungetchBuffer.truncate(l - nread);
     }
 
     if(nread < len) {
         if (isRaw()) {                                // raw file
-            nread += QT_READ(fd, p, len - nread);
+            nread += QT_READ(d->fd, p, len - nread);
             if (len && nread <= 0) {
                 nread = 0;
-                setStatus(IO_ReadError);
-                setErrorStringErrno(errno);
+                setStatus(IO_ReadError, errno);
             }
         } else {                                        // buffered file
-            nread += fread(p, 1, len - nread, fh);
+            nread += fread(p, 1, len - nread, d->fh);
             if ((uint)nread != len) {
-                if (ferror(fh) || nread==0) {
-                    setStatus(IO_ReadError);
-                    setErrorString(qt_fileerr_read);
-                }
+                if (ferror(d->fh) || nread == 0)
+                    setStatus(IO_ReadError, QFILEERR_READ);
             }
         }
     }
@@ -382,24 +374,20 @@ Q_LONG QFile::writeBlock(const char *p, Q_ULONG len)
     }
     Q_ULONG nwritten;                                // number of bytes written
     if (isRaw())                                // raw file
-        nwritten = QT_WRITE(fd, p, len);
+        nwritten = QT_WRITE(d->fd, p, len);
     else                                        // buffered file
-        nwritten = fwrite(p, 1, len, fh);
+        nwritten = fwrite(p, 1, len, d->fh);
     if (nwritten != len) {                // write error
-        if (errno == ENOSPC)                        // disk is full
-            setStatus(IO_ResourceError);
-        else
-            setStatus(IO_WriteError);
-        setErrorStringErrno(errno);
+        setStatus(errno == ENOSPC ? IO_ResourceError : IO_WriteError, errno);
         if (isRaw())                                // recalc file position
-            ioIndex = (int)QT_LSEEK(fd, 0, SEEK_CUR);
+            ioIndex = (int)QT_LSEEK(d->fd, 0, SEEK_CUR);
         else
-            ioIndex = fseek(fh, 0, SEEK_CUR);
+            ioIndex = fseek(d->fh, 0, SEEK_CUR);
     } else {
         ioIndex += nwritten;
     }
-    if (ioIndex > length)                        // update file length
-        length = ioIndex;
+    if (ioIndex > d->length)                        // update file length
+        d->length = ioIndex;
     return nwritten;
 }
 
@@ -407,33 +395,29 @@ int QFile::handle() const
 {
     if (!isOpen())
         return -1;
-    else if (fh)
-        return QT_FILENO(fh);
+    else if (d->fh)
+        return QT_FILENO(d->fh);
     else
-        return fd;
+        return d->fd;
 }
 
 void QFile::close()
 {
     bool ok = false;
-    if (isOpen()) {                                // file is not open
-        if (fh) {                                // buffered file
-            if (ext_f)
-                ok = fflush(fh) != -1;        // flush instead of closing
+    if (isOpen()) {
+        if (d->fh) {                            // buffered file
+            if (d->ext_f)
+                ok = fflush(d->fh) != -1;       // flush instead of closing
             else
-                ok = fclose(fh) != -1;
+                ok = fclose(d->fh) != -1;
         } else {                                // raw file
-            if (ext_f)
-                ok = true;                        // cannot close
+            if (d->ext_f)
+                ok = true;                      // cannot close
             else
-                ok = QT_CLOSE(fd) != -1;
+                ok = QT_CLOSE(d->fd) != -1;
         }
-        init();                                        // restore internal state
+        init();                                 // restore internal state
     }
-    if (!ok) {
-        setStatus (IO_UnspecifiedError);
-        setErrorStringErrno(errno);
-    }
-
-    return;
+    if (!ok)
+        setStatus(IO_UnspecifiedError, errno);
 }

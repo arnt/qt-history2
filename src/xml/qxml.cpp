@@ -19,9 +19,6 @@
 #include "qmap.h"
 #include "qstack.h"
 
-// needed for QT_TRANSLATE_NOOP:
-#include "qobject.h"
-
 #ifndef QT_NO_XML
 
 //#define QT_QXML_DEBUG

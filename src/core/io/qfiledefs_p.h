@@ -28,6 +28,7 @@
 #ifndef QT_H
 #include <qglobal.h>
 #include <qatomic.h>
+#include <qcoreapplication.h>
 #endif
 
 // Be sure to include qplatformdefs.h first!
@@ -73,5 +74,19 @@ public:
 #endif
 };
 
+class QFilePrivate
+{
+public:
+    QString errorString;
+    QByteArray ungetchBuffer;
+    QString fn;
+    FILE *fh;
+    int fd;
+    QIODevice::Offset length;
+    bool ext_f;
+};
+
+#define QFILEERR_READ  QT_TRANSLATE_NOOP("QFile", "Could not read from the file")
+#define QFILEERR_WRITE QT_TRANSLATE_NOOP("QFile", "Could not write to the file")
 
 #endif
