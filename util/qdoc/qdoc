@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#58 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#59 $
 #
 # this is a massive hack, written very quickly
 #
@@ -98,7 +98,7 @@ sub processcode {
 
     s/\n\s*\n/\n<linebreak>\n/gs;
 
-    join($_, "<bq><pre>\n", "</pre></bq>\n");
+    join($_, "<blockquote><pre>\n", "</pre></blockquote>\n");
 }
 
 
@@ -188,6 +188,29 @@ sub processdocs {
 	$doc =~ s-\s*\\warning\s+-<p><strong>Warning: </strong>-gs;
 	$doc =~ s/\\internal\s.*//s if (!$internal);
 
+	# this code is _really_ hard to follow... sorry
+	$doc =~ s@\\sa\s+(.*)?\n@
+	{
+	    my ($seealso);
+	    $seealso = $1;
+
+	    $seealso =~ s/\s+/ sex /gs;
+	    $seealso =~ s/\\link(.*?)\\endlink/
+	    {
+		my($evilhack);
+		$evilhack = $1;
+		$evilhack =~ s- sex - -gs;
+		sprintf("\\link %s \\endlink", $evilhack);
+	    }/esg;
+
+	    $seealso =~ s/,? sex and sex / sex /;
+	    $seealso =~ s/\.?\s*(?:sex\s*)?$//;
+	    $seealso =~ s/,?\s+sex\s+/ sex and sex /gs;
+	    $seealso =~ s/ sex and sex (?=.* sex and sex )/, sex /gs;
+	    $seealso =~ s/ sex / /gs;
+	    sprintf( "\n\nmagicwordthatyoushouldavoid %s.\n", $seealso );
+	}@es;
+
 	$doc =~ s-\\link\s+([\w:\.]+)(?:[\(\)]*)\s*(.*?)\s*\\endlink-
 	    if (defined($anchor{$1})) {
 		sprintf("<a href=%s>%s</a>", $anchor{$1}, $2);
@@ -214,14 +237,14 @@ sub processdocs {
 		(?:(?:\n\s*?\n)|(?:$ ))-\n<li>$1\n</ul>\n-sx;
 	}
 
-	$_ = "To do:\n<ul>\n";
+	$_ = "<p>To do:\n<ul>\n";
 	$_ .= "<li>" . $1 . "\n"
 	    while ($doc =~ s/\s*\\todo\s+(.*?)
 		   (?:(?:\n\s*?\n\s*)|(?=\\todo\s)|(?:$ ))/\n\n/sx);
 	$_ .= "</ul>\n";
 	$doc .= $_ if (/<li>/s);
 
-	$_ = "Bugs and limitations:\n<ul>\n";
+	$_ = "<p>Bugs and limitations:\n<ul>\n";
 	$_ .= "<li>" . $1 . "\n" 
 	    while ($doc =~ s/\s*\\bug\s+(.*?)
 		   (?:(?:\n\s*?\n\s*)|(?:$ ))/\n\n/sx);
@@ -239,17 +262,6 @@ sub processdocs {
 	$doc =~ s/^\s*\n//s;
 	$doc =~ s/>\.\n$/>\n/s;
 
-	$doc =~ s@\\sa\s+(.*)?\n@
-	{
-	    my ($seealso);
-	    $seealso = $1;
-	    $seealso =~ s/,?\s+and\s+/, /;
-	    $seealso =~ s/\.?\s*$//;
-	    $seealso =~ s/,?\s+/, /g;
-	    $seealso =~ s/, (\S+)$/ and $1/;
-	    sprintf( "\n\nmagicwordthatyoushouldavoid %s.\n", $seealso );
-	}@es;
-
 	$doc =~ s-\s*\n\s*\n\s*-\n<p>-gs;
 	$doc =~ s/<linebreak>//gs;
 
@@ -260,7 +272,7 @@ sub processdocs {
 
 	$doc =~ s-(?:(?:\b((?:(?:operator[^\s\(]{1,3})
 			    |(?:[\w:]+(?:\.(?:h)|(?:cpp))?)))(\()?(?!</a>))
-		   |((?:(?:<pre>.*?</pre>)|(?:<.*?>))))-
+		   |((?:(?:<pre>.*?</pre>)|(?:<a [^>]+>[^<]*</a>)|(?:<.*?>))))-
 	    if ($3 eq "") {
 		if (!defined($word{$1})) {
 		    if ($1 eq "magicwordthatyoushouldavoid") {
@@ -309,6 +321,8 @@ sub writepages {
 
 	$doc =~ s!\\e\s+(\S+)!<em>$1</em>!gs;
 	$doc =~ s!\\c\s+(\S+)!<code>$1</code>!gs;
+
+	$doc =~ s/<linebreak>//gs;
 
 	open(O, "> $outputdir/$file") ||
 	    die "can't open $outputdir/$file";
@@ -486,7 +500,7 @@ sub readfiles {
 	    || die "can't open $outputdir/$_ for writing";
 	$h = <F>;
 	close(F);
-	$h = html($h);
+	$h = &html($h);
 	$h =~ s@\nclass\s+\w+(?:\s*:(\s*(?:public\s+)?\w+\s*,?)*)?@
 	    $_ = "";
 	    foreach $w (split(/\b/, $&)) {
@@ -1415,13 +1429,14 @@ problem, and we'll fix it before 1.0.
 	} elsif ( $type{$anchor{$_}} eq "fn" && !($_ =~ /::_cast/)) {
 	    $member = $_;
 	    $member =~ s/.*:://;
-	    print O "<li><a href=", $anchor{$_}, ">", $member, "</a>\n";
+	    print O "<li><a href=", $anchor{$_}, ">", &html($member), "</a>\n";
 	} elsif ( $type{$anchor{$_}} eq "enum" ) {
 	    $member = $_;
 	    $member =~ s/.*:://;
-	    print O "<li>enum <a href=", $anchor{$_}, ">", $member, "</a>\n";
+	    print O "<li>enum <a href=", $anchor{$_}, ">", &html($member), "</a>\n";
 	}
     }
+    print O $tail;
     close O;
 }
 
