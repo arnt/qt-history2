@@ -975,10 +975,17 @@ QFSFileEngine::fileName(FileName file) const
         return ret;
     } else if(file == CanonicalName || file == CanonicalPathName) {
         QString ret;
+        if (!(fileFlags(ExistsFlag) & ExistsFlag))
+            return ret;
         QT_WA({
             TCHAR cur[PATH_MAX];
             ::_wgetcwd(cur, PATH_MAX);
-            if(::_wchdir((TCHAR*)fileName(AbsolutePathName).utf16()) >= 0) {
+            QString abs;
+            if (fileFlags(DirectoryType) & DirectoryType)
+                abs = fileName(AbsoluteName);
+            else
+                abs = fileName(AbsolutePathName);
+            if (::_wchdir((TCHAR*)abs.utf16()) >= 0) {
                 TCHAR real[PATH_MAX];
                 if(::_wgetcwd(real, PATH_MAX))
                     ret = QString::fromUtf16((ushort*)real);
@@ -994,7 +1001,7 @@ QFSFileEngine::fileName(FileName file) const
             }
             QT_CHDIR(cur);
         });
-        if (file == CanonicalName)
+        if (file == CanonicalName && !(fileFlags(DirectoryType) & DirectoryType))
             ret += QLatin1Char('/') + fileName(BaseName);
         return QFSFileEnginePrivate::fixToQtSlashes(ret);
     } else if(file == LinkName) {
