@@ -20,6 +20,7 @@
 
 #include "mainwindow.h"
 
+#include <stdlib.h>
 #include <qaction.h>
 #include <qwhatsthis.h>
 #include <qpopupmenu.h>

@@ -64,6 +64,7 @@
 #include <qdir.h>
 #include <qtimer.h>
 #include <qlistbox.h>
+#include <stdlib.h>
 #include <qdockwindow.h>
 #include <qregexp.h>
 #include <qstylefactory.h>
