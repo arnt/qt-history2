@@ -46,6 +46,7 @@
 #include "qtimer.h"
 #include "qobjectlist.h"
 #include "qiconset.h"
+#include "qcombobox.h"
 #include <stdlib.h>
 #include <limits.h>
 
@@ -564,6 +565,146 @@ int QTableItem::col() const
     return cl;
 }
 
+
+/*!
+  \class QTableComboBoxItem qtable.h
+
+  \brief The QTableComboBoxItem class implements a convenient class to
+  put combobox items in a QTable
+
+  \module table
+
+  This class implements a combobox item for QTable. It has set the
+  edit type WhenCurrent. This means, when this item is not the current
+  one, it paints itself like a combobox, but without using a real
+  QComboBox widget. When the item becomes the current one, it shows a
+  real combobox, so that the user can edit the value.
+
+  This has the advantage, that this item is always visible as a
+  combobox without the need of always showing a real QComboBox widget,
+  which would waste resources.
+
+  The \a list arguments specifies the initial value of the item, \a
+  editable specifies if the combobox should be editable or not.
+*/
+
+QTableComboBoxItem::QTableComboBoxItem( QTable *table, const QStringList &list, bool editable )
+    : QTableItem( table, WhenCurrent, "" ), entries( list ), current( 0 ), edit( editable )
+{
+    setReplaceable( FALSE );
+}
+
+void QTableComboBoxItem::setStringList( const QStringList &l )
+{
+    entries = l;
+    current = 0;
+    table()->updateCell( row(), col() );
+}
+
+/*! \reimp */
+
+QWidget *QTableComboBoxItem::createEditor() const
+{
+    // create an editor - a combobox in our case
+    ( (QTableComboBoxItem*)this )->cb = new QComboBox( edit, table()->viewport() );
+    cb->insertStringList( entries );
+    cb->setCurrentItem( current );
+    return cb;
+}
+
+/*! \reimp */
+
+void QTableComboBoxItem::setContentFromEditor( QWidget *w )
+{
+    if ( w->inherits( "QComboBox" ) ) {
+	QComboBox *cb = (QComboBox*)w;
+	entries.clear();
+	for ( int i = 0; i < cb->count(); ++i )
+	    entries << cb->text( i );
+	current = cb->currentItem();
+	setText( currentText() );
+    }
+}
+
+/*! \reimp */
+
+void QTableComboBoxItem::paint( QPainter *p, const QColorGroup &cg,
+			   const QRect &cr, bool selected )
+{
+    int w = cr.width();
+    int h = cr.height();
+
+    table()->style().drawComboButton( p, 0, 0, w, h, cg, FALSE, TRUE, TRUE );
+    QRect tmpR = table()->style().comboButtonRect( 0, 0, w, h );
+    QRect textR( tmpR.x() + 1, tmpR.y() + 1, tmpR.width() - 2, tmpR.height() - 2 );
+
+    if ( selected )
+	p->setPen( cg.highlightedText() );
+    else
+	p->setPen( cg.text() );
+    p->drawText( textR, wordWrap() ? ( alignment() | WordBreak ) : alignment(), currentText() );
+}
+
+/*! Sets the item \a i of the list of entries to the current one */
+
+void QTableComboBoxItem::setCurrentItem( int i )
+{
+    current = i;
+    setText( currentText() );
+    table()->updateCell( row(), col() );
+}
+
+/*! Sets the string \a s to be the current one, of the list of entries
+  contains this. */
+
+void QTableComboBoxItem::setCurrentItem( const QString &s )
+{
+    int i = entries.findIndex( s );
+    if ( i != -1 )
+	setCurrentItem( i );
+}
+
+/*! Rezurns the current item */
+
+int QTableComboBoxItem::currentItem() const
+{
+    return current;
+}
+
+/*! Returns the currently selected text. */
+
+QString QTableComboBoxItem::currentText() const
+{
+    return *entries.at( current );
+}
+
+/*! Returns the number of items in the list of entries. */
+
+int QTableComboBoxItem::count() const
+{
+    return entries.count();
+}
+
+/*! Returns the text of the item \a i in the lits of entries */
+
+QString QTableComboBoxItem::text( int i ) const
+{
+    return *entries.at( i );
+}
+
+/*! Sets the combobox of this item to be editable if \a b is TRUE */
+
+void QTableComboBoxItem::setEditable( bool b )
+{
+    edit = b;
+}
+
+/*! Returns whether the combobox of this item is editable */
+
+bool QTableComboBoxItem::isEditable() const
+{
+    return edit;
+}
 
 // ### this needs a bit of general stuff at the top
 

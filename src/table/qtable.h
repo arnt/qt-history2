@@ -47,6 +47,7 @@
 #include <qguardedptr.h>
 #include <qshared.h>
 #include <qintdict.h>
+#include <qstringlist.h>
 #endif // QT_H
 
 
@@ -58,7 +59,7 @@ class QTable;
 class QPaintEvent;
 class QTimer;
 class QResizeEvent;
-
+class QComboBox;
 
 struct QTablePrivate;
 struct QTableHeaderPrivate;
@@ -144,6 +145,31 @@ private:
 
 };
 
+class Q_EXPORT QTableComboBoxItem : public QTableItem
+{
+public:
+    QTableComboBoxItem( QTable *table, const QStringList &list, bool editable = FALSE );
+    virtual QWidget *createEditor() const;
+    virtual void setContentFromEditor( QWidget *w );
+    virtual void paint( QPainter *p, const QColorGroup &cg,
+			const QRect &cr, bool selected );
+    virtual void setCurrentItem( int i );
+    virtual void setCurrentItem( const QString &i );
+    int currentItem() const;
+    QString currentText() const;
+    int count() const;
+    QString text( int i ) const;
+    virtual void setEditable( bool b );
+    bool isEditable() const;
+    virtual void setStringList( const QStringList &l );
+
+private:
+    QComboBox *cb;
+    QStringList entries;
+    int current;
+    bool edit;
+
+};
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
