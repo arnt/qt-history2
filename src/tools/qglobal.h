@@ -305,6 +305,8 @@
 #    define Q_NO_BOOL_TYPE
 #    define Q_NO_EXPLICIT_KEYWORD
 #    define Q_NO_USING_KEYWORD
+#    define Q_TYPENAME
+#    define Q_INLINE_TEMPLATES inline
 #    define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #    define Q_CANNOT_DELETE_CONSTANT
 #  endif
