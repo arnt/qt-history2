@@ -228,9 +228,9 @@ bool PopupMenuEditorItem::isSeparator()
 void PopupMenuEditorItem::setVisible( bool enable )
 {
     if ( a ) {
-	return a->setVisible( enable );
+	a->setVisible( enable );
     } else if ( g ) {
-	return g->setVisible( enable );
+	g->setVisible( enable );
     } else if ( w ) {
 	if ( enable ) {
 	    w->show();
