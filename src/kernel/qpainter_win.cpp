@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#162 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#163 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -1848,6 +1848,8 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	    bitBlt( &pmx, 0, 0, pm, sx, sy, sw, sh );
 	}
 	pmx = pmx.xForm( mat );
+	if ( pmx.isNull() )			// xformed into nothing
+	    return;
 	if ( !pmx.mask() && txop == TxRotShear ) {
 	    QBitmap bm_clip( sw, sh, 1 );	// make full mask, xform it
 	    bm_clip.fill( color1 );
