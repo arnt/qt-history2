@@ -276,8 +276,8 @@ MainWindow::~MainWindow()
     desInterface = 0;
 
     delete actionPluginManager;
-//    delete preferencePluginManager;
-//    delete interpreterPluginManager;
+    delete preferencePluginManager;
+    delete interpreterPluginManager;
     delete programPluginManager;
     delete templateWizardPluginManager;
     delete editorPluginManager;
