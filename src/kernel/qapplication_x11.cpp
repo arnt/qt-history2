@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#230 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#231 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#230 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#231 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -199,7 +199,6 @@ static int qt_xio_errhandler( Display * )
 static void qt_init_internal( int *argcptr, char **argv, Display *display )
 {
     if ( display ) {
-
       // Qt part of other application	
 
 	appForeignDpy = TRUE;
@@ -2007,6 +2006,16 @@ static inline bool operator<( const timeval &t1, const timeval &t2 )
 {
     return t1.tv_sec < t2.tv_sec ||
 	  (t1.tv_sec == t2.tv_sec && t1.tv_usec < t2.tv_usec);
+}
+
+static inline timeval &operator+=( timeval &t1, const timeval &t2 )
+{
+    t1.tv_sec += t2.tv_sec;
+    if ( (t1.tv_usec += t2.tv_usec) >= 1000000 ) {
+	t1.tv_sec++;
+	t1.tv_usec -= 1000000;
+    }
+    return t1;
 }
 
 static inline timeval operator+( const timeval &t1, const timeval &t2 )
