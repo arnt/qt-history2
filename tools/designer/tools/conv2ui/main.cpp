@@ -53,7 +53,9 @@ bool Conv2ui::reinit()
 {
     if ( importFiltersManager )
 	delete importFiltersManager;
-    importFiltersManager = new QPluginManager<ImportFilterInterface>( IID_ImportFilter, QApplication::libraryPaths() );
+    importFiltersManager = new QPluginManager<ImportFilterInterface>( IID_ImportFilter,
+						      QApplication::libraryPaths(),
+						      "/designer");
     return !!importFiltersManager;
 }
 
@@ -121,25 +123,28 @@ QString Conv2ui::absName( const QString & filename )
 
 void printHelpMessage( QStringList & formats )
 {
-	printf( "Usage: conv2ui [options] <file> <destination directory>\n\n" );
-	printf( "Options:\n");
-	printf( "\t-help\tDisplay this information\n" );
-	printf( "\t-silent\tDon't write any messages\n");
-	printf( "Supported file formats:\n" );
-	for ( QStringList::Iterator it = formats.begin(); it != formats.end(); ++it ) {
-	    printf( "\t%s\n", (*it).latin1() );
-	}
+    printf( "Usage: conv2ui [options] <file> <destination directory>\n\n" );
+    printf( "Options:\n");
+    printf( "\t-help\t\tDisplay this information\n" );
+    printf( "\t-silent\t\tDon't write any messages\n");
+    printf( "\t-version\tDisplay version of conv2ui\n");
+    printf( "Supported file formats:\n" );
+    for ( QStringList::Iterator it = formats.begin(); it != formats.end(); ++it )
+	printf( "\t%s\n", (*it).latin1() );
+}
+
+void printVersion()
+{
+    printf( "Qt user interface file converter for Qt version %s\n", QT_VERSION_STR );
 }
 
 int main( int argc, char ** argv )
 {
-    QDir plugin( "../../../../plugins/designer" ); //###FIX: hardcoded path? Ugh!
-    QApplication::addLibraryPath( plugin.path() );
-
     Conv2ui conv;
 
     bool help = TRUE;
     bool silent = FALSE;
+    bool version = FALSE;
     bool unrecognized = FALSE;
 
     // parse options
@@ -153,6 +158,10 @@ int main( int argc, char ** argv )
 		break;
 	    } else if ( argv[argi][i] == 'h' ) {
 		help = TRUE;
+		break;
+	    } else if ( argv[argi][i] == 'v' ) {
+		version = TRUE;
+		silent = TRUE;
 		break;
 	    } else {
 		unrecognized = TRUE;
@@ -181,7 +190,10 @@ int main( int argc, char ** argv )
 	    printf( "conv2ui: Unrecognized option\n" );
 	}
     }
-    if ( help ) {
+    if ( version ) {
+	printVersion();
+	return 0;
+    } else if ( help ) {
 	QStringList formats = conv.featureList();
 	printHelpMessage( formats );
 	return 0;

@@ -8,3 +8,4 @@ CONFIG -= moc
 # Input
 INCLUDEPATH	+= ../../interfaces
 SOURCES += main.cpp
+DESTDIR = $$QT_BUILD_TREE/bin
