@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#9 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -359,7 +359,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 
     clientw->installEventFilter( this );
 
-    setActive( TRUE );
+    //setActive( TRUE );
 }
 
 QWorkspaceChild::~QWorkspaceChild()
