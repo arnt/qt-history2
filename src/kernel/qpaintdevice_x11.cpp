@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#132 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#133 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -104,7 +104,7 @@ bool	 QPaintDevice::x_appdefvisual;
 
 
 /*!
-  Constructs a paint device with internal flags \e devflags.
+  Constructs a paint device with internal flags \a devflags.
   This constructor can be invoked only from subclasses of QPaintDevice.
 */
 
@@ -403,9 +403,9 @@ static int dpiX=0,dpiY=0;
 extern void     qX11ClearFontNameCache(); // defined in qfont_x11.cpp
 
 /*!
-  Sets the value returned by x11AppDpiX().  The default is determined
-  by the display configuration.  Changing this value will alter the
-  scaling of fonts and many other metrics and is not recommended.
+  Sets the value returned by x11AppDpiX() to \a dpi.  The default is 
+  determined by the display configuration.  Changing this value will 
+  alter the scaling of fonts and many other metrics and is not recommended.
 
   \sa x11SetAppDpiY()
 */
@@ -416,9 +416,9 @@ void QPaintDevice::x11SetAppDpiX(int dpi)
 }
 
 /*!
-  Sets the value returned by x11AppDpiY().  The default is determined
-  by the display configuration.  Changing this value will alter the
-  scaling of fonts and many other metrics and is not recommended.
+  Sets the value returned by x11AppDpiY() to \a dpi.  The default is 
+  determined by the display configuration.  Changing this value will 
+  alter the scaling of fonts and many other metrics and is not recommended.
 
   \sa x11SetAppDpiX()
 */
@@ -888,9 +888,10 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
 /*!
   \fn void bitBlt( QPaintDevice *dst, const QPoint &dp, const QPaintDevice *src, const QRect &sr, RasterOp rop )
+  \overload
 
-  Overloaded bitBlt() with the destination point \e dp and source rectangle
-  \e sr.
+  Overloaded bitBlt() with the destination point \a dp and source rectangle
+  \a sr.
 
   \relates QPaintDevice
 */

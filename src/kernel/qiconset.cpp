@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#75 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#76 $
 **
 ** Implementation of QIconSet class
 **
@@ -471,6 +471,7 @@ void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode, State state 
 
 
 /*!
+  \overload
   Sets this icon set to load \a fileName as a pixmap and provide it
   for \a size, \a mode and \a state.
   It may also use the pixmap for deriving some other varieties if those
@@ -872,6 +873,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 
 
 /*!
+  \overload
   Returns a pixmap with \a size, \a state and Mode either Normal or Disabled,
   depending on the value of \a enabled.
 */
@@ -950,6 +952,8 @@ void QIconSet::clearGenerated()
 }
 
 /*!
+  \overload
+  
   Returns the pixmap originally provided to the constructor or
   to reset().  This is the Normal pixmap of unspecified Size.
 

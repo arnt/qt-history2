@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qguardedptr.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qguardedptr.cpp#16 $
 **
 ** Implementation of QGuardedPtr class
 **
@@ -135,7 +135,7 @@
 
 /*!
   \fn QGuardedPtr<T> & QGuardedPtr::operator=(T* p)
-
+  \overload
   Assignment operator.  This guarded pointer then points to same object as is
   pointed to by \a p.
 */
@@ -154,7 +154,8 @@
   \fn bool QGuardedPtr::operator!= ( const QGuardedPtr<T>& p ) const
 
   Inequality operator; implements pointer semantics, the negation
-  of operator==.
+  of operator==.  Returns TRUE if \a p and this are not pointing to the
+  same object.  Otherwise returns FALSE.
 */
 
 /*!

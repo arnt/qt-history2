@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#95 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#96 $
 **
 ** Implementation of movie classes
 **
@@ -849,7 +849,9 @@ void QMovie::unpause()
 }
 
 /*!
-  Steps forward, showing the given number of frames, and then pauses.
+  \overload
+
+  Steps forward, showing \a steps frames, and then pauses.
 */
 void QMovie::step(int steps)
 {
@@ -896,7 +898,7 @@ int QMovie::speed() const
 }
 
 /*!
-  Sets the speed-up factor of the movie.  This is a percentage of the
+  Sets the speed-up factor of the movie to \a percent.  This is a percentage of the
   speed dictated by the input data format.  The default is 100 percent.
 */
 void QMovie::setSpeed(int percent)

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#87 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#88 $
 **
 ** Implementation of QNetworkProtocol class
 **
@@ -417,7 +417,7 @@ QNetworkProtocol::~QNetworkProtocol()
 }
 
 /*!
-  Sets the QUrlOperator, on which the protocol works.
+  Sets the QUrlOperator, on which the protocol works to \a u.
 
   \sa QUrlOperator
 */
@@ -546,8 +546,8 @@ void QNetworkProtocol::registerNetworkProtocol( const QString &protocol,
 }
 
 /*!
-  Static method to get a new instance of a network protocol. For example, if
-  you need to do some FTP operations, do the following:
+  Static method to get a new instance of the network protocol \a protocol. 
+  For example, if you need to do some FTP operations, do the following:
 
   QFtp *ftp = QNetworkProtocol::getNetworkProtocol( "ftp" );
 
@@ -1024,6 +1024,8 @@ void QNetworkOperation::setProtocolDetail( const QString &detail )
 }
 
 /*!
+  Sets the error code to \a ec.
+  
   If the operation failed, the protocol should set an error code
   to describe the error in more detail. If possible, one of the
   error codes defined in QNetworkProtocol should be used.
