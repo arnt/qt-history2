@@ -162,8 +162,10 @@ int main( int argc, char * argv[] )
 		 "   %s  [options] -embed <project> <image1> <image2> <image3> ...\n"
 		 "\t<project>       project name\n"
 		 "\t<image[1-N]>    image files\n"
+#if 0
 		 "Generate binary UI file:\n"
 		 "   %s  [options] -binary <uifile>\n"
+#endif
 		 "Generate subclass declaration:\n"
 		 "   %s  [options] -subdecl <subclassname> <baseclassheaderfile> <uifile>\n"
 		 "\t<subclassname>     name of the subclass to generate\n"
