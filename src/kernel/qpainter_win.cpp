@@ -2394,7 +2394,13 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	    mat2.map( tfx, tfy, &dx, &dy );	// compute position of bitmap
 	    x = qRound(nfx-dx);
 	    y = qRound(nfy-dy);
-	    if ( force_bitmap || testf(ExtDev) ) {		// to printer
+	    if ( testf(ExtDev) ) {		// to printer
+		QRegion reg( *wx_bm );
+		reg.translate( x, y );
+		HBRUSH brush = CreateSolidBrush( COLOR_VALUE(cpen.data->color) );
+		FillRgn( hdc, reg.handle(), brush );
+		DeleteObject( brush );
+	    } else if ( force_bitmap ) {
 		uint oldf = flags;
 		flags &= ~(VxF|WxF);
 		drawPixmap( x, y, *wx_bm );
@@ -2457,7 +2463,6 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     if ( rop == CopyROP ) {
 #ifndef Q_OS_TEMP
 	font->d->drawText( hdc, x, y, cache );
-	//TextOut( hdc, x, y, tc, len );
 #else
 	// ### Problem here is that we can't align the text to the baseline of the font
 	// The value 3 is here to correct the difference between the bottom of the font
@@ -2471,7 +2476,6 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 #ifndef Q_OS_TEMP
 	BeginPath(hdc);
 	font->d->drawText( hdc, x, y, cache );
-	//TextOut( hdc, x, y, tc, len );
 	EndPath(hdc);
 #else
 	// ### See last ### comment above
