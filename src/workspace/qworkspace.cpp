@@ -2421,8 +2421,6 @@ void QWorkspaceChild::adjustSize()
     if ( !testWState(WState_Polished) )
 	polish();
 
-    bool hasSizeHint = FALSE;
-
     QSize prefSize = windowWidget()->sizeHint();
     prefSize = prefSize.boundedTo( parentWidget()->size() );
     prefSize = prefSize.expandedTo( windowWidget()->minimumSize() ).boundedTo( windowWidget()->maximumSize() );
