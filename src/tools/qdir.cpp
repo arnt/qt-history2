@@ -91,6 +91,8 @@ const bool CaseSensitiveFS = TRUE;
     common paths is provided with the static functions, current(),
     home() and root() which return QDir objects or currentDirPath(),
     homeDirPath() and rootDirPath() which return the path as a string.
+    If you want to know about your application's path use
+    \l{QApplication::applicationDirPath()}.
 
     The number of entries in a directory is returned by count().
     Obtain a string list of the names of all the files and directories
@@ -164,6 +166,8 @@ const bool CaseSensitiveFS = TRUE;
 	return 0;
     }
     \endcode
+
+    \sa QApplication::applicationDirPath()
 */
 
 /*!
