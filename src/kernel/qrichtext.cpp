@@ -3541,6 +3541,8 @@ void QTextParag::format( int start, bool doMove )
     if ( invalid == -1 )
 	return;
 
+    bool formattedAgain = FALSE;
+
     r.moveTopLeft( QPoint( documentX(), p ? p->r.y() + p->r.height() : documentY() ) );
     r.setWidth( documentWidth() );
     if ( p )
@@ -3602,7 +3604,10 @@ void QTextParag::format( int start, bool doMove )
 	    int oh = r.height();
 	    r.setY( y );
 	    r.setHeight( oh );
-	    goto formatAgain;
+	    if ( !formattedAgain ) {
+		formattedAgain = TRUE;
+		goto formatAgain;
+	    }
 	}
     }
 
