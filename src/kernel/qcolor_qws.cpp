@@ -22,6 +22,7 @@
 #include "string.h"
 #include "qpaintdevice.h"
 #include "qapplication.h"
+#include "qgfx.h"
 
 /*****************************************************************************
   QColor static member functions
@@ -49,6 +50,59 @@ void QColor::cleanup()
     if ( !color_init )
 	return;
     color_init = FALSE;
+}
+
+// Return a value for how close a is to b
+// Lower is better
+static inline int match(QRgb a,QRgb b)
+{
+    int ret;
+     
+#if defined(QWS_DEPTH_8) || defined(QWS_DEPTH_8DIRECT)
+    int h1,s1,v1;
+    int h2,s2,v2;
+    /*
+    QColor tmp1(a);
+    QColor tmp2(b);
+    tmp1.hsv(&h1,&s1,&v1);
+    tmp2.hsv(&h2,&s2,&v2);
+    */
+    h1=qRed(a);
+    s1=qGreen(a);
+    v1=qBlue(a);
+    h2=qRed(b);
+    s2=qGreen(b);
+    v2=qBlue(b);
+    ret=abs(h1-h2);
+    ret+=abs(s1-s2);
+    ret+=abs(v1-v2);
+#else
+    ret=abs(qGray(a)-qGray(b));
+#endif
+
+    return ret;
+}
+
+inline unsigned int closestMatch(int r,int g,int b)
+{
+    QRgb * clut=qt_screen->clut();
+    int clutcols=qt_screen->numCols();
+    if ( r>255 || g>255 || b>255 || r<0 || g<0 || b<0 )
+	abort();
+
+    QRgb tomatch=qRgb(r,g,b);
+    int loopc;
+    unsigned int hold=0xfffff;
+    unsigned int tmp;
+    int pos=0;
+    for(loopc=0;loopc<clutcols;loopc++) {
+	tmp=match(clut[loopc],tomatch);
+	if(tmp<hold) {
+	    hold=tmp;
+	    pos=loopc;
+	}
+    }
+    return pos;
 }
 
 
@@ -96,18 +150,9 @@ uint QColor::alloc()
 #if defined(QWS_DEPTH_8GRAYSCALE)
 	return pix=qGray(r,g,b);	
 #elif defined(QWS_DEPTH_8DIRECT)
-	/*
-	red_shift = 5;
-	green_shift = 3;
-        blue_shift = 0;
-	red_mask   = 0xe0;
-	green_mask = 0x18;
-	blue_mask  = 0x07;
-	*/
-	return pix=((r >> 5) << 5) | ((g >> 6) << 3) |
-		   (b >> 5);
+	return pix=((r >> 5) << 5) | ((g >> 6) << 3) | (b >> 5);
 #else
-	qFatal("QColor alloc called in paletted mode");
+	return pix = closestMatch( r, g, b );
 #endif
     } else if(depth==1) {
 	// #### just a hack

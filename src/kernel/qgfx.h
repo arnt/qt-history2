@@ -56,7 +56,7 @@ public:
     void saveUnder();
     void drawCursor();
     void draw();
-    virtual bool supportsAlphaCursor() { return true; }
+    virtual bool supportsAlphaCursor();
 
     static bool enabled() { return qt_sw_cursor; }
 

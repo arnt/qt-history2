@@ -61,6 +61,7 @@ struct SWCursorData {
     unsigned char cursor[SW_CURSOR_DATA_SIZE];
     unsigned char under[SW_CURSOR_DATA_SIZE*4];	// room for 32bpp display
     QRgb clut[256];
+    unsigned char translut[256];
     int colours;
     int width;
     int height;
@@ -86,59 +87,6 @@ struct SWCursorData {
 
 static int optype;
 static int lastop;
-
-// Return a value for how close a is to b
-// Lower is better
-static inline int match(QRgb a,QRgb b)
-{
-    int ret;
-
-#if defined(QWS_DEPTH_8) || defined(QWS_DEPTH_8DIRECT)
-    int h1,s1,v1;
-    int h2,s2,v2;
-    /*
-    QColor tmp1(a);
-    QColor tmp2(b);
-    tmp1.hsv(&h1,&s1,&v1);
-    tmp2.hsv(&h2,&s2,&v2);
-    */
-    h1=qRed(a);
-    s1=qGreen(a);
-    v1=qBlue(a);
-    h2=qRed(b);
-    s2=qGreen(b);
-    v2=qBlue(b);
-    ret=abs(h1-h2);
-    ret+=abs(s1-s2);
-    ret+=abs(v1-v2);
-#else
-    ret=abs(qGray(a)-qGray(b));
-#endif
-
-    return ret;
-}
-
-inline unsigned int closestMatch(int r,int g,int b)
-{
-    QRgb * clut=qt_screen->clut();
-    int clutcols=qt_screen->numCols();
-    if(r>255 || g>255 || b>255 || r<0 || g<0 || b<0)
-	abort();
-
-    QRgb tomatch=qRgb(r,g,b);
-    int loopc;
-    unsigned int hold=0xfffff;
-    unsigned int tmp;
-    int pos=0;
-    for(loopc=0;loopc<clutcols;loopc++) {
-	tmp=match(clut[loopc],tomatch);
-	if(tmp<hold) {
-	    hold=tmp;
-	    pos=loopc;
-	}
-    }
-    return pos;
-}
 
 QScreenCursor::QScreenCursor()
 {
@@ -169,6 +117,18 @@ QScreenCursor::~QScreenCursor()
     delete gfx;
 }
 
+bool QScreenCursor::supportsAlphaCursor()
+{
+    if ( gfx->bitDepth() == 8 ) {
+	// It's much too slow doing alpha blending in palette mode.
+#if defined(QWS_DEPTH_8GRAYSCALE) || defined(QWS_DEPTH_8DIRECT)
+	return true;
+#endif
+    }
+
+    return gfx->bitDepth() > 8;
+}
+
 void QScreenCursor::set(const QImage &image, int hotx, int hoty)
 {
     QWSDisplay::grab();
@@ -179,6 +139,15 @@ void QScreenCursor::set(const QImage &image, int hotx, int hoty)
     data->height = image.height();
     memcpy(data->cursor, image.bits(), image.numBytes());
     data->colours = image.numColors();
+    int depth = gfx->bitDepth();
+    if ( depth <= 8 ) {
+	for (int i = 0; i < image.numColors(); i++) {
+	    int r = qRed( image.colorTable()[i] );
+	    int g = qGreen( image.colorTable()[i] );
+	    int b = qBlue( image.colorTable()[i] );
+	    data->translut[i] = QColor(r, g, b).pixel();
+	}
+    }
     for (int i = 0; i < image.numColors(); i++) {
 	data->clut[i] = image.colorTable()[i];
     }
@@ -409,9 +378,6 @@ void QScreenCursor::drawCursor()
         unsigned int srcval;
 	int av,r,g,b;
 	QRgb * screenclut=qt_screen->clut();
-	// Cache lookups for non alpha-blended colours
-	int cr = -1, cg = 0, cb = 0;
-	int cc=0;
 	for (int row = startRow; row < endRow; row++)
 	{
 	    for (int col = startCol; col < endCol; col++)
@@ -419,22 +385,7 @@ void QScreenCursor::drawCursor()
 		srcval = clut[*(srcptr+col)];
 		av = srcval >> 24;
 		if (av == 0xff) {
-		    r = (srcval & 0xff0000) >> 16;
-		    g = (srcval & 0xff00) >> 8;
-		    b = srcval & 0xff;
-		    if(cr==r && cg==g && cb==b) {   // ### ???
-			*(dptr+col)=cc;
-		    } else {
-#if defined(QWS_DEPTH_8GRAYSCALE)
-			cc=qGray(r,g,b);
-#elif defined(QWS_DEPTH_8DIRECT)
-			cc=((r >> 5) << 5) | ((g>> 6) << 3) |
-				(b >> 5);
-#else
-			cc=closestMatch(r,g,b);
-#endif
-			*(dptr+col) = cc;
-		    }
+		    *(dptr+col) = data->translut[*(srcptr+col)];
 		}
 		else if (av != 0) {
 		    // This is absolutely silly - but we can so we do.
@@ -444,19 +395,10 @@ void QScreenCursor::drawCursor()
 
 		    unsigned char hold = *(dptr+col);
 		    int or,og,ob;
-#if defined(QWS_DEPTH_8GRAYSCALE)
-		    or=hold;
-		    og=hold;
-		    ob=hold;
-#elif defined(QWS_DEPTH_8DIRECT)
-		    or=((hold & 0xe0) >> 5) << 5;
-		    og=((hold & 0x18) >> 3) << 6;
-		    ob=(hold & 0x07) << 5;
-#else
 		    or=qRed(screenclut[hold]);
 		    og=qGreen(screenclut[hold]);
 		    ob=qBlue(screenclut[hold]);
-#endif
+
 		    r-=or;
 		    g-=og;
 		    b-=ob;
@@ -468,12 +410,11 @@ void QScreenCursor::drawCursor()
 		    b+=ob;
 
 #if defined(QWS_DEPTH_8GRAYSCALE)
-		    *(dptr+col)=qGray(r,g,b);
+		    *(dptr+col) = qGray(r,g,b);
 #elif defined(QWS_DEPTH_8DIRECT)
-		    *(dptr+col)=((r >> 5) << 5) | ((g>> 6) << 3) |
-				(b >> 5);
+		    *(dptr+col) = ((r >> 5) << 5) | ((g >> 6) << 3) | (b >> 5);
 #else
-		    *(dptr+col) = closestMatch(r,g,b);
+		    *(dptr+col) = QColor(r,g,b).alloc();
 #endif
 		}
 	    }
@@ -1127,35 +1068,13 @@ qgfx_vga16_set_write_planes(int mask)
 template<const int depth,const int type>
 inline void QGfxRaster<depth,type>::useBrush()
 {
-    if ( depth == 8 ) {	// ### What's the difference between srccol and pixel?
-	const QColor &tmp = cbrush.color();
-#if defined(QWS_DEPTH_8GRAYSCALE)
-	pixel = qGray(tmp.red(),tmp.green(),tmp.blue());
-#elif defined(QWS_DEPTH_8DIRECT)
-	pixel = (tmp.red() >> 5) << 5 | (tmp.green() >> 6) << 3 |
-	       (tmp.blue() >> 5);
-#else
-	pixel = closestMatch( tmp.red(), tmp.green(), tmp.blue() );
-#endif
-    } else
-	pixel = cbrush.color().pixel();
+    pixel = cbrush.color().pixel();
 }
 
 template<const int depth,const int type>
 inline void QGfxRaster<depth,type>::usePen()
 {
-    if ( depth == 8 ) {	// ### What's the difference between srccol and pixel?
-	const QColor &tmp = cpen.color();
-#if defined(QWS_DEPTH_8GRAYSCALE)
-	pixel = qGray(tmp.red(),tmp.green(),tmp.blue());
-#elif defined(QWS_DEPTH_8DIRECT)
-	pixel = (tmp.red() >> 5) << 5 | (tmp.green() >> 6) << 3 |
-	       (tmp.blue() >> 5);
-#else
-	pixel = closestMatch( tmp.red(), tmp.green(), tmp.blue() );
-#endif
-    } else
-	pixel = cpen.color().pixel();
+    pixel = cpen.color().pixel();
 }
 
 // Calculate packing values for 64-bit writes
@@ -1264,19 +1183,10 @@ void QGfxRaster<depth,type>::setBrush( const QBrush & b )
 	patternedbrush=false;
     }
     QColor tmp=b.color();
-    if(depth==8) {
-#if defined(QWS_DEPTH_8GRAYSCALE)
-	srccol=qGray(tmp.red(),tmp.green(),tmp.blue());
-#elif defined(QWS_DEPTH_8DIRECT)
-	srccol=(tmp.red() >> 5) << 5 | (tmp.green() >> 6) << 3 |
-	       (tmp.blue() >> 5);
-#else
-	srccol=closestMatch(tmp.red(),tmp.green(),tmp.blue());
-#endif
-    } else if(depth==1) {
+    if(depth==1) {
 	srccol==qGray(tmp.red(),tmp.green(),tmp.blue())>127 ? 1 : 0;
     } else {
-	srccol=tmp.alloc();
+	srccol=tmp.pixel();
     }
 }
 
@@ -1300,28 +1210,21 @@ void QGfxRaster<depth,type>::setSource(const QPaintDevice * p)
 	hold=w->mapToGlobal(hold);
 	srcwidgetx=hold.x();
 	srcwidgety=hold.y();
-#if defined(QWS_DEPTH_8GRAYSCALE)
-	src_normal_palette=true;
-#elif defined(QWS_DEPTH_8DIRECT)
-	src_normal_palette=true;
-#else
-	if(srcdepth<=8)
-	    buildSourceClut(qt_screen->clut(),0);
-#endif
+	if ( srcdepth == 1 ) {
+	    buildSourceClut(0, 0);
+	} else if(srcdepth <= 8) {
+	    src_normal_palette=true;
+	}
     } else if ( p->devType() == QInternal::Pixmap ) {
 	//still a bit ugly
 	QPixmap *pix = (QPixmap*)p;
 	srcwidth=pix->width();
 	srcheight=pix->height();
-	if(srcdepth<=8)
-#if defined(QWS_DEPTH_8GRAYSCALE)
-	src_normal_palette=true;
-#elif defined(QWS_DEPTH_8DIRECT)
-	src_normal_palette=true;
-#else
-	if(srcdepth<=8)
-	    buildSourceClut(pix->clut(), pix->numCols());
-#endif
+	if ( srcdepth == 1 ) {
+	    buildSourceClut(0, 0);
+	} else if(srcdepth <= 8) {
+	    src_normal_palette=true;
+	}
     } else {
 	// This is a bit ugly #### I'll say!
 	//### We will have to find another way to do this
@@ -1329,10 +1232,7 @@ void QGfxRaster<depth,type>::setSource(const QPaintDevice * p)
 	srcwidgety=0;
 	buildSourceClut(0,0);
     }
-    /*
-    srcclut[0]=cbrush.color().pixel();
-    srcclut[1]=cpen.color().pixel();
-    */
+
     src_little_endian=true;
 }
 
@@ -1347,10 +1247,6 @@ void QGfxRaster<depth,type>::setSource(unsigned char * data,int w,int h)
     srcwidgetx=0;
     srcwidgety=0;
     buildSourceClut(0,0);
-    /*
-    srcclut[0]=cbrush.color().pixel();
-    srcclut[1]=cpen.color().pixel();
-    */
     src_normal_palette=true;
     src_little_endian=true;
     patternedbrush=false;
@@ -1371,26 +1267,16 @@ void QGfxRaster<depth,type>::setSource(const QImage * i)
     srcwidth=i->width();
     srcheight=i->height();
     src_normal_palette=false;
-    if(srcdepth<=8)
+    if ( srcdepth == 1 )
+	buildSourceClut( 0, 0 );
+    else  if(srcdepth<=8)
 	buildSourceClut(i->colorTable(),i->numColors());
 }
 
 template <const int depth, const int type>
 void QGfxRaster<depth,type>::setSourcePen()
 {
-    QColor c=cpen.color();
-    if(depth==8) {
-#if defined(QWS_DEPTH_8GRAYSCALE)
-	srccol=qGray(c.red(),c.green(),c.blue());
-#elif defined(QWS_DEPTH_8DIRECT)
-	srccol=(c.red() >> 5) << 5 | (c.green() >> 6) << 3 |
-	       (c.blue() >> 5);
-#else
-	srccol=closestMatch(c.red(),c.green(),c.blue());
-#endif
-    } else {
-	srccol=c.alloc();
-    }
+    srccol = cpen.color().pixel();
     src_normal_palette=true;
     srctype=SourcePen;
     srcwidgetx=0;
@@ -1406,12 +1292,12 @@ void QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
     int loopc;
 
     if(!cols) {
-	srcclut[0]=0x0;
-	transclut[0]=0x0;
-	unsigned int mywhite=0xffffffff;
-	unsigned int * mywhitep=&mywhite;
-	srcclut[1]=mywhite;
-	transclut[1]=get_value(depth,32,(unsigned char **)(&mywhitep));
+	useBrush();
+	srcclut[0]=pixel;
+	transclut[0]=pixel;
+	usePen();
+	srcclut[1]=pixel;
+	transclut[1]=pixel;
 	return;
     }
 
@@ -1436,27 +1322,15 @@ void QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
     if(depth<=8) {
 	// Now look for matches
 	for(loopc=0;loopc<numcols;loopc++) {
+	    int r = qRed(srcclut[loopc]);
+	    int g = qGreen(srcclut[loopc]);
+	    int b = qBlue(srcclut[loopc]);
 #if defined(QWS_DEPTH_8GRAYSCALE)
-	    transclut[loopc]=qGray(qRed(srcclut[loopc]),
-				   qGreen(srcclut[loopc]),
-				   qBlue(srcclut[loopc]));
+	    transclut[loopc] = qGray(r,g,b);
 #elif defined(QWS_DEPTH_8DIRECT)
-	    transclut[loopc]=(qRed(srcclut[loopc]) >> 5) << 5 |
-			     (qGreen(srcclut[loopc]) >> 6) << 3 |
-			     (qBlue(srcclut[loopc]) >> 5);
+	    transclut[loopc] = ((r >> 5) << 5) | ((g >> 6) << 3) | (b >> 5);
 #else
-	    unsigned int hold=0xfffff;
-	    unsigned int tmp;
-	    int pos=0;
-	    int loopc2;
-	    for(loopc2=0;loopc2<clutcols;loopc2++) {
-		tmp=match(srcclut[loopc],clut[loopc2]);
-		if(tmp<hold) {
-		    hold=tmp;
-		    pos=loopc2;
-		}
-	    }
-	    transclut[loopc]=pos;
+	    transclut[loopc] = QColor( srcclut[loopc] ).pixel();
 #endif
 	}
     }
@@ -2084,25 +1958,12 @@ inline unsigned int QGfxRaster<depth,type>::get_value(int destdepth,
     } else if(destdepth==8) {
 	if(sdepth==8) {
 	    unsigned char val=*((unsigned char *)(*srcdata));
-#if defined(QWS_DEPTH_8GRAYSCALE)
 	    // If source!=QImage, then the palettes will be the same
 	    if(src_normal_palette) {
 		ret=val;
 	    } else {
 		ret=transclut[val];
 	    }
-#elif defined(QWS_DEPTH_8DIRECT)
-	    if(src_normal_palette) {
-		ret=val;
-	    } else {
-		ret=transclut[val];
-	    }	
-#else
-	    ret=transclut[val];
-#endif
-	    /*
-	    ret = *((unsigned int *)(*srcdata));
-	    */
 	    if(reverse) {
 		(*srcdata)-=1;
 	    } else {
@@ -2134,23 +1995,7 @@ inline unsigned int QGfxRaster<depth,type>::get_value(int destdepth,
 	    r=(hold & 0xff0000) >> 16;
 	    g=(hold & 0x00ff00) >> 8;
 	    b=(hold & 0x0000ff);
-	    /*
-	    r=r >> 5;
-	    g=g >> 6;
-	    b=b >> 5;
-	    r=r << 5;
-	    g=g << 3;
-	    ret=r | g | b;
-	    */
-#if defined(QWS_DEPTH_8GRAYSCALE)
-	    ret=qGray(r,g,b);
-#elif defined(QWS_DEPTH_8DIRECT)
-	    ret=(r >> 5) << 5 |
-		(g >> 6) << 3 |
-		(b >> 5);
-#else
-	    ret=closestMatch(r,g,b);
-#endif
+	    ret = QColor( r, g, b ).pixel();
 	    if(reverse) {
 		(*srcdata)-=4;
 	    } else {
@@ -2168,7 +2013,7 @@ inline unsigned int QGfxRaster<depth,type>::get_value(int destdepth,
 	    g=(hold & 0x00ff00) >> 8;
 	    b=(hold & 0x0000ff);
 	    (*srcdata)+=4;
-	    ret=closestMatch(r,g,b);
+	    ret= QColor(r,g,b).pixel();
 	} else if(sdepth==15) {
 	    qWarning("Eek,15bpp->1bpp");
 	    ret=0;
@@ -2897,13 +2742,11 @@ inline void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	        b+=*(tmp+0);
 	    }
 #if defined(QWS_DEPTH_8GRAYSCALE)
-	    alphabuf[loopc]=qGray(r,g,b);
+	    alphabuf[loopc] = qGray(r,g,b);
 #elif defined(QWS_DEPTH_8DIRECT)
-	    alphabuf[loopc]=(r >> 5) << 5 |
-			    (g >> 6) << 3 |
-			    (b >> 5);	
+	    alphabuf[loopc] = ((r >> 5) << 5) | ((g >> 6) << 3) | (b >> 5);
 #else
-	    alphabuf[loopc]=closestMatch(r,g,b);
+	    alphabuf[loopc] = QColor( r, g, b ).alloc();
 #endif
 	}
 
