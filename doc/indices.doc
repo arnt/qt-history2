@@ -1,14 +1,14 @@
 /****************************************************************************
-** $Id: indices.doc,v 2.5 1997/03/23 19:52:23 agulbra Exp $
+** $Id: indices.doc,v 2.6 1997/08/06 15:03:12 hanord Exp $
 **
 ** Miscellaneous index pages
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: indices.doc,v 2.5 1997/03/23 19:52:23 agulbra Exp $";
+static char ident[] = "$Id: indices.doc,v 2.6 1997/08/06 15:03:12 hanord Exp $";
 #endif
 
 /*! \page index.html

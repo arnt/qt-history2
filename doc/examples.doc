@@ -1,14 +1,14 @@
 /****************************************************************************
-** $Id: examples.doc,v 2.6 1997/05/20 16:02:12 hanord Exp $
+** $Id: examples.doc,v 2.7 1997/08/06 15:03:12 hanord Exp $
 **
 ** Documentation for the examples
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 2.6 1997/05/20 16:02:12 hanord Exp $";
+static char ident[] = "$Id: examples.doc,v 2.7 1997/08/06 15:03:12 hanord Exp $";
 #endif
 
 

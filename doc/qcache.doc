@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: qcache.doc,v 2.1 1997/06/15 18:31:30 hanord Exp $
+** $Id: qcache.doc,v 2.2 1997/08/06 15:03:13 hanord Exp $
 **
 ** QCache and QCacheIterator class documentation
 **
-** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1996-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

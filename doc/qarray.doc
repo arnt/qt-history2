@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: qarray.doc,v 2.4 1997/08/05 16:27:37 hanord Exp $
+** $Id: qarray.doc,v 2.5 1997/08/06 15:03:12 hanord Exp $
 **
 ** QArray class documentation
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
 *****************************************************************************/
 
 

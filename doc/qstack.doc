@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: qstack.doc,v 2.2 1997/06/30 13:43:32 warwick Exp $
+** $Id: qstack.doc,v 2.3 1997/08/06 15:03:13 hanord Exp $
 **
 ** QStack class documentation
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
