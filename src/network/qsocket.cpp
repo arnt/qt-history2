@@ -54,7 +54,7 @@ class QSocketPrivate {
 public:
     QSocketPrivate( QSocket *o );
    ~QSocketPrivate();
-	void close();
+    void close();
 
     QSocket            *owner;			// the owner of the d pointer
     QSocket::State	state;			// connection state
@@ -86,10 +86,7 @@ QSocketPrivate::QSocketPrivate( QSocket *o )
 
 QSocketPrivate::~QSocketPrivate()
 {
-    // Order is important here - the socket notifiers must go away
-    // before the socket does, otherwise libc or the kernel will
-    // become unhappy.
-	close();
+    close();
     delete socket;
 #ifndef QT_NO_DNS
     delete dns;
@@ -98,14 +95,17 @@ QSocketPrivate::~QSocketPrivate()
 
 void QSocketPrivate::close()
 {
-	delete rsn;
-	rsn = NULL;
-	delete wsn;
-	wsn = NULL;
-	socket->close();
-	rsize = wsize = 0;
-	rba.clear(); wba.clear();
-	rindex = windex = 0;
+    // Order is important here - the socket notifiers must go away
+    // before the socket does, otherwise libc or the kernel will
+    // become unhappy.
+    delete rsn;
+    rsn = NULL;
+    delete wsn;
+    wsn = NULL;
+    socket->close();
+    rsize = wsize = 0;
+    rba.clear(); wba.clear();
+    rindex = windex = 0;
 }
 
 /*!
