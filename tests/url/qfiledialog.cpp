@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#2 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#3 $
 **
 ** Implementation of QFileDialog class
 **
@@ -629,7 +629,7 @@ struct QFileDialogPrivate {
     bool previewModes;
     QSplitter *splitter;
     QUrl url;
-    
+
 };
 
 QFileDialogPrivate::~QFileDialogPrivate()
@@ -1789,7 +1789,7 @@ QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
 	d->types->insertItem( QFileDialog::tr( "All files (*)" ) );
     }
     if ( !dirName.isEmpty() )
-	d->url.setPath( dirName );
+	d->url = dirName;
 
     //d->url.convertToAbs();
     emit dirEntered( d->url.path() ); // #### should this be the full url
@@ -1814,8 +1814,8 @@ void QFileDialog::init()
     connect( &d->url, SIGNAL( start() ),
              this, SLOT( clearView() ) );
     connect( &d->url, SIGNAL( entry( const QUrlInfo & ) ),
-             this, SLOT( insertEntry( const QUrlInfo & ) ) );                 
-    
+             this, SLOT( insertEntry( const QUrlInfo & ) ) );
+
     nameEdit = new QLineEdit( this, "name/filter editor" );
     connect( nameEdit, SIGNAL(textChanged(const QString&)),
 	     this,  SLOT(fileNameEditDone()) );
@@ -3744,7 +3744,7 @@ void QFileDialog::clearView()
 {
     files->clear();
     d->moreFiles->clear();
- 
+
     QString cp( d->url );//.dirPath() );
     int i = d->paths->count() - 1;
     while( i >= 0 && d->paths->text( i ) <= cp )
@@ -3756,13 +3756,13 @@ void QFileDialog::clearView()
     d->paths->setCurrentItem( i );
     d->last = 0;
 }
- 
+
 void QFileDialog::insertEntry( const QUrlInfo &inf )
 {
     QFileDialogPrivate::File * i = new QFileDialogPrivate::File(d, &inf ,files );
     QFileDialogPrivate::MCItem *i2 = new QFileDialogPrivate::MCItem( d->moreFiles , i );
     i->i = i2;
-}									      
+}									
 
 #include "qfiledialog.moc"
 

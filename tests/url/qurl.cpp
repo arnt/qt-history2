@@ -835,7 +835,10 @@ QUrlInfo QUrl::makeInfo() const
 
 QUrl::operator QString() const
 {
-    return d->url;
+    if ( isLocalFile() )
+	return d->protocol + ":" + QDir::cleanDirPath( d->path );
+    else
+	return QString::null;
 }
 
 bool QUrl::cdUp()
