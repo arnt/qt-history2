@@ -57,7 +57,7 @@ UnixMakefileGenerator::writeMakefile(QTextStream &t)
             for(QStringList::ConstIterator it = qut.begin(); it != qut.end(); ++it)
                 t << *it << " ";
         }
-        t << "all clean install distclean mocables uninstall uicables:" << "\n\t"
+        t << "first all clean install distclean mocables uninstall uicables:" << "\n\t"
           << "@echo \"Some of the required modules ("
           << var("QMAKE_FAILED_REQUIREMENTS") << ") are not available.\"" << "\n\t"
           << "@echo \"Skipped.\"" << endl << endl;
