@@ -10,8 +10,9 @@
 # script initialization
 #-------------------------------------------------------------------------------
 
+# the name of this script
 relconf=`basename $0`
-# the directory the script was launched from is the "source tree"
+# the directory of this script is the "source tree"
 relpath=`dirname $0`
 relpath=`(cd $relpath; pwd)`
 # the current directory is the "build tree" or "object tree"
@@ -46,43 +47,44 @@ UNAME_VERSION=`(uname -v) 2>/dev/null` || UNAME_VERSION=unknown
 PLATFORM_X11=no
 
 # Qt/Mac
-# * the Carbon SDK is present
-# * later test against Qt/Mac license
+# * the Carbon SDK must be present
 PLATFORM_MAC=no
 [ -d /System/Library/Frameworks/Carbon.framework ] && PLATFORM_MAC=yes
 
 # Qt/Embedded
 # * we're not on Qt/Mac
-# * mkspecs/qws is present
-# * later test against Qt/Embedded license
+# * mkspecs/qws must be present
+# * this is a free or commercial edition
+# * this is an internal edition and Qt/Embedded was somehow triggered
 [ "$PLATFORM_MAC" = "no" ] && [ -d mkspecs/qws ] && PLATFORM_QWS=maybe
 
 
 #-------------------------------------------------------------------------------
-# licensing
+# check commercial license
 #-------------------------------------------------------------------------------
 
 # Free edition - may only be used under the terms of the QPL or GPL.
+# Qt/X11, Qt/Embedded
 if [ -f $relpath/LICENSE.QPL -o -f $relpath/LICENSE.GPL ]
 then
-    # Qt/X11        GPL or QPL
-    # Qt/Embedded   GPL
+    ### licenses should really be handled after command line options...
+    [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
     Edition="free"
     Licensee="Non-Commercial"
     Products="qt-free"
 # Internal Trolltech edition.
+# Qt/X11, Qt/Embedded, Qt/Mac
 elif [ -f $relpath/LICENSE.TROLL ]
 then
-    # Qt/X11
-    # Qt/Embedded
-    # Qt/Mac
-    # Qt/...
     Edition="troll"
     Licensee="Trolltech"
     Products="qt-internal"
 # Commercial edition - needs a license.
+# Qt/X11, Qt/Embedded, Qt/Mac
 elif [ -f $relpath/.LICENSE ]
 then
+    ### licenses should really be handled after command line options...
+    [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
     echo
     Desc=""
     if [ -f $HOME/.qt-license ]
@@ -198,7 +200,7 @@ else
     exit 1
 fi
 
-# check licensed modules
+# licensed modules depend on type of commercial license
 MODULES="styles tools kernel widgets dialogs iconview workspace"
 [ "$Products" != "qt-professional" ] && MODULES="$MODULES network canvas table xml opengl sql"
 AVAIL_MODULES=$MODULES
@@ -304,15 +306,26 @@ do
 	then
 	    PLATFORM_QWS=yes
 	    CFG_EMBEDDED=$1
-		if [ $CFG_EMBEDDED = "qnx" ]
-		then
-			PLATFORM=qws/qnx-rtp-g++
-			XPLATFORM=qws/qnx-rtp-g++
-			CFG_STL=no
-		else
-			PLATFORM=qws/linux-generic-g++
-			XPLATFORM=qws/linux-${CFG_EMBEDDED}-g++;
-		fi
+	    case "$UNAME_SYSTEM:$UNAME_RELEASE" in
+	    QNX:*)
+		PLATFORM=qws/qnx-rtp-g++
+		XPLATFORM=qws/qnx-rtp-g++
+		CFG_STL=no ### why?
+		;;
+	    FreeBSD:*)
+		PLATFORM=qws/freebsd-generic-g++
+		XPLATFORM=qws/freebsd-generic-g++;
+		;;
+	    SunOS:5*)
+		PLATFORM=qws/solaris-generic-g++
+		XPLATFORM=qws/solaris-generic-g++;
+		;;
+	    Linux:*)
+		PLATFORM=qws/linux-generic-g++
+		XPLATFORM=qws/linux-${CFG_EMBEDDED}-g++;
+		;;
+	    *)
+	    esac
 	else
 	    echo "Qt/Embedded is not supported. Disabling."
 	fi
@@ -949,20 +962,28 @@ then
 	PLATFORM=sunos-g++
 	;;
      OpenUNIX:*)
+	#PLATFORM=openunix-g++
         PLATFORM=openunix-cc
+	PLATFORM_NOTES="
+	    - Also available for OpenUNIX: openunix-g++
+	"
         ;;
-     UNIX_SV:4.2*)
-	PLATFORM=unixware-g++
-	;;
-     UnixWare:5*)
+     UnixWare:*)
 	#PLATFORM=unixware7-g++
 	PLATFORM=unixware7-cc
 	PLATFORM_NOTES="
 	    - Also available for UnixWare 7: unixware7-g++
 	"
 	;;
-     *:3.2)
-	PLATFORM=sco-g++
+     SCO_SV:*)
+	#PLATFORM=sco-g++
+	PLATFORM=sco-cc
+	PLATFORM_NOTES="
+	    - Also available for SCO OpenServer: sco-g++
+	"
+	;;
+     UNIX_SV:*)
+	PLATFORM=unixware-g++
 	;;
      *)
 	if [ "$OPT_HELP" != "yes" ]
