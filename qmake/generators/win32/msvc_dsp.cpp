@@ -445,50 +445,6 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		}
 
 		t << "\n# End Group\n";
-	    } else  if ( variable == "MSVCDSP_IDLOUTPUT" ) {
-		QStringList &l = project->variables()["IDLOUTPUT"];
-		if ( l.isEmpty() )
-		    continue;
-		QString axlist = "ACTIVEQT";
-		QString axFile = varGlue( "ACTIVEQT", "", " ", "" );
-		if ( axFile.isEmpty() ) {
-		    axFile = varGlue( "_ACTIVEQT", "", " ", "" );
-		    axlist = "_ACTIVEQT";
-		}
-		bool fromIDL = FALSE;
-		QString inputFile;
-		if ( project->variables()[axlist].count() == 1 ) {
-		    inputFile = project->variables()[axlist].first();
-		    fromIDL = inputFile.right( 4 ).lower() == ".idl";
-		}
-
-		for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it ) {
-		    QString sourcefile = *it;
-		    t << "# Begin Source File\n\nSOURCE=" << sourcefile << endl;
-		    if ( sourcefile.right( 4 ).lower() == ".tlb" ) {
-			QString idcoutput = sourcefile.left( sourcefile.length()-4) + ".idl";
-			if ( fromIDL )
-			    idcoutput = inputFile;
-			QString rcoutput = sourcefile.left( sourcefile.length()-4) + ".rc";
-			t << "USERDEP_" << sourcefile << "=" << varGlue( axlist, "\"", "\"\t\"", "\"" ) << endl << endl;
-
-			QString build = "\n\n# Begin Custom Build - Generating IDL from " + axFile + "...\n"
-					"# InputPath=" + sourcefile + "\n\n"
-					"\"" + sourcefile + "\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n";
-					if ( !fromIDL )
-					    build += "\t$(QTDIR)\\bin\\idc " + axFile + " -o " + idcoutput + " -rc " + rcoutput + "\n";
-					build += "\tmidl " + idcoutput + " /tlb " + sourcefile + " /iid tmp\\iid_i.c"
-					" /dlldata tmp\\dlldata.c /cstub tmp\\cstub.c /header tmp\\cstub.h /proxy tmp\\proxy.c /sstub tmp\\sstub.c\n\n"
-					"# End Custom Build\n\n";
-
-			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
-			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\"" << build
-			  << "!ENDIF \n\n";
-		    } else if ( sourcefile.right( 4 ).lower() == ".idl" ) {
-			t << "# PROP Exclude_From_Build 1" << endl;
-		    }
-		    t << "# End Source File" << endl;
-		}
 	    }
 	    else if( variable == "MSVCDSP_CONFIGMODE" ) {
 		if( project->isActiveConfig( "release" ) )
@@ -589,8 +545,11 @@ DspMakefileGenerator::init()
 			(*libit).replace(QRegExp("qt(-mt)?\\.lib"), ver);
 		}
 	    }
-	    if ( !project->isActiveConfig("dll") && !project->isActiveConfig("plugin") && !project->isActiveConfig("activeqt") ) {
-		project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_DLL"];
+	    if ( project->isActiveConfig( "activeqt" ) ) {
+		project->variables()["QMAKE_LIBS_QT_ENTRY"] = "$(QTDIR)\\lib\\activeqt.lib";
+	    }
+	    if ( !project->isActiveConfig("dll") && !project->isActiveConfig("plugin") ) {
+		project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_ENTRY"];
 	    }
 	}
     }
@@ -725,12 +684,6 @@ DspMakefileGenerator::init()
         }
     }
 
-    if ( project->isActiveConfig("activeqt") ) {
-	project->variables()["QMAKE_LIBS"].append( "$(QTDIR)\\lib\\activeqt.lib" );
-	project->variables()["IDLOUTPUT"].append( "tmp\\" + targetfilename + ".rc" );
-	project->variables()["IDLOUTPUT"].append( "tmp\\" + targetfilename + ".tlb" );
-    }
-
     project->variables()["MSVCDSP_LIBS"] += project->variables()["QMAKE_LIBS"];
     project->variables()["MSVCDSP_LIBS"] += project->variables()["QMAKE_LIBS_WINDOWS"];
     project->variables()["MSVCDSP_LFLAGS" ] += project->variables()["QMAKE_LFLAGS"];
@@ -776,16 +729,25 @@ DspMakefileGenerator::init()
 	project->variables()["MSVCDSP_COPY_DLL"].append( copydll );
     }
     if ( project->isActiveConfig("activeqt") ) {
+	QString idl = project->variables()["QMAKE_IDL"].first();
+	QString idc = project->variables()["QMAKE_IDC"].first();
+
 	QString regcmd = "# Begin Special Build Tool\n"
 			"TargetPath=" + targetfilename + "\n"
 			"SOURCE=$(InputPath)\n"
 			"PostBuild_Desc=Registering ActiveX control in " + targetfilename + "\n"
-			"PostBuild_Cmds=%1 -RegServer\n"
+			"PostBuild_Cmds="
+			"%1 -dumpidl tmp\\dump.idl"
+			"\t" + idl + " tmp\\dump.idl /nologo /o tmp\\dump.midl /tlb tmp\\dump.tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl"
+			"\t" + idc + " %1 /tlb tmp\\dump.tlb"
+			"\t%1 -regserver\n"
 			"# End Special Build Tool";
+
 	QString executable = project->variables()["MSVCDSP_TARGETDIRREL"].first() + "\\" + project->variables()["TARGET"].first();
-	project->variables()["MSVCDSP_REGSVR_REL"].append(regcmd.arg(executable) );
+	project->variables()["MSVCDSP_REGSVR_REL"].append( regcmd.arg(executable).arg(executable).arg(executable) );
+
 	executable = project->variables()["MSVCDSP_TARGETDIRDEB"].first() + "\\" + project->variables()["TARGET"].first();
-	project->variables()["MSVCDSP_REGSVR_DBG"].append(regcmd.arg(executable) );
+	project->variables()["MSVCDSP_REGSVR_DBG"].append( regcmd.arg(executable).arg(executable).arg(executable) );
     }
     if ( !project->variables()["SOURCES"].isEmpty() || !project->variables()["RC_FILE"].isEmpty() ) {
 	project->variables()["SOURCES"] += project->variables()["RC_FILE"];

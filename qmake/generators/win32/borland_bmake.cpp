@@ -166,6 +166,12 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
 	    t << "\n\t" << "-copy $(TARGET) " << *dlldir;
 	}
     }
+    if(project->isActiveConfig("activeqt")) {
+	t << "\n\t" << "-$(TARGET) -dumpidl tmp\\dump.idl";
+	t << "\n\t" << "-$(IDL) tmp\\dump.idl /nologo /o tmp\\dump.midl /tlb tmp\\dump.tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl";
+	t << "\n\t" << "-$(IDC) $(TARGET) /tlb tmp\\dump.tlb";
+	t << "\n\t" << "-$(TARGET) -regserver";
+    }
     t << endl << endl;
 
     if(!project->variables()["RC_FILE"].isEmpty()) {
@@ -189,6 +195,8 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
       << "\n\t-del $(TARGET)"
       << varGlue("QMAKE_CLEAN","\n\t-del ","\n\t-del ","")
       << varGlue("CLEAN_FILES","\n\t-del ","\n\t-del ","");
+    if ( project->isActiveConfig("activeqt"))
+	t << "\n\t-del tmp\\dump.*";
     if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) 
 	t << "\n\t-del " << var("DLLDESTDIR") << "\\" << project->variables()[ "TARGET" ].first() << project->variables()[ "TARGET_EXT" ].first();
     if(!project->isEmpty("IMAGES"))
@@ -320,8 +328,11 @@ BorlandMakefileGenerator::init()
 			(*libit).replace(QRegExp("qt(mt)?\\.lib"), ver);
 		}
 	    }
+	    if ( project->isActiveConfig( "activeqt" ) ) {
+		project->variables()["QMAKE_LIBS_QT_ENTRY"] = "$(QTDIR)\\lib\\activeqt.lib";
+	    }
 	    if ( !project->isActiveConfig("dll") && !project->isActiveConfig("plugin") ) {
-		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_DLL"];
+		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_ENTRY"];
 	    }
 	}
     }

@@ -202,14 +202,6 @@ MakefileGenerator::generateMocList(QString fn_target)
 	if(*(big_buffer+x) == '\n')
 	    line_count++;
     }
-    if ( project->isActiveConfig( "activeqt" ) ) {
-	for(x = 0; x < (total_size_read-COMP_LEN); x++) {
-#define AQT_LEN 16 //strlen("public QActiveQt")
-	    if ( *(big_buffer+x) == 'p' && !strncmp(big_buffer+x, "public QActiveQt", AQT_LEN)) {
-		project->variables()["_ACTIVEQT"].append(fn_target);
-	    }
-	}
-    }
 #undef OBJ_LEN
 #undef DIS_LEN
     return TRUE;
@@ -1396,39 +1388,6 @@ MakefileGenerator::writeImageSrc(QTextStream &t, const QString &src)
     }
 }
 
-void
-MakefileGenerator::writeIdlSrc(QTextStream &t, const QString &src)
-{
-    QStringList &l = project->variables()[src];
-    QString input = varGlue( "ACTIVEQT", "", " ", "" );
-    QString inputList = "ACTIVEQT";
-    if ( input.isEmpty() ) {
-	input = varGlue( "_ACTIVEQT", "", " ", "" );
-	inputList = "_ACTIVEQT";
-    }
-    bool fromIDL = FALSE;
-    QString inputFile;
-    if ( project->variables()[inputList].count() == 1 ) {
-	inputFile = project->variables()[inputList].first();
-	fromIDL = inputFile.right( 4 ).lower() == ".idl";
-    }
-    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-	QString file = *it;
-	if ( file.right( 4 ).lower() != ".res" )
-	    continue;
-	QString idlfile = file.left( file.length()-3) += "idl";
-	if ( fromIDL )
-	    idlfile = inputFile;
-	QString rcfile = file.left( file.length()-3) += "rc";
-	t << file << ": " << project->variables()[inputList].join(" \\\n\t\t") << "\n\t";
-	    if ( !fromIDL )
-		t << "$(IDC) " << input << " -o " << idlfile << " -rc " << rcfile << "\n\t";
-	    t << "midl " << idlfile << " /tlb " << file.left( file.length()-3) << "tlb"
-	    << " /iid tmp\\iid_i.c /dlldata tmp\\dlldata.c /cstub tmp\\cstub.c /header tmp\\cstub.h /proxy tmp\\proxy.c /sstub tmp\\sstub.c\n\t"
-	    << var("QMAKE_RC") << " " << rcfile << endl << endl;
-	break;
-    }
-}
 
 void
 MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
@@ -1598,7 +1557,6 @@ MakefileGenerator::writeMakefile(QTextStream &t)
     writeLexSrc(t, "LEXSOURCES");
     writeImageObj(t, "IMAGEOBJECTS");
     writeImageSrc(t, "QMAKE_IMAGE_COLLECTION");
-    writeIdlSrc(t, "SRCIDC" );
 
     t << "####### Install" << endl << endl;
     writeInstalls(t, "INSTALLS");

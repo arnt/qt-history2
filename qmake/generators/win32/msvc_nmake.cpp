@@ -77,18 +77,18 @@ void
 NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 {
     t << "####### Compiler, tools and options" << endl << endl;
-    t << "CC	=	" << var("QMAKE_CC") << endl;
-    t << "CXX	=	" << var("QMAKE_CXX") << endl;
-    t << "LEX     = " << var("QMAKE_LEX") << endl;
-    t << "YACC    = " << var("QMAKE_YACC") << endl;
+    t << "CC		=	" << var("QMAKE_CC") << endl;
+    t << "CXX		=	" << var("QMAKE_CXX") << endl;
+    t << "LEX		= " << var("QMAKE_LEX") << endl;
+    t << "YACC		= " << var("QMAKE_YACC") << endl;
     t << "CFLAGS	=	" << var("QMAKE_CFLAGS") << " " 
       << varGlue("PRL_EXPORT_DEFINES","-D"," -D","") << " "
       <<  varGlue("DEFINES","-D"," -D","") << endl;
-    t << "CXXFLAGS=	" << var("QMAKE_CXXFLAGS") << " " 
+    t << "CXXFLAGS	=	" << var("QMAKE_CXXFLAGS") << " " 
       << varGlue("PRL_EXPORT_DEFINES","-D"," -D","") << " "
       << varGlue("DEFINES","-D"," -D","") << endl;
-    t << "LEXFLAGS=" << var("QMAKE_LEXFLAGS") << endl;
-    t << "YACCFLAGS=" << var("QMAKE_YACCFLAGS") << endl;
+    t << "LEXFLAGS	=" << var("QMAKE_LEXFLAGS") << endl;
+    t << "YACCFLAGS	=" << var("QMAKE_YACCFLAGS") << endl;
 
     t << "INCPATH	=	";
     QStringList &incs = project->variables()["INCLUDEPATH"];
@@ -107,20 +107,22 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     else {
 	t << "LIB	=	" << var("QMAKE_LIB") << endl;
     }
-    t << "MOC	=	" << (project->isEmpty("QMAKE_MOC") ? QString("moc") : 
+    t << "MOC		=	" << (project->isEmpty("QMAKE_MOC") ? QString("moc") : 
 			      Option::fixPathToTargetOS(var("QMAKE_MOC"), FALSE)) << endl;
-    t << "UIC	=	" << (project->isEmpty("QMAKE_UIC") ? QString("uic") : 
+    t << "UIC		=	" << (project->isEmpty("QMAKE_UIC") ? QString("uic") : 
 			      Option::fixPathToTargetOS(var("QMAKE_UIC"), FALSE)) << endl;
-    t << "QMAKE =       " << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") : 
+    t << "QMAKE		=	" << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") : 
 			      Option::fixPathToTargetOS(var("QMAKE_QMAKE"), FALSE)) << endl;
-    t << "IDC	=	" << (project->isEmpty("QMAKE_IDC") ? QString("idc") :
+    t << "IDC		=	" << (project->isEmpty("QMAKE_IDC") ? QString("idc") :
 			      Option::fixPathToTargetOS(var("QMAKE_IDC"), FALSE)) << endl;
-    t << "ZIP	=	" << var("QMAKE_ZIP") << endl;
-    t << "COPY_FILE  =       " << var("QMAKE_COPY") << endl;
-    t << "COPY_DIR   =       " << var("QMAKE_COPY") << endl;
-    t << "DEL_FILE   =       " << var("QMAKE_DEL_FILE") << endl;
-    t << "DEL_DIR    =       " << var("QMAKE_DEL_DIR") << endl;
-    t << "MOVE  =       " << var("QMAKE_MOVE") << endl;
+    t << "IDL		=	" << (project->isEmpty("QMAKE_IDL") ? QString("midl") :
+			      Option::fixPathToTargetOS(var("QMAKE_IDL"), FALSE)) << endl;
+    t << "ZIP		=	" << var("QMAKE_ZIP") << endl;
+    t << "COPY_FILE	=       " << var("QMAKE_COPY") << endl;
+    t << "COPY_DIR	=       " << var("QMAKE_COPY") << endl;
+    t << "DEL_FILE	=       " << var("QMAKE_DEL_FILE") << endl;
+    t << "DEL_DIR	=       " << var("QMAKE_DEL_DIR") << endl;
+    t << "MOVE		=       " << var("QMAKE_MOVE") << endl;
     t << endl;
 
     t << "####### Files" << endl << endl;
@@ -132,7 +134,6 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     t << "UICIMPLS =	" << varList("UICIMPLS") << endl;
     t << "SRCMOC	=	" << varList("SRCMOC") << endl;
     t << "OBJMOC	=	" << varList("OBJMOC") << endl;
-    t << "SRCIDC	=	" << varList("SRCIDC") << endl;
     t << "DIST	=	" << varList("DISTFILES") << endl;
     t << "TARGET	=	";
     if( !project->variables()[ "DESTDIR" ].isEmpty() )
@@ -151,10 +152,10 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 
     t << "####### Build rules" << endl << endl;
     t << "all: " << varGlue("ALL_DEPS",""," "," ") << "$(TARGET)" << endl << endl;
-    t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) $(SRCIDC)" << var("TARGETDEPS");
+    t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS");
     if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
 	t << "\n\t" << "$(LINK) $(LFLAGS) /OUT:$(TARGET) @<< " << "\n\t  "
-	  << "$(OBJECTS) $(OBJMOC) $(LIBS) $(SRCIDC)";
+	  << "$(OBJECTS) $(OBJMOC) $(LIBS)";
     } else {
 	t << "\n\t" << "$(LIB) /OUT:$(TARGET) @<<" << "\n\t  "
 	  << "$(OBJECTS) $(OBJMOC)";
@@ -165,6 +166,12 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 	for ( QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir ) {
 	    t << "\n\t" << "-copy $(TARGET) " << *dlldir;
 	}
+    }
+    if(project->isActiveConfig("activeqt")) {
+	t << "\n\t" << "-$(TARGET) -dumpidl tmp\\dump.idl";
+	t << "\n\t" << "-$(IDL) tmp\\dump.idl /nologo /o tmp\\dump.midl /tlb tmp\\dump.tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl";
+	t << "\n\t" << "-$(IDC) $(TARGET) /tlb tmp\\dump.tlb";
+	t << "\n\t" << "-$(TARGET) -regserver";
     }
     t << endl << endl;
 
@@ -188,10 +195,9 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
       << varGlue("UICDECLS" ,"\n\t-del ","\n\t-del ","")
       << varGlue("UICIMPLS" ,"\n\t-del ","\n\t-del ","")
       << varGlue("QMAKE_CLEAN","\n\t-del ","\n\t-del ","")
-      << varGlue("CLEAN_FILES","\n\t-del ","\n\t-del ","")
-      << varGlue("SRCIDC","\n\t-del ","\n\t-del ","")
-      << varGlue("IDCOUT","\n\t-del ","\n\t-del ","")
-      << varGlue("IDCTMP","\n\t-del ","\n\t-del ","");
+      << varGlue("CLEAN_FILES","\n\t-del ","\n\t-del ","");
+    if ( project->isActiveConfig("activeqt"))
+	t << "\n\t-del tmp\\dump.*";
     if(!project->isEmpty("IMAGES"))
 	t << varGlue("QMAKE_IMAGE_COLLECTION", "\n\t-del ", "\n\t-del ", "");
     t << endl << endl;
@@ -328,8 +334,11 @@ NmakeMakefileGenerator::init()
 			(*libit).replace(QRegExp("qt(-mt)?\\.lib"), ver);
 		}
 	    }
-	    if ( !project->isActiveConfig("dll") && !project->isActiveConfig("plugin") && !project->isActiveConfig("activeqt")) {
-		project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_DLL"];
+	    if ( project->isActiveConfig( "activeqt" ) ) {
+		project->variables()["QMAKE_LIBS_QT_ENTRY"] = "$(QTDIR)\\lib\\activeqt.lib";
+	    }
+	    if ( !project->isActiveConfig("dll") && !project->isActiveConfig("plugin") ) {
+		project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_ENTRY"];
 	    }
 	}
     }
@@ -378,17 +387,6 @@ NmakeMakefileGenerator::init()
 	QStringList &gdmf = project->variables()[(*it)];
 	for(QStringList::Iterator inner = gdmf.begin(); inner != gdmf.end(); ++inner)
 	    (*inner) = Option::fixPathToTargetOS((*inner), FALSE);
-    }
-    if ( project->isActiveConfig( "activeqt" ) ) {
-	project->variables()["QMAKE_LIBS"].append( "$(QTDIR)\\lib\\activeqt.lib" );
-	project->variables()["IDCOUT"].append( "tmp\\" + targetfilename + ".tlb" );
-	project->variables()["SRCIDC"].append( "tmp\\" + targetfilename + ".res" );
-	project->variables()["IDCTMP"].append( "tmp\\" + targetfilename + ".idl" );
-	project->variables()["IDCTMP"].append( "tmp\\" + targetfilename + ".rc" );
-	project->variables()["IDCTMP"].append( "tmp\\iid_i.c" );
-	project->variables()["IDCTMP"].append( "tmp\\dlldata.c" );
-	project->variables()["IDCTMP"].append( "tmp\\cstub.h" );
-	project->variables()["IDCTMP"].append( "tmp\\proxy.c" );
     }
 
     if ( !project->variables()["DEF_FILE"].isEmpty() ) 
