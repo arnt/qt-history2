@@ -10,14 +10,14 @@ INCLUDEPATH     = $$QT_SOURCE_TREE/include .
 DEPENDPATH      = $$QT_SOURCE_TREE/include .
 
 SOURCES         = main.cpp \
-                    $$QT_SOURCE_TREE/src/tools/qbytearray.cpp \
-		    $$QT_SOURCE_TREE/src/tools/qchar.cpp \
-                    $$QT_SOURCE_TREE/src/tools/qfile.cpp \
-                    $$QT_SOURCE_TREE/src/tools/qfile_win.cpp \
-                    $$QT_SOURCE_TREE/src/tools/qglobal.cpp      \
-                    $$QT_SOURCE_TREE/src/tools/qiodevice.cpp    \
-		    $$QT_SOURCE_TREE/src/tools/qlist.cpp \
-		    $$QT_SOURCE_TREE/src/tools/qlocale.cpp \
-                    $$QT_SOURCE_TREE/src/tools/qstring.cpp \
-		    $$QT_SOURCE_TREE/src/tools/qstringlist.cpp \
-		    $$QT_SOURCE_TREE/src/tools/qunicodetables.cpp
+                    $$QT_SOURCE_TREE/src/core/base/qglobal.cpp      \
+                    $$QT_SOURCE_TREE/src/core/io/qfile.cpp \
+                    $$QT_SOURCE_TREE/src/core/io/qfile_win.cpp \
+                    $$QT_SOURCE_TREE/src/core/io/qiodevice.cpp    \
+                    $$QT_SOURCE_TREE/src/core/tools/qbytearray.cpp \
+		    $$QT_SOURCE_TREE/src/core/tools/qchar.cpp \
+		    $$QT_SOURCE_TREE/src/core/tools/qlist.cpp \
+		    $$QT_SOURCE_TREE/src/core/tools/qlocale.cpp \
+                    $$QT_SOURCE_TREE/src/core/tools/qstring.cpp \
+		    $$QT_SOURCE_TREE/src/core/tools/qstringlist.cpp \
+		    $$QT_SOURCE_TREE/src/core/tools/qunicodetables.cpp
