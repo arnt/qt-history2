@@ -61,7 +61,7 @@ void qGeomCalc( QVector<QLayoutStruct> &chain, int start, int count,
 	sumStretch += chain[i].stretch;
 	if ( !chain[i].empty )
 	    spacerCount++;
-	wannaGrow = wannaGrow || chain[i].expansive;
+	wannaGrow = wannaGrow || chain[i].expansive || chain[i].stretch > 0;
     }
 
     int extraspace = 0;
@@ -129,7 +129,7 @@ void qGeomCalc( QVector<QLayoutStruct> &chain, int start, int count,
 	for ( i = start; i < start + count; i++ ) {
 	    if ( !chain[i].done
 		 && (chain[i].maximumSize <= chain[i].smartSizeHint()
-		     || (wannaGrow && !chain[i].expansive)) ) {
+		     || (wannaGrow && !chain[i].expansive && chain[i].stretch == 0)) ) {
 		chain[i].size = chain[i].smartSizeHint();
 		chain[i].done = TRUE;
 		space_left -= chain[i].smartSizeHint();
