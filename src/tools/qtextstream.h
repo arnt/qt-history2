@@ -258,13 +258,13 @@ private:
     int	   arg;					// member function argument
 };
 
-Q_KERNEL_EXPORT inline QTextStream &operator>>( QTextStream &s, QTSFUNC f )
+inline QTextStream &operator>>( QTextStream &s, QTSFUNC f )
 { return (*f)( s ); }
 
-Q_KERNEL_EXPORT inline QTextStream &operator<<( QTextStream &s, QTSFUNC f )
+inline QTextStream &operator<<( QTextStream &s, QTSFUNC f )
 { return (*f)( s ); }
 
-Q_KERNEL_EXPORT inline QTextStream &operator<<( QTextStream &s, QTSManip m )
+inline QTextStream &operator<<( QTextStream &s, QTSManip m )
 { m.exec(s); return s; }
 
 Q_KERNEL_EXPORT QTextStream &bin( QTextStream &s );	// set bin notation
@@ -276,19 +276,19 @@ Q_KERNEL_EXPORT QTextStream &flush( QTextStream &s );	// flush output
 Q_KERNEL_EXPORT QTextStream &ws( QTextStream &s );	// eat whitespace on input
 Q_KERNEL_EXPORT QTextStream &reset( QTextStream &s );	// set default flags
 
-Q_KERNEL_EXPORT inline QTSManip qSetW( int w )
+inline QTSManip qSetW( int w )
 {
     QTSMFI func = &QTextStream::width;
     return QTSManip(func,w);
 }
 
-Q_KERNEL_EXPORT inline QTSManip qSetFill( int f )
+inline QTSManip qSetFill( int f )
 {
     QTSMFI func = &QTextStream::fill;
     return QTSManip(func,f);
 }
 
-Q_KERNEL_EXPORT inline QTSManip qSetPrecision( int p )
+inline QTSManip qSetPrecision( int p )
 {
     QTSMFI func = &QTextStream::precision;
     return QTSManip(func,p);

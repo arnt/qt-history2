@@ -30,18 +30,18 @@ Q_KERNEL_EXPORT void *qmemmove( void *dst, const void *src, uint len );
 
 Q_KERNEL_EXPORT char *qstrdup( const char * );
 
-Q_KERNEL_EXPORT inline uint qstrlen( const char *str )
+inline uint qstrlen( const char *str )
 { return str ? (uint)strlen(str) : 0; }
-Q_KERNEL_EXPORT inline char *qstrcpy( char *dst, const char *src )
+inline char *qstrcpy( char *dst, const char *src )
 { return src ? strcpy(dst, src) : 0; }
 Q_KERNEL_EXPORT char *qstrncpy( char *dst, const char *src, uint len );
 
-Q_KERNEL_EXPORT inline int qstrcmp(const char *str1, const char *str2)
+inline int qstrcmp(const char *str1, const char *str2)
 {
     return (str1 && str2) ? strcmp(str1, str2)
 	: (str1 ? 1 : (str2 ? -1 : 0));
 }
-Q_KERNEL_EXPORT inline int qstrncmp( const char *str1, const char *str2, uint len )
+inline int qstrncmp( const char *str1, const char *str2, uint len )
 {
     return ( str1 && str2 ) ? strncmp( str1, str2, len )
 	: ( str1 ? 1 : ( str2 ? -1 : 0 ) );
@@ -50,13 +50,13 @@ Q_KERNEL_EXPORT int qstricmp( const char *, const char * );
 Q_KERNEL_EXPORT int qstrnicmp( const char *, const char *, uint len );
 
 #ifndef QT_CLEAN_NAMESPACE
-Q_KERNEL_EXPORT inline uint cstrlen( const char *str )
+inline uint cstrlen( const char *str )
 { return (uint)strlen(str); }
-Q_KERNEL_EXPORT inline char *cstrcpy( char *dst, const char *src )
+inline char *cstrcpy( char *dst, const char *src )
 { return strcpy(dst,src); }
-Q_KERNEL_EXPORT inline int cstrcmp( const char *str1, const char *str2 )
+inline int cstrcmp( const char *str1, const char *str2 )
 { return strcmp(str1,str2); }
-Q_KERNEL_EXPORT inline int cstrncmp( const char *str1, const char *str2, uint len )
+inline int cstrncmp( const char *str1, const char *str2, uint len )
 { return strncmp(str1,str2,len); }
 #endif
 
@@ -402,9 +402,9 @@ Q_KERNEL_EXPORT QDataStream &operator>>( QDataStream &, QByteArray & );
 #ifndef QT_NO_COMPRESS
 Q_KERNEL_EXPORT QByteArray qCompress( const uchar* data, int nbytes );
 Q_KERNEL_EXPORT QByteArray qUncompress( const uchar* data, int nbytes );
-Q_KERNEL_EXPORT inline QByteArray qCompress( const QByteArray& data)
+inline QByteArray qCompress( const QByteArray& data)
 { return qCompress( (const uchar*)data.constData(), data.size() ); }
-Q_KERNEL_EXPORT inline QByteArray qUncompress( const QByteArray& data )
+inline QByteArray qUncompress( const QByteArray& data )
 { return qUncompress( (const uchar*)data.constData(), data.size() ); }
 #endif
 
