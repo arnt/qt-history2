@@ -19,10 +19,6 @@
 #define d d_func()
 #define q q_func()
 
-#ifdef QMAC_NO_COREGRAPHICS
-//#  define QMAC_PRINTER_USE_QUICKDRAW
-#endif
-
 QMacPrintEngine::QMacPrintEngine(QPrinter::PrinterMode mode)
 #if defined(QMAC_PRINTER_USE_QUICKDRAW)
     : QQuickDrawPaintEngine(*(new QMacPrintEnginePrivate))
@@ -75,7 +71,14 @@ bool QMacPrintEngine::begin(QPaintDevice *dev)
 
 bool QMacPrintEngine::end()
 {
+#if defined(QMAC_PRINTER_USE_QUICKDRAW)
+    QQuickDrawPaintEngine::end();
+#else
+    d->hd = 0;
+    QCoreGraphicsPaintEngine::end();
+#endif
     if (d->state != QPrinter::Idle) {
+        
         PMSessionEndPage(d->session);
         PMSessionEndDocument(d->session);
         PMRelease(d->session);

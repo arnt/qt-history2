@@ -21,6 +21,10 @@
 
 #include <private/qpainter_p.h>
 
+#ifdef QMAC_NO_COREGRAPHICS
+//#  define QMAC_PRINTER_USE_QUICKDRAW
+#endif
+
 class QMacPrintEnginePrivate;
 class QMacPrintEngine : 
 #if defined(QMAC_PRINTER_USE_QUICKDRAW)
