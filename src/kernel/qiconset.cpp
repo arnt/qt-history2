@@ -312,15 +312,12 @@ QIconSetIcon *QIconSetData::icon(const QIconSet *iconSet, QIconSet::Size size,
   \sa setPixmap() pixmap()
 */
 
-/*!
+/*! \fn QIconSet::QIconSet()
+
   Constructs a null icon set.
 
   \sa setPixmap(), reset()
 */
-QIconSet::QIconSet()
-    : d(0)
-{
-}
 
 /*!
   Constructs an icon set for which the Normal pixmap is \a pixmap,

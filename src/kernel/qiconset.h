@@ -37,7 +37,7 @@ public:
     enum Mode { Normal, Disabled, Active };
     enum State { On, Off };
 
-    QIconSet();
+    QIconSet() : d(0) {}
     QIconSet(const QPixmap& pixmap, Size size = Automatic);
     QIconSet(const QPixmap& smallPix, const QPixmap& largePix);
     QIconSet(const QIconSet& other);
