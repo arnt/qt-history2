@@ -1901,7 +1901,7 @@ fi
 if [ "$PLATFORM_X11" = "yes" ]; then
     NOTYPE=no
     $x11tests/notype.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath && NOTYPE=yes
-    [ $NOTYPE = "yes" ] && QMAKE_VARS="$QMAKE_VARS  \"QMAKE_CXXFLAGS+=-fpermissive\""
+    [ $NOTYPE = "yes" ] && QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=-fpermissive\""
 fi
 
 # find if the compiler supports enough of STL for our purposes
@@ -1919,6 +1919,12 @@ fi
 if [ "$CFG_STL" = "auto" ]; then
     CFG_STL=yes
     $unixtests/stl.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath && CFG_STL=no
+fi
+
+# find if the platform supports X/Open Large File compilation environment
+if [ "$CFG_LARGEFILE" != "no" ]; then
+    CFG_LARGEFILE=yes
+    $unixtests/largefile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath && CFG_LARGEFILE=no
 fi
 
 
