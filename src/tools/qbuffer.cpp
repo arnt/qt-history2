@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#23 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#24 $
 **
 ** Implementation of QBuffer class
 **
@@ -12,7 +12,7 @@
 #include "qbuffer.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#23 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#24 $");
 
 
 /*!
@@ -23,18 +23,16 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#23 $");
   \ingroup stream
 
   QBuffer is an I/O device for reading and writing a memory buffer. A
-  QFile may be used by itself (readBlock and writeBlock) or by more
-  conveniently using QDataStream or QTextStream.  Most of its behavior is
-  inherited from QIODevice.
+  QFile may be used directly (readBlock() and writeBlock()) or more
+  conveniently via QDataStream or QTextStream.  Most of its behavior
+  is inherited from QIODevice.
 
   A QBuffer has an associated QByteArray which holds the buffer data.
   Writing data at the end (i.e. size()) of the buffer expands the byte
   array.
 
-  The byte stream classes QDataStream and QTextStream have an constructor
-  that creates an internal QBuffer that operates on a byte array.
-
-  Example:
+  For convenience, the byte stream classes QDataStream and QTextStream
+  can operate on a QByteArray (or a QString) via an internal QBuffer:
   \code
     QString str;
     QTextStream ts( str, IO_WriteOnly );
@@ -65,8 +63,8 @@ QBuffer::QBuffer()
 QBuffer::QBuffer( QByteArray buf ) : a(buf)
 {
     setFlags( IO_Direct );
-    a_inc = 512;				// initial increment
     a_len = a.size();
+    a_inc = (a_len > 512) ? 512 : a_len;	// initial increment
 }
 
 /*!
@@ -233,9 +231,9 @@ int QBuffer::readBlock( char *p, uint len )
 #endif
 	    setStatus( IO_ReadError );
 	    return -1;
-	}
-	else
+	} else {
 	    len = a.size() - (uint)index - 1;
+	}
     }
     memcpy( p, a.data()+index, len );
     index += len;
