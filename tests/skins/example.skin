@@ -1,0 +1,246 @@
+<!DOCTYPE SKIN><skin name="example">
+<background>
+    <source>st.png</source>
+    <rect>
+	<x>0</x><y>0</y><width>339</width><height>213</height>
+    </rect>
+</background>
+<color>
+    <button><red>50</red><blue>50</blue><green>130</green></button>
+    <background><red>0</red><blue>0</blue><green>0</green></background>
+    <text><red>190</red><blue>190</blue><green>240</green></text>
+</color>
+<layout name="usit">
+    <size>
+	<width>339</width>
+	<height>213</height>
+    </size>
+    <element name="Play">
+       <rect>
+          <x>26</x>
+	  <y>28</y>
+	  <width>34</width>
+	  <height>34</height>
+       </rect>
+   </element>
+    <element name="Back">
+       <rect>
+          <x>10</x>
+	  <y>50</y>
+	  <width>35</width>
+	  <height>30</height>
+       </rect>
+   </element>
+    <element name="Stop">
+       <rect>
+          <x>52</x>
+	  <y>17</y>
+	  <width>25</width>
+	  <height>35</height>
+       </rect>
+   </element>
+    <element name="Forward">
+       <rect>
+          <x>45</x>
+	  <y>50</y>
+	  <width>35</width>
+	  <height>30</height>
+       </rect>
+   </element>
+   <element name="QuitButton">
+       <rect>
+           <x>309</x>
+	   <y>116</y>
+	   <height>13</height>
+	   <width>13</width>
+       </rect>
+   </element>
+   <element name="Volume">
+       <rect>
+           <x>210</x>
+	   <y>125</y>
+	   <width>90</width>
+	   <height>90</height>
+       </rect>
+   </element>
+
+</layout>
+<widget type="Skinable" name="Skinable" dragable="true">
+<mask>
+    <source>st.png</source>
+    <rect>
+	<x>0</x><y>0</y><width>339</width><height>213</height>
+    </rect>
+</mask>
+    <size>
+        <width>339</width>
+	<height>213</height>
+    </size>
+</widget>
+<widget type="QPushButton" name="Play">
+    <size>
+        <width>30</width>
+	<height>30</height>
+    </size>
+    <mask>
+        <source>stpressed.png</source>
+	<rect>
+	    <x>65</x>
+	    <y>0</y>
+	    <width>30</width>
+	    <height>30</height>
+	</rect>
+    </mask>
+        
+    <image>
+        <source>st.png</source>
+	<rect>
+	    <x>26</x>
+	    <y>28</y>
+	    <width>30</width>
+	    <height>30</height>
+	</rect>
+    </image>
+    <image>
+        <source>stpressed.png</source>
+	<rect>
+	    <x>65</x>
+	    <y>0</y>
+	    <width>30</width>
+	    <height>30</height>
+	</rect>
+    </image>
+    <image>
+        <source>stpressed.png</source>
+	<rect>
+	    <x>65</x>
+	    <y>0</y>
+	    <width>30</width>
+	    <height>30</height>
+	</rect>
+    </image>
+</widget>
+<widget type="QPushButton" name="Stop">
+    <size>
+        <width>25</width>
+	<height>35</height>
+    </size>
+    <mask>
+        <source>stpressed.png</source>
+	<rect>
+	    <x>24</x>
+	    <y>60</y>
+	    <width>25</width>
+	    <height>35</height>
+	</rect>
+    </mask>
+    <image>
+        <source>st.png</source>
+	<rect>
+	    <x>52</x>
+	    <y>17</y>
+	    <width>25</width>
+	    <height>35</height>
+	</rect>
+    </image>
+    <image>
+        <source>stpressed.png</source>
+	<rect>
+	    <x>24</x>
+	    <y>60</y>
+	    <width>25</width>
+	    <height>35</height>
+	</rect>
+    </image>
+</widget>
+<widget type="QPushButton" name="Back">
+    <size>
+        <width>35</width>
+	<height>30</height>
+    </size>
+    <mask>
+        <source>stpressed.png</source>
+	<rect>
+	    <x>0</x>
+	    <y>27</y>
+	    <width>35</width>
+	    <height>30</height>
+	</rect>
+    </mask>
+    <image>
+        <source>st.png</source>
+	<rect>
+	    <x>10</x>
+	    <y>50</y>
+	    <width>35</width>
+	    <height>30</height>
+	</rect>
+    </image>
+    <image>
+        <source>stpressed.png</source>
+	<rect>
+	    <x>0</x>
+	    <y>27</y>
+	    <width>35</width>
+	    <height>30</height>
+	</rect>
+    </image>
+</widget>
+<widget type="QPushButton" name="Forward">
+    <size>
+        <width>35</width>
+	<height>30</height>
+    </size>
+    <mask>
+        <source>stpressed.png</source>
+	<rect>
+	    <x>33</x>
+	    <y>29</y>
+	    <width>35</width>
+	    <height>30</height>
+	</rect>
+    </mask>
+    <image>
+        <source>st.png</source>
+	<rect>
+	    <x>45</x>
+	    <y>50</y>
+	    <width>35</width>
+	    <height>30</height>
+	</rect>
+    </image>
+    <image>
+        <source>stpressed.png</source>
+	<rect>
+	    <x>33</x>
+	    <y>29</y>
+	    <width>35</width>
+	    <height>30</height>
+	</rect>
+    </image>
+</widget>
+<widget type="QPushButton" name="QuitButton">
+    <size>
+        <width>13</width>
+	<height>13</height>
+    </size>
+    <image>
+        <source>st.png</source>
+	<rect>
+	    <x>309</x>
+	    <y>116</y>
+	    <width>13</width>
+	    <height>13</height>
+	</rect>
+    </image>
+    <image>
+        <source>stpressed.png</source>
+	<rect>
+	    <x>67</x>
+	    <y>32</y>
+	    <width>13</width>
+	    <height>13</height>
+	</rect>
+    </image>
+</widget>
+</skin>
