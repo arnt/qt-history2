@@ -472,7 +472,7 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
 
     //enabled
     data.whichData |= kMenuItemDataEnabled;
-    data.enabled = !qt_modal_state() && action->action->isEnabled();
+    data.enabled = action->action->isEnabled();
 
     //icon
     data.whichData |= kMenuItemDataIconHandle;
@@ -497,7 +497,7 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
                              (ATSFontFamilyRef)action->action->font().handle()), 
                          0, (ATSUFontID*)&data.fontID);
     }
-
+    
     data.whichData |= kMenuItemDataSubmenuHandle;
     if(action->action->menu()) { //submenu
         data.submenuHandle = action->action->menu()->macMenu();
