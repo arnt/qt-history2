@@ -21,7 +21,7 @@
 
 #ifndef QT_NO_QWS_KEYBOARD
 
-#ifndef QT_NO_QWS_KBDTTY
+#ifndef QT_NO_QWS_KBD_TTY
 
 class QWSTtyKbPrivate;
 
