@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#135 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#136 $
 **
 ** Implementation of QListView widget class
 **
@@ -486,7 +486,7 @@ void QListViewItem::sortChildItems( int column, bool ascending )
 	return;
 
     // more dubiously - only sort if the child items "exist"
-    if ( !isOpen() )
+    if ( isOpen() || childCount() == 0 )
 	return;
 
     lsc = column;
@@ -1569,7 +1569,7 @@ void QListView::buildDrawableList() const
 						      cur->i->siblingItem));
 
 	// do any children of cur need to be painted?
-	if ( cur->i->isOpen() &&
+	if ( cur->i->isOpen() && cur->i->childCount() &&
 	     cur->y + ith > cy &&
 	     cur->y + ih < cy + ch ) {
 	    cur->i->enforceSortOrder();
@@ -2474,7 +2474,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	e->accept();
 	break;
     case Key_Left:
-	if ( i->isOpen() && i->childItem )
+	if ( i->isOpen() )
 	    setOpen( i, FALSE );
 	else if ( i->parentItem && i->parentItem != d->r )
 	    i = i->parentItem;

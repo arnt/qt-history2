@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#53 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#54 $
 **
 ** Definition of QListView widget class
 **
@@ -77,7 +77,7 @@ public:
 
     int childCount() const { return nChildren; }
 
-    bool isOpen() const { return open && nChildren>0; } // ###
+    bool isOpen() const { return open; }
     virtual void setOpen( bool );
     virtual void setup();
 
