@@ -577,21 +577,17 @@ QTableWidgetSelectionRange::~QTableWidgetSelectionRange()
 */
 
 /*!
-    \fn int QTableWidgetItem::checked() const
+    \fn Qt::CheckState QTableWidgetItem::checkState() const
 
-    Returns the checked state of the list item (see \l{QCheckBox::ToggleState}).
-
-    Only checkable items can be checked. By default, items are not
-    checkable.
+    Returns the checked state of the list item (see \l{Qt::CheckState}).
 
     \sa flags()
 */
 
 /*!
-    \fn void QTableWidgetItem::setChecked(const bool checked)
+    \fn void QTableWidgetItem::setCheckState(Qt::CheckState state)
 
-    Checks the item if \a checked is true; otherwise it will be shown as
-    unchecked.
+    Sets the check state of the table item to be \a state.
 
     \sa checked()
 */
@@ -1012,13 +1008,6 @@ void QTableWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 {
     emit q->currentItemChanged(model()->item(current), model()->item(previous));
 }
-
-/*!
-    \fn void QTableWidget::keyPressed(QTableWidgetItem *item, QKeyEvent *event)
-
-    This signal is emitted if keyTracking is turned on and a key was
-    pressed. The \a item is the current item as the key was pressed.
-*/
 
 /*!
     \fn void QTableWidget::itemActivated(QTableWidgetItem *item)
@@ -1534,15 +1523,15 @@ void QTableWidget::setModel(QAbstractItemModel *model)
 QTableWidgetItemCreatorBase::~QTableWidgetItemCreatorBase() {}
 
 /*!
-    \fn QTableItemCreator::setItemCreator(QTableItemCreator *creator)
+    \fn QTableWidgetItemCreator::setItemCreator(QTableWidgetItemCreator *creator)
 */
 
 /*!
-    \class QTableItemCreator
+    \class QTableWidgetItemCreator
 */
 
 /*!
-    \fn QTableItemCreator::QTableItemCreator()
+    \fn QTableWidgetItemCreator::QTableWidgetItemCreator()
 */
 
 #include "moc_qtablewidget.cpp"

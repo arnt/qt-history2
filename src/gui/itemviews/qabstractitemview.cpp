@@ -229,9 +229,8 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-    \fn QRect QAbstractItemView::viewportRectForIndex(const QModelIndex &index) const = 0
-    Returns the rectangle on the viewport occupied by the item at \a
-    index.
+    \fn QRect QAbstractItemView::visualRect(const QModelIndex &index) const = 0
+    Returns the rectangle on the viewport occupied by the item at \a index.
 
     In the base class this is a pure virtual function.
 */
@@ -264,19 +263,16 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-  \fn void QAbstractItemView::entered(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
+  \fn void QAbstractItemView::entered(const QModelIndex &index)
 
   This signal is emitted when the mouse cursor enters the item
-  specified by \a index. The state of the mouse buttons and keyboard modifiers
-  are specified by \a button and \a modifiers.
+  specified by \a index.
 */
 
 /*!
-  \fn void QAbstractItemView::viewportEntered(Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
+  \fn void QAbstractItemView::viewportEntered()
 
-  This signal is emitted when the mouse cursor enters the viewport. The
-  state of the mouse buttons and keyboard modifiers are specified by
-  \a button and \a modifiers.
+  This signal is emitted when the mouse cursor enters the viewport.
 */
 
 /*!
@@ -798,7 +794,7 @@ QColor QAbstractItemView::evenRowColor() const
 }
 
 /*!
-    \property QListView::iconSize
+    \property QAbstractItemView::iconSize
     \brief the size of items
 
     Setting this property when the view is visible will cause the

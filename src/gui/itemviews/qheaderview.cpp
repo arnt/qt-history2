@@ -100,21 +100,17 @@
 */
 
 /*!
-    \fn void QHeaderView::sectionPressed(int logicalIndex, Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
+    \fn void QHeaderView::sectionPressed(int logicalIndex)
 
     This signal is emitted when a section is pressed. The section's logical
     index is specified by \a logicalIndex.
-    The state of the mouse buttons is specified by \a button, and the
-    \a modifiers reflect the state of the keyboard's modifier keys.
 */
 
 /*!
-    \fn void QHeaderView::sectionClicked(int logicalIndex, Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
+    \fn void QHeaderView::sectionClicked(int logicalIndex)
 
     This signal is emitted when a section is clicked. The section's logical
     index is specified by \a logicalIndex.
-    The state of the mouse buttons is specified by \a button, and the
-    \a modifiers reflect the state of the keyboard's modifier keys.
 */
 
 /*!

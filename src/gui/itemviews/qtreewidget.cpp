@@ -898,21 +898,19 @@ void QTreeModel::invalidatePersistentIndexRow(QTreeWidgetItem *item)
 */
 
 /*!
-    \fn Qt::CheckedState QTreeWidgetItem::checkedState(int column) const
+    \fn Qt::CheckState QTreeWidgetItem::checkState(int column) const
 
-    Returns the checked state of the label in the given \a column.
+    Returns the check state of the label in the given \a column.
 
     \sa Qt::CheckedState
 */
 
 /*!
-    \fn void QTreeWidgetItem::setCheckedState(int column, bool state)
+    \fn void QTreeWidgetItem::setCheckState(int column, Qt::CheckState state)
 
-    If \a state is true, the label in the given \a column is checked; otherwise
-    it is unchecked. The item must be checkable for this function to have an
-    effect.
+    Sets the item in the given \a column check state to be \a state.
 
-    \sa checkedState() QAbstractItemModel::ItemFlag
+    \sa checkedState()
 */
 
 /*!
@@ -1383,7 +1381,7 @@ void QTreeWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 */
 
 /*!
-    \fn void QTreeWidget::pressed(QTreeWidgetItem *item, int column, const QMouseEvent *event)
+    \fn void QTreeWidget::itemPressed(QTreeWidgetItem *item, int column)
 
     This signal is emitted when the user presses a mouse button inside the
     widget. The specified \a item is the item that was clicked, or 0 if no item
@@ -1393,7 +1391,7 @@ void QTreeWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 */
 
 /*!
-    \fn void QTreeWidget::clicked(QTreeWidgetItem *item, int column, const QMouseEvent *event)
+    \fn void QTreeWidget::itemClicked(QTreeWidgetItem *item, int column)
 
     This signal is emitted when the user clicks inside the widget.
     The specified \a item is the item that was clicked, or 0 if no item was
@@ -1403,7 +1401,7 @@ void QTreeWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 */
 
 /*!
-    \fn void QTreeWidget::doubleClicked(QTreeWidgetItem *item, int column, const QMouseEvent *event)
+    \fn void QTreeWidget::itemDoubleClicked(QTreeWidgetItem *item)
 
     This signal is emitted when the user double clicks inside the widget.
     The specified \a item is the item that was clicked, or 0 if no item was
@@ -1413,30 +1411,7 @@ void QTreeWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 */
 
 /*!
-    \fn void QTreeWidget::keyPressed(QTreeWidgetItem *item, int column, const QKeyEvent *event)
-
-    This signal is emitted when the user presses a key inside the widget.
-    The specified \a item and \a column had the focus when the \a key was
-    pressed.
-    If no item had the focus, \a item is 0 and \a column is -1.
-
-    \sa returnPressed()
-*/
-
-/*!
-    \fn void QTreeWidget::returnPressed(QTreeWidgetItem *item, int column)
-
-    This signal is emitted when the return key is pressed inside the widget.
-
-    The specified \a item and \a column had the focus when the return key was
-    pressed.
-    If no item had the focus, \a item is 0 and \a column is -1.
-
-    \sa keyPressed()
-*/
-
-/*!
-    \fn void QTreeWidget::expanded(QTreeWidgetItem *item)
+    \fn void QTreeWidget::itemExpanded(QTreeWidgetItem *item)
 
     This signal is emitted when the specified \a item is expanded so that
     all of its children are displayed.
@@ -1445,7 +1420,7 @@ void QTreeWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 */
 
 /*!
-    \fn void QTreeWidget::collapsed(QTreeWidgetItem *item)
+    \fn void QTreeWidget::itemCollapsed(QTreeWidgetItem *item)
 
     This signal is emitted when the specified \a item is collapsed so that
     none of its children are displayed.
@@ -1469,7 +1444,7 @@ void QTreeWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 */
 
 /*!
-    \fn void QTreeWidget::itemEntered(QTreeWidgetItem *item, int column, const QMouseEvent *event)
+    \fn void QTreeWidget::itemEntered(QTreeWidgetItem *item, int column)
 
     This signal is emitted when the mouse cursor enters an \a item over the
     specified \a column.

@@ -500,12 +500,9 @@ QDataStream &QListWidgetItem::operator>>(QDataStream &stream)
 */
 
 /*!
-    \fn int QListWidgetItem::checked() const
+    \fn Qt::CheckState QListWidgetItem::checkState() const
 
-    Returns the checked state of the list item (see \l{QCheckBox::ToggleState}).
-
-    Only checkable items can be checked. By default, items are not
-    checkable.
+    Returns the checked state of the list item (see \l{Qt::CheckState}.
 
     \sa flags()
 */
@@ -589,12 +586,11 @@ QDataStream &QListWidgetItem::operator>>(QDataStream &stream)
 */
 
 /*!
-    \fn void QListWidgetItem::setChecked(const bool checked)
+    \fn void QListWidgetItem::setCheckState(Qt::CheckState state)
 
-    Checks the list item if \a checked is true; otherwise the list item
-    will be shown as unchecked.
+    Sets the check state of the list item to \a state.
 
-    \sa checked()
+    \sa checkState()
 */
 
 #define d d_func()

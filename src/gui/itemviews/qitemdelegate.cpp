@@ -30,7 +30,7 @@
 #include <private/qobject_p.h>
 
 static const int border = 1;
-static int textMargin = 2;
+static const int textMargin = 2;
 
 class QItemDelegatePrivate : public QObjectPrivate
 {
