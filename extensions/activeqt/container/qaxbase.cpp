@@ -1688,17 +1688,24 @@ QMetaObject *qax_readClassInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const QMe
             SysFreeString(bstr);
             QByteArray key;
 
+            TYPEATTR *typeattr = 0;
+            interfaceInfo->GetTypeAttr(&typeattr);
+
             if (flags & IMPLTYPEFLAG_FSOURCE) {
-                key = "Event Interface " + QByteArray::number(index);
+                if (typeattr && !(typeattr->wTypeFlags & TYPEFLAG_FHIDDEN))
+                    key = "Event Interface " + QByteArray::number(index);
                 generator.readEventInterface(interfaceInfo, 0);
             } else {
-                key = "Interface " + QByteArray::number(index);
+                if (typeattr && !(typeattr->wTypeFlags & TYPEFLAG_FHIDDEN))
+                    key = "Interface " + QByteArray::number(index);
                 generator.readFuncsInfo(interfaceInfo, 0);
                 generator.readVarsInfo(interfaceInfo, 0);
             }
             if (!key.isEmpty())
                 generator.addClassInfo(key.data(), interfaceName.ascii());
 
+            if (typeattr)
+                interfaceInfo->ReleaseTypeAttr(typeattr);
             interfaceInfo->Release();
         }
     }
