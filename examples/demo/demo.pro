@@ -52,7 +52,9 @@ opengl {
 		   opengl/glbox.h \
 		   opengl/glgear.h \
 		   opengl/gllandscape.h \
-		   opengl/fbm.h
+		   opengl/fbm.h \
+		   opengl/glinfo.h \
+		   opengl/glinfotext.h
 	SOURCES += opengl/glworkspace.cpp \
 	 	   opengl/glcontrolwidget.cpp \
 		   opengl/gltexobj.cpp \
@@ -60,6 +62,9 @@ opengl {
 		   opengl/glgear.cpp \
 		   opengl/gllandscape.cpp \
 		   opengl/fbm.c
+	unix:!mac:SOURCES += opengl/glinfo_x11.cpp
+	win32:SOURCES += opengl/glinfo_win.cpp
+	mac:SOURCES += opengl/glinfo_mac.cpp
 
 	FORMS += opengl/printpreview.ui \
 		      opengl/gllandscapeviewer.ui

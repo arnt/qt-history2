@@ -23,6 +23,7 @@
 #if defined(QT_MODULE_OPENGL)
 #include "opengl/glworkspace.h"
 #include "opengl/gllandscapeviewer.h"
+#include "opengl/glinfotext.h"
 #endif
 
 #if defined(QT_MODULE_CANVAS)
@@ -195,7 +196,7 @@ public:
 
     QString name() const { return "3D Graphics"; }
     QIconSet icon() const { return QPixmap( threedicon ); }
-    int numCategories() const { return 2; }
+    int numCategories() const { return 3; }
     QString categoryName( int i ) const {
 	switch ( i ) {
 	case 0:
@@ -203,6 +204,9 @@ public:
 	    break;
 	case 1:
 	    return Frame::tr( "Fractal landscape" );
+	    break;
+	case 2:
+	    return Frame::tr( "OpenGL info" );
 	    break;
 	}
 	return QString::null;
@@ -219,6 +223,7 @@ public:
 	created = TRUE;
 	stack->addWidget( new GLWorkspace( stack ), categoryOffset() + 0 );
 	stack->addWidget( new GLLandscapeViewer( stack ), categoryOffset() + 1 );
+	stack->addWidget( new GLInfoText( stack ), categoryOffset() + 2 );
     }
     int categoryOffset() const { return 1000; }
 
