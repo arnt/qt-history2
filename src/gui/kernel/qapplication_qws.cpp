@@ -1015,13 +1015,11 @@ void QWSDisplay::nameRegion(int winId, const QString& n, const QString &c)
         d->sendCommand(cmd);
 }
 
-void QWSDisplay::requestRegion(int winId, int shmid, QRegion r)
+void QWSDisplay::requestRegion(int winId, int shmid, bool opaque, QRegion r)
 {
     if (d->directServerConnection()) {
-        qwsServer->request_region(winId, shmid, r);
+        qwsServer->request_region(winId, shmid, opaque, r);
     } else {
-        //by sending the event, I promise not to paint outside the region
-
         QVector<QRect> ra = r.rects();
 
         /*
@@ -1033,7 +1031,7 @@ void QWSDisplay::requestRegion(int winId, int shmid, QRegion r)
 
         QWSRegionCommand cmd;
         cmd.simpleData.windowid = winId;
-//        cmd.simpleData.opaque = ####;
+        cmd.simpleData.opaque = opaque;
         cmd.simpleData.shmid = shmid;
         cmd.simpleData.nrectangles = ra.count();
         cmd.setData(reinterpret_cast<char *>(ra.data()), ra.count() * sizeof(QRect), false);
@@ -1044,14 +1042,11 @@ void QWSDisplay::requestRegion(int winId, int shmid, QRegion r)
     //    d->waitForRegionAck();
 }
 
-void QWSDisplay::repaintRegion(int winId, QRegion r)
+void QWSDisplay::repaintRegion(int winId, bool opaque, QRegion r)
 {
-#if 0
     if (d->directServerConnection()) {
-        qwsServer->repaint_region(winId, r);
-    } else
-#endif
-    {
+        qwsServer->repaint_region(winId, opaque, r);
+    } else {
         QVector<QRect> ra = r.rects();
 
         /*
@@ -1063,7 +1058,7 @@ void QWSDisplay::repaintRegion(int winId, QRegion r)
 
         QWSRepaintRegionCommand cmd;
         cmd.simpleData.windowid = winId;
-        //cmd.simpleData.shmid = shmid;
+        cmd.simpleData.opaque = opaque;
         cmd.simpleData.nrectangles = ra.count();
         cmd.setData(reinterpret_cast<char *>(ra.data()), ra.count() * sizeof(QRect), false);
         d->sendCommand(cmd);

@@ -76,8 +76,8 @@ public:
 
     void setIdentity(const QString &appName);
     void nameRegion(int winId, const QString& n, const QString &c);
-    void requestRegion(int winId, int shmid, QRegion);
-    void repaintRegion(int winId, QRegion);
+    void requestRegion(int winId, int shmid, bool opaque, QRegion);
+    void repaintRegion(int winId, bool opaque, QRegion);
     void moveRegion(int winId, int dx, int dy);
     void destroyRegion(int winId);
     void requestFocus(int winId, bool get);

@@ -347,7 +347,7 @@ void QWSServer::compose(int level, QRegion exposed, QRegion &blend, QPixmap &ble
 
 QWSWindow::QWSWindow(int i, QWSClient* client)
         : id(i), modified(false),
-          onTop(false), c(client), last_focus_time(0), opacity(255), d(0)
+          onTop(false), c(client), last_focus_time(0), opacity(255), opaque(true), d(0)
 {
     backingStore = new QWSBackingStore;
 }
@@ -2150,9 +2150,9 @@ void QWSServer::invokeIMUpdate(const QWSIMUpdateCommand *cmd,
 void QWSServer::invokeRepaintRegion(QWSRepaintRegionCommand * cmd,
                                     QWSClient *)
 {
-    QRegion r1;
-    r1.setRects(cmd->rectangles,cmd->simpleData.nrectangles);
-    refresh(r1);
+    QRegion r;
+    r.setRects(cmd->rectangles,cmd->simpleData.nrectangles);
+    repaint_region(cmd->simpleData.windowid, cmd->simpleData.opaque, r);
 }
 
 QWSWindow* QWSServer::newWindow(int id, QWSClient* client)
@@ -2468,7 +2468,18 @@ void QWSServer::set_identity(const QWSIdentifyCommand *cmd)
     invokeIdentify(cmd, clientMap[-1]);
 }
 
-void QWSServer::request_region(int wid, int shmid, QRegion region)
+void QWSServer::repaint_region(int wid, bool opaque, QRegion region)
+{
+    QWSWindow* changingw = findWindow(wid, 0);
+    if (!changingw) {
+        return;
+    }
+    changingw->opaque = opaque;
+    int level = windows.indexOf(changingw);
+    exposeRegion(region, level);
+}
+
+void QWSServer::request_region(int wid, int shmid, bool opaque, QRegion region)
 {
     QWSClient *serverClient = clientMap[-1];
     QWSWindow* changingw = findWindow(wid, 0);
@@ -2478,7 +2489,7 @@ void QWSServer::request_region(int wid, int shmid, QRegion region)
     bool isShow = !changingw->isVisible() && !region.isEmpty();
 
     changingw->backingStore->attach(shmid, region.boundingRect().size());
-
+    changingw->opaque = opaque;
     setWindowRegion(changingw, region);
     if (isShow)
         emit windowEvent(changingw, Show);

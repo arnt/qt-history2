@@ -571,63 +571,15 @@ void QWidget::update(const QRect &r)
 
 
 /*
-  assume q is toplevel window ???
+  Should we require that  q is a toplevel window ???
  */
 void QWidgetPrivate::bltToScreen(const QRegion &globalrgn)
 {
 //    qDebug("QWidgetPrivate::bltToScreen");
-
-
-    q->qwsDisplay()->repaintRegion(data.winid, globalrgn);
-#if 0
-    static QGfx *gfx = 0;
-    if ( !gfx)
-        gfx = qt_screen->screenGfx();
-
-
-//take the logic from QWSPaintEngine::begin
     QWidget *win = q->window();
-
-//     QPoint globalpos=q->mapToGlobal(QPoint(0,0));
-//     QRegion cliprgn = rgn;
-//     cliprgn.translate(globalpos);
-
-    QTLWExtra *topextra = win->d->extra->topextra;
-    QPixmap *buf = topextra->backingStore->pixmap();
-    QPoint bsoffs = topextra->backingStoreOffset;
-
-    QPoint topLeft = win->pos();
-
-
-#if 1 //we should check to see that we're allowed to paint to the screen
-    QRegion r(globalrgn);
-    int rgnIdx = win->data->alloc_region_index;
-    QWSDisplay::grab();
-    QRegion allocRegion = qt_fbdpy->regionManager()->region(rgnIdx);
-    gfx->setGlobalRegionIndex(rgnIdx);
-    QWSDisplay::ungrab();
-    r &= allocRegion;
-    gfx->setWidgetDeviceRegion(r);
-#else
-    gfx->setWidgetDeviceRegion(globalrgn);
-#endif
-
-    gfx->setClipRegion(QRegion(), Qt::NoClip);
-
-
-    gfx->setSource(buf);
-    gfx->setAlphaType(QGfx::IgnoreAlpha);
-
-    gfx->blt(topLeft.x(),topLeft.y(), buf->width(), buf->height(), 0, 0);
-
-#if 0
-    static int i=0;
-    QString fn = QString("screen_%1.png").arg(i);
-    buf->save(fn, "PNG");
-    qDebug() << "bltToScreen" << i << fn << globalrgn;
-    ++i;
-#endif
-#endif
+    QBrush bgBrush = win->palette().brush(win->d->bg_role);
+    bool opaque = bgBrush.style() == Qt::NoBrush || bgBrush.isOpaque();
+    q->qwsDisplay()->repaintRegion(win->data->winid, opaque, globalrgn);
 }
 
 
@@ -723,6 +675,8 @@ void QWidgetPrivate::doPaint(const QRegion &rgn)
 
         if (hasBackground && bgBrush.style() != Qt::NoBrush) {
             QPainter p(q); // We shall use it only once
+            if (q->isWindow())
+                p.setCompositionMode(QPainter::CompositionMode_Source); //copy alpha straight in
             p.fillRect(q->rect(), bgBrush);
         }
     }
@@ -841,7 +795,11 @@ void QWidgetPrivate::requestWindowRegion(const QRegion &r)
     }
 #endif
 
-    q->qwsDisplay()->requestRegion(data.winid, bs->memoryId(), deviceregion);
+    QBrush bgBrush = q->palette().brush(bg_role);
+    bool opaque = bgBrush.style() == Qt::NoBrush || bgBrush.isOpaque(); //### duplicated in bltToScreen
+
+
+    q->qwsDisplay()->requestRegion(data.winid, bs->memoryId(), opaque, deviceregion);
 }
 
 void QWidgetPrivate::show_sys()

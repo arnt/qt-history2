@@ -88,7 +88,7 @@ private:
     void setName(const QString &n);
     void setCaption(const QString &c);
 
-    bool isOpaque() const {return opacity == 255;}
+    bool isOpaque() const {return opaque && opacity == 255;}
 
     void focus(bool get);
     int focusPriority() const { return last_focus_time; }
@@ -109,6 +109,7 @@ private:
     int last_focus_time;
     QWSBackingStore *backingStore;
     uchar opacity;
+    bool opaque;
     QWSWindowData *d;
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT QRegion requested() const { return requested_region; }
@@ -303,7 +304,8 @@ private:
     void set_altitude(const QWSChangeAltitudeCommand *);
     void set_opacity(const QWSSetOpacityCommand *);
     void request_focus(const QWSRequestFocusCommand *);
-    void request_region(int, int, QRegion);
+    void request_region(int winId, int shmid, bool opaque, QRegion);
+    void repaint_region(int winId, bool opaque, QRegion);
     void destroy_region(const QWSRegionDestroyCommand *);
     void name_region(const QWSRegionNameCommand *);
     void set_identity(const QWSIdentifyCommand *);
