@@ -28,3 +28,5 @@ SOURCES += main.cpp \
            widgetinfo.cpp \
            embed.cpp
 
+DEFINES -= QT_COMPAT_WARNINGS
+DEFINES += QT_COMPAT
