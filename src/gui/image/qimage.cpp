@@ -2188,15 +2188,6 @@ QImage QImage::convertDepth(int depth, Qt::ImageConversionFlags flags) const
 }
 
 /*!
-    \overload
-*/
-
-QImage QImage::convertDepth(int depth) const
-{
-    return convertDepth(depth, 0);
-}
-
-/*!
     Returns true if (\a x, \a y) is a valid coordinate in the image;
     otherwise returns false.
 

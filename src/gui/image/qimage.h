@@ -124,11 +124,10 @@ public:
     void fill(uint pixel);
     void invertPixels(InvertMode = InvertRgb);
 
-    QImage convertDepth(int) const;
 #ifndef QT_NO_IMAGE_TRUECOLOR
     QImage convertDepthWithPalette(int, QRgb* p, int pc, Qt::ImageConversionFlags flags = Qt::AutoColor) const;
 #endif
-    QImage convertDepth(int, Qt::ImageConversionFlags flags) const;
+    QImage convertDepth(int, Qt::ImageConversionFlags flags = Qt::AutoColor) const;
     QImage convertBitOrder(Endian) const;
 
 #ifndef QT_NO_IMAGE_TRANSFORMATION
