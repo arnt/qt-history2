@@ -914,7 +914,9 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
             s = d->bg_mode == Qt::TransparentMode ? FillStippled : FillOpaqueStippled;
         } else {
             mask |= GCTile;
-            vals.tile = pm.data->x11ConvertToDefaultDepth();
+            vals.tile = (pm.depth() == d->pdev->depth()
+                         ? pm.handle()
+                         : pm.data->x11ConvertToDefaultDepth());
             s = FillTiled;
         }
 
