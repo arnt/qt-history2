@@ -4,6 +4,7 @@
 #include <qstring.h>
 #include <qsqldatabase.h>
 #include <qsqlfield.h>
+#include <qsqlview.h>
 
 #include "masterchildwindow.h"
 
@@ -16,9 +17,10 @@ public:
 public slots:
     void newMasterSelection( const QSqlFieldList* fields );
 protected:
-    void reloadChildTable( int masterIdx );    
+    void reloadChildTable( int masterIdx );
 private:
-    QSqlDatabase* db;
+    QSqlView masterView;
+    QSqlView childView;
 };
 
 #endif
