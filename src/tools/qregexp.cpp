@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#12 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#13 $
 **
 ** Implementation of QRegExp class
 **
@@ -21,7 +21,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#13 $";
 #endif
 
 
@@ -766,19 +766,29 @@ void QRegExp::compile()
 // QString member functions that use QRegExp
 //
 
-/*! Find the first occurence of \e r at or after position \e index.
-  If \e r doesn't occur or \e index is to large, -1 is returned. */
+/*
+Finds the first occurrence of the regular expression \e rx, starting at
+position \e index.
 
-int QString::find( const QRegExp &r, int index ) const
+Returns the position of the next match, or -1 if \e rx was not found.
+*/
+
+int QString::find( const QRegExp &rx, int index ) const
 {						// find substring
-    return (uint)index >= size() ? -1 : r.match( data(), index );
+    return (uint)index >= size() ? -1 : rx.match( data(), index );
 }
 
-/*! Find the last occurence of \e r before position \e index.  If \e r
-  doesn't occur or \e index is to large, -1 is returned.  If \e index
-  is negative, the end of the string is used. */
+/*!
+Finds the first occurrence of the regular expression \e rx, starting at
+position \e index and searching backwards.
 
-int QString::findRev( const QRegExp &r, int index ) const
+The search will start from the end of the string if \e index is negative.
+
+Returns the position of the next match (backwards), or -1 if \e rx was not
+found.
+*/
+
+int QString::findRev( const QRegExp &rx, int index ) const
 {						// reverse find substring
     if ( index < 0 ) {				// neg index ==> start from end
 	if ( size() )
@@ -789,34 +799,33 @@ int QString::findRev( const QRegExp &r, int index ) const
     else if ( (uint)index >= size() )		// bad index
 	return -1;
     while( index >= 0 ) {
-	if ( r.match(data(),index) == index )
+	if ( rx.match(data(),index) == index )
 	    return index;
 	index--;
     }
     return -1;
 }
 
-/*! Count the number of occurences of \e r in the string.  Overlapping
-  matches are counted.
+/*!
+Counts the number of overlapping occurrences of \e rx in the string.
 
-  \code
-  QString s = "banana and panama";
-  QRegExp r = QRegExp("a[nm]a", TRUE, FALSE);
+\code
+QString s = "banana and panama";
+QRegExp r = QRegExp("a[nm]a", TRUE, FALSE);
+s.contains( r );		\/ 4 matches
+\endcode
 
-  ASSERT ( s.contains( r ) == 4 );
-  \endcode
+\sa find(), findRev().
+*/
 
-  \sa find(), findRev() and QRegExp. */
-
-int QString::contains( const QRegExp &r ) const
+int QString::contains( const QRegExp &rx ) const
 {						// get # substrings
     int count = 0;
-    register char *d = data();
-    if ( !d )					// null string
+    if ( isNull() )				// null string
 	return 0;
     int index = -1;
     while ( TRUE ) {				// count overlapping matches
-	index = r.match( d, index+1 );
+	index = rx.match( data(), index+1 );
 	if ( index >= 0 )
 	    count++;
 	else
@@ -825,3 +834,32 @@ int QString::contains( const QRegExp &r ) const
     return count;
 }
 
+
+/*!
+Replaces every occurrence of \e rx in the string with \e str.
+Returns a reference to the string.
+
+\code
+QString s = "banana";
+s.replace( QRegExp("a.*a"), "" );	\/ becomes "b"
+\endcode
+*/
+
+QString &QString::replace( const QRegExp &rx, const char *str )
+{
+    if ( isNull() )
+	return *this;
+    int index = 0;
+    int slen  = strlen( str );
+    int len;
+    while ( TRUE ) {
+	if ( (index = rx.match( data(), index, &len )) >= 0 ) {
+	    remove( index, len );
+	    insert( index, str );
+	    index += slen;
+	}
+	else
+	    break;
+    }
+    return *this;
+}
