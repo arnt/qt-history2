@@ -34,9 +34,16 @@ public:
 			     const QString& nameFilter );
 
     static QString findFile( const Location& location, const QStringList& files,
-			     const QStringList& dirsVar,
-			     const QString& fileName,
+			     const QStringList& dirs, const QString& fileName,
 			     QString& userFriendlyFilePath );
+    static QString findFile( const Location& location, const QStringList& files,
+			     const QStringList& dirs, const QString& fileBase,
+			     const QStringList& fileExtensions,
+			     QString& userFriendlyFilePath );
+    static QString copyFile( const Location& location,
+			     const QString& sourceFilePath,
+			     const QString& userFriendlySourceFilePath,
+			     const QString& targetDirPath );
     static int numParams( const QString& value );
     static bool removeDirContents( const QString& dir );
 
@@ -83,5 +90,7 @@ private:
 #define CONFIG_TRANSLATORS          "translators"
 #define CONFIG_VERSION              "version"
 #define CONFIG_VERSIONSYM           "versionsym"
+
+#define CONFIG_FILEEXTENSIONS       "fileextensions"
 
 #endif

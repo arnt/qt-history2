@@ -14,6 +14,9 @@
 QValueList<Generator *> Generator::generators;
 QMap<QString, QMap<QString, QString> > Generator::fmtLeftMaps;
 QMap<QString, QMap<QString, QString> > Generator::fmtRightMaps;
+QMap<QString, QStringList> Generator::imgFileExts;
+QStringList Generator::imageFiles;
+QStringList Generator::imageDirs;
 QString Generator::outDir;
 
 Generator::Generator()
@@ -62,8 +65,20 @@ void Generator::initialize( const Config& config )
 	++g;
     }
 
-    QRegExp secondParamAndAbove( "[\2-\7]" );
+    imageFiles = config.getStringList( CONFIG_IMAGES );
+    imageDirs = config.getStringList( CONFIG_IMAGEDIRS );
 
+    QString imagesDotFileExtensions = CONFIG_IMAGES + Config::dot +
+				      CONFIG_FILEEXTENSIONS;
+    Set<QString> formats = config.subVars( imagesDotFileExtensions );
+    Set<QString>::ConstIterator f = formats.begin();
+    while ( f != formats.end() ) {
+	imgFileExts[*f] = config.getStringList( imagesDotFileExtensions +
+						Config::dot + *f );
+	++f;
+    }
+
+    QRegExp secondParamAndAbove( "[\2-\7]" );
     Set<QString> formattingNames = config.subVars( CONFIG_FORMATTING );
     Set<QString>::ConstIterator n = formattingNames.begin();
     while ( n != formattingNames.end() ) {
@@ -79,9 +94,9 @@ void Generator::initialize( const Config& config )
 		int numOccs = def.contains( "\1" );
 
 		if ( numParams != 1 ) {
-		    config.lastLocation().warning( tr("Formatting '%1' must have"
-						    " exactly one parameter"
-						    " (found %2)")
+		    config.lastLocation().warning( tr("Formatting '%1' must"
+						    " have exactly one"
+						    " parameter (found %2)")
 						 .arg(*n).arg(numParams) );
 		} else if ( numOccs > 1 ) {
 		    config.lastLocation().fatal( tr("Formatting '%1' must"
@@ -108,8 +123,12 @@ void Generator::terminate()
 	(*g)->terminateGenerator();
 	++g;
     }
+
     fmtLeftMaps.clear();
     fmtRightMaps.clear();
+    imgFileExts.clear();
+    imageFiles.clear();
+    imageDirs.clear();
     outDir = "";
 }
 
@@ -343,6 +362,25 @@ Text Generator::sectionHeading( const Atom *sectionLeft )
 	    return Text::subText( begin, end );
     }
     return Text();
+}
+
+QString Generator::imageFileName( const Location& location,
+				  const QString& fileBase )
+{
+    QString userFriendlyFilePath;
+    QString filePath = Config::findFile( location, imageFiles, imageDirs,
+					 fileBase, imgFileExts[format()],
+					 userFriendlyFilePath );
+    if ( filePath.isEmpty() )
+	return "";
+
+    return Config::copyFile( location, filePath, userFriendlyFilePath,
+			     outputDir() );
+}
+
+void Generator::setImageFileExtensions( const QStringList& extensions )
+{
+    imgFileExts[format()] = extensions;
 }
 
 void Generator::unknownAtom( const Atom *atom )

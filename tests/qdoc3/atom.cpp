@@ -49,6 +49,7 @@
   \value FormattingRight
   \value GeneratedList
   \value Image
+  \value ImageText
   \value Link
   \value LinkNode
   \value ListLeft
@@ -99,6 +100,7 @@ static const struct {
     { "FormattingRight", Atom::FormattingRight },
     { "GeneratedList", Atom::GeneratedList },
     { "Image", Atom::Image },
+    { "ImageText", Atom::ImageText },
     { "Link", Atom::Link },
     { "LinkNode", Atom::LinkNode },
     { "ListLeft", Atom::ListLeft },

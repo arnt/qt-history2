@@ -7,5 +7,6 @@ language	= Qt Script
 headers		= qsa/quickclasslist
 sourcedirs	= qsa
 exampledirs	= $QUICK/examples
+imagedirs	= $QTDIR/gif
 outputdir	= output/qsa
 outputformats	= HTML

@@ -22,9 +22,8 @@ CodeMarker::~CodeMarker()
     markers.remove( this );
 }
 
-void CodeMarker::initializeMarker( const Config& config )
+void CodeMarker::initializeMarker( const Config& /* config */ )
 {
-    defaultLang = config.getString( CONFIG_LANGUAGE );
 }
 
 void CodeMarker::terminateMarker()
@@ -33,6 +32,8 @@ void CodeMarker::terminateMarker()
 
 void CodeMarker::initialize( const Config& config )
 {
+    defaultLang = config.getString( CONFIG_LANGUAGE );
+
     QValueList<CodeMarker *>::ConstIterator m = markers.begin();
     while ( m != markers.end() ) {
 	(*m)->initializeMarker( config );

@@ -37,17 +37,20 @@ void HtmlGenerator::initializeGenerator( const Config& config )
 	{ 0, 0, 0 }
     };
 
+    Generator::initializeGenerator( config );
+    setImageFileExtensions( QStringList() << "png" << "jpg" << "jpeg"
+					  << "gif" );
     int i = 0;
     while ( defaults[i].key != 0 ) {
 	formattingLeftMap().insert( defaults[i].key, defaults[i].left );
 	formattingRightMap().insert( defaults[i].key, defaults[i].right );
 	i++;
     }
-    Generator::initializeGenerator( config );
 }
 
 void HtmlGenerator::terminateGenerator()
 {
+    Generator::terminateGenerator();
 }
 
 QString HtmlGenerator::format()
@@ -121,6 +124,22 @@ void HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 	}
 	break;
     case Atom::Image:
+	{
+	    QString fileName = imageFileName( relative->doc().location(),
+					      atom->string() );
+	    QString text = atom->next()->string();
+	    if ( fileName.isEmpty() ) {
+		out() << "<font color=\"red\">[Missing image "
+		      << protect( atom->string() ) << "]</font>";
+	    } else {
+		out() << "<img src=\"" << protect( fileName ) << "\"";
+		if ( !text.isEmpty() )
+		    out() << " alt=\"" << protect( text ) << "\"";
+		out() << ">";
+	    }
+	}
+	break;
+    case Atom::ImageText:
 	break;
     case Atom::Link:
 	link = linkForNode( marker->resolveTarget(atom->string(), relative),

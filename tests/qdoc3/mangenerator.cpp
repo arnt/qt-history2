@@ -66,6 +66,8 @@ void ManGenerator::generateAtom( const Atom *atom, const Node * /* relative */,
 	break;
     case Atom::Image:
 	break;
+    case Atom::ImageText:
+	break;
     case Atom::Link:
 	break;
     case Atom::LinkNode:

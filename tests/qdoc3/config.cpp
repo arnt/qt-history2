@@ -302,7 +302,7 @@ QString Config::findFile( const Location& location, const QStringList& files,
     }
 
     userFriendlyFilePath = "";
-    if ( fileInfo.fileName().isEmpty() )
+    if ( !fileInfo.exists() )
 	return "";
 
     QStringList::ConstIterator c = components.begin();
@@ -363,6 +363,54 @@ QString Config::findFile( const Location& location, const QStringList& files,
 	userFriendlyFilePath += "?";
     }
     return fileInfo.filePath();
+}
+
+QString Config::findFile( const Location& location, const QStringList& files,
+			  const QStringList& dirs, const QString& fileBase,
+			  const QStringList& fileExtensions,
+			  QString& userFriendlyFilePath )
+{
+    QStringList::ConstIterator e = fileExtensions.begin();
+    while ( e != fileExtensions.end() ) {
+	QString filePath = findFile( location, files, dirs, fileBase + "." + *e,
+				     userFriendlyFilePath );
+	if ( !filePath.isEmpty() )
+	    return filePath;
+	++e;
+    }
+    return findFile( location, files, dirs, fileBase, userFriendlyFilePath );
+}
+
+QString Config::copyFile( const Location& location,
+			  const QString& sourceFilePath,
+			  const QString& userFriendlySourceFilePath,
+			  const QString& targetDirPath )
+{
+    QFile inFile( sourceFilePath );
+    if ( !inFile.open(IO_ReadOnly) ) {
+	location.fatal( tr("Cannot open input file '%1'")
+			.arg(inFile.name()) );
+	return "";
+    }
+
+    QString outFileName = userFriendlySourceFilePath;
+    int slash = outFileName.findRev( "/" );
+    if ( slash != -1 )
+	outFileName = outFileName.mid( slash );
+
+    QFile outFile( targetDirPath + "/" + outFileName );
+    if ( !outFile.open(IO_WriteOnly) ) {
+	location.fatal( tr("Cannot open output file '%1'")
+			.arg(outFile.name()) );
+	return "";
+    }
+
+    char buffer[1024];
+    int len;
+    while ( (len = inFile.readBlock(buffer, sizeof(buffer))) != 0 ) {
+	outFile.writeBlock( buffer, len );
+    }
+    return outFileName;
 }
 
 int Config::numParams( const QString& value )

@@ -460,7 +460,8 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    startFormat( ATOM_FORMATTING_ITALIC, command );
 		    break;
 		case CMD_IMAGE:
-		    /* ... */
+		    append( Atom::Image, getArgument() );
+		    append( Atom::ImageText, getRestOfLine() );
 		    break;
 		case CMD_INCLUDE:
 		    include( getArgument() );
@@ -1868,6 +1869,11 @@ void Doc::initialize( const Config& config )
 
 void Doc::terminate()
 {
+    DocParser::tabSize = 0;
+    DocParser::exampleFiles.clear();
+    DocParser::exampleDirs.clear();
+    DocParser::sourceFiles.clear();
+    DocParser::sourceDirs.clear();
     delete aliasMap;
     aliasMap = 0;
     delete commandDict;

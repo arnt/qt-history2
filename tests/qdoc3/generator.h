@@ -14,9 +14,9 @@
 class ClassNode;
 class Config;
 class CodeMarker;
-class Doc;
 class FakeNode;
 class FunctionNode;
+class Location;
 class NamespaceNode;
 class Node;
 class Tree;
@@ -60,6 +60,8 @@ protected:
     QString plainCode( const QString& markedCode );
     QString typeString( const Node *node );
     Text sectionHeading( const Atom *sectionBegin );
+    QString imageFileName( const Location& location, const QString& fileBase );
+    void setImageFileExtensions( const QStringList& extensions );
     void unknownAtom( const Atom *atom );
     QMap<QString, QString>& formattingLeftMap();
     QMap<QString, QString>& formattingRightMap();
@@ -84,6 +86,9 @@ private:
     static QValueList<Generator *> generators;
     static QMap<QString, QMap<QString, QString> > fmtLeftMaps;
     static QMap<QString, QMap<QString, QString> > fmtRightMaps;
+    static QMap<QString, QStringList> imgFileExts;
+    static QStringList imageFiles;
+    static QStringList imageDirs;
     static QString outDir;
 };
 

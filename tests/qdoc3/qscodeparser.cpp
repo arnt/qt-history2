@@ -33,8 +33,8 @@ QsCodeParser::~QsCodeParser()
 
 void QsCodeParser::initializeParser( const Config& config )
 {
-    tabSize = config.getInt( CONFIG_TABSIZE );
     CppCodeParser::initializeParser( config );
+    tabSize = config.getInt( CONFIG_TABSIZE );
 }
 
 void QsCodeParser::terminateParser()

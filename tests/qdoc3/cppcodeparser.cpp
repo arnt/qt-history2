@@ -41,19 +41,19 @@ CppCodeParser::~CppCodeParser()
 
 void CppCodeParser::initializeParser( const Config& config )
 {
+    CodeParser::initializeParser( config );
     nodeTypeMap.insert( COMMAND_NAMESPACE, Node::Namespace );
     nodeTypeMap.insert( COMMAND_CLASS, Node::Class );
     nodeTypeMap.insert( COMMAND_ENUM, Node::Enum );
     nodeTypeMap.insert( COMMAND_TYPEDEF, Node::Typedef );
     nodeTypeMap.insert( COMMAND_FN, Node::Function );
     nodeTypeMap.insert( COMMAND_PROPERTY, Node::Property );
-    CodeParser::initializeParser( config );
 }
 
 void CppCodeParser::terminateParser()
 {
-    CodeParser::terminateParser();
     nodeTypeMap.clear();
+    CodeParser::terminateParser();
 }
 
 QString CppCodeParser::language()
