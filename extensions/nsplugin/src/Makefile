@@ -37,7 +37,7 @@ TARGETA	=	libqnp.a
 .SUFFIXES: .cpp
 
 .cpp.o:
-	$(CC) -c $(CFLAGS) $(INCPATH) -o $@ $<
+	$(CC) -c $(LIBCFLAGS) $(CFLAGS) $(INCPATH) -o $@ $<
 
 ####### Build rules
 
