@@ -435,66 +435,112 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
 
 /*!
     \class QByteArray
+    \brief The QByteArray class provides an array of bytes.
+
+    \ingroup tools
+
+    It is useful for manipulating memory areas with custom data.
 */
 
 /*!
-    \fn QByteArray::QByteArray(const QByteArray &)
+    \fn QByteArray::QByteArray(const QByteArray &other)
+
+    Constructs a byte array that is a copy of \a other.
 */
 
 /*!
-    \fn QByteArray &QByteArray::operator=(const QByteArray &)
+    \fn QByteArray::~QByteArray()
+
+    Destructor.
+*/
+
+/*!
+    \fn QByteArray &QByteArray::operator=(const QByteArray &other)
+
+    Assign's byte array \a other to this byte array.
 */
 
 /*!
     \fn int QByteArray::size() const
+
+    Returns the size of this byte array.
 */
 
 /*!
     \fn bool QByteArray::isEmpty() const
+
+    Returns true if this byte array is empty; otherwise returns false.
 */
 
 /*!
     \fn bool QByteArray::operator!() const
+
+    Returns true if this byte array is empty; otherwise returns false.
 */
 
 /*!
     \fn int QByteArray::capacity() const
+
+    Returns the number of bytes allocated to this byte array.
 */
 
 /*!
     \fn char *QByteArray::data()
 
     \overload
+
+    Returns a copy of the byte array's data.
 */
 
 /*!
     \fn const char *QByteArray::data() const
+
+    Returns a pointer to the byte array's data. (This is a synonym for
+    constData().)
 */
 
 /*!
     \fn const char *QByteArray::constData() const
+
+    Returns a pointer to the byte array's data.
 */
 
 /*!
     \fn void QByteArray::detach()
+
+    \internal
 */
 
 /*!
     \fn bool QByteArray::isDetached() const
+
+    \internal
 */
 
 /*!
     \fn char QByteArray::at(int i) const
+
+    Returns the byte at position \a i.
+
+    \sa operator[]()
 */
 
 /*!
     \fn char QByteArray::operator[](int i) const
+
+    Returns the byte at position \a i.
+
+    \sa at()
 */
 
 /*!
     \fn QByteRef QByteArray::operator[](int i)
 
     \overload
+
+    Returns a reference to the byte at position \a i.
+
+    \sa at()
 */
 
 /*!
@@ -507,34 +553,51 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
     \fn QByteRef QByteArray::operator[](uint i)
 
     \overload
+
+    Returns a reference to the byte at position \a i.
+
+    \sa at()
 */
 
 /*!
-    \fn int QByteArray::indexOf(const char *c, int from = 0) const
+    \fn int QByteArray::indexOf(const char *c, int from) const
 
     \overload
+
+    Returns the position of the first occurrence of the string \a c,
+    starting at position \a from, or -1 if \a c is not found.
 */
 
 /*!
     \fn int QByteArray::lastIndexOf(const char *c, int i) const
 
     \overload
+
+    Returns the position of the last occurrence of the string \a c,
+    starting at position \a i and working backwards, or -1 if \a c is
+    not found.
 */
 
 /*!
     \fn QBool QByteArray::contains(char c) const
 
     \overload
+
+    Returns true if the byte array contains the byte \a c.
 */
 
 /*!
     \fn QBool QByteArray::contains(const char *a) const
 
     \overload
+
+    Returns true if the byte array contains the string \a a.
 */
 
 /*!
     \fn QBool QByteArray::contains(const QByteArray &a) const
+
+    Returns true if the byte array contains the byte array \a a.
 */
 
 /*!
@@ -555,60 +618,123 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
 
 /*!
     \fn QByteArray QByteArray::leftJustified(int width, char fill, bool truncate) const
+
+    Returns a byte array of length \a width that contains this byte
+    array padded by the \a fill character.
+
+    If \a truncate is false and the length of the byte array is more
+    than \a width, then the returned byte array is a copy of this byte
+    array.
+
+    If \a truncate is true and the length of the byte array is more
+    than \a width, then any characters in a copy of the byte array
+    after length \a width are removed, and the copy is returned.
+
+    \code
+    QByteArray s("apple");
+    QByteArray t = s.leftJustified(8, '.');        // t == "apple..."
+    \endcode
+
+    \sa rightJustified()
 */
 
 /*!
     \fn QByteArray QByteArray::rightJustified(int width, char fill, bool truncate) const
+
+    Returns a byte array of length \a width that contains the \a fill
+    character followed by this byte array.
+
+    If \a truncate is false and the length of the byte array is more
+    than \a width, then the returned byte array is a copy of this byte
+    array.
+
+    If \a truncate is true and the length of the byte array is more
+    than \a width, then the resulting byte array is truncated at
+    position \a width.
+
+    \code
+    QString s("apple");
+    QString t = s.rightJustified(8, '.');  // t == "...apple"
+    \endcode
+
+    \sa leftJustified()
 */
 
 /*!
     \fn QByteArray &QByteArray::replace(int index, int len, const char *s)
 
     \overload
+
+    Replaces \a len characters in this byte array from position \a
+    index with the string in \a s and returns a reference to this byte
+    array.
 */
 
 /*!
     \fn QByteArray &QByteArray::replace(char before, const char *after)
 
     \overload
+
+    Replaces every occurrence of character \a before with the string
+    \a after and returns a reference to this byte array.
 */
 
 /*!
     \fn QByteArray &QByteArray::replace(const char *before, const char *after)
 
     \overload
+
+    Replaces every occurrence of the string \a before with the string
+    \a after and returns a reference to this byte array.
 */
 
 /*!
     \fn QByteArray &QByteArray::operator+=(char c)
 
     \overload
+
+    Appends character \a c to this byte array and returns a reference
+    to this byte array.
 */
 
 /*!
     \fn QByteArray &QByteArray::operator+=(const char *s)
 
     \overload
+
+    Appends the string \a s to this byte array and returns a reference
+    to this byte array.
 */
 
 /*!
     \fn QByteArray &QByteArray::operator+=(const QByteArray &a)
+
+    Appends the byte array \a a to this byte array and returns a
+    reference to this byte array.
 */
 
 /*!
     \fn int QByteArray::count() const
+
+    Returns the size of the byte array.
 */
 
 /*!
     \fn int QByteArray::length() const
+
+    Returns the size of the byte array. (This is a synonym for count().)
 */
 
 /*!
     \fn bool QByteArray::isNull() const
+
+    Returns true if this byte array is empty.
 */
 
 /*!
     \fn QByteArray::QByteArray()
+
+    Creates a new empty byte array.
 */
 
 QByteArray::QByteArray() : d(&shared_null)
@@ -617,7 +743,9 @@ QByteArray::QByteArray() : d(&shared_null)
 }
 
 /*!
-    \fn QByteArray::QByteArray(const char *)
+    \fn QByteArray::QByteArray(const char *s)
+
+    Creates a new byte array that contains string \a s.
 */
 
 QByteArray::QByteArray(const char *s)
@@ -642,7 +770,10 @@ QByteArray::QByteArray(const char *s)
 }
 
 /*!
-    \fn QByteArray::QByteArray(const char*, int size)
+    \fn QByteArray::QByteArray(const char *s, int size)
+
+    Constructs a byte array containing the first \a size bytes of
+    string \a s.
 */
 
 QByteArray::QByteArray(const char*s, int size)
@@ -668,6 +799,9 @@ QByteArray::QByteArray(const char*s, int size)
 
 /*!
     \fn QByteArray::QByteArray(int size, char c)
+
+    Constructs a byte array of size \a size with every byte set to
+    character \a c.
 */
 
 QByteArray::QByteArray(int size, char c)
@@ -691,6 +825,8 @@ QByteArray::QByteArray(int size, char c)
 
 /*!
     \fn void QByteArray::resize(int size)
+
+    Resizes the byte array to \a size bytes.
 */
 
 void QByteArray::resize(int size)
@@ -714,6 +850,9 @@ void QByteArray::resize(int size)
 
 /*!
     \fn QByteArray &QByteArray::fill(char c, int size = -1)
+
+    Resizes the byte array to \a size and fills every byte with
+    character \a c.
 */
 
 QByteArray& QByteArray::fill(char c, int size)
@@ -726,6 +865,8 @@ QByteArray& QByteArray::fill(char c, int size)
 
 /*!
     \fn void QByteArray::reserve(int size)
+
+    \internal
 */
 
 void QByteArray::reserve(int size)
@@ -765,6 +906,8 @@ void QByteArray::expand(int i)
     \fn QByteArray &QByteArray::operator=(const char *s)
 
     \overload
+
+    Assigns the string \a s to this byte array.
 */
 
 QByteArray &QByteArray::operator=(const char *s)
@@ -793,6 +936,8 @@ QByteArray &QByteArray::operator=(const char *s)
     \fn QByteArray &QByteArray::prepend(char c)
 
     \overload
+
+    Prepend's character \a c to this byte array.
 */
 
 QByteArray& QByteArray::prepend(char c)
@@ -810,6 +955,8 @@ QByteArray& QByteArray::prepend(char c)
     \fn QByteArray &QByteArray::prepend(const char *s)
 
     \overload
+
+    Prepend's the string \a s to this byte array.
 */
 
 QByteArray& QByteArray::prepend(const char *s)
@@ -828,6 +975,8 @@ QByteArray& QByteArray::prepend(const char *s)
 
 /*!
     \fn QByteArray &QByteArray::prepend(const QByteArray &a)
+
+    Prepend's the byte array \a a to this byte array.
 */
 
 QByteArray& QByteArray::prepend(const QByteArray& a)
@@ -846,6 +995,8 @@ QByteArray& QByteArray::prepend(const QByteArray& a)
     \fn QByteArray &QByteArray::append(char c)
 
     \overload
+
+    Appends character \a c to this byte array.
 */
 
 QByteArray& QByteArray::append(char c)
@@ -861,6 +1012,8 @@ QByteArray& QByteArray::append(char c)
     \fn QByteArray &QByteArray::append(const char *s)
 
     \overload
+
+    Appends the string \a s to this byte array.
 */
 
 QByteArray& QByteArray::append(const char *s)
@@ -877,6 +1030,8 @@ QByteArray& QByteArray::append(const char *s)
 
 /*!
     \fn QByteArray &QByteArray::append(const QByteArray &a)
+
+    Appends the byte array \a a to this byte array.
 */
 
 QByteArray& QByteArray::append(const QByteArray& a)
@@ -896,6 +1051,9 @@ QByteArray& QByteArray::append(const QByteArray& a)
     \fn QByteArray &QByteArray::insert(int i, char c)
 
     \overload
+
+    Inserts character \a c at position \a i in the byte array. If \a i
+    is \> size(), the array is first expanded (padded with spaces).
 */
 
 QByteArray &QByteArray::insert(int i, char c)
@@ -918,6 +1076,9 @@ QByteArray &QByteArray::insert(int i, char c)
     \fn QByteArray &QByteArray::insert(int i, const char *s)
 
     \overload
+
+    Inserts the string \a s at position \a i in the byte array. If \a
+    i is \> size(), the array is first expanded (padded with spaces).
 */
 
 QByteArray &QByteArray::insert(int i, const char *s)
@@ -937,6 +1098,8 @@ QByteArray &QByteArray::insert(int i, const char *s)
 
 /*!
     \fn QByteArray &QByteArray::insert(int i, const QByteArray &a)
+
+    Inserts the byte array \a a at position \a i in the byte array.
 */
 
 QByteArray &QByteArray::insert(int i, const QByteArray &a)
@@ -981,6 +1144,9 @@ QByteArray &QByteArray::remove( int index, int len )
 
 /*!
     \fn QByteArray &QByteArray::replace(int index, int len, const QByteArray &after)
+
+    Replaces \a len bytes from position \a index with the byte array
+    \a after.
 */
 
 QByteArray &QByteArray::replace(int index, int len, const QByteArray &after)
@@ -993,6 +1159,9 @@ QByteArray &QByteArray::replace(int index, int len, const QByteArray &after)
     \fn QByteArray &QByteArray::replace(char before, const QByteArray &after)
 
     \overload
+
+    Replaces every occurrence of character \a before with the byte
+    array \a after.
 */
 
 QByteArray &QByteArray::replace(char before, const QByteArray &after)
@@ -1006,6 +1175,9 @@ QByteArray &QByteArray::replace(char before, const QByteArray &after)
     \fn QByteArray &QByteArray::replace(const QByteArray &before, const QByteArray &after)
 
     \overload
+
+    Replaces every occurrence of the byte array \a before with the
+    byte array \a after.
 */
 
 QByteArray &QByteArray::replace(const QByteArray &before, const QByteArray &after)
@@ -1105,6 +1277,9 @@ QByteArray &QByteArray::replace(const QByteArray &before, const QByteArray &afte
     \fn QByteArray &QByteArray::replace(char before, char after)
 
     \overload
+
+    Replaces every occurrence of character \a before with the
+    character \a after.
 */
 
 QByteArray &QByteArray::replace(char before, char after)
@@ -1123,6 +1298,10 @@ QByteArray &QByteArray::replace(char before, char after)
     \fn int QByteArray::indexOf(char c, int i) const
 
     \overload
+
+    Returns the position of the first occurrence of character \a c in
+    the byte array starting at position \a i, or -1 if \a c could not
+    be found.
 */
 
 int QByteArray::indexOf(char c, int i) const
@@ -1143,6 +1322,10 @@ int QByteArray::indexOf(char c, int i) const
     \fn int QByteArray::lastIndexOf(char c, int i) const
 
     \overload
+
+    Returns the position of the last occurrence of character \a c in
+    the byte array starting at position \a i and working backwards, or
+    -1 if \a c could not be found.
 */
 
 int QByteArray::lastIndexOf(char c, int i) const
@@ -1169,6 +1352,10 @@ int QByteArray::lastIndexOf(char c, int i) const
 
 /*!
     \fn int QByteArray::indexOf(const QByteArray &a, int i) const
+
+    Returns the position of the first occurrence of the byte array \a
+    a in the byte array starting at position \a i, or -1 if \a a could
+    not be found.
 */
 
 int QByteArray::indexOf(const QByteArray& a, int i) const
@@ -1207,6 +1394,10 @@ int QByteArray::indexOf(const QByteArray& a, int i) const
 
 /*!
     \fn int QByteArray::lastIndexOf(const QByteArray &a, int i) const
+
+    Returns the position of the last occurrence of byte array \a a in
+    the byte array starting at position \a i and working backwards, or
+    -1 if \a a could not be found.
 */
 
 int QByteArray::lastIndexOf(const QByteArray& a, int i) const
@@ -1251,6 +1442,9 @@ int QByteArray::lastIndexOf(const QByteArray& a, int i) const
     \fn int QByteArray::count(char c) const
 
     \overload
+
+    Returns the number of occurrences of character \a c in the byte
+    array.
 */
 
 int QByteArray::count(char c) const
@@ -1268,6 +1462,9 @@ int QByteArray::count(char c) const
     \fn int QByteArray::count(const char *a) const
 
     \overload
+
+    Returns the number of occurrences of the string \a a in the byte
+    array.
 */
 
 int QByteArray::count(const char *a) const
@@ -1283,6 +1480,9 @@ int QByteArray::count(const char *a) const
     \fn int QByteArray::count(const QByteArray &a) const
 
     \overload
+
+    Returns the number of occurrences of the byte array \a a in the
+    byte array.
 */
 
 int QByteArray::count(const QByteArray& a) const
@@ -1296,6 +1496,9 @@ int QByteArray::count(const QByteArray& a) const
 
 /*!
     \fn QByteArray QByteArray::left(int len)  const
+
+    Returns a byte array containing the left-most \a len bytes of this
+    byte array.
 */
 
 QByteArray QByteArray::left(int len)  const
@@ -1311,6 +1514,9 @@ QByteArray QByteArray::left(int len)  const
 
 /*!
     \fn QByteArray QByteArray::right(int len) const
+
+    Returns a byte array containing the right-most \a len bytes of
+    this byte array.
 */
 
 QByteArray QByteArray::right(int len) const
@@ -1327,6 +1533,9 @@ QByteArray QByteArray::right(int len) const
 
 /*!
     \fn QByteArray QByteArray::mid(int i, int len) const
+
+    Returns a byte array containing \a len bytes from this byte array,
+    starting at position \a i.
 */
 
 QByteArray QByteArray::mid(int i, int len) const
@@ -1352,8 +1561,8 @@ QByteArray QByteArray::mid(int i, int len) const
 
     Example:
     \code
-    QCString s("Credit");
-    QCString t = s.toLower();  // t == "credit"
+    QByteArray s("Credit");
+    QByteArray t = s.toLower();  // t == "credit"
     \endcode
 
     \sa toUpper()
@@ -1378,8 +1587,8 @@ QByteArray QByteArray::toLower() const
 
     Example:
     \code
-    QCString s( "Debit" );
-    QCString t = s.toUpper();  // t == "DEBIT"
+    QByteArray s( "Debit" );
+    QByteArray t = s.toUpper();  // t == "DEBIT"
     \endcode
 
     \sa toLower()
@@ -1402,6 +1611,8 @@ QByteArray QByteArray::toUpper() const
 
 /*!
     \fn void QByteArray::clear()
+
+    Clears the contents of the byte array and makes it empty.
 */
 
 void QByteArray::clear()
