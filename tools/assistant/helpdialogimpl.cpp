@@ -336,10 +336,10 @@ Q_UINT32 HelpDialog::getFileAges()
 
     QStringList addDocuFiles = settings.readListEntry( DocuParser::DocumentKey
 						       + "AdditionalDocFiles" );
-    QStringList::iterator i = addDocuFiles.begin();
+    QStringList::const_iterator i = addDocuFiles.begin();
 
     Q_UINT32 fileAges = 0;
-    for( ; i != addDocuFiles.end(); i++ ) {
+    for( ; i != addDocuFiles.end(); ++i ) {
 	QFileInfo fi( *i );
 	if ( fi.exists() )
 	    fileAges += fi.lastModified().toTime_t();

@@ -350,7 +350,7 @@ void SettingsDialog::deleteCategory()
 	    catListSel.remove( *it );
 	    it = catListAvail.remove( it );
 	    if ( it != catListAvail.begin() )
-		it--;
+		--it;
 	    changed = TRUE;
 	    deleted = TRUE;
 	}
