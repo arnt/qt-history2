@@ -36,8 +36,8 @@
 #include "qsqlcachedresult.h"
 #include <qdatetime.h>
 
-// numbers of rows to initially reserve
-static const uint initial_cache_size = 32;
+#ifndef QT_NO_SQL
+static const uint initial_cache_size = 128;
 
 class QtSqlCachedResultPrivate
 {
@@ -254,5 +254,8 @@ int QtSqlCachedResult::colCount() const
 
 QtSqlCachedResult::ValueCache &QtSqlCachedResult::cache()
 {
-return d->cache;
+    return d->cache;
 }
+
+#endif // QT_NO_SQL
+
