@@ -90,7 +90,7 @@ public:
 #elif defined(_WS_X11_)
     HANDLE	  handle()  const;
 #elif defined(_WS_MAC_)
-    void * handle() const;
+    HANDLE handle() const;
 #elif defined(_WS_QWS_)
     HANDLE	  handle()  const;
 #endif
