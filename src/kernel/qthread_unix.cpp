@@ -44,24 +44,24 @@ public:
 };
 
 class QThreadPrivate {
-    
+
 public:
 
     pthread_t mythread;
-    QThreadEvent thread_done;      // Used for QThread::wait()    
-    
+    QThreadEvent thread_done;      // Used for QThread::wait()
+
 };
 
 class QThreadEventPrivate {
-    
+
 public:
-    
+
     pthread_cond_t mycond;
     QMutex m;
-    
+
     QThreadEventPrivate();
     ~QThreadEventPrivate();
-    
+
 };
 
 QMutexPrivate::QMutexPrivate()
@@ -118,7 +118,7 @@ void QMutex::unlock()
 {
     int ret = pthread_mutex_unlock( &( d->mymutex ) );
     if( ret ) {
-        qFatal( "Mutex unlock failure %s\n", strerror( ret ) );
+	qFatal( "Mutex unlock failure %s\n", strerror( ret ) );
     }
 }
 
@@ -161,7 +161,7 @@ public:
 
 public slots:
 
-    void sendEvents();
+void sendEvents();
 
 private:
 
@@ -228,7 +228,7 @@ void * QThread::threadData()
 
 void QThread::setThreadData(void *)
 {
-    
+
 }
 
 THREAD_HANDLE QThread::handle()
@@ -253,10 +253,10 @@ void QThread::wait()
 
 void QThread::start()
 {
-  // Error checking would be good
-  pthread_t foo;
-  pthread_create(&foo,0,start_thread,(void *)this);
-  pthread_detach(foo);
+    // Error checking would be good
+    pthread_t foo;
+    pthread_create(&foo,0,start_thread,(void *)this);
+    pthread_detach(foo);
 }
 
 void QThread::run()
@@ -283,9 +283,10 @@ QThreadEvent::~QThreadEvent()
 
 void QThreadEvent::wait()
 {
-    if( pthread_cond_wait (&( d->mycond ),
-        ( pthread_mutex_t * )( d->m.handle() ))) {
-	qWarning("Threadevent wait error:%s",strerror(errno));
+    int ret=pthread_cond_wait (&( d->mycond ),
+			       ( pthread_mutex_t * )( d->m.handle() ));
+    if(ret) {
+	qWarning("Threadevent wait error:%s",strerror(ret));
     }
 }
 
@@ -294,18 +295,28 @@ void QThreadEvent::wait(const QTime & t)
     timespec ti;
     ti.tv_sec=t.second();
     ti.tv_nsec=t.time().msec()*1000000;
-    if( pthread_cond_timedwait (&( d->mycond ),
-        ( pthread_mutex_t * )( d->m.handle() ), &ti) ) {
-	qWarning("Threadevent timed wait error:%s",strerror(errno));
+    int ret=pthread_cond_timedwait (&( d->mycond ),
+				    ( pthread_mutex_t * )( d->m.handle() ), &ti);
+
+    if(ret) {
+	qWarning("Threadevent timed wait error:%s",strerror(ret));
     }
 }
 
 void QThreadEvent::wakeOne()
 {
+    int ret=pthread_cond_signal(& (d->mycond) );
+    if(ret) {
+	qFatal("Threadevent wakeOne error: %s\n",strerror(ret));
+    }
 }
 
 void QThreadEvent::wakeAll()
 {
+    int ret=pthread_cond_broadcast(& (d->mycond) );
+    if(ret) {
+	qFatal("Threadevent wakeAll error: %s\n",strerror(ret));
+    }
 }
 
 THREADEVENT_HANDLE QThreadEvent::handle()
