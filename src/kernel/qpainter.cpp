@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#191 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#192 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -29,6 +29,7 @@
 #include "qdatastream.h"
 #include "qwidget.h"
 #include "qimage.h"
+#include "q1xcompatibility.h"
 #include "qpaintdevicemetrics.h"
 #include <stdlib.h>
 

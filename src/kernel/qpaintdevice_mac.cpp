@@ -4,7 +4,7 @@
 
 QPaintDevice::QPaintDevice(uint devflags)
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   devFlags=devflags;
   painters=0;
   hd=0;
@@ -12,30 +12,30 @@ QPaintDevice::QPaintDevice(uint devflags)
 
 QPaintDevice::~QPaintDevice()
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
 }
 
 bool QPaintDevice::cmd(int,QPainter *,QPDevCmdParam *)
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   return true;
 }
 
 int QPaintDevice::metric(int) const
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   return 0;
 }
 
 int QPaintDevice::fontMet(QFont *,int,const char *,int) const
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   return 0;
 }
 
 int QPaintDevice::fontInf(QFont *,int) const
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   return 0;
 }
 
@@ -43,8 +43,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
              const QPaintDevice *src, int sx, int sy, int sw, int sh,
              Qt::RasterOp rop, bool ignoreMask )
 {
-  printf("%s %d\n",__FILE__,__LINE__);
-  printf("  Blitting %d %d %d %d %d %d\n",dx,dy,sx,sy,sw,sh);
+  //printf("%s %d\n",__FILE__,__LINE__);
+  //printf("  Blitting %d %d %d %d %d %d\n",dx,dy,sx,sy,sw,sh);
   if(dx+sw>dst->metric(QPaintDeviceMetrics::PdmWidth)) {
     sw=dst->metric(QPaintDeviceMetrics::PdmWidth)-dx;
   }
@@ -63,7 +63,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
 HANDLE QPaintDevice::handle() const
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   return hd;
 }
 

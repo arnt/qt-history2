@@ -1,6 +1,7 @@
 #include "qapplication.h"
 #include "qt_mac.h"
-#include "qpaintdevicedefs.h"
+#include "q1xcompatibility.h"
+#include "qpaintdevicemetrics.h"
 #include "qkeycode.h"
 #include "qobjectlist.h"
 #include "qwidgetlist.h"
