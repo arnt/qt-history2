@@ -9,7 +9,7 @@
 // supported on Qt/Embedded where reducing the library size is important
 // and where the application-suite is often a fixed set.
 
-#define QT_DEMO_LINUX
+//#define QT_DEMO_LINUX
 //#define QT_DEMO_SINGLE_FLOPPY
 
 #ifndef QT_DLL
