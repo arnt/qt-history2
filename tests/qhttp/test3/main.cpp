@@ -12,7 +12,7 @@ int main( int argc, char** argv )
 
     if ( argc != 2 )
     {
-	fprintf( stderr, "Syntax: httpget url\n");
+	fprintf( stderr, "Syntax: %s url\n", argv[0] );
 	return 1;
     }
 
