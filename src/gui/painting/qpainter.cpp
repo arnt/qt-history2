@@ -2991,6 +2991,68 @@ void QPainter::drawLines(const QLineF *lines, int lineCount)
 
 
 /*!
+    void QPainter::drawLines(const QVector<QPointF> &pointPairs)
+
+    \overload
+
+    Draws a line for each pair of points in the vector \a pointPairs using
+    the current pen.
+
+    If there is an odd number of points in the array, the last point
+    will be ignored.
+*/
+
+/*!
+    void QPainter::drawLines(const QVector<QPoint> &pointPairs)
+
+    \overload
+
+    Draws a line for each pair of points in the vector \a pointPairs using
+    the current pen.
+
+    If there is an odd number of points in the array, the last point
+    will be ignored.
+*/
+
+/*!
+    \overload
+
+    Draws the first \a lineCount lines in the array \a pointPairs using
+    the current pen.
+
+    The lines are specified as pairs of points so the number of entries
+    in \a pointPairs must be at least \a lineCount * 2
+
+    \sa drawLines()
+*/
+void QPainter::drawLines(const QPointF *pointPairs, int lineCount)
+{
+    Q_ASSERT_X(pointPairs, "QPainter::drawLines", "pointPairs array cannot be 0");
+    // This will go horribly wrong if the layout of QLineF changes!
+    drawLines((QLineF*)pointPairs, lineCount);
+}
+
+/*!
+    \overload
+
+    Draws the first \a lineCount lines in the array \a pointPairs using
+    the current pen.
+
+    The lines are specified as pairs of points so the number of entries
+    in \a pointPairs must be at least \a lineCount * 2
+
+    \sa drawLines()
+*/
+void QPainter::drawLines(const QPoint *pointPairs, int lineCount)
+{
+    Q_ASSERT_X(pointPairs, "QPainter::drawLines", "pointPairs array cannot be 0");
+    QVector<QPointF> pts = qt_convert_points(pointPairs, lineCount * 2, QPointF());
+    // This will go horribly wrong if the layout of QLineF changes!
+    drawLines((QLineF*)pointPairs, pts.size() / 2);
+}
+
+
+/*!
     \fn void QPainter::drawPolyline(const QPolygon &pa, int index, int
     npoints)
 

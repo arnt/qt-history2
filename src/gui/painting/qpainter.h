@@ -188,6 +188,10 @@ public:
 
     void drawLines(const QLineF *lines, int lineCount);
     inline void drawLines(const QVector<QLineF> &lines);
+    void drawLines(const QPointF *pointPairs, int lineCount);
+    inline void drawLines(const QVector<QPointF> &pointPairs);
+    void drawLines(const QPoint *pointPairs, int lineCount);
+    inline void drawLines(const QVector<QPoint> &pointPairs);
 
     void drawPolyline(const QPointF *points, int pointCount);
     inline void drawPolyline(const QPolygonF &polyline);
@@ -403,6 +407,16 @@ inline void QPainter::drawLine(const QPointF &p1, const QPointF &p2)
 inline void QPainter::drawLines(const QVector<QLineF> &lines)
 {
     drawLines(lines.data(), lines.size());
+}
+
+inline void QPainter::drawLines(const QVector<QPointF> &pointPairs)
+{
+    drawLines(pointPairs.data(), pointPairs.size() / 2);
+}
+
+inline void QPainter::drawLines(const QVector<QPoint> &pointPairs)
+{
+    drawLines(pointPairs.data(), pointPairs.size() / 2);
 }
 
 inline void QPainter::drawPolyline(const QPolygonF &polyline)
