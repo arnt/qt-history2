@@ -221,12 +221,12 @@ void QGenericTreeView::ensureItemVisible(const QModelIndex &index)
 {
     QRect area = d->viewport->rect();
     QRect rect = itemViewportRect(index);
-       
+
     if (area.contains(rect)) {
         d->viewport->repaint(rect);
         return;
     }
-    
+
     // vertical
     if (rect.top() < area.top()) { // above
         int i = d->viewIndex(index);
@@ -262,7 +262,6 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
 {
     QItemOptions options;
     getViewOptions(&options);
-    d->backBuffer.fill(options.palette.base());
 
     QPainter painter(&d->backBuffer);
     QRect area = e->rect();
@@ -318,7 +317,7 @@ void QGenericTreeView::drawRow(QPainter *painter, QItemOptions *options, const Q
 {
     int y = options->itemRect.y();
     int width, height = options->itemRect.height();
-    QColor base = options->palette.base();
+    QBrush base = options->palette.base();
 
     QModelIndex parent = model()->parent(index);
     QGenericHeader *header = d->header;
