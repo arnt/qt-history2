@@ -2265,7 +2265,10 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 		    return res;
 	    }
 
-	    const QMetaProperty property = mo->property(index);
+	    QMetaProperty property;
+            if (index < mo->propertyCount())
+                property = mo->property(index);
+
 	    if (property.isReadable()) {
 		if (!pvarResult)
 		    return DISP_E_PARAMNOTOPTIONAL;
