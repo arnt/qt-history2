@@ -281,10 +281,13 @@ bool QFile::open( int m, int f )
 QIODevice::Offset QFile::size() const
 {
     struct stat st;
+    int ret = 0;
     if ( isOpen() ) 
-	::fstat( fh ? fileno(fh) : fd, &st );
+	ret = ::fstat( fh ? fileno(fh) : fd, &st );
     else 
-	::stat( QFile::encodeName(fn), &st );
+	ret = ::stat( QFile::encodeName(fn), &st );
+    if ( ret == -1 )
+	return 0;
     return st.st_size;
 }
 

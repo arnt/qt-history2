@@ -285,15 +285,18 @@ bool QFile::open( int m, int f )
 QIODevice::Offset QFile::size() const
 {
     QT_STATBUF st;
+    int ret = 0;
     if ( isOpen() ) {
-	QT_FSTAT( fh ? QT_FILENO(fh) : fd, &st );
+	ret = QT_FSTAT( fh ? QT_FILENO(fh) : fd, &st );
     } else {
 	QT_WA( {
-	    QT_TSTAT( (TCHAR*)fn.ucs2(), (QT_STATBUF4TSTAT*)&st );
+	    ret = QT_TSTAT( (TCHAR*)fn.ucs2(), (QT_STATBUF4TSTAT*)&st );
 	} , {
-	    QT_STAT(qt_win95Name(fn), &st);
+	    ret = QT_STAT(qt_win95Name(fn), &st);
 	} );
     }
+    if ( ret == -1 )
+	return 0;
     return st.st_size;
 }
 

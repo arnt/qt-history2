@@ -435,11 +435,14 @@ bool QFile::open( int m, int f )
 QIODevice::Offset QFile::size() const
 {
     struct stat st;
+    int ret = 0;
     if ( isOpen() ) {
-	::fstat( fh ? fileno(fh) : fd, &st );
+	ret = ::fstat( fh ? fileno(fh) : fd, &st );
     } else {
-	::stat( QFile::encodeName(fn), &st );
+	ret = ::stat( QFile::encodeName(fn), &st );
     }
+    if ( ret == -1 )
+	return 0;
 #if defined(QT_LARGEFILE_SUPPORT) && !defined(QT_ABI_64BITOFFSET)
     return (uint)st.st_size > UINT_MAX ? UINT_MAX : (QIODevice::Offset)st.st_size;
 #else
