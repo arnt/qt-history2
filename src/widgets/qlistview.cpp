@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#314 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#315 $
 **
 ** Implementation of QListView widget class
 **
@@ -2104,7 +2104,8 @@ QString QListView::columnText( int c ) const
 
 int QListView::columnWidth( int c ) const
 {
-    return d->h->cellSize(c);
+    int actual = d->h->mapToActual( c );
+    return d->h->cellSize( actual );
 }
 
 
@@ -2605,7 +2606,7 @@ void QListViewItem::widthChanged( int c ) const
 
 /*! \fn void QListView::pressed( QListViewItem *item )
 
-  This signal is emitted whenever the user presses the mouse button  
+  This signal is emitted whenever the user presses the mouse button
   on an listview item.
   \a item is the pointer to the listview item, onto which the user pressed
   the mouse button.
@@ -2616,10 +2617,10 @@ void QListViewItem::widthChanged( int c ) const
 
 /*! \fn void QListView::pressed( QListViewItem *item, const QPoint &pnt, int c )
 
-  This signal is emitted whenever the user presses the mouse button  
+  This signal is emitted whenever the user presses the mouse button
   on an listview item.
   \a item is the pointer to the listview item, onto which the user pressed
-  the mouse button. \a pnt the position of the mouse cursor,and \a c the 
+  the mouse button. \a pnt the position of the mouse cursor,and \a c the
   column into which the mouse cursor was when the user pressed the mouse
   button.
 
