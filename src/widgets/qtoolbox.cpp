@@ -388,8 +388,7 @@ oneMill.QuadPart = count.QuadPart/1000
 QueryPerformanceCounter( &count ); \
 if ( count.QuadPart > next.QuadPart )
 
-#define REINIT_TIMER \
-do {} while( FALSE ) // just so we can put a semicolon after
+#define REINIT_TIMER
 
 #endif
 
