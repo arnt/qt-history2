@@ -69,7 +69,6 @@ struct QHeaderData
   <img src=qheader-m.png> <img src=qheader-w.png>
 
   \sa QListView QTableView
-  <a href="http://www.microsoft.com/win32dev/uiguide/uigui181.htm">Microsoft Style Guide</a>
  */
 
 
