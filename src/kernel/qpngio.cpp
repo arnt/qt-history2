@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpngio.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qpngio.cpp#10 $
 **
 ** Implementation of PNG QImage IOHandler
 **
@@ -448,13 +448,27 @@ void write_png_image(QImageIO* iio)
 	iio->setStatus(-1);
 }
 
+/*!
+  \class QPNGImagePacker qpngio.h
+  \brief Creates well-compressed PNG animations.
+
+  By using transparency, QPNGImagePacker allows you to build a PNG image
+  from a sequence of QImages.
+*/
+
 
 QPNGImagePacker::QPNGImagePacker(QIODevice* iod, int storage_depth=32,
 	int conversionflags=0) :
     QPNGImageWriter(iod),
     depth(storage_depth),
-    convflags(conversionflags)
+    convflags(conversionflags),
+    alignx(1)
 {
+}
+
+void QPNGImagePacker::setPixelAlignment(int x)
+{
+    alignx = x;
 }
 
 bool QPNGImagePacker::packImage(const QImage& img)
@@ -463,7 +477,6 @@ bool QPNGImagePacker::packImage(const QImage& img)
     if ( previous.isNull() ) {
 	// First image
 	writeImage(image.convertDepth(depth,convflags));
-debug("Initial image has %d pixels",image.width()*image.height());
     } else {
 	bool done;
 	int minx, maxx, miny, maxy;
@@ -524,6 +537,11 @@ debug("Initial image has %d pixels",image.width()*image.height());
 	if ( minx > maxx ) minx=maxx=0;
 	if ( miny > maxy ) miny=maxy=0;
 
+	if ( alignx > 1 ) {
+	    minx -= minx % alignx;
+	    maxx = maxx - maxx % alignx + alignx - 1;
+	}
+
 	int dw = maxx-minx+1;
 	int dh = maxy-miny+1;
 
@@ -531,21 +549,40 @@ debug("Initial image has %d pixels",image.width()*image.height());
 
 	diff.setAlphaBuffer(TRUE);
 	int x, y;
-	int n = 0;
+	if ( alignx < 1 )
+	    alignx = 1;
 	for (y = 0; y < dh; y++) {
 	    QRgb* li = (QRgb*)image.scanLine(y+miny)+minx;
 	    QRgb* lp = (QRgb*)previous.scanLine(y+miny)+minx;
 	    QRgb* ld = (QRgb*)diff.scanLine(y);
-	    for (x = 0; x < dw; x++) {
-		if ( li[x] == lp[x] ) {
-		    ld[x] = qRgba(0,0,0,0);
-		} else {
-		    ld[x] = 0xff000000 | li[x];
-		    n++;
+	    if ( alignx ) {
+		for (x = 0; x < dw; x+=alignx) {
+		    int i=0;
+		    for (i=0; i<alignx; i++) {
+			if ( li[x+i] != lp[x+i] )
+			    break;
+		    }
+		    if ( i == alignx ) {
+			// All the same
+			for (i=0; i<alignx; i++) {
+			    ld[x+i] = qRgba(0,0,0,0);
+			}
+		    } else {
+			// Some different
+			for (i=0; i<alignx; i++) {
+			    ld[x+i] = 0xff000000 | li[x+i];
+			}
+		    }
+		}
+	    } else {
+		for (x = 0; x < dw; x++) {
+		    if ( li[x] != lp[x] )
+			ld[x] = 0xff000000 | li[x];
+		    else
+			ld[x] = qRgba(0,0,0,0);
 		}
 	    }
 	}
-debug("Semi-transparent frame has %d new pixels",n);
 
 	diff = diff.convertDepth(depth,convflags);
 	if ( !writeImage(diff, minx, miny) )
@@ -825,7 +862,8 @@ int QPNGFormat::user_chunk(png_structp png_ptr, png_infop,
 	    png_bytep data, png_uint_32 length)
 {
     // debug("Got %ld-byte %s chunk", length, png_ptr->chunk_name);
-    if ( 0==strcmp((char*)png_ptr->chunk_name, "gIFg") ) {
+    if ( 0==strcmp((char*)png_ptr->chunk_name, "gIFg")
+	    && length == 4 ) {
 
 	QPNGImageWriter::DisposalMethod disposal =
 	    (QPNGImageWriter::DisposalMethod)data[0];
@@ -833,7 +871,8 @@ int QPNGFormat::user_chunk(png_structp png_ptr, png_infop,
 	int ms_delay = ((data[2] << 8) | data[3])*10;
 	consumer->setFramePeriod(ms_delay);
 	return 1;
-    } if ( 0==strcmp((char*)png_ptr->chunk_name, "gIFx") ) {
+    } if ( 0==strcmp((char*)png_ptr->chunk_name, "gIFx")
+	    && length == 13 ) {
 	if ( strncmp((char*)data,"NETSCAPE2.0",11)==0 ) {
 	    int looping = (data[0xC]<<8)|data[0xB];
 	    consumer->setLooping(looping);

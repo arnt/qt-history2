@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpngio.h#2 $
+** $Id: //depot/qt/main/src/kernel/qpngio.h#3 $
 **
 ** Definition of PNG QImage IOHandler
 **
@@ -59,12 +59,14 @@ class QPNGImagePacker : public QPNGImageWriter {
 public:
     QPNGImagePacker(QIODevice*, int depth, int convflags);
 
+    void setPixelAlignment(int x);
     bool packImage(const QImage& img);
 
 private:
     QImage previous;
     int depth;
     int convflags;
+    int alignx;
 };
 
 #endif
