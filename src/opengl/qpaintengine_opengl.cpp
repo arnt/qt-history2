@@ -418,14 +418,13 @@ void QOpenGLPaintEngine::updateClipRegion(const QRegion &, bool )
 
 void QOpenGLPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
+    dgl->makeCurrent();
     if (hints & QPainter::LineAntialiasing) {
-	dgl->makeCurrent();
 	glEnable(GL_LINE_SMOOTH);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
     } else { // i.e. !LineAntialiasing
-	dgl->makeCurrent();
 	glDisable(GL_LINE_SMOOTH);
     }
 }
@@ -926,7 +925,6 @@ static void qt_fill_linear_gradient(const QRect &rect, const QBrush &brush)
     glTranslatef(rect.x(), rect.y(), .0);
     glShadeModel(GL_SMOOTH);
     glDisable(GL_DEPTH_TEST);
-    glScissor(rect.x(), rect.y(), rect.width(), rect.height());
 
     gstart -= rect.topLeft();
     gstop -= rect.topLeft();
