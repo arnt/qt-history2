@@ -706,7 +706,8 @@ void QHeader::removeLabel( int index )
 	cachedPos -= pSize( aindex );
     }
 
-    for ( int i = index; i < count() - 1; ++i ) {
+    int i;
+    for ( i = index; i < count() - 1; ++i ) {
 	data->sizes[i] = data->sizes[i+1];
 	data->heights[i] = data->heights[i+1];
 	data->labels.insert( i, data->labels.take( i + 1 ) );
@@ -717,17 +718,17 @@ void QHeader::removeLabel( int index )
     data->labels.resize( data->labels.size() - 1 );
     data->iconsets.resize( data->iconsets.size() - 1 );
 
-    for ( uint i = index; i < data->l2a.size() - 1; ++i )
+    for ( i = index; i < (int)data->l2a.size() - 1; ++i )
 	data->l2a[i] = data->l2a[i+1];
     data->l2a.resize( data->l2a.size() - 1 );
-    for ( uint i = 0; i < data->l2a.size() - 1; ++i )
+    for ( i = 0; i < (int)data->l2a.size() - 1; ++i )
 	if ( data->l2a[i] > aindex )
 	    --data->l2a[i];
 
-    for ( uint i = aindex; i < data->a2l.size() - 1; ++i )
+    for ( i = aindex; i < (int)data->a2l.size() - 1; ++i )
 	data->a2l[i] = data->a2l[i+1];
     data->a2l.resize( data->a2l.size() - 1 );
-    for ( uint i = 0; i < data->a2l.size() - 1; ++i )
+    for ( i = 0; i < (int)data->a2l.size() - 1; ++i )
 	if ( data->a2l[i] > index )
 	    --data->a2l[i];
 
