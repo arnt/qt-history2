@@ -329,8 +329,7 @@ DspMakefileGenerator::init()
 	}
 
 	if ( (project->variables()["TARGET"].first() == "qt" ||
-	      project->variables()["TARGET"].first() == "qt-mt") &&
-	     !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
+	      project->variables()["TARGET"].first() == "qt-mt") ) {
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
 		project->variables()["DEFINES"].append("QT_MAKEDLL");
 		project->variables()["MSVCDSP_DLLBASE"].append("/base:\"0x39D00000\"");
@@ -447,10 +446,12 @@ DspMakefileGenerator::init()
     if ( !project->variables()["DESTDIR"].isEmpty() ) {
 	project->variables()["TARGET"].first().prepend(project->variables()["DESTDIR"].first() +  "\\");
 	Option::fixPathToTargetOS(project->variables()["TARGET"].first());
-	project->variables()["MSVCDSP_TARGET"].append(
-	    QString("/out:\"") + project->variables()["TARGET"].first() + "\"");
+	int hver = findHighestVersion(project->variables()["QMAKE_LIBDIR_QT"].first(), "qt");
+        QString imp = project->variables()["TARGET"].first();
+        imp.replace(QRegExp("\\.dll"), QString("%1.dll").arg(hver));
+        project->variables()["MSVCDSP_TARGET"].append(
+	    QString("/out:\"") + imp + "\"");
 	if ( project->isActiveConfig("dll") ) {
-	    QString imp = project->variables()["TARGET"].first();
 	    imp.replace(QRegExp("\\.dll"), ".lib");
 	    project->variables()["MSVCDSP_TARGET"].append(QString(" /implib:\"") + imp + "\"");
 	}
