@@ -1009,6 +1009,15 @@ void QMessageBox::showEvent( QShowEvent *e )
     QDialog::showEvent( e );
 }
 
+/*!\reimp
+*/
+void QMessageBox::closeEvent( QCloseEvent *e )
+{
+    QDialog::closeEvent( e );
+    if ( mbd->escButton != -1 )
+	setResult( mbd->button[mbd->escButton] );
+}
+
 /*****************************************************************************
   Static QMessageBox functions
  *****************************************************************************/

@@ -171,6 +171,7 @@ public:
 protected:
     void	resizeEvent( QResizeEvent * );
     void	showEvent( QShowEvent * );
+    void	closeEvent( QCloseEvent * );
     void	keyPressEvent( QKeyEvent * );
     void	styleChanged( QStyle& );
 
