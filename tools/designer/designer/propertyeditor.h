@@ -28,6 +28,7 @@
 #include <qguardedptr.h>
 #include <qtabwidget.h>
 #include <qmodules.h>
+#include "hierarchyview.h"
 
 class PropertyList;
 class PropertyEditor;
@@ -502,19 +503,26 @@ protected:
 
 };
 
-class EventTable : public PropertyList
+class EventList : public HierarchyList
 {
     Q_OBJECT
 
 public:
-    EventTable( PropertyEditor *e );
+    EventList( QWidget *parent, FormWindow *fw, PropertyEditor *e );
 
-    void setupProperties();
-    void setCurrentItem( QListViewItem *i );
-    void valueChanged( PropertyItem *i );
-    void refetchData();
-    void setPropertyValue( PropertyItem *i );
-    void setCurrentProperty( const QString &n );
+    void setup();
+    void setCurrent( QWidget *w );
+
+private:
+    void save( QListViewItem *p );
+
+private slots:
+    void objectClicked( QListViewItem *i );
+    void showRMBMenu( QListViewItem *, const QPoint & );
+    void renamed( QListViewItem *i );
+
+private:
+    PropertyEditor *editor;
 
 };
 
@@ -538,7 +546,7 @@ public:
 
     PropertyList *propertyList() const;
     FormWindow *formWindow() const;
-    EventTable *eventTable() const;
+    EventList *eventList() const;
 
     QString currentProperty() const;
     QString classOfCurrentProperty() const;
@@ -558,7 +566,7 @@ protected:
 private:
     QObject *wid;
     PropertyList *listview;
-    EventTable *eTable;
+    EventList *eList;
     FormWindow *formwindow;
 
 };

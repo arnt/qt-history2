@@ -126,7 +126,7 @@ public:
 
     QString templatePath() const { return templPath; }
 
-    void editFunction( const QString &func, const QString &l = QString::null );
+    void editFunction( const QString &func, const QString &l = QString::null, bool rereadSource = FALSE );
 
     bool isPreviewing() const { return previewing; }
 

@@ -63,7 +63,6 @@ public:
 static QPtrDict<MetaDataBaseRecord> *db = 0;
 static QList<MetaDataBase::CustomWidget> *cWidgets = 0;
 static bool doUpdate = TRUE;
-static bool haveEvents = FALSE;
 static QStringList langList;
 static QStringList editorLangList;
 static QInterfaceManager<EventInterface> *eventInterfaceManager = 0;
@@ -1057,14 +1056,9 @@ QMap<QString, QString> MetaDataBase::columnFields( QObject *o )
     return r->columnFields;
 }
 
-void MetaDataBase::setEventsEnabled( bool b )
+bool MetaDataBase::hasEvents( const QString &lang )
 {
-    haveEvents = b;
-}
-
-bool MetaDataBase::hasEvents()
-{
-    return haveEvents;
+    return !!(EventInterface*)eventInterfaceManager->queryInterface( lang );
 }
 
 static QString get_function_name( const QString &s )
@@ -1079,7 +1073,7 @@ static QStringList get_arguments( const QString &s )
     return QStringList::split( ',', str );
 }
 
-QValueList<MetaDataBase::EventDescription> MetaDataBase::events( QObject *o )
+QValueList<MetaDataBase::EventDescription> MetaDataBase::events( QObject *o, const QString &lang )
 {
     if ( !o )
 	return QValueList<MetaDataBase::EventDescription>();
@@ -1093,8 +1087,7 @@ QValueList<MetaDataBase::EventDescription> MetaDataBase::events( QObject *o )
 
     if ( !eventInterfaceManager || langList.count() == 1 )
 	return QValueList<MetaDataBase::EventDescription>();
-    // ###### hack: uses first language. We should show events of all languages
-    EventInterface *iface = (EventInterface*)eventInterfaceManager->queryInterface( langList[ 0 ] );
+    EventInterface *iface = (EventInterface*)eventInterfaceManager->queryInterface( lang );
     QValueList<MetaDataBase::EventDescription> list;
     if ( !iface )
 	return list;
@@ -1110,7 +1103,8 @@ QValueList<MetaDataBase::EventDescription> MetaDataBase::events( QObject *o )
     return list;
 }
 
-bool MetaDataBase::setEventFunctions( QObject *o, QObject *form, const QString &event, const QStringList &functions, bool addIfNotExisting )
+bool MetaDataBase::setEventFunctions( QObject *o, QObject *form, const QString &lang,
+				      const QString &event, const QStringList &functions, bool addIfNotExisting )
 {
     if ( !o )
 	return FALSE;
@@ -1134,7 +1128,7 @@ bool MetaDataBase::setEventFunctions( QObject *o, QObject *form, const QString &
     r->eventFunctions.remove( event );
     EventDescription ed;
     ed.name = "<none>";
-    QValueList<EventDescription> eds = events( o );
+    QValueList<EventDescription> eds = events( o, lang );
     for ( QValueList<EventDescription>::Iterator eit = eds.begin(); eit != eds.end(); ++eit ) {
 	if ( (*eit).name == event ) {
 	    ed = *eit;
@@ -1142,7 +1136,7 @@ bool MetaDataBase::setEventFunctions( QObject *o, QObject *form, const QString &
 	}
     }
 
-    bool slotExists = FALSE;
+    bool slotExists = TRUE;
 
     for ( QStringList::ConstIterator fit = functions.begin(); fit != functions.end(); ++fit ) {
 	QString fName = *fit + "(";
@@ -1150,26 +1144,28 @@ bool MetaDataBase::setEventFunctions( QObject *o, QObject *form, const QString &
 	    QStringList args;
 	    for ( QStringList::Iterator it = ed.args.begin(); it != ed.args.end(); ++it )
 		args << *it;
-	    LanguageInterface *iface = languageInterface( langList[ 0 ] ); // #### get real language
+	    LanguageInterface *iface = languageInterface( lang );
 	    if ( iface )
 		fName += iface->createArguments( args );
 	}
 	fName += ")";
 	fName = normalizeSlot( fName );
 
-	bool needAddSlot = FALSE;
+	bool needAddSlot = TRUE;
 	for ( QValueList<Slot>::Iterator it = r2->slotList.begin(); it != r2->slotList.end(); ++it ) {
 	    Slot s = *it;
 	    QString sName = normalizeSlot( s.slot );
 	    if ( sName == fName ) {
-		slotExists = TRUE;
-		needAddSlot = TRUE;
+		needAddSlot = FALSE;
 		break;
 	    }
 	}
 
-	if ( needAddSlot && addIfNotExisting ) // ##### find the language of the event, and use that language here
-	    addSlot( form, fName.latin1(), "public",  langList[ 0 ] );
+	if ( needAddSlot )
+	    slotExists = FALSE;
+	
+	if ( needAddSlot && addIfNotExisting )
+	    addSlot( form, fName.latin1(), "public", lang );
     }
 
     r->eventFunctions.insert( event, functions );
@@ -1292,7 +1288,6 @@ void MetaDataBase::setupInterfaceManagers()
     dir += "/plugins/designer";
     if ( !eventInterfaceManager ) {
 	eventInterfaceManager = new QInterfaceManager<EventInterface>( IID_EventInterface, dir, "*.dll; *.so; *.dylib" );
-	MetaDataBase::setEventsEnabled( !eventInterfaceManager->featureList().isEmpty() );
     }
     if ( !languageInterfaceManager ) {
 	languageInterfaceManager = new QInterfaceManager<LanguageInterface>( IID_LanguageInterface, dir, "*.dll; *.so; *.dylib" );

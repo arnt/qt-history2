@@ -1181,31 +1181,18 @@ void MainWindow::setupPropertyEditor()
     addToolBar( dw, Qt::Left );
     dw->setWidget( propertyEditor );
     dw->setFixedExtentWidth( 300 );
-    if ( !MetaDataBase::hasEvents() ) {
-	dw->setCaption( tr( "Property Editor" ) );
-	QWhatsThis::add( propertyEditor, tr("<b>The Property Editor</b>"
-					    "<p>You can change the appearance and behaviour of the selected widget in the "
-					    "property editor.</p>"
-					    "<p>You can set properties for components and forms at design time and see the "
-					    "changes immediately. Each property has its own editor which you can use to enter "
-					    "new values, open a special dialog or select values from a predefined list. "
-					    "Use <b>F1</b> to get detailed help for the selected property.</p>"
-					    "<p>You can resize the columns of the editor by dragging the separators of the list "
-					    "header.</p>") );
-    } else {
-	dw->setCaption( tr( "Property Editor/Events" ) );
-	QWhatsThis::add( propertyEditor, tr("<b>The Property Editor</b>"
-					    "<p>You can change the appearance and behaviour of the selected widget in the "
-					    "property editor.</p>"
-					    "<p>You can set properties for components and forms at design time and see the "
-					    "changes immediately. Each property has its own editor which you can use to enter "
-					    "new values, open a special dialog or select values from a predefined list. "
-					    "Use <b>F1</b> to get detailed help for the selected property.</p>"
-					    "<p>You can resize the columns of the editor by dragging the separators of the list "
-					    "header.</p>"
-					    "<p>On the second tab you can define which function should be called, when a certain "
-					    "event of the currently selected widget occures" ) );
-    }
+    dw->setCaption( tr( "Property Editor/Events" ) );
+    QWhatsThis::add( propertyEditor, tr("<b>The Property Editor</b>"
+					"<p>You can change the appearance and behaviour of the selected widget in the "
+					"property editor.</p>"
+					"<p>You can set properties for components and forms at design time and see the "
+					"changes immediately. Each property has its own editor which you can use to enter "
+					"new values, open a special dialog or select values from a predefined list. "
+					"Use <b>F1</b> to get detailed help for the selected property.</p>"
+					"<p>You can resize the columns of the editor by dragging the separators of the list "
+					"header.</p>"
+					"<p>On the second tab you can define which function should be called, when a certain "
+					"event of the currently selected widget occures" ) );
     propGeom = QRect( 0, 0, 300, 600 );
     dw->show();
 }
@@ -4296,7 +4283,7 @@ void MainWindow::setupActionManager()
     }
 }
 
-void MainWindow::editFunction( const QString &func, const QString &l )
+void MainWindow::editFunction( const QString &func, const QString &l, bool rereadSource )
 {
     if ( !formWindow() )
 	return;
@@ -4330,6 +4317,8 @@ void MainWindow::editFunction( const QString &func, const QString &l )
     editor->setFocus();
     if ( editor->form() != formWindow() )
 	editor->setForm( formWindow() );
+    else if ( rereadSource )
+	editor->refresh();
     editor->setFunction( func );
 }
 

@@ -27,8 +27,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>547</width>
-            <height>363</height>
+            <width>543</width>
+            <height>361</height>
         </rect>
     </property>
     <property name="caption">
@@ -328,7 +328,7 @@
                 </widget>
                 <widget class="QLabel">
                     <property name="name">
-                        <cstring>TextLabel1</cstring>
+                        <cstring>labelLanguage</cstring>
                     </property>
                     <property name="text">
                         <string>&amp;Language:</string>
@@ -375,13 +375,13 @@
         <sender>slotName</sender>
         <signal>textChanged(const QString&amp;)</signal>
         <receiver>EditSlotsBase</receiver>
-        <slot>currentTextChanged(const QString &amp;)</slot>
+        <slot>currentTextChanged(const QString&amp;)</slot>
     </connection>
     <connection>
         <sender>slotAccess</sender>
         <signal>activated(const QString&amp;)</signal>
         <receiver>EditSlotsBase</receiver>
-        <slot>currentAccessChanged(const QString &amp;)</slot>
+        <slot>currentAccessChanged(const QString&amp;)</slot>
     </connection>
     <connection>
         <sender>slotListView</sender>
@@ -399,14 +399,16 @@
         <sender>comboLanguage</sender>
         <signal>activated(const QString&amp;)</signal>
         <receiver>EditSlotsBase</receiver>
-        <slot>currentLanguageChanged(const QString &amp;)</slot>
+        <slot>currentLanguageChanged(const QString&amp;)</slot>
     </connection>
-    <slot access="protected">currentAccessChanged(const QString &amp;)</slot>
-    <slot access="protected">currentItemChanged(QListViewItem*)</slot>
-    <slot access="protected">currentTextChanged(const QString &amp;)</slot>
-    <slot access="protected">currentLanguageChanged(const QString &amp;)</slot>
-    <slot access="protected">slotAdd()</slot>
-    <slot access="protected">slotRemove()</slot>
-    <slot access="protected">okClicked()</slot>
+    <slot access="protected" language="C++">init()</slot>
+    <slot access="protected" language="C++">destroy()</slot>
+    <slot access="protected" language="C++">currentAccessChanged(const QString &amp;)</slot>
+    <slot access="protected" language="C++">currentItemChanged(QListViewItem*)</slot>
+    <slot access="protected" language="C++">currentTextChanged(const QString &amp;)</slot>
+    <slot access="protected" language="C++">currentLanguageChanged(const QString &amp;)</slot>
+    <slot access="protected" language="C++">slotAdd()</slot>
+    <slot access="protected" language="C++">slotRemove()</slot>
+    <slot access="protected" language="C++">okClicked()</slot>
 </connections>
 </UI>

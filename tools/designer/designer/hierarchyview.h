@@ -26,7 +26,6 @@
 #include <qtabwidget.h>
 #include <qlist.h>
 
-class HierarchyView;
 class FormWindow;
 class QResizeEvent;
 class QCloseEvent;
@@ -66,13 +65,14 @@ class HierarchyList : public QListView
     Q_OBJECT
 
 public:
-    HierarchyList( QWidget *parent, HierarchyView *view, bool doConnects = TRUE );
+    HierarchyList( QWidget *parent, FormWindow *fw, bool doConnects = TRUE );
 
     virtual void setup();
     virtual void setCurrent( QWidget *w );
     void setOpen( QListViewItem *i, bool b );
     void changeNameOf( QWidget *w, const QString &name );
     void changeDatabaseOf( QWidget *w, const QString &info );
+    void setFormWindow( FormWindow *fw ) { formWindow = fw; }
 
 protected:
     void keyPressEvent( QKeyEvent *e );
@@ -95,7 +95,7 @@ private slots:
     virtual void showRMBMenu( QListViewItem *, const QPoint & );
 
 protected:
-    HierarchyView *hierarchyView;
+    FormWindow *formWindow;
     QPopupMenu *normalMenu, *tabWidgetMenu;
     bool deselect;
 
@@ -106,7 +106,7 @@ class FunctionList : public HierarchyList
     Q_OBJECT
 
 public:
-    FunctionList( QWidget *parent, HierarchyView *view );
+    FunctionList( QWidget *parent, FormWindow *fw );
 
     void setup();
     void refreshFunctions( bool doDelete = TRUE );

@@ -198,14 +198,14 @@ public:
     static void setColumnFields( QObject *o, const QMap<QString, QString> &columnFields );
     static QMap<QString, QString> columnFields( QObject *o );
 
-    static void setEventsEnabled( bool b );
-    static bool hasEvents();
+    static bool hasEvents( const QString &lang );
 
     static void setEditor( const QStringList &langs );
     static bool hasEditor( const QString &lang );
 
-    static QValueList<EventDescription> events( QObject *o );
-    static bool setEventFunctions( QObject *o, QObject *form, const QString &event, const QStringList &functions, bool = TRUE );
+    static QValueList<EventDescription> events( QObject *o, const QString &lang );
+    static bool setEventFunctions( QObject *o, QObject *form, const QString &lang,
+				   const QString &event, const QStringList &functions, bool = TRUE );
     static QStringList eventFunctions( QObject *o, const QString &event );
     static QMap<QString, QStringList> eventFunctions( QObject *o );
     static void setFunctionBodies( QObject *o, const QMap<QString, QString> &bodies, const QString &lang );

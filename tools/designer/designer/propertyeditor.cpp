@@ -2792,62 +2792,107 @@ void PropertyList::resetProperty()
 	i->initChildren();
 }
 
-// --------------------------------------------------------------
+// ------------------------------------------------------------
 
-EventTable::EventTable( PropertyEditor *e )
-    : PropertyList( e )
+EventList::EventList( QWidget *parent, FormWindow *fw, PropertyEditor *e )
+    : HierarchyList( parent, fw, TRUE ), editor( e )
 {
-    header()->setLabel( 0, tr( "Event" ) );
-    header()->setLabel( 1, tr( "Function" ) );
+    header()->hide();
+    removeColumn( 1 );
+    connect( this, SIGNAL( itemRenamed( QListViewItem *, int, const QString & ) ),
+	     this, SLOT( renamed( QListViewItem * ) ) );
 }
 
-void EventTable::setupProperties()
+void EventList::setup()
 {
-    QValueList<MetaDataBase::EventDescription> events = MetaDataBase::events( editor->widget() );
+    clear();
+
+    QValueList<MetaDataBase::EventDescription> events = MetaDataBase::events( editor->widget(), formWindow->project()->language() );
     if ( events.isEmpty() )
 	return;
     for ( QValueList<MetaDataBase::EventDescription>::Iterator it = events.begin(); it != events.end(); ++it ) {
-	PropertyItem *item = 0;
-	addPropertyItem( item, (*it).name.latin1(), QVariant::StringList );
-	setPropertyValue( item );
+	HierarchyItem *eventItem = new HierarchyItem( this, (*it).name, QString::null, QString::null );
+	eventItem->setOpen( TRUE );
+	QStringList funcs = MetaDataBase::eventFunctions( editor->widget(), (*it).name );
+	for ( QStringList::Iterator fit = funcs.begin(); fit != funcs.end(); ++fit ) {
+	    HierarchyItem *item = new HierarchyItem( eventItem, *fit, QString::null, QString::null );
+	    item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
+	}
     }
 }
 
-void EventTable::setCurrentItem( QListViewItem *i )
+void EventList::setCurrent( QWidget * )
 {
-    PropertyList::setCurrentItem( i );
 }
 
-void EventTable::valueChanged( PropertyItem *i )
+void EventList::objectClicked( QListViewItem * )
 {
-    if ( ( (PropertyListItem*)i )->currentItem().isEmpty() ) {
-	QString s = QString( editor->widget()->name() ) + "_" + i->text( 0 );
-	( (PropertyListItem*)i )->addItem( s );
-	( (PropertyListItem*)i )->setCurrentItem( s );
+}
+
+extern QListViewItem *newItem;
+
+void EventList::showRMBMenu( QListViewItem *i, const QPoint &pos )
+{
+    if ( !i )
+	return;
+    QPopupMenu menu;
+    const int NEW_ITEM = 1;
+    const int DEL_ITEM = 2;
+    menu.insertItem( tr( "New Event-Handler" ), NEW_ITEM );
+    menu.insertItem( tr( "Delete Event-Handler" ), DEL_ITEM );
+    int res = menu.exec( pos );
+    if ( res == NEW_ITEM ) {
+ 	QString s = QString( editor->widget()->name() ) + "_" + ( i->parent() ? i->parent() : i )->text( 0 );
+	HierarchyItem *item = new HierarchyItem( i->parent() ? i->parent() : i, s, QString::null, QString::null );
+	item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
+	item->setRenameEnabled( 0, TRUE );
+	setCurrentItem( item );
+	qApp->processEvents();
+	newItem = item;
+	item->startRename( 0 );
+    } else if ( res == DEL_ITEM ) {
+	QListViewItem *p = i->parent();
+	delete i;
+	save( p );
     }
-    if ( MetaDataBase::setEventFunctions( editor->widget(), editor->formWindow(),
-					  i->text( 0 ), QStringList( ( (PropertyListItem*)i )->currentItem() ) ) ) { // ###### events
-	editor->formWindow()->mainWindow()->objectHierarchy()->updateFunctionList();
-	editor->formWindow()->mainWindow()->editFunction( ( (PropertyListItem*)i )->currentItem(),
-							  editor->formWindow()->project()->language() );
+}
+
+void EventList::renamed( QListViewItem *i )
+{
+    if ( newItem == i )
+	newItem = 0;
+    if ( !i->parent() )
+	return;
+    QListViewItem *itm = i->parent()->firstChild();
+    bool del = FALSE;
+    while ( itm ) {
+	if ( itm != i && itm->text( 0 ) == i->text( 0 ) ) {
+	    del = TRUE;
+	    break;
+	}
+	itm = itm->nextSibling();
+    }
+    i->setRenameEnabled( 0, FALSE );
+    if ( del ) {
+	delete i;
+    } else {
+	save( i->parent() );
+	editor->formWindow()->mainWindow()->editFunction( i->text( 0 ),  editor->formWindow()->project()->language(), TRUE );
     }
 }
 
-void EventTable::refetchData()
+void EventList::save( QListViewItem *p )
 {
-    PropertyList::refetchData();
-}
+    QStringList lst;
+    QListViewItem *i = p->firstChild();
+    while ( i ) {
+	lst << i->text( 0 );
+	i = i->nextSibling();
+    }
 
-void EventTable::setPropertyValue( PropertyItem *i )
-{
-    QString s = MetaDataBase::eventFunctions( editor->widget(), i->text( 0 ) )[ 0 ]; // ### events
-    ( (PropertyListItem*)i )->setValue( QStringList( s ) );
-    ( (PropertyListItem*)i )->setCurrentItem( s );
-}
-
-void EventTable::setCurrentProperty( const QString &n )
-{
-    PropertyList::setCurrentProperty( n );
+    if ( MetaDataBase::setEventFunctions( editor->widget(), formWindow,
+					  formWindow->project()->language(), p->text( 0 ), lst ) )
+ 	editor->formWindow()->mainWindow()->objectHierarchy()->updateFunctionList();
 }
 
 // --------------------------------------------------------------
@@ -2870,12 +2915,8 @@ PropertyEditor::PropertyEditor( QWidget *parent )
     formwindow = 0;
     listview = new PropertyList( this );
     addTab( listview, tr( "&Properties" ) );
-    eTable = new EventTable( this );
-    if ( MetaDataBase::hasEvents() )
-	addTab( eTable, tr( "&Events" ) );
-    else
-	eTable->hide();
-
+    eList = new EventList( this, formWindow(), this );
+    eList->hide();
 }
 
 QObject *PropertyEditor::widget() const
@@ -2885,6 +2926,16 @@ QObject *PropertyEditor::widget() const
 
 void PropertyEditor::setWidget( QObject *w, FormWindow *fw )
 {
+    eList->setFormWindow( fw );
+    if ( fw != formwindow ) {
+	if ( !fw || !MetaDataBase::hasEvents( fw->project()->language() ) ) {
+	    if ( formwindow && MetaDataBase::hasEvents( formwindow->project()->language() ) )
+		removePage( eList );
+	} else {
+	    if ( !formwindow || !MetaDataBase::hasEvents( formwindow->project()->language() ) )
+		addTab( eList, tr( "&Events" ) );
+	}
+    }
     if ( w && w == wid ) {
 	bool ret = TRUE;
 	if ( wid->isWidgetType() && WidgetFactory::layoutType( (QWidget*)wid ) != WidgetFactory::NoLayout ) {
@@ -2925,8 +2976,8 @@ void PropertyEditor::clear()
 {
     listview->setContentsPos( 0, 0 );
     listview->clear();
-    eTable->setContentsPos( 0, 0 );
-    eTable->clear();
+    eList->setContentsPos( 0, 0 );
+    eList->clear();
 }
 
 void PropertyEditor::setup()
@@ -2936,10 +2987,9 @@ void PropertyEditor::setup()
     listview->viewport()->setUpdatesEnabled( TRUE );
     listview->updateEditorSize();
 
-    eTable->viewport()->setUpdatesEnabled( FALSE );
-    eTable->setupProperties();
-    eTable->viewport()->setUpdatesEnabled( TRUE );
-    eTable->updateEditorSize();
+    eList->viewport()->setUpdatesEnabled( FALSE );
+    eList->setup();
+    eList->viewport()->setUpdatesEnabled( TRUE );
 }
 
 void PropertyEditor::refetchData()
@@ -3016,7 +3066,7 @@ void PropertyEditor::resetFocus()
 	( (PropertyItem*)listview->currentItem() )->showEditor();
 }
 
-EventTable *PropertyEditor::eventTable() const
+EventList *PropertyEditor::eventList() const
 {
-    return eTable;
+    return eList;
 }

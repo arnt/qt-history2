@@ -841,7 +841,7 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 	ts << makeIndent( indent ) << "</property>" << endl;
     }
 
-    if ( MetaDataBase::hasEvents() ) {
+    if ( MetaDataBase::hasEvents( MainWindow::self->currProject()->language() ) ) {
 	QMap<QString, QStringList> eventFunctions = MetaDataBase::eventFunctions( w );
 	QMap<QString, QStringList>::ConstIterator it = eventFunctions.begin();
 	for ( ; it != eventFunctions.end(); ++it ) {
@@ -1213,7 +1213,8 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	} else if ( n.tagName() == "column" || n.tagName() =="row" ) {
 	    createColumn( n, w );
 	} else if ( n.tagName() == "event" ) {
-	    MetaDataBase::setEventFunctions( obj, formwindow, n.attribute( "name" ), QStringList::split( ',', n.attribute( "functions" ) ), FALSE );
+	    MetaDataBase::setEventFunctions( obj, formwindow, MainWindow::self->currProject()->language(),
+					     n.attribute( "name" ), QStringList::split( ',', n.attribute( "functions" ) ), FALSE );
 	}
 
 	n = n.nextSibling().toElement();

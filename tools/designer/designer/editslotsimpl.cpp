@@ -33,6 +33,7 @@
 #include <qstrlist.h>
 #include <qmessagebox.h>
 #include <qlayout.h>
+#include <qlabel.h>
 
 EditSlots::EditSlots( QWidget *parent, FormWindow *fw )
     : EditSlotsBase( parent, 0, TRUE ), formWindow( fw )
@@ -53,6 +54,8 @@ EditSlots::EditSlots( QWidget *parent, FormWindow *fw )
     slotName->setEnabled( FALSE );
     slotAccess->setEnabled( FALSE );
     comboLanguage->setEnabled( FALSE );
+    comboLanguage->hide(); // ### language per project, not per slot
+    labelLanguage->hide();
     slotName->setValidator( new AsciiValidator( TRUE, slotName ) );
 
     comboLanguage->insertStringList( MetaDataBase::languages() );
@@ -71,7 +74,7 @@ void EditSlots::okClicked()
 	QList<Command> commands;
 	for ( sit = slotList.begin(); sit != slotList.end(); ++sit ) {
 	    commands.append( new RemoveSlotCommand( tr( "Remove slot" ),
-						    formWindow, (*sit).slot, (*sit).access, (*sit).language ) );
+						    formWindow, (*sit).slot, (*sit).access, formWindow->project()->language() ) );
 	}
 	rmSlt = new MacroCommand( tr( "Remove slots" ), formWindow, commands );
     }
@@ -101,7 +104,7 @@ void EditSlots::okClicked()
 		continue;
 	    }
 	    commands.append( new AddSlotCommand( tr( "Add slot" ),
-						 formWindow, slot.slot, slot.access, slot.language ) );
+						 formWindow, slot.slot, slot.access, formWindow->project()->language() ) );
 	    lst.append( slot.slot );
 	}
 	
