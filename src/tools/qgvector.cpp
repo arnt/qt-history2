@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#22 $
+** $Id: //depot/qt/main/src/tools/qgvector.cpp#23 $
 **
 ** Implementation of QGVector class
 **
@@ -28,7 +28,7 @@
 #include "qdstream.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgvector.cpp#22 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgvector.cpp#23 $");
 
 
 #define USE_MALLOC				// comment to use new/delete
@@ -140,9 +140,9 @@ bool QGVector::insert( uint index, GCI d )	// insert item at index
 	CHECK_PTR( vec[index] );
 	numItems++;
 	return vec[index] != 0;
-    }
-    else
+    } else {
 	vec[index] = 0;				// reset item
+    }
     return TRUE;
 }
 
@@ -220,8 +220,7 @@ bool QGVector::resize( uint newsize )		// resize array
 #else
 	vec = (GCI*)realloc( (char *)vec, newsize*sizeof(GCI) );
 #endif
-    }
-    else {					// create new vector
+    } else {					// create new vector
 	vec = NEW(GCI,newsize);
 	len = numItems = 0;
     }
@@ -239,8 +238,7 @@ bool QGVector::fill( GCI d, int flen )		// resize and fill vector
 {
     if ( flen < 0 )
 	flen = len;				// default: use vector length
-    else
-    if ( !resize( flen ) )
+    else if ( !resize( flen ) )
 	return FALSE;
     for ( uint i=0; i<(uint)flen; i++ )		// insert d at every index
 	insert( i, d );
@@ -257,7 +255,7 @@ extern "C" {
 
 static int cmp_vec( const void *n1, const void *n2 )
 {
-    return sort_vec->compareItems( (GCI)n1, (GCI)n2 );
+    return sort_vec->compareItems( *((GCI*)n1), *((GCI*)n2) );
 }
 
 #if defined(Q_C_CALLBACKS)
@@ -281,9 +279,9 @@ void QGVector::sort()				// sort vector
 	    tmp = *start;
 	    *start = *end;
 	    *end = tmp;
-	}
-	else
+	} else {
 	    break;
+	}
     }
     sort_vec = (QGVector*)this;
     qsort( vec, count(), sizeof(GCI), cmp_vec );
@@ -312,8 +310,7 @@ int QGVector::bsearch( GCI d ) const		// binary search; when sorted
 	    res = ((QGVector*)this)->compareItems( d, vec[mid] );
 	if ( res < 0 )
 	    n2 = mid - 1;
-	else
-	if ( res > 0 )
+	else if ( res > 0 )
 	    n1 = mid + 1;
 	else					// found it
 	    return mid;
