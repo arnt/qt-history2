@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#24 $
 **
 ** Localization database support.
 **
@@ -121,8 +121,8 @@ public:
 	Offset( QTranslatorPrivate::Message * m, int offset )
 	{ h = m->hash(); o = offset; } // ### qChecksum
 
-	bool operator<(const Offset&k) const { return ( h != k.h ) 
-							     ? h < k.h 
+	bool operator<(const Offset&k) const { return ( h != k.h )
+							     ? h < k.h
 							     : o < k.o; }
 
 	uint h;
@@ -141,7 +141,7 @@ public:
     char * unmapPointer;
     unsigned int unmapLength;
 
-    
+
     // for squeezed but non-file data, this is what needs to be deleted
     QByteArray * messageArray;
     QByteArray * offsetArray;
@@ -600,7 +600,7 @@ void QTranslator::insert( const char* scope,
     d->messages->first();
     QTranslatorPrivate::Message * m;
     while( (m=d->messages->current()) != 0 &&
-	   m->input() != message && m->scope() != scope )
+	   (m->input() != message || m->scope() != scope) )
 	d->messages->next();
 
     if ( m )
@@ -626,7 +626,7 @@ void QTranslator::remove( const char *scope, const char *message )
     d->messages->first();
     QTranslatorPrivate::Message * m;
     while( (m=d->messages->current()) != 0 &&
-	   m->input() != message && m->scope() != scope )
+	   (m->input() != message || m->scope() != scope) )
 	d->messages->next();
 
     if ( m )
