@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnpsupport.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qnpsupport.cpp#6 $
 **
 ** Low-level support for Netscape Plugins under X11.
 **
@@ -16,7 +16,7 @@
 #include <X11/Xos.h>
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qnpsupport.cpp#5 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qnpsupport.cpp#6 $");
 
 
 void            qt_reset_color_avail();       // defined in qcol_x11.cpp
@@ -111,7 +111,7 @@ int qt_event_handler( XEvent* event )
     qt_x11SendPostedEvents();
     if ( qApp->x11ProcessEvent( event ) == -1
 	&& !QApplication::activePopupWidget()
-	&& !QApplication::activePopupWidget()
+	&& !QApplication::activeModalWidget()
     ) {
         // Qt did not recognize the event
 	return qt_np_cascade_event_handler[event->type]( event );
