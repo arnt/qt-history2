@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#19 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/cursorfont.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#19 $";
 #endif
 
 
@@ -43,8 +43,8 @@ struct QCursorData : QShared {			// internal cursor data
 QCursorData::QCursorData()
 {
     bm = bmm = 0;
-    pm = pmm = 0;
     hx = hy  = 0;
+    pm = pmm = 0;
 }
 
 QCursorData::~QCursorData()
@@ -61,6 +61,22 @@ QCursorData::~QCursorData()
     if ( bmm )
 	delete bmm;
 }
+
+
+// --------------------------------------------------------------------------
+// Global cursors
+//
+
+const QCursor arrowCursor;
+const QCursor upArrowCursor;
+const QCursor crossCursor;
+const QCursor hourGlassCursor;
+const QCursor ibeamCursor;
+const QCursor sizeVerCursor;
+const QCursor sizeHorCursor;
+const QCursor sizeBDiagCursor;
+const QCursor sizeFDiagCursor;
+const QCursor sizeAllCursor;
 
 
 // --------------------------------------------------------------------------
@@ -88,11 +104,10 @@ static QCursor *find_cur( int shape )		// find predefined cursor
 
 
 /*!
-  Internal function that initializes the predefined
-  cursors.
+  Internal function that initializes the predefined cursors.
 */
 
-void QCursor::initialize()			// initialize standard cursors
+void QCursor::initialize()
 {
     int shape = ArrowCursor;
     while ( cursorTable[shape] ) {
@@ -105,10 +120,10 @@ void QCursor::initialize()			// initialize standard cursors
   Internal function that cleans up the predefined cursors.
 */
 
-void QCursor::cleanup()				// cleanup standard cursors
+void QCursor::cleanup()
 {
     int shape = ArrowCursor;
-#if defined(DEBUG)
+#if defined(CHECK_MEMORY)
     bool mc = memchkSetReporting( FALSE );	// get rid of stupid messages
 #endif
     while ( cursorTable[shape] ) {
@@ -116,7 +131,7 @@ void QCursor::cleanup()				// cleanup standard cursors
 	cursorTable[shape]->data = 0;
 	shape++;
     }
-#if defined(DEBUG)
+#if defined(CHECK_MEMORY)
     memchkSetReporting( mc );
 #endif
 }
@@ -126,17 +141,17 @@ void QCursor::cleanup()				// cleanup standard cursors
   Constructs a cursor with the default arrow shape.
 */
 
-QCursor::QCursor()				// default arrow cursor
+QCursor::QCursor()
 {
-    if ( qApp ) {				// not initializing
-	data = arrowCursor.data;		//   then make shallow copy
-	data->ref();
-    }
-    else {					// this is a standard cursor
+    if ( QApplication::startingUp() ) {		// this is a global cursor
 	data = new QCursorData;
 	CHECK_PTR( data );
-	data->hcurs = 0;
 	data->cshape = 0;
+	data->hcurs = 0;
+    }
+    else {					// default arrow cursor
+	data = arrowCursor.data;
+	data->ref();
     }
 }
 
@@ -192,9 +207,10 @@ QCursor::QCursor( const QCursor &c )
 
 QCursor::~QCursor()
 {
-    if ( data && data->deref() )		// data == 0 for std cursors
+    if ( data && data->deref() )
 	delete data;
 }
+
 
 /*!
   Assigns \e c to this cursor and returns a reference to the cursor.
@@ -208,6 +224,7 @@ QCursor &QCursor::operator=( const QCursor &c )
     data = c.data;
     return *this;
 }
+
 
 /*!
   Returns the cursor shape identifer.
@@ -263,6 +280,22 @@ const QBitmap *QCursor::mask() const
 QPoint QCursor::hotSpot() const
 {
     return QPoint( data->hx, data->hy );
+}
+
+
+/*!
+  Returns the window system cursor handle.
+
+  \warning 
+  Portable in principle, but if you use it you are probably about to do
+  something non-portable. Be careful.
+*/
+
+HANDLE QCursor::handle() const
+{
+    if ( !data->hcurs )
+	update();
+    return data->hcurs;
 }
 
 
@@ -398,20 +431,4 @@ void QCursor::update() const			// update/load cursor
 	    return;
     }
     d->hcurs = XCreateFontCursor( dpy, sh );
-}
-
-
-/*!
-  Returns the window system cursor handle.
-
-  \warning 
-  Portable in principle, but if you use it you are probably about to do
-  something non-portable. Be careful.
-*/
-
-HANDLE QCursor::handle() const
-{
-    if ( !data->hcurs )
-	update();
-    return data->hcurs;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qcursor.cpp#6 $
 **
 ** Implementation of QCursor class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor.cpp#6 $";
 #endif
 
 
@@ -50,22 +50,6 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor.cpp#5 $";
 
   QCursor objects make use of implicit sharing.
 */
-
-
-// --------------------------------------------------------------------------
-// Global cursors
-//
-
-const QCursor arrowCursor;
-const QCursor upArrowCursor;
-const QCursor crossCursor;
-const QCursor hourGlassCursor;
-const QCursor ibeamCursor;
-const QCursor sizeVerCursor;
-const QCursor sizeHorCursor;
-const QCursor sizeBDiagCursor;
-const QCursor sizeFDiagCursor;
-const QCursor sizeAllCursor;
 
 
 // --------------------------------------------------------------------------
