@@ -150,7 +150,11 @@ public:
     { return (QMemberDict&)QAsciiDict<const QMetaData>::operator=(dict); }
 };
 
+#if !defined(Q_CC_BOR)
+// ### The Borland compiler does not like this line, and I did not find out
+// what he likes instead.
 void QAsciiDict<const QMetaData>::deleteItem( void* ) {}
+#endif
 
 /*
   Calculate optimal dictionary size for n entries using prime numbers,

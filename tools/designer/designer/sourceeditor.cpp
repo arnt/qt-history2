@@ -72,7 +72,7 @@ void SourceEditor::setObject( QObject *fw, Project *p )
     }
     formWindow = fw;
     pro = p;
-    setCaption( tr( "Edit %1" ).arg( formWindow->inherits( "FormWindow" ) ? QString( formWindow->name() ) : ( (SourceFile*)fw )->fileName() ) );
+    setCaption( tr( "Edit %1" ).arg( ( formWindow->inherits( "FormWindow" ) ? QString( formWindow->name() ) : ( (SourceFile*)fw )->fileName() ) ) );
     iFace->setText( sourceOfObject( formWindow, lang, iFace, lIface ) );
     if ( pro && fw->inherits( "FormWindow" ) )
 	iFace->setContext( pro->formList(), ( (FormWindow*)fw ) ->mainContainer() );
