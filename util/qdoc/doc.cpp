@@ -123,11 +123,15 @@ static void skipSpaces( const QString& in, int& pos )
 	pos++;
 }
 
+/*
+  This function is highly magical.  It tries to somehow reproduce the old qdoc's
+  behavior.
+*/
 static void skipSpacesOrNL( const QString& in, int& pos )
 {
     int firstNL = -1;
     while ( pos < (int) in.length() && in[pos].isSpace() ) {
-	QChar ch = in[pos++];
+	QChar ch = in[pos];
 	if ( ch == QChar('\n') ) {
 	    if ( firstNL == -1 ) {
 		firstNL = pos - 1;
@@ -136,6 +140,7 @@ static void skipSpacesOrNL( const QString& in, int& pos )
 		break;
 	    }
 	}
+	pos++;
     }
 }
 
@@ -184,7 +189,7 @@ static QString getPrototype( const QString& in, int& pos )
     }
 
     QString t = in.mid( begin, pos - begin );
-    skipSpacesOrNL( in, pos );
+    skipSpaces( in, pos );
     return t;
 }
 
@@ -808,6 +813,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	    }
 	}
     }
+    if ( numBugs > 0 )
+	yyOut += QString( "</ul>" );
 
     yyOut += QChar( '\n' );
 
