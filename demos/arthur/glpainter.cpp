@@ -53,7 +53,7 @@ void GLWidget::initializeGL()
     QImage tex;
     tex.load(":/res/cubelogo.png");
 
-    cubeTextureId = bindTexture(QPixmap(tex));
+    cubeTextureId = bindTexture(tex);
     cubeList = glGenLists(1);
     glNewList(cubeList, GL_COMPILE);
 

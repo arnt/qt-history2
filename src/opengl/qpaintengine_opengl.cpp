@@ -90,6 +90,8 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glTranslatef(0.375, 0.375, 0.0);
+    setDirty(QPaintEngine::DirtyPen);
+    setDirty(QPaintEngine::DirtyBrush);
 
     return true;
 }
@@ -484,6 +486,7 @@ void QOpenGLPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 void QOpenGLPaintEngine::drawLine(const QLineF &line)
 {
     dgl->makeCurrent();
+    dgl->qglColor(d->cpen.color());
     glBegin(GL_LINES);
     {
         glVertex2d(line.startX(), line.startY());
@@ -504,19 +507,17 @@ void QOpenGLPaintEngine::drawRect(const QRectF &r)
 	qt_fill_linear_gradient(r, d->cbrush);
 	if (d->cpen.style() == Qt::NoPen)
 	    return;
-    } else {
-	if (d->cbrush.style() != Qt::NoBrush) {
-	    dgl->qglColor(d->cbrush.color());
-	    glRectf(x, y, x+w, y+h);
-	    dgl->qglColor(d->cpen.color());
-	    if (d->cpen.style() == Qt::NoPen)
-		return;
-	}
+    } else if (d->cbrush.style() != Qt::NoBrush) {
+        dgl->qglColor(d->cbrush.color());
+        glRectf(x, y, x+w, y+h);
+        if (d->cpen.style() == Qt::NoPen)
+            return;
     }
 
     if (d->cpen.style() != Qt::NoPen) {
         // Specify the outline as 4 separate lines since a quad or a
         // polygon won't give us exactly what we want
+        dgl->qglColor(d->cpen.color());
         glBegin(GL_LINES);
         {
             glVertex2f(x, y);
