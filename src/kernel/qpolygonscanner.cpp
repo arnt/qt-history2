@@ -752,9 +752,14 @@ void QPolygonScanner::scan(const QPointArray& pa, bool winding, int index, int n
     QPolygonScanner::Right, 
     QPolygonScanner::Top, and
     QPolygonScanner::Bottom, and determines which edges are included.
+
+    \warning The edges feature does not work properly
+
 */
 void QPolygonScanner::scan( const QPointArray& pa, bool winding, int index, int npoints, Edge edges )
 {
+
+    
     DDXPointPtr ptsIn = (DDXPointPtr)pa.data();
     ptsIn += index;
     register EdgeTableEntry *pAET;  /* the Active Edge Table   */
@@ -774,7 +779,7 @@ void QPolygonScanner::scan( const QPointArray& pa, bool winding, int index, int 
     int fixWAET = 0;
     int edge_l = (edges & Left) ? 1 : 0;
     int edge_r = (edges & Right) ? 1 : 0;
-    int edge_t = (edges & Top) ? 1 : 0;
+    int edge_t = 1; //#### (edges & Top) ? 1 : 0;
     int edge_b = (edges & Bottom) ? 1 : 0;
 
     if (npoints == -1)
@@ -914,6 +919,8 @@ void QPolygonScanner::scan( const QPointArray& pa, bool winding, int index, int 
     /*
      *     Get any spans that we missed by buffering
      */
+
+
     processSpans( nPts, (QPoint*)FirstPoint, FirstWidth );
     free(pETEs);
     miFreeStorage(SLLBlock.next);
