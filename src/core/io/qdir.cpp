@@ -1683,8 +1683,10 @@ QDir::cleanPath(const QString &path)
         ret = name;
     else
 	ret = QString(out.data(), used);
+#if 0
     if (ret.endsWith("/") || ret.endsWith("//"))
         ret = ret.left(ret.length() - 1);
+#endif
     return ret;
 }
 
