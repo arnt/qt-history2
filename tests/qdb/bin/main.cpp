@@ -46,7 +46,6 @@ void usage( bool details = FALSE )
 	qWarning( " -s <char>      Specify query column separation char" );
 	qWarning( " -v             Verbose" );
 	qWarning( "\n Diagnostic Options:" );
-	qWarning( " -i <table>     Dump table index information to stdout and exit" );
 	qWarning( " -r <table>     Rebuild indexes for table" );
 	qWarning( " -t <table>     Dump table description to stdout and exit" );
 	qWarning( "\nExit status is 0 if command(s) successful, 1 if trouble." );
@@ -88,7 +87,6 @@ int main( int argc, char** argv )
     bool echo = FALSE;
     bool analyse = FALSE;
     QString tablename;
-    bool index = FALSE;
     bool rebuildindexes = FALSE;
     bool suppressheader = FALSE;
 
@@ -113,17 +111,11 @@ int main( int argc, char** argv )
 	    infilename = app.argv()[++i];
 	} else if ( arg == "-h" ) {
 	    suppressheader = TRUE;
-	} else if ( arg == "-i" ) {
-	    index = TRUE;
-	    if ( i+1 > app.argc()-1 )
-		die( "-i requires table name", TRUE );
-	    tablename = app.argv()[++i];
 	} else if ( arg == "-o" ) {
 	    if ( i+1 > app.argc()-1 )
 		die( "-o requires filename", TRUE );
 	    outfilename = app.argv()[++i];
 	} else if ( arg == "-r" ) {
-	    index = TRUE;
 	    rebuildindexes = TRUE;
 	    if ( i+1 > app.argc()-1 )
 		die( "-r requires table name", TRUE );
@@ -170,9 +162,7 @@ int main( int argc, char** argv )
 	outstream << "using database in " + dbdirname << endl;
 
     /* index stuff */
-    if ( index && tablename.length() ) {
-	if ( verbose )
-	    outstream << "index info for " + tablename << endl;
+    if ( rebuildindexes && tablename.length() ) {
 	char buf[XB_MAX_NDX_NODE_SIZE];
 	xbShort rc;
 	xbXBase x;
@@ -182,19 +172,19 @@ int main( int argc, char** argv )
 	xbNdx idx( &file );
 	QFileInfo fi( dbdirname + "/" + tablename );
 	QString basename = fi.baseName();
-	QDir dir;
-	QStringList indexnames = dir.entryList( dbdirname + "/" + basename + "*.ndx", QDir::Files );
+	QDir dir( dbdirname );
+	QStringList indexnames = dir.entryList( basename + "*.ndx", QDir::Files );
 	for ( uint i = 0; i < indexnames.count(); ++i ) {
 	    if( ( rc = idx.OpenIndex( dbdirname + "/" + indexnames[i] )) != XB_NO_ERROR )
 		die( "could not open index " + dbdirname + "/" + indexnames[i] );
 	    idx.GetExpression( buf,XB_MAX_NDX_NODE_SIZE  );
 	    QString output = indexnames[i] + ": " + buf;
-	    if ( rebuildindexes ) {
-		if ( idx.ReIndex() != XB_NO_ERROR )
-		    output = "...FAILED";
-		else
-		    output = "...done";
-	    }
+	    outstream << "Reindexing: " << output << flush;
+	    if ( idx.ReIndex() != XB_NO_ERROR )
+		output = "...FAILED";
+	    else
+		output = "...done";
+	    outstream << output << endl;
 	    idx.CloseIndex();
 	}
 	return 0;
@@ -304,8 +294,7 @@ int main( int argc, char** argv )
 		line += rec[i].toString().rightJustify( 15 ).mid( 0, 15 ) + sep;
 	    outstream << line << endl;
 	} while( rs->next() );
-	if ( verbose )
-	    outstream << "(" << rs->size() << " row" << (rs->size()==1?")":"s)") << endl;
+	outstream << rs->size() << " record(s) processed" << endl;
     } else if ( env.affectedRows() > -1 ) {
 	outstream << env.affectedRows() << " record(s) processed" << endl;
     }

@@ -34,7 +34,7 @@ class LocalSQL::Private
 public:
     Private()
 	: stdOut( stdout, IO_WriteOnly ),
-	  affectedRows(-1)
+	  affectedRows(0)
     {
 	out = &stdOut;
     }

@@ -36,8 +36,8 @@
 #include <xdb/xbase.h>
 #include <xdb/xbexcept.h>
 
-//#define DEBUG_XBASE 1
-//#define VERBOSE_DEBUG_XBASE
+#define DEBUG_XBASE
+#define VERBOSE_DEBUG_XBASE
 
 static bool canConvert( QVariant::Type t1, QVariant::Type t2 )
 {
@@ -130,18 +130,19 @@ class FileDriver::Private
 {
 public:
     Private()
-	: file(&x), allMarked( FALSE ), fileRewound( FALSE )
+	: file(&x), dopack( FALSE )
     {
 	indexes.setAutoDelete( TRUE );
     }
     Private( const Private& )
-	: file(&x), allMarked( FALSE ), fileRewound( FALSE )
+	: file(&x), dopack( FALSE )
     {
 	indexes.setAutoDelete( TRUE );
     }
     Private& operator=( const Private& )
     {
 	indexes.setAutoDelete( TRUE );
+	dopack = FALSE;
 	return *this;
     }
     ~Private()
@@ -205,9 +206,8 @@ public:
     xbXBase x;		/* initialize xbase  */
     xbDbf file;		/* class for table   */
     QValueList<int> marked;
-    bool allMarked;
-    bool fileRewound;
     QVector<xbNdx> indexes;
+    bool dopack;
 };
 
 FileDriver::FileDriver( localsql::Environment* environment, const QString& name = QString::null )
@@ -474,6 +474,7 @@ bool FileDriver::insert( const localsql::List& data )
 	break;
     }
     env->setAffectedRows( 1 );
+    d->dopack = TRUE;
 #ifdef DEBUG_XBASE
     env->output() << "success" << endl;
 #endif
@@ -489,8 +490,7 @@ bool FileDriver::next()
 	ERROR_RETURN( "Internal error: File not open" );
     }
     xbShort rc = XB_NO_ERROR;
-    if ( d->fileRewound || d->file.GetCurRecNo() == 0 ) {
-	d->fileRewound = FALSE;
+    if ( d->file.GetCurRecNo() == 0 ) {
 	rc = d->file.GetFirstRecord();
     } else {
 	rc = d->file.GetNextRecord();
@@ -524,6 +524,7 @@ bool FileDriver::unmark()
     if ( d->marked.find( d->file.GetCurRecNo() ) == d->marked.end() )
 	return TRUE;
     d->marked.remove( d->marked.find( d->file.GetCurRecNo() ) );
+    setMarkedAt( markedAt() - 1 );
     return TRUE;
 }
 
@@ -550,6 +551,7 @@ bool FileDriver::deleteMarked()
 	}
     }
     env->setAffectedRows( d->marked.count() );
+    d->dopack = TRUE;
 #ifdef DEBUG_XBASE
     env->output() << "success" << endl;
 #endif
@@ -564,7 +566,10 @@ bool FileDriver::commit()
     if ( !isOpen() ) {
 	ERROR_RETURN( "Internal error: File not open" );
     }
-    //    d->file.PackDatabase( F_SETLKW );
+    if ( d->dopack ) {
+	d->file.PackDatabase( F_SETLKW );
+	d->dopack = FALSE;
+    }
 #ifdef VERBOSE_DEBUG_XBASE
     env->output() << "success" << endl;
 #endif
@@ -688,6 +693,7 @@ bool FileDriver::updateMarked( const localsql::List& data )
 	}
     }
     env->setAffectedRows( d->marked.count() );
+    d->dopack = TRUE;
 #ifdef DEBUG_XBASE
     env->output() << "success" << endl;
 #endif
@@ -700,8 +706,6 @@ bool FileDriver::rewindMarked()
     env->output() << "FileDriver::rewindMarked..." << flush;
 #endif
     setMarkedAt( -1 );
-    if ( d->allMarked )
-	d->fileRewound = TRUE;
 #ifdef VERBOSE_DEBUG_XBASE
     env->output() << "success" << endl;
 #endif
@@ -715,12 +719,6 @@ bool FileDriver::nextMarked()
 #endif
     if ( !isOpen() ) {
 	ERROR_RETURN( "Internal error: File not open" );
-    }
-    if ( d->allMarked ) {
-#ifdef VERBOSE_DEBUG_XBASE
-	env->output() << "all-marked mode..." << flush;
-#endif
-	return next();
     }
     int next = markedAt() + 1;
     if ( next > (int)d->marked.count()-1 )
@@ -781,6 +779,7 @@ bool FileDriver::update( const localsql::List& data )
 	ERROR_RETURN( "Unable to update record: " + QString( xbStrError( rc ) ) );
     }
     env->setAffectedRows( 1 );
+    d->dopack = TRUE;
 #ifdef DEBUG_XBASE
     env->output() << "success" << endl;
 #endif
@@ -809,8 +808,9 @@ bool FileDriver::rangeAction( const localsql::List* data, const localsql::List* 
     if ( dosave && !cols->count() ) {
 	ERROR_RETURN( "Internal error: No result columns defined" );
     }
-    if ( domark )
-	d->marked.clear();
+    if ( domark ) {
+	clearMarked();
+    }
     bool forceScan = TRUE;
     xbShort rc = XB_NO_ERROR;
     QString indexDesc;
@@ -846,14 +846,14 @@ bool FileDriver::rangeAction( const localsql::List* data, const localsql::List* 
 	    d->indexes[i]->GetExpression( buf,XB_MAX_NDX_NODE_SIZE  );
 	    if ( QString(buf) == indexDesc ) {
 #ifdef DEBUG_XBASE
-		env->output() << "using index scan..." << flush;
+		env->output() << "using index scan on:" << buf << "..." << flush;
 #endif
 		forceScan = FALSE;
 		/* create search value */
 		QString searchValue;
 		bool numeric = TRUE;
 		for ( uint j = 0; j < data->count(); ++j ) {
-		    QVariant val = (*data)[i].toList()[1];
+		    QVariant val = (*data)[j].toList()[1];
 		    searchValue += val.toString();
 		    if ( val.type() == QVariant::String ||
 			 val.type() == QVariant::CString )
@@ -871,12 +871,15 @@ bool FileDriver::rangeAction( const localsql::List* data, const localsql::List* 
 		    rc = d->indexes[i]->FindKey( searchValue.utf8() );
 		}
 		if ( rc == XB_FOUND ) {
+#ifdef DEBUG_XBASE
+		    env->output() << "key found, scanning forward..." << flush;
+#endif
 		    rc = XB_NO_ERROR;
 		    /* found a key, now scan until we hit a new key value */
 		    for ( ; rc == XB_NO_ERROR ; ) {
 			bool actionOK = TRUE;
 			for ( uint k = 0; k < data->count(); ++k ) {
-			    localsql::List rangeMarkFieldData = (*data)[i].toList();
+			    localsql::List rangeMarkFieldData = (*data)[k].toList();
 			    localsql::List rangeMarkFieldDesc = rangeMarkFieldData[0].toList();
 			    QString name = rangeMarkFieldDesc[0].toString();
 			    QVariant value = rangeMarkFieldData[1];
@@ -933,8 +936,10 @@ bool FileDriver::rangeAction( const localsql::List* data, const localsql::List* 
 	}
     }
 #ifdef DEBUG_XBASE
-     if ( domark )
-	 env->output() << "recs marked:" << d->marked.count() << " " << flush;
+    if ( domark ) {
+	env->output() << "recs marked:" << d->marked.count() << " " << flush;
+	rewindMarked();
+    }
      if ( dosave )
 	 env->output() << "recs saved:" << result->size() << " " << flush;
      env->output() << "success" << endl;
@@ -989,11 +994,19 @@ bool FileDriver::markAll()
 #ifdef DEBUG_XBASE
     env->output() << "FileDriver::markAll..." << flush;
 #endif
-    d->allMarked = TRUE;
+    int currentAt = d->file.GetCurRecNo();
+    xbShort rc = d->file.GetFirstRecord();
+    clearMarked();
+    while( rc == XB_NO_ERROR ) {
+	d->marked.append( d->file.GetCurRecNo() );
+	rc = d->file.GetNextRecord();
+    }
+    d->file.GetRecord( currentAt );
 #ifdef DEBUG_XBASE
-     env->output() << "success" << endl;
+    env->output() << d->marked.count() << " recs marked...success" << endl;
 #endif
-    return TRUE;
+     rewindMarked();
+     return TRUE;
 }
 
 bool FileDriver::createIndex( const localsql::List& data, bool unique )
@@ -1124,7 +1137,5 @@ bool FileDriver::drop()
 bool FileDriver::clearMarked()
 {
     d->marked.clear();
-    d->allMarked = FALSE;
-    d->fileRewound = FALSE;
     return TRUE;
 }
