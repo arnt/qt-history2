@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#10 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -22,7 +22,7 @@
 #include "qbitmap.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#9 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#10 $");
 
 
 class QWhatsThisPrivate: public QObject
@@ -189,8 +189,8 @@ void QWhatsThisPrivate::Button::mouseReleaseEvent( QMouseEvent * e )
     QToolButton::mouseReleaseEvent( e );
     if ( isOn() ) {
 	setUpWhatsThis();
-	wt->state = Waiting;
 	QApplication::setOverrideCursor( *wt->cursor, FALSE );
+	wt->state = Waiting;
 	qApp->installEventFilter( wt );
     }
 }
@@ -327,8 +327,8 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 		++it;
 		b->setOn( FALSE );
 	    }
-	    state = Inactive;
 	    QApplication::restoreOverrideCursor();
+	    state = Inactive;
 	    qApp->removeEventFilter( this );
 	}
 	break;
