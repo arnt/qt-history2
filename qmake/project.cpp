@@ -390,22 +390,43 @@ QMakeProject::read(QString project, QString)
 	}
 
 	/* parse mkspec */
+	QStringList mkspec_roots;
+	if(getenv("QTDIR"))
+	    mkspec_roots << getenv("QTDIR");
+#ifdef QT_INSTALL_PREFIX
+	mkspec_roots << QT_INSTALL_PREFIX;
+#endif
 	if(Option::mkfile::qmakespec.isEmpty()) {
-	    if(getenv("QTDIR") &&
-	       !QFile::exists(Option::mkfile::qmakespec = QString(getenv("QTDIR")) +
-			      QDir::separator() + QString("mkspecs") +
-			      QDir::separator() + "default")) {
+	    for(QStringList::Iterator it = mkspec_roots.begin(); it != mkspec_roots.end(); ++it) {
+		QString mkspec = (*it) + QDir::separator() + QString("mkspecs") +
+				 QDir::separator() + "default";
+		if(QFile::exists(mkspec)) {
+		    Option::mkfile::qmakespec = mkspec;
+		    break;
+		}
+	    }
+	    if(Option::mkfile::qmakespec.isEmpty()) {
 		fprintf(stderr, "QMAKESPEC has not been set, so configuration cannot be deduced.\n");
 		return FALSE;
 	    }
 	}
+	    
 	if(QDir::isRelativePath(Option::mkfile::qmakespec)) {
-	    if(!getenv("QTDIR")) {
-		fprintf(stderr, "QTDIR has not been set, so mkspec cannot be deduced.\n");
+	    bool found_mkspec = FALSE;
+	    for(QStringList::Iterator it = mkspec_roots.begin(); it != mkspec_roots.end(); ++it) {
+		QString mkspec = (*it) + QDir::separator() + QString("mkspecs") +
+				 QDir::separator() + Option::mkfile::qmakespec;
+		if(QFile::exists(mkspec)) {
+		    found_mkspec = TRUE;
+		    Option::mkfile::qmakespec = mkspec;
+		    break;
+		}
+	    }
+	    if(!found_mkspec) {
+		fprintf(stderr, "Could not find mkspecs for your QMAKESPEC after trying:\n\t%s\n",
+			mkspec_roots.join("\n\t").latin1());
 		return FALSE;
 	    }
-	    Option::mkfile::qmakespec.prepend(QString(getenv("QTDIR")) +
-					      QDir::separator() + "mkspecs" + QDir::separator());
 	}
 	QString spec = Option::mkfile::qmakespec + QDir::separator() + "qmake.conf";
 	debug_msg(1, "QMAKESPEC conf: reading %s", spec.latin1());
