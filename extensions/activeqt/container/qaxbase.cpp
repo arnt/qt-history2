@@ -16,6 +16,8 @@
 #define QT_NO_CAST_TO_ASCII
 #define QT_CHECK_STATE
 
+#define QAX_NUM_PARAMS 8
+
 #include "qaxobject.h"
 
 #include <quuid.h>
@@ -238,8 +240,22 @@ public:
 
 	    // setup parameters (no return values in signals)
 	    bool ok = true;
-	    void **argv = pcount ? new void*[pcount + 1] : 0;
-	    QVariant *varp = pcount ? new QVariant[pcount] : 0;
+	    void *static_argv[QAX_NUM_PARAMS + 1];
+	    QVariant static_varp[QAX_NUM_PARAMS];
+
+	    void **argv = 0;
+	    QVariant *varp = 0;
+
+	    if (pcount) {
+		if (pcount <= QAX_NUM_PARAMS) {
+		    argv = static_argv;
+		    varp = static_varp;
+		} else {
+		    argv = new void*[pcount + 1];
+		    varp = new QVariant[pcount];
+		}
+	    }
+
 	    int p;
 	    for ( p = 0; p < pcount && ok; ++p ) {
 		// map the VARIANT to the void*
@@ -265,8 +281,10 @@ public:
 		    QVariantToVARIANT(varp[p], *arg, type, out);
 		}
 	    }
-	    delete [] argv;
-	    delete [] varp;
+	    if (argv != static_argv) {
+		delete [] argv;
+		delete [] varp;
+	    }
 	    return res ? S_OK : ( ok ? DISP_E_MEMBERNOTFOUND : DISP_E_TYPEMISMATCH );
 	}
 	return S_OK;
@@ -2375,12 +2393,14 @@ QMetaObject *MetaObjectGenerator::metaObject( const QMetaObject *parentObject )
 	d->cachedMetaObject = TRUE;
 	for (QHash<QString, QAxEventSink*>::Iterator it = d->eventSink.begin(); it != d->eventSink.end(); ++it) {
 	    QAxEventSink *sink = it.value();
-	    QUuid ciid = sink->connectionInterface();
+	    if (sink) {
+		QUuid ciid = sink->connectionInterface();
 
-	    d->metaobj->connectionInterfaces.append( ciid );
-	    d->metaobj->sigs.insert( ciid, sink->signalMap() );
-	    d->metaobj->props.insert( ciid, sink->propertyMap() );
-	    d->metaobj->propsigs.insert( ciid, sink->propSignalMap() );
+		d->metaobj->connectionInterfaces.append( ciid );
+		d->metaobj->sigs.insert( ciid, sink->signalMap() );
+		d->metaobj->props.insert( ciid, sink->propertyMap() );
+		d->metaobj->propsigs.insert( ciid, sink->propSignalMap() );
+	    }
 	}
     }
 
@@ -2703,7 +2723,14 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
     params.cArgs = isProperty ? 1 : d->metaobj->numParameter(signature);
     params.cNamedArgs = isProperty ? 1 : 0;
     params.rgdispidNamedArgs = isProperty ? &dispidNamed : 0;
-    params.rgvarg = params.cArgs ? new VARIANTARG[params.cArgs] : 0;
+    params.rgvarg = 0;
+    VARIANTARG static_rgvarg[QAX_NUM_PARAMS];
+    if (params.cArgs) {
+	if (params.cArgs <= QAX_NUM_PARAMS)
+	    params.rgvarg = static_rgvarg;
+	else
+	    params.rgvarg = new VARIANTARG[params.cArgs];
+    }
 
     int p;
     for (p = 0; p < params.cArgs; ++p) {
@@ -2743,7 +2770,8 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
     // clean up
     for ( p = 0; p < params.cArgs; ++p )
 	clearVARIANT( params.rgvarg+p );
-    delete [] params.rgvarg;
+    if (params.rgvarg != static_rgvarg)
+	delete [] params.rgvarg;
 
     checkHRESULT(hres, &excepinfo, this, slotname, params.cArgs-argerr-1);
     return index;
@@ -2898,6 +2926,7 @@ bool QAxBase::dynamicCallHelper( const QString &name, void *inout, QList<QVarian
 	}
 	if ( varc == 1 ) {
 	    arg = &staticarg;
+	    VariantInit(arg);
 	    varc = 1;
 	    QVariantToVARIANT( vars.at(0), staticarg, type );
 	    res = 0;
