@@ -245,6 +245,14 @@ QIODevicePrivate::~QIODevicePrivate()
     \sa bytesWritten()
 */
 
+/*! \fn QIODevice::aboutToClose()
+
+    This signal is emitted when the device is about to close. Connect
+    this signal if you have operations that need to be performed
+    before the device closes (e.g., if you have data in a separate
+    buffer that needs to be written to the device).
+*/
+
 #ifdef QT_NO_QOBJECT
 QIODevice::QIODevice()
     : d_ptr(new QIODevicePrivate)
@@ -689,6 +697,11 @@ QByteArray QIODevice::readAll()
     inserted into the buffer; if it occurs after the 1024 character then
     it is not read.
 
+    This function calls readLineData(), which is implemented using
+    repeated calls to getChar(). You can provide a more efficient
+    implementation by reimplementing readLineData() in your own
+    subclass.
+
     \sa getChar(), read(), write()
 */
 qint64 QIODevice::readLine(char *data, qint64 maxlen)
@@ -759,6 +772,9 @@ QByteArray QIODevice::readLine(qint64 maxlen)
     This function is called by readLine(), and provides its base
     implementation, using getChar(). Buffered devices can improve the
     performance of readLine() by reimplementing this function.
+
+    When reimplementing this function, keep in mind that you must
+    handle the \l Text flag which translates end-of-line characters.
 */
 qint64 QIODevice::readLineData(char *data, qint64 maxlen)
 {
@@ -889,14 +905,20 @@ qint64 QIODevice::write(const char *data, qint64 maxlen)
     current position unless the position is 0. This function is
     usually called to "undo" a getChar() operation, such as when
     writing a backtracking parser.
+
+    If \a c was not previously read from the device, the behavior is
+    undefined.
 */
 void QIODevice::ungetChar(char c)
 {
     CHECK_OPEN(write, Q_VOID);
     CHECK_READABLE(read, Q_VOID);
     d->ungetBuffer.append(c);
-    if (!isSequential())
-        seek(pos() - 1);
+    if (!isSequential()) {
+        qint64 curPos = pos();
+        if (curPos > 0)
+            seek(curPos - 1);
+    }
 }
 
 /*!
