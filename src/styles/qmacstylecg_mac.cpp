@@ -3,9 +3,10 @@
 #if QT_MACOSX_VERSION >= 0x1030
 
 #include "qaquastyle_p.h"
-#include "qt_mac.h"
-#include "qpainter.h"
 #include "qpaintdevice.h"
+#include "qpainter.h"
+#include "qpushbutton.h"
+#include "qt_mac.h"
 
 const int qt_mac_hitheme_version = 0; //the HITheme version we speak
 
@@ -26,6 +27,7 @@ static inline const HIRect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice 
 		   qr.width() - offset - rect.width(), qr.height() - offset - rect.height());
     return &r;
 }
+
 static inline const HIRect *qt_glb_mac_rect(const QRect &qr, const QPainter *p,
 					    bool off=true, const QRect &rect=QRect())
 {
@@ -155,9 +157,7 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
 			      const QStyleOption &opt) const
 {
     ThemeDrawState tds = kThemeStateActive;
-    if (how & Style_Down) {
-	tds = kThemeStatePressed;
-    } else if (qAquaActive(pal)) {
+    if (qAquaActive(pal)) {
 	if (!(how & Style_Enabled))
 	    tds = kThemeStateUnavailable;
     } else {
@@ -169,12 +169,24 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
 
     switch(element) {
     case CE_PushButton: {
-	HIThemeButtonDrawInfo info;
+	const QPushButton *const btn = static_cast<const QPushButton *const>(widget);
+        if (btn->isFlat() && !(how & Style_Down))
+	    return;
+        HIThemeButtonDrawInfo info;
 	info.version = qt_mac_hitheme_version;
-	info.state = tds;
-	info.kind = kThemePushButton;
-	info.value = kThemeButtonOff;
-	info.adornment = kThemeAdornmentNone;
+        if (how & (Style_On | Style_Down))
+            info.state = kThemeStatePressed;
+        else
+            info.state = tds;
+        info.value = kThemeButtonOff;
+        if (btn->popup() || btn->isFlat())
+            info.kind = kThemeSmallBevelButton;
+        else
+            info.kind = kThemePushButton;
+        if (how & Style_HasFocus)
+            info.adornment = kThemeAdornmentFocus;
+        else
+            info.adornment = kThemeAdornmentNone;
 	HIThemeDrawButton(qt_glb_mac_rect(r, p), &info, static_cast<CGContextRef>(p->handle()),
 		          kHIThemeOrientationNormal, 0);
 	break; }
