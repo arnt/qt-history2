@@ -489,6 +489,8 @@ static Q_INT64 read_int_ascii( QDataStream *s )
     return _atoi64( buf );
 #elif defined(Q_OS_HPUX)
     return __strtoll( buf, (char**)0, 10 );
+#elif defined(Q_OS_MAC)
+    return strtoq( buf, (char**)0, 10 );
 #else
     return strtoll( buf, (char**)0, 10 );	// C99 function
 #endif
