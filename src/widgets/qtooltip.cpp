@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#64 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#65 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -305,9 +305,12 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 {
     // avoid dumping core in case of application madness, and return
     // quickly for some common but irrelevant events
-    if ( !tips || !e || !obj || !obj->isWidgetType() ||
-	 e->type() == QEvent::Timer || e->type() == QEvent::Paint ||
-	 e->type() == QEvent::SockAct )
+    if ( !obj || !obj->isWidgetType() || // isWidgetType() catches most stuff
+	 !e ||
+	 e->type() == QEvent::Paint ||
+	 e->type() == QEvent::Timer ||
+	 e->type() == QEvent::SockAct ||
+	 !tips )
 	return FALSE;
     QWidget *w = (QWidget *)obj;
 
@@ -927,7 +930,7 @@ QToolTipGroup::~QToolTipGroup()
 ** QTipLabel meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Sun Aug 23 21:50:26 1998
-**      by: The Qt Meta Object Compiler ($Revision: 2.59 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.60 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
