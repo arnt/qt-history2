@@ -1800,7 +1800,7 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
 };
 
-static inline Position position( const QChar &ch ) {
+static inline Position indic_position( const QChar &ch ) {
     unsigned short uc = ch.unicode();
     if ( uc < 0x900 && uc > 0xdff )
 	return None;
@@ -1818,10 +1818,10 @@ static inline Position position( const QChar &ch ) {
 
    We return syllable boundaries on invalid combinations aswell
 */
-static int nextSyllableBoundary( int script, const QString &s, int start, int end, bool *invalid )
+static int indic_nextSyllableBoundary( int script, const QString &s, int start, int end, bool *invalid )
 {
     *invalid = FALSE;
-//     qDebug("nextSyllableBoundary: start=%d, end=%d", start, end );
+//     qDebug("indic_nextSyllableBoundary: start=%d, end=%d", start, end );
     const QChar *uc = s.unicode()+start;
 
     int pos = 0;
@@ -2016,7 +2016,7 @@ static QString devanagariReorder( const QString &string, int start, int end, uns
 // 	qDebug("fixed = %d", fixed );
 	for ( int i = fixed; i < len; i++ ) {
 	    if ( form( uc[i] ) == finalOrder[toMove].form &&
-		 position( uc[i] ) == finalOrder[toMove].position ) {
+		 indic_position( uc[i] ) == finalOrder[toMove].position ) {
 		// need to move this glyph
 		int to = fixed;
 		if ( finalOrder[toMove].position == Pre )
@@ -2281,7 +2281,7 @@ static QString bengaliReorder( const QString &string, int start, int end, unsign
 //  	qDebug("fixed = %d", fixed );
 	for ( int i = fixed; i < len; i++ ) {
 	    if ( form( uc[i] ) == finalOrder[toMove].form &&
-		 position( uc[i] ) == finalOrder[toMove].position ) {
+		 indic_position( uc[i] ) == finalOrder[toMove].position ) {
 		// need to move this glyph
 		int to = fixed;
 		if ( finalOrder[toMove].position == Pre )
@@ -2498,7 +2498,7 @@ static QString tamilReorder( const QString &string, int start, int end, unsigned
 // 	qDebug("fixed = %d", fixed );
 	for ( int i = fixed; i < len; i++ ) {
 	    if ( form( uc[i] ) == finalOrder[toMove].form &&
-		 position( uc[i] ) == finalOrder[toMove].position ) {
+		 indic_position( uc[i] ) == finalOrder[toMove].position ) {
 		// need to move this glyph
 		int to = fixed;
 		if ( finalOrder[toMove].position == Pre )
@@ -2624,7 +2624,7 @@ static QString analyzeSyllables( int script, const QString &string, int from, in
     int fpos = 0;
     while ( sstart < end ) {
 	bool invalid;
-	int send = nextSyllableBoundary( script, string, sstart, end, &invalid );
+	int send = indic_nextSyllableBoundary( script, string, sstart, end, &invalid );
 // 	qDebug("syllable from %d, length %d, invalid=%s", sstart, send-sstart,
 // 	       invalid ? "true" : "false" );
 	assert( script >= QFont::Devanagari && script <= QFont::Sinhala );
@@ -2672,8 +2672,8 @@ static void indic_shape( int script, const QString &string, int from, int len, Q
 
     QOpenType *openType = item->fontEngine->openType();
 
-    if ( openType && openType->supportsScript( QFont::Devanagari ) ) {
-	((QOpenType *) openType)->apply( QFont::Devanagari, featuresToApply, item, len );
+    if ( openType && openType->supportsScript( script ) ) {
+	((QOpenType *) openType)->apply( script, featuresToApply, item, len );
     } else {
 	q_calculateAdvances( item );
     }
@@ -2691,7 +2691,7 @@ static void indic_attributes( int script, const QString &text, int from, int len
     int i = 0;
     while ( i < len ) {
 	bool invalid;
-	int boundary = nextSyllableBoundary( script, text, from+i, end, &invalid ) - from;
+	int boundary = indic_nextSyllableBoundary( script, text, from+i, end, &invalid ) - from;
 
 	attributes[i].whiteSpace = ::isSpace( *uc ) && (uc->unicode() != 0xa0);
 	attributes[i].softBreak = FALSE;
@@ -2722,9 +2722,228 @@ static void indic_attributes( int script, const QString &text, int from, int len
 //
 // --------------------------------------------------------------------------------------------------------------------------------------------
 
+// tibetan syllables are of the form:
+//    head position consonant
+//    first sub-joined consonant
+//    ....intermediate sub-joined consonants (if any)
+//    last sub-joined consonant
+//    sub-joined vowel (a-chung U+0F71)
+//    standard or compound vowel sign (or 'virama' for devanagari transliteration)
+
+enum TibetanForm {
+    TibetanOther,
+    TibetanHeadConsonant,
+    TibetanSubjoinedConsonant,
+    TibetanSubjoinedVowel,
+    TibetanVowel
+};
+
+// this table starts at U+0f40
+static unsigned char tibetanForm[0x80] = {
+    TibetanHeadConsonant, TibetanHeadConsonant, TibetanHeadConsonant, TibetanHeadConsonant,
+    TibetanHeadConsonant, TibetanHeadConsonant, TibetanHeadConsonant, TibetanHeadConsonant,
+    TibetanHeadConsonant, TibetanHeadConsonant, TibetanHeadConsonant, TibetanHeadConsonant,
+    TibetanHeadConsonant, TibetanHeadConsonant, TibetanHeadConsonant, TibetanHeadConsonant,
+
+    TibetanHeadConsonant, TibetanHeadConsonant, TibetanHeadConsonant, TibetanHeadConsonant,
+    TibetanHeadConsonant, TibetanHeadConsonant, TibetanHeadConsonant, TibetanHeadConsonant,
+    TibetanHeadConsonant, TibetanHeadConsonant, TibetanHeadConsonant, TibetanHeadConsonant,
+    TibetanHeadConsonant, TibetanHeadConsonant, TibetanHeadConsonant, TibetanHeadConsonant,
+
+    TibetanHeadConsonant, TibetanHeadConsonant, TibetanHeadConsonant, TibetanHeadConsonant,
+    TibetanHeadConsonant, TibetanHeadConsonant, TibetanHeadConsonant, TibetanHeadConsonant,
+    TibetanHeadConsonant, TibetanHeadConsonant, TibetanHeadConsonant, TibetanHeadConsonant,
+    TibetanOther, TibetanOther, TibetanOther, TibetanOther,
+
+    TibetanOther, TibetanVowel, TibetanVowel, TibetanVowel,
+    TibetanVowel, TibetanVowel, TibetanVowel, TibetanVowel,
+    TibetanVowel, TibetanVowel, TibetanVowel, TibetanVowel,
+    TibetanVowel, TibetanVowel, TibetanVowel, TibetanVowel,
+
+    TibetanVowel, TibetanVowel, TibetanVowel, TibetanVowel,
+    TibetanVowel, TibetanVowel, TibetanVowel, TibetanVowel,
+    TibetanOther, TibetanOther, TibetanOther, TibetanOther,
+    TibetanOther, TibetanOther, TibetanOther, TibetanOther,
+
+    TibetanSubjoinedConsonant, TibetanSubjoinedConsonant, TibetanSubjoinedConsonant, TibetanSubjoinedConsonant,
+    TibetanSubjoinedConsonant, TibetanSubjoinedConsonant, TibetanSubjoinedConsonant, TibetanSubjoinedConsonant,
+    TibetanSubjoinedConsonant, TibetanSubjoinedConsonant, TibetanSubjoinedConsonant, TibetanSubjoinedConsonant,
+    TibetanSubjoinedConsonant, TibetanSubjoinedConsonant, TibetanSubjoinedConsonant, TibetanSubjoinedConsonant,
+
+    TibetanSubjoinedConsonant, TibetanSubjoinedConsonant, TibetanSubjoinedConsonant, TibetanSubjoinedConsonant,
+    TibetanSubjoinedConsonant, TibetanSubjoinedConsonant, TibetanSubjoinedConsonant, TibetanSubjoinedConsonant,
+    TibetanSubjoinedConsonant, TibetanSubjoinedConsonant, TibetanSubjoinedConsonant, TibetanSubjoinedConsonant,
+    TibetanSubjoinedConsonant, TibetanSubjoinedConsonant, TibetanSubjoinedConsonant, TibetanSubjoinedConsonant,
+
+    TibetanSubjoinedConsonant, TibetanSubjoinedConsonant, TibetanSubjoinedConsonant, TibetanSubjoinedConsonant,
+    TibetanSubjoinedConsonant, TibetanSubjoinedConsonant, TibetanSubjoinedConsonant, TibetanSubjoinedConsonant,
+    TibetanSubjoinedConsonant, TibetanSubjoinedConsonant, TibetanSubjoinedConsonant, TibetanSubjoinedConsonant,
+    TibetanSubjoinedConsonant, TibetanOther, TibetanOther, TibetanOther
+};
 
 
+static inline TibetanForm tibetan_form( const QChar &c )
+{
+    return (TibetanForm)tibetanForm[ c.unicode() - 0x0f40 ];
+}
 
+static int tibetan_nextSyllableBoundary( const QString &s, int start, int end, bool *invalid,
+					 unsigned short *featuresToApply = 0, GlyphAttributes *attributes = 0 )
+{
+    const QChar *uc = s.unicode() + start;
+
+    int pos = 0;
+    TibetanForm state = tibetan_form( *uc );
+
+    if ( attributes ) {
+	attributes[0].justification = 0;
+	attributes[0].clusterStart = TRUE;
+	attributes[0].mark = FALSE;
+	attributes[0].zeroWidth = FALSE;
+    }
+    if ( featuresToApply ) {
+	featuresToApply[0] = AboveSubstFeature|BelowSubstFeature;
+    }
+//     qDebug("state[%d]=%d (uc=%4x)", pos, state, uc[pos].unicode() );
+    pos++;
+
+    if ( state != TibetanHeadConsonant ) {
+	if ( state != TibetanOther )
+	    *invalid = TRUE;
+	goto finish;
+    }
+
+    while ( pos < end - start ) {
+	TibetanForm newState = tibetan_form( uc[pos] );
+	switch( newState ) {
+	case TibetanSubjoinedConsonant:
+	case TibetanSubjoinedVowel:
+	    if ( state != TibetanHeadConsonant &&
+		 state != TibetanSubjoinedConsonant )
+		goto finish;
+	    state = newState;
+	    break;
+	case TibetanVowel:
+	    if ( state != TibetanHeadConsonant &&
+		 state != TibetanSubjoinedConsonant &&
+		 state != TibetanSubjoinedVowel )
+		goto finish;
+	    break;
+	case TibetanOther:
+	case TibetanHeadConsonant:
+	    goto finish;
+	}
+	if ( attributes ) {
+	    attributes[pos].justification = 0;
+	    attributes[pos].clusterStart = FALSE;
+	    attributes[pos].mark = TRUE;
+	    attributes[pos].zeroWidth = TRUE;
+	}
+	if ( featuresToApply ) {
+	    featuresToApply[pos] = AboveSubstFeature|BelowSubstFeature;
+	}
+	pos++;
+    }
+
+finish:
+    *invalid = false;
+    return start+pos;
+}
+
+static void tibetan_analyzeSyllables( const QString &string, int from, int length,
+				 unsigned short *featuresToApply, GlyphAttributes *attributes ) {
+    int sstart = from;
+    int end = sstart + length;
+    while ( sstart < end ) {
+	bool invalid;
+	int send = tibetan_nextSyllableBoundary( string, sstart, end,
+						 &invalid, featuresToApply + sstart - from,
+						 attributes + sstart - from );
+// 	qDebug("tibetan syllable from %d, length %d, invalid=%s", sstart, send-sstart,
+// 	       invalid ? "true" : "false" );
+	sstart = send;
+    }
+}
+
+
+static void tibetan_shape( int script, const QString &string, int from, int len, QScriptItem *item )
+{
+//     qDebug("tibetan_shape()");
+    QShapedItem *shaped = item->shaped;
+
+    unsigned short fa[256];
+    unsigned short *featuresToApply = fa;
+    if ( len > 127 )
+	featuresToApply = new unsigned short[ len ];
+
+    shaped->glyphAttributes = (GlyphAttributes *)realloc( shaped->glyphAttributes, len * sizeof( GlyphAttributes ) );
+    shaped->num_glyphs = len;
+    shaped->logClusters = (unsigned short *) realloc( shaped->logClusters, shaped->num_glyphs * sizeof( unsigned short ) );
+
+    tibetan_analyzeSyllables( string, from, len, featuresToApply, shaped->glyphAttributes );
+
+    int pos = 0;
+    for ( int i = 0; i < shaped->num_glyphs; i++ ) {
+	if ( shaped->glyphAttributes[i].clusterStart )
+	    pos = i;
+	shaped->logClusters[i] = pos;
+    }
+
+    shaped->glyphs = (glyph_t *)realloc( shaped->glyphs, shaped->num_glyphs*sizeof( glyph_t ) );
+    int error = item->fontEngine->stringToCMap( string.unicode() + from, shaped->num_glyphs, shaped->glyphs, &shaped->num_glyphs );
+    if ( error == QFontEngine::OutOfMemory ) {
+	shaped->glyphs = (glyph_t *)realloc( shaped->glyphs, shaped->num_glyphs*sizeof( glyph_t ) );
+	item->fontEngine->stringToCMap( string.unicode() + from, shaped->num_glyphs, shaped->glyphs, &shaped->num_glyphs );
+    }
+
+    QOpenType *openType = item->fontEngine->openType();
+
+    if ( openType && openType->supportsScript( script ) ) {
+	((QOpenType *) openType)->apply( script, featuresToApply, item, len );
+    } else {
+	q_calculateAdvances( item );
+    }
+
+    if ( len > 127 )
+	delete featuresToApply;
+
+
+}
+
+static void tibetan_attributes( int script, const QString &text, int from, int len, QCharAttributes *attributes )
+{
+#if 0
+    int end = from + len;
+    const QChar *uc = text.unicode() + from;
+    attributes += from;
+    int i = 0;
+    while ( i < len ) {
+	bool invalid;
+	int boundary = tibetan_nextSyllableBoundary( text, from+i, end, &invalid ) - from;
+
+	attributes[i].whiteSpace = ::isSpace( *uc ) && (uc->unicode() != 0xa0);
+	attributes[i].softBreak = FALSE;
+	attributes[i].charStop = TRUE;
+	attributes[i].wordStop = FALSE;
+	attributes[i].invalid = invalid;
+
+	if ( boundary > len-1 ) boundary = len;
+	i++;
+	while ( i < boundary ) {
+	    attributes[i].whiteSpace = ::isSpace( *uc ) && (uc->unicode() != 0xa0);
+	    attributes[i].softBreak = FALSE;
+	    attributes[i].charStop = FALSE;
+	    attributes[i].wordStop = FALSE;
+	    attributes[i].invalid = invalid;
+	    ++uc;
+	    ++i;
+	}
+	assert( i == boundary );
+    }
+#else
+    basic_attributes( script, text, from, len, attributes );
+#endif
+}
 
 // --------------------------------------------------------------------------------------------------------------------------------------------
 //
@@ -2788,7 +3007,7 @@ const q_scriptEngine scriptEngines[] = {
 	// Lao,
     { basic_shape, basic_attributes },
 	// Tibetan,
-    { basic_shape, basic_attributes },
+    { tibetan_shape, tibetan_attributes },
 	// Myanmar,
     { basic_shape, basic_attributes },
 	// Khmer,

@@ -8,7 +8,7 @@
 #include "editwidget.h"
 
 // const char *family = "Arial Unicode Ms"; // generic
-const char *family = "Diwani Letter,Verdana,Latha,Akaash,Serto Jerusalem,Mangal,Rama"; // Devanagari
+const char *family = "Diwani Letter,Verdana,Latha,Akaash,Serto Jerusalem,Mangal,Rama,TCRC Youtso Unicode"; // Devanagari
 // const char *family = ""; // arabic
 // const char *family = ""; // syriac
 // const char *family = ""; // Bengali
@@ -40,6 +40,10 @@ const char *family = "Diwani Letter,Verdana,Latha,Akaash,Serto Jerusalem,Mangal,
 
 // Bengali
 // const char * s = "অাবার অাসিব ফিরে ধানসিড়িটির তীরে - এই বাংলায় হয়তো মানুষ নয় - হয়তো বা শঙ্খচিল শালিখের বেশে, হয়তো ভোরের কাক হয়ে এই কার্তিকের নবান্নের দেশে  কুয়াশার বুকে ভেসে একদিন অাসিব এই কাঁঠাল - ছায়ায়, হয়তো বা হাঁস হব - কিশোরীর - ঘুঙুর রহিবে লাল পায়ে, সারাদিন কেটে যাবে কলমীর গন্ধ ভরা জলে ভেসে ভেসে, অাবার অাসিব অামি বাংলার নদী মাঠ ক্ষেত ভালোবেসে জলঙ্গীর ঢেউয়ে ভেজা বাংলার এ সবুজ করুণ ডাঙায়";
+
+// Tibetan
+// const char * s="ས་བཅད་གཉིས་པ་། ཡ་ཐོག་བོད་ཀྱི་བོན་རབས་བྱུང་ཚུལ།  རང་རེས་བོད་ཀྱི་ཡ་ཐོག་གི་བོན་བཤད་པའི་ཚེ། ཐོག་མར་\"བོན་\"ཅེས་པ་འདིའི་གདགས་གཞི་གང་འདྲ་ཞིག་ ལ་ངོས་འཛིན་དགོས་པ་འདི་ཐག་ལེགས་པོར་ཆོད་པ་ཞིག་མ་བྱུང་ན། ཡ་ཐོག་གི་བོན་ཅེས་པའི་དོན་གང་ཡིན་ངེས་ཐུབ་ཐབས་མེད་པ་ཡིན། འགྲོ་བ་མིའི་རིགས་ཡོངས་ལ་མི་རེ་བཞིན་གྱི་ལུས་ངག་ཡིད་ གསུམ་དང་འབྲེལ་བའི་དཀའ་ངལ་དང་འཇིགས་སྐྲགས་སྡུག་....";
+
 
 // mixed
 const char *s =

@@ -86,6 +86,12 @@ const Features indicFeatures[] = {
     { 0,  0 }
 };
 
+const Features tibetanFeatures[] = {
+    { FT_MAKE_TAG( 'c', 'c', 'm', 'p' ), 0x8000 },
+    { FT_MAKE_TAG( 'b', 'l', 'w', 's' ), BelowSubstFeature },
+    { FT_MAKE_TAG( 'a', 'b', 'v', 's' ), AboveSubstFeature }
+};
+
 
 struct SupportedScript {
     FT_ULong tag;
@@ -153,7 +159,7 @@ const SupportedScript supported_scripts [] = {
 // 	Lao,
     { FT_MAKE_TAG( 'l', 'a', 'o', ' ' ), standardFeatures, 0x0000, 0x8000 },
 // 	Tibetan,
-    { FT_MAKE_TAG( 't', 'i', 'b', 't' ), standardFeatures, 0x0000, 0x8000 },
+    { FT_MAKE_TAG( 't', 'i', 'b', 't' ), tibetanFeatures, AboveSubstFeature|BelowSubstFeature, 0x8000 },
 // 	Myanmar,
     { FT_MAKE_TAG( 'm', 'y', 'm', 'r' ), standardFeatures, 0x0000, 0x8000 },
 // 	Khmer,
