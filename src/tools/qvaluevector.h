@@ -213,7 +213,7 @@ Q_INLINE_TEMPLATES void QValueVectorPrivate<T>::reserve( size_t n )
 }
 
 template <class T>
-Q_INLINE_TEMPLATES QValueVectorPrivate<T>::pointer QValueVectorPrivate<T>::growAndCopy( size_t n, pointer s, pointer f )
+Q_INLINE_TEMPLATES Q_TYPENAME QValueVectorPrivate<T>::pointer QValueVectorPrivate<T>::growAndCopy( size_t n, pointer s, pointer f )
 {
     pointer newStart = new T[n];
     qCopy( s, f, newStart );
@@ -480,7 +480,7 @@ Q_INLINE_TEMPLATES void QValueVector<T>::detachInternal()
 }
 
 template <class T>
-Q_INLINE_TEMPLATES QValueVector<T>::iterator QValueVector<T>::insert( iterator pos, const T& x )
+Q_INLINE_TEMPLATES Q_TYPENAME QValueVector<T>::iterator QValueVector<T>::insert( iterator pos, const T& x )
 {
     size_type offset = pos - sh->start;
     detach();
@@ -505,7 +505,7 @@ Q_INLINE_TEMPLATES QValueVector<T>::iterator QValueVector<T>::insert( iterator p
 }
 
 template <class T>
-Q_INLINE_TEMPLATES QValueVector<T>::iterator QValueVector<T>::insert( iterator pos, size_type n, const T& x )
+Q_INLINE_TEMPLATES Q_TYPENAME QValueVector<T>::iterator QValueVector<T>::insert( iterator pos, size_type n, const T& x )
 {
     if ( n != 0 ) {
 	size_type offset = pos - sh->start;
