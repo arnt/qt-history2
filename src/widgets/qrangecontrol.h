@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#48 $
+** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#49 $
 **
 ** Definition of QRangeControl class
 **
@@ -138,7 +138,7 @@ public:
 
     void setUpEnabled( bool on );
     void setDownEnabled( bool on );
-    
+
     bool isUpEnabled() const;
     bool isDownEnabled() const;
 
@@ -164,6 +164,7 @@ protected:
     void mouseMoveEvent( QMouseEvent *e );
     void wheelEvent( QWheelEvent * );
     void styleChange( QStyle& );
+    void paintEvent( QPaintEvent * );
 
 private:
     QSpinWidgetPrivate * d;
