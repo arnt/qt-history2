@@ -98,7 +98,7 @@ local int huft_build(uIntf *b, uInt n, uInt s, const uIntf *d, const uIntf *e,
 /*uInt s;                 // number of simple-valued codes (0..s-1) */
 /*const uIntf *d;         // list of base values for non-simple codes */
 /*const uIntf *e;         // list of extra bits for non-simple codes */
-/*const inflate_huft * FAR *t;  /* result: starting table */
+/*const inflate_huft * FAR *t;  // result: starting table */
 /*uIntf *m;               // maximum lookup bits, returns actual */
 /*inflate_huft *hp;       // space for trees */
 /*uInt *hn;               // hufts used in space */
