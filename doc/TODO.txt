@@ -131,7 +131,6 @@ Feature Requests
 ----------------
 
 QFileDialog
-  setSelectedFilter( const QString&/int ) to set used filter
   set filter to initial file-extension
   make addFilter public
   add signal when filter changes
