@@ -246,6 +246,7 @@ public:
     inline QT_COMPAT QString family() const { return fontFamily(); }
     inline QT_COMPAT int pointSize() const { return (int)(fontPointSize()+0.5); }
 
+    QT_COMPAT void append(const QString &text);
 #endif
 };
 

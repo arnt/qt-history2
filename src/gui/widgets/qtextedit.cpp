@@ -1223,6 +1223,36 @@ Qt::TextFormat QTextEdit::textFormat() const
 {
     return d->textFormat;
 }
+
+/*!
+    Appends a new paragraph with \a text to the end of the text edit.
+*/
+void QTextEdit::append(const QString &text)
+{
+    TextFormat f = d->textFormat;
+    if (f == AutoText) {
+        if (QText::mightBeRichText(text))
+            f = RichText;
+        else
+            f = PlainText;
+    }
+
+    const bool atBottom = contentsY() >= contentsHeight() - visibleHeight();
+
+    QTextCursor cursor(d->doc);
+    cursor.movePosition(QTextCursor::End);
+    cursor.insertBlock();
+    if (f == PlainText) {
+        cursor.insertText(text);
+    } else {
+        QTextDocumentFragment frag = QTextDocumentFragment::fromHTML(text);
+        cursor.insertFragment(frag);
+    }
+
+    if (atBottom)
+        setContentsPos(contentsX(), contentsHeight() - visibleHeight());
+}
+
 #endif
 
 #include "moc_qtextedit.cpp"
