@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocket.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qsocket.cpp#19 $
 **
 ** Implementation of QSocket class
 **
@@ -467,6 +467,19 @@ int QSocket::port() const
 
 
 /*!
+  \fn void QSocket::bytesWritten( int nbytes )
+
+  This signal is emitted when data actually has been written to the
+  network.  The \a nbytes parameter says how many bytes were written.
+
+  The bytesToWrite() function is often used in the same context, and
+  it tells how many buffered bytes there are left to write.
+
+  \sa writeBlock(), bytesToWrite()
+*/
+
+
+/*!
   Opens the socket using the specified QIODevice file mode.  This function
   is called automatically when needed and you should not call it yourself.
   \sa close()
@@ -891,6 +904,11 @@ bool QSocket::canReadLine() const
   \sa canReadLine()
 */
 
+#if defined(_OS_LINUX_)
+#warning "Should QSocket::readLine return QByteArray/QCString?"
+// or bool readLine(QByteArray&)
+#endif
+
 QString QSocket::readLine()
 {
     if ( !canReadLine() )
@@ -993,6 +1011,8 @@ void QSocket::sn_write()
 					      a->size() - d->windex );
 	}
 	skipWriteBuf( nwritten );
+	if ( nwritten > 0 )
+	    emit bytesWritten( nwritten );
 #if defined(QSOCKET_DEBUG)
 	debug( "QSocket: sn_write: wrote %d bytes, %d left", nwritten,
 	       d->wsize );

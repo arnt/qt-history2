@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocket.h#9 $
+** $Id: //depot/qt/main/src/kernel/qsocket.h#10 $
 **
 ** Definition of QSocket class
 **
@@ -82,6 +82,7 @@ signals:
     void	 closed();
     void	 delayedCloseFinished();
     void	 readyRead();
+    void	 bytesWritten( int nbytes );
     void	 error();
 
 protected slots:
