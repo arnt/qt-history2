@@ -455,10 +455,22 @@ void QSpinBox::arrangeWidgets()
     if ( bs.height() < 8 )
 	bs.setHeight( 8 );
     bs.setWidth( bs.height() * 8 / 5 ); // 1.6 - approximate golden mean
+    int y = style() == WindowsStyle ? frameWidth() : 0;
+    int x, lx, rx;
+    if ( QApplication::reverseLayout() ) {
+	x = y;
+	lx = x + bs.width() + frameWidth();
+	rx = width() - frameWidth();
+    } else {
+	x = width() - y - bs.width();
+	lx = frameWidth();
+	rx = x - frameWidth();
+    }
+
     if ( style() == WindowsStyle )
 	setFrameRect( QRect( 0, 0, 0, 0 ) );
     else
-	setFrameRect( QRect( 0, 0, width() - bs.width(), height() ) );
+	setFrameRect( QRect( lx - frameWidth(), 0, width() - bs.width(), height() ) );
 
     if ( up->size() != bs || down->size() != bs ) {
 	up->resize( bs );
@@ -466,15 +478,12 @@ void QSpinBox::arrangeWidgets()
 	updateButtonSymbols();
     }
 
-    int y = style() == WindowsStyle ? frameWidth() : 0;
-    int x = width() - y - bs.width();
     up->move( x, y );
     down->move( x, height() - y - up->height() );
-    if ( style() == WindowsStyle )
-	vi->setGeometry( frameWidth(), frameWidth(),
-			 x - frameWidth(), height() - 2*frameWidth() );
-    else
-	vi->setGeometry( contentsRect() );
+//    if ( style() == WindowsStyle )
+	vi->setGeometry( lx, frameWidth(), rx, height() - 2*frameWidth() );
+//    else
+//	vi->setGeometry( lx, 0, rx, height() );
 }
 
 /*!
