@@ -118,7 +118,13 @@ listResourceFile(const QString &file)
                         }
                     } else {
                         RCCFileInfo res;
-                        res.name = alias.isNull() ? fileName : alias;
+                        if(!alias.isNull()) {
+                            res.name = alias;
+                        } else {
+                            res.name = QDir::cleanPath(fileName);
+                            while(res.name.startsWith(QLatin1String("../")))
+                                res.name = res.name.mid(3);
+                        }
                         res.fileinfo = QFileInfo(file);
                         resource.files.append(res);
                     }
@@ -157,7 +163,7 @@ processResourceFile(const QString &file, QTextStream &out, QStringList *created)
             const QString location = QDir::cleanPath(resource_root + "/" +
                                                      r.prefix + "/" + r.files[file].name);
             if(verbose)
-                fprintf(stderr, "Read file %s(@%s) [Compressed %d%%]", inputQFile.fileName().toLatin1().data(),
+                fprintf(stderr, "Read file %s(@%s) [Compressed %d%%]\n", inputQFile.fileName().toLatin1().data(),
                         location.toLatin1().data(), compressRatio);
 
             QByteArray resource_name;
