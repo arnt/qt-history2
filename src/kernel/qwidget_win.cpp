@@ -973,10 +973,8 @@ void QWidget::showNormal()
 		move( r.topLeft() );
 	    }
 	}
-	if ( isVisible() )
-	    ShowWindow( winId(), SW_SHOWNORMAL );
-	else
-	    show();
+	show();
+	ShowWindow( winId(), SW_SHOWNORMAL );
     } else
 	show();
     QEvent e( QEvent::ShowNormal );
