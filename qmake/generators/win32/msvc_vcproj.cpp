@@ -219,11 +219,13 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
     QStringList subdirs = project->variables()["SUBDIRS"];
     QString oldpwd = QDir::currentDirPath();
 
-    for(QStringList::Iterator it = subdirs.begin(); it != subdirs.end(); ++it) {
-	QFileInfo fi(Option::fixPathToLocalOS((*it), TRUE));
+
+    for(int i = 0; i < subdirs.size(); ++i) {
+	QString tmp = subdirs.at(i);
+	QFileInfo fi(Option::fixPathToLocalOS(tmp, TRUE));
 	if(fi.exists()) {
 	    if(fi.isDir()) {
-		QString profile = (*it);
+		QString profile = tmp;
 		if(!profile.endsWith(Option::dir_sep))
 		    profile += Option::dir_sep;
 		profile += fi.baseName() + ".pro";
