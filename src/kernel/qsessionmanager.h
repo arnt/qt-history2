@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsessionmanager.h#1 $
+** $Id: //depot/qt/main/src/kernel/qsessionmanager.h#2 $
 **
 ** Definition of QSessionManager class
 **
@@ -36,8 +36,8 @@ class QSessionManagerData;
 class Q_EXPORT  QSessionManager : public Qt
 {
     QSessionManager( QApplication *app, QString session );
-public:
     ~QSessionManager();
+public:
     QString sessionId();
 
     bool allowsInteraction();
@@ -49,12 +49,12 @@ public:
     enum RestartHint { RestartIfRunning, RestartAnyway, RestartImmediately, RestartNever };
     void setRestartHint( RestartHint );
     RestartHint restartHint() const;
-    
+
     void setRestartCommand( const QStringList& );
     QStringList restartCommand() const;
     void setDiscardCommand( const QStringList& );
     QStringList discardCommand() const;
-    
+
     void setProperty( const QString& name, const QString& value );
     void setProperty( const QString& name, const QStringList& value );
 
