@@ -547,12 +547,14 @@ QObject* QObject::child(const char *objName, const char *inheritsClass,
         return 0;
 
     bool onlyWidgets = (inheritsClass && qstrcmp(inheritsClass, "QWidget") == 0);
+    const QLatin1String oName(objName);
     for (int i = 0; i < d->children.size(); ++i) {
         QObject *obj = d->children.at(i);
         if (onlyWidgets) {
-            if (obj->isWidgetType() && (!objName || obj->objectName() == QLatin1String(objName)))
+            if (obj->isWidgetType() && (!objName || obj->objectName() == oName))
                 return obj;
-        } else if ((!inheritsClass || obj->inherits(inheritsClass)) && (!objName || objName == QLatin1String(objName)))
+        } else if ((!inheritsClass || obj->inherits(inheritsClass))
+                   && (!objName || obj->objectName() == oName))
             return obj;
         if (recursiveSearch && (obj = obj->child(objName, inheritsClass, recursiveSearch)))
             return obj;
