@@ -1418,7 +1418,6 @@ void QComboBox::mousePressEvent(QMouseEvent *e)
             d->arrowDown = true;
         popup();
     }
-    QWidget::mousePressEvent(e);
 }
 
 /*!
@@ -1430,7 +1429,6 @@ void QComboBox::mouseReleaseEvent(QMouseEvent *e)
     QStyleOptionComboBox opt = d->getStyleOption();
     update(QStyle::visualRect(style().querySubControlMetrics(
                                   QStyle::CC_ComboBox, &opt, QStyle::SC_ComboBoxArrow), this));
-    QWidget::mouseReleaseEvent(e);
 }
 
 /*!
