@@ -21,7 +21,7 @@
     rest of Qt. We also added two properties to QWidget,
     \l{QWidget::accessibleName}{accessibleName} and
     \l{QWidget::accessibleDescription}{accessibleDescription}, that
-    can be set in \i{Qt Designer} to provide basic help texts without
+    can be set in \e{Qt Designer} to provide basic help texts without
     having to write any code.
 
     Qt's accessibility architecture is as follows. Qt offers one
@@ -33,11 +33,16 @@
 
     When you develop custom widgets, you can create custom subclasses
     of \l QAccessibleInterface and distribute them as plugins (using
-    \l QAccessibePlugin) or compile them into the application. The
-    main advantage of using plugins is that the accessibility classes
-    are only loaded into memory if they are actually used; they don't
+    \l QAccessibePlugin) or compile them into the application.
+    Likewise, Qt's predefined accessibility support can be built as
+    plugin (the default) or directly into the Qt library. The main
+    advantage of using plugins is that the accessibility classes are
+    only loaded into memory if they are actually used; they don't
     slow down the common case where no assistive technology is being
     used.
+
+    Qt 3 had no generic support for backends. This is addressed in Qt
+    4, through the \l QAccesssibleBridge class.
 
     In addition to QAccessibleInterface, Qt includes two convenience
     classes, \l QAccessibleObject and \l QAccessibleWidget, that
@@ -80,34 +85,80 @@
         ?
     \endomit
 
-    \section1 The Current State of the Accessibility Support
-
-    * The architecture is in place and is not expected to change much.
-    * Not all widgets have been implemented yet.
-    * Not all AT-SPI interfaces have been bridged yet
-
     \section1 Example Code
 
-    * create an interface
+    The first example illustrates how to provide accessibility
+    information for a custom widget. We can use QAccessibleWidget as
+    a base class and reimplement various functions:
 
-    * creating a plugin
+    \code
+        class MyWidgetInterface : public QAccessibleWidget
+        {
+        public:
+            MyWidgetInterface(QWidget *widget, Role role);
 
-    * registering stuff
+            QString text(Text text, int child) const;
+            State state(int child) const;
+            QString actionText(int action, Text text, int child) const;
+            bool doAction(int action, int child, const QVariantList &params);
+            ...
+        };
+    \endcode
 
-    \section1 Comparison with Qt 3
+    Here's how we would implement the
+    \l{QAccessibleInterface::doAction()}{doAction()} function to call
+    a function named click() on the wrapped MyWidget object when the
+    user invokes the object's default action or "presses" it.
 
-    * Qt 3, you had to have plugins; Qt 4, can compile them into your app and
-      register them
-        * Qt 4: the built-in ones are plugins by default; can be built into the Qt library
-          using ...
-        * custom a12y interfaces can be built into your app or provided as plugins
+    \code
+        bool MyWidgetInterface::doAction(int action, int child,
+                                         const QVariantList &params)
+        {
+            if (child || !widget()->isEnabled())
+                return false;
 
-    * Qt 3 had no generic support for backends
+            switch (action) {
+            case DefaultAction:
+            case Press:
+                {
+                    MyWidget *widget = qt_cast<MyWidget *>(object());
+                    if (widget)
+                        widget->click();
+                }
+                return true;
+            }
+            return QAccessibleWidget::doAction(action, child, params);
+        }
+    \endcode
+
+    To export the widget interface as a plugin, we must subclass
+    QAccessibleFactory:
+
+    \code
+        QStringList MyFactory::keys() const
+        {
+            return QStringList() << "MyWidget" << "MyOtherWidget";
+        }
+
+        QAccessibleInterface *MyFactory::create(const QString &className,
+                                                QObject *object)
+        {
+            if (classname == "MyWidget")
+                return new MyWidgetInterface(object);
+            if (classname == "MyOtherWidget")
+                return new MyOtherWidgetInterface(object);
+            return 0;
+        }
+
+        Q_EXPORT_PLUGIN(MyFactory)
+    \endcode
 
     \section1 Future Work
 
-    * implement the missing widgets
-    * complete the AT-SPI bridge
+    The architecture is in place and is not expected to change much
+    before the final Qt 4.0 release. The main missing features are
+    that not all widgets have been implemented yet, and not all
+    AT-SPI interfaces have been bridged yet.
 
     \link qt4-intro.html [Back to the Technology Preview page] \endlink
 */
