@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#103 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#104 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1995,8 +1995,22 @@ if ($0 =~ /gendoc/) {
     $outputdir = "/local/qt/doc/html";
 }
 
+if ( open( I, "< " . $ENV{"QTDIR"} . "/src/tools/qglobal.cpp" ) ) {
+    @_ = grep( /^\x23define QT_VERSION/, <I> );
+    close(I);
+    if ( $#_ == 0 && $_[0] =~ /QT_VERSION *\"(.*?)\"/ ) {
+	$version = $1;
+    } else {
+	die "Cannot determine Qt version\n";
+    }
+} else {
+    die "Cannot open tools/qglobal.cpp\n";
+}
+
+
+
 ($j, $min, $hour, $mday, $mon, $year) = localtime(time);
-$address = sprintf("<hr><address>\nGenerated at %02d:%02d, %4d/%02d/%02d for Qt version 0.96 by the <a href=mailto:www\@troll.no>webmaster</a> at <a href=http://www.troll.no/>Troll Tech</a>\n</address>\n</body></html>\n", $hour, $min, 1900+$year, 1+$mon, $mday );
+$address = sprintf("<hr><address>\nGenerated at %02d:%02d, %4d/%02d/%02d for Qt version %s by the <a href=mailto:www\@troll.no>webmaster</a> at <a href=http://www.troll.no/>Troll Tech</a>\n</address>\n</body></html>\n", $hour, $min, 1900+$year, 1+$mon, $mday, $version );
 $doctype = "<!doctype HTML public \"-//IETF//DTD HTML 2.0 Level 2//EN\">\n";
 
 if ($#ARGV > -1) {
@@ -2009,7 +2023,7 @@ if ($#ARGV > -1) {
     my($sources, $dirs);
     chdir($ENV{"QTDIR"} . "/src") || die "can't cd to QTDIR/src";
     $hdir = $ENV{"QTDIR"} . "/include";
-    foreach $dirs ( "tools", "kernel", "widgets", "dialogs", "doc" ) {
+    foreach $dirs ( "tools", "kernel", "widgets", "dialogs", "../doc" ) {
 	chdir( $dirs ) || die "can't cd to $dirs";
 	open(F, "make -s showsources |") || die "can't make showsources";
 	$sources = <F>;
@@ -2019,7 +2033,7 @@ if ($#ARGV > -1) {
 	    die if ( $_ eq "" );
 	    &readc( $_ );
  	}
-	chdir( ".." ) || die "can't cd back to QTDIR";
+	chdir( $ENV{"QTDIR"} . "/src" ) || die "can't cd back to QTDIR";
     }
 }
 
