@@ -455,7 +455,7 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
     case PE_ButtonBevel:
 	name = "BUTTON";
 	partId = BP_PUSHBUTTON;
-	if ( !flags & Style_Enabled )
+	if ( !(flags & Style_Enabled) )
 	    stateId = PBS_DISABLED;
 	else if ( flags & Style_Down || flags & Style_Sunken )
 	    stateId = PBS_PRESSED;
