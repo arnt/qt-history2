@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#249 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#250 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -59,7 +59,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#249 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#250 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -2688,7 +2688,7 @@ struct QScrollInProgress {
 
 long QScrollInProgress::serial=0;
 
-QList<QScrollInProgress> *sip_list = 0;
+static QList<QScrollInProgress> *sip_list = 0;
 
 void qt_insert_sip( QWidget* scrolled_widget, int dx, int dy )
 {

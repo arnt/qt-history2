@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#128 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#129 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#128 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#129 $");
 
 
 /*!
@@ -766,8 +766,8 @@ void QImage::freeBits()
 Q_DECLARE(QIntDictM,char);
 Q_DECLARE(QIntDictIteratorM,char);
 
-struct RgbMap {
-    RgbMap() : rgb(0xffffffff) { }
+struct QRgbMap {
+    QRgbMap() : rgb(0xffffffff) { }
     bool used() const { return rgb!=0xffffffff; }
     uchar  pix;
     QRgb  rgb;
@@ -784,7 +784,7 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 	return FALSE;
 
     const int tablesize = 4096; // need not be prime
-    RgbMap table[tablesize];
+    QRgbMap table[tablesize];
     int   pix=0;
 
     if ( (conversion_flags & DitherMode_Mask) == AlwaysDither ) {

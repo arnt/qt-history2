@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#42 $
 **
 ** Implementation of QDialog class
 **
@@ -15,7 +15,7 @@
 #include "qkeycode.h"
 #include "qobjcoll.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#41 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#42 $");
 
 
 /*!
@@ -171,19 +171,6 @@ void QDialog::done( int r )
 {
     hide();
     setResult( r );
-}
-
-/*!
-  Hides the widget, cancelling any modality.
-*/
-
-void QDialog::hide()
-{
-    bool was_hidden = !testWFlags(WState_Visible);
-        
-    QWidget::hide();
-
-    if (!was_hidden && testWFlags(WType_Modal) ) qApp->exit_loop();
 }
 
 /*!

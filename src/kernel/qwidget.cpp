@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#199 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#200 $
 **
 ** Implementation of QWidget class
 **
@@ -28,7 +28,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#199 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#200 $");
 
 
 /*!
@@ -2312,6 +2312,14 @@ void QWidget::hide()
 	if ( qApp->receivers(SIGNAL(lastWindowClosed())) && noVisibleTLW() )
 	    emit qApp->lastWindowClosed();
     }
+
+#if QT_VERSION == 200
+#error "Do this inherits-hack by overriding hide() in QDialog"
+#error "Be sure to test for testWFlags(WState_Visible) or anything"
+#error " else that makes QWidget::hide() return early."
+#endif
+    if ( testWFlags(WType_Modal)
+      && inherits("QDialog") ) qApp->exit_loop();
 }
 
 
