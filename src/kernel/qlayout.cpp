@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#3 $
 **
 **  Geometry Management
 **
@@ -10,7 +10,7 @@
 *****************************************************************************/
 #include "qlayout.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#2 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#3 $");
 
 /*!
   \class QLayout qgeom.h
@@ -19,12 +19,14 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#2 $");
   This is an abstract base class. Various layout managers inherit
   from this one. 
 
-  A layout manager is intended for specification of child widget
-  geometry. After geometry management is activated, the layout manager
-  can be deleted.
+  Geometry management stops when the layout manager is deleted.
 
   To make a new layout manager, you need to implement the functions
   mainVerticalChain(), mainHorizontalChain() and initGM()
+
+  \warning The current version does not support deletion of child widgets.
+  If you need to remove widgets that are under geometry management, you have to
+  delete the layout manager first.
   */
 
 
@@ -46,12 +48,12 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#2 $");
 */
 
 QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name )
-    : objName( name )
+    : QObject( parent, name )
 {
     topLevel     = TRUE;
-    parentLayout = 0;
     bm           = new QGManager( parent, name );
-    children	 = 0;
+    parent->removeChild( bm );
+    insertChild( bm );
 
     if ( autoBorder < 0 )
 	defBorder = border;
@@ -85,37 +87,23 @@ QWidget * QLayout::mainWidget()
   defaultBorder(), otherwise \a autoBorder is used.
 */
 QLayout::QLayout( int autoBorder, const char *name )
-    : objName( name )
+    : QObject( 0, name )
 {
     topLevel     = FALSE;
-    parentLayout = 0;
     bm           = 0;
-    children	 = 0;
     defBorder    = autoBorder;
 }
 
 
 /*!
-  Deletes all sublayouts and notifies my parentLayout that I have gone.
-  The basicManager() is not deleted.
+  Deletes all children layouts. Geometry management stops when 
+  a toplevel layout is deleted.
+  \internal
+  The layout classes will probably be fatally confused if you delete
+  a sublayout
  */
 QLayout::~QLayout()
 {
-    QLayout *l;
-    if ( children ) {
-	QListIterator<QLayout> it( *children );
-	while (( l = it.current() )) {
-	    ++it;
-	    l->parentLayout = 0; // avoid recursion
-	    delete l;
-	}
-	delete children;
-	children = 0;
-    }
-    if ( parentLayout ) {
-	ASSERT( parentLayout->children );
-	parentLayout->children->removeRef( this );
-    }
 }
 
 /*!
@@ -126,12 +114,7 @@ QLayout::~QLayout()
 void QLayout::addChildLayout( QLayout *l )
 {
     l->bm = bm;
-    l->parentLayout = this;
-    if ( !children ) {
-	children = new QList<QLayout>;
-	CHECK_PTR( children );
-    }
-    children->append( l );
+    insertChild( l );  
     if ( l->defBorder < 0 )
 	l->defBorder = defBorder;
     l->initGM();
@@ -195,33 +178,6 @@ bool QLayout::activate()
     return FALSE;
 }
 
- 
-/*!
-  Stops geometry management. This function should be used if the main widget
-  no longer is to be under geometry management, or if a different layout
-  is desired.
-
-  This function should only be called for top level layouts.
-
-  \warning A deactivated layout cannot be reactivated. Delete the layout
-  immediately after it has been deactivated.
-*/
-bool QLayout::deactivate()
-{ 
-    if ( topLevel ) 
-	if ( bm ) {
-	    delete bm;
-	    bm = 0;
-	    return TRUE;
-	} else
-	    return FALSE;
-#if defined(DEBUG)
-    warning("QLayout::deactivate() for child layout");
-#endif
-    return FALSE;
-}
-
-
 /*!
   \overload void QLayout::freeze()
 
@@ -232,9 +188,12 @@ bool QLayout::deactivate()
 
 /*!
   Fixes the size of the main widget and distributes the available
-  space to the child widgets, for widgets which should not be
-  resizable but where a QLayout subclass is used to set up the initial
+  space to the child widgets. For widgets which should not be
+  resizable, but where a QLayout subclass is used to set up the initial
   geometry.
+
+  A frozen layout cannot be unfrozen, the only sensible thing to do
+  is to delete it.
 
   The size is adjusted to a valid value. Thus freeze(0,0) fixes the
   widget to its minimum size.  
@@ -282,6 +241,11 @@ void QLayout::setMenuBar( QWidget *w )
 
   A QBoxLayout (box for short) can contain widgets or other
   boxes.
+
+  \warning The current version does not support deletion of child widgets.
+  If you need to remove widgets that are under geometry management, you have to
+  delete the layout manager first.
+
 */
 
 static inline bool horz( QGManager::Direction dir )
@@ -347,8 +311,8 @@ QBoxLayout::QBoxLayout( Direction d,
 
 
 /*!
-  Deletes this box. Geometry management continues as specified as long as
-  the widget is alive.
+  Deletes this box. Geometry management is terminated if 
+  this is a top-level box.
  */
 QBoxLayout::~QBoxLayout()
 {
@@ -400,7 +364,7 @@ void QBoxLayout::addB( QLayout * l, int stretch )
 
 /*!
   Returns the main vertical chain, so that a box can be put into
-  other boxes (or other types of QLayout.
+  other boxes (or other types of QLayout).
 */
 
 QChain * QBoxLayout::mainVerticalChain()
@@ -413,7 +377,7 @@ QChain * QBoxLayout::mainVerticalChain()
 
 /*!
   Returns the main horizontal chain, so that a box can be put into
-  other boxes (or other types of QLayout.
+  other boxes (or other types of QLayout).
 */
 
 QChain * QBoxLayout::mainHorizontalChain()
@@ -544,11 +508,11 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
     } else {
 	QGManager::Direction d = perp( dir );
 	QChain *sc = basicManager()->newSerChain( d );
-	if ( align & first || align & AlignCenter ) {
+	if ( align & last || align & AlignCenter ) {
 	    basicManager()->addSpacing(sc, 0);
 	}
 	basicManager()->addWidget( sc, widget, 1 );
-	if ( align & AlignCenter || align & last ) {
+	if ( align & AlignCenter || align & first ) {
 	    basicManager()->addSpacing(sc, 0);
 	}
 	basicManager()->add( parChain, sc );
@@ -575,8 +539,12 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
 
   \brief The QGridLayout class specifies child widget geometry.
 
-  Contents are arranged in a fixed grid. If you need a more flexible layout,
+  Contents are arranged in a grid. If you need a more flexible layout,
   see the QBoxLayout class.
+
+  \warning The current version does not support deletion of child widgets.
+  If you need to remove widgets that are under geometry management, you have to
+  delete the layout manager first.
 */
 
 /*!
@@ -622,9 +590,9 @@ QGridLayout::QGridLayout( int nRows, int nCols,
 
 
 /*!
-  Deletes this grid. Geometry management continues as specified as long as
-  the widget is alive.
- */
+  Deletes this grid. Geometry management is terminated if 
+  this is a top-level grid. 
+*/
 QGridLayout::~QGridLayout()
 {
     delete rows;
@@ -831,10 +799,10 @@ void QGridLayout::setColStretch( int col, int stretch )
 
 /*!  
   \fn QChain *QGridLayout::mainVerticalChain()
-  This function to returns the main vertical chain.
+  This function returns the main vertical chain.
 */
 
 /*!  
   \fn QChain *QGridLayout::mainHorizontalChain()
-  This function to returns the main horizontal chain.
+  This function returns the main horizontal chain.
 */

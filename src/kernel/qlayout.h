@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#2 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#3 $
 **
 **  Geometry Management
 **
@@ -16,7 +16,7 @@
 #include "qlist.h"
 
 struct QLayoutData;
-class QLayout
+class QLayout : public QObject
 {
 public:
     virtual ~QLayout();
@@ -25,7 +25,6 @@ public:
     enum { unlimited = QCOORD_MAX };
 
     virtual bool activate();
-    virtual bool deactivate();
     void freeze( int w, int h );
     void freeze() { freeze( 0, 0 ); }
 
@@ -33,8 +32,6 @@ public:
 
     QWidget *mainWidget();
     
-    const char *name() const { return objName; }
-
 protected:
     QLayout( QWidget *parent,  int border,
 	     int autoBorder, const char *name );
@@ -51,10 +48,7 @@ protected:
     static QChain *horChain( QLayout *l ) { return l->mainHorizontalChain(); }
 
 private:
-    const char *objName;
     QGManager * bm;
-    QLayout *parentLayout;
-    QList<QLayout> *children;
     int defBorder;
     bool    topLevel;
 
