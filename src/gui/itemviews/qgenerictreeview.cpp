@@ -44,7 +44,7 @@
 
 /*!
   \class QGenericTreeView qgenerictreeview.h
-
+  
   \brief The QGenericTreeView class provides a default model/view implementation of a tree view.
 
   \ingroup model-view
@@ -406,15 +406,13 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
     int c = d->items.count();
     int i = d->itemAt(v);
     int y = d->coordinateAt(v, delegate->sizeHint(fontMetrics, option, items[i].index).height());
+    
     while (y < h && i < c) {
-        // prepare
         index = items[i].index;
         option.state = state|(d->items[i].open ? QStyle::Style_Open : QStyle::Style_Default);
         option.rect.setRect(0, y, 0, delegate->sizeHint(fontMetrics, option, index).height());
         d->current = i;
-        // draw row
         drawRow(&painter, option, index);
-        // next row
         y += option.rect.height();
         ++i;
     }

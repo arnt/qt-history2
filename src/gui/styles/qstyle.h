@@ -124,32 +124,32 @@ public:
     virtual void polish(QPalette &);
 
     virtual QRect itemRect(const QFontMetrics &fm, const QRect &r,
-                            int flags, bool enabled,
-                            const QString &text, int len = -1) const;
+                           int flags, bool enabled,
+                           const QString &text, int len = -1) const;
 
     virtual QRect itemRect(const QRect &r,
                             int flags, const QPixmap &pixmap) const;
 
     QRect itemRect(QPainter *p, const QRect &r,
-                    int flags, bool enabled,
-                    const QPixmap &pixmap,
-                    const QString &text, int len = -1) const;
+                   int flags, bool enabled,
+                   const QPixmap &pixmap,
+                   const QString &text, int len = -1) const;
 
     virtual void drawItem(QPainter *p, const QRect &r,
-                           int flags, const QPalette &pal, bool enabled,
-                           const QString &text, int len = -1,
-                           const QColor *penColor = 0) const;
+                          int flags, const QPalette &pal, bool enabled,
+                          const QString &text, int len = -1,
+                          const QColor *penColor = 0) const;
 
     virtual void drawItem(QPainter *p, const QRect &r,
-                           int flags, const QPalette &pal, bool enabled,
-                           const QPixmap &pixmap,
-                           const QColor *penColor = 0) const;
+                          int flags, const QPalette &pal, bool enabled,
+                          const QPixmap &pixmap,
+                          const QColor *penColor = 0) const;
 
     void drawItem(QPainter *p, const QRect &r,
-                   int flags, const QPalette &pal, bool enabled,
-                   const QPixmap &pixmap,
-                   const QString &text, int len = -1,
-                   const QColor *penColor = 0) const {
+                  int flags, const QPalette &pal, bool enabled,
+                  const QPixmap &pixmap,
+                  const QString &text, int len = -1,
+                  const QColor *penColor = 0) const {
         if (!pixmap.isNull())
             drawItem(p, r, flags, pal, enabled, pixmap, penColor);
         else
@@ -265,7 +265,7 @@ public:
         PE_RubberBandMask,
 
         // do not add any values below/greater this
-        PE_CustomBase =                        0xf000000
+        PE_CustomBase = 0xf000000
     };
 
     virtual void drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
@@ -304,7 +304,7 @@ public:
         CE_HeaderLabel,
 
         // do not add any values below/greater than this
-        CE_CustomBase =                0xf0000000
+        CE_CustomBase = 0xf0000000
     };
 
     virtual void drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
@@ -349,13 +349,13 @@ public:
         SR_ToolBoxTabContents,
 
         // do not add any values below/greater than this
-        SR_CustomBase =                0xf0000000
+        SR_CustomBase = 0xf0000000
     };
 
     virtual QRect subRect(SubRect r, const QStyleOption *opt, const QWidget *widget = 0) const = 0;
 
 
-    enum ComplexControl{
+    enum ComplexControl {
         CC_SpinBox,
         CC_ComboBox,
         CC_ScrollBar,
@@ -365,54 +365,54 @@ public:
         CC_ListView,
 
         // do not add any values below/greater than this
-        CC_CustomBase =                0xf0000000
+        CC_CustomBase = 0xf0000000
     };
 
     enum SubControl {
-        SC_None =                        0x00000000,
+        SC_None =                  0x00000000,
 
-        SC_ScrollBarAddLine =                0x00000001,
-        SC_ScrollBarSubLine =                0x00000002,
-        SC_ScrollBarAddPage =                0x00000004,
-        SC_ScrollBarSubPage =                0x00000008,
-        SC_ScrollBarFirst =                0x00000010,
-        SC_ScrollBarLast =                0x00000020,
-        SC_ScrollBarSlider =                0x00000040,
-        SC_ScrollBarGroove =                0x00000080,
+        SC_ScrollBarAddLine =      0x00000001,
+        SC_ScrollBarSubLine =      0x00000002,
+        SC_ScrollBarAddPage =      0x00000004,
+        SC_ScrollBarSubPage =      0x00000008,
+        SC_ScrollBarFirst =        0x00000010,
+        SC_ScrollBarLast =         0x00000020,
+        SC_ScrollBarSlider =       0x00000040,
+        SC_ScrollBarGroove =       0x00000080,
 
-        SC_SpinBoxUp =                0x00000001,
-        SC_SpinBoxDown =                0x00000002,
-        SC_SpinBoxFrame =                0x00000004,
-        SC_SpinBoxEditField =        0x00000008,
-        SC_SpinBoxButtonField =        0x00000010,
-        SC_SpinBoxSlider =        0x00000020,
+        SC_SpinBoxUp =             0x00000001,
+        SC_SpinBoxDown =           0x00000002,
+        SC_SpinBoxFrame =          0x00000004,
+        SC_SpinBoxEditField =      0x00000008,
+        SC_SpinBoxButtonField =    0x00000010,
+        SC_SpinBoxSlider =         0x00000020,
 
-        SC_ComboBoxFrame =                0x00000001,
-        SC_ComboBoxEditField =                0x00000002,
-        SC_ComboBoxArrow =                0x00000004,
-        SC_ComboBoxListBoxPopup =        0x00000008,
+        SC_ComboBoxFrame =         0x00000001,
+        SC_ComboBoxEditField =     0x00000002,
+        SC_ComboBoxArrow =         0x00000004,
+        SC_ComboBoxListBoxPopup =  0x00000008,
 
-        SC_SliderGroove =                0x00000001,
-        SC_SliderHandle =                0x00000002,
-        SC_SliderTickmarks =                0x00000004,
+        SC_SliderGroove =          0x00000001,
+        SC_SliderHandle =          0x00000002,
+        SC_SliderTickmarks =       0x00000004,
 
-        SC_ToolButton =                        0x00000001,
-        SC_ToolButtonMenu =                0x00000002,
+        SC_ToolButton =            0x00000001,
+        SC_ToolButtonMenu =        0x00000002,
 
-        SC_TitleBarLabel =                0x00000001,
-        SC_TitleBarSysMenu =                0x00000002,
-        SC_TitleBarMinButton =                0x00000004,
-        SC_TitleBarMaxButton =                0x00000008,
-        SC_TitleBarCloseButton =        0x00000010,
-        SC_TitleBarNormalButton =        0x00000020,
-        SC_TitleBarShadeButton =        0x00000040,
-        SC_TitleBarUnshadeButton =        0x00000080,
+        SC_TitleBarLabel =         0x00000001,
+        SC_TitleBarSysMenu =       0x00000002,
+        SC_TitleBarMinButton =     0x00000004,
+        SC_TitleBarMaxButton =     0x00000008,
+        SC_TitleBarCloseButton =   0x00000010,
+        SC_TitleBarNormalButton =  0x00000020,
+        SC_TitleBarShadeButton =   0x00000040,
+        SC_TitleBarUnshadeButton = 0x00000080,
 
-        SC_ListView =                        0x00000001,
-        SC_ListViewBranch =                0x00000002,
-        SC_ListViewExpand =                0x00000004,
+        SC_ListView =              0x00000001,
+        SC_ListViewBranch =        0x00000002,
+        SC_ListViewExpand =        0x00000004,
 
-        SC_All =                        0xffffffff
+        SC_All =                   0xffffffff
     };
     typedef uint SCFlags;
 
@@ -440,8 +440,8 @@ public:
         PM_ScrollBarExtent,
         PM_ScrollBarSliderMin,
 
-        PM_SliderThickness,                // total slider thickness
-        PM_SliderControlThickness,        // thickness of the business part
+        PM_SliderThickness,             // total slider thickness
+        PM_SliderControlThickness,      // thickness of the business part
         PM_SliderLength,                // total length of slider
         PM_SliderTickmarkOffset,        //
         PM_SliderSpaceAvailable,        // available space for slider to move
@@ -497,7 +497,7 @@ public:
         PM_SpinBoxSliderHeight,
 
         // do not add any values below/greater than this
-        PM_CustomBase =                0xf0000000
+        PM_CustomBase = 0xf0000000
     };
 
     virtual int pixelMetric(PixelMetric metric, const QWidget *widget = 0) const = 0;
@@ -524,14 +524,14 @@ public:
         CT_TabWidget,
         CT_DialogButtons,
         // do not add any values below/greater than this
-        CT_CustomBase =                0xf0000000
+        CT_CustomBase = 0xf0000000
     };
 
     virtual QSize sizeFromContents(ContentsType ct, const QStyleOption *opt,
                                    const QSize &contentsSize, const QFontMetrics &fm,
                                    const QWidget *w = 0) const = 0;
 
-    enum StyleHint  {
+    enum StyleHint {
         // ...
         // the general hints
         // ...
@@ -692,14 +692,13 @@ public:
 #endif
 
         // do not add any values below/greater than this
-        SH_CustomBase =                0xf0000000
+        SH_CustomBase = 0xf0000000
     };
 
     virtual int styleHint(StyleHint stylehint,
-                           const QWidget *widget = 0,
-                           const Q3StyleOption& = Q3StyleOption::Default,
-                           QStyleHintReturn* returnData = 0
-                          ) const = 0;
+                          const QWidget *widget = 0,
+                          const Q3StyleOption& = Q3StyleOption::Default,
+                          QStyleHintReturn* returnData = 0) const = 0;
 
 
     enum StylePixmap {
@@ -716,7 +715,7 @@ public:
         SP_MessageBoxQuestion,
 
         // do not add any values below/greater than this
-        SP_CustomBase =                0xf0000000
+        SP_CustomBase = 0xf0000000
     };
 
     virtual QPixmap stylePixmap(StylePixmap stylepixmap,
@@ -728,7 +727,7 @@ public:
         PT_Pressed,
 
         // do not add any values below/greater than this
-        PT_CustomBase =                0xf0000000
+        PT_CustomBase = 0xf0000000
     };
 
     virtual QPixmap stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
@@ -750,8 +749,8 @@ public:
     {
         return pixelMetric(PM_DefaultFrameWidth);
     }
-    void QT_COMPAT tabbarMetrics(const QWidget* t,
-                        int& hf, int& vf, int& ov) const
+    
+    void QT_COMPAT tabbarMetrics(const QWidget* t, int& hf, int& vf, int& ov) const
     {
         hf = pixelMetric(PM_TabBarTabHSpace, t);
         vf = pixelMetric(PM_TabBarTabVSpace, t);
@@ -763,7 +762,6 @@ public:
                      pixelMetric(PM_ScrollBarExtent));
     }
 #endif
-
 
 private:
 #ifdef QT_COMPAT
