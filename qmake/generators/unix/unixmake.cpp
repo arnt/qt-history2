@@ -344,7 +344,8 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     QString targetdir = Option::fixPathToTargetOS(project->first("target.path"), FALSE);
     if(targetdir.right(1) != Option::dir_sep)
 	targetdir += Option::dir_sep;
-    if(project->isActiveConfig("create_prl") && project->first("TEMPLATE") == "lib") {
+    if(project->isActiveConfig("create_prl") && project->first("TEMPLATE") == "lib" && 
+	!project->isEmpty("QMAKE_INTERNAL_PRL_FILE")) {
 	QString dst_prl = project->first("QMAKE_INTERNAL_PRL_FILE");
 	int slsh = dst_prl.findRev('/');
 	if(slsh != -1)
