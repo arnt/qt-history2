@@ -1395,6 +1395,10 @@ QRect QWidget::frameGeometry() const
 
 /*!
   Returns the bounding rectangle of the widget's children.
+  
+  Explicitely hidden children are excluded.
+  
+  \sa childrenRegion()
 */
 
 QRect QWidget::childrenRect() const
@@ -1406,7 +1410,7 @@ QRect QWidget::childrenRect() const
     QObject *obj;
     while ( (obj=it.current()) ) {
 	++it;
-	if ( obj->isWidgetType() )
+	if ( obj->isWidgetType() && !((QWidget*)obj)->isHidden() )
 	    r = r.unite( ((QWidget*)obj)->geometry() );
     }
     return r;
@@ -1414,6 +1418,10 @@ QRect QWidget::childrenRect() const
 
 /*!
   Returns the combined region of the widget's children geometry().
+  
+  Explicitely hidden children are excluded.
+  
+  \sa childrenRect()
 */
 
 QRegion QWidget::childrenRegion() const
@@ -1425,7 +1433,7 @@ QRegion QWidget::childrenRegion() const
     QObject *obj;
     while ( (obj=it.current()) ) {
 	++it;
-	if ( obj->isWidgetType() )
+	if ( obj->isWidgetType() && !((QWidget*)obj)->isHidden() )
 	    r = r.unite( ((QWidget*)obj)->geometry() );
     }
     return r;
@@ -3088,7 +3096,7 @@ static bool noMoreToplevels()
     QWidgetList *list   = qApp->topLevelWidgets();
     QWidget     *widget = list->first();
     while ( widget ) {
-	if ( !widget->isHidden() 
+	if ( !widget->isHidden()
 	     && !widget->isDesktop()
 	     && !widget->isPopup()
 	     && !widget->testWFlags( Qt::WStyle_Dialog) )
@@ -3469,7 +3477,7 @@ bool QWidget::close( bool alsoDelete )
   \fn bool QWidget::isVisible() const
 
   Returns TRUE if the widget itself is visible, or else FALSE.
-  
+
   Calling show() sets the widget to visible status if all its parent
   widgets up to the toplevel widget are visible. If an ancestor is not
   visible, the widget won't become visible until all its ancestors are
@@ -3482,8 +3490,8 @@ bool QWidget::close( bool alsoDelete )
   Iconified top-level widgets also have hidden status, as well as
   having isMinimized() return TRUE. Windows that live on another
   virtual desktop (on platforms that support this concept) also have
-  hidden status.  
-  
+  hidden status.
+
   This function returns TRUE if the widget currently is obscured by
   other windows on the screen, but would be visible if moved.
 
@@ -3492,7 +3500,7 @@ bool QWidget::close( bool alsoDelete )
   wasting any CPU on preparing or displaying information to the
   user. A video application, for example, might simply stop generating
   new frames.
-  
+
   \sa show(), hide(), isHidden(), isVisibleTo(), isMinimized(),
   showEvent(), hideEvent()
 */
@@ -3543,7 +3551,7 @@ bool QWidget::isVisibleToTLW() const
 
 /*!
   \fn bool QWidget::isHidden() const
-  
+
   Returns TRUE if the widget is explicitly hidden, or FALSE if it
   is visible or would become visible if all its ancestors became visible.
 
@@ -4701,7 +4709,7 @@ bool QWidget::customWhatsThis() const
   to change geometry.
 
   Call this function if the sizeHint() or sizePolicy() have changed.
-  
+
   For explicitely hidden widgets, updateGeometry() is a noop. The
   layout system will be notified as soon as the widget is shown.
 */
