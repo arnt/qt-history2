@@ -299,7 +299,7 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
         painter->setPen(option.palette.color(cg, QPalette::Text));
     }
 
-    QRect textRect = rect.adjusted(textMargin, 0, -textMargin, 0);
+    QRect textRect = rect.adjusted(textMargin, 0, 0, 0);
     QFont font = painter->font();
     painter->setFont(option.font);
     if (painter->fontMetrics().width(text) > textRect.width())
