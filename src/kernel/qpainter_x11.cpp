@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#136 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#137 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#136 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#137 $")
 
 
 // --------------------------------------------------------------------------
@@ -180,8 +180,6 @@ static void free_gc( Display *dpy, GC gc )
     ASSERT( dpy != 0 );
     XFreeGC( dpy, gc );				// will be slow
     return;
-#else
-    dpy = dpy;					// avoid compiler warning
 #endif
     register QGC *p = gc_array;
     int i = gc_array_size;
@@ -189,6 +187,9 @@ static void free_gc( Display *dpy, GC gc )
 	while ( i-- ) {
 	    if ( p->gc == gc ) {
 		p->in_use = FALSE;		// set available
+		XSetClipMask( dpy, gc, None );	// make it reusable
+		XSetFunction( dpy, gc, GXcopy );
+		XSetFillStyle( dpy, gc, FillSolid );
 		return;
 	    }
 	    p++;
@@ -538,12 +539,8 @@ void QPainter::updatePen()			// update after changed pen
 	if ( gc ) {
 	    if ( penRef )
 		release_gc( penRef );
-	    else {
-		XSetClipMask( dpy, gc, None );	// make it reusable
-		XSetFunction( dpy, gc, GXcopy );
-		XSetFillStyle( dpy, gc, FillSolid );
+	    else
 		free_gc( dpy, gc );
-	    }
 	}
 	if ( obtain_gc(&penRef, &gc, cpen.color().pixel(), dpy, hd) )
 	    return;
@@ -664,12 +661,8 @@ static uchar *pat_tbl[] = {
 	if ( gc_brush ) {
 	    if ( brushRef )
 		release_gc( brushRef );
-	    else {
-		XSetClipMask( dpy, gc_brush, None ); // make it reusable
-		XSetFunction( dpy, gc_brush, GXcopy );
-		XSetFillStyle( dpy, gc_brush, FillSolid );
+	    else
 		free_gc( dpy, gc_brush );
-	    }
 	}
 	if ( obtain_gc(&brushRef, &gc_brush, cbrush.color().pixel(), dpy, hd) )
 	    return;
@@ -893,12 +886,8 @@ bool QPainter::end()				// end painting
 	    release_gc( brushRef );
 	    brushRef = 0;
 	}
-	else {
-	    XSetClipMask( dpy, gc_brush, None );// make it reusable
-	    XSetFunction( dpy, gc_brush, GXcopy );
-	    XSetFillStyle( dpy, gc_brush, FillSolid );
+	else
 	    free_gc( dpy, gc_brush );
-	}
 	gc_brush = 0;
 
     }
@@ -907,12 +896,8 @@ bool QPainter::end()				// end painting
 	    release_gc( penRef );
 	    penRef = 0;
 	}
-	else {
-	    XSetClipMask( dpy, gc, None );	// make it reusable
-	    XSetFunction( dpy, gc, GXcopy );
-	    XSetFillStyle( dpy, gc, FillSolid );
+	else
 	    free_gc( dpy, gc );
-	}
 	gc = 0;
     }
     flags = 0;
