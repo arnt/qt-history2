@@ -509,7 +509,7 @@ void QTabWidget::removePage( QWidget * w )
     }
 }
 
-/*!  Returns the labe text for the tab on page \a w.
+/*!  Returns the label text for the tab on page \a w.
 */
 
 QString QTabWidget::tabLabel( QWidget * w ) const
