@@ -187,13 +187,11 @@ static QMenuItem* whatsThisItem = 0;
     possible for the user to "tear off" frequently used menus and
     position them in a convenient place on the screen. If you want
     that functionality for a certain menu, insert a tear-off handle
-    with insertTearOffHandle(). If you want to include custom widgets
-    in a tear-off menu, you should connect to the popup menu's signal
-    (using connectItem() and the item ID that insertTearOffHandle()
-    returns), and add the custom widgets you want to include. When
-    using tear-off menus, bear in mind that the concept isn't
-    typically used on Microsoft Windows so users may not be familiar
-    with it. Consider using a QToolBar instead.
+    with insertTearOffHandle(). When using tear-off menus, bear in
+    mind that the concept isn't typically used on Microsoft Windows so
+    users may not be familiar with it. Consider using a QToolBar
+    instead. Tear-off menus cannot contain custom widgets; if the
+    original menu contains a custom widget item, this item is omitted.
 
     \link menu-example.html menu/menu.cpp\endlink is an example of
     QMenuBar and QPopupMenu use.
