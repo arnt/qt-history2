@@ -1850,16 +1850,14 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		break;
 	    }
 
-	    if(QTSMDocumentWrapper *doc = (QTSMDocumentWrapper*)widget) {
-		if(doc->inputWidget() && doc->inputWidget() == widget) {
-		    QPoint mp(widget->mapToGlobal(QPoint(0, 0)));
-		    Point pt;
-		    pt.h = mp.x();
-		    pt.v = mp.y();
-		    SetEventParameter(event, kEventParamTextInputReplyPoint, typeQDPoint, 
-				      sizeof(pt), &pt);
-		    handled_event = TRUE;
-		}
+	    if(qt_mac_get_document_id(widget)) {
+		QPoint mp(widget->mapToGlobal(QPoint(0, 0)));
+		Point pt;
+		pt.h = mp.x();
+		pt.v = mp.y();
+		SetEventParameter(event, kEventParamTextInputReplyPoint, typeQDPoint, 
+				  sizeof(pt), &pt);
+		handled_event = TRUE;
 	    }
 	} else if(ekind == kEventTextInputUpdateActiveInputArea) {
 	    if(qt_mac_input_spot != QT_MAC_ONTHESPOT) {
@@ -1911,7 +1909,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 				    handled_event = TRUE;
 			    }
 			} else {
-			    QIMComposeEvent imcompose(QEvent::IMCompose, text, text.length(), text.length());
+			    QIMComposeEvent imcompose(QEvent::IMCompose, text, text.length(), 0);
 			    QApplication::sendSpontaneousEvent(doc->inputWidget(), &imcompose);
 			    if(imcompose.isAccepted()) 
 				handled_event = TRUE;
