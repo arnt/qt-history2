@@ -1,0 +1,6 @@
+CC="cxx"
+CFLAGS="-O2 -x cxx -w"
+LFLAGS="-lqt -lX11"
+SHELL="/bin/sh"
+LIBCFLAGS=""
+YACCCFLAGS="-Wno-unused -Wno-parentheses"

@@ -1,0 +1,6 @@
+CC="gcc"
+CFLAGS="-g -Wall -W"
+LFLAGS="-lqt"
+SHELL="/bin/sh"
+LIBCFLAGS="-fPIC"
+YACCCFLAGS="-Wno-unused -Wno-parentheses"

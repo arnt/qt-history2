@@ -1,0 +1,6 @@
+CC="cxx"
+CFLAGS="-O2 -x cxx -w0"
+LFLAGS="-lqt"
+SHELL="/bin/sh"
+LIBCFLAGS=""
+YACCCFLAGS="-Olimit 1000"

@@ -1,0 +1,6 @@
+CC="gcc"
+CFLAGS="-O2 -fno-strength-reduce -Wall -W"
+LFLAGS="-lqt -lX11 -lsocket"
+SHELL="/bin/sh"
+LIBCFLAGS=""
+YACCCFLAGS="-Wno-unused -Wno-parentheses"
