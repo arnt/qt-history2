@@ -600,6 +600,8 @@ void QWSDisplay::Data::init()
 	// the rest too
 	memset(sharedRam,0,sharedRamSize);
 
+	qt_screen->initDevice();
+	
     }
     setMaxWindowRect(QRect(0,0,qt_screen->width(),qt_screen->height()));
     int mouseoffset = 0;
@@ -610,8 +612,6 @@ void QWSDisplay::Data::init()
 #ifndef QT_NO_QWS_MULTIPROCESS
     if(!csocket)
 #endif	
-
-    qt_screen->initDevice();
 
 #ifndef QT_NO_QWS_CURSOR
     mouseoffset=qt_screen->initCursor(sharedRam + sharedRamSize,

@@ -367,11 +367,17 @@ int QShadowFbScreen::memoryNeeded( const QString &displaySpec )
 
 int QShadowFbScreen::sharedRamSize(void * end)
 {
+#ifdef SHADOWFB_USE_QGFX
+    shadow_screen=data+size;
+    data=shadow_screen;
+    return SHADOWFB_SCREEN_PARENT ::sharedRamSize((void *)shadow_screen);
+#else
     shadow_screen=(uchar *)end;
     shadow_screen-=size;
     data=shadow_screen;
     int ret=SHADOWFB_SCREEN_PARENT ::sharedRamSize((void *)shadow_screen);
     return ret+size;
+#endif
 }
 
 void QShadowFbScreen::haltUpdates()
