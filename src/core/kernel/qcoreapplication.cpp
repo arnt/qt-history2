@@ -18,6 +18,7 @@
 #include "qcoreevent.h"
 #include "qeventloop.h"
 #include <qdatastream.h>
+#include <qdatetime.h>
 #include <qdir.h>
 #include <qfile.h>
 #include <qfileinfo.h>
@@ -439,9 +440,9 @@ bool QCoreApplication::closingDown()
 void QCoreApplication::processEvents(QEventLoop::ProcessEventsFlags flags)
 {
     QThreadData *data = QThreadData::current();
-    if (!data || data->eventLoops.isEmpty())
+    if (!data)
         return;
-    data->eventLoops.top()->processEvents(flags);
+    data->eventDispatcher->processEvents(flags);
 }
 
 /*!
@@ -458,9 +459,14 @@ void QCoreApplication::processEvents(QEventLoop::ProcessEventsFlags flags)
 void QCoreApplication::processEvents(QEventLoop::ProcessEventsFlags flags, int maxtime)
 {
     QThreadData *data = QThreadData::current();
-    if (!data || data->eventLoops.isEmpty())
+    if (!data)
         return;
-    data->eventLoops.top()->processEvents(flags, maxtime);
+    QTime start;
+    start.start();
+    while (data->eventDispatcher->processEvents(flags & ~QEventLoop::WaitForMoreEvents)) {
+        if (start.elapsed() > maxtime)
+            break;
+    }
 }
 
 /*****************************************************************************
