@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#44 $
 **
 ** Implementation of layout classes
 **
@@ -26,7 +26,7 @@
 #include "qapplication.h"
 #include "qlist.h"
 
-class QLayoutBox 
+class QLayoutBox
 {
 public:
     enum Type { Error, Layout, Widget, Spacer };
@@ -34,13 +34,13 @@ public:
     QLayoutBox( QWidget*);
     QLayoutBox( int w, int h, bool hStretch=FALSE, bool vStretch=FALSE );
     ~QLayoutBox() {}
-    
+
     Type type() const { return myType; }
-    
+
     QSize minSize() const;
     bool horFixed() const;
     bool verFixed() const;
-    
+
 private:
     friend class QLayoutArray;
     Type myType;
@@ -55,6 +55,19 @@ private:
     // }
     void init();
 };
+
+class QMultiBox 
+{
+public:
+    QMultiBox( QLayoutBox *box, int toRow, int toCol )
+	:box_(box), torow(toRow), tocol(toCol) {}
+    QLayoutBox *box() { return box_; }
+private:
+    friend QLayoutArray;
+    QLayoutBox *box_;
+    int torow, tocol;
+};
+
 
 QLayoutBox::QLayoutBox( QLayout *l )
 {
@@ -94,7 +107,7 @@ bool QLayoutBox::horFixed() const
     case Layout:
 	return lay->fixedWidth();
     case Widget:
-	return wid->minimumSize().width() == wid->maximumSize().width(); 
+	return wid->minimumSize().width() == wid->maximumSize().width();
 	//		||layoutHint...
     case Error:
 	warning( "QLayout error: uninitialized case B." );
@@ -111,7 +124,7 @@ bool QLayoutBox::verFixed() const
     case Layout:
 	return lay->fixedHeight();
     case Widget:
-	return wid->minimumSize().height() == wid->maximumSize().height(); 
+	return wid->minimumSize().height() == wid->maximumSize().height();
 	//		||layoutHint...
     case Error:
 	warning( "QLayout error: uninitialized case C." );
@@ -164,24 +177,24 @@ static inline int fRound( int i ) {
 }
 /*
   \internal
-  This is the main workhorse of the geometry manager. It portions out
+  This is the main workhorse of the QGridLayout. It portions out
   available space to the chain's children.
 
   The calculation is done in fixed point: "fixed" variables are scaled
   by a factor of 256.
 
-  If the chain runs "backwards" (i.e. RightToLeft or Up) the layout
-  is computed mirror-reversed, and then turned the right way at the end.
-  ############"backwards" not implemented
-  
-  chain contains input and oputput parameters describing the geometry.
+  If the layout runs "backwards" (i.e. RightToLeft or Up) the layout
+  is computed mirror-reversed, and it is the callers responsibility do
+  reverse the values before use.
+
+  chain contains input and output parameters describing the geometry.
   count is the count of items in the chain,
-  pos and space give the interval (relative to parentWidget topLeft.) 
-  
+  pos and space give the interval (relative to parentWidget topLeft.)
+
 */
 
-static void geomCalc( QArray<LayoutStruct> &chain, int count, int pos, int space,
-		      int spacer )
+static void geomCalc( QArray<LayoutStruct> &chain, int count, int pos,
+		      int space, int spacer )
 {
     typedef int fixed;
     int sumMin = 0;
@@ -226,7 +239,7 @@ static void geomCalc( QArray<LayoutStruct> &chain, int count, int pos, int space
 		    continue;
 		if ( sumStretch <= 0 )
 		    fp_w += fp_space / n;
-		else 
+		else
 		    fp_w += (fp_space * chain[i].stretch) / sumStretch;
 		int w = fRound( fp_w );
 		chain[i].size = w;
@@ -243,6 +256,7 @@ static void geomCalc( QArray<LayoutStruct> &chain, int count, int pos, int space
 	    }
 	}
     }
+
     int p = pos;
     for ( i = 0; i < count; i++ ) {
 	chain[i].pos = p;
@@ -250,7 +264,6 @@ static void geomCalc( QArray<LayoutStruct> &chain, int count, int pos, int space
 	if ( !chain[i].empty )
 	    p += spacer;
     }
-
 }
 
 class QLayoutArray
@@ -259,8 +272,9 @@ public:
     QLayoutArray();
     QLayoutArray( int nRows, int nCols );
     ~QLayoutArray();
-    
+
     void add( QLayoutBox*, int row, int col );
+    void add( QLayoutBox*, int row1, int row2, int col1, int col2  );
     QSize minSize( int );
     void distribute( QRect, int );
     int numRows() const { return rr; }
@@ -272,31 +286,39 @@ public:
     bool fixedWidth();
     bool fixedHeight();
     void removeWidget( QWidget* );
+    void setReversed( bool r, bool c ) { hReversed = c; vReversed = r; }
     //    void setDirty() { needRecalc = TRUE; }
-private:    
+    
+private:
+    void addData ( QLayoutBox *b, bool r = TRUE, bool c = TRUE ); 
     void setSize( int rows, int cols );
     void setupLayoutData();
     int rr;
     int cc;
+    bool hReversed;
+    bool vReversed;
     QArray<LayoutStruct> rowData;
     QArray<LayoutStruct> colData;
     QList<QLayoutBox> things;
+    QList<QMultiBox> *multi;
     //    bool needRecalc;
 };
 
 QLayoutArray::QLayoutArray()
 {
+    multi = 0;
     //    needRecalc = TRUE;
     rr = 0; cc = 0;
     things.setAutoDelete( TRUE );
 }
 
-QLayoutArray::QLayoutArray( int nRows, int nCols ) 
+QLayoutArray::QLayoutArray( int nRows, int nCols )
     :rowData(nRows), colData(nCols)
 {
+    multi = 0;
     //    needRecalc = TRUE;
     things.setAutoDelete( TRUE );
-    rr = nRows; cc = nCols; 
+    rr = nRows; cc = nCols;
 }
 void QLayoutArray::removeWidget( QWidget *w )
 {
@@ -307,6 +329,18 @@ void QLayoutArray::removeWidget( QWidget *w )
 	if ( box->type() == QLayoutBox::Widget && box->wid == w ) {
 	    things.removeRef( box );
 	    return;
+	}
+    }
+    if ( multi ) {
+	QListIterator<QMultiBox> it( *multi );
+	QMultiBox * mbox;
+	while ( (mbox=it.current()) != 0 ) {
+	    ++it;
+	    if ( mbox->box()->type() == QLayoutBox::Widget && 
+		 mbox->box()->wid == w ) {
+		multi->removeRef( mbox );
+		return;
+	    }
 	}
     }
 }
@@ -371,7 +405,7 @@ void QLayoutArray::setSize( int r, int c )
 	colData.resize( newC );
 	for ( int i = cc; i < newC; i++ )
 	    colData[i].init();
-    }    
+    }
     rr = r;
     cc = c;
 }
@@ -382,6 +416,43 @@ void QLayoutArray::add( QLayoutBox *box, int row, int col )
     box->row = row;
     box->col = col;
     things.append( box );
+}
+
+void QLayoutArray::add( QLayoutBox *box,  int row1, int row2, 
+			int col1, int col2  )
+{
+    expand( row2+1, col2+1 );
+    box->row = row1;
+    box->col = col1;
+    QMultiBox *mbox = new QMultiBox( box, row2, col2 );
+    if ( !multi )
+	multi = new QList<QMultiBox>;
+    multi->append( mbox );
+}
+
+void QLayoutArray::addData ( QLayoutBox *box, bool r, bool c )
+{
+    QSize min = box->minSize();
+    if ( c ) {
+    colData[box->col].minSize = QMAX( min.width(),
+				      colData[box->col].minSize );
+    colData[box->col].fixedSize = box->horFixed() &&
+				  colData[box->col].fixedSize;
+    }
+    if ( r ) {
+    rowData[box->row].minSize = QMAX( min.height(),
+				      rowData[box->row].minSize );
+    rowData[box->row].fixedSize = box->verFixed() &&
+				  rowData[box->row].fixedSize;
+    }
+    if ( box->type() != QLayoutBox::Spacer ) {
+	//#### spacers do not get borders. This is ugly, but compatible.
+	if ( c ) 
+	    colData[box->col].empty = FALSE;
+	if ( r )
+	    rowData[box->row].empty = FALSE;
+    }
+
 }
 
 void QLayoutArray::setupLayoutData()
@@ -403,19 +474,43 @@ void QLayoutArray::setupLayoutData()
     QLayoutBox * box;
     while ( (box=it.current()) != 0 ) {
 	++it;
-	colData[box->col].minSize = QMAX( box->minSize().width(), 
-				   colData[box->col].minSize );
-	colData[box->col].fixedSize = box->horFixed() && 
-				      colData[box->col].fixedSize;
-	
-	rowData[box->row].minSize = QMAX( box->minSize().height(), 
-				   rowData[box->row].minSize );
-	rowData[box->row].fixedSize = box->verFixed() && 
-				      rowData[box->row].fixedSize;
-	if ( box->type() != QLayoutBox::Spacer ) {
-	    //#### spacers do not get borders. This is ugly, but compatible.
-	    colData[box->col].empty = FALSE;
-	    rowData[box->row].empty = FALSE;
+	addData( box );
+    }
+
+    if ( multi ) {
+	QListIterator<QMultiBox> it( *multi );
+	QMultiBox * mbox;
+	while ( (mbox=it.current()) != 0 ) {
+	    ++it;
+	    QLayoutBox *box = mbox->box();
+	    int r1 = box->row;
+	    int c1 = box->col;
+	    int r2 = mbox->torow;
+	    int c2 = mbox->tocol;
+	    int w = 0;
+	    QSize min = box->minSize();
+	    if ( r1 == r2 ) {
+		addData( box, TRUE, FALSE );
+	    } else {
+		int r;
+		for ( r = r1; r <= r2; r++ ) 
+		    w += rowData[r].minSize;
+		if ( w < min.width() ) {
+		    debug( "Overwide multicell" );
+		    //distribute the size somehow.
+		}
+	    }
+	    if ( c1 == c2 ) {
+		addData( box, FALSE, TRUE );
+	    } else {
+		int c;
+		for ( c = c1; c <= c2; c++ ) 
+		    w += colData[c].minSize;
+		if ( w < min.height() ) {
+		    debug( "Overtall multicell" );
+		    //distribute the size somehow.
+		}
+	    }
 	}
     }
 
@@ -425,21 +520,55 @@ void QLayoutArray::setupLayoutData()
 void QLayoutArray::distribute( QRect r, int spacing )
 {
     setupLayoutData();
-    
+
     geomCalc( rowData, rr, r.y(), r.height(), spacing );
     geomCalc( colData, cc, r.x(), r.width(), spacing );
-    
+
     QListIterator<QLayoutBox> it( things );
     QLayoutBox * box;
     while ( (box=it.current()) != 0 ) {
 	++it;
-	
-	QRect rr( colData[box->col].pos, rowData[box->row].pos, 
-		  colData[box->col].size, rowData[box->row].size  );
+	int x = colData[box->col].pos;
+	int y = rowData[box->row].pos;
+	int w = colData[box->col].size;
+	int h = rowData[box->row].size;
+	if ( hReversed )
+	    x = r.left() + r.right() - x - w;
+	if ( vReversed )
+	    y = r.top() + r.bottom() - y - h;
+	QRect rr( x, y, w, h );
 	if ( box->type() == QLayoutBox::Widget )
 	    box->wid->setGeometry(rr);
 	else if ( box->type() == QLayoutBox::Layout )
 	    box->lay->setGeometry(rr);
+    }
+    if ( multi ) {
+	QListIterator<QMultiBox> it( *multi );
+	QMultiBox * mbox;
+	while ( (mbox=it.current()) != 0 ) {
+	    ++it;
+	    QLayoutBox *box = mbox->box();
+	    int r2 = mbox->torow;
+	    int c2 = mbox->tocol;
+	    int x = colData[box->col].pos;
+	    int y = rowData[box->row].pos;
+	    int x2 = colData[c2].pos + colData[c2].size;
+	    int y2 = rowData[r2].pos + rowData[r2].size;
+	    int w = x2 - x + 1;
+	    int h = y2 - y + 1;
+	    // this code is copied from above:
+	    if ( hReversed )
+		x = r.left() + r.right() - x - w;
+	    if ( vReversed )
+		y = r.top() + r.bottom() - y - h;
+	    QRect rr( x, y, w, h );
+	    if ( box->type() == QLayoutBox::Widget )
+		box->wid->setGeometry(rr);
+	    else if ( box->type() == QLayoutBox::Layout )
+		box->lay->setGeometry(rr);
+	    //end copying
+	
+	}
     }
 }
 
@@ -460,7 +589,7 @@ void QLayoutArray::distribute( QRect r, int spacing )
 
   To make your own layout manager, implement the functions
   minSize(), setGeometry() and childRemoved().
-  
+
   Geometry management stops when the layout manager is deleted.
 */
 
@@ -491,7 +620,7 @@ QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name 
 	parent->installEventFilter( this );
 	parent->qInternalSetLayout( this );
     }
-    
+
     outsideBorder = border;
     if ( autoBorder < 0 )
 	insideSpacing = border;
@@ -547,9 +676,9 @@ QLayout::QLayout( int autoBorder, const char *name )
   This function is called whenever the parent widget receives a paint
   event. Reimplemented in subclasses to draw decorations that depend on
   the geometry of the layout.
-  
-  The default implementation does nothing. 
-  
+
+  The default implementation does nothing.
+
   Note: The parent widget's \link QWidget::paintEvent()
   paintEvent()\endlink function is called after this function. Any
   painting done by the parent widget may obscure part or all of the
@@ -567,7 +696,7 @@ void QLayout::paintEvent( QPaintEvent * )
 */
 
 /*! \fn  void childRemoved( QWidget * )
-  
+
   This function is reimplemented in subclasses to
   handle removal of widgets.
  */
@@ -576,7 +705,7 @@ void QLayout::paintEvent( QPaintEvent * )
 /*!
   Implemented in subclasses to remove cached values used during
   geometry calculations, if any.
-  
+
   The default implementation does nothing.
 */
 
@@ -588,7 +717,7 @@ void QLayout::clearCache()
 /*!
   This function is reimplemented in subclasses to
   perform layout.
-  
+
   The default implementation maintains the geometry() information.
  */
 void QLayout::setGeometry( const QRect &r )
@@ -616,7 +745,7 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 	if ( menubar )
 	    mbh = menubar->heightForWidth( r->size().width() );
 	setGeometry( QRect( outsideBorder, mbh + outsideBorder,
-			 r->size().width() - 2*outsideBorder, 
+			 r->size().width() - 2*outsideBorder,
 			 r->size().height() - mbh - 2*outsideBorder ) );
 	break;
     }
@@ -960,7 +1089,7 @@ QSize QGridLayout::minSize()
 void QGridLayout::childRemoved( QWidget *w )
 {
     array->removeWidget( w );
-}   
+}
 
 void QGridLayout::setGeometry( const QRect &s )
 {
@@ -1033,8 +1162,8 @@ void QGridLayout::addWidget( QWidget *w, int row, int col, int align )
 void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
 				      int fromCol, int toCol, int align	 )
 {
-    //#################################################
-    addWidget( w, fromRow, fromCol, align );
+    QLayoutBox *b = new QLayoutBox( w );
+    array->add( b, fromRow, toRow, fromCol, toCol );
 }
 
 
@@ -1126,6 +1255,16 @@ bool QGridLayout::fixedHeight()
     return array->fixedHeight();
 }
 
+/*!
+  Sets which of the four corners of the grid corresponds to (0,0).
+*/
+
+void QGridLayout::setOrigin( Corner c )
+{
+    array->setReversed( c == BottomLeft || c == BottomRight,
+			c == TopRight || c == BottomRight );
+}
+
 #if 0
 /*!
   Resets cached information.
@@ -1133,7 +1272,7 @@ bool QGridLayout::fixedHeight()
 
 void QGridLayout::clearCache()
 {
-    
+
 }
 #endif
 
@@ -1146,14 +1285,6 @@ void QGridLayout::clearCache()
   \fn QChain *QGridLayout::mainHorizontalChain()
   This function returns the main horizontal chain.
 */
-
-
-
-
-
-
-
-
 
 
 /*!
@@ -1246,6 +1377,8 @@ QBoxLayout::QBoxLayout( QWidget *parent, Direction d,
     : QGridLayout( parent, 0, 0, border, autoBorder, name )
 {
     dir = d;
+    if ( d == RightToLeft || d == BottomToTop )
+	setOrigin( BottomRight );
 }
 
 /*!
@@ -1260,6 +1393,8 @@ QBoxLayout::QBoxLayout( Direction d,
     : QGridLayout( 0, 0, autoBorder, name )
 {
     dir = d;
+    if ( d == RightToLeft || d == BottomToTop )
+	setOrigin( BottomRight );
 }
 
 
@@ -1516,3 +1651,4 @@ QVBoxLayout::QVBoxLayout( int autoBorder, const char *name )
 QVBoxLayout::~QVBoxLayout()
 {
 }
+

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#23 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#24 $
 **
 ** Definition of layout classes
 **
@@ -95,7 +95,7 @@ public:
     ~QGridLayout();
 
     QSize minSize();
-    
+
     virtual void setRowStretch( int row, int stretch );
     virtual void setColStretch( int col, int stretch );
 
@@ -111,8 +111,8 @@ public:
     //    void add( QSize, int row, int col );
 
     // void setAlignment( QWidget* );
-    
-#if 1	//OBSOLETE    
+
+#if 1	//OBSOLETE
     void addWidget( QWidget *, int row, int col, int align = 0 );
     void addMultiCellWidget( QWidget *, int fromRow, int toRow,
 			       int fromCol, int toCol, int align = 0 );
@@ -121,6 +121,8 @@ public:
     void addColSpacing( int col, int minsize );
     void expand( int rows, int cols );
 #endif
+    enum Corner { TopLeft, TopRight, BottomLeft, BottomRight };
+    void setOrigin( Corner );
 protected:
     void childRemoved( QWidget * );
     void setGeometry( const QRect& );
@@ -154,13 +156,13 @@ public:
 
     Direction direction() const { return dir; }
 
-#if 1	//OBSOLETE    
+#if 1	//OBSOLETE
     void addSpacing( int size );
     void addStretch( int stretch = 0 );
     void addWidget( QWidget *, int stretch = 0, int alignment = AlignCenter );
     void addLayout( QLayout *layout, int stretch = 0 );
     void addStrut( int );
-#endif    
+#endif
 private:
     QRect lastKnownGeom;
     Direction dir;
