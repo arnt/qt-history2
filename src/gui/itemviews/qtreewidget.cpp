@@ -736,8 +736,7 @@ public:
     void emitPressed(const QModelIndex &index, int button);
     void emitClicked(const QModelIndex &index, int button);
     void emitDoubleClicked(const QModelIndex &index, int button);
-    void emitReturnPressed(const QModelIndex &index);
-    void emitSpacePressed(const QModelIndex &index);
+    void emitKeyPressed(const QModelIndex &index, Qt::Key key, Qt::ButtonState state);
     void emitExpanded(const QModelIndex &index);
     void emitCollapsed(const QModelIndex &index);
     void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
@@ -758,14 +757,10 @@ void QTreeWidgetPrivate::emitDoubleClicked(const QModelIndex &index, int button)
     emit q->doubleClicked(model()->item(index), index.column(), button);
 }
 
-void QTreeWidgetPrivate::emitReturnPressed(const QModelIndex &index)
+void QTreeWidgetPrivate::emitKeyPressed(const QModelIndex &index, Qt::Key key,
+                                        Qt::ButtonState state)
 {
-    emit q->returnPressed(model()->item(index), index.column());
-}
-
-void QTreeWidgetPrivate::emitSpacePressed(const QModelIndex &index)
-{
-    emit q->spacePressed(model()->item(index), index.column());
+    emit q->keyPressed(model()->item(index), index.column(), key, state);
 }
 
 void QTreeWidgetPrivate::emitExpanded(const QModelIndex &index)
@@ -850,10 +845,8 @@ QTreeWidget::QTreeWidget(QWidget *parent)
             SLOT(emitClicked(const QModelIndex&, int)));
     connect(this, SIGNAL(doubleClicked(const QModelIndex&, int)),
             SLOT(emitDoubleClicked(const QModelIndex&, int)));
-    connect(this, SIGNAL(returnPressed(const QModelIndex&)),
-            SLOT(emitReturnPressed(const QModelIndex&)));
-    connect(this, SIGNAL(spacePressed(const QModelIndex&)),
-            SLOT(emitSpacePressed(const QModelIndex&)));
+    connect(this, SIGNAL(keyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)),
+            SLOT(emitKeyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)));
     connect(this, SIGNAL(expanded(const QModelIndex&)),
             SLOT(emitExpanded(const QModelIndex&)));
     connect(this, SIGNAL(collapsed(const QModelIndex&)),

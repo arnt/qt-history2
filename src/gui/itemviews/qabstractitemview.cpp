@@ -50,6 +50,7 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         selectionBehavior(QAbstractItemView::SelectItems),
         state(QAbstractItemView::NoState),
         beginEditActions(QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed),
+        hasKeyTracking(false),
         inputInterval(400),
         autoScroll(true),
         autoScrollTimer(0),
@@ -677,6 +678,21 @@ bool QAbstractItemView::autoScroll() const
 }
 
 /*!
+  \property QAbstractItemView::keyTracking
+  \brief whether the view emits a keyPressed signal for every key press.
+*/
+
+void QAbstractItemView::setKeyTracking(bool enable)
+{
+    d->hasKeyTracking = enable;
+}
+
+bool QAbstractItemView::hasKeyTracking() const
+{
+    return d->hasKeyTracking;
+}
+
+/*!
     \fn bool QAbstractItemView::event(QEvent *event)
 
     This function is used to handle tool tips, status tips, and What's
@@ -791,7 +807,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
 
     if (index != currentIndex()) {
         if (index.isValid())
-            emit onItem(index, e->state());
+           emit onItem(index, e->state());
     } else if (state() == Selecting) {
         return; // we haven't moved over another item yet
     }
@@ -1029,36 +1045,41 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
         break;
     case Qt::Key_Enter:
     case Qt::Key_Return:
-        emit returnPressed(currentIndex());
-        return;
+        //emit returnPressed(currentIndex());
+        //return;
+        e->accept();
+        break;
     case Qt::Key_Space:
         selectionModel()->select(currentIndex(),
                                  selectionCommand(e->state(),
                                                   currentIndex(),
                                                   e->type(),
                                                   (Qt::Key)e->key()));
-        emit spacePressed(currentIndex());
-        return;
+        //emit spacePressed(currentIndex());
+        //return;
     case Qt::Key_Delete:
-        emit deletePressed(currentIndex());
-        return;
+        //emit deletePressed(currentIndex());
+        //return;
+        e->accept();
+        break;
     case Qt::Key_F2:
         if (edit(currentIndex(), EditKeyPressed, e))
-            return;
+            e->accept();
+            //return;
         break;
     default:
         if (!e->text().isEmpty()) {
-            if (edit(currentIndex(), AnyKeyPressed, e)) {
-                return;
-            } else {
+            if (!edit(currentIndex(), AnyKeyPressed, e))
                 keyboardSearch(e->text());
-                return;
-            }
+            e->accept();
+            //return;
         }
         break;
     }
 
-    e->ignore();
+    if (d->hasKeyTracking)
+        emit keyPressed(currentIndex(), static_cast<Qt::Key>(e->key()), e->state());
+    //e->ignore();
 }
 
 /*!

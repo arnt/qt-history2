@@ -56,6 +56,7 @@ public:
     int horizontalFactor;
     int verticalFactor;
 
+    bool hasKeyTracking;
     QString keyboardInput;
     QTime keyboardInputTime;
     int inputInterval;

@@ -464,8 +464,7 @@ public:
     void emitPressed(const QModelIndex &index, int button);
     void emitClicked(const QModelIndex &index, int button);
     void emitDoubleClicked(const QModelIndex &index, int button);
-    void emitReturnPressed(const QModelIndex &index);
-    void emitSpacePressed(const QModelIndex &index);
+    void emitKeyPressed(const QModelIndex &index, Qt::Key key, Qt::ButtonState state);
     void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
 };
 
@@ -484,14 +483,10 @@ void QTableWidgetPrivate::emitDoubleClicked(const QModelIndex &index, int button
     emit q->doubleClicked(model()->item(index), button);
 }
 
-void QTableWidgetPrivate::emitReturnPressed(const QModelIndex &index)
+void QTableWidgetPrivate::emitKeyPressed(const QModelIndex &index, Qt::Key key,
+                                         Qt::ButtonState state)
 {
-    emit q->returnPressed(model()->item(index));
-}
-
-void QTableWidgetPrivate::emitSpacePressed(const QModelIndex &index)
-{
-    emit q->spacePressed(model()->item(index));
+    emit q->keyPressed(model()->item(index), key, state);
 }
 
 void QTableWidgetPrivate::emitCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
@@ -532,10 +527,8 @@ QTableWidget::QTableWidget(QWidget *parent)
             SLOT(emitClicked(const QModelIndex&, int)));
     connect(this, SIGNAL(doubleClicked(const QModelIndex&, int)),
             SLOT(emitDoubleClicked(const QModelIndex&, int)));
-    connect(this, SIGNAL(returnPressed(const QModelIndex&)),
-            SLOT(emitReturnPressed(const QModelIndex&)));
-    connect(this, SIGNAL(spacePressed(const QModelIndex&)),
-            SLOT(emitSpacePressed(const QModelIndex&)));
+    connect(this, SIGNAL(keyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)),
+            SLOT(emitKeyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)));
     connect(selectionModel(),
             SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
             this, SLOT(emitCurrentChanged(const QModelIndex&, const QModelIndex&)));

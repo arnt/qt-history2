@@ -1036,6 +1036,28 @@ void QFileDialog::doubleClicked(const QModelIndex &index)
 /*!
     \internal
 
+    This is called when the user presses a \a key with the
+    button state \a state, when the current item is \a index.
+*/
+
+void QFileDialog::keyPressed(const QModelIndex &index, Qt::Key key, Qt::ButtonState state)
+{
+    Q_UNUSED(state);
+
+    switch (key) {
+    case Qt::Key_Delete:
+        deletePressed(index);
+        return;
+    case Qt::Key_Return:
+    case Qt::Key_Enter:
+        doubleClicked(index);
+        return;
+    }
+}
+
+/*!
+    \internal
+
     This is called when the user requests that a file be deleted; the
     corresponding model index is passed in \a index.
 */
@@ -1384,6 +1406,7 @@ void QFileDialogPrivate::setup(const QString &directory,
     lview->setSelectionModel(selections);
     lview->setSelectionMode(selMode);
     lview->setRoot(current);
+    lview->setKeyTracking(true);
 
     lview->viewport()->setAcceptDrops(true);
     lview->setSpacing(2);
@@ -1399,6 +1422,7 @@ void QFileDialogPrivate::setup(const QString &directory,
     tview->setSelectionModel(selections);
     tview->setSelectionMode(selMode);
     tview->setRoot(current);
+    tview->setKeyTracking(true);
 
     tview->viewport()->setAcceptDrops(true);
     tview->setRootIsDecorated(false);
@@ -1448,14 +1472,10 @@ void QFileDialogPrivate::setup(const QString &directory,
                      q, SLOT(doubleClicked(const QModelIndex&)));
     QObject::connect(selections, SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
                      q, SLOT(currentChanged(const QModelIndex &, const QModelIndex &)));
-    QObject::connect(lview, SIGNAL(returnPressed(const QModelIndex&)),
-                     q, SLOT(doubleClicked(const QModelIndex&)));
-    QObject::connect(tview, SIGNAL(returnPressed(const QModelIndex&)),
-                     q, SLOT(doubleClicked(const QModelIndex&)));
-    QObject::connect(lview, SIGNAL(deletePressed(const QModelIndex&)),
-                     q, SLOT(deletePressed(const QModelIndex&)));
-    QObject::connect(tview, SIGNAL(deletePressed(const QModelIndex&)),
-                     q, SLOT(deletePressed(const QModelIndex&)));
+    QObject::connect(lview, SIGNAL(keyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)),
+                     q, SLOT(keyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)));
+    QObject::connect(tview, SIGNAL(keyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)),
+                     q, SLOT(keyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)));
     QObject::connect(tview->header(), SIGNAL(sectionPressed(int, Qt::ButtonState)),
                      q, SLOT(headerPressed(int)));
 

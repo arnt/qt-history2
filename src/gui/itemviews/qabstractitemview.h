@@ -32,6 +32,7 @@ class Q_GUI_EXPORT QAbstractItemView : public QViewport
     Q_PROPERTY(bool autoScroll READ autoScroll WRITE setAutoScroll)
     Q_PROPERTY(int keyboardInputInterval READ keyboardInputInterval WRITE setKeyboardInputInterval)
     Q_PROPERTY(BeginEditActions beginEditActions READ beginEditActions WRITE setBeginEditActions)
+    Q_PROPERTY(bool keyTracking READ hasKeyTracking WRITE setKeyTracking)
     Q_ENUMS(SelectionMode SelectionBehaviour)
     Q_FLAGS(BeginEditActions)
 public:
@@ -87,6 +88,9 @@ public:
     void setAutoScroll(bool b);
     bool autoScroll() const;
 
+    void setKeyTracking(bool enable);
+    bool hasKeyTracking() const;
+
     virtual void keyboardSearch(const QString &search);
     void setKeyboardInputInterval(int msec);
     int keyboardInputInterval() const;
@@ -130,14 +134,12 @@ protected slots:
 
 signals:
     void rootChanged(const QModelIndex &old, const QModelIndex &root);
-    void onItem(const QModelIndex &index, int button);
     void pressed(const QModelIndex &index, int button);
     void clicked(const QModelIndex &index, int button);
     void doubleClicked(const QModelIndex &index, int button);
-    void returnPressed(const QModelIndex &index);
-    void spacePressed(const QModelIndex &index);
-    void deletePressed(const QModelIndex &index);
+    void keyPressed(const QModelIndex &index, Qt::Key key, Qt::ButtonState state);
     void aboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
+    void onItem(const QModelIndex &index, int button);
 
 protected:
     QAbstractItemView(QAbstractItemViewPrivate &, QWidget *parent = 0);

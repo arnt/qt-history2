@@ -167,6 +167,7 @@ protected slots:
     void showList();
     void showDetail();
     void doubleClicked(const QModelIndex &index);
+    void keyPressed(const QModelIndex &index, Qt::Key key, Qt::ButtonState state);
     void deletePressed(const QModelIndex &index);
     void currentChanged(const QModelIndex &old, const QModelIndex &current);
     void fileNameChanged(const QString &text);
