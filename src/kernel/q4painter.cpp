@@ -467,8 +467,11 @@ void QPainter::drawRect(int x, int y, int w, int h)
 
     qt_fix_rect(ds, &x, &y, &w, &h);
 
-    if (ds->VxF || ds->WxF) {
-	if (!dgc->hasCapability(QAbstractGC::CoordTransform)) {
+    if ((ds->VxF || ds->WxF) && dgc->hasCapability(QAbstractGC::CoordTransform)) {
+	if (d->txop == TxTranslate) {
+	    x += d->matrix.dx();
+	    y += d->matrix.dy();
+	} else {
 	    drawPolygon(QPointArray(QRect(x, y, w, h)));
 	    return;
 	}
@@ -1144,12 +1147,12 @@ void QPainter::drawText(int x, int y, const QString &str, int pos, int len, Text
     if ( ds->font.strikeOut() ) textFlags |= Qt::StrikeOut;
 
     // ### call fill rect here...
-#if defined(Q_WS_X11)    
+#if defined(Q_WS_X11)
     extern void qt_draw_background( QPainter *pp, int x, int y, int w,  int h );
     if (backgroundMode() == OpaqueMode)
  	qt_draw_background(this, x, y-ascent, right-left, ascent+descent+1);
 #endif
-    
+
     for ( int i = start; i < end; i++ ) {
 	QTextItem ti(i, engine);
 	drawTextItem( x, y - ascent, ti, textFlags );
@@ -1569,7 +1572,7 @@ QPointArray QPainter::xFormDev( const QPointArray &ad, int index, int npoints ) 
 HDC QPainter::handle() const
 #else
 Qt::HANDLE QPainter::handle() const
-#endif    
+#endif
 {
     Q_ASSERT(isActive());
     Q_ASSERT(d->gc);
@@ -1910,7 +1913,7 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	    }
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
 	    extern void qt_draw_background( QPainter *pp, int x, int y, int w,  int h );
-	    
+
  	    if (painter->backgroundMode() == Qt::OpaqueMode)
  		qt_draw_background(painter, r.x()+lb + ti.x(), r.y() + yoff + ti.y() - ti.ascent(),
 				   ti.width(), ti.ascent() + ti.descent() + 1);
