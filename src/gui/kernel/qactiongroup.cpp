@@ -112,8 +112,8 @@ void QActionGroupPrivate::actionHovered()
     is usually more convenient to specify a group when creating
     actions; this ensures that actions are automatically created with
     a parent. Actions can be visually separated from each other
-    using addSeparator(). Action groups are added to widgets with
-    addTo().
+    using addSeparator(). Action groups are added to widgets with the
+    QWidget::addActions() function.
 */
 
 /*!
