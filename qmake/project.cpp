@@ -73,6 +73,10 @@ QMakeProject::parse(QString t, QMap<QString, QStringList> &place)
 	    scope = var.stripWhiteSpace();
 	    var = "";
 
+	    bool test = FALSE, invert_test = (scope.left(1) == "!");
+	    if(invert_test)
+		scope = scope.right(scope.length()-1);
+
 	    int lparen = scope.find('(');
 	    if(lparen != -1) { /* if there is an lparen in the scope, it IS a function */
 		int rparen = scope.find(')', lparen);
@@ -86,15 +90,13 @@ QMakeProject::parse(QString t, QMap<QString, QStringList> &place)
 		QStringList args = QStringList::split(',', scope.mid(lparen+1, rparen - lparen - 1));
 		for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit) 
 		    (*arit) = (*arit).stripWhiteSpace(); /* blah, get rid of space */
-		if(!doProjectTest(func, args)) {
-		    if(Option::debug_level)
-			printf("Project Parser: Test (%s) has failed.\n", scope.latin1());
-		    return TRUE;
-		}
+		test = doProjectTest(func, args);
 	    }
-	    else if(!isActiveConfig(scope.stripWhiteSpace())) {
+	    else test = isActiveConfig(scope.stripWhiteSpace()); 
+
+	    if((!invert_test && !test) || (invert_test && test)) {
 		if(Option::debug_level)
-		    printf("Project Parser: Scope (%s) is not in scope.\n", scope.latin1());
+		    printf("Project Parser: %d : Test (%s) failed.\n", line_count, scope.latin1());
 		return TRUE;
 	    }
 	}
@@ -123,6 +125,8 @@ QMakeProject::parse(QString t, QMap<QString, QStringList> &place)
 
     QStringList &varlist = place[var = var.stripWhiteSpace()]; /* varlist is the list in the symbol table */
     QStringList vallist = QStringList::split(' ', vals);  /* vallist is the broken up list of values */
+    if(Option::debug_level)
+	printf("Project Parser: :%s: :%s: (%s)\n", var.latin1(), op.latin1(), vallist.join(" :: ").latin1());
 
     /* now do the operation */
     if(op == "=")
@@ -136,10 +140,6 @@ QMakeProject::parse(QString t, QMap<QString, QStringList> &place)
 	else if(op == "-=")
 	    varlist.remove((*valit));
     }
-
-    if(Option::debug_level)
-	printf("Project Parser: :%s: :%s: (%s)\n", var.latin1(), op.latin1(), val.join(" :: ").latin1());
-
     return TRUE;
 }
 
