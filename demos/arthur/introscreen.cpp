@@ -66,6 +66,7 @@ void IntroScreen::paintEvent(QPaintEvent *)
     QAbstractTextDocumentLayout::PaintContext ctx;
     ctx.showCursor = false;
     ctx.palette = palette();
+    ctx.rect = textRect;
 
     for ( ; ypos < h; ypos += blockHeight) {
         textLayout->draw(&p, ctx);
