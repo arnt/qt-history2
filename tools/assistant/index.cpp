@@ -129,7 +129,7 @@ void Index::parseDocument( const QString &filename, int docNum )
     }
     bool valid = TRUE;
     char str[64];
-    char c = file.getch();
+    int c = file.getch();
     int i = 0;
     while ( !file.atEnd() ) {
 	if ( c == '<' ) {
@@ -290,7 +290,7 @@ QString Index::getDocumentTitle( const QString &fileName )
 	qWarning( "can not open file " + fileName );
 	return fileName;
     }
-    char c = file.getch();
+    int c = file.getch();
     int i = 0;
     const char *tag = "<title>";
     char title[256];
@@ -448,7 +448,7 @@ bool Index::searchForPattern( const QStringList &patterns, const QStringList &wo
 
     bool valid = TRUE;
     char str[64];
-    char c = file.getch();
+    int c = file.getch();
     int i = 0;
     while ( !file.atEnd() ) {
 	if ( c == '<' || c == '&' ) {
