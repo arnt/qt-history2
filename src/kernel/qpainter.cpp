@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#67 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#68 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -21,7 +21,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#67 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#68 $")
 
 
 /*----------------------------------------------------------------------------
@@ -422,7 +422,7 @@ void QPainter::setBrush( const QColor &color )
   This fixed tab stop value has lower precedence than tab array
   settings.
 
-  \sa setTabArray(), drawText(), fontMetrics()
+  \sa tabStops(), setTabArray(), drawText(), fontMetrics()
  ----------------------------------------------------------------------------*/
 
 void QPainter::setTabStops( int ts )
@@ -451,7 +451,7 @@ void QPainter::setTabStops( int ts )
   Notice that setting a tab array overrides any fixed tabulator stop
   that is set using setTabStops().
 
-  \sa setTabStops(), drawText(), fontMetrics()
+  \sa tabArray(), setTabStops(), drawText(), fontMetrics()
  ----------------------------------------------------------------------------*/
 
 void QPainter::setTabArray( int *ta )
