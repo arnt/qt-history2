@@ -19,7 +19,13 @@ int main( int argc, char **argv )
 	QApplication::setColorSpec( QApplication::ManyColor );
 	argc--;
 	argv++;
-    } else {
+    } 
+    else if ( argc > 1 && QString(argv[1]) == "-n" ) {
+	QApplication::setColorSpec( QApplication::NormalColor );
+	argc--;
+	argv++;
+    } 
+    else {
 	QApplication::setColorSpec( QApplication::CustomColor );
     }
 
