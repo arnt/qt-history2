@@ -1202,7 +1202,7 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 {
     changeIntervalTimer->stop();
     interval = 10;
-    bool unknown = FALSE;
+    bool unknownKey = FALSE;
     if ( isReadOnly() ) {
 	if ( !handleReadOnlyKeyEvent( e ) )
 	    QScrollView::keyPressEvent( e );
@@ -1508,11 +1508,11 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 		    break;
 #endif
 		default:
-		    unknown = FALSE;
+		    unknownKey = FALSE;
 		    break;
 		}
 	    } else {
-		unknown = TRUE;
+		unknownKey = TRUE;
 	    }
         }
     }
@@ -1522,7 +1522,7 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
     if ( clearUndoRedoInfo )
 	clearUndoRedo();
     changeIntervalTimer->start( 100, TRUE );
-    if ( unknown )
+    if ( unknownKey )
 	e->ignore();
 }
 

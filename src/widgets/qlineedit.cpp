@@ -781,7 +781,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    return;
 	}
     }
-    bool unknown = FALSE;
+    bool unknownKey = FALSE;
     if ( e->state() & ControlButton ) {
 	switch ( e->key() ) {
 	case Key_A:
@@ -885,7 +885,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		redo();
 	    break;
 	default:
-	    unknown = TRUE;
+	    unknownKey = TRUE;
 	}
     } else { // ### check for *no* modifier
 	switch ( e->key() ) {
@@ -932,7 +932,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    if ( !d->readonly && e->state() & ShiftButton )
 		paste();
 	    else
-		unknown = TRUE;
+		unknownKey = TRUE;
 	    break;
 #endif
 	case Key_F14: // Undo key on Sun keyboards
@@ -955,22 +955,22 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    break;
 #endif
 	default:
-	    unknown = TRUE;
+	    unknownKey = TRUE;
 	}
     }
     if ( e->key() == Key_Direction_L && d->parag->direction() != QChar::DirL ) {
 	d->parag->setDirection( QChar::DirL );
 	d->parag->invalidate( 0 );
 	d->parag->format( -1, TRUE );
-	unknown = FALSE;
+	unknownKey = FALSE;
     } else if ( e->key() == Key_Direction_R && d->parag->direction() != QChar::DirR ) {
 	d->parag->setDirection( QChar::DirR );
 	d->parag->invalidate( 0 );
 	d->parag->format( -1, TRUE );
-	unknown = FALSE;
+	unknownKey = FALSE;
     }
 
-    if ( unknown ) {				// unknown key
+    if ( unknownKey ) {
 	e->ignore();
 	return;
     }
