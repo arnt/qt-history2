@@ -4876,7 +4876,8 @@ void QCanvasSprite::changeChunks()
 }
 
 /*!
-  Destroys the sprite and removes it from the canvas.
+  Destroys the sprite and removes it from the canvas. Does \e not delete
+  the images.
 */
 QCanvasSprite::~QCanvasSprite()
 {
