@@ -11798,7 +11798,7 @@ const QString &QChar::decomposition() const
     if(!pos) return QString::null;
     pos+=2;
 
-    QString s; 
+    QString s;
     Q_UINT16 c;
     while((c = decomposition_map[pos++]) != 0) s += QChar(c);
     shared_decomp = s;
@@ -12374,7 +12374,7 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
   \class QString qstring.h
 
   \brief The QString class provides an abstraction of Unicode text and
-	  the classic C null-terminated char array (char *).
+	  the classic C null-terminated char array.
 
   \ingroup tools
   \ingroup shared

@@ -84,17 +84,16 @@ public:
     QPtrList< QNetworkOperation > oldOps;
 };
 
-// NOT REVISED
 /*!
   \class QUrlOperator qurloperator.h
 
-  \brief The QUrlOperator class provides common operations on URLs
-  (get() and more).
+  \brief The QUrlOperator class provides common operations on URLs.
 
   \ingroup io
   \ingroup misc
+  \ingroup network
 
-  This class operates on hirachical structures (such as filesystems) using
+  This class operates on hierarchical structures (such as filesystems) using
   URLs. Its API allows all the common operations (listing children,
   removing children, renaming, etc.). But the class itself contains no
   functionality for that. It uses the functionality of registered network
@@ -266,10 +265,10 @@ QUrlOperator::QUrlOperator()
 }
 
 /*!
-  Constructs a QUrlOperator using \a url and parses this string. 
+  Constructs a QUrlOperator using \a url and parses this string.
 
   You can pass strings such as "/home/qt": in this case the protocol "file" is
-  assumed. 
+  assumed.
 */
 
 QUrlOperator::QUrlOperator( const QString &url )
@@ -1129,7 +1128,7 @@ void QUrlOperator::slotItemChanged( QNetworkOperation *op )
     {
 	QMap<QString, QUrlInfo>::iterator mi = d->entryMap.find( op->arg( 0 ) );
 	if ( mi != d->entryMap.end() )
-	    d->entryMap.erase( mi );	
+	    d->entryMap.erase( mi );
 	break;
     }
     default:
