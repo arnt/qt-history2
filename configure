@@ -446,7 +446,7 @@ do
     -system-zlib)
 	CFG_ZLIB=system
 	;;
-    -no-libpng) #left for commandline compatibility, not documented
+    -no-libpng) # left for commandline compatibility, not documented
 	echo "-no-png is left for compatibility, in the future please use -no-imgfmt-png"
 	CFG_PNG=no
 	;;
@@ -456,7 +456,7 @@ do
     -system-libpng)
 	CFG_LIBPNG=system
 	;;
-    -no-mng) #left for commandline compatibility, not documented
+    -no-mng) # left for commandline compatibility, not documented
 	echo "-no-mng is left for compatibility, in the future please use -no-imgfmt-mng"
         CFG_MNG=no
 	;;
@@ -466,7 +466,7 @@ do
     -system-libmng)
 	CFG_LIBMNG=system
 	;;
-    -no-jpeg) #left for commandline compatibility, not documented
+    -no-jpeg) # left for commandline compatibility, not documented
 	echo "-no-jpeg is left for compatibility, in the future please use -no-imgfmt-jpeg"
         CFG_JPEG=no
 	;;
@@ -593,10 +593,10 @@ do
 	   OPT_HELP=yes;
 	fi
 	;;
-    -qvfb) #left for compatibility
+    -qvfb) # left for commandline compatibility, not documented
 	 QMAKE_VARS="$QMAKE_VARS \"gfx-drivers += qvfb\""
 	;;
-    -no-qvfb) #left for compatibility
+    -no-qvfb) # left for commandline compatibility, not documented
 	;;
     -fast)
 	CONFIG_FAST=yes
@@ -864,22 +864,27 @@ fi
 
 if [ -z "$PLATFORM" ]
 then
-    ARCH=""
-    if echo $QMAKE_CONFIG | grep embedded >/dev/null 2>&1
+    ARCH=
+    if [ "$PLATFORM_QWS" = "yes" ]
     then
 	# this is a Qt/Embedded distribution
 	CFG_SM=no
 	MODULES=`echo $MODULES | sed -e 's/opengl//'`
 	PLATFORMS=`find $relpath/mkspecs/qws | sed "s,$relpath/mkspecs/qws/,,"`
 	case "$UNAME_MACHINE" in
-	*86) ARCH=x86- ;;
-	*) ARCH=generic- ;;
+	*86)
+		ARCH=x86-
+		;;
+	*)
+		ARCH=generic-
+		;;
 	esac
     else
+	### this is a Qt/X11 or Qt/Mac distribution
 	PLATFORMS=`find $relpath/mkspecs/ -type f | grep -v qws | sed "s,$relpath/mkspecs/qws/,,"`
     fi
 
-    PLATFORM_NOTES=""
+    PLATFORM_NOTES=
 
     case "$UNAME_SYSTEM:$UNAME_RELEASE" in
      Darwin:*)
@@ -990,17 +995,17 @@ then
      *)
 	if [ "$OPT_HELP" != "yes" ]
 	then
-	    echo >&2
+	    echo
 	    for p in $PLATFORMS
 	    do
-		echo "    $relconf $* -platform $p" >&2
+		echo "    $relconf $* -platform $p"
 	    done
-	    echo >&2
-	    echo "The build script does not currently recognize all platforms" >&2
-	    echo "supported by Qt." >&2
-	    echo "Rerun this script with a -platform option listed to" >&2
-	    echo "set the operating system / compiler combination you use." >&2
-	    echo >&2
+	    echo
+	    echo "The build script does not currently recognize all platforms"
+	    echo "supported by Qt."
+	    echo "Rerun this script with a -platform option listed to"
+	    echo "set the operating system / compiler combination you use."
+	    echo
 	    exit 2
 	fi
     esac
