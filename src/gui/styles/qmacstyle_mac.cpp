@@ -91,6 +91,10 @@ static inline QPoint domap(const QPainter *p, QPoint pt)
     pt = pt * p->matrix();
     return pt;
 }
+#if (MAC_OS_X_VERSION_MAX_ALLOWED == MAC_OS_X_VERSION_10_2)
+// It's really silly, the define isn't there, but you can pass it and it works, dumb luck I guess.
+enum { kThemeComboBox = 16 }; // From the 10.3 Appearance.h file.
+#endif
 
 // Utility to generate correct rectangles for AppManager internals
 static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice *pd=0,
@@ -4139,7 +4143,8 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
 #endif
             case QAquaSizeUnknown:
             case QAquaSizeLarge:
-                bkind = combo->editable ? kThemeComboBox : kThemePopupButton;
+                bkind = combo->editable ? ThemeButtonKind(kThemeComboBox)
+                                        : ThemeButtonKind(kThemePopupButton);
                 break;
             }
             info.adornment |= kThemeAdornmentArrowLeftArrow;
