@@ -1133,6 +1133,7 @@ QPainterPath QPainterPathStroker::createStroke(const QPainterPath &input) const
             }
         }
 
+        pathSize = reverse.elementCount();
         for (int revPos = pathSize - elmi + 1; revPos < pathSize; ++revPos) {
             const QPainterPath::Element &elm = reverse.elementAt(revPos);
             Q_ASSERT(elm.type != QPainterPath::CurveToDataElement);
