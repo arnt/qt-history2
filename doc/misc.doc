@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 1.27 1996/09/18 15:10:18 agulbra Exp $
+** $Id: misc.doc,v 1.28 1996/09/19 12:09:40 hanord Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 1.27 1996/09/18 15:10:18 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 1.28 1996/09/19 12:09:40 hanord Exp $";
 #endif
 
 
@@ -23,7 +23,7 @@ Frequently Asked Questions
 Will Qt continue to be free? 
 <p>
 A: We will continue to release free versions for the X Window System,
-and they will be free for non-commercial purposes.
+and they will be free for free software development.
 <p>
 Send mail to sales@troll.no for more information.
 <p>
@@ -209,7 +209,7 @@ qt-interest.
 </head><body bgcolor=white>
 <p>
 
-This is the non-commercial license for Qt version \version; it covers
+This is the free software license for Qt version \version; it covers
 private use and development of free software for the free software
 community.  We believe that it does not constrain development of free
 software noticeably.  (<a href="mailto:info@troll.no">Write to
@@ -224,7 +224,7 @@ than this one.
 
 <hr>
 
-<h1 align=center>TROLL TECH NON-COMMERCIAL LICENSE</h1>
+<h1 align=center>TROLL TECH FREE SOFTWARE LICENSE</h1>
 
 Copyright &copy; 1992-1996 Troll Tech AS.  All rights reserved.
 
