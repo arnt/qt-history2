@@ -84,6 +84,7 @@ static void qt_win_resolve_libs()
 
 
 extern const char* qt_file_dialog_filter_reg_exp; // defined in qfiledialog.cpp
+extern QString qt_make_filter_list(const QString &filter);
 
 const int maxNameLen = 1023;
 const int maxMultiLen = 65535;
@@ -99,7 +100,6 @@ static QString qt_win_extract_filter(const QString &rawFilter)
     return result.replace(QChar(' '), QChar(';'));
 }
 
-// Makes a list of filters from ;;-separated text.
 static QStringList qt_win_make_filters_list(const QString &filter)
 {
     QString f(filter);
@@ -107,19 +107,7 @@ static QStringList qt_win_make_filters_list(const QString &filter)
     if (f.isEmpty())
         f = QObject::tr("All Files (*.*)");
 
-    if (f.isEmpty())
-        return QStringList();
-
-    int i = f.indexOf(";;", 0);
-    QString sep(";;");
-    if (i == -1) {
-        if (f.indexOf("\n", 0) != -1) {
-            sep = "\n";
-            i = f.indexOf(sep, 0);
-        }
-    }
-
-    return f.split(sep);
+    return qt_make_filter_list(f);
 }
 
 // Makes a NUL-oriented Windows filter from a Qt filter.

@@ -75,6 +75,7 @@ static QList<qt_mac_filter_name*> qt_mac_make_filters_list(const QString &filter
         f = QObject::tr("All Files (*)");
     if(f.isEmpty())
         return QList<qt_mac_filter_name*>();
+/*
     QString sep(";;");
     int i = f.indexOf(sep, 0);
     if(i == -1) {
@@ -82,9 +83,10 @@ static QList<qt_mac_filter_name*> qt_mac_make_filters_list(const QString &filter
         if(f.indexOf(sep, 0) != -1)
             i = f.indexOf(sep, 0);
     }
-
-    QList<qt_mac_filter_name*> ret;
     QStringList filts = f.split(sep);
+*/
+    QStringList filts = qt_make_filter_list(f);
+    QList<qt_mac_filter_name*> ret;
     for (QStringList::Iterator it = filts.begin(); it != filts.end(); ++it) {
         qt_mac_filter_name *filter = qt_mac_extract_filter((*it));
 #ifdef DEBUG_FILEDIALOG_FILTERS
