@@ -1515,9 +1515,12 @@ static QString resolveSymlinks( const QString& path, int depth = 0 )
 		path2 += "/" + path.right( path.length() - slashPos - 1 );
 	} else {
 	    QString relPath;
-	    relPath = part.left( part.findRev('/') ) + linkTarget;
-	    if ( slashPos < (int) path.length() )
+	    relPath = part.left( part.findRev('/') + 1 ) + linkTarget;
+	    if ( slashPos < (int) path.length() ) {
+		if ( !linkTarget.endsWith( "/" ) )
+		    relPath += "/";
 		relPath += path.right( path.length() - slashPos - 1 );
+	    }
 	    path2 = QDir::current().absFilePath( relPath );
 	}
 	path2 = QDir::cleanDirPath( path2 );
