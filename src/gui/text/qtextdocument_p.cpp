@@ -847,7 +847,7 @@ QString QTextDocumentPrivate::plainText() const
         result += QString::fromRawData(text.unicode() + f->stringPosition, f->size);
     }
     // remove trailing block separator
-    result.truncate(result.length()-1);
+    result.chop(1);
     return result;
 }
 

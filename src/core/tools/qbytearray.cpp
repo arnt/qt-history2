@@ -983,7 +983,23 @@ QByteArray &QByteArray::operator=(const char *str)
         ba.truncate(5);             // ba == "Stock"
     \endcode
 
-    \sa resize(), left()
+    \sa chop(), resize(), left()
+*/
+
+/*! \fn void QByteArray::chop(int n)
+
+    Removes \a n bytes from the end of the byte array.
+
+    If \a n is greater than size(), the result is an empty byte
+    array.
+
+    Example:
+    \code
+        QByteArray ba("STARTTLS\r\n");
+        ba.chop(2);                 // ba == "STARTTLS"
+    \endcode
+
+    \sa truncate(), resize(), left()
 */
 
 /*! \fn QByteArray &QByteArray::operator+=(const QByteArray &ba)

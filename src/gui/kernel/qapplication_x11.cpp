@@ -1529,11 +1529,11 @@ void qt_init(QApplicationPrivate *priv, int,
             s.sprintf("/proc/%d/cmdline", getppid());
             QFile f(s);
             if (f.open(IO_ReadOnly)) {
-                s.truncate(0);
+                s.clear();
                 int c;
                 while ((c = f.getch()) > 0) {
                     if (c == '/')
-                        s.truncate(0);
+                        s.clear();
                     else
                         s += (char)c;
                 }

@@ -734,9 +734,9 @@ QByteArray Preprocessor::preprocessed(const QByteArray &filename, FILE *file)
             continue;
         case PP_STRING_LITERAL:
             if (last == PP_STRING_LITERAL)
-                output.truncate(output.length()-1);
+                output.chop(1);
             else if (secondlast == PP_STRING_LITERAL && last == PP_WHITESPACE)
-                output.truncate(output.length()-2);
+                output.chop(2);
             else
                 break;
             output += sym.lexem().mid(1);

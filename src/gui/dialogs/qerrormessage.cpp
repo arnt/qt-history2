@@ -134,7 +134,7 @@ void jump(QtMsgType t, const char * m)
 
     // ### work around text engine quirk
     if (rich.endsWith("</p>"))
-        rich.truncate(rich.length() - 4);
+        rich.chop(4);
 
     if (!metFatal) {
         qtMessageHandler->message(rich);

@@ -64,7 +64,8 @@ public:
     void resize(int size);
 
     QString &fill(QChar c, int size = -1);
-    void truncate(int maxSize);
+    void truncate(int pos);
+    inline void chop(int n) { if (n > 0) resize(d->size - n); }
 
     int capacity() const;
     inline void reserve(int size) { if (d->ref != 1 || size > d->alloc) realloc(size); }
@@ -493,8 +494,8 @@ inline QString::QString(const QLatin1String &latin1) : d(&shared_null)
 { ++d->ref; *this = fromLatin1(latin1.latin1()); }
 inline int QString::length() const
 { return d->size; }
-inline void QString::truncate(int maxSize)
-{ if (maxSize < d->size) resize(maxSize); }
+inline void QString::truncate(int pos)
+{ if (pos < d->size) resize(pos); }
 inline const QChar QString::at(int i) const
 { Q_ASSERT(i >= 0 && i < size()); return d->data[i]; }
 inline const QChar QString::operator[](int i) const

@@ -730,8 +730,7 @@ void QLCDNumber::drawString(const QString &s, QPainter &p,
     }
     if (newString) {
         digitStr = s;
-        if ((int)digitStr.length() > ndigits)
-            digitStr.truncate(ndigits);
+        digitStr.truncate(ndigits);
         if (newPoints)
             points = *newPoints;
     }

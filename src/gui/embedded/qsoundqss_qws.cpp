@@ -85,7 +85,7 @@ void QWSSoundServerClient::tryReadCommand()
 {
     while (canReadLine()) {
         QString l = readLine();
-        l.truncate(l.length()-1); // chomp
+        l.chop(1);
         QStringList token = l.split(" ");
         if (token[0] == "PLAY")
             emit play(token[1]);

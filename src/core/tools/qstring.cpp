@@ -3371,7 +3371,23 @@ QString QString::trimmed() const
         // str == "Vlad"
     \endcode
 
-    \sa resize(), left()
+    \sa chop(), resize(), left()
+*/
+
+/*! \fn void QString::chop(int n)
+
+    Removes \a n characters from the end of the string.
+
+    If \a n is greater than size(), the result is an empty string.
+
+    Example:
+    \code
+        QString str("LOGOUT\r\n");
+        str.chop(2);
+        // str == "LOGOUT"
+    \endcode
+
+    \sa truncate(), resize()
 */
 
 /*!

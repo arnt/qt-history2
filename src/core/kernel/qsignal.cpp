@@ -210,7 +210,7 @@ bool qInvokeSlot(QObject *obj, const char *slotName, Qt::ConnectionType type,
         sig.append(val9.name()).append(',');
     }
     if (sig.endsWith(','))
-        sig.truncate(sig.length() - 1);
+        sig.chop(1);
     sig.append(')');
 
     int idx = obj->metaObject()->indexOfSlot(sig.constData());

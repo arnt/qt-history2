@@ -133,7 +133,8 @@ public:
     bool endsWith(char c) const;
     bool endsWith(const char *c) const;
 
-    inline void truncate(int l) { if (l < d->size) resize(l); }
+    inline void truncate(int pos) { if (pos < d->size) resize(pos); }
+    inline void chop(int n) { if (n > 0) resize(d->size - n); }
 
     QByteArray toLower() const;
     QByteArray toUpper() const;

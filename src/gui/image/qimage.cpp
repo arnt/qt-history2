@@ -3567,7 +3567,7 @@ static QString fbname(const QString &fileName) // get file basename (sort of)
         QRegExp r(QLatin1String("[a-zA-Z][a-zA-Z0-9_]*"));
         int p = r.indexIn(s);
         if (p == -1)
-            s.truncate(0);
+            s.clear();
         else
             s = s.mid(p, r.matchedLength());
     }
@@ -5615,7 +5615,7 @@ static void read_xpm_image_or_array(QImageIO * iio, const char * const * source,
         } else {
             QRgb c_rgb;
             if (((buf.length()-1) % 3) && (buf[0] == '#')) {
-                buf.truncate (((buf.length()-1) / 4 * 3) + 1); // remove alpha channel left by imagemagick
+                buf.truncate(((buf.length()-1) / 4 * 3) + 1); // remove alpha channel left by imagemagick
             }
             if (buf[0] == '#') {
                 qt_get_hex_rgb(buf, &c_rgb);
