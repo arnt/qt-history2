@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#97 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#98 $
 **
 ** Implementation of QFile class
 **
@@ -694,7 +694,7 @@ bool QFile::atEnd() const
 #endif
 	return FALSE;
     }
-    if ( isDirectAccess() ) {
+    if ( isDirectAccess() && !isTranslated() ) {
 	if ( at() < length )
 	    return FALSE;
     }
