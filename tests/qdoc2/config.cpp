@@ -90,7 +90,7 @@ static void setPattern( QRegExp *rx, const QString& pattern, bool plus )
 }
 
 Config::Config( int argc, char **argv )
-    : maxSame( 100 ), maxAll( 2000 ), wlevel( 2 ), bas( "" ), modshort( "" ),
+    : maxSim( 100 ), maxAll( 2000 ), wlevel( 2 ), bas( "" ), modshort( "" ),
       modlong( "" ), co( "" ), vers( "" ), verssym( "" ), posth( "" ),
       foot( "" ), addr( "" ), styl( "" ), falsesym( QChar('0') ),
       serial( FALSE ), internal( FALSE ), readh( TRUE ), autoh( TRUE ),
@@ -165,8 +165,8 @@ Config::Config( int argc, char **argv )
 	    includedirs = val;
 	} else if ( key == QString("INTERNAL") ) {
 	    internal = isYes( key, val );
-	} else if ( key == QString("MAXSAMEWARNING") ) {
-	    maxSame = singleton( key, val ).toInt();
+	} else if ( key == QString("MAXSIMWARNINGS") ) {
+	    maxSim = singleton( key, val ).toInt();
 	} else if ( key == QString("MAXWARNINGS") ) {
 	    maxAll = singleton( key, val ).toInt();
 	} else if ( key == QString("MODULELONG") ) {
@@ -241,10 +241,10 @@ Config::Config( int argc, char **argv )
 		setPattern( &falsesym, val, plus );
 	    } else if ( opt == QString("--internal") ) {
 		internal = isYes( val );
-	    } else if ( opt == QString("--max-same-warning") ) {
+	    } else if ( opt == QString("--max-sim-warnings") ) {
 		if ( !plus )
-		    maxSame = 0;
-		maxSame += val.toInt();
+		    maxSim = 0;
+		maxSim += val.toInt();
 	    } else if ( opt == QString("--max-warnings") ) {
 		if ( !plus )
 		    maxAll = 0;
@@ -280,7 +280,7 @@ Config::Config( int argc, char **argv )
 	    } else if ( opt == QString("-I") ) {
 		internal = FALSE;
 	    } else if ( opt.left(2) == QString("-m") ) {
-		maxSame = opt.mid( 2 ).toInt();
+		maxSim = opt.mid( 2 ).toInt();
 	    } else if ( opt.left(2) == QString("-M") ) {
 		maxAll = opt.mid( 2 ).toInt();
 	    } else if ( opt.left(2) == QString("-O") ) {
@@ -295,8 +295,8 @@ Config::Config( int argc, char **argv )
 	        wlevel = 0;
 	    } else if ( opt == QString("-Wall") ) {
 		wlevel = 4;
-		maxSame = 65536;
-		maxAll = 65536;
+		maxSim = 262144;
+		maxAll = 262144;
 	    } else {
 		unknown = TRUE;
 	    }
@@ -313,7 +313,7 @@ Config::Config( int argc, char **argv )
     if ( onlysym.pattern().isEmpty() || !onlysym.isValid() )
 	onlysym.setPattern( QString(".*") );
 
-    setMaxSameMessage( maxSame );
+    setMaxSimilarMessages( maxSim );
     setMaxMessages( maxAll );
     setWarningLevel( wlevel );
 
@@ -443,7 +443,7 @@ void Config::showHelp()
 	    "  --help                   Display this information\n"
 	    "  --help-short             Display short options\n"
 	    "  --internal=<yes|no>      Generate internal documentation [%s]\n"
-	    "  --max-same-warning=<num> Limit number of same warning [%d]\n"
+	    "  --max-sim-warnings=<num> Limit number of similar warnings [%d]\n"
 	    "  --max-warnings=<num>     Limit number of warnings [%d]\n"
 	    "  --only=<regexp>          Process only specified classes\n"
 	    "  --output-dir=<path>      Set output directory\n"
@@ -452,7 +452,7 @@ void Config::showHelp()
 	    "  --supervisor=<yes|no>    Compare with previous run [%s]\n"
 	    "  --version                Display version of qdoc\n"
 	    "  --warning-level=<num>    Set warning level (0 to 4) [%d]\n",
-	    toYN(autoh), toYN(internal), maxSame, maxAll, toYN(readh),
+	    toYN(autoh), toYN(internal), maxSim, maxAll, toYN(readh),
 	    toYN(serial), toYN(super), wlevel );
     exit( EXIT_SUCCESS );
 }
@@ -467,7 +467,7 @@ void Config::showHelpShort()
 	    "  -h                       Display long options\n"
 	    "  -H                       Display this information\n"
 	    "  -i vs. -I                Generate internal documentation [%s]\n"
-	    "  -m<num>                  Limit number of same warning [%d]\n"
+	    "  -m<num>                  Limit number of similar warnings [%d]\n"
 	    "  -M<num>                  Limit number of warnings [%d]\n"
 	    "  -O<regexp>               Process only specified classes\n"
 	    "  -s vs. -S                Compare with previous run [%s]\n"
@@ -475,13 +475,13 @@ void Config::showHelpShort()
 	    "  -W<num>                  Set warning level (0 to 4) [%d]\n"
 	    "  -Wall                    Enable all warnings\n"
 	    "  -Wnone                   Disable all warnings\n",
-	    toYN(autoh), toYN(internal), maxSame, maxAll, toYN(super),
+	    toYN(autoh), toYN(internal), maxSim, maxAll, toYN(super),
 	    wlevel );
     exit( EXIT_SUCCESS );
 }
 
 void Config::showVersion()
 {
-    printf( "qdoc version 1.90\n" );
+    printf( "qdoc version 1.91\n" );   // $\lim_{t\rightarrow\infty} v(t) = 2$
     exit( EXIT_SUCCESS );
 }

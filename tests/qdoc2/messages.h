@@ -7,7 +7,7 @@
 
 class Location;
 
-void setMaxSameMessage( int n );
+void setMaxSimilarMessages( int n );
 void setMaxMessages( int n );
 void setWarningLevel( int level );
 void setParanoiaEnabled( bool enabled );

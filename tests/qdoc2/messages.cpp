@@ -42,7 +42,7 @@ static bool omit( const char *message )
     return oh;
 }
 
-void setMaxSameMessage( int n )
+void setMaxSimilarMessages( int n )
 {
     maxSame = n;
 }
@@ -76,15 +76,15 @@ void warning( int level, const Location& loc, const char *message, ... )
     QString filename = loc.shortFilePath();
     QString filenameBase = loc.filePath();
     filenameBase
-	= filenameBase.left( filenameBase.length()-filename.length()-1 );
-    if ( filenameBase.length() == 0 )
-	filenameBase = "/";
+	= filenameBase.left( filenameBase.length() - filename.length() - 1 );
+    if ( filenameBase.isEmpty() )
+	filenameBase = QChar( '\\' );
     if ( currentDirectory != filenameBase ) {
 	if ( currentDirectory.length() )
-	    fprintf( stderr, "make: Leaving directory `%s'\n",
+	    fprintf( stderr, "qdoc: Leaving directory '%s'\n",
 		     currentDirectory.latin1() );
 	currentDirectory = filenameBase;
-	fprintf( stderr, "qdoc: Entering directory `%s'\n",
+	fprintf( stderr, "qdoc: Entering directory '%s'\n",
 		 currentDirectory.latin1() );
     }
 

@@ -67,7 +67,7 @@ private:
     QStringList exampledirs;
     QString outputdir;
 
-    int maxSame;
+    int maxSim;
     int maxAll;
     int wlevel;
     QString bas;
