@@ -67,12 +67,16 @@ QVariant StringListModel::headerData(int section, Qt::Orientation orientation,
 }
 
 /*!
-    Returns true so that all items in the string list can be edited.
+    Returns an appropriate value for the item's flags. Valid items are
+    enabled, selectable, and editable.
 */
 
-bool StringListModel::isEditable(const QModelIndex &/*index*/) const
+QAbstractItemModel::ItemFlags StringListModel::flags(const QModelIndex &index) const
 {
-    return true; // all items in the model are editable
+    if (!index.isValid())
+        return ItemIsEnabled;
+
+    return ItemIsEnabled | ItemIsSelectable | ItemIsEditable;
 }
 
 /*!

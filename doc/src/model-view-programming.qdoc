@@ -337,13 +337,8 @@ in the model.
 \printuntil QModelIndex index
 
 To obtain a model index, we specify the row number, column number (zero
-for the first column), the appropriate parent model index for top-level
-model items (the default invalid model index), and the type of
-information required. We want the \c View type of index
-because we need the information that would be displayed in a view,
-rather than the information used in a header, (although we could have
-omitted the argument since \c View is the default fourth argument).
-
+for the first column), and the appropriate parent model index for
+top-level model items (the default invalid model index).
 The text stored in each item is retrieved using the model's
 \l{QDirModel::data()}{data()} function. We specify the model index and
 the \l{QAbstractItemModel::Role}{DisplayRole} to obtain data for the
@@ -364,9 +359,9 @@ data from a model:
    These functions generally require a parent model index to be
    specified.
 \i Model indexes are used to access items in the model. The row, column,
-   parent model index, and item type are needed to specify the item.
-\i To access top-level items in a model, specify an invalid model index
-   as the parent index with QModelIndex().
+   and parent model index are needed to specify the item.
+\i To access top-level items in a model, specify a null model index
+   as the parent index with \c QModelIndex::Null.
 \i Items contain data for different roles. To obtain the data for a
    particular role, both the model index and the role must be supplied
    to the model.
@@ -1099,18 +1094,21 @@ items.
     reimplement the \l{QAbstractItemModel::columnCount()}{columnCount()}
     function.
 
-    \section2 Model data
+    \section2 Model headers and data
 
+    For items in the view, we want to return the strings in our string list:
     The \l{QAbstractItemModel::data()}{data()} function is responsible for
-    returning the data that corresponds to the index argument. There are
-    three types of indexes: \l{QModelIndex::Type}{View},
-    \l{QModelIndex::Type}{HorizontalHeader}, and
-    \l{QModelIndex::Type}{VerticalHeader}. If our model
-    is displayed in a view with headers, we want the headers to show the
-    row and column numbers. For \l{QModelIndex::Type}{View} items,
-    we want to return the strings in our string list:
+    returning the data that corresponds to the index argument.
 
-    \skipto QVariant
+    \skipto QVariant StringListModel::data
+    \printuntil }
+
+    If our model is displayed in a view with headers, we want the headers
+    to show the row and column numbers. We can provide information about
+    the headers by subclassing the
+    \l{QAbstractItemModel::headerData()}{headerData()} function:
+
+    \skipto QVariant StringListModel::headerData
     \printuntil }
 
     An item can have several roles, giving out different data depending on the
@@ -1129,22 +1127,24 @@ items.
     user but, for many applications, an editable list model is much more
     useful. We can modify the read-only model to make the items editable
     by implementing two extra functions:
-    \l{QAbstractItemModel::isEditable()}{isEditable()} and
+    \l{QAbstractItemModel::flags()}{flags()} and
     \l{QAbstractItemModel::setData()}{setData()}.
     These are added to the class declaration:
 
     \quotefile stringlistmodel/model.h
-    \skipto bool isEditable
+    \skipto bool flags
     \printuntil setData
 
     \section2 Making the model editable
 
     A delegate checks whether an item is editable before creating an
     editor. The model must let the delegate know that its items are
-    editable:
+    editable. We do this by returning the correct flags for each item in
+    the model; in this case, we enable all items and make them both
+    selectable and editable:
 
     \quotefile stringlistmodel/model.cpp
-    \skipto bool StringListModel::isEditable
+    \skipto bool StringListModel::flags
     \printuntil }
 
     Note that we do not have to know how the delegate performs the actual
@@ -1262,5 +1262,6 @@ items.
     \section1 QTreeWidget
 
     \section1 QTableWidget
+
 
 */
