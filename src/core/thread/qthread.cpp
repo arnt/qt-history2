@@ -92,7 +92,7 @@ QThread *QThreadPrivate::threadForId(int id)
 }
 
 /*!
-    \class QThread qthread.h
+    \class QThread
     \threadsafe
     \brief The QThread class provides platform-independent threads.
 
@@ -104,42 +104,50 @@ QThread *QThreadPrivate::threadForId(int id)
     program; it shares data with all the other threads within the
     process but executes independently in the way that a separate
     program does on a multitasking operating system. Instead of
-    starting in main(), QThreads begin executing in run(). You inherit
-    run() to include your code. For example:
+    starting in \c main(), QThreads begin executing in run().
+    run() to include your code.
+
+    To create your own threads, subclass QThread and reimplement
+    run(). For example:
 
     \code
-    class MyThread : public QThread
-    {
-    public:
-        virtual void run();
-    };
+        class MyThread : public QThread
+        {
+        public:
+            void run();
+        };
 
-    void MyThread::run()
-    {
-        QTcpSocket socket;
-        // connect QTcpSocket's signals somewhere meaningful
-        ...
-        socket.connectToHost(hostName, portNumber);
-        exec();
-    }
+        void MyThread::run()
+        {
+            QTcpSocket socket;
+            // connect QTcpSocket's signals somewhere meaningful
+            ...
+            socket.connectToHost(hostName, portNumber);
+            exec();
+        }
     \endcode
 
     This will create a QTcpSocket in the thread and then execute the
-    thread's event loop.  Use the start() method to begin execution.
+    thread's event loop. Use the start() method to begin execution.
     Execution ends when you return from run(), just as an application
-    does when it leaves main().  QThread will notifiy you via a signal
-    when the thread is started(), finished() and terminated(), or you
-    can use isFinished() and isRunning() to query the state of the
-    thread.  Use wait() to block until the thread has finished
+    does when it leaves main(). QThread will notifiy you via a signal
+    when the thread is started(), finished(), and terminated(), or
+    you can use isFinished() and isRunning() to query the state of
+    the thread. Use wait() to block until the thread has finished
     execution.
 
-    Each thread gets its own stack from the operating system.  The
+    Each thread gets its own stack from the operating system. The
     operating system also determines the default size of the stack.
     You can use setStackSize() to set a custom stack size.
 
-    Each QThread can have its own event loop.  You can start the event
+    Each QThread can have its own event loop. You can start the event
     loop by calling exec(); you can stop it by calling exit() or
-    quit().
+    quit(). Having an event loop in a thread makes it possible to
+    connect signals from other threads to slots in this threads,
+    using a mechanism called \l{Qt::QueuedConnection}{queued
+    connections}. It also makes it possible to use classes that
+    require the event loop, such as QTimer and QTcpSocket, in the
+    thread.
 
     In extreme cases, you may wish to forcibly terminate() an
     executing thread.  However, doing so is dangerous and discouraged.
@@ -147,16 +155,16 @@ QThread *QThreadPrivate::threadForId(int id)
     setTerminationEnabled() for detailed information.
 
     The static functions currentThreadId() and currentThread() return
-    identifiers for the currently executing thread.  The former
+    identifiers for the currently executing thread. The former
     returns a platform specific id for the thread; the latter returns
     a QThread pointer.
 
     QThread also provides platform independent sleep functions in
     varying resolutions. Use sleep() for full second resolution,
-    msleep() for millisecond resolution and usleep() for microsecond
+    msleep() for millisecond resolution, and usleep() for microsecond
     resolution.
 
-    \sa \link threads.html Thread Support in Qt\endlink.
+    \sa {threads.html}{Thread Support in Qt}
 */
 
 /*!
