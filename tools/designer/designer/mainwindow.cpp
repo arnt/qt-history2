@@ -2573,7 +2573,9 @@ bool MainWindow::openEditor( QWidget *w, FormWindow *f )
 			break;
 		    }
 		}
+		
 		if ( !fullSignal.isEmpty() ) {
+		    QString signl = fullSignal;
 		    fullSignal = fullSignal.mid( fullSignal.find( '(' ) + 1 );
 		    fullSignal.remove( (int)fullSignal.length() - 1, 1 );
 		    fullSignal = iface->createArguments( fullSignal.simplifyWhiteSpace() );
@@ -2586,7 +2588,7 @@ bool MainWindow::openEditor( QWidget *w, FormWindow *f )
 			MetaDataBase::Connection conn;
 			conn.sender = w;
 			conn.receiver = f->mainContainer();
-			conn.signal = defSignal;
+			conn.signal = signl;
 			conn.slot = s;
 			AddConnectionCommand *cmd =
 			    new AddConnectionCommand( tr( "Add connection" ), f, conn );
