@@ -777,8 +777,6 @@ void QGLContext::reset()
 
 void QGLContext::makeCurrent()
 {
-    if ( currentCtx && currentCtx->rc != rc )
-	currentCtx->doneCurrent();
     if ( rc == wglGetCurrentContext() || !d->valid )	// already current
 	return;
     if ( win )
