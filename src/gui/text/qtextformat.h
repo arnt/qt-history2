@@ -122,7 +122,8 @@ public:
         Integer,
         Float,
         String,
-        FormatObject
+        FormatObject,
+        Color
     };
 
     enum ObjectTypes {
@@ -152,11 +153,13 @@ public:
     int intProperty(int propertyId, int defaultValue = 0) const;
     float floatProperty(int propertyId, float defaultValue = 0.0) const;
     QString stringProperty(int propertyId, const QString &defaultValue = QString::null) const;
+    QColor colorProperty(int propertyId, const QColor &defaultValue = QColor()) const;
 
     void setProperty(int propertyId, bool value, bool defaultValue = false);
     void setProperty(int propertyId, int value, int defaultValue = 0);
     void setProperty(int propertyId, float value, float defaultValue = 0.0);
     void setProperty(int propertyId, const QString &value, const QString &defaultValue = QString::null);
+    void setProperty(int propertyId, const QColor &value, const QColor &defaultValue = QColor());
 
     bool hasProperty(int propertyId) const;
     PropertyType propertyType(int propertyId) const;
@@ -242,9 +245,9 @@ public:
     { return boolProperty(FontFixedPitch); }
 
     inline void setTextColor(const QColor &color)
-    { setProperty(TextColor, int(color.rgb())); }
+    { setProperty(TextColor, color); }
     inline QColor textColor() const
-    { if (hasProperty(TextColor)) return QColor(intProperty(TextColor)); else return QColor(); }
+    { return colorProperty(TextColor); }
 
     inline void setAnchor(bool anchor)
     { setProperty(IsAnchor, anchor); }
@@ -326,9 +329,9 @@ public:
     { return boolProperty(BlockNonBreakableLines); }
 
     inline void setBackgroundColor(const QColor &color)
-    { setProperty(BlockBackgroundColor, int(color.rgb())); }
+    { setProperty(BlockBackgroundColor, color); }
     inline QColor backgroundColor() const
-    { if (hasProperty(BlockBackgroundColor)) return QColor(intProperty(BlockBackgroundColor)); else return QColor(); }
+    { return colorProperty(BlockBackgroundColor); }
 };
 
 class Q_GUI_EXPORT QTextListFormat : public QTextFormat

@@ -34,12 +34,14 @@ public:
     inline QTextFormatProperty(float value) : type(QTextFormat::Float)
     { data.floatValue = value; }
 
+    inline QTextFormatProperty(const QColor &value) : type(QTextFormat::Color)
+    { data.color = value.rgb(); }
+
     QTextFormatProperty(const QString &value);
 
     QTextFormatProperty &operator=(const QTextFormatProperty &rhs);
     inline QTextFormatProperty(const QTextFormatProperty &rhs) : type(QTextFormat::Undefined)
     { (*this) = rhs; }
-
 
     inline ~QTextFormatProperty()
     { free(); }
@@ -52,6 +54,7 @@ public:
         int intValue;
         float floatValue;
         mutable void *ptr;
+        QRgb color;
     } data;
 
     inline const QString &stringValue() const
@@ -151,6 +154,7 @@ uint QTextFormatProperty::hash() const
         case QTextFormat::Integer: return data.intValue;
         case QTextFormat::Float: return static_cast<int>(data.floatValue);
         case QTextFormat::String: return qHash(stringValue());
+        case QTextFormat::Color: return qHash(data.color);
         default: Q_ASSERT(false);
     }
     return 0;
@@ -191,6 +195,7 @@ bool QTextFormatProperty::operator==(const QTextFormatProperty &rhs) const
         case QTextFormat::Integer: return data.intValue == rhs.data.intValue;
         case QTextFormat::Float: return data.floatValue == rhs.data.floatValue;
         case QTextFormat::String: return stringValue() == rhs.stringValue();
+        case QTextFormat::Color: return data.color == rhs.data.color;
     }
 
     return true;
@@ -207,6 +212,7 @@ QDataStream &operator<<(QDataStream &stream, const QTextFormatProperty &prop)
         case QTextFormat::Integer: stream << Q_INT32(prop.data.intValue); break;
         case QTextFormat::Float: stream << prop.data.floatValue; break;
         case QTextFormat::String: stream << prop.stringValue(); break;
+        case QTextFormat::Color: stream << Q_UINT32(prop.data.color); break;
         default: Q_ASSERT(false); break;
     }
 
@@ -240,6 +246,12 @@ QDataStream &operator>>(QDataStream &stream, QTextFormatProperty &prop)
             stream >> s;
             prop.type = QTextFormat::Undefined;
             prop = QTextFormatProperty(s);
+            break;
+        }
+        case QTextFormat::Color: {
+            Q_UINT32 col;
+            stream >> col;
+            prop.data.color = col;
             break;
         }
         default: Q_ASSERT(false); break;
@@ -591,7 +603,7 @@ QTextImageFormat QTextFormat::toImageFormat() const
     property isn't of \c QTextFormat::Bool type the \a defaultValue is
     returned instead.
 
-    \sa setProperty() intProperty() floatProperty() stringProperty() PropertyType
+    \sa setProperty() intProperty() floatProperty() stringProperty() colorProperty() PropertyType
 */
 bool QTextFormat::boolProperty(int propertyId, bool defaultValue) const
 {
@@ -606,7 +618,7 @@ bool QTextFormat::boolProperty(int propertyId, bool defaultValue) const
     property is not of \c QTextFormat::Integer type the \a defaultValue is
     returned instead.
 
-    \sa setProperty() boolProperty() floatProperty() stringProperty() PropertyType
+    \sa setProperty() boolProperty() floatProperty() stringProperty() colorProperty() PropertyType
 */
 int QTextFormat::intProperty(int propertyId, int defaultValue) const
 {
@@ -621,7 +633,7 @@ int QTextFormat::intProperty(int propertyId, int defaultValue) const
     property isn't of \c QTextFormat::Float type the \a defaultValue is
     returned instead.
 
-    \sa setProperty() boolProperty() intProperty() stringProperty() PropertyType
+    \sa setProperty() boolProperty() intProperty() stringProperty() colorProperty() PropertyType
 */
 float QTextFormat::floatProperty(int propertyId, float defaultValue) const
 {
@@ -636,7 +648,7 @@ float QTextFormat::floatProperty(int propertyId, float defaultValue) const
     property isn't of \c QTextFormat::String type the \a defaultValue is
     returned instead.
 
-    \sa setProperty() boolProperty() intProperty() floatProperty() PropertyType
+    \sa setProperty() boolProperty() intProperty() floatProperty() colorProperty() PropertyType
 */
 QString QTextFormat::stringProperty(int propertyId, const QString &defaultValue) const
 {
@@ -646,6 +658,20 @@ QString QTextFormat::stringProperty(int propertyId, const QString &defaultValue)
     return prop.stringValue();
 }
 
+/*!
+    Returns the value of the property given by \a propertyId; if the
+    property isn't of \c QTextFormat::Color type the \a defaultValue is
+    returned instead.
+
+    \sa setProperty() boolProperty() intProperty() floatProperty() stringProperty() PropertyType
+*/
+QColor QTextFormat::colorProperty(int propertyId, const QColor &defaultValue) const
+{
+    const QTextFormatProperty prop = d->properties().value(propertyId);
+    if (prop.type != QTextFormat::Color)
+        return defaultValue;
+    return prop.data.color;
+}
 /*!
     \overload
 
@@ -697,6 +723,19 @@ void QTextFormat::setProperty(int propertyId, float value, float defaultValue)
     \sa stringProperty() PropertyType
 */
 void QTextFormat::setProperty(int propertyId, const QString &value, const QString &defaultValue)
+{
+    if (value == defaultValue)
+        d->clearProperty(propertyId);
+    else
+        d->insertProperty(propertyId, value);
+}
+
+/*!
+    Sets the value of the property given by \a propertyId to \a value.
+
+    \sa colorProperty() PropertyType
+*/
+void QTextFormat::setProperty(int propertyId, const QColor &value, const QColor &defaultValue)
 {
     if (value == defaultValue)
         d->clearProperty(propertyId);
