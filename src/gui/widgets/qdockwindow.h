@@ -19,8 +19,8 @@ class Q_GUI_EXPORT QDockWindow : public QFrame
     Q_PROPERTY(Qt::DockWindowArea area READ area WRITE setArea)
 
 public:
-    QDockWindow(QMainWindow *parent, Qt::WFlags flags = 0);
-    QDockWindow(QMainWindow *parent, Qt::DockWindowArea area, Qt::WFlags flags = 0);
+    QDockWindow(QMainWindow *parent);
+    QDockWindow(QMainWindow *parent, Qt::DockWindowArea area);
     ~QDockWindow();
 
     QMainWindow *mainWindow() const;
