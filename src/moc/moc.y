@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#70 $
+** $Id: //depot/qt/main/src/moc/moc.y#71 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -37,7 +37,7 @@ void yyerror( char *msg );
 #include <stdio.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#70 $");
+RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#71 $");
 
 QString rmWS( const char * );
 
@@ -1001,26 +1001,50 @@ void initClass()				 // prepare for new class
     signals.clear();
 }
 
-/* Remove white space from SIGNAL and SLOT names */
+//
+// Remove white space from SIGNAL and SLOT names.
+// This function has been copied from qobject.cpp.
+//
 
-QString rmWS( const char *src )
+inline bool isIdentChar( char x )
 {
-    QString tmp( strlen( src ) + 1 );
-    register char *d = tmp.data();
-    register char *s = (char *)src;
-    while( *s && isspace(*s) )
+    return isalnum(x) || x == '_';
+}
+
+inline bool isSpace( char x )
+{
+#if defined(_CC_BOR_)
+  /*
+    Borland C++ 4.5 has a weird isspace() bug.
+    isspace() usually works, but not here.
+    This implementation is sufficient for our internal use: rmWS()
+  */
+    return (uchar)x <= 32;
+#else
+    return isspace( x );
+#endif
+}
+
+static QString rmWS( const char *src )
+{
+    QString result( strlen(src)+1 );
+    char *d = result.data();
+    char *s = (char *)src;
+    char last = 0;
+    while( *s && isSpace(*s) )			// skip leading space
 	s++;
     while ( *s ) {
-	while( *s && !isspace(*s) )
-	    *d++ = *s++;
-	while( *s && isspace(*s) )
+	while ( *s && !isSpace(*s) )
+	    last = *d++ = *s++;
+	while ( *s && isSpace(*s) )
 	    s++;
-	if ( *s && ( isalpha(*s) || *s == '_' ) )
-	    *d++ = ' ';
+	if ( *s && isIdentChar(*s) && isIdentChar(last) )
+	    last = *d++ = ' ';
     }
-    tmp.truncate( d - tmp.data() );
-    return tmp;
+    result.truncate( (int)(d - result.data()) );
+    return result;
 }
+
 
 void initExpression()
 {
@@ -1041,12 +1065,6 @@ void yyerror( char *msg )			// print yacc error message
 {
 
     fprintf( stderr, "%s:%d: Error: %s\n", fileName.data(), lineNo, msg);
-/*
-    if ( errorControl )
-	fprintf( stderr, "%s:%d: Warning: %s\n", fileName.data(), lineNo, msg);
-    else
-	fprintf( stderr, "%s:%d: Error: %s\n", fileName.data(), lineNo, msg );
-*/
 }
 
 void moc_err( char *s )
@@ -1165,13 +1183,15 @@ void generateFuncs( FuncList *list, char *functype, int num )
 
 void generateClass()		      // generate C++ source code for a class
 {
+    static int gen_count = 0;
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.4 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.5 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
-    static int gen_count = 0;
+    int   i;
+
     if ( skipClass )				// don't generate for class
 	return;
     if ( !Q_OBJECTdetected ) {
@@ -1198,7 +1218,7 @@ void generateClass()		      // generate C++ source code for a class
 	QDateTime dt = QDateTime::currentDateTime();
 	QString dstr = dt.toString();
 	QString fn = fileName;
-	int i = fileName.length()-1;
+	i = fileName.length()-1;
 	while ( i>0 && fileName[i-1] != '/' && fileName[i-1] != '\\' )
 	    i--;				// skip path
 	if ( i >= 0 )
@@ -1217,9 +1237,9 @@ void generateClass()		      // generate C++ source code for a class
 	if ( !noInclude )
 	    fprintf( out, "#include \"%s\"\n", (const char*)includeFile );
 	fprintf( out, "\n\n" );
-    }
-    else
+    } else {
 	fprintf( out, "\n\n" );
+    }
 
 //
 // Generate virtual function className()
@@ -1271,7 +1291,7 @@ void generateClass()		      // generate C++ source code for a class
 
 //
 // Generate internal signal functions
-//'
+//
     Function *f;
     f = signals.first();			// make internal signal methods
     static bool included_list_stuff = FALSE;
@@ -1279,12 +1299,16 @@ void generateClass()		      // generate C++ source code for a class
 	QString typstr = "";			// type string
 	QString valstr = "";			// value string
 	QString argstr = "";			// argument string (type+value)
-	int  count     = 0;
-	char buf[12];
-						// method header
+	char	buf[12];
 	Argument *a = f->args->first();
+	QString typvec[32], valvec[32], argvec[32];
+	typvec[0] = "";
+	valvec[0] = "";
+	argvec[0] = "";
+
+	i = 0;
 	while ( a ) {				// argument list
-	    if ( count++ ) {
+	    if ( i ) {
 		typstr += ",";
 		valstr += ", ";
 		argstr += ", ";
@@ -1293,10 +1317,14 @@ void generateClass()		      // generate C++ source code for a class
 	    typstr += a->rightType;
 	    argstr += a->leftType;
 	    argstr += " ";
-	    sprintf( buf, "t%d", count );
+	    sprintf( buf, "t%d", i );
 	    valstr += buf;
 	    argstr += buf;
 	    argstr += a->rightType;
+	    ++i;
+	    typvec[i] = typstr.copy();
+	    valvec[i] = valstr.copy();
+	    argvec[i] = argstr.copy();
 	    a = f->args->next();
 	}
 
@@ -1340,22 +1368,48 @@ void generateClass()		      // generate C++ source code for a class
 	    continue;
 	}
 
+	int nargs = f->args->count();
 	fprintf( out, "    QConnectionList *clist = receivers(\"%s(%s)\");\n",
 		 (const char*)f->name, (const char*)typstr );
 	fprintf( out, "    if ( !clist || signalsBlocked() )\n\treturn;\n" );
-	fprintf( out, "    typedef void (QObject::*RT)(%s);\n",
-		 (const char*)typstr);
-	fprintf( out, "    typedef RT *PRT;\n" );
+	if ( nargs ) {
+	    for ( i=0; i<=nargs; i++ ) {
+		fprintf( out, "    typedef void (QObject::*RT%d)(%s);\n",
+			 i, (const char*)typvec[i] );
+		fprintf( out, "    typedef RT%d *PRT%d;\n", i, i );
+	    }
+	} else {
+	    fprintf( out, "    typedef void (QObject::*RT)(%s);\n",
+		     (const char*)typstr);
+	    fprintf( out, "    typedef RT *PRT;\n" );	    
+	}
+	if ( nargs ) {
+	    for ( i=0; i<=nargs; i++ )
+		fprintf( out, "    RT%d r%d;\n", i, i );
+	} else {
+	    fprintf( out, "    RT r;\n" );
+	}
 	fprintf( out, "    QConnectionListIt it(*clist);\n" );
-	fprintf( out, "    register QConnection *c;\n" );
-	fprintf( out, "    RT r;\n" );
+	fprintf( out, "    QConnection   *c;\n" );
 	fprintf( out, "    QSenderObject *object;\n" );
 	fprintf( out, "    while ( (c=it.current()) ) {\n" );
 	fprintf( out, "\t++it;\n" );
-	fprintf( out, "\tr = *((PRT)(c->member()));\n" );
 	fprintf( out, "\tobject = (QSenderObject*)c->object();\n" );
 	fprintf( out, "\tobject->setSender( this );\n" );
-	fprintf( out, "\t(object->*r)(%s);\n", (const char*)valstr );
+	if ( nargs ) {
+	    fprintf( out, "\tswitch ( c->numArgs() ) {\n" );
+	    for ( i=0; i<=nargs; i++ ) {
+		fprintf( out, "\t    case %d:\n", i );
+		fprintf( out, "\t\tr%d = *((PRT%d)(c->member()));\n", i, i );
+		fprintf( out, "\t\t(object->*r%d)(%s);\n",
+			 i, (const char*)valvec[i] );
+		fprintf( out, "\t\tbreak;\n" );
+	    }
+	    fprintf( out, "\t}\n" );
+	} else {
+	    fprintf( out, "\tr = *((PRT)(c->member()));\n" );
+	    fprintf( out, "\t(object->*r)(%s);\n", (const char*)valstr );
+	}
 	fprintf( out, "    }\n}\n" );
 	f = signals.next();
     }
