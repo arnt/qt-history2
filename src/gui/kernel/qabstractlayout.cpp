@@ -755,7 +755,7 @@ void QLayout::addWidget(QWidget *w)
     addItem(new QWidgetItem(w));
 }
 /*!
-    \fn bool QLayout::isTopLevel () const
+    \fn bool QLayout::isTopLevel() const
 
     Returns true if this layout is a top-level layout, i.e. not a
     child of another layout; otherwise returns false.
@@ -813,7 +813,7 @@ int QLayout::spacing() const
     }
 }
 
-bool QLayout::isWindow() const
+bool QLayout::isTopLevel() const
 {
     return d->topLevel;
 }
@@ -1080,7 +1080,7 @@ QSize QLayout::totalMaximumSize() const
     top += menuBarHeightForWidth(d->menubar, s.width());
 #endif
 
-    if (isWindow())
+    if (isTopLevel())
         s = QSize(qMin(s.width() + side, QLAYOUTSIZE_MAX),
                    qMin(s.height() + top, QLAYOUTSIZE_MAX));
     return s;
@@ -1100,7 +1100,7 @@ QLayout::~QLayout()
       This function may be called during the QObject destructor,
       when the parent no longer is a QWidget.
     */
-    if (isWindow() && parent() && parent()->isWidgetType() &&
+    if (isTopLevel() && parent() && parent()->isWidgetType() &&
          ((QWidget*)parent())->layout() == this)
         ((QWidget*)parent())->d->layout = 0;
 }
@@ -1165,7 +1165,7 @@ void QLayout::addChildWidget(QWidget *w)
   Sets this layout's parent widget to a fixed size with width \a w and
   height \a h, stopping the user form resizing it, and also prevents the
   layout from resizing it, even if the layout's size hint should
-  change. Does nothing if this is not a toplevel layout (isWindow()
+  change. Does nothing if this is not a toplevel layout (isTopLevel()
   returns true).
 
   As a special case, if both \a w and \a h are 0, then the layout's
