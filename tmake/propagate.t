@@ -138,7 +138,7 @@ OBJMOC	=	#$ ExpandList("OBJMOC");
 #$ (Project("TARGET") eq "qt" && Project('TEMPLATE') ne "qt.t") || DisableOutput();
 PNG_OBJECTS  = #$ ExpandList("PNG_OBJECTS");
 ZLIB_OBJECTS = #$ ExpandList("ZLIB_OBJECTS");
-#$ (Project("TARGET") eq " && qt"Project('TEMPLATE') ne "qt.t") || EnableOutput();
+#$ (Project("TARGET") eq "qt" && Project('TEMPLATE') ne "qt.t") || EnableOutput();
 
 ####### Implicit rules
 
