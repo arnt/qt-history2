@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#260 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#261 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -59,7 +59,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#260 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#261 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -2606,7 +2606,6 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 					0 );
 	if ( XFilterEvent( (XEvent*)event, winId() ) ) {
 	    composingKeycode = keycode; // ### this is not documented in xlib
-	    debug( "discarded press" );
 	    return TRUE;
 	}
 
