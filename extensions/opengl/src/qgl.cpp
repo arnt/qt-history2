@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#2 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#3 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -19,7 +19,7 @@
 #undef  INT32
 #endif
 
-RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#2 $");
+RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#3 $");
 
 
 #if defined(_CC_MSVC_)
@@ -588,7 +588,7 @@ bool QGLContext::chooseContext()
 		0, GetLastError(),
 		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 		(LPTSTR) &lpMsgBuf, 0, 0 );
-	    debug( (const char *)lpMsgBuf );
+	    //debug( (const char *)lpMsgBuf );
 	    LocalFree( lpMsgBuf );
  	}
 	rc = wglCreateContext( dc );
@@ -678,11 +678,13 @@ static QGLContext *currentContext = 0;
  */
 void QGLContext::makeCurrent()
 {
+    /*
     if ( currentContext ) {
 	if ( currentContext == this )		// already current
 	    return;
 	currentContext->doneCurrent();
     }
+    */
     dc = paintDevice->handle();
     if ( dc ) {
 	tmp_dc = FALSE;
@@ -866,6 +868,8 @@ void QGLContext::swapBuffers()
   \code
     class DrawGL : public QGLWidget
     {
+        QOBJECT;   // Include this if you want to use Qt signals & slots etc.
+
     public:
         DrawGL( QWidget *parent, const char *name )
 	    : QGLWidget(parent,name) {}
