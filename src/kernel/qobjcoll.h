@@ -1,16 +1,13 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjcoll.h#1 $
+** $Id: //depot/qt/main/src/kernel/qobjcoll.h#2 $
 **
 ** Definition of QObject and QMetaObject collections
 **
 ** Author  : Haavard Nord
 ** Created : 940807
 **
-** Copyright (C) 1994 by Troll Tech as.	 All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.	 All rights reserved.
 **
-** --------------------------------------------------------------------------
-** There is an application global object dictionary, objectDict, which stores
-** all loaded meta objects.
 *****************************************************************************/
 
 #ifndef QOBJCOLL_H
@@ -35,7 +32,7 @@ declare(QDictM,QMetaObject);
 typedef QDictM(QMetaObject) QObjectDictionary;	// meta object dictionary
 
 extern QObjectDictionary *objectDict;		// global object dictionary
-						// defined in qmetaobj.C
+						// defined in qmetaobj.cpp
 
 #endif // QOBJCOLL_H
 
