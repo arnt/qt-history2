@@ -1093,4 +1093,14 @@ int QSlider::value() const
     return QRangeControl::value();
 }
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+/*! 
+  \reimp
+*/
+QAccessibleInterface *QSlider::createAccessibilityInterface()
+{
+    return new QAccessibleRangeControl( this, QAccessible::Slider );
+}
+#endif
+
 #endif

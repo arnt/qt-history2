@@ -122,6 +122,10 @@ protected:
     void updateMask();
     void styleChange( QStyle& );
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *createAccessibilityInterface();
+#endif
+
     void	valueChange();
     void	rangeChange();
 
