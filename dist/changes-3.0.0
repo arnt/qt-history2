@@ -147,10 +147,11 @@ Regular Expresions
 --------------
 
 Qt always had regular expression support, but that support was pretty
-much limited to what was required in common GUI control elements like
-a file dialog. With Qt 3.0, we introduce a new regular expression
-engine that is modelled on Perl's regexp engine and fully supports
-Unicode. Most noticable is the support for backreferences.
+much limited to what was required in common GUI control elements such
+as file dialogs. With Qt 3.0, we introduce a new regular expression
+engine that supports most of Perl's regexp features plus Unicode.
+Most noticeable is the support for capturing parentheses and
+backreferences.
 
 
 storing application settings
@@ -171,12 +172,6 @@ QProcess is a class to allow you to start other programs from within a Qt
 application in a platform independent manner. It gives you full control over
 the started program as for example redirection of input and output of console
 applications.
-
-Regular expressions
--------
-
-############################
-
 
 XML Improvements
 ------------------
@@ -342,7 +337,7 @@ setUsesDropDown(TRUE) )
 
 All new functions: 
 	void add(QAction*);
-	void  addSeparator();
+	void addSeparator();
 	void addedTo( QWidget *actionWidget, QWidget *container, QAction *a );
 	void addedTo( int index, QPopupMenu *menu, QAction *a );
 	void setUsesDropDown( bool enable );
@@ -408,9 +403,9 @@ More sophisticated function toString() that takes a DateFormat, where
 DateFormat can be either TextDate (the default), ISODate (IDO 8601) or
 LocalDate (locale dependent).
 
-All new Functions:
-	QDate  addMonths( int months ) const;
-	QDate  addYears( int years ) const;
+All new functions:
+	QDate addMonths( int months ) const;
+	QDate addYears( int years ) const;
 	QDate fromString( const QString& s, Qt::DateFormat f = Qt::TextDate );
 
 
@@ -700,7 +695,7 @@ New static functions:
 QRegExp
 
 QRegExp grew to a fully blown regular expression engine similar to the
-one in Perl, with full unicode and backreferences support.
+one in Perl, with full Unicode and backreference support.
 
 New functions:
 	bool minimal() const;
@@ -829,7 +824,7 @@ Many new functions have been added:
 
 New classes:
 
-QAquaStyle (only on MacOS X )
+QAquaStyle (only on MacOS X)
 QCleanupHandler
 QComponentFactory
 QComponentFactoryInterface
@@ -871,8 +866,7 @@ Obsolete classes:
 	QTableView, use QScrollView or QTable instead.
 
 Obsolete functions:
-
-	QActionGroup::insert( QAction*),  use QActionGroup::add( QAction* ) instead.
+	QActionGroup::insert( QAction * ),  use QActionGroup::add( QAction* ) instead.
 	QApplication::setWinStyleHighlightColor( const QColor &c ), use setPalette() instead
 	QApplication::winStyleHighlightColor(), use palette() instead
 	QXmlInputSource::QXmlInputSource( QFile& file ), use QXmlInputSource( QIODevice *dev ) instead.
@@ -885,3 +879,6 @@ Obsolete functions:
 	QMainWindow::toolBarsMovable() const;
 	QMainWindow::toolBars( Dock dock ) const;
 	QMainWindow::lineUpToolBars( bool keepNewLines = FALSE );
+
+Removed functions:
+	QRegExp::find( const QString& str, int index ) const, has been renamed QRegExp::search();
