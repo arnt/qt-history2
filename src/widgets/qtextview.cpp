@@ -1184,6 +1184,8 @@ void QTextView::contentsDragLeaveEvent( QDragLeaveEvent * )
 
 void QTextView::contentsDropEvent( QDropEvent *e )
 {
+    if ( isReadOnly() )
+	return;
     inDnD = FALSE;
     e->acceptAction();
     QString text;
