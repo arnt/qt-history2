@@ -40,7 +40,7 @@
 /*!
     \class QMouseDriverPlugin qmousedriverplugin_qws.h
     \brief The QMouseDriverPlugin class provides an abstract base for
-    mouse driver plugins.
+    Qt/Embedded mouse driver plugins.
 
     \ingroup plugins
 
@@ -52,6 +52,8 @@
     create(), and exporting the class with the \c Q_EXPORT_PLUGIN
     macro. See the \link plugins-howto.html Plugins
     documentation\endlink for details.
+
+    This class is only available in Qt/Embedded.
 */
 
 /*!

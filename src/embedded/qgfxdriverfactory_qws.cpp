@@ -87,7 +87,7 @@ QGfxDriverFactoryPrivate::~QGfxDriverFactoryPrivate()
 
 /*!
     \class QGfxDriverFactory qgfxdriverfactory.h
-    \brief The QGfxDriverFactory class creates QScreen objects.
+    \brief The QGfxDriverFactory class creates QScreen objects for Qt/Embedded.
 
     The graphics driver factory creates a QScreen object for a given
     key with QGfxDriverFactory::create(key).
@@ -97,6 +97,8 @@ QGfxDriverFactoryPrivate::~QGfxDriverFactoryPrivate()
 
     QGfxDriverFactory::keys() returns a list of valid keys. Qt
     currently ships with "LinuxFb".
+
+    This class is only available in Qt/Embedded.
 */
 
 /*!

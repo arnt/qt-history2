@@ -127,7 +127,7 @@ void QWSMouseHandler::mouseChanged( const QPoint& pos, int bstate )
     \fn QWSMouseHandler::calibrate(QWSPointerCalibrationData * )
 
     This method is reimplemented in the calibrated mouse handler to
-    set calibration information (from, for instance, the QPE
+    set calibration information (from, for instance, the Qtopia
     calibration screen). This version does nothing.
 */
 

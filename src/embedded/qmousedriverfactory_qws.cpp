@@ -80,13 +80,15 @@ QMouseDriverFactoryPrivate::~QMouseDriverFactoryPrivate()
 /*!
     \class QMouseDriverFactory qmousedriverfactory.h
     \brief The QMouseDriverFactory class creates QWSMouseHandler
-    objects.
+    objects for Qt/Embedded.
 
     The graphics driver factory creates a QWSMouseHandler object for a
     given key with QMouseDriverFactory::create(key).
 
     The drivers are either built-in or dynamically loaded from a
     driver plugin (see \l QMouseDriverPlugin).
+
+    This class is only available in Qt/Embedded.
 
     QMouseDriverFactory::keys() returns a list of valid keys.
 */
