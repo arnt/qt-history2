@@ -12,6 +12,8 @@ Fixed various problems with overlays on X11: mouse tracking, visual
 selection on systems with non-transparent overlay visuals available,
 enter/leave events.
 
+Fixed a memory leak possibility in renderPixmap().
+
 
 Changes from version 4.20 to version 4.30 (Qt 2.1)
 --------------------------------------------------
