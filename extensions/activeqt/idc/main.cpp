@@ -46,6 +46,40 @@ static bool attachTypeLibrary( const QString &applicationName, int resource, con
     return TRUE;
 }
 
+static bool registerServer( const QString &input )
+{
+    HMODULE hdll = 0;
+    QT_WA( {
+	hdll = LoadLibraryW( (TCHAR*)input.ucs2() );
+    }, {
+	hdll = LoadLibraryA( input.local8Bit() );
+    } );
+    if ( !hdll )
+	return FALSE;
+    typedef HRESULT(* RegServerProc)();
+    RegServerProc DllRegisterServer = (RegServerProc)GetProcAddress( hdll, "DllRegisterServer" );
+    if ( !DllRegisterServer )
+	return FALSE;
+    return DllRegisterServer() == S_OK;
+}
+
+static bool unregisterServer( const QString &input )
+{
+    HMODULE hdll = 0;
+    QT_WA( {
+	hdll = LoadLibraryW( (TCHAR*)input.ucs2() );
+    }, {
+	hdll = LoadLibraryA( input.local8Bit() );
+    } );
+    if ( !hdll )
+	return FALSE;
+    typedef HRESULT(* RegServerProc)();
+    RegServerProc DllUnregisterServer = (RegServerProc)GetProcAddress( hdll, "DllUnregisterServer" );
+    if ( !DllUnregisterServer )
+	return FALSE;
+    return DllUnregisterServer() == S_OK;
+}
+
 static void slashify( QString &s )
 {
     if ( !s.contains( '/' ) )
@@ -99,6 +133,14 @@ int main( int argc, char **argv )
 	} else if ( p == "/v" || p == "-v" ) {
 	    qWarning( "Qt interface definition compiler version 1.0" );
 	    return 0;
+	} else if ( p == "/regserver" || p == "-regserver" ) {
+	    if ( !registerServer( input ) )
+		error = "Failed to register server!";
+	    break;
+	} else if ( p == "/unregserver" || p == "-unregserver" ) {
+	    if ( !unregisterServer( input ) )
+		error = "Failed to unregister server!";
+	    break;
 	} else if ( p[0] == '/' || p[0] == '-' ) {
 	    error = "Unknown option \"" + p + "\"";
 	    break;
