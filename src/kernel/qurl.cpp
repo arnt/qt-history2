@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#32 $
 **
 ** Implementation of QFileDialog class
 **
@@ -710,6 +710,8 @@ void QUrl::parse( const QString& url )
 	    d->queryEncoded += c;
 	    break;
 	case Port: {
+	    if ( d->port == -1 )
+		d->port = 0;
 	    QString p;
 	    p.setNum( d->port );
 	    p += c;
@@ -1614,7 +1616,7 @@ void QUrl::addEntry( const QUrlInfo &i )
 }
 
 /*!
-  Returns the URL information for the file entry \a entry. 
+  Returns the URL information for the file entry \a entry.
 */
 
 QUrlInfo QUrl::info( const QString &entry ) const
