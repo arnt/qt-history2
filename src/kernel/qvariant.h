@@ -272,6 +272,7 @@ private:
     void detach() { if (d->ref != 1) detach_helper(); }
     void detach_helper();
 
+public:
     struct Private
     {
 	QAtomic ref;
@@ -288,6 +289,7 @@ private:
 	    void *ptr;
 	} value;
     };
+private:
     Private *d;
     static Private shared_invalid;
 

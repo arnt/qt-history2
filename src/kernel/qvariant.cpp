@@ -41,49 +41,49 @@ static void construct(QVariant::Private *x, const void *v)
 	    break;
 #ifndef QT_NO_STRINGLIST
 	case QVariant::StringList:
-	    x->value.ptr = new QStringList(*static_cast<QStringList *>(v));
+	    x->value.ptr = new QStringList(*static_cast<const QStringList *>(v));
 	    break;
 #endif //QT_NO_STRINGLIST
 #ifndef QT_NO_TEMPLATE_VARIANT
 	case QVariant::Map:
-	    x->value.ptr = new QMap<QString,QVariant>(*static_cast<QMap<QString, QVariant> *>(v));
+	    x->value.ptr = new QMap<QString,QVariant>(*static_cast<const QMap<QString, QVariant> *>(v));
 	    break;
 	case QVariant::List:
-	    x->value.ptr = new QList<QVariant>(*static_cast<QList<QVariant> *>(v));
+	    x->value.ptr = new QList<QVariant>(*static_cast<const QList<QVariant> *>(v));
 	    break;
 #endif
 	case QVariant::Date:
-	    x->value.ptr = new QDate(*static_cast<QDate *>(v));
+	    x->value.ptr = new QDate(*static_cast<const QDate *>(v));
 	    break;
 	case QVariant::Time:
-	    x->value.ptr = new QTime(*static_cast<QTime *>(v));
+	    x->value.ptr = new QTime(*static_cast<const QTime *>(v));
 	    break;
 	case QVariant::DateTime:
-	    x->value.ptr = new QDateTime(*static_cast<QDateTime *>(v));
+	    x->value.ptr = new QDateTime(*static_cast<const QDateTime *>(v));
 	    break;
 	case QVariant::ByteArray:
-	    x->value.ptr = new QByteArray(*static_cast<QByteArray *>(v));
+	    x->value.ptr = new QByteArray(*static_cast<const QByteArray *>(v));
 	    break;
 	case QVariant::BitArray:
-	    x->value.ptr = new QBitArray(*static_cast<QBitArray *>(v));
+	    x->value.ptr = new QBitArray(*static_cast<const QBitArray *>(v));
 	    break;
 	case QVariant::Int:
-	    x->value.i = *static_cast<int *>(v);
+	    x->value.i = *static_cast<const int *>(v);
 	    break;
 	case QVariant::UInt:
-	    x->value.u = *static_cast<uint *>(v);
+	    x->value.u = *static_cast<const uint *>(v);
 	    break;
 	case QVariant::Bool:
-	    x->value.b = *static_cast<bool *>(v);
+	    x->value.b = *static_cast<const bool *>(v);
 	    break;
 	case QVariant::Double:
-	    x->value.d = *static_cast<double *>(v);
+	    x->value.d = *static_cast<const double *>(v);
 	    break;
 	case QVariant::LongLong:
-	    x->value.ll = *static_cast<Q_LLONG *>(v);
+	    x->value.ll = *static_cast<const Q_LLONG *>(v);
 	    break;
 	case QVariant::ULongLong:
-	    x->value.ull = *static_cast<Q_ULLONG *>(v);
+	    x->value.ull = *static_cast<const Q_ULLONG *>(v);
 	    break;
 	case QVariant::Invalid:
 	    break;

@@ -29,66 +29,66 @@ static void construct(QVariant::Private *x, const void *v)
     if (v) {
 	switch( x->type ) {
 	case QVariant::Bitmap:
-	    x->value.ptr = new QBitmap(*static_cast<QBitmap *>(v));
+	    x->value.ptr = new QBitmap(*static_cast<const QBitmap *>(v));
 	    break;
 	case QVariant::Region:
-	    x->value.ptr = new QRegion(*static_cast<QRegion *>(v));
+	    x->value.ptr = new QRegion(*static_cast<const QRegion *>(v));
 	    break;
 	case QVariant::PointArray:
-	    x->value.ptr = new QPointArray(*static_cast<QPointArray *>(v));
+	    x->value.ptr = new QPointArray(*static_cast<const QPointArray *>(v));
 	    break;
 	case QVariant::Font:
-	    x->value.ptr = new QFont(*static_cast<QFont *>(v));
+	    x->value.ptr = new QFont(*static_cast<const QFont *>(v));
 	    break;
 	case QVariant::Pixmap:
-	    x->value.ptr = new QPixmap(*static_cast<QPixmap *>(v));
+	    x->value.ptr = new QPixmap(*static_cast<const QPixmap *>(v));
 	    break;
 	case QVariant::Image:
-	    x->value.ptr = new QImage(*static_cast<QImage *>(v));
+	    x->value.ptr = new QImage(*static_cast<const QImage *>(v));
 	    break;
 	case QVariant::Brush:
-	    x->value.ptr = new QBrush(*static_cast<QBrush *>(v));
+	    x->value.ptr = new QBrush(*static_cast<const QBrush *>(v));
 	    break;
 	case QVariant::Point:
-	    x->value.ptr = new QPoint(*static_cast<QPoint *>(v));
+	    x->value.ptr = new QPoint(*static_cast<const QPoint *>(v));
 	    break;
 	case QVariant::Rect:
-	    x->value.ptr = new QRect(*static_cast<QRect *>(v));
+	    x->value.ptr = new QRect(*static_cast<const QRect *>(v));
 	    break;
 	case QVariant::Size:
-	    x->value.ptr = new QSize(*static_cast<QSize *>(v));
+	    x->value.ptr = new QSize(*static_cast<const QSize *>(v));
 	    break;
 	case QVariant::Color:
-	    x->value.ptr = new QColor(*static_cast<QColor *>(v));
+	    x->value.ptr = new QColor(*static_cast<const QColor *>(v));
 	    break;
 #ifndef QT_NO_PALETTE
 	case QVariant::Palette:
-	    x->value.ptr = new QPalette(*static_cast<QPalette *>(v));
+	    x->value.ptr = new QPalette(*static_cast<const QPalette *>(v));
 	    break;
 #ifndef QT_NO_COMPAT
 	case QVariant::ColorGroup:
-	    x->value.ptr = new QColorGroup(*static_cast<QColorGroup *>(v));
+	    x->value.ptr = new QColorGroup(*static_cast<const QColorGroup *>(v));
 	    break;
 #endif
 #endif
 #ifndef QT_NO_ICONSET
 	case QVariant::IconSet:
-	    x->value.ptr = new QIconSet(*static_cast<QIconSet *>(v));
+	    x->value.ptr = new QIconSet(*static_cast<const QIconSet *>(v));
 	    break;
 #endif
 #ifndef QT_NO_ACCEL
 	case QVariant::KeySequence:
-	    x->value.ptr = new QKeySequence(*static_cast<QKeySequence *>(v));
+	    x->value.ptr = new QKeySequence(*static_cast<const QKeySequence *>(v));
 	    break;
 #endif
 	case QVariant::Pen:
-	    x->value.ptr = new QPen(*static_cast<QPen *>(v));
+	    x->value.ptr = new QPen(*static_cast<const QPen *>(v));
 	    break;
 	case QVariant::SizePolicy:
-	    x->value.ptr = new QSizePolicy(*static_cast<QSizePolicy *>(v));
+	    x->value.ptr = new QSizePolicy(*static_cast<const QSizePolicy *>(v));
 	    break;
 	case QVariant::Cursor:
-	    x->value.ptr = new QCursor(*static_cast<QCursor *>(v));
+	    x->value.ptr = new QCursor(*static_cast<const QCursor *>(v));
 	    break;
 	default:
 	    qt_kernel_variant_handler.construct(x, v);
