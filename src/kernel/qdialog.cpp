@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#44 $
 **
 ** Implementation of QDialog class
 **
@@ -15,7 +15,7 @@
 #include "qkeycode.h"
 #include "qobjcoll.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#43 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#44 $");
 
 
 /*!
@@ -294,7 +294,8 @@ void QDialog::show()
 	      p.y() + w->height()/2 - height()/2 );
     }
     QWidget::show();
-    if ( testWFlags(WType_Modal) ) qApp->enter_loop();
+    if ( testWFlags(WType_Modal) )
+	qApp->enter_loop();
 }
 
 
