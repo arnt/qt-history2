@@ -75,7 +75,8 @@ push @dirs, "mkspecs/" . $ENV{"MKSPEC"} if defined $ENV{"MKSPEC"};
 
 my @files;
 my @pfiles;
-foreach my $p ( @dirs ) {
+my $p;
+foreach $p ( @dirs ) {
     if ( -d "$basedir/$p" ) {
 	chdir "$basedir/$p";
 	my @ff = find_files( ".", "^[-a-z0-9]*(?:_[^p].*)?\\.h\$" , 0 );
@@ -101,8 +102,9 @@ if ( $showonlypriv ) {
 }
 
 if ( check_unix() ) {
+    my $f;
     chdir $includedir;
-    foreach my $f ( @files ) {
+    foreach $f ( @files ) {
 	my $h = $f;
 	$h =~ s-.*/--g;
 	if ( -l $h && ! -f $h ) {
@@ -117,7 +119,7 @@ if ( check_unix() ) {
 	}
     }
     chdir $privatedir;
-    foreach my $f ( @pfiles ) {
+    foreach $f ( @pfiles ) {
 	my $h = $f;
 	$h =~ s-.*/--g;
 	if ( -l $h && ! -f $h ) {
@@ -126,12 +128,13 @@ if ( check_unix() ) {
 	symlink_files($basedir . "/" . $f, $h) if ( ! -l $h );
     }
 } else {
-    foreach my $f ( @files ) {
+    my $f;
+    foreach $f ( @files ) {
 	my $h = $f;
 	$h =~ s-.*/--g;
 	sync_files("$basedir/$f", "$includedir/$h", $fast);
     }
-    foreach my $f ( @pfiles ) {
+    foreach $f ( @pfiles ) {
 	my $h = $f;
 	$h =~ s-.*/--g;
 	sync_files("$basedir/$f", "$privatedir/$h", $fast);
