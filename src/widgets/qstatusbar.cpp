@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#31 $
 **
 ** Implementation of QStatusBar class
 **
@@ -31,6 +31,7 @@
 #include "qtimer.h"
 #include "qdrawutil.h"
 #include "qapplication.h"
+#include "qresizecorner.h"
 
 /*! \class QStatusBar qstatusbar.h
 
@@ -94,20 +95,6 @@ public:
 	bool p;
     };
 
-    class ResizeLines: public QWidget
-    {
-    public:
-	ResizeLines( QWidget * parent );
-	
-    protected:
-	void paintEvent( QPaintEvent * );
-	void mousePressEvent( QMouseEvent * );
-	void mouseMoveEvent( QMouseEvent * );
-    private:
-	QPoint p;
-	QSize s;
-    };
-
     QList<StatusBarPrivateItem> items;
     StatusBarPrivateItem * firstPermanent;
 
@@ -116,65 +103,8 @@ public:
     QBoxLayout * box;
     QTimer * timer;
 
-    ResizeLines * resizer;
+    QResizeCorner * resizer;
 };
-
-
-QStatusBarPrivate::ResizeLines::ResizeLines( QWidget * parent )
-    : QWidget( parent, 0)
-{
-    setCursor( sizeFDiagCursor );
-    setFixedSize( 13, 13 );
-    setSizeGrip( TRUE );
-
-}
-
-
-void QStatusBarPrivate::ResizeLines::paintEvent( QPaintEvent * )
-{
-    QPainter painter( this );
-    QPointArray a;
-    a.setPoints( 3, 1,12, 12,1, 12,12 );
-    painter.setPen( colorGroup().dark() );
-    painter.setBrush( colorGroup().dark() );
-    painter.drawPolygon( a );
-    painter.setPen( colorGroup().light() );
-    painter.drawLine(  0, 12, 12,  0 );
-    painter.drawLine(  5, 12, 12,  5 );
-    painter.drawLine( 10, 12, 12, 10 );
-    painter.setPen( colorGroup().background() );
-    painter.drawLine(  4, 12, 12,  4 );
-    painter.drawLine(  9, 12, 12,  9 );
-}
-
-
-void QStatusBarPrivate::ResizeLines::mousePressEvent( QMouseEvent * e )
-{
-    p = e->globalPos();
-    s = topLevelWidget()->size();
-}
-
-
-void QStatusBarPrivate::ResizeLines::mouseMoveEvent( QMouseEvent * e )
-{
-    if ( e->state() != LeftButton )
-	return;
-
-    if ( topLevelWidget()->testWState(WState_ConfigPending) )
-	return;
-
-    QPoint np( e->globalPos() );
-
-    int w = np.x() - p.x() + s.width();
-    int h = np.y() - p.y() + s.height();
-    if ( w < 1 )
-	w = 1;
-    if ( h < 1 )
-	h = 1;
-    topLevelWidget()->resize( w, h );
-
-    QApplication::syncX();
-}
 
 
 /*!  Constructs an empty status bar. */
@@ -185,7 +115,7 @@ QStatusBar::QStatusBar( QWidget * parent, const char *name )
     d = new QStatusBarPrivate;
     d->items.setAutoDelete( TRUE );
     d->box = 0;
-    d->resizer = new QStatusBarPrivate::ResizeLines( this );
+    d->resizer = new QResizeCorner( this );
     d->timer = 0;
     reformat();
 }

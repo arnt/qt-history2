@@ -176,6 +176,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qpushbutton.h \
 		  $$WIDGETS_H/qradiobutton.h \
 		  $$WIDGETS_H/qrangecontrol.h \
+		  $$WIDGETS_H/qresizecorner.h \
 		  $$WIDGETS_H/qscrollbar.h \
 		  $$WIDGETS_H/qscrollview.h \
 		  $$WIDGETS_H/qslider.h \
@@ -337,6 +338,7 @@ SOURCES	       += tools/qbitarray.cpp \
 		  widgets/qpushbutton.cpp \
 		  widgets/qradiobutton.cpp \
 		  widgets/qrangecontrol.cpp \
+		  widgets/qresizecorner.cpp \
 		  widgets/qscrollbar.cpp \
 		  widgets/qscrollview.cpp \
 		  widgets/qslider.cpp \
