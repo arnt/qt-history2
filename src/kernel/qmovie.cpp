@@ -30,7 +30,6 @@
 #include "qgfx_qws.h"
 #endif
 
-#include "qasyncio.h"
 #include "qasyncimageio.h"
 
 #include <stdlib.h>
