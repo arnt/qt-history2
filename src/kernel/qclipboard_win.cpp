@@ -66,8 +66,7 @@ bool QClipboard::ownsSelection() const
 
 bool QClipboard::ownsClipboard() const
 {
-    qWarning("QClipboard::ownsClipboard: UNIMPLEMENTED!");
-    return FALSE;
+    return qt_cb_owner && GetClipboardOwner() == qt_cb_owner->winId();
 }
 
 void QClipboard::ownerDestroyed()
