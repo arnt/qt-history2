@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#295 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#296 $
 **
 ** Implementation of QListView widget class
 **
@@ -4410,9 +4410,9 @@ bool QListView::setConfiguration( const QDomElement& element )
     // Create an iterator and give the listview as argument
     QListViewItemIterator it( lv );
     // iterate through all items of the listview
-    for ( ; it->current(); ++it ) {
-      if ( it->current()->isSelected() )
-        lst->append( it->current() );
+    for ( ; it.current(); ++it ) {
+      if ( it.current()->isSelected() )
+        lst->append( it.current() );
     }
 
     return lst;
