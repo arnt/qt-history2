@@ -3,22 +3,23 @@
 <include location="local" impldecl="in declaration">finddialog.h</include>
 <include location="global" impldecl="in declaration">qmap.h</include>
 <include location="global" impldecl="in declaration">qguardedptr.h</include>
-<include location="global" impldecl="in implementation">qcombobox.h</include>
-<include location="global" impldecl="in implementation">qpaintdevicemetrics.h</include>
-<include location="global" impldecl="in implementation">qsimplerichtext.h</include>
-<include location="global" impldecl="in implementation">qfileinfo.h</include>
-<include location="global" impldecl="in implementation">qtextstream.h</include>
-<include location="global" impldecl="in implementation">qdockwindow.h</include>
-<include location="global" impldecl="in implementation">stdlib.h</include>
-<include location="global" impldecl="in implementation">qmime.h</include>
-<include location="local" impldecl="in implementation">helpwindow.h</include>
-<include location="global" impldecl="in implementation">qstylesheet.h</include>
-<include location="global" impldecl="in implementation">qapplication.h</include>
-<include location="local" impldecl="in implementation">helpdialogimpl.h</include>
-<include location="global" impldecl="in implementation">qdir.h</include>
-<include location="global" impldecl="in implementation">qprinter.h</include>
-<include location="global" impldecl="in implementation">qpainter.h</include>
+<include location="global" impldecl="in implementation">qstatusbar.h</include>
 <include location="global" impldecl="in implementation">qurl.h</include>
+<include location="global" impldecl="in implementation">qpainter.h</include>
+<include location="global" impldecl="in implementation">qprinter.h</include>
+<include location="global" impldecl="in implementation">qdir.h</include>
+<include location="local" impldecl="in implementation">helpdialogimpl.h</include>
+<include location="global" impldecl="in implementation">qapplication.h</include>
+<include location="global" impldecl="in implementation">qstylesheet.h</include>
+<include location="local" impldecl="in implementation">helpwindow.h</include>
+<include location="global" impldecl="in implementation">qmime.h</include>
+<include location="global" impldecl="in implementation">stdlib.h</include>
+<include location="global" impldecl="in implementation">qdockwindow.h</include>
+<include location="global" impldecl="in implementation">qtextstream.h</include>
+<include location="global" impldecl="in implementation">qfileinfo.h</include>
+<include location="global" impldecl="in implementation">qsimplerichtext.h</include>
+<include location="global" impldecl="in implementation">qpaintdevicemetrics.h</include>
+<include location="global" impldecl="in implementation">qcombobox.h</include>
 <forward>class HelpDialog;</forward>
 <forward>class HelpWindow;</forward>
 <variable>QGuardedPtr&lt;FindDialog&gt; findDialog;</variable>
@@ -33,8 +34,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>938</width>
-            <height>776</height>
+            <width>934</width>
+            <height>774</height>
         </rect>
     </property>
     <property name="caption">
@@ -359,6 +360,7 @@
     
     
     setupBookmarkMenu();
+    connect( browser, SIGNAL( highlighted( const QString &amp; ) ), statusBar(), SLOT( message( const QString &amp; ) ) );
 }</function>
     <function name="destroy()" >{
     
