@@ -356,6 +356,89 @@ UnixMakefileGenerator::processPrlVariable(const QString &var, const QStringList 
 	MakefileGenerator::processPrlVariable(var, l);
 }
 
+bool
+UnixMakefileGenerator::findLibraries()
+{
+    QPtrList<MakefileDependDir> libdirs;
+    libdirs.setAutoDelete(TRUE);
+    const QString lflags[] = { "QMAKE_LIBDIR_FLAGS", "QMAKE_LIBS", QString::null };
+    for(int i = 0; !lflags[i].isNull(); i++) {
+	QStringList &l = project->variables()[lflags[i]];
+	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+	    QString stub, dir, extn, opt = (*it).stripWhiteSpace();
+	    if(opt.startsWith("-")) {
+		if(opt.startsWith("-L")) {
+		    QString r = opt.right(opt.length() - 2), l = r;
+		    fixEnvVariables(l);
+		    libdirs.append(new MakefileDependDir(r.replace("\"",""),
+							 l.replace("\"","")));
+		} else if(opt.startsWith("-l")) {
+		    stub = opt.mid(2);
+		} else if(project->isActiveConfig("macx") && opt.startsWith("-framework")) {
+		    if(opt.length() > 11) {
+			opt = opt.mid(11);
+		    } else {
+			++it;
+			opt = (*it);
+		    }
+		    extn = "";
+		    dir = "/System/Library/Frameworks/" + opt + ".framework/";
+		    stub = opt;
+		}
+	    } else {
+		extn = dir = "";
+		stub = opt;
+		int slsh = opt.findRev(Option::dir_sep);
+		if(slsh != -1) {
+		    dir = opt.left(slsh);
+		    stub = opt.mid(slsh+1);
+		}
+		QRegExp stub_reg("^.*lib(" + stub + "[^./=]*)\\.(.*)$");
+		if(stub_reg.exactMatch(stub)) {
+		    stub = stub_reg.cap(1);
+		    extn = stub_reg.cap(2);
+		}
+	    }
+	    if(!stub.isEmpty()) {
+		const QString modifs[] = { "-mt", QString::null };
+		for(int modif = 0; !modifs[modif].isNull(); modif++) {
+		    bool found = FALSE;
+		    QStringList extens;
+		    if(!extn.isNull())
+			extens << extn;
+		    else
+			extens << project->variables()["QMAKE_EXTENSION_SHLIB"].first() << "a";
+		    for(QStringList::Iterator extit = extens.begin(); extit != extens.end(); ++extit) {
+			if(dir.isNull()) {
+			    QString lib_stub;
+			    for(MakefileDependDir *mdd = libdirs.first(); mdd; mdd = libdirs.next() ) {
+				if(QFile::exists(mdd->local_dir + Option::dir_sep + "lib" + stub + 
+						 modifs[modif] + "." + (*extit))) {
+				    lib_stub = stub + modifs[modif];
+				    break;
+				}
+			    }
+			    if(!lib_stub.isNull()) {
+				(*it) = "-l" + lib_stub;
+				found = TRUE;
+				break;
+			    }
+			} else {
+			    if(QFile::exists("lib" + stub + modifs[modif] + "." + (*extit))) {
+				(*it) = "lib" + stub + modifs[modif] + "." + (*extit);
+				found = TRUE;
+				break;
+			    }
+			}
+		    }
+		    if(found)
+			break;
+		}
+	    }
+	}
+    }
+}
+
 void
 UnixMakefileGenerator::processPrlFiles()
 {
@@ -521,5 +604,4 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     }
     return ret;
 }
-
 

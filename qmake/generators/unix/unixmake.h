@@ -55,6 +55,7 @@ protected:
     virtual void processPrlVariable(const QString &, const QStringList &);
     virtual void processPrlFiles();
 
+    virtual bool findLibraries();
     virtual void init();
 
     void writeMakeParts(QTextStream &);
