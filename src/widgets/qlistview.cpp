@@ -2973,6 +2973,9 @@ void QListView::buildDrawableList() const
 	int ih = cur->i->height();
 	int ith = cur->i->totalHeight();
 
+	// if this is not true, buildDrawableList has been called recursivly
+	Q_ASSERT( dl == d->drawables );
+
 	// is this item, or its branch symbol, inside the viewport?
 	if ( cur->y + ith >= cy && cur->y < cy + ch ) {
 	    dl->append( new QListViewPrivate::DrawableItem(cur));
