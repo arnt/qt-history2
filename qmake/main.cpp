@@ -93,8 +93,6 @@ int main(int argc, char **argv)
 		exit_val = 2;
 		continue;
 	    }
-	    if(Option::mkfile::do_preprocess) 
-		continue;
 
 	    /* let Option post process */
 	    if(!Option::postProcessProject(&proj)) {
@@ -113,7 +111,7 @@ int main(int argc, char **argv)
 		mkfile = new UnixMakefileGenerator(&proj);
 	    } else if(gen == "MSVC") {
 		if(proj.first("TEMPLATE").find(QRegExp("^vc.*")) != -1) {
-		    def_mkfile = proj.first("TARGET") + ".dsp";
+		    def_mkfile = proj.first("TARGET") + proj.first( "DSP_EXTENSION" );
 		    mkfile = new DspMakefileGenerator(&proj);
 		} else {
 		    mkfile = new NmakeMakefileGenerator(&proj);

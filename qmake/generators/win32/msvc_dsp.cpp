@@ -122,9 +122,12 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 					(*it) + "\n\n" "# End Custom Build\n\n";
 
 			t << "USERDEP_" << base << "=\"" << findMocSource((*it)) << "\"" << endl << endl;
+/*
 			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
 			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\""
 			  << build << "!ENDIF " << endl << endl;
+*/
+			t << build << endl << endl;
 		    }
 		    t << "# End Source File" << endl;
 		}
@@ -151,9 +154,12 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 					"\t" + mocpath + (*it)  + " -o " +
 					findMocDestination((*it)) + "\n\n" "# End Custom Build\n\n";
 
+/*
 			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
 			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\""
 			  << build << "!ENDIF " << endl << endl;
+*/
+			t << build << endl << endl;
 		    }
 		    t << "# End Source File" << endl;
 		}
@@ -209,9 +215,11 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		     "\"" + mocFile + "moc_" + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
 		     "\t$(BuildCmds)\n\n" "# End Custom Build\n\n";
 
-		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
+/*		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
 		      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\"" << build
 		      << "!ENDIF \n\n"
+*/
+		    t << build
 		      << "# End Source File" << endl;
 		}
 	    } else if(variable == "MSVCDSP_LEXSOURCES") {
@@ -235,9 +243,12 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			"\tcopy lex.yy.c " + fname + "\n\n" +
 			"# End Custom Build\n\n";
 
+/*
 		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
 		      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\"" << build
 		      << "!ENDIF \n\n"
+*/
+		    t << build
 		      << "# End Source File" << endl;
 		}
 	    } else if(variable == "MSVCDSP_YACCSOURCES") {
@@ -263,9 +274,12 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			"\trename y.tab.c " + fname + Option::cpp_ext + "\n\n" +
 			"# End Custom Build\n\n";
 
+/*
 		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
 		      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\"" << build
 		      << "!ENDIF \n\n"
+*/
+		    t << build
 		      << "# End Source File" << endl;
 		}
 	    }
@@ -450,7 +464,7 @@ DspMakefileGenerator::init()
 	(*it).replace(QRegExp("\\.[a-zA-Z0-9_]*$"), "");
 
     if ( !project->variables()["QMAKE_APP_FLAG"].isEmpty() ) {
-	    project->variables()["MSVCDSP_TEMPLATE"].append("win32app.dsp");
+	    project->variables()["MSVCDSP_TEMPLATE"].append("win32app" + project->first( "DSP_EXTENSION" ) );
 	    if ( project->isActiveConfig("console") ) {
 		project->variables()["MSVCDSP_CONSOLE"].append("Console");
 		project->variables()["MSVCDSP_WINCONDEF"].append("_CONSOLE");
@@ -464,9 +478,9 @@ DspMakefileGenerator::init()
 	    }
     } else {
         if ( project->isActiveConfig("dll") ) {
-            project->variables()["MSVCDSP_TEMPLATE"].append("win32dll.dsp");
+            project->variables()["MSVCDSP_TEMPLATE"].append("win32dll" + project->first( "DSP_EXTENSION" ) );
         } else {
-            project->variables()["MSVCDSP_TEMPLATE"].append("win32lib.dsp");
+            project->variables()["MSVCDSP_TEMPLATE"].append("win32lib" + project->first( "DSP_EXTENSION" ) );
         }
     }
     project->variables()["MSVCDSP_LIBS"] += project->variables()["QMAKE_LIBS"];
