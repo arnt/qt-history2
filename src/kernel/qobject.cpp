@@ -79,24 +79,6 @@ void QMetaObject::changeGuard(QObject **ptr, QObject *o)
     addGuard(ptr);
 }
 
-class QMetaCallEvent : public QEvent
-{
-public:
-    QMetaCallEvent(Type type, int id, const QObject *sender = 0, int nargs = 0, int *types = 0, void **args = 0);
-    ~QMetaCallEvent();
-
-    int id() const { return id_; }
-    void **args() const { return args_; }
-    const QObject *sender() const { return sender_; }
-
-private:
-    int id_;
-    const QObject *sender_;
-    int nargs_;
-    int *types_;
-    void **args_;
-};
-
 QMetaCallEvent::QMetaCallEvent(QEvent::Type type, int id, const QObject *sender,
 			       int nargs, int *types, void **args)
     :QEvent(type), id_(id), sender_(sender), nargs_(nargs), types_(types), args_(args)

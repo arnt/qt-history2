@@ -21,11 +21,11 @@
 #ifdef Q_WS_WIN
 #include "qpaintengine_win.h"
 #endif
+#include "qwidget_p.h"
 #include "qpaintdevicemetrics.h"
 #include "qtextlayout_p.h"
 #include "qtextengine_p.h"
 #include "qfontengine_p.h"
-#include "qwidget_p.h"
 
 #define ds d->state
 #define dengine d->engine

@@ -32,6 +32,7 @@
 
 #include "qobject.h"
 #include "qpointer.h"
+#include "qcoreevent.h"
 
 #include <qlist.h>
 #if defined(QT_THREAD_SUPPORT)
@@ -136,6 +137,23 @@ public:
     uint ownObjectName : 1;
 };
 
+class QMetaCallEvent : public QEvent
+{
+public:
+    QMetaCallEvent(Type type, int id, const QObject *sender = 0, int nargs = 0,
+		   int *types = 0, void **args = 0);
+    ~QMetaCallEvent();
 
+    inline int id() const { return id_; }
+    inline void **args() const { return args_; }
+    inline const QObject *sender() const { return sender_; }
+
+private:
+    int id_;
+    const QObject *sender_;
+    int nargs_;
+    int *types_;
+    void **args_;
+};
 
 #endif
