@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#33 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -46,7 +46,7 @@
   Called when a frame of an animated image has ended and been revealed
   as changed().  The decoder will not make
   any further changes to the image until the next call to
-  QImageFormatDecoder::decode().
+  QImageFormat::decode().
 */
 
 /*!
@@ -96,7 +96,7 @@
   \ingroup images
 
   New formats are installed by creating objects of class
-  QImageFormatDecoderFactory.
+  QImageFormatType.
 */
 
 static const int max_header = 32;
@@ -107,17 +107,17 @@ struct QImageDecoderPrivate {
 	count = 0;
     }
 
-    static QList<QImageFormatDecoderFactory> factories;
+    static QList<QImageFormatType> factories;
 
     // Builtins...
-    static QGIFDecoderFactory gif_decoder_factory;
+    static QGIFFormatType gif_decoder_factory;
 
     uchar header[max_header];
     int count;
 };
 
-QList<QImageFormatDecoderFactory> QImageDecoderPrivate::factories;
-QGIFDecoderFactory QImageDecoderPrivate::gif_decoder_factory;
+QList<QImageFormatType> QImageDecoderPrivate::factories;
+QGIFFormatType QImageDecoderPrivate::gif_decoder_factory;
 
 /*!
   Constructs a QImageDecoder which will send change information to
@@ -167,7 +167,7 @@ int QImageDecoder::decode(const uchar* buffer, int length)
 	    d->header[d->count++] = buffer[consumed++];
 	}
 
-	for (QImageFormatDecoderFactory* f = QImageDecoderPrivate::factories.first();
+	for (QImageFormatType* f = QImageDecoderPrivate::factories.first();
 	    f && !actual_decoder;
 	    f = QImageDecoderPrivate::factories.next())
 	{
@@ -205,11 +205,11 @@ int QImageDecoder::decode(const uchar* buffer, int length)
 const char* QImageDecoder::formatName(const uchar* buffer, int length)
 {
     const char* name = 0;
-    for (QImageFormatDecoderFactory* f = QImageDecoderPrivate::factories.first();
+    for (QImageFormatType* f = QImageDecoderPrivate::factories.first();
 	f && !name;
 	f = QImageDecoderPrivate::factories.next())
     {
-	QImageFormatDecoder *decoder = f->decoderFor(buffer, length);
+	QImageFormat *decoder = f->decoderFor(buffer, length);
 	if (decoder) {
 	    name = f->formatName();
 	    delete decoder;
@@ -225,7 +225,7 @@ QStrList QImageDecoder::inputFormats()
 {
     QStrList result;
 
-    for (QImageFormatDecoderFactory* f = QImageDecoderPrivate::factories.first();
+    for (QImageFormatType* f = QImageDecoderPrivate::factories.first();
 	f; f = QImageDecoderPrivate::factories.next())
     {
 	if ( !result.contains(  f->formatName() ) ) {
@@ -237,30 +237,30 @@ QStrList QImageDecoder::inputFormats()
 }
 
 /*!
-  Registers a new QImageFormatDecoderFactory.  This is not needed in
+  Registers a new QImageFormatType.  This is not needed in
   application code as factories call this themselves.
 */
-void QImageDecoder::registerDecoderFactory(QImageFormatDecoderFactory* f)
+void QImageDecoder::registerDecoderFactory(QImageFormatType* f)
 {
     QImageDecoderPrivate::factories.insert(0,f);
 }
 
 /*!
-  Unregisters a new QImageFormatDecoderFactory.  This is not needed in
+  Unregisters a new QImageFormatType.  This is not needed in
   application code as factories call this themselves.
 */
-void QImageDecoder::unregisterDecoderFactory(QImageFormatDecoderFactory* f)
+void QImageDecoder::unregisterDecoderFactory(QImageFormatType* f)
 {
     QImageDecoderPrivate::factories.remove(f);
 }
 
 /*!
-  \class QImageFormatDecoder qasyncimageio.h
+  \class QImageFormat qasyncimageio.h
   \brief Incremental image decoder for a specific image format.
 
   \ingroup images
 
-  By making derived classes of QImageFormatDecoder, you can add
+  By making derived classes of QImageFormat, you can add
   support for more incremental image formats, allowing such formats to
   be sources for a QMovie, or for the first frame of the image stream
   to be loaded as a QImage or QPixmap.
@@ -272,12 +272,12 @@ void QImageDecoder::unregisterDecoderFactory(QImageFormatDecoderFactory* f)
   \internal
   More importantly, destructs derived classes.
 */
-QImageFormatDecoder::~QImageFormatDecoder()
+QImageFormat::~QImageFormat()
 {
 }
 
 /*!
-  \fn int QImageFormatDecoder::decode(QImage& img, QImageConsumer* consumer,
+  \fn int QImageFormat::decode(QImage& img, QImageConsumer* consumer,
 	    const uchar* buffer, int length)
 
   Image decoders for specific image formats must override this method.
@@ -288,13 +288,13 @@ QImageFormatDecoder::~QImageFormatDecoder()
 */
 
 /*!
-  \class QImageFormatDecoderFactory qasyncimageio.h
-  \brief Factory that makes QImageFormatDecoder objects.
+  \class QImageFormatType qasyncimageio.h
+  \brief Factory that makes QImageFormat objects.
 
   \ingroup images
 
   New image file formats are installed by creating objects of derived
-  classes of QImageFormatDecoderFactory.  They must implement decoderFor()
+  classes of QImageFormatType.  They must implement decoderFor()
   and formatName().
 
   The factories for formats built into Qt
@@ -306,7 +306,7 @@ QImageFormatDecoder::~QImageFormatDecoder()
 */
 
 /*!
-  \fn virtual QImageFormatDecoder* QImageFormatDecoderFactory::decoderFor(const
+  \fn virtual QImageFormat* QImageFormatType::decoderFor(const
 	    uchar* buffer, int length)
 
   Returns a decoder for decoding an image which starts with the give bytes.
@@ -317,7 +317,7 @@ QImageFormatDecoder::~QImageFormatDecoder()
 */
 
 /*!
-  \fn virtual const char* QImageFormatDecoderFactory::formatName() const
+  \fn virtual const char* QImageFormatType::formatName() const
 
   Returns the name of the format supported by decoders from this factory.
   The string is statically allocated.
@@ -326,7 +326,7 @@ QImageFormatDecoder::~QImageFormatDecoder()
 /*!
   Creates a factory.  It automatically registers itself with QImageDecoder.
 */
-QImageFormatDecoderFactory::QImageFormatDecoderFactory()
+QImageFormatType::QImageFormatType()
 {
     QImageDecoder::registerDecoderFactory(this);
 }
@@ -334,25 +334,25 @@ QImageFormatDecoderFactory::QImageFormatDecoderFactory()
 /*!
   Destroys a factory.  It automatically unregisters itself from QImageDecoder.
 */
-QImageFormatDecoderFactory::~QImageFormatDecoderFactory()
+QImageFormatType::~QImageFormatType()
 {
     QImageDecoder::unregisterDecoderFactory(this);
 }
 
 /*!
-  \class QGIFDecoder qasyncimageio.h
+  \class QGIFFormat qasyncimageio.h
   \brief Incremental image decoder for GIF image format.
 
   \ingroup images
 
-  This subclass of QImageFormatDecoder decodes GIF format images,
+  This subclass of QImageFormat decodes GIF format images,
   including animated GIFs.  Internally in 
 */
 
 /*!
-  Constructs a QGIFDecoder.
+  Constructs a QGIFFormat.
 */
-QGIFDecoder::QGIFDecoder()
+QGIFFormat::QGIFFormat()
 {
     globalcmap = 0;
     disposal = NoDisposal;
@@ -365,27 +365,27 @@ QGIFDecoder::QGIFDecoder()
 }
 
 /*!
-  Destructs a QGIFDecoder.
+  Destructs a QGIFFormat.
 */
-QGIFDecoder::~QGIFDecoder()
+QGIFFormat::~QGIFFormat()
 {
     delete globalcmap;
 }
 
 
 /*!
-  \class QGIFDecoderFactory qasyncimageio.h
+  \class QGIFFormatType qasyncimageio.h
   \brief Incremental image decoder for GIF image format.
 
   \ingroup images
 
-  This subclass of QImageFormatDecoderFactory recognizes GIF
-  format images, creating a QGIFDecoder when required.  An instance
+  This subclass of QImageFormatType recognizes GIF
+  format images, creating a QGIFFormat when required.  An instance
   of this class is created automatically before any other factories,
   so you should have no need for such objects.
 */
 
-QImageFormatDecoder* QGIFDecoderFactory::decoderFor(
+QImageFormat* QGIFFormatType::decoderFor(
     const uchar* buffer, int length)
 {
     if (length < 6) return 0;
@@ -395,17 +395,17 @@ QImageFormatDecoder* QGIFDecoderFactory::decoderFor(
      && buffer[3]=='8'
      && (buffer[4]=='9' || buffer[4]=='7')
      && buffer[5]=='a')
-        return new QGIFDecoder;
+        return new QGIFFormat;
     return 0;
 }
 
-const char* QGIFDecoderFactory::formatName() const
+const char* QGIFFormatType::formatName() const
 {
     return "GIF";
 }
 
 
-void QGIFDecoder::disposePrevious( QImage& img, QImageConsumer* consumer )
+void QGIFFormat::disposePrevious( QImage& img, QImageConsumer* consumer )
 {
     if ( out_of_bounds ) // flush anything that survived
 	consumer->changed(QRect(0,0,swidth,sheight));
@@ -461,7 +461,7 @@ void QGIFDecoder::disposePrevious( QImage& img, QImageConsumer* consumer )
 
   Returns the number of bytes consumed.
 */
-int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
+int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 	const uchar* buffer, int length)
 {
     // We are required to state that
@@ -915,7 +915,7 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
     return initial-length;
 }
 
-void QGIFDecoder::fillRect(QImage& img, int col, int row, int w, int h, uchar color)
+void QGIFFormat::fillRect(QImage& img, int col, int row, int w, int h, uchar color)
 {
     if (w>0) {
 	uchar** line = img.jumpTable() + row;
@@ -925,7 +925,7 @@ void QGIFDecoder::fillRect(QImage& img, int col, int row, int w, int h, uchar co
     }
 }
 
-void QGIFDecoder::nextY(QImage& img, QImageConsumer* consumer)
+void QGIFFormat::nextY(QImage& img, QImageConsumer* consumer)
 {
     int my;
     switch (interlace) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#16 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#17 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -34,20 +34,20 @@ public:
     virtual void setSize(int, int)=0;
 };
 
-class QImageFormatDecoder {
+class QImageFormat {
 public:
-    virtual ~QImageFormatDecoder();
+    virtual ~QImageFormat();
     virtual int decode(QImage& img, QImageConsumer* consumer,
 	    const uchar* buffer, int length)=0;
 };
 
-class QImageFormatDecoderFactory {
+class QImageFormatType {
 public:
-    virtual ~QImageFormatDecoderFactory();
-    virtual QImageFormatDecoder* decoderFor(const uchar* buffer, int length)=0;
+    virtual ~QImageFormatType();
+    virtual QImageFormat* decoderFor(const uchar* buffer, int length)=0;
     virtual const char* formatName() const=0;
 protected:
-    QImageFormatDecoderFactory();
+    QImageFormatType();
 };
 
 struct QImageDecoderPrivate;
@@ -63,21 +63,21 @@ public:
     static const char* formatName(const uchar* buffer, int length);
 
     static QStrList inputFormats();
-    static void registerDecoderFactory(QImageFormatDecoderFactory*);
-    static void unregisterDecoderFactory(QImageFormatDecoderFactory*);
+    static void registerDecoderFactory(QImageFormatType*);
+    static void unregisterDecoderFactory(QImageFormatType*);
 
 private:
-    QImageFormatDecoder* actual_decoder;
+    QImageFormat* actual_decoder;
     QImageConsumer* consumer;
     QImage img;
     QImageDecoderPrivate *d;
 };
 
 
-class QGIFDecoder : public QImageFormatDecoder {
+class QGIFFormat : public QImageFormat {
 public:
-    QGIFDecoder();
-    virtual ~QGIFDecoder();
+    QGIFFormat();
+    virtual ~QGIFFormat();
 
     int decode(QImage& img, QImageConsumer* consumer,
 	    const uchar* buffer, int length);
@@ -146,9 +146,9 @@ private:
     void disposePrevious( QImage& img, QImageConsumer* consumer );
 };
 
-class QGIFDecoderFactory : public QImageFormatDecoderFactory
+class QGIFFormatType : public QImageFormatType
 {
-    QImageFormatDecoder* decoderFor(const uchar* buffer, int length);
+    QImageFormat* decoderFor(const uchar* buffer, int length);
     const char* formatName() const;
 };
 
