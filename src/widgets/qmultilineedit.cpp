@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#14 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1468,9 +1468,9 @@ void QMultiLineEdit::del()
 	    cursorX  = markBeginX;
 	    cursorY  = markBeginY;
 	    markIsOn    = FALSE;
-	    updateCellWidth();
 	    if (autoUpdate() )
 		updateCell( cursorY, 0, FALSE );
+	    updateCellWidth();
 	} else { //multiline
 	    bool oldAuto = autoUpdate();
 	    setAutoUpdate( FALSE );
