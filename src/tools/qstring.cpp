@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#178 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#179 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -937,7 +937,7 @@ int QString::find( QChar c, int index, bool cs ) const
 	return -1;
     register const QChar *uc;
     uc = unicode()+index;
-    int n = length()-index+1;
+    int n = length()-index;
     if ( cs ) {
 	while ( n-- && *uc != c )
 	    uc++;
