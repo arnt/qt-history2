@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/iconview/qiconview.cpp#94 $
+** $Id: //depot/qt/main/src/iconview/qiconview.cpp#95 $
 **
 ** Implementation of QIconView widget class
 **
@@ -120,7 +120,9 @@ static const char * const unknown_xpm[] = {
 
 static QPixmap *unknown_icon = 0;
 static QPixmap *qiv_buffer_pixmap = 0;
+#if !defined(Q_WS_X11)
 static QPixmap *qiv_selection = 0;
+#endif
 static bool optimize_layout = FALSE;
 
 static QCleanupHandler<QPixmap> qiv_cleanup_pixmap;
@@ -128,9 +130,6 @@ static QCleanupHandler<QPixmap> qiv_cleanup_pixmap;
 #if !defined(Q_WS_X11)
 static void createSelectionPixmap( const QColorGroup &cg )
 {
-    qiv_selection = new QPixmap( 2, 2 );
-    qiv_cleanup_pixmap.add( &qiv_selection );
-    qiv_selection->fill( Qt::color0 );
     QBitmap m( 2, 2 );
     m.fill( Qt::color1 );
     QPainter p( &m );
@@ -139,6 +138,10 @@ static void createSelectionPixmap( const QColorGroup &cg )
 	p.drawPoint( j % 2, j );
     }
     p.end();
+
+    qiv_selection = new QPixmap( 2, 2 );
+    qiv_cleanup_pixmap.add( &qiv_selection );
+    qiv_selection->fill( Qt::color0 );
     qiv_selection->setMask( m );
     qiv_selection->fill( cg.highlight() );
 }
@@ -247,6 +250,7 @@ public:
     QPixmapCache maskCache;
     bool pressedSelected;
     bool dragging;
+    bool context_menu;
     QPtrDict<QIconViewItem> selectedItems;
 
     struct ItemContainer {
@@ -266,6 +270,8 @@ public:
     struct SortableItem {
 	QIconViewItem *item;
     };
+
+    bool drawActiveSelection;
 
     //    friend int cmpIconViewItems( const void *n1, const void *n2 );
 };
@@ -1849,9 +1855,11 @@ void QIconViewItem::paintItem( QPainter *p, const QColorGroup &cg )
 #if defined(Q_WS_X11)
 		p2.fillRect( pix->rect(), QBrush( cg.highlight(), QBrush::Dense4Pattern) );
 #else // in WIN32 Dense4Pattern doesn't work correctly (transparency problem), so work around it
-		if ( !qiv_selection )
-		    createSelectionPixmap( cg );
-		p2.drawTiledPixmap( 0, 0, pix->width(), pix->height(), *qiv_selection );
+		if ( iconView()->d->drawActiveSelection ) {
+		    if ( !qiv_selection )
+			createSelectionPixmap( cg );
+		    p2.drawTiledPixmap( 0, 0, pix->width(), pix->height(), *qiv_selection );
+		}
 #endif
 		p2.end();
 		QRect cr = pix->rect();
@@ -1893,9 +1901,11 @@ void QIconViewItem::paintItem( QPainter *p, const QColorGroup &cg )
 #if defined(Q_WS_X11)
 		p2.fillRect( pix->rect(), QBrush( cg.highlight(), QBrush::Dense4Pattern) );
 #else // in WIN32 Dense4Pattern doesn't work correctly (transparency problem), so work around it
-		if ( !qiv_selection )
-		    createSelectionPixmap( cg );
-		p2.drawTiledPixmap( 0, 0, pix->width(), pix->height(), *qiv_selection );
+		if ( iconView()->d->drawActiveSelection ) {
+		    if ( !qiv_selection )
+			createSelectionPixmap( cg );
+		    p2.drawTiledPixmap( 0, 0, pix->width(), pix->height(), *qiv_selection );
+		}
 #endif
 		p2.end();
 		QRect cr = pix->rect();
@@ -2569,6 +2579,8 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->containerUpdateLocked = FALSE;
     d->firstSizeHint = TRUE;
     d->selectAnchor = 0;
+    d->drawActiveSelection = TRUE;
+    d->context_menu = FALSE;
 
     connect( d->adjustTimer, SIGNAL( timeout() ),
 	     this, SLOT( adjustItems() ) );
@@ -2612,8 +2624,10 @@ void QIconView::styleChange( QStyle& old )
 	item->calcRect();
     }
 
+#if !defined(Q_WS_X11)
     delete qiv_selection;
     qiv_selection = 0;
+#endif
 }
 
 /*!
@@ -3177,12 +3191,31 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	    remaining = remaining.subtract( r3 );
 	    p->restore();
 
+	    QColorGroup cg;
+#if defined(Q_WS_WIN)
+	    d->drawActiveSelection = hasFocus() || style() != WindowsStyle;
+	    if ( !d->drawActiveSelection ) {
+		QWidget *fw = qApp->focusWidget();
+		while ( fw ) {
+		    fw = fw->parentWidget();
+		    if ( fw == this ) {
+			d->drawActiveSelection = TRUE;
+			break;
+		    }
+		}
+	    }
+	    if ( !d->drawActiveSelection && ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) )
+		cg = palette().inactive();
+	    else
+#endif
+		cg = colorGroup();
+
 	    QIconViewItem *item = c->items.first();
 	    for ( ; item; item = c->items.next() ) {
 		if ( item->rect().intersects( r ) && !item->dirty ) {
 		    p->save();
 		    p->setFont( font() );
-		    item->paintItem( p, colorGroup() );
+		    item->paintItem( p, cg );
 		    p->restore();
 		}
 	    }
@@ -4190,7 +4223,8 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 
 	if ( e->button() == RightButton ) {
 	    emit rightButtonPressed( item, e->globalPos() );
-	    emit contextMenuRequested( item, e->globalPos() );
+	    if ( d->context_menu )
+		emit contextMenuRequested( item, e->globalPos() );
 	}
     }
 }
@@ -4207,7 +4241,9 @@ void QIconView::contentsContextMenuEvent( QContextMenuEvent *e )
 	emit contextMenuRequested( item, mapToGlobal( contentsToViewport( r.center() ) ) );
     } else {
 	QMouseEvent me( QEvent::MouseButtonPress, e->pos(), e->globalPos(), RightButton, e->state() );
+	d->context_menu = TRUE;
 	contentsMousePressEvent( &me );
+	d->context_menu = FALSE;
     }
     e->accept();
 }
@@ -4829,6 +4865,16 @@ void QIconView::focusInEvent( QFocusEvent *e )
 	repaintItem( d->currentItem );
     }
 
+#if defined(Q_WS_WIN)
+    if ( style() == WindowsStyle && ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) ) {
+	QRect r = visibleRect();
+	for ( QIconViewItem *item = firstItem(); item; item = item->nextItem() ) {
+	    if ( item->isSelected() && item->rect().intersects( r ) )
+		repaintItem( item );
+	}
+    }
+#endif
+
     if ( d->currentItem )
 	setMicroFocusHint( d->currentItem->x(), d->currentItem->y(), d->currentItem->width(), d->currentItem->height(), FALSE );
 }
@@ -4841,6 +4887,16 @@ void QIconView::focusOutEvent( QFocusEvent * )
 {
     if ( d->currentItem )
 	repaintItem( d->currentItem );
+
+#if defined(Q_WS_WIN)
+    if ( style() == WindowsStyle  && ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) ) {
+	QRect r = visibleRect();
+	for ( QIconViewItem *item = firstItem(); item; item = item->nextItem() ) {
+	    if ( item->isSelected() && item->rect().intersects( r ) )
+		repaintItem( item );
+	}
+    }
+#endif
 }
 
 /*!

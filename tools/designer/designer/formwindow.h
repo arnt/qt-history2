@@ -134,7 +134,7 @@ public:
 
     virtual MainWindow *mainWindow() const;
 
-    virtual void save( const QString &filename );
+    virtual void save( const QString &filename, bool withMsgBox = TRUE );
     virtual void insertWidget( QWidget *w, bool checkName = FALSE );
     virtual void removeWidget( QWidget *w );
     virtual void deleteWidgets();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#115 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#116 $
 **
 ** Implementation of QColor class for X11
 **
@@ -256,7 +256,7 @@ void QColor::initialize()
 	    int nr = 2;
 	    int ng = 2;
 	    int nb = 2;
-	    while ( 1 ) {
+	    for (;;) {
 		if ( nb*2 < nr && (nb+1)*nr*ng < qt_ncols_option )
 		    nb++;
 		else if ( nr*3 < ng*2 && nb*(nr+1)*ng < qt_ncols_option )

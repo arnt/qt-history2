@@ -37,8 +37,6 @@
 #ifndef __DSPMAKE_H__
 #define __DSPMAKE_H__
 
-#include <qtextstream.h>
-#include <qstring.h>
 #include "winmakefile.h"
 
 class DspMakefileGenerator : public Win32MakefileGenerator
@@ -52,8 +50,12 @@ class DspMakefileGenerator : public Win32MakefileGenerator
 
 public:
     DspMakefileGenerator(QMakeProject *p);
-    ~DspMakefileGenerator() { }
+    ~DspMakefileGenerator();
 
 };
+
+inline DspMakefileGenerator::~DspMakefileGenerator()
+{ }
+
 
 #endif /* __DSPMAKE_H__ */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#90 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#91 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -480,7 +480,7 @@ QByteArray qt_xclb_read_incremental_property( Display *dpy, Window win,
 	alloc_error = !buf.resize(nbytes+1);
     }
 
-    while ( TRUE ) {
+    for (;;) {
 	if ( !qt_xclb_wait_for_event(dpy,win,PropertyNotify,
 				     (XEvent*)&event,1000) )
 	    break;

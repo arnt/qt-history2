@@ -35,12 +35,13 @@
 **
 **********************************************************************/
 
-#include "option.h"
 #include "msvc_dsp.h"
-#include <time.h>
+#include "option.h"
 #include <qdir.h>
 #include <qregexp.h>
 #include <stdlib.h>
+#include <time.h>
+
 
 DspMakefileGenerator::DspMakefileGenerator(QMakeProject *p) : Win32MakefileGenerator(p), init_flag(FALSE)
 {

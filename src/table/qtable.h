@@ -304,6 +304,8 @@ public:
 
     void setEnabled( bool b );
 
+    void repaintSelections();
+
 public slots:
     virtual void setNumRows( int r );
     virtual void setNumCols( int r );
@@ -454,6 +456,7 @@ private:
     bool readOnly : 1;
     bool shouldClearSelection : 1;
     bool dEnabled : 1;
+    bool context_menu : 1;
     SelectionMode selMode;
     int pressedRow, pressedCol;
     QTablePrivate *d;

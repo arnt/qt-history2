@@ -36,11 +36,12 @@
 **********************************************************************/
 
 #include "projectgenerator.h"
+#include "option.h"
 #include <qdir.h>
 #include <qfile.h>
 #include <qfileinfo.h>
-#include <option.h>
 #include <qregexp.h>
+
 
 ProjectGenerator::ProjectGenerator(QMakeProject *p) : MakefileGenerator(p), init_flag(FALSE)
 {

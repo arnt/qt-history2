@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#464 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#465 $
 **
 ** Implementation of QListBox widget class
 **
@@ -73,7 +73,8 @@ public:
 	selectionMode( QListBox::Single ),
 	count( 0 ),
 	ignoreMoves( FALSE ),
-	listBox( lb ), currInputString( QString::null )
+	listBox( lb ), currInputString( QString::null ),
+	context_menu( FALSE )
     {}
     void findItemByName( const QString &text );
     ~QListBoxPrivate();
@@ -125,6 +126,7 @@ public:
     QListBoxItem *pressedItem, *selectAnchor;
     bool select;
     bool pressedSelected;
+    bool context_menu;
 
     QRect *rubber;
     QPtrDict<bool> selectable;
@@ -1838,7 +1840,8 @@ void QListBox::mousePressEvent( QMouseEvent *e )
     emit pressed( i );
     emit pressed( i, e->globalPos() );
     emit mouseButtonPressed( e->button(), i, e->globalPos() );
-    emit contextMenuRequested( i, e->globalPos() );
+    if ( d->context_menu )
+	emit contextMenuRequested( i, e->globalPos() );
 
     if ( e->button() == RightButton )
 	emit rightButtonPressed( i, e->globalPos() );
@@ -2071,7 +2074,9 @@ void QListBox::contextMenuEvent( QContextMenuEvent *e )
 	}
     } else {
 	QMouseEvent me( QEvent::MouseButtonPress, e->pos(), e->globalPos(), RightButton, e->state() );
+	d->context_menu = TRUE;
 	mousePressEvent( &me );
+	d->context_menu = FALSE;
     }
 }
 
@@ -2284,6 +2289,28 @@ void QListBox::focusInEvent( QFocusEvent *e )
 	emit highlighted( tmp2 );
 	emit currentChanged( i );
     }
+#if defined(Q_WS_WIN)
+    if ( style() == WindowsStyle && ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) ) {
+	if ( d->numColumns == 1 ) {
+	    for ( uint i = topItem(); itemVisible( i ) && i < count(); ++i ) {
+		QListBoxItem *it = item(i);
+		if ( !it )
+		    break;
+		if ( it->isSelected() )
+		    updateItem( it );
+	    }
+	} else {
+	    for ( uint i = 0; i < count(); ++i ) {
+		QListBoxItem *it = item(i);
+		if ( !it )
+		    break;
+		if ( it->isSelected() )
+		    updateItem( it );
+	    }
+	}
+    }
+#endif
+
     if ( d->current ) {
 	updateItem( currentItem() );
 	QRect mfrect = itemRect( d->current );
@@ -2297,6 +2324,28 @@ void QListBox::focusInEvent( QFocusEvent *e )
 */
 void QListBox::focusOutEvent( QFocusEvent * )
 {
+#if defined(Q_WS_WIN)
+    if ( style() == WindowsStyle && ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) ) {
+	if ( d->numColumns == 1 ) {
+	    for ( uint i = topItem(); itemVisible( i ) && i < count(); ++i ) {
+		QListBoxItem *it = item(i);
+		if ( !it )
+		    break;
+		if ( it->isSelected() )
+		    updateItem( it );
+	    }
+	} else {
+	    for ( uint i = 0; i < count(); ++i ) {
+		QListBoxItem *it = item(i);
+		if ( !it )
+		    break;
+		if ( it->isSelected() )
+		    updateItem( it );
+	    }
+	}
+    }
+#endif
+
     if ( d->current )
 	updateItem( currentItem() );
 }
@@ -3602,7 +3651,25 @@ using QListBoxItem::paint() */
 
 void QListBox::paintCell( QPainter * p, int row, int col )
 {
-    const QColorGroup & g = colorGroup();
+    QColorGroup g;
+#if defined(Q_WS_WIN)
+    bool drawActiveSelection = hasFocus() || style() != WindowsStyle;
+    if ( !drawActiveSelection ) {
+	QWidget *fw = qApp->focusWidget();
+	while ( fw ) {
+	    fw = fw->parentWidget();
+	    if ( fw == this ) {
+		drawActiveSelection = TRUE;
+		break;
+	    }
+	}
+    }
+    if ( !drawActiveSelection && ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) )
+	g = palette().inactive();
+    else
+#endif
+	g = colorGroup();
+
     int cw = d->columnPos[col+1] - d->columnPos[col];
     int ch = d->rowPos[row+1] - d->rowPos[row];
     QListBoxItem * i = item( col*numRows()+row );
@@ -3688,23 +3755,30 @@ bool QListBox::itemYPos( int index, int *yPos ) const
 }
 
 
-/*! \fn bool QListBoxItem::selected() const
+/*! \fn bool QListBoxItem::isSelected() const
   Returns TRUE if the item is selected, otherwise FALSE.
 
-  \sa QListBox::isSelected(), current()
+  \sa QListBox::isSelected(), isCurrent()
+*/
+/*!
+  \fn bool QListBoxItem::selected() const
+  \obsolete
 */
 
 /*!
   Returns TRUE if the item is the current item, otherwise FALSE.
 
-  \sa QListBox::currentItem(), QListBox::item(), selected()
+  \sa QListBox::currentItem(), QListBox::item(), isSelected()
 */
-bool QListBoxItem::current() const
+bool QListBoxItem::isCurrent() const
 {
     return listBox() && listBox()->hasFocus() &&
 	listBox()->item( listBox()->currentItem() ) == this;
 }
-
+/*!
+  \fn bool QListBoxItem::current() const
+  \obsolete
+*/
 
 /*! \fn void QListBox::centerCurrentItem()
   If there is a current item, the list box is scrolled

@@ -71,13 +71,9 @@ QDesignerDataBrowser::QDesignerDataBrowser( QWidget *parent, const char *name )
 bool QDesignerDataBrowser::event( QEvent* e )
 {
     bool b = QDataBrowser::event( e );
-    if (
 #if defined(DESIGNER)
-	MainWindow::self->isPreviewing()
-#else
-	TRUE
+    if ( MainWindow::self->isPreviewing() ) {
 #endif
-	) {
 	if ( e->type() == QEvent::Show ) {
 	    if ( con ) {
 		QSqlCursor* cursor = new QSqlCursor( tbl, TRUE, con );
@@ -88,7 +84,9 @@ bool QDesignerDataBrowser::event( QEvent* e )
 	    }
 	    return TRUE;
 	}
+#if defined(DESIGNER)
     }
+#endif
     return b;
 }
 
@@ -100,19 +98,17 @@ QDesignerDataView::QDesignerDataView( QWidget *parent, const char *name )
 bool QDesignerDataView::event( QEvent* e )
 {
     bool b = QDataView::event( e );
-    if (
 #if defined(DESIGNER)
-	MainWindow::self->isPreviewing()
-#else
-	TRUE
+    if ( MainWindow::self->isPreviewing() ) {
 #endif
-	) {
 	if ( e->type() == QEvent::Show ) {
 	    setForm( frm );
 	    readFields();
 	    return TRUE;
 	}
+#if defined(DESIGNER)
     }
+#endif
     return b;
 }
 

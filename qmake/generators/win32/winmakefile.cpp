@@ -36,13 +36,14 @@
 **********************************************************************/
 
 #include "winmakefile.h"
-#include <qtextstream.h>
-#include "project.h"
 #include "option.h"
+#include "project.h"
+#include <qtextstream.h>
 #include <qstring.h>
 #include <qregexp.h>
 #include <qstringlist.h>
 #include <qdir.h>
+
 
 Win32MakefileGenerator::Win32MakefileGenerator(QMakeProject *p) : MakefileGenerator(p)
 {

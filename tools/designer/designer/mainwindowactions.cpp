@@ -1233,7 +1233,7 @@ void MainWindow::fileSaveProject()
 	if ( w->inherits( "FormWindow" ) ) {
 	    FormWindow *fw = (FormWindow*)w;
 	    if ( fw->project() == currentProject && !fw->fileName().isEmpty() )
-		fw->save( fw->fileName() );
+		fw->save( fw->fileName(), FALSE );
 	} else if ( w->inherits( "SourceEditor" ) ) {
 	    SourceEditor *e = (SourceEditor*)w;
 	    if ( e->object() && e->object()->inherits( "SourceFile" ) &&
@@ -1620,19 +1620,19 @@ void MainWindow::editConnections()
     statusBar()->clear();
 }
 
-void MainWindow::editSource( bool /*resetSame*/ )
+SourceEditor *MainWindow::editSource( bool /*resetSame*/ )
 {
     if ( !formWindow() )
-	return;
+	return 0;
     SourceEditor *editor = 0;
     QString lang = currentProject->language();
     if ( !MetaDataBase::hasEditor( lang ) ) {
 	QMessageBox::information( this, tr( "Edit Source" ),
 				  tr( "There is no editor plugin to edit " + lang + " code installed" ) );
-	return;
+	return 0;
     }
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	if ( e->language() == lang ) {
+	if ( e->language() == lang && e->object() == formWindow() ) {
 	    editor = e;
 	    break;
 	}
@@ -1641,10 +1641,10 @@ void MainWindow::editSource( bool /*resetSame*/ )
 	EditorInterface *eIface = 0;
 	editorPluginManager->queryInterface( lang, &eIface );
 	if ( !eIface )
-	    return;
+	    return 0;
 	LanguageInterface *lIface = MetaDataBase::languageInterface( lang );
 	if ( !lIface )
-	    return;
+	    return 0;
 	editor = new SourceEditor( workSpace(), eIface, lIface );
 	eIface->release();
 	lIface->release();
@@ -1656,19 +1656,20 @@ void MainWindow::editSource( bool /*resetSame*/ )
 	editor->setObject( formWindow(), formWindow()->project() );
     editor->show();
     editor->setFocus();
+    return editor;
 }
 
-void MainWindow::editSource( SourceFile *f )
+SourceEditor *MainWindow::editSource( SourceFile *f )
 {
     SourceEditor *editor = 0;
     QString lang = currentProject->language();
     if ( !MetaDataBase::hasEditor( lang ) ) {
 	QMessageBox::information( this, tr( "Edit Source" ),
 				  tr( "There is no editor plugin to edit " + lang + " code installed" ) );
-	return;
+	return 0;
     }
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	if ( e->language() == lang ) {
+	if ( e->language() == lang && e->object() == f ) {
 	    editor = e;
 	    break;
 	}
@@ -1677,10 +1678,10 @@ void MainWindow::editSource( SourceFile *f )
 	EditorInterface *eIface = 0;
 	editorPluginManager->queryInterface( lang, &eIface );
 	if ( !eIface )
-	    return;
+	    return 0;
 	LanguageInterface *lIface = MetaDataBase::languageInterface( lang );
 	if ( !lIface )
-	    return;
+	    return 0;
 	editor = new SourceEditor( workSpace(), eIface, lIface );
 	eIface->release();
 	lIface->release();
@@ -1692,6 +1693,7 @@ void MainWindow::editSource( SourceFile *f )
     editor->setFocus();
     if ( editor->object() != f )
 	editor->setObject( f, currentProject );
+    return editor;
 }
 
 void MainWindow::editFormSettings()

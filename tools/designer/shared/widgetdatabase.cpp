@@ -35,8 +35,6 @@
 
 #include <qfeatures.h>
 
-#include <stdlib.h>
-
 const int dbsize = 300;
 const int dbcustom = 200;
 const int dbdictsize = 211;
@@ -84,7 +82,7 @@ WidgetDatabaseRecord::~WidgetDatabaseRecord()
 */
 
 /*!
-  Creatse widget database. Does nothing
+  Creates widget database. Does nothing.
 */
 
 WidgetDatabase::WidgetDatabase()
@@ -151,9 +149,6 @@ void WidgetDatabase::setupDataBase( int id )
     r->name = "QCheckBox";
     r->group = widgetGroup( "Buttons" );
     r->toolTip = "Check Box";
-
-
-
 
     append( r );
 

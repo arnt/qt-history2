@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#186 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#187 $
 **
 ** Definition of QListView widget class
 **
@@ -235,8 +235,7 @@ class Q_EXPORT QListView: public QScrollView
     friend class QListViewToolTip;
 
     Q_OBJECT
-    Q_ENUMS( SelectionMode )
-    Q_ENUMS( ResizeMode )
+    Q_ENUMS( SelectionMode ResizeMode RenameAction )
     Q_PROPERTY( int columns READ columns )
     Q_PROPERTY( bool multiSelection READ isMultiSelection WRITE setMultiSelection DESIGNABLE false )
     Q_PROPERTY( SelectionMode selectionMode READ selectionMode WRITE setSelectionMode )
@@ -248,6 +247,7 @@ class Q_EXPORT QListView: public QScrollView
     Q_PROPERTY( bool showToolTips READ showToolTips WRITE setShowToolTips )
     Q_PROPERTY( ResizeMode resizeMode READ resizeMode WRITE setResizeMode )
     Q_PROPERTY( int treeStepSize READ treeStepSize WRITE setTreeStepSize )
+    Q_PROPERTY( RenameAction defaultRenameAction READ defaultRenameAction WRITE setDefaultRenameAction )
 
 public:
     QListView( QWidget * parent = 0, const char *name = 0, WFlags f = 0 );
@@ -339,6 +339,10 @@ public:
     ResizeMode resizeMode() const;
 
     QListViewItem * findItem( const QString& text, int column, ComparisonFlags compare ) const;
+
+    enum RenameAction { Accept, Reject };
+    virtual void setDefaultRenameAction( RenameAction a );
+    RenameAction defaultRenameAction() const;
 
 public slots:
     virtual void clear();

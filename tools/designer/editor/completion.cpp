@@ -301,23 +301,29 @@ bool EditorCompletion::eventFilter( QObject *o, QEvent *e )
 	QKeyEvent *ke = (QKeyEvent*)e;
 	if ( ke->key() == Key_Tab ) {
 	    curEditor->indent();
-	    int i = 0;
-	    for ( ; i < curEditor->textCursor()->parag()->length() - 1; ++i ) {
-		if ( curEditor->textCursor()->parag()->at( i )->c != ' ' &&
-		     curEditor->textCursor()->parag()->at( i )->c != '\t' )
-		    break;
+	    QString s = curEditor->textCursor()->parag()->string()->toString().
+			left( curEditor->textCursor()->index() );
+	    if ( s.simplifyWhiteSpace().isEmpty() ) {
+		int i = 0;
+		for ( ; i < curEditor->textCursor()->parag()->length() - 1; ++i ) {
+		    if ( curEditor->textCursor()->parag()->at( i )->c != ' ' &&
+			 curEditor->textCursor()->parag()->at( i )->c != '\t' )
+			break;
+		}
+		curEditor->drawCursor( FALSE );
+		curEditor->textCursor()->setIndex( i );
+		curEditor->drawCursor( TRUE );
+		return TRUE;
 	    }
-	    curEditor->drawCursor( FALSE );
-	    curEditor->textCursor()->setIndex( i );
-	    curEditor->drawCursor( TRUE );
-	    return TRUE;
-	} else if ( ke->text().length() && !( ke->state() & AltButton ) &&
+	}
+	if ( ke->text().length() && !( ke->state() & AltButton ) &&
 	     ( !ke->ascii() || ke->ascii() >= 32 ) ||
 	     ( ke->text() == "\t" && !( ke->state() & ControlButton ) ) ) {
 	    if ( ke->key() == Key_Tab ) {
 		if ( curEditor->textCursor()->index() == 0 &&
 		     curEditor->textCursor()->parag()->style() &&
-		     curEditor->textCursor()->parag()->style()->displayMode() == QStyleSheetItem::DisplayListItem )
+		     curEditor->textCursor()->parag()->style()->displayMode() ==
+		     QStyleSheetItem::DisplayListItem )
 		    return FALSE;
 		if ( doCompletion() )
 			return TRUE;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#99 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#100 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -2663,7 +2663,7 @@ bool QXmlSimpleReader::parseBeginOrContinue( int state, bool incremental )
 (4b)	...
 	}
 
-	while ( TRUE ) {
+	for ( ; ; ) {
 (5)	    switch ( state ) {
 	    ...
 	    }
@@ -2770,7 +2770,7 @@ bool QXmlSimpleReader::parseProlog()
 	}
     }
 
-    while ( TRUE ) {
+    for (;;) {
 	switch ( state ) {
 	    case DocType:
 		if ( doctype_read ) {
@@ -2953,7 +2953,7 @@ bool QXmlSimpleReader::parseElement()
 	}
     }
 
-    while ( TRUE ) {
+    for (;;) {
 	switch ( state ) {
 	    case ReadName:
 		// store it on the stack
@@ -3306,7 +3306,7 @@ bool QXmlSimpleReader::parseContent()
 	}
     }
 
-    while ( TRUE ) {
+    for (;;) {
 	switch ( state ) {
 	    case PI:
 		if ( contentHnd ) {
@@ -3603,7 +3603,7 @@ bool QXmlSimpleReader::parseMisc()
 	}
     }
 
-    while ( TRUE ) {
+    for (;;) {
 	switch ( state ) {
 	    case eatWS:
 		return TRUE;
@@ -3758,7 +3758,7 @@ bool QXmlSimpleReader::parsePI()
 	}
     }
 
-    while ( TRUE ) {
+    for (;;) {
 	switch ( state ) {
 	    case Name:
 		// test what name was read and determine the next state
@@ -3990,7 +3990,7 @@ bool QXmlSimpleReader::parseDoctype()
 	}
     }
 
-    while ( TRUE ) {
+    for (;;) {
 	switch ( state ) {
 	    case Doctype2:
 		d->doctype = name();
@@ -4191,7 +4191,7 @@ bool QXmlSimpleReader::parseExternalID()
 	}
     }
 
-    while ( TRUE ) {
+    for (;;) {
 	switch ( state ) {
 	    case PDone:
 		if ( d->parseExternalID_allowPublicID ) {
@@ -4353,7 +4353,7 @@ bool QXmlSimpleReader::parseMarkupdecl()
 	}
     }
 
-    while ( TRUE ) {
+    for (;;) {
 	switch ( state ) {
 	    case Qm:
 		if ( contentHnd ) {
@@ -4509,7 +4509,7 @@ bool QXmlSimpleReader::parsePEReference()
 	}
     }
 
-    while ( TRUE ) {
+    for (;;) {
 	switch ( state ) {
 	    case Name:
 		{
@@ -4678,7 +4678,7 @@ bool QXmlSimpleReader::parseAttlistDecl()
 	}
     }
 
-    while ( TRUE ) {
+    for (;;) {
 	switch ( state ) {
 	    case Name:
 		d->attDeclEName = name();
@@ -4894,7 +4894,7 @@ bool QXmlSimpleReader::parseAttType()
 	}
     }
 
-    while ( TRUE ) {
+    for (;;) {
 	switch ( state ) {
 	    case ADone:
 		return TRUE;
@@ -5115,7 +5115,7 @@ bool QXmlSimpleReader::parseAttValue()
 	}
     }
 
-    while ( TRUE ) {
+    for (;;) {
 	switch ( state ) {
 	    case Done:
 		return TRUE;
@@ -5257,7 +5257,7 @@ bool QXmlSimpleReader::parseElementDecl()
 	}
     }
 
-    while ( TRUE ) {
+    for (;;) {
 	switch ( state ) {
 	    case Done:
 		return TRUE;
@@ -5464,7 +5464,7 @@ bool QXmlSimpleReader::parseNotationDecl()
 	}
     }
 
-    while ( TRUE ) {
+    for (;;) {
 	switch ( state ) {
 	    case ExtID:
 		// call the handler
@@ -5606,7 +5606,7 @@ bool QXmlSimpleReader::parseChoiceSeq()
 	}
     }
 
-    while ( TRUE ) {
+    for (;;) {
 	switch ( state ) {
 	    case Done:
 		return TRUE;
@@ -5763,7 +5763,7 @@ bool QXmlSimpleReader::parseEntityDecl()
 	}
     }
 
-    while ( TRUE ) {
+    for (;;) {
 	switch ( state ) {
 	    case EValue:
 		if (  !entityExist( name() ) ) {
@@ -6024,7 +6024,7 @@ bool QXmlSimpleReader::parseEntityValue()
 	}
     }
 
-    while ( TRUE ) {
+    for (;;) {
 	switch ( state ) {
 	    case Done:
 		return TRUE;
@@ -6143,7 +6143,7 @@ bool QXmlSimpleReader::parseComment()
 	}
     }
 
-    while ( TRUE ) {
+    for (;;) {
 	switch ( state ) {
 	    case Dash2:
 		stringClear();
@@ -6257,7 +6257,7 @@ bool QXmlSimpleReader::parseAttribute()
 	}
     }
 
-    while ( TRUE ) {
+    for (;;) {
 	switch ( state ) {
 	    case Quotes:
 		// Done
@@ -6361,7 +6361,7 @@ bool QXmlSimpleReader::parseName()
 	}
     }
 
-    while ( TRUE ) {
+    for (;;) {
 	switch ( state ) {
 	    case Done:
 		return TRUE;
@@ -6452,7 +6452,7 @@ bool QXmlSimpleReader::parseNmtoken()
 	}
     }
 
-    while ( TRUE ) {
+    for (;;) {
 	switch ( state ) {
 	    case Done:
 		return TRUE;
@@ -6560,7 +6560,7 @@ bool QXmlSimpleReader::parseReference()
 	}
     }
 
-    while ( TRUE ) {
+    for (;;) {
 	switch ( state ) {
 	    case DoneD:
 		return TRUE;
@@ -6873,7 +6873,7 @@ bool QXmlSimpleReader::parseString()
 	}
     }
 
-    while ( TRUE ) {
+    for (;;) {
 	if ( state == Done ) {
 	    return TRUE;
 	}

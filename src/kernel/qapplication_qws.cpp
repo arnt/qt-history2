@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_qws.cpp#122 $
+** $Id: //depot/qt/main/src/kernel/qapplication_qws.cpp#123 $
 **
 ** Implementation of Qt/FB startup routines and event handling
 **
@@ -769,7 +769,7 @@ void QWSDisplay::Data::waitForRegionAck()
     if ( csocket )
 	csocket->flush();
 #endif
-    while ( 1 ) {
+    for (;;) {
 	fillQueue();
 	if ( region_ack )
 	    break;
@@ -805,7 +805,7 @@ void QWSDisplay::Data::waitForQCopResponse()
     if ( csocket )
 	csocket->flush();
 #endif
-    while ( 1 ) {
+    for (;;) {
 	fillQueue();
 	if ( qcop_response )
 	    break;
@@ -3015,7 +3015,7 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
     globalPos.ry() = mouse.y_root;
     state = translateButtonState( mouse.state );
 
-    //    while (1) { // Extract move and press/release from one QWSEvent
+    //    for (;;) { // Extract move and press/release from one QWSEvent
 	QEvent::Type type = QEvent::None;
 
 	if ( mouse.x_root != old_x_root || mouse.y_root != old_y_root ) {

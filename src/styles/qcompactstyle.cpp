@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcompactstyle.cpp#6 $
+** $Id: //depot/qt/main/src/styles/qcompactstyle.cpp#7 $
 **
 ** Implementation of compact style class
 **
@@ -43,7 +43,6 @@
 #include "qpalette.h"
 #include "qpainter.h"
 #include "qdrawutil.h"
-#define INCLUDE_MENUITEM_DEF
 #include "qmenudata.h"
 
 QCompactStyle::QCompactStyle()

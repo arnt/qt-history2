@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#62 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#63 $
 **
 ** Implementation of Windows-like style class
 **
@@ -39,7 +39,6 @@
 
 #ifndef QT_NO_STYLE_WINDOWS
 
-#define INCLUDE_MENUITEM_DEF
 #include "qpopupmenu.h"
 #include "qapplication.h"
 #include "qpainter.h"

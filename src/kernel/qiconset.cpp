@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#78 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#79 $
 **
 ** Implementation of QIconSet class
 **
@@ -86,6 +86,10 @@ public:
     static QSize *large_size;
     static QSize *small_size;
     static bool instantiated; // detect instantiation of QIconSets
+
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
+    bool operator==( const QIconSetPrivate& ) const { return FALSE; }
+#endif
 };
 
 /*! \class QIconSet qiconset.h

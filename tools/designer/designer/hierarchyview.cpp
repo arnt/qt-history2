@@ -183,6 +183,7 @@ HierarchyList::HierarchyList( QWidget *parent, FormWindow *fw, bool doConnects )
 		this, SLOT( changeSortColumn( int ) ) );
     setSorting( -1 );
     setHScrollBarMode( AlwaysOff );
+    setVScrollBarMode( AlwaysOn );
     if ( doConnects ) {
 	connect( this, SIGNAL( clicked( QListViewItem * ) ),
 		 this, SLOT( objectClicked( QListViewItem * ) ) );
@@ -735,8 +736,14 @@ void HierarchyView::setFormWindow( FormWindow *fw, QWidget *w )
 
 void HierarchyView::showClasses( SourceEditor *se )
 {
-    if ( !se->object() || se->object()->inherits( "FormWindow" ) )
+    if ( !se->object() )
 	return;
+    if ( se->object()->inherits( "FormWindow" ) ) {
+	setFormWindow( (FormWindow*)se->object(), ( (FormWindow*)se->object() )->currentWidget() );
+	MainWindow::self->propertyeditor()->setWidget( ( (FormWindow*)se->object() )->currentWidget(),
+						       (FormWindow*)se->object() );
+	return;
+    }
     formwindow = 0;
     listview->setFormWindow( 0 );
     fList->setFormWindow( 0 );

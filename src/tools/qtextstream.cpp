@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#182 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#183 $
 **
 ** Implementation of QTextStream class
 **
@@ -666,7 +666,7 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 	while( rnum < len ) {
 	    QString s;
 	    bool readBlock = !( len == 1+rnum );
-	    while ( TRUE ) {
+	    for (;;) {
 		// for efficiency: normally read a whole block
 		if ( readBlock ) {
 		    // guess buffersize; this may be wrong (too small or too
@@ -848,7 +848,7 @@ uint QTextStream::ts_getline( QChar* buf )
 	    d->decoder = mapper->makeDecoder();
 	QString s;
 	bool readBlock = TRUE;
-	while ( TRUE ) {
+	for (;;) {
 	    // for efficiency: try to read a line
 	    if ( readBlock ) {
 		int rlen = getline_buf_size - rnum;
@@ -1331,7 +1331,7 @@ double QTextStream::input_double()
     int i = 0;
     QChar c = eat_ws();
 
-    while ( TRUE ) {
+    for (;;) {
 
 	switch ( c ) {
 	    case '+':
@@ -1598,7 +1598,7 @@ QString QTextStream::readLine()
 	int pos = 0;
 	bool eof = FALSE;
 
-	while ( TRUE ) {
+	for (;;) {
 	    pos = ts_getline( c );
 	    if ( pos == 0 ) {
 		// something went wrong; try fallback
@@ -1673,7 +1673,7 @@ QString QTextStream::read()
     uint       i, num, start;
     bool       skipped_cr = FALSE;
 
-    while ( 1 ) {
+    for (;;) {
 	num = ts_getbuf(buf,bufsize);
 	// do a s/\r\n/\n
 	start = 0;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#179 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#180 $
 **
 ** Implementation of layout classes
 **
@@ -904,17 +904,16 @@ RwbV+8hNqf4Hob4MkPD3BvwAAAAASUVORK5CYII=
 
 /*!
   Constructs a new QGridLayout with \a nRows rows, \a nCols columns
-   and main widget \a  parent.	\a parent may not be 0.
+   with parent widget, \a  parent. \a parent may not be 0. The grid
+   layout is called \a name.
 
   \a border is the number of pixels between the edge of the widget and
   the managed children. \a space is the default number of pixels
   between cells.  If \a space is -1, the value of \a border is used.
-
-  \a name is the internal object name.
 */
 
-QGridLayout::QGridLayout( QWidget *parent, int nRows, int nCols, int border ,
-			  int space , const char *name )
+QGridLayout::QGridLayout( QWidget *parent, int nRows, int nCols, int border,
+			  int space, const char *name )
     : QLayout( parent, border, space, name )
 {
     init( nRows, nCols );
@@ -922,9 +921,10 @@ QGridLayout::QGridLayout( QWidget *parent, int nRows, int nCols, int border ,
 
 /*!
   Constructs a new grid that is placed inside \a parentLayout
-  with \a nRows rows and \a  nCols columns.
+  with \a nRows rows and \a nCols columns.
   If \a space is -1, this QGridLayout inherits its parent's
-  spacing(); otherwise \a space is used.
+  spacing(); otherwise \a space is used. The grid
+   layout is called \a name.
 
   This grid is placed according to \a parentLayout's default placement
   rules.
@@ -939,13 +939,13 @@ QGridLayout::QGridLayout( QLayout *parentLayout, int nRows, int nCols,
 
 
 /*!
-  Constructs a new grid with \a nRows rows and \a nCols columns.
-  If \a space is -1, this QGridLayout inherits its parent's
-  spacing(); otherwise \a space is used.
+  Constructs a new grid with \a nRows rows and \a nCols columns. If \a
+  space is -1, this QGridLayout inherits its parent's spacing();
+  otherwise \a space is used. The grid layout is called \a name.
 
-  You have to insert this grid into another layout. You can insert
-  widgets and layouts in this layout at any time, but layout will not
-  be performed before it is inserted.
+  You must insert this grid into another layout. You can insert
+  widgets and layouts into this layout at any time, but layout will
+  not be performed before this is inserted into another layout.
 */
 
 QGridLayout::QGridLayout( int nRows, int nCols,
@@ -1019,7 +1019,8 @@ QSize QGridLayout::maximumSize() const
 
 
 /*!
-  Returns whether this layout's preferred height depends on its width.
+    Returns TRUE if this layout's preferred height depends on its
+    width; otherwise returns FALSE.
 */
 
 bool QGridLayout::hasHeightForWidth() const
@@ -1042,11 +1043,13 @@ int QGridLayout::heightForWidth( int w ) const
 
 
 /*!
-  Searches for \a w in this layout (not including child layouts).  If
-  \a w is found, it sets \a row and \a col to the row and column and
-  returns TRUE. If \a w is not found, FALSE is returned.
+  Searches for widget \a w in this layout (not including child
+  layouts).  If \a w is found, it sets \c *\a row and \c *\a col to
+  the row and column and returns TRUE. If \a w is not found, FALSE is
+  returned.
 
-  \warning If a widget spans multiple rows/columns, the top-left cell is returned.
+  Note: if a widget spans multiple rows/columns, the top-left cell
+  is returned.
 */
 
 bool QGridLayout::findWidget( QWidget* w, int *row, int *col )
@@ -1075,7 +1078,7 @@ void QGridLayout::setGeometry( const QRect &r )
   \a col is outside the grid.
 
   \warning in the current version of Qt this function does not return
-  valid results until setGeometry() has been called, i.e., after the
+  valid results until setGeometry() has been called, i.e. after the
   mainWidget() is visible.
 
 */
@@ -1097,7 +1100,7 @@ void QGridLayout::expand( int nRows, int nCols )
 }
 
 /*!
-  Sets up the table and other internal stuff
+  Sets up the grid.
 */
 
 void QGridLayout::init( int nRows, int nCols )
@@ -1120,8 +1123,8 @@ void QGridLayout::addItem( QLayoutItem *item )
 }
 
 /*!
-  Adds \a item at position \a row, \a col. The layout takes over ownership
-  of \a item.
+  Adds \a item at position \a row, \a col. The layout takes ownership
+  of the \a item.
 */
 
 void QGridLayout::addItem( QLayoutItem *item, int row, int col )
@@ -1131,8 +1134,8 @@ void QGridLayout::addItem( QLayoutItem *item, int row, int col )
 
 
 /*!
-  Adds \a item at position \a row, \a col. The layout takes over ownership
-  of \a item.
+  Adds \a item at position \a row, \a col. The layout takes ownership
+  of the \a item.
 */
 
 void QGridLayout::add( QLayoutItem *item, int row, int col )
@@ -1146,10 +1149,10 @@ void QGridLayout::add( QLayoutItem *item, int row, int col )
 /*!
   Adds the \a item to the cell grid, spanning multiple rows/columns.
 
-  Alignment is specified by \a alignment, which is a bitwise OR of
-  Qt::AlignmentFlags values.
-  The default alignment is 0, which means
-  that the widget fills the entire cell.
+    The cell will span from \a fromRow, \a fromCol to \a toRow, \a
+    toCol. Alignment is specified by \a alignment, which is a bitwise
+    OR of Qt::AlignmentFlags values. The default alignment is 0, which
+    means that the widget fills the entire cell.
 
 */
 
@@ -1162,7 +1165,8 @@ void QGridLayout::addMultiCell( QLayoutItem *item, int fromRow, int toRow,
 }
 
 /*
-  Returns TRUE if w can be added to l
+  Returns TRUE if the widget \a w can be added to the layout \a l;
+  otherwise returns FALSE.
 */
 static bool checkWidget( QLayout *l, QWidget *w )
 {
@@ -1199,13 +1203,15 @@ static bool checkWidget( QLayout *l, QWidget *w )
   The default alignment is 0, which means
   that the widget fills the entire cell.
 
-  Note 1: You should not call this if you have enabled the
+    \list
+  \i You should not call this if you have enabled the
   \link QLayout::setAutoAdd() auto-add facility of the layout\endlink.
 
-  Note 2: The \a alignment parameter is interpreted more aggressively
+  \i The \a alignment parameter is interpreted more aggressively
   than in previous versions of Qt.  A non-default alignment now
   indicates that the widget should not grow to fill the available
   space, but should be sized according to sizeHint().
+  \endlist
 
 */
 
@@ -1228,13 +1234,13 @@ void QGridLayout::addWidget( QWidget *w, int row, int col, int alignment )
 }
 
 /*!
-  Adds the widget \a w to the cell grid, spanning multiple rows/columns.
-  The widget starts from the row \a fromRow and the column \a fromCol and
-  spans across to the row \a toRow and the column \a toCol.
+  Adds the widget \a w to the cell grid, spanning multiple
+  rows/columns. The cell will span from \a fromRow, \a fromCol to \a
+  toRow, \a toCol.  
 
   Alignment is specified by \a alignment, which is a bitwise OR of
-  Qt::AlignmentFlags values.
-  The default alignment is 0, which means that the widget fills the entire cell.
+  Qt::AlignmentFlags values. The default alignment is 0, which means
+  that the widget fills the entire cell.
 
   A non-zero alignment indicates that the widget should not grow to
   fill the available space but should be sized according to
@@ -1252,7 +1258,7 @@ void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
 
 
 /*!
-  Places another layout at position (\a row, \a col) in the grid.
+  Places the \a layout at position (\a row, \a col) in the grid.
   The top-left position is (0,0).
 */
 
@@ -1264,11 +1270,13 @@ void QGridLayout::addLayout( QLayout *layout, int row, int col)
 
 
 /*!
-  Adds the layout \a layout to the cell grid, spanning multiple rows/columns.
+    Adds the layout \a layout to the cell grid, spanning multiple
+    rows/columns. The cell will span from \a fromRow, \a fromCol to \a
+    toRow, \a toCol.
 
   Alignment is specified by \a alignment, which is a bitwise OR of
-  Qt::AlignmentFlags values.
-  The default alignment is 0, which means that the widget fills the entire cell.
+  Qt::AlignmentFlags values. The default alignment is 0, which means
+  that the widget fills the entire cell.
 
   A non-zero alignment indicates that the layout should not grow to
   fill the available space but should be sized according to
@@ -1290,7 +1298,7 @@ void QGridLayout::addMultiCellLayout( QLayout *layout, int fromRow, int toRow,
   The first row is number 0.
 
   The stretch factor is relative to the other rows in this grid.
-  Rows with higher stretch factor take more of the available space.
+  Rows with a higher stretch factor take more of the available space.
 
   The default stretch factor is 0.
   If the stretch factor is 0 and no other row in this table can
@@ -1330,8 +1338,8 @@ int QGridLayout::colStretch( int col ) const
   Sets the stretch factor of column \a col to \a stretch.
   The first column is number 0.
 
-  The stretch factor  is relative to the other columns in this grid.
-  Columns with higher stretch factor take more of the available space.
+  The stretch factor is relative to the other columns in this grid.
+  Columns with a higher stretch factor take more of the available space.
 
   The default stretch factor is 0.
   If the stretch factor is 0 and no other column in this table can
@@ -1347,7 +1355,7 @@ void QGridLayout::setColStretch( int col, int stretch )
 
 
 /*!
-  Sets the minimum height of \a row to \a minsize pixels.
+  Sets the minimum height of row \a row to \a minsize pixels.
  */
 void QGridLayout::addRowSpacing( int row, int minsize )
 {
@@ -1357,7 +1365,7 @@ void QGridLayout::addRowSpacing( int row, int minsize )
 }
 
 /*!
-  Sets the minimum width of \a col to \a minsize pixels.
+  Sets the minimum width of column \a col to \a minsize pixels.
  */
 void QGridLayout::addColSpacing( int col, int minsize )
 {

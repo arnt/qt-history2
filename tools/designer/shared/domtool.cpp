@@ -21,7 +21,7 @@
 #include "domtool.h"
 
 #include <qsizepolicy.h>
-#include <qpalette.h>
+#include <qcolor.h>
 #include <qcursor.h>
 #include <qdatetime.h>
 #include <qrect.h>

@@ -36,10 +36,9 @@
 **********************************************************************/
 
 #include "option.h"
-#include <stdlib.h>
 #include <qdir.h>
-#include <qglobal.h>
 #include <qregexp.h>
+#include <stdlib.h>
 #include <stdarg.h>
 
 //convenience

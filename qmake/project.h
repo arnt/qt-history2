@@ -54,18 +54,45 @@ class QMakeProject
 
 public:
     QMakeProject();
-    ~QMakeProject() { }
 
     bool read(QString project, QString pwd);
-    QString projectFile() { return pfile == "-" ? QString("(stdin)") : pfile; }
-    QString configFile() { return cfile; }
+    QString projectFile();
+    QString configFile();
 
-    bool isEmpty(const QString &v) { return !vars.contains(v) || vars[v].isEmpty(); }
-    QStringList &values(const QString &v) { return vars[v]; }
-    QString first(const QString &v) { return isEmpty(v) ? QString("") : vars[v].first(); }
-    QMap<QString, QStringList> &variables() { return vars; }
+    bool isEmpty(const QString &v);
+    QStringList &values(const QString &v);
+    QString first(const QString &v);
+    QMap<QString, QStringList> &variables();
     bool isActiveConfig(const QString &x);
 
 };
+
+inline QString QMakeProject::projectFile()
+{
+    if (pfile == "-")
+	return QString("(stdin)");
+    else
+	return pfile;
+}
+
+inline QString QMakeProject::configFile()
+{ return cfile; }
+
+inline bool QMakeProject::isEmpty(const QString &v)
+{ return !vars.contains(v) || vars[v].isEmpty(); }
+
+inline QStringList &QMakeProject::values(const QString &v)
+{ return vars[v]; }
+
+inline QString QMakeProject::first(const QString &v)
+{
+    if (isEmpty(v))
+	return QString("");
+    else
+	return vars[v].first();
+}
+
+inline QMap<QString, QStringList> &QMakeProject::variables()
+{ return vars; }
 
 #endif /* __QMAKE_H__ */

@@ -12,6 +12,10 @@ class QListView;
 class QIconView;
 class QTextEdit;
 
+QString buddyString( QWidget * );
+QString stripAmp( const QString& );
+QString hotKey( const QString& );
+
 class QAccessibleWidget : public QAccessibleObject
 {
 public:
@@ -27,11 +31,11 @@ public:
     QRESULT	queryChild( int control, QAccessibleInterface ** ) const;
     QRESULT	queryParent( QAccessibleInterface ** ) const;
 
-    bool	doDefaultAction( int control );
     QString	text( Text t, int control ) const;
     Role	role( int control ) const;
     State	state( int control ) const;
 
+    bool	doDefaultAction( int control );
     bool	setFocus( int control );
     bool	setSelected( int control, bool on, bool extend );
     void	clearSelection();

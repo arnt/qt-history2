@@ -36,23 +36,22 @@
 **********************************************************************/
 
 #include "project.h"
-
+#include "option.h"
 #include "unixmake.h"
 #include "borland_bmake.h"
 #include "msvc_nmake.h"
 #include "msvc_dsp.h"
 #include "mac/metrowerks_xml.h"
 #include "projectgenerator.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <ctype.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include "option.h"
 #include <qnamespace.h>
 #include <qregexp.h>
 #include <qdir.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 extern int line_count;
 extern "C" void yyerror(const char *foo)

@@ -1,3 +1,4 @@
+
 /****************************************************************************
 ** $Id: $
 **
@@ -63,13 +64,11 @@ protected:
     bool generateDependancies(QStringList &dirs, QString x);
     bool generateMocList(QString fn);
 
-    inline QString findMocSource(const QString &moc_file) const 
-	{ QString tmp = cleanFilePath(moc_file); return !mocablesFromMOC.contains(tmp) ? QString("") : mocablesFromMOC[tmp]; }
-    inline QString findMocDestination(const QString &src_file) const 
-	{ QString tmp = cleanFilePath(src_file); return !mocablesToMOC.contains(tmp) ? QString("") : mocablesToMOC[tmp]; }
+    QString findMocSource(const QString &moc_file) const;
+    QString findMocDestination(const QString &src_file) const;
 
-    void setMocAware(bool o) { moc_aware = o; }
-    bool mocAware() const { return moc_aware; }
+    void setMocAware(bool o);
+    bool mocAware() const;
 
     bool writeHeader(QTextStream &);
     virtual bool writeMakefile(QTextStream &);
@@ -77,7 +76,7 @@ protected:
     virtual void init();
 
     //for installs
-    virtual QString defaultInstall(const QString &) { return QString(""); }
+    virtual QString defaultInstall(const QString &);
 
     QString var(const QString &var);
     QString varGlue(const QString &var, const QString &before, const QString &glue, const QString &after);
@@ -87,9 +86,40 @@ protected:
     bool fileFixify(QStringList &files) const;
 public:
     MakefileGenerator(QMakeProject *p);
-    virtual ~MakefileGenerator() { }
+    virtual ~MakefileGenerator();
 
     bool write();
 };
+
+inline QString MakefileGenerator::findMocSource(const QString &moc_file) const 
+{
+    QString tmp = cleanFilePath(moc_file);
+    if (mocablesFromMOC.contains(tmp))
+	return mocablesFromMOC[tmp];
+    else
+	return QString("");
+}
+
+inline QString MakefileGenerator::findMocDestination(const QString &src_file) const 
+{
+    QString tmp = cleanFilePath(src_file);
+    if (mocablesToMOC.contains(tmp))
+	return mocablesToMOC[tmp];
+    else
+	return QString("");
+}
+
+inline void MakefileGenerator::setMocAware(bool o)
+{ moc_aware = o; }
+
+inline bool MakefileGenerator::mocAware() const
+{ return moc_aware; }
+
+inline QString MakefileGenerator::defaultInstall(const QString &)
+{ return QString(""); }
+
+inline MakefileGenerator::~MakefileGenerator()
+{ }
+
 
 #endif /* __MAKEFILE_H__ */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qthread_unix.cpp#65 $
+** $Id: //depot/qt/main/src/kernel/qthread_unix.cpp#66 $
 **
 ** QThread class for Unix
 **
@@ -527,7 +527,7 @@ bool QThread::running() const
   \code
   QWaitCondition key_pressed;
 
-  while(1) {
+  for (;;) {
      key_pressed.wait();    // This is a QWaitCondition global variable
      // Key was pressed, do something interesting
      do_something();
@@ -540,7 +540,7 @@ bool QThread::running() const
   \code
   QWaitCondition key_pressed;
 
-  while(1) {
+  for (;;) {
      getchar();
      // Causes any thread in key_pressed.wait() to return from
      // that method and continue processing
@@ -561,7 +561,7 @@ bool QThread::running() const
   int mycount=0;
 
   // Worker thread code
-  while(1) {
+  for (;;) {
      key_pressed.wait();    // This is a QWaitCondition global variable
      mymutex.lock();
      mycount++;
@@ -573,7 +573,7 @@ bool QThread::running() const
   }
 
   // Key reading thread code
-  while(1) {
+  for (;;) {
      getchar();
      mymutex.lock();
      // Sleep until there are no busy worker threads

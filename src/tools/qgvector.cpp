@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#59 $
+** $Id: //depot/qt/main/src/tools/qgvector.cpp#60 $
 **
 ** Implementation of QGVector class
 **
@@ -357,7 +357,7 @@ void QGVector::sort()				// sort vector
     register Item *start = &vec[0];
     register Item *end	= &vec[len-1];
     Item tmp;
-    while ( TRUE ) {				// put all zero elements behind
+    for (;;) {				// put all zero elements behind
 	while ( start < end && *start != 0 )
 	    start++;
 	while ( end > start && *end == 0 )

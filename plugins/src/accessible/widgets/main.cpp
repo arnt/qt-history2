@@ -1,4 +1,5 @@
 #include "qaccessiblewidget.h"
+#include "qaccessiblemenu.h"
 
 #include <qtoolbutton.h>
 #include <qtoolbar.h>
@@ -112,7 +113,7 @@ QRESULT AccessibleFactory::createAccessibleInterface( const QString &classname, 
 	    *iface = new QAccessibleButton( object, ButtonDropDown );
 	else
 	    *iface = new QAccessibleButton( object, ButtonMenu );
-    } else if ( classname == "QCheckbox" ) {
+    } else if ( classname == "QCheckBox" ) {
 	*iface = new QAccessibleButton( object, CheckBox );
     } else if ( classname == "QRadioButton" ) {
 	*iface = new QAccessibleButton( object, RadioButton );
@@ -150,9 +151,9 @@ QRESULT AccessibleFactory::createAccessibleInterface( const QString &classname, 
 	QToolBar *tb = (QToolBar*)object;
 	*iface = new QAccessibleWidget( object, ToolBar, tb->label() );
     } else if ( classname == "QMenuBar" ) {
-	*iface = new QAccessibleWidget( object, MenuBar );
+	*iface = new QAccessibleMenuBar( object );
     } else if ( classname == "QPopupMenu" ) {
-	*iface = new QAccessibleWidget( object, PopupMenu );
+	*iface = new QAccessiblePopup( object );
     } else if ( classname == "QHeader" ) {
 	*iface = new QAccessibleHeader( object );
     } else if ( classname == "QTabBar" ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_mac.cpp#245 $
+** $Id: //depot/qt/main/src/kernel/qapplication_mac.cpp#246 $
 **
 ** Implementation of Mac startup routines and event handling
 **
@@ -2045,7 +2045,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    request_context_pending = FALSE;
 	    EventRef er;
 	    const EventTypeSpec eventspec = { kEventClassQt, kEventQtRequestContext };
-	    while(1) {
+	    for (;;) {
 		OSStatus ret = ReceiveNextEvent( 1, &eventspec, QMAC_EVENT_NOWAIT, TRUE, &er );
 		if(ret == eventLoopTimedOutErr || ret == eventLoopQuitErr)
 		    break;

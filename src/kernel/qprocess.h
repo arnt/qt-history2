@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.h#35 $
+** $Id: //depot/qt/main/src/kernel/qprocess.h#36 $
 **
 ** Implementation of QProcess class
 **
@@ -99,6 +99,7 @@ signals:
     void readyReadStderr();
     void processExited();
     void wroteToStdin();
+    void launchFinished();
 
 public slots:
     // input

@@ -35,14 +35,14 @@
 **
 **********************************************************************/
 
-#include "option.h"
 #include "project.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include "option.h"
 #include <qfile.h>
 #include <qdir.h>
 #include <qregexp.h>
 #include <qtextstream.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 int line_count;
 extern "C" void yyerror(const char *);

@@ -8,7 +8,6 @@
 #include "qt_mac.h"
 #include <unistd.h>
 
-#define INCLUDE_MENUITEM_DEF
 #include <qpopupmenu.h>
 #include <qmenubar.h>
 #include <qintdict.h>

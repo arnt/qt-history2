@@ -5,6 +5,8 @@ VERSION = 1.0.0
 DESTDIR = ../../..
 
 SOURCES += main.cpp \
-	qaccessiblewidget.cpp
+	qaccessiblewidget.cpp \
+	qaccessiblemenu.cpp
 
-HEADERS += qaccessiblewidget.h
+HEADERS += qaccessiblewidget.h \
+	qaccessiblemenu.h

@@ -22,14 +22,13 @@
 #define QWIDGETFACTORY_H
 
 #ifndef QT_H
-#include "qstring.h"
-#include "qcstring.h"
-#include "qptrlist.h"
-#include "qimage.h"
-#include "qpixmap.h"
-#include "qvaluelist.h"
-#include "qmap.h"
-#include "qaction.h"
+#include <qstring.h>
+#include <qptrlist.h>
+#include <qimage.h>
+#include <qpixmap.h>
+#include <qvaluelist.h>
+#include <qmap.h>
+#include <qaction.h>
 #endif // QT_H
 
 class QWidget;

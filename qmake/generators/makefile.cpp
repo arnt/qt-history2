@@ -36,23 +36,22 @@
 **********************************************************************/
 
 #include "makefile.h"
-#include <stdio.h>
+#include "option.h"
 #include <qdir.h>
 #include <qfile.h>
 #include <qtextstream.h>
-#include <time.h>
 #include <qregexp.h>
-#include "option.h"
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #if defined(Q_OS_UNIX)
 #include <unistd.h>
 #else
 #include <io.h>
 #endif
-#include <stdlib.h>
+#include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
 
 
 MakefileGenerator::MakefileGenerator(QMakeProject *p) : init_already(FALSE), moc_aware(FALSE), project(p)

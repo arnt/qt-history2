@@ -50,8 +50,11 @@ protected:
     virtual bool writeMakefile(QTextStream &);
 public:
     ProjectGenerator(QMakeProject *p);
-    ~ProjectGenerator() { }
+    ~ProjectGenerator();
 };
+
+inline ProjectGenerator::~ProjectGenerator()
+{ }
 
 
 #endif /* __PROJECTGENERATOR_H__ */

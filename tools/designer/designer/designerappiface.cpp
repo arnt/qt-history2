@@ -18,7 +18,6 @@
 **
 **********************************************************************/
 
-#define INCLUDE_MENUITEM_DEF
 #include <qmenubar.h>
 #include <qpopupmenu.h>
 #include "designerappiface.h"

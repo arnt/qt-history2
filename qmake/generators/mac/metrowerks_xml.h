@@ -37,8 +37,6 @@
 #ifndef __METROWERKSMAKE_H__
 #define __METROWERKSMAKE_H__
 
-#include <qtextstream.h>
-#include <qstring.h>
 #include "makefile.h"
 
 class MetrowerksMakefileGenerator : public MakefileGenerator
@@ -55,8 +53,11 @@ class MetrowerksMakefileGenerator : public MakefileGenerator
     void init();
 public:
     MetrowerksMakefileGenerator(QMakeProject *p);
-    ~MetrowerksMakefileGenerator() { }
-
+    ~MetrowerksMakefileGenerator();
 };
+
+inline MetrowerksMakefileGenerator::~MetrowerksMakefileGenerator()
+{ }
+
 
 #endif /* __METROWERKSMAKE_H__ */

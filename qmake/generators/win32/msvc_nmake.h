@@ -37,8 +37,6 @@
 #ifndef __NMAKEMAKE_H__
 #define __NMAKEMAKE_H__
 
-#include <qtextstream.h>
-#include <qstring.h>
 #include "winmakefile.h"
 
 class NmakeMakefileGenerator : public Win32MakefileGenerator
@@ -51,8 +49,11 @@ class NmakeMakefileGenerator : public Win32MakefileGenerator
 
 public:
     NmakeMakefileGenerator(QMakeProject *p);
-    ~NmakeMakefileGenerator() { }
+    ~NmakeMakefileGenerator();
 
 };
+
+inline NmakeMakefileGenerator::~NmakeMakefileGenerator()
+{ }
 
 #endif /* __NMAKEMAKE_H__ */

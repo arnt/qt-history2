@@ -1626,6 +1626,8 @@ void QTable::init( int rows, int cols )
     edMode = NotEditing;
     editRow = editCol = -1;
 
+    context_menu = FALSE;
+
     installEventFilter( this );
 
     // Initial size
@@ -2177,6 +2179,24 @@ void QTable::paintCell( QPainter* p, int row, int col,
     int x2 = w - 1;
     int y2 = h - 1;
 
+    QColorGroup cg;
+#if defined(Q_WS_WIN)
+    bool drawActiveSelection = hasFocus() || style() != WindowsStyle;
+    if ( !drawActiveSelection ) {
+	QWidget *fw = qApp->focusWidget();
+	while ( fw ) {
+	    fw = fw->parentWidget();
+	    if ( fw == this ) {
+		drawActiveSelection = TRUE;
+		break;
+	    }
+	}
+    }
+    if ( !drawActiveSelection && ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) )
+	cg = palette().inactive();
+    else
+#endif
+	cg = colorGroup();
 
     QTableItem *itm = item( row, col );
     if ( itm ) {
@@ -2187,7 +2207,7 @@ void QTable::paintCell( QPainter* p, int row, int col,
 	itm->paint( p, cg, cr, selected );
 	p->restore();
     } else {
-	p->fillRect( 0, 0, w, h, selected ? colorGroup().brush( QColorGroup::Highlight ) : colorGroup().brush( QColorGroup::Base ) );
+	p->fillRect( 0, 0, w, h, selected ? cg.brush( QColorGroup::Highlight ) : cg.brush( QColorGroup::Base ) );
     }
 
     if ( sGrid ) {
@@ -2689,6 +2709,8 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
     startDragRow = -1;
     if ( e->button() != LeftButton ) {
 	emit pressed( tmpRow, tmpCol, e->button(), e->pos() );
+	if ( context_menu )
+	    emit contextMenuRequested( tmpRow, tmpCol, mapToGlobal( contentsToViewport( e->pos() ) ) );
 	return;
     }
 
@@ -2919,7 +2941,9 @@ void QTable::contentsContextMenuEvent( QContextMenuEvent *e )
 	emit contextMenuRequested( curRow, curCol, mapToGlobal( contentsToViewport( r.center() ) ) );
     } else {
 	QMouseEvent me( QEvent::MouseButtonPress, e->pos(), e->globalPos(), RightButton, e->state() );
+	context_menu = TRUE;
 	contentsMousePressEvent( &me );
+	context_menu = FALSE;
     }
     e->accept();
 }
@@ -3016,6 +3040,11 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
     case QEvent::FocusOut:
 	if ( o == this || o == viewport() ) {
 	    updateCell( curRow, curCol );
+#if defined(Q_WS_WIN)
+	    if ( style() == WindowsStyle &&
+		 ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) )
+		repaintSelections();
+#endif
 	    return TRUE;
 	}
 	if ( isEditing() && editorWidget && o == editorWidget && ( (QFocusEvent*)e )->reason() != QFocusEvent::Popup ) {
@@ -3029,6 +3058,11 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
     case QEvent::FocusIn:
 	if ( o == this || o == viewport() ) {
 	    updateCell( curRow, curCol );
+#if defined(Q_WS_WIN)
+	    if ( style() == WindowsStyle &&
+		 ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) )
+		repaintSelections();
+#endif
 	    if ( isEditing() && editorWidget )
 		editorWidget->setFocus();
 	    return TRUE;
@@ -3151,6 +3185,11 @@ void QTable::keyPressEvent( QKeyEvent* e )
 
 void QTable::focusInEvent( QFocusEvent* )
 {
+#if defined(Q_WS_WIN)
+    if ( style() == WindowsStyle &&
+	 ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) )
+	repaintSelections();
+#endif
     QPoint cellPos( columnPos( curCol ) + leftMargin() - contentsX(), rowPos( curRow ) + topMargin() - contentsY() );
     QTableItem *itm = item( curRow, curCol );
     setMicroFocusHint( cellPos.x(), cellPos.y(), columnWidth( curCol ), rowHeight( curRow ), ( itm && itm->editType() != QTableItem::Never ) );
@@ -3162,6 +3201,11 @@ void QTable::focusInEvent( QFocusEvent* )
 
 void QTable::focusOutEvent( QFocusEvent* )
 {
+#if defined(Q_WS_WIN)
+    if ( style() == WindowsStyle &&
+	 ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) )
+	repaintSelections();
+#endif
 }
 
 /*! \reimp
@@ -3946,6 +3990,25 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
 	}
 	leftHeader->repaint( FALSE );
     }
+}
+
+/*! Repaints all selections */
+
+void QTable::repaintSelections()
+{
+    if ( selections.isEmpty() )
+	return;
+
+    QRect r;
+    for ( QTableSelection *s = selections.first(); s; s = selections.next() ) {
+	bool b;
+	r = r.unite( rangeGeometry( s->topRow(),
+				    s->leftCol(),
+				    s->bottomRow(),
+				    s->rightCol(), b ) );
+    }
+
+    repaintContents( r, FALSE );
 }
 
 /*! Clears all selections and repaints the appropriate

@@ -39,7 +39,6 @@ public:
 
 private:
     unsigned long ref;
-    EditorInterface *editorIface;
     LanguageInterfaceImpl *langIface;
     PreferenceInterfaceImpl *prefIface;
 
@@ -48,8 +47,6 @@ private:
 CommonInterface::CommonInterface()
     : QComponentInterface(), ref( 0 )
 {
-    editorIface = new EditorInterfaceImpl;
-    editorIface->addRef();
     langIface = new LanguageInterfaceImpl;
     langIface->addRef();
     prefIface = new PreferenceInterfaceImpl;
@@ -58,7 +55,6 @@ CommonInterface::CommonInterface()
 
 CommonInterface::~CommonInterface()
 {
-    editorIface->release();
     langIface->release();
     prefIface->release();
 }
@@ -70,7 +66,7 @@ QRESULT CommonInterface::queryInterface( const QUuid &uuid, QUnknownInterface** 
     if ( uuid == IID_QComponent )
 	*iface = (QComponentInterface*)this;
     else if ( uuid == IID_Editor )
-	*iface = editorIface;
+	*iface = new EditorInterfaceImpl;
     else if ( uuid == IID_Language )
 	*iface = langIface;
     else if ( uuid == IID_Preference )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qmotifplusstyle.cpp#11 $
+** $Id: //depot/qt/main/src/styles/qmotifplusstyle.cpp#12 $
 **
 ** Implementation of QMotifPlusStyle class
 **
@@ -39,7 +39,6 @@
 
 #ifndef QT_NO_STYLE_MOTIFPLUS
 
-#define INCLUDE_MENUITEM_DEF
 #include "qmenubar.h"
 #include "qapplication.h"
 #include "qpainter.h"

@@ -2566,7 +2566,7 @@ void MainWindow::editFunction( const QString &func, const QString &l, bool rerea
     if ( !MetaDataBase::hasEditor( lang ) )
 	return;
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	if ( e->language() == lang ) {
+	if ( e->language() == lang && e->object() == formWindow() ) {
 	    editor = e;
 	    break;
 	}
@@ -2863,69 +2863,86 @@ void MainWindow::enableAll( bool enable )
 
 void MainWindow::showSourceLine( QObject *o, int line, bool error )
 {
-    bool found = FALSE;
     QString lang = currentProject->language();
-    EditorInterface *eiface = 0;
-    editorPluginManager->queryInterface( lang, & eiface );
     QWidgetList windows = workspace->windowList();
     for ( QWidget *w = windows.first(); w; w = windows.next() ) {
-	if ( !w->inherits( "FormWindow" ) )
-	    continue;
-	FormWindow *fw = (FormWindow*)w;
-	if ( fw->project() != currentProject )
-	    continue;
-	if ( QString( fw->name() ) == QString( o->name() ) ) {
-
-	    if ( workSpace()->activeWindow() && workSpace()->activeWindow()->inherits( "SourceEditor" ) &&
-		 ( (SourceEditor*)workSpace()->activeWindow() )->object() == fw ) {
-		if ( error )
-		    eiface->setError( line );
-		else
-		    eiface->setStep( line );
-		eiface->release();
-		return;
-	    }
-
-	    fw->setFocus();
-	    lastActiveFormWindow = fw;
-	    qApp->processEvents();
-	    editSource( (bool)FALSE );
-	    if ( error )
-		eiface->setError( line );
+	FormWindow *fw = 0;
+	SourceEditor *se = 0;
+	SourceFile *sf = 0;
+	if ( w->inherits( "FormWindow" ) ) {
+	    fw = (FormWindow*)fw;
+	} else if ( w->inherits( "SourceEditor" ) ) {
+	    se = (SourceEditor*)w;
+	    if ( !se->object() )
+		continue;
+	    if ( se->object()->inherits( "FormWindow" ) )
+		fw = (FormWindow*)se->object();
 	    else
-		eiface->setStep( line );
-	    found = TRUE;
-	    break;
+		sf = (SourceFile*)se->object();
+	}
+	
+	if ( fw ) {
+	    if ( fw->project() != currentProject )
+		continue;
+	    if ( QString( fw->name() ) == QString( o->name() ) ) {
+		if ( se ) {
+		    if ( error )
+			se->editorInterface()->setError( line );
+		    else
+			se->editorInterface()->setStep( line );
+		    return;
+		} else {
+		    fw->setFocus();
+		    lastActiveFormWindow = fw;
+		    qApp->processEvents();
+		    se = editSource( (bool)FALSE );
+		    if ( se ) {
+			if ( error )
+			    se->editorInterface()->setError( line );
+			else
+			    se->editorInterface()->setStep( line );
+			return;
+		    }
+		}
+	    }
+	} else if ( se ) {
+	    if ( o != sf )
+		continue;
+	    if ( error )
+		se->editorInterface()->setError( line );
+	    else
+		se->editorInterface()->setStep( line );
+	    return;
 	}
     }
 
-    if ( !found ) {
+    if ( o->inherits( "SourceFile" ) ) {
 	QPtrList<SourceFile> sources = currentProject->sourceFiles();
 	for ( SourceFile *f = sources.first(); f; f = sources.next() ) {
 	    if ( f == o ) {
-		editSource( f );
-		if ( error )
-		    eiface->setError( line );
-		else
-		    eiface->setStep( line );
-		eiface->release();
+		SourceEditor *se = editSource( f );
+		if ( se ) {
+		    if ( error )
+			se->editorInterface()->setError( line );
+		    else
+			se->editorInterface()->setStep( line );
+		}
 		return;
 	    }
 	}
     }
 
-    if ( !found ) {
-	mblockNewForms = TRUE;
-	openFile( currentProject->makeAbsolute( *qwf_forms->find( (QWidget*)o ) ) );
-	qApp->processEvents(); // give all views the chance to get the formwindow
-	editSource();
+    mblockNewForms = TRUE;
+    openFile( currentProject->makeAbsolute( *qwf_forms->find( (QWidget*)o ) ) );
+    qApp->processEvents(); // give all views the chance to get the formwindow
+    SourceEditor *se = editSource();
+    if ( se ) {
 	if ( error )
-	    eiface->setError( line );
+	    se->editorInterface()->setError( line );
 	else
-	    eiface->setStep( line );
-	mblockNewForms = FALSE;
+	    se->editorInterface()->setStep( line );
     }
-    eiface->release();
+    mblockNewForms = FALSE;
 }
 
 Project *MainWindow::emptyProject()

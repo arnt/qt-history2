@@ -6,7 +6,6 @@
 
 #ifndef QT_NO_STYLE_WINDOWSXP
 
-#define INCLUDE_MENUITEM_DEF
 #include "qmenubar.h"
 #include <qpainter.h>
 #include <qpushbutton.h>

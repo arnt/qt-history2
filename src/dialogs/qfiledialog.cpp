@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#609 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#610 $
 **
 ** Implementation of QFileDialog class
 **
@@ -2851,7 +2851,7 @@ QString QFileDialog::dirPath() const
 }
 
 extern const char qt_file_dialog_filter_reg_exp[] =
-	"\\(([a-zA-Z0-9.*? +;#\\[\\]]*)\\)$";
+	"\\(([a-zA-Z0-9_.*? +;#\\[\\]]*)\\)$";
 
 /*!
 

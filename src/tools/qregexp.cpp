@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#152 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#153 $
 **
 ** Implementation of QRegExp class
 **
@@ -1723,7 +1723,7 @@ bool QRegExpEngine::badCharMatch()
     if ( mmPos > lastPos )
 	return FALSE;
 
-    while ( TRUE ) {
+    for (;;) {
 	if ( ++slideNext >= mmSlideTabSize )
 	    slideNext = 0;
 	if ( mmSlideTab[slideHead] > 0 ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#434 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#435 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -13082,7 +13082,7 @@ QString &QString::sprintf( const char* cformat, ... )
     int pos;
     int len = 0;
 
-    while ( TRUE ) {
+    for (;;) {
 	pos = escape->search( format, last );
 	len = escape->matchedLength();
 	// Non-escaped text
@@ -13316,7 +13316,7 @@ int QString::find( const QString& str, int index, bool cs ) const
 	    hstr += ustr[i].cell();
 	}
 	i = 0;
-	while ( TRUE ) {
+	for (;;) {
 	    if ( hthis == hstr && ucstrncmp(uthis + i, ustr, lstr) == 0 )
 		return index + i;
 	    if ( i == delta )
@@ -13331,7 +13331,7 @@ int QString::find( const QString& str, int index, bool cs ) const
 	    hstr += ustr[i].lower().cell();
 	}
 	i = 0;
-	while ( TRUE ) {
+	for (;;) {
 	    if ( hthis == hstr && ucstrnicmp(uthis + i, ustr, lstr) == 0 )
 		return index + i;
 	    if ( i == delta )
@@ -13425,7 +13425,7 @@ int QString::findRev( const QString& str, int index, bool cs ) const
 	    hstr += ustr[i].cell();
 	}
 	i = index;
-	while ( TRUE ) {
+	for (;;) {
 	    if ( hthis == hstr && ucstrncmp(uthis + i, ustr, lstr) == 0 )
 		return i;
 	    if ( i == 0 )
@@ -13440,7 +13440,7 @@ int QString::findRev( const QString& str, int index, bool cs ) const
 	    hstr += ustr[i].lower().cell();
 	}
 	i = index;
-	while ( TRUE ) {
+	for (;;) {
 	    if ( hthis == hstr && ucstrnicmp(uthis + i, ustr, lstr) == 0 )
 		return i;
 	    if ( i == 0 )
@@ -13859,7 +13859,7 @@ QString QString::simplifyWhiteSpace() const
     const QChar *fromend = from+length();
     int outc=0;
     QChar *to   = result.d->unicode;
-    while ( TRUE ) {
+    for (;;) {
 	while ( from!=fromend && from->isSpace() )
 	    from++;
 	while ( from!=fromend && !from->isSpace() )

@@ -54,6 +54,8 @@ where you choose to install Qt.
     is set.  The installation will give an error message and not
     proceed otherwise.
 
+    On AIX set LIBPATH and on HP-UX set SHLIB_PATH instead of LD_LIBRARY_PATH.
+
 
 3.  Install your license file as $HOME/.qt-license.
     For the free edition, you do not need a license file.  For Professional

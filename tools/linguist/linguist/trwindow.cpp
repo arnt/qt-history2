@@ -684,7 +684,7 @@ void TrWindow::openFile( const QString& name )
 	    if ( lv->childCount() > 0 ) {
 		findAct->setEnabled( TRUE );
 		findAgainAct->setEnabled( FALSE );
-#if notyet
+#ifdef notyet
 		replaceAct->setEnabled( TRUE );
 #endif
 	    }
@@ -1768,7 +1768,7 @@ void TrWindow::setupMenuBar()
     findAgainAct = new Action( editp, tr("Find &Next"),
 			       this, SLOT(findAgain()), Key_F3 );
     findAgainAct->setEnabled( FALSE );
-#if notyet
+#ifdef notyet
     replaceAct = new Action( editp, tr("&Replace..."), this, SLOT(replace()),
 			     QAccel::stringToKey(tr("Ctrl+H")) );
     replaceAct->setEnabled( FALSE );
@@ -1872,7 +1872,7 @@ void TrWindow::setupMenuBar()
     findAct->setWhatsThis( tr("Search for some text in the translation "
 				"source file.") );
     findAgainAct->setWhatsThis( tr("Continue the search where it was left.") );
-#if notyet
+#ifdef notyet
     replaceAct->setWhatsThis( tr("Search for some text in the translation"
 				 " source file and replace it by another"
 				 " text.") );
@@ -1933,7 +1933,7 @@ void TrWindow::setupToolBars()
     pasteAct->addToToolbar( editt, tr("Paste"), "editpaste" );
     editt->addSeparator();
     findAct->addToToolbar( editt, tr("Find"), "searchfind" );
-#if notyet
+#ifdef notyet
     replaceAct->addToToolbar( editt, tr("Replace"), "replace" );
 #endif
 

@@ -10930,7 +10930,6 @@ static const char * const aqua_spinbtn_up_off_xpm[] = {
 #include "qlistview.h"
 #include <limits.h>
 #include "../widgets/qtitlebar_p.h"
-#define INCLUDE_MENUITEM_DEF
 #include "qpopupmenu.h"
 
 class QAquaStylePrivate

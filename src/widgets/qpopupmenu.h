@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#101 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#102 $
 **
 ** Definition of QPopupMenu class
 **
@@ -75,9 +75,10 @@ public:
 
     bool 	customWhatsThis() const;
 
-    int	insertTearOffHandle( int id=-1, int index=-1 );
+    int		insertTearOffHandle( int id=-1, int index=-1 );
 
-    void activateItemAt( int index );
+    void	activateItemAt( int index );
+    QRect	itemGeometry( int index );
 
 
 signals:
@@ -110,7 +111,6 @@ protected:
 
     bool	focusNextPrevChild( bool next );
 
-    QRect	itemGeometry( int index );
     int		itemAtPos( const QPoint &, bool ignoreSeparator = TRUE ) const;
 
 private slots:

@@ -35,13 +35,13 @@
 **
 **********************************************************************/
 
-#include "option.h"
 #include "metrowerks_xml.h"
-#include <time.h>
+#include "option.h"
 #include <qdir.h>
 #include <qdict.h>
 #include <qregexp.h>
 #include <stdlib.h>
+#include <time.h>
 #ifdef Q_OS_MAC
 #include "Files.h"
 #include "Resources.h"
@@ -49,6 +49,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #endif
+
 
 MetrowerksMakefileGenerator::MetrowerksMakefileGenerator(QMakeProject *p) : MakefileGenerator(p), init_flag(FALSE)
 {

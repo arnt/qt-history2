@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qprocess.cpp#44 $
 **
 ** Implementation of QProcess class
 **
@@ -420,6 +420,18 @@ bool QProcess::scanNewline( bool stdOut, QByteArray *store )
 }
 
 /*!
+  \fn void QProcess::launchFinished()
+
+  This signal is emitted when the process was started with launch() and the
+  launch() call has finished its tasks. This might happen of two different
+  reasons: either the starting of the process was not successful, then the
+  object emits the signal immediately or if the start was successful, then the
+  object emits the signal after it has written all data to standard input.
+
+  \sa launch() QObject::deferredDelete()
+*/
+
+/*!
   Runs the process and writes the data \a buf to standard input of the process.
   If all data is written to standard input, it closes standard input. The
   command is searched in the path for executable programs; you can also use an
@@ -440,7 +452,13 @@ bool QProcess::scanNewline( bool stdOut, QByteArray *store )
   started. (On operating systems that have zombie processes, Qt will also
   wait() on the old process.)
 
-  \sa start()
+  The object emits the signal launchFinished() when the task of this function
+  call is finished; this might happen of two different reasons: either the
+  starting of the process was not successful, then the object emits the signal
+  immediately or if the start was successful, then the object emits the signal
+  after it has written all data to standard input.
+
+  \sa start() launchFinished();
 */
 bool QProcess::launch( const QByteArray& buf )
 {
@@ -451,9 +469,11 @@ bool QProcess::launch( const QByteArray& buf )
 	    writeToStdin( buf );
 	} else {
 	    closeStdin();
+	    emit launchFinished();
 	}
 	return TRUE;
     } else {
+	emit launchFinished();
 	return FALSE;
     }
 }
@@ -472,9 +492,11 @@ bool QProcess::launch( const QString& buf )
 	    writeToStdin( buf );
 	} else {
 	    closeStdin();
+	    emit launchFinished();
 	}
 	return TRUE;
     } else {
+	emit launchFinished();
 	return FALSE;
     }
 }
@@ -487,6 +509,7 @@ void QProcess::closeStdinLaunch()
     disconnect( this, SIGNAL(wroteToStdin()),
 	    this, SLOT(closeStdinLaunch()) );
     closeStdin();
+    emit launchFinished();
 }
 
 

@@ -1650,7 +1650,7 @@ MainWindow *FormWindow::mainWindow() const
     return mainwindow;
 }
 
-void FormWindow::save( const QString &filename )
+void FormWindow::save( const QString &filename, bool withMsgBox )
 {
     mainWindow()->statusBar()->message( tr( "Saving file %1..." ).arg(filename) );
     QStringList missingCustomWidgets;
@@ -1671,8 +1671,10 @@ void FormWindow::save( const QString &filename )
 	txt += "If you save this form and generate code for it by the UIC, \n"
 	       "the generated code will not compile. Do you really want to save\n"
 	       "this form now?";
-	if ( QMessageBox::information( mainWindow(), tr( "Save Form" ), txt ) == 1 )
-	    return;
+	if ( withMsgBox ) {
+	    if ( QMessageBox::information( mainWindow(), tr( "Save Form" ), txt ) == 1 )
+		return;
+	}
     }
 
     fname = filename;
@@ -1680,7 +1682,8 @@ void FormWindow::save( const QString &filename )
     resource.setWidget( this );
     if ( !resource.save( fname ) ) {
 	mainWindow()->statusBar()->message( tr( "Failed to save file %1.").arg( filename ), 5000 );
-	QMessageBox::warning( mainWindow(), tr( "Save" ), tr( "Couldn't save file %1" ).arg( fname ) );
+	if ( withMsgBox )
+	    QMessageBox::warning( mainWindow(), tr( "Save" ), tr( "Couldn't save file %1" ).arg( fname ) );
     } else {
 	mainWindow()->statusBar()->message( tr( "%1 saved.").arg( filename ), 3000 );
 	commandHistory()->setModified( FALSE );

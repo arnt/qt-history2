@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#55 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#56 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -39,7 +39,6 @@
 
 #ifndef QT_NO_STYLE
 
-#define INCLUDE_MENUITEM_DEF
 #include "qmenubar.h"
 #include "qapplication.h"
 #include "../kernel/qapplication_p.h"

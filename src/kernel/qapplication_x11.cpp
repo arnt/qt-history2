@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#820 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#821 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -4911,7 +4911,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	char	asciiIntern = 0;
 	XEvent	evRelease;
 	XEvent	evPress;
-	while (1) {
+	for (;;) {
 	    QString textIntern;
 	    if ( !XCheckTypedWindowEvent(dpy,event->xkey.window,
 					 XKeyRelease,&evRelease) )
@@ -4972,7 +4972,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     if ( event->type == XKeyPress && text.length() <= 1 ) {
 	XEvent evPress = *event;
 	XEvent evRelease;
-	while (1) {
+	for (;;) {
 	    if (!XCheckTypedWindowEvent(dpy,event->xkey.window,XKeyRelease,
 					&evRelease) )
 		break;

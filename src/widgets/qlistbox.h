@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#156 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#157 $
 **
 ** Definition of QListBox widget class
 **
@@ -320,8 +320,13 @@ public:
     virtual int	 height( const QListBox * ) const;
     virtual int	 width( const QListBox * )  const;
 
-    bool selected() const { return s; }
-    bool current() const;
+    bool isSelected() const { return s; }
+    bool isCurrent() const;
+
+#ifndef QT_NO_COMPAT
+    bool selected() const { return isSelected(); }
+    bool current() const { return isCurrent(); }
+#endif
 
     QListBox *listBox() const;
 

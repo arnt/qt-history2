@@ -164,6 +164,7 @@ FormList::FormList( QWidget *parent, MainWindow *mw, Project *pro )
     connect( this, SIGNAL( contextMenuRequested( QListViewItem *, const QPoint &, int ) ),
 	     this, SLOT( rmbClicked( QListViewItem * ) ) ),
     setHScrollBarMode( AlwaysOff );
+    setVScrollBarMode( AlwaysOn );
     viewport()->setAcceptDrops( TRUE );
     setAcceptDrops( TRUE );
     setColumnWidthMode( 1, Manual );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#101 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#102 $
 **
 ** Definition of QMenuData class
 **
@@ -48,8 +48,6 @@
 class QPopupMenu;
 class QMenuDataData;
 class QObject;
-
-#if defined(INCLUDE_MENUITEM_DEF)
 
 #include "qstring.h"
 #include "qsignal.h"
@@ -112,15 +110,6 @@ private:	// Disabled copy constructor and operator=
 #include "qptrlist.h"
 typedef QPtrList<QMenuItem>	 QMenuItemList;
 typedef QPtrListIterator<QMenuItem> QMenuItemListIt;
-
-#else
-
-class QMenuItem;
-class QMenuItemList;
-class QPixmap;
-
-#endif // INCLUDE_MENUITEM_TEXT
-
 
 
 class Q_EXPORT QCustomMenuItem : public Qt
@@ -219,6 +208,8 @@ public:
     void	changeItem( const QIconSet &icon, const QString &text, int id ) {	// obsolete
 	changeItem( id, icon, text );
     }
+
+    bool	isItemActive( int id ) const;
 
     bool	isItemEnabled( int id ) const;
     void	setItemEnabled( int id, bool enable );

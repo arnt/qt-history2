@@ -37,8 +37,6 @@
 #ifndef __UNIXMAKE_H__
 #define __UNIXMAKE_H__
 
-#include <qtextstream.h>
-#include <qstring.h>
 #include "makefile.h"
 
 class UnixMakefileGenerator : public MakefileGenerator
@@ -54,10 +52,14 @@ class UnixMakefileGenerator : public MakefileGenerator
 
 public:
     UnixMakefileGenerator(QMakeProject *p);
-    ~UnixMakefileGenerator() { }
+    ~UnixMakefileGenerator();
 
 protected:
     virtual QString defaultInstall(const QString &);
 };
+
+inline UnixMakefileGenerator::~UnixMakefileGenerator()
+{ }
+
 
 #endif /* __UNIXMAKE_H__ */

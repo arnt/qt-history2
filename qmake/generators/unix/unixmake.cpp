@@ -37,10 +37,11 @@
 
 #include "unixmake.h"
 #include "option.h"
-#include <time.h>
 #include <qregexp.h>
 #include <qfile.h>
 #include <qdir.h>
+#include <time.h>
+
 
 void
 UnixMakefileGenerator::init()

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#321 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#322 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -405,7 +405,7 @@ char **QFontPrivate::getXFontNames( const char *pattern, int *count )
     static int maxFonts = 256;
     char **list;
 
-    while (1) {
+    for (;;) {
 	list = XListFonts( QPaintDevice::x11AppDisplay(), (char*)pattern,
 			   maxFonts, count );
 

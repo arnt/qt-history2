@@ -23,7 +23,7 @@
 #include <qiconview.h>
 #include <qtextedit.h>
 
-static QString buddyString( QWidget *widget ) 
+QString buddyString( QWidget *widget ) 
 {
     QWidget *parent = widget->parentWidget();
     QObjectList *ol = parent->queryList( "QLabel", 0, FALSE, FALSE );
@@ -53,7 +53,7 @@ static QString buddyString( QWidget *widget )
     return QString::null;
 }
 
-static QString stripAmp( const QString &text )
+QString stripAmp( const QString &text )
 {
     QString n = text;
     for ( uint i = 0; i < n.length(); i++ ) {
@@ -63,7 +63,7 @@ static QString stripAmp( const QString &text )
     return n;
 }
 
-static QString hotKey( const QString &text )
+QString hotKey( const QString &text )
 {
     QString n = text;
     int fa = 0;
@@ -75,7 +75,7 @@ static QString hotKey( const QString &text )
 	}
     }
     if ( fa != -1 && ac )
-	return "ALT+"+n.at(fa + 1);
+	return n.at(fa + 1);
 
     return QString::null;
 }
@@ -433,9 +433,9 @@ QString QAccessibleButton::text( Text t, int control ) const
     case DefaultAction:
 	    return QButton::tr("Press");
     case Accelerator:
-	tx = hotKey( ((QButton*)widget())->text() );
+	tx = "ALT+"+hotKey( ((QButton*)widget())->text() );
 	if ( tx.isNull() )
-	    tx = hotKey( buddyString( widget() ) );
+	    tx = "ALT+"+hotKey( buddyString( widget() ) );
 	return tx;
     case Name:
 	tx = ((QButton*)widget())->text();
@@ -500,7 +500,7 @@ QString QAccessibleRangeControl::text( Text t, int control ) const
     case Name:
 	return stripAmp( buddyString( widget() ) );
     case Accelerator:
-	return hotKey( buddyString( widget() ) );
+	return "ALT+"+hotKey( buddyString( widget() ) );
     case Value:
 	if ( widget()->inherits( "QSlider" ) ) {
 	    QSlider *s = (QSlider*)widget();
@@ -717,7 +717,7 @@ QString QAccessibleText::text( Text t, int control ) const
     case Name:
 	return stripAmp( buddyString( widget() ) );
     case Accelerator:
-	return hotKey( buddyString( widget() ) );
+	return "ALT+"+hotKey( buddyString( widget() ) );
     case Value:
 	if ( widget()->inherits( "QLineEdit" ) )
 	    return ((QLineEdit*)widget())->text();

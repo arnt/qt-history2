@@ -19,19 +19,17 @@
 **********************************************************************/
 
 #include "uic.h"
-#include "../shared/parser.h"
-#include <qsizepolicy.h>
+#include "parser.h"
+#include "widgetdatabase.h"
+#include "domtool.h"
 #include <qfile.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <qstringlist.h>
-#include <qstrlist.h>
 #include <qdatetime.h>
-#include <widgetdatabase.h>
-#include <domtool.h>
 #define NO_STATIC_COLORS
 #include <globaldefs.h>
 #include <qregexp.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <zlib.h>
 
 bool Uic::isMainWindow = FALSE;

@@ -1,4 +1,3 @@
-#define INCLUDE_MENUITEM_DEF
 #include <qmenudata.h>
 #include "actiondnd.h"
 #include <qaction.h>

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlibrary.cpp#14 $
+** $Id: //depot/qt/main/src/tools/qlibrary.cpp#15 $
 **
 ** Implementation of QLibrary class
 **
@@ -271,12 +271,12 @@ void* QLibraryPrivate::resolveSymbol( const char* symbol )
     if ( !pHnd )
 	return 0;
 
-    void* address;
+    void* address = 0;
     if ( shl_findsym( (shl_t*)pHnd, symbol, TYPE_UNDEFINED, address ) < 0 ) {
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
 	qDebug( "Couldn't resolve symbol \"%s\"", symbol );
 #endif
-	return;
+	return 0;
     }
     return address;
 }

@@ -47,8 +47,11 @@ protected:
 
 public:
     Win32MakefileGenerator(QMakeProject *p);
-    ~Win32MakefileGenerator() { }
+    ~Win32MakefileGenerator();
 };
+
+inline Win32MakefileGenerator::~Win32MakefileGenerator()
+{ }
 
 
 

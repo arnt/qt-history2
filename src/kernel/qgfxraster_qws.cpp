@@ -1,5 +1,5 @@
 /*****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgfxraster_qws.cpp#65 $
+** $Id: //depot/qt/main/src/kernel/qgfxraster_qws.cpp#66 $
 **
 ** Implementation of QGfxRaster (unaccelerated graphics context) class for
 ** Embedded Qt
@@ -1460,7 +1460,7 @@ bool QGfxRasterBase::inClip(int x, int y, QRect* cr, bool known_to_be_outside)
 	&& cursorRect->bottom() >= y )
     {
 	// Move clipcursor right until it is after (x,y)
-	while ( 1 ) {
+	for (;;) {
 	    if ( clipcursor+1 < ncliprect &&
 		 (cursorRect+1)->top()==cursorRect->top() ) {
 		// next clip rect is in this band too - move ahead

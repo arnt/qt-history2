@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#362 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#363 $
 **
 ** Implementation of the internal Qt classes dealing with rich text
 **
@@ -1693,8 +1693,11 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		c = parseChar( doc, pos, curtag.wsm );
 		space = c.isSpace();
 		hadNonSpace = hadNonSpace || !space;
-		if ( c == '\n' ) // happens in WhiteSpacePre mode
+		if ( c == '\n' ) { // happens in WhiteSpacePre mode
+ 		    if ( curtag.wsm == QStyleSheetItem::WhiteSpacePre )
+			hasNewPar = FALSE;
 		    break;
+		}
 		if ( !hadNonSpace && space && curtag.wsm == QStyleSheetItem::WhiteSpaceNormal )
 		    continue;
 		if ( c == '\r' )
@@ -3376,7 +3379,11 @@ void QTextParag::format( int start, bool doMove )
 	int usedw = 0;
 	for ( ; it != lineStarts.end(); ++it )
 	    usedw = QMAX( usedw, (*it)->w );
-	r.setWidth( QMAX( usedw, r.width() ) );
+	// ##### Lars, for left-to-right the QMAX was wrong (message boxes suddenly took up the whole screen width)
+	if ( !string()->isBidi() )
+	    r.setWidth( QMIN( usedw, r.width() ) );
+	else
+	    r.setWidth( QMAX( usedw, r.width() ) );
      }
 
     if ( y != r.height() )
@@ -6410,7 +6417,7 @@ void QTextTable::resize( QPainter* p, int nwidth )
     int h = layout->heightForWidth( width-2*outerborder );
     layout->setGeometry( QRect(0, 0, width-2*outerborder, h)  );
     height = layout->geometry().height()+2*outerborder;
-};
+}
 
 void QTextTable::format( int &w )
 {

@@ -2250,6 +2250,7 @@ PropertyList::PropertyList( PropertyEditor *e )
 	     this, SLOT( toggleOpen( QListViewItem * ) ) );
     setSorting( -1 );
     setHScrollBarMode( AlwaysOff );
+    setVScrollBarMode( AlwaysOn );
     setColumnWidthMode( 1, Manual );
     mousePressed = FALSE;
     pressItem = 0;

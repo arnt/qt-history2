@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qsgistyle.cpp#13 $
+** $Id: //depot/qt/main/src/styles/qsgistyle.cpp#14 $
 **
 ** Implementation of Motif-like style class
 **
@@ -39,7 +39,6 @@
 
 #ifndef QT_NO_STYLE_SGI
 
-#define INCLUDE_MENUITEM_DEF
 #include "qpopupmenu.h"
 #include "qapplication.h"
 #include "qbutton.h"

@@ -37,8 +37,6 @@
 #ifndef __BORLANDMAKE_H__
 #define __BORLANDMAKE_H__
 
-#include <qtextstream.h>
-#include <qstring.h>
 #include "winmakefile.h"
 
 class BorlandMakefileGenerator : public Win32MakefileGenerator
@@ -51,7 +49,11 @@ class BorlandMakefileGenerator : public Win32MakefileGenerator
 
 public:
     BorlandMakefileGenerator(QMakeProject *p);
-    ~BorlandMakefileGenerator() { }
+    ~BorlandMakefileGenerator();
 };
+
+inline BorlandMakefileGenerator::~BorlandMakefileGenerator()
+{ }
+
 
 #endif /* __BORLANDMAKE_H__ */

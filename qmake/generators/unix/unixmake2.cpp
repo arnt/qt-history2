@@ -37,9 +37,10 @@
 
 #include "unixmake.h"
 #include "option.h"
-#include <time.h>
 #include <qregexp.h>
 #include <qfile.h>
+#include <time.h>
+
 
 UnixMakefileGenerator::UnixMakefileGenerator(QMakeProject *p) : MakefileGenerator(p), init_flag(FALSE), include_deps(FALSE)
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_mac.cpp#81 $
+** $Id: //depot/qt/main/src/kernel/qfont_mac.cpp#82 $
 **
 ** Implementation of QFont/QFontMetrics class for mac
 **
@@ -266,7 +266,7 @@ static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, uch
     const int flags = kUnicodeUseFallbacksMask | kUnicodeTextRunMask;
     int ret = 0, sz = fi.size();
     ScriptCode sc = FontToScript(fi.font());
-    while(1) {
+    for (;;) {
 	err = ConvertFromUnicodeToScriptCodeRun( runi, unilen-read_so_far, unibuf+read_so_far, flags,
 						 0, NULL, NULL, NULL, buf_len, &read, 
 						 &converted, buf, run_len, &run_len, runs);

@@ -37,10 +37,11 @@
 
 #include "msvc_nmake.h"
 #include "option.h"
-#include <time.h>
 #include <qregexp.h>
-#include <stdlib.h>
 #include <qdir.h>
+#include <stdlib.h>
+#include <time.h>
+
 
 NmakeMakefileGenerator::NmakeMakefileGenerator(QMakeProject *p) : Win32MakefileGenerator(p), init_flag(FALSE)
 {

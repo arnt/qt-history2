@@ -18,7 +18,6 @@
 **
 **********************************************************************/
 
-#define INCLUDE_MENUITEM_DEF
 #include <qmenudata.h>
 #include "resource.h"
 #include "defs.h"

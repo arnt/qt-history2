@@ -35,12 +35,13 @@
 **
 **********************************************************************/
 
-#include <qdir.h>
 #include "borland_bmake.h"
 #include "option.h"
+#include <qdir.h>
 #include <qregexp.h>
 #include <time.h>
 #include <stdlib.h>
+
 
 BorlandMakefileGenerator::BorlandMakefileGenerator(QMakeProject *p) : Win32MakefileGenerator(p), init_flag(FALSE)
 {

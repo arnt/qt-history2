@@ -19,24 +19,17 @@
 **********************************************************************/
 
 #include "uic.h"
-#include "../shared/parser.h"
-#include <qsizepolicy.h>
-#include <qfile.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include "parser.h"
+#include "widgetdatabase.h"
+#include "domtool.h"
 #include <qstringlist.h>
-#include <qstrlist.h>
-#include <qdatetime.h>
-#include <widgetdatabase.h>
-#include <domtool.h>
 #define NO_STATIC_COLORS
 #include <globaldefs.h>
-#include <qregexp.h>
 #include <zlib.h>
 
-QByteArray unzipXPM( QString data, ulong& length )
+static QByteArray unzipXPM( QString data, ulong& length )
 {
-    char *ba = new char[ data.length() / 2 ];
+    uchar *ba = new uchar[ data.length() / 2 ];
     for ( int i = 0; i < (int)data.length() / 2; ++i ) {
 	char h = data[ 2 * i ].latin1();
 	char l = data[ 2 * i  + 1 ].latin1();
@@ -52,10 +45,22 @@ QByteArray unzipXPM( QString data, ulong& length )
 	    r += l - 'a' + 10;
 	ba[ i ] = r;
     }
+    // I'm not sure this makes sense. Why couldn't the compressed data be
+    // less than 20% of the original data? Maybe it's enough to trust the
+    // `length' passed as an argument. Quoting the zlib header:
+    // 		Upon entry, destLen is the total size of the destination
+    // 		buffer, which must be large enough to hold the entire
+    // 		uncompressed data. (The size of the uncompressed data must
+    // 		have been saved previously by the compressor and transmitted
+    // 		to the decompressor by some mechanism outside the scope of
+    // 		this compression library.)
+    // Which is the role of `length'. On the other hand this could prevent
+    // crashes in some cases of slightly corrupt UIC files.
     if ( length <  data.length() * 5 )
 	length = data.length() * 5;
     QByteArray baunzip( length );
-    ::uncompress( (uchar*) baunzip.data(), &length, (uchar*) ba, data.length()/2 );
+    ::uncompress( (uchar*) baunzip.data(), &length, ba, data.length()/2 );
+    delete[] ba;
     return baunzip;
 }
 
@@ -124,7 +129,7 @@ void Uic::createFormDecl( const QDomElement &e )
     out << "#ifndef " << protector << endl;
     out << "#define " << protector << endl;
     out << endl;
-    out << "#include <qvariant.h>" << endl; // for broken HPUX compilers
+    out << "#include <qvariant.h>" << endl; // for broken HP-UX compilers
 
     QStringList globalIncludes, localIncludes;
     int wid = WidgetDatabase::idFromClassName( objClass );
@@ -633,6 +638,8 @@ void Uic::createFormImpl( const QDomElement &e )
 			xpmImages += img;
 			ulong length = tmp.attribute("length").toULong();
 			QByteArray baunzip = unzipXPM( data, length );
+			// shouldn't we test the initial `length' against the
+			// resulting `length' to catch corrupt UIC files?
 			int a = 0;
 			out << "static const char* const " << img << "_data[] = { " << endl;
 			while ( baunzip[a] != '\"' )

@@ -18,12 +18,13 @@
 **
 **********************************************************************/
 
+#include "qwidgetfactory.h"
+
 #include "../interfaces/eventinterface.h"
 #include "../interfaces/interpreterinterface.h"
 #include "../interfaces/languageinterface.h"
 #include "../interfaces/widgetinterface.h"
 
-#include "qwidgetfactory.h"
 #include <qfeatures.h>
 #include "../designer/config.h"
 #include "../designer/database2.h"
@@ -35,12 +36,11 @@
 #include <qapplication.h>
 #include <qtooltip.h>
 #include <qwhatsthis.h>
-#include <zlib.h>
 #include <qobjectlist.h>
-#include <stdlib.h>
 #include <qpluginmanager.h>
 #include <qmime.h>
 #include <qdragobject.h>
+#include <zlib.h>
 
 #ifndef QT_NO_SQL
 #include <qsqlrecord.h>

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#148 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#149 $
 **
 ** Implementation of QMenuData class
 **
@@ -35,7 +35,6 @@
 **
 **********************************************************************/
 
-#define	 INCLUDE_MENUITEM_DEF
 #include "qmenudata.h"
 #ifndef QT_NO_MENUDATA
 #include "qpopupmenu.h"
@@ -1043,6 +1042,17 @@ void QMenuData::setItemEnabled( int id, bool enable )
     }
 }
 
+
+/*!
+  Returns TRUE if the menu item with the id \a id is currently active,
+  otherwise FALSE.
+*/
+bool QMenuData::isItemActive( int id ) const
+{ 
+    if ( actItem == -1 )
+	return FALSE;
+    return indexOf( id ) == actItem;
+}
 
 /*!
   Returns TRUE if the menu item with the id \a id has been checked,

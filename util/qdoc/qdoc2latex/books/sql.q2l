@@ -1,0 +1,20 @@
+\book Using Databases with Qt
+
+\page sql.html
+\class QDataBrowser
+\class QDataTable
+\class QDataView
+\class QEditorFactory
+\class QSql
+\class QSqlCursor
+\class QSqlDatabase
+\class QSqlDriver
+\class QSqlEditorFactory
+\class QSqlError
+\class QSqlField
+\class QSqlForm
+\class QSqlIndex
+\class QSqlPropertyMap
+\class QSqlQuery
+\class QSqlRecord
+\class QSqlResult

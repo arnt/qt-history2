@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#361 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#362 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -35,7 +35,6 @@
 **
 **********************************************************************/
 
-#define	 INCLUDE_MENUITEM_DEF
 #include "qpopupmenu.h"
 #ifndef QT_NO_POPUPMENU
 #include "qmenubar.h"

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/workspace/qworkspace.cpp#90 $
+** $Id: //depot/qt/main/src/workspace/qworkspace.cpp#91 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -1823,7 +1823,7 @@ void QWorkspaceChild::showShaded()
 	shademode = TRUE;
 	resize( width(), titlebar->height() + TITLEBAR_SEPARATION + 2*lineWidth() );
     }
-    widgetResizeHandler->setActive( FALSE );
+    widgetResizeHandler->setActive( !shademode );
 }
 
 void QWorkspaceChild::titleBarDoubleClicked()
@@ -1932,9 +1932,9 @@ void QWorkspace::setScrollBarsEnabled( bool enable )
 
     d->xoffset = d->yoffset = 0;
     if ( enable ) {
-	d->vbar = new QScrollBar( Vertical, this );
+	d->vbar = new QScrollBar( Vertical, this, "vertical scrollbar" );
 	connect( d->vbar, SIGNAL( valueChanged(int) ), this, SLOT( scrollBarChanged() ) );
-	d->hbar = new QScrollBar( Horizontal, this );
+	d->hbar = new QScrollBar( Horizontal, this, "horizontal scrollbar" );
 	connect( d->hbar, SIGNAL( valueChanged(int) ), this, SLOT( scrollBarChanged() ) );
 	d->corner = new QWidget( this );
 	updateWorkspace();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtitlebar.cpp#47 $
+** $Id: //depot/qt/main/src/widgets/qtitlebar.cpp#48 $
 **
 ** Implementation of some Qt private functions.
 **
@@ -244,7 +244,7 @@ void QTitleBar::mouseReleaseEvent( QMouseEvent * e)
 	    ctrl = QStyle::TitleNormalButton;
 	if(ctrl == buttonDown) {
 	    QPainter p(this);
-	    style().drawTitleBarControls(&p, this, 
+	    style().drawTitleBarControls(&p, this,
 					 ctrl | (window && window->isMinimized() ? QStyle::TitleNormalButton : 0), 0);
 	    p.end();
 		
@@ -266,6 +266,7 @@ void QTitleBar::mouseReleaseEvent( QMouseEvent * e)
 		break;
 	    case QStyle::TitleCloseButton:
 		emit doClose();
+		buttonDown = 0;
 		return;
 	    case QStyle::TitleLabel:
 		break;
@@ -298,12 +299,12 @@ void QTitleBar::mouseMoveEvent( QMouseEvent * e)
 	if(ctrl != last_ctrl) {
 	    QPainter p(this);
 	    if(ctrl == buttonDown)
-		style().drawTitleBarControls(&p, this, 
-					     ctrl | (window && window->isMinimized() ? QStyle::TitleNormalButton : 0), 
+		style().drawTitleBarControls(&p, this,
+					     ctrl | (window && window->isMinimized() ? QStyle::TitleNormalButton : 0),
 					     buttonDown);
 	    else
-		style().drawTitleBarControls(&p, this, 
-					     ctrl | (window && window->isMinimized() ? QStyle::TitleNormalButton : 0), 
+		style().drawTitleBarControls(&p, this,
+					     ctrl | (window && window->isMinimized() ? QStyle::TitleNormalButton : 0),
 					     QStyle::TitleNone);
 	}
 	last_ctrl = ctrl;

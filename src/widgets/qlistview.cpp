@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#578 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#579 $
 **
 ** Implementation of QListView widget class
 **
@@ -201,6 +201,9 @@ struct QListViewPrivate
     bool updateHeader		:1;
 
     bool was_visible : 1;
+    bool context_menu : 1;
+
+    QListView::RenameAction defRenameAction;
 
     QSize sizeHint;
     QListViewItem *startDragItem;
@@ -735,8 +738,12 @@ void QListViewItem::startRename( int col )
     if ( !lv )
 	return;
 
-    if ( lv->currentItem() && lv->currentItem()->renameBox )
-	lv->currentItem()->cancelRename( lv->currentItem()->renameCol );
+    if ( lv->currentItem() && lv->currentItem()->renameBox ) {
+	if ( lv->d->defRenameAction == QListView::Reject )
+	    lv->currentItem()->cancelRename( lv->currentItem()->renameCol );
+	else
+	    lv->currentItem()->okRename( lv->currentItem()->renameCol );
+    }
 
     if ( this != lv->currentItem() )
 	lv->setCurrentItem( this );
@@ -747,6 +754,8 @@ void QListViewItem::startRename( int col )
     r.setWidth( lv->header()->sectionSize( col ) - 1 );
     if ( col == 0 )
 	r.setLeft( r.left() + lv->itemMargin() + ( depth() + ( lv->rootIsDecorated() ? 1 : 0 ) ) * lv->treeStepSize() - 1 );
+    if ( pixmap( col ) )
+	r.setLeft( r.left() + pixmap( col )->width() );
     renameBox = new QLineEdit( lv->viewport() );
     renameBox->setFrameStyle( QFrame::Box | QFrame::Plain );
     renameBox->setText( text( col ) );
@@ -1995,7 +2004,18 @@ void QListViewPrivate::Root::setup()
 
 */
 
-  /*!
+/*! \enum QListView::RenameAction
+
+  This enum descrives whether a rename operation is accepted if the
+  rename editor looses focus without the user pressing Return.
+
+  \value Accept Rename in any case
+
+  \value Reject Discard rhe rename operation
+
+*/
+
+/*!
   \class QListView
   \brief The QListView class implements a list/tree view.
   \ingroup advanced
@@ -2189,6 +2209,8 @@ void QListView::init()
     d->updateHeader = FALSE;
     d->fullRepaintOnComlumnChange = FALSE;
     d->resizeMode = NoColumn;
+    d->context_menu = FALSE;
+    d->defRenameAction = Reject;
 
     setMouseTracking( TRUE );
     viewport()->setMouseTracking( TRUE );
@@ -3137,6 +3159,8 @@ void QListView::handleSizeChange( int section, int os, int ns )
 	if ( currentItem()->renameCol == 0 )
 	    r.setLeft( r.left() + itemMargin() + ( currentItem()->depth() +
 						   ( rootIsDecorated() ? 1 : 0 ) ) * treeStepSize() - 1 );
+	if ( currentItem()->pixmap( currentItem()->renameCol ) )
+	    r.setLeft( r.left() + currentItem()->pixmap( currentItem()->renameCol )->width() );
 	addChild( currentItem()->renameBox, r.x(), r.y() );
 	currentItem()->renameBox->resize( r.size() );
     }
@@ -3199,6 +3223,8 @@ void QListView::viewportResizeEvent( QResizeEvent *e )
 	if ( currentItem()->renameCol == 0 )
 	    r.setLeft( r.left() + itemMargin() + ( currentItem()->depth() +
 						   ( rootIsDecorated() ? 1 : 0 ) ) * treeStepSize() - 1 );
+	if ( currentItem()->pixmap( currentItem()->renameCol ) )
+	    r.setLeft( r.left() + currentItem()->pixmap( currentItem()->renameCol )->width() );
 	addChild( currentItem()->renameBox, r.x(), r.y() );
 	currentItem()->renameBox->resize( r.size() );
     }
@@ -3291,11 +3317,16 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
 		    return TRUE;
 		}
 	    } else if ( e->type() == QEvent::FocusOut ) {
-		QCustomEvent *e = new QCustomEvent( 9999 );
-		QApplication::postEvent( o, e );
-		return TRUE;
+		if ( ( (QFocusEvent*)e )->reason() != QFocusEvent::Popup ) {
+		    QCustomEvent *e = new QCustomEvent( 9999 );
+		    QApplication::postEvent( o, e );
+		    return TRUE;
+		}
 	    } else if ( e->type() == 9999 ) {
-		currentItem()->cancelRename( currentItem()->renameCol );
+		if ( d->defRenameAction == Reject )
+		    currentItem()->cancelRename( currentItem()->renameCol );
+		else
+		    currentItem()->okRename( currentItem()->renameCol );
 		return TRUE;
 	    }
 	}
@@ -3646,8 +3677,12 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
     if ( !e )
 	return;
 
-    if ( currentItem() && currentItem()->renameBox )
-	currentItem()->cancelRename( currentItem()->renameCol );
+    if ( currentItem() && currentItem()->renameBox ) {
+	if ( d->defRenameAction == Reject )
+	    currentItem()->cancelRename( currentItem()->renameCol );
+	else
+	    currentItem()->okRename( currentItem()->renameCol );
+    }
 
     d->startDragItem = 0;
     d->dragStartPos = e->pos();
@@ -3699,29 +3734,30 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 	    x1 -= treeStepSize() * (it.current()->l - 1);
 	    QStyle::ListViewItemControl ctrl = style().listViewItemPointOver( i, QPoint(x1, e->pos().y()) );
 	    if( ctrl == QStyle::ListViewBranches || ctrl == QStyle::ListViewExpand) {
-		bool close = i->isOpen();
-		setOpen( i, !i->isOpen() );
-		qApp->processEvents();
-		if ( !d->focusItem ) {
-		    d->focusItem = i;
-		    repaintItem( d->focusItem );
-		    emit currentChanged( d->focusItem );
-		}
-		if ( close ) {
-		    bool newCurrent = FALSE;
-		    QListViewItem *ci = d->focusItem;
-		    while ( ci ) {
-			if ( ci->parent() && ci->parent() == i ) {
-			    newCurrent = TRUE;
-			    break;
+		if ( e->button() == LeftButton ) {
+		    bool close = i->isOpen();
+		    setOpen( i, !i->isOpen() );
+		    qApp->processEvents();
+		    if ( !d->focusItem ) {
+			d->focusItem = i;
+			repaintItem( d->focusItem );
+			emit currentChanged( d->focusItem );
+		    }
+		    if ( close ) {
+			bool newCurrent = FALSE;
+			QListViewItem *ci = d->focusItem;
+			while ( ci ) {
+			    if ( ci->parent() && ci->parent() == i ) {
+				newCurrent = TRUE;
+				break;
+			    }
+			    ci = ci->parent();
 			}
-			ci = ci->parent();
-		    }
-		    if ( newCurrent ) {
-			setCurrentItem( i );
+			if ( newCurrent ) {
+			    setCurrentItem( i );
+			}
 		    }
 		}
-
 		d->buttonDown = FALSE;
 		d->ignoreDoubleClick = TRUE;
 		d->buttonDown = FALSE;
@@ -3830,13 +3866,15 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 	if ( !i ) {
 	    clearSelection();
 	    emit rightButtonPressed( 0, viewport()->mapToGlobal( vp ), -1 );
-	    emit contextMenuRequested( 0, viewport()->mapToGlobal( vp ), -1 );
+	    if ( d->context_menu )
+		emit contextMenuRequested( 0, viewport()->mapToGlobal( vp ), -1 );
 	    return;
 	}
 
 	int c = d->h->mapToLogical( d->h->cellAt( vp.x() ) );
 	emit rightButtonPressed( i, viewport()->mapToGlobal( vp ), c );
-	emit contextMenuRequested( i, viewport()->mapToGlobal( vp ), -1 );
+	if ( d->context_menu )
+	    emit contextMenuRequested( i, viewport()->mapToGlobal( vp ), -1 );
     }
 }
 
@@ -3859,7 +3897,9 @@ void QListView::contentsContextMenuEvent( QContextMenuEvent *e )
 	}
     } else {
 	QMouseEvent me( QEvent::MouseButtonPress, e->pos(), e->globalPos(), RightButton, e->state() );
+	d->context_menu = TRUE;
 	contentsMousePressEvent( &me );
+	d->context_menu = FALSE;
     }
 }
 
@@ -3930,7 +3970,7 @@ void QListView::contentsMouseReleaseEvent( QMouseEvent * e )
 void QListView::contentsMouseDoubleClickEvent( QMouseEvent * e )
 {
     d->renameTimer->stop();
-    if ( !e )
+    if ( !e || e->button() != LeftButton )
 	return;
 
     // ensure that the following mouse moves and eventual release is
@@ -5925,6 +5965,25 @@ void QListView::startDrag()
 	return;
 
     drag->drag();
+}
+
+/*! \property QListView::defaultRenameAction
+    \brief whether the list view accepts the rename operation by default or not
+
+    If this property is Accept, and the user renames an item and the
+    editor looses focus (without the user pressing Return), the item
+    will be renamed nevertheless. If it is Reject, the item will not
+    be renamed in this case. The default is Reject.
+*/
+
+void QListView::setDefaultRenameAction( RenameAction a )
+{
+    d->defRenameAction = a;
+}
+
+QListView::RenameAction QListView::defaultRenameAction() const
+{
+    return d->defRenameAction;
 }
 
 #endif // QT_NO_DRAGANDDROP
