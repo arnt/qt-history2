@@ -10,11 +10,9 @@ PRECOMPILED_HEADER = ../gui/kernel/qt_gui_pch.h
 
 include(../qbase.pri)
 
-xml {
-	HEADERS += qxml.h qdom.h qpaintengine_svg_p.h
-	SOURCES += qxml.cpp qdom.cpp qpaintengine_svg.cpp
-	win32-borland {
-		QMAKE_CFLAGS_WARN_ON	+= -w-use
-		QMAKE_CXXFLAGS_WARN_ON	+= -w-use
-	}
+HEADERS += qxml.h qdom.h qpaintengine_svg_p.h
+SOURCES += qxml.cpp qdom.cpp qpaintengine_svg.cpp
+win32-borland {
+        QMAKE_CFLAGS_WARN_ON	+= -w-use
+        QMAKE_CXXFLAGS_WARN_ON	+= -w-use
 }
