@@ -120,7 +120,7 @@ private:
 
     Q_DECLARE_PRIVATE(QSocket)
     Q_PRIVATE_SLOT(void tryConnecting(const QDnsHostInfo &))
-    Q_PRIVATE_SLOT(void emitErrorConnectionRefused())
+    Q_PRIVATE_SLOT(void connectToNextAddress())
 
     QIODevicePrivate *d_ptr;
 };
