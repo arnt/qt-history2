@@ -467,6 +467,7 @@ QTextCursor::QTextCursor( QTextDocument *d )
     idx = 0;
     string = doc ? doc->firstParag() : 0;
     tmpIndex = -1;
+    valid = TRUE;
 }
 
 QTextCursor::QTextCursor()
@@ -486,6 +487,7 @@ QTextCursor::QTextCursor( const QTextCursor &c )
     parags = c.parags;
     xOffsets = c.xOffsets;
     yOffsets = c.yOffsets;
+    valid = c.valid;
 }
 
 QTextCursor &QTextCursor::operator=( const QTextCursor &c )
@@ -501,6 +503,7 @@ QTextCursor &QTextCursor::operator=( const QTextCursor &c )
     parags = c.parags;
     xOffsets = c.xOffsets;
     yOffsets = c.yOffsets;
+    valid = c.valid;
 
     return *this;
 }
@@ -2565,10 +2568,15 @@ void QTextDocument::removeSelectedText( int id, QTextCursor *cursor )
 	return;
     }
 
+    if ( c1.parag() == fParag && c1.index() == 0 &&
+	 c2.parag() == lParag && c2.index() == lParag->length() - 1 )
+	cursor->setValid( FALSE );
+
     bool didGoLeft = FALSE;
     if (  c1.index() == 0 ) {
 	cursor->gotoPreviousLetter();
-	didGoLeft = TRUE;
+	if ( cursor->isValid() )
+	    didGoLeft = TRUE;
     }
 
     c1.parag()->remove( c1.index(), c1.parag()->length() - 1 - c1.index() );

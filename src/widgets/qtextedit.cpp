@@ -1332,29 +1332,31 @@ void QTextEdit::removeSelectedText( int selNum )
     undoRedoInfo.oldAligns.resize( undoRedoInfo.oldAligns.size() + QMAX( 0, c2.parag()->paragId() - c1.parag()->paragId() + 1 ) );
     readFormats( c1, c2, oldLen, undoRedoInfo.d->text, TRUE );
     doc->removeSelectedText( selNum, cursor );
-    ensureCursorVisible();
-    lastFormatted = cursor->parag();
-    formatMore();
-    repaintChanged();
-    ensureCursorVisible();
-    drawCursor( TRUE );
-    clearUndoRedo();
-    emit textChanged();
-    emit selectionChanged();
+    if ( cursor->isValid() ) {
+	ensureCursorVisible();
+	lastFormatted = cursor->parag();
+	formatMore();
+	repaintChanged();
+	ensureCursorVisible();
+	drawCursor( TRUE );
+	clearUndoRedo();
+	emit textChanged();
+	emit selectionChanged();
 #if defined(Q_WS_WIN)
-    // there seems to be a problem with repainting or erasing the area
-    // of the scrollview which is not the contents on windows
-    if ( contentsHeight() < visibleHeight() )
-	viewport()->repaint( 0, contentsHeight(), visibleWidth(), visibleHeight() - contentsHeight(), TRUE );
+	// there seems to be a problem with repainting or erasing the area
+	// of the scrollview which is not the contents on windows
+	if ( contentsHeight() < visibleHeight() )
+	    viewport()->repaint( 0, contentsHeight(), visibleWidth(), visibleHeight() - contentsHeight(), TRUE );
 #endif
 #ifndef QT_NO_CURSOR
-    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+	viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
 #endif
-    if ( hasFocus() || viewport()->hasFocus() ) {
-	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
-	QFont f = cursor->parag()->at( cursor->index() )->format()->font();
-	setMicroFocusHint( cursor->x() - contentsX() + frameWidth(),
-			   cursor->y() + cursor->parag()->rect().y() - contentsY() + frameWidth(), 0, h, TRUE, &f );
+	if ( hasFocus() || viewport()->hasFocus() ) {
+	    int h = cursor->parag()->lineHeightOfChar( cursor->index() );
+	    QFont f = cursor->parag()->at( cursor->index() )->format()->font();
+	    setMicroFocusHint( cursor->x() - contentsX() + frameWidth(),
+			       cursor->y() + cursor->parag()->rect().y() - contentsY() + frameWidth(), 0, h, TRUE, &f );
+	}
     }
 }
 
@@ -3974,7 +3976,8 @@ void QTextEdit::clear()
     removeSelectedText( QTextDocument::Temp );
 
     setContentsPos( 0, 0 );
-    cursor->restoreState();
+    if ( cursor->isValid() )
+	cursor->restoreState();
     doc->clear( TRUE );
     cursor->setDocument( doc );
     cursor->setParag( doc->firstParag() );

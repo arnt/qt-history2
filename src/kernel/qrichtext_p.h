@@ -314,6 +314,8 @@ public:
     int y() const;
 
     int nestedDepth() const { return (int)indices.count(); } //### size_t/int cast
+    void setValid( bool b ) { valid = b; }
+    bool isValid() const { return valid; }
 
 private:
     enum Operation { EnterBegin, EnterEnd, Next, Prev, Up, Down };
@@ -334,7 +336,8 @@ private:
     QValueStack<int> xOffsets;
     QValueStack<int> yOffsets;
     QValueStack<bool> nestedStack;
-    bool nested;
+    uint nested : 1;
+    uint valid : 1;
 
 };
 
