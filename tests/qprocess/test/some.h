@@ -1,5 +1,6 @@
 #include <qobject.h>
 #include <qvbox.h>
+#include <qcheckbox.h>
 #include <qlabel.h>
 #include <qprocess.h>
 
@@ -18,6 +19,10 @@ public slots:
     void updateInfo();
     void showInfo();
     void procExited();
+
+    void connectStdout( bool enable );
+    void connectStderr( bool enable );
+    void connectExit( bool enable );
 
 signals:
 

@@ -11,6 +11,8 @@
 /*
  * Some
 */
+static QLabel *out;
+static QLabel *err;
 
 Some::Some( QObject *p ) : QObject( p )
 {
@@ -28,8 +30,8 @@ Some::Some( QObject *p ) : QObject( p )
 
     // io stuff
     QLineEdit *in = new QLineEdit( &main );
-    QLabel *out = new QLabel( &main );
-    QLabel *err = new QLabel( &main );
+    out = new QLabel( &main );
+    err = new QLabel( &main );
     QPushButton *close = new QPushButton( "Close Stdin", &main );
 
     // hup, kill
@@ -61,15 +63,19 @@ Some::Some( QObject *p ) : QObject( p )
     QObject::connect( close, SIGNAL(clicked()),
 	    proc, SLOT(closeStdin()) );
 
+    QCheckBox *cb;
     // signal dataStdout( const QString& )
-    QObject::connect( proc, SIGNAL(dataStdout(const QString&)),
-	    out, SLOT(setText(const QString&)) );
+    cb = new QCheckBox( "Stdout", &main );
+    QObject::connect( cb, SIGNAL(toggled(bool)),
+	    this, SLOT(connectStdout(bool)) );
     // signal dataStderr( const QString& )
-    QObject::connect( proc, SIGNAL(dataStderr(const QString&)),
-	    err, SLOT(setText(const QString&)) );
+    cb = new QCheckBox( "Stderr", &main );
+    QObject::connect( cb, SIGNAL(toggled(bool)),
+	    this, SLOT(connectStderr(bool)) );
     // signal processExited()
-    QObject::connect( proc, SIGNAL(processExited()),
-	    this, SLOT(procExited()) );
+    cb = new QCheckBox( "Exit Notify", &main );
+    QObject::connect( cb, SIGNAL(toggled(bool)),
+	    this, SLOT(connectExit(bool)) );
 
     if ( !proc->start() ) {
 	qWarning( "Could not start process" );
@@ -125,6 +131,37 @@ void Some::procExited()
     main.hide();
 #endif
 }
+
+void Some::connectStdout( bool enable )
+{
+    if ( enable )
+	QObject::connect( proc, SIGNAL(dataStdout(const QString&)),
+		out, SLOT(setText(const QString&)) );
+    else
+	QObject::disconnect( proc, SIGNAL(dataStdout(const QString&)),
+		out, SLOT(setText(const QString&)) );
+}
+
+void Some::connectStderr( bool enable )
+{
+    if ( enable )
+	QObject::connect( proc, SIGNAL(dataStderr(const QString&)),
+		err, SLOT(setText(const QString&)) );
+    else
+	QObject::disconnect( proc, SIGNAL(dataStderr(const QString&)),
+		err, SLOT(setText(const QString&)) );
+}
+
+void Some::connectExit( bool enable )
+{
+    if ( enable )
+	QObject::connect( proc, SIGNAL(processExited()),
+		this, SLOT(procExited()) );
+    else
+	QObject::disconnect( proc, SIGNAL(processExited()),
+		this, SLOT(procExited()) );
+}
+
 
 /*
  * SomeFactory
