@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#23 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#24 $
 #
 # this is a massive hack, written very quickly
 #
@@ -342,11 +342,10 @@ sub readc {
 	my ($doc, $def);
 	$doc = $1;
 	$def = $2;
-	print "url:\n" if ($debug);
 	if (!($doc =~ /\\class /) &&
 	    ($def =~ m@
-	     ((?:[\w:]+\s*)*[\*\&\s])*(?# return type 
-				       )
+	     ^((?:[\w:]+\s*)*[\*\&\s])?(?# return type 
+					)
 	     (?:(\w+)\s*::\s*)? (?# class name and :: 
 				 )
 	     ((?:\~?\w+)|       (?# function name, or *gasp* operator
@@ -376,7 +375,7 @@ sub readc {
 		    $class .= "::" if ($class ne "");
 		    $const = " " . const if ($const ne "");
 		    $def{$url} = $type." ".$class.$name."(".$args.")".$const;
-		    print "    ", $url, "\n" if ($debug);
+		    print "url: ", $url, "\n" if ($debug);
 		}
 	    }
 	}
@@ -636,32 +635,32 @@ sub printout {
 		print O "<p>\n", $brief{$url}, "\n"
 		    if (defined($brief{$url}));
 		undef %m;
-		$mode = "private";
+		$mode = "Private";
 		foreach (split(/;/, $members{$url})) {
-		    $mode = $1 if (s/^\s*((?:
-					   (?:private\b\s*?)|
-					   (?:protected\b\s*?)|
-					   (?:public\b\s*?)|
-					   (?:signals\b\s*?)|
-					   (?:slots\b\s*?))+):\s*//sx);
+		    $mode = ucfirst($1) if (s/^\s*((?:
+						    (?:private\b\s*?)|
+						    (?:protected\b\s*?)|
+						    (?:public\b\s*?)|
+						    (?:signals\b\s*?)|
+						    (?:slots\b\s*?))+):\s*//sx);
 		    next if (/^\s*friend\b/);
 		    if (/((^)|([^\(]*\b))static\b/) {
 			s/(\s*)static\s*/$1/;
-			$m{"static ".$mode} .= $_ . ";";
+			$m{"Static ".$mode} .= $_ . ";";
 		    } else {
 			$m{$mode} .= $_ . ";";
 		    }
 		    $enums{$1}++
 			if (/^\s*enum\s+(\w+)/);
 		}
-		foreach $mode ('public', 'static public',
-			       'signals', 'slots',
-			       'protected', 'static protected',
-			       'private', 'static private') {
+		foreach $mode ('Public', 'Static Public',
+			       'Signals', 'Slots',
+			       'Protected', 'Static Protected',
+			       'Private', 'Static Private') {
 		    my ($e1, $e2);
 		    next unless (defined($m{$mode}));
 		    $_ = $mode;
-		    $_ .= " members" if (!/s$/);
+		    $_ .= " Members" if (!/s$/);
 		    print O "<h2>", ucfirst $_, "</h2>\n<ul>\n";
 		    foreach (split (/;/, $m{$mode})) {
 			s/\s*([\(\)]+\s*)/ $1 /g;
@@ -740,7 +739,7 @@ sub printout {
 
 
 $cfile = "VOLD";
-$debug = 1;
+#$debug = 1;
 $internal = 1;
 
 foreach $arg ( 0..$#ARGV ) {
