@@ -35,15 +35,14 @@ extern HANDLE hEventShutdown;
 extern bool qAxActivity;
 extern HANDLE qAxInstance;
 extern bool qAxIsServer;
+extern bool qAxOutProcServer;
 extern char qAxModuleFilename[MAX_PATH];
 extern QString qAxInit();
 extern void qAxCleanup();
 extern HRESULT UpdateRegistry(BOOL bRegister);
 extern HRESULT GetClassObject(const GUID &clsid, const GUID &iid, void **ppUnk);
 extern ulong qAxLockCount();
-typedef bool (*QWinEventFilter) (MSG*, long*);
-extern bool qax_winEventFilter(MSG *pMsg, long*);
-extern Q_CORE_EXPORT QWinEventFilter qt_set_win_event_filter(QWinEventFilter filter);
+extern bool qax_winEventFilter(void *message);
 
 #if defined(Q_CC_BOR)
 extern "C" __stdcall HRESULT DumpIDL(const QString &outfile, const QString &ver);
@@ -121,8 +120,7 @@ bool qax_startServer(QAxFactory::ServerType type)
         if (p)
             p->Release();
     }
-    
-	qt_set_win_event_filter(qax_winEventFilter);
+
     qAxIsServer = true;
     return true;
 }
@@ -166,6 +164,7 @@ EXTERN_C int main(int, char **);
 EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
                             HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
+    qAxOutProcServer = true;
     GetModuleFileNameA(0, qAxModuleFilename, MAX_PATH-1);
     qAxInstance = hInstance;
     

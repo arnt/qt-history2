@@ -32,9 +32,6 @@ extern HANDLE qAxInstance;
 extern HRESULT UpdateRegistry(int bRegister);
 extern HRESULT GetClassObject(const GUID &clsid, const GUID &iid, void **ppUnk);
 
-// in qeventloop_win.cpp
-extern Q_CORE_EXPORT bool qt_win_use_simple_timers;
-
 STDAPI DllRegisterServer()
 {
     return UpdateRegistry(true);
@@ -91,7 +88,6 @@ EXTERN_C BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpvRese
     qAxIsServer = true;
     
     if (dwReason == DLL_PROCESS_ATTACH) {
-        qt_win_use_simple_timers = true;
         DisableThreadLibraryCalls(hInstance);
         qAxInit();
     } else if (dwReason == DLL_PROCESS_DETACH) {

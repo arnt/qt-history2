@@ -13,6 +13,7 @@
 
 #define QT_NO_CAST_TO_ASCII
 
+#include <qabstracteventdispatcher.h>
 #include <qapplication.h>
 #include <qbuffer.h>
 #include <qdatastream.h>
@@ -52,6 +53,7 @@ extern QAxFactory *qAxFactory();
 extern unsigned long qAxLock();
 extern unsigned long qAxUnlock();
 extern HANDLE qAxInstance;
+extern bool qAxOutProcServer;
 
 #ifdef QT_DEBUG
 unsigned long qaxserverbase_instance_count = 0;
@@ -741,23 +743,19 @@ private:
 };
 
 // callback for DLL server to hook into non-Qt eventloop
-extern Q_GUI_EXPORT void qWinProcessConfigRequests();
 LRESULT CALLBACK axs_FilterProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
-    if (qApp) {
+    if (qApp)
 	qApp->sendPostedEvents();
-    // ##FIXME!!!
-	//qApp->eventLoop()->activateSocketNotifiers();
-	qWinProcessConfigRequests();
-    }
 
     return CallNextHookEx(qax_hhook, nCode, wParam, lParam);
 }
 
 // filter for executable case to hook into Qt eventloop
 // for DLLs the client calls TranslateAccelerator
-bool qax_winEventFilter(MSG *pMsg, long *res)
+bool qax_winEventFilter(void *message)
 {
+    MSG *pMsg = (MSG*)message;
     if (!ax_ServerMapper || pMsg->message < WM_KEYFIRST || pMsg->message > WM_KEYLAST)
 	return false;
 
@@ -769,16 +767,14 @@ bool qax_winEventFilter(MSG *pMsg, long *res)
     HWND baseHwnd = ::GetParent(aqt->winId());
     QAxServerBase *axbase = 0;
     while (!axbase && baseHwnd) {
-	axbase = (*axServerMapper())[baseHwnd];
+	axbase = axServerMapper()->value(baseHwnd);
 	baseHwnd = ::GetParent(baseHwnd);
     }
     if (!axbase)
 	return ret;
 
     HRESULT hres = axbase->TranslateAcceleratorW(pMsg);
-    if (hres == S_OK)
-	return 1;
-    return 0;
+    return hres == S_OK;
 }
 
 // COM Factory class, mapping COM requests to ActiveQt requests.
@@ -865,7 +861,10 @@ public:
             (void)new QApplication(argc, 0);
         }
 
-        // hook the server in; this allows a server to create his own QApplication object
+        if (qAxOutProcServer)
+            QAbstractEventDispatcher::instance()->setEventFilter(qax_winEventFilter);
+
+        // hook into eventloop; this allows a server to create his own QApplication object
         if (!qax_hhook && qax_ownQApp) {
             QT_WA({
                 qax_hhook = SetWindowsHookExW(WH_GETMESSAGE, axs_FilterProc, 0, GetCurrentThreadId());
@@ -1119,7 +1118,7 @@ QAxServerBase::~QAxServerBase()
 void QAxServerBase::registerActiveObject(IUnknown *object)
 {
     extern char qAxModuleFilename[MAX_PATH];
-    if (ole_ref || !qt.object || !QString::fromLocal8Bit(qAxModuleFilename).toLower().endsWith(".exe"))
+    if (ole_ref || !qt.object || !qAxOutProcServer)
 	return;
 
     const QMetaObject *mo = qt.object->metaObject();
@@ -1342,7 +1341,7 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 	});
     }
 
-    QAxServerBase *that = (*axServerMapper())[hWnd];
+    QAxServerBase *that = axServerMapper()->value(hWnd);
     if (that) switch (uMsg)
     {
     case WM_NCDESTROY:
@@ -3983,7 +3982,7 @@ bool QAxServerBase::eventFilter(QObject *o, QEvent *e)
     case QEvent::MouseMove:
 	if (o == qt.object && hasStockEvents) {
 	    QMouseEvent *me = (QMouseEvent*)e;
-	    int button = me->buttons(); //& MouseButtonMask;
+            int button = me->buttons() & Qt::MouseButtonMask;
 	    int state = mapModifiers(me->modifiers());
 	    int x = me->x();
 	    int y = me->y();

@@ -34,6 +34,7 @@ bool qAxIsServer = false;
 HANDLE qAxInstance = 0;
 ITypeLib *qAxTypeLibrary = 0;
 char qAxModuleFilename[MAX_PATH];
+bool qAxOutProcServer = false;
 
 // The QAxFactory instance
 static QAxFactory* qax_factory = 0;
@@ -197,7 +198,7 @@ HRESULT UpdateRegistry(BOOL bRegister)
     }
     
     if (bRegister) {
-        if (file.right(3).toLower() == "exe") {
+        if (qAxOutProcServer) {
             settings.setValue("/AppID/" + appId + "/.", module);
             settings.setValue("/AppID/" + module + ".EXE/AppID", appId);
         }
