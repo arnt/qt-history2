@@ -56,7 +56,7 @@ static bool registerServer( const QString &input )
     } );
     if ( !hdll )
 	return FALSE;
-    typedef HRESULT(* RegServerProc)();
+    typedef HRESULT(__stdcall* RegServerProc)();
     RegServerProc DllRegisterServer = (RegServerProc)GetProcAddress( hdll, "DllRegisterServer" );
     if ( !DllRegisterServer )
 	return FALSE;
@@ -73,7 +73,7 @@ static bool unregisterServer( const QString &input )
     } );
     if ( !hdll )
 	return FALSE;
-    typedef HRESULT(* RegServerProc)();
+    typedef HRESULT(__stdcall* RegServerProc)();
     RegServerProc DllUnregisterServer = (RegServerProc)GetProcAddress( hdll, "DllUnregisterServer" );
     if ( !DllUnregisterServer )
 	return FALSE;
@@ -193,7 +193,7 @@ int main( int argc, char **argv )
 	    qFatal( "Couldn't load library file %s", (const char*)input.local8Bit() );
 	    return 3;
 	}
-	typedef HRESULT(* DumpIDLProc)(const QString&, const QString&);
+	typedef HRESULT(__stdcall* DumpIDLProc)(const QString&, const QString&);
 	DumpIDLProc DumpIDL = (DumpIDLProc)GetProcAddress( hdll, "DumpIDL" );
 	if ( !DumpIDL ) {
 	    qFatal( "Couldn't resolve 'DumpIDL' symbol in %s", (const char*)input.local8Bit() );
