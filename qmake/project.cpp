@@ -119,8 +119,8 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 		test = !test;
 	    if(!test && !scope_failed) {
 		if(Option::debug_level)
-		    printf("Project Parser: %s:%d : Test (%s) failed.\n", file.latin1(), line_count,
-			   scope.latin1());
+		    printf("Project Parser: %s:%d : Test (%s%s) failed.\n", file.latin1(), line_count,
+			   invert_test ? "not " : "", scope.latin1());
 		scope_failed = TRUE;
 	    }
 	    if(*d == '{') {/* scoping block */
