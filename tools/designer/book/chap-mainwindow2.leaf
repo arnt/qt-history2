@@ -56,9 +56,9 @@ button and click \Menu {Programs|Qt X.x.x|Designer}.
 or Linux operating system you can either double click the \QD icon or enter
 \c {designer &} in an xterm.
 
-When \QD starts it shows the New/Open dialog. (If you prefer the old
-behaviour, check the "Don't show this dialog in the future" checkbox.)
-We'll just click \CANCEL to skip past it.
+When \QD starts it shows the \Widget{New/Open} dialog. (If you prefer
+the old behaviour, check the "Don't show this dialog in the future"
+checkbox.) We'll just click \CANCEL to skip past it.
 
 \img qd-newopen-dlg.png New/Open Dialog
 
@@ -70,7 +70,7 @@ unsaved changes. Help is available by pressing \Key F1 or
 from the \Menu Help menu.
 
 To get the most benefit from the tutorial chapters we recommend that you
-start \QD now and create the example applications as you read. Most of
+start \QD now and create the example application as you read. Most of
 the work involves using \QD's menus, dialogs and editors. The code can
 be entered directly using \QD's code editor; you can cut and paste it
 from the on-line version of this manual or copy it from the example
@@ -87,12 +87,12 @@ windows, the first is the Project Overview window, the second is the
 Object Explorer and the third is the Properties/Editor Signal Handlers
 window. The Project Overview window lists the files and images
 associated with the project; to open any form (\File .ui file), or the
-code associated with it (in its (\File .ui.h file), simply single
+code associated with it (in the \File .ui.h file), simply single
 click it. The Object Explorer window lists the current form's widgets
 and members. The Properties/Editor window is used to view and change
 the properties of forms and widgets. We will cover the use of \QD's
-windows, dialogs, menu options and tools as we create example
-applications.
+windows, dialogs, menu options and tools as we create the example
+application.
 
 \section1 Creating the Project
 
@@ -167,7 +167,7 @@ same and we don't want to duplicate the code that performs the
 operation. In Qt we can create an action (a \l QAction object)
 which will call the appropriate function when the action is invoked. We
 can assign an accelerator, (e.g. \Key Ctrl+S), to an action. We
-can also add an action to a menu item and to a toolbar button.
+can also add an action to a menu and to a toolbar.
 
 If the action has an on/off state, e.g. bold is on or off, when the user
 changes the state, for example by clicking a toolbar button, the state
@@ -210,8 +210,8 @@ buttons.
 We will use the main window wizard to build a main window. The wizard
 allows us to create actions and a menu bar and a toolbar through which
 the user can invoke the actions. We will also create our own actions,
-menus and toolbar. We will add some widgets to the toolbar and add a
-main widget to the main window. 
+menus and toolbar buttons. We will also explain how to add widgets to
+the toolbar and add a main widget to the main window. 
 
 Click \Menu File|New to invoke the \Widget{New File} dialog, click
 "Main Window" to create a main window form, then click \OK. A new
@@ -379,6 +379,37 @@ its \Property caption to "Color Tool".
 The main window wizard created a few slots and actions that are not relevant to
 our application, so we'll delete them. 
 
+Click the Object Explorer's Members tab. Right click the filePrint()
+slot, then click Delete from the popup menu. In the same way delete
+the editUndo(), editRedo() and editPaste() slots. (Right click
+editUndo(), then click Delete, etc.) Later we'll see how to create new
+slots when we add further functionality to the application.
+
+Right click the filePrintAction action in the Action Editor, then
+click Delete Action from the popup menu. In the same way delete the
+editUndoAction, editRedoAction and editPasteAction actions.
+
+One side effect of these deletions is that the menus now have some
+redundant separators.
+
+Click the form's \Menu File menu. (Note, we're clicking our newly
+created form's \Menu File menu, not \QD's \Menu File menu!) There are
+\e two separators above the Exit menu option (the \Menu File|Print
+option was in-between until we deleted it). Right click one of these
+separators, then click Delete Separator. Don't worry if you miss and
+delete a menu option by accident: if you delete the wrong thing click
+\Menu Edit|Undo to undelete. The form's \Menu Edit menu has a
+redundant separator at the top (the undo and redo options were there).
+Delete this separator in the same way. (Click the form's \Menu Edit
+menu, right click the separator, click Delete Separator.) Again, don't
+worry if you delete a menu option by mistake, just press \Key Ctrl+Z
+to undo.
+
+Click \Menu{File|Save} to save the form as \File mainform.ui.
+
+The form can now be previewed by clicking \Menu{Preview|Preview Form}
+(or press \Key Ctrl+T).
+
 \sidebar The Object Explorer
 
 \index Object Explorer
@@ -448,37 +479,6 @@ as your requirements dictate. (See \l {Subclassing} for more
 information.)
 
 \endsidebar
-
-Click the Object Explorer's Members tab. Right click the filePrint()
-slot, then click Delete from the popup menu. In the same way delete
-the editUndo(), editRedo() and editPaste() slots. (Right click
-editUndo(), then click Delete, etc.) Later we'll see how to create new
-slots when we add further functionality to the application.
-
-Right click the filePrintAction action in the Action Editor, then
-click Delete Action from the popup menu. In the same way delete the
-editUndoAction, editRedoAction and editPasteAction actions.
-
-One side effect of these deletions is that the menus now have some
-redundant separators.
-
-Click the form's \Menu File menu. (Note, we're clicking our newly
-created form's \Menu File menu, not \QD's \Menu File menu!) There are
-\e two separators above the Exit menu option (the \Menu File|Print
-option was in-between until we deleted it). Right click one of these
-separators, then click Delete Separator. Don't worry if you miss and
-delete a menu option by accident: if you delete the wrong thing click
-\Menu Edit|Undo to undelete. The form's \Menu Edit menu has a
-redundant separator at the top (the undo and redo options were there).
-Delete this separator in the same way. (Click the form's \Menu Edit
-menu, right click the separator, click Delete Separator.) Again, don't
-worry if you delete a menu option by mistake, just press \Key Ctrl+Z
-to undo.
-
-Click \Menu{File|Save} to save the form as \File mainform.ui.
-
-The form can now be previewed by clicking \Menu{Preview|Preview Form}
-(or press \Key Ctrl+T).
 
 \section2 Adding Custom Actions
 

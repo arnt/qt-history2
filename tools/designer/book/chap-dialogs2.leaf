@@ -71,7 +71,7 @@ lay out and lay them out again. The same effect can be achieved by
 clicking the group and either clicking the \Button{Break Layout}
 toolbar button or pressing \Key Ctrl+B.
 
-Multiple widgets can be selected in four different ways:
+Multiple widgets can be selected in five different ways:
 \list 1
 \i Click the first widget, then \Key Shift+Click the other widgets.
 \i \Key Ctrl+Click the first widget, then \Key Ctrl+Click the other
