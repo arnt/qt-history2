@@ -89,6 +89,7 @@ static char    *appName;                        // application name
 static Cursor *currentCursor;                  //current cursor
 QObject	       *qt_clipboard = 0;
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
+static unsigned int qt_last_mouse_down = 0;
 
 // Paint event clipping magic
 extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
@@ -1125,51 +1126,34 @@ int QApplication::macProcessEvent(MSG * m)
 	widget = QWidget::find( (WId)er->message );	
 	if(widget && (er->modifiers & 0x01)) 
 	    setActiveWindow(widget);
-    } else if( er->what == mouseDown ) {
+    } else if( er->what == mouseDown  || er->what == mouseUp ) {
 	short part = FindWindow( er->where, &wp );
 	if( part == inContent ) {
-	    mouse_button_state = QMouseEvent::LeftButton; //FIXME
-
-	    QWidget *popupwidget = NULL;
-	    if( inPopupMode() ) {
-		popupwidget = activePopupWidget();
-		SetPortWindowPort((WindowPtr)widget->handle());
-		Point gp = er->where;
-		GlobalToLocal( &gp ); //now map it to the window
-		popupwidget = recursive_match(popupwidget, gp.h, gp.v);
-
-		QPoint p( er->where.h, er->where.v );
-		QPoint plocal(popupwidget->mapFromGlobal( p ));
-		QMouseEvent qme( QEvent::MouseButtonPress, plocal, p, mouse_button_state, 0);
-		QApplication::sendEvent( popupwidget, &qme );
-	    } 
-	    
-            if( mac_mouse_grabber )
-		widget = mac_mouse_grabber;
-	    else 
-		widget = QApplication::widgetAt( er->where.h, er->where.v, true );
-	    qt_button_down = widget;
-	    if ( widget && widget != popupwidget ) {
-		QWidget* w = widget;
-		while ( w->focusProxy() )
-		    w = w->focusProxy();
-		if ( w->focusPolicy() & QWidget::ClickFocus ) {
-		    QFocusEvent::setReason( QFocusEvent::Mouse);
-		    w->setFocus();
-		    QFocusEvent::resetReason();
+	    QEvent::Type etype = QEvent::None;
+	    int button=0, state=0;
+	    if(er->what == mouseDown) {
+		//check if this is the second click, there must be a way to make the
+		//mac do this for us, FIXME!!
+		if(qt_last_mouse_down && (er->when - qt_last_mouse_down <= 
+					  (uint)mouse_double_click_time)) {
+		    etype = QEvent::MouseButtonDblClick;
+		    qt_last_mouse_down = 0;
+		} else {
+		    etype = QEvent::MouseButtonPress;
+		    qt_last_mouse_down = er->when;
 		}
 
-		QPoint p( er->where.h, er->where.v );
-		QPoint plocal(widget->mapFromGlobal( p ));
-		QMouseEvent qme( QEvent::MouseButtonPress, plocal, p, mouse_button_state, 0);
-		QApplication::sendEvent( widget, &qme );
-//		qDebug("Would send event to %s %s", widget->name(), widget->className());
+		//gross, need to handle more mouse buttons, FIXME
+		button = mouse_button_state = QMouseEvent::LeftButton; 
+	    } else {
+		etype = QEvent::MouseButtonRelease;
+
+		//gross, need to handle more mouse buttons, FIXME
+		button = state = mouse_button_state;
+		mouse_button_state = Qt::NoButton;
 	    }
-	}
-	else do_mouse_down( er ); //do resize/move stuff
-    } else if( er->what == mouseUp ) {
-	short part = FindWindow( er->where, &wp );
-	if( part == inContent ) {
+
+	    //handle popup's first
 	    QWidget *popupwidget = NULL;
 	    if( inPopupMode() ) {
 		popupwidget = activePopupWidget();
@@ -1180,27 +1164,45 @@ int QApplication::macProcessEvent(MSG * m)
 
 		QPoint p( er->where.h, er->where.v );
 		QPoint plocal(popupwidget->mapFromGlobal( p ));
-		QMouseEvent qme( QEvent::MouseButtonRelease, plocal, p, 
-				 mouse_button_state, mouse_button_state);
+		QMouseEvent qme( etype, plocal, p, button, state );
 		QApplication::sendEvent( popupwidget, &qme );
 	    } 
 	    
-	    if( qt_button_down )
+	    //figure out which widget to send it to
+	    if( er->what == mouseUp && qt_button_down )
 	     	widget = qt_button_down;
             else if( mac_mouse_grabber )
 		widget = mac_mouse_grabber;
 	    else 
 		widget = QApplication::widgetAt( er->where.h, er->where.v, true );
+
+	    //setup the saved widget
+	    qt_button_down = er->what == mouseDown ? widget : NULL;
+
+	    //finally send the event to the widget if its not the popup
 	    if ( widget && widget != popupwidget ) {
+		if(er->what == mouseDown) {
+		    QWidget* w = widget;
+		    while ( w->focusProxy() )
+			w = w->focusProxy();
+		    if ( w->focusPolicy() & QWidget::ClickFocus ) {
+			QFocusEvent::setReason( QFocusEvent::Mouse);
+			w->setFocus();
+			QFocusEvent::resetReason();
+		    }
+		}
+
 		QPoint p( er->where.h, er->where.v );
 		QPoint plocal(widget->mapFromGlobal( p ));
-		QMouseEvent qme( QEvent::MouseButtonRelease, plocal, p, 
-				 mouse_button_state, mouse_button_state);
+		QMouseEvent qme( etype, plocal, p, button, state );
 		QApplication::sendEvent( widget, &qme );
+//		qDebug("Would send event to %s %s", widget->name(), widget->className());
 	    }
 	}
-	qt_button_down = NULL;
-	mouse_button_state = Qt::NoButton;
+	//mousedown's will effect stuff outside InContent as well
+	else if(er->what == mouseDown) {
+	    do_mouse_down( er ); //do resize/move stuff
+	}
     } else if(er->what == osEvt) {
 	if(((er->message >> 24) & 0xFF) == mouseMovedMessage) {
 	    short part = FindWindow( er->where, &wp );
