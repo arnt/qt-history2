@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qtranslator/qtconfig.cpp#1 $
+** $Id: //depot/qt/main/util/qtranslator/qtconfig.cpp#2 $
 **
 ** This is a utility program for translating Qt applications
 **
@@ -25,6 +25,7 @@
 QTConfig::QTConfig( const QString &fn )
     : filename( fn )
 {
+    git = groups.end();
     read();
 }
 
@@ -32,7 +33,7 @@ QTConfig::~QTConfig()
 {
     write();
 }
-    
+
 void QTConfig::setGroup( const QString &gname )
 {
     QMap< QString, QTConfigGroup>::Iterator it = groups.find( gname );
@@ -72,7 +73,7 @@ void QTConfig::writeEntry( const QString &key, const QStringList &lst, const QCh
     QString s;
     QStringList::ConstIterator it = lst.begin();
     for ( ; it != lst.end(); ++it )
-        s += *it + sep; 
+        s += *it + sep;
     writeEntry( key, s );
 }
 
@@ -129,14 +130,14 @@ void QTConfig::write( const QString &fn = QString::null )
 {
     if ( !fn.isEmpty() )
         filename = fn;
-    
+
     QFile f( filename );
     if ( !f.open( IO_WriteOnly ) ) {
         qWarning( "could not open for writing `%s'", filename.latin1() );
         git = groups.end();
         return;
     }
-    
+
     QTextStream s( &f );
     QMap< QString, QTConfigGroup >::Iterator g_it = groups.begin();
     for ( ; g_it != groups.end(); ++g_it ) {
@@ -144,8 +145,8 @@ void QTConfig::write( const QString &fn = QString::null )
         QTConfigGroup::Iterator e_it = ( *g_it ).begin();
         for ( ; e_it != ( *g_it ).end(); ++e_it )
             s << e_it.key() << " = " << *e_it << "\n";
-    }        
-    
+    }
+
     f.close();
 }
 
@@ -156,14 +157,14 @@ void QTConfig::read()
         git = groups.end();
         return;
     }
-    
+
     QFile f( filename );
     if ( !f.open( IO_ReadOnly ) ) {
         qWarning( "could not open for reading `%s'", filename.latin1() );
         git = groups.end();
         return;
     }
-        
+
     QTextStream s( &f );
 
     QString line;
@@ -171,7 +172,7 @@ void QTConfig::read()
         line = s.readLine();
         parse( line );
     }
-    
+
     f.close();
 }
 
@@ -204,7 +205,7 @@ QStringList QTConfig::split( QString line, const QChar &sep )
 {
     int i = line.find( sep, 0 );
     QStringList lst;
-    
+
     while ( i != -1 ) {
         if ( line.left( i ).length() > 0 )
             lst.append( line.left( i ) );
