@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#32 $
 **
 ** Implementation of QStyle class
 **
@@ -139,7 +139,7 @@ void QStyle::unPolish( QWidget*)
 
 /*!
   Late initialization of the QApplication object.
-  
+
   The default implementation does nothing.
 
   \sa unPolish
@@ -162,8 +162,8 @@ void QStyle::unPolish( QApplication*)
 /*!
   The style may have certain requirements for color palettes.  In this
   function it has the chance to change the palette according to these
-  requirements. 
-  
+  requirements.
+
   The default implementation does nothing.
 
   \sa unPolish, QPalette, QApplication::setPalette()
@@ -510,7 +510,11 @@ QStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h, int /*state*
   \fn void QStyle::drawFocusRect( QPainter* p,
 		const QRect& r, const QColorGroup &g , const QColor*, bool atBorder)
 
-  Draws a mark indicating keyboard focus is on \a r.
+  Draws a mark indicating keyboard focus is on \a r. \a atBorder
+  indicates whether the focus rectangle is at the border of an item
+  (for example an item in a listbox). Certain styles (Motif style as
+  the most prominent example) might have to shrink the rectangle a bit
+  in that case to ensure that the focus rectangle is visible at all.
 */
 
 
