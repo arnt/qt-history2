@@ -190,7 +190,8 @@ private:
     QMap<QString, int> yyActiveTableMap;
     QValueList<int> yyActiveTableIds;
     QMap<QString, int> yyLookedUpColumnMap;
-    QValueList<QVariant> yyFields;
+
+    QMap<QString, int> yyFields;
     int yyNumColumnOccs;
     int yyNumAggregateOccs;
 

@@ -891,13 +891,12 @@ public:
 
 */
 
-class PushFieldTypeInfo : public Op
+class PushTypeInfo : public Op
 {
 public:
-    PushFieldTypeInfo( const QVariant& id,
-		   const QVariant& nameOrNumber )
+    PushTypeInfo( const QVariant& id, const QVariant& nameOrNumber )
 	: Op( id, nameOrNumber ) {}
-    QString name() const { return "pushfieldtypeinfo"; }
+    QString name() const { return "pushtypeinfo"; }
     int exec( LocalSQLEnvironment* env )
     {
 	LocalSQLFileDriver* drv = env->fileDriver( p1.toInt() );

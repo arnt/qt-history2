@@ -81,7 +81,6 @@ bool Parser::parse( const QString& commands, LocalSQLEnvironment *env )
     yyActiveTableIds.clear();
     yyLookedUpColumnMap.clear();
     yyFields.clear();
-    yyNumColumnOccs = 0;
     yyNumAggregateOccs = 0;
 
     matchSql();
@@ -998,7 +997,7 @@ void Parser::emitFieldDesc( const QVariant& column, const QString& columnName )
 	if ( borrowFrom.type() == QVariant::List ) {
 	    int id = borrowFrom.asList()[1].toInt();
 	    QString name = borrowFrom.asList()[2].toString();
-	    yyProg->append( new PushFieldTypeInfo(id, name) );
+	    yyProg->append( new PushTypeInfo(id, name) );
 	} else {
 	    yyProg->append( new Push(borrowFrom.toInt()) );
 	    yyProg->append( new Push(0) );
@@ -1014,11 +1013,13 @@ void Parser::emitFieldDescs( const QValueList<QVariant>& columns,
     QValueList<QVariant>::ConstIterator col = columns.begin();
     QStringList::ConstIterator nam = columnNames.begin();
 
+    yyProg->append( new PushSeparator );
     while ( col != columns.end() ) {
 	emitFieldDesc( *col, *nam );
 	++col;
 	++nam;
     }
+    yyProg->append( new MakeList );
 }
 
 int Parser::activateTable( const QString& tableName )
@@ -1055,7 +1056,7 @@ void Parser::createIndex( int tableId, const QStringList& columns, bool unique )
 
     yyProg->append( new PushSeparator );
     while ( col != columns.end() ) {
-// ###	yyProg->append( new PushFieldDesc(tableId, *col) );
+	yyProg->append( new Push(*col) );
 	++col;
     }
     yyProg->append( new MakeList );
@@ -1137,7 +1138,6 @@ QVariant Parser::matchColumnRef()
     expr.append( (int) Node_Field );
     expr.append( tableName );
     expr.append( columnName );
-    yyNumColumnOccs++;
     return expr;
 }
 
@@ -1292,7 +1292,7 @@ QVariant Parser::matchPrimaryExpr()
 	right.asList().append( node );
 	if ( n == 0 ) {
 	    right.asList().append( matchAggregateArgument() );
-	    yyNumAggregateOccs++;	
+	    yyNumAggregateOccs++;
 	} else {
 	    matchFunctionArguments( 3, &right.asList() );
 	}
@@ -2039,13 +2039,14 @@ void Parser::matchSelectStatement()
 {
     QValueList<QVariant> selectColumns;
     QStringList selectColumnNames;
+    QValueList<QVariant> auxColumns;
+    QStringList auxColumnNames;
     QValueList<QVariant> groupByColumns;
     QVariant whereCond;
     QValueList<QVariant> whereConstants;
     QVariant havingCond;
 
     yyFields.clear();
-    yyNumColumnOccs = 0;
     yyNumAggregateOccs = 0;
 
     yyTok = getToken();
@@ -2055,10 +2056,9 @@ void Parser::matchSelectStatement()
 	aster.append( (int) Node_Star );
 	selectColumns.append( aster );
 	selectColumnNames.append( QString::null );
-	yyNumColumnOccs++;
     } else {
 	while ( TRUE ) {
-	    int start = yyPos - 1;
+	    int start = yyPos - 1 + 1;
 	    selectColumns.append( matchScalarExpr() );
 	    int end = yyPos - 1;
 	    selectColumnNames.append( yyIn.mid(start, end - start) );
@@ -2082,18 +2082,33 @@ void Parser::matchSelectStatement()
     if ( havingCond.isValid() && yyNumAggregateOccs == 0 )
 	error( "Cannot have 'having' clause in such simple queries" );
 
+#if 0 // ###
     if ( yyNumColumnOccs * yyNumAggregateOccs != 0 ) {
 	error( "Cannot mix aggregates and columns" );
 	yyNumAggregateOccs = 0;
     }
+#endif
 
     if ( yyTok == Tok_order )
 	matchOrderByClause();
 
     if ( groupByColumns.isEmpty() && yyNumAggregateOccs == 0 ) {
-	emitWhere( &whereCond, &whereConstants, selectColumns );
+	emitWhere( &whereCond, &whereConstants, selectColumns,
+		   selectColumnNames );
     } else {
-	emitWhere( &whereCond, &whereConstants, yyFields );
+	QString *farray = new QString[yyFields.count() + 1];
+	QMap<QString, int>::ConstIterator f = yyFields.begin();
+	while ( f != yyFields.end() ) {
+	    farray[*f] = f.key();
+	    ++f;
+	}
+	for ( int i = 0; i < (int) yyFields.count(); i++ ) {
+	    auxColumns.append( farray[i] );
+	    auxColumnNames.append( QString("aux%1").arg(i) );
+	}
+	delete farray;
+
+	emitWhere( &whereCond, &whereConstants, auxColumns, auxColumnNames );
 
 	int next = yyNextLabel--;
 	int save = yyNextLabel--;

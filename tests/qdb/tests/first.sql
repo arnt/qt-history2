@@ -28,7 +28,6 @@ create table authors
 insert into authors values (1, 'Selma Lagerlöf');
 insert into authors values (2, 'Astrid Lindgren');
 
-
 create table publishers
 (id numeric,
  address char(40));
