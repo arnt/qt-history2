@@ -132,7 +132,7 @@ depend:
 	cd examples; \$(MAKE) depend
 
 variables: Makefile
-	CC="\$(CC)" CFLAGS="\$(CFLAGS)" LFLAGS="\$(LFLAGS)" ./propagate
+	CC="\$(CC)" CFLAGS="\$(CFLAGS)" LFLAGS="\$(LFLAGS)" SHELL="\$(SHELL)" ./propagate
 	touch variables
 
 dep: depend
