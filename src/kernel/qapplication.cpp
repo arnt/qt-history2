@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#196 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#197 $
 **
 ** Implementation of QApplication class
 **
@@ -35,10 +35,7 @@
 #include "qplatinumstyle.h"
 #include "qcdestyle.h"
 #include "qtranslator.h"
-
-#include "qutfcodec.h"
-#include "qeuccodec.h"
-#include "qkoi8codec.h"
+#include "qtextcodec.h"
 
 /*!
   \class QApplication qapplication.h
@@ -266,12 +263,6 @@ QApplication::QApplication( int &argc, char **argv )
 	argc = 0;
 	argv = &empty;
     }
-
-    // Built-in code mappers
-    (void)new QEucCodec;
-    (void)new QKoi8Codec;
-    (void)new QUtf8Codec;
-    (void)new QUtf16Codec;
 
     qt_init( &argc, argv );
     process_cmdline( &argc, argv );

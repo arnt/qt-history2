@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#91 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#92 $
 **
 ** Implementation of QTextStream class
 **
@@ -693,7 +693,8 @@ QTextStream &QTextStream::writeBlock( const char* p, uint len )
 {
     if ( doUnicodeHeader ) {
 	doUnicodeHeader = FALSE;
-	ts_putc( QChar::byteOrderMark );
+	if ( !mapper && !latin1 )
+	    ts_putc( QChar::byteOrderMark );
     }
     //All QCStrings and const char* are defined to be in Latin1
     if ( !mapper && latin1 ) {
@@ -1911,7 +1912,7 @@ void QTextStream::setEncoding( Encoding e )
 	    // Use optimized latin1 processing
 	    mapper = 0;
 	}
-	doUnicodeHeader = FALSE;
+	doUnicodeHeader = TRUE; // If it reads as Unicode, accept it
 	break;
     case Latin1:
 	mapper = 0;
