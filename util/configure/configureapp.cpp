@@ -744,12 +744,17 @@ void Configure::generateConfigfiles()
 	if( dictionary[ "QMAKE_INTERNAL" ] == "yes" )
 	    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );
     }
-
 }
 
 void Configure::displayConfig()
 {
     // Give some feedback
+    cout << "License file used..........." << QDir::homeDirPath() << "/.qt-license" << endl;
+    cout << "Licensee...................." << licenseInfo[ "LICENSEE" ] << endl;
+    cout << "License ID.................." << licenseInfo[ "LICENSEID" ] << endl;
+    cout << "Product license............." << licenseInfo[ "PRODUCTS" ] << endl;
+    cout << "Expiry Date................." << licenseInfo[ "EXPIRYDATE" ] << endl << endl;
+
     cout << "QMAKESPEC..................." << dictionary[ "QMAKESPEC" ] << endl;
     cout << "Configuration..............." << qmakeConfig.join( " " ) << endl;
 
@@ -991,7 +996,6 @@ bool Configure::isProjectLibrary( const QString& proFileName )
 void Configure::readLicense()
 {
     QFile licenseFile( QDir::homeDirPath() + "/.qt-license" );
-
     if( licenseFile.open( IO_ReadOnly ) ) {
 	QString buffer;
 
@@ -1010,7 +1014,12 @@ void Configure::readLicense()
     if( QFile::exists( qtDir + "/LICENSE.TROLL" ) ) {
 	licenseInfo[ "PRODUCTS" ] = "qt-enterprise";
 	dictionary[ "QMAKE_INTERNAL" ] = "yes";
+    } else if ( !licenseFile.exists() ) {
+	cout << "License file not found in \"" << QDir::homeDirPath() << "\"" << endl;
+	cout << "Enterprise modules will not be available." << endl << endl;
+	licenseInfo[ "PRODUCTS" ] = "qt-professional";
     }
+
     if( dictionary[ "FORCE_PROFESSIONAL" ] == "yes" )
         licenseInfo[ "PRODUCTS" ]= "qt-professional";
 }
@@ -1039,7 +1048,7 @@ void Configure::saveCmdLine()
 	if( outFile.open( IO_WriteOnly ) ) {
 	    QTextStream outStream( &outFile );
 	    for( QStringList::Iterator it = configCmdLine.begin(); it != configCmdLine.end(); ++it )
-		outStream << (*it) << endl;
+		outStream << (*it) << " " << endl;
 	    outFile.close();
 	}
     }
