@@ -1783,16 +1783,19 @@ void QWSServer::openMouse()
     QStringList mouse = QStringList::split(" ",mice);
     for (QStringList::Iterator m=mouse.begin(); m!=mouse.end(); ++m) {
 	QMouseHandler* mh = newMouseHandler(*m);
+	if(mh) {
+	    connect(mh, SIGNAL(mouseChanged(const QPoint&,int)),
+		    this, SLOT(setMouse(const QPoint&,int)));
+	    mousehandlers.append(mh);
+	}
+    }
+#else
+    QMouseHandler* mh = newMouseHandler(mice); //Assume only one
+    if(mh) {
 	connect(mh, SIGNAL(mouseChanged(const QPoint&,int)),
 		this, SLOT(setMouse(const QPoint&,int)));
 	mousehandlers.append(mh);
     }
-#else
-    QMouseHandler* mh = newMouseHandler(mice); //Assume only one
-    connect(mh, SIGNAL(mouseChanged(const QPoint&,int)),
-	    this, SLOT(setMouse(const QPoint&,int)));
-    mousehandlers.append(mh);
-
 #endif
 }
 
