@@ -1044,7 +1044,7 @@ QWidget *QApplication::widgetAt_sys(int x, int y)
     const QPoint qpt = widget->mapFromGlobal(QPoint(x, y));
     const HIPoint pt = CGPointMake(qpt.x(), qpt.y());
     if(HIViewGetSubviewHit((HIViewRef)widget->winId(), &pt, true, &child) == noErr && child) 
-        widget = QWidget::find((WId)child);;
+        widget = QWidget::find((WId)child);
     return widget;
 }
 
@@ -1742,7 +1742,19 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             } else if(mac_mouse_grabber) {
                 widget = mac_mouse_grabber;
             } else {
-                widget = QApplication::widgetAt(where.h, where.v);
+                {
+                    WindowPtr window = 0;
+                    if(GetEventParameter(event, kEventParamWindowRef, typeWindowRef, 0,
+                                         sizeof(window), 0, &window) != noErr) 
+                        FindWindowOfClass(&where, kAllWindowClasses, &window, 0);
+                    if(window) {
+                        HIViewRef hiview;
+                        if(HIViewGetViewForMouseEvent(HIViewGetRoot(window), event, &hiview) == noErr)
+                            widget = QWidget::find((WId)hiview);;
+                    }
+                }
+                if(!widget) //fallback
+                    widget = QApplication::widgetAt(where.h, where.v);
                 if(ekind == kEventMouseUp) {
                     short part = qt_mac_window_at(where.h, where.v);
                     if(part == inDrag) {
