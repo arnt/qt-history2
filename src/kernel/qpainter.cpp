@@ -2228,8 +2228,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 		     int tabstops, int* tabarray, int tabarraylen,
 		     QTextParag **internal, QPainter* painter )
 {
-    Q_UNUSED( len ); // #### use these
-    Q_UNUSED( tabarraylen );
+    Q_UNUSED( tabarraylen ); // ### is this needed at all???
     bool   decode     = internal && *internal;	// decode from internal data
     bool   encode     = internal && !*internal; // build internal data
 
@@ -2249,6 +2248,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	parag = *internal;
     } else {
 	QString parStr = str;
+	parStr.truncate( len );
 	// need to build paragraph
 	parag = new QTextParag( 0, 0, 0, FALSE );
 	parag->setNewLinesAllowed( TRUE );
