@@ -225,9 +225,11 @@ void Layout::undoLayout()
 void Layout::breakLayout()
 {
     QMap<QWidget*, QRect> rects;
-    QWidget *w;
-    for ( w = widgets.first(); w; w = widgets.next() )
-	rects.insert( w, w->geometry() );
+    if ( !widgets.isEmpty() ) {
+	QWidget *w;
+	for ( w = widgets.first(); w; w = widgets.next() )
+	    rects.insert( w, w->geometry() );
+    }
     WidgetFactory::deleteLayout( layoutBase );
     bool needReparent = qstrcmp( layoutBase->className(), "QLayoutWidget" ) == 0 ||
 			qstrcmp( layoutBase->className(), "QSplitter" ) == 0 ||
