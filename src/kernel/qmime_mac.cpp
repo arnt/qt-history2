@@ -258,7 +258,7 @@ bool QMacMimeAnyMime::loadMimeRegistry()
                 success = ::chmod(mimeTypeDir.local8Bit(), S_IRUSR | S_IWUSR | S_IXUSR 
                                   | S_IRGRP | S_IWGRP | S_IXGRP | S_IROTH | S_IWOTH | S_IXOTH) == 0;
             if (!success) {
-                qWarning(QString("Problem creating %1: %2").arg(mimeTypeDir, strerror(errno)));
+                qWarning("Problem creating %s: %s", mimeTypeDir.latin1(), strerror(errno));
                 return FALSE;
             }
 	}
@@ -273,8 +273,7 @@ bool QMacMimeAnyMime::loadMimeRegistry()
             if (fd != -1)
                 ::close(fd);
             if (!success) {
-                qWarning(QString("Problem creating %1: %2").arg(library_file.name(),
-                                                                ::strerror(olderrno)));
+                qWarning("Problem creating %s: %s", library_file.name().latin1(), strerror(olderrno));
                 return FALSE;
             }
         }
