@@ -144,8 +144,8 @@ static void construct(QCoreVariant::Private *x, const void *v)
             x->value.ull = *static_cast<const Q_ULLONG *>(v);
             break;
         case QCoreVariant::UserType:
-            x->value.ptr = new QCoreVariant::UserData(static_cast<const QCoreVariant::UserData*>(v)->data(),
-                static_cast<const QCoreVariant::UserData*>(v)->description());
+            x->value.ptr = new QCoreVariant::UserData(
+                    *static_cast<const QCoreVariant::UserData *>(v));
             break;
         case QCoreVariant::Invalid:
             break;
@@ -253,7 +253,7 @@ static void clear(QCoreVariant::Private *p)
         QCLEAR(QBitArray);
         break;
     case QCoreVariant::UserType:
-        delete static_cast<QCoreVariant::UserData*>(p->value.ptr);
+        delete static_cast<QCoreVariant::UserData *>(p->value.ptr);
         break;
     case QCoreVariant::Invalid:
     case QCoreVariant::Int:
@@ -1062,9 +1062,16 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
 
     \internal
 
-    Constructs a variant of type \a type, and initializes with \a v if
+    Constructs a non-null variant of type \a type, and initializes with \a v if
     \a v is not 0.
 */
+
+/*!
+    \fn QCoreVariant::QCoreVariant(Type type)
+
+    Constructs a null variant of type \a type.
+*/
+
 
 /*!
     \fn QCoreVariant::create(Type type, const void *v)
@@ -1967,7 +1974,7 @@ const void *QCoreVariant::constData() const
     case QCoreVariant::BitArray:
         QDATA(QBitArray);
     case QCoreVariant::UserType:
-        return static_cast<UserData*>(d->value.ptr)->data();
+        return static_cast<UserData*>(d->value.ptr);
     default:
         return d->value.ptr;
     }

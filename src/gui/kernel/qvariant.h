@@ -93,7 +93,8 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
     inline QVariant(const UserData &userData);
 
     // Copied from qcorevariant.h
-    inline QVariant(Type type, void *v = 0);
+    inline QVariant(Type type, void *v);
+    inline QVariant(Type type);
     inline QVariant(const QCoreVariant &other);
     inline QVariant(const QVariant &other);
 
@@ -190,6 +191,7 @@ typedef QMap<QString, QVariant> QVariantMap;
 
 // Copied from qcorevariant.h
 inline QVariant::QVariant(Type type, void *v) : QCoreVariant(type, v) { }
+inline QVariant::QVariant(Type type): QCoreVariant(type) { }
 inline QVariant::QVariant(const QVariant &other) : QCoreVariant(other) { }
 inline QVariant::QVariant(const QCoreVariant &other) : QCoreVariant(other) { }
 

@@ -81,20 +81,43 @@ class Q_CORE_EXPORT QCoreVariant
 
     class UserData {
     public:
-        inline UserData(void *data, const QByteArray &description)
-            : ptr(data), desc(description)
+        typedef void (*Destructor)(void *);
+        typedef void *(*CopyConstructor)(const void *);
+
+        inline UserData(void *data, const char *description, Destructor destructor = 0,
+                        CopyConstructor copyConstructor = 0)
+            : ptr(data), desc(description), destr(destructor), copy(copyConstructor)
         {
+            if (ptr && copy)
+                ptr = copy(ptr);
         }
 
         inline UserData(const UserData &other)
-            : ptr(other.ptr), desc(other.desc)
+            : ptr(other.ptr), desc(other.desc), destr(other.destr), copy(other.copy)
         {
+            if (copy)
+                ptr = copy(other.ptr);
+        }
+        
+        ~UserData()
+        {
+            if (destr)
+                destr(ptr);
         }
 
         inline UserData &operator=(const UserData &other)
         {
+            if (ptr == other.ptr)
+                return *this;
+            if (destr)
+                destr(ptr);
+                
             ptr = other.ptr;
             desc = other.desc;
+            destr = other.destr;
+            copy = other.copy;
+            if (copy)
+                ptr = copy(ptr);
             return *this;
         }
 
@@ -109,11 +132,14 @@ class Q_CORE_EXPORT QCoreVariant
     private:
         void *ptr;
         QByteArray desc;
+        Destructor destr;
+        CopyConstructor copy;
     };
 
     inline QCoreVariant();
     inline ~QCoreVariant();
-    inline QCoreVariant(Type type, void *v = 0);
+    inline QCoreVariant(Type type);
+    inline QCoreVariant(Type type, void *v);
     inline QCoreVariant(const QCoreVariant &other);
 
 #ifndef QT_NO_DATASTREAM
@@ -276,6 +302,39 @@ protected:
     void *castOrDetach(Type t);
 };
 
+
+template <typename T>
+void qVariantDeleteHelper(void *t)
+{
+    delete static_cast<T *>(t);
+}
+
+template <typename T>
+void *qVariantCopyHelper(const void *t)
+{
+    if (!t)
+        return 0;
+    return new T(*static_cast<const T *>(t));
+}
+
+template <typename T>
+void qVariantSet(QCoreVariant &v, const T &t, const char *typeName)
+{
+    QCoreVariant::UserData data((void*)(&t), typeName,
+                                qVariantDeleteHelper<T>, qVariantCopyHelper<T>);
+    v = QCoreVariant(data);
+}
+
+template <typename T>
+bool qVariantGet(const QCoreVariant &v, T &t, const char *typeName)
+{
+    QCoreVariant::UserData data = v.toUserType();
+    if (typeName != data.description() || !data.data())
+        return false;
+    t = *static_cast<T *>(data.data());
+    return true;
+}
+
 typedef QList<QCoreVariant> QCoreVariantList;
 typedef QMap<QString, QCoreVariant> QCoreVariantMap;
 
@@ -283,8 +342,10 @@ inline QCoreVariant::QCoreVariant() :d(&shared_invalid)
 { ++d->ref; }
 inline QCoreVariant::~QCoreVariant()
 { if (!--d->ref) cleanUp(d); }
+inline QCoreVariant::QCoreVariant(Type type)
+{ d = create(type, 0); }
 inline QCoreVariant::QCoreVariant(Type type, void *v)
-{ d = create(type, v); }
+{ d = create(type, v); d->is_null = false; }
 inline QCoreVariant::QCoreVariant(const QCoreVariant &p) : d(p.d)
 { ++d->ref; }
 

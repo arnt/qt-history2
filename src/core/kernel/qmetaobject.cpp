@@ -1150,7 +1150,7 @@ QCoreVariant QMetaProperty::read(const QObject *obj) const
         if (t == QCoreVariant::Invalid)
             return QCoreVariant();
     }
-    QCoreVariant value(t);
+    QCoreVariant value(t, (void*)0);
     void *argv[] = { value.data() };
     const_cast<QObject*>(obj)->qt_metacall(QMetaObject::ReadProperty,
                      idx[QMetaObject::ReadProperty] + mobj[QMetaObject::ReadProperty]->propertyOffset(),
