@@ -35,7 +35,7 @@ MyWidget::MyWidget( QWidget *parent, const char *name )
     connect( quit, SIGNAL(clicked()), qApp, SLOT(quitApp()) );
 
     lcd  = new QLCDNumber( 2, this, "lcd" );
-    lcd->move( 10, 50 );
+    lcd->move( 10, quit->y() + quit->height() + 10 );
 
     sBar = new QScrollBar( 0, 99,		       	// range
 			   1, 10, 			// line/page steps
@@ -46,7 +46,7 @@ MyWidget::MyWidget( QWidget *parent, const char *name )
     connect( sBar, SIGNAL(valueChanged(int)), lcd, SLOT(display(int)) );
 }
 
-void MyWidget::resizeEvent( QResizeEvent *e )
+void MyWidget::resizeEvent( QResizeEvent * )
 {
     sBar->setGeometry( 10, height() - 10 - 16, width() - 20, 16 );
     lcd->resize( sBar->width(), sBar->y() - lcd->y() - 5 );

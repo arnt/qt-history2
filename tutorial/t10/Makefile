@@ -1,26 +1,26 @@
 #############################################################################
-# Qt Makefile - Tutorial 10
+# Makefile: Qt Tutorial 10
 #############################################################################
 
 ####### Directories
 
-BASEDIR	=	$(QTDIR)
+BASEDIR =	$(QTDIR)
 INCDIR	=	$(BASEDIR)/include
 LIBDIR	=	$(BASEDIR)/lib
 
 ####### Compiler
 
 CFLAGS	=	-O2
-LFLAGS	=	-L$(LIBDIR) -lqt -lX11
+LFLAGS	=	-L$(LIBDIR) -lqt -lX11 -lm
 CC	=	gcc
 
 ####### Files
 
-HEADERS	=	lcdrange.h cannon.h
-SOURCES	=	lcdrange.cpp cannon.cpp
-OBJECTS	=	lcdrange.o cannon.o t10.o
-SRCMETA	=       mlcdrang.cpp mcannon.cpp
-OBJMETA	=	mlcdrang.o mcannon.o
+HEADERS =	lcdrange.h	cannon.h
+SOURCES =	lcdrange.cpp	cannon.cpp	main.cpp
+OBJECTS =	lcdrange.o	cannon.o	main.o
+SRCMETA =	mlcdrang.cpp	mcannon.cpp
+OBJMETA =	mlcdrang.o	mcannon.o
 TARGET	=	t10
 
 ####### Implicit rules
@@ -33,13 +33,7 @@ TARGET	=	t10
 
 ####### Build rules
 
-all: qtdirtest $(TARGET)
-
-qtdirtest:
-	@if [ "$(QTDIR)" = "" ]; then			\
-	    make "QTDIR=/usr/local/qt";			\
-	    exit;					\
-	fi
+all: $(TARGET)
 
 $(TARGET): $(OBJECTS) $(OBJMETA)
 	$(CC) $(OBJECTS) $(OBJMETA) -o $(TARGET) $(LFLAGS)
@@ -58,6 +52,6 @@ mlcdrang.cpp: lcdrange.h
 
 mcannon.cpp: cannon.h
 	moc -o $@ $<
- 
+
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.

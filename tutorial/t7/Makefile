@@ -1,26 +1,26 @@
 #############################################################################
-# Qt Makefile - Tutorial 7
+# Makefile: Qt Tutorial 7
 #############################################################################
 
 ####### Directories
 
-BASEDIR	=	$(QTDIR)
+BASEDIR =	$(QTDIR)
 INCDIR	=	$(BASEDIR)/include
 LIBDIR	=	$(BASEDIR)/lib
 
 ####### Compiler
 
 CFLAGS	=	-O2
-LFLAGS	=	-L$(LIBDIR) -lqt -lX11
+LFLAGS	=	-L$(LIBDIR) -lqt -lX11 -lm
 CC	=	gcc
 
 ####### Files
 
-HEADERS	=	lcdrange.h
-SOURCES	=	lcdrange.cpp
-OBJECTS	=	lcdrange.o t7.o
-SRCMETA	=       mlcdrang.cpp
-OBJMETA	=	mlcdrang.o
+HEADERS =	lcdrange.h
+SOURCES =	lcdrange.cpp	main.cpp
+OBJECTS =	lcdrange.o	main.o
+SRCMETA =	mlcdrang.cpp
+OBJMETA =	mlcdrang.o
 TARGET	=	t7
 
 ####### Implicit rules
@@ -33,13 +33,7 @@ TARGET	=	t7
 
 ####### Build rules
 
-all: qtdirtest $(TARGET)
-
-qtdirtest:
-	@if [ "$(QTDIR)" = "" ]; then			\
-	    make "QTDIR=/usr/local/qt";			\
-	    exit;					\
-	fi
+all: $(TARGET)
 
 $(TARGET): $(OBJECTS) $(OBJMETA)
 	$(CC) $(OBJECTS) $(OBJMETA) -o $(TARGET) $(LFLAGS)
@@ -55,6 +49,6 @@ clean:
 
 mlcdrang.cpp: lcdrange.h
 	moc -o $@ $<
- 
+
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.

@@ -22,7 +22,7 @@ private:
     QLCDNumber  *lcd;
 };
 
-LCDRange::LCDRange( QWidget *parent=0, const char *name=0 )
+LCDRange::LCDRange( QWidget *parent, const char *name )
         : QWidget( parent, name )
 {
     lcd  = new QLCDNumber( 2, this, "lcd"  );
@@ -35,7 +35,7 @@ LCDRange::LCDRange( QWidget *parent=0, const char *name=0 )
     connect( sBar, SIGNAL(valueChanged(int)), lcd, SLOT(display(int)) );
 }
 
-void LCDRange::resizeEvent( QResizeEvent *e )
+void LCDRange::resizeEvent( QResizeEvent * )
 {
     sBar->setGeometry( 0, height() - 16, width(), 16 );
     lcd->resize( width(), sBar->y() - 5 );

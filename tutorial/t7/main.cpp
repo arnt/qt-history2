@@ -43,7 +43,7 @@ MyWidget::MyWidget( QWidget *parent, const char *name )
     }
 }
 
-void MyWidget::resizeEvent( QResizeEvent *e )
+void MyWidget::resizeEvent( QResizeEvent * )
 {
     int valueWidth = (width() - 20)/4;
     int valueHeight = (height() - 65)/4;

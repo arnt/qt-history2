@@ -1,26 +1,23 @@
 #############################################################################
-# Qt Makefile - Tutorial 2
+# Makefile: Qt Tutorial 2
 #############################################################################
 
 ####### Directories
 
-BASEDIR	=	$(QTDIR)
+BASEDIR =	$(QTDIR)
 INCDIR	=	$(BASEDIR)/include
 LIBDIR	=	$(BASEDIR)/lib
 
 ####### Compiler
 
 CFLAGS	=	-O2
-LFLAGS	=	-L$(LIBDIR) -lqt -lX11
+LFLAGS	=	-L$(LIBDIR) -lqt -lX11 -lm
 CC	=	gcc
 
 ####### Files
 
-HEADERS	=
-SOURCES	=
-OBJECTS	=	t2.o
-SRCMETA	=
-OBJMETA	=
+SOURCES =	main.cpp
+OBJECTS =	main.o
 TARGET	=	t2
 
 ####### Implicit rules
@@ -33,22 +30,17 @@ TARGET	=	t2
 
 ####### Build rules
 
-all: qtdirtest $(TARGET)
+all: $(TARGET)
 
-qtdirtest:
-	@if [ "$(QTDIR)" = "" ]; then			\
-	    make "QTDIR=/usr/local/qt";			\
-	    exit;					\
-	fi
-
-$(TARGET): $(OBJECTS) $(OBJMETA)
-	$(CC) $(OBJECTS) $(OBJMETA) -o $(TARGET) $(LFLAGS)
+$(TARGET): $(OBJECTS)
+	$(CC) $(OBJECTS) -o $(TARGET) $(LFLAGS)
 
 depend:
 	@makedepend -I$(INCDIR) $(SOURCES) 2> /dev/null
 
 clean:
 	/bin/rm -f *.o *.bak *~ *% #*
-	/bin/rm -f $(SRCMETA) $(TARGET)
+	/bin/rm -f $(TARGET)
+
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.

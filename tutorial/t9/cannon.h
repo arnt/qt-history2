@@ -1,6 +1,6 @@
 /****************************************************************
 **
-** Definition of Cannonfield class, Qt tutorial 9
+** Definition of CannonField class, Qt tutorial 9
 **
 ****************************************************************/
 
@@ -19,6 +19,8 @@ public:
     int angle() const { return ang; }
 public slots:
     void setAngle( int degrees );
+signals:
+    void angleChanged( int );
 protected:
     void paintEvent( QPaintEvent * );
 private:

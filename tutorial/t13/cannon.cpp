@@ -15,7 +15,7 @@
 CannonField::CannonField( QWidget *parent, const char *name )
         : QWidget( parent, name )
 {
-    ang           = 0;
+    ang           = 45;
     f             = 0;
     shooting      = FALSE;
     timerCount    = 0;
@@ -27,25 +27,27 @@ CannonField::CannonField( QWidget *parent, const char *name )
 
 void CannonField::setAngle( int degrees )
 {
-    if ( ang == degrees )
-	return;
     if ( degrees < 5 )
 	degrees = 5;
     if ( degrees > 70 )
 	degrees = 70;
+    if ( ang == degrees )
+	return;
     ang = degrees;
     repaint( cannonRect(), FALSE );
+    emit angleChanged( ang );
 }
 
 void CannonField::setForce( int newton )
 {
-    if ( f == newton )
-	return;
     if ( newton < 0 )
 	newton = 0;
     if ( newton > 50 )
 	newton = 50;
+    if ( f == newton )
+	return;
     f = newton;
+    emit forceChanged( f );
 }
 
 void CannonField::shoot()
@@ -146,7 +148,7 @@ const QRect barrel_rect(33, -4, 15, 8);
 
 void CannonField::paintCannon( QPainter *p )
 {
-    QPixmap  pix( 50, 50 );
+    QPixmap  pix( cannonRect().size() );
     QPainter tmp;
 
     pix.fill( backgroundColor() );

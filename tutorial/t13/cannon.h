@@ -29,6 +29,8 @@ public slots:
 signals:
     void  hit();
     void  missed();
+    void  angleChanged( int );
+    void  forceChanged( int );
 protected:
     void  timerEvent( QTimerEvent * );
     void  paintEvent( QPaintEvent * );

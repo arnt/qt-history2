@@ -23,6 +23,9 @@ public slots:
     void  setAngle( int degrees );
     void  setForce( int newton );
     void  shoot();
+signals:
+    void  angleChanged( int );
+    void  forceChanged( int );
 protected:
     void  timerEvent( QTimerEvent * );
     void  paintEvent( QPaintEvent * );

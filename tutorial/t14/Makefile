@@ -1,5 +1,5 @@
 #############################################################################
-# Qt Tutorial 14 Makefile
+# Makefile: Qt Tutorial 14
 #############################################################################
 
 ####### Directories
@@ -17,8 +17,8 @@ CC	=	gcc
 ####### Files
 
 HEADERS =	lcdrange.h	cannon.h	gamebrd.h
-SOURCES =	lcdrange.cpp	cannon.cpp	gamebrd.cpp	t14.cpp
-OBJECTS =	lcdrange.o	cannon.o	gamebrd.o	t14.o
+SOURCES =	lcdrange.cpp	cannon.cpp	gamebrd.cpp	main.cpp
+OBJECTS =	lcdrange.o	cannon.o	gamebrd.o	main.o
 SRCMETA =	mlcdrang.cpp	mcannon.cpp	mgamebr.cpp
 OBJMETA =	mlcdrang.o	mcannon.o	mgamebr.o
 TARGET	=	t14
