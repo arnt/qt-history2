@@ -1474,8 +1474,13 @@ void QWidget::setEnabled( bool enable )
 	}
     }
 #if defined(Q_WS_X11)
-    extern void qt_x11_enforce_cursor( QWidget * w, bool unset );
-    qt_x11_enforce_cursor( this, FALSE );
+    if ( testWState( WState_OwnCursor ) ) {
+	// enforce the windows behavior of clearing the cursor on
+	// disabled widgets
+
+	extern void qt_x11_enforce_cursor( QWidget * w ); // defined in qwidget_x11.cpp
+	qt_x11_enforce_cursor( this );
+    }
 #endif
 #ifdef Q_WS_WIN
     QInputContext::enable( this, im_enabled & !((bool)testWState(WState_Disabled)) );

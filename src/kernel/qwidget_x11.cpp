@@ -164,22 +164,21 @@ Window qt_XCreateSimpleWindow( const QWidget *creator,
 void qt_XDestroyWindow( const QWidget *destroyer,
 			Display *display, Window window );
 
-Q_EXPORT void qt_x11_enforce_cursor( QWidget * w, bool unset )
+Q_EXPORT void qt_x11_enforce_cursor( QWidget * w )
 {
-    QCursor * oc = QApplication::overrideCursor();
-    if ( oc ) {
-	XDefineCursor( w->x11Display(), w->winId(), oc->handle() );
-    } else if ( unset ) {
-	XDefineCursor( w->x11Display(), w->winId(), None );
-    } else if ( w->isEnabled() ) {
-	XDefineCursor( w->x11Display(), w->winId(), w->cursor().handle() );
-    } else {
-	QWidget *parent = w->parentWidget();
-	while ( parent && !parent->isEnabled() )
-		parent = parent->parentWidget();
-	if ( parent ) {
-	    XDefineCursor( w->x11Display(), w->winId(), parent->cursor().handle() );
+    if ( w->testWState( Qt::WState_OwnCursor ) ) {
+	QCursor * oc = QApplication::overrideCursor();
+	if ( oc ) {
+	    XDefineCursor( w->x11Display(), w->winId(), oc->handle() );
+	} else if ( w->isEnabled() ) {
+	    XDefineCursor( w->x11Display(), w->winId(), w->cursor().handle() );
+	} else {
+	    // enforce the windows behavior of clearing the cursor on
+	    // disabled widgets
+	    XDefineCursor( w->x11Display(), w->winId(), None );
 	}
+    } else {
+	XDefineCursor( w->x11Display(), w->winId(), None );
     }
 }
 
@@ -554,7 +553,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	setWState( WState_Visible );
     } else if ( topLevel ) {			// set X cursor
 	if ( initializeWindow )
-	    qt_x11_enforce_cursor( this, FALSE );
+	    qt_x11_enforce_cursor( this );
 	setWState( WState_OwnCursor );
     }
 
@@ -915,7 +914,7 @@ void QWidget::setCursor( const QCursor &cursor )
 	extra->curs = new QCursor(cursor);
     }
     setWState( WState_OwnCursor );
-    qt_x11_enforce_cursor( this, FALSE );
+    qt_x11_enforce_cursor( this );
     XFlush( x11Display() );
 }
 
@@ -927,7 +926,7 @@ void QWidget::unsetCursor()
 	    extra->curs = 0;
 	}
 	clearWState( WState_OwnCursor );
-	qt_x11_enforce_cursor( this, TRUE );
+	qt_x11_enforce_cursor( this );
 	XFlush( x11Display() );
     }
 }
