@@ -339,16 +339,16 @@ const QString::Null QString::null = QString::Null();
     \section1 Conversions between 8-bit strings and Unicode strings
 
     QString provides the following four functions that return a
-    \c{const char *} version of the string: ascii(), latin1(),
-    utf8(), and local8Bit().
+    \c{const char *} version of the string as QByteArray: toAscii(),
+    toLatin1(), toUtf8(), and toLocal8Bit().
 
     \list
-    \i ascii() returns an ASCII encoded 8-bit string.
-    \i latin1() returns a Latin-1 (ISO 8859-1) encoded 8-bit string.
-    \i utf8() returns a UTF-8 encoded 8-bit string. UTF-8 is a
+    \i toAscii() returns an ASCII encoded 8-bit string.
+    \i toLatin1() returns a Latin-1 (ISO 8859-1) encoded 8-bit string.
+    \i toUtf8() returns a UTF-8 encoded 8-bit string. UTF-8 is a
        superset of ASCII that supports the entire Unicode character
        set through multibyte sequences.
-    \i local8Bit() returns an 8-bit string using the system's local
+    \i toLocal8Bit() returns an 8-bit string using the system's local
        encoding.
     \endlist
 
