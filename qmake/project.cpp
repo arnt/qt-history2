@@ -85,12 +85,16 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 	    scope = var.stripWhiteSpace();
 	    var = "";
 
+	    if(scope_failed) 
+		continue;
+
 	    bool test = FALSE, invert_test = (scope.left(1) == "!");
 	    if(invert_test)
 		scope = scope.right(scope.length()-1);
 
 	    int lparen = scope.find('(');
 	    if(lparen != -1) { /* if there is an lparen in the scope, it IS a function */
+
 		int rparen = scope.find(')', lparen);
 		if(rparen == -1) {
 		    QCString error;
