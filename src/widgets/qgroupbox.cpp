@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#70 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#71 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -134,9 +134,13 @@ void QGroupBox::setTextSpacer()
     if ( ! sp )
 	return;
     QFontMetrics fm = fontMetrics();
-    int h = fm.height();
-    int w = fm.width( str, lenvisible ) + 2*fm.width(QChar(' '));
-	
+    int h = 0;
+    int w = 0;
+    if ( lenvisible ) {
+	QFontMetrics fm = fontMetrics();
+	h = fm.height();
+	w = fm.width( str, lenvisible ) + 2*fm.width(QChar(' '));
+    }		
     sp->changeSize( w, h, QSizePolicy::Minimum, QSizePolicy::Fixed );
 }
 
@@ -324,7 +328,7 @@ void QGroupBox::setColumnLayout(int columns, Orientation direction)
     d = (QGroupBoxPrivate*) spacer;
     setTextSpacer();
     vbox->addItem( spacer );
-    
+
     dir = direction;
     if ( dir == Horizontal ) {
       nCols = columns;
