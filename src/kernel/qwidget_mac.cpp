@@ -2307,17 +2307,16 @@ Qt::HANDLE QWidget::macCGHandle(bool do_children) const
 {
     if(!cg_hd) 
 	CreateCGContextForPort(GetWindowPort((WindowPtr)handle()), (CGContextRef*)&cg_hd);
-#if 1
     QRegion rgn = ((QWidget*)this)->clippedRegion(do_children);
-    QRect qr = rgn.boundingRect();
     if(!rgn.handle()) {
+	QRect qr = rgn.boundingRect();
 	CGContextClipToRect((CGContextRef)cg_hd, CGRectMake(qr.x(), qr.y(), qr.width(), qr.height()));
     } else {
 	Rect r;
+	QRect qr = topLevelWidget()->rect();
 	SetRect(&r, qr.left(), qr.top(), qr.right(), qr.bottom());
 	ClipCGContextToRegion((CGContextRef)cg_hd, &r, rgn.handle());
     }
-#endif
     return cg_hd;
 }
 

@@ -57,9 +57,9 @@ public:
     } cg_info;
     inline void cg_mac_point(const int &inx, const int &iny, float *outx, float *outy) {
 	if(outx)
-	    *outx = inx + offx;
+	    *outx = offx + inx;
 	if(outy)
-	    *outy = cg_info.height-(iny+offy);
+	    *outy = cg_info.height - (offy+iny);
     }
     inline void cg_mac_point(const int &inx, const int &iny, CGPoint *p) {
 	cg_mac_point(inx, iny, &p->x, &p->y);
@@ -607,8 +607,11 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
 	    d->offx = wp.x();
 	    d->offy = wp.y();
 	}
-	d->cg_info.width  = w->width();
-	d->cg_info.height = w->height();
+        {
+	    QWidget *tlw = w->topLevelWidget();
+	    d->cg_info.width  = tlw->width();
+	    d->cg_info.height = tlw->height();
+        }
 	ww = vw = w->width();                   // default view size
 	wh = vh = w->height();
 	if(!unclipped)
@@ -666,6 +669,7 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
 	setRasterOp(CopyROP);                 // default raster operation
     }
 
+    updateXForm();
     updateBrush();
     updatePen();
     if (!redirection_offset.isNull())
@@ -721,6 +725,8 @@ bool QPainter::end()				// end painting
     flags = 0;
     pdev->painters--;
     if(hd) {
+	if(CFGetRetainCount(hd) == 1)
+	    CGContextFlush((CGContextRef)hd);
 	CGContextRelease((CGContextRef)hd);
 	hd = 0;
     }
@@ -875,7 +881,7 @@ void QPainter::setClipping(bool b)
     //QuickDraw
     d->qd_info.crgn_dirty = TRUE;
 
-#ifdef USE_CORE_GRAPHICS
+#if defined( USE_CORE_GRAPHICS ) && 0
     //CoreGraphics
     if(hd) {
 	if(b || b != old_clipon) { //reset the clip
@@ -894,6 +900,7 @@ void QPainter::setClipping(bool b)
 		const QRect &r = rects[i];
 		d->cg_mac_rect(r.x(), r.y(), r.width(), r.height(), cg_rects+i);
 	    }
+	    CGContextBeginPath((CGContextRef)hd);
 	    CGContextAddRects((CGContextRef)hd, cg_rects, count);
 	    CGContextClip((CGContextRef)hd);
 	    free(cg_rects);
@@ -1038,12 +1045,20 @@ void QPainter::drawPoint(int x, int y)
 	map(x, y, &x, &y);
 
     if(cpen.style() != NoPen) {
+#ifdef USE_CORE_GRAPHICS
+	float cg_x, cg_y;
+	d->cg_mac_point(x, y, &cg_x, &cg_y);
+	CGContextMoveToPoint((CGContextRef)hd, cg_x, cg_y);
+	CGContextAddLineToPoint((CGContextRef)hd, cg_x+1, cg_y);  
+	CGContextStrokePath((CGContextRef)hd);
+#else
 	initPaintDevice();
 	if(d->qd_info.paintreg.isEmpty())
 	    return;
 	updatePen();
 	MoveTo(x + d->offx, y + d->offy);
 	Line(0,1);
+#endif
     }
 }
 
@@ -1076,6 +1091,15 @@ void QPainter::drawPoints(const QPointArray& a, int index, int npoints)
     }
 
     if(cpen.style() != NoPen) {
+#ifdef USE_CORE_GRAPHICS
+	float cg_x, cg_y;
+	for(int i=0; i<npoints; i++) {
+	    d->cg_mac_point(pa[index+i].x(), pa[index+i].y(), &cg_x, &cg_y);
+	    CGContextMoveToPoint((CGContextRef)hd, cg_x, cg_y);
+	    CGContextAddLineToPoint((CGContextRef)hd, cg_x+1, cg_y);  
+	    CGContextStrokePath((CGContextRef)hd);
+	}
+#else
 	initPaintDevice();
 	if(d->qd_info.paintreg.isEmpty())
 	    return;
@@ -1084,6 +1108,7 @@ void QPainter::drawPoints(const QPointArray& a, int index, int npoints)
 	    MoveTo(pa[index+i].x()+d->offx, pa[index+i].y()+d->offy);
 	    Line(0,1);
 	}
+#endif
     }
 }
 
@@ -1424,6 +1449,22 @@ void QPainter::drawEllipse(int x, int y, int w, int h)
 	fix_neg_rect(&x, &y, &w, &h);
     }
 
+#ifdef USE_CORE_GRAPHICS
+    CGMutablePathRef path = CGPathCreateMutable();
+    CGAffineTransform transform;
+    if(w != h) 
+	transform = CGAffineTransformMakeScale(((float)w)/h, 1);
+    float cg_x, cg_y;
+    d->cg_mac_point(x, y, &cg_x, &cg_y);
+    CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y - (h/2), h/2, 0, 360, false);
+    CGContextBeginPath((CGContextRef)hd);
+    CGContextAddPath((CGContextRef)hd, path);
+    if(cbrush.style() != NoBrush)
+	CGContextFillPath((CGContextRef)hd);
+    if(cpen.style() != NoPen) 
+	CGContextStrokePath((CGContextRef)hd);
+    CGPathRelease(path);
+#else
     initPaintDevice();
     if(d->qd_info.paintreg.isEmpty())
 	return;
@@ -1483,6 +1524,7 @@ void QPainter::drawEllipse(int x, int y, int w, int h)
 	updatePen();
 	FrameOval(&r);
     }
+#endif
 }
 
 void QPainter::drawArc(int x, int y, int w, int h, int a, int alen)
@@ -1503,9 +1545,25 @@ void QPainter::drawArc(int x, int y, int w, int h, int a, int alen)
 	    return;
 	fix_neg_rect(&x, &y, &w, &h);
     }
+#ifdef USE_CORE_GRAPHICS
+    CGMutablePathRef path = CGPathCreateMutable();
+    CGAffineTransform transform;
+    if(w != h) 
+	transform = CGAffineTransformMakeScale(1,  ((float)h)/w);
+    float cg_x, cg_y;
+    d->cg_mac_point(x, y, &cg_x, &cg_y);
+//    CGPathAddArc(path, w == h ? 0 : &transform, cg_x + (w/2), w/2, w/2, 0, 180, true);
+    CGPathAddArc(path, 0, cg_x + (w/2), cg_y + (w/2), w/2, 0, 90, true);
+    CGContextBeginPath((CGContextRef)hd);
+    CGContextAddPath((CGContextRef)hd, path);
+    if(cpen.style() != NoPen) 
+	CGContextStrokePath((CGContextRef)hd);
+    CGPathRelease(path);
+#else
     QPointArray pa;
     pa.makeArc(x, y, w, h, a, alen); // arc polyline
     drawPolyline(pa);
+#endif
 }
 
 void QPainter::drawPie(int x, int y, int w, int h, int a, int alen)
