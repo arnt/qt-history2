@@ -1314,7 +1314,7 @@ void QTextHtmlExporter::emitTable(const QTextTable *table)
     if (format.hasProperty(QTextFormat::TableCellPadding))
         emitAttribute("cellpadding", QString::number(format.cellPadding()));
 
-    if (format.hasProperty(QTextFormat::TableBackgroundColor))
+    if (format.hasProperty(QTextFormat::FrameBackgroundColor))
         emitAttribute("bgcolor", format.backgroundColor().name());
 
     html += QLatin1Char('>');

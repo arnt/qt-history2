@@ -145,11 +145,11 @@ public:
         FramePadding = 0x4002,
         FrameWidth = 0x4003,
         FrameHeight = 0x4004,
+        FrameBackgroundColor = 0x4005,
         TableColumns = 0x4100,
         TableColumnWidthConstraints = 0x4101,
         TableCellSpacing = 0x4102,
         TableCellPadding = 0x4103,
-        TableBackgroundColor = 0x4104,
 
         // table cell properties
         TableCellRowSpan = 0x4810,
@@ -515,6 +515,12 @@ public:
     inline QTextLength height() const
     { return lengthProperty(FrameHeight); }
 
+    inline void setBackgroundColor(const QColor &color)
+    { setProperty(FrameBackgroundColor, color); }
+    inline void clearBackgroundColor()
+    { clearProperty(FrameBackgroundColor); }
+    inline QColor backgroundColor() const
+    { return colorProperty(FrameBackgroundColor); }
 
 };
 
@@ -553,13 +559,6 @@ public:
     { setProperty(BlockAlignment, int(alignment)); }
     inline Qt::Alignment alignment() const
     { return QFlag(intProperty(BlockAlignment)); }
-
-    inline void setBackgroundColor(const QColor &color)
-    { setProperty(TableBackgroundColor, color); }
-    inline void clearBackgroundColor()
-    { clearProperty(TableBackgroundColor); }
-    inline QColor backgroundColor() const
-    { return colorProperty(TableBackgroundColor); }
 };
 
 #endif // QTEXTFORMAT_H
