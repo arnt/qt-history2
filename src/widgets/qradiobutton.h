@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.h#32 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.h#33 $
 **
 ** Definition of QRadioButton class
 **
@@ -38,6 +38,7 @@ public:
 
     bool    isChecked() const;
     virtual void    setChecked( bool check );
+    void    setText( const QString& );
 
     QSize    sizeHint() const;
 
@@ -50,7 +51,10 @@ protected:
     void    mouseReleaseEvent( QMouseEvent * );
     void    keyPressEvent( QKeyEvent * );
 
+    void    updateMask();
+
 private:
+    void    drawIndicator( GUIStyle gs, QPainter& p, const QColorGroup& cg, int x, int y, int w, int h );
     void    init();
     uint    noHit : 1;
 

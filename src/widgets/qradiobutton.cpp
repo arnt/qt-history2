@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#81 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#82 $
 **
 ** Implementation of QRadioButton class
 **
@@ -214,71 +214,7 @@ void QRadioButton::drawButton( QPainter *paint )
 
 #define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
 
-    if ( gs == WindowsStyle ) {			// Windows radio button
-	static QCOORD pts1[] = {		// dark lines
-	    1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };
-	static QCOORD pts2[] = {		// black lines
-	    2,8, 1,7, 1,4, 2,3, 2,2, 3,2, 4,1, 7,1, 8,2, 9,2 };
-	static QCOORD pts3[] = {		// background lines
-	    2,9, 3,9, 4,10, 7,10, 8,9, 9,9, 9,8, 10,7, 10,4, 9,3 };
-	static QCOORD pts4[] = {		// white lines
-	    2,10, 3,10, 4,11, 7,11, 8,10, 9,10, 10,9, 10,8, 11,7,
-	    11,4, 10,3, 10,2 };
-	static QCOORD pts5[] = {		// inner fill
-	    4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
-	p->eraseRect( x, y, sz.width(), sz.height() );
-	QPointArray a( QCOORDARRLEN(pts1), pts1 );
-	a.translate( x, y );
-	p->setPen( g.dark() );
-	p->drawPolyline( a );
-	a.setPoints( QCOORDARRLEN(pts2), pts2 );
-	a.translate( x, y );
-	p->setPen( black );
-	p->drawPolyline( a );
-	a.setPoints( QCOORDARRLEN(pts3), pts3 );
-	a.translate( x, y );
-	p->setPen( g.midlight() );
-	p->drawPolyline( a );
-	a.setPoints( QCOORDARRLEN(pts4), pts4 );
-	a.translate( x, y );
-	p->setPen( g.light() );
-	p->drawPolyline( a );
-	a.setPoints( QCOORDARRLEN(pts5), pts5 );
-	a.translate( x, y );
-	QColor fillColor = isDown() ? g.background() : g.base();
-	p->setPen( fillColor );
-	p->setBrush( fillColor );
-	p->drawPolygon( a );
-	if ( isOn() ) {
-	    p->setPen( NoPen );
-	    p->setBrush( g.foreground() );
-	    p->drawRect( x+5, y+4, 2, 4 );
-	    p->drawRect( x+4, y+5, 4, 2 );
-	}
-    } else if ( gs == MotifStyle ) {		// Motif radio button
-	static QCOORD inner_pts[] =		// used for filling diamond
-	    { 2,6, 6,2, 10,6, 6,10 };
-	static QCOORD top_pts[] =		// top (^) of diamond
-	    { 0,6, 6,0 , 11,5, 10,5, 6,1, 1,6, 2,6, 6,2, 9,5 };
-	static QCOORD bottom_pts[] =		// bottom (V) of diamond
-	    { 1,7, 6,12, 12,6, 11,6, 6,11, 2,7, 3,7, 6,10, 10,6 };
-	bool showUp = !(isDown() ^ isOn());
-	QPointArray a( QCOORDARRLEN(inner_pts), inner_pts );
-	p->eraseRect( x, y, sz.width(), sz.height() );
-	p->setPen( NoPen );
-	p->setBrush( showUp ? g.background() : g.mid() );
-	a.translate( x, y );
-	p->drawPolygon( a );			// clear inner area
-	p->setPen( showUp ? g.light() : g.dark() );
-	p->setBrush( NoBrush );
-	a.setPoints( QCOORDARRLEN(top_pts), top_pts );
-	a.translate( x, y );
-	p->drawPolyline( a );			// draw top part
-	p->setPen( showUp ? g.dark() : g.light() );
-	a.setPoints( QCOORDARRLEN(bottom_pts), bottom_pts );
-	a.translate( x, y );
-	p->drawPolyline( a );			// draw bottom part
-    }
+    drawIndicator( gs, *p, g, x, y, sz.width(), sz.height() );
 
 #if defined(SAVE_RADIOBUTTON_PIXMAPS)
     if ( use_pm ) {
@@ -292,6 +228,74 @@ void QRadioButton::drawButton( QPainter *paint )
     drawButtonLabel( p );
 }
 
+void QRadioButton::drawIndicator( GUIStyle gs, QPainter& p, const QColorGroup& cg, int x, int y, int w, int h )
+{
+    if ( gs == WindowsStyle ) {			// Windows radio button
+	static QCOORD pts1[] = {		// dark lines
+	    1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };
+	static QCOORD pts2[] = {		// black lines
+	    2,8, 1,7, 1,4, 2,3, 2,2, 3,2, 4,1, 7,1, 8,2, 9,2 };
+	static QCOORD pts3[] = {		// background lines
+	    2,9, 3,9, 4,10, 7,10, 8,9, 9,9, 9,8, 10,7, 10,4, 9,3 };
+	static QCOORD pts4[] = {		// white lines
+	    2,10, 3,10, 4,11, 7,11, 8,10, 9,10, 10,9, 10,8, 11,7,
+	    11,4, 10,3, 10,2 };
+	static QCOORD pts5[] = {		// inner fill
+	    4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
+	p.eraseRect( x, y, w, h );
+	QPointArray a( QCOORDARRLEN(pts1), pts1 );
+	a.translate( x, y );
+	p.setPen( cg.dark() );
+	p.drawPolyline( a );
+	a.setPoints( QCOORDARRLEN(pts2), pts2 );
+	a.translate( x, y );
+	p.setPen( black );
+	p.drawPolyline( a );
+	a.setPoints( QCOORDARRLEN(pts3), pts3 );
+	a.translate( x, y );
+	p.setPen( cg.midlight() );
+	p.drawPolyline( a );
+	a.setPoints( QCOORDARRLEN(pts4), pts4 );
+	a.translate( x, y );
+	p.setPen( cg.light() );
+	p.drawPolyline( a );
+	a.setPoints( QCOORDARRLEN(pts5), pts5 );
+	a.translate( x, y );
+	QColor fillColor = isDown() ? cg.background() : cg.base();
+	p.setPen( fillColor );
+	p.setBrush( fillColor );
+	p.drawPolygon( a );
+	if ( isOn() ) {
+	    p.setPen( NoPen );
+	    p.setBrush( cg.foreground() );
+	    p.drawRect( x+5, y+4, 2, 4 );
+	    p.drawRect( x+4, y+5, 4, 2 );
+	}
+    } else if ( gs == MotifStyle ) {		// Motif radio button
+	static QCOORD inner_pts[] =		// used for filling diamond
+	    { 2,6, 6,2, 10,6, 6,10 };
+	static QCOORD top_pts[] =		// top (^) of diamond
+	    { 0,6, 6,0 , 11,5, 10,5, 6,1, 1,6, 2,6, 6,2, 9,5 };
+	static QCOORD bottom_pts[] =		// bottom (V) of diamond
+	    { 1,7, 6,12, 12,6, 11,6, 6,11, 2,7, 3,7, 6,10, 10,6 };
+	bool showUp = !(isDown() ^ isOn());
+	QPointArray a( QCOORDARRLEN(inner_pts), inner_pts );
+	p.eraseRect( x, y, w, h );
+	p.setPen( NoPen );
+	p.setBrush( showUp ? cg.background() : cg.mid() );
+	a.translate( x, y );
+	p.drawPolygon( a );			// clear inner area
+	p.setPen( showUp ? cg.light() : cg.dark() );
+	p.setBrush( NoBrush );
+	a.setPoints( QCOORDARRLEN(top_pts), top_pts );
+	a.translate( x, y );
+	p.drawPolyline( a );			// draw top part
+	p.setPen( showUp ? cg.dark() : cg.light() );
+	a.setPoints( QCOORDARRLEN(bottom_pts), bottom_pts );
+	a.translate( x, y );
+	p.drawPolyline( a );			// draw bottom part
+    }
+}
 
 /*!
   Draws the radio button label.
@@ -335,8 +339,9 @@ void QRadioButton::drawButtonLabel( QPainter *p )
     }
 }
 
-void QRadioButton::resizeEvent( QResizeEvent* )
+void QRadioButton::resizeEvent( QResizeEvent* e )
 {
+    QButton::resizeEvent(e);
     int x, w, h;
     GUIStyle gs = style();
     QSize sz = sizeOfBitmap( gs );
@@ -351,6 +356,7 @@ void QRadioButton::resizeEvent( QResizeEvent* )
 			  AlignLeft|AlignVCenter|ShowPrefix,
 			  isEnabled(),
 			  pixmap(), text() );
+    updateMask();
     update( br.right(), w, 0, h );
 }
 
@@ -368,3 +374,41 @@ void QRadioButton::keyPressEvent( QKeyEvent * e )
 {
     QButton::keyPressEvent( e );
 }
+
+void QRadioButton::setText( const QString& s )
+{
+    QButton::setText(s);
+    updateMask();
+}
+
+void QRadioButton::updateMask()
+{
+    QBitmap bm(width(),height());
+    {
+	bm.fill(color0);
+	QPainter p(&bm);
+	int x, y, w, h;
+	GUIStyle gs = style();
+	QFontMetrics fm = fontMetrics();
+	QSize lsz = fm.size(ShowPrefix, text());
+	QSize sz = sizeOfBitmap( gs );
+	if ( gs == WindowsStyle )
+	    sz.setWidth(sz.width()+1);
+	y = 0;
+	x = sz.width() + gutter;
+	w = width() - x;
+	h = height();
+
+	QColorGroup cg(color1,color0,color1,color1,color1,color1,color0);
+
+	qDrawItem( &p, gs, x, y, w, h,
+		   AlignLeft|AlignVCenter|ShowPrefix,
+		   cg, isEnabled(),
+		   pixmap(), text() );
+	x = 0;
+	y = (height() - lsz.height() + fm.height() - sz.height())/2;
+	drawIndicator( gs, p, cg, x, y, sz.width(), sz.height() );
+    }
+    setMask(bm);
+}
+
