@@ -657,20 +657,29 @@ bool QSocketLayerPrivate::nativeHasPendingDatagrams() const
     storagePtrIPv4->sin_port = 0;
     QT_SOCKLEN_T storageSize = sizeof(storage);
 
-    // Peek 0 bytes into the next message. The size of the message may
-    // well be 0, so we can't check recvfrom's return value.
-    DWORD flags = MSG_PEEK;
-    ::WSARecvFrom(socketDescriptor, 0,0,0, &flags, storagePtr, &storageSize,0,0);
-
-    // If the port was set in the sockaddr structure, then a new message is available.
+    
     bool result = false;
-#if !defined(QT_NO_IPV6)
-    if (storagePtr->sa_family == AF_INET6)
-        result = (storagePtrIPv6->sin6_port != 0);
-    else
-#endif
-    result = (storagePtrIPv4->sin_port != 0);
 
+    // Peek 0 bytes into the next message. The size of the message may
+    // well be 0, so we check if there was a sender.
+    char c;
+    WSABUF buf;
+    buf.buf = &c;
+    buf.len = sizeof(c);
+    DWORD available = 0;
+    DWORD flags = MSG_PEEK;
+    int ret = ::WSARecvFrom(socketDescriptor, &buf, 1, &available, &flags, storagePtr, &storageSize,0,0);
+    if (ret == SOCKET_ERROR && WSAGetLastError() !=  WSAEMSGSIZE) {
+	WS_ERROR_DEBUG;
+    } else {
+         // If the port was set in the sockaddr structure, then a new message is available.
+#if !defined(QT_NO_IPV6)
+        if (storagePtr->sa_family == AF_INET6)
+            result = (storagePtrIPv6->sin6_port != 0);
+        else
+#endif
+        result = (storagePtrIPv4->sin_port != 0);
+    }
 #if defined (QSOCKETLAYER_DEBUG)
     qDebug("QSocketLayerPrivate::nativeHasPendingDatagrams() == %s",
            result ? "true" : "false");
