@@ -159,7 +159,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 
     t << "dist:" << "\n\t"
       << "$(ZIP) " << var("PROJECT") << ".zip "
-      << var("PROJECT") << ".pro $(SOURCES) $(HEADERS) $(DIST)" << endl << endl;
+      << var("PROJECT") << ".pro $(SOURCES) $(HEADERS) $(DIST) $(INTERFACES)" << endl << endl;
 
     t << "clean:" << "\n\t"
       << varGlue("OBJECTS","-del ","\n\t-del ","") << "\n\t"

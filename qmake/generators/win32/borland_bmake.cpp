@@ -157,7 +157,7 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
     writeMakeQmake(t);
 
     t << "dist:" << "\n\t"
-      << "$(ZIP) " << var("PROJECT") << ".zip " << var("PROJECT") << ".pro $(SOURCES) $(HEADERS) $(DIST)"
+      << "$(ZIP) " << var("PROJECT") << ".zip " << var("PROJECT") << ".pro $(SOURCES) $(HEADERS) $(DIST) $(INTERFACES)"
       << endl << endl;
 
     t << "clean:\n\t"
