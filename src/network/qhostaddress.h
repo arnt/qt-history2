@@ -33,6 +33,7 @@ class QM_EXPORT_NETWORK QHostAddress
 public:
     enum SpecialAddress {
         NullAddress,
+        BroadcastAddress,
         LocalHostAddress,
         LocalHostIPv6Address,
         AnyAddress

@@ -270,6 +270,9 @@ QHostAddress::QHostAddress(SpecialAddress address)
     switch (address) {
     case NullAddress:
         break;
+    case BroadcastAddress:
+        setAddress("255.255.255.255");
+        break;
     case LocalHostAddress:
         setAddress("127.0.0.1");
         break;
