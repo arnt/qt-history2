@@ -4,11 +4,11 @@ project			= Qt
 language		= Cpp
 headerdirs		= $QTDIR/src
 sourcedirs              = $QTDIR/src \
-                          $QTDIR/doc/src \
-                          $QTDIR/extensions/activeqt/doc \
-                          $QTDIR/extensions/activeqt/tools \
-                          $QTDIR/extensions/activeqt/examples \
-                          $QTDIR/extensions/motif/doc
+                          $QTDIR/doc/src
+#                          $QTDIR/extensions/activeqt/doc \
+#                          $QTDIR/extensions/activeqt/tools \
+#                          $QTDIR/extensions/activeqt/examples \
+#                          $QTDIR/extensions/motif/doc
 sources.fileextensions	= "*.cpp *.qdoc"
 exampledirs		= $QTDIR/doc/src \
                           $QTDIR/doc/src/snippets \
@@ -27,7 +27,7 @@ defines			= Q_QDOC \
 			  Q_WS_.* \
 			  Q_OS_.*
 
-#extraimages.HTML	= logo32
+extraimages.HTML	= logo32
 
 macro.key.HTML          = "<bold>ALPHA\1BETA</bold>"
 macro.key               = "{\1}"

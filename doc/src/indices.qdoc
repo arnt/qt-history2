@@ -152,8 +152,8 @@ Licenses &amp; Credits
 <td valign="top">
 <ul>
 <li><a href="winsystem.html">Window System Specific Notes</a>
-<li><a href="activeqt.html">ActiveQt Framework</a>
-<li><a href="motif-extension.html">Motif Extension</a>
+<li><!--a href="activeqt.html"-->ActiveQt Framework<!--/a-->
+<li><!--a href="motif-extension.html"-->Motif Extension<!--/a-->
 <!-- <li><a href="mac-differences.html">Mac OS X development</a> -->
 <!-- <li><a href="porting.html">Porting from Qt 3.x to Qt 4.x</a> -->
 </ul>
@@ -171,8 +171,8 @@ Licenses &amp; Credits
 <ul>
 <li><a href="license.html">Q Public License</a>
 <li><a href="gpl.html">GNU General Public License</a>
-<li><a href="3rdparty.html">Third Party Licenses used in Qt</a>
-<li><a href="licenses.html">Other Licenses used in Qt</a>
+<li><a href="3rdparty.html">Third-Party Licenses Used in Qt</a>
+<li><a href="licenses.html">Other Licenses Used in Qt</a>
 <li><a href="credits.html">Credits</a>
 </ul>
 </td>
