@@ -57,7 +57,7 @@ fi
 # Check licensed modules
 MODULES="tools kernel widgets dialogs iconview workspace network canvas table xml opengl sql"
 
-# Free edition - may only be used under the terms of the QPL.
+# Free edition - may only be used under the terms of the QPL or GPL.
 if [ -f LICENSE.QPL -a -f LICENSE.GPL ]
 then
     Edition=free
@@ -96,6 +96,13 @@ then
 	    fi
 	fi
     done
+# Internal Trolltech edition.
+elif [ -f LICENSE.TROLL ]
+then
+    Edition=troll
+    echo
+    echo "This is the Trolltech Edition of Qt."
+    echo
 else
     if [ -f LICENSE ]
     then
@@ -188,6 +195,8 @@ else
 	exit 0
     fi
 fi
+
+exit 0
 
 # Remove the build options file
 [ -f .qmake.cache ] && rm .qmake.cache
