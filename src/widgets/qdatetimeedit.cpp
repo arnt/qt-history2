@@ -620,7 +620,7 @@ bool QDateTimeEditor::eventFilter( QObject *o, QEvent *e )
 			    repaint( rect(), FALSE );
 		    }
 		    return TRUE;
-		} else if ( !txt.isEmpty() && cw->inherits( "QTimeEdit" ) && focusSection() == d->sectionCount()-1 ) {
+		} else if ( !txt.isEmpty() && cw->inherits( "QTimeEdit" ) && focusSection() == (int) d->sectionCount()-1 ) {
 		    // the first character of the AM/PM indicator toggles if the section has focus
 		    QTimeEdit *te = (QTimeEdit*)cw;
 		    QTime time = te->time();
