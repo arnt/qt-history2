@@ -1037,12 +1037,8 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 	return;
 
     case CE_ToolButtonLabel:
-	{
-	    Qt::ArrowType type = opt.arrowType();
-	    if ( type == Qt::UpArrow   || type == Qt::DownArrow | 
-		type == Qt::LeftArrow || type == Qt::RightArrow )
-		return;
-	}
+	if ( !opt.isDefault() )
+	    return;
 	break;
 
     default:
@@ -1543,9 +1539,8 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 
 	    if ( sub & SC_ToolButton ) {
 		theme.rec = querySubControlMetrics( CC_ToolButton, w, SC_ToolButton, opt );
-		Qt::ArrowType type = opt.arrowType();
-		if ( type == Qt::UpArrow   || type == Qt::DownArrow | 
-		    type == Qt::LeftArrow || type == Qt::RightArrow ) {
+		if ( !opt.isDefault() ) {
+		    Qt::ArrowType type = opt.arrowType();
 
 #define TBL_STATE(prefix) \
 		    if ( !tb->isEnabled() ) \
