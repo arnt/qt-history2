@@ -330,6 +330,7 @@ Qt::WindowsVersion qt_winver = Qt::WV_NT;
 
 static QString *imeComposition = 0;
 static int	imePosition    = 0;
+
 extern QCursor *qt_grab_cursor();
 
 #if defined(Q_WS_WIN)
@@ -1767,10 +1768,18 @@ QString imestring_to_unicode(char *s, int len)
 #endif
 }
 
+//#define Q_IME_DEBUG
+
 void qt_winEndImeComposition( QWidget *fw )
 {
+#ifdef Q_IME_DEBUG
+    qDebug("endComposition!");
+#endif
     if ( !imeComposition || imeComposition->isNull() )
 	return;
+#ifdef Q_IME_DEBUG
+    qDebug("   sending im end event");
+#endif
     QIMEvent e( QEvent::IMEnd, *imeComposition, -1 );
     QApplication::sendEvent( fw, &e );
     *imeComposition = QString::null;
@@ -2348,7 +2357,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			QIMEvent e( QEvent::IMEnd, *imeComposition, -1 );
 			result = qt_sendSpontaneousEvent( fw, &e );
 			*imeComposition = QString::null;
-			imePosition = -1;
+			imePosition = -2;
 		    }
 		}
 		break;
@@ -2358,15 +2367,19 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    qDebug("composition, lParam=%x", lParam);
 #endif
 		    QWidget *fw = qApp->focusWidget();
-		    if ( fw && imePosition != -1 ) {
+		    if ( fw && imePosition != -2 ) {
+			if ( imePosition == -1 ) {
+			    // need to send a start event
+    			    QIMEvent e( QEvent::IMStart, QString::null, -1 );
+			    result = qt_sendSpontaneousEvent( fw, &e );
+			    imePosition = 0;
+			}
 			HIMC imc = ImmGetContext( fw->winId() ); // Should we store it?
 			char buffer[256];
 			LONG buflen = -1;
-			if ( lParam & GCS_CURSORPOS ) {
-			    imePosition = ImmGetCompositionString( imc, GCS_CURSORPOS, &buffer, 255 ) & 0xffff;
-			}
 			if (lParam & GCS_RESULTSTR ) {
 			    buflen = ImmGetCompositionString( imc, GCS_RESULTSTR, &buffer, 255 );
+			    imePosition = -1;
 			} else if ( lParam & GCS_COMPSTR ) {
 			    buflen = ImmGetCompositionString( imc, GCS_COMPSTR, &buffer, 255 );
 			}
@@ -2375,8 +2388,20 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 				imeComposition = new QString();
 			    *imeComposition = imestring_to_unicode( buffer, buflen );
 			}
+			if ( imePosition != -1 ) {
+			    if ( lParam & GCS_CURSORPOS ) {
+				imePosition = ImmGetCompositionString( imc, GCS_CURSORPOS, &buffer, 255 ) & 0xffff;
+			    } else if ( lParam & CS_NOMOVECARET ) {
+				imePosition = imeComposition->length();
+			    }
+			}
+#ifdef Q_IME_DEBUG
+			qDebug("imecomposition: cursor pos at %d", imePosition );
+#endif
 			ImmReleaseContext( fw->winId(), imc );
-			QIMEvent e( QEvent::IMCompose, *imeComposition, imePosition );
+			QIMEvent e( (lParam & GCS_RESULTSTR ? QEvent::IMEnd : QEvent::IMCompose), *imeComposition, imePosition );
+			if (lParam & GCS_RESULTSTR )
+			    *imeComposition = QString::null;
 			result = qt_sendSpontaneousEvent( fw, &e );
 		    }
 		}
