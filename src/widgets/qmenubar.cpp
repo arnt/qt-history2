@@ -462,6 +462,8 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	    }
 	} else if ( ke->key() == Key_Control || ke->key() == Key_Shift) {
 	    setAltMode( FALSE );
+	} else {
+	    waitforalt = 0;
 	}
 	// ### ! block all accelerator events when the menu bar is active
 	if ( qApp && qApp->focusWidget() == this ) {
