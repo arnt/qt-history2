@@ -106,7 +106,7 @@ int main(int argc, char **argv)
 		mkfile = new UnixMakefileGenerator(&proj);
 	    } else if(gen == "MSVC") {
 		if(proj.first("TEMPLATE").find(QRegExp("^vc.*")) != -1) {
-		    def_mkfile = proj.first("QMAKE_TARGET") + ".dsp";
+		    def_mkfile = proj.first("TARGET") + ".dsp";
 		    mkfile = new DspMakefileGenerator(&proj);
 		} else {
 		    mkfile = new NmakeMakefileGenerator(&proj);
@@ -114,6 +114,7 @@ int main(int argc, char **argv)
 	    } else if(gen == "BMAKE") {
 		mkfile = new BorlandMakefileGenerator(&proj);
 	    } else if(gen == "METROWERKS") {
+		def_mkfile = proj.first("TARGET") + ".xml";
 		mkfile = new MetrowerksMakefileGenerator(&proj);
 	    } else {
 		fprintf(stderr, "Unknown generator specified: %s\n", gen.latin1());
