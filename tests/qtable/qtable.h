@@ -115,9 +115,9 @@ public:
     virtual void setItem( int row, int col, QTableItem *item );
     virtual void setText( int row, int col, const QString &text );
     virtual void setPixmap( int row, int col, const QPixmap &pix );
-    QTableItem *item( int row, int col ) const;
-    QString text( int row, int col ) const;
-    QPixmap pixmap( int row, int col ) const;
+    virtual QTableItem *item( int row, int col ) const;
+    virtual QString text( int row, int col ) const;
+    virtual QPixmap pixmap( int row, int col ) const;
     virtual void clearCell( int row, int col );
 
     virtual QRect cellGeometry( int row, int col ) const;
@@ -180,12 +180,12 @@ public:
     virtual void takeItem( QTableItem *i );
 
     virtual void setCellWidget( int row, int col, QWidget *e );
-    QWidget *cellWidget( int row, int col ) const;
+    virtual QWidget *cellWidget( int row, int col ) const;
     virtual void clearCellWidget( int row, int col );
 
     virtual void swapRows( int row1, int row2 );
     virtual void swapColumns( int col1, int col2 );
-    
+
 protected:
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     virtual void paintCell( QPainter *p, int row, int col, const QRect &cr, bool selected );
@@ -206,6 +206,10 @@ protected:
     virtual void setCellContentFromEditor( int row, int col );
     virtual QWidget *beginEdit( int row, int col, bool replace );
     virtual void endEdit( int row, int col, bool accept, bool replace );
+
+    virtual void resizeData( int len );
+    virtual void insertWidget( int row, int col, QWidget *w );
+    int indexOf( int row, int col ) const;
 
 protected slots:
     virtual void columnWidthChanged( int col );
@@ -236,7 +240,6 @@ private:
     };
     enum EditMode { NotEditing, Editing, Replacing };
 
-    int indexOf( int row, int col ) const;
     void updateGeometries();
     void repaintSelections( SelectionRange *oldSelection, SelectionRange *newSelection,
 			    bool updateVertical = TRUE, bool updateHorizontal = TRUE );
@@ -307,7 +310,7 @@ private slots:
     void doAutoScroll();
     void sectionWidthChanged( int col, int os, int ns );
     void indexChanged( int sec, int oldIdx, int newIdx );
-    
+
 private:
     void updateSelections();
     void saveStates();

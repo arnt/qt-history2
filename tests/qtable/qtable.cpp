@@ -351,10 +351,11 @@ int QTableItem::colSpan() const
   and do not want to allocate a QTableItem for each cell with a
   contents, you can reimplement QTable::paintCell() and draw there
   directly the contents without the need of any QTableItems. If you do
-  this you can't of course use setText() and friends for these
-  cells (except you reimplement them and do something different). Also
-  you have of course to repaint the cells which changed yourself using
-  updateCell().
+  this you can't of course use setText() and friends for these cells
+  (except you reimplement them and do something different). Also you
+  have of course to repaint the cells which changed yourself using
+  updateCell(). See also the documentation of resizeData() to make
+  sure you don't waste memory if you don't use QTableItems.
 
   The in-place editing is also made in an abstract way so that it is
   possible to have custom edit widgets for certain cells or types or
@@ -495,7 +496,6 @@ void QTable::init( int rows, int cols )
     }
 
     // Prepare for contents
-    contents.resize( rows * cols );
     contents.setAutoDelete( FALSE );
 
     // Connect header, table and scrollbars
@@ -518,8 +518,7 @@ void QTable::init( int rows, int cols )
     autoScrollTimer = new QTimer( this );
     connect( autoScrollTimer, SIGNAL( timeout() ),
 	     this, SLOT( doAutoScroll() ) );
-    curRow = curCol = -1;
-    setCurrentCell( 0, 0 );
+    curRow = curCol = 0;
     edMode = NotEditing;
     editRow = editCol = -1;
 
@@ -604,6 +603,18 @@ void QTable::setRowMovingEnabled( bool b )
 bool QTable::rowMovingEnabled() const
 {
     return mRows;
+}
+
+/*!  This is called when the internal array of QTableItem should be
+  resized. If you don't use QTableItems you should reimplement this
+  method with an empty implementation, so that no memory is
+  wasted. Also you need to reimplement then item(), setItem() and
+  clearCell() with empty or different implementations.
+*/
+
+void QTable::resizeData( int len )
+{
+    contents.resize( len );
 }
 
 /*!  Swaps the data of \a row1 and \a row2. This is e.g. used when the
@@ -895,6 +906,10 @@ QTableItem *QTable::item( int row, int col ) const
 {
     if ( row < 0 || col < 0 || row > numRows() - 1 || col > numCols() - 1 )
 	return 0;
+
+    if ( (int)contents.size() != numRows() * numCols() )
+	( (QTable*)this )->resizeData( numRows() * numCols() );
+
     return contents[ indexOf( row, col ) ];	// contents array lookup
 }
 
@@ -908,6 +923,9 @@ void QTable::setItem( int row, int col, QTableItem *item )
 {
     if ( !item )
 	return;
+
+    if ( (int)contents.size() != numRows() * numCols() )
+	resizeData( numRows() * numCols() );
 
     int or = item->row;
     int oc = item->col;
@@ -926,6 +944,8 @@ void QTable::setItem( int row, int col, QTableItem *item )
 
 void QTable::clearCell( int row, int col )
 {
+    if ( (int)contents.size() != numRows() * numCols() )
+	resizeData( numRows() * numCols() );
     contents.remove( indexOf( row, col ) );
 }
 
@@ -1572,7 +1592,7 @@ void QTable::rowHeightChanged( int row )
 
     updateGeometries();
     qApp->processEvents();
-    
+
     for ( int j = row; j < numRows(); ++j ) {
 	for ( int i = 0; i < numCols(); ++i ) {
 	    QWidget *w = cellWidget( j, i );
@@ -1787,7 +1807,7 @@ void QTable::setNumRows( int r )
 	qWarning( "decreasing the number of rows is not implemented yet!" );
 	return;
     }
-    contents.resize( numRows() * numCols() );
+    resizeData( numRows() * numCols() );
     QRect r2( cellGeometry( numRows() - 1, numCols() - 1 ) );
     resizeContents( r2.right() + 1, r2.bottom() + 1 );
     updateGeometries();
@@ -1809,7 +1829,7 @@ void QTable::setNumCols( int c )
 	qWarning( "decreasing the number of columns is not implemented yet!" );
 	return;
     }
-    contents.resize( numRows() * numCols() );
+    resizeData( numRows() * numCols() );
     QRect r( cellGeometry( numRows() - 1, numCols() - 1 ) );
     resizeContents( r.right() + 1, r.bottom() + 1 );
     updateGeometries();
@@ -2000,7 +2020,7 @@ bool QTable::isEditing() const
     return edMode != NotEditing;
 }
 
-/*!  \internal
+/*!  Maps 2D table to 1D array index.
 */
 
 int QTable::indexOf( int row, int col ) const
@@ -2037,7 +2057,7 @@ void QTable::repaintSelections( SelectionRange *oldSelection, SelectionRange *ne
     if ( cur.x() >= SHRT_MAX || cur.y() >= SHRT_MAX ||
 	 cur.width() >= SHRT_MAX || cur.height() >= SHRT_MAX )
 	optimize2 = FALSE;
-    
+
     if ( !optimize1 || !optimize2 ) {
 	QRect rr = cur.unite( old );
 	repaintContents( rr, FALSE );
@@ -2422,9 +2442,37 @@ void QTable::takeItem( QTableItem *i )
 /*! Sets the widget \a e to the cell \a row, \a col and does all the
  placement and further stuff and takes care about correctly placing
  are resizing it when the cell geometry changes.
+ 
+ By default widgets are inserted into a vector with numRows() *
+ numCols() elements. In very big tables you probably want to store the
+ widgets in a datastructre which needs less memory (like a
+ hash-table). To make this possible this functions calls
+ insertWidget() to add the widget to the internal datastructure. So if
+ you want to use your own datastructure, reimplement insertWidget(),
+ cellWidget() and clearCellWidget().
 */
 
 void QTable::setCellWidget( int row, int col, QWidget *e )
+{
+    QWidget *w = cellWidget( row, col );
+    if ( w && row == editRow && col == editCol )
+ 	endEdit( editRow, editCol, FALSE, edMode == Editing ? FALSE : TRUE );
+
+    e->installEventFilter( this );
+    clearCellWidget( row, col );
+    insertWidget( row, col, e );
+    QRect cr = cellGeometry( row, col );
+    e->resize( cr.size() + QSize( 1, 1 ) );
+    moveChild( e, cr.x() - 1, cr.y() - 1 );
+    e->show();
+    viewport()->setFocus();
+}
+
+/*!  Inserts the widget \a w into the internal datastructure. See the
+  documentation of setCellWidget() for further details.
+*/
+
+void QTable::insertWidget( int row, int col, QWidget *w )
 {
     if ( row < 0 || col < 0 || row > numRows() - 1 || col > numCols() - 1 )
 	return;
@@ -2432,18 +2480,7 @@ void QTable::setCellWidget( int row, int col, QWidget *e )
     if ( (int)widgets.size() != numRows() * numCols() )
 	widgets.resize( numRows() * numCols() );
 
-    QWidget *w = cellWidget( row, col );
-    if ( w && row == editRow && col == editCol )
- 	endEdit( editRow, editCol, FALSE, edMode == Editing ? FALSE : TRUE );
-
-    e->installEventFilter( this );
-    clearCellWidget( row, col );
-    widgets.insert( indexOf( row, col ), e );
-    QRect cr = cellGeometry( row, col );
-    e->resize( cr.size() + QSize( 1, 1 ) );
-    moveChild( e, cr.x() - 1, cr.y() - 1 );
-    e->show();
-    viewport()->setFocus();
+    widgets.insert( indexOf( row, col ), w );
 }
 
 /*!  Returns the widget which has been set to the cell \a row, \a col
