@@ -44,7 +44,3 @@ CREATEDATE date,
 TAX numeric(10,5),
 SHIPPING numeric(15,2),
 TOTAL numeric(15,2));
-
-insert into INVOICE
-(ID,CUSTOMERID,NUM,PAID,CREATEDATE,TAX,SHIPPING,TOTAL) values
-(1,1,1,,1,'1999-9-9',0,0,100.00);
