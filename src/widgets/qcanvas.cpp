@@ -2548,7 +2548,8 @@ QCanvasView::QCanvasView(QCanvas* canvas, QWidget* parent, const char* name, WFl
 {
     viewing = 0;
     setCanvas(canvas);
-    viewport()->setBackgroundColor(viewing->backgroundColor());
+    if ( viewing )
+	viewport()->setBackgroundColor(viewing->backgroundColor());
     connect(this,SIGNAL(contentsMoving(int,int)),this,SLOT(cMoving(int,int)));
 }
 
