@@ -293,7 +293,7 @@ public:
     static const int numSelections;
 
     QTextDocument( QTextDocument *p );
-
+    ~QTextDocument();
     QTextDocument *parent() const { return par; }
 
     void setText( const QString &text, const QString &context, bool tabify = FALSE );
@@ -489,7 +489,7 @@ private:
     QString contxt;
     QMap<QString, QString> attribs;
     int align;
-    
+
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -532,7 +532,8 @@ public:
     };
 
     QTextString();
-
+    ~QTextString();
+    
     QString toString() const;
 
     Char &at( int i ) const;
@@ -589,20 +590,20 @@ public:
 	    status( s ), bidicontext( c ) { if ( bidicontext ) bidicontext->ref(); }
 	~LineStart() { if ( bidicontext ) bidicontext->deref(); }
 	void setContext( QTextBidiContext *c ) {
-	    if ( c == bidicontext ) 
+	    if ( c == bidicontext )
 		return;
-	    if ( bidicontext ) 
+	    if ( bidicontext )
 		bidicontext->deref();
 	    bidicontext = c;
-	    if ( bidicontext ) 
+	    if ( bidicontext )
 		bidicontext->ref();
 	}
 	QTextBidiContext *context() const { return bidicontext; }
-    
+
     public:
 	ushort y, baseLine, h;
 	QTextBidiStatus status;
-    
+
     private:
 	QTextBidiContext *bidicontext;
 
@@ -776,17 +777,16 @@ private:
 class QTextFormatter
 {
 public:
-    QTextFormatter( QTextDocument *d );
+    QTextFormatter();
     virtual ~QTextFormatter() {}
-    virtual int format( QTextParag *parag, int start, const QMap<int, QTextParag::LineStart*> &oldLineStarts ) = 0;
+    virtual int format( QTextDocument *doc, QTextParag *parag, int start, const QMap<int, QTextParag::LineStart*> &oldLineStarts ) = 0;
 
 protected:
-    QTextDocument *doc;
-    QTextParag::LineStart *formatLine( QTextString *string, QTextParag::LineStart *line, QTextString::Char *start,
-				       QTextString::Char *last, int align = Qt::AlignAuto, int space = 0 );
-    QTextParag::LineStart *bidiReorderLine( QTextString *string, QTextParag::LineStart *line, QTextString::Char *start,
-					    QTextString::Char *last, int align, int space );
-    bool isBreakable( QTextString *string, int pos );
+    virtual QTextParag::LineStart *formatLine( QTextString *string, QTextParag::LineStart *line, QTextString::Char *start,
+					       QTextString::Char *last, int align = Qt::AlignAuto, int space = 0 );
+    virtual QTextParag::LineStart *bidiReorderLine( QTextString *string, QTextParag::LineStart *line, QTextString::Char *start,
+						    QTextString::Char *last, int align, int space );
+    virtual bool isBreakable( QTextString *string, int pos ) const;
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -794,8 +794,8 @@ protected:
 class QTextFormatterBreakInWords : public QTextFormatter
 {
 public:
-    QTextFormatterBreakInWords( QTextDocument *d );
-    int format( QTextParag *parag, int start, const QMap<int, QTextParag::LineStart*> &oldLineStarts );
+    QTextFormatterBreakInWords();
+    int format( QTextDocument *doc, QTextParag *parag, int start, const QMap<int, QTextParag::LineStart*> &oldLineStarts );
 
 };
 
@@ -804,8 +804,8 @@ public:
 class QTextFormatterBreakWords : public QTextFormatter
 {
 public:
-    QTextFormatterBreakWords( QTextDocument *d );
-    int format( QTextParag *parag, int start, const QMap<int, QTextParag::LineStart*> &oldLineStarts );
+    QTextFormatterBreakWords();
+    int format( QTextDocument *doc, QTextParag *parag, int start, const QMap<int, QTextParag::LineStart*> &oldLineStarts );
 
 };
 
@@ -814,13 +814,11 @@ public:
 class QTextIndent
 {
 public:
-    QTextIndent( QTextDocument *d );
-    virtual void indent( QTextParag *parag, int *oldIndent = 0, int *newIndent = 0 ) = 0;
-
-protected:
-    QTextDocument *doc;
+    QTextIndent();
+    virtual void indent( QTextDocument *doc, QTextParag *parag, int *oldIndent = 0, int *newIndent = 0 ) = 0;
 
 };
+
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 class QTextSyntaxHighlighter
@@ -830,12 +828,9 @@ public:
 	Standard = 0
     };
 
-    QTextSyntaxHighlighter( QTextDocument *d );
-    virtual void highlighte( QTextParag *, int, bool = TRUE ) = 0;
+    QTextSyntaxHighlighter();
+    virtual void highlighte( QTextDocument *doc, QTextParag *, int, bool = TRUE ) = 0;
     virtual QTextFormat *format( int id ) = 0;
-
-protected:
-    QTextDocument *doc;
 
 };
 
@@ -946,7 +941,7 @@ public:
     virtual bool isNested() const { return FALSE; }
     virtual int minimumWidth() const { return 0; }
     virtual int widthHint() const { return 0; }
-    
+
     int xpos; // used for floating items
     int ypos; // used for floating items
     int width;
@@ -1099,7 +1094,7 @@ private:
     QBrush *background;
     int cached_width;
     int cached_sizehint;
-    
+
 };
 
 class QTextTable: public QTextCustomItem

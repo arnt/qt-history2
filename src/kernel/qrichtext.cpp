@@ -1067,6 +1067,19 @@ QTextDocument::QTextDocument( QTextDocument *p )
     commandHistory = new QTextCommandHistory( 100 ); // ### max undo/redo steps should be configurable
 }
 
+QTextDocument::~QTextDocument()
+{
+    clear();
+    delete commandHistory;
+    delete flow_;
+    if ( !par )
+	delete pFormatter;
+    delete fCollection;
+    delete syntaxHighlighte;    
+    delete buf_pixmap;
+    delete indenter;
+}
+
 void QTextDocument::clear()
 {
     while ( fParag ) {
@@ -2355,6 +2368,16 @@ void QTextString::insert( int index, const QString &s, QTextFormat *f )
     textChanged = TRUE;
 }
 
+QTextString::~QTextString()
+{
+    for ( int i = 0; i < (int)data.count(); ++i ) {
+	if ( data[ i ].isCustom )
+	    delete data[ i ].customItem();
+	else if ( data[ i ].format() )
+	    data[ i ].format()->removeRef();
+    }
+}
+
 void QTextString::insert( int index, Char *c )
 {
     int os = data.size();
@@ -2623,7 +2646,7 @@ void QTextParag::format( int start, bool doMove )
 
     if ( doc->syntaxHighlighter() &&
 	 ( needHighlighte || state == -1 ) )
-	doc->syntaxHighlighter()->highlighte( this, invalid <= 0 ? 0 : invalid );
+	doc->syntaxHighlighter()->highlighte( doc, this, invalid <= 0 ? 0 : invalid );
     needHighlighte = FALSE;
 
     if ( invalid == -1 )
@@ -2639,7 +2662,7 @@ void QTextParag::format( int start, bool doMove )
     }
     QMap<int, LineStart*> oldLineStarts = lineStarts;
     lineStarts.clear();
-    int y = doc->formatter()->format( this, start, oldLineStarts );
+    int y = doc->formatter()->format( doc, this, start, oldLineStarts );
     r.setWidth( QMAX( r.width(), doc->minimumWidth() ) );
     QMap<int, LineStart*>::Iterator it = oldLineStarts.begin();
     for ( ; it != oldLineStarts.end(); ++it )
@@ -2806,7 +2829,7 @@ void QTextParag::indent( int *oldIndent, int *newIndent )
 	    *newIndent = *oldIndent;
 	return;
     }
-    doc->indent()->indent( this, oldIndent, newIndent );
+    doc->indent()->indent( doc, this, oldIndent, newIndent );
 }
 
 void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *cursor, bool drawSelections,
@@ -3187,15 +3210,13 @@ void QTextParag::decDepth()
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-QTextSyntaxHighlighter::QTextSyntaxHighlighter( QTextDocument *d )
-    : doc( d )
+QTextSyntaxHighlighter::QTextSyntaxHighlighter()
 {
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QTextFormatter::QTextFormatter( QTextDocument *d )
-    : doc( d )
+QTextFormatter::QTextFormatter()
 {
 }
 
@@ -3856,23 +3877,21 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QText
     return ls;
 }
 
-bool QTextFormatter::isBreakable( QTextString *string, int pos )
+bool QTextFormatter::isBreakable( QTextString *string, int pos ) const
 {
     // ### add line breaking rules for Kanji, thai and other languages
-    if( string->at(pos).c.isSpace() )
-	return TRUE;
-    return FALSE;
+    return string->at( pos ).c.isSpace();
 }
 
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QTextFormatterBreakInWords::QTextFormatterBreakInWords( QTextDocument *d )
-    : QTextFormatter( d )
+QTextFormatterBreakInWords::QTextFormatterBreakInWords()
 {
 }
 
-int QTextFormatterBreakInWords::format( QTextParag *parag, int start, const QMap<int, QTextParag::LineStart*> & )
+int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag, 
+					int start, const QMap<int, QTextParag::LineStart*> & )
 {
     QTextString::Char *c = 0;
     QTextString::Char *firstChar = 0;
@@ -3961,12 +3980,12 @@ int QTextFormatterBreakInWords::format( QTextParag *parag, int start, const QMap
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QTextFormatterBreakWords::QTextFormatterBreakWords( QTextDocument *d )
-    : QTextFormatter( d )
+QTextFormatterBreakWords::QTextFormatterBreakWords()
 {
 }
 
-int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<int, QTextParag::LineStart*> & )
+int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag, 
+				      int start, const QMap<int, QTextParag::LineStart*> & )
 {
     QTextString::Char *c = 0;
     QTextString::Char *firstChar = 0;
@@ -4134,8 +4153,7 @@ int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<i
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QTextIndent::QTextIndent( QTextDocument *d )
-    : doc( d )
+QTextIndent::QTextIndent()
 {
 }
 
@@ -5147,6 +5165,7 @@ void QTextFlow::updateHeight( QTextCustomItem *i )
 QTextTable::QTextTable( QTextDocument *p, const QMap<QString, QString> & attr  )
     : QTextCustomItem( p ), currCell( -1 )
 {
+    cells.setAutoDelete( TRUE );
 #if defined(PARSER_DEBUG)
     debug_indent += "\t";
     qDebug( debug_indent + "new QTextTable (%p)", this );
@@ -5525,7 +5544,7 @@ QTextTableCell::QTextTableCell( QTextTable* table,
 	else if ( align.lower() == "right" )
 	    richtext->setAlignment( Qt::AlignRight );
     }
-    richtext->setFormatter( new QTextFormatterBreakWords( richtext ) );
+    richtext->setFormatter( table->parent->formatter() );
     richtext->setMimeSourceFactory( &factory );
     richtext->setStyleSheet( sheet );
     richtext->setRichText( doc, context );
@@ -5576,7 +5595,7 @@ QTextTableCell::QTextTableCell( QTextTable* table, int row, int column )
     stretch_ = 0;
     richtext = new QTextDocument( table->parent );
     richtext->setTableCell( this );
-    richtext->setFormatter( new QTextFormatterBreakWords( richtext ) );
+    richtext->setFormatter( table->parent->formatter() );
     richtext->setRichText( "<html></html>", QString::null );
     rowspan_ = 1;
     colspan_ = 1;

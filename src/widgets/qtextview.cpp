@@ -96,7 +96,7 @@ void QTextView::init()
     modified = FALSE;
     onLink = QString::null;
 
-    doc->setFormatter( new QTextFormatterBreakWords( doc ) );
+    doc->setFormatter( new QTextFormatterBreakWords );
     currentFormat = doc->formatCollection()->defaultFormat();
     currentAlignment = Qt::AlignAuto;
 
