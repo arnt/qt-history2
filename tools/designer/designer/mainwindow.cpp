@@ -73,7 +73,7 @@
 #include "actiondnd.h"
 #include "project.h"
 #include "projectsettingsimpl.h"
-#include "../uilib/qwidgetfactory.h"
+#include "qwidgetfactory.h"
 #include <qvbox.h>
 #include <qprocess.h>
 #include <qsettings.h>
