@@ -1005,7 +1005,7 @@ QAxServerBase::QAxServerBase(QObject *o)
     if (o) {
 	theObject = o;
 	isWidget = false;
-	class_name = o->className();
+	class_name = o->metaObject()->className();
     }
     internalBind();
     internalConnect();

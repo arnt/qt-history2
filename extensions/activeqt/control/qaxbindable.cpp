@@ -14,7 +14,6 @@
 
 #include "qaxbindable.h"
 
-#include <qintdict.h>
 #include <qmetaobject.h>
 
 #include <qt_windows.h> //IUnknown
