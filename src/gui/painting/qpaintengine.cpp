@@ -798,9 +798,6 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
     // sure that all states are in sync when the function returns.
     if (dirtyFlag)
         updateInternal(state);
-
-    if (d->pdev->depth() < 8 || !hasFeature(AlphaPixmap))
-        emulationSpecifier &= ~(AlphaFill | AlphaStroke);
 }
 
 /*!
