@@ -2392,12 +2392,7 @@ CodeMarker *Doc::quoteFromFile(const Location &location, Quoter &quoter, const Q
 
 QString Doc::canonicalTitle(const QString &title)
 {
+    QRegExp attributeExpr("[^A-Za-z0-9]+");
     QString result = title.toLower().simplified();
-    result.replace(' ', '-');
-    result.replace('<', '-');
-    result.replace('>', '-');
-    result.replace('&', '-');
-    result.replace('"', '-');
-    result.replace('*', '-');
-    return result;
+    return result.replace(attributeExpr, "-");
 }

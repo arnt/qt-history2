@@ -613,7 +613,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
         }
 	break;
     case Atom::Target:
-        out() << "<a name=\"" << protect(Doc::canonicalTitle(atom->string())) << "\"></a>";
+        out() << "<a name=\"" << Doc::canonicalTitle(atom->string()) << "\"></a>";
 	break;
     case Atom::UnhandledFormat:
 	out() << "<font color=\"red\"><b>&lt;Missing HTML&gt;</b></font>";
