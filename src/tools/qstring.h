@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#9 $
+** $Id: //depot/qt/main/src/tools/qstring.h#10 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -159,6 +159,7 @@ public:
     bool	isEmpty() const { return QGArray::size() <= 1; }
     uint	length()  const;		// length of QString excl. \0
     bool	resize( uint newlen );		// resize incl. \0 terminator
+    bool	truncate( uint pos );		// truncate excl. \0 terminator
     bool	fill( char c, int len = -1 );	// resize and fill string
 
     QString	copy() const			// get deep copy
@@ -225,6 +226,9 @@ public:
 // --------------------------------------------------------------------------
 // QString inline functions
 //
+
+inline bool QString::truncate( uint pos )
+{ return resize(pos+1); }
 
 inline short QString::toShort( bool *ok ) const
 { return (short)toLong(ok); }
