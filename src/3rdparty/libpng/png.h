@@ -327,6 +327,9 @@ extern int FARDATA png_pass_height[7];
 
 #endif /* PNG_NO_EXTERN */
 
+    
+typedef FILE* png_FILE_p;    
+    
 /* Three color definitions.  The order of the red, green, and blue, (and the
  * exact size) is not important, although the size of the fields need to
  * be png_byte or png_uint_16 (as defined below).
