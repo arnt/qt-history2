@@ -540,6 +540,8 @@ bool QSqlTable::beginInsert()
 QWidget* QSqlTable::beginUpdate ( int row, int col, bool replace )
 {
     //    qDebug("QSqlTable::beginUpdate");
+    if ( !d->view || isReadOnly() )
+	return FALSE;
     ensureCellVisible( row, col );
     setCurrentSelection( row, col );
     d->mode = QSqlTable::Update;
