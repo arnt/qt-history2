@@ -54,11 +54,8 @@ ObjectInspector::ObjectInspector(AbstractFormEditor *core, QWidget *parent)
     m_treeWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     m_treeWidget->header()->setResizeMode(QHeaderView::Stretch, 1);
 
-    connect(m_treeWidget, SIGNAL(doubleClicked(QTreeWidgetItem *, int, Qt::MouseButton, Qt::KeyboardModifiers)),
-        this, SLOT(slotSelectionChanged()));
-
-    connect(m_treeWidget, SIGNAL(returnPressed(QTreeWidgetItem *, int)),
-        this, SLOT(slotSelectionChanged()));
+    connect(m_treeWidget, SIGNAL(itemActivated(QTreeWidgetItem*,int)),
+            this, SLOT(slotSelectionChanged()));
 }
 
 ObjectInspector::~ObjectInspector()

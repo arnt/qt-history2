@@ -107,7 +107,6 @@ public:
     int horizontalFactor;
     int verticalFactor;
 
-    bool hasKeyTracking;
     bool tabKeyNavigation;
     bool showDropIndicator;
     bool dragEnabled;

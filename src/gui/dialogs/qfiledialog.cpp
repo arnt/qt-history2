@@ -29,7 +29,8 @@
 #include <qsignal.h>
 #include <qtoolbutton.h>
 #include <qmessagebox.h>
-#include <qwindowsstyle.h>
+//#include <qwindowsstyle.h>
+#include <qshortcut.h>
 #ifdef Q_WS_MAC
 #include <private/qunicodetables_p.h>
 #include <qmacstyle_mac.h>
@@ -79,18 +80,20 @@ public:
         : QLineEdit(parent), key(0) {}
     inline int lastKeyPressed() { return key; }
 protected:
-    virtual void keyPressEvent(QKeyEvent *e)
-    {
-        key = e->key();
-        QLineEdit::keyPressEvent(e);
-        // FIXME: this is a hack to avoid propagating key press events
-        // to the dialog and from there to the "Ok" button
-        if (key != Qt::Key_Escape)
-            e->accept();
-    }
+    void keyPressEvent(QKeyEvent *e);
 private:
     int key;
 };
+
+void QFileDialogLineEdit::keyPressEvent(QKeyEvent *e)
+{
+    key = e->key();
+    QLineEdit::keyPressEvent(e);
+    // FIXME: this is a hack to avoid propagating key press events
+    // to the dialog and from there to the "Ok" button
+    if (key != Qt::Key_Escape)
+        e->accept();
+}
 
 class QFileDialogPrivate : public QDialogPrivate
 {
@@ -106,7 +109,6 @@ public:
     void showDetailClicked();
     void enterSubdir(const QModelIndex &index);
     void keyPressed(const QModelIndex &index, Qt::Key key, Qt::KeyboardModifiers modifiers);
-    void deletePressed(const QModelIndex &index);
     void selectionChanged(const QItemSelection &selection);
     void fileNameChanged(const QString &text);
     void lookInChanged(const QString &text);
@@ -1024,47 +1026,6 @@ void QFileDialogPrivate::enterSubdir(const QModelIndex &index)
 /*!
     \internal
 
-    This is called when the user presses a \a key with the
-    \a modifiers down, when the current item is \a index.
-*/
-
-void QFileDialogPrivate::keyPressed(const QModelIndex &index,
-                                    Qt::Key key,
-                                    Qt::KeyboardModifiers)
-{
-    switch (key) {
-    case Qt::Key_Delete:
-        deletePressed(index);
-        return;
-    case Qt::Key_Return:
-    case Qt::Key_Enter:
-        enterSubdir(index);
-        return;
-    default:
-        return;
-    }
-}
-
-/*!
-    \internal
-
-    This is called when the user requests that a file be deleted; the
-    corresponding model index is passed in \a index.
-*/
-
-void QFileDialogPrivate::deletePressed(const QModelIndex &index)
-{
-    if (model->isReadOnly())
-        return;
-    if (model->isDir(index))
-        model->rmdir(index);
-    else
-        model->remove(index);
-}
-
-/*!
-    \internal
-
     This is called when the model index corresponding to the current file is changed
     from \a index to \a current.
 */
@@ -1262,7 +1223,14 @@ void QFileDialogPrivate::renameCurrent()
 
 void QFileDialogPrivate::deleteCurrent()
 {
-    deletePressed(selections->currentIndex());
+    // FIXME: should we delete all selected indexes ?
+    QModelIndex index = selections->currentIndex();
+    if (model->isReadOnly())
+        return;
+    if (model->isDir(index))
+        model->rmdir(index);
+    else
+        model->remove(index);
 }
 
 /*!
@@ -1484,7 +1452,6 @@ void QFileDialogPrivate::setupListView(const QModelIndex &current, QGridLayout *
     listView->setSelectionMode(selectionMode(fileMode));
     listView->setSelectionBehavior(QAbstractItemView::SelectRows);
     listView->setRootIndex(current);
-    listView->setKeyTracking(true);
 
     listView->setWrapping(true);
     listView->setResizeMode(QListView::Adjust);
@@ -1492,13 +1459,14 @@ void QFileDialogPrivate::setupListView(const QModelIndex &current, QGridLayout *
 
     grid->addWidget(listView, 1, 0, 1, 6);
 
+    QObject::connect(listView, SIGNAL(activated(QModelIndex)), q, SLOT(enterSubdir(QModelIndex)));
     QObject::connect(listView, SIGNAL(aboutToShowContextMenu(QMenu*,QModelIndex)),
                      q, SLOT(populateContextMenu(QMenu*,QModelIndex)));
-    QObject::connect(listView,
-                     SIGNAL(doubleClicked(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
-                     q, SLOT(enterSubdir(QModelIndex)));
-    QObject::connect(listView, SIGNAL(keyPressed(QModelIndex,Qt::Key,Qt::KeyboardModifiers)),
-                     q, SLOT(keyPressed(QModelIndex,Qt::Key,Qt::KeyboardModifiers)));
+
+    QShortcut *shortcut = new QShortcut(listView);
+    shortcut->setKey(QKeySequence("Delete"));
+
+    QObject::connect(shortcut, SIGNAL(activated()), q, SLOT(deleteCurrent()));
 }
 
 void QFileDialogPrivate::setupTreeView(const QModelIndex &current, QGridLayout *grid)
@@ -1509,7 +1477,6 @@ void QFileDialogPrivate::setupTreeView(const QModelIndex &current, QGridLayout *
     treeView->setSelectionModel(selections);
     treeView->setSelectionMode(selectionMode(fileMode));
     treeView->setRootIndex(current);
-    treeView->setKeyTracking(true);
 
     treeView->viewport()->setAcceptDrops(true);
     treeView->setRootIsDecorated(false);
@@ -1523,13 +1490,14 @@ void QFileDialogPrivate::setupTreeView(const QModelIndex &current, QGridLayout *
 
     grid->addWidget(treeView, 1, 0, 1, 6);
 
+    QObject::connect(treeView, SIGNAL(activated(QModelIndex)), q, SLOT(enterSubdir(QModelIndex)));
     QObject::connect(treeView, SIGNAL(aboutToShowContextMenu(QMenu*,QModelIndex)),
                      q, SLOT(populateContextMenu(QMenu*,QModelIndex)));
-    QObject::connect(treeView,
-                     SIGNAL(doubleClicked(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
-                     q, SLOT(enterSubdir(QModelIndex)));
-    QObject::connect(treeView, SIGNAL(keyPressed(QModelIndex,Qt::Key,Qt::KeyboardModifiers)),
-                     q, SLOT(keyPressed(QModelIndex,Qt::Key,Qt::KeyboardModifiers)));
+
+    QShortcut *shortcut = new QShortcut(treeView);
+    shortcut->setKey(QKeySequence("Delete"));
+
+    QObject::connect(shortcut, SIGNAL(activated()), q, SLOT(deleteCurrent()));
 }
 
 void QFileDialogPrivate::setupToolButtons(const QModelIndex &current, QGridLayout *grid)

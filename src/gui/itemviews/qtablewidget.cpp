@@ -953,50 +953,50 @@ class QTableWidgetPrivate : public QTableViewPrivate
 public:
     QTableWidgetPrivate() : QTableViewPrivate(), sortingEnabled(false) {}
     inline QTableModel *model() const { return ::qt_cast<QTableModel*>(q_func()->model()); }
-    void emitPressed(const QModelIndex &index, Qt::MouseButton button,
-                     Qt::KeyboardModifiers modifiers);
-    void emitClicked(const QModelIndex &index, Qt::MouseButton button,
-                     Qt::KeyboardModifiers modifiers);
-    void emitDoubleClicked(const QModelIndex &index, Qt::MouseButton button,
-                           Qt::KeyboardModifiers modifiers);
-    void emitKeyPressed(const QModelIndex &index, Qt::Key key,
-                        Qt::KeyboardModifiers modifiers);
-    void emitReturnPressed(const QModelIndex &index);
+    // view signals
+    void emitItemPressed(const QModelIndex &index);
+    void emitItemClicked(const QModelIndex &index);
+    void emitItemDoubleClicked(const QModelIndex &index);
+    void emitItemActivated(const QModelIndex &index);
+    void emitItemEntered(const QModelIndex &index);
+    // model signals
+    void emitItemChanged(const QModelIndex &index);
+    // selection signals
     void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current);
-    void emitItemEntered(const QModelIndex &index, Qt::MouseButton button,
-                         Qt::KeyboardModifiers modifiers);
+    // to be removed
     void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
-    void emitItemChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    // data
     bool sortingEnabled;
 };
 
-void QTableWidgetPrivate::emitPressed(const QModelIndex &index, Qt::MouseButton button,
-                                      Qt::KeyboardModifiers modifiers)
+void QTableWidgetPrivate::emitItemPressed(const QModelIndex &index)
 {
-    emit q->pressed(model()->item(index), button, modifiers);
+    emit q->itemPressed(model()->item(index));
 }
 
-void QTableWidgetPrivate::emitClicked(const QModelIndex &index, Qt::MouseButton button,
-                                      Qt::KeyboardModifiers modifiers)
+void QTableWidgetPrivate::emitItemClicked(const QModelIndex &index)
 {
-    emit q->clicked(model()->item(index), button, modifiers);
+    emit q->itemClicked(model()->item(index));
 }
 
-void QTableWidgetPrivate::emitDoubleClicked(const QModelIndex &index, Qt::MouseButton button,
-                                            Qt::KeyboardModifiers modifiers)
+void QTableWidgetPrivate::emitItemDoubleClicked(const QModelIndex &index)
 {
-    emit q->doubleClicked(model()->item(index), button, modifiers);
+    emit q->itemDoubleClicked(model()->item(index));
 }
 
-void QTableWidgetPrivate::emitKeyPressed(const QModelIndex &index, Qt::Key key,
-                                         Qt::KeyboardModifiers modifiers)
+void QTableWidgetPrivate::emitItemActivated(const QModelIndex &index)
 {
-    emit q->keyPressed(model()->item(index), key, modifiers);
+    emit q->itemActivated(model()->item(index));
 }
 
-void QTableWidgetPrivate::emitReturnPressed(const QModelIndex &index)
+void QTableWidgetPrivate::emitItemEntered(const QModelIndex &index)
 {
-    emit q->returnPressed(model()->item(index));
+    emit q->itemEntered(model()->item(index));
+}
+
+void QTableWidgetPrivate::emitItemChanged(const QModelIndex &index)
+{
+    emit q->itemChanged(model()->item(index));
 }
 
 void QTableWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
@@ -1005,50 +1005,10 @@ void QTableWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
     emit q->currentItemChanged(model()->item(current), model()->item(previous));
 }
 
-void QTableWidgetPrivate::emitItemEntered(const QModelIndex &index, Qt::MouseButton button,
-                                          Qt::KeyboardModifiers modifiers)
-{
-    emit q->itemEntered(model()->item(index), button, modifiers);
-}
-
 void QTableWidgetPrivate::emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index)
 {
     emit q->aboutToShowContextMenu(menu, model()->item(index));
 }
-
-void QTableWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
-{
-    if (topLeft == bottomRight) // this should always be true, unless we sort
-        emit q->itemChanged(model()->item(topLeft));
-}
-
-/*!
-    \fn void QTableWidget::pressed(QTableWidgetItem *item, QMouseEvent *event)
-
-    This signal is emitted when a item has been pressed (mouse click
-    and release). The \a item may be 0 if the mouse was not pressed on
-    an item..
-*/
-
-/*!
-    \fn void QTableWidget::clicked(QTableWidgetItem *item, Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
-
-    This signal is emitted when the specified \a item is clicked.
-    The state of the mouse buttons is described by \a button; the
-    \a modifiers reflect the state of the keyboard's modifier keys.
-
-    The item may be 0 if the mouse was not clicked on an item.
-*/
-
-/*!
-    \fn void QTableWidget::doubleClicked(QTableWidgetItem *item, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
-
-    This signal is emitted when the specified \a item is double clicked.
-    The state of the mouse buttons is described by \a button; the
-    \a modifiers reflect the state of the keyboard's modifier keys.
-
-    The item may be 0 if the mouse was not clicked on an item.
-*/
 
 /*!
     \fn void QTableWidget::keyPressed(QTableWidgetItem *item, QKeyEvent *event)
@@ -1058,13 +1018,13 @@ void QTableWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMod
 */
 
 /*!
-    \fn void QTableWidget::returnPressed(QTableWidgetItem *item)
+    \fn void QTableWidget::itemActivated(QTableWidgetItem *item)
 
-    This signal is emitted when return has been pressed on an \a item.
+    This signal is emitted when the item has been activated
 */
 
 /*!
-    \fn void QTableWidget::currentChanged(QTableWidgetItem *current, QTableWidgetItem *previous)
+    \fn void QTableWidget::currentItemChanged(QTableWidgetItem *current, QTableWidgetItem *previous)
 
     This signal is emitted whenever the current item changes. The \a
     previous item is the item that previously had the focus, \a
@@ -1072,7 +1032,7 @@ void QTableWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMod
 */
 
 /*!
-    \fn void QTableWidget::selectionChanged()
+    \fn void QTableWidget::itemSelectionChanged()
 
     This signal is emitted whenever the selection changes.
 
@@ -1080,12 +1040,10 @@ void QTableWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMod
 */
 
 /*!
-    \fn void QTableWidget::itemEntered(QTableWidgetItem *item, Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
+    \fn void QTableWidget::itemEntered(QTableWidgetItem *item)
 
     This signal is emitted when the mouse cursor enters an item. The
-    \a item is the item entered. The state of the mouse buttons is specified
-    by \a button; the \a modifiers reflect the state of the keyboard's
-    modifier keys.
+    \a item is the item entered.
 
     This signal is only emitted when mouseTracking is turned on, or when a
     mouse button is pressed while moving into an item.
@@ -1614,28 +1572,23 @@ void QTableWidget::setModel(QAbstractItemModel *model)
 */
 void QTableWidget::setup()
 {
-    connect(this, SIGNAL(pressed(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
-            SLOT(emitPressed(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)));
-    connect(this, SIGNAL(clicked(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
-            SLOT(emitClicked(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)));
-    connect(this, SIGNAL(doubleClicked(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
-            SLOT(emitDoubleClicked(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)));
-    connect(this, SIGNAL(keyPressed(QModelIndex,Qt::Key,Qt::KeyboardModifiers)),
-            SLOT(emitKeyPressed(QModelIndex,Qt::Key,Qt::KeyboardModifiers)));
-    connect(this, SIGNAL(returnPressed(QModelIndex)),
-            SLOT(emitReturnPressed(QModelIndex)));
-    connect(this, SIGNAL(entered(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
-            SLOT(emitItemEntered(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)));
+    // view signals
+    connect(this, SIGNAL(pressed(QModelIndex)), SLOT(emitItemPressed(QModelIndex)));
+    connect(this, SIGNAL(clicked(QModelIndex)), SLOT(emitItemClicked(QModelIndex)));
+    connect(this, SIGNAL(doubleClicked(QModelIndex)), SLOT(emitItemDoubleClicked(QModelIndex)));
+    connect(this, SIGNAL(activated(QModelIndex)), SLOT(emitItemActivated(QModelIndex)));
+    connect(this, SIGNAL(entered(QModelIndex)), SLOT(emitItemEntered(QModelIndex)));
+    // model signals
+    connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+            SLOT(emitItemChanged(QModelIndex)));
+    // selection signals
+    connect(selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+            this, SLOT(emitCurrentItemChanged(QModelIndex,QModelIndex)));
+    connect(selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this, SIGNAL(itemSelectionChanged()));
+    // to be removed
     connect(this, SIGNAL(aboutToShowContextMenu(QMenu*,QModelIndex)),
             SLOT(emitAboutToShowContextMenu(QMenu*,QModelIndex)));
-    connect(selectionModel(),
-            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(emitCurrentItemChanged(QModelIndex,QModelIndex)));
-    connect(selectionModel(),
-            SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SIGNAL(itemSelectionChanged()));
-    connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-            SLOT(emitItemChanged(QModelIndex,QModelIndex)));
 }
 
 QTableWidgetItemCreatorBase::~QTableWidgetItemCreatorBase() {}

@@ -788,8 +788,7 @@ WidgetBoxListView::WidgetBoxListView(WidgetCollectionModel *model, QWidget *pare
     child->setItemDelegate(new WidgetBoxDelegate(child, child));
 
     l->addWidget(child);
-    connect(child, SIGNAL(pressed(const QModelIndex&, Qt::MouseButton,
-                                             Qt::KeyboardModifiers)),
+    connect(child, SIGNAL(pressed(const QModelIndex&)),
             this, SLOT(handleMousePress(const QModelIndex&, Qt::MouseButton)));
 }
 

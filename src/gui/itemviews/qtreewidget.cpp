@@ -1238,62 +1238,58 @@ class QTreeWidgetPrivate : public QTreeViewPrivate
 public:
     QTreeWidgetPrivate() : QTreeViewPrivate(), sortingEnabled(false) {}
     inline QTreeModel *model() const { return ::qt_cast<QTreeModel*>(q_func()->model()); }
-    void emitPressed(const QModelIndex &index, Qt::MouseButton button,
-                     Qt::KeyboardModifiers modifiers);
-    void emitClicked(const QModelIndex &index, Qt::MouseButton button,
-                     Qt::KeyboardModifiers modifiers);
-    void emitDoubleClicked(const QModelIndex &index, Qt::MouseButton button,
-                           Qt::KeyboardModifiers modifiers);
-    void emitKeyPressed(const QModelIndex &index, Qt::Key key, Qt::KeyboardModifiers modifiers);
-    void emitReturnPressed(const QModelIndex &index);
-    void emitExpanded(const QModelIndex &index);
-    void emitCollapsed(const QModelIndex &index);
+    void emitItemPressed(const QModelIndex &index);
+    void emitItemClicked(const QModelIndex &index);
+    void emitItemDoubleClicked(const QModelIndex &index);
+    void emitItemActivated(const QModelIndex &index);
+    void emitItemEntered(const QModelIndex &index);
+    void emitItemChanged(const QModelIndex &index);
+    void emitItemExpanded(const QModelIndex &index);
+    void emitItemCollapsed(const QModelIndex &index);
     void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current);
-    void emitItemEntered(const QModelIndex &index, Qt::MouseButton button,
-                         Qt::KeyboardModifiers modifiers);
     void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
-    void emitItemChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
     bool sortingEnabled;
 };
 
-void QTreeWidgetPrivate::emitPressed(const QModelIndex &index, Qt::MouseButton button,
-                                     Qt::KeyboardModifiers modifiers)
+void QTreeWidgetPrivate::emitItemPressed(const QModelIndex &index)
 {
-    emit q->pressed(model()->item(index), index.column(), button, modifiers);
+    emit q->itemPressed(model()->item(index), index.column());
 }
 
-void QTreeWidgetPrivate::emitClicked(const QModelIndex &index, Qt::MouseButton button,
-                                     Qt::KeyboardModifiers modifiers)
+void QTreeWidgetPrivate::emitItemClicked(const QModelIndex &index)
 {
-    emit q->clicked(model()->item(index), index.column(), button, modifiers);
+    emit q->itemClicked(model()->item(index), index.column());
 }
 
-void QTreeWidgetPrivate::emitDoubleClicked(const QModelIndex &index, Qt::MouseButton button,
-                                           Qt::KeyboardModifiers modifiers)
+void QTreeWidgetPrivate::emitItemDoubleClicked(const QModelIndex &index)
 {
-    emit q->doubleClicked(model()->item(index), index.column(), button, modifiers);
+    emit q->itemDoubleClicked(model()->item(index), index.column());
 }
 
-void QTreeWidgetPrivate::emitKeyPressed(const QModelIndex &index, Qt::Key key,
-                                        Qt::KeyboardModifiers modifiers)
+void QTreeWidgetPrivate::emitItemActivated(const QModelIndex &index)
 {
-    emit q->keyPressed(model()->item(index), index.column(), key, modifiers);
+    emit q->itemActivated(model()->item(index), index.column());
 }
 
-void QTreeWidgetPrivate::emitReturnPressed(const QModelIndex &index)
+void QTreeWidgetPrivate::emitItemEntered(const QModelIndex &index)
 {
-    emit q->returnPressed(model()->item(index), index.column());
+    emit q->itemEntered(model()->item(index), index.column());
 }
 
-void QTreeWidgetPrivate::emitExpanded(const QModelIndex &index)
+void QTreeWidgetPrivate::emitItemChanged(const QModelIndex &index)
 {
-    emit q->expanded(model()->item(index));
+    emit q->itemChanged(model()->item(index), index.column());
 }
 
-void QTreeWidgetPrivate::emitCollapsed(const QModelIndex &index)
+void QTreeWidgetPrivate::emitItemExpanded(const QModelIndex &index)
 {
-    emit q->collapsed(model()->item(index));
+    emit q->itemExpanded(model()->item(index));
+}
+
+void QTreeWidgetPrivate::emitItemCollapsed(const QModelIndex &index)
+{
+    emit q->itemCollapsed(model()->item(index));
 }
 
 void QTreeWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
@@ -1302,21 +1298,9 @@ void QTreeWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
     emit q->currentItemChanged(model()->item(current), model()->item(previous));
 }
 
-void QTreeWidgetPrivate::emitItemEntered(const QModelIndex &index, Qt::MouseButton button,
-                                         Qt::KeyboardModifiers modifiers)
-{
-    emit q->itemEntered(model()->item(index), index.column(), button, modifiers);
-}
-
 void QTreeWidgetPrivate::emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index)
 {
     emit q->aboutToShowContextMenu(menu, model()->item(index), index.column());
-}
-
-void QTreeWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
-{
-    if (topLeft == bottomRight) // this should always be true, unless we sort
-        emit q->itemChanged(model()->item(topLeft), topLeft.column());
 }
 
 /*!
@@ -1338,7 +1322,7 @@ void QTreeWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
   flexible approach involves combining a QTreeView with a standard item model.
   This allows the storage of data to be separated from its representation.
 
-  In its simplest form, a tree widget can be constructed in the following way:
+ its simplest form, a tree widget can be constructed in the following way:
 
   \quotefile snippets/qtreewidget-using/mainwindow.h
   \skipto QTreeWidget *
@@ -1496,35 +1480,28 @@ QTreeWidget::QTreeWidget(QWidget *parent)
     : QTreeView(*new QTreeWidgetPrivate(), parent)
 {
     setModel(new QTreeModel(0, this));
-
-    connect(this, SIGNAL(pressed(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
-            SLOT(emitPressed(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)));
-    connect(this, SIGNAL(clicked(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
-            SLOT(emitClicked(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)));
-    connect(this, SIGNAL(doubleClicked(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
-            SLOT(emitDoubleClicked(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)));
-    connect(this, SIGNAL(keyPressed(QModelIndex,Qt::Key,Qt::KeyboardModifiers)),
-            SLOT(emitKeyPressed(QModelIndex,Qt::Key,Qt::KeyboardModifiers)));
-    connect(this, SIGNAL(returnPressed(QModelIndex)),
-            SLOT(emitReturnPressed(QModelIndex)));
-    connect(this, SIGNAL(expanded(QModelIndex)),
-            SLOT(emitExpanded(QModelIndex)));
-    connect(this, SIGNAL(collapsed(QModelIndex)),
-            SLOT(emitCollapsed(QModelIndex)));
-    connect(this, SIGNAL(entered(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
-            SLOT(emitItemEntered(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)));
-    connect(this, SIGNAL(aboutToShowContextMenu(QMenu*,QModelIndex)),
-            SLOT(emitAboutToShowContextMenu(QMenu*,QModelIndex)));
-    connect(selectionModel(),
-            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+    // view signals
+    connect(this, SIGNAL(pressed(QModelIndex)), SLOT(emitItemPressed(QModelIndex)));
+    connect(this, SIGNAL(clicked(QModelIndex)), SLOT(emitItemClicked(QModelIndex)));
+    connect(this, SIGNAL(doubleClicked(QModelIndex)), SLOT(emitItemDoubleClicked(QModelIndex)));
+    connect(this, SIGNAL(activated(QModelIndex)), SLOT(emitItemActivated(QModelIndex)));
+    connect(this, SIGNAL(entered(QModelIndex)), SLOT(emitItemEntered(QModelIndex)));
+    connect(this, SIGNAL(expanded(QModelIndex)), SLOT(emitItemExpanded(QModelIndex)));
+    connect(this, SIGNAL(collapsed(QModelIndex)), SLOT(emitItemCollapsed(QModelIndex)));
+    // selection signals
+    connect(selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this, SLOT(emitCurrentItemChanged(QModelIndex,QModelIndex)));
-    connect(selectionModel(),
-            SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+    connect(selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SIGNAL(itemSelectionChanged()));
+    // model signals
     connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-            this, SLOT(emitItemChanged(QModelIndex,QModelIndex)));
+            this, SLOT(emitItemChanged(QModelIndex)));
+    // header signals
     connect(header(), SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)),
             this, SLOT(sortItems(int)));
+    // to be removed
+    connect(this, SIGNAL(aboutToShowContextMenu(QMenu*,QModelIndex)),
+            SLOT(emitAboutToShowContextMenu(QMenu*,QModelIndex)));
 }
 
 /*!

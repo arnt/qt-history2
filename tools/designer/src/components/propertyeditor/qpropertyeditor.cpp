@@ -40,7 +40,7 @@ View::View(QWidget *parent)
 
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
-    connect(this, SIGNAL(doubleClicked(const QModelIndex &, Qt::MouseButton, Qt::KeyboardModifiers)),
+    connect(this, SIGNAL(activated(const QModelIndex&)),
             this, SLOT(open(const QModelIndex&)));
 
     connect(m_model, SIGNAL(propertyChanged(IProperty*)),

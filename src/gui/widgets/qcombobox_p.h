@@ -104,8 +104,7 @@ public:
 public slots:
     void scrollItemView(int action);
     void updateScrollers();
-    void setCurrentIndex(const QModelIndex &index, Qt::MouseButton button,
-                         Qt::KeyboardModifiers modifiers);
+    void setCurrentIndex(const QModelIndex &index);
 
 protected:
     bool eventFilter(QObject *o, QEvent *e);

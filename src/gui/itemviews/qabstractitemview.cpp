@@ -42,7 +42,6 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         selectionBehavior(QAbstractItemView::SelectItems),
         state(QAbstractItemView::NoState),
         editTriggers(QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed),
-        hasKeyTracking(false),
         tabKeyNavigation(false),
         showDropIndicator(false),
         dragEnabled(false),
@@ -114,9 +113,7 @@ void QAbstractItemViewPrivate::init()
     etc.
 
     QAbstractItemView provides common slots such as edit() and
-    setCurrentIndex(), and common signals such as clicked(),
-    doubleClicked(), returnPressed(), spacePressed(), and
-    deletePressed(). Many protected slots are also provided, including
+    setCurrentIndex(). Many protected slots are also provided, including
     dataChanged(), rowsInserted(), rowsAboutToBeRemoved(),
     columnsInserted(), columnsRemoved(),
     selectionChanged(), and currentChanged().
@@ -294,16 +291,16 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-    \fn void QAbstractItemView::pressed(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
-
+\fn void QAbstractItemView::pressed(const QModelIndex &index)
+    
     This signal is emitted when a mouse button is pressed. The item the
-    mouse was pressed on is specified by \a index (which may be invalid if
-    the mouse was not pressed on an item). The state of the mouse buttons
-    and keyboard modifiers are specified by \a button and \a modifiers.
+mouse was pressed on is specified by \a index (which may be invalid if
+                                               the mouse was not pressed on an item). The state of the mouse buttons
+and keyboard modifiers are specified by \a button and \a modifiers.
 */
 
 /*!
-    \fn void QAbstractItemView::clicked(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
+    \fn void QAbstractItemView::clicked(const QModelIndex &index)
 
     This signal is emitted when a mouse button is clicked. The item the
     mouse was clicked on is specified by \a index (which may be invalid if
@@ -312,29 +309,13 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-    \fn void QAbstractItemView::doubleClicked(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
+    \fn void QAbstractItemView::doubleClicked(const QModelIndex &index,)
 
     This signal is emitted when a mouse button is double-clicked. The
     item the mouse was double-clicked on is specified by \a index (which
     may be invalid if the mouse was not double-clicked on an item). The
     state of the mouse buttons and keyboard modifiers are specified by
     \a button and \a modifiers.
-*/
-
-/*!
-    \fn void QAbstractItemView::keyPressed(const QModelIndex &index, Qt::Key key, Qt::KeyboardModifiers modifiers)
-
-    This signal is emitted if keyTracking is enabled and a key is
-    pressed in the view.  The item \a index is the current item. The
-    key pressed and the keyboard modifiers used are specified by
-    \a key and \a modifiers.
-*/
-
-/*!
-    \fn void QAbstractItemView::returnPressed(const QModelIndex &index)
-
-    This signal is emitted when Return (or Enter) is pressed. The item
-    to be acted on by the key press is specified by \a index.
 */
 
 /*!
@@ -633,7 +614,6 @@ void QAbstractItemView::setRootIndex(const QModelIndex &index)
 {
     QModelIndex old = d->root;
     d->root = index;
-    emit rootChanged(old, index);
     if (isVisible())
         doItemsLayout();
 }
@@ -732,21 +712,6 @@ void QAbstractItemView::setAutoScroll(bool enable)
 bool QAbstractItemView::hasAutoScroll() const
 {
     return d->autoScroll;
-}
-
-/*!
-  \property QAbstractItemView::keyTracking
-  \brief whether the view emits a keyPressed signal for every key press.
-*/
-
-void QAbstractItemView::setKeyTracking(bool enable)
-{
-    d->hasKeyTracking = enable;
-}
-
-bool QAbstractItemView::hasKeyTracking() const
-{
-    return d->hasKeyTracking;
 }
 
 /*!
@@ -934,7 +899,9 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     QRect rect(d->pressedPosition - offset, pos);
     setSelection(rect.normalize(), command);
 
-    emit pressed(index, e->button(), e->modifiers());
+    //emit activated(index);
+    emit pressed(index);
+
     if (e->button() == Qt::LeftButton && itemWasSelected && selectionModel()->isSelected(index))
         edit(index, SelectedClicked, e);
 }
@@ -973,9 +940,9 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
 
     if (d->enteredIndex != index) {
         if (index.isValid())
-            emit entered(index, e->button(), e->modifiers());
+            emit entered(index);
         else
-            emit viewportEntered(e->button(), e->modifiers());
+            emit viewportEntered();
         d->enteredIndex = index;
     } else if (state() == DragSelectingState) {
         return; // we haven't moved over another item yet
@@ -1018,8 +985,10 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
     if (selectionModel() && index == selectionModel()->currentIndex())
         selectionModel()->select(index, selectionCommand(index, e));
 
-    if (index == d->pressedIndex)
-        emit clicked(index, e->button(), e->modifiers());
+    if (index == d->pressedIndex) {
+        //emit activated(index);
+        emit clicked(index);
+    }
 }
 
 /*!
@@ -1032,7 +1001,8 @@ void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *e)
     QModelIndex index = indexAt(e->pos());
     if (!index.isValid())
         return;
-    emit doubleClicked(index, e->button(), e->modifiers());
+    emit activated(index);
+    emit doubleClicked(index);
     edit(index, DoubleClicked, e);
 }
 
@@ -1302,7 +1272,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
         break;
     case Qt::Key_Enter:
     case Qt::Key_Return:
-        emit returnPressed(currentIndex());
+        emit activated(currentIndex());
         break;
     case Qt::Key_Space:
         selectionModel()->select(currentIndex(),
@@ -1328,9 +1298,6 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
         e->ignore();
         break;
     }
-
-    if (d->hasKeyTracking)
-        emit keyPressed(currentIndex(), static_cast<Qt::Key>(e->key()), e->modifiers());
 }
 
 /*!

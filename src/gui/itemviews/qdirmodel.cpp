@@ -836,6 +836,7 @@ QModelIndex QDirModel::index(const QString &path, int column) const
 
 bool QDirModel::isDir(const QModelIndex &index) const
 {
+    Q_ASSERT(index.isValid());
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
     Q_ASSERT(node);
     return node->info.isDir();

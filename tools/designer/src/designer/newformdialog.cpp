@@ -57,12 +57,11 @@ NewFormDialog::NewFormDialog(QWidget *parent) : QDialog(parent)
 
     mainLayout->addWidget(mWidgetTree);
     mainLayout->addLayout(buttonLayout);
-    connect(mWidgetTree, SIGNAL(clicked(QTreeWidgetItem *, int, Qt::MouseButton, Qt::KeyboardModifiers)),
-            this, SLOT(fixButton(QTreeWidgetItem *)));
-    connect(mWidgetTree, SIGNAL(doubleClicked(QTreeWidgetItem *, int, Qt::MouseButton, Qt::KeyboardModifiers)),
-            this, SLOT(handleDoubleClick(QTreeWidgetItem *)));
-    connect(mWidgetTree, SIGNAL(returnPressed(QTreeWidgetItem *, int)),
-            this, SLOT(handleDoubleClick(QTreeWidgetItem *)));
+
+    connect(mWidgetTree, SIGNAL(pressed(QTreeWidgetItem*,int),
+            this, SLOT(fixButton(QTreeWidgetItem*)));
+    connect(mWidgetTree, SIGNAL(itemActivated(QTreeWidgetItem*,int)),
+            this, SLOT(handleDoubleClick(QTreeWidgetItem*)));
     fixButton(item);
 }
 

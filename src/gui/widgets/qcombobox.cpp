@@ -116,12 +116,8 @@ void ItemViewContainer::updateScrollers()
   means that if mouseTracking(...) is on, we setCurrentIndex and select
   even when LeftButton is not pressed.
 */
-void ItemViewContainer::setCurrentIndex(const QModelIndex &index, Qt::MouseButton button,
-                                        Qt::KeyboardModifiers /*modifiers*/)
+void ItemViewContainer::setCurrentIndex(const QModelIndex &index)
 {
-    if (button & Qt::LeftButton)
-        return;
-
     view->selectionModel()->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect);
 }
 
@@ -152,8 +148,8 @@ void ItemViewContainer::setItemView(QAbstractItemView *itemView)
                    this, SLOT(updateScrollers()));
         disconnect(view->verticalScrollBar(), SIGNAL(rangeChanged(int,int)),
                    this, SLOT(updateScrollers()));
-        disconnect(view, SIGNAL(entered(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
-                   this, SLOT(setCurrentIndex(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)));
+        disconnect(view, SIGNAL(entered(QModelIndex)),
+                   this, SLOT(setCurrentIndex(QModelIndex)));
         delete view;
         view = 0;
     }
@@ -182,8 +178,8 @@ void ItemViewContainer::setItemView(QAbstractItemView *itemView)
             this, SLOT(updateScrollers()));
     connect(view->verticalScrollBar(), SIGNAL(rangeChanged(int,int)),
             this, SLOT(updateScrollers()));
-    connect(view, SIGNAL(entered(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
-            this, SLOT(setCurrentIndex(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)));
+    connect(view, SIGNAL(entered(QModelIndex)),
+            this, SLOT(setCurrentIndex(QModelIndex)));
 }
 
 /*!

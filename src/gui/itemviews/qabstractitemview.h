@@ -30,7 +30,6 @@ class Q_GUI_EXPORT QAbstractItemView : public QViewport
     Q_PROPERTY(bool autoScroll READ hasAutoScroll WRITE setAutoScroll)
     Q_PROPERTY(int keyboardInputInterval READ keyboardInputInterval WRITE setKeyboardInputInterval)
     Q_PROPERTY(EditTriggers editTriggers READ editTriggers WRITE setEditTriggers)
-    Q_PROPERTY(bool keyTracking READ hasKeyTracking WRITE setKeyTracking)
     Q_PROPERTY(bool tabKeyNavigation READ tabKeyNavigation WRITE setTabKeyNavigation)
     Q_PROPERTY(bool showDropIndicator READ showDropIndicator WRITE setDropIndicatorShown)
     Q_PROPERTY(bool dragEnabled READ dragEnabled WRITE setDragEnabled)
@@ -122,8 +121,8 @@ public:
 
     virtual QRect viewportRectForIndex(const QModelIndex &index) const = 0;
     virtual void ensureVisible(const QModelIndex &index) = 0;
-    inline QModelIndex indexAt(const QPoint &p) const { return indexAt(p.x(), p.y()); }
     virtual QModelIndex indexAt(int x, int y) const = 0;
+    inline QModelIndex indexAt(const QPoint &p) const { return indexAt(p.x(), p.y()); }
 
     QSize sizeHintForIndex(const QModelIndex &index) const;
     virtual int sizeHintForRow(int row) const;
@@ -159,17 +158,15 @@ protected slots:
     virtual void editorDestroyed(QObject *editor);
 
 signals:
-    void rootChanged(const QModelIndex &old, const QModelIndex &root);
-    void pressed(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
-    void clicked(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
-    void doubleClicked(const QModelIndex &index, Qt::MouseButton button,
-                       Qt::KeyboardModifiers modifiers);
-    void keyPressed(const QModelIndex &index, Qt::Key key, Qt::KeyboardModifiers modifiers);
-    void returnPressed(const QModelIndex &index);
+    void pressed(const QModelIndex &index);
+    void clicked(const QModelIndex &index);
+    void doubleClicked(const QModelIndex &index);
+    
+    void activated(const QModelIndex &index);
+    void entered(const QModelIndex &index);
+    void viewportEntered();
+    // to be removed
     void aboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
-    void entered(const QModelIndex &index, Qt::MouseButton button,
-                     Qt::KeyboardModifiers modifiers);
-    void viewportEntered(Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
 
 protected:
     QAbstractItemView(QAbstractItemViewPrivate &, QWidget *parent = 0);
