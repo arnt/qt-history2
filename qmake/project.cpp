@@ -869,20 +869,20 @@ QMakeProject::read(uchar cmd)
     }
 
     if(cmd & ReadFeatures) {
-        QStringList configs = vars["CONFIG"], processed = configs;
+        QStringList configs = vars["CONFIG"], processed;
         while(1) {
             debug_msg(1, "Processing CONFIG features");
-            for(QStringList::ConstIterator it = configs.begin(); it != configs.end(); ++it)
+            for(QStringList::ConstIterator it = configs.begin(); it != configs.end(); ++it) {
                 doProjectInclude((*it), true, vars);
+                processed.append((*it));
+            }
             /* Process the CONFIG again to see if anything has been added (presumably by the feature files)
                We cannot handle them being removed, but we want to process those that are added! */
             configs.clear();
             QStringList new_configs = vars["CONFIG"];
             for(QStringList::ConstIterator it = new_configs.begin(); it != new_configs.end(); ++it) {
-                if(processed.indexOf((*it)) == -1) {
+                if(processed.indexOf((*it)) == -1) 
                     configs.append((*it));
-                    processed.append((*it));
-                }
             }
             if(configs.isEmpty())
                 break;

@@ -1,5 +1,8 @@
 1.08a -
 
+   Automatic feature loading (from CONFIG) has been added, this allows qmake to be
+   written using qmake language.
+
    The dependency generation system has been redesigned to be faster (as over time
    it had gotten slower and slower as features crept in). This new system is used
    for dependency calcuation and moc detection.
