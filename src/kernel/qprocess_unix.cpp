@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#28 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -47,6 +47,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
 #include <signal.h>
 #include <sys/wait.h>
 #include <sys/socket.h>
@@ -353,6 +355,15 @@ bool QProcess::start()
 	return FALSE;
     }
 
+    // the following pipe is only used to determine if the process could be
+    // started
+    int fd[2];
+    if ( pipe( fd ) < 0 ) {
+	// non critical error, go on
+	fd[0] = 0;
+	fd[1] = 0;
+    }
+
     // construct the arguments for exec
     QCString *arglistQ = new QCString[ arguments.count() + 1 ];
     const char** arglist = new const char*[ arguments.count() + 1 ];
@@ -377,24 +388,43 @@ bool QProcess::start()
 	::dup2( d->socketStdout[1], STDOUT_FILENO );
 	::dup2( d->socketStderr[1], STDERR_FILENO );
 	::chdir( workingDir.absPath().latin1() );
+	if ( fd[0] )
+	    ::close( fd[0] );
+	if ( fd[1] )
+	    ::fcntl( fd[1], F_SETFD, FD_CLOEXEC ); // close on exec shows sucess
 	::execvp( arglist[0], (char*const*)arglist ); // ### cast not nice
+	if ( fd[1] ) {
+	    char buf = 0;
+	    ::write( fd[1], &buf, 1 );
+	    ::close( fd[1] );
+	}
 	::exit( -1 );
     } else if ( d->pid == -1 ) {
 	// error forking
-	::close( d->socketStdin[1] );
-	::close( d->socketStdout[0] );
-	::close( d->socketStderr[0] );
-	::close( d->socketStdin[0] );
-	::close( d->socketStdout[1] );
-	::close( d->socketStderr[1] );
-	delete[] arglistQ;
-	delete[] arglist;
-	return FALSE;
+	goto error;
     }
+    // test if exec was successful
+    if ( fd[1] )
+	close( fd[1] );
+    if ( fd[0] ) {
+	char buf;
+	while ( TRUE ) {
+	    int n = ::read( fd[0], &buf, 1 );
+	    if ( n==1 ) {
+		// socket was not closed => error
+		goto error;
+	    } else if ( n==-1 ) {
+		if ( errno==EAGAIN || errno==EINTR )
+		    // try it again
+		    continue;
+	    }
+	    break;
+	}
+    }
+
     ::close( d->socketStdin[0] );
     ::close( d->socketStdout[1] );
     ::close( d->socketStderr[1] );
-    // ### test if exec was successful? How?
 
     // setup notifiers for the sockets
     d->notifierStdin = new QSocketNotifier( d->socketStdin[1],
@@ -421,6 +451,25 @@ bool QProcess::start()
     delete[] arglistQ;
     delete[] arglist;
     return TRUE;
+
+error:
+    ::close( d->socketStdin[1] );
+    ::close( d->socketStdout[0] );
+    ::close( d->socketStderr[0] );
+    ::close( d->socketStdin[0] );
+    ::close( d->socketStdout[1] );
+    ::close( d->socketStderr[1] );
+    d->socketStdin[0] = 0;
+    d->socketStdin[1] = 0;
+    d->socketStdout[0] = 0;
+    d->socketStdout[1] = 0;
+    d->socketStderr[0] = 0;
+    d->socketStderr[1] = 0;
+    ::close( fd[0] );
+    ::close( fd[1] );
+    delete[] arglistQ;
+    delete[] arglist;
+    return FALSE;
 }
 
 
