@@ -56,6 +56,27 @@
 */
 
 /*!
+    \enum QAccessible::Action
+
+    This enum describes the possible types of action that can occur.
+
+    \value DefaultAction
+    \value Press
+    \value FirstStandardAction
+    \value SetFocus
+    \value Increase
+    \value Decrease
+    \value Accept
+    \value Cancel
+    \value Select
+    \value ClearSelection
+    \value RemoveSelection
+    \value ExtendSelection
+    \value AddToSelection
+    \value LastStandardAction
+*/
+
+/*!
     \enum QAccessible::State
 
     This enum type defines bit flags that can be combined to indicate
@@ -398,8 +419,8 @@ QAccessible::RootObjectHandler QAccessible::installRootObjectHandler(RootObjectH
 
 /*!
     If a QAccessibleInterface implementation exists for \a object,
-    this function sets \a iface to point to the implementation, and
-    returns true; otherwise it sets \a iface to 0, and returns false.
+    this function returns a pointer to the implementation; otherwise
+    it returns 0.
 
     The function calls all installed factory functions (from most
     recently installed to least recently installed) until one is found
@@ -412,8 +433,7 @@ QAccessible::RootObjectHandler QAccessible::installRootObjectHandler(RootObjectH
     function tries to find an implementation for the object's parent
     class, using the above strategy.
 
-    \warning
-    The caller must call release() on the interface returned in \a iface.
+    \warning The caller must call release() on the returned interface.
 */
 QAccessibleInterface *QAccessible::queryAccessibleInterface(QObject *object)
 {
@@ -560,7 +580,7 @@ bool QAccessible::isActive()
 
     To enable the user to interact with an accessible object the
     object must expose information about the actions that it can
-    perform. numActions() returns the number of actions supported by
+    perform. userActionCount() returns the number of actions supported by
     an accessible object, and actionText() returns textual information
     about those actions. doAction() invokes an action.
 
@@ -841,7 +861,7 @@ bool QAccessible::isActive()
 */
 
 /*!
-    \fn int QAccessibleInterface::numActions(int child) const
+    \fn int QAccessibleInterface::userActionCount(int child) const
 
     Returns the number of custom actions of the object, or of the
     object's child if \a child is not 0.
@@ -858,19 +878,19 @@ bool QAccessible::isActive()
     Returns the text property \a t of the action \a action supported by
     the object, or of the object's child if \a child is not 0.
 
-    \sa text(), numActions()
+    \sa text(), userActionCount()
 */
 
 /*!
-    \fn bool QAccessibleInterface::doAction(int action, int child)
+    \fn bool QAccessibleInterface::doAction(int action, int child, const QVariantList &params)
 
     Asks the object, or the object's \a child if \a child is not 0, to
-    execute \a action. Returns true if the action could be
-    executed; otherwise returns false.
+    execute \a action using the parameters, \a params. Returns true if
+    the action could be executed; otherwise returns false.
 
     \a action can be a predefined or a custom action.
 
-    \sa numActions(), actionText()
+    \sa userActionCount(), actionText()
 */
 
 #endif

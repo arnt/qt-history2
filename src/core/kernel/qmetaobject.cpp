@@ -69,21 +69,31 @@
 */
 
 /*!
-    \enum QMetaMember::Access
+    \enum QMetaObject::Call
+
+    \internal
+
+    \value InvokeSlot
+    \value EmitSignal
+    \value ReadProperty
+    \value WriteProperty
+    \value ResetProperty
+    \value QueryPropertyDesignable
+    \value QueryPropertyScriptable
+    \value QueryPropertyStored
+    \value QueryPropertyEditable
+*/
+
+/*!
+    \fn void QMetaObject::activate(QObject *obj, int signal_index, void **argv)
 
     \internal
 */
 
 /*!
-    \fn QMetaEnum::operator bool() const
+    \enum QMetaMember::Access
 
-    Returns true if this member has a name; otherwise returns false.
-*/
-
-/*!
-    \fn QMetaProperty::operator bool() const
-
-    Returns true if this property is readable; otherwise returns false.
+    \internal
 */
 
 // do not touch without touching the moc as well
@@ -133,7 +143,7 @@ static inline const QMetaObjectPrivate *priv(const uint* data)
 
     Returns the class name.
 
-    \sa QObject::className(), superClass()
+    \sa superClass()
 */
 
 /*!
@@ -145,6 +155,7 @@ static inline const QMetaObjectPrivate *priv(const uint* data)
 
 /*!
     \internal
+
     Returns \a obj if object \a obj inherits from this meta
     object; otherwise returns 0.
 */
@@ -164,7 +175,8 @@ QObject *QMetaObject::cast(const QObject *obj) const
 #ifndef QT_NO_TRANSLATION
 /*!
     \internal
-    Forwards a tr() call from the Q_OBJECT macro to QApplication
+
+    Forwards a tr() call from the \c Q_OBJECT macro to QApplication.
 */
 QString QMetaObject::tr(const char *s, const char *c) const
 {
@@ -175,7 +187,9 @@ QString QMetaObject::tr(const char *s, const char *c) const
 }
 /*!
     \internal
-    Forwards a trUtf8() call from the Q_OBJECT macro to QApplication
+
+    Forwards a trUtf8() call from the \c Q_OBJECT macro to
+    QApplication.
 */
 QString QMetaObject::trUtf8(const char *s, const char *c) const
 {
@@ -482,7 +496,9 @@ int QMetaObject::indexOfClassInfo(const char *name) const
 }
 
 /*!
-    Returns the meta data for the slot with index \a index.
+    Returns the meta data for the slot with the given \a index.
+
+    \sa indexOfSlot()
 */
 QMetaMember QMetaObject::slot(int index) const
 {
@@ -500,7 +516,9 @@ QMetaMember QMetaObject::slot(int index) const
 }
 
 /*!
-    Returns the meta data for the signal with index \a index.
+    Returns the meta data for the signal with the given \a index.
+
+    \sa indexOfSignal()
 */
 QMetaMember QMetaObject::signal(int index) const
 {
@@ -519,7 +537,9 @@ QMetaMember QMetaObject::signal(int index) const
 
 
 /*!
-    Returns the meta data for the enumerator with index \a index.
+    Returns the meta data for the enumerator with the given \a index.
+
+    \sa indexOfEnumerator()
 */
 QMetaEnum QMetaObject::enumerator(int index) const
 {
@@ -537,7 +557,9 @@ QMetaEnum QMetaObject::enumerator(int index) const
 }
 
 /*!
-    Returns the meta data for the property with index \a index.
+    Returns the meta data for the property with the given \a index.
+
+    \sa indexOfProperty()
 */
 QMetaProperty QMetaObject::property(int index) const
 {
@@ -593,8 +615,10 @@ QMetaProperty QMetaObject::property(int index) const
 }
 
 /*!
-    Returns the meta data for the item of class information with index
-    \a index.
+    Returns the meta data for the item of class information with the
+    given \a index.
+
+    \sa indexOfClassInfo()
  */
 QMetaClassInfo QMetaObject::classInfo(int index) const
 {
@@ -612,7 +636,7 @@ QMetaClassInfo QMetaObject::classInfo(int index) const
 }
 
 /*!
-    Returns true if the \a signal and the \a member arguments are
+    Returns true if the \a signal and \a member arguments are
     compatible; otherwise returns false.
 
     Both \a signal and \a member are expected to be normalized.
@@ -805,9 +829,15 @@ QByteArray QMetaObject::normalizedSignature(const char *member)
     \ingroup objectmodel
 
     A QMetaMember has a signature(), a list of parameters(), a
-    return type(), a tag(), and an access() specifier.
+    return typeName(), a tag(), and an access() specifier.
 */
 
+/*!
+    \enum QMetaMember::Attributes
+
+    \value Compatability
+    \value Cloned
+*/
 
 /*!
     \fn QMetaMember::QMetaMember()
@@ -896,7 +926,7 @@ QMetaMember::Access QMetaMember::access() const
 
     Use name() for the enumerator's name. The enumerator's keys (names
     of each enumerated item) are returned by key(); the number of keys
-    is given by numKeys(). isFlag() returns whether the enumerator is
+    is given by keyCount(). isFlag() returns whether the enumerator is
     meant to be used as a flag, meaning that its values can be OR'ed
     together.
 
@@ -908,12 +938,21 @@ QMetaMember::Access QMetaMember::access() const
 */
 
 /*!
+    \fn bool QMetaEnum::isValid() const
+
+    Returns true if this enum is valid (has a name); otherwise returns
+    false.
+*/
+
+/*!
     \fn QMetaEnum::QMetaEnum()
     \internal
 */
 
 /*!
     Returns the name of the enumerator.
+
+    \sa isValid()
 */
 const char* QMetaEnum::name() const
 {
@@ -939,7 +978,7 @@ int QMetaEnum::keyCount() const
     Returns the key with index \a index; or returns 0 if there is no
     such key.
 
-    \sa numKeys() value()
+    \sa keyCount() value()
 */
 const char *QMetaEnum::key(int index) const
 {
@@ -953,10 +992,10 @@ const char *QMetaEnum::key(int index) const
 }
 
 /*!
-    Returns the value with index \a index; or returns -1 if there is no
-    such value.
+    Returns the value with the given \a index; or returns -1 if there
+    is no such value.
 
-    \sa numKeys() key()
+    \sa keyCount() key()
 */
 int QMetaEnum::value(int index) const
 {
@@ -971,7 +1010,7 @@ int QMetaEnum::value(int index) const
 
 
 /*!
-    Returns true if this enumerator is is used as a flag, i.e. the
+    Returns true if this enumerator is used as a flag, i.e. the
     enumeration values can be OR'ed together; otherwise returns false.
 
     \sa keysToValue(), valueToKeys()
@@ -991,8 +1030,8 @@ const char *QMetaEnum::scope() const
 }
 
 /*!
-    Returns the integer value of the enumeration key \a key, or -1 if
-    \a key isn't found.
+    Returns the integer value of the given enumeration \a key, or -1
+    if \a key isn't found.
 
     For set types, use keysToValue().
 
@@ -1021,8 +1060,8 @@ int QMetaEnum::keyToValue(const char *key) const
 }
 
 /*!
-    Returns the key string for the enumeration value \a value, or 0 if
-    \a value isn't found.
+    Returns the string that is used as the name of the given
+    enumeration \a value, or 0 if \a value isn't found.
 
     For set types, use valueToKeys().
 
@@ -1042,8 +1081,8 @@ const char* QMetaEnum::valueToKey(int value) const
 
 /*!
     Returns the value derived from OR'ing together the values of the
-    keys given in \a keys. Note that the key strings in \a keys must
-    be '|'-separated.
+    keys given in \a keys. Note that the strings in \a keys must be
+    '|'-separated.
 
     \sa isFlag(), valueToKey(), keysToValue()
 */
@@ -1132,6 +1171,13 @@ QByteArray QMetaEnum::valueToKeys(int value) const
     You get meta property data through an object's meta object. See
     QMetaObject::property() and QMetaObject::propertyCount() for
     details.
+*/
+
+/*!
+    \fn bool QMetaProperty::isValid() const
+
+    Returns true if this property is valid (readable); otherwise
+    returns false.
 */
 
 /*!
@@ -1231,7 +1277,7 @@ bool QMetaProperty::hasStdCppSet() const
 
 /*!
     Returns the enumerator if this property's type is an enumerator
-    type; otherwise returns something undefined.
+    type; otherwise the returned value is undefined.
 
     \sa isEnumType()
  */
@@ -1244,6 +1290,8 @@ QMetaEnum QMetaProperty::enumerator() const
 /*!
     Reads the property's value from object \a obj. Returns the value
     if it was able to read it; otherwise returns an invalid variant.
+
+    \sa write() isReadable()
 */
 QCoreVariant QMetaProperty::read(const QObject *obj) const
 {
@@ -1286,6 +1334,8 @@ QCoreVariant QMetaProperty::read(const QObject *obj) const
 /*!
     Writes \a value as the property's value to object \a obj. Returns
     true if the write succeeded; otherwise returns false.
+
+    \sa read() isWritable()
 */
 bool QMetaProperty::write(QObject *obj, const QCoreVariant &value) const
 {
@@ -1330,8 +1380,7 @@ bool QMetaProperty::write(QObject *obj, const QCoreVariant &value) const
     Resets the property for object \a obj with a reset method.
     Returns true if the reset worked; otherwise returns false.
 
-    Reset methods are optional, with only a few properties supporting
-    them.
+    Reset methods are optional; only a few properties support them.
 */
 bool QMetaProperty::reset(QObject *obj) const
 {
@@ -1347,6 +1396,8 @@ bool QMetaProperty::reset(QObject *obj) const
 
 /*!
     Returns true if this property is readable; otherwise returns false.
+
+    \sa read() isWritable()
  */
 bool QMetaProperty::isReadable() const
 {
@@ -1356,6 +1407,8 @@ bool QMetaProperty::isReadable() const
 /*!
     Returns true if this property is writable; otherwise returns
     false.
+
+    \sa write() isReadable()
  */
 bool QMetaProperty::isWritable() const
 {
@@ -1390,9 +1443,9 @@ static bool qt_query_property(const QMetaObject*const*mobj,const int *idx, uint 
     otherwise returns false.
 
     If no object \a obj is given, the function returns false if the
-    Q_PROPERTY's DESIGNABLE attribute is false; otherwise, (i.e. if
-    the attribute is true or is a function or expression), returns
-    true.
+    \c{Q_PROPERTY}'s \c DESIGNABLE attribute is false; otherwise,
+    (i.e. if the attribute is true or is a function or expression),
+    returns true.
  */
 bool QMetaProperty::isDesignable(const QObject *obj) const
 {
@@ -1408,9 +1461,9 @@ bool QMetaProperty::isDesignable(const QObject *obj) const
     otherwise returns false.
 
     If no object \a obj is given, the function returns false if the
-    Q_PROPERTY's DESIGNABLE attribute is false; otherwise, (i.e. if
-    the attribute is true or is a function or expression), returns
-    true.
+    \c{Q_PROPERTY}'s \c DESIGNABLE attribute is false; otherwise,
+    (i.e. if the attribute is true or is a function or expression),
+    returns true.
  */
 bool QMetaProperty::isScriptable(const QObject *obj) const
 {
@@ -1424,9 +1477,9 @@ bool QMetaProperty::isScriptable(const QObject *obj) const
     otherwise returns false.
 
     If no object \a obj is given, the function returns false if the
-    Q_PROPERTY's DESIGNABLE attribute is false; otherwise, (i.e. if
-    the attribute is true or is a function or expression), returns
-    true.
+    \c{Q_PROPERTY}'s \c DESIGNABLE attribute is false; otherwise,
+    (i.e. if the attribute is true or is a function or expression),
+    returns true.
  */
 bool QMetaProperty::isStored(const QObject *obj) const
 {
@@ -1440,9 +1493,9 @@ bool QMetaProperty::isStored(const QObject *obj) const
     otherwise returns false.
 
     If no object \a obj is given, the function returns false if the
-    Q_PROPERTY's DESIGNABLE attribute is false; otherwise, (i.e. if
-    the attribute is true or is a function or expression), returns
-    true.
+    \c{Q_PROPERTY}'s \c DESIGNABLE attribute is false; otherwise,
+    (i.e. if the attribute is true or is a function or expression),
+    returns true.
  */
 bool QMetaProperty::isEditable(const QObject *obj) const
 {
@@ -1566,8 +1619,8 @@ void QMetaType::registerStreamOperators(const char *typeName, SaveOperator saveO
 }
 
 /*!
-   Returns the type name associated for \a type or 0 if no type was
-   found. The returned pointer must not be deleted.
+   Returns the type name associated with the given \a type or 0 if no
+   matching type was found. The returned pointer must not be deleted.
  */
 const char *QMetaType::typeName(int type)
 {
@@ -1589,9 +1642,9 @@ const char *QMetaType::typeName(int type)
 }
 
 /*!
-  Registers a user type for marshalling, with \a typeName, a \a
-  destructor, and a \a copyConstructor. Returns the type's handle, or
-  -1 if the type could not be registered.
+    Registers a user type for marshalling, with \a typeName, a \a
+    destructor, and a \a copyConstructor. Returns the type's handle,
+    or -1 if the type could not be registered.
  */
 int QMetaType::registerType(const char *typeName, Destructor destructor,
                             CopyConstructor copyConstructor)
@@ -1616,7 +1669,8 @@ int QMetaType::registerType(const char *typeName, Destructor destructor,
 }
 
 /*!
-  Returns whether a custom datatype with id \a type is registred or not.
+    Returns true if the custom datatype with ID \a type is registered;
+    otherwise returns false.
  */
 bool QMetaType::isRegistered(int type)
 {
@@ -1625,8 +1679,8 @@ bool QMetaType::isRegistered(int type)
 }
 
 /*!
-  Returns a handle to the type with name \a typeName, or 0 if there is
-  no such type.
+    Returns a handle to the type called \a typeName, or 0 if there is
+    no such type.
  */
 int QMetaType::type(const char *typeName)
 {
@@ -1726,7 +1780,7 @@ void *QMetaType::copy(int type, const void *data)
 }
 
 /*!
-  Destroys the \a data, assuming it is of type \a type.
+    Destroys the \a data, assuming it is of type \a type.
  */
 void QMetaType::destroy(int type, void *data)
 {

@@ -649,30 +649,30 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
 
     Internal flags.
 
-    \value Qt::WState_AutoMask
-    \value Qt::WState_BlockUpdates
-    \value Qt::WState_CompressKeys
-    \value Qt::WState_ConfigPending
-    \value Qt::WState_Created
-    \value Qt::WState_DND
-    \value Qt::WState_ExplicitShowHide
-    \value Qt::WState_Exposed
-    \value Qt::WState_FullScreen
-    \value Qt::WState_Hidden
-    \value Qt::WState_InPaintEvent
-    \value Qt::WState_Maximized
-    \value Qt::WState_Minimized
-    \value Qt::WState_OwnSizePolicy
-    \value Qt::WState_Polished
-    \value Qt::WState_Reparented
-    \value Qt::WState_Reserved0 \e internal
-    \value Qt::WState_Reserved2 \e internal
-    \value Qt::WState_Reserved3 \e internal
-    \value Qt::WState_Reserved4 \e internal
-    \value Qt::WState_Reserve5 \e internal
-    \value Qt::WState_Reserve6 \e internal
-    \value Qt::WState_Reserved7 \e internal
-    \value Qt::WState_Visible
+    \value WState_AutoMask
+    \value WState_BlockUpdates
+    \value WState_CompressKeys
+    \value WState_ConfigPending
+    \value WState_Created
+    \value WState_DND
+    \value WState_ExplicitShowHide
+    \value WState_Exposed
+    \value WState_FullScreen
+    \value WState_Hidden
+    \value WState_InPaintEvent
+    \value WState_Maximized
+    \value WState_Minimized
+    \value WState_OwnSizePolicy
+    \value WState_Polished
+    \value WState_Reparented
+    \value WState_Reserved0 \e internal
+    \value WState_Reserved2 \e internal
+    \value WState_Reserved3 \e internal
+    \value WState_Reserved4 \e internal
+    \value WState_Reserve5 \e internal
+    \value WState_Reserve6 \e internal
+    \value WState_Reserved7 \e internal
+    \value WState_Visible
 */
 
 
@@ -687,10 +687,10 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
     The states are
 
     \value WindowNoState   The window has no state set (in normal state).
-    \value Qt::WindowMinimized The window is minimized (i.e. iconified).
-    \value Qt::WindowMaximized The window is maximized with a frame around it.
-    \value Qt::WindowFullScreen The window fills the entire screen without any frame around it.
-    \value Qt::WindowActive The window is the active window, i.e. it has keyboard focus.
+    \value WindowMinimized The window is minimized (i.e. iconified).
+    \value WindowMaximized The window is maximized with a frame around it.
+    \value WindowFullScreen The window fills the entire screen without any frame around it.
+    \value WindowActive The window is the active window, i.e. it has keyboard focus.
 
 */
 
@@ -3556,15 +3556,15 @@ QSize QWidget::contentsMarginSize() const
     This enum type defines the various policies a widget can have with
     respect to acquiring keyboard focus.
 
-    \value Qt::TabFocus  the widget accepts focus by tabbing.
-    \value Qt::ClickFocus  the widget accepts focus by clicking.
-    \value Qt::StrongFocus  the widget accepts focus by both tabbing
-                        and clicking. On Mac OS X this will also
-                        be indicate that the widget accepts tab focus
-                        when in 'Text/List focus mode'.
-    \value Qt::WheelFocus  like Qt::StrongFocus plus the widget accepts
-                        focus by using the mouse wheel.
-    \value Qt::NoFocus  the widget does not accept focus.
+    \value TabFocus  the widget accepts focus by tabbing.
+    \value ClickFocus  the widget accepts focus by clicking.
+    \value StrongFocus  the widget accepts focus by both tabbing
+                    and clicking. On Mac OS X this will also
+                    be indicate that the widget accepts tab focus
+                    when in 'Text/List focus mode'.
+    \value WheelFocus  like Qt::StrongFocus plus the widget accepts
+                    focus by using the mouse wheel.
+    \value NoFocus  the widget does not accept focus.
 
 */
 
