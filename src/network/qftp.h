@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qftp.h#8 $
+** $Id: //depot/qt/main/src/network/qftp.h#9 $
 **
 ** Definition of QFtp class.
 **
@@ -44,13 +44,19 @@
 #include "qnetworkprotocol.h"
 #endif // QT_H
 
+#if !defined( QT_MODULE_NETWORK ) || defined( QT_LICENSE_PROFESSIONAL )
+#define QM_EXPORT
+#else
+#define QM_EXPORT Q_EXPORT
+#endif
+
 #ifndef QT_NO_NETWORKPROTOCOL_FTP
 
 
 class QSocket;
 
 
-class Q_EXPORT QFtp : public QNetworkProtocol
+class QM_EXPORT QFtp : public QNetworkProtocol
 {
     Q_OBJECT
 

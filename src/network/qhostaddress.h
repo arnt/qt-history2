@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qhostaddress.h#5 $
+** $Id: //depot/qt/main/src/network/qhostaddress.h#6 $
 **
 ** Definition of QHostAddress class.
 **
@@ -42,10 +42,16 @@
 #include "qstring.h"
 #endif // QT_H
 
+#if !defined( QT_MODULE_NETWORK ) || defined( QT_LICENSE_PROFESSIONAL )
+#define QM_EXPORT
+#else
+#define QM_EXPORT Q_EXPORT
+#endif
+
 #ifndef QT_NO_NETWORK
 class QHostAddressPrivate;
 
-class Q_EXPORT QHostAddress
+class QM_EXPORT QHostAddress
 {
 public:
     QHostAddress();

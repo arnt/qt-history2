@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qserversocket.h#6 $
+** $Id: //depot/qt/main/src/network/qserversocket.h#7 $
 **
 ** Definition of QServerSocketClass.
 **
@@ -45,10 +45,16 @@
 #endif // QT_H
 #ifndef QT_NO_NETWORK
 
+#if !defined( QT_MODULE_NETWORK ) || defined( QT_LICENSE_PROFESSIONAL )
+#define QM_EXPORT
+#else
+#define QM_EXPORT Q_EXPORT
+#endif
+
 class QServerSocketPrivate;
 
 
-class Q_EXPORT QServerSocket : public QObject
+class QM_EXPORT QServerSocket : public QObject
 {
     Q_OBJECT
 public:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.h#7 $
+** $Id: //depot/qt/main/src/network/qdns.h#8 $
 **
 ** Definition of QDns class.
 **
@@ -45,11 +45,17 @@
 #include "qstringlist.h"
 #endif // QT_H
 
+#if !defined( QT_MODULE_NETWORK ) || defined( QT_LICENSE_PROFESSIONAL )
+#define QM_EXPORT
+#else
+#define QM_EXPORT Q_EXPORT
+#endif
+
 #ifndef QT_NO_DNS
 
 class QDnsPrivate;
 
-class Q_EXPORT QDns: public QObject {
+class QM_EXPORT QDns: public QObject {
     Q_OBJECT
 public:
     enum RecordType {
@@ -80,7 +86,7 @@ public:
     // to query for replies
     QValueList<QHostAddress> addresses() const;
 
-    class Q_EXPORT MailServer {
+    class QM_EXPORT MailServer {
     public:
 	MailServer( const QString & n=QString::null, Q_UINT16 p=0 )
 	    :name(n), priority(p) {}
@@ -92,7 +98,7 @@ public:
     };
     QValueList<MailServer> mailServers() const;
 
-    class Q_EXPORT Server {
+    class QM_EXPORT Server {
     public:
 	Server(const QString & n=QString::null, Q_UINT16 p=0, Q_UINT16 w=0, Q_UINT16 po=0 )
 	    : name(n), priority(p), weight(w), port(po) {}
