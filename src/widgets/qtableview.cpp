@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#99 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#100 $
 **
 ** Implementation of QTableView class
 **
@@ -1433,6 +1433,7 @@ QScrollBar *QTableView::verticalScrollBar() const
     QTableView *that = (QTableView*)this; // semantic const
     if ( !vScrollBar ) {
 	QScrollBar *sb = new QScrollBar( QScrollBar::Vertical, that );
+	sb->setCursor( arrowCursor );
 	sb->resize( sbDim, 16 ); // 16 is irrelevant
 	CHECK_PTR(sb);
 	sb->setTracking( FALSE );
@@ -1461,6 +1462,7 @@ QScrollBar *QTableView::horizontalScrollBar() const
     QTableView *that = (QTableView*)this; // semantic const
     if ( !hScrollBar ) {
 	QScrollBar *sb = new QScrollBar( QScrollBar::Horizontal, that );
+	sb->setCursor( arrowCursor );
 	sb->resize( 16, sbDim ); // 16 is irrelevant
 	sb->setFocusPolicy( NoFocus );
 	CHECK_PTR(sb);
