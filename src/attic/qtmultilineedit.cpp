@@ -25,7 +25,9 @@
 #include "qtimer.h"
 #include "qdict.h"
 #include "qcursor.h"
-
+#ifndef QT_NO_COMPAT
+#include "qstyle.h"
+#endif
 #include <ctype.h>
 
 
