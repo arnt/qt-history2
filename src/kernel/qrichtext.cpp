@@ -2236,7 +2236,8 @@ void QTextDocument::unregisterCustomItem( QTextCustomItem *i, QTextParag *p )
     flow_->unregisterFloatingItem( i );
     p->unregisterFloatingItem( i );
     customItems.removeRef( i );
-    delete i;
+    if ( i->placement() != QTextCustomItem::PlaceInline )
+	delete i;
 }
 
 bool QTextDocument::focusNextPrevChild( bool next )

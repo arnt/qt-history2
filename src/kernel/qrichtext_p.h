@@ -124,7 +124,7 @@ public:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class QTextStringChar
+class Q_EXPORT QTextStringChar
 {
     friend class QTextString;
 
@@ -194,7 +194,13 @@ private:
     friend class QTextParag;
 };
 
-class QTextString
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+template class Q_EXPORT QArray<QTextStringChar>;
+// MOC_SKIP_END
+#endif
+
+class Q_EXPORT QTextString
 {
 public:
 
