@@ -52,7 +52,7 @@ public:
         InOut = 0x00000003, // In | Out
         Binary = 0x00000004
     };
-    Q_DECLARE_FLAGS(ParamType, ParamTypeFlag);
+    Q_DECLARE_FLAGS(ParamType, ParamTypeFlag)
 
     enum TableType {
         Tables = 0x01,
