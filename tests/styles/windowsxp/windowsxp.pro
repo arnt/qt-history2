@@ -12,6 +12,10 @@ win32:OBJECTS_DIR	= obj
 TARGET		= qwindowsxpstyle
 DESTDIR		= ../../../plugins/styles
 LIBS		+= uxtheme.lib
+win32-msvc:{
+    LIBS	+= delayimp.lib
+    QMAKE_LFLAGS += /DELAYLOAD:uxtheme.dll
+}
 
 target.path=$$plugins.path/styles
 isEmpty(target.path):target.path=$$QT_PREFIX/plugins/styles
