@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#10 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#11 $
 **
 ** Definition of QPaintDevice class
 **
@@ -79,7 +79,7 @@ protected:
 private:
     uint     devFlags;				// device flags
     virtual bool cmd( int, QPDevCmdParam * );
-    virtual int  metric( int );
+    virtual long metric( int ) const;
 };
 
 
