@@ -48,11 +48,13 @@ tools {
 
 	win32:SOURCES += $$TOOLS_CPP/qdir_win.cpp \
 	 	  $$TOOLS_CPP/qfile_win.cpp \
-		  $$TOOLS_CPP/qfileinfo_win.cpp
+		  $$TOOLS_CPP/qfileinfo_win.cpp \
+		  $$TOOLS_CPP/qsettings_win.cpp
 
 	unix:SOURCES += $$TOOLS_CPP/qdir_unix.cpp \
 		  $$TOOLS_CPP/qfile_unix.cpp \
-		  $$TOOLS_CPP/qfileinfo_unix.cpp
+		  $$TOOLS_CPP/qfileinfo_unix.cpp \
+		  $$TOOLS_CPP/qsettings_unix.cpp
 
 	SOURCES += $$TOOLS_CPP/qbitarray.cpp \
 		  $$TOOLS_CPP/qbuffer.cpp \
@@ -72,7 +74,6 @@ tools {
 		  $$TOOLS_CPP/qiodevice.cpp \
 		  $$TOOLS_CPP/qmap.cpp \
 		  $$TOOLS_CPP/qregexp.cpp \
-		  $$TOOLS_CPP/qsettings.cpp \
 		  $$TOOLS_CPP/qstring.cpp \
 		  $$TOOLS_CPP/qstringlist.cpp \
 		  $$TOOLS_CPP/qtextstream.cpp
