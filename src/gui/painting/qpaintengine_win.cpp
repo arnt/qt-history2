@@ -726,6 +726,8 @@ void QWin32PaintEngine::drawPath(const QPainterPath &p)
     else if (brush)
         FillPath(d->hdc);
 
+    d->composeGdiPath(pd, QWin32PaintEnginePrivate::DrawUnclosed);
+
     if (p.fillMode() == QPainterPath::Winding)
         SetPolyFillMode(d->hdc, ALTERNATE);
 
@@ -1524,15 +1526,16 @@ void QWin32PaintEnginePrivate::fillAlpha(const QRect &r, const QColor &color)
     DeleteDC(memdc);
 }
 
-void QWin32PaintEnginePrivate::composeGdiPath(const QPainterPathPrivate *pd)
+void QWin32PaintEnginePrivate::composeGdiPath(const QPainterPathPrivate *pd, ComposePathMode mode)
 {
-    if (!BeginPath(hdc))
+    bool direct = mode == DrawUnclosed;
+    if (!direct && !BeginPath(hdc))
         qSystemWarning("QWin32PaintEngine::drawPath(), begin path failed.");
 
     // Drawing the subpaths
     for (int i=0; i<pd->subpaths.size(); ++i) {
         const QPainterSubpath &sub = pd->subpaths.at(i);
-        if (sub.elements.isEmpty())
+        if (sub.elements.isEmpty() || (!direct && !sub.isClosed()))
             continue;
         QPoint firstPoint = sub.firstPoint().toPoint();
         MoveToEx(hdc, firstPoint.x(), firstPoint.y(), 0);
@@ -1581,10 +1584,11 @@ void QWin32PaintEnginePrivate::composeGdiPath(const QPainterPathPrivate *pd)
                 qFatal("QWin32PaintEngine::drawPath(), unhandled subpath type: %d", elm.type);
             }
         }
-        CloseFigure(hdc);
+        if (!direct)
+            CloseFigure(hdc);
     }
 
-    if (!EndPath(hdc))
+    if (!direct && !EndPath(hdc))
         qSystemWarning("QWin32PaintEngine::drawPath(), end path failed");
 }
 
