@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#37 $
 **
 ** Implementation of QColor class for X11
 **
@@ -17,7 +17,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#36 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#37 $")
 
 
 /*****************************************************************************
@@ -76,7 +76,7 @@ static int highest_bit( ulong v )
  *****************************************************************************/
 
 /*----------------------------------------------------------------------------
-  Returns the maximum number of colors supported by the underlying windows
+  Returns the maximum number of colors supported by the underlying window
   system.
  ----------------------------------------------------------------------------*/
 
@@ -86,7 +86,7 @@ int QColor::maxColors()
 }
 
 /*----------------------------------------------------------------------------
-  Returns the number of color bit planes for the underlying windows system.
+  Returns the number of color bit planes for the underlying window system.
 
   The returned values is equal to the default pixmap depth;
   QPixmap::depth().
