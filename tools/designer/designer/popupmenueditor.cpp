@@ -1211,14 +1211,13 @@ int PopupMenuEditor::drawAction( QPainter & p, QAction * a, int x, int y )
     QPixmap icon = a->iconSet().pixmap( QIconSet::Automatic, QIconSet::Normal );
     
     if ( a->isToggleAction() && a->isOn() ) {
-	const int b = icon.isNull() ? borderSize * 2 : borderSize; 
-	p.moveTo( iconWidth - b, y );
+	p.moveTo( iconWidth, y + 1 );
 	p.setPen( "white" );
-	p.lineTo( iconWidth - b, y + iconWidth - b );
-	p.lineTo( b, y + iconWidth - b );
+	p.lineTo( iconWidth, y + itemHeight - 2 );
+	p.lineTo( 3, y + itemHeight - 2 );
 	p.setPen( "black" );
-	p.lineTo( b, y );
-	p.lineTo( iconWidth - b, y );
+	p.lineTo( 3, y + 1);
+	p.lineTo( iconWidth, y + 1 );
 	drawToggle( p, y );
     }
 	
@@ -1350,7 +1349,7 @@ void PopupMenuEditor::drawWinFocusRect( QPainter & p, const int y )
 	return;
     }
     if ( currentField == 0 ) {
-	p.drawWinFocusRect( borderSize, y + 1, iconWidth, itemHeight - 2 );
+	p.drawWinFocusRect( borderSize + 1, y + 1, iconWidth - 2, itemHeight - 2 );
     } else if ( currentField == 1 ) {
 	p.drawWinFocusRect( borderSize + iconWidth, y + 1, textWidth, itemHeight - 2 );
     } else if ( currentField == 2 ) {
