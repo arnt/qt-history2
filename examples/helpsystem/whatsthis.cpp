@@ -11,6 +11,7 @@
 ****************************************************************************/
 
 #include <qapplication.h>
+#include <qdir.h>
 #include <qheader.h>
 #include <qtable.h>
 
@@ -54,7 +55,7 @@ QString HeaderWhatsThis::text( const QPoint &p )
     }
     if( section == -1 )
 	return "This is empty space.";
-    QString docsPath = qApp->applicationDirPath() + "/../../doc";
+    QString docsPath = QDir("../../doc").absPath();
     return QString("This is section number %1 in the %2 <a href=%2/html/qheader.html>header</a>.").
 	arg(section + 1).
 	arg(orient).
@@ -82,7 +83,7 @@ QString TableWhatsThis::text( const QPoint &p )
     if ( !i )
 	return "This is an empty cell.";
 
-    QString docsPath = qApp->applicationDirPath() + "/../../doc";
+    QString docsPath = QDir("../../doc").absPath();
 
     if ( QTableItem::RTTI == i->rtti() ) {
 	return QString("This is a <a href=%1/html/qtableitem.html>QTableItem</a>.").
