@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#38 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#39 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -29,6 +29,7 @@
 #include "qdrawutil.h"
 #include "qdatetime.h"
 #include "qapplication.h"
+#include <limits.h>
 
 // If the operation is expected to take this long (as predicted by
 // progress time), show the progress dialog.
@@ -440,7 +441,11 @@ void QProgressDialog::setProgress( int progress )
 	} else {
 	    int elapsed = d->starttime.elapsed();
 	    if ( !d->showTime || elapsed > minWaitTime ) {
-		int estimate = elapsed * (totalSteps() - progress) / progress;
+		int estimate;
+	        if ( (totalSteps() - progress) >= INT_MAX / elapsed )
+		    estimate = (totalSteps() - progress) / progress * elapsed;
+		else
+		    estimate = elapsed * (totalSteps() - progress) / progress;
 		if ( estimate >= d->showTime ) {
 		    resize(sizeHint());
 		    center();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#36 $
 **
 ** Implementation of QProgressBar class
 **
@@ -27,6 +27,7 @@
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qapplication.h"
+#include <limits.h>
 
 /*!
   \class QProgressBar qprogressbar.h
@@ -283,6 +284,12 @@ bool QProgressBar::setIndicator( QString & indicator, int progress,
 	indicator = "";
 	return TRUE;
     } else {
+	// Get the values down to something usable.
+	if ( totalSteps > INT_MAX/1000 ) {
+	    progress /= 1000;
+	    totalSteps /= 1000;
+	}
+
 	int np = progress * 100 / totalSteps;
 	if ( np != percentage ) {
 	    percentage = np;
@@ -321,7 +328,14 @@ void QProgressBar::drawContents( QPainter *p )
 
 	if (total_steps) { // Sanity check
 	    // ### This part doesn't change as often as percentage does.
-	    int nu = ( u * progress_val + total_steps/2 ) / total_steps;
+	    int p_v = progress_val;
+	    int t_s = total_steps;
+	    if ( progress_val >= INT_MAX / u ) {
+		// scale down to something usable.
+		p_v /= u;
+		t_s /= u;
+	    }
+	    int nu = ( u * p_v + t_s/2 ) / t_s;
 	    int x = bar.x() + ox;
 	    int uh = QMIN(bar.height()-4, unit_height);
 	    int vm = (bar.height()-4 - uh)/2 + 2;
