@@ -866,15 +866,20 @@ void QSqlTable::insertCurrent()
 	emit beforeInsert( d->editBuffer );
 	b = sqlCursor()->insert();
 	QApplication::restoreOverrideCursor();
-	if ( !b || !sqlCursor()->isActive() )
+	if ( !b || !sqlCursor()->isActive() ) {
 	    handleError( sqlCursor()->lastError() );
-	QSqlIndex idx = sqlCursor()->primaryIndex( TRUE );
-	endInsert();
-	setEditMode( NotEditing, -1, -1 );
-	refresh();
-	findBuffer( idx, d->lastAt );
-	emit cursorChanged( QSqlCursor::Insert );
-	setCurrentCell( currentRow(), currentColumn() );
+	    refresh();
+	    if ( QTable::beginEdit( currentRow(), currentColumn(), FALSE ) )
+		setEditMode( Editing, currentRow(), currentColumn() );
+	} else {
+	    QSqlIndex idx = sqlCursor()->primaryIndex( TRUE );
+	    endInsert();
+	    setEditMode( NotEditing, -1, -1 );
+	    refresh();
+	    findBuffer( idx, d->lastAt );
+	    emit cursorChanged( QSqlCursor::Insert );
+	    setCurrentCell( currentRow(), currentColumn() );
+	}
 	break;
     }
     case No:
@@ -938,14 +943,20 @@ void QSqlTable::updateCurrent()
 	emit beforeUpdate( d->editBuffer );
 	b = sqlCursor()->update();
 	QApplication::restoreOverrideCursor();
-	if ( !b || !sqlCursor()->isActive() )
+	if ( !b || !sqlCursor()->isActive() ) {
 	    handleError( sqlCursor()->lastError() );
-	QSqlIndex idx = sqlCursor()->primaryIndex( TRUE );
-	endUpdate();
-	refresh();
-	findBuffer( idx, d->lastAt );
-	emit cursorChanged( QSqlCursor::Update );
-	setCurrentCell( currentRow(), currentColumn() );
+	    refresh();
+	    setCurrentCell( d->editRow, d->editCol );
+	    if ( QTable::beginEdit( d->editRow, d->editCol, FALSE ) )
+		setEditMode( Editing, d->editRow, d->editCol );
+	} else {
+	    QSqlIndex idx = sqlCursor()->primaryIndex( TRUE );
+	    endUpdate();
+	    refresh();
+	    findBuffer( idx, d->lastAt );
+	    emit cursorChanged( QSqlCursor::Update );
+	    setCurrentCell( currentRow(), currentColumn() );
+	}
 	break;
     }
     case No:
