@@ -1157,7 +1157,13 @@ TrWindow::TrWindow()
     connect( lv, SIGNAL(currentChanged(QListViewItem *)),
 	     this, SLOT(showNewScope(QListViewItem *)) );
 
+    connect( lv, SIGNAL(clicked(QListViewItem *, const QPoint&, int)),
+	     this, SLOT(showNewScope(QListViewItem *)) );
+
     connect( slv, SIGNAL(currentChanged(QListViewItem *)),
+	     this, SLOT(showNewCurrent(QListViewItem *)) );
+
+    connect( slv, SIGNAL(clicked(QListViewItem *, const QPoint&, int)),
 	     this, SLOT(showNewCurrent(QListViewItem *)) );
 
     connect( slv, SIGNAL(clicked(QListViewItem *, const QPoint&, int)),
