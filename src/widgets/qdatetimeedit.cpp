@@ -970,8 +970,8 @@ QSize QDateEdit::sizeHint() const
     constPolish();
     QFontMetrics fm( font() );
     int fw = style().pixelMetric( QStyle::PM_DefaultFrameWidth, this );
-    int h = fm.lineSpacing() + 2;
-    int w = QMAX( fm.lineSpacing(), 14 ) + 2;
+    int h = QMAX( fm.lineSpacing(), 14 ) + 2;
+    int w = 2 + fm.width( '9' ) * 8 + fm.width( d->ed->separator() ) * 2 + d->controls->upRect().width() + fw * 4;
 
     return QSize( w, QMAX(h + fw * 2,20) ).expandedTo( QApplication::globalStrut() );
 }
