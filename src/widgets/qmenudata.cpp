@@ -833,9 +833,10 @@ QKeySequence QMenuData::accel( int id ) const
     if ( mi )
 	return mi->key();
     return QKeySequence();
-}util/qdoc/qdoc *0      QDOC_PATH          
-X
-       !    key.
+}
+
+/*!
+    Sets the accelerator key for the menu item \a id to \a key.
 
     An accelerator key consists of a key code and a combination of the
     modifiers \c SHIFT, \c CTRL, \c ALT or \c UNICODE_ACCEL (OR'ed or
