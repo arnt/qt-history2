@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#290 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#291 $
 **
 ** Implementation of QWidget class
 **
@@ -2172,7 +2172,7 @@ QFocusData * QWidget::focusData( bool create )
   Informs the underlying window system that this widget is a size grip
   (if sizegrip is TRUE). An example is the nifty decoration in the
   bottom right corner of a QStatusBar.
-  
+
   This function does yet nothing under Windows. Under X11, the window
   manager has to support the QT_SIZEGRIP protocol.
 */
@@ -2647,6 +2647,20 @@ bool QWidget::close( bool forceKill )
 	    delete this;
     }
     return accept;
+}
+
+
+/*!
+  Closes the widget.
+  
+  This version of close is usable as a slot. It calls close( TRUE ) 
+
+  \sa close(bool)
+*/
+
+void QWidget::close()
+{
+    (void) close( FALSE );
 }
 
 

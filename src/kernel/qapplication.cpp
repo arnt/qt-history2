@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#161 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#162 $
 **
 ** Implementation of QApplication class
 **
@@ -271,6 +271,7 @@ QApplication::QApplication( int &argc, char **argv )
 	builder = new QBuilder;
 	builder->show();
     }
+
     // arnt was here.
     QMessageFile * n = new QMessageFile( this );
     n->insert( QMessageFile::hash( "QFileDialog", "Name" ), "Navn" );

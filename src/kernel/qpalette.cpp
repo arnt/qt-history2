@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#27 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -75,6 +75,12 @@ QColorGroup::QColorGroup()
 {						// all colors become black
 }
 
+/*!
+Constructs a color group. You can pass either brushes, pixmaps or
+plain colors for each parameter.
+
+\sa QBrush
+*/
 QColorGroup::QColorGroup( const QBrush &foreground, const QBrush &button,
 			  const QBrush &light, const QBrush &dark, const QBrush &mid,
 			  const QBrush &text,  const QBrush &bright_text, const QBrush &base,
@@ -140,7 +146,7 @@ QColorGroup::~QColorGroup()
 */
 
 /*!
-  \fn QColor QColorGroup::midlight() const
+  \fn const QColor& QColorGroup::midlight() const
   Returns the midlight color of the color group. Currently, this is
   a lightened version of the button color, but this may change
   in the future, to return a <tt>const QColor &</tt> from the
@@ -193,7 +199,7 @@ QColorGroup::~QColorGroup()
 */
 
 /*!
-  \fn QBrush QColorGroup::fillMidlight() const
+  \fn const QBrush& QColorGroup::fillMidlight() const
   Returns the midlight brush of the color group. Currently, this is
   a lightened version of the button brush, but this may change
   in the future, to return a <tt>const QBrush &</tt> from the

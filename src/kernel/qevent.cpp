@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#69 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#70 $
 **
 ** Implementation of event classes
 **
@@ -148,7 +148,7 @@ void QEvent::peErrMsg()				// posted event error message
 */
 
 /*!
-  \fn int QEvent::type() const
+  \fn QEvent::Type QEvent::type() const
   Returns the event type.
 */
 
@@ -292,7 +292,7 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
 */
 
 /*!
-  \fn int QMouseEvent::button() const
+  \fn ButtonState QMouseEvent::button() const
   Returns the button that caused the event.
 
   Possible return values are \c LeftButton, \c RightButton, \c MidButton and
@@ -306,7 +306,7 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
 
 
 /*!
-  \fn int QMouseEvent::state() const
+  \fn ButtonState QMouseEvent::state() const
 
   Returns the button state (a combination of mouse buttons and keyboard
   modifiers), i.e. what buttons and keys were being held depressed

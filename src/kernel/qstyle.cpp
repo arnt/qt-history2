@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#15 $
 **
 ** Implementation of QStyle class
 **
@@ -74,6 +74,20 @@ QStyle::~QStyle()
 {
 }
 
+/*!
+  \fn GUIStyle guiStyle() const
+  
+  Returns an indicator to the additional "feel" component of a
+  style. Current supported values are Windows and Motif.
+*/
+
+
+/*!
+  Late initialization of the QApplication object like settings an
+  appropriate color palette.
+
+  \sa QPalette, QApplication::setPalette()
+ */
 void QStyle::initialize( QApplication*)
 {
 }
@@ -158,7 +172,7 @@ QStyle::drawRectStrong( QPainter *p, int x, int y, int w, int h,
     qDrawShadeRect( p, x, y, w, h, g, sunken, lineWidth, midLineWidth, fill );
 }
 
-/*! 
+/*!
   \fn void QStyle::drawButton( QPainter *, int , int , int , int ,
 			     const QColorGroup &, bool, const QBrush* )
   Draws a press-sensitive shape in the style of a full featured  push button
@@ -166,14 +180,14 @@ QStyle::drawRectStrong( QPainter *p, int x, int y, int w, int h,
 
 /*!
   \fn void QStyle::drawBevelButton( QPainter *, int , int , int , int ,
-			     const QColorGroup &, bool, const QBrush* ) 
+			     const QColorGroup &, bool, const QBrush* )
 
   Draws a press-sensitive shape in the style of a bevel button.
 */
 
 /*!
   Draws a press-sensitive shape in the style of a toolbar button
-  
+
   The default implementation calls drawBevelButton()
   \sa drawBevelButton()
 */
@@ -329,8 +343,7 @@ QStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
 }
 
 /*!
-  \fn void
-  QStyle::drawArrow( QPainter *, ArrowType , bool ,
+  \fn void QStyle::drawArrow( QPainter *, ArrowType , bool ,
 		 int , int , int , int ,
 		 const QColorGroup &, bool, const QBrush *)
   Draws a button indicating direction.
@@ -386,6 +399,29 @@ QStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h, bool /* on *
   Draws a mark indicating keyboard focus is on \a r.
 */
 
+/*!
+
+  \fn void scrollbarMetrics( const QScrollBar*, int *, int *, int * );
+
+  Returns the metrics of the passed scrollbar: sliderMin, sliderMax
+  and sliderLength
+
+*/
+
+/*!
+
+  \fn  void drawScrollbarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, 
+  uint activeControl ) = 0;
+  
+  Draws the given scrollbar. Used internally by QScrollbar.
+  
+  The controls are either ADD_LINE, SUB_LINE, ADD_PAGE, SUB_PAGE,
+  FIRST, LAST, SLIDER or NONE
+  
+  Controls is a combination of these, activeControl is the control
+  currently pressed down.
+ */
+
 
 /*!
   \fn int QStyle::sliderLength() const;
@@ -413,6 +449,18 @@ QStyle::drawSliderMask( QPainter *p,
 {
     p->fillRect(x, y, w, h, color1);
 }
+
+/*!
+  \fn  void drawSliderGroove( QPainter *p,
+                    int x, int y, int w, int h,
+                    const QColorGroup& g, QCOORD c,
+                    bool horizontal )
+
+  Draws a slider groove
+  
+*/
+		    
+		    
 
 /*!
   Draws the mask of a slider groove

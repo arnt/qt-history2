@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#66 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#67 $
 **
 ** Implementation of QSlider class
 **
@@ -354,15 +354,35 @@ QRect QSlider::sliderRect() const
 }
 
 
+/*!
+  Paints the slider button using painter \a p with size and
+  position given by \a r with the widget's default colorGroup.
+  
+  Do not reimplement this function, it's mainly there for
+  compatibility reasons. It simply calls 
+  
+  paintSlider(QPainter *p, const QColorGroup &g, const QRect &r )
+  
+  which is the right function to overload.
+  
+  \sa colorGroup(), paintSlider(QPainter *p, const QColorGroup &g, const QRect &r )
+
+*/
 void QSlider::paintSlider( QPainter *p, const QRect &r )
 {
     paintSlider(p, colorGroup(), r);
 }
 
 /*!
-  Paints the slider button using painter \a p with size and
-  position given by \a r. Reimplement this function to change the
+  Paints the slider button using painter \a p with size, a colorgroup
+  and position given by \a r. Reimplement this function to change the
   look of the slider button.
+  
+  Setting the colorgroup is useful to reuse the code to draw a mask if
+  the slider supports transparceny.  
+  
+  \sa setAutoMask(), updateMask()
+
 */
 
 void QSlider::paintSlider( QPainter *p, const QColorGroup &g, const QRect &r )
@@ -427,19 +447,13 @@ void QSlider::reallyMoveSlider( int newPos )
 	updateMask();
 }
 
-void QSlider::drawWinGroove( QPainter *p, QCOORD c )
-{
-    drawWinGroove( p, colorGroup(), c);
-}
-
-
 /*!\obsolete
   Draws the "groove" on which the slider moves, using the painter \a p.
   \a c gives the distance from the top (or left) edge of the widget to
   the center of the groove.
 */
 
-void QSlider::drawWinGroove( QPainter *p, const QColorGroup& g, QCOORD c )
+void QSlider::drawWinGroove( QPainter *p, QCOORD c )
 {
     if ( orient == Horizontal ) {
 	qDrawWinPanel( p, 0, c - 2,  width(), 4, colorGroup(), TRUE );
@@ -517,6 +531,13 @@ void QSlider::paintEvent( QPaintEvent *e )
 }
 
 
+/*!
+  
+ Reimplementation of QWidget::updateMask(). Draws the mask of the
+ slider when transparency is required.
+ 
+ \sa QWidget::setAutoMask()
+*/
 void QSlider::updateMask()
 {
     QBitmap bm( size() );
@@ -544,7 +565,8 @@ void QSlider::updateMask()
 		    mid += style().sliderLength() / 8;
 		if ( ticks & Below )
 		    mid -= style().sliderLength() / 8;
-		drawWinGroove( &p, g, mid );
+		style().drawSliderGroove(&p, 0, tickOffset, width(), thickness(),
+					 g, mid, TRUE );
 	    }
 	    paintSlider( &p, g, sliderR );
 	    break;
@@ -946,6 +968,22 @@ int QSlider::thickness() const
     return thick;
 }
 
+/*!
+  Using \a p, draws tickmarks at a distance of \a d from the edge
+  of the widget, using \a w pixels and with an interval of \a i.
+  
+  Do not reimplement this function, it's mainly there for
+  compatibility reasons. It simply calls 
+  
+  drawTicks( QPainter *p, const QColorGroup& g, int d, int w, int i ) const
+  
+  which is the right function to overload.
+  
+  \sa colorGroup(), drawTicks( QPainter *p, const QColorGroup& g, int d, int w, int i ) const, 
+  paintSlider
+
+*/
+
 void QSlider::drawTicks( QPainter *p, int d, int w, int i ) const
 {
     drawTicks( p, colorGroup(), d, w, i);
@@ -954,6 +992,11 @@ void QSlider::drawTicks( QPainter *p, int d, int w, int i ) const
 /*!
   Using \a p, draws tickmarks at a distance of \a d from the edge
   of the widget, using \a w pixels and with an interval of \a i.
+
+  Setting the colorgroup is useful to reuse the code to draw a mask if
+  the slider supports transparceny.  
+
+\sa setAutoMask(), updateMask()
 */
 
 void QSlider::drawTicks( QPainter *p, const QColorGroup& g, int d, int w, int i ) const

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#92 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#93 $
 **
 ** Implementation of QLabel widget class
 **
@@ -540,6 +540,12 @@ void QLabel::setAutoMask(bool b)
     QFrame::setAutoMask(b);
 }
 
+/*!
+  Draws the label contents mask using the painter \e p.
+  Used only in transparent mode.
+  
+  \sa QWidget::setAutoMask();
+*/
 void QLabel::drawContentsMask( QPainter *p )
 {
     QRect cr = contentsRect();

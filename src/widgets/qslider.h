@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.h#30 $
+** $Id: //depot/qt/main/src/widgets/qslider.h#31 $
 **
 ** Definition of QSlider class
 **
@@ -90,7 +90,6 @@ protected:
     void	rangeChange();
 
     virtual void paintSlider( QPainter *, const QColorGroup&, const QRect & );
-    void	drawWinGroove( QPainter *, const QColorGroup&, QCOORD );
     void	drawTicks( QPainter *, const QColorGroup&, int, int, int=1 ) const;
 
     virtual void paintSlider( QPainter *, const QRect & );
