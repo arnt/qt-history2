@@ -104,14 +104,14 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "DEBUG" ]	    = "no";
     dictionary[ "SHARED" ]	    = "yes";
 
-    dictionary[ "GIF" ]		    = "no";
     dictionary[ "ZLIB" ]	    = "yes";
-    dictionary[ "PNG" ]		    = "qt";
-    dictionary[ "JPEG" ]	    = "qt";
-    dictionary[ "MNG" ]		    = "no";
 
-    dictionary[ "LIBPNG" ]	    = "qt";
+    dictionary[ "GIF" ]		    = "plugin";
+    dictionary[ "JPEG" ]	    = "plugin";
+    dictionary[ "PNG" ]		    = "qt";
+    dictionary[ "MNG" ]		    = "no";
     dictionary[ "LIBJPEG" ]	    = "qt";
+    dictionary[ "LIBPNG" ]	    = "qt";
     dictionary[ "LIBMNG" ]	    = "qt";
 
     dictionary[ "COMPAT" ]	    = "yes";
@@ -312,11 +312,6 @@ void Configure::parseCmdLine()
 	}
 
 #if !defined(EVAL)
-	else if( configCmdLine.at(i) == "-no-gif" )
-	    dictionary[ "GIF" ] = "no";
-	else if( configCmdLine.at(i) == "-qt-gif" )
-	    dictionary[ "GIF" ] = "yes";
-
 	else if( configCmdLine.at(i) == "-no-zlib" ) {
 	    dictionary[ "ZLIB" ] = "no";
 	    dictionary[ "PNG" ] = "no";
@@ -326,40 +321,40 @@ void Configure::parseCmdLine()
 	    dictionary[ "ZLIB" ] = "system";
 	}
 
-	// ### remove -no-<format> options in Qt 4.0
-	else if( configCmdLine.at(i) == "-plugin-imgfmt-png" )
-	    dictionary[ "PNG" ] = "plugin";
-	else if( configCmdLine.at(i) == "-qt-imgfmt-png" )
-	    dictionary[ "PNG" ] = "qt";
-	else if( configCmdLine.at(i) == "-no-imgfmt-png" || configCmdLine.at(i) == "-no-png" )
-	    dictionary[ "PNG" ] = "no";
-	else if( configCmdLine.at(i) == "-qt-png" )
-	    dictionary[ "LIBPNG" ] = "qt";
-	else if( configCmdLine.at(i) == "-system-png" )
-	    dictionary[ "LIBPNG" ] = "system";
+        // Image formats --------------------------------------------
+	else if( configCmdLine.at(i) == "-no-imgfmt-gif" )
+	    dictionary[ "GIF" ] = "no";
+	else if( configCmdLine.at(i) == "-plugin-imgfmt-gif" )
+	    dictionary[ "GIF" ] = "plugin";
 
-	else if( configCmdLine.at(i) == "-plugin-imgfmt-mng" )
-	    dictionary[ "MNG" ] = "plugin";
-	else if( configCmdLine.at(i) == "-qt-imgfmt-mng" )
-	    dictionary[ "MNG" ] = "qt";
-	else if( configCmdLine.at(i) == "-no-imgfmt-mng" )
-	    dictionary[ "MNG" ] = "no";
-	else if( configCmdLine.at(i) == "-qt-mng" )
-	    dictionary[ "LIBMNG" ] = "qt";
-	else if( configCmdLine.at(i) == "-system-mng" )
-	    dictionary[ "LIBMNG" ] = "system";
-
+	else if( configCmdLine.at(i) == "-no-imgfmt-jpeg" )
+	    dictionary[ "JPEG" ] = "no";
 	else if( configCmdLine.at(i) == "-plugin-imgfmt-jpeg" )
 	    dictionary[ "JPEG" ] = "plugin";
-	else if( configCmdLine.at(i) == "-qt-imgfmt-jpeg" )
-	    dictionary[ "JPEG" ] = "qt";
-	else if( configCmdLine.at(i) == "-no-imgfmt-jpeg" || configCmdLine.at(i) == "-no-jpeg" )
-	    dictionary[ "JPEG" ] = "no";
 	else if( configCmdLine.at(i) == "-qt-jpeg" )
 	    dictionary[ "LIBJPEG" ] = "qt";
 	else if( configCmdLine.at(i) == "-system-jpeg" )
 	    dictionary[ "LIBJPEG" ] = "system";
 
+	else if( configCmdLine.at(i) == "-no-imgfmt-png" )
+	    dictionary[ "PNG" ] = "no";
+	else if( configCmdLine.at(i) == "-qt-imgfmt-png" )
+	    dictionary[ "PNG" ] = "qt";
+	else if( configCmdLine.at(i) == "-qt-png" )
+	    dictionary[ "LIBPNG" ] = "qt";
+	else if( configCmdLine.at(i) == "-system-png" )
+	    dictionary[ "LIBPNG" ] = "system";
+
+	//else if( configCmdLine.at(i) == "-no-imgfmt-mng" )
+	//    dictionary[ "MNG" ] = "no";
+	//else if( configCmdLine.at(i) == "-plugin-imgfmt-mng" )
+	//    dictionary[ "MNG" ] = "plugin";
+	//else if( configCmdLine.at(i) == "-qt-mng" )
+	//    dictionary[ "LIBMNG" ] = "qt";
+	//else if( configCmdLine.at(i) == "-system-mng" )
+	//    dictionary[ "LIBMNG" ] = "system";
+
+        // Styles ---------------------------------------------------
 	else if( configCmdLine.at(i) == "-qt-style-windows" )
 	    dictionary[ "STYLE_WINDOWS" ] = "yes";
 	else if( configCmdLine.at(i) == "-plugin-style-windows" )
@@ -373,13 +368,6 @@ void Configure::parseCmdLine()
 	    dictionary[ "STYLE_MOTIF" ] = "plugin";
 	else if( configCmdLine.at(i) == "-no-style-motif" )
 	    dictionary[ "STYLE_MOTIF" ] = "no";
-
-	else if( configCmdLine.at(i) == "-qt-style-platinum" )
-	    dictionary[ "STYLE_PLATINUM" ] = "yes";
-	else if( configCmdLine.at(i) == "-plugin-style-platinum" )
-	    dictionary[ "STYLE_PLATINUM" ] = "plugin";
-	else if( configCmdLine.at(i) == "-no-style-platinum" )
-	    dictionary[ "STYLE_PLATINUM" ] = "no";
 
 	else if( configCmdLine.at(i) == "-qt-style-motifplus" )
 	    dictionary[ "STYLE_MOTIFPLUS" ] = "yes";
@@ -416,6 +404,7 @@ void Configure::parseCmdLine()
 	else if( configCmdLine.at(i) == "-no-style-pocketpc" )
 	    dictionary[ "STYLE_POCKETPC" ] = "no";
 
+        // Databases ------------------------------------------------
 	else if( configCmdLine.at(i) == "-qt-sql-mysql" )
 	    dictionary[ "SQL_MYSQL" ] = "yes";
 	else if( configCmdLine.at(i) == "-plugin-sql-mysql" )
@@ -471,37 +460,8 @@ void Configure::parseCmdLine()
             dictionary[ "SQL_IBASE" ] = "plugin";
         else if( configCmdLine.at(i) == "-no-sql-ibase" )
             dictionary[ "SQL_IBASE" ] = "no";
-
-	else if( configCmdLine.at(i) == "-internal" )
-	    dictionary[ "QMAKE_INTERNAL" ] = "yes";
-
-	else if( configCmdLine.at(i) == "-no-qmake" )
-	    dictionary[ "BUILD_QMAKE" ] = "no";
-
-	else if( configCmdLine.at(i) == "-dont-process" )
-	    dictionary[ "NOPROCESS" ] = "yes";
-
-	else if( configCmdLine.at(i) == "-qmake-deps" )
-	    dictionary[ "DEPENDENCIES" ] = "yes";
-
-	else if( configCmdLine.at(i) == "-D" ) {
-	    ++i;
-	    if (i==argCount)
-		break;
-            qmakeDefines += configCmdLine.at(i);
-        } else if( configCmdLine.at(i) == "-I" ) {
-	    ++i;
-	    if (i==argCount)
-		break;
-	    qmakeIncludes += configCmdLine.at(i);
-	} else if( configCmdLine.at(i) == "-L" ) {
-	    ++i;
-	    if (i==argCount)
-		break;
-	    qmakeLibs += configCmdLine.at(i);
-	}
 #endif
-
+        // IDE project generation -----------------------------------
 	else if( configCmdLine.at(i) == "-no-dsp" )
 	    dictionary[ "DSPFILES" ] = "no";
 	else if( configCmdLine.at(i) == "-dsp" )
@@ -518,6 +478,7 @@ void Configure::parseCmdLine()
 	    dictionary[ "VCPROJFILES" ] = "yes";
 
 #if !defined(EVAL)
+        // Others ---------------------------------------------------
 	else if( configCmdLine.at(i) == "-lean" )
 	    dictionary[ "LEAN" ] = "yes";
 
@@ -549,7 +510,36 @@ void Configure::parseCmdLine()
 	else if( configCmdLine.at(i) == "-big-codecs" )
 	    dictionary[ "BIG_CODECS" ] = "yes";
 
-	else if( ( configCmdLine.at(i) == "-override-version" ) || ( configCmdLine.at(i) == "-version-override" ) ){
+	else if( configCmdLine.at(i) == "-internal" )
+	    dictionary[ "QMAKE_INTERNAL" ] = "yes";
+
+	else if( configCmdLine.at(i) == "-no-qmake" )
+	    dictionary[ "BUILD_QMAKE" ] = "no";
+
+	else if( configCmdLine.at(i) == "-dont-process" )
+	    dictionary[ "NOPROCESS" ] = "yes";
+
+	else if( configCmdLine.at(i) == "-qmake-deps" )
+	    dictionary[ "DEPENDENCIES" ] = "yes";
+
+	else if( configCmdLine.at(i) == "-D" ) {
+	    ++i;
+	    if (i==argCount)
+		break;
+            qmakeDefines += configCmdLine.at(i);
+        } else if( configCmdLine.at(i) == "-I" ) {
+	    ++i;
+	    if (i==argCount)
+		break;
+	    qmakeIncludes += configCmdLine.at(i);
+	} else if( configCmdLine.at(i) == "-L" ) {
+	    ++i;
+	    if (i==argCount)
+		break;
+	    qmakeLibs += configCmdLine.at(i);
+	}
+
+        else if( ( configCmdLine.at(i) == "-override-version" ) || ( configCmdLine.at(i) == "-version-override" ) ){
 	    ++i;
 	    if (i==argCount)
 		break;
@@ -563,6 +553,7 @@ void Configure::parseCmdLine()
 	    dictionary[ "CUSTOMCONFIG" ] = "_" + configCmdLine.at(i);
 	}
 
+        // Directories ----------------------------------------------
 	else if( configCmdLine.at(i) == "-prefix" ) {
 	    ++i;
 	    if(i==argCount)
@@ -717,18 +708,18 @@ bool Configure::displayHelp()
 	cout << "-qt-zlib           " << MARK_OPTION(ZLIB,yes)	    << " Compile in zlib." << endl;
 	cout << "-system-zlib       " << MARK_OPTION(ZLIB,system)   << " Use existing zlib in system." << endl << endl;
 
-	cout << "-plugin-imgfmt-<format> Enable format (png, jpeg, or mng) to" << endl;
+	cout << "-plugin-imgfmt-<format> Enable format (png, jpeg) to" << endl;
 	cout << "                        be linked to at runtime." << endl;
-	cout << "-qt-imgfmt-<format>     Enable format (png, jpeg, or mng) to" << endl;
+	cout << "-qt-imgfmt-<format>     Enable format (png, jpeg) to" << endl;
 	cout << "                        be linked into Qt." << endl;
-	cout << "-no-imgfmt-<format>     Fully disable format (png, jpeg, or mng)" << endl << endl;
+	cout << "-no-imgfmt-<format>     Fully disable format (png, jpeg)" << endl << endl;
 	cout << "                        from Qt." << endl;
 
 	cout << "-qt-png            " << MARK_OPTION(LIBPNG,qt)	    << " Use the libpng bundled with Qt." << endl;
 	cout << "-system-png        " << MARK_OPTION(LIBPNG,system) << " Use existing libPNG in system." << endl  << endl;
 
-	cout << "-qt-mng            " << MARK_OPTION(LIBMNG,qt)	    << " Use the libmng bundled with Qt." << endl;
-	cout << "-system-mng        " << MARK_OPTION(LIBMNG,system) << " Use existing libMNG in system." << endl << endl;
+	//cout << "-qt-mng            " << MARK_OPTION(LIBMNG,qt)	    << " Use the libmng bundled with Qt." << endl;
+	//cout << "-system-mng        " << MARK_OPTION(LIBMNG,system) << " Use existing libMNG in system." << endl << endl;
 
 	cout << "-qt-jpeg           " << MARK_OPTION(LIBJPEG,qt)    << " Use the libjpeg bundled with Qt." << endl;
 	cout << "-system-jpeg       " << MARK_OPTION(LIBJPEG,system)<< " Use existing libJPEG in system" << endl << endl;
@@ -848,15 +839,18 @@ void Configure::generateOutputVars()
 	qmakeVars += "LIBS += " + qmakeLibs.join( " " );
     }
 
-    if( dictionary[ "GIF" ] == "yes" )
-	qtConfig += "gif";
-    else if( dictionary[ "GIF" ] == "no" )
-	qtConfig += "no-gif";
-
     if( dictionary[ "ZLIB" ] == "yes" )
 	qtConfig += "zlib";
     else if( dictionary[ "ZLIB" ] == "no" )
 	qtConfig += "no-zlib";
+
+
+    if( dictionary[ "GIF" ] == "no" )
+	qtConfig += "no-gif";
+    else if( dictionary[ "GIF" ] == "qt" )
+	qtConfig += "gif";
+    else if( dictionary[ "GIF" ] == "plugin" )
+	qmakeFormatPlugins += "gif";
 
     if( dictionary[ "JPEG" ] == "no" )
 	qtConfig += "no-jpeg";
@@ -868,15 +862,15 @@ void Configure::generateOutputVars()
     if( dictionary[ "LIBJPEG" ] == "system" )
 	qtConfig += "system-jpeg";
 
-    if( dictionary[ "MNG" ] == "no" )
-	qtConfig += "no-mng";
-    else if( dictionary[ "MNG" ] == "qt" )
-	qtConfig += "mng";
-    else if( dictionary[ "MNG" ] == "plugin" )
-	qmakeFormatPlugins += "mng";
+ //   if( dictionary[ "MNG" ] == "no" )
+	//qtConfig += "no-mng";
+ //   else if( dictionary[ "MNG" ] == "qt" )
+	//qtConfig += "mng";
+ //   else if( dictionary[ "MNG" ] == "plugin" )
+	//qmakeFormatPlugins += "mng";
 
-    if( dictionary[ "LIBMNG" ] == "system" )
-	qtConfig += "system-mng";
+ //   if( dictionary[ "LIBMNG" ] == "system" )
+	//qtConfig += "system-mng";
 
     if( dictionary[ "PNG" ] == "no" )
 	qtConfig += "no-png";
