@@ -269,8 +269,9 @@ class Q_CORE_EXPORT QVariant
 protected:
     friend inline bool QVariant_to_helper(const QVariant &, QVariant::Type, void *);
     friend bool qRegisterGuiVariant();
-    friend QDebug operator<<(QDebug, const QVariant &);
-
+#ifndef QT_NO_DEBUG_OUTPUT
+    friend Q_CORE_EXPORT QDebug operator<<(QDebug, const QVariant &);
+#endif
     Private d;
 
 #ifndef QT_MOC
