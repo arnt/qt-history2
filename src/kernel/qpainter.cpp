@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#115 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#116 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -21,7 +21,7 @@
 #include "qwidget.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#115 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#116 $");
 
 
 /*!
@@ -2825,3 +2825,19 @@ void QPainter::drawWinFocusRect( int, int, int, int,
     // do nothing, only called from X11 specific functions
 }
 #endif
+
+
+/*!  Draws \a image at point \a p.
+  
+  This function simply converts \a image to a QPixmap and draws it.
+  
+  \sa drawPixmap() QPixmap::convertFromImage()
+*/
+
+void QPainter::drawImage( const QPoint &p, const QImage & image )
+{
+    // ### add QPrinter shortcut here
+    QPixmap pm;
+    pm.convertFromImage( image );
+    drawPixmap( p, pm );
+}
