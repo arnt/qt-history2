@@ -53,6 +53,8 @@ $h =~ s/ bitshift / bs /g;
 $h =~ s/ setcolorspace / scs /g;
 $h =~ s/ dict dup begin / DB /g;
 $h =~ s/ end d / DE /g;
+$h =~ s/ ifelse / ie /g;
+$h =~ s/ astore pop / sp /g;
 
 # add the uncompressed part of the header before
 $h = $uc.' '.$h;
