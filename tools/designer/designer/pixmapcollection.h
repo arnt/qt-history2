@@ -24,6 +24,7 @@
 #include <qstring.h>
 #include <qpixmap.h>
 #include <qvaluelist.h>
+#include "designerappiface.h"
 
 class QMimeSourceFactory;
 class Project;
@@ -38,8 +39,9 @@ public:
     };
 
     PixmapCollection( Project *pro );
+    ~PixmapCollection();
 
-    void addPixmap( const Pixmap &pix );
+    void addPixmap( const Pixmap &pix, bool force = TRUE );
     void removePixmap( const QString &name );
     QPixmap pixmap( const QString &name );
 
@@ -49,6 +51,8 @@ public:
 
     void load();
     void createCppFile();
+
+    DesignerPixmapCollection *iFace();
 
 private:
     QString unifyName( const QString &n );
@@ -60,6 +64,7 @@ private:
     QValueList<Pixmap> pixList;
     QMimeSourceFactory *mimeSourceFactory;
     Project *project;
+    DesignerPixmapCollectionImpl *iface;
 
 };
 

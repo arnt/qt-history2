@@ -108,6 +108,7 @@
 #include <qprocess.h>
 #include <qsettings.h>
 #include "pixmapcollectioneditor.h"
+#include "pixmapcollection.h"
 
 static int forms = 0;
 static bool mblockNewForms = FALSE;
@@ -2957,6 +2958,7 @@ FormWindow* MainWindow::insertFormWindow( int type )
     actionEditor->setFormWindow( fw );
     hierarchyView->functionList()->refreshFunctions();
     fw->killAccels( fw );
+    fw->project()->pixmapCollection()->createCppFile();
 
     return fw;
 }

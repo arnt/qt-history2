@@ -1,11 +1,11 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>MainWindowWizardBase</class>
-<include location="global" impldecl="in implementation">qdict.h</include>
-<include location="global" impldecl="in implementation">qpixmap.h</include>
-<include location="global" impldecl="in implementation">qaction.h</include>
-<include location="local" impldecl="in implementation">images.h</include>
-<include location="global" impldecl="in implementation">qiconset.h</include>
 <include location="global" impldecl="in implementation">designerinterface.h</include>
+<include location="global" impldecl="in implementation">qiconset.h</include>
+<include location="local" impldecl="in implementation">images.h</include>
+<include location="global" impldecl="in implementation">qaction.h</include>
+<include location="global" impldecl="in implementation">qpixmap.h</include>
+<include location="global" impldecl="in implementation">qdict.h</include>
 <forward>class QWidget;</forward>
 <forward>struct QUnknownInterface;</forward>
 <forward>struct DesignerInterface;</forward>
@@ -21,8 +21,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>598</width>
-            <height>403</height>
+            <width>594</width>
+            <height>401</height>
         </rect>
     </property>
     <property name="caption">
@@ -1607,6 +1607,11 @@
     QByteArray ba = qembed_findData( name );
     img.loadFromData( (const uchar*)ba.data(), ba.size() );
     pix.convertFromImage( img );
+    
+    DesignerProject *pro = dIface-&gt;currentProject();
+    if ( !pro || pro-&gt;projectName() == "&lt;No Project&gt;" )
+	return;
+    pro-&gt;pixmapCollection()-&gt;addPixmap( pix, n, FALSE );
 }</function>
     <function name="pageSelected(const QString&amp;)" >{
     if ( currentPage() == toolbarsPage ) {

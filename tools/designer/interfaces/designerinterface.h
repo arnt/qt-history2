@@ -36,6 +36,7 @@ struct DesignerDock;
 struct DesignerOutputDock;
 struct DesignerOutput;
 struct DesignerOutputError;
+struct DesignerPixmapCollection;
 
 class QDockWindow;
 class QWidget;
@@ -91,6 +92,7 @@ struct DesignerProject
     virtual QString language() const = 0;
     virtual void setCustomSetting( const QString &key, const QString &value ) = 0;
     virtual QString customSetting( const QString &key ) const = 0;
+    virtual DesignerPixmapCollection *pixmapCollection() const = 0;
 };
 
 struct DesignerDatabase
@@ -113,6 +115,11 @@ struct DesignerDatabase
     virtual void setFields( const QMap<QString, QStringList> & ) = 0;
     virtual void open() const = 0;
     virtual void close() const = 0;
+};
+
+struct DesignerPixmapCollection
+{
+    virtual void addPixmap( const QPixmap &p, const QString &name, bool force ) = 0;
 };
 
 struct DesignerFormWindow

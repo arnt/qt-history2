@@ -34,6 +34,7 @@
 #include <qlistview.h>
 #include <qtextedit.h>
 #include <qstatusbar.h>
+#include "pixmapcollection.h"
 
 DesignerInterfaceImpl::DesignerInterfaceImpl( MainWindow *mw )
     : ref( 0 ), mainWindow( mw )
@@ -191,7 +192,7 @@ void DesignerProjectImpl::setFileName( const QString & )
 
 QString DesignerProjectImpl::projectName() const
 {
-    return QString::null;
+    return project->projectName();
 }
 
 void DesignerProjectImpl::setProjectName( const QString & )
@@ -254,6 +255,12 @@ QString DesignerProjectImpl::customSetting( const QString &key ) const
 {
     return project->customSetting( key );
 }
+
+DesignerPixmapCollection *DesignerProjectImpl::pixmapCollection() const
+{
+    return project->pixmapCollection()->iFace();
+}
+
 
 
 
@@ -345,6 +352,24 @@ void DesignerDatabaseImpl::setTables( const QStringList & )
 {
 }
 #endif
+
+
+
+DesignerPixmapCollectionImpl::DesignerPixmapCollectionImpl( PixmapCollection *coll )
+    : pixCollection( coll )
+{
+}
+
+void DesignerPixmapCollectionImpl::addPixmap( const QPixmap &p, const QString &name, bool force )
+{
+    PixmapCollection::Pixmap pix;
+    pix.pix = p;
+    pix.name = name;
+    pixCollection->addPixmap( pix, force );
+    FormWindow *fw = MainWindow::self->formWindow();
+    if ( fw )
+	MetaDataBase::setPixmapKey( fw, p.serialNumber(), name );
+}
 
 
 

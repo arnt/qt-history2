@@ -27,13 +27,25 @@
 #include <qimage.h>
 
 PixmapCollection::PixmapCollection( Project *pro )
-    : project( pro )
+    : project( pro ), iface( new DesignerPixmapCollectionImpl( this ) )
 {
     mimeSourceFactory = new QMimeSourceFactory();
 }
 
-void PixmapCollection::addPixmap( const Pixmap &pix )
+PixmapCollection::~PixmapCollection()
 {
+    delete iface;
+}
+
+void PixmapCollection::addPixmap( const Pixmap &pix, bool force )
+{
+    if ( !force ) {
+	for ( QValueList<Pixmap>::Iterator it = pixList.begin(); it != pixList.end(); ++it ) {
+	    if ( (*it).name == pix.name )
+		return;
+	}
+    }
+
     Pixmap pixmap = pix;
     pixmap.name = unifyName( pixmap.name );
     pixList.append( pixmap );
@@ -346,4 +358,9 @@ void PixmapCollection::createCppFile()
 
     out << "#endif" << endl;
     f.close();
+}
+
+DesignerPixmapCollection *PixmapCollection::iFace()
+{
+    return iface;
 }

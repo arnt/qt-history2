@@ -81,6 +81,7 @@ public:
     QString language() const;
     void setCustomSetting( const QString &key, const QString &value );
     QString customSetting( const QString &key ) const;
+    DesignerPixmapCollection *pixmapCollection() const;
 
 private:
     Project *project;
@@ -116,6 +117,17 @@ private:
 
 };
 #endif
+
+class DesignerPixmapCollectionImpl : public DesignerPixmapCollection
+{
+public:
+    DesignerPixmapCollectionImpl( PixmapCollection *coll );
+    void addPixmap( const QPixmap &p, const QString &name, bool force );
+
+private:
+    PixmapCollection *pixCollection;
+
+};
 
 class DesignerFormWindowImpl: public DesignerFormWindow
 {
