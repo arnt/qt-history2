@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#111 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#112 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#111 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#112 $");
 
 Q_DECLARE(QListM, QListBoxItem);
 
@@ -1403,9 +1403,10 @@ void QListBox::keyPressEvent( QKeyEvent *e )
     case Key_Return:
     case Key_Enter:
 	if ( currentItem() >= 0 ) {
+	    QString tmp = item( currentItem() )->text();
 	    emit selected( currentItem());
-	    if ( item(currentItem()) && item(currentItem())->text() )
-		emit selected( item(currentItem())->text() );
+	    if ( !tmp.isEmpty() )
+		emit selected( tmp );
 	}
 	break;
     default:
