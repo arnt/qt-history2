@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#32 $
 **
 ** Implementation of validator classes.
 **
@@ -122,22 +122,12 @@ QValidator::~QValidator()
   rules.  Need not result in a valid string - callers of this function
   must re-test afterwards.  The default does nothing.
 
-  Reimplementation notes:
-
-  Note that \a input may not be the only QString object referencing
-  this string, so it's almost always necessary to detach() the string
-  at the start of the code:
-
-  \code
-    input.detach();
-  \endcode
-
-  You can change \a input even if you aren't able to produce a valid
-  string.  For example an ISBN validator might want to delete every
-  character except digits and "-", even if the result is not a valid
-  ISBN, and a last-name validator might want to remove white space
-  from the start and end of the string, even if the resulting string
-  is not in the list of known last names.
+  Reimplementations of this function can change \a input even if they
+  do not produce a valid string.  For example an ISBN validator might
+  want to delete every character except digits and "-", even if the
+  result is not a valid ISBN, and a last-name validator might want to
+  remove white space from the start and end of the string, even if the
+  resulting string is not in the list of known last names.
 */
 
 void QValidator::fixup( QString & input ) const
