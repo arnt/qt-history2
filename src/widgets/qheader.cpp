@@ -1059,9 +1059,17 @@ QSize QHeader::sectionSizeHint( int section, const QFontMetrics& fm ) const
 
     QRect bound;
     QString *label = d->labels[section];
-    if ( label )
-	bound = fm.boundingRect( 0, 0, QWIDGETSIZE_MAX, QWIDGETSIZE_MAX,
-				 AlignVCenter, *label );
+    if ( label ) {
+	int lines = label->contains( '\n' ) + 1;
+	bound.setHeight( fm.height() +  fm.lineSpacing() * (lines - 1) );
+	int w = 0;
+	for ( int i = 0; i < lines; ++i ) {
+	    QString s = label->section( '\n', i, i );
+	    int tmpw = fm.width( s );
+	    w = QMAX( w, tmpw );
+	}
+	bound.setWidth( w );
+    }
     int height = QMAX( bound.height() + 2, ih ) + 4;
     int width = bound.width() + QH_MARGIN * 4 + iw;
     return QSize( width, height );
