@@ -636,7 +636,7 @@ QString QFileInfo::absFilePath() const
 {
     QString tmp;
     if ( QDir::isRelativePath(fn)
-#if defined(Q_OS_WIN)
+#if defined(Q_OS_WIN32) || defined(Q_OS_WIN64)
 	 // ### absFilePath() never really worked for 'a:foo.txt'
 	 && fn[1] != ':'
 #endif
