@@ -16,7 +16,7 @@ MOC	=	moc
 
 ####### Files
 
-HEADERS =	qgl.h
+HEADERS =	..\..\include\qgl.h
 SOURCES =	qgl.cpp
 OBJECTS =	qgl.obj
 SRCMOC	=	moc_qgl.cpp
@@ -54,7 +54,7 @@ clean:
 qgl.obj: qgl.cpp
 
 moc_qgl.obj: moc_qgl.cpp \
-		qgl.h
+		..\..\include\qgl.h
 
 moc_qgl.cpp: qgl.h
 	$(MOC) qgl.h -o moc_qgl.cpp
