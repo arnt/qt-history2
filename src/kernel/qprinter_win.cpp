@@ -162,6 +162,7 @@ QPrinter::QPrinter( PrinterMode m )
 	{
 	    HDC dc = GetDC( 0 );
 	    res = GetDeviceCaps( dc, LOGPIXELSY );
+	    ReleaseDC( 0, dc );
 	    break;
 	}
         case Compatible:

@@ -96,9 +96,11 @@ static inline int scale( int value, QPainter *painter )
 	value = value * metrics.logicalDpiY() /
 		QPaintDevice::x11AppDpiY( painter->device()->x11Screen() );
 #elif defined (Q_WS_WIN)
-	int gdc = GetDeviceCaps( GetDC( 0 ), LOGPIXELSY );
+	HDC hdc = GetDC( 0 );
+	int gdc = GetDeviceCaps( hdc, LOGPIXELSY );
 	if ( gdc )
 	    value = value * metrics.logicalDpiY() / gdc;
+	ReleaseDC( 0, hdc );
 #elif defined (Q_WS_MAC)
 	value = value * metrics.logicalDpiY() / 75; // ##### FIXME
 #elif defined (Q_WS_QWS)

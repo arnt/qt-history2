@@ -294,7 +294,12 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
     case PE_PanelPopup:
     case PE_PanelMenuBar:
     case PE_PanelDockWindow:
-	drawMotifPlusShade( p, r, cg, (flags & Style_Sunken), (flags & Style_MouseOver));
+	if ( opt.lineWidth() )
+	    drawMotifPlusShade( p, r, cg, (flags & Style_Sunken), (flags & Style_MouseOver));
+	else if ( flags & Style_MouseOver )
+	    p->fillRect(r, cg.brush(QColorGroup::Midlight));
+	else
+	    p->fillRect(r, cg.brush(QColorGroup::Button));
 	break;
 
     case PE_SpinWidgetUp:
