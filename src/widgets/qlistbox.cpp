@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#40 $
 **
 ** Implementation of QListBox widget class
 **
@@ -16,9 +16,10 @@
 #include "qstrlist.h"
 #include "qkeycode.h"
 #include "qpixmap.h"
+#include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#39 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#40 $";
 #endif
 
 
@@ -118,6 +119,7 @@ QListBox::QListBox( QWidget *parent, const char *name )
     isTiming	  = FALSE;
     stringsOnly	  = TRUE;
     ownerDrawn	  = FALSE;
+    goingDown	  = FALSE;
     itemList	  = new QLBItemList;
     CHECK_PTR( itemList );
     setCellWidth( 0 );
@@ -136,18 +138,8 @@ QListBox::QListBox( QWidget *parent, const char *name )
 
 QListBox::~QListBox()
 {
-    QLBItem *lbi;
-    while ( itemList->count() ) {
-	lbi = itemList->take( 0 );
-	if ( !ownerDrawn ) {
-	    if (  lbi->type == LBI_String && copyStrings )
-		delete (char *)lbi->string;
-	    else if ( lbi->type == LBI_Pixmap )
-		delete lbi->pixmap;
-	}
-	delete lbi;
-    }
-    delete itemList;
+    goingDown = TRUE;
+    clearList();
 }
 
 
@@ -1255,6 +1247,8 @@ void QListBox::clearList()
 	    delete lbi;
 	}
     }
+    if ( goingDown || QApplication::closingDown() )
+	return;
     bool a = autoUpdate();
     setAutoUpdate( FALSE );
     updateNumRows( TRUE );
