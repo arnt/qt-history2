@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#110 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#111 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#110 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#111 $");
 
 Q_DECLARE(QListM, QListBoxItem);
 
@@ -445,12 +445,22 @@ QListBox::~QListBox()
     delete itemList;
 }
 
+/*! \fn void QListBox::selectionChanged()
+
+  This signal is emitted when the selection set of a multiple-choice
+  listbox changes. If the user selects five items by drag-selecting,
+  QListBox tries to emit just one selectionChanged() signal, so the
+  signal can be connected to computationally expensive slots.
+  
+  \sa selected() currentItem()
+*/
+
 /*! \fn void QListBox::highlighted( int index )
 
   This signal is emitted when the user highlights a new current item.
   The argument is the index of the new item, which is already current.
 
-  \sa selected() currentItem()
+  \sa selected() currentItem() selectionChanged()
 */
 
 /*! \fn void QListBox::highlighted( const char * )
@@ -459,7 +469,7 @@ QListBox::~QListBox()
   and the new item is a string.  The argument is the text of the
   new current item.  
 
-  \sa selected() currentItem()
+  \sa selected() currentItem() selectionChanged()
 */
 
 /*! \fn void QListBox::selected( int index )
@@ -468,17 +478,7 @@ QListBox::~QListBox()
   presses return when an item is highlighted.  The argument is the
   index of the selected item.
 
-  \sa highlighted()
-*/
-
-/*! \fn void QListBox::selected( int index, bool status )
-
-  This signal is emitted when the user changes the selectedness of an
-  item in a multiple-selection listbox or an extended-selection
-  listbox.
-
-  The arguments are the selected item's index and TRUE if the item is
-  now selected, and FALSE if it is not.
+  \sa highlighted() selectionChanged()
 */
 
 /*! \fn void QListBox::selected( const char * )
@@ -488,7 +488,7 @@ QListBox::~QListBox()
   is (or has) a string.  The argument is the text of the selected
   item.
 
-  \sa highlighted()
+  \sa highlighted() selectionChanged()
 */
 
 /*!
