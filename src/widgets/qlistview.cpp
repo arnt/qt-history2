@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#161 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#162 $
 **
 ** Implementation of QListView widget class
 **
@@ -494,9 +494,14 @@ void QListViewItem::insertItem( QListViewItem * newChild )
 
 void QListViewItem::removeItem( QListViewItem * tbg )
 {
+    if ( !tbg )
+	return;
+
     invalidateHeight();
 
     QListView * lv = listView();
+    if ( lv->d->dirtyItems )
+	lv->d->dirtyItems->take( (void *)tbg );
 
     if ( lv && lv->d->currentSelected ) {
 	QListViewItem * c = lv->d->currentSelected;
@@ -811,6 +816,12 @@ void QListViewItem::enforceSortOrder() const
 	(int)parentItem->lsc != Unsorted )
 	((QListViewItem *)this)->sortChildItems( (int)parentItem->lsc,
 						 (bool)parentItem->lso );
+    else if ( !parentItem &&
+	      ( (int)lsc != listView()->d->sortcolumn ||
+		(bool)lso != listView()->d->ascending ) &&
+	       listView()->d->sortcolumn != Unsorted )
+	((QListViewItem *)this)->sortChildItems( listView()->d->sortcolumn,
+						 listView()->d->ascending );
 }
 
 
@@ -1642,10 +1653,7 @@ void QListView::paintEmptyArea( QPainter * p, const QRect & rect )
 
 void QListView::buildDrawableList() const
 {
-    if ( ( (int)d->r->lsc != d->sortcolumn ||
-	   (bool)d->r->lso != d->ascending ) &&
-	 d->sortcolumn != Unsorted )
-	d->r->sortChildItems( d->sortcolumn, d->ascending );
+    d->r->enforceSortOrder();
 
     QStack<QListViewPrivate::Pending> stack;
     stack.push( new QListViewPrivate::Pending( ((int)d->rootIsExpandable)-1,
@@ -1993,16 +2001,10 @@ void QListView::updateDirtyItems()
     if ( d->timer->isActive() || !d->dirtyItems)
         return;
     QRect ir;
-#if defined(LVDEBUG)
-    debug( "updateDirtyItems" );
-#endif
     QPtrDictIterator<void> it( *(d->dirtyItems) );
     QListViewItem * i;
     while( (i=(QListViewItem *)(it.currentKey())) != 0 ) {
         ++it;
-#if defined(LVDEBUG)
-        debug( " item %s (selected=%d)", i->text(0), i->isSelected() );
-#endif
         ir = ir.unite( itemRect(i) );
     }
     if ( !ir.isEmpty() )                    // rectangle to be repainted
@@ -2475,11 +2477,11 @@ void QListView::mouseMoveEvent( QMouseEvent * e )
     if ( isMultiSelection() && d->focusItem ) {
 	// also (de)select the ones in between
 	QListViewItem * b = d->focusItem;
-	bool below = ( itemPos( i ) > itemPos( b ) );
+	bool down = ( itemPos( i ) > itemPos( b ) );
 	while( b && b != i ) {
 	    if ( b->isSelectable() )
 		setSelected( b, d->select );
-	    b = below ? b->itemBelow() : b->itemAbove();
+	    b = down ? b->itemBelow() : b->itemAbove();
 	}
     }
 
@@ -2716,19 +2718,30 @@ QListViewItem * QListView::itemAt( const QPoint & screenPos ) const
 
 int QListView::itemPos( const QListViewItem * item )
 {
-    const QListViewItem * i = item;
-    QListViewItem * p;
-    int a = 0;
-
-    while( i && i->parentItem ) {
-	p = i->parentItem;
-	a += p->height();
-	p = p->childItem;
-	while( p && p != i ) {
-	    a += p->totalHeight();
-	    p = p->siblingItem;
-	}
+    QStack<QListViewItem> s;
+    QListViewItem * i = (QListViewItem *)item;
+    while( i ) {
+	s.push( i );
 	i = i->parentItem;
+    }
+
+    int a = 0;
+    QListViewItem * p = 0;
+    while( s.count() ) {
+	i = s.pop();
+	if ( p ) {
+	    if ( !p->configured ) {
+		p->configured = TRUE;
+		p->setup(); // ### virtual non-const function called in const
+	    }
+	    a += p->height();
+	    QListViewItem * s = p->firstChild();
+	    while( s && s != i ) {
+		a += s->totalHeight();
+		s = s->nextSibling();
+	    }
+	}
+	p = i;
     }
     return a;
 }
@@ -2819,10 +2832,10 @@ void QListView::setCurrentItem( QListViewItem * i )
     d->focusItem = i;
 
     if ( i != prev ) {
-	emit currentChanged( i );
 	repaintItem( i );
 	if ( prev )
 	    repaintItem( prev );
+	emit currentChanged( i );
     }
 }
 
@@ -3095,11 +3108,7 @@ bool QListView::allColumnsShowFocus() const
 
 QListViewItem * QListView::firstChild() const
 {
-    if ( ( (int)d->r->lsc != d->sortcolumn ||
-	   (bool)d->r->lso != d->ascending ) &&
-	 d->sortcolumn != Unsorted )
-	d->r->sortChildItems( d->sortcolumn, d->ascending );
-
+    d->r->enforceSortOrder();
     return d->r->childItem;
 }
 
