@@ -342,12 +342,8 @@ UnixMakefileGenerator::combineSetLFlags(const QStringList &list1, const QStringL
 					}
 				    }
 				}
-				if(found) {
-				    for(int i = 0; i < found; i++) {
-					ret.remove(outit);
-					++outit;
-				    }
-				}
+				for(int i = 0; i < found; i++) 
+				    outit = ret.remove(outit);
 			    }
 			}
 			if(as_one) {
