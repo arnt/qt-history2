@@ -18,6 +18,7 @@
 #include <qstringlist.h>
 
 #if defined(Q_OS_WIN32)
+#include <qt_windows.h>
 typedef PROCESS_INFORMATION* Q_PID;
 #else
 typedef Q_LONG Q_PID;
