@@ -1337,20 +1337,22 @@ void QListView::doDynamicLayout(const QRect &bounds, int first, int last)
 */
 void QListView::updateGeometries()
 {
-    if (model()->rowCount(root()) <= 0 || model()->columnCount(root()) <= 0)
-        return;
-    QModelIndex index = model()->index(0, d->column, root());
-    QStyleOptionViewItem option = viewOptions();
-    QSize size = itemDelegate()->sizeHint(option, index);
+    if (model()->rowCount(root()) <= 0 || model()->columnCount(root()) <= 0) {
+        horizontalScrollBar()->setRange(0, 0);
+        verticalScrollBar()->setRange(0, 0);
+    } else {
+        QModelIndex index = model()->index(0, d->column, root());
+        QStyleOptionViewItem option = viewOptions();
+        QSize size = itemDelegate()->sizeHint(option, index);
 
-    horizontalScrollBar()->setSingleStep(size.width() + d->spacing);
-    horizontalScrollBar()->setPageStep(d->viewport->width());
-    horizontalScrollBar()->setRange(0, d->contentsSize.width() - d->viewport->width() - 1);
+        horizontalScrollBar()->setSingleStep(size.width() + d->spacing);
+        horizontalScrollBar()->setPageStep(d->viewport->width());
+        horizontalScrollBar()->setRange(0, d->contentsSize.width() - d->viewport->width() - 1);
 
-    verticalScrollBar()->setSingleStep(size.height() + d->spacing);
-    verticalScrollBar()->setPageStep(d->viewport->height());
-    verticalScrollBar()->setRange(0, d->contentsSize.height() - d->viewport->height() - 1);
-
+        verticalScrollBar()->setSingleStep(size.height() + d->spacing);
+        verticalScrollBar()->setPageStep(d->viewport->height());
+        verticalScrollBar()->setRange(0, d->contentsSize.height() - d->viewport->height() - 1);
+    }        
     QAbstractItemView::updateGeometries();
 }
 

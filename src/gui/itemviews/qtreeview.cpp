@@ -232,7 +232,6 @@ bool QTreeView::rootIsDecorated() const
 
 void QTreeView::setRootIsDecorated(bool show)
 {
-
     d->rootDecoration = show;
     d->viewport->update();
 }
@@ -737,6 +736,7 @@ QModelIndex QTreeView::itemBelow(const QModelIndex &index) const
 */
 void QTreeView::doItemsLayout()
 {
+    d->viewItems.clear(); // prepare for new layout
     QStyleOptionViewItem option = viewOptions();
     QModelIndex parent = root();
     if (model() && model()->rowCount(parent) > 0 && model()->columnCount(parent) > 0) {
