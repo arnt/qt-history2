@@ -249,7 +249,7 @@ private:
     friend class QGLWidget;
     friend class QX11PaintEngine;
 #if defined(Q_WS_MAC)
-    friend CGImageRef qt_mac_create_cgimage(const QPixmap &, bool);
+    friend CGImageRef qt_mac_create_cgimage(const QPixmap &, Qt::PixmapDrawingMode);
 #endif
     friend class QQuickDrawPaintEngine;
     friend class QCoreGraphicsPaintEngine;

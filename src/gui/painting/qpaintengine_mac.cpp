@@ -50,7 +50,7 @@ extern WindowPtr qt_mac_window_for(const QWidget *); //qwidget_mac.cpp
 extern GrafPtr qt_macQDHandle(const QPaintDevice *); //qpaintdevice_mac.cpp
 extern CGContextRef qt_macCreateCGHandle(const QPaintDevice *); //qpaintdevice_mac.cpp
 extern RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
-extern CGImageRef qt_mac_create_cgimage(const QPixmap &, bool); //qpixmap_mac.cpp
+extern CGImageRef qt_mac_create_cgimage(const QPixmap &, Qt::PixmapDrawingMode); //qpixmap_mac.cpp
 extern void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
 extern const uchar *qt_patternForBrush(int, bool); //qbrush.cpp
 extern QPixmap qt_pixmapForBrush(int, bool); //qbrush.cpp
@@ -943,7 +943,7 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
         } else {
             w = pat->data.pixmap->width();
             h = pat->data.pixmap->height();
-            pat->image = qt_mac_create_cgimage(*pat->data.pixmap, false);
+            pat->image = qt_mac_create_cgimage(*pat->data.pixmap, Qt::ComposePixmap);
         }
     }
     CGRect rect = CGRectMake(0, 0, w, h);
@@ -1567,7 +1567,8 @@ QCoreGraphicsPaintEngine::drawCubicBezier(const QPointArray &pa, int index)
 #endif
 
 void
-QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::PixmapDrawingMode mode)
+QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, 
+                                     Qt::PixmapDrawingMode mode)
 {
     Q_ASSERT(isActive());
     if(pm.isNull())

@@ -781,7 +781,7 @@ QPixmap qt_mac_convert_iconref(IconRef icon, int width, int height)
     return ret;
 }
 
-CGImageRef qt_mac_create_cgimage(const QPixmap &px, bool imask)
+CGImageRef qt_mac_create_cgimage(const QPixmap &px, Qt::PixmapDrawingMode mode)
 {
     if(px.isNull())
         return 0;
@@ -793,7 +793,7 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, bool imask)
     if(px.isQBitmap() || px.depth() == 1) {
         image = CGImageMaskCreate(px.width(), px.height(), 8, 32, bpl, provider, 0, false);
     } else {
-        if(!imask) {
+        if(mode == Qt::ComposePixmap) {
             if(const QPixmap *alpha = px.data->alphapm) {
                 char *drow;
                 long *aptr = reinterpret_cast<long *>(GetPixBaseAddr(GetGWorldPixMap(qt_macQDHandle(alpha)))),
@@ -820,12 +820,12 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, bool imask)
                     }
                 }
             } else {
-                imask = true; //there isn't really a "mask"
+                mode = Qt::CopyPixmap; //there isn't really a "mask"
             }
         }
         CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
         image = CGImageCreate(px.width(), px.height(), 8, 32, bpl, colorspace,
-                              imask ? kCGImageAlphaNoneSkipFirst : kCGImageAlphaFirst,
+                              mode == Qt::ComposePixmap ? kCGImageAlphaFirst : kCGImageAlphaNoneSkipFirst,
                               provider, 0, 0, kCGRenderingIntentDefault);
         CGColorSpaceRelease(colorspace);
     }

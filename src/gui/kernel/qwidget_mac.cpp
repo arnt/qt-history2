@@ -77,7 +77,7 @@ extern void qt_event_request_showsheet(QWidget *); //qapplication_mac.cpp
 extern IconRef qt_mac_create_iconref(const QPixmap &); //qpixmap_mac.cpp
 extern void qt_mac_set_cursor(const QCursor *, const Point *); //qcursor_mac.cpp
 extern bool qt_nograb();
-CGImageRef qt_mac_create_cgimage(const QPixmap &, bool); //qpixmap_mac.cpp
+CGImageRef qt_mac_create_cgimage(const QPixmap &, Qt::PixmapDrawingMode); //qpixmap_mac.cpp
 extern RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
 extern void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
 extern QRegion qt_mac_convert_mac_region(RgnHandle rgn); //qregion_mac.cpp
@@ -1230,7 +1230,7 @@ void QWidgetPrivate::setWindowIcon_sys(const QPixmap &pixmap)
                 RestoreApplicationDockTileImage();
             } else {
                 QPixmap scaled_pixmap = pixmap.convertToImage().smoothScale(40, 40);
-                CGImageRef ir = qt_mac_create_cgimage(scaled_pixmap, true);
+                CGImageRef ir = qt_mac_create_cgimage(scaled_pixmap, Qt::CopyPixmap);
                 SetApplicationDockTileImage(ir);
                 CGImageRelease(ir);
             }
