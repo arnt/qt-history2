@@ -1016,8 +1016,6 @@ void QPopupMenu::updateAccel( QWidget *parent )
     }
     while ( (mi=it.current()) ) {
 	++it;
-	if ( !mi->isEnabled() ) // ### when we have a good solution for the accel vs. focus widget problem, remove that. That is only a workaround
-	    continue;
 	int k = mi->key();
 	if ( k ) {
 	    int id = autoaccel->insertItem( k, mi->id() );
