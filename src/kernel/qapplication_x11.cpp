@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#417 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#418 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3187,15 +3187,16 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QStr
     int	       keycode = event->xkey.keycode;
     Status     status;
 
+    QWidget* tlw = topLevelWidget();
+
     // Perhaps we should filer ALL events.
-    if ( XFilterEvent( (XEvent*)event, winId() ) ) {
+    if ( XFilterEvent( (XEvent*)event, tlw->winId() ) ) {
 	composingKeycode = keycode; // ### not documented in xlib
 	return TRUE;
     }
 
     if ( type == QEvent::KeyPress ) {
 	if ( xim ) {
-	    QWidget* tlw = topLevelWidget();
 	    QTLWExtra*  xd = tlw->extraData()?tlw->extraData()->topextra:0;
 	    if ( !xd ) {
 		tlw->createTLExtra();
@@ -3214,8 +3215,8 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QStr
 
 		xd->xic = (void*)XCreateIC( xim,
 				XNInputStyle, xim_style,
-				XNClientWindow, winId(),
-				XNFocusWindow, winId(),
+				XNClientWindow, tlw->winId(),
+				XNFocusWindow, tlw->winId(),
 				XNPreeditAttributes, preedit_att,
 				XNStatusAttributes, status_att,
 				0 );
