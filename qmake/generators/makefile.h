@@ -49,7 +49,7 @@ class MakefileGenerator
     QStringList createObjectList(const QString &var);
     void writeObj(QTextStream &, const QString &obj, const QString &src);
     void writeUicSrc(QTextStream &, const QString &ui);
-    void writeMocObj(QTextStream &, const QString &obj, const QString &src);
+    void writeMocObj(QTextStream &, const QString &obj);
     void writeMocSrc(QTextStream &, const QString &src);
     void writeLexSrc(QTextStream &, const QString &lex);
     void writeYaccSrc(QTextStream &, const QString &yac);

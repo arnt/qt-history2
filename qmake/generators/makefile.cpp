@@ -631,28 +631,35 @@ MakefileGenerator::writeUicSrc(QTextStream &t, const QString &ui)
 
 
 void
-MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj, const QString &src)
+MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj)
 {
     QStringList &objl = project->variables()[obj];
-    QStringList &srcl = project->variables()[src];
-
     QStringList::Iterator oit = objl.begin();
-    QStringList::Iterator sit = srcl.begin();
     QRegExp regexpSrc("\\$src");
     QRegExp regexpObj("\\$obj");
-    for( ;oit != objl.end(); oit++, sit++) {
-	if((*sit).isEmpty())
-	    continue;
 
-	QString &hdr = mocablesFromMOC[(*sit)];
-	t << (*oit) << ": " << (*sit) << " \\\n\t\t"
+    QString mocdir;
+    if(!project->variables()["MOC_DIR"].isEmpty())
+	mocdir = project->variables()["MOC_DIR"].first();
+
+    for( ;oit != objl.end(); oit++) {
+	QFileInfo fi(Option::fixPathToLocalOS((*oit)));
+	QString dirName;
+	if ( mocdir.isEmpty() ) 
+	    dirName = Option::fixPathToTargetOS(fi.dirPath()) + Option::dir_sep;
+	else
+	    dirName = mocdir;
+	QString src(dirName + fi.baseName() + Option::cpp_ext );
+
+	QString &hdr = mocablesFromMOC[src];
+	t << (*oit) << ": " << src << " \\\n\t\t"
 	  << hdr << " \\\n\t\t"
 	  << depends[hdr].join(" \\\n\t\t");
 	if ( !project->variables()["OBJECTS_DIR"].isEmpty() ||
 	     !project->variables()["MOC_DIR"].isEmpty() ||
 	     project->variables()["QMAKE_RUN_CXX_IMP"].isEmpty()) {
 	    QString p = var("QMAKE_RUN_CXX");
-	    p.replace( regexpSrc, (*sit));
+	    p.replace( regexpSrc, src);
 	    p.replace( regexpObj, (*oit));
 	    t << "\n\t" << p;
 	}
@@ -767,7 +774,7 @@ MakefileGenerator::writeMakefile(QTextStream &t)
     writeObj(t, "OBJECTS", "SOURCES");
     writeUicSrc(t, "INTERFACES");
     writeObj(t, "UICOBJECTS", "UICIMPLS");
-    writeMocObj(t, "OBJMOC", "SRCMOC");
+    writeMocObj(t, "OBJMOC" );
     writeMocSrc(t, "HEADERS");
     writeMocSrc(t, "SOURCES");
     writeMocSrc(t, "UICDECLS");
