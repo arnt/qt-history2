@@ -510,17 +510,19 @@ MakefileGenerator::init()
 	QString dirs[] = { QString("OBJECTS_DIR"), QString("MOC_DIR"), QString("DESTDIR"), QString::null };
 	for(int x = 0; dirs[x] != QString::null; x++) {
 	    if ( !v[dirs[x]].isEmpty() ) {
-		QString &path = v[dirs[x]].first();
-		if(path.right(Option::dir_sep.length()) != Option::dir_sep)
-		    path += Option::dir_sep;
+		{ 
+		    QString &path = v[dirs[x]].first();
+		    if(path.right(Option::dir_sep.length()) != Option::dir_sep)
+			path += Option::dir_sep;
+		    if(QDir::isRelativePath(path) && !v["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty())
+			path.prepend(Option::output_dir + Option::dir_sep);
+		}
+		QString path = project->first(dirs[x]); //not to be changed any further
+		Option::fixPathToTargetOS(path);
 
 		QDir d;
-
 		if ( !QDir::isRelativePath( path ) )
 		    d.cd( path.left( 2 ) );
-		else if(!v["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty())
-		    path = Option::output_dir + Option::dir_sep + path;
-
 		if(path.left(1) == Option::dir_sep)
 		    d.cd(Option::dir_sep);
 
