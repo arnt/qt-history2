@@ -1243,13 +1243,6 @@ QObjectList QObject::queryList(const char *inheritsClass,
 
     \sa findChild()
 */
-QObjectList QObject::findChildren(const QRegExp &re) const
-{
-    QObjectList list;
-    qt_qFindChildren_helper(this, QString(), &re, QObject::staticMetaObject,
-                         reinterpret_cast<QList<void *>*>(&list));
-    return list;
-}
 
 /*! \internal
  */
