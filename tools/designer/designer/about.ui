@@ -27,8 +27,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>582</width>
-            <height>335</height>
+            <width>544</width>
+            <height>667</height>
         </rect>
     </property>
     <property name="caption">
@@ -55,7 +55,7 @@
                 <enum>Plain</enum>
             </property>
             <property name="pixmap">
-                <pixmap>"splash.png"</pixmap>
+                <pixmap>splash.png</pixmap>
             </property>
             <property name="scaledContents">
                 <bool>false</bool>
@@ -205,6 +205,6 @@
         <slot>accept()</slot>
     </connection>
 </connections>
-<pixmapfunction>QPixmap::fromMimeSource</pixmapfunction>
+<pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
