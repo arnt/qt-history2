@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#93 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#94 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -9,7 +9,7 @@
 **
 ***********************************************************************/
 
-#include "qmultilined.h"
+#include "qmultilinedit.h"
 #include "qpainter.h"
 #include "qscrollbar.h"
 #include "qkeycode.h"
