@@ -116,6 +116,7 @@ public:
     static QSqlDatabase* database( const QString& name, bool open );
     static QSqlDatabase* addDatabase( QSqlDatabase* db, const QString & name );
     static void          removeDatabase( const QString& name );
+    static void          removeDatabase( QSqlDatabase* db );
     static bool          contains( const QString& name );
     static QDriverDict*  driverDict();
 
@@ -264,6 +265,33 @@ void QSqlDatabaseManager::removeDatabase( const QString& name )
     sqlConnection->dbDict.setAutoDelete( FALSE );
 }
 
+
+/*!
+    Removes the database connection \a db from the SQL connection
+    manager. The QSqlDatabase object is destroyed when it is removed
+    from the manager.
+    
+    \warning The \a db pointer is not valid after this function has
+    been called.
+*/
+
+void QSqlDatabaseManager::removeDatabase( QSqlDatabase* db )
+{
+    QSqlDatabaseManager* sqlConnection = instance();
+    if ( !sqlConnection )
+	return;
+    QDictIterator< QSqlDatabase > it( sqlConnection->dbDict );
+    while ( it.current() ) {
+	if ( it.current() == db ) {
+	    sqlConnection->dbDict.remove( it.currentKey() );
+	    db->close();
+	    delete db;
+	    break;
+	}
+	++it;
+    }
+}
+
 class QSqlDatabasePrivate
 {
 public:
@@ -356,6 +384,22 @@ QSqlDatabase* QSqlDatabase::database( const QString& connectionName, bool open )
 void QSqlDatabase::removeDatabase( const QString& connectionName )
 {
     QSqlDatabaseManager::removeDatabase( connectionName );
+}
+
+/*!
+    Removes the database connection \a db from the list of database
+    connections. The QSqlDatabase object is destroyed when it is removed
+    from the list.
+
+    \warning The \a db pointer is not valid after this function has
+    been called. There should be no open queries on the database
+    connection when this function is called, otherwise a resource leak
+    will occur.
+*/
+
+void QSqlDatabase::removeDatabase( QSqlDatabase* db )
+{
+    QSqlDatabaseManager::removeDatabase( db );
 }
 
 /*!

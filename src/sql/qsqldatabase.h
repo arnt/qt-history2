@@ -126,6 +126,7 @@ public:
     static QSqlDatabase* addDatabase( const QString& type, const QString& connectionName = defaultConnection );
     static QSqlDatabase* database( const QString& connectionName = defaultConnection, bool open = TRUE );
     static void          removeDatabase( const QString& connectionName );
+    static void          removeDatabase( QSqlDatabase* db );
     static bool          contains( const QString& connectionName = defaultConnection );
     static QStringList   drivers();
     static void          registerSqlDriver( const QString& name, const QSqlDriverCreatorBase* dcb );
