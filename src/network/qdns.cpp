@@ -34,8 +34,11 @@ Q_GLOBAL_STATIC(QDnsAgent, agent)
 
 //#define QDNS_DEBUG
 
-/*! \class QDns
-    \brief The QDns class provides static functions for host name lookups.
+/*!         
+    \class QDns
+
+    \brief The QDns class provides static functions for host name lookups
+    via standard Domain Name System services.
     \reentrant
 
     \module network
@@ -64,7 +67,7 @@ Q_GLOBAL_STATIC(QDnsAgent, agent)
     QDns supports Internationalized Domain Names (IDNs) through the
     IDNA and Punycode standards.
 
-    \sa QDnsHostInfo \l{http://ietf.org/rfc/rfc3492}{RFC 3492}
+    \sa QDnsHostInfo \link http://ietf.org/rfc/rfc3492 RFC 3492\endlink
 */
 
 /*!
