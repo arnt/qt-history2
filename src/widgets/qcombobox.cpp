@@ -1506,7 +1506,6 @@ void QComboBox::popup()
 		p->setFont( font() );
 		connect( p, SIGNAL(activated(int)), SLOT(internalActivate(int)) );
 		connect( p, SIGNAL(highlighted(int)), SLOT(internalHighlight(int)) );
-		p->setFrameStyle( QFrame::Panel | QFrame::Raised );
 	    }
 	    d->popup()->clear();
 	    for(unsigned int i = 0; i < d->listBox()->count(); i++)
