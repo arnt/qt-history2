@@ -2479,7 +2479,6 @@ void generateMetacall()
 		fprintf(out, " else ");
 	    needElse = true;
 	    fprintf(out, "if (_c == QMetaObject::ResetProperty) {\n");
-	    fprintf(out, "        void *_v = _o[0];\n");
 	    fprintf(out, "        switch (_id) {\n");
 	    int propindex = -1;
 	    for (p = g->props.first(); p; p = g->props.next()) {

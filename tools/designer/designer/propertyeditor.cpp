@@ -2944,26 +2944,27 @@ property of the widget which is just edited.
 
 void PropertyList::setupProperties()
 {
-    if ( !editor->widget() )
+    QObject *w = editor->widget();
+    if ( !w)
 	return;
-    bool allProperties = !editor->widget()->inherits( "Spacer" );
-    int numProperties = editor->widget()->metaObject()->numProperties(allProperties);
+    bool allProperties = !w->inherits( "Spacer" );
+    const QMetaObject *m = w->metaObject();
+    int offset = allProperties ? 0 : m->propertyOffset();
+    int numProperties = w->metaObject()->numProperties() - offset;
     PropertyItem *item = 0;
     QMap<QString, bool> unique;
-    QObject *w = editor->widget();
     QStringList valueSet;
     bool parentHasLayout =
 	w->isWidgetType() &&
 	!editor->formWindow()->isMainContainer( (QWidget*)w ) && ( (QWidget*)w )->parentWidget() &&
 	WidgetFactory::layoutType( ( (QWidget*)w )->parentWidget() ) != WidgetFactory::NoLayout;
     for (int i = 0; i < numProperties; ++i ) {
-	QMetaProperty p =
-	    editor->widget()->metaObject()->property( i, allProperties );
+	QMetaProperty p = m->property( i + offset );
 	if ( !p )
 	    continue;
 	if ( unique.contains( QString::fromLatin1( p.name() ) ) )
 	    continue;
-	if ( editor->widget()->inherits( "QDesignerToolBar" ) || editor->widget()->inherits( "QDesignerMenuBar" ) ) {
+	if ( w->inherits( "QDesignerToolBar" ) || w->inherits( "QDesignerMenuBar" ) ) {
 	    if ( qstrcmp( p.name(), "minimumHeight" ) == 0 )
 		continue;
 	    if ( qstrcmp( p.name(), "minimumWidth" ) == 0 )
@@ -2982,8 +2983,8 @@ void PropertyList::setupProperties()
 		continue;
 	}
 	unique.insert( QString::fromLatin1( p.name() ), TRUE );
-	if ( editor->widget()->isWidgetType() &&
-	     editor->formWindow()->isMainContainer( (QWidget*)editor->widget() ) ) {
+	if ( w->isWidgetType() &&
+	     editor->formWindow()->isMainContainer( (QWidget*)w ) ) {
 	    if ( qstrcmp( p.name(), "geometry" ) == 0 )
 		continue;
 	} else { // hide some toplevel-only stuff
@@ -3057,9 +3058,9 @@ void PropertyList::setupProperties()
 	if ( qstrcmp( p.name(), "maximumWidth" ) == 0 )
 	    continue;
 	if ( qstrcmp( p.name(), "buttonGroupId" ) == 0 ) { // #### remove this when designable in Q_PROPERTY can take a function (isInButtonGroup() in this case)
-	    if ( !editor->widget()->isWidgetType() ||
-		 !editor->widget()->parent() ||
-		 !editor->widget()->parent()->inherits( "QButtonGroup" ) )
+	    if ( !w->isWidgetType() ||
+		 !w->parent() ||
+		 !w->parent()->inherits( "QButtonGroup" ) )
 		continue;
 	}
 
@@ -3079,9 +3080,9 @@ void PropertyList::setupProperties()
 		    item = new PropertyListItem( this, item, 0, "hAlign", FALSE );
 		    item->setValue( lst );
 		    setPropertyValue( item );
-		    if ( MetaDataBase::isPropertyChanged( editor->widget(), "hAlign" ) )
+		    if ( MetaDataBase::isPropertyChanged( w, "hAlign" ) )
 			item->setChanged( TRUE, FALSE );
-		    if ( !editor->widget()->inherits( "QMultiLineEdit" ) ) {
+		    if ( !w->inherits( "QMultiLineEdit" ) ) {
 			lst.clear();
 			lst << p.enumerator().valueToKey( AlignTop )
 			    << p.enumerator().valueToKey( AlignVCenter )
@@ -3089,13 +3090,13 @@ void PropertyList::setupProperties()
 			item = new PropertyListItem( this, item, 0, "vAlign", FALSE );
 			item->setValue( lst );
 			setPropertyValue( item );
-			if ( MetaDataBase::isPropertyChanged( editor->widget(), "vAlign" ) )
+			if ( MetaDataBase::isPropertyChanged( w, "vAlign" ) )
 			    item->setChanged( TRUE, FALSE );
 			item = new PropertyBoolItem( this, item, 0, "wordwrap" );
 			if ( w->inherits( "QGroupBox" ) )
 			    item->setVisible( FALSE );
 			setPropertyValue( item );
-			if ( MetaDataBase::isPropertyChanged( editor->widget(), "wordwrap" ) )
+			if ( MetaDataBase::isPropertyChanged( w, "wordwrap" ) )
 			    item->setChanged( TRUE, FALSE );
 		    }
 		} else {
@@ -3105,7 +3106,7 @@ void PropertyList::setupProperties()
 		    item = new PropertyEnumItem( this, item, 0, p.name() );
 		    item->setValue( lst );
 		    setPropertyValue( item );
-		    if ( MetaDataBase::isPropertyChanged( editor->widget(), p.name() ) )
+		    if ( MetaDataBase::isPropertyChanged( w, p.name() ) )
 			item->setChanged( TRUE, FALSE );
 		}
 	    } else if ( p.isEnumType() ) {
@@ -3130,7 +3131,7 @@ void PropertyList::setupProperties()
 		setPropertyValue( item );
 		valueSet << item->name();
 	    }
-	    if ( MetaDataBase::isPropertyChanged( editor->widget(), p.name() ) )
+	    if ( MetaDataBase::isPropertyChanged( w, p.name() ) )
 		item->setChanged( TRUE, FALSE );
 	}
     }
@@ -3139,15 +3140,15 @@ void PropertyList::setupProperties()
 	 w->isWidgetType() && WidgetFactory::layoutType( (QWidget*)w ) != WidgetFactory::NoLayout ) {
 	item = new PropertyLayoutItem( this, item, 0, "layoutSpacing" );
 	setPropertyValue( item );
-	if ( MetaDataBase::isPropertyChanged( editor->widget(), "layoutSpacing" )
-	     || MetaDataBase::spacing( editor->widget() ) != -1 )
+	if ( MetaDataBase::isPropertyChanged( w, "layoutSpacing" )
+	     || MetaDataBase::spacing( w ) != -1 )
 	    layoutInitValue( item, TRUE );
 	else
 	    layoutInitValue( item );
 	item = new PropertyLayoutItem( this, item, 0, "layoutMargin" );
 	setPropertyValue( item );
-	if ( MetaDataBase::isPropertyChanged( editor->widget(), "layoutMargin" )
-	     || MetaDataBase::margin( editor->widget() ) != -1 )
+	if ( MetaDataBase::isPropertyChanged( w, "layoutMargin" )
+	     || MetaDataBase::margin( w ) != -1 )
 	    layoutInitValue( item, TRUE );
 	else
 	    layoutInitValue( item );
@@ -3159,11 +3160,11 @@ void PropertyList::setupProperties()
 	    lst << "Auto" << "FreeResize" << "Minimum" << "Fixed";
 	    item->setValue( lst );
 	    setPropertyValue( item );
-	    QString resizeMod = MetaDataBase::resizeMode( editor->widget() );
+	    QString resizeMod = MetaDataBase::resizeMode( widget );
 	    if ( !resizeMod.isEmpty() &&
-		 resizeMod != WidgetFactory::defaultCurrentItem( editor->widget(), "resizeMode" ) ) {
+		 resizeMod != WidgetFactory::defaultCurrentItem( widget, "resizeMode" ) ) {
 		item->setChanged( TRUE, FALSE );
-		MetaDataBase::setPropertyChanged( editor->widget(), "resizeMode", TRUE );
+		MetaDataBase::setPropertyChanged( widget, "resizeMode", TRUE );
 	    }
 	}
     }
@@ -3172,31 +3173,31 @@ void PropertyList::setupProperties()
 	 !w->inherits( "QDesignerMenuBar" ) && !w->inherits( "QDesignerToolBar" ) ) {
 	item = new PropertyTextItem( this, item, 0, "toolTip", TRUE, FALSE );
 	setPropertyValue( item );
-	if ( MetaDataBase::isPropertyChanged( editor->widget(), "toolTip" ) )
+	if ( MetaDataBase::isPropertyChanged( w, "toolTip" ) )
 	    item->setChanged( TRUE, FALSE );
 	item = new PropertyTextItem( this, item, 0, "whatsThis", TRUE, TRUE );
 	setPropertyValue( item );
-	if ( MetaDataBase::isPropertyChanged( editor->widget(), "whatsThis" ) )
+	if ( MetaDataBase::isPropertyChanged( w, "whatsThis" ) )
 	    item->setChanged( TRUE, FALSE );
     }
 
 #ifndef QT_NO_SQL
-    if ( !editor->widget()->inherits( "QDataTable" ) && !editor->widget()->inherits( "QDataBrowser" ) &&
-	 !editor->widget()->inherits( "QDataView" ) && parent_is_data_aware( qt_cast<QWidget*>(editor->widget()) ) ) {
+    if ( !w->inherits( "QDataTable" ) && !w->inherits( "QDataBrowser" ) &&
+	 !w->inherits( "QDataView" ) && parent_is_data_aware( qt_cast<QWidget*>(w) ) ) {
 	item = new PropertyDatabaseItem( this, item, 0, "database", editor->formWindow()->mainContainer() != w );
 	setPropertyValue( item );
-	if ( MetaDataBase::isPropertyChanged( editor->widget(), "database" ) )
+	if ( MetaDataBase::isPropertyChanged( w, "database" ) )
 	    item->setChanged( TRUE, FALSE );
     }
 
-    if ( editor->widget()->inherits( "QDataTable" ) || editor->widget()->inherits( "QDataBrowser" ) || editor->widget()->inherits( "QDataView" ) ) {
+    if ( w->inherits( "QDataTable" ) || w->inherits( "QDataBrowser" ) || w->inherits( "QDataView" ) ) {
 	item = new PropertyDatabaseItem( this, item, 0, "database", FALSE );
 	setPropertyValue( item );
-	if ( MetaDataBase::isPropertyChanged( editor->widget(), "database" ) )
+	if ( MetaDataBase::isPropertyChanged( w, "database" ) )
 	    item->setChanged( TRUE, FALSE );
 	item = new PropertyBoolItem( this, item, 0, "frameworkCode" );
 	setPropertyValue( item );
-	if ( MetaDataBase::isPropertyChanged( editor->widget(), "frameworkCode" ) )
+	if ( MetaDataBase::isPropertyChanged( w, "frameworkCode" ) )
 	    item->setChanged( TRUE, FALSE );
     }
 #endif
@@ -3582,12 +3583,12 @@ void PropertyList::setPropertyValue( PropertyItem *i )
 {
     QMetaProperty p =
 	editor->widget()->metaObject()->
-	property( editor->widget()->metaObject()->findProperty( i->name(), TRUE), TRUE );
+	property( editor->widget()->metaObject()->findProperty( i->name()) );
     if ( !p ) {
 	if ( i->name() == "hAlign" ) {
 	    int align = editor->widget()->property( "alignment" ).toInt();
 	    p = editor->widget()->metaObject()->
-		property( editor->widget()->metaObject()->findProperty( "alignment", TRUE ), TRUE );
+		property( editor->widget()->metaObject()->findProperty( "alignment" ) );
 	    align &= ~AlignVertical_Mask;
 	    QStringList l = QStringList::split('|', p.enumerator().valueToKeys( align ) );
 	    l.remove( "AlignAuto" );
@@ -3596,7 +3597,7 @@ void PropertyList::setPropertyValue( PropertyItem *i )
 	} else if ( i->name() == "vAlign" ) {
 	    int align = editor->widget()->property( "alignment" ).toInt();
 	    p = editor->widget()->metaObject()->
-		property( editor->widget()->metaObject()->findProperty( "alignment", TRUE ), TRUE );
+		property( editor->widget()->metaObject()->findProperty( "alignment" ) );
 	    align &= ~AlignHorizontal_Mask;
 	    QStringList l = QStringList::split('|', p.enumerator().valueToKeys( align ) );
 	    ( (PropertyListItem*)i )->setCurrentItem( l.last() );
@@ -4153,7 +4154,7 @@ QString PropertyEditor::classOfCurrentProperty() const
     QString curr = currentProperty();
     const QMetaObject *mo = o->metaObject();
     while ( mo ) {
-	if ( mo->findProperty(curr.latin1()) != -1 )
+	if (mo->findProperty(curr.latin1()) >= mo->propertyOffset())
 	    return mo->className();
 	mo = mo->superClass();
     }

@@ -1807,7 +1807,7 @@ QWidgetFactory::LayoutType QWidgetFactory::layoutType( QLayout *layout ) const
 void QWidgetFactory::setProperty( QObject* obj, const QString &prop,
 				  QVariant value )
 {
-    int offset = obj->metaObject()->findProperty( prop, TRUE );
+    int offset = obj->metaObject()->findProperty( prop );
 
     if ( offset != -1 ) {
 	if ( prop == "geometry" && obj == toplevel ) {
@@ -1818,7 +1818,7 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop,
 	    if ( value.type() == QVariant::String ||
 		 value.type() == QVariant::CString ) {
 		const QMetaProperty metaProp =
-		    obj->metaObject()->property( offset, TRUE );
+		    obj->metaObject()->property( offset );
 		if ( metaProp.isReadable() && metaProp.isEnumType() ) {
 		    QCString key = value.toCString();
 		    if ( metaProp.isSetType() )
@@ -2135,7 +2135,7 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 	    }
 
 	    // avoid warnings
-	    if ( sender->metaObject()->findSignal(conn.signal,true) == -1 ||
+	    if ( sender->metaObject()->findSignal(conn.signal) == -1 ||
 		 receiver->metaObject()->findSlot(conn.slot) == -1 ) {
 		n = n.nextSibling().toElement();
 		continue;

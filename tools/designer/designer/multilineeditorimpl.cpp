@@ -227,7 +227,7 @@ MultiLineEditor::MultiLineEditor( bool call_static, bool richtextMode, QWidget *
 	    mlined->setReadOnly( TRUE );
 
 	    QMetaProperty wordWrap = mlined->metaObject()->property(
-		mlined->metaObject()->findProperty( "wordWrap", TRUE ), TRUE );
+		mlined->metaObject()->findProperty( "wordWrap" ) );
 	    oldWrapMode = 0;
 	    oldWrapString = "NoWrap";
 	    if ( wordWrap ) {

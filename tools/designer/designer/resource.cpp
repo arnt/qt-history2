@@ -895,12 +895,12 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 			cw->className = className;
 			cw->includeFile =  WidgetDatabase::includeFile( classID );
 			int i;
-			for (i = 0; i < w->metaObject()->numSignals(true); ++i)
-			    cw->lstSignals.append(w->metaObject()->signal(i,true).signature());
+			for (i = 0; i < w->metaObject()->numSignals(); ++i)
+			    cw->lstSignals.append(w->metaObject()->signal(i).signature());
 
-			int total = w->metaObject()->numProperties( TRUE );
+			int total = w->metaObject()->numProperties();
 			for ( i = 0; i < total; i++ ) {
-			    QMetaProperty p = w->metaObject()->property( i, TRUE );
+			    QMetaProperty p = w->metaObject()->property( i );
 			    if ( p.isDesignable(w) ) {
 				MetaDataBase::Property prop;
 				prop.property = p.name();
@@ -918,9 +918,9 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 			    }
 			}
 
-			total = w->metaObject()->numSlots( TRUE );
+			total = w->metaObject()->numSlots( );
 			for ( i = 0; i < total; i++ ) {
-			    QMetaMember md = w->metaObject()->slot( i, TRUE );
+			    QMetaMember md = w->metaObject()->slot( i );
 			    MetaDataBase::Function funky;
 			    funky.returnType = md.type();
 			    funky.function = md.signature();
@@ -1256,9 +1256,10 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 		    WidgetFactory::layoutType( ( (QWidget*)w )->parentWidget() ) != WidgetFactory::NoLayout;
 
     bool super = !w->inherits( "Spacer" );
-    int numProps = w->metaObject()->numProperties(super);
+    int offset = super ? 0 : w->metaObject()->propertyOffset();
+    int numProps = w->metaObject()->numProperties() - offset;
     for ( int i = 0; i < numProps; ++i ) {
-	QMetaProperty p = w->metaObject()->property(i, super);
+	QMetaProperty p = w->metaObject()->property(i + offset);
 	if ( changed.find( QString::fromLatin1( p.name() ) ) == changed.end() )
 	    continue;
 	if ( saved.find( QString::fromLatin1( p.name() ) ) != saved.end() )
@@ -1319,13 +1320,13 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 
 void Resource::saveSetProperty( QObject *w, const QString &name, QVariant::Type, QTextStream &ts, int indent )
 {
-    QMetaProperty p = w->metaObject()->property( w->metaObject()->findProperty( name, TRUE ), TRUE );
+    QMetaProperty p = w->metaObject()->property( w->metaObject()->findProperty( name ) );
     ts << makeIndent( indent ) << "<set>" << p.enumerator().valueToKeys( w->property( name ).toInt() ) << "</set>" << endl;
 }
 
 void Resource::saveEnumProperty( QObject *w, const QString &name, QVariant::Type, QTextStream &ts, int indent )
 {
-    QMetaProperty p = w->metaObject()->property( w->metaObject()->findProperty( name, TRUE ), TRUE );
+    QMetaProperty p = w->metaObject()->property( w->metaObject()->findProperty( name ) );
     ts << makeIndent( indent ) << "<enum>" << p.enumerator().valueToKey( w->property( name ).toInt() ) << "</enum>" << endl;
 }
 
@@ -1950,7 +1951,7 @@ QWidget *Resource::createSpacer( const QDomElement &e, QWidget *parent, QLayout 
 */
 void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomElement &e )
 {
-    QMetaProperty p = obj->metaObject()->property( obj->metaObject()->findProperty( prop, TRUE ), TRUE );
+    QMetaProperty p = obj->metaObject()->property( obj->metaObject()->findProperty( prop ) );
 
     if ( !obj->inherits( "QLayout" )  ) {// no layouts in metadatabase... (RS)
 	if ( obj->inherits( "CustomWidget" ) ) {

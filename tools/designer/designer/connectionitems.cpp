@@ -339,9 +339,9 @@ SignalItem::SignalItem( QTable *table, FormWindow *fw )
 void SignalItem::senderChanged( QObject *sender )
 {
     QStringList lst;
-    int numSignals = sender->metaObject()->numSignals(true);
+    int numSignals = sender->metaObject()->numSignals();
     for (int i = 0; i < numSignals; ++i) {
-	QString s = sender->metaObject()->signal(i, true).signature();
+	QString s = sender->metaObject()->signal(i).signature();
 	if (s == "destroyed()"
 	    || s == "destroyed(QObject*)"
 	    || s == "accessibilityChanged(int)"
@@ -442,12 +442,12 @@ void SlotItem::updateSlotList()
     }
 
     QString signal = MetaDataBase::normalizeFunction( lastSignal );
-    int n = lastReceiver->metaObject()->numSlots( TRUE );
+    int n = lastReceiver->metaObject()->numSlots();
     QStringList slts;
 
     for( int i = 0; i < n; ++i ) {
 	// accept only public slots. For the form window, also accept protected slots
-	QMetaMember mm = lastReceiver->metaObject()->slot( i, TRUE );
+	QMetaMember mm = lastReceiver->metaObject()->slot( i );
 	if ( ( mm.access() == QMetaMember::Public ||
 	       (formWindow->isMainContainer( (QWidget*)lastReceiver ) &&
 		mm.access() == QMetaMember::Protected) )

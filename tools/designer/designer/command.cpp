@@ -481,7 +481,7 @@ bool SetPropertyCommand::canMerge( Command *c )
     if ( !widget )
 	return FALSE;
     const QMetaProperty p =
-	widget->metaObject()->property( widget->metaObject()->findProperty( propName, TRUE ), TRUE );
+	widget->metaObject()->property( widget->metaObject()->findProperty( propName ) );
     if ( p.isReadable() ) {
 	if ( propName == "toolTip" || propName == "whatsThis" )
 	    return TRUE;
@@ -551,16 +551,16 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
     if ( select )
 	editor->propertyList()->setCurrentProperty( propName );
     QMetaProperty p =
-	widget->metaObject()->property( widget->metaObject()->findProperty( propName, TRUE ), TRUE );
+	widget->metaObject()->property( widget->metaObject()->findProperty( propName ) );
     if (!p) {
 	if ( propName == "hAlign" ) {
-	    p = widget->metaObject()->property( widget->metaObject()->findProperty( "alignment", TRUE ), TRUE );
+	    p = widget->metaObject()->property( widget->metaObject()->findProperty( "alignment" ) );
 	    int align = widget->property( "alignment" ).toInt();
 	    align &= ~( AlignHorizontal_Mask );
 	    align |= p.enumerator().keyToValue( currentItemText );
 	    p.write( widget, QVariant( align ) );
 	} else if ( propName == "vAlign" ) {
-	    p = widget->metaObject()->property( widget->metaObject()->findProperty( "alignment", TRUE ), TRUE );
+	    p = widget->metaObject()->property( widget->metaObject()->findProperty( "alignment" ) );
 	    int align = widget->property( "alignment" ).toInt();
 	    align &= ~( AlignVertical_Mask );
 	    align |= p.enumerator().keyToValue( currentItemText );

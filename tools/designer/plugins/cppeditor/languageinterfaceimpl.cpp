@@ -231,9 +231,9 @@ void LanguageInterfaceImpl::preferedExtensions( QMap<QString, QString> &extensio
 QStrList LanguageInterfaceImpl::signalNames( QObject *obj ) const
 {
     QStrList sigs;
-    int numSignals = obj->metaObject()->numSignals(true);
+    int numSignals = obj->metaObject()->numSignals();
     for (int i = 0; i < numSignals; ++i)
-	sigs.append(obj->metaObject()->signal(i, true).signature());
+	sigs.append(obj->metaObject()->signal(i).signature());
     sigs.remove( "destroyed()" );
     return sigs;
 }

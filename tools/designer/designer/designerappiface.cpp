@@ -769,8 +769,8 @@ void DesignerFormWindowImpl::addFunction( const QCString &function, const QStrin
 
 void DesignerFormWindowImpl::setProperty( QObject *o, const char *property, const QVariant &value )
 {
-    int id = o->metaObject()->findProperty( property, TRUE );
-    QMetaProperty p = o->metaObject()->property( id, TRUE );
+    int id = o->metaObject()->findProperty( property );
+    QMetaProperty p = o->metaObject()->property( id );
     if ( p )
 	o->setProperty( property, value );
     else
@@ -779,8 +779,8 @@ void DesignerFormWindowImpl::setProperty( QObject *o, const char *property, cons
 
 QVariant DesignerFormWindowImpl::property( QObject *o, const char *prop ) const
 {
-    int id = o->metaObject()->findProperty( prop, TRUE );
-    QMetaProperty p = o->metaObject()->property( id, TRUE );
+    int id = o->metaObject()->findProperty( prop );
+    QMetaProperty p = o->metaObject()->property( id );
     if ( p )
 	return o->property( prop );
     return MetaDataBase::fakeProperty( o, prop );

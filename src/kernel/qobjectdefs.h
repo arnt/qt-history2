@@ -139,23 +139,23 @@ struct QMetaObject
     int	propertyOffset() const;
     int	classInfoOffset() const;
 
-    int	numSlots(bool super = false) const;
-    int	numSignals(bool super = false) const;
-    int	numEnumerators(bool super = false) const;
-    int	numProperties(bool super = false) const;
-    int	numClassInfo(bool super = false) const;
+    int	numSlots() const;
+    int	numSignals() const;
+    int	numEnumerators() const;
+    int	numProperties() const;
+    int	numClassInfo() const;
 
-    int	findSlot(const char *slot, bool super = false) const;
-    int	findSignal(const char *signal, bool super = false) const;
-    int findEnumerator(const char *name, bool super = false) const;
-    int findProperty(const char *name, bool super = false) const;
-    int findClassInfo(const char *name, bool super = false) const;
+    int	findSlot(const char *slot) const;
+    int	findSignal(const char *signal) const;
+    int findEnumerator(const char *name) const;
+    int findProperty(const char *name) const;
+    int findClassInfo(const char *name) const;
 
-    QMetaMember slot(int index, bool super = false) const;
-    QMetaMember signal(int index, bool super = false) const;
-    QMetaEnum enumerator(int index, bool super = false) const;
-    QMetaProperty property(int index, bool super = false) const;
-    QMetaClassInfo classInfo(int index, bool super = false) const;
+    QMetaMember slot(int index) const;
+    QMetaMember signal(int index) const;
+    QMetaEnum enumerator(int index) const;
+    QMetaProperty property(int index) const;
+    QMetaClassInfo classInfo(int index) const;
 
     static bool checkConnectArgs(const char *signal, const char *member);
     static QByteArray normalizeSignature(const char *member);
@@ -177,22 +177,19 @@ struct QMetaObject
     enum Call {
 	InvokeSlot = QSLOT_CODE,
 	EmitSignal = QSIGNAL_CODE,
-	FirstPropertyCall,
-	ReadProperty = FirstPropertyCall,
+	ReadProperty,
 	WriteProperty,
 	ResetProperty,
 	QueryPropertyDesignable,
 	QueryPropertyScriptable,
 	QueryPropertyStored,
-	QueryPropertyEditable,
-	LastPropertyCall = QueryPropertyEditable
+	QueryPropertyEditable
     };
 
 #ifndef QT_NO_COMPAT
     const char *superClassName() const;
     bool inherits(const char* classname) const;
 #endif
-
 
     struct { // private data
 	const QMetaObject *superdata;

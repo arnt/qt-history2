@@ -647,8 +647,8 @@ void MetaDataBase::doConnections( QObject *o )
 	s2 = s2.arg( conn.slot );
 
 	// avoid warnings
-	if ( sender->metaObject()->findSignal(conn.signal, true) == -1 ||
-	     receiver->metaObject()->findSlot(conn.slot, true) == -1 )
+	if ( sender->metaObject()->findSignal(conn.signal) == -1 ||
+	     receiver->metaObject()->findSlot(conn.slot) == -1 )
 	    continue;
 
 	QObject::connect( sender, s, receiver, s2 );
@@ -666,12 +666,12 @@ bool MetaDataBase::hasSlot( QObject *o, const QCString &slot, bool onlyCustom )
     }
 
     if ( !onlyCustom ) {
-	if (o->metaObject()->findSlot(slot, true) != -1)
+	if (o->metaObject()->findSlot(slot) != -1)
 	    return TRUE;
 
 	if ( o->inherits( "FormWindow" ) ) {
 	    o = ( (FormWindow*)o )->mainContainer();
-	    if (o->metaObject()->findSlot(slot, true) != -1)
+	    if (o->metaObject()->findSlot(slot) != -1)
 		return TRUE;
 	}
 
@@ -893,12 +893,12 @@ bool MetaDataBase::hasFunction( QObject *o, const QCString &function, bool onlyC
     }
 
     if ( !onlyCustom ) {
-	if ( o->metaObject()->findSlot( function, true ) != -1 )
+	if ( o->metaObject()->findSlot( function ) != -1 )
 	    return TRUE;
 
 	if ( o->inherits( "FormWindow" ) ) {
 	    o = ( (FormWindow*)o )->mainContainer();
-	    if ( o->metaObject()->findSlot( function, true ) != -1 )
+	    if ( o->metaObject()->findSlot( function ) != -1 )
 		return TRUE;
 	}
 
@@ -1339,7 +1339,7 @@ MetaDataBase::CustomWidget &MetaDataBase::CustomWidget::operator=( const CustomW
 
 bool MetaDataBase::CustomWidget::hasSignal( const QCString &signal ) const
 {
-    if ( QWidget::staticMetaObject.findSignal( signal, true ) != -1 )
+    if ( QWidget::staticMetaObject.findSignal( signal ) != -1 )
 	return TRUE;
     for ( QValueList<QCString>::ConstIterator it = lstSignals.begin(); it != lstSignals.end(); ++it ) {
 	if ( normalizeFunction( *it ) == normalizeFunction( signal ) )
@@ -1350,7 +1350,7 @@ bool MetaDataBase::CustomWidget::hasSignal( const QCString &signal ) const
 
 bool MetaDataBase::CustomWidget::hasSlot( const QCString &slot ) const
 {
-    if ( QWidget::staticMetaObject.findSlot( normalizeFunction( slot ), true ) != -1 )
+    if ( QWidget::staticMetaObject.findSlot( normalizeFunction( slot ) ) != -1 )
 	return TRUE;
 
     for ( QValueList<MetaDataBase::Function>::ConstIterator it = lstSlots.begin(); it != lstSlots.end(); ++it ) {
@@ -1362,7 +1362,7 @@ bool MetaDataBase::CustomWidget::hasSlot( const QCString &slot ) const
 
 bool MetaDataBase::CustomWidget::hasProperty( const QCString &prop ) const
 {
-    if ( QWidget::staticMetaObject.findProperty(prop, true) != -1 )
+    if ( QWidget::staticMetaObject.findProperty(prop) != -1 )
 	return TRUE;
 
     for ( QValueList<MetaDataBase::Property>::ConstIterator it = lstProperties.begin(); it != lstProperties.end(); ++it ) {

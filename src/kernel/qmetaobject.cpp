@@ -279,15 +279,13 @@ int QMetaObject::classInfoOffset() const
 
     \sa slot()
 */
-int QMetaObject::numSlots(bool super) const
+int QMetaObject::numSlots() const
 {
     int n = priv(d.data)->numSlots;
-    if (super) {
-	const QMetaObject *m = d.superdata;
-	while (m) {
-	    n += priv(m->d.data)->numSlots;
-	    m = m->d.superdata;
-	}
+    const QMetaObject *m = d.superdata;
+    while (m) {
+	n += priv(m->d.data)->numSlots;
+	m = m->d.superdata;
     }
     return n;
 }
@@ -298,15 +296,13 @@ int QMetaObject::numSlots(bool super) const
 
     \sa signal()
 */
-int QMetaObject::numSignals(bool super) const
+int QMetaObject::numSignals() const
 {
     int n = priv(d.data)->numSignals;
-    if (super) {
-	const QMetaObject *m = d.superdata;
-	while (m) {
-	    n += priv(m->d.data)->numSignals;
-	    m = m->d.superdata;
-	}
+    const QMetaObject *m = d.superdata;
+    while (m) {
+	n += priv(m->d.data)->numSignals;
+	m = m->d.superdata;
     }
     return n;
 }
@@ -317,15 +313,13 @@ int QMetaObject::numSignals(bool super) const
 
     \sa enumerator()
 */
-int QMetaObject::numEnumerators(bool super) const
+int QMetaObject::numEnumerators() const
 {
     int n = priv(d.data)->numEnumerators;
-    if (super) {
-	const QMetaObject *m = d.superdata;
-	while (m) {
-	    n += priv(m->d.data)->numEnumerators;
-	    m = m->d.superdata;
-	}
+    const QMetaObject *m = d.superdata;
+    while (m) {
+	n += priv(m->d.data)->numEnumerators;
+	m = m->d.superdata;
     }
     return n;
 }
@@ -336,15 +330,13 @@ int QMetaObject::numEnumerators(bool super) const
 
     \sa property()
 */
-int QMetaObject::numProperties(bool super) const
+int QMetaObject::numProperties() const
 {
     int n = priv(d.data)->numProperties;
-    if (super) {
-	const QMetaObject *m = d.superdata;
-	while (m) {
-	    n += priv(m->d.data)->numProperties;
-	    m = m->d.superdata;
-	}
+    const QMetaObject *m = d.superdata;
+    while (m) {
+	n += priv(m->d.data)->numProperties;
+	m = m->d.superdata;
     }
     return n;
 }
@@ -353,15 +345,13 @@ int QMetaObject::numProperties(bool super) const
     Returns the number of items of class information for this class.
     If \a super is true, inherited classInfo are included.
 */
-int QMetaObject::numClassInfo(bool super) const
+int QMetaObject::numClassInfo() const
 {
     int n = priv(d.data)->numClassInfo;
-    if (super) {
-	const QMetaObject *m = d.superdata;
-	while (m) {
-	    n += priv(m->d.data)->numClassInfo;
-	    m = m->d.superdata;
-	}
+    const QMetaObject *m = d.superdata;
+    while (m) {
+	n += priv(m->d.data)->numClassInfo;
+	m = m->d.superdata;
     }
     return n;
 }
@@ -369,11 +359,9 @@ int QMetaObject::numClassInfo(bool super) const
 /*!
     Finds \a slot and returns its index; otherwise returns -1.
 
-    If \a super is true, inherited slots are included.
-
     \sa slot(), numSlots()
 */
-int QMetaObject::findSlot(const char *slot, bool super) const
+int QMetaObject::findSlot(const char *slot) const
 {
     int i = -1;
     const QMetaObject *m = this;
@@ -381,8 +369,7 @@ int QMetaObject::findSlot(const char *slot, bool super) const
 	for (i = priv(m->d.data)->numSlots-1; i >= 0; --i)
 	    if (strcmp(slot, m->d.stringdata
 		       + m->d.data[priv(m->d.data)->slotData + 4*i] ) == 0) {
-		if (super)
-		    i += m->slotOffset();
+		i += m->slotOffset();
 		break;
 	    }
 	m = m->d.superdata;
@@ -394,11 +381,9 @@ int QMetaObject::findSlot(const char *slot, bool super) const
 
     Finds \a signal and returns its index; otherwise returns -1.
 
-    If \a super is true, inherited slots are included.
-
     \sa signal(), numSignals()
 */
-int QMetaObject::findSignal(const char *signal, bool super) const
+int QMetaObject::findSignal(const char *signal) const
 {
     int i = -1;
     const QMetaObject *m = this;
@@ -406,15 +391,14 @@ int QMetaObject::findSignal(const char *signal, bool super) const
 	for (i = priv(m->d.data)->numSignals-1; i >= 0; --i)
 	    if (strcmp(signal, m->d.stringdata
 		       + m->d.data[priv(m->d.data)->signalData + 4*i] ) == 0) {
-		if (super)
-		    i += m->signalOffset();
+		i += m->signalOffset();
 		break;
 	    }
 	m = m->d.superdata;
     }
 #if defined(QT_CHECK_RANGE)
-    if (i >= 0 && super && m->d.superdata ) {
-	int conflict = m->d.superdata->findSignal(signal, super);
+    if (i >= 0 && m->d.superdata ) {
+	int conflict = m->d.superdata->findSignal(signal);
 	if ( conflict >= 0 )
 	    qWarning( "QMetaObject::findSignal:%s: Conflict with %s::%s",
 		      m->d.stringdata, m->d.superdata->d.stringdata, signal );
@@ -428,11 +412,9 @@ int QMetaObject::findSignal(const char *signal, bool super) const
     Finds enumerator \a name and returns its index; otherwise returns
     -1.
 
-    If \a super is true, inherited properties are included.
-
     \sa enumerator(), numEnumerators()
 */
-int QMetaObject::findEnumerator(const char *name, bool super) const
+int QMetaObject::findEnumerator(const char *name) const
 {
     int i = -1;
     const QMetaObject *m = this;
@@ -440,8 +422,7 @@ int QMetaObject::findEnumerator(const char *name, bool super) const
 	for (i = priv(m->d.data)->numEnumerators-1; i >= 0; --i) {
 	    if (strcmp(name, m->d.stringdata
 		       + m->d.data[priv(m->d.data)->enumeratorData + 4*i] ) == 0) {
-		if (super)
-		    i += m->enumeratorOffset();
+		i += m->enumeratorOffset();
 		break;
 	    }
 	}
@@ -454,11 +435,9 @@ int QMetaObject::findEnumerator(const char *name, bool super) const
     Finds property \a name and returns its index; otherwise returns
     -1.
 
-    If \a super is true, inherited properties are included.
-
     \sa property(), numProperties()
 */
-int QMetaObject::findProperty(const char *name, bool super) const
+int QMetaObject::findProperty(const char *name) const
 {
     int i = -1;
     const QMetaObject *m = this;
@@ -466,8 +445,7 @@ int QMetaObject::findProperty(const char *name, bool super) const
 	for (i = priv(m->d.data)->numProperties-1; i >= 0; --i)
 	    if (strcmp(name, m->d.stringdata
 		       + m->d.data[priv(m->d.data)->propertyData + 3*i] ) == 0) {
-		if (super)
-		    i += m->propertyOffset();
+		i += m->propertyOffset();
 		break;
 	    }
 	m = m->d.superdata;
@@ -479,12 +457,9 @@ int QMetaObject::findProperty(const char *name, bool super) const
     Finds class information item \a name and returns its index;
     otherwise returns -1.
 
-    If \a super is true, inherited items of class information are
-    included.
-
     \sa classInfo(), numClassInfo()
 */
-int QMetaObject::findClassInfo(const char *name, bool super) const
+int QMetaObject::findClassInfo(const char *name) const
 {
     int i = -1;
     const QMetaObject *m = this;
@@ -492,8 +467,7 @@ int QMetaObject::findClassInfo(const char *name, bool super) const
 	for (i = priv(m->d.data)->numClassInfo-1; i >= 0; --i)
 	    if (strcmp(name, m->d.stringdata
 		       + m->d.data[priv(d.data)->classInfoData + 2*i] ) == 0) {
-		if (super)
-		    i += m->classInfoOffset();
+		i += m->classInfoOffset();
 		break;
 	    }
 	m = m->d.superdata;
@@ -503,24 +477,19 @@ int QMetaObject::findClassInfo(const char *name, bool super) const
 
 /*!
     Returns the meta data for the slot with index \a index.
-
-    If \a super is true, inherited slots are included.
 */
-QMetaMember QMetaObject::slot(int index, bool super) const
+QMetaMember QMetaObject::slot(int index) const
 {
     int i = index;
-    if (super) {
-	i -= slotOffset();
-	if (i < 0 && d.superdata)
-	    return d.superdata->slot(index, super);
-    }
+    i -= slotOffset();
+    if (i < 0 && d.superdata)
+	return d.superdata->slot(index);
 
     QMetaMember result;
     if (i >= 0 && i <= priv(d.data)->numSlots ) {
 	result.mobj = this;
 	result.handle = priv(d.data)->slotData + 4*i;
     }
-
     return result;
 }
 
@@ -529,23 +498,19 @@ QMetaMember QMetaObject::slot(int index, bool super) const
 
     If \a super is true, inherited signal are included.
  */
-QMetaMember QMetaObject::signal(int index, bool super) const
+QMetaMember QMetaObject::signal(int index) const
 {
     int i = index;
-    if (super) {
-	i -= signalOffset();
-	if (i < 0 && d.superdata)
-	    return d.superdata->signal(index, super);
-    }
+    i -= signalOffset();
+    if (i < 0 && d.superdata)
+	return d.superdata->signal(index);
 
     QMetaMember result;
     if (i >= 0 && i <= priv(d.data)->numSignals ) {
 	result.mobj = this;
 	result.handle = priv(d.data)->signalData + 4*i;
     }
-
     return result;
-
 }
 
 
@@ -554,14 +519,12 @@ QMetaMember QMetaObject::signal(int index, bool super) const
 
     If \a super is true, inherited enumerator are included.
  */
-QMetaEnum QMetaObject::enumerator(int index, bool super) const
+QMetaEnum QMetaObject::enumerator(int index) const
 {
     int i = index;
-    if (super) {
-	i -= enumeratorOffset();
-	if (i < 0 && d.superdata)
-	    return d.superdata->enumerator(index, super);
-    }
+    i -= enumeratorOffset();
+    if (i < 0 && d.superdata)
+	return d.superdata->enumerator(index);
 
     QMetaEnum result;
     if (i >= 0 && i <= priv(d.data)->numEnumerators ) {
@@ -576,14 +539,13 @@ QMetaEnum QMetaObject::enumerator(int index, bool super) const
 
     If \a super is true, inherited properties are included.
  */
-QMetaProperty QMetaObject::property(int index, bool super) const
+QMetaProperty QMetaObject::property(int index) const
 {
     int i = index;
-    if (super) {
-	i -= propertyOffset();
-	if (i < 0 && d.superdata)
-	    return d.superdata->property(index, super);
-    }
+    i -= propertyOffset();
+    if (i < 0 && d.superdata)
+	return d.superdata->property(index);
+
     QMetaProperty result;
     if (i >= 0 && i <= priv(d.data)->numProperties ) {
 	int handle = priv(d.data)->propertyData + 3*i;
@@ -591,12 +553,12 @@ QMetaProperty QMetaObject::property(int index, bool super) const
 	const char *name = d.stringdata + d.data[handle];
 	const char *type = d.stringdata + d.data[handle + 1];
 	if ((flags & Override) && d.superdata){
-	    result = property(d.superdata->findProperty(name, true), true);
+	    result = property(d.superdata->findProperty(name));
  	    if (qstrcmp(result.type(), type)) // type missmatch, no override
  		::memset(&result, 0, sizeof(QMetaProperty));
 	}
 	if (flags & EnumOrSet) {
-	    result.menum = enumerator(findEnumerator(type, true), true);
+	    result.menum = enumerator(findEnumerator(type));
 	}
 	if (flags & Readable) {
 	    result.mobj[ReadProperty] = this;
@@ -633,18 +595,13 @@ QMetaProperty QMetaObject::property(int index, bool super) const
 /*!
     Returns the meta data for the item of class information with index
     \a index.
-
-    If \a super is true, inherited items of class information are
-    included.
  */
-QMetaClassInfo QMetaObject::classInfo(int index, bool super) const
+QMetaClassInfo QMetaObject::classInfo(int index) const
 {
     int i = index;
-    if (super) {
-	i -= classInfoOffset();
-	if (i < 0 && d.superdata)
-	    return d.superdata->classInfo(index, super);
-    }
+    i -= classInfoOffset();
+    if (i < 0 && d.superdata)
+	return d.superdata->classInfo(index);
 
     QMetaClassInfo result;
     if (i >= 0 && i <= priv(d.data)->numClassInfo ) {

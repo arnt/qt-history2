@@ -489,9 +489,9 @@ QMap< int, QStringList > *changedProperties = 0;
 void WidgetFactory::saveDefaultProperties( QObject *w, int id )
 {
     QMap< QString, QVariant> propMap;
-    int numProps = w->metaObject()->numProperties(true);
+    int numProps = w->metaObject()->numProperties();
     for ( int i = 0; i < numProps; ++i ) {
-	QMetaProperty p = w->metaObject()->property(i,true);
+	QMetaProperty p = w->metaObject()->property(i);
 	QVariant var = w->property( p.name() );
 	if ( !var.isValid() && qstrcmp( "pixmap", p.name() ) == 0 )
 	    var = QVariant( QPixmap() );
@@ -1431,7 +1431,7 @@ bool WidgetFactory::canResetProperty( QObject *w, const QString &propName )
 bool WidgetFactory::resetProperty( QObject *w, const QString &propName )
 {
     QMetaProperty p = w->metaObject()->property( w->metaObject()->
-						 findProperty( propName, TRUE ), TRUE );
+						 findProperty( propName ) );
     if (!p )
 	return FALSE;
     return p.reset( w );
@@ -1459,7 +1459,7 @@ QVariant WidgetFactory::defaultValue( QObject *w, const QString &propName )
 QString WidgetFactory::defaultCurrentItem( QObject *w, const QString &propName )
 {
     QMetaProperty p = w->metaObject()->
-		      property( w->metaObject()->findProperty( propName, TRUE ), TRUE );
+		      property( w->metaObject()->findProperty( propName ) );
     if ( !p ) {
 	int v = defaultValue( w, "alignment" ).toInt();
 	if ( propName == "hAlign" ) {
@@ -1498,8 +1498,8 @@ QWidget *WidgetFactory::createCustomWidget( QWidget *parent, const char *name, M
 
 QVariant WidgetFactory::property( QObject *w, const char *name )
 {
-    int id = w->metaObject()->findProperty( name, TRUE );
-    QMetaProperty p = w->metaObject()->property( id, TRUE );
+    int id = w->metaObject()->findProperty( name );
+    QMetaProperty p = w->metaObject()->property( id );
     if ( !p )
 	return MetaDataBase::fakeProperty( w, name );
     return w->property( name );
