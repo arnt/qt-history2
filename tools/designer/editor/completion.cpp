@@ -71,6 +71,9 @@ void EditorCompletion::addCompletionEntry( const QString &s, QTextDocument * )
 	    if ( (*it2).left( s.length() ) == s ) {
 		if ( (*it2)[ (int)s.length() ].isLetter() && (*it2)[ (int)s.length() ].upper() != (*it2)[ (int)s.length() ] )
 		    return;
+	    } else if ( s.left( (*it2).length() ) == *it2 ) {
+		if ( s[ (int)(*it2).length() ].isLetter() && s[ (int)(*it2).length() ].upper() != s[ (int)(*it2).length() ] )
+		    (*it).remove( it2 );
 	    }
 	}
 	(*it).append( s );
@@ -221,18 +224,13 @@ bool EditorCompletion::eventFilter( QObject *o, QEvent *e )
 	 o == completionListBox->viewport() ) {
 	if ( e->type() == QEvent::KeyPress ) {
 	    QKeyEvent *ke = (QKeyEvent*)e;
-	    if ( ke->key() == Key_Enter || ke->key() == Key_Return ||
-		 ke->key() == Key_Tab ) {
-		int idx = curEditor->textCursor()->index();
-		QString s = completionListBox->currentText().mid( searchString.length() );
-		curEditor->insert( s, TRUE );
-		int i = s.find( '(' );
-		completionPopup->close();
-		curEditor->setFocus();
-		if ( i != -1 && i < (int)s.length() ) {
-		    curEditor->setCursorPosition( curEditor->textCursor()->parag()->paragId(), idx + i + 1 );
-		    doArgumentHint( FALSE );
+	    if ( ke->key() == Key_Enter || ke->key() == Key_Return || ke->key() == Key_Tab ) {
+		if ( ke->key() == Key_Tab && completionListBox->count() > 1 &&
+		     completionListBox->currentItem() < (int)completionListBox->count() - 1 ) {
+		    completionListBox->setCurrentItem( completionListBox->currentItem() + 1 );
+		    return TRUE;
 		}
+		completeCompletion();
 		return TRUE;
 	    } else if ( ke->key() == Key_Left || ke->key() == Key_Right ||
 			ke->key() == Key_Up || ke->key() == Key_Down ||
@@ -273,6 +271,20 @@ bool EditorCompletion::eventFilter( QObject *o, QEvent *e )
 	}
     }
     return FALSE;
+}
+
+void EditorCompletion::completeCompletion()
+{
+    int idx = curEditor->textCursor()->index();
+    QString s = completionListBox->currentText().mid( searchString.length() );
+    curEditor->insert( s, TRUE );
+    int i = s.find( '(' );
+    completionPopup->close();
+    curEditor->setFocus();
+    if ( i != -1 && i < (int)s.length() ) {
+	curEditor->setCursorPosition( curEditor->textCursor()->parag()->paragId(), idx + i + 1 );
+	doArgumentHint( FALSE );
+    }
 }
 
 void EditorCompletion::setCurrentEdior( Editor *e )

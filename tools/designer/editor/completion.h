@@ -68,6 +68,7 @@ public:
 protected:
     virtual bool continueComplete();
     virtual void showCompletion( const QStringList &lst );
+    virtual void completeCompletion();
 
 protected:
     QVBox *completionPopup;
