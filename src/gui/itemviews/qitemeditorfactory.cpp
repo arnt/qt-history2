@@ -66,19 +66,27 @@ QWidget *QDefaultItemEditorFactory::createEditor(QVariant::Type type, QWidget *p
         return cb; }
     case QVariant::UInt: {
         QSpinBox *sb = new QSpinBox(parent);
+        sb->setTracking(true);
         sb->setMaximum(INT_MAX);
         return sb; }
     case QVariant::Int: {
         QSpinBox *sb = new QSpinBox(parent);
+        sb->setTracking(true);
         sb->setMinimum(INT_MIN);
         sb->setMaximum(INT_MAX);
         return sb; }
-    case QVariant::Date:
-        return new QDateTimeEdit(QDate(), parent);
-    case QVariant::Time:
-        return new QDateTimeEdit(QTime(), parent);
-    case QVariant::DateTime:
-        return new QDateTimeEdit(parent);
+    case QVariant::Date: {
+        QDateTimeEdit *ed = new QDateTimeEdit(QDate(), parent);
+        ed->setTracking(true);
+        return ed; }
+    case QVariant::Time: {
+        QDateTimeEdit *ed = new QDateTimeEdit(QTime(), parent);
+        ed->setTracking(true);
+        return ed; }
+    case QVariant::DateTime: {
+        QDateTimeEdit *ed = new QDateTimeEdit(parent);
+        ed->setTracking(true);
+        return ed; }
     case QVariant::Pixmap:
         return new QLabel(parent);
     case QVariant::String:
