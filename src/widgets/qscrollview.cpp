@@ -2535,8 +2535,10 @@ void QScrollView::viewportToContents( int vx, int vy, int& x, int& y ) const
 QSize QScrollView::sizeHint() const
 {
     int h = fontMetrics().height();
-    int d = 10 * QMAX( h, 10 ) + 2 * frameWidth();
-    return QSize( d, d );
+    if ( h < 10 )
+	h = 10;
+    int f = 2 * frameWidth();
+    return QSize( (12 * h) + f, (8 * h) + f );
 }
 
 
@@ -2546,8 +2548,10 @@ QSize QScrollView::sizeHint() const
 QSize QScrollView::minimumSizeHint() const
 {
     int h = fontMetrics().height();
-    int d = 5 * QMAX( h, 10 ) + 2 * frameWidth();
-    return QSize( d, d );
+    if ( h < 10 )
+	h = 10;
+    int f = 2 * frameWidth();
+    return QSize( (6 * h) + f, (4 * h) + f );
 }
 
 
