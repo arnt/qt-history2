@@ -3402,21 +3402,22 @@ QIconViewItem *QIconView::findItem( const QString &text, ComparisonFlags compare
 {
     if ( !d->firstItem )
         return 0;
-
-    if ( compare == CaseSensitive /* || compare == 0 */)
+    
+    if ( compare == CaseSensitive || compare == 0 )
         compare |= ExactMatch;
     
+    QString itmtxt;
     QString comtxt = text;
     if ( ! (compare & CaseSensitive) )
         comtxt = text.lower();
-
+    
     QIconViewItem *item = d->currentItem;
     if ( item ) {
-        QString itmtxt = item->text();
-
         for ( ; item; item = item->next ) {
             if ( ! (compare & CaseSensitive) )
                 itmtxt = item->text().lower();
+	    else
+		itmtxt = item->text();
             
             if ( compare & ExactMatch ) {
                 if ( itmtxt == comtxt ) 
@@ -3434,7 +3435,7 @@ QIconViewItem *QIconView::findItem( const QString &text, ComparisonFlags compare
             }
             
             if ( compare & Contains ) {
-                if ( itmtxt.contains( comtxt, FALSE ) )
+                if ( itmtxt.contains( comtxt, (compare & CaseSensitive) ) )
                     return item;
             }
         }
@@ -3444,7 +3445,9 @@ QIconViewItem *QIconView::findItem( const QString &text, ComparisonFlags compare
         for ( ; item && item != d->currentItem; item = item->next ) {
             if ( ! (compare & CaseSensitive) )
                 itmtxt = item->text().lower();
-            
+	    else
+		itmtxt = item->text();
+	    
             if ( compare & ExactMatch ) {
                 if ( itmtxt == comtxt ) 
                     return item;
@@ -3461,7 +3464,7 @@ QIconViewItem *QIconView::findItem( const QString &text, ComparisonFlags compare
             }
             
             if ( compare & Contains ) {
-                if ( itmtxt.contains( comtxt, FALSE ) )
+                if ( itmtxt.contains( comtxt, (compare & CaseSensitive) ) )
                     return item;
             }
         }

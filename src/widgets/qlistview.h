@@ -140,7 +140,7 @@ public:
 
     QListViewItem * itemAbove();
     QListViewItem * itemBelow();
-
+    
     int itemPos() const;
 
     QListView *listView() const;
@@ -331,6 +331,8 @@ public:
     void setFullSize( bool b ) { setFullSize( b, -1 ); }
     bool fullSize() const;
     bool fullSize( int section ) const;
+
+    QListViewItem * findItem( const QString& text, int column, ComparisonFlags compare ) const;
 
 public slots:
     virtual void clear();

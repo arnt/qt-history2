@@ -6463,5 +6463,89 @@ QString	QListView::typeDescription() const
 
 #endif
 
+/*!
+
+  Finds the first item with the text \a text in the column \a column.  
+
+*/
+
+QListViewItem *QListView::findItem( const QString& text, int column, ComparisonFlags compare ) const
+{
+    if ( text.isEmpty() )
+	return 0;
+    
+    if ( compare == CaseSensitive || compare == 0 )
+        compare |= ExactMatch;
+    
+    QString itmtxt;
+    QString comtxt = text;
+    if ( ! (compare & CaseSensitive ) )
+        comtxt = text.lower();
+    
+    QListViewItem *item = d->focusItem;
+    QListViewItemIterator it( item );
+    
+    if ( item ) {
+        for ( ; it.current(); ++it ) {
+            item = it.current();
+	    if ( ! (compare & CaseSensitive) )
+                itmtxt = item->text( column ).lower();
+	    else
+		itmtxt = item->text( column );
+	    
+            if ( compare & ExactMatch ) {
+                if ( itmtxt == comtxt ) 
+                    return item;
+            }
+            
+            if ( compare & BeginsWith ) {
+                if ( itmtxt.startsWith( comtxt ) )
+                    return item;
+            }
+            
+            if ( compare & EndsWith ) {
+                if ( itmtxt.right( comtxt.length() ) == comtxt )
+                    return item;
+            }
+            
+            if ( compare & Contains ) {
+                if ( itmtxt.contains( comtxt, (compare & CaseSensitive) ) )
+                    return item;
+            }
+        }
+	
+	item = firstChild();
+	QListViewItemIterator it( item );
+        
+        for ( ; it.current() && d->focusItem; ++it ) {
+            item = it.current();
+	    if ( ! (compare & CaseSensitive) )
+                itmtxt = item->text( column ).lower();
+	    else
+		itmtxt = item->text( column );
+	    
+            if ( compare & ExactMatch ) {
+                if ( itmtxt == comtxt ) 
+                    return item;
+            }
+            
+            if ( compare & BeginsWith ) {
+                if ( itmtxt.startsWith( comtxt ) )
+                    return item;
+            }
+            
+            if ( compare & EndsWith ) {
+                if ( itmtxt.right( comtxt.length() ) == comtxt )
+                    return item;
+            }
+            
+            if ( compare & Contains ) {
+                if ( itmtxt.contains( comtxt, (compare & CaseSensitive) ) )
+                    return item;
+            }
+        }
+    }
+    return 0;
+}
 #endif // QT_NO_LISTVIEW
 
