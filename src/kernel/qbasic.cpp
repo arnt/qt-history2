@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qbasic.cpp#7 $
 **
 **  Studies in Geometry Management
 **
@@ -18,7 +18,7 @@
 #include "qbasic.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#6 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#7 $")
 
 
 
@@ -134,24 +134,21 @@ public:
 
     int minSize()
     {
-	int wid = 0;
-	int h = 0;
-	widget->minimumSize( &wid, &h );
+	QSize s = widget->minimumSize();
 	if ( horz( direction() ) )
-	    return wid;
+	    return s.width();
 	else
-	    return h;
+	    return s.height();
     }
     int maxSize()
     {
-	int wid = QBasicManager::unlimited;
-	int h = QBasicManager::unlimited;
-	widget->maximumSize( &wid, &h );
+	QSize s = widget->maximumSize();
 	if ( horz( direction() ) )
-	    return wid;
+	    return s.width();
 	else
-	    return h;
-    }
+	    return s.height();
+    }   
+
     void distribute( wDict & wd, int pos, int space ) {
 	setWinfo( widget, wd, direction(),  pos, space );
     }
