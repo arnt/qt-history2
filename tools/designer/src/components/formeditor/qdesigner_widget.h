@@ -194,13 +194,27 @@ public:
     virtual void setGeometry(const QRect &r)
     { widget()->setGeometry(r); }
 
-    QSize sizeHint() const { return const_cast<QLayoutWidgetItem*>(this)->widget()->layout()->sizeHint(); }
-    QSize minimumSize() const {return const_cast<QLayoutWidgetItem*>(this)->widget()->layout()->minimumSize(); }
-    QSize maximumSize() const { return  const_cast<QLayoutWidgetItem*>(this)->widget()->layout()->maximumSize(); }
-    QSizePolicy::ExpandData expanding() const { return  const_cast<QLayoutWidgetItem*>(this)->widget()->layout()->expanding(); }
+    virtual QSize sizeHint() const
+    { return theLayout()->sizeHint(); }
+
+    virtual QSize minimumSize() const
+    {return theLayout()->minimumSize(); }
+
+    virtual QSize maximumSize() const
+    { return theLayout()->maximumSize(); }
+
+    virtual QSizePolicy::ExpandData expanding() const
+    { return theLayout()->expanding(); }
 
     void addTo(QLayout *layout);
     void removeFrom(QLayout *layout);
+
+protected:
+    inline QLayoutWidgetItem *me() const
+    { return const_cast<QLayoutWidgetItem*>(this); }
+
+    inline QLayout *theLayout() const
+    { Q_ASSERT(me()->widget()); return me()->widget()->layout(); }
 };
 
 class QT_FORMEDITOR_EXPORT QDesignerDialog : public QDialog
