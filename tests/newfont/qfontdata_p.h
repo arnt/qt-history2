@@ -59,7 +59,7 @@ struct QFontDef {
     short	pointSize;
     short	lbearing;
     short	rbearing;
-
+    
     uint	styleHint	: 8;
     uint	styleStrategy	: 8;
     uint	weight		: 8;
@@ -75,21 +75,25 @@ struct QFontDef {
 
 class QTextCodec;
 
-#ifdef Q_WS_X11
 
+#ifdef Q_WS_X11
 // this is a shared wrapper for XFontStruct (to prevent a font being freed by
 // the cache while it's being used)
 class QFontStruct : public QShared
 {
 public:
-    QFontStruct(Qt::HANDLE h, QCString n, QTextCodec *c) : handle(h), name(n), codec(c) { ; }
+    QFontStruct(Qt::HANDLE h, QCString n) :
+	handle(h), name(n), codec(0)
+    { ; }
+    
     ~QFontStruct();
+    
+    bool deref();
 
     Qt::HANDLE handle;
     QCString name;
     QTextCodec *codec;
 };
-
 #endif
 
 
@@ -98,6 +102,47 @@ public:
 class QFontPrivate : public QShared
 {
 public:
+    enum Script {
+	// Basic Latin with Latin-1 Supplement
+	BASICLATIN,
+	
+	// To get Latin Extended-A characters from various ISO-8859-* encodings
+	EXTLATINA2, // Extended Latin from ISO-8859-2
+	EXTLATINA3, // Extended Latin from ISO-8859-3
+	EXTLATINA4, // Extended Latin from ISO-8859-4
+	EXTLATINA9, // Extended Latin from ISO-8859-9
+	EXTLATINA14, // Extended Latin from ISO-8859-14
+	EXTLATINA15, // Extended Latin from ISO-8859-15
+	
+	// TODO: support for Latin Extended-B characters
+	
+	CYRILLIC,
+	ARABIC,
+	GREEK,
+	HEBREW,
+	
+	// South/Southeast Asian Scripts
+	TAMIL,
+	THAI,
+	
+	// East Asian Scripts
+	HAN,
+	HIRAGANA,
+	KATAKANA,
+	HANGUL,
+	BOPOMOFO,
+      	
+	UNICODE,
+
+	// End
+	NScripts,
+	AnyScript = NScripts,
+	UnknownScript = NScripts,
+    };
+    
+    static Script scriptForChar(const QChar &c);
+    
+    
     QFontPrivate()
 	: // printerHackFont(0),
 	exactMatch(FALSE), lineWidth(1)
@@ -131,7 +176,7 @@ public:
 	actual.dirty = TRUE;
 
 #ifndef QT_NO_COMPAT
-	charset = QFont::AnyCharSet;
+	// charset = QFont::AnyCharSet;
 #endif
 
     }
@@ -149,7 +194,7 @@ public:
     {
 
 #ifndef QT_NO_COMPAT
-	charset = fp.charset;
+	// charset = fp.charset;
 #endif
 
     }
@@ -213,122 +258,75 @@ public:
 	NFontFields
     };
 
-    QCString findFont(QFont::CharSet, bool *) const;
-    QCString bestFamilyMember(QFont::CharSet, const QString &, const QString &,
+    QCString findFont(QFontPrivate::Script, bool *) const;
+    QCString bestFamilyMember(QFontPrivate::Script, const QString &, const QString &,
 			      int *) const;
     QCString bestMatch(const char *, int *) const;
     int fontMatchScore(const char *, QCString &, float *, int *, bool *, bool *) const;
-    void computeLineWidth(QFont::CharSet);
-    void initFontInfo(QFont::CharSet);
-    void load(QFont::CharSet, bool = TRUE);
+    void computeLineWidth(QFontPrivate::Script);
+    void initFontInfo(QFontPrivate::Script);
+    void load(QFontPrivate::Script, bool = TRUE);
 
 
     struct QFontX11Data {
 	QFontX11Data()
 	{
-	    for (int i = 0; i < QFont::NCharSets; i++) {
+	    for (int i = 0; i < QFontPrivate::NScripts; i++) {
 		fontstruct[i] = 0;
-		// codec[i] = 0;
 	    }
 	}
 
 	QFontX11Data(const QFontX11Data &xd)
 	{
-	    for (int i = 0; i < QFont::NCharSets - 1; i++) {
+	    for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
 		if (xd.fontstruct[i] &&
 		    xd.fontstruct[i] != (QFontStruct *) -1 &&
-		    xd.fontstruct[i] != xd.fontstruct[QFont::ISO_10646_1]) {
+		    xd.fontstruct[i] != xd.fontstruct[QFontPrivate::UNICODE]) {
 		    xd.fontstruct[i]->ref();
 		}
 
 		fontstruct[i] = xd.fontstruct[i];
-		// codec[i] = xd.codec[i];
 	    }
 
-	    if (xd.fontstruct[QFont::ISO_10646_1] &&
-		xd.fontstruct[QFont::ISO_10646_1] != (QFontStruct *) -1) {
-		xd.fontstruct[QFont::ISO_10646_1]->ref();
+	    if (xd.fontstruct[QFontPrivate::UNICODE] &&
+		xd.fontstruct[QFontPrivate::UNICODE] != (QFontStruct *) -1) {
+		xd.fontstruct[QFontPrivate::UNICODE]->ref();
 	    }
 
-	    fontstruct[QFont::ISO_10646_1] = xd.fontstruct[QFont::ISO_10646_1];
-	    // codec[QFont::ISO_10646_1] = xd.codec[QFont::ISO_10646_1];
+	    fontstruct[QFontPrivate::UNICODE] = xd.fontstruct[QFontPrivate::UNICODE];
 	}
 
 	~QFontX11Data()
 	{
-	    for (int i = 0; i < QFont::NCharSets - 1; i++) {
+	    for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
 		if (fontstruct[i] &&
 		    fontstruct[i] != (QFontStruct *) -1 &&
-		    fontstruct[i] != fontstruct[QFont::ISO_10646_1]) {
+		    fontstruct[i] != fontstruct[QFontPrivate::UNICODE]) {
 		    fontstruct[i]->deref();
 		}
 	    }
-
-	    if (fontstruct[QFont::ISO_10646_1] &&
-		fontstruct[QFont::ISO_10646_1] != (QFontStruct *) -1) {
-		fontstruct[QFont::ISO_10646_1]->deref();
+	    
+	    if (fontstruct[QFontPrivate::UNICODE] &&
+		fontstruct[QFontPrivate::UNICODE] != (QFontStruct *) -1) {
+		fontstruct[QFontPrivate::UNICODE]->deref();
 	    }
 	}
-
+	
 	// X fontstruct handles for each character set
-	QFontStruct *fontstruct[QFont::NCharSets];
-	// Unicode -> font encoding
-	// QTextCodec *codec[QFont::NCharSets];
+	QFontStruct *fontstruct[QFontPrivate::NScripts];
     } x11data;
 
 
-    static QFont::CharSet defaultCharSet;
-#endif
+    static QFontPrivate::Script defaultScript;    
+#endif // Q_WS_X11
 
-
-    // source compatibility for QFont
+   
 #ifndef QT_NO_COMPAT
-    QFont::CharSet charset;
-#endif
+    // source compatibility for QFont
+    // QFont::CharSet charsetcompat;
+#endif // QT_NO_COMPAT
+    
 };
-
-
-// class QFontPrivate;
-// class QTextCodec;
-/*
-  struct QFontData : public QShared {
-  QFontData()
-  : / * priv(0), * / printerHackFont(0), exactMatch(FALSE)
-  {}
-
-  QFontData( const QFontData &d )
-  : QShared(d), req(d.req), / * priv(d.priv) * / printerHackFont(0),
-  exactMatch(FALSE)
-  // Copy the QShared count as well. The count may need to be
-  // reset when using the QFontData class, see QFont::QFont(QFontData*)
-  {}
-
-  // needed?
-  ~QFontData()
-  {}
-
-  QFontData &operator=( const QFontData &d )
-  {
-  req = d.req;
-  exactMatch = d.exactMatch;
-  // priv = d.priv;
-  printerHackFont=d.printerHackFont;
-
-  return *this;
-  }
-
-  // requested font
-  QFontDef req;
-  // private font data
-  // QFontPrivate *priv;
-  // printer fontmetrics hack font
-  QFont *printerHackFont;
-
-  bool exactMatch;
-
-  const QTextCodec *mapper()  const;
-  };
-*/
 
 
 #endif // QFONTDATA_P_H

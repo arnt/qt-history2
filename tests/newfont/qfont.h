@@ -55,68 +55,6 @@ class QFontPrivate;
 class Q_EXPORT QFont					// font class
 {
 public:
-    enum CharSet {
-	// ISO 8859 encodings
-	ISO_8859_1,
-	ISO_8859_2,
-	ISO_8859_3,
-	ISO_8859_4,
-	ISO_8859_5,
-	ISO_8859_6,
-	ISO_8859_7,
-	ISO_8859_8,
-	ISO_8859_9,
-	ISO_8859_10,
-	ISO_8859_11,
-	ISO_8859_12,
-	ISO_8859_13,
-	ISO_8859_14,
-	ISO_8859_15,
-
-	// Russian and Ukranian
-	KOI8_R,
-	KOI8_U,
-
-	// multibyte encodings
-	JISX0208,
-	GB2312,
-	BIG5,
-	KSC5601,
-
-	// Tamil
-	TSCII,
-
-	// Unicode
-	ISO_10646_1,
-
-	// End
-	NCharSets,
-	AnyCharSet = NCharSets,
-	Unknown = NCharSets,
-
-	// Latin[1-9] encodings map to ISO encodings
-	Latin1   = ISO_8859_1,
-	Latin2   = ISO_8859_2,
-	Latin3   = ISO_8859_3,
-	Latin4   = ISO_8859_4,
-	Latin5   = ISO_8859_9,
-	Latin6   = ISO_8859_10,
-	Latin7   = ISO_8859_13,
-	Latin8   = ISO_8859_14,
-	Latin9   = ISO_8859_15,
-
-	// Script names
-	Cyrillic = ISO_8859_5,
-	Arabic   = ISO_8859_6,
-	Greek    = ISO_8859_7,
-	Hebrew   = ISO_8859_8,
-	Turkish  = ISO_8859_9,
-	Thai     = ISO_8859_11,
-
-	// Alternate encoding names
-	TIS620   = ISO_8859_11,
-    };
-
     enum StyleHint {
 	Helvetica,  SansSerif = Helvetica,
 	Times,      Serif = Times,
@@ -225,16 +163,17 @@ public:
     static QFont defaultFont();
     static void setDefaultFont( const QFont & );
 
-    static QString substitute( const QString &familyName );
-    static void insertSubstitution( const QString&, const QString &);
-    static void removeSubstitution( const QString &);
+    static QString substitute(const QString &);
+    static QStringList substitutes(const QString &);
     static QStringList substitutions();
+    static void insertSubstitution(const QString&, const QString &);
+    static void removeSubstitution(const QString &);
 
     static void initialize();
     static void cleanup();
     static void cacheStatistics();
-
-
+    
+    
 #if defined(Q_WS_QWS)
     void qwsRenderToDisk(bool all=TRUE);
 #endif
@@ -252,13 +191,11 @@ protected:
 
 
 private:
-    static CharSet encodingForChar(const QChar &c);
-
     QFont( QFontPrivate *, bool deep = TRUE );
 
     void detach();
 
-    
+
 #if defined(Q_WS_MAC)
     void macSetFont(QPaintDevice *);
 #endif

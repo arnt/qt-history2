@@ -45,7 +45,7 @@ QFontJis0208Codec::QFontJis0208Codec()
 
 const char* QFontJis0208Codec::name() const
 {
-    return "QFont::JISX0208";
+    return "jisx0208.1983-0";
 }
 
 int QFontJis0208Codec::mibEnum() const
@@ -129,7 +129,7 @@ QFontKsc5601Codec::QFontKsc5601Codec()
 
 const char* QFontKsc5601Codec::name() const
 {
-    return "QFont::KSC5601";
+    return "ksc5601.1987-0";
 }
 
 int QFontKsc5601Codec::mibEnum() const
@@ -219,7 +219,7 @@ QFontGB2312Codec::QFontGB2312Codec()
 
 const char* QFontGB2312Codec::name() const
 {
-    return "GB_2312";
+    return "gb2312.1980-0";
 }
 
 int QFontGB2312Codec::mibEnum() const
@@ -295,7 +295,7 @@ QFontBig5Codec::QFontBig5Codec()
 
 const char* QFontBig5Codec::name() const
 {
-    return "Big5";
+    return "big5-0";
 }
 
 int QFontBig5Codec::mibEnum() const

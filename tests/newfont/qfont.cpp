@@ -42,11 +42,11 @@
 #include "qpainter.h"
 #include "../../kernel/qpainter_p.h" // ### change this to ../kernel/qpainter_p.h
 
-#include "qmap.h"
-#include "qdatastream.h"
-#include "qapplication.h"
-#include "qcleanuphandler.h"
-#include "qstringlist.h"
+#include <qdict.h>
+#include <qdatastream.h>
+#include <qapplication.h>
+#include <qcleanuphandler.h>
+#include <qstringlist.h>
 #include <ctype.h>
 #include <limits.h>
 
@@ -909,7 +909,7 @@ void QFont::setRawMode( bool enable )
 bool QFont::exactMatch() const
 {
     if (d->request.dirty)
-	d->load(QFontPrivate::defaultCharSet);
+	d->load(QFontPrivate::defaultScript);
 
     return d->exactMatch;
 }
@@ -1103,33 +1103,27 @@ void  QFont::setDefaultFont( const QFont &f )
 */
 
 
+
+
+
+
+
+
 /*****************************************************************************
   QFont substitution management
  *****************************************************************************/
 
-
-// Just case insensitive
-class QCIString : public QString {
-public:
-    QCIString() { }
-    QCIString( const QString& s ) : QString(s) { }
-};
-bool operator<( const QCIString &s1, const QCIString &s2 )
-{ return s1.lower() < s2.lower(); }
-bool operator==( const QCIString &s1, const QCIString &s2 )
-{ return s1.lower() == s2.lower(); }
-bool operator!=( const QCIString &s1, const QCIString &s2 )
-{ return s1.lower() != s2.lower(); }
-// .... That's all QMap needs
-
-typedef QMap<QCIString,QString> QFontSubst;
+typedef QDict<QStringList> QFontSubst;
 static QFontSubst *fontSubst = 0;
-
 QCleanupHandler<QFontSubst> qfont_cleanup_fontsubst;
 
-static void initFontSubst()                     // create substitution dict
+
+// create substitution dict
+static void initFontSubst()
 {
-    static const char *initTbl[] = {            // default substitutions
+    // default substitutions
+    static const char *initTbl[] = {
+	
 #if defined(Q_WS_X11)
         "arial",        "helvetica",
         "helv",         "helvetica",
@@ -1139,18 +1133,19 @@ static void initFontSubst()                     // create substitution dict
         "courier",      "Courier New",
         "helvetica",    "Arial",
 #endif
+	    
         0,              0
     };
 
-    if ( fontSubst )
-        return;
+    if (fontSubst) return;
+    
     fontSubst = new QFontSubst();
     Q_CHECK_PTR( fontSubst );
+    qfont_cleanup_fontsubst.add(fontSubst);
+    
     for ( int i=0; initTbl[i] != 0; i += 2 )
-        fontSubst->insert(
-            QString::fromLatin1(initTbl[i]),
-            QString::fromLatin1(initTbl[i+1]) );
-    qfont_cleanup_fontsubst.add( fontSubst );
+	QFont::insertSubstitution(QString::fromLatin1(initTbl[i]),
+				  QString::fromLatin1(initTbl[i+1]));
 }
 
 
@@ -1179,10 +1174,31 @@ static void initFontSubst()                     // create substitution dict
 QString QFont::substitute( const QString &familyName )
 {
     initFontSubst();
-    QFontSubst::Iterator i = fontSubst->find( familyName );
-    if ( i != fontSubst->end() )
-        return *i;
+   
+    QStringList *list = fontSubst->find(familyName);
+    if (list && list->count() > 0) {
+        qDebug("QFont::substitute: returning substitute for %s", familyName.latin1());
+        return *(list->at(0));
+    }
+   
     return familyName;
+}
+
+
+/*!
+  Returns a list of fonts to be used whenever \e familyName is
+  specified.  The lookup is case insensitive.
+ 
+  If there is no substitution for \e familyName, then an empty
+  list is returned.
+ */
+QStringList QFont::substitutes(const QString &familyName)
+{
+    initFontSubst();
+   
+    QStringList ret, *list = fontSubst->find(familyName);
+    if (list) ret += *list;
+    return ret;
 }
 
 
@@ -1195,13 +1211,24 @@ QString QFont::substitute( const QString &familyName )
 
   \sa removeSubstitution(), substitutions(), substitute()
 */
-
-void QFont::insertSubstitution( const QString &familyName,
-                                const QString &replacementName )
+void QFont::insertSubstitution(const QString &familyName,
+                                const QString &substituteName)
 {
     initFontSubst();
-    fontSubst->replace( familyName, replacementName );
+    
+    QStringList *list = fontSubst->find(familyName);
+    if (list) {
+	qDebug("QFont::insertSubstitution: found list %p", list);
+	list->remove(substituteName);
+    } else {
+	list = new QStringList;
+	fontSubst->insert(familyName, list);
+	qDebug("QFont::insertSubstitution: new list %p", list);
+    }
+   
+    list->prepend(substituteName);
 }
+
 
 /*!
   Removes a font family name substitution from the family substitution
@@ -1209,39 +1236,44 @@ void QFont::insertSubstitution( const QString &familyName,
 
   \sa insertSubstitution(), substitutions(), substitute()
 */
-
 void QFont::removeSubstitution( const QString &familyName )
 {
     initFontSubst();
-    if ( fontSubst )
-        fontSubst->remove( familyName );
+    
+    fontSubst->remove(familyName);
 }
 
+
 #ifndef QT_NO_STRINGLIST
+
 /*!
   Returns a sorted list of substituted family names.
 
   \sa insertSubstitution(), removeSubstitution(), substitute()
 */
-
 QStringList QFont::substitutions()
 {
-    QStringList list;
     initFontSubst();
-    QFontSubst::Iterator it = fontSubst->begin();
-    while ( it != fontSubst->end() ) {
-        list.append(*it);
-        ++it;
+
+    QStringList ret, *list;
+    QDictIterator<QStringList> it(*fontSubst);
+
+    while ((list = it.current()) != 0) {
+	++it;
+
+	ret += *list;
     }
-    return list;
+
+    return ret;
 }
+
 #endif // QT_NO_STRINGLIST
+
 
 /*
   Internal function. Converts boolean font settings (except dirty)
   to an unsigned 8-bit number. Used for serialization etc.
 */
-
 static Q_UINT8 get_font_bits( const QFontDef &f )
 {
     Q_UINT8 bits = 0;
@@ -1308,110 +1340,9 @@ QString QFont::key() const
 }
 
 
-QString QFontPrivate::key() const
-{
-    if (request.rawMode)
-	return request.family.lower();
-
-    QString family = request.family.lower();
-
-    int len = (family.length() * 2) +
-	      2 +  // point size
-	      1 +  // font bits
-	      1 +  // weight
-	      1 +  // hint
-	      1;   // char set
-
-    QByteArray buf(len);
-    uchar *p = (uchar *) buf.data();
-
-    memcpy((char *) p, (char *) family.unicode(), (family.length() * 2));
-
-    p += family.length()*2;
-
-    *((Q_UINT16 *) p) = request.pointSize; p += 2;
-    *p++ = get_font_bits( request );
-    *p++ = request.weight;
-    *p++ = (request.hintSetByUser ?
-	    (int) request.styleHint : (int) QFont::AnyStyle);
-
-#ifndef QT_NO_COMPAT
-    *p = charset;
-#else
-    *p = 0;
-#endif
-
-    return QString((QChar *) buf.data(), buf.size() / 2);
-}
 
 
-QFont::CharSet QFont::encodingForChar( const QChar &c )
-{
-    uchar row = c.row();
-    if ( ! row ) return ISO_8859_1;
 
-    // Japanese Hirgana and Katakana taken from JISX0208
-    if (row == 0x30 && (c.cell() >= 0x40 && c.cell() <= 0xff)) {
-	return JISX0208;
-    }
-
-    // Korean Hangul and Jamo characters from KSC5601
-    if (// Hangul Jamo
-	(row == 0x11) ||
-	// Hangul Compatibility Jamo
-	(row == 0x31 && (c.cell() >= 0x30 && c.cell() <= 0x8f)) ||
-	// Hangul Syllables
-	(row >= 0xac && (row <  0xd7 || (row == 0xd7 && c.cell() <= 0xa3)))
-	) {
-	return KSC5601;
-    }
-
-    // Unified Han
-    if (row >= 0x34 && row <= 0x9f) {
-	return Unknown;
-    }
-
-    switch ( row ) {
-    case 0x01:
-    case 0x02:
-	// ### might be something else too
-	return ISO_8859_2;
-
-    case 0x03:
-	if ( c.cell() >= 0x60 ) return ISO_8859_7; // greek
-	break;
-
-    case 0x04:
-	// Cyrillic/Russian ### perhaps we should actually use ISO_8859_5, since
-	// Unicode adopts row 0x04 from that?
-	// return KOI8_R;
-	return ISO_8859_5;
-
-    case 0x05:
-	if( c.cell() >= 0x90 ) return ISO_8859_8; // hebrew
-	break;
-	// return Armenian; // no support for armenian
-
-    case 0x06:
-	// probably won't work like this because of shaping...
-	return ISO_8859_6; // arabic
-
-    case 0x0b:
-	if ( c.cell() >= 0x80 ) return TSCII; // tamil
-	break;
-
-    case 0x0e:
-	// ### lao is also in this region
-	return ISO_8859_11; // thai
-
-    case 0x11:
-	// Hangul Jamo (Korean)
-	return KSC5601;
-
-    }
-
-    return Unknown;
-}
 
 
 /*****************************************************************************
@@ -1438,7 +1369,8 @@ QDataStream &operator<<( QDataStream &s, const QFont &font )
 	     << (Q_UINT8) font.d->request.styleHint
 
 #ifndef QT_NO_COMPAT
-	     << (Q_UINT8) font.d->charset
+#warning "TODO: re-add CharSet for source compatibility"
+	     << (Q_UINT8) 0xbeef // font.d->charset
 #else
 	     << (Q_UINT8) 0
 #endif
@@ -1483,8 +1415,8 @@ QDataStream &operator>>( QDataStream &s, QFont &font )
     font.d->request.dirty = TRUE;
 
 #ifndef QT_NO_COMPAT
-#warning "FIXME: always using AnyCharSet"
-    font.d->charset = QFont::AnyCharSet; // (QFont::CharSet) charSet;
+#warning "TODO: re-add CharSet for source compatibility"
+    // font.d->charset = (QFont::CharSet) charsetcompat;
 #endif
 
     set_font_bits( bits, &(font.d->request) );
@@ -1627,14 +1559,14 @@ QFontMetrics::QFontMetrics( const QFont &font )
     d->ref();
 
     // make sure the font is sufficiently loaded
-    // if (! d->x11data.fontstruct[QFontPrivate::defaultCharSet])
-    d->load(QFontPrivate::defaultCharSet);
-    for (int i = 0; i < QFont::NCharSets - 1; i++) {
+    // if (! d->x11data.fontstruct[QFontPrivate::defaultScript])
+    d->load(QFontPrivate::defaultScript);
+    for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
 	if (d->x11data.fontstruct[i]) {
-	    d->load((QFont::CharSet) i);
+	    d->load((QFontPrivate::Script) i);
 	}
     }
-    
+
     painter = 0;
     flags = 0;
 
@@ -1657,21 +1589,17 @@ QFontMetrics::QFontMetrics( const QPainter *p )
 		  "and QPainter::end()" );
 #endif
 
-    // ######### that is not necessary, or is it?????? (ME)
-    // if ( painter->testf(DirtyFont) )
-    // painter->updateFont();
-    
-    painter->setf( QPainter::FontMet );
+    painter->setf(QPainter::FontMet);
     d = painter->cfont.d;
     d->ref();
-    
-    d->load(QFontPrivate::defaultCharSet);
-    for (int i = 0; i < QFont::NCharSets - 1; i++) {
+
+    d->load(QFontPrivate::defaultScript);
+    for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
 	if (d->x11data.fontstruct[i]) {
-	    d->load((QFont::CharSet) i);
+	    d->load((QFontPrivate::Script) i);
 	}
     }
-    
+
     flags = 0;
 
     insertFontMetrics( this );
@@ -1822,7 +1750,7 @@ QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flgs,
 
     // qDebug("QFontMetrics::boundingRect: %d %d %d %d",
     // rb.x(), rb.y(), rb.width(), rb.height());
-    
+
     return rb;
 }
 
@@ -2199,4 +2127,237 @@ bool QFontInfo::rawMode() const
 bool QFontInfo::exactMatch() const
 {
     return painter ? painter->font().exactMatch() : exactMatchFlag();
+}
+
+
+
+
+
+
+
+
+
+QFontPrivate::Script QFontPrivate::scriptForChar( const QChar &c )
+{
+    uchar row = c.row();
+    if ( ! row ) return QFontPrivate::BASICLATIN;
+
+    // Korean Hangul and Jamo characters from KSC5601
+    if (// Hangul Compatibility Jamo
+	(row == 0x31 && (c.cell() >= 0x30 && c.cell() <= 0x8f)) ||
+	// Hangul Syllables
+	(row >= 0xac && (row <  0xd7 || (row == 0xd7 && c.cell() <= 0xa3)))
+	) {
+	return QFontPrivate::HANGUL;
+    }
+    
+    // Unified Han
+    if (row >= 0x4e && row <= 0x9f) {
+	return QFontPrivate::HAN;
+    }
+    
+    switch ( row ) {
+    case 0x01:
+	switch (c.cell()) {
+	case 0x00: return QFontPrivate::EXTLATINA4;
+	case 0x01: return QFontPrivate::EXTLATINA4;
+	case 0x02: return QFontPrivate::EXTLATINA2;
+	case 0x03: return QFontPrivate::EXTLATINA2;
+	case 0x04: return QFontPrivate::EXTLATINA2;
+	case 0x05: return QFontPrivate::EXTLATINA2;
+	case 0x06: return QFontPrivate::EXTLATINA2;
+	case 0x07: return QFontPrivate::EXTLATINA2;
+	case 0x08: return QFontPrivate::EXTLATINA3;
+	case 0x09: return QFontPrivate::EXTLATINA3;
+	case 0x0A: return QFontPrivate::EXTLATINA3;
+	case 0x0B: return QFontPrivate::EXTLATINA3;
+	case 0x0C: return QFontPrivate::EXTLATINA2;
+	case 0x0D: return QFontPrivate::EXTLATINA2;
+	case 0x0E: return QFontPrivate::EXTLATINA2;
+	case 0x0F: return QFontPrivate::EXTLATINA2;
+	case 0x10: return QFontPrivate::EXTLATINA2;
+	case 0x11: return QFontPrivate::EXTLATINA2;
+	case 0x12: return QFontPrivate::EXTLATINA4;
+	case 0x13: return QFontPrivate::EXTLATINA4;
+	case 0x16: return QFontPrivate::EXTLATINA4;
+	case 0x17: return QFontPrivate::EXTLATINA4;
+	case 0x18: return QFontPrivate::EXTLATINA2;
+	case 0x19: return QFontPrivate::EXTLATINA2;
+	case 0x1A: return QFontPrivate::EXTLATINA2;
+	case 0x1B: return QFontPrivate::EXTLATINA2;
+	case 0x1C: return QFontPrivate::EXTLATINA3;
+	case 0x1D: return QFontPrivate::EXTLATINA3;
+	case 0x1E: return QFontPrivate::EXTLATINA3;
+	case 0x1F: return QFontPrivate::EXTLATINA3;
+	case 0x20: return QFontPrivate::EXTLATINA3;
+	case 0x21: return QFontPrivate::EXTLATINA3;
+	case 0x22: return QFontPrivate::EXTLATINA4;
+	case 0x23: return QFontPrivate::EXTLATINA4;
+	case 0x24: return QFontPrivate::EXTLATINA3;
+	case 0x25: return QFontPrivate::EXTLATINA3;
+	case 0x26: return QFontPrivate::EXTLATINA3;
+	case 0x27: return QFontPrivate::EXTLATINA3;
+	case 0x28: return QFontPrivate::EXTLATINA4;
+	case 0x29: return QFontPrivate::EXTLATINA4;
+	case 0x2A: return QFontPrivate::EXTLATINA4;
+	case 0x2B: return QFontPrivate::EXTLATINA4;
+	case 0x2E: return QFontPrivate::EXTLATINA4;
+	case 0x2F: return QFontPrivate::EXTLATINA4;
+	case 0x30: return QFontPrivate::EXTLATINA3;
+	case 0x31: return QFontPrivate::EXTLATINA3;
+	case 0x34: return QFontPrivate::EXTLATINA3;
+	case 0x35: return QFontPrivate::EXTLATINA3;
+	case 0x36: return QFontPrivate::EXTLATINA4;
+	case 0x37: return QFontPrivate::EXTLATINA4;
+	case 0x38: return QFontPrivate::EXTLATINA4;
+	case 0x39: return QFontPrivate::EXTLATINA2;
+	case 0x3A: return QFontPrivate::EXTLATINA2;
+	case 0x3B: return QFontPrivate::EXTLATINA4;
+	case 0x3C: return QFontPrivate::EXTLATINA4;
+	case 0x3D: return QFontPrivate::EXTLATINA2;
+	case 0x3E: return QFontPrivate::EXTLATINA2;
+	case 0x41: return QFontPrivate::EXTLATINA2;
+	case 0x42: return QFontPrivate::EXTLATINA2;
+	case 0x43: return QFontPrivate::EXTLATINA2;
+	case 0x44: return QFontPrivate::EXTLATINA2;
+	case 0x45: return QFontPrivate::EXTLATINA4;
+	case 0x46: return QFontPrivate::EXTLATINA4;
+	case 0x47: return QFontPrivate::EXTLATINA2;
+	case 0x48: return QFontPrivate::EXTLATINA2;
+	case 0x4A: return QFontPrivate::EXTLATINA4;
+	case 0x4B: return QFontPrivate::EXTLATINA4;
+	case 0x4C: return QFontPrivate::EXTLATINA4;
+	case 0x4D: return QFontPrivate::EXTLATINA4;
+	case 0x50: return QFontPrivate::EXTLATINA2;
+	case 0x51: return QFontPrivate::EXTLATINA2;
+	case 0x52: return QFontPrivate::EXTLATINA15;
+	case 0x53: return QFontPrivate::EXTLATINA15;
+	case 0x54: return QFontPrivate::EXTLATINA2;
+	case 0x55: return QFontPrivate::EXTLATINA2;
+	case 0x56: return QFontPrivate::EXTLATINA4;
+	case 0x57: return QFontPrivate::EXTLATINA4;
+	case 0x58: return QFontPrivate::EXTLATINA2;
+	case 0x59: return QFontPrivate::EXTLATINA2;
+	case 0x5A: return QFontPrivate::EXTLATINA2;
+	case 0x5B: return QFontPrivate::EXTLATINA2;
+	case 0x5C: return QFontPrivate::EXTLATINA3;
+	case 0x5D: return QFontPrivate::EXTLATINA3;
+	case 0x5E: return QFontPrivate::EXTLATINA2;
+	case 0x5F: return QFontPrivate::EXTLATINA2;
+	case 0x60: return QFontPrivate::EXTLATINA2;
+	case 0x61: return QFontPrivate::EXTLATINA2;
+	case 0x62: return QFontPrivate::EXTLATINA2;
+	case 0x63: return QFontPrivate::EXTLATINA2;
+	case 0x64: return QFontPrivate::EXTLATINA2;
+	case 0x65: return QFontPrivate::EXTLATINA2;
+	case 0x66: return QFontPrivate::EXTLATINA4;
+	case 0x67: return QFontPrivate::EXTLATINA4;
+	case 0x68: return QFontPrivate::EXTLATINA4;
+	case 0x69: return QFontPrivate::EXTLATINA4;
+	case 0x6A: return QFontPrivate::EXTLATINA4;
+	case 0x6B: return QFontPrivate::EXTLATINA4;
+	case 0x6C: return QFontPrivate::EXTLATINA3;
+	case 0x6D: return QFontPrivate::EXTLATINA3;
+	case 0x6E: return QFontPrivate::EXTLATINA2;
+	case 0x6F: return QFontPrivate::EXTLATINA2;
+	case 0x70: return QFontPrivate::EXTLATINA2;
+	case 0x71: return QFontPrivate::EXTLATINA2;
+	case 0x72: return QFontPrivate::EXTLATINA4;
+	case 0x73: return QFontPrivate::EXTLATINA4;
+	case 0x74: return QFontPrivate::EXTLATINA14;
+	case 0x75: return QFontPrivate::EXTLATINA14;
+	case 0x76: return QFontPrivate::EXTLATINA14;
+	case 0x77: return QFontPrivate::EXTLATINA14;
+	case 0x78: return QFontPrivate::EXTLATINA15;
+	case 0x79: return QFontPrivate::EXTLATINA2;
+	case 0x7A: return QFontPrivate::EXTLATINA2;
+	case 0x7B: return QFontPrivate::EXTLATINA2;
+	case 0x7C: return QFontPrivate::EXTLATINA2;
+	case 0x7D: return QFontPrivate::EXTLATINA2;
+	case 0x7E: return QFontPrivate::EXTLATINA2;
+	}
+	
+	break;
+    
+	// TODO: support for Latin Extended-B
+	// case 0x02:
+	// if (c.cell() <= 0x4f) return QFontPrivate::EXTLATINB???;
+	
+    case 0x03:
+	if ( c.cell() >= 0x70 ) return QFontPrivate::GREEK;
+	break;
+
+    case 0x04:
+	// Cyrillic (Russian/Ukrainian)
+	return QFontPrivate::CYRILLIC;
+
+    case 0x05:
+	if( c.cell() >= 0x90 ) return QFontPrivate::HEBREW;
+	break;
+	// return Armenian; // no support for armenian
+
+    case 0x06:
+	// probably won't work like this because of shaping...
+	return QFontPrivate::ARABIC;
+
+    case 0x0b:
+	if ( c.cell() >= 0x80 ) return TAMIL; // tamil
+	break;
+
+    case 0x0e:
+	// if (c.cell() >= 0x80) return QFontPrivate::LAO; // no support for Lao
+	return QFontPrivate::THAI;
+
+    case 0x11:
+	return QFontPrivate::HANGUL;
+	
+    case 0x30:
+	if (c.cell() >= 0xa0) return QFontPrivate::KATAKANA;
+	if (c.cell() >= 0x40) return QFontPrivate::HIRAGANA;
+	break;
+
+    case 0x31:
+	if (c.cell() <= 0x2f) return QFontPrivate::BOPOMOFO;
+	break;
+    }
+
+    return QFontPrivate::UnknownScript;
+}
+
+
+QString QFontPrivate::key() const
+{
+    if (request.rawMode)
+	return request.family.lower();
+
+    QString family = request.family.lower();
+
+    int len = (family.length() * 2) +
+	      2 +  // point size
+	      1 +  // font bits
+	      1 +  // weight
+	      1 +  // hint
+	      1;   // char set
+
+    QByteArray buf(len);
+    uchar *p = (uchar *) buf.data();
+
+    memcpy((char *) p, (char *) family.unicode(), (family.length() * 2));
+
+    p += family.length()*2;
+
+    *((Q_UINT16 *) p) = request.pointSize; p += 2;
+    *p++ = get_font_bits( request );
+    *p++ = request.weight;
+    *p++ = (request.hintSetByUser ?
+	    (int) request.styleHint : (int) QFont::AnyStyle);
+
+#ifndef QT_NO_COMPAT
+#warning "TODO: re-add CharSet for source compatibility"
+    *p = 0xbeef; // charsetcompat;
+#else
+    *p = 0;
+#endif
+
+    return QString((QChar *) buf.data(), buf.size() / 2);
 }
