@@ -454,7 +454,7 @@ QVariant QMimeData::retrieveData(const QString &mimetype, QVariant::Type type) c
             format = "png";
         QBuffer buf(&result);
         buf.open(QBuffer::WriteOnly);
-        image.save(&buf, format);
+      //  image.save(&buf, format);
         break;
     }
     case QVariant::Color:
