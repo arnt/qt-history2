@@ -290,7 +290,7 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
 	arr++;
 	tags[arr] = kATSUFontTag;  //font
 	ATSUFontID fond;
-	ATSUFONDtoFontID(d->fin->fnum, face, &fond);
+	ATSUFONDtoFontID(d->fin->fnum, normal, &fond);
 	valueSizes[arr] = sizeof(fond);
 	values[arr] = &fond;
 	arr++;
@@ -311,7 +311,7 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
 	st->rgb.red = st->rgb.green = st->rgb.blue = 0;
 	ATSUCreateStyle(&st->style);
 	if(OSStatus e = ATSUSetAttributes(st->style, arr, tags, valueSizes, values)) {
-	    qDebug("%ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
+	    qDebug("%ld: This shouldn't happen %s:%d (%s)", e, __FILE__, __LINE__, d->key().latin1());
 	    delete st;
 	    st = NULL;
 	} else {
@@ -985,7 +985,11 @@ void QFontPrivate::load()
 							kTextEncodingDefaultVariant, 
 							kTextEncodingDefaultFormat);
 	    qstring_to_pstring(request.family, request.family.length(), str, encoding);
+#if 0
 	    fin->fnum = FMGetFontFamilyFromName(str);
+#else
+	    GetFNum(str, &fin->fnum);
+#endif
 	}
 	if(!fin->info) {
 #if defined( QMAC_FONT_ATSUI ) && 0
