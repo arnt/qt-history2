@@ -77,7 +77,7 @@ public:
 template <class Key, class T>
 inline void QCache<Key,T>::clear()
 { while (f) { delete f->t; f = f->n; }
- hash.clear(); }
+ hash.clear(); l = 0; total = 0; }
 
 template <class Key, class T>
 inline void QCache<Key,T>::setMaxCost(int m)
@@ -105,6 +105,10 @@ template <class Key, class T>
 void QCache<Key,T>::insert(const Key &key, T *data, int cost)
 {
     remove(key);
+    if (cost > mx) {
+        delete data;
+        return;
+    }
     Node *n = l;
     while (n && total > mx - cost) {
         Node *u = n;
