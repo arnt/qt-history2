@@ -57,11 +57,19 @@
 
 MakefileGenerator::MakefileGenerator(QMakeProject *p) : init_already(FALSE), moc_aware(FALSE), project(p)
 {
+    QMap<QString, QStringList> &v = project->variables();
     QString currentDir = QDir::currentDirPath();
+    if(!v["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty()) {
+	QString &asp = v["QMAKE_ABSOLUTE_SOURCE_PATH"].first();
+	asp = Option::fixPathToTargetOS(asp);
+	if(asp == currentDir) 
+	    v["QMAKE_ABSOLUTE_SOURCE_PATH"].clear();
+    }
+
 
     QString dirs[] = { QString("OBJECTS_DIR"), QString("MOC_DIR"), QString("DESTDIR"), QString::null };
     for(int x = 0; dirs[x] != QString::null; x++) {
-	QString &path = project->variables()[dirs[x]].first();
+	QString &path = v[dirs[x]].first();
 	path = Option::fixPathToTargetOS(path);
 	if (!path.isEmpty() ) {
 	    if(path.right(Option::dir_sep.length()) != Option::dir_sep)
@@ -71,8 +79,8 @@ MakefileGenerator::MakefileGenerator(QMakeProject *p) : init_already(FALSE), moc
 
 	    if ( !QDir::isRelativePath( path ) )
 		d.cd( path.left( 2 ) );
-	    else if(!project->variables()["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty())
-		path = project->variables()["QMAKE_ABSOLUTE_SOURCE_PATH"].first() + Option::dir_sep + path;
+	    else if(!v["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty())
+		path = v["QMAKE_ABSOLUTE_SOURCE_PATH"].first() + Option::dir_sep + path;
 	    if(path.left(1) == Option::dir_sep) 
 	      d.cd(Option::dir_sep);
 
@@ -606,8 +614,8 @@ MakefileGenerator::init()
     //moc files
 
     if ( mocAware() ) {
-    if(!project->variables()["MOC_DIR"].isEmpty())
-	project->variables()["INCLUDEPATH"].append(project->variables()["MOC_DIR"].first());
+	if(!project->variables()["MOC_DIR"].isEmpty())
+	    project->variables()["INCLUDEPATH"].append(project->variables()["MOC_DIR"].first());
 	v["OBJMOC"] = createObjectList("_HDRMOC") + createObjectList("_UIMOC");
 	v["SRCMOC"] = v["_HDRMOC"] + v["_SRCMOC"] + v["_UIMOC"];
     }

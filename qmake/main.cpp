@@ -94,7 +94,7 @@ main(int argc, char **argv)
 
 	/* open make file */
 	if(!(Option::output.state() & IO_Open)) {
-	    if(Option::output.name() == "-") {
+	    if(Option::output.name().isEmpty() || Option::output.name() == "-") {
 		Option::output.setName("");
 		Option::output.open(IO_WriteOnly | IO_Translate, stdout);
 	    } else {

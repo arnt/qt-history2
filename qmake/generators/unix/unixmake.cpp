@@ -248,11 +248,27 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
       << "$(GZIP) " << var("PROJECT") << ".tar" << endl << endl;
 #endif
 
-    t << "mocclean:" << "\n\t"
-      << "-rm -f $(OBJMOC) $(SRCMOC)" << endl << endl;
+    t << "mocclean:";
+    {
+	int y = 0;
+	QStringList &libs = project->variables()["INTERNAL_TMP_OBJMOC"];
+	for(QStringList::Iterator it = libs.begin(); it != libs.end(); ++it) 
+	    t << " moc_tmp_lib" << y++ << "_clean";
+    }
+    t << "\n\t" 
+      << "-rm -f $(OBJMOC)" << "\n\t" 
+      << "-rm -f $(SRCMOC)" 
+      << endl << endl;
 
-    t << "clean:" << "\n\t"
-      << "-rm -f $(OBJECTS) $(OBJMOC) $(SRCMOC) $(UICIMPLS) $(UICDECLS) $(TARGET)" << "\n\t";
+    t << "clean: mocclean";
+    {
+	int y = 0;
+	QStringList &libs = project->variables()["INTERNAL_TMP_OBJECTS"];
+	for(QStringList::Iterator it = libs.begin(); it != libs.end(); ++it) 
+	    t << " tmp_lib" << y++ << "_clean";
+    }
+    t << "\n\t"
+      << "-rm -f $(OBJECTS) $(UICIMPLS) $(UICDECLS) $(TARGET)" << "\n\t";
     if(!project->isActiveConfig("staticlib") && project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
 	t << "-rm -f $(TARGET0) $(TARGET1) $(TARGET2) $(TARGETA)" << "\n\t";
     }
@@ -271,6 +287,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "####### Temporary Libraries" << endl << endl;
     QString objlibs[] = { QString("OBJECTS"), QString("OBJMOC"), QString::null };
     for(int x = 0; objlibs[x] != QString::null; x++) {
+	int y = 0;
 	QStringList &libs = project->variables()["INTERNAL_TMP_" + objlibs[x]];
 	for(QStringList::Iterator it = libs.begin(); it != libs.end(); ++it) {
 	    QString tmp = (*it);
@@ -280,8 +297,10 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    QString intern = "INTERNAL_" + tmp + "_files";
 	    t << (*it) << ": " << varList(intern) << "\n\t"
 	      << "$(AR) " << (*it) << " " << var(intern) << "\n\t"
-	      << varGlue("QMAKE_RANLIB","",""," " + (*it)) 
-	      << endl << endl;
+	      << varGlue("QMAKE_RANLIB","",""," " + (*it)) << endl;
+	    t << (objlibs[x] == "OBJMOC" ? "moc_" : "") << "tmp_lib" << y++ << "_clean:" << "\n\t"
+	      << "rm -f " << var(intern) << endl;
+	    t << endl;
 	}
     }
 

@@ -158,6 +158,7 @@ Option::fixPathToTargetOS(QString in, bool fix_env)
 {
     if(fix_env)
 	fixEnvVariables(in);
+    in = QDir::cleanDirPath(in);
     return in.replace(QRegExp(Option::mode == UNIX_MODE ? "\\" : "/"), Option::dir_sep);
 }
 
@@ -165,6 +166,7 @@ QString
 Option::fixPathToLocalOS(QString in)
 {
     fixEnvVariables(in);
+    in = QDir::cleanDirPath(in);
 #if defined(Q_OS_WIN32)
     return in.replace(QRegExp("/"), "\\");
 #else
