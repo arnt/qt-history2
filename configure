@@ -639,6 +639,7 @@ then
 	"
 	;;
      OSF1:*)
+	LIBDL=no
 	PLATFORM=osf1-cxx
 	#PLATFORM=osf1-g++
 	PLATFORM_NOTES="
@@ -988,7 +989,7 @@ case "$QCONFIG" in
     ;;
 esac
 cat >> $outpath/src/tools/qconfig.h.new <<EOF
-//from configure
+// from configure
 #define QT_INSTALL_PREFIX "$QT_INSTALL_PREFIX"
 #define QT_PRODUCT_LICENSEE "$Licensee"
 #define QT_PRODUCT_LICENSE "$Products"
