@@ -64,7 +64,7 @@ if [ "$XCURSOR" = "yes" ]; then
     fi
 fi
 
-# verify that we are using Xcursor 1.0
+# verify that we are using Xcursor 1.x
 if [ "$XCURSOR" = "yes" ]; then
     XCURSOR_MAJOR=`egrep 'XCURSOR(_LIB)?_MAJOR' $XCURSOR_H | head -n 1 | awk '{ print \$3 }'`
     XCURSOR_MINOR=`egrep 'XCURSOR(_LIB)?_MINOR' $XCURSOR_H | head -n 1 | awk '{ print \$3 }'`
@@ -72,10 +72,13 @@ if [ "$XCURSOR" = "yes" ]; then
         XCURSOR=no
 	[ "$VERBOSE" = "yes" ] && \
 	    echo "  Could not find Xcursor version."
-    elif [ "$XCURSOR_MAJOR" != "1" -o "$XCURSOR_MINOR" != "0" ]; then
+    elif [ "$XCURSOR_MAJOR" != "1" ]; then
         XCURSOR=no
 	[ "$VERBOSE" = "yes" ] && \
-	    echo "  Found Xcursor version $XCURSOR_MAJOR.$XCURSOR_MINOR, version 1.0 required."
+	    echo "  Found Xcursor version $XCURSOR_MAJOR.$XCURSOR_MINOR, version 1.0 or higher required."
+    else
+	[ "$VERBOSE" = "yes" ] && \
+	    echo "  Found Xcursor version $XCURSOR_MAJOR.$XCURSOR_MINOR"
     fi
 fi
 
