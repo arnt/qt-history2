@@ -50,7 +50,7 @@ target_qt {
         } 
     }
 }
-for(QTLIB, $$list($$unique(QT))) {
+for(QTLIB, $$list($$lower($$unique(QT)))) {
     qlib =
     isEqual(QTLIB, gui):qlib = QtGui
     else:isEqual(QTLIB, network):qlib = QtNetwork
