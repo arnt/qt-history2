@@ -25,6 +25,7 @@
 #include <qapplication.h>
 #include <qkeycode.h>
 #include <qpixmap.h>
+#include <qimage.h>
 #include <qpainter.h>
 #include "globjwin.h"
 #include "glbox.h"
@@ -36,10 +37,9 @@ GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
     // Create a menu
     file = new QPopupMenu();
     file->setCheckable( TRUE );
-    file->insertItem( "Render Pixmap", this, 
-		      SLOT(makePixmap()) );
-    file->insertItem( "Render Pixmap Hidden", this, 
-		      SLOT(makePixmapHidden()) );
+    file->insertItem( "Grab Frame Buffer", this, SLOT(grabFrameBuffer()) );
+    file->insertItem( "Render Pixmap", this, SLOT(makePixmap()) );
+    file->insertItem( "Render Pixmap Hidden", this, SLOT(makePixmapHidden()) );
     file->insertSeparator();
     fixMenuItemId = file->insertItem( "Use Fixed Pixmap Size", this, 
 				      SLOT(useFixedPixmapSize()) );
@@ -68,6 +68,7 @@ GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
     lb->setLineWidth( 2 );
     lb->setAlignment( AlignCenter );
     lb->setMargin( 0 );
+    lb->setIndent( 0 );
 
     // Create the three sliders; one for each rotation axis
     QSlider* x = new QSlider ( 0, 360, 60, 0, QSlider::Vertical, this, "xsl" );
@@ -106,11 +107,21 @@ GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
 
 
 
+void GLObjectWindow::grabFrameBuffer()
+{
+    QImage img = c1->grabFrameBuffer();
+
+    // Convert image to pixmap so we can show it
+    QPixmap pm;
+    pm.convertFromImage( img, AvoidDither );
+    drawOnPixmap( &pm );
+    lb->setPixmap( pm );
+}
+
+
+
 void GLObjectWindow::makePixmap()
 {
-    // This is the easiest way to render a pixmap, and sufficient unless one
-    // has special needs
-
     // Make a pixmap to to be rendered by the gl widget
     QPixmap pm;
 

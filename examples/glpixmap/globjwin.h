@@ -32,6 +32,7 @@ public:
 
 protected slots:
 
+    void		grabFrameBuffer();
     void		makePixmap();
     void		makePixmapHidden();
     void		makePixmapForMenu();
