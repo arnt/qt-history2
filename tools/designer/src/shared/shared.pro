@@ -41,7 +41,8 @@ HEADERS += \
     qdesigner_toolbox.h \
     widgetfactory.h \
     widgetdatabase.h \
-    promotetocustomwidgetdialog.h
+    promotetocustomwidgetdialog.h \
+    resourcefile.h
 
 SOURCES += \
     spacer_widget.cpp \
@@ -67,7 +68,8 @@ SOURCES += \
     qdesigner_toolbox.cpp \
     widgetfactory.cpp \
     widgetdatabase.cpp \
-    promotetocustomwidgetdialog.cpp
+    promotetocustomwidgetdialog.cpp \
+    resourcefile.cpp
 
 FORMS += promotetocustomwidgetdialog.ui
 

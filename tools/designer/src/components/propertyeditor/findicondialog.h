@@ -19,6 +19,7 @@ private slots:
     void updateBoxes();
     void imageFileSelected(QListWidgetItem*);
     void browseFileDir();
+    void setActiveBox();
     
 private:
     enum InputBox { FileBox, ResourceBox };

@@ -1868,4 +1868,20 @@ void FormWindow::editWidgets()
     m_widgetEditor->action()->trigger();
 }
 
+QStringList FormWindow::resourceFiles() const
+{
+    return m_resourceFiles;
+}
+
+void FormWindow::addResourceFile(const QString &path)
+{
+    if (!m_resourceFiles.contains(path))
+        m_resourceFiles.append(path);
+}
+
+void FormWindow::removeResourceFile(const QString &path)
+{
+    m_resourceFiles.removeAll(path);
+}
+
 #include "formwindow.moc"

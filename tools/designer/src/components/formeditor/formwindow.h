@@ -184,6 +184,10 @@ public:
 
     bool handleEvent(QWidget *widget, QWidget *managedWidget, QEvent *event);
 
+    QStringList resourceFiles() const;
+    void addResourceFile(const QString &path);
+    void removeResourceFile(const QString &path);
+
 signals:
     void showContextMenu(QWidget *w, const QPoint &pos);
 
@@ -326,6 +330,8 @@ private:
 
     FormWindowWidgetStack *m_widgetStack;
     WidgetEditorTool *m_widgetEditor;
+
+    QStringList m_resourceFiles;
 
 private:
 //    friend class FormWindowManager;

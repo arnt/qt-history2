@@ -16,6 +16,8 @@ FindIconDialog::FindIconDialog(QWidget *parent)
     connect(m_file_image_list, SIGNAL( currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
                 this, SLOT(imageFileSelected(QListWidgetItem*)));
     connect(m_file_dir_browse, SIGNAL(clicked()), this, SLOT(browseFileDir()));
+    connect(m_specify_file_input, SIGNAL(clicked()), this, SLOT(setActiveBox()));
+    connect(m_specify_resource_input, SIGNAL(clicked()), this, SLOT(setActiveBox()));
 }
 
 void FindIconDialog::setPaths(const QString &qrcPath, const QString &filePath)
@@ -76,6 +78,11 @@ void FindIconDialog::imageFileSelected(QListWidgetItem *item)
         m_icon_file_name = item->text();
         m_ok_button->setEnabled(true);
     }
+}
+
+void FindIconDialog::setActiveBox()
+{
+    activateBox(sender() == m_specify_file_input ? FileBox : ResourceBox);
 }
 
 void FindIconDialog::activateBox(InputBox box)

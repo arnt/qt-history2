@@ -20,6 +20,7 @@ LIBS += -L../../lib \
     -lformeditor \
     -lobjectinspector \
     -lpropertyeditor \
+    -lresourceeditor \
     -lwidgetbox \
     -luilib \
     -lsignalsloteditor \
@@ -47,6 +48,7 @@ HEADERS += \
     qdesigner_objectinspector.h \
     qdesigner_actions.h \
     qdesigner_preferences.h \
+    qdesigner_resourceeditor.h \
     preferenceinterface.h \
     pluginpreferences.h \
     preferencedialog.h \
@@ -65,6 +67,7 @@ SOURCES += main.cpp \
     qdesigner_propertyeditor.cpp \
     qdesigner_objectinspector.cpp \
     qdesigner_preferences.cpp \
+    qdesigner_resourceeditor.cpp \
     qdesigner_actions.cpp \
     qdesigner_plugins.cpp \
     pluginpreferences.cpp \

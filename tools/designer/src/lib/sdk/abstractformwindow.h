@@ -84,6 +84,10 @@ public:
     // notifications
     virtual void emitSelectionChanged() = 0;
 
+    virtual QStringList resourceFiles() const = 0;
+    virtual void addResourceFile(const QString &path) = 0;
+    virtual void removeResourceFile(const QString &path) = 0;
+
 public slots:
     virtual void manageWidget(QWidget *widget) = 0;
     virtual void unmanageWidget(QWidget *widget) = 0;
