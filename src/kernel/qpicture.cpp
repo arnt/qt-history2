@@ -151,7 +151,7 @@ QPicture::~QPicture()
 
 /*!
   \fn QRect QPicture::boundingRect() const
-  Returns the bounding rectangle of the picture or QRect(0,0,0,0) if the
+  Returns the bounding rectangle of the picture or an invalid rectangle if the
   picture contains no data.
 */
 

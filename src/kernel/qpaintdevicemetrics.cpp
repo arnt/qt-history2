@@ -52,7 +52,7 @@
 
   \code
     QPaintDeviceMetrics pdm( myWidget );
-    double aspect = (double)pdm.widthMM / (double)pdm.heightMM();
+    double aspect = (double)pdm.widthMM() / (double)pdm.heightMM();
   \endcode
 
   QPaintDeviceMetrics contains methods to provide the width and height
