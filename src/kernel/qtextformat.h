@@ -20,7 +20,7 @@ class QTextListFormat;
 class QTextTableFormat;
 class QTextImageFormat;
 
-class QTextFormat
+class Q_GUI_EXPORT QTextFormat
 {
     friend class QTextFormatCollection;
 public:
@@ -156,7 +156,7 @@ private:
     int _inheritedType;
 };
 
-class QTextCharFormat : public QTextFormat
+class Q_GUI_EXPORT QTextCharFormat : public QTextFormat
 {
 public:
     QTextCharFormat() : QTextFormat(CharFormat) {}
@@ -233,7 +233,7 @@ protected:
     QTextCharFormat(int type) : QTextFormat(type, CharFormat) {}
 };
 
-class QTextBlockFormat : public QTextCharFormat
+class Q_GUI_EXPORT QTextBlockFormat : public QTextCharFormat
 {
 public:
     enum Direction { LeftToRight, RightToLeft, AutoDirection };
@@ -311,7 +311,7 @@ public:
     { return boolProperty(BlockNonBreakableLines); }
 };
 
-class QTextListFormat : public QTextFormat
+class Q_GUI_EXPORT QTextListFormat : public QTextFormat
 {
 public:
     QTextListFormat() : QTextFormat(ListFormat) {}
@@ -340,7 +340,7 @@ public:
 
 };
 
-class QTextTableFormat : public QTextFormat
+class Q_GUI_EXPORT QTextTableFormat : public QTextFormat
 {
 public:
     QTextTableFormat() : QTextFormat(TableFormat) {}
@@ -351,7 +351,7 @@ public:
     { return intProperty(TableBorder, 1); }
 };
 
-class QTextImageFormat : public QTextCharFormat
+class Q_GUI_EXPORT QTextImageFormat : public QTextCharFormat
 {
 public:
     QTextImageFormat() : QTextCharFormat(ImageFormat) {}

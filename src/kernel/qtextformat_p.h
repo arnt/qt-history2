@@ -4,7 +4,7 @@
 #include "qtextformat.h"
 #include <qvector.h>
 
-class QTextFormatCollection
+class Q_GUI_EXPORT QTextFormatCollection
 {
 public:
     int createReferenceIndex(const QTextFormat &newFormat);
