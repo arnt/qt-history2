@@ -382,3 +382,6 @@ bool QSqlRelationalTableModel::select()
     d->clearChanges();
     return QSqlTableModel::select();
 }
+
+#include "moc_qsqlrelationaltablemodel.cpp"
+
