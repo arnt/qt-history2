@@ -396,6 +396,12 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 {
     QWidget* oldtlw = topLevelWidget();
     WId old_winid = winid;
+
+    // hide and reparent our own window away. Otherwise we might get
+    // destroyed when emitting the child remove event below. See QWorkspace.
+    ShowWindow( old_winid, FALSE );
+    SetParent( winid, 0 );
+
     bool accept_drops = acceptDrops();
     if ( accept_drops )
 	setAcceptDrops( FALSE ); // ole dnd unregister (we will register again below)
