@@ -1295,7 +1295,7 @@ QMAKE_VARS="$QMAKE_VARS \"QMAKE_UIC=$outpath/bin/uic\""
 QMAKE_VARS="$QMAKE_VARS \"QMAKE_UIC3=$outpath/bin/uic3\""
 QMAKE_VARS="$QMAKE_VARS \"QMAKE_QMAKE=$outpath/bin/qmake\""
 QMAKE_VARS="$QMAKE_VARS \"QMAKE_RCC=$outpath/bin/rcc\""
-QMAKE_VARS="$QMAKE_VARS \"QMAKE_QT_CONFIG=$outpath/.qt.config\""
+QMAKE_VARS="$QMAKE_VARS \"QMAKE_QT_CONFIG=$outpath/mkspecs/.qt.config\""
 QMAKE_VARS="$QMAKE_VARS \"QMAKE_MOC_SRC=$outpath/src/moc\""
 
 # find out which awk we want to use, prefer gawk, then nawk, then regular awk
@@ -3570,7 +3570,7 @@ fi
 # save configuration into .qt.config
 #-------------------------------------------------------------------------------
 
-QTCONFIG=$outpath/.qt.config
+QTCONFIG=$outpath/mkspecs/.qt.config
 [ -f $QTCONFIG.tmp ] && rm -f $QTCONFIG.tmp
 QTCONFIG_CONFIG=
 if [ "$CFG_DEBUG" = "yes" ]; then
