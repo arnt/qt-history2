@@ -15,6 +15,7 @@
 
 #include <qmainwindow.h>
 #include <qmap.h>
+#include <qpointer.h>
 
 class QAction;
 class QComboBox;
@@ -35,7 +36,6 @@ private:
     void setupEditActions();
     void setupTextActions();
     void load( const QString &f );
-    QTextEdit *currentEditor() const;
 
 private slots:
     void fileNew();
@@ -79,7 +79,9 @@ private:
 	*actionAlignLeft,
 	*actionAlignCenter,
 	*actionAlignRight,
-	*actionAlignJustify;
+	*actionAlignJustify,
+        *actionUndo,
+        *actionRedo;
 
     QMenu *editMenu;
     QToolBar *editToolBar;
@@ -90,6 +92,7 @@ private:
     QTabWidget *tabWidget;
     QMap<QTextEdit*, QString> filenames;
 
+    QPointer<QTextEdit> currentEditor;
 };
 
 

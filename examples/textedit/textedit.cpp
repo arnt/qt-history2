@@ -111,11 +111,11 @@ void TextEdit::setupEditActions()
     menuBar()->addMenu( tr( "&Edit" ), menu );
 
     QAction *a;
-    a = new QAction( QPixmap::fromMimeSource( "editundo.xpm" ), tr( "&Undo" ), CTRL + Key_Z, this );
+    a = actionUndo = new QAction( QPixmap::fromMimeSource( "editundo.xpm" ), tr( "&Undo" ), CTRL + Key_Z, this );
     connect( a, SIGNAL( triggered() ), this, SLOT( editUndo() ) );
     tb->addAction(a);
     menu->addAction(a);
-    a = new QAction( QPixmap::fromMimeSource( "editredo.xpm" ), tr( "&Redo" ), CTRL + Key_Y, this );
+    a = actionRedo = new QAction( QPixmap::fromMimeSource( "editredo.xpm" ), tr( "&Redo" ), CTRL + Key_Y, this );
     connect( a, SIGNAL( triggered() ), this, SLOT( editRedo() ) );
     tb->addAction(a);
     menu->addAction(a);
@@ -231,11 +231,6 @@ void TextEdit::load( const QString &f )
     filenames.insert( edit, f );
 }
 
-QTextEdit *TextEdit::currentEditor() const
-{
-    return qt_cast<QTextEdit *>(tabWidget->currentWidget());
-}
-
 void TextEdit::fileNew()
 {
     createNewEditor();
@@ -250,38 +245,35 @@ void TextEdit::fileOpen()
 
 void TextEdit::fileSave()
 {
-    QTextEdit *edit = currentEditor();
-    if ( !edit )
+    if ( !currentEditor )
 	return;
     QString fn;
-    if ( filenames.find( edit ) == filenames.end() ) {
+    if ( filenames.find( currentEditor ) == filenames.end() ) {
 	fileSaveAs();
     } else {
-	QFile file( *filenames.find( edit ) );
+	QFile file( *filenames.find( currentEditor ) );
 	if ( !file.open( IO_WriteOnly ) )
 	    return;
 	QTextStream ts( &file );
-	ts << edit->document()->plainText();
+	ts << currentEditor->document()->plainText();
     }
 }
 
 void TextEdit::fileSaveAs()
 {
-    QTextEdit *edit = currentEditor();
-    if ( !edit )
+    if ( !currentEditor )
 	return;
     QString fn = QFileDialog::getSaveFileName( QString::null, tr( "HTML-Files (*.htm *.html);;All Files (*)" ), this );
     if ( !fn.isEmpty() ) {
-	filenames.insert( edit, fn );
+	filenames.insert( currentEditor, fn );
 	fileSave();
-	tabWidget->setTabText( tabWidget->indexOf(edit), QFileInfo( fn ).fileName() );
+	tabWidget->setTabText( tabWidget->indexOf(currentEditor), QFileInfo( fn ).fileName() );
     }
 }
 
 void TextEdit::filePrint()
 {
-    QTextEdit *edit = currentEditor();
-    if ( !edit )
+    if ( !currentEditor )
 	return;
 #ifndef QT_NO_PRINTER
     QPrinter printer( QPrinter::HighResolution );
@@ -294,11 +286,11 @@ void TextEdit::filePrint()
 	int dpiy = metrics.logicalDpiY();
 	int margin = (int) ( (2/2.54)*dpiy ); // 2 cm margins
 	QRect body( margin, margin, metrics.width() - 2*margin, metrics.height() - 2*margin );
-	QFont font( edit->QWidget::font() );
+	QFont font( currentEditor->font() );
  	font.setPointSize( 10 ); // we define 10pt to be a nice base size for printing
 
         QTextDocument doc;
-        QTextCursor(&doc).insertFragment(QTextDocumentFragment(edit->document()));
+        QTextCursor(&doc).insertFragment(QTextDocumentFragment(currentEditor->document()));
         // ###
         QTextDocumentLayout *layout = qt_cast<QTextDocumentLayout *>(doc.documentLayout());
         layout->setPageSize(QSize(body.width(), INT_MAX));
@@ -350,9 +342,10 @@ void TextEdit::filePrint()
 
 void TextEdit::fileClose()
 {
-    delete currentEditor();
-    if ( currentEditor() )
-	currentEditor()->viewport()->setFocus();
+    delete currentEditor;
+    currentEditor = qt_cast<QTextEdit *>(tabWidget->currentWidget());
+    if (currentEditor)
+	currentEditor->viewport()->setFocus();
 }
 
 void TextEdit::fileExit()
@@ -362,144 +355,140 @@ void TextEdit::fileExit()
 
 void TextEdit::editUndo()
 {
-    QTextEdit *edit = currentEditor();
-    if ( !edit )
+    if ( !currentEditor )
        return;
-    edit->undo();
+    currentEditor->undo();
 }
 
 void TextEdit::editRedo()
 {
-    QTextEdit *edit = currentEditor();
-    if ( !edit )
+    if ( !currentEditor )
        return;
-    edit->redo();
+    currentEditor->redo();
 }
 
 void TextEdit::editCut()
 {
-    QTextEdit *edit = currentEditor();
-    if ( !edit )
+    if ( !currentEditor )
        return;
-    edit->cut();
+    currentEditor->cut();
 }
 
 void TextEdit::editCopy()
 {
-    QTextEdit *edit = currentEditor();
-    if ( !edit )
+    if ( !currentEditor )
        return;
-    edit->copy();
+    currentEditor->copy();
 }
 
 void TextEdit::editPaste()
 {
-    QTextEdit *edit = currentEditor();
-    if ( !edit )
+    if ( !currentEditor )
        return;
-    edit->paste();
+    currentEditor->paste();
 }
 
 void TextEdit::textBold()
 {
-    QTextEdit *edit = currentEditor();
-    if ( !edit )
+    if ( !currentEditor )
 	return;
-    edit->setFontWeight( actionTextBold->isChecked() ? QFont::Bold : QFont::Normal );
+    currentEditor->setFontWeight( actionTextBold->isChecked() ? QFont::Bold : QFont::Normal );
 }
 
 void TextEdit::textUnderline()
 {
-    QTextEdit *edit = currentEditor();
-    if ( !edit )
+    if ( !currentEditor )
 	return;
-    edit->setFontUnderline( actionTextUnderline->isChecked() );
+    currentEditor->setFontUnderline( actionTextUnderline->isChecked() );
 }
 
 void TextEdit::textItalic()
 {
-    QTextEdit *edit = currentEditor();
-    if ( !edit )
+    if ( !currentEditor )
 	return;
-    edit->setFontItalic( actionTextItalic->isChecked() );
+    currentEditor->setFontItalic( actionTextItalic->isChecked() );
 }
 
 void TextEdit::textFamily( const QString &f )
 {
-    QTextEdit *edit = currentEditor();
-    if ( !edit )
+    if ( !currentEditor )
 	return;
-    edit->setFontFamily( f );
-    edit->viewport()->setFocus();
+    currentEditor->setFontFamily( f );
+    currentEditor->viewport()->setFocus();
 }
 
 void TextEdit::textSize( const QString &p )
 {
-    QTextEdit *edit = currentEditor();
-    if ( !edit )
+    if ( !currentEditor )
 	return;
-    edit->setFontPointSize( p.toFloat() );
-    edit->viewport()->setFocus();
+    currentEditor->setFontPointSize( p.toFloat() );
+    currentEditor->viewport()->setFocus();
 }
 
 void TextEdit::textStyle( int i )
 {
-    Q_UNUSED(i);
-
-    QTextEdit *edit = currentEditor();
-    if ( !edit )
+    if (!currentEditor)
 	return;
 
-    QTextCursor cursor = edit->cursor();
+    QTextCursor cursor = currentEditor->cursor();
 
-    if ( i != 0 ) {
+    if (i != 0) {
 	QTextListFormat::Style style = QTextListFormat::ListDisc;
 
-	if ( i == 1 )
-	    style = QTextListFormat::ListDisc;
-	else if ( i == 2 )
-	    style = QTextListFormat::ListCircle;
-	else if ( i == 3 )
-	    style = QTextListFormat::ListSquare;
-	else if ( i == 4 )
-	    style = QTextListFormat::ListDecimal;
-	else if ( i == 5 )
-	    style = QTextListFormat::ListLowerAlpha;
-	else if ( i == 6 )
-	    style = QTextListFormat::ListUpperAlpha;
+        switch (i) {
+            default:
+            case 1:
+                style = QTextListFormat::ListDisc;
+                break;
+            case 2:
+                style = QTextListFormat::ListCircle;
+                break;
+            case 3:
+                style = QTextListFormat::ListSquare;
+                break;
+            case 4:
+                style = QTextListFormat::ListDecimal;
+                break;
+            case 5:
+                style = QTextListFormat::ListLowerAlpha;
+                break;
+            case 6:
+                style = QTextListFormat::ListUpperAlpha;
+                break;
+        }
 
         cursor.beginEditBlock();
 
         QTextBlockFormat blockFmt = cursor.blockFormat();
 
-	QTextListFormat listFmt;
-	listFmt.setStyle(style);
-	listFmt.setIndent(blockFmt.indent() + 1);
+        QTextListFormat listFmt;
+        listFmt.setStyle(style);
+        listFmt.setIndent(blockFmt.indent() + 1);
 
         blockFmt.setIndent(0);
         cursor.setBlockFormat(blockFmt);
 
-	cursor.createList(listFmt);
+        cursor.createList(listFmt);
 
         cursor.endEditBlock();
     } else {
-	QTextBlockFormat bfmt;
-	bfmt.setObjectIndex(-1);
-	cursor.mergeBlockFormat(bfmt);
+        // ####
+        QTextBlockFormat bfmt;
+        bfmt.setObjectIndex(-1);
+        cursor.mergeBlockFormat(bfmt);
     }
 
-    edit->viewport()->setFocus();
+    currentEditor->viewport()->setFocus();
 }
 
 void TextEdit::textColor()
 {
-    QTextEdit *edit = currentEditor();
-    if ( !edit )
+    if ( !currentEditor )
 	return;
-    QColor col = QColorDialog::getColor( edit->color(), this );
+    QColor col = QColorDialog::getColor( currentEditor->color(), this );
     if ( !col.isValid() )
 	return;
-    edit->setColor( col );
+    currentEditor->setColor( col );
     QPixmap pix( 16, 16 );
     pix.fill( black );
     actionTextColor->setIcon( pix );
@@ -507,17 +496,16 @@ void TextEdit::textColor()
 
 void TextEdit::textAlign( QAction *a )
 {
-    QTextEdit *edit = currentEditor();
-    if ( !edit )
+    if ( !currentEditor )
 	return;
     if ( a == actionAlignLeft )
-	edit->setAlignment( AlignLeft );
+	currentEditor->setAlignment( AlignLeft );
     else if ( a == actionAlignCenter )
-	edit->setAlignment( AlignHCenter );
+	currentEditor->setAlignment( AlignHCenter );
     else if ( a == actionAlignRight )
-	edit->setAlignment( AlignRight );
+	currentEditor->setAlignment( AlignRight );
     else if ( a == actionAlignJustify )
-	edit->setAlignment( AlignJustify );
+	currentEditor->setAlignment( AlignJustify );
 }
 
 void TextEdit::currentCharFormatChanged(const QTextCharFormat &format)
@@ -525,7 +513,7 @@ void TextEdit::currentCharFormatChanged(const QTextCharFormat &format)
     fontChanged(format.font());
     colorChanged(format.color());
 
-    QTextCursor cursor = currentEditor()->cursor();
+    QTextCursor cursor = currentEditor->cursor();
     alignmentChanged(cursor.blockFormat().alignment());
 }
 
@@ -559,12 +547,27 @@ void TextEdit::alignmentChanged( Qt::Alignment a )
 
 void TextEdit::editorChanged()
 {
-    QTextEdit *edit = currentEditor();
-    if ( !edit )
+    if (currentEditor) {
+        disconnect(currentEditor->document(), SIGNAL(undoAvailable(bool)),
+                   actionUndo, SLOT(setEnabled(bool)));
+        disconnect(currentEditor->document(), SIGNAL(redoAvailable(bool)),
+                   actionRedo, SLOT(setEnabled(bool)));
+    }
+
+    currentEditor = qt_cast<QTextEdit *>(tabWidget->currentWidget());
+    if ( !currentEditor )
         return;
-    fontChanged( edit->font() );
-    colorChanged( edit->color() );
-    alignmentChanged( edit->alignment() );
+    fontChanged( currentEditor->font() );
+    colorChanged( currentEditor->color() );
+    alignmentChanged( currentEditor->alignment() );
+
+    connect(currentEditor->document(), SIGNAL(undoAvailable(bool)),
+            actionUndo, SLOT(setEnabled(bool)));
+    connect(currentEditor->document(), SIGNAL(redoAvailable(bool)),
+            actionRedo, SLOT(setEnabled(bool)));
+
+    actionUndo->setEnabled(currentEditor->document()->isUndoAvailable());
+    actionRedo->setEnabled(currentEditor->document()->isRedoAvailable());
 }
 
 QTextEdit *TextEdit::createNewEditor(const QString &title)
