@@ -1522,8 +1522,12 @@ void QPainter::setClipping( bool enable )
 
 void QPainter::setClipRect( const QRect &r, CoordinateMode m )
 {
-    QRegion rgn( r );
-    setClipRegion( rgn, m );
+    if ( m == CoordDevice )
+	setClipRegion( QRegion( r ), m );
+    else
+	// transform to device coordinates before we convert to
+	// regions, otherwise we use bits on X11
+	setClipRegion( xmat * r, CoordDevice );
 }
 
 /*!
