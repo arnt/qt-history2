@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#281 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#282 $
 **
 ** Implementation of QFileDialog class
 **
@@ -399,7 +399,7 @@ struct QFileDialogPrivate {
     QList<WaitForStruct> waitFor;
 
     bool ignoreNextKeyPress;
-
+    
 };
 
 QFileDialogPrivate::~QFileDialogPrivate()
@@ -1451,7 +1451,7 @@ static QStringList makeFiltersList( const QString &filter )
 
 /*!
   \fn void QFileDialog::showPreview( const QUrl &u )
-  
+
   This signal is emitted when a preview of the URL \a u
   should be shown in the preview widget. Normally you don't need
   to connect to this signal, as this is done automatically.
@@ -1783,7 +1783,7 @@ void QFileDialog::init()
     }
 
     d->preview->hide();
-
+    
     nameEdit->setFocus();
 
     connect( nameEdit, SIGNAL( returnPressed() ),
@@ -3048,6 +3048,60 @@ void QFileDialog::setMode( Mode newMode )
 QFileDialog::Mode QFileDialog::mode() const
 {
     return d->mode;
+}
+
+/*!
+  Set the viewmode of the filedialog. You can choose between 
+  DetailView, ListView, PreviewContents and PreviewInfo. One 
+  of the View-Flags and one of the Preview-Flags can be or'd 
+  together, e.g. to set the filedialog to show a detail view 
+  and the show contents preview widget, use
+     setViewMode( QFileDialog::DetailView | QFileDialog::PreviewContents );
+*/
+
+void QFileDialog::setViewMode( int m )
+{
+    if ( m & DetailView ) {
+	d->stack->raiseWidget( files );
+	d->detailView->setOn( TRUE );
+	d->mcView->setOn( FALSE );
+    } else if ( m & ListView ) {
+	d->stack->raiseWidget( d->moreFiles );
+	d->detailView->setOn( FALSE );
+	d->mcView->setOn( TRUE );
+    }
+    
+    if ( d->infoPreview && ( m & PreviewInfo ) ) {
+	d->previewInfo->setOn( TRUE );
+	d->previewContents->setOn( FALSE );
+	changeMode( d->modeButtons->id( d->previewInfo ) );
+    } else if ( d->contentsPreview && ( m & PreviewContents ) ) {
+	d->previewInfo->setOn( FALSE );
+	d->previewContents->setOn( TRUE );
+	changeMode( d->modeButtons->id( d->previewContents ) );
+    }
+}
+
+/*!
+  Returns the viewmode of the filedialog. This is a value
+  of either DetailView or ListView maybe or'd together with
+  either PreviewContents or PreviewInfo.
+*/
+
+int QFileDialog::viewMode() const
+{
+    int ret = 0;
+    if ( d->moreFiles->isVisible() )
+	ret = DetailView;
+    else if ( files->isVisible() )
+	ret = ListView;
+    
+    if ( d->infoPreview && d->previewInfo->isVisible() )
+	ret = ret | PreviewInfo;
+    else if ( d->contentsPreview && d->previewContents->isVisible() )
+	ret = ret | PreviewContents;
+    
+    return ret;
 }
 
 /*!  Adds 1-3 widgets to the bottom of the file dialog.	 \a l is the
