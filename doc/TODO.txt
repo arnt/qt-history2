@@ -92,10 +92,6 @@ QFileDialog
 QSizeGrip (Win32) (Volker)
   Outlined resize as set in the system properties
 
-QButtonGroup
-  Should work not only for QRadioButtons ( I don't understand this
-  point - Matthias)
-
 QProgressBar
   setPercentageVisible( bool )
 
