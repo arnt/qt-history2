@@ -362,7 +362,6 @@ QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn
 /*****************************************************************************
   QWidget member functions
  *****************************************************************************/
-
 void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  )
 {
     own_id = 0;
@@ -402,10 +401,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
     if ( dialog || popup || desktop ) {          // these are top-level, too
 	topLevel = TRUE;
 	setWFlags( WType_TopLevel );
-    }
-    if ( popup ) {
-	setWFlags(WStyle_Tool); // a popup is a tool window
-	setWFlags(WStyle_StaysOnTop); // a popup stays on top
+	if ( popup ) 
+	    setWFlags(WStyle_Tool); // a popup is a tool window
     }
     if ( topLevel && parentWidget() ) {
 	// if our parent has WStyle_StaysOnTop, so must we
@@ -452,13 +449,13 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	    wclass = kDocumentWindowClass;
 
 	WindowAttributes wattr = kWindowNoAttributes /*| kWindowLiveResizeAttribute*/;
-	if(testWFlags(WType_Popup))
+	if(testWFlags(WType_Popup)) 
 	    wattr |= kWindowNoActivatesAttribute;
 	if( testWFlags(WStyle_Customize) ) {
 	    if ( testWFlags(WStyle_NormalBorder) || testWFlags( WStyle_DialogBorder) ) {
 		if(wclass == kToolbarWindowClass)
 		    wclass = kDocumentWindowClass;
-		if(wclass == kDocumentWindowClass )
+		if(wclass == kDocumentWindowClass ) 
 		    wattr |= kWindowStandardDocumentAttributes;
 	    } else {
 
@@ -469,12 +466,12 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
                     wclass = kToolbarWindowClass;
 #endif
 
-		if( testWFlags( WStyle_Maximize ) )
-		    wattr |= kWindowFullZoomAttribute;
-		if( testWFlags( WStyle_Minimize ) )
-		    wattr |= kWindowCollapseBoxAttribute;
-		if( testWFlags( WStyle_SysMenu ) )
-		    wattr |= kWindowCloseBoxAttribute;
+		    if( testWFlags( WStyle_Maximize ) ) 
+			wattr |= kWindowFullZoomAttribute;
+		    if( testWFlags( WStyle_Minimize ) ) 
+			wattr |= kWindowCollapseBoxAttribute;
+		    if( testWFlags( WStyle_SysMenu ) ) 
+			wattr |= kWindowCloseBoxAttribute;
 	    }
 	}
 
@@ -496,7 +493,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	}
 
 	InstallWindowContentPaintProc((WindowPtr)id, NewWindowPaintUPP(qt_erase), 0, this);
-	if(testWFlags( WType_Popup ))
+	if(testWFlags( WType_Popup )) 
 	    SetWindowModality((WindowPtr)id, kWindowModalityNone, NULL);
 	fstrut_dirty = TRUE; // when we create a toplevel widget, the frame strut should be dirty
 	if(!mac_window_count++)

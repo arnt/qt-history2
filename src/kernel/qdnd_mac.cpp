@@ -70,8 +70,6 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage
 void qt_macdnd_unregister( QWidget *widget, QWExtra *extra );
 void qt_macdnd_register( QWidget *widget, QWExtra *extra );
 
-
-
 bool QDropEvent::provides( const char *fmt ) const
 {
     const char *fmt2 = NULL;
@@ -252,7 +250,6 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode )
 	qWarning("Whoa! This should never happen!");
 	return FALSE;
     }
-
     if ( object == o )
 	return FALSE;
 
@@ -351,7 +348,7 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode )
 
     qt_mac_in_drag = TRUE;
     //kick off the drag by calling the callback ourselves first..
-    QWidget *widget = QApplication::widgetAt(fakeEvent.where.h, fakeEvent.where.v, FALSE);
+    QWidget *widget = QApplication::widgetAt(fakeEvent.where.h, fakeEvent.where.v, TRUE);
     if(!widget->extraData()->macDndExtra) //never too late I suppose..
 	qt_macdnd_register( widget,  widget->extraData());
     qt_mac_tracking_handler( kDragTrackingEnterWindow, (WindowPtr)widget->hd,
@@ -412,31 +409,24 @@ static const DragReceiveHandlerUPP make_receiveUPP()
 static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage, WindowPtr,
 						  void *handlerRefCon, DragReference theDrag )
 {
-    if(theMessage == kDragRegionIdle || theMessage == kDragRegionEnd) //its already said and done
+    if(theMessage != kDragTrackingEnterWindow && theMessage != kDragTrackingLeaveWindow &&
+       theMessage != kDragTrackingInWindow)
 	return 1;
-
-    QMacDndExtra *macDndExtra = (QMacDndExtra*) handlerRefCon;
-    Point mouse;
-    QPoint globalMouse;
-
     if(!theDrag) {
 	qDebug( "DragReference null %s %d", __FILE__, __LINE__ );
 	return 1;
     }
-
+    Point mouse;
     GetDragMouse( theDrag, &mouse, 0L );
-    globalMouse = QPoint( mouse.h, mouse.v );
-
-    Point local;
-    local.h = mouse.h;
-    local.v = mouse.v;
-    QMacSavedPortInfo savedInfo(macDndExtra->widget);
-    GlobalToLocal( &local );
-    QWidget *widget = recursive_match( macDndExtra->widget, local.h, local.v );
+    if(!mouse.h && !mouse.v)
+	GetGlobalMouse(&mouse);
+    QPoint globalMouse( mouse.h, mouse.v );
+    QMacDndExtra *macDndExtra = (QMacDndExtra*) handlerRefCon;
+    QWidget *widget = QApplication::widgetAt( globalMouse, TRUE );
     while ( widget && (!widget->acceptDrops()) )
 	widget = widget->parentWidget(TRUE);
 
-    if (widget && (theMessage == kDragTrackingInWindow) && (widget == current_drag_widget) ) {
+    if (widget && theMessage == kDragTrackingInWindow && widget == current_drag_widget ) {
         QDragMoveEvent de( widget->mapFromGlobal( globalMouse ) );
 	QApplication::sendEvent( widget, &de );
 	macDndExtra->acceptfmt = de.isAccepted();
@@ -483,33 +473,26 @@ static const DragTrackingHandlerUPP make_trackingUPP()
 
 void qt_macdnd_unregister( QWidget *widget, QWExtra *extra )
 {
-    if ( extra && extra->macDndExtra ) {
-	extra->macDndExtra->ref--;
-	if ( extra->macDndExtra->ref == 0 ) {
-	    if(qt_mac_tracking_handlerUPP)
-		RemoveTrackingHandler( make_trackingUPP(), (WindowPtr)widget->handle() );
-	    if(qt_mac_receive_handlerUPP)
-		RemoveReceiveHandler( make_receiveUPP(), (WindowPtr)widget->handle() );
-	    delete extra->macDndExtra;
-	    extra->macDndExtra = 0;
-	}
+    if ( extra && extra->macDndExtra  && !(--extra->macDndExtra->ref)) {
+	if(qt_mac_tracking_handlerUPP)
+	    RemoveTrackingHandler( make_trackingUPP(), (WindowPtr)widget->handle() );
+	if(qt_mac_receive_handlerUPP)
+	    RemoveReceiveHandler( make_receiveUPP(), (WindowPtr)widget->handle() );
+	delete extra->macDndExtra;
+	extra->macDndExtra = 0;
     }
 }
 
 void qt_macdnd_register( QWidget *widget, QWExtra *extra )
 {
     if ( !extra->macDndExtra ) {
-	OSErr result;
 	extra->macDndExtra = new QMacDndExtra;
 	extra->macDndExtra->ref = 1;
-	extra->macDndExtra->widget = widget->topLevelWidget();
-	if ( (result = InstallTrackingHandler( make_trackingUPP(),  (WindowPtr)widget->handle(),
-					       extra->macDndExtra )))
-	    return;
-	if ( (result = InstallReceiveHandler( make_receiveUPP(), (WindowPtr)widget->handle(),
-					     extra->macDndExtra )))
-	    return;
-    } 	else {	
+	InstallTrackingHandler( make_trackingUPP(),  (WindowPtr)widget->handle(),
+				extra->macDndExtra );
+	InstallReceiveHandler( make_receiveUPP(), (WindowPtr)widget->handle(),
+			       extra->macDndExtra );
+    } else {	
 	extra->macDndExtra->ref++;
     }
 }
