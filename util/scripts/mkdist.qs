@@ -43,12 +43,19 @@ var checkoutRemove = [ new RegExp("^gif"),
 		       new RegExp("^tutorial"),
 		       new RegExp("^pics"),
 		       new RegExp("^extensions/xt"),
+		       new RegExp("^tools/designer"),
+		       new RegExp("^tools/linguist"),
+		       new RegExp("^tools/makeqpf"),
+		       new RegExp("^tools/mergetr"),
+		       new RegExp("^tools/msg2qm"),
+		       new RegExp("^tools/qconfig"),
+		       new RegExp("^tools/qembed"),
+		       new RegExp("^tools/qvfb"),
 
 		       new RegExp("^src/gui/itemviews/qlistview"),
 		       new RegExp("^src/gui/itemviews/qtreeview"),
 		       new RegExp("^src/gui/itemviews/qtableview"),
-		       new RegExp("^LICENSE.TROLL"),
-		       new RegExp("^tools/designer") ];
+		       new RegExp("^LICENSE.TROLL") ];
 var checkoutKeep = [ /./ ];
 
 var platformRemove = new Array();

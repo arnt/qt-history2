@@ -2,9 +2,8 @@ TEMPLATE        = subdirs
 no-png {
     message("Tools not available without PNG support")
 } else {
-    SUBDIRS                = assistant/lib \
-                      assistant \
-                      linguist
+    SUBDIRS		= assistant/lib \
+			assistant
     unix:SUBDIRS        += qtconfig
 }
 
