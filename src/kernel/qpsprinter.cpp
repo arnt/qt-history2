@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#105 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#106 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -124,6 +124,62 @@ static const char *ps_header[] = {
 "    } if",
 "} D",
 "",
+"/BF {",				// brush fill
+"    BSt 9 ge BSt 14 le and",		// valid brush pattern?
+"    {",
+"     GS",
+"     WFi { clip } { eoclip } ifelse",
+"     defM SM",
+"     pathbbox",			// left upper right lower
+"     3 index 3 index translate",
+"     4 2 roll",			// right lower left upper
+"     3 2 roll",			// right left upper lower
+"     exch",				// left right lower upper
+"     sub /h ED",
+"     sub /w ED",
+"     OMo {",
+"	  NP",
+"	  0 0 MT",
+"	  0 h RL",
+"	  w 0 RL",
+"	  0 h neg RL",
+"	  CP",
+"	  BkCol SC",
+"	  fill",
+"     } if",
+"     BCol SC",
+"     0.3 SW",
+"     BSt 9 eq BSt 11 eq or",		// horiz or cross pattern
+"     { 0 4 h",				// draw horiz lines !!! alignment
+"       { NP dup 0 exch MT w exch LT S } for",
+"     } if",
+"     BSt 10 eq BSt 11 eq or",		// vert or cross pattern
+"     { 0 4 w",				// draw vert lines !!! alignment
+"       { NP dup 0 MT h LT S } for",
+"     } if",
+"     BSt 12 eq BSt 14 eq or",		// F-diag or diag cross
+"     { w h gt",
+"       { 0 6 w h add",
+"	{ NP dup h MT h sub 0 LT S } for }",
+"       { 0 6 w h add",
+"	 { NP dup w exch MT w add 0 exch LT S } for } ifelse",
+"     } if",
+"     BSt 13 eq BSt 14 eq or",		// B-diag or diag cross
+"     { w h gt",
+"       { 0 6 w h add",
+"	 { NP dup 0 MT h sub h LT S } for }",
+"       { 0 6 w h add",
+"	 { NP dup 0 exch MT w add w exch LT S } for } ifelse",
+"     } if",
+"     GR",
+"    } if",
+"} D",
+"",
+"",
+"/BDArr[",				// Brush dense patterns:
+"    0.94 0.88 0.63 0.50 0.37 0.12 0.6",
+"] d",
+"",
 "/QF {",				// fill command
 "    GS",
 "    BSt 2 ge BSt 8 le and",		// dense pattern?
@@ -134,10 +190,6 @@ static const char *ps_header[] = {
 "    { BCol SC WFi { fill } { eofill } ifelse } if",
 "    GR",
 "} D",
-"",
-"/BDArr[",				// Brush dense patterns:
-"    0.94 0.88 0.63 0.50 0.37 0.12 0.6",
-"] d",
 "",
 "/PF {",				// polygon fill command
 "    GS",
@@ -407,57 +459,6 @@ static const char *ps_header[] = {
 "    show",
 "} D",
 "",
-"",
-"/BF {",				// brush fill
-"    BSt 9 ge BSt 14 le and",		// valid brush pattern?
-"    {",
-"     GS",
-"     WFi { clip } { eoclip } ifelse",
-"     defM SM",
-"     pathbbox",			// left upper right lower
-"     3 index 3 index translate",
-"     4 2 roll",			// right lower left upper
-"     3 2 roll",			// right left upper lower
-"     exch",				// left right lower upper
-"     sub /h ED",
-"     sub /w ED",
-"     OMo {",
-"	  NP",
-"	  0 0 MT",
-"	  0 h RL",
-"	  w 0 RL",
-"	  0 h neg RL",
-"	  CP",
-"	  BkCol SC",
-"	  fill",
-"     } if",
-"     BCol SC",
-"     0.3 SW",
-"     BSt 9 eq BSt 11 eq or",		// horiz or cross pattern
-"     { 0 4 h",				// draw horiz lines !!! alignment
-"       { NP dup 0 exch MT w exch LT S } for",
-"     } if",
-"     BSt 10 eq BSt 11 eq or",		// vert or cross pattern
-"     { 0 4 w",				// draw vert lines !!! alignment
-"       { NP dup 0 MT h LT S } for",
-"     } if",
-"     BSt 12 eq BSt 14 eq or",		// F-diag or diag cross
-"     { w h gt",
-"       { 0 6 w h add",
-"	{ NP dup h MT h sub 0 LT S } for }",
-"       { 0 6 w h add",
-"	 { NP dup w exch MT w add 0 exch LT S } for } ifelse",
-"     } if",
-"     BSt 13 eq BSt 14 eq or",		// B-diag or diag cross
-"     { w h gt",
-"       { 0 6 w h add",
-"	 { NP dup 0 MT h sub h LT S } for }",
-"       { 0 6 w h add",
-"	 { NP dup 0 exch MT w add w exch LT S } for } ifelse",
-"     } if",
-"     GR",
-"    } if",
-"} D",
 "",
 "", // slower implementation than the old one, but strippable by stripHeader
 "/sl D0",
