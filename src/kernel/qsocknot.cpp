@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocknot.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qsocknot.cpp#3 $
 **
 ** Implementation of QSocketNotifier class
 **
@@ -20,6 +20,7 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
 /*----------------------------------------------------------------------------
   \class QSocketNotifier qsocknot.h
   \brief The QSocketNotifer class provides support for socket callbacks.
+
   \ingroup kernel
 
   This class makes it possible to write asynchronous TCP/IP socket-based
@@ -27,15 +28,22 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
   which is clearly not acceptable for an event-based GUI program.
 
   If you have opened a socket, you can create a socket notifier to monitor
-  the socket.  Then connect the activated() signal to the slot you want
-  to be called when something occurs.
+  the socket.  Then connect the activated() signal to the slot you want to
+  be called when a socket event occurs.
 
-  QSocketNotifier emits the activated() signal when:
+  There are three types of socket notifiers (read, write and exception)
+  and you must specify one of these in the constructor.
+
+  The type specifies when the activated() signal is to be emitted:
   <ol>
-  <li> There is data to be read (type: \c QSocketNotifer::Read),
-  <li> Data can be written (type: \c QSocketNotifier::Write), or
-  <li> An exception has ocurred (type: \c QSocketNofifier::Exception).
+  <li> \c QSocketNotifier::Read: There is data to be read (socket read event).
+  <li> \c QSocketNotifier::Write: Data can be written (socket write event).
+  <li> \c QSocketNofifier::Exception: An exception has ocurred (socket
+  exception event).
   </ol>
+
+  For example, if you need to monitor both reads and writes for the same
+  socket, you must create two socket notifiers.
 
   Example:
   \code
@@ -66,8 +74,8 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
   \link QObject::startTimer() timer events\endlink or the QTimer class.
 
   Socket action is detected in the \link QApplication::exec() main event
-  loop\endlink of Qt.  Under X-Windows, socket notifiers are included
-  in the \c fd_set for the UNIX select() function.
+  loop\endlink of Qt.  Under X-Windows, Qt has has a single UNIX select()
+  call which incorporates all socket notifiers and the X socket.
  ----------------------------------------------------------------------------*/
 
 
@@ -108,14 +116,30 @@ QSocketNotifier::~QSocketNotifier()
 
 /*----------------------------------------------------------------------------
   \fn void QSocketNotifier::activated( int socket )
-  This signal is emitted when:
+  The type specifies when the activated() signal is to be emitted:
   <ol>
-  <li> There is data to be read (if type == \c QSocketNotifier::Read),
-  <li> Data can be written (if type == \c QSocketNofifier::Write), or
-  <li> An exception has occurred (type == \c QSocketNofifier::Exception).
+  <li> \c QSocketNotifier::Read: There is data to be read (socket read event).
+  <li> \c QSocketNotifier::Write: Data can be written (socket write event).
+  <li> \c QSocketNofifier::Exception: An exception has ocurred (socket
+  exception event).
   </ol>
 
   The \e socket argument is the socket number.
+ ----------------------------------------------------------------------------*/
+
+
+/*----------------------------------------------------------------------------
+  \fn int QSocketNotifier::socket() const
+  Returns the socket identifier specified to the constructor.
+  \sa type()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn Type QSocketNotifier::type() const
+  Returns the socket event type specified to the constructor;
+  \c QSocketNotifier::Read, \c QSocketNotifier::Write or
+  \c QSocketNotifier::Exception.
+  \sa socket()
  ----------------------------------------------------------------------------*/
 
 
@@ -131,7 +155,15 @@ QSocketNotifier::~QSocketNotifier()
 
   The notifier is by default enabled.
 
-  \sa enabled()
+  If the notifier is enabled, it emits the activated() signal whenever a
+  socket event corresponding to its \link type() type\endlink occurs.  If
+  it is disabled, it ignores socket events (the same effect as not creating
+  the socket notifier).
+
+  Disable the socket notifier for writes if there is nothing to be
+  written, otherwise your program will comsume lots of CPU.
+
+  \sa enabled(), activated()
  ----------------------------------------------------------------------------*/
 
 void QSocketNotifier::setEnabled( bool enable )
@@ -147,6 +179,7 @@ void QSocketNotifier::setEnabled( bool enable )
 
 /*----------------------------------------------------------------------------
   Handles events for the socket notifier object.
+
   Emits the activated() signal when a \c Event_SockAct is received.
  ----------------------------------------------------------------------------*/
 
