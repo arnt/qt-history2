@@ -199,27 +199,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
     SetRect( &boundsRect, crect.left(), crect.top(),
 	     crect.right(), crect.bottom());
 
-    if ( !topLevel ) {
-	if ( !testWFlags(WStyle_Customize) )
-	    setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu  );
-    } else if ( !(desktop || popup) ) {
-	if ( testWFlags(WStyle_Customize) ) {	// customize top-level widget
-	    if ( testWFlags(WStyle_NormalBorder) ) {
-		// XXX ...
-	    } else {
-		if ( !testWFlags(WStyle_DialogBorder) ) {
-		    // XXX ...
-		}
-	    }
-	    if ( testWFlags(WStyle_Tool) ) {
-		// XXX ...
-	    }
-	} else {				// normal top-level widget
-	    setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu |
-		       WStyle_MinMax );
-	}
-    }
-
+    if ( !testWFlags(WStyle_Customize) )
+	setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu  );
 
     if ( window ) {				// override the old window
 	if ( destroyOldWindow && own_id )
