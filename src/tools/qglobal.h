@@ -686,8 +686,8 @@ typedef unsigned __int64	Q_UINT64;	// 64 bit unsigned
 typedef long long		Q_INT64;	// 64 bit signed
 typedef unsigned long long	Q_UINT64;	// 64 bit unsigned
 #endif
-typedef Q_INT64			Q_LONGLONG;	// signed long long
-typedef Q_UINT64		Q_ULONGLONG;	// unsigned long long
+typedef Q_INT64			Q_LLONG;	// signed long long
+typedef Q_UINT64		Q_ULLONG;	// unsigned long long
 
 #if defined(Q_OS_MACX) && !defined(QT_LARGEFILE_SUPPORT)
 #  define QT_LARGEFILE_SUPPORT 64

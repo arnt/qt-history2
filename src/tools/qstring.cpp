@@ -1868,6 +1868,28 @@ QString QString::arg( ulong a, int fieldWidth, int base ) const
 }
 
 /*!
+    \overload
+
+    \a a is expressed in base \a base, which is 10 by default and must
+    be between 2 and 36.
+*/
+QString QString::arg( Q_LLONG a, int fieldWidth, int base ) const
+{
+    return arg( QString::number(a, base), fieldWidth );
+}
+
+/*!
+    \overload
+
+    \a a is expressed in base \a base, which is 10 by default and must
+    be between 2 and 36.
+*/
+QString QString::arg( Q_ULLONG a, int fieldWidth, int base ) const
+{
+    return arg( QString::number(a, base), fieldWidth );
+}
+
+/*!
     \fn QString QString::arg( int a, int fieldWidth, int base ) const
 
     \overload
@@ -4505,7 +4527,7 @@ float QString::toFloat( bool *ok ) const
     \endcode
 */
 
-QString &QString::setNum( Q_INT64 n, int base )
+QString &QString::setNum( Q_LLONG n, int base )
 {
 #if defined(QT_CHECK_RANGE)
     if ( base < 2 || base > 36 ) {
@@ -4553,7 +4575,7 @@ QString &QString::setNum( Q_INT64 n, int base )
     The base is 10 by default and must be between 2 and 36.
 */
 
-QString &QString::setNum( Q_UINT64 n, int base )
+QString &QString::setNum( Q_ULLONG n, int base )
 {
 #if defined(QT_CHECK_RANGE)
     if ( base < 2 || base > 36 ) {
@@ -4576,13 +4598,13 @@ QString &QString::setNum( Q_UINT64 n, int base )
 // ### 4.0: inline
 QString &QString::setNum( long n, int base )
 {
-    return setNum( (Q_INT64)n, base );
+    return setNum( (Q_LLONG)n, base );
 }
 
 // ### 4.0: inline
 QString &QString::setNum( ulong n, int base )
 {
-    return setNum( (Q_UINT64)n, base );
+    return setNum( (Q_ULLONG)n, base );
 }
 
 /*!
@@ -4715,6 +4737,30 @@ QString QString::number( long n, int base )
     \sa setNum()
 */
 QString QString::number( ulong n, int base )
+{
+    QString s;
+    s.setNum( n, base );
+    return s;
+}
+
+/*!
+    \overload
+
+    \sa setNum()
+*/
+QString QString::number( Q_LLONG n, int base )
+{
+    QString s;
+    s.setNum( n, base );
+    return s;
+}
+
+/*!
+    \overload
+
+    \sa setNum()
+*/
+QString QString::number( Q_ULLONG n, int base )
 {
     QString s;
     s.setNum( n, base );
