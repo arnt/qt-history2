@@ -2048,8 +2048,8 @@ void QIconViewItem::checkRect()
     selected. Items can be renamed in-place. QIconView also supports
     drag and drop.
 
-    Each item contains a label string, a pixmap (the icon itself) and
-    optionally an index key. The index key is used for sorting the items
+    Each item contains a label string, a pixmap or picture (the icon itself)
+    and optionally an index key. The index key is used for sorting the items
     and defaults to the label string. The label string can be displayed
     below or to the right of the icon (see \l ItemTextPos).
 
@@ -4771,7 +4771,8 @@ QDragObject *QIconView::dragObject()
     QPoint orig = d->dragStartPos;
 
     QIconDrag *drag = new QIconDrag( viewport() );
-    drag->setPixmap( *d->currentItem->pixmap(),
+    drag->setPixmap( d->currentItem->pixmap() ?
+		     *d->currentItem->pixmap() : QPixmap(), // ### QPicture
  		     QPoint( d->currentItem->pixmapRect().width() / 2,
 			     d->currentItem->pixmapRect().height() / 2 ) );
 
