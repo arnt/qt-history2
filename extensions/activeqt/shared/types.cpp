@@ -490,24 +490,14 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QString &type, b
             if (subType.endsWith("*"))
                 subType.truncate(subType.length() - 1);
 #endif
-	    if (userData.description() == "IDispatch**") {
+	    if (userData.description() == "IDispatch*") {
 		arg.vt = VT_DISPATCH;
-		arg.pdispVal = *(IDispatch**)qvar.constData();
+		arg.pdispVal = (IDispatch*)userData.data();
 		if ( arg.pdispVal )
 		    arg.pdispVal->AddRef();
-	    } else if (userData.description() == "IDispatch*") {
-		arg.vt = VT_DISPATCH;
-		arg.pdispVal = (IDispatch*)qvar.constData();
-		if ( arg.pdispVal )
-		    arg.pdispVal->AddRef();
-	    } else if (userData.description() == "IUnknown**") {
-		arg.vt = VT_UNKNOWN;
-		arg.punkVal = *(IUnknown**)qvar.constData();
-		if ( arg.punkVal )
-		    arg.punkVal->AddRef();
 	    } else if (userData.description() == "IUnknown*") {
 		arg.vt = VT_UNKNOWN;
-		arg.punkVal = (IUnknown*)qvar.constData();
+		arg.punkVal = (IUnknown*)userData.data();
 		if ( arg.punkVal )
 		    arg.punkVal->AddRef();
 #ifdef QAX_SERVER
