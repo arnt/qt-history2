@@ -971,8 +971,9 @@ void QWidget::repaint(const QRegion& rgn)
             QRegion mappedRegion(rgn);
             mappedRegion.translate(-data->wrect.topLeft());
             SelectClipRgn(hdc, mappedRegion.handle());
+            QSize bgsize = data->wrect.isValid() ? data->wrect.size() : data->crect.size();
             // ### This triggers bitblt on entire area. Potentially a lot. Clip here too!
-            qt_erase_background(hdc, 0, 0, data->wrect.width(), data->wrect.height(),
+            qt_erase_background(hdc, 0, 0, bgsize.width(), bgsize.height(),
                                 palette().brush(w->d->bg_role), offset.x(), offset.y());
         }
 
