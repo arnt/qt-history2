@@ -22,7 +22,6 @@ QDomDocument *XmlWriter::toXml()
     QTextBlock currentBlock = textDocument->begin();
 
     while (currentBlock.isValid()) {
-
         QDomElement blockElement = document->createElement("block");
         document->appendChild(blockElement);
 
