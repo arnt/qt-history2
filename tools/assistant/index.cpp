@@ -129,7 +129,7 @@ void Index::parseDocument( const QString &filename, int docNum )
     }
     bool valid = TRUE;
     char str[64];
-    int c = file.getch();
+    QChar c( file.getch() );
     int i = 0;
     while ( !file.atEnd() ) {
 	if ( c == '<' ) {
@@ -150,8 +150,8 @@ void Index::parseDocument( const QString &filename, int docNum )
 	    c = file.getch();
 	    continue;
 	}
-	if ( ( isdigit( c ) || isalpha( c ) ) && i < 64 ) {
-	    str[i] = tolower( c );
+	if ( c.isLetterOrNumber() && i < 63 ) {
+	    str[i] = c.lower().latin1();
 	    ++i;
 	} else {
 	    str[i] = 0;
@@ -290,20 +290,20 @@ QString Index::getDocumentTitle( const QString &fileName )
 	qWarning( "can not open file " + fileName );
 	return fileName;
     }
-    int c = file.getch();
+    QChar c( file.getch() );
     int i = 0;
     const char *tag = "<title>";
     char title[256];
     bool found = FALSE;
     while ( !file.atEnd() ) {
 	i = 0;
-	if ( tolower( c ) == tag[i] ) {
+	if ( c.lower().latin1() == tag[i] ) {
 	    found = TRUE;
 	    for( i = 1; i < 7; ++i ) {
 		c = file.getch();
 		if ( file.atEnd() )
 		    return fileName;
-		if ( tolower( c ) != tag[i] ) {
+		if ( c.lower().latin1() != tag[i] ) {
 		    found = FALSE;
 		    break;
 		}
@@ -448,7 +448,7 @@ bool Index::searchForPattern( const QStringList &patterns, const QStringList &wo
 
     bool valid = TRUE;
     char str[64];
-    int c = file.getch();
+    QChar c( file.getch() );
     int i = 0;
     while ( !file.atEnd() ) {
 	if ( c == '<' || c == '&' ) {
@@ -469,8 +469,8 @@ bool Index::searchForPattern( const QStringList &patterns, const QStringList &wo
 	    c = file.getch();
 	    continue;
 	}
-	if ( ( isdigit( c ) || isalpha( c ) ) && i < 64 ) {
-	    str[i] = tolower( c );
+	if ( c.isLetterOrNumber() && i < 63 ) {
+	    str[i] = c.lower().latin1();
 	    ++i;
 	} else {
 	    str[i] = 0;
