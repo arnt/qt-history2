@@ -815,7 +815,7 @@ void QWidget::repaint(const QRegion& rgn)
     if (paintEngine()->type() == QPaintEngine::Raster)
 	rasterEngine = static_cast<QRasterPaintEngine *>(paintEngine());
 
-    if (do_clipping)
+    if (rasterEngine && do_clipping)
         rasterEngine->setSystemClip(rgn);
 
     if (!testAttribute(Qt::WA_NoBackground) && !testAttribute(Qt::WA_NoSystemBackground))
@@ -835,10 +835,10 @@ void QWidget::repaint(const QRegion& rgn)
             ReleaseDC(winId(), (HDC)d->hd);
             d->hd = 0;
         }
+	if (do_clipping)
+	    rasterEngine->setSystemClip(QRegion());
     }
 
-    if (do_clipping)
-        rasterEngine->setSystemClip(QRegion());
 
     // as a result of a recursive paint event...
     if (d->extraPaintEngine) {
