@@ -24,8 +24,7 @@
 #define SLEEPMIN 10
 #define SLEEPMAX 500
 #define NOTIFYTIMEOUT 100
-#define MAXSINGLEWRITE 10000
-
+#define MAXSINGLEWRITE 10000 // may not need this now
 
 class QWindowsPipeWriter : public QThread
 {
@@ -121,18 +120,16 @@ void QWindowsPipeWriter::run()
         Q_LONGLONG totalWritten = 0;
         while ((!quitNow) && totalWritten < maxlen) {
             DWORD written = 0;
-            DWORD write = qMin(8192, maxlen - totalWritten);
-            ptrData += totalWritten;
-            //qDebug("about to write : %d", write);
-            if (!WriteFile(writePipe, ptrData, write, &written, 0)) {
-               // qDebug("write failed");
-               // DWORD error = GetLastError(); //NT_STATUS_INVALID_USER_BUFFER
-               // qErrnoWarning("write failed %0xd", GetLastError());
+            if (!WriteFile(writePipe, ptrData + totalWritten, qMin(8192, maxlen - totalWritten), &written, 0)) {
+                if (GetLastError() == 0xE8 /*NT_STATUS_INVALID_USER_BUFFER*/) {
+                    // give the os a rest
+                    qDebug("// give the os a rest");
+                    sleep(100);
+                    continue;
+                }
                 return;
             }
             totalWritten += written;
-            
-            //qDebug("wrote : %d, totalWritten : %d, of %lld", written, totalWritten, maxlen);
         }
         emit canWrite();
     }
