@@ -28,7 +28,7 @@ internal:CONFIG	+= png zlib  # Done differently in external system
 embedded:CONFIG	+= png zlib
 win32:CONFIG	+= png zlib
 internal:CONFIG -= opengl
-internal:LIBS += -lpng -lz
+# internal:LIBS += -lpng -lz
 
 thread:TARGET = qt-mt
 thread:DEFINES += QT_THREAD_SUPPORT
