@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.h#3 $
+** $Id: //depot/qt/main/src/tools/qfile.h#4 $
 **
 ** Definition of QFile class
 **
@@ -25,10 +25,12 @@ public:
     QFile( const char *fileName );
    ~QFile();
 
-    char *fileName() const { return fn.data(); }// get file name
+    const char *fileName() const;		// get file name
     bool  setFileName( const char *fileName );	// set file name
 
     static bool exists( const char *fileName ); // test if file exists
+
+/* hanord@@@ These functions should not be removed from QFile */
     bool  exists()	  const;
     bool  isRegular()     const;
     bool  isDirectory()	  const;
