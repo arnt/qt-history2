@@ -52,7 +52,7 @@ public:
     QString workingDirectory;
     Q_PID pid;
 
-    QByteArray program;
+    QString program;
     QStringList arguments;
     QStringList environment;
 

@@ -207,6 +207,8 @@ void QProcessPrivate::startProcess()
 
 void QProcessPrivate::execChild()
 {
+    QByteArray prog = QFile::encodeName(program);
+
     // create argument list with right number of elements, and set the
     // final one to 0.
     char **argv = new char *[arguments.count() + 2];
@@ -214,23 +216,23 @@ void QProcessPrivate::execChild()
 
     // allow invoking of .app bundles on the Mac.
 #ifdef Q_OS_MACX
-    QFileInfo fileInfo(program);
-    if (program.isDir() && program.endsWith(".app")) {
-        QByteArray tmp = program;
+    QFileInfo fileInfo(prog);
+    if (prog.isDir() && prog.endsWith(".app")) {
+        QByteArray tmp = prog;
         int lastSlashPos = tmp.lastIndexOf('/');
         if(lastSlashPos != -1)
             tmp.remove(0, lastSlashPos);
-        tmp = program + "/Contents/MacOS/" + tmp;
+        tmp = prog + "/Contents/MacOS/" + tmp;
         tmp.resize(tmp.size() - 4); // chop off the .app
         if(QFile::exists(tmp))
-            program = tmp;
+            prog = tmp;
     }
 #endif
 
     // add the program name
-    argv[0] = new char[program.size() + 1];
-    memcpy(argv[0], program.data(), program.size());
-    argv[0][program.size()] = '\0';
+    argv[0] = new char[prog.size() + 1];
+    memcpy(argv[0], prog.data(), prog.size());
+    argv[0][prog.size()] = '\0';
 
     // add every argument to the list
     for (int i = 0; i < arguments.count(); ++i) {
@@ -260,7 +262,7 @@ void QProcessPrivate::execChild()
 
     // execute the process
     if (environment.isEmpty()) {
-        ::execvp(program.data(), argv);
+        ::execvp(prog.data(), argv);
     } else {
         // if LD_LIBRARY_PATH exists in the current environment, but
         // not in the environment list passed by the programmer, then
@@ -289,19 +291,19 @@ void QProcessPrivate::execChild()
             envp[j][item.size()] = '\0';
         }
 
-        if (!program.contains("/")) {
+        if (!prog.contains("/")) {
             char *path = ::getenv("PATH");
             if (path) {
                 QStringList pathEntries = QString(path).split(":");
                 for (int k = 0; k < pathEntries.size(); ++k) {
                     QByteArray tmp = QFile::encodeName(pathEntries.at(k));
                     if (!tmp.endsWith('/')) tmp += '/';
-                    tmp += program;
+                    tmp += prog;
                     ::execve(tmp.data(), argv, envp);
                 }
             }
         } else {
-            ::execve(program.data(), argv, envp);
+            ::execve(prog.data(), argv, envp);
         }
     }
 

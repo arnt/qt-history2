@@ -19,7 +19,6 @@
 #include <qbytearray.h>
 #include <qdatetime.h>
 #include <qcoreapplication.h>
-#include <qfile.h>
 #include <qsocketnotifier.h>
 
 /*! \class QProcess
@@ -464,8 +463,8 @@ void QProcess::start(const QString &program, const QStringList &arguments)
     Q_D(QProcess);
     setOpenMode(QIODevice::ReadWrite);
 
+    d->program = program;
     d->arguments = arguments;
-    d->program = QFile::encodeName(program);
 
     QCoreApplication::flush();
 
