@@ -16,7 +16,7 @@
 
 #include <qsqlresult.h>
 #include <qsqldriver.h>
-#include <qsqlcachedresult_p.h>
+#include <private/qsqlcachedresult_p.h>
 
 #include <oci.h>
 
