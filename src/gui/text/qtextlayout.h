@@ -37,16 +37,16 @@ public:
     inline bool isValid() const { return eng; }
 
     QRect rect() const;
-    float width() const;
-    float ascent() const;
-    float descent() const;
-    float height() const;
+    qReal width() const;
+    qReal ascent() const;
+    qReal descent() const;
+    qReal height() const;
 
     bool isRightToLeft() const;
 
-    void setWidth(float w);
-    void setAscent(float a);
-    void setDescent(float d);
+    void setWidth(qReal w);
+    void setAscent(qReal a);
+    void setDescent(qReal d);
 
     int at() const;
 
@@ -188,13 +188,13 @@ public:
     inline bool isValid() const { return eng; }
 
     QRect rect() const;
-    float x() const;
-    float y() const;
-    float width() const;
-    float ascent() const;
-    float descent() const;
-    float height() const;
-    float textWidth() const;
+    qReal x() const;
+    qReal y() const;
+    qReal width() const;
+    qReal ascent() const;
+    qReal descent() const;
+    qReal height() const;
+    qReal textWidth() const;
 
     enum Edge {
         Leading,
@@ -206,11 +206,11 @@ public:
     };
 
     /* cursorPos gets set to the valid position */
-    float cursorToX(int *cursorPos, Edge edge = Leading) const;
-    inline float cursorToX(int cursorPos, Edge edge = Leading) const { return cursorToX(&cursorPos, edge); }
-    int xToCursor(float x, CursorPosition = CursorBetweenCharacters) const;
+    qReal cursorToX(int *cursorPos, Edge edge = Leading) const;
+    inline qReal cursorToX(int cursorPos, Edge edge = Leading) const { return cursorToX(&cursorPos, edge); }
+    int xToCursor(qReal x, CursorPosition = CursorBetweenCharacters) const;
 
-    void layout(float width);
+    void layout(qReal width);
     void layoutFixedColumnWidth(int numColumns);
     void setPosition(const QPointF &pos);
 

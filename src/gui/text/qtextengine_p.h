@@ -62,7 +62,7 @@ struct glyph_metrics_t
         : x(100000), y(100000),
           width(0), height(0), xoff(0), yoff(0)
         {}
-    inline glyph_metrics_t(float _x, float _y, float _width, float _height, float _xoff, float _yoff)
+    inline glyph_metrics_t(qReal _x, qReal _y, qReal _width, qReal _height, qReal _xoff, qReal _yoff)
         : x(_x),
           y(_y),
           width(_width),
@@ -70,12 +70,12 @@ struct glyph_metrics_t
           xoff(_xoff),
           yoff(_yoff)
         {}
-    float x;
-    float y;
-    float width;
-    float height;
-    float xoff;
-    float yoff;
+    qReal x;
+    qReal y;
+    qReal width;
+    qReal height;
+    qReal xoff;
+    qReal yoff;
 };
 Q_DECLARE_TYPEINFO(glyph_metrics_t, Q_PRIMITIVE_TYPE);
 
@@ -205,12 +205,12 @@ struct QScriptItem
     unsigned short isTab    : 1;
     unsigned short isObject : 1;
     int num_glyphs;
-    float descent;
-    float ascent;
-    float width;
+    qReal descent;
+    qReal ascent;
+    qReal width;
     int glyph_data_offset;
     int format;
-    float height() const { return ascent + descent; }
+    qReal height() const { return ascent + descent; }
 };
 
 
@@ -222,17 +222,17 @@ struct QScriptLine
 {
     QScriptLine()
         : descent(0), ascent(0), x(0), y(0), width(0), textWidth(0) {}
-    float descent;
-    float ascent;
-    float x;
-    float y;
-    float width;
-    float textWidth;
+    qReal descent;
+    qReal ascent;
+    qReal x;
+    qReal y;
+    qReal width;
+    qReal textWidth;
     int from;
     uint length : 30;
     mutable uint justified : 1;
     mutable uint gridfitted : 1;
-    float height() const { return ascent + descent + 1.; }
+    qReal height() const { return ascent + descent + 1.; }
     void setDefaultHeight(QTextEngine *eng);
 };
 Q_DECLARE_TYPEINFO(QScriptLine, Q_PRIMITIVE_TYPE);
@@ -280,7 +280,7 @@ public:
 
     void justify(const QScriptLine &si);
 
-    float width(int charFrom, int numChars) const;
+    qReal width(int charFrom, int numChars) const;
     glyph_metrics_t boundingBox(int from,  int len) const;
 
     int length(int item) const {
@@ -342,8 +342,8 @@ public:
     void **memory;
     int num_glyphs;
     mutable int used;
-    float minWidth;
-    float maxWidth;
+    qReal minWidth;
+    qReal maxWidth;
     QRectF boundingRect;
     QPointF position;
 

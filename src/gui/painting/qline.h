@@ -23,34 +23,36 @@ public:
 
     inline QLineF();
     inline QLineF(const QPointF &pt1, const QPointF &pt2);
-    inline QLineF(float x1, float y1, float x2, float y2);
+    inline QLineF(qReal x1, qReal y1, qReal x2, qReal y2);
 
     inline bool isNull() const;
 
     inline QPointF start() const;
     inline QPointF end() const;
 
-    inline float startX() const;
-    inline float startY() const;
+    inline qReal startX() const;
+    inline qReal startY() const;
 
-    inline float endX() const;
-    inline float endY() const;
+    inline qReal endX() const;
+    inline qReal endY() const;
 
-    inline float vx() const;
-    inline float vy() const;
+    inline qReal vx() const;
+    inline qReal vy() const;
 
-    float length() const;
-    void setLength(float len);
+    qReal length() const;
+    void setLength(qReal len);
 
     QLineF unitVector() const;
     QLineF normalVector() const;
 
     IntersectType intersect(const QLineF &l, QPointF *intersectionPoint) const;
 
-    float angle(const QLineF &l) const;
+    qReal angle(const QLineF &l) const;
 
-    QPointF pointAt(float t) const;
-
+    QPointF pointAt(qReal t) const;
+#ifdef QT_USE_FIXED_POINT
+    QPointF pointAt(QFixedPointLong t) const;
+#endif
     inline void translate(const QLineF &p);
     inline void translate(const QPointF &p);
 
@@ -72,7 +74,7 @@ inline QLineF::QLineF(const QPointF &pt1, const QPointF &pt2)
 {
 }
 
-inline QLineF::QLineF(float x1, float y1, float x2, float y2)
+inline QLineF::QLineF(qReal x1, qReal y1, qReal x2, qReal y2)
     : p1(x1, y1), p2(x2, y2)
 {
 }
@@ -82,22 +84,22 @@ inline bool QLineF::isNull() const
     return p1 == p2;
 }
 
-inline float QLineF::startX() const
+inline qReal QLineF::startX() const
 {
     return p1.x();
 }
 
-inline float QLineF::startY() const
+inline qReal QLineF::startY() const
 {
     return p1.y();
 }
 
-inline float QLineF::endX() const
+inline qReal QLineF::endX() const
 {
     return p2.x();
 }
 
-inline float QLineF::endY() const
+inline qReal QLineF::endY() const
 {
     return p2.y();
 }
@@ -112,12 +114,12 @@ inline QPointF QLineF::end() const
     return p2;
 }
 
-inline float QLineF::vx() const
+inline qReal QLineF::vx() const
 {
     return p2.x() - p1.x();
 }
 
-inline float QLineF::vy() const
+inline qReal QLineF::vy() const
 {
     return p2.y() - p1.y();
 }
@@ -140,7 +142,7 @@ inline void QLineF::translate(const QPointF &point)
     p2 += point;
 }
 
-inline void QLineF::setLength(float len)
+inline void QLineF::setLength(qReal len)
 {
     if (isNull())
         return;
@@ -148,12 +150,21 @@ inline void QLineF::setLength(float len)
     p2 = QPointF(p1.x() + v.vx() * len, p1.y() + v.vy() * len);
 }
 
-inline QPointF QLineF::pointAt(float t) const
+inline QPointF QLineF::pointAt(qReal t) const
 {
-    float vx = p2.x() - p1.x();
-    float vy = p2.y() - p1.y();
+    qReal vx = p2.x() - p1.x();
+    qReal vy = p2.y() - p1.y();
     return QPointF(p1.x() + vx * t, p1.y() + vy * t);
 }
+
+#ifdef QT_USE_FIXED_POINT
+inline QPointF QLineF::pointAt(QFixedPointLong t) const
+{
+    QFixedPointLong vx = p2.x() - p1.x();
+    QFixedPointLong vy = p2.y() - p1.y();
+    return QPointF((p1.x() + vx * t).toFixed(), (p1.y() + vy * t).toFixed());
+}
+#endif
 
 inline void QLineF::operator+=(const QPointF &point)
 {
@@ -176,4 +187,4 @@ inline bool QLineF::operator==(const QLineF &d) const
 Q_GUI_EXPORT QDebug operator<<(QDebug d, const QLineF &p);
 #endif
 
-#endif // QLINEFLOAT_H
+#endif // QLINE_H

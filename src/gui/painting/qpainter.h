@@ -120,14 +120,14 @@ public:
     void setMatrixEnabled(bool enabled);
     bool matrixEnabled() const;
 
-    void scale(double sx, double sy);
-    void shear(double sh, double sv);
-    void rotate(double a);
+    void scale(qReal sx, qReal sy);
+    void shear(qReal sh, qReal sv);
+    void rotate(qReal a);
 #endif
 
-    inline void translate(const QPointF &offset);
+    void translate(const QPointF &offset);
     inline void translate(const QPoint &offset);
-    void translate(double dx, double dy);
+    inline void translate(qReal dx, qReal dy);
 
     QRect window() const;
     void setWindow(const QRect &window);
@@ -357,8 +357,8 @@ public:
     QT_COMPAT QRect xFormDev(const QRect &) const;
     QT_COMPAT QPolygon xFormDev(const QPolygon &) const;
     QT_COMPAT QPolygon xFormDev(const QPolygon &, int index, int npoints) const;
-    QT_COMPAT double translationX() const;
-    QT_COMPAT double translationY() const;
+    QT_COMPAT qReal translationX() const;
+    QT_COMPAT qReal translationY() const;
 #endif
 
 private:
@@ -719,9 +719,9 @@ inline void QPainter::drawText(int x, int y, const QString &s, TextDirection dir
     drawText(QPointF(x, y), s, dir);
 }
 
-inline void QPainter::translate(const QPointF &offset)
+inline void QPainter::translate(qReal dx, qReal dy)
 {
-    translate(offset.x(), offset.y());
+    translate(QPointF(dx, dy));
 }
 
 inline void QPainter::translate(const QPoint &offset)

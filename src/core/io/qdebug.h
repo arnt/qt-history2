@@ -52,7 +52,7 @@ public:
     inline QDebug &operator<<(float t) { stream->ts << t; return maybeSpace(); }
     inline QDebug &operator<<(double t) { stream->ts << t; return maybeSpace(); }
 #ifdef QT_USE_FIXED_POINT
-    inline QDebug &operator<<(Q24Dot8 t) { stream->ts << t.toDouble(); return maybeSpace(); }
+    inline QDebug &operator<<(QFixedPoint t) { stream->ts << t.toDouble(); return maybeSpace(); }
 #endif
     inline QDebug &operator<<(const char* t) { stream->ts << t; return maybeSpace(); }
     inline QDebug &operator<<(const QString & t) { stream->ts << t; return maybeSpace(); }

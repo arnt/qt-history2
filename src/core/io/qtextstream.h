@@ -67,6 +67,9 @@ public:
     QTextStream &operator>>(unsigned long &);
     QTextStream &operator>>(float &);
     QTextStream &operator>>(double &);
+#ifdef QT_USE_FIXED_POINT
+    inline QTextStream &operator>>(QFixedPoint &f) { double d; operator>>(d); f = d; return *this; }
+#endif
     QTextStream &operator>>(char *);
     QTextStream &operator>>(QString &);
     QTextStream &operator>>(QByteArray &);
@@ -81,6 +84,9 @@ public:
     QTextStream &operator<<(unsigned long);
     QTextStream &operator<<(float);
     QTextStream &operator<<(double);
+#ifdef QT_USE_FIXED_POINT
+    inline QTextStream &operator<<(QFixedPoint f) { return operator<<(f.toDouble()); }
+#endif
     QTextStream &operator<<(const char*);
     QTextStream &operator<<(const QString &);
     QTextStream &operator<<(const QByteArray &);

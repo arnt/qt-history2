@@ -762,7 +762,7 @@ static QString wrapDSC(const QString &str)
     return wrapped + "\n";
 }
 
-static QString toString(const float num)
+static QString toString(const qReal num)
 {
     return QString::number( num, 'f', 3 );
 }
@@ -779,7 +779,7 @@ public:
     void orientationSetup();
     void emitHeader(bool finished);
     void setFont(QFontEngine *fe);
-    void drawImage(float x, float y, float w, float h, const QImage &img, const QImage &mask);
+    void drawImage(qReal x, qReal y, qReal w, qReal h, const QImage &img, const QImage &mask);
     void flushPage(bool last = false);
 
     QPrinter   *printer;
@@ -1128,8 +1128,8 @@ static const char *toHex(ushort u)
 
 void QPSPrintEngineFontPrivate::drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPointF &p, const QTextItem &ti)
 {
-    float x = p.x();
-    float y = p.y();
+    qReal x = p.x();
+    qReal y = p.y();
     stream << y << " Y";
 
     int len = ti.num_chars;
@@ -1675,13 +1675,13 @@ void QPSPrintEngineFontFT::download(QTextStream& s, bool global)
 
 void QPSPrintEngineFontFT::drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPointF &p, const QTextItem &ti)
 {
-    float x = p.x();
-    float y = p.y();
+    qReal x = p.x();
+    qReal y = p.y();
     stream << y << " Y";
 
     QByteArray xyarray;
-    float xo = 0;
-    float yo = 0;
+    qReal xo = 0;
+    qReal yo = 0;
 
     QGlyphLayout *glyphs = ti.glyphs;
 
@@ -1771,8 +1771,8 @@ unsigned short QPSPrintEngineFontFT::glyph_for_unicode(unsigned short unicode)
 #include FT_BBOX_H
 
 struct decompose_data {
-    float x;
-    float y;
+    qReal x;
+    qReal y;
     QTextStream *s;
 };
 
@@ -2199,13 +2199,13 @@ QPSPrintEngineFontTTF::QPSPrintEngineFontTTF(QFontEngine *f, QByteArray& ba)
 
 void QPSPrintEngineFontTTF::drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPointF &p, const QTextItem &ti)
 {
-    float x = p.x();
-    float y = p.y();
+    qReal x = p.x();
+    qReal y = p.y();
     stream << y << " Y";
 
     QByteArray xyarray;
-    float xo = 0;
-    float yo = 0;
+    qReal xo = 0;
+    qReal yo = 0;
 
     QGlyphLayout *glyphs = ti.glyphs;
 
@@ -5274,15 +5274,15 @@ static const char * psJoin(Qt::PenJoinStyle p) {
 
 
 
-void QPSPrintEnginePrivate::drawImage(float x, float y, float w, float h,
+void QPSPrintEnginePrivate::drawImage(qReal x, qReal y, qReal w, qReal h,
                                   const QImage &img, const QImage &mask)
 {
     if (!w || !h || img.isNull()) return;
 
     int width  = img.width();
     int height = img.height();
-    float scaleX = (float)width/w;
-    float scaleY = (float)height/h;
+    qReal scaleX = width/w;
+    qReal scaleY = height/h;
 
     bool gray = (colorMode == QPrinter::GrayScale) ||
                 img.allGray();
@@ -5938,16 +5938,16 @@ void QPSPrintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, con
                                      Qt::PixmapDrawingMode mode)
 {
     // ### Optimise implementation!
-    float yPos = r.y();
-    float yOff = p.y();
+    qReal yPos = r.y();
+    qReal yOff = p.y();
     while( yPos < r.y() + r.height() ) {
-        float drawH = pixmap.height() - yOff;    // Cropping first row
+        qReal drawH = pixmap.height() - yOff;    // Cropping first row
         if ( yPos + drawH > r.y() + r.height() )        // Cropping last row
             drawH = r.y() + r.height() - yPos;
-        float xPos = r.x();
-        float xOff = p.x();
+        qReal xPos = r.x();
+        qReal xOff = p.x();
         while( xPos < r.x() + r.width() ) {
-            float drawW = pixmap.width() - xOff; // Cropping first column
+            qReal drawW = pixmap.width() - xOff; // Cropping first column
             if ( xPos + drawW > r.x() + r.width() )    // Cropping last column
                 drawW = r.x() + r.width() - xPos;
             // ########

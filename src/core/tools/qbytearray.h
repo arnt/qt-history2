@@ -216,6 +216,9 @@ public:
     QByteArray &setNum(Q_ULONGLONG, int base = 10);
     QByteArray &setNum(float, char f = 'g', int prec = 6);
     QByteArray &setNum(double, char f = 'g', int prec = 6);
+#ifdef QT_USE_FIXED_POINT
+    inline QByteArray &setNum(QFixedPoint d, char f = 'g', int prec = 6) { return setNum(d.toDouble(), f, prec); }
+#endif
 
     static QByteArray number(long, int base = 10);
     static QByteArray number(ulong, int base = 10);
@@ -224,6 +227,10 @@ public:
     static QByteArray number(Q_LONGLONG, int base = 10);
     static QByteArray number(Q_ULONGLONG, int base = 10);
     static QByteArray number(double, char f = 'g', int prec = 6);
+#ifdef QT_USE_FIXED_POINT
+    inline static QByteArray number(QFixedPoint d, char f = 'g', int prec = 6)
+        { return number(d.toDouble(), f, prec); }
+#endif
     static QByteArray fromRawData(const char *, int size);
     static QByteArray fromBase64(const QByteArray &base64);
 

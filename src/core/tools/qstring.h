@@ -101,6 +101,10 @@ public:
     QString arg(short a, int fieldWidth = 0, int base = 10, const QChar &fillChar = QLatin1Char(' ')) const;
     QString arg(ushort a, int fieldWidth = 0, int base = 10, const QChar &fillChar = QLatin1Char(' ')) const;
     QString arg(double a, int fieldWidth = 0, char fmt = 'g', int prec = -1, const QChar &fillChar = QLatin1Char(' ')) const;
+#ifdef QT_USE_FIXED_POINT
+    QString arg(QFixedPoint a, int fieldWidth = 0, char fmt = 'g', int prec = -1, const QChar &fillChar = QLatin1Char(' ')) const
+        { return arg(a.toDouble(), fieldWidth, fmt, prec, fillChar); }
+#endif
     QString arg(char a, int fieldWidth = 0, const QChar &fillChar = QLatin1Char(' ')) const;
     QString arg(QChar a, int fieldWidth = 0, const QChar &fillChar = QLatin1Char(' ')) const;
     QString arg(const QString &a, int fieldWidth = 0, const QChar &fillChar = QLatin1Char(' ')) const;
@@ -253,6 +257,9 @@ public:
     QString &setNum(Q_ULONGLONG, int base=10);
     QString &setNum(float, char f='g', int prec=6);
     QString &setNum(double, char f='g', int prec=6);
+#ifdef QT_USE_FIXED_POINT
+    inline QString &setNum(QFixedPoint d, char f = 'g', int prec = 6) { return setNum(d.toDouble(), f, prec); }
+#endif
 
     static QString number(long, int base=10);
     static QString number(ulong, int base=10);
@@ -261,6 +268,10 @@ public:
     static QString number(Q_LONGLONG, int base=10);
     static QString number(Q_ULONGLONG, int base=10);
     static QString number(double, char f='g', int prec=6);
+#ifdef QT_USE_FIXED_POINT
+    inline static QString number(QFixedPoint d, char f = 'g', int prec = 6)
+        { return number(d.toDouble(), f, prec); }
+#endif
 
     bool operator==(const QString &s) const;
     bool operator<(const QString &s) const;

@@ -115,17 +115,17 @@ static inline bool qIsFinite(float d)
 
 #ifdef QT_USE_FIXED_POINT
 
-static inline bool qIsFinite(Q24Dot8 f)
+static inline bool qIsFinite(QFixedPoint f)
 {
     return f.value() != 0x7fffffff;
 }
 
-static inline bool qIsInf(Q24Dot8 f)
+static inline bool qIsInf(QFixedPoint f)
 {
     return f.value() == 0x7fffffff;
 }
 
-static inline bool qIsNan(Q24Dot8)
+static inline bool qIsNan(QFixedPoint)
 {
     return false;
 }

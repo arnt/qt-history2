@@ -494,7 +494,7 @@ bool QOpenType::appendTo(QShaperItem *item, bool doLogClusters)
     // positioning code:
     if (hasGPos && positioned) {
 //         qDebug("positioned glyphs:");
-        float scale = item->font->scale();
+        qReal scale = item->font->scale();
         for (int i = 0; i < (int)str->length; i++) {
 //             qDebug("    %d:\t orig advance: (%d/%d)\tadv=(%d/%d)\tpos=(%d/%d)\tback=%d\tnew_advance=%d", i,
 //                    glyphs[i].advance.x, glyphs[i].advance.y,

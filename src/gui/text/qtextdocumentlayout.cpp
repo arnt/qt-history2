@@ -1531,7 +1531,7 @@ void QTextDocumentLayout::setSize(QTextInlineObject item, const QTextFormat &for
 void QTextDocumentLayout::layoutObject(QTextInlineObject item, const QTextFormat &format)
 {
     Q_D(QTextDocumentLayout);
-    if (item.width())
+    if (item.width() != 0)
         // inline
         return;
 

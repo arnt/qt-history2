@@ -2,9 +2,12 @@
 
 HEADERS +=  \
 	global/qglobal.h \
+	global/qfixedpoint.h \
 	global/qnamespace.h 
 
-SOURCES += global/qglobal.cpp
+SOURCES += \
+	global/qglobal.cpp \
+	global/qfixedpoint.cpp
 
 # qconfig.cpp
 exists($$QT_BUILD_TREE/src/core/global/qconfig.cpp) {

@@ -1813,6 +1813,8 @@ for (QForeachMemory<sizeof(qForeachSizeofContainerHelper(container))> _container
 Q_CORE_EXPORT char *qgetenv(const char *varName);
 
 
+inline int qIntCast(double f) { return int(f); }
+inline int qIntCast(float f) { return int(f); }
 #ifdef QT_USE_FIXED_POINT
 #include <qfixedpoint.h>
 typedef QFixedPoint qReal;

@@ -73,8 +73,8 @@ void QTextEngine::shapeText(int item) const
             for (int i = 0; i < si.num_glyphs-1; ++i) {
                 FT_Vector kerning;
                 FT_Get_Kerning(face, g[i].glyph, g[i+1].glyph, designMetrics ? FT_KERNING_UNFITTED : FT_KERNING_DEFAULT, &kerning);
-                g[i].advance.rx() += ((float)kerning.x) / 64;
-                g[i].advance.ry() += ((float)kerning.y) / 64;;
+                g[i].advance.rx() += qReal(kerning.x) / qReal(64);
+                g[i].advance.ry() += qReal(kerning.y) / qReal(64);
             }
         }
     }

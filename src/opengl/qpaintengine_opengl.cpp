@@ -38,6 +38,12 @@
 
 //#define QT_GL_NO_CONCAVE_POLYGONS
 
+#ifdef QT_USE_FIXED_POINT
+#define qToDouble(x) (x).toDouble()
+#else
+#define qToDouble(x) x
+#endif
+
 class QOpenGLPaintEnginePrivate : public QPaintEnginePrivate {
     Q_DECLARE_PUBLIC(QOpenGLPaintEngine)
 public:
@@ -396,13 +402,13 @@ void QOpenGLPaintEngine::updateMatrix(const QMatrix &mtx)
 {
     GLfloat mat[4][4];
 
-    mat[0][0] = mtx.m11();
-    mat[0][1] = mtx.m12();
+    mat[0][0] = qToDouble(mtx.m11());
+    mat[0][1] = qToDouble(mtx.m12());
     mat[0][2] = 0;
     mat[0][3] = 0;
 
-    mat[1][0] = mtx.m21();
-    mat[1][1] = mtx.m22();
+    mat[1][0] = qToDouble(mtx.m21());
+    mat[1][1] = qToDouble(mtx.m22());
     mat[1][2] = 0;
     mat[1][3] = 0;
 
@@ -411,8 +417,8 @@ void QOpenGLPaintEngine::updateMatrix(const QMatrix &mtx)
     mat[2][2] = 1;
     mat[2][3] = 0;
 
-    mat[3][0] = mtx.dx();
-    mat[3][1] = mtx.dy();
+    mat[3][0] = qToDouble(mtx.dx());
+    mat[3][1] = qToDouble(mtx.dy());
     mat[3][2] = 0;
     mat[3][3] = 1;
 
@@ -490,8 +496,8 @@ void QOpenGLPaintEngine::drawLine(const QLineF &line)
     dgl->qglColor(d->cpen.color());
     glBegin(GL_LINES);
     {
-        glVertex2f(line.startX(), line.startY());
-        glVertex2f(line.endX(), line.endY());
+        glVertex2f(qToDouble(line.startX()), qToDouble(line.startY()));
+        glVertex2f(qToDouble(line.endX()), qToDouble(line.endY()));
     }
     glEnd();
 }
@@ -500,10 +506,10 @@ void QOpenGLPaintEngine::drawRect(const QRectF &r)
 {
     dgl->makeCurrent();
 
-    float x = r.x();
-    float y = r.y();
-    float w = r.width();
-    float h = r.height();
+    double x = qToDouble(r.x());
+    double y = qToDouble(r.y());
+    double w = qToDouble(r.width());
+    double h = qToDouble(r.height());
     if (d->cbrush.style() == Qt::LinearGradientPattern) {
 	painter()->save();
 	painter()->setClipRect(r, Qt::IntersectClip);
@@ -543,7 +549,7 @@ void QOpenGLPaintEngine::drawPoint(const QPointF &p)
     dgl->makeCurrent();
     glBegin(GL_POINTS);
     {
-        glVertex2f(p.x(), p.y());
+        glVertex2f(qToDouble(p.x()), qToDouble(p.y()));
     }
     glEnd();
 }
@@ -554,8 +560,8 @@ void QOpenGLPaintEngine::drawLines(const QLineF *lines, int lineCount)
     glBegin(GL_LINES);
     {
         for (int i = 0; i < lineCount; ++i) {
-            glVertex2f(lines[i].startX(), lines[i].startY());
-            glVertex2f(lines[i].endX(), lines[i].endY());
+            glVertex2f(qToDouble(lines[i].startX()), qToDouble(lines[i].startY()));
+            glVertex2f(qToDouble(lines[i].endX()), qToDouble(lines[i].endY()));
         }
     }
     glEnd();
@@ -620,8 +626,8 @@ static void qgl_draw_poly(const QPointF *points, int pointCount)
 	gluTessBeginContour(qgl_tess);
 	{
 	    for (int i = 0; i < pointCount; ++i) {
-		v[i*3] = (GLdouble) points[i].x();
-		v[i*3+1] = (GLdouble) points[i].y();
+		v[i*3] = (GLdouble) qToDouble(points[i].x());
+		v[i*3+1] = (GLdouble) qToDouble(points[i].y());
 		v[i*3+2] = 0.0;
 		gluTessVertex(qgl_tess, &v[i*3], &v[i*3]);
 	    }
@@ -654,15 +660,15 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
         qgl_draw_poly(points, pointCount);
     if (d->cpen.style() != Qt::NoPen) {
         dgl->qglColor(d->cpen.color());
-        float x1 = points[pointCount - 1].x();
-        float y1 = points[pointCount - 1].y();
-        float x2 = points[0].x();
-        float y2 = points[0].y();
+        double x1 = qToDouble(points[pointCount - 1].x());
+        double y1 = qToDouble(points[pointCount - 1].y());
+        double x2 = qToDouble(points[0].x());
+        double y2 = qToDouble(points[0].y());
 
         glBegin(GL_LINE_STRIP);
         {
             for (int i = 0; i < pointCount; ++i)
-                glVertex2f(points[i].x(), points[i].y());
+                glVertex2f(qToDouble(points[i].x()), qToDouble(points[i].y()));
             if (mode != PolylineMode && !(x1 == x2 && y1 == y2))
                 glVertex2f(x1, y1);
         }
@@ -705,8 +711,8 @@ void QOpenGLPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, con
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
 
-    GLfloat tc_w = (float) r.width()/pm.width();
-    GLfloat tc_h = (float) r.height()/pm.height();
+    GLfloat tc_w = qToDouble(qReal(r.width())/pm.width());
+    GLfloat tc_h = qToDouble(qReal(r.height())/pm.height());
 
     // Rotate the texture so that it is aligned correctly and the
     // wrapping is done correctly
@@ -716,10 +722,10 @@ void QOpenGLPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, con
     glRotatef(180.0, 0.0, 0.0, 1.0);
     glBegin(GL_QUADS);
     {
-        glTexCoord2f(0.0, 0.0); glVertex2f(r.x(), r.y());
-        glTexCoord2f(tc_w, 0.0); glVertex2f(r.x()+r.width(), r.y());
-        glTexCoord2f(tc_w, tc_h); glVertex2f(r.x()+r.width(), r.y()+r.height());
-        glTexCoord2f(0.0, tc_h); glVertex2f(r.x(), r.y()+r.height());
+        glTexCoord2f(0.0, 0.0); glVertex2f(qToDouble(r.x()), qToDouble(r.y()));
+        glTexCoord2f(tc_w, 0.0); glVertex2f(qToDouble(r.x()+r.width()), qToDouble(r.y()));
+        glTexCoord2f(tc_w, tc_h); glVertex2f(qToDouble(r.x()+r.width()), qToDouble(r.y()+r.height()));
+        glTexCoord2f(0.0, tc_h); glVertex2f(qToDouble(r.x()), qToDouble(r.y()+r.height()));
     }
     glEnd();
     glPopMatrix();
@@ -747,14 +753,14 @@ void QOpenGLPaintEngine::drawTextureRect(int tx_width, int tx_height, const QRec
 
     glBegin(GL_QUADS);
     {
-        float x1 = sr.x() / (float) tx_width;
-        float x2 = x1 + sr.width() / (float) tx_width;
-        float y1 = sr.y() / (float) tx_height;
-        float y2 = y1 + sr.height() / (float) tx_height;
-        glTexCoord2f(x1, y2); glVertex2f(r.x(), r.y());
-        glTexCoord2f(x2, y2); glVertex2f(r.x()+r.width(), r.y());
-        glTexCoord2f(x2, y1); glVertex2f(r.x()+r.width(), r.y()+r.height());
-        glTexCoord2f(x1, y1); glVertex2f(r.x(), r.y()+r.height());
+        qReal x1 = sr.x() / tx_width;
+        qReal x2 = x1 + sr.width() / tx_width;
+        qReal y1 = sr.y() / tx_height;
+        qReal y2 = y1 + sr.height() / tx_height;
+        glTexCoord2f(qToDouble(x1), qToDouble(y2)); glVertex2f(qToDouble(r.x()), qToDouble(r.y()));
+        glTexCoord2f(qToDouble(x2), qToDouble(y2)); glVertex2f(qToDouble(r.x()+r.width()), qToDouble(r.y()));
+        glTexCoord2f(qToDouble(x2), qToDouble(y1)); glVertex2f(qToDouble(r.x()+r.width()), qToDouble(r.y()+r.height()));
+        glTexCoord2f(qToDouble(x1), qToDouble(y1)); glVertex2f(qToDouble(r.x()), qToDouble(r.y()+r.height()));
     }
     glEnd();
 
@@ -783,7 +789,7 @@ static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush)
     glPushAttrib(GL_ALL_ATTRIB_BITS);
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
-    glTranslatef(rect.x(), rect.y(), .0);
+    glTranslatef(qToDouble(rect.x()), qToDouble(rect.y()), .0);
     glShadeModel(GL_SMOOTH);
 
     QPoint goff = QPoint(qRound(rect.x()), qRound(rect.y()));
@@ -797,8 +803,8 @@ static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush)
     int dx = qRound(gstop.x() - gstart.x());
     int dy = qRound(gstop.y() - gstart.y());
 
-    float rw = rect.width();
-    float rh = rect.height();
+    qReal rw = rect.width();
+    qReal rh = rect.height();
 
     if (qAbs(dx) > qAbs(dy)) { // Fill horizontally
         // Make sure we fill left to right.
@@ -849,11 +855,11 @@ static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush)
 	glBegin(GL_POLYGON);
 	{
 	    glColor4ub(gcol1.red(), gcol1.green(), gcol1.blue(), gcol1.alpha());
-	    glVertex2f(xbot1, rect.height());
+	    glVertex2f(xbot1, qToDouble(rect.height()));
 	    glVertex2f(xtop1, 0);
 	    glColor4ub(gcol2.red(), gcol2.green(), gcol2.blue(), gcol2.alpha());
 	    glVertex2f(xtop2, 0);
-	    glVertex2f(xbot2, rect.height());
+	    glVertex2f(xbot2, qToDouble(rect.height()));
 	}
 	glEnd();
     } else {
@@ -904,9 +910,9 @@ static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush)
 	{
 	    glColor4ub(gcol1.red(), gcol1.green(), gcol1.blue(), gcol1.alpha());
 	    glVertex2f(0, yleft1);
-	    glVertex2f(rect.width(), yright1);
+	    glVertex2f(qToDouble(rect.width()), yright1);
 	    glColor4ub(gcol2.red(), gcol2.green(), gcol2.blue(), gcol2.alpha());
-	    glVertex2f(rect.width(), yright2);
+	    glVertex2f(qToDouble(rect.width()), yright2);
 	    glVertex2f(0, yleft2);
 	}
 	glEnd();

@@ -56,12 +56,12 @@
 #define d d_func()
 #define q q_func()
 
-void qt_find_ellipse_coords(const QRectF &r, float angle, float length,
+void qt_find_ellipse_coords(const QRectF &r, qReal angle, qReal length,
                             QPointF* startPoint, QPointF *endPoint)
 {
 #define ANGLE(t) ((t) * 2 * M_PI / 360.0)
-    float a = r.width() / 2.0;
-    float b = r.height() / 2.0;
+    qReal a = r.width() / 2.0;
+    qReal b = r.height() / 2.0;
 
     if (startPoint) {
         *startPoint = r.center()
@@ -463,7 +463,7 @@ void QPainterSubpath::removeBrokenSegments()
 */
 
 /*!
-    \fn void QPainterPath::addEllipse(float x, float y, float width, float height)
+    \fn void QPainterPath::addEllipse(qReal x, qReal y, qReal width, qReal height)
     \overload
 
     Creates an ellipse within a bounding rectangle defined by its top-left
@@ -475,7 +475,7 @@ void QPainterSubpath::removeBrokenSegments()
 */
 
 /*!
-    \fn void QPainterPath::addText(float x, float y, const QFont &font, const QString &text)
+    \fn void QPainterPath::addText(qReal x, qReal y, const QFont &font, const QString &text)
     \overload
 
     Adds the given \a text to this path as a set of closed subpaths created
@@ -572,7 +572,7 @@ void QPainterPath::closeSubpath()
 }
 
 /*!
-    \fn void QPainterPath::moveTo(float x, float y)
+    \fn void QPainterPath::moveTo(qReal x, qReal y)
 
     \overload
 
@@ -608,7 +608,7 @@ void QPainterPath::moveTo(const QPointF &p)
 }
 
 /*!
-    \fn void QPainterPath::lineTo(float x, float y)
+    \fn void QPainterPath::lineTo(qReal x, qReal y)
 
     \overload
 
@@ -637,8 +637,8 @@ void QPainterPath::lineTo(const QPointF &p)
 }
 
 /*!
-    \fn void QPainterPath::curveTo(float ctrlPt1x, float ctrlPt1y, float ctrlPt2x,
-                                   float ctrlPt2y, float endPtx, float endPty);
+    \fn void QPainterPath::curveTo(qReal ctrlPt1x, qReal ctrlPt1y, qReal ctrlPt2x,
+                                   qReal ctrlPt2y, qReal endPtx, qReal endPty);
 
     \overload
 
@@ -672,8 +672,8 @@ void QPainterPath::curveTo(const QPointF &c1, const QPointF &c2, const QPointF &
 }
 
 /*!
-    \fn void QPainterPath::arcTo(float x, float y, float width, float
-    height, float startAngle, float sweepLength)
+    \fn void QPainterPath::arcTo(qReal x, qReal y, qReal width, qReal
+    height, qReal startAngle, qReal sweepLength)
 
     \overload
 
@@ -687,7 +687,7 @@ void QPainterPath::curveTo(const QPointF &c1, const QPointF &c2, const QPointF &
 */
 
 /*!
-    \fn void QPainterPath::arcTo(const QRectF &rectangle, float startAngle, float sweepLength)
+    \fn void QPainterPath::arcTo(const QRectF &rectangle, qReal startAngle, qReal sweepLength)
 
     Creates an arc that occupies the given \a rectangle, beginning at
     \a startAngle and extending \a sweepLength degrees anti-clockwise.
@@ -696,7 +696,7 @@ void QPainterPath::curveTo(const QPointF &c1, const QPointF &c2, const QPointF &
 
     \sa QPainter::drawArc
 */
-void QPainterPath::arcTo(const QRectF &rect, float startAngle, float sweepLength)
+void QPainterPath::arcTo(const QRectF &rect, qReal startAngle, qReal sweepLength)
 {
 #ifdef QPP_DEBUG
     printf("QPainterPath::arcTo() (%.2f, %.2f, %.2f, %.2f, angle=%.2f, sweep=%.2f\n",
@@ -708,15 +708,15 @@ void QPainterPath::arcTo(const QRectF &rect, float startAngle, float sweepLength
 //            startAngle, sweepLength);
 #define ANGLE(t) ((t) * 2 * M_PI / 360.0)
 #define SIGN(t) (t > 0 ? 1 : -1)
-    float a = rect.width() / 2.0;
-    float b = rect.height() / 2.0;
+    qReal a = rect.width() / 2.0;
+    qReal b = rect.height() / 2.0;
 
-    float absSweepLength = (sweepLength < 0 ? -sweepLength : sweepLength);
-    int iterations = int((absSweepLength + 89) / 90);
-    float clength = sweepLength / iterations;
-    float cosangle1, sinangle1, cosangle2, sinangle2;
+    qReal absSweepLength = (sweepLength < 0 ? -sweepLength : sweepLength);
+    int iterations = qIntCast((absSweepLength + 89) / 90);
+    qReal clength = sweepLength / iterations;
+    qReal cosangle1, sinangle1, cosangle2, sinangle2;
     for (int i=0; i<iterations; ++i) {
-        float cangle = startAngle + i * clength;
+        qReal cangle = startAngle + i * clength;
 
         cosangle1 = cos(ANGLE(cangle));
         sinangle1 = sin(ANGLE(cangle));
@@ -728,10 +728,10 @@ void QPainterPath::arcTo(const QRectF &rect, float startAngle, float sweepLength
         QPointF endPoint = rect.center() + QPointF(a * cosangle2, -b * sinangle2);
 
         // The derived at the start and end point.
-        float sdx = -a * sinangle1;
-        float sdy = -b * cosangle1;
-        float edx = -a * sinangle2;
-        float edy = -b * cosangle2;
+        qReal sdx = -a * sinangle1;
+        qReal sdy = -b * cosangle1;
+        qReal edx = -a * sinangle2;
+        qReal edy = -b * cosangle2;
 
         // Creating the tangent lines. We need to reverse their direction if the
         // sweep is negative (clockwise)
@@ -740,7 +740,7 @@ void QPainterPath::arcTo(const QRectF &rect, float startAngle, float sweepLength
 
         // We need to scale down the control lines to match that of the current sweeplength.
         // qAbs because we only want to scale, not change direction.
-        float kappa = KAPPA * qAbs(clength) / 90.0;
+        qReal kappa = KAPPA * qAbs(clength) / 90.0;
         // Adjust their length to fit the magic KAPPA length.
         controlLine1.setLength(controlLine1.length() * kappa);
         controlLine2.setLength(controlLine2.length() * kappa);
@@ -752,7 +752,7 @@ void QPainterPath::arcTo(const QRectF &rect, float startAngle, float sweepLength
 }
 
 /*!
-    \fn void QPainterPath::addRect(float x, float y, float width, float height)
+    \fn void QPainterPath::addRect(qReal x, qReal y, qReal width, qReal height)
 
     \overload
 
@@ -850,8 +850,8 @@ void QPainterPath::addText(const QPointF &point, const QFont &f, const QString &
 
     int nItems = eng->items.size();
 
-    float x(point.x());
-    float y(point.y());
+    qReal x(point.x());
+    qReal y(point.y());
 
     QVarLengthArray<int> visualOrder(nItems);
     QVarLengthArray<uchar> levels(nItems);
@@ -1253,7 +1253,7 @@ QDataStream &operator>>(QDataStream &s, QPainterPath &p)
     p.elements.reserve(p.elements.size() + size);
     for (int i=0; i<size; ++i) {
         int type;
-        float x, y;
+        qReal x, y;
         s >> type >> x >> y;
         Q_ASSERT(type >= 0 && type <= 3);
         QPainterPath::Element elm = { x, y, QPainterPath::ElementType(type) };
@@ -1296,10 +1296,10 @@ public:
     void strokeCurve(int elmi, const QPainterPath &src, QPainterPath *out) const;
     void joinPoints(const QLineF &nextLine, QPainterPath *path, JoinMethod method) const;
 
-    float width;
-    float offset;
-    float miterLimit;
-    float appliedMiterLimit;
+    qReal width;
+    qReal offset;
+    qReal miterLimit;
+    qReal appliedMiterLimit;
     Qt::PenStyle style;
     Qt::PenJoinStyle joinStyle;
     Qt::PenCapStyle capStyle;
@@ -1541,14 +1541,14 @@ QPainterPath QPainterPathStroker::createStroke(const QPainterPath &input) const
     return stroke;
 }
 
-void QPainterPathStroker::setWidth(float width)
+void QPainterPathStroker::setWidth(qReal width)
 {
     d->width = width;
     d->offset = width / 2;
     d->appliedMiterLimit = d->miterLimit * width;
 }
 
-float QPainterPathStroker::width() const
+qReal QPainterPathStroker::width() const
 {
     return d->width;
 }
@@ -1583,13 +1583,13 @@ Qt::PenJoinStyle QPainterPathStroker::joinStyle() const
     return d->joinStyle;
 }
 
-void QPainterPathStroker::setMiterLimit(float limit)
+void QPainterPathStroker::setMiterLimit(qReal limit)
 {
     d->miterLimit = limit;
     d->appliedMiterLimit = d->miterLimit * d->width;
 }
 
-float QPainterPathStroker::miterLimit() const
+qReal QPainterPathStroker::miterLimit() const
 {
     return d->miterLimit;
 }

@@ -1002,7 +1002,7 @@ bool QFontMetricsF::operator ==(const QFontMetricsF &other)
 
     \sa descent()
 */
-float QFontMetricsF::ascent() const
+qReal QFontMetricsF::ascent() const
 {
     QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
     QFontEngine *latin_engine = d->engineForScript(QFont::Latin);
@@ -1024,7 +1024,7 @@ float QFontMetricsF::ascent() const
 
     \sa ascent()
 */
-float QFontMetricsF::descent() const
+qReal QFontMetricsF::descent() const
 {
     QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
     QFontEngine *latin_engine = d->engineForScript(QFont::Latin);
@@ -1042,7 +1042,7 @@ float QFontMetricsF::descent() const
 
     \sa leading(), lineSpacing()
 */
-float QFontMetricsF::height() const
+qReal QFontMetricsF::height() const
 {
     QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
     QFontEngine *latin_engine = d->engineForScript(QFont::Latin);
@@ -1060,7 +1060,7 @@ float QFontMetricsF::height() const
 
     \sa height(), lineSpacing()
 */
-float QFontMetricsF::leading() const
+qReal QFontMetricsF::leading() const
 {
     QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
     QFontEngine *latin_engine = d->engineForScript(QFont::Latin);
@@ -1077,7 +1077,7 @@ float QFontMetricsF::leading() const
 
     \sa height(), leading()
 */
-float QFontMetricsF::lineSpacing() const
+qReal QFontMetricsF::lineSpacing() const
 {
     QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
     QFontEngine *latin_engine = d->engineForScript(QFont::Latin);
@@ -1099,7 +1099,7 @@ float QFontMetricsF::lineSpacing() const
 
     \sa minRightBearing(), leftBearing()
 */
-float QFontMetricsF::minLeftBearing() const
+qReal QFontMetricsF::minLeftBearing() const
 {
     QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
     QFontEngine *latin_engine = d->engineForScript(QFont::Latin);
@@ -1119,7 +1119,7 @@ float QFontMetricsF::minLeftBearing() const
 
     \sa minLeftBearing(), rightBearing()
 */
-float QFontMetricsF::minRightBearing() const
+qReal QFontMetricsF::minRightBearing() const
 {
     QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
     QFontEngine *latin_engine = d->engineForScript(QFont::Latin);
@@ -1132,7 +1132,7 @@ float QFontMetricsF::minRightBearing() const
 /*!
     Returns the width of the widest character in the font.
 */
-float QFontMetricsF::maxWidth() const
+qReal QFontMetricsF::maxWidth() const
 {
     QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
     QFontEngine *lengine = d->engineForScript(QFont::Latin);
@@ -1170,7 +1170,7 @@ bool QFontMetricsF::inFont(QChar ch) const
 
     \sa rightBearing(), minLeftBearing(), width()
 */
-float QFontMetricsF::leftBearing(QChar ch) const
+qReal QFontMetricsF::leftBearing(QChar ch) const
 {
     QFont::Script script;
     SCRIPT_FOR_CHAR(script, ch);
@@ -1200,7 +1200,7 @@ float QFontMetricsF::leftBearing(QChar ch) const
 
     \sa leftBearing(), minRightBearing(), width()
 */
-float QFontMetricsF::rightBearing(QChar ch) const
+qReal QFontMetricsF::rightBearing(QChar ch) const
 {
     QFont::Script script;
     SCRIPT_FOR_CHAR(script, ch);
@@ -1219,7 +1219,7 @@ float QFontMetricsF::rightBearing(QChar ch) const
 }
 
 /*!
-    \fn float QFontMetricsF::width(const QString &text) const
+    \fn qReal QFontMetricsF::width(const QString &text) const
 
     Returns the width in pixels of the characters in the given \a text.
 
@@ -1230,7 +1230,7 @@ float QFontMetricsF::rightBearing(QChar ch) const
 
     \sa boundingRect()
 */
-float QFontMetricsF::width(const QString &str) const
+qReal QFontMetricsF::width(const QString &str) const
 {
     QTextEngine layout(str, d);
     layout.setMode(QTextEngine::WidthOnly);
@@ -1264,7 +1264,7 @@ float QFontMetricsF::width(const QString &str) const
 
     \sa boundingRect(), charWidth()
 */
-float QFontMetricsF::width(QChar ch) const
+qReal QFontMetricsF::width(QChar ch) const
 {
     if (::category(ch) == QChar::Mark_NonSpacing)
         return 0.;
@@ -1457,7 +1457,7 @@ QSizeF QFontMetricsF::size(int flgs, const QString &str, int tabstops, int *taba
 
     \sa overlinePos(), strikeOutPos(), lineWidth()
 */
-float QFontMetricsF::underlinePos() const
+qReal QFontMetricsF::underlinePos() const
 {
     QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
     Q_ASSERT(engine != 0);
@@ -1471,7 +1471,7 @@ float QFontMetricsF::underlinePos() const
 
     \sa underlinePos(), strikeOutPos(), lineWidth()
 */
-float QFontMetricsF::overlinePos() const
+qReal QFontMetricsF::overlinePos() const
 {
     return ascent() + 1;
 }
@@ -1482,7 +1482,7 @@ float QFontMetricsF::overlinePos() const
 
     \sa underlinePos(), overlinePos(), lineWidth()
 */
-float QFontMetricsF::strikeOutPos() const
+qReal QFontMetricsF::strikeOutPos() const
 {
     return ascent() / 3.;
 }
@@ -1493,7 +1493,7 @@ float QFontMetricsF::strikeOutPos() const
 
     \sa underlinePos(), overlinePos(), strikeOutPos()
 */
-float QFontMetricsF::lineWidth() const
+qReal QFontMetricsF::lineWidth() const
 {
     QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
     Q_ASSERT(engine != 0);

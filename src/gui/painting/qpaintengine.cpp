@@ -323,11 +323,11 @@ void qt_fill_tile(QPixmap *tile, const QPixmap &pixmap)
     }
 }
 
-void qt_draw_tile(QPaintEngine *gc, float x, float y, float w, float h,
-                  const QPixmap &pixmap, float xOffset, float yOffset,
+void qt_draw_tile(QPaintEngine *gc, qReal x, qReal y, qReal w, qReal h,
+                  const QPixmap &pixmap, qReal xOffset, qReal yOffset,
 		  Qt::PixmapDrawingMode mode)
 {
-    float yPos, xPos, drawH, drawW, yOff, xOff;
+    qReal yPos, xPos, drawH, drawW, yOff, xOff;
     yPos = y;
     yOff = yOffset;
     while(yPos < y + h) {

@@ -3,8 +3,16 @@
 
 /* Fixed point class. emulates IEEE behaviour for infinity, doesn't have NaN */
 
-class QFixedPoint {
+class Q_CORE_EXPORT QFixedPoint {
 public:
+    enum {
+        HighBits = 24,
+        LowBits = 8
+    };
+    enum fixedpoint_t { FixedPoint };
+    enum fixed26d6_t { FixedPoint26D6 };
+    inline QFixedPoint(int v, fixedpoint_t) { val = v; }
+    inline QFixedPoint(int v, fixed26d6_t) { val = v * 4; }
     QFixedPoint() : val(0) {}
     QFixedPoint(int i) : val(i<<8) {}
     QFixedPoint(unsigned int i) : val(i*256) {}
@@ -16,22 +24,11 @@ public:
     inline int toInt() const { return (((val)+128) & -256)/256; }
     inline double toDouble() const { return ((double)val)/256.; }
 
-    inline bool operator==(const QFixedPoint &other) const { return val == other.val; }
-    inline bool operator!=(const QFixedPoint &other) const { return val != other.val; }
-    inline bool operator<(const QFixedPoint &other) const { return val < other.val; }
-    inline bool operator>(const QFixedPoint &other) const { return val > other.val; }
-    inline bool operator<=(const QFixedPoint &other) const { return val <= other.val; }
-    inline bool operator>=(const QFixedPoint &other) const { return val >= other.val; }
     inline bool operator!() const { return !val; }
 
-    inline QFixedPoint operator+(const QFixedPoint &other) const { return QFixedPoint(val + other.val, F24Dot8); }
     inline QFixedPoint &operator+=(const QFixedPoint &other) { val += other.val; return *this; }
-
-    inline QFixedPoint operator-(const QFixedPoint &other) const { return QFixedPoint(val - other.val, F24Dot8); }
     inline QFixedPoint &operator-=(const QFixedPoint &other) { val -= other.val; return *this; }
-
-    inline QFixedPoint operator-() const { return QFixedPoint(-val, F24Dot8); }
-
+    inline QFixedPoint operator-() const { return QFixedPoint(-val, FixedPoint); }
 
     inline QFixedPoint &operator/=(int d) { val /= d; return *this; }
     inline QFixedPoint &operator/=(const QFixedPoint &o) {
@@ -44,7 +41,7 @@ public:
             if (a < 0) { a = -a; neg = true; }
             if (b < 0) { b = -b; neg = !neg; }
 
-            int res = (int)(((a << 8) + (b >> 1)) / b);
+            int res = (int)(((a << LowBits) + (b >> 1)) / b);
 
             val = (neg ? -res : res);
         }
@@ -52,7 +49,7 @@ public:
     }
     inline QFixedPoint &operator/=(double d) { QFixedPoint v(d); return operator/=(v); }
 
-    inline QFixedPoint operator/(int d) const { return QFixedPoint(val/d, F24Dot8); }
+    inline QFixedPoint operator/(int d) const { return QFixedPoint((val+(d>>1))/d, FixedPoint); }
     inline QFixedPoint operator/(const QFixedPoint &b) const { QFixedPoint v = *this; return (v /= b); }
     inline QFixedPoint operator/(double d) const { QFixedPoint v(d); return (*this)/v; }
 
@@ -68,23 +65,22 @@ public:
         val = neg ? -res : res;
         return *this;
     }
-    inline QFixedPoint &operator*=(double d) { QFixedPoint v(d); return operator*=(val); }
+    inline QFixedPoint &operator*=(double d) { QFixedPoint v(d); return operator*=(v); }
 
-    inline QFixedPoint operator*(int i) const { return QFixedPoint(val*i, F24Dot8); }
+    inline QFixedPoint operator*(int i) const { return QFixedPoint(val*i, FixedPoint); }
     inline QFixedPoint operator*(double f) const { QFixedPoint v(f); return (v *= *this); }
     inline QFixedPoint operator*(const QFixedPoint &o) const { QFixedPoint v = *this; return (v *= o); }
 
-    friend inline int qRound(QFixedPoint f);
-    friend inline int floor(QFixedPoint f);
-    friend inline int ceil(QFixedPoint f);
-
-    int value() const { return val; }
+    inline int value() const { return val; }
 private:
-    enum T24Dot8 { F24Dot8 };
-    QFixedPoint(int, T24Dot8);
     int val;
 };
 Q_DECLARE_TYPEINFO(QFixedPoint, Q_PRIMITIVE_TYPE);
+
+inline QFixedPoint operator+(const QFixedPoint &a, const QFixedPoint &b)
+{ return QFixedPoint(a.value() + b.value(), QFixedPoint::FixedPoint); }
+inline QFixedPoint operator-(const QFixedPoint &a, const QFixedPoint &b)
+{ return QFixedPoint(a.value() - b.value(), QFixedPoint::FixedPoint); }
 
 inline QFixedPoint operator*(int i, const QFixedPoint &d) { return d*i; }
 inline QFixedPoint operator*(double d, const QFixedPoint &d2) { return d2*d; }
@@ -92,8 +88,162 @@ inline QFixedPoint operator*(double d, const QFixedPoint &d2) { return d2*d; }
 inline QFixedPoint operator/(int i, const QFixedPoint &d) { return QFixedPoint(i)/d; }
 inline QFixedPoint operator/(double d, const QFixedPoint &d2) { return QFixedPoint(d)/d2; }
 
-inline int qRound(QFixedPoint f) { return f.val > 0 ? (f.val + 128)>>8 : (f.val - 128)/256; }
-inline int floor(QFixedPoint f) { return f.val > 0 ? f.val >> 8 : (f.val - 255)/256; }
-inline int ceil(QFixedPoint f) { return f.val > 0 ? (f.val + 255) >> 8 : f.val/256; }
+inline int qRound(QFixedPoint f) { return f.value() > 0 ? (f.value() + 128)>>8 : (f.value() - 128)/256; }
+inline int qIntCast(QFixedPoint f) { return f.value()/256; }
+inline int floor(QFixedPoint f) { return f.value() > 0 ? f.value() >> 8 : (f.value() - 255)/256; }
+inline int ceil(QFixedPoint f) { return f.value() > 0 ? (f.value() + 255) >> 8 : f.value()/256; }
+
+Q_CORE_EXPORT QFixedPoint sqrt(QFixedPoint f);
+
+Q_CORE_EXPORT QFixedPoint sin(QFixedPoint f);
+Q_CORE_EXPORT QFixedPoint cos(QFixedPoint f);
+Q_CORE_EXPORT QFixedPoint acos(QFixedPoint f);
+
+inline bool operator==(const QFixedPoint &a, const QFixedPoint &b)
+{ return a.value() == b.value(); }
+inline bool operator!=(const QFixedPoint &a, const QFixedPoint &b)
+{ return a.value() != b.value(); }
+inline bool operator<(const QFixedPoint &a, const QFixedPoint &b)
+{ return a.value() < b.value(); }
+inline bool operator>(const QFixedPoint &a, const QFixedPoint &b)
+{ return a.value() > b.value(); }
+inline bool operator<=(const QFixedPoint &a, const QFixedPoint &b)
+{ return a.value() <= b.value(); }
+inline bool operator>=(const QFixedPoint &a, const QFixedPoint &b)
+{ return a.value() >= b.value(); }
+
+inline bool operator==(const QFixedPoint &a, const double &b)
+{ return a.value() == QFixedPoint(b).value(); }
+inline bool operator!=(const QFixedPoint &a, const double &b)
+{ return a.value() != QFixedPoint(b).value(); }
+inline bool operator<(const QFixedPoint &a, const double &b)
+{ return a.value() < QFixedPoint(b).value(); }
+inline bool operator>(const QFixedPoint &a, const double &b)
+{ return a.value() > QFixedPoint(b).value(); }
+inline bool operator<=(const QFixedPoint &a, const double &b)
+{ return a.value() <= QFixedPoint(b).value(); }
+inline bool operator>=(const QFixedPoint &a, const double &b)
+{ return a.value() >= QFixedPoint(b).value(); }
+
+inline bool operator==(const double &a, const QFixedPoint &b)
+{ return QFixedPoint(a).value() == b.value(); }
+inline bool operator!=(const double &a, const QFixedPoint &b)
+{ return QFixedPoint(a).value() != b.value(); }
+inline bool operator<(const double &a, const QFixedPoint &b)
+{ return QFixedPoint(a).value() < b.value(); }
+inline bool operator>(const double &a, const QFixedPoint &b)
+{ return QFixedPoint(a).value() > b.value(); }
+inline bool operator<=(const double &a, const QFixedPoint &b)
+{ return QFixedPoint(a).value() <= b.value(); }
+inline bool operator>=(const double &a, const QFixedPoint &b)
+{ return QFixedPoint(a).value() >= b.value(); }
+
+inline bool operator==(const QFixedPoint &a, const int &b)
+{ return a.value() == QFixedPoint(b).value(); }
+inline bool operator!=(const QFixedPoint &a, const int &b)
+{ return a.value() != QFixedPoint(b).value(); }
+inline bool operator<(const QFixedPoint &a, const int &b)
+{ return a.value() < QFixedPoint(b).value(); }
+inline bool operator>(const QFixedPoint &a, const int &b)
+{ return a.value() > QFixedPoint(b).value(); }
+inline bool operator<=(const QFixedPoint &a, const int &b)
+{ return a.value() <= QFixedPoint(b).value(); }
+inline bool operator>=(const QFixedPoint &a, const int &b)
+{ return a.value() >= QFixedPoint(b).value(); }
+
+inline bool operator==(const int &a, const QFixedPoint &b)
+{ return QFixedPoint(a).value() == b.value(); }
+inline bool operator!=(const int &a, const QFixedPoint &b)
+{ return QFixedPoint(a).value() != b.value(); }
+inline bool operator<(const int &a, const QFixedPoint &b)
+{ return QFixedPoint(a).value() < b.value(); }
+inline bool operator>(const int &a, const QFixedPoint &b)
+{ return QFixedPoint(a).value() > b.value(); }
+inline bool operator<=(const int &a, const QFixedPoint &b)
+{ return QFixedPoint(a).value() <= b.value(); }
+inline bool operator>=(const int &a, const QFixedPoint &b)
+{ return QFixedPoint(a).value() >= b.value(); }
+
+inline QFixedPoint qMax(QFixedPoint a, int b) { return (b < a) ? a : QFixedPoint(b); }
+inline QFixedPoint qMax(int a, QFixedPoint b) { return (b < a) ? QFixedPoint(a) : b; }
+inline QFixedPoint qMax(QFixedPoint a, double b) { QFixedPoint bb(b); return (bb < a) ? a : bb; }
+inline QFixedPoint qMax(double a, QFixedPoint b) { QFixedPoint aa(a); return (b < aa) ? aa : b; }
+
+inline QFixedPoint qMin(QFixedPoint a, int b) { return (b > a) ? a : QFixedPoint(b); }
+inline QFixedPoint qMin(int a, QFixedPoint b) { return (b > a) ? QFixedPoint(a) : b; }
+inline QFixedPoint qMin(QFixedPoint a, double b) { QFixedPoint bb(b); return (bb > a) ? a : bb; }
+inline QFixedPoint qMin(double a, QFixedPoint b) { QFixedPoint aa(a); return (b > aa) ? aa : b; }
+
+class Q_CORE_EXPORT QFixedPointLong {
+public:
+    enum {
+        HighBits = 32,
+        LowBits = 32
+    };
+    enum fixedpoint_t { FixedPoint };
+    inline QFixedPointLong(Q_INT64 v, fixedpoint_t) { val = v; }
+    QFixedPointLong() : val(0) {}
+    QFixedPointLong(int i) : val(i) { val <<= 32; }
+    QFixedPointLong(Q_INT64 i) : val(i) { val <<= 32; }
+    QFixedPointLong(double d) { val = (Q_LONGLONG)(d*(double(Q_INT64_C(1)<<32))); }
+    QFixedPointLong(const QFixedPointLong &other) : val(other.val) {}
+    QFixedPointLong(const QFixedPoint &other) { val = other.value(); val <<= 24; }
+    QFixedPointLong & operator=(const QFixedPointLong &other) { val = other.val; return *this; }
+    QFixedPointLong & operator=(const QFixedPoint &other) { val = other.value(); val <<= 24; return *this; }
+
+    inline double toDouble() const { return (val >> 32) + ((val & 0xffffffff)/(double(Q_INT64_C(1)<<32))); }
+    inline QFixedPoint toFixed() const { return QFixedPoint((int)(val>>24), QFixedPoint::FixedPoint); }
+    inline bool operator!() const { return !val; }
+
+    inline QFixedPointLong &operator+=(const QFixedPointLong &other) { val += other.val; return *this; }
+    inline QFixedPointLong &operator-=(const QFixedPointLong &other) { val -= other.val; return *this; }
+    inline QFixedPointLong operator-() const { return QFixedPointLong(-val, FixedPoint); }
+
+    inline QFixedPointLong &operator/=(int d) { val /= d; return *this; }
+    QFixedPointLong &operator/=(const QFixedPointLong &o);
+
+    inline QFixedPointLong &operator/=(double d) { QFixedPointLong v(d); return operator/=(v); }
+
+    inline QFixedPointLong operator/(int d) const { return QFixedPointLong((val+(d>>1))/d, FixedPoint); }
+    inline QFixedPointLong operator/(const QFixedPointLong &b) const { QFixedPointLong v = *this; return (v /= b); }
+    inline QFixedPointLong operator/(double d) const { QFixedPointLong v(d); return (*this)/v; }
+
+    inline QFixedPointLong &operator*=(int i) { val *= i; return *this; }
+    QFixedPointLong &operator*=(const QFixedPointLong &o);
+    inline QFixedPointLong &operator*=(double d) { QFixedPointLong v(d); return operator*=(v); }
+
+    inline QFixedPointLong operator*(int i) const { return QFixedPointLong(val*i, FixedPoint); }
+    inline QFixedPointLong operator*(double f) const { QFixedPointLong v(f); return (v *= *this); }
+    inline QFixedPointLong operator*(const QFixedPointLong &o) const { QFixedPointLong v = *this; return (v *= o); }
+
+    inline Q_INT64 value() const { return val; }
+private:
+    Q_INT64 val;
+};
+Q_DECLARE_TYPEINFO(QFixedPointLong, Q_PRIMITIVE_TYPE);
+
+inline QFixedPointLong operator+(const QFixedPointLong &a, const QFixedPointLong &b)
+{ return QFixedPointLong(a.value() + b.value(), QFixedPointLong::FixedPoint); }
+inline QFixedPointLong operator-(const QFixedPointLong &a, const QFixedPointLong &b)
+{ return QFixedPointLong(a.value() - b.value(), QFixedPointLong::FixedPoint); }
+
+inline QFixedPointLong operator*(int i, const QFixedPointLong &d) { return d*i; }
+inline QFixedPointLong operator*(double d, const QFixedPointLong &d2) { return d2*d; }
+
+inline QFixedPointLong operator/(int i, const QFixedPointLong &d) { return QFixedPointLong(i)/d; }
+inline QFixedPointLong operator/(double d, const QFixedPointLong &d2) { return QFixedPointLong(d)/d2; }
+
+inline int qRound(QFixedPointLong f)
+{ return (int)((f.value() > 0 ? (f.value() + 0x80000000) : (f.value() - 0x80000000))>>32); }
+inline int qIntCast(QFixedPointLong f) { return (int)(f.value()>>32); }
+inline int floor(QFixedPointLong f) { return (int)((f.value() > 0 ? f.value() : (f.value() - 0x80000000))>>32); }
+inline int ceil(QFixedPointLong f) { return (int)((f.value() > 0 ? (f.value() + 0xffffffff) : f.value())>>32); }
+
+Q_CORE_EXPORT QFixedPointLong sqrt(QFixedPointLong f);
+
+Q_CORE_EXPORT QFixedPointLong sin(QFixedPointLong f);
+Q_CORE_EXPORT QFixedPointLong cos(QFixedPointLong f);
+Q_CORE_EXPORT QFixedPointLong acos(QFixedPointLong f);
+
 
 #endif

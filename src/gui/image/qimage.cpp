@@ -2499,10 +2499,10 @@ QImage QImage::scaleHeight(int h) const
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
 QMatrix QImage::trueMatrix(const QMatrix &matrix, int w, int h)
 {
-    const double dt = (double)0.;
-    double x1,y1, x2,y2, x3,y3, x4,y4;                // get corners
-    double xx = (double)w;
-    double yy = (double)h;
+    const qReal dt = qReal(0.);
+    qReal x1,y1, x2,y2, x3,y3, x4,y4;                // get corners
+    qReal xx = qReal(w);
+    qReal yy = qReal(h);
 
     QMatrix mat(matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), 0., 0.);
 
@@ -2511,20 +2511,20 @@ QMatrix QImage::trueMatrix(const QMatrix &matrix, int w, int h)
     mat.map(xx, yy, &x3, &y3);
     mat.map(dt, yy, &x4, &y4);
 
-    double ymin = y1;                                // lowest y value
+    qReal ymin = y1;                                // lowest y value
     if (y2 < ymin) ymin = y2;
     if (y3 < ymin) ymin = y3;
     if (y4 < ymin) ymin = y4;
-    double xmin = x1;                                // lowest x value
+    qReal xmin = x1;                                // lowest x value
     if (x2 < xmin) xmin = x2;
     if (x3 < xmin) xmin = x3;
     if (x4 < xmin) xmin = x4;
 
-    double ymax = y1;                                // lowest y value
+    qReal ymax = y1;                                // lowest y value
     if (y2 > ymax) ymax = y2;
     if (y3 > ymax) ymax = y3;
     if (y4 > ymax) ymax = y4;
-    double xmax = x1;                                // lowest x value
+    qReal xmax = x1;                                // lowest x value
     if (x2 > xmax) xmax = x2;
     if (x3 > xmax) xmax = x3;
     if (x4 > xmax) xmax = x4;
@@ -3655,10 +3655,10 @@ bool qt_xForm_helper(const QMatrix &trueMat, int xoffset, int type, int depth,
                      uchar *dptr, int dbpl, int p_inc, int dHeight,
                      const uchar *sptr, int sbpl, int sWidth, int sHeight)
 {
-    int m11 = int(trueMat.m11()*4096.0 + 1.);
-    int m12 = int(trueMat.m12()*4096.0 + 1.);
-    int m21 = int(trueMat.m21()*4096.0 + 1.);
-    int m22 = int(trueMat.m22()*4096.0 + 1.);
+    int m11 = qRound(trueMat.m11()*4096.0);
+    int m12 = qRound(trueMat.m12()*4096.0);
+    int m21 = qRound(trueMat.m21()*4096.0);
+    int m22 = qRound(trueMat.m22()*4096.0);
     int dx  = qRound(trueMat.dx()*4096.0);
     int dy  = qRound(trueMat.dy()*4096.0);
 
@@ -3945,7 +3945,7 @@ static void scaleY(QImage *image, int width, int iheight, int oheight)
 }
 
 
-static void shearX(QImage *image, int height, int iwidth, double shear)
+static void shearX(QImage *image, int height, int iwidth, qReal shear)
 {
 //     qDebug("shearX: height=%d, iwidth=%d, shear=%f", height, iwidth, shear);
     if (qAbs(shear*height) < 0.3)
@@ -3954,12 +3954,12 @@ static void shearX(QImage *image, int height, int iwidth, double shear)
     Q_ASSERT(image->width() >= iwidth + qRound(qAbs(shear*(height-1))));
     Q_ASSERT(height <= image->height());
 
-    const double skewoffset = shear < 0 ? -shear*(height-1) : 0;
+    const qReal skewoffset = shear < 0 ? -shear*(height-1) : 0;
 
     uchar **bits = image->jumpTable();
     for (int y = 0; y < height; ++y) {
-        const double skew = shear*y + skewoffset;
-        int skewi = (int(skew*256.));
+        const qReal skew = shear*y + skewoffset;
+        int skewi = qIntCast(skew*256);
         int fraction = 0xff - skewi & 0xff;
         skewi >>= 8;
         QRgb *line = reinterpret_cast<QRgb *>(bits[y]);
@@ -3985,7 +3985,7 @@ static void shearX(QImage *image, int height, int iwidth, double shear)
 }
 
 
-static void shearY(QImage *image, int width, int iheight, double shear, double offset)
+static void shearY(QImage *image, int width, int iheight, qReal shear, qReal offset)
 {
 //     qDebug("shearY: width=%d, iheight=%d, shear=%f", width, iheight, shear);
     if (qAbs(shear*width) < 0.3)
@@ -3996,8 +3996,8 @@ static void shearY(QImage *image, int width, int iheight, double shear, double o
 
     QRgb **bits = reinterpret_cast<QRgb **>(image->jumpTable());
     for (int x = 0; x < width; ++x) {
-        const double skew = shear*(x - offset);
-        int skewi = (int(skew*256.));
+        const qReal skew = shear*(x - offset);
+        int skewi = qIntCast(skew*256);
         int fraction;
         if (skew >= 0) {
             fraction = 0xff - skewi & 0xff;
@@ -4074,7 +4074,7 @@ QImage smoothXForm(const QImageData *data, const QMatrix &matrix)
        unit vectors.
     */
 
-    double v1x = matrix.m11(),
+    qReal v1x = matrix.m11(),
            v1y = matrix.m12(),
            v2x = matrix.m21(),
            v2y = matrix.m22();
@@ -4225,10 +4225,10 @@ QImage smoothXForm(const QImageData *data, const QMatrix &matrix)
     Q_ASSERT(mat.det() > 0);
 
 
-    double scale_x = mat.m11();
-    double scale_y = mat.m22() - mat.m12()*mat.m21()/mat.m11();
-    double shear_y = mat.m12()/scale_x;
-    double shear_x = mat.m21()/scale_y;
+    qReal scale_x = mat.m11();
+    qReal scale_y = mat.m22() - mat.m12()*mat.m21()/mat.m11();
+    qReal shear_y = mat.m12()/scale_x;
+    qReal shear_x = mat.m21()/scale_y;
 
 //     qDebug("scale_x=%f,scale_y=%f, shear_x=%f, shear_y=%f", scale_x,scale_y,shear_x,shear_y);
 
@@ -4253,7 +4253,7 @@ QImage smoothXForm(const QImageData *data, const QMatrix &matrix)
     scaleY(&result2, owidth, iheight, oheight);
     shearX(&result2, oheight, owidth, shear_x);
 
-    double offset = shear_y < 0
+    qReal offset = shear_y < 0
                     ? (shear_x < 0 ? sheared_width : owidth)
                     : (shear_x < 0 ? -shear_x*oheight : 0);
 //     qDebug("shear_x=%f, oheight=%d, offset=%f", shear_x, oheight, offset);
