@@ -295,6 +295,7 @@ void QMenuBar::updateItem( int id )
 
 void QMenuBar::menuContentsChanged()
 {
+    QMenuData::menuContentsChanged();
 #ifndef QT_NO_ACCEL
     setupAccelerators();
 #endif
@@ -877,7 +878,6 @@ QMenuBar::Separator QMenuBar::separator() const
 void QMenuBar::drawContents( QPainter *p )
 {
     QColorGroup g;
-    GUIStyle gs = style().guiStyle();
     bool e;
 
     // ### this shouldn't happen.
@@ -890,6 +890,10 @@ void QMenuBar::drawContents( QPainter *p )
     for ( int i=0; i<(int)mitems->count(); i++ ) {
         QMenuItem *mi = mitems->at( i );
         if ( !mi->text().isNull() || mi->pixmap() ) {
+#if defined(Q_WS_MAC) && defined(QMAC_QMENUBAR_NATIVE)
+	    if(!mi->custom() && !mi->widget())
+		continue;
+#endif
             QRect r = irects[i];
             e = mi->isEnabled();
             if ( e )
@@ -904,12 +908,15 @@ void QMenuBar::drawContents( QPainter *p )
                                   ( hasFocus() || hasmouse || popupvisible ) );
         }
     }
+#if !defined( Q_WS_MAC ) || !defined(QMAC_QMENUBAR_NATIVE)
+    GUIStyle gs = style().guiStyle();
     if ( mseparator == InWindowsStyle && gs == WindowsStyle ) {
         p->setPen( g.light() );
         p->drawLine( 0, height()-1, width()-1, height()-1 );
         p->setPen( g.dark() );
         p->drawLine( 0, height()-2, width()-1, height()-2 );
     }
+#endif
 }
 
 

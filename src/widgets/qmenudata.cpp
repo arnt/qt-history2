@@ -187,6 +187,10 @@ void QMenuData::updateItem( int )		// reimplemented in subclass
 
 void QMenuData::menuContentsChanged()		// reimplemented in subclass
 {
+#if defined( Q_WS_MAC ) && defined( QMAC_QMENUBAR_NATIVE )
+    extern bool dirty_menu_bar;
+    dirty_menu_bar = TRUE;
+#endif
 }
 
 /*!

@@ -6,3 +6,8 @@ SOURCES		= application.cpp \
 		  main.cpp 
 TARGET		= mdi
 DEPENDPATH=../../include
+
+macx-g++ {
+	target.path=$${TARGET}.app/Contents/MacOS
+	INSTALLS += target
+}

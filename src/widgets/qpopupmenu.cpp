@@ -312,6 +312,7 @@ bool QPopupMenu::isCheckable() const
 
 void QPopupMenu::menuContentsChanged()
 {
+    QMenuData::menuContentsChanged();
     badSize = TRUE;				// might change the size
 #ifndef QT_NO_ACCEL
     updateAccel( 0 );

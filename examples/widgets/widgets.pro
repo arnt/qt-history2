@@ -4,6 +4,10 @@ INCLUDEPATH	= ../aclock ../dclock
 HEADERS		= widgets.h ../aclock/aclock.h ../dclock/dclock.h
 SOURCES		= main.cpp widgets.cpp ../aclock/aclock.cpp ../dclock/dclock.cpp
 TARGET		= widgets
-off:macx-g++:DESTDIR=$$TARGET.app/Contents/MacOS
 DEPENDPATH=../../include
 REQUIRES=full-config
+
+macx-g++ {
+	target.path=$${TARGET}.app/Contents/MacOS
+	INSTALLS += target
+}
