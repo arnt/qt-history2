@@ -1470,7 +1470,7 @@ void PropertyFontItem::childValueChanged( PropertyItem *child )
 
 // --------------------------------------------------------------
 
-PropertyDatabaseItem::PropertyDatabaseItem( PropertyList *l, PropertyItem *after, PropertyItem *prop, 
+PropertyDatabaseItem::PropertyDatabaseItem( PropertyList *l, PropertyItem *after, PropertyItem *prop,
 					    const QString &propName, bool wField )
     : PropertyItem( l, after, prop, propName ), withField( wField )
 {
@@ -1560,15 +1560,9 @@ void PropertyDatabaseItem::setValue( const QVariant &v )
 	return;
 
     QStringList lst = v.toStringList();
-    if ( lst.count() ) {
-	QString s = lst[ 0 ];
-	if ( lst.count() > 2 )
-	    s.prepend( lst[ 1 ] + "." + lst[ 2 ] + " " );
-	else if ( lst.count() > 1 )
-	    s.prepend( lst[ 1 ] + " " );
-	setText( 1, s );
-	lined->setText( s );
-    }
+    QString s = lst.join( "." );
+    setText( 1, s );
+    lined->setText( s );
     PropertyItem::setValue( v );
 }
 
