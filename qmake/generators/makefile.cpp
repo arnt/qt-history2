@@ -915,7 +915,8 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj, const QString
     QString stringSrc("$src"), stringObj("$obj");
     for(;sit != srcl.end() && oit != objl.end(); oit++, sit++) {
 	QString hdr = QMakeSourceFileInfo::mocFile((*sit));
-	t << (*oit) << ": " << (*sit) << " "
+	t << (*oit) << ": "
+	  << (*sit) << " " << findDependencies((*sit)).join(" \\\n\t\t") << " "
 	  << hdr << " " << findDependencies(hdr).join(" \\\n\t\t");
 	bool use_implicit_rule = !project->isEmpty("QMAKE_RUN_CXX_IMP");
 	if(use_implicit_rule) {
