@@ -1529,6 +1529,25 @@ static void convert_ARGB_PM_to_ARGB(QImageData *dest, const QImageData *src, Qt:
     }
 }
 
+static void convert_ARGB_PM_to_RGB(QImageData *dest, const QImageData *src, Qt::ImageConversionFlags)
+{
+    Q_ASSERT(src->format == QImage::Format_ARGB32_Premultiplied);
+    Q_ASSERT(dest->format == QImage::Format_RGB32);
+    Q_ASSERT(src->width == dest->width);
+    Q_ASSERT(src->height == dest->height);
+    Q_ASSERT(src->nbytes == dest->nbytes);
+    Q_ASSERT(src->bytes_per_line == dest->bytes_per_line);
+
+    const QRgb *src_data = (QRgb *) src->data;
+    const QRgb *end = src_data + (src->nbytes>>2);
+    QRgb *dest_data = (QRgb *) dest->data;
+    while (src_data < end) {
+        *dest_data = 0xff000000 | INV_PREMUL(*src_data);
+        ++src_data;
+        ++dest_data;
+    }
+}
+
 static void swap_bit_order(QImageData *dest, const QImageData *src, Qt::ImageConversionFlags)
 {
     Q_ASSERT(src->format == QImage::Format_Mono || src->format == QImage::Format_MonoLSB);
@@ -2275,12 +2294,57 @@ static void convert_Mono_to_Indexed8(QImageData *dest, const QImageData *src, Qt
 // first index source, second dest
 static const Image_Converter converter_map[QImage::Format_ARGB32_Premultiplied][QImage::Format_ARGB32_Premultiplied] =
 {
-    { 0, swap_bit_order, convert_Mono_to_Indexed8, convert_Mono_to_X32, convert_Mono_to_X32, convert_Mono_to_X32 }, // Format_Mono
-    { swap_bit_order, 0, convert_Mono_to_Indexed8, convert_Mono_to_X32, convert_Mono_to_X32, convert_Mono_to_X32 }, // Format_MonoLSB
-    { convert_X_to_Mono, convert_X_to_Mono, 0, convert_Indexed8_to_X32, convert_Indexed8_to_X32, convert_Indexed8_to_X32 }, // Format_Indexed8
-    { convert_X_to_Mono, convert_X_to_Mono, convert_X32_to_Indexed8, 0, mask_alpha_converter, mask_alpha_converter }, // Format_RGB32
-    { convert_X_to_Mono, convert_X_to_Mono, convert_X32_to_Indexed8, mask_alpha_converter, 0, convert_ARGB_to_ARGB_PM }, // Format_ARGB32
-    { convert_X_to_Mono, convert_X_to_Mono, convert_X32_to_Indexed8, mask_alpha_converter, convert_ARGB_PM_to_ARGB, 0 }  // Format_ARGB32_Premultiplied
+    { 0,
+      swap_bit_order,
+      convert_Mono_to_Indexed8,
+      convert_Mono_to_X32,
+      convert_Mono_to_X32,
+      convert_Mono_to_X32
+    }, // Format_Mono
+
+    { swap_bit_order,
+      0,
+      convert_Mono_to_Indexed8,
+      convert_Mono_to_X32,
+      convert_Mono_to_X32,
+      convert_Mono_to_X32
+    }, // Format_MonoLSB
+
+    {
+        convert_X_to_Mono,
+        convert_X_to_Mono,
+        0,
+        convert_Indexed8_to_X32,
+        convert_Indexed8_to_X32,
+        convert_Indexed8_to_X32
+    }, // Format_Indexed8
+
+    {
+        convert_X_to_Mono,
+        convert_X_to_Mono,
+        convert_X32_to_Indexed8,
+        0,
+        mask_alpha_converter,
+        mask_alpha_converter
+    }, // Format_RGB32
+
+    {
+        convert_X_to_Mono,
+        convert_X_to_Mono,
+        convert_X32_to_Indexed8,
+        mask_alpha_converter,
+        0,
+        convert_ARGB_to_ARGB_PM
+    }, // Format_ARGB32
+
+    {
+        convert_X_to_Mono,
+        convert_X_to_Mono,
+        convert_X32_to_Indexed8,
+        convert_ARGB_PM_to_RGB,
+        convert_ARGB_PM_to_ARGB,
+        0
+    }  // Format_ARGB32_Premultiplied
 };
 
 /*!

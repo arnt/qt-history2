@@ -99,24 +99,24 @@ struct ConicalGradientData : public GradientData
 inline int qt_div_255(int x) { return (x + (x>>8) + 0x1) >> 8; }
 inline int qt_div_255x255(int x) { return (x + (x>>7) + (x>>14)) >> 16; }
 
-#define INTERPOLATE_PIXEL(p1, x1, p2,  x2)                            \
-    (((qAlpha(p1) * x1 + qAlpha(p2) * x2) >> 8 << 24)           \
-     | ((qRed(p1) * x1 + qRed(p2) * x2) >> 8 << 16)             \
-     | ((qGreen(p1) * x1 + qGreen(p2) * x2) >> 8 << 8)          \
+#define INTERPOLATE_PIXEL(p1, x1, p2,  x2)              \
+    (((qAlpha(p1) * x1 + qAlpha(p2) * x2) >> 8 << 24)   \
+     | ((qRed(p1) * x1 + qRed(p2) * x2) >> 8 << 16)     \
+     | ((qGreen(p1) * x1 + qGreen(p2) * x2) >> 8 << 8)  \
      | (qBlue(p1) * x1 + qBlue(p2) * x2) >> 8)
 
-#define PREMUL(p)                                          \
-    ((qAlpha(p) << 24)                                     \
-     | (qt_div_255(qRed(p) * qAlpha(p)) << 16)             \
-     | (qt_div_255(qGreen(p) * qAlpha(p))  << 8)           \
+#define PREMUL(p)                                       \
+    ((qAlpha(p) << 24)                                  \
+     | (qt_div_255(qRed(p) * qAlpha(p)) << 16)          \
+     | (qt_div_255(qGreen(p) * qAlpha(p))  << 8)        \
      | qt_div_255(qBlue(p) * qAlpha(p)))
 
-#define INV_PREMUL(p)                                          \
-    qAlpha(p) == 0 ? 0 :                                       \
-    ((qAlpha(p) << 24)                                     \
-     | (((255*qRed(p))/ qAlpha(p)) << 16)             \
-     | (((255*qGreen(p)) / qAlpha(p))  << 8)           \
-     | ((255*qBlue(p)) / qAlpha(p)))
+#define INV_PREMUL(p)                                   \
+    (qAlpha(p) == 0 ? 0 :                               \
+    ((qAlpha(p) << 24)                                  \
+     | (((255*qRed(p))/ qAlpha(p)) << 16)               \
+     | (((255*qGreen(p)) / qAlpha(p))  << 8)            \
+     | ((255*qBlue(p)) / qAlpha(p))))
 
 
 #endif
