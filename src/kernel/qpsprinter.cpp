@@ -86,6 +86,7 @@
 #include "qtextcodec.h"
 #include "qjpunicode.h"
 #include "qsettings.h"
+#include "qmap.h"
 
 #include <ctype.h>
 #if defined(_OS_WIN32_)
@@ -1979,8 +1980,8 @@ protected:
     QString psname;
     QStringList replacementList;
 
-    QIntDict<unsigned short> subset;      // unicode subset in the global font
-    QIntDict<unsigned short> page_subset; // subset added in this page
+    QMap<unsigned short, unsigned short> subset;      // unicode subset in the global font
+    QMap<unsigned short, unsigned short> page_subset; // subset added in this page
     int subsetCount;
     int pageSubsetCount;
     bool           global_dict;
@@ -2227,14 +2228,11 @@ static void makeFixedStrings()
 
 
 QPSPrinterFontPrivate::QPSPrinterFontPrivate()
-    : subset( 1009 ), page_subset( 1009 )
 {
     global_dict = FALSE;
     downloaded  = FALSE;
-    subset.setAutoDelete( TRUE );
-    page_subset.setAutoDelete( TRUE );
     // map 0 to .notdef
-    subset.insert( 0, new unsigned short ( 0 ) );
+    subset.insert( 0, 0 );
     subsetCount = 1;
     pageSubsetCount = 0;
 }
@@ -2242,20 +2240,20 @@ QPSPrinterFontPrivate::QPSPrinterFontPrivate()
 unsigned short QPSPrinterFontPrivate::insertIntoSubset( unsigned short u )
 {
     unsigned short retval;
-    if ( !subset[u] ) {
+    if ( subset.find(u) == subset.end() ) {
         if ( !downloaded ) { // we need to add to the page subset
-            subset.insert(u, new unsigned short(subsetCount)); // mark it as used
+            subset.insert( u, subsetCount ); // mark it as used
             //printf("GLOBAL SUBSET ADDED %04x = %04x\n",u, subsetCount);
             retval = subsetCount;
             subsetCount++;
-        } else if ( !page_subset[u] ) {
-            page_subset.insert(u, new unsigned short(pageSubsetCount)); // mark it as used
-            printf("PAGE SUBSET ADDED %04x = %04x\n",u, pageSubsetCount);
-            retval = pageSubsetCount;
+        } else if ( page_subset.find(u) == page_subset.end() ) {
+            page_subset.insert( u, pageSubsetCount ); // mark it as used
+            //printf("PAGE SUBSET ADDED %04x = %04x\n",u, pageSubsetCount);
+            retval = pageSubsetCount + (subsetCount/256 + 1) * 256;
             pageSubsetCount++;
         }
     } else {
-        qDebug("QPSPrinterFont::internal error");
+        qWarning("QPSPrinterFont::internal error");
     }
     return retval;
 }
@@ -2263,7 +2261,8 @@ unsigned short QPSPrinterFontPrivate::insertIntoSubset( unsigned short u )
 void QPSPrinterFontPrivate::restore()
 {
     page_subset.clear();
-    qDebug("restore for font %s\n",psname.latin1());
+    pageSubsetCount = 0;
+    //qDebug("restore for font %s\n",psname.latin1());
 }
 
 void QPSPrinterFontPrivate::drawText( QTextStream &stream, uint spaces, const QPoint &p,
@@ -2288,7 +2287,6 @@ void QPSPrinterFontPrivate::drawText( QTextStream &stream, uint spaces, const QP
     int i;
     for (i=0; i < (int) text.length(); i++) {
         ushort u = mapUnicode(text.at(i).unicode());
-        // I don't know if this is endian safe. Sivan
         ushort high = u / 256;
         ushort low  = u % 256;
         stream << s.sprintf("%02x",high);
@@ -2313,28 +2311,16 @@ void QPSPrinterFontPrivate::drawText( QTextStream &stream, uint spaces, const QP
 QString QPSPrinterFontPrivate::defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
                                    QPSPrinterPrivate *d )
 {
-    QString *tmp = d->headerFontNames.find( key );
     QString fontName;
+    fontName.sprintf( "/%s-Uni", ps.latin1());
 
     if ( d->buffer ) {
-        if ( tmp ) {
-            fontName = *tmp;
-        } else {
-            fontName.sprintf( "/%s-Uni", ps.latin1());
-        }
         ++d->headerFontNumber;
         d->fontStream << "/F" << d->headerFontNumber << " "
                       << f.pointSize()/d->scale << fontName << " DF\n";
         fontName.sprintf( "F%d", d->headerFontNumber );
         d->headerFontNames.insert( key, new QString( fontName ) );
     } else {
-        if ( !tmp )
-            tmp = d->pageFontNames.find( key );
-        if ( tmp ) {
-            fontName = *tmp;
-        } else {
-            fontName.sprintf( "/%s-UniP", ps.latin1());
-        }
         ++d->pageFontNumber;
         stream << "/F" << d->pageFontNumber << " "
                << f.pointSize()/d->scale << fontName << " DF\n";
@@ -2346,16 +2332,25 @@ QString QPSPrinterFontPrivate::defineFont( QTextStream &stream, QString ps, cons
 
 unsigned short QPSPrinterFontPrivate::mapUnicode( unsigned short unicode )
 {
-    unsigned short *res;
-    res = subset[unicode];
-    if ( !res && downloaded ) {
-        res = page_subset[unicode];
-        res += (subsetCount/256 + 1) * 256;
+    QMap<unsigned short, unsigned short>::iterator res;
+    res = subset.find( unicode );
+    unsigned short offset = 0;
+    bool found = FALSE;
+    if ( res != subset.end() ) {
+        found = TRUE;
+    } else {
+        if ( downloaded ) {
+            res = page_subset.find( unicode );
+            offset = (subsetCount/256 + 1) * 256;
+            if ( res != page_subset.end() )
+                found = TRUE;
+        }
     }
-    if ( !res ) {
+    if ( !found ) {
         return insertIntoSubset( unicode );
     }
-    return *res;
+    //qDebug("mapping unicode %x to %x", unicode, offset+*res);
+    return offset + *res;
 }
 
 QString QPSPrinterFontPrivate::glyphName( unsigned short glyphindex )
@@ -2374,7 +2369,7 @@ QString QPSPrinterFontPrivate::glyphName( unsigned short glyphindex )
 
 void QPSPrinterFontPrivate::download(QTextStream &s, bool global)
 {
-    printf("defining mapping for printer font %s\n",psname.latin1());
+    //printf("defining mapping for printer font %s\n",psname.latin1());
     downloadMapping( s, global );
 }
 
@@ -2382,7 +2377,7 @@ void QPSPrinterFontPrivate::downloadMapping( QTextStream &s, bool global )
 {
     int rangeOffset = 0;
     int numRanges = subsetCount/256 + 1;
-    QIntDict<unsigned short> *subsetDict = &subset;
+    QMap<unsigned short, unsigned short> *subsetDict = &subset;
     if ( !global ) {
         rangeOffset = numRanges;
         numRanges = pageSubsetCount/256 + 1;
@@ -2391,11 +2386,11 @@ void QPSPrinterFontPrivate::downloadMapping( QTextStream &s, bool global )
     // build up inverse table
     unsigned short *inverse = new unsigned short[numRanges * 256];
     memset( inverse, 0, numRanges * 256 * sizeof( unsigned short ) );
-    int i;
-    for ( i = 0; i < 0x10000; i++ ) {
-        unsigned short *mapped = (*subsetDict)[i];
-        if( mapped )
-            inverse[*mapped] = i;
+
+    QMap<unsigned short, unsigned short>::iterator it;
+    for ( it = subsetDict->begin(); it != subsetDict->end(); ++it) {
+        const unsigned short &mapped = *it;
+        inverse[mapped] = it.key();
     }
 
     QString vector;
@@ -2845,9 +2840,9 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFont &f, QByteArray& d)
 
 void QPSPrinterFontTTF::download(QTextStream& s,bool global)
 {
-    qDebug("target type=%d", target_type);
+    //qDebug("target type=%d", target_type);
     global_dict = global;
-    QIntDict<unsigned short> *subsetDict = &subset;
+    QMap<unsigned short, unsigned short> *subsetDict = &subset;
     if ( !global )
         subsetDict = &page_subset;
 
@@ -3034,8 +3029,10 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
         glyphset[c] = FALSE;
     glyphset[0] = TRUE; // always output .notdef
 
-    for(int c=0; c < 65536; c++) {
-        if ( (*subsetDict)[c] && glyph_for_unicode( c ) ) {
+    QMap<unsigned short, unsigned short>::iterator it;
+    for( it = subsetDict->begin(); it != subsetDict->end(); ++it ) {
+        unsigned short c = it.key();
+        if ( glyph_for_unicode( c ) ) {
             subsetGlyph( glyph_for_unicode( c ), glyphset );
         }
     }
@@ -5234,9 +5231,10 @@ void QPSPrinterPrivate::setFont( const QFont & fnt, int script )
 
     key.sprintf( "%s %d", ff.xfontname.ascii(), f.pointSize() );
     QString * tmp;
-    tmp = headerFontNames.find( key );
-    if ( !tmp && !buffer )
+    if ( !buffer )
         tmp = pageFontNames.find( key );
+    else
+        tmp = headerFontNames.find( key );
 
     QString fontName;
     if ( tmp )
@@ -5968,6 +5966,10 @@ void QPSPrinterPrivate::initPage(QPainter *paint)
       it.current()->restore();
       ++it;
     }
+    if ( !buffer ) {
+        pageFontNames.clear();
+    }
+
     pageStream.unsetDevice();
     if ( pageBuffer )
         delete pageBuffer;
@@ -5981,9 +5983,6 @@ void QPSPrinterPrivate::initPage(QPainter *paint)
     dirtyClipping   = TRUE;
     firstClipOnPage = TRUE;
 
-    if ( !buffer ) {
-        pageFontNames.clear();
-    }
 
     resetDrawingTools( paint );
     dirtyNewPage      = FALSE;
@@ -5994,7 +5993,6 @@ void QPSPrinterPrivate::flushPage( bool last )
 {
     bool pageFonts = ( buffer == 0 );
     if ( buffer &&
-// ##################################
 //         ( last || pagesInBuffer++ > -1 ||
 //           ( pagesInBuffer > 4 && buffer->size() > 262144 ) ) )
          last || buffer->size() > 2000000 )
@@ -6007,7 +6005,7 @@ void QPSPrinterPrivate::flushPage( bool last )
               << "%%BeginPageSetup\n"
               << "QI\n";
     if ( pageFonts ) {
-        qDebug("page fonts for page %d", pageCount);
+        //qDebug("page fonts for page %d", pageCount);
         // we have already downloaded the header. Maybe we have page fonts here
         QDictIterator<QPSPrinterFontPrivate> it(fonts);
         while (it.current()) {
@@ -6328,6 +6326,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
     case NewPage:
         d->flushPage();
         d->dirtyNewPage = TRUE;
+        //qDebug("new page");
         break;
     case AbortPrinting:
         break;
