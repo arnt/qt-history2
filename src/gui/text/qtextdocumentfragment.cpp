@@ -446,7 +446,7 @@ void QTextHTMLImporter::import()
             if (node->isListItem) {
                 Q_ASSERT(!listReferences.isEmpty());
                 block.setObjectIndex(listReferences.last());
-            } else if (indent && !block.objectIndex() == listReferences.last()) {
+            } else if (indent && block.objectIndex() == listReferences.last()) {
                 block.setIndent(indent);
             }
             block.setAlignment(node->alignment);
@@ -607,4 +607,5 @@ QTextDocumentFragment QTextDocumentFragment::fromHTML(const QByteArray &html)
     QString unicode = codec->toUnicode(html);
     return fromHTML(unicode);
 }
+
 
