@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#74 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#75 $
 **
 ** Implementation of layout classes
 **
@@ -1030,16 +1030,30 @@ void QGridLayout::addWidget( QWidget *w, int row, int col, int align )
 {
     if ( !w ) {
 #if defined(CHECK_STATE)
-	warning( "adding null widget to %s/%s", className(), name() );
+	warning( "cannot add null widget to %s/%s", className(), name() );
 #endif
 	return;
     }
     if ( row < 0 || col < 0 ) {
 #if defined(CHECK_STATE)
-	warning( "adding %s/%s to %s/%s at row %d col %d",
+	warning( "cannot add %s/%s to %s/%s at row %d col %d",
 		 w->className(), w->name(),
 		 className(), name(),
 		 row, col );
+#endif
+	return;
+    }
+    if ( w->parentWidget() != mainWidget() ) {
+#if defined(CHECK_STATE)
+	if ( w->parentWidget() && mainWidget() )
+	    warning( "cannot add %s/%s (child of %s/%s) to layout for %s/%s",
+		     w->className(), w->name(),
+		     w->parentWidget()->className(), w->parentWidget()->name(),
+		     mainWidget()->className(), mainWidget()->name() );
+	else if (  mainWidget() )
+	    warning( "cannot add %s/%s (top-level widget) to layout for %s/%s",
+		     w->className(), w->name(),
+		     mainWidget()->className(), mainWidget()->name() );
 #endif
 	return;
     }
