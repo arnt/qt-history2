@@ -680,6 +680,7 @@ private:
     void emitAlignment(Qt::Alignment alignment);
     void emitFloatStyle(QTextFrameFormat::Position pos);
     void emitAttribute(const char *attribute, const QString &value);
+    void emitMargins(const QTextBlockFormat &format);
 
     QString html;
     QFont defaultFont;
@@ -924,6 +925,46 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
         html += QLatin1String("</a>");
 }
 
+void QTextHtmlExporter::emitMargins(const QTextBlockFormat &format)
+{
+    bool hasMargin = false;
+    QLatin1String style(" style=\"");
+    html += style;
+
+    if (format.hasProperty(QTextFormat::BlockTopMargin)) {
+        html += QLatin1String(" margin-top:");
+        html += QString::number(format.topMargin());
+        html += QLatin1String("px;");
+        hasMargin = true;
+    }
+
+    if (format.hasProperty(QTextFormat::BlockBottomMargin)) {
+        html += QLatin1String(" margin-bottom:");
+        html += QString::number(format.bottomMargin());
+        html += QLatin1String("px;");
+        hasMargin = true;
+    }
+
+    if (format.hasProperty(QTextFormat::BlockLeftMargin)) {
+        html += QLatin1String(" margin-left:");
+        html += QString::number(format.leftMargin());
+        html += QLatin1String("px;");
+        hasMargin = true;
+    }
+
+    if (format.hasProperty(QTextFormat::BlockRightMargin)) {
+        html += QLatin1String(" margin-right:");
+        html += QString::number(format.rightMargin());
+        html += QLatin1String("px;");
+        hasMargin = true;
+    }
+
+    if (hasMargin)
+        html += QLatin1Char('"');
+    else
+        html.truncate(html.size() - qstrlen(style.latin1()));
+}
+
 void QTextHtmlExporter::emitBlockFormatAttributes(const QTextBlockFormat &format)
 {
     emitAlignment(format.alignment());
@@ -934,7 +975,7 @@ void QTextHtmlExporter::emitBlockFormatAttributes(const QTextBlockFormat &format
     else if (dir == QTextBlockFormat::RightToLeft)
         html += QLatin1String(" dir='rtl'");
 
-    // ### margins
+    emitMargins(format);
 
     if (format.hasProperty(QTextFormat::BlockBackgroundColor))
         emitAttribute("bgcolor", format.backgroundColor().name());
@@ -1002,7 +1043,7 @@ void QTextHtmlExporter::emitTable(const QTextTable *table)
         widthEmittedForColumn[i] = false;
 
     for (int row = 0; row < rows; ++row) {
-        html += QLatin1String("<tr>"); // ### attr
+        html += QLatin1String("<tr>");
 
         for (int col = 0; col < columns; ++col) {
             const QTextTableCell cell = table->cellAt(row, col);
@@ -1038,7 +1079,7 @@ void QTextHtmlExporter::emitTable(const QTextTable *table)
             html += QLatin1String("</td>");
         }
 
-        html += QLatin1String("</tr>"); // ### attr
+        html += QLatin1String("</tr>");
     }
 
     html += QLatin1String("</table>");

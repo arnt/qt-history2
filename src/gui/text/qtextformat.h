@@ -353,29 +353,29 @@ public:
     { return QFlag(intProperty(BlockAlignment, Qt::AlignAuto)); }
 
     inline void setTopMargin(int margin)
-    { setProperty(BlockTopMargin, margin); }
+    { setProperty(BlockTopMargin, margin, 0); }
     inline int topMargin() const
-    { return intProperty(BlockTopMargin); }
+    { return intProperty(BlockTopMargin, 0); }
 
     inline void setBottomMargin(int margin)
-    { setProperty(BlockBottomMargin, margin); }
+    { setProperty(BlockBottomMargin, margin, 0); }
     inline int bottomMargin() const
-    { return intProperty(BlockBottomMargin); }
+    { return intProperty(BlockBottomMargin, 0); }
 
     inline void setLeftMargin(int margin)
-    { setProperty(BlockLeftMargin, margin); }
+    { setProperty(BlockLeftMargin, margin, 0); }
     inline int leftMargin() const
-    { return intProperty(BlockLeftMargin); }
+    { return intProperty(BlockLeftMargin, 0); }
 
     inline void setRightMargin(int margin)
-    { setProperty(BlockRightMargin, margin); }
+    { setProperty(BlockRightMargin, margin, 0); }
     inline int rightMargin() const
-    { return intProperty(BlockRightMargin); }
+    { return intProperty(BlockRightMargin, 0); }
 
     inline void setFirstLineMargin(int margin)
-    { setProperty(BlockFirstLineMargin, margin); }
+    { setProperty(BlockFirstLineMargin, margin, 0); }
     inline int firstLineMargin() const
-    { return intProperty(BlockFirstLineMargin); }
+    { return intProperty(BlockFirstLineMargin, 0); }
 
     inline void setIndent(int indent)
     { setProperty(BlockIndent, indent); }
