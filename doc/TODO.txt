@@ -294,7 +294,9 @@ QListBoxItem::setEnabled()
 QKeyEvent
   Get the current state of the CAPS lock, NUM lock and SCROLL lock keys.
 
-
+QGLFormat / QGL module
+  Look into if it is possible to specify the depth of depth-, stencil-, 
+  color-buffer in eg. QGLFormat.
 
 New functionality
 -----------------
