@@ -57,7 +57,7 @@ public:
         AltModifier          = 0x08000000,
         MetaModifier         = 0x10000000,
         KeypadModifier       = 0x20000000,
-        KeyboardModifierMask = 0xff000000
+        KeyboardModifierMask = 0x3e000000
     };
     Q_DECLARE_FLAGS(KeyboardModifiers, KeyboardModifier)
 
@@ -67,7 +67,7 @@ public:
         SHIFT         = Qt::ShiftModifier,
         CTRL          = Qt::ControlModifier,
         ALT           = Qt::AltModifier,
-        MODIFIER_MASK = 0xff000000,
+        MODIFIER_MASK = KeyboardModifierMask,
         UNICODE_ACCEL = 0x00000000
     };
 
