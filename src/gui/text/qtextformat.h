@@ -35,6 +35,40 @@ class QTextObject;
 class QTextCursor;
 class QTextDocument;
 
+class Q_GUI_EXPORT QTextLength
+{
+    friend QDataStream &operator<<(QDataStream &, const QTextLength &);
+    friend QDataStream &operator>>(QDataStream &, QTextLength &);
+public:
+    enum Type { VariableLength = 0, FixedLength, PercentageLength };
+
+    inline QTextLength() : lengthType(VariableLength), fixedValueOrPercentage(0) {}
+
+    inline Q_EXPLICIT QTextLength(Type type, int value)
+        : lengthType(type), fixedValueOrPercentage(value) {}
+
+    inline Type type() const { return lengthType; }
+    inline int value(int maximumLength) const
+    {
+        switch (lengthType) {
+            case FixedLength: return fixedValueOrPercentage;
+            case VariableLength: return maximumLength;
+            case PercentageLength: return fixedValueOrPercentage * maximumLength / 100;
+        }
+    }
+
+    inline int rawValue() const { return fixedValueOrPercentage; }
+
+    inline bool operator==(const QTextLength &other) const
+    { return lengthType == other.lengthType && fixedValueOrPercentage == other.fixedValueOrPercentage; }
+    inline bool operator!=(const QTextLength &other) const
+    { return lengthType != other.lengthType || fixedValueOrPercentage != other.fixedValueOrPercentage; }
+
+private:
+    Type lengthType;
+    int fixedValueOrPercentage;
+};
+
 class Q_GUI_EXPORT QTextFormat
 {
     friend class QTextFormatCollection;
@@ -100,8 +134,7 @@ public:
         FramePadding = 0x4082,
         Width = 0x4100,
         Height = 0x4101,
-        TableColumnConstraints = 0x4200,
-        TableColumnConstraintValues = 0x4201,
+        TableColumnWidthConstraints = 0x4200,
         TableCellSpacing = 0x4300,
         TableCellPadding = 0x4301,
         TableBackgroundColor = 0x4400,
@@ -128,7 +161,9 @@ public:
         String,
         FormatObject,
         Color,
-        IntList
+        IntList,
+        Length,
+        LengthVector
     };
 
     enum ObjectTypes {
@@ -160,6 +195,8 @@ public:
     QString stringProperty(int propertyId, const QString &defaultValue = QString::null) const;
     QColor colorProperty(int propertyId, const QColor &defaultValue = QColor()) const;
     QList<int> intListProperty(int propertyId) const;
+    QTextLength lengthProperty(int propertyId) const;
+    QVector<QTextLength> lengthVectorProperty(int propertyId) const;
 
     void setProperty(int propertyId, bool value, bool defaultValue = false);
     void setProperty(int propertyId, int value, int defaultValue = 0);
@@ -167,6 +204,8 @@ public:
     void setProperty(int propertyId, const QString &value, const QString &defaultValue = QString::null);
     void setProperty(int propertyId, const QColor &value, const QColor &defaultValue = QColor());
     void setProperty(int propertyId, const QList<int> &value);
+    void setProperty(int propertyId, const QTextLength &length);
+    void setProperty(int propertyId, const QVector<QTextLength> &lengths);
 
     bool hasProperty(int propertyId) const;
     PropertyType propertyType(int propertyId) const;
@@ -450,8 +489,6 @@ public:
 class Q_GUI_EXPORT QTextTableFormat : public QTextFrameFormat
 {
 public:
-    enum TableColumnConstraint { FixedLength = 0, VariableLength, PercentageLength };
-
     inline QTextTableFormat() : QTextFrameFormat() { setObjectType(TableObject); }
 
     inline bool isValid() const { return isTableFormat(); }
@@ -461,14 +498,11 @@ public:
     inline void setColumns(int columns)
     { setProperty(TableColumns, columns, 1); }
 
-    inline void setTableColumnConstraints(const QList<int> &constraintTypes, const QList<int> &values)
-    {
-        setProperty(TableColumnConstraints, constraintTypes);
-        setProperty(TableColumnConstraintValues, values);
-    }
+    inline void setColumnWidthConstraints(const QVector<QTextLength> &constraints)
+    { setProperty(TableColumnWidthConstraints, constraints); }
 
-    inline QList<int> tableColumnConstraintTypes() const { return intListProperty(TableColumnConstraints); }
-    inline QList<int> tableColumnConstraintValues() const { return intListProperty(TableColumnConstraintValues); }
+    inline QVector<QTextLength> columnWidthConstraints() const
+    { return lengthVectorProperty(TableColumnWidthConstraints); }
 
     inline int cellSpacing() const
     { return intProperty(TableCellSpacing, 0); }

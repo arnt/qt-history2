@@ -442,9 +442,8 @@ QTextHtmlParserNode::QTextHtmlParserNode()
       fontItalic(false), fontUnderline(false), fontOverline(false), fontStrikeOut(false), fontFixedPitch(false),
       cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false), hasFontPointSize(false), fontPointSize(DefaultFontSize),
       fontWeight(QFont::Normal), alignment(Qt::AlignAuto),listStyle(QTextListFormat::ListStyleUndefined),
-      imageWidth(-1), imageHeight(-1), tableColConstraint(QTextTableFormat::VariableLength), tableColConstraintValue(0), 
-      tableBorder(0), tableCellRowSpan(1), tableCellColSpan(1), tableCellSpacing(0), tableCellPadding(0), 
-      wsm(WhiteSpaceModeUndefined)
+      imageWidth(-1), imageHeight(-1), tableBorder(0), tableCellRowSpan(1), tableCellColSpan(1), 
+      tableCellSpacing(0), tableCellPadding(0), wsm(WhiteSpaceModeUndefined)
 {
     margin[QTextHtmlParser::MarginLeft] = 0;
     margin[QTextHtmlParser::MarginRight] = 0;
@@ -1069,14 +1068,18 @@ void QTextHtmlParser::parseAttributes()
                 node->bgColor.setNamedColor(value);
         } else if (node->isTableCell) {
             if (key == QLatin1String("width")) {
-                if (setIntAttribute(&node->tableColConstraintValue, value)) {
-                    node->tableColConstraint = QTextTableFormat::FixedLength;
+                int intVal;
+                bool ok = false;
+                intVal = value.toInt(&ok);
+                if (ok) {
+                    node->tableColumnWidth = QTextLength(QTextLength::FixedLength, intVal);
                 } else {
                     value = value.trimmed();
                     if (!value.isEmpty() && value.at(value.length() - 1) == QLatin1Char('%')) {
                         value.chop(1);
-                        if (setIntAttribute(&node->tableColConstraintValue, value))
-                            node->tableColConstraint = QTextTableFormat::PercentageLength;
+                        intVal = value.toInt(&ok);
+                        if (ok)
+                            node->tableColumnWidth = QTextLength(QTextLength::PercentageLength, intVal);
                     }
                 }
             } else if (key == QLatin1String("bgcolor")) {

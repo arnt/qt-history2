@@ -767,10 +767,8 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
 
     const QTextTableFormat fmt = table->format();
 
-    const QList<int> constraints = fmt.tableColumnConstraintTypes();
-    const QList<int> constraintValues = fmt.tableColumnConstraintValues();
-    Q_ASSERT(constraints.count() == columns);
-    Q_ASSERT(constraintValues.count() == columns);
+    const QVector<QTextLength> columnWidthConstraints = fmt.columnWidthConstraints();
+    Q_ASSERT(columnWidthConstraints.count() == columns);
 
     const int cellSpacing = td->cellSpacing = fmt.cellSpacing();
     td->cellPadding = fmt.cellPadding();
@@ -797,22 +795,25 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
     // variable length cells
     int totalPercentage = 0;
     int variableCols = 0;
-    for (int i = 0; i < columns; ++i)
-        if (constraints.at(i) == QTextTableFormat::FixedLength) {
-            td->widths[i] = constraintValues.at(i);
-            totalWidth -= constraintValues.at(i);
-        } else if (constraints.at(i) == QTextTableFormat::PercentageLength) {
-            totalPercentage += constraintValues.at(i);
-        } else if (constraints.at(i) == QTextTableFormat::VariableLength) {
+    for (int i = 0; i < columns; ++i) {
+        const QTextLength &length = columnWidthConstraints.at(i);
+        if (length.type() == QTextLength::FixedLength) {
+            const int width = length.rawValue();
+            td->widths[i] = width;
+            totalWidth -= width;
+        } else if (length.type() == QTextLength::PercentageLength) {
+            totalPercentage += length.rawValue();
+        } else if (length.type() == QTextLength::VariableLength) {
             variableCols++;
         }
+    }
 
     // set percentage values
     {
         const int totalPercentagedWidth = totalWidth * totalPercentage / 100;
         for (int i = 0; i < columns; ++i)
-            if (constraints.at(i) == QTextTableFormat::PercentageLength)
-                td->widths[i] = totalPercentagedWidth * constraintValues.at(i) / totalPercentage;
+            if (columnWidthConstraints.at(i).type() == QTextLength::PercentageLength)
+                td->widths[i] = totalPercentagedWidth * columnWidthConstraints.at(i).rawValue() / totalPercentage;
 
         totalWidth -= totalPercentagedWidth;
     }
@@ -822,7 +823,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
         // minWidths array is filled with zero at this point
 
         for (int i = 0; i < columns; ++i)
-            if (constraints.at(i) == QTextTableFormat::VariableLength) {
+            if (columnWidthConstraints.at(i).type() == QTextLength::VariableLength) {
                 for (int row = 0; row < rows; ++row) {
                     const QTextTableCell cell = table->cellAt(row, i);
                     const int cspan = cell.columnSpan();
@@ -862,7 +863,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
             QVarLengthArray<int> anySizeColumns;
             QVarLengthArray<int> columnsWithProperMaxSize;
             for (int i = 0; i < columns; ++i)
-                if (constraints.at(i) == QTextTableFormat::VariableLength) {
+                if (columnWidthConstraints.at(i).type() == QTextLength::VariableLength) {
                     if (td->maxWidths.at(i) == INT_MAX)
                         anySizeColumns.append(i);
                     else

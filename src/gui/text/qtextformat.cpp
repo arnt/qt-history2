@@ -19,6 +19,18 @@
 #include <qmap.h>
 #include <qhash.h>
 
+QDataStream &operator<<(QDataStream &stream, const QTextLength &length)
+{
+    return stream << Q_INT32(length.lengthType) << length.fixedValueOrPercentage;
+}
+
+QDataStream &operator>>(QDataStream &stream, QTextLength &length)
+{
+    Q_INT32 type;
+    stream >> type >> length.fixedValueOrPercentage;
+    length.lengthType = QTextLength::Type(type);
+    return stream;
+}
 
 class QTextFormatProperty
 {
@@ -40,6 +52,9 @@ public:
     QTextFormatProperty(const QList<Q_INT32> &value);
 
     QTextFormatProperty(const QString &value);
+
+    QTextFormatProperty(const QTextLength &value);
+    QTextFormatProperty(const QVector<QTextLength> &value);
 
     QTextFormatProperty &operator=(const QTextFormatProperty &rhs);
     inline QTextFormatProperty(const QTextFormatProperty &rhs) : type(QTextFormat::Undefined)
@@ -64,6 +79,12 @@ public:
 
     inline const QList<Q_INT32> &intListValue() const
     { return *reinterpret_cast<const QList<Q_INT32> *>(&data.ptr); }
+
+    inline const QTextLength &lengthValue() const
+    { return *reinterpret_cast<const QTextLength *>(data.ptr); }
+
+    inline const QVector<QTextLength> &lengthVectorValue() const
+    { return *reinterpret_cast<const QVector<QTextLength> *>(&data.ptr); }
 
     uint hash() const;
 
@@ -156,6 +177,18 @@ QTextFormatProperty::QTextFormatProperty(const QString &value)
     new (&data.ptr) QString(value);
 }
 
+QTextFormatProperty::QTextFormatProperty(const QTextLength &value)
+{
+    type = QTextFormat::Length;
+    data.ptr = new QTextLength(value);
+}
+
+QTextFormatProperty::QTextFormatProperty(const QVector<QTextLength> &value)
+{
+    type = QTextFormat::LengthVector;
+    new (&data.ptr) QVector<QTextLength>(value);
+}
+
 uint QTextFormatProperty::hash() const
 {
     switch (type) {
@@ -167,6 +200,8 @@ uint QTextFormatProperty::hash() const
         case QTextFormat::String: return qHash(stringValue());
         case QTextFormat::Color: return qHash(data.color);
         case QTextFormat::IntList: return intListValue().count(); // ### improve
+        case QTextFormat::Length: return lengthValue().type();
+        case QTextFormat::LengthVector: return lengthVectorValue().count();
         default: Q_ASSERT(false);
     }
     return 0;
@@ -185,6 +220,10 @@ QTextFormatProperty &QTextFormatProperty::operator=(const QTextFormatProperty &r
         new (&data.ptr) QString(rhs.stringValue());
     else if (type == QTextFormat::IntList)
         new (&data.ptr) QList<Q_INT32>(rhs.intListValue());
+    else if (type == QTextFormat::Length)
+        data.ptr = new QTextLength(rhs.lengthValue());
+    else if (type == QTextFormat::LengthVector)
+        new (&data.ptr) QVector<QTextLength>(rhs.lengthVectorValue());
     else if (type != QTextFormat::Undefined)
         data = rhs.data;
 
@@ -197,6 +236,10 @@ void QTextFormatProperty::free()
         reinterpret_cast<QString *>(&data.ptr)->~QString();
     else if (type == QTextFormat::IntList)
         reinterpret_cast<QList<Q_INT32> *>(&data.ptr)->~QList<Q_INT32>();
+    else if (type == QTextFormat::Length)
+        delete reinterpret_cast<QTextLength *>(data.ptr);
+    else if (type == QTextFormat::LengthVector)
+        reinterpret_cast<QVector<QTextLength> *>(&data.ptr)->~QVector<QTextLength>();
 }
 
 bool QTextFormatProperty::operator==(const QTextFormatProperty &rhs) const
@@ -213,6 +256,8 @@ bool QTextFormatProperty::operator==(const QTextFormatProperty &rhs) const
         case QTextFormat::String: return stringValue() == rhs.stringValue();
         case QTextFormat::Color: return data.color == rhs.data.color;
         case QTextFormat::IntList: return intListValue() == rhs.intListValue();
+        case QTextFormat::Length: return lengthValue() == rhs.lengthValue();
+        case QTextFormat::LengthVector: return lengthVectorValue() == rhs.lengthVectorValue();
     }
 
     return true;
@@ -231,6 +276,8 @@ QDataStream &operator<<(QDataStream &stream, const QTextFormatProperty &prop)
         case QTextFormat::String: stream << prop.stringValue(); break;
         case QTextFormat::Color: stream << Q_UINT32(prop.data.color); break;
         case QTextFormat::IntList: stream << prop.intListValue(); break;
+        case QTextFormat::Length: stream << prop.lengthValue(); break;
+        case QTextFormat::LengthVector: stream << prop.lengthVectorValue(); break;
         default: Q_ASSERT(false); break;
     }
 
@@ -277,6 +324,18 @@ QDataStream &operator>>(QDataStream &stream, QTextFormatProperty &prop)
             stream >> l;
             prop.type = QTextFormat::Undefined;
             prop = QTextFormatProperty(l);
+        }
+        case QTextFormat::Length: {
+            QTextLength l;
+            stream >> l;
+            prop.type = QTextFormat::Undefined;
+            prop = QTextFormatProperty(l);
+        }
+        case QTextFormat::LengthVector: {
+            QVector<QTextLength> v;
+            stream >> v;
+            prop.type = QTextFormat::Undefined;
+            prop = QTextFormatProperty(v);
         }
         default: Q_ASSERT(false); break;
     }
@@ -655,7 +714,7 @@ QTextImageFormat QTextFormat::toImageFormat() const
     property isn't of \c QTextFormat::Bool type, the \a defaultValue is
     returned instead.
 
-    \sa setProperty() intProperty() floatProperty() stringProperty() colorProperty() intListProperty() PropertyType
+    \sa setProperty() intProperty() floatProperty() stringProperty() colorProperty() intListProperty() lengthProperty() lengthVectorProperty() PropertyType
 */
 bool QTextFormat::boolProperty(int propertyId, bool defaultValue) const
 {
@@ -670,7 +729,7 @@ bool QTextFormat::boolProperty(int propertyId, bool defaultValue) const
     property is not of \c QTextFormat::Integer type, the \a defaultValue is
     returned instead.
 
-    \sa setProperty() boolProperty() floatProperty() stringProperty() colorProperty() intListProperty() PropertyType
+    \sa setProperty() boolProperty() floatProperty() stringProperty() colorProperty() intListProperty() lengthProperty() lengthVectorProperty() PropertyType
 */
 int QTextFormat::intProperty(int propertyId, int defaultValue) const
 {
@@ -685,7 +744,7 @@ int QTextFormat::intProperty(int propertyId, int defaultValue) const
     property isn't of \c QTextFormat::Float type, the \a defaultValue is
     returned instead.
 
-    \sa setProperty() boolProperty() intProperty() stringProperty() colorProperty() intListProperty() PropertyType
+    \sa setProperty() boolProperty() intProperty() stringProperty() colorProperty() intListProperty() lengthProperty() lengthVectorProperty() PropertyType
 */
 float QTextFormat::floatProperty(int propertyId, float defaultValue) const
 {
@@ -700,7 +759,7 @@ float QTextFormat::floatProperty(int propertyId, float defaultValue) const
     property isn't of \c QTextFormat::String type the \a defaultValue is
     returned instead.
 
-    \sa setProperty() boolProperty() intProperty() floatProperty() colorProperty() intListProperty() PropertyType
+    \sa setProperty() boolProperty() intProperty() floatProperty() colorProperty() intListProperty() lengthProperty() lengthVectorProperty() PropertyType
 */
 QString QTextFormat::stringProperty(int propertyId, const QString &defaultValue) const
 {
@@ -715,7 +774,7 @@ QString QTextFormat::stringProperty(int propertyId, const QString &defaultValue)
     property isn't of \c QTextFormat::Color type the \a defaultValue is
     returned instead.
 
-    \sa setProperty() boolProperty() intProperty() floatProperty() stringProperty() intListProperty() PropertyType
+    \sa setProperty() boolProperty() intProperty() floatProperty() stringProperty() intListProperty() lengthProperty() lengthVectorProperty() PropertyType
 */
 QColor QTextFormat::colorProperty(int propertyId, const QColor &defaultValue) const
 {
@@ -730,7 +789,7 @@ QColor QTextFormat::colorProperty(int propertyId, const QColor &defaultValue) co
     property isn't of \c QTextFormat::IntList type an empty list is
     returned instead.
 
-    \sa setProperty() boolProperty() intProperty() floatProperty() stringProperty() colorProperty() PropertyType
+    \sa setProperty() boolProperty() intProperty() floatProperty() stringProperty() colorProperty() lengthProperty() lengthVectorProperty() PropertyType
 */
 QList<int> QTextFormat::intListProperty(int propertyId) const
 {
@@ -738,6 +797,36 @@ QList<int> QTextFormat::intListProperty(int propertyId) const
     if (prop.type != QTextFormat::IntList)
         return QList<int>();
     return prop.intListValue();
+}
+
+/*!
+    Returns the value of the property given by \a propertyId; if the
+    property isn't of \c QTextFormat::Length type an variable length is
+    returned instead.
+
+    \sa setProperty() boolProperty() intProperty() floatProperty() stringProperty() colorProperty() intListProperty() lengthVectorProperty() PropertyType
+*/
+QTextLength QTextFormat::lengthProperty(int propertyId) const
+{
+    const QTextFormatProperty prop = d->properties().value(propertyId);
+    if (prop.type != QTextFormat::Length)
+        return QTextLength();
+    return prop.lengthValue();
+}
+
+/*!
+    Returns the value of the property given by \a propertyId; if the
+    property isn't of \c QTextFormat::LengthVector type an empty length vector is
+    returned instead.
+
+    \sa setProperty() boolProperty() intProperty() floatProperty() stringProperty() colorProperty() intListProperty() lengthProperty() PropertyType
+*/
+QVector<QTextLength> QTextFormat::lengthVectorProperty(int propertyId) const
+{
+    const QTextFormatProperty prop = d->properties().value(propertyId);
+    if (prop.type != QTextFormat::LengthVector)
+        return QVector<QTextLength>();
+    return prop.lengthVectorValue();
 }
 
 /*!
@@ -827,6 +916,26 @@ void QTextFormat::setProperty(int propertyId, const QColor &value, const QColor 
     \sa intListProperty() PropertyType
 */
 void QTextFormat::setProperty(int propertyId, const QList<int> &value)
+{
+    d->insertProperty(propertyId, value);
+}
+
+/*!
+    Sets the value of the property given by \a propertyId to \a value.
+
+    \sa lengthProperty() PropertyType
+*/
+void QTextFormat::setProperty(int propertyId, const QTextLength &value)
+{
+    d->insertProperty(propertyId, value);
+}
+
+/*!
+    Sets the value of the property given by \a propertyId to \a value.
+
+    \sa lengthVectorProperty() PropertyType
+*/
+void QTextFormat::setProperty(int propertyId, const QVector<QTextLength> &value)
 {
     d->insertProperty(propertyId, value);
 }
@@ -1828,30 +1937,20 @@ QFont QTextCharFormat::font() const
 */
 
 /*!
-    \fn void QTextTableFormat::setTableColumnConstraints(const QList<int> &constraintTypes, const QList<int> &values)
+    \fn void QTextTableFormat::setColumnWidthConstraints(const QVector<QTextLength> &constraints)
 
-    Sets the column constraints for the table, assigning each constraint from
-    the list of \a constraintTypes a value from the list of \a values.
+    Sets the column width constraints for the table.
 
-    \sa tableColumnConstraintTypes() tableColumnConstraintValues()
+    \sa columnWidthConstraints()
 */
 
 /*!
-    \fn QList<int> QTextTableFormat::tableColumnConstraintTypes() const
+    \fn QVector<QTextLength> QTextTableFormat::columnWidthConstraints() const
 
-    Returns a list of constraint types used by this table format to control
-    the appearance of columns in a table.
+    Returns a list of constraints used by this table format to control the
+    appearance of columns in a table.
 
-    \sa tableColumnConstraintValues() setTableColumnConstraints()
-*/
-
-/*!
-    \fn QList<int> QTextTableFormat::tableColumnConstraintValues() const
-
-    Returns a list of constraint values used by this table format to control
-    the appearance of columns in a table.
-
-    \sa tableColumnConstraintTypes() setTableColumnConstraints()
+    \sa setColumnWidthConstraints()
 */
 
 /*!

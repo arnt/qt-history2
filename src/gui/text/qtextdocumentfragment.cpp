@@ -634,8 +634,7 @@ bool QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
 {
     table->columns = 0;
 
-    QList<int> constraintTypes;
-    QList<int> constraintValues;
+    QVector<QTextLength> columnWidths;
 
     int cellCount = 0;
     bool inFirstRow = true;
@@ -658,13 +657,11 @@ bool QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
                             table->rowSpanCellsPerRow[r]++;
                     }
 
-                    if (inFirstRow || colsInRow > constraintTypes.count()) {
-                        Q_ASSERT(colsInRow == constraintTypes.count() + c.tableCellColSpan);
+                    if (inFirstRow || colsInRow > columnWidths.count()) {
+                        Q_ASSERT(colsInRow == columnWidths.count() + c.tableCellColSpan);
 
-                        for (int i = 0; i < c.tableCellColSpan; ++i) {
-                            constraintTypes << c.tableColConstraint;
-                            constraintValues << c.tableColConstraintValue;
-                        }
+                        for (int i = 0; i < c.tableCellColSpan; ++i)
+                            columnWidths << c.tableColumnWidth;
                     }
                 }
 
@@ -685,7 +682,7 @@ bool QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
     fmt.setAlignment(at(tableNodeIdx).alignment);
     fmt.setBackgroundColor(at(tableNodeIdx).bgColor);
     fmt.setColumns(table->columns);
-    fmt.setTableColumnConstraints(constraintTypes, constraintValues);
+    fmt.setColumnWidthConstraints(columnWidths);
     table->tableIndex = d->formatCollection.createObjectIndex(fmt);
     return true;
 }
