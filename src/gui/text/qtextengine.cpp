@@ -847,9 +847,9 @@ QTextEngine::~QTextEngine()
 
 void QTextEngine::reallocate( int totalGlyphs )
 {
-    int space_charAttributes = (sizeof(QCharAttributes)*string.length()+sizeof(void*)-1)/sizeof(void*);
-    int space_logClusters = (sizeof(unsigned short)*string.length()+sizeof(void*)-1)/sizeof(void*);
-    int space_glyphs = (sizeof(QGlyphLayout)*totalGlyphs+sizeof(void*)-1)/sizeof(void*);
+    int space_charAttributes = sizeof(QCharAttributes)*string.length()/sizeof(void*) + 1;
+    int space_logClusters = sizeof(unsigned short)*string.length()/sizeof(void*) + 1;
+    int space_glyphs = sizeof(QGlyphLayout)*totalGlyphs/sizeof(void*) + 1;
 
     int newAllocated = space_charAttributes + space_glyphs + space_logClusters;
     memory = (void **)::realloc(memory, newAllocated*sizeof(void *));
@@ -860,7 +860,7 @@ void QTextEngine::reallocate( int totalGlyphs )
     m += space_logClusters;
     glyphPtr = (QGlyphLayout *) m;
 
-    memset(memory + allocated*sizeof(void *), 0, (newAllocated-allocated)*sizeof(void *));
+    memset(((char *)memory) + allocated*sizeof(void *), 0, (newAllocated-allocated)*sizeof(void *));
 
     allocated = newAllocated;
     num_glyphs = totalGlyphs;
@@ -1126,3 +1126,20 @@ QFontEngine *QTextEngine::fontEngine(const QScriptItem &si) const
     return fnt->engineForScript((QFont::Script)si.analysis.script);
 }
 
+void QTextEngine::justify(const QScriptLine &line)
+{
+    if (line.gridfitted && line.justified)
+	return;
+
+    if (!line.gridfitted) {
+	// redo layout in device metrics, then adjust
+	line.gridfitted = true;
+    }
+
+    if (!line.justified && (textFlags & Qt::AlignHorizontal_Mask) == Qt::AlignJustify) {
+	// justify line
+
+    }
+
+    line.justified = true;
+}

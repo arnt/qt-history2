@@ -37,10 +37,6 @@ struct QGlyphLayout;
 class QFontEngine : public QShared
 {
 public:
-    enum Error {
-	NoError,
-	OutOfMemory
-    };
 
     enum Type {
 	// X11 types
@@ -74,27 +70,19 @@ public:
 	_scale = 1;
     }
 
-    enum FlagsEnum {
-	DeviceMetrics = 0x0000,
-	DesignMetrics = 0x0001,
-
-	Mirrored = 0x1000
-    };
-    Q_DECLARE_FLAGS(Flags, FlagsEnum);
-
     virtual ~QFontEngine();
 
     virtual FECaps capabilites() const = 0;
 
     /* returns 0 as glyph index for non existant glyphs */
-    virtual Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, Flags flags) const = 0;
+    virtual bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const = 0;
 
 #if defined(Q_WS_X11)
     virtual int cmap() const { return -1; }
 #endif
 
     virtual QOpenType *openType() const { return 0; }
-    virtual void recalcAdvances(int , QGlyphLayout *, Flags) const {}
+    virtual void recalcAdvances(int , QGlyphLayout *, QTextEngine::ShaperFlags) const {}
 
     virtual void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags) = 0;
 
@@ -169,10 +157,10 @@ public:
     FECaps capabilites() const;
 
     QOpenType *openType() const;
-    void recalcAdvances(int len, QGlyphLayout *glyphs, Flags flags) const;
+    void recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const;
 
     /* returns 0 as glyph index for non existant glyphs */
-    Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, Flags flags) const;
+    bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
     void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
 
@@ -212,7 +200,7 @@ public:
 
     FECaps capabilites() const;
 
-    Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, Flags flags) const;
+    bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
     void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
 
@@ -272,7 +260,7 @@ public:
 
     QOpenType *openType() const;
 
-    Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, Flags flags) const;
+    bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
     void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
 
@@ -296,7 +284,7 @@ public:
     Type type() const;
     XftPattern *pattern() const { return _pattern; }
 
-    void recalcAdvances(int len, QGlyphLayout *glyphs, Flags flags) const;
+    void recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const;
 
     FT_Face freetypeFace() const { return _face; }
 private:
@@ -326,7 +314,7 @@ public:
 
     FECaps capabilites() const;
 
-    Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, Flags flags) const;
+    bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
     void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
 
@@ -369,7 +357,7 @@ public:
 
     FECaps capabilites() const;
 
-    Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, Flags flags) const;
+    bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
     void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
 
@@ -426,7 +414,7 @@ public:
     QFontEngineMac();
     ~QFontEngineMac();
 
-    Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, Flags flags) const;
+    bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
     void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
 
@@ -462,7 +450,7 @@ public:
 
     FECaps capabilites() const;
 
-    Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, Flags flags) const;
+    bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
     void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
 

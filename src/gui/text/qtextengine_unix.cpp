@@ -21,25 +21,47 @@ void QTextEngine::shapeText( int item ) const
     assert( item < items.size() );
     QScriptItem &si = items[item];
 
-    if ( si.num_glyphs )
+    if (si.num_glyphs)
 	return;
-
-    QFont::Script script = (QFont::Script)si.analysis.script;
-    int from = si.position;
-    int len = length( item );
 
     si.glyph_data_offset = used;
 
     QFontEngine *font = fontEngine(si);
+
     if ( !widthOnly ) {
 	si.ascent = font->ascent();
 	si.descent = font->descent();
     }
 
-    scriptEngines[script].shape( script, string, from, len, (QTextEngine *)this, &si );
-    ((QTextEngine *)this)->used += si.num_glyphs;
+    QShaperItem shaper_item;
+    shaper_item.script = si.analysis.script;
+    shaper_item.string = &string;
+    shaper_item.from = si.position;
+    shaper_item.length = length(item);
+    shaper_item.font = font;
+    shaper_item.num_glyphs = qMax(num_glyphs - used, shaper_item.length);
+    // ### DesignMetrics
+    shaper_item.flags = si.analysis.bidiLevel % 2 ? RightToLeft : 0;
 
-    QGlyphLayout *g = glyphs(&si);
+//     qDebug("shaping");
+    while (1) {
+// 	qDebug("    . num_glyphs=%d, used=%d, item.num_glyphs=%d", num_glyphs, used, shaper_item.num_glyphs);
+	ensureSpace(shaper_item.num_glyphs);
+	shaper_item.num_glyphs = num_glyphs - used;
+//  	qDebug("    .. num_glyphs=%d, used=%d, item.num_glyphs=%d", num_glyphs, used, shaper_item.num_glyphs);
+	shaper_item.glyphs = glyphs(&si);
+	shaper_item.log_clusters = logClusters(&si);
+	if (scriptEngines[shaper_item.script].shape(&shaper_item))
+	    break;
+    }
+
+//     qDebug("    -> item: script=%d num_glyphs=%d", shaper_item.script, shaper_item.num_glyphs);
+    si.num_glyphs = shaper_item.num_glyphs;
+    si.hasPositioning = true; // ##### get rid of me
+
+    used += si.num_glyphs;
+
+    QGlyphLayout *g = shaper_item.glyphs;
     // ############ general solution needed
 #if defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE)
     if ( this->font(si).d->kerning && font->type() == QFontEngine::Xft) {

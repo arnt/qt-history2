@@ -18,10 +18,24 @@
 #endif // QT_H
 
 class QString;
-class QOpenType;
-class QTextEngine;
+class QGlyphLayout;
+class QCharAttributes;
 
-typedef void (*ShapeFunction)( int script, const QString &, int, int, QTextEngine *, QScriptItem * );
+struct QShaperItem {
+    int script;
+    const QString *string;
+    int from;
+    int length;
+    QFontEngine *font;
+    QGlyphLayout *glyphs;
+    int num_glyphs; // in: available glyphs out: glyphs used/needed
+    unsigned short *log_clusters;
+    int flags;
+};
+
+// return true if ok.
+typedef bool (*ShapeFunction)(QShaperItem *item);
+//typedef void (*ShapeFunction)( int script, const QString &, int, int, QTextEngine *, QScriptItem * );
 typedef void (*AttributeFunction)( int script, const QString &, int, int, QCharAttributes * );
 
 struct q_scriptEngine {

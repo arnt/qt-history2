@@ -25,7 +25,7 @@ enum IndicFeatures {
     HalantFeature
 };
 
-class QScriptItem;
+class QShaperItem;
 
 class QOpenType
 {
@@ -39,9 +39,8 @@ public:
     void applyGPOSFeatures();
 
 
-    void init(QGlyphLayout *glyphs, int num_glyphs,
-	      unsigned short *logClusters, int len, int char_offset = 0);
-    void appendTo(QTextEngine *engine, QScriptItem *si, bool doLogClusters = TRUE);
+    void init(QShaperItem *item);
+    bool appendTo(QShaperItem *item, bool doLogClusters = true);
 
     const int *mapping(int &len);
     inline void setLength(int len) { str->length = len; }

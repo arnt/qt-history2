@@ -29,8 +29,9 @@
 #endif // Q_OS_TEMP
 
 class QFontPrivate;
-class QString;
+class QFontEngine;
 
+class QString;
 class QOpenType;
 class QPainter;
 
@@ -115,6 +116,7 @@ public:
 private:
     int val;
 };
+Q_DECLARE_TYPEINFO(Q26Dot6, Q_PRIMITIVE_TYPE);
 
 inline Q26Dot6 operator*(int i, const Q26Dot6 &d) { return d*i; }
 inline Q26Dot6 operator*(double d, const Q26Dot6 &d2) { return d2*d; }
@@ -256,8 +258,6 @@ struct QCharAttributes {
 };
 Q_DECLARE_TYPEINFO(QCharAttributes, Q_PRIMITIVE_TYPE);
 
-class QFontEngine;
-
 struct QScriptItem
 {
     inline QScriptItem() : position( 0 ), isSpace( FALSE ), isTab( FALSE ),
@@ -294,7 +294,9 @@ struct QScriptLine
     Q26Dot6 width;
     Q26Dot6 textWidth;
     int from;
-    int length;
+    uint length : 30;
+    mutable uint justified : 1;
+    mutable uint gridfitted : 1;
 };
 Q_DECLARE_TYPEINFO(QScriptLine, Q_PRIMITIVE_TYPE);
 
@@ -308,11 +310,11 @@ class QPalette;
 class QTextEngine {
 public:
     QTextEngine()
-	: fnt(0), formats(0), inlineObjectIface(0), allocated(0), memory(0),
+	: fnt(0), formats(0), inlineObjectIface(0), allocated(0), memory(0), num_glyphs(0),
 	  cursorPos(-1), selections(0), nSelections(0), underlinePositions(0)
 	{}
     QTextEngine(const QString &str, QFontPrivate *f )
-	: fnt(f), formats(0), inlineObjectIface(0), allocated(0), memory(0),
+	: fnt(f), formats(0), inlineObjectIface(0), allocated(0), memory(0), num_glyphs(0),
     	  cursorPos(-1), selections(0), nSelections(0), underlinePositions(0)
 	{ setText(str); fnt->ref(); }
     ~QTextEngine();
@@ -328,6 +330,14 @@ public:
 	WidthOnly = 0x07
     };
 
+    enum ShaperFlagsEnum {
+	RightToLeft = 0x0001,
+	Mirrored = 0x0001,
+	DesignMetrics = 0x0002
+    };
+    Q_DECLARE_FLAGS(ShaperFlags, ShaperFlagsEnum);
+
+
     void itemize( int mode = Full );
 
     static void bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOrder );
@@ -339,7 +349,7 @@ public:
 
     void shape( int item ) const;
 
-    // ### we need something for justification
+    void justify(const QScriptLine &si);
 
     enum Edge {
 	Leading,
@@ -373,7 +383,7 @@ public:
     void reallocate( int totalGlyphs );
     inline void ensureSpace( int nGlyphs ) const {
 	if ( num_glyphs - used < nGlyphs )
-	    ((QTextEngine *)this)->reallocate( ( (used + nGlyphs + 16) >> 4 ) << 4 );
+	    ((QTextEngine *)this)->reallocate( (((used + nGlyphs)*3/2) >> 4 ) << 4 );
     }
 
 
@@ -396,7 +406,7 @@ public:
     int allocated;
     void **memory;
     int num_glyphs;
-    int used;
+    mutable int used;
     Q26Dot6 minWidth;
 
     int cursorPos;

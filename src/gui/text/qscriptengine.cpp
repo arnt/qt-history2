@@ -35,24 +35,23 @@
 //
 // --------------------------------------------------------------------------------------------------------------------------------------------
 
-static inline void positionCluster( QTextEngine *engine, QScriptItem *si, int gfrom,  int glast )
+static inline void positionCluster(QShaperItem *item, int gfrom,  int glast )
 {
-    si->hasPositioning = TRUE;
     int nmarks = glast - gfrom;
     if ( nmarks <= 0 ) {
 	qWarning( "positionCluster: no marks to position!" );
 	return;
     }
 
-    QGlyphLayout *glyphs = engine->glyphs( si );
+    QGlyphLayout *glyphs = item->glyphs;
+    QFontEngine *f = item->font;
 
-    QFontEngine *f = engine->fontEngine(*si);
     glyph_metrics_t baseInfo = f->boundingBox( glyphs[gfrom].glyph );
 
-    if ( si->analysis.script == QFont::Hebrew ) {
+    if ( item->script == QFont::Hebrew )
 	// we need to attach below the baseline, because of the hebrew iud.
 	baseInfo.height = qMax( baseInfo.height, -baseInfo.y );
-    }
+
     QRect baseRect( baseInfo.x.value(), baseInfo.y.value(), baseInfo.width.value(), baseInfo.height.value() );
 
 //     qDebug("---> positionCluster: cluster from %d to %d", gfrom, glast );
@@ -62,7 +61,7 @@ static inline void positionCluster( QTextEngine *engine, QScriptItem *si, int gf
     int offsetBase = (size - 4) / 4 + qMin( size, 4 ) + 1;
 //     qDebug("offset = %d", offsetBase );
 
-    bool rightToLeft = si->analysis.bidiLevel % 2;
+    bool rightToLeft = item->flags & QTextEngine::RightToLeft;
 
     int i;
     unsigned char lastCmb = 0;
@@ -181,17 +180,17 @@ static inline void positionCluster( QTextEngine *engine, QScriptItem *si, int gf
 }
 
 
-void q_heuristicPosition( QTextEngine *engine, QScriptItem *si )
+void q_heuristicPosition(QShaperItem *item)
 {
-    QGlyphLayout *glyphs = engine->glyphs( si );
+    QGlyphLayout *glyphs = item->glyphs;
 
     int cEnd = -1;
-    int i = si->num_glyphs;
+    int i = item->num_glyphs;
     while ( i-- ) {
 	if ( cEnd == -1 && glyphs[i].attributes.mark ) {
 	    cEnd = i;
 	} else if ( cEnd != -1 && !glyphs[i].attributes.mark ) {
-	    positionCluster( engine, si, i, cEnd );
+	    positionCluster(item, i, cEnd);
 	    cEnd = -1;
 	}
     }
@@ -202,22 +201,20 @@ void q_heuristicPosition( QTextEngine *engine, QScriptItem *si )
 // set the glyph attributes heuristically. Assumes a 1 to 1 relationship between chars ang glyphs
 // and no reordering.
 // also computes logClusters heuristically
-static void heuristicSetGlyphAttributes( const QString &string, int from, int len,
-					 QTextEngine *engine, QScriptItem *si )
+static void heuristicSetGlyphAttributes(QShaperItem *item)
 {
     // ### zeroWidth and justification are missing here!!!!!
 
-    if ( si->num_glyphs != len )
-	qWarning("QScriptEngine::heuristicSetGlyphAttributes: char length and num glyphs disagree" );
+    Q_ASSERT(item->num_glyphs == item->length);
 
 //     qDebug("QScriptEngine::heuristicSetGlyphAttributes, num_glyphs=%d", num_glyphs);
-    QGlyphLayout *glyphs = engine->glyphs( si );
-    unsigned short *logClusters = engine->logClusters( si );
+    QGlyphLayout *glyphs = item->glyphs;
+    unsigned short *logClusters = item->log_clusters;
 
     // honour the logClusters array if it exists.
-    const QChar *uc = string.unicode() + from;
+    const QChar *uc = item->string->unicode() + item->from;
 
-    for ( int i = 0; i < si->num_glyphs; i++ )
+    for ( int i = 0; i < item->num_glyphs; i++ )
 	logClusters[i] = i;
 
     // first char in a run is never (treated as) a mark
@@ -227,7 +224,7 @@ static void heuristicSetGlyphAttributes( const QString &string, int from, int le
 
     int pos = 1;
     QChar::Category lastCat = ::category(uc[0]);
-    while ( pos < len ) {
+    while (pos < item->length) {
 	QChar::Category cat = ::category(uc[pos]);
 	if (cat != QChar::Mark_NonSpacing) {
 	    glyphs[pos].attributes.mark = FALSE;
@@ -274,7 +271,6 @@ static void heuristicSetGlyphAttributes( const QString &string, int from, int le
 	    logClusters[pos] = cStart;
 	    glyphs[pos].advance.x = 0;
 	    glyphs[pos].advance.y = 0;
-	    si->hasPositioning = TRUE;
 	}
 
 	if (lastCat == QChar::Separator_Space)
@@ -289,28 +285,15 @@ static void heuristicSetGlyphAttributes( const QString &string, int from, int le
     }
 }
 
-static void convertToCMap( const QChar *chars, int len, QTextEngine *engine, QScriptItem *si )
+static bool basic_shape(QShaperItem *item)
 {
-    QGlyphLayout *glyphs = engine->glyphs( si );
+    if (!item->font->stringToCMap(item->string->unicode()+item->from, item->length, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
+	return false;
 
-    si->num_glyphs = len;
-    engine->ensureSpace( len );
-    QFontEngine *font = engine->fontEngine(*si);
-    QFontEngine::Flags f = (si->analysis.bidiLevel %2) ? QFontEngine::Mirrored : QFontEngine::DeviceMetrics;
-    int error = font->stringToCMap( chars, len, glyphs, &si->num_glyphs, f);
-    if ( error == QFontEngine::OutOfMemory ) {
-	engine->ensureSpace( si->num_glyphs );
-	font->stringToCMap(chars, len, glyphs, &si->num_glyphs, f);
-    }
-}
-
-static void basic_shape( int /*script*/, const QString &string, int from, int len, QTextEngine *engine, QScriptItem *si )
-{
-    convertToCMap( string.unicode() + from, len, engine, si );
-    heuristicSetGlyphAttributes( string, from, len, engine, si );
-    if ( !engine->widthOnly ) {
-	q_heuristicPosition( engine, si );
-    }
+    heuristicSetGlyphAttributes(item);
+    if (!(item->flags & QTextEngine::WidthOnly))
+	q_heuristicPosition(item);
+    return true;
 }
 
 static void basic_attributes( int /*script*/, const QString &text, int from, int len, QCharAttributes *attributes )
@@ -1111,11 +1094,11 @@ static inline int getShape( uchar cell, int shape )
 /*
   Two small helper functions for arabic shaping.
 */
-static inline const QChar prevChar( const QString &str, int pos )
+static inline const QChar prevChar( const QString *str, int pos )
 {
     //qDebug("leftChar: pos=%d", pos);
     pos--;
-    const QChar *ch = str.unicode() + pos;
+    const QChar *ch = str->unicode() + pos;
     while( pos > -1 ) {
 	if( ::category( *ch ) != QChar::Mark_NonSpacing )
 	    return *ch;
@@ -1125,11 +1108,11 @@ static inline const QChar prevChar( const QString &str, int pos )
     return QChar::replacement;
 }
 
-static inline const QChar nextChar( const QString &str, int pos)
+static inline const QChar nextChar( const QString *str, int pos)
 {
     pos++;
-    int len = str.length();
-    const QChar *ch = str.unicode() + pos;
+    int len = str->length();
+    const QChar *ch = str->unicode() + pos;
     while( pos < len ) {
 	//qDebug("rightChar: %d isLetter=%d, joining=%d", pos, ch.isLetter(), ch.joining());
 	if( ::category( *ch ) != QChar::Mark_NonSpacing )
@@ -1142,20 +1125,20 @@ static inline const QChar nextChar( const QString &str, int pos)
 }
 
 
-static void shapedString(const QString& uc, int from, int len, QChar *shapeBuffer, int *shapedLength,
+static void shapedString(const QString *uc, int from, int len, QChar *shapeBuffer, int *shapedLength,
 			 bool reverse, QGlyphLayout *glyphs, unsigned short *logClusters )
 {
-    if( len < 0 ) {
-	len = uc.length() - from;
-    } else if( len == 0 ) {
+    Q_ASSERT(uc->length() <= from + len);
+
+    if( len == 0 ) {
 	*shapedLength = 0;
 	return;
     }
 
     QVarLengthArray<ArabicProperties> properties(len);
-    getArabicProperties((const unsigned short *)(uc.unicode()+from), len, properties);
+    getArabicProperties((const unsigned short *)(uc->unicode()+from), len, properties);
 
-    const QChar *ch = uc.unicode() + from;
+    const QChar *ch = uc->unicode() + from;
     QChar *data = shapeBuffer;
     int clusterStart = 0;
 
@@ -1237,24 +1220,27 @@ static void shapedString(const QString& uc, int from, int len, QChar *shapeBuffe
 
 #if defined(QT_OPENTYPE)
 
-static void arabicSyriacOpenTypeShape( int script, QOpenType *openType, const QString &string, int from,
-				       int len, QTextEngine *engine, QScriptItem *si )
+static bool arabicSyriacOpenTypeShape(QOpenType *openType, QShaperItem *item)
 {
-    convertToCMap( string.unicode() + from, len, engine, si );
-    heuristicSetGlyphAttributes( string, from, len, engine, si );
+    int nglyphs = item->num_glyphs;
+    if (!item->font->stringToCMap(item->string->unicode()+item->from, item->length, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
+	return false;
 
-    QVarLengthArray<ArabicProperties> properties(si->num_glyphs);
-    getArabicProperties((const unsigned short *)(string.unicode()+from), len, properties);
+    heuristicSetGlyphAttributes(item);
 
-    QVarLengthArray<bool> apply(si->num_glyphs);
+    QGlyphLayout *glyphs = item->glyphs;
+    unsigned short *logClusters = item->log_clusters;
+    const unsigned short *uc = (const unsigned short *)item->string->unicode() + item->from;
 
-    QGlyphLayout *glyphs = engine->glyphs(si);
-    unsigned short *logClusters = engine->logClusters(si);
-    unsigned short *uc = (unsigned short *)string.unicode() + from;
+    QVarLengthArray<ArabicProperties> properties(item->num_glyphs);
+    getArabicProperties(uc, item->length, properties);
+
+    QVarLengthArray<bool> apply(item->num_glyphs);
+
 
     // Hack to remove ZWJ and ZWNJ from rendered output.
     int j = 0;
-    for ( int i = 0; i < si->num_glyphs; i++ ) {
+    for ( int i = 0; i < item->num_glyphs; i++ ) {
  	if (uc[i] == 0x200c || uc[i] == 0x200d)
  	    continue;
  	glyphs[j] = glyphs[i];
@@ -1263,14 +1249,14 @@ static void arabicSyriacOpenTypeShape( int script, QOpenType *openType, const QS
  	logClusters[i] = logClusters[j];
  	++j;
     }
-    si->num_glyphs = j;
+    item->num_glyphs = j;
 
-    openType->init(glyphs, si->num_glyphs, logClusters, si->num_glyphs);
+    openType->init(item);
 
     // call features in the order defined by http://www.microsoft.com/typography/otfntdev/arabicot/shaping.htm
     openType->applyGSUBFeature(FT_MAKE_TAG( 'c', 'c', 'm', 'p' ));
 
-    if (script == QFont::Arabic) {
+    if (item->script == QFont::Arabic) {
 	const struct {
 	    int tag;
 	    int shape;
@@ -1281,7 +1267,7 @@ static void arabicSyriacOpenTypeShape( int script, QOpenType *openType, const QS
 	    { FT_MAKE_TAG( 'i', 'n', 'i', 't' ), XInitial }
 	};
 	for (int j = 0; j < 4; ++j) {
-	    for ( int i = 0; i < si->num_glyphs; i++ )
+	    for ( int i = 0; i < item->num_glyphs; i++ )
 		apply[i] = (properties[i].shape == features[j].shape);
 	    openType->applyGSUBFeature(features[j].tag, apply);
 	}
@@ -1299,7 +1285,7 @@ static void arabicSyriacOpenTypeShape( int script, QOpenType *openType, const QS
 	    { FT_MAKE_TAG( 'i', 'n', 'i', 't' ), XInitial }
 	};
 	for (int j = 0; j < 7; ++j) {
-	    for ( int i = 0; i < si->num_glyphs; i++ )
+	    for ( int i = 0; i < item->num_glyphs; i++ )
 		apply[i] = (properties[i].shape == features[j].shape);
 	    openType->applyGSUBFeature(features[j].tag, apply);
 	}
@@ -1314,7 +1300,7 @@ static void arabicSyriacOpenTypeShape( int script, QOpenType *openType, const QS
     for (int j = 0; j < 4; ++j)
 	openType->applyGSUBFeature(commonFeatures[j]);
 
-    if (script == QFont::Arabic) {
+    if (item->script == QFont::Arabic) {
 	const int features[] = {
 	    FT_MAKE_TAG( 'c', 's', 'w', 'h' ),
 	    // mset is used in old Win95 fonts that don't have a 'mark' positioning table.
@@ -1325,8 +1311,10 @@ static void arabicSyriacOpenTypeShape( int script, QOpenType *openType, const QS
     }
 
     openType->applyGPOSFeatures();
-    si->num_glyphs = 0;
-    openType->appendTo(engine, si);
+
+    // reset num_glyphs to what is available.
+    item->num_glyphs = nglyphs;
+    return openType->appendTo(item);
 }
 
 #endif
@@ -1349,37 +1337,34 @@ static void arabic_attributes( int /*script*/, const QString &text, int from, in
 
 
 // #### stil missing: identify invalid character combinations
-static void arabic_shape( int /*script*/, const QString &string, int from, int len,
-			  QTextEngine *engine, QScriptItem *si )
+static bool arabic_shape(QShaperItem *item)
 {
-#ifdef QT_OPENTYPE
-    QFontEngine *font = engine->fontEngine(*si);
-    QOpenType *openType = font->openType();
+    Q_ASSERT(item->script == QFont::Arabic);
 
-    if ( openType && openType->supportsScript( QFont::Arabic ) ) {
-	arabicSyriacOpenTypeShape( QFont::Arabic, openType, string,  from,  len, engine, si );
-	return;
-    }
+#ifdef QT_OPENTYPE
+    QOpenType *openType = item->font->openType();
+
+    if ( openType && openType->supportsScript( QFont::Arabic ) )
+	return arabicSyriacOpenTypeShape(openType, item);
 #endif
 
-    const QString &text = string;
-
-    QGlyphLayout *glyphs = engine->glyphs( si );
-    unsigned short *logClusters = engine->logClusters( si );
-
-    QVarLengthArray<ushort> shapedChars(len);
+    QVarLengthArray<ushort> shapedChars(item->length);
 
     int slen;
-    shapedString( text, from, len, (QChar *)(unsigned short*)shapedChars, &slen, (si->analysis.bidiLevel%2),
-		  glyphs, logClusters );
+    shapedString( item->string, item->from, item->length, (QChar *)(unsigned short*)shapedChars, &slen,
+		  item->flags & QTextEngine::RightToLeft,
+		  item->glyphs, item->log_clusters );
 
-    convertToCMap( (QChar *)(unsigned short*)shapedChars, slen, engine, si );
+    if (!item->font->stringToCMap( (QChar *)(unsigned short*)shapedChars, slen, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
+	return false;
+
     for (int i = 0; i < slen; ++i)
-	if (glyphs[i].attributes.mark) {
-	    glyphs[i].advance.x = 0;
-	    glyphs[i].advance.y = 0;
+	if (item->glyphs[i].attributes.mark) {
+	    item->glyphs[i].advance.x = 0;
+	    item->glyphs[i].advance.y = 0;
 	}
-    q_heuristicPosition( engine, si );
+    q_heuristicPosition(item);
+    return true;
 }
 
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)

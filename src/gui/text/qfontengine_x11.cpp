@@ -106,11 +106,11 @@ QFontEngine::FECaps QFontEngineBox::capabilites() const
     return FullTransformations;
 }
 
-QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *, int len, QGlyphLayout *glyphs, int *nglyphs, Flags ) const
+bool QFontEngineBox::stringToCMap( const QChar *, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
-	return OutOfMemory;
+	return false;
     }
 
     memset(glyphs, 0, len * sizeof(glyph_t));
@@ -121,7 +121,7 @@ QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *, int len, QGlyphL
     }
 
     *nglyphs = len;
-    return NoError;
+    return true;
 }
 
 void QFontEngineBox::draw( QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags )
@@ -272,14 +272,14 @@ QFontEngine::FECaps QFontEngineXLFD::capabilites() const
     return NoTransformations;
 }
 
-QFontEngine::Error QFontEngineXLFD::stringToCMap( const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, Flags flags ) const
+bool QFontEngineXLFD::stringToCMap( const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
-	return OutOfMemory;
+	return false;
     }
 
-    bool mirrored = flags & Mirrored;
+    bool mirrored = flags & QTextEngine::RightToLeft;
     if ( _codec ) {
 	bool haveNbsp = FALSE;
 	for ( int i = 0; i < len; i++ )
@@ -346,7 +346,7 @@ QFontEngine::Error QFontEngineXLFD::stringToCMap( const QChar *str, int len, QGl
 	for ( int i = 0; i < len; i++ )
 	    glyphs[i].advance.x *= _scale;
     }
-    return NoError;
+    return true;
 }
 
 void QFontEngineXLFD::draw( QPaintEngine *p, int xpos, int ypos, const QTextItem &si, int textFlags )
@@ -608,7 +608,7 @@ bool QFontEngineXLFD::canRender( const QChar *string, int len )
 {
     QVarLengthArray<QGlyphLayout, 256> glyphs(len);
     int nglyphs = len;
-    if ( stringToCMap( string, len, glyphs, &nglyphs, 0 ) == OutOfMemory ) {
+    if ( stringToCMap( string, len, glyphs, &nglyphs, 0 ) == false ) {
 	glyphs.resize(nglyphs);
 	stringToCMap( string, len, glyphs, &nglyphs, 0 );
     }
@@ -753,15 +753,15 @@ void QFontEngineLatinXLFD::findEngine( const QChar &ch )
     }
 }
 
-QFontEngine::Error
-QFontEngineLatinXLFD::stringToCMap( const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, Flags flags ) const
+bool
+QFontEngineLatinXLFD::stringToCMap( const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
-	return OutOfMemory;
+	return false;
     }
 
-    bool mirrored = flags & Mirrored;
+    bool mirrored = flags & QTextEngine::RightToLeft;
     int i;
     bool missing = FALSE;
     const QChar *c = str+len;
@@ -823,7 +823,7 @@ QFontEngineLatinXLFD::stringToCMap( const QChar *str, int len, QGlyphLayout *gly
     }
 
     *nglyphs = len;
-    return NoError;
+    return true;
 }
 
 void QFontEngineLatinXLFD::draw( QPaintEngine *p, int xpos, int y, const QTextItem &si, int textFlags )
@@ -1111,14 +1111,14 @@ QFontEngine::FECaps QFontEngineXft::capabilites() const
     return (_face->face_flags & FT_FACE_FLAG_SCALABLE) ? FullTransformations : NoTransformations;
 }
 
-QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, Flags flags ) const
+bool QFontEngineXft::stringToCMap( const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
-	return OutOfMemory;
+	return false;
     }
 
-    bool mirrored = flags & Mirrored;
+    bool mirrored = flags & QTextEngine::RightToLeft;
     if ( mirrored ) {
 	for ( int i = 0; i < len; ++i ) {
 	    unsigned short uc = ::mirroredChar(str[i]).unicode();
@@ -1150,13 +1150,13 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, QGly
     recalcAdvances(len, glyphs, flags);
 
     *nglyphs = len;
-    return NoError;
+    return true;
 }
 
 
-void QFontEngineXft::recalcAdvances(int len, QGlyphLayout *glyphs, Flags flags) const
+void QFontEngineXft::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const
 {
-    if (flags & DesignMetrics) {
+    if (flags & QTextEngine::DesignMetrics) {
 	FT_Face face = XftLockFace(_font);
 	for ( int i = 0; i < len; i++ ) {
 	    FT_UInt glyph = glyphs[i].glyph;
@@ -1344,6 +1344,14 @@ void QFontEngineXft::draw( QPaintEngine *p, int xpos, int ypos, const QTextItem 
 	    glyphSpec[i].x = xp;
 	    glyphSpec[i].y = yp;
 	    glyphSpec[i].glyph = glyphs[i].glyph;
+
+#ifdef FONTENGINE_DEBUG
+	    glyph_metrics_t ci = boundingBox( glyphs[i].glyph );
+	    qDebug("bounding %d ci[%x]=%d %d (%d/%d) / %d %d   offs=(%d/%d) advance=(%d/%d)", i, glyphs[i].glyph,
+		   ci.x.toInt(), ci.y.toInt(), ci.width.toInt(), ci.height.toInt(), ci.xoff.toInt(), ci.yoff.toInt(),
+		   glyphs[i].offset.x.toInt(), glyphs[i].offset.y.toInt(), glyphs[i].advance.x.toInt(), glyphs[i].advance.y.toInt());
+#endif
+
 	    x += glyphs[i].advance.x;
 	    y += glyphs[i].advance.y;
 	    ++i;

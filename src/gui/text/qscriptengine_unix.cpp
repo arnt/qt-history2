@@ -17,74 +17,68 @@
 // ------------------------------------------------------------------------------------------------------------------
 
 // #### stil missing: identify invalid character combinations
-static void hebrew_shape(int script, const QString &string, int from, int len,
-			 QTextEngine *engine, QScriptItem *si)
+static bool hebrew_shape(QShaperItem *item)
 {
-    assert(script == QFont::Hebrew);
+    Q_ASSERT(item->script == QFont::Hebrew);
 
 #ifdef QT_OPENTYPE
-    QFontEngine *font = engine->fontEngine(*si);
-    QOpenType *openType = font->openType();
+    QOpenType *openType = item->font->openType();
 
-    if ( openType && openType->supportsScript( script ) ) {
-	convertToCMap( string.unicode() + from, len, engine, si );
-	heuristicSetGlyphAttributes( string, from, len, engine, si );
-	openType->init(engine->glyphs(si), si->num_glyphs, engine->logClusters(si), len);
+    if ( openType && openType->supportsScript( item->script ) ) {
+	int nglyphs = item->num_glyphs;
+	if (!item->font->stringToCMap(item->string->unicode()+item->from, item->length, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
+	    return false;
+	heuristicSetGlyphAttributes(item);
+	openType->init(item);
 
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'c', 'c', 'm', 'p' ));
 	// Uniscribe also defines dlig for Hebrew, but we leave this out for now, as it's mostly
 	// ligatures one does not want in modern Hebrew (as lam-alef ligatures).
 
 	openType->applyGPOSFeatures();
-	si->num_glyphs = 0;
-	openType->appendTo(engine, si);
-
-	return;
+	item->num_glyphs = nglyphs;
+	return openType->appendTo(item);
     }
 #endif
-    basic_shape( script, string, from, len, engine, si );
+    return basic_shape(item);
 }
 
 // #### stil missing: identify invalid character combinations
-static void syriac_shape( int script, const QString &string, int from, int len,
-			  QTextEngine *engine, QScriptItem *si )
+static bool syriac_shape(QShaperItem *item)
 {
-#ifdef QT_OPENTYPE
-    QFontEngine *font = engine->fontEngine(*si);
-    QOpenType *openType = font->openType();
+    Q_ASSERT(item->script == QFont::Syriac);
 
+#ifdef QT_OPENTYPE
+    QOpenType *openType = item->font->openType();
     if ( openType && openType->supportsScript( QFont::Syriac ) ) {
-	arabicSyriacOpenTypeShape( QFont::Syriac, openType, string, from, len, engine, si );
-	return;
+	return arabicSyriacOpenTypeShape(openType, item);
     }
 #endif
-    basic_shape( script, string, from, len, engine, si );
+    return basic_shape(item);
 }
 
 
-static void thaana_shape(int script, const QString &string, int from, int len,
-			 QTextEngine *engine, QScriptItem *si)
+static bool thaana_shape(QShaperItem *item)
 {
-    assert(script == QFont::Thaana);
+    Q_ASSERT(item->script == QFont::Thaana);
 
 #ifdef QT_OPENTYPE
-    QFontEngine *font = engine->fontEngine(*si);
-    QOpenType *openType = font->openType();
+    QOpenType *openType = item->font->openType();
 
-    if ( openType && openType->supportsScript( script ) ) {
-	convertToCMap( string.unicode() + from, len, engine, si );
-	heuristicSetGlyphAttributes( string, from, len, engine, si );
-	openType->init(engine->glyphs(si), si->num_glyphs, engine->logClusters(si), len);
+    if (openType && openType->supportsScript(item->script)) {
+	int nglyphs = item->num_glyphs;
+	if (!item->font->stringToCMap(item->string->unicode()+item->from, item->length, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
+	    return false;
+	heuristicSetGlyphAttributes(item);
+	openType->init(item);
 
 	// thaana only uses positioning features
 	openType->applyGPOSFeatures();
-	si->num_glyphs = 0;
-	openType->appendTo(engine, si);
-
-	return;
+	item->num_glyphs = nglyphs;
+	return openType->appendTo(item);
     }
 #endif
-    basic_shape( script, string, from, len, engine, si );
+    return basic_shape(item);
 }
 
 // --------------------------------------------------------------------------------------------------------------------------------------------
@@ -1152,30 +1146,34 @@ static inline void splitMatra(unsigned short *reordered, int matra, int &len, in
 #define IDEBUG if(0) qDebug
 #endif
 
-static void indic_shape_syllable( int script, const QString &string, int from, int syllableLength,
-				 QTextEngine *engine, QScriptItem *si, QOpenType *openType, bool invalid )
+static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool invalid)
 {
-    assert( script >= QFont::Devanagari && script <= QFont::Sinhala );
+    int script = item->script;
+    Q_ASSERT( script >= QFont::Devanagari && script <= QFont::Sinhala );
     const unsigned short script_base = 0x0900 + 0x80*(script-QFont::Devanagari);
     const unsigned short ra = script_base + 0x30;
     const unsigned short halant = script_base + 0x4d;
     const unsigned short nukta = script_base + 0x3c;
 
-    int len = syllableLength;
-    IDEBUG(">>>>> indic shape: from=%d, len=%d invalid=%d", from, len, invalid);
+    int len = item->length;
+    IDEBUG(">>>>> indic shape: from=%d, len=%d invalid=%d", item->from, item->length, invalid);
+
+    if (item->num_glyphs < len+4) {
+	item->num_glyphs = len+4;
+	return false;
+    }
 
     QVarLengthArray<unsigned short> reordered(len+4);
-    QVarLengthArray<QGlyphLayout> glyphs(len+4);
     QVarLengthArray<unsigned char> position(len+4);
 
     unsigned char properties = scriptProperties[script-QFont::Devanagari];
 
     if ( invalid ) {
 	*reordered = 0x25cc;
-	memcpy( reordered+1, string.unicode() + from, len*sizeof( QChar ) );
+	memcpy( reordered+1, item->string->unicode() + item->from, len*sizeof( QChar ) );
 	len++;
     } else {
-	memcpy( reordered, string.unicode() + from, len*sizeof( QChar ) );
+	memcpy( reordered, item->string->unicode() + item->from, len*sizeof( QChar ) );
     }
     if (reordered[len-1] == 0x200c) // zero width non joiner
 	len--;
@@ -1355,7 +1353,7 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 		// Handle three-part matras (0xccb in Kannada)
 		matra_position = indic_position(uc[matra]);
 	    	if (matra_position == Split)
-			splitMatra(uc, matra, len, base);
+		    splitMatra(uc, matra, len, base);
 	    } else if (matra_position == Pre) {
 		unsigned short m = uc[matra];
 		while (matra--)
@@ -1448,37 +1446,36 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	}
 
     }
-    IDEBUG("reordered:");
-    for (i = 0; i < len; i++) {
-	glyphs[i].attributes.mark = FALSE;
-	glyphs[i].attributes.clusterStart = FALSE;
-	glyphs[i].attributes.justification = 0;
-	glyphs[i].attributes.zeroWidth = FALSE;
-	IDEBUG("    %d: %4x", i, reordered[i]);
-    }
+    if (!item->font->stringToCMap((const QChar *)(unsigned short *)reordered, len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
+	return false;
+
     if (reph > 0) {
 	// recalculate reph, it might have changed.
 	for (i = base+1; i < len; ++i)
 	    if (reordered[i] == ra)
 		reph = i;
     }
+
     IDEBUG("  base=%d, reph=%d", base, reph);
-    glyphs[0].attributes.clusterStart = TRUE;
+    IDEBUG("reordered:");
+    for (i = 0; i < len; i++) {
+	item->glyphs[i].attributes.mark = FALSE;
+	item->glyphs[i].attributes.clusterStart = FALSE;
+	item->glyphs[i].attributes.justification = 0;
+	item->glyphs[i].attributes.zeroWidth = FALSE;
+	IDEBUG("    %d: %4x", i, reordered[i]);
+    }
+    item->glyphs[0].attributes.clusterStart = TRUE;
+
 
     // now we have the syllable in the right order, and can start running it through open type.
-
-    int firstGlyph = si->num_glyphs;
 
     bool control = FALSE;
     for (i = 0; i < len; ++i)
 	control |= (form(reordered[i]) == Control);
 
-    QFontEngine *font = engine->fontEngine(*si);
-    QFontEngine::Flags flags = (si->analysis.bidiLevel %2) ? QFontEngine::Mirrored : QFontEngine::DeviceMetrics;
 #ifdef QT_OPENTYPE
     if (openType) {
-	int error = font->stringToCMap((const QChar *)(unsigned short *)reordered, len, glyphs, &len, flags);
-	assert (!error);
 
 	// we need to keep track of where the base glyph is for some
 	// scripts and abuse the logcluster feature for this.  This
@@ -1492,7 +1489,8 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	for (i = 0; i < len; ++i)
 	    logClusters[i] = i;
 
-	openType->init(glyphs, len, logClusters, len);
+	item->log_clusters = logClusters;
+	openType->init(item);
 
 	// substitutions
 
@@ -1591,54 +1589,30 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 
 	openType->applyGPOSFeatures();
 
-	QGlyphLayout *ga = engine->glyphs(si)+si->num_glyphs;
-
-	for (i = 0; i < newLen; ++i)
-	    ga[i].attributes = glyphs[char_map[i]].attributes;
+	if (!openType->appendTo(item, false))
+	    return false;
 
 	if (control) {
 	    IDEBUG("found a control char in the syllable");
 	    int i = 0, j = 0;
-	    unsigned short *g = openType->glyphs();
-	    while (i < newLen) {
+	    while (i < item->num_glyphs) {
 		if (form(reordered[char_map[i]]) == Control) {
 		    ++i;
-		    if (i >= newLen)
+		    if (i >= item->num_glyphs)
 			break;
 		}
-		g[j] = g[i];
+		item->glyphs[j] = item->glyphs[i];
 		++i;
 		++j;
 	    }
-	    openType->setLength(j);
+	    item->num_glyphs = j;
 	}
 
-	openType->appendTo(engine, si, FALSE);
-
-    } else
-#endif
-    {
-	Q_UNUSED(openType);
-	// can't do any shaping, copy the stuff to the script item.
-	engine->ensureSpace(len);
-
-	QGlyphLayout *g = engine->glyphs(si)+si->num_glyphs;
-
-	int error = font->stringToCMap((QChar *)(unsigned short *)reordered, len, g, &len, flags);
-	assert (!error);
-
-	for (int i = 0; i < len; ++i)
-	    g[i].attributes = glyphs[i].attributes;
-
-	si->num_glyphs += len;
     }
-
-    // fix logcluster array
-    unsigned short *logClusters = engine->logClusters(si)+from-si->position;
-    for (i = 0; i < syllableLength; ++i)
-	logClusters[i] = firstGlyph;
+#endif
 
     IDEBUG("<<<<<<");
+    return true;
 }
 
 
@@ -1730,30 +1704,56 @@ static int indic_nextSyllableBoundary( int script, const QString &s, int start, 
     return pos+start;
 }
 
+#undef IDEBUG
+#define IDEBUG qDebug
 
-static void indic_shape( int script, const QString &string, int from, int len, QTextEngine *engine, QScriptItem *si )
+static bool indic_shape(QShaperItem *item)
 {
-    assert( script >= QFont::Devanagari && script <= QFont::Sinhala );
-    si->num_glyphs = 0;
-    int sstart = from;
-    int end = sstart + len;
+    Q_ASSERT( item->script >= QFont::Devanagari && item->script <= QFont::Sinhala );
+
 #ifdef QT_OPENTYPE
-    QFontEngine *font = engine->fontEngine(*si);
-    QOpenType *openType = font->openType();
-    if (openType && !openType->supportsScript(script))
+    QOpenType *openType = item->font->openType();
+    if (openType && !openType->supportsScript(item->script))
 	openType = 0;
 #else
     QOpenType *openType = 0;
 #endif
+    unsigned short *logClusters = item->log_clusters;
 
+    QShaperItem syllable = *item;
+    int first_glyph = 0;
+
+    int sstart = item->from;
+    int end = sstart + item->length;
+    IDEBUG("indic_shape: from %d length %d", item->from, item->length);
     while ( sstart < end ) {
 	bool invalid;
-	int send = indic_nextSyllableBoundary( script, string, sstart, end, &invalid );
+	int send = indic_nextSyllableBoundary( item->script, *item->string, sstart, end, &invalid );
  	IDEBUG("syllable from %d, length %d, invalid=%s", sstart, send-sstart,
  	       invalid ? "true" : "false" );
-	indic_shape_syllable(script, string, sstart, send-sstart, engine, si, openType, invalid);
+	syllable.from = sstart;
+	syllable.length = send-sstart;
+	syllable.glyphs = item->glyphs + first_glyph;
+	syllable.num_glyphs = item->num_glyphs - first_glyph;
+	if (!indic_shape_syllable(openType, &syllable, invalid)) {
+	    IDEBUG("syllable shaping failed, syllable requests %d glyphs", syllable.num_glyphs);
+	    item->num_glyphs += syllable.num_glyphs;
+	    return false;
+	}
+	// fix logcluster array
+	IDEBUG("syllable:");
+	for (int i = first_glyph; i < first_glyph + syllable.num_glyphs; ++i)
+	    IDEBUG("        %d -> glyph %x", i, item->glyphs[i].glyph);
+	IDEBUG("    logclusters:");
+	for (int i = sstart; i < send; ++i) {
+	    IDEBUG("        %d -> glyph %d", i, first_glyph);
+	    logClusters[i-item->from] = first_glyph;
+	}
 	sstart = send;
+	first_glyph += syllable.num_glyphs;
     }
+    item->num_glyphs = first_glyph;
+    return true;
 }
 
 
@@ -1871,16 +1871,19 @@ static inline TibetanForm tibetan_form( const QChar &c )
     return (TibetanForm)tibetanForm[ c.unicode() - 0x0f40 ];
 }
 
-static void tibetan_shape_syllable( const QString &string, int from, int syllableLength,
-				    QTextEngine *engine, QScriptItem *si, QOpenType *openType, bool invalid )
+static bool tibetan_shape_syllable(QOpenType *openType, QShaperItem *item, bool invalid)
 {
-    int len = syllableLength;
+    int len = item->length;
+
+    if (item->num_glyphs < item->length + 4) {
+	item->num_glyphs = item->length + 4;
+	return false;
+    }
 
     int i;
     QVarLengthArray<unsigned short> reordered(len+4);
-    QVarLengthArray<QGlyphLayout> glyphs(len+4);
 
-    const QChar *str = string.unicode() + from;
+    const QChar *str = item->string->unicode() + item->from;
     if ( invalid ) {
 	*reordered = 0x25cc;
 	memcpy( reordered+1, str, len*sizeof( QChar ) );
@@ -1888,34 +1891,30 @@ static void tibetan_shape_syllable( const QString &string, int from, int syllabl
 	str = (QChar *)(unsigned short *)reordered;
     }
 
-    for (i = 0; i < len; i++) {
-	glyphs[i].attributes.mark = FALSE;
-	glyphs[i].attributes.clusterStart = FALSE;
-	glyphs[i].attributes.justification = 0;
-	glyphs[i].attributes.zeroWidth = FALSE;
+    if (!item->font->stringToCMap(str, len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
+	return false;
+    for (i = 0; i < item->length; i++) {
+	item->glyphs[i].attributes.mark = FALSE;
+	item->glyphs[i].attributes.clusterStart = FALSE;
+	item->glyphs[i].attributes.justification = 0;
+	item->glyphs[i].attributes.zeroWidth = FALSE;
 	IDEBUG("    %d: %4x", i, str[i].unicode());
     }
-    glyphs[0].attributes.clusterStart = TRUE;
+    item->glyphs[0].attributes.clusterStart = TRUE;
 
     // now we have the syllable in the right order, and can start running it through open type.
 
-    int firstGlyph = si->num_glyphs;
-
-    QFontEngine *font = engine->fontEngine(*si);
-    QFontEngine::Flags flags = (si->analysis.bidiLevel %2) ? QFontEngine::Mirrored : QFontEngine::DeviceMetrics;
 #ifdef QT_OPENTYPE
     if (openType) {
-	int error = font->stringToCMap(str, len, glyphs, &len, flags);
-	assert (!error);
-
 	// we need to keep track of where the base glyph is for some scripts and abuse the logcluster feature for this.
 	// This also means we have to correct the logCluster output from the open type engine manually afterwards.
 	// for indic this is rather simple, as all chars just point to the first glyph in the syllable.
 	QVarLengthArray<unsigned short> logClusters(len);
 	for (i = 0; i < len; ++i)
 	    logClusters[i] = i;
+	item->log_clusters = logClusters;
 
-	openType->init(glyphs, len, logClusters, len);
+	openType->init(item);
 
 	// substitutions
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'c', 'c', 'm', 'p' ));
@@ -1923,36 +1922,11 @@ static void tibetan_shape_syllable( const QString &string, int from, int syllabl
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'b', 'l', 'w', 's' ));
 	openType->applyGPOSFeatures();
 
-	QGlyphLayout *ga = engine->glyphs(si)+si->num_glyphs;
-
-	int newLen;
-	const int *char_map = openType->mapping(newLen);
-	for (i = 0; i < newLen; ++i)
-	    ga[i].attributes = glyphs[char_map[i]].attributes;
-
-	openType->appendTo(engine, si, FALSE);
-    } else
-#endif
-    {
-	Q_UNUSED(openType);
-	// can't do any shaping, copy the stuff to the script item.
-	engine->ensureSpace(len);
-
-	QGlyphLayout *g = engine->glyphs(si)+si->num_glyphs;
-
-	int error = font->stringToCMap((QChar *)(unsigned short *)reordered, len, g, &len, flags);
-	assert (!error);
-
-	for (int i = 0; i < len; ++i)
-	    g[i].attributes = glyphs[i].attributes;
-
-	si->num_glyphs += len;
+	return openType->appendTo(item, FALSE);
     }
+#endif
 
-    // fix logcluster array
-    unsigned short *logClusters = engine->logClusters(si)+from-si->position;
-    for (i = 0; i < syllableLength; ++i)
-	logClusters[i] = firstGlyph;
+    return true;
 }
 
 
@@ -2000,31 +1974,45 @@ finish:
     return start+pos;
 }
 
-static void tibetan_shape( int script, const QString &string, int from, int len, QTextEngine *engine, QScriptItem *si )
+static bool tibetan_shape(QShaperItem *item)
 {
-    assert(script == QFont::Tibetan);
-
-    si->num_glyphs = 0;
+    Q_ASSERT(item->script == QFont::Tibetan);
 
 #ifdef QT_OPENTYPE
-    QFontEngine *font = engine->fontEngine(*si);
-    QOpenType *openType = font->openType();
-    if (openType && !openType->supportsScript(script))
+    QOpenType *openType = item->font->openType();
+    if (openType && !openType->supportsScript(item->script))
 	openType = 0;
 #else
     QOpenType *openType = 0;
 #endif
+    unsigned short *logClusters = item->log_clusters;
 
-    int sstart = from;
-    int end = sstart + len;
+    QShaperItem syllable = *item;
+    int first_glyph = 0;
+
+    int sstart = item->from;
+    int end = sstart + item->length;
     while ( sstart < end ) {
 	bool invalid;
-	int send = tibetan_nextSyllableBoundary( string, sstart, end, &invalid );
+	int send = tibetan_nextSyllableBoundary(*(item->string), sstart, end, &invalid);
  	IDEBUG("syllable from %d, length %d, invalid=%s", sstart, send-sstart,
  	       invalid ? "true" : "false" );
-	tibetan_shape_syllable(string, sstart, send-sstart, engine, si, openType, invalid);
+	syllable.from = sstart;
+	syllable.length = send-sstart;
+	syllable.glyphs = item->glyphs + first_glyph;
+	syllable.num_glyphs = item->num_glyphs - first_glyph;
+	if (!tibetan_shape_syllable(openType, &syllable, invalid)) {
+	    item->num_glyphs += syllable.num_glyphs;
+	    return false;
+	}
+	// fix logcluster array
+	for (int i = sstart; i < send; ++i)
+	    logClusters[i-item->from] = first_glyph;
 	sstart = send;
+	first_glyph += syllable.num_glyphs;
     }
+    item->num_glyphs = first_glyph;
+    return true;
 }
 
 static void tibetan_attributes( int script, const QString &text, int from, int len, QCharAttributes *attributes )
@@ -2258,8 +2246,7 @@ finish:
 }
 
 
-static void khmer_shape_syllable( const QString &string, int from, int syllableLength,
-				  QTextEngine *engine, QScriptItem *si, QOpenType *openType, bool invalid )
+static bool khmer_shape_syllable(QOpenType *openType, QShaperItem *item, bool invalid)
 {
     enum {
 	Coeng = 0x17d2,
@@ -2268,15 +2255,14 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
 
     // according to the specs this is the max length one can get
     // ### the real value should be smaller
-    assert(syllableLength < 13);
+    Q_ASSERT(item->length < 13);
 
-    KHDEBUG("syllable from %d len %d, str='%s'", from, syllableLength,
-	    string.mid(from,syllableLength).utf8());
-    int len = syllableLength;
+    KHDEBUG("syllable from %d len %d, str='%s'", item->from, item->length,
+	    item->string->mid(item->from,item->length).utf8());
+    int len = item->length;
 
     int i;
     unsigned short reordered[16];
-    QGlyphLayout glyphs[16];
     unsigned char properties[16];
     enum {
 	AboveForm = 0x01,
@@ -2288,10 +2274,10 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
 
     if ( invalid ) {
 	*reordered = 0x25cc;
-	memcpy( reordered+1, string.unicode() + from, len*sizeof(unsigned short) );
+	memcpy( reordered+1, item->string->unicode() + item->from, len*sizeof(unsigned short) );
 	len++;
     } else {
-	memcpy( reordered, string.unicode() + from, len*sizeof(unsigned short) );
+	memcpy( reordered, item->string->unicode() + item->from, len*sizeof(unsigned short) );
     }
 
 #ifdef KHMER_DEBUG
@@ -2368,33 +2354,28 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
     }
 
     KHDEBUG("after shaping: len=%d", len);
+    if (!item->font->stringToCMap((QChar *)reordered, len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
+	return false;
     for (i = 0; i < len; i++) {
-	glyphs[i].attributes.mark = FALSE;
-	glyphs[i].attributes.clusterStart = FALSE;
-	glyphs[i].attributes.justification = 0;
-	glyphs[i].attributes.zeroWidth = FALSE;
+	item->glyphs[i].attributes.mark = FALSE;
+	item->glyphs[i].attributes.clusterStart = FALSE;
+	item->glyphs[i].attributes.justification = 0;
+	item->glyphs[i].attributes.zeroWidth = FALSE;
 	KHDEBUG("    %d: %4x property=%x", i, reordered[i], properties[i]);
     }
-    glyphs[0].attributes.clusterStart = TRUE;
+    item->glyphs[0].attributes.clusterStart = TRUE;
 
     // now we have the syllable in the right order, and can start running it through open type.
 
-    int firstGlyph = si->num_glyphs;
-
-    QFontEngine *font = engine->fontEngine(*si);
-    QFontEngine::Flags flags = (si->analysis.bidiLevel %2) ? QFontEngine::Mirrored : QFontEngine::DeviceMetrics;
 #ifdef QT_OPENTYPE
     int j;
     if (openType) {
-	int error = font->stringToCMap((QChar *)reordered, len, glyphs, &len, flags);
-	assert (!error);
-
 	unsigned short logClusters[16];
 	for (i = 0; i < len; ++i)
 	    logClusters[i] = i;
+	item->log_clusters = logClusters;
 
-
-	openType->init(glyphs, len, logClusters, len);
+	openType->init(item);
 
  	bool where[16];
 
@@ -2425,66 +2406,52 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
 
 	openType->applyGPOSFeatures();
 
-	QGlyphLayout *ga = engine->glyphs(si)+si->num_glyphs;
-
-	int newLen;
-	const int *char_map = openType->mapping(newLen);
-	for (i = 0; i < newLen; ++i)
-	    ga[i].attributes = glyphs[char_map[i]].attributes;
-
-	openType->appendTo(engine, si, FALSE);
-    } else
-#endif
-    {
-	KHDEBUG("Not using openType");
-
-	Q_UNUSED(openType);
-	// can't do any shaping, copy the stuff to the script item.
-	engine->ensureSpace(len);
-
-	QGlyphLayout *g = engine->glyphs(si)+si->num_glyphs;
-
-	int error = font->stringToCMap((QChar *)(unsigned short *)reordered, len, g, &len, flags);
-	assert (!error);
-
-	for (int i = 0; i < len; ++i)
-	    g[i].attributes = glyphs[i].attributes;
-
-	si->num_glyphs += len;
+	return openType->appendTo(item, FALSE);
     }
+#endif
 
-    // fix logcluster array
-    unsigned short *logClusters = engine->logClusters(si)+from-si->position;
-    for (i = 0; i < syllableLength; ++i)
-	logClusters[i] = firstGlyph;
-
+    return true;
 }
 
-static void khmer_shape( int script, const QString &string, int from, int len, QTextEngine *engine, QScriptItem *si )
+static bool khmer_shape(QShaperItem *item)
 {
-    assert(script == QFont::Khmer);
-
-    si->num_glyphs = 0;
+    Q_ASSERT(item->script == QFont::Khmer);
 
 #ifdef QT_OPENTYPE
-    QFontEngine *font = engine->fontEngine(*si);
-    QOpenType *openType = font->openType();
-    if (openType && !openType->supportsScript(script))
+    QOpenType *openType = item->font->openType();
+    if (openType && !openType->supportsScript(item->script))
 	openType = 0;
 #else
     QOpenType *openType = 0;
 #endif
+    unsigned short *logClusters = item->log_clusters;
 
-    int sstart = from;
-    int end = sstart + len;
+    QShaperItem syllable = *item;
+    int first_glyph = 0;
+
+    int sstart = item->from;
+    int end = sstart + item->length;
     while ( sstart < end ) {
 	bool invalid;
-	int send = khmer_nextSyllableBoundary( string, sstart, end, &invalid );
+	int send = khmer_nextSyllableBoundary(*(item->string), sstart, end, &invalid);
  	IDEBUG("syllable from %d, length %d, invalid=%s", sstart, send-sstart,
  	       invalid ? "true" : "false" );
-	khmer_shape_syllable(string, sstart, send-sstart, engine, si, openType, invalid);
+	syllable.from = sstart;
+	syllable.length = send-sstart;
+	syllable.glyphs = item->glyphs + first_glyph;
+	syllable.num_glyphs = item->num_glyphs - first_glyph;
+	if (!khmer_shape_syllable(openType, &syllable, invalid)) {
+	    item->num_glyphs += syllable.num_glyphs;
+	    return false;
+	}
+	// fix logcluster array
+	for (int i = sstart; i < send; ++i)
+	    logClusters[i-item->from] = first_glyph;
 	sstart = send;
+	first_glyph += syllable.num_glyphs;
     }
+    item->num_glyphs = first_glyph;
+    return true;
 }
 
 static void khmer_attributes( int script, const QString &text, int from, int len, QCharAttributes *attributes )
@@ -2625,21 +2592,20 @@ static int hangul_nextSyllableBoundary(const QString &s, int start, int end)
     return start+pos;
 }
 
-static void hangul_shape_syllable( const QString &string, int from, int syllableLength,
-				  QTextEngine *engine, QScriptItem *si, QOpenType *openType)
+static bool hangul_shape_syllable(QOpenType *openType, QShaperItem *item)
 {
-    const QChar *ch = string.unicode() + from;
+    const QChar *ch = item->string->unicode() + item->from;
 
     int i;
     unsigned short composed = 0;
     // see if we can compose the syllable into a modern hangul
-    if (syllableLength == 2) {
+    if (item->length == 2) {
 	int LIndex = ch[0].unicode() - Hangul_LBase;
 	int VIndex = ch[1].unicode() - Hangul_VBase;
 	if (LIndex >= 0 && LIndex < Hangul_LCount &&
 	    VIndex >= 0 && VIndex < Hangul_VCount)
 	    composed = (LIndex * Hangul_VCount + VIndex) * Hangul_TCount + Hangul_SBase;
-    } else if (syllableLength == 3) {
+    } else if (item->length == 3) {
 	int LIndex = ch[0].unicode() - Hangul_LBase;
 	int VIndex = ch[1].unicode() - Hangul_VBase;
 	int TIndex = ch[2].unicode() - Hangul_TBase;
@@ -2650,32 +2616,36 @@ static void hangul_shape_syllable( const QString &string, int from, int syllable
     }
 
 
-    unsigned int firstGlyph = si->num_glyphs;
-    int len = syllableLength;
+    int len = item->length;
+    QChar c(composed);
+    const QChar *chars = ch;
 
-    QFontEngine *font = engine->fontEngine(*si);
-    QFontEngine::Flags flags = (si->analysis.bidiLevel %2) ? QFontEngine::Mirrored : QFontEngine::DeviceMetrics;
+    // if we have a modern hangul use the composed form
+    if (composed) {
+	chars = &c;
+	len = 1;
+    }
+
+    if (!item->font->stringToCMap(ch, len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
+	return false;
+    for (i = 0; i < len; i++) {
+	item->glyphs[i].attributes.mark = FALSE;
+	item->glyphs[i].attributes.clusterStart = FALSE;
+	item->glyphs[i].attributes.justification = 0;
+	item->glyphs[i].attributes.zeroWidth = FALSE;
+	IDEBUG("    %d: %4x", i, ch[i].unicode());
+    }
+    item->glyphs[0].attributes.clusterStart = TRUE;
+
 #ifdef QT_OPENTYPE
     if (openType && !composed) {
 
-	QVarLengthArray<QGlyphLayout> glyphs(len);
 	QVarLengthArray<unsigned short> logClusters(len);
-
-	for (i = 0; i < len; i++) {
-	    glyphs[i].attributes.mark = FALSE;
-	    glyphs[i].attributes.clusterStart = FALSE;
-	    glyphs[i].attributes.justification = 0;
-	    glyphs[i].attributes.zeroWidth = FALSE;
-	    IDEBUG("    %d: %4x", i, ch[i].unicode());
-	}
 	for (i = 0; i < len; ++i)
 	    logClusters[i] = i;
-	glyphs[0].attributes.clusterStart = TRUE;
+	item->log_clusters = logClusters;
 
-	int error = font->stringToCMap(ch, len, glyphs, &len, flags);
-	assert(!error);
-
-	openType->init(glyphs, len, logClusters, len);
+	openType->init(item);
 
 	const int features[] = {
 	    FT_MAKE_TAG( 'c', 'c', 'm', 'p' ),
@@ -2689,66 +2659,22 @@ static void hangul_shape_syllable( const QString &string, int from, int syllable
 	    openType->applyGSUBFeature(*f++);
 	openType->applyGPOSFeatures();
 
-	QGlyphLayout *g = engine->glyphs(si)+si->num_glyphs;
+	return openType->appendTo(item, FALSE);
 
-	int newLen;
-	const int *char_map = openType->mapping(newLen);
-	for (i = 0; i < newLen; ++i)
-	    g[i].attributes = glyphs[char_map[i]].attributes;
-
-	openType->appendTo(engine, si, FALSE);
-
-    } else
-#endif
-    {
-	Q_UNUSED(openType);
-	QChar c(composed);
-	const QChar *chars = ch;
-
-	// if we have a modern hangul use the composed form
-	if (composed) {
-	    chars = &c;
-	    len = 1;
-	}
-
-	// if we have a modern hangul use the composed form
-	if (composed) len = 1;
-
-	engine->ensureSpace(len);
-
-	QGlyphLayout *glyphs = engine->glyphs(si)+si->num_glyphs;
-
-	int error = font->stringToCMap(chars, len, glyphs, &len, flags);
-	assert (!error);
-
-	for (i = 0; i < len; i++) {
-	    glyphs[i].attributes.mark = FALSE;
-	    glyphs[i].attributes.clusterStart = FALSE;
-	    glyphs[i].attributes.justification = 0;
-	    glyphs[i].attributes.zeroWidth = FALSE;
-	    IDEBUG("    %d: %4x", i, ch[i].unicode());
-	}
-	glyphs[0].attributes.clusterStart = TRUE;
-
-	si->num_glyphs += len;
     }
+#endif
 
-    // fix logcluster array
-    unsigned short *logClusters = engine->logClusters(si)+from-si->position;
-    for (i = 0; i < syllableLength; ++i)
-	logClusters[i] = firstGlyph;
+    return true;
 }
 
-static void hangul_shape( int script, const QString &string, int from, int len, QTextEngine *engine, QScriptItem *si )
+static bool hangul_shape(QShaperItem *item)
 {
-    assert(script == QFont::Hangul);
+    Q_ASSERT(item->script == QFont::Hangul);
 
-    si->num_glyphs = 0;
-
-    const QChar *uc = string.unicode() + from;
+    const QChar *uc = item->string->unicode() + item->from;
 
     bool allPrecomposed = TRUE;
-    for (int i = 0; i < len; ++i) {
+    for (int i = 0; i < item->length; ++i) {
 	if (!hangul_isPrecomposed(uc[i].unicode())) {
 	    allPrecomposed = FALSE;
 	    break;
@@ -2757,27 +2683,42 @@ static void hangul_shape( int script, const QString &string, int from, int len, 
 
     if (!allPrecomposed) {
 #ifdef QT_OPENTYPE
-	QFontEngine *font = engine->fontEngine(*si);
-	QOpenType *openType = font->openType();
-	if (openType && !openType->supportsScript(script))
+	QOpenType *openType = item->font->openType();
+	if (openType && !openType->supportsScript(item->script))
 	    openType = 0;
 #else
 	QOpenType *openType = 0;
 #endif
 
-	int sstart = from;
-	int end = sstart + len;
+	unsigned short *logClusters = item->log_clusters;
+
+	QShaperItem syllable = *item;
+	int first_glyph = 0;
+
+	int sstart = item->from;
+	int end = sstart + item->length;
 	while ( sstart < end ) {
-	    int send = hangul_nextSyllableBoundary(string, sstart, end);
-	    IDEBUG("syllable from %d, length %d", sstart, send-sstart);
-	    hangul_shape_syllable(string, sstart, send-sstart, engine, si, openType);
+	    int send = hangul_nextSyllableBoundary(*(item->string), sstart, end);
+
+	    syllable.from = sstart;
+	    syllable.length = send-sstart;
+	    syllable.glyphs = item->glyphs + first_glyph;
+	    syllable.num_glyphs = item->num_glyphs - first_glyph;
+	    if (!hangul_shape_syllable(openType, &syllable)) {
+		item->num_glyphs += syllable.num_glyphs;
+		return false;
+	    }
+	    // fix logcluster array
+	    for (int i = sstart; i < send; ++i)
+		logClusters[i-item->from] = first_glyph;
 	    sstart = send;
+	    first_glyph += syllable.num_glyphs;
 	}
-
-
-    } else {
-	basic_shape(script, string, from, len, engine, si);
+	item->num_glyphs = first_glyph;
+	return true;
     }
+
+    return basic_shape(item);
 }
 
 static void hangul_attributes( int script, const QString &text, int from, int len, QCharAttributes *attributes )

@@ -1,5 +1,6 @@
 #include "qopentype_p.h"
 #include "qfontengine_p.h"
+#include "qscriptengine_p.h"
 
 //  --------------------------------------------------------------------------------------------------------------------
 // Open type support
@@ -287,54 +288,52 @@ bool QOpenType::loadTables( FT_ULong script)
 static void dump_string(TTO_GSUB_String *string)
 {
     for (int i = 0; i < string->length; ++i) {
-	qDebug("    %x: type=%d, component=%d", string->string[i],
-	       string->glyph_properties[i].type, string->glyph_properties[i].component);
+	qDebug("    %x: component=%d", string->string[i], string->glyph_properties[i].component);
     }
 }
 #endif
 
-void QOpenType::init(QGlyphLayout *glyphs, int num_glyphs,
-		     unsigned short *logClusters, int len, int /*char_offset*/)
+void QOpenType::init(QShaperItem *item)
 {
+    length = item->num_glyphs;
+
     if ( !str )
 	TT_GSUB_String_New(&str);
-    if ( str->allocated < (uint)num_glyphs )
-	TT_GSUB_String_Allocate( str, num_glyphs );
+    if ( str->allocated < (uint)length )
+	TT_GSUB_String_Allocate( str, length );
     if ( !tmp )
 	TT_GSUB_String_New(&tmp);
-    if ( tmp->allocated < (uint)num_glyphs )
-	TT_GSUB_String_Allocate( tmp, num_glyphs );
+    if ( tmp->allocated < (uint)length )
+	TT_GSUB_String_Allocate( tmp, length );
     tmp->length = 0;
 
-    length = len;
 
-    Q_ASSERT(len == num_glyphs);
-    tmpAttributes = (QGlyphLayout::Attributes *) realloc( tmpAttributes, num_glyphs*sizeof(QGlyphLayout::Attributes) );
-    for (int i = 0; i < num_glyphs; ++i) {
-	str->string[i] = glyphs[i].glyph;
+    tmpAttributes = (QGlyphLayout::Attributes *) realloc( tmpAttributes, length*sizeof(QGlyphLayout::Attributes) );
+    for (int i = 0; i < length; ++i) {
+	str->string[i] = item->glyphs[i].glyph;
 	str->glyph_properties[i].component = 0;
-	tmpAttributes[i] = glyphs[i].attributes;
+	tmpAttributes[i] = item->glyphs[i].attributes;
     }
 
-    for (int i = 0; i < num_glyphs; ++i)
+    for (int i = 0; i < length; ++i)
 	str->character_index[i] = i;
 
-    str->length = num_glyphs;
-    orig_nglyphs = num_glyphs;
+    str->length = length;
+    orig_nglyphs = length;
 #ifdef OT_DEBUG
     qDebug("-----------------------------------------");
     qDebug("log clusters before shaping:");
     for (int j = 0; j < length; j++)
-	qDebug("    log[%d] = %d", j, logClusters[j] );
+	qDebug("    log[%d] = %d", j, item->log_clusters[j] );
     qDebug("original glyphs:");
-    for (int i = 0; i < num_glyphs; ++i)
+    for (int i = 0; i < length; ++i)
 	qDebug("   glyph=%4x char_index=%d mark: %d cmb: %d", str->string[i], str->character_index[i],
-	       glyphs[i].attributes.mark, glyphs[i].attributes.combiningClass);
+	       item->glyphs[i].attributes.mark, item->glyphs[i].attributes.combiningClass);
     dump_string(str);
 #endif
 
     tmpLogClusters = (unsigned short *) realloc( tmpLogClusters, length*sizeof(unsigned short) );
-    memcpy( tmpLogClusters, logClusters, length*sizeof(unsigned short) );
+    memcpy( tmpLogClusters, item->log_clusters, length*sizeof(unsigned short) );
 }
 
 void QOpenType::applyGSUBFeature(unsigned int featureTag, bool *where)
@@ -384,7 +383,7 @@ void QOpenType::applyGSUBFeature(unsigned int featureTag, bool *where)
 }
 
 
-extern void q_heuristicPosition( QTextEngine *engine, QScriptItem *item );
+extern void q_heuristicPosition(QShaperItem *item);
 
 void QOpenType::applyGPOSFeatures()
 {
@@ -425,27 +424,31 @@ const int *QOpenType::mapping(int &len)
     return str->character_index;
 }
 
-void QOpenType::appendTo(QTextEngine *engine, QScriptItem *si, bool doLogClusters)
+bool QOpenType::appendTo(QShaperItem *item, bool doLogClusters)
 {
 #ifdef OT_DEBUG
     qDebug("QOpenType::finalize:");
 #endif
     // make sure we have enough space to write everything back
-    engine->ensureSpace( si->num_glyphs + str->length );
+    if (item->num_glyphs < (int)str->length) {
+	item->num_glyphs = str->length;
+	return false;
+    }
 
-    QGlyphLayout *glyphs = engine->glyphs( si ) + si->num_glyphs;
+    QGlyphLayout *glyphs = item->glyphs;
 
-    for (unsigned int i = 0; i < str->length; ++i)
+    for (unsigned int i = 0; i < str->length; ++i) {
 	glyphs[i].glyph = str->string[i];
+	glyphs[i].attributes = tmpAttributes[str->character_index[i]];
+    }
 
     if (doLogClusters) {
 	// we can't do this for indic, as we pass the stuf in syllables and it's easier to do it in the shaper.
-	unsigned short *logClusters = engine->logClusters( si );
+	unsigned short *logClusters = item->log_clusters;
 	int clusterStart = 0;
 	int oldCi = 0;
 	for ( int i = 0; i < (int)str->length; i++ ) {
 	    int ci = str->character_index[i];
-	    glyphs[i].attributes = tmpAttributes[ci];
 	    // 	qDebug("   ci[%d] = %d mark=%d, cmb=%d, cs=%d tmplc=%d",
 	    // 	       i, ci, glyphAttributes[i].mark, glyphAttributes[i].combiningClass, glyphAttributes[i].clusterStart,  tmpLogClusters[ci]);
 	    if ( !glyphs[i].attributes.mark && glyphs[i].attributes.clusterStart && ci != oldCi ) {
@@ -461,15 +464,14 @@ void QOpenType::appendTo(QTextEngine *engine, QScriptItem *si, bool doLogCluster
 
     // calulate the advances for the shaped glyphs
 //     qDebug("unpositioned: ");
-    QFontEngine *font = engine->fontEngine(*si);
-    font->recalcAdvances( str->length, glyphs, 0 ); // WYSIWYG: Fixme
-    si->num_glyphs += str->length;
+    item->font->recalcAdvances( str->length, glyphs, 0 ); // WYSIWYG: Fixme
+    item->num_glyphs = str->length;
 
     // positioning code:
     if ( hasGPos && positioned) {
 // 	qDebug("positioned glyphs:" );
 	// ### use Q26Dot6
-	float scale = font->scale();
+	float scale = item->font->scale();
 	for ( int i = 0; i < (int)str->length; i++) {
 // 	    qDebug("    %d:\t orig advance: (%d/%d)\tadv=(%d/%d)\tpos=(%d/%d)\tback=%d\tnew_advance=%d", i,
 // 		   glyphs[i].advance.x, glyphs[i].advance.y,
@@ -478,18 +480,18 @@ void QOpenType::appendTo(QTextEngine *engine, QScriptItem *si, bool doLogCluster
 // 		   positions[i].back, positions[i].new_advance );
 	    // ###### fix the case where we have y advances. How do we handle this in Uniscribe?????
 	    if ( positions[i].new_advance ) {
-		glyphs[i].advance.x = Q26Dot6((si->analysis.bidiLevel % 2
-					       ? -positions[i].x_advance : positions[i].x_advance), F26Dot6);
-		glyphs[i].advance.y = Q26Dot6(-positions[i].y_advance, F26Dot6);
+		glyphs[i].advance.x = Q26Dot6((item->flags & QTextEngine::RightToLeft
+					       ? -positions[i].x_advance : positions[i].x_advance), F26Dot6)*scale;
+		glyphs[i].advance.y = Q26Dot6(-positions[i].y_advance, F26Dot6)*scale;
 	    } else {
-		glyphs[i].advance.x += Q26Dot6(si->analysis.bidiLevel % 2
-					       ? -positions[i].x_advance : positions[i].x_advance, F26Dot6);
-		glyphs[i].advance.y -= Q26Dot6(positions[i].y_advance, F26Dot6);
+		glyphs[i].advance.x += Q26Dot6(item->flags & QTextEngine::RightToLeft
+					       ? -positions[i].x_advance : positions[i].x_advance, F26Dot6)*scale;
+		glyphs[i].advance.y -= Q26Dot6(positions[i].y_advance, F26Dot6)*scale;
 	    }
 	    glyphs[i].offset.x = Q26Dot6(positions[i].x_pos, F26Dot6);
 	    glyphs[i].offset.y = Q26Dot6(-positions[i].y_pos, F26Dot6);
 	    int back = positions[i].back;
-	    if ( si->analysis.bidiLevel % 2 ) {
+	    if (item->flags & QTextEngine::RightToLeft) {
 		while ( back-- ) {
 		    glyphs[i].offset.x -= glyphs[i-back].advance.x;
 		    glyphs[i].offset.y -= -glyphs[i-back].advance.y;
@@ -504,23 +506,24 @@ void QOpenType::appendTo(QTextEngine *engine, QScriptItem *si, bool doLogCluster
 // 	    qDebug("   ->\tadv=%d\tpos=(%d/%d)",
 // 		   glyphs[i].advance, glyphs[i].offset.x, glyphs[i].offset.y );
 	}
-	si->hasPositioning = TRUE;
     } else {
-	q_heuristicPosition( engine, si );
+	q_heuristicPosition(item);
     }
 
 #ifdef OT_DEBUG
-    qDebug("log clusters after shaping:");
     if (doLogClusters) {
+	qDebug("log clusters after shaping:");
 	for (int j = 0; j < length; j++)
-	    qDebug("    log[%d] = %d", j, engine->logClusters(si)[j] );
+	    qDebug("    log[%d] = %d", j, item->log_clusters[j] );
     }
     qDebug("final glyphs:");
     for (int i = 0; i < (int)str->length; ++i)
-	qDebug("   glyph=%4x char_index=%d mark: %d cmp: %d, clusterStart: %d advance=%d/%d",
+	qDebug("   glyph=%4x char_index=%d mark: %d cmp: %d, clusterStart: %d advance=%d/%d offset=%d/%d",
 	       glyphs[i].glyph, str->character_index[i], glyphs[i].attributes.mark,
 	       glyphs[i].attributes.combiningClass, glyphs[i].attributes.clusterStart,
-	       glyphs[i].advance.x, glyphs[i].advance.y);
+	       glyphs[i].advance.x.value(), glyphs[i].advance.y.value(),
+	       glyphs[i].offset.x.value(), glyphs[i].offset.y.value());
     qDebug("-----------------------------------------");
 #endif
+    return true;
 }

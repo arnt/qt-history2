@@ -214,6 +214,8 @@ QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
     line.y = y;
     line.from = from;
     line.length = 0;
+    line.justified = false;
+    line.gridfitted = false;
 
     if (!d->items.size()) {
 	// ##### use block font
@@ -243,7 +245,7 @@ QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
 
     Q26Dot6 minw;
 
-//     qDebug("from: %d:   item=%d, total %d width available %d", from, item, d->items.size(), line.width);
+//     qDebug("from: %d:   item=%d, total %d width available %d/%d", from, item, d->items.size(), line.width.value(), line.width.toInt());
     Q26Dot6 spacew;
     while (item < d->items.size()) {
 	d->shape(item);
@@ -301,8 +303,8 @@ QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
 		nextspacew += glyphs[gp].advance.x;
 		++gp;
 	    }
-//  	    qDebug("possible break at %d, chars (%d-%d): width %d, spacew=%d, nextspacew=%d",
-//  		   current.position + next, pos, next, tmpw, spacew,  nextspacew);
+//  	    qDebug("possible break at %d, chars (%d-%d) / glyphs (%d-%d): width %d, spacew=%d, nextspacew=%d",
+//  		   current.position + next, pos, next, logClusters[pos], logClusters[next], tmpw.value(), spacew.value(),  nextspacew.value());
 
 	    if (line.length && line.textWidth + tmpw > line.width && !(d->textFlags & Qt::SingleLine))
 		goto found;
@@ -316,7 +318,8 @@ QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
 	++item;
     }
  found:
-//     qDebug("line length = %d, ascent=%d, descent=%d, textWidth=%d", line.length, line.ascent, line.descent, line.textWidth);
+//     qDebug("line length = %d, ascent=%d, descent=%d, textWidth=%d", line.length, line.ascent.value(),
+// 	   line.descent.value(), line.textWidth.value());
 //     qDebug("        : '%s'", d->string.mid(line.from, line.length).utf8());
 
     d->minWidth = qMax(d->minWidth, minw);
