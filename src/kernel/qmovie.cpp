@@ -194,6 +194,7 @@ QMovieFilePrivate::QMovieFilePrivate()
     source = 0;
     decoder = 0;
     display_widget=0;
+    buf_size = 0;
     init(FALSE);
 }
 
@@ -203,7 +204,7 @@ QMovieFilePrivate::QMovieFilePrivate(QDataSource* src, QMovie* movie, int bufsiz
     buf_size(bufsize)
 {
     frametimer = new QTimer(this);
-    pump = new QDataPump(src, this);
+    pump = src ? new QDataPump(src, this) : 0;
     QObject::connect(frametimer, SIGNAL(timeout()), this, SLOT(refresh()));
     source = src;
     buffer = 0;
@@ -224,7 +225,7 @@ QMovieFilePrivate::~QMovieFilePrivate()
 
 bool QMovieFilePrivate::isNull() const
 {
-    return !pump;
+    return !buf_size;
 }
 
 // Initialize.  Only actually allocate any space if \a fully is TRUE,
@@ -587,6 +588,38 @@ void QMovieFilePrivate::refresh()
 QMovie::QMovie()
 {
     d = new QMovieFilePrivate();
+}
+
+/*!
+  Constructs a QMovie with an external data source.
+  You should later call pushData() to send incoming animation data to
+  the movie.
+
+  \sa pushData()
+*/
+QMovie::QMovie(int bufsize)
+{
+    d = new QMovieFilePrivate(0, this, bufsize);
+}
+
+/*!
+  Returns the maximum amount of data that can currently be pushed
+  into the movie by a call to pushData().  This is affected by the
+  initial buffer size, but varies as the movie plays and data is consumed.
+*/
+int QMovie::pushSpace() const
+{
+    return d->readyToReceive();
+}
+
+/*!
+  Pushes \a length bytes from \a data into the movie.  \a length must
+  be no more than the amount returned by pushSpace() since the previous
+  call to pushData().
+*/
+void QMovie::pushData(const uchar* data, int length)
+{
+    d->receive(data,length);
 }
 
 #ifdef _WS_QWS_ // ##### Temporary performance experiment

@@ -40,6 +40,7 @@ class QMovieFilePrivate;
 class Q_EXPORT QMovie {
 public:
     QMovie();
+    QMovie(int bufsize);
     QMovie(QDataSource*, int bufsize=1024);
     QMovie(const QString &fileName, int bufsize=1024);
     QMovie(QByteArray data, int bufsize=1024);
@@ -47,6 +48,9 @@ public:
     ~QMovie();
 
     QMovie& operator=(const QMovie&);
+
+    int pushSpace() const;
+    void pushData(const uchar* data, int length);
 
     const QColor& backgroundColor() const;
     void setBackgroundColor(const QColor&);
