@@ -22,31 +22,7 @@
 #include "formwindow.h"
 
 QDesignerSqlWidget::QDesignerSqlWidget( QWidget *parent, const char *name )
-    : QWidget( parent, name )
-{
-}
-
-void QDesignerSqlWidget::prev()
-{
-}
-
-void QDesignerSqlWidget::next()
-{
-}
-
-void QDesignerSqlWidget::first()
-{
-}
-
-void QDesignerSqlWidget::last()
-{
-}
-
-void QDesignerSqlWidget::insertRecord()
-{
-}
-
-void QDesignerSqlWidget::deleteRecord()
+    : QSqlWidget( parent, name )
 {
 }
 
@@ -60,31 +36,7 @@ void QDesignerSqlWidget::paintEvent( QPaintEvent *e )
 
 
 QDesignerSqlDialog::QDesignerSqlDialog( QWidget *parent, const char *name )
-    : QDialog( parent, name )
-{
-}
-
-void QDesignerSqlDialog::prev()
-{
-}
-
-void QDesignerSqlDialog::next()
-{
-}
-
-void QDesignerSqlDialog::first()
-{
-}
-
-void QDesignerSqlDialog::last()
-{
-}
-
-void QDesignerSqlDialog::insertRecord()
-{
-}
-
-void QDesignerSqlDialog::deleteRecord()
+    : QSqlDialog( parent, name )
 {
 }
 

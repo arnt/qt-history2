@@ -21,42 +21,27 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
-#include <qdialog.h>
+#include <qsqlwidget.h>
+#include <qsqldialog.h>
 
-class QDesignerSqlWidget : public QWidget
+class QDesignerSqlWidget : public QSqlWidget
 {
     Q_OBJECT
 
 public:
     QDesignerSqlWidget( QWidget *parent, const char *name );
 
-public slots:
-    void prev();
-    void next();
-    void first();
-    void last();
-    void insertRecord();
-    void deleteRecord();
-
 protected:
     void paintEvent( QPaintEvent *e );
 
 };
 
-class QDesignerSqlDialog : public QDialog
+class QDesignerSqlDialog : public QSqlDialog
 {
     Q_OBJECT
 
 public:
     QDesignerSqlDialog( QWidget *parent, const char *name );
-
-public slots:
-    void prev();
-    void next();
-    void first();
-    void last();
-    void insertRecord();
-    void deleteRecord();
 
 protected:
     void paintEvent( QPaintEvent *e );
