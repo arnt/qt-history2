@@ -393,7 +393,7 @@ void QHeader::init( int n )
     offs = 0;
     if( reverse() )
 	offs = d->lastPos - width();
-    handleIdx = 0;
+    handleIdx = -1;
 
     setMouseTracking( TRUE );
     trackingIsOn = FALSE;
@@ -587,13 +587,15 @@ void QHeader::mouseReleaseEvent( QMouseEvent *e )
 	return;
     State oldState = state;
     state = Idle;
+    int oldHandleIdx = handleIdx;
+    handleIdx = -1;
     switch ( oldState ) {
     case Pressed: {
-	int section = d->i2s[handleIdx];
-	repaint(sRect( handleIdx ), FALSE);
+	int section = d->i2s[oldHandleIdx];
+	repaint(sRect( oldHandleIdx ), FALSE);
 	emit released( section );
-	if ( sRect( handleIdx ).contains( e->pos() ) ) {
-	    emit sectionClicked( handleIdx );
+	if ( sRect( oldHandleIdx ).contains( e->pos() ) ) {
+	    emit sectionClicked( oldHandleIdx );
 	    emit clicked( section );
 	}
 	} break;
@@ -602,24 +604,24 @@ void QHeader::mouseReleaseEvent( QMouseEvent *e )
 	c += offset();
 	if( reverse() )
 	    c = d->lastPos - c;
-	handleColumnResize( handleIdx, c, TRUE );
+	handleColumnResize( oldHandleIdx, c, TRUE );
     } break;
     case Moving: {
 #ifndef QT_NO_CURSOR
 	unsetCursor();
 #endif
-	int section = d->i2s[handleIdx];
-	if ( handleIdx != moveToIdx && moveToIdx != -1 ) {
+	int section = d->i2s[oldHandleIdx];
+	if ( oldHandleIdx != moveToIdx && moveToIdx != -1 ) {
 	    moveSection( section, moveToIdx );
 	    repaint(); // a bit overkill, but removes the handle as well
-	    emit moved( handleIdx, moveToIdx );
-	    emit indexChange( section, handleIdx, moveToIdx );
+	    emit moved( oldHandleIdx, moveToIdx );
+	    emit indexChange( section, oldHandleIdx, moveToIdx );
 	    emit released( section );
 	} else {
-	    repaint(sRect( handleIdx ), FALSE );
-	    if ( sRect( handleIdx).contains( e->pos() ) ) {
+	    repaint(sRect( oldHandleIdx ), FALSE );
+	    if ( sRect( oldHandleIdx).contains( e->pos() ) ) {
 		emit released( section );
-		emit sectionClicked( handleIdx );
+		emit sectionClicked( oldHandleIdx );
 		emit clicked( section );
 	    }
 	}
