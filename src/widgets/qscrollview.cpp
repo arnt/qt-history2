@@ -1120,7 +1120,7 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 		    startDragAutoScroll();
 		    ( (QDragMoveEvent*)e )->accept( QRect(0,0,0,0) ); // Keep sending move events
 		}
-	    }	
+	    }
 	    viewportDragMoveEvent( (QDragMoveEvent*)e );
 	} break;
 	case QEvent::DragLeave:
@@ -1501,17 +1501,6 @@ void QScrollView::ensureVisible( int x, int y, int xmargin, int ymargin )
 	cy=0;
     }
 
-#ifdef QT_1x_SEMANTICS
-    if ( x < -cx+xmargin )
-	cx = -x+pw-xmargin;
-    else if ( x >= -cx+pw-xmargin )
-	cx = -x+xmargin;
-
-    if ( y < -cy+ymargin )
-	cy = -y+ph-ymargin;
-    else if ( y >= -cy+ph-ymargin )
-	cy = -y+ymargin;
-#else
     if ( x < -cx+xmargin )
 	cx = -x+xmargin;
     else if ( x >= -cx+pw-xmargin )
@@ -1521,7 +1510,6 @@ void QScrollView::ensureVisible( int x, int y, int xmargin, int ymargin )
 	cy = -y+ymargin;
     else if ( y >= -cy+ph-ymargin )
 	cy = -y+ph-ymargin;
-#endif
 
     if ( cx > 0 )
 	cx=0;
@@ -1925,7 +1913,15 @@ void QScrollView::changeFrameRect(const QRect& r)
 {
     QRect oldr = frameRect();
     if (oldr != r) {
-	setFrameRect(r);
+	QRect cr = contentsRect();
+	QRegion fr( frameRect() );
+	fr = fr.subtract( contentsRect() );
+	setFrameRect( r );
+	cr = cr.intersect( contentsRect() );
+	fr = fr.unite( frameRect() );
+	fr = fr.subtract( cr );
+	if ( !fr.isEmpty() )
+	    QApplication::postEvent( this, new QPaintEvent( fr, FALSE ) );
     }
 }
 
