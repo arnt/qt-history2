@@ -1045,6 +1045,7 @@ bool QMainWindow::isDockEnabled( Dock dock ) const
 
 bool QMainWindow::isDockEnabled( QDockArea *area ) const
 {
+
     if ( area == d->leftDock )
 	return d->docks[ Left ];
     if ( area == d->rightDock )
@@ -1110,6 +1111,8 @@ void QMainWindow::setDockEnabled( QDockWindow *dw, Dock dock, bool enable )
 
 bool QMainWindow::isDockEnabled( QDockWindow *dw, QDockArea *area ) const
 {
+    if ( !isDockEnabled( area ) )
+	return FALSE;
     Dock dock;
     if ( area == d->leftDock )
 	dock = Left;
@@ -1134,6 +1137,8 @@ bool QMainWindow::isDockEnabled( QDockWindow *dw, QDockArea *area ) const
 
 bool QMainWindow::isDockEnabled( QDockWindow *tb, Dock dock ) const
 {
+    if ( !isDockEnabled( dock ) )
+	return FALSE;
     QString s;
     s.sprintf( "%p_%d", tb, (int)dock );
     return d->disabledDocks.find( s ) == d->disabledDocks.end();
