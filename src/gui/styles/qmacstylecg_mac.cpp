@@ -71,11 +71,11 @@ static inline HIThemeTrackDrawInfo *getTrackDrawInfo(QStyle::ComplexControl cont
     tdi.max = aslider->maximum();
     tdi.value = aslider->sliderPosition();
     tdi.attributes = kThemeTrackShowThumb;
-    if (control == QStyle::CC_Slider && qMacVersion() >= Qt::MV_JAGUAR && aslider->hasFocus())
+    if(control == QStyle::CC_Slider && QSysInfo::MacintoshVersion >= Qt::MV_JAGUAR && aslider->hasFocus())
         tdi.attributes |= kThemeTrackHasFocus;
-    if (aslider->orientation() == Qt::Horizontal)
+    if(aslider->orientation() == Qt::Horizontal)
         tdi.attributes |= kThemeTrackHorizontal;
-    if ((control == QStyle::CC_Slider 
+    if((control == QStyle::CC_Slider 
          && !(aslider->orientation() == Qt::Horizontal) == !aslider->invertedAppearance())
         || (control == QStyle::CC_ScrollBar && aslider->invertedAppearance()))
         tdi.attributes |= kThemeTrackRightToLeft;

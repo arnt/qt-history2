@@ -654,7 +654,7 @@ bool QWidgetPrivate::qt_recreate_root_win() {
 bool QWidgetPrivate::qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = false)
 {
     QWidget *widget = QWidget::find(id);
-    if(qMacVersion() == Qt::MV_10_DOT_1) {
+    if(QSysInfo::MacintoshVersion == Qt::MV_10_DOT_1) {
 	switch(wcode) {
             case kWindowOpaqueRgn:
             case kWindowStructureRgn: {
