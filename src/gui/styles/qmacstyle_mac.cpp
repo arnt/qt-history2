@@ -45,6 +45,7 @@
 #include <qspinbox.h>
 #include <qsplitter.h>
 #include <qstyleoption.h>
+#include <qtextedit.h>
 #include <qtoolbar.h>
 #include <qtreeview.h>
 #include <qtimer.h>
@@ -1026,13 +1027,12 @@ bool QMacStylePrivate::focusable(const QWidget *w) const
         return false;
     return (w && !w->isTopLevel() && w->parentWidget() &&
             (qt_cast<const QAbstractSpinBox *>(w) || qt_cast<const QComboBox *>(w)
+             || qt_cast<const QLineEdit *>(w))
+             || (qt_cast<const QTextEdit *>(w) && static_cast<const QTextEdit *>(w)->isReadOnly())
 #ifdef QT_COMPAT
-              || w->inherits("QListBox") || w->inherits("QListView")
+             || w->inherits("QListBox") || w->inherits("QListView")
 #endif
-//           || (w->inherits("QTextEdit") && static_cast<const QTextEdit *>(w)->isReadOnly())
-             || (qt_cast<const QFrame *>(w) && qt_cast<const QLineEdit *>(w)
-                 && (static_cast<const QFrame *>(w)->frameStyle() != QFrame::NoFrame
-                     || qt_cast<QComboBox *>(w->parentWidget())))));
+           );
 }
 
 void QMacStylePrivate::focusOnWidget(QWidget *w)
@@ -1602,6 +1602,7 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
                     fdi.kind = kHIThemeFrameListBox;
                     GetThemeMetric(kThemeMetricListBoxFrameOutset, &frame_size);
                 }
+                fdi.isFocused = (frame->state & QStyle::Style_HasFocus);
                 int lw = frame->lineWidth;
                 if (lw <= 0)
                     lw = q->pixelMetric(QStyle::PM_DefaultFrameWidth, frame, w);
