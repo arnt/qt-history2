@@ -1,3 +1,4 @@
+//depot/qt/main/tests/qprocess/test/some.cpp#35 - edit change 32827 (text)
 #include <qapplication.h>
 #include <qvbox.h>
 #include <qlineedit.h>
@@ -79,9 +80,9 @@ Some::Some( QObject *p, bool start, bool cStdout, bool cStderr, bool cExit, int 
 	    this, SLOT(connectExit(bool)) );
     cb3->setChecked( cExit );
     connectExit( cExit );
-    // signal writeToStdin()
-    QObject::connect( proc, SIGNAL(writeToStdin()),
-		this, SLOT(writeToStdin()) );
+    // signal wroteToStdin()
+    QObject::connect( proc, SIGNAL(wroteToStdin()),
+		this, SLOT(wroteToStdin()) );
 
     // start cat in the same QProcess class
     QPushButton *startButton = new QPushButton( "Start cat", &main );
@@ -198,9 +199,9 @@ void Some::startCat()
     procInit( TRUE, 0 );
 }
 
-void Some::writeToStdin()
+void Some::wroteToStdin()
 {
-    qDebug( "writeToStdin()" );
+    qDebug( "wroteToStdin()" );
 }
 
 void Some::connectStdout( bool enable )

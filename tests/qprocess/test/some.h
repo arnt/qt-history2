@@ -1,3 +1,4 @@
+//depot/qt/main/tests/qprocess/test/some.h#16 - edit change 30856 (text)
 #include <qobject.h>
 #include <qvbox.h>
 #include <qcheckbox.h>
@@ -27,7 +28,7 @@ public slots:
     void connectStderr( bool enable );
     void connectExit( bool enable );
     void writeMuch();
-    void writeToStdin();
+    void wroteToStdin();
 
     void readyReadStdout();
     void readyReadStderr();
