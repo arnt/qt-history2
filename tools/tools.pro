@@ -1,12 +1,9 @@
 TEMPLATE	= subdirs
-win32:SUBDIRS	= assistant/lib \
+SUBDIRS		= assistant/lib \
 		  designer \
 		  assistant \
 		  linguist
-unix:SUBDIRS	= assistant/lib \
-		  designer \
-		  assistant \
-		  linguist \
-		  qtconfig
+unix:SUBDIRS	+= qtconfig
+
 CONFIG+=ordered
 REQUIRES=full-config nocrosscompiler
