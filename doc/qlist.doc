@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 1.4 1995/12/12 20:57:57 hanord Exp $
+** $Id: qlist.doc,v 1.5 1995/12/13 13:25:41 hanord Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -18,86 +18,141 @@
 
   \ingroup collection
 
-  QList is implemented as both as template and a macro class.  In order
-  to create a list of the type X, you must instantiate a list class
-  for X.  The list operate on pointers to X, or X*.
+  QList is implemented as both a template and a macro class. Define a
+  template instance QList<X> to create a list that operates on pointers
+  to X, or X*.
 
   Example:
   \code
     #include <qlist.h>
+    #include <qstring.h>
     #include <stdio.h>
 
-    int main()
+    class Employee
     {
-	QList<double> list;		// list of pointers to double
-	list.setAutoDelete( TRUE );	// delete items when they are removed
-	list.append( new double(3.14) );
-	list.append( new double(8.62) );
-	list.insert( 1, new double(4.51) );
+    public:
+        Employee( const char *name, int salary )
+	    { empname = name;  empsal = salary; }
+        const char *name()   const	{ return empname; }
+        int	    salary() const	{ return empsal; }
+    private:
+        QString     empname;
+        int         empsal;
+    };
 
-	double *x;
-	for ( x=list.first(); x != 0; x=list.next() )
-	    printf( "%g\n", *x );
+    void main()
+    {
+	QList<Employee> list;		// list of pointers to Employee
+	list.setAutoDelete( TRUE );	// delete items when they are removed
+
+	list.append( new Employee("Bill", 50000) );
+	list.append( new Employee("Steve",80000) );
+	list.append( new Employee("Ron",  60000) );
+
+	Employee *emp;
+	for ( emp=list.first(); emp != 0; emp=list.next() )
+	    printf( "%s earns %d\n", emp->name(), emp->salary() );
     }
   \endcode
 
   The program output is:
   \code
-	3.14
-	4.51
-	8.62
+	Bill earns 50000
+	Steve earns 80000
+	Ron earns 60000
   \endcode
 
-  The list item's class or type, \c double in our example, must be defined
-  prior to the list instantiation. Some compilers allow a QList<X> before
-  X is defined and believe that X has no destructor.
+  The list item's class or type, Employee in our example, must be defined
+  prior to the list definition. Some compilers allow a QList<X> before
+  X is defined and assume that X has no destructor.
+
+  \code
+    // Bad code: X's destructor will never be called
+    class X;
+    QList<X> list;
+
+    // Good code: X is defined before it is used
+    class X {
+ 	...
+    };
+    QList<X> list;
+  \endcode
 
   A list can also be instantiated through a macro expansion, but this
-  is only for compilers that do not support templates.  See the
-  \link collectionclasses.html collection classes\endlink for how to
-  use the macro versions.
+  is necessary only for compilers that do not support templates. See the
+  \link collectionclasses.html collection classes documentation\endlink
+  for a discussion on macro-based collections.
 
-  QList has several member functions for traversing the list, but using
-  a QListIterator is safer and just as efficient.  Multiple list iterators
-  can independently traverse the same list.
+  Macro expansion:
+  \code
+      ...
+    declare(QListM,Employee);		// must declare the list
 
+    void main()
+    {
+	QListM(Employee) list;		// list of pointers to Employee
+      ...
+  \endcode
+
+  If you want to make your code work for compilers that do not have
+  template support, but use templates if they are available, you
+  can make a \c typedef'd list:
+
+  \code
+      ...
+    #if defined(USE_TEMPLATECLASS)
+    typedef QList<Employee> EmployeeList;
+    #else
+    typedef declare(QListM,Employee) EmployeeList;
+    #endif
+
+    void main()
+    {
+	EmployeeList list;		// list of pointers to Employee
+      ...
+  \endcode
+  
   The list class is indexable and has a \link at() current index\endlink
   and a \link current() current item\endlink.  The first item corresponds
   to index 0.  The current index is -1 if the current item is null.
 
+  QList has several member functions for traversing the list, but using
+  a QListIterator can be more practical. Multiple list iterators may
+  traverse the same list, independent of each other and independent of
+  the current list item.
+
   In the example above, we make the call setAutoDelete(TRUE).
   Enabling auto-deletion tells the list to delete items that are removed
   from the list.  The default is to not delete items when they are
-  removed, but that would cause a memory leak since we have no other
-  references to the list items in our example.
-  
+  removed, but that would cause a memory leak in our example since we have
+  no other references to the list items.
+
   List items are stored as \c void* in the internal QLNode, which also
   keeps the pointers to the next and previous list items.  The functions
   currentNode(), removeNode() and takeNode() operate directly on the
   QLNode, but they should be used with care.
 
-  The virtual function QGList::compareItems() can be reimplemented to
-  compare two list items. The return value is:
-  <ul>
-  <li> 0 if item1 == item2
-  <li> \< 0 if item1 < item2
-  <li> \> 0 if item1 > item2
-  </ul>
-  The default implementation returns the expression
-  <code>item1 != item2</code>.
+  When inserting items into a list, only the pointer is copied, not the
+  item itself. This is called a shallow copy. It is possible to make the
+  list copy all of the item's data (deep copy) when an item is inserted,
+  because insert(), inSort() and append() call the virtual function
+  QCollection::newItem() for the item to be inserted. Reimplement it if
+  you want to have deep copies in your list.
 
-  The compareItems() function is called by the following list functions:
-  <ol>
-  <li> inSort()
-  <li> remove(const type *)
-  <li> find(const type *)
-  <li> findNext(const type *)
-  <li> contains(const type *)
-  </ol>
-  The 4 last functions will work even if compareItems() is not reimplemented,
-  but in that case we recommend using removeRef(), findRef(), findNextRef()
-  and containsRef() instead.  inSort() does not work if compareItems() is
-  not defined.
+  When an item is removed from the list, the virtual function
+  QCollection::deleteItem() is called.  QList's default implementation
+  is to delete the item if auto-deletion is enabled.
+
+  The virtual function QGList::compareItems() can be reimplemented to
+  compare two list items. This function is called from all list functions
+  that need to compare list items, for instance remove(const type*).
+  If you only want to deal with pointers, there are functions that
+  compare pointers instead, for instance removeRef(const type*).
+  These functions are somewhat faster than those that call compareItems().
+
+  The QStrList class in qstrlist.h is a list of \c char*.  QStrList is
+  a good example of a list that reimplements newItem(), deleteItem() and
+  compareItems()
 
   \sa QListIterator, \link collectionclasses.html collection classes\endlink
  ----------------------------------------------------------------------------*/
@@ -110,7 +165,9 @@
 
 /*----------------------------------------------------------------------------
   \fn QList::QList( const QList<type> &list )
-  Constructs a list and inserts all items in \e list into this list.
+  Constructs copy of \e list.
+
+  Each items in \e list is appended to this list.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -118,13 +175,17 @@
   Removes all items from the list and destroys the list.
 
   All list iterators that access this list will be reset.
+
+  \sa setAutoDelete()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn QList<type> &QList::operator=(const QList<type> &list)
   Assigns \e list to this list and returns a reference to this list.
 
-  All items in \e list are inserted into this list.
+  This list is first cleared, then each items in \e list is appended to
+  this list.  Only the pointers are copied, unless newItem() has been
+  reimplemented().
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -135,7 +196,7 @@
 
 /*----------------------------------------------------------------------------
   \fn bool QList::isEmpty() const
-  Returns TRUE if the list is empty, i.e. count() == 0, or FALSE if it
+  Returns TRUE if the list is empty, i.e. count() == 0, or FALSE if it is
   not empty.
   \sa count()
  ----------------------------------------------------------------------------*/
@@ -192,7 +253,7 @@
   All list iterators that refer to the item that is removed, will
   be set to point to the new current item.
 
-  \sa take(), clear(), setAutoDelete()
+  \sa take(), clear(), setAutoDelete(), current()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -212,12 +273,12 @@
   All list iterators that refer to the item that is removed, will
   be set to point to the new current item.
 
-  \sa take(), clear(), setAutoDelete()
+  \sa take(), clear(), setAutoDelete(), current()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn bool QList::remove( const type *item )
-  Removes the \e item from the list.
+  Removes the first occurence of \e item from the list.
 
   Returns TRUE if successful, or FALSE if the item cannot be found in the
   list.
@@ -237,12 +298,12 @@
   All list iterators that refer to the item that is removed, will
   be set to point to the new current item.
 
-  \sa removeRef(), take(), clear(), setAutoDelete()
+  \sa removeRef(), take(), clear(), setAutoDelete(), compareItems(), current()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn bool QList::removeRef( const type *item )
-  Removes the \e item from the list.
+  Removes the first occurence of \e item from the list.
 
   Returns TRUE if successful, or FALSE if the item cannot be found in the
   list.
@@ -267,15 +328,14 @@
   All list iterators that refer to the item that is removed, will
   be set to point to the new current item.
 
-  \sa remove(), clear()
+  \sa remove(), clear(), setAutoDelete(), current()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn bool QList::removeNode( QLNode *node )
+  \fn void QList::removeNode( QLNode *node )
   Removes the \e node from the list.
 
-  Returns TRUE if successful, or FALSE if the node structure looks
-  corrupted.
+  This node must exist in the list, otherwise the program may crash.
 
   The removed item is deleted if \link QCollection::setAutoDelete()
   auto-deletion\endlink is enabled.
@@ -293,7 +353,6 @@
 /*----------------------------------------------------------------------------
   \fn bool QList::removeFirst()
   Removes the first item from the list.
-
   Returns TRUE if successful, or FALSE if the list is empty.
 
   The removed item is deleted if \link QCollection::setAutoDelete()
@@ -304,13 +363,12 @@
   All list iterators that refer to the item that is removed, will
   be set to point to the new current item.
 
-  \sa removeLast(), setAutoDelete()
+  \sa removeLast(), setAutoDelete(), current()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn bool QList::removeLast()
   Removes the last item from the list.
-
   Returns TRUE if successful, or FALSE if the list is empty.
 
   The removed item is deleted if \link QCollection::setAutoDelete()
@@ -321,7 +379,7 @@
   All list iterators that refer to the item that is removed, will
   be set to point to the new current item.
 
-  \sa removeFirst(), setAutoDelete()
+  \sa removeFirst(), setAutoDelete(), current()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -342,14 +400,13 @@
   All list iterators that refer to the item that is removed, will
   be set to point to the new current item.
 
-  \sa remove(), clear()
+  \sa remove(), clear(), current()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn type *QList::take()
   Takes the current item out of the list without deleting it (even if
   \link QCollection::setAutoDelete() auto-deletion\endlink is enabled).
-
   Returns a pointer to the item taken out of the list, or null if
   the current item is null.
 
@@ -361,16 +418,16 @@
   All list iterators that refer to the item that is removed, will
   be set to point to the new current item.
 
-  \sa remove(), clear()
+  \sa remove(), clear(), current()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn type *QList::takeNode( QLNode *node )
   Takes the \e node out of the list without deleting its item (even if
   \link QCollection::setAutoDelete() auto-deletion\endlink is enabled).
+  Returns a pointer to the item taken out of the list.
 
-  Returns a pointer to the item taken out of the list, or null if
-  the node structure looks corrupted.
+  This node must exist in the list, otherwise the program may crash.
 
   The first item in the list becomes the new current list item.
 
@@ -404,12 +461,12 @@
   in the list. If compareItems() is not reimplemented, it is more
   efficient to call findRef().
 
-  \sa findNext(), findRef()
+  \sa findNext(), findRef(), compareItems(), current()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn int QList::findNext( const type *item )
-  Finds the next occurence of \e item in the list, starting from
+  Finds the next occurrence of \e item in the list, starting from
   the current list item.
 
   If the item is found, the list sets the current item to point to
@@ -421,7 +478,7 @@
   in the list. If compareItems() is not reimplemented, it is more
   efficient to call findNextRef().
 
-  \sa find(), findNextRef()
+  \sa find(), findNextRef(), compareItems(), current()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -437,12 +494,12 @@
   compares \e item with each list item using compareItems().
   This function only compares the pointers.
 
-  \sa findNextRef(), find()
+  \sa findNextRef(), find(), current()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn int QList::findNextRef( const type *item )
-  Finds the next occurence of \e item in the list, starting from the
+  Finds the next occurrence of \e item in the list, starting from the
   current list item.
 
   If the item is found, the list sets the current item to point to
@@ -450,11 +507,11 @@
   If the item is not found, the list sets the current item to null,
   the current index to -1 and returns -1.
 
-  Calling this function is must faster than find(), because find()
+  Calling this function is must faster than findNext(), because findNext()
   compares \e item with each list item using compareItems().
   This function only compares the pointers.
 
-  \sa findRef(), findNext()
+  \sa findRef(), findNext(), current()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -465,16 +522,20 @@
   in the list. If compareItems() is not reimplemented, it is more
   efficient to call containsRef().
 
-  \sa containsRef()
+  Does not affect the current list item.
+
+  \sa containsRef(), compareItems()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn uint QList::containsRef( const type *item ) const
-  Counts and returns the number of occurences of \e item in the list.
+  Counts and returns the number of occurrences of \e item in the list.
 
-  Calling this function is must faster than find(), because find()
+  Calling this function is must faster than contains(), because contains()
   compares \e item with each list item using compareItems().
   This function only compares the pointers.
+
+  Does not affect the current list item.
 
   \sa contains()
  ----------------------------------------------------------------------------*/
@@ -485,6 +546,7 @@
   null if the index is out of range.
 
   Sets the current list item to this item if \e index is valid.
+  The valid range is 0 - (count() - 1) inclusive.
 
   This function is very efficient.  It starts scanning from the first
   item, last item or current item, whichever is closest to \e index.
@@ -516,57 +578,65 @@
 
   \warning Do not call this function unless you are an expert.
 
-  \sa removeNode(), takeNode()
+  \sa removeNode(), takeNode(), current()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn type *QList::getFirst() const
   Returns a pointer to the first item in the list, or null if the
   list is empty.
-  \sa getLast()
+
+  Does not affect the current list item.
+
+  \sa first(), getLast()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn type *QList::getLast() const
   Returns a pointer to the first item in the list, or null if the
   list is empty.
-  \sa getFirst()
+
+  Does not affect the current list item.
+
+  \sa last(), getFirst()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn type *QList::first()
   Returns a pointer to the first item in the list and makes this the
-  current list item, or returns 0 if the list is empty.
-  \sa getFirst(), last(), next(), prev()
+  current list item, or null if the list is empty.
+  \sa getFirst(), last(), next(), prev(), current()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn type *QList::last()
   Returns a pointer to the last item in the list and makes this the
-  current list item, or returns 0 if the list is empty.
-  \sa getLast(), first(), next(), prev()
+  current list item, or null if the list is empty.
+  \sa getLast(), first(), next(), prev(), current()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn type *QList::next()
-  Returns a pointer to the item succeeding the current item, or null
-  if it is the last item.
+  Returns a pointer to the item succeeding the current item.
 
-  Makes the succeeding item current if the last list item was not
-  current.
+  Returns null if the current items is null or equal to the last item.
 
-  \sa first(), last(), prev()
+  Makes the succeeding item current it is the last item or the current
+  item is  null.
+
+  \sa first(), last(), prev(), current()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn type *QList::prev()
-  Returns a pointer to the item preceding the current item, or null
-  if it is the first item.
+  Returns a pointer to the item preceding the current item.
 
-  Makes the preceding item current if the first list item was not
-  current.
+  Returns null if the current items is null or equal to the first item.
 
-  \sa first(), last(), next()
+  Makes the preceding item current it is the first item or the current
+  item is  null.
+
+  \sa first(), last(), next(), current()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -588,17 +658,76 @@
 
   \ingroup iterators
 
-  QListIterator is implemented as both as template and a macro class.
-  In order to create a list iterator of the type X, you must instantiate
-  a list iterator class for X.  This iterator operates on QList<X>.
+  QListIterator is implemented as both a template and a macro class.
+  Defined a template instance QListIterator<X> to create a list iterator
+  that operates on QList<X> (list of X*).
+
+  Example:
+  \code
+    #include <qlist.h>
+    #include <qstring.h>
+    #include <stdio.h>
+
+    class Employee
+    {
+    public:
+        Employee( const char *name, int salary )
+	    { empname = name;  empsal = salary; }
+        const char *name()   const	{ return empname; }
+        int	    salary() const	{ return empsal; }
+    private:
+        QString     empname;
+        int         empsal;
+    };
+
+    void main()
+    {
+	QList<Employee> list;		  // list of pointers to Employee
+	list.setAutoDelete( TRUE );	  // delete items when they are removed
+
+	list.append( new Employee("Bill", 50000) );
+	list.append( new Employee("Steve",80000) );
+	list.append( new Employee("Ron",  60000) );
+
+	QListIterator<Employee> it(list); // iterator for employee list
+	for ( ; it.current(); ++it) ) {
+	    Employee *emp = it.current();
+	    printf( "%s earns %d\n", emp->name(), emp->salary() );
+        }
+    }
+  \endcode
+
+  The program output is:
+  \code
+	Bill earns 50000
+	Steve earns 80000
+	Ron earns 60000
+  \endcode
+
+  A macro expansion can be used instead of templates, but then you
+  must first declare a QListIterator before using it.
+
+  Macro expansion:
+  \code
+      ...
+    declare(QListIteratorM,Employee);	  // must declare the list iterator
+
+    void main()
+    {
+      ...
+	QListIteratorM(Employee) it;	  // list of pointers to Employee
+      ...
+  \endcode
+
+  See the \link QList QList documentation\endlink for how to combine
+  templates and macros in the same code.
 
   Although QList has member functions to traverse the doubly linked list
   structure, using a list iterator is a much more robust way of traversing
-  the list.
-
+  the list, because multiple list iterators can operate on the same list,
+  independent of each other and independent of the current list item.
   An iterator has a current list item and can get the next and previous
-  list items.  It can only traverse the list, never modify it.  Multiple
-  iterators can operate on the same list and have different current items.
+  list items.  It can only traverse the list, never modify it.
 
   A QList knows about all list iterators that are operating on the list.
   When a list item is removed from the list, the list update all iterators
@@ -609,35 +738,48 @@
   Example:
   \code
     #include <qlist.h>
+    #include <qstring.h>
     #include <stdio.h>
 
-    int main()
+    class Employee
     {
-	QList<double> list;		// list of pointers to double
-	list.setAutoDelete( TRUE );	// delete items when they are removed
-	list.append( new double(3.14) );
-	list.append( new double(8.62) );
-	list.insert( 1, new double(4.51) );
+	...	// same as above
+    };
 
-	QListIterator<double> it(list);	// starts with the first item
-	for ( ; it.current() != 0; ++it )
-	    printf( "%g\n", *it.current() );
+    void main()
+    {
+	QList<Employee> list;		  // list of pointers to Employee
+	list.setAutoDelete( TRUE );	  // delete items when they are removed
+
+	list.append( new Employee("Bill", 50000) );
+	list.append( new Employee("Steve",80000) );
+	list.append( new Employee("Ron",  60000) );
+
+	QListIterator<Employee> it(list);
+
+	list.at( 1 );			  // current list item: "Steve"
+        it.toLast();			  // it: "Ron"
+	--it;				  // it: "Steve"
+
+	  // Now, both the list and the iterator are referring the same item
+
+	list.remove();
+	printf( "%s\n", it.current()->name() );
+
+	  // Output: "Ron"
     }
   \endcode
 
-  The program output is:
-  \code
-	3.14
-	4.51
-	8.62
-  \endcode
+  The list iterator in our example is set to point to the new current
+  list item when the current iterator item is removed.
 
   \sa QList, \link collectionclasses.html collection classes\endlink
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn QListIterator::QListIterator( const QList<type> &list )
-  Constructs an iterator for \e list.
+  Constructs an iterator for \e list.  The current iterator item is
+  set to point on the first item in the \e list.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -653,7 +795,7 @@
 
 /*----------------------------------------------------------------------------
   \fn bool QListIterator::isEmpty() const
-  Returns TRUE if the list is empty, i.e. count() == 0, or FALSE if it
+  Returns TRUE if the list is empty, i.e. count() == 0, or FALSE if it is
   not empty.
   \sa count()
  ----------------------------------------------------------------------------*/
@@ -688,3 +830,51 @@
   \sa toFirst(), atLast()
  ----------------------------------------------------------------------------*/
 
+/*----------------------------------------------------------------------------
+  \fn QListIterator::operator type *() const
+  Cast operator. Returns a pointer to the current iterator item.
+  Same as current().
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn type *QListIterator::current() const
+  Returns a pointer to the current iterator item.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn type *QListIterator::operator()()
+  Makes the succeeding item current and returns the original current item.
+
+  If the current iterator item was the last item in the list, or if it was
+  null, null is returned.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn type *QListIterator::operator++()
+  Prefix ++ makes the succeeding item current and returns the new current
+  item.
+
+  If the current iterator item was the last item in the list, or if it was
+  null, null is returned.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn type *QListIterator::operator+=( uint jump )
+  Returns the object \e jump positions after the current item, or null if
+  it is beyond the last item.  Makes this the current item.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn type *QListIterator::operator--()
+  Prefix -- makes the preceding item current and returns the new current
+  item.
+
+  If the current iterator item was the first item in the list, or if it was
+  null, null is returned.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn type *QListIterator::operator-=( uint jump )
+  Returns the object \e jump positions before the current item, or null if
+  it is beyond the first item.  Makes this the current item.
+ ----------------------------------------------------------------------------*/
