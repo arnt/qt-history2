@@ -64,6 +64,7 @@ public:
 
     QStringList uiFiles() const;
     void addUiFile( const QString &f, FormWindow *fw );
+    void removeUiFile( const QString &f, FormWindow *fw );
     void setUiFiles( const QStringList &lst );
 
     bool isFormLoaded( const QString &form );
@@ -92,7 +93,7 @@ public:
 
     void openDatabase( const QString &connection );
     void closeDatabase( const QString &connection );
-    
+
 private:
     void parse();
     void clear();

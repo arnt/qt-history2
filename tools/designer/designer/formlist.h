@@ -74,13 +74,14 @@ public slots:
 protected:
     void resizeEvent( QResizeEvent *e );
     void closeEvent( QCloseEvent *e );
-
+    
 signals:
     void hidden();
 
 private slots:
     void updateHeader();
-    void itemClicked( QListViewItem *i );
+    void itemClicked( int, QListViewItem *i );
+    void rmbClicked( QListViewItem *i );
 
 private:
     FormListItem *findItem( FormWindow *fw );
@@ -88,7 +89,7 @@ private:
 private:
     MainWindow *mainWindow;
     Project *project;
-    
+
 };
 
 #endif

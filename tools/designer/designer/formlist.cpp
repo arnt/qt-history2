@@ -35,6 +35,7 @@
 #include <qpen.h>
 #include <qobjectlist.h>
 #include <qworkspace.h>
+#include <qpopupmenu.h>
 
 static bool blockNewForms = FALSE;
 
@@ -109,8 +110,10 @@ FormList::FormList( QWidget *parent, MainWindow *mw, Project *pro )
     setAllColumnsShowFocus( TRUE );
     connect( header(), SIGNAL( sizeChange( int, int, int ) ),
 	     this, SLOT( updateHeader() ) );
-    connect( this, SIGNAL( clicked( QListViewItem * ) ),
-	     this, SLOT( itemClicked( QListViewItem * ) ) ),
+    connect( this, SIGNAL( mouseButtonClicked( int, QListViewItem *, const QPoint &, int ) ),
+	     this, SLOT( itemClicked( int, QListViewItem * ) ) ),
+    connect( this, SIGNAL( rightButtonClicked( QListViewItem *, const QPoint &, int ) ),
+	     this, SLOT( rmbClicked( QListViewItem * ) ) ),
     setHScrollBarMode( AlwaysOff );
     viewport()->setAcceptDrops( TRUE );
     setAcceptDrops( TRUE );
@@ -154,7 +157,7 @@ void FormList::addForm( FormWindow *fw )
 	    project->setFormWindow( fw->fileName(), fw );
 	return;
     }
-    
+
     QString fn = project->makeRelative( fw->fileName() );
     FormListItem *i = new FormListItem( this, fw->name(), fn, 0 );
     i->setFormWindow( fw );
@@ -257,9 +260,9 @@ void FormList::closeEvent( QCloseEvent *e )
     e->accept();
 }
 
-void FormList::itemClicked( QListViewItem *i )
+void FormList::itemClicked( int button, QListViewItem *i )
 {
-    if ( !i )
+    if ( !i || button != LeftButton )
 	return;
     if ( ( (FormListItem*)i )->formWindow() ) {
 	( (FormListItem*)i )->formWindow()->setFocus();
@@ -301,4 +304,24 @@ void FormList::contentsDragMoveEvent( QDragMoveEvent *e )
 	e->ignore();
     else
 	e->accept();
+}
+
+void FormList::rmbClicked( QListViewItem *i )
+{
+    if ( !i )
+	return;
+    QPopupMenu menu( this );
+
+    int REMOVE_FORM = menu.insertItem( "&Remove form from project" );
+    int id = menu.exec( QCursor::pos() );
+
+    if ( id == -1 )
+	return;
+
+    if ( id == REMOVE_FORM ) {
+	project->removeUiFile( ( (FormListItem*)i )->text( 1 ), ( (FormListItem*)i )->formWindow() );
+	if ( ( (FormListItem*)i )->formWindow() )
+	    ( (FormListItem*)i )->formWindow()->setProject( 0 );
+	delete i;
+    }
 }

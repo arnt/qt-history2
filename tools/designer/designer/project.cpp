@@ -172,6 +172,13 @@ void Project::addUiFile( const QString &f, FormWindow *fw )
     save();
 }
 
+void Project::removeUiFile( const QString &f, FormWindow *fw )
+{
+    formWindows.remove( fw );
+    uifiles.remove( f );
+    save();
+}
+
 bool Project::isFormLoaded( const QString &form )
 {
     return loadedForms.find( form ) != loadedForms.end();
@@ -318,9 +325,9 @@ void Project::save()
 
     QTextStream os( &f );
     os << contents;
-    
+
     f.close();
-    
+
     saveConnections();
 }
 
