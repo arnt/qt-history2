@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: i18n.doc,v 1.25 1999/06/16 01:19:12 warwick Exp $
+** $Id: i18n.doc,v 1.26 1999/06/16 01:20:18 warwick Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -293,31 +293,6 @@ be too concerned with the actual limitations.
     </ul>
 </dl>
 
-<h2>Note about Kinput2 on X11</h2>
-
-If using the Kinput2 XIM Server, users may need to apply the
-bug-fix patch below.  Without this patch, Kinput2 can produce bad
-XIM Protocol, causing application lock-up.
-<p>
-For a recent version of Kinput2 that includes all users need, see
-<a href=ftp://ftp.sra.co.jp/pub/x11/kinput2/>
-ftp://ftp.sra.co.jp/pub/x11/kinput2/</a>
-
-<p>Patch...
-\code
---- lib/imlib/imrequest.c~	Mon Feb  3 10:21:46 1997
-+++ lib/imlib/imrequest.c	Wed Mar 10 19:23:09 1999
-@@ -844,6 +844,6 @@
- 	IMSendBadLength(conn, icp->im->id, icp->id);
- 	return;
-     }
--    IMDestroyIC(icp);
-     IMSendRequestWithIC(conn, XIM_DESTROY_IC_REPLY, 0, icp);
-+    IMDestroyIC(icp);
- }
-\endcode
-
-
 <h2>Supporting more Input Methods</h2>
 
 While Troll Tech doesn't have the resources or expertise in all
@@ -386,5 +361,30 @@ as well as
 (a Unicode encoding) filenames such as with the
 <a href=http://www.sun.com/software/white-papers/wp-unicode/>Unicode
 support in Solaris<sup class="tm"><font size="-1">TM</font></sup> 7</a>.
+
+<h2>Note about Kinput2 on X11</h2>
+
+If using the Kinput2 XIM Server, users may need to apply the
+bug-fix patch below.  Without this patch, Kinput2 can produce bad
+XIM Protocol, causing application lock-up.
+<p>
+For a recent version of Kinput2 that includes all users need, see
+<a href=ftp://ftp.sra.co.jp/pub/x11/kinput2/>
+ftp://ftp.sra.co.jp/pub/x11/kinput2/</a>
+
+<p>Patch...
+\code
+--- lib/imlib/imrequest.c~	Mon Feb  3 10:21:46 1997
++++ lib/imlib/imrequest.c	Wed Mar 10 19:23:09 1999
+@@ -844,6 +844,6 @@
+ 	IMSendBadLength(conn, icp->im->id, icp->id);
+ 	return;
+     }
+-    IMDestroyIC(icp);
+     IMSendRequestWithIC(conn, XIM_DESTROY_IC_REPLY, 0, icp);
++    IMDestroyIC(icp);
+ }
+\endcode
+
 
 */
