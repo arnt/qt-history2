@@ -4228,7 +4228,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		    minw = QMAX( minw, w );
 		continue;
 	    }
-	} else if ( lineStart && isBreakable( string, i ) ) {
+	} else if ( lineStart && ( isBreakable( string, i ) || parag->isNewLinesAllowed() && c->c == '\n' ) ) {
 	    if ( len < 2 || i < len - 1 ) {
 		tmpBaseLine = QMAX( tmpBaseLine, c->ascent() );
 		tmph = QMAX( tmph, c->height() );
