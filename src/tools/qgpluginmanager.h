@@ -20,6 +20,7 @@ class Q_EXPORT QGPluginManager
 {
 public:
     QGPluginManager( const QUuid& id, const QString& path = QString::null, QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE );
+    virtual ~QGPluginManager();
     void addLibraryPath( const QString& path );
     void setDefaultPolicy( QLibrary::Policy pol );
     QLibrary::Policy defaultPolicy() const;

@@ -10,11 +10,15 @@ QGPluginManager::QGPluginManager( const QUuid& id, const QString& path, QLibrary
 	addLibraryPath( path );
 }
 
+QGPluginManager::~QGPluginManager()
+{
+}
+
 void QGPluginManager::addLibraryPath( const QString& path )
 {
     if ( !QDir( path ).exists( ".", TRUE ) )
 	return;
-    
+
 #if defined(Q_OS_WIN32)
     QString filter = "dll";
 #elif defined(Q_OS_UNIX)
