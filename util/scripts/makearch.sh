@@ -337,8 +337,8 @@ ${PLATFORM}:
 	cd template ; tar cf - . | ( cd ../${PLATFORM} ; tar xf - )
 EOF
     [ -s $a ] && ( echo "	( cd ${PLATFORM} ; \\" ; echo "		patch -p1 -s < ../../makefiles/${PLATFORM} )" )
-    echo '	[ -e ../lib ] || ln -s arch/'{$PLATFORM}'/lib ..'
-    echo '	[ -e ../bin ] || ln -s arch/'{$PLATFORM}'/bin ..'
+    echo '	[ -e ../lib ] || ln -s arch/'${PLATFORM}'/lib ..'
+    echo '	[ -e ../bin ] || ln -s arch/'${PLATFORM}'/bin ..'
     echo
 
 done
