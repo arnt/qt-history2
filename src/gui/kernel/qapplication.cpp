@@ -3058,14 +3058,11 @@ bool QApplication::notify_helper(QObject *receiver, QEvent * e)
   \sa sessionId(), QApplication::sessionKey()
  */
 
-// ### Note: This function is undocumented, since it is #ifdef'd.
-
 /*!
-  \fn void* QSessionManager::handle() const
+    \fn void* QSessionManager::handle() const
 
-  X11 only: returns a handle to the current \c SmcConnection.
+    \internal
 */
-
 
 /*!
   \fn bool QSessionManager::allowsInteraction()

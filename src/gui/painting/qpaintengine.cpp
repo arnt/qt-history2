@@ -346,7 +346,7 @@ void QPaintEngine::updateRenderHints(QPainter::RenderHints /*hints*/)
 */
 
 /*!
-  \fn QPaintEngine::updateXForm(const QWMAtrix &matrix)
+  \fn QPaintEngine::updateXForm(const QWMatrix &matrix)
 
   This function is called when the engine needs to be updated with
   new transformation settings, specified with \a matrix.

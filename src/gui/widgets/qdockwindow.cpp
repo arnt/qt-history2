@@ -550,10 +550,9 @@ void QDockWindow::setFloatable(bool floatable)
 bool QDockWindow::isFloatable() const
 { return d->movable && d->floatable; }
 
-/*! \property QDockWindow::floated
-    \brief whether the dock window is floating.
+/*! Sets whether the dock window is floating.
 
-    This property is false by default.
+    By default, dock windows are not floating.
 */
 
 void QDockWindow::setFloated(bool floated, const QPoint &pos)
@@ -573,6 +572,10 @@ void QDockWindow::setFloated(bool floated, const QPoint &pos)
         show();
 }
 
+/*
+    Returns true if the dock window is floating; otherwise
+    returns false.
+*/
 bool QDockWindow::isFloated() const
 { return isTopLevel(); }
 

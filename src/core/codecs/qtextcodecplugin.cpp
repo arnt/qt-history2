@@ -16,7 +16,7 @@
 #include "qstringlist.h"
 
 /*!
-    \class QTextCodecPlugin qtextcodecplugin.h
+    \class QTextCodecPlugin
     \brief The QTextCodecPlugin class provides an abstract base for custom QTextCodec plugins.
     \reentrant
     \ingroup plugins

@@ -923,7 +923,7 @@ QDataStream &operator>>(QDataStream &s, QColor &c)
 */
 
 /*!
-    \fn int qGray(qRgb rgb)
+    \fn int qGray(QRgb rgb)
     \overload
     \relates QColor
 

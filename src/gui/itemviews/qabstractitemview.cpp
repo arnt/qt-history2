@@ -521,7 +521,7 @@ void QAbstractItemView::doItemsLayout()
 }
 
 /*!
-  \property AbstractItemView::beginEditActions
+  \property QAbstractItemView::beginEditActions
   \brief which actions will start the editing of an item
 
   This property is an or'ed flag of QAbstractItemDelegate::BeginEditFlags.

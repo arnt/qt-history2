@@ -149,28 +149,6 @@ bool Q3Signal::disconnect(const QObject *receiver, const char *member)
 #endif
 }
 
-
-/*!
-  \fn bool Q3Signal::isBlocked() const
-  \obsolete
-  Returns true if the signal is blocked, or false if it is not blocked.
-
-  The signal is not blocked by default.
-
-  \sa block(), QObject::signalsBlocked()
-*/
-
-/*!
-  \fn void Q3Signal::block(bool b)
-  \obsolete
-  Blocks the signal if \a b is true, or unblocks the signal if \a b is false.
-
-  An activated signal disappears into hyperspace if it is blocked.
-
-  \sa isBlocked(), activate(), QObject::blockSignals()
-*/
-
-
 /*!
     \fn void Q3Signal::activate()
 

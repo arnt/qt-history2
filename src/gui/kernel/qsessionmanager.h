@@ -35,7 +35,7 @@ public:
     QString sessionId() const;
     QString sessionKey() const;
 #if defined(Q_WS_X11) || defined(Q_WS_MAC)
-    void* handle() const;
+    void *handle() const;
 #endif
 
     bool allowsInteraction();

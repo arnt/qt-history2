@@ -156,13 +156,12 @@ public:
     Qt::HANDLE xftDrawHandle() const;
 #endif
 
-#if defined (Q_WS_WIN)
+#ifdef Q_WS_WIN
     HDC winHDC() const;
-#else
+#endif
+#ifndef Q_WS_WIN
     Qt::HANDLE handle() const;
 #endif
-
-
 
     QPaintEngine *paintEngine() const;
 
@@ -324,9 +323,7 @@ inline bool QPixmap::isMultiCellPixmap() const
 {
     return data->mcp;
 }
-#endif
 
-#if defined (Q_WS_WIN)
 inline HDC QPixmap::winHDC() const
 {
     return (HDC)data->hd;

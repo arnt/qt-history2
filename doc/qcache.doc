@@ -190,8 +190,3 @@
 
     \sa remove()
 */
-
-/*! \fn bool QCache::ensure_constructed()
-
-    \internal
-*/

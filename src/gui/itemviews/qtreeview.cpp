@@ -45,7 +45,7 @@ private:
     mutable QTreeViewItem topHeader;
 };
 
-/*!
+/*
   \class QTreeModel qtreeview.h
 
   \brief The QTreeModel class manages the items stored in a tree view.
@@ -218,8 +218,6 @@ int QTreeModel::rowCount(const QModelIndex &parent) const
 }
 
 /*!
-  \fn int QTreeModel::columnCount(const QModelIndex &index) const
-
   Returns the number of columns in the item referred to by the given
   \a index.*/
 
@@ -301,10 +299,9 @@ bool QTreeModel::removeRows(int row, const QModelIndex &parent, int)
 }
 
 /*!
-  \fn bool QTreeModel::isSelectable(const QModelIndex &index) const
-
   Returns true if the item at the \a index given is selectable;
-  otherwise returns false.*/
+  otherwise returns false.
+*/
 
 bool QTreeModel::isSelectable(const QModelIndex &) const
 {
@@ -312,10 +309,9 @@ bool QTreeModel::isSelectable(const QModelIndex &) const
 }
 
 /*!
-  \fn bool QTreeModel::isEditable(const QModelIndex &index) const
-
   Returns true if the item at the \a index given is editable;
-  otherwise returns false.*/
+  otherwise returns false.
+*/
 
 bool QTreeModel::isEditable(const QModelIndex &) const
 {

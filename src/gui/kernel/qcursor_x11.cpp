@@ -103,11 +103,7 @@ void QCursor::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, in
 
 
 /*!
-    Returns the window system cursor handle.
-
-    \warning
-    Portable in principle, but if you use it you are probably about to
-    do something non-portable. Be careful.
+    Returns the window system cursor handle on Windows.
 */
 
 Qt::HANDLE QCursor::handle() const
@@ -125,9 +121,7 @@ Qt::HANDLE QCursor::handle() const
     Creates a cursor with the specified window system handle \a
     handle.
 
-    \warning
-    Portable in principle, but if you use it you are probably about to
-    do something non-portable. Be careful.
+    This function is Windows-specific.
 */
 
 /*!

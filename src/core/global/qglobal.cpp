@@ -59,23 +59,6 @@ static const unsigned int qt_one = 1;
 const int QSysInfo::ByteOrder = ((*((unsigned char *) &qt_one) == 0) ? BigEndian : LittleEndian);
 #endif
 
-/*! \fn bool qSysInfo(int *wordSize, bool *bigEndian)
-    \relates QApplication
-    \obsolete
-
-    Please use QSysInfo instead.
-
-    Obtains information about the system.
-
-    The system's word size in bits (typically 32) is returned in \a
-    *wordSize. The \a *bigEndian is set to true if this is a big-endian
-    machine, or to false if this is a little-endian machine.
-
-    In debug mode, this function calls qFatal() with a message if the
-    computer is truly weird (i.e. different endianness for 16 bit and
-    32 bit integers); in release mode it returns false.
-*/
-
 #if !defined(QWS) && defined(Q_OS_MAC)
 
 #include <private/qcore_mac_p.h>
@@ -505,7 +488,7 @@ void qSystemWarning(const char *msg, ...)
 }
 
 /*!
-    \fn void Q_ASSERT(bool test)
+    \macro void Q_ASSERT(bool test)
 
     \relates QApplication
 
@@ -543,7 +526,7 @@ void qSystemWarning(const char *msg, ...)
 */
 
 /*!
-    \fn void Q_ASSERT_X(bool test, const char *msg)
+    \macro void Q_ASSERT_X(bool test, const char *msg)
 
     \relates QApplication
 
@@ -581,7 +564,7 @@ void qSystemWarning(const char *msg, ...)
 */
 
 /*!
-    \fn void Q_CHECK_PTR(void *p)
+    \macro void Q_CHECK_PTR(void *p)
 
     \relates QApplication
 

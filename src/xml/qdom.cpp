@@ -3151,14 +3151,6 @@ QString QDomDocumentType::internalSubset() const
     \sa isDocumentType() QDomNode::toDocumentType()
 */
 
-/*!
-    \fn bool QDomDocumentType::isDocumentType() const
-
-    This function overloads QDomNode::isDocumentType().
-
-    \sa nodeType() QDomNode::toDocumentType()
-*/
-
 #undef IMPL
 
 /**************************************************************
@@ -4709,12 +4701,6 @@ QDomComment& QDomComment::operator= (const QDomComment& x)
     \fn QDomNode::NodeType QDomComment::nodeType() const
 
     Returns \c CommentNode.
-*/
-
-/*!
-    \fn bool QDomComment::isComment() const
-
-    Returns true.
 */
 
 #undef IMPL

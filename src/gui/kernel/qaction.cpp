@@ -401,7 +401,7 @@ QActionGroup *QAction::actionGroup() const
 
 
 /*!
-    \property QAction::iconSet
+    \property QAction::icon
     \brief the action's icon
 
     In toolbars, the icon is used as the tool button icon; in menus,

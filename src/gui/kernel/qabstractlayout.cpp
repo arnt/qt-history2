@@ -1362,7 +1362,7 @@ bool QLayout::activate()
 */
 
 /*!
-    \enum QSizePolicy::SizeType
+    \enum QSizePolicy::SizeTypeFlags
 
     The per-dimension sizing types used when constructing a
     QSizePolicy are:

@@ -93,13 +93,6 @@ public:
 */
 
 /*!
-    \property QCheckBox::checked
-    \brief whether the checkbox is checked
-
-    The default is unchecked, i.e. false.
-*/
-
-/*!
     \property QCheckBox::autoMask
     \brief whether the checkbox is automatically masked
 

@@ -508,14 +508,6 @@ bool QDirModel::hasChildren(const QModelIndex &parent) const
 }
 
 /*!
-  \fn bool QDirModel::isSelectable(const QModelIndex &index) const
-
-  Returns true if the model item \a index in the directory model is
-  selectable; otherwise returns false.
-
-*/
-
-/*!
   Returns true if the model item \a index in the directory model is
   editable; otherwise returns false.
 

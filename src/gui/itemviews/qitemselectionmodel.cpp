@@ -261,7 +261,7 @@ void QItemSelectionModel::select(const QModelIndex &index, SelectionFlags comman
 }
 
 /*!
-   \fn void QItemSelectionModel::currentChanged()
+   \fn void QItemSelectionModel::currentChanged(const QModelIndex &old, const QModelIndex &current)
 
    This signal is emitted whenever the current item changes.
 
@@ -269,7 +269,7 @@ void QItemSelectionModel::select(const QModelIndex &index, SelectionFlags comman
 */
 
 /*!
-   \fn void QItemSelectionModel::selectionChanged()
+    \fn void QItemSelectionModel::selectionChanged(const QItemSelection &deselected, const QItemSelection &selected)
 
    This signal is emitted whenever the selection changes.
 

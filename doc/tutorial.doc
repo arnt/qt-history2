@@ -65,9 +65,10 @@ the bare minimum you need to get a Qt application up and running.
 The picture above is a snapshot of this program.
 
 \include t1/main.cpp
-\quotefile t1/main.cpp
 
 \section1 Line-by-line Walkthrough
+
+\quotefile t1/main.cpp
 
 \skipto include
 \printline qapp

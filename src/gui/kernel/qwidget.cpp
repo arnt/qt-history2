@@ -4397,7 +4397,7 @@ QSize QWidget::minimumSizeHint() const
 */
 
 /*!
-    \fn Qt::WFlags QWidget::testWFlags(WFlags f) const
+    \fn Qt::WFlags QWidget::testWFlags(Qt::WFlags f) const
 
     Returns the bitwise AND of the widget flags and \a f.
 
@@ -4419,7 +4419,7 @@ QSize QWidget::minimumSizeHint() const
 */
 
 /*!
-  \fn Qt::WState QWidget::testWState(WState s) const
+  \fn Qt::WState QWidget::testWState(Qt::WState s) const
   \internal
 
   Returns the bitwise AND of the widget states and \a s.

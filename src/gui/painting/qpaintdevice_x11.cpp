@@ -538,7 +538,7 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
 /*!
     \relates QPaintDevice
 
-    \fn void bitBlt(QPaintDevice *dst, const QPoint &dp, const QPaintDevice *src, const QRect &sr)
+    \fn void bitBlt(QPaintDevice *dst, const QPoint &dp, const QPaintDevice *src, const QRect &sr, bool ignoreMask)
     \overload
 
     Overloaded bitBlt() with the destination point \a dp and source

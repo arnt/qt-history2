@@ -48,7 +48,7 @@
 #include "qcleanuphandler.h"
 
 /*!
-    \class QPocketPCStyle qpocketpcstyle_wce.h
+    \class QPocketPCStyle
     \brief The QPocketPCStyle class provides a Microsoft PocketPC-like look and feel.
 
     \ingroup appearance

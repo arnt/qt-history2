@@ -272,7 +272,7 @@ QFileEngine *QFileEngine::createFileEngine(const QString &file)
  */
 
 /*!
-    \enum QIOEngine::FileName
+    \enum QFileEngine::FileName
 
     ###
 
@@ -286,7 +286,7 @@ QFileEngine *QFileEngine::createFileEngine(const QString &file)
 */
 
 /*!
-    \enum QIOEngine::FileInfo
+    \enum QFileEngine::FileInfo
 
     ###
 
@@ -317,7 +317,7 @@ QFileEngine *QFileEngine::createFileEngine(const QString &file)
 */
 
 /*!
-    \enum QIOEngine::FileTime
+    \enum QFileEngine::FileTime
 
     ###
 
@@ -327,7 +327,7 @@ QFileEngine *QFileEngine::createFileEngine(const QString &file)
 */
 
 /*!
-    \enum QIOEngine::FileOwner
+    \enum QFileEngine::FileOwner
 
     ###
 

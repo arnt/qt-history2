@@ -205,14 +205,11 @@ public slots:
     void             closeAllWindows();
     void             aboutQt();
 
-#if defined(Q_WS_QWS)
 protected:
+#if defined(Q_WS_QWS)
     void setArgs(int, char **);
 #endif
-
-protected:
     bool event(QEvent *);
-
     bool compressEvent(QEvent *, QObject *receiver, QPostEventList *);
 
 #ifdef QT_COMPAT

@@ -174,23 +174,9 @@ void QWellArray::paintEvent(QPaintEvent *e)
 
 }
 
-
-// non-interface ...
-
-
-
 struct QWellArrayData {
     QBrush *brush;
 };
-
-/*!
-    \internal
-    \class QWellArray qwellarray_p.h
-    \brief The QWellArray class provides a well array.
-
-
-    \ingroup advanced
-*/
 
 QWellArray::QWellArray(int rows, int cols, QWidget *parent)
     : QWidget(parent)

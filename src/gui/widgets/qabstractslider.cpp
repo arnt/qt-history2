@@ -57,7 +57,7 @@
 
     Unity (1) may be viewed as a third step size. setValue() lets you
     set the current value to any integer in the allowed range, not
-    just mininum() + \e n * singleStep() for integer values of \e n.
+    just minimum() + \e n * singleStep() for integer values of \e n.
     Some widgets may allow the user to set any value at all; others
     may just provide multiples of singleStep() or pageStep().
 
@@ -169,7 +169,7 @@ QAbstractSliderPrivate::~QAbstractSliderPrivate()
     If \a max is smaller than \a min, \a min becomes the only legal
     value.
 
-    \sa mininum maximum
+    \sa minimum maximum
 */
 void QAbstractSlider::setRange(int min, int max)
 {
@@ -245,7 +245,7 @@ Qt::Orientation QAbstractSlider::orientation() const
 
 
 /*!
-    \property QAbstractSlider::mininum
+    \property QAbstractSlider::minimum
     \brief the sliders's minimum value
 
     When setting this property, the \l maximum is adjusted if
@@ -269,7 +269,7 @@ int QAbstractSlider::minimum() const
     \property QAbstractSlider::maximum
     \brief the slider's maximum value
 
-    When setting this property, the \l mininum is adjusted if
+    When setting this property, the \l minimum is adjusted if
     necessary to ensure that the range remains valid.  Also the
     slider's current value is adjusted to be within the new range.
 

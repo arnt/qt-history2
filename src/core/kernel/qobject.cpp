@@ -114,21 +114,12 @@ QMetaCallEvent::~QMetaCallEvent()
 
 
 /*!
-    \class Qt qnamespace.h
+    \namespace Qt
 
-    \brief The Qt class is a namespace for miscellaneous identifiers
-    that need to be global-like.
+    \brief The Qt namespace contains miscellaneous identifiers
+    used throughout the Qt library.
 
     \ingroup misc
-
-    Normally, you can ignore this class. QObject and a few other
-    classes inherit it, so all the identifiers in the Qt namespace are
-    normally usable without qualification.
-
-    However, you may occasionally need to say \c Qt::black instead of
-    just \c black, particularly in static utility functions (such as
-    many class factories).
-
 */
 
 /*!
@@ -144,7 +135,7 @@ QMetaCallEvent::~QMetaCallEvent()
 
 
 /*!
-    \class QObject qobject.h
+    \class QObject
     \brief The QObject class is the base class of all Qt objects.
 
     \ingroup objectmodel
@@ -439,23 +430,6 @@ QObject::~QObject()
     and inherits() also make use of the meta object.
 */
 
-
-/*!
-    \fn bool QObject::isA(const char *clname) const
-
-    \obsolete
-    Returns true if this object is an instance of the class \a clname;
-    otherwise returns false.
-
-  Example:
-  \code
-    QTimer *t = new QTimer; // QTimer inherits QObject
-    t->isA("QTimer");     // returns true
-    t->isA("QObject");    // returns false
-  \endcode
-
-  \sa inherits() metaObject()
-*/
 
 /*! \fn Type *qt_cast<Type *>(QObject *o)
 
@@ -1971,15 +1945,14 @@ bool QObject::connect(const QObject *sender, const char *signal,
 
 
 /*!
-    \threadsafe
-
-    \fn bool QObject::connect(const QObject *sender, const char *signal, const char *member) const
+    \fn bool QObject::connect(const QObject *sender, const char *signal, const char *member, Qt::ConnectionType type) const
     \overload
+    \threadsafe
 
     Connects \a signal from the \a sender object to this object's \a
     member.
 
-    Equivalent to: \c{Object::connect(sender, signal, this, member)}.
+    Equivalent to connect(\a sender, \a signal, \c this, \a member, \a type).
 
     \sa disconnect()
 */
