@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#97 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#98 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#97 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#98 $");
 
 
 static const int fontFields = 14;
@@ -995,12 +995,16 @@ bool QFontMetrics::inFont(char ch) const
 }
 
 /*!
-  Returns the maximum left bearing of character \a ch in the font.
+  Returns the left bearing of character \a ch in the font.
 
-  The left bearing of the font is the distance of the left-most pixel
-  of the character from the 0 position.  This is often a negative value.
+  The left bearing is the rightward distance of the left-most pixel
+  of the character from the logical origin of the character.
+  This value is negative if the pixels of the character extend
+  to the left of the logical origin.
 
-  \sa rightBearing(char), minLeftBearing()
+  <em>See width(char) for a graphical description of this metric.</em>
+
+  \sa rightBearing(char), minLeftBearing(), width()
 */
 int QFontMetrics::leftBearing(char ch) const
 {
@@ -1012,12 +1016,16 @@ int QFontMetrics::leftBearing(char ch) const
 }
 
 /*!
-  Returns the maximum right bearing of character \a ch in the font.
+  Returns the right bearing of character \a ch in the font.
 
-  The right bearing of the font is the distance of the right-most pixel
-  of the character from the 0 position.  This is often a negative value.
+  The right bearing is the leftward distance of the right-most pixel
+  of the character from the logical origin of a subsequent character.
+  This value is negative if the pixels of the character extend
+  to the right of the width() of the character.
 
-  \sa leftBearing(char), minRightBearing()
+  <em>See width() for a graphical description of this metric.</em>
+
+  \sa leftBearing(char), minRightBearing(), width()
 */
 int QFontMetrics::rightBearing(char ch) const
 {
@@ -1121,7 +1129,20 @@ int QFontMetrics::lineSpacing() const
 }
 
 /*!
-  Returns the pixel width of a \e ch.
+  Returns the logical width of a \e ch in pixels.  This is 
+  a distance appropriate for drawing a subsequent character
+  after \e ch.
+
+  <img src=bearings.gif align=right>
+  Some of the metrics are described in the image to the right.
+  The tall green rectangle covers the logical width() of a character.
+  The shorter
+  yellow rectangles cover the
+  \link QFontMetrics::leftBearing() left\endlink and
+  \link QFontMetrics::rightBearing() right\endlink bearings
+  of the characters.  Notice that the bearings of "f" in this particular
+  font are both negative, while the bearings of "o" are both positive.
+
   \sa boundingRect()
 */
 

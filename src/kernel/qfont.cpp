@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#80 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#81 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -21,7 +21,7 @@
 #include <ctype.h>
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#80 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#81 $");
 
 
 /*!
@@ -1118,7 +1118,7 @@ void QFontMetrics::reset( const QPainter *p )
     int h = fm.height();
   \endcode
 
-  <strong>In Qt 2.0 the font metrics object will no longer be
+  <strong>NOTE: In Qt 2.0 the font metrics object will no longer be
   automatically updated when the widget or painter gets a new font.</strong>
   Make sure you program does not depend on this feature.
 
@@ -1750,7 +1750,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
   that calculated by the simpler boundingRect() function.  This function
   uses the
   \link minLeftBearing() maximum left\endlink and
-  \link maxRightBearing() right\endlink font bearings as is necessary for
+  \link minRightBearing() right\endlink font bearings as is necessary for
   multi-line text to align correctly.  Also, font height() and lineSpacing()
   are used to calculate the height, rather than individual
   character heights.

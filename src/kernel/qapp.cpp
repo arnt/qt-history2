@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#128 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#129 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#128 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#129 $");
 
 
 /*!
@@ -703,7 +703,7 @@ void QApplication::quit()
   to process all events for all widgets, so it's just as powerful as
   reimplementing notify(), and in this way it's possible to have more
   than one application-global event filter.  Global event filter get
-  to see even mouse events for \link QWidget::enabled() disabled
+  to see even mouse events for \link QWidget::isEnabled() disabled
   widgets, \endlink and if \link setGlobalMouseTracking() global mouse
   tracking \endlink is enabled, mouse move events for all widgets.
   
