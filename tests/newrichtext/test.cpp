@@ -4,22 +4,14 @@
 #include "qfontdatabase.h"
 #include "qlabel.h"
 
-#include <private/qcomplextext_p.h>
 #include <qdatetime.h>
 #include "editwidget.h"
 
 
 
->>>> ORIGINAL test.cpp#56
 // const char *family = "Arial Unicode Ms"; // generic
-const char *family = "Diwani Letter,Verdana,Latha,Akaash,Serto Jerusalem,Mangal,Rama,TCRC Youtso Unicode"; // Devanagari
-==== THEIRS test.cpp#57
-// const char *family = "Arial Unicode Ms"; // generic
-const char *family = "Sampige,Diwani Letter,Verdana,Latha,Akaash,Serto Jerusalem,Raghindi,Rama,TCRC Youtso Unicode"; // Devanagari
-==== YOURS test.cpp
-//const char *family = "Arial Unicode Ms"; // generic
-const char *family = "Diwani Letter,Verdana,Latha,Akaash,Serto Jerusalem,Mangal,Rama,TCRC Youtso Unicode"; // Devanagari
-<<<<
+const char *family = "Nafees Nastaleeq,Sampige,Diwani Letter,Verdana,Latha,Akaash,Serto Jerusalem,Raghindi,Rama,TCRC Youtso Unicode"; // Devanagari
+
 // const char *family = ""; // arabic
 // const char *family = ""; // syriac
 // const char *family = ""; // Bengali
@@ -35,9 +27,11 @@ const char *family = "Diwani Letter,Verdana,Latha,Akaash,Serto Jerusalem,Mangal,
 // const char *s = "أوروبا, برمجيات الحاسوب + انترنيت : تصبح عالميا مع يونيكود تسجّل الآن لحضور المؤتمر الدولي العاشر ليونيكود, الذي سيعقد في 10-12 آذار 1997 بمدينة ماينتس, ألمانيا. وسيجمع المؤتمر بين خبراء من  كافة قطاعات الصناعة على الشبكة العالمية انترنيت ويونيكود, حيث ستتم, على الصعيدين الدولي والمحلي على حد سواء مناقشة سبل استخدام يونكود  في النظم القائمة وفيما يخص التطبيقات الحاسوبية, الخطوط, these are some english words intermixed within the arabic text تصميم النصوص  والحوسبة متعددة اللغات. عندما يريد العالم أن يتكلّم, فهو يتحدّث بلغة يونيكود.";
 // const char *s = "أوروبا, برمجيات الحاسو�";
 
+// Urdu:
+const char *s = "مرکزکوالیکٹرونک گورنمنٹ";// دائریکٹریٹ کی طرف سے اردو لوکلائیزیشن پراجیکٹ کے لیے سپانسرشپ ملی";
 
 // Thai
-const char *s = "ทำไมเขาถึงไม่พูด �าษาไทย";
+// const char *s = "ทำไมเขาถึงไม่พูด �าษาไทย";
 
 // Vietnamese
 // const char *s = "Tại sao";// họ không thể chỉ nói tiếng Việt?";
@@ -76,7 +70,7 @@ const char *s = "ทำไมเขาถึงไม่พูด �าษา�
 // "KDE is a powerful Open Source graphical desktop environment for Unix workstations. It combines ease of use, contemporary functionality, and outstanding graphical design with the technological superiority of the Unix operating system. KDE is an Internet project that is truly open in every sense. Development takes place on the Internet and is discussed on our mailing lists, USENET news groups, and IRC channels to which we invite and welcome everyone."
 // ;
 
-//const char *s = "اللّغة";
+// const char *s = "الآنلحضور";
 
 //const char *s = "            यूनिकोड क्या है?";
 
@@ -87,7 +81,7 @@ int main( int argc, char **argv )
     QApplication a(argc, argv);
 
     QFont f( family );
-    f.setPointSize( 20 );
+    f.setPointSize( 64 );
     a.setFont( f );
 
 #if 0

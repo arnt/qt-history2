@@ -7,6 +7,7 @@
 
 #include <qmemarray.h>
 #include <qdatetime.h>
+#include <qevent.h>
 
 class EditWidgetPrivate
 {
@@ -90,7 +91,7 @@ void EditWidget::keyPressEvent ( QKeyEvent *e )
     }
     qDebug("cursorPos at %d",  d->cursorPos );
     recalculate();
-    repaint( TRUE );
+    repaint();
 }
 
 void EditWidget::resizeEvent( QResizeEvent * )
@@ -103,18 +104,9 @@ void EditWidget::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
     p.drawRect( 10, 10, width()-20, height()-20 );
-    for ( int i = 0; i < d->layout->numItems(); i++ ) {
-	QTextItem ti = d->layout->itemAt( i );
-#if 0
-	p.drawText( ti.x(), ti.y(), d->text, ti.from(), ti.length() );
-#else
-	p.drawTextItem( 0,  0, ti );
-#endif
-	int pos = d->cursorPos - ti.from();
-	if ( pos >= 0 && pos <= ti.length() ) {
-	    int x = ti.cursorToX( &pos ) + ti.x();
-	    p.drawLine( x, ti.y() - ti.ascent(), x, ti.y() + ti.descent() );
-	}
+    for ( int i = 0; i < d->layout->numLines(); i++ ) {
+	QTextLine line = d->layout->lineAt(i);
+	line.draw(&p, 0, 0);
     }
 }
 
@@ -131,28 +123,18 @@ void EditWidget::recalculate()
 
     d->layout->beginLayout();
 
+    int leading = QFontMetrics(d->font).leading();
     int x = 10;
-    int y = 10;
+    int y = 10 - leading;
     int lw = width() - 20;
 
-    int add = 0;
-//     qDebug("\n\nbeginLayout: lw = %d", lw );
-    while ( !d->layout->atEnd() ) {
-	d->layout->beginLine( lw + add );
-// 	qDebug("beginLine( %d )",  lw+add );
-	while ( d->layout->addCurrentItem() == QTextLayout::Ok && !d->layout->atEnd() );
-
-	int ascent, descent;
-	int state = d->layout->endLine( x, y, Qt::AlignLeft, &ascent, &descent );
-
-	if ( state != QTextLayout::LineEmpty ) {
-//  	    qDebug("finalizing line: ascent = %d, descent=%d", ascent, descent );
-	    y += ascent + descent + 2;
-	    add = 0;
-	} else {
-	    add += 10;
-	}
+    int from = 0;
+    while (from < d->text.length()) {
+	y += leading;
+	QTextLine l = d->layout->createLine(from, y, x, x+lw);
+	y += l.ascent() + l.descent();
+	from += l.length();
     }
-    d->layout->endLayout();
-    qDebug("layout took %dms (%dus/char)", t.elapsed(), t.elapsed()*1000/QMAX(d->text.length(),1) );
+
+    qDebug("layout took %dms (%dus/char)", t.elapsed(), t.elapsed()*1000/qMax(d->text.length(),1) );
 }
