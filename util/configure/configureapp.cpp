@@ -53,6 +53,8 @@ Configure::Configure( int& argc, char** argv )
     for ( i = 1; i < argc; i++ )
 	configCmdLine += argv[ i ];
 
+    dictionary[ "ARCHITECTURE" ]    = "windows";
+
     dictionary[ "QCONFIG" ]	    = "full";
     dictionary[ "EMBEDDED" ]	    = "no";
 
@@ -280,6 +282,11 @@ void Configure::parseCmdLine()
 	    if (i==argCount)
 		break;
 	    dictionary[ "QMAKESPEC" ] = configCmdLine.at(i);
+	} else if( configCmdLine.at(i) == "-arch" ) {
+	    ++i;
+	    if (i==argCount)
+		break;
+	    dictionary[ "ARCHITECTURE" ] = configCmdLine.at(i);
 	}
 
 #if !defined(EVAL)
@@ -672,6 +679,9 @@ bool Configure::displayHelp()
 #endif
 
 	cout << "-spec                Specify a platform, uses %QMAKESPEC% as default." << endl;
+        cout << "-arch architecture   Specify an architecture:" << endl;
+        cout << "                         " << MARK_OPTION(ARCHITECTURE,windows) << " windows" << endl;
+        cout << "                         " << MARK_OPTION(ARCHITECTURE,boundschecker) << " boundschecker" << endl << endl;
 #if !defined(EVAL)
 	cout << "-qconfig             Specify config, available configs:" << endl;
 	for( QStringList::Iterator config = allConfigs.begin(); config != allConfigs.end(); ++config )
@@ -724,14 +734,14 @@ bool Configure::displayHelp()
 WCE( {	cout << "-vcp               " << MARK_OPTION(VCPFILES,yes)   << " Enable the generation of eMbedded VC++ .VCP-files." << endl;
 	cout << "-no-vcp            " << MARK_OPTION(VCPFILES,no)  << " Disable the generation of eMbedded VC++ .VCP-files." << endl << endl; } );
 
-	cout << "-vcproj            " <<MARK_OPTION(VCPROJFILES,yes) << " Enable the generation of VC++ .VCPROJ-files." << endl;
-	cout << "-no-vcproj         " <<MARK_OPTION(VCPROJFILES,no)<< " Disable the generation of VC++ .VCPROJ-files." << endl << endl;
+	cout << "-vcproj            " << MARK_OPTION(VCPROJFILES,yes) << " Enable the generation of VC++ .VCPROJ-files." << endl;
+	cout << "-no-vcproj         " << MARK_OPTION(VCPROJFILES,no) << " Disable the generation of VC++ .VCPROJ-files." << endl << endl;
 
 #if !defined(EVAL)
 	cout << "-no-qmake            Do not build qmake." << endl;
 	cout << "-lean                Only process the Qt core projects." << endl;
 	cout << "                     (src directory)." << endl << endl;
-        cout << "-fast                Configure Qt quickly by generating wrapper"
+        cout << "-fast                Configure Qt quickly by generating wrapper" << endl
              << "                     Makefiles which will run qmake later." << endl << endl;
 
 	cout << "-D <define>          Add <define> to the list of defines." << endl;
@@ -1011,7 +1021,7 @@ void Configure::generateCachefile()
 	}
 	cacheStream << "CONFIG+=" << qmakeConfig.join( " " ) << " incremental create_prl link_prl depend_includepath" << endl;
 	cacheStream << "QMAKESPEC=" << dictionary[ "QMAKESPEC" ] << endl;
-        cacheStream << "ARCH=windows" << endl;
+        cacheStream << "ARCH=" << dictionary[ "ARCHITECTURE" ] << endl;
 	cacheStream << "QT_BUILD_TREE=" << dictionary[ "QT_SOURCE_TREE" ] << endl;
 	cacheStream << "QT_SOURCE_TREE=" << dictionary[ "QT_SOURCE_TREE" ] << endl;
 	cacheStream << "QT_INSTALL_PREFIX=" << dictionary[ "QT_INSTALL_PREFIX" ] << endl;
@@ -1183,9 +1193,13 @@ void Configure::generateConfigfiles()
         }
     }
 
-
-
-    QString archFile = dictionary[ "QT_SOURCE_TREE" ] + "/src/core/arch/windows/arch/qatomic.h";
+    QString archFile = dictionary[ "QT_SOURCE_TREE" ] + "/src/core/arch/" + dictionary[ "ARCHITECTURE" ] + "/arch/qatomic.h";
+    QFileInfo archInfo(archFile);
+    if (!archInfo.exists()) {
+	qDebug("Architecture file %s does not exist!", archFile.latin1() );
+        dictionary[ "DONE" ] = "error";
+        return;
+    }
     QDir archhelper;
     archhelper.mkdir(dictionary[ "QT_INSTALL_HEADERS" ] + "/QtCore/arch");
     if (!CopyFileA(archFile, dictionary[ "QT_INSTALL_HEADERS" ] + "/QtCore/arch/qatomic.h", FALSE))
@@ -1195,7 +1209,7 @@ void Configure::generateConfigfiles()
 	qDebug("Couldn't reset writable file attribute for qatomic.h");
 
     // Create qatomic.h "symlinks"
-    QString atomicContents = QString("#include \"../../src/core/arch/windows/arch/qatomic.h\"\n");
+    QString atomicContents = QString("#include \"../../src/core/arch/" + dictionary[ "ARCHITECTURE" ] + "/arch/qatomic.h\"\n");
     if (!writeToFile(atomicContents, dictionary[ "QT_INSTALL_HEADERS" ] + "/QtCore/arch/qatomic.h")
         || !writeToFile(atomicContents, dictionary[ "QT_INSTALL_HEADERS" ] + "/Qt/arch/qatomic.h")) {
         dictionary[ "DONE" ] = "error";
@@ -1326,6 +1340,7 @@ void Configure::displayConfig()
     }
 
     cout << "QMAKESPEC..................." << dictionary[ "QMAKESPEC" ] << endl;
+    cout << "Architecture................" << dictionary[ "ARCHITECTURE" ] << endl;
     cout << "Maketool...................." << dictionary[ "MAKE" ] << endl << endl;
 
     cout << "Environment:" << endl;
