@@ -224,7 +224,8 @@ static void finish_line( const QValueList<DockData> &lastLine, Qt::Orientation o
 	if ( !last->isStretchable() )
 	    set_geometry( last, lastRect.x(), lastRect.y(), lastRect.width(), lastRect.height(), o );
 	else
-	    set_geometry( last, lastRect.x(), lastRect.y(), (*it).rect.x() - lastRect.x(), linestrut, o );
+	    set_geometry( last, lastRect.x(), lastRect.y(), (*it).rect.x() - lastRect.x(), 
+			  last->isResizeEnabled() ? linestrut : lastRect.height(), o );
 
 	last = (*it).w;
 	lastRect = (*it).rect;
@@ -234,7 +235,8 @@ static void finish_line( const QValueList<DockData> &lastLine, Qt::Orientation o
     if ( !last->isStretchable() )
 	set_geometry( last, lastRect.x(), lastRect.y(), lastRect.width(), lastRect.height(), o );
     else
-	set_geometry( last, lastRect.x(), lastRect.y(), fullextend - lastRect.x(), linestrut, o );
+	set_geometry( last, lastRect.x(), lastRect.y(), fullextend - lastRect.x(), 
+		      last->isResizeEnabled() ? linestrut : lastRect.height(), o );
 }
 
 int QToolLayout::layoutItems( const QRect &r, bool testonly )
