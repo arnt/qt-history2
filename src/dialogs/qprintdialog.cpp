@@ -50,7 +50,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-// NOT REVISED
+// REVISED: warwick
 
 struct QPrintDialogPrivate
 {
@@ -553,6 +553,8 @@ static void deleteGlobalPrintDialog()
   QPrinter::setup() instead for portability.
 
   \internal
+  THIS DOCUMENTATION IS Not Revised. It must be revised before
+  becoming public API.
 
   It encompasses both the sort of details needed for doing a simple
   print-out and some print configuration setup.
@@ -562,7 +564,7 @@ static void deleteGlobalPrintDialog()
   QPrintDialog::getPrinterConfigure(), or subclass in order to extend
   one of the group boxes.
 
-  Note that in 1.40 the printer dialog is a little too high for
+  Note that in 1.40 the printer dialog is a little too tall for
   comfortable use on a small-screen machine.  This will be improved on
   in 2.1.
 
