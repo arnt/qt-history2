@@ -686,9 +686,6 @@ void QODBCDriver::cleanup()
 	SQLRETURN r;
     if ( (isOpen() || isOpenError()) && (d != 0)) {
 		if( d->hDbc ) {
-#ifdef Q_OS_WIN32 // ### Fix me!
-			qDebug("Crash imminent due to problems with QCleanupHandler (.dll fns called from ~QCleanupHandler())");
-#endif
 			// Open statements/descriptors handles are automatically cleaned up by SQLDisconnect
 			r = SQLDisconnect( d->hDbc );
 #ifdef QT_CHECK_RANGE
