@@ -585,7 +585,7 @@ bool QMenuBar::updateMenuBar()
 
     for (int i = 0; i < mitems->size(); ++i) {
 	QMenuItem *item = mitems->at(i);
-	if (item->isSeparator()) //mac doesn't support these
+	if (item->isSeparator() || !item->isVisible()) //mac doesn't support these
 	    continue;
 	if(MenuRef mp = createMacPopup(item->popup(), item->id(), true)) {
 	    CFStringRef cfref;
@@ -593,6 +593,10 @@ bool QMenuBar::updateMenuBar()
 	    SetMenuTitleWithCFString(mp, cfref);
 	    CFRelease(cfref);
 	    InsertMenu(mp, 0);
+	    if(item->isEnabled())
+		EnableMenuItem(mp, 0);
+	    else
+		DisableMenuItem(mp, 0);
 	}
     }
     return true;
