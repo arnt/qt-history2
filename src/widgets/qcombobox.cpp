@@ -314,6 +314,23 @@ public:
 
 };
 
+class QComboBoxPopupItem : public QCustomMenuItem 
+{
+    QListBoxItem *li;
+public:
+    QComboBoxPopupItem(QListBoxItem *i) : QCustomMenuItem(), li(i) {  }
+    virtual void paint( QPainter*, const QColorGroup&, bool, bool, int, int, int, int);
+    virtual QSize sizeHint() { return QSize(li->width(li->listBox()), li->height(li->listBox())); }
+};    
+void QComboBoxPopupItem::paint( QPainter* p, const QColorGroup&, bool,
+				bool, int x, int y, int, int)
+{
+    p->save();
+    p->translate(x, y);
+    li->paint(p);
+    p->restore();
+}
+
 
 class QComboBoxData
 {
@@ -332,7 +349,8 @@ public:
     void setListBox( QListBox *l ) { lBox = l ; usingLBox = TRUE;
 				l->setMouseTracking( TRUE );}
 
-    void setPopupMenu( QComboBoxPopup * pm ) { pop = pm; usingLBox = FALSE; }
+    void setPopupMenu( QComboBoxPopup * pm, bool isPopup=TRUE ) 
+	{ pop = pm; if(isPopup) usingLBox = FALSE; }
 
     int		current;
     int		maxCount;
@@ -423,7 +441,8 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     : QWidget( parent, name, WResizeNoErase )
 {
     d = new QComboBoxData( this );
-    if ( !style().styleHint(QStyle::SH_ComboBox_Popup) ) {
+    if ( !style().styleHint(QStyle::SH_ComboBox_Popup) || 
+	 style().styleHint(QStyle::SH_GUIStyle) == Qt::MotifStyle) {
 	setUpListBox();
     } else {
 	d->setPopupMenu( new QComboBoxPopup( this, "in-combo" ) );
@@ -1391,8 +1410,24 @@ void QComboBox::popup()
     if ( !count() )
 	return;
 
-    if ( d->usingListBox() ) {
-			// Send all listbox events to eventFilter():
+    if( !d->usingListBox() || style().styleHint(QStyle::SH_ComboBox_Popup) ) {
+	if(d->usingListBox()) {
+	    if(!d->popup()) {
+		d->setPopupMenu( new QComboBoxPopup( this, "in-combo" ), FALSE );
+		d->popup()->setFont( font() );
+		connect( d->popup(), SIGNAL(activated(int)),
+			 SLOT(internalActivate(int)) );
+		connect( d->popup(), SIGNAL(highlighted(int)),
+			 SLOT(internalHighlight(int)) );
+	    }
+	    d->popup()->clear();
+	    for(unsigned int i = 0; i < d->listBox()->count(); i++) 
+		d->popup()->insertItem(new QComboBoxPopupItem(d->listBox()->item(i)), i, i);
+	}
+	d->popup()->installEventFilter( this );
+	d->popup()->popup( mapToGlobal( QPoint(0,0) ), this->d->current );
+    } else {
+	// Send all listbox events to eventFilter():
 	d->listBox()->installEventFilter( this );
 	d->mouseWasInsidePopup = FALSE;
 	d->listBox()->resize( d->listBox()->variableWidth() ? d->listBox()->sizeHint().width() : width(),
@@ -1436,9 +1471,6 @@ void QComboBox::popup()
 	} else
 #endif
 	    d->listBox()->show();
-    } else {
-	d->popup()->installEventFilter( this );
-	d->popup()->popup( mapToGlobal( QPoint(0,0) ), this->d->current );
     }
     d->poppedUp = TRUE;
 }
@@ -1654,7 +1686,8 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	default:
 	    break;
 	}
-    } else if ( !d->usingListBox() && object == d->popup() ) {
+    } else if ( (!d->usingListBox() || style().styleHint(QStyle::SH_ComboBox_Popup)) && 
+		object == d->popup() ) {
 	QMouseEvent *e = (QMouseEvent*)event;
 	switch ( event->type() ) {
 	case QEvent::MouseButtonRelease:

@@ -358,6 +358,7 @@ private:
     friend class QListBox;
     friend class QListBoxPrivate;
     friend class QComboBox;
+    friend class QComboBoxPopupItem;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

@@ -277,6 +277,7 @@ void QMacStyle::polish( QApplication* app )
     app->setPalette( pal, TRUE );
 }
 
+/*! \reimp */
 void QMacStyle::polish( QWidget* w )
 {
     d->addWidget(w);
@@ -489,15 +490,12 @@ void QMacStyle::drawControl( ControlElement element,
 	if ( !mi )
 	    break;
 
-	QComboBox *combo = NULL;
-	if(popupmenu->parentWidget() && popupmenu->parentWidget()->inherits("QComboBox"))
-	    combo = (QComboBox*)popupmenu->parentWidget();
 	const QColorGroup & g = cg;
 	QColorGroup itemg = g;
 	bool dis = !mi->isEnabled();
 	int tab = opt.tabWidth();
 	int maxpmw = opt.maxIconWidth();
-	bool checked = combo ? mi->id() == popupmenu->idAt(combo->currentItem()) : mi->isChecked();
+	bool checked = mi->isChecked();
 	bool checkable = popupmenu->isCheckable();
 	bool act = how & Style_Active;
 	int x, y, w, h;
