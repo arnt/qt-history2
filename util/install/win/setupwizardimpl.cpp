@@ -916,7 +916,7 @@ void SetupWizardImpl::makeDone()
     if( !make.normalExit() || ( make.normalExit() && make.exitStatus() ) ) {
 	logOutput( "The build process failed!\n" );
 	emit wizardPageFailed( indexOf(currentPage()) );
-	QMessageBox::critical( this, "Error", "The build process failed!" );
+	QMessageBox::critical( this, "Error", "The build process failed!\nSee the log for details." );
 	setAppropriate( progressPage, false );
     } else {
 	// We still have some more items to do in order to finish all the
@@ -965,7 +965,9 @@ void SetupWizardImpl::configDone()
 	make.setArguments( args );
 
 	if( !make.start() ) {
-	    logOutput( "Could not start make process" );
+	    logOutput( "Could not start make process.\n"
+		       "Make sure that your compiler tools are installed\n"
+		       "and registered correctly in your PATH environment." );
 	    emit wizardPageFailed( indexOf(currentPage()) );
 	    backButton()->setEnabled( TRUE );
 	}
