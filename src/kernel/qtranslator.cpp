@@ -535,30 +535,36 @@ bool QTranslator::do_load( const uchar *data, int len )
     s.device()->at( MagicLength );
 
     Q_UINT8 tag = 0;
-    Q_UINT32 length = 0;
-    s >> tag >> length;
-    while ( tag && length ) {
+    Q_UINT32 blockLen = 0;
+    s >> tag >> blockLen;
+    while ( tag && blockLen ) {
+	if ( (Q_UINT32) s.device()->at() + blockLen > (Q_UINT32) len ) {
+	    ok = FALSE;
+	    break;
+	}
+
 	if ( tag == QTranslatorPrivate::Contexts && !d->contextArray ) {
 	    d->contextArray = new QByteArray;
 	    d->contextArray->setRawData( array.data() + s.device()->at(),
-					 length );
+					 blockLen );
 	} else if ( tag == QTranslatorPrivate::Hashes && !d->offsetArray ) {
 	    d->offsetArray = new QByteArray;
 	    d->offsetArray->setRawData( array.data() + s.device()->at(),
-					length );
+					blockLen );
 	} else if ( tag == QTranslatorPrivate::Messages && !d->messageArray ) {
 	    d->messageArray = new QByteArray;
 	    d->messageArray->setRawData( array.data() + s.device()->at(),
-					 length );
+					 blockLen );
 	}
-	if ( !s.device()->at(s.device()->at() + length) ) {
+
+	if ( !s.device()->at(s.device()->at() + blockLen) ) {
 	    ok = FALSE;
 	    break;
 	}
 	tag = 0;
-	length = 0;
+	blockLen = 0;
 	if ( !s.atEnd() )
-	    s >> tag >> length;
+	    s >> tag >> blockLen;
     }
     array.resetRawData( (const char *) data, len );
 
