@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.h#29 $
+** $Id: //depot/qt/main/src/kernel/qprinter.h#30 $
 **
 ** Definition of QPrinter class
 **
@@ -29,6 +29,9 @@
 #include "qstring.h"
 #endif // QT_H
 
+#ifdef B0
+#undef B0 // Terminal hang-up.
+#endif
 
 class Q_EXPORT QPrinter : public QPaintDevice
 {
