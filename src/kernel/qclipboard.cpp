@@ -62,14 +62,48 @@
 
     You can clear the clipboard by calling clear().
 
-    The underlying clipboards of the X Window system and MS Windows
-    differ. The X Window system has a concept of selection -- when text
-    is selected, it is immediately available as the global mouse selection;
-    MS Windows only adds text to the clipboard when an explicit copy or cut
-    is made. The X Window system also has a concept of ownership; if you
-    change the selection within a window, X11 will only notify the owner
-    and the previous owner of the change; in MS Windows the clipboard is
-    a fully global resource so all applications are notified of changes.
+
+    \section2 Platform Specific Information
+
+    \section3 X11
+
+    \list
+
+    \i The X11 Window System has the concept of a separate selection
+    and clipboard.  When text is selected, it is immediately available
+    as the global mouse selection.  The global mouse selection may
+    later be copied to the clipboard.  By convention, the middle mouse
+    button is used to paste the global mouse selection.
+
+    \i X11 also has the concept of ownership; if you change the
+    selection within a window, X11 will only notify the owner and the
+    previous owner of the change, i.e. it will not notify all
+    applications that the selection or clipboard data changed.
+
+    \i Lastly, the X11 clipboard is event driven, i.e. the clipboard
+    will not function properly if the event loop is not running.
+    Similarly, it is recommended that the contents of the clipboard
+    are stored or retrieved in direct response to user-input events,
+    e.g. mouse button or key presses and releases.  You should not
+    store or retrieve the clipboard contents in response to timer or
+    non-user-input events.
+
+    \endlist
+
+    \section3 Windows
+
+    \list
+
+    \i Microsoft Windows does not support the global mouse selection;
+    it only supports the global clipboard, e.g. Windows only adds text
+    to the clipboard when an explicit copy or cut is made.
+
+    \i Windows does not have the concept of ownership; the clipboard
+    is a fully global resource so all applications are notified of
+    changes.
+
+    \endlist
+
     See the multiclip example in the \e{Qt Designer} examples
     directory for an example of a multiplatform clipboard application
     that also demonstrates selection handling.
