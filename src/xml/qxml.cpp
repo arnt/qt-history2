@@ -7758,9 +7758,11 @@ void QXmlSimpleReaderPrivate::reportParseError(const QString& error)
     this->error = error;
     if (errorHnd) {
         if (this->error.isNull()) {
-            errorHnd->fatalError(QXmlParseException(XMLERR_OK, columnNr+1, lineNr+1));
+            QXmlParseException ex(XMLERR_OK, columnNr+1, lineNr+1);
+            errorHnd->fatalError(ex);
         } else {
-            errorHnd->fatalError(QXmlParseException(this->error, columnNr+1, lineNr+1));
+            QXmlParseException ex(this->error, columnNr+1, lineNr+1);
+            errorHnd->fatalError(ex);
         }
     }
 }
