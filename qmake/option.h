@@ -71,6 +71,7 @@ struct Option
     static QMAKE_MODE qmake_mode;
 
     //all modes
+    static QString qmake_abslocation;
     static QFile output;
     static QString output_dir;
     static int debug_level;

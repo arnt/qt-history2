@@ -524,6 +524,8 @@ MakefileGenerator::init()
             }
         }
     }
+    if(project->isEmpty("QMAKE_QMAKE") && !Option::qmake_abslocation.isNull())
+        project->variables()["QMAKE_QMAKE"].append(Option::qmake_abslocation);
 }
 
 bool

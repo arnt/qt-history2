@@ -43,6 +43,7 @@ char Option::field_sep;
 Option::QMAKE_MODE Option::qmake_mode = Option::QMAKE_GENERATE_NOTHING;
 
 //all modes
+QString Option::qmake_abslocation;
 int Option::warn_level = WarnLogic;
 int Option::debug_level = 0;
 QFile Option::output;
@@ -157,6 +158,8 @@ enum {
 int
 Option::parseCommandLine(int argc, char **argv, int skip)
 {
+
+
     bool before = true;
     for(int x = skip; x < argc; x++) {
         if(*argv[x] == '-' && strlen(argv[x]) > 1) { /* options */
@@ -310,11 +313,37 @@ Option::init(int argc, char **argv)
     Option::field_sep = ' ';
 
     if(argc && argv) {
+        QString argv0 = argv[0];
         if(Option::qmake_mode == Option::QMAKE_GENERATE_NOTHING)
-            Option::qmake_mode = default_mode(argv[0]);
+            Option::qmake_mode = default_mode(argv0);
+        if(!argv0.isEmpty() && argv0.at(0) == QLatin1Char('/')) {
+            Option::qmake_abslocation = argv0;
+        } else if (argv0.contains(QLatin1Char('/'))) { //relative PWD
+            Option::qmake_abslocation = QDir::current().absoluteFilePath(argv0);
+        } else { //in the PATH
+            char *pEnv = getenv("PATH");
+            QDir currentDir = QDir::current();
+#ifdef Q_OS_WIN
+            QStringList paths = QString::fromLocal8Bit(pEnv).split(QLatin1String(";"));
+#else
+            QStringList paths = QString::fromLocal8Bit(pEnv).split(QLatin1String(":"));
+#endif
+            for (QStringList::const_iterator p = paths.constBegin(); p != paths.constEnd(); ++p) {
+                if ((*p).isEmpty())
+                    continue;
+                QString candidate = currentDir.absoluteFilePath(*p + QLatin1Char('/') + argv0);
+                if (QFile::exists(candidate)) {
+                    Option::qmake_abslocation = candidate;
+                    break;
+                }
+            }
+        }
+        if(!Option::qmake_abslocation.isNull())
+            Option::qmake_abslocation = QDir::cleanPath(Option::qmake_abslocation);
     } else {
         Option::qmake_mode = Option::QMAKE_GENERATE_MAKEFILE;
     }
+
     if(const char *envflags = getenv("QMAKEFLAGS")) {
         int env_argc = 0, env_size = 0, currlen=0;
         char quote = 0, **env_argv = NULL;
