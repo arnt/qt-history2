@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#36 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#37 $
 **
 ** Implementation of QML classes
 **
@@ -540,7 +540,7 @@ public:
     uint isBox:1;
     uint isSelected: 1;
     uint isSelectionDirty: 1;
-    
+
     int w;
     int h;
     int asc;
@@ -595,7 +595,7 @@ class QMLRow
 {
 public:
     QMLRow();
-    QMLRow(QMLContainer* box, QPainter* p, QMLNode* &t, QMLContainer* &par, int w, int align = QMLStyle::AlignLeft);
+    QMLRow(QMLContainer* box, QPainter* p, QFontMetrics &fm, QMLNode* &t, QMLContainer* &par, int w, int align = QMLStyle::AlignLeft);
     ~QMLRow();
     int x;
     int y;
@@ -1313,7 +1313,7 @@ QMLRow::QMLRow()
     dirty = TRUE;
 }
 
-QMLRow::QMLRow( QMLContainer* box, QPainter* p, QMLNode* &t, QMLContainer* &par, int w, int align)
+QMLRow::QMLRow( QMLContainer* box, QPainter* p, QFontMetrics &fm, QMLNode* &t, QMLContainer* &par, int w, int align)
 {
     x = y = width = height = base = 0;
     start = end = 0;
@@ -1352,20 +1352,20 @@ QMLRow::QMLRow( QMLContainer* box, QPainter* p, QMLNode* &t, QMLContainer* &par,
     while (i && !i->isBox) {
 	int h,a,d;
 	if (i->isSimpleNode) {
-	    if ( i->h * i->w ){
-		tx += i->w;
-		h = i->h;
-		a = i->asc;
-		d = h-a;
-	    } else {
-		p->setFont( par->font() );
-		QFontMetrics fm = p->fontMetrics();
+	    if ( i->h * i->w == 0 ){
+		if ( par != lastPar && par->font() != p->font() ) {
+		    p->setFont( par->font() );
+		    fm = p->fontMetrics();
+		}
 		if (!i->isNull())
-		    tx += fm.width(i->c);
-		h = fm.height();
-		a = fm.ascent();
-		d = h-a;
+		    i->w = fm.width(i->c);
+		i->h = fm.height();
+		i->asc = fm.ascent();
 	    }
+	    tx += i->w;
+	    h = i->h;
+	    a = i->asc;
+	    d = h-a;
 	}
 	else {
 	    tx += ((QMLCustomNode*)i)->width;
@@ -2089,11 +2089,13 @@ void QMLBox::setWidth(QPainter* p, int newWidth, bool forceResize)
     int marginvertical = marginright + marginleft;
     int h = margintop;
 
+    p->setFont( par->font() );
+    QFontMetrics fm = p->fontMetrics();
     while (n) {
 	if (n->isBox){
 	    ((QMLBox*)n)->setWidth(p, colwidth-marginvertical); // todo this can be done in word wrap?!
 	}
-	row = new QMLRow(this, p, n, par, colwidth-marginvertical - label_offset, alignment() );
+	row = new QMLRow(this, p, fm, n, par, colwidth-marginvertical - label_offset, alignment() );
 	rows.append(row);
 	row->x = marginleft + label_offset;
 	row->y = h;
@@ -2101,7 +2103,7 @@ void QMLBox::setWidth(QPainter* p, int newWidth, bool forceResize)
     }
 
     height = h;
-    
+
     if (!oldRows.isEmpty() || ncols > 1 ) {
 	// do multi columns if required. Also check with the old rows to
 	// optimize the refresh
@@ -2134,7 +2136,7 @@ void QMLBox::setWidth(QPainter* p, int newWidth, bool forceResize)
 			{
 			    row->dirty = old->dirty;
 			}
-		    
+		
 		    old = oldRows.next();
 		}
 	    }
@@ -2168,16 +2170,17 @@ void QMLBox::update(QPainter* p, QMLRow* r)
 	    prev = row;
 	}
 	bool fast_exit = TRUE;
+	QFontMetrics fm = p->fontMetrics();
 	if (prev) {
 	    QMLContainer* par = prev->parent;
 	    QMLNode* n = prev->start;
-	    QMLRow tr (this, p, n, par, prev->width);
+	    QMLRow tr (this, p, fm, n, par, prev->width);
 	    fast_exit &= prev->end == tr.end;
 	}
 	if (fast_exit) {
 	    QMLContainer* par = r->parent;
 	    QMLNode* n = r->start;
-	    QMLRow tr (this, p, n, par, r->width, alignment() );
+	    QMLRow tr (this, p, fm, n, par, r->width, alignment() );
 	    fast_exit &= r->end == tr.end && r->height == tr.height;
 	    if (fast_exit) {
 		r->dirty = TRUE;
@@ -3098,7 +3101,7 @@ bool QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 		pos = beforePos;
 		return FALSE;
 	    }
-	    
+	
  	    if ( nstyle && !nstyle->selfNesting() && ( tagname == current->style->name() ) ) {
  		pos = beforePos;
  		return FALSE;
