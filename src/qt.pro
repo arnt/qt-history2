@@ -41,7 +41,6 @@ win32 {
 	STYLES_H	= $$WIN_ALL_H
 
 	CONFIG	+= png zlib
-	CONFIG -= jpeg
 	DEFINES += UNICODE
 	INCLUDEPATH      += tmp
 	MOC_DIR	  = tmp
