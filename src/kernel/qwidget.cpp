@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#72 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#73 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#72 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#73 $";
 #endif
 
 /*!
@@ -355,29 +355,53 @@ void QWidget::setStyle( GUIStyle style )	// set widget GUI style
 
 /*!
   Enables the widget so that it can receive mouse and keyboard events.
-  \sa disable(), isDisabled()
+  \sa disable(), setEnabled(), isEnabled(), isDisabled()
 */
 
 void QWidget::enable()				// enable events
 {
-    clearWFlags( WState_Disabled );
-    update();
+    if ( !testWFlags(WState_Disabled) ) {
+	clearWFlags( WState_Disabled );
+	update();
+    }
 }
 
 /*!
   Disables the widget so that it will not receive mouse and keyboard events.
-  \sa enable(), isDisabled()
+  \sa enable(), setEnabled(), isEnabled(), isDisabled()
 */
 
 void QWidget::disable()				// disable events
 {
-    setWFlags( WState_Disabled );
-    update();
+    if ( !testWFlags(WState_Disabled) ) {
+	setWFlags( WState_Disabled );
+	update();
+    }
 }
 
-/*! \fn bool QWidget::isDisabled() const
+/*!
+  Enables the widget if \e enable is TRUE, otherwise disables the widget.
+  \sa enable(), disable(), isEnabled(), isDisabled()
+*/
+
+void QWidget::setEnabled( bool enable )
+{
+    if ( enable )
+	this->enable();
+    else
+	this->disable();
+}
+
+/*!
+  \fn bool QWidget::isEnabled() const
+  Returns TRUE if the widget is enabled, or FALSE if it is disabled.
+  \sa enable(), disable(), setEnabled(), isDisabled()
+*/
+
+/*!
+  \fn bool QWidget::isDisabled() const
   Returns TRUE if the widget is disabled, or FALSE if it is enabled.
-  \sa enable(), disable()
+  \sa enable(), disable(), setEnabled(), isEnabled()
 */
 
 
