@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#67 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#68 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#67 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#68 $")
 
 
 declare(QListM, QListBoxItem);
@@ -1167,7 +1167,7 @@ void QListBox::mousePressEvent( QMouseEvent *e )
     if ( itemClicked != -1 ) {
 	setCurrentItem( itemClicked );
     } else if ( contentsRect().contains( e->pos() ) &&
-		lastRowVisible() >= count() ) {
+		lastRowVisible() >= (int) count() ) {
 	setCurrentItem( count()-1 );
     }
 }
