@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qwellarray.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qwellarray.cpp#15 $
 **
 ** Implementation of QWellArray widget class
 **
@@ -34,7 +34,7 @@ struct QWellArrayData {
     QBrush *brush;
 };
 
-/*notready
+/*!
   \class QWellArray qwellarray.h
   \brief ....
 
