@@ -1906,7 +1906,7 @@ void MainWindow::editConnections()
     statusBar()->clear();
 }
 
-void MainWindow::editSource( bool resetSame )
+void MainWindow::editSource( bool /*resetSame*/ )
 {
     if ( !formWindow() )
 	return;
@@ -1939,7 +1939,7 @@ void MainWindow::editSource( bool resetSame )
     }
     editor->show();
     editor->setFocus();
-    if ( resetSame || editor->form() != formWindow() )
+    if ( editor->form() != formWindow() )
 	editor->setForm( formWindow() );
 }
 
@@ -4257,7 +4257,8 @@ void MainWindow::editFunction( const QString &func )
     }
     editor->show();
     editor->setFocus();
-    editor->setForm( lastActiveFormWindow );
+    if ( editor->form() != formWindow() )
+	editor->setForm( formWindow() );
     editor->setFunction( func );
 }
 
