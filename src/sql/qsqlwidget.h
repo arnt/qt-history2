@@ -50,7 +50,7 @@ class Q_EXPORT QSqlWidget : public QWidget, public QSqlNavigator
     Q_PROPERTY( bool boundryChecking READ boundryChecking WRITE setBoundryChecking )
 
 public:
-    QSqlWidget( QWidget *parent = 0, const char *name = 0 );
+    QSqlWidget( QWidget *parent = 0, const char *name = 0, WFlags fl = 0 );
 
     void setBoundryChecking( bool active );
     bool boundryChecking() const;

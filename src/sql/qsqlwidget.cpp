@@ -38,8 +38,8 @@
 
 #ifndef QT_NO_SQL
 
-QSqlWidget::QSqlWidget( QWidget *parent, const char *name )
-    : QWidget( parent, name )
+QSqlWidget::QSqlWidget( QWidget *parent, const char *name, WFlags fl )
+    : QWidget( parent, name, fl )
 {
 }
 
