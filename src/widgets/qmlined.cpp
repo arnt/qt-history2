@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#53 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#54 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -10,15 +10,14 @@
 ***********************************************************************/
 
 #include "qmlined.h"
-
 #include "qpainter.h"
 #include "qscrbar.h"
 #include "qkeycode.h"
 #include "qclipbrd.h"
 #include "qpixmap.h"
 #include "qapp.h"
-
 #include <ctype.h>
+
 
 /*! \class QMultiLineEdit qmlined.h
 
@@ -532,8 +531,9 @@ QString QMultiLineEdit::markedText() const
 	ASSERT( firstS != lastS );
 
 	int len = firstS->length() - markBeginX + 1;
+	int i;
 
-	for( int i = markBeginY + 1 ; i < markEndY ; i++ ) {
+	for( i = markBeginY + 1 ; i < markEndY ; i++ ) {
 	    len += lineLength( i ) + 1;
 	}
 	len += markEndX + 1;
@@ -550,7 +550,7 @@ QString QMultiLineEdit::markedText() const
 	    tmp[idx++] = '\n';
 	}
 
-	for( int i = markBeginY + 1; i < markEndY ; i++ ) {
+	for( i = markBeginY + 1; i < markEndY ; i++ ) {
 	    const char *p;
 	    p = (contents->at( i ))->data();
 	    if ( p ) {
@@ -606,13 +606,14 @@ QString QMultiLineEdit::text() const
 	return QString( "" );
 
     int len = 0;
-    for( int i = 0 ; i < (int)contents->count() ; i++ ) {
+    int i;
+    for( i = 0 ; i < (int)contents->count() ; i++ ) {
 	len += lineLength( i ) + 1;
     }
 
     QString tmp( len + 1 );
     int idx = 0;
-    for( int i = 0 ; i < (int)contents->count() ; i++ ) {
+    for( i = 0 ; i < (int)contents->count() ; i++ ) {
 	const char *p = (contents->at( i ))->data();
 	if ( p ) {
 	    while (( tmp[idx++] = *p++ ))
