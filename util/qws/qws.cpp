@@ -44,7 +44,8 @@ static int get_object_id()
  *
  *********************************************************************/
 //### shmid < 0 means use frame buffer
-QWSClient::QWSClient( int socket, int shmid, int swidth, int sheight ) :
+QWSClient::QWSClient( int socket, int shmid, int swidth, int sheight,
+		      int ramid, int fblen, int offscreen, int offscreenlen) :
     QSocket(socket),
     s(socket),
     command(0)
@@ -54,6 +55,10 @@ QWSClient::QWSClient( int socket, int shmid, int swidth, int sheight ) :
     header.height = sheight;
     header.depth = 32;
     header.shmid = shmid;
+    header.ramid = ramid;
+    header.fblen = fblen;
+    header.offscreen = offscreen;
+    header.offscreenlen = offscreenlen;
     header.fbid = shmid < 0 ? 0 : -1; //### always use FB 0
     writeBlock((char*)&header,sizeof(header));
 
@@ -99,7 +104,7 @@ void QWSClient::writeRegion( QRegion reg )
      qDebug( "   writeRegion rect[%d] = (%d,%d) %dx%d", i,
 	     rectangle.x,rectangle.y,rectangle.width,rectangle.height);
 
-     
+
 #endif
 	
     }
@@ -175,8 +180,13 @@ QWSServer::QWSServer( int sw, int sh, QObject *parent=0, const char *name=0 ) :
     sheight = sh;
 
     if ( swidth && sheight ) {
-	shmid = shmget(IPC_PRIVATE, swidth*sheight*sizeof(QRgb),
+	// Simulate card with 8 megs of memory or so
+	shmid = shmget(IPC_PRIVATE,/* swidth*sheight*sizeof(QRgb) */
+		       8000000,
 		       IPC_CREAT|IPC_EXCL|0666);
+	fblen=swidth*sheight*sizeof(QRgb);
+	offscreen=fblen+4;
+	offscreenlen=(8000000)-(fblen+4);
 	if ( shmid < 0 )
 	    perror("Cannot allocate shared memory.  Server already running?");
 	framebuffer = (uchar*)shmat( shmid, 0, 0 );
@@ -186,9 +196,28 @@ QWSServer::QWSServer( int sw, int sh, QObject *parent=0, const char *name=0 ) :
 	if ( e<0 )
 	    perror("shmctl IPC_RMID");
     } else {
+	// No spare graphics memory, which is untrue...
+	offscreen=0;
+	offscreenlen=0;
 	shmid = -1; //let client do all FB handling.
 	initIO(); //device specific init
     }
+
+    // Now we allocate a chunk of main ram for font cache and any
+    // other appropriate purposes
+
+    ramlen=1000000;        // 1 megabyte (ish) of main ram
+    ramid=shmget(IPC_PRIVATE,ramlen,IPC_CREAT|IPC_EXCL|0666);
+    if(ramid<0) {
+	perror("Cannot allocate main ram shared memory\n");
+    }
+    sharedram=(uchar *)shmat(ramid,0,0);
+    if(sharedram==(uchar *)-1) {
+	perror("Cannot attach to main ram shared memory\n");
+    }
+    int e=shmctl(ramid,IPC_RMID,0);
+    if(e<0)
+	perror("shmctl main ram IPC_RMID");
 
     // no selection yet
     selectionOwner.windowid = -1;
@@ -205,7 +234,8 @@ QWSServer::~QWSServer()
 void QWSServer::newConnection( int socket )
 {
     qDebug("New client...");
-    client[socket] = new QWSClient(socket,shmid,swidth,sheight);
+    client[socket] = new QWSClient(socket,shmid,swidth,sheight,
+				   ramid,fblen,offscreen,offscreenlen);
     connect( client[socket], SIGNAL(readyRead()),
 	     this, SLOT(doClient()) );
 }
@@ -264,8 +294,8 @@ QWSCommand* QWSClient::readMoreCommand()
 void QWSServer::doClient()
 {
     static bool active = FALSE;
-    if (active) { 
-	qDebug( "QWSServer::doClient() reentrant call, ignoring" ); 
+    if (active) {
+	qDebug( "QWSServer::doClient() reentrant call, ignoring" );
 	return;
     }
     active = TRUE;
@@ -276,7 +306,7 @@ void QWSServer::doClient()
     while ( command ) {
 	if ( command->type == QWSCommand::RegionAck ) {
 	    pending_region_acks--;
-	    qDebug( "QWSCommand::RegionAck from %p pending:%d", 
+	    qDebug( "QWSCommand::RegionAck from %p pending:%d",
 		    client, pending_region_acks);
 	    if ( pending_region_acks == 0 ) {
 		givePendingRegion();
@@ -288,8 +318,8 @@ void QWSServer::doClient()
 		QWSRegionCommand *cmd = (QWSRegionCommand*)command;
 		QWSWindow* w = findWindow(cmd->simpleData.windowid, client);
 		w->region_request_count++;
-		qDebug( "Window %p, region_request_count %d", w, 
-			w->region_request_count); 
+		qDebug( "Window %p, region_request_count %d", w,
+			w->region_request_count);
 			}*/
 	    QWSCommandStruct *cs = new QWSCommandStruct( command, client );
 	    commandQueue.enqueue( cs );
@@ -297,8 +327,8 @@ void QWSServer::doClient()
 	// Try for some more...
 	command=client->readMoreCommand();
     }
-    
-    
+
+
     while ( pending_region_acks == 0 && !commandQueue.isEmpty() ) {
 	QWSCommandStruct *cs = commandQueue.dequeue();
 	switch ( cs->command->type ) {
@@ -342,7 +372,7 @@ void QWSServer::doClient()
 }
 
 
-void QWSServer::showCursor() 
+void QWSServer::showCursor()
 {
     if ( pending_region_acks != 0 ) {
 	cursorNeedsUpdate = TRUE;
@@ -354,7 +384,7 @@ void QWSServer::showCursor()
     cursorPos = mousePos;
     //##### hardcoded region
    QPointArray a;
-   a.setPoints(  7, 
+   a.setPoints(  7,
 		 0,0,
 		 6,0,
 		 4,2,
@@ -369,8 +399,8 @@ void QWSServer::showCursor()
 void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 {
     showCursor();
-    
-    
+
+
     QWSMouseEvent event;
     event.type = QWSEvent::Mouse;
 
@@ -380,7 +410,7 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
     event.x_root=pos.x();
     event.y_root=pos.y();
     event.state=state;
-    event.time=timer.elapsed(); 
+    event.time=timer.elapsed();
 
     for (ClientIterator it = client.begin(); it != client.end(); ++it )
 	(*it)->sendMouseEvent( event );
@@ -397,7 +427,7 @@ QWSWindow *QWSServer::windowAt( const QPoint& pos )
     return 0;
 }
 
-void QWSServer::sendKeyEvent(int unicode, int modifiers, bool isPress, 
+void QWSServer::sendKeyEvent(int unicode, int modifiers, bool isPress,
   bool autoRepeat)
 {
     QWSKeyEvent event;
@@ -407,7 +437,7 @@ void QWSServer::sendKeyEvent(int unicode, int modifiers, bool isPress,
     event.modifiers = modifiers;
     event.is_press = isPress;
     event.is_auto_repeat = autoRepeat;
-    
+
     for (ClientIterator it = client.begin(); it != client.end(); ++it ) {
 	(*it)->writeBlock((char*)&event,sizeof(event));
 	(*it)->flush();
@@ -537,7 +567,7 @@ void QWSServer::invokeSetSelectionOwner( QWSSetSelectionOwnerCommand *cmd )
 void QWSServer::invokeConvertSelection( QWSConvertSelectionCommand *cmd )
 {
     qDebug( "QWSServer::invokeConvertSelection" );
-    
+
     if ( selectionOwner.windowid != -1 ) {
 	QWSWindow *win = findWindow( selectionOwner.windowid, 0 );
 	if ( win )
@@ -546,7 +576,7 @@ void QWSServer::invokeConvertSelection( QWSConvertSelectionCommand *cmd )
 	    qDebug( "couldn't find window %d", selectionOwner.windowid );
     }
 }
-    
+
 void QWSWindow::addAllocation(QRegion r)
 {
     QRegion added = r & requested_region;
@@ -581,7 +611,7 @@ bool QWSWindow::removeAllocation(QRegion r)
 #if 1 //DEBUG
 qDebug("Remove region (%d rects) from %p/%d", event.nrectangles, c, id);
 
-#endif 
+#endif
 	
 	c->writeRegion( r );
 	return TRUE; // ack required
@@ -614,8 +644,8 @@ QWSWindow* QWSServer::findWindow(int windowid, QWSClient* client)
   Changes the requested region of window \a changingw to \a r,
   sends appropriate region change events to all appropriate
   clients, and waits for all required acknowledgements.
-  
-  
+
+
   If \a changingw is 0, the server's reserved region is changed.
 */
 void QWSServer::setWindowRegion(QWSWindow* changingw, QRegion r)
@@ -658,24 +688,24 @@ void QWSServer::setWindowRegion(QWSWindow* changingw, QRegion r)
 
     // Wait for acknowledgements if pending_region_acks > 0
     // otherwise do it straight away.
-    
+
     pendingWindex = windex;
     pendingRegion = exposed;
 
     if ( pending_region_acks == 0 )
 	    givePendingRegion();
-    
+
 }
 
 void QWSServer::givePendingRegion()
-{    
+{
     QRegion exposed = pendingRegion;
     // Finally, give anything exposed...
-    
+
     if ( pendingWindex >= 0 ) {
 	QWSWindow* changingw = windows.at( pendingWindex );
 	ASSERT( changingw );
-	changingw->addAllocation(pendingAllocation); 
+	changingw->addAllocation(pendingAllocation);
     } else {
 	paintServerRegion();
     }

@@ -74,7 +74,7 @@ public:
 
     uchar* frameBuffer() { return framebuffer; }
 
-    void sendKeyEvent(int unicode, int modifiers, bool isPress, 
+    void sendKeyEvent(int unicode, int modifiers, bool isPress,
 		      bool autoRepeat);
     void sendMouseEvent(const QPoint& pos, int state);
     void sendPropertyNotifyEvent( int property, int state );
@@ -83,7 +83,7 @@ public:
     }
 
     QWSWindow *windowAt( const QPoint& pos );
-    
+
     // For debugging only at this time
     QList<QWSWindow> clientWindows() { return windows; }
 
@@ -103,7 +103,7 @@ private:
 
     void showCursor();
     void paintServerRegion();
-    
+
 private slots:
     void doClient();
     void readMouseData();
@@ -114,7 +114,14 @@ private:
     typedef QMap<int,QWSClient*> ClientMap;
 
     int shmid;
+    int ramid;
     uchar* framebuffer;
+    uchar* sharedram;
+    int offscreen;
+    int offscreenlen;
+    int fblen;
+    int ramlen;
+
     ClientMap client;
     QWSPropertyManager propertyManager;
     struct SelectionOwner {
@@ -137,12 +144,12 @@ private:
     QPoint cursorPos;
     bool cursorNeedsUpdate;
     QRegion serverRegion;
-    
+
     QQueue<QWSCommandStruct> commandQueue;
     QRegion pendingAllocation;
     QRegion pendingRegion;
     int pendingWindex;
-    
+
     // Window management
     QList<QWSWindow> windows; // first=topmost
     QWSWindow* newWindow(int id, QWSClient* client);
@@ -164,7 +171,8 @@ class QWSClient : public QSocket
 {
     friend class QWSServer;
 public:
-    QWSClient( int socket, int shmid, int w, int h );
+    QWSClient( int socket, int shmid, int swidth, int sheight,
+	       int ramid, int fblen, int offscreen, int offscreenlen);
 
     int socket() const;
 

@@ -7,7 +7,12 @@ struct QWSHeader {
     int width;
     int height;
     int depth;
-    int shmid;
+    int shmid;      // This is shmid of framebuffer
+    int ramid;	    // This is shmid of main ram - used for font cache etc
+    int offscreen;  // Offset to offscreen memory in framebuffer
+    int offscreenlen;
+    int fblen;
+    int ramlen;
     int fbid;
 };
 
