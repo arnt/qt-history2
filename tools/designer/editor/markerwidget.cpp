@@ -252,7 +252,7 @@ static QPixmap *breakpointPixmap = 0;
 static QPixmap *stepPixmap = 0;
 
 MarkerWidget::MarkerWidget( ViewManager *parent )
-    : QWidget( parent, 0, WRepaintNoErase | WNorthWestGravity | WResizeNoErase ), viewManager( parent )
+    : QWidget( parent, 0, WRepaintNoErase | WStaticContents | WResizeNoErase ), viewManager( parent )
 {
     if ( !errorPixmap ) {
 	errorPixmap = new QPixmap( error_xpm );

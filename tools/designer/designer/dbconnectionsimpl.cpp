@@ -94,7 +94,7 @@ void DatabaseConnectionsEditor::doConnect()
 {
 #ifndef QT_NO_SQL
     if ( listConnections->currentItem() == -1 ||
-	 !listConnections->item( listConnections->currentItem() )->selected() ) { // new connection
+	 !listConnections->item( listConnections->currentItem() )->isSelected() ) { // new connection
 	// ### do error checking for duplicated connection names
 	DatabaseConnection *conn = new DatabaseConnection( project );
 	conn->setName( connectionWidget->editName->text() );

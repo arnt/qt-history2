@@ -136,7 +136,7 @@ QTextCodec *JPTextCodecs::createForName( const QString &name )
 {
     QTextCodec *codec = 0;
 
-    QListIterator<QTextCodec> it(codecs);
+    QPtrListIterator<QTextCodec> it(codecs);
     while ((codec = it.current())) {
 	++it;
 

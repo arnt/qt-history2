@@ -1386,9 +1386,9 @@ void QLayoutWidget::updateSizePolicy()
 		    vt |= QSizePolicy::Maximum;
 	    }
 	}
-	if ( layout()->expanding() & QSizePolicy::Horizontal )
+	if ( layout()->expanding() & QSizePolicy::Horizontally )
 	    ht = QSizePolicy::Expanding;
-	if ( layout()->expanding() & QSizePolicy::Vertical )
+	if ( layout()->expanding() & QSizePolicy::Vertically )
 	    vt = QSizePolicy::Expanding;
 
 	layout()->invalidate();

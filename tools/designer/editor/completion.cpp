@@ -51,11 +51,11 @@ public:
 	  parag( 0 ), lastState( FALSE ) { setText( txt ); }
     ~CompletionItem() { delete parag; }
     void paint( QPainter *painter ) {
-	if ( lastState != selected() ) {
+	if ( lastState != isSelected() ) {
 	    delete parag;
 	    parag = 0;
 	}
-	lastState = selected();
+	lastState = isSelected();
 	if ( !parag )
 	    setupParag();
 	parag->paint( *painter, listBox()->colorGroup() );
@@ -83,16 +83,16 @@ private:
 	    parag->setFormatter( formatter );
 	    parag->insert( 0, " " + type + ( type.isEmpty() ? " " : "\t" ) + prefix +
 			   QListBoxItem::text() + postfix + postfix2 );
-	    bool selCol = selected() && listBox()->colorGroup().highlightedText() != listBox()->colorGroup().text();
+	    bool selCol = isSelected() && listBox()->colorGroup().highlightedText() != listBox()->colorGroup().text();
 	    QColor sc = listBox()->colorGroup().highlightedText();
 	    QTextFormat *f1 = parag->formatCollection()->format( listBox()->font(), selCol ? sc : getColor( type ) );
-	    QTextFormat *f3 = parag->formatCollection()->format( listBox()->font(), selected() ?
+	    QTextFormat *f3 = parag->formatCollection()->format( listBox()->font(), isSelected() ?
 								 listBox()->colorGroup().highlightedText() :
 								 listBox()->colorGroup().text() );
 	    QFont f( listBox()->font() );
 	    f.setBold( TRUE );
 	    QTextFormat *f2 =
-		parag->formatCollection()->format( f, selected() ? listBox()->colorGroup().highlightedText() :
+		parag->formatCollection()->format( f, isSelected() ? listBox()->colorGroup().highlightedText() :
 								 listBox()->colorGroup().text() );
 	    parag->setFormat( 1, type.length() + 1, f1 );
 	    parag->setFormat( type.length() + 2, prefix.length() + QListBoxItem::text().length(), f2 );
