@@ -4615,7 +4615,7 @@ QPointArray QCanvasEllipse::areaPoints() const
     QPointArray r;
     // makeArc at 0,0, then translate so that fixed point math doesn't overflow
     r.makeArc(int(-w/2.0-1),int(-h/2.0-1),w+2,h+3,a1,a2);
-    r.translate(x(),y());
+    r.translate(int(x()),int(y()));
     r.resize(r.size()+1);
     r.setPoint(r.size()-1,int(x()),int(y()));
     return r;
