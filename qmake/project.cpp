@@ -420,7 +420,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
                 if(invert_test)
                     comp_scope = comp_scope.right(comp_scope.length()-1);
                 int lparen = comp_scope.indexOf('(');
-                if(or_op || !scope_failed) {
+                if(or_op == scope_failed) {
                     if(lparen != -1) { // if there is an lparen in the scope, it IS a function
                         int rparen = comp_scope.lastIndexOf(')');
                         if(rparen == -1) {
@@ -1392,7 +1392,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
             }
             return false;
         }
-        return true;;
+        return true;
     } else if(func == "error" || func == "message" || func == "warning") {
         if(args.count() != 1) {
             fprintf(stderr, "%s:%d: %s(message) requires one argument.\n", parser.file.latin1(),
