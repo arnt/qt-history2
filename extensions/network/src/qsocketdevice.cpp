@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.cpp#22 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.cpp#23 $
 **
 ** Implementation of Network Extension Library
 **
@@ -450,21 +450,6 @@ QHostAddress QSocketDevice::peerAddress() const
 QSocketDevice::Error QSocketDevice::error() const
 {
     return e;
-}
-
-
-/*!
-  This class can be used to provide low level support for other socket types.
-  In this implementation the function always returns FALSE and sets an error.
-
-  You have to subclass it to take an advantage of it.
-
-  \sa QSocket::genericConnect()
-*/
-bool QSocketDevice::connect()
-{
-    e = ConnectionRefused;
-    return FALSE;
 }
 
 

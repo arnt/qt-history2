@@ -54,18 +54,13 @@ QWSSocketDevice::QWSSocketDevice( Type type, bool inet )
 {
 }
 
-QWSSocketDevice::QWSSocketDevice( int socket, Type type, bool )
+QWSSocketDevice::QWSSocketDevice( int socket, Type type )
     : QSocketDevice( socket, type )
 {
 }
 
 QWSSocketDevice::~QWSSocketDevice()
 {
-}
-
-bool QWSSocketDevice::connect()
-{
-    return connect( fname );
 }
 
 bool QWSSocketDevice::connect( const QString& localfilename )
@@ -180,24 +175,24 @@ QWSSocket::~QWSSocket()
 
 void QWSSocket::setSocket( int socket, bool inet )
 {
-    QWSSocketDevice *sd;
-    if ( socket >= 0 )
-        sd = new QWSSocketDevice( socket, QWSSocketDevice::Stream, inet );
-    else
-        sd = new QWSSocketDevice( QWSSocketDevice::Stream, inet );
-    setSocketDevice( sd );
+    if ( inet == TRUE ) {
+	setSocket( socket );
+    } else {
+	QWSSocketDevice *sd;
+	if ( socket >= 0 ) {
+	    sd = new QWSSocketDevice( socket, QWSSocketDevice::Stream );
+	    setSocketDevice( sd, TRUE );
+	} else {
+	    // error?
+	}
+    }
 }
 
 void QWSSocket::connectToLocalFile( const QString &file )
 {
-    // do "setSocket( -1, FALSE );"
     QWSSocketDevice *sd;
     sd = new QWSSocketDevice( QWSSocketDevice::Stream, FALSE );
-    setSocketDevice( sd );
-    // set name that sd->connect() will use
-    sd->fname = file;
-    // connect
-    genericConnect();
+    setSocketDevice( sd, sd->connect( file ) );
 }
 
 

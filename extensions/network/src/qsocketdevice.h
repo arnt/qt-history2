@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.h#15 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.h#16 $
 **
 ** Implementation of Network Extension Library
 **
@@ -74,7 +74,6 @@ public:
     virtual void setSendBufferSize( uint );
 
     virtual bool connect( const QHostAddress &, uint );
-    virtual bool connect();
 
     virtual bool bind( const QHostAddress &, uint );
     virtual bool listen( int backlog );

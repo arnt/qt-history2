@@ -1101,7 +1101,7 @@ void QSocket::setSocket( int socket )
 	sd = new QSocketDevice( socket, QSocketDevice::Stream );
     else
 	sd = new QSocketDevice( QSocketDevice::Stream );
-    setSocketDevice( sd );
+    socketDeviceInit( sd );
 }
 
 
@@ -1162,12 +1162,39 @@ QString QSocket::peerName() const
   Low level function to set the socket device. There will only be rare
   situationions where you will find this useful.
 
+  The socket device \a sd must already try to connect. If the connect was
+  already successful set \a sdConnected to TRUE. If the socket device stills
+  try to connect set \a sdConnected to FALSE.
+
   Attention: this class will delete the socket device if it is no longer
   needed.
 
   \sa setSocket()
 */
-void QSocket::setSocketDevice( QSocketDevice *sd )
+void QSocket::setSocketDevice( QSocketDevice *sd, bool sdConnected )
+{
+    socketDeviceInit( sd );
+
+    d->state = Connecting;
+    if ( sdConnected == FALSE ) {
+        if ( d->socket->error() == QSocketDevice::NoError )
+            return; // not serious, try again later
+        d->state = Idle;
+        emit error( ErrConnectionRefused );
+    } else {
+        d->state = Connection;
+        emit connected();
+    }
+    // The socket write notifier will fire when the connection succeeds
+    d->wsn->setEnabled( TRUE );
+}
+
+
+/*!
+  Some initialization that both QSocket::setSocket() and
+  QSocket::setSocketDevice() need.
+*/
+void QSocket::socketDeviceInit( QSocketDevice *sd )
 {
     if ( state() != Idle )
 	close();
@@ -1193,42 +1220,12 @@ void QSocket::setSocketDevice( QSocketDevice *sd )
     setFlags( IO_Direct );
     setStatus( IO_Ok );
     open( IO_ReadWrite );
-}
 
-
-/*!
-  Low level function to allow the use of other socket types than AF_INET. You
-  should not use this unless you really now what you are doing.
-
-  To use this function you have to subclass \l QSocketDevice and reiimplement
-  the QSocketDevice::connect() function. You should set socket device with
-  setSocketDevice() before calling this function.
-*/
-
-void QSocket::genericConnect()
-{
-#if defined(QSOCKET_DEBUG)
-    qDebug( "QSocket (%s)::genericConnect",
-            name() );
-#endif
-
+    // 
     d->host = QString::null;
     d->port = 0;
 #ifndef QT_NO_DNS
     delete d->dns;
     d->dns = 0;
 #endif
-
-    d->state = Connecting;
-    if ( d->socket->connect() == FALSE ) {
-        if ( d->socket->error() == QSocketDevice::NoError )
-            return; // not serious, try again later
-        d->state = Idle;
-        emit error( ErrConnectionRefused );
-    } else {
-        d->state = Connection;
-        emit connected();
-    }
-    // The socket write notifier will fire when the connection succeeds
-    d->wsn->setEnabled( TRUE );
 }

@@ -40,15 +40,11 @@ class  QWSSocketDevice: public QSocketDevice
 friend class QWSSocket;
 public:
     QWSSocketDevice( Type type = Stream, bool inet=TRUE );
-    QWSSocketDevice( int socket, Type type, bool inet=TRUE );
+    QWSSocketDevice( int socket, Type type );
    ~QWSSocketDevice();
 
-    bool connect();
     virtual bool connect( const QString& localfilename );
     virtual bool bind( const QString& localfilename );
-
-private:
-    QString fname;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

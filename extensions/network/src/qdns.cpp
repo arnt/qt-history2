@@ -38,7 +38,7 @@
 #include "qptrdict.h"
 
 
-#define DEBUG_QDNS
+//#define DEBUG_QDNS
 
 
 static Q_UINT16 id; // ### start somewhere random
