@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpen.h#4 $
+** $Id: //depot/qt/main/src/kernel/qpen.h#5 $
 **
 ** Definition of QPen class
 **
 ** Author  : Haavard Nord
 ** Created : 940112
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -32,20 +32,21 @@ public:
    ~QPen();
     QPen &operator=( const QPen & );
 
-    PenStyle  style()	const		{ return data->style; }
-    uint      width()	const		{ return data->width; }
-    QColor    color()	const		{ return data->color; }
+    PenStyle	style()	const		{ return data->style; }
+    uint	width()	const		{ return data->width; }
+    QColor	color()	const		{ return data->color; }
 
-    void      setStyle( PenStyle );
-    void      setWidth( uint );
-    void      setColor( const QColor & );
+    void	setStyle( PenStyle );
+    void	setWidth( uint );
+    void	setColor( const QColor & );
 
 private:
 #if defined(_WS_WIN_)
-    bool      update( HDC );
+    bool	update( HDC );
 #elif defined(_WS_PM_)
-    bool      update( HPS );
+    bool	update( HPS );
 #endif
+    void	init( const QColor &, uint, PenStyle );
     struct QPenData : QShared {			// pen data
 	PenStyle  style;
 	uint	  width;
