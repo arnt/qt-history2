@@ -45,6 +45,8 @@
 #include "qpalette.h"
 #include "qframe.h"
 #include "qpushbutton.h"
+#include "qcheckbox.h"
+#include "qradiobutton.h"
 #include "qdrawutil.h"
 #include "qscrollbar.h"
 #include "qtabbar.h"
@@ -763,6 +765,37 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 	    break;
 	}
 
+    case CE_CheckBoxLabel:
+	{
+	    const QCheckBox *checkbox = (const QCheckBox *) widget;
+
+	    int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
+	    drawItem(p, r, alignment | AlignVCenter | ShowPrefix, cg,
+		     how & Style_Enabled, checkbox->pixmap(), checkbox->text());
+
+	    if (checkbox->hasFocus()) {
+		QRect fr = visualRect(subRect(SR_CheckBoxFocusRect, widget), widget);
+		drawPrimitive(PE_FocusRect, p, fr, cg, how);
+	    }
+	    break;
+	}
+
+    case CE_RadioButtonLabel:
+	{
+	    const QRadioButton *radiobutton = (const QRadioButton *) widget;
+
+	    int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
+	    drawItem(p, r, alignment | AlignVCenter | ShowPrefix, cg,
+		     how & Style_Enabled, radiobutton->pixmap(), radiobutton->text());
+
+	    if (radiobutton->hasFocus()) {
+		QRect fr = visualRect(subRect(SR_RadioButtonFocusRect, widget), widget);
+		drawPrimitive(PE_FocusRect, p, fr, cg, how);
+	    }
+
+	    break;
+	}
+
     case CE_MenuBarItem:
 	{
 	    if (! data)
@@ -945,6 +978,29 @@ QRect QMotifPlusStyle::subRect(SubRect r, const QWidget *widget) const
 
 	    break;
 	}
+
+    case SR_CheckBoxIndicator:
+	{
+	    int h = pixelMetric( PM_IndicatorHeight );
+	    rect.setRect(( widget->rect().height() - h ) / 2,
+			 ( widget->rect().height() - h ) / 2,
+			 pixelMetric( PM_IndicatorWidth ), h );
+	    break;
+	}
+
+    case SR_RadioButtonIndicator:
+	{
+	    int h = pixelMetric( PM_ExclusiveIndicatorHeight );
+	    rect.setRect( ( widget->rect().height() - h ) / 2,
+			  ( widget->rect().height() - h ) / 2,
+			  pixelMetric( PM_ExclusiveIndicatorWidth ), h );
+	    break;
+	}
+
+    case SR_CheckBoxFocusRect:
+    case SR_RadioButtonFocusRect:
+       	rect = widget->rect();
+	break;
 
     default:
 	rect = QMotifStyle::subRect(r, widget);
