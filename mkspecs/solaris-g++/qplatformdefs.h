@@ -75,7 +75,14 @@
 #define QT_SIGNAL_ARGS		int
 #define QT_SIGNAL_IGNORE	SIG_IGN
 
-#define QT_SOCKLEN_T	socklen_t
+#if defined(_XOPEN_UNIX)
+> // SUSv2/XPG5 explicitly specified or SUS/XPG4v2 explicitly specified
+> // but with socklen_t typedef'ed to size_t except in 64-bit mode.
+> // What about Solaris 2.6?
+#define SOCKLEN_T socklen_t
+#else
+#define SOCKLEN_T int
+#endif
 
 #define QT_NREAD	I_NREAD
 

@@ -7,6 +7,8 @@
 
 // Set any POSIX/XOPEN defines at the top of this file to turn on
 // specific APIs
+#define _XOPEN_SOURCE 500
+#define __EXTENSIONS__
 
 #include <unistd.h>
 #include <sys/types.h>
