@@ -114,12 +114,13 @@ int main(int argc, char *argv[])
   QTreeWidget *view = new QTreeWidget;
   view->setAlternatingRowColors(true);
   view->setRootIsDecorated(false);
-  view->setItemDelegate(new DownloadDelegate(view));
   view->setSortingEnabled(true);
+  view->setItemDelegate(new DownloadDelegate(view));
 
   QStringList headerLabels;
   headerLabels << "Name" << "Released" << "Download" << "Rating";
   view->setHeaderLabels(headerLabels);
+  view->header()->setClickable(true);
 
   for (int i = 0; i < 10; ++i) {
       QTreeWidgetItem *item = new QTreeWidgetItem(view);

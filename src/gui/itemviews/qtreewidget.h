@@ -182,7 +182,6 @@ public slots:
     void ensureItemIsVisible(const QTreeWidgetItem *item);
     void openItem(const QTreeWidgetItem *item);
     void closeItem(const QTreeWidgetItem *item);
-    void sortItems(int column);
     void clear();
 
 signals:

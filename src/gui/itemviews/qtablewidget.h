@@ -229,6 +229,7 @@ signals:
 protected:
     void setModel(QAbstractItemModel *model);
     void setup();
+    
 
 private:
     Q_DECLARE_PRIVATE(QTableWidget)

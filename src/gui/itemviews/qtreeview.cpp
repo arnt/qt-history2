@@ -189,7 +189,7 @@ void QTreeView::setHeader(QHeaderView *header)
             this, SLOT(columnCountChanged(int,int)),Qt::QueuedConnection);
     connect(d->header, SIGNAL(sectionHandleDoubleClicked(int)),
             this, SLOT(resizeColumnToContents(int)));
-    connect(d->header, SIGNAL(sectionClicked(int,Qt::MouseButton,Qt::KeyboardModifiers)),
+    connect(d->header, SIGNAL(sectionClicked(int)),
             this, SLOT(sortByColumn(int)));
     d->header->setFocusProxy(this);
 }
@@ -1053,6 +1053,8 @@ void QTreeView::sortByColumn(int column)
     Qt::SortOrder order = ascending ? Qt::AscendingOrder : Qt::DescendingOrder;
     header()->setSortIndicator(column, order);
     d->model->sort(column, order);
+    if (!header()->isSortIndicatorShown())
+        header()->setSortIndicatorShown(true);
 }
 
 /*!

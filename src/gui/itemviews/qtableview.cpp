@@ -243,8 +243,7 @@ void QTableView::setHorizontalHeader(QHeaderView *header)
             this, SLOT(columnMoved(int,int,int)), Qt::QueuedConnection);
     connect(d->horizontalHeader, SIGNAL(sectionCountChanged(int,int)),
             this, SLOT(columnCountChanged(int,int)), Qt::QueuedConnection);
-    connect(d->horizontalHeader, SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)),
-            this, SLOT(selectColumn(int)));
+    connect(d->horizontalHeader, SIGNAL(sectionPressed(int)), this, SLOT(selectColumn(int)));
     connect(d->horizontalHeader, SIGNAL(sectionHandleDoubleClicked(int)),
             this, SLOT(resizeColumnToContents(int)));
     d->horizontalHeader->setFocusProxy(this);
@@ -267,9 +266,7 @@ void QTableView::setVerticalHeader(QHeaderView *header)
             this, SLOT(rowMoved(int,int,int)), Qt::QueuedConnection);
     connect(d->verticalHeader, SIGNAL(sectionCountChanged(int,int)),
             this, SLOT(rowCountChanged(int,int)), Qt::QueuedConnection);
-    connect(d->verticalHeader,
-            SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)),
-            this, SLOT(selectRow(int)));
+    connect(d->verticalHeader, SIGNAL(sectionPressed(int)), this, SLOT(selectRow(int)));
     connect(d->verticalHeader, SIGNAL(sectionHandleDoubleClicked(int)),
             this, SLOT(resizeRowToContents(int)));
     d->verticalHeader->setFocusProxy(this);

@@ -106,9 +106,9 @@ public slots:
 signals:
     void sectionMoved(int logicalIndex, int oldVisualIndex, int newVisualIndex);
     void sectionResized(int logicalIndex, int oldSize, int newSize);
-    void sectionPressed(int logicalIndex, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
-    void sectionClicked(int logicalIndex, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
-    void sectionDoubleClicked(int logicalIndex, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
+    void sectionPressed(int logicalIndex);
+    void sectionClicked(int logicalIndex);
+    void sectionDoubleClicked(int logicalIndex);
     void sectionCountChanged(int oldCount, int newCount);
     void sectionHandleDoubleClicked(int logicalIndex);
     void sectionAutoResize(int logicalIndex, ResizeMode mode);

@@ -1481,9 +1481,9 @@ QTreeWidget::QTreeWidget(QWidget *parent)
     // model signals
     connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             this, SLOT(emitItemChanged(QModelIndex)));
-    // header signals
-    connect(header(), SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)),
-            this, SLOT(sortItems(int)));
+//     // header signals
+//     connect(header(), SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)),
+//             this, SLOT(sortItems(int)));
 }
 
 /*!
@@ -1661,8 +1661,8 @@ QRect QTreeWidget::viewportRectForItem(const QTreeWidgetItem *item) const
 
 void QTreeWidget::sortItems(int column, Qt::SortOrder order)
 {
-    d->model()->sort(column, order);
     header()->setSortIndicator(column, order);
+    d->model()->sort(column, order);
 }
 
 /*!
@@ -1864,25 +1864,6 @@ void QTreeWidget::closeItem(const QTreeWidgetItem *item)
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
     close(index);
-}
-
-/*!
-  Sorts all items in the widget by the values in the given \a column.
-  The items are sorted in the order given by the sort indicator in the header.
-*/
-
-void QTreeWidget::sortItems(int column)
-{
-    if (d->sortingEnabled) {
-        Qt::SortOrder order = header()->sortIndicatorOrder();
-        int section = header()->sortIndicatorSection();
-        order = (order == Qt::AscendingOrder && column == section
-                 ? Qt::DescendingOrder : Qt::AscendingOrder);
-        header()->setSortIndicator(column, order);
-        d->model()->sort(column, order);
-        if (!header()->isSortIndicatorShown())
-            header()->setSortIndicatorShown(true);
-    }
 }
 
 /*!
