@@ -217,8 +217,8 @@ struct QtMultiLineData
     bool dnd_primed; // If TRUE, user has pressed
     bool dnd_forcecursor; // If TRUE show cursor for DND feedback,
     // even if !hasFocus()
-    QList<QtMultiLineEditCommand> undoList;
-    QList<QtMultiLineEditCommand> redoList;
+    QPtrList<QtMultiLineEditCommand> undoList;
+    QPtrList<QtMultiLineEditCommand> redoList;
     bool undo;
     int undodepth;
     short chartable[256];
@@ -396,14 +396,14 @@ static int xPosToCursorPos( const QString &s, const QFontMetrics &fm,
 */
 
 QtMultiLineEdit::QtMultiLineEdit( QWidget *parent , const char *name )
-    :QtTableView( parent, name, WNorthWestGravity | WRepaintNoErase )
+    :QtTableView( parent, name, WStaticContents | WRepaintNoErase )
 {
     d = new QtMultiLineData;
     QFontMetrics fm( font() );
     setCellHeight( fm.lineSpacing() );
     setNumCols( 1 );
 
-    contents = new QList<QtMultiLineEditRow>;
+    contents = new QPtrList<QtMultiLineEditRow>;
     contents->setAutoDelete( TRUE );
 
     cursorX = 0; cursorY = 0;
@@ -2260,8 +2260,10 @@ void QtMultiLineEdit::mouseReleaseEvent( QMouseEvent *e )
 #if defined(_WS_X11_)
 	paste();		// Will repaint the cursor line.
 #else
+#ifndef QT_NO_COMPAT
 	if ( style() == MotifStyle )
 	    paste();
+#endif	    
 #endif
     }
 #endif

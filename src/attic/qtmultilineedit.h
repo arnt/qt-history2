@@ -18,7 +18,7 @@
 #ifndef QT_H
 #include "qttableview.h"
 #include "qstring.h"
-#include "qlist.h"
+#include "qptrlist.h"
 #endif // QT_H
 
 #ifndef QT_NO_QTMULTILINEEDIT
@@ -248,7 +248,7 @@ private:
 	int w;
 	bool newline;
     };
-    QList<QtMultiLineEditRow> *contents;
+    QPtrList<QtMultiLineEditRow> *contents;
     QtMultiLineData *d;
 
     bool	readOnly;
