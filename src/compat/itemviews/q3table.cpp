@@ -4270,7 +4270,6 @@ void Q3Table::focusInEvent(QFocusEvent*)
 	editorWidget->setFocus();
 
     QPoint cellPos(columnPos(curCol) + leftMargin() - contentsX(), rowPos(curRow) + topMargin() - contentsY());
-    Q3TableItem *itm = item(curRow, curCol);
 }
 
 
