@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#48 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#47 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#48 $";
 #endif
 
 
@@ -220,7 +220,7 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
     clearFlag( WState_Created );
     clearFlag( WState_Visible );
     create();
-    QObjectList *chlist = children();
+    const QObjectList *chlist = children();
     if ( chlist ) {				// reparent children
 	QObjectListIt it( *chlist );
 	QObject *obj;
