@@ -1456,7 +1456,8 @@ struct Q_EXPORT QTextDocumentTag {
 		    for ( QValueStack<QTextDocumentTag>::Iterator it = tags.begin(); it != tags.end(); ++it ) \
 			vec->insert( i++, (*it).style ); \
 		    vec->insert( i, curtag.style ); \
-		    }while(FALSE)
+		    }while(FALSE); \
+                    delete vec; vec = 0;
 
 
 void QTextDocument::setRichText( const QString &text, const QString &context )
