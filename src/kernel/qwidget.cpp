@@ -761,12 +761,6 @@ QWidget::~QWidget()
 	    qApp->quit();
     }
 
-#ifndef QT_NO_STYLE
-    extern const QWidget *qt_style_global_context;
-    if(qt_style_global_context == this)
-	qt_style_global_context = NULL;
-#endif
-
     if ( focusWidget() == this )
 	clearFocus();
     if ( QApplication::focus_widget == this )
@@ -1104,13 +1098,9 @@ QWidget *QWidget::find( WId id )
 
 QStyle& QWidget::style() const
 {
-    extern const QWidget *qt_style_global_context;
-    if ( extra && extra->style ) {
-	qt_style_global_context = this;
+    if ( extra && extra->style )
 	return *extra->style;
-    }
     QStyle &ret = qApp->style();
-    qt_style_global_context = this;
     return ret;
 }
 
