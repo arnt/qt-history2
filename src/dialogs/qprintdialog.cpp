@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#45 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#46 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -384,7 +384,7 @@ static void parseSpoolInterface( QListView * printers )
     QFileInfo *printer;
     while ( (printer = it.current()) != 0) {
 	++it;
-  
+
 	if ( !printer->isFile() )
 	    continue;
 
@@ -407,12 +407,18 @@ static void parseSpoolInterface( QListView * printers )
 	while( !configFile.atEnd() &&
 	    (lineLength=configFile.readLine( line.data(), 1024 )) > 0 ) {
 
-	    if(typeKey.match(line, 0, &length) == 0)
+	    if(typeKey.match(line, 0, &length) == 0) {
 		printerType = line.mid(length, line.length()-length);
-	    if(hostKey.match(line, 0, &length) == 0)
+		printerType = printerType.simplifyWhiteSpace();
+	    }
+	    if(hostKey.match(line, 0, &length) == 0) {
 		hostName = line.mid(length, line.length()-length);
-	    if(hostPrinterKey.match(line, 0, &length) == 0)
+		hostName = hostName.simplifyWhiteSpace();
+	    }
+	    if(hostPrinterKey.match(line, 0, &length) == 0) {
 		hostPrinter = line.mid(length, line.length()-length);
+		hostPrinter = hostPrinter.simplifyWhiteSpace();
+	    }
 	}
 	configFile.close();
 
