@@ -1050,6 +1050,11 @@ void WidgetFactory::initChangedProperties( QObject *o )
     } else if ( o->inherits( "QTable" ) && !o->inherits( "QDataTable" ) ) {
 	MetaDataBase::setPropertyChanged( o, "numRows", TRUE );
 	MetaDataBase::setPropertyChanged( o, "numCols", TRUE );
+	QTable *t = (QTable*)o;
+	for ( int i = 0; i < 3; ++i ) {
+	    t->horizontalHeader()->setLabel( i, QString::number( i + 1 ) );
+	    t->verticalHeader()->setLabel( i, QString::number( i + 1 ) );
+	}
 #endif
     } else if ( o->inherits( "QSplitter" )  ) {
 	MetaDataBase::setPropertyChanged( o, "orientation", TRUE );
