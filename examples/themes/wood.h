@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/themes/wood.h#2 $
+** $Id$
 **
 ** Definition of something or other
 **
