@@ -70,7 +70,8 @@ message box appears.
 
 See also \l{The File Toolbar Buttons}.
 
-\img qd-editmenu.png 
+\img qd-editmenu.png
+\caption The Edit Menu
 
 \section1 The Edit Menu
 
@@ -128,6 +129,7 @@ Settings Dialog}.
 See also \l{The Edit Toolbar buttons}.
 
 \img qd-projectmenu.png
+\caption The Project Menu
 
 \section1 The Project Menu 
 
@@ -157,6 +159,7 @@ invoke the \l{Edit Database Connections Dialog}.
 See also \l{The File Toolbar Buttons}.
 
 \img qd-searchmenu.png
+\caption The Search Menu
 
 \section1 The Search Menu
 
@@ -187,6 +190,7 @@ in the file.
 See also \l{The Search Toolbar Buttons}.
 
 \img qd-toolsmenu.png
+\caption The Tools Menu
 
 \section1 The Tools Menu
 
@@ -325,6 +329,7 @@ Widgets}.
 See also \l{The Tools Toolbar Buttons}.
 
 \img qd-layoutmenu.png
+\caption The Layout Menu
 
 \section1 The Layout Menu 
 
@@ -381,6 +386,9 @@ form. The spacer consumes extra space in the layout.
 
 See also the \l{The Layout Toolbar Buttons}.
 
+\img qd-previewmenu.png
+\caption The Preview Menu
+
 \section1 The Preview Menu \Key Alt+P
 
 This menu is invoked with \Key Alt+P, and provides the following
@@ -411,6 +419,7 @@ form in SGI style.
 \endlist
 
 \img qd-windowmenu.png
+\caption The Window Menu
 
 \section1 The Window Menu
 
@@ -534,6 +543,7 @@ form.
 \endlist
 
 \img qd-helpmenu.png
+\caption The Help Menu
 
 \section1 The Help Menu
 

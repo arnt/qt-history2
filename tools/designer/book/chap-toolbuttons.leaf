@@ -15,7 +15,7 @@ stand-alone tool palettes. To hide a tool palette click its close
 button. To restore a hidden tool palette, right click the tool area,
 then click the name of the tool palette you wish to restore.
 
-\img qd-filetoolbuttons2.png
+\img qd-filetoolbuttons3.png
 \caption file toolbuttons
 
 \section1 The File Toolbar Buttons
@@ -40,7 +40,7 @@ toggle between the projects.
 
 \endlist
 
-\img qd-edittoolbuttons2.png
+\img qd-edittoolbuttons3.png
 \caption edit toolbuttons
 
 \section1 The Edit Toolbar Buttons
@@ -67,7 +67,7 @@ the current form or file.
 
 \endlist
 
-\img qd-searchtoolbuttons.png
+\img qd-searchtoolbuttons3.png
 \caption search toolbuttons
 
 \section1 The Search Toolbar Buttons
@@ -93,7 +93,7 @@ toolbar button. After this, every time you click the form a new widget
 will be added. Click the \Toolbutton Pointer toolbar button to leave
 this mode.
 
-\img qd-pointertoolbuttons2.png
+\img qd-pointertoolbuttons3.png
 \caption tools
 
 \section2 Tools
@@ -122,7 +122,7 @@ to revert your changes, leave tab order mode, then undo.
 
 \endlist
 
-\img qd-buttonstoolbuttons2.png
+\img qd-buttonstoolbuttons3.png
 \caption buttons
 
 \section2 Buttons
@@ -144,7 +144,7 @@ click the form, to place a CheckBox on the form.
 
 \endlist
 
-\img qd-containertoolbuttons2.png
+\img qd-containertoolbuttons3.png
 \caption containers
 
 \section2 Containers
@@ -166,7 +166,7 @@ Page' as required.
 
 \endlist
 
-\img qd-viewstoolbuttons2.png
+\img qd-viewstoolbuttons3.png
 \caption views 
 
 \section2 Views
@@ -186,7 +186,7 @@ place a Table on the form.
 
 \endlist
 
-\img qd-databasetoolbuttons2.png
+\img qd-databasetoolbuttons3.png
 \caption database toolbuttons
 
 \section2 Database
@@ -203,7 +203,7 @@ form, to place a DataView on the form.
 
 \endlist
 
-\img qd-inputtoolbuttons2.png
+\img qd-inputtoolbuttons3.png
 \caption input toolbuttons
 
 \section2 Input
@@ -241,7 +241,7 @@ form, to place a Dial on the form.
 
 \endlist
 
-\img qd-displaytoolbuttons2.png
+\img qd-displaytoolbuttons3.png
 \caption display toolbuttons
 
 \section2 Display
@@ -280,7 +280,7 @@ toolbar button only appears if you have created a custom widget using
 
 \endlist
 
-\img qd-layouttoolbuttons2.png
+\img qd-layouttoolbuttons3.png
 \caption layout toolbuttons
 
 \section2 The Layout Toolbar Buttons
@@ -332,7 +332,7 @@ consumes extra space in the layout.
 
 \endlist
 
-\img qd-helptoolbuttons2.png
+\img qd-helptoolbuttons3.png
 \caption help toolbutton
 
 \section1 The Help Toolbar Button

@@ -12,7 +12,7 @@ The Main Window Wizard is invoked by clicking the Main Window form
 template in the \l{New File Dialog}. This wizard helps you to create
 a main window with actions, menu options and toolbars.
 
-\img qd-mainwinwzdpage1.png
+\img qd-mainwinwzd.png
 
 \section2 Choose Available Menus and Toolbars 
 

@@ -6,6 +6,9 @@ This chapter describes and explains every \QD dialog.
 
 \section1 The File Dialogs
 
+\img qd-filenew.png
+\caption New File Dialog
+
 \target dialog-file-new
 \section2  New File Dialog
 
@@ -111,6 +114,9 @@ the default file name, type it in the Filename line edit. Click the
 form to use as the application's main form from the list of forms,
 then click \OK and \QD will create a default 'main.cpp' file.
 
+\img qd-fileopen.png
+\caption File Open Dialog
+
 \target dialog-file-open
 \section2 File Open Dialog
 
@@ -131,8 +137,11 @@ folders or files.
 Click \Button Open to open the selected file. Click \CANCEL
 to leave the dialog without opening a new file. 
 
+\img qd-filesaveasdialog.png
+\caption Save As
+
 \target dialog-file-save-as
-\section2 Form Save As Dialog
+\section2 Save As 
 
 Click \Menu{File|Save As} to invoke the \Dialog{Save As} dialog. Use this
 dialog to save files to a directory.
@@ -151,6 +160,9 @@ to sort the folders or files.
 Click \ButtonSave to save the selected file. Click \CANCEL to leave the dialog
 without saving the file. 
 
+\img qd-filecreatetemplate.png
+\caption Create Template 
+
 \target dialog-file-create-template
 \section2 Create Template Dialog
 
@@ -165,6 +177,9 @@ Click \ButtonCreate to create the template. Click \CANCEL to leave
 the dialog without creating a template.
 
 \section1 The Edit Dialogs
+
+\img qd-editslots.png
+\caption Edit Slots
 
 \target dialog-edit-slots
 \section2 Edit Slots Dialog
@@ -187,6 +202,9 @@ you want to delete, and then click the \Button{Delete Slot} button.
 Click \OK to save all changes made to slots. Click \CANCEL to leave
 the dialog without making any changes to slots.   
 
+\img qd-editviewconnections.png
+\caption View Connections
+
 \target dialog-view-connections
 \section2 View Connections Dialog 
 
@@ -205,6 +223,8 @@ to invoke the \Dialog{Edit Connections Dialog}.
 Click the \Button Close button to leave the dialog without making any
 changes to connections.
 
+\img qd-editformsettings.png
+\caption Form Settings
 
 \target dialog-edit-form-settings
 \section2 Form Settings Dialog
@@ -255,6 +275,9 @@ dialog. This dialog has a tab for 'General' preferences. If you have
 the C++ Editor plug-in, the dialog will also have a tab for C++
 Editor.
 
+\img qd-editpreferencesgeneral.png
+\caption Preferences- General Tab
+
 \section3 General Tab
 
 The 'General' tab has sections for Background, Grid, General, and
@@ -300,6 +323,9 @@ The 'Toolbars' section has a 'Show Text Labels' checkbox. Click the
 checkbox to display the textlabels for each icon shown in the \QD
 toolbar.
 
+\img qd-editpreferencesc++.png
+\caption Preferences- C++ Editor Tab
+
 \section3 C++ Editor Tab
 
 The C++ Editor gives you options to customize the editor. The 'Syntax
@@ -321,6 +347,9 @@ Click \OK to accept changes to \Dialog Preferences dialog. Click
 
 \section1 The Project Dialogs
 
+\img qd-projectaddfile.png
+\caption Add Dialog
+
 \target dialog-add
 \section2 Add Dialog
 
@@ -341,6 +370,9 @@ folders or files.
 Click \Button Open to open the selected file. Click \CANCEL to leave
 the dialog without opening a file.
 
+\img qd-projectimages.png
+\caption Manage Image Collection
+
 \target dialog-image-collection
 \section2 Image Collection Dialog
 
@@ -355,6 +387,8 @@ image and then click the \Button Delete button.
 Click the \Button Close button to leave the dialog without editing or
 adding images.
 
+\img qd-projectdbaseconnections.png
+\caption Edit Database Connections
 
 \target dialog-edit-database-connections
 \section2 Edit Database Connections Dialog
@@ -386,6 +420,9 @@ Click \Button Close to leave the \Edit {Database Connections} dialog.
 Click \Menu {Project|Project Settings} to invoke the \Dialog{Project
 Settings Dialog}. Use this dialog to make changes to the project settings.
 
+\img qd-projectsettingsdialog.png
+\caption Project Settings- Settings Tab
+
 \section3 Settings Tab
 
 The 'Settings' tab shows information about the project. The Project
@@ -396,11 +433,17 @@ name in the line edit. To save the project, click the \Button
 the 'Description' line edit if you want to add additional information
 about the project.
 
+\img qd-projectsettingsfilestabdialog.png
+\caption Project Settings- Files Tab
+
 \section3 Files Tab
 
 Click the 'Files' tab to enter a name in the 'Database File' line edit.
 Click the \Button {ellipsis...} button to invoke the \Dialog{Save As
 Dialog}.
+
+\img qd-projectsettingsc++tabdialog.png
+\caption Project Settings- C++ Tab
 
 \section3 C++ Tab
 
@@ -424,6 +467,9 @@ settings.
 
 \section1 The Search Dialogs
 
+\img qd-searchfindtextdialog.png
+\caption Find Text
+
 \target dialog-find-text
 \section2 Find Text Dialog
 
@@ -444,6 +490,9 @@ highlighted in the file. Continue clicking \Button Find to search the
 whole file for other occurrences of the text. 
 
 Click the \Button Close button to leave the dialog.
+
+\img qd-searchreplacetext.png
+\caption Replace Text
 
 \target dialog-replace-text
 \section2 Replace Text Dialog
@@ -471,6 +520,9 @@ occurences of the text in the file at one time.
 
 Click the \Button Close button to leave the dialog.
 
+\img qd-searchgotoline.png
+\caption Goto Line
+
 \target dialog-go-to-line
 \section2 Goto Line Dialog
 
@@ -486,6 +538,9 @@ Click the \Button Close button to leave the dialog.
 
 \section1 The Help Dialogs
 
+\img qd-qtdesigner1dialog1dialog.png
+\caption Qt Designer Dialog
+
 \target dialog-qt-designer
 \section2  Qt Designer Dialog
 
@@ -496,6 +551,9 @@ licensing terms, conditions, and disclaimers.
 Click the 'x' located at the top right corner of the dialog to close
 the dialog.
 
+\img qd-qtdesigner2dialog.png
+\caption Qt Designer Dialog
+
 \target dialog-qt-designer
 \section2 Qt Designer Dialog
 
@@ -504,6 +562,9 @@ Dialog}. This dialog provides information about Qt.
 
 Click the 'x' located at the top right corner of the dialog to close
 the dialog.
+
+\img qd-fielsaveprojectsettingsdialog.png
+\caption Save Project Settings 
 
 \target dialog-save-project-settings
 \section1 Save Project Settings Dialog
@@ -517,6 +578,9 @@ If the project has any forms which have not been previously saved, the
 Click \Button No to close the project without saving any changes.
 Click \Button Cancel to leave the dialog without closing the project
 and without making any changes.
+
+\img qd-filesaveformdialog.png
+\caption Save Form 
 
 \target dialog-save-form
 \section1 Save Form Dialog
@@ -532,6 +596,9 @@ As Dialog} is invoked. Click \Button No to close the form without
 saving any changes or without saving the form if it has not been saved
 previously. Click \Button Cancel to leave the dialog without closing
 or exiting the form and without saving the form.
+
+\img qd-filesaveformasdialog.png
+\caption Save Form As Dialog
 
 \target dialog-save-form-as
 \section1 Save Form As
@@ -560,6 +627,9 @@ to sort the folders or files.
 Click \Button Save to save the selected form. Click \CANCEL to leave
 the dialog without saving the form. 
 
+\img qd-editeditconnections.png
+\caption Edit Connections
+
 \target dialog-edit-connections
 \section1 Edit Connections Dialog
 
@@ -584,6 +654,9 @@ Slots} to invoke the \Dialog{Edit Slots Dialog}.
 Click \OK to accept changes to the connections. Click \CANCEL to leave
 the dialog without making changes to the connections.   
 
+\img qd-finddirectorydialog.png
+\caption Find Directory
+
 \target dialog-find-directory
 \section1 Find Directory Dialog
 
@@ -603,8 +676,31 @@ folders or files.
 Click \OK to accept the directory. Click \CANCEL to leave the dialog
 without choosing a directory.
 
+\img qd-chooseapixmap.png
+\caption Choose a Pixmap
+
+\target dialog-choose-a-pixmap
+\section1 Choose a Pixmap Dialog
+
+Invoke this dialog to select a pixmap to use in the current project. 
+
+The \Dialog {Choose a Pixmap} dialog defaults the directory and file
+type. To choose a different directory, click the 'Look In' combobox.
+Choose a file and the name will appear in the 'File Name' combobox. To
+choose a different file type, click the 'File Type'combobox. Click the
+'Create New Folder' toolbar button to create a new directory. Click
+the 'List View' toolbar button to view folders and files in a list
+with only the names showing. Click the 'Details' toolbar button to
+view the folders and file names along with their size, type, date, and
+attributes. Click the Size, Type, Date, or Attributes column headers
+to sort the folders or files. View a sample of the pixmap file you
+select in the listbox in the right side of the dialog.
+
+Click \OK to accept the pixmap file. Click \CANCEL to leave the dialog
+without choosing a pixmap file.
+
 \target dialog-edit-custom-widgets
-\section2 Edit Custom Widgets Dialog
+\section1 Edit Custom Widgets Dialog
 
 Invoke this dialog by clicking Tools|Custom|Edit Custom Widgets. Use
 this dialog to create custom widgets.
@@ -630,7 +726,10 @@ and then click the \Button {Delete Widget} button.
 
 Click \Button Close to leave the Edit Custom Widgets dialog.
 
-\section3 The Definition Tab
+\img qd-custwiddeftab.png
+\caption Edit Custom Widgets- Definition Tab
+
+\section2 The Definition Tab
 
 To create a custom widget, click \Button {New Widget}. Click the
 Definition tab if you are not already there. You should change the
@@ -652,7 +751,10 @@ size properties of the widget. Click the 'Container Widget' checkbox
 if the custom widget you are creating should be able to contain other
 widgets (children).
 
-\section3 The Signals Tab
+\img qd-custwidsigtab.png
+\caption Edit Custom Widgets- Signals Tab
+
+\section2 The Signals Tab
 
 Click the Signals tab to view a list of all the signals the selected
 widget can emit. To add a new signal, click the \Button {New Signal}
@@ -661,7 +763,10 @@ signal and give the signal a unique name. To delete a signal from the
 listbox, click the signal to choose it and then click the \Button
 {Delete Signal} button.
 
-\section3 The Slots Tab
+\img qd-custwidslotstab.png
+\caption Edit Custom Widgets- Slots Tab
+
+\section2 The Slots Tab
 
 Click the Slots tab to view a list of all the slots of the selected
 custom widget. Click the 'Slot' or 'Access' cloumn headers to sort
@@ -672,7 +777,10 @@ to choose between public or protected access for your widget. To
 delete a slot from the listbox, click the slot and then click the
 \Button {Delete Slot}.
 
-\section3 The Properties Tab
+\img qd-custwidproptab.png
+\caption Edit Custom Widgets- Properties Tab
+
+\section2 The Properties Tab
 
 Click the Properties tab to view the list of properties for the
 selected widget. Click the 'Property' or 'Type' column headers to sort
@@ -686,8 +794,11 @@ Property} button.
 
 Click \Button Close to leave the \Dialog {Edit Custom Widgets} dialog.
 
+\img qd-chooseimages.png
+\caption Choose Images
+
 \target dialog-choose-images
-\section2 Choose Images Dialog
+\section1 Choose Images Dialog
 
 Invoke the \Dialog {Choose Images} dialog to choose images to use in a
 project.
@@ -707,8 +818,11 @@ Date, or Attributes column headers to sort the folders or files.
 Click \Button Open to open the selected file. Click \CANCEL to leave the dialog
 without opening a file.
 
+\img qd-chooseanimage.png
+\caption Choose an Image
+
 \target dialog-choose-an-image
-\section2 Choose an Image Dialog
+\section1 Choose an Image Dialog
 
 Invoke the \Dialog{Choose an Image} choose an image to use for a widget. 
 
@@ -719,8 +833,11 @@ image in the listbox and then click the \Button Delete button.
 
 Click \CANCEL to leave the dialog without making any changes to images.
 
+\img qd-selectcolordialog.png
+\caption Select Color
+
 \target dialog-select-color
-\section2 Select Color Dialog
+\section1 Select Color Dialog
 
 Invoke the \Dialog {Select Color} dialog to select color preferences
 or to create color palettes. 
@@ -743,8 +860,11 @@ Click \OK to accept changes to the \Dialog {Select Color} dialog.
 Click \CANCEL to exit the dialog without selecting a color or adding
 custom colors.
 
+\img qd-editpalettedialog.png
+\caption Edit Palette
+
 \target dialog-edit-palette
-\section2 Edit Palette Dialog
+\section1 Edit Palette Dialog
 
 Invoke the \Dialog {Edit Palette} dialog to change the palette of the
 current widget or form. You can use a generated palette, or select
@@ -762,8 +882,11 @@ preview.
 Click \OK to accept the changes to the palette. Click \CANCEL to leave
 the dialog without making changes to the palette.
 
+\img qd-tunepalettedialog.png
+\caption Tune Palette 
+
 \target dialog-tune-palette
-\section2 Tune Palette Dialog
+\section1 Tune Palette Dialog
 
 Invoke the \Dialog {Tune Palette} dialog to choose options for a
 widget's palette.
@@ -789,8 +912,11 @@ the 3-D effects. Click the \Button {Select Color} button to invoke the
 Click \OK to accept changes to the palette. Click \CANCEL to leave the
 dialog without making changes to the palette.
 
+\img qd-selectfontdialog
+\caption Select Font
+
 \target dialog-select-font
-\section2 Select Font Dialog
+\section1 Select Font Dialog
 
 Invoke the \Dialog {Select Font} dialog to make changes to the font size
 and style. 
@@ -811,8 +937,11 @@ choose a style of writing. View your font selections and styles in the
 Click \OK to accept changes to the font. Click \CANCEL to leave the
 dialog without making any changes to the font.
 
+\img qd-textdialog.png
+\caption Text Dialog
+
 \target dialog-text
-\section2 Text Dialog
+\section1 Text Dialog
 
 Invoke the \Dialog Text dialog to type text. Type text in
 the line edit. 
@@ -820,8 +949,11 @@ the line edit.
 Click \OK to accept the text. Click \CANCEL to leave the dialog
 without saving any text.
 
+\img qd-title.png
+\caption Title Dialog
+
 \target dialog-title
-\section2 Title Dialog
+\section1 Title Dialog
 
 Use this dialog to change the title of a selected widget by typing
 the new title in the line edit. 
@@ -829,9 +961,11 @@ the new title in the line edit.
 Click \OK to accept changes to the title. Click \CANCEL
 to leave the dialog without making changes to the title.
 
+\img qd-pagetitle.png
+\caption Page Title Dialog
 
 \target dialog-dialog-page-title
-\section2 Page Title Dialog
+\section1 Page Title Dialog
 
 Right click a tab widget on the form to invoke the \Dialog {Page
 Title} dialog. Use this dialog to change the name of each tab in the
@@ -840,8 +974,11 @@ Tab widget.
 Click \OK to accept new page titles. Click \CANCEL to
 leave the dialog without making any changes.  
 
+\img qd-editlistbox.png
+\caption Edit Listbox 
+
 \target dialog-edit-listbox
-\section2 Edit Listbox Dialog
+\section1 Edit Listbox Dialog
 
 Right click a Listbox on the form and select 'Edit' to invoke the
 \Dialog {Edit Listbox} dialog. Use this dialog to add items to the
@@ -863,14 +1000,17 @@ to leave the dialog once the changes have been accepted. Click \CANCEL
 to leave the dialog without saving any changes.  
 
 \target dialog-edit-listview
-\section2 Edit Listview
+\section1 Edit Listview
 
 Right click a listview widget on the form and select 'Edit' to invoke
 the \Dialog {Edit Listview} dialog. Use this dialog to add items to
 the listview. The \Dialog Edit Listview dialog has two tabs, one for
 items and one for columns.
 
-\section3 The Items Tab 
+\img qd-editlistview.png
+\caption Edit Listview- Items Tab
+
+\section2 The Items Tab 
 
 The dialog defaults to the Items tab. Use this tab to
 add, change, or remove items in the listview. To add a new item, click
@@ -887,7 +1027,10 @@ level, click the \Button {Move Up} or \Button {Move Down} buttons. To
 move the an item up or down one level, click the \Button{Move Left} or
 \Button {Move Right} buttons. 
 
-\section3 The Columns Tab
+\img qd-editlistviewcolumns.png
+\caption Edit Listview- Columns Tab
+
+\section2 The Columns Tab
 
 Click this tab to change the column configuration of the listview. To
 add a column, click the \Button {New Column} button. The new column is
@@ -907,31 +1050,37 @@ Click \Button Apply to accept changes to the listview widget. Click \OK
 to leave the dialog once the changes have been accepted. Click \CANCEL
 to leave the dialog without saving any changes.  
 
+\img qd-editiconview.png
+\caption Edit Iconview
+
 \target dialog-edit-iconview
-\section2 Edit Iconview
+\section1 Edit Iconview
 
 Right click an iconview widget on the form and select 'Edit' to invoke
-this dialog. Use the dialog to add, change, or remove items from the
-iconview. To add an item to the iconview, click the \Button {New Item}
-button. To change the name of the item, click the 'Text' line edit and
-type a new name. To add a pixmap, click the \Button {ellipsis...}
-button, which invokes the \Dialog {Choose an Image Dialog}. To remove
-a pixmap, click the \Button {Delete Pixmap} button. To delete an item
-from the listbox, click the item and then click the \Button {Delete
-Item} button.
+the \Dialog {Edit Iconview} dialog. Use the dialog to add, change, or
+remove items from the iconview. To add an item to the iconview, click
+the \Button {New Item} button. To change the name of the item, click
+the 'Text' line edit and type a new name. To add a pixmap, click the
+\Button {ellipsis...} button, which invokes the \Dialog {Choose an
+Image Dialog}. To remove a pixmap, click the \Button {Delete Pixmap}
+button. To delete an item from the listbox, click the item and then
+click the \Button {Delete Item} button.
 
 Click \Button Apply to accept changes to the iconview widget. Click
 \OK to leave the dialog once the changes have been accepted. Click
 \CANCEL to leave the dialog without saving any changes. 
 
 \target dialog-edit-table
-\section2 Edit Table
+\section1 Edit Table
 
-Right click a table widget on the form and select 'Edit' to invoke
-this dialog. Use the dialog to add, change, or remove columns or rows
-from the table. 
+Right click a table widget on the form and select 'Edit' to invoke the
+\Dialog {Edit Table} dialog. Use the dialog to add, change, or remove
+columns or rows from the table. 
 
-\section3 The Column Tab
+\img qd-edittablecolumns.png
+\caption Edit Table- Columns Tab
+
+\section2 The Column Tab
 
 To add a column to the table, click the \Button {New Column} button.
 To delete a column from the table, click the column in the listbox, or
@@ -944,7 +1093,10 @@ selected item, click the \Button {Delete Pixmap} button. To move a
 column in the listbox, click the \Button {Move Up} or \Button {Move
 Down} buttons.
 
-\section3 The Rows Tab
+\img qd-edittablerows.png
+\caption Edit Table- Rows Tab
+
+\section2 The Rows Tab
 
 To add a row to the table, click the \Button {New Row} button.
 To delete a row from the table, click the row in the listbox, or
@@ -960,6 +1112,99 @@ Up} or \Button {Move Down} buttons.
 Click \Button Apply to accept changes to the table widget. Click \OK
 to leave the dialog once the changes have been accepted. Click \CANCEL
 to leave the dialog without saving any changes.
+
+\img qd-editforwarddeclarations.png
+\caption Edit Forward Declarations
+
+\target dialog-edit-forward-declarations
+\section1 Edit Forward Declarations Dialog
+
+From the Source tab in the \l {Object Explorer Window}, right click
+the 'Forward Declarations' folder and select 'Edit' from the context
+menu to invoke the \Dialog {Edit Forward Declarations} dialog. Use
+this dialog to add, edit, or remove declarations in the source code.
+
+To add a new declaration, click the \Button Add button. A line edit
+will appear for you to type the declaration. Press enter after you
+have typed the declaration. To delete a declaration from the listbox,
+click the declaration and then click \Button Remove. To rename an
+existing declaration, click the declaration and then click \Button
+Rename. The cursor will appear in the line edit, allowing you to
+change the name.
+
+Click \Button Close to leave the \Dialog {Edit Forward Declarations}
+dialog.
+
+\img qd-editincludesindeclaration.png
+\caption Edit Includes (in Declaration)
+
+\target dialog-edit-includes-in-declaration
+\section1 Edit Includes (in Declaration) Dialog
+
+From the Source tab in the \l {Object Explorer Window}, right click
+the 'Includes (in Declaration)' folder and select 'Edit' from the
+context menu to invoke the \Dialog {Edit Includes (in Declarations)}
+dialog. Use this dialog to add, edit, or remove includes in the source
+code.
+
+To add a new include, click the \Button Add button. A line edit
+will appear for you to type the include. Press enter after you
+have typed the include. To delete an include from the listbox, click
+the include and then click \Button Remove. To rename an existing
+include, click the include and then click \Button Rename. The cursor
+will appear in the line edit, allowing you to change the name.
+
+Click \Button Close to leave the \Dialog {Edit Include (in
+Declaration)} dialog.
+
+\img qd-editincludesinimplmentation.png
+\caption Edit Includes (in Implementation)
+
+\target dialog-edit-includes-in-implementation
+\section1 Edit Includes (in Implementation) Dialog
+
+From the Source tab in the \l {Object Explorer Window}, right click
+the 'Includes (in Implementation)' folder and select 'Edit' from the
+context menu to invoke the \Dialog {Edit Includes (in Implementation)}
+dialog. Use this dialog to add, edit, or remove includes in the source
+code.
+
+To add a new include, click the \Button Add button. A line edit
+will appear for you to type the include. Press enter after you
+have typed the include. To delete an include from the listbox,
+click the include and then click \Button Remove. To rename an
+existing include, click the include and then click \Button
+Rename. The cursor will appear in the line edit, allowing you to
+change the name.
+
+Click \Button Close to leave the \Dialog {Edit Include (in
+Implementation)} dialog.
+
+\img qd-editclassvariables.png
+\caption Edit Class Variables
+
+\target dialog-edit-class-variables
+\section1 Edit Class Variables Dialog
+
+From the Source tab in the \l {Object Explorer Window}, right click
+the 'Class Variables' folder and select 'Edit' from the
+context menu to invoke the \Dialog {Edit Class Variables} dialog. Use
+this dialog to add, edit, or remove class variables in the source
+code.
+
+To add a new variable, click the \Button Add button. A line edit
+will appear for you to type the variable. Press enter after you have
+typed the variable. To delete an include from the listbox, click the
+variable and then click \Button Remove. To rename an existing
+variable, click the variable and then click \Button Rename. The cursor
+will appear in the line edit, allowing you to change the name.
+
+Click \Button Close to leave the \Dialog {Edit Class Variables}
+dialog.
+
+
+
+
 
 
 
