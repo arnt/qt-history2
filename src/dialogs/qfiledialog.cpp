@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#346 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#347 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1607,20 +1607,17 @@ QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
     : QDialog( parent, name, modal )
 {
     init();
-    if ( !filter.isEmpty() ) {
-	QStringList filters = makeFiltersList( filter );
-	d->url.setNameFilter( filters.first() );
-	QStringList::Iterator it = filters.begin();
-	for ( ; it != filters.end(); ++it )
-	    d->types->insertItem( *it );
-    } else {
-	d->types->insertItem( QFileDialog::tr( "All files (*)" ) );
-    }
     if ( !dirName.isEmpty() )
 	d->url = dirName;
 
     emit dirEntered( d->url.dirPath() );
     rereadDir();
+
+    if ( !filter.isEmpty() ) {
+	setFilters( filter );
+    } else {
+	d->types->insertItem( QFileDialog::tr( "All files (*)" ) );
+    }
 }
 
 
@@ -3597,6 +3594,12 @@ void QFileDialog::setFilters( const QStringList & types )
     setFilter( d->types->text( 0 ) );
 }
 
+
+void QFileDialog::setFilters( const QString &filters )
+{
+    QStringList lst = makeFiltersList( filters );
+    setFilters( lst );
+}
 
 /*!
   Since modeButtons is a top-level widget, it may be destroyed by the

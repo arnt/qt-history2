@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#82 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#83 $
 **
 ** Definition of QFileDialog class
 **
@@ -125,7 +125,7 @@ private:
     QTimer *dragScrollTimer;
     bool firstMousePressEvent;
     QUrlOperator startDragUrl;
-    
+
 };
 
 
@@ -263,6 +263,7 @@ public slots:
     void setFilter( const QString& );
     void setFilters( const char ** );
     void setFilters( const QStringList& );
+    void setFilters( const QString& );
 
 signals:
     void fileHighlighted( const QString& );
