@@ -129,6 +129,8 @@ struct ClipData
     int lastIntersected;
 };
 
+#define GRADIENT_STOPTABLE_SIZE 1024
+
 struct GradientData
 {
     QRasterBuffer *rasterBuffer;
@@ -138,7 +140,11 @@ struct GradientData
     qreal *stopPoints;
     ARGB *stopColors;
 
+    ARGB colorTable[GRADIENT_STOPTABLE_SIZE];
+
     uint alphaColor : 1;
+
+    void initColorTable();
 };
 
 struct LinearGradientData : public GradientData
@@ -1190,6 +1196,7 @@ void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, FillData *fill
             static_cast<const QLinearGradient *>(brush.gradient())->finalStop() * brushMatrix;
         linearGradientData->alphaColor = !brush.isOpaque();
         linearGradientData->init();
+        linearGradientData->initColorTable();
         fillData->callback = qt_span_linear_gradient;
         fillData->data = linearGradientData;
         break;
@@ -1208,6 +1215,7 @@ void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, FillData *fill
             radialGradientData->focal =
                 static_cast<const QRadialGradient *>(brush.gradient())->focalPoint();
             radialGradientData->alphaColor = !brush.isOpaque();
+            radialGradientData->initColorTable();
             QRectF bounds = path->boundingRect();
             tempImage = qt_draw_radial_gradient_image(bounds.toRect(), radialGradientData);
 
@@ -1232,7 +1240,7 @@ void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, FillData *fill
             conicalGradientData->angle =
                 static_cast<const QConicalGradient *>(brush.gradient())->angle();
             conicalGradientData->alphaColor = !brush.isOpaque();
-
+            conicalGradientData->initColorTable();
             QRectF bounds = path->boundingRect();
             tempImage = qt_draw_conical_gradient_image(bounds.toRect(), conicalGradientData);
 
@@ -1668,40 +1676,21 @@ void qt_span_texturefill_xform(int y, int count, QT_FT_Span *spans, void *userDa
 ARGB qt_gradient_pixel(const GradientData *data, double pos)
 {
   // calculate the actual offset.
-  if (pos < 0 || pos > 1)
-    if (data->spread == QGradient::RepeatSpread)
-      pos = pos - floor(pos);
-    else if (data->spread == QGradient::ReflectSpread)
-    {
-      pos = pos - 2 * floor (.5 * pos);
-      pos = (pos > 1. ? 2. - pos : pos);
+    if (pos <= 0 || pos >= 1) {
+        if (data->spread == QGradient::RepeatSpread)
+            pos = pos - floor(pos);
+        else if (data->spread == QGradient::ReflectSpread) {
+            pos = pos - 2 * floor (.5 * pos);
+            pos = (pos > 1. ? 2. - pos : pos);
+        } else {
+            if (pos <= 0) return data->colorTable[0];
+            else if (pos >= 1) return data->colorTable[GRADIENT_STOPTABLE_SIZE-1];
+        }
     }
 
-  // Before first stop
-  if (pos <= data->stopPoints[0]) {
-      return data->stopColors[0];
-  }
-
-  // After last stop
-  if (pos > data->stopPoints[data->stopCount-1]) {
-      return data->stopColors[data->stopCount-1];
-  }
-
-  // Search for the right segment
-  int p = 0;
-  while (pos > data->stopPoints[ p + 1 ])
-      p++;
-
-  // Calculate the actual color
-  const int fp_one = (1 << 16);
-  int r = int((pos - data->stopPoints[p]) / (data->stopPoints[p+1] - data->stopPoints[p]) * fp_one);
-  int ir = fp_one - r;
-
-  return ARGB((ir*data->stopColors[p].a + r*data->stopColors[p+1].a) >> 16,
-              (ir*data->stopColors[p].r + r*data->stopColors[p+1].r) >> 16,
-              (ir*data->stopColors[p].g + r*data->stopColors[p+1].g) >> 16,
-              (ir*data->stopColors[p].b + r*data->stopColors[p+1].b) >> 16);
+    return data->colorTable[int(pos * GRADIENT_STOPTABLE_SIZE)];
 } // qt_gradient_pixel
+
 void qt_span_linear_gradient(int y, int count, QT_FT_Span *spans, void *userData)
 {
     LinearGradientData *data = reinterpret_cast<LinearGradientData *>(userData);
@@ -1982,6 +1971,60 @@ void TextureFillData::init(QRasterBuffer *raster, QImage *image, const QMatrix &
 
     blendFunc = func;
 }
+
+void GradientData::initColorTable()
+{
+    Q_ASSERT(stopCount > 0);
+
+    // The position where the gradient begins and ends
+    int begin_pos = int(stopPoints[0] * GRADIENT_STOPTABLE_SIZE);
+    int end_pos = int(stopPoints[stopCount-1] * GRADIENT_STOPTABLE_SIZE);
+
+    int pos = 0; // The position in the color table.
+
+    // Up to first point
+    while (pos<=begin_pos) {
+        colorTable[pos] = stopColors[0];
+        ++pos;
+    }
+
+    qreal incr = 1 / qreal(GRADIENT_STOPTABLE_SIZE); // the double increment.
+    qreal dpos = incr * pos; // The position in terms of 0-1.
+
+    int current_stop = 0; // We always interpolate between current and current + 1.
+
+    // Gradient area
+    while (pos < end_pos) {
+
+        Q_ASSERT(current_stop < stopCount);
+
+        ARGB current_color = stopColors[current_stop];
+        ARGB next_color = stopColors[current_stop+1];
+
+        qreal dist = (dpos - stopPoints[current_stop])
+                     / (stopPoints[current_stop+1] - stopPoints[current_stop]);
+        qreal idist = 1 - dist;
+
+        colorTable[pos] = ARGB(current_color.a * idist + next_color.a * dist,
+                               current_color.r * idist + next_color.r * dist,
+                               current_color.g * idist + next_color.g * dist,
+                               current_color.b * idist + next_color.b * dist);
+
+        ++pos;
+        dpos += incr;
+
+        if (dpos > stopPoints[current_stop+1]) {
+            ++current_stop;
+        }
+    }
+
+    // After last point
+    while (pos < GRADIENT_STOPTABLE_SIZE) {
+        colorTable[pos] = stopColors[stopCount-1];
+        ++pos;
+    }
+}
+
 
 void LinearGradientData::init()
 {
