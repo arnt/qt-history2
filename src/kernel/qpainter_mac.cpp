@@ -1599,7 +1599,7 @@ void QPainter::drawArc(int x, int y, int w, int h, int a, int alen)
 	transform = CGAffineTransformMakeScale(((float)w)/h, 1);
     float cg_x, cg_y;
     d->cg_mac_point(x, y, &cg_x, &cg_y);
-    float begin_radians = ((float)a/16) * (M_PI/180), end_radians = ((float)(a+alen)/16) * (M_PI/180);
+    float begin_radians = ((float)(a/16)+180) * (M_PI/180), end_radians = ((float)((a+alen)/16)+180) * (M_PI/180);
     CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y + (h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
     CGContextBeginPath((CGContextRef)hd);
     CGContextAddPath((CGContextRef)hd, path);
@@ -1656,7 +1656,7 @@ void QPainter::drawPie(int x, int y, int w, int h, int a, int alen)
 	transform = CGAffineTransformMakeScale(((float)w)/h, 1);
     float cg_x, cg_y;
     d->cg_mac_point(x, y, &cg_x, &cg_y);
-    float begin_radians = ((float)a/16) * (M_PI/180), end_radians = ((float)(a+alen)/16) * (M_PI/180);
+    float begin_radians = ((float)(a/16)+180) * (M_PI/180), end_radians = ((float)((a+alen)/16)+180) * (M_PI/180);
     CGPathMoveToPoint(path, 0, cg_x + (w/2), cg_y + (h/2));
     CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y + (h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
     CGPathAddLineToPoint(path, 0, cg_x + (w/2), cg_y + (h/2));
@@ -1712,7 +1712,7 @@ void QPainter::drawChord(int x, int y, int w, int h, int a, int alen)
 	transform = CGAffineTransformMakeScale(((float)w)/h, 1);
     float cg_x, cg_y;
     d->cg_mac_point(x, y, &cg_x, &cg_y);
-    float begin_radians = ((float)a/16) * (M_PI/180), end_radians = ((float)(a+alen)/16) * (M_PI/180);
+    float begin_radians = ((float)(a/16)+180) * (M_PI/180), end_radians = ((float)((a+alen)/16)+180) * (M_PI/180);
     //We draw twice because the first draw will set the point to the end of arc, and the second pass will draw the line to the first point
     CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y+(h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
     CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y+(h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
