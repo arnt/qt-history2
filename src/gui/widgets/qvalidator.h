@@ -31,7 +31,11 @@ public:
 #endif
     ~QValidator();
 
-    enum State { Invalid, Intermediate, Valid=Intermediate, Acceptable };
+    enum State { Invalid, Intermediate,
+#ifdef QT_COMPAT
+	    Valid = Intermediate,
+#endif
+	    Acceptable };
 
     virtual State validate(QString &, int &) const = 0;
     virtual void fixup(QString &) const;

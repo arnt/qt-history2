@@ -302,7 +302,7 @@ void QCursor::update() const
                 }
             }
 #ifdef QMAC_USE_BIG_CURSOR_API
-        } else if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_DOT_2 && d->bm->width() < 64
+        } else if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_2 && d->bm->width() < 64
                   && d->bm->height() < 64) {
             d->curs.big_cursor_name = (char *)malloc(128);
             static int big_cursor_cnt = 0;
@@ -381,7 +381,7 @@ void QCursor::update() const
         break; }
     case Qt::SplitVCursor: {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-        if(qMacVersion() >= QSysInfo::MV_PANTHER) {
+        if(qMacVersion() >= QSysInfo::MV_10_3) {
             d->type = QCursorData::TYPE_ThemeCursor;
             d->curs.tc.curs = kThemeResizeUpDownCursor;
             break;
@@ -433,7 +433,7 @@ void QCursor::update() const
         break; }
     case Qt::SplitHCursor: {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-        if(qMacVersion() >= QSysInfo::MV_PANTHER) {
+        if(qMacVersion() >= QSysInfo::MV_10_3) {
             d->type = QCursorData::TYPE_ThemeCursor;
             d->curs.tc.curs = kThemeResizeLeftRightCursor;
             break;

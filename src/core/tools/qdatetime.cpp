@@ -795,7 +795,7 @@ QString QDate::toString(Qt::DateFormat f) const
             macGDate.second = 0.0;
             QCFType<CFDateRef> myDate = CFDateCreate(0, CFGregorianDateGetAbsoluteTime(macGDate, 0));
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-            if (QSysInfo::MacintoshVersion > QSysInfo::MV_10_DOT_3) {
+            if (QSysInfo::MacintoshVersion > QSysInfo::MV_10_3) {
                 QCFType<CFLocaleRef> mylocale = CFLocaleCopyCurrent();
                 QCFType<CFDateFormatterRef> myFormatter = CFDateFormatterCreate(kCFAllocatorDefault,
                                                                                 mylocale, kCFDateFormatterLongStyle,
@@ -1485,7 +1485,7 @@ QString QTime::toString(Qt::DateFormat f) const
                                                      CFGregorianDateGetAbsoluteTime(macGDate,
                                                                                     myTz));
 #  if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_DOT_3) {
+            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
 
                 QCFType<CFLocaleRef> mylocale = CFLocaleCopyCurrent();
                 QCFType<CFDateFormatterRef> myFormatter = CFDateFormatterCreate(kCFAllocatorDefault,

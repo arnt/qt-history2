@@ -562,278 +562,6 @@ Qt::KeyboardModifiers QKeyEvent::modifiers() const
 
 
 /*!
-    \enum Qt::Key
-
-    The key names used by Qt.
-
-    \value Key_Escape
-    \value Key_Tab
-    \omitvalue Key_BackTab
-    \value Key_Backtab
-    \value Key_Backspace
-    \omitvalue Key_BackSpace
-    \value Key_Return
-    \value Key_Enter
-    \value Key_Insert
-    \value Key_Delete
-    \value Key_Pause
-    \value Key_Print
-    \value Key_SysReq
-    \value Key_Home
-    \value Key_End
-    \value Key_Left
-    \value Key_Up
-    \value Key_Right
-    \value Key_Down
-    \value Key_PageUp
-    \value Key_Prior
-    \value Key_Next
-    \value Key_PageDown
-    \value Key_Shift
-    \value Key_Control
-    \value Key_Meta
-    \value Key_Alt
-    \value Key_CapsLock
-    \value Key_NumLock
-    \value Key_ScrollLock
-    \value Key_Clear
-    \value Key_F1
-    \value Key_F2
-    \value Key_F3
-    \value Key_F4
-    \value Key_F5
-    \value Key_F6
-    \value Key_F7
-    \value Key_F8
-    \value Key_F9
-    \value Key_F10
-    \value Key_F11
-    \value Key_F12
-    \value Key_F13
-    \value Key_F14
-    \value Key_F15
-    \value Key_F16
-    \value Key_F17
-    \value Key_F18
-    \value Key_F19
-    \value Key_F20
-    \value Key_F21
-    \value Key_F22
-    \value Key_F23
-    \value Key_F24
-    \value Key_F25
-    \value Key_F26
-    \value Key_F27
-    \value Key_F28
-    \value Key_F29
-    \value Key_F30
-    \value Key_F31
-    \value Key_F32
-    \value Key_F33
-    \value Key_F34
-    \value Key_F35
-    \value Key_Super_L
-    \value Key_Super_R
-    \value Key_Menu
-    \value Key_Hyper_L
-    \value Key_Hyper_R
-    \value Key_Help
-    \value Key_Space
-    \value Key_Any
-    \value Key_Exclam
-    \value Key_QuoteDbl
-    \value Key_NumberSign
-    \value Key_Dollar
-    \value Key_Percent
-    \value Key_Ampersand
-    \value Key_Apostrophe
-    \value Key_ParenLeft
-    \value Key_ParenRight
-    \value Key_Asterisk
-    \value Key_Plus
-    \value Key_Comma
-    \value Key_Minus
-    \value Key_Period
-    \value Key_Slash
-    \value Key_0
-    \value Key_1
-    \value Key_2
-    \value Key_3
-    \value Key_4
-    \value Key_5
-    \value Key_6
-    \value Key_7
-    \value Key_8
-    \value Key_9
-    \value Key_Colon
-    \value Key_Semicolon
-    \value Key_Less
-    \value Key_Equal
-    \value Key_Greater
-    \value Key_Question
-    \value Key_At
-    \value Key_A
-    \value Key_B
-    \value Key_C
-    \value Key_D
-    \value Key_E
-    \value Key_F
-    \value Key_G
-    \value Key_H
-    \value Key_I
-    \value Key_J
-    \value Key_K
-    \value Key_L
-    \value Key_M
-    \value Key_N
-    \value Key_O
-    \value Key_P
-    \value Key_Q
-    \value Key_R
-    \value Key_S
-    \value Key_T
-    \value Key_U
-    \value Key_V
-    \value Key_W
-    \value Key_X
-    \value Key_Y
-    \value Key_Z
-    \value Key_BracketLeft
-    \value Key_Backslash
-    \value Key_BracketRight
-    \value Key_AsciiCircum
-    \value Key_Underscore
-    \value Key_QuoteLeft
-    \value Key_BraceLeft
-    \value Key_Bar
-    \value Key_BraceRight
-    \value Key_AsciiTilde
-
-    \value Key_nobreakspace
-    \value Key_exclamdown
-    \value Key_cent
-    \value Key_sterling
-    \value Key_currency
-    \value Key_yen
-    \value Key_brokenbar
-    \value Key_section
-    \value Key_diaeresis
-    \value Key_copyright
-    \value Key_ordfeminine
-    \value Key_guillemotleft
-    \value Key_notsign
-    \value Key_hyphen
-    \value Key_registered
-    \value Key_macron
-    \value Key_degree
-    \value Key_plusminus
-    \value Key_twosuperior
-    \value Key_threesuperior
-    \value Key_acute
-    \value Key_mu
-    \value Key_paragraph
-    \value Key_periodcentered
-    \value Key_cedilla
-    \value Key_onesuperior
-    \value Key_masculine
-    \value Key_guillemotright
-    \value Key_onequarter
-    \value Key_onehalf
-    \value Key_threequarters
-    \value Key_questiondown
-    \value Key_Agrave
-    \value Key_Aacute
-    \value Key_Acircumflex
-    \value Key_Atilde
-    \value Key_Adiaeresis
-    \value Key_Aring
-    \value Key_AE
-    \value Key_Ccedilla
-    \value Key_Egrave
-    \value Key_Eacute
-    \value Key_Ecircumflex
-    \value Key_Ediaeresis
-    \value Key_Igrave
-    \value Key_Iacute
-    \value Key_Icircumflex
-    \value Key_Idiaeresis
-    \value Key_ETH
-    \value Key_Ntilde
-    \value Key_Ograve
-    \value Key_Oacute
-    \value Key_Ocircumflex
-    \value Key_Otilde
-    \value Key_Odiaeresis
-    \value Key_multiply
-    \value Key_Ooblique
-    \value Key_Ugrave
-    \value Key_Uacute
-    \value Key_Ucircumflex
-    \value Key_Udiaeresis
-    \value Key_Yacute
-    \value Key_THORN
-    \value Key_ssharp
-    \value Key_division
-    \value Key_ydiaeresis
-
-    Multimedia keys
-
-    \value Key_Back
-    \value Key_Forward
-    \value Key_Stop
-    \value Key_Refresh
-
-    \value Key_VolumeDown
-    \value Key_VolumeMute
-    \value Key_VolumeUp
-    \value Key_BassBoost
-    \value Key_BassUp
-    \value Key_BassDown
-    \value Key_TrebleUp
-    \value Key_TrebleDown
-
-    \value Key_MediaPlay
-    \value Key_MediaStop
-    \value Key_MediaPrevious
-    \value Key_MediaNext
-    \value Key_MediaRecord
-
-    \value Key_HomePage
-    \value Key_Favorites
-    \value Key_Search
-    \value Key_Standby
-    \value Key_OpenUrl
-
-    \value Key_LaunchMail
-    \value Key_LaunchMedia
-    \value Key_Launch0
-    \value Key_Launch1
-    \value Key_Launch2
-    \value Key_Launch3
-    \value Key_Launch4
-    \value Key_Launch5
-    \value Key_Launch6
-    \value Key_Launch7
-    \value Key_Launch8
-    \value Key_Launch9
-    \value Key_LaunchA
-    \value Key_LaunchB
-    \value Key_LaunchC
-    \value Key_LaunchD
-    \value Key_LaunchE
-    \value Key_LaunchF
-
-    \value Key_MediaLast
-
-    \value Key_unknown
-
-    \omitvalue Key_Direction_L
-    \omitvalue Key_Direction_R
-
-*/
-
-
-/*!
     \class QFocusEvent qevent.h
     \brief The QFocusEvent class contains event parameters for widget focus
     events.
@@ -1786,13 +1514,12 @@ QDragMoveEvent::QDragMoveEvent(const QPoint& pos, const QMimeData *data, Type ty
 */
 
 /*!
-    \fn QDropEvent::QDropEvent (const QPoint &point, Type type)
-
-    Constructs a drop event of a certain \a type corresponding to
-    a drop at the given \a point in a widget.
+    Constructs a drop event of a certain \a type corresponding to a
+    drop at the given \a point in a widget. The drag data is stored
+    in \a data.
 */ // ### pos is in which coordinate system?
-QDropEvent::QDropEvent(const QPoint& pos, const QMimeData *data, Type typ)
-    : QEvent(typ), p(pos), act(0), m_acceptact(0), resv(0), mdata(data)
+QDropEvent::QDropEvent(const QPoint& pos, const QMimeData *data, Type type)
+    : QEvent(type), p(pos), act(0), m_acceptact(0), resv(0), mdata(data)
 { ignore(); }
 
 
@@ -1980,8 +1707,8 @@ QWidget* QDropEvent::source() const
 */
 
 /*!
-    Constructs a QDragEnterEvent that represents a drag entering
-    a widget at the given \a point.
+    Constructs a QDragEnterEvent that represents a drag entering a
+    widget at the given \a point. The drag data is passed as \a data.
 
     \warning Do not create a QDragEnterEvent yourself since these
     objects rely on Qt's internal state.
@@ -2140,7 +1867,7 @@ QFileOpenEvent::QFileOpenEvent(const QString &file)
     shown) of the associated toolbars for the window.
 */
 
-/*
+/*!
     \internal
 
     Construct a QToolBarChangeEvent given the current button state in \a state.

@@ -14,7 +14,7 @@
 #ifndef QICONVIEW_H
 #define QICONVIEW_H
 
-#include "qscrollview.h"
+#include "q3scrollview.h"
 #include "qstring.h"
 #include "qrect.h"
 #include "qpoint.h"
@@ -227,9 +227,9 @@ private:
 
 };
 
-class QIconViewPrivate;          /* don't touch */
+class QIconViewPrivate;
 
-class Q_COMPAT_EXPORT QIconView : public QScrollView
+class Q_COMPAT_EXPORT QIconView : public Q3ScrollView
 {
     friend class QIconViewItem;
     friend class QIconViewPrivate;

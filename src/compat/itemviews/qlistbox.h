@@ -14,7 +14,7 @@
 #ifndef QLISTBOX_H
 #define QLISTBOX_H
 
-#include "qscrollview.h"
+#include "q3scrollview.h"
 #include "qpixmap.h"
 
 #ifndef QT_NO_LISTBOX
@@ -26,7 +26,7 @@ class QString;
 class QStringList;
 
 
-class Q_COMPAT_EXPORT QListBox : public QScrollView
+class Q_COMPAT_EXPORT QListBox : public Q3ScrollView
 {
     friend class QListBoxItem;
     friend class QListBoxPrivate;

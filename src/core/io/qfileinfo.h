@@ -28,12 +28,13 @@ private:
     Q_DECLARE_PRIVATE(QFileInfo)
 public:
 #ifdef QT_COMPAT
-    enum PermissionSpec {
+    enum Permission {
         ReadOwner = QFile::ReadOwner, WriteOwner = QFile::WriteOwner, ExeOwner = QFile::ExeOwner,
         ReadUser  = QFile::ReadUser,  WriteUser  = QFile::WriteUser,  ExeUser  = QFile::ExeUser,
         ReadGroup = QFile::ReadGroup, WriteGroup = QFile::WriteGroup, ExeGroup = QFile::ExeGroup,
         ReadOther = QFile::ReadOther, WriteOther = QFile::WriteOther, ExeOther = QFile::ExeOther
     };
+    Q_DECLARE_FLAGS(PermissionSpec, Permission)
 #endif
 
     QFileInfo();
@@ -45,7 +46,7 @@ public:
     QFileInfo(const QFileInfo &fileinfo);
     ~QFileInfo();
 
-    QFileInfo  &operator=(const QFileInfo &fileinfo);
+    QFileInfo &operator=(const QFileInfo &fileinfo);
     bool operator==(const QFileInfo &fileinfo);
     inline bool operator!=(const QFileInfo &fileinfo) { return !(operator==(fileinfo)); }
 
@@ -121,8 +122,8 @@ public:
 
     bool permission(QFile::Permissions permissions) const;
 #ifdef QT_COMPAT
-    inline QT_COMPAT bool permission(QFileInfo::PermissionSpec permissionSpec) const
-    { return permission(QFile::Permission(permissionSpec)); }
+    inline QT_COMPAT bool permission(PermissionSpec permissions) const
+    { return permission(QFile::Permissions((int)permissions)); }
 #endif
     QFile::Permissions permissions() const;
 
@@ -137,6 +138,10 @@ public:
     bool caching() const;
     void setCaching(bool on);
 };
+
+#ifdef QT_COMPAT
+Q_DECLARE_OPERATORS_FOR_FLAGS(QFileInfo::PermissionSpec)
+#endif
 
 typedef QList<QFileInfo> QFileInfoList;
 

@@ -246,7 +246,7 @@ void QMatrix::setMatrix(double m11, double m12, double m21, double m22,
     \overload
 
     Transforms (\a{x}, \a{y}) to (\c{*}\a{tx}, \c{*}\a{ty}) using the
-    following formulae:
+    following formulas:
 
     \code
         *tx = m11*x + m21*y + dx
@@ -263,7 +263,7 @@ void QMatrix::map(double x, double y, double *tx, double *ty) const
     \overload
 
     Transforms (\a{x}, \a{y}) to (\c{*}\a{tx}, \c{*}\a{ty}) using the
-    following formulae:
+    following formulas:
 
     \code
         *tx = m11*x + m21*y + dx
@@ -278,7 +278,7 @@ void QMatrix::map(float x, float y, float *tx, float *ty) const
 
 
 /*!
-    Transforms (\a{x}, \a{y}) to (\c{*}\a{tx}, \c{*}\a{ty}) using the formulae:
+    Transforms (\a{x}, \a{y}) to (\c{*}\a{tx}, \c{*}\a{ty}) using the formulas:
 
     \code
         *tx = m11*x + m21*y + dx  (rounded to the nearest integer)
@@ -424,7 +424,7 @@ QRectF QMatrix::mapRect(const QRectF &rect) const
 /*!
     \overload
 
-    Transforms \a p to using the formulae:
+    Transforms \a p to using these formulas:
 
     \code
         retx = m11*px + m21*py + dx  (rounded to the nearest integer)
@@ -450,33 +450,33 @@ QPoint QMatrix::map(const QPoint &p) const
 /*!
     \overload
 
-    Transforms \a p to using the formulae:
+    Transforms \a point using these formulas:
 
     \code
         retx = m11*px + m21*py + dx
         rety = m22*py + m12*px + dy
     \endcode
 */
-QPointF QMatrix::map(const QPointF &p) const
+QPointF QMatrix::map(const QPointF &point) const
 {
-    double fx = p.x();
-    double fy = p.y();
+    double fx = point.x();
+    double fy = point.y();
     return QPointF(_m11*fx + _m21*fy + _dx, _m12*fx + _m22*fy + _dy);
 }
 
 /*!
     \overload
 
-    Transforms \a p to using the formulae:
+    Transforms both ends of \a line using these formulas:
 
     \code
-        retx = m11*px + m21*py + dx
-        rety = m22*py + m12*px + dy
+        retx = m11 * px + m21 * py + dx
+        rety = m22 * py + m12 * px + dy
     \endcode
 */
-QLineF QMatrix::map(const QLineF &l) const
+QLineF QMatrix::map(const QLineF &line) const
 {
-    return QLineF(map(l.start()), map(l.end()));
+    return QLineF(map(line.start()), map(line.end()));
 }
 
 /*!
@@ -629,11 +629,16 @@ QRegion QMatrix::map(const QRegion &r) const
     return result;
 }
 
-QPainterPath QMatrix::map(const QPainterPath &p) const
-{
-    QPainterPath copy = p;
+/*
+    \overload
 
-    for (int i=0; i<p.elementCount(); ++i) {
+    Transforms the painter path \a path.
+*/
+QPainterPath QMatrix::map(const QPainterPath &path) const
+{
+    QPainterPath copy = path;
+
+    for (int i=0; i<path.elementCount(); ++i) {
         QPainterPath::Element &e = copy.elements[i];
         float fx = e.x, fy = e.y;
         e.x = _m11*fx + _m21*fy + _dx;
@@ -1072,11 +1077,9 @@ QDebug operator<<(QDebug dbg, const QMatrix &m)
 #endif
 
 /*!
-    \fn QRect QMatrix::map(const QRect &r) const
+    \fn QRect QMatrix::map(const QRect &rect) const
 
     Use mapRect() instead.
 */
 
-
 #endif // QT_NO_WMATRIX
-

@@ -62,7 +62,7 @@ bool Q3WhatsThis::eventFilter(QObject *o, QEvent *e)
 }
 
 /*!
-    This virtual function returns the text for position \e pos in the
+    This virtual function returns the text for position \a pos in the
     widget that this "What's This?" object documents. If there is no
     "What's This?" text for the position, an empty string is returned.
 

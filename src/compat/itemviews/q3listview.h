@@ -204,7 +204,7 @@ private:
 
 class QCheckListItem;
 
-class Q_COMPAT_EXPORT Q3ListView: public QScrollView
+class Q_COMPAT_EXPORT Q3ListView : public Q3ScrollView
 {
     friend class Q3ListViewItemIterator;
     friend class Q3ListViewItem;

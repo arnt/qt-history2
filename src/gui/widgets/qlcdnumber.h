@@ -42,8 +42,11 @@ public:
     QLCDNumber(uint numDigits, QWidget* parent = 0);
     ~QLCDNumber();
 
-    enum Mode { Hex, Dec, Oct, Bin, HEX = Hex, DEC = Dec, OCT = Oct,
-                BIN = Bin };
+    enum Mode { Hex, Dec, Oct, Bin
+#ifdef QT_COMPAT
+	    , HEX = Hex, DEC = Dec, OCT = Oct, BIN = Bin
+#endif
+    };
     enum SegmentStyle { Outline, Filled, Flat };
 
     bool    smallDecimalPoint() const;

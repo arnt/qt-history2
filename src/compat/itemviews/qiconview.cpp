@@ -2200,12 +2200,8 @@ void QIconViewItem::checkRect()
 }
 
 
-/*! \file iconview/simple_dd/main.h */
-/*! \file iconview/simple_dd/main.cpp */
-
-
 /*!
-    \class QIconView qiconview.h
+    \class QIconView
     \brief The QIconView class provides an area with movable labelled icons.
 
     \compat

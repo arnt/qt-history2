@@ -2964,17 +2964,20 @@ bool QApplicationPrivate::qt_mac_apply_settings()
 /*!
     \enum Qt::MacintoshVersion
 
-    \value MV_Unknown Version cannot be detected
-    \value MV_9 Mac OS 9
-    \value MV_10_DOT_3 Mac OS X 10.3
-    \value MV_10_DOT_2 Mac OS X 10.2
-    \value MV_10_DOT_1 Mac OS X 10.1
-    \value MV_10_DOT_0 Mac OS X 10.0
+    \value MV_Unknown  Use QSysInfo::MV_Unknown instead.
+    \value MV_9        Use QSysInfo::MV_9 instead.
+    \value MV_10_DOT_0 Use QSysInfo::MV_10_0 instead.
+    \value MV_10_DOT_1 Use QSysInfo::MV_10_1 instead.
+    \value MV_10_DOT_2 Use QSysInfo::MV_10_2 instead.
+    \value MV_10_DOT_3 Use QSysInfo::MV_10_3 instead.
+    \value MV_10_DOT_3 Use QSysInfo::MV_10_3 instead.
 
-    \value MV_CHEETAH 10.0 Codename
-    \value MV_PUMA    10.1 Codename
-    \value MV_JAGUAR  10.2 Codename
-    \value MV_PANTHER 10.3 Codename
+    \value MV_CHEETAH  Use QSysInfo::MV_10_0 instead.
+    \value MV_PUMA     Use QSysInfo::MV_10_1 instead.
+    \value MV_JAGUAR   Use QSysInfo::MV_10_2 instead.
+    \value MV_PANTHER  Use QSysInfo::MV_10_3 instead.
+    \value MV_TIGER    Use QSysInfo::MV_10_3 instead.
+
+    \sa QSysInfo::MacVersion
 */
 #endif
-

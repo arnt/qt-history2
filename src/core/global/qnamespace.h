@@ -110,7 +110,6 @@ public:
         WheelFocus = StrongFocus | 0x4
     };
 
-    // documented in qlistview.cpp
     enum SortOrder {
         AscendingOrder,
         DescendingOrder
@@ -141,7 +140,7 @@ public:
 
     Q_DECLARE_FLAGS(Alignment, AlignmentFlag)
 
-    enum TextFlags {
+    enum TextFlag {
         TextSingleLine = 0x0080,                // misc. flags
         TextDontClip = 0x0100,
         TextExpandTabs = 0x0200,
@@ -170,6 +169,9 @@ public:
         NoAccel = TextHideMnemonic
 #endif
     };
+#ifdef QT_COMPAT
+    typedef TextFlag TextFlags;
+#endif
 
     // Widget flags; documented in qwidget.cpp
 
@@ -397,8 +399,14 @@ public:
     enum Key {
         Key_Escape = 0x01000000,                // misc keys
         Key_Tab = 0x01000001,
-        Key_Backtab = 0x01000002, Key_BackTab = Key_Backtab,
-        Key_Backspace = 0x01000003, Key_BackSpace = Key_Backspace,
+        Key_Backtab = 0x01000002,
+#ifdef QT_COMPAT
+        Key_BackTab = Key_Backtab,
+#endif
+        Key_Backspace = 0x01000003,
+#ifdef QT_COMPAT
+        Key_BackSpace = Key_Backspace,
+#endif
         Key_Return = 0x01000004,
         Key_Enter = 0x01000005,
         Key_Insert = 0x01000006,
@@ -413,8 +421,14 @@ public:
         Key_Up = 0x01000013,
         Key_Right = 0x01000014,
         Key_Down = 0x01000015,
-        Key_Prior = 0x01000016, Key_PageUp = Key_Prior,
-        Key_Next = 0x01000017, Key_PageDown = Key_Next,
+        Key_PageUp = 0x01000016,
+#ifdef QT_COMPAT
+        Key_Prior = Key_PageUp,
+#endif
+        Key_PageDown = 0x01000017,
+#ifdef QT_COMPAT
+        Key_Next = Key_PageDown,
+#endif
         Key_Shift = 0x01000020,                // modifiers
         Key_Control = 0x01000021,
         Key_Meta = 0x01000022,
@@ -824,47 +838,53 @@ public:
         CustomPattern=24
     };
 
-#if defined(Q_OS_MAC) && defined(QT_COMPAT)
-    // documented in qapplication_mac.cpp
-    enum MacintoshVersion {
+#if defined(QT_COMPAT)
+#if defined(Q_OS_MAC) 
+    typedef int MacintoshVersion;
+
+    enum {
         //Unknown
-        MV_Unknown      = QSysInfo::MV_Unknown,
+        MV_Unknown  = 0x0000,
 
         //Version numbers
-        MV_9            = QSysInfo::MV_9,
-        MV_10_DOT_0     = QSysInfo::MV_10_DOT_0,
-        MV_10_DOT_1     = QSysInfo::MV_10_DOT_1,
-        MV_10_DOT_2     = QSysInfo::MV_10_DOT_2,
-        MV_10_DOT_3     = QSysInfo::MV_10_DOT_3,
+        MV_9        = QSysInfo::MV_9,
+        MV_10_DOT_0 = QSysInfo::MV_10_0,
+        MV_10_DOT_1 = QSysInfo::MV_10_1,
+        MV_10_DOT_2 = QSysInfo::MV_10_2,
+        MV_10_DOT_3 = QSysInfo::MV_10_3,
+        MV_10_DOT_4 = QSysInfo::MV_10_4,
 
         //Code names
-        MV_CHEETAH      = QSysInfo::MV_CHEETAH,
-        MV_PUMA         = QSysInfo::MV_PUMA,
-        MV_JAGUAR       = QSysInfo::MV_JAGUAR,
-        MV_PANTHER      = QSysInfo::MV_PANTHER
+        MV_CHEETAH  = MV_10_DOT_0,
+        MV_PUMA     = MV_10_DOT_1,
+        MV_JAGUAR   = MV_10_DOT_2,
+        MV_PANTHER  = MV_10_DOT_3,
+        MV_TIGER    = MV_10_DOT_4
     };
-#endif
+#endif // Q_OS_MAC
 
-#if defined(Q_OS_WIN) && defined(QT_COMPAT)
-    // documented in qapplication_win.cpp
-    enum WindowsVersion {
-        WV_32s           = QSysInfo::WV_32s,
-        WV_95            = QSysInfo::WV_95,
-        WV_98            = QSysInfo::WV_98,
-        WV_Me            = QSysInfo::WV_Me,
-        WV_DOS_based     = QSysInfo::WV_DOS_based,
+#if defined(Q_OS_WIN)
+    typedef int WindowsVersion;
 
-        WV_NT            = QSysInfo::WV_NT,
-        WV_2000          = QSysInfo::WV_2000,
-        WV_XP            = QSysInfo::WV_XP,
-        WV_2003          = QSysInfo::WV_2003,
-        WV_NT_based      = QSysInfo::WV_NT_based,
+    enum {
+        WV_32s      = QSysInfo::WV_32s,
+        WV_95       = QSysInfo::WV_95,
+        WV_98       = QSysInfo::WV_98,
+        WV_Me       = QSysInfo::WV_Me,
+        WV_DOS_based= QSysInfo::WV_DOS_based,
 
-        WV_CE            = QSysInfo::WV_CE,
-        WV_CENET         = QSysInfo::WV_CENET,
-        WV_CE_based      = QSysInfo::WV_CE_based
+        WV_NT       = QSysInfo::WV_NT,
+        WV_2000     = QSysInfo::WV_2000,
+        WV_XP       = QSysInfo::WV_XP,
+        WV_2003     = QSysInfo::WV_2003,
+        WV_NT_based = QSysInfo::WV_NT_based,
+
+        WV_CE       = QSysInfo::WV_CE,
+        WV_CENET    = QSysInfo::WV_CENET,
+        WV_CE_based = QSysInfo::WV_CE_based
     };
-#endif
+#endif // Q_OS_WIN
+#endif // QT_COMPAT
 
     enum UIEffect {
         UI_General,

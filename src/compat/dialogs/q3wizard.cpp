@@ -24,17 +24,9 @@
 #include "qaccel.h"
 using namespace Qt;
 
-/*! \file wizard/wizard.cpp */
-/*! \file wizard/wizard.h */
-
 /*!
-    \class Q3Wizard qwizard.h
+    \class Q3Wizard
     \brief The Q3Wizard class provides a framework for wizard dialogs.
-
-    \ingroup abstractwidgets
-    \ingroup organizers
-    \ingroup dialogs
-    \mainclass
 
     A wizard is a special type of input dialog that consists of a
     sequence of dialog pages. A wizard's purpose is to walk the user
@@ -69,12 +61,6 @@ using namespace Qt;
     It is generally considered good design to provide a greater number
     of simple pages with fewer choices rather than a smaller number of
     complex pages.
-
-    Example code is available here: \l wizard/wizard.cpp \l wizard/wizard.h
-
-    \img qwizard.png A Q3Wizard page
-    \caption A Q3Wizard page
-
 */
 
 
@@ -133,8 +119,7 @@ public:
     modal and \a f arguments are passed to the QDialog constructor.
 */
 
-Q3Wizard::Q3Wizard( QWidget *parent, const char *name, bool modal,
-		  WFlags f )
+Q3Wizard::Q3Wizard(QWidget *parent, const char *name, bool modal, Qt::WFlags f )
     : QDialog( parent, name, modal, f )
 {
     d = new Q3WizardPrivate();
@@ -215,7 +200,7 @@ void Q3Wizard::show()
 
 
 /*!
-    \reimp
+    \internal
 */
 
 void Q3Wizard::setFont( const QFont & font )
@@ -223,7 +208,6 @@ void Q3Wizard::setFont( const QFont & font )
     QApplication::postEvent( this, new QEvent( QEvent::LayoutHint ) );
     QDialog::setFont( font );
 }
-
 
 /*!
     Adds \a page to the end of the page sequence, with the title, \a
@@ -451,10 +435,10 @@ void Q3Wizard::setHelpEnabled( bool enable )
 
 
 /*!
-  \fn void Q3Wizard::setFinish( QWidget *, bool )
-  \obsolete
+    \fn void Q3Wizard::setFinish(QWidget *widget, bool finish)
+    \obsolete
 
-  Use setFinishEnabled instead
+    Use setFinishEnabled() instead.
 */
 
 /*!
@@ -885,4 +869,3 @@ QWidget* Q3Wizard::page( int index ) const
 
     return d->pages.at( index )->w;
 }
-

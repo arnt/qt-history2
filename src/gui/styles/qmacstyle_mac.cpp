@@ -430,7 +430,7 @@ const ThemeWindowType QtWinType = kThemeUtilityWindow; // Window type we use for
 static inline int qt_mac_hitheme_tab_version()
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
-    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_TIGER)
+    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4)
         return 1;
 #endif
     return 0;
@@ -487,7 +487,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
                                     QAquaWidgetSize sz)
 {
     QSize ret(-1, -1);
-    if(QSysInfo::MacintoshVersion < QSysInfo::MV_PANTHER && sz == QAquaSizeMini)
+    if(QSysInfo::MacintoshVersion < QSysInfo::MV_10_3 && sz == QAquaSizeMini)
         return ret;
 
     if(sz != QAquaSizeSmall && sz != QAquaSizeLarge && sz != QAquaSizeMini) {
@@ -585,7 +585,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
         const QComboBox *cmb = ::qt_cast<const QComboBox *>(widg);
         if (sz == QAquaSizeLarge ||
             (sz != QAquaSizeLarge && cmb && cmb->isEditable()
-             && QSysInfo::MacintoshVersion < QSysInfo::MV_PANTHER)) {
+             && QSysInfo::MacintoshVersion < QSysInfo::MV_10_3)) {
             ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricPopupButtonHeight) + 1);
         } else if (sz == QAquaSizeSmall) {
             ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricSmallPopupButtonHeight) + 1);
@@ -857,7 +857,7 @@ static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *s
             tdi->kind = kThemeMediumSlider;
         break;
     case QAquaSizeMini:
-        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
             if (isScrollbar)
                 tdi->kind = kThemeMiniScrollBar;
             else
@@ -915,7 +915,7 @@ static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *s
         break;
     case QAquaSizeMini:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
             if (isScrollbar)
                 tdi->kind = kThemeMiniScrollBar;
             else
@@ -966,7 +966,7 @@ QMacStylePrivate::QMacStylePrivate(QMacStyle *style)
     : useHITheme(false), timerID(-1), progressFrame(0), aquaFocus(0), q(style)
 {
 #if !defined(QMAC_NO_COREGRAPHICS) && (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER && !qgetenv("QT_MAC_USE_APPMANAGER")
+    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3 && !qgetenv("QT_MAC_USE_APPMANAGER")
 	    && !qgetenv("QT_MAC_USE_QUICKDRAW"))
         useHITheme = true;
 #endif
@@ -1399,7 +1399,7 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
                 break;
             case QAquaSizeMini:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-                if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
                     if (isRadioButton)
                         bdi.kind = kThemeMiniRadioButton;
                     else
@@ -1911,7 +1911,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 break;
             case QAquaSizeMini:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-                if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
                     tdi.kind = !isIndeterminate ? kThemeMiniProgressBar
                                                 : kThemeMiniIndeterminateBar;
                     break;
@@ -2110,7 +2110,7 @@ QRect QMacStylePrivate::HIThemeSubRect(QStyle::SubRect sr, const QStyleOption *o
         r = qt_qrectForHIRect(hirect);
         bool newStyleTabs =
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
-            QSysInfo::MacintoshVersion >= QSysInfo::MV_TIGER ? true :
+            QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4 ? true :
 #endif
             false;
         if (opt->state & QStyle::Style_Bottom)
@@ -2256,7 +2256,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                     case QAquaSizeMini:
                     case QAquaSizeSmall:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-                        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
                             if (aquaSize == QAquaSizeMini)
                                 bdi.kind = kThemeIncDecButtonMini;
                             else
@@ -2322,7 +2322,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                     case QAquaSizeMini:
                     case QAquaSizeSmall:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-                        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
                             if (aSize == QAquaSizeMini)
                                 bdi.kind = kThemeArrowButtonMini;
                             else
@@ -2456,7 +2456,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                 break;
             case QAquaSizeMini:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3) && 0
-                if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
                     bkind = kThemeMiniBevelButton;
                     break;
                 }
@@ -2897,7 +2897,7 @@ void QMacStylePrivate::AppManPolish(QWidget *w)
     }
 #endif
 
-    if(QSysInfo::MacintoshVersion >= QSysInfo::MV_JAGUAR) {
+    if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_2) {
         if(qt_cast<QGroupBox*>(w))
             w->setAttribute(Qt::WA_ContentsPropagated, true);
     }
@@ -3005,7 +3005,7 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
                     break;
                 case QAquaSizeMini:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-                    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
                         if (isRadioButton)
                             bkind = kThemeMiniRadioButton;
                         else
@@ -3530,7 +3530,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                 break;
             case QAquaSizeMini:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-                if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
                     tdi.kind = !isIndeterminate ? kThemeMiniProgressBar : kThemeMiniIndeterminateBar;
                     break;
                 }
@@ -3805,14 +3805,14 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
                 switch (qt_aqua_size_constrain(widget)) {
                 case QAquaSizeMini:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-                    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
                         kind = kThemeIncDecButtonMini;
                         break;
                     }
 #endif
                 case QAquaSizeSmall:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-                    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
                         kind = kThemeIncDecButtonSmall;
                         break;
                     }
@@ -3836,7 +3836,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
                 break;
             case QAquaSizeMini:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3) && 0
-                if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
                     bkind = kThemeMiniBevelButton;
                     break;
                 }
@@ -3915,14 +3915,14 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
                 switch (qt_aqua_size_constrain(widget)) {
                     case QAquaSizeMini:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-                        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
                             bkind = kThemeArrowButtonMini;
                             break;
                         }
 #endif
                     case QAquaSizeSmall:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-                        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
                             bkind = kThemeArrowButtonSmall;
                             break;
                         }
@@ -4466,7 +4466,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
             break;
         case QAquaSizeMini:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
                 GetThemeMetric(kThemeMetricMiniCheckBoxWidth, &ret);
                 break;
             }
@@ -4564,7 +4564,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
             break;
         case QAquaSizeMini:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3) && 0
-            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
                 GetThemeMetric(kThemeMetricMiniScrollBarWidth, &ret);
                 break;
             }
@@ -4585,7 +4585,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
             break;
         case QAquaSizeMini:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
                 GetThemeMetric(kThemeMetricMiniCheckBoxHeight, &ret);
                 break;
             }
@@ -4603,7 +4603,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
             break;
         case QAquaSizeMini:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
                 GetThemeMetric(kThemeMetricMiniCheckBoxWidth, &ret);
                 break;
             }
@@ -4621,7 +4621,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
             break;
         case QAquaSizeMini:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
                 GetThemeMetric(kThemeMetricMiniRadioButtonHeight, &ret);
                 break;
             }
@@ -4639,7 +4639,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
             break;
         case QAquaSizeMini:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
                 GetThemeMetric(kThemeMetricMiniRadioButtonWidth, &ret);
                 break;
             }
@@ -4710,7 +4710,7 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
             ret = QWindowsStyle::styleHint(sh, opt, w, shret);
         break;
     case SH_Menu_FillScreenWithScroll:
-        ret = (QSysInfo::MacintoshVersion < QSysInfo::MV_PANTHER);
+        ret = (QSysInfo::MacintoshVersion < QSysInfo::MV_10_3);
         break;
     case SH_Menu_Scrollable:
         ret = true;
@@ -5063,7 +5063,7 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, cons
     case QStyle::CT_TabBarTab: {
             bool newStyleTabs =
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
-                QSysInfo::MacintoshVersion >= QSysInfo::MV_TIGER ? true :
+                QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4 ? true :
 #endif
                 false;
             if (!newStyleTabs) {
@@ -5077,7 +5077,7 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, cons
                     break;
                 case QAquaSizeMini:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-                    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
                         GetThemeMetric(kThemeMetricMiniTabHeight, &tabh);
                         GetThemeMetric(kThemeMetricMiniTabFrameOverlap, &overlap);
                         break;

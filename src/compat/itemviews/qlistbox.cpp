@@ -771,7 +771,7 @@ int QListBoxPixmap::rtti() const
 */
 
 QListBox::QListBox(QWidget *parent, const char *name, Qt::WFlags f)
-    : QScrollView(parent, name, f | Qt::WStaticContents | Qt::WNoAutoErase)
+    : Q3ScrollView(parent, name, f | Qt::WStaticContents | Qt::WNoAutoErase)
 {
     d = new QListBoxPrivate(this);
     d->updateTimer = new QTimer(this, "listbox update timer");
@@ -2508,8 +2508,7 @@ void QListBox::focusOutEvent(QFocusEvent*)
 */
 bool QListBox::eventFilter(QObject *o, QEvent *e)
 {
-    //### remove in 4.0
-    return QScrollView::eventFilter(o, e);
+    return Q3ScrollView::eventFilter(o, e);
 }
 
 /*!
@@ -2863,7 +2862,7 @@ QSize QListBox::sizeHint() const
 
 QSize QListBox::minimumSizeHint() const
 {
-    return QScrollView::minimumSizeHint();
+    return Q3ScrollView::minimumSizeHint();
 }
 
 
@@ -3797,20 +3796,20 @@ void QListBox::resizeEvent(QResizeEvent *e)
     if (d->rowMode == FixedNumber && d->columnMode == FixedNumber) {
         bool currentItemVisible = itemVisible(currentItem());
         doLayout();
-        QScrollView::resizeEvent(e);
+        Q3ScrollView::resizeEvent(e);
         if (currentItemVisible)
             ensureCurrentVisible();
         if (d->current)
             viewport()->repaint(itemRect(d->current));
     } else if ((d->columnMode == FitToWidth || d->rowMode == FitToHeight) && !(isVisible())) {
-        QScrollView::resizeEvent(e);
+        Q3ScrollView::resizeEvent(e);
     } else if (d->layoutDirty) {
         d->resizeTimer->start(100, true);
         resizeContents(contentsWidth() - (e->oldSize().width() - e->size().width()),
                         contentsHeight() - (e->oldSize().height() - e->size().height()));
-        QScrollView::resizeEvent(e);
+        Q3ScrollView::resizeEvent(e);
     } else {
-        QScrollView::resizeEvent(e);
+        Q3ScrollView::resizeEvent(e);
     }
 }
 
@@ -4404,7 +4403,7 @@ void QListBox::changeEvent(QEvent *ev)
         if (!palette().isEqual(QPalette::Active, QPalette::Inactive))
             viewport()->update();
     }
-    QScrollView::changeEvent(ev);
+    Q3ScrollView::changeEvent(ev);
 
     if (ev->type() == QEvent::ApplicationFontChange || ev->type() == QEvent::FontChange)
         triggerUpdate(true);

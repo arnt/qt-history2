@@ -79,7 +79,7 @@ class QViewportWidget : public QWidget
     Q_OBJECT
 
 public:
-    QViewportWidget(Q3ScrollView* parent=0, const char* name=0, WFlags f = 0)
+    QViewportWidget(Q3ScrollView* parent=0, const char* name=0, Qt::WFlags f = 0)
         : QWidget(parent, name, f) {}
 };
 
@@ -88,7 +88,7 @@ class QClipperWidget : public QWidget
     Q_OBJECT
 
 public:
-    QClipperWidget(QWidget * parent=0, const char * name=0, WFlags f=0)
+    QClipperWidget(QWidget * parent=0, const char * name=0, Qt::WFlags f=0)
         : QWidget (parent,name,f) {}
 };
 
@@ -553,7 +553,7 @@ void Q3ScrollViewData::viewportResized(int w, int h)
     widget flags are propagated to the parent constructor as usual.
 */
 
-Q3ScrollView::Q3ScrollView(QWidget *parent, const char *name, WFlags f) :
+Q3ScrollView::Q3ScrollView(QWidget *parent, const char *name, Qt::WFlags f) :
     Q3Frame(parent, name, f & (~WStaticContents) & (~WNoAutoErase) & (~WResizeNoErase))
 {
     WFlags flags = WResizeNoErase | (f&WPaintClever) | (f&WRepaintNoErase) | (f&WStaticContents);
@@ -580,7 +580,7 @@ Q3ScrollView::Q3ScrollView(QWidget *parent, const char *name, WFlags f) :
     connect(&d->scrollbar_timer, SIGNAL(timeout()),
              this, SLOT(updateScrollBars()));
 
-    setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
+    setFrameStyle(Q3Frame::StyledPanel | Q3Frame::Sunken);
     setLineWidth(style()->pixelMetric(QStyle::PM_DefaultFrameWidth));
     setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 }
@@ -744,7 +744,7 @@ void Q3ScrollView::setVBarGeometry(QScrollBar& vbar,
 /*!
     Returns the viewport size for size (\a x, \a y).
 
-    The viewport size depends on \a (x, y) (the size of the contents),
+    The viewport size depends on (\a x, \a y) (the size of the contents),
     the size of this widget and the modes of the horizontal and
     vertical scroll bars.
 
@@ -1075,7 +1075,7 @@ void Q3ScrollView::show()
 }
 
 /*!
-    \reimp
+    \internal
  */
 void Q3ScrollView::resize(int w, int h)
 {
@@ -1083,7 +1083,7 @@ void Q3ScrollView::resize(int w, int h)
 }
 
 /*!
-    \reimp
+    \internal
 */
 void Q3ScrollView::resize(const QSize& s)
 {
@@ -1095,7 +1095,7 @@ void Q3ScrollView::resize(const QSize& s)
 */
 void Q3ScrollView::resizeEvent(QResizeEvent* event)
 {
-    QFrame::resizeEvent(event);
+    Q3Frame::resizeEvent(event);
 
 #if 0
     if (QApplication::reverseLayout()) {
@@ -1322,11 +1322,11 @@ Q3ScrollView::ResizePolicy Q3ScrollView::resizePolicy() const
 }
 
 /*!
-    \reimp
+    \internal
 */
 void Q3ScrollView::setEnabled(bool enable)
 {
-    QFrame::setEnabled(enable);
+    Q3Frame::setEnabled(enable);
 }
 
 /*!
@@ -1343,11 +1343,11 @@ void Q3ScrollView::removeChild(QWidget* child)
 }
 
 /*!
-    \reimp
+    \internal
 */
 void Q3ScrollView::removeChild(QObject* child)
 {
-    QFrame::removeChild(child);
+    Q3Frame::removeChild(child);
 }
 
 /*!
@@ -1536,7 +1536,7 @@ bool Q3ScrollView::eventFilter(QObject *obj, QEvent *e)
         else if (e->type() == QEvent::Move)
             d->autoMove(this);
     }
-    return QFrame::eventFilter(obj, e);  // always continue with standard event processing
+    return Q3Frame::eventFilter(obj, e);  // always continue with standard event processing
 }
 
 /*!
@@ -1891,7 +1891,7 @@ QScrollBar* Q3ScrollView::verticalScrollBar() const {
 
 
 /*!
-    Scrolls the content so that the point \a (x, y) is visible with at
+    Scrolls the content so that the point (\a x, \a y) is visible with at
     least 50-pixel margins (if possible, otherwise centered).
 */
 void Q3ScrollView::ensureVisible(int x, int y)
@@ -1902,7 +1902,7 @@ void Q3ScrollView::ensureVisible(int x, int y)
 /*!
     \overload
 
-    Scrolls the content so that the point \a (x, y) is visible with at
+    Scrolls the content so that the point (\a x, \a y) is visible with at
     least the \a xmargin and \a ymargin margins (if possible,
     otherwise centered).
 */
@@ -1954,7 +1954,7 @@ void Q3ScrollView::ensureVisible(int x, int y, int xmargin, int ymargin)
 }
 
 /*!
-    Scrolls the content so that the point \a (x, y) is in the top-left
+    Scrolls the content so that the point (\a x, \a y) is in the top-left
     corner.
 */
 void Q3ScrollView::setContentsPos(int x, int y)
@@ -1984,7 +1984,7 @@ void Q3ScrollView::scrollBy(int dx, int dy)
 }
 
 /*!
-    Scrolls the content so that the point \a (x, y) is in the center
+    Scrolls the content so that the point (\a x, \a y) is in the center
     of visible area.
 */
 void Q3ScrollView::center(int x, int y)
@@ -1995,7 +1995,7 @@ void Q3ScrollView::center(int x, int y)
 /*!
     \overload
 
-    Scrolls the content so that the point \a (x, y) is visible with
+    Scrolls the content so that the point (\a x, \a y) is visible with
     the \a xmargin and \a ymargin margins (as fractions of visible
     the area).
 
@@ -2018,13 +2018,13 @@ void Q3ScrollView::center(int x, int y, float xmargin, float ymargin)
     \fn void Q3ScrollView::contentsMoving(int x, int y)
 
     This signal is emitted just before the contents are moved to
-    position \a (x, y).
+    position (\a x, \a y).
 
     \sa contentsX(), contentsY()
 */
 
 /*!
-    Moves the contents by \a (x, y).
+    Moves the contents by (\a x, \a y).
 */
 void Q3ScrollView::moveContents(int x, int y)
 {
@@ -2490,7 +2490,7 @@ bool Q3ScrollView::focusNextPrevChild(bool next)
 {
     //  Makes sure that the new focus widget is on-screen, if
     //  necessary by scrolling the scroll view.
-    bool retval = QFrame::focusNextPrevChild(next);
+    bool retval = Q3Frame::focusNextPrevChild(next);
     if (retval) {
         QWidget *w = topLevelWidget()->focusWidget();
         if (isAncestorOf(w)) {

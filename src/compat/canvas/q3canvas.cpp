@@ -308,12 +308,8 @@ private:
     \class Q3CanvasItemList
     \brief The Q3CanvasItemList class is a list of Q3CanvasItems.
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
-
-    \module canvas
-    \ingroup graphics
-    \ingroup images
 
     Q3CanvasItemList is a Q3ValueList of pointers to \l{Q3CanvasItem}s.
     This class is used by some methods in Q3Canvas that need to return
@@ -429,14 +425,8 @@ static int scm(int a, int b)
     \class Q3Canvas qcanvas.h
     \brief The Q3Canvas class provides a 2D area that can contain Q3CanvasItem objects.
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
-
-    \ingroup abstractwidgets
-    \ingroup graphics
-    \ingroup images
-    \mainclass
-    \module canvas
 
     The Q3Canvas class manages its 2D graphic area and all the canvas
     items the area contains. The canvas has no visual appearance of
@@ -1841,12 +1831,8 @@ class Q3CanvasItemExtra {
     \class Q3CanvasItem qcanvas.h
     \brief The Q3CanvasItem class provides an abstract graphic object on a Q3Canvas.
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
-
-    \module canvas
-    \ingroup graphics
-    \ingroup images
 
     A variety of Q3CanvasItem subclasses provide immediately usable
     behaviour. This class is a pure abstract superclass providing the
@@ -2474,12 +2460,8 @@ static bool collision_double_dispatch(const Q3CanvasSprite* s1,
     \class Q3CanvasSprite qcanvas.h
     \brief The Q3CanvasSprite class provides an animated canvas item on a Q3Canvas.
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
-
-    \module canvas
-    \ingroup graphics
-    \ingroup images
 
     A canvas sprite is an object which can contain any number of images
     (referred to as frames), only one of which is current, i.e.
@@ -2791,12 +2773,8 @@ QRect Q3CanvasItem::boundingRectAdvanced() const
     \class Q3CanvasPixmap qcanvas.h
     \brief The Q3CanvasPixmap class provides pixmaps for Q3CanvasSprites.
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
-
-    \module canvas
-    \ingroup graphics
-    \ingroup images
 
     If you want to show a single pixmap on a Q3Canvas use a
     Q3CanvasSprite with just one pixmap.
@@ -2921,13 +2899,8 @@ Q3CanvasPixmap::~Q3CanvasPixmap()
     \class Q3CanvasPixmapArray qcanvas.h
     \brief The Q3CanvasPixmapArray class provides an array of Q3CanvasPixmaps.
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
-
-    \module canvas
-    \ingroup graphics
-    \ingroup images
-
 
     This class is used by Q3CanvasSprite to hold an array of pixmaps.
     It is used to implement animated sprites, i.e. images that change
@@ -3443,12 +3416,8 @@ void Q3CanvasSprite::draw(QPainter& painter)
     \class Q3CanvasView qcanvas.h
     \brief The Q3CanvasView class provides an on-screen view of a Q3Canvas.
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
-
-    \module canvas
-    \ingroup graphics
-    \ingroup images
 
     A Q3CanvasView is widget which provides a view of a Q3Canvas.
 
@@ -3511,8 +3480,8 @@ void Q3CanvasSprite::draw(QPainter& painter)
     with a canvas, so you must to call setCanvas() to view a
     canvas.
 */
-Q3CanvasView::Q3CanvasView(QWidget* parent, const char* name, WFlags f) :
-    Q3ScrollView(parent,name,f|WResizeNoErase|WStaticContents)
+Q3CanvasView::Q3CanvasView(QWidget* parent, const char* name, Qt::WFlags f)
+    : Q3ScrollView(parent,name,f|WResizeNoErase|WStaticContents)
 {
     d = new Q3CanvasViewData;
     viewport()->setAttribute(Qt::WA_PaintOnScreen);
@@ -3529,8 +3498,8 @@ Q3CanvasView::Q3CanvasView(QWidget* parent, const char* name, WFlags f) :
     Constructs a Q3CanvasView which views canvas \a canvas, with parent
     \a parent, and name \a name, using the widget flags \a f.
 */
-Q3CanvasView::Q3CanvasView(Q3Canvas* canvas, QWidget* parent, const char* name, WFlags f) :
-    Q3ScrollView(parent,name,f|WResizeNoErase|WStaticContents)
+Q3CanvasView::Q3CanvasView(Q3Canvas* canvas, QWidget* parent, const char* name, Qt::WFlags f)
+    : Q3ScrollView(parent,name,f|WResizeNoErase|WStaticContents)
 {
     d = new Q3CanvasViewData;
     viewport()->setAttribute(Qt::WA_PaintOnScreen);
@@ -3709,12 +3678,8 @@ QSize Q3CanvasView::sizeHint() const
     \brief The Q3CanvasPolygonalItem class provides a polygonal canvas item
     on a Q3Canvas.
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
-
-    \module canvas
-    \ingroup graphics
-    \ingroup images
 
     The mostly rectangular classes, such as Q3CanvasSprite and
     Q3CanvasText, use the object's bounding rectangle for movement,
@@ -4104,12 +4069,8 @@ void Q3CanvasPolygonalItem::setBrush(QBrush b)
     \class Q3CanvasPolygon qcanvas.h
     \brief The Q3CanvasPolygon class provides a polygon on a Q3Canvas.
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
-
-    \module canvas
-    \ingroup graphics
-    \ingroup images
 
     Paints a polygon with a QBrush. The polygon's points can be set in
     the constructor or set or changed later using setPoints(). Use
@@ -4197,12 +4158,8 @@ void Q3CanvasPolygon::moveBy(double dx, double dy)
     \class Q3CanvasSpline qcanvas.h
     \brief The Q3CanvasSpline class provides multi-bezier splines on a Q3Canvas.
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
-
-    \module canvas
-    \ingroup graphics
-    \ingroup images
 
     A Q3CanvasSpline is a sequence of 4-point bezier curves joined
     together to make a curved shape.
@@ -4357,12 +4314,8 @@ QPointArray Q3CanvasPolygon::areaPoints() const
     \class Q3CanvasLine qcanvas.h
     \brief The Q3CanvasLine class provides a line on a Q3Canvas.
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
-
-    \module canvas
-    \ingroup graphics
-    \ingroup images
 
     The line inherits functionality from Q3CanvasPolygonalItem, for
     example the setPen() function. The start and end points of the
@@ -4501,12 +4454,8 @@ void Q3CanvasLine::moveBy(double dx, double dy)
     \class Q3CanvasRectangle qcanvas.h
     \brief The Q3CanvasRectangle class provides a rectangle on a Q3Canvas.
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
-
-    \module canvas
-    \ingroup graphics
-    \ingroup images
 
     This item paints a single rectangle which may have any pen() and
     brush(), but may not be tilted/rotated. For rotated rectangles,
@@ -4639,12 +4588,8 @@ void Q3CanvasRectangle::drawShape(QPainter & p)
     \class Q3CanvasEllipse qcanvas.h
     \brief The Q3CanvasEllipse class provides an ellipse or ellipse segment on a Q3Canvas.
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
-
-    \module canvas
-    \ingroup graphics
-    \ingroup images
 
     A canvas item that paints an ellipse or ellipse segment with a QBrush.
     The ellipse's height, width, start angle and angle length can be set
@@ -4823,15 +4768,11 @@ void Q3CanvasEllipse::drawShape(QPainter & p)
 
 
 /*!
-    \class Q3CanvasText qcanvas.h
+    \class Q3CanvasText
     \brief The Q3CanvasText class provides a text object on a Q3Canvas.
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
-
-    \module canvas
-    \ingroup graphics
-    \ingroup images
 
     A canvas text item has text with font, color and alignment
     attributes. The text and font can be set in the constructor or set
@@ -5326,10 +5267,7 @@ void Q3CanvasSprite::advance(int phase)
 
 
 /*!
-  \reimp
-  \internal
-  Moves the sprite to the position \a x, \a y.
-    Keep it visible.
+    \internal
 */
 void Q3CanvasSprite::move(double x, double y) { Q3CanvasItem::move(x,y); }
 
@@ -5373,5 +5311,3 @@ void Q3CanvasPolygonalItem::scanPolygon(const QPointArray& pa, int winding, QPol
     Q3CanvasPolygonScanner scanner(process);
     scanner.scan(pa,winding);
 }
-
-

@@ -1051,23 +1051,13 @@ public:
 #endif
 #ifdef Q_WS_MAC
     enum MacVersion {
-        //Unknown
-        MV_Unknown  = 0x0000,
-
-        //Version numbers
-        MV_9        = 0x0001,
-        MV_10_DOT_0 = 0x0002,
-        MV_10_DOT_1 = 0x0003,
-        MV_10_DOT_2 = 0x0004,
-        MV_10_DOT_3 = 0x0005,
-        MV_10_DOT_4 = 0x0006,
-
-        //Code names
-        MV_CHEETAH  = MV_10_DOT_0,
-        MV_PUMA     = MV_10_DOT_1,
-        MV_JAGUAR   = MV_10_DOT_2,
-        MV_PANTHER  = MV_10_DOT_3,
-        MV_TIGER    = MV_10_DOT_4
+        MV_Unknown = 0x0000,
+        MV_9 = 0x0001,
+        MV_10_0 = 0x0002,
+        MV_10_1 = 0x0003,
+        MV_10_2 = 0x0004,
+        MV_10_3 = 0x0005,
+        MV_10_4 = 0x0006
     };
     static const MacVersion MacintoshVersion;
 #endif

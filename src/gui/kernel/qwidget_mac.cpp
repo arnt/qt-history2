@@ -165,7 +165,7 @@ inline static void qt_mac_set_fullscreen_mode(bool b)
 WindowPtr qt_mac_window_for(HIViewRef hiview)
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-    if(QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER)
+    if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3)
         return HIViewGetWindow(hiview);
 #endif
     return GetControlOwner(hiview);
@@ -220,7 +220,7 @@ static OSStatus qt_mac_create_window(WindowClass wclass, WindowAttributes wattr,
         geo->right++;
     if(geo->bottom == geo->top)
         geo->bottom++;
-    if(QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+    if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
         Rect null_rect; SetRect(&null_rect, 0, 0, 0, 0);
         ret = CreateNewWindow(wclass, wattr, &null_rect, w);
         if(ret == noErr) {
@@ -347,7 +347,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
             if(GetEventParameter(event, kEventParamHIObjectInstance, typeHIObjectRef,
                                  NULL, sizeof(view), NULL, &view) == noErr) {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-                if(QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER)
+                if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3)
                     HIViewChangeFeatures(view, kHIViewAllowsSubviews, 0);
 #endif
             }
@@ -450,7 +450,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
             }
         } else if(ekind == kEventControlInitialize) {
             UInt32 features = kControlSupportsDragAndDrop | kControlSupportsClickActivation;
-            if(QSysInfo::MacintoshVersion < QSysInfo::MV_PANTHER)
+            if(QSysInfo::MacintoshVersion < QSysInfo::MV_10_3)
                 features |= (kControlSupportsEmbedding|kControlSupportsGetRegion);
             SetEventParameter(event, kEventParamControlFeatures, typeUInt32, sizeof(features), &features);
         } else if(ekind == kEventControlGetClickActivation) {
@@ -486,7 +486,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                 if(widget->d->qt_mac_dnd_event(ekind, drag))
                     handled_event = true;
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-                if(QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
                     if(ekind == kEventControlDragEnter)
                         SetEventParameter(event, kEventParamControlWouldAcceptDrop, typeBoolean,
                                           sizeof(handled_event), &handled_event);

@@ -25,105 +25,96 @@
 using namespace Qt;
 
 /*!
-  \class Q3TabDialog qtabdialog.h
+    \class Q3TabDialog
 
-  \brief The Q3TabDialog class provides a stack of tabbed widgets.
+    \brief The Q3TabDialog class provides a stack of tabbed widgets.
 
-  \ingroup dialogs
-  \mainclass
+    A tabbed dialog is one in which several "tab pages" are available.
+    By clicking on a tab page's tab or by pressing the indicated
+    Alt+\e{letter} key combination, the user can select which tab page
+    they want to use.
 
-  A tabbed dialog is one in which several "tab pages" are available.
-  By clicking on a tab page's tab or by pressing the indicated
-  Alt+\e{letter} key combination, the user can select which tab page
-  they want to use.
+    Q3TabDialog provides a tab bar consisting of single row of tabs at
+    the top; each tab has an associated widget which is that tab's
+    tab page. In addition, Q3TabDialog provides an OK button and the
+    following optional buttons: Apply, Cancel, Defaults and Help.
 
-  Q3TabDialog provides a tab bar consisting of single row of tabs at
-  the top; each tab has an associated widget which is that tab's
-  tab page. In addition, Q3TabDialog provides an OK button and the
-  following optional buttons: Apply, Cancel, Defaults and Help.
+    The normal way to use Q3TabDialog is to do the following in the
+    constructor:
+    \list 1
+    \i Create a Q3TabDialog.
+    \i Create a QWidget for each of the pages in the tab dialog, insert
+    children into it, set up geometry management for it, and use
+    addTab() (or insertTab()) to set up a tab and keyboard accelerator
+    for it.
+    \i Set up the buttons for the tab dialog using setOkButton(),
+    setApplyButton(), setDefaultsButton(), setCancelButton() and
+    setHelpButton().
+    \i Connect to the signals and slots.
+    \endlist
 
-  The normal way to use Q3TabDialog is to do the following in the
-  constructor:
-  \list 1
-  \i Create a Q3TabDialog.
-  \i Create a QWidget for each of the pages in the tab dialog, insert
-  children into it, set up geometry management for it, and use
-  addTab() (or insertTab()) to set up a tab and keyboard accelerator
-  for it.
-  \i Set up the buttons for the tab dialog using setOkButton(),
-  setApplyButton(), setDefaultsButton(), setCancelButton() and
-  setHelpButton().
-  \i Connect to the signals and slots.
-  \endlist
+    If you don't call addTab() the page you have created will not be
+    visible. Don't confuse the object name you supply to the
+    QWidget constructor and the tab label you supply to addTab();
+    addTab() takes user-visible name that appears on the widget's tab
+    and may identify an accelerator, whereas the widget name is used
+    primarily for debugging.
 
-  If you don't call addTab() the page you have created will not be
-  visible. Don't confuse the object name you supply to the
-  QWidget constructor and the tab label you supply to addTab();
-  addTab() takes user-visible name that appears on the widget's tab
-  and may identify an accelerator, whereas the widget name is used
-  primarily for debugging.
+    Almost all applications have to connect the applyButtonPressed()
+    signal to something. applyButtonPressed() is emitted when either OK
+    or Apply is clicked, and your slot must copy the dialog's state into
+    the application.
 
-  Almost all applications have to connect the applyButtonPressed()
-  signal to something. applyButtonPressed() is emitted when either OK
-  or Apply is clicked, and your slot must copy the dialog's state into
-  the application.
+    There are also several other signals which may be useful:
+    \list
+    \i cancelButtonPressed() is emitted when the user clicks Cancel.
+    \i defaultButtonPressed() is emitted when the user clicks Defaults;
+    the slot it is connected to should reset the state of the dialog to
+    the application defaults.
+    \i helpButtonPressed() is emitted when the user clicks Help.
+    \i aboutToShow() is emitted at the start of show(); if there is any
+    chance that the state of the application may change between the
+    creation of the tab dialog and the time show() is called, you must
+    connect this signal to a slot that resets the state of the dialog.
+    \i currentChanged() is emitted when the user selects a page.
+    \endlist
 
-  There are also several other signals which may be useful:
-  \list
-  \i cancelButtonPressed() is emitted when the user clicks Cancel.
-  \i defaultButtonPressed() is emitted when the user clicks Defaults;
-  the slot it is connected to should reset the state of the dialog to
-  the application defaults.
-  \i helpButtonPressed() is emitted when the user clicks Help.
-  \i aboutToShow() is emitted at the start of show(); if there is any
-  chance that the state of the application may change between the
-  creation of the tab dialog and the time show() is called, you must
-  connect this signal to a slot that resets the state of the dialog.
-  \i currentChanged() is emitted when the user selects a page.
-  \endlist
+    Each tab is either enabled or disabled at any given time (see
+    setTabEnabled()). If a tab is enabled the tab text is drawn in
+    black and the user can select that tab. If it is disabled the tab
+    is drawn in a different way and the user cannot select that tab.
+    Note that even if a tab is disabled, the page can still be visible;
+    for example, if all of the tabs happen to be disabled.
 
-  Each tab is either enabled or disabled at any given time (see
-  setTabEnabled()). If a tab is enabled the tab text is drawn in
-  black and the user can select that tab. If it is disabled the tab
-  is drawn in a different way and the user cannot select that tab.
-  Note that even if a tab is disabled, the page can still be visible;
-  for example, if all of the tabs happen to be disabled.
+    You can change a tab's label and iconset using changeTab(). A tab
+    page can be removed with removePage() and shown with showPage(). The
+    current page is given by currentPage().
 
-  You can change a tab's label and iconset using changeTab(). A tab
-  page can be removed with removePage() and shown with showPage(). The
-  current page is given by currentPage().
+    Q3TabDialog does not support tabs on the sides or bottom, nor can
+    you set or retrieve the visible page. If you need more functionality
+    than Q3TabDialog provides, consider creating a QDialog and using a
+    QTabBar with QTabWidgets.
 
-  Q3TabDialog does not support tabs on the sides or bottom, nor can
-  you set or retrieve the visible page. If you need more functionality
-  than Q3TabDialog provides, consider creating a QDialog and using a
-  QTabBar with QTabWidgets.
-
-  Most of the functionality in Q3TabDialog is provided by a QTabWidget.
-
-  <img src=qtabdlg-m.png> <img src=qtabdlg-w.png>
-
-  \sa QDialog
+    Most of the functionality in Q3TabDialog is provided by a QTabWidget.
 */
 
 /*!
-  \fn void Q3TabDialog::selected(const QString &);
-  \obsolete
+    \fn void Q3TabDialog::selected(const QString &name)
 
-  This signal is emitted whenever a tab is selected (raised),
-  including during the first show().
+    This signal is emitted whenever a tab is selected (raised),
+    including during the first show(). \a name is the name of the
+    selected tab.
 
-  \sa raise()
+    \sa raise()
 */
 
-/*! \fn void Q3TabDialog::currentChanged(QWidget*);
+/*! \fn void Q3TabDialog::currentChanged(QWidget *widget)
 
-  This signal is emitted whenever the current page changes.
+    This signal is emitted whenever the current page changes. \a widget
+    is the new current page.
 
-  \sa currentPage(), showPage(), tabLabel()
+    \sa currentPage(), showPage(), tabLabel()
 */
-
-
-// add comments about delete, ok and apply
 
 class Q3TabDialogPrivate
 {
@@ -153,8 +144,7 @@ Q3TabDialogPrivate::Q3TabDialogPrivate()
   are passed on to the QDialog constructor.
 */
 
-Q3TabDialog::Q3TabDialog(QWidget *parent, const char *name, bool modal,
-			WFlags f)
+Q3TabDialog::Q3TabDialog(QWidget *parent, const char *name, bool modal, Qt::WFlags f)
     : QDialog(parent, name, modal, f)
 {
     d = new Q3TabDialogPrivate;
@@ -1057,4 +1047,3 @@ void Q3TabDialog::removePage(QWidget * w)
 {
     d->tw->removePage(w);
 }
-

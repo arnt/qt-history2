@@ -75,7 +75,8 @@ public:
     static void setColorSpec(int);
 
 #ifdef QT_COMPAT
-    enum ColorMode { NormalColors = NormalColor, CustomColors = CustomColor };
+    typedef int ColorMode;
+    enum { NormalColors = NormalColor, CustomColors = CustomColor };
     static inline QT_COMPAT ColorMode colorMode() { return static_cast<ColorMode>(colorSpec()); }
     static inline QT_COMPAT void setColorMode(ColorMode mode) { setColorSpec(int(mode)); }
 #endif

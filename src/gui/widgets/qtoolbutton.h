@@ -37,9 +37,11 @@ class Q_GUI_EXPORT QToolButton : public QAbstractButton
 public:
     enum TextPosition {
         BesideIcon,
-        BelowIcon,
-        Right = BesideIcon, // obsolete
-        Under = BelowIcon // obsolete
+        BelowIcon
+#ifdef QT_COMPAT
+        , Right = BesideIcon,
+        Under = BelowIcon
+#endif
     };
     QToolButton(QWidget * parent=0);
 

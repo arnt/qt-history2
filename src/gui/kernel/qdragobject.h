@@ -172,6 +172,8 @@ private:
     Q_DISABLE_COPY(QColorDrag)
 };
 
+#ifdef QT_COMPAT
 typedef QUriDrag QUrlDrag;
+#endif
 
 #endif // QDRAGOBJECT_H
