@@ -242,11 +242,11 @@ must be valid). For example:
     v1[3] = 3;
 
     QValueVector<int> v2(5);
-    v1[0] = 1;
-    v1[2] = 2;
-    v1[3] = 3;
-    v1[4] = 4;
-    v1[5] = 5;
+    v2[0] = 1;
+    v2[2] = 2;
+    v2[3] = 3;
+    v2[4] = 4;
+    v2[5] = 5;
 
     bool b = qEqual( v1.begin(), v2.end(), v2.begin() );
     // b == TRUE
