@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Definition of QThread class
+** Definition of QWaitCondition class
 **
 ** Created : 931107
 **
@@ -35,58 +35,38 @@
 **
 **********************************************************************/
 
-#ifndef QTHREAD_H
-#define QTHREAD_H
+#ifndef QWAITCONDITION_H
+#define QWAITCONDITION_H
+
+#ifndef QT_H
+#include "qglobal.h"
+#endif // QT_H
 
 #if defined(QT_THREAD_SUPPORT)
 
-#ifndef QT_H
-#include "qwindowdefs.h"
-#ifndef QT_NO_COMPAT
-#include "qmutex.h"
-#include "qsemaphore.h"
-#include "qwaitcondition.h"
-#endif
-#endif // QT_H
+#include <limits.h>
 
-class QThreadPrivate;
+class QWaitConditionPrivate;
 
-class Q_EXPORT QThread : public Qt
+class Q_EXPORT QWaitCondition
 {
-    friend class QThreadPrivate;
 public:
-    static Qt::HANDLE currentThread();
-    static void postEvent( QObject *,QEvent * );
-    static void initialize();
-    static void cleanup();
-
-    static void exit();
-
-    QThread();
-    virtual ~QThread();
+    QWaitCondition();
+    virtual ~QWaitCondition();
 
     // default argument causes thread to block indefinately
     bool wait( unsigned long time = ULONG_MAX );
+    bool wait( QMutex *mutex, unsigned long time = ULONG_MAX );
 
-    void start();
-
-    bool finished() const;
-    bool running() const;
-
-
-protected:
-    virtual void run() = 0;
-
-    static void sleep( unsigned long );
-    static void msleep( unsigned long );
-    static void usleep( unsigned long );
+    void wakeOne();
+    void wakeAll();
 
 private:
-    QThreadPrivate * d;
+    QWaitConditionPrivate * d;
 
 #if defined(Q_DISABLE_COPY)
-    QThread( const QThread & );
-    QThread &operator=( const QThread & );
+    QWaitCondition( const QWaitCondition & );
+    QWaitCondition &operator=( const QWaitCondition & );
 #endif
 };
 

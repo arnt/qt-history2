@@ -27,11 +27,15 @@
 **
 **********************************************************************/
 
-#include "qthread.h"
-#include "qt_windows.h"
-
 #if defined(QT_THREAD_SUPPORT)
 
+#include "qthread.h"
+//###
+#include "qmutex.h"
+#include "qsemaphore.h"
+#include "qwaitcondition.h"
+//###
+#include "qt_windows.h"
 #include "qwindowdefs.h"
 #include "qobject.h"
 #include "qapplication.h"

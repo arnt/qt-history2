@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Definition of QThread class
+** Definition of QSemaphore class
 **
 ** Created : 931107
 **
@@ -35,58 +35,41 @@
 **
 **********************************************************************/
 
-#ifndef QTHREAD_H
-#define QTHREAD_H
+#ifndef QSEMAPHORE_H
+#define QSEMAPHORE_H
+
+#ifndef QT_H
+#include "qglobal.h"
+#endif // QT_H
 
 #if defined(QT_THREAD_SUPPORT)
 
-#ifndef QT_H
-#include "qwindowdefs.h"
-#ifndef QT_NO_COMPAT
-#include "qmutex.h"
-#include "qsemaphore.h"
-#include "qwaitcondition.h"
-#endif
-#endif // QT_H
+class QSemaphorePrivate;
 
-class QThreadPrivate;
-
-class Q_EXPORT QThread : public Qt
+class Q_EXPORT QSemaphore
 {
-    friend class QThreadPrivate;
 public:
-    static Qt::HANDLE currentThread();
-    static void postEvent( QObject *,QEvent * );
-    static void initialize();
-    static void cleanup();
+    QSemaphore( int );
+    virtual ~QSemaphore();
 
-    static void exit();
+    int available() const;
+    int total() const;
 
-    QThread();
-    virtual ~QThread();
+    // postfix operators
+    int operator++(int);
+    int operator--(int);
 
-    // default argument causes thread to block indefinately
-    bool wait( unsigned long time = ULONG_MAX );
+    int operator+=(int);
+    int operator-=(int);
 
-    void start();
-
-    bool finished() const;
-    bool running() const;
-
-
-protected:
-    virtual void run() = 0;
-
-    static void sleep( unsigned long );
-    static void msleep( unsigned long );
-    static void usleep( unsigned long );
+    bool tryAccess(int);
 
 private:
-    QThreadPrivate * d;
+    QSemaphorePrivate *d;
 
 #if defined(Q_DISABLE_COPY)
-    QThread( const QThread & );
-    QThread &operator=( const QThread & );
+    QSemaphore(const QSemaphore &);
+    QSemaphore &operator=(const QSemaphore &);
 #endif
 };
 

@@ -60,7 +60,7 @@
 #endif
 
 #if defined(QT_THREAD_SUPPORT)
-#include "qthread.h"
+#include "qmutex.h"
 #endif
 
 #if defined( Q_OS_WIN32 )

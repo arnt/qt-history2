@@ -45,6 +45,11 @@
 #endif
 
 #include "qthread.h"
+//###
+#include "qmutex.h"
+#include "qsemaphore.h"
+#include "qwaitcondition.h"
+//###
 #include "qapplication.h"
 #include "qptrlist.h"
 #include "qintdict.h"
