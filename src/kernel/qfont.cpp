@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#31 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -21,7 +21,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#30 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#31 $";
 #endif
 
 
@@ -719,9 +719,11 @@ static void cleanupFontSubst()			// cleanup substitution dict
 static void initFontSubst()			// create substitution dict
 {
     static const char *initTbl[] = {		// default substitutions
+#if defined(_WS_X11_)
 	"arial",	"helvetica",
 	"helv",		"helvetica",
 	"tms rmn",	"times",
+#endif
 	0,		0
     };
 
