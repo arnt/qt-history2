@@ -548,7 +548,7 @@ QDockWindowTitleBar::QDockWindowTitleBar( QDockWindow *dw )
     setWFlags( getWFlags() | WStyle_Tool );
     ctrlDown = FALSE;
     setMouseTracking( TRUE );
-    setFixedHeight( style().pixelMetric( QStyle::PM_TitleBarHeight, dockWindow ) );
+    setFixedHeight( style().pixelMetric( QStyle::PM_TitleBarHeight, this ) );
     connect( this, SIGNAL(doClose()), dockWindow, SLOT(hide()) );
 }
 
