@@ -16,39 +16,34 @@
 </div><br clear="all"><h1 align=center>The License for the Qt Free Edition</h1>
 <!-- remove all lines starting with less-than to get plaintext version -->
 <p>Included below is the license offered for the Qt Free Edition.  The license
-<!-- -->is called the Qt Public License (or "QPL"), and qualifies as
+<!-- -->is called the Q Public License (or "QPL"), and qualifies as
 <!-- -->an <a href=http://www.opensource.org/osd.html>Open Source license</a>.
 <!-- -->It is thus appropriate for people wishing to write
 <!-- -->software under the <a href=http://www.opensource.org/>Open Source</a>
 <!-- -->model where all source code to
 <!-- -->the software is made available to all users and can be freely
 <!-- -->modified and redistributed.
-<p>The license has features that make it useful for Qt:
+<p>The license has features that make it well suited to Qt:
 <ul>
-<li>Patches are clearly distinct from the original, so you can keep
-<!-- -->applying old patches to new versions of Qt.
-<li>Patches are distributed under a very liberal license, so they can
-<!-- -->be used by Troll Tech in new Qt versions.
-<li>Binaries <em>can</em> have the same name as the original, so
-<!-- -->distributors can make bug-fixes etc. without having to
-<!-- -->change all packages which link to the binary.
+<li>Patches are distinct from the original, making it easier
+<!-- -->to apply old patches to new Qt versions.
+<li>Patches can be incorporated into new Qt versions.
+<li>Binaries <em>can</em> have the same name as the original - important
+<!-- -->for dynamic libraries.
+<li>Anyone can make bug-fixes - important for distributors of systems.
 <li>The Qt Free Edition can be used to
-<!-- -->run commercial software written with the Qt Professional Edition
-<!-- -->without having to install another library or worse, link statically.
+<!-- -->run software written with the Qt Professional Edition.
 </font></i>
-</ul>
-Free software development with the Qt Free Edition is additionally protected
-by the <a href=http://www.troll.no/kde-freeqt/>KDE Free Qt Foundation</a>.
-
+</ul>Free software development with the Qt Free Edition is additionally protected
+<!-- -->by the <a href=http://www.troll.no/kde-freeqt/>KDE Free Qt Foundation</a>.
 <p><b>To develop software with the Qt Free Edition,</b> simply meet
 <!-- -->the requirements in the QPL.
 <!-- -->Your software can be licensed by any license
-<!-- -->that meets the requirements.
-<p>You can also use the license to grant similar freedoms to
-<!-- -->users of your own software, by adding the notice described therein.
+<!-- -->that permits the requirements in section 5.
+</p>
 <hr>
 <h1 align=center>
-			     THE Qt PUBLIC LICENSE
+			     THE Q PUBLIC LICENSE
 <br>
 				  version 0.8
 <br>
@@ -67,8 +62,8 @@ by the <a href=http://www.troll.no/kde-freeqt/>KDE Free Qt Foundation</a>.
 
 <p>
 This license applies to any software containing a notice placed by the
-copyright holder saying it may be distributed under the terms of the Qt
-Public License version 0.8.  Such software is herein referred to as the
+copyright holder saying it may be distributed under the terms of the
+Q Public License version 0.8.  Such software is herein referred to as the
 Software.  This license covers modification and distribution of the
 Software, use of third-party application programs based on the
 Software, and development of free software which uses the Software.  
@@ -78,40 +73,52 @@ Software, and development of free software which uses the Software.
 </h2>
 
 <p>
-You may copy and distribute the Software provided that you accept this
+1. You may copy and distribute the Software provided that you accept this
 license and that the entire package is distributed, including this notice.  
 
 <p>
-You may use the Software to compile, link and run application programs legally
-developed by third parties.
+2. You may distribute machine-executable forms of the Software.
 
 <p>
-You may use the Software to create application programs, reusable
+3. You may distribute machine-executable forms of modified versions
+of the Software, provided the patches used to make the machine-executable
+forms accompany it.
+
+<p>
+4. You may use the Software to compile, link and run application programs
+legally developed by third parties.
+
+<p>
+5. You may use the Software to create application programs, reusable
 components and other software items under the following restrictions: 
 
 <blockquote>
 <p>
-  1. You accept this license.
+  a. You accept this license.
 <p>
-  2. You make your items available in source code form to all users
-      of those items.
+  b. You make your items available in source code form free of charge
+      to all users of those items.  You may charge a reasonable fee for
+      the physical act of transferring a copy.
 <p>
-  3. You explicitly permit your items to be modified and redistributed
-      in original and modified versions without any charge.
+  c. You explicitly permit users of your items to freely modify the
+      source code (possibly with restrictions on copyright notices,
+      attributions and legal responsibility), and freely redistribute
+      original or modified versions of the software. 
 </blockquote>
 
 <p>
-You may make modifications to the Software.  In order to preserve the
-copyright of the unmodified version of the Software, modifications must
+6. You may make modifications to the Software.  In order to preserve the
+integrity of the unmodified version of the Software, modifications must
 be distributed in the form of patches, and the following restrictions
 apply to each patch: 
 
 <blockquote>
 <p>
-  1. The patch must not modify copyright notices in the Software.
+  a. Application of the patch must not modify copyright notices in
+	the Software.
 
 <p>
-  2. The patch must be explicitly licensed by the following clause without
+  b. The patch must be explicitly licensed by the following clause without
 	additional restriction:
 
 <blockquote>
@@ -123,26 +130,18 @@ apply to each patch:
 </blockquote>
 
 <p>
-  3. The patch must include an accurate description
+  c. The patch must include an accurate description
      of the modification and the date of the modification.
 </blockquote>
-
-You may additionally distribute machine-executable forms of the modified
-version of the Software that results mechanically from using the patch
-files.
-
-<p>
-Troll Tech AS may publish new versions of this license, and each new version
-will be given a version number.
 
 <h2 align=center>
 			    Limitations of Liability
 </h2>
 
-In no event shall the authors of the Software or their employers be liable for
-any lost revenue or profits or other direct, indirect, special, incidental or
-consequential damages, even if they have been advised of the possibility of
-such damages.
+In no event shall the authors of the Software or their employers be
+liable for any lost revenue or profits or other direct, indirect,
+special, incidental or consequential damages, even if they have been
+advised of the possibility of such damages.  
 
 <h2 align=center>
 				  No Warranty
