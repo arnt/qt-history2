@@ -61,7 +61,7 @@ class Q_EXPORT QButton : public QWidget
     Q_PROPERTY( bool down READ isDown WRITE setDown DESIGNABLE false  )
     Q_PROPERTY( bool on READ isOn )
     Q_PROPERTY( ToggleState toggleState READ state )
-    Q_PROPERTY( bool autoResize READ autoResize WRITE setAutoResize )
+    Q_PROPERTY( bool autoResize READ autoResize WRITE setAutoResize DESIGNABLE false )
     Q_PROPERTY( bool autoRepeat READ autoRepeat WRITE setAutoRepeat )
     Q_PROPERTY( bool exclusiveToggle READ isExclusiveToggle )
 
@@ -90,8 +90,10 @@ public:
     enum ToggleState { Off, NoChange, On };
     ToggleState	state() const;
 
-    bool	autoResize() const; // obsolete
-    virtual void setAutoResize( bool ); // obsolete
+#ifndef QT_NO_COMPAT
+    bool	autoResize() const;
+    virtual void setAutoResize( bool );
+#endif
 
     bool	autoRepeat() const;
     virtual void setAutoRepeat( bool );
@@ -190,7 +192,8 @@ inline bool QButton::isOn() const
     return stat != Off;
 }
 
-inline bool QButton::autoResize() const // obsolete
+#ifndef QT_NO_COMPAT
+inline bool QButton::autoResize() const
 {
     return autoresize;
 }
@@ -199,6 +202,7 @@ inline bool QButton::autoRepeat() const
 {
     return repeat;
 }
+#endif
 
 inline QButton::ToggleState QButton::state() const
 {
