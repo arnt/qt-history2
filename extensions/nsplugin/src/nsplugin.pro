@@ -1,5 +1,8 @@
 TEMPLATE    =   lib
+CONFIG      =	qt release staticlib dll
 HEADERS     =   qnp.h
 SOURCES     =   qnp.cpp
 TARGET      =   qnp
-VERSION     =   0.1
+DESTINCDIR  =   ../../../include
+DESTDIR     =   ../../../lib
+VERSION     =   0.2
