@@ -891,7 +891,7 @@ void SetupWizardImpl::doFinalIntegration()
     ** Then move to the next page.
     */
     dirName = shell.createFolder( foldersPage->folderPath->text(), common );
-    shell.createShortcut( dirName, common, "Designer", qtDir + "\\bin\\designer.exe", "GUI designer", "", qtDir );
+    shell.createShortcut( dirName, common, "Qt Designer", qtDir + "\\bin\\designer.exe", "GUI designer", "", qtDir );
 #if !defined(EVAL) && !defined(EDU)
     shell.createShortcut( dirName, common, "Reconfigure Qt",
 	    qtDir + "\\bin\\install.exe",
@@ -901,8 +901,8 @@ void SetupWizardImpl::doFinalIntegration()
 #endif
     shell.createShortcut( dirName, common, "License agreement", "notepad.exe", "Review the license agreement", "\"" + qtDir + "\\" LICENSE_DEST "\"" );
     shell.createShortcut( dirName, common, "Readme", "notepad.exe", "Important information", QString( "\"" ) + qtDir + "\\README\"" );
-    shell.createShortcut( dirName, common, "On-line documentation", qtDir + "\\bin\\assistant.exe", "Browse the On-line documentation", "", qtDir );
-    shell.createShortcut( dirName, common, "Linguist", qtDir + "\\bin\\linguist.exe", "Qt translation utility", "", qtDir );
+    shell.createShortcut( dirName, common, "Qt Assistant", qtDir + "\\bin\\assistant.exe", "Browse the On-line documentation", "", qtDir );
+    shell.createShortcut( dirName, common, "Qt Linguist", qtDir + "\\bin\\linguist.exe", "Qt translation utility", "", qtDir );
     shell.createInternetShortcut( dirName, common, "Trolltech.com", "http://www.trolltech.com/" );
 #if defined(EVAL_CD)
     shell.createInternetShortcut( dirName, common, "Register for Support", "http://www.trolltech.com/products/qt/evaluate.html" );
