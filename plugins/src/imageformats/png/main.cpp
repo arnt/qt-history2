@@ -6,7 +6,7 @@
 #ifdef QT_NO_IMAGEIO_PNG
 #undef QT_NO_IMAGEIO_PNG
 #endif
-#include "..\..\..\..\src\kernel\qpngio.cpp"
+#include "../../../../src/kernel/qpngio.cpp"
 
 class PNGFormat : public QImageFormatInterface
 {

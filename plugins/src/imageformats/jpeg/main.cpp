@@ -6,7 +6,7 @@
 #ifdef QT_NO_IMAGEIO_JPEG
 #undef QT_NO_IMAGEIO_JPEG
 #endif
-#include "..\..\..\..\src\kernel\qjpegio.cpp"
+#include "../../../../src/kernel/qjpegio.cpp"
 
 class JPEGFormat : public QImageFormatInterface
 {
