@@ -100,14 +100,27 @@ struct Q_EXPORT QUType
 
 // {DE56510E-4E9F-4b76-A3C2-D1E2EF42F1AC}
 extern Q_EXPORT const QUuid TID_QUType_Null;
-extern Q_EXPORT QUType *pQUType_Null;
+struct Q_EXPORT QUType_Null : public QUType
+{
+    const QUuid *uuid() const;
+    const char *desc() const;
+
+    bool canConvertFrom( QUObject *, QUType * );
+    bool canConvertTo( QUObject *, QUType * );
+    bool convertFrom( QUObject *, QUType * );
+    bool convertTo( QUObject *, QUType * );
+    void clear( QUObject * );
+    int serializeTo( QUObject *, QUBuffer * );
+    int serializeFrom( QUObject *, QUBuffer * );
+};
+extern Q_EXPORT QUType_Null static_QUType_Null;
 
 
 // The magic QUObject
 struct Q_EXPORT QUObject
 {
 public: // scary MSVC bug makes this necessary
-    QUObject() : type( pQUType_Null ) {}
+    QUObject() : type( &static_QUType_Null ) {}
     ~QUObject() { type->clear( this ); }
 
     QUType *type;
@@ -285,7 +298,7 @@ struct Q_EXPORT QUType_enum : public QUType
     int serializeTo( QUObject *, QUBuffer * );
     int serializeFrom( QUObject *, QUBuffer * );
 };
-extern Q_EXPORT QUType_enum *pQUType_enum;
+extern Q_EXPORT QUType_enum static_QUType_enum;
 
 
 // {8AC26448-5AB4-49eb-968C-8F30AB13D732}
@@ -305,7 +318,7 @@ struct Q_EXPORT QUType_ptr : public QUType
     int serializeTo( QUObject *, QUBuffer * );
     int serializeFrom( QUObject *, QUBuffer * );
 };
-extern Q_EXPORT QUType_ptr * pQUType_ptr;
+extern Q_EXPORT QUType_ptr static_QUType_ptr;
 
 // {97A2594D-6496-4402-A11E-55AEF2D4D25C}
 extern Q_EXPORT const QUuid TID_QUType_iface;
@@ -324,7 +337,7 @@ struct Q_EXPORT QUType_iface : public QUType
     int serializeTo( QUObject *, QUBuffer * );
     int serializeFrom( QUObject *, QUBuffer * );
 };
-extern Q_EXPORT QUType_iface * pQUType_iface;
+extern Q_EXPORT QUType_iface static_QUType_iface;
 
 // {2F358164-E28F-4bf4-9FA9-4E0CDCABA50B}
 extern Q_EXPORT const QUuid TID_QUType_idisp;
@@ -343,7 +356,7 @@ struct Q_EXPORT QUType_idisp : public QUType
     int serializeTo( QUObject *, QUBuffer * );
     int serializeFrom( QUObject *, QUBuffer * );
 };
-extern Q_EXPORT QUType_idisp * pQUType_idisp;
+extern Q_EXPORT QUType_idisp static_QUType_idisp;
 
 // {CA42115D-13D0-456c-82B5-FC10187F313E}
 extern Q_EXPORT const QUuid TID_QUType_bool;
@@ -362,7 +375,7 @@ struct Q_EXPORT QUType_bool : public QUType
     int serializeTo( QUObject *, QUBuffer * );
     int serializeFrom( QUObject *, QUBuffer * );
 };
-extern Q_EXPORT QUType_bool * pQUType_bool;
+extern Q_EXPORT QUType_bool static_QUType_bool;
 
 
 // {53C1F3BE-73C3-4c7d-9E05-CCF09EB676B5}
@@ -382,7 +395,7 @@ struct Q_EXPORT QUType_int : public QUType
     int serializeTo( QUObject *, QUBuffer * );
     int serializeFrom( QUObject *, QUBuffer * );
 };
-extern Q_EXPORT QUType_int * pQUType_int;
+extern Q_EXPORT QUType_int static_QUType_int;
 
 
 // {2D0974E5-0BA6-4ec2-8837-C198972CB48C}
@@ -402,7 +415,7 @@ struct Q_EXPORT QUType_double : public QUType
     int serializeTo( QUObject *, QUBuffer * );
     int serializeFrom( QUObject *, QUBuffer * );
 };
-extern Q_EXPORT QUType_double * pQUType_double;
+extern Q_EXPORT QUType_double static_QUType_double;
 
 
 // {EFCDD1D4-77A3-4b8e-8D46-DC14B8D393E9}
@@ -423,7 +436,7 @@ struct Q_EXPORT QUType_charstar : public QUType
     int serializeFrom( QUObject *, QUBuffer * );
 
 };
-extern Q_EXPORT QUType_charstar * pQUType_charstar;
+extern Q_EXPORT QUType_charstar static_QUType_charstar;
 
 
 // {44C2A547-01E7-4e56-8559-35AF9D2F42B7}
@@ -446,7 +459,7 @@ struct Q_EXPORT QUType_QString : public QUType
     int serializeFrom( QUObject *, QUBuffer * );
 
 };
-extern Q_EXPORT QUType_QString * pQUType_QString;
+extern Q_EXPORT QUType_QString static_QUType_QString;
 
 
 #endif // QUCOM_H

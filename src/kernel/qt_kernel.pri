@@ -4,7 +4,7 @@ kernel {
 	KERNEL_P	= kernel
 	HEADERS += $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qaccel.h \
-		  $$KERNEL_H/qucomextra.h \
+		  $$KERNEL_H/qucomextra_p.h \
 		  $$KERNEL_H/qapplication.h \
 		  $$KERNEL_P/qapplication_p.h \
 		  $$KERNEL_H/qasyncimageio.h \

@@ -49,7 +49,6 @@ class QVariant;
 // 6dc75d58-a1d9-4417-b591-d45c63a3a4ea
 extern const QUuid TID_QUType_QVariant;
 
-
 struct Q_EXPORT QUType_QVariant : public QUType
 {
     const QUuid *uuid() const;
@@ -66,7 +65,7 @@ struct Q_EXPORT QUType_QVariant : public QUType
     int serializeTo( QUObject *, QUBuffer * );
     int serializeFrom( QUObject *, QUBuffer * );
 };
-extern Q_EXPORT QUType_QVariant * pQUType_QVariant;
+extern Q_EXPORT QUType_QVariant static_QUType_QVariant;
 #endif //QT_NO_VARIANT
 
 #endif // QUCOMEXTRA_H

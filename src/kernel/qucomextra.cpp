@@ -35,7 +35,7 @@
 **
 **********************************************************************/
 
-#include "qucomextra.h"
+#include "qucomextra_p.h"
 #include <qvariant.h>
 
 

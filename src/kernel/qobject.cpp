@@ -2054,7 +2054,7 @@ void QObject::FNAME( int signal, TYPE param )				      \
     if ( !clist )							      \
 	return;								      \
     QUObject o[2];							      \
-    pQUType_##TYPE->set( o+1, param );					      \
+    static_QUType_##TYPE.set( o+1, param );					      \
     activate_signal( clist, o );					      \
 }
 
@@ -2194,7 +2194,8 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     QMetaObject* meta = metaObject();
     if ( !meta )
 	return FALSE;
-    const QMetaProperty* p = meta->property( meta->findProperty( name, TRUE ), TRUE );
+    int id = meta->findProperty( name, TRUE );
+    const QMetaProperty* p = meta->property( id, TRUE );
     if ( !p || !p->writable() )
 	return FALSE;
 
@@ -2214,13 +2215,13 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	} else if ( v.type() != QVariant::Int && v.type() != QVariant::UInt ) {
 	    return FALSE;
 	}
-	return qt_property( p, 0, &v );
+	return qt_property( id, 0, &v );
     }
 
     QVariant::Type type = QVariant::nameToType( p->type() );
     if ( !v.canCast( type ) )
 	return FALSE;
-    return qt_property( p, 0, &v );
+    return qt_property( id, 0, &v );
 }
 
 /*!
@@ -2241,11 +2242,12 @@ QVariant QObject::property( const char *name ) const
     QMetaObject* meta = metaObject();
     if ( !meta )
 	return v;
-    const QMetaProperty* p = meta->property( meta->findProperty( name, TRUE ), TRUE );
+    int id = meta->findProperty( name, TRUE );
+    const QMetaProperty* p = meta->property( id, TRUE );
     if ( !p )
 	return v;
     QObject* that = (QObject*) this; // moc ensures constness for the qt_property call
-    that->qt_property( p, 1, &v );
+    that->qt_property( id, 1, &v );
     return v;
 }
 

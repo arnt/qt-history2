@@ -44,7 +44,7 @@
 #endif // QT_H
 
 #ifndef Q_MOC_OUTPUT_REVISION
-#define Q_MOC_OUTPUT_REVISION 16
+#define Q_MOC_OUTPUT_REVISION 18
 #endif
 
 class QObject;
@@ -79,9 +79,6 @@ struct QMetaEnum				// enumerator meta data
 class Q_EXPORT QMetaProperty			// property meta data
 {
 public:
-    QMetaProperty();
-    ~QMetaProperty();
-
     const char*	type() const { return t; }	// type of the property
     const char*	name() const { return n; }	// name of the property
 
@@ -103,27 +100,32 @@ public:
 
     bool reset( QObject* ) const;
 
-    const char* t;			//internal
-    const char* n;			//internal
-    int id;				//internal
-    const QMetaProperty* p;		//internal
-    const QMetaEnum *enumData;	// internal
+    const char* t;			// internal
+    const char* n;			// internal
 
     enum Flags  {
+	Invalid		= 0x00000000,
 	Readable		= 0x00000001,
 	Writable		= 0x00000002,
 	EnumOrSet		= 0x00000004,
-	StdSet			= 0x00000100
+	StdSet			= 0x00000100,
+	Override		= 0x00000200
     };
 
-    bool testFlags( uint f ) const;
-    void setFlags( uint f );
-    void copyFlags( uint mask );
-    void clearFlags( uint f );
-
-private:
-    uint flags;
+    uint flags; // internal
+    bool testFlags( uint f ) const;	// internal
+    bool stdSet() const; 		// internal
+    int id() const; 			// internal
+    
+    QMetaObject** meta; 		// internal
+    const QMetaEnum* enumData; 	// internal
+    int _id; 				// internal
+    void clear(); 			// internal
 };
+
+inline bool QMetaProperty::testFlags( uint f ) const 
+{ return (flags & (uint)f) != (uint)0; }
+
 #endif // QT_NO_PROPERTIES
 
 struct QClassInfo				// class info meta data
@@ -177,6 +179,9 @@ public:
 #ifndef QT_NO_PROPERTIES
     const QMetaProperty	*property( int index, bool super = FALSE ) const;
     int findProperty( const char *name, bool super = FALSE ) const;
+    int indexOfProperty( const QMetaProperty*, bool super = FALSE ) const;
+    const QMetaProperty* resolveProperty( const QMetaProperty* ) const;
+    int resolveProperty( int ) const;
     QStrList		propertyNames( bool super = FALSE ) const;
     int		numProperties( bool super = FALSE ) const;
 #endif
@@ -232,23 +237,6 @@ inline int QMetaObject::signalOffset() const
 #ifndef QT_NO_PROPERTIES
 inline int QMetaObject::propertyOffset() const
 { return propertyoffset; }
-
-inline bool QMetaProperty::testFlags( uint f ) const
-{ return (flags & (uint)f) != (uint)0; }
-inline bool QMetaProperty::writable() const
-{ return testFlags( Writable ); }
-inline bool QMetaProperty::isValid() const
-{ return testFlags( Readable ); }
-inline bool QMetaProperty::isSetType() const
-{ return ( enumData != 0 && enumData->set ); }
-inline bool QMetaProperty::isEnumType() const
-{ return ( enumData != 0 ); }
-inline void QMetaProperty::setFlags( uint f )
-{ flags |= f; }
-inline void QMetaProperty::copyFlags( uint mask )
-{ if (p) {flags &= ~mask; flags |= ( p->flags & mask ); }}
-inline void QMetaProperty::clearFlags( uint f )
-{ flags &= ~f; }
 #endif
 
 class Q_EXPORT QMetaObjectCleanUp

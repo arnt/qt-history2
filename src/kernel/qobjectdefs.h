@@ -61,7 +61,7 @@
 
 #ifndef QT_NO_PROPERTIES
 # define QT_PROP_FUNCTIONS \
-    virtual bool qt_property( const QMetaProperty*, int, QVariant* );
+    virtual bool qt_property( int, int, QVariant* );
 #else
 # define QT_PROP_FUNCTIONS
 #endif
@@ -102,6 +102,7 @@ public:									\
          return staticMetaObject();					\
     }									\
     virtual const char *className() const;				\
+    virtual void* qt_cast( const char* ); 				\
     virtual bool qt_invoke( int, QUObject* ); 				\
     virtual bool qt_emit( int, QUObject* ); 				\
     QT_PROP_FUNCTIONS							\

@@ -502,9 +502,21 @@ int	   tmpYYStart2;			// Used to store the lexers current mode
 					//  (if tmpYYStart is already used)
 
 // if the format revision changes, you HAVE to change it in qmetaobject.h too
-const int  formatRevision = 16;		// moc output format revision
+const int  formatRevision = 18;		// moc output format revision
+
+// if the flags change, you HAVE to change it in qmetaobject.h too
+enum Flags  {
+    Invalid		= 0x00000000,
+    Readable		= 0x00000001,
+    Writable		= 0x00000002,
+    EnumOrSet		= 0x00000004,
+    StdSet			= 0x00000100,
+    Override		= 0x00000200
+};
 
 %}
+
+
 
 
 %union {
@@ -995,7 +1007,7 @@ full_class_head:	  class_head
 			;
 
 nested_class_head:	  class_key
-			  qualified_class_name
+			  qualified_class_name 	
 			  opt_base_spec		{ templateClass = templateClassOld; }
 
 ctor_initializer_opt:		/* empty */
@@ -1141,7 +1153,7 @@ opt_semicolons:			/* empty */
 base_spec:		  ':' base_list		{ $$=$2; }
 			;
 
-base_list		: base_list ',' base_specifier
+base_list		: base_list ',' base_specifier  { g->multipleSuperClasses.append( $3 ); }
 			| base_specifier
 			;
 
@@ -1440,7 +1452,8 @@ class parser_reg {
     bool	  mocError;			// moc parsing error occurred
     bool       hasVariantIncluded;	//whether or not qvariant.h was included yet
     QCString  className;				// name of parsed class
-    QCString  superClassName;			// name of super class
+    QCString  superClassName;			// name of first super class
+    QStrList  multipleSuperClasses;			// other superclasses
     FuncList  signals;				// signal interface
     FuncList  slots;				// slots interface
     FuncList  propfuncs;				// all possible property access functions
@@ -1957,6 +1970,7 @@ void initClass()				 // prepare for new class
     g->infos.clear();
     g->qtSets.clear();
     g->qtEnums.clear();
+    g->multipleSuperClasses.clear();
 }
 
 struct NamespaceInfo
@@ -2291,9 +2305,9 @@ void generateFuncs( FuncList *list, const char *functype, int num )
 	    fprintf( out, "    static const QUParameter param_%s_%d[] = {\n", functype, list->at() );
 	    if ( hasReturnValue ) {
 		if ( validUType( f->type ) )
-		    fprintf( out, "\t{ 0, pQUType_%s, %s, QUParameter::Out }", uType(f->type).data(), uTypeExtra(f->type).data() );
+		    fprintf( out, "\t{ 0, &static_QUType_%s, %s, QUParameter::Out }", uType(f->type).data(), uTypeExtra(f->type).data() );
 		else
-		    fprintf( out, "\t{ 0, pQUType_QVariant, %s, QUParameter::Out }", uTypeExtra(f->type).data() );
+		    fprintf( out, "\t{ 0, &static_QUType_QVariant, %s, QUParameter::Out }", uTypeExtra(f->type).data() );
 		if ( !f->args->isEmpty() )
 		    fprintf( out, ",\n" );
 	    }
@@ -2302,11 +2316,11 @@ void generateFuncs( FuncList *list, const char *functype, int num )
 		QCString type = a->leftType + ' ' + a->rightType;
 		type = type.simplifyWhiteSpace();
 		if( a->name.isEmpty() )
-		    fprintf( out, "\t{ 0, pQUType_%s, %s, QUParameter::%s }",
+		    fprintf( out, "\t{ 0, &static_QUType_%s, %s, QUParameter::%s }",
 			     uType( type ).data(), uTypeExtra( type ).data(),
 			     isInOut( type ) ? "InOut" : "In" );
 		else
-		    fprintf( out, "\t{ \"%s\", pQUType_%s, %s, QUParameter::%s }",
+		    fprintf( out, "\t{ \"%s\", &static_QUType_%s, %s, QUParameter::%s }",
 			     a->name.data(), uType( type ).data(), uTypeExtra( type ).data(),
 			     isInOut( type ) ? "InOut" : "In" );
 		a = f->args->next();
@@ -2653,7 +2667,7 @@ int generateProps()
 	}
     }
 
-    
+
     if ( displayWarnings && !Q_OBJECTdetected )
 	moc_err("The declaration of the class \"%s\" contains properties"
 		" but no Q_OBJECT macro.", g->className.data());
@@ -2663,7 +2677,11 @@ int generateProps()
     //
     if ( g->props.count() )   {
 	fprintf( out, "#ifndef QT_NO_PROPERTIES\n" );
+	
+/*	
 	fprintf( out, "    int id = parentObject->propertyOffset() + parentObject->numProperties();\n");
+
+	
 	fprintf( out, "    static QMetaProperty props_tbl[%d]; ", g->props.count() );
 	fprintf( out, "QMetaProperty *p; int e = 0;\n" );
 	for( QPtrListIterator<Property> it( g->props ); it.current(); ++it ) {
@@ -2718,6 +2736,51 @@ int generateProps()
 		}
 	    }
 	}
+	
+*/
+
+	fprintf( out, "    static const QMetaProperty props_tbl[%d] = {\n ", g->props.count() );
+	for( QPtrListIterator<Property> it( g->props ); it.current(); ++it ) {
+
+	    fprintf( out, "\t{ \"%s\",\"%s\", ", it.current()->type.data(), it.current()->name.data() );
+	    int flags = Invalid;
+	    if ( !isVariantType( it.current()->type ) )
+		flags |= EnumOrSet;
+	    if ( it.current()->getfunc )
+		flags |= Readable;
+	    if ( it.current()->setfunc ) {
+		flags |= Writable;
+		if ( it.current()->stdSet() )
+		    flags |= StdSet;
+	    }
+	    if ( it.current()->override )
+		flags |= Override;
+
+	    fprintf( out, "%d, ", flags );
+	    fprintf( out, "&%s::metaObj, ", (const char*) qualifiedClassName() ); 
+	    if ( !isVariantType( it.current()->type ) ) {
+		int enumpos = -1;
+		int k = 0;
+		for( QPtrListIterator<Enum> eit( g->enums ); eit.current(); ++eit, ++k ) {
+		    if ( eit.current()->name == it.current()->type )
+			enumpos = k;
+		}
+
+		// Is it an enum of this class ?
+		if ( enumpos != -1 )
+		    fprintf( out, "&enum_tbl[%i], ", enumpos );
+		else
+		    fprintf( out, "0, ");
+	    } else {
+		fprintf( out, "0, ");
+	    }
+	    fprintf( out, "-1 }" );
+	    if ( !it.atLast() )
+		fprintf( out, ",\n" );
+	    else
+		fprintf( out, "\n" );
+	}
+	fprintf( out, "    };\n" );
 	fprintf( out, "#endif // QT_NO_PROPERTIES\n" );
     }
 
@@ -2809,7 +2872,7 @@ void generateClass()		      // generate C++ source code for a class
 	}
 	fprintf( out, "#include <%sqmetaobject.h>\n", (const char*)g->qtPath );
 	fprintf( out, "#include <%sqapplication.h>\n\n", (const char*)g->qtPath );
-	fprintf( out, "#include <%squcomextra.h>\n", (const char*)g->qtPath );
+	fprintf( out, "#include <%sprivate/qucomextra_p.h>\n", (const char*)g->qtPath );
 	fprintf( out, "#if !defined(Q_MOC_OUTPUT_REVISION) || (Q_MOC_OUTPUT_REVISION != %d)\n", formatRevision );
 	fprintf( out, "#error \"This file was generated using the moc from %s."
 		 " It\"\n#error \"cannot be used with the include files from"
@@ -2849,14 +2912,13 @@ void generateClass()		      // generate C++ source code for a class
 //
 // Generate static cleanup object variable
 //
-    char *cname = strcpy( new char[qualifiedClassName().length()+1],
-			  (const char*)qualifiedClassName() );
-    for ( int cnpos = 0; cnpos < qualifiedClassName().length(); cnpos++ ) {
-	if ( cname[cnpos] == ':' )
-	    cname[cnpos] = '_';
+    QCString cleanup = qualifiedClassName().copy();
+    for ( int cnpos = 0; cnpos < cleanup.length(); cnpos++ ) {
+	if ( cleanup[cnpos] == ':' )
+	    cleanup[cnpos] = '_';
     }
 
-    fprintf( out, "static QMetaObjectCleanUp cleanUp_%s = QMetaObjectCleanUp();\n\n", cname );
+    fprintf( out, "static QMetaObjectCleanUp cleanUp_%s;\n\n", (const char*) cleanup );
 
 //
 // Generate tr and trUtf8 member functions
@@ -2955,15 +3017,30 @@ void generateClass()		      // generate C++ source code for a class
 //
 // Setup cleanup handler and return meta object
 //
-    fprintf( out, "    cleanUp_%s.setMetaObject( metaObj );\n", cname );
-    delete[] cname;
-
+    fprintf( out, "    cleanUp_%s.setMetaObject( metaObj );\n", cleanup.data() );
     fprintf( out, "    return metaObj;\n}\n" );
 
 //
 // End of function staticMetaObject()
 //
 
+//
+// Generate smart cast function
+//
+    fprintf( out, "\nvoid* %s::qt_cast( const char* clname )\n{\n",
+	     (const char*)qualifiedClassName() );
+    fprintf( out, "    if ( !qstrcmp( clname, \"%s\" ) ) return (%s*)this;\n", 
+	     (const char*) qualifiedClassName(), (const char*) qualifiedClassName() );
+    if ( !g->multipleSuperClasses.isEmpty() ) {
+	for ( const char* cname = g->multipleSuperClasses.first(); cname; cname = g->multipleSuperClasses.next() )
+	    fprintf( out, "    if ( !qstrcmp( clname, \"%s\" ) ) return (%s*)this;\n", cname, cname );
+    }
+    if ( !g->superClassName.isEmpty() && !isQObject )
+	fprintf( out, "    return %s::qt_cast( clname );\n",  (const char*)purestSuperClassName() );
+    else
+	fprintf( out, "    return 0;\n" );
+    fprintf( out, "}\n" );
+    
 //
 // Generate internal signal functions
 //
@@ -3042,9 +3119,9 @@ void generateClass()		      // generate C++ source code for a class
 		    type = type.simplifyWhiteSpace();
 		    if ( validUType( type ) ) {
 			QCString utype = uType( type );
-			fprintf( out, "    pQUType_%s->set(o+%d,t%d);\n", utype.data(), offset+1, offset );
+			fprintf( out, "    static_QUType_%s.set(o+%d,t%d);\n", utype.data(), offset+1, offset );
 		    } else {
-			fprintf( out, "    pQUType_ptr->set(o+%d,&t%d);\n", offset+1, offset );
+			fprintf( out, "    static_QUType_ptr.set(o+%d,&t%d);\n", offset+1, offset );
 		    }
 		    a = f->args->next();
 		    offset++;
@@ -3061,7 +3138,7 @@ void generateClass()		      // generate C++ source code for a class
 		    type = type.simplifyWhiteSpace();
 		    if ( validUType( type ) && isInOut( type ) ) {
 			QCString utype = uType( type );
-			fprintf( out, "    t%d = pQUType_%s->get(o+%d);\n", offset, utype.data(), offset+1 );
+			fprintf( out, "    t%d = static_QUType_%s.get(o+%d);\n", offset, utype.data(), offset+1 );
 		    }
 		    a = f->args->next();
 		    offset++;
@@ -3096,11 +3173,11 @@ void generateClass()		      // generate C++ source code for a class
 	    if ( f->type != "void" )  {
 		if (  validUType( f->type )) {
 		    hasReturnValue = TRUE;
-		    fprintf( out, "pQUType_%s->set(_o,", uType(f->type).data() );
+		    fprintf( out, "static_QUType_%s.set(_o,", uType(f->type).data() );
 		} else if ( isVariantType( f->type ) ) {
 		    hasReturnValue = hasVariantReturn = TRUE;
 		    // do not need special handling for bool since this is handled as utype
-		    fprintf( out, "pQUType_QVariant->set(_o,QVariant(" );
+		    fprintf( out, "static_QUType_QVariant.set(_o,QVariant(" );
 		}
 	    }
 	    int offset = 0;
@@ -3112,11 +3189,11 @@ void generateClass()		      // generate C++ source code for a class
 		if ( validUType( type ) ) {
 		    QCString utype = uType( type );
 		    if ( utype == "ptr" || utype == "enum" )
-			fprintf( out, "(%s)pQUType_%s->get(_o+%d)", type.data(), utype.data(), offset+1 );
+			fprintf( out, "(%s)static_QUType_%s.get(_o+%d)", type.data(), utype.data(), offset+1 );
 		    else
-			fprintf( out, "pQUType_%s->get(_o+%d)", utype.data(), offset+1 );
+			fprintf( out, "static_QUType_%s.get(_o+%d)", utype.data(), offset+1 );
 		} else {
-		    fprintf( out, "*((%s*)pQUType_ptr->get(_o+%d))", referencePlainUType( type) .data(), offset+1 );
+		    fprintf( out, "*((%s*)static_QUType_ptr.get(_o+%d))", referencePlainUType( type) .data(), offset+1 );
 		}
 		a = f->args->next();
 		if ( a )
@@ -3134,7 +3211,7 @@ void generateClass()		      // generate C++ source code for a class
 
 	if ( !g->superClassName.isEmpty() && !isQObject ) {
 	    fprintf( out, "\treturn %s::qt_invoke(_id,_o);\n",
-		     (const char *) g->superClassName );
+		     (const char *) purestSuperClassName() );
 	} else {
 	    fprintf( out, "\treturn FALSE;\n" );
 	}
@@ -3168,7 +3245,7 @@ void generateClass()		      // generate C++ source code for a class
 	    bool hasReturnValue = FALSE;
 	    if ( f->type != "void" && validUType( f->type )) {
 		hasReturnValue = TRUE;
-		fprintf( out, "pQUType_%s->set(_o,", uType(f->type).data() );
+		fprintf( out, "static_QUType_%s.set(_o,", uType(f->type).data() );
 	    }
 	    int offset = 0;
 	    fprintf( out, "%s(", f->name.data() );
@@ -3179,11 +3256,11 @@ void generateClass()		      // generate C++ source code for a class
 		if ( validUType( type ) ) {
 		    QCString utype = uType( type );
 		    if ( utype == "ptr" || utype == "enum" )
-			fprintf( out, "(%s)pQUType_%s->get(_o+%d)", type.data(), utype.data(), offset+1 );
+			fprintf( out, "(%s)static_QUType_%s.get(_o+%d)", type.data(), utype.data(), offset+1 );
 		    else
-			fprintf( out, "pQUType_%s->get(_o+%d)", utype.data(), offset+1 );
+			fprintf( out, "static_QUType_%s.get(_o+%d)", utype.data(), offset+1 );
 		} else {
-		    fprintf( out, "*((%s*)pQUType_ptr->get(_o+%d))", referencePlainUType( type) .data(), offset+1 );
+		    fprintf( out, "*((%s*)static_QUType_ptr.get(_o+%d))", referencePlainUType( type) .data(), offset+1 );
 		}
 		a = f->args->next();
 		if ( a )
@@ -3216,11 +3293,13 @@ void generateClass()		      // generate C++ source code for a class
 //
 // Generate internal qt_property()  function
 //
-    fprintf( out, "\nbool %s::qt_property( const QMetaProperty* _p, int _f, QVariant* _v)\n{\n", qualifiedClassName().data() );
+    fprintf( out, "\nbool %s::qt_property( int _id, int _f, QVariant* _v)\n{\n", qualifiedClassName().data() );
 
     if ( !g->props.isEmpty() ) {
-	fprintf( out, "    switch ( _p->id - staticMetaObject()->propertyOffset() ) {\n" );
+	fprintf( out, "    switch ( _id - staticMetaObject()->propertyOffset() ) {\n" );
 	int propindex = -1;
+	bool need_resolve = FALSE;
+	
 	for( QPtrListIterator<Property> it( g->props ); it.current(); ++it ){
 	    propindex ++;
 	    fprintf( out, "    case %d: ", propindex );
@@ -3228,8 +3307,7 @@ void generateClass()		      // generate C++ source code for a class
 	
 	    uint flag_break = 0;
 	    uint flag_propagate = 0;
-	
-	
+	    
 	    if ( it.current()->setfunc ) {
 		fprintf( out, "\tcase 0: %s(", it.current()->setfunc->name.data() );
 		QCString type = it.current()->type.copy(); // detach on purpose
@@ -3300,7 +3378,12 @@ void generateClass()		      // generate C++ source code for a class
 		    if ( flag_propagate & (1 << (i+1) ) )
 			fprintf( out, "case %d: ", i );
 		}
-		fprintf( out, "if (_p->p) return qt_property( _p->p, _f, _v ); return FALSE;\n");
+		if (!g->superClassName.isEmpty() &&  !isQObject ) {
+		    fprintf( out, "goto resolve;\n" );
+		    need_resolve = TRUE;
+		} else {
+		    fprintf( out, "    return FALSE;\n" );
+		}
 	    }
 	    if ( flag_break != 0 ) {
 		fprintf( out, "\t" );
@@ -3315,15 +3398,20 @@ void generateClass()		      // generate C++ source code for a class
 	}
 	fprintf( out, "    default:\n" );
 	if ( !g->superClassName.isEmpty()  && !isQObject )
-	    fprintf( out, "\treturn %s::qt_property( _p, _f, _v );\n",
+	    fprintf( out, "\treturn %s::qt_property( _id, _f, _v );\n",
 		     (const char *) purestSuperClassName() );
 	else
 	    fprintf( out, "\treturn FALSE;\n" );
 	fprintf( out, "    }\n" );
-	fprintf( out, "    return TRUE;\n}\n" );
+	fprintf( out, "    return TRUE;\n" );
+	
+	if ( need_resolve )
+	    fprintf( out, "resolve:\n    return %s::qt_property( staticMetaObject()->resolveProperty(_id), _f, _v );\n", 
+		     (const char *) purestSuperClassName() );
+	fprintf( out, "}\n" );
     } else {
 	if ( !g->superClassName.isEmpty() &&  !isQObject )
-	    fprintf( out, "    return %s::qt_property( _p, _f, _v);\n}\n",
+	    fprintf( out, "    return %s::qt_property( _id, _f, _v);\n}\n",
 		     (const char *) purestSuperClassName() );
 	else
 	    fprintf( out, "    return FALSE;\n}\n" );

@@ -500,8 +500,8 @@ const QMetaProperty* QMetaObject::property( int index, bool super ) const
 
 
 /*!
-  Returns the property meta data for the property with name \a name
-  or 0 if no such property exists.
+  Returns the index for the property with name \a name
+  or -1 if no such property exists.
 
   If \a super is TRUE, inherited properties are included.
 
@@ -519,6 +519,56 @@ int QMetaObject::findProperty( const char *name, bool super ) const
 	return -1;
     return superclass->findProperty( name, super );
 }
+
+/*! \internal
+  
+  Returns the index for the property \a prop
+  or -1 if the property can not be found.
+
+  If \a super is TRUE, inherited properties are included.
+
+  \sa property(), propertyNames()
+*/
+
+int QMetaObject::indexOfProperty( const QMetaProperty* prop, bool super ) const
+{
+    if ( *prop->meta == this )
+	return ( super ? propertyOffset() : 0 ) + ( prop - d->propData);
+    if ( !super || !superclass )
+	return -1;
+    return superclass->indexOfProperty( prop, super );
+}
+
+/*!\internal
+  
+  Returns the parent property of property \a p or 0, if the property
+  cannot be resolved.
+  
+  \a p has to be contained in this meta object
+*/
+
+const QMetaProperty* QMetaObject::resolveProperty( const QMetaProperty* p ) const
+{
+    if ( !superclass )
+	return 0;
+    return superclass->property( superclass->findProperty( p->n, TRUE ), TRUE );
+}
+
+/*!\internal
+  
+  \overload
+  
+  The veresion of resolveProperty that is used by moc generated code
+*/
+
+int QMetaObject::resolveProperty( int index ) const 
+{
+    if ( !superclass )
+	return -1;
+    const QMetaProperty* p = d->propData + ( index - propertyOffset() );
+    return superclass->findProperty( p->n, TRUE );
+}
+
 
 /*!
   Returns a list with the names of all properties for this class.
@@ -652,9 +702,14 @@ QMetaObject *QMetaObject::metaObject( const char *class_name )
 QStrList QMetaProperty::enumKeys() const
 {
      QStrList l( FALSE );
-     if ( enumData != 0 ) {
-	 for( uint i = 0; i < enumData->count; ++i )
-	     l.append( enumData->items[i].key );
+     const QMetaEnum* ed = enumData;
+     if ( !enumData && meta )
+	 ed = (*meta)->enumerator( t, TRUE );
+     if ( !ed )
+	 return l;
+     if ( ed != 0 ) {
+	 for( uint i = 0; i < ed->count; ++i )
+	     l.append( ed->items[i].key );
      }
      return l;
 }
@@ -669,12 +724,14 @@ QStrList QMetaProperty::enumKeys() const
  */
 int QMetaProperty::keyToValue( const char* key ) const
 {
-    if ( !isEnumType() )
+    const QMetaEnum* ed = enumData;
+     if ( !enumData && meta )
+	 ed = (*meta)->enumerator( t, TRUE );
+    if ( !ed )
 	return -1;
-
-    for( uint i = enumData->count; i > 0; --i ) {
-	if ( !qstrcmp( key, enumData->items[i-1].key) )
-	    return enumData->items[i-1].value;
+    for( uint i = ed->count; i > 0; --i ) {
+	if ( !qstrcmp( key, ed->items[i-1].key) )
+	    return ed->items[i-1].value;
     }
     return -1;
 }
@@ -688,12 +745,14 @@ int QMetaProperty::keyToValue( const char* key ) const
  */
 const char* QMetaProperty::valueToKey( int value ) const
 {
-    if ( !isEnumType() )
+    const QMetaEnum* ed = enumData;
+     if ( !enumData && meta )
+	 ed = (*meta)->enumerator( t, TRUE );
+    if ( !ed )
 	return 0;
-
-    for( uint i = enumData->count; i > 0; --i ) {
-	if ( value == enumData->items[i-1].value )
-	    return enumData->items[i-1].key ;
+    for( uint i = ed->count; i > 0; --i ) {
+	if ( value == ed->items[i-1].value )
+	    return ed->items[i-1].key ;
     }
     return 0;
 }
@@ -706,12 +765,19 @@ const char* QMetaProperty::valueToKey( int value ) const
  */
 int QMetaProperty::keysToValue( const QStrList& keys ) const
 {
-    if ( !isEnumType() )
+    const QMetaEnum* ed = enumData;
+     if ( !enumData && meta )
+	 ed = (*meta)->enumerator( t, TRUE );
+    if ( !ed )
 	return -1;
-
     int value = 0;
     for ( QStrListIterator it( keys ); it.current(); ++it ) {
-	value |= keyToValue( it.current() );
+	
+	for( uint i = ed->count; i > 0; --i ) {
+	    if ( !qstrcmp( it.current(), ed->items[i-1].key) )
+		return value |= ed->items[i-1].value;
+	}
+	value |= -1;
     }
     return value;
 }
@@ -724,39 +790,81 @@ int QMetaProperty::keysToValue( const QStrList& keys ) const
 QStrList QMetaProperty::valueToKeys( int value ) const
 {
     QStrList keys;
-
-    if ( !isEnumType() )
+    const QMetaEnum* ed = enumData;
+     if ( !enumData && meta )
+	 ed = (*meta)->enumerator( t, TRUE );
+    if ( !ed )
 	return keys;
 
-    for( uint i = enumData->count; i > 0; --i ) {
-	int k = enumData->items[i-1].value;
+    for( uint i = ed->count; i > 0; --i ) {
+	int k = ed->items[i-1].value;
 	if ( (value & k) == k ) {
 	    value = value & ~k;
-	    keys.append( enumData->items[i-1].key );
+	    keys.append( ed->items[i-1].key );
 	}
     }
     return keys;
 }
 
-
-
-/*! \internal
-
-  Constructs a meta property.
- */
-QMetaProperty::QMetaProperty()
-    :t(0),n(0),id(-1),p(0),
-     enumData(0),flags(0)
-{
+bool QMetaProperty::writable() const
+{ 
+    if ( !testFlags( Override ) || testFlags( Writable ) )
+	return testFlags( Writable ); 
+    const QMetaObject* mo = (*meta);
+    const QMetaProperty* parent = mo->resolveProperty( this );
+    return parent->writable();
 }
 
-/*! \internal
-
-  Destroys a meta property.
+/*!\internal
  */
-QMetaProperty::~QMetaProperty()
+bool QMetaProperty::stdSet() const 
 {
+    if ( !testFlags( Override ) || testFlags( Writable ) )
+	return testFlags( StdSet ); 
+    const QMetaObject* mo = (*meta);
+    const QMetaProperty* parent = mo->resolveProperty( this );
+    return parent->stdSet();
 }
+
+/*!\internal
+ */
+int QMetaProperty::id() const
+{
+    return _id < 0 ? (*meta)->indexOfProperty( this, TRUE ) : _id;
+}
+
+void QMetaProperty::clear()
+{
+    t = n = 0;
+    meta = 0;
+    enumData = 0;
+    _id = -1;
+    flags = 0;
+}
+
+bool QMetaProperty::isValid() const
+{ 
+    if ( !testFlags( Override ) || testFlags( Readable ) )
+	return testFlags( Readable );
+    const QMetaObject* mo = (*meta);
+    const QMetaProperty* parent = mo->resolveProperty( this );
+    return parent->isValid();
+}
+
+bool QMetaProperty::isSetType() const
+{ 
+    const QMetaEnum* ed = enumData;
+     if ( !enumData && meta )
+	 ed = (*meta)->enumerator( t, TRUE );
+    return ( ed != 0 && ed->set );
+}
+
+bool QMetaProperty::isEnumType() const
+{ 
+    return testFlags( EnumOrSet );
+}
+
+
 
 /*! \fn const char* QMetaProperty::type() const
 
@@ -821,9 +929,12 @@ QMetaProperty::~QMetaProperty()
  */
 bool QMetaProperty::designable( QObject* o ) const
 {
-    if ( !o || !testFlags( Readable) || !testFlags(Writable) )
+    if ( !o || !isValid() || !writable() )
 	return FALSE;
-    return o->qt_property( this, 3, 0 );
+    int idx = _id >= 0 ? _id : (*meta)->indexOfProperty( this, TRUE );
+    if ( idx < 0 )
+	return 0;
+    return o->qt_property( idx, 3, 0 );
 }
 
 /*!
@@ -832,7 +943,12 @@ bool QMetaProperty::designable( QObject* o ) const
  */
 bool QMetaProperty::scriptable( QObject* o ) const
 {
-    return o->qt_property( this, 4, 0 );
+    if ( !o )
+	return FALSE;
+    int idx = _id >= 0 ? _id : (*meta)->indexOfProperty( this, TRUE );
+    if ( idx < 0 )
+	return 0;
+    return o->qt_property( idx, 4, 0 );
 }
 
 /*!
@@ -841,9 +957,12 @@ bool QMetaProperty::scriptable( QObject* o ) const
  */
 bool QMetaProperty::stored( QObject* o ) const
 {
-    if ( !o || !testFlags( Writable ) || !testFlags( Readable ) )
+    if ( !o || !isValid() || !writable() )
 	return FALSE;
-    return o->qt_property( this, 5, 0 );
+    int idx = _id >= 0 ? _id : (*meta)->indexOfProperty( this, TRUE );
+    if ( idx < 0 )
+	return 0;
+    return o->qt_property( idx, 5, 0 );
 }
 
 
@@ -856,8 +975,14 @@ bool QMetaProperty::stored( QObject* o ) const
  */
 bool QMetaProperty::reset( QObject* o ) const
 {
-    return o->qt_property( this, 2, 0 );
+    if ( !o )
+	return FALSE;
+    int idx = _id >= 0 ? _id : (*meta)->indexOfProperty( this, TRUE );
+    if ( idx < 0 )
+	return 0;
+    return o->qt_property( idx, 2, 0 );
 }
+
 
 /*! \enum QMetaProperty::Flags
 
