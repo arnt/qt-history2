@@ -1272,9 +1272,9 @@ void QMacStylePrivate::HIThemePolish(QWidget *w)
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     addWidget(w);
-    QPixmap px(0, 0, 32);
+    QPixmap px;
     if (qt_mac_is_metal(w)) {
-        px.resize(200, 200);
+        px = QPixmap(200, 200);
         HIThemeBackgroundDrawInfo bginfo;
         bginfo.version = qt_mac_hitheme_version;
         bginfo.state = kThemeStateActive;
@@ -1285,7 +1285,7 @@ void QMacStylePrivate::HIThemePolish(QWidget *w)
     }
 
     if (::qobject_cast<QMenu*>(w)) {
-        px.resize(200, 200);
+        px = QPixmap(200, 200);
         HIThemeMenuDrawInfo mtinfo;
         mtinfo.version = qt_mac_hitheme_version;
         mtinfo.menuType = kThemeMenuTypePopUp;
@@ -1390,7 +1390,6 @@ void QMacStylePrivate::HIThemeDrawColorlessButton(const HIRect &macRect,
                                                      const HIThemeButtonDrawInfo &bdi,
                                                      QPainter *p, const QStyleOption *opt) const
 {
-
     int xoff = 0,
         yoff = 0,
         extraWidth = 0,
@@ -1445,7 +1444,7 @@ void QMacStylePrivate::HIThemeDrawColorlessButton(const HIRect &macRect,
         img.setAlphaBuffer(true);
         free(data);
 
-        pm = img;
+        pm = QPixmap::fromImage(img);
         QPixmapCache::insert(key, pm);
     }
     p->drawPixmap(int(macRect.origin.x), int(macRect.origin.y) + finalyoff, width, height, pm);
@@ -2380,6 +2379,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
             HIThemeButtonDrawInfo bdi;
             bdi.version = qt_mac_hitheme_version;
             bdi.adornment = kThemeAdornmentArrowLeftArrow;
+            bdi.value = kThemeButtonOff;
             bool hasFocus = combo->state & QStyle::State_HasFocus;
             if (hasFocus)
                 bdi.adornment = kThemeAdornmentFocus;
@@ -3376,7 +3376,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                         for (int x = 0; x < img.bytesPerLine(); ++x)
                             *(bytes + x) = 255 - (((255 - *(bytes + x)) * (128 - (frame<<2))) >> 7);
                     }
-                    buffer = img;
+                    buffer = QPixmap::fromImage(img);
                     QBitmap qmask(mask_out);
                     buffer.setMask(qmask);
                 }
@@ -4967,14 +4967,14 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
                     img_mask.setPixel(x, y, diff > 100);
                 }
             }
-            QBitmap qmask;
-            qmask = img_mask;
+            QBitmap qmask = QBitmap::fromImage(img_mask);
             mask->region = QRegion(qmask);
         }
         break; }
     case SH_RubberBand_Mask:
         ret = 0;
         break;
+
     default:
         ret = QWindowsStyle::styleHint(sh, opt, w, hret);
         break;
