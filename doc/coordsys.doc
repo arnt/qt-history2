@@ -163,7 +163,7 @@ We set the model coordinate system we want a 1000*1000 window where
 0,0 is in the middle.
 
 \printline viewport
-\printline QMIN
+\printline qMin
 
 The device may not be square and we want the clock to be, so we find
 its current viewport and compute its shortest side.

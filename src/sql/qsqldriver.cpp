@@ -46,8 +46,7 @@ inline QSqlDriverPrivate::QSqlDriverPrivate(QSqlDriver* d)
 */
 
 /*!
-    Default constructor. Creates a new driver with parent \a parent,
-    called \a name.
+    Default constructor. Creates a new driver with parent \a parent.
 
 */
 

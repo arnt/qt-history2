@@ -1318,8 +1318,15 @@ QFont QFont::resolve( const QFont &other ) const
     return font;
 }
 
-/*!\internal \fn uint QFont::resolve() const */
-/*!\internal \fn void QFont::resolve(uint mask) */
+/*!
+    \fn uint QFont::resolve() const
+    \internal
+*/
+
+/*!
+    \fn void QFont::resolve(uint mask)
+    \internal
+*/
 
 #ifdef QT_COMPAT
 

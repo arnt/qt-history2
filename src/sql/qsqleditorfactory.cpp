@@ -47,8 +47,7 @@
 
 
 /*!
-    Constructs a SQL editor factory with parent \a parent, called \a
-    name.
+    Constructs a SQL editor factory with parent \a parent.
 */
 
 QSqlEditorFactory::QSqlEditorFactory (QObject * parent)

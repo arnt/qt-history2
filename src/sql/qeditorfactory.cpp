@@ -43,7 +43,7 @@
 */
 
 /*!
-    Constructs an editor factory with parent \a parent, called \a name.
+    Constructs an editor factory with parent \a parent.
 */
 
 QEditorFactory::QEditorFactory (QObject * parent)

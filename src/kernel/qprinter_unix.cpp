@@ -282,13 +282,12 @@ static void closeAllOpenFds()
 	::close( i );
 }
 
+// ### port
+#if 0
 /*!
   \internal
   Handles painter commands to the printer.
 */
-
-// ### port
-#if 0
 bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 {
     if ( c ==  PdcBegin ) {

@@ -61,12 +61,12 @@
 */
 
 
+QBrush::QBrushData *QBrush::shared_default = 0;
+
 /*!
   \internal
   Initializes the brush.
 */
-
-QBrush::QBrushData *QBrush::shared_default = 0;
 
 void QBrush::init(const QColor &color, BrushStyle style)
 {

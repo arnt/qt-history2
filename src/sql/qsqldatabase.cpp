@@ -541,8 +541,8 @@ QSqlDatabase::QSqlDatabase(const QString &type, const QString &name, QObject *pa
 /*!
     \overload
 
-     Creates a database connection using the driver \a driver, with
-     the parent \a parent and the object name \a objname.
+     Creates a database connection using the driver \a driver and with
+     the parent \a parent.
 
      \warning The framework takes ownership of the \a driver pointer,
      so it should not be deleted.

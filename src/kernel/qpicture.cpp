@@ -647,13 +647,13 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 }
 
 
+
+
+#if 0 // ### port
 /*!
   \internal
   Records painter commands and stores them in the pictb buffer.
 */
-
-
-#if 0 // ### port
 bool QPicture::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 {
     detach();
@@ -661,12 +661,11 @@ bool QPicture::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 }
 #endif // 0
 
+#if 0 // ### port
 /*!
   \internal
   Implementation of the function forwarded above to the internal data struct.
 */
-
-#if 0 // ### port
 bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 {
     QDataStream s;
