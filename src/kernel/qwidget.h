@@ -456,7 +456,6 @@ protected:
     virtual bool macEvent( MSG * );		// Macintosh event
     uint    own_id : 1; //owns the winid
     int back_type;                              // Type of background
-    QPixmap * bg_pix;
 
     //mac event functions
     void propagateUpdates();

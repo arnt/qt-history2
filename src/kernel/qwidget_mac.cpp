@@ -178,7 +178,6 @@ OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHandle,
 //FIXME Documentation on Quartz, where is it?
 void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  )
 {
-    bg_pix = 0;
     own_id = 0;
     WId root_win = qt_root_win();
     WId destroyw = 0;
@@ -1265,8 +1264,6 @@ int QWidget::metric( int m ) const
 
 void QWidget::createSysExtra()
 {
-    //do we really need this? Will this need to go back when it crashes again? These are the questions..
-//    font().handle(); // force QFont::load call
     extra->child_dirty = extra->clip_dirty = TRUE;
     extra->macDndExtra = 0;
 }
