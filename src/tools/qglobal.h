@@ -70,7 +70,7 @@
      DYNIX  - DYNIX/ptx
      RELIANT	 - Reliant UNIX
      QNX	  - QNX
-	QNX6   - QNX RTP 6.1
+     QNX6   - QNX RTP 6.1
      LYNX	  - LynxOS
      BSD4	  - Any BSD 4.4 system
      UNIX	  - Any UNIX BSD/SYSV system
