@@ -6664,13 +6664,11 @@ void QListView::selectRange( QListViewItem *from, QListViewItem *to, bool invert
 }
 
 /*!
-
-  Finds the first list view item in column \a column, that matches
-  \a text and returns it, or returns 0 of no such item could be found.
-  If ComparisonFlags are specified in \a compare then these flags are
-  used, otherwise the default is a case-sensitive, exact match search.
-  ComparisonFlags is currently an unsigned integer that should contain a
-  binary ored set of \l Qt::StringComparisonMode values.
+  Finds the first list view item in column \a column, that matches \a
+  text and returns the item, or returns 0 of no such item could be
+  found. Pass OR-ed together \l Qt::StringComparisonMode values in the
+  \a compare flag, to control how the matching is performed. The
+  default comparison mode is case-sensitive, exact match.
 */
 
 QListViewItem *QListView::findItem( const QString& text, int column, ComparisonFlags compare ) const

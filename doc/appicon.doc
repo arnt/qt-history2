@@ -76,4 +76,47 @@ If you do not use qmake, the necessary steps are: first, run the "rc"
 program on the .rc file, then link your application with the resulting
 .res file.
 
+\section1 Setting the Application Icon on Mac OS X
+
+The application icon, typically displayed in the application dock
+area, is set by calling QWidget::setIcon() on a top-level widget. It
+is possible that the program could appear in the application dock area
+before the function call, in which case a default icon will appear
+during the bouncing animation. 
+
+To ensure that the correct icon appears, both when the application is
+being launched, and in the finder, it is necessary to employ a
+platform-dependent technique.
+
+Although many programs can create icon files (\c .icns), the recommended
+approach is to use the \e{Icon Composer} program supplied by Apple (in the
+Developer/Application folder). \e{Icon Composer} allows you to import several
+different sized icons (for use in different contexts) as well as the masks
+that go with them. Save the set of icons to a file in your project
+directory.
+
+If you are using \link qmake-manual.book qmake\endlink to generate
+your make files, you only need to add a single line to your \c .pro
+project file. For example, if the name of your icon file is
+\c{myapp.icns}, and your project file is \c{myapp.pro}, add this line
+to \c{myapp.pro}:
+\code
+RC_FILE = myapp.icns
+\endcode
+This will ensure that \link qmake-manual.book qmake\endlink puts your
+icons in the proper place and creates a \c{Info.plist} entry for the
+icon.
+
+If you do not use \link qmake-manual.book qmake\endlink, you must do
+the following manually:
+\list 1
+\i Create an Info.plist file for your application (using the
+PropertyListEditor, found in Developer/Applications).
+\i Associate your .icns record with the CFBundleIconFile record in the
+Info.plist file (again, using the PropertyListEditor).
+\i Copy both the icns and your Info.plist into your application bundle
+Resource directory.
+\endlist
+
+
 */
