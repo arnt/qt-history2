@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.cpp#40 $
+** $Id: //depot/qt/main/src/network/qsocket.cpp#41 $
 **
 ** Implementation of QSocket class.
 **
@@ -52,13 +52,11 @@
 
 class QSocketPrivate {
 public:
-    QSocketPrivate( QSocket *o );
+    QSocketPrivate();
    ~QSocketPrivate();
     void close();
 
-    QSocket            *owner;			// the owner of the d pointer
     QSocket::State	state;			// connection state
-    QString		filename;
     QString		host;			// host name
     Q_UINT16		port;			// host port
     QSocketDevice      *socket;			// connection socket
@@ -72,9 +70,8 @@ public:
 #endif
 };
 
-QSocketPrivate::QSocketPrivate( QSocket *o )
-    : owner( o ),
-      state(QSocket::Idle), host(QString::fromLatin1("")), port(0),
+QSocketPrivate::QSocketPrivate()
+    : state(QSocket::Idle), host(QString::fromLatin1("")), port(0),
       socket(0), rsn(0), wsn(0), rsize(0), wsize(0), rindex(0), windex(0)
 {
 #ifndef QT_NO_DNS
@@ -170,7 +167,7 @@ void QSocketPrivate::close()
 QSocket::QSocket( QObject *parent, const char *name )
     : QObject( parent, name )
 {
-    d = new QSocketPrivate( this );
+    d = new QSocketPrivate;
     setSocketDevice( 0 );
     setFlags( IO_Direct );
     setStatus( IO_Ok );
@@ -1226,7 +1223,7 @@ void QSocket::setSocketIntern( int socket )
     // Act.
     delete d;
  
-    d = new QSocketPrivate( this );
+    d = new QSocketPrivate;
     d->socket = sd;
     d->socket->setBlocking( FALSE );
     d->socket->setAddressReusable( TRUE );
