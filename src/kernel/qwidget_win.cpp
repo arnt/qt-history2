@@ -1179,22 +1179,30 @@ void QWidget::erase( int x, int y, int w, int h )
     if ( h < 0 )
 	h = crect.height() - y;
 
+    HDC lhdc;
     bool tmphdc;
-    if ( !hdc ) {
+    extern QIntDict<QPaintDevice> *pdev_dict;
+
+    if( pdev_dict && pdev_dict->find( (long) (QPaintDevice*)this ) ) {
+	tmphdc = FALSE;
+	lhdc = pdev_dict->find( (long) (QPaintDevice*) this )->handle();
+	Q_ASSERT( lhdc );
+    } else if ( !hdc ) {
 	tmphdc = TRUE;
-	hdc = GetDC( winId() );
+	lhdc = GetDC( winId() );
     } else {
 	tmphdc = FALSE;
+	lhdc = hdc;
     }
 
     QPoint offset = backgroundOffset();
     int ox = offset.x();
     int oy = offset.y();
 
-    qt_erase_background( hdc, x, y, w, h, bg_col, backgroundPixmap(), ox, oy );
+    qt_erase_background( lhdc, x, y, w, h, bg_col, backgroundPixmap(), ox, oy );
 
     if ( tmphdc ) {
-	ReleaseDC( winId(), hdc );
+	ReleaseDC( winId(), lhdc );
 	hdc = 0;
     }
 }
@@ -1206,15 +1214,24 @@ void QWidget::erase( const QRegion& rgn )
     if ( backgroundMode()==NoBackground )
 	return;
 
+    HDC lhdc;
     bool tmphdc;
-    if ( !hdc ) {
+    extern QIntDict<QPaintDevice> *pdev_dict;
+
+    if( pdev_dict && pdev_dict->find( (long) (QPaintDevice*)this ) ) {
+	tmphdc = FALSE;
+	lhdc = pdev_dict->find( (long) (QPaintDevice*) this )->handle();
+	Q_ASSERT( lhdc );
+    } else if ( !hdc ) {
 	tmphdc = TRUE;
-	hdc = GetDC( winId() );
+	lhdc = GetDC( winId() );
     } else {
 	tmphdc = FALSE;
+	lhdc = hdc;
     }
+
     HRGN oldRegion = CreateRectRgn( 0, 0, 0, 0 );
-    bool hasRegion = GetClipRgn( hdc, oldRegion ) != 0;
+    bool hasRegion = GetClipRgn( lhdc, oldRegion ) != 0;
     HRGN newRegion = 0;
     if ( hasRegion ) {
 	newRegion = CreateRectRgn( 0, 0, 0, 0 );
@@ -1222,20 +1239,20 @@ void QWidget::erase( const QRegion& rgn )
     } else {
 	newRegion = rgn.handle();
     }
-    SelectClipRgn( hdc, newRegion );
+    SelectClipRgn( lhdc, newRegion );
 
     QPoint offset = backgroundOffset();
     int ox = offset.x();
     int oy = offset.y();
 
-    qt_erase_background( hdc, 0, 0, crect.width(), crect.height(), bg_col,
+    qt_erase_background( lhdc, 0, 0, crect.width(), crect.height(), bg_col,
 			 backgroundPixmap(), ox, oy );
-    SelectClipRgn( hdc, hasRegion ? oldRegion : 0 );
+    SelectClipRgn( lhdc, hasRegion ? oldRegion : 0 );
     DeleteObject( oldRegion );
     if ( hasRegion )
 	DeleteObject( newRegion );
     if ( tmphdc ) {
-	ReleaseDC( winId(), hdc );
+	ReleaseDC( winId(), lhdc );
 	hdc = 0;
     }
 }

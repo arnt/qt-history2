@@ -312,7 +312,7 @@ void QPainter::destroy()
 
 
 typedef QIntDict<QPaintDevice> QPaintDeviceDict;
-static QPaintDeviceDict *pdev_dict = 0;
+QPaintDeviceDict *pdev_dict = 0;
 
 
 void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
