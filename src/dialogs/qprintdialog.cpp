@@ -111,6 +111,15 @@ public:
 
 };
 
+
+typedef void (*Q_PrintDialogHook)(QListView *);
+static Q_PrintDialogHook addPrinterHook = 0;
+
+void qt_set_printdialog_hook( Q_PrintDialogHook hook )
+{
+    addPrinterHook = hook;
+}
+
 static void isc( QPrintDialogPrivate * d, const QString & text,
 		 QPrinter::PageSize ps );
 
@@ -835,6 +844,8 @@ QGroupBox * QPrintDialog::setupDestination()
 	parseEtcLpMember( d->printers );
 	parseSpoolInterface( d->printers );
 	parseQconfig( d->printers );
+	if ( addPrinterHook )
+	    (*addPrinterHook)( d->printers );
 
         QFileInfo f;
         f.setFile( QString::fromLatin1("/etc/lp/printers") );
