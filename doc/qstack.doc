@@ -1,0 +1,31 @@
+/****************************************************************************
+** $Id: qstack.doc,v 1.1 1995/12/20 22:07:52 hanord Exp $
+**
+** QStack class documentation
+**
+** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+**
+*****************************************************************************/
+
+
+/*****************************************************************************
+  QStack documentation
+ *****************************************************************************/
+
+/*----------------------------------------------------------------------------
+  \class QStack qstack.h
+  \brief The QStack class is a template class that provides a stack.
+
+  \ingroup collection
+  \ingroup tools
+
+  QStack is implemented as both a template and a macro class. Define a
+  template instance QStack\<X\> to create a dictionary that operates on
+  pointers to X, or X*.
+
+  A stack is a collection that can be used to push and pop items.
+
+  The documentation for this class will be completed before Qt 1.0.
+
+  \sa \link collection.html Collection Classes\endlink
+ ----------------------------------------------------------------------------*/

@@ -1,0 +1,31 @@
+/****************************************************************************
+** $Id: qqueue.doc,v 1.1 1995/12/20 22:07:52 hanord Exp $
+**
+** QQueue class documentation
+**
+** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+**
+*****************************************************************************/
+
+
+/*****************************************************************************
+  QQueue documentation
+ *****************************************************************************/
+
+/*----------------------------------------------------------------------------
+  \class QQueue qqueue.h
+  \brief The QQueue class is a template class that provides a queue.
+
+  \ingroup collection
+  \ingroup tools
+
+  QQueue is implemented as both a template and a macro class. Define a
+  template instance QQueue\<X\> to create a dictionary that operates on
+  pointers to X, or X*.
+
+  A stack is a collection that can be used to enqueue and deqeue items.
+
+  The documentation for this class will be completed before Qt 1.0.
+
+  \sa \link collection.html Collection Classes\endlink
+ ----------------------------------------------------------------------------*/
