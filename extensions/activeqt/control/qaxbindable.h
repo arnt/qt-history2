@@ -41,14 +41,14 @@ public:
     virtual long queryInterface( const QUuid &iid, void **iface ) = 0;
 
 protected:
+    virtual ~QAxAggregated();
+
     IUnknown *controllingUnknown() const
     { return controlling_unknown; }
     QWidget *widget() const
     { return the_widget; }
 
 private:
-    virtual ~QAxAggregated();
-
     IUnknown *controlling_unknown;
     QWidget *the_widget;
 };
