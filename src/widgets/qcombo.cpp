@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#99 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#100 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#99 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#100 $");
 
 
 /*!
@@ -101,12 +101,10 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#99 $");
   A combo box has a default focusPolicy() of \c TabFocus, i.e. it will
   not grab focus if clicked.  This differs from both Windows and Motif.
 
-  <table>
-   <tr><td><img src=qcombo1-m.gif> <td>(Motif 1, read-only)<br>
-   <tr><td><img src=qcombo2-m.gif> <td>(Motif 2, read-write)<br>
-   <tr><td><img src=qcombo3-m.gif> <td>(Motif 2, read-only)<br>
-   <tr><td><img src=qcombo1-w.gif> <td>(Windows style)
-  </table>
+  <img src=qcombo1-m.gif>(Motif 1, read-only)<br clear=all>
+  <img src=qcombo2-m.gif>(Motif 2, read-write)<br clear=all>
+  <img src=qcombo3-m.gif>(Motif 2, read-only)<br clear=all>
+  <img src=qcombo1-w.gif>(Windows style)
 */
 
 
@@ -897,7 +895,6 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	qDrawShadePanel( &p, rect(), g, FALSE, 2, &fill );
 	qDrawShadePanel( &p, xPos, (height() - buttonH)/2,
 			 buttonW, buttonH, g, FALSE, 2 );
-	QFontMetrics fm = p.fontMetrics();
 	QRect clip( 4, 2, xPos - 2 - 4, height() - 4 );
 	const char *str = d->popup->text( d->current );
 	if ( str ) {
@@ -961,7 +958,6 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	p.drawLine( ax+1, sy+sh-1, ax+awh-1, sy+sh-1 );
 	p.drawLine( ax+awh-1, sy+1, ax+awh-1, sy+sh-1 );
 
-	QFontMetrics fm = p.fontMetrics();
 	QRect clip( 4, 2, ax - 2 - 4, height() - 4 );
 	const char *str = d->listBox->text( d->current );
 	if ( str ) {
@@ -981,7 +977,6 @@ void QComboBox::paintEvent( QPaintEvent *event )
 
     } else {					// windows 95 style
 	QColor	  bg  = isEnabled() ? g.base() : g.background();
-	QFontMetrics  fm  = fontMetrics();
 	const char   *str = d->listBox->text( d->current );
 
 	QBrush fill( bg );
@@ -996,14 +991,12 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	QRect clipR( 5, 4, width()  - 5 - 4 - arrowR.width(), 
 		     height() - 4 - 4 );
 	p.setClipRect( clipR );
-	if ( str ) {	
-	    QFontMetrics fm = fontMetrics();
+	if ( str ) {
 	    p.drawText( clipR, AlignLeft | AlignVCenter | SingleLine, str);
 	} else {
 	    const QPixmap *pix = d->listBox->pixmap( d->current );
-	    if ( pix ) {
+	    if ( pix )
 		p.drawPixmap( 4, (height()-pix->height())/2, *pix );
-	    }
 	}
 	p.setClipping( FALSE );
     }
