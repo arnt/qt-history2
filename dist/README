@@ -1,4 +1,4 @@
-This is Qt version 3.1.0
+This is Qt version 3.1.2
 
 Qt is a multiplatform C++ GUI application framework.
 
@@ -12,6 +12,7 @@ For this release, the following platforms have been tested:
 
 win32-borland
 win32-msvc
+win32-msvc.net
 
 irix-cc
 irix-g++
@@ -42,7 +43,7 @@ How to get the release:
 
 Qt Free Edition: Download the .tar.gz archive from
 ftp.trolltech.com. For faster download times, use ftpsearch and search
-for qt-x11-free-3.1.0.tar.gz to find it on a mirror ftp site
+for qt-x11-free-3.1.2.tar.gz to find it on a mirror ftp site
 near you.
 
 Qt Professional Edition, Qt Enterprise Edition: Holders of valid
