@@ -92,6 +92,7 @@ bool QLibraryPrivate::loadLibrary()
     if(first) { //deal with errors
 	first = FALSE;
 	NSLinkEditErrorHandlers hdl;
+	memset(&hdl, 0, sizeof(hdl));
 	hdl.undefined = qt_mac_library_undefined;
 	hdl.multiple = qt_mac_library_multiple;
 	hdl.linkEdit = qt_mac_library_error;
@@ -159,7 +160,8 @@ bool QLibraryPrivate::loadLibrary()
     }
 
     if((pHnd = (void *)NSLinkModule(img, filename,
-				    NSLINKMODULE_OPTION_PRIVATE|NSLINKMODULE_OPTION_RETURN_ON_ERROR))) {
+				    NSLINKMODULE_OPTION_BINDNOW|NSLINKMODULE_OPTION_PRIVATE|
+				    NSLINKMODULE_OPTION_RETURN_ON_ERROR))) {
 	glibs_ref *i = new glibs_ref;
 	i->handle = pHnd;
 	i->count = 1;
