@@ -56,9 +56,6 @@ public:
     virtual QMetaObject *metaObject() const;
 #endif
 
-    virtual bool event(QEvent *);
-    virtual bool eventFilter(QObject *, QEvent *);
-
     const char *name() const;
     const char *name(const char *defaultName) const;
 
@@ -80,6 +77,7 @@ public:
 			  bool regexpMatch = true,
 			  bool recursiveSearch = true) const;
 
+  //### make non-virtual
     virtual void insertChild(QObject *);
     virtual void removeChild(QObject *);
 
@@ -132,6 +130,9 @@ private slots:
 protected:
     const QObject *sender();
     int receivers(const char* signal ) const;
+
+    virtual bool event(QEvent *);
+    virtual bool eventFilter(QObject *, QEvent *);
 
     virtual void timerEvent(QTimerEvent *);
     virtual void childEvent(QChildEvent *);
