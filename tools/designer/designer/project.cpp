@@ -519,7 +519,9 @@ QString Project::makeAbsolute( const QString &f )
 {
     if ( isDummy() )
 	return f;
-    QUrl u( QFileInfo( filename ).dirPath( TRUE ), f );
+    QString encodedUrl = QFileInfo( filename ).dirPath( TRUE );
+    QUrl::encode( encodedUrl );
+    QUrl u( encodedUrl, f );
     return u.path();
 }
 
@@ -568,7 +570,7 @@ static void remove_multiline_contents( QString &contents, const QString &s, int 
 void Project::save( bool onlyProjectFile )
 {
     bool anythingModified = FALSE;
-    
+
     //  save sources and forms
     if ( !onlyProjectFile ) {
 	saveConnections();
@@ -625,7 +627,7 @@ void Project::save( bool onlyProjectFile )
 	    remove_contents( contents, *it );
     }
 
-    // template 
+    // template
     contents += "TEMPLATE\t= " + templ + "\n";
 
     // language
@@ -690,7 +692,7 @@ void Project::save( bool onlyProjectFile )
 	    contents += part;
 	}
     }
-    
+
     // forms and interfaces
     if ( !formfiles.isEmpty() ) {
 	contents += "FORMS\t= ";
@@ -718,7 +720,7 @@ void Project::save( bool onlyProjectFile )
     if ( !dbFile.isEmpty() )
 	contents += "DBFILE\t= " + dbFile + "\n";
     contents += "\n";
-    
+
     // custom settings
     for ( QStringList::Iterator it = csList.begin(); it != csList.end(); ++it ) {
 	QString val = *customSettings.find( *it );
@@ -840,7 +842,7 @@ void Project::saveConnections()
 	QFileInfo fi( fileName() );
 	setDatabaseDescription( fi.baseName() + ".db" );
     }
-    
+
     QFile f( makeAbsolute( dbFile ) );
 
     if ( dbConnections.isEmpty() ) {
@@ -850,7 +852,7 @@ void Project::saveConnections()
 	modified = TRUE;
 	return;
     }
-    
+
     /* .db xml */
     if ( f.open( IO_WriteOnly | IO_Translate ) ) {
 	QTextStream ts( &f );

@@ -13,13 +13,14 @@
 #include <qdatetime.h>
 #include <qapplication.h>
 #include <qcheckbox.h>
+#include <qurl.h>
 
 #include "mainwindow.h"
 #include "startdialogimpl.h"
 #include "designerapp.h"
 
-FileDialog::FileDialog( QWidget *parent )
-    : QFileDialog( parent )
+FileDialog::FileDialog( const QString &dir, QWidget *parent )
+    : QFileDialog( dir, QString::null, parent )
 {
 }
 
@@ -138,7 +139,9 @@ void StartDialog::insertRecentItems( QStringList &files, bool isProject )
 
 void StartDialog::initFileOpen()
 {
-    fd = new FileDialog( this );
+    QString encode = QDir::currentDirPath();
+    QUrl::encode( encode );
+    fd = new FileDialog( encode, this );
     QPoint point( 0, 0 );
     fd->reparent( tab, point );
 
@@ -158,7 +161,7 @@ void StartDialog::initFileOpen()
 
     QStringList list = manager.featureList();
     for ( QStringList::Iterator it2 = list.begin(); it2 != list.end(); ++it2 )
-	    filterlist << *it2;
+	filterlist << *it2;
 
     filterlist << tr( "All Files (*)" );
     QString filters = filterlist.join( ";;" );

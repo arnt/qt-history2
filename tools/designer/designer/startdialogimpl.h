@@ -28,7 +28,7 @@ class FileDialog : public QFileDialog
     Q_OBJECT
 
 public:
-    FileDialog( QWidget *parent );
+    FileDialog( const QString &dir, QWidget *parent );
 
 protected slots:
     void accept();
