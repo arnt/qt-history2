@@ -155,7 +155,7 @@ int main( int argc, char *argv[] )
     setenv("PATH",  qdir + QDir::separator() + "bin" + ":" + getenv("PATH"), 0);
 #endif
 
-#if defined (QT_REMOTE_CONTROL)
+#ifndef QT_NO_REMOTE
     // {9A6A9A56-011B-4FEE-9B83-5BAD85071729}
     static const QUuid id = QUuid( 0x9a6a9a56, 0x011b, 0x4fee, 0x9b, 0x83, 0x5b, 0xad, 0x85, 0x07, 0x17, 0x29 );
     a.setEnableRemoteControl(TRUE,id);
