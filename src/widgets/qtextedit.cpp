@@ -6284,13 +6284,11 @@ void QTextEdit::optimAppend( const QString &str )
 	if ( lWidth > d->od->maxLineWidth )
 	    d->od->maxLineWidth = lWidth;
     }
-    bool scrollToEnd = contentsY() >= QABS( contentsHeight() - visibleHeight() -
-		       ( horizontalScrollBar()->isVisible() ?
-			 horizontalScrollBar()->height() : 0 ) );
+    bool scrollToEnd = contentsY() >= contentsHeight() - visibleHeight();
     resizeContents( d->od->maxLineWidth + 4, d->od->numLines * fm.lineSpacing() + 1 );
     if ( scrollToEnd ) {
 	updateScrollBars();
-	ensureVisible( 0, contentsHeight(), 1, 1 );
+	ensureVisible( contentsX(), contentsHeight(), 0, 0 );
     }
     // when a max log size is set, the text may not be redrawn because
     // the size of the viewport may not have changed
