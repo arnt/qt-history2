@@ -930,71 +930,6 @@ void QWindowsStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
                                         const QStyleOption& opt) const
 {
     switch (ctrl) {
-#ifndef QT_NO_COMBOBOX
-    case CC_ComboBox:
-        if (sub & SC_ComboBoxArrow) {
-            SFlags flags = Style_Default;
-
-            qDrawWinPanel(p, r, pal, true, widget->isEnabled() ?
-                           &pal.brush(QPalette::Base):
-                           &pal.brush(QPalette::Background));
-
-            QRect ar =
-                QStyle::visualRect(QCommonStyle::querySubControlMetrics(CC_ComboBox, widget,
-                                                            SC_ComboBoxArrow), widget);
-            if (subActive == SC_ComboBoxArrow) {
-                p->setPen(pal.dark());
-                p->setBrush(pal.brush(QPalette::Button));
-                p->drawRect(ar);
-            } else
-                qDrawWinPanel(p, ar, pal, false,
-                               &pal.brush(QPalette::Button));
-
-            ar.addCoords(2, 2, -2, -2);
-            if (widget->isEnabled())
-                flags |= Style_Enabled;
-
-            if (subActive == SC_ComboBoxArrow) {
-                flags |= Style_Sunken;
-            }
-            Q4StyleOption arrowOpt(0, Q4StyleOption::Default);
-            arrowOpt.rect = ar;
-            arrowOpt.palette = pal;
-            arrowOpt.state = flags;
-            drawPrimitive(PE_ArrowDown, &arrowOpt, p, widget);
-        }
-
-        if (sub & SC_ComboBoxEditField) {
-            const QComboBox * cb = (const QComboBox *) widget;
-            QRect re =
-                QStyle::visualRect(QCommonStyle::querySubControlMetrics(CC_ComboBox, widget,
-                                                            SC_ComboBoxEditField), widget);
-            if (cb->hasFocus() && !cb->editable())
-                p->fillRect(re.x(), re.y(), re.width(), re.height(),
-                             pal.brush(QPalette::Highlight));
-
-            if (cb->hasFocus()) {
-                p->setPen(pal.highlightedText());
-                p->setBackground(pal.highlight());
-
-            } else {
-                p->setPen(pal.text());
-                p->setBackground(pal.background());
-            }
-
-            if (cb->hasFocus() && !cb->editable()) {
-                Q4StyleOptionFocusRect opt(0);
-                opt.rect = QStyle::visualRect(subRect(SR_ComboBoxFocusRect, cb), widget);
-                opt.palette = pal;
-                opt.state = Style_FocusAtBorder;
-                opt.backgroundColor = pal.highlight();
-                drawPrimitive(PE_FocusRect, &opt, p, widget);
-            }
-        }
-
-        break;
-#endif        // QT_NO_COMBOBOX
-
     default:
         QCommonStyle::drawComplexControl(ctrl, p, widget, r, pal, flags, sub,
                                           subActive, opt);
@@ -2149,6 +2084,71 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionCom
                             point += i;
                         }
                     }
+                }
+            }
+        }
+        break;
+    case CC_ComboBox:
+        if (const Q4StyleOptionComboBox *cmb = qt_cast<const Q4StyleOptionComboBox *>(opt)) {
+            Q4StyleOptionComboBox newCmb = *cmb;
+            if (cmb->parts & SC_ComboBoxArrow) {
+                SFlags flags = Style_Default;
+                
+                qDrawWinPanel(p, opt->rect, opt->palette, true,
+                              cmb->state & Style_Enabled ? &cmb->palette.brush(QPalette::Base)
+                                                         : &cmb->palette.brush(QPalette::Background));
+                
+                newCmb.parts = SC_ComboBoxArrow;
+                QRect ar =
+                    QStyle::visualRect(QCommonStyle::querySubControlMetrics(CC_ComboBox, &newCmb,
+                                                                            widget), widget);
+                if (cmb->activeParts == SC_ComboBoxArrow) {
+                    p->setPen(cmb->palette.dark());
+                    p->setBrush(cmb->palette.brush(QPalette::Button));
+                    p->drawRect(ar);
+                } else {
+                    qDrawWinPanel(p, ar, cmb->palette, false,
+                                  &cmb->palette.brush(QPalette::Button));
+                }
+                
+                ar.addCoords(2, 2, -2, -2);
+                if (opt->state & Style_Enabled)
+                    flags |= Style_Enabled;
+                
+                if (cmb->activeParts == SC_ComboBoxArrow)
+                    flags |= Style_Sunken;
+                Q4StyleOption arrowOpt(0, Q4StyleOption::Default);
+                arrowOpt.rect = ar;
+                arrowOpt.palette = cmb->palette;
+                arrowOpt.state = flags;
+                drawPrimitive(PE_ArrowDown, &arrowOpt, p, widget);
+            }
+            if (cmb->parts & SC_ComboBoxEditField) {
+                newCmb.parts = SC_ComboBoxEditField;
+                QRect re =
+                    QStyle::visualRect(QCommonStyle::querySubControlMetrics(CC_ComboBox, &newCmb,
+                                                                            widget), widget);
+                if (cmb->state & Style_HasFocus && !cmb->editable)
+                    p->fillRect(re.x(), re.y(), re.width(), re.height(),
+                                cmb->palette.brush(QPalette::Highlight));
+                
+                if (cmb->state & Style_HasFocus) {
+                    p->setPen(cmb->palette.highlightedText());
+                    p->setBackground(cmb->palette.highlight());
+                    
+                } else {
+                    p->setPen(cmb->palette.text());
+                    p->setBackground(cmb->palette.background());
+                }
+                
+                if (cmb->state & Style_HasFocus && !cmb->editable) {
+                    Q4StyleOptionFocusRect focus(0);
+                    focus.rect = QStyle::visualRect(subRect(SR_ComboBoxFocusRect, cmb, widget),
+                                                    widget);
+                    focus.palette = cmb->palette;
+                    focus.state = Style_FocusAtBorder;
+                    focus.backgroundColor = cmb->palette.highlight();
+                    drawPrimitive(PE_FocusRect, &focus, p, widget);
                 }
             }
         }

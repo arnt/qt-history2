@@ -42,7 +42,7 @@ void QMacStyleQDPainter::setport()
 {
     QQuickDrawPaintEngine *mpe = NULL;
     if(d->engine && (d->engine->type() == QPaintEngine::QuickDraw || d->engine->type() == QPaintEngine::CoreGraphics))
-        mpe = (QQuickDrawPaintEngine*)d->engine;
+        mpe = static_cast<QQuickDrawPaintEngine *>(d->engine);
     if(mpe) {
         mpe->updateState(d->state);
         if(mpe->type() == QPaintEngine::QuickDraw) {
@@ -852,51 +852,6 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
             DrawThemeTrackTickMarks(&ttdi, numTicks, NULL, 0);
         }
         break; }
-    case CC_ComboBox: {
-        if(!widget)
-            break;
-        QComboBox *cbox = (QComboBox *)widget;
-        ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
-        if(flags & Style_HasFocus)
-            info.adornment |= kThemeAdornmentFocus;
-        if(subActive & QStyle::SC_ComboBoxArrow)
-            info.state = kThemeStatePressed;
-        p->fillRect(r, pal.brush(QPalette::Button)); //make sure it is filled
-        if(cbox->editable()) {
-            info.adornment |= kThemeAdornmentArrowDownArrow;
-            QRect buttonR = querySubControlMetrics(CC_ComboBox, widget, SC_ComboBoxArrow, opt);
-            ((QMacStyleQDPainter *)p)->setport();
-
-            ThemeButtonKind bkind = kThemeArrowButton;
-            switch (qt_aqua_size_constrain(widget)) {
-            case QAquaSizeMini:
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-                if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
-                    bkind = kThemeArrowButtonMini;
-                    break;
-                }
-#endif
-            case QAquaSizeSmall:
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-                if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
-                    bkind = kThemeArrowButtonSmall;
-                    break;
-                }
-#endif
-            case QAquaSizeUnknown:
-            case QAquaSizeLarge:
-                bkind = kThemeArrowButton;
-                break;
-            }
-            DrawThemeButton(qt_glb_mac_rect(buttonR, p, true, QRect(1, 0, 0, 0)),
-                            bkind, &info, NULL, NULL, NULL, 0);
-        } else {
-            info.adornment |= kThemeAdornmentArrowLeftArrow;
-            ((QMacStyleQDPainter *)p)->setport();
-            DrawThemeButton(qt_glb_mac_rect(r, p, true, QRect(1, 0, 0, 0)), kThemePopupButton,
-                            &info, NULL, NULL, NULL, 0);
-        }
-        break; }
     default:
         QWindowsStyle::drawComplexControl(ctrl, p, widget, r, pal, flags, sub, subActive, opt);
     }
@@ -1170,16 +1125,6 @@ QRect QMacStyleQD::querySubControlMetrics(ComplexControl control,
             QRect ret = QRect(br.left, br.top, (br.right - br.left), (br.bottom - br.top));
             qt_mac_dispose_rgn(rgn);
             return ret;
-        }
-        break; }
-    case CC_ComboBox: {
-        if(!w)
-            return QRect();
-        if(((QComboBox*)w)->editable()) {
-            if(sc == SC_ComboBoxEditField)
-                return QRect(0, 0, w->width() - 20, w->height());
-            else if(sc == SC_ComboBoxArrow)
-                return QRect(w->width() - 24, 0, 24, w->height());
         }
         break; }
     case CC_ScrollBar: {
@@ -2725,6 +2670,52 @@ void QMacStyleQD::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
             }
         }
         break;
+    case CC_ComboBox:
+        if (const Q4StyleOptionComboBox *cmb = qt_cast<const Q4StyleOptionComboBox *>(opt) ) {
+            ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
+            if (cmb->state & Style_HasFocus)
+                info.adornment |= kThemeAdornmentFocus;
+            if (cmb->activeParts & QStyle::SC_ComboBoxArrow)
+                info.state = kThemeStatePressed;
+            p->fillRect(cmb->rect, cmb->palette.brush(QPalette::Button)); //make sure it is filled
+            if (cmb->editable) {
+                info.adornment |= kThemeAdornmentArrowDownArrow;
+                Q4StyleOptionComboBox newCmb = *cmb;
+                newCmb.parts = SC_ComboBoxArrow;
+                QRect buttonR = querySubControlMetrics(CC_ComboBox, &newCmb, widget);
+                static_cast<QMacStyleQDPainter *>(p)->setport();
+
+                ThemeButtonKind bkind = kThemeArrowButton;
+                switch (qt_aqua_size_constrain(widget)) {
+                    case QAquaSizeMini:
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+                        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                            bkind = kThemeArrowButtonMini;
+                            break;
+                        }
+#endif
+                    case QAquaSizeSmall:
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+                        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                            bkind = kThemeArrowButtonSmall;
+                            break;
+                        }
+#endif
+                    case QAquaSizeUnknown:
+                    case QAquaSizeLarge:
+                        bkind = kThemeArrowButton;
+                        break;
+                }
+                DrawThemeButton(qt_glb_mac_rect(buttonR, p, true, QRect(1, 0, 0, 0)),
+                                bkind, &info, 0, 0, 0, 0);
+            } else {
+                info.adornment |= kThemeAdornmentArrowLeftArrow;
+                static_cast<QMacStyleQDPainter *>(p)->setport();
+                DrawThemeButton(qt_glb_mac_ract(cmb->rect, p, true, QRect(1, 0, 0, 0)),
+                                kThemePopupButton, &info, 0, 0, 0, 0);
+            }
+        }
+        break;
     default:
         QWindowsStyle::drawComplexControl(cc, opt, p, widget);
     }
@@ -2852,6 +2843,17 @@ QRect QMacStyleQD::querySubControlMetrics(ComplexControl cc, const Q4StyleOption
             }
         }
         break;
+    case CC_ComboBox:
+        if(const Q4StyleOptionComboBox *cmb = qt_cast<const Q4StyleOptionComboBox *>(opt)) {
+            if (cmb->editable) {
+                if (cmb->parts == SC_ComboBoxEditField)
+                    ret.setRect(0, 0, cmb->rect.width() - 20, cmb->rect.height());
+                else if (cmb->parts == SC_ComboBoxArrow)
+                    ret.setRect(cmb->rect.width() - 24, 0, 24, cmb->rect.height());
+                break;
+            }
+        }
+        // Fall through to default!
     default:
         ret = QWindowsStyle::querySubControlMetrics(cc, opt, widget);
     }
@@ -2892,11 +2894,17 @@ QSize QMacStyleQD::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, c
             if (checkable)
                 w += 12;
             if (::qt_cast<QComboBox*>(widget->parentWidget())
-                    && widget->parentWidget()->isVisible())
-                w = qMax(w, querySubControlMetrics(CC_ComboBox, widget->parentWidget(),
-                                                   SC_ComboBoxEditField).width()); // ### old-style
-            else
+                    && widget->parentWidget()->isVisible()) {
+                Q4StyleOptionComboBox cmb(0);
+                cmb.init(widget->parentWidget());
+                cmb.editable = false;
+                cmb.parts = SC_ComboBoxEditField;
+                cmb.activeParts = SC_None;
+                w = qMax(w, querySubControlMetrics(CC_ComboBox, &cmb, widget->parentWidget())
+                            .width());
+            } else {
                 w += 12;
+            }
             sz = QSize(w, h);
         }
     default:

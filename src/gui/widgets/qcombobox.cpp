@@ -30,6 +30,7 @@
 #include "qstringlist.h"
 #include "qcombobox.h"
 #include "qstyle.h"
+#include "qstyleoption.h"
 #include <limits.h>
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
@@ -317,6 +318,7 @@
     than lines, a scrollbar is added.
 */
 
+
 class QComboBoxPopup : public QMenu
 {
 public:
@@ -401,7 +403,8 @@ public:
     void        popDownListBox();
     void        reIndex();
     void        currentChanged();
-    int                completionIndex(const QString &, int) const;
+    int         completionIndex(const QString &, int) const;
+    Q4StyleOptionComboBox getStyleOption() const;
 
 private:
     bool        usingLBox;
@@ -413,15 +416,29 @@ void QComboBoxPrivate::updateLinedGeometry()
 {
     if (!ed)
         return;
+    Q4StyleOptionComboBox opt = getStyleOption();
+    opt.parts = QStyle::SC_ComboBoxEditField;
     QRect r = QStyle::visualRect(
-        q->style().querySubControlMetrics(QStyle::CC_ComboBox, q,
-                                          QStyle::SC_ComboBoxEditField), q);
+        q->style().querySubControlMetrics(QStyle::CC_ComboBox, &opt, q), q);
 
     const QPixmap *pix = current < q->count() ? q->pixmap(current) : 0;
     if (pix && pix->width() < r.width())
         r.setLeft(r.left() + pix->width() + 4);
     if (r != ed->geometry())
         ed->setGeometry(r);
+}
+
+Q4StyleOptionComboBox QComboBoxPrivate::getStyleOption() const
+{
+    Q4StyleOptionComboBox opt(0);
+    opt.init(q);
+    opt.parts = QStyle::SC_All;
+    if (arrowDown)
+        opt.activeParts = QStyle::SC_ComboBoxArrow;
+    else
+        opt.activeParts = QStyle::SC_None;
+    opt.editable = ed;
+    return opt;
 }
 
 static inline bool checkInsertIndex(const char *method, const QString& name,
@@ -974,9 +991,9 @@ QSize QComboBox::sizeHint() const
                 maxW = w;
         }
     }
-
-    d->sizeHint = (style().sizeFromContents(QStyle::CT_ComboBox, this,
-                                            QSize(maxW, maxH)).
+    Q4StyleOptionComboBox opt = d->getStyleOption();
+    d->sizeHint = (style().sizeFromContents(QStyle::CT_ComboBox, &opt,
+                                            QSize(maxW, maxH), fm, this).
                    expandedTo(QApplication::globalStrut()));
 
     return d->sizeHint;
@@ -1146,14 +1163,10 @@ void QComboBox::paintEvent(QPaintEvent *)
         if (hasFocus())
             p.drawRect(xPos - 5, 4, width() - xPos + 1 , height() - 8);
     } else if(!d->usingListBox()) {
-        style().drawComplexControl(QStyle::CC_ComboBox, &p, this, rect(), pal,
-                                    flags, QStyle::SC_All,
-                                    (d->arrowDown ?
-                                     QStyle::SC_ComboBoxArrow :
-                                     QStyle::SC_None));
-
-        QRect re = style().querySubControlMetrics(QStyle::CC_ComboBox, this,
-                                                   QStyle::SC_ComboBoxEditField);
+        Q4StyleOptionComboBox opt = d->getStyleOption();
+        style().drawComplexControl(QStyle::CC_ComboBox, &opt, &p, this);
+        opt.parts = QStyle::SC_ComboBoxEditField;
+        QRect re = style().querySubControlMetrics(QStyle::CC_ComboBox, &opt, this);
         re = QStyle::visualRect(re, this);
         p.setClipRect(re);
 
@@ -1176,14 +1189,10 @@ void QComboBox::paintEvent(QPaintEvent *)
                           (re.height() - pix.height()) / 2, pix);
         }
     } else {
-        style().drawComplexControl(QStyle::CC_ComboBox, &p, this, rect(), pal,
-                                    flags, QStyle::SC_All,
-                                    (d->arrowDown ?
-                                     QStyle::SC_ComboBoxArrow :
-                                     QStyle::SC_None));
-
-        QRect re = style().querySubControlMetrics(QStyle::CC_ComboBox, this,
-                                                   QStyle::SC_ComboBoxEditField);
+        Q4StyleOptionComboBox opt = d->getStyleOption();
+        style().drawComplexControl(QStyle::CC_ComboBox, &opt, &p, this);
+        opt.parts = QStyle::SC_ComboBoxEditField;
+        QRect re = style().querySubControlMetrics(QStyle::CC_ComboBox, &opt, this);
         re = QStyle::visualRect(re, this);
         p.setClipRect(re);
 
@@ -1220,8 +1229,8 @@ void QComboBox::mousePressEvent(QMouseEvent *e)
         d->discardNextMousePress = false;
         return;
     }
-    QRect arrowRect = style().querySubControlMetrics(QStyle::CC_ComboBox, this,
-                                                      QStyle::SC_ComboBoxArrow);
+    Q4StyleOptionComboBox opt = d->getStyleOption();
+    QRect arrowRect = style().querySubControlMetrics(QStyle::CC_ComboBox, &opt, this);
     arrowRect = QStyle::visualRect(arrowRect, this);
 
     // Correction for motif style, where arrow is smaller
@@ -1473,11 +1482,11 @@ void QComboBox::popup()
             x = sx;
         if (y + h > sy+sh && y - h - height() >= 0)
             y = y - h - height();
-
+        Q4StyleOptionComboBox opt = d->getStyleOption();
+        opt.parts = QStyle::SC_ComboBoxListBoxPopup;
+        opt.popupRect.setRect(x, y, w, h);
         QRect rect =
-            style().querySubControlMetrics(QStyle::CC_ComboBox, this,
-                                            QStyle::SC_ComboBoxListBoxPopup,
-                                            QStyleOption(x, y, w, h));
+            style().querySubControlMetrics(QStyle::CC_ComboBox, &opt, this);
         // work around older styles that don't implement the combobox
         // listbox popup subcontrol
         if (rect.isNull())
@@ -1527,7 +1536,8 @@ void QComboBox::updateMask()
 
     {
         QPainter p(&bm);
-        style().drawComplexControlMask(QStyle::CC_ComboBox, &p, this, rect());
+        Q4StyleOptionComboBox opt = d->getStyleOption();
+        style().drawComplexControlMask(QStyle::CC_ComboBox, &opt, &p, this);
     }
 
     setMask(bm);
@@ -1654,9 +1664,11 @@ bool QComboBox::eventFilter(QObject *object, QEvent *event)
                 if (d->arrowPressed) {
                     QPoint comboPos;
                     comboPos = mapFromGlobal(d->listBox()->mapToGlobal(pos));
+                    Q4StyleOptionComboBox opt = d->getStyleOption();
+                    opt.parts = QStyle::SC_ComboBoxArrow;
                     QRect arrowRect =
-                        style().querySubControlMetrics(QStyle::CC_ComboBox, this,
-                                                        QStyle::SC_ComboBoxArrow);
+                        style().querySubControlMetrics(QStyle::CC_ComboBox, &opt, this);
+
                     arrowRect = QStyle::visualRect(arrowRect, this);
                     if (arrowRect.contains(comboPos)) {
                         if (!d->arrowDown ) {
