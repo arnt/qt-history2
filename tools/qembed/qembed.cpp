@@ -5,7 +5,6 @@
 ** It reads a binary file and generates a C array with the binary data.
 ** The C code is written to standard output.
 **
-** Author  : Haavard Nord
 ** Created : 951017
 **
 ** Copyright (C) 1995-2002 Trolltech AS.  All rights reserved.
