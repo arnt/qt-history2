@@ -263,15 +263,15 @@
     \row \i <b>. (dot)</b>
 	 \i This matches any character (including newline).
     \row \i <b>\\d</b>
-	 \i This matches a digit (see QChar::isDigit()).
+	 \i This matches a digit (QChar::isDigit()).
     \row \i <b>\\D</b>
 	 \i This matches a non-digit.
     \row \i <b>\\s</b>
-	 \i This matches a whitespace (see QChar::isSpace()).
+	 \i This matches a whitespace (QChar::isSpace()).
     \row \i <b>\\S</b>
 	 \i This matches a non-whitespace.
     \row \i <b>\\w</b>
-	 \i This matches a word character (see QChar::isLetterOrNumber()).
+	 \i This matches a word character (QChar::isLetterOrNumber() or '_').
     \row \i <b>\\W</b>
 	 \i This matches a non-word character.
     \row \i <b>\\n</b>
@@ -547,7 +547,14 @@
     To substitute a pattern use QString::replace().
 
     Perl's extended \c{/x} syntax is not supported, nor are
-    regexp comments (?#comment) or directives, e.g. (?i).
+    directives, e.g. (?i), or regexp comments, e.g. (?#comment). On
+    the other hand, C++'s rules for literal strings can be used to
+    achieve the same:
+    \code
+    QRegExp mark( "\\b" // word boundary
+		  "[Mm]ark" // the word we want to match
+		);
+    \endcode
 
     Both zero-width positive and zero-width negative lookahead
     assertions (?=pattern) and (?!pattern) are supported with the same
@@ -714,6 +721,11 @@ const int EmptyCapture = INT_MAX;
 const int InftyLen = INT_MAX;
 const int InftyRep = 1025;
 const int EOS = -1;
+
+static bool isWord( QChar ch )
+{
+    return ch.isLetterOrNumber() || ch == QChar( '_' );
+}
 
 /*
   Merges two QMemArrays of ints and puts the result into the first one.
@@ -1680,9 +1692,9 @@ bool QRegExpEngine::testAnchor( int i, int a, const int *capBegin )
 	bool before = FALSE;
 	bool after = FALSE;
 	if ( mmPos + i != 0 )
-	    before = mmIn[mmPos + i - 1].isLetterOrNumber();
+	    before = isWord( mmIn[mmPos + i - 1] );
 	if ( mmPos + i != mmLen )
-	    after = mmIn[mmPos + i].isLetterOrNumber();
+	    after = isWord( mmIn[mmPos + i] );
 	if ( (a & Anchor_Word) != 0 && (before == after) )
 	    return FALSE;
 	if ( (a & Anchor_NonWord) != 0 && (before != after) )
@@ -2632,7 +2644,14 @@ int QRegExpEngine::getEscape()
 	return Tok_CharClass;
     case 'W':
 	// see QChar::isLetterOrNumber()
-	yyCharClass->addCategories( 0x7ff07f8f );
+	yyCharClass->addCategories( 0x7fe07f8f );
+	yyCharClass->addRange( 0x203f, 0x2040 );
+	yyCharClass->addSingleton( 0x2040 );
+	yyCharClass->addSingleton( 0x30fb );
+	yyCharClass->addRange( 0xfe33, 0xfe34 );
+	yyCharClass->addRange( 0xfe4d, 0xfe4f );
+	yyCharClass->addSingleton( 0xff3f );
+	yyCharClass->addSingleton( 0xff65 );
 	return Tok_CharClass;
 #endif
 #ifndef QT_NO_REGEXP_ESCAPE
@@ -2652,6 +2671,7 @@ int QRegExpEngine::getEscape()
     case 'w':
 	// see QChar::isLetterOrNumber()
 	yyCharClass->addCategories( 0x000f8070 );
+	yyCharClass->addSingleton( 0x005f ); // '_'
 	return Tok_CharClass;
 #endif
 #ifndef QT_NO_REGEXP_ESCAPE
