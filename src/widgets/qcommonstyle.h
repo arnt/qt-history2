@@ -69,7 +69,7 @@ public:
     void drawTabMask( QPainter*, const QTabBar*, QTab*, bool selected );
 
     // scrollbars
-    ScrollControl scrollBarPointOver( const QScrollBar*, int sliderStart, const QPoint& );
+    ScrollControl scrollBarPointOver( const QScrollBar* sb, int sliderStart, const QPoint& p );
 
     // sliders
     void drawSliderMask( QPainter *p,

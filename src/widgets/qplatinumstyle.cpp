@@ -1287,6 +1287,7 @@ void QPlatinumStyle::drawSlider( QPainter *p,
     }
 }
 
+/*! \reimp */
 void QPlatinumStyle::drawSliderMask( QPainter *p,
 				 int x, int y, int w, int h,
 				 Orientation orient , bool /* tickAbove */, bool /*tickBelow*/ )

@@ -52,7 +52,7 @@ public:
 
     void scrollBarMetrics( const QScrollBar*, int&, int&, int&, int&);
     void drawScrollBarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, uint activeControl );
-    ScrollControl scrollBarPointOver( const QScrollBar*, int sliderStart, const QPoint& );
+    ScrollControl scrollBarPointOver( const QScrollBar* sb, int sliderStart, const QPoint& p );
 
     QSize indicatorSize() const;
     void drawIndicator( QPainter* p, int x, int y, int w, int h,  const QColorGroup &g,

@@ -891,6 +891,8 @@ void QMotifStyle::drawCheckMark( QPainter *p, int x, int y, int w, int h,
 }
 
 
+/*! \reimp
+*/
 int QMotifStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi, const QFontMetrics& /* fm */)
 {
     int w = 2*motifItemHMargin + 2*motifItemFrame; // a little bit of border can never harm
@@ -915,6 +917,8 @@ int QMotifStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem*
     return w;
 }
 
+/*! \reimp
+*/
 int QMotifStyle::popupMenuItemHeight( bool /* checkable*/, QMenuItem* mi, const QFontMetrics& fm )
 {
     int h = 0;
@@ -934,6 +938,8 @@ int QMotifStyle::popupMenuItemHeight( bool /* checkable*/, QMenuItem* mi, const 
     return h;
 }
 
+/*! \reimp
+*/
 void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
 				     const QPalette& pal,
 				     bool act, bool enabled, int x, int y, int w, int h)

@@ -215,7 +215,7 @@ void QCommonStyle::drawTabMask( QPainter* p,  const  QTabBar* /* tb*/ , QTab* t,
 
 /*!\reimp
  */
-QStyle::ScrollControl QCommonStyle::scrollBarPointOver( const QScrollBar* sb, int sliderStart, const QPoint& p)
+QStyle::ScrollControl QCommonStyle::scrollBarPointOver( const QScrollBar* sb, int sliderStart, const QPoint& p )
 {
     if ( !sb->rect().contains( p ) )
 	return NoScroll;
