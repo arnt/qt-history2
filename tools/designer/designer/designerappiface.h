@@ -93,6 +93,7 @@ public:
     QString text( DesignerFormWindowInterface*, int col ) const;
     void setText( DesignerFormWindowInterface*, int col, const QString& );
 
+    uint count() const;
     DesignerFormWindowInterface* current();
     DesignerFormWindowInterface* next();
     DesignerFormWindowInterface* prev();
@@ -110,6 +111,7 @@ public:
     bool initialize( QApplicationInterface * );
     bool cleanUp( QApplicationInterface * );
 
+    uint count() const;
     DesignerWidgetInterface* toFirst();
     DesignerWidgetInterface* current();
     DesignerWidgetInterface* next();

@@ -54,6 +54,7 @@ public:
 
     QString interfaceID() const { return createID( QApplicationComponentInterface::interfaceID(), "DesignerWidgetListInterface" ); }
 
+    virtual uint count() const = 0;
     virtual DesignerWidgetInterface *toFirst() = 0;
     virtual DesignerWidgetInterface *current() = 0;
     virtual DesignerWidgetInterface *next() = 0;
@@ -84,6 +85,7 @@ public:
     virtual QString text( DesignerFormWindowInterface*, int col ) const = 0;
     virtual void setText( DesignerFormWindowInterface*, int col, const QString& ) = 0;
 
+    virtual uint count() const = 0;
     virtual DesignerFormWindowInterface *current() = 0;
     virtual DesignerFormWindowInterface *next() = 0;
     virtual DesignerFormWindowInterface *prev() = 0;

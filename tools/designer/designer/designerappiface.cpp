@@ -144,6 +144,13 @@ void DesignerFormListInterfaceImpl::setPixmap( DesignerFormWindowInterface *form
     }
 }
 
+uint DesignerFormListInterfaceImpl::count() const
+{
+    FormList *fl = (FormList*)component();
+
+    return fl ? fl->childCount() : 0;
+}
+
 DesignerFormWindowInterface *DesignerFormListInterfaceImpl::current()
 {
     FormListItem *item = (FormListItem*)listIterator->current();
@@ -308,6 +315,11 @@ bool DesignerWidgetListInterfaceImpl::cleanUp( QApplicationInterface *app )
     dictIterator = 0;
 
     return DesignerWidgetListInterface::cleanUp( app );
+}
+
+uint DesignerWidgetListInterfaceImpl::count() const
+{
+    return dictIterator->count();
 }
 
 DesignerWidgetInterface* DesignerWidgetListInterfaceImpl::toFirst()
