@@ -325,13 +325,13 @@ QIconSet::~QIconSet()
 }
 
 /*!
-  Sets this icon set to use pixmap \a pm for the Normal pixmap,
+  Sets this icon set to use pixmap \a pixmap for the Normal pixmap,
   assuming it to be of size \a size.
 
-  This is equivalent to assigning QIconSet(\a pm, \a size) to this
+  This is equivalent to assigning QIconSet(\a pixmap, \a size) to this
   icon set.
 
-  This function does nothing if \a pm is a null pixmap.
+  This function does nothing if \a pixmap is a null pixmap.
 */
 void QIconSet::reset( const QPixmap& pixmap, Size size )
 {
@@ -345,8 +345,8 @@ void QIconSet::reset( const QPixmap& pixmap, Size size )
 }
 
 /*!
-  Sets this icon set to provide pixmap \a pm for size \a size, mode \a
-  mode and state \a state. The icon set may also use \a pm for
+  Sets this icon set to provide pixmap \a pixmap for size \a size, mode \a
+  mode and state \a state. The icon set may also use \a pixmap for
   generating other pixmaps if they are not explicitly set.
 
   The \a size can be one of Automatic, Large or Small.  If Automatic is
@@ -357,7 +357,7 @@ void QIconSet::reset( const QPixmap& pixmap, Size size )
   considered to be Small. You can use setIconSize() to set the preferred
   size of a generated icon.
 
-  This function does nothing if \a pm is a null pixmap.
+  This function does nothing if \a pixmap is a null pixmap.
 
   \sa reset()
 */

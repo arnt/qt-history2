@@ -600,6 +600,10 @@ int QButtonGroup::id( QButton * button ) const
     return i ? i->id : -1;
 }
 
+
+/*!
+    \reimp
+*/
 bool QButtonGroup::event( QEvent * e )
 {
     if ( e->type() == QEvent::ChildInserted ) {
