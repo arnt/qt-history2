@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#152 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#153 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#152 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#153 $");
 
 
 /*!
@@ -285,7 +285,6 @@ void QImage::detach()
   Returns a
   \link shclass.html deep copy\endlink of the image.
 */
-
 QImage QImage::copy() const
 {
     QImage image;
@@ -312,6 +311,10 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
     bitBlt( &image, 0, 0, this, x, y, -1, -1, conversion_flags );
     return image;
 }
+
+/*!
+  \overload QImage QImage::copy(QRect& r) const
+*/
 
 /*!
   \fn bool QImage::isNull() const

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#138 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#139 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#138 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#139 $");
 
 Q_DECLARE(QListM, QListBoxItem);
 
@@ -1696,6 +1696,9 @@ long QListBox::maxItemWidth() const
     return (long) qlb_maxLenDict->find( (long)this );
 }
 
+/*!
+  For binary compatibility.
+*/
 long QListBox::maxItemWidth()
 {
     // This is only here for binary compatibility
@@ -1892,6 +1895,11 @@ void QListBox::ensureCurrentVisible( int newCurrent )
 	setCurrentItem( newCurrent );
 }
 
+/*!
+  Sets a \link QWidget:setFixedHeight() fixed height\endlink for the
+  widget, so that it shows the given number of lines of text for the
+  current font size.
+*/
 void QListBox::setFixedVisibleLines( int lines )
 {
     int ls = fontMetrics().lineSpacing() + 1; // #### explain +1
@@ -1902,6 +1910,10 @@ void QListBox::setFixedVisibleLines( int lines )
     return;
 }
 
+/*!
+  Returns a size mased on maxItemWidth() and any value set by
+  setFixedVisibleLines().
+*/
 QSize QListBox::sizeHint() const
 {
     QSize sz = QTableView::sizeHint();
