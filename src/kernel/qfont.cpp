@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#129 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#130 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -698,7 +698,7 @@ QFont::CharSet QFont::charSet() const
 	qFatal( "Cannot find a Latin 1 Times font" );
   \endcode
 
-  In Qt 1.40, the following character set encodings are available: <ul>
+  The following character set encodings are available: <ul>
   <li> \c QFont::ISO_8859_1 - Latin1 , common in much of Europe
   <li> \c QFont::ISO_8859_2 - Latin2, Central and Eastern European character set
   <li> \c QFont::ISO_8859_3 - Latin3, less common European character set
@@ -708,6 +708,7 @@ QFont::CharSet QFont::charSet() const
   <li> \c QFont::ISO_8859_7, Greek
   <li> \c QFont::ISO_8859_8, Hebrew
   <li> \c QFont::ISO_8859_9, Turkish
+  <li> \c QFont::ISO_8859_10..15, other ISO 8859 characters sets
   <li> \c QFont::KOI8R - KOI8-R, Cyrillic, defined in
        <a href="http://ds.internic.net/rfc/rfc1489.txt">RFC 1489.</a>
   <li> \c QFont::AnyCharSet - whatever is handiest.
@@ -887,6 +888,7 @@ QString QFont::encodingName( CharSet cs )
 	break;
     case QFont::ISO_8859_15:
 	result = "iso8859-15";
+	break;
     case QFont::KOI8R:
         result = "KOI8-R";
 	break;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#166 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#167 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -74,6 +74,7 @@ int	qFontGetWeight( const QCString &weightString, bool adjustScore=FALSE );
 #undef	IS_ZERO
 #define IS_ZERO(X) (X[0] == '0' && X[1] == 0)
 
+static
 inline bool isScalable( char **tokens )
 {
     return ( IS_ZERO(tokens[PixelSize]) &&
@@ -81,6 +82,7 @@ inline bool isScalable( char **tokens )
 	     IS_ZERO(tokens[AverageWidth]) );
 }
 
+static
 inline bool isSmoothlyScalable( char **tokens )
 {
     return ( IS_ZERO( tokens[ResolutionX] ) &&
@@ -412,6 +414,7 @@ HANDLE QFont::handle() const
   fileds lbearing and rbearing are not given any values.
  */
 
+static
 bool fillFontDef( const QCString &xlfd, QFontDef *fd, QCString *encodingName )
 {
 
@@ -452,6 +455,18 @@ bool fillFontDef( const QCString &xlfd, QFontDef *fd, QCString *encodingName )
 	    fd->charSet = QFont::ISO_8859_8;
 	else if ( strcmp( tokens[CharsetEncoding], "9" ) == 0 )
 	    fd->charSet = QFont::ISO_8859_9;
+	else if ( strcmp( tokens[CharsetEncoding], "10" ) == 0 )
+	    fd->charSet = QFont::ISO_8859_10;
+	else if ( strcmp( tokens[CharsetEncoding], "11" ) == 0 )
+	    fd->charSet = QFont::ISO_8859_11;
+	else if ( strcmp( tokens[CharsetEncoding], "12" ) == 0 )
+	    fd->charSet = QFont::ISO_8859_12;
+	else if ( strcmp( tokens[CharsetEncoding], "13" ) == 0 )
+	    fd->charSet = QFont::ISO_8859_13;
+	else if ( strcmp( tokens[CharsetEncoding], "14" ) == 0 )
+	    fd->charSet = QFont::ISO_8859_14;
+	else if ( strcmp( tokens[CharsetEncoding], "15" ) == 0 )
+	    fd->charSet = QFont::ISO_8859_15;
     } else if( strcmp( tokens[CharsetRegistry], "koi8" ) == 0 &&
 	       (strcmp( tokens[CharsetEncoding], "r" ) == 0 ||
 		strcmp( tokens[CharsetEncoding], "1" ) == 0) ) {
@@ -667,6 +682,7 @@ void QFont::initFontInfo() const
     f->s.strikeOut = d->req.strikeOut;
 }
 
+static
 inline int maxIndex(XFontStruct *f)
 {
     return
@@ -1001,18 +1017,20 @@ int QFont_Private::fontMatchScore( char	 *fontName,	 QCString &buffer,
 }
 
 
-struct MatchData {			// internal for bestMatch
-    MatchData() { score=0; name=0; pointDiff=99; weightDiff=99; }
+struct QFontMatchData {			// internal for bestMatch
+    QFontMatchData()
+	{ score=0; name=0; pointDiff=99; weightDiff=99; smooth=FALSE; }
     int	    score;
     char   *name;
     float   pointDiff;
     int	    weightDiff;
+    bool    smooth;
 };
 
 QCString QFont_Private::bestMatch( const char *pattern, int *score )
 {
-    MatchData	best;
-    MatchData	bestScalable;
+    QFontMatchData	best;
+    QFontMatchData	bestScalable;
 
     QCString	matchBuffer( 256 );	// X font name always <= 255 chars
     char **	xFontNames;
@@ -1040,11 +1058,12 @@ QCString QFont_Private::bestMatch( const char *pattern, int *score )
 		 weightDiff < bestScalable.weightDiff ||
 		 sc == bestScalable.score &&
 		 weightDiff == bestScalable.weightDiff &&
-		 smoothScalable ) {
+		 smoothScalable && !bestScalable.smooth ) {
 		bestScalable.score	= sc;
 		bestScalable.name	= xFontNames[i];
 		bestScalable.pointDiff  = pointDiff;
 		bestScalable.weightDiff = weightDiff;
+		bestScalable.smooth	= smoothScalable;
 	    }
 	} else {
 	    if ( sc > best.score ||
