@@ -72,7 +72,7 @@
 #endif
 #include <sys/socket.h>
 #else
-#include "qsharedmemory_p.h"
+#include "private/qsharedmemory_p.h"
 #endif
 #endif
 

@@ -47,6 +47,8 @@ unix:x11 {
 }
 
 embedded {
-	SOURCES += text/qfontengine_qws.cpp
+	SOURCES += \
+		text/qfont_qws.cpp \
+		text/qfontengine_qws.cpp
 }
 

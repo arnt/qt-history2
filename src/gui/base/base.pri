@@ -88,6 +88,20 @@ unix:x11 {
 		base/qx11info_x11.cpp
 }
 
+embedded {
+	SOURCES += \
+		base/qapplication_qws.cpp \
+		base/qclipboard_qws.cpp \
+		base/qcursor_qws.cpp \
+		base/qdesktopwidget_qws.cpp \
+		base/qdnd_qws.cpp \
+		base/qguieventloop_qws.cpp \
+		base/qinputcontext_qws.cpp \
+		base/qsound_qws.cpp \
+		base/qwidget_qws.cpp
+		
+}
+
 !x11:mac {
 	exists(qsound_mac.cpp):SOURCES += base/qsound_mac.cpp
 	else:SOURCES += base/qsound_qws.cpp

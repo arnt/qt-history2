@@ -98,5 +98,7 @@ embedded {
 		painting/qpaintengine_qws_p.h
 
 	SOURCES += \
-		painting/qpaintengine_qws.cpp
+		painting/qpaintengine_qws.cpp \
+		painting/qpaintdevice_qws.cpp \
+		painting/qcolor_qws.cpp
 }
