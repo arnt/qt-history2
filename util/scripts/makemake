@@ -35,7 +35,10 @@ moc: variables FORCE
 	cd src/moc; \$(MAKE)
 	cp src/moc/moc bin/moc
 
-src tutorial examples: moc variables FORCE
+src: moc variables FORCE
+	cd \$@; \$(MAKE)
+
+tutorial examples: src FORCE
 	cd \$@; \$(MAKE)
 
 clean:
