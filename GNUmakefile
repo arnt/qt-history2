@@ -1,7 +1,6 @@
 # -*- makefile -*-
 #
 # Main Makefile for building the Qt library, examples and tutorial.
-# Read PORTING for instructions how to port Qt to a new platform.
 
 SHELL=/bin/sh
 
@@ -11,8 +10,7 @@ init: FORCE
 install: FORCE
 	@$(MAKE) qt.install
 
-all: symlinks src-qmake src-moc sub-src sub-tools \
-		sub-tutorial sub-examples
+all: symlinks src-qmake src-moc sub-src sub-tools sub-tutorial sub-examples
 	@echo
 	@echo "The Qt library is now built in ./lib"
 	@echo "The Qt examples are built in the directories in ./examples"
@@ -27,49 +25,49 @@ all: symlinks src-qmake src-moc sub-src sub-tools \
 qt.install: qmake-install moc-install src-install tools-install
 
 moc-install: src-moc
-	cd src/moc && $(MAKE) install
+	cd src/moc && [ -f Makefile ] && $(MAKE) install
 
 src-install: sub-src
-	cd src && $(MAKE) install
+	cd src && [ -f Makefile ] && $(MAKE) install
 
 tools-install: sub-tools
-	cd tools && $(MAKE) install
+	cd tools && [ -f Makefile ] && $(MAKE) install
 
 qmake-install: src-qmake
-	cd qmake && $(MAKE) install
+	cd qmake && [ -f Makefile ] && $(MAKE) install
 
 src-qmake: symlinks FORCE
-	cd qmake && $(MAKE)
+	cd qmake && [ -f Makefile ] && $(MAKE)
 
 src-moc: src-qmake FORCE
-	cd src/moc && $(MAKE)
+	cd src/moc && [ -f Makefile ] && $(MAKE)
 
 sub-tools: sub-plugins FORCE
-	cd tools && $(MAKE)
+	cd tools && [ -f Makefile ] && $(MAKE)
 
 symlinks: .qmake.cache
 #	@cd include && rm -f q*.h; ln -s ../src/*/q*.h .; ln -s ../extensions/*/src/q*.h .; rm -f q*_p.h
 
 sub-src: src-moc .qmake.cache FORCE
-	cd src && $(MAKE)
+	cd src && [ -f Makefile ] && $(MAKE)
 
 sub-plugins: sub-src .qmake.cache FORCE
-	cd plugins/src && $(MAKE)
+	cd plugins/src && [ -f Makefile ] && $(MAKE)
 
 sub-tutorial: sub-src FORCE
-	cd tutorial && $(MAKE)
+	cd tutorial && [ -f Makefile ] && $(MAKE)
 
 sub-examples: sub-tools FORCE
-	cd examples && $(MAKE)
+	cd examples && [ -f Makefile ] && $(MAKE)
 
 clean uiclean mocclean:
-	cd qmake && $(MAKE) $@
-	cd tools && $(MAKE) $@
-	cd src/moc && $(MAKE) $@
-	cd src && $(MAKE) $@
-	cd tutorial && $(MAKE) $@
-	cd plugins/src && $(MAKE) $@
-	cd examples && $(MAKE) $@
+	cd qmake && [ -f Makefile ] && $(MAKE) $@
+	cd tools && [ -f Makefile ] && $(MAKE) $@
+	cd src/moc && [ -f Makefile ] && $(MAKE) $@
+	cd src && [ -f Makefile ] && $(MAKE) $@
+	cd tutorial && [ -f Makefile ] && $(MAKE) $@
+	cd plugins/src && [ -f Makefile ] && $(MAKE) $@
+	cd examples && [ -f Makefile ] && $(MAKE) $@
 
 distclean: clean
 	-rm .qmake.cache
