@@ -1370,6 +1370,14 @@ void QActionGroup::addSeparator()
     d->actions.append( d->separatorAction );
 }
 
+
+/*! \fn void insert( QAction* a )
+  
+  \obsolete
+  
+  Use add() instead.
+ */
+
 /*! Adds this action group to the widget \a w.
 
   Depending on the class of \a w all member actions are automatically presented
