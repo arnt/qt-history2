@@ -265,10 +265,10 @@ bool TextEdit::load(const QString &f)
     QString str = QString::fromLatin1(data);
     if (QText::mightBeRichText(str)) {
         // load this way to obey encoding
-        edit->document()->setUndoRedoEnabled(false);
+        edit->setUndoRedoEnabled(false);
         QTextDocumentFragment fragment = QTextDocumentFragment::fromHTML(data);
         edit->textCursor().insertFragment(fragment);
-        edit->document()->setUndoRedoEnabled(true);
+        edit->setUndoRedoEnabled(true);
         edit->document()->setModified(false);
     } else {
         edit->setPlainText(str); // assume plain text is latin1 encoded
