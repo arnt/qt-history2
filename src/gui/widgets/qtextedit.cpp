@@ -46,9 +46,6 @@
 #define ACCEL_KEY(k) "\t" + QString("Ctrl+" #k)
 #endif
 
-#define d d_func()
-#define q q_func()
-
 static QMimeData *createMimeData(const QTextDocumentFragment &fragment)
 {
     QMimeData *data = new QMimeData;
@@ -91,6 +88,8 @@ static QTextLine currentTextLine(const QTextCursor &cursor)
 
 bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
 {
+    Q_Q(QTextEdit);
+
     QTextCursor::MoveMode mode = e->modifiers() & Qt::ShiftModifier
                                    ? QTextCursor::KeepAnchor
                                    : QTextCursor::MoveAnchor;
@@ -239,6 +238,8 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
 
 void QTextEditPrivate::updateCurrentCharFormat()
 {
+    Q_Q(QTextEdit);
+
     QTextCharFormat fmt = cursor.charFormat();
     if (fmt == lastCharFormat)
         return;
@@ -348,6 +349,8 @@ void QTextEditPrivate::createAutoBulletList()
 
 void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument *document)
 {
+    Q_Q(QTextEdit);
+
     bool clearDocument = true;
     if (!doc) {
         if (document) {
@@ -392,8 +395,8 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
         QTextCharFormat fmt;
         fmt.setFont(q->font());
         fmt.setTextColor(q->palette().color(QPalette::Text));
-        d->cursor.movePosition(QTextCursor::Start);
-        d->cursor.setBlockCharFormat(fmt);
+        cursor.movePosition(QTextCursor::Start);
+        cursor.setBlockCharFormat(fmt);
     }
 
     viewport->setCursor(readOnly ? Qt::ArrowCursor : Qt::IbeamCursor);
@@ -414,18 +417,19 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
 
     doc->setModified(false);
 
-    d->anchorToScrollToWhenVisible = QString::null;
+    anchorToScrollToWhenVisible = QString::null;
 }
 
 void QTextEditPrivate::startDrag()
 {
+    Q_Q(QTextEdit);
     mousePressed = false;
     QMimeData *data = createMimeData(cursor);
 
     QDrag *drag = new QDrag(q);
     drag->setMimeData(data);
 
-    QDrag::DropActions actions = d->readOnly ? QDrag::CopyAction : QDrag::MoveAction;
+    QDrag::DropActions actions = readOnly ? QDrag::CopyAction : QDrag::MoveAction;
     QDrag::DropAction action = drag->start(actions);
 
     if (action == QDrag::MoveAction && drag->target() != q)
@@ -434,6 +438,7 @@ void QTextEditPrivate::startDrag()
 
 void QTextEditPrivate::paste(const QMimeData *source)
 {
+    Q_Q(QTextEdit);
     if (readOnly || !source)
 	return;
 
@@ -472,6 +477,7 @@ void QTextEditPrivate::setCursorPosition(const QPoint &pos)
 
 void QTextEditPrivate::setCursorPosition(int pos, QTextCursor::MoveMode mode)
 {
+    Q_Q(QTextEdit);
     cursor.setPosition(pos, mode);
     q->ensureCursorVisible();
 }
@@ -492,6 +498,7 @@ void QTextEditPrivate::update(const QRect &contentsRect)
 
 void QTextEditPrivate::selectionChanged()
 {
+    Q_Q(QTextEdit);
     bool current = cursor.hasSelection();
     if (current == lastSelectionState)
         return;
@@ -504,6 +511,7 @@ void QTextEditPrivate::selectionChanged()
 
 bool QTextEditPrivate::pageUp(QTextCursor::MoveMode moveMode)
 {
+    Q_Q(QTextEdit);
     int targetY = vbar->value() - viewport->height();
     bool moved = false;
     do {
@@ -520,6 +528,7 @@ bool QTextEditPrivate::pageUp(QTextCursor::MoveMode moveMode)
 
 bool QTextEditPrivate::pageDown(QTextCursor::MoveMode moveMode)
 {
+    Q_Q(QTextEdit);
     int targetY = vbar->value() + viewport->height();
     bool moved = false;
     do {
@@ -559,9 +568,9 @@ void QTextEditPrivate::adjustScrollbars()
 
 void QTextEditPrivate::setClipboardSelection()
 {
-    if (!d->cursor.hasSelection())
+    if (!cursor.hasSelection())
         return;
-    QMimeData *data = createMimeData(d->cursor);
+    QMimeData *data = createMimeData(cursor);
     QApplication::clipboard()->setMimeData(data, QClipboard::Selection);
 }
 
@@ -583,7 +592,7 @@ void QTextEditPrivate::ensureVisible(int documentPosition)
         return;
 
     const int y = qRound(layoutPos.y() + line.y());
-    d->vbar->setValue(y);
+    vbar->setValue(y);
 }
 
 // QRect QTextEditPrivate::cursorRect() const
@@ -596,6 +605,7 @@ void QTextEditPrivate::ensureVisible(int documentPosition)
 
 void QTextEditPrivate::emitCursorPosChanged(const QTextCursor &someCursor)
 {
+    Q_Q(QTextEdit);
     if (someCursor.isCopyOf(cursor)) {
         emit q->cursorPositionChanged();
         q->updateMicroFocus();
@@ -604,6 +614,7 @@ void QTextEditPrivate::emitCursorPosChanged(const QTextCursor &someCursor)
 
 void QTextEditPrivate::setBlinkingCursorEnabled(bool enable)
 {
+    Q_Q(QTextEdit);
     if (enable)
         cursorBlinkTimer.start(QApplication::cursorFlashTime() / 2, q);
     else
@@ -839,6 +850,7 @@ void QTextEditPrivate::setBlinkingCursorEnabled(bool enable)
 QTextEdit::QTextEdit(QWidget *parent)
     : QViewport(*new QTextEditPrivate, parent)
 {
+    Q_D(QTextEdit);
     d->init();
 }
 
@@ -848,6 +860,7 @@ QTextEdit::QTextEdit(QWidget *parent)
 QTextEdit::QTextEdit(QTextEditPrivate &dd, QWidget *parent)
     : QViewport(dd, parent)
 {
+    Q_D(QTextEdit);
     d->init();
 }
 
@@ -858,6 +871,7 @@ QTextEdit::QTextEdit(QTextEditPrivate &dd, QWidget *parent)
 QTextEdit::QTextEdit(const QString &text, QWidget *parent)
     : QViewport(*new QTextEditPrivate, parent)
 {
+    Q_D(QTextEdit);
     QTextDocumentFragment fragment = QTextDocumentFragment::fromHtml(text);
     d->init(fragment);
 }
@@ -870,6 +884,7 @@ QTextEdit::QTextEdit(const QString &text, QWidget *parent)
 QTextEdit::QTextEdit(QWidget *parent, const char *name)
     : QViewport(*new QTextEditPrivate, parent)
 {
+    Q_D(QTextEdit);
     d->init();
     setObjectName(name);
 }
@@ -890,6 +905,7 @@ QTextEdit::~QTextEdit()
 */
 float QTextEdit::fontPointSize() const
 {
+    Q_D(const QTextEdit);
     return d->cursor.charFormat().fontPointSize();
 }
 
@@ -900,6 +916,7 @@ float QTextEdit::fontPointSize() const
 */
 QString QTextEdit::fontFamily() const
 {
+    Q_D(const QTextEdit);
     return d->cursor.charFormat().fontFamily();
 }
 
@@ -910,6 +927,7 @@ QString QTextEdit::fontFamily() const
 */
 int QTextEdit::fontWeight() const
 {
+    Q_D(const QTextEdit);
     return d->cursor.charFormat().fontWeight();
 }
 
@@ -921,6 +939,7 @@ int QTextEdit::fontWeight() const
 */
 bool QTextEdit::fontUnderline() const
 {
+    Q_D(const QTextEdit);
     return d->cursor.charFormat().fontUnderline();
 }
 
@@ -932,6 +951,7 @@ bool QTextEdit::fontUnderline() const
 */
 bool QTextEdit::fontItalic() const
 {
+    Q_D(const QTextEdit);
     return d->cursor.charFormat().fontItalic();
 }
 
@@ -942,6 +962,7 @@ bool QTextEdit::fontItalic() const
 */
 QColor QTextEdit::textColor() const
 {
+    Q_D(const QTextEdit);
     return d->cursor.charFormat().textColor();
 }
 
@@ -952,6 +973,7 @@ QColor QTextEdit::textColor() const
 */
 QFont QTextEdit::currentFont() const
 {
+    Q_D(const QTextEdit);
     return d->cursor.charFormat().font();
 }
 
@@ -963,6 +985,7 @@ QFont QTextEdit::currentFont() const
 */
 void QTextEdit::setAlignment(Qt::Alignment a)
 {
+    Q_D(QTextEdit);
     if (d->readOnly)
 	return;
     QTextBlockFormat fmt;
@@ -978,6 +1001,7 @@ void QTextEdit::setAlignment(Qt::Alignment a)
 */
 Qt::Alignment QTextEdit::alignment() const
 {
+    Q_D(const QTextEdit);
     return d->cursor.blockFormat().alignment();
 }
 
@@ -992,6 +1016,7 @@ Qt::Alignment QTextEdit::alignment() const
 */
 void QTextEdit::setDocument(QTextDocument *document)
 {
+    Q_D(QTextEdit);
     d->doc->disconnect(this);
     d->doc->documentLayout()->disconnect(this);
 
@@ -1009,6 +1034,7 @@ void QTextEdit::setDocument(QTextDocument *document)
 */
 QTextDocument *QTextEdit::document() const
 {
+    Q_D(const QTextEdit);
     return d->doc;
 }
 
@@ -1017,6 +1043,7 @@ QTextDocument *QTextEdit::document() const
 */
 void QTextEdit::setTextCursor(const QTextCursor &cursor)
 {
+    Q_D(QTextEdit);
     d->cursor = cursor;
     d->updateCurrentCharFormatAndSelection();
     ensureCursorVisible();
@@ -1028,6 +1055,7 @@ void QTextEdit::setTextCursor(const QTextCursor &cursor)
  */
 QTextCursor QTextEdit::textCursor() const
 {
+    Q_D(const QTextEdit);
     return d->cursor;
 }
 
@@ -1038,6 +1066,7 @@ QTextCursor QTextEdit::textCursor() const
 */
 void QTextEdit::setFontFamily(const QString &fontFamily)
 {
+    Q_D(QTextEdit);
     if (d->readOnly)
 	return;
     QTextCharFormat fmt;
@@ -1055,6 +1084,7 @@ void QTextEdit::setFontFamily(const QString &fontFamily)
 */
 void QTextEdit::setFontPointSize(float s)
 {
+    Q_D(QTextEdit);
     if (d->readOnly)
 	return;
     QTextCharFormat fmt;
@@ -1069,6 +1099,7 @@ void QTextEdit::setFontPointSize(float s)
 */
 void QTextEdit::setFontWeight(int w)
 {
+    Q_D(QTextEdit);
     if (d->readOnly)
 	return;
     QTextCharFormat fmt;
@@ -1084,6 +1115,7 @@ void QTextEdit::setFontWeight(int w)
 */
 void QTextEdit::setFontUnderline(bool b)
 {
+    Q_D(QTextEdit);
     if (d->readOnly)
 	return;
     QTextCharFormat fmt;
@@ -1099,6 +1131,7 @@ void QTextEdit::setFontUnderline(bool b)
 */
 void QTextEdit::setFontItalic(bool b)
 {
+    Q_D(QTextEdit);
     if (d->readOnly)
 	return;
     QTextCharFormat fmt;
@@ -1113,6 +1146,7 @@ void QTextEdit::setFontItalic(bool b)
 */
 void QTextEdit::setTextColor(const QColor &c)
 {
+    Q_D(QTextEdit);
     if (d->readOnly)
 	return;
     QTextCharFormat fmt;
@@ -1127,6 +1161,7 @@ void QTextEdit::setTextColor(const QColor &c)
 */
 void QTextEdit::setCurrentFont(const QFont &f)
 {
+    Q_D(QTextEdit);
     if (d->readOnly)
 	return;
     QTextCharFormat fmt;
@@ -1167,6 +1202,7 @@ void QTextEdit::setCurrentFont(const QFont &f)
 
 void QTextEdit::cut()
 {
+    Q_D(QTextEdit);
     if (d->readOnly || !d->cursor.hasSelection())
 	return;
     copy();
@@ -1181,6 +1217,7 @@ void QTextEdit::cut()
 
 void QTextEdit::copy()
 {
+    Q_D(QTextEdit);
     if (!d->cursor.hasSelection())
 	return;
     QMimeData *data = createMimeData(d->cursor);
@@ -1198,6 +1235,7 @@ void QTextEdit::copy()
 
 void QTextEdit::paste()
 {
+    Q_D(QTextEdit);
     d->paste(QApplication::clipboard()->mimeData());
 }
 
@@ -1208,6 +1246,7 @@ void QTextEdit::paste()
 */
 void QTextEdit::clear()
 {
+    Q_D(QTextEdit);
     selectAll();
     d->cursor.removeSelectedText();
 }
@@ -1220,6 +1259,7 @@ void QTextEdit::clear()
  */
 void QTextEdit::selectAll()
 {
+    Q_D(QTextEdit);
     d->cursor.movePosition(QTextCursor::Start);
     d->cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
     d->selectionChanged();
@@ -1232,6 +1272,7 @@ void QTextEdit::selectAll()
 
 void QTextEdit::timerEvent(QTimerEvent *ev)
 {
+    Q_D(QTextEdit);
     if (ev->timerId() == d->cursorBlinkTimer.timerId()) {
         d->cursorOn = !d->cursorOn;
 
@@ -1261,6 +1302,7 @@ void QTextEdit::timerEvent(QTimerEvent *ev)
 
 void QTextEdit::setPlainText(const QString &text)
 {
+    Q_D(QTextEdit);
     QTextDocumentFragment fragment = QTextDocumentFragment::fromPlainText(text);
     d->init(fragment);
     d->preferRichText = false;
@@ -1292,6 +1334,7 @@ void QTextEdit::setPlainText(const QString &text)
 
 void QTextEdit::setHtml(const QString &text)
 {
+    Q_D(QTextEdit);
     QTextDocumentFragment fragment = QTextDocumentFragment::fromHtml(text);
     d->init(fragment);
     d->preferRichText = true;
@@ -1301,6 +1344,7 @@ void QTextEdit::setHtml(const QString &text)
 */
 void QTextEdit::keyPressEvent(QKeyEvent *e)
 {
+    Q_D(QTextEdit);
     if (d->readOnly) {
         switch (e->key()) {
             case Qt::Key_Home:
@@ -1465,6 +1509,7 @@ process:
 */
 int QTextEdit::heightForWidth(int width) const
 {
+    Q_D(const QTextEdit);
     QAbstractTextDocumentLayout *layout = d->doc->documentLayout();
     const int oldWidth = layout->sizeUsed().width();
     layout->setPageSize(QSize(width, INT_MAX));
@@ -1477,6 +1522,7 @@ int QTextEdit::heightForWidth(int width) const
 */
 void QTextEdit::resizeEvent(QResizeEvent *)
 {
+    Q_D(QTextEdit);
     QAbstractTextDocumentLayout *layout = d->doc->documentLayout();
 
     if (QTextDocumentLayout *tlayout = qt_cast<QTextDocumentLayout *>(layout)) {
@@ -1538,6 +1584,7 @@ void QTextEdit::resizeEvent(QResizeEvent *)
 */
 void QTextEdit::paintEvent(QPaintEvent *ev)
 {
+    Q_D(QTextEdit);
     QPainter p(d->viewport);
 
     const int xOffset = d->hbar->value();
@@ -1565,6 +1612,7 @@ void QTextEdit::paintEvent(QPaintEvent *ev)
 */
 void QTextEdit::mousePressEvent(QMouseEvent *ev)
 {
+    Q_D(QTextEdit);
     if (!(ev->button() & Qt::LeftButton))
         return;
 
@@ -1614,6 +1662,7 @@ void QTextEdit::mousePressEvent(QMouseEvent *ev)
 */
 void QTextEdit::mouseMoveEvent(QMouseEvent *ev)
 {
+    Q_D(QTextEdit);
     if (!(ev->buttons() & Qt::LeftButton)
         || !d->mousePressed)
         return;
@@ -1640,6 +1689,7 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *ev)
 */
 void QTextEdit::mouseReleaseEvent(QMouseEvent *ev)
 {
+    Q_D(QTextEdit);
     if (d->mightStartDrag) {
         d->mousePressed = false;
         d->setCursorPosition(ev->pos());
@@ -1667,6 +1717,7 @@ void QTextEdit::mouseReleaseEvent(QMouseEvent *ev)
 */
 void QTextEdit::mouseDoubleClickEvent(QMouseEvent *ev)
 {
+    Q_D(QTextEdit);
     if (ev->button() != Qt::LeftButton) {
         ev->ignore();
         return;
@@ -1689,6 +1740,7 @@ void QTextEdit::mouseDoubleClickEvent(QMouseEvent *ev)
 */
 bool QTextEdit::focusNextPrevChild(bool next)
 {
+    Q_D(const QTextEdit);
     Q_UNUSED(next)
 // ###
     return d->readOnly;
@@ -1715,6 +1767,7 @@ void QTextEdit::contextMenuEvent(QContextMenuEvent *ev)
 */
 void QTextEdit::dragEnterEvent(QDragEnterEvent *ev)
 {
+    Q_D(QTextEdit);
     if (d->readOnly || !dataHasText(ev->mimeData())) {
         ev->ignore();
         return;
@@ -1727,6 +1780,7 @@ void QTextEdit::dragEnterEvent(QDragEnterEvent *ev)
 */
 void QTextEdit::dragMoveEvent(QDragMoveEvent *ev)
 {
+    Q_D(QTextEdit);
     if (d->readOnly || !dataHasText(ev->mimeData())) {
         ev->ignore();
         return;
@@ -1747,6 +1801,7 @@ void QTextEdit::dragMoveEvent(QDragMoveEvent *ev)
 */
 void QTextEdit::dropEvent(QDropEvent *ev)
 {
+    Q_D(QTextEdit);
     if (d->readOnly || !dataHasText(ev->mimeData()))
         return;
 
@@ -1764,6 +1819,7 @@ void QTextEdit::dropEvent(QDropEvent *ev)
  */
 void QTextEdit::inputMethodEvent(QInputMethodEvent *e)
 {
+    Q_D(QTextEdit);
     if (d->readOnly) {
         e->ignore();
         return;
@@ -1799,7 +1855,8 @@ void QTextEdit::inputMethodEvent(QInputMethodEvent *e)
 */
 QVariant QTextEdit::inputMethodQuery(Qt::InputMethodQuery property) const
 {
-   QTextBlock block = d->cursor.block();
+    Q_D(const QTextEdit);
+    QTextBlock block = d->cursor.block();
     switch(property) {
     case Qt::ImMicroFocus:
         return d->cursorRect();
@@ -1820,6 +1877,7 @@ QVariant QTextEdit::inputMethodQuery(Qt::InputMethodQuery property) const
 */
 void QTextEdit::focusInEvent(QFocusEvent *ev)
 {
+    Q_D(QTextEdit);
     if (QFocusEvent::reason() == QFocusEvent::ActiveWindow) {
         // if we have a selection then we need to repaint, because (on windows)
         // the palette for active and inactive windows can have different colors
@@ -1838,6 +1896,7 @@ void QTextEdit::focusInEvent(QFocusEvent *ev)
 */
 void QTextEdit::focusOutEvent(QFocusEvent *ev)
 {
+    Q_D(QTextEdit);
     if (QFocusEvent::reason() == QFocusEvent::ActiveWindow) {
         // if we have a selection then we need to repaint, because (on windows)
         // the palette for active and inactive windows can have different colors
@@ -1855,6 +1914,7 @@ void QTextEdit::focusOutEvent(QFocusEvent *ev)
 */
 void QTextEdit::showEvent(QShowEvent *)
 {
+    Q_D(QTextEdit);
     if (!d->anchorToScrollToWhenVisible.isEmpty()) {
         scrollToAnchor(d->anchorToScrollToWhenVisible);
         d->anchorToScrollToWhenVisible = QString::null;
@@ -1865,6 +1925,7 @@ void QTextEdit::showEvent(QShowEvent *)
 */
 void QTextEdit::changeEvent(QEvent *ev)
 {
+    Q_D(QTextEdit);
     QViewport::changeEvent(ev);
     if (ev->type() == QEvent::ApplicationFontChange
         || ev->type() == QEvent::FontChange) {
@@ -1881,6 +1942,7 @@ void QTextEdit::changeEvent(QEvent *ev)
 */
 void QTextEdit::wheelEvent(QWheelEvent *ev)
 {
+    Q_D(QTextEdit);
     if (d->readOnly) {
         if (ev->modifiers() & Qt::ControlModifier) {
             const int delta = ev->delta();
@@ -1903,6 +1965,7 @@ void QTextEdit::wheelEvent(QWheelEvent *ev)
 */
 QMenu *QTextEdit::createPopupMenu(const QPoint &pos)
 {
+    Q_D(QTextEdit);
     Q_UNUSED(pos);
 
     QMenu *menu = new QMenu(this);
@@ -1954,11 +2017,13 @@ QMenu *QTextEdit::createPopupMenu(const QPoint &pos)
 
 bool QTextEdit::isReadOnly() const
 {
+    Q_D(const QTextEdit);
     return d->readOnly;
 }
 
 void QTextEdit::setReadOnly(bool ro)
 {
+    Q_D(QTextEdit);
     if (d->readOnly == ro)
         return;
 
@@ -1978,6 +2043,7 @@ void QTextEdit::setReadOnly(bool ro)
  */
 void QTextEdit::mergeCurrentCharFormat(const QTextCharFormat &modifier)
 {
+    Q_D(QTextEdit);
     if (d->readOnly)
         return;
 
@@ -1996,6 +2062,7 @@ void QTextEdit::mergeCurrentCharFormat(const QTextCharFormat &modifier)
  */
 void QTextEdit::setCurrentCharFormat(const QTextCharFormat &format)
 {
+    Q_D(QTextEdit);
     d->cursor.setCharFormat(format);
     d->lastCharFormat = format;
 }
@@ -2005,6 +2072,7 @@ void QTextEdit::setCurrentCharFormat(const QTextCharFormat &format)
  */
 QTextCharFormat QTextEdit::currentCharFormat() const
 {
+    Q_D(const QTextEdit);
     return d->cursor.charFormat();
 }
 
@@ -2022,11 +2090,13 @@ QTextCharFormat QTextEdit::currentCharFormat() const
 
 QTextEdit::AutoFormatting QTextEdit::autoFormatting() const
 {
+    Q_D(const QTextEdit);
     return d->autoFormatting;
 }
 
 void QTextEdit::setAutoFormatting(AutoFormatting features)
 {
+    Q_D(QTextEdit);
     d->autoFormatting = features;
 }
 
@@ -2042,6 +2112,7 @@ void QTextEdit::setAutoFormatting(AutoFormatting features)
  */
 void QTextEdit::insertPlainText(const QString &text)
 {
+    Q_D(QTextEdit);
     d->cursor.insertText(text);
 }
 
@@ -2058,6 +2129,7 @@ void QTextEdit::insertPlainText(const QString &text)
  */
 void QTextEdit::insertHtml(const QString &text)
 {
+    Q_D(QTextEdit);
     QTextDocumentFragment fragment = QTextDocumentFragment::fromHtml(text);
     d->cursor.insertFragment(fragment);
 }
@@ -2069,6 +2141,7 @@ void QTextEdit::insertHtml(const QString &text)
 */
 void QTextEdit::scrollToAnchor(const QString &name)
 {
+    Q_D(QTextEdit);
     if (name.isEmpty())
         return;
 
@@ -2140,11 +2213,13 @@ void QTextEdit::zoomOut(int range)
 
 bool QTextEdit::tabChangesFocus() const
 {
+    Q_D(const QTextEdit);
     return d->tabChangesFocus;
 }
 
 void QTextEdit::setTabChangesFocus(bool b)
 {
+    Q_D(QTextEdit);
     d->tabChangesFocus = b;
 }
 
@@ -2169,11 +2244,13 @@ void QTextEdit::setTabChangesFocus(bool b)
 
 QTextEdit::WordWrap QTextEdit::wordWrap() const
 {
+    Q_D(const QTextEdit);
     return d->wordWrap;
 }
 
 void QTextEdit::setWordWrap(WordWrap wrap)
 {
+    Q_D(QTextEdit);
     if (d->wordWrap == wrap)
         return;
     d->wordWrap = wrap;
@@ -2195,11 +2272,13 @@ void QTextEdit::setWordWrap(WordWrap wrap)
 
 int QTextEdit::wrapColumnOrWidth() const
 {
+    Q_D(const QTextEdit);
     return d->wrapColumnOrWidth;
 }
 
 void QTextEdit::setWrapColumnOrWidth(int w)
 {
+    Q_D(QTextEdit);
     d->wrapColumnOrWidth = w;
     resizeEvent(0);
 }
@@ -2212,6 +2291,7 @@ void QTextEdit::setWrapColumnOrWidth(int w)
 */
 bool QTextEdit::find(const QString &exp, QTextDocument::FindFlags options, QTextDocument::FindDirection direction)
 {
+    Q_D(QTextEdit);
     QTextCursor search = d->doc->find(exp, d->cursor, options, direction);
     if (search.isNull())
         return false;
@@ -2268,6 +2348,7 @@ bool QTextEdit::find(const QString &exp, QTextDocument::FindFlags options, QText
 */
 void QTextEdit::moveCursor(CursorAction action, QTextCursor::MoveMode mode)
 {
+    Q_D(QTextEdit);
     if (action == MovePageUp) {
         d->pageUp(mode);
         return;
@@ -2304,6 +2385,7 @@ void QTextEdit::moveCursor(CursorAction action, QTextCursor::MoveMode mode)
 */
 void QTextEdit::doKeyboardAction(KeyboardAction action)
 {
+    Q_D(QTextEdit);
     switch (action) {
         case ActionBackspace: d->cursor.deletePreviousChar(); break;
         case ActionDelete: d->cursor.deleteChar(); break;
@@ -2336,6 +2418,7 @@ void QTextEdit::doKeyboardAction(KeyboardAction action)
 */
 void QTextEdit::setText(const QString &text)
 {
+    Q_D(QTextEdit);
     if (d->textFormat == Qt::AutoText)
         d->textFormat = Qt::mightBeRichText(text) ? Qt::RichText : Qt::PlainText;
     if (d->textFormat == Qt::RichText)
@@ -2349,6 +2432,7 @@ void QTextEdit::setText(const QString &text)
 */
 QString QTextEdit::text() const
 {
+    Q_D(const QTextEdit);
     if (d->textFormat == Qt::RichText || (d->textFormat == Qt::AutoText && d->preferRichText))
         return d->doc->toHtml();
     else
@@ -2363,6 +2447,7 @@ QString QTextEdit::text() const
 */
 void QTextEdit::setTextFormat(Qt::TextFormat f)
 {
+    Q_D(QTextEdit);
     d->textFormat = f;
 }
 
@@ -2373,6 +2458,7 @@ void QTextEdit::setTextFormat(Qt::TextFormat f)
 */
 Qt::TextFormat QTextEdit::textFormat() const
 {
+    Q_D(const QTextEdit);
     return d->textFormat;
 }
 
@@ -2384,6 +2470,7 @@ Qt::TextFormat QTextEdit::textFormat() const
 */
 void QTextEdit::append(const QString &text)
 {
+    Q_D(QTextEdit);
     Qt::TextFormat f = d->textFormat;
     if (f == Qt::AutoText) {
         if (Qt::mightBeRichText(text))
@@ -2437,6 +2524,7 @@ QRect QTextEditPrivate::cursorRect() const
 */
 void QTextEdit::ensureCursorVisible()
 {
+    Q_D(QTextEdit);
     QRect crect = d->cursorRect();
 
     const int visibleWidth = d->viewport->width();
@@ -2630,4 +2718,5 @@ void QTextEdit::ensureCursorVisible()
 */
 
 
+#define d d_func()
 #include "moc_qtextedit.cpp"
