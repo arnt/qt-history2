@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#31 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#32 $
 **
 ** Definition of QListBox widget class
 **
@@ -14,6 +14,7 @@
 #define QLISTBOX_H
 
 #include "qtablevw.h"
+#include "qpixmap.h"
 
 
 #define LBI_Undefined	0			// list box item types
@@ -21,21 +22,67 @@
 #define LBI_Pixmap	2
 #define LBI_UserDefined 1000
 
-struct QLBItem					// list box item
-{
-    QLBItem()			{ data=0;     type=LBI_Undefined; }
-    QLBItem( const char *txt  )	{ text=txt;   type=LBI_Text; }
-    QLBItem( QPixmap	*pm )	{ pixmap=pm;  type=LBI_Pixmap; }
-    int type;
-    union {
-	QPixmap	   *pixmap;
-	const char *text;
-	void	   *data;
-    };
-};
 
 class QStrList;
 class QLBItemList;
+
+class QColorGroup;
+class QListBox;
+
+class QListBoxItem : public QObject
+{
+    Q_OBJECT
+public:
+    QListBoxItem() {};
+    virtual ~QListBoxItem() {};
+
+    const char *text() const { return txt; }
+    virtual const QPixmap *pixmap() { return 0; }
+    virtual int height( const QListBox * ) const = 0;
+    virtual int width( const QListBox * ) const = 0;
+
+protected:
+    virtual void paint( QPainter *, QSize, const QColorGroup, GUIStyle,
+			bool selected, bool focus ) = 0;
+    void setText( const char *s ) { txt = s; }
+
+private:
+    QString txt;
+    friend class QListBox;
+};
+
+
+class QListBoxString : public QListBoxItem
+{	
+    Q_OBJECT
+public:
+    QListBoxString( const char * = 0 );
+    ~QListBoxString();
+protected:
+    virtual void paint( QPainter *, QSize, const QColorGroup, GUIStyle,
+			bool selected, bool focus );
+    virtual int height( const QListBox * ) const;
+    virtual int width( const QListBox * ) const; 
+};
+
+
+class QListBoxPixmap : public QListBoxItem
+{
+    Q_OBJECT
+public:
+    QListBoxPixmap( const QPixmap );
+    ~QListBoxPixmap();
+
+    const QPixmap *pixmap() { return &pm; }
+protected:
+    virtual void paint( QPainter *, QSize, const QColorGroup, GUIStyle,
+			bool selected, bool focus );
+    virtual int height( const QListBox * ) const;
+    virtual int width( const QListBox * ) const;
+
+private:
+    QPixmap pm;
+};
 
 
 class QListBox : public QTableView		// list box widget
@@ -52,8 +99,10 @@ public:
     void	insertStrList( const QStrList *, int index=-1 );
     void	insertStrList( const char**, int numStrings=-1, int index=-1 );
 
+    void	insertItem( const QListBoxItem *, int index=-1 );
     void	insertItem( const char *text, int index=-1 );
     void	insertItem( const QPixmap &pixmap, int index=-1 );
+    void	inSort( const QListBoxItem * );
     void	inSort( const char *text );
 
     void	removeItem( int index );
@@ -61,6 +110,8 @@ public:
 
     const char *text( int index )	const;
     const QPixmap *pixmap( int index )	const;
+
+    void	changeItem( const QListBoxItem *, int index );
     void	changeItem( const char *text, int index );
     void	changeItem( const QPixmap &pixmap, int index );
 
@@ -98,20 +149,7 @@ signals:
     void	selected( int index );
 
 protected:
-    virtual int itemWidth( QLBItem * );
-    virtual int itemHeight( QLBItem * );
-
-    bool	userItems()	const;
-    void	setUserItems( bool );
-
-    virtual QLBItem *newItem();
-    virtual void     deleteItem( QLBItem * );
-
-    virtual void paintItem( QPainter *, int index );
-
-    void	insertItem( const QLBItem *, int index=-1 );
-    void	changeItem( const QLBItem *, int index );
-    QLBItem    *item( int index ) const;
+    QListBoxItem    *item( int index ) const;
     bool	itemVisible( int index );
 
     int		cellHeight( int index = 0 );
@@ -133,14 +171,10 @@ protected:
     void	updateCellWidth();
 
 private:
-    QLBItem    *newAny( const char *, const QPixmap * );
-    void	insertAny( const char *, const QPixmap *,
-			   const QLBItem *, int, bool );
-    void	changeAny( const char *, const QPixmap *,
-			   const QLBItem *, int );
     void	updateNumRows( bool );
-    int		internalItemWidth( const QLBItem *,
-				   const QFontMetrics & ) const;
+    void	insertDangerously( const QListBoxItem *, int index, 
+				   bool updateCellWidth );
+    void	changeDangerously( const QListBoxItem *lbi, int index );
 
     uint	doDrag		: 1;
     uint	doAutoScroll	: 1;
@@ -148,7 +182,6 @@ private:
     uint	scrollDown	: 1;
     uint	stringsOnly	: 1;
     uint	multiSelect	: 1;
-    uint	ownerDrawn	: 1;
     uint	goingDown	: 1;
     int		current;
     QLBItemList *itemList;
