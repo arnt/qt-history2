@@ -82,12 +82,14 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
         iface = new QAccessibleLineEdit(widget);
     } else if (classname == "QComboBox") {
         iface = new QAccessibleComboBox(widget);
+#ifndef NO_RANGECONTROLS
     } else if (classname == "QSpinBox") {
         iface = new QAccessibleSpinBox(widget);
     } else if (classname == "QScrollBar") {
         iface = new QAccessibleScrollBar(widget);
     } else if (classname == "QSlider") {
         iface = new QAccessibleSlider(widget);
+#endif
     } else if (classname == "QToolButton") {
         Role role = NoRole;
         QToolButton *tb = qt_cast<QToolButton*>(widget);

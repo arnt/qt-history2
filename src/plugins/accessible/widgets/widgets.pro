@@ -8,6 +8,7 @@ VERSION  = 1.0.0
 
 QTDIR_build:REQUIRES += "contains(QT_CONFIG, accessibility)"
 
+DEFINES += NO_RANGECONTROLS #until rangecontrols.cpp is linked in again
 SOURCES  += main.cpp \
 	    simplewidgets.cpp \
 #	    rangecontrols.cpp \
