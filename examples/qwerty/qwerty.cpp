@@ -107,8 +107,13 @@ void Editor::rebuildCodecList()
 void Editor::newDoc()
 {
     Editor *ed = new Editor;
-    ed->resize( 400, 400 );
-    ed->show();
+    if ( qApp->desktop()->size().width() < 450 
+	 || qApp->desktop()->size().height() < 450 ) {
+	ed->showMaximized();
+    } else {
+	ed->resize( 400, 400 );
+	ed->show();
+    }
 }
 
 
