@@ -40,7 +40,7 @@ a message handler using qInstallMsgHandler() and creates a QErrorMessage
 that displays the qDebug()/qWarning()/qFatal() messages.
 
 In both cases will QErrorMessage queue up pending messages, and display
-then (or not) in order, as soon as the user presses Enter or clicks OK
+them (or not) in order, as soon as the user presses Enter or clicks OK
 after seeing each message.
 
 \sa QMessageBox QStatusBar::message()
