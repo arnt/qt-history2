@@ -1554,6 +1554,9 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	}
     }
 
+    QDomElement sizePolicyElement;
+    QObject *sizePolicyObject = 0;
+
     while ( !n.isNull() ) {
 	if ( n.tagName() == "spacer" ) {
 	    createSpacer( n, w, layout, Qt::Horizontal );
@@ -1574,8 +1577,14 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	    obj = layout;
 	    n = n.firstChild().toElement();
 	    continue;
-	} else if ( n.tagName() == "property" && obj ) {
-	    setObjectProperty( obj, n.attribute( "name" ), n.firstChild().toElement() );
+	} else if ( n.tagName() == "property" && obj ) {	    
+	    if ( n.attribute( "name" ) == "sizePolicy" ) {
+		// ### Evil hack ### Delay setting sizePolicy so it won't be overridden by other properties.
+		sizePolicyElement = n;
+		sizePolicyObject = obj;
+	    } else {
+		setObjectProperty( obj, n.attribute( "name" ), n.firstChild().toElement() );
+	    }
 	} else if ( n.tagName() == "attribute" && w ) {
 	    QString attrib = n.attribute( "name" );
 	    QVariant v = DomTool::elementToVariant( n.firstChild().toElement(), QVariant() );
@@ -1611,6 +1620,13 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	}
 
 	n = n.nextSibling().toElement();
+    }
+
+    // ### Evil hack ### See description above.
+    if ( !sizePolicyElement.isNull() ) {
+	setObjectProperty( sizePolicyObject,
+			   sizePolicyElement.attribute( "name" ),
+			   sizePolicyElement.firstChild().toElement() );
     }
 
     if ( w->isWidgetType() )
