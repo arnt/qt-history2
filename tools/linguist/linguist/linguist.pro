@@ -31,7 +31,6 @@ include( ../../../src/qt_professional.pri )
 TARGET		= linguist
 INCLUDEPATH	= ../pics \
 		  ../shared \
-		  ../../../src/kernel
 DESTDIR		= ../../../bin
 
 PROJECTNAME	= Qt Linguist

@@ -41,7 +41,7 @@
 #include <qfont.h>
 #include <qaccel.h>
 
-#include <qrichtext_p.h>
+#include <private/qrichtext_p.h>
 
 #include "trwindow.h"
 
@@ -154,8 +154,8 @@ void ShadowWidget::paintEvent( QPaintEvent * e )
     QPainter p;
     int w = width() - sWidth;
     int h = height() - sWidth;
-	
-	
+
+
     if ( !((w > 0) && (h > 0)) )
 	return;
 
@@ -357,7 +357,7 @@ void EditorPage::calculateFieldHeight( QTextView * field )
     int contentsHeight = field->contentsHeight();
 
     if( contentsHeight != field->height() ) {
-	int oldHeight = field->height();	
+	int oldHeight = field->height();
 	if( contentsHeight < 30 )
 	    contentsHeight = 30;
 	field->resize( field->width(), contentsHeight );
