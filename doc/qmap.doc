@@ -286,7 +286,7 @@
 
 /*!
   \fn Iterator QMap::replace( const Key& k, const T& v )
-  Replaces the value with key \a k from the map if possible and
+  Removes the value with key \a k from the map if possible and
   inserts the new value \a v with key \a k in the map.
 
   \sa insert() remove() QMapIterator
