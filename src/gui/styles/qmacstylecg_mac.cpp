@@ -4,6 +4,7 @@
 #if QT_MACOSX_VERSION >= 0x1030
 
 #include <qapplication.h>
+#include <qcombobox.h>
 #include <qevent.h>
 #include <qgroupbox.h>
 #include <qmenu.h>
@@ -832,6 +833,28 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
                               static_cast<CGContextRef>(p->handle()), kHIThemeOrientationNormal, 0);
         }
         break; }
+    case CC_ComboBox: {
+        HIThemeButtonDrawInfo bdi;
+        bdi.version = qt_mac_hitheme_version;
+        QRect comborect(r);
+        bdi.adornment = flags & Style_HasFocus ? kThemeAdornmentFocus : kThemeAdornmentNone;
+        bdi.state = subActive & SC_ComboBoxArrow ? kThemeStatePressed : tds;
+        if (static_cast<const QComboBox *>(w)->editable()) {
+            bdi.adornment |= kThemeAdornmentArrowDownArrow;
+            comborect = querySubControlMetrics(CC_ComboBox, w, SC_ComboBoxArrow, opt);
+            bdi.kind = kThemeArrowButton;
+            if (qt_aqua_size_constrain(w) == QAquaSizeSmall)
+                bdi.kind = kThemeArrowButtonSmall;
+            QRect lineeditRect(r);
+            lineeditRect.setWidth(r.width() - comborect.width());
+            drawPrimitive(PE_PanelLineEdit, p, lineeditRect, pal, flags, opt);
+        } else {
+            bdi.adornment |= kThemeAdornmentArrowLeftArrow;
+            bdi.kind = kThemePopupButton;
+        }
+        HIThemeDrawButton(qt_glb_mac_rect(comborect, p), &bdi,
+                          static_cast<CGContextRef>(p->handle()), kHIThemeOrientationNormal, 0);
+        break; }
     default:
         QWindowsStyle::drawComplexControl(control, p, w, r, pal, flags, sub, subActive, opt);
     }
@@ -981,6 +1004,15 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl control, const QWidget 
                 break;
         }
         break; }
+    case CC_ComboBox:
+        if (static_cast<const QComboBox *>(widget)->editable()) {
+            if (sc == SC_ComboBoxEditField)
+                rect = QRect(0, 0, widget->width() - 20, widget->height());
+            else if (sc == SC_ComboBoxArrow)
+                rect = QRect(widget->width() - 24, 0, 24, widget->height());
+            break;
+        }
+        // Fall through to the default case.
     default:
         rect = QWindowsStyle::querySubControlMetrics(control, widget, sc, opt);
     }
@@ -1085,6 +1117,9 @@ int QMacStyleCG::styleHint(StyleHint sh, const QWidget *widget, const QStyleOpti
         break;
     case SH_TabBar_SelectMouseType:
         ret = QEvent::MouseButtonRelease;
+        break;
+    case SH_ComboBox_Popup:
+        ret = (!widget || !static_cast<const QComboBox *>(widget)->editable());
         break;
     default:
         ret = QWindowsStyle::styleHint(sh, widget, opt, d);
