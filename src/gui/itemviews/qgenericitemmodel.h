@@ -57,7 +57,7 @@ public:
     inline QModelIndex bottomRight(const QModelIndex &parent = 0) const
 	{ return index(rowCount(parent) - 1, columnCount(parent) - 1, parent); }
     inline QModelIndex sibling(int row, int column, const QModelIndex &idx) const
-	{ return index(row, column, parent(idx)); }
+	{ return index(row, column, parent(idx)); }
 
     virtual int rowCount(const QModelIndex &parent = 0) const = 0;
     virtual int columnCount(const QModelIndex &parent = 0) const = 0;
@@ -90,7 +90,7 @@ public:
     virtual bool equal(const QModelIndex &left, const QModelIndex &right) const;
     virtual bool greater(const QModelIndex &left, const QModelIndex &right) const;
     inline bool less(const QModelIndex &left, const QModelIndex &right) const
-	{ return !greater(left, right) && !equal(left, right); }
+	{ return !(greater(left, right) || equal(left, right)); }
 
 public slots:
     virtual void fetchMore();
