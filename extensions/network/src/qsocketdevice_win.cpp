@@ -54,7 +54,7 @@ void QSocketDevice::init()
     static bool init = FALSE;
     if ( !init ) {
 	WSAData wsadata;
-	bool error = WSAStartup(MAKEWORD(1,1),&wsadata) != 0;
+	bool error = WSAStartup( MAKEWORD(1,1), &wsadata ) != 0;
 	if ( error ) {
 #if defined(CHECK_NULL)
 	    qWarning( "QSocketDevice: WinSock initialization failed" );
@@ -86,25 +86,25 @@ QSocketDevice::QSocketDevice( Type type, bool )
 	switch( WSAGetLastError() ) {
 	    // rms
 	    case WSANOTINITIALISED:
+		e = Impossible;
 		break;
 	    case WSAENETDOWN:
-		break;
-	    case WSAEAFNOSUPPORT:
-		break;
-	    case WSAEINPROGRESS:
+		// ### what to use here?
+		e = NetworkFailure;
+		//e = Inaccessible;
 		break;
 	    case WSAEMFILE:
 		e = NoFiles; // special case for this
 		break;
+	    case WSAEINPROGRESS:
 	    case WSAENOBUFS:
 		e = NoResources;
 		break;
-	    case WSAEPROTONOSUPPORT:
-		e = Bug; // 0 is supposed to work for both types
-		break;
+	    case WSAEAFNOSUPPORT:
 	    case WSAEPROTOTYPE:
-		break;
+	    case WSAEPROTONOSUPPORT:
 	    case WSAESOCKTNOSUPPORT :
+		e = Bug;
 		break;
 	    default:
 		e = UnknownError;
@@ -178,17 +178,18 @@ int QSocketDevice::option( Option opt ) const
 	    switch( WSAGetLastError() ) {
 		// rms
 		case WSANOTINITIALISED:
+		    e = Impossible;
 		    break;
 		case WSAENETDOWN:
+		    e = NetworkFailure;
 		    break;
 		case WSAEFAULT:
+		case WSAEINVAL:
+		case WSAENOPROTOOPT:
 		    e = Bug;
 		    break;
 		case WSAEINPROGRESS:
-		    break;
-		case WSAEINVAL:
-		    break;
-		case WSAENOPROTOOPT:
+		    e = NoResources;
 		    break;
 		case WSAENOTSOCK:
 		    e = Impossible;
@@ -230,21 +231,22 @@ void QSocketDevice::setOption( Option opt, int v )
 	switch( WSAGetLastError() ) {
 	    // rms
 	    case WSANOTINITIALISED:
+		e = Impossible;
 		break;
 	    case WSAENETDOWN:
+		e = NetworkFailure;
 		break;
 	    case WSAEFAULT:
+	    case WSAEINVAL:
+	    case WSAENOPROTOOPT:
 		e = Bug;
 		break;
 	    case WSAEINPROGRESS:
-		break;
-	    case WSAEINVAL:
+		e = NoResources;
 		break;
 	    case WSAENETRESET:
-		break;
-	    case WSAENOPROTOOPT:
-		break;
 	    case WSAENOTCONN:
+		e =  Impossible; // ### ?
 		break;
 	    case WSAENOTSOCK:
 		e = Impossible;
@@ -274,40 +276,48 @@ bool QSocketDevice::connect( const QHostAddress &addr, uint port )
 	switch( WSAGetLastError() ) {
 	    // rms
 	    case WSANOTINITIALISED:
+		e = Impossible;
 		break;
 	    case WSAENETDOWN:
+		e = NetworkFailure;
 		break;
 	    case WSAEADDRINUSE:
+	    case WSAEINPROGRESS:
+	    case WSAENOBUFS:
+		e = NoResources;
 		break;
 	    case WSAEINTR:
-		break;
-	    case WSAEINPROGRESS:
+		e = UnknownError; // ### ?
 		break;
 	    case WSAEALREADY:
+		// ### ?
 		break;
 	    case WSAEADDRNOTAVAIL:
+		e = ConnectionRefused; // ### ?
 		break;
 	    case WSAEAFNOSUPPORT:
+	    case WSAEFAULT:
+	    case WSAEINVAL:
+		e = Bug;
 		break;
 	    case WSAECONNREFUSED:
-		break;
-	    case WSAEFAULT:
-		break;
-	    case WSAEINVAL:
+		e = ConnectionRefused;
 		break;
 	    case WSAEISCONN:
+		e = Impossible; // ### ?
 		break;
 	    case WSAENETUNREACH:
-		break;
-	    case WSAENOBUFS:
+	    case WSAETIMEDOUT:
+		e = NetworkFailure;
 		break;
 	    case WSAENOTSOCK:
-		break;
-	    case WSAETIMEDOUT:
+		e = Impossible;
 		break;
 	    case WSAEWOULDBLOCK:
+		// ### ???
 		break;
 	    case WSAEACCES:
+		e = Inaccessible;
 		break;
 	    default:
 		e = UnknownError;
@@ -343,25 +353,27 @@ bool QSocketDevice::bind( const QHostAddress &address, uint port )
 	switch( WSAGetLastError() ) {
 	    // rms
 	    case WSANOTINITIALISED:
+		e = Impossible;
 		break;
 	    case WSAENETDOWN:
+		e = NetworkFailure;
 		break;
 	    case WSAEACCES:
 		e = Inaccessible;
 		break;
-	    case WSAEADDRINUSE:
-		break;
 	    case WSAEADDRNOTAVAIL:
+		e = Inaccessible;
 		break;
 	    case WSAEFAULT:
 		e = Bug;
 		break;
 	    case WSAEINPROGRESS:
+	    case WSAENOBUFS:
+		e = NoResources;
 		break;
+	    case WSAEADDRINUSE:
 	    case WSAEINVAL:
 		e = AlreadyBound;
-		break;
-	    case WSAENOBUFS:
 		break;
 	    case WSAENOTSOCK:
 		e = Impossible;
@@ -408,8 +420,10 @@ int QSocketDevice::accept()
 	switch( WSAGetLastError() ) {
 	    // rms
 	    case WSANOTINITIALISED:
+		e = Impossible;
 		break;
 	    case WSAENETDOWN:
+	    case WSAEOPNOTSUPP:
 		// in all these cases, an error happened during connection
 		// setup.  we're not interested in what happened, so we
 		// just treat it like the client-closed-quickly case.
@@ -418,25 +432,19 @@ int QSocketDevice::accept()
 		e = Bug;
 		break;
 	    case WSAEINTR:
-		break;
-	    case WSAEINPROGRESS:
-		break;
-	    case WSAEINVAL:
+		// ### ?
 		break;
 	    case WSAEMFILE:
-		break;
+	    case WSAEINPROGRESS:
 	    case WSAENOBUFS:
 		e = NoResources;
 		break;
+	    case WSAEINVAL:
 	    case WSAENOTSOCK:
 		e = Impossible;
 		break;
-	    case WSAEOPNOTSUPP:
-		// in all these cases, an error happened during connection
-		// setup.  we're not interested in what happened, so we
-		// just treat it like the client-closed-quickly case.
-		break;
 	    case WSAEWOULDBLOCK:
+		// ### ?
 		break;
 	    default:
 		e = UnknownError;
@@ -512,46 +520,42 @@ int QSocketDevice::readBlock( char *data, uint maxlen )
 	if ( r == SOCKET_ERROR && e == NoError ) {
 	    switch( WSAGetLastError() ) {
 		// rms
-		// the following errors are only from ::recv() and not from ::recvfrom()
 		case WSANOTINITIALISED:
+		    e = Impossible;
 		    break;
 		case WSAENETDOWN:
+		case WSAENETRESET:
+		case WSAECONNABORTED:
+		case WSAETIMEDOUT:
+		case WSAECONNRESET:
 		    e = NetworkFailure;
 		    break;
 		case WSAEFAULT:
-		    e = Impossible;
-		    break;
 		case WSAENOTCONN:
+		case WSAESHUTDOWN:
+		case WSAEINVAL:
 		    e = Impossible;
 		    break;
 		case WSAEINTR:
+		    // ### ?
 		    break;
 		case WSAEINPROGRESS:
-		    break;
-		case WSAENETRESET:
+		    e = NoResources;
 		    break;
 		case WSAENOTSOCK:
 		    e = Impossible;
 		    break;
 		case WSAEOPNOTSUPP:
-		    break;
-		case WSAESHUTDOWN:
+		    e = Bug; // ### ?
 		    break;
 		case WSAEWOULDBLOCK:
+		    // ### ???
 		    break;
 		case WSAEMSGSIZE:
-		    break;
-		case WSAEINVAL:
-		    e = Impossible;
-		    break;
-		case WSAECONNABORTED:
-		    break;
-		case WSAETIMEDOUT:
-		    e = NetworkFailure;
-		    break;
-		case WSAECONNRESET:
+		    e = NoResources; // ### ?
 		    break;
 		case WSAEISCONN:
+		    // ### ?
 		    break;
 		default:
 		    e = UnknownError;
@@ -598,45 +602,39 @@ int QSocketDevice::writeBlock( const char *data, uint len )
 	    switch( WSAGetLastError() ) {
 		// rms
 		case WSANOTINITIALISED:
+		    e = Impossible;
 		    break;
 		case WSAENETDOWN:
-		    e = NetworkFailure;
-		    break;
 		case WSAEACCES:
+		case WSAENETRESET:
+		case WSAESHUTDOWN:
+		case WSAEHOSTUNREACH:
+		case WSAECONNABORTED:
+		case WSAECONNRESET:
+		    e = NetworkFailure;
 		    break;
 		case WSAEINTR:
 		    done = FALSE;
 		    break;
 		case WSAEINPROGRESS:
+		    e = NoResources;
+		    // ### perhaps try it later?
 		    break;
 		case WSAEFAULT:
-		    break;
-		case WSAENETRESET:
+		case WSAEOPNOTSUPP:
+		    e = Bug;
 		    break;
 		case WSAENOBUFS:
+		case WSAEMSGSIZE:
+		    e = NoResources;
 		    break;
 		case WSAENOTCONN:
-		    e = Impossible;
-		    break;
 		case WSAENOTSOCK:
-		    e = Impossible;
-		    break;
-		case WSAEOPNOTSUPP:
-		    break;
-		case WSAESHUTDOWN:
-		    break;
-		case WSAEWOULDBLOCK:
-		    break;
-		case WSAEMSGSIZE:
-		    break;
-		case WSAEHOSTUNREACH:
-		    break;
 		case WSAEINVAL:
 		    e = Impossible;
 		    break;
-		case WSAECONNABORTED:
-		    break;
-		case WSAECONNRESET:
+		case WSAEWOULDBLOCK:
+		    // ### ???
 		    break;
 		default:
 		    e = UnknownError;
@@ -700,57 +698,44 @@ int QSocketDevice::writeBlock( const char * data, uint len,
 	    switch( WSAGetLastError() ) {
 		// rms
 		case WSANOTINITIALISED:
+		    e = Impossible;
 		    break;
 		case WSAENETDOWN:
-		    e = NetworkFailure;
-		    break;
 		case WSAEACCES:
-		    break;
-		case WSAEINVAL:
-		    e = Impossible;
+		case WSAENETRESET:
+		case WSAESHUTDOWN:
+		case WSAEHOSTUNREACH:
+		case WSAECONNABORTED:
+		case WSAECONNRESET:
+		case WSAEADDRNOTAVAIL:
+		case WSAENETUNREACH:
+		case WSAETIMEDOUT:
+		    e = NetworkFailure;
 		    break;
 		case WSAEINTR:
 		    done = FALSE;
 		    break;
 		case WSAEINPROGRESS:
+		    e = NoResources;
+		    // ### perhaps try it later?
 		    break;
 		case WSAEFAULT:
-		    break;
-		case WSAENETRESET:
+		case WSAEOPNOTSUPP:
+		case WSAEAFNOSUPPORT:
+		    e = bug;
 		    break;
 		case WSAENOBUFS:
+		case WSAEMSGSIZE:
+		    e = NoResources;
 		    break;
 		case WSAENOTCONN:
-		    e = Impossible;
-		    break;
 		case WSAENOTSOCK:
+		case WSAEINVAL:
+		case WSAEDESTADDRREQ:
 		    e = Impossible;
-		    break;
-		case WSAEOPNOTSUPP:
-		    break;
-		case WSAESHUTDOWN:
 		    break;
 		case WSAEWOULDBLOCK:
-		    break;
-		case WSAEMSGSIZE:
-		    break;
-		case WSAEHOSTUNREACH:
-		    break;
-		case WSAECONNABORTED:
-		    break;
-		case WSAECONNRESET:
-		    break;
-		case WSAEADDRNOTAVAIL:
-		    break;
-		case WSAEAFNOSUPPORT:
-		    break;
-		case WSAEDESTADDRREQ:
-		    break;
-		case WSAENETUNREACH:
-		    e = NetworkFailure;
-		    break;
-		case WSAETIMEDOUT:
-		    e = NetworkFailure;
+		    // ### ???
 		    break;
 		default:
 		    e = UnknownError;
