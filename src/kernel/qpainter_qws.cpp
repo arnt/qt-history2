@@ -1723,19 +1723,19 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len, QP
 
 	gfx->save();
 	gfx->setBrush(cpen.color());
-	
+
         // draw underline effect
         if ( cfont.underline() ) {
-	    gfx->drawLine(x,y+fm.underlinePos(), x+width, y+fm.underlinePos());
+	    gfx->fillRect(x,y+fm.underlinePos(), width, lw);
         }
 
         // draw strikeout effect
         if ( cfont.strikeOut() ) {
-	    gfx->fillRect(x,y-fm.strikeOutPos(), x+width, y-fm.strikeOutPos());
+	    gfx->fillRect(x,y-fm.strikeOutPos(), width, lw);
 	}
-	
+
 	gfx->restore();
-	
+
     }
 }
 
