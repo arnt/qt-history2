@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#229 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#230 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#229 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#230 $");
 
 
 /*****************************************************************************
@@ -2245,10 +2245,9 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 		map( x, y, &x, &y );		// compute position of pixmap
 		int dx, dy;
 		mat.map( 0, 0, &dx, &dy );
-		x -= dx;  y -= dy;
 		ushort save_flags = flags;
 		flags = IsActive | (save_flags & ClipOn);
-		drawPixmap( x, y, pm );
+		drawPixmap( x-dx, y-dy, pm );
 		flags = save_flags;
 		return;
 	    }
