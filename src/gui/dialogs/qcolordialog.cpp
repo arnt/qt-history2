@@ -204,11 +204,9 @@ void QWellArray::paintCell(QPainter* p, int row, int col)
 
     const QPalette & g = palette();
     p->setPen(QPen(Qt::black, 0, Qt::SolidLine));
-    if (row ==selRow && col == selCol &&
-         style().styleHint(QStyle::SH_GUIStyle) != Qt::MotifStyle) {
-        int n = 2;
-        p->drawRect(n, n, w-2*n, h-2*n);
-    }
+    int selectedBorder = style().styleHint(QStyle::SH_ColorDialog_SelectedColorBorder);
+    if (row ==selRow && col == selCol && selectedBorder > 0)
+        p->drawRect(selectedBorder, selectedBorder, w - 2 * selectedBorder, h - 2 * selectedBorder);
     QStyleOptionFrame opt;
     opt.lineWidth = 2;
     opt.midLineWidth = 1;
@@ -217,9 +215,7 @@ void QWellArray::paintCell(QPainter* p, int row, int col)
     opt.state = QStyle::Style_Enabled | QStyle::Style_Sunken;
     style().drawPrimitive(QStyle::PE_Panel, &opt, p, this);
 
-    int t = 0;
-    if (style().styleHint(QStyle::SH_GUIStyle) == Qt::MotifStyle)
-        t = (row == selRow && col == selCol) ? 2 : 0;
+    int t = (row == selRow && col == selCol) ? selectedBorder : 0;
     b += 2 + t;
 
     if ((row == curRow) && (col == curCol)) {

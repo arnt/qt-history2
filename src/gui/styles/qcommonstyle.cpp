@@ -2633,6 +2633,10 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         ret = Qt::StrongFocus;
         break;
 
+    case SH_ColorDialog_SelectedColorBorder:
+        ret = 0;
+        break;
+
     default:
         ret = 0;
         break;

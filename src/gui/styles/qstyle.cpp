@@ -1456,6 +1456,8 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     a '*' for windows that are modified.
 
     \value SH_Button_FocusPolicy The default focus policy for buttons.
+    \value SH_ColorDialog_SelectedColorBorder The border drawn around a
+    selected color in a color dialog.
 
     \value SH_CustomBase  Base value for custom ControlElements.
     Custom values must be greater than this value.

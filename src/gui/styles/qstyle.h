@@ -614,6 +614,9 @@ public:
 
         //bool - if underline for shortcuts
         SH_UnderlineShortcut,
+#ifdef QT_COMPAT
+        SH_UnderlineAccelerator = SH_UnderlineShortcut,
+#endif
 
         // bool - if tool buttons should use a 3D frame
         // when the mouse is over the button
@@ -636,9 +639,6 @@ public:
         // int - a scale of 0 (transparent) to 255 (solid) indicating opacity of tip label.
         SH_TipLabel_Opacity,
 
-#ifdef QT_COMPAT
-        SH_UnderlineAccelerator = SH_UnderlineShortcut,
-#endif
         // bool - if the menubar should have a menubar or not.
         SH_DrawMenuBarSeparator,
 
@@ -647,6 +647,9 @@ public:
 
         // FocusPolicy - The default focus policy for a button.
         SH_Button_FocusPolicy,
+
+        // The border of the selection square
+        SH_ColorDialog_SelectedColorBorder,
 
         // do not add any values below/greater than this
         SH_CustomBase = 0xf0000000

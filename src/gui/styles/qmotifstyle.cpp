@@ -2575,6 +2575,10 @@ int QMotifStyle::styleHint(StyleHint hint,
         ret = 0;
         break;
 
+    case SH_ColorDialog_SelectedColorBorder:
+        ret = 2;
+        break;
+
     default:
         ret = QCommonStyle::styleHint(hint, widget, opt, returnData);
         break;
