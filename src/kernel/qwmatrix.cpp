@@ -802,8 +802,8 @@ bool QWMatrix::isIdentity() const
 
 QWMatrix &QWMatrix::translate( double dx, double dy )
 {
-    _dx += dx*_m11;
-    _dy += dy*_m22;
+    _dx += dx*_m11 + dy*_m21;
+    _dy += dy*_m22 + dx*_m12;
     return *this;
 }
 
@@ -964,8 +964,8 @@ QWMatrix &QWMatrix::operator*=( const QWMatrix &m )
     double tm21 = _m21*m._m11 + _m22*m._m21;
     double tm22 = _m21*m._m12 + _m22*m._m22;
 
-#if 0 
-    /* This version is actually right, but we left it out for 
+#if 0
+    /* This version is actually right, but we left it out for
      * now to check for compability... */
     double tdx  = _m11*m._dx + _m12*m._dy + _dx;
     double tdy  = _m21*m._dx + _m22*m._dy + _dy;
@@ -976,7 +976,7 @@ QWMatrix &QWMatrix::operator*=( const QWMatrix &m )
     double tdy =  _dx*m._m12  + _dy*m._m22 + m._dy;
 #endif
   /*  */
-     
+
     _m11 = tm11; _m12 = tm12;
     _m21 = tm21; _m22 = tm22;
     _dx = tdx; _dy = tdy;
