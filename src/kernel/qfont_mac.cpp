@@ -266,7 +266,6 @@ void QFontPrivate::load()
 {
     request.dirty=FALSE;
 
-#if 0
     QString k = key();
     QFontStruct* qfs = fontCache->find(k);
     if ( !qfs ) {
@@ -274,12 +273,6 @@ void QFontPrivate::load()
 	fontCache->insert(k, qfs, 1);
     }
     qfs->ref();
-#else
-    static QFontStruct *blah = NULL;
-    if(!blah) 
-	blah = new QFontStruct(request);
-    QFontStruct *qfs = blah;
-#endif	
 
     if(fin) 
 	fin->deref();
