@@ -2188,8 +2188,10 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	} else if(ekind == kEventWindowActivated) {
 	    WindowActivationScope scope;
 	    if(GetWindowActivationScope((WindowRef)wid, &scope) == noErr && 
-		scope == kWindowActivationScopeIndependent)
-		break;
+	       scope == kWindowActivationScopeIndependent) {
+		if(GetFrontWindowOfClass(kAllWindowClasses, true) != wid)
+		    break;
+	    }
 
 	    if(QApplication::app_style) {
 		//I shouldn't have to do this, but the StyleChanged isn't happening as I expected
