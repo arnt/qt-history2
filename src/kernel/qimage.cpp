@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#97 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#98 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#97 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#98 $");
 
 
 /*!
@@ -166,7 +166,7 @@ QImage::QImage( int w, int h, int depth, int numColors, Endian bitOrder )
   \sa load()
 */
 
-QImage::QImage( const char *fileName, const char *format=0 )
+QImage::QImage( const char *fileName, const char *format )
 {
     data = new QImageData;
     CHECK_PTR( data );
