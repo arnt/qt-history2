@@ -31,7 +31,7 @@ macx-g++ {
      #never
      CONFIG -= nas mng jpeg x11 x11sm
      
-     CONFIG += shared debug
+     CONFIG += shared
      CONFIG += sqlcrap
      sqlcrap {
 	sql-driver += postgres
