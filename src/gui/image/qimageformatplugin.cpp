@@ -51,8 +51,8 @@
 
 
 /*!
-    Constructs an image format plugin. This is invoked automatically
-    by the Q_EXPORT_PLUGIN macro.
+    Constructs an image format plugin with the given \a parent. This
+    is invoked automatically by the Q_EXPORT_PLUGIN macro.
 */
 QImageFormatPlugin::QImageFormatPlugin(QObject* parent)
     :QObject(parent)

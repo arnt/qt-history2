@@ -47,8 +47,8 @@
 
 
 /*!
-    Constructs a mouse driver plugin. This is invoked automatically by
-    the \c Q_EXPORT_PLUGIN macro.
+    Constructs a mouse driver plugin with the given \a parent. This is
+    invoked automatically by the \c Q_EXPORT_PLUGIN macro.
 */
 QMouseDriverPlugin::QMouseDriverPlugin(QObject *parent)
     : QObject(parent)

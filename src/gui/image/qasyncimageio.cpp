@@ -49,9 +49,10 @@ extern void qt_init_image_plugins();
 */
 
 /*!
-    \fn void QImageConsumer::changed(const QRect&)
+    \fn void QImageConsumer::changed(const QRect& rect)
 
-    Called when the given area of the image has changed.
+    This function is called when the image has changed; the \a rect
+    specifies the affected area.
 */
 
 /*!
@@ -121,10 +122,10 @@ extern void qt_init_image_plugins();
 */
 
 /*!
-    \fn void QImageConsumer::setSize(int, int)
+    \fn void QImageConsumer::setSize(int width, int height)
 
-    This function is called as soon as the size of the image has been
-    determined.
+    This function is called with the image's \a width and \a height as
+    soon as the size of the image has been determined.
 */
 
 

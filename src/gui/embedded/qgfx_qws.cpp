@@ -65,10 +65,11 @@ void QGfx::setScreen(QScreen *,QScreenCursor *,bool,int *,int *)
 */
 
 /*!
-    \fn QScreen::setDirty(const QRect&)
+    \fn QScreen::setDirty(const QRect& rect)
 
-    Indicates which section of the screen has been altered. Used by
-    the VNC and VFB displays; the QScreen version does nothing.
+    Indicates the rectangle, \a rect, of the screen that has been
+    altered. Used by the VNC and VFB displays; the QScreen version
+    does nothing.
 */
 
 void QScreen::setDirty(const QRect&)
@@ -127,12 +128,13 @@ QSize QScreen::mapFromDevice(const QSize &s) const
 }
 
 /*!
-    \fn QScreen::mapToDevice(const QPoint &, const QSize &) const
+    \fn QScreen::mapToDevice(const QPoint &point, const QSize &size) const
+
     \overload
 
     Map a user coordinate to the one to actually draw. Used by the
     rotated driver; the QScreen implementation simply returns the
-    point passed in.
+    given \a point and ignores the \a size argument.
 */
 
 QPoint QScreen::mapToDevice(const QPoint &p, const QSize &) const
@@ -141,12 +143,14 @@ QPoint QScreen::mapToDevice(const QPoint &p, const QSize &) const
 }
 
 /*!
-    \fn QScreen::mapFromDevice(const QPoint &, const QSize &) const
+    \fn QScreen::mapFromDevice(const QPoint &point, const QSize &size) const
+
     \overload
 
     Map a framebuffer coordinate to the coordinate space used by the
     application. Used by the rotated driver; the QScreen
-    implementation simply returns the point.
+    implementation simply returns the given \a point and ignores the
+    \a size argument.
 */
 
 QPoint QScreen::mapFromDevice(const QPoint &p, const QSize &) const
@@ -155,11 +159,13 @@ QPoint QScreen::mapFromDevice(const QPoint &p, const QSize &) const
 }
 
 /*!
-    \fn QScreen::mapToDevice(const QRect &r, const QSize &) const
+    \fn QScreen::mapToDevice(const QRect &rect, const QSize &size) const
+
     \overload
 
     Map a user coordinate to the one to actually draw. Used by the
-    rotated driver; the QScreen implementation simply returns \a r.
+    rotated driver; the QScreen implementation simply returns the
+    given \a rect and ignores the \a size argument.
 */
 
 QRect QScreen::mapToDevice(const QRect &r, const QSize &) const
@@ -168,12 +174,14 @@ QRect QScreen::mapToDevice(const QRect &r, const QSize &) const
 }
 
 /*!
-    \fn QScreen::mapFromDevice(const QRect &r, const QSize &) const
+    \fn QScreen::mapFromDevice(const QRect &rect, const QSize &size) const
+
     \overload
 
     Map a framebuffer coordinate to the coordinate space used by the
     application. Used by the rotated driver; the QScreen
-    implementation simply returns \a r.
+    implementation simply returns the given \a rect and ignores the
+    \a size argument.
 */
 
 QRect QScreen::mapFromDevice(const QRect &r, const QSize &) const
@@ -210,12 +218,14 @@ QImage QScreen::mapFromDevice(const QImage &i) const
 }
 
 /*!
-    \fn QScreen::mapToDevice(const QRegion &r, const QSize &) const
+    \fn QScreen::mapToDevice(const QRegion &region, const QSize &size) const
+
     \overload
 
     Transforms a region so that it fits the device coordinate space
     (e.g. rotating it 90 degrees clockwise). The QScreen
-    implementation simply returns \a r.
+    implementation simply returns the given \a region and ignores the
+    \a size argument.
 */
 
 QRegion QScreen::mapToDevice(const QRegion &r, const QSize &) const
@@ -224,12 +234,14 @@ QRegion QScreen::mapToDevice(const QRegion &r, const QSize &) const
 }
 
 /*!
-    \fn QScreen::mapFromDevice(const QRegion &r, const QSize &) const
+    \fn QScreen::mapFromDevice(const QRegion &region, const QSize &size) const
+
     \overload
 
     Transforms a region so that it matches the application coordinate
     space (e.g. rotating it 90 degrees counter-clockwise). The QScreen
-    implementation simply returns \a r.
+    implementation simply returns the given \a region and ignores the
+    \a size argument.
 */
 
 QRegion QScreen::mapFromDevice(const QRegion &r, const QSize &) const

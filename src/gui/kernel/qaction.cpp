@@ -99,6 +99,17 @@ void QActionPrivate::sendDataChanged()
     widget that the action is later added to.
 */
 
+/*!
+    \fn void QAction::trigger()
+
+    This is a convenience slot that calls activate(Trigger).
+*/
+
+/*!
+    \fn void QAction::hover()
+
+    This is a convenience slot that calls activate(Hover).
+*/
 
 /*!
     Constructs an action for a \a parent action group. The action will

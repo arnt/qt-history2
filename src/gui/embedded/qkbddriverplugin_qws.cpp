@@ -47,8 +47,8 @@
 
 
 /*!
-    Constructs a keyboard driver plugin. This is invoked automatically
-    by the \c Q_EXPORT_PLUGIN macro.
+    Constructs a keyboard driver plugin with the given \a parent. This
+    is invoked automatically by the \c Q_EXPORT_PLUGIN macro.
 */
 QKbdDriverPlugin::QKbdDriverPlugin(QObject *parent)
     : QObject(parent)

@@ -5673,9 +5673,10 @@ before exitting; it's normally used to unmap the framebuffer.
 */
 
 /*!
-\fn QScreen::setMode(int, int, int)
-This function can be used to set the framebuffer width, height and
-depth. It's currently unused.
+    \fn QScreen::setMode(int width, int height, int depth)
+
+    This function can be used to set the framebuffer \a width, \a
+    height, and \a depth. It's currently unused.
 */
 
 /*!
@@ -5748,16 +5749,22 @@ Returns a pointer to the start of the framebuffer.
 */
 
 /*!
-  \fn QScreen::cache(int,int)
-This function is used to store pixmaps in graphics memory for the
-use of the accelerated drivers. See QLinuxFbScreen (where the cacheing
-is implemented) for more information.
+    \fn QScreen::cache(int,int)
+
+    \internal
+
+    This function is used to store pixmaps in graphics memory for the
+    use of the accelerated drivers. See QLinuxFbScreen (where the
+    cacheing is implemented) for more information.
 */
 
 /*!
-  \fn QScreen::uncache(uchar *)
-This function is called on pixmap destruction to remove them from
-graphics card memory.
+    \fn QScreen::uncache(uchar *)
+
+    \internal
+
+    This function is called on pixmap destruction to remove them from
+    graphics card memory.
 */
 
 /*!
@@ -5943,7 +5950,7 @@ void QScreen::blank(bool)
 }
 
 /*!
-  Sets an entry in the color palette.
+    \internal
 */
 
 void QScreen::set(unsigned int, unsigned int, unsigned int, unsigned int)

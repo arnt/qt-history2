@@ -48,8 +48,8 @@
 
 
 /*!
-    Constructs a graphics driver plugin. This is invoked automatically
-    by the \c Q_EXPORT_PLUGIN macro.
+    Constructs a graphics driver plugin with the given \a parent. This
+    is invoked automatically by the \c Q_EXPORT_PLUGIN macro.
 */
 QGfxDriverPlugin::QGfxDriverPlugin(QObject *parent)
     : QObject(parent)

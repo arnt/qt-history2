@@ -1195,8 +1195,10 @@ bool QImage::create(int width, int height, int depth, int numColors,
 }
 
 /*!
-    \fn bool QImage::create(const QSize&, int depth, int numColors, Endian bitOrder)
+    \fn bool QImage::create(const QSize& size, int depth, int numColors, Endian bitOrder)
     \overload
+
+    The width and height are specified in the \a size argument.
 */
 bool QImage::create(const QSize& size, int depth, int numColors,
                      QImage::Endian bitOrder)

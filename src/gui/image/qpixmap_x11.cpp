@@ -1531,8 +1531,9 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
     Grabs the contents of the window \a window and makes a pixmap out
     of it. Returns the pixmap.
 
-    The arguments \a (x, y) specify the offset in the window, whereas
-    \a (w, h) specify the width and height of the area to be copied.
+    The arguments (\a{x}, \a{y}) specify the offset in the window,
+    whereas (\a{w}, \a{h}) specify the width and height of the area to
+    be copied.
 
     If \a w is negative, the function copies everything to the right
     border of the window. If \a h is negative, the function copies

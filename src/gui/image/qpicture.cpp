@@ -754,6 +754,10 @@ void QPicture::detach_helper()
         delete x;
 }
 
+/*!
+    Assigns picture \a p to this picture and returns a reference to
+    this picture.
+*/
 QPicture& QPicture::operator=(const QPicture &p)
 {
     qAtomicAssign<QPicturePrivate>(d_ptr, p.d_ptr);
