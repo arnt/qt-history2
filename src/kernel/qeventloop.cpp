@@ -87,6 +87,21 @@ QEventLoop::QEventLoop( QObject *parent, const char *name )
     QApplication::eventloop = this;
 }
 
+
+/*! \internal
+ */
+QEventLoop::QEventLoop(QEventLoopPrivate *priv, QObject *parent, const char *name)
+    : QObject(priv, parent, name )
+{
+    if (QApplication::eventloop)
+	qFatal( "QEventLoop: there must be only one event loop object. \nConstruct it before QApplication." );
+    // for now ;)
+
+    init();
+    QApplication::eventloop = this;
+}
+
+
 /*!
     Destructs the QEventLoop object.
 */
@@ -363,7 +378,10 @@ void QEventLoop::processEvents( ProcessEventsFlags flags, int maxTime )
     \sa awake()
 */
 
-#if !defined(Q_WS_X11)
-void QEventLoop::appStartingUp(){}
-void QEventLoop::appClosingDown(){}
-#endif // Q_WS_X11
+void QEventLoop::appStartingUp()
+{
+}
+
+void QEventLoop::appClosingDown()
+{
+}

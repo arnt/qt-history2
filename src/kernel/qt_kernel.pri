@@ -23,6 +23,8 @@ kernel {
 		  $$KERNEL_H/qevent.h \
 		  $$KERNEL_H/qeventloop.h\
 		  $$KERNEL_P/qeventloop_p.h \
+		  $$KERNEL_H/qguieventloop.h\
+		  $$KERNEL_P/qguieventloop_p.h \
 		  $$KERNEL_H/qfont.h \
 		  $$KERNEL_P/qfontdata_p.h \
 		  $$KERNEL_H/qfontinfo.h \
@@ -127,7 +129,7 @@ kernel {
 			  $$KERNEL_CPP/qcursor_x11.cpp \
 			  $$KERNEL_CPP/qdnd_x11.cpp \
 			  $$KERNEL_CPP/qdesktopwidget_x11.cpp \
-			  $$KERNEL_CPP/qeventloop_x11.cpp \
+			  $$KERNEL_CPP/qguieventloop_x11.cpp \
 			  $$KERNEL_CPP/qfont_x11.cpp \
 			  $$KERNEL_CPP/qinputcontext_x11.cpp \
 			  $$KERNEL_CPP/qmotifdnd_x11.cpp \
@@ -186,6 +188,7 @@ kernel {
 		  $$KERNEL_CPP/qdropsite.cpp \
 		  $$KERNEL_CPP/qevent.cpp \
 		  $$KERNEL_CPP/qeventloop.cpp \
+		  $$KERNEL_CPP/qguieventloop.cpp \
 		  $$KERNEL_CPP/qfont.cpp \
 		  $$KERNEL_CPP/qfontdatabase.cpp \
 		  $$KERNEL_CPP/qiconset.cpp \

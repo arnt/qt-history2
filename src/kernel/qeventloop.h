@@ -37,6 +37,7 @@ class Q_EXPORT QEventLoop : public QObject
 
 public:
     QEventLoop( QObject *parent = 0, const char *name = 0 );
+    QEventLoop(QEventLoopPrivate *, QObject *parent = 0, const char *name = 0);
     ~QEventLoop();
 
     enum ProcessEvents {
@@ -73,6 +74,10 @@ signals:
     void awake();
     void aboutToBlock();
 
+protected:
+    virtual void appStartingUp();
+    virtual void appClosingDown();
+
 private:
 #if defined(Q_WS_MAC)
     friend void qt_mac_internal_select_callbk(int, int, QEventLoop *);
@@ -84,8 +89,6 @@ private:
     // internal initialization/cleanup - implemented in various platform specific files
     void init();
     void cleanup();
-    virtual void appStartingUp();
-    virtual void appClosingDown();
 
     Q_DECL_PRIVATE(QEventLoop);
 

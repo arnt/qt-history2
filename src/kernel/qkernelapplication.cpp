@@ -57,10 +57,11 @@ QKernelApplicationPrivate::QKernelApplicationPrivate(int &aargc,  char **aargv)
 
 /*!\internal
  */
-QKernelApplication::QKernelApplication(QKernelApplicationPrivate *p)
+QKernelApplication::QKernelApplication(QKernelApplicationPrivate *p, QEventLoop *e)
     : QObject(p, 0, 0)
 {
     init();
+    e->setParent(this);
 }
 
 /*!
@@ -88,6 +89,11 @@ void QKernelApplication::init()
     qt_mutex = new QMutex( TRUE );
     postevent_mutex = new QMutex( TRUE );
 #endif // QT_THREAD_SUPPORT
+
+    if (!eventloop) {
+	qDebug("constructed kernel event loop");
+	(void) new QEventLoop(self, 0);
+    }
 }
 
 QKernelApplication::~QKernelApplication()
@@ -117,8 +123,6 @@ QKernelApplication::~QKernelApplication()
 */
 QEventLoop *QKernelApplication::eventLoop()
 {
-    if (!eventloop && !is_app_closing)
-	(void) new QEventLoop(self, 0);
     return eventloop;
 }
 
@@ -290,7 +294,7 @@ bool QKernelApplication::closingDown()
 */
 void QKernelApplication::processEvents( int maxtime )
 {
-    eventLoop()->processEvents( QEventLoop::AllEvents, maxtime );
+    eventloop->processEvents( QEventLoop::AllEvents, maxtime );
 }
 
 /*! \obsolete
@@ -307,7 +311,7 @@ void QKernelApplication::processEvents( int maxtime )
 
 void QKernelApplication::processOneEvent()
 {
-    eventLoop()->processEvents( QEventLoop::AllEvents |
+    eventloop->processEvents( QEventLoop::AllEvents |
 				QEventLoop::WaitForMore );
 }
 
@@ -341,7 +345,7 @@ int QKernelApplication::exec()
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessible::setRootObject(this);
 #endif
-    return eventLoop()->exec();
+    return eventloop->exec();
 }
 
 /*!
@@ -362,7 +366,7 @@ int QKernelApplication::exec()
 */
 void QKernelApplication::exit( int retcode )
 {
-    eventLoop()->exit( retcode );
+    eventloop->exit( retcode );
 }
 
 /*!
@@ -373,7 +377,7 @@ void QKernelApplication::exit( int retcode )
 */
 int QKernelApplication::enter_loop()
 {
-    return eventLoop()->enterLoop();
+    return eventloop->enterLoop();
 }
 
 /*!
@@ -384,7 +388,7 @@ int QKernelApplication::enter_loop()
 */
 void QKernelApplication::exit_loop()
 {
-    eventLoop()->exitLoop();
+    eventloop->exitLoop();
 }
 
 /*!
@@ -394,7 +398,7 @@ void QKernelApplication::exit_loop()
 */
 int QKernelApplication::loopLevel() const
 {
-    return eventLoop()->loopLevel();
+    return eventloop->loopLevel();
 }
 
 
@@ -778,7 +782,7 @@ void QKernelApplication::removePostedEvent( QEvent * event )
 */
 bool QKernelApplication::hasPendingEvents()
 {
-    return eventLoop()->hasPendingEvents();
+    return eventloop->hasPendingEvents();
 }
 
 /*!\reimp

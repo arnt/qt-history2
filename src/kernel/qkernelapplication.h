@@ -28,7 +28,7 @@ class Q_EXPORT QKernelApplication : public QObject
     Q_DECL_PRIVATE(QKernelApplication);
 public:
     QKernelApplication(int &argc, char **argv);
-    QKernelApplication(QKernelApplicationPrivate *);
+    QKernelApplication(QKernelApplicationPrivate *, QEventLoop *);
     ~QKernelApplication();
 
     static QKernelApplication *instance() { return self; }
@@ -88,6 +88,7 @@ private:
 
     friend class QEvent;
     friend class QEventLoop;
+    friend class QGuiEventLoop;
     friend class QApplication;
     friend class QETWidget;
     friend class QAccelManager;

@@ -15,7 +15,7 @@
 #include "qaccessible.h"
 #include "qapplication.h"
 #include "qdesktopwidget.h"
-#include "qeventloop.h"
+#include "qguieventloop.h"
 #include "qeventloop_p.h"
 #include "qwidget.h"
 #include "qevent.h"
@@ -622,7 +622,7 @@ void QApplication::process_cmdline()
 */
 
 QApplication::QApplication( int &argc, char **argv )
-    : QKernelApplication(new QApplicationPrivate(argc, argv))
+    : QKernelApplication(new QApplicationPrivate(argc, argv), new QGuiEventLoop())
 {
     construct(GuiClient);
 }
@@ -668,7 +668,8 @@ QApplication::QApplication( int &argc, char **argv )
 */
 
 QApplication::QApplication( int &argc, char **argv, bool GUIenabled  )
-    : QKernelApplication(new QApplicationPrivate(argc, argv))
+    : QKernelApplication(new QApplicationPrivate(argc, argv),
+			 (GUIenabled ? new QGuiEventLoop() : new QEventLoop()))
 {
     construct(GUIenabled ? GuiClient : Tty);
 }
@@ -682,7 +683,9 @@ QApplication::QApplication( int &argc, char **argv, bool GUIenabled  )
   -qws option).
 */
 QApplication::QApplication( int &argc, char **argv, Type type )
-    : QKernelApplication(new QApplicationPrivate(argc, argv))
+    : QKernelApplication(new QApplicationPrivate(argc, argv),
+			 (type != Tty ? new QGuiEventLoop() : new QEventLoop()))
+
 {
     construct(type);
 }
@@ -719,7 +722,9 @@ static char *aargv[] = { (char*)"unknown", 0 };
   This is available only on X11.
 */
 QApplication::QApplication( Display* dpy, HANDLE visual, HANDLE colormap )
-    : QKernelApplication(new QApplicationPrivate(aargc, aargv))
+    : QKernelApplication(new QApplicationPrivate(aargc, aargv),
+			 new QGuiEventLoop())
+
 {
     qt_appType = GuiClient;
     qt_is_gui_used = TRUE;
@@ -753,7 +758,8 @@ QApplication::QApplication( Display* dpy, HANDLE visual, HANDLE colormap )
 */
 QApplication::QApplication(Display *dpy, int argc, char **argv,
 			   HANDLE visual, HANDLE colormap)
-    : QKernelApplication(new QApplicationPrivate(argc, argv))
+    : QKernelApplication(new QApplicationPrivate(argc, argv),
+			 new QGuiEventLoop())
 {
     qt_appType = GuiClient;
     qt_is_gui_used = TRUE;
