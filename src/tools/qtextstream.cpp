@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#62 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#63 $
 **
 ** Implementation of QTextStream class
 **
@@ -1680,3 +1680,73 @@ QTextStream &reset( QTextStream &s )
     s.reset();
     return s;
 }
+
+
+/*!
+  \class QTextIStream qtextstream.h
+  \brief A convenience class for input streams.
+
+  For simple tasks, code should be simple.  Hence this
+  class is a shorthand to avoid passing the \e mode argument
+  to the normal QTextStream constructors.
+
+  This makes it easy for example, to write things like this:
+\code
+    QString result;
+    QTextOStream(result) << "pi = " << 3.14;
+\endcode
+
+  \sa QTextOStream
+*/
+
+/*!
+  \fn QTextIStream::QTextIStream( QString &s, Encoding m=Unicode )
+
+  Constructs a stream to read from string \a s.
+*/
+/*!
+  \fn QTextIStream::QTextIStream( QByteArray ba )
+
+  Constructs a stream to read from the array \a ba.
+*/
+/*!
+  \fn QTextIStream::QTextIStream( FILE *f )
+
+  Constructs a stream to read from the file \a f.
+*/
+
+
+/*!
+  \class QTextOStream qtextstream.h
+  \brief A convenience class for input streams.
+
+  For simple tasks, code should be simple.  Hence this
+  class is a shorthand to avoid passing the \e mode argument
+  to the normal QTextStream constructors.
+
+  This makes it easy for example, to write things like this:
+\code
+    QString data = "123 456";
+    int a, b;
+    QTextOStream(data) >> a >> b;
+\endcode
+
+  \sa QTextOStream
+*/
+
+/*!
+  \fn QTextOStream::QTextOStream( QString &s, Encoding m=Unicode )
+
+  Constructs a stream to write to string \a s.
+*/
+/*!
+  \fn QTextOStream::QTextOStream( QByteArray ba )
+
+  Constructs a stream to write to the array \a ba.
+*/
+/*!
+  \fn QTextOStream::QTextOStream( FILE *f )
+
+  Constructs a stream to write to the file \a f.
+*/
+

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#36 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#37 $
 **
 ** Definition of QTextStream class
 **
@@ -40,7 +40,7 @@ public:
 	Utf8,
 	UnicodeBigEndian,
 	UnicodeLittleEndian,
-	Unicode=UnicodeLittleEndian,
+	Unicode=UnicodeBigEndian,
     };
 
     void	 setEncoding(Encoding);
@@ -160,6 +160,25 @@ private:	// Disabled copy constructor and operator=
 
 typedef QTextStream QTS;
 
+class QTextIStream : public QTextStream {
+public:
+    QTextIStream( QString &s, Encoding m=Unicode ) :
+	QTextStream(s,IO_ReadOnly,m) { }
+    QTextIStream( QByteArray ba ) :
+	QTextStream(ba,IO_ReadOnly) { }
+    QTextIStream( FILE *f ) :
+	QTextStream(f,IO_ReadOnly) { }
+};
+
+class QTextOStream : public QTextStream {
+public:
+    QTextOStream( QString &s, Encoding m=Unicode ) :
+	QTextStream(s,IO_WriteOnly,m) { }
+    QTextOStream( QByteArray ba ) :
+	QTextStream(ba,IO_WriteOnly) { }
+    QTextOStream( FILE *f ) :
+	QTextStream(f,IO_WriteOnly) { }
+};
 
 /*****************************************************************************
   QTextStream inline functions
