@@ -222,13 +222,9 @@ void QAlphaWidget::render()
         if (widget) {
             if (!showWidget) {
                 widget->hide();
-            } else if (duration) {
-                bool nsb = testAttribute(Qt::WA_NoSystemBackground);
-                widget->setAttribute(Qt::WA_NoSystemBackground, true);
-                widget->show();
-                widget->setAttribute(Qt::WA_NoSystemBackground, nsb);
             } else {
                 widget->show();
+                lower();
             }
         }
         q_blend = 0;
@@ -523,10 +519,8 @@ void QRollEffect::scroll()
             if (!showWidget) {
                 widget->hide();
             } else {
-                bool nsb = testAttribute(Qt::WA_NoSystemBackground);
-                widget->setAttribute(Qt::WA_NoSystemBackground, true);
                 widget->show();
-                widget->setAttribute(Qt::WA_NoSystemBackground, nsb);
+                lower();
             }
         }
         q_roll = 0;
@@ -554,10 +548,10 @@ void qScrollEffect(QWidget* w, QEffects::DirFlags orient, int time)
     qApp->sendPostedEvents(w, QEvent::Move);
     qApp->sendPostedEvents(w, QEvent::Resize);
 #ifdef Q_WS_X11
-    Qt::WFlags flags = Qt::WStyle_Customize /*| Qt::WNoAutoErase*/ | Qt::WStyle_StaysOnTop
+    Qt::WFlags flags = Qt::WStyle_Customize | Qt::WStyle_StaysOnTop
         | (w->isPopup() ? Qt::WFlags(Qt::WType_Popup) : (Qt::WX11BypassWM | Qt::WStyle_Tool));
 #else
-    Qt::WFlags flags = Qt::WStyle_Customize | Qt::WType_Popup | Qt::WX11BypassWM /*| Qt::WNoAutoErase*/ | Qt::WStyle_StaysOnTop;
+    Qt::WFlags flags = Qt::WStyle_Customize | Qt::WStyle_Tool | Qt::WX11BypassWM | Qt::WStyle_StaysOnTop;
 #endif
 
     // those can popups - they would steal the focus, but are disabled
@@ -579,10 +573,10 @@ void qFadeEffect(QWidget* w, int time)
     qApp->sendPostedEvents(w, QEvent::Resize);
 
 #ifdef Q_WS_X11
-    Qt::WFlags flags = Qt::WStyle_Customize/* | Qt::WNoAutoErase*/ | Qt::WStyle_StaysOnTop
+    Qt::WFlags flags = Qt::WStyle_Customize | Qt::WStyle_StaysOnTop
         | (w->isPopup() ? QFlag(Qt::WType_Popup) : (Qt::WX11BypassWM | Qt::WStyle_Tool));
 #else
-    Qt::WFlags flags = Qt::WStyle_Customize | Qt::WType_Popup | Qt::WX11BypassWM/* | Qt::WNoAutoErase*/ | Qt::WStyle_StaysOnTop;
+    Qt::WFlags flags = Qt::WStyle_Customize | Qt::WStyle_Tool | Qt::WX11BypassWM | Qt::WStyle_StaysOnTop;
 #endif
 
     // those can popups - they would steal the focus, but are disabled
