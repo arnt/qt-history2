@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#59 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -363,8 +363,6 @@ QByteArray qt_olednd_obtain_data( const char *format )
 		tr.detach();
 		r.resetRawData(d,len);
 		GlobalUnlock(hText);
-		if ( !medium.pUnkForRelease )
-		    GlobalFree(hText);
 		ReleaseStgMedium(&medium);
 		return tr;
 	    }
@@ -390,8 +388,6 @@ QByteArray qt_olednd_obtain_data( const char *format )
 		tr.detach();
 		r.resetRawData(d,len);
 		GlobalUnlock(hText);
-		if ( !medium.pUnkForRelease )
-		    GlobalFree(hText);
 		ReleaseStgMedium(&medium);
 		result = tr;
 	    }
