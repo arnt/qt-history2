@@ -7,7 +7,7 @@ widgets {
 		  $$WIDGETS_H/qbutton.h \
 		  $$WIDGETS_H/qcheckbox.h \
 		  $$WIDGETS_H/qcombobox.h \
-		  $$WIDGETS_H/qwidgetresizehandler.h \
+		  $$WIDGETS_H/qwidgetresizehandler_p.h \
 		  $$WIDGETS_H/qdial.h \
 		  $$WIDGETS_H/qdockarea.h \
 		  $$WIDGETS_H/qdockwindow.h \

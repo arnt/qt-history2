@@ -35,7 +35,7 @@
 **
 **********************************************************************/
 
-#include "qwidgetresizehandler.h"
+#include "qwidgetresizehandler_p.h"
 #include "qframe.h"
 #include "qapplication.h"
 #include "qcursor.h"

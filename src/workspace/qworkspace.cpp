@@ -49,7 +49,7 @@
 #include "qmenubar.h"
 #include "qguardedptr.h"
 #include "qiconset.h"
-#include "qwidgetresizehandler.h"
+#include "../widgets/qwidgetresizehandler_p.h"
 #include "qfocusdata.h"
 #include "qdatetime.h"
 #include "qtooltip.h"

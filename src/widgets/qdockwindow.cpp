@@ -37,7 +37,7 @@
 
 #include "qdockwindow.h"
 #include "qdockarea.h"
-#include "qwidgetresizehandler.h"
+#include "qwidgetresizehandler_p.h"
 #include "qtitlebar_p.h"
 
 #include <qpainter.h>
@@ -814,7 +814,7 @@ void QDockWindow::setOrientation( Orientation o )
     QApplication::postEvent( this, e );
 }
 
-/*! \reimp 
+/*! \reimp
 
     Destroys the dock window and its child widgets.
 */
@@ -1392,7 +1392,7 @@ bool QDockWindow::newLine() const
   the dock window. The layout's orientation is set automatically to
   match the orientation of the dock window. You can add widgets to the
   layout using the box layout's QBoxLayout::addWidget() function.
-    
+
   If the dock window only needs to contain a single widget use
   setWidget() instead.
 
