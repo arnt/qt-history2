@@ -51,6 +51,13 @@ QAxFactory *qAxFactory()
         // QAxFactory created a QApplication
         if (!hadQApp && qApp)
             qax_ownQApp = true;
+
+        // register all types with metatype system as pointers
+        QStringList keys(qax_factory->featureList());
+        for (int i = 0; i < keys.count(); ++i) {
+            QString key(keys.at(i));
+            qRegisterMetaType((key + "*").latin1(), (void**)0);
+        }
     }
     return qax_factory;
 }
