@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#92 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#93 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#92 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#93 $");
 
 
 /*!
@@ -353,7 +353,7 @@ void QPushButton::drawButton( QPainter *paint )
 	}
 	// ### next two lines ignore backgroundPixmap()
 	if ( updated )
-	    p->fillRect( x1+1, y1+1, x2-x1-2, y2-y1-2, g.background() );
+	    p->fillRect( x1+2, y1+2, x2-x1-3, y2-y1-3, g.background() );
     } else if ( gs == MotifStyle ) {		// Motif push button
 	if ( defButton ) {			// default Motif button
 	    qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE );
