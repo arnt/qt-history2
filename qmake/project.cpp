@@ -419,8 +419,8 @@ static QStringList split_arg_list(QString params)
     QStringList args;
 
     static bool symbols_init = false;
-    enum { LPAREN, RPAREN, SINGLEQUOTE, DOUBLEQUOTE, COMMA };
-    static ushort symbols[5];
+    enum { LPAREN, RPAREN, SINGLEQUOTE, DOUBLEQUOTE, COMMA, SPACE, TAB  };
+    static ushort symbols[7];
     if(!symbols_init) {
         symbols_init = true;
         symbols[LPAREN] = QChar('(').unicode();
@@ -428,12 +428,18 @@ static QStringList split_arg_list(QString params)
         symbols[SINGLEQUOTE] = QChar('\'').unicode();
         symbols[DOUBLEQUOTE] = QChar('"').unicode();
         symbols[COMMA] = QChar(',').unicode();
+        symbols[SPACE] = QChar(' ').unicode();
+        symbols[TAB] = QChar('\t').unicode();
     }
 
     ushort unicode;
     const QChar *params_data = params.data();
     const int params_len = params.length();
-    for(int x = 0, last = 0, parens = 0; x <= params_len; x++) {
+    int last = 0;
+    while(last < params_len && ((params_data+last)->unicode() == symbols[SPACE]
+                                /*|| (params_data+last)->unicode() == symbols[TAB]*/))
+        ++last;
+    for(int x = last, parens = 0; x <= params_len; x++) {
         unicode = (params_data+x)->unicode();
         if(x == params_len) {
             QString mid(params_data+last, x-last);
@@ -446,9 +452,9 @@ static QStringList split_arg_list(QString params)
             break;
         }
         if(unicode == symbols[LPAREN]) {
-            parens--;
+            --parens;
         } else if(unicode == symbols[RPAREN]) {
-            parens++;
+            ++parens;
         } else if(quote && unicode == quote) {
             quote = 0;
         } else if(!quote && (unicode == symbols[SINGLEQUOTE] || unicode == symbols[DOUBLEQUOTE])) {
@@ -462,6 +468,9 @@ static QStringList split_arg_list(QString params)
             }
             args << mid;
             last = x+1;
+            while(last < params_len && ((params_data+last)->unicode() == symbols[SPACE]
+                                        /*|| (params_data+last)->unicode() == symbols[TAB]*/))
+                ++last;
         }
     }
     for(int i = 0; i < args.count(); i++)
@@ -1518,10 +1527,8 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
                               QMap<QString, QStringList> &place)
 {
     func = func.trimmed();
-    for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit) {
-//        (*arit) = (*arit).trimmed(); // blah, get rid of space
+    for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit)
         doVariableReplace((*arit), place);
-    }
 
     enum ExpandFunc { E_MEMBER, E_FIRST, E_LAST, E_CAT, E_FROMFILE, E_EVAL, E_LIST,
                       E_SPRINTF, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
@@ -1663,7 +1670,7 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
             QString file = args[0], seek_var = args[1];
             file = Option::fixPathToLocalOS(file);
 
-            QMap<QString, QStringList> tmp = place;
+            QMap<QString, QStringList> tmp;
             if(doProjectInclude(file, false, tmp, seek_var) == IncludeSuccess)
                 ret = tmp[seek_var].join(QString(Option::field_sep));
         }
