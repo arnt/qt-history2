@@ -41,10 +41,22 @@ QLineEdit/QLCDNumber:
   signal textChanged( char * ) => textChanged( const char * );
   slot   display( char * )     => display( const char * )
 
-QCursor
--------
+QCursor:
+--------
     hourGlassCursor => waitCursor
 
-QListBox
---------
+QTableWidget:
+-------------
+    Renamed to QTableView (qtablevw.h)
+    Using int to identify rows and columns, not long.
+
+QRangeControl:
+--------------
+    Using int values, not long.
+
+QScrollBar:
+    Using int values, not long.
+
+QListBox:
+---------
     removed setStrList(), use clear(); insertStrList( ... , 0 ); instead 
