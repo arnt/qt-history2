@@ -273,7 +273,9 @@ void QListViewToolTip::maybeTip( const QPoint &pos )
 	return;
 
     QRect r = view->itemRect( item );
-    r.setLeft( view->header()->sectionPos( col ) );
+    int headerPos = view->header()->sectionPos( col );
+    r.setLeft( headerPos );
+    r.setRight( headerPos + view->header()->sectionSize( col ) );
     tip( r, item->text( col ) );
 }
 #endif
