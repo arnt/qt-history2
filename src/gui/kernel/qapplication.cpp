@@ -2852,7 +2852,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             res = notify_helper(w, w == receiver ? tablet : &te);
             e->spont = false;
             if ((res && (w == receiver ? tablet : &te)->isAccepted()
-                 || w->isTopLevel() || w->testWFlags(Qt::WNoMousePropagation))
+                 || w->isTopLevel() || w->testWFlags(Qt::WNoMousePropagation)))
                 break;
 
             relpos += w->pos();
