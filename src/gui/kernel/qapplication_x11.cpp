@@ -901,15 +901,17 @@ bool QApplication::x11_apply_settings()
         settings.readBoolEntry("/qt/useRtlExtensions", false);
 
 #ifndef QT_NO_XIM
-    QString ximInputStyle = settings.readEntry("/qt/XIMInputStyle", "on the spot");
-    if (ximInputStyle == "on the spot")
-        xim_preferred_style = XIMPreeditCallbacks | XIMStatusNothing;
-    else if (ximInputStyle == "over the spot")
-        xim_preferred_style = XIMPreeditPosition | XIMStatusNothing;
-    else if (ximInputStyle == "off the spot")
-        xim_preferred_style = XIMPreeditArea | XIMStatusArea;
-    else if (ximInputStyle == "root")
-        xim_preferred_style = XIMPreeditNothing | XIMStatusNothing;
+    if (xim_preferred_style == 0) {
+        QString ximInputStyle = settings.readEntry("/qt/XIMInputStyle", "on the spot");
+        if (ximInputStyle == "on the spot")
+            xim_preferred_style = XIMPreeditCallbacks | XIMStatusNothing;
+        else if (ximInputStyle == "over the spot")
+            xim_preferred_style = XIMPreeditPosition | XIMStatusNothing;
+        else if (ximInputStyle == "off the spot")
+            xim_preferred_style = XIMPreeditArea | XIMStatusArea;
+        else if (ximInputStyle == "root")
+            xim_preferred_style = XIMPreeditNothing | XIMStatusNothing;
+    }
 #endif
 
     if (update_timestamp) {
