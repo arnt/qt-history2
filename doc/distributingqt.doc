@@ -45,7 +45,7 @@ The Qt library must either be in the same directory as the application
 executable or in a directory which is included in the system library
 path.
 
-The library is in provided by the following platform specific files:
+The library is provided by the following platform specific files:
 
 \table
 \header \i Platform \i File
@@ -89,8 +89,8 @@ For Qt applications that use QSA, you need the following files for all
 platforms:
 
 \list 
-\i Same as dynamic dialogs
-\i QSA library 
+\i The same files as used for dynamic dialogs
+\i The QSA library 
 \endlist
 
 The QSA library is provided by the following platform specific files:
