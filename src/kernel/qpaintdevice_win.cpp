@@ -447,12 +447,24 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	else {
 	    // We can safely access hbm() here since multi cell pixmaps
 	    // are not used under NT.
-	    if ( td==QInternal::Pixmap && ((QPixmap *)dst)->isQBitmap() )
+	    if ( td==QInternal::Pixmap && ((QPixmap *)dst)->isQBitmap() ) {
 		MaskBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, mask->hbm(),
 			sx, sy, MAKEROP4(0x00aa0000,ropCodes[ qt_map_rop_for_bitmaps(rop) ]) );
-	    else
+#ifdef Q_OS_TEMP
+	    } else if ( ts==QInternal::Pixmap && ((QPixmap *)src)->isQBitmap() ) {
+		HDC bsrc_dc = CreateCompatibleDC( src_dc );
+		HBITMAP bsrc = CreateBitmap( sw, sh, 1, 1, NULL );
+		HGDIOBJ oldsrc = SelectObject( bsrc_dc, bsrc );
+		BitBlt( bsrc_dc, 0, 0, sw, sh, src_dc, 0, 0, SRCCOPY );
+		MaskBlt( dst_dc, dx, dy, sw, sh, bsrc_dc, sx, sy, mask->hbm(),
+			 sx, sy, MAKEROP4(0x00aa0000,ropCodes[rop]) );
+		DeleteObject( SelectObject( bsrc_dc, oldsrc ) );
+		DeleteObject( bsrc_dc );
+#endif
+	    } else {
 		MaskBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, mask->hbm(),
 			sx, sy, MAKEROP4(0x00aa0000,ropCodes[rop]) );
+	    }
 	}
     } else {
 	if ( td==QInternal::Pixmap && ((QPixmap *)dst)->isQBitmap() )

@@ -183,6 +183,9 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	bmh->biSizeImage      = 0;
 	bmh->biClrUsed	      = ncols;
 	bmh->biClrImportant   = 0;
+	QRgb *coltbl = (QRgb*)(bmi_data + sizeof(BITMAPINFOHEADER));
+	coltbl[1] = 0xffffff;
+	coltbl[0] = 0x0;
 	DATA_HBM = CreateDIBSection( qt_display_dc(), 
 				     bmi,
 				     DIB_RGB_COLORS,
@@ -666,8 +669,18 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	}
     }
 
-    if ( d == 1 )				// 1 bit pixmap (bitmap)
+    if ( d == 1 ) {				// 1 bit pixmap (bitmap)
 	image = image.convertBitOrder( QImage::BigEndian );
+#ifdef Q_OS_TEMP
+	if ( image.color(0) == qRgb(255,255,255) && image.color(1) == qRgb(0,0,0) ) {
+	    image.invertPixels();
+	    QRgb c0 = image.color(0);
+	    image.setColor(0,image.color(1));
+	    image.setColor(1,c0);
+	}
+#endif
+    }
+
 
     int w = image.width();
     int h = image.height();
