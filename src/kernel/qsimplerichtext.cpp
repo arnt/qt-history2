@@ -333,10 +333,8 @@ void QSimpleRichText::draw( QPainter *p,  int x, int y, const QRect& clipRect,
 	g.setBrush( QColorGroup::Base, *d->doc->paper() );
 
     p->save();
-    QRect cr = clipRect;
-    if ( !cr.isNull() ) {
-	cr.moveBy( int( p->translationX() ), int( p->translationY() ) );
-	p->setClipRect( cr );
+    if ( !clipRect.isNull() ) { 
+	p->setClipRect( clipRect, QPainter::CoordPainter ); 
     }
     p->translate( x, y );
     d->doc->draw( p, r, g, paper );
