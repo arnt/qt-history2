@@ -27,14 +27,17 @@ for a in qmake uic uic3 rcc moc assistant Linguist Designer rccdump lrelease qm2
 	mkdir -p "$OUTDIR/Developer/Applications/Qt/"
 	cp -r "${BINDIR}/bin/${a}.app" "$OUTDIR/Developer/Applications/Qt"
 	EXE="$OUTDIR/Developer/Applications/Qt/${a}.app/Contents/MacOS/$a" #in the bundle
+	#place it into the tools dir
+	mkdir -p "$OUTDIR/Developer/Tools/Qt/"
+	ln -s "/Developer/Applications/Qt/${a}.app" "$OUTDIR/Developer/Tools/Qt/$a"
     elif [ -x "${BINDIR}/bin/${a}" ]; then
 	EXE="$OUTDIR/usr/bin/$a-${VERSION_MAJOR}.${VERSION_MINOR}"
 	mkdir -p `dirname $EXE`
 	cp "${BINDIR}/bin/$a" "$EXE"
 	ln -s "$a-${VERSION_MAJOR}.${VERSION_MINOR}" "$OUTDIR/usr/bin/$a"
-	#place it into the applications dir (for now)
-	mkdir -p "$OUTDIR/Developer/Applications/Qt/"
-	ln -s "/bin/$a" "$OUTDIR/Developer/Applications/Qt/$a"
+	#place it into the tools dir
+	mkdir -p "$OUTDIR/Developer/Tools/Qt/"
+	ln -s "/bin/$a-${VERSION_MAJOR}.${VERSION_MINOR}" "$OUTDIR/Developer/Tools/Qt/$a"
     fi
     [ -z "$EXE" ] && continue
 
