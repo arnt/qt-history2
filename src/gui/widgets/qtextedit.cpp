@@ -388,10 +388,14 @@ void QTextEditPrivate::createAutoBulletList()
 
 void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument *document)
 {
+    bool clearDocument = true;
     if (!doc) {
-        doc = document;
-        if (!doc)
+        if (document) {
+            doc = document;
+            clearDocument = false;
+        } else {
             doc = new QTextDocument(q);
+        }
 
         QObject::connect(doc->documentLayout(), SIGNAL(update(QRect)), q, SLOT(update(QRect)));
         QObject::connect(doc->documentLayout(), SIGNAL(usedSizeChanged()), q, SLOT(adjustScrollbars()));
@@ -419,17 +423,19 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
 
     doc->setUndoRedoEnabled(false);
 
-    q->clear();
     q->setAttribute(Qt::WA_InputMethodEnabled);
 
-    QTextCharFormat fmt;
-    fmt.setFont(q->font());
-    fmt.setTextColor(q->palette().color(QPalette::Text));
-    d->cursor.movePosition(QTextCursor::Start);
-    d->cursor.setBlockCharFormat(fmt);
+    if (clearDocument) {
+        q->clear();
+
+        QTextCharFormat fmt;
+        fmt.setFont(q->font());
+        fmt.setTextColor(q->palette().color(QPalette::Text));
+        d->cursor.movePosition(QTextCursor::Start);
+        d->cursor.setBlockCharFormat(fmt);
+    }
 
     viewport->setCursor(readOnly ? Qt::ArrowCursor : Qt::IbeamCursor);
-
 
     QTextFrame *rootFrame = doc->rootFrame();
     QTextFrameFormat ffmt = rootFrame->format();
