@@ -2007,9 +2007,15 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
                         variant = QVariant(QVariant::Int);
                     } else {
                         QVariant::Type vt = QVariant::nameToType(ptype);
-                        if (vt == QVariant::UserType)
-                            vt = QVariant::Invalid;
-                        variant = QVariant(vt, argv[p + 1]);
+                        if (vt == QVariant::UserType) {
+                            if (ptype.endsWith('*')) {
+                                qVariantSet(variant, *(void**)(argv[p + 1]), ptype);
+                            } else {
+                                qVariantSet(variant, argv[p + 1], ptype);
+                            }
+                        } else {
+                            variant = QVariant(vt, argv[p + 1]);
+                        }
                     }
 
 		    QVariantToVARIANT(variant, *arg, type, out);
