@@ -124,20 +124,21 @@ void QTextPieceTable::insert_block(int pos, uint strPos, int format, int blockFo
     Q_ASSERT(text.at(strPos) == QTextParagraphSeparator);
     Q_ASSERT(blocks.length()+1 == fragments.length());
 
+    int block_pos = pos;
     if (blocks.length() && command == UndoCommand::BlockRemoved)
-        ++pos;
+        ++block_pos;
     int size = 1;
-    int n = blocks.findNode(pos);
+    int n = blocks.findNode(block_pos);
     int key = n ? blocks.position(n) : blocks.length();
 
-    Q_ASSERT(n || (!n && pos == blocks.length()));
-    if (key != pos) {
-        Q_ASSERT(key < pos);
+    Q_ASSERT(n || (!n && block_pos == blocks.length()));
+    if (key != block_pos) {
+        Q_ASSERT(key < block_pos);
         int oldSize = blocks.size(n);
-        blocks.setSize(n, pos-key);
-        size += oldSize - (pos-key);
+        blocks.setSize(n, block_pos-key);
+        size += oldSize - (block_pos-key);
     }
-    int b = blocks.insert_single(pos, size);
+    int b = blocks.insert_single(block_pos, size);
     QTextBlock *B = blocks.fragment(b);
     B->format = blockFormat;
 
