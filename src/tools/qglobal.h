@@ -74,10 +74,10 @@
 #elif defined(__MWERKS__) && defined(__INTEL__)
 #define _OS_WIN32_
 #elif defined(sun) || defined(__sun) || defined(__sun__)
-#define _OS_SUN_
-#if defined(_OS_SUN_) && defined(__SVR4)
+#if defined(__SVR4)
 #define _OS_SOLARIS_
-#undef _OS_SUN_
+#else
+#define _OS_SUN_
 #endif
 #elif defined(hpux) || defined(__hpux) || defined(__hpux__)
 #define _OS_HPUX_
@@ -158,12 +158,12 @@
 #define _CC_SYM_
 #elif defined( __KCC )
 #define _CC_KAI_
-#define HAS_BOOL_TYPE
+#define Q_HAS_BOOL_TYPE
 #elif defined(applec)
 #define _CC_MPW_
 #elif defined(__MWERKS__)
 #define _CC_MWERKS_
-#define HAS_BOOL_TYPE
+#define Q_HAS_BOOL_TYPE
 #elif defined(_MSC_VER)
 #define _CC_MSVC_
 #elif defined(__BORLANDC__) || defined(__TURBOC__)
@@ -186,18 +186,18 @@
 #elif defined(__USLC__)
 #define _CC_USLC_
 #ifdef __EDG__ // UnixWare7
-#define HAS_BOOL_TYPE
+#define Q_HAS_BOOL_TYPE
 #endif
 #elif defined(__EDG) || defined(__EDG__)
 // one observed on SGI DCC, the other documented
-#define HAS_BOOL_TYPE
+#define Q_HAS_BOOL_TYPE
 #define _CC_EDG_
 #elif defined(OBJECTCENTER) || defined(CENTERLINE_CLPP)
 #define _CC_OC_
 #elif defined(__SUNPRO_CC)
 #define _CC_SUN_
 #if __SUNPRO_CC >= 0x500
-#define HAS_BOOL_TYPE
+#define Q_HAS_BOOL_TYPE
 #define Q_SPARCWORKS_FUNCP_BUG
 #define Q_C_CALLBACKS
 #endif
@@ -205,13 +205,13 @@
 #define _CC_DEC_
 #elif defined(__CDS__)
 #define _CC_CDS_
-#define HAS_BOOL_TYPE
+#define Q_HAS_BOOL_TYPE
 #elif defined(_OS_HPUX_)
 // this test is from aCC online help
 #if defined(__HP_aCC) || __cplusplus >= 199707L
 // this is the aCC
 #define _CC_HP_ACC_
-#define HAS_BOOL_TYPE
+#define Q_HAS_BOOL_TYPE
 #else
 // this is the CC
 #define _CC_HP_
@@ -295,20 +295,20 @@
 //
 
 #if defined(bool)
-#define HAS_BOOL_TYPE
+#define Q_HAS_BOOL_TYPE
 #elif __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 6)
-#define HAS_BOOL_TYPE
+#define Q_HAS_BOOL_TYPE
 #elif _MSC_VER >= 1100 || __BORLANDC__ >= 0x500
-#define HAS_BOOL_TYPE
+#define Q_HAS_BOOL_TYPE
 #elif defined(_CC_COMEAU_)
-#define HAS_BOOL_TYPE
+#define Q_HAS_BOOL_TYPE
 #elif defined(sgi) && ( (_COMPILER_VERSION >= 710) || defined(_BOOL) )
-#define HAS_BOOL_TYPE
+#define Q_HAS_BOOL_TYPE
 #elif defined(__DECCXX) && (__DECCXX_VER >= 60060005)
-#define HAS_BOOL_TYPE
+#define Q_HAS_BOOL_TYPE
 #endif
 
-#if !defined(HAS_BOOL_TYPE)
+#if !defined(Q_HAS_BOOL_TYPE)
 #if defined(_CC_MSVC_)
 #define _CC_BOOL_DEF_
 #define bool		int
