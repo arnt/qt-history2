@@ -64,8 +64,8 @@ public:
     { return record(tablename); }
     inline QT_COMPAT QSqlRecord recordInfo(const QSqlQuery& query) const
     { return query.record(); }
+    inline QT_COMPAT QString nullText() const { return QLatin1String("NULL"); }
 #endif
-    virtual QString nullText() const;
     virtual QString formatValue(const QSqlField* field, bool trimStrings = false) const;
     QSqlError lastError() const;
 

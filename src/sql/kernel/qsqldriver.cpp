@@ -300,18 +300,6 @@ QSqlRecord QSqlDriver::record(const QString& ) const
 }
 
 /*!
-    Returns a string representation of the NULL value for the
-    database. This is used, for example, when constructing INSERT and
-    UPDATE statements. The default implementation returns the string
-    "NULL".
-*/
-
-QString QSqlDriver::nullText() const
-{
-    return "NULL";
-}
-
-/*!
     Returns a string representation of the \a field value for the
     database. This is used, for example, when constructing INSERT and
     UPDATE statements.
@@ -320,8 +308,6 @@ QString QSqlDriver::nullText() const
     according to the following rules:
 
     \list
-
-    \i If \a field is NULL, nullText() is returned.
 
     \i If \a field is character data, the value is returned enclosed
     in single quotation marks, which is appropriate for many SQL
@@ -332,7 +318,7 @@ QString QSqlDriver::nullText() const
 
     \i If \a field is date/time data, the value is formatted in ISO
     format and enclosed in single quotation marks. If the date/time
-    data is invalid, nullText() is returned.
+    data is invalid, NULL is returned.
 
     \i If \a field is \link QByteArray bytearray\endlink data, and the
     driver can edit binary fields, the value is formatted as a
@@ -348,9 +334,11 @@ QString QSqlDriver::nullText() const
 */
 QString QSqlDriver::formatValue(const QSqlField* field, bool trimStrings) const
 {
+    static const QString nullTxt("NULL");
+
     QString r;
     if (field->isNull())
-        r = nullText();
+        r = nullTxt;
     else {
         switch (field->type()) {
         case QCoreVariant::Int:
@@ -364,20 +352,20 @@ QString QSqlDriver::formatValue(const QSqlField* field, bool trimStrings) const
             if (field->value().toDate().isValid())
                 r = "'" + field->value().toDate().toString(Qt::ISODate) + "'";
             else
-                r = nullText();
+                r = nullTxt;
             break;
         case QCoreVariant::Time:
             if (field->value().toTime().isValid())
                 r = "'" + field->value().toTime().toString(Qt::ISODate) + "'";
             else
-                r = nullText();
+                r = nullTxt;
             break;
         case QCoreVariant::DateTime:
             if (field->value().toDateTime().isValid())
                 r = "'" +
                     field->value().toDateTime().toString(Qt::ISODate) + "'";
             else
-                r = nullText();
+                r = nullTxt;
             break;
         case QCoreVariant::String:
         {
