@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#81 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#82 $
 **
 ** Definition of QIconView widget class
 **
@@ -3308,18 +3308,22 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 	
 	if ( d->rastX == -1 ) {
 	    // first calculate the row height
-	    int h = begin->height();
-	    int x = d->spacing;
+	    int h = 0;
+	    int x = 0;
 	    QIconViewItem *item = begin;
 	    while ( TRUE ) {
-		if ( item->next && item->next->width() + x > visibleWidth() )
+		x += d->spacing + item->width();
+		if ( x > visibleWidth() && item != begin ) {
+		    item = item->prev;
 		    break;
-		else if ( !item->next )
-		    break;
-		
-		x += item->width() + d->spacing;
-		item = item->next;
+		}
 		h = QMAX( h, item->height() );
+		QIconViewItem *old = item;
+		item = item->next;
+		if ( !item ) {
+		    item = old;
+		    break;
+		}
 	    }
 	    end = item;
 	
@@ -3396,7 +3400,7 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 	    y += h + d->spacing;
 	}
     }
-    
+
     return end;
 }
 
