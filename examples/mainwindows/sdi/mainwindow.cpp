@@ -209,24 +209,18 @@ void MainWindow::createStatusBar()
 
 void MainWindow::readSettings()
 {
-#if 0
-    // TODO: enable settings code when the new QSettings is available
     QSettings settings("doc.trolltech.com", "SDI");
     QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
     QSize size = settings.value("size", QSize(400, 400)).toSize();
     move(pos);
     resize(size);
-#endif
 }
 
 void MainWindow::writeSettings()
 {
-#if 0
-    // TODO: enable settings code when the new QSettings is available
     QSettings settings("doc.trolltech.com", "SDI");
     settings.setValue("pos", pos());
     settings.setValue("size", size());
-#endif
 }
 
 bool MainWindow::maybeSave()
