@@ -1624,7 +1624,6 @@ bool QSplitter::restoreState(const QByteArray &state, int version)
 
     stream >> marker;
     stream >> v;
-    Q_ASSERT(marker == SplitterMagic && v == version);
     if (marker != SplitterMagic || v != version)
         return false;
     
