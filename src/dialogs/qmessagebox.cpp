@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#80 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#81 $
 **
 ** Implementation of QMessageBox class
 **
@@ -866,7 +866,7 @@ int QMessageBox::message( const QString &caption,
 			  QWidget    *parent,
 			  const char * )
 {
-    return QMessageBox::information( parent, caption, text, buttonText ) == 0;
+    return QMessageBox::information( parent, caption, text, buttonText.isEmpty()?QString("Ok"):buttonText ) == 0;
 }
 
 
@@ -886,7 +886,7 @@ bool QMessageBox::query( const QString &caption,
 			 QWidget *parent, const char * )
 {
     return QMessageBox::information( parent, caption, text,
-				     yesButtonText, noButtonText ) == 0;
+				     yesButtonText.isEmpty()?QString("Ok"):yesButtonText, noButtonText ) == 0;
 }
 
 
