@@ -36,7 +36,6 @@ TARGET = designer
 
 HEADERS += \
     qdesigner.h \
-    qdesigner_mainwindow.h \
     qdesigner_toolwindow.h \
     qdesigner_formwindow.h \
     qdesigner_workbench.h \
@@ -56,7 +55,6 @@ HEADERS += \
 
 SOURCES += main.cpp \
     qdesigner.cpp \
-    qdesigner_mainwindow.cpp \
     qdesigner_toolwindow.cpp \
     qdesigner_formwindow.cpp \
     qdesigner_workbench.cpp \

@@ -20,7 +20,7 @@
 #include "qdesigner_server.h"
 #include "qdesigner_settings.h"
 #include "qdesigner_session.h"
-#include "qdesigner_mainwindow.h"
+#include "qdesigner_workbench.h"
 
 extern int qInitResources_formeditor();
 extern int qInitResources_widgetbox();
@@ -28,8 +28,7 @@ extern int qInitResources_widgetbox();
 QDesigner::QDesigner(int &argc, char **argv)
     : QApplication(argc, argv),
       m_server(0),
-      m_session(0),
-      m_mainWindow(0)
+      m_session(0)
 {
     setOrganizationDomain(QLatin1String("Trolltech"));
     setApplicationName(QLatin1String("Designer"));
@@ -49,9 +48,9 @@ QDesignerSession *QDesigner::session() const
     return m_session;
 }
 
-QDesignerMainWindow *QDesigner::mainWindow() const
+QDesignerWorkbench *QDesigner::workbench() const
 {
-    return m_mainWindow;
+    return m_workbench;
 }
 
 QDesignerServer *QDesigner::server() const
@@ -64,16 +63,12 @@ void QDesigner::initialize()
     // initialize the sub components
     m_server = new QDesignerServer(this);
     m_session = new QDesignerSession(this);
-    m_mainWindow = new QDesignerMainWindow();
-
-    setMainWidget(m_mainWindow);
+    m_workbench = new QDesignerWorkbench(this);
 
     emit initialized();
 
     for (int i = 1; i < argc(); ++i)
-        m_mainWindow->readInForm(QString::fromLocal8Bit(argv()[i]));
-
-    m_mainWindow->show();
+        m_workbench->readInForm(QString::fromLocal8Bit(argv()[i]));
 }
 
 bool QDesigner::event(QEvent *ev)
@@ -81,12 +76,12 @@ bool QDesigner::event(QEvent *ev)
     bool eaten;
     switch (ev->type()) {
     case QEvent::FileOpen:
-        m_mainWindow->readInForm(static_cast<QFileOpenEvent *>(ev)->file());
+        m_workbench->readInForm(static_cast<QFileOpenEvent *>(ev)->file());
         eaten = true;
         break;
     case QEvent::Close: {
         QCloseEvent *closeEvent = static_cast<QCloseEvent *>(ev);
-        sendEvent(m_mainWindow, closeEvent);
+        closeEvent->setAccepted(m_workbench->handleClose());
         if (closeEvent->isAccepted())
             eaten = QApplication::event(ev);
         eaten = true;

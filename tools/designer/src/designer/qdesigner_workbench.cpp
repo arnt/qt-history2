@@ -13,7 +13,7 @@
 
 #include "qdesigner.h"
 #include "qdesigner_workbench.h"
-#include "qdesigner_mainwindow.h"
+#include "qdesigner_actions.h"
 #include "qdesigner_toolwindow.h"
 #include "qdesigner_formwindow.h"
 #include "qdesigner_settings.h"
@@ -32,23 +32,27 @@
 #include <abstractwidgetbox.h>
 
 #include <Qt3Support/Q3Workspace>
+#include <QtGui/QCloseEvent>
 #include <QtGui/QDesktopWidget>
 #include <QtGui/QLabel>
+#include <QtGui/QMenu>
+#include <QtGui/QMenuBar>
+#include <QtGui/QToolBar>
 #include <QtGui/QActionGroup>
+#include <QtGui/QMessageBox>
 #include <QtCore/QVariant>
 
 #include <QtCore/QPluginLoader>
 #include <QtCore/qdebug.h>
 
-QDesignerWorkbench::QDesignerWorkbench(QDesignerMainWindow *mainWindow)
-    : QObject(mainWindow),
-      m_mainWindow(mainWindow),
-      m_mode(QDesignerWorkbench::NeutralMode),
-      m_workspace(0)
+QDesignerWorkbench::QDesignerWorkbench(QDesigner *parent)
+    : QObject(parent), m_mode(QDesignerWorkbench::NeutralMode), m_workspace(0)
 {
-    Q_ASSERT(mainWindow);
+    Q_ASSERT(parent);
 
     initialize();
+
+    switchToTopLevelMode(); // ### Remove: Should be read from the settings
 }
 
 QDesignerWorkbench::~QDesignerWorkbench()
@@ -67,7 +71,10 @@ void QDesignerWorkbench::addToolWindow(QDesignerToolWindow *toolWindow)
 
     m_toolWindows.append(toolWindow);
 
-    emit toolWindowAdded(toolWindow);
+    if (QAction *action = toolWindow->action()) {
+        m_toolActions->addAction(action);
+        m_toolMenu->addAction(action);
+    }
 }
 
 void QDesignerWorkbench::addFormWindow(QDesignerFormWindow *formWindow)
@@ -77,33 +84,55 @@ void QDesignerWorkbench::addFormWindow(QDesignerFormWindow *formWindow)
 
     m_formWindows.append(formWindow);
 
-    emit formWindowAdded(formWindow);
-}
-
-QDesignerToolWindow *QDesignerWorkbench::findToolWindow(QWidget *widget) const
-{
-    foreach (QDesignerToolWindow *toolWindow, m_toolWindows) {
-        if (toolWindow->centralWidget() == widget)
-            return toolWindow;
+    if (QAction *action = formWindow->action()) {
+        m_windowActions->addAction(action);
+        m_windowMenu->addAction(action);
     }
-
-    return 0;
-}
-
-QDesignerFormWindow *QDesignerWorkbench::findFormWindow(QWidget *widget) const
-{
-    foreach (QDesignerFormWindow *formWindow, m_formWindows) {
-        if (formWindow->centralWidget() == widget)
-            return formWindow;
-    }
-
-    return 0;
 }
 
 void QDesignerWorkbench::initialize()
 {
     m_core = new FormEditor(this);
-    m_core->setTopLevel(mainWindow());
+
+    m_toolActions = new QActionGroup(this);
+    m_toolActions->setExclusive(false);
+
+    m_windowActions = new QActionGroup(this);
+    m_windowActions->setExclusive(true);
+
+    m_actionManager = new QDesignerActions(this);
+
+    m_globalMenuBar = new QMenuBar;
+
+    m_fileMenu = m_globalMenuBar->addMenu(tr("&File"));
+    foreach (QAction *action, m_actionManager->fileActions()->actions()) {
+        m_fileMenu->addAction(action);
+    }
+
+    m_editMenu = m_globalMenuBar->addMenu(tr("&Edit"));
+    foreach (QAction *action, m_actionManager->editActions()->actions()) {
+        m_editMenu->addAction(action);
+    }
+
+    m_editMenu->addSeparator();
+
+    foreach (QAction *action, m_actionManager->toolActions()->actions()) {
+        m_editMenu->addAction(action);
+    }
+
+    m_formMenu = m_globalMenuBar->addMenu(tr("F&orm"));
+    foreach (QAction *action, m_actionManager->formActions()->actions()) {
+        m_formMenu->addAction(action);
+    }
+
+    m_toolMenu = m_globalMenuBar->addMenu(tr("&Tool"));
+
+    m_windowMenu = m_globalMenuBar->addMenu(tr("&Window"));
+    foreach (QAction *action, m_actionManager->windowActions()->actions()) {
+        m_windowMenu->addAction(action);
+    }
+
+    m_windowMenu->addSeparator();
 
     addToolWindow(new QDesignerWidgetBox(this));
     addToolWindow(new QDesignerObjectInspector(this));
@@ -130,6 +159,26 @@ void QDesignerWorkbench::initialize()
 
     initializeCorePlugins();
 
+    // create the toolbars
+    m_editToolBar = new QToolBar;
+    foreach (QAction *action, m_actionManager->editActions()->actions()) {
+        if (action->icon().isNull() == false)
+            m_editToolBar->addAction(action);
+    }
+
+    m_toolToolBar = new QToolBar;
+    foreach (QAction *action, m_actionManager->toolActions()->actions()) {
+        if (action->icon().isNull() == false)
+            m_toolToolBar->addAction(action);
+    }
+
+    m_formToolBar = new QToolBar;
+    foreach (QAction *action, m_actionManager->formActions()->actions()) {
+        if (action->icon().isNull() == false)
+            m_formToolBar->addAction(action);
+    }
+
+
     emit initialized();
 }
 
@@ -153,8 +202,6 @@ void QDesignerWorkbench::switchToNeutralMode()
 {
      if (m_mode == NeutralMode)
          return;
-
-    mainWindow()->setFocus();
 
     m_mode = NeutralMode;
 
@@ -188,9 +235,16 @@ void QDesignerWorkbench::switchToNeutralMode()
         fw->setParent(0);
     }
 
-    mainWindow()->setCentralWidget(0);
-
-    delete m_workspace;
+#ifndef Q_WS_MAC
+    m_globalMenuBar->setParent(0);
+#endif
+    m_editToolBar->setParent(0);
+    m_toolToolBar->setParent(0);
+    m_formToolBar->setParent(0);
+    m_core->setTopLevel(0);
+    qDesigner->setMainWidget(0);
+    if (m_workspace)
+        delete m_workspace->parentWidget();
     m_workspace = 0;
 }
 
@@ -209,9 +263,20 @@ void QDesignerWorkbench::switchToWorkspaceMode()
 
     Q_ASSERT(m_workspace == 0);
 
-    m_workspace = new Q3Workspace(mainWindow());
-    connect(m_workspace, SIGNAL(windowActivated(QWidget*)), this, SLOT(activateWorkspaceChildWindow(QWidget* )));
-    mainWindow()->setCentralWidget(m_workspace);
+    QMainWindow *mw = new QMainWindow;
+    m_workspace = new Q3Workspace(mw);
+    connect(m_workspace, SIGNAL(windowActivated(QWidget*)),
+            this, SLOT(activateWorkspaceChildWindow(QWidget* )));
+    mw->setCentralWidget(m_workspace);
+    m_core->setTopLevel(mw);
+
+#ifndef Q_WS_MAC
+    mw->setMenuBar(m_globalMenuBar);
+#endif
+    mw->addToolBar(m_editToolBar);
+    mw->addToolBar(m_toolToolBar);
+    mw->addToolBar(m_formToolBar);
+    qDesigner->setMainWidget(mw);
 
     foreach (QDesignerToolWindow *tw, m_toolWindows) {
         tw->setParent(magicalParent(), Qt::Tool | Qt::WindowShadeButtonHint | Qt::WindowSystemMenuHint | Qt::WindowTitleHint);
@@ -230,7 +295,7 @@ void QDesignerWorkbench::switchToWorkspaceMode()
     }
 
     m_workspace->show();
-    mainWindow()->showMaximized();
+    mw->showMaximized();
 }
 
 void QDesignerWorkbench::switchToTopLevelMode()
@@ -241,32 +306,32 @@ void QDesignerWorkbench::switchToTopLevelMode()
     switchToNeutralMode();
     m_mode = TopLevelMode;
 
+    // The widget box is special, it gets the menubar and gets to be the main widget.
+
     QDesignerToolWindow *widgetBoxWrapper = 0;
     if (0 != (widgetBoxWrapper = findToolWindow(core()->widgetBox()))) {
-        QRect g = m_geometries.value(widgetBoxWrapper, widgetBoxWrapper->geometryHint());
-        QMainWindow *mw = mainWindow();
-        widgetBoxWrapper->setParent(mw);
-        mw->setCentralWidget(widgetBoxWrapper);
-        mw->resize(g.size());
-        mw->move(g.topLeft());
+        m_core->setTopLevel(widgetBoxWrapper);
+#ifndef Q_WS_MAC
+        widgetBoxWrapper->setMenuBar(m_globalMenuBar);
         widgetBoxWrapper->action()->setEnabled(false);
+        qDesigner->setMainWidget(widgetBoxWrapper);
+#endif
+        widgetBoxWrapper->addToolBar(m_editToolBar);
+        widgetBoxWrapper->addToolBar(m_toolToolBar);
+        widgetBoxWrapper->addToolBar(m_formToolBar);
     }
 
+    QDesignerSettings settings;
     foreach (QDesignerToolWindow *tw, m_toolWindows) {
-        if (tw != widgetBoxWrapper) {
-            tw->setParent(magicalParent(), Qt::Window);
+        tw->setParent(magicalParent(), Qt::Window);
+        if (m_geometries.isEmpty()) {
+            settings.setGeometryFor(tw, tw->geometryHint());
+        } else {
             QRect g = m_geometries.value(tw, tw->geometryHint());
             tw->resize(g.size());
             tw->move(g.topLeft());
-        }
-    }
-
-    if (m_geometries.isEmpty()) {
-        readInSettings();
-    } else {
-        foreach (QDesignerToolWindow *tw, m_toolWindows)
             tw->show();
-
+        }
     }
 
     foreach (QDesignerFormWindow *fw, m_formWindows) {
@@ -276,7 +341,6 @@ void QDesignerWorkbench::switchToTopLevelMode()
         fw->move(g.topLeft());
         fw->show();
     }
-    mainWindow()->showNormal();
 }
 
 QDesignerFormWindow *QDesignerWorkbench::createFormWindow()
@@ -312,16 +376,6 @@ AbstractFormEditor *QDesignerWorkbench::core() const
     return m_core;
 }
 
-QAction *QDesignerWorkbench::actionForToolWindow(QDesignerToolWindow *toolWindow) const
-{
-    return toolWindow->action();
-}
-
-QAction *QDesignerWorkbench::actionForFormWindow(QDesignerFormWindow *formWindow) const
-{
-    return formWindow->action();
-}
-
 QActionGroup *QDesignerWorkbench::modeActionGroup() const
 {
     return m_modeActionGroup;
@@ -347,17 +401,6 @@ QDesignerFormWindow *QDesignerWorkbench::formWindow(int index) const
     return m_formWindows.at(index);
 }
 
-QDesignerMainWindow *QDesignerWorkbench::mainWindow() const
-{
-    return m_mainWindow;
-}
-
-void QDesignerWorkbench::setMainWindow(QDesignerMainWindow *mainWindow)
-{
-    m_mainWindow = mainWindow;
-    core()->setTopLevel(mainWindow);
-}
-
 QRect QDesignerWorkbench::availableGeometry() const
 {
     if (m_workspace)
@@ -378,7 +421,8 @@ void QDesignerWorkbench::activateWorkspaceChildWindow(QWidget *widget)
     }
 }
 
-void QDesignerWorkbench::updateWorkbench(AbstractFormWindow *fw, const QString &name, const QVariant &value)
+void QDesignerWorkbench::updateWorkbench(AbstractFormWindow *fw, const QString &name,
+                                         const QVariant &value)
 {
     Q_UNUSED(fw);
     Q_UNUSED(name);
@@ -389,14 +433,21 @@ void QDesignerWorkbench::removeToolWindow(QDesignerToolWindow *toolWindow)
 {
     m_toolWindows.remove(toolWindow);
     m_toolWindowExtras.remove(toolWindow);
-    emit toolWindowRemoved(toolWindow);
+
+    if (QAction *action = toolWindow->action()) {
+        m_toolActions->removeAction(action);
+        m_toolMenu->removeAction(action);
+    }
 }
 
 void QDesignerWorkbench::removeFormWindow(QDesignerFormWindow *formWindow)
 {
     m_formWindows.remove(formWindow);
     m_formWindowExtras.remove(formWindow);
-    emit formWindowRemoved(formWindow);
+    if (QAction *action = formWindow->action()) {
+        m_windowActions->removeAction(action);
+        m_windowMenu->removeAction(action);
+    }
 }
 
 void QDesignerWorkbench::initializeCorePlugins()
@@ -422,4 +473,89 @@ void QDesignerWorkbench::saveSettings() const
     QDesignerSettings settings;
     foreach (QDesignerToolWindow *tw, m_toolWindows)
         settings.saveGeometryFor(tw);
+}
+
+bool QDesignerWorkbench::readInForm(const QString &fileName) const
+{
+    return m_actionManager->readInForm(fileName);
+}
+
+bool QDesignerWorkbench::writeOutForm(AbstractFormWindow *formWindow, const QString &fileName) const
+{
+    return m_actionManager->writeOutForm(formWindow, fileName);
+}
+
+bool QDesignerWorkbench::saveForm(AbstractFormWindow *frm)
+{
+    return m_actionManager->saveForm(frm);
+}
+
+QDesignerToolWindow *QDesignerWorkbench::findToolWindow(QWidget *widget) const
+{
+    foreach (QDesignerToolWindow *toolWindow, m_toolWindows) {
+        if (toolWindow->centralWidget() == widget)
+            return toolWindow;
+    }
+
+    return 0;
+}
+
+QDesignerFormWindow *QDesignerWorkbench::findFormWindow(QWidget *widget) const
+{
+    foreach (QDesignerFormWindow *formWindow, m_formWindows) {
+        if (formWindow->centralWidget() == widget)
+            return formWindow;
+    }
+
+    return 0;
+}
+
+bool QDesignerWorkbench::handleClose()
+{
+    QList<QDesignerFormWindow *> dirtyForms;
+    foreach (QDesignerFormWindow *w, m_formWindows) {
+        if (w->editor()->isDirty())
+            dirtyForms << w;
+    }
+
+    if (dirtyForms.size()) {
+        if (dirtyForms.size() == 1) {
+            if (!dirtyForms.at(0)->close()) {
+                return false;
+            }
+        } else {
+            QMessageBox box(tr("Save Forms?"),
+                    tr("There are %1 forms with unsaved changes."
+                        " Do you want to review these changes before quitting?")
+                    .arg(dirtyForms.size()),
+                    QMessageBox::Warning,
+                    QMessageBox::Yes | QMessageBox::Default, QMessageBox::No,
+                    QMessageBox::Cancel | QMessageBox::Escape, 0);
+            box.setButtonText(QMessageBox::Yes, tr("Review Changes"));
+            box.setButtonText(QMessageBox::No, tr("Discard Changes"));
+            switch (box.exec()) {
+            case QMessageBox::Cancel:
+                return false;
+            case QMessageBox::Yes:
+               foreach (QDesignerFormWindow *fw, dirtyForms) {
+                   fw->show();
+                   fw->raise();
+                   if (!fw->close()) {
+                       return false;
+                   }
+               }
+               break;
+            case QMessageBox::No:
+              foreach (QDesignerFormWindow *fw, dirtyForms)
+                  fw->editor()->setDirty(false);
+              break;
+            }
+        }
+    }
+
+    foreach (QDesignerFormWindow *fw, m_formWindows)
+        fw->close();
+
+    saveSettings();
+    return true;
 }

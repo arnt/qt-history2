@@ -22,7 +22,7 @@
 
 class QDesignerSettings;
 class QDesignerSession;
-class QDesignerMainWindow;
+class QDesignerWorkbench;
 class QDesignerServer;
 
 class QDesigner: public QApplication
@@ -32,7 +32,7 @@ public:
     QDesigner(int &argc, char **argv);
     virtual ~QDesigner();
 
-    QDesignerMainWindow *mainWindow() const;
+    QDesignerWorkbench *workbench() const;
     QDesignerSession *session() const;
     QDesignerServer *server() const;
 
@@ -48,7 +48,7 @@ private slots:
 private:
     QDesignerServer *m_server;
     QDesignerSession *m_session;
-    QDesignerMainWindow *m_mainWindow;
+    QDesignerWorkbench *m_workbench;
 };
 
 #endif // QDESIGNER_H

@@ -30,10 +30,9 @@ class QDesignerActions: public QObject
 {
     Q_OBJECT
 public:
-    QDesignerActions(QDesignerMainWindow *mainWindow);
+    QDesignerActions(QDesignerWorkbench *mainWindow);
     virtual ~QDesignerActions();
 
-    QDesignerMainWindow *mainWindow() const;
     QDesignerWorkbench *workbench() const;
     AbstractFormEditor *core() const;
 
@@ -121,7 +120,6 @@ private:
     void fixActionContext();
 
 private:
-    QDesignerMainWindow *m_mainWindow;
     QDesignerWorkbench *m_workbench;
     AbstractFormEditor *m_core;
 

@@ -20,15 +20,20 @@
 #include <QtCore/QList>
 #include <QtCore/QRect>
 
-class QDesignerMainWindow;
+class QDesigner;
+class QDesignerActions;
 class QDesignerToolWindow;
 class QDesignerFormWindow;
 class QDesignerIntegration;
 
 class QAction;
 class QActionGroup;
+class QMenu;
+class QMenuBar;
 class QVariant;
+class QToolBar;
 class Q3Workspace;
+class QCloseEvent;
 
 class AbstractFormEditor;
 class AbstractFormWindow;
@@ -50,11 +55,8 @@ public:
     };
 
 public:
-    QDesignerWorkbench(QDesignerMainWindow *mainWindow);
+    QDesignerWorkbench(QDesigner *parent);
     virtual ~QDesignerWorkbench();
-
-    QDesignerMainWindow *mainWindow() const;
-    void setMainWindow(QDesignerMainWindow *mainWindow);
 
     Mode mode() const;
 
@@ -72,21 +74,18 @@ public:
     QDesignerFormWindow *formWindow(int index) const;
 
     QActionGroup *modeActionGroup() const;
-    QAction *actionForToolWindow(QDesignerToolWindow *toolWindow) const;
-    QAction *actionForFormWindow(QDesignerFormWindow *formWindow) const;
 
     QRect availableGeometry() const;
     int marginHint() const;
 
     void saveSettings() const;
 
+    bool readInForm(const QString &fileName) const;
+    bool writeOutForm(AbstractFormWindow *formWindow, const QString &fileName) const;
+    bool saveForm(AbstractFormWindow *fw);
+    bool handleClose();
+
 signals:
-    void toolWindowAdded(QDesignerToolWindow *toolWindow);
-    void toolWindowRemoved(QDesignerToolWindow *toolWindow);
-
-    void formWindowAdded(QDesignerFormWindow *formWindow);
-    void formWindowRemoved(QDesignerFormWindow *formWindow);
-
     void modeChanged(Mode mode);
     void initialized();
 
@@ -116,11 +115,26 @@ private:
 private:
     AbstractFormEditor *m_core;
     QDesignerIntegration *m_integration;
+
+    QDesignerActions *m_actionManager;
+    QActionGroup *m_toolActions;
+    QActionGroup *m_windowActions;
+
+    QMenu *m_fileMenu;
+    QMenu *m_editMenu;
+    QMenu *m_formMenu;
+    QMenu *m_toolMenu;
+    QMenu *m_windowMenu;
+
+    QMenuBar *m_globalMenuBar;
+    QToolBar *m_toolToolBar;
+    QToolBar *m_formToolBar;
+    QToolBar *m_editToolBar;
+
     QActionGroup *m_modeActionGroup;
     QAction *m_topLevelModeAction;
     QAction *m_workspaceModeAction;
 
-    QPointer<QDesignerMainWindow> m_mainWindow;
     Mode m_mode;
 
     QList<QDesignerToolWindow*> m_toolWindows;

@@ -13,12 +13,14 @@
 
 #include "qdesigner_formwindow.h"
 #include "qdesigner_workbench.h"
-#include "qdesigner_mainwindow.h"
 
 // sdk
 #include <abstractformeditor.h>
 #include <abstractformwindow.h>
 #include <abstractformwindowmanager.h>
+
+// shared
+#include <qtundo.h>
 
 #include <QtCore/QEvent>
 #include <QtCore/QFile>
@@ -45,6 +47,7 @@ QDesignerFormWindow::QDesignerFormWindow(QDesignerWorkbench *workbench, QWidget 
     connect(m_action, SIGNAL(checked(bool)), this, SIGNAL(activated(bool)));
 
     updateWindowTitle(m_editor->fileName());
+    connect(m_editor->commandHistory(), SIGNAL(commandExecuted()), this, SLOT(updateChanged()));
 }
 
 QDesignerFormWindow::QDesignerFormWindow(AbstractFormWindow *editor, QDesignerWorkbench *workbench, QWidget *parent, Qt::WFlags flags)
@@ -62,6 +65,7 @@ QDesignerFormWindow::QDesignerFormWindow(AbstractFormWindow *editor, QDesignerWo
     m_action->setText(windowTitle());
     m_action->setCheckable(true);
     connect(m_action, SIGNAL(checked(bool)), this, SIGNAL(activated(bool)));
+    connect(m_editor->commandHistory(), SIGNAL(commandExecuted()), this, SLOT(updateChanged()));
 }
 
 QDesignerFormWindow::~QDesignerFormWindow()
@@ -129,7 +133,7 @@ void QDesignerFormWindow::closeEvent(QCloseEvent *ev)
         box.setButtonText(QMessageBox::No, tr("Don't Save"));
         switch (box.exec()) {
             case QMessageBox::Yes:
-                ev->setAccepted(workbench()->mainWindow()->saveForm(m_editor));
+                ev->setAccepted(workbench()->saveForm(m_editor));
                 m_editor->setDirty(false);
                 break;
             case QMessageBox::No:
@@ -147,4 +151,9 @@ void QDesignerFormWindow::closeEvent(QCloseEvent *ev)
             && QSettings().value("newFormDialog/ShowOnStartup", true).toBool())
         QTimer::singleShot(200, this, SLOT(newForm()));  // Use timer in case we are quitting.
         */
+}
+
+void QDesignerFormWindow::updateChanged()
+{
+    setWindowModified(m_editor->isDirty());
 }

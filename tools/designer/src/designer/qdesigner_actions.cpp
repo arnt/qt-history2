@@ -13,7 +13,6 @@
 
 #include "qdesigner.h"
 #include "qdesigner_actions.h"
-#include "qdesigner_mainwindow.h"
 #include "qdesigner_workbench.h"
 #include "qdesigner_formwindow.h"
 #include "preferencedialog.h"
@@ -39,16 +38,13 @@
 
 #include <QtCore/QPluginLoader>
 
-QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
-    : QObject(mainWindow),
-      m_mainWindow(mainWindow)
+QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
+    : QObject(workbench),
+      m_workbench(workbench)
 {
-    Q_ASSERT(m_mainWindow != 0);
-
-    m_workbench = m_mainWindow->workbench();
     Q_ASSERT(m_workbench != 0);
 
-    m_core = m_mainWindow->core();
+    m_core = m_workbench->core();
     Q_ASSERT(m_core != 0);
 
     AbstractFormWindowManager *formWindowManager = m_core->formWindowManager();
@@ -170,6 +166,7 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
     m_toolActions->addAction(m_editWidgetsAction);
     m_editWidgetsAction->setChecked(true);
     m_editWidgetsAction->setEnabled(false);
+    /*
     QList<QObject*> builtinPlugins = QPluginLoader::staticInstances();
     foreach (QObject *plugin, builtinPlugins) {
         if (AbstractFormEditorPlugin *formEditorPlugin = qobject_cast<AbstractFormEditorPlugin*>(plugin)) {
@@ -177,6 +174,7 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
             formEditorPlugin->action()->setCheckable(true);
         }
     }
+    */
 
 //
 // form actions
@@ -229,9 +227,6 @@ QDesignerActions::~QDesignerActions()
 
 QActionGroup *QDesignerActions::toolActions() const
 { return m_toolActions; }
-
-QDesignerMainWindow *QDesignerActions::mainWindow() const
-{ return m_mainWindow; }
 
 QDesignerWorkbench *QDesignerActions::workbench() const
 { return m_workbench; }
@@ -352,7 +347,7 @@ void QDesignerActions::setWorkbenchVisible(bool visible)
 
 void QDesignerActions::createForm()
 {
-    NewForm dlg(workbench(), core()->topLevel());
+    NewForm dlg(workbench(), 0);
     dlg.exec();
 }
 
@@ -421,7 +416,7 @@ bool QDesignerActions::saveForm(AbstractFormWindow *fw)
     if (fw->fileName().isEmpty())
         ret = saveFormAs(fw);
     else
-        ret =  m_mainWindow->writeOutForm(fw, fw->fileName());
+        ret =  writeOutForm(fw, fw->fileName());
     return ret;
 }
 

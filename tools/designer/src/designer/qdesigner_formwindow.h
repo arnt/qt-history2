@@ -43,6 +43,7 @@ signals:
 
 private slots:
     void updateWindowTitle(const QString &fileName);
+    void updateChanged();
 
 protected:
     virtual void changeEvent(QEvent *e);

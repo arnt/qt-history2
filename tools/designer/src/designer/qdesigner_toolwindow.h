@@ -23,7 +23,7 @@ class QDesignerToolWindow: public QMainWindow
 {
     Q_OBJECT
 public:
-    QDesignerToolWindow(QDesignerWorkbench *workbench, QWidget *parent = 0, Qt::WFlags flags = 0);
+    QDesignerToolWindow(QDesignerWorkbench *workbench, QWidget *parent = 0, Qt::WFlags flags = Qt::Window);
     virtual ~QDesignerToolWindow();
 
     QDesignerWorkbench *workbench() const;
