@@ -8,6 +8,7 @@
 #include "qimage.h"
 #include "qdatetime.h"
 #include "qpainter.h"
+#include "qcleanuphandler.h"
 
 #if defined(Q_WS_WIN)
 #include "qt_windows.h"
@@ -270,6 +271,9 @@ const char * const qt_unshade_xpm[] = {
 
 #endif // !Q_WS_WIN
 
+static QPixmap *buffer = 0;
+QCleanupHandler<QPixmap> buffer_cleanup;
+
 
 QTitleBar::QTitleBar (QWorkspace* w, QWidget* win, QWidget* parent,
 						  const char* name, bool iconMode )
@@ -511,7 +515,7 @@ bool QTitleBar::eventFilter( QObject * o, QEvent * e)
     return QWidget::eventFilter(o, e);
 }
 
-void QTitleBar::enterEvent( QEvent *e )
+void QTitleBar::enterEvent( QEvent * )
 {
     QApplication::sendEvent( parentWidget(), new QEvent( QEvent::Leave ) );
 }
@@ -682,10 +686,15 @@ void QTitleBarLabel::setRightMargin( int x )
 
 void QTitleBarLabel::drawLabel()
 {
-    if ( buffer.isNull() )
+    if ( !buffer ) {
+	buffer = new QPixmap;
+	buffer_cleanup.add( buffer );
+    }
+    
+    if ( buffer->isNull() )
 	return;
 
-    QPainter p(&buffer);
+    QPainter p( buffer );
     p.setFont( font() );
 
     if ( leftc != rightc ) {
@@ -727,14 +736,19 @@ void QTitleBarLabel::frameChanged()
 
 void QTitleBarLabel::paintEvent( QPaintEvent* )
 {
-    bitBlt( this, 0, 0, &buffer, 0, 0, width(), height() );
+    if ( buffer )
+	bitBlt( this, 0, 0, buffer, 0, 0, width(), height() );
 }
 
 void QTitleBarLabel::resizeEvent( QResizeEvent* e )
 {
     QFrame::resizeEvent( e );
 
-    buffer.resize( size() );
+    if ( !buffer ) {
+	buffer = new QPixmap;
+	buffer_cleanup.add( buffer );
+    }
+    buffer->resize( size() );
     cutText();
 }
 

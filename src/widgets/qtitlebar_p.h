@@ -44,7 +44,7 @@
 //  -------------
 //
 // This file is not part of the Qt API.  It exists for the convenience
-// of qworkspace.cpp and qdockwindow.cpp.  This header file may change 
+// of qworkspace.cpp and qdockwindow.cpp.  This header file may change
 // from version to version without notice, or even be removed.
 //
 // We mean it.
@@ -89,7 +89,6 @@ private:
     void cutText();
     void getColors();
 
-    QPixmap buffer;
     QColor leftc, aleftc, ileftc;
     QColor rightc, arightc, irightc;
     QColor textc, atextc, itextc;
