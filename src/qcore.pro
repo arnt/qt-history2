@@ -5,7 +5,7 @@ QCONFIG         =
 DEFINES += QT_BUILD_CORE_LIB 
 
 # Only used on platforms with CONFIG += precompile_header
-PRECOMPILED_HEADER = $$KERNEL_CPP/qt_pch.h
+PRECOMPILED_HEADER = kernel/qt_pch.h
 
 include(qbase.pri)
 include($$QT_SOURCE_TREE/arch/$$ARCH/arch.pri)
