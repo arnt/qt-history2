@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#261 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#262 $
 **
 ** Implementation of QFileDialog class
 **
@@ -776,6 +776,8 @@ void QFileListBox::viewportDropEvent( QDropEvent *e )
 void QFileListBox::doDragScroll()
 {
     renameTimer->stop();
+    changeDirTimer->stop();
+    
     QPoint p = viewport()->mapFromGlobal( QCursor::pos() );
 
     int l = 16;
@@ -1187,6 +1189,8 @@ void QFileListView::viewportDropEvent( QDropEvent *e )
 void QFileListView::doDragScroll()
 {
     renameTimer->stop();
+    changeDirTimer->stop();
+    
     QPoint p = viewport()->mapFromGlobal( QCursor::pos() );
 
     int l = 16;
@@ -1650,7 +1654,7 @@ void QFileDialog::init()
     d->mode = AnyFile;
     d->last = 0;
     d->moreFiles = 0;
-    
+
     nameEdit = new QLineEdit( this, "name/filter editor" );
     connect( nameEdit, SIGNAL(textChanged(const QString&)),
 	     this,  SLOT(fileNameEditDone()) );
@@ -2151,7 +2155,7 @@ void QFileDialog::rereadDir()
 
     if ( d->mode == ExistingFiles )
 	nameEdit->setText( "" );
-    
+
     connect( files, SIGNAL( selectionChanged() ),	
 	     this, SLOT( detailViewSelectionChanged() ) );
     connect( d->moreFiles, SIGNAL( selectionChanged() ),
