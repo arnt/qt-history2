@@ -133,7 +133,7 @@ QPaintDevice::~QPaintDevice()
 	qWarning( "QPaintDevice: Cannot destroy paint device that is being "
 		  "painted" );
 #endif
-    if ( x11Data ) {
+    if ( x11Data && x11Data->deref() ) {
 	delete x11Data;
 	x11Data = 0;
     }
@@ -142,7 +142,8 @@ QPaintDevice::~QPaintDevice()
 
 /*
   \internal
-  Copy X11-specific data (which normally is null).
+  Makes a shallow copy of the X11-specific data of \a fromDevice, if it is not
+  null. Otherwise this function sets it to null.
 */
 
 void QPaintDevice::copyX11Data( const QPaintDevice *fromDevice )
@@ -150,32 +151,50 @@ void QPaintDevice::copyX11Data( const QPaintDevice *fromDevice )
     setX11Data( fromDevice ? fromDevice->x11Data : 0 );
 }
 
+/*
+  \internal
+  Makes a deep copy of the X11-specific data of \a fromDevice, if it is not
+  null. Otherwise this function sets it to null.
+*/
+
+void QPaintDevice::cloneX11Data( const QPaintDevice *fromDevice )
+{
+    if ( fromDevice && fromDevice->x11Data ) {
+	QPaintDeviceX11Data *d = new QPaintDeviceX11Data;
+	*d = *fromDevice->x11Data;
+	d->count = 0;
+	setX11Data( d );
+    } else {
+	setX11Data( 0 );
+    }
+}
 
 /*
   \internal
-  Set the X11-specific data.
+  Makes a shallow copy of the X11-specific data \a d and assigns it to this
+  class. This function increments the reference code of \a d.
 */
 
 void QPaintDevice::setX11Data( const QPaintDeviceX11Data* d )
 {
-    if ( d ) {
-	if ( !x11Data )
-	    x11Data = new QPaintDeviceX11Data;
-	*x11Data = *d;
-    } else if ( x11Data ) {
+    if ( x11Data && x11Data->deref() )
 	delete x11Data;
-	x11Data = 0;
-    }
+    x11Data = (QPaintDeviceX11Data*)d;
+    if ( x11Data )
+	x11Data->ref();
 }
 
 
 /*
   \internal
-
-  If \a def is FALSE, returns a copy of the x11Data, or 0 if x11Data is 0.
+  If \a def is FALSE, returns a deep copy of the x11Data, or 0 if x11Data is 0.
   If \a def is TRUE, makes a QPaintDeviceX11Data struct filled with the default
   values.
-  In any case the caller is responsible for deleting the returned struct.
+
+  In any case the caller is responsible for deleting the returned struct. But
+  notice that the struct is a shared class, so other classes might also have a
+  reference to it. The reference count of the returned QPaintDeviceX11Data* is
+  0.
 */
 
 QPaintDeviceX11Data* QPaintDevice::getX11Data( bool def ) const
@@ -191,9 +210,11 @@ QPaintDeviceX11Data* QPaintDevice::getX11Data( bool def ) const
 	res->x_defcolormap = x11AppDefaultColormap();
 	res->x_visual = x11AppVisual();
 	res->x_defvisual = x11AppDefaultVisual();
+	res->deref();
     } else if ( x11Data ) {
 	res = new QPaintDeviceX11Data;
 	*res = *x11Data;
+	res->count = 0;
     }
     return res;
 }

@@ -192,6 +192,7 @@ protected:
 #elif defined(Q_WS_X11)
     Qt::HANDLE	hd;				// handle to drawable
     void		 copyX11Data( const QPaintDevice * );
+    void		 cloneX11Data( const QPaintDevice * );
     virtual void	 setX11Data( const QPaintDeviceX11Data* );
     QPaintDeviceX11Data* getX11Data( bool def=FALSE ) const;
 #elif defined(Q_WS_MACX) || defined(Q_WS_MAC9)
@@ -257,7 +258,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
 #if defined(Q_WS_X11)
 
-struct Q_EXPORT QPaintDeviceX11Data {
+struct Q_EXPORT QPaintDeviceX11Data : public QShared {
     Display*	x_display;
     int		x_screen;
     int		x_depth;
