@@ -24,7 +24,7 @@ ClientInfo::ClientInfo( QWidget *parent, const char *name ) :
     ClientInfoBase( parent, name ), socket( 0 )
 {
     edHost->setText( "localhost" );
-    edPort->setText( QString::number( infoPort ) );
+    edPort->setText( QString::number( (uint)infoPort ) );
 
     connect( infoList, SIGNAL(selected(const QString&)), SLOT(selectItem(const QString&)) );
     connect( btnConnect, SIGNAL(clicked()), SLOT(connectToServer()) );
