@@ -5,7 +5,7 @@
 
  The Qt Open Source Editions (X11 and Mac) and the Qt/Embedded Open Source
  Edition are available under the GPL. The Qt Open Source Edition (X11) is
- also available under the \link qpl.html QPL\endlink.
+ also available under the \l{qpl.html}{QPL}.
 
 \code
  You may use, distribute and copy the Qt GUI Toolkit under the terms of

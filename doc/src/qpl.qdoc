@@ -2,14 +2,14 @@
 
     \title Q Public License (QPL)
 
-    The Qt Open Source Edition is distributed under the Q Public License (QPL).
+    The Qt Open Source Edition is available under the Q Public License (QPL).
     It allows free use of Qt Open Source Edition for running software developed
     by others, and free use of Qt Open Source Edition for development of
-    Free/Open Source software.
+    Free/Open Source software. It is also available under the
+    \l{gpl.html}{GNU General Public License}.
 
     Note that the Qt/Embedded Open Source Edition is not distributed
-    under the QPL, but under the \link gpl.html GNU General Public
-    License (GPL)\endlink.
+    under the QPL, but under the \l{gpl.html}{GNU General Public License (GPL)}.
 
     For development non-free/proprietary software, the Qt Commercial
     Edition is available. It has a normal commercial library license, with
@@ -23,7 +23,7 @@
         THE Q PUBLIC LICENSE
         version 1.0
 
-        Copyright (C) 1999-$THISYEAR$ Trolltech AS, Norway.<br />
+        Copyright (C) 1999-$THISYEAR$ Trolltech AS, Norway.
         Everyone is permitted to copy and distribute this license document.
 
         The intent of this license is to establish freedom to share and change the
