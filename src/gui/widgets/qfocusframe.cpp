@@ -94,6 +94,7 @@ QFocusFrame::setWidget(QWidget *widget)
         raise();
         show();
     } else {
+        d->widget = 0;
         hide();
     }
 }
