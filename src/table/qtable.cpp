@@ -54,7 +54,9 @@
 
 class Q_EXPORT QTableHeader : public QHeader
 {
+    friend class QTable;
     Q_OBJECT
+
 public:
     enum SectionState {
 	Normal,
@@ -4037,6 +4039,62 @@ bool QTable::dragEnabled() const
 }
 
 #ifndef QT_NO_DRAGANDDROP
+
+/* Inserts an empty row at the index \a row */
+
+void QTable::insertRow( int row )
+{
+    setNumRows( numRows() + 1 );
+    if ( row >= numRows() )
+	return;
+    int j = 1;
+    for ( int i = row; i < numRows() - 1; ++i ) {
+	( (QTableHeader*)verticalHeader() )->swapSections( numRows() - j - 1, numRows() - j );
+	++j;
+    }
+    repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight() );
+}
+
+/* Inserts an empty column at the index \a col */
+
+void QTable::insertColumn( int col )
+{
+    setNumCols( numCols() + 1 );
+    if ( col >= numCols() )
+	return;
+    int j = 1;
+    for ( int i = col; i < numCols() - 1; ++i ) {
+	( (QTableHeader*)horizontalHeader() )->swapSections( numCols() - j - 1, numCols() - j );
+	++j;
+    }
+    repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight() );
+}
+
+/* Removes the row \a row */
+
+void QTable::removeRow( int row )
+{
+    if ( row < 0 || row >= numRows() )
+	return;
+    if ( row < numRows() - 1 ) {
+	for ( int i = row; i < numRows() - 1; ++i )
+	    ( (QTableHeader*)verticalHeader() )->swapSections( i, i + 1 );
+    }
+    setNumRows( numRows() - 1 );
+}
+
+/* Removes the column \a col */
+
+void QTable::removeColumn( int col )
+{
+    if ( col < 0 || col >= numCols() )
+	return;
+    if ( col < numCols() - 1 ) {
+	for ( int i = col; i < numCols() - 1; ++i )
+	    ( (QTableHeader*)horizontalHeader() )->swapSections( i, i + 1 );
+    }
+    setNumCols( numCols() - 1 );
+}
 
 /*! \reimp
 

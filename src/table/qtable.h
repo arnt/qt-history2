@@ -331,6 +331,11 @@ public slots:
     virtual void setDragEnabled( bool b );
     bool dragEnabled() const;
 
+    void insertRow( int row );
+    void insertColumn( int col );
+    void removeRow( int row );
+    void removeColumn( int col );
+
 protected:
     enum EditMode { NotEditing, Editing, Replacing };
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
