@@ -562,41 +562,34 @@ void QObject::setName( const char *name )
     objname = name ? qstrdup(name) : 0;
 }
 
-/*!
-  Searches through the children and grandchildren of this object for
-  an object named \a name and with type \a type (or a subclass of that
-  type), and returns a pointer to that object if it exists.  If \a
-  type is 0, any type matches.
+/*!  Searches the children and optinally grandchildren of this object,
+  and returns a child that is named \a objName that inherits \a
+  inheritsClass.If \a inheritsClass is 0 (the default), all classes
+  match. If 
 
-  If there isn't any such object, this function returns null.
-
-  If there is more than one, one of them is retured; use queryList()
-  if you need all of them.
+  If \a recursiveSearch is TRUE (the default), child() searches
+  nth-generation as well as first-generation children.
+  
+  If there is no such object, this function returns null. If there are
+  more than one, the first one in depth-first is retured; if you need
+  all of them, use queryList() instead.
 */
-
-QObject* QObject::child( const char *name, const char *type )
+QObject* QObject::child( const char *objName, const char *inheritsClass, bool recursiveSearch )
 {
     const QObjectList *list = children();
-    if ( list ) {
-	QObjectListIt it( *list );
-	QObject *obj;
-	while ( ( obj = it.current() ) ) {
-	    ++it;
-	    if ( ( !type || obj->inherits(type) ) && ( !name || qstrcmp( name, obj->name() ) == 0 ) )
-		return obj;
-	}
-
-	// Recursion: Ask our children ...
-	QObjectListIt it2( *list );
-	while ( ( obj = it2.current() ) ) {
-	    ++it2;
-	    QObject* o = obj->child( name, type );
-	    if ( o )
-	      return o;
-	}
+    if ( !list )
+	return 0;
+    
+    QObjectListIt it( *list );
+    QObject *obj;
+    while ( ( obj = it.current() ) ) {
+	++it;
+	if ( ( !inheritsClass || obj->inherits(inheritsClass) ) && ( !objName || qstrcmp( objName, obj->name() ) == 0 ) )
+	    break;
+	if ( recursiveSearch && (obj = obj->child( objName, inheritsClass, recursiveSearch ) ) )
+	    break;
     }
-
-    return 0;
+    return obj;
 }
 
 /*!
@@ -2230,7 +2223,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 
     typedef void (QObject::*ProtoDateTime)( QDateTime );
     typedef void (QObject::*RProtoDateTime)( const QDateTime&);
-    
+
     QMetaObject* meta = metaObject();
 
     const QMetaProperty* p = meta->property( name, TRUE );
@@ -2978,7 +2971,7 @@ QVariant QObject::property( const char *name ) const
     typedef QDateTime (QObject::*ProtoDateTime)() const;
     typedef const QDateTime* (QObject::*PProtoDateTime)() const;
     typedef const QDateTime& (QObject::*RProtoDateTime)() const;
-    
+
     QMetaObject* meta = metaObject();
 
     const QMetaProperty* p = meta->property( name, TRUE );
