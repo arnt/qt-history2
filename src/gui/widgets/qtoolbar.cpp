@@ -833,7 +833,7 @@ void QToolBar::actionEvent(QActionEvent *event)
 /*! \reimp */
 void QToolBar::childEvent(QChildEvent *event)
 {
-    if (!event->type() == QEvent::ChildRemoved)
+    if (event->type() != QEvent::ChildRemoved)
         return;
     QWidget *widget = qt_cast<QWidget *>(event->child());
     if (widget)
