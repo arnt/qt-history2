@@ -1015,7 +1015,7 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
 							   "headers were not found in the LIB and INCLUDE environment variable paths." );
     }
     if ( ( i == tabletOn->parent() || i == tabletOn ) && !findFile( "wintab.h" ) ) {
-	QMessageBox::warning( this, "SDK required", "Qt might may not build and link properly because\n"
+	QMessageBox::warning( this, "SDK required", "Qt may not build and link properly because\n"
 				    "the client libraries and headers were not found in the LIB and INCLUDE environment variable paths." );
     }
 
