@@ -140,6 +140,11 @@ static MenuCommand qt_mac_menu_merge_action(QMacMenuAction *action)
     return ret;
 }
 
+static bool qt_mac_auto_apple_menu(MenuCommand cmd)
+{
+    return (cmd == kHICommandPreferences || cmd == kHICommandQuit);
+}
+
 static QString qt_mac_menu_merge_text(MenuCommand cmd)
 {
     QString ret;
@@ -150,7 +155,7 @@ static QString qt_mac_menu_merge_text(MenuCommand cmd)
     else if(cmd == kHICommandPreferences)
         ret = "Preferences";
     else if(cmd == kHICommandQuit)
-        ret = "Quit";
+        ret = "Quit " + QString(qAppName());
     return ret;
 }
 
@@ -373,6 +378,7 @@ QMenuPrivate::QMacMenuPrivate::addAction(QMacMenuAction *action, QMacMenuAction 
     int before_index = actionItems.indexOf(before);
     actionItems.insert(before_index, action);
 
+    short index = qt_mac_menu_find_action(menu, action);
     action->menu = menu;
     /* I don't know if this is a bug or a feature, but when the action is considered a mergable action it
        will stay that way, until removed.. */
@@ -380,10 +386,11 @@ QMenuPrivate::QMacMenuPrivate::addAction(QMacMenuAction *action, QMacMenuAction 
         if(MenuCommand cmd = qt_mac_menu_merge_action(action)) {
             GetMenuItemProperty(menu, 0, kMenuCreatorQt, kMenuPropertyMergeMenu, sizeof(action->menu), 0, &action->menu);
             action->command = cmd;
+            if(qt_mac_auto_apple_menu(cmd))
+                index = 0; //no need
         }
     }
 
-    short index = qt_mac_menu_find_action(action->menu, action);
     if(index == -1) {
         index = before_index;
         MenuItemAttributes attr = kMenuItemAttrAutoRepeat;
@@ -553,7 +560,7 @@ QMenuPrivate::macMenu(MenuRef merge)
         SetMenuItemProperty(mac_menu->menu, 0, kMenuCreatorQt, kMenuPropertyMergeMenu, sizeof(merge), &merge);
 
     QList<QAction*> items = q->actions();
-    for(int i = 0; i < items.count(); i++)
+    for(int i = 0; i < items.count(); i++) 
         mac_menu->addAction(items[i]);
     return mac_menu->menu;
 }
