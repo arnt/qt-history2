@@ -589,8 +589,9 @@ void QLineEdit::deselect()
 
 QString QLineEdit::text() const
 {
-
-    QString s = d->parag->string()->toString();
+    // only change the text if we need to, this ensure that multiple
+    // calls to text() will get the same shared value.
+    QString s = d->parag->string()->toString( FALSE );
     s.remove( s.length() - 1, 1 ); // get rid of trailing space
 
     return stripString( s );
