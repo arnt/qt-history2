@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#64 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#63 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#64 $");
 
 
 /*!
@@ -57,7 +57,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#63 $");
 
   Example (scroll widget contents 10 pixels to the right):
   \code
-     bitBlt( myWidget, 10,0, myWidget );
+    bitBlt( myWidget, 10,0, myWidget );
   \endcode
 
   \warning Qt requires that a QApplication object must exist before any paint
@@ -172,6 +172,30 @@ int QPaintDevice::metric( int ) const
 #if defined(CHECK_STATE)
     warning( "QPaintDevice::metrics: Device has no metric information" );
 #endif
+    return 0;
+}
+
+/*!
+  Internal virtual function. Reserved for future use.
+
+  \internal
+  Please use the QFontMetrics class instead.
+*/
+
+int QPaintDevice::fontMet( QFont *, int, const char *, int ) const
+{
+    return 0;
+}
+
+/*!
+  Internal virtual function. Reserved for future use.
+
+  \internal
+  Please use the QFontInfo class instead.
+*/
+
+int QPaintDevice::fontInf( QFont *, int ) const
+{
     return 0;
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_win.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qptd_win.cpp#25 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -26,7 +26,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_win.cpp#24 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_win.cpp#25 $");
 
 
 QPaintDevice::QPaintDevice( uint devflags )
@@ -65,6 +65,16 @@ int QPaintDevice::metric( int ) const
 #if defined(CHECK_STATE)
     warning( "QPaintDevice::metrics: Device has no metric information" );
 #endif
+    return 0;
+}
+
+int QPaintDevice::fontMet( QFont *, int, const char *, int ) const
+{
+    return 0;
+}
+
+int QPaintDevice::fontInf( QFont *, int ) const
+{
     return 0;
 }
 
