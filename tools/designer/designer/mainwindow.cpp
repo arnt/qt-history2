@@ -2390,6 +2390,12 @@ QPopupMenu *MainWindow::setupTabWidgetHierarchyMenu( QWidget *parent, const char
 
 void MainWindow::closeEvent( QCloseEvent *e )
 {
+    if ( singleProject ) {
+	hide();
+	e->ignore();
+	return;
+    }
+	
     QWidgetList windows = qWorkspace()->windowList();
     QWidgetListIt wit( windows );
     while ( wit.current() ) {
