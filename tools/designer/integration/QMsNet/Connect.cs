@@ -532,7 +532,7 @@ namespace QMsNet
 	    try {
 		commandName = applicationObject.Commands.Item(Guid, ID).Name;
 	    }
-	    catch (System.Exception ) {
+	    catch {
 	    }
 	    outputWindowPane.OutputString("CommandEvents::AfterExecute\n");
 	    if(commandName != "")
@@ -545,7 +545,7 @@ namespace QMsNet
 	    try {
 		commandName = applicationObject.Commands.Item(Guid, ID).Name;
 	    }
-	    catch (System.Exception ) {
+	    catch {
 	    }
 	    outputWindowPane.OutputString("CommandEvents::BeforeExecute\n");
 	    if(commandName != "")

@@ -50,12 +50,15 @@ namespace QMsNet
 		  DialogResult.Yes == MessageBox.Show( "A .vcproj files already exists for this project!\n\r" + 
 						       "Select 'Yes' to regenerate the project file, and 'No' to use the existing one", 
 						       "VCProj file exists!", MessageBoxButtons.YesNo )) )
-		QMNCommands.generateVCProjectFile( mainInfo.FullName, mainInfo.DirectoryName );
+		if ( !QMNCommands.generateVCProjectFile( mainInfo.FullName, mainInfo.DirectoryName ) ) {
+		    MessageBox.Show( "*** Couldn't generate project" );
+		    return;
+		}
 
 	    try {
 		Connect.applicationObject.Solution.AddFromFile( VCInfo.FullName, false );
 	    }
-	    catch ( System.Exception e ) {
+	    catch {
 		MessageBox.Show( "*** Couldn't add project to Solution!\n\r" +
 				 "Does a project with the same name already exist in the Solution?" );
 	    }
@@ -81,7 +84,7 @@ namespace QMsNet
 		    if ( file.Length > 0 )
 			file = "-client \"" + file +"\"";
 		}
-		catch( System.Exception ) {}
+		catch {}
 
 		System.Diagnostics.Process tmp = new System.Diagnostics.Process();
 		tmp.StartInfo.FileName = "Designer";
@@ -95,7 +98,7 @@ namespace QMsNet
 
 		SetForegroundWindow( prcDesigner.MainWindowHandle );
 	    }
-	    catch ( System.Exception ) {
+	    catch {
 		MessageBox.Show( "*** Couldn't start Designer!   " +
 				 "Please verify that Designer.exe is in your path.\n\r\n\r" +
 				 "Path = " + Environment.GetEnvironmentVariable("PATH"),
@@ -110,6 +113,34 @@ namespace QMsNet
 	    docEvents = Connect.applicationObject.Events.get_DocumentEvents( null );
 	    docEvents.DocumentOpening += new EnvDTE._dispDocumentEvents_DocumentOpeningEventHandler( OnDocumentOpening );
 	    docEvents.DocumentOpened += new EnvDTE._dispDocumentEvents_DocumentOpenedEventHandler( OnDocumentOpened );
+
+	    // Find .qmake.cache
+	    Resource.QtDir = Environment.GetEnvironmentVariable( "QTDIR" );
+	    FileInfo qmakeCache = new FileInfo( Resource.QtDir + "\\.qmake.cache" );
+	    if ( !qmakeCache.Exists ) {
+		MessageBox.Show( "Couldn't find .qmake.cache\n\r" + 
+				 "Make sure the environment variable QTDIR is set to you Qt directory", 
+				 ".qmake.cache not found!" );
+		return;
+	    }
+
+	    // Find the Qt version number
+	    StreamReader inF  = new StreamReader( qmakeCache.FullName );
+	    bool readMore = true;
+	    string contents;
+	    while ( readMore ) {
+		contents = inF.ReadLine();
+		readMore = !contents.StartsWith("QMAKE_QT_VERSION_OVERRIDE=");
+		if ( !readMore ) {
+		    int idx = contents.LastIndexOf( "=" ) + 1;
+		    Resource.qtVersion = contents.Substring( idx, contents.Length - idx );
+		}
+	    }
+
+	    // Figure out if Qt is configured as shared && threaded
+	    contents = inF.ReadToEnd();
+	    if ( contents.IndexOf( "shared" ) > 0 ) Resource.qtShared = true;
+	    if ( contents.IndexOf( "thread" ) > 0 ) Resource.qtThreaded = true;
 	}
 
 	public void shutDown()

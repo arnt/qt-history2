@@ -10,7 +10,11 @@ namespace QMsNet
     {
 	public static string Version = "v.1.0.0";
 	// The command bar constants.
-	public static string CommandBarName = "QMsNet" ;
+	public static string CommandBarName = "QMsNet";
+	public static string QtDir = "";
+	public static string qtVersion = "";
+	public static bool   qtShared = false;
+	public static bool   qtThreaded = false;
     
 	// All the constants for the NewQtProject command.
 	public static int NewQtProjectBitmapID = 1 ;

@@ -121,7 +121,17 @@ namespace QMsNet
 
 		    int index = lt.OutputFile.LastIndexOf( '.' );
 		    string filename = lt.OutputFile.Substring( 0, index );
+		    string qtlib = "qt";
+		    if ( Resource.qtThreaded )
+			qtlib += "-mt";
+		    qtlib += Resource.qtVersion + ".lib";
 		    lt.OutputFile = filename + ".dll";
+		    lt.AdditionalLibraryDirectories += "$(QTDIR)\\lib";
+		    lt.AdditionalDependencies += qtlib;
+		    lt.BaseAddress = "0x39D00000";
+		    lt.ImportLibrary = filename + ".lib";
+		    lt.LinkIncremental = linkIncrementalType.linkIncrementalYes;
+		    lt.ProgramDatabaseFile = filename + ".pdb";
 		}
 	    }
 	    catch( System.Exception e ) {
@@ -163,7 +173,7 @@ namespace QMsNet
 			    Connect.applicationObject.Solution.AddFromFile( 
 				inf.DirectoryName + "\\" + filename + ".vcproj", false );
 			}
-			catch ( System.Exception ) {
+			catch {
 			    MessageBox.Show( "*** Couldn't add project to Solution!\n\r" +
 				"Does a project with the same name already exist in the Solution?" );
 			    return;
