@@ -2227,7 +2227,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 if (cmb->activeSubControls == SC_ComboBoxArrow) {
                     p->setPen(cmb->palette.dark().color());
                     p->setBrush(cmb->palette.brush(QPalette::Button));
-                    p->drawRect(ar);
+                    p->drawRect(ar.adjusted(0,0,-1,-1));
                 } else {
                     qDrawWinPanel(p, ar, cmb->palette, false,
                                   &cmb->palette.brush(QPalette::Button));
