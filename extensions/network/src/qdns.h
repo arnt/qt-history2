@@ -43,7 +43,6 @@ public:
 
     // to do the query
     enum Status { Passive, Active, Done };
-    void sendQuery() const;
     Status queryStatus() const;
 
     // to query for replies
@@ -80,6 +79,8 @@ public:
 
     QStringList names() const;
 
+    QStringList qualifiedNames() const;
+
 signals:
     void statusChanged();
 
@@ -87,6 +88,8 @@ private:
     QString l;
     RecordType t;
     QDnsPrivate * d;
+
+    void sendQuery( const QString & ) const;
 };
 
 
