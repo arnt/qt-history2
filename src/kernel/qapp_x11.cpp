@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#284 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#285 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -85,7 +85,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#284 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#285 $");
 
 
 /*****************************************************************************
@@ -250,7 +250,7 @@ static QDict<Atom> * atoms_to_be_created = 0;
 
   if the app is being initialized, this function stores the adddress
   of the atom and qt_init_internal will do the actual work quickly.
-  
+
   neither argument may point to temporary variables.
  *****************************************************************************/
 
@@ -470,7 +470,7 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
     qt_x11_intern_atom( "WM_DELETE_WINDOW", &qt_wm_delete_window );
     qt_x11_intern_atom( "QT_SCROLL_DONE", &qt_qt_scrolldone );
     qt_x11_intern_atom( "_XSETROOT_ID", &qt_xsetroot_id );
-    qt_x11_intern_atom( "QT_SELECTION", &qt_xsetroot_id );
+    qt_x11_intern_atom( "QT_SELECTION", &qt_selection_id );
     qt_x11_intern_atom( "WM_STATE", &qt_wm_state );
 
     qt_x11_process_intern_atoms();
