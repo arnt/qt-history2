@@ -173,8 +173,7 @@ TrWindow::TrWindow()
     setCorner(Qt::BottomRightCorner, Qt::DockWindowAreaRight);
 
     // Set up the Scope dock window
-    dwScope = new QDockWindow(this, Qt::DockWindowAreaLeft);
-
+    dwScope = new QDockWindow(this);
     dwScope->setAllowedAreas(Qt::AllDockWindowAreas);
     dwScope->setFeatures(QDockWindow::AllDockWindowFeatures);
     dwScope->setWindowTitle(tr("Context"));
@@ -189,6 +188,7 @@ TrWindow::TrWindow()
     tv->setSelectionMode(QAbstractItemView::SingleSelection);
     tv->setRootIsDecorated(false);
     dwScope->setWidget(tv);
+    extendDockWindowArea(Qt::DockWindowAreaLeft, dwScope, Qt::Horizontal);
 
     QFontMetrics fm(font());
     tv->header()->setResizeMode(QHeaderView::Stretch, 1);
@@ -1471,20 +1471,17 @@ void TrWindow::setupMenuBar()
     toggleStats->setCheckable(true);
     viewp->addSeparator();
 
-    QMenu *tbMenu = new QMenu(this);
+    tbMenu = new QMenu(this);
     QMenu *dwMenu = new QMenu(this);
-    populateToolBarsMenu(tbMenu);
-    populateDocksMenu(dwMenu);
+    dwMenu->addAction(dwScope->toggleViewAction());
+    dwMenu->addAction(me->sourceDockWnd()->toggleViewAction());
+    dwMenu->addAction(me->phraseDockWnd()->toggleViewAction());
+
     viewp->addMenu(tbMenu)->setText(tr("&Toolbars"));
     viewp->addMenu(dwMenu)->setText(tr("Vie&ws"));
 
     connect(viewp, SIGNAL(aboutToShow()), this, 
         SLOT(updateViewMenu()));
-
-#if 0 // ### enable me
-    viewp->addMenu(tr("Vie&ws"), createDockWindowMenu(NoToolBars));
-    viewp->addMenu(tr("&Toolbars"), createDockWindowMenu(OnlyToolBars));
-#endif
 
     // Help
     manualAct = helpp->addAction(tr("&Manual"), this, SLOT(manual()));
@@ -1564,41 +1561,6 @@ void TrWindow::updateViewMenu()
         toggleStats->setChecked(stats->isVisible());
     else
         toggleStats->setChecked(false);
-    showDockScope->setChecked(dwScope->isVisible());
-    showDockSource->setChecked(me->sourceDockWnd()->isVisible());
-    showDockPhrase->setChecked(me->phraseDockWnd()->isVisible());
-}
-
-void TrWindow::populateDocksMenu(QMenu *dwMenu)
-{
-    showDockScope = dwMenu->addAction(tr("Context"));
-    showDockScope->setCheckable(true);
-    connect(showDockScope, SIGNAL(checked(bool)), dwScope, SLOT(setShown(bool)));
-    showDockSource = dwMenu->addAction(tr("Source text"));
-    showDockSource->setCheckable(true);
-    connect(showDockSource, SIGNAL(checked(bool)), me->sourceDockWnd(), SLOT(setShown(bool)));
-    showDockPhrase = dwMenu->addAction(tr("Phrases"));
-    showDockPhrase->setCheckable(true);
-    connect(showDockPhrase, SIGNAL(checked(bool)), me->phraseDockWnd(), SLOT(setShown(bool)));
-}
-
-void TrWindow::populateToolBarsMenu(QMenu *tbMenu)
-{
-    showFileAct = tbMenu->addAction(tr("File"));
-    showFileAct->setCheckable(true);
-    showFileAct->setChecked(true);
-    showEditAct = tbMenu->addAction(tr("Edit"));
-    showEditAct->setCheckable(true);
-    showEditAct->setChecked(true);
-    showTransAct = tbMenu->addAction(tr("Translation"));
-    showTransAct->setCheckable(true);
-    showTransAct->setChecked(true);
-    showValAct = tbMenu->addAction(tr("Validation"));
-    showValAct->setCheckable(true);
-    showValAct->setChecked(true);
-    showHelpAct = tbMenu->addAction(tr("Help"));
-    showHelpAct->setCheckable(true);
-    showHelpAct->setChecked(true);
 }
 
 void TrWindow::onWhatsThis()
@@ -1611,27 +1573,27 @@ void TrWindow::setupToolBars()
     QToolBar *filet = new QToolBar(this);
     filet->setWindowTitle(tr("File"));
 	this->addToolBar(filet);
-    connect(showFileAct, SIGNAL(checked(bool)), filet, SLOT(setShown(bool)));
-
+    tbMenu->addAction(filet->toggleViewAction());
+    
     QToolBar *editt = new QToolBar(this);
     editt->setWindowTitle(tr("Edit"));
 	this->addToolBar(editt);
-    connect(showEditAct, SIGNAL(checked(bool)), editt, SLOT(setShown(bool)));
+    tbMenu->addAction(editt->toggleViewAction());
 
     QToolBar *translationst = new QToolBar(this);
     translationst->setWindowTitle(tr("Translation"));
 	this->addToolBar(translationst);
-    connect(showTransAct, SIGNAL(checked(bool)), translationst, SLOT(setShown(bool)));
+    tbMenu->addAction(translationst->toggleViewAction());
 
     QToolBar *validationt   = new QToolBar(this);
     validationt->setWindowTitle(tr("Validation"));
 	this->addToolBar(validationt);
-    connect(showValAct, SIGNAL(checked(bool)), validationt, SLOT(setShown(bool)));
+    tbMenu->addAction(validationt->toggleViewAction());
 
     QToolBar *helpt = new QToolBar(this);
     helpt->setWindowTitle(tr("Help"));
 	this->addToolBar(helpt);
-    connect(showHelpAct, SIGNAL(checked(bool)), helpt, SLOT(setShown(bool)));
+    tbMenu->addAction(helpt->toggleViewAction());
 
     filet->addAction(openAct);
     filet->addAction(saveAct);

@@ -180,7 +180,7 @@ CandidateList similarTextHeuristicCandidates( const MetaTranslator *tor,
 
     QString s = tor->toUnicode( mtm.sourceText(), mtm.utf8() );
     CoMatrix cm( s.latin1() );
-    int delta = QABS( (int) s.length() - targetLen );
+    int delta = qAbs( (int) s.length() - targetLen );
 
     /*
       Here is the score formula. A comment above contains a

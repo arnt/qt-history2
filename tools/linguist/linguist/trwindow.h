@@ -151,8 +151,6 @@ private:
     bool danger(const QString &source, const QString &translation,
         bool verbose = false);
 
-    void populateDocksMenu(QMenu *dwMenu);
-    void populateToolBarsMenu(QMenu *tbMenu);
     void insertMessage(MessageItem *m);
     void printDanger(MessageItem *m);
     bool updateDanger(MessageItem *m, bool verbose = false);
@@ -194,16 +192,7 @@ private:
     QMenu *editPhraseBookp;
     QMenu *printPhraseBookp;
     QMenu *recentFilesMenu;
-
-    QAction *showFileAct;
-    QAction *showEditAct;
-    QAction *showTransAct;
-    QAction *showValAct;
-    QAction *showHelpAct;
-
-    QAction *showDockScope;
-    QAction *showDockSource;
-    QAction *showDockPhrase;
+    QMenu *tbMenu;
 
     QAction *closePhraseBookId;
     QAction *editPhraseBookId;

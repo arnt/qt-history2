@@ -234,7 +234,6 @@ EditorPage::EditorPage(QWidget *parent, const char *name)
     transText->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     transText->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     transText->setAutoFormatting(QTextEdit::AutoNone);
-    transText->setTabChangesFocus(true);
     transText->setWordWrap(QTextEdit::WidgetWidth);
     p = transText->palette();
     p.setColor(QPalette::Disabled, QPalette::Base, p.color(QPalette::Active, QPalette::Base));
@@ -378,8 +377,8 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
     doGuesses = true;
     v = new QVBoxLayout(this);
 
-    topDockWnd = new QDockWindow(parent, Qt::DockWindowAreaTop);
-    topDockWnd->setAllowedAreas(Qt::AllDockWindowAreas);
+    topDockWnd = new QDockWindow(parent);
+    topDockWnd->setAllowedAreas(Qt::DockWindowAreaTop);
     topDockWnd->setFeatures(QDockWindow::AllDockWindowFeatures);
     topDockWnd->setWindowTitle(tr("Source text"));
 
@@ -399,6 +398,7 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
     srcTextView->header()->resizeSection(2, 300);
 
     topDockWnd->setWidget(srcTextView);
+    parent->extendDockWindowArea(Qt::DockWindowAreaTop, topDockWnd, Qt::Vertical);
 
     sv = new QWidgetView(this);
     sv->setObjectName("widget view");
@@ -416,7 +416,7 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
     sw->setMinimumSize(QSize(100, 150));
     sv->setWidget(sw);
 
-    bottomDockWnd = new QDockWindow(parent, Qt::DockWindowAreaBottom);
+    bottomDockWnd = new QDockWindow(parent);
     bottomDockWnd->setAllowedAreas(Qt::AllDockWindowAreas);
     bottomDockWnd->setFeatures(QDockWindow::AllDockWindowFeatures);
     bottomDockWnd->setWindowTitle(tr("Phrases"));
@@ -448,6 +448,8 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
     }
     
     bottomDockWnd->setWidget(w);
+    parent->extendDockWindowArea(Qt::DockWindowAreaBottom, bottomDockWnd, Qt::Vertical);
+
     v->addWidget(sv);
 
     // Signals
@@ -679,7 +681,7 @@ void MessageEditor::guessActivated(int key)
 
 void MessageEditor::insertPhraseInTranslation(const QModelIndex &index, Qt::MouseButton button)
 {
-    if (button == Qt::LeftButton) {
+    if (button == Qt::LeftButton && !editorPage->transText->isReadOnly()) {
         editorPage->transText->textCursor().insertText(phrMdl->phrase(index).target());
         emit translationChanged(editorPage->transText->plainText());
     }
