@@ -143,7 +143,7 @@ void MingwMakefileGenerator::fixTargetExt()
     if (project->isActiveConfig("staticlib")) {
         project->variables()["TARGET_EXT"].append(".a");
         project->variables()["QMAKE_LFLAGS"].append("-static");
-        project->variables()["TARGET"].first() =  "lib" + project->first("TARGET") + ".a";
+        project->variables()["TARGET"].first() =  "lib" + project->first("TARGET");
     } else {
         Win32MakefileGenerator::fixTargetExt();
     }
