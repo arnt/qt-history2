@@ -230,10 +230,8 @@ void Q3ScrollViewData::hideOrShowAll(Q3ScrollView* sv, bool isScroll)
         // clipped_viewport still covers viewport
         if(static_bg)
             clipped_viewport->repaint(true);
-        else if ((!isScroll && !clipped_viewport->testWFlags(Qt::WStaticContents))
-                  || static_bg)
-            QApplication::postEvent(clipped_viewport,
-                     new QPaintEvent(clipped_viewport->clipRegion()));
+        else if ((!isScroll && !clipped_viewport->testWFlags(Qt::WStaticContents)) || static_bg)
+            clipped_viewport->update(clipped_viewport->clipRegion());
     } else {
         // Re-center
         int nx = (viewport->width() - clipped_viewport->width()) / 2;
@@ -2406,7 +2404,7 @@ void Q3ScrollView::changeFrameRect(const QRect& r)
             fr = fr.unite(frameRect());
             fr = fr.subtract(cr);
             if (!fr.isEmpty())
-                QApplication::postEvent(this, new QPaintEvent(fr));
+                update(fr);
         }
     }
 }
