@@ -795,7 +795,6 @@ void QWidget::setParent_sys(QWidget *parent, Qt::WFlags f)
     bool accept_drops = acceptDrops();
     setAcceptDrops(false);
 
-    QWidget* oldtlw = topLevelWidget();
     QWidget *oldparent = parentWidget();
     WId old_winid = data->winid;
     if (testWFlags(Qt::WType_Desktop))
