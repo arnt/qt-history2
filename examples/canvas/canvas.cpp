@@ -166,15 +166,16 @@ FigureEditor::FigureEditor(
 
 void FigureEditor::contentsMousePressEvent(QMouseEvent* e)
 {
-    QCanvasItemList l=canvas()->collisions(e->pos());
+    QPoint p = inverseWorldMatrix().map(e->pos());
+    QCanvasItemList l=canvas()->collisions(p);
     for (QCanvasItemList::Iterator it=l.begin(); it!=l.end(); ++it) {
 	if ( (*it)->rtti() == imageRTTI ) {
 	    ImageItem *item= (ImageItem*)(*it);
-	    if ( !item->hit( e->pos() ) )
+	    if ( !item->hit( p ) )
 		 continue;
 	}
 	moving = *it;
-	moving_start = e->pos();
+	moving_start = p;
 	return;
     }
     moving = 0;
@@ -213,9 +214,10 @@ void Main::init()
 void FigureEditor::contentsMouseMoveEvent(QMouseEvent* e)
 {
     if ( moving ) {
-	moving->moveBy(e->pos().x() - moving_start.x(),
-		       e->pos().y() - moving_start.y());
-	moving_start = e->pos();
+	QPoint p = inverseWorldMatrix().map(e->pos());
+	moving->moveBy(p.x() - moving_start.x(),
+		       p.y() - moving_start.y());
+	moving_start = p;
 	canvas()->update();
     }
 }
@@ -345,10 +347,22 @@ Main::Main(QCanvas& c, QWidget* parent, const char* name, WFlags f) :
     edit->insertItem("Add &Sprite", this, SLOT(addSprite()), CTRL+Key_S);
     edit->insertItem("Create &Mesh", this, SLOT(addMesh()) );
     edit->insertItem("Add &Alpha-blended image", this, SLOT(addButterfly()), CTRL+Key_A);
-    edit->insertSeparator();
-    edit->insertItem("&Enlarge", this, SLOT(enlarge()), CTRL+Key_Plus);
-    edit->insertItem("Shr&ink", this, SLOT(shrink()), CTRL+Key_Minus);
     menu->insertItem("&Edit", edit);
+
+    QPopupMenu* view = new QPopupMenu;
+    view->insertItem("&Enlarge", this, SLOT(enlarge()), SHIFT+CTRL+Key_Plus);
+    view->insertItem("Shr&ink", this, SLOT(shrink()), SHIFT+CTRL+Key_Minus);
+    view->insertSeparator();
+    view->insertItem("&Rotate clockwise", this, SLOT(rotateClockwise()), CTRL+Key_PageDown);
+    view->insertItem("Rotate &anti-clockwise", this, SLOT(rotateAntiClockwise()), CTRL+Key_PageUp);
+    view->insertItem("&Zoom in", this, SLOT(zoomIn()), CTRL+Key_Plus);
+    view->insertItem("Zoom &out", this, SLOT(zoomOut()), CTRL+Key_Minus);
+    view->insertItem("Translate left", this, SLOT(moveL()), CTRL+Key_Left);
+    view->insertItem("Translate right", this, SLOT(moveR()), CTRL+Key_Right);
+    view->insertItem("Translate up", this, SLOT(moveU()), CTRL+Key_Up);
+    view->insertItem("Translate down", this, SLOT(moveD()), CTRL+Key_Down);
+    view->insertItem("&Mirror", this, SLOT(mirror()), CTRL+Key_Home);
+    menu->insertItem("&View", view);
 
     options = new QPopupMenu;
     dbf_id = options->insertItem("Double buffer", this, SLOT(toggleDoubleBuffer()));
@@ -419,6 +433,70 @@ void Main::shrink()
 {
     canvas.resize(canvas.width()*3/4, canvas.height()*3/4);
 }
+
+void Main::rotateClockwise()
+{
+    QWMatrix m = editor->worldMatrix();
+    m.rotate( 22.5 );
+    editor->setWorldMatrix( m );
+}
+
+void Main::rotateAntiClockwise()
+{
+    QWMatrix m = editor->worldMatrix();
+    m.rotate( -22.5 );
+    editor->setWorldMatrix( m );
+}
+
+void Main::zoomIn()
+{
+    QWMatrix m = editor->worldMatrix();
+    m.scale( 2.0, 2.0 );
+    editor->setWorldMatrix( m );
+}
+
+void Main::zoomOut()
+{
+    QWMatrix m = editor->worldMatrix();
+    m.scale( 0.5, 0.5 );
+    editor->setWorldMatrix( m );
+}
+
+void Main::mirror()
+{
+    QWMatrix m = editor->worldMatrix();
+    m.scale( -1, 1 );
+    editor->setWorldMatrix( m );
+}
+
+void Main::moveL()
+{
+    QWMatrix m = editor->worldMatrix();
+    m.translate( -16, 0 );
+    editor->setWorldMatrix( m );
+}
+
+void Main::moveR()
+{
+    QWMatrix m = editor->worldMatrix();
+    m.translate( +16, 0 );
+    editor->setWorldMatrix( m );
+}
+
+void Main::moveU()
+{
+    QWMatrix m = editor->worldMatrix();
+    m.translate( 0, -16 );
+    editor->setWorldMatrix( m );
+}
+
+void Main::moveD()
+{
+    QWMatrix m = editor->worldMatrix();
+    m.translate( 0, +16 );
+    editor->setWorldMatrix( m );
+}
+
 
 void Main::addSprite()
 {

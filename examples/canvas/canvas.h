@@ -60,8 +60,18 @@ private slots:
     void addMesh();
     void addLogo();
     void addButterfly();
+
     void enlarge();
     void shrink();
+    void rotateClockwise();
+    void rotateAntiClockwise();
+    void zoomIn();
+    void zoomOut();
+    void mirror();
+    void panL();
+    void panR();
+    void panU();
+    void panD();
 
     void toggleDoubleBuffer();
 

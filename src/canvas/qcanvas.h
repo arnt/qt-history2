@@ -240,7 +240,8 @@ public:
     virtual void setChangedChunk(int i, int j);
     virtual void setChangedChunkContaining(int x, int y);
     virtual void setAllChanged();
-    virtual void setChanged(const QRect& inarea);
+    virtual void setChanged(const QRect& area);
+    virtual void setUnchanged(const QRect& area);
 
     // These call setChangedChunk.
     void addItemToChunk(QCanvasItem*, int i, int j);
@@ -258,6 +259,7 @@ public:
     virtual void addView(QCanvasView*);
     virtual void removeView(QCanvasView*);
     void drawArea(const QRect&, QPainter* p=0, bool double_buffer=TRUE);
+    void drawViewArea( QCanvasView* view, QPainter* p, const QRect& r, bool dbuf );
 
     // These are for QCanvasItem to call
     virtual void addItem(QCanvasItem*);
@@ -287,8 +289,10 @@ private:
     QCanvasChunk& chunk(int i, int j) const;
     QCanvasChunk& chunkContaining(int x, int y) const;
 
+    QRect changeBounds(const QRect& inarea);
     void drawChanges(const QRect& inarea);
 
+    void ensureOffScrSize( int osw, int osh );
     QPixmap offscr;
     int awidth,aheight;
     int chunksize;
@@ -314,6 +318,8 @@ private:
     friend void qt_unview(QCanvas* c);
 };
 
+class QCanvasViewData;
+
 class Q_EXPORT QCanvasView : public QScrollView
 {
     Q_OBJECT
@@ -326,12 +332,17 @@ public:
 	{ return viewing; }
     void setCanvas(QCanvas* v);
 
+    const QWMatrix &worldMatrix() const;
+    const QWMatrix &inverseWorldMatrix() const;
+    void setWorldMatrix( const QWMatrix & );
+
 protected:
     void drawContents( QPainter*, int cx, int cy, int cw, int ch );
     QSize sizeHint() const;
 
 private:
     QCanvas* viewing;
+    QCanvasViewData* d;
     friend void qt_unview(QCanvas* c);
 
 private slots:

@@ -55,6 +55,12 @@ public:
     QPtrDict<void> animDict;
 };
 
+class QCanvasViewData {
+public:
+    QWMatrix xform;
+    QWMatrix ixform;
+};
+
 // clusterizer
 
 class QCanvasClusterizer {
@@ -870,6 +876,54 @@ void QCanvas::advance()
     update();
 }
 
+// Don't call this unless you know what you're doing.
+void QCanvas::drawViewArea( QCanvasView* view, QPainter* p, const QRect& vr, bool dbuf )
+{
+    QWMatrix wm = view->worldMatrix();
+    QPoint tl = view->contentsToViewport(QPoint(0,0));
+    QWMatrix iwm = wm.invert();
+
+    // ivr = covers all chunks in vr
+    QRect ivr = iwm.map(vr);
+
+    QWMatrix twm;
+    twm.translate(tl.x(),tl.y());
+
+    QRect all(0,0,width(),height());
+
+    if ( !all.contains(ivr) ) {
+	// need to clip with edge of canvas
+	QPointArray a( all );
+	QWMatrix ttwm;
+	ttwm.translate(tl.x(),tl.y());
+	a = (wm*ttwm).map(a);
+	p->setClipRegion(a);
+    }
+
+    if ( dbuf ) {
+	ensureOffScrSize( vr.width(), vr.height() );
+	QPainter dbp(&offscr);
+	twm.translate(-vr.x(),-vr.y());
+	twm.translate(-tl.x(),-tl.y());
+	dbp.setWorldMatrix( wm*twm, TRUE );
+	dbp.setClipRect(0,0,vr.width(), vr.height());
+	drawArea(ivr,&dbp,FALSE);
+	p->drawPixmap(vr.x()+tl.x(), vr.y()+tl.y(), offscr, 0, 0,
+	    vr.width(), vr.height());
+    } else {
+	p->setWorldMatrix( wm*twm );
+
+	QRect r = vr; r.moveBy(tl.x(),tl.y());
+	if ( !all.contains(ivr) ) {
+	    p->setClipRegion(p->clipRegion() & r);
+	} else {
+	    p->setClipRect(r);
+	}
+
+	drawArea(ivr,p,FALSE);
+    }
+}
+
 /*!  Refreshes all changes to all views of the canvas.
 
   \sa advance()
@@ -877,18 +931,34 @@ void QCanvas::advance()
 void QCanvas::update()
 {
     QCanvasClusterizer clusterizer(d->viewList.count());
+    QList<QRect> doneareas;
+    doneareas.setAutoDelete(TRUE);
 
-    QCanvasView* view=d->viewList.first();
-    while (view != 0 ) {
+    QCanvasView* view;
+    for ( view=d->viewList.first(); view != 0; view=d->viewList.next() ) {
+	QWMatrix wm = view->worldMatrix();
 	QRect area(view->contentsX(),view->contentsY(),
 		   view->visibleWidth(),view->visibleHeight());
-	if (area.width()>0 && area.height()>0)
-	    clusterizer.add(area);
-	view=d->viewList.next();
+	if (area.width()>0 && area.height()>0) {
+	    if ( wm == QWMatrix() /*.isUnity()*/ ) {
+		clusterizer.add(area);
+	    } else {
+		// r = Visible area of the canvas where there are changes
+		QRect r = changeBounds(view->inverseWorldMatrix().map(area));
+		if ( !r.isEmpty() ) {
+		    QPainter p(view->viewport());
+		    drawViewArea( view, &p, wm.map(r), dblbuf );
+		    doneareas.append(new QRect(r));
+		}
+	    }
+	}
     }
 
     for (int i=0; i<clusterizer.clusters(); i++)
 	drawChanges(clusterizer[i]);
+
+    for ( QRect* r=doneareas.first(); r != 0; r=doneareas.next() )
+	setUnchanged(*r);
 }
 
 
@@ -931,6 +1001,69 @@ void QCanvas::setChanged(const QRect& area)
 }
 
 /*!
+  Sets all views of \a area to \e not be redrawn when
+  update() is next called.
+*/
+void QCanvas::setUnchanged(const QRect& area)
+{
+    QRect thearea = area.intersect(QRect(0,0,width(),height()));
+
+    int mx = (thearea.x()+thearea.width()+chunksize)/chunksize;
+    int my = (thearea.y()+thearea.height()+chunksize)/chunksize;
+    if (mx>chwidth)
+	mx=chwidth;
+    if (my>chheight)
+	my=chheight;
+
+    int x=thearea.x()/chunksize;
+    while( x<mx) {
+	int y = thearea.y()/chunksize;
+	while( y<my ) {
+	    chunk(x,y).takeChange();
+	    y++;
+	}
+	x++;
+    }
+}
+
+QRect QCanvas::changeBounds(const QRect& inarea)
+{
+    QRect area=inarea.intersect(QRect(0,0,width(),height()));
+
+    int mx = (area.x()+area.width()+chunksize)/chunksize;
+    int my = (area.y()+area.height()+chunksize)/chunksize;
+    if (mx > chwidth)
+	mx=chwidth;
+    if (my > chheight)
+	my=chheight;
+
+    QRect result;
+
+    int x=area.x()/chunksize;
+    while( x<mx ) {
+	int y=area.y()/chunksize;
+	while( y<my ) {
+	    QCanvasChunk& ch=chunk(x,y);
+	    if ( ch.hasChanged() )
+		result |= QRect(x,y,1,1);
+	    y++;
+	}
+	x++;
+    }
+
+    if ( !result.isEmpty() ) {
+	result.rLeft() *= chunksize;
+	result.rTop() *= chunksize;
+	result.rRight() *= chunksize;
+	result.rBottom() *= chunksize;
+	result.rRight() += chunksize;
+	result.rBottom() += chunksize;
+    }
+
+    return result;
+}
+
+/*!
 \internal
 Redraw a given area of the QCanvas.
 */
@@ -969,6 +1102,16 @@ void QCanvas::drawChanges(const QRect& inarea)
 	);
 	drawArea(elarea);
     }
+}
+
+void QCanvas::ensureOffScrSize( int osw, int osh )
+{
+    if ( osw > offscr.width() || osh > offscr.height() )
+	offscr.resize(QMAX(osw,offscr.width()),
+		      QMAX(osh,offscr.height()));
+    else if ( offscr.width() == 0 || offscr.height() == 0 )
+	offscr.resize( QMAX( offscr.width(), 1),
+		       QMAX( offscr.height(), 1 ) );
 }
 
 /*!
@@ -1022,14 +1165,7 @@ void QCanvas::drawArea(const QRect& inarea, QPainter* p, bool double_buffer)
 
     if ( double_buffer ) {
 	QPainter painter;
-	int osw = area.width();
-	int osh = area.height();
-	if ( osw > offscr.width() || osh > offscr.height() )
-	    offscr.resize(QMAX(osw,offscr.width()),
-			  QMAX(osh,offscr.height()));
-	else if ( offscr.width() == 0 || offscr.height() == 0 )
-	    offscr.resize( QMAX( offscr.width(), 1),
-			   QMAX( offscr.height(), 1 ) );
+	ensureOffScrSize( area.width(), area.height() );
 	painter.begin(&offscr);
 	painter.translate(-area.x(),-area.y());
 	if ( p ) {
@@ -2714,6 +2850,7 @@ void QCanvasSprite::draw(QPainter& painter)
 QCanvasView::QCanvasView(QWidget* parent, const char* name, WFlags f) :
     QScrollView(parent,name,f)
 {
+    d = new QCanvasViewData;
     viewing = 0;
     setCanvas(0);
     connect(this,SIGNAL(contentsMoving(int,int)),this,SLOT(cMoving(int,int)));
@@ -2726,6 +2863,7 @@ QCanvasView::QCanvasView(QWidget* parent, const char* name, WFlags f) :
 QCanvasView::QCanvasView(QCanvas* canvas, QWidget* parent, const char* name, WFlags f) :
     QScrollView(parent,name,f)
 {
+    d = new QCanvasViewData;
     viewing = 0;
     setCanvas(canvas);
 
@@ -2740,6 +2878,7 @@ QCanvasView::QCanvasView(QCanvas* canvas, QWidget* parent, const char* name, WFl
 */
 QCanvasView::~QCanvasView()
 {
+    delete d;
     setCanvas(0);
 }
 
@@ -2769,12 +2908,50 @@ void QCanvasView::setCanvas(QCanvas* canvas)
 	viewport()->setBackgroundColor(viewing->backgroundColor());
 }
 
+/*!
+  Returns the current transformation matrix.
+
+  \sa setWorldMatrix()
+*/
+const QWMatrix &QCanvasView::worldMatrix() const
+{
+    return d->xform;
+}
+
+/*!
+  Returns the inverse of the current transformation matrix.
+
+  \sa setWorldMatrix()
+*/
+const QWMatrix &QCanvasView::inverseWorldMatrix() const
+{
+    return d->ixform;
+}
+
+/*!
+  Sets the transform of the view to \a wm. Note that performance
+  drops considerably when this is used.
+
+  The matrix must be invertible.
+
+  \sa worldMatrix()
+*/
+void QCanvasView::setWorldMatrix( const QWMatrix & wm )
+{
+    d->xform = wm;
+    d->ixform = wm.invert();
+    updateContentsSize();
+    viewport()->update();
+}
+
 void QCanvasView::updateContentsSize()
 {
-    if ( viewing )
-	resizeContents(viewing->width(),viewing->height());
-    else
+    if ( viewing ) {
+	QRect br = d->xform.map(QRect(0,0,viewing->width(),viewing->height()));
+	resizeContents(br.width(),br.height());
+    } else {
 	resizeContents(1,1);
+    }
 }
 
 
@@ -2796,7 +2973,11 @@ void QCanvasView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 {
     QRect r(cx,cy,cw,ch);
     if (viewing) {
-	viewing->drawArea(r,p,!repaint_from_moving);
+	if ( d->xform != QWMatrix() ) {
+	    viewing->drawViewArea(this,p,r,FALSE);
+	} else {
+	    viewing->drawArea(r,p,!repaint_from_moving);
+	}
 	repaint_from_moving = FALSE;
     } else {
         p->eraseRect(r);
