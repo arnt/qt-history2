@@ -21,7 +21,8 @@ struct DockData
 class QToolLayout : public QLayout
 {
     Q_OBJECT
-
+    friend class QDockArea;
+    
 public:
     QToolLayout( QWidget* parent, Qt::Orientation o, QList<QDockWidget> *wl, int space = -1, int margin = -1, const char *name = 0 )
 	: QLayout( parent, space, margin, name ), orient( o ), dockWidgets( wl ), parentWidget( parent ) { init(); }
@@ -234,7 +235,6 @@ static void place_line( const QValueList<DockData> &lastLine, Qt::Orientation o,
 	else
 	    set_geometry( last, lastRect.x(), lastRect.y(), (*it).rect.x() - lastRect.x(),
 			  last->isResizeEnabled() ? linestrut : lastRect.height(), o );
-
 	last = (*it).w;
 	lastRect = (*it).rect;
     }
@@ -354,6 +354,7 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
     int i = findDockWidget( w );
     if ( i != -1 ) {
 	dockWidget = dockWidgets->take( i );
+	layout->layoutItems( QRect( 0, 0, width(), height() ), TRUE );
     } else {
 	dockWidget = w;
 	dockWidget->reparent( this, QPoint( 0, 0 ), TRUE );
@@ -449,8 +450,8 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
     }
 
     updateLayout();
-    setSizePolicy( QSizePolicy( orientation() == Horizontal ? QSizePolicy::Expanding : QSizePolicy::Fixed,
-				orientation() == Vertical ? QSizePolicy::Expanding : QSizePolicy::Fixed ) );
+    setSizePolicy( QSizePolicy( orientation() == Horizontal ? QSizePolicy::Expanding : QSizePolicy::Minimum,
+				orientation() == Vertical ? QSizePolicy::Expanding : QSizePolicy::Minimum ) );
 }
 
 void QDockArea::removeDockWidget( QDockWidget *w, bool makeFloating, bool swap )
