@@ -327,8 +327,8 @@ public slots:
     bool isColumnStretchable( int col ) const;
     bool isRowStretchable( int row ) const;
     virtual void setSorting( bool b );
-    virtual void swapRows( int row1, int row2 );
-    virtual void swapColumns( int col1, int col2 );
+    virtual void swapRows( int row1, int row2, bool swapHeader = FALSE );
+    virtual void swapColumns( int col1, int col2, bool swapHeader = FALSE );
     virtual void swapCells( int row1, int col1, int row2, int col2 );
 
     virtual void setLeftMargin( int m );

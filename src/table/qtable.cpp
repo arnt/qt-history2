@@ -1883,11 +1883,19 @@ void QTable::resizeData( int len )
   rows, e.g. for sorting, you will need to reimplement this function.
   (See the notes on <a href="#bigtables">large tables</a>.)
 
+  If \a swapHeader is TRUE, also the header contents of the rows is
+  swapped.
+
   \sa swapColumns() swapCells()
 */
 
-void QTable::swapRows( int row1, int row2 )
+void QTable::swapRows( int row1, int row2, bool swapHeader )
 {
+    if ( swapHeader ) {
+	leftHeader->swapSections( row1, row2 );
+	return;
+    }
+
     QPtrVector<QTableItem> tmpContents;
     tmpContents.resize( numCols() );
     QPtrVector<QWidget> tmpWidgets;
@@ -1976,11 +1984,19 @@ void QTable::setTopMargin( int m )
     columns you will need to reimplement this function.
   (See the notes on <a href="#bigtables">large tables</a>.)
 
+  If \a swapHeader is TRUE, also the header contents of the columns is
+  swapped.
+
   \sa swapCells()
 */
 
-void QTable::swapColumns( int col1, int col2 )
+void QTable::swapColumns( int col1, int col2, bool swapHeader )
 {
+    if ( swapHeader ) {
+	topHeader->swapSections( col1, col2 );
+	return;
+    }
+
     QPtrVector<QTableItem> tmpContents;
     tmpContents.resize( numRows() );
     QPtrVector<QWidget> tmpWidgets;
