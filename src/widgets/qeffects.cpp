@@ -75,7 +75,7 @@ public:
 protected:
     void paintEvent( QPaintEvent* e );
     void closeEvent( QCloseEvent* );
-    bool eventFilter( QObject* o, QEvent* e );    
+    bool eventFilter( QObject* o, QEvent* e );
     void alphaBlend();
 
 protected slots:
@@ -102,7 +102,7 @@ static QAlphaWidget* q_blend = 0;
   Constructs a QAlphaWidget.
 */
 QAlphaWidget::QAlphaWidget( QWidget* w, WFlags f )
-    : QWidget( 0, 0, f )
+    : QWidget( 0, "qt internal alpha effect widget", f )
 {
     pm.setOptimization( QPixmap::BestOptim );
     setBackgroundMode( NoBackground );
@@ -218,12 +218,12 @@ void QAlphaWidget::render()
 	widget->removeEventFilter( this );
 	widget->clearWState( WState_Visible );
 	widget->setWState( WState_ForceHide );
-	
+
 	if ( showWidget ) {
 	    BackgroundMode bgm = widget->backgroundMode();
 	    widget->setBackgroundMode( NoBackground );
 	    widget->show();
-	    
+
 	    widget->clearWState( WState_Visible ); // prevent update in setBackgroundMode
 	    widget->setBackgroundMode( bgm );
 	    widget->setWState( WState_Visible );
@@ -321,7 +321,7 @@ static QRollEffect* q_roll = 0;
   Construct a QRollEffect widget.
 */
 QRollEffect::QRollEffect( QWidget* w, WFlags f, DirFlags orient )
-    : QWidget( 0, 0, f ), orientation(orient)
+    : QWidget( 0, "qt internal roll effect widget", f ), orientation(orient)
 {
     widget = (QAccessWidget*) w;
     Q_ASSERT( widget );
@@ -356,7 +356,7 @@ void QRollEffect::paintEvent( QPaintEvent* )
     int x = orientation & RightScroll ? QMIN(0, currentWidth - totalWidth) : 0;
     int y = orientation & DownScroll ? QMIN(0, currentHeight - totalHeight) : 0;
 
-    bitBlt( this, x, y, &pm, 
+    bitBlt( this, x, y, &pm,
 		  0, 0, pm.width(), pm.height(), CopyROP, TRUE );
 }
 
@@ -458,7 +458,7 @@ void QRollEffect::scroll()
 	    // equiv. to int( (totalHeight*elapsed) / duration + 0.5 )
 	    done = (currentHeight >= totalHeight);
 	}
-	done = ( currentHeight >= totalHeight ) && 
+	done = ( currentHeight >= totalHeight ) &&
 	       ( currentWidth >= totalWidth );
 
         int w = totalWidth;
@@ -479,7 +479,7 @@ void QRollEffect::scroll()
 	if ( orientation & UpScroll || orientation & LeftScroll )
 	    move( x, y );
 
-	resize( w, h );	
+	resize( w, h );
         setUpdatesEnabled( TRUE );
 	repaint( FALSE );
     }
@@ -532,11 +532,13 @@ void qScrollEffect( QWidget* w, QEffects::DirFlags orient, int time )
     qApp->sendPostedEvents( w, QEvent::Resize );
 
     if ( qstrcmp( w->name(), "qt_internal_mdi_popup" ) )
-	q_roll = new QRollEffect( w, Qt::WStyle_Customize | Qt::WStyle_Tool | 
-	    Qt::WResizeNoErase | Qt::WRepaintNoErase | Qt::WStyle_StaysOnTop, orient );
+	q_roll = new QRollEffect( w, Qt::WStyle_Customize | Qt::WStyle_Tool |
+				  Qt::WX11BypassWM | Qt::WResizeNoErase |
+				  Qt::WRepaintNoErase | Qt::WStyle_StaysOnTop, orient );
     else
-	q_roll = new QRollEffect( w, Qt::WStyle_Customize | Qt::WType_Popup | 
-	    Qt::WResizeNoErase | Qt::WRepaintNoErase | Qt::WStyle_StaysOnTop, orient );
+	q_roll = new QRollEffect( w, Qt::WStyle_Customize | Qt::WType_Popup |
+				  Qt::WResizeNoErase | Qt::WRepaintNoErase |
+				  Qt::WStyle_StaysOnTop, orient );
 
     q_roll->run( time );
 }
@@ -555,11 +557,13 @@ void qFadeEffect( QWidget* w, int time )
     qApp->sendPostedEvents( w, QEvent::Resize );
 
     if ( qstrcmp( w->name(), "qt_internal_mdi_popup" ) )
-	q_blend = new QAlphaWidget( w, Qt::WStyle_Customize | Qt::WStyle_Tool | 
-	    Qt::WResizeNoErase | Qt::WRepaintNoErase | Qt::WStyle_StaysOnTop );
+	q_blend = new QAlphaWidget( w, Qt::WStyle_Customize | Qt::WStyle_Tool |
+				    Qt::WX11BypassWM | Qt::WResizeNoErase |
+				    Qt::WRepaintNoErase | Qt::WStyle_StaysOnTop );
     else
-	q_blend = new QAlphaWidget( w, Qt::WStyle_Customize | Qt::WType_Popup | 
-	    Qt::WResizeNoErase | Qt::WRepaintNoErase | Qt::WStyle_StaysOnTop);
+	q_blend = new QAlphaWidget( w, Qt::WStyle_Customize | Qt::WType_Popup |
+				    Qt::WResizeNoErase | Qt::WRepaintNoErase |
+				    Qt::WStyle_StaysOnTop);
 
     q_blend->run( time );
 }
