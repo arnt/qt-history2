@@ -129,7 +129,7 @@ UpdateMatchDialog::UpdateMatchDialog( QSqlRecord* buf, QWidget * parent,
     formLayout->setMargin( 5 );
 
     form = new QSqlForm( this, "updatematchform" );
-    
+
     QSqlPropertyMap* pm = new QSqlPropertyMap();
     pm->insert( "TeamPicker", "teamid" );
     form->installPropertyMap( pm );
@@ -139,26 +139,30 @@ UpdateMatchDialog::UpdateMatchDialog( QSqlRecord* buf, QWidget * parent,
     wteam->setTeamId( buf->value("winnerid").toInt() );
     formLayout->addWidget( flabel, 0, 0 );
     formLayout->addWidget( wteam, 0, 1 );
-    form->associate( wteam, buf->field("winnerid") );    
+    form->associate( wteam, buf->field("winnerid") );
 
     flabel = new QLabel( buf->field("loser")->displayLabel(), w );
     lteam = new TeamPicker( w );
     lteam->setTeamId( buf->value("loserid").toInt() );
     formLayout->addWidget( flabel, 0, 2 );
     formLayout->addWidget( lteam, 0, 3 );
-    form->associate( lteam, buf->field("loserid") );        
+    form->associate( lteam, buf->field("loserid") );
 
     flabel = new QLabel( buf->field("wins")->displayLabel(), w );
-    editor = ef->createEditor( w, buf->value("wins") );
+    wins = new QSpinBox( w );
     formLayout->addWidget( flabel, 1, 0 );
-    formLayout->addWidget( editor, 1, 1 );
-    form->associate( editor, buf->field("wins") );
+    formLayout->addWidget( wins, 1, 1 );
+    form->associate( wins, buf->field("wins") );
+    connect( wins, SIGNAL( valueChanged(int) ),
+	     SLOT( updateSets() ) );
 
     flabel = new QLabel( buf->field("losses")->displayLabel(), w );
-    editor = ef->createEditor( w, buf->value("losses") );
+    losses = new QSpinBox( w );
     formLayout->addWidget( flabel, 1, 2 );
-    formLayout->addWidget( editor, 1, 3 );
-    form->associate( editor, buf->field("losses") );
+    formLayout->addWidget( losses, 1, 3 );
+    form->associate( losses, buf->field("losses") );
+    connect( losses, SIGNAL( valueChanged(int) ),
+	     SLOT( updateSets() ) );
 
     flabel = new QLabel( buf->field("date")->displayLabel(), w );
     editor = ef->createEditor( w, buf->value("date") );
@@ -167,10 +171,10 @@ UpdateMatchDialog::UpdateMatchDialog( QSqlRecord* buf, QWidget * parent,
     form->associate( editor, buf->field("date") );
 
     flabel = new QLabel( buf->field("sets")->displayLabel(), w );
-    editor = ef->createEditor( w, buf->value("sets") );
+    sets = new QLineEdit( w );
     formLayout->addWidget( flabel, 2, 2 );
-    formLayout->addWidget( editor, 2, 3 );
-    form->associate( editor, buf->field("sets") );
+    formLayout->addWidget( sets, 2, 3 );
+    sets->setEnabled( FALSE );
     form->readRecord();
 
     g->setMargin( 3 );
@@ -193,6 +197,7 @@ UpdateMatchDialog::UpdateMatchDialog( QSqlRecord* buf, QWidget * parent,
     connect( button, SIGNAL( clicked() ), SLOT( close() ) );
     h->addWidget( button );
 
+    updateSets();
     g->addWidget( w );
     g->addLayout( h );
 }
@@ -205,7 +210,11 @@ void UpdateMatchDialog::close()
 void UpdateMatchDialog::execute()
 {
     form->writeRecord();
-//     matchRecord->setValue( "winnerid", wteam->teamId() );
-//     matchRecord->setValue( "loserid", lteam->teamId() );
     accept();
+}
+
+void UpdateMatchDialog::updateSets()
+{
+    matchRecord->setValue( "sets", wins->value() + losses->value() );
+    sets->setText( matchRecord->value( "sets" ).toString() );
 }

@@ -5,6 +5,8 @@
 #include <qsqltable.h>
 #include <qframe.h>
 #include <qcombobox.h>
+#include <qspinbox.h>
+#include <qlineedit.h>
 
 class QSqlForm;
 
@@ -50,12 +52,17 @@ public:
 public slots:
     void close();
     void execute();
+private slots:
+    void updateSets();
 
 private:
     QSqlForm * form;
     QSqlRecord* matchRecord;
     TeamPicker * wteam;
     TeamPicker * lteam;
+    QSpinBox * wins;
+    QSpinBox * losses;
+    QLineEdit * sets;
 };
 #endif // DIALOGS_H
 
