@@ -419,7 +419,7 @@ void QInstallationWizard::cancel()
 }
 
 
-void QInstallationWizard::addWidgetToStack( QWidget *w, const QString& nextText = "Next >", const QString& backText = "< Back" )
+void QInstallationWizard::addWidgetToStack( QWidget *w, const QString& nextText, const QString& backText )
 {
     backTextMap[lastId] = backText;
     nextTextMap[lastId] = nextText;
