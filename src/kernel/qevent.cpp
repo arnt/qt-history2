@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#21 $
 **
 ** Implementation of event classes
 **
@@ -13,7 +13,7 @@
 #include "qevent.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#20 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#21 $";
 #endif
 
 
@@ -150,7 +150,8 @@ void QEvent::peErrMsg()				// posted event error message
   If the interval is zero, the event will be sent on every iteration
   of the event loop.
 
-  The QTimer class provides one-shot timers and timer events signals.
+  The QTimer class provides a high-level programming interface with one-shot
+  timers and timer signals instead of events.
 
   The event handler QWidget::timerEvent() receives timer events.
 
