@@ -32,6 +32,7 @@ Q3Frame::Q3Frame(QWidget* parent, const char* name, Qt::WFlags f)
     if (name)
         setObjectName(name);
     setAttribute(Qt::WA_LayoutOnEntireRect);
+    setAttribute(Qt::WA_PaintOnScreen);
 }
 
 /*!
@@ -47,6 +48,12 @@ Q3Frame::~Q3Frame()
 */
 void Q3Frame::paintEvent(QPaintEvent * event)
 {
+    const int m = margin();
+    if ( m && testWFlags( Qt::WNoAutoErase ) ) {
+	QRect r = contentsRect();
+	r.addCoords( -m, -m, m, m );
+	erase( event->region().intersect( QRegion( r ) - contentsRect() ) );
+    }
     QPainter paint(this);
     if (!contentsRect().contains(event->rect())) {
         paint.save();
