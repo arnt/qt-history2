@@ -154,8 +154,8 @@ void HelpDialog::initialize()
 {
     connect( tabWidget, SIGNAL( selected(const QString&) ),
 	     this, SLOT( currentTabChanged(const QString&) ) );
-    connect( listContents, SIGNAL( clicked(QListViewItem*) ),
-	     this, SLOT( showTopic(QListViewItem*) ) );
+    connect( listContents, SIGNAL( mouseButtonClicked(int, QListViewItem*, const QPoint &, int ) ),
+	     this, SLOT( showTopic(int,QListViewItem*, const QPoint &) ) );
     connect( listContents, SIGNAL( currentChanged(QListViewItem*) ),
 	     this, SLOT( currentContentsChanged(QListViewItem*) ) );
     connect( listContents, SIGNAL( selectionChanged(QListViewItem*) ),
@@ -170,18 +170,20 @@ void HelpDialog::initialize()
 	     this, SLOT( showTopic() ) );
     connect( editIndex, SIGNAL( textChanged(const QString&) ),
 	     this, SLOT( searchInIndex(const QString&) ) );
+
     connect( listIndex, SIGNAL( selectionChanged(QListBoxItem*) ),
 	     this, SLOT( currentIndexChanged(QListBoxItem*) ) );
     connect( listIndex, SIGNAL( returnPressed(QListBoxItem*) ),
 	     this, SLOT( showTopic() ) );
-    connect( listIndex, SIGNAL( clicked(QListBoxItem*) ),
-	     this, SLOT( showTopic() ) );
+    connect( listIndex, SIGNAL( mouseButtonClicked(int, QListBoxItem*, const QPoint &) ),
+	     this, SLOT( showTopic( int, QListBoxItem *, const QPoint & ) ) );
     connect( listIndex, SIGNAL( currentChanged(QListBoxItem*) ),
 	     this, SLOT( currentIndexChanged(QListBoxItem*) ) );
     connect( listIndex, SIGNAL( contextMenuRequested( QListBoxItem*, const QPoint& ) ),
 	     this, SLOT( showItemMenu( QListBoxItem*, const QPoint& ) ) );
-    connect( listBookmarks, SIGNAL( clicked(QListViewItem*) ),
-	     this, SLOT( showTopic(QListViewItem*) ) );
+
+    connect( listBookmarks, SIGNAL( mouseButtonClicked(int, QListViewItem*, const QPoint&, int ) ),
+	     this, SLOT( showTopic(int, QListViewItem*, const QPoint &) ) );
     connect( listBookmarks, SIGNAL( returnPressed(QListViewItem*) ),
 	     this, SLOT( showTopic(QListViewItem*) ) );
     connect( listBookmarks, SIGNAL( selectionChanged(QListViewItem*) ),
@@ -555,9 +557,24 @@ void HelpDialog::currentIndexChanged( QListBoxItem * )
 {
 }
 
+
+void HelpDialog::showTopic( int button, QListBoxItem *item,
+			    const QPoint & )
+{
+    if( button == LeftButton && item )
+	showTopic();
+}
+
+void HelpDialog::showTopic( int button, QListViewItem *item,
+			    const QPoint & )
+{
+    if( button == LeftButton && item )
+	showTopic();
+}
+
 void HelpDialog::showTopic( QListViewItem *item )
 {
-    if ( item )
+    if( item )
 	showTopic();
 }
 
@@ -998,8 +1015,17 @@ void HelpDialog::showSearchHelp()
     emit showLink( documentationPath + "/assistant-5.html" );
 }
 
+void HelpDialog::showResultPage( int button, QListBoxItem *i, const QPoint & )
+{
+    if( button == LeftButton ) {
+	showResultPage( i );
+    }
+}
+
 void HelpDialog::showResultPage( QListBoxItem *i )
 {
+    if( !i )
+	return;
     emit showSearchLink( foundDocs[resultBox->index( i )], terms );
 }
 
@@ -1011,8 +1037,9 @@ void HelpDialog::showItemMenu( QListBoxItem *item, const QPoint &pos )
     if ( id == 0 ) {
 	if ( stripAmpersand( tabWidget->tabLabel( tabWidget->currentPage() ) ).contains( tr( "Index" ) ) )
 	    showTopic();
-	else
+	else {
 	    showResultPage( item );
+	}
     } else if ( id > 0 ) {
 	HelpWindow *hw = help->browsers()->currentBrowser();
 	if ( stripAmpersand( tabWidget->tabLabel( tabWidget->currentPage() ) ).contains( tr( "Index" ) ) ) {

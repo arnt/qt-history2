@@ -87,7 +87,9 @@ public:
     QString docHomePage( const QString &doc );
 
 protected slots:
-    void showTopic( QListViewItem *item );
+    void showTopic( int, QListBoxItem *, const QPoint & );
+    void showTopic( int, QListViewItem *, const QPoint & );
+    void showTopic( QListViewItem * );
     void loadIndexFile();
     void insertContents();
     void setupFullTextIndex();
@@ -116,6 +118,7 @@ signals:
 
 private slots:
     void lastWinClosed();
+    void showResultPage( int button, QListBoxItem *i, const QPoint &p );
     void showResultPage( QListBoxItem *i );
     void setIndexingProgress( int prog );
     void showItemMenu( QListBoxItem *item, const QPoint &pos );

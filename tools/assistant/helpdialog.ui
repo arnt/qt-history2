@@ -452,9 +452,9 @@
     </connection>
     <connection>
         <sender>resultBox</sender>
-        <signal>clicked(QListBoxItem*)</signal>
+        <signal>mouseButtonClicked(int, QListBoxItem*, const QPoint &amp;)</signal>
         <receiver>HelpDialogBase</receiver>
-        <slot>showResultPage(QListBoxItem*)</slot>
+        <slot>showResultPage(int, QListBoxItem*, const QPoint &amp; )</slot>
     </connection>
 </connections>
 <tabstops>
@@ -482,9 +482,12 @@
     <slot access="protected">removeBookmark()</slot>
     <slot access="protected">searchInIndex( const QString &amp; )</slot>
     <slot access="protected">showTopic()</slot>
+    <slot access="protected">showTopic( int, QListBoxItem *, const QPoint &amp; )</slot>
     <slot access="protected">showSearchHelp()</slot>
     <slot access="protected">startSearch()</slot>
     <slot access="protected">showResultPage( QListBoxItem * )</slot>
+    <slot access="protected">showResultPage( int, QListBoxItem *, const QPoint &amp; )</slot>
+    <slot access="protected">showResultPage( int, QListViewItem *, const QPoint &amp; )</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
