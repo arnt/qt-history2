@@ -92,16 +92,19 @@ QAction* TestInterface::create( const QString& actionname, QObject* parent )
 void TestInterface::onOpenModalDialog()
 {
     QVariant obj;
-    clientInterface()->requestProperty( "mainWindow", obj );
+    QClientInterface* ifc;
+    if ( (  ifc = clientInterface( "PlugMainWindowInterface" ) ) )
+	ifc->requestProperty( "mainWindow", obj );
     QDialog dialog( (QWidget*)obj.toUInt(), 0, TRUE );
     dialog.show();
 }
 
 void TestInterface::turnOnText()
 {
-    if ( clientInterface() ) {
+    QClientInterface* ifc; 
+    if ( ( ifc = clientInterface("PlugMainWindowInterface") ) ) {
 	QVariant onOff;
-	clientInterface()->requestProperty( "usesTextLabel", onOff );
+	ifc->requestProperty( "usesTextLabel", onOff );
 	bool on = onOff.toBool();
 	if ( !on ) {
 	    actionTurnOnText->setText( "Hide Text" );
@@ -110,7 +113,7 @@ void TestInterface::turnOnText()
 	    actionTurnOnText->setText( "Show Text" );
 	    actionTurnOnText->setMenuText( "&Show Text" );
 	}
-	clientInterface()->requestSetProperty( "usesTextLabel", !on );
+	ifc->requestSetProperty( "usesTextLabel", !on );
     }
 }
 
