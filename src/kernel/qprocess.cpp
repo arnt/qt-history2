@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qprocess.cpp#35 $
 **
 ** Implementation of QProcess class
 **
@@ -328,7 +328,7 @@ bool QProcess::canReadLineStderr() const
 }
 
 /*!
-  Reads a line of text from standard output, excluding any treailing newline or
+  Reads a line of text from standard output, excluding any trailing newline or
   carriage return characters and returns it. Returns QString::null if
   canReadLineStdout() returns FALSE.
 
@@ -348,7 +348,7 @@ QString QProcess::readLineStdout()
 }
 
 /*!
-  Reads a line of text from standard error, excluding any treailing newline or
+  Reads a line of text from standard error, excluding any trailing newline or
   carriage return characters and returns it. Returns QString::null if
   canReadLineStderr() returns FALSE.
 
