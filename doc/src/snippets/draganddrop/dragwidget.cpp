@@ -25,14 +25,14 @@ void DragWidget::dragMoveEvent(QDragMoveEvent *event)
 
 void DragWidget::dropEvent(QDropEvent *event)
 {
-    if (event->source() == this && event->possibleActions() & QDrag::MoveAction)
+    if (event->source() == this && event->possibleActions() & Qt::MoveAction)
         return;
 
-    if (event->possibleActions() == QDrag::MoveAction) {
+    if (event->possibleActions() == Qt::MoveAction) {
         event->acceptProposedAction();
         // Process the data from the event.
         emit dragResult(tr("The data was moved here."));
-    } else if (event->possibleActions() == QDrag::CopyAction) {
+    } else if (event->possibleActions() == Qt::CopyAction) {
         event->acceptProposedAction();
         // Process the data from the event.
         emit dragResult(tr("The data was copied here."));
@@ -67,18 +67,18 @@ void DragWidget::mouseMoveEvent(QMouseEvent *event)
     mimeData->setData(mimeType, data);
     drag->setMimeData(mimeData);
 
-    QDrag::DropAction dropAction;
+    Qt::DropAction dropAction;
 
     if (event->modifiers() & Qt::ShiftModifier)
-        dropAction = drag->start(QDrag::MoveAction);
+        dropAction = drag->start(Qt::MoveAction);
     else
-        dropAction = drag->start(QDrag::CopyAction);
+        dropAction = drag->start(Qt::CopyAction);
 
     switch (dropAction) {
-        case QDrag::CopyAction:
+        case Qt::CopyAction:
             emit dragResult(tr("The text was copied."));
             break;
-        case QDrag::MoveAction:
+        case Qt::MoveAction:
             emit dragResult(tr("The text was moved."));
             break;
         default:

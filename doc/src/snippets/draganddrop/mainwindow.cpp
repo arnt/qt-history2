@@ -34,11 +34,11 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::setDragResult(const QString &actionText)
 {
-    statusBar()->message(actionText);
+    statusBar()->showMessage(actionText);
 }
 
 void MainWindow::setMimeTypes(const QStringList &types)
 {
     mimeTypeCombo->clear();
-    mimeTypeCombo->insertStringList(types);
+    mimeTypeCombo->addItems(types);
 }

@@ -48,7 +48,7 @@ void Window::dropEvent(QDropEvent *event)
 {
     textBrowser->setPlainText(event->mimeData()->text());
     mimeTypeCombo->clear();
-    mimeTypeCombo->insertStringList(event->mimeData()->formats());
+    mimeTypeCombo->addItems(event->mimeData()->formats());
 
     event->acceptProposedAction();
 }

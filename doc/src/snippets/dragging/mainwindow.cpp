@@ -49,25 +49,25 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event)
     drag->setMimeData(mimeData);
     drag->setPixmap(iconPixmap);
 
-    QDrag::DropAction dropAction = drag->start();
+    Qt::DropAction dropAction = drag->start();
 
     QString actionText;
     switch (dropAction) {
-        case QDrag::CopyAction:
+        case Qt::CopyAction:
             actionText = tr("The text was copied.");
             break;
-        case QDrag::MoveAction:
+        case Qt::MoveAction:
             actionText = tr("The text was moved.");
             break;
-        case QDrag::LinkAction:
+        case Qt::LinkAction:
             actionText = tr("The text was linked.");
             break;
-        case QDrag::IgnoreAction:
+        case Qt::IgnoreAction:
             actionText = tr("The drag was ignored.");
             break;
         default:
             actionText = tr("Unknown action.");
             break;
     }
-    statusBar()->message(actionText);
+    statusBar()->showMessage(actionText);
 }

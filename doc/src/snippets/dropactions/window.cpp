@@ -37,29 +37,29 @@ void Window::dropEvent(QDropEvent *event)
     QAction *moveAction = 0;
     QAction *linkAction = 0;
     QAction *ignoreAction = 0;
-    if (event->possibleActions() & QDrag::CopyAction)
+    if (event->possibleActions() & Qt::CopyAction)
         copyAction = actionMenu.addAction(tr("Copy"));
-    if (event->possibleActions() & QDrag::MoveAction)
+    if (event->possibleActions() & Qt::MoveAction)
         moveAction = actionMenu.addAction(tr("Move"));
-    if (event->possibleActions() & QDrag::LinkAction)
+    if (event->possibleActions() & Qt::LinkAction)
         linkAction = actionMenu.addAction(tr("Link"));
-    if (event->possibleActions() & QDrag::IgnoreAction)
+    if (event->possibleActions() & Qt::IgnoreAction)
         ignoreAction = actionMenu.addAction(tr("Ignore"));
 
     QAction *result = actionMenu.exec(QCursor::pos());
 
     if (copyAction && result == copyAction)
-        event->setDropAction(QDrag::CopyAction);
+        event->setDropAction(Qt::CopyAction);
     else if (moveAction && result == moveAction)
-        event->setDropAction(QDrag::MoveAction);
+        event->setDropAction(Qt::MoveAction);
     else if (linkAction && result == linkAction)
-        event->setDropAction(QDrag::LinkAction);
+        event->setDropAction(Qt::LinkAction);
     else {
-        event->setDropAction(QDrag::IgnoreAction);
+        event->setDropAction(Qt::IgnoreAction);
         return;
     }
 
     textBrowser->setPlainText(event->mimeData()->text());
     mimeTypeCombo->clear();
-    mimeTypeCombo->insertStringList(event->mimeData()->formats());
+    mimeTypeCombo->addItems(event->mimeData()->formats());
 }
