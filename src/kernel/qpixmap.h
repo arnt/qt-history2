@@ -207,6 +207,7 @@ protected:
 	    HBITMAP hbm;    // if mcp == FALSE
 	    QMCPI  *mcpi;   // if mcp == TRUE
 	} hbm_or_mcpi;
+	bool hasAlpha;
 #elif defined(Q_WS_X11)
 	void   *ximage;
 	void   *maskgc;

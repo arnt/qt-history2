@@ -111,6 +111,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     data->bitmap = bitmap;
     data->ser_no = ++serial;
     data->optim	 = optim;
+    data->hasAlpha = FALSE;
 
     bool make_null = w == 0 || h == 0;		// create null pixmap
     if ( d == 1 )				// monocrome pixmap
@@ -592,16 +593,23 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	dc = handle();
 	sy = 0;
     }
+
     SetDIBitsToDevice( dc, 0, sy, w, h, 0, 0, 0, h,
 		       image.bits(), bmi, DIB_RGB_COLORS );
     delete [] bmi_data;
 
     data->uninit = FALSE;
 
+    data->hasAlpha = FALSE;
     if ( img.hasAlphaBuffer() ) {
-	QBitmap m;
-	m = img.createAlphaMask( conversion_flags );
-	setMask( m );
+	if ( QApplication::winVersion() == Qt::WV_98 ||
+		QApplication::winVersion() == Qt::WV_2000 ) {
+	    data->hasAlpha = TRUE;
+	} else {
+	    QBitmap m;
+	    m = img.createAlphaMask( conversion_flags );
+	    setMask( m );
+	}
     }
 
     return TRUE;

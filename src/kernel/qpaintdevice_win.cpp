@@ -355,7 +355,27 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 		     sx, sy, MAKEROP4(0x00aa0000,ropCodes[rop]) );
 	}
     } else {
-	BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
+	if ( src_pm && src_pm->data->hasAlpha &&
+		( QApplication::winVersion() == Qt::WV_98 ||
+		  QApplication::winVersion() == Qt::WV_2000 ) ) {
+	    HINSTANCE hinstLib = LoadLibraryA( "msimg32" );
+	    if ( hinstLib != 0 ) {
+		typedef BOOL (WINAPI *ALPHABLEND)( HDC, int, int, int, int, HDC, int, int, int, int, BLENDFUNCTION );
+		ALPHABLEND alphaBlend = (ALPHABLEND) GetProcAddress( hinstLib, "AlphaBlend" );
+		if ( alphaBlend != 0 ) {
+		    BLENDFUNCTION blend = {
+			AC_SRC_OVER,
+			0,
+			255,
+			AC_SRC_ALPHA
+		    };
+		    alphaBlend( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, sw, sh, blend );
+		}
+		FreeLibrary( hinstLib );
+	    }
+	} else {
+	    BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
+	}
     }
     if ( src_tmp )
 	ReleaseDC( ((QWidget*)src)->winId(), src_dc );
