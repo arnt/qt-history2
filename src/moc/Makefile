@@ -7,7 +7,6 @@
 SRCDIR		= $(QTDIR)/src
 INCDIR		= $(SRCDIR)/include
 LIBDIR		= $(SRCDIR)/lib
-CCINCDIR	= /usr/g++-include
 
 #######	Compiler
 
@@ -54,7 +53,7 @@ depend:
 	makedepend -I$(INCDIR) -I$(CCINCDIR) $(SOURCES)
 
 clean:
-	/bin/rm -f *.o core TRACEFS.LOG *.bak *BAK *~ *% #*
+	/bin/rm -f *.o *.bak *BAK *~ *% #*
 	/bin/rm -f $(LEXYACC) $(TARGET) y.output y.tab.h
 
 #######	Programs
@@ -69,22 +68,17 @@ moc.C: moc.y
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 
-moc.o: /home/popcorn/hanord/qt/src/include/qstring.h
-moc.o: /home/popcorn/hanord/qt/src/include/qarray.h
-moc.o: /home/popcorn/hanord/qt/src/include/qgarray.h
-moc.o: /home/popcorn/hanord/qt/src/include/qglobal.h /usr/include/string.h
-moc.o: /usr/include/features.h /usr/include/sys/cdefs.h
-moc.o: /usr/local/lib/gcc-include/stddef.h /usr/include/malloc.h
-moc.o: /home/popcorn/hanord/qt/src/include/qlist.h
-moc.o: /home/popcorn/hanord/qt/src/include/qglist.h
-moc.o: /home/popcorn/hanord/qt/src/include/qcollect.h
-moc.o: /home/popcorn/hanord/qt/src/include/qglobal.h
-moc.o: /home/popcorn/hanord/qt/src/include/qstring.h
-moc.o: /home/popcorn/hanord/qt/src/include/qarray.h
-moc.o: /home/popcorn/hanord/qt/src/include/qgarray.h /usr/include/string.h
-moc.o: /usr/include/features.h /usr/include/sys/cdefs.h
+moc.o: /home/popcorn/home/hanord/qt/src/include/qlist.h
+moc.o: /home/popcorn/home/hanord/qt/src/include/qglist.h
+moc.o: /home/popcorn/home/hanord/qt/src/include/qcollect.h
+moc.o: /home/popcorn/home/hanord/qt/src/include/qglobal.h
+moc.o: /home/popcorn/home/hanord/qt/src/include/qstring.h
+moc.o: /home/popcorn/home/hanord/qt/src/include/qarray.h
+moc.o: /home/popcorn/home/hanord/qt/src/include/qgarray.h
+moc.o: /home/popcorn/home/hanord/qt/src/include/qshared.h
+moc.o: /usr/include/string.h /usr/include/features.h /usr/include/sys/cdefs.h
 moc.o: /usr/local/lib/gcc-include/stddef.h
-moc.o: /home/popcorn/hanord/qt/src/include/qdatetm.h /usr/include/ctype.h
-moc.o: /usr/include/stdio.h /usr/include/libio.h /usr/include/stdlib.h
-moc.o: /usr/include/errno.h /usr/include/linux/errno.h
-moc.o: /usr/local/lib/gcc-include/float.h
+moc.o: /home/popcorn/home/hanord/qt/src/include/qdatetm.h
+moc.o: /usr/include/ctype.h /usr/include/stdio.h /usr/include/libio.h
+moc.o: /usr/include/stdlib.h /usr/include/errno.h /usr/include/linux/errno.h
+moc.o: /usr/local/lib/gcc-include/float.h lex.yy.c /usr/include/malloc.h
