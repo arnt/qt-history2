@@ -43,8 +43,8 @@ QBufferPrivate::~QBufferPrivate()
 
     QBuffer is used to read and write to a memory buffer. It is
     normally used with a QTextStream or a QDataStream. QBuffer has an
-    associated QByteArray which holds the buffer data. The size() of
-    the buffer is automatically adjusted as data is written.
+    associated QByteArray which holds the buffer data. The buffer is
+    automatically resized as data is written.
 
     The constructor \c QBuffer(QByteArray) creates a QBuffer using an
     existing byte array. The byte array can also be set with
@@ -60,10 +60,10 @@ QBufferPrivate::~QBufferPrivate()
     QTextStream, which have constructors that take a QBuffer
     parameter. For convenience, there are also QDataStream and
     QTextStream constructors that take a QByteArray parameter. These
-    constructors create and open an internal QBuffer.
+    constructors operate on an internal QBuffer.
 
     Note that QTextStream can also operate on a QString (a Unicode
-    string); a QBuffer cannot.
+    string), but a QBuffer cannot.
 
     You can also use QBuffer directly through the standard QIODevice
     functions readBlock(), writeBlock() readLine(), at(), getch(),
@@ -90,8 +90,8 @@ QBuffer::QBuffer()
     Constructs a buffer that operates on QByteArray \a a.
 
     If you open the buffer in write mode (\c IO_WriteOnly or
-    \c IO_ReadWrite) and write something into the buffer, \a buf
-    will be modified.
+    \c IO_ReadWrite) and write something into the buffer, the byte
+    array, \a a will be modified.
 
     Example:
     \code
@@ -124,16 +124,17 @@ QBuffer::~QBuffer()
 }
 
 /*!
-    Replaces the buffer's contents with \a a and returns true.
-    ###
-
-    if a == 0?
+    Replaces the buffer's contents with \a a.
 
     Does nothing if isOpen() is true.
 
     Note that if you open the buffer in write mode (\c IO_WriteOnly or
-    IO_ReadWrite) and write something into the buffer, \a buf is also
-    modified because QByteArray is an explicitly shared class.
+    IO_ReadWrite) and write something into the buffer, and \a a is not
+    0, \a a is modified because QByteArray is an explicitly shared
+    class.
+
+    If \a a is 0, the buffer creates its own (initially empty)
+    internal QByteArray to work on.
 
     \sa buffer(), open(), close()
 */
@@ -154,7 +155,10 @@ void QBuffer::setBuffer(QByteArray *a)
 }
 
 /*!
-    ###
+    Sets the byte array for the buffer to be \a data.
+
+    Does nothing if isOpe() is true. Since \a data is const the buffer
+    can only be used to read from it.
 */
 void QBuffer::setData(const QByteArray &data)
 {
