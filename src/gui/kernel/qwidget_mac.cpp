@@ -1572,10 +1572,13 @@ void QWidget::stackUnder(QWidget *w)
     QWidget *p = parentWidget();
     if(!p || p != w->parentWidget())
         return;
-    int loc = p->d->children.indexOf(w);
+    int to = p->d->children.indexOf(w);
     int from = p->d->children.indexOf(this);
-    if (loc >= 0 && from >= 0)
-        p->d->children.move(from, loc);
+    if (to >= 0 && from >= 0) {
+        if (from < to)
+            --to;
+        p->d->children.move(from, to);
+    }
     HIViewSetZOrder((HIViewRef)winId(), kHIViewZOrderBelow, (HIViewRef)w->winId());
 }
 
