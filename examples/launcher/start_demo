@@ -184,11 +184,11 @@ trap "( kbd_mode -a; stty sane; setterm -cursor on )" EXIT
 # Set up execution environment
 if [ -f launcher ]
 then
-    continue
+    true
 else
     QTDIR=`pwd`
 fi
-LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
+LD_LIBRARY_PATH=$QTDIR/lib-e-$QT_EMBEDDED:$QTDIR/lib:$LD_LIBRARY_PATH
 export QWS_MOUSE_PROTO QTDIR LD_LIBRARY_PATH
 
 # Start the demo, throwing away debug messages
@@ -199,6 +199,7 @@ E=3
 while [ "$E" = 3 ]
 do
     # Kill any existing fb0 applications
+    setterm -clear
     $FUSER -kv /dev/fb0
     ./$DEMO $DEMO_ARGS
     E=$?

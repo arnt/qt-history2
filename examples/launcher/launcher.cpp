@@ -83,13 +83,15 @@ public:
 	setSpacing(10);
 	setMargin(10);
 	QMimeSourceFactory::defaultFactory()
-	    ->setImage("logo",QImage("qtlogo.gif"));
+	    ->setImage("qtlogo",QImage("qtlogo.png"));
+	QMimeSourceFactory::defaultFactory()
+	    ->setImage("face",QImage("face.png"));
 	QVBox* vb;
         vb = new QVBox(this);
 	setStretchFactor(vb,1);
 	QLabel* label = new QLabel(
-	    "<center><img src=logo>"
-	    "<h1><b>Qt/Embedded</b></h1>"
+	    "<center><h1><img src=qtlogo><img src=face><br>"
+	    "Qt/Embedded</h1>"
 	    "</center>"
 "This display is a simple Qt/Embedded launcher application, running directly
 on the Linux console. The buttons and listbox
