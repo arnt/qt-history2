@@ -78,7 +78,8 @@ QFont IFontToQFont( IFont *f )
 QDateTime DATEToQDateTime( DATE ole )
 {
     SYSTEMTIME stime;
-    VariantTimeToSystemTime( ole, &stime );
+    if ( ole >= 949998 || VariantTimeToSystemTime( ole, &stime ) == FALSE )
+	return QDateTime();
 
     QDate date( stime.wYear, stime.wMonth, stime.wDay );
     QTime time( stime.wHour, stime.wMinute, stime.wSecond, stime.wMilliseconds );
