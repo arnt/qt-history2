@@ -743,11 +743,12 @@ void QMacStyle::drawControl(ControlElement element,
 	    }
 	}
 
-	QColor textclr(g.buttonText());
 	if(dis)
-	    textclr = itemg.text();
+	    p->setPen(itemg.text());
 	else if(act)
-	    textclr = g.highlightedText();
+	    p->setPen(g.highlightedText());
+	else
+	    p->setPen(g.buttonText());
 
 	int xm = macItemFrame + checkcol + macItemHMargin;
 	if(reverse)
@@ -757,16 +758,8 @@ void QMacStyle::drawControl(ControlElement element,
 
 	if(mi->custom()) {
 	    int m = macItemVMargin;
-	    p->save();
-	    if(dis && !act) {
-		p->setPen(g.light());
-		mi->custom()->paint(p, itemg, act, !dis,
-				     xpos+1, y+m+1, w-xm-tab+1, h-2*m);
-	    }
-	    p->setPen(textclr);
 	    mi->custom()->paint(p, itemg, act, !dis,
 				 x+xm, y+m, w-xm-tab+1, h-2*m);
-	    p->restore();
 	}
 	QString s = mi->text();
 	if(!s.isNull()) {                        // draw text
@@ -779,22 +772,11 @@ void QMacStyle::drawControl(ControlElement element,
 		    xp = x + macRightBorder+macItemHMargin+macItemFrame - 1;
 		else
 		    xp = x + w - tab - macRightBorder-macItemHMargin-macItemFrame+1;
-		if(dis && !act) {
-		    p->setPen(g.light());
-		    p->drawText(xp, y+m+1, tab, h-2*m, text_flags, s.mid(t+1));
-		}
-		p->setPen(textclr);
 		p->drawText(xp, y+m, tab, h-2*m, text_flags, s.mid(t+1));
 		s = s.left(t);
 	    }
-	    if(dis && !act) {
-		p->setPen(g.light());
-		p->drawText(xpos+1, y+m+1, w-xm-tab+1, h-2*m, text_flags, s, t);
-	    }
-	    p->setPen(textclr);
 	    p->drawText(xpos, y+m, w-xm-tab+1, h-2*m, text_flags, s, t);
 	} else if(mi->pixmap()) {                        // draw pixmap
-	    p->setPen(textclr);
 	    QPixmap *pixmap = mi->pixmap();
 	    if(pixmap->depth() == 1)
 		p->setBackgroundMode(OpaqueMode);
