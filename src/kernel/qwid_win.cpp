@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#30 $
 **
 ** Implementation of QWidget and QWindow classes for Windows
 **
@@ -19,7 +19,7 @@
 #include "qobjcoll.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#29 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#30 $")
 
 
 const char *qt_reg_winclass( int type );	// defined in qapp_win.cpp
@@ -431,17 +431,6 @@ bool QWidget::focusNextChild()
 bool QWidget::focusPrevChild()
 {
     return TRUE;				// !!!TODO
-}
-
-
-bool QWidget::enableUpdates( bool enable )
-{
-    bool last = !testWFlags( WState_DisUpdates );
-    if ( enable )
-	clearWFlags( WState_DisUpdates );
-    else
-	setWFlags( WState_DisUpdates );
-    return last;
 }
 
 
