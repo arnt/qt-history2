@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#62 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#63 $
 **
 ** Definition of QObject class
 **
@@ -31,6 +31,7 @@
 #include "qstring.h"
 #include "qevent.h"
 #include "qnamespace.h"
+#include "qvaluelist.h"
 #endif // QT_H
 
 #define qt_tr_noop(x) (x)
@@ -52,6 +53,7 @@ public:
 
     bool	isA( const char * )	 const;
     bool	inherits( const char * ) const;
+    QStringList superClasses( bool includeLeave = false ) const;
 
     const char *name( const char * defaultName = "unnamed" ) const;
 
@@ -66,6 +68,7 @@ public:
     void	killTimer( int id );
     void	killTimers();
 
+    QObject           *child( const char *name, const char *type = 0 );
     const QObjectList *children() const { return childObjects; }
     QObjectList	      *queryList( const char *inheritsClass = 0,
 				  const char *objName = 0,

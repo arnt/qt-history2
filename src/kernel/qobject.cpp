@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#189 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#190 $
 **
 ** Implementation of QObject class
 **
@@ -488,7 +488,7 @@ bool QObject::isA( const char *clname ) const
 
   \sa isA(), metaObject()
 */
-
+  
 bool QObject::inherits( const char *clname ) const
 {
     QMetaObject *meta = queryMetaObject();
@@ -500,6 +500,28 @@ bool QObject::inherits( const char *clname ) const
     return FALSE;
 }
 
+/*!
+  Returns a list of all super classes. If \e includeLeave is TRUE
+  then the most derived class name of this object is added, too.
+  The most derived classes appear first in the list. That means that
+  QObject is always the last entry in the list.
+*/
+
+QStringList QObject::superClasses( bool includeLeave ) const
+{
+  QStringList lst;
+
+  QMetaObject *meta = queryMetaObject();
+  if ( !includeLeave )
+    meta = meta->superClass();
+
+  while ( meta ) {
+    lst.append( meta->className() );
+    meta = meta->superClass();
+  }
+
+  return lst;
+}
 
 /*!
   Returns the name of this object, or \a defaultName if the object
@@ -538,6 +560,45 @@ void QObject::setName( const char *name )
     if ( objname )
 	delete objname;
     objname = name ? qstrdup(name) : 0;
+}
+
+/*!
+  Returns the pointer to a child widget with the required name and type or
+  0 if no child matches. This function works recursive. That means it traverses
+  the entire object tree to find the child. That in turn means that names have
+  to be unique with regard to their toplevel window.
+
+  If multiple widgets with the same name and type are found then it is undefined
+  which one of them is returned.
+
+  If \e type is set to 0 then the only criterion is the objects name.
+
+  This function is useful if you need a widget of a dialog that was created from a ressource file.
+*/
+
+QObject* QObject::child( const char *name, const char *type )
+{
+    const QObjectList *list = children();
+    if ( list ) {
+	QObjectListIt it( *list );
+	QObject *obj;
+	while ( ( obj = it.current() ) ) {
+	    ++it;
+	    if ( ( !type || obj->inherits(type) ) && qstrcmp( name, obj->name() ) == 0 )
+		return obj;
+	}
+
+	// Recursion: Ask our children ...
+	QObjectListIt it2( *list );
+	while ( ( obj = it2.current() ) ) {
+	    ++it2;
+	    QObject* o = obj->child( name, type );
+	    if ( o )
+	      return o;
+	}
+    }
+
+    return 0;
 }
 
 /*!
