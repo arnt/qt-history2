@@ -222,7 +222,10 @@ void DocEmitter::addGroupie( Doc *groupie )
     if ( config->isInternal() || !groupie->internal() ) {
 	StringSet::ConstIterator group = groupie->groups().begin();
 	while ( group != groupie->groups().end() ) {
-	    groupiemap[*group].insert( groupie->name(), groupie );
+	    groupiemap[*group].insert( QString("<a href=\"%1\">%2</a>")
+					       .arg(groupie->fileName())
+					       .arg(groupie->name()),
+				       groupie );
 	    ++group;
 	}
     }

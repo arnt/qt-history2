@@ -1983,30 +1983,16 @@ QString Doc::htmlNormalList( const QMap<QString, QString>& list )
     if ( list.isEmpty() )
 	return html;
 
-    /*
-      We fight hard just to go through the QMap in case-insensitive
-      order. In Qt, this puts class Qt among the t's and Quebec among
-      the u's.
-    */
-
-    StringSet cset;
     html += QString( "<p><table width=\"100%\">\n" );
     QMap<QString, QString>::ConstIterator c = list.begin();
     while ( c != list.end() ) {
-	cset.insert( c.key() );
-	++c;
-    }
-
-    QStringList stringl = cset.toIStringList();
-    QStringList::ConstIterator s = stringl.begin();
-    while ( s != stringl.end() ) {
-	c = list.find( *s );
 	html += QString( "<tr bgcolor=#f0f0f0>" );
+	// ### possibly double href()
 	html += QString( "<td><b>%1</b>" ).arg( href(c.key()) );
 	if ( !(*c).isEmpty() )
 	    html += QString( "<td>" ) + *c;
 	html += QChar( '\n' );
-	++s;
+	++c;
     }
     html += QString( "</table>\n" );
     return html;

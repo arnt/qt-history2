@@ -124,8 +124,10 @@ protected:
     const Location& location();
 
 private:
+    // ### rename State Context
     enum State { Normal, InCaption, InPrint, InQuote, InSectionHeading,
 		 InSidebarHeading, InFootnote };
+    enum SpacePolicy { Keeping, Skipping, Pending };
 
     static bool isParagraphState( State s ) {
 	return s == Normal || s == InQuote;
@@ -148,7 +150,7 @@ private:
     bool inParagraph;
     bool inSidebar;
     State state;
-    bool pendingSpace;
+    SpacePolicy spacePolicy;
     QString pendingPrint;
 
     QString yyIn;
@@ -158,7 +160,7 @@ private:
 
 Processor::Processor( const QString& filePath, const Resolver *resolver )
     : res( resolver ), locPos( 0 ), inParagraph( FALSE ), inSidebar( FALSE ),
-      state( Normal ), pendingSpace( FALSE ), yyPos( 0 ), yyLen( 0 )
+      state( Normal ), spacePolicy( Skipping ), yyPos( 0 ), yyLen( 0 )
 {
     input( filePath );
 }
@@ -540,12 +542,12 @@ void Processor::start( bool verbose )
 		warning( 1, location(), "Unescaped '%c'", ch.latin1() );
 
 	    if ( ch.isSpace() ) {
-		pendingSpace = TRUE;
+		if ( spacePolicy == Keeping )
+		    spacePolicy = Pending;
 	    } else {
-		if ( pendingSpace ) {
+		if ( spacePolicy == Pending )
 		    processChar( ' ' );
-		    pendingSpace = FALSE;
-		}
+		spacePolicy = Keeping;
 		processChar( ch );
 	    }
 
@@ -565,7 +567,7 @@ void Processor::start( bool verbose )
 		    case InCaption:
 			processCaptionEnd();
 			state = Normal;
-			pendingSpace = FALSE;
+			spacePolicy = Keeping; // ### Skipping2
 			break;
 		    case InFootnote:
 			break;
@@ -577,7 +579,7 @@ void Processor::start( bool verbose )
 				processCode( unhtmlize(pendingPrint) );
 			    }
 			    state = Normal;
-			    pendingSpace = FALSE;
+			    spacePolicy = Keeping; // ### Skipping2
 			}
 			break;
 		    case InQuote:
@@ -587,13 +589,13 @@ void Processor::start( bool verbose )
 						  topSectionLevel );
 			prevSectionLevel = sectionLevel;
 			state = Normal;
-			pendingSpace = FALSE;
+			spacePolicy = Keeping; // ### Skipping2
 			break;
 		    case InSidebarHeading:
 			processSidebarHeadingEnd();
 			inSidebar = TRUE;
 			state = Normal;
-			pendingSpace = FALSE;
+			spacePolicy = Keeping; // ### Skipping2
 		    }
 
 		    outlined();
@@ -734,9 +736,9 @@ void Processor::inprint()
 
 void Processor::inlined()
 {
-    if ( pendingSpace ) {
+    if ( spacePolicy == Pending ) {
 	processChar( ' ' );
-	pendingSpace = FALSE;
+	spacePolicy = Keeping;
     }
 
     if ( state == InPrint ) {
@@ -755,7 +757,7 @@ void Processor::outlined()
     if ( inParagraph ) {
 	processParagraphEnd();
 	inParagraph = FALSE;
-	pendingSpace = FALSE;
+	spacePolicy = Keeping; // ### Skipping
 	skipSpaces( yyIn, yyPos );
     }
 
@@ -1504,7 +1506,8 @@ void SgmlSynthetizer::processSectionBegin( int level, int /* topLevel */ )
     w.puts( QString("<sect%1><title>").arg(level).latin1() );
 }
 
-void SgmlSynthetizer::processSectionHeadingEnd( int /* level */, int /* topLevel */ )
+void SgmlSynthetizer::processSectionHeadingEnd( int /* level */,
+						int /* topLevel */ )
 {
     w.puts( "</title>\n" );
 }
