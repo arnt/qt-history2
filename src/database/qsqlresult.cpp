@@ -3,7 +3,7 @@
 #ifndef QT_NO_SQL
 
 /*! \class QSqlResult qsqlresult.h
-  
+
   \brief QSqlResult provides an abstract interface for accessing data via SQL
 
   \module database
@@ -28,7 +28,7 @@ QSqlResult::QSqlResult( const QSqlDriver * db )
   active(FALSE),
   error()
 {
-    qDebug("QSqlResult( const QSqlDriver * db )");
+
 }
 
 /*! Destroys the object and frees any allocated resources.
@@ -37,7 +37,6 @@ QSqlResult::QSqlResult( const QSqlDriver * db )
 
 QSqlResult::~QSqlResult()
 {
-    qDebug("~QSqlResult()");
 
 }
 

@@ -123,14 +123,12 @@ QPSQLResult::QPSQLResult( const QPSQLDriver* db, const QPSQLPrivate* p )
 {
     d =   new QPSQLPrivate();
     (*d) = (*p);
-    qDebug("QPSQLResult( const QPSQLDriver* db, const QPSQLPrivate* p )");
 }
 
 QPSQLResult::~QPSQLResult()
 {
     cleanup();
     delete d;
-    qDebug("~QPSQLResult()");
 }
 
 const QSqlResultInfo* QPSQLResult::info()
@@ -403,7 +401,7 @@ bool QPSQLDriver::open( const QString & db,
     PGresult* dateResult = PQexec( d->connection, "SET DATESTYLE=ISO;" );
 #ifdef CHECK_RANGE
     int status =  PQresultStatus( dateResult );
-    if ( status == PGRES_COMMAND_OK )
+    if ( status != PGRES_COMMAND_OK )
 	qWarning( PQerrorMessage( d->connection ) );
 #endif
     setOpen( TRUE );
@@ -478,7 +476,6 @@ QStringList QPSQLDriver::tables( const QString& user ) const
 
 QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
 {
-    qDebug("QPSQLDriver::primaryIndex( const QString& tablename ) const");
     QSqlIndex idx;
     QSql i = createResult();
     QString stmt( "select a.attname from pg_attribute a, pg_class c1,"
@@ -486,11 +483,7 @@ QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
 		  "and c1.oid = i.indrelid and i.indexrelid = c2.oid "
 		  "and a.attrelid = c2.oid;");
     i << stmt.arg( tablename );
-    if ( !i.isActive() )
-	qDebug("not active");
-    while ( i.isActive() && i.next() ) {
-	qDebug("fieldname:" + i[0].toString());
+    while ( i.isActive() && i.next() ) 
 	idx.append ( makeFieldInfo( this, tablename,  i[0].toString() ) );
-    }
     return idx;
 }

@@ -12,7 +12,7 @@ QSqlResultShared::~QSqlResultShared()
 }
 
 /*! \class QSql qsql.h
-  
+
     \brief Class used for executing and manipulating SQL queries.
 
     \module database
@@ -72,7 +72,6 @@ QSqlResultShared::~QSqlResultShared()
 
 QSql::~QSql()
 {
-    qDebug("~QSql()");
     if (d->deref()) {
 	delete d;
     }

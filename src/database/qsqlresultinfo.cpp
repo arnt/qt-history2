@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /*! \class QSqlResultInfo qsqlresultinfo.h
-  
+
   \brief QSqlResultInfo provides result-specific SQL information
 
   \module database
@@ -23,7 +23,7 @@
 QSqlResultInfo::QSqlResultInfo()
 : sz(-1), affRows(-1)
 {
-    qDebug("QSqlResultInfo()");
+
 }
 
 /*! Destroys the object and frees any allocated resources.
@@ -32,7 +32,7 @@ QSqlResultInfo::QSqlResultInfo()
 
 QSqlResultInfo::~QSqlResultInfo()
 {
-    qDebug("~QSqlResultInfo()");
+
 }
 
 /*! Constructs a copy of \a s.

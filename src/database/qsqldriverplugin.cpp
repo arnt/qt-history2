@@ -21,10 +21,8 @@ QSqlDriverPlugIn::QSqlDriverPlugIn( const QString& file, LibraryPolicy pol, cons
 */
 QSqlDriver* QSqlDriverPlugIn::create( const QString& name )
 {
-    qDebug("QSqlDriverPlugIn::create");
     if ( !use() )
 	return 0;
-    qDebug("QSqlDriverPlugIn::create calling plugInterface->create()");
     QSqlDriver* d = ((QSqlDriverInterface*)plugInterface())->create( name );
     return d;
 }
@@ -34,12 +32,9 @@ QSqlDriver* QSqlDriverPlugIn::create( const QString& name )
 */
 QStringList QSqlDriverPlugIn::featureList()
 {
-    qDebug("QSqlDriverPlugIn::featureList()");
     if ( !use() ) {
-	qDebug("could not use, returning 0");
 	return 0;
     }
-    qDebug("QSqlDriverPlugIn::featureList(), returning plugInterface->featureList()");
     return ((QSqlDriverInterface*)plugInterface())->featureList();
 }
 

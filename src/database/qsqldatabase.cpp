@@ -111,7 +111,6 @@ QSqlDatabase::QSqlDatabase( const QString& type,
 */
 void QSqlDatabase::init( const QString& type )
 {
-    qDebug("QSqlDatabase::init");
     d = new QSqlDatabasePrivate();
     d->plugIns = new QSqlDriverPlugInManager( QString((char*)getenv( "QTDIR" )) + "/lib" ); // ### make this better
     QPlugIn* pi = d->plugIns->plugIn( type );
@@ -125,8 +124,6 @@ void QSqlDatabase::init( const QString& type )
 	qWarning("QSqlDatabase warning: driver not loaded");
 #endif
 	d->driver = new QNullDriver();
-    } else {
-	qDebug("QSqlDatabase::init driver loaded");
     }
 }
 
@@ -136,11 +133,8 @@ void QSqlDatabase::init( const QString& type )
 
 QSqlDatabase::~QSqlDatabase()
 {
-    qDebug("~QSqlDatabase()");
     delete d->driver;
-    qDebug("after deleting driver");
     delete d->plugIns;
-    qDebug("after deleting plugin manager");
     delete d;
 }
 

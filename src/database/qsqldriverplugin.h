@@ -26,7 +26,6 @@ public:
 			     QPlugIn::LibraryPolicy pol = QPlugIn::Default, const char* fn = 0 );
     ~QSqlDriverPlugInManager()
     {
-	qDebug("~QSqlDriverPlugInManager");
     }
 };
 
