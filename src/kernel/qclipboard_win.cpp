@@ -296,7 +296,7 @@ static QClipboardData *clipboardData()
 }
 
 
-//# QT_DEBUG_CB
+//#define QT_DEBUG_CB
 
 static void renderFormat(int cf)
 {
@@ -345,7 +345,47 @@ static void renderAllFormats()
     QMimeSource *s = internalCbData->source();
     if ( !s )					// Spurious Windows message
 	return;
-    // ###### Warwick?
+
+    if ( !qt_cb_owner )
+	return;
+    if ( !OpenClipboard( qt_cb_owner->winId() ) ) {
+#if defined(QT_CHECK_STATE)
+	qSystemWarning( "renderAllFormats: couldn't open clipboard" );
+#endif
+	return;
+    }
+
+    EmptyClipboard();
+
+    const char* mime;
+    QList<QWindowsMime> all = QWindowsMime::all();
+    for (int i = 0; mime = s->format(i); i++) {
+	for (QWindowsMime* c = all.first(); c; c = all.next()) {
+	    if ( c->cfFor(mime) ) {
+		for (int j = 0; j < c->countCf(); j++) {
+		    int cf = c->cf(j);
+		    if ( c->canConvert(mime,cf) ) {
+			QByteArray md = s->encodedData(mime);
+#if defined(QT_DEBUG_CB)
+			qDebug("source is %d bytes of %s",md.size(),mime);
+#endif
+			md = c->convertFromMime(md,mime,cf);
+			int len = md.size();
+#if defined(QT_DEBUG_CB)
+			qDebug("rendered %d bytes of CF %d by %s",len,cf,c->convertorName());
+#endif
+			HANDLE h = GlobalAlloc( GHND, len );
+			char *d = (char *)GlobalLock( h );
+			memcpy( d, md.data(), len );
+			SetClipboardData( cf, h );
+			GlobalUnlock( h );
+		    }
+		}
+	    }
+	}
+    }
+
+    CloseClipboard();
 }
 
 QClipboard::~QClipboard()
