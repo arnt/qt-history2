@@ -1155,6 +1155,7 @@ void QXmlInputSource::init()
 
     setData(QString());
     d->encMapper = 0;
+    d->nextReturnedEndOfData = true; // first call to next() will call fetchData()
 }
 
 /*!
@@ -1179,7 +1180,6 @@ QXmlInputSource::QXmlInputSource(QIODevice *dev)
 {
     init();
     d->inputDevice = dev;
-    fetchData();
 }
 
 /*! \obsolete
@@ -1189,7 +1189,6 @@ QXmlInputSource::QXmlInputSource(QTextStream& stream)
 {
     init();
     d->inputStream = &stream;
-    fetchData();
 }
 
 /*! \obsolete
@@ -1200,7 +1199,6 @@ QXmlInputSource::QXmlInputSource(QFile& file)
 {
     init();
     d->inputDevice = &file;
-    fetchData();
 }
 
 /*!
