@@ -947,6 +947,7 @@ int QDial::value() const
 }
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
+/*! \reimp */
 QAccessibleInterface *QDial::accessibleInterface()
 {
     return new QAccessibleRangeControl( this, QAccessible::Dial );

@@ -393,6 +393,7 @@ void QRadioButton::updateMask()
 }
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
+/*! \reimp */
 QAccessibleInterface *QRadioButton::accessibleInterface()
 {
     return new QAccessibleButton( this, QAccessible::RadioButton );

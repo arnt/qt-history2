@@ -560,14 +560,6 @@ void QWidget::resetInputContext()
     qt_winEndImeComposition( this );
 }
 
-
-#if 0
-void QWidget::setSizeGrip(bool /* sizegrip */)
-{
-}
-#endif
-
-
 void QWidget::setBackgroundColorDirect( const QColor &color )
 {
     QColor old = bg_col;

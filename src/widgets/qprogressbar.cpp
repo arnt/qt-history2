@@ -489,6 +489,7 @@ void QProgressBar::drawContentsMask( QPainter *p )
 }
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
+/*! \reimp */
 QAccessibleInterface *QProgressBar::accessibleInterface()
 {
     return new QAccessibleRangeControl( this, QAccessible::ProgressBar );

@@ -657,6 +657,7 @@ bool QPushButton::isFlat() const
 }
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
+/*! \reimp */
 QAccessibleInterface *QPushButton::accessibleInterface()
 {
     return new QAccessibleButton( this, QAccessible::PushButton );

@@ -93,6 +93,18 @@ QUuid::QUuid( const QString &text )
 */
 
 /*!
+  \fn QUuid::operator==(const QUuid &other) const
+
+  Returns TRUE if this QUuid and the \a other QUuid are identical, otherwise returns FALSE.
+*/
+
+/*!
+  \fn QUuid::operator!=(const QUuid &other) const
+
+  Returns TRUE if this QUuid and the \a other QUuid are different, otherwise returns FALSE.
+*/
+
+/*!
   QString QUuid::toString() const
 
   Returns a string in {12345678-1234-1234-1234-123456789ABC} format.

@@ -1504,6 +1504,7 @@ void QMessageBox::setTextFormat( Qt::TextFormat format )
 }
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
+/*! \reimp */
 QAccessibleInterface *QMessageBox::accessibleInterface()
 {
     return new QAccessibleWidget( this, QAccessible::AlertMessage );

@@ -13444,7 +13444,7 @@ void QAquaStyle::drawSpinWidgetButton( QPainter * p, int x, int y,
 
 /*! \reimp */
 void QAquaStyle::drawSpinWidgetSymbol( QPainter *, int, int,
-	  int, int, const QColorGroup &, QSpinWidgetWidget *,
+	  int, int, const QColorGroup &, QSpinWidget *,
 	  bool, bool, bool )
 {
 }

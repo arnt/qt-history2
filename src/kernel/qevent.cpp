@@ -1121,6 +1121,17 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 */
 
 /*!
+  \fn ButtonState QContextMenuEvent::state() const
+
+  Returns the button state (a combination of mouse buttons and keyboard
+  modifiers), i.e., what buttons and keys were being held depressed
+  immediately before the event was generated.
+
+  The returned value is \c LeftButton, \c RightButton, \c MidButton,
+  \c ShiftButton, \c ControlButton and \c AltButton OR'ed together.
+*/
+
+/*!
   \fn bool QContextMenuEvent::isAccepted() const
   Returns TRUE (which stops propagation of the event) if the receiver
   has processed the event. 

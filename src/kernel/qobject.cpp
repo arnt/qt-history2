@@ -2080,6 +2080,17 @@ void QObject::activate_signal( QConnectionList *clist, QUObject *o )
   \overload void QObject::activate_signal( int signal, int )
 */
 
+/*!
+  \overload void QObject::activate_signal( int signal, double )
+*/
+
+/*!
+  \overload void QObject::activate_signal( int signal, QString )
+*/
+
+/*!
+  \overload void QObject::activate_signal( int signal, bool )
+*/
 
 #define ACTIVATE_SIGNAL_WITH_PARAM(FNAME,TYPE)				      \
 void QObject::FNAME( int signal, TYPE param )				      \
