@@ -759,23 +759,13 @@ void qt_cleanup()
   Platform specific global and internal functions
  *****************************************************************************/
 
-Q_EXPORT HINSTANCE qWinAppInst()		// get Windows app handle
-{
-    return appInst;
-}
-
-Q_EXPORT HINSTANCE qWinAppPrevInst()		// get Windows prev app handle
-{
-    return appPrevInst;
-}
-
-Q_EXPORT int qWinAppCmdShow()			// get main window show command
+Q_GUI_EXPORT int qWinAppCmdShow()			// get main window show command
 {
     return appCmdShow;
 }
 
 
-Q_EXPORT HDC qt_display_dc()			// get display DC
+Q_GUI_EXPORT HDC qt_display_dc()			// get display DC
 {
     if ( !displayDC )
 	displayDC = GetDC( 0 );
@@ -1178,8 +1168,6 @@ void QApplication::winFocus( QWidget *widget, bool gotFocus )
 
 static bool inLoop = FALSE;
 static int inputcharset = CP_ACP;
-extern Q_KERNEL_EXPORT uint qt_sn_msg;
-extern Q_KERNEL_EXPORT void qt_sn_activate_fd( int sockfd, int type );
 
 #define RETURN(x) { inLoop=FALSE;return x; }
 
@@ -1358,29 +1346,9 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     if ( widget->winEvent(&msg) )		// send through widget filter
 	RETURN(0);
 
-    if ( qt_sn_msg && msg.message == qt_sn_msg ) {	// socket notifier message
-	int type = -1;
-#ifndef Q_OS_TEMP
-	switch ( WSAGETSELECTEVENT(msg.lParam) ) {
-	case FD_READ:
-	case FD_CLOSE:
-	case FD_ACCEPT:
-	    type = 0;
-	    break;
-	case FD_WRITE:
-	case FD_CONNECT:
-	    type = 1;
-	    break;
-	case FD_OOB:
-	    type = 2;
-	    break;
-	}
-#endif
-	if ( type >= 0 )
-	    qt_sn_activate_fd( msg.wParam, type );
-    } else if ( ( message >= WM_MOUSEFIRST && message <= WM_MOUSELAST ||
-	    message >= WM_XBUTTONDOWN && message <= WM_XBUTTONDBLCLK )
-	    && message != WM_MOUSEWHEEL ) {
+    if ( ( message >= WM_MOUSEFIRST && message <= WM_MOUSELAST ||
+	   message >= WM_XBUTTONDOWN && message <= WM_XBUTTONDBLCLK )
+	 && message != WM_MOUSEWHEEL ) {
 	if ( qApp->activePopupWidget() != 0) { // in popup mode
 	    POINT curPos = msg.pt;
 	    QWidget* w = QApplication::widgetAt(curPos.x, curPos.y, TRUE );
