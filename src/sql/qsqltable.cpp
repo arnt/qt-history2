@@ -107,13 +107,41 @@ public:
     int lastAt;
 };
 
+/*! \enum Confirm 
+  
+  This enum type describes edit confirmations.
+  
+  The currently defined values are: 
+
+  <ul>
+  <li> \c Yes
+  <li> \c No
+  <li> \c Cancel
+  </ul>
+*/
+
+/*! \enum Mode 
+
+  This enum type describes table editing modes.
+  
+  The currently defined values are: 
+
+  <ul>
+  <li> \c None
+  <li> \c Insert
+  <li> \c Update
+  <li> \c Delete
+  </ul>	
+*/
+
 /*!
   \class QSqlTable qsqltable.h
   \module sql
 
   \brief A flexible and editable SQL table widget.
 
-  QSqlTable supports various methods for presenting and editing SQL data.
+  QSqlTable supports various methods for presenting and editing SQL
+  data from a \l QSqlCursor.
 
   When displaying data, QSqlTable only retrieves data for visible
   rows.  If drivers do not support the 'query size' property, rows are
@@ -124,34 +152,71 @@ public:
   QSqlTable also offers an API for sorting columns. See setSorting()
   and sortColumn().
 
-  When displaying QSqls, cell editing can be enabled with
-  setCellEditing().  QSqlTable creates editors.... ### The user can
-  create their own special editors by ... ###
+  When displaying editable cursors, cell editing will be enabled.
+  QSqlTable can modify existing data or enter new records.  When a
+  user makes changes to a record field in the table, the edit buffer
+  of the cursor is used.  The table will not send changes in the
+  record to the database until the user moves to a different record in
+  the grid.  If there is a problem updating data, errors will be
+  handled automatically (see handleError() to change this behavior).
+  QSqlTable creates editors using the default \l QSqlEditorFactory.
+  Different editor factories can be used by calling
+  installEditorFactory(). Cell editing can be cancelled by hitting the
+  escape key.
+  
+  Columns in the table can be created automatically based on the
+  cursor (see setCursor()), or manually (see addColumn() and
+  removeColumn()).
+  
+  The table automatically uses the properties of the cursor record to
+  format the display of data within cells (alignment, visibility,
+  etc.).  You can change the appearance of cells by reimplementing
+  paintField().
 
 */
 
-/*!
-  Constructs a SQL table.
+/*!  Constructs a table.
 
 */
 
 QSqlTable::QSqlTable ( QWidget * parent, const char * name )
     : QTable( parent, name )
 {
+    init();
+}
+
+/*!  Constructs a table using the data from \a cursor.  If
+  autopopulate is TRUE, columns are automatically created based upon
+  the fields in the \a cursor record.  If the \a cursor is read only,
+  the table becomes read only.  The table adopts the cursor's driver's
+  definition representing NULL values as strings.
+*/
+
+QSqlTable::QSqlTable ( QSqlCursor* cursor, bool autoPopulate = TRUE, QWidget * parent = 0, const char * name = 0 )
+    : QTable( parent, name )
+{
+    init();
+    setCursor( cursor, autoPopulate );
+}
+
+/*! \internal
+*/
+
+void QSqlTable::init()
+{
     setFocusProxy( viewport() );
     viewport()->setFocusPolicy( StrongFocus );
-
+    
     d = new QSqlTablePrivate();
     setSelectionMode( NoSelection );
     d->trueTxt = tr( "True" );
     d->falseTxt = tr( "False" );
     reset();
     connect( this, SIGNAL( currentChanged( int, int ) ),
-			   SLOT( setCurrentSelection( int, int )));
+	     SLOT( setCurrentSelection( int, int )));
 }
 
-/*!
-  Destructor.
+/*! Destroys the object and frees any allocated resources.
 
 */
 
@@ -163,9 +228,7 @@ QSqlTable::~QSqlTable()
 }
 
 
-/*!
-
-  Adds \a field from the current cursor as the next column to be
+/*!  Adds \a field from the current cursor as the next column to be
   diplayed.  Fields which are not visible and fields which are part of
   a cursor's primary index are not displayed. If there is no current
   cursor, nothing happens.
@@ -188,10 +251,8 @@ void QSqlTable::addColumn( const QSqlField* field )
     }
 }
 
-/*!
-
-  Removes column \a col from the list of columns to be diplayed.  If
-  \a col does not exist, nothing happens.
+/*!  Removes column \a col from the list of columns to be diplayed.
+  If \a col does not exist, nothing happens.
 
   \sa QSqlField
 
@@ -213,9 +274,7 @@ void QSqlTable::removeColumn( uint col )
 	d->colReadOnly.remove( it2 );
 }
 
-/*!
-
-  Sets column \a col to display field \a field.  If \a col does not
+/*!  Sets column \a col to display field \a field.  If \a col does not
   exist, nothing happens.
 
   \sa QSqlField
@@ -241,10 +300,9 @@ void QSqlTable::setColumn( uint col, const QSqlField* field )
     }
 }
 
-/*!
-
-  Sets the table's readonly flag to \a b.  Note that if the underlying cursor cannot
-  be edited, this function will have no effect.
+/*!  Sets the table's readonly flag to \a b.  Note that if the
+  underlying cursor cannot be edited (see QSqlCursor::setMode()), this
+  function will have no effect.
 
   \sa setCursor() isReadOnly()
 
@@ -255,9 +313,8 @@ void QSqlTable::setReadOnly( bool b )
     d->ro = b;
 }
 
-/*!
-
-  Returns TRUE if the table is readonly, otherwise FALSE is returned.
+/*!  Returns TRUE if the table is readonly, otherwise FALSE is
+  returned.
 
   \sa setReadOnly()
 
@@ -268,11 +325,9 @@ bool QSqlTable::isReadOnly() const
     return d->ro;
 }
 
-/*!
-
-  Sets the \a column's readonly flag to \a b.  Readonly columns cannot
-  be edited. Note that if the underlying cursor cannot be edited, this
-  function will have no effect.
+/*!  Sets the \a column's readonly flag to \a b.  Readonly columns
+  cannot be edited. Note that if the underlying cursor cannot be
+  edited, this function will have no effect.
 
   \sa setCursor() isColumnReadOnly()
 
@@ -285,9 +340,7 @@ void QSqlTable::setColumnReadOnly( int col, bool b )
     d->colReadOnly[ col ] = b;
 }
 
-/*!
-
-  Returns TRUE if the \a column is readonly, otherwise FALSE is
+/*!  Returns TRUE if the \a column is readonly, otherwise FALSE is
   returned.
 
   \sa setColumnReadOnly()
@@ -301,34 +354,52 @@ bool QSqlTable::isColumnReadOnly( int col ) const
     return d->colReadOnly[ col ];
 }
 
+/*! If \a confirm is TRUE, all edits will be confirmed with the user
+  using a message box.  If \a confirm is FALSE (the default), all
+  edits are posted to the database immediately.
+*/
+
 void QSqlTable::setConfirmEdits( bool confirm )
 {
     d->confEdits = confirm;
 }
+
+/*! Returns TRUE if the table confirms edits, otherwise FALSE is
+  returned.
+*/
 
 bool QSqlTable::confirmEdits() const
 {
     return d->confEdits;
 }
 
+/*! If \a confirm is TRUE, all cancels will be confirmed with the user
+  using a message box.  If \a confirm is FALSE (the default), all
+  cancels occur immediately.
+*/
+
 void QSqlTable::setConfirmCancels( bool confirm )
 {
     d->confCancs = confirm;
 }
+
+/*! Returns TRUE if the table confirms cancels, otherwise FALSE is
+  returned.
+*/
 
 bool QSqlTable::confirmCancels() const
 {
     return d->confCancs;
 }
 
-/*!
+/*!  \reimp
 
-  \reimpl
-
-  For an editable table, creates an editor suitable for the data type
-  in \a row and \a col.
-
-  \sa QSqlEditorFactory QSqlPropertyMap
+  For an editable table, creates an editor suitable for the field in
+  \a col.  The editor is created using the default editor factory,
+  unless a different editor factory is installed using
+  installEditorFactory().  The editor is primed with the value of the
+  field in \a col using the default property map, unless a new
+  property map is installed using installPropertMap().
 
 */
 
@@ -351,6 +422,9 @@ QWidget * QSqlTable::createEditor( int , int col, bool initFromCell ) const
     }
     return w;
 }
+
+/*! \reimp
+*/
 
 bool QSqlTable::eventFilter( QObject *o, QEvent *e )
 {
@@ -439,9 +513,7 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
     return b;
 }
 
-/*
-  \reimpl
-
+/*!  \reimp
 */
 
 void QSqlTable::resizeEvent ( QResizeEvent * e )
@@ -452,9 +524,7 @@ void QSqlTable::resizeEvent ( QResizeEvent * e )
     QTable::resizeEvent( e );
 }
 
-/*
-  \reimpl
-
+/*!  \reimp
 */
 
 void QSqlTable::contentsMousePressEvent( QMouseEvent* e )
@@ -501,9 +571,7 @@ void QSqlTable::contentsMousePressEvent( QMouseEvent* e )
 
 }
 
-/*
-  \reimpl
-
+/*!  \reimp
 */
 
 QWidget* QSqlTable::beginEdit ( int row, int col, bool replace )
@@ -527,10 +595,9 @@ QWidget* QSqlTable::beginEdit ( int row, int col, bool replace )
     return 0;
 }
 
-/*
-  \reimpl
-
+/*! \reimp
 */
+
 void QSqlTable::endEdit( int row, int col, bool accept, bool )
 {
     QWidget *editor = cellWidget( row, col );
@@ -571,15 +638,15 @@ void QSqlTable::endEdit( int row, int col, bool accept, bool )
     emit valueChanged( row, col );
 }
 
+/*! \reimp
+*/
 void QSqlTable::activateNextCell()
 {
     if ( d->mode == QSqlTable::None )
 	QTable::activateNextCell();
 }
 
-/*
-  \internal
-
+/*! \internal
 */
 
 void QSqlTable::endInsert()
@@ -598,6 +665,9 @@ void QSqlTable::endInsert()
     d->insertHeaderLabelLast = QString::null;
 }
 
+/*! \internal
+*/
+
 void QSqlTable::endUpdate()
 {
     d->mode = QSqlTable::None;
@@ -606,6 +676,18 @@ void QSqlTable::endUpdate()
     d->editRow = -1;
     d->editCol = -1;
 }
+
+/*! Protected virtual function called when editing is about to begin on
+   a new record.  If the table is read-only, or the cursor does not
+   allow inserts, nothing happens.
+   
+   Editing takes place using the cursor's edit buffer (see
+   QSqlCursor::insertBuffer()).
+   
+   When editing begins, a new row is created in the table marked with
+   a '*' in the vertical header.
+   
+*/
 
 bool QSqlTable::beginInsert()
 {
@@ -647,6 +729,14 @@ bool QSqlTable::beginInsert()
     return TRUE;
 }
 
+/*! Protected virtual function called when editing is about to begin on
+   an existing row.  If the table is read-only, nothing happens.
+   
+   Editing takes place using the cursor's edit buffer (see
+   QSqlCursor::updateBuffer()).
+   
+*/
+
 QWidget* QSqlTable::beginUpdate ( int row, int col, bool replace )
 {
     if ( !d->cursor || isReadOnly() )
@@ -661,12 +751,12 @@ QWidget* QSqlTable::beginUpdate ( int row, int col, bool replace )
     return 0;
 }
 
-/*!  For an editable table, issues an insert on the current cursor using
-  the values of the currently edited "insert" row.  If there is no
-  current cursor or there is no current "insert" row, nothing happens.
-  Returns TRUE if the insert succeeded, otherwise FALSE.
+/*!  For an editable table, issues an insert on the current cursor
+  using the values of the cursor's edit buffer. If there is no current
+  cursor or there is no current "insert" row, nothing happens.  If
+  confirmEdits() is TRUE, confirmEdit() is called to confirm the
+  insert. Returns TRUE if the insert succeeded, otherwise FALSE.
 
-  \sa primeFields
 */
 
 void QSqlTable::insertCurrent()
@@ -712,16 +802,20 @@ void QSqlTable::insertCurrent()
     return;
 }
 
+/*! \internal
+*/
+
 void QSqlTable::updateRow( int row )
 {
     for ( int i = 0; i < numCols(); ++i )
 	updateCell( row, i );
 }
 
-/*!  For an editable table, issues an update on the current cursor's
-  primary index using the values of the edited selected row.  If
-  there is no current cursor or there is no current selection, nothing
-  happens.  Returns TRUE if the update succeeded, otherwise FALSE.
+/*!  For an editable table, issues an update using the cursor's edit
+  buffer.  If there is no current cursor or there is no current
+  selection, nothing happens.  If confirmEdits() is TRUE,
+  confirmEdit() is called to confirm the update. Returns TRUE if the
+  update succeeded, otherwise FALSE.
 
   For this method to succeed, the underlying cursor must have a valid
   primary index to ensure that a unique record is updated within the
@@ -782,7 +876,9 @@ void QSqlTable::updateCurrent()
 /*!  For an editable table, issues a delete on the current cursor's
   primary index using the values of the currently selected row.  If
   there is no current cursor or there is no current selection, nothing
-  happens.  Returns TRUE if the delete succeeded, otherwise FALSE.
+  happens. If confirmEdits() is TRUE, confirmEdit() is called to
+  confirm the delete. Returns TRUE if the delete succeeded, otherwise
+  FALSE.
 
   For this method to succeed, the underlying cursor must have a valid
   primary index to ensure that a unique record is deleted within the
@@ -829,9 +925,10 @@ void QSqlTable::deleteCurrent()
 }
 
 /*!  Protected virtual function which returns a confirmation for an
-  edit of mode \a m.  Derived classes can reimplement in order to
-  provide their own confirmation dialog.  The default implementation
-  uses a message box which prompts the user to confirm the edit action.
+  edit of mode \a m.  Derived classes can reimplement this function
+  and provide their own confirmation dialog.  The default
+  implementation uses a message box which prompts the user to confirm
+  the edit action.
 
 */
 
@@ -860,8 +957,8 @@ QSqlTable::Confirm QSqlTable::confirmEdit( QSqlTable::Mode m )
 }
 
 /*!  Protected virtual function which returns a confirmation for
-   cancelling an edit mode \a m.  Derived classes can reimplement in
-   order to provide their own confirmation dialog.  The default
+   cancelling an edit mode \a m.  Derived classes can reimplement this
+   function and provide their own confirmation dialog.  The default
    implementation uses a message box which prompts the user to confirm
    the edit action.
 
@@ -878,10 +975,11 @@ QSqlTable::Confirm  QSqlTable::confirmCancel( QSqlTable::Mode )
     return conf;
 }
 
-/*!  Refreshes the \a cursor.  A "select" is issued on the \a cursor using
-  the cursor's current filter and current sort.  The table is resized to
-  accomodate the cursor size, if possible.  If \a idx is specified, the
-  table selects the first record matching the value of the index.
+/*!  Refreshes the \a cursor.  A \c select() is issued on the \a
+  cursor using the cursor's current filter and current sort.  The
+  table is resized to accomodate the new cursor size.  If \a idx is
+  specified, the table selects the first record matching the value of
+  the index.
 
   \sa QSql
 */
@@ -947,11 +1045,9 @@ void QSqlTable::refresh( QSqlCursor* cursor, QSqlIndex idx )
     QApplication::restoreOverrideCursor();
 }
 
-/*!
-
- Search the current result set for the string \a str. If the string is
- found, it will be marked as the current cell.
- */
+/*! Search the current result set for the string \a str. If the string
+ is found, it will be marked as the current cell.
+*/
 
 void QSqlTable::find( const QString & str, bool caseSensitive,
 			    bool backwards )
@@ -1004,12 +1100,10 @@ void QSqlTable::find( const QString & str, bool caseSensitive,
 }
 
 
-/*!
-
-  Resets the table so that it displays no data.  This is called
+/*!  Resets the table so that it displays no data.  This is called
   internally before displaying a new query.
 
-  \sa setSql() setCursor()
+  \sa setCursor()
 
 */
 
@@ -1044,12 +1138,12 @@ void QSqlTable::reset()
     d->lastAt = -1;
     if ( sorting() )
 	horizontalHeader()->setSortIndicator( -1 );
+    if ( d->autoDelete )
+	delete d->cursor;
 }
 
-/*!
-
-  Returns the index of the field within the current SQL query based on
-  the displayed column \a i.
+/*!  Returns the index of the field within the current SQL query based
+  on the displayed column \a i.
 
 */
 
@@ -1061,16 +1155,28 @@ int QSqlTable::indexOf( uint i ) const
     return -1;
 }
 
+/*! Returns TRUE if the table will automatically delete the cursor
+  specified by setCursor().
+*/
+
+bool QSqlTable::autoDelete() const
+{
+    return d->autoDelete;
+}
+
+/*! Sets the auto-delete flag to \a enable.  If \a enable is TRUE, the
+  table will automatically delete the cursor specified by setCursor().
+  Otherwise, (the default) the cursor will not be deleted.
+*/
 
 void QSqlTable::setAutoDelete( bool enable )
 {
     d->autoDelete = enable;
 }
 
-/*!
-
-  Sets the text to be displayed when a NULL value is encountered in
-  the data to \a nullText.  The default value is '<null>'.
+/*!  Sets the text to be displayed when a NULL value is encountered in
+  the data to \a nullText.  The default value is specified by the
+  cursor's driver.
 
 */
 
@@ -1079,10 +1185,8 @@ void QSqlTable::setNullText( const QString& nullText )
     d->nullTxt = nullText;
 }
 
-/*!
-
-  Returns the text to be displayed when a NULL value is encountered in
-  the data.
+/*!  Returns the text to be displayed when a NULL value is encountered
+  in the data.
 
 */
 
@@ -1091,10 +1195,8 @@ QString QSqlTable::nullText() const
     return d->nullTxt;
 }
 
-/*!
-
-  Sets the text to be displayed when a TRUE bool value is encountered in
-  the data to \a nullText.  The default value is 'True'.
+/*!  Sets the text to be displayed when a TRUE bool value is
+  encountered in the data to \a nullText.  The default is 'True'.
 
 */
 
@@ -1103,10 +1205,8 @@ void QSqlTable::setTrueText( const QString& trueText )
     d->trueTxt = trueText;
 }
 
-/*!
-
-  Returns the text to be displayed when a TRUE bool value is encountered in
-  the data.
+/*!  Returns the text to be displayed when a TRUE bool value is
+  encountered in the data.
 
 */
 
@@ -1115,10 +1215,8 @@ QString QSqlTable::trueText() const
     return d->trueTxt;
 }
 
-/*!
-
-  Sets the text to be displayed when a FALSE bool value is encountered in
-  the data to \a nullText.  The default value is 'False'.
+/*!  Sets the text to be displayed when a FALSE bool value is
+  encountered in the data to \a nullText.  The default is 'False'.
 
 */
 
@@ -1128,10 +1226,8 @@ void QSqlTable::setFalseText( const QString& falseText )
 }
 
 
-/*!
-
-  Returns the text to be displayed when a FALSE bool value is encountered in
-  the data.
+/*!  Returns the text to be displayed when a FALSE bool value is
+  encountered in the data.
 
 */
 
@@ -1140,13 +1236,7 @@ QString QSqlTable::falseText() const
     return d->falseTxt;
 }
 
-
-
-
-/*!
-
-  \reimpl
-
+/*!  \reimp
 */
 
 void QSqlTable::setNumRows ( int r )
@@ -1154,10 +1244,7 @@ void QSqlTable::setNumRows ( int r )
     QTable::setNumRows( r );
 }
 
-/*!
-
-  \reimpl
-
+/*!  \reimp
 */
 
 void QSqlTable::setNumCols ( int r )
@@ -1165,10 +1252,8 @@ void QSqlTable::setNumCols ( int r )
     QTable::setNumCols( r );
 }
 
-/*!
-
-  Returns the text in cell \a row, \a col, or an empty string if the
-  relevant item does not exist or includes no text.
+/*!  Returns the text in cell \a row, \a col, or an empty string if
+  the relevant item does not exist or includes no text.
 
 */
 
@@ -1181,10 +1266,8 @@ QString QSqlTable::text ( int row, int col ) const
     return QString::null;
 }
 
-/*!
-
-   Returns the value in cell \a row, \a col, or an invalid value if
-   the relevant item does not exist or includes no text.
+/*!  Returns the value in cell \a row, \a col, or an invalid value if
+   the relevant item does not exist or includes no value.
 
 */
 
@@ -1197,10 +1280,7 @@ QVariant QSqlTable::value ( int row, int col ) const
     return QVariant();
 }
 
-/*!
-
-  \internal
-
+/*!  \internal
 */
 
 void QSqlTable::loadNextPage()
@@ -1226,10 +1306,7 @@ void QSqlTable::loadNextPage()
     setNumRows( endIdx + 1 );
 }
 
-/*!
-
-  \internal
-
+/*! \internal
 */
 
 void QSqlTable::loadLine( int )
@@ -1237,11 +1314,9 @@ void QSqlTable::loadLine( int )
     loadNextPage();
 }
 
-/*!
-
-  Sorts the column \a col in ascending order if \a ascending is TRUE,
-  else in descending order. The \a wholeRows parameter is ignored for
-  SQL tables.
+/*!  Sorts the column \a col in ascending order if \a ascending is
+  TRUE, else in descending order. The \a wholeRows parameter is
+  ignored for SQL tables.
 
 */
 
@@ -1263,10 +1338,7 @@ void QSqlTable::sortColumn ( int col, bool ascending,
     }
 }
 
-/*!
-
-  \reimpl
-
+/*!  \reimp
 */
 
 void QSqlTable::columnClicked ( int col )
@@ -1282,17 +1354,13 @@ void QSqlTable::columnClicked ( int col )
     }
 }
 
-/*!
-  \reimpl
- */
 // void QSqlTable::paintFocus( QPainter * p, const QRect & cr )
 // {
 // //    QSqlTable::paintFocus( p, cr );
 // }
 
-/*!
-  \reimpl
- */
+/*!  \reimp
+*/
 void QSqlTable::repaintCell( int row, int col )
 {
     QRect cg = cellGeometry( row, col );
@@ -1301,14 +1369,12 @@ void QSqlTable::repaintCell( int row, int col )
     repaintContents( re, FALSE );
 }
 
-/*!
+/*! \reimp
 
-  \reimpl
-
-  This function is reimplemented to render the cell at \a row, \a col
-  with the value of the corresponding cursor field.  Depending on the
-  current edit mode of the table, paintField() is called for the
-  appropriate cursor field.
+  This function renders the cell at \a row, \a col with the value of
+  the corresponding cursor field.  Depending on the current edit mode
+  of the table, paintField() is called for the appropriate cursor
+  field.
 
   \sa QSql::isNull()
 */
@@ -1350,7 +1416,7 @@ void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 }
 
 
-/* Paints the \a field on the painter \a p. The painter has already
+/*! Paints the \a field on the painter \a p. The painter has already
    been translated to the appropriate cell's origin where the \a field
    is to be rendered. cr describes the cell coordinates in the content
    coordinate system..
@@ -1382,6 +1448,9 @@ void QSqlTable::paintField( QPainter * p, const QSqlField* field,
     p->drawText( 2,2, cr.width()-4, cr.height()-4, fieldAlignment( field ), text );
 }
 
+/*! Returns the alignment for \a field. 
+*/
+
 int QSqlTable::fieldAlignment( const QSqlField* field )
 {
     if ( !cursor() )
@@ -1399,10 +1468,8 @@ void QSqlTable::addColumns( const QSqlRecord& fieldList )
 	addColumn( fieldList.field(j) );
 }
 
-/*!
-
-  If the \a sql driver supports query sizes, the number of rows in the
-  table is set to the size of the query.  Otherwise, the table
+/*!  If the \a sql driver supports query sizes, the number of rows in
+  the table is set to the size of the query.  Otherwise, the table
   dynamically resizes itself as it is scrolled.
 
 */
@@ -1422,19 +1489,19 @@ void QSqlTable::setSize( const QSqlCursor* sql )
     }
 }
 
-/*!
-
-  Displays the \a cursor in the table.  If autopopulate is TRUE,
-  columns are automatically created based upon the fields in the \a
-  cursor record.  If the \a cursor is read only, the table becomes
+/*!  Displays \a cursor in the table.  If autopopulate is TRUE (the
+  default), columns are automatically created based upon the fields in
+  the \a cursor record.  If \a autoDelete is TRUE (the default is
+  FALSE), the table will take ownership of \a cursor and delete it
+  when appropriate.  If the \a cursor is read only, the table becomes
   read only.  The table adopts the cursor's driver's definition
   representing NULL values as strings.
 
-  \sa isReadOnly() setReadOnly() QSqlDriver::nullText()
+  \sa setReadOnly() setAutoDelete() QSqlDriver::nullText()
 
 */
 
-void QSqlTable::setCursor( QSqlCursor* cursor, bool autoPopulate )
+void QSqlTable::setCursor( QSqlCursor* cursor, bool autoPopulate, bool autoDelete )
 {
     setUpdatesEnabled( FALSE );
     reset();
@@ -1447,16 +1514,16 @@ void QSqlTable::setCursor( QSqlCursor* cursor, bool autoPopulate )
 	setSize( d->cursor );
 	setReadOnly( d->cursor->isReadOnly() );
 	setNullText(d->cursor->driver()->nullText() );
+	setAutoDelete( autoDelete );
     }
     setUpdatesEnabled( TRUE );
 }
 
 
-/*!
-
-  Protected virtual function which is called when an error has
-  occurred on the current cursor().  The default implementation displays
-  a warning message to the user with information about the error.
+/*!  Protected virtual function which is called when an error has
+  occurred on the current cursor().  The default implementation
+  displays a warning message to the user with information about the
+  error.
 
 */
 void QSqlTable::handleError( const QSqlError& e )
@@ -1464,10 +1531,8 @@ void QSqlTable::handleError( const QSqlError& e )
     QMessageBox::warning ( this, "Warning", e.driverText() + "\n" + e.databaseText(), 0, 0 );
 }
 
-/*!
-
-  Returns a pointer to the cursor associated with the table, or 0 if
-  there is no current cursor.
+/*!  Returns a pointer to the cursor associated with the table, or 0
+  if there is no current cursor.
 
 */
 
@@ -1476,10 +1541,7 @@ QSqlCursor* QSqlTable::cursor() const
     return d->cursor;
 }
 
-/*!
-
-  \reimpl
-
+/*!  \reimp
 */
 
 void QSqlTable::resizeData ( int )
@@ -1487,10 +1549,7 @@ void QSqlTable::resizeData ( int )
 
 }
 
-/*!
-
-  \reimpl
-
+/*!  \reimp
 */
 
 QTableItem * QSqlTable::item ( int, int ) const
@@ -1498,10 +1557,7 @@ QTableItem * QSqlTable::item ( int, int ) const
     return 0;
 }
 
-/*!
-
-  \reimpl
-
+/*!  \reimp
 */
 
 void QSqlTable::setItem ( int , int , QTableItem * )
@@ -1509,10 +1565,7 @@ void QSqlTable::setItem ( int , int , QTableItem * )
 
 }
 
-/*!
-
-  \reimpl
-
+/*!  \reimp
 */
 
 void QSqlTable::clearCell ( int , int )
@@ -1520,10 +1573,7 @@ void QSqlTable::clearCell ( int , int )
 
 }
 
-/*!
-
-  \reimpl
-
+/*!  \reimp
 */
 
 void QSqlTable::setPixmap ( int , int , const QPixmap &  )
@@ -1531,10 +1581,7 @@ void QSqlTable::setPixmap ( int , int , const QPixmap &  )
 
 }
 
-/*!
-
-  \reimpl
-
+/*!  \reimp
 */
 
 void QSqlTable::takeItem ( QTableItem * )
@@ -1542,18 +1589,21 @@ void QSqlTable::takeItem ( QTableItem * )
 
 }
 
+/*! Refreshes the table using the current cursor.  If \a idx is
+  specified, the first record matching the index is selected.
+*/
+  
 void QSqlTable::refresh( QSqlIndex idx )
 {
     if ( d->cursor )
 	refresh( d->cursor, idx );
 }
 
-/*!
-
-  Installs a new SQL editor factory. This enables the user to create
-  and instantiate their own editors for use in cell editing.  Note that
-  QSqlTable takes ownership of this pointer, and will delete it when
-  it is no longer needed or when installEditorFactory() is called again.
+/*!  Installs a new SQL editor factory. This enables the user to
+  create and instantiate their own editors for use in cell editing.
+  Note that QSqlTable takes ownership of this pointer, and will delete
+  it when it is no longer needed or when installEditorFactory() is
+  called again.
 
   \sa QSqlEditorFactory
 */
@@ -1566,9 +1616,7 @@ void QSqlTable::installEditorFactory( QSqlEditorFactory * f )
     }
 }
 
-/*!
-
-  Installs a new property map. This enables the user to create and
+/*!  Installs a new property map. This enables the user to create and
   instantiate their own property maps for use in cell editing.  Note
   that QSqlTable takes ownership of this pointer, and will delete it
   when it is no longer needed or when installPropertMap() is called
@@ -1586,10 +1634,7 @@ void QSqlTable::installPropertyMap( QSqlPropertyMap* m )
     }
 }
 
-/*!
-
-  \internal
-
+/*!  \internal
 */
 
 void QSqlTable::setCurrentSelection( int row, int )
@@ -1604,10 +1649,8 @@ void QSqlTable::setCurrentSelection( int row, int )
     emit currentChanged( d->cursor );
 }
 
-/*!
-
-  Returns the currently selected record, or an empty record if there
-  is no current selection.
+/*!  Returns the currently selected record, or an empty record if
+  there is no current selection.
 
 */
 
@@ -1622,6 +1665,36 @@ QSqlRecord QSqlTable::currentFieldSelection() const
     fil = *d->cursor;
     return fil;
 }
+
+/*! \fn void QSqlTable::currentChanged( const QSqlRecord* record )
+  This signal is emitted whenever a new row is selected in the table.
+  The \a record parameter is the contents of the newly selected
+  record.
+*/
+
+/*! \fn void QSqlTable::beginInsert( QSqlRecord* buf )
+  This signal is emitted when an insert is beginning on the cursor's edit buffer.
+*/
+
+/*! \fn void QSqlTable::beginUpdate( QSqlRecord* buf )
+  This signal is emitted when an update is beginning on the cursor's edit buffer.
+*/
+
+/*! \fn void QSqlTable::beforeInsert( QSqlRecord* buf )
+  This signal is emitted just before the cursor's edit buffer is inserted into the database.
+*/
+
+/*! \fn void QSqlTable::beforeUpdate( QSqlRecord* buf )
+  This signal is emitted just before the cursor's edit buffer is updated in the database.  
+*/
+
+/*! \fn void QSqlTable::beforeDelete( QSqlRecord* buf )
+  This signal is emitted just before the currently selected record is deleted from the database.  
+*/
+
+/*! \fn void QSqlTable::cursorChanged( QSqlCursor::Mode mode )
+  This signal is emitted whenever the cursor record was changed due to an edit.
+*/
 
 #endif
 

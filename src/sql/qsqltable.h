@@ -59,8 +59,8 @@ class Q_EXPORT QSqlTable : public QTable
     Q_OBJECT
 public:
     QSqlTable ( QWidget * parent = 0, const char * name = 0 );
+    QSqlTable ( QSqlCursor* cursor, bool autoPopulate = TRUE, QWidget * parent = 0, const char * name = 0 );    
     ~QSqlTable();
-
 
     void         addColumn( const QSqlField* field );
     void         removeColumn( uint col );
@@ -72,10 +72,11 @@ public:
     QString      falseText() const;
     bool         confirmEdits() const;
     bool         confirmCancels() const;
+    bool         autoDelete() const;
     bool         isReadOnly() const;
     bool         isColumnReadOnly( int col ) const;
 
-    virtual void setCursor( QSqlCursor* cursor = 0, bool autoPopulate = TRUE );
+    virtual void setCursor( QSqlCursor* cursor = 0, bool autoPopulate = TRUE, bool autoDelete = FALSE );
     virtual void setNullText( const QString& nullText );
     virtual void setTrueText( const QString& trueText );
     virtual void setFalseText( const QString& falseText );
@@ -168,6 +169,7 @@ private slots:
     void         setCurrentSelection( int row, int col );
 
 private:
+    void         init();
     QWidget*     beginEdit ( int row, int col, bool replace );
     void         refresh( QSqlCursor* cursor, QSqlIndex idx = QSqlIndex() );
     void         setNumCols ( int r );
