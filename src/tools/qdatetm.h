@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.h#15 $
+** $Id: //depot/qt/main/src/tools/qdatetm.h#16 $
 **
 ** Definition of date and time classes
 **
@@ -44,8 +44,8 @@ public:
 
     bool   setYMD( int y, int m, int d );
 
-    QDate  addDays( long days )		const;	// add days
-    long   daysTo( const QDate & )	const;	// days difference
+    QDate  addDays( int days )		const;	// add days
+    int    daysTo( const QDate & )	const;	// days difference
 
     bool   operator==( const QDate &d ) const { return jd == d.jd; }
     bool   operator!=( const QDate &d ) const { return jd != d.jd; }
@@ -59,9 +59,9 @@ public:
     static bool	 leapYear( int year );
 
 protected:
-    static ulong greg2jul( int y, int m, int d );
-    static void	 jul2greg( ulong jd, int &y, int &m, int &d );
-    ulong  	 jd;
+    static uint  greg2jul( int y, int m, int d );
+    static void	 jul2greg( uint jd, int &y, int &m, int &d );
+    uint  	 jd;
     static const char *monthNames[];
     static const char *weekdayNames[];
     friend class QDateTime;
@@ -92,10 +92,10 @@ public:
 
     bool   setHMS( int h, int m, int s, int ms=0 );
 
-    QTime  addSecs( long secs )		const;
-    long   secsTo( const QTime & )	const;
-    QTime  addMSecs( long ms )		const;
-    long   msecsTo( const QTime & )	const;
+    QTime  addSecs( int secs )		const;
+    int    secsTo( const QTime & )	const;
+    QTime  addMSecs( int ms )		const;
+    int    msecsTo( const QTime & )	const;
 
     bool   operator==( const QTime &d ) const { return ds == d.ds; }
     bool   operator!=( const QTime &d ) const { return ds != d.ds; }
@@ -108,14 +108,14 @@ public:
     static bool	 isValid( int h, int m, int s, int ms=0 );
 
     void   start();
-    long   restart();
-    long   elapsed();
+    int    restart();
+    int    elapsed();
 
 private:
     static bool currentTime( QTime * );
 
 protected:
-    ulong  ds;
+    uint   ds;
     friend class QDateTime;
     friend QDataStream &operator<<( QDataStream &, const QTime & );
     friend QDataStream &operator>>( QDataStream &, QTime & );
@@ -140,14 +140,14 @@ public:
     QTime  time()	const		{ return t; }
     void   setDate( const QDate &date ) { d=date; }
     void   setTime( const QTime &time ) { t=time; }
-    void   setTime_t( ulong secsSince1Jan1970UTC );
+    void   setTime_t( uint secsSince1Jan1970UTC );
 
     QString toString()	const;
 
-    QDateTime addDays( long days )	const;
-    QDateTime addSecs( long secs )	const;
-    long   daysTo( const QDateTime & )	const;
-    long   secsTo( const QDateTime & )	const;
+    QDateTime addDays( int days )	const;
+    QDateTime addSecs( int secs )	const;
+    int    daysTo( const QDateTime & )	const;
+    int    secsTo( const QDateTime & )	const;
 
     bool   operator==( const QDateTime &dt ) const;
     bool   operator!=( const QDateTime &dt ) const;

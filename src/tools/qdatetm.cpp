@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.cpp#39 $
+** $Id: //depot/qt/main/src/tools/qdatetm.cpp#40 $
 **
 ** Implementation of date and time classes
 **
@@ -30,17 +30,17 @@
 extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdatetm.cpp#39 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qdatetm.cpp#40 $")
 
 
-static const ulong FIRST_DAY	 = 2361222L;	// Julian day for 17520914
-static const int   FIRST_YEAR	 = 1752;
-static const ulong SECS_PER_DAY	 = 86400L;
-static const ulong MSECS_PER_DAY = 86400000L;
-static const ulong SECS_PER_HOUR = 3600L;
-static const ulong MSECS_PER_HOUR= 3600000L;
-static const uint  SECS_PER_MIN	 = 60;
-static const ulong MSECS_PER_MIN = 60000L;
+static const uint FIRST_DAY	= 2361222;	// Julian day for 17520914
+static const int  FIRST_YEAR	= 1752;
+static const uint SECS_PER_DAY	= 86400;
+static const uint MSECS_PER_DAY = 86400000;
+static const uint SECS_PER_HOUR = 3600;
+static const uint MSECS_PER_HOUR= 3600000;
+static const uint SECS_PER_MIN	= 60;
+static const uint MSECS_PER_MIN = 60000;
 
 static short monthDays[] ={0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
@@ -148,7 +148,7 @@ int QDate::day() const
 
 int QDate::dayOfWeek() const
 {
-    return (int)((((jd+1) % 7) + 6)%7) + 1;
+    return (((jd+1) % 7) + 6)%7 + 1;
 }
 
 /*----------------------------------------------------------------------------
@@ -157,7 +157,7 @@ int QDate::dayOfWeek() const
 
 int QDate::dayOfYear() const
 {
-    return (int)(jd - greg2jul( year(), 1, 1 )) + 1;
+    return jd - greg2jul(year(), 1, 1) + 1;
 }
 
 /*----------------------------------------------------------------------------
@@ -255,7 +255,7 @@ bool QDate::setYMD( int y, int m, int d )
   Returns this date plus \e ndays days.
  ----------------------------------------------------------------------------*/
 
-QDate QDate::addDays( long ndays ) const
+QDate QDate::addDays( int ndays ) const
 {
     QDate d;
     d.jd = jd + ndays;
@@ -275,7 +275,7 @@ QDate QDate::addDays( long ndays ) const
   \sa addDays()
  ----------------------------------------------------------------------------*/
 
-long QDate::daysTo( const QDate &d ) const
+int QDate::daysTo( const QDate &d ) const
 {
     return d.jd - jd;
 }
@@ -373,9 +373,9 @@ bool QDate::leapYear( int y )
   \sa jul2greg()
  ----------------------------------------------------------------------------*/
 
-ulong QDate::greg2jul( int y, int m, int d )
+uint QDate::greg2jul( int y, int m, int d )
 {
-    ulong c, ya;
+    uint c, ya;
     if ( y <= 99 )
 	y += 1900;
     if ( m > 2 )
@@ -387,7 +387,7 @@ ulong QDate::greg2jul( int y, int m, int d )
     c = y;					// NOTE: Sym C++ 6.0 bug
     c /= 100;
     ya = y - 100*c;
-    return 1721119L + d + (146097L*c)/4 + (1461*ya)/4 + (153*m+2)/5;
+    return 1721119 + d + (146097*c)/4 + (1461*ya)/4 + (153*m+2)/5;
 }
 
 /*----------------------------------------------------------------------------
@@ -397,20 +397,20 @@ ulong QDate::greg2jul( int y, int m, int d )
   \sa greg2jul()
  ----------------------------------------------------------------------------*/
 
-void QDate::jul2greg( ulong jd, int &y, int &m, int &d )
+void QDate::jul2greg( uint jd, int &y, int &m, int &d )
 {
-    ulong x;
-    ulong j = jd - 1721119L;
-    y = (int)((j*4 - 1)/146097L);
-    j = j*4 - 146097L*y - 1;
+    uint x;
+    uint j = jd - 1721119;
+    y = (j*4 - 1)/146097;
+    j = j*4 - 146097*y - 1;
     x = j/4;
     j = (x*4 + 3) / 1461;
-    y = (int)(100*y + j);
+    y = 100*y + j;
     x = (x*4) + 3 - 1461*j;
     x = (x + 4)/4;
-    m = (int)(5*x - 3)/153;
+    m = (5*x - 3)/153;
     x = 5*x - 3 - 153*m;
-    d = (int)((x + 5)/5);
+    d = (x + 5)/5;
     if ( m < 10 )
 	m += 3;
     else {
@@ -475,7 +475,7 @@ bool QTime::isValid() const
 
 int QTime::hour() const
 {
-    return (int)(ds / MSECS_PER_HOUR);
+    return ds / MSECS_PER_HOUR;
 }
 
 /*----------------------------------------------------------------------------
@@ -484,7 +484,7 @@ int QTime::hour() const
 
 int QTime::minute() const
 {
-    return (int)((ds % MSECS_PER_HOUR)/MSECS_PER_MIN);
+    return (ds % MSECS_PER_HOUR)/MSECS_PER_MIN;
 }
 
 /*----------------------------------------------------------------------------
@@ -493,7 +493,7 @@ int QTime::minute() const
 
 int QTime::second() const
 {
-    return (int)((ds / 1000)%SECS_PER_MIN);
+    return (ds / 1000)%SECS_PER_MIN;
 }
 
 /*----------------------------------------------------------------------------
@@ -502,7 +502,7 @@ int QTime::second() const
 
 int QTime::msec() const
 {
-    return (int)(ds % 1000);
+    return ds % 1000;
 }
 
 
@@ -543,7 +543,7 @@ bool QTime::setHMS( int h, int m, int s, int ms )
   \sa secsTo()
  ----------------------------------------------------------------------------*/
 
-QTime QTime::addSecs( long nsecs ) const
+QTime QTime::addSecs( int nsecs ) const
 {
     QTime t;
     t.ds = (ds + nsecs*1000) % MSECS_PER_DAY;
@@ -555,16 +555,16 @@ QTime QTime::addSecs( long nsecs ) const
   \sa addSecs()
  ----------------------------------------------------------------------------*/
 
-long QTime::secsTo( const QTime &t ) const
+int QTime::secsTo( const QTime &t ) const
 {
-    return ((long)t.ds - (long)ds)/1000L;
+    return (t.ds - ds)/1000;
 }
 
 /*----------------------------------------------------------------------------
   Returns the time plus \e ms milliseconds.
  ----------------------------------------------------------------------------*/
 
-QTime QTime::addMSecs( long ms ) const
+QTime QTime::addMSecs( int ms ) const
 {
     QTime t;
     t.ds = (ds + ms) % MSECS_PER_DAY;
@@ -575,7 +575,7 @@ QTime QTime::addMSecs( long ms ) const
   Returns the number of milliseconds between this time and \e t.
  ----------------------------------------------------------------------------*/
 
-long QTime::msecsTo( const QTime &t ) const
+int QTime::msecsTo( const QTime &t ) const
 {
     return t.ds - ds;
 }
@@ -662,7 +662,7 @@ bool QTime::currentTime( QTime *ct )
     _dostime_t t;
     _dos_gettime( &t );
     ct->ds = MSECS_PER_HOUR*t.hour + MSECS_PER_MIN*t.minute +
-	     t.second*1000L + t.hsecond*10L;
+	     t.second*1000 + t.hsecond*10;
     return (t.hour== 0 && t.minute == 0);
 
 #elif defined(UNIX)
@@ -731,10 +731,10 @@ void QTime::start()
   \sa start(), elapsed()
  ----------------------------------------------------------------------------*/
 
-long QTime::restart()
+int QTime::restart()
 {
     QTime t = currentTime();
-    long  n = msecsTo( t );
+    int   n = msecsTo( t );
     *this = t;
     return n;
 }
@@ -745,10 +745,9 @@ long QTime::restart()
   \sa start(), restart()
  ----------------------------------------------------------------------------*/
 
-long QTime::elapsed()
+int QTime::elapsed()
 {
-    long  n = msecsTo( currentTime() );
-    return n;
+    return msecsTo( currentTime() );
 }
 
 
@@ -840,7 +839,7 @@ QDateTime::QDateTime( const QDate &date, const QTime &time )
   local time were UTC.
  ----------------------------------------------------------------------------*/
 
-void QDateTime::setTime_t( ulong secsSince1Jan1970UTC )
+void QDateTime::setTime_t( uint secsSince1Jan1970UTC )
 {
     time_t tmp = (time_t) secsSince1Jan1970UTC;
     tm *tM = localtime( &tmp );
@@ -870,10 +869,9 @@ QString QDateTime::toString() const
   \sa daysTo()
  ----------------------------------------------------------------------------*/
 
-QDateTime QDateTime::addDays( long ndays ) const
+QDateTime QDateTime::addDays( int ndays ) const
 {
-    QDateTime dt( d.addDays(ndays), t );
-    return dt;
+    return QDateTime( d.addDays(ndays), t );
 }
 
 /*----------------------------------------------------------------------------
@@ -881,9 +879,9 @@ QDateTime QDateTime::addDays( long ndays ) const
   \sa secsTo()
  ----------------------------------------------------------------------------*/
 
-QDateTime QDateTime::addSecs( long nsecs ) const
+QDateTime QDateTime::addSecs( int nsecs ) const
 {
-    long dd = (t.ds + nsecs*1000)/MSECS_PER_DAY;
+    int dd = (t.ds + nsecs*1000)/MSECS_PER_DAY;
     return QDateTime( d.addDays(dd), t.addSecs(nsecs) );
 }
 
@@ -892,7 +890,7 @@ QDateTime QDateTime::addSecs( long nsecs ) const
   \sa addDays() secsTo()
  ----------------------------------------------------------------------------*/
 
-long QDateTime::daysTo( const QDateTime &dt ) const
+int QDateTime::daysTo( const QDateTime &dt ) const
 {
     return d.daysTo( dt.d );
 }
@@ -910,7 +908,7 @@ long QDateTime::daysTo( const QDateTime &dt ) const
   \sa addSecs() daysTo()
  ----------------------------------------------------------------------------*/
 
-long QDateTime::secsTo( const QDateTime &dt ) const
+int QDateTime::secsTo( const QDateTime &dt ) const
 {
     return t.secsTo( dt.t ) + d.daysTo( dt.d )*SECS_PER_DAY;
 }
@@ -1023,9 +1021,9 @@ QDataStream &operator<<( QDataStream &s, const QDate &d )
 
 QDataStream &operator>>( QDataStream &s, QDate &d )
 {
-    UINT32 tmp;
-    s >> tmp;
-    d.jd = tmp;
+    UINT32 jd;
+    s >> jd;
+    d.jd = jd;
     return s;
 }
 
@@ -1048,9 +1046,9 @@ QDataStream &operator<<( QDataStream &s, const QTime &t )
 
 QDataStream &operator>>( QDataStream &s, QTime &t )
 {
-    UINT32 tmp;
-    s >> tmp;
-    t.ds = tmp;
+    UINT32 ds;
+    s >> ds;
+    t.ds = ds;
     return s;
 }
 
