@@ -3,6 +3,7 @@
 #include "formwindow.h"
 #include "formlist.h"
 #include "propertyeditor.h"
+#include "hierarchyview.h"
 #include <qapplication.h>
 #include <qobjectlist.h>
 #include <qstatusbar.h>
@@ -17,6 +18,7 @@ DesignerApplicationInterface::DesignerApplicationInterface()
 
     new DesignerMainWindowInterfaceImpl( mw, this );
     new DesignerFormListInterfaceImpl( fl, this );
+    new DesignerConfigurationInterface( 0, this );
 }
 
 QString DesignerApplicationInterface::interfaceID() const
@@ -30,7 +32,12 @@ QString DesignerApplicationInterface::interfaceID() const
 DesignerMainWindowInterfaceImpl::DesignerMainWindowInterfaceImpl( MainWindow *mw, QUnknownInterface* parent )
     : DesignerMainWindowInterface( mw, parent, "DesignerMainWindowInterfaceImpl" )
 {
-    new DesignerStatusBarInterfaceImpl( ((QMainWindow*)component())->statusBar(), this );
+    PropertyEditor* pe = mw ? mw->propertyeditor() : 0;
+    HierarchyView* hv = mw ? mw->objectHierarchy() : 0;
+
+    new DesignerStatusBarInterfaceImpl( mw->statusBar(), this );
+    new DesignerPropertyEditorInterface( pe, this );
+    new DesignerHierarchyViewInterface( hv, this );
 }
 
 /*

@@ -108,6 +108,7 @@ public:
 
 class DesignerHierarchyViewInterface : public QApplicationComponentInterface
 {
+public:
     DesignerHierarchyViewInterface( QObject *pe, QUnknownInterface *parent, const char *name = 0 )
 	: QApplicationComponentInterface( pe, parent, name ) {}
 
@@ -120,6 +121,7 @@ class DesignerHierarchyViewInterface : public QApplicationComponentInterface
 
 class DesignerConfigurationInterface : public QApplicationComponentInterface
 {
+public:
     DesignerConfigurationInterface( QObject *pe, QUnknownInterface *parent, const char *name = 0 )
 	: QApplicationComponentInterface( pe, parent, name ) {}
 
