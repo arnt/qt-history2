@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#9 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#10 $
 **
 ** Implementation of QFileInfo class
 **
@@ -19,7 +19,7 @@
 # include <grp.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfileinfo.cpp#9 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qfileinfo.cpp#10 $")
 
 
 struct QFileInfoCache
@@ -30,7 +30,7 @@ struct QFileInfoCache
 
 /*----------------------------------------------------------------------------
   \class QFileInfo qfileinf.h
-  \brief The QFile class provides system-independent file information.
+  \brief The QFileInfo class provides system-independent file information.
 
   \ingroup tools
 
