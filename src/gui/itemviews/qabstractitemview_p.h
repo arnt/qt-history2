@@ -100,6 +100,7 @@ template <typename T>
 inline int qSortedInsert(QVector<T> &vec, const T &item)
 {
     qDebug("inserting not implemented: %Ld", item);
+    return -1;
 }
 
 template <typename T>
