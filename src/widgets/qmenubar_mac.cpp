@@ -199,7 +199,7 @@ void no_ampersands(QString i, CFStringRef *ret) {
 }
 
 #if !defined(QMAC_QMENUBAR_NO_MERGE)
-uint QMenuBar::isCommand(QMenuItem *it)
+uint QMenuBar::isCommand(QMenuItem *it, bool just_check)
 {
     if(it->popup() || it->custom() || it->isSeparator())
 	return 0;
@@ -226,8 +226,10 @@ uint QMenuBar::isCommand(QMenuItem *it)
 	ret = kHICommandQuit;
     }
     //shall we?
-    if(ret && activeMenuBar &&
-       (!activeMenuBar->mac_d->commands || !activeMenuBar->mac_d->commands->find(ret))) {
+    if(just_check) {
+	//do nothing, we already checked
+    } else if(ret && activeMenuBar &&
+	      (!activeMenuBar->mac_d->commands || !activeMenuBar->mac_d->commands->find(ret))) {
 	if(ret == kHICommandAbout || ret == 'CUTE') {
 	    if(activeMenuBar->mac_d->apple_menu) {
 		QString text = it->text();
@@ -304,7 +306,7 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 #if !defined(QMAC_QMENUBAR_NO_MERGE)
 	    else if(x != (int)d->count()-1 &&
 		    ((x == (int)d->count() - 2 || d->findItem(d->idAt(x+2))->isSeparator()) &&
-		     isCommand(d->findItem(d->idAt(x+1)))))
+		     isCommand(d->findItem(d->idAt(x+1)), TRUE)))
 		continue;
 #endif
 

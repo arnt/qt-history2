@@ -172,7 +172,7 @@ private:
     MenuRef createMacPopup(QPopupMenu *d, bool, bool =FALSE);
     bool updateMenuBar();
 #if !defined(QMAC_QMENUBAR_NO_MERGE)
-    uint isCommand(QMenuItem *);
+    uint isCommand(QMenuItem *, bool just_check=FALSE);
 #endif
 
     uint mac_eaten_menubar : 1;
