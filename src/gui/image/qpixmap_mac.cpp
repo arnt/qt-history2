@@ -685,47 +685,36 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
         struct {
             OSType mac_type;
             int width, height, depth;
-            QImage::Format format;
             bool mask;
         } images[] = {
-            { kThumbnail32BitData, 128, 128, 32, QImage::Format_RGB32, false },
-//            { kHuge32BitData,       48,  48, 32, false },
-//            { kLarge32BitData,      32,  32, 32, false },
-//            { kSmall32BitData,      16,  16, 32, false },
-            //masks
-            { kThumbnail8BitMask, 128, 128, 8, QImage::Format_Indexed8, true },
-//            { kHuge1BitMask,       48,  48, 1, true },
-//            { kLarge1BitMask,      32,  32, 1, true },
-//            { kSmall1BitMask,      16, 16,  1, true },
-            { 0, 0, 0, 0, QImage::Format_Mono, false } };
+            { kThumbnail32BitData, 128, 128, 32, false },
+            { kThumbnail8BitMask, 128, 128, 8, true },
+            { 0, 0, 0, 0, false } //end marker
+        };
         for(int i = 0; images[i].mac_type; i++) {
-            const QPixmap *in_pix = 0;
-            if(!px.isNull())
-                in_pix = &px;
+            //get QPixmap data
+            QPixmap scaled_px = px.scaled(images[i].width, images[i].height);
+            const uint *sptr = scaled_px.data->pixels;
+            const uint sbpr = scaled_px.data->nbytes / scaled_px.data->h;
 
-            const int x_rows = images[i].width * (images[i].depth/8), y_rows = images[i].height;
-            Handle hdl = NewHandle(x_rows*y_rows);
-            if(in_pix) {
-                //make the image
-                QImage im;
-                im = in_pix->toImage();
-                im = im.scaled(images[i].width, images[i].height,
-                               Qt::IgnoreAspectRatio, Qt::SmoothTransformation).convertToFormat(images[i].format);
-                //set handle bits
-                if(images[i].mask) {
-                    if(images[i].mac_type == kThumbnail8BitMask) {
-                        for(int y = 0, h = 0; y < im.height(); y++) {
-                            for(int x = 0; x < im.width(); x++)
-                                *((*hdl)+(h++)) = qGray(im.pixel(x, y));
-                        }
+            //get Handle data
+            const int dbpr = images[i].width * (images[i].depth/8);
+            Handle hdl = NewHandle(dbpr*images[i].height);
+            if(images[i].mask) {
+                if(images[i].mac_type == kThumbnail8BitMask) {
+                    for(int y = 0, hindex = 0; y < images[i].height; ++y) {
+                        const uchar *srow = ((const uchar*)sptr + (sbpr*y));
+                        for(int x = 0; x < images[i].width*4; x+=4)
+                            *((*hdl)+(hindex++)) = *(srow+x);
                     }
-                } else {
-                    for(int y = 0; y < y_rows; y++)
-                        memcpy((*hdl)+(y*x_rows), im.scanLine(y), x_rows);
                 }
             } else {
-                memset((*hdl), 0xFF, x_rows*y_rows);
+                for(int y = 0; y < images[i].height; y++) {
+                    memcpy((*hdl)+(y*dbpr), ((const uchar*)sptr+(sbpr*y)), dbpr);
+                }
             }
+
+            //set the family data to the Handle
             OSStatus set = SetIconFamilyData(iconFamily, images[i].mac_type, hdl);
             if(set != noErr)
                 qWarning("%s: %d -- Something went very wrong!! %ld", __FILE__, __LINE__, set);
