@@ -405,6 +405,12 @@ if [ -e  "$qgif" ]; then
     sed "s,\(\#define QT_BUILTIN_GIF_READ[ ]*\)$,\1 0,g" $qgif >${TMP_FILE}
     mv ${TMP_FILE} $qgif
 fi
+#qgif.h
+qgif="$DISTDIR/include/qgif.h"
+if [ -e  "$qgif" ]; then
+    sed "s,\(\#define QT_BUILTIN_GIF_READ[ ]*\)$,\1 0,g" $qgif >${TMP_FILE}
+    mv ${TMP_FILE} $qgif
+fi
 
 # changes files
 [ ! -f "$DISTDIR/qt/dist/changes-$REL_VERSION" ] && status "!! Warning: qt/dist/changes-$REL_VERSION does not exist !!"
@@ -752,8 +758,8 @@ for plat in mac win x11 embedded; do
 	    #remove non-GPL sql stuff
 	    rm -rf $PLATDIR/src/sql/src/oci
 	    rm -rf $PLATDIR/src/sql/src/tds
-	    rm -rf $PLATDIR/src/sql/src/shared 
-	    rm -rf $PLATDIR/plugins/src/sqldrivers/oci 
+	    rm -rf $PLATDIR/src/sql/src/shared
+	    rm -rf $PLATDIR/plugins/src/sqldrivers/oci
 	    rm -rf $PLATDIR/plugins/src/sqldrivers/tds
 	    ;;
 	esac
