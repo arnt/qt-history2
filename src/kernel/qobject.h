@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#10 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#11 $
 **
 ** Definition of QObject class
 **
@@ -107,6 +107,10 @@ inline bool QObject::disconnect( const QObject *receiver, const char *member )
     return disconnect( this, 0, receiver, member );
 }
 
+inline QObject *QObject::sender()
+{
+    return sigSender;
+}
 
 class QSenderObject : public QObject		// object for sending signals
 {
