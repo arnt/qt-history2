@@ -362,7 +362,7 @@ void QDockWidgetTitleBar::updateGui()
 
 QDockWidget::QDockWidget( QWidget *parent, const char *name, WFlags f )
     : QFrame( parent, name, f | WStyle_Customize | WStyle_NoBorderEx ), curPlace( parent ? InDock : OutsideDock ),
-      wid( 0 ), unclippedPainter( 0 ), dockArea( 0 ), closeEnabled( FALSE ), resizeEnabled( FALSE ),
+      wid( 0 ), unclippedPainter( 0 ), dockArea( 0 ), tmpDockArea( 0 ), closeEnabled( FALSE ), resizeEnabled( FALSE ),
       offs( 0 ), fExtend( -1, -1 ), nl( FALSE )
 {
     hbox = new QVBoxLayout( this );
