@@ -36,6 +36,10 @@ QString DeclResolver::resolve( const QString& name ) const
 
 	    if ( html.contains(base) ) {
 		return name;
+	    } else if ( base.endsWith(QString(".book")) ) {
+		// ### links may be broken
+		return base.left( base.length() - 5 ) + QString( ".html" ) +
+		       ref;
 	    } else {
 		return QString::null;
 	    }

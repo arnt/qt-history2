@@ -426,12 +426,6 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		groupName = getWord( yyIn, yyPos );
 		skipRestOfLine( yyIn, yyPos );
 
-		if ( groupName.right(5) == QString(".html") ) {
-		    warning( 3, location(),
-			     "Group name after '\\defgroup' no longer requires"
-			     " '.html'" );
-		    groupName.truncate( groupName.length() - 5 );
-		}
 		if ( groupName.isEmpty() ) {
 		    warning( 2, location(),
 			     "Expected group name after '\\defgroup'" );
@@ -650,13 +644,6 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    CONSUME( "ingroup" );
 		    groupName = getWord( yyIn, yyPos );
 		    skipRestOfLine( yyIn, yyPos );
-
-		    if ( groupName.right(5) == QString(".html") ) {
-			warning( 3, location(),
-				 "Group name after '\\ingroup' should not end"
-				 " with '.html'" );
-			groupName.truncate( groupName.length() - 5 );
-		    }
 
 		    if ( groupName.isEmpty() )
 			warning( 2, location(),
@@ -1442,7 +1429,7 @@ bool DocParser::valueIsDocumented()
 void DocParser::enterWalkthroughSnippet()
 {
     if ( !yyInWalkthroughSnippet ) {
-	if ( yyOut.right(6) == QString("</pre>") ) {
+	if ( yyOut.endsWith(QString("</pre>")) ) {
 	    yyOut.truncate( yyOut.length() - 6 );
 	} else {
 	    yyOut += QString( "<pre>" );
@@ -1613,7 +1600,7 @@ QString Doc::href( const QString& name, const QString& text, bool propertize )
     QString k = keywordLinks[namex];
     if ( k.isEmpty() ) {
 	// try without the plural
-	if ( namex.right(1) == QChar('s') )
+	if ( namex.endsWith(QChar('s')) )
 	    k = keywordLinks[namex.left(textx.length() - 1)];
 	if ( k.isEmpty() ) {
 	    // try an example file
@@ -1963,7 +1950,7 @@ QString Doc::htmlCompactList( const QMap<QString, QString>& list )
 		while ( paragraph[currentParagraphNo[i]].isEmpty() )
 		    currentParagraphNo[i]++;
 
-		html += QString( "<td>" );
+		html += QString( "<td align=\"right\">" );
 		if ( currentParagraphNo[i] > prevParagraphNo[i] ) {
 		    // start a new paragraph
 		    html += QString( "<b>" );
@@ -1976,8 +1963,7 @@ QString Doc::htmlCompactList( const QMap<QString, QString>& list )
 		QMap<QString, QString>::Iterator first;
 		first = paragraph[currentParagraphNo[i]].begin();
 
-		html += QString( "<td align=\"right\">%1\n" )
-			.arg( href(*first) );
+		html += QString( "<td>%1\n" ).arg( href(*first) );
 		if ( classext.contains(*first) )
 		    html += QChar( '*' );
 
@@ -2587,7 +2573,7 @@ ClassDoc::ClassDoc( const Location& loc, const QString& html,
     */
     QString whats;
     bool standardWording = TRUE;
-    bool finalStop = ( bf.right(1) == QChar('.') );
+    bool finalStop = ( bf.endsWith(QChar('.')) );
     if ( !finalStop )
 	bf += QChar( '.' );
 
