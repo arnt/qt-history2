@@ -216,7 +216,7 @@ struct QListViewPrivate
 
 Q_DECLARE_TYPEINFO(QListViewPrivate::DrawableItem, Q_PRIMITIVE_TYPE);
 
-#ifndef QT_NO_TOOLTIP
+#if 0
 class QListViewToolTip : public QToolTip
 {
 public:
@@ -2575,7 +2575,7 @@ void QListView::init()
     d->select = true;
     d->startDragItem = 0;
     d->toolTips = true;
-#ifndef QT_NO_TOOLTIP
+#if 0
     d->toolTip = new QListViewToolTip(viewport(), this);
 #endif
     d->updateHeader = false;
@@ -2722,7 +2722,7 @@ QListView::~QListView()
     d->r = 0;
     delete d->vci;
     d->vci = 0;
-#ifndef QT_NO_TOOLTIP
+#if 0
     delete d->toolTip;
     d->toolTip = 0;
 #endif

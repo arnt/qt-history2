@@ -1380,7 +1380,7 @@ void QApplication::setGlobalStrut(const QSize& strut)
   \sa setPalette(), QWidget::palette()
 */
 #ifndef QT_NO_PALETTE
-QPalette QApplication::palette(const QWidget* w)
+QPalette QApplication::palette()
 {
     if (!qApp)
         qWarning("QApplication::palette: This function can only be "
@@ -1392,14 +1392,32 @@ QPalette QApplication::palette(const QWidget* w)
         qt_fix_tooltips();
     }
 
+    return *app_pal;
+}
+
+QPalette QApplication::palette(const QWidget* w)
+{
     if (w && app_palettes.size()) {
-        QHash<QByteArray, QPalette>::ConstIterator it = app_palettes.find(w->className());
+        QHash<QByteArray, QPalette>::ConstIterator it = app_palettes.find(w->metaObject()->className());
         if (it != app_palettes.constEnd())
             return *it;
         for (it = app_palettes.constBegin(); it != app_palettes.constEnd(); ++it) {
-            if (w->inherits(it.key()))
+            if (w->qt_metacast(it.key()))
                 return it.value();
         }
+    }
+    return palette();
+}
+
+QPalette QApplication::palette(const char *className)
+{
+    if (!app_pal)
+        palette();
+
+    if (className && app_palettes.size()) {
+        QHash<QByteArray, QPalette>::ConstIterator it = app_palettes.find(className);
+        if (it != app_palettes.constEnd())
+            return *it;
     }
     return *app_pal;
 }

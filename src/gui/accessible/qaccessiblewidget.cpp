@@ -760,7 +760,7 @@ QString QAccessibleWidget::text(Text t, int child) const
         if (!d->description.isEmpty())
             str = d->description;
         else
-            str = QToolTip::textFor(widget());
+            str = widget()->toolTip();
         break;
     case Help:
         if (!d->help.isEmpty())

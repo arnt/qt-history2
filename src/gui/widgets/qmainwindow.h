@@ -165,7 +165,7 @@ private:
     virtual void setMenuBar(QMenuBar *);
 #endif
     virtual void setStatusBar(QStatusBar *);
-#ifndef QT_NO_TOOLTIP
+#if 0
     virtual void setToolTipGroup(QToolTipGroup *);
 #endif
 

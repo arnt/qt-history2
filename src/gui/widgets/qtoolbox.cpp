@@ -89,10 +89,7 @@ public:
         inline void setIcon(const QIconSet &is) { button->setIcon(is); }
         inline void setToolTip(const QString &tip)
         {
-            toolTip = tip;
-            QToolTip::remove(button);
-            if (!tip.isNull())
-                QToolTip::add(button, tip);
+            button->setToolTip(tip);
         }
 
         inline bool operator==(const Page& other) const

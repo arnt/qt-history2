@@ -122,9 +122,6 @@ public:
     uint on : 1;
     uint forceDisabled : 1;
     uint forceInvisible : 1;
-#ifndef QT_NO_TOOLTIP
-    QToolTipGroup tipGroup;
-#endif
     Q3ActionGroupPrivate* d_group;
     Q3Action *action;
 
@@ -168,14 +165,8 @@ Q3ActionPrivate::Q3ActionPrivate(Q3Action *act)
 #endif
       enabled(true), visible(true), toggleaction(false), on(false),
       forceDisabled(false), forceInvisible(false)
-#ifndef QT_NO_TOOLTIP
-      , tipGroup(0)
-#endif
       , d_group(0), action(act)
 {
-#ifndef QT_NO_TOOLTIP
-    tipGroup.setDelay(false);
-#endif
 }
 
 Q3ActionPrivate::~Q3ActionPrivate()
@@ -339,10 +330,8 @@ void Q3ActionPrivate::update(uint upd)
             btn->setToggleButton(toggleaction);
             if (!text.isEmpty())
                 btn->setTextLabel(text, false);
-#ifndef QT_NO_TOOLTIP
-            QToolTip::remove(btn);
-            QToolTip::add(btn, toolTip(), &tipGroup, statusTip());
-#endif
+            btn->setToolTip(toolTip());
+            btn->setStatusTip(statusTip());
 #ifndef QT_NO_WHATSTHIS
             QWhatsThis::remove(btn);
             if (!whatsthis.isEmpty())
@@ -1036,10 +1025,6 @@ bool Q3Action::addTo(QWidget* w)
             connect(btn, SIGNAL(clicked()), this, SIGNAL(activated()));
             connect(btn, SIGNAL(toggled(bool)), this, SLOT(toolButtonToggled(bool)));
             connect(btn, SIGNAL(destroyed()), this, SLOT(objectDestroyed()));
-#ifndef QT_NO_TOOLTIP
-            connect(&(d->tipGroup), SIGNAL(showTip(QString)), this, SLOT(showStatusText(QString)));
-            connect(&(d->tipGroup), SIGNAL(removeTip()), this, SLOT(clearStatusText()));
-#endif
         }
     } else
 #endif
@@ -1343,7 +1328,6 @@ void Q3Action::objectDestroyed()
     Connect to this signal to provide additional handling of
     the status messages.
 
-    \sa QToolTipGroup
 */
 
 /*!

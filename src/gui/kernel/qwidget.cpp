@@ -4776,7 +4776,7 @@ bool QWidget::event(QEvent *e)
 
     case QEvent::ToolTip:
         if (d->toolTip.size()) {
-            Q4ToolTip::showText(static_cast<QHelpEvent*>(e)->globalPos(), d->toolTip, this);
+            QToolTip::showText(static_cast<QHelpEvent*>(e)->globalPos(), d->toolTip, this);
         } else
             return false;
         break;

@@ -201,7 +201,7 @@ void QMainWindowLayout::addItem(QLayoutItem * /* item */)
   QHideToolTip and QHideDock - minimized dock
 */
 
-#ifndef QT_NO_TOOLTIP
+#if 0
 class QHideToolTip : public QToolTip
 {
 public:
@@ -225,13 +225,13 @@ public:
         pressed = false;
         setMouseTracking(true);
         win = parent;
-#ifndef QT_NO_TOOLTIP
+#if 0
         tip = new QHideToolTip(this);
 #endif
     }
     ~QHideDock()
     {
-#ifndef QT_NO_TOOLTIP
+#if 0
         delete tip;
 #endif
     }
@@ -377,13 +377,13 @@ private:
     QMainWindow *win;
     int pressedHandle;
     bool pressed;
-#ifndef QT_NO_TOOLTIP
+#if 0
     QHideToolTip *tip;
     friend class QHideToolTip;
 #endif
 };
 
-#ifndef QT_NO_TOOLTIP
+#if 0
 void QHideToolTip::maybeTip(const QPoint &pos)
 {
     if (!parentWidget())
@@ -898,7 +898,7 @@ void QMainWindow::setStatusBar(QStatusBar * newStatusBar)
     if (d->sb)
         delete d->sb;
     d->sb = newStatusBar;
-#ifndef QT_NO_TOOLTIP
+#if 0
     // ### this code can cause unnecessary creation of a tool tip group
     connect(toolTipGroup(), SIGNAL(showTip(QString)),
              d->sb, SLOT(message(QString)));
@@ -937,7 +937,7 @@ QStatusBar * QMainWindow::statusBar() const
 }
 
 
-#ifndef QT_NO_TOOLTIP
+#if 0
 /*!
     Sets this main window to use the tool tip group \a
     newToolTipGroup.

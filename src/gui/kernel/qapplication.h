@@ -83,7 +83,9 @@ public:
     static void             restoreOverrideCursor();
 #endif
 #ifndef QT_NO_PALETTE
-    static QPalette  palette(const QWidget* = 0);
+    static QPalette  palette();
+    static QPalette  palette(const QWidget *);
+    static QPalette  palette(const char *className);
     static void             setPalette(const QPalette &, const char* className = 0);
 #endif
     static QFont     font(const QWidget* = 0);

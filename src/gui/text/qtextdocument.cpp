@@ -10,7 +10,7 @@
 static void init(QTextDocumentPrivate *priv, QAbstractTextDocumentLayout *layout = 0)
 {
     priv->pieceTable = new QTextPieceTable(layout);
-    QObject::connect(priv->pieceTable, SIGNAL(contentsChanged()), priv->q, SIGNAL(contentsChanged()));
+    QObject::connect(static_cast<QTextPieceTable*>(priv->pieceTable), SIGNAL(contentsChanged()), priv->q, SIGNAL(contentsChanged()));
 }
 
 

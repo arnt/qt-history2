@@ -61,9 +61,11 @@ QString QAccessibleHeader::text(Text t, int child) const
         case Name:
             str = header()->label(child - 1);
             break;
-        case Description:
-            str = QToolTip::textFor(widget(), header()->sectionRect(child-1).center());
-            break;
+        case Description: {
+            QPoint p(header()->sectionRect(child-1).center());
+            QHelpEvent event(QEvent::AccessibleQueryDescription, p, header()->mapToGlobal(p));
+            QApplication::sendEvent(widget(), &event);
+            break; }
         case Help: {
             QPoint p(header()->sectionRect(child-1).center());
             QHelpEvent event(QEvent::AccessibleQueryHelp, p, header()->mapToGlobal(p));

@@ -622,7 +622,7 @@ bool QTabBar::event(QEvent *e)
     if (e->type() == QEvent::ToolTip) {
         if (const QTabBarPrivate::Tab *tab = d->at(d->indexAtPos(static_cast<QHelpEvent*>(e)->pos()))) {
             if (!tab->toolTip.isEmpty()) {
-                Q4ToolTip::showText(static_cast<QHelpEvent*>(e)->globalPos(), tab->toolTip, this);
+                QToolTip::showText(static_cast<QHelpEvent*>(e)->globalPos(), tab->toolTip, this);
                 return true;
             }
         }

@@ -38,7 +38,7 @@
 #include "qt_windows.h"
 #endif
 
-#ifndef QT_NO_TOOLTIP
+#if 0
 class QTitleBarTip : public QToolTip
 {
 public:
@@ -138,9 +138,6 @@ QTitleBar::QTitleBar(QWidget* w, QWidget* parent, const char* name)
 {
     d = new QTitleBarPrivate();
 
-#ifndef QT_NO_TOOLTIP
-    d->toolTip = new QTitleBarTip(this);
-#endif
     d->window = w;
     d->buttonDown = QStyle::SC_None;
     d->act = 0;
@@ -160,10 +157,6 @@ QTitleBar::QTitleBar(QWidget* w, QWidget* parent, const char* name)
 
 QTitleBar::~QTitleBar()
 {
-#ifndef QT_NO_TOOLTIP
-    delete d->toolTip;
-#endif
-
     delete d;
     d = 0;
 }
@@ -305,7 +298,7 @@ void QTitleBar::mousePressEvent(QMouseEvent * e)
 
 void QTitleBar::contextMenuEvent(QContextMenuEvent *e)
 {
-    QStyle::SCFlags ctrl = style().querySubControl(QStyle::CC_TitleBar, this, e->pos(), 
+    QStyle::SCFlags ctrl = style().querySubControl(QStyle::CC_TitleBar, this, e->pos(),
         QStyleOption(d->titleBarState()));
     if(ctrl == QStyle::SC_TitleBarLabel || ctrl == QStyle::SC_TitleBarSysMenu)
         emit popupOperationMenu(e->globalPos());
@@ -517,7 +510,7 @@ void QTitleBar::cutText()
         return;
 
     QString txt = d->window->windowTitle();
-    if ((style().styleHint(QStyle::SH_GUIStyle, this) == WindowsStyle) 
+    if ((style().styleHint(QStyle::SH_GUIStyle, this) == WindowsStyle)
         && d->window && d->window->isWindowModified())
         txt += " *";
 

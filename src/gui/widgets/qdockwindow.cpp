@@ -2021,14 +2021,8 @@ bool QDockWindow::event(QEvent *e)
     {
         QString s = Q3Frame::windowTitle();
         titleBar->setWindowTitle(s);
-#ifndef QT_NO_TOOLTIP
-        QToolTip::remove(horHandle);
-        QToolTip::remove(verHandle);
-        if (s.isEmpty()) {
-            QToolTip::add(horHandle, s);
-            QToolTip::add(verHandle, s);
-        }
-#endif
+        horHandle->setToolTip(s);
+        verHandle->setToolTip(s);
     }
     default:
         break;

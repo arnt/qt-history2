@@ -347,7 +347,7 @@ static int cmpIconViewItems(const void *n1, const void *n2)
 #endif
 
 
-#ifndef QT_NO_TOOLTIP
+#if 0
 class QIconViewToolTip : public QToolTip
 {
 public:
@@ -2775,7 +2775,7 @@ QIconView::QIconView(QWidget *parent, const char *name, WFlags f)
     viewport()->setFocusProxy(this);
     viewport()->setFocusPolicy(QWidget::WheelFocus);
 
-#ifndef QT_NO_TOOLTIP
+#if 0
     d->toolTip = new QIconViewToolTip(viewport(), this);
 #endif
     d->showTips = true;
@@ -2867,7 +2867,7 @@ QIconView::~QIconView()
     }
     delete d->fm;
     d->fm = 0;
-#ifndef QT_NO_TOOLTIP
+#if 0
     delete d->toolTip;
     d->toolTip = 0;
 #endif
