@@ -364,15 +364,14 @@ static void* qt_resolve_symbol( void* handle, const char* f )
 /*!
   \enum QLibrary::Policy
 
-  This enum type defines the various policies a library can have with respect to
+  This enum type defines the various policies a QLibrary can have with respect to
   loading and unloading the shared library.
 
   The \e policy can be:
-  <ul>
-  <li> \c Delayed - The library get's loaded as soon as needed
-  <li> \c Immediately - The library is loaded immediately
-  <li> \c Manual - The library has to be loaded and unloaded manually
-  </ul>
+
+  \value Delayed - The library get's loaded as soon as needed
+  \value Immediately - The library is loaded immediately
+  \value Manual - The library has to be loaded and unloaded manually
 */
 
 /*!

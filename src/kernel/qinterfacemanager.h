@@ -72,19 +72,25 @@ public:
 
 	for ( QStringList::Iterator p = plugins.begin(); p != plugins.end(); ++p ) {
 	    QString lib = path + "/" + *p;
-	    addLibrary( lib );
+	    libList.append( lib );
+
+	    if ( defPol == QLibrary::Immediately ) {
+		if ( !addLibrary( lib ) )
+		    libList.remove( lib );
+	    }
 	}
     }
 
     QLibrary* addLibrary( const QString& file )
     {
-	if ( file.isEmpty() )
+	if ( file.isEmpty() || !QFile::exists( file ) )
 	    return 0;
 
-	if ( libDict[file] )
-	    return 0;
+	QLibrary *plugin = 0;
+	if ( ( plugin = libDict[file] ) )
+	    return plugin;
 
-	QLibrary* plugin = new QLibrary( file, defPol );
+	plugin = new QLibrary( file, defPol );
 	bool useful = FALSE;
 
 	Type* iFace = (Type*)plugin->queryInterface( interfaceId );
@@ -111,19 +117,24 @@ public:
 	    plugin->unload();
 
 	if ( useful ) {
-	    libDict.replace( plugin->library(), plugin );
+	    libDict.replace( file, plugin );
+	    libList.remove( file );
+	    libList.append( file );
 	    return plugin;
 	} else {
 	    delete plugin;
+	    libList.remove( file );
 	    return 0;
-	}	
+	}
     }
 
     bool removeLibrary( const QString& file )
     {
 	if ( file.isEmpty() )
 	    return FALSE;
-
+	
+	libList.remove( file );
+	
 	QLibrary* plugin = libDict[ file ];
 	if ( !plugin )
 	    return FALSE;
@@ -137,11 +148,7 @@ public:
 	    iFace->release();
 	}
 	bool unloaded = plugin->unload();
-
-	if ( !libDict.remove( file ) ) {
-	    delete plugin;
-	    return FALSE;
-	}
+	libDict.remove( file );
 
 	return unloaded;
     }
@@ -160,7 +167,17 @@ public:
     {
 	if ( feature.isEmpty() )
 	    return 0;
-	return plugDict[feature];
+
+	QInterfaceManager<Type> *that = (QInterfaceManager<Type>*)this;
+	QLibrary *library = 0;
+	QStringList::ConstIterator it = libList.begin();
+	while ( !( library = plugDict[feature] ) && ( it != libList.end() ) ) {
+	    QString lib = *it;
+	    ++it;
+	    that->addLibrary( lib );
+	}
+
+	return library;
     }
 
     Type *queryInterface(const QString& feature) const
@@ -172,32 +189,19 @@ public:
 
     QStringList featureList() const
     {
-	QStringList list;
-	QDictIterator<QLibrary> it( plugDict );
-
-	while( it.current() ) {
-	    list << it.currentKey();
+	QInterfaceManager<Type> *that = (QInterfaceManager<Type>*)this;
+	QStringList::ConstIterator it = libList.begin();
+	while ( it != libList.end() ) {
+	    QString lib = *it;
 	    ++it;
+	    that->addLibrary( lib );
 	}
 
-	return list;
-    }
-
-    QLibrary* libraryFromFile( const QString& fileName ) const
-    {
-	if ( fileName.isEmpty() )
-	    return 0;
-	return libDict[fileName];
-    }
-
-    QStringList libraryList() const
-    {
 	QStringList list;
-	QDictIterator<QLibrary> it( libDict );
-
-	while ( it.current() ) {
-	    list << it.currentKey();
-	    ++it;
+	QDictIterator<QLibrary> pit( plugDict );
+	while( pit.current() ) {
+	    list << pit.currentKey();
+	    ++pit;
 	}
 
 	return list;
@@ -207,6 +211,7 @@ private:
     QUuid interfaceId;
     QDict<QLibrary> plugDict;	    // Dict to match feature with library
     QDict<QLibrary> libDict;	    // Dict to match library file with library
+    QStringList libList;
 
     QLibrary::Policy defPol;
     uint casesens : 1;
