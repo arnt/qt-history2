@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#24 $
 **
 ** Implementation of validator classes.
 **
@@ -112,7 +112,12 @@ QValidator::~QValidator()
 
 void QValidator::fixup( QString & input )
 {
-    NOT_USED(input);
+    // just be a little clever to the compiler won't complain
+    if ( input.length() )
+	;
+    else
+	;
+    // hopefully the compiler will think "oh, #ifdeffed out".
 }
 
 
