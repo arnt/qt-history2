@@ -396,10 +396,10 @@ QKeySequence::SequenceMatch QShortcutMap::find(QKeyEvent *e)
     // Looking for new identicals, scrap old
     d->identicals.resize(0);
 
-    QList<QShortcutEntry>::ConstIterator it =
-        qLowerBound(d->sequences.constBegin(), d->sequences.constEnd(), newEntry);
-
     QList<QShortcutEntry>::ConstIterator itEnd = d->sequences.constEnd();
+    QList<QShortcutEntry>::ConstIterator it =
+        qLowerBound(d->sequences.constBegin(), itEnd, newEntry);
+
     bool partialFound = false;
     bool identicalDisabledFound = false;
     QKeySequence::SequenceMatch result = QKeySequence::NoMatch;
@@ -407,7 +407,8 @@ QKeySequence::SequenceMatch QShortcutMap::find(QKeyEvent *e)
         if (it == itEnd)
             break;
         result = newEntry.keyseq.matches((*it).keyseq);
-        if (correctContext(*it)) {
+        if (result != QKeySequence::NoMatch
+            && correctContext(*it)) {
             if (result == QKeySequence::ExactMatch) {
                 if ((*it).enabled)
                     d->identicals.append(&*it);
@@ -490,8 +491,20 @@ bool QShortcutMap::correctContext(const QShortcutEntry &item) {
     while (qt_cast<QMenu*>(w) && (up = w->parentWidget()))
         w = up;
 
-    if (!w->isVisible() || !w->isEnabled() || !wtlw)
+#if defined(Debug_QShortcutMap)
+    qDebug().nospace() << "QShortcutMap::correctContext(" << &item << ") "
+                       << "[Widget = " << w << "]";
+#endif
+
+    if (!w->isVisible() || !w->isEnabled() || !wtlw) {
+#if defined(Debug_QShortcutMap)
+        qDebug().nospace() << "..false"
+                           << "[w->isVisible=" << w->isVisible()
+                           << ", w->isEnabled=" << w->isEnabled()
+                           << ", wtlw=" << (bool) (wtlw) << "]";
+#endif
         return false;
+    }
 
     QWidget *tlw = w->topLevelWidget();
     wtlw = wtlw->topLevelWidget();
@@ -506,8 +519,13 @@ bool QShortcutMap::correctContext(const QShortcutEntry &item) {
                 return tlw->parentWidget()->topLevelWidget() == wtlw;
 #endif
 
-            if (wtlw  != tlw)
+            if (wtlw  != tlw) {
+#if defined(Debug_QShortcutMap)
+                qDebug().nospace() << "..false"
+                                   << "[OnActiveWindow: wtlw != tlw]";
+#endif
                 return false;
+            }
 
 #ifndef QT_NO_WORKSPACE
             /* if we live in a MDI subwindow, ignore the event if we are
@@ -527,10 +545,22 @@ bool QShortcutMap::correctContext(const QShortcutEntry &item) {
 #endif
         }
     case Qt::ShortcutOnApplication:
+#if defined(Debug_QShortcutMap)
+                qDebug().nospace() << "..true"
+                                   << "[OnApplication]";
+#endif
         return true;
     case Qt::ShortcutOnFocusWidget:
+#if defined(Debug_QShortcutMap)
+        qDebug().nospace() << ".."
+                           << (bool)(qApp->focusWidget() == item.owner)
+                           << "  [OnFocusWidget]";
+#endif
         return qApp->focusWidget() == item.owner;
     }
+#if defined(Debug_QShortcutMap)
+    qDebug().nospace() << "..true [Pass-through]";
+#endif
     return true;
 }
 
