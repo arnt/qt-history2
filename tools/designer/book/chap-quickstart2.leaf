@@ -9,7 +9,7 @@ proportion of \QD's functionality and explanations and details are
 mostly left for the more detailed \c colortool tutorial presented in
 chapters two and three.
 
-\img qsmetric.png
+\img qs-metric.png
 \caption The Metric Conversion Dialog
 
 \section1 Starting and Exiting \QD
@@ -52,7 +52,7 @@ close the \Widget{Project Settings} dialog.
 \i Click \Menu File|Save to save the project. 
 \endlist
 
-\img qsprojset.png
+\img qs-projset.png
 
 See also \l{Creating the Project}.
 
@@ -68,7 +68,7 @@ its caption to "Metric Conversion".
 click \Button Save to save it.
 \endlist
 
-\img qsdialog.png \img qsdialog2.png
+\img qs-newdlg.png 
 
 See also \l{Creating Dialogs} and \l{Layouts}.
 
@@ -106,7 +106,7 @@ to "Convert \&From:".
 "\&Decimals:".
 \endlist
 
-\img qsaddlab.png
+\img qs-txtlbl.png
 
 See also \l{Using the Property Editor}.
 
@@ -138,7 +138,7 @@ the \Property{value} to "3".
 \i Click \Menu{File|Save}.
 \endlist
 
-\img qsaddline.png
+\img qs-addwidg.png
 
 Now we need to relate each of the text labels to the corresponding
 widget. We do this by creating "buddies". 
@@ -186,7 +186,7 @@ property to "True".
 and its text to "\&Quit".
 \endlist
 
-\img qsaddpush.png
+\img qs-pushbutt.png
 
 \section3 Adding Spacers 
 
@@ -209,7 +209,7 @@ and drag vertically towards the buttons; then release. A vertical
 spacer will appear.
 \endlist
 
-\img qsaddspace.png
+\img qs-spacers.png
 
 Click \Menu File|Save to save the dialog.
 
@@ -224,19 +224,19 @@ The fromComboBox:
 context menu.
 \i Click \Button{New Item} and then delete the "New Item" text and type
 "Kilometers". Click \Button{New Item} and change the text to
-"Meters". Repeat this twice more, changing the text to "Centimeters"
+"Meters". Repeat this two more times, changing the text to "Centimeters"
 and to "Millimeters" respectively.
 \i Click \Button OK to close the Edit Listbox dialog.
 \endlist
 
-\img qseditwid.png
+\img qs-editlistbox1.png
 
 The toComboBox:
 \list
 \i Right click the toComboBox and then click \Menu Edit from the
 context menu.
 \i Delete the "New Item" text and type "Miles". Click \Button{New
-Item} and change the text to "Yards". Repeat this twice more,
+Item} and change the text to "Yards". Repeat this two more times,
 changing the text to "Feet" and to "Inches".
 \i Click \Button OK to close the Edit Listbox dialog.
 \endlist
@@ -250,21 +250,20 @@ and we'll do the push buttons last.
 \i Click the decimalsSpinBox and press \Key{Shift+Click} on the
 spacer next to it. Click the \Button{Lay Out Horizontally} (\Key
 Ctrl+H) toolbar button.
-\i Click the form to the left of the text labels and then drag the
+\i Click and hold on the form to the left of the text labels and then drag the
 rubber band so that it touches every label and widget and spacer
 except for the push buttons and the spacer between the push buttons
 and the spacer below the spin box. Release the rubberband and notice that the desired widgets are
 selected. Click the \Button{Lay Out in a Grid} (\Key Ctrl+G) toolbar button.
 
-\img qslayout1.png
+\img qs-laygrid.png
 
 \i Click the Clear push button in the \Widget{Object Explorer} window
 (Objects tab) and then \Key Shift+Click the Calculate push button, the
-Quit push button and the Spacer between the push buttons (it should be
-the spacer listed between the Calculate button and the Quit button). Click the
+Quit push button and the Spacer between the push buttons. Click the
 \Button{Lay Out Horizontally} toolbar button.
 
-\img qslayout2.png
+\img qs-layhoriz.png
 
 \i Click the form to deselect all widgets and layouts and then click
 the \Button{Lay Out Vertically} (\Key Ctrl+L) toolbar button.
@@ -272,7 +271,7 @@ the \Button{Lay Out Vertically} (\Key Ctrl+L) toolbar button.
 (\Key Ctrl+J) toolbar button.
 \endlist
 
-\img qslayout3.png
+\img qslayvert.png
 
 Click \Menu File|Save to save the dialog.
 
@@ -289,7 +288,7 @@ circle will appear next to every widget that can accept focus.
 \i Press \Key Esc to leave tab order mode. 
 \endlist
 
-\img qstab.png
+\img qstaborder.png
 
 See also \l{Changing the Tab Order}.
 
@@ -324,7 +323,7 @@ resultLineEdit for the Receiver, and clear() for the Slot.
 numberLineEdit for the Receiver, and setfocus() for the Slot.
 \endlist
 
-\img qsconnect1.png
+\img qs-editconn1.png
 
 We also need to connect the quit button to the form:
 \list
@@ -343,12 +342,12 @@ our connections.
 \i Select calculatePushButton for the Sender, clicked() for the Signal,
 and ConversionForm for the Receiver. 
 \i Click \Button{Edit Slots} to invoke the \Widget{Edit Functions}
-dialog. Type over the Function name with the name of our new function:
+dialog. Click \Button{New Function}. Type over the Function name with the name of our new function:
 convert(), then click \OK.
 \i Select convert() from the Slot combobox to complete our connection.
 \endlist
 
-\img qsconnect2.png
+\img qs-editfunc.png
 
 We will now connect the last few widgets:
 \list
@@ -363,7 +362,7 @@ Signal, ConversionForm as the Receiver, and convert() as the Slot.
 Signal, ConversionForm as the Receiver, and convert() as the Slot.
 \endlist
 
-\img qsconnect3.png
+\img qs-editconn2.png
 
 Click \OK to exit the View and Edit Connections dialog.
 
