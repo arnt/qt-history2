@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#70 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#71 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -772,6 +772,7 @@ void QXmlInputSource::init()
     str = QString::null;
     pos = 0;
     length = str.length();
+    nextReturnedEof = FALSE;
 #endif
     encMapper = 0;
 }
@@ -797,7 +798,7 @@ QXmlInputSource::QXmlInputSource( QIODevice *dev )
 {
     init();
     inputDevice = dev;
-    getData();
+    fetchData();
 }
 
 /*! \obsolete
@@ -807,7 +808,7 @@ QXmlInputSource::QXmlInputSource( QTextStream& stream )
 {
     init();
     inputStream = &stream;
-    getData();
+    fetchData();
 }
 
 /*! \obsolete
@@ -818,7 +819,7 @@ QXmlInputSource::QXmlInputSource( QFile& file )
 {
     init();
     inputDevice = &file;
-    getData();
+    fetchData();
 }
 
 /*!
@@ -840,8 +841,16 @@ QXmlInputSource::~QXmlInputSource()
 static const QChar QEOF = QChar((ushort)0xffff); // ### change this
 QChar QXmlInputSource::next()
 {
-    if ( pos >= length )
+//qDebug( "ere I m jh foo" );
+    if ( pos >= length ) {
+	if ( nextReturnedEof ) {
+	    nextReturnedEof = FALSE;
+	    fetchData();
+	    return next();
+	}
+	nextReturnedEof = TRUE;
 	return QEOF;
+    }
     return str[pos++];
 }
 #endif
@@ -885,7 +894,7 @@ QString QXmlInputSource::data()
 	    userRawData = 0;
 	    return str;
 	} else {
-	    getData();
+	    fetchData();
 	    if ( rawData->size() > 0 ) {
 		str = inputToString( rawData );
 		return str;
@@ -916,6 +925,7 @@ void QXmlInputSource::setData( const QString& dat )
     str = dat;
     pos = 0;
     length = str.length();
+    nextReturnedEof = FALSE;
 #endif
 }
 
@@ -933,6 +943,7 @@ void QXmlInputSource::setData( const QByteArray& dat )
     str = inputToString( (QByteArray*)&dat ); // ### change the cast
     pos = 0;
     length = str.length();
+    nextReturnedEof = FALSE;
 #endif
 }
 
@@ -941,7 +952,7 @@ void QXmlInputSource::setData( const QByteArray& dat )
   from inputStream (if it is not 0) and stores it in rawData. If rawData is 0,
   it allocates a new QByteArray, otherwise it replaces the new data.
 */
-void QXmlInputSource::getData()
+void QXmlInputSource::fetchData()
 {
 #if defined(XML_INPUT_SOURCE_CLASSIC)
     if ( rawData == 0 ) {
@@ -972,6 +983,7 @@ void QXmlInputSource::getData()
     str = inputToString( rawData );
     pos = 0;
     length = str.length();
+    nextReturnedEof = FALSE;
 #endif
 }
 
@@ -6766,6 +6778,7 @@ void QXmlSimpleReader::initData()
     xmlLength = xml.length();
     pos = 0;
 #endif
+    c = QEOF;
     xmlRef = "";
     next();
 }
