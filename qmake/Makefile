@@ -45,6 +45,7 @@ QTOBJS= \
 	qbitarray.obj \
 	qbuffer.obj \
 	qbytearray.obj \
+	qbytearraymatcher.obj \
 	qchar.obj \
 	qconfig.obj \
 	qdatastream.obj \
@@ -68,6 +69,7 @@ QTOBJS= \
 	qsettings_win.obj \
 	qstring.obj \
 	qstringlist.obj \
+	qstringmatcher.obj \
 	qtextstream.obj \
 	qunicodetables.obj \
 	quuid.obj \
@@ -113,11 +115,17 @@ qhash.obj: ..\src\core\tools\qhash.cpp
 qbytearray.obj: ..\src\core\tools\qbytearray.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\tools\qbytearray.cpp
 
+qbytearraymatcher.obj: ..\src\core\tools\qbytearraymatcher.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\tools\qbytearraymatcher.cpp
+
 qchar.obj: ..\src\core\tools\qchar.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\tools\qchar.cpp
 
 qstring.obj: ..\src\core\tools\qstring.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\tools\qstring.cpp
+
+qstringmatcher.obj: ..\src\core\tools\qstringmatcher.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\tools\qstringmatcher.cpp
 
 qlocale.obj: ..\src\core\tools\qlocale.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\tools\qlocale.cpp
