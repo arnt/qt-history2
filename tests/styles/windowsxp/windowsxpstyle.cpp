@@ -198,6 +198,9 @@ void QWindowsXPStyle::polish( QWidget *widget )
     } else if ( widget->inherits( "QTitleBar" ) ) {
 	widget->installEventFilter( this );
 	widget->setMouseTracking( TRUE );
+    } else if ( widget->inherits( "QSlider" ) ) {
+	widget->installEventFilter( this );
+	widget->setMouseTracking( TRUE );
     }
     QWindowsStyle::polish( widget );
 }
@@ -595,29 +598,29 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		theme.rec = querySubControlMetrics( CC_ScrollBar, w, SC_ScrollBarAddLine, data );
 		partId = SBP_ARROWBTN;
 		if ( maxedOut || !w->isEnabled() )
-		    stateId = 8;
+		    stateId = ABS_DOWNDISABLED;
 		else if ( subActive == SC_ScrollBarAddLine )
-		    stateId = 7;
+		    stateId = ABS_DOWNPRESSED;
 		else if ( d->hotWidget == w && theme.rec.contains( d->hotSpot ) )
-		    stateId = 6;
+		    stateId = ABS_DOWNHOT;
 		else
-		    stateId = 5;
+		    stateId = ABS_DOWNNORMAL;
 		if ( bar->orientation() == Horizontal )
 		    stateId += 8;
-    
+
 		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
 	    }
 	    if ( sub & SC_ScrollBarSubLine ) {
 		theme.rec = querySubControlMetrics( CC_ScrollBar, w, SC_ScrollBarSubLine, data );
 		partId = SBP_ARROWBTN;
 		if ( maxedOut || !w->isEnabled() )
-		    stateId = 4;
+		    stateId = ABS_UPDISABLED;
 		else if ( subActive == SC_ScrollBarSubLine )
-		    stateId = 3;
+		    stateId = ABS_UPPRESSED;
 		else if ( d->hotWidget == w && theme.rec.contains( d->hotSpot ) )
-		    stateId = 2;
+		    stateId = ABS_UPHOT;
 		else
-		    stateId = 1;
+		    stateId = ABS_UPNORMAL;
 		if ( bar->orientation() == Horizontal )
 		    stateId += 8;
     
@@ -626,31 +629,35 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	    if ( maxedOut ) {
 		theme.rec = querySubControlMetrics( CC_ScrollBar, w, SC_ScrollBarAddPage, data );
 		partId = bar->orientation() == Horizontal ? SBP_LOWERTRACKHORZ : SBP_LOWERTRACKVERT;
-		stateId = 4;
+		stateId = SCRBS_DISABLED;
     
 		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
 	    } else {
 		if ( sub & SC_ScrollBarAddPage ) {
 		    theme.rec = querySubControlMetrics( CC_ScrollBar, w, SC_ScrollBarAddPage, data );
 		    partId = bar->orientation() == Horizontal ? SBP_LOWERTRACKHORZ : SBP_LOWERTRACKVERT;
-		    if ( subActive == SC_ScrollBarAddPage )
-			stateId = 3;
+		    if ( maxedOut || !w->isEnabled() )
+			stateId = SCRBS_DISABLED;
+		    else if ( subActive == SC_ScrollBarAddPage )
+			stateId = SCRBS_PRESSED;
 		    else if ( d->hotWidget == w && theme.rec.contains( d->hotSpot ) )
-			stateId = 2;
+			stateId = SCRBS_HOT;
 		    else
-			stateId = 1;
+			stateId = SCRBS_NORMAL;
 		    
 		    DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
 		}
 		if ( sub & SC_ScrollBarSubPage ) {
 		    theme.rec = querySubControlMetrics( CC_ScrollBar, w, SC_ScrollBarSubPage, data );
 		    partId = bar->orientation() == Horizontal ? SBP_UPPERTRACKHORZ : SBP_UPPERTRACKVERT;
-		    if ( subActive == SC_ScrollBarSubPage )
-			stateId = 3;
+		    if ( maxedOut || !w->isEnabled() )
+			stateId = SCRBS_DISABLED;
+		    else if ( subActive == SC_ScrollBarSubPage )
+			stateId = SCRBS_PRESSED;
 		    else if ( d->hotWidget == w && theme.rec.contains( d->hotSpot ) )
-			stateId = 2;
+			stateId = SCRBS_HOT;
 		    else
-			stateId = 1;
+			stateId = SCRBS_NORMAL;
         
 		    DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
 		}
@@ -662,13 +669,15 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		}
 		if ( sub & SC_ScrollBarSlider ) {
 		    theme.rec = querySubControlMetrics( CC_ScrollBar, w, SC_ScrollBarSlider, data );
-		    if ( subActive == SC_ScrollBarSlider )
-			stateId = 3;
+		    if ( maxedOut || !w->isEnabled() )
+			stateId = SCRBS_DISABLED;
+		    else if ( subActive == SC_ScrollBarSlider )
+			stateId = SCRBS_PRESSED;
 		    else if ( d->hotWidget == w && theme.rec.contains( d->hotSpot ) )
-			stateId = 2;
+			stateId = SCRBS_HOT;
 		    else
-			stateId = 1;
-        
+			stateId = SCRBS_NORMAL;
+
 		    RECT sr = theme.rect();
 		    const int swidth = sr.right - sr.left;
 		    const int sheight = sr.bottom - sr.top;
@@ -701,31 +710,65 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 
 	    if ( sub & SC_SliderGroove ) {
 		theme.rec = querySubControlMetrics( CC_Slider, w, SC_SliderGroove, data );
-		partId = sl->orientation() == Horizontal ? TKP_TRACK : TKP_TRACKVERT;
-		if ( !w->isEnabled() )
-		    stateId = 4;
-		else
-		    stateId = 1;
-    
+		if ( sl->orientation() == Horizontal ) {
+		    partId = TKP_TRACK;
+		    if ( !w->isEnabled() )
+			stateId = 4; // no TRS_DISABLED
+		    else
+			stateId = TRS_NORMAL;
+		} else {
+		    partId = TKP_TRACKVERT;
+		    if ( !w->isEnabled() )
+			stateId = 4; // no TRVS_DISABLED
+		    else
+			stateId = TRVS_NORMAL;
+		}
 		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
 	    }
 	    if ( sub & SC_SliderHandle ) {
 		theme.rec = querySubControlMetrics( CC_Slider, w, SC_SliderHandle, data );
-		partId = sl->orientation() == Horizontal ? TKP_THUMB : TKP_THUMBVERT;
-		if ( !w->isEnabled() )
-		    stateId = 4;
-		else
-		    stateId = 1;
-    
+		if ( sl->orientation() == Horizontal ) {
+		    partId = TKP_THUMB;
+		    if ( !w->isEnabled() )
+			stateId = TUS_DISABLED;
+		    else if ( subActive == SC_SliderHandle )
+			stateId = TUS_PRESSED;
+		    else if ( flags & Style_HasFocus )
+			stateId = TUS_FOCUSED;
+		    else if ( w->hasMouse() && theme.rec.contains( d->hotSpot ) )
+			stateId = TUS_HOT;
+		    else
+			stateId = TUS_NORMAL;
+		} else {
+		    partId = TKP_THUMBVERT;
+		    if ( !w->isEnabled() )
+			stateId = TUVS_DISABLED;
+		    else if ( subActive == SC_SliderHandle )
+			stateId = TUVS_PRESSED;
+		    else if ( flags & Style_HasFocus )
+			stateId = TUVS_FOCUSED;
+		    else if ( w->hasMouse() && theme.rec.contains( d->hotSpot ) )
+			stateId = TUS_HOT;
+		    else
+			stateId = TUVS_NORMAL;
+		}
 		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
 	    }
 	    if ( sub & SC_SliderTickmarks ) {
 		theme.rec = querySubControlMetrics( CC_Slider, w, SC_SliderTickmarks, data );
-		partId = sl->orientation() == Horizontal ? TKP_TICS : TKP_TICSVERT;
-		if ( !w->isEnabled() )
-		    stateId = 4;
-		else
-		    stateId = 1;
+		if ( sl->orientation() == Horizontal ) {
+		    partId = TKP_TICS;
+		    if ( !w->isEnabled() )
+			stateId = 4; // no TSS_DISABLED
+		    else
+			stateId = TSS_NORMAL;
+		} else {
+		    partId = TKP_TICSVERT;
+		    if ( !w->isEnabled() )
+			stateId = 4; // no TSVS_DISABLED
+		    else
+			stateId = TSVS_NORMAL;
+		}
     
 		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
 	    }
@@ -1033,6 +1076,14 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 		    clearHot = sc;
 		    QRect rect = querySubControlMetrics( CC_TitleBar, titlebar, sc );
 		    titlebar->repaint( rect, FALSE );
+		}
+	    } else if ( o->inherits( "QSlider" ) ) {
+		static clearSlider = FALSE;
+		QSlider *slider = (QSlider*)o;
+		const QRect rect = slider->sliderRect();
+		if ( rect.contains( d->hotSpot ) || clearSlider ) {
+		    clearSlider = rect.contains( d->hotSpot );
+		    slider->repaint( slider->sliderRect(), FALSE );
 		}
 	    } else {
 		widget->repaint( FALSE );
