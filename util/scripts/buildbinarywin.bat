@@ -1,15 +1,13 @@
 @echo off
-rem *******************************************
+rem ***********************************************
 rem Used for building Win binaries
 rem
 rem Usage:
-rem     buildbinarywin.bat makespec packagedir
-rem *******************************************
+rem     buildbinarywin.bat makespec localpackagedir
+rem ***********************************************
 set QMAKESPEC=%1
 if not %errorlevel%==0 goto error
 call vcvars32.bat
-if not %errorlevel%==0 goto error
-unzip %2.zip
 if not %errorlevel%==0 goto error
 set QTDIR=%CD%\%2
 if not %errorlevel%==0 goto error
