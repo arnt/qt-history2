@@ -2209,7 +2209,7 @@ void QFontCache::cleanupPrinterFonts()
 
             if(it.value()->ref != 0) {
 #ifdef Q_WS_WIN
-                for(int i = 0; i < QFont::LastPrivateScript; ++i) {
+                for(int i = 0; i < QUnicodeTables::ScriptCount; ++i) {
                     if(it.value()->engines[i]) {
                         --it.value()->engines[i]->ref;
                         it.value()->engines[i] = 0;

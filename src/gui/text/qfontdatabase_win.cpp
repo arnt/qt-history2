@@ -21,27 +21,9 @@ extern HDC   shared_dc;                // common dc for all fonts
 static HFONT stock_sysfont  = 0;
 
 // see the Unicode subset bitfields in the MSDN docs
-static int requiredUnicodeBits[QFont::NScripts][2] = {
+static int requiredUnicodeBits[QUnicodeTables::ScriptCount][2] = {
     //Latin,
     { 0, 127 },
-    //Greek,
-    { 7, 127 },
-    //Cyrillic,
-    { 9, 127 },
-    //Armenian,
-    { 10, 127 },
-    //Georgian,
-    { 26, 127 },
-    //Runic,
-    { 79, 127 },
-    //Ogham,
-    { 78, 127 },
-    //SpacingModifiers,
-    { 5, 127 },
-    //CombiningMarks,
-    { 6, 127 },
-
-    // Middle Eastern Scripts
     //Hebrew,
     { 11, 127 },
     //Arabic,
@@ -50,8 +32,6 @@ static int requiredUnicodeBits[QFont::NScripts][2] = {
     { 71, 127 },
     //Thaana,
     { 72, 127 },
-
-    // South and Southeast Asian Scripts
     //Devanagari,
     { 15, 127 },
     //Bengali,
@@ -80,73 +60,18 @@ static int requiredUnicodeBits[QFont::NScripts][2] = {
     { 70, 127 },
     //Myanmar,
     { 74, 127 },
-    //Khmer,
-    { 80, 127 },
-
-    // East Asian Scripts
-    //Han,
-    { 59, 127 },
-    //Hiragana,
-    { 49, 127 },
-    //Katakana,
-    { 50, 127 },
     //Hangul,
     { 56, 127 },
-    //Bopomofo,
-    { 51, 127 },
-    //Yi,
-    { 83, 127 },
-
-    // Additional Scripts
-    //Ethiopic,
-    { 75, 127 },
-    //Cherokee,
-    { 76, 127 },
-    //CanadianAboriginal,
-    { 77, 127 },
-    //Mongolian,
-    { 81, 127 },
-
-    // Symbols
-    //CurrencySymbols,
-    { 33, 127 },
-    //LetterlikeSymbols,
-    { 35, 127 },
-    //NumberForms,
-    { 36, 127 },
-    //MathematicalOperators,
-    { 38, 127 },
-    //TechnicalSymbols,
-    { 39, 127 },
-    //GeometricSymbols,
-    { 43, 127 },
-    //MiscellaneousSymbols,
-    { 46, 127 },
-    //EnclosedAndSquare,
-    { 42, 127 },
-    //Braille,
-    { 82, 127 },
-
-    //Unicode,
-    { 126, 126 },
-
-    // some scripts added in Unicode 3.2
-    //Tagalog,
-    { 84, 127 },
-    //Hanunoo,
-    { 84, 127 },
-    //Buhid,
-    { 84, 127 },
-    //Tagbanwa,
-    { 84, 127 }
+    //Khmer,
+    { 80, 127 }
 };
 
-
+#if 0
 #define SimplifiedChineseCsbBit 18
 #define TraditionalChineseCsbBit 20
 #define JapaneseCsbBit 17
 #define KoreanCsbBit 21
-
+#endif
 
 static bool localizedName(const QString &name)
 {
@@ -329,7 +254,7 @@ storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRICEX *textmetric, int type, LPARAM /*p*/)
 storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/)
 #endif
 {
-    const int script = QFont::Unicode;
+    const int script = -1;
     const QString foundryName;
     const bool smoothScalable = true;
     Q_UNUSED(script);
@@ -444,7 +369,7 @@ storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/)
 #endif
 
             int i;
-            for(i = 0; i < QFont::Unicode; i++) {
+            for(i = 0; i < QUnicodeTables::ScriptCount; i++) {
                 int bit = requiredUnicodeBits[i][0];
                 int index = bit/32;
                 int flag =  1 << (bit&31);
@@ -460,6 +385,7 @@ storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/)
                     }
                 }
             }
+#if 0
             // ### until we do language detection, it's going to be
             // ### hard to figure out which Han_* variant to
             // ### use... simply mark all Han_* variants as supporting
@@ -491,16 +417,17 @@ storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/)
                 hasScript = true;
                 //qDebug("font %s supports Korean", familyName.latin1());
             }
-
+#endif
 #ifdef Q_OS_TEMP
             // ##### FIXME
             family->scripts[QFont::Latin] = true;
 #endif
-            family->scripts[QFont::Unicode] = !hasScript;
+            if (!hasScript)
+                family->scripts[QUnicodeTables::Common] = true;
             family->scriptCheck = true;
             // qDebug("usb=%08x %08x csb=%08x for %s", signature.fsUsb[0], signature.fsUsb[1], signature.fsCsb[0], familyName.latin1());
         } else if (!family->scriptCheck) {
-            family->scripts[QFont::Unicode] = true;
+            family->scripts[QUnicodeTables::Common] = true;
         }
     }
 
@@ -576,7 +503,7 @@ static void initializeDb()
         populate_database(family->name);
 
         qDebug("        scripts supported:");
-        for (int i = 0; i < QFont::NScripts; i++)
+        for (int i = 0; i < QUnicodeTables::ScriptCount; i++)
             if(family->scripts[i] & QtFontFamily::Supported)
                 qDebug("            %d", i);
         for (int fd = 0; fd < family->count; fd++) {
@@ -658,10 +585,10 @@ static inline HFONT systemFont()
 #endif
 
 static
-QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
-                         const QFontDef &request,
-                         QtFontFamily *family, QtFontFoundry *foundry,
-                         QtFontStyle *style)
+QFontEngine *loadEngine(int script, const QFontPrivate *fp,
+                        const QFontDef &request,
+                        QtFontFamily *family, QtFontFoundry *foundry,
+                        QtFontStyle *style)
 {
     Q_UNUSED(script);
     Q_UNUSED(foundry);

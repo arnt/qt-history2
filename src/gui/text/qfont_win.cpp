@@ -91,8 +91,6 @@ static inline float pointSize(const QFontDef &fd, int dpi)
   QFont member functions
  *****************************************************************************/
 
-QFont::Script QFontPrivate::defaultScript = QFont::UnknownScript;
-
 void QFont::initialize()
 {
     if (QFontCache::instance)
@@ -101,9 +99,6 @@ void QFont::initialize()
     if (!shared_dc)
         qErrnoWarning("QFont::initialize: CreateCompatibleDC failed");
     new QFontCache();
-
-    // #########
-    QFontPrivate::defaultScript = QFont::Latin;
 }
 
 void QFont::cleanup()
@@ -113,7 +108,7 @@ void QFont::cleanup()
     shared_dc = 0;
 }
 
-void QFontPrivate::load(QFont::Script script)
+void QFontPrivate::load(int script)
 {
     // NOTE: the X11 and Windows implementations of this function are
     // identical... if you change one, change both.
@@ -121,7 +116,7 @@ void QFontPrivate::load(QFont::Script script)
     // sanity checks
     if (!QFontCache::instance)
         qWarning("Must construct a QApplication before a QFont");
-    Q_ASSERT(script >= 0 && script < QFont::LastPrivateScript);
+    Q_ASSERT(script >= 0 && script < QUnicodeTables::ScriptCount);
 
     QFontDef req = request;
     int px = qRound(pixelSize(req, dpi));
@@ -131,7 +126,7 @@ void QFontPrivate::load(QFont::Script script)
     req.pointSize = 0;
 
     if (! engineData) {
-        QFontCache::Key key(req, QFont::NoScript);
+        QFontCache::Key key(req, QUnicodeTables::Common);
 
         // look for the requested font in the engine data cache
         engineData = QFontCache::instance->findEngineData(key);
@@ -211,7 +206,7 @@ void QFontPrivate::load(QFont::Script script)
 
 HFONT QFont::handle() const
 {
-    QFontEngine *engine = d->engineForScript(QFont::NoScript);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     return engine->hfont;
 }
 
@@ -250,42 +245,4 @@ QString QFont::lastResortFamily() const
 QString QFont::lastResortFont() const
 {
     return QString::fromLatin1("arial");
-}
-
-
-
-/*****************************************************************************
-  QFontMetrics member functions
- *****************************************************************************/
-
-
-int QFontMetrics::charWidth(const QString &str, int pos) const
-{
-    if (pos < 0 || pos > (int)str.length())
-        return 0;
-
-    const QChar &ch = str.unicode()[ pos ];
-    QFont::Script script;
-    SCRIPT_FOR_CHAR( script, ch );
-
-    int width;
-    if ( script >= QFont::Arabic && script <= QFont::Yi || script >= QFont::KatakanaHalfWidth) {
-	// complex script shaping. Have to do some hard work
-	int from = qMax( 0,  pos - 8 );
-	int to = qMin( (int)str.length(), pos + 8 );
-	QString cstr( str.unicode()+from, to-from);
-	QTextEngine layout( cstr, d );
-        layout.setMode(QTextEngine::WidthOnly);
-	layout.itemize();
-	width = (int)layout.width( pos-from, 1 );
-    } else if (::category(ch) == QChar::Mark_NonSpacing) {
-        width = 0;
-    } else {
-	QFontEngine *engine = d->engineForScript( script );
- 	QGlyphLayout glyphs[8];
-	int nglyphs = 7;
-	engine->stringToCMap( &ch, 1, glyphs, &nglyphs, false );
-	width = int(glyphs[0].advance.x());
-    }
-    return width;
 }

@@ -117,39 +117,41 @@ int num_scripts = 0;
 int usp_latin_script = 0;
 
 
-const QFont::Script japanese_tryScripts[] = {
-    QFont::Latin,
-    QFont::Han_Japanese,
-    QFont::Hangul,
-    QFont::Han_SimplifiedChinese,
-    QFont::Han_TraditionalChinese
+#if 0
+const QUnicodeTables::Script japanese_tryScripts[] = {
+    QUnicodeTables::Latin,
+    QUnicodeTables::Han_Japanese,
+    QUnicodeTables::Hangul,
+    QUnicodeTables::Han_SimplifiedChinese,
+    QUnicodeTables::Han_TraditionalChinese
 };
 
-const QFont::Script korean_tryScripts[] = {
-    QFont::Latin,
-    QFont::Hangul,
-    QFont::Han_Japanese,
-    QFont::Han_SimplifiedChinese,
-    QFont::Han_TraditionalChinese
+const QUnicodeTables::Script korean_tryScripts[] = {
+    QUnicodeTables::Latin,
+    QUnicodeTables::Hangul,
+    QUnicodeTables::Han_Japanese,
+    QUnicodeTables::Han_SimplifiedChinese,
+    QUnicodeTables::Han_TraditionalChinese
 };
 
-const QFont::Script simplifiedChinese_tryScripts[] = {
-    QFont::Latin,
-    QFont::Han_SimplifiedChinese,
-    QFont::Han_TraditionalChinese,
-    QFont::Han_Japanese,
-    QFont::Hangul
+const QUnicodeTables::Script simplifiedChinese_tryScripts[] = {
+    QUnicodeTables::Latin,
+    QUnicodeTables::Han_SimplifiedChinese,
+    QUnicodeTables::Han_TraditionalChinese,
+    QUnicodeTables::Han_Japanese,
+    QUnicodeTables::Hangul
 };
 
-const QFont::Script traditionalChinese_tryScripts[] = {
-    QFont::Latin,
-    QFont::Han_TraditionalChinese,
-    QFont::Han_SimplifiedChinese,
-    QFont::Han_Japanese,
-    QFont::Hangul
+const QUnicodeTables::Script traditionalChinese_tryScripts[] = {
+    QUnicodeTables::Latin,
+    QUnicodeTables::Han_TraditionalChinese,
+    QUnicodeTables::Han_SimplifiedChinese,
+    QUnicodeTables::Han_Japanese,
+    QUnicodeTables::Hangul
 };
 
-const QFont::Script *tryScripts = japanese_tryScripts;
+const QUnicodeTables::Script *tryScripts = japanese_tryScripts;
+#endif
 
 static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl &control, QChar::Direction dir);
 
@@ -205,6 +207,7 @@ static void resolveUsp10()
             }
         }
 
+#if 0
         // initialize tryScripts according to locale
         LANGID lid = GetUserDefaultLangID();
         switch(lid&0xff) {
@@ -223,6 +226,7 @@ static void resolveUsp10()
         default:
             break;
         }
+#endif
 
         appendItems = uspAppendItems;
     }
@@ -231,223 +235,223 @@ static void resolveUsp10()
 
 static unsigned char script_for_win_language[0x80] = {
     //0x00 LANG_NEUTRAL Neutral
-    QFont::Latin,
+    QUnicodeTables::Latin,
     //0x01 LANG_ARABIC Arabic
-    QFont::Arabic,
+    QUnicodeTables::Arabic,
     //0x02 LANG_BULGARIAN Bulgarian
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x03 LANG_CATALAN Catalan
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x04 LANG_CHINESE Chinese
-    QFont::Han,
+    QUnicodeTables::Han,
     //0x05 LANG_CZECH Czech
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x06 LANG_DANISH Danish
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x07 LANG_GERMAN German
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x08 LANG_GREEK Greek
-    QFont::Greek,
+    QUnicodeTables::Greek,
     //0x09 LANG_ENGLISH English
-    QFont::Latin,
+    QUnicodeTables::Latin,
     //0x0a LANG_SPANISH Spanish
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x0b LANG_FINNISH Finnish
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x0c LANG_FRENCH French
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x0d LANG_HEBREW Hebrew
-    QFont::Hebrew,
+    QUnicodeTables::Hebrew,
     //0x0e LANG_HUNGARIAN Hungarian
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x0f LANG_ICELANDIC Icelandic
-    QFont::NScripts,
+    QUnicodeTables::Common,
 
     //0x10 LANG_ITALIAN Italian
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x11 LANG_JAPANESE Japanese
-    QFont::Hiragana,
+    QUnicodeTables::Hiragana,
     //0x12 LANG_KOREAN Korean
-    QFont::Hangul,
+    QUnicodeTables::Hangul,
     //0x13 LANG_DUTCH Dutch
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x14 LANG_NORWEGIAN Norwegian
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x15 LANG_POLISH Polish
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x16 LANG_PORTUGUESE Portuguese
-    QFont::NScripts,
-    QFont::NScripts,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
     //0x18 LANG_ROMANIAN Romanian
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x19 LANG_RUSSIAN Russian
-    QFont::Cyrillic,
+    QUnicodeTables::Cyrillic,
     //0x1a LANG_CROATIAN Croatian
     //0x1a LANG_SERBIAN Serbian
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x1b LANG_SLOVAK Slovak
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x1c LANG_ALBANIAN Albanian
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x1d LANG_SWEDISH Swedish
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x1e LANG_THAI Thai
-    QFont::Thai,
+    QUnicodeTables::Thai,
     //0x1f LANG_TURKISH Turkish
-    QFont::NScripts,
+    QUnicodeTables::Common,
 
     //0x20 LANG_URDU Urdu
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x21 LANG_INDONESIAN Indonesian
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x22 LANG_UKRAINIAN Ukrainian
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x23 LANG_BELARUSIAN Belarusian
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x24 LANG_SLOVENIAN Slovenian
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x25 LANG_ESTONIAN Estonian
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x26 LANG_LATVIAN Latvian
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x27 LANG_LITHUANIAN Lithuanian
-    QFont::NScripts,
-    QFont::NScripts,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
     //0x29 LANG_FARSI Farsi
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x2a LANG_VIETNAMESE Vietnamese
-    QFont::Latin, // ##### maybe use QFont::CombiningMarks instead?
+    QUnicodeTables::Latin, // ##### maybe use QUnicodeTables::CombiningMarks instead?
     //0x2b LANG_ARMENIAN Armenian
-    QFont::Armenian,
+    QUnicodeTables::Armenian,
     //0x2c LANG_AZERI Azeri
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x2d LANG_BASQUE Basque
-    QFont::NScripts,
-    QFont::NScripts,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
     //0x2f LANG_MACEDONIAN FYRO Macedonian
-    QFont::NScripts,
+    QUnicodeTables::Common,
 
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
     //0x36 LANG_AFRIKAANS Afrikaans
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x37 LANG_GEORGIAN Georgian
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x38 LANG_FAEROESE Faeroese
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x39 LANG_HINDI Hindi
-    QFont::Devanagari,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
+    QUnicodeTables::Devanagari,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
     //0x3e LANG_MALAY Malay
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x3f LANG_KAZAK Kazak
-    QFont::NScripts,
+    QUnicodeTables::Common,
 
     //0x40 LANG_KYRGYZ Kyrgyz
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x41 LANG_SWAHILI Swahili
-    QFont::NScripts,
-    QFont::NScripts,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
     //0x43 LANG_UZBEK Uzbek
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x44 LANG_TATAR Tatar
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x45 LANG_BENGALI Not supported.
-    QFont::Bengali,
+    QUnicodeTables::Bengali,
     //0x46 LANG_PUNJABI Punjabi
-    QFont::Gurmukhi,
+    QUnicodeTables::Gurmukhi,
     //0x47 LANG_GUJARATI Gujarati
-    QFont::Gujarati,
+    QUnicodeTables::Gujarati,
     //0x48 LANG_ORIYA Not supported.
-    QFont::Oriya,
+    QUnicodeTables::Oriya,
     //0x49 LANG_TAMIL Tamil
-    QFont::Tamil,
+    QUnicodeTables::Tamil,
     //0x4a LANG_TELUGU Telugu
-    QFont::Telugu,
+    QUnicodeTables::Telugu,
     //0x4b LANG_KANNADA Kannada
-    QFont::Kannada,
+    QUnicodeTables::Kannada,
     //0x4c LANG_MALAYALAM Not supported.
-    QFont::Malayalam,
+    QUnicodeTables::Malayalam,
     //0x4d LANG_ASSAMESE Not supported.
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x4e LANG_MARATHI Marathi
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x4f LANG_SANSKRIT Sanskrit
-    QFont::Devanagari,
+    QUnicodeTables::Devanagari,
 
     //0x50 LANG_MONGOLIAN Mongolian
-    QFont::Mongolian,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
+    QUnicodeTables::Mongolian,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
     //0x56 LANG_GALICIAN Galician
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x57 LANG_KONKANI Konkani
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x58 LANG_MANIPURI Not supported.
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x59 LANG_SINDHI Not supported.
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x5a LANG_SYRIAC Syriac
-    QFont::Syriac,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
+    QUnicodeTables::Syriac,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
 
     //0x60 LANG_KASHMIRI Not supported.
-    QFont::NScripts,
+    QUnicodeTables::Common,
     //0x61 LANG_NEPALI Not supported.
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
     //0x65 LANG_DIVEHI Divehi
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
 
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
-    QFont::NScripts,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
+    QUnicodeTables::Common,
     //0x7f LANG_INVARIANT
-    QFont::NScripts,
+    QUnicodeTables::Common,
 };
 
-static inline QFont::Script scriptForWinLanguage(DWORD langid)
+static inline QUnicodeTables::Script scriptForWinLanguage(DWORD langid)
 {
-    QFont::Script script = langid < 0x80 ? (QFont::Script)script_for_win_language[langid] : QFont::NScripts;
-    if (script == QFont::NScripts)
+    QUnicodeTables::Script script = langid < 0x80 ? (QUnicodeTables::Script)script_for_win_language[langid] : QUnicodeTables::Common;
+    if (script == QUnicodeTables::Common)
         qWarning("Qt Uniscribe support: Encountered unhandled language id %x", (unsigned int)langid);
     return script;
 }
@@ -563,7 +567,7 @@ void QTextEngine::shapeText(int item) const
     if (si.num_glyphs)
         return;
 
-    QFont::Script script = (QFont::Script)si.analysis.script;
+    int script = si.analysis.script;
     // Just to get the warning away
     int from = si.position;
     int len = length(item);
@@ -574,15 +578,17 @@ void QTextEngine::shapeText(int item) const
 
     QFont fnt = font(si);
     QFontPrivate *fp = fnt.d;
+
     if (hasUsp10) {
         const SCRIPT_PROPERTIES *script_prop = script_properties[si.analysis.script];
         script = scriptForWinLanguage(script_prop->langid);
-        if (script == QFont::Latin && script_prop->fAmbiguousCharSet) {
+#if 0
+        if (script == QUnicodeTables::Latin && script_prop->fAmbiguousCharSet) {
             // either some asian language or something Uniscribe doesn't recognise
             // we look at the first character to find out what it is
-            script = (QFont::Script)qt_scriptForChar(layoutData->string.unicode()[si.position].unicode());
-            if ((script >= QFont::Han && script <= QFont::Yi)
-                || script == QFont::KatakanaHalfWidth || script == QFont::UnknownScript) {
+            script = (QUnicodeTables::Script)qt_scriptForChar(layoutData->string.unicode()[si.position].unicode());
+            if ((script >= QUnicodeTables::Han && script <= QUnicodeTables::Yi)
+                || script == QUnicodeTables::KatakanaHalfWidth || script == QUnicodeTables::UnknownScript) {
                 // maybe some asian language
                 int i;
                 for(i = 0; i < 5; i++) {
@@ -597,10 +603,12 @@ void QTextEngine::shapeText(int item) const
                 }
             }
         }
+#endif
     }
+
     QFontEngine *fontEngine = fp->engineForScript(script);
     if (fontEngine->type() == QFontEngine::Box)
-        fontEngine = fp->engineForScript(QFont::NoScript);
+        fontEngine = fp->engineForScript(QUnicodeTables::Common);
 
     if (hasUsp10 && fontEngine->ttf) {
         int l = len;
@@ -665,7 +673,7 @@ void QTextEngine::shapeText(int item) const
             ReleaseDC(0, hdc);
         si.analysis.script = script;
     } else {
-        Q_ASSERT(script < QFont::NScripts);
+        Q_ASSERT(script < QUnicodeTables::ScriptCount);
         Q_UNUSED(script); // --release warning
 
         QShaperItem shaper_item;
