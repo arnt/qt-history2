@@ -4,13 +4,41 @@
 #ifndef QT_H
 #include "qwidget.h"
 #include "qmap.h"
-#include "qsqlview.h"
-#include "qsqlfieldmapper.h"
+#include "qvariant.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
 
-class QSqlPrivate;
+class QSqlField;
+class QSqlView;
+
+class QSqlPropertyMap {
+public:
+    QSqlPropertyMap();
+    
+    QVariant property( QObject * object );
+    void     setProperty( QObject * object, const QVariant & value );   
+    void     addClass( const QString & classname, const QString & property );
+    
+private:
+    QMap< QString, QString > propertyMap;
+};
+
+class QSqlFormMap
+{
+public:
+    QSqlFormMap();
+    
+    void        add( QWidget * widget, QSqlField * field );
+    QSqlField * whichField( QWidget * widget ) const;
+    QWidget *   whichWidget( QSqlField * field ) const;
+    void        syncWidgets();
+    void        syncFields();
+
+private:
+    QMap< QWidget *, QSqlField * > map;
+    QSqlPropertyMap m;
+};
 
 class Q_EXPORT QSqlForm : public QWidget
 {
@@ -19,11 +47,9 @@ public:
     QSqlForm( QWidget * parent = 0, const char * name = 0 );
     ~QSqlForm();
     
-    void associate( QWidget * widget, int field );
+    void associate( QWidget * widget, QSqlField * field );
 
-    void setQuery( const QSql & query );
-    void setRowset( const QSqlRowset & rset );
-    void setView( const QSqlView & view );
+    void setView( QSqlView * view );
    
 public slots:
     virtual void syncWidgets();
@@ -41,8 +67,8 @@ signals:
     void recordChanged( int i );
     
 private:
-    QSqlPrivate * d;
-    QSqlFieldMapper * fieldMap;
+    QSqlView * v;
+    QSqlFormMap * map;
 };
 
 #endif // QT_NO_SQL
