@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#174 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#175 $
 #
 # this is a massive hack, written very quickly
 #
@@ -557,6 +557,7 @@ sub processdocs {
 	$doc =~ s-\\internal\s-<p>Internal comments:<p>\n-s;
 
 	$doc =~ s@\\version\b@$version@gs;
+	$doc =~ s@\\reimp\b@Reimplemented for internal reasons; the API is not affected.@gs;
 
 	$doc =~ s!\\e\s+(\S+)!<em>$1</em>!gs;
 	$doc =~ s!\\a\s+(\S+)!<em>$1</em>!gs;
