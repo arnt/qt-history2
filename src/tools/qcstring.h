@@ -232,6 +232,8 @@ public:
 		operator const char *() const;
     QCString    &operator+=( const char *str );
     QCString    &operator+=( char c );
+private:
+    int	find( const char *str, int index, bool cs, uint l ) const;
 };
 
 

@@ -954,13 +954,17 @@ int QCString::find( char c, int index, bool cs ) const
 
 int QCString::find( const char *str, int index, bool cs ) const
 {
+    find( str, index, cs, length() );
+}
+    
+int QCString::find( const char *str, int index, bool cs, uint l ) const
+{
     if ( (uint)index >= size() )
 	return -1;
     if ( !str )
 	return -1;
     if ( !*str )
 	return index;
-    const uint l = length();
     const uint sl = qstrlen( str );
     if ( sl + index > l )
 	return -1;
@@ -1191,7 +1195,6 @@ int QCString::contains( const char *str, bool cs ) const
 
     \sa right(), mid()
 */
-
 QCString QCString::left( uint len ) const
 {
     if ( isEmpty() ) {
@@ -1651,6 +1654,7 @@ QCString &QCString::replace( char c, const char *after )
     // s == "English is English"
     \endcode
 */
+
 QCString &QCString::replace( const char *before, const char *after )
 {
     if ( before == after || isNull() )
@@ -1666,7 +1670,7 @@ QCString &QCString::replace( const char *before, const char *after )
 
     if ( bl == al ) {
 	if ( bl ) {
-	    while( (index = find( before, index ) ) != -1 ) {
+	    while( (index = find( before, index, TRUE, len ) ) != -1 ) {
 		memcpy( d+index, after, al );
 		index += bl;
 	    }
@@ -1675,7 +1679,7 @@ QCString &QCString::replace( const char *before, const char *after )
 	uint to = 0;
 	uint movestart = 0;
 	uint num = 0;
-	while( (index = find( before, index ) ) != -1 ) {
+	while( (index = find( before, index, TRUE, len ) ) != -1 ) {
 	    if ( num ) {
 		int msize = index - movestart;
 		if ( msize > 0 ) {
@@ -1706,7 +1710,7 @@ QCString &QCString::replace( const char *before, const char *after )
 	    uint indices[4096];
 	    uint pos = 0;
 	    while( pos < 4095 ) {
-		index = find(before, index);
+		index = find(before, index, TRUE, len);
 		if ( index == -1 )
 		    break;
 		indices[pos++] = index;
