@@ -47,6 +47,8 @@
 #include "qpushbutton.h"
 #include "qcheckbox.h"
 #include "qradiobutton.h"
+#include "qcombobox.h"
+#include "qlineedit.h"
 #include "qdrawutil.h"
 #include "qscrollbar.h"
 #include "qtabbar.h"
@@ -1002,6 +1004,19 @@ QRect QMotifPlusStyle::subRect(SubRect r, const QWidget *widget) const
        	rect = widget->rect();
 	break;
 
+    case SR_ComboBoxFocusRect:
+	{
+	    const QComboBox *combobox = (const QComboBox *) widget;
+
+	    if (combobox->editable()) {
+		rect = querySubControlMetrics(CC_ComboBox, widget,
+					      SC_ComboBoxEditField);
+		rect.addCoords(-3, -3, 3, 3);
+	    } else
+		rect = combobox->rect();
+	    break;
+	}
+
     default:
 	rect = QMotifStyle::subRect(r, widget);
 	break;
@@ -1140,10 +1155,133 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 	    break;
 	}
 
+    case CC_ComboBox:
+	{
+	    const QComboBox *combobox = (const QComboBox *) widget;
+
+	    QRect editfield, arrow;
+	    editfield =
+		visualRect(querySubControlMetrics(CC_ComboBox,
+						  combobox,
+						  SC_ComboBoxEditField,
+						  data), widget);
+	    arrow =
+		visualRect(querySubControlMetrics(CC_ComboBox,
+						  combobox,
+						  SC_ComboBoxArrow,
+						  data), widget);
+
+	    if (combobox->editable()) {
+		if (controls & SC_ComboBoxEditField && editfield.isValid()) {
+		    editfield.addCoords(-3, -3, 3, 3);
+		    if (combobox->hasFocus())
+			editfield.addCoords(1, 1, -1, -1);
+		    drawMotifPlusShade(p, editfield, cg, TRUE,
+				       (widget->isEnabled() ?
+					&cg.brush(QColorGroup::Base) :
+					&cg.brush(QColorGroup::Background)));
+		}
+
+		if (controls & SC_ComboBoxArrow && arrow.isValid()) {
+		    drawMotifPlusShade(p, arrow, cg, (active == SC_ComboBoxArrow));
+
+		    int space = (r.height() - 13) / 2;
+		    arrow.addCoords(space, space, -space, -space);
+
+		    if (active == SC_ComboBoxArrow)
+			how |= Style_Sunken;
+		    drawPrimitive(PE_ArrowDown, p, arrow, cg, how);
+		}
+	    } else {
+		if (controls & SC_ComboBoxEditField && editfield.isValid()) {
+		    editfield.addCoords(-3, -3, 3, 3);
+		    if (combobox->hasFocus())
+			editfield.addCoords(1, 1, -1, -1);
+		    drawMotifPlusShade(p, editfield, cg, FALSE);
+		}
+
+		if (controls & SC_ComboBoxArrow && arrow.isValid())
+		    drawMotifPlusShade(p, arrow, cg, FALSE);
+	    }
+
+	    if (combobox->hasFocus() ||
+		(combobox->editable() && combobox->lineEdit()->hasFocus())) {
+		QRect fr = visualRect(subRect(SR_ComboBoxFocusRect, widget), widget);
+		drawPrimitive(PE_FocusRect, p, fr, cg, how);
+	    }
+
+	    break;
+	}
+
     default:
 	QMotifStyle::drawComplexControl(control, p, widget, r, cg, how,
 					controls, active, data);
     }
+}
+
+
+QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
+					      const QWidget *widget,
+					      SubControl subcontrol,
+					      void **data) const
+{
+    QRect rect;
+
+    switch (control) {
+    case CC_ComboBox:
+	{
+	    const QComboBox *combobox = (const QComboBox *) widget;
+
+	    if (combobox->editable()) {
+		int space = (combobox->height() - 13) / 2;
+
+		switch (subcontrol) {
+		case SC_ComboBoxEditField:
+		    rect = widget->rect();
+		    rect.setWidth(rect.width() - 13 - space * 2);
+		    rect.addCoords(3, 3, -3, -3);
+		    break;
+
+		case SC_ComboBoxArrow:
+		    rect.setRect(combobox->width() - 13 - space * 2, 0,
+				 13 + space * 2, combobox->height());
+		    break;
+
+		default:
+		    // shouldn't get here
+		    break;
+		}
+
+	    } else {
+		int space = (combobox->height() - 7) / 2;
+
+		switch (subcontrol) {
+		case SC_ComboBoxEditField:
+		    rect = widget->rect();
+		    rect.addCoords(3, 3, -3, -3);
+		    break;
+
+		case SC_ComboBoxArrow:
+		    // 12 wide, 7 tall
+		    rect.setRect(combobox->width() - 12 - space,
+				 space, 12, 7);
+		    break;
+
+		default:
+		    // shouldn't get here
+		    break;
+		}
+	    }
+
+	    break;
+	}
+
+    default:
+	rect = QMotifStyle::querySubControlMetrics(control, widget, subcontrol, data);
+	break;
+    }
+
+    return rect;
 }
 
 
@@ -1250,222 +1388,6 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
 
     return QMotifStyle::eventFilter(object, event);
 }
-
-
-
-// /*!
-//   \reimp
-// */
-// void QMotifPlusStyle::drawPushButton(QPushButton *button, QPainter *p)
-// {
-//     int x1, y1, x2, y2;
-//     button->rect().coords(&x1, &y1, &x2, &y2);
-
-//     if (button->isDefault())
-//         drawButton(p, x1, y1, x2 - x1 + 1, y2 - y1 + 1,
-//                    qApp->palette().active(), TRUE);
-
-//     if (button->isDefault() || button->autoDefault()) {
-//         x1 += buttonDefaultIndicatorWidth();
-//         y1 += buttonDefaultIndicatorWidth();
-//         x2 -= buttonDefaultIndicatorWidth();
-//         y2 -= buttonDefaultIndicatorWidth();
-//     }
-
-//     QBrush fill;
-//     if (button->isDown() || button->isOn())
-//         fill = button->colorGroup().brush(QColorGroup::Mid);
-//     else
-//         fill = button->colorGroup().brush(QColorGroup::Button);
-
-//     if ( !button->isFlat() || button->isOn() || button->isDown() )
-//         drawButton(p, x1, y1, x2 - x1 + 1, y2 - y1 + 1,
-//                    button->colorGroup(), button->isOn() || button->isDown(), &fill);
-// }
-
-// /*!
-//   \reimp
-// */
-// void QMotifPlusStyle::drawComboButton(QPainter *p, int x, int y, int w, int h,
-//                                       const QColorGroup &g, bool sunken,
-//                                       bool editable, bool,
-//                                       const QBrush *fill)
-// {
-//     drawButton(p, x, y, w, h, g, sunken, fill);
-
-//     if (editable) {
-//         QRect r = comboButtonRect(x, y, w, h);
-//         drawButton(p, r.x() - defaultFrameWidth(),
-//                    r.y() - defaultFrameWidth(),
-//                    r.width() + (defaultFrameWidth() * 2),
-//                    r.height() + (defaultFrameWidth() * 2),
-//                    g, TRUE);
-//     }
-
-//     int indent = ((y + h) / 2) - 6;
-//     int xpos = x;
-//     if( QApplication::reverseLayout() )
-//         xpos += indent;
-//     else
-//         xpos += w - indent - 13;
-//     drawArrow(p, Qt::DownArrow, TRUE, xpos, indent,
-//         13, 13, g, TRUE, fill);
-// }
-
-
-// /*!
-//   \reimp
-// */
-// QRect QMotifPlusStyle::comboButtonRect( int x, int y, int w, int h ) const
-// {
-//     QRect r(x + (defaultFrameWidth() * 2), y + (defaultFrameWidth() * 2),
-//             w - (defaultFrameWidth() * 4), h - (defaultFrameWidth() * 4));
-
-//     int indent = ((y + h) / 2) - defaultFrameWidth();
-//     r.setRight(r.right() - indent - 13);
-//     if( QApplication::reverseLayout() )
-//         r.moveBy( indent + 13, 0 );
-//     return r;
-// }
-
-
-// /*!
-//   \reimp
-// */
-// QRect QMotifPlusStyle::comboButtonFocusRect(int x, int y, int w, int h ) const
-// {
-//     return comboButtonRect(x, y, w, h);
-// }
-
-// #define HORIZONTAL      (sb->orientation() == QScrollBar::Horizontal)
-// #define VERTICAL        !HORIZONTAL
-// #define MOTIF_BORDER    defaultFrameWidth()
-// #define SLIDER_MIN      buttonDim
-
-// /*!
-//   \reimp
-// */
-// void QMotifPlusStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
-//                                              int sliderStart, uint controls,
-//                                              uint activeControl )
-// {
-// #define ADD_LINE_ACTIVE ( activeControl == AddLine )
-// #define SUB_LINE_ACTIVE ( activeControl == SubLine )
-//     QColorGroup g  = sb->colorGroup();
-//     QColorGroup pg = singleton->prelight_palette.active();
-
-//     int sliderMin, sliderMax, sliderLength, buttonDim;
-//     scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
-
-//     if (sliderStart > sliderMax) { // sanity check
-//         sliderStart = sliderMax;
-//     }
-
-//     int b = MOTIF_BORDER;
-//     int dimB = buttonDim;
-//     QRect addB;
-//     QRect subB;
-//     QRect addPageR;
-//     QRect subPageR;
-//     QRect sliderR;
-//     int addX, addY, subX, subY;
-//     int length = HORIZONTAL ? sb->width()  : sb->height();
-//     int extent = HORIZONTAL ? sb->height() : sb->width();
-
-//     if ( HORIZONTAL ) {
-//         subY = addY = ( extent - dimB ) / 2;
-//         subX = b;
-//         addX = length - dimB - b;
-//     } else {
-//         subX = addX = ( extent - dimB ) / 2;
-//         subY = b;
-//         addY = length - dimB - b;
-//     }
-
-//     subB.setRect( subX,subY,dimB,dimB );
-//     addB.setRect( addX,addY,dimB,dimB );
-
-//     int sliderEnd = sliderStart + sliderLength;
-//     int sliderW = extent - b*2;
-//     if ( HORIZONTAL ) {
-//         subPageR.setRect( subB.right() + 1, b,
-//                           sliderStart - subB.right() - 1 , sliderW );
-//         addPageR.setRect( sliderEnd, b, addX - sliderEnd, sliderW );
-//         sliderR .setRect( sliderStart, b, sliderLength, sliderW );
-//     } else {
-//         subPageR.setRect( b, subB.bottom() + 1, sliderW,
-//                           sliderStart - subB.bottom() - 1 );
-//         addPageR.setRect( b, sliderEnd, sliderW, addY - sliderEnd );
-//         sliderR .setRect( b, sliderStart, sliderW, sliderLength );
-//     }
-
-//     bool skipUpdate = FALSE;
-//     if (singleton->hovering) {
-//         if (addB.contains(singleton->mousePos)) {
-//             skipUpdate = (singleton->scrollbarElement == AddLine);
-//             singleton->scrollbarElement = AddLine;
-//         } else if (subB.contains(singleton->mousePos)) {
-//             skipUpdate = (singleton->scrollbarElement == SubLine);
-//             singleton->scrollbarElement = SubLine;
-//         } else if (sliderR.contains(singleton->mousePos)) {
-//             skipUpdate = (singleton->scrollbarElement == Slider);
-//             singleton->scrollbarElement = Slider;
-//         } else
-//             singleton->scrollbarElement = 0;
-//     } else
-//         singleton->scrollbarElement = 0;
-
-//     if (skipUpdate) return;
-
-//     if ( controls == ( AddLine | SubLine | AddPage | SubPage |
-//                        Slider | First | Last ) )
-//         drawButton(p, sb->rect().x(), sb->rect().y(),
-//                    sb->rect().width(), sb->rect().height(), g, TRUE,
-//                    &g.brush(QColorGroup::Mid));
-
-//     if ( controls & AddLine )
-//         drawArrow( p, VERTICAL ? DownArrow : RightArrow,
-//                    ADD_LINE_ACTIVE, addB.x(), addB.y(),
-//                    addB.width(), addB.height(),
-//                    (ADD_LINE_ACTIVE ||
-//                     singleton->scrollbarElement == AddLine) ? pg : g, TRUE );
-//     if ( controls & SubLine )
-//         drawArrow( p, VERTICAL ? UpArrow : LeftArrow,
-//                    SUB_LINE_ACTIVE, subB.x(), subB.y(),
-//                    subB.width(), subB.height(),
-//                    (SUB_LINE_ACTIVE ||
-//                     singleton->scrollbarElement == SubLine) ? pg : g, TRUE );
-
-//     QBrush fill = g.brush( QColorGroup::Mid );
-//     if (sb->backgroundPixmap() ){
-//         fill = QBrush( g.mid(), *sb->backgroundPixmap() );
-//     }
-
-//     if ( controls & SubPage )
-//         p->fillRect( subPageR, fill );
-
-//     if ( controls & AddPage )
-//         p->fillRect( addPageR, fill );
-
-//     if ( controls & Slider ) {
-//         QPoint bo = p->brushOrigin();
-//         p->setBrushOrigin(sliderR.topLeft());
-//         if ( sliderR.isValid() ) {
-//             drawBevelButton( p, sliderR.x(), sliderR.y(),
-//                              sliderR.width(), sliderR.height(),
-//                              (activeControl & Slider ||
-//                               singleton->scrollbarElement == Slider) ? pg : g,
-//                              FALSE,
-//                              (activeControl & Slider ||
-//                               singleton->scrollbarElement == Slider) ?
-//                              &pg.brush( QColorGroup::Button ) :
-//                              &g.brush( QColorGroup::Button ) );
-//         }
-
-//         p->setBrushOrigin(bo);
-//     }
-
-// }
 
 
 // /*!

@@ -96,6 +96,11 @@ public:
 			    SCFlags active = SC_None,
 			    void **data = 0 ) const;
 
+    QRect querySubControlMetrics(ComplexControl control,
+				 const QWidget *widget,
+				 SubControl subcontrol,
+				 void **data = 0) const;
+
     int pixelMetric(PixelMetric metric, const QWidget *widget = 0) const;
 
     /*
