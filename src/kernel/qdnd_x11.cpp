@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#39 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -805,7 +805,7 @@ static QByteArray qt_xdnd_obtain_data( const char * format )
 		//debug( "Qt clipboard: unknown atom %ld", type);
 	    }
 	}
-	qt_xdnd_target_data->insert( (int)a, new QByteArray( result ) );
+	qt_xdnd_target_data->insert( (int)((long)a), new QByteArray(result) );
     }
 	
     return result;
