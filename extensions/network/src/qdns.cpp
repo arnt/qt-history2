@@ -1187,6 +1187,8 @@ QValueList<QHostAddress> QDns::addresses() const
 }
 
 
+#if defined(UNIX)
+
 // include this stuff late, so any defines won't hurt.  funkily,
 // struct __res_state is part of the api.  normally not used, it says.
 // but we use it, to get various information.
@@ -1245,4 +1247,24 @@ static void doResInit( void )
 #endif
 }
 
+#else
 
+// ######### UGLEHACK!!!!!!! ######### !!!!!!!!!!!! ###############
+
+static void doResInit( void )
+{
+    if ( ns )
+	return;
+    ns = new QList<QHostAddress>;
+    ns->setAutoDelete( TRUE );
+    domains = new QStrList( TRUE );
+    domains->setAutoDelete( TRUE );
+    h = new QHostAddress( 0xc300fe13 ); // lupinella.troll.no
+    ns->append( h );
+#if defined(DEBUG_QDNS)
+	qDebug( "using name server %s", h->ip4AddrString().latin1() );
+#endif
+    
+}
+
+#endif
