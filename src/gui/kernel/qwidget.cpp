@@ -3927,8 +3927,9 @@ void QWidget::hide_helper()
 #endif
 #ifndef QT_NO_LAYOUT
     // invalidate layout similar to updateGeometry()
-    if (!isTopLevel() && parentWidget() && parentWidget()->d->layout) {
-        parentWidget()->d->layout->update();
+    if (!isTopLevel() && parentWidget()) {
+        if (parentWidget()->d->layout)
+            parentWidget()->d->layout->update();
         if (wasVisible)
             QApplication::postEvent(parentWidget(),
                                     new QEvent(QEvent::LayoutRequest));
