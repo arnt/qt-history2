@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.h#28 $
+** $Id: //depot/qt/main/src/kernel/qrect.h#29 $
 **
 ** Definition of QRect class
 **
@@ -90,6 +90,8 @@ private:
 #endif
 };
 
+bool operator==( const QRect &, const QRect & );
+bool operator!=( const QRect &, const QRect & );
 
 /*****************************************************************************
   QRect stream functions
