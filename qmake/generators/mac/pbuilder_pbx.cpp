@@ -929,7 +929,7 @@ ProjectBuilderMakefileGenerator::pbuilderVersion() const
 	    }
 	    version_file.close();
 	} else debug_msg(1, "pbuilder: version.plist: Failure to open %s", version_plist.latin1());
-	if(version == "2.0")
+	if(version.left(3) == "2.0")
 	    ret = "38";
 	else if(version == "1.1")
 	    ret = "34";
