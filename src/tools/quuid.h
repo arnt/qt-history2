@@ -50,9 +50,10 @@ struct Q_EXPORT QUuid
 #endif
     bool isNull() const;
 
-    QUuid operator=(const QUuid &orig )
+    QUuid &operator=(const QUuid &orig )
     {
-	return QUuid( orig );
+	memcpy( this, &orig, sizeof(QUuid) );
+	return *this;
     }
 
     bool operator==(const QUuid &orig ) const
@@ -73,9 +74,10 @@ struct Q_EXPORT QUuid
 	memcpy( this, &guid, sizeof(GUID) );
     }
 
-    QUuid operator=(const GUID &orig )
+    QUuid &operator=(const GUID &orig )
     {
-	return QUuid( orig );
+	memcpy( this, &orig, sizeof(QUuid) );
+	return *this;
     }
 
     operator GUID() const
