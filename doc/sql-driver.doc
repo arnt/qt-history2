@@ -64,9 +64,19 @@ The currently available drivers shipped with Qt are:
 \i \link #QTDS7 QTDS7\endlink - Sybase Adaptive Server and Microsoft SQL Server Driver
 \endlist
 
+Note that some of the plugins are not shipped with the Qt Free Edition due to
+problems with the GPL. 
+
+\section1 Building the drivers using configure
+
 The Qt configure script automatically detects the available client
 libraries on your machine. Run "configure -help" to see what drivers
-may be built.
+may be built. You should get an output similar to this:
+
+\code
+Possible values for <driver>: [ mysql oci odbc psql tds ]
+Auto-Detected on this system: [ mysql psql ]
+\endcode
 
 Note that configure cannot detect the neccessary libraries and include
 files if they are not in the standard paths, so it may be necessary to
@@ -75,24 +85,23 @@ include files are installed in /usr/local/mysql (or in C:\\mysql\\include
 on Windows), then pass the following parameter to configure:
 "-I/usr/local/mysql" (or "-IC:\\mysql\\include" for Windows).
 
-Note that the parameter -I doesn't allow spaces in filenames, so use
-the 8.3 name instead, i.e. use "C:\\progra~1\\mysql" instead of
+Note that on Windows the parameter -I doesn't allow spaces in filenames, 
+so use the 8.3 name instead, i.e. use "C:\\progra~1\\mysql" instead of
 "C:\\program files\\mysql".
 
-You should always use client libraries that have been compiled with the same
-compiler as you are using for your project. If you cannot get a source distibution
-to compile the client libraries yourself, you have to make sure that the
-pre-compiled library is compatible with your compiler, otherwise you will get
-a lot of "undefined symbols" errors. Some compilers have tools to convert libraries,
-e.g. Borland ships the tool "COFF2OMF.EXE" to convert libraries that
-have been generated with Microsoft Visual C++.
+Use the \c{-qt-sql-<driver>} parameter to build the database driver statically
+into your Qt library or \c{-plugin-sql-<driver>} to build the driver as a
+plugin. Look at the chapters below for additional information about required
+libraries.
+
+\section1 Building the plugins manually
 
 \target QMYSQL3
-\section1 QMYSQL3 - MySQL 3.x
+\section2 QMYSQL3 - MySQL 3.x
 
 \keyword QMYSQL3
 
-\section2 General informations
+\section3 General informations
 
 MySQL 3.x doesn't support SQL transactions by default. There are some backends
 which offer this functionality. Recent versions of the MySQL client
@@ -104,7 +113,7 @@ function returns TRUE and SQL transactions can be used.
 
 You can find information about MySQL on \l http://www.mysql.com
 
-\section2 How to build the plugin on Unix/Linux
+\section3 How to build the plugin on Unix/Linux
 
 You need the MySQL header files and as well as the shared library
 "libmysqlclient.so". Depending on your Linux distribution you need to
@@ -119,7 +128,7 @@ qmake -o Makefile "INCLUDEPATH+=/usr/local/include" "LIBS+=-L/usr/local/lib -lmy
 make
 \endcode
 
-\section2 How to build the plugin on Windows
+\section3 How to build the plugin on Windows
 
 You need to get the MySQL installation files. Run SETUP.EXE and
 choose "Custom Install". Install the "Libs & Include Files" Module.
@@ -136,11 +145,11 @@ If you are not using a Microsoft compiler, replace "nmake" with "make" in the
 statement above.
 
 \target QOCI8
-\section1 QOCI8 - Oracle Call Interface
+\section2 QOCI8 - Oracle Call Interface
 
 \keyword QOCI8
 
-\section2 How to build the plugin on Unix/Linux
+\section3 How to build the plugin on Unix/Linux
 
 All files required to build driver should ship with the standard Oracle
 install. For Linux, it may be possible to copy headers from another
@@ -188,7 +197,7 @@ qmake -o Makefile "INCLUDEPATH+=/usr/local/include" "LIBS+=-L/usr/local/lib -lcl
 make
 \endcode
 
-\section2 How to build the plugin on Windows
+\section3 How to build the plugin on Windows
 
 Choosing the option "Programmer" in the Oracle Client Installer from
 the Oracle Client Installation CD is sufficient to build the plugin.
@@ -206,11 +215,11 @@ If you are not using a Microsoft compiler, replace "nmake" with "make" in the
 statement above.
 
 \target QODBC3
-\section1 QODBC3 - Open Database Connectivity
+\section2 QODBC3 - Open Database Connectivity
 
 \keyword QODBC3
 
-\section2 General informations
+\section3 General informations
 
 ODBC (Open Database Connectivity) is a general interface that allows you
 to connect to multiple DBMS using a common interface. The QODBC3 driver
@@ -233,7 +242,7 @@ established and refuses to work if the check fails. If you don't
 like this behaviour, you can remove the \c{#define ODBC_CHECK_DRIVER}
 line from the file \c{qsql_odbc.cpp}. Do this at your own risk!
 
-\section2 How to build the plugin on Unix/Linux
+\section3 How to build the plugin on Unix/Linux
 
 It is recommended that you use unixODBC. You can find the newest
 version and ODBC drivers at \l http://www.unixodbc.org.
@@ -249,7 +258,7 @@ qmake "INCLUDEPATH+=/usr/local/unixODBC/include" "LIBS+=-L/usr/local/unixODBC/li
 make
 \endcode
 
-\section2 How to build the plugin on Windows
+\section3 How to build the plugin on Windows
 
 The ODBC header and include files should already be installed in the
 right directories. You just have to build the plugin as follows:
@@ -264,11 +273,11 @@ If you are not using a Microsoft compiler, replace "nmake" with "make" in the
 statement above.
 
 \target QPSQL7
-\section1 QPSQL7 - PostgreSQL version 6 and 7
+\section2 QPSQL7 - PostgreSQL version 6 and 7
 
 \keyword QPSQL7
 
-\section2 General information
+\section3 General information
 
 The QPSQL7 driver supports both version 6 and 7 of PostgreSQL. We recommend
 compiling the plugin with a recent version of the PostgreSQL Client API (libpq)
@@ -284,7 +293,7 @@ a warning is issued.
 
 For more information about PostgreSQL visit \l http://www.postgresql.org.
 
-\section2 How to build the plugin on Unix/Linux
+\section3 How to build the plugin on Unix/Linux
 
 Just installing "libpq.so" and the corresponding header files is
 unfortunately not sufficient. You have to get the whole source
@@ -303,11 +312,11 @@ make
 \endcode
 
 \target QTDS7
-\section1 QTDS7 - Sybase Adaptive Server and Microsoft SQL Server
+\section2 QTDS7 - Sybase Adaptive Server and Microsoft SQL Server
 
 \keyword QTDS7
 
-\section2 How to build the plugin on Unix/Linux
+\section3 How to build the plugin on Unix/Linux
 
 Under Unix, two libraries are available which support the TDS protocol:
 
@@ -328,7 +337,7 @@ qmake -o Makefile "INCLUDEPATH=$SYBASE/include" "LIBS=-L$SYBASE/lib -lsybdb"
 make
 \endcode
 
-\section2 How to build the plugin on Windows
+\section3 How to build the plugin on Windows
 
 You can either use the DB-Library supplied by Microsoft or the Sybase Open Client
 ( \l http://www.sybase.com ). You have to include NTWDBLIB.LIB
@@ -344,7 +353,32 @@ By default the Microsoft library is used on Windows, if you want to force
 the use of the Sybase Open Client, you have to define
 Q_USE_SYBASE in %QTDIR%\src\sql\drivers\tds\qsql_tds.cpp.
 
+\target troubleshooting
+\section1 Troubleshooting
 
+You should always use client libraries that have been compiled with the same
+compiler as you are using for your project. If you cannot get a source distibution
+to compile the client libraries yourself, you have to make sure that the
+pre-compiled library is compatible with your compiler, otherwise you will get
+a lot of "undefined symbols" errors. Some compilers have tools to convert libraries,
+e.g. Borland ships the tool \c{COFF2OMF.EXE} to convert libraries that
+have been generated with Microsoft Visual C++.
+
+If the compilation of a plugin succeeds but it cannot be loaded,
+make sure that the following requirements are met:
+
+\list
+\i Make sure you are using a shared Qt library, you cannot use the
+    plugins with a static build.
+\i Make sure that the environment variable QTDIR points to the right
+    directory. Go to the $QTDIR/plugins/sqldrivers directory and make sure
+    that the plugin exists in that directory.
+\i Make sure that the client libraries of the DBMS are available on the 
+    system. On Unix, run the command \c{ldd} and pass the name of the
+    plugin as parameter, for example \c{ldd libqsqlmysql.so}. You will
+    get a warning if any of the client libraries couldn't be found. 
+    On Windows, you can use the dependency walker of Visual Studio.
+\endlist
 
 \target development
 \section1 How to write your own database driver
