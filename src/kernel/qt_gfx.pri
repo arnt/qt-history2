@@ -4,8 +4,13 @@
 HEADERS += $$KERNEL_H/qmngio.h
 SOURCES += $$KERNEL_CPP/qmngio.cpp
 mng {
-	INCLUDEPATH        += 3rdparty/libmng
-	SOURCES += 3rdparty/libmng/libmng_callback_xs.c \
+        system-mng {
+	    win32:LIBS += libmng.lib
+            unix:LIBS  += -lmng
+        }
+	!system-mng {
+	   INCLUDEPATH        += 3rdparty/libmng
+	   SOURCES += 3rdparty/libmng/libmng_callback_xs.c \
 		  3rdparty/libmng/libmng_chunk_io.c \
 		  3rdparty/libmng/libmng_chunk_prc.c \
 		  3rdparty/libmng/libmng_chunk_xs.c \
@@ -23,29 +28,29 @@ mng {
 		  3rdparty/libmng/libmng_trace.c \
 		  3rdparty/libmng/libmng_write.c \
 		  3rdparty/libmng/libmng_zlib.c
-
-	!jpeg:!system-jpeg {
+        }
+	no-jpeg {
+		message(Use of mng requires support for jpeg)
+		CONFIG += jpeg
+	}
+	!jpeg {
 		message(Use of mng requires support for jpeg)
 		CONFIG += jpeg
 	}
 }
-
-system-mng:!jpeg:!system-jpeg {
-	message(Use of mng requires support for jpeg)
-	CONFIG += jpeg
-}
-
-system-mng:unix:LIBS += -lmng
-system-mng:mac:LIBS += -lmng
-system-mng:win32:LIBS += libmng.lib
-!mng:!system-mng:DEFINES += QT_NO_IMAGEIO_MNG
+!mng:DEFINES += QT_NO_IMAGEIO_MNG
 
 #jpeg support..
 HEADERS += $$KERNEL_H/qjpegio.h 
 SOURCES += $$KERNEL_CPP/qjpegio.cpp
 jpeg {
-	INCLUDEPATH += 3rdparty/libjpeg
-	SOURCES += 3rdparty/libjpeg/jcapimin.c \
+        system-jpeg {
+	   unix:LIBS += -ljpeg
+	   win32:LIBS += libjpeg.lib
+	} 
+	!system-jpeg {
+	    INCLUDEPATH += 3rdparty/libjpeg
+	    SOURCES += 3rdparty/libjpeg/jcapimin.c \
 		  3rdparty/libjpeg/jcapistd.c \
 		  3rdparty/libjpeg/jccoefct.c \
 		  3rdparty/libjpeg/jccolor.c \
@@ -91,18 +96,21 @@ jpeg {
 		  3rdparty/libjpeg/jquant2.c \
 		  3rdparty/libjpeg/jutils.c \
 		  3rdparty/libjpeg/jmemansi.c
+        }
 }
-system-jpeg:unix:LIBS += -ljpeg
-system-jpeg:mac:LIBS += -ljpeg
-system-jpeg:win32:LIBS += libjpeg.lib
-!jpeg:!system-jpeg:DEFINES += QT_NO_IMAGEIO_JPEG
+!jpeg:DEFINES += QT_NO_IMAGEIO_JPEG
 
 #png support
 HEADERS+=$$KERNEL_H/qpngio.h
 SOURCES+=$$KERNEL_CPP/qpngio.cpp
 png {
-	INCLUDEPATH  += 3rdparty/libpng
-	SOURCES	+= 3rdparty/libpng/png.c \
+        system-png {
+	    unix:LIBS  += -lpng
+	    win32:LIBS += libpng.lib
+	}
+	!system-png {
+	    INCLUDEPATH  += 3rdparty/libpng
+	    SOURCES	+= 3rdparty/libpng/png.c \
 		  3rdparty/libpng/pngerror.c \
 		  3rdparty/libpng/pngget.c \
 		  3rdparty/libpng/pngmem.c \
@@ -117,11 +125,9 @@ png {
 		  3rdparty/libpng/pngwrite.c \
 		  3rdparty/libpng/pngwtran.c \
 		  3rdparty/libpng/pngwutil.c 
+        }
 }
-!no-png:!png:unix:LIBS += -lpng
-!no-png:!png:mac:LIBS += -lpng
-!no-png:!png:win32:LIBS += libpng.lib
-no-png:DEFINES += QT_NO_IMAGEIO_PNG
+!png:DEFINES += QT_NO_IMAGEIO_PNG
 
 #zlib support
 zlib {

@@ -1,12 +1,4 @@
 TEMPLATE    =	subdirs
-!png:!system-png {
-	SUBDIRS += png 
-}
-
-!mng:!system-mng {
-	SUBDIRS	+= mng
-}
-
-!jpeg:!system-jpeg {
-	SUBDIRS += jpeg
-}
+!no-png:!png:SUBDIRS += png
+!no-jpeg:jpeg:SUBDIRS += jpeg
+!no-mng:!mng:SUBDIRS += mng

@@ -383,9 +383,12 @@ SM=auto
 XINERAMA=auto
 BIG_CODECS=yes
 ZLIB=yes
-LIBPNG=yes
-JPEG=no
-MNG=no
+PNG=yes
+LIBPNG=qt
+JPEG=plugin
+LIBJPEG=qt
+MNG=plugin
+LIBMNG=qt
 XRENDER=auto
 XFTFREETYPE=auto
 SQL_AUTODETECTED=""
@@ -585,32 +588,41 @@ do
    -system-zlib)
 	ZLIB=system
 	;;
-   -no-libpng)
-	LIBPNG=no
+   -no-libpng) #left for commandline compatability, not documented
+	echo "-no-png is left for compatability, in the future please use -no-imgfmt-png"
+	PNG=no
 	;;
    -qt-libpng)
-	LIBPNG=yes
+	LIBPNG=qt
 	;;
    -system-libpng)
 	LIBPNG=system
 	;;
-   -no-mng)
-	MNG=no
-	;;
-   -system-libmng)
-	MNG=system
+   -no-mng) #left for commandline compatability, not documented
+	echo "-no-mng is left for compatability, in the future please use -no-imgfmt-mng"
+        MNG=no
 	;;
    -qt-libmng)
-        MNG=yes
+        LIBMNG=qt
 	;;
-   -no-jpeg)
-	JPEG=no
+   -system-libmng)
+	LIBMNG=system
 	;;
-   -qt-jpeg)
-	JPEG=yes
+   -no-jpeg) #left for commandline compatability, not documented
+	echo "-no-jpeg is left for compatability, in the future please use -no-imgfmt-jpeg"
+        JPEG=no
 	;;
-   -system-jpeg)
-	JPEG=system
+   -qt-jpeg|-qt-libjpeg)
+	if [ "$1" = "-qt-jpeg" ]; then
+	    echo "-qt-jpeg is left for compatability, in the future please use -qt-libjpeg"
+	fi
+	LIBJPEG=qt
+	;;
+   -system-jpeg|-system-libjpeg)
+	if [ "$1" = "-system-jpeg" ]; then
+	    echo "-system-jpeg is left for compatability, in the future please use -system-libjpeg"
+	fi
+	LIBJPEG=system
 	;;
    -no-nas-sound)
 	NAS_SOUND=no
@@ -671,14 +683,26 @@ do
     -internal)
 	QMAKE_CONFIG="$QMAKE_CONFIG internal"
 	;;
-   -h | -help | --help)
+    -h | -help | --help)
 	HELP=yes
 	;;
     -no-*-*|-plugin-*-*|-qt-*-*)
 	OPT=`echo $1 | sed "s,^-\([^-]*\).*,\1,"`
 	VAR=`echo $1 | sed "s,^-[^-]*-\([^-]*\).*,\1,"`
 	VAL=`echo $1 | sed "s,^-[^-]*-[^-]*-\([^-]*\).*,\1,"`
-	if [ "$OPT" = "plugin" ] || [ "$OPT" = "qt" ]; then
+	if [ "$VAR" = "imgfmt" ]; then
+	    [ "$OPT" = "qt" ] && OPT="yes"
+	    if [ "$OPT" = "no" ] || [ "$OPT" = "yes" ] || [ "$OPT" = "plugin" ]; then
+	        case "$VAL" in
+	        jpeg) JPEG=$OPT ;;
+	        mng) MNG=$OPT ;;
+	        png) PNG=$OPT ;;
+	        *) ERROR="yes" ;;
+	        esac
+            else 
+	        ERROR=yes
+	    fi
+	elif [ "$OPT" = "plugin" ] || [ "$OPT" = "qt" ]; then
 	   if [ "$OPT" = "plugin" ]; then
 	      [ "$VAR" = "style" ] && QMAKE_VARS="$QMAKE_VARS \"${VAR}s -= $VAL\""
 	      VAR="${VAR}-${OPT}"
@@ -692,6 +716,10 @@ do
 	   [ "$IN_VAR" = "sql" ] && IN_VAR="${IN_VAR}-driver"
 	   QMAKE_VARS="$QMAKE_VARS \"${IN_VAR}s -= $VAL\" \"${PLUG_VAR}s -= $VAL\""
         fi
+        if [ "$ERROR" = "yes" ]; then
+	   echo $1: unknown argument
+	   HELP=yes;
+	fi
 	;;
    -v)
 	#takes two verboses to turn on qmake debugs
@@ -1160,20 +1188,6 @@ Installation options:
     -system-zlib ....... Use zlib from the operating system
 			 See http://www.info-zip.org/pub/infozip/zlib
 
- *  -qt-libpng ......... Use the libpng bundled with Qt.
-    -system-libpng ..... Use libpng from the operating system.
-			 See http://www.libpng.org/pub/png
-
- *  -no-jpeg ........... Do not compile in JPEG I/O support.
-    -qt-jpeg ........... Use the libjpeg bundled with Qt.
-    -system-jpeg ....... Use jpeglib from the operating system.
-			 See http://www.ijg.org
-
- *  -no-mng ............ Do not compile in MNG I/O support.
-    -qt-libmng ......... Use the libmng bundled with Qt.
-    -system-libmng ..... Use libmng from the operating system.
-			 See http://www.libmng.com
-
  *  -no-nas-sound ...... Do not compile in NAS sound support.
     -system-nas-sound .. Use NAS libaudio from the operating system.
 			 See http://radscan.com/nas.html
@@ -1233,6 +1247,30 @@ Installation options:
     -remote ............ Enable remote control support.
  *  -no-remote ......... Disable remote control support.
 
+Image Formats:
+
+    -plugin-imgfmt-<format> Enable format (png, jpeg, or mng) to
+                            be linked to at runtime. Uses specified
+			    lib<format>.
+    -qt-imgfmt-<format> ... Enable format (png, jpeg, or mng) to 
+                            be linked into Qt. Uses specified
+			    lib<format>.
+    -no-imgfmt-<format> ... Fully disable format (png, jpeg, or mng)
+                            from Qt.
+
+Third Party Image Loading Libraries:
+
+ *  -qt-libpng ......... Use the libpng bundled with Qt.
+    -system-libpng ..... Use libpng from the operating system.
+			 See http://www.libpng.org/pub/png
+
+ *  -qt-libjpeg ........ Use the libjpeg bundled with Qt.
+    -system-libjpeg .... Use jpeglib from the operating system.
+			 See http://www.ijg.org
+
+ *  -qt-libmng ......... Use the libmng bundled with Qt.
+    -system-libmng ..... Use libmng from the operating system.
+			 See http://www.libmng.com
 EOF
 
 if [ "$X11_PLATFORM" = "yes" ]; then
@@ -1323,7 +1361,6 @@ Qt/Embedded only:
     -no-freetype ....... Qt/Embedded only: do not compile in FreeType2 support.
  *  -freetype .......... Qt/Embedded only: add FreeType2 font support.
 
-    -no-libpng ......... Turn off PNG support
     -no-zlib ........... No compression library -- implies -no-libpng
 
     -qconfig local ..... Use src/tools/qconfig-local.h rather than the
@@ -1615,19 +1652,23 @@ if [ "x$SHARED" = "xno" ]; then
 elif [ "x$SHARED" = "xyes" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG dll"
 fi
+[ "x$LIBJPEG" = "xsystem" ] && QMAKE_CONFIG="$QMAKE_CONFIG system-jpeg"
 if [ "x$JPEG" = "xno" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG no-jpeg"
 elif [ "x$JPEG" = "xyes" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG jpeg"
-elif [ "x$JPEG" = "xsystem" ]; then
-    QMAKE_CONFIG="$QMAKE_CONFIG system-jpeg"
 fi
+[ "x$LIBMNG" = "xsystem" ] && QMAKE_CONFIG="$QMAKE_CONFIG system-mng"
 if [ "x$MNG" = "xno" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG no-mng"
 elif [ "x$MNG" = "xyes" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG mng"
-elif [ "x$MNG" = "xsystem" ]; then
-    QMAKE_CONFIG="$QMAKE_CONFIG system-mng"
+fi
+[ "x$LIBPNG" = "xsystem" ] && QMAKE_CONFIG="$QMAKE_CONFIG system-png"
+if [ "x$LIBPNG" = "xno" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG no-png"
+elif [ "x$LIBPNG" = "xyes" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG png"
 fi
 if [ "x$GIF" = "xno" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG no-gif"
@@ -1641,13 +1682,6 @@ elif [ "x$ZLIB" = "xyes" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG zlib"
 elif [ "x$ZLIB" = "xsystem" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG system-zlib"
-fi
-if [ "x$LIBPNG" = "xno" ]; then
-    QMAKE_CONFIG="$QMAKE_CONFIG no-png"
-elif [ "x$LIBPNG" = "xyes" ]; then
-    QMAKE_CONFIG="$QMAKE_CONFIG png"
-elif [ "x$LIBPNG" = "xsystem" ]; then
-    QMAKE_CONFIG="$QMAKE_CONFIG system-png"
 fi
 [ "x$NAS_SOUND" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG nas"
 [ "x$BIG_CODECS" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG bigcodecs"
@@ -1875,8 +1909,9 @@ echo "Remote support....... $REMOTE"
 echo "STL support.......... $STL"
 echo "Thread support....... $THREAD"
 echo "GIF support.......... $GIF"
-echo "MNG support.......... $MNG"
-echo "JPEG support......... $JPEG"
+echo "MNG support.......... $MNG ($LIBMNG)"
+echo "JPEG support......... $JPEG ($LIBJPEG)"
+echo "PNG support.......... $PNG ($LIBMNG)"
 echo "NAS sound support.... $NAS_SOUND"
 [ "$QWS_PLATFORM" = "yes" ] && echo "Embedded support..... $EMBEDDED"
 if [ "$X11_PLATFORM" = "yes" ]
