@@ -296,7 +296,7 @@ void MainWindow::setupMDI()
     vbox->setLineWidth( 1 );
     qworkspace = new QWorkspace( vbox );
     qworkspace->setBackgroundMode( PaletteDark );
-    qworkspace->setBackgroundPixmap( PixmapChooser::loadPixmap( "background.png", PixmapChooser::NoSize ) );
+    qworkspace->setBackgroundColor( Qt::darkGray );
     qworkspace->setScrollBarsEnabled( TRUE );
     connect( qworkspace, SIGNAL( windowActivated( QWidget * ) ),
 	     this, SLOT( activeWindowChanged( QWidget * ) ) );

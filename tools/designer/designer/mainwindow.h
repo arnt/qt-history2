@@ -180,6 +180,7 @@ public:
 
     void shuttingDown();
     void showGUIStuff( bool b );
+    void writeConfig();
 
 public slots:
     void showProperties( QObject *w );
@@ -326,7 +327,6 @@ private:
 
     QWidget* previewFormInternal( QStyle* style = 0, QPalette* pal = 0 );
 
-    void writeConfig();
     void readConfig();
     void readOldConfig();
 
