@@ -1174,6 +1174,7 @@ void QWidget::setWindowTitle(const QString &cap)
     if(isTopLevel()) {
         CFStringRef str = CFStringCreateWithCharacters(0, (UniChar *)cap.unicode(), cap.length());
         SetWindowTitleWithCFString(qt_mac_window_for((HIViewRef)winId()), str);
+        CFRelease(str);
     }
     QEvent e(QEvent::WindowTitleChange);
     QApplication::sendEvent(this, &e);
