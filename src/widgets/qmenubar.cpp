@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#167 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#168 $
 **
 ** Implementation of QMenuBar class
 **
@@ -363,7 +363,7 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	     event->type() == QEvent::KeyRelease &&
 	     (((QKeyEvent *)event)->key() == Key_Alt ||
 	      ((QKeyEvent *)event)->key() == Key_Meta) ) {
-	    if ( !hasmouse || actItem < 0 ) 
+	    if ( !hasmouse || actItem < 0 )
 		setActiveItem( 0, FALSE );
 	    setAltMode( TRUE );
 	    if ( object->parent() )
@@ -860,7 +860,7 @@ void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 	return;
     }
 
-    if ( item >= 0 )
+    if ( item >= 0 && mouseBtDn )
 	setActiveItem( item, TRUE, FALSE );
 }
 

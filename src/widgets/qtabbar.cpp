@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#88 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#89 $
 **
 ** Implementation of QTabBar class
 **
@@ -85,7 +85,7 @@ void  QArrowButton::drawButtonLabel( QPainter * p)
     }
     int fw = style().defaultFrameWidth();
     x += fw;  y += fw;  w -= 2*fw;  h -= 2*fw;
-    style().drawArrow( p, arrow, FALSE, x, y, w, h, colorGroup(), isEnabled() );
+    style().drawArrow( p, arrow, isDown(), x, y, w, h, colorGroup(), isEnabled() );
 }
 
 // this struct can be expanded without breaking binary compatibility
@@ -512,10 +512,10 @@ void QTabBar::paintEvent( QPaintEvent * e )
 	    paint( &p, t, n == 0 );
 	t = n;
     } while ( t != 0 );
-    
+
     if ( d->scrolls && lstatic->first()->r.left() < 0 ) {
 	int h = height();
-	p.fillRect( 0, 3, 4, h-3,
+	p.fillRect( 0, 3, 4, h-5,
 		    QBrush( colorGroup().brush( QColorGroup::Background ) ));
 	QPointArray a;
 	a.setPoints( 5,  0,2,  3,h/4, 0,h/2, 3,3*h/4, 0,h );
@@ -882,27 +882,27 @@ void QTabBar::makeVisible( QTab* tab  )
 {
     bool tooFarLeft = ( tab && tab->r.left() < 0 );
     bool tooFarRight = ( tab && tab->r.right() >= d->leftB->x() );
-    
+
     if ( !d->scrolls || ( !tooFarLeft && ! tooFarRight ) )
-	return; 
-    
+	return;
+
     layoutTabs();
-    
+
     int offset = 0;
-    
-    if ( tooFarLeft ) 
+
+    if ( tooFarLeft )
 	offset = tab == lstatic->first() ? 0 : tab->r.left() - 8;
     else if ( tooFarRight ) {
 	offset = tab->r.right() - d->leftB->x() + 1;
     }
-    
+
     for ( QTab* t = lstatic->first(); t; t = lstatic->next() )
 	t->r.moveBy( -offset, 0 );
 
     d->leftB->setEnabled( offset != 0 );
     d->rightB->setEnabled( lstatic->last()->r.right() >= d->leftB->x() );
 	
-    
+
     repaint( TRUE );
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#24 $
 **
 ** Implementation of Motif-like style class
 **
@@ -243,7 +243,7 @@ QMotifStyle::exclusiveIndicatorSize() const
 void
 QMotifStyle::drawArrow( QPainter *p, ArrowType type, bool down,
 		 int x, int y, int w, int h,
-		 const QColorGroup &g, bool /* enabled */, const QBrush * /* fill */ )
+		 const QColorGroup &g, bool enabled, const QBrush * /* fill */ )
 {
     // ### may be worth caching these as pixmaps, especially with the
     //	    cost of rotate() for vertical arrows.
@@ -260,7 +260,17 @@ QMotifStyle::drawArrow( QPainter *p, ArrowType type, bool down,
 
     if ( dim < 2 )				// too small arrow
 	return;
-
+    
+    // adjust size and center (to fix rotation below)
+    if ( w >  dim ) {
+	x += (w-dim)/2;
+	w = dim;
+    }
+    if ( h > dim ) {
+	y += (h-dim)/2;
+	h = dim;
+    }
+	
     if ( dim > 3 ) {
 	if ( dim > 6 )
 	    bFill.resize( dim & 1 ? 3 : 4 );
@@ -327,11 +337,19 @@ QMotifStyle::drawArrow( QPainter *p, ArrowType type, bool down,
     }
 
     QColor *cols[5];
-    cols[0] = 0;
-    cols[1] = (QColor *)&g.button();
-    cols[2] = (QColor *)&g.mid();
-    cols[3] = (QColor *)&g.light();
-    cols[4] = (QColor *)&g.dark();
+    if ( enabled ) {
+	cols[0] = 0;
+	cols[1] = (QColor *)&g.button();
+	cols[2] = (QColor *)&g.mid();
+	cols[3] = (QColor *)&g.light();
+	cols[4] = (QColor *)&g.dark();
+    } else {
+	cols[0] = 0;
+	cols[1] = (QColor *)&g.button();
+	cols[2] = (QColor *)&g.button();
+	cols[3] = (QColor *)&g.button();
+	cols[4] = (QColor *)&g.button();
+    }
 #define CMID	*cols[ (colspec>>12) & 0xf ]
 #define CLEFT	*cols[ (colspec>>8) & 0xf ]
 #define CTOP	*cols[ (colspec>>4) & 0xf ]
@@ -341,7 +359,7 @@ QMotifStyle::drawArrow( QPainter *p, ArrowType type, bool down,
     QBrush   saveBrush = p->brush();		// save current brush
     QWMatrix wxm = p->worldMatrix();
     QPen     pen( NoPen );
-    QBrush brush = g.brush( QColorGroup::Button );
+    QBrush brush = g.brush( enabled?QColorGroup::Button:QColorGroup::Mid );
 
     p->setPen( pen );
     p->setBrush( brush );
@@ -673,11 +691,11 @@ void QMotifStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
     if ( controls & AddLine )
 	drawArrow( p, VERTICAL ? DownArrow : RightArrow,
 		   ADD_LINE_ACTIVE, addB.x(), addB.y(),
-		   addB.width(), addB.height(), g, sb->value()<sb->maxValue() );
+		   addB.width(), addB.height(), g, TRUE );
     if ( controls & SubLine )
 	drawArrow( p, VERTICAL ? UpArrow : LeftArrow,
 		   SUB_LINE_ACTIVE, subB.x(), subB.y(),
-		   subB.width(), subB.height(), g, sb->value()>sb->minValue() );
+		   subB.width(), subB.height(), g, TRUE );
 
     QBrush fill = g.brush( QColorGroup::Mid );
     if (sb->backgroundPixmap() ){
