@@ -2304,7 +2304,7 @@ QWSDecoration &QApplication::qwsDecoration()
 
 /*!
     Set the QWSDecoration derived class to use for decorating the
-    Qt/Embedded windows to \a d.
+    Qt/Embedded windows to \a dec.
 
     This method is non-portable. It is available \e only in
     Qt/Embedded.

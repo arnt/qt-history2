@@ -98,6 +98,7 @@
     \value Enter  Mouse enters widget's boundaries.
     \value Leave  Mouse leaves widget's boundaries.
     \value Paint  Screen update necessary, \l{QPaintEvent}.
+    \value UpdateRequest The widget should be repainted.
     \value Move  Widget's position changed, \l{QMoveEvent}.
     \value Resize  Widget's size changed, \l{QResizeEvent}.
     \value Show  Widget was shown on screen, \l{QShowEvent}.
@@ -131,10 +132,14 @@
     \value DragLeave  A drag-and-drop leaves widget, \l{QDragLeaveEvent}.
     \value Drop  A drag-and-drop is completed, \l{QDropEvent}.
     \value DragResponse  Internal event used by Qt on some platforms.
+    \value Polish The object is polished.
+    \value PolishRequest The object should be polished.
     \value ChildAdded  Object gets a child, \l{QChildEvent}.
     \value ChildPolished  Object child gets polished, \l{QChildEvent}.
     \value ChildRemoved  Object loses a child, \l{QChildEvent}.
+    \value ChildInserted internal.
     \value LayoutRequest  Widget layout needs to be redone.
+    \value LayoutHint  internal.
     \value ActivateControl  Internal event used by Qt on some platforms.
     \value DeactivateControl  Internal event used by Qt on some platforms.
     \value LanguageChange  The application translation changed, \l{QTranslator}
@@ -157,6 +162,7 @@
     \value StyleChange Widget's style has been changed
     \value IconTextChange Widget's icon text has been changed
     \value ModifiedChange Widgets modification state has been changed
+    \value QWSUpdate internal.
 
     \value User  User defined event.
     \value MaxUser  Last user event id.

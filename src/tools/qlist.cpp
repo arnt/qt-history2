@@ -3,7 +3,7 @@
 #include <string.h>
 
 
-/*!
+/*
 
 Technicalities
 

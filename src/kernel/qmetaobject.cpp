@@ -251,8 +251,7 @@ int QMetaObject::classInfoOffset() const
 }
 
 /*!
-    Returns the number of slots for this class.  If \a super is true,
-    inherited slots are included.
+    Returns the number of slots for this class.
 
     \sa slot()
 */
@@ -268,8 +267,7 @@ int QMetaObject::slotCount() const
 }
 
 /*!
-    Returns the number of signals for this class.  If \a super is
-    true, inherited signals are included.
+    Returns the number of signals for this class.
 
     \sa signal()
 */
@@ -285,8 +283,7 @@ int QMetaObject::signalCount() const
 }
 
 /*!
-    Returns the number of enumerators for this class.  If \a super is
-    true, inherited enumerators are included.
+    Returns the number of enumerators for this class.
 
     \sa enumerator()
 */
@@ -302,8 +299,7 @@ int QMetaObject::enumeratorCount() const
 }
 
 /*!
-    Returns the number of properties for this class.  If \a super is
-    true, inherited properties are included.
+    Returns the number of properties for this class.
 
     \sa property()
 */
@@ -320,7 +316,6 @@ int QMetaObject::propertyCount() const
 
 /*!
     Returns the number of items of class information for this class.
-    If \a super is true, inherited classInfo are included.
 */
 int QMetaObject::classInfoCount() const
 {
@@ -472,9 +467,7 @@ QMetaMember QMetaObject::slot(int index) const
 
 /*!
     Returns the meta data for the signal with index \a index.
-
-    If \a super is true, inherited signal are included.
- */
+*/
 QMetaMember QMetaObject::signal(int index) const
 {
     int i = index;
@@ -493,9 +486,7 @@ QMetaMember QMetaObject::signal(int index) const
 
 /*!
     Returns the meta data for the enumerator with index \a index.
-
-    If \a super is true, inherited enumerator are included.
- */
+*/
 QMetaEnum QMetaObject::enumerator(int index) const
 {
     int i = index;
@@ -513,9 +504,7 @@ QMetaEnum QMetaObject::enumerator(int index) const
 
 /*!
     Returns the meta data for the property with index \a index.
-
-    If \a super is true, inherited properties are included.
- */
+*/
 QMetaProperty QMetaObject::property(int index) const
 {
     int i = index;
@@ -1305,7 +1294,7 @@ bool QMetaProperty::isEditable(const QObject *obj) const
     \class QMetaClassInfo qmetaobject.h
 
     \brief The QMetaClassInfo class provides additional information on a
-    class
+    class.
 
     \ingroup objectmodel
 

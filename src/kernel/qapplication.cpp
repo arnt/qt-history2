@@ -295,6 +295,22 @@ QApplicationPrivate::QApplicationPrivate(int &argc, char **argv)
     See setColorSpec() for full details.
 */
 
+/*!
+    \fn static bool QApplication::hasGlobalMouseTracking()
+
+    Returns TRUE if global mouse tracking is on; otherwise returns FALSE.
+
+    \sa setGlobalMouseTracking()
+*/
+
+/*!
+    \fn static void QApplication::setGlobalMouseTracking(bool on)
+
+    Sets global mouse tracking on if \a on is TRUE.
+
+    \sa hasGlobalMouseTracking()
+*/
+
 /*
   The qt_init() and qt_cleanup() functions are implemented in the
   qapplication_xyz.cpp file.

@@ -146,7 +146,8 @@ QEventLoop *QKernelApplication::eventLoop()
   to process all events for all widgets, so it's just as powerful as
   reimplementing notify(); furthermore, it's possible to have more
   than one application-global event filter. Global event filters even
-  see mouse events for \link QWidget::isEnabled() disabled widgets.
+  see mouse events for \link QWidget::isEnabled() disabled
+  widgets\endlink.
 
   \i Reimplementing QObject::event() (as QWidget does). If you do
   this you get Tab key presses, and you get to see the events before

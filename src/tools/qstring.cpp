@@ -377,7 +377,7 @@ void QString::resize(int size)
 }
 
 
-/*
+/*!
     Ensures that at least \a size characters are allocated to the
     string.
 
@@ -467,7 +467,7 @@ QString &QString::operator=(QChar c)
 }
 
 /*!
-    \fn QString& QString::operator=(const std::string& s)
+    \fn QString& QString::operator=(const std::string &s)
 
     \overload
 
@@ -476,7 +476,7 @@ QString &QString::operator=(QChar c)
 */
 
 /*!
-  \fn QString &QString::operator=(const QString & a)
+    \fn QString &QString::operator=(const QString &s)
     \overload
 
     Assigns a shallow copy of \a s to this string and returns a
@@ -484,6 +484,12 @@ QString &QString::operator=(QChar c)
     isn't actually copied.
 */
 
+/*!
+    \overload
+
+    Makes a deep copy of \a s and returns a reference to the resultant
+    QString.
+*/
 QString &QString::operator=(const char *s)
 {
     Data *x;
@@ -538,11 +544,13 @@ QString& QString::insert(int i, QChar c)
 }
 
 /*!
+    \overload
+
     Inserts \a s into the string at position \a i and returns a
     reference to the string.
 
     If \a i is beyond the end of the string, the string is extended
-    with spaces (ASCII 32) to length \a i and \a c is then
+    with spaces (ASCII 32) to length \a i and \a s is then
     appended.
 
     \code
@@ -637,7 +645,7 @@ QString& QString::prepend(const char *s) { return insert(0, s); }
 
     If \a i is beyond the length of the string, nothing happens.  If
     \a i is within the string, but \a i + \a len is beyond the end of
-    the string, the string is truncated at position \a iq.
+    the string, the string is truncated at position \a i.
 
     \code
 	QString string("Montreal");
@@ -716,9 +724,10 @@ QString& QString::remove(const QString & s, QString::CaseSensitivity cs)
     return *this;
 }
 
-/*! \overload
+/*!
+    \overload
 
-    This is the same as replace(\a index, \a len, QString(\a after)).
+    This is the same as replace(\a i, \a len, QString(\a after)).
 */
 QString& QString::replace(int i, int len, QChar after)
 {
@@ -1484,9 +1493,9 @@ int QString::count(const QString& s, QString::CaseSensitivity cs) const
 
 
 #ifndef QT_NO_REGEXP
-/*! \overload
+/*!
     Finds the first match of the regular expression \a rx, starting
-    from position \a from. If \a i is -1, the search starts at
+    from position \a from. If \a from is -1, the search starts at
     the last character; if -2, at the next to last character and so
     on. (See findRev() for searching backwards.)
 
@@ -1503,10 +1512,8 @@ int QString::count(const QString& s, QString::CaseSensitivity cs) const
 int QString::indexOf(const QRegExp& rx, int from) const { return rx.search(*this, from); }
 
 /*!
-    \overload
-
     Finds the first match of the regexp \a rx, starting at position \a
-    from and searching backwards. If the index is -1, the search
+    from and searching backwards. If \a from is -1, the search
     starts at the last character, if it is -2, at the next to last
     character and so on. (See findRev() for searching backwards.)
 
@@ -1523,8 +1530,6 @@ int QString::indexOf(const QRegExp& rx, int from) const { return rx.search(*this
 int QString::lastIndexOf(const QRegExp& rx, int from) const { return rx.searchRev(*this, from); }
 
 /*!
-    \overload
-
     Returns the number of times the regexp, \a rx, matches in the
     string.
 
@@ -2571,7 +2576,7 @@ QString& QString::setUnicode(const QChar *unicode, int size)
 }
 
 /*!
-    Resizes the string to \a len characters and copies \a
+    Resizes the string to \a size characters and copies \a
     unicode_as_ushorts into the string.
 
     If \a unicode_as_ushorts is 0, nothing is copied, but the string
@@ -2711,8 +2716,8 @@ QString QString::trimmed() const
 */
 
 /*!
-    Fills the string with \a len characters of value \a c, and returns
-    a reference to the string.
+    Fills the string with \a size characters of character \a c, and
+    returns a reference to the string.
 
     If \a size is negative (the default), the current string length is
     used.

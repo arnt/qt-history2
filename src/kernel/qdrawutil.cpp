@@ -30,7 +30,7 @@
     Nothing is drawn if \a y1 != \a y2 and \a x1 != \a x2 (i.e. the
     line is neither horizontal nor vertical).
 
-    The color group argument \a g specifies the shading colors (\link
+    The palette \a pal specifies the shading colors (\link
     QPalette::light() light\endlink, \link QPalette::dark()
     dark\endlink and \link QPalette::mid() middle\endlink colors).
 
@@ -143,7 +143,7 @@ void qDrawShadeLine( QPainter *p, int x1, int y1, int x2, int y2,
     Draws the shaded rectangle specified by (\a x, \a y, \a w, \a h)
     using the painter \a p.
 
-    The color group argument \a g specifies the shading colors (\link
+    The paletted \a pal specifies the shading colors (\link
     QPalette::light() light\endlink, \link QPalette::dark()
     dark\endlink and \link QPalette::mid() middle\endlink colors).
 
@@ -247,7 +247,7 @@ void qDrawShadeRect( QPainter *p, int x, int y, int w, int h,
     Draws the shaded panel specified by (\a x, \a y, \a w, \a h) using
     the painter \a p.
 
-    The color group argument \a g specifies the shading colors (\link
+    The palette \a pal specifies the shading colors (\link
     QPalette::light() light\endlink, \link QPalette::dark()
     dark\endlink and \link QPalette::mid() middle\endlink colors).
 
@@ -400,7 +400,7 @@ static void qDrawWinShades( QPainter *p,
     Draws the Windows-style button specified by (\a x, \a y, \a w, \a
     h) using the painter \a p.
 
-    The color group argument \a g specifies the shading colors (\link
+    The palette \a pal specifies the shading colors (\link
     QPalette::light() light\endlink, \link QPalette::dark()
     dark\endlink and \link QPalette::mid() middle\endlink colors).
 
@@ -439,7 +439,7 @@ void qDrawWinButton( QPainter *p, int x, int y, int w, int h,
     Draws the Windows-style panel specified by (\a x, \a y, \a w, \a
     h) using the painter \a p.
 
-    The color group argument \a g specifies the shading colors.
+    The palette \a pal specifies the shading colors.
 
     The panel appears sunken if \a sunken is TRUE, or raised if \a
     sunken is FALSE.

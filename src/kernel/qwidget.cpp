@@ -5011,7 +5011,7 @@ void QWidget::setParent(QWidget *parent)
 /*!
     \overload
 
-    This function also takes widget flags as an argument.
+    This function also takes widget flags, \a f as an argument.
 
     \sa getWFlags()
 */
@@ -5364,8 +5364,9 @@ void QWidget::drawText(const QPoint &p, const QString &str)
     \endtable
 */
 
-/*! Sets the attribute \a attribute on this widget if \b is true;
-  otherwise clears the attribute.
+/*!
+    Sets the attribute \a attribute on this widget if \a b is true;
+    otherwise clears the attribute.
 
   \sa hasAttribute()
  */

@@ -3263,6 +3263,16 @@ QRegExp::QRegExp(const QString& pattern, QString::CaseSensitivity cs, bool wildc
     priv->cs = cs != 0;
 }
 
+/*!
+    \overload
+
+    Constructs a regular expression object for the given \a pattern
+    string. The pattern must be given using wildcard notation if \a
+    wildcard is true (default is false). The pattern is not case
+    sensitive, unless \a caseSensitive is true.
+
+    \sa setPattern() setCaseSensitive() setWildcard() setMinimal()
+*/
 QRegExp::QRegExp(const QString& pattern, bool caseSensitive, bool wildcard)
     : eng(0)
 {

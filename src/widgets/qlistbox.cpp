@@ -949,14 +949,13 @@ int QListBoxPixmap::rtti() const
 
 /*!
     Constructs a new empty list box called \a name and with parent \a
-    parent.
+    parent and widget attributes \a f.
 
-    Performance is boosted by setting both the \c WA_StaticContent and
-    the \c WA_NoBackground attribute so that only part of the
-    QListBoxItem children is redrawn. This may be unsuitable for
-    custom QListBoxItem classes, in which case \c WA_StaticContents
-    and \c WA_NoBackground should be cleared on the viewport() after
-    construction.
+    This constructor sets the \c WA_StaticContent and the \c
+    WA_NoBackground attributes to boost performance when drawing
+    QListBoxItems. This may be unsuitable for custom QListBoxItem
+    classes, in which case \c WA_StaticContents and \c WA_NoBackground
+    should be cleared on the viewport() after construction.
 
     \sa QWidget::clearWFlags() Qt::WidgetFlags
 */

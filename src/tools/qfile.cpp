@@ -591,6 +591,9 @@ QString QFile::decodeName( const QByteArray &localFileName )
     return (*decoder)(localFileName);
 }
 
+/*!
+    \overload
+*/
 QString QFile::decodeName( const char *localFileName )
 {
     return decodeName(QByteArray(localFileName));

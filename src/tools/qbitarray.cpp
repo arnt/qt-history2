@@ -49,7 +49,7 @@
 */
 
 
-/*! \fn QBitArray()
+/*! \fn QBitArray::QBitArray()
     Constructs an empty bit array.
 */
 
@@ -116,6 +116,8 @@ void QBitArray::resize(int size)
 
 /*!
     \fn void QBitArray::setBit(int i, bool val)
+
+    \overload
 
     Sets the bit at position \a i to \a val.
 

@@ -169,6 +169,9 @@ QColor::ColorModel QColor::colormodel = d32;
 */
 
 /*!
+    \overload
+
+    Constructs a new color with a color value of \a color.
  */
 QColor::QColor(Qt::GlobalColor color)
 {
@@ -351,6 +354,10 @@ QColor &QColor::operator=( const QColor &c )
 }
 
 /*!
+    \overload
+
+    Assigns a copy of the color \a color and returns a reference to
+    this color.
  */
 QColor &QColor::operator=(Qt::GlobalColor color)
 {

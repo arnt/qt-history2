@@ -1204,7 +1204,7 @@ void QObject::removeEventFilter( const QObject *obj )
 */
 
 /*!
-    \overload QObject::destroyed( QObject* obj)
+    \fn QObject::destroyed( QObject* obj)
 
     This signal is emitted immediately before the object \a obj is
     destroyed, and can not be blocked.

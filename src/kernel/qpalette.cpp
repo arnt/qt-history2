@@ -104,6 +104,9 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
 
 /*!
    \fn const QColor &QPalette::color( ColorRole r ) const
+
+   \overload
+
     Returns the color that has been set for color role \a r in the current ColorGroup.
 
     \sa brush() ColorRole
@@ -111,6 +114,9 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
 
 /*!
     \fn const QBrush &QPalette::brush( ColorRole r ) const
+
+    \overload
+
     Returns the brush that has been set for color role \a r in the current ColorGroup.
 
     \sa color() setBrush() ColorRole
@@ -118,6 +124,9 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
 
 /*!
     \fn void QPalette::setColor( ColorRole r, const QColor &c )
+
+    \overload
+
     Sets the brush used for color role \a r in the current ColorGroup to a solid color \a c.
 
     \sa brush() setColor() ColorRole
@@ -322,10 +331,12 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
 /*!
     \enum QPalette::ColorGroup
 
+    \value Current internal.
     \value Disabled
     \value Active
     \value Inactive
-    \value NColorGroups
+    \value NColorGroups internal.
+    \value All internal.
     \value Normal synonym for Active
 */
 
@@ -592,11 +603,11 @@ QPalette &QPalette::operator=(const QPalette &p)
 */
 
 /*!
-    Returns the brush in color group \a gr, used for color role \a r.
+    Returns the brush in color group \a gr, used for color role \a cr.
 
     \sa color() setBrush() ColorRole
 */
-const QBrush &QPalette::brush(ColorGroup cg, ColorRole cr) const
+const QBrush &QPalette::brush(ColorGroup gr, ColorRole cr) const
 {
     Q_ASSERT(cr < NColorRoles);
     if(cg >= (int)NColorGroups) {
@@ -619,16 +630,7 @@ const QBrush &QPalette::brush(ColorGroup cg, ColorRole cr) const
 */
 
 /*!
-    \overload
-
-    Sets the brush in for color role \a r in all three color groups to
-    \a b.
-
-    \sa brush() setColor() ColorRole
-*/
-
-/*!
-    Sets the brush in color group \a gr, used for color role \a r, to
+    Sets the brush in color group \a cg, used for color role \a cr, to
     \a b.
 
     \sa brush() setColor() ColorRole
@@ -653,15 +655,6 @@ void QPalette::setBrush(ColorGroup cg, ColorRole cr, const QBrush &b)
     d->br[cg][cr] = b;
 }
 
-/*!
-    \overload
-
-    \fn void QPalette::setColor( ColorRole r, const QColor &c )
-    Sets the brush color used for color role \a r to color \a c in all
-    three color groups.
-
-    \sa color() setBrush() ColorRole
-*/
 
 /*!
     \fn QPalette QPalette::copy() const

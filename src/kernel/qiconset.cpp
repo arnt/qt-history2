@@ -620,7 +620,7 @@ void QIconSet::clearGenerated()
 }
 
 /*!
-    Installs \a factory as the icon factory for this iconset. The
+    Installs \a func as the icon factory for this iconset. The
     icon factory is used to generates pixmaps not set by the user.
 
     If no icon factory is installed, QIconFactory::defaultFactory()

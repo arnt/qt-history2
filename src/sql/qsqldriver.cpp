@@ -82,19 +82,6 @@ QSqlDriver::~QSqlDriver()
 */
 
 /*!
-    \overload
-
-    Open a database connection on database \a db, using user name \a
-    user, password \a password, host \a host, port \a port and
-    connection options \a connOpts.
-
-    Returns TRUE on success and FALSE on failure.
-
-    \sa setOpen()
-*/
-
-
-/*!
     \fn bool QSqlDriver::close()
 
     Derived classes must reimplement this abstract virtual function in

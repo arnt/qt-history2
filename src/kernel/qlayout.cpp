@@ -1128,10 +1128,11 @@ void QGridLayout::addItem( QLayoutItem *item )
 
 /*!
     Adds \a item at position \a row, \a col, spanning \a rowSpan rows
-    and \a colSpan columns. The layout takes ownership of the \a item.
+    and \a colSpan columns, and aligns it according to \a alignment.
+    The layout takes ownership of the \a item.
 
-    \warning Do not use this function to add child layouts or child widget items. Use
-    addLayout() or addWidget() instead.
+    \warning Do not use this function to add child layouts or child
+    widget items. Use addLayout() or addWidget() instead.
 */
 void QGridLayout::addItem(QLayoutItem *item, int row, int col, int rowSpan, int colSpan, Alignment alignment)
 {

@@ -281,8 +281,14 @@ QDataStream::QDataStream( QByteArray &a, int mode )
     noswap    = systemBigEndian;
 }
 
-/*! \overload
- */
+/*!
+    \overload
+
+    Constructs a data stream that operates on a byte array, \a a,
+    through an internal QBuffer device. The \a mode is a
+    QIODevice::mode(), usually either \c IO_ReadOnly or \c
+    IO_WriteOnly.
+*/
 QDataStream::QDataStream( const QByteArray &a, int mode )
 {
     if ( systemWordSize == 0 )			// get system features

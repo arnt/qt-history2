@@ -43,14 +43,14 @@
 */
 
 /*!
-  \fn bool isActive() const
+  \fn bool QBasicTimer::isActive() const
 
     Returns true if the timer is running (pending); otherwise returns
     false.
 */
 
 /*!
-  \fn int timerId() const
+  \fn int QBasicTimer::timerId() const
 
   Returns the timer id.
 

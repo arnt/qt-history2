@@ -921,6 +921,7 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
     \value Bool  a bool
     \value Brush  a QBrush
     \value Color  a QColor
+    \value ColorGroup  internal.
     \value Cursor  a QCursor
     \value Date  a QDate
     \value DateTime  a QDateTime

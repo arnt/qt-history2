@@ -508,9 +508,12 @@ QRect QStyle::itemRect( QPainter *p, const QRect &r,
     return result;
 }
 
-/*! \overload Returns the appropriate area within rectangle \a r in
+/*!
+    \overload
+
+    Returns the appropriate area within rectangle \a r in
     which to draw \a pixmap using painter \a p.
- */
+*/
 QRect QStyle::itemRect( QPainter *p, const QRect &r,
 			int flags, bool enabled,
 			const QPixmap &pixmap ) const
@@ -538,8 +541,8 @@ QRect QStyle::itemRect( QPainter *p, const QRect &r,
 
 
 /*!
-    Draws the \a text in rectangle \a r using painter \a p and color
-    group \a g. The pen color is specified with \a penColor. The \a
+    Draws the \a text in rectangle \a r using painter \a p and palette
+    \a pal. The pen color is specified with \a penColor. The \a
     enabled bool indicates whether or not the item is enabled; when
     reimplementing this bool should influence how the item is
     drawn. If \a len is -1 (the default) all the \a text is drawn;

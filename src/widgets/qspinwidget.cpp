@@ -308,6 +308,7 @@ void QSpinWidget::paintEvent( QPaintEvent * )
 }
 
 
+// ### What does the QEvent passed in contain? It used to be the previous style.
 /*!
     The previous style is passed in \a old.
 */

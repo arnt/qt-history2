@@ -596,7 +596,7 @@ char QChar::ascii() const
 }
 
 /*!
-    Converts the ascii character to it's equivalent QChar. This
+    Converts the ascii character \a c to it's equivalent QChar. This
     is mainly useful for non-internationalized software.
 
     \sa unicode(), QTextCodec::codecForCStrings()

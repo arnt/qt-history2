@@ -2542,14 +2542,13 @@ void QListViewItem::ignoreDoubleClick()
 
 /*!
     Constructs a new empty list view called \a name with parent \a
-    parent.
+    parent and widget attributes \a f.
 
-    Performance is boosted by setting both the \c WA_StaticContent and
-    the \c WA_NoBackground attribute so that only part of the
-    QListViewItem children is redrawn. This may be unsuitable for
-    custom QListViewItem classes, in which case \c WA_StaticContents
-    and \c WA_NoBackground should be cleared on the viewport() after
-    construction.
+    This constructor sets the \c WA_StaticContent and the \c
+    WA_NoBackground attributes to boost performance when drawing
+    QListViewItems. This may be unsuitable for custom QListViewItem
+    classes, in which case \c WA_StaticContents and \c WA_NoBackground
+    should be cleared on the viewport() after construction.
 
     \sa QWidget::setAttribute()
 */

@@ -1242,12 +1242,13 @@ bool QFont::operator==( const QFont &f ) const
 
 
 /*!
-  Gives an arbitrary ordering of QFonts. All that is guaranteed is that
-  the operator returns false if both fonts are equal and that
-  (f1 < f2) == !(f2<f1) if the fonts are not equal.
+    Provides an arbitrary comparison of this font and font \a f.
+    All that is guaranteed is that the operator returns FALSE if both
+    fonts are equal and that (f1 \< f2) == !( f2 \< f1) if the fonts
+    are not equal.
 
-  This function is useful, if one wants to use QFont objects as key in
-  eg. a QMap.
+    This function is useful in some circumstances, for example if you
+    want to use QFont objects as keys in a QMap.
 
     \sa operator==() operator!=() isCopyOf()
 */

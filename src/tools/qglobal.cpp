@@ -598,7 +598,7 @@ void qSystemWarning( const char *msg, ... )
 
     \relates QApplication
 
-    Prints the message \msg together with the source code file name and
+    Prints the message \a msg together with the source file name and
     line number if \a test is false.
 
     This is really a macro defined in \c qglobal.h.
