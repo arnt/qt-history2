@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#241 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#242 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -455,6 +455,10 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	case Key_Left:
 	    cursorWordBackward( e->state() & ShiftButton );
 	    break;
+#if defined (_WS_WIN_)
+	case Key_Insert:
+	    copy();
+#endif	    
 	default:
 	    unknown++;
 	}
@@ -476,8 +480,22 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    end( e->state() & ShiftButton );
 	    break;
 	case Key_Delete:
+#if defined (_WS_WIN_)
+	    if ( e->state() & ShiftButton ) {
+		cut();
+		break;
+	    }
+#endif	    
 	    del();
 	    break;
+#if defined (_WS_WIN_)
+	case Key_Insert:
+	    if ( e->state() & ShiftButton )
+		paste();
+	    else
+		unknown++;
+	    break;
+#endif	    
 	default:
 	    unknown++;
 	}
@@ -667,10 +685,10 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 	    clear();
 	else if ( id == d->id[ 4 ] )
 	    selectAll();
-    
+
 	return;
     }
-    
+
     d->inDoubleClick = FALSE;
     int newCP = xPosToCursorPos( e->pos().x() );
     int m1 = minMark();

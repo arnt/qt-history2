@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#88 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#89 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -980,6 +980,10 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	case Key_X:
 	    cut();
 	    break;
+#if defined (_WS_WIN_)
+	case Key_Insert:
+	    copy();
+#endif	    
 	default:
 	    unknown++;
 	}
@@ -1007,6 +1011,12 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	    end( e->state() & ShiftButton );
 	    break;
 	case Key_Delete:
+#if defined (_WS_WIN_)
+	    if ( e->state() & ShiftButton ) {
+		cut();
+		break;
+	    }
+#endif	    
 	    del();
 	    break;
 	case Key_Next:
@@ -1023,6 +1033,14 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	case Key_Tab:
 	    insert( e->text() );
 	    break;
+#if defined (_WS_WIN_)
+	case Key_Insert:
+	    if ( e->state() & ShiftButton )
+		paste();
+	    else
+		unknown++;
+	    break;
+#endif	    
 	default:
 	    unknown++;
 	}
@@ -1735,10 +1753,10 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 	    clear();
 	else if ( id == d->id[ 4 ] )
 	    selectAll();
-    
+
 	return;
     }
-    
+
     if ( m->button() != MidButton && m->button() != LeftButton)
 	return;
 
