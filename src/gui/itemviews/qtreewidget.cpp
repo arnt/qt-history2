@@ -45,6 +45,9 @@ public:
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
 
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    bool setHeaderData(int section, Qt::Orientation orientation, int role, const QVariant &value);
+
     bool insertRows(int row, const QModelIndex &parent = QModelIndex::Null, int count = 1);
     bool removeRows(int row, const QModelIndex &parent = QModelIndex::Null, int count = 1);
 
@@ -284,6 +287,25 @@ bool QTreeModel::setData(const QModelIndex &index, int role, const QVariant &val
     }
     return false;
 }
+
+QVariant QTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (orientation == Qt::Horizontal && header)
+        return header->data(section, role);
+    return QVariant();
+}
+
+bool QTreeModel::setHeaderData(int section, Qt::Orientation orientation,
+                               int role, const QVariant &value)
+{
+    if (orientation == Qt::Horizontal && header) {
+        header->setData(section, role, value);
+        emit headerDataChanged(orientation, section, section);
+        return true;
+    }
+    return false;
+}
+
 
 /*!
   \internal

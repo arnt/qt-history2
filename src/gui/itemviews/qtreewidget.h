@@ -115,8 +115,6 @@ private:
     QTreeWidgetItem *par;
     QList<QTreeWidgetItem*> children;
     QAbstractItemModel::ItemFlags itemFlags;
-//     Qt::SortOrder sorting;
-//     bool sorted;
 };
 
 class QTreeWidgetPrivate;
