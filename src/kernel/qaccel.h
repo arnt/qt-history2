@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.h#41 $
+** $Id: //depot/qt/main/src/kernel/qaccel.h#42 $
 **
 ** Definition of QAccel class
 **
@@ -47,13 +47,13 @@ public:
     uint	count() const;
 
     int		insertItem( int key, int id=-1);
-    int		insertItem( int keystate, const QString& keytext, int id=-1);
+    int		insertItem( int keystate, QChar keytext, int id=-1);
     void	removeItem( int id );
     void	clear();
 
     int		key( int id );
     int		findKey( int key ) const;
-    int		findKey( int keystate, const QString& keytext ) const;
+    int		findKey( int keystate, QChar keytext ) const;
 
     bool	isItemEnabled( int id ) const;
     void	setItemEnabled( int id, bool enable );

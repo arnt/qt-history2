@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#72 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#73 $
 **
 ** Implementation of QAccel class
 **
@@ -71,12 +71,12 @@
 struct QAccelItem {				// internal accelerator item
     QAccelItem( int k, int i )
 	{ key=k; id=i; enabled=TRUE; signal=0; }
-    QAccelItem( int k, QString kt, int i )
+    QAccelItem( int k, QChar kt, int i )
 	{ key=k; key_text=kt; id=i; enabled=TRUE; signal=0; }
    ~QAccelItem()	       { delete signal; }
     int		id;
     int		key;
-    QString	key_text; // we don't use this really yet
+    QChar	key_text;
     bool	enabled;
     QSignal    *signal;
     QString whatsthis;
@@ -105,7 +105,7 @@ static QAccelItem *find_id( QAccelList &list, int id )
     return item;
 }
 
-static QAccelItem *find_key( QAccelList &list, int key, int ascii, const QString& text )
+static QAccelItem *find_key( QAccelList &list, int key, int ascii, QChar text )
 {
     register QAccelItem *item = list.first();
     while ( item ) {
@@ -233,7 +233,7 @@ int QAccel::insertItem( int key, int id )
   Inserts an accelerator item and returns the item's identifier.
 
   \arg \e keystate is a combination of SHIFT, CTRL and ALT.
-  \arg \e keytext is string (usually a single character).
+  \arg \e keytext is (Unicode) character.
   \arg \e id is the accelerator item id.
 
   If \e id is negative, then the item will be assigned a unique
@@ -245,11 +245,11 @@ int QAccel::insertItem( int key, int id )
     // Ctrl plus whatever should be used for the "P" accelerator in
     // according the installed translations.
     //
-    a->insertItem( CTRL, tr("P"), 200 );
+    a->insertItem( CTRL, tr("P")[0], 200 );
   \endcode
 */
 
-int QAccel::insertItem( int keystate, const QString& keytext, int id )
+int QAccel::insertItem( int keystate, QChar keytext, int id )
 {
     if ( id == -1 )
 	id = d->aitems.count();
@@ -297,7 +297,7 @@ int QAccel::key( int id )
 
 int QAccel::findKey( int key ) const
 {
-    QAccelItem *item = find_key( d->aitems, key, key & 0xff, QString::null );
+    QAccelItem *item = find_key( d->aitems, key, key & 0xff, QChar::null );
     return item ? item->id : -1;
 }
 
@@ -307,7 +307,7 @@ int QAccel::findKey( int key ) const
   and text \a keytext, or -1 if the item cannot be found.
 */
 
-int QAccel::findKey( int keystate, const QString& keytext ) const
+int QAccel::findKey( int keystate, QChar keytext ) const
 {
     QAccelItem *item = find_key( d->aitems, keystate, 0, keytext );
     return item ? item->id : -1;
@@ -434,7 +434,7 @@ bool QAccel::eventFilter( QObject *, QEvent *e )
 	    key |= CTRL;
 	if ( k->state() & AltButton )
 	    key |= ALT;
-	QAccelItem *item = find_key( d->aitems, key, k->ascii(), k->text() );
+	QAccelItem *item = find_key( d->aitems, key, k->ascii(), k->text()[0] );
 	bool b = QWhatsThis::inWhatsThisMode();
 	if ( item && ( item->enabled || b )) {
 	    if (e->type() == QEvent::Accel) {
