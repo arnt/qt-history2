@@ -1484,13 +1484,11 @@ class QCustomTypeInfo
 public:
     QCustomTypeInfo() : typeName(0), copy(0), destr(0) {}
     void setData(const char *tname, QMetaType::CopyConstructor cp, QMetaType::Destructor de)
-    { delete [] typeName; typeName = qstrdup(tname); copy = cp; destr = de; }
+    { typeName = tname; copy = cp; destr = de; }
     void setData(QMetaType::CopyConstructor cp, QMetaType::Destructor de)
     { copy = cp; destr = de; }
-    ~QCustomTypeInfo()
-    { delete [] typeName; }
 
-    char *typeName;
+    QByteArray typeName;
     QMetaType::CopyConstructor copy;
     QMetaType::Destructor destr;
 };
@@ -1504,7 +1502,7 @@ static QVector<QCustomTypeInfo> customTypes;
 const char *QMetaType::typeName(int type)
 {
     if (type >= User)
-        return isRegistered(type) ? customTypes.at(type - User).typeName : 0;
+        return isRegistered(type) ? customTypes.at(type - User).typeName.constData() : 0;
 
     int i = 0;
     while (types[i].typeName) {
