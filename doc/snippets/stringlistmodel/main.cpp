@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
         QModelIndex index = model->index(row, 0, QModelIndex(),
             QModelIndex::View);
         model->setData(index, QAbstractItemModel::EditRole,
-            QString::number(row));
+            QString::number(row+1));
     }
 
     view->show();

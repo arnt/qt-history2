@@ -70,11 +70,14 @@ bool StringListModel::isEditable(const QModelIndex &/*index*/) const
 
 bool StringListModel::setData(const QModelIndex &index, int role, const QVariant &value)
 {
-    if (!index.isValid() || index.type() != QModelIndex::View || role != EditRole)
-        return false;
-    stringList.replace(index.row(), value.toString());
-    emit dataChanged(index, index);
-    return true;
+    if (index.isValid() && index.type() == QModelIndex::View &&
+        role == EditRole) {
+
+        stringList.replace(index.row(), value.toString());
+        emit dataChanged(index, index);
+        return true;
+    }
+    return false;
 }
 
 /*!
