@@ -432,6 +432,17 @@ void QBrush::setColor(const QColor &c)
 
 
 #ifdef QT_COMPAT
+
+/*!
+    \fn void QBrush::setPixmap(const QPixmap &pixmap)
+
+    \compat
+
+    Sets a custom pattern for this brush. Use setTexture() instead.
+
+    \sa setTexture
+*/
+
 /*!
     \fn QPixmap *QBrush::pixmap() const
 
@@ -584,12 +595,6 @@ bool QBrush::operator==(const QBrush &b) const
     \fn QBrush::operator const QColor&() const
 
     Returns the brush's color.
-*/
-
-/*!
-    \fn QBrush::operator const QPixmap*() const
-
-    Returns the brush's pixmap.
 */
 
 /*!

@@ -34,15 +34,15 @@ public:
     inline void drawEllipse(int x, int y, int w, int h)
     { drawEllipse(QRect(x, y, w, h)); }
 
-    inline void drawArc(const QRect &, int a, int alen);
+    inline void drawArc(const QRect &r, int a, int alen);
     inline void drawArc(int x, int y, int w, int h, int a, int alen)
     { drawArc(QRect(x, y, w, h), a, alen); }
 
-    inline void drawPie(const QRect &, int a, int alen);
+    inline void drawPie(const QRect &r, int a, int alen);
     inline void drawPie(int x, int y, int w, int h, int a, int alen)
     { drawPie(QRect(x, y, w, h), a, alen); }
 
-    inline void drawChord(const QRect &, int a, int alen);
+    inline void drawChord(const QRect &r, int a, int alen);
     inline void drawChord(int x, int y, int w, int h, int a, int alen)
     { drawChord(QRect(x, y, w, h), a, alen); }
 

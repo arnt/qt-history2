@@ -48,7 +48,15 @@
     for all drawing functions even with complex transformations.
 */
 
+/*!
+    \fn Q3Painter::Q3Painter()
 
+    Constructs a Q3Painter.
+*/
+
+/*!
+    \internal
+*/
 QRect Q3Painter::adjustedRectangle(const QRect &r)
 {
     QRect rect = r.normalize();
@@ -64,17 +72,16 @@ QRect Q3Painter::adjustedRectangle(const QRect &r)
 
     \overload
 
-    Draws a rectangle with upper left corner at (\a{x}, \a{y}) and with
-    width \a w and height \a h.
+    Draws the rectangle that fits inside the bounds specified by \a x,
+    \a y, \a w and \a h using the current pen and brush.
 */
 
 /*!
-    \fn void Q3Painter::drawRect(int x, int y, int w, int h)
+    \fn void Q3Painter::drawRect(const QRect &r)
 
-    Draws the rectangle \r with the current pen and brush.
+    Draws a rectangle that fits inside the rectangle \a r using the
+    current pen and brush.
 
-    A filled rectangle has a size of r.size(). A stroked rectangle
-    has a size of r.size() plus the pen width.
 */
 
 
@@ -82,15 +89,19 @@ QRect Q3Painter::adjustedRectangle(const QRect &r)
 /*!
     \fn Q3Painter::drawEllipse(const QRect &r)
 
-    Draws the ellipse that fits inside the rectangle \a r.
+    Draws the ellipse that fits inside the bounds \a r using the
+    current pen and brush.
 
-    A filled ellipse has a size of r.size(). An stroked ellipse
-    has a size of r.size() plus the pen width.
 */
 
 /*!
     \fn Q3Painter::drawEllipse(int x, int y, int width, int height)
+
     \overload
+
+    Draws an ellipse that fits inside the bounds specified by \a x,
+    \a y, \a width and \a height using the current pen and brush.
+
 */
 
 /*!
@@ -99,12 +110,12 @@ QRect Q3Painter::adjustedRectangle(const QRect &r)
 
     \overload
 
-    Draws a pie segment that fits inside the rectangle (\a{x}, \a{y},
+    Draws a pie segment that fits inside the bounds (\a{x}, \a{y},
     \a{w}, \a{h}) with the given \a startAngle and \a spanAngle.
 */
 
 /*!
-    Q3Painter::drawPie(const QRect &r, int a, int alen)
+    \fn void Q3Painter::drawPie(const QRect &r, int a, int alen)
 
     Draws a pie defined by the rectangle \a r, the start angle \a a
     and the arc length \a alen.
@@ -161,7 +172,7 @@ QRect Q3Painter::adjustedRectangle(const QRect &r)
 
 
 /*!
-    \fn void Q3Painter::drawChord(const QRect &r, int a int alen)
+    \fn void Q3Painter::drawChord(const QRect &r, int a, int alen)
 
     Draws a chord defined by the rectangle \a r, the start angle \a a
     and the arc length \a alen.
@@ -174,4 +185,22 @@ QRect Q3Painter::adjustedRectangle(const QRect &r)
     direction. Zero degrees is at the 3 o'clock position.
 
     \sa drawArc(), drawPie()
+*/
+
+/*!
+    \fn void Q3Painter::drawRoundRect(const QRect &r, int xrnd, int yrnd)
+
+    Draws a rounded rect that fits into the bounds \a r using the current
+    pen and brush. The parameters \a xrnd and \a yrnd specifies the roundness
+    in x and y direction.
+*/
+
+/*!
+    \fn void Q3Painter::drawRoundRect(int x, int y, int w, int h, int xrnd, int yrnd)
+
+    \overload
+
+    Draws a rounded rect that fits into the bounds \a x, \a y, \a w
+    and \a h using the current pen and brush. The parameters \a xrnd
+    and \a yrnd specifies the roundness in x and y direction.
 */

@@ -126,10 +126,23 @@
 /*!
     \enum QPaintEngine::PolygonDrawMode
 
-    \value OddEvenMode
-    \value WindingMode
-    \value ConvexMode
-    \value PolylineMode
+    \value OddEvenMode The polygon should be drawn using OddEven fill
+    rule.
+
+    \value WindingMode The polygon should be drawn using Winding fill rule.
+
+    \value ConvexMode The polygon is a convex polygon and can be drawn
+    using specialized algorithms where available.
+
+    \value PolylineMode Only the outline of the polygon should be
+    drawn.
+
+*/
+
+/*!
+    \enum QPaintEngine::DirtyFlag
+
+    \internal
 */
 
 /*!
@@ -144,7 +157,7 @@
 
 /*!
     \fn void QPaintEngine::drawPolygon(const QPolygon &polygon,
-    QPaintEngine::PolygonDrawMode mode)
+    PolygonDrawMode mode)
 
     Reimplement this pure virtual function to draw \a polygon using
     the drawing mode \a mode.
@@ -240,7 +253,7 @@ void QPaintEngine::drawEllipse(const QRectF &rect)
 
 /*!
     Calls drawLine() for every pair of points in the point array \a
-    pa.
+    lines.
 */
 
 void QPaintEngine::drawLines(const QList<QLineF> &lines)
@@ -304,8 +317,8 @@ void qt_draw_tile(QPaintEngine *gc, float x, float y, float w, float h,
 
 /*!
     Reimplement this function to draw the \a pixmap in the given \a
-    rectangle, starting at the given \a point. The pixmap will be
-    drawn repeatedly until the \a rectangle is filled using the given
+    rect, starting at the given \a p. The pixmap will be
+    drawn repeatedly until the \a rect is filled using the given
     \a mode.
 */
 void QPaintEngine::drawTiledPixmap(const QRectF &rect, const QPixmap &pixmap, const QPointF &p,
@@ -822,8 +835,8 @@ void QPaintEngine::updateRenderHints(QPainter::RenderHints /*hints*/)
 
 /*!
     This function is called when the engine needs to be updated with
-    the new clip \a path. The value of \a enabled signifies whether or
-    not the clippath should be enabled.
+    the new clip \a path. The value of \a op specifies how the clip path
+    should be combined with the current clip.
 */
 void QPaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperation op)
 {

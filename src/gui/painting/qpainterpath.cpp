@@ -1005,7 +1005,7 @@ QPainterPath QPainterPath::toReversed() const
 /*!
     Returns the painter path as a list of polygons. One polygon is
     created for each subpath. The polygons are transformed using the
-    transformation matrix \a matrinx.
+    transformation matrix \a matrix.
 */
 QList<QPolygon> QPainterPath::toSubpathPolygons(const QMatrix &matrix) const
 {

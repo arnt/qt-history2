@@ -256,9 +256,8 @@ QColor::QColor(Qt::GlobalColor color)
 */
 
 /*!
-    Constructs a color with the value \a color. The color format is
-    specified with \a format. The alpha component is ignored and set
-    to 255, or solid.
+    Constructs a color with the value \a color. The alpha component is
+    ignored and set to solid.
 */
 
 QColor::QColor(QRgb color)
@@ -382,6 +381,13 @@ QStringList QColor::colorNames()
 
 /*!
     \overload
+
+    Returns the current RGB value as HSV. The contents of the \a h, \a
+    s, and \a v pointers are set to the HSV values, and the contents
+    of \a a is set to the alpha-channel (transparency) value. If any
+    of the pointers are null, the function does nothing.
+
+    \sa setHsv(), rgb()
 */
 void QColor::getHsvF(float *h, float *s, float *v, float *a) const
 {
@@ -403,7 +409,7 @@ void QColor::getHsvF(float *h, float *s, float *v, float *a) const
 
 /*!
     Returns the current RGB value as HSV. The contents of the \a h, \a
-    s, and \a v pointers are set to the HSV values, and the contenst
+    s, and \a v pointers are set to the HSV values, and the contents
     of \a a is set to the alpha-channel (transparency) value. If any
     of the pointers are null, the function does nothing.
 
@@ -485,6 +491,12 @@ void QColor::setHsv(int h, int s, int v, int a)
 
 /*!
     \overload
+
+    Sets the contents pointed to by \a r, \a g, \a b, and \a a, to the
+    red, green, blue, and alpha-channel (transparency) components of
+    the RGB value.
+
+    \sa rgb(), setRgb(), getHsv()
 */
 void QColor::getRgbF(float *r, float *g, float *b, float *a) const
 {
@@ -541,7 +553,10 @@ void QColor::getRgb(int *r, int *g, int *b, int *a) const
 */
 
 /*!
-    \fn void QColor::setRgb(float r, float g, float b, float a)
+    \fn void QColor::setRgbF(float r, float g, float b, float a)
+
+    Sets the color channels of this color to \a r (red), \a g (green),
+    \a b (blue) and \a a (alpha, transparency).
 
     \overload
 
@@ -1192,14 +1207,30 @@ QColor QColor::convertTo(QColor::Spec colorSpec) const
 }
 
 
+/*!
+    Creates a color from the argb value \a rgb.
+
+    The alpha component of \a rgb is ignored. For conversion from an RGBA value
+    use fromRgba().
+
+    \sa fromRgba()
+*/
+
 QColor QColor::fromRgb(QRgb rgb)
 {
     return fromRgb(qRed(rgb), qGreen(rgb), qBlue(rgb));
 }
 
-QColor QColor::fromRgba(QRgb rgb)
+
+/*!
+    Creates a color from the rgba value \a rgba.
+
+    \sa fromRgb()
+*/
+
+QColor QColor::fromRgba(QRgb rgba)
 {
-    return fromRgb(qRed(rgb), qGreen(rgb), qBlue(rgb), qAlpha(rgb));
+    return fromRgb(qRed(rgba), qGreen(rgba), qBlue(rgba), qAlpha(rgba));
 }
 
 /*!
@@ -1352,6 +1383,12 @@ void QColor::getCmyk(int *c, int *m, int *y, int *k, int *a)
 
 /*!
     \overload
+
+    Sets the contents pointed to by \a c, \a m, \a y, \a k, and \a a,
+    to the cyan, magenta, yellow, black, and alpha-channel
+    (transparency) components of the CMYK value.
+
+    \sa setCmyk() getRgb() getHsv()
 */
 void QColor::getCmykF(float *c, float *m, float *y, float *k, float *a)
 {
@@ -1402,7 +1439,12 @@ void QColor::setCmyk(int c, int m, int y, int k, int a)
 /*!
     \overload
 
+    Sets the color to CMYK values, \a c (cyan), \a m (magenta), \a y (yellow),
+    \a k (black), and \a a (alpha-channel, i.e. transparency).
+
     All the values must be in the range 0.0f-1.0f.
+
+    \sa getCmyk() setRgb() setHsv()
 */
 void QColor::setCmykF(float c, float m, float y, float k, float a)
 {
@@ -1827,3 +1869,8 @@ QDataStream &operator>>(QDataStream &stream, QColor &color)
     Use getHsv() instead.
 */
 
+/*!
+    \fn QColor QColor::convertTo(Spec colorSpec) const
+
+    Converts the color to the color format specified by \a colorSpec
+*/

@@ -400,7 +400,7 @@ bool QPen::operator==(const QPen &p) const
 
 
 /*!
-    \fn QPen::isDetached() const
+    \fn bool QPen::isDetached()
 
     \internal
 */

@@ -54,7 +54,7 @@ public:
     inline void moveBy(const QLineF &p);
 
     inline void operator+=(const QPointF &d);
-    inline bool operator==(const QLineF &d);
+    inline bool operator==(const QLineF &d) const;
 
 private:
     QPointF p1, p2;
@@ -152,7 +152,7 @@ inline void QLineF::operator+=(const QPointF &d)
     p2 += d;
 }
 
-inline bool QLineF::operator==(const QLineF &d)
+inline bool QLineF::operator==(const QLineF &d) const
 {
     return p1 == d.p1 && p2 == d.p2;
 }

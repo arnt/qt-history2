@@ -171,6 +171,15 @@
 */
 
 /*!
+    \fn bool QLineF::operator==(const QLineF &other) const
+
+    Returns true if \a other is the same line as this line.
+
+    A line is identical if the two points are the same and their
+    order is the same.
+*/
+
+/*!
   \fn float QLineF::pointAt(float t) const
 
   Returns the point at the parameterized position \a t, where

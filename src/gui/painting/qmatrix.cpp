@@ -245,8 +245,6 @@ void QMatrix::setMatrix(double m11, double m12, double m21, double m22,
 
 
 /*!
-    \overload
-
     Transforms (\a{x}, \a{y}) to (\c{*}\a{tx}, \c{*}\a{ty}) using the
     following formulas:
 
@@ -280,6 +278,8 @@ void QMatrix::map(float x, float y, float *tx, float *ty) const
 
 
 /*!
+    \overload
+
     Transforms (\a{x}, \a{y}) to (\c{*}\a{tx}, \c{*}\a{ty}) using the formulas:
 
     \code
@@ -1021,6 +1021,8 @@ QDebug operator<<(QDebug dbg, const QMatrix &m)
 #endif
 
 /*!
+    \compat
+
     \fn QRect QMatrix::map(const QRect &rect) const
 
     Use mapRect() instead.

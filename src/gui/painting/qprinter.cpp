@@ -1076,16 +1076,66 @@ QPrinter::PrinterState QPrinter::printerState() const
 */
 
 #ifdef Q_WS_WIN
+/*!
+    \fn HDC QPrinter::getDC() const
+
+    \internal
+*/
 HDC QPrinter::getDC() const
 {
     return d->printEngine->getDC();
 }
 
+/*!
+    \fn void QPrinter::releaseDC(HDC dc)
+
+    \internal
+*/
 void QPrinter::releaseDC(HDC hdc)
 {
     d->printEngine->releaseDC(hdc);
 }
 #endif
+
+
+#ifndef Q_WS_WIN
+
+/*!
+    Returns the printer options selection string. This is useful only
+    if the print command has been explicitly set.
+
+    The default value (a null string) implies that the printer should
+    be selected in a system-dependent manner.
+
+    Any other value implies that the given value should be used.
+
+    \sa setPrinterSelectionOption()
+*/
+
+QString QPrinter::printerSelectionOption() const
+{
+    // ###
+}
+
+/*!
+    Sets the printer to use \a option to select the printer. \a option
+    is null by default (which implies that Qt should be smart enough
+    to guess correctly), but it can be set to other values to use a
+    specific printer selection option.
+
+    If the printer selection option is changed while the printer is
+    active, the current print job may or may not be affected.
+
+    \sa printerSelectionOption()
+*/
+
+void QPrinter::setPrinterSelectionOption(const QString &option)
+{
+
+}
+
+#endif
+
 
 #ifdef QT_COMPAT
 
@@ -1201,8 +1251,8 @@ int QPrinter::toPage() const
 
     Use QPrintDialog instead.
 
-    Sets the from-page and to-page settings to \a fromPage and \a
-    toPage respectively.
+    Sets the from-page and to-page settings to \a from and \a
+    to respectively.
 
     The from-page and to-page settings specify what pages to print.
 
@@ -1426,17 +1476,5 @@ bool QPrinter::isOptionEnabled( PrinterOption option ) const
         const_cast<QPrinter*>(this)->d->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
     return const_cast<QPrinter*>(this)->d->printDialog->isOptionEnabled(QPrintDialog::PrintDialogOption(option));
 }
-
-/*!
-    \fn HDC QPrinter::getDC() const
-
-    \internal
-*/
-
-/*!
-    \fn void QPrinter::releaseDC(HDC dc) const
-
-    \internal
-*/
 
 #endif // QT_COMPAT

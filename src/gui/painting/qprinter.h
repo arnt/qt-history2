@@ -126,8 +126,10 @@ public:
     QRect paperRect() const;
     QRect pageRect() const;
 
+#ifndef Q_WS_WIN
     QString printerSelectionOption() const;
     void setPrinterSelectionOption(const QString &);
+#endif
 
     bool newPage();
     bool abort();

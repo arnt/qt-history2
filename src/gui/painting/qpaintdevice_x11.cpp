@@ -67,6 +67,12 @@
 */
 
 /*!
+    \enum QPaintDevice::PaintDeviceMetric
+
+    \internal
+*/
+
+/*!
     Constructs a paint device with internal flags \a devflags. This
     constructor can be invoked only from QPaintDevice subclasses.
 */

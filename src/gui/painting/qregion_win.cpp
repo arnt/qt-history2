@@ -474,11 +474,3 @@ bool QRegion::operator==(const QRegion &r) const
     return d->rgn == 0 ? true // both empty
                        : EqualRgn(d->rgn, r.d->rgn); // both non-empty
 }
-
-/*!
-    \fn HRGN QRegion::handle() const
-
-    \internal
-
-    Returns the Win32 GDI handle of this region.
-*/

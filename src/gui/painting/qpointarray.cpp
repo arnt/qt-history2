@@ -82,7 +82,7 @@ const double Q_PI = 3.14159265358979323846;
     \fn QPointArray::QPointArray(const QVector<QPoint> &pts)
 
     Constructs a pointarray containing a copy of the points specified
-    in pts.
+    in \a pts.
 */
 
 /*!
