@@ -542,9 +542,9 @@ public:
     inline void setCell(uchar cell) { ((QChar)*this).setCell(cell); }
     inline void setRow(uchar row) { ((QChar)*this).setRow(row); }
 
-    const char ascii() const { return ((QChar)*this).ascii(); }
-    const char latin1() const { return ((QChar)*this).latin1(); }
-    const ushort unicode() const { return ((QChar)*this).unicode(); }
+    char ascii() const { return ((QChar)*this).ascii(); }
+    char latin1() const { return ((QChar)*this).latin1(); }
+    ushort unicode() const { return ((QChar)*this).unicode(); }
 #endif
 };
 inline QCharRef QString::operator[](int i)

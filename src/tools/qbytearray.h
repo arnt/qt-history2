@@ -90,10 +90,10 @@ public:
     bool isDetached() const;
     void clear();
 
-    const char at(int i) const;
-    const char operator[](int i) const;
+    char at(int i) const;
+    char operator[](int i) const;
     QByteRef operator[](int i);
-    const char operator[](uint i) const;
+    char operator[](uint i) const;
     QByteRef operator[](uint i);
 
     int indexOf(char c, int from = 0) const;
@@ -218,11 +218,11 @@ inline QByteArray:: QByteArray():d(&shared_null)
 { ++d->ref; }
 inline int QByteArray::size() const
 { return d->size; }
-inline const char QByteArray::at(int i) const
+inline char QByteArray::at(int i) const
 { Q_ASSERT(i >= 0 && i < size()); return d->data[i]; }
-inline const char QByteArray::operator[](int i) const
+inline char QByteArray::operator[](int i) const
 { Q_ASSERT(i >= 0 && i < size()); return d->data[i]; }
-inline const char QByteArray::operator[](uint i) const
+inline char QByteArray::operator[](uint i) const
 { Q_ASSERT(i < (uint)size()); return d->data[i]; }
 inline bool QByteArray::isEmpty() const
 { return d->size == 0; }
@@ -258,7 +258,7 @@ class Q_EXPORT QByteRef {
 	: a(array),i(idx) {}
     friend class QByteArray;
 public:
-    inline operator const char() const
+    inline operator char() const
 	{ return i < a.d->size ? a.d->data[i] : 0; }
     inline QByteRef &operator=(char c)
 	{ if (a.d->ref != 1 || i >= a.d->size) a.expand(i);

@@ -135,9 +135,9 @@ public:
     Decomposition decompositionTag() const;
     unsigned char combiningClass() const;
 
-    const char ascii() const;
-    const char latin1() const;
-    inline const ushort unicode() const { return ucs; }
+    char ascii() const;
+    char latin1() const;
+    inline ushort unicode() const { return ucs; }
     inline ushort &unicode() { return ucs; }
 
     static QChar fromAscii(char c);
@@ -176,7 +176,7 @@ private:
 
 inline QChar::QChar() : ucs(0) {}
 
-inline const char QChar::latin1() const { return ucs > 0xff ? 0 : (char) ucs; }
+inline char QChar::latin1() const { return ucs > 0xff ? 0 : (char) ucs; }
 inline QChar QChar::fromLatin1(char c) { return QChar((ushort) c); }
 
 inline QChar::QChar(uchar c, uchar r) : ucs((r << 8) | c){}
