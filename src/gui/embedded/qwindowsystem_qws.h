@@ -27,7 +27,6 @@
 #include "QtGui/qkbd_qws.h"
 
 struct QWSWindowData;
-struct SWCursorData;
 class QWSCursor;
 class QWSClient;
 class QWSRegionManager;
@@ -37,6 +36,8 @@ class QWSSocket;
 class QWSServerSocket;
 class QTcpSocket;
 class QTcpServer;
+
+class QVariant;
 
 class QWSInternalWindowInfo
 {
@@ -183,6 +184,7 @@ public:
     };
     enum IMMouse { MousePress, MouseRelease, MouseMove }; //MouseMove reserved but not used
     void sendIMEvent(IMState state, const QString& txt, int cpos, int selLen);
+    void sendIMQuery(int property);
 #endif
 
 #ifndef QT_NO_QWS_KEYBOARD
@@ -487,18 +489,24 @@ extern QWSServer *qwsServer; //there can be only one
         virtual bool filter(int unicode, int keycode, int modifiers,
                             bool isPress, bool autoRepeat)=0;
         virtual void reset();
-        virtual void setMicroFocus(int x, int y);
+        virtual void updateHandler(int);
         virtual void mouseHandler(int, int);
-        QFont font() const;
-        QRect inputRect() const;
+        virtual void responseHandler(int, const QVariant&);
     protected:
         void sendIMEvent(QWSServer::IMState, const QString& txt, int cpos, int selLen = 0);
-        // virtual void setFont(const QFont&);
+        //void sendIMEvent(const QString &preedit, int cpos, int sellen, const QString commit, int replacepos, int rlen);
+
+        void sendIMQuery(int property);
     };
 
 inline void QWSInputMethod::sendIMEvent(QWSServer::IMState state, const QString &txt, int cpos, int selLen)
 {
     qwsServer->sendIMEvent(state, txt, cpos, selLen);
+}
+
+inline void QWSInputMethod::sendIMQuery(int property)
+{
+    qwsServer->sendIMQuery(property);
 }
 #endif // QT_NO_QWS_IM
 

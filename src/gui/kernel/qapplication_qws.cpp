@@ -2074,7 +2074,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
 
     QETWidget *keywidget=0;
     bool grabbed=false;
-    if (event->type==QWSEvent::Key || event->type == QWSEvent::IMEvent) {
+    if (event->type==QWSEvent::Key || event->type == QWSEvent::IMEvent || event->type == QWSEvent::IMQuery) {
         keywidget = static_cast<QETWidget*>(QWidget::keyboardGrabber());
         if (keywidget) {
             grabbed = true;

@@ -1575,6 +1575,24 @@ void QWSServer::sendIMEvent(IMState state, const QString& txt, int cpos, int sel
     current_IM_win = win;
 }
 
+
+void QWSServer::sendIMQuery(int property)
+{
+    QWSIMQueryEvent event;
+
+    QWSWindow *win = keyboardGrabber ? keyboardGrabber :
+                     qwsServer->focusw;
+    if (current_IM_State == InputMethodCompose && current_IM_win)
+        win = current_IM_win;
+
+    event.simpleData.window = win ? win->winId() : 0;
+    event.simpleData.property = property;
+    if (win && win->client())
+        win->client()->sendEvent(&event);
+}
+
+
+
 /*!
     \internal
 
@@ -1582,6 +1600,7 @@ void QWSServer::sendIMEvent(IMState state, const QString& txt, int cpos, int sel
 */
 void QWSServer::setCurrentInputMethod(QWSInputMethod *im)
 {
+    //###### IM should decide
     if (current_IM_State != InputMethodEnd && im != current_IM && qwsServer)
         qwsServer->sendIMEvent(InputMethodEnd, "", -1, 0);
     current_IM = im;
@@ -2040,7 +2059,7 @@ void QWSServer::resetInputMethod()
     if (current_IM && qwsServer) {
       current_IM->reset();
     }
-    if (current_IM_State != InputMethodEnd) // IM didn't send InputMethodEnd
+    if (current_IM_State != InputMethodEnd) // IM didn't send InputMethodEnd //##### GET RID OF THIS !!!
         qwsServer->sendIMEvent(InputMethodEnd, QString::null, -1, -1);
     current_IM_winId = -1;
 }
@@ -2048,24 +2067,15 @@ void QWSServer::resetInputMethod()
 void QWSServer::invokeIMResponse(const QWSIMResponseCommand *cmd,
                                  QWSClient *)
 {
-    //#### notify IM
-    qWarning("QWSServer::invokeIMResponse is not implemented");
+    if (current_IM)
+        current_IM->responseHandler(cmd->simpleData.property, cmd->result);
 }
 
 void QWSServer::invokeIMUpdate(const QWSIMUpdateCommand *cmd,
                                  QWSClient *)
 {
-    switch (cmd->simpleData.type)
-    {
-    case QWSIMUpdateCommand::Reset:
-        resetInputMethod();
-        //should really send event to IM and let it reset itself...
-        break;
-
-    default:
-        //### notify IM
-        break;
-    }
+    if (current_IM)
+        current_IM->updateHandler(cmd->simpleData.type);
 }
 
 #endif
@@ -3021,18 +3031,38 @@ void QWSInputMethod::reset()
 
 }
 
-/*!
-    \fn void QWSInputMethod::setMicroFocus(int x, int y)
+/*
+   Handles update events, including resets and focus changes
 
-    Implemented in subclasses to handle microFocusHint changes in the
-    focus widget. \a x and \a y are the global coordinates of the
-    cursor position.
+   Reimplementations must call the base implementation for all cases that it does not handle itself
+
+    \a type is a QWSIMUpdateCommand::UpdateType
 
 */
-void QWSInputMethod::setMicroFocus(int, int)
+void QWSInputMethod::updateHandler(int type)
 {
+    switch (type) {
+    case QWSIMUpdateCommand::FocusOut:
+    case QWSIMUpdateCommand::Reset:
+        reset();
+        break;
 
+    default:
+        break;
+    }
 }
+
+
+/*
+  Implemented in subclasses to receive replies to an IMQuery
+*/
+void QWSInputMethod::responseHandler(int property, const QVariant &result)
+{
+    Q_UNUSED(property);
+    Q_UNUSED(result);
+}
+
+
 
 /*!
   \fn void QWSInputMethod::mouseHandler(int x, int state)
@@ -3046,30 +3076,10 @@ void QWSInputMethod::mouseHandler(int, int)
 {
 }
 
-/*!
-  Returns the font of the current input widget
- */
-QFont QWSInputMethod::font() const
-{
-//    if (!current_IM_Font)
-        return QApplication::font(); //### absolutely last resort
-//############
-        //  return *current_IM_Font;
-}
 
-/*!
-  Returns the input rectangle of the current input widget. The input
-  rectangle covers the width of the input widget, and may extend below it.
-  This can be used to determine the geometry of an input widget for
-  over-the-spot input methods.
- */
-QRect QWSInputMethod::inputRect() const
-{
-    QRect r; //############# = current_IM_Rect;
-    //QFontMetrics fm(font());
-    //r.setTop(current_IM_y - fm.height());
-    return r;
-}
+
+
+
 
 /*!
     \fn QWSInputMethod::sendIMEvent(QWSServer::IMState state, const QString &txt, int cpos, int selLen)
