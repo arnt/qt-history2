@@ -149,6 +149,7 @@ class QDesignerMenuBar : public QMenuBar
 
     Q_PROPERTY( int itemNumber WRITE setItemNumber READ itemNumber )
     Q_PROPERTY( QString itemText WRITE setItemText READ itemText )
+    Q_PROPERTY( QCString itemName WRITE setItemName READ itemName )
 
 public:
     QDesignerMenuBar( QWidget *mw );
@@ -157,6 +158,8 @@ public:
     int itemNumber() const;
     void setItemText( const QString &s );
     QString itemText() const;
+    void setItemName( const QCString &s );
+    QCString itemName() const;
 
 protected:
     void mousePressEvent( QMouseEvent *e );

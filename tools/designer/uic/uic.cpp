@@ -374,6 +374,8 @@ void Uic::createFormDecl( const QDomElement &e )
     if ( objClass == "QMainWindow" ) {
 	out << "class QAction;" << endl;
 	out << "class QActionGroup;" << endl;
+	out << "class QToolBar;" << endl;
+	out << "class QPopupMenu;" << endl;
     }
 
 
@@ -500,11 +502,17 @@ void Uic::createFormDecl( const QDomElement &e )
 	    needPolish = TRUE;
     }
 
-    // actions
+    // actions, toolbars, menus
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName()  == "actions" ) {
 	    for ( QDomElement a = n.firstChild().toElement(); !a.isNull(); a = a.nextSibling().toElement() )
 		createActionDecl( a );
+	} else if ( n.tagName() == "toolbars" ) {
+	    for ( QDomElement a = n.firstChild().toElement(); !a.isNull(); a = a.nextSibling().toElement() )
+		createToolbarDecl( a );
+	} else if ( n.tagName() == "menubar" ) {
+	    for ( QDomElement a = n.firstChild().toElement(); !a.isNull(); a = a.nextSibling().toElement() )
+		createMenuBarDecl( a );
 	}
     }
 
@@ -1430,6 +1438,17 @@ void Uic::createActionDecl( const QDomElement& e )
     }
 }
 
+void Uic::createToolbarDecl( const QDomElement &e )
+{
+    if ( e.tagName() == "toolbar" )
+	out << "    " << "QToolBar *" << e.attribute( "name" ) << ";" << endl;
+}
+
+void Uic::createMenuBarDecl( const QDomElement &e )
+{
+    if ( e.tagName() == "item" )
+	out << "    " << "QPopupMenu *" << e.attribute( "name" ) << ";" << endl;
+}
 
 /*!
   Creates an implementation for the object given in \a e.
@@ -1643,18 +1662,17 @@ QString get_dock( const QString &d )
 void Uic::createToolbarImpl( const QDomElement &n )
 {
     QDomNodeList nl = n.elementsByTagName( "toolbar" );
-    out << indent << "QToolBar *tb;" << endl;
     for ( int i = 0; i < (int) nl.length(); i++ ) {
 	QDomElement ae = nl.item( i ).toElement();
-	QString objName = "tb";
+	QString objName = ae.attribute( "name" );
 	QString label = ae.attribute( "label" );
 	QString dock = get_dock( ae.attribute( "dock" ) );
 	out << indent << objName << " = new QToolBar( \"" << label << "\", this, " << dock << " ); " << endl;
 	for ( QDomElement n2 = ae.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
 	    if ( n2.tagName() == "action" )
-		out << indent << n2.attribute( "name" ) << "->addTo( tb );" << endl;
+		out << indent << n2.attribute( "name" ) << "->addTo( " << objName << " );" << endl;
 	    else if ( n2.tagName() == "separator" )
-		out << indent << "tb->addSeparator();" << endl;
+		out << indent << objName << "->addSeparator();" << endl;
 	}
     }
 }
@@ -1662,18 +1680,17 @@ void Uic::createToolbarImpl( const QDomElement &n )
 void Uic::createMenuBarImpl( const QDomElement &n )
 {
     QDomNodeList nl = n.elementsByTagName( "item" );
-    out << indent << "QPopupMenu *popup;" << endl;
     for ( int i = 0; i < (int) nl.length(); i++ ) {
 	QDomElement ae = nl.item( i ).toElement();
-	QString objName = "popup";
+	QString objName = ae.attribute( "name" );
 	out << indent << objName << " = new QPopupMenu( this ); " << endl;
 	for ( QDomElement n2 = ae.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
 	    if ( n2.tagName() == "action" )
-		out << indent << n2.attribute( "name" ) << "->addTo( popup );" << endl;
+		out << indent << n2.attribute( "name" ) << "->addTo( " << objName << " );" << endl;
 	    else if ( n2.tagName() == "separator" )
-		out << indent << "popup->insertSeparator();" << endl;
+		out << indent << objName << "->insertSeparator();" << endl;
 	}
-	out << indent << "menuBar()->insertItem( " << trmacro << "(" << fixString( ae.attribute( "text" ) ) << "), popup );" << endl;
+	out << indent << "menuBar()->insertItem( " << trmacro << "(" << fixString( ae.attribute( "text" ) ) << "), " << objName << " );" << endl;
     }
 }
 

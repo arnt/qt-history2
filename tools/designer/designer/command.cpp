@@ -474,7 +474,7 @@ void SetPropertyCommand::merge( Command *c )
 
 bool SetPropertyCommand::checkProperty()
 {
-    if ( propName == "name" ) {
+    if ( propName == "name" /*|| propName == "itemName"*/ ) { // ### fix that
 	QString s = newValue.toString();
 	if ( !formWindow()->unify( widget, s, FALSE ) ) {
 	    QMessageBox::information( formWindow()->mainWindow(),
@@ -558,7 +558,7 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 	widget->setProperty( propName, p->keyToValue( currentItemText ) );
     } else {
 	QVariant ov;
-	if ( propName == "name" )
+	if ( propName == "name"  || propName == "itemName" )
 	    ov = widget->property( propName );
 	widget->setProperty( propName, v );
 	if ( propName == "cursor" )

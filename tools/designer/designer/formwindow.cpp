@@ -2102,7 +2102,35 @@ bool FormWindow::unify( QObject *w, QString &s, bool changeIt )
 		    if ( !changeIt )
 			break;
 		    s = orig + "_" + QString::number( ++num );
-		    it.toFirst();
+		    a = actions.first();
+		}
+	    }
+	}
+	if ( mainContainer()->inherits( "QMainWindow" ) ) {
+	    if ( !found ) {
+		QObjectList *l = mainContainer()->queryList( "QDockWindow", 0, TRUE );
+		for ( QObject *o = l->first(); o; o = l->next() ) {
+		    if ( o != w &&
+			 qstrcmp( o->name(), s.latin1() ) == 0 ) {
+			found = TRUE;
+			if ( !changeIt )
+			    break;
+			s = orig + "_" + QString::number( ++num );
+			o = l->first();
+		    }
+		}
+	    }
+	    if ( !found ) {
+		QObjectList *l = mainContainer()->queryList( "QDesignerPopupMenu", 0, TRUE );
+		for ( QObject *o = l->first(); o; o = l->next() ) {
+		    if ( o != w &&
+			 qstrcmp( o->name(), s.latin1() ) == 0 ) {
+			found = TRUE;
+			if ( !changeIt )
+			    break;
+			s = orig + "_" + QString::number( ++num );
+			o = l->first();
+		    }
 		}
 	    }
 	}

@@ -2835,9 +2835,15 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
 	QMainWindow *mw = (QMainWindow*)fw->mainContainer();
 	if ( id == commands[ "add_toolbar" ] ) {
 	    QToolBar *tb = new QDesignerToolBar( mw );
+	    QString n = "Toolbar";
+	    lastActiveFormWindow->unify( tb, n, TRUE );
+	    tb->setName( n );
 	    mw->addToolBar( tb, "Toolbar" );
 	} else if ( id == commands[ "add_menu_item" ] ) {
+	    QString n = "PopupMenu";
 	    QDesignerPopupMenu *popup = new QDesignerPopupMenu( mw );
+	    lastActiveFormWindow->unify( popup, n, TRUE );
+	    popup->setName( n );
 	    if ( !mw->child( 0, "QMenuBar" ) )
 		(void)new QDesignerMenuBar( (QWidget*)mw );
 	    mw->menuBar()->insertItem( "Menu", popup );

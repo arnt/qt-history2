@@ -2088,7 +2088,8 @@ void Resource::saveToolBars( QMainWindow *mw, QTextStream &ts, int indent )
 	if ( tbList.isEmpty() )
 	    continue;
 	for ( QToolBar *tb = tbList.first(); tb; tb = tbList.next() ) {
-	    ts << makeIndent( indent ) << "<toolbar dock=\"" << i << "\" label=\"" << entitize( tb->label() ) << "\">" << endl;
+	    ts << makeIndent( indent ) << "<toolbar dock=\"" << i << "\" label=\"" << entitize( tb->label() )
+	       << "\" name=\"" << entitize( tb->name() ) << "\">" << endl;
 	    indent++;
 	    QList<QAction> actionList = ( (QDesignerToolBar*)tb )->insertedActions();
 	    for ( QAction *a = actionList.first(); a; a = actionList.next() ) {
@@ -2111,7 +2112,8 @@ void Resource::saveMenuBar( QMainWindow *mw, QTextStream &ts, int indent )
     indent++;
 
     for ( int i = 0; i < (int)mw->menuBar()->count(); ++i ) {
-	ts << makeIndent( indent ) << "<item text=\"" << entitize( mw->menuBar()->text( mw->menuBar()->idAt( i ) ) ) << "\">" << endl;
+	ts << makeIndent( indent ) << "<item text=\"" << entitize( mw->menuBar()->text( mw->menuBar()->idAt( i ) ) )
+	   << "\" name=\"" << entitize( mw->menuBar()->findItem( mw->menuBar()->idAt( i ) )->popup()->name() ) << "\">" << endl;
 	indent++;
 	QMenuItem *m = mw->menuBar()->findItem( mw->menuBar()->idAt( i ) );
 	if ( !m )
@@ -2140,6 +2142,7 @@ void Resource::loadToolBars( const QDomElement &e )
 	    Qt::Dock dock = (Qt::Dock)n.attribute( "dock" ).toInt();
 	    tb = new QDesignerToolBar( mw, dock );
 	    tb->setLabel( n.attribute( "label" ) );
+	    tb->setName( n.attribute( "name" ) );
 	    QDomElement n2 = n.firstChild().toElement();
 	    while ( !n2.isNull() ) {
 		if ( n2.tagName() == "action" ) {
@@ -2168,6 +2171,7 @@ void Resource::loadMenuBar( const QDomElement &e )
     while ( !n.isNull() ) {
 	if ( n.tagName() == "item" ) {
 	    QDesignerPopupMenu *popup = new QDesignerPopupMenu( mw );
+	    popup->setName( n.attribute( "name" ) );
 	    QDomElement n2 = n.firstChild().toElement();
 	    while ( !n2.isNull() ) {
 		if ( n2.tagName() == "action" ) {

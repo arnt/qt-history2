@@ -642,6 +642,20 @@ QString QDesignerMenuBar::itemText() const
     return text( idAt( itemNum ) );
 }
 
+void QDesignerMenuBar::setItemName( const QCString &s )
+{
+    if ( itemNum < 0 || itemNum >= (int)count() )
+	return;
+    findItem( idAt( itemNum ) )->popup()->setName( s );
+}
+
+QCString QDesignerMenuBar::itemName() const
+{
+    if ( itemNum < 0 || itemNum >= (int)count() )
+	return "";
+    return findItem( idAt( itemNum ) )->popup()->name();
+}
+
 
 
 QDesignerPopupMenu::QDesignerPopupMenu( QWidget *w )

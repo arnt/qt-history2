@@ -539,7 +539,7 @@ QLineEdit *PropertyTextItem::lined()
 	     this, SLOT( setValue() ) );
     connect( lin, SIGNAL( textChanged( const QString & ) ),
 	     this, SLOT( setValue() ) );
-    if ( PropertyItem::name() == "name" )
+    if ( PropertyItem::name() == "name" || PropertyItem::name() == "itemName" )
 	connect( lin, SIGNAL( returnPressed() ),
 		 listview->propertyEditor()->formWindow()->commandHistory(),
 		 SLOT( checkCompressedCommand() ) );
@@ -2304,12 +2304,13 @@ void PropertyList::setupProperties()
 	if ( unique.contains( QString::fromLatin1( it.current() ) ) )
 	    continue;
 	if ( editor->widget()->inherits( "QDesignerToolBar" ) ) {
-	    if ( qstrcmp( p->name(), "label" ) != 0 )
+	    if ( qstrcmp( p->name(), "label" ) != 0 && qstrcmp( p->name(), "name" ) != 0 )
 		continue;
 	}
 	if ( editor->widget()->inherits( "QDesignerMenuBar" ) ) {
 	    if ( qstrcmp( p->name(), "itemNumber" ) != 0 &&
-		 qstrcmp( p->name(), "itemText" ) != 0 )
+		 qstrcmp( p->name(), "itemText" ) != 0 &&
+		 qstrcmp( p->name(), "itemName" ) != 0 )
 		continue;
 	}
 	unique.insert( QString::fromLatin1( it.current() ), TRUE );
