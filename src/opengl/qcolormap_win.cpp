@@ -120,7 +120,7 @@ QColormap & QColormap::operator=( const QColormap & map )
 void QColormap::detach()
 {
     if ( d->count != 1 ) {
-	QColormap * newd = QColormapPrivate( d->widget );
+	QColormapPrivate * newd = new QColormapPrivate( d->widget );
 	newd->widget = d->widget;
 	newd->size   = d->size;
 	newd->valid  = d->valid;
