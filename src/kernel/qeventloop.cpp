@@ -35,12 +35,9 @@ static QEventLoopPrivate *singleton = 0;
 QEventLoopPrivate *qt_find_eventloop_private(Qt::HANDLE thread)
 {
 #if defined(QT_THREAD_SUPPORT)
-    QMutexLocker locker(qt_global_mutexpool ?
-			qt_global_mutexpool->get(&eventloopprivate_map) : 0);
+    QMutexLocker locker(qt_global_mutexpool ? qt_global_mutexpool->get(&eventloopprivate_map) : 0);
     eventloopprivate_map.ensure_constructed();
-    QMap<Qt::HANDLE, QEventLoopPrivate *>::ConstIterator it, end = eventloopprivate_map.end();
-    it = eventloopprivate_map.find(thread);
-    return it == end ? 0 : *it;
+    return eventloopprivate_map.value(thread);
 #else
     Q_UNUSED(thread);
     return singleton;
@@ -59,7 +56,7 @@ QPostEventList::~QPostEventList()
 #ifdef QT_THREAD_SUPPORT
     // clear the postedEvents
     QEventLoopPrivate *p = qt_find_eventloop_private(QThread::currentThread());
-    p->postedEvents = 0;
+    if (p) p->postedEvents = 0;
 #endif
 }
 
@@ -202,16 +199,12 @@ QEventLoop::~QEventLoop()
 QEventLoop *QEventLoop::instance(Qt::HANDLE thread)
 {
 #ifdef QT_THREAD_SUPPORT
-    QMutexLocker locker(qt_global_mutexpool ?
-			qt_global_mutexpool->get(&eventloopprivate_map) : 0);
+    QMutexLocker locker(qt_global_mutexpool ? qt_global_mutexpool->get(&eventloopprivate_map) : 0);
     eventloopprivate_map.ensure_constructed();
 
-    QMap<Qt::HANDLE, QEventLoopPrivate *>::ConstIterator it, end = eventloopprivate_map.end();
-    it = eventloopprivate_map.find(thread ? thread : QThread::currentThread());
-    if (it == end) return 0;
-
-    QEventLoopPrivate *p = *it;
-    return p->q ? p->q : 0;
+    QEventLoopPrivate * const p =
+	eventloopprivate_map.value(thread ? thread : QThread::currentThread());
+    return p ? p->q : 0;
 #else
     Q_UNUSED(thread);
     return singleton ? singleton->q : 0;
