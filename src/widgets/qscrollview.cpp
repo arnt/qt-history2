@@ -555,12 +555,12 @@ void QScrollViewData::viewportResized( int w, int h )
     \value Manual  the contents stays the size set by resizeContents().
 
     \value AutoOne  if there is only one child widget the contents stays
-    the size of that widget. Otherwise the behaviour is undefined.
+    the size of that widget. Otherwise the behavior is undefined.
 
     \value AutoOneFit if there is only one child widget the contents stays
     the size of that widget's sizeHint(). If the scrollview is resized
     larger than the child's sizeHint(), the child will be resized to
-    fit. If there is more than one child, the behaviour is undefined.
+    fit. If there is more than one child, the behavior is undefined.
 
 */
 //####  The widget will be resized to its sizeHint() when a LayoutHint event
