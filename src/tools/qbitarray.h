@@ -104,5 +104,7 @@ Q_EXPORT QDataStream &operator<<( QDataStream &, const QBitArray & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QBitArray & );
 #endif
 
+Q_DECLARE_TYPEINFO_POINTER(QBitArray*);
+Q_DECLARE_SHARED(QBitArray);
 
 #endif // QBITARRAY_H

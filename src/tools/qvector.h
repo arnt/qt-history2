@@ -144,7 +144,7 @@ void QVector<T>::reserve(int size)
 template <typename T>
 void QVector<T>::resize(int size)
 { realloc(size, (size>d->alloc||(size<d->size && size < (d->alloc >> 1))) ?
-	   QVectorData::grow(size, sizeof(T), Q_TYPEINFO_STATIC(T))
+	   QVectorData::grow(size, sizeof(T), QTypeInfo<T>::isStatic)
 	   : d->alloc); }
 template <typename T>
 inline void QVector<T>::clear()
@@ -175,7 +175,7 @@ QVector<T>::QVector(int size)
     p = QVectorData::malloc(size, sizeof(T));
     d->ref = 1;
     d->alloc = d->size = size;
-    if (Q_TYPEINFO_COMPLEX(T)) {
+    if (QTypeInfo<T>::isComplex) {
 	T* b = d->array;
 	T* i = d->array + d->size;
 	while (i != b)
@@ -197,7 +197,7 @@ QVector<T>::QVector(int size, const T &t)
 template <typename T>
 void QVector<T>::free(Data *d)
 {
-    if (Q_TYPEINFO_COMPLEX(T)) {
+    if (QTypeInfo<T>::isComplex) {
 	T* b = d->array;
 	T* i = b + d->size;
 	while (i-- != b)
@@ -213,7 +213,7 @@ void QVector<T>::realloc(int size, int alloc)
     union { QVectorData *p; Data *d; } x;
     x.d = d;
     if (alloc != d->alloc || d->ref != 1) {
-	if (Q_TYPEINFO_STATIC(T))
+	if (QTypeInfo<T>::isStatic)
 	    x.p = QVectorData::malloc(alloc, sizeof(T));
 	else if (d->ref != 1)
 	    x.p = QVectorData::malloc(alloc, sizeof(T), p);
@@ -221,7 +221,7 @@ void QVector<T>::realloc(int size, int alloc)
 	    x.p = p = p->realloc(alloc, sizeof(T));
 	x.d->ref = 1;
     }
-    if (Q_TYPEINFO_COMPLEX(T)) {
+    if (QTypeInfo<T>::isComplex) {
 	if (size < d->size) {
 	    i = d->array + d->size;
 	    j = d->array + size;
@@ -255,8 +255,8 @@ void QVector<T>::append(const T &t)
 {
     if (d->ref != 1 || d->size +1 > d->alloc)
 	realloc(d->size, QVectorData::grow(d->size+1, sizeof(T),
-					   Q_TYPEINFO_STATIC(T)));
-    if (Q_TYPEINFO_COMPLEX(T))
+					   QTypeInfo<T>::isStatic));
+    if (QTypeInfo<T>::isComplex)
 	new (d->array + d->size++) T(t);
     else
 	d->array[d->size++] = t;
@@ -270,8 +270,8 @@ typename QVector<T>::Iterator QVector<T>::insert( Iterator pos, size_type n, con
     if ( n != 0 ) {
 	if (d->ref != 1 || d->size + n > d->alloc)
 	    realloc(d->size, QVectorData::grow(d->size+n, sizeof(T),
-					       Q_TYPEINFO_STATIC(T)));
-	if (Q_TYPEINFO_COMPLEX(T)) {
+					       QTypeInfo<T>::isStatic));
+	if (QTypeInfo<T>::isComplex) {
 	    T *b = d->array+d->size;
 	    T *i = d->array+d->size+n;
 	    while (i != b)
@@ -303,7 +303,7 @@ typename QVector<T>::Iterator QVector<T>::erase( Iterator first, Iterator last )
     int l = last - d->array;
     int n = l - f;
     detach();
-    if (Q_TYPEINFO_COMPLEX(T)) {
+    if (QTypeInfo<T>::isComplex) {
 	qCopy( d->array+l, d->array+d->size, d->array+f );
 	T *i = d->array+d->size;
 	T* b = d->array+d->size-n;
@@ -354,7 +354,7 @@ QVector<T>  &QVector<T>::operator+=(const QVector &l)
     T* i = l.d->array + l.d->size;
     T* b = l.d->array;
     while (i != b)
-	if (Q_TYPEINFO_COMPLEX(T))
+	if (QTypeInfo<T>::isComplex)
 	    new (--w) T(*--i);
 	else
 	    *--w = *--i;

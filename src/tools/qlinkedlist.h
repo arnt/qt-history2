@@ -120,7 +120,7 @@ public:
     { if (!d) { d = &QLinkedListData::shared_null; ++d->ref; return false; } return true; }
 
 private:
-    inline bool canAutoDelete() const { return Q_TYPEINFO_POINTER(T); }
+    inline bool canAutoDelete() const { return QTypeInfo<T>::isPointer; }
     void detach_helper();
     void free(QLinkedListData*);
 };
@@ -128,7 +128,7 @@ private:
 template <class T>
 inline QLinkedList<T>::~QLinkedList()
 {
-    if (!--d->ref  || (Q_TYPEINFO_POINTER(T) && d->autoDelete == this))
+    if (!--d->ref  || (QTypeInfo<T>::isPointer && d->autoDelete == this))
 	free(d);
 }
 
@@ -158,7 +158,7 @@ void QLinkedList<T>::free(QLinkedListData *d)
 {
     Node *e = (Node*)d;
     Node *i = e->n;
-    if (Q_TYPEINFO_POINTER(T) && d->autoDelete == this) {
+    if (QTypeInfo<T>::isPointer && d->autoDelete == this) {
     	while(i != e) {
 	    qDelete(i->t);
 	    i = i->n;
@@ -181,7 +181,7 @@ void QLinkedList<T>::clear()
 {
     bool wasAutoDelete = d->autoDelete == this;
     *this = QLinkedList<T>();
-    if (Q_TYPEINFO_POINTER(T) && wasAutoDelete)
+    if (QTypeInfo<T>::isPointer && wasAutoDelete)
 	setAutoDelete(wasAutoDelete);
 }
 
@@ -193,7 +193,7 @@ template <class T>
 inline void QLinkedList<T>::setAutoDelete(bool enable)
 {
     Q_ASSERT(canAutoDelete());
-    if (Q_TYPEINFO_POINTER(T)) {
+    if (QTypeInfo<T>::isPointer) {
 	detach();
 	d->autoDelete = enable ? this : 0;
     }
@@ -206,7 +206,7 @@ QLinkedList<T> &QLinkedList<T>::operator=(const QLinkedList<T> &l)
 	QLinkedListData *x = l.d;
 	++x->ref;
 	x = qAtomicSetPtr( &d, x );
-	if (!--x->ref || (Q_TYPEINFO_POINTER(T) && x->autoDelete == this))
+	if (!--x->ref || (QTypeInfo<T>::isPointer && x->autoDelete == this))
 	    free(x);
     }
     return *this;
@@ -266,7 +266,7 @@ int QLinkedList<T>::remove(const T &t)
 	    i->n->p = i->p;
 	    i->p->n = i->n;
 	    i = i->n;
-	    if (Q_TYPEINFO_POINTER(T) && d->autoDelete == this)
+	    if (QTypeInfo<T>::isPointer && d->autoDelete == this)
 		qDelete(n->t);
 	    delete n;
 	    c++;
@@ -346,7 +346,7 @@ typename QLinkedList<T>::Iterator QLinkedList<T>::erase(Iterator pos)
 	i->n->p = i->p;
 	i->p->n = i->n;
 	i = i->n;
-	if (Q_TYPEINFO_POINTER(T) && d->autoDelete == this)
+	if (QTypeInfo<T>::isPointer && d->autoDelete == this)
 	    qDelete(n->t);
 	delete n;
 	d->size--;

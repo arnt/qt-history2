@@ -1239,13 +1239,19 @@ public:
     int mmOneTestMatchedLen; // length of partial match
 };
 
-Q_TYPEINFO_DECLARE_PRIMITIVE(QRegExpEngine::CharClass::Range)
-Q_TYPEINFO_DECLARE_PRIMITIVE(QRegExpEngine::Atom)
-Q_TYPEINFO_DECLARE_PRIMITIVE(QRegExpEngine::AnchorAlternation)
-Q_TYPEINFO_DECLARE_POINTER(QRegExpEngine::State*)
-Q_TYPEINFO_DECLARE_POINTER(QRegExpEngine::CharClass*)
-Q_TYPEINFO_DECLARE_POINTER(QRegExpEngine::Lookahead*)
-Q_TYPEINFO_DECLARE_POINTER(QRegExpEngine*)
+/*
+  Since these are nested types, the typeinfo for these may be
+  instantiated before we get here, at which point the compiler will
+  complain about a redefinition of the QTypeInfo specialization
+*/
+// Q_DECLARE_TYPEINFO(QRegExpEngine::CharClass::Range, Q_PRIMITIVE_TYPE)
+// Q_DECLARE_TYPEINFO(QRegExpEngine::Atom, Q_PRIMITIVE_TYPE)
+// Q_DECLARE_TYPEINFO(QRegExpEngine::AnchorAlternation, Q_PRIMITIVE_TYPE)
+
+Q_DECLARE_TYPEINFO_POINTER(QRegExpEngine::State*);
+Q_DECLARE_TYPEINFO_POINTER(QRegExpEngine::CharClass*);
+Q_DECLARE_TYPEINFO_POINTER(QRegExpEngine::Lookahead*);
+Q_DECLARE_TYPEINFO_POINTER(QRegExpEngine*);
 
 QRegExpEngine::QRegExpEngine(const QString& rx, bool caseSensitive)
     : ref(1)

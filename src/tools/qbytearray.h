@@ -373,6 +373,8 @@ Q_EXPORT inline QByteArray qUncompress( const QByteArray& data )
 { return qUncompress( (const uchar*)data.constData(), data.size() ); }
 #endif
 
-Q_DECLARE_SHARED_MOVABLE(QByteArray)
+
+Q_DECLARE_TYPEINFO(QByteArray, Q_COMPLEX_TYPE | Q_MOVABLE_TYPE);
+Q_DECLARE_SHARED(QByteArray);
 
 #endif // QBYTEARRAY_H

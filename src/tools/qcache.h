@@ -69,7 +69,7 @@ class QCache
 
 template <class Key, class T>
 inline void QCache<Key,T>::clear()
-{ if (Q_TYPEINFO_POINTER(T)) while (f) { qDelete(f->t); f = f->n; }
+{ if (QTypeInfo<T>::isPointer) while (f) { qDelete(f->t); f = f->n; }
  map.clear(); }
 
 template <class Key, class T>

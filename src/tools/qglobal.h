@@ -1008,73 +1008,162 @@ typedef bool QBool;
 #endif
 
 
-
 /*
-  Q_TYPEINFO bitflags:
-   0: COMPLEX/PRIMITIVE
-   1: STATIC/MOVABLE
-   2: LARGE/SMALL
-   3: POINTER
+  QTypeInfo     - type trait functionality
+  qInit/qDelete - type initialization/destruction
+  qIsDetached   - data sharing functionality
 */
-#define Q_TYPEINFO_DECLARE(T,v) \
- inline char qTypeInfo(T &) { return v; }
 
-template <class T> Q_TYPEINFO_DECLARE(T, 1|2|4)
+// the catch-all template
+template <typename T> inline void qInit(T &) { }
+template <typename T> inline void qDelete(T &) { }
+template <typename T> inline bool qIsDetached(T &) { return true; }
+template <typename T> class QTypeInfo { public:
+    enum { isComplex = true,
+	   isStatic  = true,
+	   isLarge   = (sizeof(T)<=sizeof(void*)),
+	   isPointer = false };
+};
 
-#define Q_TYPEINFO_DECLARE_PRIMITIVE(T) \
- Q_TYPEINFO_DECLARE(T,(sizeof(T)<=sizeof(void*)?0:4))
-#define Q_TYPEINFO_DECLARE_MOVABLE(T) \
- Q_TYPEINFO_DECLARE(T,1|(sizeof(T)<=sizeof(void*)?0:4))
-Q_TYPEINFO_DECLARE_PRIMITIVE(int)
-Q_TYPEINFO_DECLARE_PRIMITIVE(short)
-Q_TYPEINFO_DECLARE_PRIMITIVE(char)
-Q_TYPEINFO_DECLARE_PRIMITIVE(bool)
-Q_TYPEINFO_DECLARE_PRIMITIVE(float)
-Q_TYPEINFO_DECLARE_PRIMITIVE(double)
+// specialize a specific type
+enum {  Q_COMPLEX_TYPE = 1, Q_PRIMITIVE_TYPE = 0, Q_STATIC_TYPE = 2, Q_MOVABLE_TYPE = 0 };
+#define Q_DECLARE_TYPEINFO(TYPE, FLAGS) \
+ template <> inline void qInit(TYPE &) { } \
+ template <> inline void qDelete(TYPE &) { } \
+ template <> class QTypeInfo<TYPE> { public: \
+    enum { isComplex = ((FLAGS & Q_COMPLEX_TYPE) == Q_COMPLEX_TYPE), \
+           isStatic  = ((FLAGS & Q_STATIC_TYPE)  == Q_STATIC_TYPE),\
+           isLarge   = (sizeof(TYPE)<=sizeof(void*)), \
+           isPointer = false }; \
+ }
 
 #ifdef QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
 
-template <class T> inline bool qIsPointer(T &) { return false; }
-#define Q_TYPEINFO_DECLARE_POINTER(T) \
- inline void qDelete(T &t) { delete t; } \
- inline bool qIsPointer(T &) { return true; }
+/*
+  If the compiler does not support partial template specialization,
+  have the Q_DECLARE_TYPEINFO_POINTER macro generate a full
+  specialization for the specified type.
 
-#define Q_TYPEINFO_COMPLEX(T) ((qTypeInfo(*(T*)0)&3)!=0 && !qIsPointer(*(T*)0))
-#define Q_TYPEINFO_STATIC(T) ((qTypeInfo(*(T*)0)&2)!=0 && !qIsPointer(*(T*)0))
-#define Q_TYPEINFO_LARGE(T) ((qTypeInfo(*(T*)0)&4)!=0 && !qIsPointer(*(T*)0))
-#define Q_TYPEINFO_LARGE_OR_STATIC(T) ((qTypeInfo(*(T*)0)&6)!=0 && !qIsPointer(*(T*)0))
-#define Q_TYPEINFO_POINTER(T) qIsPointer(*(T*)0)
+  NOTE: You must include the 'star' when using this macro, eg:
 
-template <class T> inline void qInit(T &t)
-{ if (sizeof(T) == sizeof(void*)) { void* v = 0; t = * new (&v) T; } }
-template <class T> inline void qDelete(T &) {}
+      Q_DECLARE_TYPEINFO_POINTER(MyType*)
 
-#else // QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
+  not
 
-template <class T> Q_TYPEINFO_DECLARE(T*, 8)
-#define Q_TYPEINFO_COMPLEX(T) ((qTypeInfo(*(T*)0)&3)!=0)
-#define Q_TYPEINFO_STATIC(T) ((qTypeInfo(*(T*)0)&2)!=0)
-#define Q_TYPEINFO_LARGE(T) ((qTypeInfo(*(T*)0)&4)!=0)
-#define Q_TYPEINFO_LARGE_OR_STATIC(T) ((qTypeInfo(*(T*)0)&6)!=0)
-#define Q_TYPEINFO_POINTER(T) ((qTypeInfo(*(T*)0)&8)!=0)
-#define Q_TYPEINFO_DECLARE_POINTER(T)
+      Q_DECLARE_TYPEINFO_POINTER(MyType)
+*/
+#define Q_DECLARE_TYPEINFO_POINTER(TYPE) \
+ template <> inline void qInit(TYPE &t) { t = 0; } \
+ template <> inline void qDelete(TYPE &t) { delete t; } \
+ template <> class QTypeInfo<TYPE> { public: \
+    enum { isComplex = false, \
+           isStatic  = false, \
+           isLarge   = false, \
+           isPointer = true }; \
+ }
 
-template <class T> inline void qInit(T &) {}
-template <class T> inline void qInit(T* &t) { t = 0; }
-template <class T> inline void qDelete(T &) {}
-template <class T> inline void qDelete(T* &t){ delete t; }
-typedef void(*qt_DeleteFunction)();
-inline void qDelete(qt_DeleteFunction) {}
+// provide a catch-all for void * and const void *
+// NOTE: qDelete(void *) and qDelete(const void *) specializations are declared further below
+template <> inline void qInit(void *&t) { t = 0; }
+template <> class QTypeInfo<void*> { public:
+    enum { isComplex = false,
+	   isStatic  = false,
+	   isLarge   = false,
+	   isPointer = true };
+};
+
+template <> inline void qInit(const void *&t) { t = 0; }
+template <> class QTypeInfo<const void*> { public:
+    enum { isComplex = false,
+	   isStatic  = false,
+	   isLarge   = false,
+	   isPointer = true };
+};
+
+#else
+
+/*
+  Provide a partial specialization to catch all pointers.  The
+  Q_DECLARE_TYPEINFO_POINTER macro expands to nothing.
+*/
+template <typename T> inline void qInit(T *&t) { t = 0; }
+template <typename T> inline void qDelete(T *&t) { delete t; }
+template <typename T> class QTypeInfo<T*> { public:
+    enum { isComplex = false,
+	   isStatic  = false,
+	   isLarge   = false,
+	   isPointer = true };
+};
+
+#define Q_DECLARE_TYPEINFO_POINTER(TYPE)
 
 #endif // QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
 
-template <class T> inline bool qIsDetached(T &) { return true; }
-#define Q_TYPEINFO_DECLARE_SHARED(T) \
- inline bool qIsDetached(T &t) {  return t.isDetached(); }
+// shared type specialization
+#define Q_DECLARE_SHARED(T) \
+ template<> inline bool qIsDetached(T &t) {  return t.isDetached(); }
 
-#define Q_DECLARE_SHARED_MOVABLE(T) \
- Q_TYPEINFO_DECLARE_MOVABLE(T) \
- Q_TYPEINFO_DECLARE_SHARED(T)
+/*
+  QTypeInfo primitive specializations
+*/
+Q_DECLARE_TYPEINFO(long, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(int, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(short, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(char, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(unsigned long, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(unsigned int, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(unsigned short, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(unsigned char, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(bool, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(float, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(double, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(const long, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(const int, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(const short, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(const char, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(const unsigned long, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(const unsigned int, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(const unsigned short, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(const unsigned char, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(const bool, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(const float, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(const double, Q_PRIMITIVE_TYPE);
+
+/*
+  QTypeInfo primitive pointer specializations
+*/
+Q_DECLARE_TYPEINFO_POINTER(long *);
+Q_DECLARE_TYPEINFO_POINTER(int *);
+Q_DECLARE_TYPEINFO_POINTER(short *);
+Q_DECLARE_TYPEINFO_POINTER(char *);
+Q_DECLARE_TYPEINFO_POINTER(unsigned long *);
+Q_DECLARE_TYPEINFO_POINTER(unsigned int *);
+Q_DECLARE_TYPEINFO_POINTER(unsigned short *);
+Q_DECLARE_TYPEINFO_POINTER(unsigned char *);
+Q_DECLARE_TYPEINFO_POINTER(bool *);
+Q_DECLARE_TYPEINFO_POINTER(float *);
+Q_DECLARE_TYPEINFO_POINTER(double *);
+Q_DECLARE_TYPEINFO_POINTER(const long *);
+Q_DECLARE_TYPEINFO_POINTER(const int *);
+Q_DECLARE_TYPEINFO_POINTER(const short *);
+Q_DECLARE_TYPEINFO_POINTER(const char *);
+Q_DECLARE_TYPEINFO_POINTER(const unsigned long *);
+Q_DECLARE_TYPEINFO_POINTER(const unsigned int *);
+Q_DECLARE_TYPEINFO_POINTER(const unsigned short *);
+Q_DECLARE_TYPEINFO_POINTER(const unsigned char *);
+Q_DECLARE_TYPEINFO_POINTER(const bool *);
+Q_DECLARE_TYPEINFO_POINTER(const float *);
+Q_DECLARE_TYPEINFO_POINTER(const double *);
+
+// void* and const void* are special, since deleting them is undefined
+template <> inline void qDelete(const void *&) { }
+template <> inline void qDelete(void *&) { }
+
+// cannot delete functions
+typedef void (*QFunctionPointer)();
+typedef void (*QFunctionPointerWithArgs)(...);
+template <> inline void qDelete(QFunctionPointer &) { }
+template <> inline void qDelete(QFunctionPointerWithArgs &) { }
 
 
 void *qMalloc(size_t size);
@@ -1118,13 +1207,13 @@ void *qMemCopy(void *dest, const void *src, size_t n);
 #endif
 
 class QObject;
-template <class T>
+template <typename T>
 inline T qt_cast(const QObject *object)
 { T t = 0; return (T) t->staticMetaObject.cast(object); }
 
-#define Q_DECLARE_INTERFACE(Iface) \
+#define Q_DECLARE_INTERFACE(IFace) \
 template <> inline IFace *qt_cast<IFace *>(const QObject *object) \
-{ return (IFace *)(object ? object->qt_metacast(#Iface) : 0); }
+{ return (IFace *)(object ? object->qt_metacast(#IFace) : 0); }
 
 #endif // QGLOBAL_H
 
