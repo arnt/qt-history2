@@ -2096,7 +2096,7 @@ void Q3TextEdit::drawCursor(bool visible)
         r = QRect(r.x(), r.y() + cursor->y(), r.width(), h);
     }
     r.moveBy(-contentsX(), -contentsY());
-    viewport()->update(r);
+    viewport()->repaint(r);
 }
 
 enum {
