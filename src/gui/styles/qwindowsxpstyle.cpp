@@ -257,7 +257,8 @@ struct XPThemeData
             htheme = handleMap->operator[](name);
 
         if (!htheme) {
-            htheme = pOpenThemeData(QWindowsXPStylePrivate::winId(widget), (TCHAR*)name.utf16());
+            htheme = pOpenThemeData(QWindowsXPStylePrivate::winId(widget),
+                                    (TCHAR*)name.utf16());
             if (htheme) {
                 if (!handleMap)
                     handleMap = new QMap<QString, HTHEME>;
@@ -987,10 +988,9 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
         {
             name = "BUTTON";
             partId = BP_PUSHBUTTON;
-            QPushButton *pb = (QPushButton*)widget;
-            if (!(flags & State_Enabled) && !pb->isFlat())
+            if (!(flags & State_Enabled) && !(btn->features & QStyleOptionButton::Flat))
                 stateId = PBS_DISABLED;
-            else if (pb->isFlat() && !(flags & (State_On|State_Sunken)))
+            else if ((btn->features & QStyleOptionButton::Flat) && !(flags & (State_On|State_Sunken)))
                 return;
             else if (flags & (State_Sunken | State_On))
                 stateId = PBS_PRESSED;
