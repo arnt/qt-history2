@@ -2743,11 +2743,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
     case QEvent::ContextMenu:
 	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) )
 	    break;
-	if ( !w->hasFocus() )
-	    w->setFocus();
-	if ( !passiveInteractor || currentTool() != ORDER_TOOL )
-	    ( (FormWindow*)w )->handleContextMenu( (QContextMenuEvent*)e, 
-						   ( (FormWindow*)w )->designerWidget( o ) );
+	( (QContextMenuEvent*)e )->ignore(); // ### Reggie: have to implement that properly, for now just keep using mousePress
 	return TRUE;
     case QEvent::MouseButtonRelease:
 	lastPressWidget = 0;

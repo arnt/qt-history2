@@ -460,30 +460,6 @@ void FormWindow::removeWidget( QWidget *w )
     widgets()->take( w );
 }
 
-void FormWindow::handleContextMenu( QContextMenuEvent *e, QWidget *w )
-{
-    if(currTool == POINTER_TOOL) {
-	// if widget is laid out, find the first non-laid out super-widget
-	QWidget *realWidget = w; // but store the original one
-	while ( w->parentWidget() &&
-		( WidgetFactory::layoutType( w->parentWidget()) != WidgetFactory::NoLayout || !insertedWidgets.find(w) ) )
-	    w = w->parentWidget();
-
-	if ( !isMainContainer( w ) && qstrcmp( w->name(), "central widget" ) != 0 ) { 
-	    if ( mainContainer()->inherits( "QMainWindow" ) &&
-		 ( (QMainWindow*)mainContainer() )->centralWidget() == realWidget )
-		mainwindow->popupFormWindoMenu( e->globalPos(), this );
-	    else
-		mainwindow->popupWidgetMenu( e->globalPos(), this, realWidget);
-	} else {
-	    clearSelection();
-	    mainwindow->popupFormWindoMenu( e->globalPos(), this );
-	}
-	e->accept();
-    }
-}
-
-
 void FormWindow::handleMousePress( QMouseEvent *e, QWidget *w )
 {
     checkedSelectionsForMove = FALSE;
@@ -538,6 +514,12 @@ void FormWindow::handleMousePress( QMouseEvent *e, QWidget *w )
 	    raiseChildSelections( w ); // raise selections and select widget
 	    selectWidget( w );
 
+	    // if widget is laid out, find the first non-laid out super-widget
+	    QWidget *realWidget = w; // but store the original one
+	    while ( w->parentWidget() &&
+		    ( WidgetFactory::layoutType( w->parentWidget()) != WidgetFactory::NoLayout || !insertedWidgets.find(w) ) )
+		w = w->parentWidget();
+
 	    if ( e->button() == LeftButton ) { // left button: store original geometry and more as the widget might start moving
 		widgetPressed = TRUE;
 		widgetGeom = QRect( w->pos(), w->size() );
@@ -550,7 +532,13 @@ void FormWindow::handleMousePress( QMouseEvent *e, QWidget *w )
 		    hadOwnPalette = w->parentWidget()->ownPalette();
 		    restoreColor = w->parentWidget()->backgroundColor();
 		}
-	    } 
+	    } else if ( e->button() == RightButton ) { // RMB menu
+		if ( mainContainer()->inherits( "QMainWindow" ) &&
+		     ( (QMainWindow*)mainContainer() )->centralWidget() == realWidget )
+		    mainwindow->popupFormWindoMenu( e->globalPos(), this );
+		else
+		    mainwindow->popupWidgetMenu( e->globalPos(), this, realWidget);
+	    }
 	} else { // press was on the formwindow
 	    if ( e->button() == LeftButton ) { // left button: start rubber selection and show formwindow properties
 		drawRubber = TRUE;
@@ -563,7 +551,10 @@ void FormWindow::handleMousePress( QMouseEvent *e, QWidget *w )
 		}
 		currRect = QRect( 0, 0, -1, -1 );
 		startRectDraw( mapFromGlobal( e->globalPos() ), e->globalPos(), this, Rubber );
-	    } 
+	    } else if ( e->button() == RightButton ) { // RMB menu
+		clearSelection();
+		mainwindow->popupFormWindoMenu( e->globalPos(), this );
+	    }
 	}
 	break;
     case CONNECT_TOOL:

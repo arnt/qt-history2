@@ -141,7 +141,6 @@ protected:
     void dragLeaveEvent( QDragLeaveEvent * );
     void dropEvent( QDropEvent * );
 #endif
-    void contextMenuEvent( QContextMenuEvent *);
     void mousePressEvent( QMouseEvent *e );
     void mouseReleaseEvent( QMouseEvent *e );
 
@@ -154,7 +153,6 @@ private:
     void buttonMousePressEvent( QMouseEvent *e, QObject *o );
     void buttonMouseMoveEvent( QMouseEvent *e, QObject *o );
     void buttonMouseReleaseEvent( QMouseEvent *e, QObject *o );
-    void menuContextEvent( QContextMenuEvent *, QObject * );
     void doInsertWidget( const QPoint &p );
     void findFormWindow();
 
@@ -191,7 +189,6 @@ public:
     QCString itemName() const;
 
 protected:
-    void contextMenuEvent( QContextMenuEvent * );
     void mousePressEvent( QMouseEvent *e );
     void mouseMoveEvent( QMouseEvent *e );
     void mouseReleaseEvent( QMouseEvent *e );
@@ -232,7 +229,6 @@ public:
     void removeAction( QAction *a ) { actionList.remove( a ); }
 
 protected:
-    void contextMenuEvent( QContextMenuEvent * );
     void mousePressEvent( QMouseEvent *e );
     void mouseMoveEvent( QMouseEvent *e );
     void mouseReleaseEvent( QMouseEvent *e );

@@ -123,7 +123,6 @@ public:
 
     virtual QWidget *designerWidget( QObject *o ) const;
 
-    virtual void handleContextMenu( QContextMenuEvent *, QWidget * );
     virtual void handleMousePress( QMouseEvent *e, QWidget *w );
     virtual void handleMouseRelease( QMouseEvent *e, QWidget *w );
     virtual void handleMouseDblClick( QMouseEvent *e, QWidget *w );
