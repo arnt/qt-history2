@@ -43,6 +43,8 @@
     QMutexLocker mlocker(qt_global_mutexpool \
 			 ? qt_global_mutexpool->get(x) \
 			 : 0)
+#else
+#  define M_LOCK(x)
 #endif
 
 #ifdef Q_WS_WIN

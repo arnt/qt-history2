@@ -35,7 +35,7 @@
 #  define M_UNLOCK() mlocker.unlock()
 #  define M_RELOCK() mlocker.relock()
 #else
-#  define M_LOCK(n, x)
+#  define M_LOCK(x)
 #  define M_UNLOCK()
 #  define M_RELOCK()
 #endif
