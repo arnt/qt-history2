@@ -203,7 +203,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	    "    QImage* img = " << cProject << "image_dict->find(name);\n"
 	    "    if ( !img ) {\n"
 	    "        for (int i=0; embed_image_vec[i].data; i++) {\n"
-	    "	if ( 0==strcmp(embed_image_vec[i].name, name) ) {\n"
+	    "	if ( QString::fromUtf8(embed_image_vec[i].name) == name ) {\n"
 	    "	    img = new QImage((uchar*)embed_image_vec[i].data,\n"
 	    "			embed_image_vec[i].width,\n"
 	    "			embed_image_vec[i].height,\n"
