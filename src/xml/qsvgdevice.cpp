@@ -672,7 +672,7 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 	// ### optimize application of attributes utilizing <g>
 	if ( dirtyStyle )		// only reset when entering
 	    applyStyle( &e, c );	// or leaving a <g> tag
-	if ( dirtyTransform ) {		// same as above
+	if ( dirtyTransform && e.tagName() != "g" ) // same as above but not for <g> tags
 	    applyTransform( &e );
 	    if ( c == PdcSave )
 		dirtyTransform = FALSE;
@@ -793,12 +793,20 @@ bool QSvgDevice::play( const QDomNode &node )
 	    cry = lenToDouble( attr, "ry" );
 	    pt->drawEllipse( (int)(cx1-crx), (int)(cy1-cry), (int)(2*crx), (int)(2*cry) );
 	    break;
-	case LineElement:
-	    x1 = lenToInt( attr, "x1" );
-	    x2 = lenToInt( attr, "x2" );
-	    y1 = lenToInt( attr, "y1" );
-	    y2 = lenToInt( attr, "y2" );
-	    pt->drawLine( x1, y1, x2, y2 );
+	case LineElement: 
+	    {
+		x1 = lenToInt( attr, "x1" );
+		x2 = lenToInt( attr, "x2" );
+		y1 = lenToInt( attr, "y1" );
+		y2 = lenToInt( attr, "y2" );
+		QPen p = pt->pen();
+		w = p.width();
+		p.setWidth( w * (QABS(pt->worldMatrix().m11()) + QABS(pt->worldMatrix().m22())) / 2.0 );
+		pt->setPen( p );
+		pt->drawLine( x1, y1, x2, y2 );
+		p.setWidth( w );
+		pt->setPen( p );
+	    }
 	    break;
 	case PolylineElement:
 	case PolygonElement:
@@ -1403,6 +1411,8 @@ void QSvgDevice::applyStyle( QDomElement *e, int c ) const
 	double pw = pt->pen().width();
 	if ( pw == 0 && pt->pen().style() != Qt::NoPen )
 	    pw = 0.9;
+	if ( c == PdcDrawLine )
+	    pw /= (QABS(pt->worldMatrix().m11()) + QABS(pt->worldMatrix().m22())) / 2.0;
 	s += QString( "stroke-width:%1;" ).arg( pw );
 	if ( pt->brush().style() == Qt::NoBrush || c == PdcDrawPolyline ||
 	     c == PdcDrawCubicBezier )
@@ -1425,7 +1435,7 @@ void QSvgDevice::applyTransform( QDomElement *e ) const
 	s = QString( "translate(%1,%2)" ).arg( m.dx() ).arg( m.dy() );
     else if ( rot ) {
 	if ( m.m12() == 0.0 && m.m21() == 0.0 &&
-	     m.dx() == 0.0 && m.dy() == 0 )
+	     m.dx() == 0.0 && m.dy() == 0.0 )
 	    s = QString( "scale(%1,%2)" ).arg( m.m11() ).arg( m.m22() );
 	else
 	    s = QString( "matrix(%1,%2,%3,%4,%5,%6)" )
