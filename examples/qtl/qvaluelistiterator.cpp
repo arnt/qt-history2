@@ -10,6 +10,7 @@
 
 #include <qvaluelist.h>
 #include <qstring.h>
+#include <qwindowdefs.h>
 #include <stdio.h>
 
 
@@ -30,7 +31,7 @@ private:
 };
 
 
-int main( int, char )
+int main( int, char** )
 {
     typedef QValueList<Employee> EmployeeList;
     EmployeeList list;
