@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#4 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#5 $
 **
 ** Internal rich text classes
 **
@@ -62,10 +62,13 @@ public:
     {
 	insert( length(), c, fmt);
     }
+    void clear() {
+	QString::operator=(QString::null);
+    }
 
     QChar charAt( int index ) const;
     QtTextCharFormat formatAt( int index ) const;
-    
+
     bool haveSameFormat( int index1, int index2 ) const;
 
     bool isCustomItem( int index ) const;
@@ -88,10 +91,10 @@ public:
 };
 
 
-class QtBox 
+class QtBox
 {
 public:
-    QtBox( QtBox* p, QtTextFormatCollection* formatCol, 
+    QtBox( QtBox* p, QtTextFormatCollection* formatCol,
 	   const QStyleSheetItem *stl, const QMap<QString, QString> &attr )
     : parent( p ), formats( formatCol ), text( formats ), style ( stl ), attributes_( attr )
     {
@@ -99,8 +102,8 @@ public:
 	rows.setAutoDelete( TRUE );
 	width = widthUsed = height = 0;
     };
-    
-    QtBox( QtBox* p, QtTextFormatCollection* formatCol, 
+
+    QtBox( QtBox* p, QtTextFormatCollection* formatCol,
 	   const QStyleSheetItem *stl )
     : parent( p ), formats( formatCol ), text( formats ), style ( stl )
     {
@@ -114,21 +117,21 @@ public:
 	      const QColorGroup& cg, const QtTextOptions& ,
 	      bool onlyDirty = FALSE, bool onlySelection = FALSE);
     void setWidth (QPainter* p, int newWidth, bool forceResize = FALSE);
-    
+
     QtBox* parent;
     QtTextFormatCollection* formats;
     QtTextRichString text;
     const QStyleSheetItem* style;
     QMap<QString, QString> attributes_;
-    
+
     QList<QtBox> boxes;
     QList<QtTextRow> rows;
-    
+
     inline QMap<QString, QString> attributes()  const
     {
 	return attributes_;
     }
-    
+
     int width;
     int widthUsed;
     int height;
@@ -158,7 +161,7 @@ public:
 	    return style->alignment();
 	return parent?parent->alignment():QStyleSheetItem::AlignLeft;
     }
-    
+
 };
 
 
@@ -435,7 +438,7 @@ public:
 private:
     void init( const QString& doc, const QFont& fnt, int margin = 8 );
 
-    bool parse (QtBox* current, QtTextCharFormat fmt, const QString& doc, int& pos);
+    bool parse (QtBox* current, QtBox* dummy, QtTextCharFormat fmt, const QString& doc, int& pos);
     bool eatSpace(const QString& doc, int& pos, bool includeNbsp = FALSE );
     bool eat(const QString& doc, int& pos, QChar c);
     bool lookAhead(const QString& doc, int& pos, QChar c);

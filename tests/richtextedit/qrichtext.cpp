@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#4 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#5 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -277,7 +277,7 @@ QtTextRow::QtTextRow( QPainter* p, QFontMetrics &fm,
     first = last = 0;
     box = 0;
     text = t;
-    
+
 
     first = index;
 
@@ -298,7 +298,7 @@ QtTextRow::QtTextRow( QPainter* p, QFontMetrics &fm,
     QtTextCharFormat fmt = text->formatAt( index );
     int fmt_index = index;
     p->setFont( fmt.font() );
-    
+
     while ( index < text->length() ) {
 	int h,a,d;
 
@@ -326,7 +326,7 @@ QtTextRow::QtTextRow( QPainter* p, QFontMetrics &fm,
 	    d = 0;
 	*/
 	
-	if (tx > width - fm.width(' ') + fm.minRightBearing() && !noSpaceFound  && 
+	if (tx > width - fm.width(' ') + fm.minRightBearing() && !noSpaceFound  &&
 	    ( !c.isSpace() || c == QChar(0x00a0U)  ) )
 	    break;
 
@@ -466,7 +466,7 @@ void QtTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int
 	}
 	
 	p->setPen( format.color() );
-	    
+	
 // 	if ( anc && anc->attributes() && anc->attributes()->contains("href") )
 // 	    p->setPen( to.linkColor );
 		
@@ -939,7 +939,7 @@ void QtRichText::init( const QString& doc, const QFont& font, int margin )
     valid = TRUE;
     int pos = 0;
     QtTextCharFormat fmt( font, Qt::black );
-    parse(this, fmt, doc, pos);
+    parse(this, 0, fmt, doc, pos);
 }
 
 QtRichText::~QtRichText()
@@ -970,7 +970,8 @@ QString QtRichText::context() const
 }
 
 
-bool QtRichText::parse (QtBox* current, QtTextCharFormat fmt, const QString &doc, int& pos)
+bool QtRichText::parse (QtBox* current, QtBox* dummy, 
+			QtTextCharFormat fmt, const QString &doc, int& pos)
 {
     bool pre = current->whiteSpaceMode() == QStyleSheetItem::WhiteSpacePre;
     while ( valid && pos < int(doc.length() )) {
@@ -1002,16 +1003,23 @@ bool QtRichText::parse (QtBox* current, QtTextCharFormat fmt, const QString &doc
 	    // TODO was wenn wir keinen nstyle haben?
 	    if ( !nstyle )
 		nstyle = base;
-	    
+	
 	    // TODO QtStyleSheet::tagEx
-	    
-	    if (nstyle->displayMode() == QStyleSheetItem::DisplayBlock 
-		|| nstyle->displayMode() == QStyleSheetItem::DisplayListItem 
-		|| nstyle->displayMode() == QStyleSheetItem::DisplayNone 
+	
+	    if (nstyle->displayMode() == QStyleSheetItem::DisplayBlock
+		|| nstyle->displayMode() == QStyleSheetItem::DisplayListItem
+		|| nstyle->displayMode() == QStyleSheetItem::DisplayNone
 		) {
-		QtBox* subbox = new QtBox( this, formats, nstyle, attr );
-		boxes.append( subbox );
-		if (parse( subbox, fmt.makeTextFormat( nstyle ), doc, pos) ) {
+		if ( !current->text.isEmpty() ) {
+		    dummy = new QtBox( current, formats, base );
+		    dummy->text = current->text;
+		    current->text.clear();
+		    current->boxes.append( dummy );
+		}
+		QtBox* subbox = new QtBox( current, formats, nstyle, attr );
+		current->boxes.append( subbox );
+		dummy = 0;
+		if (parse( subbox, 0, fmt.makeTextFormat( nstyle ), doc, pos) ) {
 		    (void) eatSpace(doc, pos);
 		    int recoverPos = pos;
 		    valid = (hasPrefix(doc, pos, QChar('<'))
@@ -1026,13 +1034,14 @@ bool QtRichText::parse (QtBox* current, QtTextCharFormat fmt, const QString &doc
 		    if (!valid)
 			return TRUE;
 		    }
+    
+		(void) eatSpace(doc, pos);
 	    }
-	    else { // containers and empty tags 
+	    else { // containers and empty tags
 		// TODO: check empty tags and custom tags in stylesheet
 		
 		// for now: assume container
-		if ( parse( current, fmt.makeTextFormat( nstyle ), doc, pos ) ) {
-		}
+		if ( parse( current, dummy, fmt.makeTextFormat( nstyle ), doc, pos ) ) {
 		    (void) eatSpace(doc, pos);
 		    int recoverPos = pos;
 		    valid = (hasPrefix(doc, pos, QChar('<'))
@@ -1046,13 +1055,18 @@ bool QtRichText::parse (QtBox* current, QtTextCharFormat fmt, const QString &doc
 		    }
 		    if (!valid)
 			return TRUE;
+		}
 	    }
 	}
 	else { // plain text
+	    if ( !current->boxes.isEmpty() && !dummy ) {
+		dummy = new QtBox( current, formats, base );
+		current->boxes.append( dummy );
+	    }
  	    QString word = parsePlainText( doc, pos, pre, TRUE );
  	    if (valid){
  		for (int i = 0; i < int(word.length()); i++){
- 		    current->text.append( word[i], fmt );
+ 		    (dummy?dummy:current)->text.append( word[i], fmt );
 		}
 		if (!pre && doc[pos] == '<')
 		    (void) eatSpace(doc, pos);
@@ -1539,28 +1553,28 @@ void QtBox::setWidth( QPainter* p, int newWidth, bool forceResize )
     int h = margintop;
 
     QFontMetrics fm = p->fontMetrics();
-    
+
     // two different kind of boxes, one has subboxes, the other has text
-    
+
     if ( !boxes.isEmpty() ) {
 	int min = 0;
 	for ( QtBox* subbox = boxes.first(); subbox; subbox = boxes.next() ) {
 	    row = new QtTextRow( p, fm, subbox,
 				colwidth-marginhorizontal - label_offset, min,
-				alignment() ); 
+				alignment() );
 	    rows.append( row );
 	    row->x = marginleft + label_offset;
 	    row->y = h;
 	    h += row->height;
 	    widthUsed = QMAX( widthUsed , min + marginhorizontal + label_offset);
 	}
-    } else { // real text 
+    } else { // real text
 	int index = 0;
 	int min;
 	while ( index < text.length() ) {
-	    row = new QtTextRow( p, fm, &text, index, 
+	    row = new QtTextRow( p, fm, &text, index,
 				 colwidth-marginhorizontal - label_offset, min,
-				 alignment() ); 
+				 alignment() );
 	    rows.append(row);
 	    row->x = marginleft + label_offset;
 	    row->y = h;
@@ -1619,7 +1633,7 @@ void QtBox::setWidth( QPainter* p, int newWidth, bool forceResize )
     }
 
     height += marginbottom;
-    
+
     /* TODO margins
     // collapse the bottom margin
     if ( isLastSibling && parent && parent->isBox){

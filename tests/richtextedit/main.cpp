@@ -1,4 +1,5 @@
 #include <qapplication.h>
+#include <qstylesheet.h>
 #include <qfile.h>
 #include <qtextstream.h>
 #include "qtextview.h"
@@ -6,6 +7,9 @@
 int main( int argc, char* argv[]  )
 {
     QApplication a( argc, argv);
+    // Many HTML files omit the </p> or </li>, so we add this for efficiency:
+    QStyleSheet::defaultSheet()->item("p")->setSelfNesting( FALSE );
+    QStyleSheet::defaultSheet()->item("li")->setSelfNesting( FALSE );
     QtTextView v;
     QBrush paper;
     paper.setPixmap( QPixmap( "marble.xpm" ) );
