@@ -1778,26 +1778,30 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
             if(prop)
                 replacement = prop->value(val);
         } else if(args.isEmpty()) {
-            if(val.left(1) == ".") //variables starting with a . are not available
+            if(val.left(1) == ".") { //variables starting with a . are not available
                 replacement = "";
-            else if(val == "LITERAL_WHITESPACE") //a real space in a token)
+            } else if(val == "LITERAL_WHITESPACE") { //a real space in a token)
                 replacement = "\t";
-            else if(val == "LITERAL_DOLLAR") //a real $ (not a variable replace)
+            } else if(val == "LITERAL_DOLLAR") { //a real $ (not a variable replace)
                 replacement = "$";
-            else if(val == "LITERAL_HASH") //a real # (ie not a comment)
+            } else if(val == "LITERAL_HASH") { //a real # (ie not a comment)
                 replacement = "#";
-            else if(val == "PWD") //current working dir (of _FILE_)
+            } else if(val == "PWD") { //current working dir (of _FILE_)
                 replacement = QDir::currentPath();
-            else if(val == "DIR_SEPARATOR")
+            } else if(val == "DIR_SEPARATOR") {
                 replacement = Option::dir_sep;
-            else if(val == "_LINE_") //parser line number
+            } else if(val == "_LINE_") { //parser line number
                 replacement = QString::number(parser.line_no);
-            else if(val == "_FILE_") //parser file
+            } else if(val == "_FILE_") { //parser file
                 replacement = parser.file;
-            else if(val == "_DATE_") //current date/time
+            } else if(val == "_DATE_") { //current date/time
                 replacement = QDateTime::currentDateTime().toString();
-            else
+            } else if(val == "_QMAKE_CACHE_") { //the .qmake.cache loaded
+                if(Option::mkfile::do_cache)
+                    replacement = Option::Option::mkfile::cachefile;
+            } else {
                 replacement = place[varMap(val)].join(QString(Option::field_sep));
+            }
         } else {
             QStringList arg_list = split_arg_list(doVariableReplace(args, place));
             debug_msg(1, "Running function: %s(%s)", val.latin1(), arg_list.join("::").latin1());
