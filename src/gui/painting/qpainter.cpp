@@ -182,9 +182,15 @@ void QPainterPrivate::draw_helper_fill_pattern(const void *data, bool winding, S
             q->drawLine(bounds.left(), y, bounds.right(), y);
         break;
     default: {
-        QPixmap pattern = qt_pixmapForBrush(state->brush.style(), true);
-        if (state->bgMode == Qt::TransparentMode)
+        QPixmap pattern;
+        if (state->brush.style() == Qt::CustomPattern)
+            pattern = *state->brush.pixmap();
+        else
+            pattern = qt_pixmapForBrush(state->brush.style(), true);
+
+        if (state->bgMode == Qt::TransparentMode && pattern.isQBitmap())
             pattern.setMask(*static_cast<QBitmap *>(&pattern));
+
         q->drawTiledPixmap(bounds, pattern);
     }
     }
