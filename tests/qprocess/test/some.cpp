@@ -155,21 +155,13 @@ void Some::writeMuch()
 
 void Some::kill()
 {
-    if ( proc->kill() ) {
-	qDebug( "kill() Successful!" );
-    } else {
-	qDebug( "kill() Fail!" );
-    }
+    proc->kill();
     showInfo();
 }
 
 void Some::hup()
 {
-    if ( proc->hangUp() ) {
-	qDebug( "hangUp() Successful!" );
-    } else {
-	qDebug( "hangUp() Fail!" );
-    }
+    proc->hangUp();
     showInfo();
 }
 
