@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.h#2 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.h#3 $
 **
 ** Definition of
 **
@@ -22,6 +22,8 @@ class QWhatsThis
 {
 public:
     static void add( QWidget *, const char *, bool deepCopy = TRUE );
+    static void add( QWidget *, const QPixmap &,
+		     const char *, const char *, bool deepCopy = TRUE );
     static void remove( QWidget * );
     static const char * textFor( QWidget * );
 

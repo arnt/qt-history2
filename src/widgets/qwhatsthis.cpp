@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#6 $
 **
 ** C++ file skeleton
 **
@@ -18,9 +18,11 @@
 #include "qtoolbutton.h"
 #include "qshared.h"
 #include "qkeycode.h"
+#include "qcursor.h"
+#include "qbitmap.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#5 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#6 $");
 
 
 class QWhatsThisPrivate: public QObject
@@ -42,10 +44,12 @@ public:
     // an item for storing texts
     struct Item: public QShared
     {
-	Item(): QShared(), dc(FALSE), s(0) {}
+	Item(): QShared(), dc(FALSE), s(0), t(0) {}
 	~Item();
 	bool dc;
-	const char * s;
+	char * s;
+	char * t;
+	QPixmap pm;
     };
 
     // the state machine
@@ -69,6 +73,8 @@ public:
     QPtrDict<QWidget> * tlw;
     QPtrDict<Button> * buttons;
     State state;
+
+    QCursor * cursor;
 };
 
 
@@ -109,6 +115,25 @@ static const char * fucking_button_image_and_you_too[] = {
 "     ooo        "};
 
 
+#define cursor_mask_width 22
+#define cursor_mask_height 21
+static uchar cursor_mask_bits[] = {
+ 0x00,0x00,0x00,0x02,0x00,0x00,0x06,0xe0,0x0f,0x0e,0xf0,0x1f,0x1e,0xf8,0x3f,
+ 0x3e,0x7c,0x3e,0x7e,0x7c,0x3e,0xfe,0x7c,0x3e,0xfe,0x7d,0x3e,0xfe,0x3b,0x1f,
+ 0xfe,0x87,0x0f,0xfe,0xcf,0x07,0xfe,0xc0,0x07,0xee,0xc1,0x07,0xe6,0xc1,0x07,
+ 0xc2,0xc3,0x07,0xc0,0xc3,0x07,0x80,0xc7,0x07,0x80,0xc7,0x07,0x00,0x03,0x00,
+ 0x00,0x00,0x00};
+
+#define cursor_bits_width 22
+#define cursor_bits_height 21
+static uchar cursor_bits_bits[] = {
+ 0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x1f,0xf0,0xfb,0xef,0xef,0xf3,0x77,0xde,
+ 0xe3,0xbb,0xdd,0xc3,0xbb,0xdd,0x83,0xbb,0xdd,0x03,0xbb,0xdd,0x03,0xc6,0xee,
+ 0x03,0x7c,0xf7,0x83,0xbf,0xfb,0x93,0xbf,0xfb,0x3b,0xbf,0xfb,0x3f,0x3f,0xf8,
+ 0x7f,0xbe,0xfb,0x7f,0xbe,0xfb,0xff,0xbc,0xfb,0xff,0x3c,0xf8,0xff,0xff,0xff,
+ 0xff,0xff,0xff};
+
+
 // the button class
 QWhatsThisPrivate::Button::Button( QWidget * parent, const char * name )
     : QToolButton( parent, name )
@@ -133,6 +158,7 @@ void QWhatsThisPrivate::Button::mouseReleaseEvent( QMouseEvent * e )
     if ( isOn() ) {
 	setUpWhatsThis();
 	wt->state = Waiting;
+	QApplication::setOverrideCursor( *wt->cursor, FALSE );
 	qApp->installEventFilter( wt );
     }
 }
@@ -155,14 +181,21 @@ QWhatsThisPrivate::QWhatsThisPrivate()
     wt = this;
     buttons = new QPtrDict<Button>;
     state = Inactive;
+    cursor = new QCursor( QBitmap( cursor_bits_width, cursor_bits_height,
+				   cursor_bits_bits, TRUE ),
+			  QBitmap( cursor_mask_width, cursor_mask_height,
+				   cursor_mask_bits, TRUE ),
+			  1, 1 );
 }
 
 QWhatsThisPrivate::~QWhatsThisPrivate()
 {
+    if ( state == Waiting )
+	QApplication::restoreOverrideCursor();
+
     // the two straight-and-simple dicts
     delete tlw;
     delete buttons;
-
 
     // then delete the complex one.
     QPtrDictIterator<Item> it( *dict );
@@ -229,7 +262,12 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
     case Waiting:
 	if ( e->type() == Event_MouseButtonPress && o->isWidgetType() ) {
 	    QWidget * w = (QWidget *) o;
-	    QWhatsThisPrivate::Item * i = dict->find( w );
+	    QWhatsThisPrivate::Item * i = 0;
+	    while( w && !i ) {
+		i = dict->find( w );
+		if ( !i )
+		    w = w->parentWidget();
+	    }
 	    QPtrDictIterator<Button> it( *(wt->buttons) );
 	    Button * b;
 	    while( (b=it.current()) != 0 ) {
@@ -242,6 +280,10 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	    } else {
 		state = FinalPress;
 	    }
+	    QApplication::restoreOverrideCursor();
+	    return TRUE;
+	} else if ( e->type() == Event_MouseButtonPress ||
+		    e->type() == Event_MouseMove ) {
 	    return TRUE;
 	} else if ( e->type() == Event_FocusOut ||
 		    e->type() == Event_FocusIn ||
@@ -254,6 +296,7 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 		b->setOn( FALSE );
 	    }
 	    state = Inactive;
+	    QApplication::restoreOverrideCursor();
 	    qApp->removeEventFilter( this );
 	}
 	break;
@@ -411,11 +454,28 @@ void QWhatsThisPrivate::say( QWidget * widget, const char * text )
 
 // and finally the What's This class itself
 
-/*!
-
+/*!  Adds \a text as what's this help for \a widget.  If \a deepCopy
+  is TRUE, QWhatsThis makes a deep copy of the string; if it is FALSE
+  QWhatsThis just copies the pointer \a text.
 */
 
 void QWhatsThis::add( QWidget * widget, const char * text, bool deepCopy )
+{
+    QPixmap tmp;
+    add( widget, tmp, 0, text, deepCopy );
+}
+
+
+
+/*!  Adds \a text as what's this help for \a widget, with title line
+  \a title and icon \a icon.  If \a deepCopy is TRUE, QWhatsThis makes
+  a deep copy of \a title and \a text; if it is FALSE QWhatsThis just
+  copies the pointers.
+*/
+
+void QWhatsThis::add( QWidget * widget, const QPixmap & icon,
+		      const char * title, const char * text,
+		      bool deepCopy )
 {
     QWhatsThisPrivate::setUpWhatsThis();
     QWhatsThisPrivate::Item * i = wt->dict->find( (void *)widget );
@@ -426,10 +486,16 @@ void QWhatsThis::add( QWidget * widget, const char * text, bool deepCopy )
     i->dc = deepCopy;
     if ( deepCopy ) {
 	i->s = new char[ qstrlen(text) + 1 ];
-	qstrcpy( (char *)i->s, text );
+	qstrcpy( i->s, text );
+	if ( title ) {
+	    i->t = new char[ qstrlen(text) + 1 ];
+	    qstrcpy( i->t, text );
+	}
     } else {
-	i->s = text;
+	i->s = (char*)text;
+	i->t = (char*)title;
     }
+    i->pm = icon;
     wt->dict->insert( (void *)widget, i );
     QWidget * tlw = widget->topLevelWidget();
     if ( !wt->tlw->find( (void *)tlw ) ) {
@@ -439,9 +505,7 @@ void QWhatsThis::add( QWidget * widget, const char * text, bool deepCopy )
 }
 
 
-/*!
-
-*/
+/*!  Removes the what's this help for \a widget.  \sa add() */
 
 void QWhatsThis::remove( QWidget * widget )
 {
@@ -458,9 +522,10 @@ void QWhatsThis::remove( QWidget * widget )
 }
 
 
-/*!
+/*!  Returns the text (not the title) for \a widget, or 0 if there
+  isn't any what's this help for \a widget.
 
-*/
+  \sa add() */
 
 const char * QWhatsThis::textFor( QWidget * widget )
 {
@@ -470,8 +535,10 @@ const char * QWhatsThis::textFor( QWidget * widget )
 }
 
 
-/*!
+/*!  Returns a pointer to a specially configured QToolButton, suitable
+  for use to enter What's This mode.
 
+  \sa QToolButton
 */
 
 QToolButton * QWhatsThis::whatsThisButton( QWidget * parent )
@@ -480,6 +547,3 @@ QToolButton * QWhatsThis::whatsThisButton( QWidget * parent )
     return new QWhatsThisPrivate::Button( parent,
 					  "automatic what's this? button" );
 }
-
-
-
