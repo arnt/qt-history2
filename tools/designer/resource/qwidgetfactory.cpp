@@ -1045,7 +1045,7 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 
 	    conn.signal = NormalizeObject::normalizeSignalSlot( conn.signal );
 	    conn.slot = NormalizeObject::normalizeSignalSlot( conn.slot );
-	
+
 	    QObject *sender = 0, *receiver = 0;
 	    QObjectList *l = toplevel->queryList( 0, conn.sender->name(), FALSE );
 	    if ( qstrcmp( conn.sender->name(), toplevel->name() ) == 0 ) {
@@ -1201,7 +1201,7 @@ void QWidgetFactory::createColumn( const QDomElement &e, QWidget *widget )
 	if ( hasPixmap ) {
 #ifndef QT_NO_SQL
 	    if ( isSql )
-		((QDataTable*)table)->addColumn( field, txt, pix );
+		((QDataTable*)table)->addColumn( field, txt, -1, pix );
 	    else
 #endif
 		h->setLabel( i, pix, txt );
@@ -1438,7 +1438,7 @@ void QWidgetFactory::loadFunctions( const QDomElement &e )
 			qwf_forms = new QMap<QWidget*, QString>;
 		    (*(qwf_functions))[ toplevel ].append( s );
 		}
-		
+
 	    }
 	}
 	n = n.nextSibling().toElement();
