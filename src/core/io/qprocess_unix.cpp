@@ -16,6 +16,7 @@
 #include "qprocess.h"
 #include "qprocess_p.h"
 
+#include <qabstracteventdispatcher.h>
 #include <qdatetime.h>
 #include <qfile.h>
 #include <qfileinfo.h>
@@ -64,10 +65,12 @@ public:
             if (oldAction.sa_handler != qt_sa_sigchld_handler)
                 old_sigchld_handler = qt_sa_old_sigchld_handler = oldAction.sa_handler;
 
-            shutdownNotifier = new QSocketNotifier(qt_qprocess_deadChild_pipe[0],
-                                                   QSocketNotifier::Read, this);
-            connect(shutdownNotifier, SIGNAL(activated(int)),
-                    this, SLOT(deadChildNotification(int)));
+            if (QAbstractEventDispatcher::instance(thread())) {
+                shutdownNotifier = new QSocketNotifier(qt_qprocess_deadChild_pipe[0],
+                                                       QSocketNotifier::Read, this);
+                connect(shutdownNotifier, SIGNAL(activated(int)),
+                        this, SLOT(deadChildNotification(int)));
+            }
         }
     }
 
@@ -155,22 +158,26 @@ void QProcessPrivate::startProcess()
 
     // Initialize pipes
     qt_create_pipe(childStartedPipe);
+    if (QAbstractEventDispatcher::instance(q->thread())) {
         startupSocketNotifier = new QSocketNotifier(childStartedPipe[0],
                                                     QSocketNotifier::Read, q);
         QObject::connect(startupSocketNotifier, SIGNAL(activated(int)),
                          q, SLOT(startupNotification()));
-
+    }
     qt_create_pipe(writePipe);
 
+    if (QAbstractEventDispatcher::instance(q->thread())) {
         writeSocketNotifier = new QSocketNotifier(writePipe[1],
                                                   QSocketNotifier::Write, q);
         QObject::connect(writeSocketNotifier, SIGNAL(activated(int)),
                          q, SLOT(canWrite()));
         writeSocketNotifier->setEnabled(false);
+    }
 
     qt_create_pipe(standardReadPipe);
     qt_create_pipe(errorReadPipe);
 
+    if (QAbstractEventDispatcher::instance(q->thread())) {
         standardReadSocketNotifier = new QSocketNotifier(standardReadPipe[0],
                                                          QSocketNotifier::Read,
                                                          q);
@@ -182,6 +189,7 @@ void QProcessPrivate::startProcess()
                                                       q);
         QObject::connect(errorReadSocketNotifier, SIGNAL(activated(int)),
                          q, SLOT(canReadStandardError()));
+    }
 
     // Start the process (platform dependent)
     processState = QProcess::Starting;
