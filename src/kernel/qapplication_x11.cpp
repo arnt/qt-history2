@@ -1963,9 +1963,24 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	if (XRenderQueryExtension(appDpy, &xrender_eventbase, &xrender_errorbase)) {
 	    // XRender is supported, let's see if we have a PictFormat for the
 	    // default visual
-	    qt_use_xrender =
-		(XRenderFindVisualFormat(appDpy,
-					 (Visual *) QPaintDevice::x_appvisual) != 0);
+	    XRenderPictFormat *format =
+		XRenderFindVisualFormat(appDpy,
+					(Visual *) QPaintDevice::x_appvisual);
+
+	    /*
+	      if (format)
+	      qDebug("format %p: depth %d type %d rgba masks %x/%x/%x/%x",
+	      format,
+	      format->depth,
+	      format->type,
+	      format->direct.redMask,
+	      format->direct.greenMask,
+	      format->direct.blueMask,
+	      format->direct.alphaMask);
+	    */
+
+	    qt_use_xrender = (format != 0);
+
 	}
 #endif // QT_NO_XRENDER
 
@@ -2013,13 +2028,16 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 #if !defined(NO_XIM)
 	qt_xim = 0;
 	QString ximServerName(ximServer);
-	if (ximServer) ximServerName.prepend("@im=");
+	if (ximServer)
+	    ximServerName.prepend("@im=");
+	else
+	    ximServerName = "";
+
 	if ( !XSupportsLocale() )
 	    qWarning("Qt: Locales not supported on X server");
 
 #ifdef USE_X11R6_XIM
-	else if ( ximServer &&
-		  XSetLocaleModifiers (ximServerName.ascii()) == 0 )
+	else if ( XSetLocaleModifiers (ximServerName.ascii()) == 0 )
 	    qWarning( "Qt: Cannot set locale modifiers: %s",
 		      ximServerName.ascii());
 	else if ( !noxim )
@@ -5104,7 +5122,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	return TRUE;
 
     QEvent::Type type = (event->type == XKeyPress) ?
-	QEvent::KeyPress : QEvent::KeyRelease;
+			QEvent::KeyPress : QEvent::KeyRelease;
     bool    autor = FALSE;
     QString text;
 
@@ -5212,7 +5230,13 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	}
     }
 
-    // process accelerates before popups
+    if (code == 0 && ascii == '\n') {
+	code = Key_Return;
+	ascii = '\r';
+	text = "\r";
+    }
+
+    // process acceleraters before popups
     QKeyEvent e( type, code, ascii, state, text, autor,
 		 QMAX(count, int(text.length())) );
     if ( type == QEvent::KeyPress && !grab ) {
