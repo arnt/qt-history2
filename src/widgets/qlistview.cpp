@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#47 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#48 $
 **
 ** Implementation of QListView widget class
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#47 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#48 $");
 
 
 const int Unsorted = 32767;
@@ -99,7 +99,7 @@ struct QListViewPrivate
     // suggested height for the items
     int fontMetricsHeight;
     bool allColumnsShowFocus;
-    
+
     // currently typed prefix for the keyboard interface, and the time
     // of the last key-press
     QString currentPrefix;
@@ -1003,8 +1003,10 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	 d->bottomPixel < cy + ch - 1 ||
 	 d->r->maybeTotalHeight < 0 )
 	buildDrawableList();
-
+    
     QListIterator<QListViewPrivate::DrawableItem> it( *(d->drawables) );
+
+    debug( "uh %d-%d", cy, cy+ch-1 );
 
     QRect r;
     int l;
@@ -1057,8 +1059,6 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		int i = d->h->mapToLogical( c );
                 cs = d->h->cellSize( c );
                 r.setRect( x + ox, current->y + oy, cs, ih );
-                if ( c + 1 == lc && x + cs < cx + cw )
-                    r.setRight( cx + cw + ox - 1 );
 		if ( i==0 && current->l > 0 )
 		    r.setLeft( r.left() + (current->l-1) * treeStepSize() );
 
@@ -1111,13 +1111,30 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	}
     }
 
-    if ( d->r->totalHeight() < cy + ch ) {
-	// really should call some virtual method, or at least use
-	// something more configurable than colorGroup().base()
-	p->fillRect( cx + ox, d->r->totalHeight() + oy,
-		     cw, cy + ch - d->r->totalHeight(),
-		     colorGroup().base() );
+    if ( d->r->totalHeight() < cy + ch )
+	paintEmptyArea( p, QRect( cx + ox, d->r->totalHeight() + oy,
+				  cw, cy + ch - d->r->totalHeight() ) );
+
+    int c = d->h->count()-1;
+    if ( c >= 0 &&
+	 d->h->cellPos( c ) + d->h->cellSize( c ) < cx + cw ) {
+	c = d->h->cellPos( c ) + d->h->cellSize( c );
+	paintEmptyArea( p, QRect( c + ox, cy + oy, cx + cw - c, ch ) );
     }
+}
+
+
+
+/*!  Paints \a rect so that it looks like empty background using
+  painter p.  \a rect is is widget coordinates, ready to be fed to \a
+  p.
+  
+  The default function fills \a rect with colorGroup().base().
+*/
+
+void QListView::paintEmptyArea( QPainter * p, const QRect & rect )
+{
+	p->fillRect( rect, colorGroup().base() );
 }
 
 
@@ -1257,7 +1274,7 @@ void QListView::clear()
 
     d->currentSelected = 0;
     d->focusItem = 0;
-    contentsResize( d->h->width(), viewport()->height() ); // ### ?
+    contentsResize( d->h->sizeHint().width(), viewport()->height() ); // ### ?
 
     // if it's down its downness makes no sense, so undown it
     d->buttonDown = FALSE;
@@ -1297,7 +1314,7 @@ void QListView::show()
 
     reconfigureItems();
 
-    contentsResize( 250, d->r->totalHeight() ); // ### 250
+    contentsResize( QMIN(20,d->h->sizeHint().width()), d->r->totalHeight() );
     QScrollView::show();
 }
 
@@ -1312,13 +1329,21 @@ void QListView::updateContents()
     for( int i=0; i<d->h->count(); i++ )
 	w += d->h->cellSize( i );
 
-    int h = d->h->sizeHint().height();
-    d->h->setGeometry( frameWidth(), frameWidth(),
-		       frameRect().width(), h );
+    int h = d->h->sizeHint().height(); // ### slightly slow
     setMargins( 0, h, 0, 0 );
-
     contentsResize( w, d->r->totalHeight() );  // repaints
-    viewport()->repaint();
+    d->h->setGeometry( viewport()->x(), viewport()->y()-h,
+		       viewport()->width(), h );
+}
+
+
+/*!  Ensures that the header is correctly sized and positioned.
+*/
+
+void QListView::resizeEvent( QResizeEvent *e )
+{
+    QScrollView::resizeEvent( e );
+    d->h->resize( viewport()->width(), d->h->height() );
 }
 
 
@@ -1333,6 +1358,7 @@ void QListView::triggerUpdate()
 	d->drawables = 0;
     }
     d->timer->start( 0, TRUE );
+    viewport()->update();
 }
 
 
@@ -1977,7 +2003,7 @@ void QListView::setSelected( QListViewItem * item, bool selected )
     if ( item->isSelected() != selected ) {
 	item->setSelected( selected );
 	d->currentSelected = item;
-	r = r.unite( itemRect( item ) );
+	viewport()->update( itemRect( item ) );
     }
 
     if ( !d->allColumnsShowFocus ) {
@@ -1986,7 +2012,7 @@ void QListView::setSelected( QListViewItem * item, bool selected )
 	r = r.intersect( col );
     }
 
-    viewport()->repaint( r, FALSE );
+    viewport()->update( r );
     if ( !isMultiSelection() )
 	emit selectionChanged( item );
     emit selectionChanged();
@@ -2021,7 +2047,7 @@ void QListView::setCurrentItem( QListViewItem * i )
 	r = itemRect( prev );
 
     if ( i )
-	r = r.unite( itemRect( i ) );
+	viewport()->update( itemRect( i ) );
 
     if ( !d->allColumnsShowFocus ) {
 	QRect col( d->h->cellPos(d->h->mapToActual(0)), r.top(),
@@ -2029,7 +2055,7 @@ void QListView::setCurrentItem( QListViewItem * i )
 	r = r.intersect( col );
     }
 
-    viewport()->repaint( r, FALSE );
+    viewport()->update( r );
     if ( i != prev )
 	emit currentChanged( i );
 }
@@ -2254,8 +2280,6 @@ void QListView::repaintItem( const QListViewItem * item ) const
 
 
 
-
-
 /*!
   \class QCheckListItem qlistview.h
   \brief The QCheckListItem class implements checkable list view items.
@@ -2304,7 +2328,8 @@ static const int BoxSize = 16;
   \a tt. Note that a RadioButton must be child of a Controller, otherwise
   it will not toggle.
  */
-QCheckListItem::QCheckListItem( QCheckListItem *parent, const char *text, Type tt )
+QCheckListItem::QCheckListItem( QCheckListItem *parent, const char *text,
+				Type tt )
     : QListViewItem( parent, text, 0 )
 {
     myType = tt;
@@ -2324,7 +2349,8 @@ QCheckListItem::QCheckListItem( QCheckListItem *parent, const char *text, Type t
   \a tt. Note that \a tt must not be RadioButton, if so
   it will not toggle.
  */
-QCheckListItem::QCheckListItem( QListView *parent, const char *text, Type tt )
+QCheckListItem::QCheckListItem( QListView *parent, const char *text,
+				Type tt )
     : QListViewItem( parent, text, 0 )
 {
     myType = tt;
@@ -2339,7 +2365,8 @@ QCheckListItem::QCheckListItem( QListView *parent, const char *text, Type tt )
   Constructs a Controller item with parent \a parent, text \a text and pixmap
   \a p.
  */
-QCheckListItem::QCheckListItem( QListView *parent, const char *text, QPixmap p )
+QCheckListItem::QCheckListItem( QListView *parent, const char *text,
+				const QPixmap & p )
     : QListViewItem( parent, text, 0 )
 {
     myType = Controller;
@@ -2351,7 +2378,8 @@ QCheckListItem::QCheckListItem( QListView *parent, const char *text, QPixmap p )
   Constructs a Controller item with parent \a parent, text \a text and pixmap
   \a p.
  */
-QCheckListItem::QCheckListItem( QListViewItem *parent, const char *text, QPixmap p )
+QCheckListItem::QCheckListItem( QListViewItem *parent, const char *text,
+				const QPixmap & p )
     : QListViewItem( parent, text, 0 )
 {
     myType = Controller;

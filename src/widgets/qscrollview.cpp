@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#15 $
 **
 ** Implementation of QScrollView class
 **
@@ -140,24 +140,35 @@ void QScrollView::updateScrollBars()
     bool showv;
 
     if ( !d->contents || d->contents->isVisible() ) {
-	// Do we definately need the scrollbar?
+	// Do we definitely need the scrollbar?
 	needh = w-lmarg-rmarg < contentsWidth();
 	needv = h-tmarg-bmarg < contentsHeight();
 
 	// Do we intend to show the scrollbar?
-	if (d->hMode == AlwaysOn) showh = TRUE;
-	else if (d->hMode == AlwaysOff) showh = FALSE;
-	else showh = needh;
-	if (d->vMode == AlwaysOn) showv = TRUE;
-	else if (d->vMode == AlwaysOff) showv = FALSE;
-	else showv = needv;
+	if (d->hMode == AlwaysOn)
+	    showh = TRUE;
+	else if (d->hMode == AlwaysOff)
+	    showh = FALSE;
+	else
+	    showh = needh;
+
+	if (d->vMode == AlwaysOn)
+	    showv = TRUE;
+	else if (d->vMode == AlwaysOff)
+	    showv = FALSE;
+	else
+	    showv = needv;
 
 	// Given other scrollbar will be shown, NOW do we need one?
 	if ( showh && h-sbDim-tmarg-bmarg < contentsHeight() ) {
-	    needv=TRUE; if (d->vMode == Auto) showv=TRUE;
+	    needv=TRUE;
+	    if (d->vMode == Auto)
+		showv=TRUE;
 	}
 	if ( showv && w-sbDim-lmarg-rmarg < contentsWidth() ) {
-	    needh=TRUE; if (d->hMode == Auto) showh=TRUE;
+	    needh=TRUE;
+	    if (d->hMode == Auto)
+		showh=TRUE;
 	}
     } else {
 	// Scrollbars not needed, only show scrollbar that are always on.
@@ -170,14 +181,16 @@ void QScrollView::updateScrollBars()
     if ( showh ) {
 	porth=h-sbDim-tmarg-bmarg;
     } else {
-	if (!needh) hslide( 0 ); // move widget to left
+	if (!needh)
+	    hslide( 0 ); // move widget to left
 	d->hbar.hide();
 	porth=h-tmarg-bmarg;
     }
     if ( showv ) {
 	portw=w-sbDim-lmarg-rmarg;
     } else {
-	if (!needv) vslide( 0 ); // move widget to top
+	if (!needv)
+	    vslide( 0 ); // move widget to top
 	d->vbar.hide();
 	portw=w-lmarg-rmarg;
     }
@@ -210,7 +223,8 @@ void QScrollView::updateScrollBars()
 	bottom=h;
     }
     if ( showv ) {
-	d->viewport.setGeometry( lmarg, tmarg, w-sbDim-lmarg-rmarg, bottom-tmarg-bmarg );
+	d->viewport.setGeometry( lmarg, tmarg,
+				 w-sbDim-lmarg-rmarg, bottom-tmarg-bmarg );
 	changeFrameRect(QRect(0, 0, w-sbDim, bottom));
 	if (cornerWidget())
 	    d->vbar.setGeometry( w-sbDim, 0, sbDim, h-sbDim );
@@ -218,14 +232,17 @@ void QScrollView::updateScrollBars()
 	    d->vbar.setGeometry( w-sbDim, 0, sbDim, bottom );
     } else {
 	changeFrameRect(QRect(0, 0, w, bottom));
-	d->viewport.setGeometry( lmarg, tmarg, w-lmarg-rmarg, bottom-tmarg-bmarg );
+	d->viewport.setGeometry( lmarg, tmarg,
+				 w-lmarg-rmarg, bottom-tmarg-bmarg );
     }
     if ( d->corner )
 	d->corner->setGeometry( w-sbDim, h-sbDim, sbDim, sbDim );
 
     // Finally, show the scrollbars.
-    if ( showh ) d->hbar.show();
-    if ( showv ) d->vbar.show();
+    if ( showh )
+	d->hbar.show();
+    if ( showv )
+	d->vbar.show();
 }
 
 
@@ -633,9 +650,11 @@ int QScrollView::contentsHeight() const
 }
 
 /*!
-  Set the size of the contents area.
+  Set the size of the contents area to \a w pixesls wide and \a h
+  pixels high, and updates the viewport if \a update is TRUE (as it is
+  by default).
 */
-void QScrollView::contentsResize( int w, int h )
+void QScrollView::contentsResize( int w, int h, bool update )
 {
     if ( d->contents ) {
 	// Strange.  Why did the programmer do that.  Oh well, do it.
@@ -646,22 +665,28 @@ void QScrollView::contentsResize( int w, int h )
 
     // Could more efficiently scroll if shrinking, repaint if growing, etc.
     updateScrollBars();
-    update();
+    if ( update )
+	viewport()->update();
 }
 
 /*!
-  \fn void QScrollView::drawContentsOffset(QPainter* p, int offsetx, int offsety,
-	int clipx, int clipy, int clipw, int cliph)
+  \fn void QScrollView::drawContentsOffset(QPainter* p, int offsetx, int offsety, int clipx, int clipy, int clipw, int cliph)
 
-  Override this method if you are viewing a drawing area rather than a widget.
+  Reimplement this method if you are viewing a drawing area rather
+  than a widget.
 
-  Draws a clipped area of the contents, offset by the given
-  amount. Note that the final coordinates
-  you give to QPainter methods must be within the range supported
-  by the underlying window system - about +/- 32000.
+  Draws the rectangle (\a clipx, \a clipy, \a clipw, \a cliph ) of the
+  contents, offset by (\a offsetx, \a offsety ) using painter \a p.
+  All four are given in the scroll views's coordinates.  \a clipx and
+  \a clipy are typically large positive numbers, \a offsetx and \a
+  offsety are typically large negative numbers.
+
+  Note that the final coordinates you give to QPainter methods must be
+  within the range supported by the underlying window systems - about
+  +/- 32000.
 
   For example:
-\code
+  \code
   {
     // Fill a 40000 by 50000 rectangle at (100000,150000)
 
@@ -669,7 +694,7 @@ void QScrollView::contentsResize( int w, int h )
     int x1 = 100000, y1 = 150000;
     int x2 = x1+40000-1, y2 = y1+50000-1;
 
-    // Clip the coordinates...
+    // Clip the coordinates so X/Windows will not have problems...
     if (x1 < clipx) x1=clipx;
     if (y1 < clipy) y1=clipy;
     if (x2 > clipx+clipw-1) x2=clipx+clipw-1;
@@ -685,9 +710,9 @@ void QScrollView::contentsResize( int w, int h )
     if ( x2 >= x1 && y2 >= y1 )
 	p->fillRect(x1, y1, x2-x1+1, y2-y1+1, red);
   }
-\endcode
+  \endcode
 
-  The clip rectangle of the painter is already set appropriately.
+  The clip rectangle of the painter \a p is already set appropriately.
 
   Note that QPainter::translate() is not sufficient.
 
@@ -707,7 +732,6 @@ An override - ensures scrollbars are correct size when frame style changes.
 void QScrollView::frameChanged()
 {
     updateScrollBars();
-    update();
 }
 
 
@@ -720,14 +744,16 @@ QWidget* QScrollView::viewport()
     return &d->viewport;
 }
 
+
 void QScrollView::changeFrameRect(const QRect& r)
 {
     QRect oldr = frameRect();
     if (oldr != r) {
 	setFrameRect(r);
-	update(oldr);
+	//viewport()->update();
     }
 }
+
 
 /*!
   Sets the margins around the scrolling area.  This is useful for applications
@@ -748,23 +774,42 @@ void QScrollView::setMargins(int left, int top, int right, int bottom)
     updateScrollBars();
 }
 
+
 /*!
   Returns the current left margin.
   \sa setMargins()
 */
-int QScrollView::leftMargin() const	{ return d->l_marg; }
+int QScrollView::leftMargin() const	
+{
+    return d->l_marg;
+}
+
+
 /*!
   Returns the current top margin.
   \sa setMargins()
 */
-int QScrollView::topMargin() const	{ return d->t_marg; }
+int QScrollView::topMargin() const	
+{
+    return d->t_marg;
+}
+
+
 /*!
   Returns the current right margin.
   \sa setMargins()
 */
-int QScrollView::rightMargin() const	{ return d->r_marg; }
+int QScrollView::rightMargin() const	
+{
+    return d->r_marg; 
+}
+
+
 /*!
   Returns the current bottom margin.
   \sa setMargins()
 */
-int QScrollView::bottomMargin() const	{ return d->b_marg; }
+int QScrollView::bottomMargin() const	
+{
+    return d->b_marg; 
+}

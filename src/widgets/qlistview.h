@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#22 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#23 $
 **
 ** Definition of QListView widget class
 **
@@ -71,7 +71,7 @@ public:
 
     virtual void setExpandable( bool );
     bool isExpandable() { return expandable; }
-    
+
     void repaint() const;
 
 protected:
@@ -147,7 +147,7 @@ public:
 
     bool eventFilter( QObject * o, QEvent * );
 
- public slots:
+public slots:
     void triggerUpdate();
 
 signals:
@@ -170,8 +170,12 @@ protected:
 
     void keyPressEvent( QKeyEvent *e );
 
+    void resizeEvent( QResizeEvent *e );
+
     void drawContentsOffset( QPainter *, int ox, int oy,
 			     int cx, int cy, int cw, int ch );
+
+    virtual void paintEmptyArea( QPainter *, const QRect & );
 
 protected slots:
     void updateContents();
@@ -188,15 +192,20 @@ private:
     friend QListViewItem;
 };
 
+
 class QCheckListItem : public QListViewItem
 {
 public:
     enum Type { RadioButton, CheckBox, Controller };
 
-    QCheckListItem( QCheckListItem *parent, const char *text, Type= Controller );
-    QCheckListItem( QListView *parent, const char *text, Type = Controller );
-    QCheckListItem( QListViewItem *parent, const char *text, QPixmap );
-    QCheckListItem( QListView *parent, const char *text, QPixmap );
+    QCheckListItem( QCheckListItem *parent, const char *text,
+		    Type = Controller );
+    QCheckListItem( QListView *parent, const char *text,
+		    Type = Controller );
+    QCheckListItem( QListViewItem *parent, const char *text,
+		    const QPixmap & );
+    QCheckListItem( QListView *parent, const char *text,
+		    const QPixmap & );
 
     void paintCell( QPainter *,  const QColorGroup & cg,
 		    int column, int width, bool showFocus ) const;
@@ -214,6 +223,7 @@ protected:
     void activate();
     void turnOffChild();
     virtual void stateChange( bool );
+
 private:
     void init();
     Type myType;
@@ -222,5 +232,6 @@ private:
 
     QPixmap *pix;
 };
+
 
 #endif // QLISTVIEW_H
