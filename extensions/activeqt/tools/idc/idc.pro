@@ -9,17 +9,33 @@ DEFINES        += QT_NO_CODECS QT_NO_COMPONENT QT_NO_STL QT_NODLL QT_NO_DATASTRE
 INCLUDEPATH     = $$QT_SOURCE_TREE/include/qtcore .
 DEPENDPATH      = $$QT_SOURCE_TREE/include .
 
-SOURCES         = main.cpp \
-                    $$QT_SOURCE_TREE/src/core/global/qglobal.cpp      \
-                    $$QT_SOURCE_TREE/src/core/io/qfile.cpp \
-                    $$QT_SOURCE_TREE/src/core/io/qfile_win.cpp \
-                    $$QT_SOURCE_TREE/src/core/io/qiodevice.cpp    \
-                    $$QT_SOURCE_TREE/src/core/tools/qbytearray.cpp \
-                    $$QT_SOURCE_TREE/src/core/tools/qbytearraymatcher.cpp \
-		    $$QT_SOURCE_TREE/src/core/tools/qchar.cpp \
-		    $$QT_SOURCE_TREE/src/core/tools/qlist.cpp \
-		    $$QT_SOURCE_TREE/src/core/tools/qlocale.cpp \
-                    $$QT_SOURCE_TREE/src/core/tools/qstring.cpp \
-		    $$QT_SOURCE_TREE/src/core/tools/qstringlist.cpp \
-		    $$QT_SOURCE_TREE/src/core/tools/qstringmatcher.cpp \
-		    $$QT_SOURCE_TREE/src/core/tools/qunicodetables.cpp
+SOURCES         = main.cpp
+
+
+SOURCES		+= $$QT_SOURCE_TREE/src/core/global/qglobal.cpp \
+		   $$QT_SOURCE_TREE/src/core/tools/qbytearray.cpp \
+                   $$QT_SOURCE_TREE/src/core/tools/qbytearraymatcher.cpp \
+		   $$QT_SOURCE_TREE/src/core/tools/qchar.cpp \
+                   $$QT_SOURCE_TREE/src/core/tools/qdatetime.cpp \
+		   $$QT_SOURCE_TREE/src/core/tools/qlist.cpp \
+		   $$QT_SOURCE_TREE/src/core/tools/qlocale.cpp \
+                   $$QT_SOURCE_TREE/src/core/tools/qstring.cpp \
+		   $$QT_SOURCE_TREE/src/core/tools/qstringlist.cpp \
+		   $$QT_SOURCE_TREE/src/core/tools/qstringmatcher.cpp \
+		   $$QT_SOURCE_TREE/src/core/tools/qunicodetables.cpp
+
+SOURCES		+= $$QT_SOURCE_TREE/src/core/io/qdir.cpp \
+                   $$QT_SOURCE_TREE/src/core/io/qfsdirengine.cpp \
+                   $$QT_SOURCE_TREE/src/core/io/qfile.cpp \
+                   $$QT_SOURCE_TREE/src/core/io/qfsfileengine.cpp \
+                   $$QT_SOURCE_TREE/src/core/io/qfileinfo.cpp \
+                   $$QT_SOURCE_TREE/src/core/io/qfsfileinfoengine.cpp \
+                   $$QT_SOURCE_TREE/src/core/io/qiodevice.cpp
+
+win32:SOURCES   += $$QT_SOURCE_TREE/src/core/io/qfsdirengine_win.cpp \
+		   $$QT_SOURCE_TREE/src/core/io/qfsfileengine_win.cpp \
+		   $$QT_SOURCE_TREE/src/core/io/qfsfileinfoengine_win.cpp
+
+unix:SOURCES    += $$QT_SOURCE_TREE/src/core/io/qfsdirengine_unix.cpp \
+		   $$QT_SOURCE_TREE/src/core/io/qfsfileengine_unix.cpp \
+		   $$QT_SOURCE_TREE/src/core/io/qfsfileinfoengine_unix.cpp
