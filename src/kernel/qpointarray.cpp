@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#65 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#66 $
 **
 ** Implementation of QPointArray class
 **
@@ -959,7 +959,7 @@ QDataStream &operator>>( QDataStream &s, QPointArray &a )
   function is called.
 */
 
-void* QPointArray::shortPoints( int index = 0, int nPoints = -1 ) const
+void* QPointArray::shortPoints( int index, int nPoints ) const
 {
     typedef struct {
 	short x, y;
