@@ -90,6 +90,7 @@ eval {
     win32:RC_FILE	= install-eval.rc
     SOURCES		+= $(QTEVAL)/src/check-and-patch.cpp
     INCLUDEPATH		+= $(QTEVAL)/src
+    DESTDIR		= ../../../bin
 }
 
 edu {
@@ -100,4 +101,5 @@ edu {
     win32:RC_FILE	= install-edu.rc
     SOURCES		+= $(QTEVAL)/src/check-and-patch.cpp
     INCLUDEPATH		+= $(QTEVAL)/src
+    DESTDIR		= ../../../bin
 }
