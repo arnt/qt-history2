@@ -5,7 +5,7 @@
 **
 ** Created : 950116
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -35,8 +35,8 @@
 **
 **********************************************************************/
 
-#ifndef QWIDINTDICT_H
-#define QWIDINTDICT_H
+#ifndef QWIDGETINTDICT_H
+#define QWIDGETINTDICT_H
 
 #ifndef QT_H
 #include "qwidget.h"
@@ -69,4 +69,4 @@ public:
 };
 
 
-#endif // QWIDINTDICT_H
+#endif

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of a nice qInstallErrorMessage() handler
 **
 ** Created : 2000-05-27, after Kalle Dalheimer's birthday
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the dialogs module of the Qt GUI Toolkit.
 **
@@ -35,8 +35,8 @@
 **
 **********************************************************************/
 
-#ifndef QERRORHANDLER_H
-#define QERRORHANDLER_H
+#ifndef QERRORMESSAGE_H
+#define QERRORMESSAGE_H
 
 #ifndef QT_H
 #include "qdialog.h"

@@ -25,8 +25,8 @@
 **
 **********************************************************************/
 
-#ifndef QT_MOC9_H
-#define QT_MOC9_H
+#ifndef MWERKS_MAC_H
+#define MWERKS_MAC_H
 
 #include "qglobal.h"
 #ifdef Q_OS_MAC

@@ -26,8 +26,9 @@
 ** not clear to you.
 **
 **********************************************************************/
-#ifndef QPOCKETPCSTYLE_H
-#define QPOCKETPCSTYLE_H
+
+#ifndef QPOCKETPCSTYLE_WCE_H
+#define QPOCKETPCSTYLE_WCE_H
 
 #ifndef QT_H
 #include "qwindowsstyle.h"
@@ -109,4 +110,4 @@ private:
 
 #endif // QT_NO_STYLE_POCKETPC
 
-#endif // QPOCKETPCSTYLE_H
+#endif

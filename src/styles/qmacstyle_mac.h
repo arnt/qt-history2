@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
-** Definition of Motif-like style class
+** Definition of ...
 **
 ** Created : 981231
 **
-** Copyright (C) 1998-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1998-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -35,8 +35,8 @@
 **
 **********************************************************************/
 
-#ifndef QMACSTYLE_H
-#define QMACSTYLE_H
+#ifndef QMACSTYLE_MAC_H
+#define QMACSTYLE_MAC_H
 
 #ifndef QT_H
 #include "qwindowsstyle.h"
