@@ -505,7 +505,7 @@ bool QTranslator::do_load(const uchar *data, int len)
     QDataStream s(&array, IO_ReadOnly);
     bool ok = true;
 
-    s.device()->at(MagicLength);
+    s.device()->seek(MagicLength);
 
     Q_UINT8 tag = 0;
     Q_UINT32 blockLen = 0;
@@ -527,7 +527,7 @@ bool QTranslator::do_load(const uchar *data, int len)
                                                       blockLen);
         }
 
-        if (!s.device()->at(s.device()->at() + blockLen)) {
+        if (!s.device()->seek(s.device()->at() + blockLen)) {
             ok = false;
             break;
         }
@@ -713,7 +713,7 @@ void QTranslator::squeeze(SaveMode mode)
         memset(hTable, 0, hTableSize * sizeof(Q_UINT16));
 
         t << hTableSize;
-        t.device()->at(2 + (hTableSize << 1));
+        t.device()->seek(2 + (hTableSize << 1));
         t << (Q_UINT16)0; // the entry at offset 0 cannot be used
         uint upto = 2;
 
@@ -736,7 +736,7 @@ void QTranslator::squeeze(SaveMode mode)
                 } while ((upto & 0x1) != 0); // offsets have to be even
             }
         }
-        t.device()->at(2);
+        t.device()->seek(2);
         for (int j = 0; j < hTableSize; j++)
             t << hTable[j];
         delete [] hTable;
@@ -881,12 +881,12 @@ QTranslatorMessage QTranslator::findMessage(const char *context, const char *sou
         QDataStream t(d->contextArray, IO_ReadOnly);
         t >> hTableSize;
         uint g = elfHash(context) % hTableSize;
-        t.device()->at(2 + (g << 1));
+        t.device()->seek(2 + (g << 1));
         Q_UINT16 off;
         t >> off;
         if (off == 0)
             return QTranslatorMessage();
-        t.device()->at(2 + (hTableSize << 1) + (off << 1));
+        t.device()->seek(2 + (hTableSize << 1) + (off << 1));
 
         Q_UINT8 len;
         char con[256];
@@ -918,14 +918,14 @@ QTranslatorMessage QTranslator::findMessage(const char *context, const char *sou
                 r -= 8;
 
             QDataStream s(d->offsetArray, IO_ReadOnly);
-            s.device()->at(r - d->offsetArray.constData());
+            s.device()->seek(r - d->offsetArray.constData());
 
             Q_UINT32 rh, ro;
             s >> rh >> ro;
 
             QDataStream ms(d->messageArray, IO_ReadOnly);
             while (rh == h) {
-                ms.device()->at(ro);
+                ms.device()->seek(ro);
                 QTranslatorMessage m(ms);
                 if (match(m.context(), context)
                         && match(m.sourceText(), sourceText)

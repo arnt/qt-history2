@@ -228,7 +228,7 @@ void QPluginLoader::setFileName(const QString &fileName)
         d = 0;
         did_load = false;
     }
-    d = QLibraryPrivate::findOrCreate(QFileInfo(fileName).absFilePath());
+    d = QLibraryPrivate::findOrCreate(QFileInfo(fileName).absoluteFilePath());
     if (d && d->pHnd && d->instance)
         did_load = true;
 }

@@ -1113,7 +1113,7 @@ static QString resolveSymlinks(const QString& path, int depth = 0)
 */
 QString QCoreApplication::applicationDirPath()
 {
-    return QFileInfo(applicationFilePath()).dirPath();
+    return QFileInfo(applicationFilePath()).path();
 }
 
 /*!
@@ -1132,7 +1132,7 @@ QString QCoreApplication::applicationDirPath()
 QString QCoreApplication::applicationFilePath()
 {
 #if defined(Q_WS_WIN) || defined(Q_WS_MAC)
-    return QDir::cleanDirPath(QFile::decodeName(qAppFileName()));
+    return QDir::cleanPath(QFile::decodeName(qAppFileName()));
 #else
     QString argv0 = QFile::decodeName(QByteArray(argv()[0]));
     QString absPath;

@@ -324,7 +324,7 @@ bool QProcess::start(QStringList *env)
                 | CREATE_UNICODE_ENVIRONMENT
 #endif
                 , env==0 ? 0 : envlist.data(),
-                (TCHAR*)workingDir.absPath().utf16(),
+                (TCHAR*)workingDir.absolutePath().utf16(),
                 &startupInfo, d->pid);
         free(applicationName);
         free(commandLine);
@@ -372,7 +372,7 @@ bool QProcess::start(QStringList *env)
         success = CreateProcessA(applicationName, args.toLocal8Bit().data(),
                 0, 0, true, comms==0 ? CREATE_NEW_CONSOLE : DETACHED_PROCESS,
                 env==0 ? 0 : envlist.data(),
-                workingDir.absPath().local8Bit(),
+                workingDir.absolutePath().local8Bit(),
                 &startupInfo, d->pid);
 #endif // Q_OS_TEMP
     }
