@@ -3268,16 +3268,16 @@ extern QWidget *qt_tryModalHelperMac( QWidget * top ); //qapplication_mac.cpp
   if the widget should accept the event.
  */
 bool qt_tryModalHelper( QWidget *widget, QWidget **rettop ) {
+    QWidget *modal=0, *top=QApplication::activeModalWidget();
+    if ( rettop ) *rettop = top;
+
     if ( qApp->activePopupWidget() )
 	return TRUE;
 
-    QWidget *modal=0, *top=QApplication::activeModalWidget();
-
 #ifdef Q_WS_MACX
     top = qt_tryModalHelperMac( top );
-#endif
-
     if ( rettop ) *rettop = top;
+#endif
 
     QWidget* groupLeader = widget;
     widget = widget->topLevelWidget();
