@@ -87,6 +87,8 @@ static const int macItemHMargin       = 3;    // menu item hor text margin
 static const int macItemVMargin       = 2;    // menu item ver text margin
 static const int macRightBorder       = 12;   // right border on mac
 
+#define QMAC_DO_SECONDARY_GROUPBOXES
+
 // Utility to generate correct rectangles for AppManager internals
 static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice *pd=NULL,
 					  bool off=TRUE, const QRect &rect=QRect())
@@ -279,6 +281,27 @@ void QMacStyle::polish(QWidget* w)
        w->backgroundPixmap() && qApp->palette().isCopyOf(w->palette())) 
             w->setBackgroundOrigin(QWidget::WindowOrigin);
 
+#ifdef QMAC_DO_SECONDARY_GROUPBOXES
+    if(w->parentWidget() && w->parentWidget()->inherits("QGroupBox") && 
+       w->parentWidget()->parentWidget() && w->parentWidget()->parentWidget()->inherits("QGroupBox")) {
+	QPalette pal = w->palette();
+	QPixmap px(200, 200, 32);
+	QColor pc(black);
+	{
+	    QPainter p(&px);
+	    ((QMacPainter *)&p)->setport();
+	    Rect r; SetRect(&r, 0, 0, px.width(), px.height()); 
+	    ApplyThemeBackground(kThemeBackgroundSecondaryGroupBox, &r, 
+				 kThemeStateActive, px.depth(), TRUE);
+	    EraseRect(&r);
+	}
+	QBrush background(pc, px);
+	pal.setBrush(QColorGroup::Background, background);
+	pal.setBrush(QColorGroup::Button, background);
+	w->setPalette(pal);
+    }
+#endif
+
     if(w->inherits("QLineEdit")) {
 	SInt32 frame_size;
 	GetThemeMetric(kThemeMetricEditTextFrameOutset, &frame_size);
@@ -435,9 +458,11 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	if(p && p->device() && p->device()->devType() == QInternal::Widget)
 	    w = (QWidget*)p->device();
 	((QMacPainter *)p)->setport();
+#ifdef QMAC_DO_SECONDARY_GROUPBOXES
 	if(w && w->parentWidget() && w->parentWidget()->inherits("QGroupBox"))
 	    DrawThemeSecondaryGroup(qt_glb_mac_rect(r, p), kThemeStateActive);
 	else
+#endif
 	    DrawThemePrimaryGroup(qt_glb_mac_rect(r, p), kThemeStateActive);
 	break; }
     case PE_ArrowUp:
