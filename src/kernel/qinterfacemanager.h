@@ -84,7 +84,6 @@ public:
 	QLibrary* plugin = new QLibrary( file, defPol );
 	bool useful = FALSE;
 
-//	Type* iFace = (Type*)plugin->queryInterface( "*/"+interfaceId+"*" );
 	Type* iFace = (Type*)plugin->queryInterface( interfaceId );
 	if ( iFace ) {
 	    QStringList fl = iFace->featureList();
@@ -122,7 +121,6 @@ public:
 	if ( !plugin )
 	    return FALSE;
 
-//	Type *iFace = (Type*)plugin->queryInterface( "*/"+interfaceId+"*" );
 	Type *iFace = (Type*)plugin->queryInterface( interfaceId );
 	if ( iFace ) {
 	    QStringList fl = iFace->featureList();
@@ -159,7 +157,6 @@ public:
 	QLibrary* plugin = plugDict[feature];
 	if ( !plugin )
 	    return 0;
-//	return (Type*)plugin->queryInterface( "*/"+interfaceId+"*" );
 	return (Type*)plugin->queryInterface( interfaceId );
     }
 
