@@ -97,7 +97,7 @@
   <ul plain>
   <li> <b><em>c</em></b> matches the normal character <tt><em>c</em></tt>
   <li> <b>&#92;c</b> matches the character <tt><em>c</em></tt>, even
-       if it is one that QRegExp normally assigns meaning to, such as 
+       if it is one that QRegExp normally assigns meaning to, such as
        <tt>$</tt> or <tt>&#92;</tt>.  (Note that in C++, this must be
        written as <tt>&#92;&#92;c</tt> since the compiler
        transforms <tt>&#92;&#92;c</tt> into <tt>&#92;c</tt>.)
@@ -135,14 +135,14 @@
 	    count++;
 	}
     } while( pos >= 0 );
-  \endcode  
-  
+  \endcode
+
   \code
     QRegExp rx( "[1-9][0-9][0-9]" );    // matches "100" up to "999"
     rx.match( "476" );                  // returns TRUE
     rx.match( "1492" );                 // returns FALSE
   \endcode
-  
+
   The atom <b>[</b>...<b>]</b> that matches one of the characters
   within the brackets.  For instance, <b>[BSD]</b> matches any of
   <tt>B</tt>, <tt>D</tt> and <tt>S</tt>.  Only the following characters
@@ -3189,8 +3189,25 @@ int QRegExp::matchedLength()
 #ifndef QT_NO_REGEXP_CAPTURE
 /*!
   Returns a list of the captured text strings.
+  
+  The returned list contains the entire matched string, followed by
+  the strings matched by each subexpression. For example:
+    
+  \code
+    QRegExp length( "(\d+)(cm|inch(es)?)" );
+    int pos = length.search( "only 42cm long" );
+    QStringList l = length.capturedTexts();
+    // l is now ( "42cm", "42", "cm" )
+  \endcode
+  
+  There is also a cap( n ) that returns the same as
+  capturedTexts()[n], and a pos( n ) that returns the position where
+  each match starts.
 
-  You might prefer to use cap() or pos().
+  The string list is ordered by the order of the '(' characters in the
+  regular expression, as shown in the cap() documentation.
+
+  \sa cap() pos()
 */
 QStringList QRegExp::capturedTexts()
 {
@@ -3209,29 +3226,49 @@ QStringList QRegExp::capturedTexts()
     return priv->capturedCache;
 }
 
-/*!
-  Returns the text captured by the \a nth parenthesized subexpression
-  in the regular expression.  Subexpressions are numbered in the order
-  of occurrence of their left parenthesis, starting at 1.  The whole
-  regular expression is given number 0 (the default), so cap() returns
-  the text matched by the entire regular expression.
-
+/*! Returns the text captured by the \a nth subexpression. The regular
+  expression itself is given index 0, and each parenthesised
+  subexpression is numbered, starting with 1.
+  
   \code
-    QRegExp rx( "[a-z]+" );             // matches a lower-case word
-    int pos = rx.search( "X pizza Y" ); // pos == 2
-    QString t0 = rx.cap();              // pizza - the entire word
+    QRegExp length( "(\d+)(cm|inch)" );
+    int pos = length.search( "Not John Holmes: 14cm" );
+    if ( pos > -1 ) {
+	QString number = length.cap( 1 ); // "cm"
+        QString unit = length.cap( 2 ); // "14"
+	...
+    }
   \endcode
 
-  If the subexpression is used several times, cap() returns the text
-  it matched last time:
-
+  Note that if the subexpression is used several times, the last match
+  is the one QRegExp remembers:
+  
   \code
-    QRegExp rx( "([a-z])+" );           // matches a lower-case word
-    int pos = rx.search( "X pizza chianti Y" );
-    QString t1 = rx.cap( 1 );           // a - the last match
+    QRegExp r( "results: ((\d+)(,\s)?)*" );
+    int pos = length.search( "Here are the results: 14cm, 15cm, 12cm, 13cm" );
+    if ( pos > -1 ) {
+        QString measured = r.cap( 2 ); // "13cm"
+	
+	...
+    }
   \endcode
 
-  \sa pos()
+  The last example is a bit hard, so we'll explain it more thoroughly.
+  The core of the regexp is <tt>(\d+)</tt>, which matches one
+  number. Around that, <tt>(\d+)(,\s)?</tt> matches a number
+  optionally followed by a comma and a space. Finally
+  <tt>((\d+)(,\s)?)*</tt> is a series of such number.
+  
+  cap() indexing follows the position of the '(' character. In this
+  expression, the first paren wraps <tt>(\d+)(,\s)?</tt>, so cap(1)
+  returns the last number and its options ", " suffix. The second
+  parent wraps <tt>(\d+)</tt>, so cap(2) returns the last number.
+
+  There is also a function, pos(), that returns the positions of each
+  match, and one to return all of the subexpression matches, namely
+  capturedTexts().
+  
+  \sa pos() capturedTexts() search()
 */
 QString QRegExp::cap( int nth )
 {
@@ -3241,11 +3278,9 @@ QString QRegExp::cap( int nth )
 	return capturedTexts()[nth];
 }
 
-/*!
-  Returns the position of the \a nth captured text in the searched string.  If
-  \a nth is 0 (the default), returns the position of the whole match.
-
-  Zero-length matches are considered as non-matches.
+/*! Returns the position of the \a nth captured text in the searched
+  string.  If \a nth is 0 (the default), pos() returns the position of
+  the whole match.
 
   Example:
   \code
@@ -3255,6 +3290,8 @@ QString QRegExp::cap( int nth )
     rx.pos( 1 );                        // 4 (position of dev)
     rx.pos( 2 );                        // 8 (position of null)
   \endcode
+
+  Zero-length matches are considered as non-matches.
 
   \sa capturedTexts() cap()
 */
