@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#107 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#108 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -1495,6 +1495,8 @@ QString &QString::setStr( const char *str )
 /*!
   Sets the string to the printed value of \e n and returns a
   reference to the string.
+  
+  \bug setNum(-2147483648) does not work on 32-bit systems.
 */
 
 QString &QString::setNum( long n )
