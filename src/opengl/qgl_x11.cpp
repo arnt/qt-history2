@@ -311,7 +311,11 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
     }
 
     // sharing between rgba and color-index will give wrong colors
-    if ( shareContext && ( format().rgba() != shareContext->format().rgba() ) )
+    // Also, if one context is doing direct rendering and the other renders
+    // via the X server things will go terribly wrong.
+    if ( shareContext && 
+	 ((format().rgba() != shareContext->format().rgba()) ||
+	  (direct != shareContext->format().directRendering()) ) )
 	shareContext = 0;
 
     cx = 0;
