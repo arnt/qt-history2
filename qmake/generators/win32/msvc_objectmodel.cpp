@@ -1995,7 +1995,7 @@ void VCFilter::generateXml(XmlOutput &xml, const VCFilterFile &info)
         } else if(CustomBuild == uic) {
             addUICstage(info.file);
         } else if (CustomBuild == resource) {
-            static resourceBuild = false;
+            static bool resourceBuild = false;
             if (!resourceBuild)
                 resourceBuild = addIMGstage(info.file);
         }
