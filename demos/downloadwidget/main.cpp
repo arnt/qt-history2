@@ -148,6 +148,7 @@ int main(int argc, char *argv[])
 
   view->setWindowIcon(QPixmap(":/images/interview.png"));
   app.setMainWidget(view);
+  view->resize(500, 150);
   view->show();
   return app.exec();
 }
