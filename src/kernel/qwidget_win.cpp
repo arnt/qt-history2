@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#113 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#114 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -1023,8 +1023,7 @@ void QWidget::deleteSysExtra()
 {
     if ( extra->winIcon )
 	DestroyIcon( extra->winIcon );
-    if ( extra->dropTarget )
-	qt_olednd_unregister( this, extra->dropTarget );
+    setAcceptDrops( FALSE );
 }
 
 bool QWidget::acceptDrops() const
@@ -1034,14 +1033,20 @@ bool QWidget::acceptDrops() const
 
 void QWidget::setAcceptDrops( bool on )
 {
+    // Enablement is defined by extra->dropTarget != 0.
+
     if ( on ) {
+	// Turn on.
 	createExtra();
 	QWExtra *extra = extraData();
 	if ( !extra->dropTarget )
 	    extra->dropTarget = qt_olednd_register( this );
     } else {
+	// Turn off.
 	QWExtra *extra = extraData();
-	if ( extra->dropTarget )
+	if ( extra && extra->dropTarget ) {
 	    qt_olednd_unregister(this, extra->dropTarget);
+	    extra->dropTarget = 0;
+	}
     }
 }
