@@ -95,13 +95,15 @@ bool QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
 }
 
 void
-QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags)
+QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItem &si, int textFlags)
 {
+    int x = req_x, y = req_y;
+
     QPainterState *pState = p->painterState();
     int txop = pState->txop;
     QWMatrix xmat = pState->matrix;
 
-    if(/*true ||*/ !p->hasFeature(QPaintEngine::CoordTransform)) {
+    if(!p->hasFeature(QPaintEngine::CoordTransform)) {
         if(txop >= QPainter::TxScale) {
             int aw = si.width, ah = si.ascent + si.descent + 1;
             if(aw == 0 || ah == 0)
@@ -171,13 +173,16 @@ QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int tex
     if(w && textFlags != 0) {
         QBrush oldBrush = p->painter()->brush();
         p->painter()->setBrush(p->painter()->pen().color());
-        int lw = lineThickness().toInt();
+        const int lw = lineThickness().toInt();
         if(textFlags & Qt::TextUnderline)
-            p->painter()->drawRect(QRect(x, y+underlinePosition().toInt(), si.right_to_left ? -w : w, lw));
+            p->painter()->drawRect(QRect(req_x, req_y+underlinePosition().toInt(), 
+                                         si.right_to_left ? -w : w, lw));
         if(textFlags & Qt::TextOverline)
-            p->painter()->drawRect(QRect(x, y - (ascent().toInt() + 1), si.right_to_left ? -w : w, lw));
+            p->painter()->drawRect(QRect(req_x, req_y - (ascent().toInt() + 1), 
+                                         si.right_to_left ? -w : w, lw));
         if(textFlags & Qt::TextStrikeOut)
-            p->painter()->drawRect(QRect(x, y - (ascent().toInt() / 3), si.right_to_left ? -w : w, lw));
+            p->painter()->drawRect(QRect(req_x, req_y - (ascent().toInt() / 3), 
+                                         si.right_to_left ? -w : w, lw));
         p->painter()->setBrush(oldBrush);
     }
     if(p->type() == QPaintEngine::CoreGraphics && textAA != lineAA)
