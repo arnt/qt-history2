@@ -27,4 +27,4 @@ HEADERS = \
 
 CONFIG += console
 
-win32:LIBS += -lmsimg32 -luser32 -lgdi32
+TARGET = arthur
