@@ -1,8 +1,3 @@
-(This should be completely rewritten)
-The box example
+The gltest example
 
-This example program shows to use OpenGL in Qt: Put your OpenGL code
-in a class inherited from QGLWidget. This class may be used as any
-other Qt widget, including use of signals/slots and geometry
-management.
-
+Shows how the diffrent formats in QGLWidget can be used.
