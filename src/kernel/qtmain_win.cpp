@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtmain_win.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qtmain_win.cpp#3 $
 **
 ** Implementation of Win32 startup routines.
 **
@@ -21,11 +21,7 @@
 **
 *****************************************************************************/
 
-#if !defined(QAPPLICATION_WIN_CPP)
-
 #include "qapplication.h"
-#include "qarray.h"
-#include "qpixmap.h"
 #if defined(_CC_BOOL_DEF_)
 #undef	bool
 #include <windows.h>
@@ -33,10 +29,6 @@
 #else
 #include <windows.h>
 #endif
-
-extern WindowsVersion qt_winver;
-
-#endif // QAPPLICATION_WIN_CPP
 
 
 /*
@@ -73,52 +65,3 @@ int APIENTRY WinMain( HANDLE instance, HANDLE prevInstance,
     qWinMain( instance, prevInstance, cmdParam, cmdShow, argc, argv );
     return main( argc, argv.data() );
 }
-
-
-/*
-  Internal functions.
-*/
-
-Q_EXPORT
-void qt_draw_tiled_pixmap( HANDLE, int, int, int, int,
-			   const QPixmap *, int, int );
-
-static
-void qt_erase_background( HANDLE hdc, int x, int y, int w, int h,
-			  const QColor &bg_color,
-			  const QPixmap *bg_pixmap, int off_x, int off_y )
-{
-    if ( bg_pixmap && bg_pixmap->isNull() )	// empty background
-	return;
-    HPALETTE oldPal;
-    if ( QColor::hPal() ) {
-	oldPal = SelectPalette( hdc, QColor::hPal(), FALSE );
-	RealizePalette( hdc );
-    }
-    if ( bg_pixmap ) {
-	qt_draw_tiled_pixmap( hdc, x, y, w, h, bg_pixmap, off_x, off_y );
-    } else {
-	HBRUSH brush = CreateSolidBrush( bg_color.pixel() );
-	HBRUSH oldBrush = SelectObject( hdc, brush );
-	PatBlt( hdc, x, y, w, h, PATCOPY );
-	SelectObject( hdc, oldBrush );
-	DeleteObject( brush );
-    }
-    if ( QColor::hPal() ) {
-	SelectPalette( hdc, oldPal, TRUE );
-	RealizePalette( hdc );
-    }
-}
-
-
-#if defined(QT_BASEAPP)
-
-Q_EXPORT void qt_ebg( void * );
-
-QApplication::QApplication( int &argc, char **argv )
-    : QBaseApplication( argc, argv )
-{
-    qt_ebg( qt_erase_background );
-}
-
-#endif
