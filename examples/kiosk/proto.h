@@ -44,6 +44,7 @@ void decodeDCTCoeffFirst P((unsigned int *run , int *level ));
 void decodeDCTCoeffNext P((unsigned int *run , int *level ));
 
 /* main.c */
+#define SIG_ONE_PARAM /* which platforms is this not true for? */
 #ifndef SIG_ONE_PARAM
 void int_handler P((void ));
 #else

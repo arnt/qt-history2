@@ -68,7 +68,6 @@ extern VidStream *NewVidStream(unsigned int buffer_len);
  *
  *--------------------------------------------------------------
  */
-#define SIG_ONE_PARAM /* which platforms is this not true for? */
 #ifndef SIG_ONE_PARAM
 void
 int_handler(void)
