@@ -55,6 +55,6 @@ INSTALLS += target
 
 #headers
 headers.path=$$QDB_INSTALL_HEADERPATH
-isEmpty(headers.path):headers.path=/usr/local/include/qdb
+isEmpty(headers.path):headers.path=/usr/local/include/xdb
 headers.files = ../include/*.h
 INSTALLS += headers
