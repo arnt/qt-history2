@@ -466,6 +466,10 @@ void qt_init(int* argcptr, char **argv, QApplication::Type)
     }
 #endif
 
+#if defined(QT_THREAD_SUPPORT)
+    QThread::initialize();
+#endif
+
     qApp->setName(appName);
     if(qt_is_gui_used) {
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
@@ -477,9 +481,6 @@ void qt_init(int* argcptr, char **argv, QApplication::Type)
 	QFont::initialize();
 	QCursor::initialize();
 	QPainter::initialize();
-#if defined(QT_THREAD_SUPPORT)
-	QThread::initialize();
-#endif
 
 #if defined(QT_THREAD_SUPPORT)
 	qt_mac_port_mutex = new QMutex(TRUE);
