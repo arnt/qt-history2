@@ -37,8 +37,7 @@ class QWSWindow
 {
     friend class QWSServer;
 public:
-    QWSWindow(int i, QWSClient* client) : id(i), c(client), 
-	region_request_count(0) { }
+    QWSWindow(int i, QWSClient* client) : id(i), c(client) { }
 
     int winId() const { return id; }
     bool forClient(const QWSClient* cl) const { return cl==c; }
@@ -52,7 +51,6 @@ private:
     int id;
     QWSClient* c;
 
-    int region_request_count;
     QRegion requested_region;
     QRegion allocated_region;
 };
@@ -84,6 +82,8 @@ public:
 	return &propertyManager;
     }
 
+    QWSWindow *windowAt( const QPoint& pos );
+    
     // For debugging only at this time
     QList<QWSWindow> clientWindows() { return windows; }
 
@@ -101,6 +101,9 @@ private:
     void handleMouseData();
     void givePendingRegion();
 
+    void showCursor();
+    void paintServerRegion();
+    
 private slots:
     void doClient();
     void readMouseData();
@@ -123,14 +126,18 @@ private:
 	    int hour, minute, sec, ms;
 	} time;
     } selectionOwner;
+    QTime timer;
 
     int swidth, sheight;
     int mouseFD;
     int kbdFD;
     int mouseIdx;
     uchar *mouseBuf;
-    int mouseX, mouseY;
-
+    QPoint mousePos;
+    QPoint cursorPos;
+    bool cursorNeedsUpdate;
+    QRegion serverRegion;
+    
     QQueue<QWSCommandStruct> commandQueue;
     QRegion pendingAllocation;
     QRegion pendingRegion;
@@ -151,6 +158,7 @@ private:
  * Class: QWSClient
  *
  *********************************************************************/
+class QWSMouseEvent;
 
 class QWSClient : public QSocket
 {
@@ -160,7 +168,7 @@ public:
 
     int socket() const;
 
-    void sendMouseEvent(const QPoint& pos, int state);
+    void sendMouseEvent( const QWSMouseEvent& );
     void sendPropertyNotifyEvent( int property, int state );
     void sendPropertyReplyEvent( int property, int len, char *data );
     void sendSelectionClearEvent( int windowid );
@@ -170,7 +178,6 @@ public:
 
 private:
     int s; // XXX QSocket::d::socket->socket() is this value
-    QTime timer;
     QWSCommand* command;
 };
 

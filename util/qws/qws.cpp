@@ -24,6 +24,7 @@
 #include "qwsutils.h"
 
 #include <qapplication.h>
+#include <qpointarray.h> //cursor test code
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -72,15 +73,8 @@ int QWSClient::socket() const
     return s;
 }
 
-void QWSClient::sendMouseEvent(const QPoint& pos, int state)
+void QWSClient::sendMouseEvent( const QWSMouseEvent &event )
 {
-    QWSMouseEvent event;
-    event.type = QWSEvent::Mouse;
-    event.zero_window = 0; // not used yet
-    event.x_root=pos.x();
-    event.y_root=pos.y();
-    event.state=state;
-    event.time=timer.elapsed();
     writeBlock((char*)&event,sizeof(event));
     flush();
 }
@@ -175,6 +169,8 @@ QWSServer::QWSServer( int sw, int sh, QObject *parent=0, const char *name=0 ) :
     QServerSocket(QTFB_PORT,16,parent,name),
     mouseBuf(0), pending_region_acks(0)
 {
+    cursorNeedsUpdate=FALSE;
+    cursorPos = QPoint(-1,-1); //no software cursor
     swidth = sw;
     sheight = sh;
 
@@ -282,17 +278,19 @@ void QWSServer::doClient()
 	    pending_region_acks--;
 	    qDebug( "QWSCommand::RegionAck from %p pending:%d", 
 		    client, pending_region_acks);
-	    if ( pending_region_acks == 0 )
+	    if ( pending_region_acks == 0 ) {
 		givePendingRegion();
+	    }
 	    delete command;
 	} else {
+	    /*
 	    if ( command->type == QWSCommand::Region ) {
 		QWSRegionCommand *cmd = (QWSRegionCommand*)command;
 		QWSWindow* w = findWindow(cmd->simpleData.windowid, client);
 		w->region_request_count++;
 		qDebug( "Window %p, region_request_count %d", w, 
 			w->region_request_count); 
-	    }
+			}*/
 	    QWSCommandStruct *cs = new QWSCommandStruct( command, client );
 	    commandQueue.enqueue( cs );
 	}
@@ -308,13 +306,13 @@ void QWSServer::doClient()
 	    invokeCreate( (QWSCreateCommand*)cs->command, cs->client );
 	    break;
 	case QWSCommand::Region:
-	    {
-		QWSRegionCommand *cmd = (QWSRegionCommand*)cs->command;
-		QWSWindow* w = findWindow(cmd->simpleData.windowid,
-					  cs->client);
-		if ( --w->region_request_count == 0 )
-		    invokeRegion( cmd, cs->client );
-	    }
+	    //{	
+	    //	  QWSRegionCommand *cmd = (QWSRegionCommand*)cs->command;
+	    //	  QWSWindow* w = findWindow(cmd->simpleData.windowid,
+	    //				    cs->client);
+	    //	  if ( --w->region_request_count == 0 )
+	    invokeRegion( (QWSRegionCommand*)cs->command, cs->client );
+	    //}
 	    break;
 	case QWSCommand::AddProperty:
 	    invokeAddProperty( (QWSAddPropertyCommand*)cs->command );
@@ -335,17 +333,68 @@ void QWSServer::doClient()
 	    qWarning( "QWSServer::doClient() uncaught RegionAck" );
 	    break;
 	}
-
 	delete cs->command;
 	delete cs;
+	if (cursorNeedsUpdate)
+	    showCursor();
     }
     active = FALSE;
 }
 
+
+void QWSServer::showCursor() 
+{
+    if ( pending_region_acks != 0 ) {
+	cursorNeedsUpdate = TRUE;
+	return;
+    }
+    cursorNeedsUpdate = FALSE;
+    if ( cursorPos == mousePos )
+	return;
+    cursorPos = mousePos;
+    //##### hardcoded region
+   QPointArray a;
+   a.setPoints(  7, 
+		 0,0,
+		 6,0,
+		 4,2,
+		 14,12,
+		 12,14,
+		 2,4,
+		 0,6 );
+    a.translate( cursorPos.x(), cursorPos.y() );
+    setWindowRegion( 0, QRegion(a) );
+}
+
 void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 {
+    showCursor();
+    
+    
+    QWSMouseEvent event;
+    event.type = QWSEvent::Mouse;
+
+    QWSWindow *win = windowAt( pos );
+    event.window = win ? win->id : 0;
+
+    event.x_root=pos.x();
+    event.y_root=pos.y();
+    event.state=state;
+    event.time=timer.elapsed(); 
+
     for (ClientIterator it = client.begin(); it != client.end(); ++it )
-	(*it)->sendMouseEvent(pos,state);
+	(*it)->sendMouseEvent( event );
+}
+
+
+QWSWindow *QWSServer::windowAt( const QPoint& pos )
+{
+    for (uint i=0; i<windows.count(); i++) {
+	QWSWindow* w = windows.at(i);
+	if ( w->requested_region.contains( pos ) )
+	    return w;
+    }
+    return 0;
 }
 
 void QWSServer::sendKeyEvent(int unicode, int modifiers, bool isPress, 
@@ -562,22 +611,28 @@ QWSWindow* QWSServer::findWindow(int windowid, QWSClient* client)
 }
 
 /*!
-  Changes the requested region of window \a windowid to \a r,
+  Changes the requested region of window \a changingw to \a r,
   sends appropriate region change events to all appropriate
   clients, and waits for all required acknowledgements.
+  
+  
+  If \a changingw is 0, the server's reserved region is changed.
 */
 void QWSServer::setWindowRegion(QWSWindow* changingw, QRegion r)
 {
     qDebug("setWindowRegion");
 
-    changingw->requested_region = r;
+    if (changingw)
+	changingw->requested_region = r;
 
     QRegion allocation;
-    QRegion exposed = changingw->allocation() - r;
-    uint windex;
+    QRegion exposed = changingw ? changingw->allocation() - r : serverRegion-r;
+    int windex = -1;
 
     // First, take the region away from whichever windows currently have it...
-    bool deeper = FALSE;
+    if ( changingw == 0 )
+	serverRegion = r;
+    bool deeper = changingw == 0;;
     for (uint i=0; i<windows.count(); i++) {
 	QWSWindow* w = windows.at(i);
 	if ( w == changingw ) {
@@ -605,12 +660,11 @@ void QWSServer::setWindowRegion(QWSWindow* changingw, QRegion r)
     // otherwise do it straight away.
     
     pendingWindex = windex;
+    pendingRegion = exposed;
+
+    if ( pending_region_acks == 0 )
+	    givePendingRegion();
     
-    if ( pending_region_acks == 0 ) {
-	changingw->addAllocation(allocation); 
-    } else {
-	pendingRegion = exposed;
-    }
 }
 
 void QWSServer::givePendingRegion()
@@ -618,10 +672,13 @@ void QWSServer::givePendingRegion()
     QRegion exposed = pendingRegion;
     // Finally, give anything exposed...
     
-    QWSWindow* changingw = windows.at( pendingWindex );
-    if ( changingw )
+    if ( pendingWindex >= 0 ) {
+	QWSWindow* changingw = windows.at( pendingWindex );
+	ASSERT( changingw );
 	changingw->addAllocation(pendingAllocation); 
-    
+    } else {
+	paintServerRegion();
+    }
     for (uint i=pendingWindex+1; i<windows.count(); i++) {
 	if ( exposed.isEmpty() )
 	    return; // Nothing left for deeper windows

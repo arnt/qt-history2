@@ -23,9 +23,8 @@
 static const char *mouseDev = "/dev/mouse";
 static const int mouseBufSize = 100;
 
-
-
-
+    static const int screen_width = 1024; //#####
+    static const int screen_height = 768; //#####
 
 
 /*
@@ -68,8 +67,7 @@ void QWSServer::initIO()
     }
     mouseBuf = new uchar[mouseBufSize];
     mouseIdx = 0;
-    mouseX = 500;
-    mouseY = 300;
+    mousePos = QPoint(500,300);
     QSocketNotifier *sn = new QSocketNotifier( mouseFD,
 					       QSocketNotifier::Read,
 					       this );
@@ -127,8 +125,8 @@ void QWSServer::readKeyboardData()
     int n;
     n = read(kbdFD, buf, 80 );
     if ( n > 0 ) {
-	int i;
 #if 0 //debug	
+	int i;
 	for ( i = 0; i < n; i++ ) {
 	    unsigned char c = buf[i];
 	    if ( c >= ' ' )
@@ -170,8 +168,6 @@ void QWSServer::readMouseData()
 
 void QWSServer::handleMouseData()
 {
-    static const int screen_width = 1024; //#####
-    static const int screen_height = 768; //#####
     static const int accel_limit = 5;
     static const int accel = 2;
 
@@ -205,14 +201,13 @@ void QWSServer::handleMouseData()
 		dx *= accel;
 		dy *= accel;
 	    }
-	    mouseX += dx;
-	    mouseY -= dy; // swap coordinate system
+	    int mx = mousePos.x() + dx;
+	    int my = mousePos.y() - dy; // swap coordinate system
 
-	    mouseX = QMIN( QMAX( mouseX, 0 ), screen_width );
-	    mouseY = QMIN( QMAX( mouseY, 0 ), screen_height );
+	    mousePos.setX( QMIN( QMAX( mx, 0 ), screen_width ) );
+	    mousePos.setY( QMIN( QMAX( my, 0 ), screen_height ) );
 
-
-	    sendMouseEvent( QPoint(mouseX,mouseY), bstate );
+	    sendMouseEvent( mousePos, bstate );
 	}
 	idx += 3;
 
@@ -245,4 +240,112 @@ void QWSServer::handleMouseData()
 
 
 }
+
+
+#include <fcntl.h>
+#include <linux/fb.h>
+#include <sys/mman.h>
+
+
+static struct fb_var_screeninfo fb_vinfo;
+static struct fb_fix_screeninfo fb_finfo;
+static struct {
+  int fbfd;
+  long int screensize;
+  uchar *fbp;
+} qfb;
+
+static bool fb_open = FALSE;
+
+static void open_fb()
+{
+  fb_open = TRUE;
+  qfb.fbp=0;
+ /* Open the file for reading and writing */
+  qfb.fbfd = open("/dev/fb0", O_RDWR);
+  if (!qfb.fbfd) {
+    printf("Error: cannot open framebuffer device.\n");
+    exit(1);
+  }
+  printf("The framebuffer device was opened successfully.\n");
+
+  /* Get fixed screen information */
+  if (ioctl(qfb.fbfd, FBIOGET_FSCREENINFO, &fb_finfo)) {
+    printf("Error reading fixed information.\n");
+    exit(2);
+  }
+
+  /* Get variable screen information */
+  if (ioctl(qfb.fbfd, FBIOGET_VSCREENINFO, &fb_vinfo)) {
+    printf("Error reading variable information.\n");
+    exit(3);
+  }
+
+  /* Figure out the size of the screen in bytes */
+  qfb.screensize = fb_vinfo.xres * fb_vinfo.yres * fb_vinfo.bits_per_pixel / 8;
+
+  /* Map the device to memory */
+  qfb.fbp = (uchar *)mmap(0, qfb.screensize, PROT_READ | PROT_WRITE, MAP_SHARED,
+		     qfb.fbfd, 0);
+  if ((int)qfb.fbp == -1) {
+    printf("Error: failed to map framebuffer device to
+memory.\n");
+    exit(4);
+  }
+  printf("The framebuffer device was mapped to memory successfully.\n");
+
+}
+
+
+static void close_fb()
+{
+  munmap(qfb.fbp, qfb.screensize);
+  close(qfb.fbfd);
+}
+
+
+void QWSServer::paintServerRegion()
+{
+
+    if ( shmid == -1 ) {
+    
+	if ( !fb_open )
+	    open_fb();
+
+#if 1
+	//16bpp
+	ushort *fbp = (ushort*)qfb.fbp;
+	ushort col = 0x0200;
+#else	
+	//32bpp
+	uint *fbp = (uint*)qfb.fbp;
+	uint col = 0x003000;
+#endif
+	//### testcode - should paint properly
+
+	
+	QRegion sr = serverRegion.intersect( QRegion(0,0,fb_vinfo.xres,
+						     fb_vinfo.yres ));
+	
+	QArray<QRect> reg = sr.rects();
+	
+	for ( int i = 0;  i < int(reg.count());  i++ ) {
+	    QRect r = reg[i];
+	    for ( int y = r.top(); y <= r.bottom() ; y++ )
+	      for ( int x = r.left(); x <= r.right() ; x++ ) {
+		int l = (x+fb_vinfo.xoffset) * (fb_vinfo.bits_per_pixel/8) +
+			(y+fb_vinfo.yoffset) * fb_finfo.line_length;
+#if 1
+		//16bpp
+		*(fbp+l/sizeof(ushort)) = col;
+#else
+		//32bpp
+		*(fbp+l/sizeof(uint)) = col;
+		col +=0x000200;
+#endif
+	      }
+	}
+    }
+}
+
 

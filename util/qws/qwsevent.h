@@ -18,7 +18,7 @@ struct QWSAnyEvent {
 
 struct QWSMouseEvent {
     int type;
-    int zero_window;
+    int window;
     int x_root, y_root, state;
     int time; // milliseconds
 };
