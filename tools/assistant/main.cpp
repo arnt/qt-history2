@@ -214,7 +214,7 @@ int main( int argc, char ** argv )
 				  "                            profile was another than the Qt one.\n"
 				  "                            If assistant is run the first time without\n"
 				  "                            any argument this is called by default.\n"
-				  " - assistantHelpPath [Path] location of the help files for how to use\n"
+				  " -assistantHelpPath [Path]  location of the help files for how to use\n"
 				  "                            Qt Assistant.\n"
 				  " -hideSidebar               assistant will hide the sidebar.\n"
 				  " -help                      shows this help.");
