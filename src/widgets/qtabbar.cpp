@@ -94,6 +94,53 @@ QTab::QTab( const QIconSet& icon, const QString& text )
 {
 }
 
+/*!
+  \fn QString QTab::text() const
+  Return the text of the QTab label.
+*/
+
+/*!
+  \fn void QTab::setIconSet( const QIconSet &icon )
+  Set the QTab iconset to \a icon
+*/
+
+/*!
+  \fn QIconSet QTab::iconSet() const
+  Return the QIconSet of the QTab.
+*/
+
+/*!
+  \fn void QTab::setRect( const QRect &rect )
+  Set the QTab QRect to \a rect.
+*/
+
+/*!
+  \fn QRect QTab::rect() const
+  Return the QRect for the QTab.
+*/
+
+/*!
+  \fn void QTab::setEnabled( bool enable )
+  If \a enable is TRUE enable the QTab, otherwise disable it.
+*/
+
+/*!
+  \fn bool QTab::isEnabled() const
+  Returns TRUE if the QTab is enabled, otherwise return FALSE.
+*/
+
+/*!
+  \fn void QTab::setIdentifier( int i )
+  Set the identifier for the QTab to \a i.
+  Each identifier for a QTabBar must be unique
+*/
+
+/*!
+  \fn int QTab::identifier() const
+  Return the identifier for the QTab.
+*/
+
+  
 
 /*! Destroys the tab and frees up all allocated resources */
 
@@ -1133,8 +1180,10 @@ QString QTabBar::toolTip( int index ) const
 	return QString();
 }
 
-#ifndef Q_QDOC
-// Okay, these are some kludgy ways to fix accelerators, but it is a good way to do it
+/*!
+  \fn void QTab::setText( const QString &text )
+  Set the text of the Tab to \a text.
+ */
 void QTab::setText( const QString& text )
 {
     label = text;
@@ -1142,17 +1191,15 @@ void QTab::setText( const QString& text )
 	tb->d->a->removeItem( id );
 	int p = QAccel::shortcutKey( text );
 	tb->d->a->insertItem( p, id );
+        tb->repaint();
     }
 }
 
+// this allows us to handle accelerators that are in a QTabBar.
 void QTab::setTabBar( QTabBar *newTb )
 {
     tb = newTb;
-    tb->repaint();
 }
-
-#endif
-
 
 
 

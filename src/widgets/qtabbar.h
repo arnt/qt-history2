@@ -56,8 +56,6 @@ public:
     QTab( const QString& text );
     QTab( const QIconSet& icon, const QString& text = QString::null );
 
-#ifndef Q_QDOC
-    void setTabBar( QTabBar *tb );
     void setText( const QString& text);
     QString text() const { return label; }
     void setIconSet( const QIconSet& icon ) { iconset = new QIconSet( icon ); }
@@ -68,9 +66,9 @@ public:
     bool isEnabled() const { return enabled; }
     void setIdentifier( int i ) { id = i; }
     int identifier() const { return id; }
-#endif
 
 private:
+    void setTabBar( QTabBar *tb );
     QString label;
     QRect r; // the bounding rectangle of this (may overlap with others)
     bool enabled;
