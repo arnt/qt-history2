@@ -1675,6 +1675,8 @@ void QListBox::changeItem( const QPixmap &pixmap, const QString &text, int index
   Replaces the item at position \a index with \a lbi.	If \a
   index is negative or too large, changeItem() does nothing.
 
+  The item that has been changed will become selected.
+
   \sa insertItem(), removeItem()
 */
 
