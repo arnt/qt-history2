@@ -18,11 +18,11 @@
 #include <qsplitter.h>
 
 //
-//  DatabaseDlg class
+//  GenericDialog class
 //
 
-DatabaseDlg::DatabaseDlg( QSqlCursor * cr, QSqlRecord* buf, Mode mode, QWidget * parent,
-			  const char * name )
+GenericDialog::GenericDialog( QSqlCursor * cr, QSqlRecord* buf, Mode mode, 
+			QWidget * parent, const char * name )
     : QDialog( parent, name, TRUE ),
       mMode( mode )
 {
@@ -43,7 +43,7 @@ DatabaseDlg::DatabaseDlg( QSqlCursor * cr, QSqlRecord* buf, Mode mode, QWidget *
     }
     setCaption( caption );
 
-    mForm = new QSqlForm( w, cr, buf, 2, this);
+    form = new QSqlForm( w, cr, buf, 2, this);
     g->setMargin( 3 );
 
     QLabel * label = new QLabel( caption, this );
@@ -68,23 +68,23 @@ DatabaseDlg::DatabaseDlg( QSqlCursor * cr, QSqlRecord* buf, Mode mode, QWidget *
     g->addLayout( h );
 }
 
-void DatabaseDlg::close()
+void GenericDialog::close()
 {
     reject();
 }
 
-void DatabaseDlg::execute()
+void GenericDialog::execute()
 {
-    mForm->writeRecord();
+    form->writeRecord();
     accept();
 }
 
 //
-//  InvoiceDlg
+//  InvoiceDialog
 //
 
-InvoiceDlg::InvoiceDlg( QSqlCursor * cursor, QSqlRecord* buf, Mode mode, QWidget * parent,
-			  const char * name )
+InvoiceDialog::InvoiceDialog( QSqlCursor * cursor, QSqlRecord* buf, 
+			      Mode mode, QWidget * parent, const char * name )
     : QDialog( parent, name, TRUE ),
       mMode( mode )
 {
@@ -122,10 +122,6 @@ InvoiceDlg::InvoiceDlg( QSqlCursor * cursor, QSqlRecord* buf, Mode mode, QWidget
 	     SLOT( updateProductTable(const QSqlRecord *) ) );
     connect( invoiceItems, SIGNAL( beginInsert( QSqlRecord* ) ),
 	     SLOT( insertingInvoiceItem( QSqlRecord* ) ) );
-
-    productCr = new ProductCursor();
-    productCr->select( "id = " + itemCursor.value("productid").toString() );
-    //    productCr->next();
 
     invoiceItems->refresh();
 
@@ -170,56 +166,56 @@ InvoiceDlg::InvoiceDlg( QSqlCursor * cursor, QSqlRecord* buf, Mode mode, QWidget
     g->addLayout( h );
 }
 
-void InvoiceDlg::insertingInvoiceItem( QSqlRecord* buf )
+void InvoiceDialog::insertingInvoiceItem( QSqlRecord* buf )
 {
     buf->setValue( "invoiceid", invoiceId );
 }
 
-void InvoiceDlg::updateProductTable( const QSqlRecord * )
+void InvoiceDialog::updateProductTable( const QSqlRecord * )
 {
 }
 
-void InvoiceDlg::updateInvoiceItem()
+void InvoiceDialog::updateInvoiceItem()
 {
     QSqlCursor * v = invoiceItems->cursor();
 
-    DatabaseDlg dlg( v, v->updateBuffer(), DatabaseDlg::Delete, this );
+    GenericDialog dlg( v, v->updateBuffer(), GenericDialog::Delete, this );
     if( dlg.exec() == QDialog::Accepted ){
 	v->update();
 	invoiceItems->refresh();
     }
 }
 
-void InvoiceDlg::insertInvoiceItem()
+void InvoiceDialog::insertInvoiceItem()
 {
     QSqlCursor * v = invoiceItems->cursor();
     QSqlRecord* buf = v->insertBuffer();
     insertingInvoiceItem( buf );
 
-    DatabaseDlg dlg( v, buf, DatabaseDlg::Insert, this );
+    GenericDialog dlg( v, buf, GenericDialog::Insert, this );
     if( dlg.exec() == QDialog::Accepted ){
 	v->insert();
 	invoiceItems->refresh();
     }
 }
 
-void InvoiceDlg::deleteInvoiceItem()
+void InvoiceDialog::deleteInvoiceItem()
 {
     QSqlCursor * v = invoiceItems->cursor();
 
-    DatabaseDlg dlg( v, v->updateBuffer(), DatabaseDlg::Delete, this );
+    GenericDialog dlg( v, v->updateBuffer(), GenericDialog::Delete, this );
     if( dlg.exec() == QDialog::Accepted ){
 	v->del();
 	invoiceItems->refresh();
     }
 }
 
-void InvoiceDlg::close()
+void InvoiceDialog::close()
 {
     reject();
 }
 
-void InvoiceDlg::execute()
+void InvoiceDialog::execute()
 {
     invoiceForm->writeRecord();
     accept();

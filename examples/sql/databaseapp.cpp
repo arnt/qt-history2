@@ -27,13 +27,12 @@ DatabaseWgt::DatabaseWgt( QWidget * parent, const char * name )
 
 void DatabaseWgt::init()
 {
-    v_splitter = new QSplitter( QSplitter::Horizontal, this );
+    hSplitter   = new QSplitter( QSplitter::Horizontal, this );
+    QFrame * f1 = new QFrame( hSplitter );
+    vSplitter   = new QSplitter( QSplitter::Vertical, hSplitter  );
 
-    QFrame * f1 = new QFrame( v_splitter );
-    h_splitter  = new QSplitter( QSplitter::Vertical, v_splitter  );
-
-    QFrame * f2 = new QFrame( h_splitter );
-    QFrame * f3 = new QFrame( h_splitter );
+    QFrame * f2 = new QFrame( vSplitter );
+    QFrame * f3 = new QFrame( vSplitter );
     QVBoxLayout * vb1 = new QVBoxLayout( f1 );
     QVBoxLayout * vb2 = new QVBoxLayout( f2 );
     QVBoxLayout * vb3 = new QVBoxLayout( f3 );
@@ -143,38 +142,38 @@ void DatabaseWgt::init()
 
 void DatabaseWgt::resizeEvent( QResizeEvent * )
 {
-    v_splitter->resize( width(), height() );
+    hSplitter->resize( width(), height() );
 }
 
 void DatabaseWgt::insertCustomer()
 {
-    QSqlCursor * v = customers->cursor();
+    QSqlCursor * cr = customers->cursor();
 
-    DatabaseDlg dlg( v, v->insertBuffer(), DatabaseDlg::Insert, this );
+    GenericDialog dlg( cr, cr->insertBuffer(), GenericDialog::Insert, this );
     if( dlg.exec() == QDialog::Accepted ){
-	v->insert();
+	cr->insert();
 	customers->refresh();
     }
 }
 
 void DatabaseWgt::updateCustomer()
 {
-    QSqlCursor  * v = customers->cursor();
+    QSqlCursor * cr = customers->cursor();
 
-    DatabaseDlg dlg( v, v->updateBuffer(), DatabaseDlg::Update, this );
+    GenericDialog dlg( cr, cr->updateBuffer(), GenericDialog::Update, this );
     if( dlg.exec() == QDialog::Accepted ){
-	v->update();
+	cr->update();
 	customers->refresh();
     }
 }
 
 void DatabaseWgt::deleteCustomer()
 {
-    QSqlCursor  * v = customers->cursor();
+    QSqlCursor * cr = customers->cursor();
 
-    DatabaseDlg dlg( v, v->updateBuffer(), DatabaseDlg::Delete, this );
+    GenericDialog dlg( cr, cr->updateBuffer(), GenericDialog::Delete, this );
     if( dlg.exec() == QDialog::Accepted ){
-	v->del();
+	cr->del();
 	customers->refresh();
     }
 }
@@ -186,14 +185,14 @@ void DatabaseWgt::insertInvoice()
 	QMessageBox::information( this, "No Customer", "There must be a Customer record for this invoice!" );
 	return;
     }
-    QSqlCursor * v = invoices->cursor();
-    QSqlRecord* buf = v->insertBuffer();
+    QSqlCursor * cr = invoices->cursor();
+    QSqlRecord * buf = cr->insertBuffer();
     insertingInvoice( buf );
 
-    InvoiceDlg dlg( v, buf, InvoiceDlg::Insert, this );
+    InvoiceDialog dlg( cr, buf, InvoiceDialog::Insert, this );
     if( dlg.exec() == QDialog::Accepted ){
-	v->insert();
-	invoices->refresh( v->primaryIndex( TRUE ) );
+	cr->insert();
+	invoices->refresh( cr->primaryIndex( TRUE ) );
     }
 }
 void DatabaseWgt::insertingInvoice( QSqlRecord* buf )
@@ -211,7 +210,7 @@ void DatabaseWgt::updateInvoice()
     }
     QSqlCursor  * v = invoices->cursor();
 
-    InvoiceDlg dlg( v, v->updateBuffer(), InvoiceDlg::Update, this );
+    InvoiceDialog dlg( v, v->updateBuffer(), InvoiceDialog::Update, this );
     if( dlg.exec() == QDialog::Accepted ){
 	v->update();
 	invoices->refresh( v->primaryIndex( TRUE ) );
@@ -227,7 +226,7 @@ void DatabaseWgt::deleteInvoice()
     }
 
     QSqlCursor  * v = invoices->cursor();
-    InvoiceDlg dlg( v, v->updateBuffer(), InvoiceDlg::Delete, this );
+    InvoiceDialog dlg( v, v->updateBuffer(), InvoiceDialog::Delete, this );
 
     if( dlg.exec() == QDialog::Accepted ){
 	v->del();
@@ -286,7 +285,7 @@ void DatabaseApp::updateCustomerInfo( const QSqlRecord * fields )
 	const QSqlField * f  = fields->field(i);
 	if( f->isVisible() )
 	    cap += f->displayLabel().leftJustify(15) + ": " +
-		   f->value().toString().rightJustify(20);
+		   f->value().toString().rightJustify(20) + "\n";
     }
 
 

@@ -9,33 +9,33 @@
 
 class QSqlForm;
 
-class DatabaseDlg : public QDialog
+class GenericDialog : public QDialog
 {
     Q_OBJECT
 
 public:
     typedef enum Mode { Insert, Update, Delete };
 
-    DatabaseDlg( QSqlCursor * cursor, QSqlRecord* buf, Mode mode, QWidget * parent = 0,
-		 const char * name = 0 );
+    GenericDialog( QSqlCursor * cursor, QSqlRecord* buf, Mode mode, 
+		QWidget * parent = 0, const char * name = 0 );
 public slots:
     void close();
     void execute();
 
 private:
     Mode mMode;
-    QSqlForm * mForm;
+    QSqlForm * form;
 };
 
-class InvoiceDlg : public QDialog
+class InvoiceDialog : public QDialog
 {
     Q_OBJECT
 
 public:
     typedef enum Mode { Insert, Update, Delete };
 
-    InvoiceDlg( QSqlCursor * cursor, QSqlRecord* buf, Mode mode, QWidget * parent = 0,
-		const char * name = 0 );
+    InvoiceDialog( QSqlCursor * cursor, QSqlRecord* buf, Mode mode,
+		   QWidget * parent = 0, const char * name = 0 );
 public slots:
     void updateInvoiceItem();
     void insertInvoiceItem();
@@ -47,11 +47,10 @@ public slots:
     void updateProductTable( const QSqlRecord * r );
 
 private:
-    QVariant invoiceId;
     Mode mMode;
+    QVariant invoiceId;
     QSqlForm   * invoiceForm;
     QSqlTable  * invoiceItems;
-    ProductCursor * productCr;
     InvoiceItemCursor itemCursor;
 };
 

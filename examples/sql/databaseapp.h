@@ -23,7 +23,7 @@ public:
     QSqlTable * customers;
 
     QLabel * customer, * customer_inf_lbl, * customer_lbl, * invoice_lbl;
-    QSplitter * v_splitter, * h_splitter;
+    QSplitter * vSplitter, * hSplitter;
 
 public slots:
     void insertCustomer();
