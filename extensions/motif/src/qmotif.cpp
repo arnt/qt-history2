@@ -138,12 +138,23 @@ void QMotifPrivate::unhook()
 extern bool qt_try_modal( QWidget *, XEvent * ); // defined in qapplication_x11.cpp
 Boolean qmotif_event_dispatcher( XEvent *event )
 {
+    static bool grabbed = FALSE;
+
     QApplication::sendPostedEvents();
 
     QWidgetIntDict *mapper = &static_d->mapper;
     QWidget* qMotif = mapper->find( event->xany.window );
     if ( !qMotif && QWidget::find( event->xany.window) == 0 ) {
 	// event is not for Qt, try Xt
+
+	if ( !grabbed && ( event->type == XFocusIn &&
+			   event->xfocus.mode == NotifyGrab ) ) {
+	    grabbed = TRUE;
+	} else if ( grabbed && ( event->type == XFocusOut &&
+				 event->xfocus.mode == NotifyUngrab ) ) {
+	    grabbed = FALSE;
+	}
+
 	Display* dpy = QPaintDevice::x11AppDisplay();
 	Widget w = XtWindowToWidget( dpy, event->xany.window );
 	while ( w && ! ( qMotif = mapper->find( XtWindow( w ) ) ) ) {
@@ -160,8 +171,24 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 	}
     }
 
+    /*
+      If the mouse has been grabbed for a window that we don't know
+      about, we shouldn't deliver any user input events, since this
+      will intercept the event that ends the mouse grab that Xt/Motif
+      started.
+    */
+    bool do_deliver = TRUE;
+    if ( grabbed && ( event->type == ButtonPress   ||
+		      event->type == ButtonRelease ||
+		      event->type == MotionNotify  ||
+		      event->type == XKeyPress     ||
+		      event->type == XKeyRelease   ||
+		      event->type == EnterNotify   ||
+		      event->type == LeaveNotify ) )
+	do_deliver = FALSE;
+
     last_xevent = event;
-    bool delivered = ( qApp->x11ProcessEvent( event ) != -1 );
+    bool delivered = do_deliver && ( qApp->x11ProcessEvent( event ) != -1 );
     last_xevent = 0;
     if ( qMotif ) {
 	switch ( event->type ) {
@@ -186,7 +213,6 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 
     if ( delivered )
 	return True;
-
 
     if ( QApplication::activePopupWidget() )
 	// we get all events through the popup grabs.  discard the event
