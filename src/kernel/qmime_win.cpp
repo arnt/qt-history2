@@ -752,7 +752,7 @@ QByteArray QWindowsMimeUri::convertFromMime( QByteArray data, const char* mime, 
     QStoredDrag t("text/uri-list");
     t.setEncodedData(data);
     QStringList fn;
-    QUriDrag::decodeLocalFiles( &t, fn );
+    QUriDrag::decodeToUnicodeUris( &t, fn );
 
     int size = sizeof(DROPFILES)+2;
     QStringList::Iterator i;
