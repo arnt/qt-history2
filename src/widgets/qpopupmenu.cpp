@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#203 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#204 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -618,7 +618,7 @@ void QPopupMenu::actSig( int id )
     while( p && !sync ) {
 	if ( p == syncMenu )
 	    sync = TRUE;
-	else if ( p->parentMenu->isPopupMenu )
+	else if ( p->parentMenu && p->parentMenu->isPopupMenu )
 	    p = (QPopupMenu*)(p->parentMenu);
 	else
 	    p = 0;
