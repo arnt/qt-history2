@@ -848,7 +848,7 @@ void QDateTimeEdit::focusInEvent(QFocusEvent *e)
 bool QDateTimeEdit::focusNextPrevChild(bool next)
 {
     if (!focusWidget())
-        return;
+        return false;
 
     const QDateTimeEditPrivate::Section newSection = d->nextPrevSection(d->currentsection, next).section;
     switch (newSection) {
