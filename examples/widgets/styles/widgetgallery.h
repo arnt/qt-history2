@@ -27,11 +27,10 @@ class WidgetGallery : public QDialog
 public:
     WidgetGallery(QWidget *parent = 0);
 
-    void resizeEvent(QResizeEvent *e){}
 private slots:
     void changeStyle(const QString &styleName);
+    void changePalette();
     void advanceProgressBar();
-    void showImage();
 
 private:
     void createTopLeftGroupBox();
@@ -40,8 +39,11 @@ private:
     void createBottomRightGroupBox();
     void createProgressBar();
 
+    QPalette originalPalette;
+ 
     QLabel *styleLabel;
     QComboBox *styleComboBox;
+    QCheckBox *useStylePaletteCheckBox;
     QCheckBox *disableWidgetsCheckBox;
 
     QGroupBox *topLeftGroupBox;

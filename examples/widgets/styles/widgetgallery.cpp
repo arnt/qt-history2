@@ -6,12 +6,18 @@
 WidgetGallery::WidgetGallery(QWidget *parent)
     : QDialog(parent)
 {
+    originalPalette = QApplication::palette();
+
     styleComboBox = new QComboBox(this);
     styleComboBox->addItem("NorwegianWood");
     styleComboBox->addItems(QStyleFactory::keys());
 
     styleLabel = new QLabel(tr("&Style:"), this);
     styleLabel->setBuddy(styleComboBox);
+
+    useStylePaletteCheckBox = new QCheckBox(tr("&Use style's standard palette"),
+                                            this);
+    useStylePaletteCheckBox->setChecked(true);
 
     disableWidgetsCheckBox = new QCheckBox(tr("&Disable widgets"), this);
 
@@ -23,6 +29,8 @@ WidgetGallery::WidgetGallery(QWidget *parent)
 
     connect(styleComboBox, SIGNAL(activated(const QString &)),
             this, SLOT(changeStyle(const QString &)));
+    connect(useStylePaletteCheckBox, SIGNAL(toggled(bool)),
+            this, SLOT(changePalette()));
     connect(disableWidgetsCheckBox, SIGNAL(toggled(bool)),
             topLeftGroupBox, SLOT(setDisabled(bool)));
     connect(disableWidgetsCheckBox, SIGNAL(toggled(bool)),
@@ -36,6 +44,7 @@ WidgetGallery::WidgetGallery(QWidget *parent)
     topLayout->addWidget(styleLabel);
     topLayout->addWidget(styleComboBox);
     topLayout->addStretch(1);
+    topLayout->addWidget(useStylePaletteCheckBox);
     topLayout->addWidget(disableWidgetsCheckBox);
 
     QGridLayout *mainLayout = new QGridLayout(this);
@@ -61,7 +70,15 @@ void WidgetGallery::changeStyle(const QString &styleName)
     } else {
         QApplication::setStyle(QStyleFactory::create(styleName));
     }
-    QApplication::setPalette(QApplication::style()->standardPalette());
+    changePalette();
+}
+
+void WidgetGallery::changePalette()
+{
+    if (useStylePaletteCheckBox->isChecked())
+        QApplication::setPalette(QApplication::style()->standardPalette());
+    else
+        QApplication::setPalette(originalPalette);
 }
 
 void WidgetGallery::advanceProgressBar()
@@ -98,7 +115,6 @@ void WidgetGallery::createTopRightGroupBox()
 
     normalPushButton = new QPushButton(tr("Normal Push Button"),
                                        topRightGroupBox);
-    connect(normalPushButton, SIGNAL(clicked()), this, SLOT(showImage()));
     togglePushButton = new QPushButton(tr("Toggle Push Button"),
                                        topRightGroupBox);
     togglePushButton->setCheckable(true);
@@ -113,14 +129,6 @@ void WidgetGallery::createTopRightGroupBox()
     layout->addStretch(1);
 }
 
-void WidgetGallery::showImage()
-{
-    QPixmap pm = QPixmap::grabWidget(this);
-    QLabel *label = new QLabel;
-    label->setAttribute(Qt::WA_DeleteOnClose);
-    label->setPixmap(pm);
-    label->show();
-}
 void WidgetGallery::createBottomLeftTabWidget()
 {
     bottomLeftTabWidget = new QTabWidget(this);

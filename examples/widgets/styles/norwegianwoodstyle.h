@@ -12,18 +12,14 @@ public:
     NorwegianWoodStyle();
 
     void polish(QPalette &palette);
-
+    int pixelMetric(PixelMetric metric, const QStyleOption *option,
+                    const QWidget *widget) const;
     void drawPrimitive(PrimitiveElement element, const QStyleOption *option,
                        QPainter *painter, const QWidget *widget) const;
     void drawControl(ControlElement control, const QStyleOption *option,
                      QPainter *painter, const QWidget *widget) const;
 
-    int pixelMetric(PixelMetric metric, const QStyleOption *option = 0,
-                    const QWidget *widget = 0) const;
-
 private:
-    enum Direction { PointUp, PointDown, PointLeft, PointRight };
-
     void setBrush(QPalette &palette, QPalette::ColorRole role,
                   const QBrush &brush);
     void setBrushPixmap(QPalette &palette, QPalette::ColorRole role,
