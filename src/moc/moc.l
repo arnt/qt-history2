@@ -77,9 +77,12 @@ extern void moc_warn( const char *msg );
 <OUTSIDE>"template"		{ X;
 				  BEGIN QT_DEF;
 				  return TEMPLATE; }
+<QT_DEF>"Q_OBJECT"		{ X; return Q_OBJECT; }
 <QT_DEF>"signals"		{ X; return SIGNALS; }
 <QT_DEF>"slots"			{ X; return SLOTS; }
+<QT_DEF>"Q_CLASSINFO"		{ X;return Q_CLASSINFO; }
 <QT_DEF>"Q_PROPERTY"		{ X; return Q_PROPERTY; }
+<QT_DEF>"Q_OVERRIDE"		{ X; return Q_OVERRIDE; }
 <QT_DEF>"Q_ENUMS"		{ X; return Q_ENUMS; }
 <QT_DEF>"Q_SETS"		{ X; return Q_SETS; }
 
@@ -93,10 +96,10 @@ extern void moc_warn( const char *msg );
 <IN_CLASS>"private"		{ X;if( classPLevel == 1 ) return PRIVATE; }
 <IN_CLASS>"signals"		{ X;if( classPLevel == 1 ) return SIGNALS; }
 <IN_CLASS>"slots"		{ X;if( classPLevel == 1 ) return SLOTS; }
-<IN_CLASS>"enum"		{ X;if( classPLevel == 1 ) return ENUM_IN_CLASS; }
+<IN_CLASS>"Q_CLASSINFO"		{ X;if( classPLevel == 1 ) return Q_CLASSINFO; }
 <IN_CLASS>"Q_OBJECT"		{ X;if( classPLevel == 1 ) return Q_OBJECT; }
 <IN_CLASS>"Q_PROPERTY"		{ X;if( classPLevel == 1 ) return Q_PROPERTY; }
-<IN_CLASS>"Q_CLASSINFO"		{ X;if( classPLevel == 1 ) return Q_CLASSINFO; }
+<IN_CLASS>"Q_OVERRIDE"		{ X;if( classPLevel == 1 ) return Q_OVERRIDE; }
 <IN_CLASS>"Q_ENUMS"		{ X;if( classPLevel == 1 ) return Q_ENUMS; }
 <IN_CLASS>"Q_SETS"		{ X;if( classPLevel == 1 ) return Q_SETS; }
 
@@ -116,9 +119,6 @@ extern void moc_warn( const char *msg );
                                   BEGIN QT_DEF;
 				  return USING; }
 
-<QT_DEF>"Q_OBJECT"		{ X; return Q_OBJECT; }
-<QT_DEF>"Q_CLASSINFO"		{ X;return Q_CLASSINFO; }
-
 <IN_PROPERTY>"("		{ X; return '('; }
 <IN_PROPERTY>")"		{ X; return ')'; }
 <IN_PROPERTY>"READ"		{ X; return READ; }
@@ -127,7 +127,6 @@ extern void moc_warn( const char *msg );
 <IN_PROPERTY>"DEFAULT"		{ X; return DEFAULT; }
 <IN_PROPERTY>"NODEFAULT"	{ X; return NODEFAULT; }
 <IN_PROPERTY>"DESIGNABLE"	{ X; return DESIGNABLE; }
-<IN_PROPERTY>"OVERRIDE"		{ X; return OVERRIDE; }
 
 <IN_PROPDEF>"READ"		{ X; if ( expLevel == 1 ) BEGIN IN_PROPERTY; return READ; }
 <IN_PROPDEF>"WRITE"		{ X; if ( expLevel == 1 ) BEGIN IN_PROPERTY; return WRITE; }

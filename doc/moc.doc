@@ -74,16 +74,18 @@ like this skeleton:
 
 <p> In addition to the signals and slots shown above, the moc also
 implements object properties as in the next skeleton. The "Q_PROPERTY"
-macro declares an object property with a quadrupel <em>( type, name,
-get function, set function )</em>. In this particular case we declare
-a property of type \c Priority that is also called "priority" and has
-a get function \c priority() and a set function \c setPriority().
+macro declares an object property, while "Q_ENUMS" declares a list of
+enumeration types within the class to be usable inside the property
+system.  In this particular case we declare a property of the
+enumeration type \c Priority that is also called "priority" and has a
+get function \c priority() and a set function \c setPriority().
 
 \code
     class MyClass : public QObject
     {
         Q_OBJECT
-        Q_PROPERTY( Priority,  "priority",  priority, setPriority )
+        Q_PROPERTY( Priority priority READ priority WRITE setPriority )
+	Q_ENUMS( Priority )
     public:
         MyClass( QObject * parent=0, const char * name=0 );
         ~MyClass();
@@ -94,7 +96,9 @@ a get function \c priority() and a set function \c setPriority().
     };
 \endcode
 
-<p> Another macro "Q_CLASSINFO" can be used to attach additional
+<p> Properties can be modified in subclasses with the "Q_OVERRIDE"
+macro. The "Q_SETS" macro declares enums to actually be used as
+sets. Another macro "Q_CLASSINFO" can be used to attach additional
 name/value-pairs to the classes' meta object:
 
 \code
@@ -242,13 +246,6 @@ more class declarations. You should then #include the meta object
 code in the .cpp
 file.  If both -i and -f are present, the last one wins.
 <dt> -nw <dd> Do not generate any warnings.  Discouraged.
-<dt> -ne <dd> Do not scan for enumeration declarations to be used by
-the property system. When using this option, enumeration values are no
-longer available as data-types for properties defined in your class or
-its subclasses. Use this option if the moc fails parsing your class
-declaration and you are sure you do not want to use
-properties. Otherwise, use MOC_SKIP_BEGIN ... MOC_SKIP_END to work
-around the parsing problem (see below).
 <dt> -ldbg <dd> Write a flood of lex debug information on stdout.
 <dt> -p <var>path</var> <dd> Makes the moc prepend <var>path</var>/ to
 the file name in the generated #include statement (if one is
@@ -529,16 +526,18 @@ This will work as expected.
 contains the respective get and set functions</h4>
 
 Declaring the first property within or after the public section that
-contains the respective get and set functions does not work as
-expected. The moc will complain that it cannot find these functions.
-Here is an example of the illegal syntax:
+contains the type definition and the respective get and set functions
+does not work as expected. The moc will complain that it can neither
+find the functions nor resolve the type. Here is an example of the
+illegal syntax:
 
 \code
     class SomeClass : public QObject {
-	Q_OBJECT
+        Q_OBJECT
     public:
     [...]
-        Q_PROPERTY( Priority,  "priority",  priority, setPriority ) // illegal
+        Q_PROPERTY( Priority priority READ priority WRITE setPriority ) // illegal
+        Q_ENUMS( Priority ) // illegal
         enum Priority { High, Low, VeryHigh, VeryLow };
         void setPriority( Priority );
         Priority priority() const;
@@ -551,8 +550,9 @@ beginning of the class declaration, right after Q_OBJECT:
 
 \code
     class SomeClass : public QObject {
-	Q_OBJECT
-        Q_PROPERTY( Priority,  "priority",  priority, setPriority )
+        Q_OBJECT
+        Q_PROPERTY( Priority priority READ priority WRITE setPriority )
+        Q_ENUMS( Priority )
     public:
     [...]
         enum Priority { High, Low, VeryHigh, VeryLow };

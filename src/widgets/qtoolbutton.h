@@ -42,6 +42,7 @@ class QToolBar;
 class Q_EXPORT QToolButton: public QButton
 {
     Q_OBJECT
+    
     Q_PROPERTY( QIconSet onIconSet READ onIconSet WRITE setOnIconSet )
     Q_PROPERTY( QIconSet offIconSet READ offIconSet WRITE setOffIconSet )
     Q_PROPERTY( bool usesBigPixmap READ usesBigPixmap WRITE setUsesBigPixmap )
@@ -49,7 +50,8 @@ class Q_EXPORT QToolButton: public QButton
     Q_PROPERTY( QString textLabel READ textLabel WRITE setTextLabel )
     Q_PROPERTY( int popupDelay READ popupDelay WRITE setPopupDelay )
     Q_PROPERTY( bool autoRaise READ autoRaise WRITE setAutoRaise )
-    Q_PROPERTY( OVERRIDE bool on WRITE setOn )
+    
+    Q_OVERRIDE( bool on WRITE setOn )
 	
 public:
     QToolButton( QWidget * parent, const char *name = 0 );

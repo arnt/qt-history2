@@ -38,8 +38,9 @@
 #define signals protected			// signals: in class
 #define emit					// emit signal
 
-#define Q_PROPERTY( text )			// property
 #define Q_CLASSINFO( name, value )		// class info
+#define Q_PROPERTY( text )			// property
+#define Q_OVERRIDE( text )			// override property
 #define Q_ENUMS( x )
 #define Q_SETS( x )
 

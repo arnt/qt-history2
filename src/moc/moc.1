@@ -63,17 +63,6 @@ are present, the last one wins.
 .I "-nw"
 Do not generate any warnings. Discouraged.
 .TP
-.I "-ne"
-Do not scan for enumeration declarations to be used by the property system. When
-using this  option, enumeration values are no longer available as data-types for
-properties defined in your class or its subclasses. Use this option if the
-.B moc
-fails parsing your class declaration
-.B
-and
-you are sure you do not want to use properties. Otherwise, use
-MOC_SKIP_BEGIN ... MOC_SKIP_END to work around the parsing problem (see below).
-.TP
 .I "-ldbg"
 Write a flood of lex debug information on stdout.
 .TP
@@ -497,10 +486,12 @@ This will work as expected.
 .SS "Properties need to be declared before the public section that contains the respective get and set functions"
 .PP
 Declaring the first property within or after the public section that
-contains the respective get and set functions does not work as
-expected. The
+contains the type definition and the respective get and set functions
+does not work as expected. The 
 .B moc
-will complain that it cannot find these functions. Here is an example of the illegal syntax:
+will complain that it can neither
+find the functions nor resolve the type. Here is an example of the
+illegal syntax:
 .PP
     class SomeClass : public QObject {
 .br
@@ -512,7 +503,9 @@ will complain that it cannot find these functions. Here is an example of the ill
 .br
         // illegal
 .br
-        Q_PROPERTY( Priority, "priority", priority, setPriority )
+        Q_PROPERTY( Priority priority READ priority WRITE setPriority )
+.br
+        Q_ENUMS( Priority )
 .br
         enum Priority { High, Low, VeryHigh, VeryLow };
 .br
@@ -532,7 +525,9 @@ beginning of the class declaration, right after Q_OBJECT:
 .br
         Q_OBJECT
 .br
-        Q_PROPERTY( Priority, "priority", priority, setPriority )
+        Q_PROPERTY( Priority priority READ priority WRITE setPriority )
+.br
+        Q_ENUMS( Priority )
 .br
     public:
 .br

@@ -251,7 +251,6 @@ bool	   lexDebug	   = FALSE;
 int	   lineNo;				// current line number
 bool	   errorControl	   = FALSE;		// controlled errors
 bool	   displayWarnings = TRUE;
-bool	   doEnums	   = TRUE;
 bool	   skipClass;				// don't generate for class
 bool	   skipFunc;				// don't generate for func
 bool	   templateClass;			// class is a template
@@ -262,10 +261,13 @@ Function  *tmpFunc;				// current member function
 Enum      *tmpEnum;				// current enum
 AccessPerm tmpAccessPerm;			// current access permission
 AccessPerm subClassPerm;			// current access permission
+
 bool	   Q_OBJECTdetected;			// TRUE if current class
 						// contains the Q_OBJECT macro
 bool	   Q_PROPERTYdetected;			// TRUE if current class
-						// contains at least one Q_PROPERTY macro
+						// contains at least one Q_PROPERTY,
+						// Q_OVERRIDE, Q_SETS or Q_ENUMS macro
+bool	   tmpPropOverride;			// current property override setting
 
 // some temporary values
 QCString   tmpExpression;			// Used to store the characters the lexer
@@ -318,7 +320,6 @@ const int  formatRevision = 7;			// moc output format revision
 %token			DOUBLE
 %token			VOID
 %token			ENUM
-%token			ENUM_IN_CLASS
 %token			CLASS
 %token			STRUCT
 %token			UNION
@@ -338,6 +339,7 @@ const int  formatRevision = 7;			// moc output format revision
 %token			SLOTS
 %token			Q_OBJECT
 %token			Q_PROPERTY
+%token			Q_OVERRIDE
 %token			Q_CLASSINFO
 %token			Q_ENUMS
 %token			Q_SETS
@@ -348,7 +350,6 @@ const int  formatRevision = 7;			// moc output format revision
 %token			DEFAULT
 %token			NODEFAULT
 %token			DESIGNABLE
-%token			OVERRIDE
 
 %type  <string>		class_name
 %type  <string>		template_class_name
@@ -803,7 +804,16 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 					   " access permission to \"private\".");
 			      Q_OBJECTdetected = TRUE;
 			  }
-			| Q_PROPERTY { tmpYYStart = YY_START; BEGIN IN_PROPERTY; }
+			| Q_PROPERTY { tmpYYStart = YY_START; 
+				       tmpPropOverride = FALSE; 
+				       BEGIN IN_PROPERTY; }
+			  '(' property ')' {
+						BEGIN tmpYYStart;
+				   	   }
+			  opt_property_candidates
+			| Q_OVERRIDE { tmpYYStart = YY_START; 
+				       tmpPropOverride = TRUE; 
+				       BEGIN IN_PROPERTY; }
 			  '(' property ')' {
 						BEGIN tmpYYStart;
 				   	   }
@@ -817,17 +827,16 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 			  opt_property_candidates
 			| Q_ENUMS { tmpYYStart = YY_START; BEGIN IN_PROPERTY; }
 			  '(' qt_enums ')' {
+			  			Q_PROPERTYdetected = TRUE;
 						BEGIN tmpYYStart;
 				   	   }
 			  opt_property_candidates
 			| Q_SETS { tmpYYStart = YY_START; BEGIN IN_PROPERTY; }
 			  '(' qt_sets ')' {
+			  			Q_PROPERTYdetected = TRUE;
 						BEGIN tmpYYStart;
 				   	   }
 			  opt_property_candidates
-			| ENUM_IN_CLASS { BEGIN QT_DEF; }
-			  enum_in_class_tail { BEGIN IN_CLASS;}
-			  opt_semicolons
 			;
 
 slot_area:		  SIGNALS ':'	{ moc_err( "Signals cannot "
@@ -1088,10 +1097,6 @@ opt_identifier:		  /* empty */
 			| IDENTIFIER
 			;
 
-enum_in_class_tail:	  IDENTIFIER IDENTIFIER
-			| enum_tail opt_identifier
-			;
-
 enum_list:		  /* empty */
 			| enumerator
 			| enum_list ',' enumerator
@@ -1102,41 +1107,34 @@ enumerator:		  IDENTIFIER { if ( tmpAccessPerm == _PUBLIC) tmpEnum->append( $1 )
 			  enumerator_expression {  if ( tmpAccessPerm == _PUBLIC) tmpEnum->append( $1 );  }
 			;
 
-property:		  OVERRIDE IDENTIFIER IDENTIFIER { propWrite = ""; propRead = ""; propStored = ""; propOverride = TRUE;
-						propDesignable = -1; propDefault = ""; propNoDefault = FALSE; }
-			  prop_statements
-				{ 				
-					checkIdentifier( $3 );
-					Q_PROPERTYdetected = TRUE;
-					// Avoid duplicates
-					for( QListIterator<Property> lit( props ); lit.current(); ++lit ) {
-					    if ( lit.current()->name == $3 )
-        				    {
-	    					if ( displayWarnings )
-						    moc_err( "Property '%s' defined twice.", (const char*)lit.current()->name );
-					    }
-					}
-					props.append( new Property( lineNo, $2, $3, propWrite, propRead, propStored,
-								    propDesignable, propDefault, propNoDefault, TRUE ) );
+property:		IDENTIFIER IDENTIFIER 
+				{ 
+				     propWrite = ""; 
+				     propRead = ""; 
+				     propStored = "true"; 
+				     propOverride = tmpPropOverride;
+				     propDesignable = TRUE; 
+				     propDefault = ""; 
+				     propNoDefault = TRUE;
 				}
-			| IDENTIFIER IDENTIFIER { propWrite = ""; propRead = ""; propStored = "true"; propOverride = FALSE;
-						  propDesignable = TRUE; propDefault = ""; propNoDefault = TRUE; }
-			  prop_statements
+			prop_statements
 				{ 	
-					if ( propRead.isEmpty() )
-						moc_err( "A property must at least feature a read method." );
-					checkIdentifier( $2 );
-					Q_PROPERTYdetected = TRUE;
-					// Avoid duplicates
-					for( QListIterator<Property> lit( props ); lit.current(); ++lit ) {
-					    if ( lit.current()->name == $2 )
-        				    {
-	    					if ( displayWarnings )
-						    moc_err( "Property '%s' defined twice.", (const char*)lit.current()->name );
-					    }
+				    if ( propRead.isEmpty() && !propOverride)
+					moc_err( "A property must at least feature a read method." );
+				    checkIdentifier( $2 );
+				    Q_PROPERTYdetected = TRUE;
+				    // Avoid duplicates
+				    for( QListIterator<Property> lit( props ); lit.current(); ++lit ) {
+					if ( lit.current()->name == $2 ) {
+					    if ( displayWarnings )
+						moc_err( "Property '%s' defined twice.", 
+							 (const char*)lit.current()->name );
 					}
-					props.append( new Property( lineNo, $1, $2, propWrite, propRead, propStored,
-								    propDesignable, propDefault, propNoDefault, FALSE ) );
+				    }
+				    props.append( new Property( lineNo, $1, $2, 
+								propWrite, propRead, propStored,
+								propDesignable, propDefault, 
+								propNoDefault, FALSE ) );
 				}
 			;
 
@@ -1291,8 +1289,6 @@ int main( int argc, char **argv )
 		errorControl = TRUE;
 	    } else if ( opt == "nw" ) {		// don't display warnings
 		displayWarnings = FALSE;
-	    } else if ( opt == "ne" ) {		// don't do enums
-		doEnums = FALSE;
 	    } else if ( opt == "ldbg" ) {	// lex debug output
 		lexDebug = TRUE;
 	    } else if ( opt == "ydbg" ) {	// yacc debug output
@@ -1340,7 +1336,6 @@ int main( int argc, char **argv )
 		 "\t-p path  Path prefix for included file\n"
 		 "\t-k       Do not stop on errors\n"
 		 "\t-nw      Do not display warnings\n"
-		 "\t-ne      Do not scan for enumeration declarations\n"
 		 );
 	return 1;
     } else {
