@@ -42,9 +42,7 @@
 
 static bool qt_update_cell_widget = true;
 static bool qt_table_clipper_enabled = true;
-#ifndef QT_INTERNAL_TABLE
 QM_EXPORT_TABLE
-#endif
 void qt_set_table_clipper_enabled(bool enabled)
 {
     qt_table_clipper_enabled = enabled;

@@ -21,7 +21,7 @@
 #include "qnetworkprotocol.h"
 #endif // QT_H
 
-#if !defined(QT_MODULE_NETWORK) || defined(QT_LICENSE_PROFESSIONAL) || defined(QT_INTERNAL_NETWORK)
+#if defined(QT_LICENSE_PROFESSIONAL)
 #define QM_EXPORT_FTP
 #else
 #define QM_EXPORT_FTP Q_NETWORK_EXPORT

@@ -21,7 +21,7 @@
 #include "qsocketdevice.h" // ### remove or keep for users' convenience?
 #endif // QT_H
 
-#if !defined(QT_MODULE_NETWORK) || defined(QT_LICENSE_PROFESSIONAL) || defined(QT_INTERNAL_NETWORK)
+#if defined(QT_LICENSE_PROFESSIONAL)
 #define QM_EXPORT_NETWORK
 #else
 #define QM_EXPORT_NETWORK Q_NETWORK_EXPORT

@@ -22,7 +22,7 @@
 #include "qstringlist.h"
 #endif // QT_H
 
-#if !defined(QT_MODULE_XML) || defined(QT_LICENSE_PROFESSIONAL) || defined(QT_INTERNAL_XML)
+#if defined(QT_LICENSE_PROFESSIONAL)
 #define QM_EXPORT_XML
 #else
 #define QM_EXPORT_XML Q_XML_EXPORT

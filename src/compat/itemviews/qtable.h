@@ -29,7 +29,7 @@
 
 #ifndef QT_NO_TABLE
 
-#if defined(QT_LICENSE_PROFESSIONAL) || defined(QT_INTERNAL_TABLE)
+#if defined(QT_LICENSE_PROFESSIONAL)
 #define QM_EXPORT_TABLE
 #else
 #define QM_EXPORT_TABLE Q_COMPAT_EXPORT
