@@ -450,7 +450,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     grid->addMultiCellWidget( tabs, 3, 3, 1, 2 );
     QMultiLineEdit *mle = new QMultiLineEdit( tabs, "multiLineEdit" );
     edit = mle;
-    mle->setWordWrap( QMultiLineEdit::DynamicWrap );
+    mle->setWordWrap( QMultiLineEdit::WidgetWidth );
     mle->setText("This is a QMultiLineEdit widget, "
 	         "useful for small multi-line "
 		 "input fields.");
@@ -579,7 +579,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 
     QAccel* a = new QAccel( this );
     a->connectItem(  a->insertItem( Key_F9 ), this, SLOT( showProperties() ) );
-    
+
     prog = new QProgressBar( statusBar(), "progress" );
     prog->setTotalSteps( 100 );
     progress = 64;
