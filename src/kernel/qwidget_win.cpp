@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#95 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#96 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -27,7 +27,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#95 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#96 $");
 
 
 #if !defined(WS_EX_TOOLWINDOW)
@@ -311,8 +311,7 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
 	old_winid = 0;
     setWinId( 0 );
 
-    if ( parent )
-	reparentFocusWidgets( parent );		// fix focus chains
+    reparentFocusWidgets( parent );		// fix focus chains
 
     if ( parentObj ) {				// remove from parent
 	QChildEvent e( Event_ChildRemoved, this );
