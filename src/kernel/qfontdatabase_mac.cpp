@@ -30,68 +30,13 @@
 #include "qt_mac.h"
 #include <stdlib.h>
 
-static
-void add_style(QtFontFamily *family, const QString& styleName,
-                bool italic, bool lesserItalic, int weight)
-{
-    QString weightString;
-    if(weight <= QFont::Light) {
-        weight = QFont::Light;
-        weightString = "Light";
-    } else if(weight <= QFont::Normal) {
-        weight = QFont::Normal;
-        weightString = "Regular";
-    } else if(weight <= QFont::DemiBold) {
-        weight = QFont::DemiBold;
-        weightString = "DemiBold";
-    } else if(weight <= QFont::Bold) {
-        weight = QFont::Bold;
-        weightString = "Bold";
-    } else {
-        weight = QFont::Black;
-        weightString = "Black";
-    }
-
-    QString sn = styleName;
-    if(sn.isEmpty()) {
-        // Not TTF, we make the name
-        if(weight != QFont::Normal || !italic && !lesserItalic) {
-            sn += weightString;
-            sn += " ";
-        }
-        if(italic)
-            sn += "Italic ";
-        if(lesserItalic) {
-            // Windows doesn't tell the user, so we don't either
-            //  sn += "Oblique ";
-            sn += "Italic ";
-        }
-        sn = sn.left(sn.length()-1); // chomp " "
-    }
-    QtFontStyle *style = family->styleDict.find(sn);
-    if(!style) {
-        style = new QtFontStyle(family, sn);
-        Q_CHECK_PTR(style);
-        style->ital         = italic;
-        style->lesserItal   = lesserItalic;
-        style->weightString = weightString;
-        style->weightVal    = weight;
-        style->weightDirty  = FALSE;
-        family->addStyle(style);
-    }
-    style->setSmoothlyScalable();  // cowabunga
-}
-
 void QFontDatabase::createDatabase()
 {
     if(db) return;
     db = new QFontDatabasePrivate;
 
-    QtFontFoundry *foundry = NULL;
-    if(!foundry) {
-	foundry = new QtFontFoundry("Mac"); // One foundry on Macintosh
-	db->addFoundry(foundry);        // (and only one db)
-    }
+
+    QString foundry_name = "Mac";
 
     FMFontFamilyIterator it;
     if(!FMCreateFontFamilyIterator(NULL, NULL, kFMUseGlobalScopeOption, &it)) {
@@ -125,13 +70,9 @@ void QFontDatabase::createDatabase()
 	    for(unsigned long x = 0; x < len; x+=2)
 		fam_name += QChar(buff[x+1], buff[x]);
 
-	    QtFontFamily *family = foundry->familyDict.find(fam_name.lower());
-	    if(!family) {
-		family = new QtFontFamily(foundry, fam_name.lower());
-		Q_CHECK_PTR(family);
-		foundry->addFamily(family);
-	    }
-
+	    QtFontFamily *family = db->family( fam_name, TRUE );
+	    QtFontFoundry *foundry = family->foundry( foundry_name, TRUE );
+	    
 	    FMFontFamilyInstanceIterator fit;
 	    if(!FMCreateFontFamilyInstanceIterator(fam, &fit)) {
 		FMFont font;
@@ -141,20 +82,31 @@ void QFontDatabase::createDatabase()
 		while(!FMGetNextFontFamilyInstance(&fit, &font, &font_style, &font_size)) {
 		    bool italic = (bool)(font_style & ::italic);
 		    int weight = ((font_style & ::bold) ? QFont::Bold : QFont::Normal);
+		    QtFontStyle::Key styleKey;
+		    styleKey.italic = italic;
+		    styleKey.oblique = false;
+		    styleKey.weight = weight;
+		    
+		    QtFontStyle *style = foundry->style( styleKey, TRUE );
+		    style->smoothScalable = TRUE;
 
-		    if(italic) {
-			add_style(family, QString::null, italic, FALSE, weight);
-		    } else {
-			add_style(family, QString::null, italic, FALSE, weight);
-			add_style(family, QString::null, italic, TRUE, weight);
+
+		    if( !italic ) {
+			styleKey.oblique = TRUE;
+			style = foundry->style( styleKey, TRUE );
+			style->smoothScalable = TRUE;
+			styleKey.oblique = FALSE;
 		    }
 		    if(weight < QFont::DemiBold) {
 			// Can make bolder
+			styleKey.weight = QFont::Bold;
 			if(italic) {
-			    add_style(family, QString::null, italic, FALSE, QFont::Bold);
+			    style = foundry->style( styleKey, TRUE );
+			    style->smoothScalable = TRUE;
 			} else {
-			    add_style(family, QString::null, FALSE, FALSE, QFont::Bold);
-			    add_style(family, QString::null, FALSE, TRUE, QFont::Bold);
+			    styleKey.oblique = TRUE;
+			    style = foundry->style( styleKey, TRUE );
+			    style->smoothScalable = TRUE;
 			}
 		    }
 		}
@@ -164,3 +116,7 @@ void QFontDatabase::createDatabase()
 	FMDisposeFontFamilyIterator(&it);
     }
 }
+
+static inline void load(const QString & = QString::null,
+                        int = -1 ) {}
+
