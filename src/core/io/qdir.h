@@ -185,8 +185,9 @@ private:
             sep = QChar(' ');
         return sep;
     }
-    QChar filterSepChar;
 #endif
+
+    QChar filterSepChar;
     static void slashify(QString &);
 
     QString dPath;
