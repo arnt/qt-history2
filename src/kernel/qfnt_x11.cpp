@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#91 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#92 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#91 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#92 $");
 
 
 static const int fontFields = 14;
@@ -978,7 +978,7 @@ bool QFontMetrics::inFont(char ch) const
   The left bearing of the font is the distance of the left-most pixel
   of the character from the 0 position.  This is often a negative value.
 
-  \sa leftBearing(), rightBearing(char)
+  \sa rightBearing(char), maxLeftBearing()
 */
 int QFontMetrics::leftBearing(char ch) const
 {
@@ -993,7 +993,7 @@ int QFontMetrics::leftBearing(char ch) const
   The right bearing of the font is the distance of the right-most pixel
   of the character from the 0 position.  This is often a negative value.
 
-  \sa rightBearing(), leftBearing(char)
+  \sa leftBearing(char), maxRightBearing()
 */
 int QFontMetrics::rightBearing(char ch) const
 {
@@ -1008,9 +1008,9 @@ int QFontMetrics::rightBearing(char ch) const
   The left bearing of the font is the smallest leftBearing(char)
   of all characters in the font.
 
-  \sa rightBearing(), leftBearing(char)
+  \sa maxRightBearing(), leftBearing(char)
 */
-int QFontMetrics::leftBearing() const
+int QFontMetrics::maxLeftBearing() const
 {
     // Don't need def->lbearing, the FS stores it.
     return FS->min_bounds.lbearing;
@@ -1022,9 +1022,9 @@ int QFontMetrics::leftBearing() const
   The right bearing of the font is the smallest rightBearing(char)
   of all characters in the font.
 
-  \sa leftBearing(), rightBearing(char)
+  \sa maxLeftBearing(), rightBearing(char)
 */
-int QFontMetrics::rightBearing() const
+int QFontMetrics::maxRightBearing() const
 {
     // Safely cast away const, as we cache rbearing there.
     QFontDef* def = (QFontDef*)spec();

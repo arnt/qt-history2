@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#77 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#78 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -21,7 +21,7 @@
 #include <ctype.h>
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#77 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#78 $");
 
 
 /*!
@@ -1758,6 +1758,15 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 
   Despite to the different actual character heights, the heights of the
   bounding rectangles of "Yes" and "yes" will be the same.
+
+  The bounding rectangle given by this function is somewhat larger than
+  that calculated by the simpler boundingRect() function.  This function
+  uses the
+  \link maxLeftBearing() maximum left\endlink and
+  \link right\endlink font bearings as is necessary for
+  multi-line text to align correctly.  Also, font height() and lineSpacing()
+  are used to calculate the height, rather than individual
+  character heights.
 
   The \a internal argument is for internal purposes.
 

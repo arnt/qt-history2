@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontmet.h#32 $
+** $Id: //depot/qt/main/src/kernel/qfontmet.h#33 $
 **
 ** Definition of QFontMetrics class
 **
@@ -30,8 +30,8 @@ public:
     int		height()	const;
     int		leading()	const;
     int		lineSpacing()	const;
-    int		leftBearing()	const;
-    int		rightBearing()	const;
+    int		maxLeftBearing() const;
+    int		maxRightBearing() const;
     int		maxWidth()	const;
 
     bool	inFont(char)	const;
