@@ -110,20 +110,20 @@ private:
     Scroller *bottom;
 };
 
-class MenuDelegate : public QItemDelegate
+class MenuDelegate : public QAbstractItemDelegate
 {
 public:
-    MenuDelegate(QObject *parent) : QItemDelegate(parent) {}
+    MenuDelegate(QObject *parent, QComboBox *cmb) : QAbstractItemDelegate(parent), mCombo(cmb) {}
 
 protected:
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               QAbstractItemModel *model, const QModelIndex &index) const {
+                       const QAbstractItemModel *model, const QModelIndex &index) const {
         QStyleOptionMenuItem opt = getStyleOption(option, model, index);
         painter->eraseRect(option.rect);
         QApplication::style().drawControl(QStyle::CE_MenuItem, &opt, painter, 0);
     }
     QSize sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option,
-                   QAbstractItemModel *model, const QModelIndex &index) const {
+                           const QAbstractItemModel *model, const QModelIndex &index) const {
         QStyleOptionMenuItem opt = getStyleOption(option, model, index);
         return QApplication::style().sizeFromContents(
             QStyle::CT_MenuItem, &opt, option.rect.size(), fontMetrics, 0);
@@ -131,7 +131,7 @@ protected:
 
 private:
     QStyleOptionMenuItem getStyleOption(const QStyleOptionViewItem &option,
-                                        QAbstractItemModel *model,
+                                        const QAbstractItemModel *model,
                                         const QModelIndex &index) const {
         QStyleOptionMenuItem menuOption(0);
         menuOption.palette = option.palette;
@@ -141,7 +141,7 @@ private:
             menuOption.state |= QStyle::Style_Enabled;
         if (option.state & QStyle::Style_Selected)
             menuOption.state |= QStyle::Style_Active;
-        if (qt_cast<QComboBox*>(parent())->currentItem() == index.row())
+        if (mCombo->currentItem() == index.row())
             menuOption.checkState = QStyleOptionMenuItem::Checked;
         else
             menuOption.checkState = QStyleOptionMenuItem::Unchecked;
@@ -157,6 +157,8 @@ private:
         menuOption.rect = option.rect;
         return menuOption;
     }
+
+    QComboBox *mCombo;
 };
 
 class ComboModel : public QAbstractListModel

@@ -466,7 +466,7 @@ void QComboBoxPrivate::init()
     q->setCurrentItem(0);
     QStyleOptionComboBox opt = getStyleOption();
     if (q->style().styleHint(QStyle::SH_ComboBox_Popup, &opt, q))
-        l->setItemDelegate(new MenuDelegate(l));
+        l->setItemDelegate(new MenuDelegate(l, q));
     QObject::connect(container, SIGNAL(itemSelected(const QModelIndex &)),
                      q, SLOT(itemSelected(const QModelIndex &)));
     QObject::connect(q->listView()->selectionModel(),
@@ -974,7 +974,7 @@ QPixmap QComboBox::pixmap(int row) const
     QModelIndex index = model()->index(row, 0, root());
     return model()->data(d->currentItem, QAbstractItemModel::DecorationRole).toIconSet()
         .pixmap(QIconSet::Automatic,
-                opt.state == QStyle::Style_Enabled ? QIconSet::Normal : QIconSet::Disabled);
+                opt.state & QStyle::Style_Enabled ? QIconSet::Normal : QIconSet::Disabled);
 }
 
 /*!
@@ -1365,7 +1365,6 @@ void QComboBox::paintEvent(QPaintEvent *)
 
     // draw the icon and text
     if (d->currentItem.isValid()) {
-        QStyleOptionComboBox opt = d->getStyleOption();
         QString txt = model()->data(d->currentItem, QAbstractItemModel::DisplayRole).toString();
         const QPixmap &pix = pixmap(currentItem());
         QRect editField = QStyle::visualRect(q->style().querySubControlMetrics(
