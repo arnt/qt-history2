@@ -528,7 +528,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    t << endl << endl;
 	}
     } else {
-	t << "all: " << deps << " " << varGlue("ALL_DEPS",""," "," ") << "$(TARGET)" << "\n\n"
+	t << "all: " << deps << " " << varGlue("ALL_DEPS",""," "," ") << "$(TARGET) " 
+	  << varList("QMAKE_AR_SUBLIBS") << "\n\n"
 	  << "staticlib: $(TARGET)" << "\n\n";
 	if(project->isEmpty("QMAKE_AR_SUBLIBS")) {
 	    t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) $(TARGETDEPS) " << "\n\t";
@@ -555,7 +556,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 		QString ar;
 		if((*libit) == "$(TARGET)") {
 		    t << "$(TARGET): $(UICDECLS) " << " $(TARGETDEPS) " 
-		      << varList("QMAKE_AR_SUBLIBS") << " " << valList(build) << "\n\t";
+		      << valList(build) << "\n\t";
 		    ar = project->variables()["QMAKE_AR_CMD"].first();
 		    ar = ar.replace(QRegExp("\\$\\(OBJMOC\\)"), "").replace(QRegExp("\\$\\(OBJECTS\\)"), 
 									    build.join(" "));
