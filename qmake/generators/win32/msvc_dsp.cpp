@@ -495,8 +495,11 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 				}
 			    }
 			    deps = replaceExtraCompilerVariables(deps, (*input), out);
-			    if(!output_count) 
+			    if(!output_count) {
+                                QString group = (*it2).toLower();
+                                group[0] = group[0].toUpper();
 				t << "# Begin Group \"" << (*it2) << "\"\n";
+                            }
 			    t <<  "# Begin Source File\n\nSOURCE=" << in << endl
 			      << "USERDEP_" << in.section('.', 0, 0) << "=\"" << deps << "\"" << endl;
 			    QString cmd_name;
