@@ -47,7 +47,7 @@ static inline HIRect qt_hirectForQRect(const QRect &convertRect, QPainter *p = 0
 {
     int x, y;
     int offset = 0;
-    if(useOffset) {
+    if (useOffset) {
         if(QRect::rectangleMode() == QRect::InclusiveRectangles)
             offset = 1;
         else
@@ -59,8 +59,9 @@ static inline HIRect qt_hirectForQRect(const QRect &convertRect, QPainter *p = 0
         x = convertRect.x();
         y = convertRect.y();
     }
-    return CGRectMake(x + rect.x(), y + rect.y(), convertRect.width() - offset - rect.width(),
-                      convertRect.height() - offset - rect.height());
+    HIRect retRect = CGRectMake(x + rect.x(), y + rect.y(), convertRect.width() - offset - rect.width(),
+                                convertRect.height() - offset - rect.height());
+    return retRect;
 }
 
 static inline CGContextRef qt_hiGetContext(QPainter *p)
@@ -959,7 +960,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
                             int(newRect.origin.y - outRect.origin.y),
                             int(outRect.size.width - newRect.size.width),
                             int(outRect.size.height - newRect.size.height));
-            newRect = qt_hirectForQRect(btn->rect, p, true, off_rct);
+            newRect = qt_hirectForQRect(btn->rect, p, false, off_rct);
             HIThemeDrawButton(&newRect, &bdi, cg, kHIThemeOrientationNormal, 0);
             if (btn->features & QStyleOptionButton::HasMenu) {
                 int mbi = pixelMetric(PM_MenuButtonIndicator, w);
@@ -1333,7 +1334,7 @@ QRect QMacStyleCG::subRect(SubRect sr, const QStyleOption *opt, const QWidget *w
                 bdi.kind = kThemeBevelButton;
             bdi.adornment = kThemeAdornmentNone;
             HIThemeGetButtonContentBounds(&inRect, &bdi, &outRect);
-            r.setRect(int(outRect.origin.x), int(outRect.origin.y),
+            r.setRect(int(outRect.origin.x), int(outRect.origin.y - 2),
                       int(qMin(btn->rect.width() - 2 * outRect.origin.x, outRect.size.width)),
                       int(qMin(btn->rect.height() - 2 * outRect.origin.y, outRect.size.height)));
         }

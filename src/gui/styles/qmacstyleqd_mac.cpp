@@ -1495,7 +1495,7 @@ QRect QMacStyleQD::subRect(SubRect sr, const QStyleOption *opt, const QWidget *w
             SetRect(&myRect, 0, 0, btn->rect.width(), btn->rect.height());
             ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
             GetThemeButtonContentBounds(&myRect, kThemePushButton, &info, &macRect);
-            r = QRect(macRect.left, macRect.top,
+            r = QRect(macRect.left, macRect.top - 2,
                       qMin(btn->rect.width() - 2 * macRect.left, macRect.right - macRect.left),
                       qMin(btn->rect.height() - 2 * macRect.top, macRect.bottom - macRect.top));
         }
