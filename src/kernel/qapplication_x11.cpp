@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#558 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#559 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2225,7 +2225,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
     if ( !widget ) {				// don't know this window
 	QWidget* popup = QApplication::activePopupWidget();
 	if ( popup ) {
-	    
+	
 	    /*
 	      That is more than suboptimal. The real solution should
 	      do some keyevent and buttonevent translation, so that
@@ -2234,7 +2234,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	      possible with a known widget. I'll change that soon
 	      (Matthias).
 	     */
-	    
+	
 	    // Danger - make sure we don't lock the server
 	    switch ( event->type ) {
 	    case ButtonPress:
@@ -2243,7 +2243,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    case XKeyRelease:
 		do {
 		    popup->close();
-		} while ( popup = qApp->activePopupWidget() );
+		} while ( (popup = qApp->activePopupWidget()) );
 		return 1;
 	    }
 	} else {
