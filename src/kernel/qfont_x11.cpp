@@ -661,19 +661,18 @@ void QFontPrivate::load( QFont::Script script, bool )
 	    fe = QFontDatabase::findFont( script,
 					  request.styleStrategy, request.styleHint,
 					  fam, fnd, request.weight, request.italic,
-					  px, pitch, x11Screen );
+					  px, request.stretch, pitch, x11Screen );
 	}
 
 	if ( !fe )
-	    fe = new QFontEngineBox( (int) pixelSize( request, paintdevice, x11Screen ) );
+	    fe = new QFontEngineBox( (int)pixelSize( request, paintdevice, x11Screen ) );
+
+	fontCache->insert( k, fe, fe->cache_cost );
     }
 
     fe->ref();
-
     x11data.fontstruct[script] = fe;
     initFontInfo( script, scale );
-    // ### fix cost calculation
-    fontCache->insert( k, x11data.fontstruct[script], 1 );
     request.dirty = FALSE;
 }
 

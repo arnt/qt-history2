@@ -966,7 +966,49 @@ void QFont::setStyleStrategy( StyleStrategy s )
     d->request.dirty = TRUE;
 }
 
+/*!
+    Returns the stretch factor for the font.
 
+    \sa setStretch()
+ */
+int QFont::stretch() const
+{
+    return d->request.stretch;
+}
+
+/*!
+    Sets the stretch factor for the font.
+
+    The stretch factor changes the width of all characters in the font
+    by \a factor percent.  Setting \a factor to 150 results in all
+    characters in the font being 1.5 time ( ie. 150% ) wider.  The
+    default stretch factor is 100.
+
+    The stretch factor is only applied to outline fonts.  The stretch
+    factor is ignored for bitmap fonts.
+
+    NOTE: QFont cannot stretch XLFD fonts.  When loading XLFD fonts on
+    X11, the stretch factor is matched against a predefined set of
+    values for the SETWIDTH_NAME field of the XLFD.
+
+    \sa stretch() QFont::StyleStrategy
+*/
+void QFont::setStretch( int factor )
+{
+    if ( factor <= 0 || factor > 4000 ) {
+#ifdef QT_CHECK_RANGE
+	qWarning( "QFont::setStretch(): parameter '%d' out of range", factor );
+#endif // QT_CHECK_RANGE
+
+	return;
+    }
+
+    if ( d->request.stretch == (uint)factor ) return; // nothing to do
+
+    detach();
+    d->request.stretch = (uint)factor;
+    d->request.dirty = TRUE;
+}
 
 /*!
     If \a enable is TRUE, turns raw mode on; otherwise turns raw mode
@@ -2382,11 +2424,10 @@ bool QFontCache::insert(const QString &key, const QFontStruct *qfs, int cost)
 {
 
 #ifdef QFONTCACHE_DEBUG
-    qDebug("QFC::insert: inserting %p w/ cost %d\n%s", qfs, cost,
-	   (qfs == (QFontStruct *) -1) ? "negative cache item" : qfs->name.data());
+    qDebug("QFC::insert: inserting %p w/ cost %d", qfs, cost );
 #endif // QFONTCACHE_DEBUG
 
-    if (totalCost() + cost > maxCost()) {
+    if ( totalCost() + cost > maxCost() ) {
 
 #ifdef QFONTCACHE_DEBUG
 	qDebug("QFC::insert: adjusting max cost to %d (%d %d)",
@@ -2442,8 +2483,7 @@ void QFontCache::deleteItem(Item d)
     if (qfs->count == 0) {
 
 #ifdef QFONTCACHE_DEBUG
-	qDebug("QFC::deleteItem: removing %p from cache\n%s", qfs,
-	       (qfs == (QFontStruct *) -1) ? "negative cache item" : qfs->name.data());
+	qDebug("QFC::deleteItem: removing %p from cache", qfs );
 #endif // QFONTCACHE_DEBUG
 
 	delete qfs;
@@ -2480,11 +2520,7 @@ void QFontCache::timerEvent(QTimerEvent *)
 
 	if (qfs != (QFontStruct *) -1) {
 	    if (qfs->count > 0)
-#ifdef Q_WS_X11
-		nmcost += 1; // ###
-#else
 		nmcost += qfs->cache_cost;
-#endif
 	} else
 	    // keep negative cache items in the cache
 	    nmcost++;
@@ -2585,7 +2621,7 @@ QString QFontPrivate::key() const
     if (request.rawMode)
 	return request.family;
 
-#if 1
+#if 0
     int len = (request.family.length() * 2) +
 	      (request.addStyle.length() * 2) +
 	      2 +  // point size
@@ -2593,7 +2629,8 @@ QString QFontPrivate::key() const
 	      1 +  // font bits
 	      1 +  // weight
 	      1 +  // hint
-	      2;   // StyleStrategy
+	      2 +  // StyleStrategy
+              2;   // stretch
 
     QByteArray buf(len);
     uchar *p = (uchar *) buf.data();
@@ -2615,6 +2652,7 @@ QString QFontPrivate::key() const
     *p++ = request.weight;
     *p++ = (request.hintSetByUser ?
 	    (int) request.styleHint : (int) QFont::AnyStyle);
+    *((Q_UINT16 *) p) = request.stretch; p += 2;
 
     return QString((QChar *) buf.data(), buf.size() / 2);
 #else
@@ -2622,11 +2660,11 @@ QString QFontPrivate::key() const
     QString k = request.family;
     if ( request.addStyle.length() )
 	k += request.addStyle;
-    k += "%1/%2/%3/%4/%5/%6";
+    k += "%1/%2/%3/%4/%5/%6/%7";
     k = k.arg( request.pointSize ).arg( request.pixelSize ).arg( get_font_bits( request ) )
 	.arg( request.weight )
 	.arg( (request.hintSetByUser ? (int) request.styleHint : (int) QFont::AnyStyle) )
-	.arg( request.styleStrategy );
+	.arg( request.styleStrategy ).arg( request.stretch );
     return k;
 #endif
 }

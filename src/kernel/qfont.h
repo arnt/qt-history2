@@ -125,6 +125,9 @@ public:
     void setStyleHint( StyleHint, StyleStrategy = PreferDefault );
     void setStyleStrategy( StyleStrategy s );
 
+    int stretch() const;
+    void setStretch( int );
+
     // is raw mode still needed?
     bool rawMode() const;
     void setRawMode( bool );

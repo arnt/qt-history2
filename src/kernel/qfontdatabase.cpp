@@ -114,40 +114,54 @@ struct QtFontStyle
 {
     struct Key {
 	Key( const QString &styleString );
-	Key() : italic( FALSE ), oblique( FALSE ), weight( QFont::Normal ) {}
+	Key() : italic( FALSE ), oblique( FALSE ),
+		weight( QFont::Normal ), stretch( 0 ) { }
 	Key( const Key &o ) : italic( o.italic ), oblique( o.oblique ),
-			      weight( o.weight ) {}
+			      weight( o.weight ), stretch( o.stretch ) { }
 	uint italic : 1;
 	uint oblique : 1;
-	int  weight : 30;
+	int  weight : 8;
+	int stretch : 12;
+
 	bool operator == ( const Key & other ) {
 	    return ( italic == other.italic &&
 		     oblique == other.oblique &&
-		     weight == other.weight );
+		     weight == other.weight &&
+		     ( stretch == 0 || other.stretch == 0 ||
+		       stretch == other.stretch ) );
 	}
     };
 
     QtFontStyle( const Key &k )
-	: key( k ), bitmapScalable( FALSE ), smoothScalable( FALSE ),
-	  count( 0 ), pixelSizes( 0 ) { }
-    ~QtFontStyle() { free( pixelSizes ); }
+	: key( k ), bitmapScalable( FALSE ), smoothScalable( FALSE ), count( 0 ),
+	  pixelSizes( 0 ), weightName( 0 ), setwidthName( 0 ) { }
+
+    ~QtFontStyle() {
+	free( pixelSizes );
+	delete [] weightName;
+	delete [] setwidthName;
+    }
 
     Key key;
-    bool bitmapScalable    : 1;
-    bool smoothScalable    : 1;
-    bool xlfd_uses_regular : 1;
-    int count : 29;
+    bool bitmapScalable     : 1;
+    bool smoothScalable     : 1;
+    int count      : 30;
     QtFontSize *pixelSizes;
+
+#ifdef Q_WS_X11
+    const char *weightName;
+    const char *setwidthName;
+#endif // Q_WS_X11
 
     QtFontSize *pixelSize( unsigned short size, bool = FALSE );
 };
 
 QtFontStyle::Key::Key( const QString &styleString )
+    : italic( FALSE ), oblique( FALSE ), weight( QFont::Normal ), stretch( 0 )
 {
-    weight = QFont::Normal;
-    italic = oblique = FALSE;
     if ( styleString.contains( "Bold" ) )
 	weight = QFont::Bold;
+
     if ( styleString.contains( "Italic" ) )
 	 italic = TRUE;
     else if ( styleString.contains( "Oblique" ) )

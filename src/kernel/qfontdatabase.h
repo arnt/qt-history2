@@ -114,10 +114,11 @@ public:
 
 #if defined(Q_WS_X11)
     static QFontEngine *findFont( QFont::Script script,
-				      int styleStrategy, int styleHint,
-				      const QString &family, const QString &foundry,
-				      int weight, bool italic,
-				      int pixelSize, char pitch, int x11Screen );
+				  int styleStrategy, int styleHint,
+				  const QString &family, const QString &foundry,
+				  int weight, bool italic,
+				  int pixelSize, int widthRatio, char pitch,
+				  int x11Screen );
 #endif // Q_WS_X11
 
 private:
