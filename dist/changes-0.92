@@ -1,5 +1,5 @@
-Here is a list of changes in Qt from 0.91 to 0.92.
-Also look out for a couple of new classes; QPrinter and QFileDialog.
+Here is a list of changes in Qt from 0.91 to 0.92.  Also look out
+for a few new classes; QPrinter, QFileDialog, QDir and QFileInfo.
 
 
 QApplication:
@@ -29,6 +29,8 @@ QPainter:
   Instead, set a new pen or brush:
 	p.setPen( red );
 	p.setBrush( NoBrush );
+  This enables us to do better optimization, particularly for complex
+  programs.
 
 QFile, QFileInfo (new):
 -----------------------
@@ -58,6 +60,10 @@ QLineEdit/QLCDNumber:
 QCursor:
 --------
     hourGlassCursor => waitCursor
+
+QButton and friends:
+--------------------
+    QIconButton removed, setPixmap() added to QButton to replace QIconButton
 
 QTableWidget:
 -------------
@@ -89,3 +95,7 @@ QFontMetrics and QFontInfo:
     Get font info    from QWidget::fontInfo()    and QPainter::fontInfo().
     The QFontMetrics(QFont) constructor no longer works.
     We had to do these changes to support printing and Windows.
+
+
+There are more changes, left out because we consider them minor and
+uninteresting or because we forgot to mention them. :)
