@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#16 $
 **
 ** Implementation of QPrinter class for X-Windows
 **
@@ -21,7 +21,7 @@
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_x11.cpp#15 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_x11.cpp#16 $")
 
 
 /*****************************************************************************
@@ -172,13 +172,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    if ( fork() == 0 ) {	// child process
 			if ( execlp(print_prog.data(), print_prog.data(), 
 				    pr.data(), output->name(), 0) == -1 ) {
-#if defined(DEBUG)
-			    debug( "QPrinter: Exec error" );
-#endif
-			} else {
-#if defined(DEBUG)
-			    debug( "QPrinter: Job done" );
-#endif
+			    ;			// couldn't exec, ignored
 			}
 			exit( 0 );		// exit print job
 		    }
