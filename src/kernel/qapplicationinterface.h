@@ -7,7 +7,7 @@
 #include "qvariant.h"
 #include "qobject.h"
 #endif // QT_H
-    
+
 class QComponentInterface;
 
 class Q_EXPORT QApplicationInterface : public QObject
@@ -28,6 +28,7 @@ public:
     virtual bool requestSetProperty( const QCString& p, const QVariant& v );
 #endif
     virtual bool requestConnect( const char* signal, QObject* target, const char* slot );
+    virtual bool requestConnect( QObject *sender, const char* signal, const char* slot );
     virtual bool requestEvents( QObject* o );
 
     QComponentInterface* requestInterface( const QCString& );
