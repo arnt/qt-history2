@@ -178,6 +178,7 @@ public:
 	return theObject;
     }
     void readMetaData();
+    bool isPropertyExposed(int index);
 
 // IDispatch
     STDMETHOD(GetTypeInfoCount)(UINT* pctinfo);
@@ -356,7 +357,6 @@ private:
     QIntDict<QMetaData>* slotlist;
     QMap<int,DISPID>* signallist;
     QIntDict<QMetaProperty>* proplist;
-    QMap<int, DISPID>* proplist2;
 
     IUnknown *m_outerUnknown;
     IAdviseSink *m_spAdviseSink;
@@ -927,7 +927,7 @@ HRESULT GetClassObject( REFIID clsid, REFIID iid, void **ppUnk )
 */
 QAxServerBase::QAxServerBase( const QString &classname, IUnknown *outerUnknown )
 : aggregatedObject(0), ref(0), ole_ref(0), class_name(classname),
-  slotlist(0), signallist(0),proplist(0), proplist2(0),
+  slotlist(0), signallist(0),proplist(0),
   m_hWnd(0), m_hWndCD(m_hWnd), hmenuShared(0), hwndMenuOwner(0),
   m_outerUnknown(outerUnknown)
 {
@@ -941,7 +941,7 @@ QAxServerBase::QAxServerBase( const QString &classname, IUnknown *outerUnknown )
 */
 QAxServerBase::QAxServerBase( QObject *o )
 : aggregatedObject(0), ref( 0), ole_ref(0),
-  slotlist(0), signallist(0),proplist(0), proplist2(0),
+  slotlist(0), signallist(0),proplist(0),
   m_hWnd(0), m_hWndCD( m_hWnd ), hmenuShared(0), hwndMenuOwner(0),
   m_outerUnknown(0)
 {
@@ -1045,7 +1045,6 @@ QAxServerBase::~QAxServerBase()
     delete slotlist;
     delete signallist;
     delete proplist;
-    delete proplist2;
 }
 
 /*
@@ -1647,7 +1646,6 @@ void QAxServerBase::readMetaData()
 	slotlist = new QIntDict<QMetaData>;
 	signallist = new QMap<int,DISPID>;
 	proplist = new QIntDict<QMetaProperty>;
-	proplist2 = new QMap<int,DISPID>;
 
 	int qtProps = 0;
 	int qtSlots = 0;
@@ -1734,13 +1732,40 @@ void QAxServerBase::readMetaData()
 	    BSTR bstrNames = QStringToBSTR( property->name() );
 	    DISPID dispId;
 	    GetIDsOfNames( IID_NULL, (BSTR*)&bstrNames, 1, LOCALE_USER_DEFAULT, &dispId );
-	    if ( dispId >= 0 && !proplist->find( dispId ) ) {
+	    if ( dispId >= 0 && !proplist->find( dispId ) )
 		proplist->insert( dispId, property );
-		proplist2->insert( iproperty, dispId );
-	    }
 	    SysFreeString( bstrNames );
 	}
     }
+}
+
+/*!
+    \internal
+    Returns TRUE if the property \a index is exposed to COM and should
+    be saved/loaded.
+*/
+bool QAxServerBase::isPropertyExposed(int index)
+{
+    if (!theObject)
+	return FALSE;
+
+    bool result = FALSE;
+    QMetaObject *mo = theObject->metaObject();
+
+    int qtProps = 0;
+    if (theObject->isWidgetType())
+	qtProps = QWidget::staticMetaObject()->numProperties(TRUE);
+    const QMetaProperty *property = mo->property( index, TRUE );
+    if (index <= qtProps && ignoreProps( property->name() ))
+	return result;
+
+    BSTR bstrNames = QStringToBSTR( property->name() );
+    DISPID dispId;
+    GetIDsOfNames( IID_NULL, (BSTR*)&bstrNames, 1, LOCALE_USER_DEFAULT, &dispId );
+    result = dispId != DISPID_UNKNOWN;
+    SysFreeString( bstrNames );
+
+    return result;
 }
 
 
@@ -2473,7 +2498,7 @@ HRESULT WINAPI QAxServerBase::Save( IStream *pStm, BOOL clearDirty )
     const QMetaObject *mo = qt.object->metaObject();
 
     for ( int prop = 0; prop < mo->numProperties( TRUE ); ++prop ) {
-	if ( !proplist2->contains( prop ) )
+	if ( !isPropertyExposed( prop ) )
 	    continue;
 	QCString property = mo->property( prop, TRUE )->name();
 	QVariant qvar = qt.object->property( property );
@@ -2602,13 +2627,12 @@ HRESULT WINAPI QAxServerBase::Load( IPropertyBag *bag, IErrorLog * /*log*/ )
     if ( InitNew() != S_OK )
 	return E_UNEXPECTED;
 
-    if ( !proplist2 )
-	readMetaData();
+    readMetaData();
 
     bool error = FALSE;
     const QMetaObject *mo = qt.object->metaObject();
     for ( int prop = 0; prop < mo->numProperties( TRUE ); ++prop ) {
-	if ( !proplist2->contains( prop ) )
+	if ( !isPropertyExposed( prop ) )
 	    continue;
 	const QMetaProperty *property = mo->property( prop, TRUE );
 	const char* pname = property->name();
@@ -2636,15 +2660,14 @@ HRESULT WINAPI QAxServerBase::Save( IPropertyBag *bag, BOOL clearDirty, BOOL /*s
     if ( !bag )
 	return E_POINTER;
 
-    if ( !proplist2 )
-	readMetaData();
+    readMetaData();
 
     if ( clearDirty )
 	dirtyflag = FALSE;
     bool error = FALSE;
     const QMetaObject *mo = qt.object->metaObject();
     for ( int prop = 0; prop < mo->numProperties( TRUE ); ++prop ) {
-	if ( !proplist2->contains( prop ) )
+	if ( !isPropertyExposed( prop ) )
 	    continue;
 	const QMetaProperty *property = mo->property( prop, TRUE );
 	BSTR bstr = QStringToBSTR( property->name() );
