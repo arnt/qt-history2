@@ -1496,7 +1496,8 @@ MakefileGenerator::specdir()
     if(!spec.isEmpty())
 	return spec;
     spec = Option::mkfile::qmakespec;
-    if(const char *d = getenv("QTDIR")) {
+    const char *d = getenv("QTDIR");
+    if(d) {
 	QString qdir = QDir::convertSeparators(QString(d));
 	if(qdir.right(1) == Option::dir_sep)
 	    qdir.truncate(qdir.length()-1);
