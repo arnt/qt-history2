@@ -1715,7 +1715,7 @@ SourceEditor *MainWindow::editSource( bool /*resetSame*/ )
 
 	editor->setLanguage( lang );
 	sourceEditors.append( editor );
-	QApplication::setOverrideCursor( ArrowCursor );
+	QApplication::restoreOverrideCursor();
     }
     if ( editor->object() != formWindow() )
 	editor->setObject( formWindow(), formWindow()->project() );
@@ -1755,7 +1755,7 @@ SourceEditor *MainWindow::editSource( SourceFile *f )
 
 	editor->setLanguage( lang );
 	sourceEditors.append( editor );
-	QApplication::setOverrideCursor( ArrowCursor );
+	QApplication::restoreOverrideCursor();
     }
     editor->show();
     editor->setFocus();
