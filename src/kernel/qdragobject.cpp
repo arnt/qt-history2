@@ -43,6 +43,7 @@
 #include "qwidget.h"
 #include "qbuffer.h"
 #include "qgif.h"
+#include "qregexp.h"
 #include <ctype.h>
 
 
@@ -682,7 +683,11 @@ QByteArray QTextDrag::encodedData(const char* mime) const
 	QTextCodec *codec = findcharset(m);
 	if ( !codec )
 	    return r;
-	r = codec->fromUnicode(d->txt);
+	QString text( d->txt );
+#if defined(Q_WS_WIN)
+	text.replace( QRegExp("\n"), "\r\n" );
+#endif
+	r = codec->fromUnicode(text);
 	if (!codec || codec->mibEnum() != 1000) {
 	    // Don't include NUL in size (QCString::resize() adds NUL)
 	    ((QByteArray&)r).resize(r.length());
