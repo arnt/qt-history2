@@ -1,7 +1,7 @@
 #include "qtextlayout.h"
 
 #include "scriptengine.h"
-#include "scriptenginelatin.h"
+#include "scriptenginebasic.h"
 #include "scriptenginearabic.h"
 
 #include <stdlib.h>
@@ -126,7 +126,7 @@ const TextLayout *TextLayout::instance()
 
         if ( !scriptEngines ) {
 	    scriptEngines = (ScriptEngine **) malloc( QFont::NScripts * sizeof( ScriptEngine * ) );
-	    scriptEngines[0] = new ScriptEngineLatin;
+	    scriptEngines[0] = new ScriptEngineBasic;
 	    for ( int i = 1; i < QFont::NScripts; i++ )
 		scriptEngines[i] = scriptEngines[0];
 	    scriptEngines[QFont::Arabic] = new ScriptEngineArabic;

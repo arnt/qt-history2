@@ -29,7 +29,10 @@ void MyWidget::paintEvent( QPaintEvent * )
 {
 
     QPainter p( this );
-    p.drawText( 10, 50, string );
+    QFont f("Tahoma");
+    f.setPointSize( 24 );
+    p.setFont( f );
+    p.drawText( 10, 100, string );
 }
 
 //const char *s = "some string";
@@ -39,7 +42,7 @@ void MyWidget::paintEvent( QPaintEvent * )
 //const char * s = "אירופה, תוכנה והאינטרנט: Unicode";
 
 
-const char *s = "أوروبا, برمجيات الحاسوب + انترنيت : some english تصبح";
+const char *s = "أوروبا, برمجيات الحاسوب + انترنيت: some english אירופה, תוכנה והאינטרנט";
 
 
 

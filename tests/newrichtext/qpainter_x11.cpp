@@ -3121,7 +3121,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	    int w = fe->width( shaped.glyphs(), shaped.offsets(), shaped.count() );
 // 	    qDebug("width = %d",  w );
 	    x += w;
-	    drawLine( x, y-20, x, y+20 );
+// 	    drawLine( x, y-20, x, y+20 );
 	}
     }
 

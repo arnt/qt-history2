@@ -1,7 +1,7 @@
 #include "scriptengine.h"
 
 
-class ScriptEngineLatin : public ScriptEngine
+class ScriptEngineBasic : public ScriptEngine
 {
 public:
     virtual void charAttributes( const QString &text, int from, int len, CharAttributes *attributes );

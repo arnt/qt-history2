@@ -1,9 +1,9 @@
-#include "scriptenginelatin.h"
+#include "scriptenginebasic.h"
 #include <stdlib.h>
 
 #include <qstring.h>
 
-void ScriptEngineLatin::charAttributes( const QString &text, int from, int len, CharAttributes *attributes )
+void ScriptEngineBasic::charAttributes( const QString &text, int from, int len, CharAttributes *attributes )
 {
     const QChar *uc = text.unicode() + from;
     for ( int i = 0; i < len; i++ ) {
@@ -16,7 +16,7 @@ void ScriptEngineLatin::charAttributes( const QString &text, int from, int len, 
 }
 
 
-void ScriptEngineLatin::shape( const QString &text, int from, int len, ShapedItem *result )
+void ScriptEngineBasic::shape( const QString &text, int from, int len, ShapedItem *result )
 {
     ShapedItemPrivate *d = result->d;
     d->num_glyphs = len;
@@ -30,12 +30,12 @@ void ScriptEngineLatin::shape( const QString &text, int from, int len, ShapedIte
     d->offsets = new Offset[d->num_glyphs];
 }
 
-int ScriptEngineLatin::cursorToX( int cPos, const QString &text, int from, int len, const ShapedItem &shaped )
+int ScriptEngineBasic::cursorToX( int cPos, const QString &text, int from, int len, const ShapedItem &shaped )
 {
 
 }
 
-int ScriptEngineLatin::xToCursor( int x, const QString &text, int from, int len, const ShapedItem &shaped )
+int ScriptEngineBasic::xToCursor( int x, const QString &text, int from, int len, const ShapedItem &shaped )
 {
 
 }

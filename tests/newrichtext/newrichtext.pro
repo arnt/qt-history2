@@ -13,7 +13,7 @@ HEADERS += fontengine.h \
            qtextlayout.h \
            scriptengine.h \
            scriptenginearabic.h \
-           scriptenginelatin.h \
+           scriptenginebasic.h \
 	   fontenginexlfd.h \
 	   fontenginexft.h
 SOURCES += qfont.cpp \
@@ -22,7 +22,7 @@ SOURCES += qfont.cpp \
            qtextdata.cpp \
            qtextlayout.cpp \
            scriptenginearabic.cpp \
-           scriptenginelatin.cpp \
+           scriptenginebasic.cpp \
 	   fontenginexlfd.cpp \
 	   fontenginexft.cpp \
            test.cpp
