@@ -248,7 +248,7 @@ void QVariantToVARIANT( const QVariant &var, VARIANT &arg, const char *type )
 	    const QValueList<QVariant> list = qvar.toList();
 	    const int count = list.count();
 
-	    arg.parray = SafeArrayCreateVector( VT_VARIANT, 0, list.count() );
+	    arg.parray = SafeArrayCreateVector( VT_VARIANT, 0, count );
 	    QValueList<QVariant>::ConstIterator it = list.begin();
 	    LONG index = 0;
 	    while ( it != list.end() ) {
@@ -403,7 +403,7 @@ void VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 		*reference = DATEToQDateTime( *arg.pdate );
 	    else
 		reference = new QDateTime(DATEToQDateTime( *arg.pdate ));
-	    static_QUType_ptr.set( obj, reference );
+	    static_QUType_varptr.set( obj, reference );
 	}
 	break;
     case VT_DISPATCH:
@@ -427,7 +427,7 @@ void VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 		    *reference = qfont;
 		else
 		    reference = new QFont( qfont );
-		static_QUType_ptr.set( obj, reference );
+		static_QUType_varptr.set( obj, reference );
 	    } else if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(int*)param->typeExtra == QVariant::Pixmap ) {
 		IPicture *ipic = 0;
 		QPixmap qpixmap;
@@ -447,8 +447,37 @@ void VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 		static_QUType_ptr.set( obj, reference );
 	    } else {
 		disp->AddRef();
-		static_QUType_ptr.set( obj, disp );
+		static_QUType_varptr.set( obj, disp );
 	    }
+	}
+	break;
+
+    case VT_ARRAY|VT_VARIANT:
+    case VT_ARRAY|VT_VARIANT|VT_BYREF:
+	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(int*)param->typeExtra == QVariant::List ) {
+	    // parray and pparrayare a union
+	    SAFEARRAY *array = arg.parray;
+	    QValueList<QVariant> list;
+	    QValueList<QVariant> *reference = (QValueList<QVariant>*)static_QUType_ptr.get( obj );
+
+	    if ( array && array->cDims == 1 ) {
+		long lBound, uBound;
+		SafeArrayGetLBound( array, 1, &lBound );
+		SafeArrayGetUBound( array, 1, &uBound );
+
+		for ( long i = lBound; i <= uBound; ++i ) {
+		    VARIANT var;
+		    SafeArrayGetElement( array, &i, &var );
+
+		    QVariant qvar = VARIANTToQVariant( var, 0 );
+		    list << qvar;
+		}
+	    }
+	    if ( reference )
+		*reference = list;
+	    else
+		reference = new QValueList<QVariant>( list );
+	    static_QUType_varptr.set( obj, reference );
 	}
 	break;
 
@@ -855,6 +884,8 @@ void QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 	    case QVariant::Font:
 		value = *(QFont*)ptrvalue;
 		break;
+	    case QVariant::List:
+		value = *(QValueList<QVariant>*)ptrvalue;
 	    default:
 		break;
 	    }
