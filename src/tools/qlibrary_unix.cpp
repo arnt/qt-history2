@@ -84,7 +84,7 @@ void* QLibraryPrivate::resolveSymbol( const char* symbol )
 	return 0;
 
     void* address = 0;
-    if ( shl_findsym( (shl_t*)&pHnd, symbol, TYPE_UNDEFINED, address ) < 0 ) {
+    if ( shl_findsym( (shl_t*)&pHnd, symbol, TYPE_UNDEFINED, &address ) < 0 ) {
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
 	qDebug( "Couldn't resolve symbol \"%s\"", symbol );
 #endif
