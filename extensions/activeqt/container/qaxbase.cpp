@@ -1325,23 +1325,23 @@ private:
     // ### from qmetaobject.cpp
     enum ProperyFlags  {
         Invalid			= 0x00000000,
-            Readable		= 0x00000001,
-            Writable		= 0x00000002,
-            Resetable		= 0x00000004,
-            EnumOrFlag		= 0x00000008,
-            StdCppSet		= 0x00000100,
-            Override		= 0x00000200,
-            Designable		= 0x00001000,
-            ResolveDesignable	= 0x00002000,
-            Scriptable		= 0x00004000,
-            ResolveScriptable	= 0x00008000,
-            Stored              = 0x00010000,
-            ResolveStored       = 0x00020000,
-            Editable		= 0x00040000,
-            ResolveEditable     = 0x00080000,
-            // And our own
-            RequestingEdit      = 0x00100000,
-            Bindable            = 0x00200000
+        Readable		= 0x00000001,
+        Writable		= 0x00000002,
+        Resetable		= 0x00000004,
+        EnumOrFlag		= 0x00000008,
+        StdCppSet		= 0x00000100,
+        Override		= 0x00000200,
+        Designable		= 0x00001000,
+        ResolveDesignable	= 0x00002000,
+        Scriptable		= 0x00004000,
+        ResolveScriptable	= 0x00008000,
+        Stored                  = 0x00010000,
+        ResolveStored           = 0x00020000,
+        Editable		= 0x00040000,
+        ResolveEditable         = 0x00080000,
+        // And our own
+        RequestingEdit          = 0x00100000,
+        Bindable                = 0x00200000
     };
     enum MemberFlags {
         AccessPrivate = 0x00,
