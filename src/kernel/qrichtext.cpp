@@ -1243,14 +1243,18 @@ void QTextCursor::splitAndInsertEmptyParag( bool ind, bool updateIds )
 	s->remove( 0, 1 );
 	s->append( str, TRUE );
 	for ( uint i = 0; i < str.length(); ++i ) {
-	    s->setFormat( i, 1, string->at( idx + i )->format(), TRUE );
+	    QTextStringChar* tsc = string->at( idx + i );
+	    s->setFormat( i, 1, tsc->format(), TRUE );
 #ifndef QT_NO_TEXTCUSTOMITEM
-	    if ( string->at( idx + i )->isCustom() ) {
-		QTextCustomItem * item = string->at( idx + i )->customItem();
+	    if ( tsc->isCustom() ) {
+		QTextCustomItem * item = tsc->customItem();
 		s->at( i )->setCustomItem( item );
-		string->at( idx + i )->loseCustomItem();
+		tsc->loseCustomItem();
 	    }
 #endif
+	    if ( tsc->isAnchor() )
+		s->at( i )->setAnchor( tsc->anchorName(),
+				       tsc->anchorHref() );
 	}
 	string->truncate( idx );
 	if ( ind ) {
