@@ -154,11 +154,22 @@ void MetaDataBase::setPropertyChanged( QObject *o, const QString &property, bool
 	return;
     }
 
+    if ( changed ) {
+	if ( r->changedProperties.findIndex( property ) == -1 )
+	    r->changedProperties.append( property );
+    } else {
+	if ( r->changedProperties.findIndex( property ) != -1 )
+	    r->changedProperties.remove( property );
+    }
+
     if ( doUpdate &&
 	 ( property == "hAlign" || property == "vAlign" || property == "wordwrap" ) ) {
 	doUpdate = FALSE;
-	setPropertyChanged( o, "alignment", changed );
-	doUpdate = TRUE;
+	setPropertyChanged( o, "alignment", changed ||
+			    isPropertyChanged( o, "hAlign" ) ||
+			    isPropertyChanged( o, "vAlign" ) ||
+			    isPropertyChanged( o, "wordwrap" ) );
+	doUpdate = TRUE;	
     }
 
     if ( doUpdate && property == "alignment" ) {
@@ -167,14 +178,6 @@ void MetaDataBase::setPropertyChanged( QObject *o, const QString &property, bool
 	setPropertyChanged( o, "vAlign", changed );
 	setPropertyChanged( o, "wordwrap", changed );
 	doUpdate = TRUE;
-    }
-
-    if ( changed ) {
-	if ( r->changedProperties.findIndex( property ) == -1 )
-	    r->changedProperties.append( property );
-    } else {
-	if ( r->changedProperties.findIndex( property ) != -1 )
-	    r->changedProperties.remove( property );
     }
 }
 
