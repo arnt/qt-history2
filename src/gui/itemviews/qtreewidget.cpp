@@ -883,8 +883,10 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view)
 }
 
 /*!
+  \fn QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *preceding)
+
   Constructs a tree widget item and inserts it into the given
-  tree \a view after the \a after item.
+  tree \a view after the \a preceding item.
 */
 
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after)
