@@ -559,7 +559,7 @@ MakefileGenerator::processPrlFile(QString &file)
             tmp = tmp.left(ext);
         meta_file = tmp;
     }
-    meta_file = fileFixify(meta_file);
+//    meta_file = fileFixify(meta_file);
     QString real_meta_file = Option::fixPathToLocalOS(meta_file);
     if(project->variables()["QMAKE_PRL_INTERNAL_FILES"].indexOf(QMakeMetaInfo::findLib(meta_file)) != -1) {
         ret = true;
