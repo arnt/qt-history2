@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#35 $
+** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#36 $
 **
 ** Macros and definitions related to QObject
 **
@@ -41,7 +41,8 @@
 #define q_prop
 #define q_properties public
 
-#ifdef Q_PROPS
+#ifdef QT_BUILDER
+
 /* tmake ignore Q_OBJECT */
 #define Q_OBJECT							\
 public:									\
@@ -54,7 +55,7 @@ protected:								\
 private:								\
     static QMetaObject *metaObj;
 
-#else
+#else // QT_BUILDER
 
 /* tmake ignore Q_OBJECT */
 #define Q_OBJECT							\
@@ -67,7 +68,8 @@ protected:								\
     void	 initMetaObject();					\
 private:								\
     static QMetaObject *metaObj;
-#endif
+
+#endif // QT_BUILDER
 
 
 /* tmake ignore Q_OBJECT */

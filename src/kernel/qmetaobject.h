@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.h#23 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.h#24 $
 **
 ** Definition of QMetaObject class
 **
@@ -77,15 +77,16 @@ struct QMetaProperty
 class Q_EXPORT QMetaObject				// meta object class
 {
 public:
-    QMetaObject( const char *class_name, const char *superclass_name,
-		 QMetaData *slot_data,	int n_slots,
-		 QMetaData *signal_data, int n_signals );
 #ifdef QT_BUILDER
     QMetaObject( const char *class_name, const char *superclass_name,
 		 QMetaData *slot_data,	int n_slots,
 		 QMetaData *signal_data, int n_signals,
 		 QMetaProperty *prop_data = 0, int n_props = 0,
 		 QMetaEnum *enum_data = 0, int n_enums = 0 );
+#else // QT_BUILDER
+    QMetaObject( const char *class_name, const char *superclass_name,
+		 QMetaData *slot_data,	int n_slots,
+		 QMetaData *signal_data, int n_signals );
 #endif // QT_BUILDER
 
     virtual ~QMetaObject();

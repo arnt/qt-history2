@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#48 $
 **
 ** Implementation of QMetaObject class
 **
@@ -28,6 +28,10 @@
 #include "qobjectdict.h"
 #include "qstrlist.h"
 
+#ifdef QT_BUILDER
+#include "qpixmap.h"
+#include "qtl.h"
+#endif
 
 /* not documented
   \class QMetaObject qmetaobject.h
