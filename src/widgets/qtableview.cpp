@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#57 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#58 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#57 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#58 $");
 
 
 const int sbDim = 16;
@@ -53,13 +53,7 @@ CornerSquare::CornerSquare( QWidget *parent, const char *name )
 
 void CornerSquare::paintEvent( QPaintEvent * )
 {
-    if ( style() == MotifStyle ) {
-	QPainter p;
-	QColorGroup g = colorGroup();
-	p.begin( this );
-	qDrawShadePanel( &p, rect(), colorGroup() );
-	p.end();
-    }
+    // No styles have anything here yet.
 }
 
 
@@ -1067,8 +1061,8 @@ void QTableView::coverCornerSquare( bool enable )
     if ( !cornerSquare && enable ) {
 	cornerSquare = new CornerSquare( this );
 	CHECK_PTR( cornerSquare );
-	cornerSquare->setGeometry( maxViewX() + frameWidth() + 2 ,
-				   maxViewY() + frameWidth() + 2,
+	cornerSquare->setGeometry( maxViewX() + frameWidth() + 1,
+				   maxViewY() + frameWidth() + 1,
 				   sbDim, sbDim );
     }
     if ( autoUpdate() && cornerSquare ) {
@@ -1776,7 +1770,7 @@ bool QTableView::colXPos( int col, int *xPos ) const
   Moves the visible area of the table rightwards by \e xPixels and
   downwards by \e yPixels pixels.  Both may be negative.
 
-  This is an reimplementation of QWidget::scroll() to reduce flicker.
+  This function is \e not the same as QWidget::scroll().
 
   \sa setXOffset(), setYOffset(), setOffset(), setTopCell(),
   setLeftCell(), setTopLeftOffset()
@@ -1936,7 +1930,7 @@ int QTableView::minViewY() const
 int QTableView::maxViewX() const
 {
     return width() - 1 - frameWidth()
-		   - (tFlags & Tbl_vScrollBar ? sbDim + 1 : 0);
+		   - (tFlags & Tbl_vScrollBar ? sbDim : 0);
 }
 
 
@@ -1951,7 +1945,7 @@ int QTableView::maxViewX() const
 int QTableView::maxViewY() const
 {
     return height() - 1 - frameWidth()
-		    - (tFlags & Tbl_hScrollBar ? sbDim + 1 : 0);
+		    - (tFlags & Tbl_hScrollBar ? sbDim : 0);
 }
 
 
@@ -2069,7 +2063,7 @@ void QTableView::updateScrollBars( uint f )
     if ( testTableFlags(Tbl_hScrollBar) && (sbDirty & horMask) != 0 ) {
 	if ( sbDirty & horGeometry )
 	    hScrollBar->setGeometry( 0,height() - sbDim,
-				     viewWidth() + frameWidth()*2+1, sbDim );
+				     viewWidth() + frameWidth()*2, sbDim );
 
 	if ( sbDirty & horSteps ) {
 	    if ( cellW )
@@ -2092,7 +2086,7 @@ void QTableView::updateScrollBars( uint f )
     if ( testTableFlags(Tbl_vScrollBar) && (sbDirty & verMask) != 0 ) {
 	if ( sbDirty & verGeometry )
 	    vScrollBar->setGeometry( width() - sbDim, 0,
-				     sbDim, viewHeight() + frameWidth()*2+1 );
+				     sbDim, viewHeight() + frameWidth()*2 );
 
 	if ( sbDirty & verSteps ) {
 	    if ( cellH )
@@ -2113,8 +2107,8 @@ void QTableView::updateScrollBars( uint f )
     }
     if ( coveringCornerSquare &&
 	 ( (sbDirty & verGeometry ) || (sbDirty & horGeometry)) )
-	cornerSquare->move( maxViewX() + frameWidth() + 2,
-			    maxViewY() + frameWidth() + 2 );
+	cornerSquare->move( maxViewX() + frameWidth() + 1,
+			    maxViewY() + frameWidth() + 1 );
 
     sbDirty = 0;
     inSbUpdate = FALSE;
