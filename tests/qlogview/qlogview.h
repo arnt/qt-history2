@@ -54,13 +54,20 @@ public:
     QLogView( const QString & txt, QWidget * parent = 0,
 	      const char * name = 0 );
     QLogView( QWidget * parent = 0, const char * name = 0 );
-    virtual ~QLogView();
+    ~QLogView();
     
     QString text() const;
-    virtual void setText( const QString & txt );
     int     length();
-    virtual void append( const QString & str );
+    
+public slots:
+    virtual void setText( const QString & txt, const QColor & col = QColor() );
+    virtual void append( const QString & txt, const QColor & col = QColor() );
     virtual int  find( const QRegExp & reg );
+    virtual void setLineColor( int line, const QColor & col );
+
+signals:
+    void textChanged( const QString & txt );
+    void selectionChanged();
     
 protected:
     void fontChange( const QFont & oldFont );
@@ -68,9 +75,6 @@ protected:
 		       int cliph );    
 private:
     void 	init();
-    QStringList lineRange( int startLine, int numLines ) const;
-    QColor 	lineColor( QString & str ) const;
-    
     QLogViewPrivate * d;
 };
 
