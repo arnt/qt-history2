@@ -792,7 +792,7 @@ void Parser::emitExpr( const QVariant& expr, int trueLab, int falseLab )
 	int nextCond;
 
 	switch ( node ) {
-    	case Node_Avg:
+	case Node_Avg:
 	    resultColumn = (*++v).toList()[1].toInt();
 	    yyProg->append( new PushGroupAvg(0, resultColumn) );
 	    break;
@@ -2337,7 +2337,7 @@ void Parser::matchSelectStatement()
 	    ++c;
 	}
 	yyProg->append( new MakeList );
-	yyProg->append( new MakeGroupSet(1, 0) );
+	yyProg->append( new MakeGroupSet(0) );
 	yyProg->appendLabel( next );
 	yyProg->append( new NextGroupSet(0, end) );
 

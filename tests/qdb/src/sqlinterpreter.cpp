@@ -431,6 +431,7 @@ bool ResultSet::append( const Record& buf )
 	if ( buf[j].type() != head->fields[j].type && buf[j].type() != QVariant::Invalid ) {
 	    QVariant v;
 	    v.cast( head->fields[j].type );
+	    qDebug("incorrect field type");
 	    env->setLastError( "Unable to save result data, incorrect field type: " +
 			       QString( buf[j].typeName() ) + " (expected " +
 			       QString( v.typeName() ) + ")" );
@@ -629,7 +630,7 @@ bool ResultSet::sort( const List& index )
 	env->setLastError( "Internal error: Unable to sort result, no header" );
 	return FALSE;
     }
-    if ( !data.count() || data.count() == 1 ) { /* nothing to do */
+    if ( !data.count() ) { /* nothing to do */
 	return TRUE;
     }
     if ( !index.count() ) {
@@ -638,7 +639,7 @@ bool ResultSet::sort( const List& index )
     }
     uint i = 0;
     SortDescriptionMap sortDesc;
-    for ( uint i = 0; i < index.count(); ++i ) {
+    for ( ; i < index.count(); ++i ) {
 	List indexData = index[i].toList();
 	uint fieldNumber = indexData[0].toUInt();
 	sortDesc[i].fieldnumber = fieldNumber;
@@ -675,8 +676,9 @@ bool ResultSet::sort( const List& index )
 		reverse( sortKey, data.count() );
 	}
     }
-    if ( sortDesc.count() == 1 && sortDesc[0].desc )
+    if ( sortDesc.count() == 1 && sortDesc[0].desc ) {
 	reverse( sortKey, data.count() );
+    }
 
     ColumnKey::Iterator it;
     if ( sortDesc.count() > 1 ) {
@@ -731,14 +733,29 @@ bool ResultSet::setGroupSet( const QVariant& v )
 	env->setLastError( "Internal error: No header defined" );
 	return FALSE;
     }
-    if ( !data.count() || data.count() ==1 )
+    if ( !data.count() ) {
 	return TRUE;
-    List groupByFields = v.toList();
-    if ( !groupByFields.count() ) {
-	env->setLastError( "Internal error: No group fields defined" );
-	return FALSE;
     }
     List sortList;
+    List groupByFields = v.toList();
+    if ( data.count() == 1 || groupByFields.count() == 0 ) {
+	/* create one giant group for everything */
+	List fieldDescription;
+	fieldDescription.append( 0 );
+	fieldDescription.append( QVariant( FALSE, 1 ) /*bool*/ );
+	sortList.append( fieldDescription );
+	if ( !sort( sortList ) )
+	    return FALSE;
+	sortList.clear();
+	GroupSetItem groupSetItem;
+	groupSetItem.start = sortKey.begin();
+	groupSetItem.substart = 0;
+	groupSetItem.last = --sortKey.end();
+	groupSetItem.sublast = groupSetItem.last.data()[ groupSetItem.last.data().count()-1 ];
+	group.append( groupSetItem );
+	return TRUE;
+    }
+
     for ( uint f = 0; f < groupByFields.count(); ++f ) {
 	List fieldDescription;
 	fieldDescription.append( groupByFields[f].toInt() );
@@ -786,8 +803,9 @@ bool ResultSet::setGroupSet( const QVariant& v )
 
 bool ResultSet::nextGroupSet()
 {
-    if ( currentGroup + 1 > (int)group.count()-1 )
+    if ( currentGroup + 1 > (int)group.count()-1 ) {
 	return FALSE;
+    }
     currentGroup++;
     return TRUE;
 }
@@ -807,6 +825,10 @@ bool ResultSet::groupSetAction( GroupSetAction action, uint i, QVariant& v )
     uint substart = group[currentGroup].substart;
     ColumnKey::Iterator lastit = group[currentGroup].last;
     uint sublast = group[currentGroup].sublast;
+//     qDebug("substart:" + QString::number( substart ) );
+//     qDebug("sublast:" + QString::number( sublast ) );
+
+
     switch ( action ) {
     case Value: {
 	Record& rec = data[ startit.data()[substart] ];
@@ -818,8 +840,14 @@ bool ResultSet::groupSetAction( GroupSetAction action, uint i, QVariant& v )
 	for ( ColumnKey::Iterator it = startit;
 	      ;
 	      ++it ){
-	    bool processingLast = ( startit == lastit );
-	    for ( uint s = 0; s < (*it).count(); ++s ) {
+	    bool processingLast = ( it == lastit );
+	    bool processingFirst = ( it == startit );
+	    uint s;
+	    if ( processingFirst )
+		s = substart;
+	    else
+		s = 0;
+	    for ( ; s < (*it).count(); ++s ) {
 		if ( processingLast && s > sublast )
 		     break;
 		++count;

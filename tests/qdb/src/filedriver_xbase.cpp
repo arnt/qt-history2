@@ -1024,8 +1024,10 @@ bool FileDriver::rangeAction( const List* data, const List* cols,
 			if ( actionOK ) {
 			    if ( domark )
 				mark();
-			    if ( dosave )
-				saveResult( cols, result );
+			    if ( dosave ) {
+				if ( !saveResult( cols, result ) )
+				    return FALSE;
+			    }
 			} else
 			    break;
 			rc = d->indexes[i]->GetNextKey();
@@ -1058,8 +1060,10 @@ bool FileDriver::rangeAction( const List* data, const List* cols,
 	    if ( actionOK ) {
 		if ( domark )
 		    mark();
-		if ( dosave )
-		    saveResult( cols, result );
+		if ( dosave ) {
+		    if ( !saveResult( cols, result ) )
+			return FALSE;
+		}
 	    }
 	    rc = d->file.GetNextRecord();
 	}

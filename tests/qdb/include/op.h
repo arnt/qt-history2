@@ -1133,10 +1133,7 @@ public:
 	List list = env->stack()->pop().toList();
 	List range = list[0].toList();
 	List columns = list[1].toList();
-	env->addResultSet( p2.toInt() );
 	LocalSQLResultSet* result = env->resultSet( p2.toInt() );
-	if ( !result->setHeader( columns ) )
-	    return FALSE;
 	return drv->rangeSave( range, columns, result );
     }
 };
@@ -1344,8 +1341,7 @@ public:
 /* Pop the top of the stack (which must be a list, see MakeList) and
    use it as a list of fields with which to group the result set
    identified by 'resultid' which is identified by 'id' (see
-   CreateResult).  A 'group set' is created which wil be identified by
-   'id'.
+   CreateResult).
 
    The 'list' which is popped from the top of the stack must be of the form:
 
@@ -1361,8 +1357,8 @@ public:
 class MakeGroupSet : public Op
 {
 public:
-    MakeGroupSet( int resultid, int id )
-	: Op( resultid, id ) {}
+    MakeGroupSet( int resultid )
+	: Op( resultid ) {}
     QString name() const { return "makegroupset"; }
     int exec( LocalSQLEnvironment* env )
     {
