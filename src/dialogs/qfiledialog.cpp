@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#321 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#322 $
 **
 ** Implementation of QFileDialog class
 **
@@ -392,7 +392,7 @@ struct QFileDialogPrivate {
 
     bool ignoreNextKeyPress;
     QProgressDialog *progressDia;
-
+    
 };
 
 QFileDialogPrivate::~QFileDialogPrivate()
@@ -659,10 +659,10 @@ void QFileListBox::viewportDropEvent( QDropEvent *e )
 	return;
     }
 
-    
+
     QStringList l;
     QUrlDrag::decodeToUnicodeUris( e, l );
-    
+
     bool move = FALSE;
     bool supportAction = TRUE;
     if ( e->action() == QDropEvent::Move )
@@ -1567,7 +1567,7 @@ void QFileDialog::init()
     d->hadDotDot = FALSE;
     d->ignoreNextKeyPress = FALSE;
     d->progressDia = 0;
-
+    
     d->url = QUrlOperator( QDir::currentDirPath() );
     d->oldUrl = d->url;
 
@@ -2576,15 +2576,17 @@ void QFileDialog::detailViewSelectionChanged()
     nameEdit->clear();
     QString str;
     QListViewItem * i = files->firstChild();
+    d->moreFiles->blockSignals( TRUE );
     while( i ) {
 	if ( d->moreFiles && isVisible() ) {
 	    if ( ( (QFileDialogPrivate::File *)i )->i->selected() != i->isSelected() )
 		d->moreFiles->setSelected( ( (QFileDialogPrivate::File *)i )->i, i->isSelected() );
 	}
-	if ( files->isSelected( i ) )
+	if ( i->isSelected() )
 	    str += QString( "\"%1\" " ).arg( i->text( 0 ) );
 	i = i->nextSibling();
     }
+    d->moreFiles->blockSignals( FALSE );
     nameEdit->setText( str );
     nameEdit->setCursorPosition( str.length() );
     okB->setText( tr( "Open" ) );
@@ -2595,11 +2597,12 @@ void QFileDialog::listBoxSelectionChanged()
 {
     if ( d->mode != ExistingFiles )
 	return;
-
+    
     nameEdit->clear();
     QString str;
     QListBoxItem * i = d->moreFiles->item( 0 );
     int index = 0;
+    files->blockSignals( TRUE );
     while( i ) {
 	if ( files && isVisible() ) {
 	    if ( ( (QFileDialogPrivate::MCItem *)i )->i->isSelected() != i->selected() )
@@ -2609,6 +2612,7 @@ void QFileDialog::listBoxSelectionChanged()
 	    str += QString( "\"%1\" " ).arg( i->text() );
 	i = d->moreFiles->item( ++index );
     }
+    files->blockSignals( FALSE );
     nameEdit->setText( str );
     nameEdit->setCursorPosition( str.length() );
     okB->setText( tr( "Open" ) );
@@ -2622,8 +2626,10 @@ void QFileDialog::updateFileNameEdit( QListBoxItem * newItem )
     if ( !newItem )
 	return;
     QFileDialogPrivate::MCItem * i = (QFileDialogPrivate::MCItem *)newItem;
-    i->i->listView()->setSelected( i->i, i->selected() );
-    updateFileNameEdit( i->i );
+    if ( d->mode != ExistingFiles ) {
+	i->i->listView()->setSelected( i->i, i->selected() );
+	updateFileNameEdit( i->i );
+    }
 }
 
 
@@ -3048,8 +3054,8 @@ void QFileDialog::setMode( Mode newMode )
 	    if ( sel.isNull() )
 		sel = QString::fromLatin1(".");
 	} else if ( newMode == ExistingFiles ) {
-	    files->setMultiSelection( TRUE );
-	    d->moreFiles->setMultiSelection( TRUE );
+	    files->setSelectionMode( QListView::Extended );
+	    d->moreFiles->setSelectionMode( QListBox::Extended );
 	} else {
 	    files->setMultiSelection( FALSE );
 	    d->moreFiles->setMultiSelection( FALSE );
