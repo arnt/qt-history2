@@ -978,14 +978,11 @@ void QWidget::hideWindow()
 
 	if(isActiveWindow()) {
 	    QWidget *w = NULL;
-	    if(parentWidget()) {
+	    if(parentWidget()) 
 		w = parentWidget()->topLevelWidget();
-		if(w && !w->isVisible())
-		    w = NULL;
-	    }
-	    if(!w)
-		w = QWidget::find( (WId)FrontWindow() );
-	    if(w)
+	    if(!w || !w->isVisible()) {
+		w = QWidget::find( (WId)GetFrontWindowOfClass(kDocumentWindowClass, true) );
+	    if(w && w->isVisible()) 
 		w->setActiveWindow();
 	}
     } else if(isVisible()) {
