@@ -1025,24 +1025,18 @@ void QTextCursor::gotoWordLeft()
     QTextString *s = string->string();
     bool allowSame = FALSE;
     for ( int i = idx - 1; i >= 0; --i ) {
-	if ( s->at( i ).c.isSpace() || s->at( i ).c == '\t' ) {
-	    if ( !allowSame && s->at( i ).c == s->at( idx ).c )
+	if ( s->at( i ).c.isSpace() || s->at( i ).c == '\t' || s->at( i ).c == '.' ||
+	     s->at( i ).c == ',' || s->at( i ).c == ':' || s->at( i ).c == ';' ) {
+	    if ( !allowSame )
 		continue;
 	    idx = i + 1;
 	    return;
 	}
-	if ( !allowSame && s->at( i ).c != s->at( idx ).c )
+	if ( !allowSame && !( s->at( i ).c.isSpace() || s->at( i ).c == '\t' || s->at( i ).c == '.' ||
+			      s->at( i ).c == ',' || s->at( i ).c == ':' || s->at( i ).c == ';'  ) )
 	    allowSame = TRUE;
     }
-
-    if ( string->prev() ) {
-	string = string->prev();
-	while ( !string->isVisible() )
-	    string = string->prev();
-	idx = string->length() - 1;
-    } else {
-	gotoLineStart();
-    }
+    idx = 0;
 }
 
 void QTextCursor::gotoWordRight()
@@ -1051,13 +1045,15 @@ void QTextCursor::gotoWordRight()
     QTextString *s = string->string();
     bool allowSame = FALSE;
     for ( int i = idx + 1; i < (int)s->length(); ++i ) {
-	if ( s->at( i ).c.isSpace() || s->at( i ).c == '\t' ) {
-	    if ( !allowSame &&  s->at( i ).c == s->at( idx ).c )
+	if ( s->at( i ).c.isSpace() || s->at( i ).c == '\t' || s->at( i ).c == '.' ||
+	     s->at( i ).c == ',' || s->at( i ).c == ':' || s->at( i ).c == ';' ) {
+	    if ( !allowSame )
 		continue;
 	    idx = i;
 	    return;
 	}
-	if ( !allowSame && s->at( i ).c != s->at( idx ).c )
+	if ( !allowSame && !( s->at( i ).c.isSpace() || s->at( i ).c == '\t' || s->at( i ).c == '.' ||
+			      s->at( i ).c == ',' || s->at( i ).c == ':' || s->at( i ).c == ';'  ) )
 	    allowSame = TRUE;
     }
 
