@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#6 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#7 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -108,6 +108,8 @@
 #if defined(_OS_LINUX_) && defined(__GLIBC__) && ( __GLIBC__ >= 2 )
 // new linux, not old
 #  define SOCKLEN_T socklen_t
+#elif defined(_OS_MACX_)
+#  define SOCKLEN_T int
 #elif defined(BSD4_4)
 // freebsd
 #  define SOCKLEN_T socklen_t
