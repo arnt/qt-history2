@@ -142,7 +142,7 @@ kernel {
 	}
 
 	!x11:mac {
-	    exists($$KERNEL_CPP/qsound_mac.cpp):SOURCES += $$KERNEL_CPP/qsound_mac.cpp
+	    exists(qsound_mac.cpp):SOURCES += $$KERNEL_CPP/qsound_mac.cpp
 	    else:SOURCES += $$KERNEL_CPP/qsound_qws.cpp
 	}
         !embedded:!x11:mac {
