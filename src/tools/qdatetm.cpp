@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.cpp#62 $
+** $Id: //depot/qt/main/src/tools/qdatetm.cpp#63 $
 **
 ** Implementation of date and time classes
 **
@@ -565,7 +565,7 @@ QTime QTime::addSecs( int nsecs ) const
 /*!
   Returns the number of seconds from this time to \a t (which is
   negative if \a t is in the past).
-  
+
   Since QTime measures time within a day and there are 86400 seconds
   in a day, the result is between -86400 and 86400.
 
@@ -906,14 +906,28 @@ QDateTime QDateTime::addDays( int ndays ) const
 
 QDateTime QDateTime::addSecs( int nsecs ) const
 {
-    int dd = ((int)t.ds + nsecs*1000)/MSECS_PER_DAY;
-    return QDateTime( d.addDays(dd), t.addSecs(nsecs) );
+    uint dd( d.jd );
+    int tt( t.ds );
+    tt += 1000 * nsecs;
+    if ( tt < 0 ) {
+	tt = MSECS_PER_DAY - tt - 1;
+	dd -= tt / MSECS_PER_DAY;
+	tt = tt % MSECS_PER_DAY;
+	tt = MSECS_PER_DAY - tt - 1;
+    } else if ( tt >= (int)MSECS_PER_DAY ) {
+	dd += ( tt / MSECS_PER_DAY );
+	tt = tt % MSECS_PER_DAY;
+    }
+    QDateTime ret;
+    ret.t.ds = tt;
+    ret.d.jd = dd;
+    return ret;
 }
 
 /*!
   Returns the number of days from this datetime to \a dt, which is
   negaitive if \a dt is in the past.
-  
+
   \sa addDays() secsTo()
 */
 
