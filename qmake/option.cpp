@@ -261,9 +261,6 @@ void fixEnvVariables(QString &x)
 }
 static QString fixPath(QString x)
 {
-    if(x == "/sqlformwizardimpl.h")
-	qDebug("foo..");
-//    qDebug("Got %s", x.latin1());
     QFileInfo fi(x);
     if(fi.isDir()) {
 	QDir dir(x);
@@ -274,7 +271,6 @@ static QString fixPath(QString x)
 	    dir += Option::dir_sep;
 	x = dir + fi.fileName();
     }
-//    qDebug("Finished with %s", x.latin1());
     return QDir::cleanDirPath(x);
 }
 
