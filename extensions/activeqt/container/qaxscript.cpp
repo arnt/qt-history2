@@ -27,7 +27,11 @@
 
 #include "qaxscript.h"
 
-#ifndef QT_NO_QAXSCRIPT
+#if defined(Q_CC_GNU)
+# define QT_NO_QAXSCRIPT
+#elif defined(Q_CC_BOR) && __BORLANDC__ < 0x560
+# define QT_NO_QAXSCRIPT
+#endif
 
 #include <qapplication.h>
 #include <qdict.h>
@@ -37,8 +41,10 @@
 #include <qwidget.h>
 
 #include <qt_windows.h>
+#ifndef QT_NO_QAXSCRIPT
 #include <initguid.h>
 #include <activscp.h>
+#endif
 
 #include "..\shared\types.h"
 
@@ -60,6 +66,8 @@ public:
     The QAxScriptSite is used internally to communicate callbacks from the script
     engine to the script manager.
 */
+
+#ifndef QT_NO_QAXSCRIPT
 
 class QAxScriptSite : public IActiveScriptSite,
 		      public IActiveScriptSiteWindow
@@ -345,6 +353,8 @@ HRESULT WINAPI QAxScriptSite::EnableModeless(BOOL fEnable)
     return S_OK;
 }
 
+#endif //QT_NO_QAXSCRIPT
+
 
 /*!
     \class QAxScriptEngine
@@ -406,11 +416,13 @@ QAxScriptEngine::QAxScriptEngine(const QString &language, QAxScript *script)
 */
 QAxScriptEngine::~QAxScriptEngine()
 {
+#ifndef QT_NO_QAXSCRIPT
     if (engine) {
 	engine->SetScriptState( SCRIPTSTATE_DISCONNECTED );
 	engine->Close();
 	engine->Release();
     }
+#endif
 }
 
 /*! \fn QString QAxScriptEngine::scriptLanguage() const
@@ -424,6 +436,8 @@ QAxScriptEngine::~QAxScriptEngine()
 bool QAxScriptEngine::initialize(IUnknown **ptr)
 {
     *ptr = 0;
+
+#ifndef QT_NO_QAXSCRIPT
     if (!script_code || script_language.isEmpty())
 	return FALSE;
 
@@ -474,6 +488,7 @@ bool QAxScriptEngine::initialize(IUnknown **ptr)
 	scriptDispatch->QueryInterface(IID_IUnknown, (void**)ptr);
 	scriptDispatch->Release();
     }
+#endif
 
     return *ptr != 0;
 }
@@ -519,7 +534,11 @@ long QAxScriptEngine::queryInterface( const QUuid &uuid, void **iface ) const
     if (!engine)
 	return E_NOTIMPL;
 
+#ifndef QT_NO_QAXSCRIPT
     return engine->QueryInterface(uuid, iface);
+#else
+    return E_NOTIMPL;
+#endif
 }
 
 /*!
@@ -530,9 +549,13 @@ QAxScriptEngine::State QAxScriptEngine::state() const
     if (!engine)
 	return Uninitialized;
 
+#ifndef QT_NO_QAXSCRIPT
     SCRIPTSTATE state;
     engine->GetScriptState(&state);
     return (State)state;
+#else
+    return Uninitialized;
+#endif
 }
 
 /*!
@@ -541,10 +564,12 @@ QAxScriptEngine::State QAxScriptEngine::state() const
 */
 void QAxScriptEngine::setState(State st)
 {
+#ifndef QT_NO_QAXSCRIPT
     if (!engine)
 	return;
 
     engine->SetScriptState((SCRIPTSTATE)st);
+#endif
 }
 
 /*!
@@ -553,10 +578,12 @@ void QAxScriptEngine::setState(State st)
 */
 void QAxScriptEngine::addItem(const QString &name)
 {
+#ifndef QT_NO_QAXSCRIPT
     if (!engine)
 	return;
 
     engine->AddNamedItem((WCHAR*)name.ucs2(), SCRIPTITEM_ISSOURCE|SCRIPTITEM_ISVISIBLE);
+#endif
 }
 
 /*!
@@ -605,7 +632,11 @@ QAxScript::QAxScript(const QString &name, QAxScriptManager *manager)
 	        manager, SLOT(scriptError(int,const QString&,int,const QString&)));
     }
 
+#ifndef QT_NO_QAXSCRIPT
     script_site = new QAxScriptSite(this);
+#else
+    script_site = 0;
+#endif
 }
 
 /*!
@@ -616,7 +647,9 @@ QAxScript::~QAxScript()
     delete script_engine;
     script_engine = 0;
 
+#ifndef QT_NO_QAXSCRIPT
     script_site->Release();
+#endif
 }
 
 /*!
@@ -1235,5 +1268,3 @@ void QAxScriptManager::scriptError(int code, const QString &desc, int spos, cons
     QAxScript *source = ::qt_cast<QAxScript*>(sender());
     emit error(source, code, desc, spos, stext);
 }
-
-#endif //QT_NO_QAXSCRIPT

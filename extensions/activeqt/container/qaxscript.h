@@ -30,14 +30,6 @@
 
 #include <qaxobject.h>
 
-#if defined(Q_CC_GNU)
-# define QT_NO_QAXSCRIPT
-#elif defined(Q_CC_BOR) && __BORLANDC__ < 0x560
-# define QT_NO_QAXSCRIPT
-#endif
-
-#ifndef QT_NO_QAXSCRIPT
-
 class QAxBase;
 class QAxScript;
 class QAxScriptSite;
@@ -220,7 +212,5 @@ inline void QAxScriptManager::addObject(QObject *object)
     QAxBase *wrapper = qax_create_object_wrapper(object);
     addObject(wrapper);
 }
-
-#endif // QT_NO_QAXSCRIPT
 
 #endif // QAXSCRIPT_H
