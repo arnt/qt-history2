@@ -733,27 +733,21 @@ void QTextEngine::reallocate( int totalGlyphs )
     void ** newMemory = (void **)::malloc( newAllocated*sizeof( void * ) );
 
     void **nm = newMemory;
-    void **m = memory;
-    memcpy( nm, m, num_glyphs*sizeof(QCharAttributes) );
-    m += space_charAttributes;
+    memcpy( nm, memory, num_glyphs*sizeof(QCharAttributes) );
     nm += space_charAttributes;
-    memcpy( nm, m, num_glyphs*sizeof(glyph_t) );
+    memcpy( nm, glyphPtr, num_glyphs*sizeof(glyph_t) );
     glyphPtr = (glyph_t *) nm;
-    m += space_glyphs;
     nm += space_glyphs;
-    memcpy( nm, m, num_glyphs*sizeof(advance_t) );
+    memcpy( nm, advancePtr, num_glyphs*sizeof(advance_t) );
     advancePtr = (advance_t *) nm;
-    m += space_advances;
     nm += space_advances;
-    memcpy( nm, m, num_glyphs*sizeof(offset_t) );
+    memcpy( nm, offsetsPtr, num_glyphs*sizeof(offset_t) );
     offsetsPtr = (offset_t *) nm;
-    m += space_offsets;
     nm += space_offsets;
-    memcpy( nm, m, num_glyphs*sizeof(unsigned short) );
+    memcpy( nm, logClustersPtr, num_glyphs*sizeof(unsigned short) );
     logClustersPtr = (unsigned short *) nm;
-    m += space_logClusters;
     nm += space_logClusters;
-    memcpy( nm, m, num_glyphs*sizeof(GlyphAttributes) );
+    memcpy( nm, glyphAttributesPtr, num_glyphs*sizeof(GlyphAttributes) );
     glyphAttributesPtr = (GlyphAttributes *) nm;
 
     free( memory );
@@ -764,7 +758,10 @@ void QTextEngine::reallocate( int totalGlyphs )
 
 const QCharAttributes *QTextEngine::attributes()
 {
-    // ### fix for uniscribe
+#ifdef Q_WS_WIN
+    if ( hasUsp10 )
+	itemize( QTextEngine::Full );
+#endif
     QCharAttributes *charAttributes = (QCharAttributes *) memory;
     if ( haveCharAttributes )
 	return charAttributes;
