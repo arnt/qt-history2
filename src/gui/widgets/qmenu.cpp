@@ -102,8 +102,10 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
         if (!action->isVisible())
             continue;
         QIcon is = action->icon();
-        if (!is.isNull())
-            maxIconWidth = qMax(uint(maxIconWidth), uint(icone + 4));
+        if (!is.isNull()) {
+            uint miw = maxIconWidth;
+            maxIconWidth = qMax<uint>(miw, icone + 4);
+        }
     }
 
     //calculate size
