@@ -12,8 +12,8 @@ DomTree::DomTree( const QString fileName, QWidget *parent, const char *name )
 {
     // div. configuration of the list view
     tree = new QListView( this );
-    tree->addColumn( "Name" );
     tree->addColumn( "Type" );
+    tree->addColumn( "Name" );
     tree->setRootIsDecorated( TRUE );
     tree->setSorting( -1 );
     connect( tree, SIGNAL(selectionChanged(QListViewItem*)),
@@ -91,47 +91,47 @@ DomTreeItem::~DomTreeItem()
 
 void DomTreeItem::init()
 {
-    setText( 0, _node.nodeName() );
+    setText( 1, _node.nodeName() );
 
     switch ( _node.nodeType() ) {
 	case QDomNode::ElementNode:
-	    setText( 1, "Element" );
+	    setText( 0, "Element" );
 	    break;
 	case QDomNode::AttributeNode:
-	    setText( 1, "Attribute" );
+	    setText( 0, "Attribute" );
 	    break;
 	case QDomNode::CDATASectionNode:
-	    setText( 1, "CDATA Section" );
+	    setText( 0, "CDATA Section" );
 	    break;
 	case QDomNode::EntityReferenceNode:
-	    setText( 1, "Entity Reference" );
+	    setText( 0, "Entity Reference" );
 	    break;
 	case QDomNode::EntityNode:
-	    setText( 1, "Entity" );
+	    setText( 0, "Entity" );
 	    break;
 	case QDomNode::ProcessingInstructionNode:
-	    setText( 1, "PI" );
+	    setText( 0, "PI" );
 	    break;
 	case QDomNode::CommentNode:
-	    setText( 1, "Comment" );
+	    setText( 0, "Comment" );
 	    break;
 	case QDomNode::DocumentNode:
-	    setText( 1, "Document" );
+	    setText( 0, "Document" );
 	    break;
 	case QDomNode::DocumentTypeNode:
-	    setText( 1, "Document Type" );
+	    setText( 0, "Document Type" );
 	    break;
 	case QDomNode::DocumentFragmentNode:
-	    setText( 1, "Document Fragment" );
+	    setText( 0, "Document Fragment" );
 	    break;
 	case QDomNode::NotationNode:
-	    setText( 1, "Notation" );
+	    setText( 0, "Notation" );
 	    break;
 	case QDomNode::TextNode:
-	    setText( 1, "Character Data" );
+	    setText( 0, "Character Data" );
 	    break;
 	default:
-	    setText( 1, "" );
+	    setText( 0, "" );
 	    break;
     }
 }
