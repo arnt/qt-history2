@@ -234,6 +234,9 @@ static void cleanUpOFN( OPENFILENAME** ofn )
     tInitSel = 0;
 }
 
+extern void qt_enter_modal( QWidget* );
+extern void qt_leave_modal( QWidget* );
+
 QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
 					 const QString &filter,
 					 QString* initialDirectory,
@@ -262,6 +265,8 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
 
     DWORD selFilIdx;        
 
+    if ( parent )
+	qt_enter_modal( parent );
 #ifndef Q_OS_TEMP
     if ( qt_winver & WV_DOS_based ) {
 	// Use ANSI strings and API
@@ -273,10 +278,9 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
 	    selFilIdx = ofn->nFilterIndex;
 	}
 	cleanUpOFNA( &ofn );
-    }
-    else
+    } else
 #endif
-	{
+    {
 	// Use Unicode or ANSI strings and API
 	OPENFILENAME* ofn = makeOFN( parent, isel,
 				     *initialDirectory, title,
@@ -287,6 +291,8 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
 	}
 	cleanUpOFN( &ofn );
     }
+    if ( parent )
+	qt_leave_modal( parent );
 
     if ( result.isEmpty() ) {
 	return result;
@@ -329,6 +335,8 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
     
     DWORD selFilIdx;
 
+    if ( parent )
+	qt_enter_modal( parent );
 #ifndef Q_OS_TEMP
     if ( qt_winver & WV_DOS_based ) {
 	// Use ANSI strings and API
@@ -340,10 +348,9 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
 	    selFilIdx = ofn->nFilterIndex;
 	}
 	cleanUpOFNA( &ofn );
-    }
-    else
+    } else
 #endif
-	{
+    {
 	// Use Unicode or ANSI strings and API
 	OPENFILENAME* ofn = makeOFN( parent, isel,
 				     *initialDirectory, title,
@@ -354,6 +361,8 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
 	}
 	cleanUpOFN( &ofn );
     }
+    if ( parent )
+	qt_leave_modal( parent );
 
     if ( result.isEmpty() ) {
 	return result;
@@ -397,6 +406,8 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
 
     DWORD selFilIdx;
 
+    if ( parent )
+	qt_enter_modal( parent );
 #ifndef Q_OS_TEMP
     if ( qt_winver & WV_DOS_based ) {
 	// Use ANSI strings and API
@@ -428,10 +439,9 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
 	    }
 	    cleanUpOFNA( &ofn );
 	}
-    }
-    else 
+    } else 
 #endif
-	{
+    {
 	// Use Unicode or ANSI strings and API
 	OPENFILENAME* ofn = makeOFN( parent, QString::null,
 				     *initialDirectory, title,
@@ -462,6 +472,9 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
 	}
 	cleanUpOFN( &ofn );
     }
+    if ( parent )
+	qt_leave_modal( parent );
+
     *initialDirectory = fi.dirPath();
     if ( !result.isEmpty() && selectedFilter )
 	*selectedFilter = selFilter( filter, selFilIdx );	
@@ -530,6 +543,9 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
     QString title = caption;
     if ( title.isNull() )
 	title = tr( "Select a Directory" );
+
+    if ( parent )
+	qt_enter_modal( parent );
 #if defined(UNICODE)
     if ( qt_winver & WV_NT_based ) {
 	QString initDir = QDir::convertSeparators(initialDirectory);
@@ -591,9 +607,12 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
 	} else
 	    result = QString::null;
     }
+    if ( parent )
+	qt_leave_modal( parent );
+
     return result;
 #else
-	return QString::null;
+    return QString::null;
 #endif
 }
 
