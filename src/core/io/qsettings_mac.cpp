@@ -198,7 +198,7 @@ QSettingsSysPrivate::QSettingsSysPrivate()
     }
 }
 
-struct {
+struct QMacSettingPerms {
     CFStringRef user;
     CFStringRef host;
 } scopes[] = {
