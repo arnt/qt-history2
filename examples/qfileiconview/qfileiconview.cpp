@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#11 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#12 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -227,7 +227,7 @@ static const char * folder_locked_icon[]={
  *****************************************************************************/
 
 QtFileIconViewItem::QtFileIconViewItem( QtFileIconView *parent, QFileInfo *fi )
-    // set parent 0 => don't align in grid yet, as aour metrics is not correct yet 
+    // set parent 0 => don't align in grid yet, as aour metrics is not correct yet
     : QIconViewItem( 0, fi->fileName(), QIconSet( QPixmap( empty_icon ) ) ), itemFileName( fi->filePath() ),
       itemFileInfo( *fi ), checkSetText( FALSE ), timer( this )
 {
@@ -269,7 +269,7 @@ QtFileIconViewItem::QtFileIconViewItem( QtFileIconView *parent, QFileInfo *fi )
     connect( &timer, SIGNAL( timeout() ),
              this, SLOT( openFolder() ) );
 
-    
+
     // now do init stuff, to align in grid and so on
     init();
 }
@@ -409,7 +409,6 @@ void QtFileIconView::readDir( const QDir &dir )
 
     clear();
 
-    setCaption( dir.absPath() );
     emit directoryChanged( dir.absPath() );
 
     const QFileInfoList *filist = dir.entryInfoList( QDir::DefaultFilter, QDir::DirsFirst | QDir::Name );

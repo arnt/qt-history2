@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/main.cpp#3 $
+** $Id: //depot/qt/main/examples/qfileiconview/main.cpp#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -10,6 +10,7 @@
 
 #include "mainwindow.h"
 #include "qfileiconview.h"
+#include "qpalette.h"
 
 #include <qapplication.h>
 
@@ -17,11 +18,26 @@ int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
 
-    FileMainWindow mw;
-    mw.resize( 680, 480 );
-    a.setMainWidget( &mw );
-    mw.show();
-    mw.fileView()->setDirectory( "/" );
-
-    return a.exec();
+    if ( argc == 2 && QString("-desktop") == argv[1] ) {
+	QtFileIconView fiv(QString::null);
+	a.setMainWidget( &fiv );
+	QPalette pal = fiv.palette();
+	pal.setColor( QPalette::Normal, QColorGroup::Base, QColor( 0, 139, 139 ) );
+	fiv.setPalette( pal );
+	fiv.setFrameStyle( QFrame::NoFrame );
+	fiv.setCaption("desktop");
+	fiv.showMaximized();
+	fiv.setSelectionMode( QIconView::StrictMulti );
+	fiv.setViewMode( QIconSet::Large );
+	fiv.setDirectory( "/" );
+	return a.exec();
+    }
+    else {
+	FileMainWindow mw;
+	mw.resize( 680, 480 );
+	a.setMainWidget( &mw );
+	mw.show();
+	mw.fileView()->setDirectory( "/" );
+	return a.exec();
+    }
 }
