@@ -76,6 +76,8 @@ private:
     void initializeIconView(DomWidget *w);
     void initializeListView(DomWidget *w);
     void initializeListViewItems(const QString &className, const QString &varName, const QList<DomItem*> &items);
+    void initializeTable(DomWidget *w);
+    void initializeTableItems(const QString &className, const QString &varName, const QList<DomItem*> &items);
 
 private:
     Driver *driver;

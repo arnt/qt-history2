@@ -132,17 +132,19 @@ void WriteInitialization::accept(DomWidget *node)
 
     parentWidget = savedParentWidget;
 
-    writePropertiesImpl(varName, className, node->elementProperty());
-
     if (className == QLatin1String("QListBox")) {
         initializeListBox(node);
     } else if (className == QLatin1String("QIconView")) {
         initializeIconView(node);
+    } else if (className == QLatin1String("QTable")) {
+        initializeTable(node);
     } else if (className.mid(1) == QLatin1String("ComboBox")) {
         initializeListBox(node);
     } else if (className.mid(1) == QLatin1String("ListView")) {
         initializeListView(node);
     }
+
+    writePropertiesImpl(varName, className, node->elementProperty());
 
     if (node->elementLayout().isEmpty())
         m_layoutChain.push(0);
@@ -758,6 +760,80 @@ void WriteInitialization::initializeListView(DomWidget *w)
 }
 
 void WriteInitialization::initializeListViewItems(const QString &className, const QString &varName, const QList<DomItem *> &items)
+{
+    // items
+    for (int i=0; i<items.size(); ++i) {
+        DomItem *item = items.at(i);
+
+        QString itemName = driver->findOrInsertName("__item");
+        output << "\n";
+        output << option.indent << "QListViewItem *" << itemName << " = new QListViewItem(" << varName << ");\n";
+
+        QList<DomProperty*> properties = item->elementProperty();
+        for (int i=0; i<properties.size(); ++i) {
+            DomProperty *p = properties.at(i);
+            if (p->attributeName() == QLatin1String("text"))
+                output << option.indent << itemName << "->setText(" << i << ", "
+                       << trCall(p->elementString(), className) << ");\n";
+
+            if (p->attributeName() == QLatin1String("pixmap"))
+                output << option.indent << itemName << "->setPixmap(" << i << ", "
+                       << pixCall(p->elementPixmap()) << ");\n";
+        }
+
+        if (item->elementItem().size()) {
+            output << option.indent << itemName << "->setOpen(true);\n";
+            initializeListViewItems(className, itemName, item->elementItem());
+        }
+    }
+}
+
+void WriteInitialization::initializeTable(DomWidget *w)
+{
+    QString varName = driver->findOrInsertWidget(w);
+    QString className = w->attributeClass();
+
+    // columns
+    QList<DomColumn*> columns = w->elementColumn();
+    output << option.indent << varName << "->setNumCols(" << columns.size() << ");\n";
+
+    for (int i=0; i<columns.size(); ++i) {
+        DomColumn *column = columns.at(i);
+
+        QHash<QString, DomProperty*> properties = propertyMap(column->elementProperty());
+        DomProperty *text = properties.value("text");
+        DomProperty *pixmap = properties.value("pixmap");
+
+        output << option.indent << varName << "->horizontalHeader()->setLabel(" << i << ", ";
+        if (pixmap) {
+            output << pixCall(pixmap->elementPixmap()) << ", ";
+        }
+        output << translate(fixString(text->elementString()), className) << ");\n";
+    }
+
+    // rows
+    QList<DomRow*> rows = w->elementRow();
+    output << option.indent << varName << "->setNumRows(" << rows.size() << ");\n";
+
+    for (int i=0; i<rows.size(); ++i) {
+        DomRow *row = rows.at(i);
+
+        QHash<QString, DomProperty*> properties = propertyMap(row->elementProperty());
+        DomProperty *text = properties.value("text");
+        DomProperty *pixmap = properties.value("pixmap");
+
+        output << option.indent << varName << "->verticalHeader()->setLabel(" << i << ", ";
+        if (pixmap) {
+            output << pixCall(pixmap->elementPixmap()) << ", ";
+        }
+        output << translate(fixString(text->elementString()), className) << ");\n";
+    }
+
+
+    //initializeTableItems(className, varName, w->elementItem());
+}
+
+void WriteInitialization::initializeTableItems(const QString &className, const QString &varName, const QList<DomItem *> &items)
 {
     // items
     for (int i=0; i<items.size(); ++i) {
