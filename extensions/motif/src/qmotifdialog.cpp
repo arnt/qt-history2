@@ -239,8 +239,10 @@ public:
 QMotifDialog::QMotifDialog( DialogType dialogtype, Widget parent,
 			    ArgList args, Cardinal argcount,
 			    const char *name, bool modal, Qt::WFlags flags )
-    : QDialog( 0, name, modal, flags )
+    : QDialog( 0, modal ? Qt::WShowModal | flags : flags )
 {
+    setObjectName(name);
+
     init( parent, args, argcount );
 
     // get the widget class for the dialog type
@@ -345,8 +347,9 @@ QMotifDialog::QMotifDialog( DialogType dialogtype, Widget parent,
 */
 QMotifDialog::QMotifDialog( Widget parent, ArgList args, Cardinal argcount,
 			    const char *name, bool modal, Qt::WFlags flags )
-    : QDialog( 0, name, modal, flags )
+    : QDialog( 0, modal ? Qt::WShowModal | flags : flags )
 {
+    setObjectName(name);
     init( parent, args, argcount );
 }
 
@@ -363,8 +366,9 @@ QMotifDialog::QMotifDialog( Widget parent, ArgList args, Cardinal argcount,
     \sa shell()
 */
 QMotifDialog::QMotifDialog( Widget parent, const char *name, bool modal, Qt::WFlags flags )
-    : QDialog( 0, name, modal, flags )
+    : QDialog( 0, modal ? Qt::WShowModal | flags : flags )
 {
+    setObjectName(name);
     init( parent );
 }
 
@@ -391,8 +395,9 @@ QMotifDialog::QMotifDialog( Widget parent, const char *name, bool modal, Qt::WFl
 */
 QMotifDialog::QMotifDialog( QWidget *parent, const char *name,
 			    bool modal, Qt::WFlags flags )
-    : QDialog( parent, name, modal, flags )
+    : QDialog( parent, modal ? Qt::WShowModal | flags : flags )
 {
+    setObjectName(name);
     init();
 }
 
@@ -576,6 +581,14 @@ void QMotifDialog::realize( Widget w )
 	}
         d->topData()->caption = QString::null; // make sure the
 
+        QString icontext = windowIconText();
+        if (icontext.isEmpty()) {
+ 	    char *iconName;
+ 	    XtVaGetValues(w, XtNiconName, &iconName, NULL);
+ 	    icontext = QString::fromLocal8Bit(iconName);
+        }
+        d_func()->topData()->iconText = QString::null; // make sure setWindowIconText() works below
+
 	Window newid = XtWindow(w);
 	QObjectList list = children();
 	for (int i = 0; i < list.size(); ++i) {
@@ -589,9 +602,11 @@ void QMotifDialog::realize( Widget w )
 
 	create( newid, TRUE, TRUE );
 
-	// restore the window title
+	// restore the window title and icon text
  	if (!wtitle.isEmpty())
-	    setWindowTitle(wtitle);
+ 	    setWindowTitle(wtitle);
+        if (!icontext.isEmpty())
+            setWindowIconText(icontext);
 
 	// if this dialog was created without a QWidget parent, then the transient
 	// for will be set to the root window, which is not acceptable.

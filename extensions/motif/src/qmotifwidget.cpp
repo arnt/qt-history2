@@ -39,7 +39,7 @@ const int XKeyRelease = KeyRelease;
 #undef KeyPress
 #undef KeyRelease
 
-static void qmotif_widget_shell_destroy(Widget w);
+void qmotif_widget_shell_destroy(Widget w);
 void qmotif_widget_shell_realize( Widget w, XtValueMask *mask,
 				  XSetWindowAttributes *attr );
 void qmotif_widget_shell_change_managed( Widget w );
@@ -310,11 +310,12 @@ public:
     special TopLevelShell parent as the parent for existing
     Xt/Motif dialogs or QMotifDialogs.
 */
-QMotifWidget::QMotifWidget( QWidget *parent, WidgetClass widgetclass,
-			    ArgList args, Cardinal argcount,
-			    const char *name, Qt::WFlags flags )
-    : QWidget( *(new QMotifWidgetPrivate), parent, flags )
+QMotifWidget::QMotifWidget(QWidget *parent, WidgetClass widgetclass,
+                           ArgList args, Cardinal argcount,
+                           const char *name, Qt::WFlags flags)
+    : QWidget(*(new QMotifWidgetPrivate), parent, flags)
 {
+    setObjectName(name);
     setFocusPolicy( Qt::StrongFocus );
 
     Widget motifparent = NULL;
@@ -383,15 +384,19 @@ QMotifWidget::QMotifWidget( QWidget *parent, WidgetClass widgetclass,
 QMotifWidget::~QMotifWidget()
 {
     QMotif::unregisterWidget( this );
-    XtDestroyWidget( d->widget );
-    if ( d->shell && d->widget != d->shell ) {
-	if (XtIsSubclass(d->shell, qapplicationShellWidgetClass)) {
-	    ( (QApplicationShellWidget) d->shell )->qapplicationshell.widget = 0;
-	} else {
-	    Q_ASSERT(XtIsSubclass(d->shell, qtoplevelShellWidgetClass));
-	    ( (QTopLevelShellWidget) d->shell )->qtoplevelshell.widget = 0;
-	}
-	XtDestroyWidget( d->shell );
+
+    if (d->widget && !d->widget->core.being_destroyed)
+        XtDestroyWidget( d->widget );
+
+    if ( d->shell ) {
+        if (XtIsSubclass(d->shell, qapplicationShellWidgetClass)) {
+            ( (QApplicationShellWidget) d->shell )->qapplicationshell.widget = 0;
+        } else {
+            Q_ASSERT(XtIsSubclass(d->shell, qtoplevelShellWidgetClass));
+            ( (QTopLevelShellWidget) d->shell )->qtoplevelshell.widget = 0;
+        }
+        if (d->widget != d->shell && !d->shell->core.being_destroyed)
+            XtDestroyWidget( d->shell );
     }
 
     // make sure we don't have any pending requests for the window we
@@ -476,6 +481,14 @@ void QMotifWidget::realize( Widget w )
 	}
         d_func()->topData()->caption = QString::null; // make sure setWindowTitle() works below
 
+        QString icontext = windowIconText();
+        if (icontext.isEmpty()) {
+ 	    char *iconName;
+ 	    XtVaGetValues(w, XtNiconName, &iconName, NULL);
+ 	    icontext = QString::fromLocal8Bit(iconName);
+        }
+        d_func()->topData()->iconText = QString::null; // make sure setWindowIconText() works below
+
 	Window newid = XtWindow( w );
 	QObjectList list = children();
 	for (int i = 0; i < list.size(); ++i) {
@@ -491,9 +504,11 @@ void QMotifWidget::realize( Widget w )
 	// screen, so we need to restore it below
 	create( newid, TRUE, TRUE );
 
-	// restore the window title
+	// restore the window title and icon text
 	if (!wtitle.isEmpty())
 	    setWindowTitle(wtitle);
+        if (!icontext.isEmpty())
+            setWindowIconText(icontext);
 
 	// restore geometry of the shell
 	XMoveResizeWindow( x11Info()->display(), winId(),
@@ -528,7 +543,9 @@ void qmotif_widget_shell_destroy(Widget w)
     }
     if (!widget)
 	return;
+    widget->d->shell = widget->d->widget = 0;
     widget->close();
+    delete widget;
 }
 
 /*! \internal

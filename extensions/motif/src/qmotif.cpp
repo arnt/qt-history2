@@ -223,7 +223,7 @@ Boolean qmotif_event_dispatcher( XEvent *event )
     }
 
     bool delivered = FALSE;
-    if (widget || event->xany.display == QX11Info::appDisplay()) {
+    if (event->xany.display == QX11Info::appDisplay()) {
 	/*
 	  If the mouse has been grabbed for a window that we don't know
 	  about, we shouldn't deliver any pointer events, since this will

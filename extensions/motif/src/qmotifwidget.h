@@ -45,6 +45,7 @@ protected:
 private:
     void realize( Widget );
 
+    friend void qmotif_widget_shell_destroy(Widget w);
     friend void qmotif_widget_shell_realize( Widget, XtValueMask *,
                                              XSetWindowAttributes *);
     friend void qmotif_widget_shell_change_managed( Widget );
