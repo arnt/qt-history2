@@ -267,6 +267,8 @@ void QToolBar::setUpGM()
 			else
 			    f->setFrameStyle( QFrame::NoFrame );
 		    }
+		    // #### Reggie: Why is this needed. It breaks the layout of a toolbar (minimumSize)
+		    // #### if you have toolbuttons with labels + e.g. a combobox in a toolbar!!!
 // 		} else if ( w->maximumSize() == QSize(QWIDGETSIZE_MAX,
 // 						      QWIDGETSIZE_MAX)
 // 			    && w->minimumSize() == QSize(0,0) ) {
