@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#51 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#52 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#51 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#52 $");
 
 
 const int sbDim = 16;
@@ -253,6 +253,7 @@ void QTableView::repaint( int x, int y, int w, int h, bool erase )
 
 /*!
   Sets the number of rows of the table to \e rows (must be non-negative).
+  Does not change topCell().
 
   The table repaints itself automatically if autoUpdate() is set.
 
@@ -273,7 +274,7 @@ void QTableView::setNumRows( int rows )
     nRows = rows;
     if ( autoUpdate() && isVisible() ) {
 	int maxRow  = lastRowVisible();
-	if ( maxRow < oldRows || maxRow < nRows )
+	if ( maxRow >= oldRows || maxRow >= nRows )
 	    repaint();
     }
     updateScrollBars( verRange );
@@ -287,6 +288,7 @@ void QTableView::setNumRows( int rows )
 
 /*!
   Sets the number of columns of the table to \e cols (must be non-negative).
+  Does not change leftCell().
 
   The table repaints itself automatically if autoUpdate() is set.
 
@@ -307,7 +309,7 @@ void QTableView::setNumCols( int cols )
     nCols = cols;
     if ( autoUpdate() && isVisible() ) {
 	int maxCol = lastColVisible();
-	if ( maxCol < oldCols || maxCol < nCols )
+	if ( maxCol >= oldCols || maxCol >= nCols )
 	    repaint();
     }
     updateScrollBars( horRange );
