@@ -2463,13 +2463,14 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 		ins_text_bitmap( bm_key, wx_bm );
 	    return;
 	}
-	if ( nat_xf )
+	if ( nat_xf ) {
 	    if( !nativeXForm( TRUE ) ) {
  		nativeXForm( FALSE );
 		return;
 	    }
-	else if ( txop == TxTranslate )
+	} else if ( txop == TxTranslate ) {
 	    map( x, y, &x, &y );
+	}
     }
 
     QFontPrivate::TextRun *cache = new QFontPrivate::TextRun();
