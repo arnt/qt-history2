@@ -173,6 +173,7 @@ public:
     QAxHostWindow( QAxWidget *c, IUnknown **ppUnk );
     ~QAxHostWindow();
     void releaseAll();
+    void deactivate();
 
 // IUnknown
     unsigned long WINAPI AddRef();
@@ -401,6 +402,13 @@ void QAxHostWindow::releaseAll()
     m_spOleControl = 0;
     if ( m_spInPlaceObject ) m_spInPlaceObject->Release();
     m_spInPlaceObject = 0;
+}
+
+void QAxHostWindow::deactivate()
+{
+    if ( m_spInPlaceObject ) m_spInPlaceObject->InPlaceDeactivate();
+    // if this assertion fails the control didn't call OnInPlaceDeactivate
+    Q_ASSERT( m_spInPlaceObject == 0 ); 
 }
 
 //**** IUnknown
@@ -926,6 +934,9 @@ void QAxWidget::clear()
 	    }
 	}
     }
+
+    if ( container )
+	container->deactivate();
 
     QAxBase::clear();
     setFocusPolicy( NoFocus );
