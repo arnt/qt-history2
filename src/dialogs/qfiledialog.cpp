@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#186 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#187 $
 **
 ** Implementation of QFileDialog class
 **
@@ -425,6 +425,7 @@ void QFileListBox::rename()
         }
     }
     cancelRename();
+    renaming = TRUE;
 }
 
 void QFileListBox::cancelRename()
@@ -792,7 +793,7 @@ void QFileDialog::init()
 
     d->stack = new QWidgetStack( this, "files and more files" );
     d->stack->setFrameStyle( QFrame::WinPanel + QFrame::Sunken );
-    
+
     files = new QFileListView( d->stack, this );
     QFontMetrics fm = fontMetrics();
     files->addColumn( tr("Name"), 150 );
@@ -1716,7 +1717,7 @@ void QFileDialog::popupContextMenu( QListViewItem *item, const QPoint & p,
     }
 
     QPopupMenu m( files, "file dialog context menu" );
-   
+
     int ok = m.insertItem( QFileInfo( dirPath() + "/" + item->text( 0 ) ).isDir() ? tr( "&Open" ) :
                            ( mode() == AnyFile ? tr( "&Save" ) : tr( "&Open" ) ) );
     m.insertSeparator();
@@ -1725,10 +1726,10 @@ void QFileDialog::popupContextMenu( QListViewItem *item, const QPoint & p,
     m.insertSeparator();
     int asc = m.insertItem( tr( "Sort &Ascending" ) );
     int desc = m.insertItem( tr( "Sort &Descending" ) );
-    
+
     if ( !item || !QFileInfo( dirPath() ).isWritable() ||
          item->text( 0 ) == ".." ) {
-        if ( item->text( 0 ) != ".." )
+        if ( !item || !QFileInfo( dirPath() + "/" + item->text( 0 ) ).isReadable() )
             m.setItemEnabled( ok, FALSE );
         m.setItemEnabled( rename, FALSE );
         m.setItemEnabled( del, FALSE );
@@ -1756,16 +1757,16 @@ void QFileDialog::popupContextMenu( QListBoxItem *item, const QPoint & p )
         return;
 
     QPopupMenu m( files, "file dialog context menu" );
-   
+
     int ok = m.insertItem( QFileInfo( dirPath() + "/" + item->text() ).isDir() ? tr( "&Open" ) :
                            ( mode() == AnyFile ? tr( "&Save" ) : tr( "&Open" ) ) );
     m.insertSeparator();
     int rename = m.insertItem( tr( "&Rename" ) );
     int del = m.insertItem( tr( "&Delete" ) );
-    
+
     if ( !QFileInfo( dirPath() ).isWritable() ||
          item->text() == ".." ) {
-        if ( item->text() != ".." )
+        if ( !QFileInfo( dirPath() + "/" + item->text() ).isReadable() )
             m.setItemEnabled( ok, FALSE );
         m.setItemEnabled( rename, FALSE );
         m.setItemEnabled( del, FALSE );
