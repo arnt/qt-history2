@@ -45,7 +45,7 @@
 #include "qapplication.h"
 #include "qstyle.h"
 
-static const int GRIPMARGIN  = 4;		//half the size of the resize area
+static const int GRIPMARGIN  = 4;	// half the size of the resize area
 static const int MARKSIZE = 32;
 static const int QH_MARGIN = 4;
 
@@ -203,34 +203,6 @@ public:
   \row \i 3 \i 1 \i 2
   \endtable
 
-<!--
-    <a name="mapexample">
-  <table border="1" cellspacing="0" cellpadding="1">
-  <caption><b>MapTo Example</b></caption>
-  <tr><td align="center" colspan="4"><i>Original section ordering</i></td></tr>
-  <tr><td align="center">Sect 0</td><td align="center">Sect 1</td>
-  <td align="center">Sect 2</td><td align="center">Sect 3</td></tr>
-  <tr><td align="center" colspan="4"><i>Ordering after the user moves a section</i></td></tr>
-  <tr><td align="center">Sect 0</td><td align="center">Sect 2</td>
-  <td align="center">Sect 3</td><td align="center">Sect 1</td></tr>
-  <tr><td align="center" colspan="4"><i>Index positions</i></td></tr>
-  <tr><td align="center">0</td><td align="center">1</td>
-  <td align="center">2</td><td align="center">3</td></tr>
-  <tr><td align="center" colspan="4"><i>The map functions</i></td></tr>
-  <tr><td align="center">Call with<br>index <i>i</i></td>
-  <td align="center">Returns<br>Section</td>
-  <td align="center">Call with<br>section <i>s</i></td>
-  <td align="center">Returns<br>Index</td></tr>
-  <tr><td>mapToSection(0)</td><td align="center">0</td>
-  <td>mapToIndex(0)</td><td align="center">0</td></tr>
-  <tr><td>mapToSection(1)</td><td align="center">2</td>
-  <td>mapToIndex(1)</td><td align="center">3</td></tr>
-  <tr><td>mapToSection(2)</td><td align="center">3</td>
-  <td>mapToIndex(2)</td><td align="center">1</td></tr>
-  <tr><td>mapToSection(3)</td><td align="center">1</td>
-  <td>mapToIndex(3)</td><td align="center">2</td></tr>
-  </table>
--->
   In the example above, if we wanted to find out which section is at
   index position 3 we'd call mapToSection(3) and get a section number of
   1 since section 1 was moved. Similarly, if we wanted to know which
@@ -341,7 +313,7 @@ void QHeader::showEvent( QShowEvent *e )
   \fn void QHeader::moved( int fromIndex, int toIndex )
   \obsolete
 
-  Use indexChange() instead!
+  Use indexChange() instead.
 
   This signal is emitted when the user has moved the section which
   is displayed at the index \a fromIndex to the index \a toIndex.
@@ -351,7 +323,7 @@ void QHeader::showEvent( QShowEvent *e )
   \fn void QHeader::sectionClicked( int index )
   \obsolete
 
-  Use clicked() instead!
+  Use clicked() instead.
 
   This signal is emitted when a part of the header is clicked. \a
   index is the index at which the section is displayed.
@@ -363,7 +335,7 @@ void QHeader::showEvent( QShowEvent *e )
 /*! \fn int QHeader::cellSize( int ) const
   \obsolete
 
-  Use sectionSize() instead!
+  Use sectionSize() instead.
 
   Returns the size in pixels of the section that is displayed at
   the index \a i.
@@ -372,7 +344,7 @@ void QHeader::showEvent( QShowEvent *e )
 /*!
   \obsolete
 
-  Use sectionPos() instead!
+  Use sectionPos() instead.
 
   Returns the position in pixels of the section that is displayed at the
   index \a i. The  position is measured from the start of the header.
@@ -520,7 +492,7 @@ void QHeader::unMarkLine( int idx )
 /*! \fn int QHeader::cellAt( int ) const
   \obsolete
 
-  Use sectionAt() instead!
+  Use sectionAt() instead.
 
   Returns the index at which the section is displayed, which contains
   \a pos in widget coordinates, or -1 if \a pos is outside the header
@@ -556,7 +528,7 @@ int QHeader::findLine( int c )
 /*!
   \obsolete
 
-  Use moveSection() instead!
+  Use moveSection() instead.
 
   Moves the section that is currently displayed at index \a fromIdx
   to index \a toIdx.
@@ -837,16 +809,17 @@ QRect QHeader::sectionRect( int section ) const
 }
 
 /*!
-    \overload
-  Sets the icon for section \a section to \a iconset and the text to \a s.
-  The section's width is set to \a size, unless the size is negative in
-  which case the size is calculated taking account of the size of the text.
-  If the section does not exist, nothing happens.
+  \overload
 
-  Any icon set that has been set for the section remains unchanged.
+  Sets the icon for section \a section to \a iconset and the text to
+  \a s. The section's width is set to \a size if \a size \>= 0;
+  otherwise it is left unchanged.
+
+  If the section does not exist, nothing happens.
 */
 
-void QHeader::setLabel( int section, const QIconSet& iconset, const QString &s, int size )
+void QHeader::setLabel( int section, const QIconSet& iconset,
+			const QString &s, int size )
 {
     if ( section < 0 || section >= count() )
 	return;
@@ -855,14 +828,12 @@ void QHeader::setLabel( int section, const QIconSet& iconset, const QString &s, 
 }
 
 /*!
-  Sets the text of section \a section to \a s.
-  The section's width is set to \a size, unless size is negative in
-  which case the size is calculated taking account of the size of the text.
+  Sets the text of section \a section to \a s. The section's width is
+  set to \a size if \a size \>= 0; otherwise it is left unchanged. Any
+  icon set that has been set for this section remains unchanged.
+
   If the section does not exist, nothing happens.
-
-  Any icon set that has been set for this section remains unchanged.
 */
-
 void QHeader::setLabel( int section, const QString &s, int size )
 {
     if ( section < 0 || section >= count() )
@@ -871,8 +842,8 @@ void QHeader::setLabel( int section, const QString &s, int size )
 
     setSectionSizeAndHeight( section, size, s );
 
-    updateGeometry();
     if ( isUpdatesEnabled() ) {
+	updateGeometry();
 	calculatePositions();
 	update();
     }
@@ -969,8 +940,8 @@ void QHeader::removeLabel( int section )
 		--d->i2s[i];
     }
 
-    updateGeometry();
     if ( isUpdatesEnabled() ) {
+	updateGeometry();
 	calculatePositions();
 	update();
     }
@@ -997,22 +968,23 @@ void QHeader::setSectionSizeAndHeight( int section, int size, const QString& s )
     int height = QMAX( bound.height() + 2, ih ) + 4;
     int width = bound.width() + QH_MARGIN * 4 + iw;
 
-    if ( size < 0 )
-	size = ( orient == Horizontal ) ? width : height;
-    d->sizes[section] = size;
+    if ( size < 0 ) {
+	if ( d->sizes[section] < 0 )
+	    d->sizes[section] = ( orient == Horizontal ) ? width : height;
+    } else {
+	d->sizes[section] = size;
+    }
     // we abuse the heights as widths for vertical layout
     d->heights[section] = ( orient == Horizontal ) ? height : width;
 }
 
 /*!
   Adds a new section with label text \a s. Returns the index position
-  where the section was added (at the right for horizontal headers, at
-  the bottom for vertical headers).
-  The section's width is set to \a size, unless size is negative in
-  which case the size is calculated taking account of the size of the
-  text.
+  where the section was added (at the right for horizontal headers,
+  at the bottom for vertical headers). The section's width is set to
+  \a size. If \a size \< 0, an appropriate size for the text \a s is
+  chosen.
 */
-
 int QHeader::addLabel( const QString &s, int size )
 {
     int n = ++d->count;
@@ -1025,6 +997,7 @@ int QHeader::addLabel( const QString &s, int size )
     int section = n - 1;
     d->labels.insert( section, new QString( s ) );  // n - 1 is last real idx
 
+    d->sizes[section] = -1;
     setSectionSizeAndHeight( section, size, s );
 
     int index = section;
@@ -1039,14 +1012,13 @@ int QHeader::addLabel( const QString &s, int size )
     d->clicks.setBit( section, d->clicks_default );
     d->resize.setBit( section, d->resize_default );
 
-    updateGeometry();
     if ( isUpdatesEnabled() ) {
+	updateGeometry();
 	calculatePositions();
 	update();
     }
     return index;
 }
-
 
 /*! \reimp */
 QSize QHeader::sizeHint() const
@@ -1076,12 +1048,11 @@ QSize QHeader::sizeHint() const
 }
 
 /*! \property QHeader::offset
-    \brief the header's left-most (or top-most) visible pixel
+    \brief the header's leftmost (or topmost) visible pixel
 
   Setting this property will scroll the header so that \e offset becomes
-  the left-most (or top-most for vertical headers) visible pixel.
+  the leftmost (or topmost for vertical headers) visible pixel.
 */
-
 int QHeader::offset() const
 {
     if ( reverse() )
@@ -1106,7 +1077,6 @@ void QHeader::setOffset( int x )
 
 
 /*!
-
   Returns the position of actual division line \a i in widget
   coordinates. May return a position outside the widget.
 
@@ -1163,7 +1133,7 @@ void QHeader::setPHeight( int i, int h )
 /*!
   \obsolete
 
-  Use mapToSection() instead!
+  Use mapToSection() instead.
 
   Translates from actual index \a a (index at which the section is displayed)  to
   logical index of the section.  Returns -1 if \a a is outside the legal range.
@@ -1180,7 +1150,7 @@ int QHeader::mapToLogical( int a ) const
 /*!
   \obsolete
 
-  Use mapToIndex() instead!
+  Use mapToIndex() instead.
 
   Translates from logical index \a l to actual index (index at which the section \a l is displayed) .
   Returns -1 if \a l is outside the legal range.
@@ -1197,7 +1167,7 @@ int QHeader::mapToActual( int l ) const
 /*!
   \obsolete
 
-  Use resizeSection() instead!
+  Use resizeSection() instead.
 
   Sets the size of the section \a section to \a s pixels.
 
