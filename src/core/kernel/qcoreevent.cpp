@@ -300,6 +300,10 @@ QTimerEvent::QTimerEvent(int timerId)
     : QEvent(Timer), id(timerId)
 {}
 
+QTimerEvent::~QTimerEvent()
+{
+}
+
 /*!
     \fn int QTimerEvent::timerId() const
 
@@ -332,6 +336,10 @@ QTimerEvent::QTimerEvent(int timerId)
 QChildEvent::QChildEvent(Type type, QObject *child)
     : QEvent(type), c(child)
 {}
+
+QChildEvent::~QChildEvent()
+{
+}
 
 /*!
     \fn QObject *QChildEvent::child() const
@@ -439,6 +447,10 @@ QCustomEvent::QCustomEvent(int type, void *data)
     : QEvent(static_cast<Type>(type))
 {
     d = reinterpret_cast<QEventPrivate *>(data);
+}
+
+QCustomEvent::~QCustomEvent()
+{
 }
 #endif
 /*!

@@ -201,6 +201,7 @@ class Q_CORE_EXPORT QTimerEvent : public QEvent
 {
 public:
     QTimerEvent( int timerId );
+    ~QTimerEvent();
     int timerId() const { return id; }
 protected:
     int id;
@@ -212,6 +213,7 @@ class Q_CORE_EXPORT QChildEvent : public QEvent
 {
 public:
     QChildEvent( Type type, QObject *child );
+    ~QChildEvent();
     QObject *child() const { return c; }
     bool added() const { return type() == ChildAdded; }
 #ifdef QT_COMPAT
@@ -228,6 +230,7 @@ class Q_CORE_EXPORT QCustomEvent : public QEvent
 {
 public:
     QT_COMPAT_CONSTRUCTOR QCustomEvent(int type, void *data = 0);
+    ~QCustomEvent();
     QT_COMPAT void *data()  const { return d; }
     QT_COMPAT void setData(void* data) { d = reinterpret_cast<QEventPrivate *>(data); }
 };

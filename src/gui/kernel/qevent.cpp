@@ -34,6 +34,9 @@ QInputEvent::QInputEvent(Type type, Qt::KeyboardModifiers modifiers)
     : QEvent(type), modState(modifiers)
 {}
 
+QInputEvent::~QInputEvent()
+{
+}
 
 
 
@@ -102,6 +105,10 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, Qt::MouseButton button,
     : QInputEvent(type, modifiers), p(pos), b(button), mouseState(buttons)
 {
     g = QCursor::pos();
+}
+
+QMouseEvent::~QMouseEvent()
+{
 }
 
 #ifdef QT_COMPAT
@@ -316,6 +323,10 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta,
     g = QCursor::pos();
 }
 
+QWheelEvent::~QWheelEvent()
+{
+}
+
 #ifdef QT_COMPAT
 QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Qt::Orientation orient)
     : QInputEvent(Wheel), p(pos), d(delta), o(orient)
@@ -503,6 +514,10 @@ QKeyEvent::QKeyEvent(Type type, int key, Qt::KeyboardModifiers modifiers, const 
         ignore();
 }
 
+QKeyEvent::~QKeyEvent()
+{
+}
+
 /*!
     \fn int QKeyEvent::key() const
 
@@ -607,6 +622,11 @@ Qt::KeyboardModifiers QKeyEvent::modifiers() const
 QFocusEvent::QFocusEvent(Type type)
     : QEvent(type)
 {}
+
+QFocusEvent::~QFocusEvent()
+{
+}
+
 
 QFocusEvent::Reason QFocusEvent::m_reason = QFocusEvent::Other;
 QFocusEvent::Reason QFocusEvent::prev_reason = QFocusEvent::Other;
@@ -727,6 +747,11 @@ QPaintEvent::QPaintEvent(const QRegion &paintRegion, const QRect &paintRect)
     : QEvent(Paint), m_rect(paintRect), m_region(paintRegion)
 {}
 
+
+QPaintEvent::~QPaintEvent()
+{
+}
+
 /*!
     \fn const QRect &QPaintEvent::rect() const
 
@@ -752,6 +777,10 @@ QWSUpdateEvent::QWSUpdateEvent(const QRegion& paintRegion)
 QWSUpdateEvent::QWSUpdateEvent(const QRect &paintRect)
     : QPaintEvent(paintRect)
 { t = QWSUpdate; }
+
+QWSUpdateEvent::~QWSUpdateEvent()
+{
+}
 #endif
 
 
@@ -776,6 +805,10 @@ QWSUpdateEvent::QWSUpdateEvent(const QRect &paintRect)
 QMoveEvent::QMoveEvent(const QPoint &pos, const QPoint &oldPos)
     : QEvent(Move), p(pos), oldp(oldPos)
 {}
+
+QMoveEvent::~QMoveEvent()
+{
+}
 
 /*!
     \fn const QPoint &QMoveEvent::pos() const
@@ -811,6 +844,10 @@ QMoveEvent::QMoveEvent(const QPoint &pos, const QPoint &oldPos)
 QResizeEvent::QResizeEvent(const QSize &size, const QSize &oldSize)
     : QEvent(Resize), s(size), olds(oldSize)
 {}
+
+QResizeEvent::~QResizeEvent()
+{
+}
 
 /*!
     \fn const QSize &QResizeEvent::size() const
@@ -890,6 +927,10 @@ QCloseEvent::QCloseEvent()
     : QEvent(Close)
 {}
 
+QCloseEvent::~QCloseEvent()
+{
+}
+
 /*!
    \class QIconDragEvent qevent.h
    \brief The QIconDragEvent class indicates that a main icon drag has begun.
@@ -915,6 +956,10 @@ QCloseEvent::QCloseEvent()
 QIconDragEvent::QIconDragEvent()
     : QEvent(IconDrag)
 { ignore(); }
+
+QIconDragEvent::~QIconDragEvent()
+{
+}
 
 /*!
     \fn bool QIconDragEvent::isAccepted() const
@@ -996,6 +1041,9 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, const QPo
 {}
 #endif
 
+QContextMenuEvent::~QContextMenuEvent()
+{
+}
 /*!
     Constructs a context menu event object with the accept parameter
     flag set to false.
@@ -1198,6 +1246,10 @@ QInputMethodEvent::QInputMethodEvent(Type type, const QString &text, int cursorP
     : QInputEvent(type), txt(text), cpos(cursorPosition), selLen(selLength)
 {}
 
+QInputMethodEvent::~QInputMethodEvent()
+{
+}
+
 /*!
     \fn const QString &QInputMethodEvent::text() const
 
@@ -1308,6 +1360,10 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, c
       mMinPressure(minPressure),
       mMaxPressure(maxPressure),
       mUnique(unique)
+{
+}
+
+QTabletEvent::~QTabletEvent()
 {
 }
 
@@ -1440,6 +1496,9 @@ QDragMoveEvent::QDragMoveEvent(const QPoint& pos, QDrag::DropActions actions, co
     : QDropEvent(pos, actions, data, type), rect(pos, QSize(1, 1))
 {}
 
+QDragMoveEvent::~QDragMoveEvent()
+{
+}
 
 /*!
     \fn void QDragMoveEvent::accept(bool y)
@@ -1517,6 +1576,9 @@ QDropEvent::QDropEvent(const QPoint& pos, QDrag::DropActions actions, const QMim
     ignore();
 }
 
+QDropEvent::~QDropEvent()
+{
+}
 
 /*!
   \compat
@@ -1740,10 +1802,17 @@ QDragEnterEvent::QDragEnterEvent(const QPoint& point, QDrag::DropActions actions
     : QDragMoveEvent(point, actions, data, DragEnter)
 {}
 
+QDragEnterEvent::~QDragEnterEvent()
+{
+}
+
 QDragResponseEvent::QDragResponseEvent(bool accepted)
     : QEvent(DragResponse), a(accepted)
 {}
 
+QDragResponseEvent::~QDragResponseEvent()
+{
+}
 
 /*!
     \class QDragMoveEvent qevent.h
@@ -1785,23 +1854,41 @@ QDragLeaveEvent::QDragLeaveEvent()
     : QEvent(DragLeave)
 {}
 
+QDragLeaveEvent::~QDragLeaveEvent()
+{
+}
 
 QHelpEvent::QHelpEvent(Type type, const QPoint &pos, const QPoint &globalPos)
     : QEvent(type), p(pos), gp(globalPos)
 {}
 
+QHelpEvent::~QHelpEvent()
+{
+}
+
 QStatusTipEvent::QStatusTipEvent(const QString &tip)
     : QEvent(StatusTip), s(tip)
 {}
+
+QStatusTipEvent::~QStatusTipEvent()
+{
+}
 
 QWhatsThisClickedEvent::QWhatsThisClickedEvent(const QString &href)
     : QEvent(WhatsThisClicked), s(href)
 {}
 
+QWhatsThisClickedEvent::~QWhatsThisClickedEvent()
+{
+}
+
 QActionEvent::QActionEvent(int type, QAction *action, QAction *before)
     : QEvent(static_cast<QEvent::Type>(type)), act(action), bef(before)
 {}
 
+QActionEvent::~QActionEvent()
+{
+}
 
 /*!
     \class QHideEvent qevent.h
@@ -1829,6 +1916,10 @@ QHideEvent::QHideEvent()
     : QEvent(Hide)
 {}
 
+QHideEvent::~QHideEvent()
+{
+}
+
 /*!
     \class QShowEvent qevent.h
     \brief The QShowEvent class provides an event that is sent when a widget is shown.
@@ -1852,6 +1943,9 @@ QShowEvent::QShowEvent()
     : QEvent(Show)
 {}
 
+QShowEvent::~QShowEvent()
+{
+}
 
 /*!
   \fn QByteArray QDropEvent::data(const char* f) const
@@ -1888,6 +1982,10 @@ QFileOpenEvent::QFileOpenEvent(const QString &file)
     : QEvent(FileOpen), f(file)
 {}
 
+QFileOpenEvent::~QFileOpenEvent()
+{
+}
+
 /*!
     \fn QString QFileOpenEvent::file() const
 
@@ -1916,6 +2014,10 @@ QToolBarChangeEvent::QToolBarChangeEvent(bool t)
     : QEvent(ToolBarChange), tog(t)
 {}
 
+QToolBarChangeEvent::~QToolBarChangeEvent()
+{
+}
+
 /*
     \fn Qt::ButtonState QToolBarChangeEvent::state() const
 
@@ -1930,6 +2032,9 @@ QShortcutEvent::QShortcutEvent(const QKeySequence &key, int id, bool ambiguous)
     : QEvent(Shortcut), sequence(key), ambig(ambiguous), sid(id)
 {}
 
+QShortcutEvent::~QShortcutEvent()
+{
+}
 
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QEvent *e) {
@@ -2080,3 +2185,7 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
 QClipboardEvent::QClipboardEvent(QEventPrivate *data)
     : QEvent(QEvent::Clipboard)
 { d = data; }
+
+QClipboardEvent::~QClipboardEvent()
+{
+}
