@@ -50,6 +50,8 @@ ProductList::ProductList()
 
     adjustColumn( 1 );
     adjustColumn( 2 );
+
+    viewport()->setFocus();
 }
 
 QWidget * ProductList::createEditor( int row, int col, bool initFromCell ) const
