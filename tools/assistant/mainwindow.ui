@@ -168,7 +168,7 @@
             <string>&amp;Find in Text...</string>
         </property>
         <property name="whatsThis">
-            <string>Opens the Find dialog. Qt Assistant will search the currently displayed page for the text you enter.</string>
+            <string>Open the Find dialog. Qt Assistant will search the currently displayed page for the text you enter.</string>
         </property>
         <property name="accel">
             <number>272629830</number>
