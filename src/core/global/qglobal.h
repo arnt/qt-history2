@@ -1295,7 +1295,8 @@ class QBool
 
 public:
     inline explicit QBool(bool B) : b(B) {}
-    inline operator void *() const { return b ? (void *)0 : (void *)this; }
+    inline operator const void *() const
+    { return b ? static_cast<const void *>(this) : static_cast<const void *>(0); }
 };
 
 
