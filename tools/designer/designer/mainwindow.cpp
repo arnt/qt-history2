@@ -2593,8 +2593,10 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
 	    QToolBar *tb = new QDesignerToolBar( mw );
 	    mw->addToolBar( tb, "Toolbar" );
 	} else if ( id == commands[ "add_menu_item" ] ) {
-	    QPopupMenu *popup = new QPopupMenu( mw );
-	    popup->insertItem( "" );
+	    QDesignerPopupMenu *popup = new QDesignerPopupMenu( mw );
+	    popup->insertItem( "", 0, 0, 0, 42 );
+	    if ( !mw->child( 0, "QMenuBar" ) )
+		(void)new QDesignerMenuBar( (QWidget*)mw );
 	    mw->menuBar()->insertItem( "Menu", popup );
 	}
     }
