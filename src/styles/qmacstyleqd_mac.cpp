@@ -759,8 +759,6 @@ void QMacStyleQD::drawControl(ControlElement element,
 		    // restore the previous brush origin
 		    p->setBrushOrigin(origin);
 		}
-	    } else if(!act) {
-		p->fillRect(xpos, y, checkcol, h, pal.brush(QPalette::Button));
 	    }
 
 	    QIconSet::Mode mode = dis ? QIconSet::Disabled : QIconSet::Normal;
