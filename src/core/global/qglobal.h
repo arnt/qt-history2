@@ -899,7 +899,7 @@ class QDataStream;
 #ifndef Q_DECL_EXPORT
 #  ifdef Q_OS_WIN
 #    define Q_DECL_EXPORT __declspec(dllexport)
-#  elif defined(__GNUC__) && __GNUC__ >= 4
+#  elif defined(QT_VISIBILITY_AVAILABLE)
 #    define Q_DECL_EXPORT __attribute__((visibility("default")))
 #  endif
 #  ifndef Q_DECL_EXPORT
