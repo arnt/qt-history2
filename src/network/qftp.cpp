@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qftp.cpp#15 $
+** $Id: //depot/qt/main/src/network/qftp.cpp#16 $
 **
 ** Implementation of QFtp class.
 **
@@ -54,12 +54,11 @@
 
 /*!
   \class QFtp qftp.h
-  \brief The QFtp class implements the FTP protocol.
+  \brief The QFtp class provides an implementation of the FTP protocol.
 
   \module network
 
-  The QFtp class implements the FTP protocol. This class
-  is derived from QNetworkProtocol and can be
+  This class is derived from QNetworkProtocol and can be
   used with QUrlOperator. In fact, you normally will not
   use the QFtp class directly, but rather use it through
   the QUrlOperator like
@@ -69,13 +68,15 @@
   op.listChildren();
   \endcode
 
+  This code will only work if the QFtp class is registered; to register the
+  class, you have to call qInitNetworkProtocols() before using a QUrlOperator
+  with FTP.
+
   If you really need to use QFtp directly, don't forget
   to set the QUrlOperator on which it works using
   setUrl().
 
-  See also the <a href="network.html">Qt Network Documentation</a>
-
-  \sa QNetworkProtocol, QUrlOperator
+  \sa <a href="network.html">Qt Network Documentation</a> QNetworkProtocol, QUrlOperator
 */
 
 
