@@ -586,6 +586,9 @@ QByteArray QIODevice::read(Q_LONGLONG maxlen)
 {
     CHECK_MAXLEN(read, QByteArray());
     QByteArray tmp;
+    if (maxlen == 0)
+        return tmp;
+
     Q_LONGLONG readSoFar = 0;
     char buffer[4096];
 
