@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#323 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#324 $
 **
 ** Implementation of QWidget class
 **
@@ -3116,6 +3116,8 @@ QSize QWidget::sizeHint() const
   <dt>WState_ConfigPending<dd> Config (resize,move) event pending.
   <dt>WResizeNoErase<dd> Widget resizing should not erase the widget.
 			This allows smart-repainting to avoid flicker.
+  <dt>WMouseNoMask<dd> Even if the widget has a mask, mouse events
+			are delivered for the entire rectangle.
   <dt>WState_Reparented<dd> The widget has been reparented.
   <dt>WExportFontMetrics<dd> Somebody refers the font's metrics.
   <dt>WExportFontInfo<dd> Somebody refers the font's info.

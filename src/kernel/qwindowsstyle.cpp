@@ -558,9 +558,20 @@ void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, in
     if ( maxedOut ) {
 	p->drawRect( sliderR );
     } else {
-	if ( controls & SUB_PAGE )
+	if ( (controls & SUB_PAGE && SUB_PAGE == activeControl) ||
+	     (controls  & ADD_PAGE && ADD_PAGE == activeControl) ) {
+	    QBrush b = p->brush();	
+	    QColor c = p->backgroundColor();
+// 	    p->fillRect( ADD_PAGE == activeControl? addPageR : subPageR, g.fillDark() );
+	    p->setBackgroundColor( g.dark() );
+ 	    p->setBrush( QBrush(g.shadow(), Dense4Pattern) );
+ 	    p->drawRect( ADD_PAGE == activeControl? addPageR : subPageR );
+	    p->setBackgroundColor( c );
+	    p->setBrush( b );
+	}
+	if ( controls & SUB_PAGE && SUB_PAGE != activeControl)
 	    p->drawRect( subPageR );
-	if ( controls & ADD_PAGE )
+	if ( controls & ADD_PAGE && ADD_PAGE != activeControl)
 	    p->drawRect( addPageR );
 	if ( controls & SLIDER ) {
 	    if ( !maxedOut ) {

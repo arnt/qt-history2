@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#180 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#181 $
 **
 ** Implementation of QApplication class
 **
@@ -446,6 +446,11 @@ void QApplication::setStyle( QStyle *style )
     QStyle* old = app_style;
     app_style = style;
 
+    if ( startingUp() ) {
+	delete old;
+	return;
+    }
+    
     if (old) {
 	if ( is_app_running && !is_app_closing ) {
 	    QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
@@ -1320,7 +1325,7 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 	    }
 	}
     }
-    
+
     receiver->pendEvent = TRUE;
     event->posted = TRUE;
     postedEvents->append( new QPostEvent(receiver,event) );

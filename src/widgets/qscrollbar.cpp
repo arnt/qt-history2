@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#116 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#117 $
 **
 ** Implementation of QScrollBar class
 **
@@ -567,20 +567,13 @@ void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
     mouseMoveEvent( e );  // Might have moved since last mouse move event.
     pressedControl = QStyle::NONE;
 
-    switch( tmp ) {
-	case QStyle::SLIDER: // Set value directly, we know we don't have to redraw.
-	    directSetValue( calculateValueFromSlider() );
-	    emit sliderReleased();
-	    if ( value() != prevValue() )
-		emit valueChanged( value() );
-	    break;
-	case QStyle::ADD_LINE:
-	case QStyle::SUB_LINE:
-	    PRIV->drawControls( tmp, pressedControl );
-	    break;
-	default:
-	    break;
+    if (tmp == QStyle::SLIDER) {
+	directSetValue( calculateValueFromSlider() );
+	emit sliderReleased();
+	if ( value() != prevValue() )
+	    emit valueChanged( value() );
     }
+    PRIV->drawControls( tmp, pressedControl );
 }
 
 

@@ -33,12 +33,12 @@ QMotifStyle::QMotifStyle() : QStyle(MotifStyle)
 void QMotifStyle::polish( QApplication* app)
 {
     oldPalette = *app->palette();
-
+    
     // force the ugly motif way of highlighting *sigh*
     QColorGroup normal = app->palette()->normal();
     QColorGroup disabled = app->palette()->disabled();
     QColorGroup active = app->palette()->active();
-    
+
     int h,s,v;
     normal.text().hsv(&h,&s,&v);
     if (v >= 255-50) {
