@@ -568,7 +568,7 @@ int QSqlQuery::size() const
 
 /*!  Returns the number of rows affected by the result's SQL
   statement, or -1 if it cannot be determined.  Note that for SELECT
-  statements, this value will be the same as size(), If the query is
+  statements, this value will be the same as size(). If the query is
   not active (isActive() returns FALSE), -1 is returned.
 
   \sa size() QSqlDatabase::hasQuerySizeSupport()
