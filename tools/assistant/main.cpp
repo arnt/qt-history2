@@ -229,10 +229,9 @@ int main( int argc, char ** argv )
     if ( argc > 1 ) {
 	QString arg( argv[1] );
 	arg = arg.lower();
-	if ( arg != "-file" &&
-	     arg != "-server" &&
-	     arg != "-category" &&
-	     arg[0] == '-'  )
+	if ( arg == "-addcontentfile" ||
+	     arg == "-removecontentfile" ||
+	     arg == "-help" )
 	    withGUI = FALSE;
     }
     QApplication a( argc, argv, withGUI );
@@ -241,32 +240,32 @@ int main( int argc, char ** argv )
     QStringList catlist;
     QString file = "";
     bool server = FALSE;
-    if ( a.argc() == 2 ) {
-	if ( (a.argv()[1])[0] != '-' )
-	    file = a.argv()[1];
+    if ( argc == 2 ) {
+	if ( (argv[1])[0] != '-' )
+	    file = argv[1];
     }
     if ( file.isEmpty() ) {
-	for ( int i = 1; i < a.argc(); i++ ) {
-	    if ( QString( a.argv()[i] ).lower() == "-file" ) {
+	for ( int i = 1; i < argc; i++ ) {
+	    if ( QString( argv[i] ).lower() == "-file" ) {
 		i++;
-		file = a.argv()[i];
-	    } else if ( QString( a.argv()[i] ).lower() == "-server" ) {
+		file = argv[i];
+	    } else if ( QString( argv[i] ).lower() == "-server" ) {
 	        server = TRUE;
-	    } else if ( QString( a.argv()[i] ).lower() == "-category" ) {
+	    } else if ( QString( argv[i] ).lower() == "-category" ) {
 		i++;
-		catlist << QString(a.argv()[i]).lower();
-	    } else if ( QString( a.argv()[i] ).lower() == "-addcontentfile" ) {
+		catlist << QString(argv[i]).lower();
+	    } else if ( QString( argv[i] ).lower() == "-addcontentfile" ) {
 		i++;
 		EditDocs ed;
-		if ( !ed.addDocFile( a.argv()[i] ) )
+		if ( !ed.addDocFile( argv[i] ) )
 		    exit( 1 );
 		exit( 0 );
-	    } else if ( QString( a.argv()[i] ).lower() == "-removecontentfile" ) {
+	    } else if ( QString( argv[i] ).lower() == "-removecontentfile" ) {
 		i++;
 		EditDocs ed;
-		ed.removeDocFile( a.argv()[i] );
+		ed.removeDocFile( argv[i] );
 		exit( 0 );
-	    } else if ( QString( a.argv()[i] ).lower() == "-help" ) {
+	    } else if ( QString( argv[i] ).lower() == "-help" ) {
 		printf( "Usage: assistant [option]\n" );
 		printf( "Options:\n" );
 		printf( " -file Filename          assistant opens the specified file\n" );
