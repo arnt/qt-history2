@@ -767,6 +767,7 @@ QWidget::~QWidget()
 	childObjects = 0;
     }
 
+    QApplication::removePostedEvents( this );
     if ( extra )
 	deleteExtra();
     destroy();					// platform-dependent cleanup
@@ -964,6 +965,12 @@ void QWidget::deleteExtra()
 #endif
 	    delete extra->topextra;
 	}
+#if defined(DEUBG)
+	if ( extra->posted_events )
+	    qWarning( "QWidget::deleteExtra: Memory leak for "
+		      "extra->posted_events (%p)", extra->posted_events );
+	// removePostedEvents( this ) must be called before deleteExtra()
+#endif
 	delete extra;
 	// extra->xic destroyed in QWidget::destroy()
 	extra = 0;

@@ -1809,7 +1809,7 @@ QString QApplication::translate( const char * scope, const char * key ) const
 void QApplication::postEvent( QObject *receiver, QEvent *event )
 {
     if ( !postedEvents ) {			// create list
-	postedEvents = new QList<QPostEvent>;
+	postedEvents = new QPostEventList;
 	CHECK_PTR( postedEvents );
 	postedEvents->setAutoDelete( TRUE );
 	qAddPostRoutine( cleanupPostedEvents );
@@ -1829,7 +1829,7 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 	    ((QWidget*)receiver)->createExtra();
 	if ( ((QWidget*)receiver)->extra->posted_events == 0 )
 	    ((QWidget*)receiver)->extra->posted_events
-		= (void*) new QList<QPostEvent>;
+		= (void*) new QPostEventList;
 	l = (QPostEventList**)&(((QWidget*)receiver)->extra->posted_events);
     }
 
@@ -1840,7 +1840,7 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 	 event->type() == QEvent::Move ) {
 	(*l)->first();
 	QPostEvent * cur = 0;
-	while ( (cur=(*l)->current()) != 0 && 
+	while ( (cur=(*l)->current()) != 0 &&
 		( cur->receiver != receiver ||
 		  cur->event == 0 ||
 		  cur->event->type() != event->type() ||
@@ -1927,7 +1927,7 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	int s = postedEvents->count() * 3 / 2;
 	if ( s < 787 )
 	    s = 787;
-	if ( postedEventReceivers )
+	if( postedEventReceivers )
 	    postedEventReceivers->resize( s );
 	else
 	    postedEventReceivers = new QPtrDict<QObject>( s );
@@ -1937,12 +1937,8 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 
     while ( (pe=it.current()) != 0 ) {
 	++it;
-	if ( pe->receiver == 0 ) {
-	    // insane
-	} else if ( pe->event == 0 ) {
-	    // it was delivered earlier, so we just remember the
-	    // receiver for later housecleaning
-	    postedEventReceivers->replace( pe->receiver, pe->receiver );
+	if ( pe->receiver == 0 || pe->event == 0 ) {
+	    // already sent or deleted
 	} else if ( receiver == 0 || receiver == pe->receiver ) {
 	    // it's for the right receiver
 	    if ( event_type == 0 || event_type == pe->event->type() ) {
@@ -1968,28 +1964,24 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	}
     }
 
-
-    if ( !receiver || !morePostedEvents || !postedEventReceivers ) {
+    if ( ( !receiver || !morePostedEvents ) && postedEventReceivers ) {
 	QPtrDictIterator<QObject> it( *postedEventReceivers );
 	QObject * o;
 	while( (o=it.current()) != 0 ) {
 	    ++it;
-	    if ( o ) {
-		o->pendEvent = FALSE;
-		if ( o->isWidgetType() ) {
-		    QWidget * w = (QWidget*)o;
-		    if ( w->extra ) {
-			delete (QPostEventList*)(w->extra->posted_events);
-			w->extra->posted_events = 0;
-		    }
+	    postedEventReceivers->take( o );
+	    o->pendEvent = FALSE;
+	    if ( o->isWidgetType() ) {
+		QWidget * w = (QWidget*)o;
+		if ( w->extra && w->extra->posted_events ) {
+		    delete (QPostEventList*)(w->extra->posted_events);
+		    w->extra->posted_events = 0;
 		}
 	    }
 	}
 	if ( postedEventReceivers->size() > postedEvents->count() * 4 ) {
 	    delete postedEventReceivers;
 	    postedEventReceivers = 0;
-	} else {
-	    postedEventReceivers->clear();
 	}
     }
 
@@ -2018,27 +2010,44 @@ static void cleanupPostedEvents()		// cleanup list
 
 void QApplication::removePostedEvents( QObject *receiver )
 {
+    if ( postedEventReceivers )
+	postedEventReceivers->take( receiver );
     if ( !postedEvents || !receiver || !receiver->pendEvent )
 	return;
 
-    QPostEventList ** l = &postedEvents;
-
-    // override that with an object-specific list, if possible
+    // iterate over the object-specifc list, or maybe over the general
+    // list, and delete the events.  leave the QPostEvent objects;
+    // they'll be deleted by sendPostedEvents().
     if ( receiver && receiver->isWidgetType() &&
 	 ((QWidget*)receiver)->extra &&
-	 ((QWidget*)receiver)->extra->posted_events )
-	l = (QPostEventList**)&(((QWidget*)receiver)->extra->posted_events);
-
-    QPostEventListIt it( **l );
-    QPostEvent * pe;
-    while( (pe = it.current()) != 0 ) {
-	++it;
-	if ( pe->receiver == receiver && pe->event ) {
-	    pe->event->posted = FALSE;
-	    delete pe->event;
-	    pe->event = 0;
+	 ((QWidget*)receiver)->extra->posted_events ) {
+	QPostEventList * l 
+	    = (QPostEventList*)(((QWidget*)receiver)->extra->posted_events);
+	((QWidget*)receiver)->extra->posted_events = 0;
+	l->first();
+	QPostEvent * pe;
+	while( (pe=l->current()) != 0 ) {
+	    if ( pe->receiver == receiver && pe->event ) {
+		pe->event->posted = FALSE;
+		delete pe->event;
+		pe->event = 0;
+	    }
+	    l->next();
+	}
+	delete l;
+    } else {
+	postedEvents->current();
+	QPostEvent * pe;
+	while( (pe=postedEvents->current()) != 0 ) {
+	    if ( pe->receiver == receiver && pe->event ) {
+		pe->event->posted = FALSE;
+		delete pe->event;
+		pe->event = 0;
+	    }
+	    postedEvents->next();
 	}
     }
+    receiver->pendEvent = FALSE;
 }
 
 

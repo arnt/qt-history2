@@ -1,6 +1,7 @@
 #include <qapp.h>
 #include <qwidget.h>
 #include <qptrdict.h>
+#include <qdatetime.h>
 
 QPtrDict<QWidget> widgets( 9949 );
 
@@ -21,29 +22,35 @@ TimerWidget::TimerWidget( QWidget * parent )
 
 
 void TimerWidget::paintEvent( QPaintEvent * )
-{ 
+{
     widgets.take( this );
     if ( widgets.isEmpty() )
 	qApp->quit();
 }
 
-const int s = 1000;
+const int size = 1000;
 
 int main( int argc, char ** argv ) {
     QApplication a( argc, argv );
 
+    QTime s;
+    s.start();
+
     TimerWidget * top = new TimerWidget( 0 );
-    top->resize( s, s );
+    top->resize( size, size );
     int x, y;
-    for( x = 5; x < s; x += 20 ) {
-	debug( "x %d", x );
-	for( y = 5; y < s; y += 20 ) {
+    int w = 1;
+    for( x = 5; x < size; x += 20 ) {
+	for( y = 5; y < size; y += 20 ) {
 	    QWidget * c = new TimerWidget( top );
 	    c->setGeometry( x, y, 10, 10 );
+	    w++;
 	}
     }
 
+    debug( "Created %d widgets.\nCreation %2.3fs", w, s.restart()*0.001 );
     top->show();
-
-    return a.exec();
+    debug( "show()   %2.3fs", s.restart()*0.001 );
+    (void)a.exec();
+    debug( "exec()   %2.3fs", s.restart()*0.001 );
 }
