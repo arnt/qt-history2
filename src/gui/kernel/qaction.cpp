@@ -718,7 +718,7 @@ QAction::event(QEvent *e)
                    "QAction::event",
                    "Received shortcut event from incorrect shortcut");
         if (se->isAmbiguous())
-            qWarning("QAction::eventFilter: ambiguous shortcut overload");
+            qWarning("QAction::eventFilter: ambiguous shortcut overload: %s", QString(se->key()).latin1());
         else
             activate(Trigger);
         return true;
