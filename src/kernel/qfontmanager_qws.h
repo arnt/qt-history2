@@ -17,7 +17,6 @@
 
 #ifndef QT_H
 #include "qfont.h"
-#include "qptrlist.h"
 #include <private/qtextengine_p.h>
 #endif // QT_H
 
