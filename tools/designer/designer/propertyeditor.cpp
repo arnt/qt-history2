@@ -583,8 +583,10 @@ QLineEdit *PropertyTextItem::lined()
 		lin->setEnabled( FALSE );
 	} else {
 	    lin->setValidator( new AsciiValidator( QString("!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
-							   "¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿"),
-						   lin, "ascii_validator" ) );
+							   "\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9"
+							   "\xaa\xab\xac\xad\xae\xaf\xb1\xb2\xb3"
+							   "\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc"
+							   "\xbd\xbe\xbf"), lin, "ascii_validator" ) );
 	}
     } if ( !hasMultiLines ) {
 	lin->hide();
