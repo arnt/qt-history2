@@ -56,7 +56,7 @@ OSErr FSpLocationFromFullPath(short, const void *, FSSpec *); //qsound_mac.cpp
 	    and supported by QTextDrag.
     \i kScrapFlavorTypeText - converted to "text/plain;charset=system" or "text/plain"
 	    and supported by QTextDrag.
-    \i kScrapFlavorTypePicture - converted to "image/*", where * is
+    \i kScrapFlavorTypePicture - converted to "image/format", where format is
 		a \link QImage::outputFormats() Qt image format\endlink,
 	    and supported by QImageDrag.
     \i kDragFlavorTypeHFS - converted to "text/uri-list",
