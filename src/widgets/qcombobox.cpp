@@ -924,6 +924,10 @@ void QComboBox::setCurrentItem( int index )
     if ( !checkIndex( "setCurrentItem", name(), count(), index ) ) {
 	return;
     }
+
+    if ( d->usingListBox() && !listBox()->item( index )->isSelectable() )
+	return;
+
     d->current = index;
     d->completeAt = 0;
     if ( d->ed ) {
@@ -1021,8 +1025,10 @@ QSize QComboBox::sizeHint() const
 void QComboBox::internalActivate( int index )
 {
     if ( d->current != index ) {
-	d->current = index;
-	currentChanged();
+	if ( !d->usingListBox() || listBox()->item( index )->isSelectable() ) {
+	    d->current = index;
+	    currentChanged();
+	}
     }
     if ( d->usingListBox() )
 	popDownListBox();
