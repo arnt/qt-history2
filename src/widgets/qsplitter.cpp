@@ -572,7 +572,6 @@ void QSplitter::moveSplitter( QCOORD p, int id )
 
 void QSplitter::setGeo( QWidget *w, int p, int s, bool splitterMoved )
 {
-qDebug( "%ssetGeo( %s, %d, %d )", splitterMoved ? "" : "\t", w->name(), p, s );
     QRect r;
     if ( orient == Horizontal ) {
 	if ( QApplication::reverseLayout() && orient == Horizontal
