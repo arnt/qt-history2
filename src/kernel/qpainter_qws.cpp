@@ -44,7 +44,7 @@
 #include "qpaintdevicemetrics.h"
 #include "qgfx_qws.h"
 #include <string.h>
-#include "qtextlayout.h"
+#include "qtextlayout_p.h"
 #include "qtextengine_p.h"
 
 /* paintevent magic to provide Windows semantics on Qt/E

@@ -98,7 +98,7 @@ kernel {
 		  $$KERNEL_CPP/qscriptengine_p.h \
 		  $$KERNEL_CPP/qtextengine_p.h \
 		  $$KERNEL_CPP/qfontengine_p.h \
-		  $$KERNEL_CPP/qtextlayout.h
+		  $$KERNEL_CPP/qtextlayout_p.h
 
 	win32:SOURCES += $$KERNEL_CPP/qapplication_win.cpp \
 		  $$KERNEL_CPP/qclipboard_win.cpp \

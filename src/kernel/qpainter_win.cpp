@@ -42,7 +42,7 @@
 #include "qcomplextext_p.h"
 #include "qfontdata_p.h"
 #include "qt_windows.h"
-#include "qtextlayout.h"
+#include "qtextlayout_p.h"
 #include "qtextengine_p.h"
 
 

@@ -53,7 +53,7 @@
 #include "qpaintdevicemetrics.h"
 #include "qt_x11.h"
 
-#include "qtextlayout.h"
+#include "qtextlayout_p.h"
 #include "qtextengine_p.h"
 
 #include <math.h>
