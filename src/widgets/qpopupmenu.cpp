@@ -1283,9 +1283,11 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
     if ( parentMenu && parentMenu->isPopupMenu ) {
 	QPopupMenu* p = (QPopupMenu*)parentMenu;
 	int myIndex;
+	QPoint pPos;
 
 	p->findPopup( this, &myIndex );
-	if ( p->actItem != myIndex )
+	pPos = p->mapFromParent( mapToGlobal( e->pos() ) );
+	if ( p->actItem != myIndex && !p->rect().contains( pPos ) )
 	    p->setActiveItem( myIndex );
     }
 
