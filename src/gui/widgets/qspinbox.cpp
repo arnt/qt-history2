@@ -528,7 +528,7 @@ void QSpinBox::setRange(int min, int max)
 
 QString QSpinBox::textFromValue(int v) const
 {
-    return QLocale().toString(v);
+    return QString::number(v);
 }
 
 /*!
@@ -989,7 +989,7 @@ QString QDoubleSpinBox::textFromValue(double v) const
 {
     Q_D(const QDoubleSpinBox);
 
-    return QLocale().toString(v, 'f', d->decimals);
+    return QString::number(v, 'f', d->decimals);
 }
 
 /*!
