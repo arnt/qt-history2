@@ -12,6 +12,7 @@
 #include <qpopupmenu.h>
 #include <qscrollbar.h>
 #include <qslider.h>
+#include <qtabbar.h>
 #include <qt_mac.h>
 
 #include <private/qaquastyle_p.h>
@@ -395,6 +396,16 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r
         HIThemeDrawButton(qt_glb_mac_rect(r, p), &bi, static_cast<CGContextRef>(p->handle()),
                           kHIThemeOrientationNormal, 0);
         break; }
+    case PE_TabBarBase: {
+        HIThemeTabPaneDrawInfo tpdi;
+        tpdi.version = qt_mac_hitheme_version;
+        tpdi.state = tds;
+        // ### HELP! I need the widget to get the size and position...
+        tpdi.direction = kThemeTabNorth;
+        tpdi.size = kHIThemeTabSizeNormal;
+        HIThemeDrawTabPane(qt_glb_mac_rect(r, p), &tpdi, static_cast<CGContextRef>(p->handle()),
+                           kHIThemeOrientationNormal);
+        break; }
     default:
 	QWindowsStyle::drawPrimitive(pe, p, r, pal, flags, opt);
 	break;
@@ -597,6 +608,60 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
     case CE_ProgressBarLabel:
     case CE_ProgressBarGroove:
         break;
+    case CE_TabBarTab: {
+        const QTabBar *tabbar = static_cast<const QTabBar *>(widget);
+        HIThemeTabDrawInfo tdi;
+        tdi.version = qt_mac_hitheme_version;
+        ThemeTabStyle tts = kThemeTabNonFront;
+	if(how & Style_Selected) {
+	    if(!qAquaActive(pal))
+		tts = kThemeTabFrontUnavailable;
+	    else if(!(how & Style_Enabled))
+		tts = kThemeTabFrontInactive;
+	    else
+		tts = kThemeTabFront;
+	} else if(!qAquaActive(pal)) {
+	    tts = kThemeTabNonFrontUnavailable;
+	} else if(!(how & Style_Enabled)) {
+	    tts = kThemeTabNonFrontInactive;
+	} else if((how & Style_Sunken) && (how & Style_MouseOver)) {
+	    tts = kThemeTabNonFrontPressed;
+	}
+        tdi.style = tts;
+        if (tabbar->shape() == QTabBar::RoundedAbove || tabbar->shape() == QTabBar::TriangularAbove)
+            tdi.direction = kThemeTabNorth;
+        else
+            tdi.direction = kThemeTabSouth;
+        tdi.size = kHIThemeTabSizeNormal;
+        if (how & Style_HasFocus)
+            tdi.adornment = kHIThemeTabAdornmentFocus;
+        else
+            tdi.adornment = kHIThemeTabAdornmentNone;
+        QRect tabrect = r;
+        tabrect.setHeight(tabrect.height() + pixelMetric(PM_TabBarBaseOverlap, widget));
+        HIThemeDrawTab(qt_glb_mac_rect(tabrect, p), &tdi, static_cast<CGContextRef>(p->handle()),
+                       kHIThemeOrientationNormal, 0);
+        // If the tab is not selected, we have to redraw a portion of the pane.
+        if (!(how & Style_Selected)) {
+            HIThemeTabPaneDrawInfo tpdi;
+            tpdi.version = qt_mac_hitheme_version;
+            tpdi.state = tds;
+            tpdi.direction = tdi.direction;
+            tpdi.size = tdi.direction;
+            // This fudge is used to so we don't draw the edges of the pane in the middle.
+            // So draw a little bit more and clip it.
+            const int FUDGE = 20;
+            QRect panerect(r.x() - FUDGE, r.bottom() - 2, 2 * FUDGE + r.width(),
+                           pixelMetric(PM_TabBarBaseHeight, widget));
+            if (tdi.direction == kThemeTabSouth)
+                panerect.moveBy(0, (-r.height() + 2));
+            QRegion oldRegion = p->clipRegion();
+            p->setClipRect(r.x(), panerect.y(), r.width(), panerect.height());
+            HIThemeDrawTabPane(qt_glb_mac_rect(panerect, p), &tpdi,
+                               static_cast<CGContextRef>(p->handle()), kHIThemeOrientationNormal);
+            p->setClipRegion(oldRegion);
+        }
+        break; }
     default:
 	QWindowsStyle::drawControl(element, p, widget, r, pal, how, opt);
     }
@@ -691,6 +756,28 @@ int QMacStyleCG::pixelMetric(PixelMetric metric, const QWidget *widget) const
         break;
     case PM_SliderLength:
 	ret = 17;
+	break;
+    case PM_ScrollBarExtent: {
+	ThemeMetric tm = kThemeMetricScrollBarWidth;
+	if(qt_aqua_size_constrain(widget) == QAquaSizeSmall)
+	    tm = kThemeMetricSmallScrollBarWidth;
+	GetThemeMetric(tm, &ret);
+	break; }
+    case PM_TabBarTabShiftHorizontal:
+    case PM_TabBarTabShiftVertical:
+	ret = 0;
+	break;
+    case PM_TabBarTabVSpace:
+	ret = 4;
+	break;
+    case PM_TabBarBaseHeight:
+	ret = 8;
+	break;
+    case PM_TabBarTabOverlap:
+	GetThemeMetric(kThemeMetricTabOverlap, &ret);
+	break;
+    case PM_TabBarBaseOverlap:
+	GetThemeMetric(kThemeMetricTabFrameOverlap, &ret);
 	break;
     default:
 	ret = QWindowsStyle::pixelMetric(metric, widget);
@@ -830,17 +917,26 @@ QStyle::SubControl QMacStyleCG::querySubControl(ComplexControl control, const QW
 }
 
 int QMacStyleCG::styleHint(StyleHint sh, const QWidget *widget, const QStyleOption &opt,
-		       QStyleHintReturn *ret) const
+                           QStyleHintReturn *d) const
 {
-    int returnMe;
+    SInt32 ret = 0;
     switch (sh) {
     case SH_UnderlineAccelerator:
-        returnMe = false;
+        ret = false;
+        break;
+    case SH_TabBar_PreferNoArrows:
+	ret = true;
+	break;
+    case SH_TabBar_Alignment:
+        ret = Qt::AlignHCenter;
+        break;
+    case SH_TabBar_SelectMouseType:
+        ret = QEvent::MouseButtonRelease;
         break;
     default:
-        returnMe = QWindowsStyle::styleHint(sh, widget, opt, ret);
+        ret = QWindowsStyle::styleHint(sh, widget, opt, d);
     }
-    return returnMe;
+    return ret;
 }
 
 QSize QMacStyleCG::sizeFromContents(ContentsType contents, const QWidget *w,
