@@ -8,6 +8,8 @@
 \i \link #SystemVariables System Variables \endlink
 \i \link #Functions Functions \endlink
 \i \link #Environment Environment Variables and Configuration \endlink
+\i \link #Extensions File Extensions \endlink
+\i \link #Customizing Customizing Makefile Output \endlink
 \endlist
 
 
