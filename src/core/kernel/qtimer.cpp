@@ -30,16 +30,16 @@
     to the appropriate slots, and call start(). From then on it will
     emit the timeout() signal at constant intervals.
 
-    Example for a five second, or 5000 millisecond, timer (from the
-    \l widgets/analogclock example):
+    Example for a one second (1000 millisecond) timer (from the
+    \l{widgets/analogclock}{Analog Clock} example):
 
     \quotefromfile widgets/analogclock/analogclock.cpp
     \skipto = new QTimer
     \printline = new
     \printline connect
-    \printline start(5000)
+    \printline start(1000)
 
-    From then on, the \c update() slot is called every five seconds.
+    From then on, the \c update() slot is called every second.
 
     You can set a timer to time out only once by calling
     setSingleShot(true). You can also use the static

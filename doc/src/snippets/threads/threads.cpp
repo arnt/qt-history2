@@ -1,4 +1,6 @@
+#include <QCache>
 #include <QMutex>
+#include <QThreadStorage>
 
 #include "threads.h"
 
@@ -37,6 +39,26 @@ private:
     mutable QMutex mutex;
     int n;
 };
+
+typedef int SomeClass;
+
+QThreadStorage<QCache<QString, SomeClass> *> caches;
+
+void cacheObject(const QString &key, SomeClass *object)
+{
+    if (!caches.hasLocalData())
+        caches.setLocalData(new QCache<QString, SomeClass>);
+
+    caches.localData()->insert(key, object);
+}
+
+void removeFromCache(const QString &key)
+{
+    if (!caches.hasLocalData())
+        return;
+
+    caches.localData()->remove(key);
+}
 
 int main()
 {

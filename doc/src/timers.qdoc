@@ -55,8 +55,8 @@
     events in any thread that has an event loop. To start an event
     loop from a non-GUI thread, use QThread::exec().
 
-    The \l widgets/analogclock example shows how to use QTimer to
-    redraw a widget at regular intervals. From \c{AnalogClock}'s
+    The \l{widgets/analogclock}{Analog Clock} example shows how to use
+    QTimer to redraw a widget at regular intervals. From \c{AnalogClock}'s
     implementation:
 
     \quotefromfile widgets/analogclock/analogclock.cpp
@@ -66,14 +66,13 @@
     \printline {
     \printline QTimer
     \printline connect(
-    \printline start(5000)
+    \printline start(1000)
     \dots
     \skipto /^\}$/
     \printline }
 
-    Every 5 seconds, QTimer will call the QWidget::update() slot to
-    refresh the clock's display. (An analog clock advances very
-    slowly, so 5 seconds is a reasonable delay.)
+    Every second, QTimer will call the QWidget::update() slot to
+    refresh the clock's display.
 
     If you already have a QObject subclass and want an easy
     optimization, you can use QBasicTimer instead of QTimer. With

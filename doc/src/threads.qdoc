@@ -111,9 +111,9 @@
 
     QSemaphore is a generalization of QMutex that protects a certain
     number of identical resources. In contrast, a mutex protects
-    exactly one resource. The \c thread/semaphore example shows a
-    typical application of semaphores: synchronizing access to a
-    circular buffer between a producer and a consumer.
+    exactly one resource. The \l{threads/semaphores}{Semaphores}
+    example shows a typical application of semaphores: synchronizing
+    access to a circular buffer between a producer and a consumer.
 
     QWaitCondition allows a thread to wake up other threads when some
     condition has been met. One or many threads can block waiting for
@@ -122,7 +122,9 @@
     \l{QWaitCondition::wakeAll()}{wakeAll()}. Use
     \l{QWaitCondition::wakeOne()}{wakeOne()} to wake one randomly
     selected event or \l{QWaitCondition::wakeAll()}{wakeAll()} to
-    wake them all.
+    wake them all. The \l{threads/waitconditions}{Wait Conditions}
+    example shows how to solve the producer-consumer problem using
+    QWaitCondition instead of QSemaphore.
 
     \section1 Reentrancy and Thread-Safety
 
@@ -238,7 +240,8 @@
     threads than the main thread can easily be worked around by
     putting time-consuming operations in a separate worker thread and
     displaying the results on screen in the main thread when the
-    worker thread is finished.
+    worker thread is finished. This is the approach used for
+    implementing the \l{threads/mandelbrot}{Mandelbrot} example.
 
     \section2 Per-Thread Event Loop
 
@@ -335,6 +338,14 @@
     object living in another thread is unsafe.
 
     QObject::connect() itself is thread-safe.
+
+    The \l{threads/mandelbrot}{Mandelbrot} example uses a queued
+    connection to communicate between a worker thread and the main
+    thread. To avoid freezing the main thread's event loop (and, as a
+    consequence, the application's user interface), all the
+    Mandelbrot fractal computation is done in a separate worker
+    thread. The thread emits a signal when it is done rendering the
+    fractal.
 
     \section1 Threads and Implicit Sharing
 
