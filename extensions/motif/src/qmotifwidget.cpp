@@ -6,6 +6,7 @@
 
 #include <X11/IntrinsicP.h>
 #include <X11/ShellP.h>
+#include <Xm/RowColumn.h>
 
 #include <X11/Xatom.h>
 
@@ -129,11 +130,12 @@ public:
 
     \extension QMotif
 
-    QMotifWidget has 2 main purposes: providing a toplevel QWidget and
-    providing a QWidget that can be used as the central widget in a
-    QMainWindow.
+    QMotifWidget has a single purpose, to provide a QWidget that can
+    act as a parent for any Xt/Motif widget.  Since the QMotifWidget
+    is a full QWidget, it an be used as a toplevel (e.g. zero parent) or as a
+    child of any other QWwidget.
 
-    An Xt/Motif widget created with a toplevel QMotifWidget can begin
+    An Xt/Motif widget with a toplevel QMotifWidget parent can begin
     using the standard Qt dialogs and custom QDialogs while keeping
     the main Xt/Motif interface of the application.  Using a
     QMotifWidget as the parent for the various QDialogs will ensure
@@ -141,26 +143,27 @@ public:
     application.
 
     Applications moving to Qt can have custom Xt/Motif widgets that
-    will take time to rewrite with Qt. QMotifWidget also provides a
-    way to use custom Xt/Motif widgets as the center widget of a
-    QMainWindow.
+    will take time to rewrite with Qt.  Such applications can use
+    these custom widgets as QMotifWidget with QWidget parents.  This
+    allows the interface of the application to be replaced gradually.
 */
 
 /*!
-    Creates a Motif widget with a QWidget parent.  Any kind of
-    Xt/Motif widget can be used.
+    Creates a QMotifWidget of the given \a widgetclass as a child of
+    \a parent, with the name \a name and widget flags \a flags.
 
-    Creates a Shell widget is created if the QWidget parent is zero.
-    The Shell is a special subclass of ApplicationShell.  This allows
-    applications that use QDialogs to have proper modality handling
-    through the QMotif extension.
+    The \a args and \a argcount arguments are passed on to
+    XtCreateWidget.
 
-    Future development will make it possible to use an Xt/Motif widget
-    inside a QWidget parent, which is useful for setting the center
-    widget in a QMainWindow.  Using Xt/Motif widgets with other
-    QWidget parents is beyond the scope of this implementation at the
-    moment, and if this functionality is needed, it will be added
-    later.
+    The motifWidget() function returns the resulting Xt/Motif widget.
+    This widget can be used as a parent for any other Xt/Motif widget.
+
+    If \a parent is a QMotifWidget, the Xt/Motif widget is created as
+    a child of the parent's motifWidget().  If \ parent is zero or a
+    normal QWidget, the Xt/Motif widget is created as a child of a
+    special ApplicationShell widget.  Xt/Motif widgets can use this
+    special ApplicationShell parent as the parent for existing
+    Xt/Motif dialogs or QMotifDialogs.
 */
 QMotifWidget::QMotifWidget( QWidget *parent, WidgetClass widgetclass,
                             ArgList args, Cardinal argcount,
@@ -188,8 +191,8 @@ QMotifWidget::QMotifWidget( QWidget *parent, WidgetClass widgetclass,
 }
 
 /*!
-    Destroys the QWidget and Xt/Motif widget.  If a Shell widget was
-    created by the constructor, it is also destroyed.
+    Destroys the QMotifWidget.  The special ApplicationShell is also
+    destroyed, if it was created during construction.
 */
 QMotifWidget::~QMotifWidget()
 {
@@ -271,9 +274,11 @@ bool QMotifWidget::x11Event( XEvent *event )
 */
 void QMotifWidget::realize( Widget w )
 {
-    // use the winid of the dialog shell, reparent any children we have
+    // use the winid of the dialog shell, reparent any children we
+    // have
     if ( XtWindow( w ) != winId() ) {
-        // save the geometry of the motif widget, since it has the geometry we want
+        // save the geometry of the motif widget, since it has the
+        // geometry we want
 	QRect save( w->core.x, w->core.y, w->core.width, w->core.height );
 
 	Window newid = XtWindow( w );
@@ -293,8 +298,9 @@ void QMotifWidget::realize( Widget w )
 	    }
 	}
 
-        // re-create this QWidget with the winid from the motif widget... the geometry
-        // will be reset to roughly 1/4 of the screen, so we need to restore it below
+        // re-create this QWidget with the winid from the motif
+        // widget... the geometry will be reset to roughly 1/4 of the
+        // screen, so we need to restore it below
 	create( newid, TRUE, TRUE );
 
 	QString cap;
@@ -330,6 +336,15 @@ void QMotifWidget::realize( Widget w )
         // restore geometry of the shell
 	XMoveResizeWindow( QPaintDevice::x11AppDisplay(), winId(),
 			   save.x(), save.y(), save.width(), save.height() );
+
+	// if this QMotifWidget has a parent widget, we should
+	// reparent the shell into that parent
+	if ( parentWidget() ) {
+	    XReparentWindow( QPaintDevice::x11AppDisplay(),
+			     winId(),
+			     parentWidget()->winId(),
+			     x(), y() );
+	}
     }
 }
 
