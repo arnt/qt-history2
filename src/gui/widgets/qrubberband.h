@@ -21,7 +21,6 @@ class QRubberBandPrivate;
 class Q_GUI_EXPORT QRubberBand : public QWidget
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QRubberBand)
 
 public:
     enum Shape { Line, Rectangle };
@@ -52,6 +51,9 @@ protected:
     void paintEvent(QPaintEvent *);
     void changeEvent(QEvent *);
     void updateMask();
+
+private:
+    Q_DECLARE_PRIVATE(QRubberBand)
 };
 
 #endif // QRUBBERBAND_H

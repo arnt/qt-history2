@@ -24,7 +24,6 @@ class QDialPrivate;
 class Q_GUI_EXPORT QDial: public QAbstractSlider
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QDial)
 
     Q_PROPERTY(bool wrapping READ wrapping WRITE setWrapping)
     Q_PROPERTY(int notchSize READ notchSize)
@@ -76,6 +75,7 @@ signals:
 #endif
 
 private:
+    Q_DECLARE_PRIVATE(QDial)
     Q_DISABLE_COPY(QDial)
 };
 

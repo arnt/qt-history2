@@ -21,7 +21,6 @@ class QFramePrivate;
 class Q_GUI_EXPORT QFrame : public QWidget
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QFrame)
 
     Q_ENUMS(Shape Shadow)
     Q_PROPERTY(Shape frameShape READ frameShape WRITE setFrameShape)
@@ -84,19 +83,21 @@ public:
     void setFrameRect(const QRect &);
 
 protected:
-    QFrame(QFramePrivate &, QWidget* parent, Qt::WFlags f = 0);
     void paintEvent(QPaintEvent *);
     void changeEvent(QEvent *);
-
     void drawFrame(QPainter *);
-
-private:
-    Q_DISABLE_COPY(QFrame)
 
 #ifdef QT_COMPAT
 public:
     QT_COMPAT_CONSTRUCTOR QFrame(QWidget* parent, const char* name, Qt::WFlags f = 0);
 #endif
+
+protected:
+    QFrame(QFramePrivate &, QWidget* parent, Qt::WFlags f = 0);
+
+private:
+    Q_DISABLE_COPY(QFrame)
+    Q_DECLARE_PRIVATE(QFrame)
 };
 
 #endif // QFRAME_H

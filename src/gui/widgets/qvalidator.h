@@ -26,19 +26,24 @@ class Q_GUI_EXPORT QValidator : public QObject
     Q_OBJECT
 public:
     QValidator(QObject * parent);
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QValidator(QObject * parent, const char *name);
-#endif
     ~QValidator();
 
-    enum State { Invalid, Intermediate,
+    enum State {
+        Invalid,
+        Intermediate,
 #ifdef QT_COMPAT
-	    Valid = Intermediate,
+        Valid = Intermediate,
 #endif
-	    Acceptable };
+        Acceptable
+    };
 
     virtual State validate(QString &, int &) const = 0;
     virtual void fixup(QString &) const;
+
+#ifdef QT_COMPAT
+public:
+    QT_COMPAT_CONSTRUCTOR QValidator(QObject * parent, const char *name);
+#endif
 
 private:
     Q_DISABLE_COPY(QValidator)
@@ -53,10 +58,6 @@ class Q_GUI_EXPORT QIntValidator : public QValidator
 public:
     QIntValidator(QObject * parent);
     QIntValidator(int bottom, int top, QObject * parent);
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QIntValidator(QObject * parent, const char *name);
-    QT_COMPAT_CONSTRUCTOR QIntValidator(int bottom, int top, QObject * parent, const char *name);
-#endif
     ~QIntValidator();
 
     QValidator::State validate(QString &, int &) const;
@@ -67,6 +68,12 @@ public:
 
     int bottom() const { return b; }
     int top() const { return t; }
+
+#ifdef QT_COMPAT
+public:
+    QT_COMPAT_CONSTRUCTOR QIntValidator(QObject * parent, const char *name);
+    QT_COMPAT_CONSTRUCTOR QIntValidator(int bottom, int top, QObject * parent, const char *name);
+#endif
 
 private:
     Q_DISABLE_COPY(QIntValidator)
@@ -87,11 +94,6 @@ class Q_GUI_EXPORT QDoubleValidator : public QValidator
 public:
     QDoubleValidator(QObject * parent);
     QDoubleValidator(double bottom, double top, int decimals, QObject * parent);
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QDoubleValidator(QObject * parent, const char *name);
-    QT_COMPAT_CONSTRUCTOR QDoubleValidator(double bottom, double top, int decimals,
-                                           QObject * parent, const char *name);
-#endif
     ~QDoubleValidator();
 
     QValidator::State validate(QString &, int &) const;
@@ -105,6 +107,12 @@ public:
     double top() const { return t; }
     int decimals() const { return d; }
 
+#ifdef QT_COMPAT
+public:
+    QT_COMPAT_CONSTRUCTOR QDoubleValidator(QObject * parent, const char *name);
+    QT_COMPAT_CONSTRUCTOR QDoubleValidator(double bottom, double top, int decimals,
+                                           QObject * parent, const char *name);
+#endif
 private:
     Q_DISABLE_COPY(QDoubleValidator)
 
@@ -121,16 +129,18 @@ class Q_GUI_EXPORT QRegExpValidator : public QValidator
 public:
     QRegExpValidator(QObject *parent);
     QRegExpValidator(const QRegExp& rx, QObject *parent);
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QRegExpValidator(QObject *parent, const char *name);
-    QT_COMPAT_CONSTRUCTOR QRegExpValidator(const QRegExp& rx, QObject *parent, const char *name);
-#endif
     ~QRegExpValidator();
 
     virtual QValidator::State validate(QString& input, int& pos) const;
 
     void setRegExp(const QRegExp& rx);
     const QRegExp& regExp() const { return r; }
+
+#ifdef QT_COMPAT
+public:
+    QT_COMPAT_CONSTRUCTOR QRegExpValidator(QObject *parent, const char *name);
+    QT_COMPAT_CONSTRUCTOR QRegExpValidator(const QRegExp& rx, QObject *parent, const char *name);
+#endif
 
 private:
     Q_DISABLE_COPY(QRegExpValidator)

@@ -95,15 +95,6 @@ protected:
     void changeEvent(QEvent *);
     void updateMask();
 
-private:
-    Q_DISABLE_COPY(QTabWidget)
-    Q_PRIVATE_SLOT(d, void showTab(int))
-    Q_PRIVATE_SLOT(d, void removeTab(int))
-    Q_DECLARE_PRIVATE(QTabWidget)
-
-    void setUpLayout(bool = false);
-    friend class Q3TabDialog;
-
 #ifdef QT_COMPAT
 public:
     QT_COMPAT_CONSTRUCTOR QTabWidget(QWidget *parent, const char *name, Qt::WFlags f = 0);
@@ -145,6 +136,15 @@ public slots:
 signals:
     QT_MOC_COMPAT void currentChanged(QWidget *);
 #endif // QT_COMPAT
+
+private:
+    Q_DECLARE_PRIVATE(QTabWidget)
+    Q_DISABLE_COPY(QTabWidget)
+    Q_PRIVATE_SLOT(d, void showTab(int))
+    Q_PRIVATE_SLOT(d, void removeTab(int))
+
+    void setUpLayout(bool = false);
+    friend class Q3TabDialog;
 };
 
 #endif // QT_NO_TABWIDGET

@@ -21,6 +21,7 @@
 class Q_GUI_EXPORT QRadioButton : public QAbstractButton
 {
     Q_OBJECT
+
     Q_OVERRIDE(bool autoExclusive DESIGNABLE true)
     Q_OVERRIDE(bool autoMask DESIGNABLE true SCRIPTABLE true)
 
@@ -39,7 +40,6 @@ protected:
 public:
     QT_COMPAT_CONSTRUCTOR QRadioButton(QWidget *parent, const char* name);
     QT_COMPAT_CONSTRUCTOR QRadioButton(const QString &text, QWidget *parent, const char* name);
-
 #endif
 
 private:

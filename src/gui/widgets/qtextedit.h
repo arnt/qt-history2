@@ -136,9 +136,6 @@ public:
 
     void ensureCursorVisible();
 
-#ifdef QT_COMPAT
-    QT_COMPAT void moveCursor(CursorAction action, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
-#endif
     virtual int heightForWidth(int width) const;
 
 public slots:
@@ -201,12 +198,7 @@ protected:
 
     QTextEdit(QTextEditPrivate &dd, QWidget *parent);
 
-private:
-    Q_DISABLE_COPY(QTextEdit)
-    Q_PRIVATE_SLOT(d, void update(const QRect &r))
-    Q_PRIVATE_SLOT(d, void updateCurrentCharFormatAndSelection())
-    Q_PRIVATE_SLOT(d, void adjustScrollbars())
-
+#ifdef QT_COMPAT
 signals:
     QT_MOC_COMPAT void textChanged();
     QT_MOC_COMPAT void undoAvailable(bool b);
@@ -214,7 +206,6 @@ signals:
     QT_MOC_COMPAT void currentFontChanged(const QFont &f);
     QT_MOC_COMPAT void currentColorChanged(const QColor &c);
 
-#ifdef QT_COMPAT
 public:
     QT_COMPAT_CONSTRUCTOR QTextEdit(QWidget *parent, const char *name);
     inline QT_COMPAT bool find(const QString &exp, bool cs, bool wo)
@@ -228,6 +219,8 @@ public:
     }
 
     inline QT_COMPAT void sync() {}
+
+    QT_COMPAT void moveCursor(CursorAction action, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
 
     enum KeyboardAction {
         ActionBackspace,
@@ -288,6 +281,13 @@ public slots:
     { setTextColor(c); }
 
 #endif
+
+private:
+    Q_DISABLE_COPY(QTextEdit)
+    Q_PRIVATE_SLOT(d, void update(const QRect &r))
+    Q_PRIVATE_SLOT(d, void updateCurrentCharFormatAndSelection())
+    Q_PRIVATE_SLOT(d, void adjustScrollbars())
+
 };
 
 #endif // QTEXTEDIT_H

@@ -23,7 +23,6 @@ class QSliderPrivate;
 class Q_GUI_EXPORT QSlider : public QAbstractSlider
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QSlider)
 
     Q_ENUMS(TickPosition)
     Q_PROPERTY(TickPosition tickPosition READ tickPosition WRITE setTickPosition)
@@ -84,6 +83,7 @@ public slots:
 
 private:
     Q_DISABLE_COPY(QSlider)
+    Q_DECLARE_PRIVATE(QSlider)
 };
 
 #endif // QT_NO_SLIDER

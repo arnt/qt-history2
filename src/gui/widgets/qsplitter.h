@@ -26,7 +26,7 @@ template <typename T> class QList;
 class Q_GUI_EXPORT QSplitter : public QFrame
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QSplitter)
+
     Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation)
     Q_PROPERTY(bool opaqueResize READ opaqueResize WRITE setOpaqueResize)
     Q_PROPERTY(int handleWidth READ handleWidth WRITE setHandleWidth)
@@ -60,11 +60,6 @@ public:
     int handleWidth() const;
     void setHandleWidth(int);
 
-#ifdef QT_COMPAT
-    enum ResizeMode { Stretch, KeepSize, FollowSizeHint, Auto };
-    QT_COMPAT void setResizeMode(QWidget *w, ResizeMode mode);
-#endif
-
 protected:
     void childEvent(QChildEvent *);
 
@@ -79,9 +74,15 @@ protected:
     virtual void setRubberband(int);
     void getRange(int id, int *, int *);
 
+#ifdef QT_COMPAT
+public:
+    enum ResizeMode { Stretch, KeepSize, FollowSizeHint, Auto };
+    QT_COMPAT void setResizeMode(QWidget *w, ResizeMode mode);
+#endif
+
 private:
     Q_DISABLE_COPY(QSplitter)
-
+    Q_DECLARE_PRIVATE(QSplitter)
     friend class QSplitterHandle;
 #ifndef QT_NO_TEXTSTREAM
     friend Q_GUI_EXPORT QTextStream& operator<<(QTextStream&, const QSplitter&);

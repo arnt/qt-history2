@@ -28,9 +28,6 @@ class Q_GUI_EXPORT QHBoxWidget : public QFrame
     Q_OBJECT
 public:
     QHBoxWidget(QWidget* parent=0, Qt::WFlags f=0);
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QHBoxWidget(QWidget* parent, const char* name, Qt::WFlags f=0);
-#endif
 
     void setMargin(int);
     void setSpacing(int);
@@ -38,12 +35,17 @@ public:
     QSize sizeHint() const;
 
 protected:
-    QHBoxWidget(Qt::Orientation orientation, QWidget* parent, Qt::WFlags f);
     void childEvent(QChildEvent *);
+
+#ifdef QT_COMPAT
+public:
+    QT_COMPAT_CONSTRUCTOR QHBoxWidget(QWidget* parent, const char* name, Qt::WFlags f=0);
+#endif
+protected:
+    QHBoxWidget(Qt::Orientation orientation, QWidget* parent, Qt::WFlags f);
 
 private:
     Q_DISABLE_COPY(QHBoxWidget)
-
     QBoxLayout *lay;
 };
 

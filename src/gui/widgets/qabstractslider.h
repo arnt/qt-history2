@@ -21,7 +21,6 @@ class QAbstractSliderPrivate;
 class Q_GUI_EXPORT QAbstractSlider : public QWidget
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QAbstractSlider)
 
     Q_PROPERTY(int minimum READ minimum WRITE setMinimum)
     Q_PROPERTY(int maximum READ maximum WRITE setMaximum)
@@ -115,9 +114,6 @@ protected:
     void timerEvent(QTimerEvent *);
     void wheelEvent(QWheelEvent *e);
 
-protected:
-    QAbstractSlider(QAbstractSliderPrivate &dd, QWidget *parent);
-
 #ifdef QT_COMPAT
 public:
     inline QT_COMPAT int minValue() const { return minimum(); }
@@ -133,8 +129,12 @@ public:
     inline QT_COMPAT void subtractLine() { triggerAction(SliderSingleStepSub); }
 #endif
 
+protected:
+    QAbstractSlider(QAbstractSliderPrivate &dd, QWidget *parent);
+
 private:
     Q_DISABLE_COPY(QAbstractSlider)
+    Q_DECLARE_PRIVATE(QAbstractSlider)
 };
 
 #endif // QABSTRACTSLIDER_H

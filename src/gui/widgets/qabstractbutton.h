@@ -24,7 +24,7 @@ class QAbstractButtonPrivate;
 class Q_GUI_EXPORT QAbstractButton : public QWidget
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QAbstractButton)
+
     Q_PROPERTY(QString text READ text WRITE setText)
     Q_PROPERTY(QIcon icon READ icon WRITE setIcon)
     Q_PROPERTY(QKeySequence shortcut READ shortcut WRITE setShortcut)
@@ -76,8 +76,6 @@ signals:
     void toggled(bool checked);
 
 protected:
-    QAbstractButton(QAbstractButtonPrivate &, QWidget* parent);
-
     virtual void paintEvent(QPaintEvent *e) = 0;
     virtual bool hitButton(const QPoint &pos) const;
     virtual void checkStateSet();
@@ -94,24 +92,29 @@ protected:
     void changeEvent(QEvent *e);
     void timerEvent(QTimerEvent *e);
 
-public:
 #ifdef QT_COMPAT
+public:
     QT_COMPAT_CONSTRUCTOR QAbstractButton(QWidget *parent, const char *name, Qt::WFlags f=0);
     inline QT_COMPAT bool isOn() const { return isChecked(); }
     inline QT_COMPAT QPixmap *pixmap() const { return 0; } // help styles compile
     inline QT_COMPAT void setPixmap( const QPixmap &p ) { setIcon(QIcon(p)); }
     QT_COMPAT QIcon *iconSet() const;
     inline QT_COMPAT void setIconSet(const QIcon &icon) { setIcon(icon); }
-public slots:
-    inline QT_MOC_COMPAT void setOn(bool b) { setChecked(b); }
-public:
     inline QT_COMPAT bool isToggleButton() const { return isCheckable(); }
     inline QT_COMPAT void setToggleButton(bool b) { setCheckable(b); }
     inline QT_COMPAT void setAccel(const QKeySequence &key) { setShortcut(key); }
     inline QT_COMPAT QKeySequence accel() const { return shortcut(); }
+
+public slots:
+    inline QT_MOC_COMPAT void setOn(bool b) { setChecked(b); }
 #endif
 
+protected:
+    QAbstractButton(QAbstractButtonPrivate &, QWidget* parent);
+
 private:
+    Q_DECLARE_PRIVATE(QAbstractButton)
+    Q_DISABLE_COPY(QAbstractButton)
     friend class QButtonGroup;
 };
 

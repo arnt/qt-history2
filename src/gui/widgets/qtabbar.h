@@ -22,7 +22,7 @@ class QTabBarPrivate;
 class Q_GUI_EXPORT QTabBar: public QWidget
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QTabBar)
+
     Q_ENUMS(Shape)
     Q_PROPERTY(Shape shape READ shape WRITE setShape)
     Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex)
@@ -72,13 +72,6 @@ public slots:
 signals:
     void currentChanged(int index);
 
-#ifdef QT_COMPAT
-public slots:
-    QT_MOC_COMPAT void setCurrentTab(int index) { setCurrentIndex(index); }
-signals:
-    QT_MOC_COMPAT void selected(int);
-#endif
-
 protected:
     virtual QSize tabSizeHint(int index) const;
     virtual void tabInserted(int index);
@@ -95,8 +88,16 @@ protected:
     void keyPressEvent(QKeyEvent *);
     void changeEvent(QEvent *);
 
+#ifdef QT_COMPAT
+public slots:
+    QT_MOC_COMPAT void setCurrentTab(int index) { setCurrentIndex(index); }
+signals:
+    QT_MOC_COMPAT void selected(int);
+#endif
+
 private:
     Q_DISABLE_COPY(QTabBar)
+    Q_DECLARE_PRIVATE(QTabBar)
     Q_PRIVATE_SLOT(d, void scrollTabs())
 };
 

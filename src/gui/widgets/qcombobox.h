@@ -25,6 +25,7 @@ class QComboBoxPrivate;
 class Q_GUI_EXPORT QComboBox : public QWidget
 {
     Q_OBJECT
+
     Q_ENUMS(InsertionPolicy)
     Q_PROPERTY(bool editable READ isEditable WRITE setEditable)
     Q_PROPERTY(int count READ count)
@@ -38,17 +39,6 @@ class Q_GUI_EXPORT QComboBox : public QWidget
     Q_PROPERTY(bool autoHide READ autoHide WRITE setAutoHide)
 
 public:
-
-    enum InsertionPolicy {
-        NoInsertion,
-        AtTop,
-        AtCurrent,
-        AtBottom,
-        AfterCurrent,
-        BeforeCurrent
-    };
-
-
     QComboBox(QWidget *parent = 0);
     ~QComboBox();
 
@@ -70,6 +60,15 @@ public:
 
     bool contains(const QString &text) const;
     virtual int findItem(const QString &text, QAbstractItemModel::MatchFlags flags = QAbstractItemModel::MatchDefault) const;
+
+    enum InsertionPolicy {
+        NoInsertion,
+        AtTop,
+        AtCurrent,
+        AtBottom,
+        AfterCurrent,
+        BeforeCurrent
+    };
 
     InsertionPolicy insertionPolicy() const;
     void setInsertionPolicy(InsertionPolicy policy);
@@ -121,22 +120,6 @@ public:
 
     void hide();
 
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QComboBox(QWidget *parent, const char *name);
-    QT_COMPAT_CONSTRUCTOR QComboBox(bool rw, QWidget *parent, const char *name = 0);
-    QT_COMPAT bool editable() const { return isEditable(); }
-    QT_COMPAT void insertItem(const QPixmap &pix, int row = -1)
-        { insertItem(QIcon(pix), row); }
-    QT_COMPAT void insertItem(const QPixmap &pix, const QString &text, int row = -1)
-        { insertItem(QIcon(pix), text, row); }
-    QT_COMPAT void changeItem(const QString &text, int row)
-        { setItemText(text, row); }
-    QT_COMPAT void changeItem(const QPixmap &pix, int row)
-        { setItemIcon(QIcon(pix), row); }
-    QT_COMPAT void changeItem(const QPixmap &pix, const QString &text, int row)
-        { setItem(QIcon(pix), text, row); }
-#endif
-
 public slots:
     void clear();
     void clearValidator();
@@ -157,8 +140,6 @@ protected slots:
     void currentChanged(const QModelIndex &old, const QModelIndex &current);
 
 protected:
-    QComboBox(QComboBoxPrivate &dd, QWidget *parent = 0);
-
     void focusInEvent(QFocusEvent *e);
     void focusOutEvent(QFocusEvent *e);
     void changeEvent(QEvent *e);
@@ -171,8 +152,30 @@ protected:
     void inputMethodEvent(QInputMethodEvent *);
     QVariant inputMethodQuery(Qt::InputMethodQuery) const;
 
+
+#ifdef QT_COMPAT
+public:
+    QT_COMPAT_CONSTRUCTOR QComboBox(QWidget *parent, const char *name);
+    QT_COMPAT_CONSTRUCTOR QComboBox(bool rw, QWidget *parent, const char *name = 0);
+    QT_COMPAT bool editable() const { return isEditable(); }
+    QT_COMPAT void insertItem(const QPixmap &pix, int row = -1)
+        { insertItem(QIcon(pix), row); }
+    QT_COMPAT void insertItem(const QPixmap &pix, const QString &text, int row = -1)
+        { insertItem(QIcon(pix), text, row); }
+    QT_COMPAT void changeItem(const QString &text, int row)
+        { setItemText(text, row); }
+    QT_COMPAT void changeItem(const QPixmap &pix, int row)
+        { setItemIcon(QIcon(pix), row); }
+    QT_COMPAT void changeItem(const QPixmap &pix, const QString &text, int row)
+        { setItem(QIcon(pix), text, row); }
+#endif
+
+protected:
+    QComboBox(QComboBoxPrivate &dd, QWidget *parent = 0);
+
 private:
     Q_DECLARE_PRIVATE(QComboBox)
+    Q_DISABLE_COPY(QComboBox)
     Q_PRIVATE_SLOT(d, void itemSelected(const QModelIndex &item))
     Q_PRIVATE_SLOT(d, void emitHighlighted(const QModelIndex&))
     Q_PRIVATE_SLOT(d, void returnPressed())

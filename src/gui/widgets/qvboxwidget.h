@@ -22,10 +22,12 @@ class Q_GUI_EXPORT QVBoxWidget : public QHBoxWidget
 {
     Q_OBJECT
 public:
+    QVBoxWidget(QWidget* parent=0, Qt::WFlags f=0);
+
 #ifdef QT_COMPAT
+public:
     QT_COMPAT_CONSTRUCTOR QVBoxWidget(QWidget* parent, const char* name, Qt::WFlags f=0);
 #endif
-    QVBoxWidget(QWidget* parent=0, Qt::WFlags f=0);
 
 private:
     Q_DISABLE_COPY(QVBoxWidget)

@@ -43,7 +43,7 @@ protected:
 
 private:
     Q_DECLARE_PRIVATE(QWidgetView)
-
+    Q_DISABLE_COPY(QWidgetView)
 };
 
 

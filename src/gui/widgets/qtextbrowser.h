@@ -21,7 +21,7 @@ class QTextBrowserPrivate;
 class Q_GUI_EXPORT QTextBrowser : public QTextEdit
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QTextBrowser)
+
     Q_PROPERTY(QString source READ source WRITE setSource)
     Q_OVERRIDE(bool modified SCRIPTABLE false)
     Q_OVERRIDE(bool readOnly DESIGNABLE false SCRIPTABLE false)
@@ -42,6 +42,7 @@ public:
         Image
     };
     virtual QByteArray loadResource(ResourceType type, const QString &name);
+
 public slots:
     virtual void setSource(const QString& name);
     virtual void backward();
@@ -71,6 +72,7 @@ public:
 
 private:
     Q_DISABLE_COPY(QTextBrowser)
+    Q_DECLARE_PRIVATE(QTextBrowser)
     Q_PRIVATE_SLOT(d, void documentModified())
 };
 

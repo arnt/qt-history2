@@ -24,7 +24,6 @@ class QMainWindow;
 
 class Q_GUI_EXPORT QToolBar : public QWidget
 {
-    Q_DECLARE_PRIVATE(QToolBar)
     Q_OBJECT
 
     Q_PROPERTY(bool movable READ isMovable WRITE setMovable
@@ -84,14 +83,6 @@ public:
 
     QAction *toggleViewAction() const;
 
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QToolBar(QWidget *parent, const char *name);
-    inline QT_COMPAT void setLabel(const QString &label)
-    { setWindowTitle(label); }
-    inline QT_COMPAT QString label() const
-    { return windowTitle(); }
-#endif
-
     Qt::IconSize iconSize() const;
     Qt::ToolButtonStyle toolButtonStyle() const;
 
@@ -113,7 +104,18 @@ protected:
     void contextMenuEvent(QContextMenuEvent *event);
     bool event(QEvent *event);
 
+#ifdef QT_COMPAT
+public:
+    QT_COMPAT_CONSTRUCTOR QToolBar(QWidget *parent, const char *name);
+    inline QT_COMPAT void setLabel(const QString &label)
+    { setWindowTitle(label); }
+    inline QT_COMPAT QString label() const
+    { return windowTitle(); }
+#endif
+
 private:
+    Q_DECLARE_PRIVATE(QToolBar)
+    Q_DISABLE_COPY(QToolBar)
     Q_PRIVATE_SLOT(d, void actionTriggered())
     Q_PRIVATE_SLOT(d, void toggleView(bool))
 };

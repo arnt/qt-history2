@@ -24,7 +24,7 @@ class QMenuItem;
 class Q_GUI_EXPORT QMenuBar : public QWidget
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QMenuBar)
+
     Q_PROPERTY(bool defaultUp READ isDefaultUp WRITE setDefaultUp)
 
 public:
@@ -258,6 +258,7 @@ private:
 #endif
 
 private:
+    Q_DECLARE_PRIVATE(QMenuBar)
     Q_DISABLE_COPY(QMenuBar)
     Q_PRIVATE_SLOT(d, void actionTriggered())
     Q_PRIVATE_SLOT(d, void actionHovered())

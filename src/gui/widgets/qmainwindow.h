@@ -26,7 +26,6 @@ class QMenu;
 class Q_GUI_EXPORT QMainWindow : public QWidget
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QMainWindow)
 
     Q_PROPERTY(Qt::IconSize iconSize READ iconSize WRITE setIconSize)
     Q_PROPERTY(Qt::ToolButtonStyle toolButtonStyle READ toolButtonStyle WRITE setToolButtonStyle)
@@ -89,6 +88,10 @@ protected:
     void childEvent(QChildEvent *event);
     void contextMenuEvent(QContextMenuEvent *event);
     bool event(QEvent *event);
+
+private:
+    Q_DECLARE_PRIVATE(QMainWindow)
+    Q_DISABLE_COPY(QMainWindow)
 };
 
 #endif // QMAINWINDOW_H

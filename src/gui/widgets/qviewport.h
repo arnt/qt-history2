@@ -74,6 +74,7 @@ protected:
 
 private:
     Q_DECLARE_PRIVATE(QViewport)
+    Q_DISABLE_COPY(QViewport)
     Q_PRIVATE_SLOT(d, void hslide(int))
     Q_PRIVATE_SLOT(d, void vslide(int))
     Q_PRIVATE_SLOT(d,void showOrHideScrollBars())

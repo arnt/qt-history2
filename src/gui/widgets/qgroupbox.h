@@ -18,13 +18,10 @@
 
 #ifndef QT_NO_GROUPBOX
 
-
 class QGroupBoxPrivate;
-
 class Q_GUI_EXPORT QGroupBox : public QWidget
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QGroupBox)
 
     Q_PROPERTY(QString title READ title WRITE setTitle)
     Q_PROPERTY(Qt::Alignment alignment READ alignment WRITE setAlignment)
@@ -64,16 +61,17 @@ protected:
     void focusInEvent(QFocusEvent *);
     void changeEvent(QEvent *);
 
-private:
-    Q_DISABLE_COPY(QGroupBox)
-    Q_PRIVATE_SLOT(d, void fixFocus())
-    Q_PRIVATE_SLOT(d, void setChildrenEnabled(bool b))
-
 #ifdef QT_COMPAT
 public:
     QT_COMPAT_CONSTRUCTOR QGroupBox(QWidget* parent, const char* name);
     QT_COMPAT_CONSTRUCTOR QGroupBox(const QString &title, QWidget* parent, const char* name);
 #endif
+
+private:
+    Q_DISABLE_COPY(QGroupBox)
+    Q_DECLARE_PRIVATE(QGroupBox)
+    Q_PRIVATE_SLOT(d, void fixFocus())
+    Q_PRIVATE_SLOT(d, void setChildrenEnabled(bool b))
 };
 
 #endif // QT_NO_GROUPBOX

@@ -22,9 +22,6 @@ class QMainWindow;
 
 class Q_GUI_EXPORT QDockWindow : public QFrame
 {
-    friend class QDockWindowLayout;
-
-    Q_DECLARE_PRIVATE(QDockWindow)
     Q_OBJECT
 
     Q_FLAGS(DockWindowFeatures)
@@ -32,6 +29,15 @@ class Q_GUI_EXPORT QDockWindow : public QFrame
     Q_PROPERTY(Qt::DockWindowAreas allowedAreas READ allowedAreas WRITE setAllowedAreas)
 
 public:
+    QDockWindow(QMainWindow *parent, Qt::WFlags flags = 0);
+    ~QDockWindow();
+
+    QMainWindow *mainWindow() const;
+    void setParent(QMainWindow *parent);
+
+    QWidget *widget() const;
+    void setWidget(QWidget *widget);
+
     enum DockWindowFeature {
         DockWindowClosable    = 0x01,
         DockWindowMovable     = 0x02,
@@ -42,15 +48,6 @@ public:
         NoDockWindowFeatures  = 0x00
     };
     Q_DECLARE_FLAGS(DockWindowFeatures, DockWindowFeature)
-
-    QDockWindow(QMainWindow *parent, Qt::WFlags flags = 0);
-    ~QDockWindow();
-
-    QMainWindow *mainWindow() const;
-    void setParent(QMainWindow *parent);
-
-    QWidget *widget() const;
-    void setWidget(QWidget *widget);
 
     void setFeatures(DockWindowFeatures features);
     void setFeature(DockWindowFeature features, bool on = true);
@@ -73,7 +70,10 @@ protected:
     bool event(QEvent *event);
 
 private:
+    Q_DECLARE_PRIVATE(QDockWindow)
+    Q_DISABLE_COPY(QDockWindow)
     Q_PRIVATE_SLOT(d, void toggleView(bool))
+    friend class QDockWindowLayout;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QDockWindow::DockWindowFeatures)

@@ -874,6 +874,8 @@ bool QTextCodec::canEncode(const QString& s) const
 /*!
     Returns a string representing the current language and
     sublanguage, e.g. "pt" for Portuguese, or "pt_br" for Portuguese/Brazil.
+
+    \sa QLocale
 */
 const char* QTextCodec::locale()
 {
