@@ -4776,8 +4776,11 @@ QWidget *QTable::createEditor( int row, int col, bool initFromCell ) const
     QTableItem *i = item( row, col );
     if ( initFromCell || i && !i->isReplaceable() ) {
 	if ( i ) {
+	    if ( i->editType() == QTableItem::Never )
+		return 0;
+
 	    e = i->createEditor();
-	    if ( !e || i->editType() == QTableItem::Never )
+	    if ( !e )
 		return 0;
 	}
     }
