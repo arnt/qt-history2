@@ -1800,8 +1800,10 @@ void QPainter::drawRect( int x, int y, int w, int h )
             XFillRectangle( dpy, hd, gc_brush, x, y, w, h );
             return;
         }
-        if ( w > 2 && h > 2 )
-            XFillRectangle( dpy, hd, gc_brush, x+1, y+1, w-2, h-2 );
+	int lw = cpen.width();
+	int lw2 = (lw+1)/2;
+        if ( w > lw && h > lw )
+            XFillRectangle( dpy, hd, gc_brush, x+lw2, y+lw2, w-lw-1, h-lw-1 );
     }
     if ( cpen.style() != NoPen )
         XDrawRectangle( dpy, hd, gc, x, y, w-1, h-1 );
