@@ -4,4 +4,4 @@
 #
 
 cd ${QTDIR}/util/scripts
-./mkdist.generic $* commercial win /tmp/qt-commercial-win-`whoami`
+./mkdist.generic $* commercial win ${TMP:-/tmp}/qt-commercial-win-`whoami`

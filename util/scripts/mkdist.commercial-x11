@@ -4,4 +4,4 @@
 #
 
 cd ${QTDIR}/util/scripts
-./mkdist.generic $* commercial x11 /tmp/qt-commercial-x11-`whoami`
+./mkdist.generic $* commercial x11 ${TMP:-/tmp}/qt-commercial-x11-`whoami`
