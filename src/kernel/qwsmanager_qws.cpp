@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwsmanager_qws.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qwsmanager_qws.cpp#34 $
 **
 ** Implementation of Qt/Embedded window manager
 **
@@ -241,10 +241,7 @@ void QWSManager::mouseReleaseEvent(QMouseEvent *e)
 	handleMove();
 	mousePos = e->globalPos();
 	QWSDecoration::Region rgn = pointInRegion(e->globalPos());
-	QWSDecoration::Region activatedRegion = activeRegion;
-	activeRegion = QWSDecoration::None;
-	active = 0;
-	switch (activatedRegion) {
+	switch (activeRegion) {
 	    case QWSDecoration::Close:
 		closeBtn->setClicked(FALSE);
 		if (rgn == QWSDecoration::Close) {
@@ -265,9 +262,12 @@ void QWSManager::mouseReleaseEvent(QMouseEvent *e)
 	    default:
 		break;
 	}
-    } else if (activeRegion == QWSDecoration::None) {
-	active = 0;
+
+	activeRegion = QWSDecoration::None;
     }
+
+    if (activeRegion == QWSDecoration::None)
+	active = 0;
 }
 
 void QWSManager::mouseMoveEvent(QMouseEvent *e)
