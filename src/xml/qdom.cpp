@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#35 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#36 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -457,6 +457,7 @@ class QDomDocumentPrivate : public QDomNodePrivate
 public:
     QDomDocumentPrivate();
     QDomDocumentPrivate( const QString& name );
+    QDomDocumentPrivate( QDomDocumentTypePrivate* dt );
     QDomDocumentPrivate( QDomDocumentPrivate* n, bool deep );
     ~QDomDocumentPrivate();
 
@@ -469,14 +470,14 @@ public:
 
     // Factories
     QDomElementPrivate* createElement( const QString& tagName );
-    QDomElementPrivate*	createElementNS( const QString& namespaceURI, const QString& qName );
+    QDomElementPrivate*	createElementNS( const QString& nsURI, const QString& qName );
     QDomDocumentFragmentPrivate* createDocumentFragment();
     QDomTextPrivate* createTextNode( const QString& data );
     QDomCommentPrivate* createComment( const QString& data );
     QDomCDATASectionPrivate* createCDATASection( const QString& data );
     QDomProcessingInstructionPrivate* createProcessingInstruction( const QString& target, const QString& data );
     QDomAttrPrivate* createAttribute( const QString& name );
-    QDomAttrPrivate* createAttributeNS( const QString& namespaceURI, const QString& qName );
+    QDomAttrPrivate* createAttributeNS( const QString& nsURI, const QString& qName );
     QDomEntityReferencePrivate* createEntityReference( const QString& name );
 
     QDomNodeListPrivate* elementsByTagName( const QString& tagname );
@@ -509,8 +510,8 @@ public:
     // content handler
     void setDocumentLocator( QXmlLocator* locator );
     bool endDocument();
-    bool startElement( const QString& namespaceURI, const QString& localName, const QString& qName, const QXmlAttributes& atts );
-    bool endElement( const QString& namespaceURI, const QString& localName, const QString& qName );
+    bool startElement( const QString& nsURI, const QString& localName, const QString& qName, const QXmlAttributes& atts );
+    bool endElement( const QString& nsURI, const QString& localName, const QString& qName );
     bool characters( const QString& ch );
     bool processingInstruction( const QString& target, const QString& data );
 
@@ -670,7 +671,7 @@ bool QDomImplementation::hasFeature( const QString& feature, const QString& vers
 }
 
 /*!
-  Creates a document type node for the name \a qualifiedName.
+  Creates a document type node for the name \a qName.
 
   \a publicId specifies the public identifier of the external subset; If you
   specify QString::null as \a publicId, this means that the document type has
@@ -691,10 +692,10 @@ bool QDomImplementation::hasFeature( const QString& feature, const QString& vers
 
   \sa createDocument();
 */
-QDomDocumentType QDomImplementation::createDocumentType( const QString& qualifiedName, const QString& publicId, const QString& systemId )
+QDomDocumentType QDomImplementation::createDocumentType( const QString& qName, const QString& publicId, const QString& systemId )
 {
     QDomDocumentTypePrivate *dt = new QDomDocumentTypePrivate( 0 );
-    dt->name = qualifiedName;
+    dt->name = qName;
     if ( systemId.isNull() ) {
 	dt->publicId = QString::null;
 	dt->systemId = QString::null;
@@ -706,11 +707,16 @@ QDomDocumentType QDomImplementation::createDocumentType( const QString& qualifie
 }
 
 /*!
-  fnord
+  Creates a DOM document with the document type \a doctype. This function also
+  adds a root element node with the qualified name \a qName and the namespace
+  URI nsURI.
 */
-QDomDocument QDomImplementation::createDocument( const QString& /*namespaceURI*/, const QString& /*qualifiedName*/, const QDomDocumentType& /*doctype*/ )
+QDomDocument QDomImplementation::createDocument( const QString& nsURI, const QString& qName, const QDomDocumentType& doctype )
 {
-    return QDomDocument();
+    QDomDocument doc( doctype );
+    QDomElement root = doc.createElementNS( nsURI, qName );
+    doc.appendChild( root );
+    return doc;
 }
 
 /*!
@@ -2534,7 +2540,7 @@ QDomNode QDomNamedNodeMap::item( int index ) const
 /*!
   fnord
 */
-QDomNode QDomNamedNodeMap::namedItemNS( const QString& /*namespaceURI*/, const QString& /*localName*/ ) const
+QDomNode QDomNamedNodeMap::namedItemNS( const QString& /*nsURI*/, const QString& /*localName*/ ) const
 {
     return QDomNode();
 }
@@ -2550,7 +2556,7 @@ QDomNode QDomNamedNodeMap::setNamedItemNS( const QDomNode& /*arg*/ )
 /*!
   fnord
 */
-QDomNode QDomNamedNodeMap::removeNamedItemNS( const QString& /*namespaceURI*/, const QString& /*localName*/ )
+QDomNode QDomNamedNodeMap::removeNamedItemNS( const QString& /*nsURI*/, const QString& /*localName*/ )
 {
     return QDomNode();
 }
@@ -3897,7 +3903,7 @@ bool QDomElement::hasAttribute( const QString& name ) const
 /*!
   fnord
 */
-QString QDomElement::attributesNS( const QString /*namespaceURI*/, const QString& /*localName*/ ) const
+QString QDomElement::attributesNS( const QString /*nsURI*/, const QString& /*localName*/ ) const
 {
     return QString::null;
 }
@@ -3905,42 +3911,42 @@ QString QDomElement::attributesNS( const QString /*namespaceURI*/, const QString
 /*!
   fnord
 */
-void QDomElement::setAttributesNS( const QString /*namespaceURI*/, const QString& /*qualifiedName*/, const QString& /*value*/ )
+void QDomElement::setAttributesNS( const QString /*nsURI*/, const QString& /*qName*/, const QString& /*value*/ )
 {
 }
 
 /*!
   fnord
 */
-void QDomElement::setAttributesNS( const QString /*namespaceURI*/, const QString& /*qualifiedName*/, int /*value*/ )
+void QDomElement::setAttributesNS( const QString /*nsURI*/, const QString& /*qName*/, int /*value*/ )
 {
 }
 
 /*!
   fnord
 */
-void QDomElement::setAttributesNS( const QString /*namespaceURI*/, const QString& /*qualifiedName*/, uint /*value*/ )
+void QDomElement::setAttributesNS( const QString /*nsURI*/, const QString& /*qName*/, uint /*value*/ )
 {
 }
 
 /*!
   fnord
 */
-void QDomElement::setAttributesNS( const QString /*namespaceURI*/, const QString& /*qualifiedName*/, double /*value*/ )
+void QDomElement::setAttributesNS( const QString /*nsURI*/, const QString& /*qName*/, double /*value*/ )
 {
 }
 
 /*!
   fnord
 */
-void QDomElement::removeAttributeNS( const QString& /*namespaceURI*/, const QString& /*localName*/ )
+void QDomElement::removeAttributeNS( const QString& /*nsURI*/, const QString& /*localName*/ )
 {
 }
 
 /*!
   fnord
 */
-QDomAttr QDomElement::attributeNodeNS( const QString& /*namespaceURI*/, const QString& /*localName*/ )
+QDomAttr QDomElement::attributeNodeNS( const QString& /*nsURI*/, const QString& /*localName*/ )
 {
     return QDomAttr();
 }
@@ -3956,7 +3962,7 @@ QDomAttr QDomElement::setAttributeNodeNS( const QDomAttr& /*newAttr*/ )
 /*!
   fnord
 */
-QDomNodeList QDomElement::elementsByTagNameNS( const QString& /*namespaceURI*/, const QString& /*localName*/ ) const
+QDomNodeList QDomElement::elementsByTagNameNS( const QString& /*nsURI*/, const QString& /*localName*/ ) const
 {
     return QDomNodeList();
 }
@@ -3964,7 +3970,7 @@ QDomNodeList QDomElement::elementsByTagNameNS( const QString& /*namespaceURI*/, 
 /*!
   fnord
 */
-bool QDomElement::hasAttributeNS( const QString& /*namespaceURI*/, const QString& /*localName*/ ) const
+bool QDomElement::hasAttributeNS( const QString& /*nsURI*/, const QString& /*localName*/ ) const
 {
     return FALSE;
 }
@@ -5117,6 +5123,18 @@ QDomDocumentPrivate::QDomDocumentPrivate( const QString& aname )
     QDomDocumentPrivate::name = *docName;
 }
 
+QDomDocumentPrivate::QDomDocumentPrivate( QDomDocumentTypePrivate* dt )
+    : QDomNodePrivate( 0 )
+{
+    impl = new QDomImplementationPrivate();
+    type = dt;
+    type->ref();
+
+    if ( !docName )
+	docName = new QString( "#document" );
+    QDomDocumentPrivate::name = *docName;
+}
+
 QDomDocumentPrivate::QDomDocumentPrivate( QDomDocumentPrivate* n, bool deep )
     : QDomNodePrivate( n, deep )
 {
@@ -5198,9 +5216,9 @@ QDomElementPrivate* QDomDocumentPrivate::createElement( const QString& tagName )
     return e;
 }
 
-QDomElementPrivate* QDomDocumentPrivate::createElementNS( const QString& namespaceURI, const QString& qName )
+QDomElementPrivate* QDomDocumentPrivate::createElementNS( const QString& nsURI, const QString& qName )
 {
-    QDomElementPrivate* e = new QDomElementPrivate( this, this, namespaceURI, qName );
+    QDomElementPrivate* e = new QDomElementPrivate( this, this, nsURI, qName );
     e->deref();
     return e;
 }
@@ -5247,9 +5265,9 @@ QDomAttrPrivate* QDomDocumentPrivate::createAttribute( const QString& aname )
     return a;
 }
 
-QDomAttrPrivate* QDomDocumentPrivate::createAttributeNS( const QString& namespaceURI, const QString& qName )
+QDomAttrPrivate* QDomDocumentPrivate::createAttributeNS( const QString& nsURI, const QString& qName )
 {
-    QDomAttrPrivate* a = new QDomAttrPrivate( this, this, namespaceURI, qName );
+    QDomAttrPrivate* a = new QDomAttrPrivate( this, this, nsURI, qName );
     a->deref();
     return a;
 }
@@ -5376,12 +5394,20 @@ QDomDocument::QDomDocument()
 }
 
 /*!
-  Creates a document with the name \a name.
+  Creates a document and sets the name of the document type to \a name.
 */
 QDomDocument::QDomDocument( const QString& name )
 {
     // We take over ownership
     impl = new QDomDocumentPrivate( name );
+}
+
+/*!
+  Creates a document with the document type \a doctype.
+*/
+QDomDocument::QDomDocument( const QDomDocumentType& doctype )
+{
+    impl = new QDomDocumentPrivate( (QDomDocumentTypePrivate*)(doctype.impl) );
 }
 
 /*!
@@ -5645,38 +5671,38 @@ QDomNode QDomDocument::importNode( const QDomNode& /*importedNode*/, bool /*deep
 
 /*!
   Creates a new element with namespace support that can be inserted into the
-  DOM tree. The name of the element is \a qualifiedName and the namespace URI
-  is \a namespaceURI. This function also sets QDomNode::prefix() and
-  QDomNode::localName() to appropriate values (depending on \a qualifiedName).
+  DOM tree. The name of the element is \a qName and the namespace URI
+  is \a nsURI. This function also sets QDomNode::prefix() and
+  QDomNode::localName() to appropriate values (depending on \a qName).
 
   \sa createElement()
 */
-QDomElement QDomDocument::createElementNS( const QString& namespaceURI, const QString& qualifiedName )
+QDomElement QDomDocument::createElementNS( const QString& nsURI, const QString& qName )
 {
     if ( !impl )
 	return QDomElement();
-    return QDomElement( IMPL->createElementNS( namespaceURI, qualifiedName ) );
+    return QDomElement( IMPL->createElementNS( nsURI, qName ) );
 }
 
 /*!
   Creates a new attribute with namespace support that can be inserted into an
-  element. The name of the attribute is \a qualifiedName and the namespace URI
-  is \a namespaceURI. This function also sets QDomNode::prefix() and
-  QDomNode::localName() to appropriate values (depending on \a qualifiedName).
+  element. The name of the attribute is \a qName and the namespace URI
+  is \a nsURI. This function also sets QDomNode::prefix() and
+  QDomNode::localName() to appropriate values (depending on \a qName).
 
   \sa createAttribute()
 */
-QDomAttr QDomDocument::createAttributeNS( const QString& namespaceURI, const QString& qualifiedName )
+QDomAttr QDomDocument::createAttributeNS( const QString& nsURI, const QString& qName )
 {
     if ( !impl )
 	return QDomAttr();
-    return QDomAttr( IMPL->createAttributeNS( namespaceURI, qualifiedName ) );
+    return QDomAttr( IMPL->createAttributeNS( nsURI, qName ) );
 }
 
 /*!
   fnord
 */
-QDomNodeList QDomDocument::elementsByTagNameNS( const QString& /*namespaceURI*/, const QString& /*localName*/ )
+QDomNodeList QDomDocument::elementsByTagNameNS( const QString& /*nsURI*/, const QString& /*localName*/ )
 {
     return QDomNodeList();
 }
@@ -5922,12 +5948,12 @@ bool QDomHandler::startDTD( const QString& name, const QString& publicId, const 
     return TRUE;
 }
 
-bool QDomHandler::startElement( const QString& namespaceURI, const QString&, const QString& qName, const QXmlAttributes& atts )
+bool QDomHandler::startElement( const QString& nsURI, const QString&, const QString& qName, const QXmlAttributes& atts )
 {
     // tag name
     QDomNodePrivate* n;
     if ( nsProcessing ) {
-	n = doc->createElementNS( namespaceURI, qName );
+	n = doc->createElementNS( nsURI, qName );
     } else {
 	n = doc->createElement( qName );
     }

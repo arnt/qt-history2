@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.h#13 $
+** $Id: //depot/qt/main/src/xml/qdom.h#14 $
 **
 ** Definition of QDomDocument and related classes.
 **
@@ -104,8 +104,8 @@ public:
 
     // functions
     virtual bool hasFeature( const QString& feature, const QString& version );
-    virtual QDomDocumentType createDocumentType( const QString& qualifiedName, const QString& publicId, const QString& systemId );
-    virtual QDomDocument createDocument( const QString& namespaceURI, const QString& qualifiedName, const QDomDocumentType& doctype );
+    virtual QDomDocumentType createDocumentType( const QString& qName, const QString& publicId, const QString& systemId );
+    virtual QDomDocument createDocument( const QString& nsURI, const QString& qName, const QDomDocumentType& doctype );
 
     // Qt extension
     bool isNull();
@@ -286,6 +286,7 @@ class QM_EXPORT QDomDocument : public QDomNode
 public:
     QDomDocument();
     QDomDocument( const QString& name );
+    QDomDocument( const QDomDocumentType& doctype );
     QDomDocument( const QDomDocument& x );
     QDomDocument& operator= ( const QDomDocument& );
     ~QDomDocument();
@@ -301,9 +302,9 @@ public:
     QDomEntityReference createEntityReference( const QString& name );
     QDomNodeList elementsByTagName( const QString& tagname ) const;
     QDomNode importNode( const QDomNode& importedNode, bool deep );
-    QDomElement createElementNS( const QString& namespaceURI, const QString& qualifiedName );
-    QDomAttr createAttributeNS( const QString& namespaceURI, const QString& qualifiedName );
-    QDomNodeList elementsByTagNameNS( const QString& namespaceURI, const QString& localName );
+    QDomElement createElementNS( const QString& nsURI, const QString& qName );
+    QDomAttr createAttributeNS( const QString& nsURI, const QString& qName );
+    QDomNodeList elementsByTagNameNS( const QString& nsURI, const QString& localName );
     QDomElement elementById( const QString& elemntId );
 
     // DOM read only attributes
@@ -346,9 +347,9 @@ public:
     QDomNode setNamedItem( const QDomNode& arg );
     QDomNode removeNamedItem( const QString& name );
     QDomNode item( int index ) const;
-    QDomNode namedItemNS( const QString& namespaceURI, const QString& localName ) const;
+    QDomNode namedItemNS( const QString& nsURI, const QString& localName ) const;
     QDomNode setNamedItemNS( const QDomNode& arg );
-    QDomNode removeNamedItemNS( const QString& namespaceURI, const QString& localName );
+    QDomNode removeNamedItemNS( const QString& nsURI, const QString& localName );
 
     // DOM read only attributes
     uint length() const;
@@ -469,16 +470,16 @@ public:
     virtual QDomNodeList elementsByTagName( const QString& tagname ) const;
     bool hasAttribute( const QString& name ) const;
 
-    QString attributesNS( const QString namespaceURI, const QString& localName ) const;
-    void setAttributesNS( const QString namespaceURI, const QString& qualifiedName, const QString& value );
-    void setAttributesNS( const QString namespaceURI, const QString& qualifiedName, int value );
-    void setAttributesNS( const QString namespaceURI, const QString& qualifiedName, uint value );
-    void setAttributesNS( const QString namespaceURI, const QString& qualifiedName, double value );
-    void removeAttributeNS( const QString& namespaceURI, const QString& localName );
-    QDomAttr attributeNodeNS( const QString& namespaceURI, const QString& localName );
+    QString attributesNS( const QString nsURI, const QString& localName ) const;
+    void setAttributesNS( const QString nsURI, const QString& qName, const QString& value );
+    void setAttributesNS( const QString nsURI, const QString& qName, int value );
+    void setAttributesNS( const QString nsURI, const QString& qName, uint value );
+    void setAttributesNS( const QString nsURI, const QString& qName, double value );
+    void removeAttributeNS( const QString& nsURI, const QString& localName );
+    QDomAttr attributeNodeNS( const QString& nsURI, const QString& localName );
     QDomAttr setAttributeNodeNS( const QDomAttr& newAttr );
-    virtual QDomNodeList elementsByTagNameNS( const QString& namespaceURI, const QString& localName ) const;
-    bool hasAttributeNS( const QString& namespaceURI, const QString& localName ) const;
+    virtual QDomNodeList elementsByTagNameNS( const QString& nsURI, const QString& localName ) const;
+    bool hasAttributeNS( const QString& nsURI, const QString& localName ) const;
 
     // DOM read only attributes
     QString tagName() const;
