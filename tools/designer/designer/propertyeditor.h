@@ -491,6 +491,34 @@ private:
 
 };
 
+class PropertyKeysequenceItem : public QObject,
+				public PropertyItem
+{
+    Q_OBJECT
+
+public:
+    PropertyKeysequenceItem( PropertyList *l, PropertyItem *after, PropertyItem *prop,
+			     const QString &propName );
+    ~PropertyKeysequenceItem();
+
+    virtual void showEditor();
+    virtual void hideEditor();
+
+    virtual void setValue( const QVariant &v );
+
+private slots:
+    void setValue();
+
+private:
+    bool eventFilter( QObject *o, QEvent *e );
+    void handleKeyEvent( QKeyEvent *e );
+    int translateModifiers( int state );
+
+    QGuardedPtr<QLineEdit> sequence;
+    QGuardedPtr<QHBox> box;
+    int k1,k2,k3,k4;
+    int num;
+};
 
 class PropertyDatabaseItem : public QObject,
 			     public PropertyItem
