@@ -8059,7 +8059,9 @@ Q3TextTableCell::Q3TextTableCell(Q3TextTable* table,
     it = attr.find("valign");
     if (it != end && ! (*it).isEmpty()) {
         QString va = (*it).toLower();
-        if (va == "center")
+        if ( va == "top" )
+	    align |= Qt::AlignTop;
+	else if ( va == "center" || va == "middle" )
             align |= Qt::AlignVCenter;
         else if (va == "bottom")
             align |= Qt::AlignBottom;
