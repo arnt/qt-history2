@@ -128,7 +128,14 @@ public:
     }
     ~QScrollViewData();
 
-    QSVChildRec* rec(QWidget* w) { return *childDict.find(w); }
+    QSVChildRec* rec(QWidget* w)
+    {
+	QHash<QWidget *, QSVChildRec *>::iterator it;
+	it = childDict.find(w);
+	if (it != childDict.end())
+	    return *it;
+	return 0;
+    }
     QSVChildRec* ancestorRec(QWidget* w);
     QSVChildRec* addChildRec(QWidget* w, int x, int y )
     {
