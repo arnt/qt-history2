@@ -71,7 +71,6 @@ public:
 #endif
 
     QSize	sizeHint() const;
-    QSizePolicy sizePolicy() const;
 
     enum Shape { NoFrame  = 0,			// no frame
 		 Box	  = 0x0001,		// rectangular box

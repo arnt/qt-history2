@@ -107,8 +107,6 @@ QWidgetStack::QWidgetStack( QWidget * parent, const char *name )
     focusWidgets = 0;
     topWidget = 0;
     invisible = new QWidgetStackPrivate::Invisible( this );
-    setFontPropagation( AllChildren );
-    setPalettePropagation( AllChildren );
 }
 
 

@@ -52,7 +52,6 @@ public:
     ~QSizeGrip();
 
     QSize sizeHint() const;
-    QSizePolicy sizePolicy() const;
 
 protected:
     void paintEvent( QPaintEvent * );

@@ -240,11 +240,6 @@ public:
     enum PropagationMode { NoChildren, AllChildren,
 			   SameFont, SamePalette = SameFont };
 
-    PropagationMode	fontPropagation() const; // obsolete, remove 3.0
-    virtual void	setFontPropagation( PropagationMode ); // obsolete, remove 3.0
-
-    PropagationMode	palettePropagation() const; // obsolete, remove 3.0
-    virtual void	setPalettePropagation( PropagationMode ); // obsolete, remove 3.0
 #ifndef QT_NO_CURSOR
     const QCursor      &cursor() const;
     bool		ownCursor() const;
@@ -545,8 +540,6 @@ private:
     WId		 winid;
     uint	 widget_state;
     uint	 widget_flags;
-    uint	 propagate_font : 2; // obsolete
-    uint	 propagate_palette : 2; // obsolete
     uint	 focus_policy : 4;
     uint 	 own_font :1;
     uint 	 own_palette :1;

@@ -728,8 +728,6 @@ void QMessageBox::init( int button0, int button1, int button2 )
     }
     resizeButtons();
     reserved1 = reserved2 = 0;
-    setFontPropagation( SameFont );
-    setPalettePropagation( SamePalette );
 }
 
 
@@ -850,7 +848,7 @@ QPixmap QMessageBox::standardIcon( Icon icon, GUIStyle style )
 	QImage image( (const char **) xpm_data);
 	if ( style == MotifStyle ) {
 	    // All that color looks ugly in Motif
-	    QColorGroup g = QApplication::palette().normal();
+	    QColorGroup g = QApplication::palette().active();
 	    switch ( icon ) {
 	    case Information:
 		image.setColor( 2, 0xff000000 | g.dark().rgb() );

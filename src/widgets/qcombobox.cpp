@@ -367,8 +367,6 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     d->useCompletion = FALSE;
 
     setFocusPolicy( TabFocus );
-    setPalettePropagation( AllChildren );
-    setFontPropagation( AllChildren );
 }
 
 
@@ -404,8 +402,6 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
     if ( rw )
 	setUpLineEdit();
     setBackgroundMode( PaletteButton );
-    setPalettePropagation( AllChildren );
-    setFontPropagation( AllChildren );
 }
 
 

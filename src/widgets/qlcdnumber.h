@@ -85,7 +85,6 @@ public:
     int	    intValue() const;
 
     QSize sizeHint() const;
-    QSizePolicy sizePolicy() const;
 
 public slots:
     void    display( int num );

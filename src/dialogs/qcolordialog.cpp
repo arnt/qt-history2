@@ -1504,7 +1504,7 @@ QColorDialog::QColorDialog(QWidget* parent, const char* name, bool modal) :
   before this function returns.
 */
 
-QColor QColorDialog::getColor( QColor initial, QWidget *parent,
+QColor QColorDialog::getColor( const QColor& initial, QWidget *parent,
 			       const char *name )
 {
     int allocContext = QColor::enterAllocContext();
@@ -1587,7 +1587,7 @@ QColorDialog::~QColorDialog()
   \sa color()
 */
 
-void QColorDialog::setColor( QColor c )
+void QColorDialog::setColor( const QColor& c )
 {
     d->setCurrentColor( c.rgb() );
 }

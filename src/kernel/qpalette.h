@@ -117,7 +117,7 @@ public:
    ~QPalette();
     QPalette &operator=( const QPalette & );
 
-    enum ColorGroup { Normal, Disabled, Active, Inactive, NColorGroups };
+    enum ColorGroup { Disabled, Active, Inactive, NColorGroups };
 
     const QColor &color( ColorGroup, QColorGroup::ColorRole ) const;
     const QBrush &brush( ColorGroup, QColorGroup::ColorRole ) const;
@@ -132,12 +132,10 @@ public:
     const QColorGroup &active() const { return data->active; }
     const QColorGroup &disabled() const { return data->disabled; }
     const QColorGroup &inactive() const { return data->inactive; }
-    const QColorGroup &normal() const { return data->normal; } // obsolete
 
     void	setActive( const QColorGroup & );
     void	setDisabled( const QColorGroup & );
     void	setInactive( const QColorGroup & );
-    void	setNormal( const QColorGroup & ); // obsolete
 
     bool	operator==( const QPalette &p ) const;
     bool	operator!=( const QPalette &p ) const
@@ -151,7 +149,6 @@ private:
     QBrush 	&directBrush( ColorGroup, QColorGroup::ColorRole ) const;
 
     struct QPalData : public QShared {
-	QColorGroup normal; // ##### alias for active due to inline functions above, remove 3.0
 	QColorGroup disabled;
 	QColorGroup active;
 	int	    ser_no;

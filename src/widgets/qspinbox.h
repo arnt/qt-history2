@@ -94,7 +94,6 @@ public:
     const QValidator * validator() const;
 
     QSize		sizeHint() const;
-    QSizePolicy		sizePolicy() const;
 
     int	 minValue() const;
     int	 maxValue() const;

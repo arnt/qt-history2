@@ -1173,10 +1173,11 @@ void QMotifPlusStyle::drawTab(QPainter *p, const QTabBar *tabbar, QTab *tab,
 {
     QColorGroup g = tabbar->colorGroup();
 
-    p->fillRect(tab->r, g.background());
+    QRect fr = tab->rect();
+    p->fillRect(fr, g.background());
 
     QPen oldpen = p->pen();
-    QRect fr = tab->r;
+    
 
     if (! selected) {
 	if (tabbar->shape() == QTabBar::RoundedAbove ||
@@ -1199,10 +1200,10 @@ void QMotifPlusStyle::drawTab(QPainter *p, const QTabBar *tabbar, QTab *tab,
 	fr.setBottom(fr.bottom() - 1);
 
 	p->setPen(g.light());
-	p->drawLine(fr.left(), fr.top() + 1, tab->r.left(), fr.bottom() - 1);
+	p->drawLine(fr.left(), fr.top() + 1, fr.left(), fr.bottom() - 1);
 	p->drawLine(fr.left() + 1, fr.top(), fr.right() - 1, fr.top());
-	if (! selected) p->drawLine(tab->r.left(), fr.bottom(),
-				    tab->r.right(), fr.bottom());
+	if (! selected) p->drawLine(fr.left(), fr.bottom(),
+				    fr.right(), fr.bottom());
 
 	if (fr.left() == 0)
 	    p->drawLine(fr.left(), fr.bottom(), fr.left(), fr.bottom() + 1);

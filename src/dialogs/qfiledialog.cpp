@@ -2382,9 +2382,6 @@ void QFileDialog::init()
     setTabOrder( d->types, okB );
     setTabOrder( okB, cancelB );
 
-    setFontPropagation( SameFont );
-    setPalettePropagation( SamePalette );
-
     d->rw = tr( "Read-write" );
     d->ro = tr( "Read-only" );
     d->wo = tr( "Write-only" );

@@ -222,14 +222,4 @@ void QSizeGrip::mouseMoveEvent( QMouseEvent * e )
     QApplication::syncX();
 }
 
-
-
-/*!\reimp
-*/
-QSizePolicy QSizeGrip::sizePolicy() const
-{
-    //### removeme 3.0
-    return QWidget::sizePolicy();
-}
-
 #endif //QT_NO_SIZEGRIP

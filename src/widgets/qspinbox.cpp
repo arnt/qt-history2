@@ -197,9 +197,6 @@ void QSpinBox::initSpinBox()
 	setFrameStyle( Panel | Sunken );
     setLineWidth( 2 );
 
-    setPalettePropagation( AllChildren );
-    setFontPropagation( AllChildren );
-
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
     updateDisplay();
 
@@ -478,15 +475,6 @@ void QSpinBox::arrangeWidgets()
 			 x - frameWidth(), height() - 2*frameWidth() );
     else
 	vi->setGeometry( contentsRect() );
-}
-
-/*
-  !\reimp
-*/
-QSizePolicy QSpinBox::sizePolicy() const
-{
-    //### removeme 3.0
-    return QWidget::sizePolicy();
 }
 
 /*!

@@ -97,7 +97,6 @@ public:
     int 	offset() const;
 
     QSize	sizeHint() const;
-    QSizePolicy sizePolicy() const;
 
     int		mapToSection( int index ) const;
     int		mapToIndex( int section ) const;
@@ -127,8 +126,8 @@ protected:
     void	showEvent( QShowEvent *e );
     QRect	sRect( int index );
 
-    void	paintSection( QPainter *p, int index, QRect fr); // ### const QRect& ## virtual 3.0
-    void	paintSectionLabel( QPainter* p, int index, const QRect& fr ); //## virtual 3.0
+    virtual void	paintSection( QPainter *p, int index, const QRect& fr);
+    virtual void	paintSectionLabel( QPainter* p, int index, const QRect& fr );
 
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );

@@ -185,8 +185,6 @@ QTableView::QTableView( QWidget *parent, const char *name, WFlags f )
     horSnappingOff	 = FALSE;
     coveringCornerSquare = FALSE;
     inSbUpdate		 = FALSE;
-    setFontPropagation( SamePalette );
-    setPalettePropagation( SamePalette );
 }
 
 /*!

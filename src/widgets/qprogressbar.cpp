@@ -208,15 +208,6 @@ QSize QProgressBar::minimumSizeHint() const
     return sizeHint();
 }
 
-
-/*!\reimp
-*/
-QSizePolicy QProgressBar::sizePolicy() const
-{
-    //### removeme 3.0
-    return QWidget::sizePolicy();
-}
-
 /*!
   \fn bool QProgressBar::centerIndicator() const
 

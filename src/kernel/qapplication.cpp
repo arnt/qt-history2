@@ -1751,7 +1751,7 @@ void QApplication::setWinStyleHighlightColor( const QColor &c )
 */
 const QColor& QApplication::winStyleHighlightColor()
 {
-    return palette().normal().highlight();
+    return palette().active().highlight();
 }
 #endif
 

@@ -504,18 +504,6 @@ QSize QFrame::sizeHint() const
     }
 }
 
-
-
-/*!\reimp
-*/
-QSizePolicy QFrame::sizePolicy() const
-{
-    //### removeme 3.0
-    return QWidget::sizePolicy();
-
-}
-
-
 /*!
   Handles paint events for the frame.
 

@@ -51,7 +51,7 @@ class Q_EXPORT QColorDialog : public QDialog
     Q_OBJECT
 
 public:
-    static QColor getColor( QColor, QWidget *parent=0, const char* name=0 ); // ### 3.0: make const QColor&
+    static QColor getColor( const QColor&, QWidget *parent=0, const char* name=0 );
     static QRgb getRgba( QRgb, bool* ok = 0,
 			 QWidget *parent=0, const char* name=0 );
 
@@ -64,7 +64,7 @@ private:
     ~QColorDialog();
 
     QColorDialog( QWidget* parent=0, const char* name=0, bool modal=FALSE );
-    void setColor( QColor ); // ### 3.0: make const QColor&
+    void setColor( const QColor& );
     QColor color() const;
 
 private:

@@ -370,7 +370,6 @@ public:
     bool eventFilter( QObject * o, QEvent * );
 
     QSize minimumSizeHint() const;
-    QSizePolicy sizePolicy() const;
     QSize sizeHint() const;
 
     virtual void sort( bool ascending = TRUE );

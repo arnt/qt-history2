@@ -706,7 +706,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 #endif
     extra = 0;					// no extra widget info
 #ifndef QT_NO_PALETTE
-    bg_col = pal.normal().background();		// default background color
+    bg_col = pal.active().background();		// default background color
 #endif
     create();					// platform-dependent init
 #ifndef QT_NO_PALETTE
@@ -4591,47 +4591,6 @@ bool QWidget::qwsEvent( QWSEvent * )
 
 #endif
 
-
-/*!\obsolete
-
-  The return value is meaningless
-
-  \sa setFontPropagation()
-*/
-
-QWidget::PropagationMode QWidget::fontPropagation() const
-{
-    return SameFont;
-}
-
-
-/*!\obsolete
-
-  Calling this function has no effect.
-*/
-void QWidget::setFontPropagation( PropagationMode )
-{
-}
-
-
-/*!  \obsolete
-
-  The return value is meaningless
-*/
-
-QWidget::PropagationMode QWidget::palettePropagation() const
-{
-    return SamePalette;
-}
-
-
-/*!  \obsolete
-
-  Calling this function has no effect.
-*/
-void QWidget::setPalettePropagation( PropagationMode )
-{
-}
 
 /*!
   Transparent widgets use a \link setMask() mask \endlink to define

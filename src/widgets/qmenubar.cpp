@@ -863,9 +863,9 @@ void QMenuBar::drawContents( QPainter *p )
 		g = palette().disabled();
 
 	    if ( gs == WindowsStyle || style().defaultFrameWidth() < 2) {
-		p->fillRect( r,palette().normal().brush( QColorGroup::Button ) );
+		p->fillRect( r,palette().active().brush( QColorGroup::Button ) );
 		if ( i == actItem && ( hasFocus() || hasmouse || popupvisible ) ) {
-		    QBrush b = palette().normal().brush( QColorGroup::Button );
+		    QBrush b = palette().active().brush( QColorGroup::Button );
 		    if ( actItemDown )
 			p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
 		    qDrawShadeRect( p,
@@ -879,11 +879,11 @@ void QMenuBar::drawContents( QPainter *p )
 		}
 	    } else { // motif
 		if ( i == actItem && actItemDown ) // active item
-		    qDrawShadePanel( p, r, palette().normal(), FALSE,
+		    qDrawShadePanel( p, r, palette().active(), FALSE,
 				     motifItemFrame,
-			    &palette().normal().brush( QColorGroup::Button ));
+			    &palette().active().brush( QColorGroup::Button ));
 		else // other item
-		    p->fillRect(r, palette().normal().brush( QColorGroup::Button ));
+		    p->fillRect(r, palette().active().brush( QColorGroup::Button ));
 	    }
 	    style().drawMenuBarItem( p, r.left(), r.top(), r.width(), r.height(),
 			    mi, g, e, (i == actItem && actItemDown) );

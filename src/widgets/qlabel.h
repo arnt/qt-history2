@@ -89,7 +89,6 @@ public:
 #endif
     QSize	 sizeHint() const;
     QSize	 minimumSizeHint() const;
-    QSizePolicy  sizePolicy() const;
 #ifndef QT_NO_ACCEL
     virtual void setBuddy( QWidget * );
     QWidget     *buddy() const;

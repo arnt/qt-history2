@@ -1454,16 +1454,6 @@ QSize QLineEdit::minimumSizeHint() const
 }
 
 
-
-/*!\reimp
-*/
-QSizePolicy QLineEdit::sizePolicy() const
-{
-    //### removeme 3.0
-    return QWidget::sizePolicy();
-}
-
-
 /*!
   Sets this line edit to accept input only as accepted by \a v,
   allowing arbitrary constraints on the text which the user can edit.

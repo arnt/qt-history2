@@ -387,12 +387,4 @@ void QCheckBox::updateMask()
     setMask(bm);
 }
 
-
-/*!\reimp
-*/
-QSizePolicy QCheckBox::sizePolicy() const
-{
-    //### removeme 3.0
-    return QWidget::sizePolicy();
-}
 #endif

@@ -585,15 +585,6 @@ QSize QLabel::minimumSizeHint() const
     return QSize( -1, -1 );
 }
 
-
-/*!\reimp
-*/
-QSizePolicy QLabel::sizePolicy() const
-{
-    //### removeme 3.0
-    return QWidget::sizePolicy();
-}
-
 /*!
   \reimp
 */

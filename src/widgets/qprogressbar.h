@@ -65,7 +65,6 @@ public:
     int		progress()   const;
 
     QSize	sizeHint() const;
-    QSizePolicy sizePolicy() const;
     QSize	minimumSizeHint() const;
 
     void	setCenterIndicator( bool on );

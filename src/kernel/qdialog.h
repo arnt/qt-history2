@@ -99,7 +99,7 @@ protected:
     void	closeEvent( QCloseEvent * );
     void 	resizeEvent( QResizeEvent * );
 private:
-    virtual void	setDefault( QPushButton * ); // ## remove virtual 3.0
+    void	setDefault( QPushButton * );
     void		hideDefault();
     int		rescode;
     uint	did_move   : 1;

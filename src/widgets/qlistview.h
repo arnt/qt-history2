@@ -201,8 +201,7 @@ class Q_EXPORT QListView: public QScrollView
     Q_PROPERTY( bool rootIsDecorated READ rootIsDecorated WRITE setRootIsDecorated )
 
 public:
-    QListView( QWidget * parent, const char *name, WFlags f );
-    QListView( QWidget * parent = 0, const char *name = 0 ); // ##### merge with above in 3.0
+    QListView( QWidget * parent = 0, const char *name = 0, WFlags f = 0 );
     ~QListView();
 
     int treeStepSize() const;

@@ -932,15 +932,6 @@ QSize QHeader::sizeHint() const
     }
 }
 
-/*!\reimp
-*/
-QSizePolicy QHeader::sizePolicy() const
-{
-    //### removeme 3.0
-    return QWidget::sizePolicy();
-}
-
-
 /*!
   Scrolls the header such that \a x becomes the leftmost (or uppermost
   for vertical headers) visible pixel.
@@ -1139,7 +1130,7 @@ void QHeader::setClickEnabled( bool enable, int section )
   Calls paintSectionLabel().
 */
 
-void QHeader::paintSection( QPainter *p, int index, QRect fr )
+void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 {
     int section = mapToSection( index );
     if ( section < 0 )

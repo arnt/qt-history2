@@ -959,15 +959,6 @@ QSize QSplitter::minimumSizeHint() const
 }
 
 
-
-/*!\reimp
-*/
-QSizePolicy QSplitter::sizePolicy() const
-{
-    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
-}
-
-
 /*!
   Calculates stretch parameters from current sizes
 */

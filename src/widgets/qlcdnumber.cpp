@@ -1158,12 +1158,4 @@ QSize QLCDNumber::sizeHint() const
     return QSize( 10 + 9 * (numDigits() + (smallDecimalPoint() ? 0 : 1)), 23 );
 }
 
-
-/*!\reimp
-*/
-QSizePolicy QLCDNumber::sizePolicy() const
-{
-    //### removeme 3.0
-    return QWidget::sizePolicy();
-}
 #endif // QT_NO_LCDNUMBER

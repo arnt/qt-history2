@@ -260,10 +260,10 @@ QInputDialog::~QInputDialog()
   Static convenience function to get a textual input from the user. \a caption is the text
   which is displayed in the title bar of the dialog. \a label is the text which
   is shown to the user (it should mention to the user what he/she should input), \a text
-  the default text which will be initially set to the line edit, \a ok a pointer to
-  a bool which will be (if not 0!) set to TRUE if the user pressed ok or to FALSE if the
-  user pressed cancel, \a parent the parent widget of the dialog and \a name
-  the name of it. The dialogs pops up modally!
+  the default text which will be initially set to the line edit \a mode the echo mode the 
+  lineedit will use, \a ok a pointer to a bool which will be (if not 0!) set to TRUE if the 
+  user pressed ok or to FALSE if the user pressed cancel, \a parent the parent widget of the 
+  dialog, and \a name the name of the dialog. The dialogs pops up modally!
 
   This method returns the text which has been entered in the line edit.
 
@@ -271,24 +271,12 @@ QInputDialog::~QInputDialog()
 
   \code
   bool ok = FALSE;
-  QString text = QInputDialog::getText( tr( "Please enter your name" ), QString::null, &ok, this );
+  QString text = QInputDialog::getText( tr( "Please enter your name" ), QLineEdit::Normal, QString::null, &ok, this );
   if ( ok && !text.isEmpty() )
       ;// user entered something and pressed ok
   else
       ;// user entered nothing or pressed cancel
   \endcode
-*/
-
-QString QInputDialog::getText( const QString &caption, const QString &label, const QString &text,
-			      bool *ok, QWidget *parent, const char *name )
-{
-    return getText( caption, label, QLineEdit::Normal, text, ok, parent, name );
-}
-
-/*!
-  Like above, but accepts an a \a mode which the line edit will use to display text.
-
-  \sa getText()
 */
 
 QString QInputDialog::getText( const QString &caption, const QString &label, QLineEdit::EchoMode mode,

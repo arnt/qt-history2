@@ -160,10 +160,11 @@ void QCommonStyle::drawTab( QPainter* p,  const  QTabBar* tb, QTab* t , bool sel
 	// triangular, above or below
 	int y;
 	int x;
+	QRect r = t->rect();
 	QPointArray a( 10 );
 	a.setPoint( 0, 0, -1 );
 	a.setPoint( 1, 0, 0 );
-	y = t->r.height()-2;
+	y = r.height()-2;
 	x = y/3;
 	a.setPoint( 2, x++, y-1 );
 	a.setPoint( 3, x++, y );
@@ -171,16 +172,16 @@ void QCommonStyle::drawTab( QPainter* p,  const  QTabBar* tb, QTab* t , bool sel
 	a.setPoint( 4, x, y );
 
 	int i;
-	int right = t->r.width() - 1;
+	int right = r.width() - 1;
 	for ( i = 0; i < 5; i++ )
 	    a.setPoint( 9-i, right - a.point( i ).x(), a.point( i ).y() );
 
 	if ( tb->shape() == QTabBar::TriangularAbove )
 	    for ( i = 0; i < 10; i++ )
 		a.setPoint( i, a.point(i).x(),
-			    t->r.height() - 1 - a.point( i ).y() );
+			    r.height() - 1 - a.point( i ).y() );
 
-	a.translate( t->r.left(), t->r.top() );
+	a.translate( r.left(), r.top() );
 
 	if ( selected )
 	    p->setBrush( tb->colorGroup().base() );
@@ -198,7 +199,7 @@ void QCommonStyle::drawTab( QPainter* p,  const  QTabBar* tb, QTab* t , bool sel
 void QCommonStyle::drawTabMask( QPainter* p,  const  QTabBar* /* tb*/ , QTab* t, bool /* selected */ )
 {
 #ifndef QT_NO_COMPLEXWIDGETS
-    p->drawRect( t->r );
+    p->drawRect( t->rect() );
 #endif
 }
 

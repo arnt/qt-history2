@@ -63,7 +63,6 @@ public:
     bool    isTristate() const;
 
     QSize sizeHint() const;
-    QSizePolicy sizePolicy() const;
 
 protected:
     void    resizeEvent( QResizeEvent* );

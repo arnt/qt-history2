@@ -534,7 +534,7 @@ void QWindowsStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe,
 void QWindowsStyle::drawTab( QPainter* p,  const QTabBar* tb, QTab* t , bool selected )
 {
 #ifndef QT_NO_COMPLEXWIDGETS
-    QRect r( t->r );
+    QRect r( t->rect() );
     if ( tb->shape()  == QTabBar::RoundedAbove ) {
 	p->setPen( tb->colorGroup().midlight() );
 	p->drawLine( r.left(), r.bottom(), r.right(), r.bottom() );
@@ -583,7 +583,7 @@ void QWindowsStyle::drawTab( QPainter* p,  const QTabBar* tb, QTab* t , bool sel
     } else if ( tb->shape() == QTabBar::RoundedBelow ) {
 	if ( selected ) {
 	    p->fillRect( QRect( r.left()+1, r.top(), r.width()-3, 1),
-			 tb->palette().normal().brush( QColorGroup::Background ));
+			 tb->palette().active().brush( QColorGroup::Background ));
 	    p->setPen( tb->colorGroup().background() );
 // 	    p->drawLine( r.left()+1, r.top(), r.right()-2, r.top() );
 	    p->drawLine( r.left()+1, r.top(), r.left()+1, r.bottom()-2 );

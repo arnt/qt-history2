@@ -467,12 +467,7 @@ bool QColorGroup::operator==( const QColorGroup &g ) const
   slightly different.
 
   There are setActive(), setInactive() and setDisabled() functions to
-  modify the palette.  Qt also supports a normal() group; this is an
-  obsolete alias for active(), supported for backward compatibility.
-
-  (The split between normal() and active() prior to Qt 2.1 did not
-  work except in the simplest of cases, hence the change to the
-  current, more powerful design.)
+  modify the palette. 
 
   \sa QApplication::setPalette(), QWidget::setPalette(), QColorGroup, QColor
 */ // ### should mention the constructors, copy stuff and isCopyOf()
@@ -514,9 +509,8 @@ QPalette::QPalette( const QColor &button )
 	base = Qt::black;
 	disfg = Qt::darkGray;
     }
-    data->normal   = QColorGroup( fg, btn, btn.light(150), btn.dark(),
+    data->active   = QColorGroup( fg, btn, btn.light(150), btn.dark(),
 				  btn.dark(150), fg, Qt::white, base, bg );
-    data->active   = data->normal;
     data->disabled = QColorGroup( disfg, btn, btn.light(150), btn.dark(),
 				  btn.dark(150), disfg, Qt::white, base, bg );
     data->inactive = data->active;
@@ -544,9 +538,8 @@ QPalette::QPalette( const QColor &button, const QColor &background )
 	base = Qt::black;
 	disfg = Qt::darkGray;
     }
-    data->normal   = QColorGroup( fg, btn, btn.light(150), btn.dark(),
+    data->active   = QColorGroup( fg, btn, btn.light(150), btn.dark(),
 				  btn.dark(150), fg, Qt::white, base, bg );
-    data->active   = data->normal;
     data->disabled = QColorGroup( disfg, btn, btn.light(150), btn.dark(),
 				  btn.dark(150), disfg, Qt::white, base, bg );
     data->inactive = data->active;
@@ -568,7 +561,6 @@ QPalette::QPalette( const QColorGroup &active, const QColorGroup &disabled,
     CHECK_PTR( data );
     data->ser_no = palette_count++;
     data->active = active;
-    data->normal = data->active;
     data->disabled = disabled;
     data->inactive = inactive;
 }
@@ -655,11 +647,7 @@ void QPalette::setBrush( ColorGroup gr, QColorGroup::ColorRole r,
 {
     detach();
     data->ser_no = palette_count++;
-    if ( gr == Normal )
-	gr = Active; // #### remove 3.0
     directBrush( gr, r ) = b;
-    if ( gr == Active )
-	data->normal = data->active; // ##### remove 3.0
 }
 
 /*!
@@ -684,7 +672,6 @@ void QPalette::setBrush( QColorGroup::ColorRole r, const QBrush &b )
     directBrush( Active,   r ) = b;
     directBrush( Disabled, r ) = b;
     directBrush( Inactive,   r ) = b;
-    data->normal = data->active; // #### remove 3.0
 }
 
 
@@ -712,24 +699,6 @@ void QPalette::detach()
 {
     if ( data->count != 1 )
 	*this = copy();
-}
-
-
-/*! \fn const QColorGroup & QPalette::normal() const
-
-  \obsolete
-
-  Use active() instead.
-*/
-
-/*!\obsolete
-
-  Use setActive() instead.
-*/
-
-void QPalette::setNormal( const QColorGroup &g )
-{
-    setActive( g );
 }
 
 /*!
@@ -768,7 +737,6 @@ void QPalette::setActive( const QColorGroup &g )
     detach();
     data->ser_no = palette_count++;
     data->active = g;
-    data->normal = data->active; //#### alias
 }
 
 /*!
@@ -866,7 +834,7 @@ QDataStream &operator>>( QDataStream &s, QColorGroup &g )
 	QColor fg, bg, light, dark, mid, text, base;
 	s >> fg >> bg >> light >> dark >> mid >> text >> base;
 	QPalette p( bg );
-	QColorGroup n( p.normal() );
+	QColorGroup n( p.active() );
 	n.setColor( QColorGroup::Foreground, fg );
 	n.setColor( QColorGroup::Light, light );
 	n.setColor( QColorGroup::Dark, dark );
@@ -969,16 +937,15 @@ QBrush &QPalette::directBrush( ColorGroup gr, QColorGroup::ColorRole r ) const
 #if defined(CHECK_RANGE)
 	qWarning( "QPalette::directBrush: colorGroup(%i) out of range", gr );
 #endif
-	return data->normal.br[QColorGroup::Foreground];
+	return data->active.br[QColorGroup::Foreground];
     }
     if ( (uint)r >= (uint)QColorGroup::NColorRoles ) {
 #if defined(CHECK_RANGE)
 	qWarning( "QPalette::directBrush: colorRole(%i) out of range", r );
 #endif
-	return data->normal.br[QColorGroup::Foreground];
+	return data->active.br[QColorGroup::Foreground];
     }
     switch( gr ) {
-    case Normal:
     case Active:
 	return data->active.br[r];
 	//break;
@@ -994,7 +961,7 @@ QBrush &QPalette::directBrush( ColorGroup gr, QColorGroup::ColorRole r ) const
 #if defined(CHECK_RANGE)
     qWarning( "QPalette::directBrush: colorGroup(%i) internal error", gr );
 #endif
-    return data->normal.br[QColorGroup::Foreground]; // Satisfy compiler
+    return data->active.br[QColorGroup::Foreground]; // Satisfy compiler
 }
 
 

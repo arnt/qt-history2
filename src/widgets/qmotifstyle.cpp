@@ -125,8 +125,8 @@ bool QMotifStyle::useHighlightColors() const
 
 void QMotifStyle::polish( QPalette& pal )
 {
-    if ( pal.normal().light() == pal.normal().base() ) {
-	QColor nlight = pal.normal().light().dark(108 );
+    if ( pal.active().light() == pal.active().base() ) {
+	QColor nlight = pal.active().light().dark(108 );
 	pal.setColor( QPalette::Active, QColorGroup::Light, nlight ) ;
 	pal.setColor( QPalette::Disabled, QColorGroup::Light, nlight ) ;
 	pal.setColor( QPalette::Inactive, QColorGroup::Light, nlight ) ;
@@ -136,14 +136,13 @@ void QMotifStyle::polish( QPalette& pal )
 	return;
 
     // force the ugly motif way of highlighting *sigh*
-    QColorGroup normal = pal.normal();
     QColorGroup disabled = pal.disabled();
     QColorGroup active = pal.active();
 
     pal.setColor( QPalette::Active, QColorGroup::Highlight,
-		  normal.text() );
+		  active.text() );
     pal.setColor( QPalette::Active, QColorGroup::HighlightedText,
-		  normal.base());
+		  active.base());
     pal.setColor( QPalette::Disabled, QColorGroup::Highlight,
 		  disabled.text() );
     pal.setColor( QPalette::Disabled, QColorGroup::HighlightedText,
@@ -523,7 +522,7 @@ void QMotifStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe, int
 /*! \reimp */
 void QMotifStyle::drawTab( QPainter* p, const QTabBar* tb, QTab* t , bool selected )
 {
-    QRect r( t->r );
+    QRect r( t->rect() );
     int o = defaultFrameWidth() > 1 ? 1 : 0;
 
     if ( tb->shape()  == QTabBar::RoundedAbove ) {
@@ -542,7 +541,7 @@ void QMotifStyle::drawTab( QPainter* p, const QTabBar* tb, QTab* t , bool select
 
 	if ( selected ) {
 	    p->fillRect( QRect( r.left()+1, r.bottom()-o, r.width()-3, 2),
-			 tb->palette().normal().brush( QColorGroup::Background ));
+			 tb->palette().active().brush( QColorGroup::Background ));
 	    p->setPen( tb->colorGroup().background() );
 // 	    p->drawLine( r.left()+1, r.bottom(), r.right()-2, r.bottom() );
 // 	    if (o)
@@ -578,7 +577,7 @@ void QMotifStyle::drawTab( QPainter* p, const QTabBar* tb, QTab* t , bool select
     } else if ( tb->shape()  == QTabBar::RoundedBelow ) {
 	if ( selected ) {
 	    p->fillRect( QRect( r.left()+1, r.top(), r.width()-3, 1),
-			 tb->palette().normal().brush( QColorGroup::Background ));
+			 tb->palette().active().brush( QColorGroup::Background ));
 	    p->setPen( tb->colorGroup().background() );
 // 	    p->drawLine( r.left()+1, r.top(), r.right()-2, r.top() );
 	    p->drawLine( r.left()+1, r.top(), r.left()+1, r.bottom()-2 );

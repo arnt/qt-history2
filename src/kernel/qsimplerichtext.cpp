@@ -221,7 +221,7 @@ int QSimpleRichText::height() const
 void QSimpleRichText::draw( QPainter* p,  int x, int y, const QRegion& clipRegion,
 	   const QPalette& pal, const QBrush* paper ) const
 {
-    draw( p, x, y, clipRegion, pal.normal(), paper );
+    draw( p, x, y, clipRegion, pal.active(), paper );
 }
 
 /*!\overload

@@ -73,7 +73,6 @@ public:
     void refresh() { recalc( TRUE ); }
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
-    QSizePolicy sizePolicy() const;
 
     QValueList<int> sizes() const;
     void setSizes( QValueList<int> );

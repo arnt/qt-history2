@@ -1746,21 +1746,10 @@ void QListViewPrivate::Root::setup()
 */
 
 /*!  Constructs a new empty list view, with \a parent as a parent and \a
-  name as object name. The \a f parameter is passed to the QWidget
-  constructor.
+  name as object name.
 */
 QListView::QListView( QWidget * parent, const char *name, WFlags f )
     : QScrollView( parent, name, f | WNorthWestGravity | WRepaintNoErase )
-{
-    init();
-}
-
-/*!
-  Constructs a new empty list view, with \a parent as a parent and \a
-  name as object name.
-*/
-QListView::QListView( QWidget * parent, const char *name )
-    : QScrollView( parent, name, WNorthWestGravity | WRepaintNoErase )
 {
     init();
 }

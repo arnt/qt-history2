@@ -2951,16 +2951,6 @@ QPoint QMultiLineEdit::cursorPoint() const
     return cp;
 }
 
-
-/*! \reimp
-*/
-QSizePolicy QMultiLineEdit::sizePolicy() const
-{
-    //### removeme 3.0
-    return QWidget::sizePolicy();
-}
-
-
 /*!\reimp
 */
 QSize QMultiLineEdit::sizeHint() const

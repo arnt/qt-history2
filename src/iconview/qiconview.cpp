@@ -4813,16 +4813,6 @@ QSize QIconView::minimumSizeHint() const
 }
 
 /*!
-  \reimp
-*/
-
-QSizePolicy QIconView::sizePolicy() const
-{
-    //### removeme 3.0
-    return QScrollView::sizePolicy();
-}
-
-/*!
   \internal
   Clears string which is used for setting the current item
   when the user types something in

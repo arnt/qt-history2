@@ -93,7 +93,6 @@ public:
 
     QSize	sizeHint() const;
     QSize	minimumSizeHint() const;
-    QSizePolicy sizePolicy() const;
 
     virtual void setEnabled( bool );
     virtual void setFont( const QFont & );
