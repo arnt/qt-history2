@@ -42,6 +42,7 @@ private:
     typedef QPair<QString, QString> PromotedWidgetInfo;
     typedef QList<PromotedWidgetInfo> PromotedWidgetInfoList;
     PromotedWidgetInfoList m_promoted_list;
+    QString m_base_class_name;
 };
 
 #endif // PROMOTETOCUSTOMWIDGETDIALOG_H

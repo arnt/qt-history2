@@ -25,8 +25,8 @@ PromoteToCustomWidgetDialog::PromoteToCustomWidgetDialog(AbstractWidgetDataBase 
     : QDialog(parent)
 {
     setModal(true);
-
     m_db = db;
+    m_base_class_name = base_class_name;
 
     setupUi(this);
 
@@ -96,15 +96,47 @@ void PromoteToCustomWidgetDialog::accept()
     QString include_file = includeFile();
 
     AbstractWidgetDataBaseItem *item = m_db->item(m_db->indexOfClassName(custom_class_name));
-    if (item != 0 && !item->isPromoted()) {
-        QMessageBox::warning(0, tr("Incorrect class name"),
-                                tr("<b>%1</b> cannot be used as the class of the promoted"
-                                    " widget, as a class of that name already exists"
-                                    " and is not a promoted widget.").arg(custom_class_name),
-                                QMessageBox::Ok, QMessageBox::NoButton);
-        return;
+    if (item != 0) {
+        if (!item->isPromoted()) {
+            QMessageBox::warning(0, tr("Conflicting class name"),
+                                    tr("<b>%1</b> cannot be used as the class of the promoted"
+                                        " widget, as a class of that name already exists"
+                                        " and is not a promoted widget.")
+                                            .arg(custom_class_name),
+                                    QMessageBox::Ok, QMessageBox::NoButton);
+            return;
+        }
+        if (item->extends() != m_base_class_name) {
+            QMessageBox::warning(0, tr("Conflicting class name"),
+                                    tr("<b>%1</b> cannot be used as the class of the promoted"
+                                        " widget, as a class of that name already exists"
+                                        " and extends <b>%2</b>.")
+                                            .arg(custom_class_name)
+                                            .arg(item->extends()),
+                                    QMessageBox::Ok, QMessageBox::NoButton);
+            return;
+        }
     }
 
+    foreach (PromotedWidgetInfo info, m_promoted_list) {
+        if (info.first == custom_class_name) {
+            if (info.second != include_file) {
+                int result
+                    = QMessageBox::warning(0, tr("Conflicting include file"),
+                            tr("<b>%1</b> has been previously specified as the"
+                            " include file for <b>%2</b>. Do you want to"
+                            " change all instances to use <b>%3</b> instead?")
+                                    .arg(info.second)
+                                    .arg(custom_class_name)
+                                    .arg(include_file),
+                            QMessageBox::Yes, QMessageBox::No);
+                if (result == QMessageBox::No)
+                    return;
+            }
+            break;
+        }
+    }
+    
     QDialog::accept();
 }
 
