@@ -74,10 +74,13 @@ const char* green_icon[]={
 "................"};
 
 
+// ListBox -- low level drag and drop
+
 DDListBox::DDListBox( QWidget * parent = 0, const char * name = 0, WFlags f = 0 ) :
     QListBox( parent, name, f )
 {
     setAcceptDrops( TRUE );
+    dragging = FALSE;
 }
 
 
@@ -97,10 +100,60 @@ void DDListBox::dropEvent( QDropEvent *evt )
 }
 
 
+void DDListBox::mousePressEvent( QMouseEvent *evt )
+{
+    QListBox::mousePressEvent( evt );
+    dragging = TRUE;
+}
+
+
+void DDListBox::mouseMoveEvent( QMouseEvent * )
+{
+    if ( dragging ) {
+	QDragObject *d = new QTextDrag( currentText(), this );
+	d->dragCopy(); // do NOT delete d.
+	dragging = FALSE;
+    }
+}
+
+
+// IconViewIcon -- high level drag and drop
+
+
+bool DDIconViewItem::acceptDrop( const QMimeSource *mime ) const
+{
+    if ( mime->provides( "text/plain" ) )
+	return TRUE;
+    return FALSE;
+}
+
+
+void DDIconViewItem::dropped( QDropEvent *evt, const QValueList<QIconDragItem>& )
+{
+    QString label;
+
+    if ( QTextDrag::decode( evt, label ) ) 
+	setText( label );
+}
+
+
+// IconView -- high level drag and drop
+
 QDragObject *DDIconView::dragObject()
 {
   return new QTextDrag( currentItem()->text(), this );
 }
+
+void DDIconView::slotNewItem( QDropEvent *evt, const QValueList<QIconDragItem>& )
+{
+    QString label;
+
+    if ( QTextDrag::decode( evt, label ) ) {
+	DDIconViewItem *item = new DDIconViewItem( this, label );
+	item->setRenameEnabled( TRUE );
+    }
+}
+
 
 
 int main( int argc, char *argv[] )
@@ -115,10 +168,19 @@ int main( int argc, char *argv[] )
     split->resize( 600, 400 );
     split->show();
 
+    // Set up the connection so that we can drop items into the icon view
+    QObject::connect( 
+	iv, SIGNAL(dropped(QDropEvent*, const QValueList<QIconDragItem>&)), 
+	iv, SLOT(slotNewItem(QDropEvent*, const QValueList<QIconDragItem>&)));
+
     // Populate the QIconView with icons
-    (void) new QIconViewItem( iv, "Red",   QPixmap( red_icon ) );
-    (void) new QIconViewItem( iv, "Green", QPixmap( green_icon ) );
-    (void) new QIconViewItem( iv, "Blue",  QPixmap( blue_icon ) );
+    DDIconViewItem *item;
+    item = new DDIconViewItem( iv, "Red",   QPixmap( red_icon ) );
+    item->setRenameEnabled( TRUE );
+    item = new DDIconViewItem( iv, "Green", QPixmap( green_icon ) );
+    item->setRenameEnabled( TRUE );
+    item = new DDIconViewItem( iv, "Blue",  QPixmap( blue_icon ) );
+    item->setRenameEnabled( TRUE );
 
     return app.exec();
 }
