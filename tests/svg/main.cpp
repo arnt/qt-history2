@@ -4,12 +4,14 @@
 
 class DisplayWidget : public QWidget {
 public:
-    DisplayWidget( const QPicture &p ) : pic( p ), sc( 1.0 ) { }
+    DisplayWidget( const QPicture &p )
+	: pic( p ), x0( 0.0 ), y0( 0.0 ), sc( 1.0 ) { }
     void paintEvent( QPaintEvent * );
     void keyPressEvent( QKeyEvent *k );
 
 private:
     QPicture pic;
+    double x0, y0;
     double sc;
 };
 
@@ -17,12 +19,15 @@ void DisplayWidget::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
     p.scale( sc, sc );
+    p.translate( x0, y0 );
     p.drawPicture( pic );
     p.end();
 }
 
 void DisplayWidget::keyPressEvent( QKeyEvent *k )
 {
+    const double delta = 50.0;
+
     switch ( k->ascii() ) {
     case '+':
 	sc++;
@@ -30,9 +35,24 @@ void DisplayWidget::keyPressEvent( QKeyEvent *k )
 	break;
     case '-':
 	sc--;
-	update();
 	break;
+    case Key_Left:
+	x0 += delta;
+	break;
+    case Key_Right:
+	x0 -= delta;
+	break;
+    case Key_Up:
+	y0 += delta;
+	break;
+    case Key_Down:
+	y0 -= delta;
+	break;
+    default:
+	return;
     }
+
+    update();
 }
 
 int main( int argc, char **argv )
