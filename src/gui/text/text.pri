@@ -9,7 +9,6 @@ HEADERS += \
 	text/qfontdata_p.h \
 	text/qscriptengine_p.h \
 	text/qtextengine_p.h \
-	text/qfontengine_p.h \
 	text/qtextlayout.h \
 	text/qtextformat.h \
 	text/qtextformat_p.h \
