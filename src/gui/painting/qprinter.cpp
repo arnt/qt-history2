@@ -99,8 +99,8 @@
 
   \endlist
 
-  You can of course call these functions to establish defaults
-  before you ask the user through QPrintDialog.
+  You can call these functions to set default values before you open
+  a QPrintDialog.
 
   Once you start printing, calling newPage() is essential. You will
   probably also need to look at the device metrics for the
@@ -120,6 +120,7 @@
   by David Chappell of Trinity College Computing Center.
 
   \legalese
+  \code
 
   Copyright 1995, Trinity College Computing Center.
   Written by David Chappell.
@@ -143,7 +144,7 @@
   notice or indicate any restrictions on use.
 
   Last revised 11 July 1995.
-
+  \endcode
 */
 
 /*!
