@@ -2684,6 +2684,7 @@ void QTextString::clear()
  	    delete data[ i ].customItem();
  	    if ( data[ i ].d.custom->format )
  		data[ i ].d.custom->format->removeRef();
+	    delete data[ i ].d.custom;
 	    data[ i ].d.custom = 0;
 	} else if ( data[ i ].format() ) {
  	    data[ i ].format()->removeRef();
