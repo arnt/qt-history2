@@ -51,7 +51,7 @@ class QStringList;
 template<class type> class QDict;
 
 
-class QErrorMessage: public QDialog {
+class Q_EXPORT QErrorMessage: public QDialog {
     Q_OBJECT
 public:
     QErrorMessage( QWidget* parent, const char* name=0 );
