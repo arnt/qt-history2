@@ -3,18 +3,14 @@
 #include <string.h>
 
 /*
-
-Technicalities
-
-QList as an array-list combines the easy-of-use of a random access
-interface with fast list operations and the low memory management
-overhead of an array. Accessing elements by index, appending,
-prepending and removing elements from both the front and the back all
-happen in constant time O(1). Inserting or removing elements at random
-index positions \ai happens in linear time, or more precisly in
-O(min{i,n-i}) <= O(n/2), with n being the number of elements in the
-list.
-
+    QList as an array-list combines the easy-of-use of a random
+    access interface with fast list operations and the low memory
+    management overhead of an array. Accessing elements by index,
+    appending, prepending and removing elements from both the front
+    and the back all happen in constant time O(1). Inserting or
+    removing elements at random index positions \ai happens in linear
+    time, or more precisly in O(min{i,n-i}) <= O(n/2), with n being
+    the number of elements in the list.
 */
 
 QListData::Data QListData::shared_null = { Q_ATOMIC_INIT(1), 0, 0, 0, { 0 } };
@@ -920,21 +916,21 @@ void **QListData::erase(void **xi)
 */
 
 /*! \class QList::iterator
-    \brief The QList::iterator class provides an STL-style non-const iterator for QList.
+    \brief The QList::iterator class provides an STL-style non-const iterator for QList and QQueue.
 
-    QList provides both \l{STL-style iterators} and \l{Java-style
+    QList features both \l{STL-style iterators} and \l{Java-style
     iterators}. The STL-style iterators are more low-level and more
     cumbersome to use; on the other hand, they are slightly faster
     and, for developers who already know STL, have the advantage of
     familiarity.
 
-    QList::iterator allows you to iterate over a QList and to modify
-    the list item associated with the iterator. If you want to
-    iterate over a const QList, you should use QList::const_iterator.
-    It is generally good practice to use QList::const_iterator on a
-    non-const QList as well, unless you need to change the QList
-    through the iterator. Const iterators are slightly faster, and
-    can improve code readability.
+    QList\<T\>::iterator allows you to iterate over a QList\<T\> (or
+    QQueue\<T\>) and to modify the list item associated with the
+    iterator. If you want to iterate over a const QList, use
+    QList::const_iterator instead. It is generally good practice to
+    use QList::const_iterator on a non-const QList as well, unless
+    you need to change the QList through the iterator. Const
+    iterators are slightly faster, and can improve code readability.
 
     The default QList::iterator constructor creates an uninitialized
     iterator. You must initialize it using a QList function like
@@ -990,7 +986,7 @@ void **QListData::erase(void **xi)
 
 /*! \fn QList::iterator::iterator()
 
-    Creates an unitialized iterator.
+    Constructs an unitialized iterator.
 
     Functions like operator*() and operator++() should not be called
     on an unitialized iterartor. Use operator=() to assign a value to
@@ -1004,7 +1000,7 @@ void **QListData::erase(void **xi)
 
 /*! \fn QList::iterator::iterator(const iterator &other)
 
-    Creates a copy of \a other.
+    Constructs a copy of \a other.
 */
 
 /*! \fn T &QList::iterator::operator*()
@@ -1124,7 +1120,7 @@ void **QListData::erase(void **xi)
 */
 
 /*! \class QList::const_iterator
-    \brief The QList::iterator class provides an STL-style const iterator for QList.
+    \brief The QList::iterator class provides an STL-style const iterator for QList and QQueue.
 
     QList provides both \l{STL-style iterators} and \l{Java-style
     iterators}. The STL-style iterators are more low-level and more
@@ -1132,12 +1128,13 @@ void **QListData::erase(void **xi)
     and, for developers who already know STL, have the advantage of
     familiarity.
 
-    QList::const_iterator allows you to iterate over a QList. If you want to
-    modify the QList as you iterate over it, you must use QList::iterator
-    instead. It is generally good practice to use QList::const_iterator on a
-    non-const QList as well, unless you need to change the QList
-    through the iterator. Const iterators are slightly faster, and
-    can improve code readability.
+    QList\<T\>::const_iterator allows you to iterate over a
+    QList\<T\> (or a QQueue\<T\>). If you want to modify the QList as
+    you iterate over it, use QList::iterator instead. It is generally
+    good practice to use QList::const_iterator on a non-const QList
+    as well, unless you need to change the QList through the
+    iterator. Const iterators are slightly faster, and can improve
+    code readability.
 
     The default QList::const_iterator constructor creates an
     uninitialized iterator. You must initialize it using a QList
@@ -1182,7 +1179,7 @@ void **QListData::erase(void **xi)
 
 /*! \fn QList::const_iterator::const_iterator()
 
-    Creates an unitialized iterator.
+    Constructs an unitialized iterator.
 
     Functions like operator*() and operator++() should not be called
     on an unitialized iterartor. Use operator=() to assign a value to
@@ -1196,12 +1193,12 @@ void **QListData::erase(void **xi)
 
 /*! \fn QList::const_iterator::const_iterator(const const_iterator &other)
 
-    Creates a copy of \a other.
+    Constructs a copy of \a other.
 */
 
 /*! \fn QList::const_iterator::const_iterator(const iterator &other)
 
-    Creates a copy of \a other.
+    Constructs a copy of \a other.
 */
 
 /*! \fn const T &QList::const_iterator::operator*() const

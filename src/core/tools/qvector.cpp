@@ -824,7 +824,7 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
 /*! \typedef QVector::iterator
 
     The QVector::iterator typedef provides an STL-style non-const
-    iterator for QVector.
+    iterator for QVector and QStack.
 
     QVector provides both \l{STL-style iterators} and \l{Java-style
     iterators}. The STL-style non-const iterator is simply a typedef
@@ -836,7 +836,7 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
 /*! \typedef QVector::const_iterator
 
     The QVector::const_iterator typedef provides an STL-style const
-    iterator for QVector.
+    iterator for QVector and QStack.
 
     QVector provides both \l{STL-style iterators} and \l{Java-style
     iterators}. The STL-style const iterator is simply a typedef for

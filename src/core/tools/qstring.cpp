@@ -294,7 +294,7 @@ QString::QString(const QChar *unicode, int size)
 
 
 /*!
-    Creates a string with \a size characters of value \a c
+    Constructs a string with \a size characters of value \a c
 */
 QString::QString(int size, QChar c)
 {
@@ -318,7 +318,7 @@ QString::QString(int size, QChar c)
 
 /*! \fn QString::QString(const QLatin1String &latin1)
 
-    Creates a string out of a QLatin1String \a latin1.
+    Constructs a string out of a QLatin1String \a latin1.
 */
 
 /*!

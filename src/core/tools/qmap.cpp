@@ -765,9 +765,9 @@ void QMapData::dump()
     and, for developers who already know STL, have the advantage of
     familiarity.
 
-    QMap::iterator allows you to iterate over a QMap (or QMultiMap)
-    and to modify the value (but not the key) stored under a
-    particular key. If you want to iterate over a const QMap, you
+    QMap\<Key, T\>::iterator allows you to iterate over a QMap (or
+    QMultiMap) and to modify the value (but not the key) stored under
+    a particular key. If you want to iterate over a const QMap, you
     should use QMap::const_iterator. It is generally good practice to
     use QMap::const_iterator on a non-const QMap as well, unless you
     need to change the QMap through the iterator. Const iterators are
@@ -864,7 +864,7 @@ void QMapData::dump()
 
 /*! \fn QMap::iterator::iterator()
 
-    Creates an unitialized iterator.
+    Constructs an unitialized iterator.
 
     Functions like key(), value(), and operator++() must not be
     called on an unitialized iterator. Use operator=() to assign a
@@ -1013,12 +1013,13 @@ void QMapData::dump()
     and, for developers who already know STL, have the advantage of
     familiarity.
 
-    QMap::const_iterator allows you to iterate over a QMap (or a
-    QMultiMap). If you want to modify the QMap as you iterate over
-    it, you must use QMap::iterator instead. It is generally good
-    practice to use QMap::const_iterator on a non-const QMap as well,
-    unless you need to change the QMap through the iterator. Const
-    iterators are slightly faster, and can improve code readability.
+    QMap\<Key, T\>::const_iterator allows you to iterate over a QMap
+    (or a QMultiMap). If you want to modify the QMap as you iterate
+    over it, you must use QMap::iterator instead. It is generally
+    good practice to use QMap::const_iterator on a non-const QMap as
+    well, unless you need to change the QMap through the iterator.
+    Const iterators are slightly faster, and can improve code
+    readability.
 
     The default QMap::const_iterator constructor creates an
     uninitialized iterator. You must initialize it using a QMap
@@ -1059,7 +1060,7 @@ void QMapData::dump()
 
 /*! \fn QMap::const_iterator::const_iterator()
 
-    Creates an uninitialized iterator.
+    Constructs an uninitialized iterator.
 
     Functions like key(), value(), and operator++() must not be
     called on an unitialized iterator. Use operator=() to assign a

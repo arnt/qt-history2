@@ -784,7 +784,7 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
 /*!
     \fn QByteArray::QByteArray()
 
-    Creates a new empty byte array.
+    Constructs a new empty byte array.
 */
 
 QByteArray::QByteArray() : d(&shared_null)
@@ -795,7 +795,7 @@ QByteArray::QByteArray() : d(&shared_null)
 /*!
     \fn QByteArray::QByteArray(const char *s)
 
-    Creates a new byte array that contains string \a s.
+    Constructs a new byte array that contains string \a s.
 */
 
 QByteArray::QByteArray(const char *s)

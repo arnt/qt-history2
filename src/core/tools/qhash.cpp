@@ -948,7 +948,7 @@ void QHashData::free()
     and, for developers who already know STL, have the advantage of
     familiarity.
 
-    QHash::iterator allows you to iterate over a QHash (or
+    QHash\<Key, T\>::iterator allows you to iterate over a QHash (or
     QMultiHash) and to modify the value (but not the key) stored
     under a particular key. If you want to iterate over a const
     QHash, you should use QHash::const_iterator. It is generally good
@@ -1053,7 +1053,7 @@ void QHashData::free()
 
 /*! \fn QHash::iterator::iterator()
 
-    Creates an unitialized iterator.
+    Constructs an unitialized iterator.
 
     Functions like key(), value(), and operator++() must not be
     called on an unitialized iterator. Use operator=() to assign a
@@ -1202,13 +1202,13 @@ void QHashData::free()
     and, for developers who already know STL, have the advantage of
     familiarity.
 
-    QHash::const_iterator allows you to iterate over a QHash (or a
-    QMultiHash). If you want to modify the QHash as you iterate over
-    it, you must use QHash::iterator instead. It is generally good
-    practice to use QHash::const_iterator on a non-const QHash as
-    well, unless you need to change the QHash through the iterator.
-    Const iterators are slightly faster, and can improve code
-    readability.
+    QHash\<Key, T\>::const_iterator allows you to iterate over a
+    QHash (or a QMultiHash). If you want to modify the QHash as you
+    iterate over it, you must use QHash::iterator instead. It is
+    generally good practice to use QHash::const_iterator on a
+    non-const QHash as well, unless you need to change the QHash
+    through the iterator. Const iterators are slightly faster, and
+    can improve code readability.
 
     The default QHash::const_iterator constructor creates an
     uninitialized iterator. You must initialize it using a QHash
@@ -1251,7 +1251,7 @@ void QHashData::free()
 
 /*! \fn QHash::const_iterator::const_iterator()
 
-    Creates an uninitialized iterator.
+    Constructs an uninitialized iterator.
 
     Functions like key(), value(), and operator++() must not be
     called on an unitialized iterator. Use operator=() to assign a

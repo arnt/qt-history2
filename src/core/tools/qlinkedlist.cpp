@@ -513,20 +513,20 @@ QLinkedListData QLinkedListData::shared_null = {
 /*! \class QLinkedList::iterator
     \brief The QLinkedList::iterator class provides an STL-style non-const iterator for QLinkedList.
 
-    QLinkedList provides both \l{STL-style iterators} and
+    QLinkedList features both \l{STL-style iterators} and
     \l{Java-style iterators}. The STL-style iterators are more
     low-level and more cumbersome to use; on the other hand, they are
     slightly faster and, for developers who already know STL, have
     the advantage of familiarity.
 
-    QLinkedList::iterator allows you to iterate over a QLinkedList
-    and to modify the list item associated with the iterator. If you
-    want to iterate over a const QLinkedList, you should use
-    QLinkedList::const_iterator. It is generally good practice to use
-    QLinkedList::const_iterator on a non-const QLinkedList as well,
-    unless you need to change the QLinkedList through the iterator.
-    Const iterators are slightly faster, and can improve code
-    readability.
+    QLinkedList\<T\>::iterator allows you to iterate over a
+    QLinkedList\<T\> and to modify the list item associated with the
+    iterator. If you want to iterate over a const QLinkedList, use
+    QLinkedList::const_iterator instead. It is generally good
+    practice to use QLinkedList::const_iterator on a non-const
+    QLinkedList as well, unless you need to change the QLinkedList
+    through the iterator. Const iterators are slightly faster, and
+    can improve code readability.
 
     The default QLinkedList::iterator constructor creates an
     uninitialized iterator. You must initialize it using a
@@ -623,7 +623,7 @@ QLinkedListData QLinkedListData::shared_null = {
 
 /*! \fn QLinkedList::iterator::iterator()
 
-    Creates an unitialized iterator.
+    Constructs an unitialized iterator.
 
     Functions like operator*() and operator++() should not be called
     on an unitialized iterartor. Use operator=() to assign a value to
@@ -637,7 +637,7 @@ QLinkedListData QLinkedListData::shared_null = {
 
 /*! \fn QLinkedList::iterator::iterator(const iterator &other)
 
-    Creates a copy of \a other.
+    Constructs a copy of \a other.
 */
 
 /*! \fn T &QLinkedList::iterator::operator*() const
@@ -749,14 +749,14 @@ QLinkedListData QLinkedListData::shared_null = {
 /*! \class QLinkedList::const_iterator
     \brief The QLinkedList::const_iterator class provides an STL-style non-const iterator for QLinkedList.
 
-    QLinkedList provides both \l{STL-style iterators} and
+    QLinkedList features both \l{STL-style iterators} and
     \l{Java-style iterators}. The STL-style iterators are more
     low-level and more cumbersome to use; on the other hand, they are
     slightly faster and, for developers who already know STL, have
     the advantage of familiarity.
 
-    QLinkedList::const_iterator allows you to iterate over a
-    QLinkedList. If you want modify the QLinkedList as you iterate
+    QLinkedList\<T\>::const_iterator allows you to iterate over a
+    QLinkedList\<T\>. If you want modify the QLinkedList as you iterate
     over it, you must use QLinkedList::const_iterator instead. It is
     generally good practice to use QLinkedList::const_iterator on a
     non-const QLinkedList as well, unless you need to change the
@@ -804,7 +804,7 @@ QLinkedListData QLinkedListData::shared_null = {
 
 /*! \fn QLinkedList::const_iterator::const_iterator()
 
-    Creates an unitialized iterator.
+    Constructs an unitialized iterator.
 
     Functions like operator*() and operator++() should not be called
     on an unitialized iterartor. Use operator=() to assign a value to
@@ -818,12 +818,12 @@ QLinkedListData QLinkedListData::shared_null = {
 
 /*! \fn QLinkedList::const_iterator::const_iterator(const const_iterator &other)
 
-    Creates a copy of \a other.
+    Constructs a copy of \a other.
 */
 
 /*! \fn QLinkedList::const_iterator::const_iterator(iterator other)
 
-    Creates a copy of \a other.
+    Constructs a copy of \a other.
 */
 
 /*! \fn const T &QLinkedList::const_iterator::operator*() const

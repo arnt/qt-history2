@@ -99,13 +99,13 @@
 /*!
     \fn QStringList::QStringList()
 
-    Creates an empty string list.
+    Constructs an empty string list.
 */
 
 /*!
     \fn QStringList::QStringList(const QStringList& l)
 
-    Creates a copy of the list \a l. This function is very fast
+    Constructs a copy of the list \a l. This function is very fast
     because QStringList is implicitly shared. In most situations this
     acts like a deep copy, for example, if this list or the original
     one or some other list referencing the same shared data is
