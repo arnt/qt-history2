@@ -3362,15 +3362,16 @@ QString QString::toUpper() const
 }
 
 
+#ifndef QT_NO_SPRINTF
 /*!
     Safely builds a formatted string from the format string \a cformat
     and an arbitrary list of arguments.
 
-    The format string supports most of the conversion specifiers of
-    printf() in the standard C library, but not all of them, and it
-    doesn't honor the length modifiers (e.g. \c h for \c short, \c ll for
-    \c{long long}). If you need those, use the standard sprintf()
-    function instead:
+    The format string supports most of the conversion specifiers
+    provided by printf() in the standard C library. It doesn't honor
+    the length modifiers (e.g. \c h for \c short, \c ll for \c{long
+    long}). If you need those, use the standard sprintf() function
+    instead:
 
     \code
 	char buf[BufSize];
@@ -3396,15 +3397,13 @@ QString QString::toUpper() const
     of the replacements to be controlled by the translator.
 
     The %lc escape sequence expects a unicode character of type ushort
-    (as returned by QChar::unicode()).
-    The %ls escape sequence expects a pointer to a zero-terminated
-    array of unicode characters of type ushort (as returned by 
-    QString::ucs2()).
+    (as returned by QChar::unicode()). The %ls escape sequence expects
+    a pointer to a zero-terminated array of unicode characters of type
+    ushort (as returned by QString::ucs2()).
 
     \sa arg()
 */
 
-#ifndef QT_NO_SPRINTF
 QString &QString::sprintf( const char* cformat, ... )
 {
     QLocale locale(QLocale::C);
@@ -4539,10 +4538,10 @@ QString QString::arg( const QString& a, int fieldWidth ) const
     \a a is expressed in base \a base, which is 10 by default and must
     be between 2 and 36.
 
-    The '%' may be followed by an 'l', in which case the sequence is
-    replaced with a localized representation of a. The conversion uses
+    The '%' can be followed by an 'l', in which case the sequence is
+    replaced with a localized representation of \a a. The conversion uses
     the default locale, set by QLocale::setDefaultLocale(). If no default
-    locale was specified, the "C" locale is used. The 'l' flag is ignored 
+    locale was specified, the "C" locale is used. The 'l' flag is ignored
     if \a base is not 10.
 
     \code
@@ -4553,7 +4552,7 @@ QString QString::arg( const QString& a, int fieldWidth ) const
 
 	QLocale::setDefaultLocale(QLocale::English, QLocale::UnitedStates);
 	str = QString( "%1 %l2 %l3" )
-	    	.arg( 12345 )
+		.arg( 12345 )
 		.arg( 12345 )
 		.arg( 12345, 0, 16 );
 	// str == "12345 12,345 3039"
@@ -4586,13 +4585,9 @@ QString QString::arg( Q_LLONG a, int fieldWidth, int base ) const
     \overload
 
     \a a is expressed in base \a base, which is 10 by default and must
-    be between 2 and 36.
+    be between 2 and 36. If \a base is 10, the '%l' syntax can be used
+    to produce localized strings.
 
-    The '%' may be followed by an 'l', in which case the sequence is
-    replaced with a localized representation of a. The conversion uses
-    the default locale, set by QLocale::setDefaultLocale(). If no default
-    locale was specified, the "C" locale is used. The 'l' flag is ignored 
-    if \a base is not 10.
 */
 QString QString::arg( Q_ULLONG a, int fieldWidth, int base ) const
 {
@@ -4623,13 +4618,8 @@ QString QString::arg( Q_ULLONG a, int fieldWidth, int base ) const
     \overload
 
     \a a is expressed in base \a base, which is 10 by default and must
-    be between 2 and 36.
-
-    The '%' may be followed by an 'l', in which case the sequence is
-    replaced with a localized representation of a. The conversion uses
-    the default locale, set by QLocale::setDefaultLocale(). If no default
-    locale was specified, the "C" locale is used. The 'l' flag is ignored 
-    if \a base is not 10.
+    be between 2 and 36. If \a base is 10, the '%l' syntax can be used
+    to produce localized strings.
 */
 
 /*!
@@ -4638,13 +4628,8 @@ QString QString::arg( Q_ULLONG a, int fieldWidth, int base ) const
     \overload
 
     \a a is expressed in base \a base, which is 10 by default and must
-    be between 2 and 36.
-
-    The '%' may be followed by an 'l', in which case the sequence is
-    replaced with a localized representation of a. The conversion uses
-    the default locale, set by QLocale::setDefaultLocale(). If no default
-    locale was specified, the "C" locale is used. The 'l' flag is ignored 
-    if \a base is not 10.
+    be between 2 and 36. If \a base is 10, the '%l' syntax can be used
+    to produce localized strings.
 */
 
 /*!
@@ -4653,13 +4638,8 @@ QString QString::arg( Q_ULLONG a, int fieldWidth, int base ) const
     \overload
 
     \a a is expressed in base \a base, which is 10 by default and must
-    be between 2 and 36.
-
-    The '%' may be followed by an 'l', in which case the sequence is
-    replaced with a localized representation of a. The conversion uses
-    the default locale, set by QLocale::setDefaultLocale(). If no default
-    locale was specified, the "C" locale is used. The 'l' flag is ignored 
-    if \a base is not 10.
+    be between 2 and 36. If \a base is 10, the '%l' syntax can be used
+    to produce localized strings.
 */
 
 /*!
@@ -4668,13 +4648,8 @@ QString QString::arg( Q_ULLONG a, int fieldWidth, int base ) const
     \overload
 
     \a a is expressed in base \a base, which is 10 by default and must
-    be between 2 and 36.
-
-    The '%' may be followed by an 'l', in which case the sequence is
-    replaced with a localized representation of a. The conversion uses
-    the default locale, set by QLocale::setDefaultLocale(). If no default
-    locale was specified, the "C" locale is used. The 'l' flag is ignored 
-    if \a base is not 10.
+    be between 2 and 36. If \a base is 10, the '%l' syntax can be used
+    to produce localized strings.
 */
 
 
@@ -4727,6 +4702,8 @@ QString QString::arg(QChar a, int fieldWidth) const
 			.arg(d, 0, 'E', 3);
 	// ds == "1.234E+001"
     \endcode
+
+    The '%l' syntax can be used to produce localized strings.
 */
 QString QString::arg( double a, int fieldWidth, char fmt, int prec ) const
 {
