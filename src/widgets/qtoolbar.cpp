@@ -244,8 +244,6 @@ void QToolBar::init()
 #endif
     setBackgroundMode( PaletteButton);
     setFocusPolicy( NoFocus );
-    connect( this, SIGNAL( orientationChanged( Orientation ) ),
-	     this, SLOT( setOrientation( Orientation ) ) );
 }
 
 /*! Destructs the object and frees any allocated resources. */
@@ -406,11 +404,6 @@ QSize QToolBar::minimumSizeHint() const
     if ( orientation() == Horizontal )
 	return QSize( 0, QDockWidget::minimumSizeHint().height() );
     return QSize( QDockWidget::minimumSizeHint().width(), 0 );
-}
-
-void QToolBar::setOrientation( Orientation o )
-{
-    boxLayout()->setDirection( o == Horizontal ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom );
 }
 
 /* from chaunsee:

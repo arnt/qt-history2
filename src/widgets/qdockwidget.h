@@ -116,6 +116,7 @@ signals:
 public slots:
     void doUndock();
     void doDock();
+    void setOrientation( Orientation o );
 
 protected:
     void resizeEvent( QResizeEvent *e );

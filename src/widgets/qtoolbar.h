@@ -82,9 +82,6 @@ public:
     QSize minimumSize() const;
     QSize minimumSizeHint() const;
 
-public slots:
-    void setOrientation( Orientation o );
-
 private:
     void init();
 

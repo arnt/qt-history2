@@ -476,7 +476,6 @@ void QDockWidgetTitleBar::mouseDoubleClickEvent( QMouseEvent * )
     hadDblClick = TRUE;
 }
 
-
 QDockWidget::QDockWidget( Place p, QWidget *parent, const char *name, WFlags f )
     : QFrame( parent, name, f | ( p == OutsideDock ? WStyle_Customize | WStyle_NoBorderEx | WType_TopLevel | WStyle_Dialog : 0 ) ),
       curPlace( p ), wid( 0 ), unclippedPainter( 0 ), dockArea( 0 ), tmpDockArea( 0 ), resizeEnabled( FALSE ),
@@ -518,7 +517,15 @@ QDockWidget::QDockWidget( Place p, QWidget *parent, const char *name, WFlags f )
     connect( titleBar, SIGNAL( doubleClicked() ), this, SLOT( doDock() ) );
     connect( verHandle, SIGNAL( doubleClicked() ), this, SLOT( doUndock() ) );
     connect( horHandle, SIGNAL( doubleClicked() ), this, SLOT( doUndock() ) );
+    connect( this, SIGNAL( orientationChanged( Orientation ) ),
+	     this, SLOT( setOrientation( Orientation ) ) );
 }
+
+void QDockWidget::setOrientation( Orientation o )
+{
+    boxLayout()->setDirection( o == Horizontal ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom );
+}
+
 
 QDockWidget::~QDockWidget()
 {
@@ -692,15 +699,13 @@ void QDockWidget::updatePosition( const QPoint &globalPos )
 	dockArea = 0;
 	move( currRect.topLeft() );
     }
-    if ( curPlace != state ) {
-	curPlace = state;
-	updateGui();
-	emit orientationChanged( orientation() );
-	QApplication::sendPostedEvents( this, QEvent::LayoutHint );
-	if ( state == OutsideDock )
-	    adjustSize();
-	emit positionChanged();
-    }
+    if ( curPlace != state && state == OutsideDock )
+	adjustSize();
+    curPlace = state;
+    updateGui();
+    emit orientationChanged( orientation() );
+    QApplication::sendPostedEvents( this, QEvent::LayoutHint );
+    emit positionChanged();
     if ( state == OutsideDock )
 	show();
     tmpDockArea = 0;
