@@ -14,8 +14,8 @@
 #define QAXFACTORY_H
 
 #include <qhash.h>
-#include <private/qcom_p.h>
 #include <quuid.h>
+#include <private/qcom_p.h>
 #include <qmetaobject.h>
 
 // {22B230F6-8722-4051-ADCB-E7C9CE872EB3}
@@ -32,6 +32,8 @@ struct QAxFactoryInterface : public QFeatureListInterface
 {
 public:
 #ifndef Q_QDOC
+    //### merge create and createObject to one function returning a QObject*
+    //### problem might be parent parameter, but that is always null anyway.
     virtual QWidget *create( const QString &key, QWidget *parent = 0, const char *name = 0 ) = 0;
     virtual QObject *createObject( const QString &key, QObject *parent = 0, const char *name = 0 ) = 0;
     virtual const QMetaObject *metaObject( const QString &key ) const = 0;
@@ -199,6 +201,7 @@ public:
     { \
 	QStringList factoryKeys; \
 	QHash<QString, QAxFactoryInterface*> factories; \
+        QHash<QString, bool> creatable; \
     public: \
 	QAxFactoryList() \
 	: QAxFactory(IDApp, IDTypeLib) \
@@ -213,6 +216,16 @@ public:
 	    for (it = keys.begin(); it != keys.end(); ++it) { \
 		factoryKeys += *it; \
 		factories.insert(*it, factory); \
+                creatable.insert(*it, true); \
+	    }\
+
+#define QAXTYPE(Class) \
+            factory = new QAxClass<Class>(appID(), typeLibID()); \
+	    keys = factory->featureList(); \
+	    for (it = keys.begin(); it != keys.end(); ++it) { \
+		factoryKeys += *it; \
+		factories.insert(*it, factory); \
+                creatable.insert(*it, false); \
 	    }\
 
 #define QAXFACTORY_END() \
@@ -224,6 +237,8 @@ public:
 	    return f ? f->metaObject(key) : 0; \
 	} \
 	QWidget *create(const QString &key, QWidget *parent, const char *name) { \
+            if (!creatable.value(key)) \
+                return 0; \
 	    QAxFactoryInterface *f = factories[key]; \
 	    return f ? f->create(key, parent, name) : 0; \
 	} \
